@@ -1,0 +1,17 @@
+OBJECTS = ov7740_config.o \
+	iso7816_4.o       \
+	mt.o              \
+	ov.o              \
+	tsd_com.o         \
+	tsd_tsadc.o       \
+	ov2643_config.o   \
+	ov9740_config.o   \
+	ov5640_config.o   \
+	mcid_dma.o        \
+	qt1070.o          \
+	ov2640_config.o   \
+	mt9v022_config.o  \
+	mtyuv.o           \
+	aptina.o          \
+	led.o             \
+	omnivision.o

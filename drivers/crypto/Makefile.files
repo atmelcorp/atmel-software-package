@@ -1,0 +1,6 @@
+OBJECTS = trng.o \
+	sha.o    \
+	icm.o    \
+	tdes.o   \
+	aesb.o   \
+	aes.o

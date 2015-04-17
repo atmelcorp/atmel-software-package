@@ -1,0 +1,10 @@
+OBJECTS = hsmci.o                 \
+	dbgu_console.o            \
+	xdmad.o                   \
+	xdma_hardware_interface.o \
+	twi.o                     \
+	xdmac.o                   \
+	twid.o                    \
+	ssc.o                     \
+	spi.o                     \
+	can.o

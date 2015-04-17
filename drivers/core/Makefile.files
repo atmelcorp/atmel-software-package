@@ -1,0 +1,13 @@
+OBJECTS = pio.o    \
+	pio_it.o   \
+	l2cc.o     \
+	adc.o      \
+	pwmc.o     \
+	cp15.o     \
+	wdt.o      \
+	aic.o      \
+	rstc.o     \
+	cp15_pmu.o \
+	pmc.o      \
+	async.o    \
+	mmu.o      

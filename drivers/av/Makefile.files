@@ -1,0 +1,6 @@
+OBJECTS = lcd_draw.o    \
+	lcd_font.o      \
+	lcd_font10x14.o \
+	lcdd.o          \
+	isi.o           \
+	wm8904.o
