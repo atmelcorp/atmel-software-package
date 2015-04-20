@@ -45,6 +45,10 @@
 #ifndef APTINA_H
 #define APTINA_H
 
+#include <stdint.h>
+
+typedef struct _Twid Twid;
+
 /** define a structure for ovxxxx register initialization values */
 struct mt_reg {
 	/* Register to be written */

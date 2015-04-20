@@ -1,0 +1,3 @@
+OBJECTS = gmac.o \
+	gmacd.o  \
+	gmacb.o

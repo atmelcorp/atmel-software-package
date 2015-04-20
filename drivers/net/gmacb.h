@@ -59,7 +59,11 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include <board.h>
+//#include <board.h>
+#include "net/gmac.h"
+#include "net/gmacd.h"
+
+#include "core/pio.h"
 
 /*---------------------------------------------------------------------------
  *         Definitions

@@ -32,8 +32,16 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include <board.h>
+//#include <board.h>
+#include "net/gmacd.h"
+#include "net/gmac.h"
+
+#include "core/pmc.h"
+
+#include "utils/trace.h"
+
 #include <string.h>
+#include <assert.h>
 
 /** \addtogroup gmacd_defines
     @{*/
@@ -45,12 +53,12 @@
 
 /** Memory barriers */
 
-#define rmb()   __ASM("dsb ")
+#define rmb()   asm("dsb ")
 
 #if defined ( __ICCARM__ )
-#define wmb()   __ASM("dsb #st")
+#define wmb()   asm("dsb #st")
 #else
-#define wmb()   __ASM("dsb st")
+#define wmb()   asm("dsb st")
 #endif
 
 /** ISO/IEC 14882:2003(E) - 5.6 Multiplicative operators:

@@ -35,7 +35,7 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "board.h"
+#include "aptina.h"
 
 #define VAL_SET(x, mask, rshift, lshift)  \
         ((((x) >> rshift) & mask) << lshift)

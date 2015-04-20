@@ -30,7 +30,12 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "board.h"
+#include "io/aptina.h"
+#include "io/omnivision.h"
+#include "bus/twid.h"
+#include "core/pio.h"
+
+#include "utils/trace.h"
 
 #define MT_CAPTOR_ADDRESS   (0x90>>1)
 #define MT_REG_TERM 0xFF

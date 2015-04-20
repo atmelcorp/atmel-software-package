@@ -37,6 +37,14 @@
  *@{
  */
 
+#include "io/tsd.h"
+#include "io/tsd_com.h"
+
+#include "av/lcd_draw.h"
+#include "av/lcd_color.h"
+#include "av/lcdd.h"
+
+#include "utils/trace.h"
 
 #include <board.h>
 #include <string.h>

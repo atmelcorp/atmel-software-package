@@ -33,7 +33,8 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include <board.h>
+//#include <board.h>
+#include "io/tsd_com.h"
 
 #include <string.h>
 

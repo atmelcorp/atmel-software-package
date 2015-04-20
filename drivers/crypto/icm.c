@@ -82,7 +82,7 @@ FIPS PUB 140-2 and 140-3. use the TWI
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-
+#include "crypto/icm.h"
 
 /** \brief Structure for storing parameters for DMA view1 that can be
  * performed by the DMA Master transfer.*/

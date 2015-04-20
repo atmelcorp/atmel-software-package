@@ -49,14 +49,13 @@ TRACE_LEVEL = 4
 BIN = bin
 OBJ = obj
 # Output directories
-
-DRIVERSUBDIRS = av bus core crypto io #net serial time wireless
+DRIVERSUBDIRS = av bus core crypto io net serial time wireless
 
 #-------------------------------------------------------------------------------
 #		Tools
 #-------------------------------------------------------------------------------
 #LIBS = -Wl,--start-group -lgcc -Wl,--end-group
-INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR)
+INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 ASFLAGS = -mcpu=cortex-a5 -Wall -g $(INCLUDES) -D__SAMA5D44__ -D__ASSEMBLY__
 

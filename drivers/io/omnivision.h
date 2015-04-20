@@ -30,6 +30,9 @@
 #ifndef OMNIVISION_H
 #define OMNIVISION_H
 
+#include <stdint.h>
+
+typedef struct _Twid Twid;
 
 /*---------------------------------------------------------------------------
  *         TYPE

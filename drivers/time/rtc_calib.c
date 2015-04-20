@@ -34,7 +34,9 @@
  *
  */
 
-#include "board.h"
+//#include "board.h"
+#include "time/rtc_calib.h"
+#include "time/rtc.h"
 
 const RTC_PPMLookup PPM_Lookup[] = {
 	{-40, -168 ,0, 1 ,22 },

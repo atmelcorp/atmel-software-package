@@ -1,0 +1,5 @@
+OBJECTS = rtc_calib.o \
+	tc.o          \
+	timetick.o    \
+	pit.o         \
+	rtc.o

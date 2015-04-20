@@ -38,7 +38,7 @@
 #ifndef QT1070_H
 #define QT1070_H
 
-#include "board.h"
+#include "bus/twid.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions

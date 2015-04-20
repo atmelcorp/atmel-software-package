@@ -33,7 +33,12 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include <board.h>
+//#include <board.h>
+#include "net/gmac.h"
+#include "net/gmacb.h"
+#include "net/gmii.h"
+
+#include "utils/trace.h"
 
 /*---------------------------------------------------------------------------
  *         Definitions

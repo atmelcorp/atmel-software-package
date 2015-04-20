@@ -31,7 +31,11 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "board.h"
+#include "io/ov.h"
+#include "io/ovyuv.h"
+#include "bus/twid.h"
+
+#include "utils/trace.h"
 
 const static struct capture_size ov_sizes[] = {
 //  {width, height}

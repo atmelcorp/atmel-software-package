@@ -33,7 +33,9 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+//#include "chip.h"
+#include "net/gmac.h"
+#include "utils/trace.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>

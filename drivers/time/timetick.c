@@ -36,7 +36,10 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
+//#include "board.h"
+#include "time/timetick.h"
+#include "time/tc.h"
+#include "time/pit.h"
 
 /*----------------------------------------------------------------------------
  *         Local variables
@@ -114,7 +117,7 @@ extern void Sleep( volatile uint32_t dwMs )
 {
 	uint32_t dwStart ;
 	uint32_t dwCurrent ;
-	__ASM("CPSIE   I");
+	asm("CPSIE   I");
 	dwStart = _dwTickCount ;
 
 	do {
@@ -123,7 +126,7 @@ extern void Sleep( volatile uint32_t dwMs )
 		if ( dwCurrent - dwStart > dwMs ) {
 			break ;
 		}
-		__ASM("WFI");
+		asm("WFI");
 	} while( 1 ) ;
 }
 

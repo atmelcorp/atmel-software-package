@@ -36,6 +36,8 @@
 
 /** RTC crystal **/
 
+#include <stdint.h>
+#include "time/rtc.h"
 
 typedef struct {
 	int8_t Tempr;

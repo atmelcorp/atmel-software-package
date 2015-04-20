@@ -88,7 +88,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+//#include "chip.h"
+#include "time/rtc.h"
+
+#include "utils/trace.h"
 
 #include <stdint.h>
 #include <assert.h>

@@ -74,6 +74,9 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 #include "chip.h"
+#include "serial/usart.h"
+
+#include "utils/trace.h"
 
 #include <assert.h>
 #include <string.h>

@@ -38,8 +38,14 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "libsdmmc.h"
+//#include "board.h"
+#include "io/mcid.h"
+#include "bus/xdmac.h"
+#include "bus/xdma_hardware_interface.h"
+#include "bus/hsmci.h"
+#include "libsdmmc/libsdmmc.h"
+
+#include "core/pmc.h"
 
 #include <assert.h>
 

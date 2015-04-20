@@ -30,7 +30,11 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "board.h"
+#include "io/omnivision.h"
+#include "core/pio.h"
+#include "bus/twid.h"
+
+#include "utils/trace.h"
 
 /** Slave address of OMNIVISION chips. */
 #define OV_CAPTOR_ADDRESS_1   0x30

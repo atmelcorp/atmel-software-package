@@ -72,7 +72,8 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+//#include "chip.h"
+#include "bus/xdmad.h"
 
 #include <stdint.h>
 #include <stdio.h>
