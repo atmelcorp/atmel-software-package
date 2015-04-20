@@ -1,10 +1,21 @@
-OBJECTS = hsmci.o                 \
-	dbgu_console.o            \
-	xdmad.o                   \
-	xdma_hardware_interface.o \
-	twi.o                     \
-	xdmac.o                   \
-	twid.o                    \
-	ssc.o                     \
-	spi.o                     \
-	can.o
+OBJECTS += bus/hsmci.o                 \
+	bus/dbgu_console.o            \
+	bus/xdmad.o                   \
+	bus/xdma_hardware_interface.o \
+	bus/twi.o                     \
+	bus/xdmac.o                   \
+	bus/twid.o                    \
+	bus/ssc.o                     \
+	bus/spi.o                     \
+	bus/can.o
+
+SOURCES += bus/hsmci.c                 \
+	bus/dbgu_console.c            \
+	bus/xdmad.c                   \
+	bus/xdma_hardware_interface.c \
+	bus/twi.c                     \
+	bus/xdmac.c                   \
+	bus/twid.c                    \
+	bus/ssc.c                     \
+	bus/spi.c                     \
+	bus/can.c

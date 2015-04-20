@@ -109,6 +109,9 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 #include "board.h"
+#include "board_memories.h"
+#include "core/pmc.h"
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions

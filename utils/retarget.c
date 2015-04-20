@@ -31,8 +31,9 @@
  * This file Configures the target-dependent low level functions for character I/O.
  */
 
-#include "board.h"
+//#include "board.h"
 #include <stdio.h>
+#include "bus/dbgu_console.h"
 
 /* Disable semihosting */
 #pragma import(__use_no_semihosting_swi)
@@ -56,13 +57,13 @@ int fputc(int ch, FILE *f)
 	}
 }
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *  Returns the error status accumulated during file I/O.
- *------------------------------------------------------------------------------*/
-int ferror( FILE *f )
-{
-	return EOF ;
-}
+ *----------------------------------------------------------------------------*/
+/* int ferror(FILE *f) */
+/* { */
+/*      return EOF ; */
+/* } */
 
 
 void _ttywrch( int ch )

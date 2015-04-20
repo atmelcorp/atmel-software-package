@@ -36,7 +36,11 @@
  *          Headers
  *-------------------------------*/
 
-#include <board.h>
+//#include <board.h>
+#include <stdio.h>
+#include "dbg_util.h"
+#include "time/timetick.h"
+#include "bus/dbgu_console.h"
 
 /*-------------------------------
  *          Defines

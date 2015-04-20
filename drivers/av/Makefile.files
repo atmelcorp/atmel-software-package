@@ -1,6 +1,13 @@
-OBJECTS = lcd_draw.o    \
-	lcd_font.o      \
-	lcd_font10x14.o \
-	lcdd.o          \
-	isi.o           \
-	wm8904.o
+OBJECTS += av/lcd_draw.o    \
+	av/lcd_font.o      \
+	av/lcd_font10x14.o \
+	av/lcdd.o          \
+	av/isi.o           \
+	av/wm8904.o
+
+SOURCES += av/lcd_draw.c    \
+	av/lcd_font.c      \
+	av/lcd_font10x14.c \
+	av/lcdd.c          \
+	av/isi.c           \
+	av/wm8904.c

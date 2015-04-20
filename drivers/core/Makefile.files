@@ -1,13 +1,15 @@
-OBJECTS = pio.o    \
-	pio_it.o   \
-	l2cc.o     \
-	adc.o      \
-	pwmc.o     \
-	cp15.o     \
-	wdt.o      \
-	aic.o      \
-	rstc.o     \
-	cp15_pmu.o \
-	pmc.o      \
-	async.o    \
-	mmu.o      
+OBJECTS += core/pio.o    \
+	core/pio_it.o   \
+	core/l2cc.o     \
+	core/adc.o      \
+	core/pwmc.o     \
+	core/cp15.o     \
+	core/wdt.o      \
+	core/aic.o      \
+	core/rstc.o     \
+	core/cp15_pmu.o \
+	core/pmc.o      \
+	core/async.o    \
+	core/mmu.o      
+
+OBJECTS_ASM += core/cp15_asm_gcc.o

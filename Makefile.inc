@@ -20,7 +20,7 @@ endif
 
 ifeq ("y",$(TARGET:sama5d4-%="y"))
 SERIE=SERIE_SAMA5D4
-SERIEDIRNAME=sama5d4
+SERIEDIR=sama5d4
 endif
 
 ifeq ("y",$(TARGET:%-xplained="y"))
@@ -55,7 +55,7 @@ LIBDIR := $(ROOTDIR)/lib
 TARGETDIR := $(ROOTDIR)/target
 DRIVERDIR := $(ROOTDIR)/drivers
 UTILSDIR := $(ROOTDIR)/utils
-RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIRNAME)
+RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIR)
 
 #-------------------------------------------------------------------------------
 #		Setup compilation params
@@ -64,11 +64,12 @@ RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIRNAME)
 # include dirs
 INCLUDE_TARGET = -I$(TARGETDIR) -I$(TARGETDIR)/include
 INCLUDE_UTILS = -I$(UTILSDIR)
+INCLUDE_LIB = -I$(LIBDIR)
 INCLUDE_DRIVER = -I$(DRIVERDIR)
 INCLUDE_ROOTDIR = -I$(ROOTDIR)
 
 OPTIMIZE_MEMORY = -Os
-OPTIMIZE_EXEC = -O2
+OPTIMIZE_EXEC =
 optimization = $(if $(call eq,sram,$(1)),$(OPTIMIZE_MEMORY),$(OPTIMIZE_EXEC))
 
 # C flags
@@ -84,8 +85,7 @@ CFLAGS += -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
-CFLAGS += -mcpu=cortex-a5 -ffunction-sections
-CFLAGS += -g3 -Wall
+CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall -g3
 CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="\"$(SOFTPACK_VERSION)\""
 
 # linkker flags

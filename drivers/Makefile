@@ -26,8 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-#   Makefile for compiling the Getting Started with sama5d4x Microcontrollers project
-
+# Include common variables
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/../Makefile.inc
 
@@ -46,43 +45,60 @@ include $(MAKEFILEDIR)/../Makefile.inc
 # TRACE_LEVEL_FATAL      1
 # TRACE_LEVEL_NO_TRACE   0
 TRACE_LEVEL = 4
-BIN = bin
-OBJ = obj
 # Output directories
 DRIVERSUBDIRS = av bus core crypto io net serial time wireless
 
 #-------------------------------------------------------------------------------
 #		Tools
 #-------------------------------------------------------------------------------
-#LIBS = -Wl,--start-group -lgcc -Wl,--end-group
 INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
-ASFLAGS = -mcpu=cortex-a5 -Wall -g $(INCLUDES) -D__SAMA5D44__ -D__ASSEMBLY__
+ASFLAGS = -mcpu=cortex-a5  -mfpu=vfpv4-d16 -Wall -g $(INCLUDES) -D$(CHIP) -D__ASSEMBLY__
+
+BUILDDIR_SRAM = $(MAKEFILEDIR)/build/$(TARGET)/sram
+BUILDDIR_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram
+
+OBJECTS =
+OBJECTS_ASM =
+include $(MAKEFILEDIR)/av/Makefile.files
+include	$(MAKEFILEDIR)/bus/Makefile.files
+include	$(MAKEFILEDIR)/core/Makefile.files
+include $(MAKEFILEDIR)/crypto/Makefile.files
+include $(MAKEFILEDIR)/io/Makefile.files
+include $(MAKEFILEDIR)/net/Makefile.files
+include $(MAKEFILEDIR)/serial/Makefile.files
+include $(MAKEFILEDIR)/time/Makefile.files
+include $(MAKEFILEDIR)/wireless/Makefile.files
+
+$(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
+	mkdir -p $(addprefix $@/, $(DRIVERSUBDIRS))
+
+$(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)): $(BUILDDIR_SRAM)/%.o: %.c
+	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
+
+$(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)): $(BUILDDIR_DDRAM)/%.o: %.c
+	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
+
+$(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS_ASM)): $(BUILDDIR_SRAM)/%.o: %.S
+	$(CC) $(ASFLAGS) $(call optimization,$(sram)) -c $< -o $@
+
+$(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS_ASM)): $(BUILDDIR_DDRAM)/%.o: %.S
+	$(CC) $(ASFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
 
-define LIBRULES
-$(eval BUILDDIR = $(MAKEFILEDIR)/$(1)/build/$(TARGET)/$(2))
-$(eval include $(MAKEFILEDIR)/$(1)/Makefile.files)
+libdrivers-$(TARGET)_sram.a: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS_ASM))
+	$(AR) -r $@ $^
 
-$(BUILDDIR)/$(BIN) $(BUILDDIR)/$(OBJ):
-	mkdir -p $$@
+libdrivers-$(TARGET)_ddram.a: $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS_ASM))
+	$(AR) -r $@ $^
 
-$(1): $(BUILDDIR)/$(BIN) $(BUILDDIR)/$(BIN)/lib$(TARGET)_$(1).a
-	@echo Built driver $(1)
+libdrivers-$(TARGET)_sram: $(BUILDDIR_SRAM) libdrivers-$(TARGET)_sram.a
 
-$(BUILDDIR)/$(BIN)/lib$(TARGET)_$(1).a: $(addprefix $(BUILDDIR)/$(OBJ)/,$(OBJECTS))
-	$(AR) -r $$@ $$^
+libdrivers-$(TARGET)_ddram: $(BUILDDIR_DDRAM) libdrivers-$(TARGET)_ddram.a
 
-$(BUILDDIR)/$(OBJ)/%.o: $(1)/%.c $(BUILDDIR)/$(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(call optimization,$(2)) $(LD_OPTIONAL) -c $$< -o $$@
-endef
+.PHONY = clean
+clean:
+	-rm -rf build
+	-rm -f *.a
 
-drivers: $(DRIVERSUBDIRS)
-
-$(foreach MEMORY, $(MEMORIES), \
-$(foreach dir, $(DRIVERSUBDIRS), $(eval $(call LIBRULES,$(dir),$(MEMORY)))) \
-)
-
-$(BIN) $(OBJ):
-	mkdir $@
-
+all: libdrivers-$(TARGET)_sram libdrivers-$(TARGET)_ddram

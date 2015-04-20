@@ -1,1 +1,3 @@
-OBJECTS = usart.o
+OBJECTS += serial/usart.o
+
+SOURCES += serial/usart.c

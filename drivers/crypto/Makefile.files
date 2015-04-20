@@ -1,6 +1,13 @@
-OBJECTS = trng.o \
-	sha.o    \
-	icm.o    \
-	tdes.o   \
-	aesb.o   \
-	aes.o
+OBJECTS += crypto/trng.o \
+	crypto/sha.o    \
+	crypto/icm.o    \
+	crypto/tdes.o   \
+	crypto/aesb.o   \
+	crypto/aes.o
+
+SOURCES += crypto/trng.c \
+	crypto/sha.c    \
+	crypto/icm.c    \
+	crypto/tdes.c   \
+	crypto/aesb.c   \
+	crypto/aes.c

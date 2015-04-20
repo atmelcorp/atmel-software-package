@@ -47,71 +47,54 @@ include $(MAKEFILEDIR)/../../Makefile.inc
 # TRACE_LEVEL_NO_TRACE   0
 TRACE_LEVEL = 4
 
-# Output file basename
-OUTPUT = getting-started
-
-# Output directories
-BIN = bin
-OBJ = obj
-
 #-------------------------------------------------------------------------------
 #		Tools
 #-------------------------------------------------------------------------------
 
-LIBS = -Wl,--start-group -lgcc -lc -Wl,--end-group
-
 # Flags
-INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER)
+INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
-ASFLAGS = -mcpu=cortex-a5 -Wall -g $(INCLUDES) -D__SAMA5D44__ -D__ASSEMBLY__
-
-LD_OPTIONAL=-Wl,--print-gc-sections -Wl,--stats
+LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
+LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIR)
+LIBS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
 
 #-------------------------------------------------------------------------------
 #		Files
 #-------------------------------------------------------------------------------
 
-# Directories where source files can be found
-
-VPATH = $(MAKEFILEDIR)
-
-# Objects built from C source files
-C_OBJECTS += main.o
-
-# Append OBJ and BIN directories to output filename
-OUTPUT := $(BIN)/$(OUTPUT)
+BUILDDIR_SRAM = $(MAKEFILEDIR)/build/$(TARGET)/sram
+BUILDDIR_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram
+OBJECTS += main.o
 
 #-------------------------------------------------------------------------------
 #		Rules
 #-------------------------------------------------------------------------------
 
-all: $(BIN) $(OBJ) $(MEMORIES)
+$(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
+	mkdir -p $@
 
-$(BIN) $(OBJ):
-	mkdir $@
+$(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)): $(BUILDDIR_SRAM)/%.o: %.c
+	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
-define RULES
-C_OBJECTS_$(1) = $(addprefix $(OBJ)/$(1)_, $(C_OBJECTS))
-ASM_OBJECTS_$(1) = $(addprefix $(OBJ)/$(1)_, $(ASM_OBJECTS))
+$(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)): $(BUILDDIR_DDRAM)/%.o: %.c
+	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
-$(1): $$(ASM_OBJECTS_$(1)) $$(C_OBJECTS_$(1))
-	$(CC) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_$$@.ld" -Wl,-Map,$(OUTPUT)-$$@.map -o $(OUTPUT)-$$@.elf $$^ $(LIBS)
-	$(NM) $(OUTPUT)-$$@.elf >$(OUTPUT)-$$@.elf.txt
-	$(OBJCOPY) -O binary $(OUTPUT)-$$@.elf $(OUTPUT)-$$@.bin
-	$(SIZE) $$^ $(OUTPUT)-$$@.elf
+getting-started-$(TARGET)_sram: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/$@.map -o $(BUILDDIR_SRAM)/$@.elf $^ $(LIBS)
+	$(NM) $(BUILDDIR_SRAM)/$@.elf >$(BUILDDIR_SRAM)/$@.elf.txt
+	$(OBJCOPY) -O binary $(BUILDDIR_SRAM)/$@.elf $(BUILDDIR_SRAM)/$@.bin
+	$(SIZE) $^ $(BUILDDIR_SRAM)/$@.elf
 
-$$(C_OBJECTS_$(1)): $(OBJ)/$(1)_%.o: %.c Makefile $(OBJ) $(BIN)
-	$(CC) $(CFLAGS) $(call optimization,$(1)) -D$(1) -c -o $$@ $$<
+getting-started-$(TARGET)_ddram: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/$@.map -o $(BUILDDIR_SRAM)/$@.elf $^ $(LIBS)
+	$(NM) $(BUILDDIR_SRAM)/$@.elf >$(BUILDDIR_SRAM)/$@.elf.txt
+	$(OBJCOPY) -O binary $(BUILDDIR_SRAM)/$@.elf $(BUILDDIR_SRAM)/$@.bin
+	$(SIZE) $^ $(BUILDDIR_SRAM)/$@.elf
 
-$$(ASM_OBJECTS_$(1)): $(OBJ)/$(1)_%.o: %.S Makefile $(OBJ) $(BIN)
-	$(CC) $(ASFLAGS) $(call optimization,$(1)) -D$(1) -c -o $$@ $$<
+debug_sram: getting-started-$(TARGET)_sram
+	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/getting-started-$(TARGET)_sram.elf
 
-debug_$(1): $(1)
-	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_$(MEMORY).gdb" -ex "reset" -readnow -se $(OUTPUT)-$(1).elf
-endef
-
-$(foreach MEMORY, $(MEMORIES), $(eval $(call RULES,$(MEMORY))))
+all: $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM) getting-started-$(TARGET)_ddram getting-started-$(TARGET)_sram
 
 clean:
-	-$(RMDIR) $(OBJ) $(BIN)
-
+	-rm -rf build

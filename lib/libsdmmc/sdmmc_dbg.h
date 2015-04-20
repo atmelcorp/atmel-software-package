@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2008, Atmel Corporation
+ * Copyright (c) 2010, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,39 +27,52 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _HAMMING_
-#define _HAMMING_
+/** \file */
+
+ #ifndef _SDMMC_HAL_H
+ #define _SDMMC_HAL_H
+ 
+/*------------------------------------------------------------------------------
+ *      Includes
+ *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include "sdmmc_cmd.h"
+ 
 /*------------------------------------------------------------------------------
- *         Defines
- *------------------------------------------------------------------------------*/
+ *      Definitions
+ *----------------------------------------------------------------------------*/
 
-/**
- *  These are the possible errors when trying to verify a block of data encoded
- *  using a Hamming code:
- *
- *  \section Errors
- *   - Hamming_ERROR_SINGLEBIT
- *   - Hamming_ERROR_ECC
- *   - Hamming_ERROR_MULTIPLEBITS
+/* Define WEAK attribute */
+#ifndef WEAK
+#if defined   ( __CC_ARM   )
+    #define WEAK __attribute__ ((weak))
+#elif defined ( __ICCARM__ )
+    #define WEAK __weak
+#elif defined (  __GNUC__  )
+    #define WEAK __attribute__ ((weak))
+#endif
+#endif
+
+/*----------------------------------------------------------------------------
+ *      Functions
+ *----------------------------------------------------------------------------*/
+
+/** Initialize the SD/MMC card driver struct */
+extern void SDD_Initialize(sSdCard *pSd,
+                           const void* pDrv, uint8_t bSlot,
+                           const sSdHalFunctions *pHalFunctions);
+
+/** Initialize the SD/MMC card driver struct for SD/MMC bus mode
+ *  \note defined in SD/MMC bus mode low level
  */
+extern WEAK void SDD_InitializeSdmmcMode(sSdCard *pSd,
+                                    void* pDrv, uint8_t bSlot);
 
-/**  A single bit was incorrect but has been recovered. */
-#define Hamming_ERROR_SINGLEBIT         1
+/** Initialize the SD/MMC card driver struct for SPI bus mode
+ *  \note defined in SD/MMC SPI bus mode low level
+ */
+extern WEAK void SDD_InitializeSpiMode(sSdCard *pSd,
+                                  void* pDrv, uint8_t bSlot);
 
-/** The original code has been corrupted. */
-#define Hamming_ERROR_ECC               2
-
-/** Multiple bits are incorrect in the data and they cannot be corrected. */
-#define Hamming_ERROR_MULTIPLEBITS      3
-
-/*------------------------------------------------------------------------------
- *         Exported functions
- *------------------------------------------------------------------------------*/
-
-extern void Hamming_Compute256x( const uint8_t* pucData, uint32_t dwSize, uint8_t* pucCode ) ;
-
-extern uint8_t Hamming_Verify256x( uint8_t* pucData, uint32_t dwSize, const uint8_t* pucCode ) ;
-
-#endif /* _HAMMING_ */
+ #endif /* #define _SDMMC_HAL_H */

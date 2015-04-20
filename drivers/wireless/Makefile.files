@@ -1,1 +1,3 @@
-OBJECTS = smcNfc.o
+OBJECTS += wireless/smcNfc.o
+
+SOURCES += wireless/smcNfc.c
