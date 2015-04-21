@@ -37,8 +37,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "chip.h"
-#include "wireless/smcNfc.h"
+#include "chip.h"
+#include "mem/smcNfc.h"
 
 static SmcStatus smcStatus;
 /*----------------------------------------------------------------------------
