@@ -34,26 +34,24 @@ VPATH = $(MAKEFILEDIR)
 
 LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
 
-#EXAMPLES = $(wildcard $(MAKEFILEDIR)/examples/*)
+#EXAMPLES = $(wildcard $(MAKEFILEDIR)/examples/*/build)
 EXAMPLES = $(MAKEFILEDIR)/examples/getting_started
 
-.PHONY: $(LIBRARIES) examples
 $(LIBRARIES):
 	$(MAKE) -f $(@D)/Makefile
 
-all: $(LIBRARIES) examples
+all: $(LIBRARIES) $(addsuffix /build,$(EXAMPLES))
 
-clean: clean-examples
+.PHONY: clean
+clean:
 	-rm -f $(LIBRARIES)
 	-rm -rf $(UTILSDIR)/build
 	-rm -rf $(TARGETDIR)/$(SERIEDIRNAME)/build
 	-rm -rf $(DRIVERDIR)/build
+	-rm -rf $(EXAMPLEDIR)/*/build
 
-clean-examples: $(addsuffix /Makefile,$(EXAMPLES))
-	make -f $< clean
-
-examples: $(addsuffix /Makefile,$(EXAMPLES))
-	make -f $<
+$(addsuffix /build,$(EXAMPLES)): $(LIBRARIES)
+	$(MAKE) -f $(@D)/Makefile
 
 list-boards:
 	@echo List of all available boards:

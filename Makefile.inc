@@ -56,6 +56,7 @@ TARGETDIR := $(ROOTDIR)/target
 DRIVERDIR := $(ROOTDIR)/drivers
 UTILSDIR := $(ROOTDIR)/utils
 RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIRNAME)
+EXAMPLEDIR := $(ROOTDIR)/examples
 
 #-------------------------------------------------------------------------------
 #		Setup compilation params
