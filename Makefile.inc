@@ -103,7 +103,3 @@ else
 RM=rm -f
 RMDIR=rm -fr
 endif
-
-list-boards:
-	@echo List of all available boards:
-	@echo $(AVAILABLE_BOARDS)
