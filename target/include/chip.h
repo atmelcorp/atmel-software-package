@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -31,11 +31,13 @@
 #define _CHIP_HEADER_
 
 #if defined(SERIE_SAMA5D4)
-#include "sama5d4/chip_sama5d4.h"
+  #include "sama5d4/chip_sama5d4.h"
+
 #elif defined(SERIE_SAMA5D2)
-#include "sama5d2/chip_sama5d2.h"
+  #include "sama5d2/chip_sama5d2.h"
+
 #else
-#error "No chip defined"
+  #error "No chip defined"
 #endif
 
 #endif				/* _CHIP_HEADER_ */

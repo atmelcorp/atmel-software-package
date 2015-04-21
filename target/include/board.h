@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -31,11 +31,16 @@
 #define _BOARD_HEADER_
 
 #if defined(BOARD_SAMA5D4_XPLAINED)
-#include "sama5d4/board_sama5d4-xplained.h"
+  #include "sama5d4/board_sama5d4-xplained.h"
+
 #elif defined(BOARD_SAMA5D4_EK)
-#include "sama5d4/board_sama5d4-ek.h"
+  #include "sama5d4/board_sama5d4-ek.h"
+
+#elif defined(BOARD_SAMA5D2_XPLAINED)
+  #include "sama5d2/board_sama5d2-xplained.h"
+
 #else
-#error "No board defined"
+  #error "No board defined"
 #endif
 
 #endif				/* #ifndef _BOARD_HEADER_ */
