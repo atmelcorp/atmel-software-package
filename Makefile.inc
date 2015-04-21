@@ -20,7 +20,7 @@ endif
 
 ifeq ("y",$(TARGET:sama5d4-%="y"))
 SERIE=SERIE_SAMA5D4
-SERIEDIR=sama5d4
+SERIEDIRNAME=sama5d4
 endif
 
 ifeq ("y",$(TARGET:%-xplained="y"))
@@ -55,7 +55,7 @@ LIBDIR := $(ROOTDIR)/lib
 TARGETDIR := $(ROOTDIR)/target
 DRIVERDIR := $(ROOTDIR)/drivers
 UTILSDIR := $(ROOTDIR)/utils
-RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIR)
+RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIRNAME)
 
 #-------------------------------------------------------------------------------
 #		Setup compilation params

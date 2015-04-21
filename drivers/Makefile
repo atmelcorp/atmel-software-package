@@ -30,6 +30,8 @@
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/../Makefile.inc
 
+VPATH = $(MAKEFILEDIR)
+
 #-------------------------------------------------------------------------------
 #        User-modifiable options
 #-------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ include $(MAKEFILEDIR)/../Makefile.inc
 # TRACE_LEVEL_NO_TRACE   0
 TRACE_LEVEL = 4
 # Output directories
-DRIVERSUBDIRS = av bus core crypto io net serial time wireless
+DRIVERSUBDIRS = av bus core crypto io net serial time mem
 
 #-------------------------------------------------------------------------------
 #		Tools
@@ -68,15 +70,36 @@ include $(MAKEFILEDIR)/io/Makefile.files
 include $(MAKEFILEDIR)/net/Makefile.files
 include $(MAKEFILEDIR)/serial/Makefile.files
 include $(MAKEFILEDIR)/time/Makefile.files
-include $(MAKEFILEDIR)/wireless/Makefile.files
+include $(MAKEFILEDIR)/mem/Makefile.files
+
+OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
+OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
+
+-include $(OBJECTS_SRAM:.o=.d)
+-include $(OBJECTS_DDRAM:.o=.d)
 
 $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $(addprefix $@/, $(DRIVERSUBDIRS))
 
-$(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)): $(BUILDDIR_SRAM)/%.o: %.c
+$(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
+	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@cp -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_SRAM)/$*.d
+	@rm -f $(BUILDDIR_SRAM)/$*.d.tmp
 	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
-$(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)): $(BUILDDIR_DDRAM)/%.o: %.c
+
+$(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
+	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+	@cp -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_DDRAM)/$*.d
+	@rm -f $(BUILDDIR_DDRAM)/$*.d.tmp
 	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
 $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS_ASM)): $(BUILDDIR_SRAM)/%.o: %.S
@@ -86,19 +109,19 @@ $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS_ASM)): $(BUILDDIR_DDRAM)/%.o: %.S
 	$(CC) $(ASFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
 
-libdrivers-$(TARGET)_sram.a: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS_ASM))
+$(MAKEFILEDIR)/libdrivers-$(TARGET)_sram.a: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS_ASM))
 	$(AR) -r $@ $^
 
-libdrivers-$(TARGET)_ddram.a: $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS_ASM))
+$(MAKEFILEDIR)/libdrivers-$(TARGET)_ddram.a: $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)) $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS_ASM))
 	$(AR) -r $@ $^
 
-libdrivers-$(TARGET)_sram: $(BUILDDIR_SRAM) libdrivers-$(TARGET)_sram.a
+libdrivers-$(TARGET)_sram: $(BUILDDIR_SRAM) $(MAKEFILEDIR)/libdrivers-$(TARGET)_sram.a
 
-libdrivers-$(TARGET)_ddram: $(BUILDDIR_DDRAM) libdrivers-$(TARGET)_ddram.a
+libdrivers-$(TARGET)_ddram: $(BUILDDIR_DDRAM) $(MAKEFILEDIR)/libdrivers-$(TARGET)_ddram.a
 
 .PHONY = clean
 clean:
-	-rm -rf build
-	-rm -f *.a
+	-rm -rf $(MAKEFILEDIR)/build
+	-rm -f $(MAKEFILEDIR)/*.a
 
 all: libdrivers-$(TARGET)_sram libdrivers-$(TARGET)_ddram

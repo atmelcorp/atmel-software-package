@@ -31,6 +31,8 @@
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/../../Makefile.inc
 
+VPATH = $(MAKEFILEDIR)
+
 #-------------------------------------------------------------------------------
 #        User-modifiable options
 #-------------------------------------------------------------------------------
@@ -55,8 +57,8 @@ TRACE_LEVEL = 4
 INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
-LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIR)
-LIBS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
+LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIRNAME)
+LINKS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
 
 #-------------------------------------------------------------------------------
 #		Files
@@ -66,35 +68,65 @@ BUILDDIR_SRAM = $(MAKEFILEDIR)/build/$(TARGET)/sram
 BUILDDIR_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram
 OBJECTS += main.o
 
+OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
+OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
+
+LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
+
 #-------------------------------------------------------------------------------
 #		Rules
 #-------------------------------------------------------------------------------
+.PHONY: clean size_sram debug_sram
+
+all: $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM) $(LIBS) build_sram build_ddram
+
+build_sram: $(BUILDDIR_SRAM)/getting-started.elf \
+	$(BUILDDIR_SRAM)/getting-started.symbols \
+	$(BUILDDIR_SRAM)/getting-started.bin
+
+build_ddram: $(BUILDDIR_DDRAM)/getting-started.elf \
+	$(BUILDDIR_DDRAM)/getting-started.symbols  \
+	$(BUILDDIR_DDRAM)/getting-started.bin
 
 $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
-$(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS)): $(BUILDDIR_SRAM)/%.o: %.c
+$(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
 	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
 
-$(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS)): $(BUILDDIR_DDRAM)/%.o: %.c
-	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
+$(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
+	$(CC) $(CFLAGS) $(call optimization,$(ddram)) -c $< -o $@
 
-getting-started-$(TARGET)_sram: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/$@.map -o $(BUILDDIR_SRAM)/$@.elf $^ $(LIBS)
-	$(NM) $(BUILDDIR_SRAM)/$@.elf >$(BUILDDIR_SRAM)/$@.elf.txt
-	$(OBJCOPY) -O binary $(BUILDDIR_SRAM)/$@.elf $(BUILDDIR_SRAM)/$@.bin
-	$(SIZE) $^ $(BUILDDIR_SRAM)/$@.elf
+$(BUILDDIR_SRAM)/getting-started.elf: $(OBJECTS_SRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS)
+	$(SIZE) $^ $@
 
-getting-started-$(TARGET)_ddram: $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/$@.map -o $(BUILDDIR_SRAM)/$@.elf $^ $(LIBS)
-	$(NM) $(BUILDDIR_SRAM)/$@.elf >$(BUILDDIR_SRAM)/$@.elf.txt
-	$(OBJCOPY) -O binary $(BUILDDIR_SRAM)/$@.elf $(BUILDDIR_SRAM)/$@.bin
-	$(SIZE) $^ $(BUILDDIR_SRAM)/$@.elf
+$(BUILDDIR_SRAM)/getting-started.symbols: $(BUILDDIR_SRAM)/getting-started.elf
+	$(NM) $< >$@
 
-debug_sram: getting-started-$(TARGET)_sram
-	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/getting-started-$(TARGET)_sram.elf
+$(BUILDDIR_SRAM)/getting-started.bin: $(BUILDDIR_SRAM)/getting-started.elf
+	$(OBJCOPY) -O binary $< $@
 
-all: $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM) getting-started-$(TARGET)_ddram getting-started-$(TARGET)_sram
+$(BUILDDIR_DDRAM)/getting-started.elf: $(OBJECTS_DDRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS)
+
+$(BUILDDIR_DDRAM)/getting-started.symbols: $(BUILDDIR_DDRAM)/getting-started.elf
+	$(NM) $< >$@
+
+$(BUILDDIR_DDRAM)/getting-started.bin: $(BUILDDIR_DDRAM)/getting-started.elf
+	$(OBJCOPY) -O binary $< $@
+
+$(LIBS):
+	$(MAKE) -f $(@D)/Makefile
 
 clean:
-	-rm -rf build
+	-rm -rf $(MAKEFILEDIR)/build
+
+size_sram:
+	$(SIZE) $(OBJECTS_SRAM) $(BUILDDIR_SRAM)/getting-started.elf
+
+size_ddram:
+	$(SIZE) $(OBJECTS_DDRAM) $(BUILDDIR_DDRAM)/getting-started.elf
+
+debug_sram: $(BUILDDIR_SRAM)/getting-started.elf
+	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/getting-started.elf

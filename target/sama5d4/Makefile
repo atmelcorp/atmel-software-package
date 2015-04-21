@@ -30,14 +30,16 @@
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/../../Makefile.inc
 
+VPATH = $(MAKEFILEDIR)
+
 INCLUDES = $(INCLUDE_LIB) $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER)
 CFLAGS += $(INCLUDES)
 ASFLAGS = -mcpu=cortex-a5  -mfpu=vfpv4-d16 -Wall -g $(INCLUDES) -D$(CHIP) -D__ASSEMBLY__
 
-OBJECTS = $(MAKEFILEDIR)/board_lowlevel.o \
-	$(MAKEFILEDIR)/board_memories.o
+OBJECTS = board_lowlevel.o \
+	board_memories.o
 
-OBJECTS_ASM = $(MAKEFILEDIR)/board_cstartup_gnu.o
+OBJECTS_ASM = board_cstartup_gnu.o
 
 OBJECTS_SRAM = $(addprefix $(MAKEFILEDIR)/build/$(TARGET)/sram/,$(OBJECTS))
 OBJECTS_DDRAM = $(addprefix $(MAKEFILEDIR)/build/$(TARGET)/ddram/, $(OBJECTS))
@@ -48,6 +50,12 @@ OBJECTS_ASM_DDRAM = $(addprefix $(MAKEFILEDIR)/build/$(TARGET)/ddram/, $(OBJECTS
 BUILDDIR_SRAM = $(MAKEFILEDIR)/build/$(TARGET)/sram
 BUILDDIR_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram
 
+DEPS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
+DEPS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
+
+-include $(DEPS_SRAM:.o=.d)
+-include $(DEPS_DDRAM:.o=.d)
+
 #-------------------------------------------------------------------------------
 # Rules
 #-------------------------------------------------------------------------------
@@ -57,9 +65,23 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
+	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@cp -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_SRAM)/$*.d
+	@rm -f $(BUILDDIR_SRAM)/$*.d.tmp
 	$(CC) -c $(CFLAGS) $(call optimization,sram) $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
+	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@cp -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_SRAM)/$*.d
+	@rm -f $(BUILDDIR_SRAM)/$*.d.tmp
 	$(CC) -c $(CFLAGS) $(call optimization,ddram) $< -o $@
 
 $(OBJECTS_ASM_SRAM): $(BUILDDIR_SRAM)/%.o: %.S
@@ -68,18 +90,18 @@ $(OBJECTS_ASM_SRAM): $(BUILDDIR_SRAM)/%.o: %.S
 $(OBJECTS_ASM_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.S
 	$(CC) -c $(CFLAGS) $(call optimization,ddram) $< -o $@
 
-lib$(TARGET)_sram.a: $(OBJECTS_SRAM) $(OBJECTS_ASM_SRAM)
+$(MAKEFILEDIR)/lib$(TARGET)_sram.a: $(OBJECTS_SRAM) $(OBJECTS_ASM_SRAM)
 	$(AR) -r $@ $^
 
-lib$(TARGET)_ddram.a: $(OBJECTS_DDRAM) $(OBJECTS_ASM_DDRAM)
+$(MAKEFILEDIR)/lib$(TARGET)_ddram.a: $(OBJECTS_DDRAM) $(OBJECTS_ASM_DDRAM)
 	$(AR) -r $@ $^
 
-lib$(TARGET)_sram: $(BUILDDIR_SRAM)  lib$(TARGET)_sram.a
+lib$(TARGET)_sram: $(BUILDDIR_SRAM)  $(MAKEFILEDIR)/lib$(TARGET)_sram.a
 
-lib$(TARGET)_ddram: $(BUILDDIR_DDRAM) lib$(TARGET)_ddram.a
+lib$(TARGET)_ddram: $(BUILDDIR_DDRAM) $(MAKEFILEDIR)/lib$(TARGET)_ddram.a
 
 .PHONY: clean
 clean:
 	@echo --- Cleaning $(BOARD) files [$(OUTPUT_PATH)$(SEP)*.o]
 	rm -fR $(MAKEFILEDIR)/build/ 1>/dev/null 2>&1
-	rm -fR *.a 1>/dev/null 2>&1
+	rm -fR $(MAKEFILEDIR)/*.a 1>/dev/null 2>&1
