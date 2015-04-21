@@ -50,7 +50,8 @@ static SmcStatus smcStatus;
  * \brief Counts and return the number of bits set to '1' in the given hsiao code.
  * \param code  Hsizo code.
  */
-static unsigned char CountBitsInByte(unsigned char byte)
+static unsigned char
+CountBitsInByte(unsigned char byte)
 {
 	unsigned char count = 0;
 	while (byte > 0) {
@@ -69,18 +70,20 @@ static unsigned char CountBitsInByte(unsigned char byte)
  * \brief Counts and return the number of bits set to '1' in the given hsiao code.
  * \param code  Hsizo code.
  */
-static unsigned char CountBitsInCode(unsigned char *code)
+static unsigned char
+CountBitsInCode(unsigned char *code)
 {
 	return CountBitsInByte(code[0])
-	       + CountBitsInByte(code[1])
-	       + CountBitsInByte(code[2]);
+	    + CountBitsInByte(code[1])
+	    + CountBitsInByte(code[2]);
 }
 #endif
 
 /**
   * \brief Clear the corresponding interrupt flag.
  */
-static void SMC_Clear_Status (void)
+static void
+SMC_Clear_Status(void)
 {
 	smcStatus.BStatus = 0;
 }
@@ -88,7 +91,8 @@ static void SMC_Clear_Status (void)
 /**
  * \brief Check the STATUS and set the corresponding interrupt flag.
  */
-static void SMC_Handler(void)
+static void
+SMC_Handler(void)
 {
 	uint32_t status;
 	status = HSMC->HSMC_SR;
@@ -103,16 +107,16 @@ static void SMC_Handler(void)
 		smcStatus.bStatus.xfrDone = 1;
 	if ((status & HSMC_SR_CMDDONE) == HSMC_SR_CMDDONE)
 		/* When set to one, this flag indicates that the NFC has terminated the Command. This flag is reset after a status read
-		   operation.*/
+		   operation. */
 		smcStatus.bStatus.cmdDone = 1;
-	if ((status & (1<<24)) == (1<<24))
+	if ((status & (1 << 24)) == (1 << 24))
 		/* If set to one, this flag indicates that an edge has been detected on the Ready/Busy Line x. Depending on the EDGE CTRL
 		   field located in the SMC_CFG register, only rising or falling edge is detected. This flag is reset after a status read operation. */
 		smcStatus.bStatus.rbEdge = 1;
 #ifdef _SMC_ECC_PRESENT
 	if ((status & HSMC_SR_ECCRDY) == HSMC_SR_ECCRDY)
 		/* When set to one, this flag indicates that the Hamming ECC computation is completed. This flag is reset after a status read
-		   operation.*/
+		   operation. */
 		smcStatus.bStatus.hammingReady = 1;
 #endif
 }
@@ -125,7 +129,8 @@ static void SMC_Handler(void)
  * \brief Sets NFC configuration.
  * \param cfg  NFC configuration.
  */
-void SMC_NFC_Configure(uint32_t cfg)
+void
+SMC_NFC_Configure(uint32_t cfg)
 {
 	HSMC->HSMC_CFG = cfg;
 }
@@ -133,7 +138,8 @@ void SMC_NFC_Configure(uint32_t cfg)
 /**
  * \brief Reset NFC controller.
  */
-void SMC_NFC_Reset(void)
+void
+SMC_NFC_Reset(void)
 {
 	/* Disable all the SMC NFC interrupts */
 	HSMC->HSMC_IDR = 0xFFFFFFFF;
@@ -143,7 +149,8 @@ void SMC_NFC_Reset(void)
 /**
  * \brief Enable NFC controller.
  */
-void SMC_NFC_EnableNfc(void)
+void
+SMC_NFC_EnableNfc(void)
 {
 	HSMC->HSMC_CTRL |= HSMC_CTRL_NFCEN;
 }
@@ -151,7 +158,8 @@ void SMC_NFC_EnableNfc(void)
 /**
  * \brief Enable NFC controller reads both main and spare area in read mode.
  */
-void SMC_NFC_EnableSpareRead(void)
+void
+SMC_NFC_EnableSpareRead(void)
 {
 	HSMC->HSMC_CFG |= HSMC_CFG_RSPARE;
 }
@@ -159,7 +167,8 @@ void SMC_NFC_EnableSpareRead(void)
 /**
  * \brief The NFC controller skips spare area in read mode.
  */
-void SMC_NFC_DisableSpareRead(void)
+void
+SMC_NFC_DisableSpareRead(void)
 {
 	HSMC->HSMC_CFG &= (~HSMC_CFG_RSPARE);
 }
@@ -167,7 +176,8 @@ void SMC_NFC_DisableSpareRead(void)
 /**
  * \brief Enables the NFC controller writes both main and spare area in write
  */
-void SMC_NFC_EnableSpareWrite(void)
+void
+SMC_NFC_EnableSpareWrite(void)
 {
 	HSMC->HSMC_CFG |= HSMC_CFG_WSPARE;
 }
@@ -175,7 +185,8 @@ void SMC_NFC_EnableSpareWrite(void)
 /**
  * \brief The NFC controller skips spare area in write mode.
  */
-void SMC_NFC_DisableSpareWrite(void)
+void
+SMC_NFC_DisableSpareWrite(void)
 {
 	HSMC->HSMC_CFG &= (~HSMC_CFG_WSPARE);
 }
@@ -186,7 +197,8 @@ void SMC_NFC_DisableSpareWrite(void)
  * \return Returns 1 if NFC controller reads both main and spare area in
  *         read mode, otherwise returns 0.
  */
-uint8_t SMC_NFC_isSpareRead(void)
+uint8_t
+SMC_NFC_isSpareRead(void)
 {
 	return (((HSMC->HSMC_CFG) >> 9) & 0x1);
 }
@@ -197,7 +209,8 @@ uint8_t SMC_NFC_isSpareRead(void)
  * \return Returns 1 if NFC controller writes both main and spare area in
  *         write mode, otherwise returns 0.
  */
-uint8_t SMC_NFC_isSpareWrite(void)
+uint8_t
+SMC_NFC_isSpareWrite(void)
 {
 	return (((HSMC->HSMC_CFG) >> 8) & 0x1);
 }
@@ -207,7 +220,8 @@ uint8_t SMC_NFC_isSpareWrite(void)
  * \return Returns 1 if NFC controller has terminated the data transmission,
  *         otherwise returns 0.
  */
-uint8_t SMC_NFC_isTransferComplete(void)
+uint8_t
+SMC_NFC_isTransferComplete(void)
 {
 	return ((HSMC->HSMC_SR & HSMC_SR_XFRDONE) == HSMC_SR_XFRDONE);
 }
@@ -218,9 +232,10 @@ uint8_t SMC_NFC_isTransferComplete(void)
  * \return Returns 1 if  edge has been detected on the Ready/Busy line,
  *         otherwise returns 0.
  */
-uint8_t SMC_NFC_isReadyBusy(void)
+uint8_t
+SMC_NFC_isReadyBusy(void)
 {
-	return ((HSMC->HSMC_SR &  (1<<24)) ==  (1<<24));
+	return ((HSMC->HSMC_SR & (1 << 24)) == (1 << 24));
 }
 
 /**
@@ -229,7 +244,8 @@ uint8_t SMC_NFC_isReadyBusy(void)
  * \return Returns 1 if NFC Controller is activated and accesses the memory device,
  *         otherwise returns 0.
  */
-uint8_t SMC_NFC_isNfcBusy(void)
+uint8_t
+SMC_NFC_isNfcBusy(void)
 {
 	return ((HSMC->HSMC_SR & HSMC_SR_NFCBUSY) == HSMC_SR_NFCBUSY);
 }
@@ -241,7 +257,8 @@ uint8_t SMC_NFC_isNfcBusy(void)
  *         This resets the internal value of the status register, so further
  *         read may yield different values.
  */
-uint32_t SMC_NFC_GetStatus(void)
+uint32_t
+SMC_NFC_GetStatus(void)
 {
 	return HSMC->HSMC_SR;
 }
@@ -254,15 +271,20 @@ uint32_t SMC_NFC_GetStatus(void)
  * \brief Check if the host controller is busy.
  * \return Returns 1 if the host controller is busy, otherwise returns 0.
  */
-static uint8_t SMC_NFC_isHostBusy(void)
+static uint8_t
+SMC_NFC_isHostBusy(void)
 {
-	return (((*((volatile uint32_t *) (NFC_CMD_BASE_ADDR + NFCADDR_CMD_NFCCMD))) & 0x8000000) == 0x8000000);
+	return (((*
+		  ((volatile uint32_t *) (NFC_CMD_BASE_ADDR +
+					  NFCADDR_CMD_NFCCMD))) & 0x8000000) ==
+		0x8000000);
 }
 
 /**
  * \brief Wait for NFC command has done.
 */
-void SMC_NFC_Wait_CommandDone(void)
+void
+SMC_NFC_Wait_CommandDone(void)
 {
 	while (smcStatus.bStatus.cmdDone == 0) {
 		SMC_Handler();
@@ -272,7 +294,8 @@ void SMC_NFC_Wait_CommandDone(void)
 /**
  * \brief Wait for NFC Data Transfer Terminated.
 */
-void SMC_NFC_Wait_XfrDone(void)
+void
+SMC_NFC_Wait_XfrDone(void)
 {
 	while (smcStatus.bStatus.xfrDone == 0) {
 		SMC_Handler();
@@ -282,9 +305,10 @@ void SMC_NFC_Wait_XfrDone(void)
 /**
  * \brief Wait for NFC Data Transfer Terminated.
 */
-void SMC_NFC_Wait_HammingReady(void)
+void
+SMC_NFC_Wait_HammingReady(void)
 {
-	while (smcStatus.bStatus.hammingReady ==0) {
+	while (smcStatus.bStatus.hammingReady == 0) {
 		SMC_Handler();
 	}
 }
@@ -292,7 +316,8 @@ void SMC_NFC_Wait_HammingReady(void)
 /**
  * \brief Wait for NFC Ready/Busy Line 3 Edge Detected.
 */
-void SMC_NFC_Wait_RBbusy(void)
+void
+SMC_NFC_Wait_RBbusy(void)
 {
 	while (smcStatus.bStatus.rbEdge == 0) {
 		SMC_Handler();
@@ -305,12 +330,13 @@ void SMC_NFC_Wait_RBbusy(void)
  * \param addressCycle  address cycle when command access id decoded.
  * \param cycle0  address at first cycle.
  */
-void SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle, uint32_t cycle0)
+void
+SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle, uint32_t cycle0)
 {
 	volatile uint32_t *pCommandAddress;
 	SMC_Clear_Status();
 	/* Wait until host controller is not busy. */
-	while(SMC_NFC_isHostBusy());
+	while (SMC_NFC_isHostBusy()) ;
 	/* Send the command plus the ADDR_CYCLE */
 	pCommandAddress = (volatile uint32_t *) (cmd + NFC_CMD_BASE_ADDR);
 	HSMC->HSMC_ADDR = cycle0;
@@ -328,7 +354,8 @@ void SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle, uint32_t cycle0)
  * \param size  Data size in bytes.
  * \param code  Codes buffer.
  */
-static void _smc_ecc_GetW9BitPer512Ecc(uint32_t pageDataSize, uint8_t *code)
+static void
+_smc_ecc_GetW9BitPer512Ecc(uint32_t pageDataSize, uint8_t * code)
 {
 	uint8_t i;
 	uint8_t numEcc;
@@ -358,7 +385,8 @@ static void _smc_ecc_GetW9BitPer512Ecc(uint32_t pageDataSize, uint8_t *code)
  * \param size  Data size in bytes.
  * \param code  Codes buffer.
  */
-static void _smc_ecc_GetW8BitPer256Ecc(uint32_t pageDataSize, uint8_t *code)
+static void
+_smc_ecc_GetW8BitPer256Ecc(uint32_t pageDataSize, uint8_t * code)
 {
 	uint8_t i;
 	uint8_t numEcc;
@@ -375,7 +403,8 @@ static void _smc_ecc_GetW8BitPer256Ecc(uint32_t pageDataSize, uint8_t *code)
 		/* Get Parity and NParity value. */
 		eccParity = ecc[i];
 		eccParity = ~eccParity;
-		TRACE_DEBUG("ecc Parity%d is 0x%08x \n\r", (int)i, (uint32_t)eccParity);
+		TRACE_DEBUG("ecc Parity%d is 0x%08x \n\r", (int) i,
+			    (uint32_t) eccParity);
 		code[i * 3] = eccParity & 0xff;
 		code[i * 3 + 1] = (eccParity >> 8) & 0xff;
 		code[i * 3 + 2] = (eccParity >> 16) & 0xff;
@@ -390,13 +419,14 @@ static void _smc_ecc_GetW8BitPer256Ecc(uint32_t pageDataSize, uint8_t *code)
  * \param size  Data size in bytes.
  * \param code  Codes buffer.
  */
-static void _smc_ecc_GetW12BitPerPageEcc(uint32_t pageDataSize, uint8_t *code)
+static void
+_smc_ecc_GetW12BitPerPageEcc(uint32_t pageDataSize, uint8_t * code)
 {
 	uint32_t eccParity;
 	uint32_t eccNparity;
 	uint32_t ecc[16];
 
-	pageDataSize = pageDataSize; /* stop warning */
+	pageDataSize = pageDataSize;	/* stop warning */
 	/* Get Parity value. */
 	SMC_ECC_GetValue(ecc);
 
@@ -409,21 +439,21 @@ static void _smc_ecc_GetW12BitPerPageEcc(uint32_t pageDataSize, uint8_t *code)
 	eccParity = ecc[0];
 	eccNparity = ecc[1];
 	code[0] = eccParity & 0xff;
-	code[1] = (eccParity >> 8 )& 0xff;
+	code[1] = (eccParity >> 8) & 0xff;
 	code[2] = eccNparity & 0xff;
-	code[3] = (eccNparity >> 8 )& 0xff;
+	code[3] = (eccNparity >> 8) & 0xff;
 }
-
 
 /**
  * \brief Configures ECC mode.
  * \param type  Type of correction.
  * \param pageSize  Page size of NAND flash device.
  */
-void SMC_ECC_Configure(uint32_t type, uint32_t pageSize)
+void
+SMC_ECC_Configure(uint32_t type, uint32_t pageSize)
 {
 	/* Software Reset ECC. */
-	HSMC->HSMC_ECC_CTRL = (0x1 <<  1) ;
+	HSMC->HSMC_ECC_CTRL = (0x1 << 1);
 	HSMC->HSMC_ECC_MD = type | pageSize;
 }
 
@@ -432,9 +462,10 @@ void SMC_ECC_Configure(uint32_t type, uint32_t pageSize)
  *
  * \return Returns type of ECC correction setting.
  */
-uint32_t SMC_ECC_GetCorrectoinType(void)
+uint32_t
+SMC_ECC_GetCorrectoinType(void)
 {
-	return ((HSMC->HSMC_ECC_MD)& HSMC_ECC_MD_TYPCORREC_Msk);
+	return ((HSMC->HSMC_ECC_MD) & HSMC_ECC_MD_TYPCORREC_Msk);
 }
 
 /**
@@ -443,7 +474,8 @@ uint32_t SMC_ECC_GetCorrectoinType(void)
  *
  * \return Returns ECC status by giving ecc number.
  */
-uint8_t SMC_ECC_GetStatus(uint8_t eccNumber)
+uint8_t
+SMC_ECC_GetStatus(uint8_t eccNumber)
 {
 	uint32_t status;
 
@@ -451,7 +483,7 @@ uint8_t SMC_ECC_GetStatus(uint8_t eccNumber)
 		status = HSMC->HSMC_ECC_SR1;
 	} else {
 		status = HSMC->HSMC_ECC_SR2;
-		eccNumber -=8;
+		eccNumber -= 8;
 	}
 	return ((status >> (eccNumber * 4)) & 0x07);
 }
@@ -459,7 +491,8 @@ uint8_t SMC_ECC_GetStatus(uint8_t eccNumber)
 /**
  * \brief Get all ECC parity and Nparity value.
  */
-void SMC_ECC_GetValue(uint32_t *ecc)
+void
+SMC_ECC_GetValue(uint32_t * ecc)
 {
 	ecc[0] = HSMC->HSMC_ECC_PR0;
 	ecc[1] = HSMC->HSMC_ECC_PR1;
@@ -490,10 +523,10 @@ void SMC_ECC_GetValue(uint32_t *ecc)
  * \param originalCode  Original codes.
  * \param verifyCode  codes to be verified.
  */
-static uint8_t _smc_ecc_VerifyW12BitPerPageEcc(
-        uint8_t *data,
-        const uint8_t *originalCode,
-        const uint8_t *verifyCode)
+static uint8_t
+_smc_ecc_VerifyW12BitPerPageEcc(uint8_t * data,
+				const uint8_t * originalCode,
+				const uint8_t * verifyCode)
 {
 	uint8_t correctionCode[4];
 	uint8_t bitCount;
@@ -503,7 +536,8 @@ static uint8_t _smc_ecc_VerifyW12BitPerPageEcc(
 	correctionCode[2] = verifyCode[2] ^ originalCode[2];
 	correctionCode[3] = verifyCode[3] ^ originalCode[3];
 	TRACE_DEBUG("Correction code = %02X %02X %02X %02X\n\r",
-	            correctionCode[0], correctionCode[1], correctionCode[2], correctionCode[3]);
+		    correctionCode[0], correctionCode[1], correctionCode[2],
+		    correctionCode[3]);
 	/* If all bytes are 0, there is no error */
 	if ((correctionCode[0] == 0)
 	    && (correctionCode[1] == 0)
@@ -514,9 +548,9 @@ static uint8_t _smc_ecc_VerifyW12BitPerPageEcc(
 	}
 	/* If there is a single bit error, there are 15 bits set to 1 */
 	bitCount = CountBitsInByte(correctionCode[0]) +
-	           CountBitsInByte(correctionCode[1]) +
-	           CountBitsInByte(correctionCode[2]) +
-	           CountBitsInByte(correctionCode[3]);
+	    CountBitsInByte(correctionCode[1]) +
+	    CountBitsInByte(correctionCode[2]) +
+	    CountBitsInByte(correctionCode[3]);
 	if (bitCount == 15) {
 		/* Get byte and bit indexes */
 		uint16_t byte = (correctionCode[0] & 0xf0) >> 4;
@@ -550,11 +584,11 @@ static uint8_t _smc_ecc_VerifyW12BitPerPageEcc(
  * \param originalCode  Original codes.
  * \param verifyCode  codes to be verified.
  */
-static uint8_t _smc_ecc_VerifyW8BitPer256Ecc(
-        uint8_t *data,
-        uint32_t size,
-        const uint8_t *originalCode,
-        const uint8_t *verifyCode)
+static uint8_t
+_smc_ecc_VerifyW8BitPer256Ecc(uint8_t * data,
+			      uint32_t size,
+			      const uint8_t * originalCode,
+			      const uint8_t * verifyCode)
 {
 	uint8_t correctionCode[3];
 	uint32_t position = 0;
@@ -569,10 +603,11 @@ static uint8_t _smc_ecc_VerifyW8BitPer256Ecc(
 		correctionCode[1] = verifyCode[1] ^ originalCode[1];
 		correctionCode[2] = verifyCode[2] ^ originalCode[2];
 		TRACE_DEBUG("Correction code = %02X %02X %02X\n\r",
-		            correctionCode[0], correctionCode[1], correctionCode[2]);
+			    correctionCode[0], correctionCode[1],
+			    correctionCode[2]);
 
 		/* If all bytes are 0, there is no error */
-		if ( correctionCode[0] || correctionCode[1] || correctionCode[2]) {
+		if (correctionCode[0] || correctionCode[1] || correctionCode[2]) {
 			/* If there is a single bit error, there are 11 bits set to 1 */
 			if (CountBitsInCode(correctionCode) == 11) {
 				/* Get byte and bit indexes */
@@ -580,7 +615,9 @@ static uint8_t _smc_ecc_VerifyW8BitPer256Ecc(
 				byte |= (correctionCode[1] & 0x07) << 5;
 				bit = correctionCode[0] & 0x07;
 				/* Correct bit */
-				printf("Correcting byte #%u at bit %u\n\r", (unsigned int)(position + byte),  (unsigned int)bit);
+				printf("Correcting byte #%u at bit %u\n\r",
+				       (unsigned int) (position + byte),
+				       (unsigned int) bit);
 				data[byte] ^= (1 << bit);
 				error = Hsiao_ERROR_SINGLEBIT;
 			}
@@ -611,11 +648,11 @@ static uint8_t _smc_ecc_VerifyW8BitPer256Ecc(
  * \param originalCode  Original codes.
  * \param verifyCode  codes to be verified.
  */
-static uint8_t _smc_ecc_VerifyW9BitPer512Ecc(
-        uint8_t *data,
-        uint32_t size,
-        const uint8_t *originalCode,
-        const uint8_t *verifyCode)
+static uint8_t
+_smc_ecc_VerifyW9BitPer512Ecc(uint8_t * data,
+			      uint32_t size,
+			      const uint8_t * originalCode,
+			      const uint8_t * verifyCode)
 {
 	uint8_t correctionCode[3];
 	uint32_t position = 0;
@@ -630,10 +667,11 @@ static uint8_t _smc_ecc_VerifyW9BitPer512Ecc(
 		correctionCode[1] = verifyCode[1] ^ originalCode[1];
 		correctionCode[2] = verifyCode[2] ^ originalCode[2];
 		TRACE_DEBUG("Correction code = %02X %02X %02X\n\r",
-		            correctionCode[0], correctionCode[1], correctionCode[2]);
+			    correctionCode[0], correctionCode[1],
+			    correctionCode[2]);
 
 		/* If all bytes are 0, there is no error */
-		if ( correctionCode[0] || correctionCode[1] || correctionCode[2]) {
+		if (correctionCode[0] || correctionCode[1] || correctionCode[2]) {
 			// If there is a single bit error, there are 11 bits set to 1
 			if (CountBitsInCode(correctionCode) == 12) {
 				/* Get byte and bit indexes */
@@ -641,7 +679,9 @@ static uint8_t _smc_ecc_VerifyW9BitPer512Ecc(
 				byte |= (correctionCode[1] & 0x0f) << 5;
 				bit = correctionCode[0] & 0x07;
 				/* Correct bit */
-				printf("Correcting byte #%u at bit %u\n\r",  (unsigned int)(position + byte),  (unsigned int)bit);
+				printf("Correcting byte #%u at bit %u\n\r",
+				       (unsigned int) (position + byte),
+				       (unsigned int) bit);
 				data[byte] ^= (1 << bit);
 				error = Hsiao_ERROR_SINGLEBIT;
 			}
@@ -670,13 +710,14 @@ static uint8_t _smc_ecc_VerifyW9BitPer512Ecc(
  * \param code  Codes buffer.
  * \param busWidth 8bit/16bit data path.
  */
-void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t *code, uint8_t busWidth)
+void
+SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t * code, uint8_t busWidth)
 {
 	uint8_t correctionType;
 
 	correctionType = SMC_ECC_GetCorrectoinType();
 	/* For 16-bit data path */
-	if (busWidth == 16 && correctionType == HSMC_ECC_MD_TYPCORREC_CPAGE )
+	if (busWidth == 16 && correctionType == HSMC_ECC_MD_TYPCORREC_CPAGE)
 		_smc_ecc_GetW12BitPerPageEcc(pageDataSize, code);
 	/* For 8-bit data path */
 	else {
@@ -694,7 +735,6 @@ void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t *code, uint8_t busWidth
 	}
 }
 
-
 /**
  *  Verifies hsiao codes for a data block. The block is verified between the given
  *  HSIAO code generated by hardware and original HSIAO codes store has been
@@ -708,32 +748,41 @@ void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t *code, uint8_t busWidth
  *  \param verifyCode  codes to be verified.
  *  \param busWidth 8bit/16bit data path.
 */
-uint8_t SMC_ECC_VerifyHsiao(
-        uint8_t *data,
-        uint32_t size,
-        const uint8_t *originalCode,
-        const uint8_t *verifyCode,
-        uint8_t busWidth)
+uint8_t
+SMC_ECC_VerifyHsiao(uint8_t * data,
+		    uint32_t size,
+		    const uint8_t * originalCode,
+		    const uint8_t * verifyCode, uint8_t busWidth)
 {
 	uint8_t correctionType;
 	uint8_t error = 0;
 	correctionType = SMC_ECC_GetCorrectoinType();
 	/* For 16-bit data path */
-	if (busWidth == 16 && (correctionType == HSMC_ECC_MD_TYPCORREC_CPAGE) ) {
-		error = _smc_ecc_VerifyW12BitPerPageEcc((uint8_t*)data, originalCode, verifyCode);
+	if (busWidth == 16 && (correctionType == HSMC_ECC_MD_TYPCORREC_CPAGE)) {
+		error =
+		    _smc_ecc_VerifyW12BitPerPageEcc((uint8_t *) data,
+						    originalCode, verifyCode);
 	}
 	/* For 8-bit data path */
 	else {
 		switch (correctionType) {
 		case HSMC_ECC_MD_TYPCORREC_CPAGE:
-			error = _smc_ecc_VerifyW12BitPerPageEcc(data, originalCode, verifyCode);
+			error =
+			    _smc_ecc_VerifyW12BitPerPageEcc(data, originalCode,
+							    verifyCode);
 
 			break;
 		case HSMC_ECC_MD_TYPCORREC_C256B:
-			error = _smc_ecc_VerifyW8BitPer256Ecc(data, size, originalCode, verifyCode);
+			error =
+			    _smc_ecc_VerifyW8BitPer256Ecc(data, size,
+							  originalCode,
+							  verifyCode);
 			break;
 		case HSMC_ECC_MD_TYPCORREC_C512B:
-			error = _smc_ecc_VerifyW9BitPer512Ecc(data, size, originalCode, verifyCode);
+			error =
+			    _smc_ecc_VerifyW9BitPer512Ecc(data, size,
+							  originalCode,
+							  verifyCode);
 			break;
 		}
 	}

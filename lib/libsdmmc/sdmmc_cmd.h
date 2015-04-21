@@ -47,8 +47,8 @@
  *   -# \ref sSdHalFunctions : HAL functions to implement.
  */
 
- #ifndef _SDMMC_CMD_H
- #define _SDMMC_CMD_H
+#ifndef _SDMMC_CMD_H
+#define _SDMMC_CMD_H
 /** \addtogroup sdmmc_cmd
  *
  *  \copydoc sdmmc_lib_cmd
@@ -56,13 +56,13 @@
  *  See \ref sdmmc_lib_cmd for more details.
  *@{
  */
- 
+
 /*------------------------------------------------------------------------------
  *      Includes
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
- 
+
 /*------------------------------------------------------------------------------
  *      Definitions
  *----------------------------------------------------------------------------*/
@@ -128,19 +128,19 @@
 
 /** SD/MMC Return codes */
 typedef enum {
-    SDMMC_OK = 0,           /**< Operation OK */
-    SDMMC_LOCKED = 1,       /**< Failed because driver locked */
-    SDMMC_BUSY = 2,         /**< Failed because driver busy */
-    SDMMC_NO_RESPONSE = 3,  /**< Failed because card not respond */
-    SDMMC_CHANGED,          /**< Setting param changed due to limitation */
-    SDMMC_ERR,              /**< Failed with general error */
-    SDMMC_ERR_IO,           /**< Failed because of IO error */
-    SDMMC_ERR_RESP,         /**< Error reported in response code */
-    SDMMC_NOT_INITIALIZED,  /**< Fail to initialize */
-    SDMMC_PARAM,            /**< Parameter error */
-    SDMMC_STATE,            /**< State error */
-    SDMMC_USER_CANCEL,      /**< Canceled by user */
-    SDMMC_NOT_SUPPORTED     /**< Command(Operation) not supported */
+	SDMMC_OK = 0,		/**< Operation OK */
+	SDMMC_LOCKED = 1,	/**< Failed because driver locked */
+	SDMMC_BUSY = 2,		/**< Failed because driver busy */
+	SDMMC_NO_RESPONSE = 3,	/**< Failed because card not respond */
+	SDMMC_CHANGED,		/**< Setting param changed due to limitation */
+	SDMMC_ERR,		/**< Failed with general error */
+	SDMMC_ERR_IO,		/**< Failed because of IO error */
+	SDMMC_ERR_RESP,		/**< Error reported in response code */
+	SDMMC_NOT_INITIALIZED,	/**< Fail to initialize */
+	SDMMC_PARAM,		/**< Parameter error */
+	SDMMC_STATE,		/**< State error */
+	SDMMC_USER_CANCEL,	/**< Canceled by user */
+	SDMMC_NOT_SUPPORTED	/**< Command(Operation) not supported */
 } eSDMMC_RC;
 
 /** No error */
@@ -169,15 +169,15 @@ typedef enum {
  *  \addtogroup sdmmc_states SD/MMC Card States
  *      @{
  */
-#define SDMMC_STATE_OFF             0x0 /**< Power OFF */
-#define SDMMC_STATE_ON              0x1 /**< Power ON */
-#define SDMMC_STATE_IDENT           0x2 /**< Card Identification (IDLE,READY,IDENT) */
-#define SDMMC_STATE_INACTIVE        0x3 /**< Inactive */
-#define SDMMC_STATE_IRQ             0x4 /**< Wait-IRQ, interrupt mode */
-#define SDMMC_STATE_STBY            0x5 /**< Addressed */
-#define SDMMC_STATE_TRAN            0x6 /**< Ready for transfer */
-#define SDMMC_STATE_DATA_WR         0x7 /**< Data TX in progress */
-#define SDMMC_STATE_DATA_RD         0x8 /**< Data RX in progress */
+#define SDMMC_STATE_OFF             0x0	/**< Power OFF */
+#define SDMMC_STATE_ON              0x1	/**< Power ON */
+#define SDMMC_STATE_IDENT           0x2	/**< Card Identification (IDLE,READY,IDENT) */
+#define SDMMC_STATE_INACTIVE        0x3	/**< Inactive */
+#define SDMMC_STATE_IRQ             0x4	/**< Wait-IRQ, interrupt mode */
+#define SDMMC_STATE_STBY            0x5	/**< Addressed */
+#define SDMMC_STATE_TRAN            0x6	/**< Ready for transfer */
+#define SDMMC_STATE_DATA_WR         0x7	/**< Data TX in progress */
+#define SDMMC_STATE_DATA_RD         0x8	/**< Data RX in progress */
 /**     @}*/
 
 /** \ingroup sdmmc_hal_def
@@ -235,11 +235,11 @@ typedef enum {
 #define SDMMC_CMD_bmCOMMAND     (0x1 <<  1) /**< Send command */
 #define SDMMC_CMD_bmDATAMASK    (0x3 <<  2) /**< Data operation mask */
 #define SDMMC_CMD_bmNODATA      (0x0 <<  2) /**< No data transfer */
-#define SDMMC_CMD_RX             0x1        /**< data RX */
+#define SDMMC_CMD_RX             0x1	    /**< data RX */
 #define SDMMC_CMD_bmDATARX      (0x1 <<  2) /**< Bits for data RX */
-#define SDMMC_CMD_TX             0x2        /**< data TX */
+#define SDMMC_CMD_TX             0x2	    /**< data TX */
 #define SDMMC_CMD_bmDATATX      (0x2 <<  2) /**< Bits for data TX */
-#define SDMMC_CMD_STOPXFR        0x3        /**< data stop */
+#define SDMMC_CMD_STOPXFR        0x3	    /**< data stop */
 #define SDMMC_CMD_bmSTOPXFR     (0x3 <<  2) /**< Bits for transfer stop */
 #define SDMMC_CMD_bmRESPMASK    (0x7 <<  4) /**< Bits masks response option */
 #define SDMMC_CMD_bmRESP(R)     (((R)&0x7) << 4)    /**< Bits setup response */
@@ -284,118 +284,118 @@ typedef enum {
     @{*/
 
 /** SD/MMC end-of-command callback function. */
-typedef void (*fSdmmcCallback)(uint32_t status, void *pArg);
+typedef void (*fSdmmcCallback) (uint32_t status, void *pArg);
 
 /**
  * Sdmmc command operation settings union.
  */
 typedef union _SdmmcCmdOperation {
-    uint16_t wVal;
-    struct _SdmmcOpBm {
-        uint16_t powerON:1, /**< Do power on initialize */
-                 sendCmd:1, /**< Send SD/MMC command */
-                 xfrData:2, /**< Send/Stop data transfer */
-                 respType:3,/**< Response type (1~7) */
-                 crcON:1,   /**< CRC is used (SPI) */
-                 odON:1,    /**< Open-Drain is ON (MMC) */
-                 ioCmd:1,   /**< SDIO command */
-                 checkBsy:1;/**< Busy check is ON */
-    } bmBits;
+	uint16_t wVal;
+	struct _SdmmcOpBm {
+		uint16_t powerON:1, /**< Do power on initialize */
+		 sendCmd:1,	    /**< Send SD/MMC command */
+		 xfrData:2,	    /**< Send/Stop data transfer */
+		 respType:3,	    /**< Response type (1~7) */
+		 crcON:1,	    /**< CRC is used (SPI) */
+		 odON:1,	    /**< Open-Drain is ON (MMC) */
+		 ioCmd:1,	    /**< SDIO command */
+		 checkBsy:1;	    /**< Busy check is ON */
+	} bmBits;
 } uSdmmcCmdOp;
 /**
  * Sdmmc command instance.
  */
 typedef struct _SdmmcCommand {
 
-    /** Optional user-provided callback function. */
-    fSdmmcCallback  fCallback;
-    /** Optional argument to the callback function. */
-    void            *pArg;
+	/** Optional user-provided callback function. */
+	fSdmmcCallback fCallback;
+	/** Optional argument to the callback function. */
+	void *pArg;
 
-    /** Data buffer, with MCI_DMA_ENABLE defined 1, the buffer can be
-     * 1, 2 or 4 bytes aligned. It has to be 4 byte aligned if no DMA.
-     */
-    uint8_t     *pData;
-    /** Size of data block in bytes. */
-    uint16_t    wBlockSize;
-    /** Number of blocks to be transfered */
-    uint16_t    wNbBlocks;
-    /** Response buffer. */
-    uint32_t    *pResp;
+	/** Data buffer, with MCI_DMA_ENABLE defined 1, the buffer can be
+         * 1, 2 or 4 bytes aligned. It has to be 4 byte aligned if no DMA.
+         */
+	uint8_t *pData;
+	/** Size of data block in bytes. */
+	uint16_t wBlockSize;
+	/** Number of blocks to be transfered */
+	uint16_t wNbBlocks;
+	/** Response buffer. */
+	uint32_t *pResp;
 
-    /** Command argument. */
-    uint32_t    dwArg;
-    /** Command operation settings */
-    uSdmmcCmdOp cmdOp;
-    /** Command index */
-    uint8_t     bCmd;
-    /** Command return status */
-    uint8_t     bStatus;
+	/** Command argument. */
+	uint32_t dwArg;
+	/** Command operation settings */
+	uSdmmcCmdOp cmdOp;
+	/** Command index */
+	uint8_t bCmd;
+	/** Command return status */
+	uint8_t bStatus;
 } sSdmmcCommand;
 
 /**
  * \ingroup sdmmc_hal_def
  * SD/MMC Lock device function type */
-typedef uint32_t (*fSdmmcLock)(void* pDrv, uint8_t bSlot);
+typedef uint32_t(*fSdmmcLock) (void *pDrv, uint8_t bSlot);
 /**
  * \ingroup sdmmc_hal_def
  * SD/MMC Release device function type */
-typedef uint32_t (*fSdmmcRelease)(void* pDrv);
+typedef uint32_t(*fSdmmcRelease) (void *pDrv);
 /**
  * \ingroup sdmmc_hal_def
  * SD/MMC Send Command function type */
-typedef uint32_t (*fSdmmcSendCommand)(void* pDrv, sSdmmcCommand *pCmd);
+typedef uint32_t(*fSdmmcSendCommand) (void *pDrv, sSdmmcCommand * pCmd);
 /**
  * \ingroup sdmmc_hal_def
  * SD/MMC IO Control function type */
-typedef uint32_t (*fSdmmcIOCtrl)(void* pDrv, uint32_t dwCtrl, uint32_t param);
+typedef uint32_t(*fSdmmcIOCtrl) (void *pDrv, uint32_t dwCtrl, uint32_t param);
 
 /**
  * \ingroup sdmmc_hal_def
  * \brief SD/MMC card HAL functions.
  */
 typedef struct _SdHalFunctions {
-    
-    fSdmmcLock fLock;           /**< Pointer to lock funtion */
-    fSdmmcRelease fRelease;     /**< Pointer to release function */
-    fSdmmcSendCommand fCommand; /**< Pointer to command function */
-    fSdmmcIOCtrl fIOCtrl;       /**< Pointer to IO control function */
+
+	fSdmmcLock fLock;	    /**< Pointer to lock funtion */
+	fSdmmcRelease fRelease;	    /**< Pointer to release function */
+	fSdmmcSendCommand fCommand; /**< Pointer to command function */
+	fSdmmcIOCtrl fIOCtrl;	    /**< Pointer to IO control function */
 } sSdHalFunctions;
 
 /**
  * \brief SD/MMC card driver structure.
  * It holds the current command being processed and the SD/MMC card address.
  */
-typedef struct _SdCard
-{
-    void *pDrv;             /**< Pointer to unnderlying driver */
-    sSdHalFunctions *pHalf; /**< Pointer to underlying functions */
-    void *pExt;             /**< Pointer to extension data for SD/MMC/SDIO */
+typedef struct _SdCard {
+	void *pDrv;		/**< Pointer to unnderlying driver */
+	sSdHalFunctions *pHalf;	/**< Pointer to underlying functions */
+	void *pExt;		/**< Pointer to extension data for SD/MMC/SDIO */
 
-    sSdmmcCommand sdCmd;    /**< Command instance for underlying driver */
+	sSdmmcCommand sdCmd;	/**< Command instance for underlying driver */
 
-    uint32_t CID[128/8/4];  /**< Card Identification (CID register) */
-    uint32_t CSD[128/8/4];  /**< Card-specific data (CSD register) */
-    uint32_t EXT[512/4];    /**< Extended information */
+	uint32_t CID[128 / 8 / 4];
+				/**< Card Identification (CID register) */
+	uint32_t CSD[128 / 8 / 4];
+				/**< Card-specific data (CSD register) */
+	uint32_t EXT[512 / 4];	/**< Extended information */
 
-    uint32_t dwTranSpeed;   /**< Max supported transfer speed */
-    uint32_t dwTotalSize;   /**< Card total size
+	uint32_t dwTranSpeed;	/**< Max supported transfer speed */
+	uint32_t dwTotalSize;	/**< Card total size
                                 (0xffffffff to see number of blocks */
-    uint32_t dwNbBlocks;    /**< Card total number of blocks */
-    uint16_t wBlockSize;    /**< Card block size reported */
+	uint32_t dwNbBlocks;	/**< Card total number of blocks */
+	uint16_t wBlockSize;	/**< Card block size reported */
 
-    uint16_t wCurrBlockLen; /**< Block length used */
-    uint32_t dwCurrSpeed;   /**< Transfer speed used */
-    uint32_t dwPrevBlk;     /**< Previous accessed block for memory */
-    uint16_t wAddress;      /**< Current card address */
-    uint8_t  bCardType;     /**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
-    uint8_t  bBusMode;      /**< 1/4/8 bit bus mode */
-    uint8_t  bSlot;         /**< Card access slot */
-    uint8_t  bState;        /**< Card state */
-    uint8_t  bStatus;       /**< Card status */
-    uint8_t  reserve;
+	uint16_t wCurrBlockLen;	/**< Block length used */
+	uint32_t dwCurrSpeed;	/**< Transfer speed used */
+	uint32_t dwPrevBlk;	/**< Previous accessed block for memory */
+	uint16_t wAddress;	/**< Current card address */
+	uint8_t bCardType;	/**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
+	uint8_t bBusMode;	/**< 1/4/8 bit bus mode */
+	uint8_t bSlot;		/**< Card access slot */
+	uint8_t bState;		/**< Card state */
+	uint8_t bStatus;	/**< Card status */
+	uint8_t reserve;
 } sSdCard;
-
 
 /** \addtogroup sdmmc_struct_cmdarg SD/MMC command arguments
  *  Here lists the command arguments for SD/MMC.
@@ -409,61 +409,57 @@ typedef struct _SdCard
  * \struct MmcCmd6Arg
  * Argument for MMC CMD6
  */
-typedef struct _MmcCmd6Arg
-{
-    uint8_t access;
-    uint8_t index;
-    uint8_t value;
-    uint8_t cmdSet;
+typedef struct _MmcCmd6Arg {
+	uint8_t access;
+	uint8_t index;
+	uint8_t value;
+	uint8_t cmdSet;
 } MmcCmd6Arg, MmcSwitchArg;
 
 /**
  * \struct SdCmd6Arg
  * Argument for SD CMD6
  */
-typedef struct _SdCmd6Arg
-{
-    uint32_t accessMode:4,  /**< [ 3: 0] function group 1, access mode */
-             command:4,     /**< [ 7: 4] function group 2, command system */
-             reserveFG3:4,  /**< [11: 8] function group 3, 0xF or 0x0 */
-             reserveFG4:4,  /**< [15:12] function group 4, 0xF or 0x0 */
-             reserveFG5:4,  /**< [19:16] function group 5, 0xF or 0x0 */
-             reserveFG6:4,  /**< [23:20] function group 6, 0xF or 0x0 */
-             reserved:7,    /**< [30:24] reserved 0 */
-             mode:1;        /**< [31   ] Mode, 0: Check, 1: Switch */
+typedef struct _SdCmd6Arg {
+	uint32_t accessMode:4,	/**< [ 3: 0] function group 1, access mode */
+	 command:4,		/**< [ 7: 4] function group 2, command system */
+	 reserveFG3:4,		/**< [11: 8] function group 3, 0xF or 0x0 */
+	 reserveFG4:4,		/**< [15:12] function group 4, 0xF or 0x0 */
+	 reserveFG5:4,		/**< [19:16] function group 5, 0xF or 0x0 */
+	 reserveFG6:4,		/**< [23:20] function group 6, 0xF or 0x0 */
+	 reserved:7,		/**< [30:24] reserved 0 */
+	 mode:1;		/**< [31   ] Mode, 0: Check, 1: Switch */
 } SdCmd6Arg, SdSwitchArg;
 
 /**
  * \struct SdioCmd52Arg
  * Argument for SDIO CMD52
  */
-typedef struct _SdioCmd52Arg
-{
-    uint32_t data:8,        /**< [ 7: 0] data for writing */
-             stuff0:1,      /**< [    8] reserved */
-             regAddress:17, /**< [25: 9] register address */
-             stuff1:1,      /**< [   26] reserved */
-             rawFlag:1,     /**< [   27] Read after Write flag */
-             functionNum:3, /**< [30:28] Number of the function */
-             rwFlag:1;      /**< [   31] Direction, 1:write, 0:read. */
+typedef struct _SdioCmd52Arg {
+	uint32_t data:8,	/**< [ 7: 0] data for writing */
+	 stuff0:1,		/**< [    8] reserved */
+	 regAddress:17,		/**< [25: 9] register address */
+	 stuff1:1,		/**< [   26] reserved */
+	 rawFlag:1,		/**< [   27] Read after Write flag */
+	 functionNum:3,		/**< [30:28] Number of the function */
+	 rwFlag:1;		/**< [   31] Direction, 1:write, 0:read. */
 } SdioCmd52Arg, SdioRwDirectArg;
 /**
  * \struct SdioCmd53Arg
  * Argument for SDIO CMD53
  */
 typedef struct _SdioCmd53Arg {
-    uint32_t count:9,       /**< [ 8: 0] Byte mode: number of bytes to transfer,
+	uint32_t count:9,	/**< [ 8: 0] Byte mode: number of bytes to transfer,
                                                    0 cause 512 bytes transfer.
                                          Block mode: number of blocks to transfer,
                                                     0 set count to infinite. */
-             regAddress:17, /**< [25: 9] Start Address I/O register */
-             opCode:1,      /**< [   26] 1:Incrementing address, 0: fixed */
-             blockMode:1,   /**< [   27] (Optional) 1:block mode */
-             functionNum:3, /**< [30:28] Number of the function */
-             rwFlag:1;      /**< [   31] Direction, 1:WR, 0:RD */
+	 regAddress:17,		/**< [25: 9] Start Address I/O register */
+	 opCode:1,		/**< [   26] 1:Incrementing address, 0: fixed */
+	 blockMode:1,		/**< [   27] (Optional) 1:block mode */
+	 functionNum:3,		/**< [30:28] Number of the function */
+	 rwFlag:1;		/**< [   31] Direction, 1:WR, 0:RD */
 } SdioCmd53Arg, SdioRwExtArg;
 /**     @}*/
-
 
 /** \addtogroup sdmmc_resp_struct SD/MMC Responses Structs
  *  Here lists the command responses for SD/MMC.
@@ -477,69 +473,63 @@ typedef struct _SdioCmd53Arg {
 /**
  * Response R1 (normal response command)
  */
-typedef struct _SdmmcR1
-{
-    uint32_t cardStatus;    /**< [32: 0] Response card status flags */
+typedef struct _SdmmcR1 {
+	uint32_t cardStatus;	/**< [32: 0] Response card status flags */
 } SdmmcR1, SdmmcR1b;
 
 /**
  * Response R3 (OCR)
  */
-typedef struct _SdmmcR3
-{
-    uint32_t OCR;           /**< [32: 0] OCR register */
+typedef struct _SdmmcR3 {
+	uint32_t OCR;		/**< [32: 0] OCR register */
 } SdmmcR3;
 
 /**
  * Response R4 (MMC Fast I/O CMD39)
  */
-typedef struct _MmcR4
-{
-    uint32_t regData:8,     /**< [ 7: 0] Read register contents */
-             regAddr:7,     /**< [14: 8] Register address */
-             status:1,      /**< [   15] Status */
-             RCA:16;        /**< [31:16] RCA */
+typedef struct _MmcR4 {
+	uint32_t regData:8,	/**< [ 7: 0] Read register contents */
+	 regAddr:7,		/**< [14: 8] Register address */
+	 status:1,		/**< [   15] Status */
+	 RCA:16;		/**< [31:16] RCA */
 } MmcR4;
 
 /**
  * Response R4 (SDIO), no CRC.
  */
-typedef struct _SdioR4
-{
-    uint32_t OCR:24,            /**< [23: 0]       Operation Conditions Register */
-             reserved:3,        /**< [26:24]       Reserved */
-             memoryPresent:1,   /**< [   27] MP    Set to 1 if contains
+typedef struct _SdioR4 {
+	uint32_t OCR:24,	    /**< [23: 0]       Operation Conditions Register */
+	 reserved:3,		    /**< [26:24]       Reserved */
+	 memoryPresent:1,	    /**< [   27] MP    Set to 1 if contains
                                                    SD memory */
-             nbIoFunction:3,    /**< [30:28] NF    Total number of I/O functions
+	 nbIoFunction:3,	    /**< [30:28] NF    Total number of I/O functions
                                                    supported */
-             C:1;               /**< [   31] IORDY Set to 1 if card is ready */
+	 C:1;			    /**< [   31] IORDY Set to 1 if card is ready */
 } SdioR4;
 
 /**
  * Response R5 (MMC Interrupt request CMD40 / SDIO CMD52)
  */
-typedef struct _SdmmcR5
-{
-    uint32_t data:8,        /**< [ 7: 0] Response data */
-             response:8,    /**< [15: 8] Response status flags */
-             RCA:16;        /**< [31:16] (MMC) Winning card RCA */
+typedef struct _SdmmcR5 {
+	uint32_t data:8,	/**< [ 7: 0] Response data */
+	 response:8,		/**< [15: 8] Response status flags */
+	 RCA:16;		/**< [31:16] (MMC) Winning card RCA */
 } SdmmcR5;
 
 /**
  * Response R6 (SD RCA)
  */
-typedef struct _SdR6
-{
-    uint32_t status:16,     /**< [15: 0] Response status */
-             RCA:16;        /**< [31:16] New published RCA */
+typedef struct _SdR6 {
+	uint32_t status:16,	/**< [15: 0] Response status */
+	 RCA:16;		/**< [31:16] New published RCA */
 } SdR6;
 /**
  * Response R7 (Card interface condition)
  */
 typedef struct _SdR7 {
-    uint32_t checkPatten:8, /**< [ 7: 0] Echo-back of check pattern */
-             voltage:4,     /**< [11: 8] Voltage accepted */
-             reserved:20;   /**< [31:12] reserved bits */
+	uint32_t checkPatten:8,	/**< [ 7: 0] Echo-back of check pattern */
+	 voltage:4,		/**< [11: 8] Voltage accepted */
+	 reserved:20;		/**< [31:12] reserved bits */
 } SdR7;
 
 /**     @}*/
@@ -550,5 +540,4 @@ typedef struct _SdR7 {
  *----------------------------------------------------------------------------*/
 
 /**@}*/
-#endif /* #define _SDMMC_CMD_H */
-
+#endif				/* #define _SDMMC_CMD_H */

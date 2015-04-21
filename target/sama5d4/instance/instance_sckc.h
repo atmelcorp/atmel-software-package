@@ -32,9 +32,9 @@
 
 /* ========== Register definition for SCKC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SCKC_CR                  (0xFC068650U) /**< \brief (SCKC) Slow Clock Controller Configuration Register */
+#define REG_SCKC_CR                  (0xFC068650U) /**< \brief (SCKC) Slow Clock Controller Configuration Register */
 #else
-  #define REG_SCKC_CR (*(__IO uint32_t*)0xFC068650U) /**< \brief (SCKC) Slow Clock Controller Configuration Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SCKC_CR (*(__IO uint32_t*)0xFC068650U) /**< \brief (SCKC) Slow Clock Controller Configuration Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SCKC_INSTANCE_ */
+#endif				/* _SAMA5D4_SCKC_INSTANCE_ */

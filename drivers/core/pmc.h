@@ -35,15 +35,14 @@
  *----------------------------------------------------------------------------*/
 #include <stdint.h>
 
-
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
 
 /** Peripheral clock maxinum frequency */
 typedef struct _PeripheralClockMaxFreq {
-	uint32_t bPeriphID;             /**< Peripheral ID */
-	uint32_t bMaxFrequency;         /**< Max frequency*/
+	uint32_t bPeriphID;		/**< Peripheral ID */
+	uint32_t bMaxFrequency;		/**< Max frequency*/
 } PeripheralClockMaxFreq;
 
 /*----------------------------------------------------------------------------
@@ -54,31 +53,29 @@ typedef struct _PeripheralClockMaxFreq {
 extern "C" {
 #endif
 
-extern void PMC_EnablePeripheral( uint32_t dwId ) ;
-extern void PMC_DisablePeripheral( uint32_t dwId ) ;
+	extern void PMC_EnablePeripheral(uint32_t dwId);
+	extern void PMC_DisablePeripheral(uint32_t dwId);
 
-extern void PMC_EnableAllPeripherals( void ) ;
-extern void PMC_DisableAllPeripherals( void ) ;
+	extern void PMC_EnableAllPeripherals(void);
+	extern void PMC_DisableAllPeripherals(void);
 
-extern uint32_t PMC_IsPeriphEnabled( uint32_t dwId ) ;
+	extern uint32_t PMC_IsPeriphEnabled(uint32_t dwId);
 
-extern void PMC_SelectExt32KCrystal(void);
-extern void PMC_SelectInt32kCrystal(void);
-extern void PMC_SelectExt12M_Osc(void);
-extern void PMC_SelectInt12M_Osc(void);
-extern void PMC_SwitchMck2Pll(void);
-extern void PMC_SwitchMck2Main(void);
-extern uint32_t PMC_SwitchMck2Slck(void);
-extern void PMC_SetPllA(uint32_t pll, uint32_t cpcr);
-extern void PMC_SetMckPrescaler(uint32_t prescaler);
-extern void PMC_SetMckDivider(uint32_t divider);
-extern void PMC_SetMckPllaDiv(uint32_t divider);
-extern void PMC_DisablePllA(void);
-extern uint32_t PMC_GetPeriMaxFreq( uint32_t dwId );
-extern uint32_t PMC_SetPeriMaxClock( uint32_t dwId, uint32_t mck);
+	extern void PMC_SelectExt32KCrystal(void);
+	extern void PMC_SelectInt32kCrystal(void);
+	extern void PMC_SelectExt12M_Osc(void);
+	extern void PMC_SelectInt12M_Osc(void);
+	extern void PMC_SwitchMck2Pll(void);
+	extern void PMC_SwitchMck2Main(void);
+	extern uint32_t PMC_SwitchMck2Slck(void);
+	extern void PMC_SetPllA(uint32_t pll, uint32_t cpcr);
+	extern void PMC_SetMckPrescaler(uint32_t prescaler);
+	extern void PMC_SetMckDivider(uint32_t divider);
+	extern void PMC_SetMckPllaDiv(uint32_t divider);
+	extern void PMC_DisablePllA(void);
+	extern uint32_t PMC_GetPeriMaxFreq(uint32_t dwId);
+	extern uint32_t PMC_SetPeriMaxClock(uint32_t dwId, uint32_t mck);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* #ifndef _PMC_ */
-
+#endif				/* #ifndef _PMC_ */

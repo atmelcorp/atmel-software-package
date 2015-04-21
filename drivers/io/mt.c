@@ -27,7 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -42,11 +41,10 @@
  * \brief  Configure the MT for a specified image size, pixel format,
  * and frame period.
  */
-void mt_configure(Twid *pTwid, uint32_t width, uint32_t heigth)
+void
+mt_configure(Twid * pTwid, uint32_t width, uint32_t heigth)
 {
 	const struct mt_reg *reg_conf;
 	reg_conf = MT9v022_mono;
 	mt_write_regs(pTwid, reg_conf);
 }
-
-

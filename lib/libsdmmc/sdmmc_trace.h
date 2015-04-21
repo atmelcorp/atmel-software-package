@@ -60,10 +60,10 @@
  *  -# TRACE_FATAL (1): Indicates a major error which prevents the program from going
  *     any further.
  */
- 
- #ifndef _SDMMC_TRACE_H
- #define _SDMMC_TRACE_H
- 
+
+#ifndef _SDMMC_TRACE_H
+#define _SDMMC_TRACE_H
+
 /*
  *         Headers
  */
@@ -100,12 +100,10 @@
 
 #undef NOTRACE
 #if (DYN_TRACES==0)
-    #if (TRACE_LEVEL == TRACE_LEVEL_NO_TRACE)
-        #define NOTRACE
-    #endif
+#if (TRACE_LEVEL == TRACE_LEVEL_NO_TRACE)
+#define NOTRACE
 #endif
-
-
+#endif
 
 /*
  *         Global Macros
@@ -114,7 +112,6 @@
 #ifndef DYNTRACE
 #define DYNTRACE 0
 #endif
-
 
 /**
  *  Outputs a formatted string using 'printf' if the log level is high
@@ -196,13 +193,12 @@
 
 #endif
 
-
 /**
  *        Exported variables
  */
 /** Depending on DYN_TRACES, dwTraceLevel is a modifable runtime variable or a define */
 #if !defined(NOTRACE) && (DYN_TRACES == 1)
-    extern uint32_t dwTraceLevel ;
+extern uint32_t dwTraceLevel;
 #endif
 
-#endif /* #define _SDMMC_TRACE_H */
+#endif				/* #define _SDMMC_TRACE_H */

@@ -40,16 +40,16 @@
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void defaultSpuriousHandler( void );
-extern void defaultFiqHandler( void );
-extern void defaultIrqHandler( void );
+extern void defaultSpuriousHandler(void);
+extern void defaultFiqHandler(void);
+extern void defaultIrqHandler(void);
 
 /* Cortex-A5 core handlers */
 /*
 */
 
-extern void SYS_IrqHandler( void ) ;
-extern void Spurious_handler( void ) ;
+extern void SYS_IrqHandler(void);
+extern void Spurious_handler(void);
 
 /* Peripherals handlers */
 extern void SAIC0_Handler(void);
@@ -118,7 +118,6 @@ extern void SFR_IrqHandler(void);
 extern void AIC1_IrqHandler(void);
 extern void SAIC1_IrqHandler(void);
 extern void L2CC_IrqHandler(void);
-extern void LowLevelInit( void ) ;
+extern void LowLevelInit(void);
 
-#endif /* BOARD_LOWLEVEL_H */
-
+#endif				/* BOARD_LOWLEVEL_H */

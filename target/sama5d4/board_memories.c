@@ -95,15 +95,12 @@
 /*@{*/
 /*@}*/
 
-
-
 /**
  * \file
  *
  * Implementation of memories configuration on board.
  *
  */
-
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -121,7 +118,8 @@
  * \brief Changes the mapping of the chip so that the remap area mirrors the
  * internal ROM or the EBI CS0.
  */
-void BOARD_RemapRom( void )
+void
+BOARD_RemapRom(void)
 {
 	AXIMX->AXIMX_REMAP = 0;
 }
@@ -131,7 +129,8 @@ void BOARD_RemapRom( void )
  * internal RAM.
  */
 
-void BOARD_RemapRam( void )
+void
+BOARD_RemapRam(void)
 {
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 }
@@ -140,7 +139,8 @@ void BOARD_RemapRam( void )
  * \brief Initialize Vdd EBI drive
  * \param VddMemSel 0: 1.8V 1: 3.3V
  */
-void BOARD_ConfigureVddMemSel( uint8_t VddMemSel )
+void
+BOARD_ConfigureVddMemSel(uint8_t VddMemSel)
 {
 }
 
@@ -149,7 +149,8 @@ void BOARD_ConfigureVddMemSel( uint8_t VddMemSel )
 
 #define H64MX_DDR_SLAVE_PORT0   3
 
-static void matrix_configure_slave_ddr(void)
+static void
+matrix_configure_slave_ddr(void)
 {
 	int ddr_port;
 
@@ -157,7 +158,7 @@ static void matrix_configure_slave_ddr(void)
 	MATRIX0->MATRIX_WPMR = MPDDRC_WPMR_WPKEY_PASSWD;
 
 	/* Partition internal SRAM */
-	MATRIX0->MATRIX_SSR[11]   = 0;
+	MATRIX0->MATRIX_SSR[11] = 0;
 	MATRIX0->MATRIX_SRTSR[11] = 0x05;
 	MATRIX0->MATRIX_SASSR[11] = 0x04;
 
@@ -165,32 +166,36 @@ static void matrix_configure_slave_ddr(void)
 
 	/* Partition external DDR */
 	/* DDR port 0 not used from NWd */
-	for (ddr_port = 1 ; ddr_port < 8 ; ddr_port++) {
-		MATRIX0->MATRIX_SSR[H64MX_DDR_SLAVE_PORT0 + ddr_port]   = 0x00FFFFFF;
-		MATRIX0->MATRIX_SRTSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] = 0x0000000F;
-		MATRIX0->MATRIX_SASSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] = 0x0000FFFF;
+	for (ddr_port = 1; ddr_port < 8; ddr_port++) {
+		MATRIX0->MATRIX_SSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
+		    0x00FFFFFF;
+		MATRIX0->MATRIX_SRTSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
+		    0x0000000F;
+		MATRIX0->MATRIX_SASSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
+		    0x0000FFFF;
 	}
 }
 
 #define MATRIX_KEY_VAL (0x4D4154u)
 
-static void matrix_configure_slave_nand(void)
+static void
+matrix_configure_slave_nand(void)
 {
 	/* Disable write protection */
 	MATRIX0->MATRIX_WPMR = MATRIX_WPMR_WPKEY(MATRIX_KEY_VAL);
 	MATRIX1->MATRIX_WPMR = MATRIX_WPMR_WPKEY(MATRIX_KEY_VAL);
 
 	/* Partition internal SRAM */
-	MATRIX0->MATRIX_SSR[11]   = 0x00010101;
+	MATRIX0->MATRIX_SSR[11] = 0x00010101;
 	MATRIX0->MATRIX_SRTSR[11] = 0x05;
 	MATRIX0->MATRIX_SASSR[11] = 0x05;
 
 	MATRIX1->MATRIX_SRTSR[3] = 0xBBBBBBBB;
-	MATRIX1->MATRIX_SSR[3]   = 0x00FFFFFF;
+	MATRIX1->MATRIX_SSR[3] = 0x00FFFFFF;
 	MATRIX1->MATRIX_SASSR[3] = 0xBBBBBBBB;
 
 	MATRIX1->MATRIX_SRTSR[4] = 0x01;
-	MATRIX1->MATRIX_SSR[4]   = 0x00FFFFFF;
+	MATRIX1->MATRIX_SSR[4] = 0x00FFFFFF;
 	MATRIX1->MATRIX_SASSR[4] = 0x01;
 	MATRIX1->MATRIX_MEIER = 0x3FF;
 }
@@ -203,7 +208,8 @@ static void matrix_configure_slave_nand(void)
  Column address A[9:0] (1K)
  Bank address BA[2:0] a(24,25) (8)
  */
-void BOARD_ConfigureDdram( uint8_t device )
+void
+BOARD_ConfigureDdram(uint8_t device)
 {
 	volatile uint8_t *pDdr = (uint8_t *) DDR_CS_ADDR;
 	volatile uint32_t i;
@@ -214,10 +220,10 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Enable DDR2 clock x2 in PMC */
 	PMC->PMC_PCER0 = (1 << (ID_MPDDRC));
-	PMC->PMC_SCER  |= PMC_SCER_DDRCK;
+	PMC->PMC_SCER |= PMC_SCER_DDRCK;
 
 	/* MPDDRC I/O Calibration Register */
-	dummy_value  =  MPDDRC->MPDDRC_IO_CALIBR;
+	dummy_value = MPDDRC->MPDDRC_IO_CALIBR;
 	dummy_value &= ~MPDDRC_IO_CALIBR_RDIV_Msk;
 	dummy_value &= ~MPDDRC_IO_CALIBR_TZQIO_Msk;
 	dummy_value |= MPDDRC_IO_CALIBR_CALCODEP(7);
@@ -228,68 +234,69 @@ void BOARD_ConfigureDdram( uint8_t device )
 	MPDDRC->MPDDRC_IO_CALIBR = dummy_value;
 
 	/* Step 1: Program the memory device type */
-	/* DBW = 0 (32 bits bus wide); Memory Device = 6 = DDR2-SDRAM = 0x00000006*/
+	/* DBW = 0 (32 bits bus wide); Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
 
-	MPDDRC->MPDDRC_MD   =  MPDDRC_MD_MD_DDR2_SDRAM | MPDDRC_MD_DBW_DBW_32_BITS;
-
-	if (device == DDRAM_MT47H128M8CF) {
-		MPDDRC->MPDDRC_RD_DATA_PATH = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
-	}
-	if (device == DDRAM_MT47H128M16) {
-		MPDDRC->MPDDRC_RD_DATA_PATH = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
-	}
-
-	/* Step 2: Program the features of DDR2-SDRAM device into the Timing Register.*/
-	MPDDRC->MPDDRC_CR    = MPDDRC_CR_NR_14_ROW_BITS     |
-	                       MPDDRC_CR_NC_10_COL_BITS     |
-	                       MPDDRC_CR_CAS_DDR_CAS3       |
-	                       MPDDRC_CR_DLL_RESET_DISABLED |
-	                       MPDDRC_CR_DQMS_NOT_SHARED    |
-	                       MPDDRC_CR_ENRDM_OFF          |
-	                       MPDDRC_CR_NB_8_BANKS         |
-	                       MPDDRC_CR_NDQS_DISABLED      |
-	                       MPDDRC_CR_UNAL_SUPPORTED     |
-	                       MPDDRC_CR_OCD_DDR2_EXITCALIB;
+	MPDDRC->MPDDRC_MD = MPDDRC_MD_MD_DDR2_SDRAM | MPDDRC_MD_DBW_DBW_32_BITS;
 
 	if (device == DDRAM_MT47H128M8CF) {
-		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)    //  40 ns
-		                      | MPDDRC_TPR0_TRCD(3)    //  12.5 ns
-		                      | MPDDRC_TPR0_TWR(3)     //  15 ns
-		                      | MPDDRC_TPR0_TRC(10)    //  55 ns
-		                      | MPDDRC_TPR0_TRP(3)     //
-		                      | MPDDRC_TPR0_TRRD(2)    //  8 ns
-		                      | MPDDRC_TPR0_TWTR(2)    //  2 clock cycle
-		                      | MPDDRC_TPR0_TMRD(2);   //  2 clock cycles
+		MPDDRC->MPDDRC_RD_DATA_PATH =
+		    MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 	}
 	if (device == DDRAM_MT47H128M16) {
-		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)    //  40 ns
-		                      | MPDDRC_TPR0_TRCD(3)    //  12.5 ns
-		                      | MPDDRC_TPR0_TWR(3)     //  15 ns
-		                      | MPDDRC_TPR0_TRC(10)    //  55 ns
-		                      | MPDDRC_TPR0_TRP(3)     //  12.5 ns
-		                      | MPDDRC_TPR0_TRRD(3)    //  8 ns
-		                      | MPDDRC_TPR0_TWTR(2)    //  2 clock cycle
-		                      | MPDDRC_TPR0_TMRD(2);   //  2 clock cycles
+		MPDDRC->MPDDRC_RD_DATA_PATH =
+		    MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
+	}
+
+	/* Step 2: Program the features of DDR2-SDRAM device into the Timing Register. */
+	MPDDRC->MPDDRC_CR = MPDDRC_CR_NR_14_ROW_BITS |
+	    MPDDRC_CR_NC_10_COL_BITS |
+	    MPDDRC_CR_CAS_DDR_CAS3 |
+	    MPDDRC_CR_DLL_RESET_DISABLED |
+	    MPDDRC_CR_DQMS_NOT_SHARED |
+	    MPDDRC_CR_ENRDM_OFF |
+	    MPDDRC_CR_NB_8_BANKS |
+	    MPDDRC_CR_NDQS_DISABLED |
+	    MPDDRC_CR_UNAL_SUPPORTED | MPDDRC_CR_OCD_DDR2_EXITCALIB;
+
+	if (device == DDRAM_MT47H128M8CF) {
+		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)	//  40 ns
+		    | MPDDRC_TPR0_TRCD(3)	//  12.5 ns
+		    | MPDDRC_TPR0_TWR(3)	//  15 ns
+		    | MPDDRC_TPR0_TRC(10)	//  55 ns
+		    | MPDDRC_TPR0_TRP(3)	//
+		    | MPDDRC_TPR0_TRRD(2)	//  8 ns
+		    | MPDDRC_TPR0_TWTR(2)	//  2 clock cycle
+		    | MPDDRC_TPR0_TMRD(2);	//  2 clock cycles
+	}
+	if (device == DDRAM_MT47H128M16) {
+		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)	//  40 ns
+		    | MPDDRC_TPR0_TRCD(3)	//  12.5 ns
+		    | MPDDRC_TPR0_TWR(3)	//  15 ns
+		    | MPDDRC_TPR0_TRC(10)	//  55 ns
+		    | MPDDRC_TPR0_TRP(3)	//  12.5 ns
+		    | MPDDRC_TPR0_TRRD(3)	//  8 ns
+		    | MPDDRC_TPR0_TWTR(2)	//  2 clock cycle
+		    | MPDDRC_TPR0_TMRD(2);	//  2 clock cycles
 	}
 
 	MPDDRC->MPDDRC_TPR1 = MPDDRC_TPR1_TRFC(23)
-	                      | MPDDRC_TPR1_TXSNR(25)
-	                      | MPDDRC_TPR1_TXSRD(200)
-	                      | MPDDRC_TPR1_TXP(2);
+	    | MPDDRC_TPR1_TXSNR(25)
+	    | MPDDRC_TPR1_TXSRD(200)
+	    | MPDDRC_TPR1_TXP(2);
 
 	if (device == DDRAM_MT47H128M8CF) {
 		MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TXARD(8)
-		                      | MPDDRC_TPR2_TXARDS(2)
-		                      | MPDDRC_TPR2_TRPA(3)
-		                      | MPDDRC_TPR2_TRTP(2)
-		                      | MPDDRC_TPR2_TFAW(7);
+		    | MPDDRC_TPR2_TXARDS(2)
+		    | MPDDRC_TPR2_TRPA(3)
+		    | MPDDRC_TPR2_TRTP(2)
+		    | MPDDRC_TPR2_TFAW(7);
 	}
 	if (device == DDRAM_MT47H128M8CF) {
 		MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TXARD(8)
-		                      | MPDDRC_TPR2_TXARDS(2)
-		                      | MPDDRC_TPR2_TRPA(3)
-		                      | MPDDRC_TPR2_TRTP(2)
-		                      | MPDDRC_TPR2_TFAW(8);
+		    | MPDDRC_TPR2_TXARDS(2)
+		    | MPDDRC_TPR2_TRPA(3)
+		    | MPDDRC_TPR2_TRTP(2)
+		    | MPDDRC_TPR2_TFAW(8);
 	}
 
 	/* DDRSDRC Low-power Register */
@@ -298,10 +305,10 @@ void BOARD_ConfigureDdram( uint8_t device )
 	}
 
 	/* Step 3: An NOP command is issued to the DDR2-SDRAM. Program the NOP command into
-	    the Mode Register, the application must set MODE to 1 in the Mode Register. */
+	   the Mode Register, the application must set MODE to 1 in the Mode Register. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_NOP_CMD;
 	/* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
-	*pDdr = 0;  /* Now clocks which drive DDR2-SDRAM device are enabled.*/
+	*pDdr = 0;		/* Now clocks which drive DDR2-SDRAM device are enabled. */
 
 	/* A minimum pause of 200 ¦Ìs is provided to precede any signal toggle. (6 core cycles per iteration, core is at 396MHz: min 13200 loops) */
 	for (i = 0; i < 13300; i++) {
@@ -310,8 +317,8 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 4:  An NOP command is issued to the DDR2-SDRAM */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_NOP_CMD;
-	/* Perform a write access to any DDR2-SDRAM address to acknowledge this command.*/
-	*pDdr = 0; /* Now CKE is driven high.*/
+	/* Perform a write access to any DDR2-SDRAM address to acknowledge this command. */
+	*pDdr = 0;		/* Now CKE is driven high. */
 	/* wait 400 ns min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -319,7 +326,7 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 5: An all banks precharge command is issued to the DDR2-SDRAM. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_PRCGALL_CMD;
-	/* Perform a write access to any DDR2-SDRAM address to acknowledge this command.*/
+	/* Perform a write access to any DDR2-SDRAM address to acknowledge this command. */
 	*pDdr = 0;
 	/* wait 400 ns min */
 	for (i = 0; i < 100; i++) {
@@ -328,7 +335,7 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 6: An Extended Mode Register set (EMRS2) cycle is  issued to chose between commercialor high  temperature operations. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-	*((uint8_t *)(pDdr + DDR2_BA1(0))) = 0; /* The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 0. */
+	*((uint8_t *) (pDdr + DDR2_BA1(0))) = 0;	/* The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 0. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -336,7 +343,7 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 7: An Extended Mode Register set (EMRS3) cycle is issued to set all registers to 0. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-	*((uint8_t *)(pDdr + DDR2_BA1(0) + DDR2_BA0(0))) = 0;  /* The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 1.*/
+	*((uint8_t *) (pDdr + DDR2_BA1(0) + DDR2_BA0(0))) = 0;	/* The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 1. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -344,18 +351,18 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 8:  An Extended Mode Register set (EMRS1) cycle is issued to enable DLL. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-	*((uint8_t *)(pDdr + DDR2_BA0(0))) = 0;  /* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1. */
+	*((uint8_t *) (pDdr + DDR2_BA0(0))) = 0;	/* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1. */
 	/* An additional 200 cycles of clock are required for locking DLL */
 	for (i = 0; i < 10000; i++) {
 		asm("nop");
 	}
 
-	/* Step 9:  Program DLL field into the Configuration Register.*/
+	/* Step 9:  Program DLL field into the Configuration Register. */
 	MPDDRC->MPDDRC_CR |= MPDDRC_CR_DLL_RESET_ENABLED;
 
 	/* Step 10: A Mode Register set (MRS) cycle is issued to reset DLL. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LMR_CMD;
-	*(pDdr) = 0;  /* The write address must be chosen so that BA[1:0] bits are set to 0. */
+	*(pDdr) = 0;		/* The write address must be chosen so that BA[1:0] bits are set to 0. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -363,7 +370,7 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 11: An all banks precharge command is issued to the DDR2-SDRAM. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_PRCGALL_CMD;
-	*(pDdr) = 0;  /* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
+	*(pDdr) = 0;		/* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -371,47 +378,47 @@ void BOARD_ConfigureDdram( uint8_t device )
 
 	/* Step 12: Two auto-refresh (CBR) cycles are provided. Program the auto refresh command (CBR) into the Mode Register. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_RFSH_CMD;
-	*(pDdr) = 0;  /* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
+	*(pDdr) = 0;		/* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
 	}
 	/* Configure 2nd CBR. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_RFSH_CMD;
-	*(pDdr) = 0;  /* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
+	*(pDdr) = 0;		/* Perform a write access to any DDR2-SDRAM address to acknowledge this command */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
 	}
 
 	/* Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset). */
-	MPDDRC->MPDDRC_CR   &= ~MPDDRC_CR_DLL_RESET_ENABLED;
+	MPDDRC->MPDDRC_CR &= ~MPDDRC_CR_DLL_RESET_ENABLED;
 
 	/* Step 14: A Mode Register set (MRS) cycle is issued to program the parameters of the DDR2-SDRAM devices. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LMR_CMD;
-	*(pDdr) = 0;  /* The write address must be chosen so that BA[1:0] are set to 0. */
+	*(pDdr) = 0;		/* The write address must be chosen so that BA[1:0] are set to 0. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
 	}
 
 	/* Step 15: Program OCD field into the Configuration Register to high (OCD calibration default). */
-	MPDDRC->MPDDRC_CR   |= MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB;
+	MPDDRC->MPDDRC_CR |= MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB;
 
 	/* Step 16: An Extended Mode Register set (EMRS1) cycle is issued to OCD default value. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-	*((uint8_t *)(pDdr + DDR2_BA0(0))) = 0;  /* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1.*/
+	*((uint8_t *) (pDdr + DDR2_BA0(0))) = 0;	/* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
 	}
 
 	/* Step 17: Program OCD field into the Configuration Register to low (OCD calibration mode exit). */
-	MPDDRC->MPDDRC_CR   &= ~(MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB);
+	MPDDRC->MPDDRC_CR &= ~(MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB);
 
-	/* Step 18: An Extended Mode Register set (EMRS1) cycle is issued to enable OCD exit.*/
+	/* Step 18: An Extended Mode Register set (EMRS1) cycle is issued to enable OCD exit. */
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-	*((uint8_t *)(pDdr + DDR2_BA0(0))) = 0;  /* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1.*/
+	*((uint8_t *) (pDdr + DDR2_BA0(0))) = 0;	/* The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1. */
 	/* wait 2 cycles min */
 	for (i = 0; i < 100; i++) {
 		asm("nop");
@@ -427,7 +434,7 @@ void BOARD_ConfigureDdram( uint8_t device )
 	   refresh rate of 7.8125¦Ìs (commercial), To ensure all rows of all banks are properly
 	   refreshed, 8192 REFRESH commands must be issued every 64ms (commercial) */
 	/* ((64 x 10(^-3))/8192) x133 x (10^6) */
-	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(0x2b0); /* Set Refresh timer 7.8125 us*/
+	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(0x2b0);	/* Set Refresh timer 7.8125 us */
 	/* OK now we are ready to work on the DDRSDR */
 	/* wait for end of calibration */
 	for (i = 0; i < 500; i++) {
@@ -438,48 +445,47 @@ void BOARD_ConfigureDdram( uint8_t device )
 /**
  * \brief Configures the EBI for Sdram (LPSDR Micron MT48H8M16) access.
  */
-void BOARD_ConfigureSdram( void )
+void
+BOARD_ConfigureSdram(void)
 {
 }
 
 /** \brief Configures the EBI for NandFlash access at 133Mhz.
  */
-void BOARD_ConfigureNandFlash( uint8_t busWidth )
+void
+BOARD_ConfigureNandFlash(uint8_t busWidth)
 {
 	PMC_EnablePeripheral(ID_HSMC);
 	matrix_configure_slave_nand();
 
-	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = 0
-	                                    | HSMC_SETUP_NWE_SETUP(2)
-	                                    | HSMC_SETUP_NCS_WR_SETUP(2)
-	                                    | HSMC_SETUP_NRD_SETUP(2)
-	                                    | HSMC_SETUP_NCS_RD_SETUP(2);
+	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = 0 | HSMC_SETUP_NWE_SETUP(2)
+	    | HSMC_SETUP_NCS_WR_SETUP(2)
+	    | HSMC_SETUP_NRD_SETUP(2)
+	    | HSMC_SETUP_NCS_RD_SETUP(2);
 
-	HSMC->SMC_CS_NUMBER[3].HSMC_PULSE = 0
-	                                    | HSMC_PULSE_NWE_PULSE(7)
-	                                    | HSMC_PULSE_NCS_WR_PULSE(7)
-	                                    | HSMC_PULSE_NRD_PULSE(7)
-	                                    | HSMC_PULSE_NCS_RD_PULSE(7);
+	HSMC->SMC_CS_NUMBER[3].HSMC_PULSE = 0 | HSMC_PULSE_NWE_PULSE(7)
+	    | HSMC_PULSE_NCS_WR_PULSE(7)
+	    | HSMC_PULSE_NRD_PULSE(7)
+	    | HSMC_PULSE_NCS_RD_PULSE(7);
 
-	HSMC->SMC_CS_NUMBER[3].HSMC_CYCLE = 0
-	                                    | HSMC_CYCLE_NWE_CYCLE(13)
-	                                    | HSMC_CYCLE_NRD_CYCLE(13);
+	HSMC->SMC_CS_NUMBER[3].HSMC_CYCLE = 0 | HSMC_CYCLE_NWE_CYCLE(13)
+	    | HSMC_CYCLE_NRD_CYCLE(13);
 
 	HSMC->SMC_CS_NUMBER[3].HSMC_TIMINGS = HSMC_TIMINGS_TCLR(3)
-	                                      | HSMC_TIMINGS_TADL(27)
-	                                      | HSMC_TIMINGS_TAR(3)
-	                                      | HSMC_TIMINGS_TRR(6)
-	                                      | HSMC_TIMINGS_TWB(5)
-	                                      | HSMC_TIMINGS_RBNSEL(3)
-	                                      |(HSMC_TIMINGS_NFSEL);
+	    | HSMC_TIMINGS_TADL(27)
+	    | HSMC_TIMINGS_TAR(3)
+	    | HSMC_TIMINGS_TRR(6)
+	    | HSMC_TIMINGS_TWB(5)
+	    | HSMC_TIMINGS_RBNSEL(3)
+	    | (HSMC_TIMINGS_NFSEL);
 	HSMC->SMC_CS_NUMBER[3].HSMC_MODE = HSMC_MODE_READ_MODE |
-	                                   HSMC_MODE_WRITE_MODE |
-	                                   ((busWidth == 8 )? HSMC_MODE_DBW_BIT_8 :HSMC_MODE_DBW_BIT_16) |
-	                                   HSMC_MODE_TDF_CYCLES(1);
+	    HSMC_MODE_WRITE_MODE |
+	    ((busWidth == 8) ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
+	    HSMC_MODE_TDF_CYCLES(1);
 }
 
-
-void BOARD_ConfigureNorFlash( uint8_t busWidth )
+void
+BOARD_ConfigureNorFlash(uint8_t busWidth)
 {
 	uint32_t dbw;
 	PMC_EnablePeripheral(ID_HSMC);
@@ -493,10 +499,8 @@ void BOARD_ConfigureNorFlash( uint8_t busWidth )
 	HSMC->SMC_CS_NUMBER[0].HSMC_PULSE = 0x0B0B0A0A;
 	HSMC->SMC_CS_NUMBER[0].HSMC_CYCLE = 0x000E000B;
 	HSMC->SMC_CS_NUMBER[0].HSMC_TIMINGS = 0x00000000;
-	HSMC->SMC_CS_NUMBER[0].HSMC_MODE  = HSMC_MODE_WRITE_MODE
-	                                    | HSMC_MODE_READ_MODE
-	                                    | dbw
-	                                    | HSMC_MODE_EXNW_MODE_DISABLED
-	                                    | HSMC_MODE_TDF_CYCLES(1);
+	HSMC->SMC_CS_NUMBER[0].HSMC_MODE = HSMC_MODE_WRITE_MODE
+	    | HSMC_MODE_READ_MODE
+	    | dbw | HSMC_MODE_EXNW_MODE_DISABLED | HSMC_MODE_TDF_CYCLES(1);
 
 }

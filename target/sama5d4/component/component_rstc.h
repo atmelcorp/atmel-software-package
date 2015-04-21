@@ -39,11 +39,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Rstc hardware registers */
 typedef struct {
-  __O  uint32_t RSTC_CR; /**< \brief (Rstc Offset: 0x00) Control Register */
-  __I  uint32_t RSTC_SR; /**< \brief (Rstc Offset: 0x04) Status Register */
-  __IO uint32_t RSTC_MR; /**< \brief (Rstc Offset: 0x08) Mode Register */
+	__O uint32_t RSTC_CR;  /**< \brief (Rstc Offset: 0x00) Control Register */
+	__I uint32_t RSTC_SR;  /**< \brief (Rstc Offset: 0x04) Status Register */
+	__IO uint32_t RSTC_MR; /**< \brief (Rstc Offset: 0x08) Mode Register */
 } Rstc;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RSTC_CR : (RSTC Offset: 0x00) Control Register -------- */
 #define RSTC_CR_PROCRST (0x1u << 0) /**< \brief (RSTC_CR) Processor Reset */
 #define RSTC_CR_PERRST (0x1u << 2) /**< \brief (RSTC_CR) Peripheral Reset */
@@ -54,7 +54,7 @@ typedef struct {
 /* -------- RSTC_SR : (RSTC Offset: 0x04) Status Register -------- */
 #define RSTC_SR_URSTS (0x1u << 0) /**< \brief (RSTC_SR) User Reset Status */
 #define RSTC_SR_RSTTYP_Pos 8
-#define RSTC_SR_RSTTYP_Msk (0x7u << RSTC_SR_RSTTYP_Pos) /**< \brief (RSTC_SR) Reset Type */
+#define RSTC_SR_RSTTYP_Msk (0x7u << RSTC_SR_RSTTYP_Pos)	/**< \brief (RSTC_SR) Reset Type */
 #define   RSTC_SR_RSTTYP_GENERAL_RST (0x0u << 8) /**< \brief (RSTC_SR) Both VDDCORE and VDDBU rising */
 #define   RSTC_SR_RSTTYP_WKUP_RST (0x1u << 8) /**< \brief (RSTC_SR) VDDCORE rising */
 #define   RSTC_SR_RSTTYP_WDT_RST (0x2u << 8) /**< \brief (RSTC_SR) Watchdog fault occurred */
@@ -72,5 +72,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_RSTC_COMPONENT_ */
+#endif				/* _SAMA5D4_RSTC_COMPONENT_ */

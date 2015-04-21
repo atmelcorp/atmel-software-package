@@ -40,20 +40,21 @@
 
 struct __FILE {
 	int handle;
-} ;
+};
 FILE __stdout;
 FILE __stderr;
 
 /*------------------------------------------------------------------------------
  *  Outputs a character.
  *------------------------------------------------------------------------------*/
-int fputc(int ch, FILE *f)
+int
+fputc(int ch, FILE * f)
 {
 	if ((f == stdout) || (f == stderr)) {
-		DBGU_PutChar( ch ) ;
-		return ch ;
+		DBGU_PutChar(ch);
+		return ch;
 	} else {
-		return EOF ;
+		return EOF;
 	}
 }
 
@@ -65,22 +66,23 @@ int fputc(int ch, FILE *f)
 /*      return EOF ; */
 /* } */
 
-
-void _ttywrch( int ch )
+void
+_ttywrch(int ch)
 {
-	DBGU_PutChar( (uint8_t)ch ) ;
+	DBGU_PutChar((uint8_t) ch);
 }
 
-void _sys_exit(int return_code)
+void
+_sys_exit(int return_code)
 {
-	while ( 1 ) ;  /* endless loop */
+	while (1) ;		/* endless loop */
 }
 
 /*------------------------------------------------------------------------------
  *  Low level functions I/O for assert().
  *------------------------------------------------------------------------------*/
-void __assert_puts(const char *str)
+void
+__assert_puts(const char *str)
 {
 	printf("%s", str);
 }
-

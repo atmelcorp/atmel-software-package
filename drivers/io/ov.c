@@ -27,7 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -40,16 +39,16 @@
 const static struct capture_size ov_sizes[] = {
 //  {width, height}
 	/// VGA
-	{ 320, 240 },
-	{ 640, 360 },
-	{ 640, 480 },
+	{320, 240},
+	{640, 360},
+	{640, 480},
 	// SWVGA
-	{ 800, 600 },
+	{800, 600},
 	/// SXGA
-	{1280, 960 },
-	{1280, 720 },
+	{1280, 960},
+	{1280, 720},
 	/// UXGA
-	{1600, 1200 },
+	{1600, 1200},
 };
 
 /*----------------------------------------------------------------------------
@@ -60,7 +59,8 @@ const static struct capture_size ov_sizes[] = {
  * \brief  Configure the OV for a specified image size, pixel format,
  * and frame period.
  */
-void ov_configure(Twid *pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
+void
+ov_configure(Twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
 {
 	const struct ov_reg *reg_conf;
 	uint8_t goodCaptureSize = 0;
@@ -68,9 +68,9 @@ void ov_configure(Twid *pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
 
 	reg_conf = ov5640_yuv_vga;
 	TRACE_DEBUG("ovxxx_configure\n\r");
-	for( i = 0; i< sizeof(ov_sizes); i++ ) {
-		if( ov_sizes[i].width == width ) {
-			if( ov_sizes[i].height != heigth ) {
+	for (i = 0; i < sizeof (ov_sizes); i++) {
+		if (ov_sizes[i].width == width) {
+			if (ov_sizes[i].height != heigth) {
 				TRACE_INFO("ov configure vsize not define\n\r");
 			} else {
 				goodCaptureSize = 1;
@@ -78,106 +78,106 @@ void ov_configure(Twid *pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
 			}
 		}
 	}
-	if( goodCaptureSize == 0 ) {
+	if (goodCaptureSize == 0) {
 		TRACE_ERROR("Problem size\n\r");
-		while(1);
+		while (1) ;
 	}
 	switch (ovType) {
-	case OV_2640: {
-		// Default value
-		reg_conf = ov2640_yuv_qvga;
-		// common register initialization
-		switch(width) {
-		case 320: //VGA
-			printf("-I- QVGA 640 x 480\n\r");
+	case OV_2640:{
+			// Default value
 			reg_conf = ov2640_yuv_qvga;
-			break;
-		case 640: //VGA
-			printf("-I- VGA 640 x 480\n\r");
-			reg_conf = ov2640_yuv_vga;
-			break;
-		default:
-			TRACE_DEBUG("ov2640_configure problem\n\r");
+			// common register initialization
+			switch (width) {
+			case 320:	//VGA
+				printf("-I- QVGA 640 x 480\n\r");
+				reg_conf = ov2640_yuv_qvga;
+				break;
+			case 640:	//VGA
+				printf("-I- VGA 640 x 480\n\r");
+				reg_conf = ov2640_yuv_vga;
+				break;
+			default:
+				TRACE_DEBUG("ov2640_configure problem\n\r");
+				break;
+			}
 			break;
 		}
-		break;
-	}
-	case OV_7740: {
-		// Default value
-		reg_conf = ov7740_yuv_vga;
-		// common register initialization
-		switch(width) {
-		case 640: //VGA
-			printf("-I- VGA 640 x 480\n\r");
+	case OV_7740:{
+			// Default value
 			reg_conf = ov7740_yuv_vga;
-			break;
-		default:
-			TRACE_DEBUG("ov7740_configure problem\n\r");
+			// common register initialization
+			switch (width) {
+			case 640:	//VGA
+				printf("-I- VGA 640 x 480\n\r");
+				reg_conf = ov7740_yuv_vga;
+				break;
+			default:
+				TRACE_DEBUG("ov7740_configure problem\n\r");
+				break;
+			}
 			break;
 		}
-		break;
-	}
-	case OV_9740: {
-		// Default value
-		reg_conf = ov9740_yuv_vga;
-		// common register initialization
-		switch(width) {
-		case 640: //VGA
-			printf("-I- VGA 640 x 360\n\r");
+	case OV_9740:{
+			// Default value
 			reg_conf = ov9740_yuv_vga;
-			break;
-		case 1280: //VGA
-			printf("-I- VGA 1280 x 720\n\r");
-			reg_conf = ov9740_yuv_sxga;
-			break;
-		default:
-			TRACE_DEBUG("ov9740_configure problem\n\r");
+			// common register initialization
+			switch (width) {
+			case 640:	//VGA
+				printf("-I- VGA 640 x 360\n\r");
+				reg_conf = ov9740_yuv_vga;
+				break;
+			case 1280:	//VGA
+				printf("-I- VGA 1280 x 720\n\r");
+				reg_conf = ov9740_yuv_sxga;
+				break;
+			default:
+				TRACE_DEBUG("ov9740_configure problem\n\r");
+				break;
+			}
 			break;
 		}
-		break;
-	}
-	case OV_2643: {
-		// Default value
-		reg_conf = ov2643_yuv_vga;
-		// common register initialization
-		switch(width) {
-		case 1600: //UXGA
-			printf("-I- UXGA 1600 x 1200 \n\r");
-			reg_conf = ov2643_yuv_uxga;
-			break;
-		case 800: //SWVGA
-			printf("-I- SWVGA 800 x 600\n\r");
-			reg_conf = ov2643_yuv_swvga;
-			break;
-		case 640: //VGA
-			printf("-I- VGA 640 x 480\n\r");
+	case OV_2643:{
+			// Default value
 			reg_conf = ov2643_yuv_vga;
-			break;
-		default:
-			TRACE_DEBUG("ov2643_configure problem\n\r");
+			// common register initialization
+			switch (width) {
+			case 1600:	//UXGA
+				printf("-I- UXGA 1600 x 1200 \n\r");
+				reg_conf = ov2643_yuv_uxga;
+				break;
+			case 800:	//SWVGA
+				printf("-I- SWVGA 800 x 600\n\r");
+				reg_conf = ov2643_yuv_swvga;
+				break;
+			case 640:	//VGA
+				printf("-I- VGA 640 x 480\n\r");
+				reg_conf = ov2643_yuv_vga;
+				break;
+			default:
+				TRACE_DEBUG("ov2643_configure problem\n\r");
+				break;
+			}
 			break;
 		}
-		break;
-	}
-	case OV_5640: {
-		// Default value
-		reg_conf = ov5640_yuv_vga;
-		// common register initialization
-		switch(width) {
-		case 640: //VGA
-			printf("-I- VGA 640 x 480\n\r");
+	case OV_5640:{
+			// Default value
 			reg_conf = ov5640_yuv_vga;
-			break;
-		case 1280: //SXGA
-			printf("-I- SXGA 1280 x 720\n\r");
-			reg_conf = ov5640_yuv_sxga;
-			break;
-		default:
-			TRACE_DEBUG("ov5640_configure problem\n\r");
+			// common register initialization
+			switch (width) {
+			case 640:	//VGA
+				printf("-I- VGA 640 x 480\n\r");
+				reg_conf = ov5640_yuv_vga;
+				break;
+			case 1280:	//SXGA
+				printf("-I- SXGA 1280 x 720\n\r");
+				reg_conf = ov5640_yuv_sxga;
+				break;
+			default:
+				TRACE_DEBUG("ov5640_configure problem\n\r");
+				break;
+			}
 			break;
 		}
-		break;
-	}
 	}
 	if ((ovType == OV_5640) || (ovType == OV_9740))
 		ov_write_regs16(pTwid, reg_conf);
@@ -185,11 +185,11 @@ void ov_configure(Twid *pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
 		ov_write_regs8(pTwid, reg_conf);
 }
 
-
 /**
  * \brief  Configure the OV 5640 afc fireware.
  */
-void ov_5640Afc_Firmware(Twid *pTwid)
+void
+ov_5640Afc_Firmware(Twid * pTwid)
 {
 	const struct ov_reg *reg_conf;
 	reg_conf = ov5640_afc;

@@ -38,4 +38,4 @@
 #error "No chip defined"
 #endif
 
-#endif /* _CHIP_HEADER_ */
+#endif				/* _CHIP_HEADER_ */

@@ -99,10 +99,10 @@ extern const Font gFont;
 /** \addtogroup lcdd_font_func Font Functions */
 /** @{*/
 
-extern void LCDD_DrawChar( uint32_t x, uint32_t y, uint8_t c, uint32_t color ) ;
+extern void LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
 
-extern void LCDD_DrawCharWithBGColor( uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor, uint32_t bgColor );
+extern void LCDD_DrawCharWithBGColor(uint32_t x, uint32_t y, uint8_t c,
+				     uint32_t fontColor, uint32_t bgColor);
 /** @}*/
 /**@}*/
-#endif /* #ifndef LCD_FONT_ */
-
+#endif				/* #ifndef LCD_FONT_ */

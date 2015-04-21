@@ -32,9 +32,9 @@
 
 /* ========== Register definition for AXIMX peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_AXIMX_REMAP                 (0x00700000U) /**< \brief (AXIMX) AXI Matrix Remap Register */
+#define REG_AXIMX_REMAP                 (0x00700000U) /**< \brief (AXIMX) AXI Matrix Remap Register */
 #else
-  #define REG_AXIMX_REMAP (*(__O uint32_t*)0x00700000U) /**< \brief (AXIMX) AXI Matrix Remap Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_AXIMX_REMAP (*(__O uint32_t*)0x00700000U) /**< \brief (AXIMX) AXI Matrix Remap Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_AXIMX_INSTANCE_ */
+#endif				/* _SAMA5D4_AXIMX_INSTANCE_ */

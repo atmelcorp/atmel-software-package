@@ -57,7 +57,6 @@
  *
  */
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -73,7 +72,8 @@
  * \brief Enables the TRNG to provide Random Values.
  * \param key  This key is to be written when the ENABLE bit is set.
  */
-void TRNG_Enable(uint32_t key)
+void
+TRNG_Enable(uint32_t key)
 {
 	TRNG->TRNG_CR = TRNG_CR_ENABLE | TRNG_CR_KEY(key);
 }
@@ -82,7 +82,8 @@ void TRNG_Enable(uint32_t key)
  * \brief Disables the TRNG to provide Random Values.
  * \param key  This key is to be written when the DISABLE bit is set.
  */
-void TRNG_Disable(uint32_t key)
+void
+TRNG_Disable(uint32_t key)
 {
 	TRNG->TRNG_CR = TRNG_CR_KEY(key);
 }
@@ -90,7 +91,8 @@ void TRNG_Disable(uint32_t key)
 /**
  * \brief Data Ready Interrupt enable.
  */
-void TRNG_EnableIt(void)
+void
+TRNG_EnableIt(void)
 {
 	TRNG->TRNG_IER = TRNG_IER_DATRDY;
 }
@@ -98,7 +100,8 @@ void TRNG_EnableIt(void)
 /**
  * \brief Data Ready Interrupt Disable.
  */
-void TRNG_DisableIt(void)
+void
+TRNG_DisableIt(void)
 {
 	TRNG->TRNG_IDR = TRNG_IDR_DATRDY;
 }
@@ -107,7 +110,8 @@ void TRNG_DisableIt(void)
  * \brief Get the current status register of the given TRNG peripheral.
  * \return  TRNG status register.
  */
-uint32_t TRNG_GetStatus(void)
+uint32_t
+TRNG_GetStatus(void)
 {
 	return TRNG->TRNG_ISR;
 }
@@ -116,7 +120,8 @@ uint32_t TRNG_GetStatus(void)
  * \brief Get the  32-bit Output Data from TRNG peripheral.
  * \return  TRNG output data.
  */
-uint32_t TRNG_GetRandData(void)
+uint32_t
+TRNG_GetRandData(void)
 {
 	return TRNG->TRNG_ODATA;
 }

@@ -39,98 +39,98 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief SmcCs_number hardware registers */
 typedef struct {
-  __IO uint32_t HSMC_SETUP;   /**< \brief (SmcCs_number Offset: 0x0) HSMC Setup Register */
-  __IO uint32_t HSMC_PULSE;   /**< \brief (SmcCs_number Offset: 0x4) HSMC Pulse Register */
-  __IO uint32_t HSMC_CYCLE;   /**< \brief (SmcCs_number Offset: 0x8) HSMC Cycle Register */
-  __IO uint32_t HSMC_TIMINGS; /**< \brief (SmcCs_number Offset: 0xC) HSMC Timings Register */
-  __IO uint32_t HSMC_MODE;    /**< \brief (SmcCs_number Offset: 0x10) HSMC Mode Register */
+	__IO uint32_t HSMC_SETUP;   /**< \brief (SmcCs_number Offset: 0x0) HSMC Setup Register */
+	__IO uint32_t HSMC_PULSE;   /**< \brief (SmcCs_number Offset: 0x4) HSMC Pulse Register */
+	__IO uint32_t HSMC_CYCLE;   /**< \brief (SmcCs_number Offset: 0x8) HSMC Cycle Register */
+	__IO uint32_t HSMC_TIMINGS; /**< \brief (SmcCs_number Offset: 0xC) HSMC Timings Register */
+	__IO uint32_t HSMC_MODE;    /**< \brief (SmcCs_number Offset: 0x10) HSMC Mode Register */
 } SmcCs_number;
 /** \brief SmcPmecc hardware registers */
 typedef struct {
-  __I uint32_t HSMC_PMECC[11]; /**< \brief (SmcPmecc Offset: 0x0) PMECC Redundancy x Register */
-  __I uint32_t Reserved1[5];
+	__I uint32_t HSMC_PMECC[11]; /**< \brief (SmcPmecc Offset: 0x0) PMECC Redundancy x Register */
+	__I uint32_t Reserved1[5];
 } SmcPmecc;
 /** \brief SmcRem hardware registers */
 typedef struct {
-  __I uint32_t HSMC_REM[12]; /**< \brief (SmcRem Offset: 0x0) PMECC Remainder x Register */
-  __I uint32_t Reserved2[4];
+	__I uint32_t HSMC_REM[12]; /**< \brief (SmcRem Offset: 0x0) PMECC Remainder x Register */
+	__I uint32_t Reserved2[4];
 } SmcRem;
 /** \brief Smc hardware registers */
 #define SMCPMECC_NUMBER 8
 #define SMCREM_NUMBER 8
 #define SMCCS_NUMBER_NUMBER 4
 typedef struct {
-  __IO uint32_t     HSMC_CFG;                           /**< \brief (Smc Offset: 0x000) HSMC NFC Configuration Register */
-  __O  uint32_t     HSMC_CTRL;                          /**< \brief (Smc Offset: 0x004) HSMC NFC Control Register */
-  __I  uint32_t     HSMC_SR;                            /**< \brief (Smc Offset: 0x008) HSMC NFC Status Register */
-  __O  uint32_t     HSMC_IER;                           /**< \brief (Smc Offset: 0x00C) HSMC NFC Interrupt Enable Register */
-  __O  uint32_t     HSMC_IDR;                           /**< \brief (Smc Offset: 0x010) HSMC NFC Interrupt Disable Register */
-  __I  uint32_t     HSMC_IMR;                           /**< \brief (Smc Offset: 0x014) HSMC NFC Interrupt Mask Register */
-  __IO uint32_t     HSMC_ADDR;                          /**< \brief (Smc Offset: 0x018) HSMC NFC Address Cycle Zero Register */
-  __IO uint32_t     HSMC_BANK;                          /**< \brief (Smc Offset: 0x01C) HSMC Bank Address Register */
-  __I  uint32_t     Reserved1[20];
-  __IO uint32_t     HSMC_PMECCFG;                       /**< \brief (Smc Offset: 0x070) PMECC Configuration Register */
-  __IO uint32_t     HSMC_PMECCSAREA;                    /**< \brief (Smc Offset: 0x074) PMECC Spare Area Size Register */
-  __IO uint32_t     HSMC_PMECCSADDR;                    /**< \brief (Smc Offset: 0x078) PMECC Start Address Register */
-  __IO uint32_t     HSMC_PMECCEADDR;                    /**< \brief (Smc Offset: 0x07C) PMECC End Address Register */
-  __I  uint32_t     Reserved2[1];
-  __O  uint32_t     HSMC_PMECCTRL;                      /**< \brief (Smc Offset: 0x084) PMECC Control Register */
-  __I  uint32_t     HSMC_PMECCSR;                       /**< \brief (Smc Offset: 0x088) PMECC Status Register */
-  __O  uint32_t     HSMC_PMECCIER;                      /**< \brief (Smc Offset: 0x08C) PMECC Interrupt Enable register */
-  __O  uint32_t     HSMC_PMECCIDR;                      /**< \brief (Smc Offset: 0x090) PMECC Interrupt Disable Register */
-  __I  uint32_t     HSMC_PMECCIMR;                      /**< \brief (Smc Offset: 0x094) PMECC Interrupt Mask Register */
-  __I  uint32_t     HSMC_PMECCISR;                      /**< \brief (Smc Offset: 0x098) PMECC Interrupt Status Register */
-  __I  uint32_t     Reserved3[5];
-       SmcPmecc     SMC_PMECC[SMCPMECC_NUMBER];         /**< \brief (Smc Offset: 0xB0) sec_num = 0 .. 7 */
-       SmcRem       SMC_REM[SMCREM_NUMBER];             /**< \brief (Smc Offset: 0x2B0) sec_num = 0 .. 7 */
-  __I  uint32_t     Reserved4[20];
-  __IO uint32_t     HSMC_ELCFG;                         /**< \brief (Smc Offset: 0x500) PMECC Error Location Configuration Register */
-  __I  uint32_t     HSMC_ELPRIM;                        /**< \brief (Smc Offset: 0x504) PMECC Error Location Primitive Register */
-  __O  uint32_t     HSMC_ELEN;                          /**< \brief (Smc Offset: 0x508) PMECC Error Location Enable Register */
-  __O  uint32_t     HSMC_ELDIS;                         /**< \brief (Smc Offset: 0x50C) PMECC Error Location Disable Register */
-  __I  uint32_t     HSMC_ELSR;                          /**< \brief (Smc Offset: 0x510) PMECC Error Location Status Register */
-  __O  uint32_t     HSMC_ELIER;                         /**< \brief (Smc Offset: 0x514) PMECC Error Location Interrupt Enable register */
-  __O  uint32_t     HSMC_ELIDR;                         /**< \brief (Smc Offset: 0x518) PMECC Error Location Interrupt Disable Register */
-  __I  uint32_t     HSMC_ELIMR;                         /**< \brief (Smc Offset: 0x51C) PMECC Error Location Interrupt Mask Register */
-  __I  uint32_t     HSMC_ELISR;                         /**< \brief (Smc Offset: 0x520) PMECC Error Location Interrupt Status Register */
-  __I  uint32_t     Reserved5[1];
-  __IO uint32_t     HSMC_SIGMA0;                        /**< \brief (Smc Offset: 0x528) PMECC Error Location SIGMA 0 Register */
-  __IO uint32_t     HSMC_SIGMA1;                        /**< \brief (Smc Offset: 0x52C) PMECC Error Location SIGMA 1 Register */
-  __IO uint32_t     HSMC_SIGMA2;                        /**< \brief (Smc Offset: 0x530) PMECC Error Location SIGMA 2 Register */
-  __IO uint32_t     HSMC_SIGMA3;                        /**< \brief (Smc Offset: 0x534) PMECC Error Location SIGMA 3 Register */
-  __IO uint32_t     HSMC_SIGMA4;                        /**< \brief (Smc Offset: 0x538) PMECC Error Location SIGMA 4 Register */
-  __IO uint32_t     HSMC_SIGMA5;                        /**< \brief (Smc Offset: 0x53C) PMECC Error Location SIGMA 5 Register */
-  __IO uint32_t     HSMC_SIGMA6;                        /**< \brief (Smc Offset: 0x540) PMECC Error Location SIGMA 6 Register */
-  __IO uint32_t     HSMC_SIGMA7;                        /**< \brief (Smc Offset: 0x544) PMECC Error Location SIGMA 7 Register */
-  __IO uint32_t     HSMC_SIGMA8;                        /**< \brief (Smc Offset: 0x548) PMECC Error Location SIGMA 8 Register */
-  __IO uint32_t     HSMC_SIGMA9;                        /**< \brief (Smc Offset: 0x54C) PMECC Error Location SIGMA 9 Register */
-  __IO uint32_t     HSMC_SIGMA10;                       /**< \brief (Smc Offset: 0x550) PMECC Error Location SIGMA 10 Register */
-  __IO uint32_t     HSMC_SIGMA11;                       /**< \brief (Smc Offset: 0x554) PMECC Error Location SIGMA 11 Register */
-  __IO uint32_t     HSMC_SIGMA12;                       /**< \brief (Smc Offset: 0x558) PMECC Error Location SIGMA 12 Register */
-  __IO uint32_t     HSMC_SIGMA13;                       /**< \brief (Smc Offset: 0x55C) PMECC Error Location SIGMA 13 Register */
-  __IO uint32_t     HSMC_SIGMA14;                       /**< \brief (Smc Offset: 0x560) PMECC Error Location SIGMA 14 Register */
-  __IO uint32_t     HSMC_SIGMA15;                       /**< \brief (Smc Offset: 0x564) PMECC Error Location SIGMA 15 Register */
-  __IO uint32_t     HSMC_SIGMA16;                       /**< \brief (Smc Offset: 0x568) PMECC Error Location SIGMA 16 Register */
-  __IO uint32_t     HSMC_SIGMA17;                       /**< \brief (Smc Offset: 0x56C) PMECC Error Location SIGMA 17 Register */
-  __IO uint32_t     HSMC_SIGMA18;                       /**< \brief (Smc Offset: 0x570) PMECC Error Location SIGMA 18 Register */
-  __IO uint32_t     HSMC_SIGMA19;                       /**< \brief (Smc Offset: 0x574) PMECC Error Location SIGMA 19 Register */
-  __IO uint32_t     HSMC_SIGMA20;                       /**< \brief (Smc Offset: 0x578) PMECC Error Location SIGMA 20 Register */
-  __IO uint32_t     HSMC_SIGMA21;                       /**< \brief (Smc Offset: 0x57C) PMECC Error Location SIGMA 21 Register */
-  __IO uint32_t     HSMC_SIGMA22;                       /**< \brief (Smc Offset: 0x580) PMECC Error Location SIGMA 22 Register */
-  __IO uint32_t     HSMC_SIGMA23;                       /**< \brief (Smc Offset: 0x584) PMECC Error Location SIGMA 23 Register */
-  __IO uint32_t     HSMC_SIGMA24;                       /**< \brief (Smc Offset: 0x588) PMECC Error Location SIGMA 24 Register */
-  __I  uint32_t     HSMC_ERRLOC[24];                    /**< \brief (Smc Offset: 0x58C) PMECC Error Location 0 Register */
-  __I  uint32_t     Reserved6[5];
-       SmcCs_number SMC_CS_NUMBER[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x600) CS_number = 0 .. 3 */
-  __I  uint32_t     Reserved7[20];
-  __IO uint32_t     HSMC_OCMS;                          /**< \brief (Smc Offset: 0x6A0) HSMC Off Chip Memory Scrambling Register */
-  __O  uint32_t     HSMC_KEY1;                          /**< \brief (Smc Offset: 0x6A4) HSMC Off Chip Memory Scrambling KEY1 Register */
-  __O  uint32_t     HSMC_KEY2;                          /**< \brief (Smc Offset: 0x6A8) HSMC Off Chip Memory Scrambling KEY2 Register */
-  __I  uint32_t     Reserved8[14];
-  __IO uint32_t     HSMC_WPMR;                          /**< \brief (Smc Offset: 0x6E4) HSMC Write Protection Mode Register */
-  __I  uint32_t     HSMC_WPSR;                          /**< \brief (Smc Offset: 0x6E8) HSMC Write Protection Status Register */
+	__IO uint32_t HSMC_CFG;				      /**< \brief (Smc Offset: 0x000) HSMC NFC Configuration Register */
+	__O uint32_t HSMC_CTRL;				      /**< \brief (Smc Offset: 0x004) HSMC NFC Control Register */
+	__I uint32_t HSMC_SR;				      /**< \brief (Smc Offset: 0x008) HSMC NFC Status Register */
+	__O uint32_t HSMC_IER;				      /**< \brief (Smc Offset: 0x00C) HSMC NFC Interrupt Enable Register */
+	__O uint32_t HSMC_IDR;				      /**< \brief (Smc Offset: 0x010) HSMC NFC Interrupt Disable Register */
+	__I uint32_t HSMC_IMR;				      /**< \brief (Smc Offset: 0x014) HSMC NFC Interrupt Mask Register */
+	__IO uint32_t HSMC_ADDR;			      /**< \brief (Smc Offset: 0x018) HSMC NFC Address Cycle Zero Register */
+	__IO uint32_t HSMC_BANK;			      /**< \brief (Smc Offset: 0x01C) HSMC Bank Address Register */
+	__I uint32_t Reserved1[20];
+	__IO uint32_t HSMC_PMECCFG;			      /**< \brief (Smc Offset: 0x070) PMECC Configuration Register */
+	__IO uint32_t HSMC_PMECCSAREA;			      /**< \brief (Smc Offset: 0x074) PMECC Spare Area Size Register */
+	__IO uint32_t HSMC_PMECCSADDR;			      /**< \brief (Smc Offset: 0x078) PMECC Start Address Register */
+	__IO uint32_t HSMC_PMECCEADDR;			      /**< \brief (Smc Offset: 0x07C) PMECC End Address Register */
+	__I uint32_t Reserved2[1];
+	__O uint32_t HSMC_PMECCTRL;			      /**< \brief (Smc Offset: 0x084) PMECC Control Register */
+	__I uint32_t HSMC_PMECCSR;			      /**< \brief (Smc Offset: 0x088) PMECC Status Register */
+	__O uint32_t HSMC_PMECCIER;			      /**< \brief (Smc Offset: 0x08C) PMECC Interrupt Enable register */
+	__O uint32_t HSMC_PMECCIDR;			      /**< \brief (Smc Offset: 0x090) PMECC Interrupt Disable Register */
+	__I uint32_t HSMC_PMECCIMR;			      /**< \brief (Smc Offset: 0x094) PMECC Interrupt Mask Register */
+	__I uint32_t HSMC_PMECCISR;			      /**< \brief (Smc Offset: 0x098) PMECC Interrupt Status Register */
+	__I uint32_t Reserved3[5];
+	SmcPmecc SMC_PMECC[SMCPMECC_NUMBER];		 /**< \brief (Smc Offset: 0xB0) sec_num = 0 .. 7 */
+	SmcRem SMC_REM[SMCREM_NUMBER];			 /**< \brief (Smc Offset: 0x2B0) sec_num = 0 .. 7 */
+	__I uint32_t Reserved4[20];
+	__IO uint32_t HSMC_ELCFG;			      /**< \brief (Smc Offset: 0x500) PMECC Error Location Configuration Register */
+	__I uint32_t HSMC_ELPRIM;			      /**< \brief (Smc Offset: 0x504) PMECC Error Location Primitive Register */
+	__O uint32_t HSMC_ELEN;				      /**< \brief (Smc Offset: 0x508) PMECC Error Location Enable Register */
+	__O uint32_t HSMC_ELDIS;			      /**< \brief (Smc Offset: 0x50C) PMECC Error Location Disable Register */
+	__I uint32_t HSMC_ELSR;				      /**< \brief (Smc Offset: 0x510) PMECC Error Location Status Register */
+	__O uint32_t HSMC_ELIER;			      /**< \brief (Smc Offset: 0x514) PMECC Error Location Interrupt Enable register */
+	__O uint32_t HSMC_ELIDR;			      /**< \brief (Smc Offset: 0x518) PMECC Error Location Interrupt Disable Register */
+	__I uint32_t HSMC_ELIMR;			      /**< \brief (Smc Offset: 0x51C) PMECC Error Location Interrupt Mask Register */
+	__I uint32_t HSMC_ELISR;			      /**< \brief (Smc Offset: 0x520) PMECC Error Location Interrupt Status Register */
+	__I uint32_t Reserved5[1];
+	__IO uint32_t HSMC_SIGMA0;			      /**< \brief (Smc Offset: 0x528) PMECC Error Location SIGMA 0 Register */
+	__IO uint32_t HSMC_SIGMA1;			      /**< \brief (Smc Offset: 0x52C) PMECC Error Location SIGMA 1 Register */
+	__IO uint32_t HSMC_SIGMA2;			      /**< \brief (Smc Offset: 0x530) PMECC Error Location SIGMA 2 Register */
+	__IO uint32_t HSMC_SIGMA3;			      /**< \brief (Smc Offset: 0x534) PMECC Error Location SIGMA 3 Register */
+	__IO uint32_t HSMC_SIGMA4;			      /**< \brief (Smc Offset: 0x538) PMECC Error Location SIGMA 4 Register */
+	__IO uint32_t HSMC_SIGMA5;			      /**< \brief (Smc Offset: 0x53C) PMECC Error Location SIGMA 5 Register */
+	__IO uint32_t HSMC_SIGMA6;			      /**< \brief (Smc Offset: 0x540) PMECC Error Location SIGMA 6 Register */
+	__IO uint32_t HSMC_SIGMA7;			      /**< \brief (Smc Offset: 0x544) PMECC Error Location SIGMA 7 Register */
+	__IO uint32_t HSMC_SIGMA8;			      /**< \brief (Smc Offset: 0x548) PMECC Error Location SIGMA 8 Register */
+	__IO uint32_t HSMC_SIGMA9;			      /**< \brief (Smc Offset: 0x54C) PMECC Error Location SIGMA 9 Register */
+	__IO uint32_t HSMC_SIGMA10;			      /**< \brief (Smc Offset: 0x550) PMECC Error Location SIGMA 10 Register */
+	__IO uint32_t HSMC_SIGMA11;			      /**< \brief (Smc Offset: 0x554) PMECC Error Location SIGMA 11 Register */
+	__IO uint32_t HSMC_SIGMA12;			      /**< \brief (Smc Offset: 0x558) PMECC Error Location SIGMA 12 Register */
+	__IO uint32_t HSMC_SIGMA13;			      /**< \brief (Smc Offset: 0x55C) PMECC Error Location SIGMA 13 Register */
+	__IO uint32_t HSMC_SIGMA14;			      /**< \brief (Smc Offset: 0x560) PMECC Error Location SIGMA 14 Register */
+	__IO uint32_t HSMC_SIGMA15;			      /**< \brief (Smc Offset: 0x564) PMECC Error Location SIGMA 15 Register */
+	__IO uint32_t HSMC_SIGMA16;			      /**< \brief (Smc Offset: 0x568) PMECC Error Location SIGMA 16 Register */
+	__IO uint32_t HSMC_SIGMA17;			      /**< \brief (Smc Offset: 0x56C) PMECC Error Location SIGMA 17 Register */
+	__IO uint32_t HSMC_SIGMA18;			      /**< \brief (Smc Offset: 0x570) PMECC Error Location SIGMA 18 Register */
+	__IO uint32_t HSMC_SIGMA19;			      /**< \brief (Smc Offset: 0x574) PMECC Error Location SIGMA 19 Register */
+	__IO uint32_t HSMC_SIGMA20;			      /**< \brief (Smc Offset: 0x578) PMECC Error Location SIGMA 20 Register */
+	__IO uint32_t HSMC_SIGMA21;			      /**< \brief (Smc Offset: 0x57C) PMECC Error Location SIGMA 21 Register */
+	__IO uint32_t HSMC_SIGMA22;			      /**< \brief (Smc Offset: 0x580) PMECC Error Location SIGMA 22 Register */
+	__IO uint32_t HSMC_SIGMA23;			      /**< \brief (Smc Offset: 0x584) PMECC Error Location SIGMA 23 Register */
+	__IO uint32_t HSMC_SIGMA24;			      /**< \brief (Smc Offset: 0x588) PMECC Error Location SIGMA 24 Register */
+	__I uint32_t HSMC_ERRLOC[24];			      /**< \brief (Smc Offset: 0x58C) PMECC Error Location 0 Register */
+	__I uint32_t Reserved6[5];
+	SmcCs_number SMC_CS_NUMBER[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x600) CS_number = 0 .. 3 */
+	__I uint32_t Reserved7[20];
+	__IO uint32_t HSMC_OCMS;			      /**< \brief (Smc Offset: 0x6A0) HSMC Off Chip Memory Scrambling Register */
+	__O uint32_t HSMC_KEY1;				      /**< \brief (Smc Offset: 0x6A4) HSMC Off Chip Memory Scrambling KEY1 Register */
+	__O uint32_t HSMC_KEY2;				      /**< \brief (Smc Offset: 0x6A8) HSMC Off Chip Memory Scrambling KEY2 Register */
+	__I uint32_t Reserved8[14];
+	__IO uint32_t HSMC_WPMR;			      /**< \brief (Smc Offset: 0x6E4) HSMC Write Protection Mode Register */
+	__I uint32_t HSMC_WPSR;				      /**< \brief (Smc Offset: 0x6E8) HSMC Write Protection Status Register */
 } Smc;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- HSMC_CFG : (SMC Offset: 0x000) HSMC NFC Configuration Register -------- */
 #define HSMC_CFG_PAGESIZE_Pos 0
 #define HSMC_CFG_PAGESIZE_Msk (0x7u << HSMC_CFG_PAGESIZE_Pos) /**< \brief (HSMC_CFG) Page Size of the NAND Flash Device */
@@ -157,7 +157,7 @@ typedef struct {
 #define   HSMC_CFG_DTOMUL_X1024 (0x4u << 20) /**< \brief (HSMC_CFG) DTOCYC x 1024 */
 #define   HSMC_CFG_DTOMUL_X4096 (0x5u << 20) /**< \brief (HSMC_CFG) DTOCYC x 4096 */
 #define   HSMC_CFG_DTOMUL_X65536 (0x6u << 20) /**< \brief (HSMC_CFG) DTOCYC x 65536 */
-#define   HSMC_CFG_DTOMUL_X1048576 (0x7u << 20) /**< \brief (HSMC_CFG) DTOCYC x 1048576 */
+#define   HSMC_CFG_DTOMUL_X1048576 (0x7u << 20)	/**< \brief (HSMC_CFG) DTOCYC x 1048576 */
 #define HSMC_CFG_NFCSPARESIZE_Pos 24
 #define HSMC_CFG_NFCSPARESIZE_Msk (0x7fu << HSMC_CFG_NFCSPARESIZE_Pos) /**< \brief (HSMC_CFG) NAND Flash Spare Area Size Retrieved by the Host Controller */
 #define HSMC_CFG_NFCSPARESIZE(value) ((HSMC_CFG_NFCSPARESIZE_Msk & ((value) << HSMC_CFG_NFCSPARESIZE_Pos)))
@@ -171,7 +171,7 @@ typedef struct {
 #define HSMC_SR_NFCBUSY (0x1u << 8) /**< \brief (HSMC_SR) NFC Busy (this field cannot be reset) */
 #define HSMC_SR_NFCWR (0x1u << 11) /**< \brief (HSMC_SR) NFC Write/Read Operation (this field cannot be reset) */
 #define HSMC_SR_NFCSID_Pos 12
-#define HSMC_SR_NFCSID_Msk (0x7u << HSMC_SR_NFCSID_Pos) /**< \brief (HSMC_SR) NFC Chip Select ID (this field cannot be reset) */
+#define HSMC_SR_NFCSID_Msk (0x7u << HSMC_SR_NFCSID_Pos)	/**< \brief (HSMC_SR) NFC Chip Select ID (this field cannot be reset) */
 #define HSMC_SR_XFRDONE (0x1u << 16) /**< \brief (HSMC_SR) NFC Data Transfer Terminated */
 #define HSMC_SR_CMDDONE (0x1u << 17) /**< \brief (HSMC_SR) Command Done */
 #define HSMC_SR_DTOE (0x1u << 20) /**< \brief (HSMC_SR) Data Timeout Error */
@@ -237,11 +237,11 @@ typedef struct {
 #define HSMC_PMECCFG_AUTO (0x1u << 20) /**< \brief (HSMC_PMECCFG) Automatic Mode Enable */
 /* -------- HSMC_PMECCSAREA : (SMC Offset: 0x074) PMECC Spare Area Size Register -------- */
 #define HSMC_PMECCSAREA_SPARESIZE_Pos 0
-#define HSMC_PMECCSAREA_SPARESIZE_Msk (0x1ffu << HSMC_PMECCSAREA_SPARESIZE_Pos) /**< \brief (HSMC_PMECCSAREA) Spare Area Size */
+#define HSMC_PMECCSAREA_SPARESIZE_Msk (0x1ffu << HSMC_PMECCSAREA_SPARESIZE_Pos)	/**< \brief (HSMC_PMECCSAREA) Spare Area Size */
 #define HSMC_PMECCSAREA_SPARESIZE(value) ((HSMC_PMECCSAREA_SPARESIZE_Msk & ((value) << HSMC_PMECCSAREA_SPARESIZE_Pos)))
 /* -------- HSMC_PMECCSADDR : (SMC Offset: 0x078) PMECC Start Address Register -------- */
 #define HSMC_PMECCSADDR_STARTADDR_Pos 0
-#define HSMC_PMECCSADDR_STARTADDR_Msk (0x1ffu << HSMC_PMECCSADDR_STARTADDR_Pos) /**< \brief (HSMC_PMECCSADDR) ECC Area Start Address */
+#define HSMC_PMECCSADDR_STARTADDR_Msk (0x1ffu << HSMC_PMECCSADDR_STARTADDR_Pos)	/**< \brief (HSMC_PMECCSADDR) ECC Area Start Address */
 #define HSMC_PMECCSADDR_STARTADDR(value) ((HSMC_PMECCSADDR_STARTADDR_Msk & ((value) << HSMC_PMECCSADDR_STARTADDR_Pos)))
 /* -------- HSMC_PMECCEADDR : (SMC Offset: 0x07C) PMECC End Address Register -------- */
 #define HSMC_PMECCEADDR_ENDADDR_Pos 0
@@ -255,13 +255,13 @@ typedef struct {
 #define HSMC_PMECCTRL_DISABLE (0x1u << 5) /**< \brief (HSMC_PMECCTRL) PMECC Enable */
 /* -------- HSMC_PMECCSR : (SMC Offset: 0x088) PMECC Status Register -------- */
 #define HSMC_PMECCSR_BUSY (0x1u << 0) /**< \brief (HSMC_PMECCSR) The kernel of the PMECC is busy */
-#define HSMC_PMECCSR_ENABLE (0x1u << 4) /**< \brief (HSMC_PMECCSR) PMECC Enable bit */
+#define HSMC_PMECCSR_ENABLE (0x1u << 4)	/**< \brief (HSMC_PMECCSR) PMECC Enable bit */
 /* -------- HSMC_PMECCIER : (SMC Offset: 0x08C) PMECC Interrupt Enable register -------- */
-#define HSMC_PMECCIER_ERRIE (0x1u << 0) /**< \brief (HSMC_PMECCIER) Error Interrupt Enable */
+#define HSMC_PMECCIER_ERRIE (0x1u << 0)	/**< \brief (HSMC_PMECCIER) Error Interrupt Enable */
 /* -------- HSMC_PMECCIDR : (SMC Offset: 0x090) PMECC Interrupt Disable Register -------- */
-#define HSMC_PMECCIDR_ERRID (0x1u << 0) /**< \brief (HSMC_PMECCIDR) Error Interrupt Disable */
+#define HSMC_PMECCIDR_ERRID (0x1u << 0)	/**< \brief (HSMC_PMECCIDR) Error Interrupt Disable */
 /* -------- HSMC_PMECCIMR : (SMC Offset: 0x094) PMECC Interrupt Mask Register -------- */
-#define HSMC_PMECCIMR_ERRIM (0x1u << 0) /**< \brief (HSMC_PMECCIMR) Error Interrupt Mask */
+#define HSMC_PMECCIMR_ERRIM (0x1u << 0)	/**< \brief (HSMC_PMECCIMR) Error Interrupt Mask */
 /* -------- HSMC_PMECCISR : (SMC Offset: 0x098) PMECC Interrupt Status Register -------- */
 #define HSMC_PMECCISR_ERRIS_Pos 0
 #define HSMC_PMECCISR_ERRIS_Msk (0xffu << HSMC_PMECCISR_ERRIS_Pos) /**< \brief (HSMC_PMECCISR) Error Interrupt Status Register */
@@ -274,7 +274,7 @@ typedef struct {
 #define HSMC_REM_REM2NP3_Pos 16
 #define HSMC_REM_REM2NP3_Msk (0x3fffu << HSMC_REM_REM2NP3_Pos) /**< \brief (HSMC_REM[12]) BCH Remainder 2 * N + 3 */
 /* -------- HSMC_ELCFG : (SMC Offset: 0x500) PMECC Error Location Configuration Register -------- */
-#define HSMC_ELCFG_SECTORSZ (0x1u << 0) /**< \brief (HSMC_ELCFG) Sector Size */
+#define HSMC_ELCFG_SECTORSZ (0x1u << 0)	/**< \brief (HSMC_ELCFG) Sector Size */
 #define HSMC_ELCFG_ERRNUM_Pos 16
 #define HSMC_ELCFG_ERRNUM_Msk (0x1fu << HSMC_ELCFG_ERRNUM_Pos) /**< \brief (HSMC_ELCFG) Number of Errors */
 #define HSMC_ELCFG_ERRNUM(value) ((HSMC_ELCFG_ERRNUM_Msk & ((value) << HSMC_ELCFG_ERRNUM_Pos)))
@@ -455,9 +455,9 @@ typedef struct {
 #define HSMC_TIMINGS_RBNSEL_Pos 28
 #define HSMC_TIMINGS_RBNSEL_Msk (0x7u << HSMC_TIMINGS_RBNSEL_Pos) /**< \brief (HSMC_TIMINGS) Ready/Busy Line Selection */
 #define HSMC_TIMINGS_RBNSEL(value) ((HSMC_TIMINGS_RBNSEL_Msk & ((value) << HSMC_TIMINGS_RBNSEL_Pos)))
-#define HSMC_TIMINGS_NFSEL (0x1u << 31) /**< \brief (HSMC_TIMINGS) NAND Flash Selection */
+#define HSMC_TIMINGS_NFSEL (0x1u << 31)	/**< \brief (HSMC_TIMINGS) NAND Flash Selection */
 /* -------- HSMC_MODE : (SMC Offset: N/A) HSMC Mode Register -------- */
-#define HSMC_MODE_READ_MODE (0x1u << 0) /**< \brief (HSMC_MODE) Selection of the Control Signal for Read Operation */
+#define HSMC_MODE_READ_MODE (0x1u << 0)	/**< \brief (HSMC_MODE) Selection of the Control Signal for Read Operation */
 #define   HSMC_MODE_READ_MODE_NCS_CTRL (0x0u << 0) /**< \brief (HSMC_MODE) The Read operation is controlled by the NCS signal. */
 #define   HSMC_MODE_READ_MODE_NRD_CTRL (0x1u << 0) /**< \brief (HSMC_MODE) The Read operation is controlled by the NRD signal. */
 #define HSMC_MODE_WRITE_MODE (0x1u << 1) /**< \brief (HSMC_MODE) Selection of the Control Signal for Write Operation */
@@ -468,9 +468,9 @@ typedef struct {
 #define HSMC_MODE_EXNW_MODE(value) ((HSMC_MODE_EXNW_MODE_Msk & ((value) << HSMC_MODE_EXNW_MODE_Pos)))
 #define   HSMC_MODE_EXNW_MODE_DISABLED (0x0u << 4) /**< \brief (HSMC_MODE) Disabled-The NWAIT input signal is ignored on the corresponding Chip Select. */
 #define   HSMC_MODE_EXNW_MODE_FROZEN (0x2u << 4) /**< \brief (HSMC_MODE) Frozen Mode-If asserted, the NWAIT signal freezes the current read or write cycle. After deassertion, the read/write cycle is resumed from the point where it was stopped. */
-#define   HSMC_MODE_EXNW_MODE_READY (0x3u << 4) /**< \brief (HSMC_MODE) Ready Mode-The NWAIT signal indicates the availability of the external device at the end of the pulse of the controlling read or write signal, to complete the access. If high, the access normally completes. If low, the access is extended until NWAIT returns high. */
+#define   HSMC_MODE_EXNW_MODE_READY (0x3u << 4)	/**< \brief (HSMC_MODE) Ready Mode-The NWAIT signal indicates the availability of the external device at the end of the pulse of the controlling read or write signal, to complete the access. If high, the access normally completes. If low, the access is extended until NWAIT returns high. */
 #define HSMC_MODE_BAT (0x1u << 8) /**< \brief (HSMC_MODE) Byte Access Type */
-#define   HSMC_MODE_BAT_BYTE_SELECT (0x0u << 8) /**< \brief (HSMC_MODE) Byte select access type:- Write operation is controlled using NCS, NWE, NBS0, NBS1.- Read operation is controlled using NCS, NRD, NBS0, NBS1. */
+#define   HSMC_MODE_BAT_BYTE_SELECT (0x0u << 8)	/**< \brief (HSMC_MODE) Byte select access type:- Write operation is controlled using NCS, NWE, NBS0, NBS1.- Read operation is controlled using NCS, NRD, NBS0, NBS1. */
 #define   HSMC_MODE_BAT_BYTE_WRITE (0x1u << 8) /**< \brief (HSMC_MODE) Byte write access type:- Write operation is controlled using NCS, NWR0, NWR1.- Read operation is controlled using NCS and NRD. */
 #define HSMC_MODE_DBW (0x1u << 12) /**< \brief (HSMC_MODE) Data Bus Width */
 #define   HSMC_MODE_DBW_BIT_8 (0x0u << 12) /**< \brief (HSMC_MODE) 8-bit bus */
@@ -478,7 +478,7 @@ typedef struct {
 #define HSMC_MODE_TDF_CYCLES_Pos 16
 #define HSMC_MODE_TDF_CYCLES_Msk (0xfu << HSMC_MODE_TDF_CYCLES_Pos) /**< \brief (HSMC_MODE) Data Float Time */
 #define HSMC_MODE_TDF_CYCLES(value) ((HSMC_MODE_TDF_CYCLES_Msk & ((value) << HSMC_MODE_TDF_CYCLES_Pos)))
-#define HSMC_MODE_TDF_MODE (0x1u << 20) /**< \brief (HSMC_MODE) TDF Optimization */
+#define HSMC_MODE_TDF_MODE (0x1u << 20)	/**< \brief (HSMC_MODE) TDF Optimization */
 /* -------- HSMC_OCMS : (SMC Offset: 0x6A0) HSMC Off Chip Memory Scrambling Register -------- */
 #define HSMC_OCMS_SMSE (0x1u << 0) /**< \brief (HSMC_OCMS) Static Memory Controller Scrambling Enable */
 #define HSMC_OCMS_SRSE (0x1u << 1) /**< \brief (HSMC_OCMS) NFC Internal SRAM Scrambling Enable */
@@ -503,5 +503,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_SMC_COMPONENT_ */
+#endif				/* _SAMA5D4_SMC_COMPONENT_ */

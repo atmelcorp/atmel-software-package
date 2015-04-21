@@ -58,5 +58,4 @@ extern uint8_t RSTC_IsBusy(void);
 
 extern uint32_t RSTC_GetStatus(void);
 
-#endif /* #ifndef _RSTC_H */
-
+#endif				/* #ifndef _RSTC_H */

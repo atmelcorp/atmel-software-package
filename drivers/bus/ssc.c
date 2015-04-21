@@ -57,7 +57,6 @@
 /*@{*/
 /*@}*/
 
-
 /**
  * \file
  *
@@ -84,11 +83,12 @@
  * \param bitRate  bit rate.
  * \param masterClock  master clock.
  */
-void SSC_Configure(Ssc *ssc, uint32_t bitRate, uint32_t masterClock)
+void
+SSC_Configure(Ssc * ssc, uint32_t bitRate, uint32_t masterClock)
 {
 	uint32_t id;
 	uint32_t maxClock;
-	id = (ssc == SSC0 )? ID_SSC0 : ID_SSC1;
+	id = (ssc == SSC0) ? ID_SSC0 : ID_SSC1;
 	maxClock = PMC_SetPeriMaxClock(id, masterClock);
 
 	/* Reset, disable receiver & transmitter */
@@ -112,7 +112,8 @@ void SSC_Configure(Ssc *ssc, uint32_t bitRate, uint32_t masterClock)
  * \param tcmr Transmit Clock Mode Register value.
  * \param tfmr Transmit Frame Mode Register value.
  */
-void SSC_ConfigureTransmitter(Ssc *ssc,uint32_t tcmr, uint32_t tfmr)
+void
+SSC_ConfigureTransmitter(Ssc * ssc, uint32_t tcmr, uint32_t tfmr)
 {
 	ssc->SSC_TCMR = tcmr;
 	ssc->SSC_TFMR = tfmr;
@@ -124,7 +125,8 @@ void SSC_ConfigureTransmitter(Ssc *ssc,uint32_t tcmr, uint32_t tfmr)
  * \param rcmr Receive Clock Mode Register value.
  * \param rfmr Receive Frame Mode Register value.
  */
-void SSC_ConfigureReceiver(Ssc *ssc, uint32_t rcmr, uint32_t rfmr)
+void
+SSC_ConfigureReceiver(Ssc * ssc, uint32_t rcmr, uint32_t rfmr)
 {
 	ssc->SSC_RCMR = rcmr;
 	ssc->SSC_RFMR = rfmr;
@@ -134,7 +136,8 @@ void SSC_ConfigureReceiver(Ssc *ssc, uint32_t rcmr, uint32_t rfmr)
  * \brief Enables the transmitter of a SSC peripheral.
  * \param ssc  Pointer to an SSC instance.
  */
-void SSC_EnableTransmitter(Ssc *ssc)
+void
+SSC_EnableTransmitter(Ssc * ssc)
 {
 	ssc->SSC_CR = SSC_CR_TXEN;
 }
@@ -143,7 +146,8 @@ void SSC_EnableTransmitter(Ssc *ssc)
  * \brief Disables the transmitter of a SSC peripheral.
  * \param ssc  Pointer to an SSC instance.
  */
-void SSC_DisableTransmitter(Ssc *ssc)
+void
+SSC_DisableTransmitter(Ssc * ssc)
 {
 	ssc->SSC_CR = SSC_CR_TXDIS;
 }
@@ -152,7 +156,8 @@ void SSC_DisableTransmitter(Ssc *ssc)
  * \brief Enables the receiver of a SSC peripheral.
  * \param ssc  Pointer to an SSC instance.
  */
-void SSC_EnableReceiver(Ssc *ssc)
+void
+SSC_EnableReceiver(Ssc * ssc)
 {
 	ssc->SSC_CR = SSC_CR_RXEN;
 }
@@ -161,7 +166,8 @@ void SSC_EnableReceiver(Ssc *ssc)
  * \brief Disables the receiver of a SSC peripheral.
  * \param ssc  Pointer to an SSC instance.
  */
-void SSC_DisableReceiver(Ssc *ssc)
+void
+SSC_DisableReceiver(Ssc * ssc)
 {
 	ssc->SSC_CR = SSC_CR_RXDIS;
 }
@@ -171,7 +177,8 @@ void SSC_DisableReceiver(Ssc *ssc)
  * \param ssc  Pointer to an SSC instance.
  * \param sources Bitwise OR of selected interrupt sources.
  */
-void SSC_EnableInterrupts(Ssc *ssc, uint32_t sources)
+void
+SSC_EnableInterrupts(Ssc * ssc, uint32_t sources)
 {
 	ssc->SSC_IER = sources;
 }
@@ -181,7 +188,8 @@ void SSC_EnableInterrupts(Ssc *ssc, uint32_t sources)
  * \param ssc  Pointer to an SSC instance.
  * \param sources Bitwise OR of selected interrupt sources.
  */
-void SSC_DisableInterrupts(Ssc *ssc, uint32_t sources)
+void
+SSC_DisableInterrupts(Ssc * ssc, uint32_t sources)
 {
 	ssc->SSC_IDR = sources;
 }
@@ -192,9 +200,10 @@ void SSC_DisableInterrupts(Ssc *ssc, uint32_t sources)
  * \param ssc  Pointer to an SSC instance.
  * \param frame Data frame to send.
  */
-void SSC_Write(Ssc *ssc, uint32_t frame)
+void
+SSC_Write(Ssc * ssc, uint32_t frame)
 {
-	while ((ssc->SSC_SR & SSC_SR_TXRDY) == 0);
+	while ((ssc->SSC_SR & SSC_SR_TXRDY) == 0) ;
 	ssc->SSC_THR = frame;
 }
 
@@ -202,9 +211,10 @@ void SSC_Write(Ssc *ssc, uint32_t frame)
  * \brief Waits until one frame is received on a SSC peripheral, and returns it.
  * \param ssc  Pointer to an SSC instance.
  */
-uint32_t SSC_Read(Ssc *ssc)
+uint32_t
+SSC_Read(Ssc * ssc)
 {
-	while ((ssc->SSC_SR & SSC_SR_RXRDY) == 0);
+	while ((ssc->SSC_SR & SSC_SR_RXRDY) == 0) ;
 	return ssc->SSC_RHR;
 }
 
@@ -212,8 +222,8 @@ uint32_t SSC_Read(Ssc *ssc)
  * \brief Return 1 if one frame is received, 0 otherwise.
  * \param ssc  Pointer to an SSC instance.
  */
-uint8_t SSC_IsRxReady(Ssc *ssc)
+uint8_t
+SSC_IsRxReady(Ssc * ssc)
 {
 	return ((ssc->SSC_SR & SSC_SR_RXRDY) > 0);
 }
-

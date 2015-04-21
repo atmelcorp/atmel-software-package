@@ -61,12 +61,11 @@ typedef struct {
  * \param regAddr Register address to read.
  * \return value in the given register.
  */
-uint16_t WM8904_Read(Twid *pTwid,
-                     uint32_t device,
-                     uint32_t regAddr)
+uint16_t
+WM8904_Read(Twid * pTwid, uint32_t device, uint32_t regAddr)
 {
 	uint16_t bitsDataRegister;
-	uint8_t Tdata[2]= {0,0};
+	uint8_t Tdata[2] = { 0, 0 };
 
 	TWID_Read(pTwid, device, regAddr, 1, Tdata, 2, 0);
 	bitsDataRegister = (Tdata[0] << 8) | Tdata[1];
@@ -81,10 +80,8 @@ uint16_t WM8904_Read(Twid *pTwid,
  * \param regAddr Register address to read.
  * \param data    Data to write
  */
-void WM8904_Write(Twid *pTwid,
-                  uint32_t device,
-                  uint32_t regAddr,
-                  uint16_t data)
+void
+WM8904_Write(Twid * pTwid, uint32_t device, uint32_t regAddr, uint16_t data)
 {
 	uint8_t tmpData[2];
 
@@ -93,62 +90,62 @@ void WM8904_Write(Twid *pTwid,
 	TWID_Write(pTwid, device, regAddr, 1, tmpData, 2, 0);
 }
 
-static WM8904_PARA wm8904_access_slow[]= {
-	{ 0x0000, 0},         /** R0   - SW Reset and ID */
-	{ 0x001A, 4},       /** R4   - Bias Control 0 */
-	{ 0x0047, 5},       /** R5   - VMID Control 0 */     /*insert_delay_ms 5*/
+static WM8904_PARA wm8904_access_slow[] = {
+	{0x0000, 0},	      /** R0   - SW Reset and ID */
+	{0x001A, 4},	    /** R4   - Bias Control 0 */
+	{0x0047, 5},		/** R5   - VMID Control 0 *//*insert_delay_ms 5 */
 
-	{ 0x0043, 5},       /** R5   - VMID Control 0 */
-	{ 0x000B, 4},       /** R4   - Bias Control 0 */
+	{0x0043, 5},	    /** R5   - VMID Control 0 */
+	{0x000B, 4},	    /** R4   - Bias Control 0 */
 
-	{ 0x0003, 0x0C},      /** R12  - Power Management 0 CC */
+	{0x0003, 0x0C},	      /** R12  - Power Management 0 CC */
 
-	{ 0x0003, 0x0E},      /** R14  - Power Management 2 */
-	{ 0x000C, 0x12},      /** R18  - Power Management 6 */
-	{ 0x0000, 0x21},      /** R33  - DAC Digital 1 */
-	{ 0x0000, 0x3D},      /** R61  - Analogue OUT12 ZC */
-	{ 0x0001, 0x62},      /** R98  - Charge Pump 0 */
-	{ 0x0005, 0x68},     /** R104 - Class W 0 */
+	{0x0003, 0x0E},	      /** R14  - Power Management 2 */
+	{0x000C, 0x12},	      /** R18  - Power Management 6 */
+	{0x0000, 0x21},	      /** R33  - DAC Digital 1 */
+	{0x0000, 0x3D},	      /** R61  - Analogue OUT12 ZC */
+	{0x0001, 0x62},	      /** R98  - Charge Pump 0 */
+	{0x0005, 0x68},	     /** R104 - Class W 0 */
 
 	//FLL setting,32.768KHZ MCLK input,12.288M output.
-	{ 0x0000, 0x74},     /** R116 - FLL Control 1 */
-	{ 0x0704, 0x75},     /** R117 - FLL Control 2 */
-	{ 0x8000, 0x76},     /** R118 - FLL Control 3 */
-	{ 0x1760, 0x77},     /** R119 - FLL Control 4 */
-	{ 0x0005, 0x74},     /** R116 - FLL Control 1 */     /*insert_delay_ms 5*/
+	{0x0000, 0x74},	     /** R116 - FLL Control 1 */
+	{0x0704, 0x75},	     /** R117 - FLL Control 2 */
+	{0x8000, 0x76},	     /** R118 - FLL Control 3 */
+	{0x1760, 0x77},	     /** R119 - FLL Control 4 */
+	{0x0005, 0x74},		/** R116 - FLL Control 1 *//*insert_delay_ms 5 */
 
-	{ 0x0C05, 0x15},      /** R21  - Clock Rates 1 */
-	{ 0x845E, 0x14},      /** R20  - Clock Rates 0 */
-	{ 0x4006, 0x16},      /** R22  - Clock Rates 2 */
+	{0x0C05, 0x15},	      /** R21  - Clock Rates 1 */
+	{0x845E, 0x14},	      /** R20  - Clock Rates 0 */
+	{0x4006, 0x16},	      /** R22  - Clock Rates 2 */
 
 	////////////////WM8904 IIS master
 	//BCLK=12.288MHz/8=1.536MHz
 	//LRCK=1.536MHz/32=48KHz
 	//{ 0x0042, 0x18},      /** R24  - Audio Interface 0 */
-	{ 0x0042, 0x19},      /** R25  - Audio Interface 1 */
-	{ 0x00E8, 0x1A},      /** R26  - Audio Interface 2 */
-	{ 0x0820, 0x1B},      /** R27  - Audio Interface 3 */
+	{0x0042, 0x19},	      /** R25  - Audio Interface 1 */
+	{0x00E8, 0x1A},	      /** R26  - Audio Interface 2 */
+	{0x0820, 0x1B},	      /** R27  - Audio Interface 3 */
 	////////////////ADC
 
-	{ 0x0003, 0x0C},      /** R12  - Power Management 0 */
-	{ 0x000F, 0x12},      /** R18  - Power Management 6 */     /*insert_delay_ms 5*/
+	{0x0003, 0x0C},	      /** R12  - Power Management 0 */
+	{0x000F, 0x12},		/** R18  - Power Management 6 *//*insert_delay_ms 5 */
 
-	{ 0x0010, 0x2C},      /** R44  - Analogue Left Input 0 */
-	{ 0x0010, 0x2D},      /** R45  - Analogue Right Input 0 */
-	{ 0x0004, 0x2E},      /** R46  - Analogue Left Input 1 */
-	{ 0x0004, 0x2F},      /** R47  - Analogue Right Input 1 */
+	{0x0010, 0x2C},	      /** R44  - Analogue Left Input 0 */
+	{0x0010, 0x2D},	      /** R45  - Analogue Right Input 0 */
+	{0x0004, 0x2E},	      /** R46  - Analogue Left Input 1 */
+	{0x0004, 0x2F},	      /** R47  - Analogue Right Input 1 */
 
-	{ 0x0011, 0x5A},      /** R90  - Analogue HP 0 */
-	{ 0x0033, 0x5A},      /** R90  - Analogue HP 0 */
+	{0x0011, 0x5A},	      /** R90  - Analogue HP 0 */
+	{0x0033, 0x5A},	      /** R90  - Analogue HP 0 */
 
-	{ 0x000F, 0x43},      /** R67  - DC Servo 0 */
-	{ 0x00F0, 0x44},      /** R68  - DC Servo 1 */     /*insert_delay_ms 100*/
+	{0x000F, 0x43},	      /** R67  - DC Servo 0 */
+	{0x00F0, 0x44},		/** R68  - DC Servo 1 *//*insert_delay_ms 100 */
 
 	//{ 0x0000, 0xFF},      /** end */
-	{ 0x0077, 0x5A},      /** R90  - Analogue HP 0 */
-	{ 0x00FF, 0x5A},      /** R90  - Analogue HP 0 */
-	{ 0x00B9, 0x39},      /** R57  - Analogue OUT1 Left */
-	{ 0x00B9, 0x3A},      /** R58  - Analogue OUT1 Right */
+	{0x0077, 0x5A},	      /** R90  - Analogue HP 0 */
+	{0x00FF, 0x5A},	      /** R90  - Analogue HP 0 */
+	{0x00B9, 0x39},	      /** R57  - Analogue OUT1 Left */
+	{0x00B9, 0x3A},	      /** R58  - Analogue OUT1 Right */
 
 	//{ 0x0150, 0x18}  ;Loopback
 };
@@ -158,36 +155,36 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 1}, /** R1   - Revision */
 	//{ 0x0000, 2}, /** R2 */
 	//{ 0x0000, 3}, /** R3 */
-	{ 0x0019, 4},   /** R4   - Bias Control 0 */
-	{ 0x0043, 5},   /** R5   - VMID Control 0 */
+	{0x0019, 4},	/** R4   - Bias Control 0 */
+	{0x0043, 5},	/** R5   - VMID Control 0 */
 	//{ 0x0003, 6},   /** R6   - Mic Bias Control 0 */
 	//{ 0xC000, 7},   /** R7   - Mic Bias Control 1 */
 	//{ 0x001E, 8},   /** R8   - Analogue DAC 0 */
 	//{ 0xFFFF, 9},   /** R9   - mic Filter Control */
 	//{ 0x0001, 10},  /** R10  - Analogue ADC 0 */
 	//{ 0x0000, 11},  /** R11 */
-	{ 0x0003, 12},  /** R12  - Power Management 0 */
+	{0x0003, 12},	/** R12  - Power Management 0 */
 	//{ 0x0000, 13},  /** R13 */
-	{ 0x0003, 14},  /** R14  - Power Management 2 */
+	{0x0003, 14},	/** R14  - Power Management 2 */
 	//{ 0x0003, 15},  /** R15  - Power Management 3 */
 	//{ 0x0000, 16},  /** R16 */
 	//{ 0x0000, 17},  /** R17 */
-	{ 0x000F, 18},  /** R18  - Power Management 6 */
+	{0x000F, 18},	/** R18  - Power Management 6 */
 	//{ 0x0000, 19},  /** R19 */
-	{ 0x845E, 20},  /** R20  - Clock Rates 0 */
+	{0x845E, 20},	/** R20  - Clock Rates 0 */
 	//{ 0x3C07, 21},  /** R21  - Clock Rates 1 */
-	{ 0x0006, 22},  /** R22  - Clock Rates 2 */
+	{0x0006, 22},	/** R22  - Clock Rates 2 */
 	//{ 0x0000, 23},  /** R23 */
 	//{ 0x1FFF, 24},  /** R24  - Audio Interface 0 */
-	{ 0x404A, 25},  /** R25  - Audio Interface 1 */
+	{0x404A, 25},	/** R25  - Audio Interface 1 */
 	//{ 0x0004, 26},  /** R26  - Audio Interface 2 */
-	{ 0x0840, 27},  /** R27  - Audio Interface 3 */
+	{0x0840, 27},	/** R27  - Audio Interface 3 */
 	//{ 0x0000, 28},  /** R28 */
 	//{ 0x0000, 29},  /** R29 */
 	//{ 0x00FF, 30},  /** R30  - DAC Digital Volume Left */
 	//{ 0x00FF, 31},  /** R31  - DAC Digital Volume Right */
 	//{ 0x0FFF, 32},  /** R32  - DAC Digital 0 */
-	{ 0x0000, 33},  /** R33  - DAC Digital 1 */
+	{0x0000, 33},	/** R33  - DAC Digital 1 */
 	//{ 0x0000, 34},  /** R34 */
 	//{ 0x0000, 35},  /** R35 */
 	//{ 0x00FF, 36},  /** R36  - ADC Digital Volume Left */
@@ -198,10 +195,10 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0xFFFF, 41},  /** R41  - DRC 1 */
 	//{ 0x003F, 42},  /** R42  - DRC 2 */
 	//{ 0x07FF, 43},  /** R43  - DRC 3 */
-	{ 0x0005, 44},  /** R44  - Analogue Left Input 0 */
-	{ 0x0005, 45},  /** R45  - Analogue Right Input 0 */
-	{ 0x0000, 46},  /** R46  - Analogue Left Input 1 */
-	{ 0x0000, 47},  /** R47  - Analogue Right Input 1 */
+	{0x0005, 44},	/** R44  - Analogue Left Input 0 */
+	{0x0005, 45},	/** R45  - Analogue Right Input 0 */
+	{0x0000, 46},	/** R46  - Analogue Left Input 1 */
+	{0x0000, 47},	/** R47  - Analogue Right Input 1 */
 	//{ 0x0000, 48},  /** R48 */
 	//{ 0x0000, 49},  /** R49 */
 	//{ 0x0000, 50},  /** R50 */
@@ -212,7 +209,7 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 55},  /** R55 */
 	//{ 0x0000, 56},  /** R56 */
 	//{ 0x017F, 57},  /** R57  - Analogue OUT1 Left */
-	{ 0x00AD, 58},  /** R58  - Analogue OUT1 Right */
+	{0x00AD, 58},	/** R58  - Analogue OUT1 Right */
 	//{ 0x017F, 59},  /** R59  - Analogue OUT2 Left */
 	//{ 0x017F, 60},  /** R60  - Analogue OUT2 Right */
 	//{ 0x000F, 61},  /** R61  - Analogue OUT12 ZC */
@@ -221,7 +218,7 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 64},  /** R64 */
 	//{ 0x0000, 65},  /** R65 */
 	//{ 0x0000, 66},  /** R66 */
-	{ 0x0003, 67},  /** R67  - DC Servo 0 */
+	{0x0003, 67},	/** R67  - DC Servo 0 */
 	//{ 0xFFFF, 68},  /** R68  - DC Servo 1 */
 	//{ 0x0F0F, 69},  /** R69  - DC Servo 2 */
 	//{ 0x0000, 70},  /** R70 */
@@ -244,7 +241,7 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 87},  /** R87 */
 	//{ 0x0000, 88},  /** R88 */
 	//{ 0x0000, 89},  /** R89 */
-	{ 0x00FF, 90},  /** R90  - Analogue HP 0 */
+	{0x00FF, 90},	/** R90  - Analogue HP 0 */
 	//{ 0x0000, 91},  /** R91 */
 	//{ 0x0000, 92},  /** R92 */
 	//{ 0x0000, 93},  /** R93 */
@@ -252,13 +249,13 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 95},  /** R95 */
 	//{ 0x0000, 96},  /** R96 */
 	//{ 0x0000, 97},  /** R97 */
-	{ 0x0001, 98},  /** R98  - Charge Pump 0 */
+	{0x0001, 98},	/** R98  - Charge Pump 0 */
 	//{ 0x0000, 99},  /** R99 */
 	//{ 0x0000, 100}, /** R100 */
 	//{ 0x0000, 101}, /** R101 */
 	//{ 0x0000, 102}, /** R102 */
 	//{ 0x0000, 103}, /** R103 */
-	{ 0x0005, 104}, /** R104 - Class W 0 */
+	{0x0005, 104},	/** R104 - Class W 0 */
 	//{ 0x0000, 105}, /** R105 */
 	//{ 0x0000, 106}, /** R106 */
 	//{ 0x0000, 107}, /** R107 */
@@ -270,10 +267,10 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 113}, /** R113 */
 	//{ 0x0000, 114}, /** R114 */
 	//{ 0x0000, 115}, /** R115 */
-	{ 0x0004, 116}, /** R116 - FLL Control 1 */
-	{ 0x0704, 117}, /** R117 - FLL Control 2 */
-	{ 0x8000, 118}, /** R118 - FLL Control 3 */
-	{ 0x1760, 119}, /** R119 - FLL Control 4 */
+	{0x0004, 116},	/** R116 - FLL Control 1 */
+	{0x0704, 117},	/** R117 - FLL Control 2 */
+	{0x8000, 118},	/** R118 - FLL Control 3 */
+	{0x1760, 119},	/** R119 - FLL Control 4 */
 	//{ 0x001B, 120}, /** R120 - FLL Control 5 */
 	//{ 0x0014, 121}, /** R121 - GPIO Control 1 */
 	//{ 0x0010, 122}, /** R122 - GPIO Control 2 */
@@ -403,17 +400,19 @@ static WM8904_PARA wm8904_access_main[] = {
 	//{ 0x0000, 246}, /** R246 */
 	//{ 0x0000, 247}, /** R247 - FLL NCO Test 0 */
 	//{ 0x0019, 248}, /** R248 - FLL NCO Test 1 */
-	{ 0x55AA, 255}  /** end */
+	{0x55AA, 255}	/** end */
 };
 
-static void DelayMS(signed int delay)
+static void
+DelayMS(signed int delay)
 {
 	uint32_t count;
-	for(; delay>0; delay--)
-		for(count=0; count<(BOARD_MCK/1000000); count++);
+	for (; delay > 0; delay--)
+		for (count = 0; count < (BOARD_MCK / 1000000); count++) ;
 }
 
-uint8_t WM8904_Init(Twid *pTwid, uint32_t device,  uint32_t PCK)
+uint8_t
+WM8904_Init(Twid * pTwid, uint32_t device, uint32_t PCK)
 {
 	uint8_t count, size;
 	uint16_t data = 0;
@@ -421,45 +420,62 @@ uint8_t WM8904_Init(Twid *pTwid, uint32_t device,  uint32_t PCK)
 	// Reset (write Reg@0x0 to reset)
 	WM8904_Write(pTwid, device, 0, 0xFFFF);
 
-	for(data=0; data<1000; data++);
+	for (data = 0; data < 1000; data++) ;
 	//wait ready
-	while(data!=0x8904)
-		data=WM8904_Read(pTwid, device, 0);
+	while (data != 0x8904)
+		data = WM8904_Read(pTwid, device, 0);
 
 	if (PMC_MCKR_CSS_SLOW_CLK == PCK) {
 		{
-			size = sizeof(wm8904_access_slow)/4+1;
-			for(count=0; count<size; count++) {
-				WM8904_Write(pTwid, device, wm8904_access_slow[count].address, wm8904_access_slow[count].value);
-				if(((wm8904_access_slow[count].address==0x05)&&(wm8904_access_slow[count].value==0x0047))
-				    ||((wm8904_access_slow[count].address==0x74)&&(wm8904_access_slow[count].value==0x0005))
-				    ||((wm8904_access_slow[count].address==0x12)&&(wm8904_access_slow[count].value==0x000F))) {
+			size = sizeof (wm8904_access_slow) / 4 + 1;
+			for (count = 0; count < size; count++) {
+				WM8904_Write(pTwid, device,
+					     wm8904_access_slow[count].address,
+					     wm8904_access_slow[count].value);
+				if (((wm8904_access_slow[count].address == 0x05)
+				     && (wm8904_access_slow[count].value ==
+					 0x0047))
+				    ||
+				    ((wm8904_access_slow[count].address == 0x74)
+				     && (wm8904_access_slow[count].value ==
+					 0x0005))
+				    ||
+				    ((wm8904_access_slow[count].address == 0x12)
+				     && (wm8904_access_slow[count].value ==
+					 0x000F))) {
 					DelayMS(5);
 				}
-				if (((wm8904_access_slow[count].address==0x44)&&(wm8904_access_slow[count].value==0x00F0))
-				    ||((wm8904_access_slow[count].address==0x3A)&&(wm8904_access_slow[count].value==0x00B9))) {
+				if (((wm8904_access_slow[count].address == 0x44)
+				     && (wm8904_access_slow[count].value ==
+					 0x00F0))
+				    ||
+				    ((wm8904_access_slow[count].address == 0x3A)
+				     && (wm8904_access_slow[count].value ==
+					 0x00B9))) {
 					DelayMS(100);
 				}
 			}
 		}
 	} else if (PMC_MCKR_CSS_MAIN_CLK == PCK) {
-		for(count=0; count<255; count++) {
-			if(wm8904_access_main[count].address<255) {
-				WM8904_Write(pTwid, device, wm8904_access_main[count].address, wm8904_access_main[count].value);
+		for (count = 0; count < 255; count++) {
+			if (wm8904_access_main[count].address < 255) {
+				WM8904_Write(pTwid, device,
+					     wm8904_access_main[count].address,
+					     wm8904_access_main[count].value);
 			} else {
 				break;
 			}
 		}
 	} else {
 		printf("W: PCK not supported! \n\r");
-		while(1);
+		while (1) ;
 	}
-
 
 	return 0;
 }
 
-void WM8904_IN2R_IN1L(Twid *pTwid, uint32_t device)
+void
+WM8904_IN2R_IN1L(Twid * pTwid, uint32_t device)
 {
 	//{ 0x0005, 44},  /** R44  - Analogue Left Input 0 */
 	//{ 0x0005, 45},  /** R45  - Analogue Right Input 0 */

@@ -32,29 +32,29 @@
 
 /* ========== Register definition for SPI1 peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SPI1_CR                    (0xFC018000U) /**< \brief (SPI1) Control Register */
-  #define REG_SPI1_MR                    (0xFC018004U) /**< \brief (SPI1) Mode Register */
-  #define REG_SPI1_RDR                   (0xFC018008U) /**< \brief (SPI1) Receive Data Register */
-  #define REG_SPI1_TDR                   (0xFC01800CU) /**< \brief (SPI1) Transmit Data Register */
-  #define REG_SPI1_SR                    (0xFC018010U) /**< \brief (SPI1) Status Register */
-  #define REG_SPI1_IER                   (0xFC018014U) /**< \brief (SPI1) Interrupt Enable Register */
-  #define REG_SPI1_IDR                   (0xFC018018U) /**< \brief (SPI1) Interrupt Disable Register */
-  #define REG_SPI1_IMR                   (0xFC01801CU) /**< \brief (SPI1) Interrupt Mask Register */
-  #define REG_SPI1_CSR                   (0xFC018030U) /**< \brief (SPI1) Chip Select Register */
-  #define REG_SPI1_WPMR                  (0xFC0180E4U) /**< \brief (SPI1) Write Protection Mode Register */
-  #define REG_SPI1_WPSR                  (0xFC0180E8U) /**< \brief (SPI1) Write Protection Status Register */
+#define REG_SPI1_CR                    (0xFC018000U) /**< \brief (SPI1) Control Register */
+#define REG_SPI1_MR                    (0xFC018004U) /**< \brief (SPI1) Mode Register */
+#define REG_SPI1_RDR                   (0xFC018008U) /**< \brief (SPI1) Receive Data Register */
+#define REG_SPI1_TDR                   (0xFC01800CU) /**< \brief (SPI1) Transmit Data Register */
+#define REG_SPI1_SR                    (0xFC018010U) /**< \brief (SPI1) Status Register */
+#define REG_SPI1_IER                   (0xFC018014U) /**< \brief (SPI1) Interrupt Enable Register */
+#define REG_SPI1_IDR                   (0xFC018018U) /**< \brief (SPI1) Interrupt Disable Register */
+#define REG_SPI1_IMR                   (0xFC01801CU) /**< \brief (SPI1) Interrupt Mask Register */
+#define REG_SPI1_CSR                   (0xFC018030U) /**< \brief (SPI1) Chip Select Register */
+#define REG_SPI1_WPMR                  (0xFC0180E4U) /**< \brief (SPI1) Write Protection Mode Register */
+#define REG_SPI1_WPSR                  (0xFC0180E8U) /**< \brief (SPI1) Write Protection Status Register */
 #else
-  #define REG_SPI1_CR   (*(__O  uint32_t*)0xFC018000U) /**< \brief (SPI1) Control Register */
-  #define REG_SPI1_MR   (*(__IO uint32_t*)0xFC018004U) /**< \brief (SPI1) Mode Register */
-  #define REG_SPI1_RDR  (*(__I  uint32_t*)0xFC018008U) /**< \brief (SPI1) Receive Data Register */
-  #define REG_SPI1_TDR  (*(__O  uint32_t*)0xFC01800CU) /**< \brief (SPI1) Transmit Data Register */
-  #define REG_SPI1_SR   (*(__I  uint32_t*)0xFC018010U) /**< \brief (SPI1) Status Register */
-  #define REG_SPI1_IER  (*(__O  uint32_t*)0xFC018014U) /**< \brief (SPI1) Interrupt Enable Register */
-  #define REG_SPI1_IDR  (*(__O  uint32_t*)0xFC018018U) /**< \brief (SPI1) Interrupt Disable Register */
-  #define REG_SPI1_IMR  (*(__I  uint32_t*)0xFC01801CU) /**< \brief (SPI1) Interrupt Mask Register */
-  #define REG_SPI1_CSR  (*(__IO uint32_t*)0xFC018030U) /**< \brief (SPI1) Chip Select Register */
-  #define REG_SPI1_WPMR (*(__IO uint32_t*)0xFC0180E4U) /**< \brief (SPI1) Write Protection Mode Register */
-  #define REG_SPI1_WPSR (*(__I  uint32_t*)0xFC0180E8U) /**< \brief (SPI1) Write Protection Status Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SPI1_CR   (*(__O  uint32_t*)0xFC018000U) /**< \brief (SPI1) Control Register */
+#define REG_SPI1_MR   (*(__IO uint32_t*)0xFC018004U) /**< \brief (SPI1) Mode Register */
+#define REG_SPI1_RDR  (*(__I  uint32_t*)0xFC018008U) /**< \brief (SPI1) Receive Data Register */
+#define REG_SPI1_TDR  (*(__O  uint32_t*)0xFC01800CU) /**< \brief (SPI1) Transmit Data Register */
+#define REG_SPI1_SR   (*(__I  uint32_t*)0xFC018010U) /**< \brief (SPI1) Status Register */
+#define REG_SPI1_IER  (*(__O  uint32_t*)0xFC018014U) /**< \brief (SPI1) Interrupt Enable Register */
+#define REG_SPI1_IDR  (*(__O  uint32_t*)0xFC018018U) /**< \brief (SPI1) Interrupt Disable Register */
+#define REG_SPI1_IMR  (*(__I  uint32_t*)0xFC01801CU) /**< \brief (SPI1) Interrupt Mask Register */
+#define REG_SPI1_CSR  (*(__IO uint32_t*)0xFC018030U) /**< \brief (SPI1) Chip Select Register */
+#define REG_SPI1_WPMR (*(__IO uint32_t*)0xFC0180E4U) /**< \brief (SPI1) Write Protection Mode Register */
+#define REG_SPI1_WPSR (*(__I  uint32_t*)0xFC0180E8U) /**< \brief (SPI1) Write Protection Status Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SPI1_INSTANCE_ */
+#endif				/* _SAMA5D4_SPI1_INSTANCE_ */

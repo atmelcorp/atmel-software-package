@@ -45,7 +45,7 @@
  * Invoked after the USB driver has been initialized. By default, configures
  * the UDP/UDPHS interrupt.
  */
-void USBDCallbacks_Initialized(void)
+void
+USBDCallbacks_Initialized(void)
 {
 }
-

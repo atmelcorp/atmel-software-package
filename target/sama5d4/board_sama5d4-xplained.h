@@ -69,4 +69,4 @@
 /** SD card Power control pin instance */
 #define EXAMPLE_MCI_POWER_PINS  BOARD_MCI0_PIN_POWER
 
-#endif /* _BOARD_SAMA5D4_XPLAINED_HEADER_ */
+#endif				/* _BOARD_SAMA5D4_XPLAINED_HEADER_ */

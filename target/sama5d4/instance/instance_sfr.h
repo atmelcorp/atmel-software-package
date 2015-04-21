@@ -32,23 +32,23 @@
 
 /* ========== Register definition for SFR peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SFR_DDRCFG                    (0xF8028004U) /**< \brief (SFR) DDR Configuration Register */
-  #define REG_SFR_OHCIICR                   (0xF8028010U) /**< \brief (SFR) OHCI Interrupt Configuration Register */
-  #define REG_SFR_OHCIISR                   (0xF8028014U) /**< \brief (SFR) OHCI Interrupt Status Register */
-  #define REG_SFR_SECURE                    (0xF8028028U) /**< \brief (SFR) Security Configuration Register */
-  #define REG_SFR_EBICFG                    (0xF8028040U) /**< \brief (SFR) EBI Configuration Register */
-  #define REG_SFR_SN0                       (0xF802804CU) /**< \brief (SFR) Serial Number 0 Register */
-  #define REG_SFR_SN1                       (0xF8028050U) /**< \brief (SFR) Seriel Number 1 Register */
-  #define REG_SFR_AICREDIR                  (0xF8028054U) /**< \brief (SFR) AIC interrupt Redirection Register */
+#define REG_SFR_DDRCFG                    (0xF8028004U)	/**< \brief (SFR) DDR Configuration Register */
+#define REG_SFR_OHCIICR                   (0xF8028010U)	/**< \brief (SFR) OHCI Interrupt Configuration Register */
+#define REG_SFR_OHCIISR                   (0xF8028014U)	/**< \brief (SFR) OHCI Interrupt Status Register */
+#define REG_SFR_SECURE                    (0xF8028028U)	/**< \brief (SFR) Security Configuration Register */
+#define REG_SFR_EBICFG                    (0xF8028040U)	/**< \brief (SFR) EBI Configuration Register */
+#define REG_SFR_SN0                       (0xF802804CU)	/**< \brief (SFR) Serial Number 0 Register */
+#define REG_SFR_SN1                       (0xF8028050U)	/**< \brief (SFR) Seriel Number 1 Register */
+#define REG_SFR_AICREDIR                  (0xF8028054U)	/**< \brief (SFR) AIC interrupt Redirection Register */
 #else
-  #define REG_SFR_DDRCFG   (*(__IO uint32_t*)0xF8028004U) /**< \brief (SFR) DDR Configuration Register */
-  #define REG_SFR_OHCIICR  (*(__IO uint32_t*)0xF8028010U) /**< \brief (SFR) OHCI Interrupt Configuration Register */
-  #define REG_SFR_OHCIISR  (*(__I  uint32_t*)0xF8028014U) /**< \brief (SFR) OHCI Interrupt Status Register */
-  #define REG_SFR_SECURE   (*(__IO uint32_t*)0xF8028028U) /**< \brief (SFR) Security Configuration Register */
-  #define REG_SFR_EBICFG   (*(__IO uint32_t*)0xF8028040U) /**< \brief (SFR) EBI Configuration Register */
-  #define REG_SFR_SN0      (*(__I  uint32_t*)0xF802804CU) /**< \brief (SFR) Serial Number 0 Register */
-  #define REG_SFR_SN1      (*(__I  uint32_t*)0xF8028050U) /**< \brief (SFR) Seriel Number 1 Register */
-  #define REG_SFR_AICREDIR (*(__IO uint32_t*)0xF8028054U) /**< \brief (SFR) AIC interrupt Redirection Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SFR_DDRCFG   (*(__IO uint32_t*)0xF8028004U)	/**< \brief (SFR) DDR Configuration Register */
+#define REG_SFR_OHCIICR  (*(__IO uint32_t*)0xF8028010U)	/**< \brief (SFR) OHCI Interrupt Configuration Register */
+#define REG_SFR_OHCIISR  (*(__I  uint32_t*)0xF8028014U)	/**< \brief (SFR) OHCI Interrupt Status Register */
+#define REG_SFR_SECURE   (*(__IO uint32_t*)0xF8028028U)	/**< \brief (SFR) Security Configuration Register */
+#define REG_SFR_EBICFG   (*(__IO uint32_t*)0xF8028040U)	/**< \brief (SFR) EBI Configuration Register */
+#define REG_SFR_SN0      (*(__I  uint32_t*)0xF802804CU)	/**< \brief (SFR) Serial Number 0 Register */
+#define REG_SFR_SN1      (*(__I  uint32_t*)0xF8028050U)	/**< \brief (SFR) Seriel Number 1 Register */
+#define REG_SFR_AICREDIR (*(__IO uint32_t*)0xF8028054U)	/**< \brief (SFR) AIC interrupt Redirection Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SFR_INSTANCE_ */
+#endif				/* _SAMA5D4_SFR_INSTANCE_ */

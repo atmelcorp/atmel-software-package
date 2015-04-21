@@ -42,12 +42,11 @@
  */
 #define MANUFACTURER_ID    0x7FA2
 
-
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const struct ov_reg ov2643_yuv_uxga[]= {
+const struct ov_reg ov2643_yuv_uxga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -332,7 +331,7 @@ const struct ov_reg ov2643_yuv_uxga[]= {
 	{0xFF, 0xFF}
 };
 
-const struct ov_reg ov2643_yuv_swvga[]= {
+const struct ov_reg ov2643_yuv_swvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -507,7 +506,7 @@ const struct ov_reg ov2643_yuv_swvga[]= {
 	{0xFF, 0xFF}
 };
 
-const struct ov_reg ov2643_yuv_vga[]= {
+const struct ov_reg ov2643_yuv_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -670,7 +669,6 @@ const struct ov_reg ov2643_yuv_vga[]= {
 	{0x12, 0x09},
 	//RGB
 	//{0x12, 0x05},
-
 
 	{0x39, 0xd0},
 	{0xcd, 0x13},

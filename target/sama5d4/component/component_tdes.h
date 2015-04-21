@@ -39,26 +39,26 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Tdes hardware registers */
 typedef struct {
-  __O  uint32_t TDES_CR;        /**< \brief (Tdes Offset: 0x00) Control Register */
-  __IO uint32_t TDES_MR;        /**< \brief (Tdes Offset: 0x04) Mode Register */
-  __I  uint32_t Reserved1[2];
-  __O  uint32_t TDES_IER;       /**< \brief (Tdes Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t TDES_IDR;       /**< \brief (Tdes Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t TDES_IMR;       /**< \brief (Tdes Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t TDES_ISR;       /**< \brief (Tdes Offset: 0x1C) Interrupt Status Register */
-  __O  uint32_t TDES_KEY1WR[2]; /**< \brief (Tdes Offset: 0x20) Key 1 Word Register */
-  __O  uint32_t TDES_KEY2WR[2]; /**< \brief (Tdes Offset: 0x28) Key 2 Word Register */
-  __O  uint32_t TDES_KEY3WR[2]; /**< \brief (Tdes Offset: 0x30) Key 3 Word Register */
-  __I  uint32_t Reserved2[2];
-  __O  uint32_t TDES_IDATAR[2]; /**< \brief (Tdes Offset: 0x40) Input Data Register */
-  __I  uint32_t Reserved3[2];
-  __I  uint32_t TDES_ODATAR[2]; /**< \brief (Tdes Offset: 0x50) Output Data Register */
-  __I  uint32_t Reserved4[2];
-  __O  uint32_t TDES_IVR[2];    /**< \brief (Tdes Offset: 0x60) Initialization Vector Register */
-  __I  uint32_t Reserved5[2];
-  __IO uint32_t TDES_XTEA_RNDR; /**< \brief (Tdes Offset: 0x70) XTEA Rounds Register */
+	__O uint32_t TDES_CR;	      /**< \brief (Tdes Offset: 0x00) Control Register */
+	__IO uint32_t TDES_MR;	      /**< \brief (Tdes Offset: 0x04) Mode Register */
+	__I uint32_t Reserved1[2];
+	__O uint32_t TDES_IER;	      /**< \brief (Tdes Offset: 0x10) Interrupt Enable Register */
+	__O uint32_t TDES_IDR;	      /**< \brief (Tdes Offset: 0x14) Interrupt Disable Register */
+	__I uint32_t TDES_IMR;	      /**< \brief (Tdes Offset: 0x18) Interrupt Mask Register */
+	__I uint32_t TDES_ISR;	      /**< \brief (Tdes Offset: 0x1C) Interrupt Status Register */
+	__O uint32_t TDES_KEY1WR[2];  /**< \brief (Tdes Offset: 0x20) Key 1 Word Register */
+	__O uint32_t TDES_KEY2WR[2];  /**< \brief (Tdes Offset: 0x28) Key 2 Word Register */
+	__O uint32_t TDES_KEY3WR[2];  /**< \brief (Tdes Offset: 0x30) Key 3 Word Register */
+	__I uint32_t Reserved2[2];
+	__O uint32_t TDES_IDATAR[2];  /**< \brief (Tdes Offset: 0x40) Input Data Register */
+	__I uint32_t Reserved3[2];
+	__I uint32_t TDES_ODATAR[2];  /**< \brief (Tdes Offset: 0x50) Output Data Register */
+	__I uint32_t Reserved4[2];
+	__O uint32_t TDES_IVR[2];     /**< \brief (Tdes Offset: 0x60) Initialization Vector Register */
+	__I uint32_t Reserved5[2];
+	__IO uint32_t TDES_XTEA_RNDR; /**< \brief (Tdes Offset: 0x70) XTEA Rounds Register */
 } Tdes;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TDES_CR : (TDES Offset: 0x00) Control Register -------- */
 #define TDES_CR_START (0x1u << 0) /**< \brief (TDES_CR) Start Processing */
 #define TDES_CR_SWRST (0x1u << 8) /**< \brief (TDES_CR) Software Reset */
@@ -76,7 +76,7 @@ typedef struct {
 #define TDES_MR_SMOD_Pos 8
 #define TDES_MR_SMOD_Msk (0x3u << TDES_MR_SMOD_Pos) /**< \brief (TDES_MR) Start Mode */
 #define TDES_MR_SMOD(value) ((TDES_MR_SMOD_Msk & ((value) << TDES_MR_SMOD_Pos)))
-#define   TDES_MR_SMOD_MANUAL_START (0x0u << 8) /**< \brief (TDES_MR) Manual Mode */
+#define   TDES_MR_SMOD_MANUAL_START (0x0u << 8)	/**< \brief (TDES_MR) Manual Mode */
 #define   TDES_MR_SMOD_AUTO_START (0x1u << 8) /**< \brief (TDES_MR) Auto Mode */
 #define   TDES_MR_SMOD_IDATAR0_START (0x2u << 8) /**< \brief (TDES_MR) TDES_IDATAR0 access only Auto Mode */
 #define TDES_MR_OPMOD_Pos 12
@@ -142,5 +142,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_TDES_COMPONENT_ */
+#endif				/* _SAMA5D4_TDES_COMPONENT_ */

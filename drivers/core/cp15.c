@@ -53,7 +53,6 @@
 // 15  Test configuration       Test configuration
 //-----------------------------------------------------------------------------
 
-
 /** \page cp15_f CP15 Functions
  *
  * \section CP15 function Usage
@@ -79,8 +78,6 @@
  */
 
 /** \file */
-
-
 
 /**
  * \addtogroup cp15_cache L1 Cache Operations
@@ -134,7 +131,8 @@
  * \brief Check Instruction cache
  * \return 0 if I_cache disable, 1 if I_cache enable
  */
-unsigned int CP15_IsIcacheEnabled(void)
+unsigned int
+CP15_IsIcacheEnabled(void)
 {
 	unsigned int control;
 
@@ -142,11 +140,11 @@ unsigned int CP15_IsIcacheEnabled(void)
 	return ((control & (1 << CP15_I_BIT)) != 0);
 }
 
-
 /**
  * \brief  Enable Instruction cache
  */
-void CP15_EnableIcache(void)
+void
+CP15_EnableIcache(void)
 {
 	unsigned int control;
 
@@ -164,11 +162,11 @@ void CP15_EnableIcache(void)
 	}
 }
 
-
 /**
  * \brief  Disable Instruction cache
  */
-void CP15_DisableIcache(void)
+void
+CP15_DisableIcache(void)
 {
 	unsigned int control;
 
@@ -190,7 +188,8 @@ void CP15_DisableIcache(void)
  * \brief  Check MMU
  * \return  0 if MMU disable, 1 if MMU enable
  */
-unsigned int CP15_IsMMUEnabled(void)
+unsigned int
+CP15_IsMMUEnabled(void)
 {
 	unsigned int control;
 
@@ -198,11 +197,11 @@ unsigned int CP15_IsMMUEnabled(void)
 	return ((control & (1 << CP15_M_BIT)) != 0);
 }
 
-
 /**
  * \brief  Enable MMU
  */
-void CP15_EnableMMU(void)
+void
+CP15_EnableMMU(void)
 {
 	unsigned int control;
 
@@ -220,11 +219,11 @@ void CP15_EnableMMU(void)
 	}
 }
 
-
 /**
  * \brief  Disable MMU
  */
-void CP15_DisableMMU(void)
+void
+CP15_DisableMMU(void)
 {
 	unsigned int control;
 
@@ -243,29 +242,30 @@ void CP15_DisableMMU(void)
 	}
 }
 
-
 /**
  * \brief  Check D_cache
  * \return  0 if D_cache disable, 1 if D_cache enable (with MMU of course)
  */
-unsigned int CP15_IsDcacheEnabled(void)
+unsigned int
+CP15_IsDcacheEnabled(void)
 {
 	unsigned int control;
 
 	control = CP15_ReadControl();
-	return ((control & ((1 << CP15_C_BIT)||(1 << CP15_M_BIT))) != 0);
+	return ((control & ((1 << CP15_C_BIT) || (1 << CP15_M_BIT))) != 0);
 }
 
 /**
  * \brief  Enable Data cache
  */
-void CP15_EnableDcache(void)
+void
+CP15_EnableDcache(void)
 {
 	unsigned int control;
 
 	control = CP15_ReadControl();
 
-	if( !CP15_IsMMUEnabled() ) {
+	if (!CP15_IsMMUEnabled()) {
 		TRACE_ERROR("Do nothing: MMU not enabled\n\r");
 	} else {
 		// Check if cache is disabled
@@ -284,7 +284,8 @@ void CP15_EnableDcache(void)
 /**
  * \brief  Disable Data cache
  */
-void CP15_DisableDcache(void)
+void
+CP15_DisableDcache(void)
 {
 	unsigned int control;
 
@@ -305,17 +306,18 @@ void CP15_DisableDcache(void)
 /**
  * \brief  Invalidate TLB
  */
-void CP15_InvalidateTLB(void)
+void
+CP15_InvalidateTLB(void)
 {
-	asm("MCR   p15, 0, %0, c8, c3, 0" : : "r"(1));
+      asm("MCR   p15, 0, %0, c8, c3, 0": :"r"(1));
 	asm("DSB");
 }
-
 
 /**
  * \brief  Clean Data cache
  */
-void CP15_CacheClean(uint8_t CacheType)
+void
+CP15_CacheClean(uint8_t CacheType)
 {
 	assert(!CacheType);
 	CP15_SelectDCache();
@@ -328,9 +330,10 @@ void CP15_CacheClean(uint8_t CacheType)
 /**
  * \brief  Invalidate D/Icache
  */
-void CP15_CacheInvalidate(uint8_t CacheType)
+void
+CP15_CacheInvalidate(uint8_t CacheType)
 {
-	if(CacheType) {
+	if (CacheType) {
 		CP15_SelectICache();
 		CP15_InvalidateIcacheInnerSharable();
 		asm("DSB");
@@ -342,13 +345,13 @@ void CP15_CacheInvalidate(uint8_t CacheType)
 		asm("ISB");
 	}
 
-
 }
 
 /**
  * \brief  Flush(Clean and invalidate) Data cache
  */
-void CP15_CacheFlush(uint8_t CacheType)
+void
+CP15_CacheFlush(uint8_t CacheType)
 {
 	assert(!CacheType);
 
@@ -362,7 +365,8 @@ void CP15_CacheFlush(uint8_t CacheType)
 /**
  * \brief  Invalidate Data cache by address
  */
-void CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+void
+CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add)
 {
 
 	CP15_SelectDCache();
@@ -372,7 +376,8 @@ void CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add)
 /**
  * \brief  Clean Data cache by address
  */
-void CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+void
+CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add)
 {
 
 	CP15_SelectDCache();
@@ -383,7 +388,8 @@ void CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add)
  * \brief  Flush Data cache by address
  */
 
-void CP15_FlushDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+void
+CP15_FlushDCacheByVA(uint32_t S_Add, uint32_t E_Add)
 {
 
 	CP15_SelectDCache();

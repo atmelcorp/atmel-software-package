@@ -32,19 +32,19 @@
 
 /* ========== Register definition for TRNG peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_TRNG_CR                    (0xFC030000U) /**< \brief (TRNG) Control Register */
-  #define REG_TRNG_IER                   (0xFC030010U) /**< \brief (TRNG) Interrupt Enable Register */
-  #define REG_TRNG_IDR                   (0xFC030014U) /**< \brief (TRNG) Interrupt Disable Register */
-  #define REG_TRNG_IMR                   (0xFC030018U) /**< \brief (TRNG) Interrupt Mask Register */
-  #define REG_TRNG_ISR                   (0xFC03001CU) /**< \brief (TRNG) Interrupt Status Register */
-  #define REG_TRNG_ODATA                 (0xFC030050U) /**< \brief (TRNG) Output Data Register */
+#define REG_TRNG_CR                    (0xFC030000U) /**< \brief (TRNG) Control Register */
+#define REG_TRNG_IER                   (0xFC030010U) /**< \brief (TRNG) Interrupt Enable Register */
+#define REG_TRNG_IDR                   (0xFC030014U) /**< \brief (TRNG) Interrupt Disable Register */
+#define REG_TRNG_IMR                   (0xFC030018U) /**< \brief (TRNG) Interrupt Mask Register */
+#define REG_TRNG_ISR                   (0xFC03001CU) /**< \brief (TRNG) Interrupt Status Register */
+#define REG_TRNG_ODATA                 (0xFC030050U) /**< \brief (TRNG) Output Data Register */
 #else
-  #define REG_TRNG_CR    (*(__O uint32_t*)0xFC030000U) /**< \brief (TRNG) Control Register */
-  #define REG_TRNG_IER   (*(__O uint32_t*)0xFC030010U) /**< \brief (TRNG) Interrupt Enable Register */
-  #define REG_TRNG_IDR   (*(__O uint32_t*)0xFC030014U) /**< \brief (TRNG) Interrupt Disable Register */
-  #define REG_TRNG_IMR   (*(__I uint32_t*)0xFC030018U) /**< \brief (TRNG) Interrupt Mask Register */
-  #define REG_TRNG_ISR   (*(__I uint32_t*)0xFC03001CU) /**< \brief (TRNG) Interrupt Status Register */
-  #define REG_TRNG_ODATA (*(__I uint32_t*)0xFC030050U) /**< \brief (TRNG) Output Data Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_TRNG_CR    (*(__O uint32_t*)0xFC030000U) /**< \brief (TRNG) Control Register */
+#define REG_TRNG_IER   (*(__O uint32_t*)0xFC030010U) /**< \brief (TRNG) Interrupt Enable Register */
+#define REG_TRNG_IDR   (*(__O uint32_t*)0xFC030014U) /**< \brief (TRNG) Interrupt Disable Register */
+#define REG_TRNG_IMR   (*(__I uint32_t*)0xFC030018U) /**< \brief (TRNG) Interrupt Mask Register */
+#define REG_TRNG_ISR   (*(__I uint32_t*)0xFC03001CU) /**< \brief (TRNG) Interrupt Status Register */
+#define REG_TRNG_ODATA (*(__I uint32_t*)0xFC030050U) /**< \brief (TRNG) Output Data Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_TRNG_INSTANCE_ */
+#endif				/* _SAMA5D4_TRNG_INSTANCE_ */

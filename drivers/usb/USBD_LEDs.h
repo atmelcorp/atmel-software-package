@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2011, Atmel Corporation
  *
@@ -69,5 +69,4 @@
 
 /**@}*/
 
-#endif //#ifndef USBDLEDS_H
-
+#endif				//#ifndef USBDLEDS_H

@@ -32,21 +32,21 @@
 
 /* ========== Register definition for SFC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SFC_KR                   (0xFC060000U) /**< \brief (SFC) SFC Key Register */
-  #define REG_SFC_MR                   (0xFC060004U) /**< \brief (SFC) SFC Mode Register */
-  #define REG_SFC_IER                  (0xFC060010U) /**< \brief (SFC) SFC Interrupt Enable Register */
-  #define REG_SFC_IDR                  (0xFC060014U) /**< \brief (SFC) SFC Interrupt Disable Register */
-  #define REG_SFC_IMR                  (0xFC060018U) /**< \brief (SFC) SFC Interrupt Mask Register */
-  #define REG_SFC_SR                   (0xFC06001CU) /**< \brief (SFC) SFC Status Register */
-  #define REG_SFC_DR                   (0xFC060020U) /**< \brief (SFC) SFC Data Register */
+#define REG_SFC_KR                   (0xFC060000U) /**< \brief (SFC) SFC Key Register */
+#define REG_SFC_MR                   (0xFC060004U) /**< \brief (SFC) SFC Mode Register */
+#define REG_SFC_IER                  (0xFC060010U) /**< \brief (SFC) SFC Interrupt Enable Register */
+#define REG_SFC_IDR                  (0xFC060014U) /**< \brief (SFC) SFC Interrupt Disable Register */
+#define REG_SFC_IMR                  (0xFC060018U) /**< \brief (SFC) SFC Interrupt Mask Register */
+#define REG_SFC_SR                   (0xFC06001CU) /**< \brief (SFC) SFC Status Register */
+#define REG_SFC_DR                   (0xFC060020U) /**< \brief (SFC) SFC Data Register */
 #else
-  #define REG_SFC_KR  (*(__O  uint32_t*)0xFC060000U) /**< \brief (SFC) SFC Key Register */
-  #define REG_SFC_MR  (*(__IO uint32_t*)0xFC060004U) /**< \brief (SFC) SFC Mode Register */
-  #define REG_SFC_IER (*(__IO uint32_t*)0xFC060010U) /**< \brief (SFC) SFC Interrupt Enable Register */
-  #define REG_SFC_IDR (*(__IO uint32_t*)0xFC060014U) /**< \brief (SFC) SFC Interrupt Disable Register */
-  #define REG_SFC_IMR (*(__I  uint32_t*)0xFC060018U) /**< \brief (SFC) SFC Interrupt Mask Register */
-  #define REG_SFC_SR  (*(__I  uint32_t*)0xFC06001CU) /**< \brief (SFC) SFC Status Register */
-  #define REG_SFC_DR  (*(__IO uint32_t*)0xFC060020U) /**< \brief (SFC) SFC Data Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SFC_KR  (*(__O  uint32_t*)0xFC060000U) /**< \brief (SFC) SFC Key Register */
+#define REG_SFC_MR  (*(__IO uint32_t*)0xFC060004U) /**< \brief (SFC) SFC Mode Register */
+#define REG_SFC_IER (*(__IO uint32_t*)0xFC060010U) /**< \brief (SFC) SFC Interrupt Enable Register */
+#define REG_SFC_IDR (*(__IO uint32_t*)0xFC060014U) /**< \brief (SFC) SFC Interrupt Disable Register */
+#define REG_SFC_IMR (*(__I  uint32_t*)0xFC060018U) /**< \brief (SFC) SFC Interrupt Mask Register */
+#define REG_SFC_SR  (*(__I  uint32_t*)0xFC06001CU) /**< \brief (SFC) SFC Status Register */
+#define REG_SFC_DR  (*(__IO uint32_t*)0xFC060020U) /**< \brief (SFC) SFC Data Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SFC_INSTANCE_ */
+#endif				/* _SAMA5D4_SFC_INSTANCE_ */

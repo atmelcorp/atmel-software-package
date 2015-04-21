@@ -82,4 +82,4 @@
 #define COLOR_SNOW           0xFFFAFA
 #define COLOR_YELLOW         0xFFFF00
 
-#endif /* #define COLOR_H */
+#endif				/* #define COLOR_H */

@@ -99,7 +99,7 @@
 #include <stdint.h>
 #include "sdmmc_hal.h"
 #include "sdio.h"
- 
+
 /*------------------------------------------------------------------------------
  *      Definitions
  *----------------------------------------------------------------------------*/
@@ -133,13 +133,13 @@
       (((uint8_t*)(pD))[(iByte) + 2] << 16) +\
       (((uint8_t*)(pD))[(iByte) + 3] << 24) )
 /**     @} */
- 
+
 /** \addtogroup sdmmc_ocr_acc SD/MMC OCR register fields (SD 2.0 & MMC 4.3)
  *      @{
  */
-#define SD_OCR_VDD_LOW          (1ul <<  7)     /**< SD: Reserved for Low Voltage Range */
-#define MMC_OCR_VDD_170_195     (1ul <<  7)     /**< MMC: 1.7 ~ 1.95V, Dual vol and eMMC is 1 */
-#define MMC_OCR_VDD_200_260     (0x3Ful << 8)   /**< MMC: 2.0 ~ 2.6 V */
+#define SD_OCR_VDD_LOW          (1ul <<  7)	/**< SD: Reserved for Low Voltage Range */
+#define MMC_OCR_VDD_170_195     (1ul <<  7)	/**< MMC: 1.7 ~ 1.95V, Dual vol and eMMC is 1 */
+#define MMC_OCR_VDD_200_260     (0x3Ful << 8)	/**< MMC: 2.0 ~ 2.6 V */
 #define SD_OCR_VDD_20_21        (1ul <<  8)
 #define SD_OCR_VDD_21_22        (1ul <<  9)
 #define SD_OCR_VDD_22_23        (1ul << 10)
@@ -157,13 +157,13 @@
 #define SD_OCR_VDD_34_35        (1ul << 22)
 #define SD_OCR_VDD_35_36        (1ul << 23)
 
-#define SDIO_OCR_MP             (0x1ul << 27)   /**< SDIO: Memory present */
-#define SDIO_OCR_NF             (0x3ul << 28)   /**< SDIO: Number of functions */
-#define MMC_OCR_ACCESS_MODE     (0x3ul << 29)   /**< MMC: Access mode, 0x2 is sector mode */
-#define MMC_OCR_ACCESS_BYTE     (0x0 << 29)     /**< MMC: Byte access mode */
-#define MMC_OCR_ACCESS_SECTOR   (0x2 << 29)     /**< MMC: Sector access mode */
-#define SD_OCR_CCS              (1ul << 30)     /**< SD Card Capacity Status (CCS) */
-#define SD_OCR_BUSY             (1ul << 31)     /**< SD/MMC Card power up status bit (busy) */
+#define SDIO_OCR_MP             (0x1ul << 27)	/**< SDIO: Memory present */
+#define SDIO_OCR_NF             (0x3ul << 28)	/**< SDIO: Number of functions */
+#define MMC_OCR_ACCESS_MODE     (0x3ul << 29)	/**< MMC: Access mode, 0x2 is sector mode */
+#define MMC_OCR_ACCESS_BYTE     (0x0 << 29)	/**< MMC: Byte access mode */
+#define MMC_OCR_ACCESS_SECTOR   (0x2 << 29)	/**< MMC: Sector access mode */
+#define SD_OCR_CCS              (1ul << 30)	/**< SD Card Capacity Status (CCS) */
+#define SD_OCR_BUSY             (1ul << 31)	/**< SD/MMC Card power up status bit (busy) */
 
 /** We support 2.7 ~ 3.3V cards */
 #define SD_HOST_VOLTAGE_RANGE     (SD_OCR_VDD_27_28 +\
@@ -342,17 +342,17 @@
 #define SD_STATE_DIS            8
 #define MMC_STATE_BTST          9
 #define MMC_STATE_SLP           10
-#define SD_CST_STATE_IDLE       (0x0UL << 9)    /**< Card IDLE */
-#define SD_CST_STATE_READY      (0x1UL << 9)    /**< Card READY */
-#define SD_CST_STATE_IDENT      (0x2UL << 9)    /**< Card Identify state */
-#define SD_CST_STATE_STBY       (0x3UL << 9)    /**< Card STBY */
-#define SD_CST_STATE_TRAN       (0x4UL << 9)    /**< Card TRAN */
-#define SD_CST_STATE_DATA       (0x5UL << 9)    /**< Card DATA */
-#define SD_CST_STATE_RCV        (0x6UL << 9)    /**< Card RCV */
-#define SD_CST_STATE_PRG        (0x7UL << 9)    /**< Card PRG */
-#define SD_CST_STATE_DIS        (0x8UL << 9)    /**< Card DIS */
-#define SD_CST_STATE_BTST       (0x9UL << 9)    /**< MMC BTSR */
-#define SD_CST_STATE_SLP        (0xAUL << 9)    /**< MMC SLP */
+#define SD_CST_STATE_IDLE       (0x0UL << 9)	/**< Card IDLE */
+#define SD_CST_STATE_READY      (0x1UL << 9)	/**< Card READY */
+#define SD_CST_STATE_IDENT      (0x2UL << 9)	/**< Card Identify state */
+#define SD_CST_STATE_STBY       (0x3UL << 9)	/**< Card STBY */
+#define SD_CST_STATE_TRAN       (0x4UL << 9)	/**< Card TRAN */
+#define SD_CST_STATE_DATA       (0x5UL << 9)	/**< Card DATA */
+#define SD_CST_STATE_RCV        (0x6UL << 9)	/**< Card RCV */
+#define SD_CST_STATE_PRG        (0x7UL << 9)	/**< Card PRG */
+#define SD_CST_STATE_DIS        (0x8UL << 9)	/**< Card DIS */
+#define SD_CST_STATE_BTST       (0x9UL << 9)	/**< MMC BTSR */
+#define SD_CST_STATE_SLP        (0xAUL << 9)	/**< MMC SLP */
 #define SD_CST_READY_FOR_DATA   (1UL << 8)  /**< buffer empty */
 #define MMC_CST_SWITCH_ERROR    (1UL << 7)  /**< SWITCH command error */
 #define SD_CST_APP_CMD          (1UL << 5)  /**< The card will expect ACMD */
@@ -374,9 +374,9 @@
 #define SD_ST_SIZE_OF_PROTECTED_AREA(pSt)  SD_ST(pSt, 448, 32) /**< STD: ThisSize*Multi*BlockLen, HC: Size in bytes */
 #define SD_ST_SPEED_CLASS(pSt)             SD_ST(pSt, 440, 8) /** Speed Class, value can be calculated by Pw/2 */
 #define     SD_ST_SPEED_CLASS_0            0
-#define     SD_ST_SPEED_CLASS_2            1  // >= 2MB/s
-#define     SD_ST_SPEED_CLASS_4            2  // >= 4MB/s
-#define     SD_ST_SPEED_CLASS_6            3  // >= 6MB/s
+#define     SD_ST_SPEED_CLASS_2            1	// >= 2MB/s
+#define     SD_ST_SPEED_CLASS_4            2	// >= 4MB/s
+#define     SD_ST_SPEED_CLASS_6            3	// >= 6MB/s
 #define SD_ST_PERFORMANCE_MOVE(pSt)        SD_ST(pSt, 432, 8) /**< 8-bit, by 1MB/s step. */
 #define SD_ST_AU_SIZE(pSt)                 SD_ST(pSt, 428, 4) /**< AU Size, in power of 2 from 16KB */
 #define     SD_ST_AU_SIZE_16K              1
@@ -524,89 +524,74 @@
 /** \addtogroup sdmmc_api
         @{*/
 
-extern uint8_t SD_Init(sSdCard *pSd);
-extern void SD_DeInit(sSdCard *pSd);
+extern uint8_t SD_Init(sSdCard * pSd);
+extern void SD_DeInit(sSdCard * pSd);
 
-extern uint8_t SD_SetupBusMode(sSdCard *pSd, uint8_t bMode);
-extern uint8_t SD_SetupHSMode(sSdCard *pSd, uint8_t bMode);
+extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
+extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
 
-extern uint8_t  SD_GetCardType(sSdCard *pSd);
-extern uint32_t SD_GetNumberBlocks(sSdCard *pSd);
-extern uint32_t SD_GetBlockSize(sSdCard *pSd);
-extern uint32_t SD_GetTotalSizeKB(sSdCard *pSd);
+extern uint8_t SD_GetCardType(sSdCard * pSd);
+extern uint32_t SD_GetNumberBlocks(sSdCard * pSd);
+extern uint32_t SD_GetBlockSize(sSdCard * pSd);
+extern uint32_t SD_GetTotalSizeKB(sSdCard * pSd);
 
-extern uint8_t SD_ReadBlocks(sSdCard  *pSd,
-                              uint32_t dwAddr,
-                              void    *pData,
-                              uint32_t dwNbBlocks);
-extern uint8_t SD_WriteBlocks(sSdCard  *pSd,
-                               uint32_t dwAddr,
-                               const void *pData,
-                               uint32_t dwNbBlocks);
+extern uint8_t SD_ReadBlocks(sSdCard * pSd,
+			     uint32_t dwAddr, void *pData, uint32_t dwNbBlocks);
+extern uint8_t SD_WriteBlocks(sSdCard * pSd,
+			      uint32_t dwAddr,
+			      const void *pData, uint32_t dwNbBlocks);
 
-extern uint8_t SD_Read(sSdCard *pSd,
-                       uint32_t dwAddr,
-                       void    *pData,
-                       uint32_t dwNbBlocks,
-                       fSdmmcCallback fCallback,
-                       void *pArg);
-extern uint8_t SD_Write(sSdCard *pSd,
-                        uint32_t dwAddr,
-                        const void *pData,
-                        uint32_t dwNbBlocks,
-                        fSdmmcCallback fCallback,
-                        void *pArg);
+extern uint8_t SD_Read(sSdCard * pSd,
+		       uint32_t dwAddr,
+		       void *pData,
+		       uint32_t dwNbBlocks,
+		       fSdmmcCallback fCallback, void *pArg);
+extern uint8_t SD_Write(sSdCard * pSd,
+			uint32_t dwAddr,
+			const void *pData,
+			uint32_t dwNbBlocks,
+			fSdmmcCallback fCallback, void *pArg);
 
-extern uint8_t SDIO_ReadDirect(
-    sSdCard * pSd,
-    uint8_t bFunctionNum,
-    uint32_t dwAddress,
-    uint8_t * pData,
-    uint32_t dwSize);
+extern uint8_t SDIO_ReadDirect(sSdCard * pSd,
+			       uint8_t bFunctionNum,
+			       uint32_t dwAddress,
+			       uint8_t * pData, uint32_t dwSize);
 
-extern uint8_t SDIO_WriteDirect(
-    sSdCard * pSd,
-    uint8_t bFunctionNum,
-    uint32_t dwAddress,
-    uint8_t bDataByte);
+extern uint8_t SDIO_WriteDirect(sSdCard * pSd,
+				uint8_t bFunctionNum,
+				uint32_t dwAddress, uint8_t bDataByte);
 
-extern uint8_t SDIO_ReadBytes(
-    sSdCard * pSd,
-    uint8_t bFunctionNum,
-    uint32_t dwAddress,
-    uint8_t bIsFixedAddress,
-    uint8_t * pData,
-    uint16_t wSize,
-    fSdmmcCallback fCallback,
-    void * pArg);
+extern uint8_t SDIO_ReadBytes(sSdCard * pSd,
+			      uint8_t bFunctionNum,
+			      uint32_t dwAddress,
+			      uint8_t bIsFixedAddress,
+			      uint8_t * pData,
+			      uint16_t wSize,
+			      fSdmmcCallback fCallback, void *pArg);
 
-extern uint8_t SDIO_WriteBytes(
-    sSdCard * pSd,
-    uint8_t bFunctionNum,
-    uint32_t dwAddress,
-    uint8_t bIsFixedAddress,
-    uint8_t * pData,
-    uint16_t wSize,
-    fSdmmcCallback fCallback,
-    void * pArg);
+extern uint8_t SDIO_WriteBytes(sSdCard * pSd,
+			       uint8_t bFunctionNum,
+			       uint32_t dwAddress,
+			       uint8_t bIsFixedAddress,
+			       uint8_t * pData,
+			       uint16_t wSize,
+			       fSdmmcCallback fCallback, void *pArg);
 
-
-extern void _DumpREG(void* pREG, uint32_t dwSize);
+extern void _DumpREG(void *pREG, uint32_t dwSize);
 
 extern void SDIO_DumpCardInformation(sSdCard * pSd);
 
-extern void SD_DumpCID(void * pCID);
+extern void SD_DumpCID(void *pCID);
 
-extern void SD_DumpCSD(void * pCSD);
+extern void SD_DumpCSD(void *pCSD);
 
-extern void SD_DumpExtCSD(void * pExtCSD);
+extern void SD_DumpExtCSD(void *pExtCSD);
 
-extern void SD_DumpSCR(void * pSCR);
+extern void SD_DumpSCR(void *pSCR);
 
-extern void SD_DumpSdStatus(void * pSdST);
+extern void SD_DumpSdStatus(void *pSdST);
 
 /**     @}*/
 /** @}*/
 /**@}*/
-#endif /* #define _SDMMC_H */
-
+#endif				/* #define _SDMMC_H */

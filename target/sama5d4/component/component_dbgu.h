@@ -39,21 +39,21 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Dbgu hardware registers */
 typedef struct {
-  __O  uint32_t DBGU_CR;      /**< \brief (Dbgu Offset: 0x0000) Control Register */
-  __IO uint32_t DBGU_MR;      /**< \brief (Dbgu Offset: 0x0004) Mode Register */
-  __O  uint32_t DBGU_IER;     /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
-  __O  uint32_t DBGU_IDR;     /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
-  __I  uint32_t DBGU_IMR;     /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
-  __I  uint32_t DBGU_SR;      /**< \brief (Dbgu Offset: 0x0014) Status Register */
-  __I  uint32_t DBGU_RHR;     /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
-  __O  uint32_t DBGU_THR;     /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
-  __IO uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
-  __I  uint32_t Reserved1[7];
-  __I  uint32_t DBGU_CIDR;    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
-  __I  uint32_t DBGU_EXID;    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
-  __IO uint32_t DBGU_FNR;     /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
+	__O uint32_t DBGU_CR;	    /**< \brief (Dbgu Offset: 0x0000) Control Register */
+	__IO uint32_t DBGU_MR;	    /**< \brief (Dbgu Offset: 0x0004) Mode Register */
+	__O uint32_t DBGU_IER;	    /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
+	__O uint32_t DBGU_IDR;	    /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
+	__I uint32_t DBGU_IMR;	    /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
+	__I uint32_t DBGU_SR;	    /**< \brief (Dbgu Offset: 0x0014) Status Register */
+	__I uint32_t DBGU_RHR;	    /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
+	__O uint32_t DBGU_THR;	    /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
+	__IO uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
+	__I uint32_t Reserved1[7];
+	__I uint32_t DBGU_CIDR;	    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
+	__I uint32_t DBGU_EXID;	    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
+	__IO uint32_t DBGU_FNR;	    /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
 } Dbgu;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- DBGU_CR : (DBGU Offset: 0x0000) Control Register -------- */
 #define DBGU_CR_RSTRX (0x1u << 2) /**< \brief (DBGU_CR) Reset Receiver */
 #define DBGU_CR_RSTTX (0x1u << 3) /**< \brief (DBGU_CR) Reset Transmitter */
@@ -71,11 +71,11 @@ typedef struct {
 #define DBGU_MR_PAR(value) ((DBGU_MR_PAR_Msk & ((value) << DBGU_MR_PAR_Pos)))
 #define   DBGU_MR_PAR_EVEN (0x0u << 9) /**< \brief (DBGU_MR) Even Parity */
 #define   DBGU_MR_PAR_ODD (0x1u << 9) /**< \brief (DBGU_MR) Odd Parity */
-#define   DBGU_MR_PAR_SPACE (0x2u << 9) /**< \brief (DBGU_MR) Space: Parity forced to 0 */
+#define   DBGU_MR_PAR_SPACE (0x2u << 9)	/**< \brief (DBGU_MR) Space: Parity forced to 0 */
 #define   DBGU_MR_PAR_MARK (0x3u << 9) /**< \brief (DBGU_MR) Mark: Parity forced to 1 */
 #define   DBGU_MR_PAR_NONE (0x4u << 9) /**< \brief (DBGU_MR) No Parity */
 #define DBGU_MR_CHMODE_Pos 14
-#define DBGU_MR_CHMODE_Msk (0x3u << DBGU_MR_CHMODE_Pos) /**< \brief (DBGU_MR) Channel Mode */
+#define DBGU_MR_CHMODE_Msk (0x3u << DBGU_MR_CHMODE_Pos)	/**< \brief (DBGU_MR) Channel Mode */
 #define DBGU_MR_CHMODE(value) ((DBGU_MR_CHMODE_Msk & ((value) << DBGU_MR_CHMODE_Pos)))
 #define   DBGU_MR_CHMODE_NORM (0x0u << 14) /**< \brief (DBGU_MR) Normal Mode */
 #define   DBGU_MR_CHMODE_AUTO (0x1u << 14) /**< \brief (DBGU_MR) Automatic Echo */
@@ -139,7 +139,7 @@ typedef struct {
 #define   DBGU_CIDR_EPROC_ARM7TDMI (0x2u << 5) /**< \brief (DBGU_CIDR) ARM7TDMI */
 #define   DBGU_CIDR_EPROC_CM3 (0x3u << 5) /**< \brief (DBGU_CIDR) Cortex-M3 */
 #define   DBGU_CIDR_EPROC_ARM920T (0x4u << 5) /**< \brief (DBGU_CIDR) ARM920T */
-#define   DBGU_CIDR_EPROC_ARM926EJS (0x5u << 5) /**< \brief (DBGU_CIDR) ARM926EJS */
+#define   DBGU_CIDR_EPROC_ARM926EJS (0x5u << 5)	/**< \brief (DBGU_CIDR) ARM926EJS */
 #define   DBGU_CIDR_EPROC_CA5 (0x6u << 5) /**< \brief (DBGU_CIDR) Cortex-A5 */
 #define DBGU_CIDR_NVPSIZ_Pos 8
 #define DBGU_CIDR_NVPSIZ_Msk (0xfu << DBGU_CIDR_NVPSIZ_Pos) /**< \brief (DBGU_CIDR) Nonvolatile Program Memory Size */
@@ -223,7 +223,7 @@ typedef struct {
 #define DBGU_CIDR_NVPTYP_Pos 28
 #define DBGU_CIDR_NVPTYP_Msk (0x7u << DBGU_CIDR_NVPTYP_Pos) /**< \brief (DBGU_CIDR) Nonvolatile Program Memory Type */
 #define   DBGU_CIDR_NVPTYP_ROM (0x0u << 28) /**< \brief (DBGU_CIDR) ROM */
-#define   DBGU_CIDR_NVPTYP_ROMLESS (0x1u << 28) /**< \brief (DBGU_CIDR) ROMless or on-chip Flash */
+#define   DBGU_CIDR_NVPTYP_ROMLESS (0x1u << 28)	/**< \brief (DBGU_CIDR) ROMless or on-chip Flash */
 #define   DBGU_CIDR_NVPTYP_FLASH (0x2u << 28) /**< \brief (DBGU_CIDR) Embedded Flash Memory */
 #define   DBGU_CIDR_NVPTYP_ROM_FLASH (0x3u << 28) /**< \brief (DBGU_CIDR) ROM and Embedded Flash MemoryNVPSIZ is ROM size      NVPSIZ2 is Flash size */
 #define   DBGU_CIDR_NVPTYP_SRAM (0x4u << 28) /**< \brief (DBGU_CIDR) SRAM emulating ROM */
@@ -236,5 +236,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_DBGU_COMPONENT_ */
+#endif				/* _SAMA5D4_DBGU_COMPONENT_ */

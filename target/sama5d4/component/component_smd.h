@@ -39,17 +39,17 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Smd hardware registers */
 typedef struct {
-  __I  uint32_t Reserved1[3];
-  __IO uint32_t SMD_DRIVE;    /**< \brief (Smd Offset: 0x0C) SMD Drive register */
+	__I uint32_t Reserved1[3];
+	__IO uint32_t SMD_DRIVE;    /**< \brief (Smd Offset: 0x0C) SMD Drive register */
 } Smd;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SMD_DRIVE : (SMD Offset: 0x0C) SMD Drive register -------- */
 #define SMD_DRIVE_MIE (0x1u << 0) /**< \brief (SMD_DRIVE) MADCVS Interrupt Enable */
 #define SMD_DRIVE_DC_PWRCLKPN (0x1u << 1) /**< \brief (SMD_DRIVE) Direct Control of PWRCLKP, PWRCLKN Pins Enable */
 #define SMD_DRIVE_PWRCLKP_PV2 (0x1u << 2) /**< \brief (SMD_DRIVE) PWRCLKP Pin Value */
 #define SMD_DRIVE_PWRCLKP_PV (0x1u << 3) /**< \brief (SMD_DRIVE) PWRCLKP Pin Value */
 #define SMD_DRIVE_PWRCLKN_PCS2_Pos 4
-#define SMD_DRIVE_PWRCLKN_PCS2_Msk (0x3u << SMD_DRIVE_PWRCLKN_PCS2_Pos) /**< \brief (SMD_DRIVE) PWRCLKN Pin Control Select */
+#define SMD_DRIVE_PWRCLKN_PCS2_Msk (0x3u << SMD_DRIVE_PWRCLKN_PCS2_Pos)	/**< \brief (SMD_DRIVE) PWRCLKN Pin Control Select */
 #define SMD_DRIVE_PWRCLKN_PCS2(value) ((SMD_DRIVE_PWRCLKN_PCS2_Msk & ((value) << SMD_DRIVE_PWRCLKN_PCS2_Pos)))
 #define SMD_DRIVE_PWRCLKP_PCS_Pos 6
 #define SMD_DRIVE_PWRCLKP_PCS_Msk (0x3u << SMD_DRIVE_PWRCLKP_PCS_Pos) /**< \brief (SMD_DRIVE) PWRCLKP Pin Control Select */
@@ -57,5 +57,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_SMD_COMPONENT_ */
+#endif				/* _SAMA5D4_SMD_COMPONENT_ */

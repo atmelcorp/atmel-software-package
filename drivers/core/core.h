@@ -40,4 +40,4 @@
 
 #define cortex_a5
 
-#endif // #ifndef _CORE_H
+#endif				// #ifndef _CORE_H

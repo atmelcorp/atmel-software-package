@@ -107,7 +107,8 @@ typedef struct _LinkedListDescriporView1 {
 /**
  * \brief Enable ICM, the ICM controller is activated
  */
-void ICM_Enable(void)
+void
+ICM_Enable(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_ENABLE;
 }
@@ -115,7 +116,8 @@ void ICM_Enable(void)
 /**
  * \brief Disable ICM, if a region is active, this region is terminated
  */
-void ICM_Disable(void)
+void
+ICM_Disable(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_DISABLE;
 }
@@ -123,7 +125,8 @@ void ICM_Disable(void)
 /**
  * \brief Resets the ICM controller.
  */
-void ICM_SoftReset(void)
+void
+ICM_SoftReset(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_SWRST;
 }
@@ -133,7 +136,8 @@ void ICM_SoftReset(void)
  * \param region When REHASH[region] is set to one, the region digest is re-computed.
  * \note This bit is only available when Region monitoring is disabled.
  */
-void ICM_ReComputeHash(uint8_t region)
+void
+ICM_ReComputeHash(uint8_t region)
 {
 	ICM->ICM_CTRL = ICM_CTRL_REHASH(region);
 }
@@ -142,7 +146,8 @@ void ICM_ReComputeHash(uint8_t region)
  * \brief Enable region monitoring for given region
  * \param region When bit RMEN[region] is set to one, the monitoring of Region is activated.
  */
-void ICM_EnableMonitor(uint8_t region)
+void
+ICM_EnableMonitor(uint8_t region)
 {
 	ICM->ICM_CTRL = ICM_CTRL_RMEN(region);
 }
@@ -151,7 +156,8 @@ void ICM_EnableMonitor(uint8_t region)
  * \brief Disable region monitoring for given region
  * \param region When bit RMDIS[region] is set to one, the monitoring of Region is disabled.
  */
-void ICM_DisableMonitor(uint8_t region)
+void
+ICM_DisableMonitor(uint8_t region)
 {
 	ICM->ICM_CTRL = ICM_CTRL_RMDIS(region);
 }
@@ -160,7 +166,8 @@ void ICM_DisableMonitor(uint8_t region)
  * \brief Configures an ICM peripheral with the specified parameters.
  *  \param mode  Desired value for the ICM mode register (see the datasheet).
  */
-void ICM_Configure(uint32_t mode)
+void
+ICM_Configure(uint32_t mode)
 {
 	ICM->ICM_CFG = mode;
 }
@@ -169,7 +176,8 @@ void ICM_Configure(uint32_t mode)
  * \brief Enables the selected interrupts sources on a ICM peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void ICM_EnableIt(uint32_t sources)
+void
+ICM_EnableIt(uint32_t sources)
 {
 	ICM->ICM_IER = sources;
 }
@@ -178,7 +186,8 @@ void ICM_EnableIt(uint32_t sources)
  * \brief Disables the selected interrupts sources on a ICM peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void ICM_DisableIt(uint32_t sources)
+void
+ICM_DisableIt(uint32_t sources)
 {
 	ICM->ICM_IDR = sources;
 }
@@ -187,7 +196,8 @@ void ICM_DisableIt(uint32_t sources)
  * \brief Get the current interrupt status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t ICM_GetIntStatus(void)
+uint32_t
+ICM_GetIntStatus(void)
 {
 	return ICM->ICM_ISR;
 }
@@ -196,17 +206,18 @@ uint32_t ICM_GetIntStatus(void)
  * \brief Get the current status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t ICM_GetStatus(void)
+uint32_t
+ICM_GetStatus(void)
 {
 	return ICM->ICM_SR;
 }
-
 
 /**
  * \brief Get the undefined access status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t ICM_GetUStatus(void)
+uint32_t
+ICM_GetUStatus(void)
 {
 	return ICM->ICM_UASR;
 }
@@ -216,7 +227,8 @@ uint32_t ICM_GetUStatus(void)
  * \param addr start address
  * \note The start address is a multiple of the total size of the data structure (64 bytes).
  */
-void ICM_SetDescStartAddress(uint32_t addr)
+void
+ICM_SetDescStartAddress(uint32_t addr)
 {
 	ICM->ICM_DSCR = addr;
 }
@@ -226,7 +238,8 @@ void ICM_SetDescStartAddress(uint32_t addr)
  * \param addr start address
  * \note This field points at the Hash memory location. The address must be a multiple of 128 bytes.
  */
-void ICM_SetHashStartAddress(uint32_t addr)
+void
+ICM_SetHashStartAddress(uint32_t addr)
 {
 	ICM->ICM_HASH = addr;
 }
@@ -235,8 +248,8 @@ void ICM_SetHashStartAddress(uint32_t addr)
  * \brief Set ICM user initial Hash value register.
  * \param val Initial Hash Value
  */
-void ICM_SetInitHashValue(uint32_t val)
+void
+ICM_SetInitHashValue(uint32_t val)
 {
 	ICM->ICM_UIHVAL[0] = ICM_UIHVAL_VAL(val);
 }
-

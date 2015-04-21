@@ -39,38 +39,38 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Adc hardware registers */
 typedef struct {
-  __O  uint32_t ADC_CR;        /**< \brief (Adc Offset: 0x00) Control Register */
-  __IO uint32_t ADC_MR;        /**< \brief (Adc Offset: 0x04) Mode Register */
-  __IO uint32_t ADC_SEQR1;     /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
-  __I  uint32_t Reserved1[1];
-  __O  uint32_t ADC_CHER;      /**< \brief (Adc Offset: 0x10) Channel Enable Register */
-  __O  uint32_t ADC_CHDR;      /**< \brief (Adc Offset: 0x14) Channel Disable Register */
-  __I  uint32_t ADC_CHSR;      /**< \brief (Adc Offset: 0x18) Channel Status Register */
-  __I  uint32_t Reserved2[1];
-  __I  uint32_t ADC_LCDR;      /**< \brief (Adc Offset: 0x20) Last Converted Data Register */
-  __O  uint32_t ADC_IER;       /**< \brief (Adc Offset: 0x24) Interrupt Enable Register */
-  __O  uint32_t ADC_IDR;       /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
-  __I  uint32_t ADC_IMR;       /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
-  __I  uint32_t ADC_ISR;       /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
-  __I  uint32_t Reserved3[2];
-  __I  uint32_t ADC_OVER;      /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
-  __IO uint32_t ADC_EMR;       /**< \brief (Adc Offset: 0x40) Extended Mode Register */
-  __IO uint32_t ADC_CWR;       /**< \brief (Adc Offset: 0x44) Compare Window Register */
-  __I  uint32_t Reserved4[2];
-  __I  uint32_t ADC_CDR[5];    /**< \brief (Adc Offset: 0x50) Channel Data Register */
-  __I  uint32_t Reserved5[12];
-  __IO uint32_t ADC_ACR;       /**< \brief (Adc Offset: 0x94) Analog Control Register */
-  __I  uint32_t Reserved6[6];
-  __IO uint32_t ADC_TSMR;      /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
-  __I  uint32_t ADC_XPOSR;     /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
-  __I  uint32_t ADC_YPOSR;     /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
-  __I  uint32_t ADC_PRESSR;    /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
-  __IO uint32_t ADC_TRGR;      /**< \brief (Adc Offset: 0xC0) Trigger Register */
-  __I  uint32_t Reserved7[8];
-  __IO uint32_t ADC_WPMR;      /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t ADC_WPSR;      /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
+	__O uint32_t ADC_CR;	     /**< \brief (Adc Offset: 0x00) Control Register */
+	__IO uint32_t ADC_MR;	     /**< \brief (Adc Offset: 0x04) Mode Register */
+	__IO uint32_t ADC_SEQR1;     /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
+	__I uint32_t Reserved1[1];
+	__O uint32_t ADC_CHER;	     /**< \brief (Adc Offset: 0x10) Channel Enable Register */
+	__O uint32_t ADC_CHDR;	     /**< \brief (Adc Offset: 0x14) Channel Disable Register */
+	__I uint32_t ADC_CHSR;	     /**< \brief (Adc Offset: 0x18) Channel Status Register */
+	__I uint32_t Reserved2[1];
+	__I uint32_t ADC_LCDR;	     /**< \brief (Adc Offset: 0x20) Last Converted Data Register */
+	__O uint32_t ADC_IER;	     /**< \brief (Adc Offset: 0x24) Interrupt Enable Register */
+	__O uint32_t ADC_IDR;	     /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
+	__I uint32_t ADC_IMR;	     /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
+	__I uint32_t ADC_ISR;	     /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
+	__I uint32_t Reserved3[2];
+	__I uint32_t ADC_OVER;	     /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
+	__IO uint32_t ADC_EMR;	     /**< \brief (Adc Offset: 0x40) Extended Mode Register */
+	__IO uint32_t ADC_CWR;	     /**< \brief (Adc Offset: 0x44) Compare Window Register */
+	__I uint32_t Reserved4[2];
+	__I uint32_t ADC_CDR[5];     /**< \brief (Adc Offset: 0x50) Channel Data Register */
+	__I uint32_t Reserved5[12];
+	__IO uint32_t ADC_ACR;	     /**< \brief (Adc Offset: 0x94) Analog Control Register */
+	__I uint32_t Reserved6[6];
+	__IO uint32_t ADC_TSMR;	     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
+	__I uint32_t ADC_XPOSR;	     /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
+	__I uint32_t ADC_YPOSR;	     /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
+	__I uint32_t ADC_PRESSR;     /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
+	__IO uint32_t ADC_TRGR;	     /**< \brief (Adc Offset: 0xC0) Trigger Register */
+	__I uint32_t Reserved7[8];
+	__IO uint32_t ADC_WPMR;	     /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
+	__I uint32_t ADC_WPSR;	     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
 } Adc;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ADC_CR : (ADC Offset: 0x00) Control Register -------- */
 #define ADC_CR_SWRST (0x1u << 0) /**< \brief (ADC_CR) Software Reset */
 #define ADC_CR_START (0x1u << 1) /**< \brief (ADC_CR) Start Conversion */
@@ -95,7 +95,7 @@ typedef struct {
 #define ADC_MR_PRESCAL_Msk (0xffu << ADC_MR_PRESCAL_Pos) /**< \brief (ADC_MR) Prescaler Rate Selection */
 #define ADC_MR_PRESCAL(value) ((ADC_MR_PRESCAL_Msk & ((value) << ADC_MR_PRESCAL_Pos)))
 #define ADC_MR_STARTUP_Pos 16
-#define ADC_MR_STARTUP_Msk (0xfu << ADC_MR_STARTUP_Pos) /**< \brief (ADC_MR) Start Up Time */
+#define ADC_MR_STARTUP_Msk (0xfu << ADC_MR_STARTUP_Pos)	/**< \brief (ADC_MR) Start Up Time */
 #define ADC_MR_STARTUP(value) ((ADC_MR_STARTUP_Msk & ((value) << ADC_MR_STARTUP_Pos)))
 #define   ADC_MR_STARTUP_SUT0 (0x0u << 16) /**< \brief (ADC_MR) 0 periods of ADCCLK */
 #define   ADC_MR_STARTUP_SUT8 (0x1u << 16) /**< \brief (ADC_MR) 8 periods of ADCCLK */
@@ -227,7 +227,7 @@ typedef struct {
 #define   ADC_EMR_CMPMODE_IN (0x2u << 0) /**< \brief (ADC_EMR) Generates an event when the converted data is in the comparison window. */
 #define   ADC_EMR_CMPMODE_OUT (0x3u << 0) /**< \brief (ADC_EMR) Generates an event when the converted data is out of the comparison window. */
 #define ADC_EMR_CMPSEL_Pos 4
-#define ADC_EMR_CMPSEL_Msk (0xfu << ADC_EMR_CMPSEL_Pos) /**< \brief (ADC_EMR) Comparison Selected Channel */
+#define ADC_EMR_CMPSEL_Msk (0xfu << ADC_EMR_CMPSEL_Pos)	/**< \brief (ADC_EMR) Comparison Selected Channel */
 #define ADC_EMR_CMPSEL(value) ((ADC_EMR_CMPSEL_Msk & ((value) << ADC_EMR_CMPSEL_Pos)))
 #define ADC_EMR_CMPALL (0x1u << 9) /**< \brief (ADC_EMR) Compare All Channels */
 #define ADC_EMR_CMPFILTER_Pos 12
@@ -237,25 +237,25 @@ typedef struct {
 #define ADC_EMR_OSR_Msk (0x3u << ADC_EMR_OSR_Pos) /**< \brief (ADC_EMR) Over Sampling Rate */
 #define ADC_EMR_OSR(value) ((ADC_EMR_OSR_Msk & ((value) << ADC_EMR_OSR_Pos)))
 #define   ADC_EMR_OSR_NO_AVERAGE (0x0u << 16) /**< \brief (ADC_EMR) No averaging. ADC sample rate is maximum. */
-#define   ADC_EMR_OSR_OSR4 (0x1u << 16) /**< \brief (ADC_EMR) 1-bit enhanced resolution by averaging. ADC sample rate divided by 4. */
+#define   ADC_EMR_OSR_OSR4 (0x1u << 16)	/**< \brief (ADC_EMR) 1-bit enhanced resolution by averaging. ADC sample rate divided by 4. */
 #define   ADC_EMR_OSR_OSR16 (0x2u << 16) /**< \brief (ADC_EMR) 2-bit enhanced resolution by averaging. ADC sample rate divided by 16. */
 #define ADC_EMR_ASTE (0x1u << 20) /**< \brief (ADC_EMR) Averaging on Single Trigger Event */
 #define   ADC_EMR_ASTE_MULTI_TRIG_AVERAGE (0x0u << 20) /**< \brief (ADC_EMR) The average requests several trigger events. */
-#define   ADC_EMR_ASTE_SINGLE_TRIG_AVERAGE (0x1u << 20) /**< \brief (ADC_EMR) The average requests only one trigger event. */
+#define   ADC_EMR_ASTE_SINGLE_TRIG_AVERAGE (0x1u << 20)	/**< \brief (ADC_EMR) The average requests only one trigger event. */
 #define ADC_EMR_TAG (0x1u << 24) /**< \brief (ADC_EMR) Tag of the ADC_LCDR */
 /* -------- ADC_CWR : (ADC Offset: 0x44) Compare Window Register -------- */
 #define ADC_CWR_LOWTHRES_Pos 0
 #define ADC_CWR_LOWTHRES_Msk (0xfffu << ADC_CWR_LOWTHRES_Pos) /**< \brief (ADC_CWR) Low Threshold */
 #define ADC_CWR_LOWTHRES(value) ((ADC_CWR_LOWTHRES_Msk & ((value) << ADC_CWR_LOWTHRES_Pos)))
 #define ADC_CWR_HIGHTHRES_Pos 16
-#define ADC_CWR_HIGHTHRES_Msk (0xfffu << ADC_CWR_HIGHTHRES_Pos) /**< \brief (ADC_CWR) High Threshold */
+#define ADC_CWR_HIGHTHRES_Msk (0xfffu << ADC_CWR_HIGHTHRES_Pos)	/**< \brief (ADC_CWR) High Threshold */
 #define ADC_CWR_HIGHTHRES(value) ((ADC_CWR_HIGHTHRES_Msk & ((value) << ADC_CWR_HIGHTHRES_Pos)))
 /* -------- ADC_CDR[5] : (ADC Offset: 0x50) Channel Data Register -------- */
 #define ADC_CDR_DATA_Pos 0
 #define ADC_CDR_DATA_Msk (0xfffu << ADC_CDR_DATA_Pos) /**< \brief (ADC_CDR[5]) Converted Data */
 /* -------- ADC_ACR : (ADC Offset: 0x94) Analog Control Register -------- */
 #define ADC_ACR_PENDETSENS_Pos 0
-#define ADC_ACR_PENDETSENS_Msk (0x3u << ADC_ACR_PENDETSENS_Pos) /**< \brief (ADC_ACR) Pen Detection Sensitivity */
+#define ADC_ACR_PENDETSENS_Msk (0x3u << ADC_ACR_PENDETSENS_Pos)	/**< \brief (ADC_ACR) Pen Detection Sensitivity */
 #define ADC_ACR_PENDETSENS(value) ((ADC_ACR_PENDETSENS_Msk & ((value) << ADC_ACR_PENDETSENS_Pos)))
 /* -------- ADC_TSMR : (ADC Offset: 0xB0) Touchscreen Mode Register -------- */
 #define ADC_TSMR_TSMODE_Pos 0
@@ -295,9 +295,9 @@ typedef struct {
 #define ADC_YPOSR_YSCALE_Msk (0xfffu << ADC_YPOSR_YSCALE_Pos) /**< \brief (ADC_YPOSR) Scale of YPOS */
 /* -------- ADC_PRESSR : (ADC Offset: 0xBC) Touchscreen Pressure Register -------- */
 #define ADC_PRESSR_Z1_Pos 0
-#define ADC_PRESSR_Z1_Msk (0xfffu << ADC_PRESSR_Z1_Pos) /**< \brief (ADC_PRESSR) Data of Z1 Measurement */
+#define ADC_PRESSR_Z1_Msk (0xfffu << ADC_PRESSR_Z1_Pos)	/**< \brief (ADC_PRESSR) Data of Z1 Measurement */
 #define ADC_PRESSR_Z2_Pos 16
-#define ADC_PRESSR_Z2_Msk (0xfffu << ADC_PRESSR_Z2_Pos) /**< \brief (ADC_PRESSR) Data of Z2 Measurement */
+#define ADC_PRESSR_Z2_Msk (0xfffu << ADC_PRESSR_Z2_Pos)	/**< \brief (ADC_PRESSR) Data of Z2 Measurement */
 /* -------- ADC_TRGR : (ADC Offset: 0xC0) Trigger Register -------- */
 #define ADC_TRGR_TRGMOD_Pos 0
 #define ADC_TRGR_TRGMOD_Msk (0x7u << ADC_TRGR_TRGMOD_Pos) /**< \brief (ADC_TRGR) Trigger Mode */
@@ -325,5 +325,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_ADC_COMPONENT_ */
+#endif				/* _SAMA5D4_ADC_COMPONENT_ */

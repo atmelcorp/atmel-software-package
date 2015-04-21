@@ -27,7 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-
 #ifndef _DBGU_CONSOLE_
 #define _DBGU_CONSOLE_
 
@@ -41,16 +40,17 @@ extern void DBGU_ConsoleUseUSART0(void);
 extern void DBGU_ConsoleUseUSART1(void);
 extern void DBGU_ConsoleUseUSART3(void);
 
-extern void DBGU_Configure( uint32_t dwBaudrate, uint32_t dwMasterClock ) ;
-extern void DBGU_PutChar( uint8_t uc ) ;
-extern uint32_t DBGU_GetChar( void ) ;
-extern uint32_t DBGU_IsRxReady( void ) ;
+extern void DBGU_Configure(uint32_t dwBaudrate, uint32_t dwMasterClock);
+extern void DBGU_PutChar(uint8_t uc);
+extern uint32_t DBGU_GetChar(void);
+extern uint32_t DBGU_IsRxReady(void);
 
+extern void DBGU_DumpFrame(uint8_t * pucFrame, uint32_t dwSize);
+extern void DBGU_DumpMemory(uint8_t * pucBuffer, uint32_t dwSize,
+			    uint32_t dwAddress);
+extern uint32_t DBGU_GetInteger(uint32_t * pdwValue);
+extern uint32_t DBGU_GetIntegerMinMax(uint32_t * pdwValue, uint32_t dwMin,
+				      uint32_t dwMax);
+extern uint32_t DBGU_GetHexa32(uint32_t * pdwValue);
 
-extern void DBGU_DumpFrame( uint8_t* pucFrame, uint32_t dwSize ) ;
-extern void DBGU_DumpMemory( uint8_t* pucBuffer, uint32_t dwSize, uint32_t dwAddress ) ;
-extern uint32_t DBGU_GetInteger( uint32_t* pdwValue ) ;
-extern uint32_t DBGU_GetIntegerMinMax( uint32_t* pdwValue, uint32_t dwMin, uint32_t dwMax ) ;
-extern uint32_t DBGU_GetHexa32( uint32_t* pdwValue ) ;
-
-#endif /* _DBGU_CONSOLE_ */
+#endif				/* _DBGU_CONSOLE_ */

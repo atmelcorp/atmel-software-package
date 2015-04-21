@@ -32,23 +32,23 @@
 
 /* ========== Register definition for SHA peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SHA_CR                       (0xFC050000U) /**< \brief (SHA) Control Register */
-  #define REG_SHA_MR                       (0xFC050004U) /**< \brief (SHA) Mode Register */
-  #define REG_SHA_IER                      (0xFC050010U) /**< \brief (SHA) Interrupt Enable Register */
-  #define REG_SHA_IDR                      (0xFC050014U) /**< \brief (SHA) Interrupt Disable Register */
-  #define REG_SHA_IMR                      (0xFC050018U) /**< \brief (SHA) Interrupt Mask Register */
-  #define REG_SHA_ISR                      (0xFC05001CU) /**< \brief (SHA) Interrupt Status Register */
-  #define REG_SHA_IDATAR                   (0xFC050040U) /**< \brief (SHA) Input Data 0 Register */
-  #define REG_SHA_IODATAR                  (0xFC050080U) /**< \brief (SHA) Input/Output Data 0 Register */
+#define REG_SHA_CR                       (0xFC050000U) /**< \brief (SHA) Control Register */
+#define REG_SHA_MR                       (0xFC050004U) /**< \brief (SHA) Mode Register */
+#define REG_SHA_IER                      (0xFC050010U) /**< \brief (SHA) Interrupt Enable Register */
+#define REG_SHA_IDR                      (0xFC050014U) /**< \brief (SHA) Interrupt Disable Register */
+#define REG_SHA_IMR                      (0xFC050018U) /**< \brief (SHA) Interrupt Mask Register */
+#define REG_SHA_ISR                      (0xFC05001CU) /**< \brief (SHA) Interrupt Status Register */
+#define REG_SHA_IDATAR                   (0xFC050040U) /**< \brief (SHA) Input Data 0 Register */
+#define REG_SHA_IODATAR                  (0xFC050080U) /**< \brief (SHA) Input/Output Data 0 Register */
 #else
-  #define REG_SHA_CR      (*(__O  uint32_t*)0xFC050000U) /**< \brief (SHA) Control Register */
-  #define REG_SHA_MR      (*(__IO uint32_t*)0xFC050004U) /**< \brief (SHA) Mode Register */
-  #define REG_SHA_IER     (*(__O  uint32_t*)0xFC050010U) /**< \brief (SHA) Interrupt Enable Register */
-  #define REG_SHA_IDR     (*(__O  uint32_t*)0xFC050014U) /**< \brief (SHA) Interrupt Disable Register */
-  #define REG_SHA_IMR     (*(__I  uint32_t*)0xFC050018U) /**< \brief (SHA) Interrupt Mask Register */
-  #define REG_SHA_ISR     (*(__I  uint32_t*)0xFC05001CU) /**< \brief (SHA) Interrupt Status Register */
-  #define REG_SHA_IDATAR  (*(__O  uint32_t*)0xFC050040U) /**< \brief (SHA) Input Data 0 Register */
-  #define REG_SHA_IODATAR (*(__IO uint32_t*)0xFC050080U) /**< \brief (SHA) Input/Output Data 0 Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SHA_CR      (*(__O  uint32_t*)0xFC050000U) /**< \brief (SHA) Control Register */
+#define REG_SHA_MR      (*(__IO uint32_t*)0xFC050004U) /**< \brief (SHA) Mode Register */
+#define REG_SHA_IER     (*(__O  uint32_t*)0xFC050010U) /**< \brief (SHA) Interrupt Enable Register */
+#define REG_SHA_IDR     (*(__O  uint32_t*)0xFC050014U) /**< \brief (SHA) Interrupt Disable Register */
+#define REG_SHA_IMR     (*(__I  uint32_t*)0xFC050018U) /**< \brief (SHA) Interrupt Mask Register */
+#define REG_SHA_ISR     (*(__I  uint32_t*)0xFC05001CU) /**< \brief (SHA) Interrupt Status Register */
+#define REG_SHA_IDATAR  (*(__O  uint32_t*)0xFC050040U) /**< \brief (SHA) Input Data 0 Register */
+#define REG_SHA_IODATAR (*(__IO uint32_t*)0xFC050080U) /**< \brief (SHA) Input/Output Data 0 Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SHA_INSTANCE_ */
+#endif				/* _SAMA5D4_SHA_INSTANCE_ */

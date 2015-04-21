@@ -42,8 +42,8 @@
 /**
  * Invoked when the USB device gets suspended. By default, turns off all LEDs.
  */
-void USBDCallbacks_Suspended(void)
+void
+USBDCallbacks_Suspended(void)
 {
 
 }
-

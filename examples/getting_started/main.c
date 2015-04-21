@@ -116,8 +116,6 @@
 #include "time/tc.h"
 #include "time/pit.h"
 
-
-
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -144,7 +142,7 @@ const Pin pinPB1 = PIN_PUSHBUTTON_1;
 /** Pushbutton \#2 pin instance. */
 const Pin pinPB2 = PIN_PUSHBUTTON_2;
 
-#endif  /*  */
+#endif				/*  */
 
 /** LED0 blinking control. */
 volatile bool bLed0Active = true;
@@ -164,7 +162,8 @@ volatile uint32_t dwTimeStamp = 0;
  *
  *  Change active states of LEDs when corresponding button events happened.
  */
-static void ProcessButtonEvt(uint8_t ucButton)
+static void
+ProcessButtonEvt(uint8_t ucButton)
 {
 	if (ucButton == 0) {
 		bLed0Active = !bLed0Active;
@@ -190,27 +189,28 @@ static void ProcessButtonEvt(uint8_t ucButton)
 	}
 }
 
-
 #ifndef NO_PUSHBUTTON
 /**
  *  \brief Handler for Button 1 rising edge interrupt.
  *
  *  Handle process led1 status change.
  */
-void PIOE_IrqHandler(void)
+void
+PIOE_IrqHandler(void)
 {
 	volatile uint32_t status;
 	status = PIOE->PIO_ISR;
 	ProcessButtonEvt(0);
 	ProcessButtonEvt(1);
 }
-#else   /*  */
+#else				/*  */
 /**
  *  \brief Handler for DBGU input.
  *
  *  Handle process LED1 or LED2 status change.
  */
-static void _DBGU_Handler(void)
+static void
+_DBGU_Handler(void)
 {
 	uint8_t key;
 	if (!DBGU_IsRxReady())
@@ -224,13 +224,13 @@ static void _DBGU_Handler(void)
 	}
 }
 
-
-#endif  /*  */
+#endif				/*  */
 
 /**
  *  \brief Handler for PIT interrupt.
  */
-void PIT_IrqHandler(void)
+void
+PIT_IrqHandler(void)
 {
 	uint32_t status;
 
@@ -243,19 +243,18 @@ void PIT_IrqHandler(void)
 		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
 		dwTimeStamp += (PIT_GetPIVR() >> 20);
 	}
-
 #ifdef NO_PUSHBUTTON
 	_DBGU_Handler();
 
-#endif  /*  */
+#endif				/*  */
 }
-
 
 /**
  *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
  *  every interrupt every millisecond
  */
-static void ConfigurePit(void)
+static void
+ConfigurePit(void)
 {
 	PMC->PMC_PCER0 = 1 << ID_PIT;
 
@@ -277,7 +276,8 @@ static void ConfigurePit(void)
  *  Configure the PIO as inputs and generate corresponding interrupt when
  *  pressed or released.
  */
-static void _ConfigureButtons(void)
+static void
+_ConfigureButtons(void)
 {
 
 	/* Configure pios as inputs. */
@@ -299,14 +299,15 @@ static void _ConfigureButtons(void)
 	PIO_EnableIt(&pinPB1);
 	PIO_EnableIt(&pinPB2);
 }
-#endif  /*  */
+#endif				/*  */
 
 /**
  *  \brief Configure LEDs
  *
  *  Configures LEDs \#1 and \#2 (cleared by default).
  */
-static void _ConfigureLeds(void)
+static void
+_ConfigureLeds(void)
 {
 	LED_Configure(0);
 	LED_Configure(1);
@@ -315,13 +316,14 @@ static void _ConfigureLeds(void)
 /**
  *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
  */
-void TC0_IrqHandler(void)
+void
+TC0_IrqHandler(void)
 {
 	volatile uint32_t dummy;
 
 	/* Clear status bit to acknowledge interrupt */
 	dummy = TC0->TC_CHANNEL[0].TC_SR;
-	(void)dummy;
+	(void) dummy;
 
 	/** Toggle LED state. */
 	LED_Toggle(1);
@@ -331,7 +333,8 @@ void TC0_IrqHandler(void)
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
  */
-static void _ConfigureTc(void)
+static void
+_ConfigureTc(void)
 {
 	uint32_t div;
 	uint32_t tcclks;
@@ -354,13 +357,13 @@ static void _ConfigureTc(void)
 	}
 }
 
-
 /**
  *  Waits for the given number of milliseconds (using the dwTimeStamp generated
  *  by the SAM3's microcontrollers's system tick).
  *  \param delay  Delay to wait for, in milliseconds.
  */
-static void _Wait(unsigned long delay)
+static void
+_Wait(unsigned long delay)
 {
 	volatile uint32_t start = dwTimeStamp;
 	uint32_t elapsed;
@@ -371,7 +374,6 @@ static void _Wait(unsigned long delay)
 	} while (elapsed < delay);
 }
 
-
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -381,7 +383,8 @@ static void _Wait(unsigned long delay)
  *
  *  \return Unused (ANSI-C compatibility).
  */
-extern int main(void)
+extern int
+main(void)
 {
 
 	/* Disable watchdog */
@@ -396,8 +399,7 @@ extern int main(void)
 #endif
 
 	/* Output example information */
-	printf("-- Getting Started Example %s --\n\r",
-	       SOFTPACK_VERSION);
+	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
@@ -415,8 +417,7 @@ extern int main(void)
 #ifndef NO_PUSHBUTTON
 	printf("Configure buttons with debouncing.\n\r");
 	_ConfigureButtons();
-	printf
-	("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");
+	printf("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");
 	printf("Press USRBP2 to Start/Stop the red LED D2 blinking.\n\r");
 
 #else
@@ -428,7 +429,7 @@ extern int main(void)
 	while (1) {
 
 		/* Wait for LED to be active */
-		while (!bLed0Active);
+		while (!bLed0Active) ;
 
 		/* Toggle LED state if active */
 		if (bLed0Active) {

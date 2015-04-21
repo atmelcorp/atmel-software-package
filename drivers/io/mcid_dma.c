@@ -67,7 +67,6 @@
 /** Return word(32-bit) count from byte count */
 #define toWCOUNT(byteCnt)  (((byteCnt)&0x3) ? (((byteCnt)/4)+1) : ((byteCnt)/4))
 
-
 /** Bit mask for status register errors. */
 #define STATUS_ERRORS ((uint32_t)(HSMCI_SR_UNRE  \
                        | HSMCI_SR_OVRE \
@@ -125,10 +124,10 @@
 
 /** HAL for SD/MMC bus mode (MCI interface) */
 static sSdHalFunctions sdHal = {
-	(fSdmmcLock)MCID_Lock,
-	(fSdmmcRelease)MCID_Release,
-	(fSdmmcSendCommand)MCID_SendCmd,
-	(fSdmmcIOCtrl)MCID_IOCtrl
+	(fSdmmcLock) MCID_Lock,
+	(fSdmmcRelease) MCID_Release,
+	(fSdmmcSendCommand) MCID_SendCmd,
+	(fSdmmcIOCtrl) MCID_IOCtrl
 };
 
 /*---------------------------------------------------------------------------
@@ -142,31 +141,37 @@ static sSdHalFunctions sdHal = {
 /**
  * Enable MCI peripheral access clock
  */
-static uint8_t _PeripheralEnable(uint32_t id)
+static uint8_t
+_PeripheralEnable(uint32_t id)
 {
-	if (PMC_IsPeriphEnabled(id)) return 0;
+	if (PMC_IsPeriphEnabled(id))
+		return 0;
 	PMC_EnablePeripheral(id);
 	return 1;
 }
 
-
 /**
  * HSMCI DMA R/W prepare
  */
-static uint32_t _MciDMAPrepare(sMcid *pMcid, uint8_t bRd)
+static uint32_t
+_MciDMAPrepare(sMcid * pMcid, uint8_t bRd)
 {
 	sXdmad *pXdmad = pMcid->pXdmad;
 	/* Allocate a channel */
 	if (bRd) {
-		pMcid->dwDmaCh = XDMAD_AllocateChannel(pXdmad, pMcid->bID, XDMAD_TRANSFER_MEMORY);
+		pMcid->dwDmaCh =
+		    XDMAD_AllocateChannel(pXdmad, pMcid->bID,
+					  XDMAD_TRANSFER_MEMORY);
 	} else {
-		pMcid->dwDmaCh = XDMAD_AllocateChannel(pXdmad, XDMAD_TRANSFER_MEMORY, pMcid->bID);
+		pMcid->dwDmaCh =
+		    XDMAD_AllocateChannel(pXdmad, XDMAD_TRANSFER_MEMORY,
+					  pMcid->bID);
 	}
 	if (pMcid->dwDmaCh == XDMAD_ALLOC_FAILED) {
 		return SDMMC_ERROR_BUSY;
 	}
 	XDMAD_SetCallback(pXdmad, pMcid->dwDmaCh, NULL, NULL);
-	XDMAD_PrepareChannel( pXdmad, pMcid->dwDmaCh );
+	XDMAD_PrepareChannel(pXdmad, pMcid->dwDmaCh);
 	return SDMMC_SUCCESS;
 }
 
@@ -177,104 +182,131 @@ static uint32_t _MciDMAPrepare(sMcid *pMcid, uint8_t bRd)
 
 /* Linked lists for multi transfer buffer chaining structure instance. */
 
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
+#if defined ( __ICCARM__ )	/* IAR Ewarm */
 #pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((__section__(".region_dma_nocache")))
+#elif defined (  __GNUC__  )	/* GCC CS3 */
+__attribute__ ((__section__(".region_dma_nocache")))
 #endif
 static LinkedListDescriporView1 dmaLinkList[256];
 
-static uint32_t _MciDMA(sMcid *pMcid, uint32_t bFByte, uint8_t bRd)
+static uint32_t
+_MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 {
 	Hsmci *pHw = pMcid->pMciHw;
 	sXdmad *pXdmad = pMcid->pXdmad;
 	sSdmmcCommand *pCmd = pMcid->pCmd;
-	sXdmadCfg xdmadRxCfg,xdmadTxCfg;
+	sXdmadCfg xdmadRxCfg, xdmadTxCfg;
 	uint32_t xdmaCndc;
 	uint32_t hsmciId;
 	uint8_t i;
 	uint32_t totalSize = pCmd->wNbBlocks * pCmd->wBlockSize;
 	uint32_t maxXSize;
 	uint32_t memAddress;
-	uint8_t  bMByte;
+	uint8_t bMByte;
 
-	if (pMcid->dwXfrNdx >= totalSize) return 0;
+	if (pMcid->dwXfrNdx >= totalSize)
+		return 0;
 	/* Prepare DMA transfer */
-	if(pCmd->wBlockSize != 1) {
+	if (pCmd->wBlockSize != 1) {
 		pMcid->dwXSize = totalSize - pMcid->dwXfrNdx;
-		hsmciId = ((unsigned int)pHw == (unsigned int)HSMCI0 )? ID_HSMCI0: ID_HSMCI1;
+		hsmciId =
+		    ((unsigned int) pHw ==
+		     (unsigned int) HSMCI0) ? ID_HSMCI0 : ID_HSMCI1;
 		if (bRd) {
 			//printf("_MciDMA read %d,%d \n\r",pCmd->wBlockSize, pCmd->bCmd );
-			for ( i = 0; i < pCmd->wNbBlocks; i++) {
+			for (i = 0; i < pCmd->wNbBlocks; i++) {
 				dmaLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-				                         | (( i == pCmd->wNbBlocks - 1) ? 0: XDMA_UBC_NDE_FETCH_EN)
-				                         | XDMA_UBC_NDEN_UPDATED
-				                         | pCmd->wBlockSize /4 ;
-				dmaLinkList[i].mbr_sa  = (uint32_t)&(pHw->HSMCI_FIFO[i]);
-				dmaLinkList[i].mbr_da = (uint32_t)&pCmd->pData[i * pCmd->wBlockSize];
-				if ( i == pCmd->wNbBlocks - 1)
+				    | ((i == pCmd->wNbBlocks - 1) ? 0 :
+				       XDMA_UBC_NDE_FETCH_EN)
+				    | XDMA_UBC_NDEN_UPDATED | pCmd->wBlockSize /
+				    4;
+				dmaLinkList[i].mbr_sa =
+				    (uint32_t) & (pHw->HSMCI_FIFO[i]);
+				dmaLinkList[i].mbr_da =
+				    (uint32_t) & pCmd->pData[i *
+							     pCmd->wBlockSize];
+				if (i == pCmd->wNbBlocks - 1)
 					dmaLinkList[i].mbr_nda = 0;
 				else
-					dmaLinkList[i].mbr_nda = (uint32_t)&dmaLinkList[ i + 1 ];
+					dmaLinkList[i].mbr_nda =
+					    (uint32_t) & dmaLinkList[i + 1];
 			}
 			xdmadRxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
-			                     | XDMAC_CC_MBSIZE_SINGLE
-			                     | XDMAC_CC_DSYNC_PER2MEM
-			                     | XDMAC_CC_CSIZE_CHK_1
-			                     | XDMAC_CC_DWIDTH_WORD
-			                     | XDMAC_CC_SIF_AHB_IF1
-			                     | XDMAC_CC_DIF_AHB_IF0
-			                     | XDMAC_CC_SAM_FIXED_AM
-			                     | XDMAC_CC_DAM_INCREMENTED_AM
-			                     | XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber( 0, hsmciId, XDMAD_TRANSFER_RX ));
-			xdmaCndc = XDMAC_CNDC_NDVIEW_NDV1
-			           | XDMAC_CNDC_NDE_DSCR_FETCH_EN
-			           | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-			           | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED ;
-			if (XDMAD_ConfigureTransfer( pXdmad, pMcid->dwDmaCh, &xdmadRxCfg, xdmaCndc, (uint32_t)&dmaLinkList[0])) {
+			    | XDMAC_CC_MBSIZE_SINGLE
+			    | XDMAC_CC_DSYNC_PER2MEM
+			    | XDMAC_CC_CSIZE_CHK_1
+			    | XDMAC_CC_DWIDTH_WORD
+			    | XDMAC_CC_SIF_AHB_IF1
+			    | XDMAC_CC_DIF_AHB_IF0
+			    | XDMAC_CC_SAM_FIXED_AM
+			    | XDMAC_CC_DAM_INCREMENTED_AM
+			    |
+			    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
+					   (0, hsmciId, XDMAD_TRANSFER_RX));
+			xdmaCndc =
+			    XDMAC_CNDC_NDVIEW_NDV1 |
+			    XDMAC_CNDC_NDE_DSCR_FETCH_EN |
+			    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
+			    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
+			if (XDMAD_ConfigureTransfer
+			    (pXdmad, pMcid->dwDmaCh, &xdmadRxCfg, xdmaCndc,
+			     (uint32_t) & dmaLinkList[0])) {
 				return 0;
 			}
-			if (XDMAD_StartTransfer(pXdmad,pMcid->dwDmaCh)) {
+			if (XDMAD_StartTransfer(pXdmad, pMcid->dwDmaCh)) {
 				return 0;
 			}
 			//Write
 		} else {
 			//printf("_MciDMA write %d,%d \n\r",pCmd->wBlockSize, pCmd->bCmd );
-			for ( i = 0; i < pCmd->wNbBlocks; i++) {
+			for (i = 0; i < pCmd->wNbBlocks; i++) {
 				dmaLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-				                         |(( i == pCmd->wNbBlocks - 1) ? 0: XDMA_UBC_NDE_FETCH_EN)
-				                         | XDMA_UBC_NDEN_UPDATED
-				                         | pCmd->wBlockSize /4 ;
-				dmaLinkList[i].mbr_sa = (uint32_t)&pCmd->pData[i * pCmd->wBlockSize];
-				dmaLinkList[i].mbr_da = (uint32_t)&(pHw->HSMCI_FIFO[i]);
-				if ( i == pCmd->wNbBlocks - 1) dmaLinkList[i].mbr_nda = 0;
-				else dmaLinkList[i].mbr_nda = (uint32_t)&dmaLinkList[ i + 1 ];
+				    | ((i == pCmd->wNbBlocks - 1) ? 0 :
+				       XDMA_UBC_NDE_FETCH_EN)
+				    | XDMA_UBC_NDEN_UPDATED | pCmd->wBlockSize /
+				    4;
+				dmaLinkList[i].mbr_sa =
+				    (uint32_t) & pCmd->pData[i *
+							     pCmd->wBlockSize];
+				dmaLinkList[i].mbr_da =
+				    (uint32_t) & (pHw->HSMCI_FIFO[i]);
+				if (i == pCmd->wNbBlocks - 1)
+					dmaLinkList[i].mbr_nda = 0;
+				else
+					dmaLinkList[i].mbr_nda =
+					    (uint32_t) & dmaLinkList[i + 1];
 			}
 			xdmadTxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
-			                     | XDMAC_CC_MBSIZE_SINGLE
-			                     | XDMAC_CC_DSYNC_MEM2PER
-			                     | XDMAC_CC_CSIZE_CHK_1
-			                     | XDMAC_CC_DWIDTH_WORD
-			                     | XDMAC_CC_SIF_AHB_IF0
-			                     | XDMAC_CC_DIF_AHB_IF1
-			                     | XDMAC_CC_SAM_INCREMENTED_AM
-			                     | XDMAC_CC_DAM_FIXED_AM
-			                     | XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber( 0, hsmciId, XDMAD_TRANSFER_TX ));
-			xdmaCndc = XDMAC_CNDC_NDVIEW_NDV1
-			           | XDMAC_CNDC_NDE_DSCR_FETCH_EN
-			           | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-			           | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED ;
-			if(XDMAD_ConfigureTransfer( pXdmad, pMcid->dwDmaCh, &xdmadTxCfg, xdmaCndc, (uint32_t)&dmaLinkList[0])) {
+			    | XDMAC_CC_MBSIZE_SINGLE
+			    | XDMAC_CC_DSYNC_MEM2PER
+			    | XDMAC_CC_CSIZE_CHK_1
+			    | XDMAC_CC_DWIDTH_WORD
+			    | XDMAC_CC_SIF_AHB_IF0
+			    | XDMAC_CC_DIF_AHB_IF1
+			    | XDMAC_CC_SAM_INCREMENTED_AM
+			    | XDMAC_CC_DAM_FIXED_AM
+			    |
+			    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
+					   (0, hsmciId, XDMAD_TRANSFER_TX));
+			xdmaCndc =
+			    XDMAC_CNDC_NDVIEW_NDV1 |
+			    XDMAC_CNDC_NDE_DSCR_FETCH_EN |
+			    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
+			    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
+			if (XDMAD_ConfigureTransfer
+			    (pXdmad, pMcid->dwDmaCh, &xdmadTxCfg, xdmaCndc,
+			     (uint32_t) & dmaLinkList[0])) {
 				return 0;
 			}
-			if (XDMAD_StartTransfer(pXdmad,pMcid->dwDmaCh)) {
+			if (XDMAD_StartTransfer(pXdmad, pMcid->dwDmaCh)) {
 				return 0;
 			}
 		}
 	} else {
 		/* Memory address and alignment */
-		memAddress = (uint32_t)&pCmd->pData[pMcid->dwXfrNdx];
-		bMByte = bFByte ? 1 : (((memAddress & 0x3) || (totalSize & 0x3)));
+		memAddress = (uint32_t) & pCmd->pData[pMcid->dwXfrNdx];
+		bMByte =
+		    bFByte ? 1 : (((memAddress & 0x3) || (totalSize & 0x3)));
 		/* P to M: Max size is P size */
 		if (bRd) {
 			maxXSize = bFByte ? MAX_DMA_SIZE : (MAX_DMA_SIZE * 4);
@@ -290,36 +322,37 @@ static uint32_t _MciDMA(sMcid *pMcid, uint32_t bFByte, uint8_t bRd)
 		}
 		/* Prepare DMA transfer */
 		if (bRd) {
-			xdmadRxCfg.mbr_ubc = bFByte ? pMcid->dwXSize : toWCOUNT(pMcid->dwXSize);
-			xdmadRxCfg.mbr_sa = (uint32_t)&(pHw->HSMCI_RDR);
-			xdmadRxCfg.mbr_da = (uint32_t)memAddress;
+			xdmadRxCfg.mbr_ubc =
+			    bFByte ? pMcid->dwXSize : toWCOUNT(pMcid->dwXSize);
+			xdmadRxCfg.mbr_sa = (uint32_t) & (pHw->HSMCI_RDR);
+			xdmadRxCfg.mbr_da = (uint32_t) memAddress;
 			xdmadRxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN |
-			                     XDMAC_CC_MEMSET_NORMAL_MODE |
-			                     XDMAC_CC_DSYNC_PER2MEM|
-			                     XDMAC_CC_CSIZE_CHK_1 |
-			                     (bFByte ? XDMAC_CC_DWIDTH_BYTE : XDMAC_CC_DWIDTH_WORD) |
-			                     XDMAC_CC_SIF_AHB_IF1 |
-			                     XDMAC_CC_DIF_AHB_IF0 |
-			                     XDMAC_CC_SAM_FIXED_AM |
-			                     XDMAC_CC_DAM_INCREMENTED_AM;
+			    XDMAC_CC_MEMSET_NORMAL_MODE |
+			    XDMAC_CC_DSYNC_PER2MEM |
+			    XDMAC_CC_CSIZE_CHK_1 |
+			    (bFByte ? XDMAC_CC_DWIDTH_BYTE :
+			     XDMAC_CC_DWIDTH_WORD) | XDMAC_CC_SIF_AHB_IF1 |
+			    XDMAC_CC_DIF_AHB_IF0 | XDMAC_CC_SAM_FIXED_AM |
+			    XDMAC_CC_DAM_INCREMENTED_AM;
 			xdmadRxCfg.mbr_bc = 0;
-			XDMAD_ConfigureTransfer( pXdmad, pMcid->dwDmaCh, &xdmadRxCfg, 0, 0);
+			XDMAD_ConfigureTransfer(pXdmad, pMcid->dwDmaCh,
+						&xdmadRxCfg, 0, 0);
 			//CP15_coherent_dcache_for_dma ((uint32_t)memAddress, ((uint32_t)memAddress + (pMcid->dwXSize)));
 		} else {
 			xdmadTxCfg.mbr_ubc = toWCOUNT(pMcid->dwXSize);
-			xdmadTxCfg.mbr_sa = (uint32_t)memAddress;
-			xdmadTxCfg.mbr_da = (uint32_t)&(pHw->HSMCI_TDR);
+			xdmadTxCfg.mbr_sa = (uint32_t) memAddress;
+			xdmadTxCfg.mbr_da = (uint32_t) & (pHw->HSMCI_TDR);
 			xdmadTxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN |
-			                     XDMAC_CC_MEMSET_NORMAL_MODE |
-			                     XDMAC_CC_DSYNC_MEM2PER |
-			                     XDMAC_CC_CSIZE_CHK_1 |
-			                     (bFByte ? XDMAC_CC_DWIDTH_BYTE : XDMAC_CC_DWIDTH_WORD) |
-			                     XDMAC_CC_SIF_AHB_IF0 |
-			                     XDMAC_CC_DIF_AHB_IF1 |
-			                     XDMAC_CC_SAM_INCREMENTED_AM |
-			                     XDMAC_CC_DAM_FIXED_AM;
+			    XDMAC_CC_MEMSET_NORMAL_MODE |
+			    XDMAC_CC_DSYNC_MEM2PER |
+			    XDMAC_CC_CSIZE_CHK_1 |
+			    (bFByte ? XDMAC_CC_DWIDTH_BYTE :
+			     XDMAC_CC_DWIDTH_WORD) | XDMAC_CC_SIF_AHB_IF0 |
+			    XDMAC_CC_DIF_AHB_IF1 | XDMAC_CC_SAM_INCREMENTED_AM |
+			    XDMAC_CC_DAM_FIXED_AM;
 			xdmadTxCfg.mbr_bc = 0;
-			XDMAD_ConfigureTransfer( pXdmad, pMcid->dwDmaCh, &xdmadTxCfg, 0, 0);
+			XDMAD_ConfigureTransfer(pXdmad, pMcid->dwDmaCh,
+						&xdmadTxCfg, 0, 0);
 		}
 		XDMAD_StartTransfer(pXdmad, pMcid->dwDmaCh);
 	}
@@ -336,14 +369,15 @@ static uint32_t _MciDMA(sMcid *pMcid, uint32_t bFByte, uint8_t bRd)
  * \param keepSettings Keep old register settings, including
  *                     _MR, _SDCR, _DTOR, _CSTOR, _DMA and _CFG.
  */
-static void MCI_Reset(sMcid *pMci, uint8_t keepSettings)
+static void
+MCI_Reset(sMcid * pMci, uint8_t keepSettings)
 {
 	Hsmci *pMciHw = pMci->pMciHw;
 
 	assert(pMci);
 	assert(pMci->pMciHw);
 
-	HSMCI_Reset( pMciHw, keepSettings );
+	HSMCI_Reset(pMciHw, keepSettings);
 }
 
 /**
@@ -354,44 +388,47 @@ static void MCI_Reset(sMcid *pMci, uint8_t keepSettings)
  * \param mck       MCK to generate MCI Clock, in Hz
  * \return The actual speed used, 0 for fail.
  */
-static uint32_t MCI_SetSpeed( sMcid* pMci, uint32_t mciSpeed, uint32_t mck )
+static uint32_t
+MCI_SetSpeed(sMcid * pMci, uint32_t mciSpeed, uint32_t mck)
 {
 	Hsmci *pMciHw = pMci->pMciHw;
 	uint32_t clkdiv;
 	assert(pMci);
 	assert(pMciHw);
 
-	if((mck % mciSpeed) == 0) {
-		clkdiv = mck /mciSpeed;
+	if ((mck % mciSpeed) == 0) {
+		clkdiv = mck / mciSpeed;
 	} else {
-		clkdiv = ((mck + mciSpeed)/mciSpeed);
+		clkdiv = ((mck + mciSpeed) / mciSpeed);
 	}
 	mciSpeed = mck / clkdiv;
 
 	/* Modify MR */
-	HSMCI_DivCtrl( pMciHw, clkdiv, 0x7);
+	HSMCI_DivCtrl(pMciHw, clkdiv, 0x7);
 	return (mciSpeed);
 }
 
 /**
  */
-static void _FinishCmd( sMcid* pMcid, uint8_t bStatus )
+static void
+_FinishCmd(sMcid * pMcid, uint8_t bStatus)
 {
 	sSdmmcCommand *pCmd = pMcid->pCmd;
 	sXdmad *pXdmad = pMcid->pXdmad;
 	//uint32_t memAddress;
 	/* Release DMA channel (if used) */
 	if (pMcid->dwDmaCh != XDMAD_ALLOC_FAILED) {
-		if (XDMAD_FreeChannel(pXdmad, pMcid->dwDmaCh)) printf("-E- Can't free channel \n\r");
+		if (XDMAD_FreeChannel(pXdmad, pMcid->dwDmaCh))
+			printf("-E- Can't free channel \n\r");
 		pMcid->dwDmaCh = XDMAD_ALLOC_FAILED;
 	}
 	/* Release command */
-	pMcid->pCmd   = NULL;
+	pMcid->pCmd = NULL;
 	pMcid->bState = MCID_LOCKED;
 	pCmd->bStatus = bStatus;
 	/* Invoke callback */
 	if (pCmd->fCallback) {
-		(pCmd->fCallback)(pCmd->bStatus, pCmd->pArg);
+		(pCmd->fCallback) (pCmd->bStatus, pCmd->pArg);
 	}
 }
 
@@ -402,8 +439,8 @@ static void _FinishCmd( sMcid* pMcid, uint8_t bStatus )
 /**
  * Select MCI slot.
  */
-void MCID_SetSlot(Hsmci *pMci, uint8_t slot)
-
+void
+MCID_SetSlot(Hsmci * pMci, uint8_t slot)
 {
 	HSMCI_SetSlot(pMci, slot);
 }
@@ -411,10 +448,10 @@ void MCID_SetSlot(Hsmci *pMci, uint8_t slot)
 /**
  * Initialize MCI driver.
  */
-void MCID_Init(sMcid *pMcid,
-               Hsmci *pMci, uint8_t bID, uint32_t dwMck,
-               sXdmad *pXdmad,
-               uint8_t bPolling)
+void
+MCID_Init(sMcid * pMcid,
+	  Hsmci * pMci, uint8_t bID, uint32_t dwMck,
+	  sXdmad * pXdmad, uint8_t bPolling)
 {
 	uint16_t clkDiv;
 
@@ -422,43 +459,44 @@ void MCID_Init(sMcid *pMcid,
 	assert(pMci);
 
 	/* Initialize driver struct */
-	pMcid->pMciHw    = pMci;
-	pMcid->pCmd      = NULL;
+	pMcid->pMciHw = pMci;
+	pMcid->pCmd = NULL;
 
-	pMcid->pXdmad         = pXdmad;
-	pMcid->dwDmaCh       = XDMAD_ALLOC_FAILED;
-	pMcid->dwXfrNdx      = 0;
+	pMcid->pXdmad = pXdmad;
+	pMcid->dwDmaCh = XDMAD_ALLOC_FAILED;
+	pMcid->dwXfrNdx = 0;
 
-	pMcid->dwMck     = dwMck;
+	pMcid->dwMck = dwMck;
 
-	pMcid->bID       = bID;
-	pMcid->bPolling  = bPolling;
-	pMcid->bState    = MCID_IDLE;
+	pMcid->bID = bID;
+	pMcid->bPolling = bPolling;
+	pMcid->bState = MCID_IDLE;
 
-	_PeripheralEnable( bID );
+	_PeripheralEnable(bID);
 
-	MCI_RESET( pMci );
-	MCI_DISABLE ( pMci );
-	HSMCI_DisableIt( pMci, 0xFFFFFFFF );
-	HSMCI_ConfigureDataTO( pMci, HSMCI_DTOR_DTOCYC(0xFF)
-	                       |HSMCI_DTOR_DTOMUL_1048576 );
-	HSMCI_ConfigureCompletionTO( pMci , HSMCI_CSTOR_CSTOCYC(0xFF)
-	                             |HSMCI_CSTOR_CSTOMUL_1048576 );
+	MCI_RESET(pMci);
+	MCI_DISABLE(pMci);
+	HSMCI_DisableIt(pMci, 0xFFFFFFFF);
+	HSMCI_ConfigureDataTO(pMci, HSMCI_DTOR_DTOCYC(0xFF)
+			      | HSMCI_DTOR_DTOMUL_1048576);
+	HSMCI_ConfigureCompletionTO(pMci, HSMCI_CSTOR_CSTOCYC(0xFF)
+				    | HSMCI_CSTOR_CSTOMUL_1048576);
 	/* Set the Mode Register: 400KHz */
 	clkDiv = (dwMck / (MCI_INITIAL_SPEED << 1)) - 1;
-	HSMCI_ConfigureMode( pMci, (clkDiv | HSMCI_MR_PWSDIV(0x7)) );
+	HSMCI_ConfigureMode(pMci, (clkDiv | HSMCI_MR_PWSDIV(0x7)));
 
-	HSMCI_Enable( pMci );
-	HSMCI_Configure( pMci, HSMCI_CFG_FIFOMODE | HSMCI_CFG_FERRCTRL );
+	HSMCI_Enable(pMci);
+	HSMCI_Configure(pMci, HSMCI_CFG_FIFOMODE | HSMCI_CFG_FERRCTRL);
 	/* Enable DMA */
-	HSMCI_EnableDma( pMci, 1 );
+	HSMCI_EnableDma(pMci, 1);
 	//_PeripheralDisable( bID );
 }
 
 /**
  * Lock the MCI driver for slot N access
  */
-uint32_t MCID_Lock(sMcid *pMcid, uint8_t bSlot)
+uint32_t
+MCID_Lock(sMcid * pMcid, uint8_t bSlot)
 {
 	Hsmci *pHw = pMcid->pMciHw;
 	uint32_t sdcr;
@@ -473,7 +511,7 @@ uint32_t MCID_Lock(sMcid *pMcid, uint8_t bSlot)
 		return SDMMC_ERROR_LOCKED;
 	}
 	pMcid->bState = MCID_LOCKED;
-	sdcr = pHw->HSMCI_SDCR & ~(uint32_t)HSMCI_SDCR_SDCSEL_Msk;
+	sdcr = pHw->HSMCI_SDCR & ~(uint32_t) HSMCI_SDCR_SDCSEL_Msk;
 	pHw->HSMCI_SDCR = sdcr | (bSlot << HSMCI_SDCR_SDCSEL_Pos);
 	return SDMMC_OK;
 }
@@ -481,7 +519,8 @@ uint32_t MCID_Lock(sMcid *pMcid, uint8_t bSlot)
 /**
  * Release the driver.
  */
-uint32_t MCID_Release(sMcid *pMcid)
+uint32_t
+MCID_Release(sMcid * pMcid)
 {
 	assert(pMcid);
 
@@ -495,7 +534,8 @@ uint32_t MCID_Release(sMcid *pMcid)
 /**
  * SD/MMC command.
  */
-uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
+uint32_t
+MCID_SendCmd(sMcid * pMcid, void *pCommand)
 {
 	Hsmci *pHw = pMcid->pMciHw;
 	sSdmmcCommand *pCmd = pCommand;
@@ -510,11 +550,13 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 		return SDMMC_ERROR_BUSY;
 	}
 	pMcid->bState = MCID_CMD;
-	pMcid->pCmd   = pCmd;
+	pMcid->pCmd = pCmd;
 
 	//_PeripheralEnable(pMcid->bID);
 	MCI_DISABLE(pHw);
-	mr = HSMCI_GetMode(pHw) & (~(uint32_t)(HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF |HSMCI_MR_FBYTE));
+	mr = HSMCI_GetMode(pHw) &
+	    (~(uint32_t)
+	     (HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF | HSMCI_MR_FBYTE));
 	/* Special: PowerON Init */
 	if (pCmd->cmdOp.wVal == SDMMC_CMD_POWERONINIT) {
 		HSMCI_ConfigureMode(pHw, mr);
@@ -526,17 +568,18 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
 	}
 	/* No data transfer */
-	else if ((pCmd->cmdOp.wVal & SDMMC_CMD_CNODATA(0xF)) == SDMMC_CMD_CNODATA(0)) {
+	else if ((pCmd->cmdOp.wVal & SDMMC_CMD_CNODATA(0xF)) ==
+		 SDMMC_CMD_CNODATA(0)) {
 		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
 		/* R3 response, no CRC */
 		if (pCmd->cmdOp.bmBits.respType == 3) {
-			ier &= ~(uint32_t)HSMCI_IER_RCRCE;
+			ier &= ~(uint32_t) HSMCI_IER_RCRCE;
 		}
 	}
 	/* Data command but no following */
 	else if (pCmd->wNbBlocks == 0 || pCmd->pData == 0) {
 		HSMCI_ConfigureMode(pHw, mr | HSMCI_MR_WRPROOF
-		                    | HSMCI_MR_RDPROOF);
+				    | HSMCI_MR_RDPROOF);
 		HSMCI_ConfigureTransfer(pHw, pCmd->wBlockSize, pCmd->wNbBlocks);
 		ier = HSMCI_IER_CMDRDY | STATUS_ERRORS_RESP;
 	}
@@ -544,7 +587,8 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 	else {
 		/* Setup block size */
 		if (pCmd->cmdOp.bmBits.sendCmd) {
-			HSMCI_ConfigureTransfer(pHw, pCmd->wBlockSize, pCmd->wNbBlocks);
+			HSMCI_ConfigureTransfer(pHw, pCmd->wBlockSize,
+						pCmd->wNbBlocks);
 		}
 		/* Block size is 0, force byte */
 		if (pCmd->wBlockSize == 0)
@@ -556,25 +600,27 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 		}
 		/* Set block size & MR */
 		HSMCI_ConfigureMode(pHw, mr | HSMCI_MR_WRPROOF
-		                    | HSMCI_MR_RDPROOF
-		                    | (pCmd->wBlockSize << 16));
+				    | HSMCI_MR_RDPROOF
+				    | (pCmd->wBlockSize << 16));
 		/* DMA write */
 		if (pCmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX) {
 			if (_MciDMAPrepare(pMcid, 0)) {
 				_FinishCmd(pMcid, SDMMC_ERROR_BUSY);
 				return SDMMC_ERROR_BUSY;
 			}
-			_MciDMA(pMcid, (mr & HSMCI_MR_FBYTE),0);
+			_MciDMA(pMcid, (mr & HSMCI_MR_FBYTE), 0);
 			ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_DATA;
-			if( pCmd->wNbBlocks > 1 ) ier |= HSMCI_IER_FIFOEMPTY;
+			if (pCmd->wNbBlocks > 1)
+				ier |= HSMCI_IER_FIFOEMPTY;
 		} else {
 			if (_MciDMAPrepare(pMcid, 1)) {
 				_FinishCmd(pMcid, SDMMC_ERROR_BUSY);
 				return SDMMC_ERROR_BUSY;
 			}
-			_MciDMA(pMcid, (mr & HSMCI_MR_FBYTE),1);
+			_MciDMA(pMcid, (mr & HSMCI_MR_FBYTE), 1);
 			ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_DATA;
-			if( pCmd->wNbBlocks > 1 ) ier |= HSMCI_IER_FIFOEMPTY;
+			if (pCmd->wNbBlocks > 1)
+				ier |= HSMCI_IER_FIFOEMPTY;
 		}
 	}
 	MCI_ENABLE(pHw);
@@ -590,32 +636,26 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 		if (pCmd->cmdOp.bmBits.sendCmd) {
 			cmdr |= HSMCI_CMDR_MAXLAT;
 		}
-		switch(pCmd->cmdOp.bmBits.xfrData) {
+		switch (pCmd->cmdOp.bmBits.xfrData) {
 		case SDMMC_CMD_TX:
 			if (pCmd->cmdOp.bmBits.ioCmd) {
 				cmdr |= (pCmd->wBlockSize == 1) ?
-				        _CMDR_SDIO_BYTE :
-				        _CMDR_SDIO_BLOCK;
+				    _CMDR_SDIO_BYTE : _CMDR_SDIO_BLOCK;
 			} else {
 				cmdr |= (pCmd->wNbBlocks == 1) ?
-				        _CMDR_SDMEM_SINGLE :
-				        _CMDR_SDMEM_MULTI;
+				    _CMDR_SDMEM_SINGLE : _CMDR_SDMEM_MULTI;
 			}
 			break;
 
 		case SDMMC_CMD_RX:
 			if (pCmd->cmdOp.bmBits.ioCmd) {
 				cmdr |= HSMCI_CMDR_TRDIR_READ
-				        |((pCmd->wBlockSize == 1) ?
-				          _CMDR_SDIO_BYTE :
-				          _CMDR_SDIO_BLOCK)
-				        ;
+				    | ((pCmd->wBlockSize == 1) ?
+				       _CMDR_SDIO_BYTE : _CMDR_SDIO_BLOCK);
 			} else {
 				cmdr |= HSMCI_CMDR_TRDIR_READ
-				        |((pCmd->wNbBlocks == 1) ?
-				          _CMDR_SDMEM_SINGLE :
-				          _CMDR_SDMEM_MULTI)
-				        ;
+				    | ((pCmd->wNbBlocks == 1) ?
+				       _CMDR_SDMEM_SINGLE : _CMDR_SDMEM_MULTI);
 			}
 			break;
 
@@ -623,11 +663,11 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 			cmdr |= HSMCI_CMDR_TRCMD_STOP_DATA;
 			break;
 		}
-		switch(pCmd->cmdOp.bmBits.respType) {
+		switch (pCmd->cmdOp.bmBits.respType) {
 		case 3:
 		case 4:
 			/* ignore CRC error */
-			ier &= ~(uint32_t)HSMCI_IER_RCRCE;
+			ier &= ~(uint32_t) HSMCI_IER_RCRCE;
 		case 1:
 		case 5:
 		case 6:
@@ -637,9 +677,9 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 		case 2:
 			cmdr |= HSMCI_CMDR_RSPTYP_136_BIT;
 			break;
-		/* No response, ignore RTOE */
+			/* No response, ignore RTOE */
 		default:
-			ier &= ~(uint32_t)HSMCI_IER_RTOE;
+			ier &= ~(uint32_t) HSMCI_IER_RTOE;
 		}
 
 		pHw->HSMCI_ARGR = pCmd->dwArg;
@@ -656,11 +696,13 @@ uint32_t MCID_SendCmd(sMcid *pMcid, void *pCommand)
 
 	return SDMMC_OK;
 }
+
 static uint32_t dwMsk;
 /**
  * Process pending events on the given MCI driver.
  */
-void MCID_Handler(sMcid *pMcid)
+void
+MCID_Handler(sMcid * pMcid)
 {
 	Hsmci *pHw = pMcid->pMciHw;
 	sSdmmcCommand *pCmd = pMcid->pCmd;
@@ -678,7 +720,7 @@ void MCID_Handler(sMcid *pMcid)
 	}
 
 	/* Read status */
-	dwSr  = HSMCI_GetStatus(pHw);
+	dwSr = HSMCI_GetStatus(pHw);
 	dwMsk = HSMCI_GetItMask(pHw);
 	dwMaskedSr = dwSr & dwMsk;
 	/* Check errors */
@@ -687,7 +729,8 @@ void MCID_Handler(sMcid *pMcid)
 			pCmd->bStatus = SDMMC_ERROR_NORESPONSE;
 		}
 
-		if (pCmd->bCmd != 12) pMcid->bState = MCID_ERROR;
+		if (pCmd->bCmd != 12)
+			pMcid->bState = MCID_ERROR;
 		//pMcid->bState = MCID_ERROR;
 	}
 	dwMsk &= ~STATUS_ERRORS;
@@ -696,26 +739,26 @@ void MCID_Handler(sMcid *pMcid)
 	if (dwMaskedSr & HSMCI_SR_CMDRDY) {
 		//printf("HSMCI_SR_CMDRDY \n\r");
 		HSMCI_DisableIt(pHw, HSMCI_IDR_CMDRDY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_CMDRDY;
+		dwMsk &= ~(uint32_t) HSMCI_IMR_CMDRDY;
 	}
 
 	/* Check if not busy */
 	if (dwMaskedSr & HSMCI_SR_NOTBUSY) {
 		//printf("NOTBUSY ");
 		HSMCI_DisableIt(pHw, HSMCI_IDR_NOTBUSY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_NOTBUSY;
+		dwMsk &= ~(uint32_t) HSMCI_IMR_NOTBUSY;
 	}
 	/* Check if TX ready */
 	if (dwMaskedSr & HSMCI_SR_TXRDY) {
 		// printf("TXRDY ");
-		dwMsk &= ~(uint32_t)HSMCI_IMR_TXRDY;
+		dwMsk &= ~(uint32_t) HSMCI_IMR_TXRDY;
 	}
 	/* Check if FIFO empty (all data sent) */
 	if (dwMaskedSr & HSMCI_SR_FIFOEMPTY) {
 
 		/* Disable FIFO empty */
 		HSMCI_DisableIt(pHw, HSMCI_IDR_FIFOEMPTY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_FIFOEMPTY;
+		dwMsk &= ~(uint32_t) HSMCI_IMR_FIFOEMPTY;
 		//printf("FIFOEMPTY %x \n\r",dwMsk);
 	}
 
@@ -723,7 +766,7 @@ void MCID_Handler(sMcid *pMcid)
 	if (dwMaskedSr & HSMCI_SR_XFRDONE) {
 
 		HSMCI_DisableIt(pHw, HSMCI_IDR_XFRDONE);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_XFRDONE;
+		dwMsk &= ~(uint32_t) HSMCI_IMR_XFRDONE;
 		//printf("HSMCI_SR_XFRDONE %x \n\r",dwMsk);
 	}
 
@@ -737,7 +780,7 @@ void MCID_Handler(sMcid *pMcid)
 
 			if (pCmd->pResp) {
 				uint8_t bRspSize, i;
-				switch(pCmd->cmdOp.bmBits.respType) {
+				switch (pCmd->cmdOp.bmBits.respType) {
 				case 1:
 				case 3:
 				case 4:
@@ -754,7 +797,7 @@ void MCID_Handler(sMcid *pMcid)
 				default:
 					bRspSize = 0;
 				}
-				for (i = 0; i < bRspSize; i ++) {
+				for (i = 0; i < bRspSize; i++) {
 					pCmd->pResp[i] = HSMCI_GetResponse(pHw);
 				}
 			}
@@ -771,7 +814,8 @@ void MCID_Handler(sMcid *pMcid)
 /**
  * Cancel pending SD/MMC command.
  */
-uint32_t MCID_CancelCmd(sMcid *pMcid)
+uint32_t
+MCID_CancelCmd(sMcid * pMcid)
 {
 	if (pMcid->bState == MCID_IDLE) {
 		return SDMMC_ERROR_STATE;
@@ -788,7 +832,8 @@ uint32_t MCID_CancelCmd(sMcid *pMcid)
 /**
  * Reset MCID and disable HW
  */
-void MCID_Reset(sMcid * pMcid)
+void
+MCID_Reset(sMcid * pMcid)
 {
 	Hsmci *pHw = pMcid->pMciHw;
 
@@ -800,7 +845,7 @@ void MCID_Reset(sMcid * pMcid)
 	MCI_DISABLE(pHw);
 	/* MR reset */
 	HSMCI_ConfigureMode(pHw, HSMCI_GetMode(pHw) & (HSMCI_MR_CLKDIV_Msk
-	                    | HSMCI_MR_PWSDIV_Msk));
+						       | HSMCI_MR_PWSDIV_Msk));
 	/* BLKR reset */
 	HSMCI_ConfigureTransfer(pHw, 0, 0);
 
@@ -817,7 +862,8 @@ void MCID_Reset(sMcid * pMcid)
 /**
  * Check if the command is finished
  */
-uint32_t MCID_IsCmdCompleted(sMcid *pMcid)
+uint32_t
+MCID_IsCmdCompleted(sMcid * pMcid)
 {
 	sSdmmcCommand *pCmd = pMcid->pCmd;
 
@@ -836,7 +882,8 @@ uint32_t MCID_IsCmdCompleted(sMcid *pMcid)
 /**
  * IO control functions
  */
-uint32_t MCID_IOCtrl(sMcid *pMcid, uint32_t bCtl, uint32_t param)
+uint32_t
+MCID_IOCtrl(sMcid * pMcid, uint32_t bCtl, uint32_t param)
 {
 	Hsmci *pMciHw = pMcid->pMciHw;
 	assert(pMcid);
@@ -846,7 +893,7 @@ uint32_t MCID_IOCtrl(sMcid *pMcid, uint32_t bCtl, uint32_t param)
 
 	switch (bCtl) {
 	case SDMMC_IOCTL_BUSY_CHECK:
-		*(uint32_t*)param = !MCID_IsCmdCompleted(pMcid);
+		*(uint32_t *) param = !MCID_IsCmdCompleted(pMcid);
 		break;
 
 	case SDMMC_IOCTL_POWER:
@@ -860,19 +907,19 @@ uint32_t MCID_IOCtrl(sMcid *pMcid, uint32_t bCtl, uint32_t param)
 		return MCID_CancelCmd(pMcid);
 
 	case SDMMC_IOCTL_SET_CLOCK:
-		*(uint32_t*)param = MCI_SetSpeed(pMcid,
-		                                 *(uint32_t*)param,
-		                                 pMcid->dwMck);
+		*(uint32_t *) param = MCI_SetSpeed(pMcid,
+						   *(uint32_t *) param,
+						   pMcid->dwMck);
 		break;
 
 	case SDMMC_IOCTL_SET_HSMODE:
-		HSMCI_HsEnable( pMciHw, *(uint32_t*)param );
-		*(uint32_t*)param = HSMCI_IsHsEnabled( pMciHw );
+		HSMCI_HsEnable(pMciHw, *(uint32_t *) param);
+		*(uint32_t *) param = HSMCI_IsHsEnabled(pMciHw);
 
 		break;
 
 	case SDMMC_IOCTL_SET_BUSMODE:
-		HSMCI_SetBusWidth( pMciHw, *(uint32_t*)param );
+		HSMCI_SetBusWidth(pMciHw, *(uint32_t *) param);
 		break;
 
 	case SDMMC_IOCTL_GET_BUSMODE:
@@ -880,7 +927,7 @@ uint32_t MCID_IOCtrl(sMcid *pMcid, uint32_t bCtl, uint32_t param)
 		break;
 
 	case SDMMC_IOCTL_GET_HSMODE:
-		*(uint32_t*)param = 1; /* Supported */
+		*(uint32_t *) param = 1;	/* Supported */
 		break;
 
 	default:
@@ -894,10 +941,10 @@ uint32_t MCID_IOCtrl(sMcid *pMcid, uint32_t bCtl, uint32_t param)
  * Initialize the SD/MMC card driver struct for SD/MMC bus mode
  * \note defined in SD/MMC bus mode low level (Here uses MCI interface)
  */
-void SDD_InitializeSdmmcMode(sSdCard * pSd,void * pDrv,uint8_t bSlot)
+void
+SDD_InitializeSdmmcMode(sSdCard * pSd, void *pDrv, uint8_t bSlot)
 {
 	SDD_Initialize(pSd, pDrv, bSlot, &sdHal);
 }
 
 /**@}*/
-

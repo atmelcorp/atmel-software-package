@@ -39,31 +39,31 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Hsmci hardware registers */
 typedef struct {
-  __O  uint32_t HSMCI_CR;        /**< \brief (Hsmci Offset: 0x00) Control Register */
-  __IO uint32_t HSMCI_MR;        /**< \brief (Hsmci Offset: 0x04) Mode Register */
-  __IO uint32_t HSMCI_DTOR;      /**< \brief (Hsmci Offset: 0x08) Data Timeout Register */
-  __IO uint32_t HSMCI_SDCR;      /**< \brief (Hsmci Offset: 0x0C) SD/SDIO Card Register */
-  __IO uint32_t HSMCI_ARGR;      /**< \brief (Hsmci Offset: 0x10) Argument Register */
-  __O  uint32_t HSMCI_CMDR;      /**< \brief (Hsmci Offset: 0x14) Command Register */
-  __IO uint32_t HSMCI_BLKR;      /**< \brief (Hsmci Offset: 0x18) Block Register */
-  __IO uint32_t HSMCI_CSTOR;     /**< \brief (Hsmci Offset: 0x1C) Completion Signal Timeout Register */
-  __I  uint32_t HSMCI_RSPR[4];   /**< \brief (Hsmci Offset: 0x20) Response Register */
-  __I  uint32_t HSMCI_RDR;       /**< \brief (Hsmci Offset: 0x30) Receive Data Register */
-  __O  uint32_t HSMCI_TDR;       /**< \brief (Hsmci Offset: 0x34) Transmit Data Register */
-  __I  uint32_t Reserved1[2];
-  __I  uint32_t HSMCI_SR;        /**< \brief (Hsmci Offset: 0x40) Status Register */
-  __O  uint32_t HSMCI_IER;       /**< \brief (Hsmci Offset: 0x44) Interrupt Enable Register */
-  __O  uint32_t HSMCI_IDR;       /**< \brief (Hsmci Offset: 0x48) Interrupt Disable Register */
-  __I  uint32_t HSMCI_IMR;       /**< \brief (Hsmci Offset: 0x4C) Interrupt Mask Register */
-  __IO uint32_t HSMCI_DMA;       /**< \brief (Hsmci Offset: 0x50) DMA Configuration Register */
-  __IO uint32_t HSMCI_CFG;       /**< \brief (Hsmci Offset: 0x54) Configuration Register */
-  __I  uint32_t Reserved2[35];
-  __IO uint32_t HSMCI_WPMR;      /**< \brief (Hsmci Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t HSMCI_WPSR;      /**< \brief (Hsmci Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved3[69];
-  __IO uint32_t HSMCI_FIFO[256]; /**< \brief (Hsmci Offset: 0x200) FIFO Memory Aperture0 */
+	__O uint32_t HSMCI_CR;	       /**< \brief (Hsmci Offset: 0x00) Control Register */
+	__IO uint32_t HSMCI_MR;	       /**< \brief (Hsmci Offset: 0x04) Mode Register */
+	__IO uint32_t HSMCI_DTOR;      /**< \brief (Hsmci Offset: 0x08) Data Timeout Register */
+	__IO uint32_t HSMCI_SDCR;      /**< \brief (Hsmci Offset: 0x0C) SD/SDIO Card Register */
+	__IO uint32_t HSMCI_ARGR;      /**< \brief (Hsmci Offset: 0x10) Argument Register */
+	__O uint32_t HSMCI_CMDR;       /**< \brief (Hsmci Offset: 0x14) Command Register */
+	__IO uint32_t HSMCI_BLKR;      /**< \brief (Hsmci Offset: 0x18) Block Register */
+	__IO uint32_t HSMCI_CSTOR;     /**< \brief (Hsmci Offset: 0x1C) Completion Signal Timeout Register */
+	__I uint32_t HSMCI_RSPR[4];    /**< \brief (Hsmci Offset: 0x20) Response Register */
+	__I uint32_t HSMCI_RDR;	       /**< \brief (Hsmci Offset: 0x30) Receive Data Register */
+	__O uint32_t HSMCI_TDR;	       /**< \brief (Hsmci Offset: 0x34) Transmit Data Register */
+	__I uint32_t Reserved1[2];
+	__I uint32_t HSMCI_SR;	       /**< \brief (Hsmci Offset: 0x40) Status Register */
+	__O uint32_t HSMCI_IER;	       /**< \brief (Hsmci Offset: 0x44) Interrupt Enable Register */
+	__O uint32_t HSMCI_IDR;	       /**< \brief (Hsmci Offset: 0x48) Interrupt Disable Register */
+	__I uint32_t HSMCI_IMR;	       /**< \brief (Hsmci Offset: 0x4C) Interrupt Mask Register */
+	__IO uint32_t HSMCI_DMA;       /**< \brief (Hsmci Offset: 0x50) DMA Configuration Register */
+	__IO uint32_t HSMCI_CFG;       /**< \brief (Hsmci Offset: 0x54) Configuration Register */
+	__I uint32_t Reserved2[35];
+	__IO uint32_t HSMCI_WPMR;      /**< \brief (Hsmci Offset: 0xE4) Write Protection Mode Register */
+	__I uint32_t HSMCI_WPSR;       /**< \brief (Hsmci Offset: 0xE8) Write Protection Status Register */
+	__I uint32_t Reserved3[69];
+	__IO uint32_t HSMCI_FIFO[256]; /**< \brief (Hsmci Offset: 0x200) FIFO Memory Aperture0 */
 } Hsmci;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- HSMCI_CR : (HSMCI Offset: 0x00) Control Register -------- */
 #define HSMCI_CR_MCIEN (0x1u << 0) /**< \brief (HSMCI_CR) Multi-Media Interface Enable */
 #define HSMCI_CR_MCIDIS (0x1u << 1) /**< \brief (HSMCI_CR) Multi-Media Interface Disable */
@@ -96,7 +96,7 @@ typedef struct {
 #define   HSMCI_DTOR_DTOMUL_1024 (0x4u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 1024 */
 #define   HSMCI_DTOR_DTOMUL_4096 (0x5u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 4096 */
 #define   HSMCI_DTOR_DTOMUL_65536 (0x6u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 65536 */
-#define   HSMCI_DTOR_DTOMUL_1048576 (0x7u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 1048576 */
+#define   HSMCI_DTOR_DTOMUL_1048576 (0x7u << 4)	/**< \brief (HSMCI_DTOR) DTOCYC x 1048576 */
 /* -------- HSMCI_SDCR : (HSMCI Offset: 0x0C) SD/SDIO Card Register -------- */
 #define HSMCI_SDCR_SDCSEL_Pos 0
 #define HSMCI_SDCR_SDCSEL_Msk (0x3u << HSMCI_SDCR_SDCSEL_Pos) /**< \brief (HSMCI_SDCR) SDCard/SDIO Slot */
@@ -122,7 +122,7 @@ typedef struct {
 #define HSMCI_CMDR_RSPTYP(value) ((HSMCI_CMDR_RSPTYP_Msk & ((value) << HSMCI_CMDR_RSPTYP_Pos)))
 #define   HSMCI_CMDR_RSPTYP_NORESP (0x0u << 6) /**< \brief (HSMCI_CMDR) No response */
 #define   HSMCI_CMDR_RSPTYP_48_BIT (0x1u << 6) /**< \brief (HSMCI_CMDR) 48-bit response */
-#define   HSMCI_CMDR_RSPTYP_136_BIT (0x2u << 6) /**< \brief (HSMCI_CMDR) 136-bit response */
+#define   HSMCI_CMDR_RSPTYP_136_BIT (0x2u << 6)	/**< \brief (HSMCI_CMDR) 136-bit response */
 #define   HSMCI_CMDR_RSPTYP_R1B (0x3u << 6) /**< \brief (HSMCI_CMDR) R1b response type */
 #define HSMCI_CMDR_SPCMD_Pos 8
 #define HSMCI_CMDR_SPCMD_Msk (0x7u << HSMCI_CMDR_SPCMD_Pos) /**< \brief (HSMCI_CMDR) Special Command */
@@ -144,7 +144,7 @@ typedef struct {
 #define HSMCI_CMDR_TRCMD_Pos 16
 #define HSMCI_CMDR_TRCMD_Msk (0x3u << HSMCI_CMDR_TRCMD_Pos) /**< \brief (HSMCI_CMDR) Transfer Command */
 #define HSMCI_CMDR_TRCMD(value) ((HSMCI_CMDR_TRCMD_Msk & ((value) << HSMCI_CMDR_TRCMD_Pos)))
-#define   HSMCI_CMDR_TRCMD_NO_DATA (0x0u << 16) /**< \brief (HSMCI_CMDR) No data transfer */
+#define   HSMCI_CMDR_TRCMD_NO_DATA (0x0u << 16)	/**< \brief (HSMCI_CMDR) No data transfer */
 #define   HSMCI_CMDR_TRCMD_START_DATA (0x1u << 16) /**< \brief (HSMCI_CMDR) Start data transfer */
 #define   HSMCI_CMDR_TRCMD_STOP_DATA (0x2u << 16) /**< \brief (HSMCI_CMDR) Stop data transfer */
 #define HSMCI_CMDR_TRDIR (0x1u << 18) /**< \brief (HSMCI_CMDR) Transfer Direction */
@@ -159,7 +159,7 @@ typedef struct {
 #define   HSMCI_CMDR_TRTYP_BYTE (0x4u << 19) /**< \brief (HSMCI_CMDR) SDIO Byte */
 #define   HSMCI_CMDR_TRTYP_BLOCK (0x5u << 19) /**< \brief (HSMCI_CMDR) SDIO Block */
 #define HSMCI_CMDR_IOSPCMD_Pos 24
-#define HSMCI_CMDR_IOSPCMD_Msk (0x3u << HSMCI_CMDR_IOSPCMD_Pos) /**< \brief (HSMCI_CMDR) SDIO Special Command */
+#define HSMCI_CMDR_IOSPCMD_Msk (0x3u << HSMCI_CMDR_IOSPCMD_Pos)	/**< \brief (HSMCI_CMDR) SDIO Special Command */
 #define HSMCI_CMDR_IOSPCMD(value) ((HSMCI_CMDR_IOSPCMD_Msk & ((value) << HSMCI_CMDR_IOSPCMD_Pos)))
 #define   HSMCI_CMDR_IOSPCMD_STD (0x0u << 24) /**< \brief (HSMCI_CMDR) Not an SDIO Special Command */
 #define   HSMCI_CMDR_IOSPCMD_SUSPEND (0x1u << 24) /**< \brief (HSMCI_CMDR) SDIO Suspend Command */
@@ -188,7 +188,7 @@ typedef struct {
 #define   HSMCI_CSTOR_CSTOMUL_256 (0x3u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 256 */
 #define   HSMCI_CSTOR_CSTOMUL_1024 (0x4u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 1024 */
 #define   HSMCI_CSTOR_CSTOMUL_4096 (0x5u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 4096 */
-#define   HSMCI_CSTOR_CSTOMUL_65536 (0x6u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 65536 */
+#define   HSMCI_CSTOR_CSTOMUL_65536 (0x6u << 4)	/**< \brief (HSMCI_CSTOR) CSTOCYC x 65536 */
 #define   HSMCI_CSTOR_CSTOMUL_1048576 (0x7u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 1048576 */
 /* -------- HSMCI_RSPR[4] : (HSMCI Offset: 0x20) Response Register -------- */
 #define HSMCI_RSPR_RSP_Pos 0
@@ -220,7 +220,7 @@ typedef struct {
 #define HSMCI_SR_DTOE (0x1u << 22) /**< \brief (HSMCI_SR) Data Time-out Error */
 #define HSMCI_SR_CSTOE (0x1u << 23) /**< \brief (HSMCI_SR) Completion Signal Time-out Error */
 #define HSMCI_SR_BLKOVRE (0x1u << 24) /**< \brief (HSMCI_SR) DMA Block Overrun Error */
-#define HSMCI_SR_FIFOEMPTY (0x1u << 26) /**< \brief (HSMCI_SR) FIFO empty flag */
+#define HSMCI_SR_FIFOEMPTY (0x1u << 26)	/**< \brief (HSMCI_SR) FIFO empty flag */
 #define HSMCI_SR_XFRDONE (0x1u << 27) /**< \brief (HSMCI_SR) Transfer Done flag */
 #define HSMCI_SR_ACKRCV (0x1u << 28) /**< \brief (HSMCI_SR) Boot Operation Acknowledge Received */
 #define HSMCI_SR_ACKRCVE (0x1u << 29) /**< \brief (HSMCI_SR) Boot Operation Acknowledge Error */
@@ -235,7 +235,7 @@ typedef struct {
 #define HSMCI_IER_NOTBUSY (0x1u << 5) /**< \brief (HSMCI_IER) Data Not Busy Interrupt Enable */
 #define HSMCI_IER_SDIOIRQA (0x1u << 8) /**< \brief (HSMCI_IER) SDIO Interrupt for Slot A Interrupt Enable */
 #define HSMCI_IER_SDIOIRQB (0x1u << 9) /**< \brief (HSMCI_IER) SDIO Interrupt for Slot B Interrupt Enable */
-#define HSMCI_IER_SDIOWAIT (0x1u << 12) /**< \brief (HSMCI_IER) SDIO Read Wait Operation Status Interrupt Enable */
+#define HSMCI_IER_SDIOWAIT (0x1u << 12)	/**< \brief (HSMCI_IER) SDIO Read Wait Operation Status Interrupt Enable */
 #define HSMCI_IER_CSRCV (0x1u << 13) /**< \brief (HSMCI_IER) Completion Signal Received Interrupt Enable */
 #define HSMCI_IER_RINDE (0x1u << 16) /**< \brief (HSMCI_IER) Response Index Error Interrupt Enable */
 #define HSMCI_IER_RDIRE (0x1u << 17) /**< \brief (HSMCI_IER) Response Direction Error Interrupt Enable */
@@ -261,7 +261,7 @@ typedef struct {
 #define HSMCI_IDR_NOTBUSY (0x1u << 5) /**< \brief (HSMCI_IDR) Data Not Busy Interrupt Disable */
 #define HSMCI_IDR_SDIOIRQA (0x1u << 8) /**< \brief (HSMCI_IDR) SDIO Interrupt for Slot A Interrupt Disable */
 #define HSMCI_IDR_SDIOIRQB (0x1u << 9) /**< \brief (HSMCI_IDR) SDIO Interrupt for Slot B Interrupt Disable */
-#define HSMCI_IDR_SDIOWAIT (0x1u << 12) /**< \brief (HSMCI_IDR) SDIO Read Wait Operation Status Interrupt Disable */
+#define HSMCI_IDR_SDIOWAIT (0x1u << 12)	/**< \brief (HSMCI_IDR) SDIO Read Wait Operation Status Interrupt Disable */
 #define HSMCI_IDR_CSRCV (0x1u << 13) /**< \brief (HSMCI_IDR) Completion Signal received interrupt Disable */
 #define HSMCI_IDR_RINDE (0x1u << 16) /**< \brief (HSMCI_IDR) Response Index Error Interrupt Disable */
 #define HSMCI_IDR_RDIRE (0x1u << 17) /**< \brief (HSMCI_IDR) Response Direction Error Interrupt Disable */
@@ -287,7 +287,7 @@ typedef struct {
 #define HSMCI_IMR_NOTBUSY (0x1u << 5) /**< \brief (HSMCI_IMR) Data Not Busy Interrupt Mask */
 #define HSMCI_IMR_SDIOIRQA (0x1u << 8) /**< \brief (HSMCI_IMR) SDIO Interrupt for Slot A Interrupt Mask */
 #define HSMCI_IMR_SDIOIRQB (0x1u << 9) /**< \brief (HSMCI_IMR) SDIO Interrupt for Slot B Interrupt Mask */
-#define HSMCI_IMR_SDIOWAIT (0x1u << 12) /**< \brief (HSMCI_IMR) SDIO Read Wait Operation Status Interrupt Mask */
+#define HSMCI_IMR_SDIOWAIT (0x1u << 12)	/**< \brief (HSMCI_IMR) SDIO Read Wait Operation Status Interrupt Mask */
 #define HSMCI_IMR_CSRCV (0x1u << 13) /**< \brief (HSMCI_IMR) Completion Signal Received Interrupt Mask */
 #define HSMCI_IMR_RINDE (0x1u << 16) /**< \brief (HSMCI_IMR) Response Index Error Interrupt Mask */
 #define HSMCI_IMR_RDIRE (0x1u << 17) /**< \brief (HSMCI_IMR) Response Direction Error Interrupt Mask */
@@ -332,5 +332,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_HSMCI_COMPONENT_ */
+#endif				/* _SAMA5D4_HSMCI_COMPONENT_ */

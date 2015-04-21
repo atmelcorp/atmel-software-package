@@ -29,16 +29,16 @@
 
 /** \file */
 
- #ifndef _SDMMC_HAL_H
- #define _SDMMC_HAL_H
- 
+#ifndef _SDMMC_HAL_H
+#define _SDMMC_HAL_H
+
 /*------------------------------------------------------------------------------
  *      Includes
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
 #include "sdmmc_cmd.h"
- 
+
 /*------------------------------------------------------------------------------
  *      Definitions
  *----------------------------------------------------------------------------*/
@@ -46,11 +46,11 @@
 /* Define WEAK attribute */
 #ifndef WEAK
 #if defined   ( __CC_ARM   )
-    #define WEAK __attribute__ ((weak))
+#define WEAK __attribute__ ((weak))
 #elif defined ( __ICCARM__ )
-    #define WEAK __weak
+#define WEAK __weak
 #elif defined (  __GNUC__  )
-    #define WEAK __attribute__ ((weak))
+#define WEAK __attribute__ ((weak))
 #endif
 #endif
 
@@ -59,20 +59,20 @@
  *----------------------------------------------------------------------------*/
 
 /** Initialize the SD/MMC card driver struct */
-extern void SDD_Initialize(sSdCard *pSd,
-                           const void* pDrv, uint8_t bSlot,
-                           const sSdHalFunctions *pHalFunctions);
+extern void SDD_Initialize(sSdCard * pSd,
+			   const void *pDrv, uint8_t bSlot,
+			   const sSdHalFunctions * pHalFunctions);
 
 /** Initialize the SD/MMC card driver struct for SD/MMC bus mode
  *  \note defined in SD/MMC bus mode low level
  */
-extern WEAK void SDD_InitializeSdmmcMode(sSdCard *pSd,
-                                    void* pDrv, uint8_t bSlot);
+extern WEAK void SDD_InitializeSdmmcMode(sSdCard * pSd,
+					 void *pDrv, uint8_t bSlot);
 
 /** Initialize the SD/MMC card driver struct for SPI bus mode
  *  \note defined in SD/MMC SPI bus mode low level
  */
-extern WEAK void SDD_InitializeSpiMode(sSdCard *pSd,
-                                  void* pDrv, uint8_t bSlot);
+extern WEAK void SDD_InitializeSpiMode(sSdCard * pSd,
+				       void *pDrv, uint8_t bSlot);
 
- #endif /* #define _SDMMC_HAL_H */
+#endif				/* #define _SDMMC_HAL_H */

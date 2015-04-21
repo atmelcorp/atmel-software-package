@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -56,29 +56,26 @@
  *----------------------------------------------------------------------------*/
 
 /** ISI descriptors */
-typedef struct
-{
-    /** Current LCD index, used with AT91C_ISI_MAX_PREV_BUFFER */
-    uint32_t CurrentLcdIndex;
-    /** set if Fifo Codec Empty is present */
-    volatile uint32_t DisplayCodec;
-    /** upgrade for each Fifo Codec Overflow (statistics use) */
-    uint32_t nb_codec_ovf;
-    /** upgrade for each Fifo Preview Overflow (statistics use) */
-    uint32_t nb_prev_ovf;
-}ISI_Descriptors;
+typedef struct {
+	/** Current LCD index, used with AT91C_ISI_MAX_PREV_BUFFER */
+	uint32_t CurrentLcdIndex;
+	/** set if Fifo Codec Empty is present */
+	volatile uint32_t DisplayCodec;
+	/** upgrade for each Fifo Codec Overflow (statistics use) */
+	uint32_t nb_codec_ovf;
+	/** upgrade for each Fifo Preview Overflow (statistics use) */
+	uint32_t nb_prev_ovf;
+} ISI_Descriptors;
 
 /** Frame Buffer Descriptors */
-typedef struct
-{
-    /** Address of the Current FrameBuffer */
-    uint32_t Current;
-    /** Address of the Control */
-    uint32_t Control;
-    /** Address of the Next FrameBuffer */
-    uint32_t Next;
-}ISI_FrameBufferDescriptors;
-
+typedef struct {
+	/** Address of the Current FrameBuffer */
+	uint32_t Current;
+	/** Address of the Control */
+	uint32_t Control;
+	/** Address of the Next FrameBuffer */
+	uint32_t Next;
+} ISI_FrameBufferDescriptors;
 
 /*----------------------------------------------------------------------------
  *         Exported functions
@@ -96,5 +93,4 @@ extern void ISI_Reset(void);
 extern void ISI_Init(pIsi_Video pVideo);
 extern uint32_t ISI_StatusRegister(void);
 
-#endif //#ifndef ISI_H
-
+#endif				//#ifndef ISI_H

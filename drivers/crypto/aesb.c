@@ -91,7 +91,8 @@ FIPS PUB 140-2 and 140-3. use the TWI
 /**
  * \brief Starts Manual encryption/decryption process.
  */
-void AESB_Start(void)
+void
+AESB_Start(void)
 {
 	AESB->AESB_CR = AESB_CR_START;
 }
@@ -99,7 +100,8 @@ void AESB_Start(void)
 /**
  * \brief Resets the AESB. A software triggered hardware reset of the AESB interface is performed.
  */
-void AESB_SoftReset(void)
+void
+AESB_SoftReset(void)
 {
 	AESB->AESB_CR = AESB_CR_SWRST;
 }
@@ -108,7 +110,8 @@ void AESB_SoftReset(void)
  * \brief Configures an AESB peripheral with the specified parameters.
  *  \param mode  Desired value for the AESB mode register (see the datasheet).
  */
-void AESB_Configure(uint32_t mode)
+void
+AESB_Configure(uint32_t mode)
 {
 	AESB->AESB_MR = mode;
 }
@@ -117,7 +120,8 @@ void AESB_Configure(uint32_t mode)
  * \brief Enables the selected interrupts sources on a AESB peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void AESB_EnableIt(uint32_t sources)
+void
+AESB_EnableIt(uint32_t sources)
 {
 	AESB->AESB_IER = sources;
 }
@@ -126,7 +130,8 @@ void AESB_EnableIt(uint32_t sources)
  * \brief Disables the selected interrupts sources on a AESB peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void AESB_DisableIt(uint32_t sources)
+void
+AESB_DisableIt(uint32_t sources)
 {
 	AESB->AESB_IDR = sources;
 }
@@ -135,7 +140,8 @@ void AESB_DisableIt(uint32_t sources)
  * \brief Get the current status register of the given AESB peripheral.
  * \return  AESB status register.
  */
-uint32_t AESB_GetStatus(void)
+uint32_t
+AESB_GetStatus(void)
 {
 	return AESB->AESB_ISR;
 }
@@ -144,7 +150,8 @@ uint32_t AESB_GetStatus(void)
  * \brief Set the 128-bit cryptographic key used for encryption/decryption.
  * \param pKey Pointer to a 16 bytes cipher key.
  */
-void AESB_WriteKey(const uint32_t *pKey)
+void
+AESB_WriteKey(const uint32_t * pKey)
 {
 	AESB->AESB_KEYWR[0] = pKey[0];
 	AESB->AESB_KEYWR[1] = pKey[1];
@@ -156,7 +163,8 @@ void AESB_WriteKey(const uint32_t *pKey)
  * \brief Set the for 32-bit input Data allow to set the 128-bit data block used for encryption/decryption.
  * \param data Pointer to the 16-bytes data to cipher/decipher.
  */
-void AESB_SetInput(uint32_t *data)
+void
+AESB_SetInput(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -167,7 +175,8 @@ void AESB_SetInput(uint32_t *data)
  * \brief Get the four 32-bit data contain the 128-bit data block which has been encrypted/decrypted.
  * \param data pointer to the word that has been encrypted/decrypted..
  */
-void AESB_GetOutput(uint32_t *data)
+void
+AESB_GetOutput(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -179,11 +188,11 @@ void AESB_GetOutput(uint32_t *data)
  * modes of operation as an additional initial input.
  * \param pVector point to the word of the initialization vector.
  */
-void AESB_SetVector(const uint32_t *pVector)
+void
+AESB_SetVector(const uint32_t * pVector)
 {
 	AESB->AESB_IVR[0] = pVector[0];
 	AESB->AESB_IVR[1] = pVector[1];
 	AESB->AESB_IVR[2] = pVector[2];
 	AESB->AESB_IVR[3] = pVector[3];
 }
-

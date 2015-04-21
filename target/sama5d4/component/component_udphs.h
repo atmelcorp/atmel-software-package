@@ -39,63 +39,63 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief UdphsDma hardware registers */
 typedef struct {
-  __IO uint32_t UDPHS_DMANXTDSC;  /**< \brief (UdphsDma Offset: 0x0) UDPHS DMA Next Descriptor Address Register */
-  __IO uint32_t UDPHS_DMAADDRESS; /**< \brief (UdphsDma Offset: 0x4) UDPHS DMA Channel Address Register */
-  __IO uint32_t UDPHS_DMACONTROL; /**< \brief (UdphsDma Offset: 0x8) UDPHS DMA Channel Control Register */
-  __IO uint32_t UDPHS_DMASTATUS;  /**< \brief (UdphsDma Offset: 0xC) UDPHS DMA Channel Status Register */
+	__IO uint32_t UDPHS_DMANXTDSC;	/**< \brief (UdphsDma Offset: 0x0) UDPHS DMA Next Descriptor Address Register */
+	__IO uint32_t UDPHS_DMAADDRESS;	/**< \brief (UdphsDma Offset: 0x4) UDPHS DMA Channel Address Register */
+	__IO uint32_t UDPHS_DMACONTROL;	/**< \brief (UdphsDma Offset: 0x8) UDPHS DMA Channel Control Register */
+	__IO uint32_t UDPHS_DMASTATUS;	/**< \brief (UdphsDma Offset: 0xC) UDPHS DMA Channel Status Register */
 } UdphsDma;
 /** \brief UdphsEpt hardware registers */
 typedef struct {
-  __IO uint32_t UDPHS_EPTCFG;    /**< \brief (UdphsEpt Offset: 0x0) UDPHS Endpoint Configuration Register */
-  __O  uint32_t UDPHS_EPTCTLENB; /**< \brief (UdphsEpt Offset: 0x4) UDPHS Endpoint Control Enable Register */
-  __O  uint32_t UDPHS_EPTCTLDIS; /**< \brief (UdphsEpt Offset: 0x8) UDPHS Endpoint Control Disable Register */
-  __I  uint32_t UDPHS_EPTCTL;    /**< \brief (UdphsEpt Offset: 0xC) UDPHS Endpoint Control Register */
-  __I  uint32_t Reserved1[1];
-  __O  uint32_t UDPHS_EPTSETSTA; /**< \brief (UdphsEpt Offset: 0x14) UDPHS Endpoint Set Status Register */
-  __O  uint32_t UDPHS_EPTCLRSTA; /**< \brief (UdphsEpt Offset: 0x18) UDPHS Endpoint Clear Status Register */
-  __I  uint32_t UDPHS_EPTSTA;    /**< \brief (UdphsEpt Offset: 0x1C) UDPHS Endpoint Status Register */
+	__IO uint32_t UDPHS_EPTCFG;    /**< \brief (UdphsEpt Offset: 0x0) UDPHS Endpoint Configuration Register */
+	__O uint32_t UDPHS_EPTCTLENB;  /**< \brief (UdphsEpt Offset: 0x4) UDPHS Endpoint Control Enable Register */
+	__O uint32_t UDPHS_EPTCTLDIS;  /**< \brief (UdphsEpt Offset: 0x8) UDPHS Endpoint Control Disable Register */
+	__I uint32_t UDPHS_EPTCTL;     /**< \brief (UdphsEpt Offset: 0xC) UDPHS Endpoint Control Register */
+	__I uint32_t Reserved1[1];
+	__O uint32_t UDPHS_EPTSETSTA;  /**< \brief (UdphsEpt Offset: 0x14) UDPHS Endpoint Set Status Register */
+	__O uint32_t UDPHS_EPTCLRSTA;  /**< \brief (UdphsEpt Offset: 0x18) UDPHS Endpoint Clear Status Register */
+	__I uint32_t UDPHS_EPTSTA;     /**< \brief (UdphsEpt Offset: 0x1C) UDPHS Endpoint Status Register */
 } UdphsEpt;
 /** \brief Udphs hardware registers */
 #define UDPHSEPT_NUMBER 16
 #define UDPHSDMA_NUMBER 7
 typedef struct {
-  __IO uint32_t UDPHS_CTRL;                 /**< \brief (Udphs Offset: 0x00) UDPHS Control Register */
-  __I  uint32_t UDPHS_FNUM;                 /**< \brief (Udphs Offset: 0x04) UDPHS Frame Number Register */
-  __I  uint32_t Reserved1[2];
-  __IO uint32_t UDPHS_IEN;                  /**< \brief (Udphs Offset: 0x10) UDPHS Interrupt Enable Register */
-  __I  uint32_t UDPHS_INTSTA;               /**< \brief (Udphs Offset: 0x14) UDPHS Interrupt Status Register */
-  __O  uint32_t UDPHS_CLRINT;               /**< \brief (Udphs Offset: 0x18) UDPHS Clear Interrupt Register */
-  __O  uint32_t UDPHS_EPTRST;               /**< \brief (Udphs Offset: 0x1C) UDPHS Endpoints Reset Register */
-  __I  uint32_t Reserved2[48];
-  __IO uint32_t UDPHS_TST;                  /**< \brief (Udphs Offset: 0xE0) UDPHS Test Register */
-  __I  uint32_t Reserved3[7];
-       UdphsEpt UDPHS_EPT[UDPHSEPT_NUMBER]; /**< \brief (Udphs Offset: 0x100) endpoint = 0 .. 15 */
-       UdphsDma UDPHS_DMA[UDPHSDMA_NUMBER]; /**< \brief (Udphs Offset: 0x300) channel = 0 .. 6 */
+	__IO uint32_t UDPHS_CTRL;		  /**< \brief (Udphs Offset: 0x00) UDPHS Control Register */
+	__I uint32_t UDPHS_FNUM;		  /**< \brief (Udphs Offset: 0x04) UDPHS Frame Number Register */
+	__I uint32_t Reserved1[2];
+	__IO uint32_t UDPHS_IEN;		  /**< \brief (Udphs Offset: 0x10) UDPHS Interrupt Enable Register */
+	__I uint32_t UDPHS_INTSTA;		  /**< \brief (Udphs Offset: 0x14) UDPHS Interrupt Status Register */
+	__O uint32_t UDPHS_CLRINT;		  /**< \brief (Udphs Offset: 0x18) UDPHS Clear Interrupt Register */
+	__O uint32_t UDPHS_EPTRST;		  /**< \brief (Udphs Offset: 0x1C) UDPHS Endpoints Reset Register */
+	__I uint32_t Reserved2[48];
+	__IO uint32_t UDPHS_TST;		  /**< \brief (Udphs Offset: 0xE0) UDPHS Test Register */
+	__I uint32_t Reserved3[7];
+	UdphsEpt UDPHS_EPT[UDPHSEPT_NUMBER]; /**< \brief (Udphs Offset: 0x100) endpoint = 0 .. 15 */
+	UdphsDma UDPHS_DMA[UDPHSDMA_NUMBER]; /**< \brief (Udphs Offset: 0x300) channel = 0 .. 6 */
 } Udphs;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- UDPHS_CTRL : (UDPHS Offset: 0x00) UDPHS Control Register -------- */
 #define UDPHS_CTRL_DEV_ADDR_Pos 0
 #define UDPHS_CTRL_DEV_ADDR_Msk (0x7fu << UDPHS_CTRL_DEV_ADDR_Pos) /**< \brief (UDPHS_CTRL) UDPHS Address */
 #define UDPHS_CTRL_DEV_ADDR(value) ((UDPHS_CTRL_DEV_ADDR_Msk & ((value) << UDPHS_CTRL_DEV_ADDR_Pos)))
-#define UDPHS_CTRL_FADDR_EN (0x1u << 7) /**< \brief (UDPHS_CTRL) Function Address Enable */
-#define UDPHS_CTRL_EN_UDPHS (0x1u << 8) /**< \brief (UDPHS_CTRL) UDPHS Enable */
+#define UDPHS_CTRL_FADDR_EN (0x1u << 7)	/**< \brief (UDPHS_CTRL) Function Address Enable */
+#define UDPHS_CTRL_EN_UDPHS (0x1u << 8)	/**< \brief (UDPHS_CTRL) UDPHS Enable */
 #define UDPHS_CTRL_DETACH (0x1u << 9) /**< \brief (UDPHS_CTRL) Detach Command */
 #define UDPHS_CTRL_REWAKEUP (0x1u << 10) /**< \brief (UDPHS_CTRL) Send Remote Wake Up */
 #define UDPHS_CTRL_PULLD_DIS (0x1u << 11) /**< \brief (UDPHS_CTRL) Pull-Down Disable */
 /* -------- UDPHS_FNUM : (UDPHS Offset: 0x04) UDPHS Frame Number Register -------- */
 #define UDPHS_FNUM_MICRO_FRAME_NUM_Pos 0
-#define UDPHS_FNUM_MICRO_FRAME_NUM_Msk (0x7u << UDPHS_FNUM_MICRO_FRAME_NUM_Pos) /**< \brief (UDPHS_FNUM) Microframe Number */
+#define UDPHS_FNUM_MICRO_FRAME_NUM_Msk (0x7u << UDPHS_FNUM_MICRO_FRAME_NUM_Pos)	/**< \brief (UDPHS_FNUM) Microframe Number */
 #define UDPHS_FNUM_FRAME_NUMBER_Pos 3
 #define UDPHS_FNUM_FRAME_NUMBER_Msk (0x7ffu << UDPHS_FNUM_FRAME_NUMBER_Pos) /**< \brief (UDPHS_FNUM) Frame Number as defined in the Packet Field Formats */
 #define UDPHS_FNUM_FNUM_ERR (0x1u << 31) /**< \brief (UDPHS_FNUM) Frame Number CRC Error */
 /* -------- UDPHS_IEN : (UDPHS Offset: 0x10) UDPHS Interrupt Enable Register -------- */
-#define UDPHS_IEN_DET_SUSPD (0x1u << 1) /**< \brief (UDPHS_IEN) Suspend Interrupt Enable */
-#define UDPHS_IEN_MICRO_SOF (0x1u << 2) /**< \brief (UDPHS_IEN) Micro-SOF Interrupt Enable */
+#define UDPHS_IEN_DET_SUSPD (0x1u << 1)	/**< \brief (UDPHS_IEN) Suspend Interrupt Enable */
+#define UDPHS_IEN_MICRO_SOF (0x1u << 2)	/**< \brief (UDPHS_IEN) Micro-SOF Interrupt Enable */
 #define UDPHS_IEN_INT_SOF (0x1u << 3) /**< \brief (UDPHS_IEN) SOF Interrupt Enable */
 #define UDPHS_IEN_ENDRESET (0x1u << 4) /**< \brief (UDPHS_IEN) End Of Reset Interrupt Enable */
 #define UDPHS_IEN_WAKE_UP (0x1u << 5) /**< \brief (UDPHS_IEN) Wake Up CPU Interrupt Enable */
 #define UDPHS_IEN_ENDOFRSM (0x1u << 6) /**< \brief (UDPHS_IEN) End Of Resume Interrupt Enable */
-#define UDPHS_IEN_UPSTR_RES (0x1u << 7) /**< \brief (UDPHS_IEN) Upstream Resume Interrupt Enable */
+#define UDPHS_IEN_UPSTR_RES (0x1u << 7)	/**< \brief (UDPHS_IEN) Upstream Resume Interrupt Enable */
 #define UDPHS_IEN_EPT_0 (0x1u << 8) /**< \brief (UDPHS_IEN) Endpoint 0 Interrupt Enable */
 #define UDPHS_IEN_EPT_1 (0x1u << 9) /**< \brief (UDPHS_IEN) Endpoint 1 Interrupt Enable */
 #define UDPHS_IEN_EPT_2 (0x1u << 10) /**< \brief (UDPHS_IEN) Endpoint 2 Interrupt Enable */
@@ -130,27 +130,27 @@ typedef struct {
 #define UDPHS_INTSTA_UPSTR_RES (0x1u << 7) /**< \brief (UDPHS_INTSTA) Upstream Resume Interrupt */
 #define UDPHS_INTSTA_EPT_0 (0x1u << 8) /**< \brief (UDPHS_INTSTA) Endpoint 0 Interrupt */
 #define UDPHS_INTSTA_EPT_1 (0x1u << 9) /**< \brief (UDPHS_INTSTA) Endpoint 1 Interrupt */
-#define UDPHS_INTSTA_EPT_2 (0x1u << 10) /**< \brief (UDPHS_INTSTA) Endpoint 2 Interrupt */
-#define UDPHS_INTSTA_EPT_3 (0x1u << 11) /**< \brief (UDPHS_INTSTA) Endpoint 3 Interrupt */
-#define UDPHS_INTSTA_EPT_4 (0x1u << 12) /**< \brief (UDPHS_INTSTA) Endpoint 4 Interrupt */
-#define UDPHS_INTSTA_EPT_5 (0x1u << 13) /**< \brief (UDPHS_INTSTA) Endpoint 5 Interrupt */
-#define UDPHS_INTSTA_EPT_6 (0x1u << 14) /**< \brief (UDPHS_INTSTA) Endpoint 6 Interrupt */
-#define UDPHS_INTSTA_EPT_7 (0x1u << 15) /**< \brief (UDPHS_INTSTA) Endpoint 7 Interrupt */
-#define UDPHS_INTSTA_EPT_8 (0x1u << 16) /**< \brief (UDPHS_INTSTA) Endpoint 8 Interrupt */
-#define UDPHS_INTSTA_EPT_9 (0x1u << 17) /**< \brief (UDPHS_INTSTA) Endpoint 9 Interrupt */
+#define UDPHS_INTSTA_EPT_2 (0x1u << 10)	/**< \brief (UDPHS_INTSTA) Endpoint 2 Interrupt */
+#define UDPHS_INTSTA_EPT_3 (0x1u << 11)	/**< \brief (UDPHS_INTSTA) Endpoint 3 Interrupt */
+#define UDPHS_INTSTA_EPT_4 (0x1u << 12)	/**< \brief (UDPHS_INTSTA) Endpoint 4 Interrupt */
+#define UDPHS_INTSTA_EPT_5 (0x1u << 13)	/**< \brief (UDPHS_INTSTA) Endpoint 5 Interrupt */
+#define UDPHS_INTSTA_EPT_6 (0x1u << 14)	/**< \brief (UDPHS_INTSTA) Endpoint 6 Interrupt */
+#define UDPHS_INTSTA_EPT_7 (0x1u << 15)	/**< \brief (UDPHS_INTSTA) Endpoint 7 Interrupt */
+#define UDPHS_INTSTA_EPT_8 (0x1u << 16)	/**< \brief (UDPHS_INTSTA) Endpoint 8 Interrupt */
+#define UDPHS_INTSTA_EPT_9 (0x1u << 17)	/**< \brief (UDPHS_INTSTA) Endpoint 9 Interrupt */
 #define UDPHS_INTSTA_EPT_10 (0x1u << 18) /**< \brief (UDPHS_INTSTA) Endpoint 10 Interrupt */
 #define UDPHS_INTSTA_EPT_11 (0x1u << 19) /**< \brief (UDPHS_INTSTA) Endpoint 11 Interrupt */
 #define UDPHS_INTSTA_EPT_12 (0x1u << 20) /**< \brief (UDPHS_INTSTA) Endpoint 12 Interrupt */
 #define UDPHS_INTSTA_EPT_13 (0x1u << 21) /**< \brief (UDPHS_INTSTA) Endpoint 13 Interrupt */
 #define UDPHS_INTSTA_EPT_14 (0x1u << 22) /**< \brief (UDPHS_INTSTA) Endpoint 14 Interrupt */
 #define UDPHS_INTSTA_EPT_15 (0x1u << 23) /**< \brief (UDPHS_INTSTA) Endpoint 15 Interrupt */
-#define UDPHS_INTSTA_DMA_1 (0x1u << 25) /**< \brief (UDPHS_INTSTA) DMA Channel 1 Interrupt */
-#define UDPHS_INTSTA_DMA_2 (0x1u << 26) /**< \brief (UDPHS_INTSTA) DMA Channel 2 Interrupt */
-#define UDPHS_INTSTA_DMA_3 (0x1u << 27) /**< \brief (UDPHS_INTSTA) DMA Channel 3 Interrupt */
-#define UDPHS_INTSTA_DMA_4 (0x1u << 28) /**< \brief (UDPHS_INTSTA) DMA Channel 4 Interrupt */
-#define UDPHS_INTSTA_DMA_5 (0x1u << 29) /**< \brief (UDPHS_INTSTA) DMA Channel 5 Interrupt */
-#define UDPHS_INTSTA_DMA_6 (0x1u << 30) /**< \brief (UDPHS_INTSTA) DMA Channel 6 Interrupt */
-#define UDPHS_INTSTA_DMA_7 (0x1u << 31) /**< \brief (UDPHS_INTSTA) DMA Channel 7 Interrupt */
+#define UDPHS_INTSTA_DMA_1 (0x1u << 25)	/**< \brief (UDPHS_INTSTA) DMA Channel 1 Interrupt */
+#define UDPHS_INTSTA_DMA_2 (0x1u << 26)	/**< \brief (UDPHS_INTSTA) DMA Channel 2 Interrupt */
+#define UDPHS_INTSTA_DMA_3 (0x1u << 27)	/**< \brief (UDPHS_INTSTA) DMA Channel 3 Interrupt */
+#define UDPHS_INTSTA_DMA_4 (0x1u << 28)	/**< \brief (UDPHS_INTSTA) DMA Channel 4 Interrupt */
+#define UDPHS_INTSTA_DMA_5 (0x1u << 29)	/**< \brief (UDPHS_INTSTA) DMA Channel 5 Interrupt */
+#define UDPHS_INTSTA_DMA_6 (0x1u << 30)	/**< \brief (UDPHS_INTSTA) DMA Channel 6 Interrupt */
+#define UDPHS_INTSTA_DMA_7 (0x1u << 31)	/**< \brief (UDPHS_INTSTA) DMA Channel 7 Interrupt */
 /* -------- UDPHS_CLRINT : (UDPHS Offset: 0x18) UDPHS Clear Interrupt Register -------- */
 #define UDPHS_CLRINT_DET_SUSPD (0x1u << 1) /**< \brief (UDPHS_CLRINT) Suspend Interrupt Clear */
 #define UDPHS_CLRINT_MICRO_SOF (0x1u << 2) /**< \brief (UDPHS_CLRINT) Micro Start Of Frame Interrupt Clear */
@@ -195,20 +195,20 @@ typedef struct {
 #define   UDPHS_EPTCFG_EPT_SIZE_16 (0x1u << 0) /**< \brief (UDPHS_EPTCFG) 16 bytes */
 #define   UDPHS_EPTCFG_EPT_SIZE_32 (0x2u << 0) /**< \brief (UDPHS_EPTCFG) 32 bytes */
 #define   UDPHS_EPTCFG_EPT_SIZE_64 (0x3u << 0) /**< \brief (UDPHS_EPTCFG) 64 bytes */
-#define   UDPHS_EPTCFG_EPT_SIZE_128 (0x4u << 0) /**< \brief (UDPHS_EPTCFG) 128 bytes */
-#define   UDPHS_EPTCFG_EPT_SIZE_256 (0x5u << 0) /**< \brief (UDPHS_EPTCFG) 256 bytes */
-#define   UDPHS_EPTCFG_EPT_SIZE_512 (0x6u << 0) /**< \brief (UDPHS_EPTCFG) 512 bytes */
+#define   UDPHS_EPTCFG_EPT_SIZE_128 (0x4u << 0)	/**< \brief (UDPHS_EPTCFG) 128 bytes */
+#define   UDPHS_EPTCFG_EPT_SIZE_256 (0x5u << 0)	/**< \brief (UDPHS_EPTCFG) 256 bytes */
+#define   UDPHS_EPTCFG_EPT_SIZE_512 (0x6u << 0)	/**< \brief (UDPHS_EPTCFG) 512 bytes */
 #define   UDPHS_EPTCFG_EPT_SIZE_1024 (0x7u << 0) /**< \brief (UDPHS_EPTCFG) 1024 bytes */
 #define UDPHS_EPTCFG_EPT_DIR (0x1u << 3) /**< \brief (UDPHS_EPTCFG) Endpoint Direction */
 #define UDPHS_EPTCFG_EPT_TYPE_Pos 4
 #define UDPHS_EPTCFG_EPT_TYPE_Msk (0x3u << UDPHS_EPTCFG_EPT_TYPE_Pos) /**< \brief (UDPHS_EPTCFG) Endpoint Type */
 #define UDPHS_EPTCFG_EPT_TYPE(value) ((UDPHS_EPTCFG_EPT_TYPE_Msk & ((value) << UDPHS_EPTCFG_EPT_TYPE_Pos)))
 #define   UDPHS_EPTCFG_EPT_TYPE_CTRL8 (0x0u << 4) /**< \brief (UDPHS_EPTCFG) Control endpoint */
-#define   UDPHS_EPTCFG_EPT_TYPE_ISO (0x1u << 4) /**< \brief (UDPHS_EPTCFG) Isochronous endpoint */
+#define   UDPHS_EPTCFG_EPT_TYPE_ISO (0x1u << 4)	/**< \brief (UDPHS_EPTCFG) Isochronous endpoint */
 #define   UDPHS_EPTCFG_EPT_TYPE_BULK (0x2u << 4) /**< \brief (UDPHS_EPTCFG) Bulk endpoint */
-#define   UDPHS_EPTCFG_EPT_TYPE_INT (0x3u << 4) /**< \brief (UDPHS_EPTCFG) Interrupt endpoint */
+#define   UDPHS_EPTCFG_EPT_TYPE_INT (0x3u << 4)	/**< \brief (UDPHS_EPTCFG) Interrupt endpoint */
 #define UDPHS_EPTCFG_BK_NUMBER_Pos 6
-#define UDPHS_EPTCFG_BK_NUMBER_Msk (0x3u << UDPHS_EPTCFG_BK_NUMBER_Pos) /**< \brief (UDPHS_EPTCFG) Number of Banks */
+#define UDPHS_EPTCFG_BK_NUMBER_Msk (0x3u << UDPHS_EPTCFG_BK_NUMBER_Pos)	/**< \brief (UDPHS_EPTCFG) Number of Banks */
 #define UDPHS_EPTCFG_BK_NUMBER(value) ((UDPHS_EPTCFG_BK_NUMBER_Msk & ((value) << UDPHS_EPTCFG_BK_NUMBER_Pos)))
 #define   UDPHS_EPTCFG_BK_NUMBER_0 (0x0u << 6) /**< \brief (UDPHS_EPTCFG) Zero bank, the endpoint is not mapped in memory */
 #define   UDPHS_EPTCFG_BK_NUMBER_1 (0x1u << 6) /**< \brief (UDPHS_EPTCFG) One bank (bank 0) */
@@ -235,8 +235,8 @@ typedef struct {
 #define UDPHS_EPTCTLENB_SHRT_PCKT (0x1u << 31) /**< \brief (UDPHS_EPTCTLENB) Short Packet Send/Short Packet Interrupt Enable */
 #define UDPHS_EPTCTLENB_DATAX_RX (0x1u << 6) /**< \brief (UDPHS_EPTCTLENB) DATAx Interrupt Enable (Only for high bandwidth Isochronous OUT endpoints) */
 #define UDPHS_EPTCTLENB_MDATA_RX (0x1u << 7) /**< \brief (UDPHS_EPTCTLENB) MDATA Interrupt Enable (Only for high bandwidth Isochronous OUT endpoints) */
-#define UDPHS_EPTCTLENB_TXRDY_TRER (0x1u << 11) /**< \brief (UDPHS_EPTCTLENB) TX Packet Ready/Transaction Error Interrupt Enable */
-#define UDPHS_EPTCTLENB_ERR_FL_ISO (0x1u << 12) /**< \brief (UDPHS_EPTCTLENB) Error Flow Interrupt Enable */
+#define UDPHS_EPTCTLENB_TXRDY_TRER (0x1u << 11)	/**< \brief (UDPHS_EPTCTLENB) TX Packet Ready/Transaction Error Interrupt Enable */
+#define UDPHS_EPTCTLENB_ERR_FL_ISO (0x1u << 12)	/**< \brief (UDPHS_EPTCTLENB) Error Flow Interrupt Enable */
 #define UDPHS_EPTCTLENB_ERR_CRC_NTR (0x1u << 13) /**< \brief (UDPHS_EPTCTLENB) ISO CRC Error/Number of Transaction Error Interrupt Enable */
 #define UDPHS_EPTCTLENB_ERR_FLUSH (0x1u << 14) /**< \brief (UDPHS_EPTCTLENB) Bank Flush Error Interrupt Enable */
 /* -------- UDPHS_EPTCTLDIS : (UDPHS Offset: N/A) UDPHS Endpoint Control Disable Register -------- */
@@ -256,8 +256,8 @@ typedef struct {
 #define UDPHS_EPTCTLDIS_SHRT_PCKT (0x1u << 31) /**< \brief (UDPHS_EPTCTLDIS) Short Packet Interrupt Disable */
 #define UDPHS_EPTCTLDIS_DATAX_RX (0x1u << 6) /**< \brief (UDPHS_EPTCTLDIS) DATAx Interrupt Disable (Only for High Bandwidth Isochronous OUT endpoints) */
 #define UDPHS_EPTCTLDIS_MDATA_RX (0x1u << 7) /**< \brief (UDPHS_EPTCTLDIS) MDATA Interrupt Disable (Only for High Bandwidth Isochronous OUT endpoints) */
-#define UDPHS_EPTCTLDIS_TXRDY_TRER (0x1u << 11) /**< \brief (UDPHS_EPTCTLDIS) TX Packet Ready/Transaction Error Interrupt Disable */
-#define UDPHS_EPTCTLDIS_ERR_FL_ISO (0x1u << 12) /**< \brief (UDPHS_EPTCTLDIS) Error Flow Interrupt Disable */
+#define UDPHS_EPTCTLDIS_TXRDY_TRER (0x1u << 11)	/**< \brief (UDPHS_EPTCTLDIS) TX Packet Ready/Transaction Error Interrupt Disable */
+#define UDPHS_EPTCTLDIS_ERR_FL_ISO (0x1u << 12)	/**< \brief (UDPHS_EPTCTLDIS) Error Flow Interrupt Disable */
 #define UDPHS_EPTCTLDIS_ERR_CRC_NTR (0x1u << 13) /**< \brief (UDPHS_EPTCTLDIS) ISO CRC Error/Number of Transaction Error Interrupt Disable */
 #define UDPHS_EPTCTLDIS_ERR_FLUSH (0x1u << 14) /**< \brief (UDPHS_EPTCTLDIS) bank flush error Interrupt Disable */
 /* -------- UDPHS_EPTCTL : (UDPHS Offset: N/A) UDPHS Endpoint Control Register -------- */
@@ -268,7 +268,7 @@ typedef struct {
 #define UDPHS_EPTCTL_ERR_OVFLW (0x1u << 8) /**< \brief (UDPHS_EPTCTL) Overflow Error Interrupt Enabled */
 #define UDPHS_EPTCTL_RXRDY_TXKL (0x1u << 9) /**< \brief (UDPHS_EPTCTL) Received OUT Data Interrupt Enabled */
 #define UDPHS_EPTCTL_TX_COMPLT (0x1u << 10) /**< \brief (UDPHS_EPTCTL) Transmitted IN Data Complete Interrupt Enabled */
-#define UDPHS_EPTCTL_TXRDY (0x1u << 11) /**< \brief (UDPHS_EPTCTL) TX Packet Ready Interrupt Enabled */
+#define UDPHS_EPTCTL_TXRDY (0x1u << 11)	/**< \brief (UDPHS_EPTCTL) TX Packet Ready Interrupt Enabled */
 #define UDPHS_EPTCTL_RX_SETUP (0x1u << 12) /**< \brief (UDPHS_EPTCTL) Received SETUP Interrupt Enabled */
 #define UDPHS_EPTCTL_STALL_SNT (0x1u << 13) /**< \brief (UDPHS_EPTCTL) Stall Sent Interrupt Enabled */
 #define UDPHS_EPTCTL_NAK_IN (0x1u << 14) /**< \brief (UDPHS_EPTCTL) NAKIN Interrupt Enabled */
@@ -285,7 +285,7 @@ typedef struct {
 #define UDPHS_EPTSETSTA_FRCESTALL (0x1u << 5) /**< \brief (UDPHS_EPTSETSTA) Stall Handshake Request Set */
 #define UDPHS_EPTSETSTA_RXRDY_TXKL (0x1u << 9) /**< \brief (UDPHS_EPTSETSTA) KILL Bank Set (for IN Endpoint) */
 #define UDPHS_EPTSETSTA_TXRDY (0x1u << 11) /**< \brief (UDPHS_EPTSETSTA) TX Packet Ready Set */
-#define UDPHS_EPTSETSTA_TXRDY_TRER (0x1u << 11) /**< \brief (UDPHS_EPTSETSTA) TX Packet Ready Set */
+#define UDPHS_EPTSETSTA_TXRDY_TRER (0x1u << 11)	/**< \brief (UDPHS_EPTSETSTA) TX Packet Ready Set */
 /* -------- UDPHS_EPTCLRSTA : (UDPHS Offset: N/A) UDPHS Endpoint Clear Status Register -------- */
 #define UDPHS_EPTCLRSTA_FRCESTALL (0x1u << 5) /**< \brief (UDPHS_EPTCLRSTA) Stall Handshake Request Clear */
 #define UDPHS_EPTCLRSTA_TOGGLESQ (0x1u << 6) /**< \brief (UDPHS_EPTCLRSTA) Data Toggle Clear */
@@ -295,7 +295,7 @@ typedef struct {
 #define UDPHS_EPTCLRSTA_STALL_SNT (0x1u << 13) /**< \brief (UDPHS_EPTCLRSTA) Stall Sent Clear */
 #define UDPHS_EPTCLRSTA_NAK_IN (0x1u << 14) /**< \brief (UDPHS_EPTCLRSTA) NAKIN Clear */
 #define UDPHS_EPTCLRSTA_NAK_OUT (0x1u << 15) /**< \brief (UDPHS_EPTCLRSTA) NAKOUT Clear */
-#define UDPHS_EPTCLRSTA_ERR_FL_ISO (0x1u << 12) /**< \brief (UDPHS_EPTCLRSTA) Error Flow Clear */
+#define UDPHS_EPTCLRSTA_ERR_FL_ISO (0x1u << 12)	/**< \brief (UDPHS_EPTCLRSTA) Error Flow Clear */
 #define UDPHS_EPTCLRSTA_ERR_CRC_NTR (0x1u << 13) /**< \brief (UDPHS_EPTCLRSTA) Number of Transaction Error Clear */
 #define UDPHS_EPTCLRSTA_ERR_FLUSH (0x1u << 14) /**< \brief (UDPHS_EPTCLRSTA) Bank Flush Error Clear */
 /* -------- UDPHS_EPTSTA : (UDPHS Offset: N/A) UDPHS Endpoint Status Register -------- */
@@ -309,7 +309,7 @@ typedef struct {
 #define UDPHS_EPTSTA_ERR_OVFLW (0x1u << 8) /**< \brief (UDPHS_EPTSTA) Overflow Error */
 #define UDPHS_EPTSTA_RXRDY_TXKL (0x1u << 9) /**< \brief (UDPHS_EPTSTA) Received OUT Data/KILL Bank */
 #define UDPHS_EPTSTA_TX_COMPLT (0x1u << 10) /**< \brief (UDPHS_EPTSTA) Transmitted IN Data Complete */
-#define UDPHS_EPTSTA_TXRDY (0x1u << 11) /**< \brief (UDPHS_EPTSTA) TX Packet Ready */
+#define UDPHS_EPTSTA_TXRDY (0x1u << 11)	/**< \brief (UDPHS_EPTSTA) TX Packet Ready */
 #define UDPHS_EPTSTA_RX_SETUP (0x1u << 12) /**< \brief (UDPHS_EPTSTA) Received SETUP */
 #define UDPHS_EPTSTA_STALL_SNT (0x1u << 13) /**< \brief (UDPHS_EPTSTA) Stall Sent */
 #define UDPHS_EPTSTA_NAK_IN (0x1u << 14) /**< \brief (UDPHS_EPTSTA) NAK IN */
@@ -317,7 +317,7 @@ typedef struct {
 #define UDPHS_EPTSTA_CURBK_CTLDIR_Pos 16
 #define UDPHS_EPTSTA_CURBK_CTLDIR_Msk (0x3u << UDPHS_EPTSTA_CURBK_CTLDIR_Pos) /**< \brief (UDPHS_EPTSTA) Current Bank/Control Direction */
 #define UDPHS_EPTSTA_BUSY_BANK_STA_Pos 18
-#define UDPHS_EPTSTA_BUSY_BANK_STA_Msk (0x3u << UDPHS_EPTSTA_BUSY_BANK_STA_Pos) /**< \brief (UDPHS_EPTSTA) Busy Bank Number */
+#define UDPHS_EPTSTA_BUSY_BANK_STA_Msk (0x3u << UDPHS_EPTSTA_BUSY_BANK_STA_Pos)	/**< \brief (UDPHS_EPTSTA) Busy Bank Number */
 #define   UDPHS_EPTSTA_BUSY_BANK_STA_1BUSYBANK (0x0u << 18) /**< \brief (UDPHS_EPTSTA) 1 busy bank */
 #define   UDPHS_EPTSTA_BUSY_BANK_STA_2BUSYBANKS (0x1u << 18) /**< \brief (UDPHS_EPTSTA) 2 busy banks */
 #define   UDPHS_EPTSTA_BUSY_BANK_STA_3BUSYBANKS (0x2u << 18) /**< \brief (UDPHS_EPTSTA) 3 busy banks */
@@ -329,10 +329,10 @@ typedef struct {
 #define UDPHS_EPTSTA_ERR_CRC_NTR (0x1u << 13) /**< \brief (UDPHS_EPTSTA) CRC ISO Error/Number of Transaction Error */
 #define UDPHS_EPTSTA_ERR_FLUSH (0x1u << 14) /**< \brief (UDPHS_EPTSTA) Bank Flush Error */
 #define UDPHS_EPTSTA_CURBK_Pos 16
-#define UDPHS_EPTSTA_CURBK_Msk (0x3u << UDPHS_EPTSTA_CURBK_Pos) /**< \brief (UDPHS_EPTSTA) Current Bank */
-#define   UDPHS_EPTSTA_CURBK_BANK0 (0x0u << 16) /**< \brief (UDPHS_EPTSTA) Bank 0 (or single bank) */
-#define   UDPHS_EPTSTA_CURBK_BANK1 (0x1u << 16) /**< \brief (UDPHS_EPTSTA) Bank 1 */
-#define   UDPHS_EPTSTA_CURBK_BANK2 (0x2u << 16) /**< \brief (UDPHS_EPTSTA) Bank 2 */
+#define UDPHS_EPTSTA_CURBK_Msk (0x3u << UDPHS_EPTSTA_CURBK_Pos)	/**< \brief (UDPHS_EPTSTA) Current Bank */
+#define   UDPHS_EPTSTA_CURBK_BANK0 (0x0u << 16)	/**< \brief (UDPHS_EPTSTA) Bank 0 (or single bank) */
+#define   UDPHS_EPTSTA_CURBK_BANK1 (0x1u << 16)	/**< \brief (UDPHS_EPTSTA) Bank 1 */
+#define   UDPHS_EPTSTA_CURBK_BANK2 (0x2u << 16)	/**< \brief (UDPHS_EPTSTA) Bank 2 */
 /* -------- UDPHS_DMANXTDSC : (UDPHS Offset: N/A) UDPHS DMA Next Descriptor Address Register -------- */
 #define UDPHS_DMANXTDSC_NXT_DSC_ADD_Pos 0
 #define UDPHS_DMANXTDSC_NXT_DSC_ADD_Msk (0xffffffffu << UDPHS_DMANXTDSC_NXT_DSC_ADD_Pos) /**< \brief (UDPHS_DMANXTDSC) Next Descriptor Address */
@@ -347,8 +347,8 @@ typedef struct {
 #define UDPHS_DMACONTROL_END_TR_EN (0x1u << 2) /**< \brief (UDPHS_DMACONTROL) End of Transfer Enable (Control) */
 #define UDPHS_DMACONTROL_END_B_EN (0x1u << 3) /**< \brief (UDPHS_DMACONTROL) End of Buffer Enable (Control) */
 #define UDPHS_DMACONTROL_END_TR_IT (0x1u << 4) /**< \brief (UDPHS_DMACONTROL) End of Transfer Interrupt Enable */
-#define UDPHS_DMACONTROL_END_BUFFIT (0x1u << 5) /**< \brief (UDPHS_DMACONTROL) End of Buffer Interrupt Enable */
-#define UDPHS_DMACONTROL_DESC_LD_IT (0x1u << 6) /**< \brief (UDPHS_DMACONTROL) Descriptor Loaded Interrupt Enable */
+#define UDPHS_DMACONTROL_END_BUFFIT (0x1u << 5)	/**< \brief (UDPHS_DMACONTROL) End of Buffer Interrupt Enable */
+#define UDPHS_DMACONTROL_DESC_LD_IT (0x1u << 6)	/**< \brief (UDPHS_DMACONTROL) Descriptor Loaded Interrupt Enable */
 #define UDPHS_DMACONTROL_BURST_LCK (0x1u << 7) /**< \brief (UDPHS_DMACONTROL) Burst Lock Enable */
 #define UDPHS_DMACONTROL_BUFF_LENGTH_Pos 16
 #define UDPHS_DMACONTROL_BUFF_LENGTH_Msk (0xffffu << UDPHS_DMACONTROL_BUFF_LENGTH_Pos) /**< \brief (UDPHS_DMACONTROL) Buffer Byte Length (Write-only) */
@@ -365,5 +365,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_UDPHS_COMPONENT_ */
+#endif				/* _SAMA5D4_UDPHS_COMPONENT_ */

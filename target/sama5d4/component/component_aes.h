@@ -39,25 +39,25 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Aes hardware registers */
 typedef struct {
-  __O  uint32_t AES_CR;        /**< \brief (Aes Offset: 0x00) Control Register */
-  __IO uint32_t AES_MR;        /**< \brief (Aes Offset: 0x04) Mode Register */
-  __I  uint32_t Reserved1[2];
-  __O  uint32_t AES_IER;       /**< \brief (Aes Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t AES_IDR;       /**< \brief (Aes Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t AES_IMR;       /**< \brief (Aes Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t AES_ISR;       /**< \brief (Aes Offset: 0x1C) Interrupt Status Register */
-  __O  uint32_t AES_KEYWR[8];  /**< \brief (Aes Offset: 0x20) Key Word Register */
-  __O  uint32_t AES_IDATAR[4]; /**< \brief (Aes Offset: 0x40) Input Data Register */
-  __I  uint32_t AES_ODATAR[4]; /**< \brief (Aes Offset: 0x50) Output Data Register */
-  __O  uint32_t AES_IVR[4];    /**< \brief (Aes Offset: 0x60) Initialization Vector Register */
-  __IO uint32_t AES_AADLENR;   /**< \brief (Aes Offset: 0x70) Additional Authenticated Data Length Register */
-  __IO uint32_t AES_CLENR;     /**< \brief (Aes Offset: 0x74) Plaintext/Ciphertext Length Register */
-  __IO uint32_t AES_GHASHR[4]; /**< \brief (Aes Offset: 0x78) GCM Intermediate Hash Word Register */
-  __I  uint32_t AES_TAGR[4];   /**< \brief (Aes Offset: 0x88) GCM Authentication Tag Word Register */
-  __I  uint32_t AES_CTRR;      /**< \brief (Aes Offset: 0x98) GCM Encryption Counter Value Register */
-  __IO uint32_t AES_GCMHR[4];  /**< \brief (Aes Offset: 0x9C) GCM H Word Register */
+	__O uint32_t AES_CR;	     /**< \brief (Aes Offset: 0x00) Control Register */
+	__IO uint32_t AES_MR;	     /**< \brief (Aes Offset: 0x04) Mode Register */
+	__I uint32_t Reserved1[2];
+	__O uint32_t AES_IER;	     /**< \brief (Aes Offset: 0x10) Interrupt Enable Register */
+	__O uint32_t AES_IDR;	     /**< \brief (Aes Offset: 0x14) Interrupt Disable Register */
+	__I uint32_t AES_IMR;	     /**< \brief (Aes Offset: 0x18) Interrupt Mask Register */
+	__I uint32_t AES_ISR;	     /**< \brief (Aes Offset: 0x1C) Interrupt Status Register */
+	__O uint32_t AES_KEYWR[8];   /**< \brief (Aes Offset: 0x20) Key Word Register */
+	__O uint32_t AES_IDATAR[4];  /**< \brief (Aes Offset: 0x40) Input Data Register */
+	__I uint32_t AES_ODATAR[4];  /**< \brief (Aes Offset: 0x50) Output Data Register */
+	__O uint32_t AES_IVR[4];     /**< \brief (Aes Offset: 0x60) Initialization Vector Register */
+	__IO uint32_t AES_AADLENR;   /**< \brief (Aes Offset: 0x70) Additional Authenticated Data Length Register */
+	__IO uint32_t AES_CLENR;     /**< \brief (Aes Offset: 0x74) Plaintext/Ciphertext Length Register */
+	__IO uint32_t AES_GHASHR[4]; /**< \brief (Aes Offset: 0x78) GCM Intermediate Hash Word Register */
+	__I uint32_t AES_TAGR[4];    /**< \brief (Aes Offset: 0x88) GCM Authentication Tag Word Register */
+	__I uint32_t AES_CTRR;	     /**< \brief (Aes Offset: 0x98) GCM Encryption Counter Value Register */
+	__IO uint32_t AES_GCMHR[4];  /**< \brief (Aes Offset: 0x9C) GCM H Word Register */
 } Aes;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AES_CR : (AES Offset: 0x00) Control Register -------- */
 #define AES_CR_START (0x1u << 0) /**< \brief (AES_CR) Start Processing */
 #define AES_CR_SWRST (0x1u << 8) /**< \brief (AES_CR) Software Reset */
@@ -68,16 +68,16 @@ typedef struct {
 #define   AES_MR_DUALBUFF_INACTIVE (0x0u << 3) /**< \brief (AES_MR) AES_IDATARx cannot be written during processing of previous block. */
 #define   AES_MR_DUALBUFF_ACTIVE (0x1u << 3) /**< \brief (AES_MR) AES_IDATARx can be written during processing of previous block when SMOD = 0x2. It speeds up the overall runtime of large files. */
 #define AES_MR_PROCDLY_Pos 4
-#define AES_MR_PROCDLY_Msk (0xfu << AES_MR_PROCDLY_Pos) /**< \brief (AES_MR) Processing Delay */
+#define AES_MR_PROCDLY_Msk (0xfu << AES_MR_PROCDLY_Pos)	/**< \brief (AES_MR) Processing Delay */
 #define AES_MR_PROCDLY(value) ((AES_MR_PROCDLY_Msk & ((value) << AES_MR_PROCDLY_Pos)))
 #define AES_MR_SMOD_Pos 8
 #define AES_MR_SMOD_Msk (0x3u << AES_MR_SMOD_Pos) /**< \brief (AES_MR) Start Mode */
 #define AES_MR_SMOD(value) ((AES_MR_SMOD_Msk & ((value) << AES_MR_SMOD_Pos)))
 #define   AES_MR_SMOD_MANUAL_START (0x0u << 8) /**< \brief (AES_MR) Manual Mode */
 #define   AES_MR_SMOD_AUTO_START (0x1u << 8) /**< \brief (AES_MR) Auto Mode */
-#define   AES_MR_SMOD_IDATAR0_START (0x2u << 8) /**< \brief (AES_MR) AES_IDATAR0 access only Auto Mode */
+#define   AES_MR_SMOD_IDATAR0_START (0x2u << 8)	/**< \brief (AES_MR) AES_IDATAR0 access only Auto Mode */
 #define AES_MR_KEYSIZE_Pos 10
-#define AES_MR_KEYSIZE_Msk (0x3u << AES_MR_KEYSIZE_Pos) /**< \brief (AES_MR) Key Size */
+#define AES_MR_KEYSIZE_Msk (0x3u << AES_MR_KEYSIZE_Pos)	/**< \brief (AES_MR) Key Size */
 #define AES_MR_KEYSIZE(value) ((AES_MR_KEYSIZE_Msk & ((value) << AES_MR_KEYSIZE_Pos)))
 #define   AES_MR_KEYSIZE_AES128 (0x0u << 10) /**< \brief (AES_MR) AES Key Size is 128 bits */
 #define   AES_MR_KEYSIZE_AES192 (0x1u << 10) /**< \brief (AES_MR) AES Key Size is 192 bits */
@@ -85,13 +85,13 @@ typedef struct {
 #define AES_MR_OPMOD_Pos 12
 #define AES_MR_OPMOD_Msk (0x7u << AES_MR_OPMOD_Pos) /**< \brief (AES_MR) Operation Mode */
 #define AES_MR_OPMOD(value) ((AES_MR_OPMOD_Msk & ((value) << AES_MR_OPMOD_Pos)))
-#define   AES_MR_OPMOD_ECB (0x0u << 12) /**< \brief (AES_MR) ECB: Electronic Code Book mode */
-#define   AES_MR_OPMOD_CBC (0x1u << 12) /**< \brief (AES_MR) CBC: Cipher Block Chaining mode */
-#define   AES_MR_OPMOD_OFB (0x2u << 12) /**< \brief (AES_MR) OFB: Output Feedback mode */
-#define   AES_MR_OPMOD_CFB (0x3u << 12) /**< \brief (AES_MR) CFB: Cipher Feedback mode */
-#define   AES_MR_OPMOD_CTR (0x4u << 12) /**< \brief (AES_MR) CTR: Counter mode (16-bit internal counter) */
-#define   AES_MR_OPMOD_GCM (0x5u << 12) /**< \brief (AES_MR) GCM: Galois/Counter mode */
-#define AES_MR_LOD (0x1u << 15) /**< \brief (AES_MR) Last Output Data Mode */
+#define   AES_MR_OPMOD_ECB (0x0u << 12)	/**< \brief (AES_MR) ECB: Electronic Code Book mode */
+#define   AES_MR_OPMOD_CBC (0x1u << 12)	/**< \brief (AES_MR) CBC: Cipher Block Chaining mode */
+#define   AES_MR_OPMOD_OFB (0x2u << 12)	/**< \brief (AES_MR) OFB: Output Feedback mode */
+#define   AES_MR_OPMOD_CFB (0x3u << 12)	/**< \brief (AES_MR) CFB: Cipher Feedback mode */
+#define   AES_MR_OPMOD_CTR (0x4u << 12)	/**< \brief (AES_MR) CTR: Counter mode (16-bit internal counter) */
+#define   AES_MR_OPMOD_GCM (0x5u << 12)	/**< \brief (AES_MR) GCM: Galois/Counter mode */
+#define AES_MR_LOD (0x1u << 15)	/**< \brief (AES_MR) Last Output Data Mode */
 #define AES_MR_CFBS_Pos 16
 #define AES_MR_CFBS_Msk (0x7u << AES_MR_CFBS_Pos) /**< \brief (AES_MR) Cipher Feedback Data Size */
 #define AES_MR_CFBS(value) ((AES_MR_CFBS_Msk & ((value) << AES_MR_CFBS_Pos)))
@@ -168,5 +168,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_AES_COMPONENT_ */
+#endif				/* _SAMA5D4_AES_COMPONENT_ */

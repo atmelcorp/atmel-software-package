@@ -47,67 +47,68 @@ extern "C" {
 #include <stdint.h>
 #endif
 
-typedef enum IRQn {
-    ARM_IRQn             =  2, /**<  2 SAMA5D44 Performance Monitor Unit (ARM) */
-    PIT_IRQn             =  3, /**<  3 SAMA5D44 Periodic Interval Timer Interrupt (PIT) */
-    WDT_IRQn             =  4, /**<  4 SAMA5D44 Watchdog timer Interrupt (WDT) */
-    PIOD_IRQn            =  5, /**<  5 SAMA5D44 Parallel I/O Controller D (PIOD) */
-    USART0_IRQn          =  6, /**<  6 SAMA5D44 USART 0 (USART0) */
-    USART1_IRQn          =  7, /**<  7 SAMA5D44 USART 1 (USART1) */
-    XDMAC0_IRQn          =  8, /**<  8 SAMA5D44 DMA Controller 0 (XDMAC0) */
-    ICM_IRQn             =  9, /**<  9 SAMA5D44 Integritry Check Monitor (ICM) */
-    AES_IRQn             = 12, /**< 12 SAMA5D44 Advanced Encryption Standard (AES) */
-    AESB_IRQn            = 13, /**< 13 SAMA5D44 AES bridge (AESB) */
-    TDES_IRQn            = 14, /**< 14 SAMA5D44 Triple Data Encryption Standard (TDES) */
-    SHA_IRQn             = 15, /**< 15 SAMA5D44 SHA Signature (SHA) */
-    MPDDRC_IRQn          = 16, /**< 16 SAMA5D44 MPDDR controller (MPDDRC) */
-    MATRIX1_IRQn         = 17, /**< 17 SAMA5D44 H32MX, 32-bit AHB Matrix (MATRIX1) */
-    MATRIX0_IRQn         = 18, /**< 18 SAMA5D44 H64MX, 64-bit AHB Matrix (MATRIX0) */
-    VDEC_IRQn            = 19, /**< 19 SAMA5D44 Video Decoder (VDEC) */
-    HSMC_IRQn            = 22, /**< 22 SAMA5D44 Multi-bit ECC Interrupt (HSMC) */
-    PIOA_IRQn            = 23, /**< 23 SAMA5D44 Parallel I/O Controller A (PIOA) */
-    PIOB_IRQn            = 24, /**< 24 SAMA5D44 Parallel I/O Controller B (PIOB) */
-    PIOC_IRQn            = 25, /**< 25 SAMA5D44 Parallel I/O Controller C (PIOC) */
-    PIOE_IRQn            = 26, /**< 26 SAMA5D44 Parallel I/O Controller E (PIOE) */
-    UART0_IRQn           = 27, /**< 27 SAMA5D44 UART 0 (UART0) */
-    UART1_IRQn           = 28, /**< 28 SAMA5D44 UART 1 (UART1) */
-    USART2_IRQn          = 29, /**< 29 SAMA5D44 USART 2 (USART2) */
-    USART3_IRQn          = 30, /**< 30 SAMA5D44 USART 3 (USART3) */
-    USART4_IRQn          = 31, /**< 31 SAMA5D44 USART 4 (USART4) */
-    TWI0_IRQn            = 32, /**< 32 SAMA5D44 Two-Wire Interface 0 (TWI0) */
-    TWI1_IRQn            = 33, /**< 33 SAMA5D44 Two-Wire Interface 1 (TWI1) */
-    TWI2_IRQn            = 34, /**< 34 SAMA5D44 Two-Wire Interface 2 (TWI2) */
-    HSMCI0_IRQn          = 35, /**< 35 SAMA5D44 High Speed Multimedia Card Interface 0 (HSMCI0) */
-    HSMCI1_IRQn          = 36, /**< 36 SAMA5D44 High Speed Multimedia Card Interface 1 (HSMCI1) */
-    SPI0_IRQn            = 37, /**< 37 SAMA5D44 Serial Peripheral Interface 0 (SPI0) */
-    SPI1_IRQn            = 38, /**< 38 SAMA5D44 Serial Peripheral Interface 1 (SPI1) */
-    SPI2_IRQn            = 39, /**< 39 SAMA5D44 Serial Peripheral Interface 2 (SPI2) */
-    TC0_IRQn             = 40, /**< 40 SAMA5D44 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
-    TC1_IRQn             = 41, /**< 41 SAMA5D44 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-    TC2_IRQn             = 42, /**< 42 SAMA5D44 Timer Counter 2 (ch. 6, 7, 8) (TC2) */
-    PWM_IRQn             = 43, /**< 43 SAMA5D44 Pulse Width Modulation Controller (PWM) */
-    ADC_IRQn             = 44, /**< 44 SAMA5D44 Touch Screen ADC Controller (ADC) */
-    DBGU_IRQn            = 45, /**< 45 SAMA5D44 Debug Unit Interrupt (DBGU) */
-    UHPHS_IRQn           = 46, /**< 46 SAMA5D44 USB Host High Speed (UHPHS) */
-    UDPHS_IRQn           = 47, /**< 47 SAMA5D44 USB Device High Speed (UDPHS) */
-    SSC0_IRQn            = 48, /**< 48 SAMA5D44 Synchronous Serial Controller 0 (SSC0) */
-    SSC1_IRQn            = 49, /**< 49 SAMA5D44 Synchronous Serial Controller 1 (SSC1) */
-    XDMAC1_IRQn          = 50, /**< 50 SAMA5D44 DMA Controller 1 (XDMAC1) */
-    LCDC_IRQn            = 51, /**< 51 SAMA5D44 LCD Controller (LCDC) */
-    ISI_IRQn             = 52, /**< 52 SAMA5D44 Camera Interface (ISI) */
-    TRNG_IRQn            = 53, /**< 53 SAMA5D44 True Random Number Generator (TRNG) */
-    GMAC0_IRQn           = 54, /**< 54 SAMA5D44 Ethernet MAC 0 (GMAC0) */
-    GMAC1_IRQn           = 55, /**< 55 SAMA5D44 Ethernet MAC 1 (GMAC1) */
-    SFC_IRQn             = 57, /**< 57 SAMA5D44 Fuse Controller (SFC) */
-    SMD_IRQn             = 61, /**< 61 SAMA5D44 SMD Soft Modem (SMD) */
-    TWI3_IRQn            = 62, /**< 62 SAMA5D44 Two-Wire Interface 3 (TWI3) */
-    SFR_IRQn             = 64, /**< 64 SAMA5D44 Special Function Register  (SFR) */
-    AIC_IRQn             = 65, /**< 65 SAMA5D44 Advanced Interrupt Controller  (AIC) */
-    SAIC_IRQn            = 66, /**< 66 SAMA5D44 Secured Advanced Interrupt Controller  (SAIC) */
-    L2CC_IRQn            = 67, /**< 67 SAMA5D44 L2 Cache Controller  (L2CC) */
+	typedef enum IRQn {
+		ARM_IRQn = 2,	   /**<  2 SAMA5D44 Performance Monitor Unit (ARM) */
+		PIT_IRQn = 3,	   /**<  3 SAMA5D44 Periodic Interval Timer Interrupt (PIT) */
+		WDT_IRQn = 4,	   /**<  4 SAMA5D44 Watchdog timer Interrupt (WDT) */
+		PIOD_IRQn = 5,	   /**<  5 SAMA5D44 Parallel I/O Controller D (PIOD) */
+		USART0_IRQn = 6,   /**<  6 SAMA5D44 USART 0 (USART0) */
+		USART1_IRQn = 7,   /**<  7 SAMA5D44 USART 1 (USART1) */
+		XDMAC0_IRQn = 8,   /**<  8 SAMA5D44 DMA Controller 0 (XDMAC0) */
+		ICM_IRQn = 9,	   /**<  9 SAMA5D44 Integritry Check Monitor (ICM) */
+		AES_IRQn = 12,	   /**< 12 SAMA5D44 Advanced Encryption Standard (AES) */
+		AESB_IRQn = 13,	   /**< 13 SAMA5D44 AES bridge (AESB) */
+		TDES_IRQn = 14,	   /**< 14 SAMA5D44 Triple Data Encryption Standard (TDES) */
+		SHA_IRQn = 15,	   /**< 15 SAMA5D44 SHA Signature (SHA) */
+		MPDDRC_IRQn = 16,  /**< 16 SAMA5D44 MPDDR controller (MPDDRC) */
+		MATRIX1_IRQn = 17, /**< 17 SAMA5D44 H32MX, 32-bit AHB Matrix (MATRIX1) */
+		MATRIX0_IRQn = 18, /**< 18 SAMA5D44 H64MX, 64-bit AHB Matrix (MATRIX0) */
+		VDEC_IRQn = 19,	   /**< 19 SAMA5D44 Video Decoder (VDEC) */
+		HSMC_IRQn = 22,	   /**< 22 SAMA5D44 Multi-bit ECC Interrupt (HSMC) */
+		PIOA_IRQn = 23,	   /**< 23 SAMA5D44 Parallel I/O Controller A (PIOA) */
+		PIOB_IRQn = 24,	   /**< 24 SAMA5D44 Parallel I/O Controller B (PIOB) */
+		PIOC_IRQn = 25,	   /**< 25 SAMA5D44 Parallel I/O Controller C (PIOC) */
+		PIOE_IRQn = 26,	   /**< 26 SAMA5D44 Parallel I/O Controller E (PIOE) */
+		UART0_IRQn = 27,   /**< 27 SAMA5D44 UART 0 (UART0) */
+		UART1_IRQn = 28,   /**< 28 SAMA5D44 UART 1 (UART1) */
+		USART2_IRQn = 29,  /**< 29 SAMA5D44 USART 2 (USART2) */
+		USART3_IRQn = 30,  /**< 30 SAMA5D44 USART 3 (USART3) */
+		USART4_IRQn = 31,  /**< 31 SAMA5D44 USART 4 (USART4) */
+		TWI0_IRQn = 32,	   /**< 32 SAMA5D44 Two-Wire Interface 0 (TWI0) */
+		TWI1_IRQn = 33,	   /**< 33 SAMA5D44 Two-Wire Interface 1 (TWI1) */
+		TWI2_IRQn = 34,	   /**< 34 SAMA5D44 Two-Wire Interface 2 (TWI2) */
+		HSMCI0_IRQn = 35,  /**< 35 SAMA5D44 High Speed Multimedia Card Interface 0 (HSMCI0) */
+		HSMCI1_IRQn = 36,  /**< 36 SAMA5D44 High Speed Multimedia Card Interface 1 (HSMCI1) */
+		SPI0_IRQn = 37,	   /**< 37 SAMA5D44 Serial Peripheral Interface 0 (SPI0) */
+		SPI1_IRQn = 38,	   /**< 38 SAMA5D44 Serial Peripheral Interface 1 (SPI1) */
+		SPI2_IRQn = 39,	   /**< 39 SAMA5D44 Serial Peripheral Interface 2 (SPI2) */
+		TC0_IRQn = 40,	   /**< 40 SAMA5D44 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+		TC1_IRQn = 41,	   /**< 41 SAMA5D44 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+		TC2_IRQn = 42,	   /**< 42 SAMA5D44 Timer Counter 2 (ch. 6, 7, 8) (TC2) */
+		PWM_IRQn = 43,	   /**< 43 SAMA5D44 Pulse Width Modulation Controller (PWM) */
+		ADC_IRQn = 44,	   /**< 44 SAMA5D44 Touch Screen ADC Controller (ADC) */
+		DBGU_IRQn = 45,	   /**< 45 SAMA5D44 Debug Unit Interrupt (DBGU) */
+		UHPHS_IRQn = 46,   /**< 46 SAMA5D44 USB Host High Speed (UHPHS) */
+		UDPHS_IRQn = 47,   /**< 47 SAMA5D44 USB Device High Speed (UDPHS) */
+		SSC0_IRQn = 48,	   /**< 48 SAMA5D44 Synchronous Serial Controller 0 (SSC0) */
+		SSC1_IRQn = 49,	   /**< 49 SAMA5D44 Synchronous Serial Controller 1 (SSC1) */
+		XDMAC1_IRQn = 50,  /**< 50 SAMA5D44 DMA Controller 1 (XDMAC1) */
+		LCDC_IRQn = 51,	   /**< 51 SAMA5D44 LCD Controller (LCDC) */
+		ISI_IRQn = 52,	   /**< 52 SAMA5D44 Camera Interface (ISI) */
+		TRNG_IRQn = 53,	   /**< 53 SAMA5D44 True Random Number Generator (TRNG) */
+		GMAC0_IRQn = 54,   /**< 54 SAMA5D44 Ethernet MAC 0 (GMAC0) */
+		GMAC1_IRQn = 55,   /**< 55 SAMA5D44 Ethernet MAC 1 (GMAC1) */
+		SFC_IRQn = 57,	   /**< 57 SAMA5D44 Fuse Controller (SFC) */
+		SMD_IRQn = 61,	   /**< 61 SAMA5D44 SMD Soft Modem (SMD) */
+		TWI3_IRQn = 62,	   /**< 62 SAMA5D44 Two-Wire Interface 3 (TWI3) */
+		SFR_IRQn = 64,	   /**< 64 SAMA5D44 Special Function Register  (SFR) */
+		AIC_IRQn = 65,	   /**< 65 SAMA5D44 Advanced Interrupt Controller  (AIC) */
+		SAIC_IRQn = 66,	   /**< 66 SAMA5D44 Secured Advanced Interrupt Controller  (SAIC) */
+		L2CC_IRQn = 67,	   /**< 67 SAMA5D44 L2 Cache Controller  (L2CC) */
 
-    PERIPH_COUNT_IRQn    = 68  /**< Number of peripheral IDs */
-} IRQn_Type;
+		PERIPH_COUNT_IRQn = 68
+				   /**< Number of peripheral IDs */
+	} IRQn_Type;
 
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D44 */
@@ -230,66 +231,66 @@ typedef enum IRQn {
 /** \addtogroup SAMA5D44_id Peripheral Ids Definitions */
 /*@{*/
 
-#define ID_SYS     ( 1) /**< \brief System Controller Interrupt (SYS) */
-#define ID_ARM     ( 2) /**< \brief Performance Monitor Unit (ARM) */
-#define ID_PIT     ( 3) /**< \brief Periodic Interval Timer Interrupt (PIT) */
-#define ID_WDT     ( 4) /**< \brief Watchdog timer Interrupt (WDT) */
-#define ID_PIOD    ( 5) /**< \brief Parallel I/O Controller D (PIOD) */
-#define ID_USART0  ( 6) /**< \brief USART 0 (USART0) */
-#define ID_USART1  ( 7) /**< \brief USART 1 (USART1) */
-#define ID_XDMAC0  ( 8) /**< \brief DMA Controller 0 (XDMAC0) */
-#define ID_ICM     ( 9) /**< \brief Integritry Check Monitor (ICM) */
-#define ID_AES     (12) /**< \brief Advanced Encryption Standard (AES) */
-#define ID_AESB    (13) /**< \brief AES bridge (AESB) */
-#define ID_TDES    (14) /**< \brief Triple Data Encryption Standard (TDES) */
-#define ID_SHA     (15) /**< \brief SHA Signature (SHA) */
-#define ID_MPDDRC  (16) /**< \brief MPDDR controller (MPDDRC) */
-#define ID_MATRIX1 (17) /**< \brief H32MX, 32-bit AHB Matrix (MATRIX1) */
-#define ID_MATRIX0 (18) /**< \brief H64MX, 64-bit AHB Matrix (MATRIX0) */
-#define ID_VDEC    (19) /**< \brief Video Decoder (VDEC) */
-#define ID_MSADCC  (21) /**< \brief Magnetic Stripe converter Controller (MSADCC) */
-#define ID_HSMC    (22) /**< \brief Multi-bit ECC Interrupt (HSMC) */
-#define ID_PIOA    (23) /**< \brief Parallel I/O Controller A (PIOA) */
-#define ID_PIOB    (24) /**< \brief Parallel I/O Controller B (PIOB) */
-#define ID_PIOC    (25) /**< \brief Parallel I/O Controller C (PIOC) */
-#define ID_PIOE    (26) /**< \brief Parallel I/O Controller E (PIOE) */
-#define ID_UART0   (27) /**< \brief UART 0 (UART0) */
-#define ID_UART1   (28) /**< \brief UART 1 (UART1) */
-#define ID_USART2  (29) /**< \brief USART 2 (USART2) */
-#define ID_USART3  (30) /**< \brief USART 3 (USART3) */
-#define ID_USART4  (31) /**< \brief USART 4 (USART4) */
-#define ID_TWI0    (32) /**< \brief Two-Wire Interface 0 (TWI0) */
-#define ID_TWI1    (33) /**< \brief Two-Wire Interface 1 (TWI1) */
-#define ID_TWI2    (34) /**< \brief Two-Wire Interface 2 (TWI2) */
-#define ID_HSMCI0  (35) /**< \brief High Speed Multimedia Card Interface 0 (HSMCI0) */
-#define ID_HSMCI1  (36) /**< \brief High Speed Multimedia Card Interface 1 (HSMCI1) */
-#define ID_SPI0    (37) /**< \brief Serial Peripheral Interface 0 (SPI0) */
-#define ID_SPI1    (38) /**< \brief Serial Peripheral Interface 1 (SPI1) */
-#define ID_SPI2    (39) /**< \brief Serial Peripheral Interface 2 (SPI2) */
-#define ID_TC0     (40) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
-#define ID_TC1     (41) /**< \brief Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-#define ID_TC2     (42) /**< \brief Timer Counter 2 (ch. 6, 7, 8) (TC2) */
-#define ID_PWM     (43) /**< \brief Pulse Width Modulation Controller (PWM) */
-#define ID_ADC     (44) /**< \brief Touch Screen ADC Controller (ADC) */
-#define ID_DBGU    (45) /**< \brief Debug Unit Interrupt (DBGU) */
-#define ID_UHPHS   (46) /**< \brief USB Host High Speed (UHPHS) */
-#define ID_UDPHS   (47) /**< \brief USB Device High Speed (UDPHS) */
-#define ID_SSC0    (48) /**< \brief Synchronous Serial Controller 0 (SSC0) */
-#define ID_SSC1    (49) /**< \brief Synchronous Serial Controller 1 (SSC1) */
-#define ID_XDMAC1  (50) /**< \brief DMA Controller 1 (XDMAC1) */
-#define ID_LCDC    (51) /**< \brief LCD Controller (LCDC) */
-#define ID_ISI     (52) /**< \brief Camera Interface (ISI) */
-#define ID_TRNG    (53) /**< \brief True Random Number Generator (TRNG) */
-#define ID_GMAC0   (54) /**< \brief Ethernet MAC 0 (GMAC0) */
-#define ID_GMAC1   (55) /**< \brief Ethernet MAC 1 (GMAC1) */
-#define ID_IRQ     (56) /**< \brief IRQ Interrupt ID (IRQ) */
-#define ID_SFC     (57) /**< \brief Fuse Controller (SFC) */
-#define ID_SMD     (61) /**< \brief SMD Soft Modem (SMD) */
-#define ID_TWI3    (62) /**< \brief Two-Wire Interface 3 (TWI3) */
-#define ID_SFR     (64) /**< \brief Special Function Register  (SFR) */
-#define ID_AIC     (65) /**< \brief Advanced Interrupt Controller  (AIC) */
-#define ID_SAIC    (66) /**< \brief Secured Advanced Interrupt Controller  (SAIC) */
-#define ID_L2CC    (67) /**< \brief L2 Cache Controller  (L2CC) */
+#define ID_SYS     ( 1)	/**< \brief System Controller Interrupt (SYS) */
+#define ID_ARM     ( 2)	/**< \brief Performance Monitor Unit (ARM) */
+#define ID_PIT     ( 3)	/**< \brief Periodic Interval Timer Interrupt (PIT) */
+#define ID_WDT     ( 4)	/**< \brief Watchdog timer Interrupt (WDT) */
+#define ID_PIOD    ( 5)	/**< \brief Parallel I/O Controller D (PIOD) */
+#define ID_USART0  ( 6)	/**< \brief USART 0 (USART0) */
+#define ID_USART1  ( 7)	/**< \brief USART 1 (USART1) */
+#define ID_XDMAC0  ( 8)	/**< \brief DMA Controller 0 (XDMAC0) */
+#define ID_ICM     ( 9)	/**< \brief Integritry Check Monitor (ICM) */
+#define ID_AES     (12)	/**< \brief Advanced Encryption Standard (AES) */
+#define ID_AESB    (13)	/**< \brief AES bridge (AESB) */
+#define ID_TDES    (14)	/**< \brief Triple Data Encryption Standard (TDES) */
+#define ID_SHA     (15)	/**< \brief SHA Signature (SHA) */
+#define ID_MPDDRC  (16)	/**< \brief MPDDR controller (MPDDRC) */
+#define ID_MATRIX1 (17)	/**< \brief H32MX, 32-bit AHB Matrix (MATRIX1) */
+#define ID_MATRIX0 (18)	/**< \brief H64MX, 64-bit AHB Matrix (MATRIX0) */
+#define ID_VDEC    (19)	/**< \brief Video Decoder (VDEC) */
+#define ID_MSADCC  (21)	/**< \brief Magnetic Stripe converter Controller (MSADCC) */
+#define ID_HSMC    (22)	/**< \brief Multi-bit ECC Interrupt (HSMC) */
+#define ID_PIOA    (23)	/**< \brief Parallel I/O Controller A (PIOA) */
+#define ID_PIOB    (24)	/**< \brief Parallel I/O Controller B (PIOB) */
+#define ID_PIOC    (25)	/**< \brief Parallel I/O Controller C (PIOC) */
+#define ID_PIOE    (26)	/**< \brief Parallel I/O Controller E (PIOE) */
+#define ID_UART0   (27)	/**< \brief UART 0 (UART0) */
+#define ID_UART1   (28)	/**< \brief UART 1 (UART1) */
+#define ID_USART2  (29)	/**< \brief USART 2 (USART2) */
+#define ID_USART3  (30)	/**< \brief USART 3 (USART3) */
+#define ID_USART4  (31)	/**< \brief USART 4 (USART4) */
+#define ID_TWI0    (32)	/**< \brief Two-Wire Interface 0 (TWI0) */
+#define ID_TWI1    (33)	/**< \brief Two-Wire Interface 1 (TWI1) */
+#define ID_TWI2    (34)	/**< \brief Two-Wire Interface 2 (TWI2) */
+#define ID_HSMCI0  (35)	/**< \brief High Speed Multimedia Card Interface 0 (HSMCI0) */
+#define ID_HSMCI1  (36)	/**< \brief High Speed Multimedia Card Interface 1 (HSMCI1) */
+#define ID_SPI0    (37)	/**< \brief Serial Peripheral Interface 0 (SPI0) */
+#define ID_SPI1    (38)	/**< \brief Serial Peripheral Interface 1 (SPI1) */
+#define ID_SPI2    (39)	/**< \brief Serial Peripheral Interface 2 (SPI2) */
+#define ID_TC0     (40)	/**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+#define ID_TC1     (41)	/**< \brief Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+#define ID_TC2     (42)	/**< \brief Timer Counter 2 (ch. 6, 7, 8) (TC2) */
+#define ID_PWM     (43)	/**< \brief Pulse Width Modulation Controller (PWM) */
+#define ID_ADC     (44)	/**< \brief Touch Screen ADC Controller (ADC) */
+#define ID_DBGU    (45)	/**< \brief Debug Unit Interrupt (DBGU) */
+#define ID_UHPHS   (46)	/**< \brief USB Host High Speed (UHPHS) */
+#define ID_UDPHS   (47)	/**< \brief USB Device High Speed (UDPHS) */
+#define ID_SSC0    (48)	/**< \brief Synchronous Serial Controller 0 (SSC0) */
+#define ID_SSC1    (49)	/**< \brief Synchronous Serial Controller 1 (SSC1) */
+#define ID_XDMAC1  (50)	/**< \brief DMA Controller 1 (XDMAC1) */
+#define ID_LCDC    (51)	/**< \brief LCD Controller (LCDC) */
+#define ID_ISI     (52)	/**< \brief Camera Interface (ISI) */
+#define ID_TRNG    (53)	/**< \brief True Random Number Generator (TRNG) */
+#define ID_GMAC0   (54)	/**< \brief Ethernet MAC 0 (GMAC0) */
+#define ID_GMAC1   (55)	/**< \brief Ethernet MAC 1 (GMAC1) */
+#define ID_IRQ     (56)	/**< \brief IRQ Interrupt ID (IRQ) */
+#define ID_SFC     (57)	/**< \brief Fuse Controller (SFC) */
+#define ID_SMD     (61)	/**< \brief SMD Soft Modem (SMD) */
+#define ID_TWI3    (62)	/**< \brief Two-Wire Interface 3 (TWI3) */
+#define ID_SFR     (64)	/**< \brief Special Function Register  (SFR) */
+#define ID_AIC     (65)	/**< \brief Advanced Interrupt Controller  (AIC) */
+#define ID_SAIC    (66)	/**< \brief Secured Advanced Interrupt Controller  (SAIC) */
+#define ID_L2CC    (67)	/**< \brief L2 Cache Controller  (L2CC) */
 
 #define ID_PERIPH_COUNT (68) /**< \brief Number of peripheral IDs */
 /*@}*/
@@ -424,7 +425,7 @@ typedef enum IRQn {
 #define PIOC    ((Pio     *)0xFC06C000U) /**< \brief (PIOC   ) Base Address */
 #define PIOE    ((Pio     *)0xFC06D000U) /**< \brief (PIOE   ) Base Address */
 #define AIC     ((Aic     *)0xFC06E000U) /**< \brief (AIC    ) Base Address */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /*@}*/
 
 /* ************************************************************************** */
@@ -496,7 +497,5 @@ typedef enum IRQn {
 #ifdef __cplusplus
 }
 #endif
-
 /*@}*/
-
-#endif /* _SAMA5D44_ */
+#endif				/* _SAMA5D44_ */

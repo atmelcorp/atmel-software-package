@@ -27,7 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-
 /**
   * \file
   *
@@ -134,22 +133,21 @@
 /** This bit is set if any keys are in detect. */
 #define QT_TOUCH_BIT            0
 
-
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint8_t QT1070_GetChipId(Twid *pTwid);
-extern uint8_t QT1070_GetFirmwareVersion(Twid *pTwid);
-extern uint8_t QT1070_GetDetection_Status(Twid *pTwid);
-extern uint8_t QT1070_GetKey_Status(Twid *pTwid);
-extern uint16_t QT1070_GetKey_Signal(Twid *pTwid, uint8_t key);
-extern uint16_t QT1070_GetKey_Reference(Twid *pTwid, uint8_t key);
-extern void QT1070_SetThreshold(Twid *pTwid, uint8_t key, uint8_t threshold);
-extern void QT1070_SetAveAks(Twid *pTwid, uint8_t key, uint8_t Ave, uint8_t Aks);
-extern void QT1070_SetDetectionIntegrator(Twid *pTwid, uint8_t key, uint8_t di);
-extern void QT1070_StartCalibrate(Twid *pTwid);
-extern void QT1070_StartReset(Twid *pTwid);
-#endif // QT1070_H
-
-
+extern uint8_t QT1070_GetChipId(Twid * pTwid);
+extern uint8_t QT1070_GetFirmwareVersion(Twid * pTwid);
+extern uint8_t QT1070_GetDetection_Status(Twid * pTwid);
+extern uint8_t QT1070_GetKey_Status(Twid * pTwid);
+extern uint16_t QT1070_GetKey_Signal(Twid * pTwid, uint8_t key);
+extern uint16_t QT1070_GetKey_Reference(Twid * pTwid, uint8_t key);
+extern void QT1070_SetThreshold(Twid * pTwid, uint8_t key, uint8_t threshold);
+extern void QT1070_SetAveAks(Twid * pTwid, uint8_t key, uint8_t Ave,
+			     uint8_t Aks);
+extern void QT1070_SetDetectionIntegrator(Twid * pTwid, uint8_t key,
+					  uint8_t di);
+extern void QT1070_StartCalibrate(Twid * pTwid);
+extern void QT1070_StartReset(Twid * pTwid);
+#endif				// QT1070_H

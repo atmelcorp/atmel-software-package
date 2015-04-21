@@ -38,9 +38,8 @@
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-extern void TSDCom_InterpolateMeasurement(
-        const uint32_t *pData,
-        uint32_t *pPoint);
+extern void TSDCom_InterpolateMeasurement(const uint32_t * pData,
+					  uint32_t * pPoint);
 
 uint8_t TSDCom_Calibrate(void);
 
@@ -49,4 +48,4 @@ uint8_t TSDCom_IsCalibrationOk(void);
 void TSDCom_ReadCalibrateData(void *pBuffer, uint32_t size);
 void TSDCom_RestoreCalibrateData(void *pBuffer, uint32_t size);
 
-#endif /* #ifndef TSD_COM_H */
+#endif				/* #ifndef TSD_COM_H */

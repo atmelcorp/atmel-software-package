@@ -32,9 +32,9 @@
 
 /* ========== Register definition for SMD peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SMD_DRIVE                  (0x0090000CU) /**< \brief (SMD) SMD Drive register */
+#define REG_SMD_DRIVE                  (0x0090000CU) /**< \brief (SMD) SMD Drive register */
 #else
-  #define REG_SMD_DRIVE (*(__IO uint32_t*)0x0090000CU) /**< \brief (SMD) SMD Drive register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SMD_DRIVE (*(__IO uint32_t*)0x0090000CU) /**< \brief (SMD) SMD Drive register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SMD_INSTANCE_ */
+#endif				/* _SAMA5D4_SMD_INSTANCE_ */

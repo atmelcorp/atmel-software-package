@@ -53,7 +53,7 @@
 #define SDIO_R6_ILLEGAL_COMMAND (1ul << 14) /**< Command not legal for the state */
 #define SDIO_R6_ERROR           (1ul << 13) /**< General or unknown error */
 
-#define SDIO_R5_Pos             (8)         /**< R5 starting position */
+#define SDIO_R5_Pos             (8)	    /**< R5 starting position */
 #define SDIO_R5_COM_CRC_ERROR   (1ul << 15)
 #define SDIO_R5_ILLEGAL_COMMAND (1ul << 14)
 #define SDIO_R5_IO_STATE        (3ul << 12) /**< DIS/CMD/TRN/RFU */
@@ -70,7 +70,6 @@
 #define SDIO_R4_NF              (3ul << 28) /**< Number of Functions */
 /**     @}*/
 
-
 /** \addtogroup sdio_fun_def SDIO Functions
  *  Here lists SDIO functions definitions
  *  - \ref SDIO_CIA or \ref SDIO_FN0
@@ -82,15 +81,15 @@
  *  - \ref SDIO_FN6
  *  - \ref SDIO_FN7
  *      @{*/
-#define SDIO_CIA            0   /**< SDIO Function 0 (CIA) */
-#define SDIO_FN0            0   /**< SDIO Function 0 */
-#define SDIO_FN1            1   /**< SDIO Function 1 */
-#define SDIO_FN2            2   /**< SDIO Function 2 */
-#define SDIO_FN3            3   /**< SDIO Function 3 */
-#define SDIO_FN4            4   /**< SDIO Function 4 */
-#define SDIO_FN5            5   /**< SDIO Function 5 */
-#define SDIO_FN6            6   /**< SDIO Function 6 */
-#define SDIO_FN7            7   /**< SDIO Function 7 */
+#define SDIO_CIA            0	/**< SDIO Function 0 (CIA) */
+#define SDIO_FN0            0	/**< SDIO Function 0 */
+#define SDIO_FN1            1	/**< SDIO Function 1 */
+#define SDIO_FN2            2	/**< SDIO Function 2 */
+#define SDIO_FN3            3	/**< SDIO Function 3 */
+#define SDIO_FN4            4	/**< SDIO Function 4 */
+#define SDIO_FN5            5	/**< SDIO Function 5 */
+#define SDIO_FN6            6	/**< SDIO Function 6 */
+#define SDIO_FN7            7	/**< SDIO Function 7 */
 /**     @}*/
 
 /** \addtogroup sdio_cccr_def SDIO Card Common Control Registers (CCCR)
@@ -132,7 +131,7 @@
 #define  SDIO_SD_1_10       (0x1UL << 0)/**< SD 1.10 (Oct 2004) */
 #define  SDIO_SD_2_00       (0x2UL << 0)/**< SD 2.00 (May 2006) */
 #define SDIO_IOE_REG        0x02    /**< I/O Enable (R/W) */
-#define  SDIO_IOE           0xFEUL      /**< Enable/Disable Function */
+#define  SDIO_IOE           0xFEUL	/**< Enable/Disable Function */
 #define  SDIO_IOE_FN1       (0x1UL << 1)/**< Function 1 Enable/Disable */
 #define  SDIO_IOE_FN2       (0x1UL << 2)/**< Function 2 Enable/Disable */
 #define  SDIO_IOE_FN3       (0x1UL << 3)/**< Function 3 Enable/Disable */
@@ -141,7 +140,7 @@
 #define  SDIO_IOE_FN6       (0x1UL << 6)/**< Function 6 Enable/Disable */
 #define  SDIO_IOE_FN7       (0x1UL << 7)/**< Function 7 Enable/Disable */
 #define SDIO_IOR_REG        0x03    /**< I/O Ready (RO) */
-#define  SDIO_IOR           0xFEUL      /**< I/O Function Ready */
+#define  SDIO_IOR           0xFEUL	/**< I/O Function Ready */
 #define  SDIO_IOR_FN1       (0x1UL << 1)/**< Function 1 ready */
 #define  SDIO_IOR_FN2       (0x1UL << 2)/**< Function 2 ready */
 #define  SDIO_IOR_FN3       (0x1UL << 3)/**< Function 3 ready */
@@ -150,8 +149,8 @@
 #define  SDIO_IOR_FN6       (0x1UL << 6)/**< Function 6 ready */
 #define  SDIO_IOR_FN7       (0x1UL << 7)/**< Function 7 ready */
 #define SDIO_IEN_REG        0x04    /**< Int Enable */
-#define  SDIO_IENM          0x01UL      /**< Int Enable Master (R/W) */
-#define  SDIO_IEN           0xFEUL      /**< Int Enable for function (R/W) */
+#define  SDIO_IENM          0x01UL	/**< Int Enable Master (R/W) */
+#define  SDIO_IEN           0xFEUL	/**< Int Enable for function (R/W) */
 #define  SDIO_IEN_FN1       (0x1UL << 1)/**< Function 1 Int Enable */
 #define  SDIO_IEN_FN2       (0x1UL << 2)/**< Function 2 Int Enable */
 #define  SDIO_IEN_FN3       (0x1UL << 3)/**< Function 3 Int Enable */
@@ -212,7 +211,7 @@
 #define  SDIO_FS_MEM        (0x8UL << 0)/**< Select memory in combo card */
 #define SDIO_EXEC_REG       0x0E    /**< Exec Flags (RO) */
 #define  SDIO_EXM           (0x1UL << 0)/**< Executing status of memory */
-#define  SDIO_EX            (0xFEUL)    /**< Executing status of functions */
+#define  SDIO_EX            (0xFEUL)	/**< Executing status of functions */
 #define  SDIO_EX_FN1        (0x1UL << 1)/**< Executing status of function 1 */
 #define  SDIO_EX_FN2        (0x1UL << 2)/**< Executing status of function 2 */
 #define  SDIO_EX_FN3        (0x1UL << 3)/**< Executing status of function 3 */
@@ -222,7 +221,7 @@
 #define  SDIO_EX_FN7        (0x1UL << 7)/**< Executing status of function 7 */
 #define SDIO_READY_REG      0x0F    /**< Ready Flags (RO) */
 #define  SDIO_RFM           (0x1UL << 0)/**< Ready Flag for memory */
-#define  SDIO_RF            (0xFEUL)    /**< Ready Flag for functions */
+#define  SDIO_RF            (0xFEUL)	/**< Ready Flag for functions */
 #define  SDIO_RF_FN1        (0x1UL << 1)/**< Ready Flag for function 1 */
 #define  SDIO_RF_FN2        (0x1UL << 2)/**< Ready Flag for function 2 */
 #define  SDIO_RF_FN3        (0x1UL << 3)/**< Ready Flag for function 3 */
@@ -256,7 +255,7 @@
  *  -# .
  *      @{*/
 #define SDIO_FBR_ADDR(fn, x)    (0x100*(fn) + (x))
-#define SDIO_FBR_CSA_IF         0x0     /**< CSA and function interface code (RO) */
+#define SDIO_FBR_CSA_IF         0x0	/**< CSA and function interface code (RO) */
 #define  SDIO_IFC               (0xFUL << 0)/**< Standard SDIO Fun Interface Code */
 #define  SDIO_IFC_NO_IF         (0x0UL << 0)/**< No SDIO standard interface */
 #define  SDIO_IFC_UART          (0x1UL << 0)/**< UART */
@@ -270,14 +269,14 @@
 #define  SDIO_IFC_EXT           (0xFUL << 0)/**< Check EXT interface code */
 #define  SDIO_SCSA              (0x1UL << 6)/**< Function supports Code Storage Area (CSA) */
 #define  SDIO_FBR_CSA           (0x1UL << 7)/**< Function CSA enable */
-#define SDIO_FBR_EXT_IF         0x1     /**< Extended function interface code (RO) */
-#define SDIO_FBR_PWR            0x2     /**< function power control */
+#define SDIO_FBR_EXT_IF         0x1	/**< Extended function interface code (RO) */
+#define SDIO_FBR_PWR            0x2	/**< function power control */
 #define  SDIO_SPS               (0x1UL << 0)/**< function support power selection (RO) */
 #define  SDIO_EPS               (0x1UL << 1)/**< Low Current Mode/High Current Mode (R/W) */
-#define SDIO_FBR_CIS_PTR        0x9     /**< Address pointer to function CIS (3B, LSB first) (RO) */
-#define SDIO_FBR_CSA_PTR        0xC     /**< Address pointer to CSA (3B, LSB first) (R/W) */
-#define SDIO_FBR_CSA_DATA       0xF     /**< Read/Write fifo to CSA (R/W) */
-#define SDIO_FBR_BLK_SIZ        0x10    /**< Block size (2B, LSB first) (R/W) */
+#define SDIO_FBR_CIS_PTR        0x9	/**< Address pointer to function CIS (3B, LSB first) (RO) */
+#define SDIO_FBR_CSA_PTR        0xC	/**< Address pointer to CSA (3B, LSB first) (R/W) */
+#define SDIO_FBR_CSA_DATA       0xF	/**< Read/Write fifo to CSA (R/W) */
+#define SDIO_FBR_BLK_SIZ        0x10	/**< Block size (2B, LSB first) (R/W) */
 /**     @}*/
 
 /** \addtogroup sdio_meta_def SDIO Card Metaformat
@@ -294,19 +293,18 @@
  *  - \ref CISTPL_SDIO_EXT
  *  - \ref CISTPL_END
  *      @{*/
-#define CISTPL_NULL     0x00    /**< Null tuple (PCMCIA 3.1.9) */
-#define CISTPL_DEVICE   0x01    /**< Device tuple (PCMCIA 3.2.2) */
-#define CISTPL_CHECKSUM 0x10    /**< Checksum control (PCMCIA 3.1.1) */
-#define CISTPL_VERS_1   0x15    /**< Level 1 version (PCMCIA 3.2.10) */
-#define CISTPL_ALTSTR   0x16    /**< Alternate Language String (PCMCIA 3.2.1) */
-#define CISTPL_MANFID   0x20    /**< Manufacturer Identification String (PCMCIA 3.2.9) */
-#define CISTPL_FUNCID   0x21    /**< Function Identification (PCMCIA 3.2.7) */
-#define CISTPL_FUNCE    0x22    /**< Function Extensions (PCMCIA 3.2.6) */
-#define CISTPL_SDIO_STD 0x91    /**< Additional information for SDIO (PCMCIA 6.1.2) */
-#define CISTPL_SDIO_EXT 0x92    /**< Reserved for future SDIO (PCMCIA 6.1.3) */
-#define CISTPL_END      0xFF    /**< The End-of-chain Tuple (PCMCIA 3.1.2) */
+#define CISTPL_NULL     0x00	/**< Null tuple (PCMCIA 3.1.9) */
+#define CISTPL_DEVICE   0x01	/**< Device tuple (PCMCIA 3.2.2) */
+#define CISTPL_CHECKSUM 0x10	/**< Checksum control (PCMCIA 3.1.1) */
+#define CISTPL_VERS_1   0x15	/**< Level 1 version (PCMCIA 3.2.10) */
+#define CISTPL_ALTSTR   0x16	/**< Alternate Language String (PCMCIA 3.2.1) */
+#define CISTPL_MANFID   0x20	/**< Manufacturer Identification String (PCMCIA 3.2.9) */
+#define CISTPL_FUNCID   0x21	/**< Function Identification (PCMCIA 3.2.7) */
+#define CISTPL_FUNCE    0x22	/**< Function Extensions (PCMCIA 3.2.6) */
+#define CISTPL_SDIO_STD 0x91	/**< Additional information for SDIO (PCMCIA 6.1.2) */
+#define CISTPL_SDIO_EXT 0x92	/**< Reserved for future SDIO (PCMCIA 6.1.3) */
+#define CISTPL_END      0xFF	/**< The End-of-chain Tuple (PCMCIA 3.1.2) */
 /**     @}*/
 
 /**@}*/
-#endif /* #define _SDIO_H */
-
+#endif				/* #define _SDIO_H */

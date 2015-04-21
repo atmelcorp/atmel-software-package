@@ -32,33 +32,33 @@
 
 /* ========== Register definition for TWI2 peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_TWI2_CR                    (0xF8024000U) /**< \brief (TWI2) Control Register */
-  #define REG_TWI2_MMR                   (0xF8024004U) /**< \brief (TWI2) Master Mode Register */
-  #define REG_TWI2_SMR                   (0xF8024008U) /**< \brief (TWI2) Slave Mode Register */
-  #define REG_TWI2_IADR                  (0xF802400CU) /**< \brief (TWI2) Internal Address Register */
-  #define REG_TWI2_CWGR                  (0xF8024010U) /**< \brief (TWI2) Clock Waveform Generator Register */
-  #define REG_TWI2_SR                    (0xF8024020U) /**< \brief (TWI2) Status Register */
-  #define REG_TWI2_IER                   (0xF8024024U) /**< \brief (TWI2) Interrupt Enable Register */
-  #define REG_TWI2_IDR                   (0xF8024028U) /**< \brief (TWI2) Interrupt Disable Register */
-  #define REG_TWI2_IMR                   (0xF802402CU) /**< \brief (TWI2) Interrupt Mask Register */
-  #define REG_TWI2_RHR                   (0xF8024030U) /**< \brief (TWI2) Receive Holding Register */
-  #define REG_TWI2_THR                   (0xF8024034U) /**< \brief (TWI2) Transmit Holding Register */
-  #define REG_TWI2_WPMR                  (0xF80240E4U) /**< \brief (TWI2) Write Protection Mode Register */
-  #define REG_TWI2_WPSR                  (0xF80240E8U) /**< \brief (TWI2) Write Protection Status Register */
+#define REG_TWI2_CR                    (0xF8024000U) /**< \brief (TWI2) Control Register */
+#define REG_TWI2_MMR                   (0xF8024004U) /**< \brief (TWI2) Master Mode Register */
+#define REG_TWI2_SMR                   (0xF8024008U) /**< \brief (TWI2) Slave Mode Register */
+#define REG_TWI2_IADR                  (0xF802400CU) /**< \brief (TWI2) Internal Address Register */
+#define REG_TWI2_CWGR                  (0xF8024010U) /**< \brief (TWI2) Clock Waveform Generator Register */
+#define REG_TWI2_SR                    (0xF8024020U) /**< \brief (TWI2) Status Register */
+#define REG_TWI2_IER                   (0xF8024024U) /**< \brief (TWI2) Interrupt Enable Register */
+#define REG_TWI2_IDR                   (0xF8024028U) /**< \brief (TWI2) Interrupt Disable Register */
+#define REG_TWI2_IMR                   (0xF802402CU) /**< \brief (TWI2) Interrupt Mask Register */
+#define REG_TWI2_RHR                   (0xF8024030U) /**< \brief (TWI2) Receive Holding Register */
+#define REG_TWI2_THR                   (0xF8024034U) /**< \brief (TWI2) Transmit Holding Register */
+#define REG_TWI2_WPMR                  (0xF80240E4U) /**< \brief (TWI2) Write Protection Mode Register */
+#define REG_TWI2_WPSR                  (0xF80240E8U) /**< \brief (TWI2) Write Protection Status Register */
 #else
-  #define REG_TWI2_CR   (*(__O  uint32_t*)0xF8024000U) /**< \brief (TWI2) Control Register */
-  #define REG_TWI2_MMR  (*(__IO uint32_t*)0xF8024004U) /**< \brief (TWI2) Master Mode Register */
-  #define REG_TWI2_SMR  (*(__IO uint32_t*)0xF8024008U) /**< \brief (TWI2) Slave Mode Register */
-  #define REG_TWI2_IADR (*(__IO uint32_t*)0xF802400CU) /**< \brief (TWI2) Internal Address Register */
-  #define REG_TWI2_CWGR (*(__IO uint32_t*)0xF8024010U) /**< \brief (TWI2) Clock Waveform Generator Register */
-  #define REG_TWI2_SR   (*(__I  uint32_t*)0xF8024020U) /**< \brief (TWI2) Status Register */
-  #define REG_TWI2_IER  (*(__O  uint32_t*)0xF8024024U) /**< \brief (TWI2) Interrupt Enable Register */
-  #define REG_TWI2_IDR  (*(__O  uint32_t*)0xF8024028U) /**< \brief (TWI2) Interrupt Disable Register */
-  #define REG_TWI2_IMR  (*(__I  uint32_t*)0xF802402CU) /**< \brief (TWI2) Interrupt Mask Register */
-  #define REG_TWI2_RHR  (*(__I  uint32_t*)0xF8024030U) /**< \brief (TWI2) Receive Holding Register */
-  #define REG_TWI2_THR  (*(__O  uint32_t*)0xF8024034U) /**< \brief (TWI2) Transmit Holding Register */
-  #define REG_TWI2_WPMR (*(__IO uint32_t*)0xF80240E4U) /**< \brief (TWI2) Write Protection Mode Register */
-  #define REG_TWI2_WPSR (*(__I  uint32_t*)0xF80240E8U) /**< \brief (TWI2) Write Protection Status Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_TWI2_CR   (*(__O  uint32_t*)0xF8024000U) /**< \brief (TWI2) Control Register */
+#define REG_TWI2_MMR  (*(__IO uint32_t*)0xF8024004U) /**< \brief (TWI2) Master Mode Register */
+#define REG_TWI2_SMR  (*(__IO uint32_t*)0xF8024008U) /**< \brief (TWI2) Slave Mode Register */
+#define REG_TWI2_IADR (*(__IO uint32_t*)0xF802400CU) /**< \brief (TWI2) Internal Address Register */
+#define REG_TWI2_CWGR (*(__IO uint32_t*)0xF8024010U) /**< \brief (TWI2) Clock Waveform Generator Register */
+#define REG_TWI2_SR   (*(__I  uint32_t*)0xF8024020U) /**< \brief (TWI2) Status Register */
+#define REG_TWI2_IER  (*(__O  uint32_t*)0xF8024024U) /**< \brief (TWI2) Interrupt Enable Register */
+#define REG_TWI2_IDR  (*(__O  uint32_t*)0xF8024028U) /**< \brief (TWI2) Interrupt Disable Register */
+#define REG_TWI2_IMR  (*(__I  uint32_t*)0xF802402CU) /**< \brief (TWI2) Interrupt Mask Register */
+#define REG_TWI2_RHR  (*(__I  uint32_t*)0xF8024030U) /**< \brief (TWI2) Receive Holding Register */
+#define REG_TWI2_THR  (*(__O  uint32_t*)0xF8024034U) /**< \brief (TWI2) Transmit Holding Register */
+#define REG_TWI2_WPMR (*(__IO uint32_t*)0xF80240E4U) /**< \brief (TWI2) Write Protection Mode Register */
+#define REG_TWI2_WPSR (*(__I  uint32_t*)0xF80240E8U) /**< \brief (TWI2) Write Protection Status Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_TWI2_INSTANCE_ */
+#endif				/* _SAMA5D4_TWI2_INSTANCE_ */

@@ -76,7 +76,7 @@
 
 /** \addtogroup gmacd_buf_size GMACD Default Buffer Size
         @{*/
-#define GMAC_RX_UNITSIZE            128     /**< Fixed size for RX buffer  */
+#define GMAC_RX_UNITSIZE            128	    /**< Fixed size for RX buffer  */
 #define GMAC_TX_UNITSIZE            1518    /**< Size for ETH frame length */
 /**     @}*/
 
@@ -102,9 +102,9 @@
     @{*/
 
 /** RX callback */
-typedef void (*fGmacdTransferCallback)(uint32_t status);
+typedef void (*fGmacdTransferCallback) (uint32_t status);
 /** Wakeup callback */
-typedef void (*fGmacdWakeupCallback)(void);
+typedef void (*fGmacdWakeupCallback) (void);
 
 /**
  * GMAC scatter-gather entry.
@@ -119,7 +119,7 @@ typedef struct _GmacSG {
  */
 typedef struct _GmacSGList {
 	uint32_t len;
-	sGmacSG  *sg;
+	sGmacSG *sg;
 } sGmacSGList;
 
 /**
@@ -159,7 +159,7 @@ typedef struct _GmacDriver {
 	uint16_t wTxTail;
 
 	/** Number of free TD before wakeup callback is invoked */
-	uint8_t  bWakeupThreshold;
+	uint8_t bWakeupThreshold;
 	/** HW ID */
 	uint8_t bId;
 } sGmacd;
@@ -173,47 +173,43 @@ typedef struct _GmacDriver {
  *         GMAC Exported functions
  *---------------------------------------------------------------------------*/
 
-extern void GMACD_Handler(sGmacd *pGmacd );
+extern void GMACD_Handler(sGmacd * pGmacd);
 
-extern void GMACD_Init(sGmacd *pGmacd,
-                       Gmac *pHw,
-                       uint8_t bID,
-                       uint8_t enableCAF,
-                       uint8_t enableNBC );
+extern void GMACD_Init(sGmacd * pGmacd,
+		       Gmac * pHw,
+		       uint8_t bID, uint8_t enableCAF, uint8_t enableNBC);
 
-extern uint8_t GMACD_InitTransfer( sGmacd *pGmacd,
-                                   uint8_t *pRxBuffer,
-                                   sGmacRxDescriptor *pRxD,
-                                   uint16_t wRxSize,
-                                   uint8_t *pTxBuffer,
-                                   sGmacTxDescriptor *pTxD,
-                                   fGmacdTransferCallback *pTxCb,
-                                   uint16_t wTxSize);
+extern uint8_t GMACD_InitTransfer(sGmacd * pGmacd,
+				  uint8_t * pRxBuffer,
+				  sGmacRxDescriptor * pRxD,
+				  uint16_t wRxSize,
+				  uint8_t * pTxBuffer,
+				  sGmacTxDescriptor * pTxD,
+				  fGmacdTransferCallback * pTxCb,
+				  uint16_t wTxSize);
 
-extern void GMACD_Reset(sGmacd *pGmacd);
+extern void GMACD_Reset(sGmacd * pGmacd);
 
-extern uint8_t GMACD_SendSG(sGmacd *pGmacd,
-                            const sGmacSGList *sgl,
-                            fGmacdTransferCallback fTxCb);
+extern uint8_t GMACD_SendSG(sGmacd * pGmacd,
+			    const sGmacSGList * sgl,
+			    fGmacdTransferCallback fTxCb);
 
-extern uint8_t GMACD_Send(sGmacd *pGmacd,
-                          void *pBuffer,
-                          uint32_t size,
-                          fGmacdTransferCallback fTxCb );
+extern uint8_t GMACD_Send(sGmacd * pGmacd,
+			  void *pBuffer,
+			  uint32_t size, fGmacdTransferCallback fTxCb);
 
-extern  uint32_t GMACD_TxLoad(sGmacd *pGmacd);
+extern uint32_t GMACD_TxLoad(sGmacd * pGmacd);
 
-extern  uint8_t GMACD_Poll(sGmacd * pGmacd,
-                           uint8_t *pFrame,
-                           uint32_t frameSize,
-                           uint32_t *pRcvSize);
+extern uint8_t GMACD_Poll(sGmacd * pGmacd,
+			  uint8_t * pFrame,
+			  uint32_t frameSize, uint32_t * pRcvSize);
 
 extern void GMACD_SetRxCallback(sGmacd * pGmacd, fGmacdTransferCallback fRxCb);
 
 extern uint8_t GMACD_SetTxWakeupCallback(sGmacd * pGmacd,
-                fGmacdWakeupCallback fWakeup,
-                uint8_t bThreshold);
+					 fGmacdWakeupCallback fWakeup,
+					 uint8_t bThreshold);
 
 /** @}*/
 
-#endif // #ifndef _GMACD_H_
+#endif				// #ifndef _GMACD_H_

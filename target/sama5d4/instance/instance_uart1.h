@@ -32,27 +32,27 @@
 
 /* ========== Register definition for UART1 peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_UART1_CR                    (0xFC004000U) /**< \brief (UART1) Control Register */
-  #define REG_UART1_MR                    (0xFC004004U) /**< \brief (UART1) Mode Register */
-  #define REG_UART1_IER                   (0xFC004008U) /**< \brief (UART1) Interrupt Enable Register */
-  #define REG_UART1_IDR                   (0xFC00400CU) /**< \brief (UART1) Interrupt Disable Register */
-  #define REG_UART1_IMR                   (0xFC004010U) /**< \brief (UART1) Interrupt Mask Register */
-  #define REG_UART1_SR                    (0xFC004014U) /**< \brief (UART1) Status Register */
-  #define REG_UART1_RHR                   (0xFC004018U) /**< \brief (UART1) Receive Holding Register */
-  #define REG_UART1_THR                   (0xFC00401CU) /**< \brief (UART1) Transmit Holding Register */
-  #define REG_UART1_BRGR                  (0xFC004020U) /**< \brief (UART1) Baud Rate Generator Register */
-  #define REG_UART1_WPMR                  (0xFC0040E4U) /**< \brief (UART1) Write Protection Mode Register */
+#define REG_UART1_CR                    (0xFC004000U) /**< \brief (UART1) Control Register */
+#define REG_UART1_MR                    (0xFC004004U) /**< \brief (UART1) Mode Register */
+#define REG_UART1_IER                   (0xFC004008U) /**< \brief (UART1) Interrupt Enable Register */
+#define REG_UART1_IDR                   (0xFC00400CU) /**< \brief (UART1) Interrupt Disable Register */
+#define REG_UART1_IMR                   (0xFC004010U) /**< \brief (UART1) Interrupt Mask Register */
+#define REG_UART1_SR                    (0xFC004014U) /**< \brief (UART1) Status Register */
+#define REG_UART1_RHR                   (0xFC004018U) /**< \brief (UART1) Receive Holding Register */
+#define REG_UART1_THR                   (0xFC00401CU) /**< \brief (UART1) Transmit Holding Register */
+#define REG_UART1_BRGR                  (0xFC004020U) /**< \brief (UART1) Baud Rate Generator Register */
+#define REG_UART1_WPMR                  (0xFC0040E4U) /**< \brief (UART1) Write Protection Mode Register */
 #else
-  #define REG_UART1_CR   (*(__O  uint32_t*)0xFC004000U) /**< \brief (UART1) Control Register */
-  #define REG_UART1_MR   (*(__IO uint32_t*)0xFC004004U) /**< \brief (UART1) Mode Register */
-  #define REG_UART1_IER  (*(__O  uint32_t*)0xFC004008U) /**< \brief (UART1) Interrupt Enable Register */
-  #define REG_UART1_IDR  (*(__O  uint32_t*)0xFC00400CU) /**< \brief (UART1) Interrupt Disable Register */
-  #define REG_UART1_IMR  (*(__I  uint32_t*)0xFC004010U) /**< \brief (UART1) Interrupt Mask Register */
-  #define REG_UART1_SR   (*(__I  uint32_t*)0xFC004014U) /**< \brief (UART1) Status Register */
-  #define REG_UART1_RHR  (*(__I  uint32_t*)0xFC004018U) /**< \brief (UART1) Receive Holding Register */
-  #define REG_UART1_THR  (*(__O  uint32_t*)0xFC00401CU) /**< \brief (UART1) Transmit Holding Register */
-  #define REG_UART1_BRGR (*(__IO uint32_t*)0xFC004020U) /**< \brief (UART1) Baud Rate Generator Register */
-  #define REG_UART1_WPMR (*(__IO uint32_t*)0xFC0040E4U) /**< \brief (UART1) Write Protection Mode Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_UART1_CR   (*(__O  uint32_t*)0xFC004000U) /**< \brief (UART1) Control Register */
+#define REG_UART1_MR   (*(__IO uint32_t*)0xFC004004U) /**< \brief (UART1) Mode Register */
+#define REG_UART1_IER  (*(__O  uint32_t*)0xFC004008U) /**< \brief (UART1) Interrupt Enable Register */
+#define REG_UART1_IDR  (*(__O  uint32_t*)0xFC00400CU) /**< \brief (UART1) Interrupt Disable Register */
+#define REG_UART1_IMR  (*(__I  uint32_t*)0xFC004010U) /**< \brief (UART1) Interrupt Mask Register */
+#define REG_UART1_SR   (*(__I  uint32_t*)0xFC004014U) /**< \brief (UART1) Status Register */
+#define REG_UART1_RHR  (*(__I  uint32_t*)0xFC004018U) /**< \brief (UART1) Receive Holding Register */
+#define REG_UART1_THR  (*(__O  uint32_t*)0xFC00401CU) /**< \brief (UART1) Transmit Holding Register */
+#define REG_UART1_BRGR (*(__IO uint32_t*)0xFC004020U) /**< \brief (UART1) Baud Rate Generator Register */
+#define REG_UART1_WPMR (*(__IO uint32_t*)0xFC0040E4U) /**< \brief (UART1) Write Protection Mode Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_UART1_INSTANCE_ */
+#endif				/* _SAMA5D4_UART1_INSTANCE_ */

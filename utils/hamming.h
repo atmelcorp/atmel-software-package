@@ -58,8 +58,10 @@
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-extern void Hamming_Compute256x( const uint8_t* pucData, uint32_t dwSize, uint8_t* pucCode ) ;
+extern void Hamming_Compute256x(const uint8_t * pucData, uint32_t dwSize,
+				uint8_t * pucCode);
 
-extern uint8_t Hamming_Verify256x( uint8_t* pucData, uint32_t dwSize, const uint8_t* pucCode ) ;
+extern uint8_t Hamming_Verify256x(uint8_t * pucData, uint32_t dwSize,
+				  const uint8_t * pucCode);
 
-#endif /* _HAMMING_ */
+#endif				/* _HAMMING_ */

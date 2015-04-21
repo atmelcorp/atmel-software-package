@@ -104,14 +104,12 @@
 #endif
 #endif
 
-
-
 /* ------------------------------------------------------------------------------
  *         Global Macros
  * ------------------------------------------------------------------------------
  */
 
-extern void TRACE_CONFIGURE( uint32_t dwBaudRate, uint32_t dwMCk ) ;
+extern void TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk);
 
 /**
  *  Initializes the DBGU for ISP project
@@ -214,14 +212,12 @@ extern void TRACE_CONFIGURE( uint32_t dwBaudRate, uint32_t dwMCk ) ;
 
 #endif
 
-
 /**
  *        Exported variables
  */
 /** Depending on DYN_TRACES, dwTraceLevel is a modifable runtime variable or a define */
 #if !defined(NOTRACE) && (DYN_TRACES == 1)
-extern uint32_t dwTraceLevel ;
+extern uint32_t dwTraceLevel;
 #endif
 
-#endif //#ifndef TRACE_H
-
+#endif				//#ifndef TRACE_H

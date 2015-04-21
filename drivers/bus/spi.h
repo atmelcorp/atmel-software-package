@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2011, Atmel Corporation
  *
@@ -74,38 +74,39 @@
 /*------------------------------------------------------------------------------ */
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void SPI_Enable( Spi* spi ) ;
-extern void SPI_Disable( Spi* spi ) ;
+	extern void SPI_Enable(Spi * spi);
+	extern void SPI_Disable(Spi * spi);
 
-extern void SPI_EnableIt( Spi* spi, uint32_t dwSources ) ;
-extern void SPI_DisableIt( Spi* spi, uint32_t dwSources ) ;
+	extern void SPI_EnableIt(Spi * spi, uint32_t dwSources);
+	extern void SPI_DisableIt(Spi * spi, uint32_t dwSources);
 
-extern void SPI_Configure( Spi* spi, uint32_t dwId, uint32_t dwConfiguration ) ;
-extern void SPI_SetMode( Spi* spi, uint32_t dwConfiguration );
+	extern void SPI_Configure(Spi * spi, uint32_t dwId,
+				  uint32_t dwConfiguration);
+	extern void SPI_SetMode(Spi * spi, uint32_t dwConfiguration);
 
-extern void SPI_ChipSelect( Spi* spi, uint8_t cS);
-extern void SPI_ReleaseCS( Spi* spi );
+	extern void SPI_ChipSelect(Spi * spi, uint8_t cS);
+	extern void SPI_ReleaseCS(Spi * spi);
 
-extern void SPI_ConfigureNPCS( Spi* spi, uint32_t dwNpcs, uint32_t dwConfiguration ) ;
-extern void SPI_ConfigureCSMode( Spi* spi, uint32_t dwNpcs, uint32_t bReleaseOnLast );
+	extern void SPI_ConfigureNPCS(Spi * spi, uint32_t dwNpcs,
+				      uint32_t dwConfiguration);
+	extern void SPI_ConfigureCSMode(Spi * spi, uint32_t dwNpcs,
+					uint32_t bReleaseOnLast);
 
-extern uint32_t SPI_Read( Spi* spi ) ;
-extern void SPI_Write( Spi* spi, uint32_t dwNpcs, uint16_t wData ) ;
-extern void SPI_WriteLast( Spi* spi, uint32_t dwNpcs, uint16_t wData );
+	extern uint32_t SPI_Read(Spi * spi);
+	extern void SPI_Write(Spi * spi, uint32_t dwNpcs, uint16_t wData);
+	extern void SPI_WriteLast(Spi * spi, uint32_t dwNpcs, uint16_t wData);
 
-extern uint32_t SPI_GetStatus( Spi* spi ) ;
-extern uint32_t SPI_IsFinished( Spi* pSpi ) ;
+	extern uint32_t SPI_GetStatus(Spi * spi);
+	extern uint32_t SPI_IsFinished(Spi * pSpi);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* #ifndef _SPI_ */
-
+#endif				/* #ifndef _SPI_ */

@@ -39,7 +39,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void MMU_Initialize(uint32_t *pTB);
+extern void MMU_Initialize(uint32_t * pTB);
 
-#endif /* #ifndef _MMU_ */
-
+#endif				/* #ifndef _MMU_ */

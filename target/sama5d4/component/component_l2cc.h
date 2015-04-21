@@ -39,60 +39,60 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief L2cc hardware registers */
 typedef struct {
-  __I  uint32_t L2CC_IDR;        /**< \brief (L2cc Offset: 0x000) Cache ID Register */
-  __I  uint32_t L2CC_TYPR;       /**< \brief (L2cc Offset: 0x004) Cache Type Register */
-  __I  uint32_t Reserved1[62];
-  __IO uint32_t L2CC_CR;         /**< \brief (L2cc Offset: 0x100) Control Register */
-  __IO uint32_t L2CC_ACR;        /**< \brief (L2cc Offset: 0x104) Auxiliary Control Register */
-  __IO uint32_t L2CC_TRCR;       /**< \brief (L2cc Offset: 0x108) Tag RAM Control Register */
-  __IO uint32_t L2CC_DRCR;       /**< \brief (L2cc Offset: 0x10C) Data RAM Control Register */
-  __I  uint32_t Reserved2[60];
-  __IO uint32_t L2CC_ECR;        /**< \brief (L2cc Offset: 0x200) Event Counter Control Register */
-  __IO uint32_t L2CC_ECFGR1;     /**< \brief (L2cc Offset: 0x204) Event Counter 1 Configuration Register */
-  __IO uint32_t L2CC_ECFGR0;     /**< \brief (L2cc Offset: 0x208) Event Counter 0 Configuration Register */
-  __IO uint32_t L2CC_EVR1;       /**< \brief (L2cc Offset: 0x20C) Event Counter 1 Value Register */
-  __IO uint32_t L2CC_EVR0;       /**< \brief (L2cc Offset: 0x210) Event Counter 0 Value Register */
-  __IO uint32_t L2CC_IMR;        /**< \brief (L2cc Offset: 0x214) Interrupt Mask Register */
-  __I  uint32_t L2CC_MISR;       /**< \brief (L2cc Offset: 0x218) Masked Interrupt Status Register */
-  __I  uint32_t L2CC_RISR;       /**< \brief (L2cc Offset: 0x21C) Raw Interrupt Status Register */
-  __IO uint32_t L2CC_ICR;        /**< \brief (L2cc Offset: 0x220) Interrupt Clear Register */
-  __I  uint32_t Reserved3[323];
-  __IO uint32_t L2CC_CSR;        /**< \brief (L2cc Offset: 0x730) Cache Synchronization Register */
-  __I  uint32_t Reserved4[15];
-  __IO uint32_t L2CC_IPALR;      /**< \brief (L2cc Offset: 0x770) Invalidate Physical Address Line Register */
-  __I  uint32_t Reserved5[2];
-  __IO uint32_t L2CC_IWR;        /**< \brief (L2cc Offset: 0x77C) Invalidate Way Register */
-  __I  uint32_t Reserved6[12];
-  __IO uint32_t L2CC_CPALR;      /**< \brief (L2cc Offset: 0x7B0) Clean Physical Address Line Register */
-  __I  uint32_t Reserved7[1];
-  __IO uint32_t L2CC_CIR;        /**< \brief (L2cc Offset: 0x7B8) Clean Index Register */
-  __IO uint32_t L2CC_CWR;        /**< \brief (L2cc Offset: 0x7BC) Clean Way Register */
-  __I  uint32_t Reserved8[12];
-  __IO uint32_t L2CC_CIPALR;     /**< \brief (L2cc Offset: 0x7F0) Clean Invalidate Physical Address Line Register */
-  __I  uint32_t Reserved9[1];
-  __IO uint32_t L2CC_CIIR;       /**< \brief (L2cc Offset: 0x7F8) Clean Invalidate Index Register */
-  __IO uint32_t L2CC_CIWR;       /**< \brief (L2cc Offset: 0x7FC) Clean Invalidate Way Register */
-  __I  uint32_t Reserved10[64];
-  __IO uint32_t L2CC_DLKR;       /**< \brief (L2cc Offset: 0x900) Data Lockdown Register */
-  __IO uint32_t L2CC_ILKR;       /**< \brief (L2cc Offset: 0x904) Instruction Lockdown Register */
-  __I  uint32_t Reserved11[398];
-  __IO uint32_t L2CC_DCR;        /**< \brief (L2cc Offset: 0xF40) Debug Control Register */
-  __I  uint32_t Reserved12[7];
-  __IO uint32_t L2CC_PCR;        /**< \brief (L2cc Offset: 0xF60) Prefetch Control Register */
-  __I  uint32_t Reserved13[7];
-  __IO uint32_t L2CC_POWCR;      /**< \brief (L2cc Offset: 0xF80) Power Control Register */
+	__I uint32_t L2CC_IDR;	       /**< \brief (L2cc Offset: 0x000) Cache ID Register */
+	__I uint32_t L2CC_TYPR;	       /**< \brief (L2cc Offset: 0x004) Cache Type Register */
+	__I uint32_t Reserved1[62];
+	__IO uint32_t L2CC_CR;	       /**< \brief (L2cc Offset: 0x100) Control Register */
+	__IO uint32_t L2CC_ACR;	       /**< \brief (L2cc Offset: 0x104) Auxiliary Control Register */
+	__IO uint32_t L2CC_TRCR;       /**< \brief (L2cc Offset: 0x108) Tag RAM Control Register */
+	__IO uint32_t L2CC_DRCR;       /**< \brief (L2cc Offset: 0x10C) Data RAM Control Register */
+	__I uint32_t Reserved2[60];
+	__IO uint32_t L2CC_ECR;	       /**< \brief (L2cc Offset: 0x200) Event Counter Control Register */
+	__IO uint32_t L2CC_ECFGR1;     /**< \brief (L2cc Offset: 0x204) Event Counter 1 Configuration Register */
+	__IO uint32_t L2CC_ECFGR0;     /**< \brief (L2cc Offset: 0x208) Event Counter 0 Configuration Register */
+	__IO uint32_t L2CC_EVR1;       /**< \brief (L2cc Offset: 0x20C) Event Counter 1 Value Register */
+	__IO uint32_t L2CC_EVR0;       /**< \brief (L2cc Offset: 0x210) Event Counter 0 Value Register */
+	__IO uint32_t L2CC_IMR;	       /**< \brief (L2cc Offset: 0x214) Interrupt Mask Register */
+	__I uint32_t L2CC_MISR;	       /**< \brief (L2cc Offset: 0x218) Masked Interrupt Status Register */
+	__I uint32_t L2CC_RISR;	       /**< \brief (L2cc Offset: 0x21C) Raw Interrupt Status Register */
+	__IO uint32_t L2CC_ICR;	       /**< \brief (L2cc Offset: 0x220) Interrupt Clear Register */
+	__I uint32_t Reserved3[323];
+	__IO uint32_t L2CC_CSR;	       /**< \brief (L2cc Offset: 0x730) Cache Synchronization Register */
+	__I uint32_t Reserved4[15];
+	__IO uint32_t L2CC_IPALR;      /**< \brief (L2cc Offset: 0x770) Invalidate Physical Address Line Register */
+	__I uint32_t Reserved5[2];
+	__IO uint32_t L2CC_IWR;	       /**< \brief (L2cc Offset: 0x77C) Invalidate Way Register */
+	__I uint32_t Reserved6[12];
+	__IO uint32_t L2CC_CPALR;      /**< \brief (L2cc Offset: 0x7B0) Clean Physical Address Line Register */
+	__I uint32_t Reserved7[1];
+	__IO uint32_t L2CC_CIR;	       /**< \brief (L2cc Offset: 0x7B8) Clean Index Register */
+	__IO uint32_t L2CC_CWR;	       /**< \brief (L2cc Offset: 0x7BC) Clean Way Register */
+	__I uint32_t Reserved8[12];
+	__IO uint32_t L2CC_CIPALR;     /**< \brief (L2cc Offset: 0x7F0) Clean Invalidate Physical Address Line Register */
+	__I uint32_t Reserved9[1];
+	__IO uint32_t L2CC_CIIR;       /**< \brief (L2cc Offset: 0x7F8) Clean Invalidate Index Register */
+	__IO uint32_t L2CC_CIWR;       /**< \brief (L2cc Offset: 0x7FC) Clean Invalidate Way Register */
+	__I uint32_t Reserved10[64];
+	__IO uint32_t L2CC_DLKR;       /**< \brief (L2cc Offset: 0x900) Data Lockdown Register */
+	__IO uint32_t L2CC_ILKR;       /**< \brief (L2cc Offset: 0x904) Instruction Lockdown Register */
+	__I uint32_t Reserved11[398];
+	__IO uint32_t L2CC_DCR;	       /**< \brief (L2cc Offset: 0xF40) Debug Control Register */
+	__I uint32_t Reserved12[7];
+	__IO uint32_t L2CC_PCR;	       /**< \brief (L2cc Offset: 0xF60) Prefetch Control Register */
+	__I uint32_t Reserved13[7];
+	__IO uint32_t L2CC_POWCR;      /**< \brief (L2cc Offset: 0xF80) Power Control Register */
 } L2cc;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- L2CC_IDR : (L2CC Offset: 0x000) Cache ID Register -------- */
 #define L2CC_IDR_ID_Pos 0
 #define L2CC_IDR_ID_Msk (0xffffffffu << L2CC_IDR_ID_Pos) /**< \brief (L2CC_IDR) Cache Controller ID */
 /* -------- L2CC_TYPR : (L2CC Offset: 0x004) Cache Type Register -------- */
 #define L2CC_TYPR_IL2ASS (0x1u << 6) /**< \brief (L2CC_TYPR) Instruction L2 Cache Associativity */
 #define L2CC_TYPR_IL2WSIZE_Pos 8
-#define L2CC_TYPR_IL2WSIZE_Msk (0x7u << L2CC_TYPR_IL2WSIZE_Pos) /**< \brief (L2CC_TYPR) Instruction L2 Cache Way Size */
+#define L2CC_TYPR_IL2WSIZE_Msk (0x7u << L2CC_TYPR_IL2WSIZE_Pos)	/**< \brief (L2CC_TYPR) Instruction L2 Cache Way Size */
 #define L2CC_TYPR_DL2ASS (0x1u << 18) /**< \brief (L2CC_TYPR) Data L2 Cache Associativity */
 #define L2CC_TYPR_DL2WSIZE_Pos 20
-#define L2CC_TYPR_DL2WSIZE_Msk (0x7u << L2CC_TYPR_DL2WSIZE_Pos) /**< \brief (L2CC_TYPR) Data L2 Cache Way Size */
+#define L2CC_TYPR_DL2WSIZE_Msk (0x7u << L2CC_TYPR_DL2WSIZE_Pos)	/**< \brief (L2CC_TYPR) Data L2 Cache Way Size */
 /* -------- L2CC_CR : (L2CC Offset: 0x100) Control Register -------- */
 #define L2CC_CR_L2CEN (0x1u << 0) /**< \brief (L2CC_CR) L2 Cache Enable */
 /* -------- L2CC_ACR : (L2CC Offset: 0x104) Auxiliary Control Register -------- */
@@ -144,7 +144,7 @@ typedef struct {
 #define L2CC_ECFGR1_EIGEN_Pos 0
 #define L2CC_ECFGR1_EIGEN_Msk (0x3u << L2CC_ECFGR1_EIGEN_Pos) /**< \brief (L2CC_ECFGR1) Event Counter Interrupt Generation */
 #define L2CC_ECFGR1_EIGEN(value) ((L2CC_ECFGR1_EIGEN_Msk & ((value) << L2CC_ECFGR1_EIGEN_Pos)))
-#define   L2CC_ECFGR1_EIGEN_INT_DIS (0x0u << 0) /**< \brief (L2CC_ECFGR1) Disables (default) */
+#define   L2CC_ECFGR1_EIGEN_INT_DIS (0x0u << 0)	/**< \brief (L2CC_ECFGR1) Disables (default) */
 #define   L2CC_ECFGR1_EIGEN_INT_EN_INCR (0x1u << 0) /**< \brief (L2CC_ECFGR1) Enables with Increment condition */
 #define   L2CC_ECFGR1_EIGEN_INT_EN_OVER (0x2u << 0) /**< \brief (L2CC_ECFGR1) Enables with Overflow condition */
 #define   L2CC_ECFGR1_EIGEN_INT_GEN_DIS (0x3u << 0) /**< \brief (L2CC_ECFGR1) Disables Interrupt generation */
@@ -171,7 +171,7 @@ typedef struct {
 #define L2CC_ECFGR0_EIGEN_Pos 0
 #define L2CC_ECFGR0_EIGEN_Msk (0x3u << L2CC_ECFGR0_EIGEN_Pos) /**< \brief (L2CC_ECFGR0) Event Counter Interrupt Generation */
 #define L2CC_ECFGR0_EIGEN(value) ((L2CC_ECFGR0_EIGEN_Msk & ((value) << L2CC_ECFGR0_EIGEN_Pos)))
-#define   L2CC_ECFGR0_EIGEN_INT_DIS (0x0u << 0) /**< \brief (L2CC_ECFGR0) Disables (default) */
+#define   L2CC_ECFGR0_EIGEN_INT_DIS (0x0u << 0)	/**< \brief (L2CC_ECFGR0) Disables (default) */
 #define   L2CC_ECFGR0_EIGEN_INT_EN_INCR (0x1u << 0) /**< \brief (L2CC_ECFGR0) Enables with Increment condition */
 #define   L2CC_ECFGR0_EIGEN_INT_EN_OVER (0x2u << 0) /**< \brief (L2CC_ECFGR0) Enables with Overflow condition */
 #define   L2CC_ECFGR0_EIGEN_INT_GEN_DIS (0x3u << 0) /**< \brief (L2CC_ECFGR0) Disables Interrupt generation */
@@ -295,9 +295,9 @@ typedef struct {
 #define L2CC_CIPALR_TAG_Msk (0x3ffffu << L2CC_CIPALR_TAG_Pos) /**< \brief (L2CC_CIPALR) Tag Number */
 #define L2CC_CIPALR_TAG(value) ((L2CC_CIPALR_TAG_Msk & ((value) << L2CC_CIPALR_TAG_Pos)))
 /* -------- L2CC_CIIR : (L2CC Offset: 0x7F8) Clean Invalidate Index Register -------- */
-#define L2CC_CIIR_C (0x1u << 0) /**< \brief (L2CC_CIIR) Cache Synchronization Status */
+#define L2CC_CIIR_C (0x1u << 0)	/**< \brief (L2CC_CIIR) Cache Synchronization Status */
 #define L2CC_CIIR_IDX_Pos 5
-#define L2CC_CIIR_IDX_Msk (0x1ffu << L2CC_CIIR_IDX_Pos) /**< \brief (L2CC_CIIR) Index Number */
+#define L2CC_CIIR_IDX_Msk (0x1ffu << L2CC_CIIR_IDX_Pos)	/**< \brief (L2CC_CIIR) Index Number */
 #define L2CC_CIIR_IDX(value) ((L2CC_CIIR_IDX_Msk & ((value) << L2CC_CIIR_IDX_Pos)))
 #define L2CC_CIIR_WAY_Pos 28
 #define L2CC_CIIR_WAY_Msk (0x7u << L2CC_CIIR_WAY_Pos) /**< \brief (L2CC_CIIR) Way Number */
@@ -346,9 +346,8 @@ typedef struct {
 #define L2CC_PCR_DLEN (0x1u << 30) /**< \brief (L2CC_PCR) Double Linefill Enable */
 /* -------- L2CC_POWCR : (L2CC Offset: 0xF80) Power Control Register -------- */
 #define L2CC_POWCR_STBYEN (0x1u << 0) /**< \brief (L2CC_POWCR) Standby Mode Enable */
-#define L2CC_POWCR_DCKGATEN (0x1u << 1) /**< \brief (L2CC_POWCR) Dynamic Clock Gating Enable */
+#define L2CC_POWCR_DCKGATEN (0x1u << 1)	/**< \brief (L2CC_POWCR) Dynamic Clock Gating Enable */
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_L2CC_COMPONENT_ */
+#endif				/* _SAMA5D4_L2CC_COMPONENT_ */

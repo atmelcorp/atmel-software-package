@@ -39,156 +39,156 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Lcdc hardware registers */
 typedef struct {
-  __IO uint32_t LCDC_LCDCFG0;       /**< \brief (Lcdc Offset: 0x00000000) LCD Controller Configuration Register 0 */
-  __IO uint32_t LCDC_LCDCFG1;       /**< \brief (Lcdc Offset: 0x00000004) LCD Controller Configuration Register 1 */
-  __IO uint32_t LCDC_LCDCFG2;       /**< \brief (Lcdc Offset: 0x00000008) LCD Controller Configuration Register 2 */
-  __IO uint32_t LCDC_LCDCFG3;       /**< \brief (Lcdc Offset: 0x0000000C) LCD Controller Configuration Register 3 */
-  __IO uint32_t LCDC_LCDCFG4;       /**< \brief (Lcdc Offset: 0x00000010) LCD Controller Configuration Register 4 */
-  __IO uint32_t LCDC_LCDCFG5;       /**< \brief (Lcdc Offset: 0x00000014) LCD Controller Configuration Register 5 */
-  __IO uint32_t LCDC_LCDCFG6;       /**< \brief (Lcdc Offset: 0x00000018) LCD Controller Configuration Register 6 */
-  __I  uint32_t Reserved1[1];
-  __O  uint32_t LCDC_LCDEN;         /**< \brief (Lcdc Offset: 0x00000020) LCD Controller Enable Register */
-  __O  uint32_t LCDC_LCDDIS;        /**< \brief (Lcdc Offset: 0x00000024) LCD Controller Disable Register */
-  __I  uint32_t LCDC_LCDSR;         /**< \brief (Lcdc Offset: 0x00000028) LCD Controller Status Register */
-  __O  uint32_t LCDC_LCDIER;        /**< \brief (Lcdc Offset: 0x0000002C) LCD Controller Interrupt Enable Register */
-  __O  uint32_t LCDC_LCDIDR;        /**< \brief (Lcdc Offset: 0x00000030) LCD Controller Interrupt Disable Register */
-  __I  uint32_t LCDC_LCDIMR;        /**< \brief (Lcdc Offset: 0x00000034) LCD Controller Interrupt Mask Register */
-  __I  uint32_t LCDC_LCDISR;        /**< \brief (Lcdc Offset: 0x00000038) LCD Controller Interrupt Status Register */
-  __O  uint32_t LCDC_ATTR;          /**< \brief (Lcdc Offset: 0x0000003C) LCD Controller Attribute Register */
-  __O  uint32_t LCDC_BASECHER;      /**< \brief (Lcdc Offset: 0x00000040) Base Layer Channel Enable Register */
-  __O  uint32_t LCDC_BASECHDR;      /**< \brief (Lcdc Offset: 0x00000044) Base Layer Channel Disable Register */
-  __I  uint32_t LCDC_BASECHSR;      /**< \brief (Lcdc Offset: 0x00000048) Base Layer Channel Status Register */
-  __O  uint32_t LCDC_BASEIER;       /**< \brief (Lcdc Offset: 0x0000004C) Base Layer Interrupt Enable Register */
-  __O  uint32_t LCDC_BASEIDR;       /**< \brief (Lcdc Offset: 0x00000050) Base Layer Interrupt Disabled Register */
-  __I  uint32_t LCDC_BASEIMR;       /**< \brief (Lcdc Offset: 0x00000054) Base Layer Interrupt Mask Register */
-  __I  uint32_t LCDC_BASEISR;       /**< \brief (Lcdc Offset: 0x00000058) Base Layer Interrupt Status Register */
-  __IO uint32_t LCDC_BASEHEAD;      /**< \brief (Lcdc Offset: 0x0000005C) Base DMA Head Register */
-  __IO uint32_t LCDC_BASEADDR;      /**< \brief (Lcdc Offset: 0x00000060) Base DMA Address Register */
-  __IO uint32_t LCDC_BASECTRL;      /**< \brief (Lcdc Offset: 0x00000064) Base DMA Control Register */
-  __IO uint32_t LCDC_BASENEXT;      /**< \brief (Lcdc Offset: 0x00000068) Base DMA Next Register */
-  __IO uint32_t LCDC_BASECFG0;      /**< \brief (Lcdc Offset: 0x0000006C) Base Layer Configuration Register 0 */
-  __IO uint32_t LCDC_BASECFG1;      /**< \brief (Lcdc Offset: 0x00000070) Base Layer Configuration Register 1 */
-  __IO uint32_t LCDC_BASECFG2;      /**< \brief (Lcdc Offset: 0x00000074) Base Layer Configuration Register 2 */
-  __IO uint32_t LCDC_BASECFG3;      /**< \brief (Lcdc Offset: 0x00000078) Base Layer Configuration Register 3 */
-  __IO uint32_t LCDC_BASECFG4;      /**< \brief (Lcdc Offset: 0x0000007C) Base Layer Configuration Register 4 */
-  __IO uint32_t LCDC_BASECFG5;      /**< \brief (Lcdc Offset: 0x00000080) Base Layer Configuration Register 5 */
-  __IO uint32_t LCDC_BASECFG6;      /**< \brief (Lcdc Offset: 0x00000084) Base Layer Configuration Register 6 */
-  __I  uint32_t Reserved2[46];
-  __O  uint32_t LCDC_OVR1CHER;      /**< \brief (Lcdc Offset: 0x00000140) Overlay 1 Channel Enable Register */
-  __O  uint32_t LCDC_OVR1CHDR;      /**< \brief (Lcdc Offset: 0x00000144) Overlay 1 Channel Disable Register */
-  __I  uint32_t LCDC_OVR1CHSR;      /**< \brief (Lcdc Offset: 0x00000148) Overlay 1 Channel Status Register */
-  __O  uint32_t LCDC_OVR1IER;       /**< \brief (Lcdc Offset: 0x0000014C) Overlay 1 Interrupt Enable Register */
-  __O  uint32_t LCDC_OVR1IDR;       /**< \brief (Lcdc Offset: 0x00000150) Overlay 1 Interrupt Disable Register */
-  __I  uint32_t LCDC_OVR1IMR;       /**< \brief (Lcdc Offset: 0x00000154) Overlay 1 Interrupt Mask Register */
-  __I  uint32_t LCDC_OVR1ISR;       /**< \brief (Lcdc Offset: 0x00000158) Overlay 1 Interrupt Status Register */
-  __IO uint32_t LCDC_OVR1HEAD;      /**< \brief (Lcdc Offset: 0x0000015C) Overlay 1 DMA Head Register */
-  __IO uint32_t LCDC_OVR1ADDR;      /**< \brief (Lcdc Offset: 0x00000160) Overlay 1 DMA Address Register */
-  __IO uint32_t LCDC_OVR1CTRL;      /**< \brief (Lcdc Offset: 0x00000164) Overlay 1 DMA Control Register */
-  __IO uint32_t LCDC_OVR1NEXT;      /**< \brief (Lcdc Offset: 0x00000168) Overlay 1 DMA Next Register */
-  __IO uint32_t LCDC_OVR1CFG0;      /**< \brief (Lcdc Offset: 0x0000016C) Overlay 1 Configuration Register 0 */
-  __IO uint32_t LCDC_OVR1CFG1;      /**< \brief (Lcdc Offset: 0x00000170) Overlay 1 Configuration Register 1 */
-  __IO uint32_t LCDC_OVR1CFG2;      /**< \brief (Lcdc Offset: 0x00000174) Overlay 1 Configuration Register 2 */
-  __IO uint32_t LCDC_OVR1CFG3;      /**< \brief (Lcdc Offset: 0x00000178) Overlay 1 Configuration Register 3 */
-  __IO uint32_t LCDC_OVR1CFG4;      /**< \brief (Lcdc Offset: 0x0000017C) Overlay 1 Configuration Register 4 */
-  __IO uint32_t LCDC_OVR1CFG5;      /**< \brief (Lcdc Offset: 0x00000180) Overlay 1 Configuration Register 5 */
-  __IO uint32_t LCDC_OVR1CFG6;      /**< \brief (Lcdc Offset: 0x00000184) Overlay 1 Configuration Register 6 */
-  __IO uint32_t LCDC_OVR1CFG7;      /**< \brief (Lcdc Offset: 0x00000188) Overlay 1 Configuration Register 7 */
-  __IO uint32_t LCDC_OVR1CFG8;      /**< \brief (Lcdc Offset: 0x0000018C) Overlay 1 Configuration Register 8 */
-  __IO uint32_t LCDC_OVR1CFG9;      /**< \brief (Lcdc Offset: 0x00000190) Overlay 1 Configuration Register 9 */
-  __I  uint32_t Reserved3[43];
-  __O  uint32_t LCDC_OVR2CHER;      /**< \brief (Lcdc Offset: 0x00000240) Overlay 2 Channel Enable Register */
-  __O  uint32_t LCDC_OVR2CHDR;      /**< \brief (Lcdc Offset: 0x00000244) Overlay 2 Channel Disable Register */
-  __I  uint32_t LCDC_OVR2CHSR;      /**< \brief (Lcdc Offset: 0x00000248) Overlay 2 Channel Status Register */
-  __O  uint32_t LCDC_OVR2IER;       /**< \brief (Lcdc Offset: 0x0000024C) Overlay 2 Interrupt Enable Register */
-  __O  uint32_t LCDC_OVR2IDR;       /**< \brief (Lcdc Offset: 0x00000250) Overlay 2 Interrupt Disable Register */
-  __I  uint32_t LCDC_OVR2IMR;       /**< \brief (Lcdc Offset: 0x00000254) Overlay 2 Interrupt Mask Register */
-  __I  uint32_t LCDC_OVR2ISR;       /**< \brief (Lcdc Offset: 0x00000258) Overlay 2 Interrupt Status Register */
-  __IO uint32_t LCDC_OVR2HEAD;      /**< \brief (Lcdc Offset: 0x0000025C) Overlay 2 DMA Head Register */
-  __IO uint32_t LCDC_OVR2ADDR;      /**< \brief (Lcdc Offset: 0x00000260) Overlay 2 DMA Address Register */
-  __IO uint32_t LCDC_OVR2CTRL;      /**< \brief (Lcdc Offset: 0x00000264) Overlay 2 DMA Control Register */
-  __IO uint32_t LCDC_OVR2NEXT;      /**< \brief (Lcdc Offset: 0x00000268) Overlay 2 DMA Next Register */
-  __IO uint32_t LCDC_OVR2CFG0;      /**< \brief (Lcdc Offset: 0x0000026C) Overlay 2 Configuration Register 0 */
-  __IO uint32_t LCDC_OVR2CFG1;      /**< \brief (Lcdc Offset: 0x00000270) Overlay 2 Configuration Register 1 */
-  __IO uint32_t LCDC_OVR2CFG2;      /**< \brief (Lcdc Offset: 0x00000274) Overlay 2 Configuration Register 2 */
-  __IO uint32_t LCDC_OVR2CFG3;      /**< \brief (Lcdc Offset: 0x00000278) Overlay 2 Configuration Register 3 */
-  __IO uint32_t LCDC_OVR2CFG4;      /**< \brief (Lcdc Offset: 0x0000027C) Overlay 2 Configuration Register 4 */
-  __IO uint32_t LCDC_OVR2CFG5;      /**< \brief (Lcdc Offset: 0x00000280) Overlay 2 Configuration Register 5 */
-  __IO uint32_t LCDC_OVR2CFG6;      /**< \brief (Lcdc Offset: 0x00000284) Overlay 2 Configuration Register 6 */
-  __IO uint32_t LCDC_OVR2CFG7;      /**< \brief (Lcdc Offset: 0x00000288) Overlay 2 Configuration Register 7 */
-  __IO uint32_t LCDC_OVR2CFG8;      /**< \brief (Lcdc Offset: 0x0000028C) Overlay 2 Configuration Register 8 */
-  __IO uint32_t LCDC_OVR2CFG9;      /**< \brief (Lcdc Offset: 0x00000290) Overlay 2 Configuration Register 8 */
-  __I  uint32_t Reserved4[43];
-  __O  uint32_t LCDC_HEOCHER;       /**< \brief (Lcdc Offset: 0x00000340) High End Overlay Channel Enable Register */
-  __O  uint32_t LCDC_HEOCHDR;       /**< \brief (Lcdc Offset: 0x00000344) High End Overlay Channel Disable Register */
-  __I  uint32_t LCDC_HEOCHSR;       /**< \brief (Lcdc Offset: 0x00000348) High End Overlay Channel Status Register */
-  __O  uint32_t LCDC_HEOIER;        /**< \brief (Lcdc Offset: 0x0000034C) High End Overlay Interrupt Enable Register */
-  __O  uint32_t LCDC_HEOIDR;        /**< \brief (Lcdc Offset: 0x00000350) High End Overlay Interrupt Disable Register */
-  __I  uint32_t LCDC_HEOIMR;        /**< \brief (Lcdc Offset: 0x00000354) High End Overlay Interrupt Mask Register */
-  __I  uint32_t LCDC_HEOISR;        /**< \brief (Lcdc Offset: 0x00000358) High End Overlay Interrupt Status Register */
-  __IO uint32_t LCDC_HEOHEAD;       /**< \brief (Lcdc Offset: 0x0000035C) High End Overlay DMA Head Register */
-  __IO uint32_t LCDC_HEOADDR;       /**< \brief (Lcdc Offset: 0x00000360) High End Overlay DMA Address Register */
-  __IO uint32_t LCDC_HEOCTRL;       /**< \brief (Lcdc Offset: 0x00000364) High End Overlay DMA Control Register */
-  __IO uint32_t LCDC_HEONEXT;       /**< \brief (Lcdc Offset: 0x00000368) High End Overlay DMA Next Register */
-  __IO uint32_t LCDC_HEOUHEAD;      /**< \brief (Lcdc Offset: 0x0000036C) High End Overlay U-UV DMA Head Register */
-  __IO uint32_t LCDC_HEOUADDR;      /**< \brief (Lcdc Offset: 0x00000370) High End Overlay U-UV DMA Address Register */
-  __IO uint32_t LCDC_HEOUCTRL;      /**< \brief (Lcdc Offset: 0x00000374) High End Overlay U-UV DMA Control Register */
-  __IO uint32_t LCDC_HEOUNEXT;      /**< \brief (Lcdc Offset: 0x00000378) High End Overlay U-UV DMA Next Register */
-  __IO uint32_t LCDC_HEOVHEAD;      /**< \brief (Lcdc Offset: 0x0000037C) High End Overlay V DMA Head Register */
-  __IO uint32_t LCDC_HEOVADDR;      /**< \brief (Lcdc Offset: 0x00000380) High End Overlay V DMA Address Register */
-  __IO uint32_t LCDC_HEOVCTRL;      /**< \brief (Lcdc Offset: 0x00000384) High End Overlay V DMA Control Register */
-  __IO uint32_t LCDC_HEOVNEXT;      /**< \brief (Lcdc Offset: 0x00000388) High End Overlay V DMA Next Register */
-  __IO uint32_t LCDC_HEOCFG0;       /**< \brief (Lcdc Offset: 0x0000038C) High End Overlay Configuration Register 0 */
-  __IO uint32_t LCDC_HEOCFG1;       /**< \brief (Lcdc Offset: 0x00000390) High End Overlay Configuration Register 1 */
-  __IO uint32_t LCDC_HEOCFG2;       /**< \brief (Lcdc Offset: 0x00000394) High End Overlay Configuration Register 2 */
-  __IO uint32_t LCDC_HEOCFG3;       /**< \brief (Lcdc Offset: 0x00000398) High End Overlay Configuration Register 3 */
-  __IO uint32_t LCDC_HEOCFG4;       /**< \brief (Lcdc Offset: 0x0000039C) High End Overlay Configuration Register 4 */
-  __IO uint32_t LCDC_HEOCFG5;       /**< \brief (Lcdc Offset: 0x000003A0) High End Overlay Configuration Register 5 */
-  __IO uint32_t LCDC_HEOCFG6;       /**< \brief (Lcdc Offset: 0x000003A4) High End Overlay Configuration Register 6 */
-  __IO uint32_t LCDC_HEOCFG7;       /**< \brief (Lcdc Offset: 0x000003A8) High End Overlay Configuration Register 7 */
-  __IO uint32_t LCDC_HEOCFG8;       /**< \brief (Lcdc Offset: 0x000003AC) High End Overlay Configuration Register 8 */
-  __IO uint32_t LCDC_HEOCFG9;       /**< \brief (Lcdc Offset: 0x000003B0) High End Overlay Configuration Register 9 */
-  __IO uint32_t LCDC_HEOCFG10;      /**< \brief (Lcdc Offset: 0x000003B4) High End Overlay Configuration Register 10 */
-  __IO uint32_t LCDC_HEOCFG11;      /**< \brief (Lcdc Offset: 0x000003B8) High End Overlay Configuration Register 11 */
-  __IO uint32_t LCDC_HEOCFG12;      /**< \brief (Lcdc Offset: 0x000003BC) High End Overlay Configuration Register 12 */
-  __IO uint32_t LCDC_HEOCFG13;      /**< \brief (Lcdc Offset: 0x000003C0) High End Overlay Configuration Register 13 */
-  __IO uint32_t LCDC_HEOCFG14;      /**< \brief (Lcdc Offset: 0x000003C4) High End Overlay Configuration Register 14 */
-  __IO uint32_t LCDC_HEOCFG15;      /**< \brief (Lcdc Offset: 0x000003C8) High End Overlay Configuration Register 15 */
-  __IO uint32_t LCDC_HEOCFG16;      /**< \brief (Lcdc Offset: 0x000003CC) High End Overlay Configuration Register 16 */
-  __IO uint32_t LCDC_HEOCFG17;      /**< \brief (Lcdc Offset: 0x000003D0) High End Overlay Configuration Register 17 */
-  __IO uint32_t LCDC_HEOCFG18;      /**< \brief (Lcdc Offset: 0x000003D4) High End Overlay Configuration Register 18 */
-  __IO uint32_t LCDC_HEOCFG19;      /**< \brief (Lcdc Offset: 0x000003D8) High End Overlay Configuration Register 19 */
-  __IO uint32_t LCDC_HEOCFG20;      /**< \brief (Lcdc Offset: 0x000003DC) High End Overlay Configuration Register 20 */
-  __IO uint32_t LCDC_HEOCFG21;      /**< \brief (Lcdc Offset: 0x000003E0) High End Overlay Configuration Register 21 */
-  __IO uint32_t LCDC_HEOCFG22;      /**< \brief (Lcdc Offset: 0x000003E4) High End Overlay Configuration Register 22 */
-  __IO uint32_t LCDC_HEOCFG23;      /**< \brief (Lcdc Offset: 0x000003E8) High End Overlay Configuration Register 23 */
-  __IO uint32_t LCDC_HEOCFG24;      /**< \brief (Lcdc Offset: 0x000003EC) High End Overlay Configuration Register 24 */
-  __IO uint32_t LCDC_HEOCFG25;      /**< \brief (Lcdc Offset: 0x000003F0) High End Overlay Configuration Register 25 */
-  __IO uint32_t LCDC_HEOCFG26;      /**< \brief (Lcdc Offset: 0x000003F4) High End Overlay Configuration Register 26 */
-  __IO uint32_t LCDC_HEOCFG27;      /**< \brief (Lcdc Offset: 0x000003F8) High End Overlay Configuration Register 27 */
-  __IO uint32_t LCDC_HEOCFG28;      /**< \brief (Lcdc Offset: 0x000003FC) High End Overlay Configuration Register 28 */
-  __IO uint32_t LCDC_HEOCFG29;      /**< \brief (Lcdc Offset: 0x00000400) High End Overlay Configuration Register 29 */
-  __IO uint32_t LCDC_HEOCFG30;      /**< \brief (Lcdc Offset: 0x00000404) High End Overlay Configuration Register 30 */
-  __IO uint32_t LCDC_HEOCFG31;      /**< \brief (Lcdc Offset: 0x00000408) High End Overlay Configuration Register 31 */
-  __IO uint32_t LCDC_HEOCFG32;      /**< \brief (Lcdc Offset: 0x0000040C) High End Overlay Configuration Register 32 */
-  __IO uint32_t LCDC_HEOCFG33;      /**< \brief (Lcdc Offset: 0x00000410) High End Overlay Configuration Register 33 */
-  __IO uint32_t LCDC_HEOCFG34;      /**< \brief (Lcdc Offset: 0x00000414) High End Overlay Configuration Register 34 */
-  __IO uint32_t LCDC_HEOCFG35;      /**< \brief (Lcdc Offset: 0x00000418) High End Overlay Configuration Register 35 */
-  __IO uint32_t LCDC_HEOCFG36;      /**< \brief (Lcdc Offset: 0x0000041C) High End Overlay Configuration Register 36 */
-  __IO uint32_t LCDC_HEOCFG37;      /**< \brief (Lcdc Offset: 0x00000420) High End Overlay Configuration Register 37 */
-  __IO uint32_t LCDC_HEOCFG38;      /**< \brief (Lcdc Offset: 0x00000424) High End Overlay Configuration Register 38 */
-  __IO uint32_t LCDC_HEOCFG39;      /**< \brief (Lcdc Offset: 0x00000428) High End Overlay Configuration Register 39 */
-  __IO uint32_t LCDC_HEOCFG40;      /**< \brief (Lcdc Offset: 0x0000042C) High End Overlay Configuration Register 40 */
-  __IO uint32_t LCDC_HEOCFG41;      /**< \brief (Lcdc Offset: 0x00000430) High End Overlay Configuration Register 41 */
-  __I  uint32_t Reserved5[115];
-  __IO uint32_t LCDC_BASECLUT[256]; /**< \brief (Lcdc Offset: 0x00000600) Base CLUT Register */
-  __IO uint32_t LCDC_OVR1CLUT[256]; /**< \brief (Lcdc Offset: 0x00000A00) Overlay 1 CLUT Register */
-  __IO uint32_t LCDC_OVR2CLUT[256]; /**< \brief (Lcdc Offset: 0x00000E00) Overlay 2 CLUT Register */
-  __IO uint32_t LCDC_HEOCLUT[256];  /**< \brief (Lcdc Offset: 0x00001200) High End Overlay CLUT Register */
+	__IO uint32_t LCDC_LCDCFG0;	  /**< \brief (Lcdc Offset: 0x00000000) LCD Controller Configuration Register 0 */
+	__IO uint32_t LCDC_LCDCFG1;	  /**< \brief (Lcdc Offset: 0x00000004) LCD Controller Configuration Register 1 */
+	__IO uint32_t LCDC_LCDCFG2;	  /**< \brief (Lcdc Offset: 0x00000008) LCD Controller Configuration Register 2 */
+	__IO uint32_t LCDC_LCDCFG3;	  /**< \brief (Lcdc Offset: 0x0000000C) LCD Controller Configuration Register 3 */
+	__IO uint32_t LCDC_LCDCFG4;	  /**< \brief (Lcdc Offset: 0x00000010) LCD Controller Configuration Register 4 */
+	__IO uint32_t LCDC_LCDCFG5;	  /**< \brief (Lcdc Offset: 0x00000014) LCD Controller Configuration Register 5 */
+	__IO uint32_t LCDC_LCDCFG6;	  /**< \brief (Lcdc Offset: 0x00000018) LCD Controller Configuration Register 6 */
+	__I uint32_t Reserved1[1];
+	__O uint32_t LCDC_LCDEN;	  /**< \brief (Lcdc Offset: 0x00000020) LCD Controller Enable Register */
+	__O uint32_t LCDC_LCDDIS;	  /**< \brief (Lcdc Offset: 0x00000024) LCD Controller Disable Register */
+	__I uint32_t LCDC_LCDSR;	  /**< \brief (Lcdc Offset: 0x00000028) LCD Controller Status Register */
+	__O uint32_t LCDC_LCDIER;	  /**< \brief (Lcdc Offset: 0x0000002C) LCD Controller Interrupt Enable Register */
+	__O uint32_t LCDC_LCDIDR;	  /**< \brief (Lcdc Offset: 0x00000030) LCD Controller Interrupt Disable Register */
+	__I uint32_t LCDC_LCDIMR;	  /**< \brief (Lcdc Offset: 0x00000034) LCD Controller Interrupt Mask Register */
+	__I uint32_t LCDC_LCDISR;	  /**< \brief (Lcdc Offset: 0x00000038) LCD Controller Interrupt Status Register */
+	__O uint32_t LCDC_ATTR;		  /**< \brief (Lcdc Offset: 0x0000003C) LCD Controller Attribute Register */
+	__O uint32_t LCDC_BASECHER;	  /**< \brief (Lcdc Offset: 0x00000040) Base Layer Channel Enable Register */
+	__O uint32_t LCDC_BASECHDR;	  /**< \brief (Lcdc Offset: 0x00000044) Base Layer Channel Disable Register */
+	__I uint32_t LCDC_BASECHSR;	  /**< \brief (Lcdc Offset: 0x00000048) Base Layer Channel Status Register */
+	__O uint32_t LCDC_BASEIER;	  /**< \brief (Lcdc Offset: 0x0000004C) Base Layer Interrupt Enable Register */
+	__O uint32_t LCDC_BASEIDR;	  /**< \brief (Lcdc Offset: 0x00000050) Base Layer Interrupt Disabled Register */
+	__I uint32_t LCDC_BASEIMR;	  /**< \brief (Lcdc Offset: 0x00000054) Base Layer Interrupt Mask Register */
+	__I uint32_t LCDC_BASEISR;	  /**< \brief (Lcdc Offset: 0x00000058) Base Layer Interrupt Status Register */
+	__IO uint32_t LCDC_BASEHEAD;	  /**< \brief (Lcdc Offset: 0x0000005C) Base DMA Head Register */
+	__IO uint32_t LCDC_BASEADDR;	  /**< \brief (Lcdc Offset: 0x00000060) Base DMA Address Register */
+	__IO uint32_t LCDC_BASECTRL;	  /**< \brief (Lcdc Offset: 0x00000064) Base DMA Control Register */
+	__IO uint32_t LCDC_BASENEXT;	  /**< \brief (Lcdc Offset: 0x00000068) Base DMA Next Register */
+	__IO uint32_t LCDC_BASECFG0;	  /**< \brief (Lcdc Offset: 0x0000006C) Base Layer Configuration Register 0 */
+	__IO uint32_t LCDC_BASECFG1;	  /**< \brief (Lcdc Offset: 0x00000070) Base Layer Configuration Register 1 */
+	__IO uint32_t LCDC_BASECFG2;	  /**< \brief (Lcdc Offset: 0x00000074) Base Layer Configuration Register 2 */
+	__IO uint32_t LCDC_BASECFG3;	  /**< \brief (Lcdc Offset: 0x00000078) Base Layer Configuration Register 3 */
+	__IO uint32_t LCDC_BASECFG4;	  /**< \brief (Lcdc Offset: 0x0000007C) Base Layer Configuration Register 4 */
+	__IO uint32_t LCDC_BASECFG5;	  /**< \brief (Lcdc Offset: 0x00000080) Base Layer Configuration Register 5 */
+	__IO uint32_t LCDC_BASECFG6;	  /**< \brief (Lcdc Offset: 0x00000084) Base Layer Configuration Register 6 */
+	__I uint32_t Reserved2[46];
+	__O uint32_t LCDC_OVR1CHER;	  /**< \brief (Lcdc Offset: 0x00000140) Overlay 1 Channel Enable Register */
+	__O uint32_t LCDC_OVR1CHDR;	  /**< \brief (Lcdc Offset: 0x00000144) Overlay 1 Channel Disable Register */
+	__I uint32_t LCDC_OVR1CHSR;	  /**< \brief (Lcdc Offset: 0x00000148) Overlay 1 Channel Status Register */
+	__O uint32_t LCDC_OVR1IER;	  /**< \brief (Lcdc Offset: 0x0000014C) Overlay 1 Interrupt Enable Register */
+	__O uint32_t LCDC_OVR1IDR;	  /**< \brief (Lcdc Offset: 0x00000150) Overlay 1 Interrupt Disable Register */
+	__I uint32_t LCDC_OVR1IMR;	  /**< \brief (Lcdc Offset: 0x00000154) Overlay 1 Interrupt Mask Register */
+	__I uint32_t LCDC_OVR1ISR;	  /**< \brief (Lcdc Offset: 0x00000158) Overlay 1 Interrupt Status Register */
+	__IO uint32_t LCDC_OVR1HEAD;	  /**< \brief (Lcdc Offset: 0x0000015C) Overlay 1 DMA Head Register */
+	__IO uint32_t LCDC_OVR1ADDR;	  /**< \brief (Lcdc Offset: 0x00000160) Overlay 1 DMA Address Register */
+	__IO uint32_t LCDC_OVR1CTRL;	  /**< \brief (Lcdc Offset: 0x00000164) Overlay 1 DMA Control Register */
+	__IO uint32_t LCDC_OVR1NEXT;	  /**< \brief (Lcdc Offset: 0x00000168) Overlay 1 DMA Next Register */
+	__IO uint32_t LCDC_OVR1CFG0;	  /**< \brief (Lcdc Offset: 0x0000016C) Overlay 1 Configuration Register 0 */
+	__IO uint32_t LCDC_OVR1CFG1;	  /**< \brief (Lcdc Offset: 0x00000170) Overlay 1 Configuration Register 1 */
+	__IO uint32_t LCDC_OVR1CFG2;	  /**< \brief (Lcdc Offset: 0x00000174) Overlay 1 Configuration Register 2 */
+	__IO uint32_t LCDC_OVR1CFG3;	  /**< \brief (Lcdc Offset: 0x00000178) Overlay 1 Configuration Register 3 */
+	__IO uint32_t LCDC_OVR1CFG4;	  /**< \brief (Lcdc Offset: 0x0000017C) Overlay 1 Configuration Register 4 */
+	__IO uint32_t LCDC_OVR1CFG5;	  /**< \brief (Lcdc Offset: 0x00000180) Overlay 1 Configuration Register 5 */
+	__IO uint32_t LCDC_OVR1CFG6;	  /**< \brief (Lcdc Offset: 0x00000184) Overlay 1 Configuration Register 6 */
+	__IO uint32_t LCDC_OVR1CFG7;	  /**< \brief (Lcdc Offset: 0x00000188) Overlay 1 Configuration Register 7 */
+	__IO uint32_t LCDC_OVR1CFG8;	  /**< \brief (Lcdc Offset: 0x0000018C) Overlay 1 Configuration Register 8 */
+	__IO uint32_t LCDC_OVR1CFG9;	  /**< \brief (Lcdc Offset: 0x00000190) Overlay 1 Configuration Register 9 */
+	__I uint32_t Reserved3[43];
+	__O uint32_t LCDC_OVR2CHER;	  /**< \brief (Lcdc Offset: 0x00000240) Overlay 2 Channel Enable Register */
+	__O uint32_t LCDC_OVR2CHDR;	  /**< \brief (Lcdc Offset: 0x00000244) Overlay 2 Channel Disable Register */
+	__I uint32_t LCDC_OVR2CHSR;	  /**< \brief (Lcdc Offset: 0x00000248) Overlay 2 Channel Status Register */
+	__O uint32_t LCDC_OVR2IER;	  /**< \brief (Lcdc Offset: 0x0000024C) Overlay 2 Interrupt Enable Register */
+	__O uint32_t LCDC_OVR2IDR;	  /**< \brief (Lcdc Offset: 0x00000250) Overlay 2 Interrupt Disable Register */
+	__I uint32_t LCDC_OVR2IMR;	  /**< \brief (Lcdc Offset: 0x00000254) Overlay 2 Interrupt Mask Register */
+	__I uint32_t LCDC_OVR2ISR;	  /**< \brief (Lcdc Offset: 0x00000258) Overlay 2 Interrupt Status Register */
+	__IO uint32_t LCDC_OVR2HEAD;	  /**< \brief (Lcdc Offset: 0x0000025C) Overlay 2 DMA Head Register */
+	__IO uint32_t LCDC_OVR2ADDR;	  /**< \brief (Lcdc Offset: 0x00000260) Overlay 2 DMA Address Register */
+	__IO uint32_t LCDC_OVR2CTRL;	  /**< \brief (Lcdc Offset: 0x00000264) Overlay 2 DMA Control Register */
+	__IO uint32_t LCDC_OVR2NEXT;	  /**< \brief (Lcdc Offset: 0x00000268) Overlay 2 DMA Next Register */
+	__IO uint32_t LCDC_OVR2CFG0;	  /**< \brief (Lcdc Offset: 0x0000026C) Overlay 2 Configuration Register 0 */
+	__IO uint32_t LCDC_OVR2CFG1;	  /**< \brief (Lcdc Offset: 0x00000270) Overlay 2 Configuration Register 1 */
+	__IO uint32_t LCDC_OVR2CFG2;	  /**< \brief (Lcdc Offset: 0x00000274) Overlay 2 Configuration Register 2 */
+	__IO uint32_t LCDC_OVR2CFG3;	  /**< \brief (Lcdc Offset: 0x00000278) Overlay 2 Configuration Register 3 */
+	__IO uint32_t LCDC_OVR2CFG4;	  /**< \brief (Lcdc Offset: 0x0000027C) Overlay 2 Configuration Register 4 */
+	__IO uint32_t LCDC_OVR2CFG5;	  /**< \brief (Lcdc Offset: 0x00000280) Overlay 2 Configuration Register 5 */
+	__IO uint32_t LCDC_OVR2CFG6;	  /**< \brief (Lcdc Offset: 0x00000284) Overlay 2 Configuration Register 6 */
+	__IO uint32_t LCDC_OVR2CFG7;	  /**< \brief (Lcdc Offset: 0x00000288) Overlay 2 Configuration Register 7 */
+	__IO uint32_t LCDC_OVR2CFG8;	  /**< \brief (Lcdc Offset: 0x0000028C) Overlay 2 Configuration Register 8 */
+	__IO uint32_t LCDC_OVR2CFG9;	  /**< \brief (Lcdc Offset: 0x00000290) Overlay 2 Configuration Register 8 */
+	__I uint32_t Reserved4[43];
+	__O uint32_t LCDC_HEOCHER;	  /**< \brief (Lcdc Offset: 0x00000340) High End Overlay Channel Enable Register */
+	__O uint32_t LCDC_HEOCHDR;	  /**< \brief (Lcdc Offset: 0x00000344) High End Overlay Channel Disable Register */
+	__I uint32_t LCDC_HEOCHSR;	  /**< \brief (Lcdc Offset: 0x00000348) High End Overlay Channel Status Register */
+	__O uint32_t LCDC_HEOIER;	  /**< \brief (Lcdc Offset: 0x0000034C) High End Overlay Interrupt Enable Register */
+	__O uint32_t LCDC_HEOIDR;	  /**< \brief (Lcdc Offset: 0x00000350) High End Overlay Interrupt Disable Register */
+	__I uint32_t LCDC_HEOIMR;	  /**< \brief (Lcdc Offset: 0x00000354) High End Overlay Interrupt Mask Register */
+	__I uint32_t LCDC_HEOISR;	  /**< \brief (Lcdc Offset: 0x00000358) High End Overlay Interrupt Status Register */
+	__IO uint32_t LCDC_HEOHEAD;	  /**< \brief (Lcdc Offset: 0x0000035C) High End Overlay DMA Head Register */
+	__IO uint32_t LCDC_HEOADDR;	  /**< \brief (Lcdc Offset: 0x00000360) High End Overlay DMA Address Register */
+	__IO uint32_t LCDC_HEOCTRL;	  /**< \brief (Lcdc Offset: 0x00000364) High End Overlay DMA Control Register */
+	__IO uint32_t LCDC_HEONEXT;	  /**< \brief (Lcdc Offset: 0x00000368) High End Overlay DMA Next Register */
+	__IO uint32_t LCDC_HEOUHEAD;	  /**< \brief (Lcdc Offset: 0x0000036C) High End Overlay U-UV DMA Head Register */
+	__IO uint32_t LCDC_HEOUADDR;	  /**< \brief (Lcdc Offset: 0x00000370) High End Overlay U-UV DMA Address Register */
+	__IO uint32_t LCDC_HEOUCTRL;	  /**< \brief (Lcdc Offset: 0x00000374) High End Overlay U-UV DMA Control Register */
+	__IO uint32_t LCDC_HEOUNEXT;	  /**< \brief (Lcdc Offset: 0x00000378) High End Overlay U-UV DMA Next Register */
+	__IO uint32_t LCDC_HEOVHEAD;	  /**< \brief (Lcdc Offset: 0x0000037C) High End Overlay V DMA Head Register */
+	__IO uint32_t LCDC_HEOVADDR;	  /**< \brief (Lcdc Offset: 0x00000380) High End Overlay V DMA Address Register */
+	__IO uint32_t LCDC_HEOVCTRL;	  /**< \brief (Lcdc Offset: 0x00000384) High End Overlay V DMA Control Register */
+	__IO uint32_t LCDC_HEOVNEXT;	  /**< \brief (Lcdc Offset: 0x00000388) High End Overlay V DMA Next Register */
+	__IO uint32_t LCDC_HEOCFG0;	  /**< \brief (Lcdc Offset: 0x0000038C) High End Overlay Configuration Register 0 */
+	__IO uint32_t LCDC_HEOCFG1;	  /**< \brief (Lcdc Offset: 0x00000390) High End Overlay Configuration Register 1 */
+	__IO uint32_t LCDC_HEOCFG2;	  /**< \brief (Lcdc Offset: 0x00000394) High End Overlay Configuration Register 2 */
+	__IO uint32_t LCDC_HEOCFG3;	  /**< \brief (Lcdc Offset: 0x00000398) High End Overlay Configuration Register 3 */
+	__IO uint32_t LCDC_HEOCFG4;	  /**< \brief (Lcdc Offset: 0x0000039C) High End Overlay Configuration Register 4 */
+	__IO uint32_t LCDC_HEOCFG5;	  /**< \brief (Lcdc Offset: 0x000003A0) High End Overlay Configuration Register 5 */
+	__IO uint32_t LCDC_HEOCFG6;	  /**< \brief (Lcdc Offset: 0x000003A4) High End Overlay Configuration Register 6 */
+	__IO uint32_t LCDC_HEOCFG7;	  /**< \brief (Lcdc Offset: 0x000003A8) High End Overlay Configuration Register 7 */
+	__IO uint32_t LCDC_HEOCFG8;	  /**< \brief (Lcdc Offset: 0x000003AC) High End Overlay Configuration Register 8 */
+	__IO uint32_t LCDC_HEOCFG9;	  /**< \brief (Lcdc Offset: 0x000003B0) High End Overlay Configuration Register 9 */
+	__IO uint32_t LCDC_HEOCFG10;	  /**< \brief (Lcdc Offset: 0x000003B4) High End Overlay Configuration Register 10 */
+	__IO uint32_t LCDC_HEOCFG11;	  /**< \brief (Lcdc Offset: 0x000003B8) High End Overlay Configuration Register 11 */
+	__IO uint32_t LCDC_HEOCFG12;	  /**< \brief (Lcdc Offset: 0x000003BC) High End Overlay Configuration Register 12 */
+	__IO uint32_t LCDC_HEOCFG13;	  /**< \brief (Lcdc Offset: 0x000003C0) High End Overlay Configuration Register 13 */
+	__IO uint32_t LCDC_HEOCFG14;	  /**< \brief (Lcdc Offset: 0x000003C4) High End Overlay Configuration Register 14 */
+	__IO uint32_t LCDC_HEOCFG15;	  /**< \brief (Lcdc Offset: 0x000003C8) High End Overlay Configuration Register 15 */
+	__IO uint32_t LCDC_HEOCFG16;	  /**< \brief (Lcdc Offset: 0x000003CC) High End Overlay Configuration Register 16 */
+	__IO uint32_t LCDC_HEOCFG17;	  /**< \brief (Lcdc Offset: 0x000003D0) High End Overlay Configuration Register 17 */
+	__IO uint32_t LCDC_HEOCFG18;	  /**< \brief (Lcdc Offset: 0x000003D4) High End Overlay Configuration Register 18 */
+	__IO uint32_t LCDC_HEOCFG19;	  /**< \brief (Lcdc Offset: 0x000003D8) High End Overlay Configuration Register 19 */
+	__IO uint32_t LCDC_HEOCFG20;	  /**< \brief (Lcdc Offset: 0x000003DC) High End Overlay Configuration Register 20 */
+	__IO uint32_t LCDC_HEOCFG21;	  /**< \brief (Lcdc Offset: 0x000003E0) High End Overlay Configuration Register 21 */
+	__IO uint32_t LCDC_HEOCFG22;	  /**< \brief (Lcdc Offset: 0x000003E4) High End Overlay Configuration Register 22 */
+	__IO uint32_t LCDC_HEOCFG23;	  /**< \brief (Lcdc Offset: 0x000003E8) High End Overlay Configuration Register 23 */
+	__IO uint32_t LCDC_HEOCFG24;	  /**< \brief (Lcdc Offset: 0x000003EC) High End Overlay Configuration Register 24 */
+	__IO uint32_t LCDC_HEOCFG25;	  /**< \brief (Lcdc Offset: 0x000003F0) High End Overlay Configuration Register 25 */
+	__IO uint32_t LCDC_HEOCFG26;	  /**< \brief (Lcdc Offset: 0x000003F4) High End Overlay Configuration Register 26 */
+	__IO uint32_t LCDC_HEOCFG27;	  /**< \brief (Lcdc Offset: 0x000003F8) High End Overlay Configuration Register 27 */
+	__IO uint32_t LCDC_HEOCFG28;	  /**< \brief (Lcdc Offset: 0x000003FC) High End Overlay Configuration Register 28 */
+	__IO uint32_t LCDC_HEOCFG29;	  /**< \brief (Lcdc Offset: 0x00000400) High End Overlay Configuration Register 29 */
+	__IO uint32_t LCDC_HEOCFG30;	  /**< \brief (Lcdc Offset: 0x00000404) High End Overlay Configuration Register 30 */
+	__IO uint32_t LCDC_HEOCFG31;	  /**< \brief (Lcdc Offset: 0x00000408) High End Overlay Configuration Register 31 */
+	__IO uint32_t LCDC_HEOCFG32;	  /**< \brief (Lcdc Offset: 0x0000040C) High End Overlay Configuration Register 32 */
+	__IO uint32_t LCDC_HEOCFG33;	  /**< \brief (Lcdc Offset: 0x00000410) High End Overlay Configuration Register 33 */
+	__IO uint32_t LCDC_HEOCFG34;	  /**< \brief (Lcdc Offset: 0x00000414) High End Overlay Configuration Register 34 */
+	__IO uint32_t LCDC_HEOCFG35;	  /**< \brief (Lcdc Offset: 0x00000418) High End Overlay Configuration Register 35 */
+	__IO uint32_t LCDC_HEOCFG36;	  /**< \brief (Lcdc Offset: 0x0000041C) High End Overlay Configuration Register 36 */
+	__IO uint32_t LCDC_HEOCFG37;	  /**< \brief (Lcdc Offset: 0x00000420) High End Overlay Configuration Register 37 */
+	__IO uint32_t LCDC_HEOCFG38;	  /**< \brief (Lcdc Offset: 0x00000424) High End Overlay Configuration Register 38 */
+	__IO uint32_t LCDC_HEOCFG39;	  /**< \brief (Lcdc Offset: 0x00000428) High End Overlay Configuration Register 39 */
+	__IO uint32_t LCDC_HEOCFG40;	  /**< \brief (Lcdc Offset: 0x0000042C) High End Overlay Configuration Register 40 */
+	__IO uint32_t LCDC_HEOCFG41;	  /**< \brief (Lcdc Offset: 0x00000430) High End Overlay Configuration Register 41 */
+	__I uint32_t Reserved5[115];
+	__IO uint32_t LCDC_BASECLUT[256]; /**< \brief (Lcdc Offset: 0x00000600) Base CLUT Register */
+	__IO uint32_t LCDC_OVR1CLUT[256]; /**< \brief (Lcdc Offset: 0x00000A00) Overlay 1 CLUT Register */
+	__IO uint32_t LCDC_OVR2CLUT[256]; /**< \brief (Lcdc Offset: 0x00000E00) Overlay 2 CLUT Register */
+	__IO uint32_t LCDC_HEOCLUT[256];  /**< \brief (Lcdc Offset: 0x00001200) High End Overlay CLUT Register */
 } Lcdc;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- LCDC_LCDCFG0 : (LCDC Offset: 0x00000000) LCD Controller Configuration Register 0 -------- */
-#define LCDC_LCDCFG0_CLKPOL (0x1u << 0) /**< \brief (LCDC_LCDCFG0) LCD Controller Clock Polarity */
-#define LCDC_LCDCFG0_CLKSEL (0x1u << 2) /**< \brief (LCDC_LCDCFG0) LCD Controller Clock Source Selection */
+#define LCDC_LCDCFG0_CLKPOL (0x1u << 0)	/**< \brief (LCDC_LCDCFG0) LCD Controller Clock Polarity */
+#define LCDC_LCDCFG0_CLKSEL (0x1u << 2)	/**< \brief (LCDC_LCDCFG0) LCD Controller Clock Source Selection */
 #define LCDC_LCDCFG0_CLKPWMSEL (0x1u << 3) /**< \brief (LCDC_LCDCFG0) LCD Controller PWM Clock Source Selection */
 #define LCDC_LCDCFG0_CGDISBASE (0x1u << 8) /**< \brief (LCDC_LCDCFG0) Clock Gating Disable Control for the Base Layer */
 #define LCDC_LCDCFG0_CGDISOVR1 (0x1u << 9) /**< \brief (LCDC_LCDCFG0) Clock Gating Disable Control for the Overlay 1 Layer */
@@ -213,10 +213,10 @@ typedef struct {
 #define LCDC_LCDCFG2_VBPW(value) ((LCDC_LCDCFG2_VBPW_Msk & ((value) << LCDC_LCDCFG2_VBPW_Pos)))
 /* -------- LCDC_LCDCFG3 : (LCDC Offset: 0x0000000C) LCD Controller Configuration Register 3 -------- */
 #define LCDC_LCDCFG3_HFPW_Pos 0
-#define LCDC_LCDCFG3_HFPW_Msk (0x3ffu << LCDC_LCDCFG3_HFPW_Pos) /**< \brief (LCDC_LCDCFG3) Horizontal Front Porch Width */
+#define LCDC_LCDCFG3_HFPW_Msk (0x3ffu << LCDC_LCDCFG3_HFPW_Pos)	/**< \brief (LCDC_LCDCFG3) Horizontal Front Porch Width */
 #define LCDC_LCDCFG3_HFPW(value) ((LCDC_LCDCFG3_HFPW_Msk & ((value) << LCDC_LCDCFG3_HFPW_Pos)))
 #define LCDC_LCDCFG3_HBPW_Pos 16
-#define LCDC_LCDCFG3_HBPW_Msk (0x3ffu << LCDC_LCDCFG3_HBPW_Pos) /**< \brief (LCDC_LCDCFG3) Horizontal Back Porch Width */
+#define LCDC_LCDCFG3_HBPW_Msk (0x3ffu << LCDC_LCDCFG3_HBPW_Pos)	/**< \brief (LCDC_LCDCFG3) Horizontal Back Porch Width */
 #define LCDC_LCDCFG3_HBPW(value) ((LCDC_LCDCFG3_HBPW_Msk & ((value) << LCDC_LCDCFG3_HBPW_Pos)))
 /* -------- LCDC_LCDCFG4 : (LCDC Offset: 0x00000010) LCD Controller Configuration Register 4 -------- */
 #define LCDC_LCDCFG4_PPL_Pos 0
@@ -231,7 +231,7 @@ typedef struct {
 #define LCDC_LCDCFG5_VSPDLYS (0x1u << 2) /**< \brief (LCDC_LCDCFG5) Vertical Synchronization Pulse Start */
 #define LCDC_LCDCFG5_VSPDLYE (0x1u << 3) /**< \brief (LCDC_LCDCFG5) Vertical Synchronization Pulse End */
 #define LCDC_LCDCFG5_DISPPOL (0x1u << 4) /**< \brief (LCDC_LCDCFG5) Display Signal Polarity */
-#define LCDC_LCDCFG5_DITHER (0x1u << 6) /**< \brief (LCDC_LCDCFG5) LCD Controller Dithering */
+#define LCDC_LCDCFG5_DITHER (0x1u << 6)	/**< \brief (LCDC_LCDCFG5) LCD Controller Dithering */
 #define LCDC_LCDCFG5_DISPDLY (0x1u << 7) /**< \brief (LCDC_LCDCFG5) LCD Controller Display Power Signal Synchronization */
 #define LCDC_LCDCFG5_MODE_Pos 8
 #define LCDC_LCDCFG5_MODE_Msk (0x3u << LCDC_LCDCFG5_MODE_Pos) /**< \brief (LCDC_LCDCFG5) LCD Controller Output Mode */
@@ -240,23 +240,23 @@ typedef struct {
 #define   LCDC_LCDCFG5_MODE_OUTPUT_16BPP (0x1u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 16 bits per pixel */
 #define   LCDC_LCDCFG5_MODE_OUTPUT_18BPP (0x2u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 18 bits per pixel */
 #define   LCDC_LCDCFG5_MODE_OUTPUT_24BPP (0x3u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 24 bits per pixel */
-#define LCDC_LCDCFG5_VSPSU (0x1u << 12) /**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Setup Configuration */
-#define LCDC_LCDCFG5_VSPHO (0x1u << 13) /**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Hold Configuration */
+#define LCDC_LCDCFG5_VSPSU (0x1u << 12)	/**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Setup Configuration */
+#define LCDC_LCDCFG5_VSPHO (0x1u << 13)	/**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Hold Configuration */
 #define LCDC_LCDCFG5_GUARDTIME_Pos 16
 #define LCDC_LCDCFG5_GUARDTIME_Msk (0xffu << LCDC_LCDCFG5_GUARDTIME_Pos) /**< \brief (LCDC_LCDCFG5) LCD DISPLAY Guard Time */
 #define LCDC_LCDCFG5_GUARDTIME(value) ((LCDC_LCDCFG5_GUARDTIME_Msk & ((value) << LCDC_LCDCFG5_GUARDTIME_Pos)))
 /* -------- LCDC_LCDCFG6 : (LCDC Offset: 0x00000018) LCD Controller Configuration Register 6 -------- */
 #define LCDC_LCDCFG6_PWMPS_Pos 0
-#define LCDC_LCDCFG6_PWMPS_Msk (0x7u << LCDC_LCDCFG6_PWMPS_Pos) /**< \brief (LCDC_LCDCFG6) PWM Clock Prescaler */
+#define LCDC_LCDCFG6_PWMPS_Msk (0x7u << LCDC_LCDCFG6_PWMPS_Pos)	/**< \brief (LCDC_LCDCFG6) PWM Clock Prescaler */
 #define LCDC_LCDCFG6_PWMPS(value) ((LCDC_LCDCFG6_PWMPS_Msk & ((value) << LCDC_LCDCFG6_PWMPS_Pos)))
 #define   LCDC_LCDCFG6_PWMPS_DIV_1 (0x0u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK */
 #define   LCDC_LCDCFG6_PWMPS_DIV_2 (0x1u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK/2 */
 #define   LCDC_LCDCFG6_PWMPS_DIV_4 (0x2u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK/4 */
 #define   LCDC_LCDCFG6_PWMPS_DIV_8 (0x3u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK/8 */
-#define   LCDC_LCDCFG6_PWMPS_DIV_16 (0x4u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK/16 */
-#define   LCDC_LCDCFG6_PWMPS_DIV_32 (0x5u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a of rate fCOUNTER = fPWM_SELECTED_CLOCK/32 */
-#define   LCDC_LCDCFG6_PWMPS_DIV_64 (0x6u << 0) /**< \brief (LCDC_LCDCFG6) The counter advances at a of rate fCOUNTER = fPWM_SELECTED_CLOCK/64 */
-#define LCDC_LCDCFG6_PWMPOL (0x1u << 4) /**< \brief (LCDC_LCDCFG6) LCD Controller PWM Signal Polarity */
+#define   LCDC_LCDCFG6_PWMPS_DIV_16 (0x4u << 0)	/**< \brief (LCDC_LCDCFG6) The counter advances at a rate of fCOUNTER = fPWM_SELECTED_CLOCK/16 */
+#define   LCDC_LCDCFG6_PWMPS_DIV_32 (0x5u << 0)	/**< \brief (LCDC_LCDCFG6) The counter advances at a of rate fCOUNTER = fPWM_SELECTED_CLOCK/32 */
+#define   LCDC_LCDCFG6_PWMPS_DIV_64 (0x6u << 0)	/**< \brief (LCDC_LCDCFG6) The counter advances at a of rate fCOUNTER = fPWM_SELECTED_CLOCK/64 */
+#define LCDC_LCDCFG6_PWMPOL (0x1u << 4)	/**< \brief (LCDC_LCDCFG6) LCD Controller PWM Signal Polarity */
 #define LCDC_LCDCFG6_PWMCVAL_Pos 8
 #define LCDC_LCDCFG6_PWMCVAL_Msk (0xffu << LCDC_LCDCFG6_PWMCVAL_Pos) /**< \brief (LCDC_LCDCFG6) LCD Controller PWM Compare Value */
 #define LCDC_LCDCFG6_PWMCVAL(value) ((LCDC_LCDCFG6_PWMCVAL_Msk & ((value) << LCDC_LCDCFG6_PWMCVAL_Pos)))
@@ -267,13 +267,13 @@ typedef struct {
 #define LCDC_LCDEN_PWMEN (0x1u << 3) /**< \brief (LCDC_LCDEN) LCD Controller Pulse Width Modulation Enable */
 /* -------- LCDC_LCDDIS : (LCDC Offset: 0x00000024) LCD Controller Disable Register -------- */
 #define LCDC_LCDDIS_CLKDIS (0x1u << 0) /**< \brief (LCDC_LCDDIS) LCD Controller Pixel Clock Disable */
-#define LCDC_LCDDIS_SYNCDIS (0x1u << 1) /**< \brief (LCDC_LCDDIS) LCD Controller Horizontal and Vertical Synchronization Disable */
-#define LCDC_LCDDIS_DISPDIS (0x1u << 2) /**< \brief (LCDC_LCDDIS) LCD Controller DISP Signal Disable */
+#define LCDC_LCDDIS_SYNCDIS (0x1u << 1)	/**< \brief (LCDC_LCDDIS) LCD Controller Horizontal and Vertical Synchronization Disable */
+#define LCDC_LCDDIS_DISPDIS (0x1u << 2)	/**< \brief (LCDC_LCDDIS) LCD Controller DISP Signal Disable */
 #define LCDC_LCDDIS_PWMDIS (0x1u << 3) /**< \brief (LCDC_LCDDIS) LCD Controller Pulse Width Modulation Disable */
 #define LCDC_LCDDIS_CLKRST (0x1u << 8) /**< \brief (LCDC_LCDDIS) LCD Controller Clock Reset */
-#define LCDC_LCDDIS_SYNCRST (0x1u << 9) /**< \brief (LCDC_LCDDIS) LCD Controller Horizontal and Vertical Synchronization Reset */
+#define LCDC_LCDDIS_SYNCRST (0x1u << 9)	/**< \brief (LCDC_LCDDIS) LCD Controller Horizontal and Vertical Synchronization Reset */
 #define LCDC_LCDDIS_DISPRST (0x1u << 10) /**< \brief (LCDC_LCDDIS) LCD Controller DISP Signal Reset */
-#define LCDC_LCDDIS_PWMRST (0x1u << 11) /**< \brief (LCDC_LCDDIS) LCD Controller PWM Reset */
+#define LCDC_LCDDIS_PWMRST (0x1u << 11)	/**< \brief (LCDC_LCDDIS) LCD Controller PWM Reset */
 /* -------- LCDC_LCDSR : (LCDC Offset: 0x00000028) LCD Controller Status Register -------- */
 #define LCDC_LCDSR_CLKSTS (0x1u << 0) /**< \brief (LCDC_LCDSR) Clock Status */
 #define LCDC_LCDSR_LCDSTS (0x1u << 1) /**< \brief (LCDC_LCDSR) LCD Controller Synchronization status */
@@ -287,7 +287,7 @@ typedef struct {
 #define LCDC_LCDIER_FIFOERRIE (0x1u << 4) /**< \brief (LCDC_LCDIER) Output FIFO Error Interrupt Enable Register */
 #define LCDC_LCDIER_BASEIE (0x1u << 8) /**< \brief (LCDC_LCDIER) Base Layer Interrupt Enable Register */
 #define LCDC_LCDIER_OVR1IE (0x1u << 9) /**< \brief (LCDC_LCDIER) Overlay 1 Interrupt Enable Register */
-#define LCDC_LCDIER_OVR2IE (0x1u << 10) /**< \brief (LCDC_LCDIER) Overlay 2 Interrupt Enable Register */
+#define LCDC_LCDIER_OVR2IE (0x1u << 10)	/**< \brief (LCDC_LCDIER) Overlay 2 Interrupt Enable Register */
 #define LCDC_LCDIER_HEOIE (0x1u << 11) /**< \brief (LCDC_LCDIER) High End Overlay Interrupt Enable Register */
 /* -------- LCDC_LCDIDR : (LCDC Offset: 0x00000030) LCD Controller Interrupt Disable Register -------- */
 #define LCDC_LCDIDR_SOFID (0x1u << 0) /**< \brief (LCDC_LCDIDR) Start of Frame Interrupt Disable Register */
@@ -296,7 +296,7 @@ typedef struct {
 #define LCDC_LCDIDR_FIFOERRID (0x1u << 4) /**< \brief (LCDC_LCDIDR) Output FIFO Error Interrupt Disable Register */
 #define LCDC_LCDIDR_BASEID (0x1u << 8) /**< \brief (LCDC_LCDIDR) Base Layer Interrupt Disable Register */
 #define LCDC_LCDIDR_OVR1ID (0x1u << 9) /**< \brief (LCDC_LCDIDR) Overlay 1 Interrupt Disable Register */
-#define LCDC_LCDIDR_OVR2ID (0x1u << 10) /**< \brief (LCDC_LCDIDR) Overlay 2 Interrupt Disable Register */
+#define LCDC_LCDIDR_OVR2ID (0x1u << 10)	/**< \brief (LCDC_LCDIDR) Overlay 2 Interrupt Disable Register */
 #define LCDC_LCDIDR_HEOID (0x1u << 11) /**< \brief (LCDC_LCDIDR) High End Overlay Interrupt Disable Register */
 /* -------- LCDC_LCDIMR : (LCDC Offset: 0x00000034) LCD Controller Interrupt Mask Register -------- */
 #define LCDC_LCDIMR_SOFIM (0x1u << 0) /**< \brief (LCDC_LCDIMR) Start of Frame Interrupt Mask Register */
@@ -305,13 +305,13 @@ typedef struct {
 #define LCDC_LCDIMR_FIFOERRIM (0x1u << 4) /**< \brief (LCDC_LCDIMR) Output FIFO Error Interrupt Mask Register */
 #define LCDC_LCDIMR_BASEIM (0x1u << 8) /**< \brief (LCDC_LCDIMR) Base Layer Interrupt Mask Register */
 #define LCDC_LCDIMR_OVR1IM (0x1u << 9) /**< \brief (LCDC_LCDIMR) Overlay 1 Interrupt Mask Register */
-#define LCDC_LCDIMR_OVR2IM (0x1u << 10) /**< \brief (LCDC_LCDIMR) Overlay 2 Interrupt Mask Register */
+#define LCDC_LCDIMR_OVR2IM (0x1u << 10)	/**< \brief (LCDC_LCDIMR) Overlay 2 Interrupt Mask Register */
 #define LCDC_LCDIMR_HEOIM (0x1u << 11) /**< \brief (LCDC_LCDIMR) High End Overlay Interrupt Mask Register */
 /* -------- LCDC_LCDISR : (LCDC Offset: 0x00000038) LCD Controller Interrupt Status Register -------- */
 #define LCDC_LCDISR_SOF (0x1u << 0) /**< \brief (LCDC_LCDISR) Start of Frame Interrupt Status Register */
 #define LCDC_LCDISR_DIS (0x1u << 1) /**< \brief (LCDC_LCDISR) LCD Disable Interrupt Status Register */
 #define LCDC_LCDISR_DISP (0x1u << 2) /**< \brief (LCDC_LCDISR) Power-up/Power-down Sequence Terminated Interrupt Status Register */
-#define LCDC_LCDISR_FIFOERR (0x1u << 4) /**< \brief (LCDC_LCDISR) Output FIFO Error */
+#define LCDC_LCDISR_FIFOERR (0x1u << 4)	/**< \brief (LCDC_LCDISR) Output FIFO Error */
 #define LCDC_LCDISR_BASE (0x1u << 8) /**< \brief (LCDC_LCDISR) Base Layer Raw Interrupt Status Register */
 #define LCDC_LCDISR_OVR1 (0x1u << 9) /**< \brief (LCDC_LCDISR) Overlay 1 Raw Interrupt Status Register */
 #define LCDC_LCDISR_OVR2 (0x1u << 10) /**< \brief (LCDC_LCDISR) Overlay 2 Raw Interrupt Status Register */
@@ -328,14 +328,14 @@ typedef struct {
 /* -------- LCDC_BASECHER : (LCDC Offset: 0x00000040) Base Layer Channel Enable Register -------- */
 #define LCDC_BASECHER_CHEN (0x1u << 0) /**< \brief (LCDC_BASECHER) Channel Enable Register */
 #define LCDC_BASECHER_UPDATEEN (0x1u << 1) /**< \brief (LCDC_BASECHER) Update Overlay Attributes Enable Register */
-#define LCDC_BASECHER_A2QEN (0x1u << 2) /**< \brief (LCDC_BASECHER) Add To Queue Enable Register */
+#define LCDC_BASECHER_A2QEN (0x1u << 2)	/**< \brief (LCDC_BASECHER) Add To Queue Enable Register */
 /* -------- LCDC_BASECHDR : (LCDC Offset: 0x00000044) Base Layer Channel Disable Register -------- */
-#define LCDC_BASECHDR_CHDIS (0x1u << 0) /**< \brief (LCDC_BASECHDR) Channel Disable Register */
-#define LCDC_BASECHDR_CHRST (0x1u << 8) /**< \brief (LCDC_BASECHDR) Channel Reset Register */
+#define LCDC_BASECHDR_CHDIS (0x1u << 0)	/**< \brief (LCDC_BASECHDR) Channel Disable Register */
+#define LCDC_BASECHDR_CHRST (0x1u << 8)	/**< \brief (LCDC_BASECHDR) Channel Reset Register */
 /* -------- LCDC_BASECHSR : (LCDC Offset: 0x00000048) Base Layer Channel Status Register -------- */
 #define LCDC_BASECHSR_CHSR (0x1u << 0) /**< \brief (LCDC_BASECHSR) Channel Status Register */
 #define LCDC_BASECHSR_UPDATESR (0x1u << 1) /**< \brief (LCDC_BASECHSR) Update Overlay Attributes In Progress Status Register */
-#define LCDC_BASECHSR_A2QSR (0x1u << 2) /**< \brief (LCDC_BASECHSR) Add To Queue Status Register */
+#define LCDC_BASECHSR_A2QSR (0x1u << 2)	/**< \brief (LCDC_BASECHSR) Add To Queue Status Register */
 /* -------- LCDC_BASEIER : (LCDC Offset: 0x0000004C) Base Layer Interrupt Enable Register -------- */
 #define LCDC_BASEIER_DMA (0x1u << 2) /**< \brief (LCDC_BASEIER) End of DMA Transfer Interrupt Enable Register */
 #define LCDC_BASEIER_DSCR (0x1u << 3) /**< \brief (LCDC_BASEIER) Descriptor Loaded Interrupt Enable Register */
@@ -382,7 +382,7 @@ typedef struct {
 /* -------- LCDC_BASECFG0 : (LCDC Offset: 0x0000006C) Base Layer Configuration Register 0 -------- */
 #define LCDC_BASECFG0_SIF (0x1u << 0) /**< \brief (LCDC_BASECFG0) Source Interface */
 #define LCDC_BASECFG0_BLEN_Pos 4
-#define LCDC_BASECFG0_BLEN_Msk (0x3u << LCDC_BASECFG0_BLEN_Pos) /**< \brief (LCDC_BASECFG0) AHB Burst Length */
+#define LCDC_BASECFG0_BLEN_Msk (0x3u << LCDC_BASECFG0_BLEN_Pos)	/**< \brief (LCDC_BASECFG0) AHB Burst Length */
 #define LCDC_BASECFG0_BLEN(value) ((LCDC_BASECFG0_BLEN_Msk & ((value) << LCDC_BASECFG0_BLEN_Pos)))
 #define   LCDC_BASECFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_BASECFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
@@ -400,7 +400,7 @@ typedef struct {
 #define   LCDC_BASECFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_BASECFG1) 16 bpp RGB 565 */
 #define   LCDC_BASECFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_BASECFG1) 16 bpp TRGB 1555 */
 #define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 */
-#define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4)	/**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_BASECFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_BASECFG1) 19 bpp TRGB 1666 */
 #define   LCDC_BASECFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_BASECFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_BASECFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_BASECFG1) 24 bpp RGB 888 */
@@ -409,7 +409,7 @@ typedef struct {
 #define   LCDC_BASECFG1_RGBMODE_32BPP_ARGB_8888 (0xCu << 4) /**< \brief (LCDC_BASECFG1) 32 bpp ARGB 8888 */
 #define   LCDC_BASECFG1_RGBMODE_32BPP_RGBA_8888 (0xDu << 4) /**< \brief (LCDC_BASECFG1) 32 bpp RGBA 8888 */
 #define LCDC_BASECFG1_CLUTMODE_Pos 8
-#define LCDC_BASECFG1_CLUTMODE_Msk (0x3u << LCDC_BASECFG1_CLUTMODE_Pos) /**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Input Selection */
+#define LCDC_BASECFG1_CLUTMODE_Msk (0x3u << LCDC_BASECFG1_CLUTMODE_Pos)	/**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_BASECFG1_CLUTMODE(value) ((LCDC_BASECFG1_CLUTMODE_Msk & ((value) << LCDC_BASECFG1_CLUTMODE_Pos)))
 #define   LCDC_BASECFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 1 bit per pixel */
 #define   LCDC_BASECFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 2 bits per pixel */
@@ -450,14 +450,14 @@ typedef struct {
 /* -------- LCDC_OVR1CHER : (LCDC Offset: 0x00000140) Overlay 1 Channel Enable Register -------- */
 #define LCDC_OVR1CHER_CHEN (0x1u << 0) /**< \brief (LCDC_OVR1CHER) Channel Enable Register */
 #define LCDC_OVR1CHER_UPDATEEN (0x1u << 1) /**< \brief (LCDC_OVR1CHER) Update Overlay Attributes Enable Register */
-#define LCDC_OVR1CHER_A2QEN (0x1u << 2) /**< \brief (LCDC_OVR1CHER) Add To Queue Enable Register */
+#define LCDC_OVR1CHER_A2QEN (0x1u << 2)	/**< \brief (LCDC_OVR1CHER) Add To Queue Enable Register */
 /* -------- LCDC_OVR1CHDR : (LCDC Offset: 0x00000144) Overlay 1 Channel Disable Register -------- */
-#define LCDC_OVR1CHDR_CHDIS (0x1u << 0) /**< \brief (LCDC_OVR1CHDR) Channel Disable Register */
-#define LCDC_OVR1CHDR_CHRST (0x1u << 8) /**< \brief (LCDC_OVR1CHDR) Channel Reset Register */
+#define LCDC_OVR1CHDR_CHDIS (0x1u << 0)	/**< \brief (LCDC_OVR1CHDR) Channel Disable Register */
+#define LCDC_OVR1CHDR_CHRST (0x1u << 8)	/**< \brief (LCDC_OVR1CHDR) Channel Reset Register */
 /* -------- LCDC_OVR1CHSR : (LCDC Offset: 0x00000148) Overlay 1 Channel Status Register -------- */
 #define LCDC_OVR1CHSR_CHSR (0x1u << 0) /**< \brief (LCDC_OVR1CHSR) Channel Status Register */
 #define LCDC_OVR1CHSR_UPDATESR (0x1u << 1) /**< \brief (LCDC_OVR1CHSR) Update Overlay Attributes In Progress Status Register */
-#define LCDC_OVR1CHSR_A2QSR (0x1u << 2) /**< \brief (LCDC_OVR1CHSR) Add To Queue Status Register */
+#define LCDC_OVR1CHSR_A2QSR (0x1u << 2)	/**< \brief (LCDC_OVR1CHSR) Add To Queue Status Register */
 /* -------- LCDC_OVR1IER : (LCDC Offset: 0x0000014C) Overlay 1 Interrupt Enable Register -------- */
 #define LCDC_OVR1IER_DMA (0x1u << 2) /**< \brief (LCDC_OVR1IER) End of DMA Transfer Interrupt Enable Register */
 #define LCDC_OVR1IER_DSCR (0x1u << 3) /**< \brief (LCDC_OVR1IER) Descriptor Loaded Interrupt Enable Register */
@@ -504,11 +504,11 @@ typedef struct {
 /* -------- LCDC_OVR1CFG0 : (LCDC Offset: 0x0000016C) Overlay 1 Configuration Register 0 -------- */
 #define LCDC_OVR1CFG0_SIF (0x1u << 0) /**< \brief (LCDC_OVR1CFG0) Source Interface */
 #define LCDC_OVR1CFG0_BLEN_Pos 4
-#define LCDC_OVR1CFG0_BLEN_Msk (0x3u << LCDC_OVR1CFG0_BLEN_Pos) /**< \brief (LCDC_OVR1CFG0) AHB Burst Length */
+#define LCDC_OVR1CFG0_BLEN_Msk (0x3u << LCDC_OVR1CFG0_BLEN_Pos)	/**< \brief (LCDC_OVR1CFG0) AHB Burst Length */
 #define LCDC_OVR1CFG0_BLEN(value) ((LCDC_OVR1CFG0_BLEN_Msk & ((value) << LCDC_OVR1CFG0_BLEN_Pos)))
 #define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR4 (0x1u << 4)	/**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR8 (0x2u << 4)	/**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_OVR1CFG0_DLBO (0x1u << 8) /**< \brief (LCDC_OVR1CFG0) Defined Length Burst Only for Channel Bus Transaction. */
 #define LCDC_OVR1CFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_OVR1CFG0) Hardware Rotation Optimization Disable */
@@ -524,7 +524,7 @@ typedef struct {
 #define   LCDC_OVR1CFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_OVR1CFG1) 16 bpp RGB 565 */
 #define   LCDC_OVR1CFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_OVR1CFG1) 16 bpp TRGB 1555 */
 #define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 */
-#define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4)	/**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_OVR1CFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_OVR1CFG1) 19 bpp TRGB 1666 */
 #define   LCDC_OVR1CFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_OVR1CFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_OVR1CFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_OVR1CFG1) 24 bpp RGB 888 */
@@ -533,7 +533,7 @@ typedef struct {
 #define   LCDC_OVR1CFG1_RGBMODE_32BPP_ARGB_8888 (0xCu << 4) /**< \brief (LCDC_OVR1CFG1) 32 bpp ARGB 8888 */
 #define   LCDC_OVR1CFG1_RGBMODE_32BPP_RGBA_8888 (0xDu << 4) /**< \brief (LCDC_OVR1CFG1) 32 bpp RGBA 8888 */
 #define LCDC_OVR1CFG1_CLUTMODE_Pos 8
-#define LCDC_OVR1CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR1CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table Mode Input Selection */
+#define LCDC_OVR1CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR1CFG1_CLUTMODE_Pos)	/**< \brief (LCDC_OVR1CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR1CFG1_CLUTMODE(value) ((LCDC_OVR1CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR1CFG1_CLUTMODE_Pos)))
 #define   LCDC_OVR1CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 1 bit per pixel */
 #define   LCDC_OVR1CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 2 bits per pixel */
@@ -592,7 +592,7 @@ typedef struct {
 #define LCDC_OVR1CFG8_RMASK_Msk (0xffu << LCDC_OVR1CFG8_RMASK_Pos) /**< \brief (LCDC_OVR1CFG8) Red Color Component Chroma Key Mask */
 #define LCDC_OVR1CFG8_RMASK(value) ((LCDC_OVR1CFG8_RMASK_Msk & ((value) << LCDC_OVR1CFG8_RMASK_Pos)))
 /* -------- LCDC_OVR1CFG9 : (LCDC Offset: 0x00000190) Overlay 1 Configuration Register 9 -------- */
-#define LCDC_OVR1CFG9_CRKEY (0x1u << 0) /**< \brief (LCDC_OVR1CFG9) Blender Chroma Key Enable */
+#define LCDC_OVR1CFG9_CRKEY (0x1u << 0)	/**< \brief (LCDC_OVR1CFG9) Blender Chroma Key Enable */
 #define LCDC_OVR1CFG9_INV (0x1u << 1) /**< \brief (LCDC_OVR1CFG9) Blender Inverted Blender Output Enable */
 #define LCDC_OVR1CFG9_ITER2BL (0x1u << 2) /**< \brief (LCDC_OVR1CFG9) Blender Iterated Color Enable */
 #define LCDC_OVR1CFG9_ITER (0x1u << 3) /**< \brief (LCDC_OVR1CFG9) Blender Use Iterated Color */
@@ -609,14 +609,14 @@ typedef struct {
 /* -------- LCDC_OVR2CHER : (LCDC Offset: 0x00000240) Overlay 2 Channel Enable Register -------- */
 #define LCDC_OVR2CHER_CHEN (0x1u << 0) /**< \brief (LCDC_OVR2CHER) Channel Enable Register */
 #define LCDC_OVR2CHER_UPDATEEN (0x1u << 1) /**< \brief (LCDC_OVR2CHER) Update Overlay Attributes Enable Register */
-#define LCDC_OVR2CHER_A2QEN (0x1u << 2) /**< \brief (LCDC_OVR2CHER) Add To Queue Enable Register */
+#define LCDC_OVR2CHER_A2QEN (0x1u << 2)	/**< \brief (LCDC_OVR2CHER) Add To Queue Enable Register */
 /* -------- LCDC_OVR2CHDR : (LCDC Offset: 0x00000244) Overlay 2 Channel Disable Register -------- */
-#define LCDC_OVR2CHDR_CHDIS (0x1u << 0) /**< \brief (LCDC_OVR2CHDR) Channel Disable Register */
-#define LCDC_OVR2CHDR_CHRST (0x1u << 8) /**< \brief (LCDC_OVR2CHDR) Channel Reset Register */
+#define LCDC_OVR2CHDR_CHDIS (0x1u << 0)	/**< \brief (LCDC_OVR2CHDR) Channel Disable Register */
+#define LCDC_OVR2CHDR_CHRST (0x1u << 8)	/**< \brief (LCDC_OVR2CHDR) Channel Reset Register */
 /* -------- LCDC_OVR2CHSR : (LCDC Offset: 0x00000248) Overlay 2 Channel Status Register -------- */
 #define LCDC_OVR2CHSR_CHSR (0x1u << 0) /**< \brief (LCDC_OVR2CHSR) Channel Status Register */
 #define LCDC_OVR2CHSR_UPDATESR (0x1u << 1) /**< \brief (LCDC_OVR2CHSR) Update Overlay Attributes In Progress Status Register */
-#define LCDC_OVR2CHSR_A2QSR (0x1u << 2) /**< \brief (LCDC_OVR2CHSR) Add To Queue Status Register */
+#define LCDC_OVR2CHSR_A2QSR (0x1u << 2)	/**< \brief (LCDC_OVR2CHSR) Add To Queue Status Register */
 /* -------- LCDC_OVR2IER : (LCDC Offset: 0x0000024C) Overlay 2 Interrupt Enable Register -------- */
 #define LCDC_OVR2IER_DMA (0x1u << 2) /**< \brief (LCDC_OVR2IER) End of DMA Transfer Interrupt Enable Register */
 #define LCDC_OVR2IER_DSCR (0x1u << 3) /**< \brief (LCDC_OVR2IER) Descriptor Loaded Interrupt Enable Register */
@@ -662,7 +662,7 @@ typedef struct {
 #define LCDC_OVR2NEXT_NEXT(value) ((LCDC_OVR2NEXT_NEXT_Msk & ((value) << LCDC_OVR2NEXT_NEXT_Pos)))
 /* -------- LCDC_OVR2CFG0 : (LCDC Offset: 0x0000026C) Overlay 2 Configuration Register 0 -------- */
 #define LCDC_OVR2CFG0_BLEN_Pos 4
-#define LCDC_OVR2CFG0_BLEN_Msk (0x3u << LCDC_OVR2CFG0_BLEN_Pos) /**< \brief (LCDC_OVR2CFG0) AHB Burst Length */
+#define LCDC_OVR2CFG0_BLEN_Msk (0x3u << LCDC_OVR2CFG0_BLEN_Pos)	/**< \brief (LCDC_OVR2CFG0) AHB Burst Length */
 #define LCDC_OVR2CFG0_BLEN(value) ((LCDC_OVR2CFG0_BLEN_Msk & ((value) << LCDC_OVR2CFG0_BLEN_Pos)))
 #define   LCDC_OVR2CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_OVR2CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
@@ -682,7 +682,7 @@ typedef struct {
 #define   LCDC_OVR2CFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_OVR2CFG1) 16 bpp RGB 565 */
 #define   LCDC_OVR2CFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_OVR2CFG1) 16 bpp TRGB 1555 */
 #define   LCDC_OVR2CFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_OVR2CFG1) 18 bpp RGB 666 */
-#define   LCDC_OVR2CFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_OVR2CFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_OVR2CFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4)	/**< \brief (LCDC_OVR2CFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_OVR2CFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_OVR2CFG1) 19 bpp TRGB 1666 */
 #define   LCDC_OVR2CFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_OVR2CFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_OVR2CFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_OVR2CFG1) 24 bpp RGB 888 */
@@ -691,7 +691,7 @@ typedef struct {
 #define   LCDC_OVR2CFG1_RGBMODE_32BPP_ARGB_8888 (0xCu << 4) /**< \brief (LCDC_OVR2CFG1) 32 bpp ARGB 8888 */
 #define   LCDC_OVR2CFG1_RGBMODE_32BPP_RGBA_8888 (0xDu << 4) /**< \brief (LCDC_OVR2CFG1) 32 bpp RGBA 8888 */
 #define LCDC_OVR2CFG1_CLUTMODE_Pos 8
-#define LCDC_OVR2CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR2CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table Mode Input Selection */
+#define LCDC_OVR2CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR2CFG1_CLUTMODE_Pos)	/**< \brief (LCDC_OVR2CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR2CFG1_CLUTMODE(value) ((LCDC_OVR2CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR2CFG1_CLUTMODE_Pos)))
 #define   LCDC_OVR2CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 1 bit per pixel */
 #define   LCDC_OVR2CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 2 bits per pixel */
@@ -750,7 +750,7 @@ typedef struct {
 #define LCDC_OVR2CFG8_RMASK_Msk (0xffu << LCDC_OVR2CFG8_RMASK_Pos) /**< \brief (LCDC_OVR2CFG8) Red Color Component Chroma Key Mask */
 #define LCDC_OVR2CFG8_RMASK(value) ((LCDC_OVR2CFG8_RMASK_Msk & ((value) << LCDC_OVR2CFG8_RMASK_Pos)))
 /* -------- LCDC_OVR2CFG9 : (LCDC Offset: 0x00000290) Overlay 2 Configuration Register 8 -------- */
-#define LCDC_OVR2CFG9_CRKEY (0x1u << 0) /**< \brief (LCDC_OVR2CFG9) Blender Chroma Key Enable */
+#define LCDC_OVR2CFG9_CRKEY (0x1u << 0)	/**< \brief (LCDC_OVR2CFG9) Blender Chroma Key Enable */
 #define LCDC_OVR2CFG9_INV (0x1u << 1) /**< \brief (LCDC_OVR2CFG9) Blender Inverted Blender Output Enable */
 #define LCDC_OVR2CFG9_ITER2BL (0x1u << 2) /**< \brief (LCDC_OVR2CFG9) Blender Iterated Color Enable */
 #define LCDC_OVR2CFG9_ITER (0x1u << 3) /**< \brief (LCDC_OVR2CFG9) Blender Use Iterated Color */
@@ -848,11 +848,11 @@ typedef struct {
 #define LCDC_HEOADDR_ADDR_Msk (0xffffffffu << LCDC_HEOADDR_ADDR_Pos) /**< \brief (LCDC_HEOADDR) DMA Transfer start Address */
 #define LCDC_HEOADDR_ADDR(value) ((LCDC_HEOADDR_ADDR_Msk & ((value) << LCDC_HEOADDR_ADDR_Pos)))
 /* -------- LCDC_HEOCTRL : (LCDC Offset: 0x00000364) High End Overlay DMA Control Register -------- */
-#define LCDC_HEOCTRL_DFETCH (0x1u << 0) /**< \brief (LCDC_HEOCTRL) Transfer Descriptor Fetch Enable */
-#define LCDC_HEOCTRL_LFETCH (0x1u << 1) /**< \brief (LCDC_HEOCTRL) Lookup Table Fetch Enable */
-#define LCDC_HEOCTRL_DMAIEN (0x1u << 2) /**< \brief (LCDC_HEOCTRL) End of DMA Transfer Interrupt Enable */
+#define LCDC_HEOCTRL_DFETCH (0x1u << 0)	/**< \brief (LCDC_HEOCTRL) Transfer Descriptor Fetch Enable */
+#define LCDC_HEOCTRL_LFETCH (0x1u << 1)	/**< \brief (LCDC_HEOCTRL) Lookup Table Fetch Enable */
+#define LCDC_HEOCTRL_DMAIEN (0x1u << 2)	/**< \brief (LCDC_HEOCTRL) End of DMA Transfer Interrupt Enable */
 #define LCDC_HEOCTRL_DSCRIEN (0x1u << 3) /**< \brief (LCDC_HEOCTRL) Descriptor Loaded Interrupt Enable */
-#define LCDC_HEOCTRL_ADDIEN (0x1u << 4) /**< \brief (LCDC_HEOCTRL) Add Head Descriptor to Queue Interrupt Enable */
+#define LCDC_HEOCTRL_ADDIEN (0x1u << 4)	/**< \brief (LCDC_HEOCTRL) Add Head Descriptor to Queue Interrupt Enable */
 #define LCDC_HEOCTRL_DONEIEN (0x1u << 5) /**< \brief (LCDC_HEOCTRL) End of List Interrupt Enable */
 /* -------- LCDC_HEONEXT : (LCDC Offset: 0x00000368) High End Overlay DMA Next Register -------- */
 #define LCDC_HEONEXT_NEXT_Pos 0
@@ -899,10 +899,10 @@ typedef struct {
 #define LCDC_HEOCFG0_BLEN_Pos 4
 #define LCDC_HEOCFG0_BLEN_Msk (0x3u << LCDC_HEOCFG0_BLEN_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length */
 #define LCDC_HEOCFG0_BLEN(value) ((LCDC_HEOCFG0_BLEN_Msk & ((value) << LCDC_HEOCFG0_BLEN_Pos)))
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_SINGLE (0x0u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_SINGLE (0x0u << 4)	/**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR4 (0x1u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR8 (0x2u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 (0x3u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 (0x3u << 4)	/**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_HEOCFG0_BLENUV_Pos 6
 #define LCDC_HEOCFG0_BLENUV_Msk (0x3u << LCDC_HEOCFG0_BLENUV_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length for U-V channel */
 #define LCDC_HEOCFG0_BLENUV(value) ((LCDC_HEOCFG0_BLENUV_Msk & ((value) << LCDC_HEOCFG0_BLENUV_Pos)))
@@ -914,7 +914,7 @@ typedef struct {
 #define LCDC_HEOCFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Optimization Disable */
 #define LCDC_HEOCFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Lock Disable */
 /* -------- LCDC_HEOCFG1 : (LCDC Offset: 0x00000390) High End Overlay Configuration Register 1 -------- */
-#define LCDC_HEOCFG1_CLUTEN (0x1u << 0) /**< \brief (LCDC_HEOCFG1) Color Lookup Table Mode Enable */
+#define LCDC_HEOCFG1_CLUTEN (0x1u << 0)	/**< \brief (LCDC_HEOCFG1) Color Lookup Table Mode Enable */
 #define LCDC_HEOCFG1_YUVEN (0x1u << 1) /**< \brief (LCDC_HEOCFG1) YUV Color Space Enable */
 #define LCDC_HEOCFG1_RGBMODE_Pos 4
 #define LCDC_HEOCFG1_RGBMODE_Msk (0xfu << LCDC_HEOCFG1_RGBMODE_Pos) /**< \brief (LCDC_HEOCFG1) RGB Mode Input selection */
@@ -929,7 +929,7 @@ typedef struct {
 #define   LCDC_HEOCFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_HEOCFG1) 19 bpp TRGB 1666 */
 #define   LCDC_HEOCFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_HEOCFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_HEOCFG1) 24 bpp RGB 888 */
-#define   LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED (0xAu << 4) /**< \brief (LCDC_HEOCFG1) 24 bpp RGB 888 PACKED */
+#define   LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED (0xAu << 4)	/**< \brief (LCDC_HEOCFG1) 24 bpp RGB 888 PACKED */
 #define   LCDC_HEOCFG1_RGBMODE_25BPP_TRGB_1888 (0xBu << 4) /**< \brief (LCDC_HEOCFG1) 25 bpp TRGB 1888 */
 #define   LCDC_HEOCFG1_RGBMODE_32BPP_ARGB_8888 (0xCu << 4) /**< \brief (LCDC_HEOCFG1) 32 bpp ARGB 8888 */
 #define   LCDC_HEOCFG1_RGBMODE_32BPP_RGBA_8888 (0xDu << 4) /**< \brief (LCDC_HEOCFG1) 32 bpp RGBA 8888 */
@@ -957,10 +957,10 @@ typedef struct {
 #define LCDC_HEOCFG1_DSCALEOPT (0x1u << 20) /**< \brief (LCDC_HEOCFG1) Down Scaling Bandwidth Optimization */
 /* -------- LCDC_HEOCFG2 : (LCDC Offset: 0x00000394) High End Overlay Configuration Register 2 -------- */
 #define LCDC_HEOCFG2_XPOS_Pos 0
-#define LCDC_HEOCFG2_XPOS_Msk (0x7ffu << LCDC_HEOCFG2_XPOS_Pos) /**< \brief (LCDC_HEOCFG2) Horizontal Window Position */
+#define LCDC_HEOCFG2_XPOS_Msk (0x7ffu << LCDC_HEOCFG2_XPOS_Pos)	/**< \brief (LCDC_HEOCFG2) Horizontal Window Position */
 #define LCDC_HEOCFG2_XPOS(value) ((LCDC_HEOCFG2_XPOS_Msk & ((value) << LCDC_HEOCFG2_XPOS_Pos)))
 #define LCDC_HEOCFG2_YPOS_Pos 16
-#define LCDC_HEOCFG2_YPOS_Msk (0x7ffu << LCDC_HEOCFG2_YPOS_Pos) /**< \brief (LCDC_HEOCFG2) Vertical Window Position */
+#define LCDC_HEOCFG2_YPOS_Msk (0x7ffu << LCDC_HEOCFG2_YPOS_Pos)	/**< \brief (LCDC_HEOCFG2) Vertical Window Position */
 #define LCDC_HEOCFG2_YPOS(value) ((LCDC_HEOCFG2_YPOS_Msk & ((value) << LCDC_HEOCFG2_YPOS_Pos)))
 /* -------- LCDC_HEOCFG3 : (LCDC Offset: 0x00000398) High End Overlay Configuration Register 3 -------- */
 #define LCDC_HEOCFG3_XSIZE_Pos 0
@@ -971,10 +971,10 @@ typedef struct {
 #define LCDC_HEOCFG3_YSIZE(value) ((LCDC_HEOCFG3_YSIZE_Msk & ((value) << LCDC_HEOCFG3_YSIZE_Pos)))
 /* -------- LCDC_HEOCFG4 : (LCDC Offset: 0x0000039C) High End Overlay Configuration Register 4 -------- */
 #define LCDC_HEOCFG4_XMEMSIZE_Pos 0
-#define LCDC_HEOCFG4_XMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_XMEMSIZE_Pos) /**< \brief (LCDC_HEOCFG4) Horizontal image Size in Memory */
+#define LCDC_HEOCFG4_XMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_XMEMSIZE_Pos)	/**< \brief (LCDC_HEOCFG4) Horizontal image Size in Memory */
 #define LCDC_HEOCFG4_XMEMSIZE(value) ((LCDC_HEOCFG4_XMEMSIZE_Msk & ((value) << LCDC_HEOCFG4_XMEMSIZE_Pos)))
 #define LCDC_HEOCFG4_YMEMSIZE_Pos 16
-#define LCDC_HEOCFG4_YMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_YMEMSIZE_Pos) /**< \brief (LCDC_HEOCFG4) Vertical image Size in Memory */
+#define LCDC_HEOCFG4_YMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_YMEMSIZE_Pos)	/**< \brief (LCDC_HEOCFG4) Vertical image Size in Memory */
 #define LCDC_HEOCFG4_YMEMSIZE(value) ((LCDC_HEOCFG4_YMEMSIZE_Msk & ((value) << LCDC_HEOCFG4_YMEMSIZE_Pos)))
 /* -------- LCDC_HEOCFG5 : (LCDC Offset: 0x000003A0) High End Overlay Configuration Register 5 -------- */
 #define LCDC_HEOCFG5_XSTRIDE_Pos 0
@@ -1023,7 +1023,7 @@ typedef struct {
 #define LCDC_HEOCFG11_RMASK_Msk (0xffu << LCDC_HEOCFG11_RMASK_Pos) /**< \brief (LCDC_HEOCFG11) Red Color Component Chroma Key Mask */
 #define LCDC_HEOCFG11_RMASK(value) ((LCDC_HEOCFG11_RMASK_Msk & ((value) << LCDC_HEOCFG11_RMASK_Pos)))
 /* -------- LCDC_HEOCFG12 : (LCDC Offset: 0x000003BC) High End Overlay Configuration Register 12 -------- */
-#define LCDC_HEOCFG12_CRKEY (0x1u << 0) /**< \brief (LCDC_HEOCFG12) Blender Chroma Key Enable */
+#define LCDC_HEOCFG12_CRKEY (0x1u << 0)	/**< \brief (LCDC_HEOCFG12) Blender Chroma Key Enable */
 #define LCDC_HEOCFG12_INV (0x1u << 1) /**< \brief (LCDC_HEOCFG12) Blender Inverted Blender Output Enable */
 #define LCDC_HEOCFG12_ITER2BL (0x1u << 2) /**< \brief (LCDC_HEOCFG12) Blender Iterated Color Enable */
 #define LCDC_HEOCFG12_ITER (0x1u << 3) /**< \brief (LCDC_HEOCFG12) Blender Use Iterated Color */
@@ -1354,5 +1354,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_LCDC_COMPONENT_ */
+#endif				/* _SAMA5D4_LCDC_COMPONENT_ */

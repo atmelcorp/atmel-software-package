@@ -38,5 +38,4 @@
 #error "No board defined"
 #endif
 
-#endif /* #ifndef _BOARD_HEADER_ */
-
+#endif				/* #ifndef _BOARD_HEADER_ */

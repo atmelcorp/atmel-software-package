@@ -53,7 +53,8 @@
  *
  * \param pRMci Pointer to a Hsmci instance
  */
-extern void HSMCI_Enable(Hsmci* pRMci)
+extern void
+HSMCI_Enable(Hsmci * pRMci)
 {
 	pRMci->HSMCI_CR = HSMCI_CR_MCIEN;
 }
@@ -63,7 +64,8 @@ extern void HSMCI_Enable(Hsmci* pRMci)
  *
  * \param pRMci Pointer to a Hsmci instance
  */
-extern void HSMCI_Disable(Hsmci* pRMci)
+extern void
+HSMCI_Disable(Hsmci * pRMci)
 {
 	pRMci->HSMCI_CR = HSMCI_CR_MCIDIS;
 }
@@ -75,24 +77,25 @@ extern void HSMCI_Disable(Hsmci* pRMci)
  * \param bBackup Backup registers values to keep previous settings, including
  *                _MR, _SDCR, _DTOR, _CSTOR, _DMA and _CFG.
  */
-extern void HSMCI_Reset(Hsmci* pRMci, uint8_t bBackup)
+extern void
+HSMCI_Reset(Hsmci * pRMci, uint8_t bBackup)
 {
 	if (bBackup) {
-		uint32_t mr    = pRMci->HSMCI_MR;
-		uint32_t dtor  = pRMci->HSMCI_DTOR;
-		uint32_t sdcr  = pRMci->HSMCI_SDCR;
+		uint32_t mr = pRMci->HSMCI_MR;
+		uint32_t dtor = pRMci->HSMCI_DTOR;
+		uint32_t sdcr = pRMci->HSMCI_SDCR;
 		uint32_t cstor = pRMci->HSMCI_CSTOR;
-		uint32_t dma   = pRMci->HSMCI_DMA;
-		uint32_t cfg   = pRMci->HSMCI_CFG;
+		uint32_t dma = pRMci->HSMCI_DMA;
+		uint32_t cfg = pRMci->HSMCI_CFG;
 
 		pRMci->HSMCI_CR = HSMCI_CR_SWRST;
 
-		pRMci->HSMCI_MR    = mr;
-		pRMci->HSMCI_DTOR  = dtor;
-		pRMci->HSMCI_SDCR  = sdcr;
+		pRMci->HSMCI_MR = mr;
+		pRMci->HSMCI_DTOR = dtor;
+		pRMci->HSMCI_SDCR = sdcr;
 		pRMci->HSMCI_CSTOR = cstor;
-		pRMci->HSMCI_DMA   = dma;
-		pRMci->HSMCI_CFG   = cfg;
+		pRMci->HSMCI_DMA = dma;
+		pRMci->HSMCI_CFG = cfg;
 	} else {
 		pRMci->HSMCI_CR = HSMCI_CR_SWRST;
 	}
@@ -104,11 +107,12 @@ extern void HSMCI_Reset(Hsmci* pRMci, uint8_t bBackup)
  * \param bSlot Slot ID (0~3 for A~D).
  * \param bBusWidth Bus width.
  */
-extern void HSMCI_Select(Hsmci *pRMci, uint8_t bSlot, uint8_t bBusWidth)
+extern void
+HSMCI_Select(Hsmci * pRMci, uint8_t bSlot, uint8_t bBusWidth)
 {
 	uint32_t dwSdcr;
 	dwSdcr = (HSMCI_SDCR_SDCSEL_Msk & bSlot);
-	switch(bBusWidth) {
+	switch (bBusWidth) {
 	case 1:
 		pRMci->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_1;
 		break;
@@ -126,7 +130,8 @@ extern void HSMCI_Select(Hsmci *pRMci, uint8_t bSlot, uint8_t bBusWidth)
  * \param pRMci Pointer to a Hsmci instance
  * \param bSlot Slot ID (0~3 for A~D).
  */
-extern void HSMCI_SetSlot(Hsmci *pRMci, uint8_t bSlot)
+extern void
+HSMCI_SetSlot(Hsmci * pRMci, uint8_t bSlot)
 {
 	uint32_t dwSdcr = pRMci->HSMCI_SDCR & ~HSMCI_SDCR_SDCSEL_Msk;
 	pRMci->HSMCI_SDCR = dwSdcr | (HSMCI_SDCR_SDCSEL_Msk & bSlot);
@@ -137,10 +142,11 @@ extern void HSMCI_SetSlot(Hsmci *pRMci, uint8_t bSlot)
  * \param pRMci Pointer to a Hsmci instance
  * \param bBusWidth 1,4 or 8 (bits).
  */
-extern void HSMCI_SetBusWidth(Hsmci * pRMci,uint8_t bBusWidth)
+extern void
+HSMCI_SetBusWidth(Hsmci * pRMci, uint8_t bBusWidth)
 {
 	uint32_t dwSdcr = pRMci->HSMCI_SDCR & ~HSMCI_SDCR_SDCBUS_Msk;
-	switch(bBusWidth) {
+	switch (bBusWidth) {
 	case 1:
 		pRMci->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_1;
 		break;
@@ -159,9 +165,10 @@ extern void HSMCI_SetBusWidth(Hsmci * pRMci,uint8_t bBusWidth)
  * \param pRMci  Pointer to an MCI instance.
  * \return 1, 4 or 8.
  */
-extern uint8_t HSMCI_GetBusWidth(Hsmci * pRMci)
+extern uint8_t
+HSMCI_GetBusWidth(Hsmci * pRMci)
 {
-	switch(pRMci->HSMCI_SDCR & HSMCI_SDCR_SDCBUS_Msk) {
+	switch (pRMci->HSMCI_SDCR & HSMCI_SDCR_SDCBUS_Msk) {
 	case HSMCI_SDCR_SDCBUS_1:
 		return 1;
 	case HSMCI_SDCR_SDCBUS_4:
@@ -178,7 +185,8 @@ extern uint8_t HSMCI_GetBusWidth(Hsmci * pRMci)
  * \param pRMci  Pointer to an MCI instance.
  * \param dwMode Value of the MCI Mode register.
  */
-extern void HSMCI_ConfigureMode(Hsmci *pRMci, uint32_t dwMode)
+extern void
+HSMCI_ConfigureMode(Hsmci * pRMci, uint32_t dwMode)
 {
 	pRMci->HSMCI_MR = dwMode;
 }
@@ -187,7 +195,8 @@ extern void HSMCI_ConfigureMode(Hsmci *pRMci, uint32_t dwMode)
  * \brief Return mode register
  * \param pRMci  Pointer to an MCI instance.
  */
-extern uint32_t HSMCI_GetMode(Hsmci * pRMci)
+extern uint32_t
+HSMCI_GetMode(Hsmci * pRMci)
 {
 	return pRMci->HSMCI_MR;
 }
@@ -199,13 +208,13 @@ extern uint32_t HSMCI_GetMode(Hsmci * pRMci)
  * \param bRdProof Read proof enable/disable.
  * \param bWrProof Write proof enable/disable.
  */
-extern void HSMCI_ProofEnable(Hsmci *pRMci, uint8_t bRdProof, uint8_t bWrProof)
+extern void
+HSMCI_ProofEnable(Hsmci * pRMci, uint8_t bRdProof, uint8_t bWrProof)
 {
 	uint32_t mr = pRMci->HSMCI_MR;
 	pRMci->HSMCI_MR = (mr & (~(HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF)))
-	                  | (bRdProof ? HSMCI_MR_RDPROOF : 0)
-	                  | (bWrProof ? HSMCI_MR_WRPROOF : 0)
-	                  ;
+	    | (bRdProof ? HSMCI_MR_RDPROOF : 0)
+	    | (bWrProof ? HSMCI_MR_WRPROOF : 0);
 }
 
 /**
@@ -214,7 +223,8 @@ extern void HSMCI_ProofEnable(Hsmci *pRMci, uint8_t bRdProof, uint8_t bWrProof)
  * \param pRMci    Pointer to an MCI instance.
  * \param bPadv  Padding value 0xFF/0x00.
  */
-extern void HSMCI_PadvCtl(Hsmci *pRMci, uint8_t bPadv)
+extern void
+HSMCI_PadvCtl(Hsmci * pRMci, uint8_t bPadv)
 {
 	if (bPadv) {
 		pRMci->HSMCI_MR |= HSMCI_MR_PADV;
@@ -229,7 +239,8 @@ extern void HSMCI_PadvCtl(Hsmci *pRMci, uint8_t bPadv)
  * \param pRMci    Pointer to an MCI instance.
  * \param bFByteEn FBYTE enable/disable.
  */
-extern void HSMCI_FByteEnable(Hsmci *pRMci, uint8_t bFByteEn)
+extern void
+HSMCI_FByteEnable(Hsmci * pRMci, uint8_t bFByteEn)
 {
 	if (bFByteEn) {
 		pRMci->HSMCI_MR |= HSMCI_MR_FBYTE;
@@ -244,7 +255,8 @@ extern void HSMCI_FByteEnable(Hsmci *pRMci, uint8_t bFByteEn)
  * \param pRMci    Pointer to an MCI instance.
  * \return 1 if _FBYTE is enabled.
  */
-extern uint8_t HSMCI_IsFByteEnabled(Hsmci *pRMci)
+extern uint8_t
+HSMCI_IsFByteEnabled(Hsmci * pRMci)
 {
 	return ((pRMci->HSMCI_MR & HSMCI_MR_FBYTE) > 0);
 }
@@ -256,19 +268,19 @@ extern uint8_t HSMCI_IsFByteEnabled(Hsmci *pRMci)
  * \param bClkDiv  Clock Divider value (0 ~ 255).
  * \param bPwsDiv  Power Saving Divider (1 ~ 7).
  */
-extern void HSMCI_DivCtrl(Hsmci *pRMci, uint32_t bClkDiv, uint8_t bPwsDiv)
+extern void
+HSMCI_DivCtrl(Hsmci * pRMci, uint32_t bClkDiv, uint8_t bPwsDiv)
 {
 	uint32_t mr = pRMci->HSMCI_MR;
-	uint32_t clkdiv ,clkodd;
-	clkdiv = bClkDiv - 2 ;
-	clkodd = (bClkDiv & 1)? HSMCI_MR_CLKODD: 0;
+	uint32_t clkdiv, clkodd;
+	clkdiv = bClkDiv - 2;
+	clkodd = (bClkDiv & 1) ? HSMCI_MR_CLKODD : 0;
 	clkdiv = clkdiv >> 1;
 
 	pRMci->HSMCI_MR = (mr & ~(HSMCI_MR_CLKDIV_Msk | HSMCI_MR_PWSDIV_Msk))
-	                  | HSMCI_MR_CLKDIV(clkdiv)
-	                  | HSMCI_MR_PWSDIV(bPwsDiv)
-	                  | clkodd
-	                  ;
+	    | HSMCI_MR_CLKDIV(clkdiv)
+	    | HSMCI_MR_PWSDIV(bPwsDiv)
+	    | clkodd;
 }
 
 /**
@@ -277,7 +289,8 @@ extern void HSMCI_DivCtrl(Hsmci *pRMci, uint32_t bClkDiv, uint8_t bPwsDiv)
  * \param pRMci   Pointer to an Hsmci instance.
  * \param dwSources Bitwise OR of selected interrupt sources.
  */
-extern void HSMCI_EnableIt(Hsmci *pRMci, uint32_t dwSources)
+extern void
+HSMCI_EnableIt(Hsmci * pRMci, uint32_t dwSources)
 {
 	pRMci->HSMCI_IER = dwSources;
 }
@@ -288,7 +301,8 @@ extern void HSMCI_EnableIt(Hsmci *pRMci, uint32_t dwSources)
  * \param pRMci   Pointer to an Hsmci instance.
  * \param dwSources Bitwise OR of selected interrupt sources.
  */
-extern void HSMCI_DisableIt(Hsmci *pRMci, uint32_t dwSources)
+extern void
+HSMCI_DisableIt(Hsmci * pRMci, uint32_t dwSources)
 {
 	pRMci->HSMCI_IDR = dwSources;
 }
@@ -299,9 +313,10 @@ extern void HSMCI_DisableIt(Hsmci *pRMci, uint32_t dwSources)
  * \param pRMci   Pointer to an Hsmci instance.
  * \return MCI interrupt mask register.
  */
-extern uint32_t HSMCI_GetItMask(Hsmci *pRMci)
+extern uint32_t
+HSMCI_GetItMask(Hsmci * pRMci)
 {
-	return (pRMci->HSMCI_IMR) ;
+	return (pRMci->HSMCI_IMR);
 }
 
 /**
@@ -311,9 +326,8 @@ extern uint32_t HSMCI_GetItMask(Hsmci *pRMci)
  * \param wBlkLen   Block size.
  * \param wCnt      Block(byte) count.
  */
-extern void HSMCI_ConfigureTransfer(Hsmci *pRMci,
-                                    uint16_t wBlkLen,
-                                    uint16_t wCnt)
+extern void
+HSMCI_ConfigureTransfer(Hsmci * pRMci, uint16_t wBlkLen, uint16_t wCnt)
 {
 	pRMci->HSMCI_BLKR = (wBlkLen << 16) | wCnt;
 }
@@ -326,7 +340,8 @@ extern void HSMCI_ConfigureTransfer(Hsmci *pRMci,
  * \param pRMci     Pointer to an Hsmci instance.
  * \param wBlkSize  Block size.
  */
-extern void HSMCI_SetBlockLen(Hsmci *pRMci, uint16_t wBlkSize)
+extern void
+HSMCI_SetBlockLen(Hsmci * pRMci, uint16_t wBlkSize)
 {
 	pRMci->HSMCI_BLKR = wBlkSize << 16;
 }
@@ -337,7 +352,8 @@ extern void HSMCI_SetBlockLen(Hsmci *pRMci, uint16_t wBlkSize)
  * \param pRMci     Pointer to an Hsmci instance.
  * \param wBlkCnt   Block(byte) count.
  */
-extern void HSMCI_SetBlockCount(Hsmci *pRMci, uint16_t wBlkCnt)
+extern void
+HSMCI_SetBlockCount(Hsmci * pRMci, uint16_t wBlkCnt)
 {
 	pRMci->HSMCI_BLKR |= wBlkCnt;
 }
@@ -348,7 +364,8 @@ extern void HSMCI_SetBlockCount(Hsmci *pRMci, uint16_t wBlkCnt)
  * \param pRMci Pointer to an Hsmci instance.
  * \param dwConfigure Completion Signal Timeout configure.
  */
-extern void HSMCI_ConfigureCompletionTO(Hsmci *pRMci, uint32_t dwConfigure)
+extern void
+HSMCI_ConfigureCompletionTO(Hsmci * pRMci, uint32_t dwConfigure)
 {
 	pRMci->HSMCI_CSTOR = dwConfigure;
 }
@@ -359,7 +376,8 @@ extern void HSMCI_ConfigureCompletionTO(Hsmci *pRMci, uint32_t dwConfigure)
  * \param pRMci Pointer to an Hsmci instance.
  * \param dwConfigure Data Timeout configure.
  */
-extern void HSMCI_ConfigureDataTO(Hsmci *pRMci, uint32_t dwConfigure)
+extern void
+HSMCI_ConfigureDataTO(Hsmci * pRMci, uint32_t dwConfigure)
 {
 	pRMci->HSMCI_DTOR = dwConfigure;
 }
@@ -371,12 +389,12 @@ extern void HSMCI_ConfigureDataTO(Hsmci *pRMci, uint32_t dwConfigure)
  * \param dwCmd Command register value.
  * \param dwArg Argument register value.
  */
-extern void HSMCI_SendCmd(Hsmci *pRMci, uint32_t dwCmd, uint32_t dwArg)
+extern void
+HSMCI_SendCmd(Hsmci * pRMci, uint32_t dwCmd, uint32_t dwArg)
 {
 	pRMci->HSMCI_ARGR = dwArg;
 	pRMci->HSMCI_CMDR = dwCmd;
 }
-
 
 /**
  * \brief Return the response register.
@@ -384,7 +402,8 @@ extern void HSMCI_SendCmd(Hsmci *pRMci, uint32_t dwCmd, uint32_t dwArg)
  * \param pRMci   Pointer to an Hsmci instance.
  * \return MCI response register.
  */
-extern uint32_t HSMCI_GetResponse(Hsmci *pRMci)
+extern uint32_t
+HSMCI_GetResponse(Hsmci * pRMci)
 {
 	return pRMci->HSMCI_RSPR[0];
 }
@@ -395,7 +414,8 @@ extern uint32_t HSMCI_GetResponse(Hsmci *pRMci)
  * \param pRMci   Pointer to an Hsmci instance.
  * \return MCI receive data register.
  */
-extern uint32_t HSMCI_Read(Hsmci *pRMci)
+extern uint32_t
+HSMCI_Read(Hsmci * pRMci)
 {
 	return pRMci->HSMCI_RDR;
 }
@@ -407,9 +427,10 @@ extern uint32_t HSMCI_Read(Hsmci *pRMci)
  * \param pdwData Pointer to data buffer.
  * \param dwSize  Size of data buffer (in DWord).
  */
-extern void HSMCI_ReadFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
+extern void
+HSMCI_ReadFifo(Hsmci * pRMci, uint8_t * pdwData, uint32_t dwSize)
 {
-	volatile uint32_t *pFIFO = (volatile uint32_t*)(pRMci->HSMCI_FIFO);
+	volatile uint32_t *pFIFO = (volatile uint32_t *) (pRMci->HSMCI_FIFO);
 	register uint32_t c4, c1;
 
 	if (dwSize == 0)
@@ -418,14 +439,14 @@ extern void HSMCI_ReadFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
 	c4 = dwSize >> 2;
 	c1 = dwSize & 0x3;
 
-	for(; c4; c4 --) {
-		*pdwData ++ = *pFIFO ++;
-		*pdwData ++ = *pFIFO ++;
-		*pdwData ++ = *pFIFO ++;
-		*pdwData ++ = *pFIFO ++;
+	for (; c4; c4--) {
+		*pdwData++ = *pFIFO++;
+		*pdwData++ = *pFIFO++;
+		*pdwData++ = *pFIFO++;
+		*pdwData++ = *pFIFO++;
 	}
-	for(; c1; c1 --) {
-		*pdwData ++ = *pFIFO ++;
+	for (; c1; c1--) {
+		*pdwData++ = *pFIFO++;
 	}
 }
 
@@ -435,7 +456,8 @@ extern void HSMCI_ReadFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
  * \param pRMci   Pointer to an Hsmci instance.
  * \param dwData  Data to transmit.
  */
-extern void HSMCI_Write(Hsmci *pRMci, uint32_t dwData)
+extern void
+HSMCI_Write(Hsmci * pRMci, uint32_t dwData)
 {
 	pRMci->HSMCI_TDR = dwData;
 }
@@ -447,9 +469,10 @@ extern void HSMCI_Write(Hsmci *pRMci, uint32_t dwData)
  * \param pdwData Pointer to data buffer.
  * \param dwSize  Size of data buffer (In DWord).
  */
-extern void HSMCI_WriteFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
+extern void
+HSMCI_WriteFifo(Hsmci * pRMci, uint8_t * pdwData, uint32_t dwSize)
 {
-	volatile uint32_t *pFIFO = (volatile uint32_t*)(pRMci->HSMCI_FIFO);
+	volatile uint32_t *pFIFO = (volatile uint32_t *) (pRMci->HSMCI_FIFO);
 	register uint32_t c4, c1;
 
 	if (dwSize == 0)
@@ -458,14 +481,14 @@ extern void HSMCI_WriteFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
 	c4 = dwSize >> 2;
 	c1 = dwSize & 0x3;
 
-	for(; c4; c4 --) {
-		*pFIFO ++ = *pdwData ++;
-		*pFIFO ++ = *pdwData ++;
-		*pFIFO ++ = *pdwData ++;
-		*pFIFO ++ = *pdwData ++;
+	for (; c4; c4--) {
+		*pFIFO++ = *pdwData++;
+		*pFIFO++ = *pdwData++;
+		*pFIFO++ = *pdwData++;
+		*pFIFO++ = *pdwData++;
 	}
-	for(; c1; c1 --) {
-		*pFIFO ++ = *pdwData ++;
+	for (; c1; c1--) {
+		*pFIFO++ = *pdwData++;
 	}
 }
 
@@ -475,7 +498,8 @@ extern void HSMCI_WriteFifo(Hsmci *pRMci, uint8_t *pdwData, uint32_t dwSize)
  * \param pRMci   Pointer to an Hsmci instance.
  * \return MCI status register.
  */
-extern uint32_t HSMCI_GetStatus(Hsmci *pRMci)
+extern uint32_t
+HSMCI_GetStatus(Hsmci * pRMci)
 {
 	return pRMci->HSMCI_SR;
 }
@@ -486,7 +510,8 @@ extern uint32_t HSMCI_GetStatus(Hsmci *pRMci)
  * \param pRMci Pointer to an Hsmci instance.
  * \param dwConfigure Configure value.
  */
-extern void HSMCI_ConfigureDma(Hsmci *pRMci, uint32_t dwConfigure)
+extern void
+HSMCI_ConfigureDma(Hsmci * pRMci, uint32_t dwConfigure)
 {
 	pRMci->HSMCI_DMA = dwConfigure;
 }
@@ -497,10 +522,11 @@ extern void HSMCI_ConfigureDma(Hsmci *pRMci, uint32_t dwConfigure)
  * \param pRMci Pointer to an Hsmci instance.
  * \param bEnable 1 to enable, 0 to disable.
  */
-extern void HSMCI_EnableDma(Hsmci *pRMci, uint8_t bEnable)
+extern void
+HSMCI_EnableDma(Hsmci * pRMci, uint8_t bEnable)
 {
 	if (bEnable) {
-		pRMci->HSMCI_DMA |= HSMCI_DMA_DMAEN ;//| HSMCI_DMA_CHKSIZE_32;
+		pRMci->HSMCI_DMA |= HSMCI_DMA_DMAEN;	//| HSMCI_DMA_CHKSIZE_32;
 	} else {
 		pRMci->HSMCI_DMA &= ~HSMCI_DMA_DMAEN;
 	}
@@ -512,7 +538,8 @@ extern void HSMCI_EnableDma(Hsmci *pRMci, uint8_t bEnable)
  * \param pRMci   Pointer to an Hsmci instance.
  * \param dwConfigure Configure value.
  */
-extern void HSMCI_Configure(Hsmci *pRMci, uint32_t dwConfigure)
+extern void
+HSMCI_Configure(Hsmci * pRMci, uint32_t dwConfigure)
 {
 	pRMci->HSMCI_CFG = dwConfigure;
 }
@@ -523,7 +550,8 @@ extern void HSMCI_Configure(Hsmci *pRMci, uint32_t dwConfigure)
  * \param pRMci Pointer to an Hsmci instance.
  * \param bHsEnable Enable/Disable high-speed.
  */
-extern void HSMCI_HsEnable(Hsmci *pRMci, uint8_t bHsEnable)
+extern void
+HSMCI_HsEnable(Hsmci * pRMci, uint8_t bHsEnable)
 {
 	if (bHsEnable) {
 		pRMci->HSMCI_CFG |= HSMCI_CFG_HSMODE;
@@ -537,7 +565,8 @@ extern void HSMCI_HsEnable(Hsmci *pRMci, uint8_t bHsEnable)
  * \param pRMci Pointer to an Hsmci instance.
  * \return 1
  */
-extern uint8_t HSMCI_IsHsEnabled(Hsmci * pRMci)
+extern uint8_t
+HSMCI_IsHsEnabled(Hsmci * pRMci)
 {
 	return ((pRMci->HSMCI_CFG & HSMCI_CFG_HSMODE) > 0);
 }
@@ -548,7 +577,8 @@ extern uint8_t HSMCI_IsHsEnabled(Hsmci * pRMci)
  * \param pRMci   Pointer to an Hsmci instance.
  * \param dwConfigure WP mode configure value.
  */
-extern void HSMCI_ConfigureWP(Hsmci *pRMci, uint32_t dwConfigure)
+extern void
+HSMCI_ConfigureWP(Hsmci * pRMci, uint32_t dwConfigure)
 {
 	pRMci->HSMCI_WPMR = dwConfigure;
 }
@@ -559,10 +589,10 @@ extern void HSMCI_ConfigureWP(Hsmci *pRMci, uint32_t dwConfigure)
  * \param pRMci   Pointer to an Hsmci instance.
  * \return MCI write protect status register.
  */
-extern uint32_t HSMCI_GetWPStatus(Hsmci *pRMci)
+extern uint32_t
+HSMCI_GetWPStatus(Hsmci * pRMci)
 {
 	return pRMci->HSMCI_WPSR;
 }
 
 /**@}*/
-

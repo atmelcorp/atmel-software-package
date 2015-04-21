@@ -36,7 +36,6 @@
 
 #include "chip.h"
 
-
 /*------------------------------------------------------------------------------*/
 /*         Definition                                                           */
 /*------------------------------------------------------------------------------*/
@@ -51,7 +50,7 @@
 #define ICM_RCFG_SUIEN (0x1u << 9) /**< \brief (ICM_RCFG) Monitoring Status Updated Condition Interrupt Enable  */
 #define ICM_RCFG_PROCDLY (0x1u << 10) /**< \brief (ICM_RCFG) Processing Delay*/
 #define ICM_RCFG_UALGO_Pos 12
-#define ICM_RCFG_UALGO_Msk (0x7u << ICM_RCFG_UALGO_Pos) /**< \brief (ICM_RCFG) User SHA Algorithm */
+#define ICM_RCFG_UALGO_Msk (0x7u << ICM_RCFG_UALGO_Pos)	/**< \brief (ICM_RCFG) User SHA Algorithm */
 #define   ICM_RCFG_ALGO_SHA1 (0x0u << 12) /**< \brief (ICM_RCFG) SHA1 algorithm processed */
 #define   ICM_RCFG_ALGO_SHA256 (0x1u << 12) /**< \brief (ICM_RCFG) SHA256 algorithm processed */
 #define   ICM_RCFG_ALGO_SHA224 (0x4u << 12) /**< \brief (ICM_RCFG) SHA224 algorithm processed */
@@ -64,17 +63,16 @@
 /*------------------------------------------------------------------------------*/
 
 /** \brief Structure ICM region descriptor area. */
-typedef struct _LinkedListDescriporIcmRegion
-{
-    /** the first byte address of the Region. */
-    uint32_t icm_raddr;
-    /** Configuration Structure Member. */
-    uint32_t icm_rcfg;
-    /** Control Structure Member. */
-    uint32_t icm_rctrl;
-    /** Next Address Structure Member. */
-    uint32_t icm_rnext;
-}LinkedListDescriporIcmRegion;
+typedef struct _LinkedListDescriporIcmRegion {
+	/** the first byte address of the Region. */
+	uint32_t icm_raddr;
+	/** Configuration Structure Member. */
+	uint32_t icm_rcfg;
+	/** Control Structure Member. */
+	uint32_t icm_rctrl;
+	/** Next Address Structure Member. */
+	uint32_t icm_rnext;
+} LinkedListDescriporIcmRegion;
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
@@ -94,4 +92,4 @@ extern uint32_t ICM_GetUStatus(void);
 extern void ICM_SetDescStartAddress(uint32_t addr);
 extern void ICM_SetHashStartAddress(uint32_t addr);
 extern void ICM_SetInitHashValue(uint32_t val);
-#endif /* #ifndef _ICM_ */
+#endif				/* #ifndef _ICM_ */

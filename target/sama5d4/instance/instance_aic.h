@@ -32,49 +32,49 @@
 
 /* ========== Register definition for AIC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_AIC_SSR                    (0xFC06E000U) /**< \brief (AIC) Source Select Register */
-  #define REG_AIC_SMR                    (0xFC06E004U) /**< \brief (AIC) Source Mode Register */
-  #define REG_AIC_SVR                    (0xFC06E008U) /**< \brief (AIC) Source Vector Register */
-  #define REG_AIC_IVR                    (0xFC06E010U) /**< \brief (AIC) Interrupt Vector Register */
-  #define REG_AIC_FVR                    (0xFC06E014U) /**< \brief (AIC) FIQ Vector Register */
-  #define REG_AIC_ISR                    (0xFC06E018U) /**< \brief (AIC) Interrupt Status Register */
-  #define REG_AIC_IPR0                   (0xFC06E020U) /**< \brief (AIC) Interrupt Pending Register 0 */
-  #define REG_AIC_IPR1                   (0xFC06E024U) /**< \brief (AIC) Interrupt Pending Register 1 */
-  #define REG_AIC_IPR2                   (0xFC06E028U) /**< \brief (AIC) Interrupt Pending Register 2 */
-  #define REG_AIC_IPR3                   (0xFC06E02CU) /**< \brief (AIC) Interrupt Pending Register 3 */
-  #define REG_AIC_IMR                    (0xFC06E030U) /**< \brief (AIC) Interrupt Mask Register */
-  #define REG_AIC_CISR                   (0xFC06E034U) /**< \brief (AIC) Core Interrupt Status Register */
-  #define REG_AIC_EOICR                  (0xFC06E038U) /**< \brief (AIC) End of Interrupt Command Register */
-  #define REG_AIC_SPU                    (0xFC06E03CU) /**< \brief (AIC) Spurious Interrupt Vector Register */
-  #define REG_AIC_IECR                   (0xFC06E040U) /**< \brief (AIC) Interrupt Enable Command Register */
-  #define REG_AIC_IDCR                   (0xFC06E044U) /**< \brief (AIC) Interrupt Disable Command Register */
-  #define REG_AIC_ICCR                   (0xFC06E048U) /**< \brief (AIC) Interrupt Clear Command Register */
-  #define REG_AIC_ISCR                   (0xFC06E04CU) /**< \brief (AIC) Interrupt Set Command Register */
-  #define REG_AIC_DCR                    (0xFC06E06CU) /**< \brief (AIC) Debug Control Register */
-  #define REG_AIC_WPMR                   (0xFC06E0E4U) /**< \brief (AIC) Write Protection Mode Register */
-  #define REG_AIC_WPSR                   (0xFC06E0E8U) /**< \brief (AIC) Write Protection Status Register */
+#define REG_AIC_SSR                    (0xFC06E000U) /**< \brief (AIC) Source Select Register */
+#define REG_AIC_SMR                    (0xFC06E004U) /**< \brief (AIC) Source Mode Register */
+#define REG_AIC_SVR                    (0xFC06E008U) /**< \brief (AIC) Source Vector Register */
+#define REG_AIC_IVR                    (0xFC06E010U) /**< \brief (AIC) Interrupt Vector Register */
+#define REG_AIC_FVR                    (0xFC06E014U) /**< \brief (AIC) FIQ Vector Register */
+#define REG_AIC_ISR                    (0xFC06E018U) /**< \brief (AIC) Interrupt Status Register */
+#define REG_AIC_IPR0                   (0xFC06E020U) /**< \brief (AIC) Interrupt Pending Register 0 */
+#define REG_AIC_IPR1                   (0xFC06E024U) /**< \brief (AIC) Interrupt Pending Register 1 */
+#define REG_AIC_IPR2                   (0xFC06E028U) /**< \brief (AIC) Interrupt Pending Register 2 */
+#define REG_AIC_IPR3                   (0xFC06E02CU) /**< \brief (AIC) Interrupt Pending Register 3 */
+#define REG_AIC_IMR                    (0xFC06E030U) /**< \brief (AIC) Interrupt Mask Register */
+#define REG_AIC_CISR                   (0xFC06E034U) /**< \brief (AIC) Core Interrupt Status Register */
+#define REG_AIC_EOICR                  (0xFC06E038U) /**< \brief (AIC) End of Interrupt Command Register */
+#define REG_AIC_SPU                    (0xFC06E03CU) /**< \brief (AIC) Spurious Interrupt Vector Register */
+#define REG_AIC_IECR                   (0xFC06E040U) /**< \brief (AIC) Interrupt Enable Command Register */
+#define REG_AIC_IDCR                   (0xFC06E044U) /**< \brief (AIC) Interrupt Disable Command Register */
+#define REG_AIC_ICCR                   (0xFC06E048U) /**< \brief (AIC) Interrupt Clear Command Register */
+#define REG_AIC_ISCR                   (0xFC06E04CU) /**< \brief (AIC) Interrupt Set Command Register */
+#define REG_AIC_DCR                    (0xFC06E06CU) /**< \brief (AIC) Debug Control Register */
+#define REG_AIC_WPMR                   (0xFC06E0E4U) /**< \brief (AIC) Write Protection Mode Register */
+#define REG_AIC_WPSR                   (0xFC06E0E8U) /**< \brief (AIC) Write Protection Status Register */
 #else
-  #define REG_AIC_SSR   (*(__IO uint32_t*)0xFC06E000U) /**< \brief (AIC) Source Select Register */
-  #define REG_AIC_SMR   (*(__IO uint32_t*)0xFC06E004U) /**< \brief (AIC) Source Mode Register */
-  #define REG_AIC_SVR   (*(__IO uint32_t*)0xFC06E008U) /**< \brief (AIC) Source Vector Register */
-  #define REG_AIC_IVR   (*(__I  uint32_t*)0xFC06E010U) /**< \brief (AIC) Interrupt Vector Register */
-  #define REG_AIC_FVR   (*(__I  uint32_t*)0xFC06E014U) /**< \brief (AIC) FIQ Vector Register */
-  #define REG_AIC_ISR   (*(__I  uint32_t*)0xFC06E018U) /**< \brief (AIC) Interrupt Status Register */
-  #define REG_AIC_IPR0  (*(__I  uint32_t*)0xFC06E020U) /**< \brief (AIC) Interrupt Pending Register 0 */
-  #define REG_AIC_IPR1  (*(__I  uint32_t*)0xFC06E024U) /**< \brief (AIC) Interrupt Pending Register 1 */
-  #define REG_AIC_IPR2  (*(__I  uint32_t*)0xFC06E028U) /**< \brief (AIC) Interrupt Pending Register 2 */
-  #define REG_AIC_IPR3  (*(__I  uint32_t*)0xFC06E02CU) /**< \brief (AIC) Interrupt Pending Register 3 */
-  #define REG_AIC_IMR   (*(__I  uint32_t*)0xFC06E030U) /**< \brief (AIC) Interrupt Mask Register */
-  #define REG_AIC_CISR  (*(__I  uint32_t*)0xFC06E034U) /**< \brief (AIC) Core Interrupt Status Register */
-  #define REG_AIC_EOICR (*(__O  uint32_t*)0xFC06E038U) /**< \brief (AIC) End of Interrupt Command Register */
-  #define REG_AIC_SPU   (*(__IO uint32_t*)0xFC06E03CU) /**< \brief (AIC) Spurious Interrupt Vector Register */
-  #define REG_AIC_IECR  (*(__O  uint32_t*)0xFC06E040U) /**< \brief (AIC) Interrupt Enable Command Register */
-  #define REG_AIC_IDCR  (*(__O  uint32_t*)0xFC06E044U) /**< \brief (AIC) Interrupt Disable Command Register */
-  #define REG_AIC_ICCR  (*(__O  uint32_t*)0xFC06E048U) /**< \brief (AIC) Interrupt Clear Command Register */
-  #define REG_AIC_ISCR  (*(__O  uint32_t*)0xFC06E04CU) /**< \brief (AIC) Interrupt Set Command Register */
-  #define REG_AIC_DCR   (*(__IO uint32_t*)0xFC06E06CU) /**< \brief (AIC) Debug Control Register */
-  #define REG_AIC_WPMR  (*(__IO uint32_t*)0xFC06E0E4U) /**< \brief (AIC) Write Protection Mode Register */
-  #define REG_AIC_WPSR  (*(__I  uint32_t*)0xFC06E0E8U) /**< \brief (AIC) Write Protection Status Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_AIC_SSR   (*(__IO uint32_t*)0xFC06E000U) /**< \brief (AIC) Source Select Register */
+#define REG_AIC_SMR   (*(__IO uint32_t*)0xFC06E004U) /**< \brief (AIC) Source Mode Register */
+#define REG_AIC_SVR   (*(__IO uint32_t*)0xFC06E008U) /**< \brief (AIC) Source Vector Register */
+#define REG_AIC_IVR   (*(__I  uint32_t*)0xFC06E010U) /**< \brief (AIC) Interrupt Vector Register */
+#define REG_AIC_FVR   (*(__I  uint32_t*)0xFC06E014U) /**< \brief (AIC) FIQ Vector Register */
+#define REG_AIC_ISR   (*(__I  uint32_t*)0xFC06E018U) /**< \brief (AIC) Interrupt Status Register */
+#define REG_AIC_IPR0  (*(__I  uint32_t*)0xFC06E020U) /**< \brief (AIC) Interrupt Pending Register 0 */
+#define REG_AIC_IPR1  (*(__I  uint32_t*)0xFC06E024U) /**< \brief (AIC) Interrupt Pending Register 1 */
+#define REG_AIC_IPR2  (*(__I  uint32_t*)0xFC06E028U) /**< \brief (AIC) Interrupt Pending Register 2 */
+#define REG_AIC_IPR3  (*(__I  uint32_t*)0xFC06E02CU) /**< \brief (AIC) Interrupt Pending Register 3 */
+#define REG_AIC_IMR   (*(__I  uint32_t*)0xFC06E030U) /**< \brief (AIC) Interrupt Mask Register */
+#define REG_AIC_CISR  (*(__I  uint32_t*)0xFC06E034U) /**< \brief (AIC) Core Interrupt Status Register */
+#define REG_AIC_EOICR (*(__O  uint32_t*)0xFC06E038U) /**< \brief (AIC) End of Interrupt Command Register */
+#define REG_AIC_SPU   (*(__IO uint32_t*)0xFC06E03CU) /**< \brief (AIC) Spurious Interrupt Vector Register */
+#define REG_AIC_IECR  (*(__O  uint32_t*)0xFC06E040U) /**< \brief (AIC) Interrupt Enable Command Register */
+#define REG_AIC_IDCR  (*(__O  uint32_t*)0xFC06E044U) /**< \brief (AIC) Interrupt Disable Command Register */
+#define REG_AIC_ICCR  (*(__O  uint32_t*)0xFC06E048U) /**< \brief (AIC) Interrupt Clear Command Register */
+#define REG_AIC_ISCR  (*(__O  uint32_t*)0xFC06E04CU) /**< \brief (AIC) Interrupt Set Command Register */
+#define REG_AIC_DCR   (*(__IO uint32_t*)0xFC06E06CU) /**< \brief (AIC) Debug Control Register */
+#define REG_AIC_WPMR  (*(__IO uint32_t*)0xFC06E0E4U) /**< \brief (AIC) Write Protection Mode Register */
+#define REG_AIC_WPSR  (*(__I  uint32_t*)0xFC06E0E8U) /**< \brief (AIC) Write Protection Status Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_AIC_INSTANCE_ */
+#endif				/* _SAMA5D4_AIC_INSTANCE_ */

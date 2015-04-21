@@ -36,7 +36,6 @@
 
 #include "chip.h"
 
-
 /*------------------------------------------------------------------------------*/
 /*         Definition                                                           */
 /*------------------------------------------------------------------------------*/
@@ -51,7 +50,7 @@ extern void SHA_Configure(uint32_t mode);
 extern void SHA_EnableIt(uint32_t sources);
 extern void SHA_DisableIt(uint32_t sources);
 extern uint32_t SHA_GetStatus(void);
-extern void SHA_SetInput(uint32_t *data, uint8_t len);
-extern void SHA_GetOutput(uint32_t *data);
+extern void SHA_SetInput(uint32_t * data, uint8_t len);
+extern void SHA_GetOutput(uint32_t * data);
 
-#endif /* #ifndef _SHA_ */
+#endif				/* #ifndef _SHA_ */

@@ -51,84 +51,82 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-
-
 /** Array of Max peripheral Frequence support for SAMA5 chip*/
 const PeripheralClockMaxFreq periClkMaxFreq[] = {
 	/* peripheral ID, Max frequency */
-	{ID_DBGU    , (BOARD_MCK >>1) },
-	{ID_PIT     , (BOARD_MCK >>1) },
-	{ID_WDT     , (BOARD_MCK >>1) },
-	{ID_HSMC    , (BOARD_MCK >>1) },
-	{ID_PIOA    , (BOARD_MCK >>1) },
-	{ID_PIOB    , (BOARD_MCK >>1) },
-	{ID_PIOC    , (BOARD_MCK >>1) },
-	{ID_PIOD    , (BOARD_MCK >>1) },
-	{ID_PIOE    , (BOARD_MCK >>1) },
-	{ID_USART0  , (BOARD_MCK >>1) },
-	{ID_USART1  , (BOARD_MCK >>1) },
-	{ID_USART2  , (BOARD_MCK >>1) },
-	{ID_USART3  , (BOARD_MCK >>1) },
-	{ID_UART0   , (BOARD_MCK >>1) },
-	{ID_UART1   , (BOARD_MCK >>1) },
-	{ID_TWI0    , (BOARD_MCK >>1) },
-	{ID_TWI1    , (BOARD_MCK >>1) },
-	{ID_TWI2    , (BOARD_MCK >>1) },
-	{ID_HSMCI0  , (BOARD_MCK >>1) },
-	{ID_HSMCI1  , (BOARD_MCK >>1) },
-	{ID_SPI0    , (BOARD_MCK >>1) },
-	{ID_SPI1    , (BOARD_MCK >>1) },
-	{ID_TC0     , (BOARD_MCK >>1) },
-	{ID_TC1     , (BOARD_MCK >>1) },
-	{ID_PWM     , (BOARD_MCK >>1) },
-	{ID_ADC     , (BOARD_MCK >>1) },
-	{ID_XDMAC0  , BOARD_MCK },
-	{ID_XDMAC1  , BOARD_MCK },
-	{ID_UHPHS   , (BOARD_MCK >>1) },
-	{ID_UDPHS   , (BOARD_MCK >>1) },
-	{ID_GMAC0   , (BOARD_MCK >>1) },
-	{ID_GMAC1   , (BOARD_MCK >>1) },
-	{ID_LCDC    , BOARD_MCK },
-	{ID_ISI     , BOARD_MCK },
-	{ID_SSC0    , (BOARD_MCK >>1) },
-	{ID_SSC1    , (BOARD_MCK >>1) },
-	{ID_SHA     , (BOARD_MCK >>1) },
-	{ID_AES     , (BOARD_MCK >>1) },
-	{ID_TDES    , (BOARD_MCK >>1) },
-	{ID_TDES    , (BOARD_MCK >>1) },
-	{ID_TRNG    , (BOARD_MCK >>1) },
-	{ID_ICM     , (BOARD_MCK >>1) },
-	{ID_ARM     , (BOARD_MCK >>1) },
-	{ID_IRQ     , (BOARD_MCK >>1) },
-	{ID_SFC     , (BOARD_MCK >>1) },
-	{ID_MPDDRC  , BOARD_MCK }
+	{ID_DBGU, (BOARD_MCK >> 1)},
+	{ID_PIT, (BOARD_MCK >> 1)},
+	{ID_WDT, (BOARD_MCK >> 1)},
+	{ID_HSMC, (BOARD_MCK >> 1)},
+	{ID_PIOA, (BOARD_MCK >> 1)},
+	{ID_PIOB, (BOARD_MCK >> 1)},
+	{ID_PIOC, (BOARD_MCK >> 1)},
+	{ID_PIOD, (BOARD_MCK >> 1)},
+	{ID_PIOE, (BOARD_MCK >> 1)},
+	{ID_USART0, (BOARD_MCK >> 1)},
+	{ID_USART1, (BOARD_MCK >> 1)},
+	{ID_USART2, (BOARD_MCK >> 1)},
+	{ID_USART3, (BOARD_MCK >> 1)},
+	{ID_UART0, (BOARD_MCK >> 1)},
+	{ID_UART1, (BOARD_MCK >> 1)},
+	{ID_TWI0, (BOARD_MCK >> 1)},
+	{ID_TWI1, (BOARD_MCK >> 1)},
+	{ID_TWI2, (BOARD_MCK >> 1)},
+	{ID_HSMCI0, (BOARD_MCK >> 1)},
+	{ID_HSMCI1, (BOARD_MCK >> 1)},
+	{ID_SPI0, (BOARD_MCK >> 1)},
+	{ID_SPI1, (BOARD_MCK >> 1)},
+	{ID_TC0, (BOARD_MCK >> 1)},
+	{ID_TC1, (BOARD_MCK >> 1)},
+	{ID_PWM, (BOARD_MCK >> 1)},
+	{ID_ADC, (BOARD_MCK >> 1)},
+	{ID_XDMAC0, BOARD_MCK},
+	{ID_XDMAC1, BOARD_MCK},
+	{ID_UHPHS, (BOARD_MCK >> 1)},
+	{ID_UDPHS, (BOARD_MCK >> 1)},
+	{ID_GMAC0, (BOARD_MCK >> 1)},
+	{ID_GMAC1, (BOARD_MCK >> 1)},
+	{ID_LCDC, BOARD_MCK},
+	{ID_ISI, BOARD_MCK},
+	{ID_SSC0, (BOARD_MCK >> 1)},
+	{ID_SSC1, (BOARD_MCK >> 1)},
+	{ID_SHA, (BOARD_MCK >> 1)},
+	{ID_AES, (BOARD_MCK >> 1)},
+	{ID_TDES, (BOARD_MCK >> 1)},
+	{ID_TDES, (BOARD_MCK >> 1)},
+	{ID_TRNG, (BOARD_MCK >> 1)},
+	{ID_ICM, (BOARD_MCK >> 1)},
+	{ID_ARM, (BOARD_MCK >> 1)},
+	{ID_IRQ, (BOARD_MCK >> 1)},
+	{ID_SFC, (BOARD_MCK >> 1)},
+	{ID_MPDDRC, BOARD_MCK}
 };
 
-static const char* abort_status[][2]= {
+static const char *abort_status[][2] = {
 	// IFSR status        ,       DFSR status
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//0
-	{"Unknown(reserved status)",                          "Alignment Fault"                               },//1
-	{"Debug Event",                                       "Debug Event"                                   },//2
-	{"Access flag - section",                             "Access flag - section"                         },//3
-	{"Unknown(reserved status)",                          "Instruction cache maintenance"                 },//4
-	{"Translation fault - section",                       "Translation fault - section"                   },//5
-	{"Access flag - Page",                                "Access flag - Page"                            },//6
-	{"Translation fault -Page",                           "Translation fault -Page"                       },//7
-	{"Synchronous external abort",                        "Synchronous external abort, nontranslation"    },//8
-	{"Domain fault - Section",                            "Domain fault - Section"                        },//9
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//10
-	{"Domain fault - Page",                               "Domain fault - Page"                           },//11
-	{"Synchronous external abort - L1 Translation",       "Synchronous external abort - L1 Translation"   },//12
-	{"Permission fault - Section",                        "Permission fault - Section"                    },//13
-	{"Synchronous external abort - L2 Translation",       "Synchronous external abort - L2 Translation"   },//14
-	{"Permission fault - Page",                           "Permission fault - Page"                       },//15
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//16
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//17
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//18
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//19
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//20
-	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//21
-	{"Unknown(reserved status)",                          "Asynchronous external abort"}
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//0
+	{"Unknown(reserved status)", "Alignment Fault"},	//1
+	{"Debug Event", "Debug Event"},	//2
+	{"Access flag - section", "Access flag - section"},	//3
+	{"Unknown(reserved status)", "Instruction cache maintenance"},	//4
+	{"Translation fault - section", "Translation fault - section"},	//5
+	{"Access flag - Page", "Access flag - Page"},	//6
+	{"Translation fault -Page", "Translation fault -Page"},	//7
+	{"Synchronous external abort", "Synchronous external abort, nontranslation"},	//8
+	{"Domain fault - Section", "Domain fault - Section"},	//9
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//10
+	{"Domain fault - Page", "Domain fault - Page"},	//11
+	{"Synchronous external abort - L1 Translation", "Synchronous external abort - L1 Translation"},	//12
+	{"Permission fault - Section", "Permission fault - Section"},	//13
+	{"Synchronous external abort - L2 Translation", "Synchronous external abort - L2 Translation"},	//14
+	{"Permission fault - Page", "Permission fault - Page"},	//15
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//16
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//17
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//18
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//19
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//20
+	{"Unknown(reserved status)", "Unknown(reserved status)"},	//21
+	{"Unknown(reserved status)", "Asynchronous external abort"}
 
 };
 
@@ -136,81 +134,91 @@ static const char* abort_status[][2]= {
  *        Internal functions
  *----------------------------------------------------------------------------*/
 
-
 void v_ARM_ClrCPSR_bits(unsigned int mask);
-void NonSecureITInit (void);
-void SecureITInit (void);
-void Prefetch_C_Handler( void);
-void Abort_C_Handler( void);
+void NonSecureITInit(void);
+void SecureITInit(void);
+void Prefetch_C_Handler(void);
+void Abort_C_Handler(void);
 void Undefined_C_Handler(void);
 
 /**
  * \brief Default spurious interrupt handler. Infinite loop.
  */
-void defaultSpuriousHandler( void )
+void
+defaultSpuriousHandler(void)
 {
-	while (1);
+	while (1) ;
 }
 
-void Abort_C_Handler( void)
+void
+Abort_C_Handler(void)
 {
-	uint32_t v1,v2, dfsr;
-	v1= 0;
-	v2= 0;
-	asm("mrc   p15, 0, %0, c5, c0, 0" : : "r"(v1));
-	asm("mrc   p15, 0, %0, c6, c0, 0" : : "r"(v2));
+	uint32_t v1, v2, dfsr;
+	v1 = 0;
+	v2 = 0;
+      asm("mrc   p15, 0, %0, c5, c0, 0": :"r"(v1));
+      asm("mrc   p15, 0, %0, c6, c0, 0": :"r"(v2));
 
 	dfsr = ((v1 >> 4) & 0x0F);
-	printf("\n\r######################################################################\n\r");
-	printf("Data Abort occured in %x domain\n\r", (unsigned int)dfsr);
+	printf
+	    ("\n\r######################################################################\n\r");
+	printf("Data Abort occured in %x domain\n\r", (unsigned int) dfsr);
 	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-	printf("Data abort fault reason is: %s\n\r", (char*)abort_status[dfsr][1]);
-	printf("Data fault occured at Address = 0x%08x\n\n\r",(unsigned int)v2);
+	printf("Data abort fault reason is: %s\n\r",
+	       (char *) abort_status[dfsr][1]);
+	printf("Data fault occured at Address = 0x%08x\n\n\r",
+	       (unsigned int) v2);
 
+	printf("-[Info]-Data fault status register value = 0x%x\n\r",
+	       (unsigned int) v1);
 
-	printf("-[Info]-Data fault status register value = 0x%x\n\r",(unsigned int)v1);
-
-	while(1);
+	while (1) ;
 
 }
 
-
-void Prefetch_C_Handler( void)
+void
+Prefetch_C_Handler(void)
 {
-	uint32_t v1,v2, ifsr;
-	v1= 0;
-	v2= 0;
+	uint32_t v1, v2, ifsr;
+	v1 = 0;
+	v2 = 0;
 
-	asm("mrc   p15, 0, %0, c5, c0, 1" : : "r"(v1));
-	asm("mrc   p15, 0, %0, c6, c0, 2" : : "r"(v2));
+      asm("mrc   p15, 0, %0, c5, c0, 1": :"r"(v1));
+      asm("mrc   p15, 0, %0, c6, c0, 2": :"r"(v2));
 
 	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-	printf("\n\r######################################################################\n\r");
-	printf("Instruction prefetch abort reason is: %s\n\r", (char*)abort_status[ifsr][0]);
-	printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",(unsigned int)v2);
+	printf
+	    ("\n\r######################################################################\n\r");
+	printf("Instruction prefetch abort reason is: %s\n\r",
+	       (char *) abort_status[ifsr][0]);
+	printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",
+	       (unsigned int) v2);
 
-	printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",(unsigned int)v1);
+	printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",
+	       (unsigned int) v1);
 
-	while(1);
+	while (1) ;
 
 }
 
-void Undefined_C_Handler( void)
+void
+Undefined_C_Handler(void)
 {
 	printf("Undefined abort \n\r");
-	while(1);
+	while (1) ;
 }
 
-void v_ARM_ClrCPSR_bits(unsigned int mask)
+void
+v_ARM_ClrCPSR_bits(unsigned int mask)
 {
-	asm("MRS R1, CPSR");   // Get current CPSR
-	asm("MVN R0, R0");     // invert
-	asm("AND R0, R0, R1"); // Calculate new CPSR value
-	asm("MSR CPSR_c,R0");  // Set new value
+	asm("MRS R1, CPSR");	// Get current CPSR
+	asm("MVN R0, R0");	// invert
+	asm("AND R0, R0, R1");	// Calculate new CPSR value
+	asm("MSR CPSR_c,R0");	// Set new value
 	asm("bx lr");
 }
 
-void Dummy_Handler( void );
+void Dummy_Handler(void);
 #pragma weak SAIC0_Handler=Dummy_Handler
 #pragma weak SYS_IrqHandler=Dummy_Handler
 #pragma weak ARM_IrqHandler=Dummy_Handler
@@ -280,19 +288,20 @@ void Dummy_Handler( void );
 #pragma weak L2CC_IrqHandler=Dummy_Handler
 #pragma weak Spurious_handler=Dummy_Handler
 
-
 /**
  * \brief Dummy default handler.
  */
-void Dummy_Handler( void )
+void
+Dummy_Handler(void)
 {
-	while ( 1 ) ;
+	while (1) ;
 }
 
 /**
  * \brief Non-secure Interupt Init.
  */
-void NonSecureITInit (void)
+void
+NonSecureITInit(void)
 {
 	uint32_t i;
 	/* Assign handler addesses */
@@ -434,12 +443,12 @@ void NonSecureITInit (void)
 	AIC->AIC_SPU = (unsigned int) Spurious_handler;
 	/* Disable all interrupts */
 	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR=i;
-		AIC->AIC_IDCR=AIC_IDCR_INTD;
+		AIC->AIC_SSR = i;
+		AIC->AIC_IDCR = AIC_IDCR_INTD;
 	}
 	/* Clear All pending interrupts flags */
 	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR  = i;
+		AIC->AIC_SSR = i;
 		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
 	}
 
@@ -448,13 +457,14 @@ void NonSecureITInit (void)
 		AIC->AIC_EOICR = 0;
 	}
 	/* Enable IRQ and FIQ at core level */
-	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**
  * \brief Secure Interupt Init.
  */
-void SecureITInit (void)
+void
+SecureITInit(void)
 {
 	uint32_t i;
 
@@ -598,12 +608,12 @@ void SecureITInit (void)
 
 	/* Disable all interrupts */
 	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR=i;
-		SAIC->AIC_IDCR=AIC_IDCR_INTD;
+		SAIC->AIC_SSR = i;
+		SAIC->AIC_IDCR = AIC_IDCR_INTD;
 	}
 	/* Clear All pending interrupts flags */
 	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR  = i;
+		SAIC->AIC_SSR = i;
 		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
 	}
 
@@ -612,31 +622,31 @@ void SecureITInit (void)
 		SAIC->AIC_EOICR = 0;
 	}
 	/* Enable IRQ and FIQ at core level */
-	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**
  * \brief Performs the low-level initialization of the chip.
  * It also enable a low level on the pin NRST triggers a user reset.
  */
-extern WEAK void LowLevelInit( void )
+extern WEAK void
+LowLevelInit(void)
 {
 	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
 	NonSecureITInit();
-	if(!(AicFuse)) {
+	if (!(AicFuse)) {
 		SecureITInit();
 	}
 
-	if ((uint32_t)LowLevelInit < DDR_CS_ADDR) { /* Code not in external mem */
+	if ((uint32_t) LowLevelInit < DDR_CS_ADDR) {	/* Code not in external mem */
 		PMC_SelectExt12M_Osc();
 		PMC_SwitchMck2Main();
-		PMC_SetPllA( CKGR_PLLAR_ONE |
-		             CKGR_PLLAR_PLLACOUNT(0x3F) |
-		             CKGR_PLLAR_OUTA(0x0) |
-		             CKGR_PLLAR_MULA(87) |
-		             1,
-		             PMC_PLLICPR_IPLL_PLLA(0x0));
+		PMC_SetPllA(CKGR_PLLAR_ONE |
+			    CKGR_PLLAR_PLLACOUNT(0x3F) |
+			    CKGR_PLLAR_OUTA(0x0) |
+			    CKGR_PLLAR_MULA(87) |
+			    1, PMC_PLLICPR_IPLL_PLLA(0x0));
 		PMC_SetMckPllaDiv(PMC_MCKR_PLLADIV2);
 		PMC_SetMckPrescaler(PMC_MCKR_PRES_CLOCK);
 		PMC_SetMckDivider(PMC_MCKR_MDIV_PCK_DIV3);

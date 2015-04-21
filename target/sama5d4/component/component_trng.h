@@ -39,16 +39,16 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Trng hardware registers */
 typedef struct {
-  __O uint32_t TRNG_CR;       /**< \brief (Trng Offset: 0x00) Control Register */
-  __I uint32_t Reserved1[3];
-  __O uint32_t TRNG_IER;      /**< \brief (Trng Offset: 0x10) Interrupt Enable Register */
-  __O uint32_t TRNG_IDR;      /**< \brief (Trng Offset: 0x14) Interrupt Disable Register */
-  __I uint32_t TRNG_IMR;      /**< \brief (Trng Offset: 0x18) Interrupt Mask Register */
-  __I uint32_t TRNG_ISR;      /**< \brief (Trng Offset: 0x1C) Interrupt Status Register */
-  __I uint32_t Reserved2[12];
-  __I uint32_t TRNG_ODATA;    /**< \brief (Trng Offset: 0x50) Output Data Register */
+	__O uint32_t TRNG_CR;	    /**< \brief (Trng Offset: 0x00) Control Register */
+	__I uint32_t Reserved1[3];
+	__O uint32_t TRNG_IER;	    /**< \brief (Trng Offset: 0x10) Interrupt Enable Register */
+	__O uint32_t TRNG_IDR;	    /**< \brief (Trng Offset: 0x14) Interrupt Disable Register */
+	__I uint32_t TRNG_IMR;	    /**< \brief (Trng Offset: 0x18) Interrupt Mask Register */
+	__I uint32_t TRNG_ISR;	    /**< \brief (Trng Offset: 0x1C) Interrupt Status Register */
+	__I uint32_t Reserved2[12];
+	__I uint32_t TRNG_ODATA;    /**< \brief (Trng Offset: 0x50) Output Data Register */
 } Trng;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TRNG_CR : (TRNG Offset: 0x00) Control Register -------- */
 #define TRNG_CR_ENABLE (0x1u << 0) /**< \brief (TRNG_CR) Enables the TRNG to provide random values */
 #define TRNG_CR_KEY_Pos 8
@@ -69,5 +69,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_TRNG_COMPONENT_ */
+#endif				/* _SAMA5D4_TRNG_COMPONENT_ */

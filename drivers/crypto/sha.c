@@ -57,7 +57,6 @@
 /*@{*/
 /*@}*/
 
-
 /**
  * \file
  *
@@ -72,7 +71,6 @@
 #include "chip.h"
 #include "crypto/sha.h"
 
-
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -84,7 +82,8 @@
 /**
  * \brief Starts Manual hash algorithm process.
  */
-void SHA_Start(void)
+void
+SHA_Start(void)
 {
 	SHA->SHA_CR = SHA_CR_START;
 }
@@ -92,7 +91,8 @@ void SHA_Start(void)
 /**
  * \brief Resets the SHA. A software triggered hardware reset of the SHA interface is performed.
  */
-void SHA_SoftReset(void)
+void
+SHA_SoftReset(void)
 {
 	SHA->SHA_CR = SHA_CR_SWRST;
 }
@@ -100,7 +100,8 @@ void SHA_SoftReset(void)
 /**
  * \brief Indicates that the next block to process is the first one of a message.
  */
-void SHA_FirstBlock(void)
+void
+SHA_FirstBlock(void)
 {
 	SHA->SHA_CR = SHA_CR_FIRST;
 }
@@ -109,7 +110,8 @@ void SHA_FirstBlock(void)
  * \brief Configures an SHA peripheral with the specified parameters.
  *  \param mode  Desired value for the SHA mode register (see the datasheet).
  */
-void SHA_Configure(uint32_t mode)
+void
+SHA_Configure(uint32_t mode)
 {
 	SHA->SHA_MR = mode;
 }
@@ -118,7 +120,8 @@ void SHA_Configure(uint32_t mode)
  * \brief Enables the selected interrupts sources on a SHA peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void SHA_EnableIt(uint32_t sources)
+void
+SHA_EnableIt(uint32_t sources)
 {
 	SHA->SHA_IER = sources;
 }
@@ -127,7 +130,8 @@ void SHA_EnableIt(uint32_t sources)
  * \brief Disables the selected interrupts sources on a SHA peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void SHA_DisableIt(uint32_t sources)
+void
+SHA_DisableIt(uint32_t sources)
 {
 	SHA->SHA_IDR = sources;
 }
@@ -136,7 +140,8 @@ void SHA_DisableIt(uint32_t sources)
  * \brief Get the current status register of the given SHA peripheral.
  * \return  SHA status register.
  */
-uint32_t SHA_GetStatus(void)
+uint32_t
+SHA_GetStatus(void)
 {
 	return SHA->SHA_ISR;
 }
@@ -146,16 +151,17 @@ uint32_t SHA_GetStatus(void)
  * \param data Pointer data block.
  * \param len 512/1024-bits block size
  */
-void SHA_SetInput(uint32_t *data, uint8_t len)
+void
+SHA_SetInput(uint32_t * data, uint8_t len)
 {
 	uint8_t i;
 	uint8_t num;
-	num = len <= 16 ? len: 16;
-	for (i = 0; i < num ; i++)
-		SHA->SHA_IDATAR[i] = (data[i]);
-	num = len > 16 ? len - 16: 0;
+	num = len <= 16 ? len : 16;
 	for (i = 0; i < num; i++)
-		SHA->SHA_IODATAR[i] = (data[i+16]);
+		SHA->SHA_IDATAR[i] = (data[i]);
+	num = len > 16 ? len - 16 : 0;
+	for (i = 0; i < num; i++)
+		SHA->SHA_IODATAR[i] = (data[i + 16]);
 }
 
 /**
@@ -163,7 +169,8 @@ void SHA_SetInput(uint32_t *data, uint8_t len)
 * SHA algorithm is SHA-384 or SHA-512.
  * \param data pointer to the word that has been encrypted/decrypted..
  */
-void SHA_GetOutput(uint32_t *data)
+void
+SHA_GetOutput(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 16; i++)

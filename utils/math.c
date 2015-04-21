@@ -45,12 +45,13 @@
  *  \param dwA  First integer to compare.
  *  \param dwB  Second integer to compare.
  */
-extern uint32_t min( uint32_t dwA, uint32_t dwB )
+extern uint32_t
+min(uint32_t dwA, uint32_t dwB)
 {
-	if ( dwA < dwB ) {
-		return dwA ;
+	if (dwA < dwB) {
+		return dwA;
 	} else {
-		return dwB ;
+		return dwB;
 	}
 }
 
@@ -61,12 +62,13 @@ extern uint32_t min( uint32_t dwA, uint32_t dwB )
  *
  *  \note Do not call this function "abs", problem with gcc !
  */
-extern uint32_t absv( int32_t lValue )
+extern uint32_t
+absv(int32_t lValue)
 {
-	if ( lValue < 0 ) {
-		return -lValue ;
+	if (lValue < 0) {
+		return -lValue;
 	} else {
-		return lValue ;
+		return lValue;
 	}
 }
 
@@ -76,15 +78,15 @@ extern uint32_t absv( int32_t lValue )
  *  \param dwX  Value.
  *  \param dwY  Power.
  */
-extern uint32_t power( uint32_t dwX, uint32_t dwY )
+extern uint32_t
+power(uint32_t dwX, uint32_t dwY)
 {
-	uint32_t dwResult = 1 ;
+	uint32_t dwResult = 1;
 
-	while ( dwY > 0 ) {
-		dwResult *= dwX ;
-		dwY-- ;
+	while (dwY > 0) {
+		dwResult *= dwX;
+		dwY--;
 	}
 
-	return dwResult ;
+	return dwResult;
 }
-

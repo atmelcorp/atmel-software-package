@@ -80,7 +80,7 @@ static uint32_t dwTsData[3];
 /** Last Touchscreen sampling results */
 static uint32_t dwLastTsData[3];
 /** Touchscreen data ready */
-static uint8_t  bTsFlags = 0;
+static uint8_t bTsFlags = 0;
 
 /*----------------------------------------------------------------------------
  *         External functions
@@ -91,7 +91,8 @@ extern uint32_t TSD_GetRaw(uint32_t i);
 /**
  * Return raw register value.
  */
-uint32_t TSD_GetRaw(uint32_t i)
+uint32_t
+TSD_GetRaw(uint32_t i)
 {
 	return dwRaw[i];
 }
@@ -105,22 +106,24 @@ uint32_t TSD_GetRaw(uint32_t i)
  * Handles pen press, pen move and pen release events
  * by invoking three callback functions.
  */
-void TSD_Handler(uint32_t dwAdcStatus)
+void
+TSD_Handler(uint32_t dwAdcStatus)
 {
 	Adc *pAdc = ADC;
 
 	uint32_t status;
 
 	/* TSADC status */
-	status  = dwAdcStatus;
-	status &= /*ADC_GetItMask(pAdc) &*/ TS_STATUSES;
-	if (status == 0)    return;
+	status = dwAdcStatus;
+	status &= /*ADC_GetItMask(pAdc) & */ TS_STATUSES;
+	if (status == 0)
+		return;
 
 	/* Pen released */
 	if (status & ADC_ISR_NOPEN) {
 		if ((bTsFlags & TS_PEN_STAT) == 0) {
 			/* Register last data */
-			memcpy(dwLastTsData, dwTsData, sizeof(dwTsData));
+			memcpy(dwLastTsData, dwTsData, sizeof (dwTsData));
 			/* Invoke PenReleased callback */
 			if (TSDCom_IsCalibrationOk())
 				TSD_PenReleased(dwTsData[0], dwTsData[1]);
@@ -140,12 +143,14 @@ void TSD_Handler(uint32_t dwAdcStatus)
 		bTsFlags |= TS_PEN_STAT;
 		/* Configure for peripdic trigger */
 		ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_AVG8CONV);
-		ADC_SetTsDebounce(pAdc, 300);         /* 300ns */
+		ADC_SetTsDebounce(pAdc, 300);	/* 300ns */
 		ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_PERIOD_TRIG);
 		/* Disable pen press detect */
 		ADC_DisableIt(pAdc, ADC_IDR_PEN);
 		/* Enable pen release detect */
-		ADC_EnableIt(pAdc, ADC_IER_NOPEN|ADC_IER_XRDY|ADC_IER_YRDY|ADC_IER_PRDY);
+		ADC_EnableIt(pAdc,
+			     ADC_IER_NOPEN | ADC_IER_XRDY | ADC_IER_YRDY |
+			     ADC_IER_PRDY);
 	} else if (status & ADC_ISR_PENS) {
 		/* X */
 		if (status & ADC_ISR_XRDY) {
@@ -188,17 +193,19 @@ void TSD_Handler(uint32_t dwAdcStatus)
 			bTsFlags &= ~TS_PEN_STAT;
 			/* Invoke PenPress callback */
 			if (TSDCom_IsCalibrationOk())
-				TSD_PenPressed(dwTsData[0], dwTsData[1], dwTsData[2]);
+				TSD_PenPressed(dwTsData[0], dwTsData[1],
+					       dwTsData[2]);
 		}
 		/* Periodic if data change invoke callback */
 		if (dwTsData[0] != dwLastTsData[0]
-		    ||   dwTsData[1] != dwLastTsData[1]
-		    ||   dwTsData[2] != dwLastTsData[2] ) {
+		    || dwTsData[1] != dwLastTsData[1]
+		    || dwTsData[2] != dwLastTsData[2]) {
 			/* Register last data */
-			memcpy(dwLastTsData, dwTsData, sizeof(dwTsData));
+			memcpy(dwLastTsData, dwTsData, sizeof (dwTsData));
 			/* Invoke PenMoved callback */
 			if (TSDCom_IsCalibrationOk())
-				TSD_PenMoved(dwTsData[0], dwTsData[1], dwTsData[2]);
+				TSD_PenMoved(dwTsData[0], dwTsData[1],
+					     dwTsData[2]);
 		}
 
 	}
@@ -215,7 +222,8 @@ void TSD_Handler(uint32_t dwAdcStatus)
  *  - data[1] = YPOS * 1024 / YSCALE
  * \param pData  Array where the measurements will be stored
  */
-void TSD_GetRawMeasurement(uint32_t *pData)
+void
+TSD_GetRawMeasurement(uint32_t * pData)
 {
 	Adc *pAdc = ADC;
 	uint32_t xr, yr;
@@ -226,16 +234,17 @@ void TSD_GetRawMeasurement(uint32_t *pData)
 	xr = ADC_GetTsXPosition(pAdc);
 	yr = ADC_GetTsYPosition(pAdc);
 #endif
-	pData[0]  = ((xr & ADC_XPOSR_XPOS_Msk) >> ADC_XPOSR_XPOS_Pos) * 1024 ;
+	pData[0] = ((xr & ADC_XPOSR_XPOS_Msk) >> ADC_XPOSR_XPOS_Pos) * 1024;
 	pData[0] /= ((xr & ADC_XPOSR_XSCALE_Msk) >> ADC_XPOSR_XSCALE_Pos);
-	pData[1]  = ((yr & ADC_YPOSR_YPOS_Msk) >> ADC_YPOSR_YPOS_Pos) * 1024 ;
+	pData[1] = ((yr & ADC_YPOSR_YPOS_Msk) >> ADC_YPOSR_YPOS_Pos) * 1024;
 	pData[1] /= ((yr & ADC_YPOSR_YSCALE_Msk) >> ADC_YPOSR_YSCALE_Pos);
 }
 
 /**
  * Wait pen pressed
  */
-void TSD_WaitPenPressed(void)
+void
+TSD_WaitPenPressed(void)
 {
 	Adc *pAdc = ADC;
 	uint8_t bFlags = 0;
@@ -243,23 +252,29 @@ void TSD_WaitPenPressed(void)
 	/* Wait for touch & end of conversion */
 	while (1) {
 		dwStatus = ADC_GetStatus(pAdc);
-		if (dwStatus & ADC_ISR_PEN) bFlags |= 8;
-		if (dwStatus & ADC_ISR_XRDY)bFlags |= 1;
-		if (dwStatus & ADC_ISR_YRDY)bFlags |= 2;
-		if (dwStatus & ADC_ISR_PRDY)bFlags |= 4;
-		if (bFlags == 0xF) break;
+		if (dwStatus & ADC_ISR_PEN)
+			bFlags |= 8;
+		if (dwStatus & ADC_ISR_XRDY)
+			bFlags |= 1;
+		if (dwStatus & ADC_ISR_YRDY)
+			bFlags |= 2;
+		if (dwStatus & ADC_ISR_PRDY)
+			bFlags |= 4;
+		if (bFlags == 0xF)
+			break;
 	}
 }
 
 /**
  * Wait pen released
  */
-void TSD_WaitPenReleased(void)
+void
+TSD_WaitPenReleased(void)
 {
 	Adc *pAdc = ADC;
 
 	/* Wait for contact loss */
-	while((ADC_GetStatus(pAdc) & ADC_ISR_NOPEN) == 0);
+	while ((ADC_GetStatus(pAdc) & ADC_ISR_NOPEN) == 0) ;
 }
 
 /**
@@ -269,7 +284,8 @@ void TSD_WaitPenReleased(void)
  * Important: the LCD driver must have been initialized prior to calling this
  * function.
  */
-void TSD_Initialize(void)
+void
+TSD_Initialize(void)
 {
 	Adc *pAdc = ADC;
 
@@ -282,7 +298,7 @@ void TSD_Initialize(void)
 	ADC_SetStartupTime(pAdc, BOARD_TOUCHSCREEN_STARTUP);
 	ADC_SetTrackingTime(pAdc, BOARD_TOUCHSCREEN_SHTIM);
 
-	ADC_SetTriggerPeriod(pAdc, 20000000); /*  20ms */
+	ADC_SetTriggerPeriod(pAdc, 20000000);	/*  20ms */
 
 	ADC_SetTsMode(pAdc, ADC_TSMR_TSMODE_4_WIRE);
 	ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_NO_FILTER);
@@ -294,7 +310,8 @@ void TSD_Initialize(void)
 /**
  * Enable/Disable TSD capturing
  */
-void TSD_Enable(uint8_t bEnDis)
+void
+TSD_Enable(uint8_t bEnDis)
 {
 	Adc *pAdc = ADC;
 	if (bEnDis) {
@@ -316,13 +333,15 @@ void TSD_Enable(uint8_t bEnDis)
  * Do touchscreen calibration
  * \return 1 if calibration is Ok, 0 else
  */
-uint8_t TSD_Calibrate(void)
+uint8_t
+TSD_Calibrate(void)
 {
 	Adc *pAdc = ADC;
 	uint8_t ret = 0;
 
 	/* Calibration is done only once */
-	if(TSDCom_IsCalibrationOk())    return 1;
+	if (TSDCom_IsCalibrationOk())
+		return 1;
 
 	/* Disable touch */
 	TSD_Enable(0);
@@ -343,7 +362,8 @@ uint8_t TSD_Calibrate(void)
 /**
  * Reset/stop the touchscreen
  */
-void TSD_DeInitialize(void)
+void
+TSD_DeInitialize(void)
 {
 	Adc *pAdc = ADC;
 	/* Disable TS related interrupts */
@@ -356,5 +376,4 @@ void TSD_DeInitialize(void)
 }
 
 /**@}*/
-#endif /* #ifdef REG_ADC_TSMR */
-
+#endif				/* #ifdef REG_ADC_TSMR */

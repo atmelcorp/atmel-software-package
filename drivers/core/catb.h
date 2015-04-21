@@ -23,34 +23,33 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Catb hardware registers */
 typedef struct {
-	__IO uint32_t CATB_CR;          /**< \brief (CATB Offset: 0x00) Control Register */
-	__IO uint32_t CATB_CNTCR;       /**< \brief (CATB Offset: 0x04) Counter Control Register */
-	__IO uint32_t CATB_IDLE;        /**< \brief (CATB Offset: 0x08) Sensor Idle Level */
-	__IO uint32_t CATB_LEVEL;       /**< \brief (CATB Offset: 0x0C) Sensor Relative Level */
-	__IO uint32_t CATB_RAW;         /**< \brief (CATB Offset: 0x10) Sensor Raw Value */
-	__IO uint32_t CATB_TIMING;      /**< \brief (CATB Offset: 0x14) Filter Timing Register */
-	__IO uint32_t CATB_THRESH;      /**< \brief (CATB Offset: 0x18) Threshold Register */
-	__IO uint32_t CATB_PINSEL;      /**< \brief (CATB Offset: 0x1C) Pin Selection Register */
-	__IO uint32_t CATB_DMA;         /**< \brief (CATB Offset: 0x20) Direct Memory Access Register */
-	__IO uint32_t CATB_ISR;         /**< \brief (CATB Offset: 0x24) Interrupt Status Register */
-	__IO uint32_t CATB_IER;         /**< \brief (CATB Offset: 0x28) Interrupt Enable Register */
-	__IO uint32_t CATB_IDR;         /**< \brief (CATB Offset: 0x2C) Interrupt Disable Register */
-	__IO uint32_t CATB_IMR;         /**< \brief (CATB Offset: 0x30) Interrupt Mask Register */
-	__IO uint32_t CATB_SCR;         /**< \brief (CATB Offset: 0x34) Status Clear Register */
-	__I  uint32_t Reserved1[2];
-	__IO uint32_t CATB_INTCHi;      /**< \brief (CATB Offset: 0x40) In-Touch Status Register i */
-	__I  uint32_t Reserved2[3];
-	__IO uint32_t CATB_INTCHCLRn;   /**< \brief (CATB Offset: 0x50) In-Touch Status Clear Register n */
-	__I  uint32_t Reserved3[3];
-	__IO uint32_t CATB_OUTTCHi;     /**< \brief (CATB Offset: 0x60) Out-of-Touch Status Register i */
-	__I  uint32_t Reserved4[3];
-	__IO uint32_t CATB_OUTTCHCLRn;  /**< \brief (CATB Offset: 0x70) Out-of-Touch Status Clear Register n */
-	__I  uint32_t Reserved5[33];
-	__IO uint32_t CATB_PARAMETER;   /**< \brief (CATB Offset: 0xF8) Parameter Register */
+	__IO uint32_t CATB_CR;		/**< \brief (CATB Offset: 0x00) Control Register */
+	__IO uint32_t CATB_CNTCR;	/**< \brief (CATB Offset: 0x04) Counter Control Register */
+	__IO uint32_t CATB_IDLE;	/**< \brief (CATB Offset: 0x08) Sensor Idle Level */
+	__IO uint32_t CATB_LEVEL;	/**< \brief (CATB Offset: 0x0C) Sensor Relative Level */
+	__IO uint32_t CATB_RAW;		/**< \brief (CATB Offset: 0x10) Sensor Raw Value */
+	__IO uint32_t CATB_TIMING;	/**< \brief (CATB Offset: 0x14) Filter Timing Register */
+	__IO uint32_t CATB_THRESH;	/**< \brief (CATB Offset: 0x18) Threshold Register */
+	__IO uint32_t CATB_PINSEL;	/**< \brief (CATB Offset: 0x1C) Pin Selection Register */
+	__IO uint32_t CATB_DMA;		/**< \brief (CATB Offset: 0x20) Direct Memory Access Register */
+	__IO uint32_t CATB_ISR;		/**< \brief (CATB Offset: 0x24) Interrupt Status Register */
+	__IO uint32_t CATB_IER;		/**< \brief (CATB Offset: 0x28) Interrupt Enable Register */
+	__IO uint32_t CATB_IDR;		/**< \brief (CATB Offset: 0x2C) Interrupt Disable Register */
+	__IO uint32_t CATB_IMR;		/**< \brief (CATB Offset: 0x30) Interrupt Mask Register */
+	__IO uint32_t CATB_SCR;		/**< \brief (CATB Offset: 0x34) Status Clear Register */
+	__I uint32_t Reserved1[2];
+	__IO uint32_t CATB_INTCHi;	/**< \brief (CATB Offset: 0x40) In-Touch Status Register i */
+	__I uint32_t Reserved2[3];
+	__IO uint32_t CATB_INTCHCLRn;	/**< \brief (CATB Offset: 0x50) In-Touch Status Clear Register n */
+	__I uint32_t Reserved3[3];
+	__IO uint32_t CATB_OUTTCHi;	/**< \brief (CATB Offset: 0x60) Out-of-Touch Status Register i */
+	__I uint32_t Reserved4[3];
+	__IO uint32_t CATB_OUTTCHCLRn;	/**< \brief (CATB Offset: 0x70) Out-of-Touch Status Clear Register n */
+	__I uint32_t Reserved5[33];
+	__IO uint32_t CATB_PARAMETER;	/**< \brief (CATB Offset: 0xF8) Parameter Register */
 } Catb;
 
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define LENGTH                  0x1F
 #define TLEVEL                  100
@@ -76,4 +75,4 @@ typedef struct {
 #define CATB_CR_IIDLE                                         (1<< 2)
 #define CATB_CR_DMAEN                                       (1 << 7)
 
-#endif //_V_CATB_H
+#endif				//_V_CATB_H

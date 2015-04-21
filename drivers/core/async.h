@@ -37,7 +37,6 @@
 #ifndef _ASYNC_
 #define _ASYNC_
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -57,23 +56,21 @@ extern "C" {
  *        Type
  *----------------------------------------------------------------------------*/
 /** \brief Asynchronous transfer descriptor. */
-typedef struct _Async {
+	typedef struct _Async {
 	/** Asynchronous transfer status.*/
-	volatile uint32_t status ;
+		volatile uint32_t status;
 	/** Callback function to invoke when transfer completes or fails.*/
-	void *callback ;
+		void *callback;
 	/** Driver storage area; do not use.*/
-	uint8_t pStorage[12] ;
-} Async ;
+		uint8_t pStorage[12];
+	} Async;
 
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
-extern uint32_t ASYNC_IsFinished( Async* pAsync ) ;
+	extern uint32_t ASYNC_IsFinished(Async * pAsync);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* #ifndef _ASYNC_ */
-
+#endif				/* #ifndef _ASYNC_ */

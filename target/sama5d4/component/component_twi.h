@@ -39,34 +39,34 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Twi hardware registers */
 typedef struct {
-  __O  uint32_t TWI_CR;        /**< \brief (Twi Offset: 0x00) Control Register */
-  __IO uint32_t TWI_MMR;       /**< \brief (Twi Offset: 0x04) Master Mode Register */
-  __IO uint32_t TWI_SMR;       /**< \brief (Twi Offset: 0x08) Slave Mode Register */
-  __IO uint32_t TWI_IADR;      /**< \brief (Twi Offset: 0x0C) Internal Address Register */
-  __IO uint32_t TWI_CWGR;      /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
-  __I  uint32_t Reserved1[3];
-  __I  uint32_t TWI_SR;        /**< \brief (Twi Offset: 0x20) Status Register */
-  __O  uint32_t TWI_IER;       /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
-  __O  uint32_t TWI_IDR;       /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
-  __I  uint32_t TWI_IMR;       /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
-  __I  uint32_t TWI_RHR;       /**< \brief (Twi Offset: 0x30) Receive Holding Register */
-  __O  uint32_t TWI_THR;       /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
-  __I  uint32_t Reserved2[43];
-  __IO uint32_t TWI_WPMR;      /**< \brief (Twi Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t TWI_WPSR;      /**< \brief (Twi Offset: 0xE8) Write Protection Status Register */
+	__O uint32_t TWI_CR;	     /**< \brief (Twi Offset: 0x00) Control Register */
+	__IO uint32_t TWI_MMR;	     /**< \brief (Twi Offset: 0x04) Master Mode Register */
+	__IO uint32_t TWI_SMR;	     /**< \brief (Twi Offset: 0x08) Slave Mode Register */
+	__IO uint32_t TWI_IADR;	     /**< \brief (Twi Offset: 0x0C) Internal Address Register */
+	__IO uint32_t TWI_CWGR;	     /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
+	__I uint32_t Reserved1[3];
+	__I uint32_t TWI_SR;	     /**< \brief (Twi Offset: 0x20) Status Register */
+	__O uint32_t TWI_IER;	     /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
+	__O uint32_t TWI_IDR;	     /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
+	__I uint32_t TWI_IMR;	     /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
+	__I uint32_t TWI_RHR;	     /**< \brief (Twi Offset: 0x30) Receive Holding Register */
+	__O uint32_t TWI_THR;	     /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
+	__I uint32_t Reserved2[43];
+	__IO uint32_t TWI_WPMR;	     /**< \brief (Twi Offset: 0xE4) Write Protection Mode Register */
+	__I uint32_t TWI_WPSR;	     /**< \brief (Twi Offset: 0xE8) Write Protection Status Register */
 } Twi;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TWI_CR : (TWI Offset: 0x00) Control Register -------- */
 #define TWI_CR_START (0x1u << 0) /**< \brief (TWI_CR) Send a START Condition */
-#define TWI_CR_STOP (0x1u << 1) /**< \brief (TWI_CR) Send a STOP Condition */
-#define TWI_CR_MSEN (0x1u << 2) /**< \brief (TWI_CR) TWI Master Mode Enabled */
+#define TWI_CR_STOP (0x1u << 1)	/**< \brief (TWI_CR) Send a STOP Condition */
+#define TWI_CR_MSEN (0x1u << 2)	/**< \brief (TWI_CR) TWI Master Mode Enabled */
 #define TWI_CR_MSDIS (0x1u << 3) /**< \brief (TWI_CR) TWI Master Mode Disabled */
-#define TWI_CR_SVEN (0x1u << 4) /**< \brief (TWI_CR) TWI Slave Mode Enabled */
+#define TWI_CR_SVEN (0x1u << 4)	/**< \brief (TWI_CR) TWI Slave Mode Enabled */
 #define TWI_CR_SVDIS (0x1u << 5) /**< \brief (TWI_CR) TWI Slave Mode Disabled */
 #define TWI_CR_SWRST (0x1u << 7) /**< \brief (TWI_CR) Software Reset */
 /* -------- TWI_MMR : (TWI Offset: 0x04) Master Mode Register -------- */
 #define TWI_MMR_IADRSZ_Pos 8
-#define TWI_MMR_IADRSZ_Msk (0x3u << TWI_MMR_IADRSZ_Pos) /**< \brief (TWI_MMR) Internal Device Address Size */
+#define TWI_MMR_IADRSZ_Msk (0x3u << TWI_MMR_IADRSZ_Pos)	/**< \brief (TWI_MMR) Internal Device Address Size */
 #define TWI_MMR_IADRSZ(value) ((TWI_MMR_IADRSZ_Msk & ((value) << TWI_MMR_IADRSZ_Pos)))
 #define   TWI_MMR_IADRSZ_NONE (0x0u << 8) /**< \brief (TWI_MMR) No internal device address */
 #define   TWI_MMR_IADRSZ_1_BYTE (0x1u << 8) /**< \brief (TWI_MMR) One-byte internal device address */
@@ -92,7 +92,7 @@ typedef struct {
 #define TWI_CWGR_CHDIV_Msk (0xffu << TWI_CWGR_CHDIV_Pos) /**< \brief (TWI_CWGR) Clock High Divider */
 #define TWI_CWGR_CHDIV(value) ((TWI_CWGR_CHDIV_Msk & ((value) << TWI_CWGR_CHDIV_Pos)))
 #define TWI_CWGR_CKDIV_Pos 16
-#define TWI_CWGR_CKDIV_Msk (0x7u << TWI_CWGR_CKDIV_Pos) /**< \brief (TWI_CWGR) Clock Divider */
+#define TWI_CWGR_CKDIV_Msk (0x7u << TWI_CWGR_CKDIV_Pos)	/**< \brief (TWI_CWGR) Clock Divider */
 #define TWI_CWGR_CKDIV(value) ((TWI_CWGR_CKDIV_Msk & ((value) << TWI_CWGR_CKDIV_Pos)))
 #define TWI_CWGR_HOLD_Pos 24
 #define TWI_CWGR_HOLD_Msk (0x1fu << TWI_CWGR_HOLD_Pos) /**< \brief (TWI_CWGR) TWD Hold Time versus TWCK falling */
@@ -103,9 +103,9 @@ typedef struct {
 #define TWI_SR_TXRDY (0x1u << 2) /**< \brief (TWI_SR) Transmit Holding Register Ready (automatically set / reset) */
 #define TWI_SR_SVREAD (0x1u << 3) /**< \brief (TWI_SR) Slave Read (automatically set / reset) */
 #define TWI_SR_SVACC (0x1u << 4) /**< \brief (TWI_SR) Slave Access (automatically set / reset) */
-#define TWI_SR_GACC (0x1u << 5) /**< \brief (TWI_SR) General Call Access (clear on read) */
-#define TWI_SR_OVRE (0x1u << 6) /**< \brief (TWI_SR) Overrun Error (clear on read) */
-#define TWI_SR_NACK (0x1u << 8) /**< \brief (TWI_SR) Not Acknowledged (clear on read) */
+#define TWI_SR_GACC (0x1u << 5)	/**< \brief (TWI_SR) General Call Access (clear on read) */
+#define TWI_SR_OVRE (0x1u << 6)	/**< \brief (TWI_SR) Overrun Error (clear on read) */
+#define TWI_SR_NACK (0x1u << 8)	/**< \brief (TWI_SR) Not Acknowledged (clear on read) */
 #define TWI_SR_ARBLST (0x1u << 9) /**< \brief (TWI_SR) Arbitration Lost (clear on read) */
 #define TWI_SR_SCLWS (0x1u << 10) /**< \brief (TWI_SR) Clock Wait State (automatically set / reset) */
 #define TWI_SR_EOSACC (0x1u << 11) /**< \brief (TWI_SR) End Of Slave Access (clear on read) */
@@ -162,5 +162,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_TWI_COMPONENT_ */
+#endif				/* _SAMA5D4_TWI_COMPONENT_ */

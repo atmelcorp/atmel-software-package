@@ -32,13 +32,13 @@
 
 /* ========== Register definition for SHDWC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SHDWC_CR                  (0xFC068610U) /**< \brief (SHDWC) Shutdown Control Register */
-  #define REG_SHDWC_MR                  (0xFC068614U) /**< \brief (SHDWC) Shutdown Mode Register */
-  #define REG_SHDWC_SR                  (0xFC068618U) /**< \brief (SHDWC) Shutdown Status Register */
+#define REG_SHDWC_CR                  (0xFC068610U) /**< \brief (SHDWC) Shutdown Control Register */
+#define REG_SHDWC_MR                  (0xFC068614U) /**< \brief (SHDWC) Shutdown Mode Register */
+#define REG_SHDWC_SR                  (0xFC068618U) /**< \brief (SHDWC) Shutdown Status Register */
 #else
-  #define REG_SHDWC_CR (*(__O  uint32_t*)0xFC068610U) /**< \brief (SHDWC) Shutdown Control Register */
-  #define REG_SHDWC_MR (*(__IO uint32_t*)0xFC068614U) /**< \brief (SHDWC) Shutdown Mode Register */
-  #define REG_SHDWC_SR (*(__I  uint32_t*)0xFC068618U) /**< \brief (SHDWC) Shutdown Status Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_SHDWC_CR (*(__O  uint32_t*)0xFC068610U) /**< \brief (SHDWC) Shutdown Control Register */
+#define REG_SHDWC_MR (*(__IO uint32_t*)0xFC068614U) /**< \brief (SHDWC) Shutdown Mode Register */
+#define REG_SHDWC_SR (*(__I  uint32_t*)0xFC068618U) /**< \brief (SHDWC) Shutdown Status Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_SHDWC_INSTANCE_ */
+#endif				/* _SAMA5D4_SHDWC_INSTANCE_ */

@@ -36,7 +36,6 @@
 
 #include "chip.h"
 
-
 /*------------------------------------------------------------------------------*/
 /*         Definition                                                           */
 /*------------------------------------------------------------------------------*/
@@ -58,8 +57,8 @@ extern void TDES_WriteKey1(uint32_t keyword0, uint32_t keyword1);
 extern void TDES_WriteKey2(uint32_t keyword0, uint32_t keyword1);
 extern void TDES_WriteKey3(uint32_t keyword0, uint32_t keyword1);
 extern void TDES_SetInput(uint32_t data0, uint32_t data1);
-extern void TDES_GetOutput(uint32_t *data0, uint32_t* data1);
+extern void TDES_GetOutput(uint32_t * data0, uint32_t * data1);
 extern void TDES_SetVector(uint32_t v0, uint32_t v1);
 extern void TDES_SetXteaRounds(uint32_t rounds);
 
-#endif /* #ifndef _TDES_ */
+#endif				/* #ifndef _TDES_ */

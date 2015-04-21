@@ -85,13 +85,13 @@
 /**
  * Libc porting layers
  */
-#if defined   ( __CC_ARM   ) /* Keil uvision 4 */
-#    include "include/rand.h"
-#elif defined ( __ICCARM__ ) /* IAR Ewarm 5.41+ */
-#    include "include/rand.h"
-#elif defined (  __GNUC__  ) /* GCC CS3 2009q3-68/2010q1-188 */
-#    include "rand.h"
-#    include "syscalls.h" /** RedHat Newlib minimal stub */
+#if defined   ( __CC_ARM   )	/* Keil uvision 4 */
+#include "include/rand.h"
+#elif defined ( __ICCARM__ )	/* IAR Ewarm 5.41+ */
+#include "include/rand.h"
+#elif defined (  __GNUC__  )	/* GCC CS3 2009q3-68/2010q1-188 */
+#include "rand.h"
+#include "syscalls.h"	  /** RedHat Newlib minimal stub */
 #endif
 
 /*----------------------------------------------------------------------------
@@ -111,7 +111,6 @@
  * - \ref BOARD_NAME
  */
 
-
 #if defined(BOARD_SAMA5D4_EK)
 /** Name of the board */
 #define BOARD_NAME "SAMA5D4-EK"
@@ -126,7 +125,6 @@
 #endif
 /** Core definition */
 #define cortexa5
-
 
 /*----------------------------------------------------------------------------*/
 /**
@@ -274,7 +272,6 @@
 /** USART3 SCK pin definition. */
 #define PIN_USART3_SCK  {PIO_PE15B_SCK3, PIOE, ID_PIOE, PIO_PERIPH_B, PIO_DEFAULT}
 
-
 /** USART4 TXD pin definition. */
 //#define PIN_USART4_TXD  {PIO_PE27B_TXD4, PIOE, ID_PIOE, PIO_PERIPH_B, PIO_DEFAULT}
 /** USART4 RXD pin definition. */
@@ -335,7 +332,6 @@
 /** CAN0 pins */
 #define PINS_CAN1       PIN_CAN1_TX, PIN_CAN1_RX
 
-
 /** List of all SPI pin definitions. */
 
 /** SPI0 MISO pin definition. */
@@ -361,7 +357,6 @@
 #define PIN_SPI1_NPCS2    {PIO_PB23A_SPI1_NPCS2, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
 /** List of SPI1 pin definitions (MISO, MOSI & SPCK). */
 #define PINS_SPI1         PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK
-
 
 /** SPI2 MISO pin definition. */
 #define PIN_SPI2_MISO     {PIO_PD11B_SPI2_MISO, PIOD, ID_PIOD, PIO_PERIPH_B, PIO_DEFAULT}
@@ -404,10 +399,8 @@
 /** SSC pin RF */
 #define PIN_SSC_RF1      {0x1 << 22, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT}
 
-
 /** SSC pins definition for codec. */
 #define PINS_SSC_CODEC   PIN_SSC_TD0,  PIN_SSC_TK0, PIN_SSC_TF0, PIN_SSC_RD0,  PIN_SSC_RK0, PIN_SSC_RF0
-
 
 /** LCD pin list. */
 #define PINS_LCD_PIOA   {0x3FFEFEFE, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
@@ -458,7 +451,6 @@
  * - \ref BOARD_NF_CE_PIN
  * - \ref BOARD_NF_RB_PIN
  */
-
 
 /** Nandflash IO pin definition.*/
 #define BOARD_NF_IO_PINS        {0x0007FFE0, PIOC, ID_PIOC, PIO_PERIPH_A, PIO_PULLUP}
@@ -612,7 +604,7 @@
 /** Image Sensor Interface data clock. */
 #define BOARD_ISI_PCK       {PIO_PB1C_ISI_PCK, PIOB, ID_PIOB, PIO_PERIPH_C, PIO_DEFAULT}
 /** Image Sensor Interface data pins. */
-#define BOARD_ISI_PINS_DATA {0x07F80000, PIOC, ID_PIOC, PIO_PERIPH_A, PIO_DEFAULT} //pc19-26
+#define BOARD_ISI_PINS_DATA {0x07F80000, PIOC, ID_PIOC, PIO_PERIPH_A, PIO_DEFAULT}	//pc19-26
 //#define BOARD_ISI_PINS_DATA2 {0x0000000F, PIOC, ID_PIOC, PIO_PERIPH_C, PIO_DEFAULT}
 
 /** Image Sensor Interface reset pin. */
@@ -625,11 +617,11 @@
 #define PINS_ISI          BOARD_ISI_VSYNC, BOARD_ISI_HSYNC, BOARD_ISI_PCK , BOARD_ISI_PINS_DATA
 
 /** Touchscreen ADC clock frequency to use. */
-#define BOARD_TOUCHSCREEN_ADCCLK    300000 /* 8MHz max */
+#define BOARD_TOUCHSCREEN_ADCCLK    300000	/* 8MHz max */
 /** Touchscreen ADC startup time in µseconds. */
 #define BOARD_TOUCHSCREEN_STARTUP   40
 /** Touchscreen ADC track and hold time in nanoseconds. */
-#define BOARD_TOUCHSCREEN_SHTIM     2000    /* min 1µs at 8MHz */
+#define BOARD_TOUCHSCREEN_SHTIM     2000	/* min 1µs at 8MHz */
 /** Touchscreen pen debounce time in nanoseconds. */
 #define BOARD_TOUCHSCREEN_DEBOUNCE  10000000
 
@@ -732,7 +724,6 @@
 
 #define PINS_SBUTTON PIN_SBUTTON0, PIN_SBUTTON1, PIN_SBUTTON2, PIN_SBUTTON3, PIN_SBUTTON4, PIN_SBUTTON_DIS
 
-
 /** PCK0 */
 #define PIN_PCK0        {PIO_PB26A_PCK0, PIOB, ID_PIOB, PIO_PERIPH_A, PIO_DEFAULT}
 /** PCK1 */
@@ -790,4 +781,4 @@
 /* #include "time/timetick.h" */
 /* #include "time/rtc_calib.h" */
 
-#endif /* #ifndef _BOARD_SAMA5D4_COMMON_HEADER_ */
+#endif				/* #ifndef _BOARD_SAMA5D4_COMMON_HEADER_ */

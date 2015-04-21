@@ -32,13 +32,13 @@
 
 /* ========== Register definition for RSTC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_RSTC_CR                  (0xFC068600U) /**< \brief (RSTC) Control Register */
-  #define REG_RSTC_SR                  (0xFC068604U) /**< \brief (RSTC) Status Register */
-  #define REG_RSTC_MR                  (0xFC068608U) /**< \brief (RSTC) Mode Register */
+#define REG_RSTC_CR                  (0xFC068600U) /**< \brief (RSTC) Control Register */
+#define REG_RSTC_SR                  (0xFC068604U) /**< \brief (RSTC) Status Register */
+#define REG_RSTC_MR                  (0xFC068608U) /**< \brief (RSTC) Mode Register */
 #else
-  #define REG_RSTC_CR (*(__O  uint32_t*)0xFC068600U) /**< \brief (RSTC) Control Register */
-  #define REG_RSTC_SR (*(__I  uint32_t*)0xFC068604U) /**< \brief (RSTC) Status Register */
-  #define REG_RSTC_MR (*(__IO uint32_t*)0xFC068608U) /**< \brief (RSTC) Mode Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_RSTC_CR (*(__O  uint32_t*)0xFC068600U) /**< \brief (RSTC) Control Register */
+#define REG_RSTC_SR (*(__I  uint32_t*)0xFC068604U) /**< \brief (RSTC) Status Register */
+#define REG_RSTC_MR (*(__IO uint32_t*)0xFC068608U) /**< \brief (RSTC) Mode Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_RSTC_INSTANCE_ */
+#endif				/* _SAMA5D4_RSTC_INSTANCE_ */

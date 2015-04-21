@@ -46,5 +46,4 @@
 //extern const struct mt_reg mt9v022_yuv_sxga[];
 extern const struct mt_reg MT9v022_mono[];
 
-#endif // #ifndef _9v022YUV_H_
-
+#endif				// #ifndef _9v022YUV_H_

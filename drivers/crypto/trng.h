@@ -47,4 +47,4 @@ void TRNG_DisableIt(void);
 uint32_t TRNG_GetStatus(void);
 uint32_t TRNG_GetRandData(void);
 
-#endif /* #ifndef _TRNG_ */
+#endif				/* #ifndef _TRNG_ */

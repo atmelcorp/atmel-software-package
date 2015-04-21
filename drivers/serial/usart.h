@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2011, Atmel Corporation
  *
@@ -89,41 +89,41 @@
 #define US_SPI_BPMODE_3    (US_SPI_CPOL_1|US_SPI_CPHA_0)
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void USART_Configure( Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock ) ;
-extern uint32_t USART_GetStatus( Usart *usart ) ;
-extern void USART_EnableIt( Usart *usart,uint32_t mode ) ;
-extern void USART_DisableIt( Usart *usart,uint32_t mode ) ;
-extern uint32_t USART_GetItMask( Usart * usart ) ;
-extern void USART_SetTransmitterEnabled( Usart *usart, uint8_t enabled ) ;
+	extern void USART_Configure(Usart * usart, uint32_t mode,
+				    uint32_t baudrate, uint32_t masterClock);
+	extern uint32_t USART_GetStatus(Usart * usart);
+	extern void USART_EnableIt(Usart * usart, uint32_t mode);
+	extern void USART_DisableIt(Usart * usart, uint32_t mode);
+	extern uint32_t USART_GetItMask(Usart * usart);
+	extern void USART_SetTransmitterEnabled(Usart * usart, uint8_t enabled);
 
-extern void USART_SetReceiverEnabled( Usart *usart, uint8_t enabled ) ;
+	extern void USART_SetReceiverEnabled(Usart * usart, uint8_t enabled);
 
-extern void USART_SetRTSEnabled(Usart *usart, uint8_t enabled);
+	extern void USART_SetRTSEnabled(Usart * usart, uint8_t enabled);
 
-extern void USART_Write( Usart *usart, uint16_t data, volatile uint32_t timeOut ) ;
+	extern void USART_Write(Usart * usart, uint16_t data,
+				volatile uint32_t timeOut);
 
-extern uint16_t USART_Read( Usart *usart, volatile uint32_t timeOut ) ;
+	extern uint16_t USART_Read(Usart * usart, volatile uint32_t timeOut);
 
-extern uint8_t USART_IsDataAvailable( Usart *usart ) ;
+	extern uint8_t USART_IsDataAvailable(Usart * usart);
 
-extern void USART_SetIrdaFilter(Usart *pUsart, uint8_t filter);
+	extern void USART_SetIrdaFilter(Usart * pUsart, uint8_t filter);
 
-extern void USART_PutChar( Usart *usart, uint8_t c ) ;
+	extern void USART_PutChar(Usart * usart, uint8_t c);
 
-extern uint32_t USART_IsRxReady( Usart *usart ) ;
+	extern uint32_t USART_IsRxReady(Usart * usart);
 
-extern uint8_t USART_GetChar( Usart *usart ) ;
+	extern uint8_t USART_GetChar(Usart * usart);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* #ifndef _USART_ */
-
+#endif				/* #ifndef _USART_ */

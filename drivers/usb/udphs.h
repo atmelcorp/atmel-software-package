@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2010, Atmel Corporation
  *
@@ -57,4 +57,4 @@
     ((i == 0) ? 0 : ((i < 7) ? 1: 0 ))
 
 /**@}*/
-#endif /* #ifndef UDPHS_H */
+#endif				/* #ifndef UDPHS_H */

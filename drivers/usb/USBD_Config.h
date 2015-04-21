@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2011, Atmel Corporation
  *
@@ -132,19 +132,19 @@
  * - \ref
  */
 #if defined(at91sam7s) || defined(at91sam9xe)
- /** Sample rate in Hz. */
- #define AUDDevice_SAMPLERATE        32000UL
- /** Number of channels in audio stream. */
- #define AUDDevice_NUMCHANNELS       1
- /** Number of bytes in one sample. */
- #define AUDDevice_BYTESPERSAMPLE    2
+/** Sample rate in Hz. */
+#define AUDDevice_SAMPLERATE        32000UL
+/** Number of channels in audio stream. */
+#define AUDDevice_NUMCHANNELS       1
+/** Number of bytes in one sample. */
+#define AUDDevice_BYTESPERSAMPLE    2
 #else
- /** Sample rate in Hz. */
- #define AUDDevice_SAMPLERATE        48000UL
- /** Number of channels in audio stream. */
- #define AUDDevice_NUMCHANNELS       2
- /** Number of bytes in one sample. */
- #define AUDDevice_BYTESPERSAMPLE    2
+/** Sample rate in Hz. */
+#define AUDDevice_SAMPLERATE        48000UL
+/** Number of channels in audio stream. */
+#define AUDDevice_NUMCHANNELS       2
+/** Number of bytes in one sample. */
+#define AUDDevice_BYTESPERSAMPLE    2
 #endif
 /** Number of bits in one sample. */
 #define AUDDevice_BITSPERSAMPLE     (AUDDevice_BYTESPERSAMPLE * 8)
@@ -195,25 +195,25 @@
  */
 
 #if defined(at91sam7s) || defined(at91sam9xe)
-    /** Data out endpoint number, size 64B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x01
-    /** Data in endpoint number, size 64B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x02
+/** Data out endpoint number, size 64B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x01
+/** Data in endpoint number, size 64B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x02
 #elif defined(CHIP_USB_UDP)
-    /** Data out endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x04
-    /** Data in endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x05
+/** Data out endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x04
+/** Data in endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x05
 #elif defined(at91sam9m10ek)
-    /** Data out endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x01
-    /** Data in endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x06
+/** Data out endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x01
+/** Data in endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x06
 #else
-    /** Data out endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x05
-    /** Data in endpoint number, size 192B */
-    #define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x06
+/** Data out endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAOUT        0x05
+/** Data in endpoint number, size 192B */
+#define AUDDSpeakerPhoneDriverDescriptors_DATAIN         0x06
 #endif
 /** Endpoint polling interval 2^(x-1) * 125us */
 #define AUDDSpeakerPhoneDriverDescriptors_HS_INTERVAL        0x04
@@ -300,6 +300,4 @@
 /** @}*/
 
 /**@}*/
-#endif //#ifndef USBD_CONFIG_H
-
-
+#endif				//#ifndef USBD_CONFIG_H

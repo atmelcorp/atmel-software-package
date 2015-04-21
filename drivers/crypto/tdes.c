@@ -69,7 +69,6 @@
  *
  */
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -84,7 +83,8 @@
 /**
  * \brief Starts Manual encryption/decryption process.
  */
-void TDES_Start(void)
+void
+TDES_Start(void)
 {
 	TDES->TDES_CR = TDES_CR_START;
 }
@@ -92,7 +92,8 @@ void TDES_Start(void)
 /**
  * \brief Resets the TDES. A software triggered hardware reset of the TDES interface is performed.
  */
-void TDES_SoftReset(void)
+void
+TDES_SoftReset(void)
 {
 	TDES->TDES_CR = TDES_CR_SWRST;
 }
@@ -101,7 +102,8 @@ void TDES_SoftReset(void)
  * \brief Configures an TDES peripheral with the specified parameters.
  *  \param mode  Desired value for the TDES mode register (see the datasheet).
  */
-void TDES_Configure(uint32_t mode)
+void
+TDES_Configure(uint32_t mode)
 {
 	TDES->TDES_MR = mode;
 }
@@ -110,7 +112,8 @@ void TDES_Configure(uint32_t mode)
  * \brief Enables the selected interrupts sources on a TDES peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void TDES_EnableIt(uint32_t sources)
+void
+TDES_EnableIt(uint32_t sources)
 {
 	TDES->TDES_IER = sources;
 }
@@ -119,7 +122,8 @@ void TDES_EnableIt(uint32_t sources)
  * \brief Disables the selected interrupts sources on a TDES peripheral.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void TDES_DisableIt(uint32_t sources)
+void
+TDES_DisableIt(uint32_t sources)
 {
 	TDES->TDES_IDR = sources;
 }
@@ -128,7 +132,8 @@ void TDES_DisableIt(uint32_t sources)
  * \brief Get the current status register of the given TDES peripheral.
  * \return  TDES status register.
  */
-uint32_t TDES_GetStatus(void)
+uint32_t
+TDES_GetStatus(void)
 {
 	return TDES->TDES_ISR;
 }
@@ -138,7 +143,8 @@ uint32_t TDES_GetStatus(void)
  * \param keyword0 key word 0
  * \param keyword1 key word 1
  */
-void TDES_WriteKey1(uint32_t keyword0, uint32_t keyword1)
+void
+TDES_WriteKey1(uint32_t keyword0, uint32_t keyword1)
 {
 	TDES->TDES_KEY1WR[0] = keyword0;
 	TDES->TDES_KEY1WR[1] = keyword1;
@@ -149,7 +155,8 @@ void TDES_WriteKey1(uint32_t keyword0, uint32_t keyword1)
  * \param keyword0 key word 0
  * \param keyword1 key word 1
  */
-void TDES_WriteKey2(uint32_t keyword0, uint32_t keyword1)
+void
+TDES_WriteKey2(uint32_t keyword0, uint32_t keyword1)
 {
 	TDES->TDES_KEY2WR[0] = keyword0;
 	TDES->TDES_KEY2WR[1] = keyword1;
@@ -160,7 +167,8 @@ void TDES_WriteKey2(uint32_t keyword0, uint32_t keyword1)
  * \param keyword0 key word 0
  * \param keyword1 key word 1
  */
-void TDES_WriteKey3(uint32_t keyword0, uint32_t keyword1)
+void
+TDES_WriteKey3(uint32_t keyword0, uint32_t keyword1)
 {
 	TDES->TDES_KEY3WR[0] = keyword0;
 	TDES->TDES_KEY3WR[1] = keyword1;
@@ -171,7 +179,8 @@ void TDES_WriteKey3(uint32_t keyword0, uint32_t keyword1)
  * \param data0 corresponds to the first word of the data to be encrypted/decrypted
  * \param data1 corresponds to the last word of the data to be encrypted/decrypted
  */
-void TDES_SetInput(uint32_t data0, uint32_t data1)
+void
+TDES_SetInput(uint32_t data0, uint32_t data1)
 {
 	TDES->TDES_IDATAR[0] = data0;
 	TDES->TDES_IDATAR[1] = data1;
@@ -182,7 +191,8 @@ void TDES_SetInput(uint32_t data0, uint32_t data1)
  * \param data0 point to the first word.
  * \param data1 point to the last word.
  */
-void TDES_GetOutput(uint32_t *data0, uint32_t *data1)
+void
+TDES_GetOutput(uint32_t * data0, uint32_t * data1)
 {
 	*data0 = TDES->TDES_ODATAR[0];
 	*data1 = TDES->TDES_ODATAR[1];
@@ -194,7 +204,8 @@ void TDES_GetOutput(uint32_t *data0, uint32_t *data1)
  * \param v0 corresponds to the first word of the initialization vector.
  * \param v1 corresponds to the last word  of the initialization vector.
  */
-void TDES_SetVector(uint32_t v0, uint32_t v1)
+void
+TDES_SetVector(uint32_t v0, uint32_t v1)
 {
 	TDES->TDES_IVR[0] = v0;
 	TDES->TDES_IVR[1] = v1;
@@ -204,8 +215,8 @@ void TDES_SetVector(uint32_t v0, uint32_t v1)
  * \brief Set the 6-bit complete rounds.
  * \param rounds corresponds to rounds+1 complete round.
  */
-void TDES_SetXteaRounds(uint32_t rounds)
+void
+TDES_SetXteaRounds(uint32_t rounds)
 {
 	TDES->TDES_XTEA_RNDR = TDES_XTEA_RNDR_XTEA_RNDS(rounds);
 }
-

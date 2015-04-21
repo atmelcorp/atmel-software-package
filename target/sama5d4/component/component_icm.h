@@ -39,21 +39,21 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Icm hardware registers */
 typedef struct {
-  __IO uint32_t ICM_CFG;       /**< \brief (Icm Offset: 0x00) Configuration Register */
-  __O  uint32_t ICM_CTRL;      /**< \brief (Icm Offset: 0x04) Control Register */
-  __O  uint32_t ICM_SR;        /**< \brief (Icm Offset: 0x08) Status Register */
-  __I  uint32_t Reserved1[1];
-  __O  uint32_t ICM_IER;       /**< \brief (Icm Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t ICM_IDR;       /**< \brief (Icm Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t ICM_IMR;       /**< \brief (Icm Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t ICM_ISR;       /**< \brief (Icm Offset: 0x1C) Interrupt Status Register */
-  __I  uint32_t ICM_UASR;      /**< \brief (Icm Offset: 0x20) Undefined Access Status Register */
-  __I  uint32_t Reserved2[3];
-  __IO uint32_t ICM_DSCR;      /**< \brief (Icm Offset: 0x30) Region Descriptor Area Start Address Register */
-  __IO uint32_t ICM_HASH;      /**< \brief (Icm Offset: 0x34) Region Hash Area Start Address Register */
-  __O  uint32_t ICM_UIHVAL[8]; /**< \brief (Icm Offset: 0x38) User Initial Hash Value 0 Register */
+	__IO uint32_t ICM_CFG;	     /**< \brief (Icm Offset: 0x00) Configuration Register */
+	__O uint32_t ICM_CTRL;	     /**< \brief (Icm Offset: 0x04) Control Register */
+	__O uint32_t ICM_SR;	     /**< \brief (Icm Offset: 0x08) Status Register */
+	__I uint32_t Reserved1[1];
+	__O uint32_t ICM_IER;	     /**< \brief (Icm Offset: 0x10) Interrupt Enable Register */
+	__O uint32_t ICM_IDR;	     /**< \brief (Icm Offset: 0x14) Interrupt Disable Register */
+	__I uint32_t ICM_IMR;	     /**< \brief (Icm Offset: 0x18) Interrupt Mask Register */
+	__I uint32_t ICM_ISR;	     /**< \brief (Icm Offset: 0x1C) Interrupt Status Register */
+	__I uint32_t ICM_UASR;	     /**< \brief (Icm Offset: 0x20) Undefined Access Status Register */
+	__I uint32_t Reserved2[3];
+	__IO uint32_t ICM_DSCR;	     /**< \brief (Icm Offset: 0x30) Region Descriptor Area Start Address Register */
+	__IO uint32_t ICM_HASH;	     /**< \brief (Icm Offset: 0x34) Region Hash Area Start Address Register */
+	__O uint32_t ICM_UIHVAL[8];  /**< \brief (Icm Offset: 0x38) User Initial Hash Value 0 Register */
 } Icm;
-#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ICM_CFG : (ICM Offset: 0x00) Configuration Register -------- */
 #define ICM_CFG_WBDIS (0x1u << 0) /**< \brief (ICM_CFG) Write Back Disable */
 #define ICM_CFG_EOMDIS (0x1u << 1) /**< \brief (ICM_CFG) End of Monitoring Disable */
@@ -84,7 +84,7 @@ typedef struct {
 #define ICM_CTRL_REHASH_Msk (0xfu << ICM_CTRL_REHASH_Pos) /**< \brief (ICM_CTRL) Recompute Internal Hash */
 #define ICM_CTRL_REHASH(value) ((ICM_CTRL_REHASH_Msk & ((value) << ICM_CTRL_REHASH_Pos)))
 #define ICM_CTRL_RMDIS_Pos 8
-#define ICM_CTRL_RMDIS_Msk (0xfu << ICM_CTRL_RMDIS_Pos) /**< \brief (ICM_CTRL) Region Monitoring Disable */
+#define ICM_CTRL_RMDIS_Msk (0xfu << ICM_CTRL_RMDIS_Pos)	/**< \brief (ICM_CTRL) Region Monitoring Disable */
 #define ICM_CTRL_RMDIS(value) ((ICM_CTRL_RMDIS_Msk & ((value) << ICM_CTRL_RMDIS_Pos)))
 #define ICM_CTRL_RMEN_Pos 12
 #define ICM_CTRL_RMEN_Msk (0xfu << ICM_CTRL_RMEN_Pos) /**< \brief (ICM_CTRL) Region Monitoring Enable */
@@ -172,7 +172,7 @@ typedef struct {
 #define   ICM_UASR_URAT_ICM_CFG_MODIFIED (0x1u << 0) /**< \brief (ICM_UASR) ICM_CFG modified during active monitoring. */
 #define   ICM_UASR_URAT_ICM_DSCR_MODIFIED (0x2u << 0) /**< \brief (ICM_UASR) ICM_DSCR modified during active monitoring. */
 #define   ICM_UASR_URAT_ICM_HASH_MODIFIED (0x3u << 0) /**< \brief (ICM_UASR) ICM_HASH modified during active monitoring */
-#define   ICM_UASR_URAT_READ_ACCESS (0x4u << 0) /**< \brief (ICM_UASR) Write-only register read access */
+#define   ICM_UASR_URAT_READ_ACCESS (0x4u << 0)	/**< \brief (ICM_UASR) Write-only register read access */
 /* -------- ICM_DSCR : (ICM Offset: 0x30) Region Descriptor Area Start Address Register -------- */
 #define ICM_DSCR_DASA_Pos 6
 #define ICM_DSCR_DASA_Msk (0x3ffffffu << ICM_DSCR_DASA_Pos) /**< \brief (ICM_DSCR) Descriptor Area Start Address */
@@ -188,5 +188,4 @@ typedef struct {
 
 /*@}*/
 
-
-#endif /* _SAMA5D4_ICM_COMPONENT_ */
+#endif				/* _SAMA5D4_ICM_COMPONENT_ */

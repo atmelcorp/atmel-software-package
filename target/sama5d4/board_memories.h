@@ -41,13 +41,12 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void BOARD_RemapRom( void );
-extern void BOARD_RemapRam( void );
-extern void BOARD_ConfigureVddMemSel(uint8_t VddMemSel) ;
-extern void BOARD_ConfigureDdram( uint8_t device );
-extern void BOARD_ConfigureSdram( void );
-extern void BOARD_ConfigureNandFlash( uint8_t busWidth ) ;
-extern void BOARD_ConfigureNorFlash( uint8_t busWidth ) ;
+extern void BOARD_RemapRom(void);
+extern void BOARD_RemapRam(void);
+extern void BOARD_ConfigureVddMemSel(uint8_t VddMemSel);
+extern void BOARD_ConfigureDdram(uint8_t device);
+extern void BOARD_ConfigureSdram(void);
+extern void BOARD_ConfigureNandFlash(uint8_t busWidth);
+extern void BOARD_ConfigureNorFlash(uint8_t busWidth);
 extern void BOARD_ConfigureLpDdram(void);
-#endif /* #ifndef BOARD_MEMORIES_H */
-
+#endif				/* #ifndef BOARD_MEMORIES_H */

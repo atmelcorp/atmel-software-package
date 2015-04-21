@@ -62,7 +62,8 @@ static uint32_t dwFrontColor;
 /**
  * Hide canvas layer
  */
-static void _HideCanvas(void)
+static void
+_HideCanvas(void)
 {
 	//LCDD_EnableLayer(LCDD_GetCanvas()->bLayer, 0);
 }
@@ -70,7 +71,8 @@ static void _HideCanvas(void)
 /**
  * Update canvas
  */
-static void _ShowCanvas(void)
+static void
+_ShowCanvas(void)
 {
 	//LCDD_EnableLayer(LCDD_GetCanvas()->bLayer, 1);
 }
@@ -79,7 +81,8 @@ static void _ShowCanvas(void)
  * Set front color
  * \param dwColor Pixel color.
  */
-static void _SetFrontColor(uint32_t dwColor)
+static void
+_SetFrontColor(uint32_t dwColor)
 {
 	dwFrontColor = dwColor;
 }
@@ -90,36 +93,38 @@ static void _SetFrontColor(uint32_t dwColor)
  * \param dwX       X-coordinate of pixel.
  * \param dwY       Y-coordinate of pixel.
  */
-static void _DrawPixel( uint32_t dwX, uint32_t dwY )
+static void
+_DrawPixel(uint32_t dwX, uint32_t dwY)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
-	uint8_t* buffer = pDisp->pBuffer;
+	uint8_t *buffer = pDisp->pBuffer;
 	uint16_t w = pDisp->wImgW;
 	//uint16_t h = pDisp->wImgH;
-	uint16_t cw = pDisp->bMode/8; /* color width */
-	uint32_t rw = w * cw;         /* row width in bytes */
+	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	uint32_t rw = w * cw;	/* row width in bytes */
 	//uint8_t  r, g, b;
-	uint8_t  *pPix;
+	uint8_t *pPix;
 
 	if (buffer == NULL)
 		return;
 
-	if (rw & 0x3) rw = (rw | 0x3) + 1; /* 4-byte aligned rows */
+	if (rw & 0x3)
+		rw = (rw | 0x3) + 1;	/* 4-byte aligned rows */
 	pPix = &buffer[dwY * rw + cw * dwX];
 
 	switch (pDisp->bMode) {
-	case 16: /* TRGB 1555 */
-		pPix[0] = (dwFrontColor      ) & 0xFF;
-		pPix[1] = (dwFrontColor >>  8) & 0xFF;
+	case 16:		/* TRGB 1555 */
+		pPix[0] = (dwFrontColor) & 0xFF;
+		pPix[1] = (dwFrontColor >> 8) & 0xFF;
 		break;
-	case 24: /*  RGB  888 */
-		pPix[0] = (dwFrontColor      ) & 0xFF;
-		pPix[1] = (dwFrontColor >>  8) & 0xFF;
+	case 24:		/*  RGB  888 */
+		pPix[0] = (dwFrontColor) & 0xFF;
+		pPix[1] = (dwFrontColor >> 8) & 0xFF;
 		pPix[2] = (dwFrontColor >> 16) & 0xFF;
 		break;
-	case 32: /* ARGB 8888 */
-		pPix[0] = (dwFrontColor      ) & 0xFF;
-		pPix[1] = (dwFrontColor >>  8) & 0xFF;
+	case 32:		/* ARGB 8888 */
+		pPix[0] = (dwFrontColor) & 0xFF;
+		pPix[1] = (dwFrontColor >> 8) & 0xFF;
 		pPix[2] = (dwFrontColor >> 16) & 0xFF;
 		pPix[3] = (dwFrontColor >> 24) & 0xFF;
 		break;
@@ -133,29 +138,32 @@ static void _DrawPixel( uint32_t dwX, uint32_t dwY )
  * \param dwX2  X-coordinate of bottom right.
  * \param dwY1  Y-coordinate of bottom right.
  */
-static void _FillRect( uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2 )
+static void
+_FillRect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
 	uint16_t w = pDisp->wImgW;
-	uint16_t cw = pDisp->bMode/8; /* color width */
-	uint32_t rw = w * cw;         /* row width in bytes */
+	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	uint32_t rw = w * cw;	/* row width in bytes */
 	uint8_t *base = pDisp->pBuffer;
 	uint8_t *buffer = pDisp->pBuffer;
 	uint32_t fillStart, fillEnd;
 	uint32_t i;
-	if (buffer == NULL) return;
+	if (buffer == NULL)
+		return;
 
 	/* 4-byte aligned rows */
-	if (rw & 0x3) rw = (rw | 0x3) + 1;
+	if (rw & 0x3)
+		rw = (rw | 0x3) + 1;
 	/* Buffer address for the starting row */
-	base = &buffer[dwY1*rw];
+	base = &buffer[dwY1 * rw];
 
 	fillStart = dwX1 * cw;
-	fillEnd   = dwX2 * cw;
+	fillEnd = dwX2 * cw;
 
-#if 1 /* Memcopy pixel */
+#if 1				/* Memcopy pixel */
 	buffer = base;
-	for (; dwY1 <= dwY2; dwY1 ++) {
+	for (; dwY1 <= dwY2; dwY1++) {
 		for (i = fillStart; i <= fillEnd; i += cw) {
 			memcpy(&buffer[i], &dwFrontColor, cw);
 		}
@@ -163,22 +171,22 @@ static void _FillRect( uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
 	}
 #endif
 
-#if 0 /* Pixel by pixel */
-	for (; dwY1 <= dwY2; dwY1 ++) {
-		for (i = dwX1; i <= dwX2; i ++) {
+#if 0				/* Pixel by pixel */
+	for (; dwY1 <= dwY2; dwY1++) {
+		for (i = dwX1; i <= dwX2; i++) {
 			_DrawPixel(i, dwY1);
 		}
 	}
 #endif
 
-#if 0 /* Optimized */
+#if 0				/* Optimized */
 	/* First row */
 	for (i = fillStart; i <= fillEnd; i += cw) {
 		memcpy(&base[i], &dwFrontColor, cw);
 	}
 	/* Next rows, copy first */
 	buffer = &base[rw + fillStart];
-	for (i = dwY1 + 1; i <= dwY2; i ++) {
+	for (i = dwY1 + 1; i <= dwY2; i++) {
 		memcpy(buffer, &base[fillStart], fillEnd - fillStart + cw);
 		buffer = &buffer[rw];
 	}
@@ -193,57 +201,55 @@ static void _FillRect( uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
  * \param dwX2       X-coordinate of line end.
  * \param dwY2       Y-coordinate of line end.
  */
-static uint32_t _DrawLineBresenham( uint32_t dwX1, uint32_t dwY1,
-                                    uint32_t dwX2, uint32_t dwY2 )
+static uint32_t
+_DrawLineBresenham(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
 {
-	int dx, dy ;
-	int i ;
-	int xinc, yinc, cumul ;
-	int x, y ;
+	int dx, dy;
+	int i;
+	int xinc, yinc, cumul;
+	int x, y;
 
-	x = dwX1 ;
-	y = dwY1 ;
-	dx = dwX2 - dwX1 ;
-	dy = dwY2 - dwY1 ;
+	x = dwX1;
+	y = dwY1;
+	dx = dwX2 - dwX1;
+	dy = dwY2 - dwY1;
 
-	xinc = ( dx > 0 ) ? 1 : -1 ;
-	yinc = ( dy > 0 ) ? 1 : -1 ;
-	dx = ( dx > 0 ) ? dx : -dx ;
-	dy = ( dy > 0 ) ? dy : -dy ;
+	xinc = (dx > 0) ? 1 : -1;
+	yinc = (dy > 0) ? 1 : -1;
+	dx = (dx > 0) ? dx : -dx;
+	dy = (dy > 0) ? dy : -dy;
 
-	_DrawPixel( x, y ) ;
+	_DrawPixel(x, y);
 
-	if ( dx > dy ) {
-		cumul = dx / 2 ;
-		for ( i = 1 ; i <= dx ; i++ ) {
-			x += xinc ;
-			cumul += dy ;
+	if (dx > dy) {
+		cumul = dx / 2;
+		for (i = 1; i <= dx; i++) {
+			x += xinc;
+			cumul += dy;
 
-			if ( cumul >= dx ) {
-				cumul -= dx ;
-				y += yinc ;
+			if (cumul >= dx) {
+				cumul -= dx;
+				y += yinc;
 			}
-			_DrawPixel( x, y ) ;
+			_DrawPixel(x, y);
 		}
 	} else {
-		cumul = dy / 2 ;
-		for ( i = 1 ; i <= dy ; i++ ) {
-			y += yinc ;
-			cumul += dx ;
+		cumul = dy / 2;
+		for (i = 1; i <= dy; i++) {
+			y += yinc;
+			cumul += dx;
 
-			if ( cumul >= dy ) {
-				cumul -= dy ;
-				x += xinc ;
+			if (cumul >= dy) {
+				cumul -= dy;
+				x += xinc;
 			}
 
-			_DrawPixel( x, y ) ;
+			_DrawPixel(x, y);
 		}
 	}
 
-	return 0 ;
+	return 0;
 }
-
-
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -254,27 +260,32 @@ static uint32_t _DrawLineBresenham( uint32_t dwX1, uint32_t dwY1,
  *
  * \param dwColor  Fill color.
  */
-void LCDD_Fill( uint32_t dwColor )
+void
+LCDD_Fill(uint32_t dwColor)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
 	_SetFrontColor(dwColor);
 	_HideCanvas();
-	_FillRect( 0, 0, pDisp->wImgW, pDisp->wImgH );
+	_FillRect(0, 0, pDisp->wImgW, pDisp->wImgH);
 	_ShowCanvas();
 }
 
-void LCDD_Fill0(void)
+void
+LCDD_Fill0(void)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
 	_HideCanvas();
 	_SetFrontColor(0xFF0000);
-	_FillRect( 0, 0, pDisp->wImgW/3, pDisp->wImgH );
+	_FillRect(0, 0, pDisp->wImgW / 3, pDisp->wImgH);
 	_SetFrontColor(0x00FF00);
-	_FillRect( pDisp->wImgW/3, 0, pDisp->wImgW/3+pDisp->wImgW/3, pDisp->wImgH );
+	_FillRect(pDisp->wImgW / 3, 0, pDisp->wImgW / 3 + pDisp->wImgW / 3,
+		  pDisp->wImgH);
 	_SetFrontColor(0x0000FF);
-	_FillRect( pDisp->wImgW/3+pDisp->wImgW/3, 0, pDisp->wImgW, pDisp->wImgH );
+	_FillRect(pDisp->wImgW / 3 + pDisp->wImgW / 3, 0, pDisp->wImgW,
+		  pDisp->wImgH);
 	_ShowCanvas();
 }
+
 /**
  * \brief Draw a pixel on LCD of given color.
  *
@@ -282,7 +293,8 @@ void LCDD_Fill0(void)
  * \param y  Y-coordinate of pixel.
  * \param color  Pixel color.
  */
-extern void LCDD_DrawPixel( uint32_t x, uint32_t y, uint32_t color )
+extern void
+LCDD_DrawPixel(uint32_t x, uint32_t y, uint32_t color)
 {
 	_SetFrontColor(color);
 	_HideCanvas();
@@ -298,31 +310,36 @@ extern void LCDD_DrawPixel( uint32_t x, uint32_t y, uint32_t color )
  *
  * \return color  Readed pixel color.
  */
-extern uint32_t LCDD_ReadPixel( uint32_t x, uint32_t y )
+extern uint32_t
+LCDD_ReadPixel(uint32_t x, uint32_t y)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
-	uint8_t* buffer = pDisp->pBuffer;
+	uint8_t *buffer = pDisp->pBuffer;
 	uint16_t w = pDisp->wImgW;
 	//uint16_t h = pDisp->wImgH;
-	uint16_t cw = pDisp->bMode/8; /* color width */
-	uint32_t rw = w * cw;         /* row width in bytes */
-	uint8_t  *pPix;
+	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	uint32_t rw = w * cw;	/* row width in bytes */
+	uint8_t *pPix;
 	uint32_t color = 0;
 
-	if (buffer == NULL) return 0;
+	if (buffer == NULL)
+		return 0;
 
-	if (rw & 0x3) rw = (rw | 0x3) + 1; /* 4-byte aligned rows */
+	if (rw & 0x3)
+		rw = (rw | 0x3) + 1;	/* 4-byte aligned rows */
 	pPix = &buffer[x * rw + cw * y];
 
 	switch (pDisp->bMode) {
-	case 16: /* TRGB 1555 */
+	case 16:		/* TRGB 1555 */
 		color = pPix[0] | (pPix[1] << 8);
 		break;
-	case 24: /*  RGB  888 */
+	case 24:		/*  RGB  888 */
 		color = pPix[0] | (pPix[1] << 8) | (pPix[2] << 16);
 		break;
-	case 32: /* ARGB 8888 */
-		color = pPix[0] | (pPix[1] << 8) | (pPix[2] << 16) | (pPix[3] << 24);
+	case 32:		/* ARGB 8888 */
+		color =
+		    pPix[0] | (pPix[1] << 8) | (pPix[2] << 16) | (pPix[3] <<
+								  24);
 		break;
 	}
 	return color;
@@ -337,10 +354,12 @@ extern uint32_t LCDD_ReadPixel( uint32_t x, uint32_t y )
  * \param y2        Y-coordinate of line end.
  * \param color     Pixel color.
  */
-extern void LCDD_DrawLine( uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t color )
+extern void
+LCDD_DrawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
+	      uint32_t color)
 {
 	_SetFrontColor(color);
-	if ( (x1 == x2) || (y1 == y2) ) {
+	if ((x1 == x2) || (y1 == y2)) {
 		LCDD_DrawFilledRectangle(x1, y1, x2, y2, color);
 	} else {
 		_HideCanvas();
@@ -358,17 +377,19 @@ extern void LCDD_DrawLine( uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, u
  * \param height  Rectangle height in pixels.
  * \param color  Rectangle color.
  */
-extern void LCDD_DrawRectangle( uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color )
+extern void
+LCDD_DrawRectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+		   uint32_t color)
 {
 	uint32_t x1 = x + width - 1;
 	uint32_t y1 = y + height - 1;
 
 	_SetFrontColor(color);
 	_HideCanvas();
-	_FillRect(x , y , x1, y );
-	_FillRect(x1, y , x1, y1);
-	_FillRect(x , y , x , y1);
-	_FillRect(x , y1, x1, y1);
+	_FillRect(x, y, x1, y);
+	_FillRect(x1, y, x1, y1);
+	_FillRect(x, y, x, y1);
+	_FillRect(x, y1, x1, y1);
 	_ShowCanvas();
 }
 
@@ -381,9 +402,9 @@ extern void LCDD_DrawRectangle( uint32_t x, uint32_t y, uint32_t width, uint32_t
  * \param dwY2   Y-coordinate of down-right rectangle corner.
  * \param dwColor Rectangle color.
  */
-extern void LCDD_DrawFilledRectangle( uint32_t dwX1, uint32_t dwY1,
-                                      uint32_t dwX2, uint32_t dwY2,
-                                      uint32_t dwColor )
+extern void
+LCDD_DrawFilledRectangle(uint32_t dwX1, uint32_t dwY1,
+			 uint32_t dwX2, uint32_t dwY2, uint32_t dwColor)
 {
 	_SetFrontColor(dwColor);
 	_HideCanvas();
@@ -399,13 +420,15 @@ extern void LCDD_DrawFilledRectangle( uint32_t dwX1, uint32_t dwY1,
  * \param dwR     circle radius.
  * \param dwColor circle color.
  */
-extern void LCDD_DrawCircle( uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t dwColor )
+extern void
+LCDD_DrawCircle(uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t dwColor)
 {
-	int32_t   d;    /* Decision Variable */
-	uint32_t  curX; /* Current X Value */
-	uint32_t  curY; /* Current Y Value */
+	int32_t d;		/* Decision Variable */
+	uint32_t curX;		/* Current X Value */
+	uint32_t curY;		/* Current Y Value */
 
-	if (dwR == 0) return;
+	if (dwR == 0)
+		return;
 	_SetFrontColor(dwColor);
 
 	d = 3 - (dwR << 1);
@@ -434,7 +457,6 @@ extern void LCDD_DrawCircle( uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t 
 	_ShowCanvas();
 }
 
-
 /**
  * \brief Draws a filled circle on LCD, at the given coordinates.
  *
@@ -443,39 +465,42 @@ extern void LCDD_DrawCircle( uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t 
  * \param dwR     circle radius.
  * \param dwColor circle color.
  */
-void LCDD_DrawFilledCircle( uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t dwColor )
+void
+LCDD_DrawFilledCircle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
+		      uint32_t dwColor)
 {
-	signed int d ; // Decision Variable
-	uint32_t dwCurX ; // Current X Value
-	uint32_t dwCurY ; // Current Y Value
+	signed int d;		// Decision Variable
+	uint32_t dwCurX;	// Current X Value
+	uint32_t dwCurY;	// Current Y Value
 	uint32_t dwXmin, dwYmin;
 
-	if (dwR == 0)        return;
+	if (dwR == 0)
+		return;
 	_SetFrontColor(dwColor);
 
-	d = 3 - (dwR << 1) ;
-	dwCurX = 0 ;
-	dwCurY = dwR ;
+	d = 3 - (dwR << 1);
+	dwCurX = 0;
+	dwCurY = dwR;
 
 	_HideCanvas();
-	while ( dwCurX <= dwCurY ) {
-		dwXmin = (dwCurX > dwX) ? 0 : dwX-dwCurX;
-		dwYmin = (dwCurY > dwY) ? 0 : dwY-dwCurY;
-		_FillRect( dwXmin, dwYmin, dwX+dwCurX, dwYmin ) ;
-		_FillRect( dwXmin, dwY+dwCurY, dwX+dwCurX, dwY+dwCurY ) ;
-		dwXmin = (dwCurY > dwX) ? 0 : dwX-dwCurY;
-		dwYmin = (dwCurX > dwY) ? 0 : dwY-dwCurX;
-		_FillRect( dwXmin, dwYmin, dwX+dwCurY, dwYmin ) ;
-		_FillRect( dwXmin, dwY+dwCurX, dwX+dwCurY, dwY+dwCurX ) ;
+	while (dwCurX <= dwCurY) {
+		dwXmin = (dwCurX > dwX) ? 0 : dwX - dwCurX;
+		dwYmin = (dwCurY > dwY) ? 0 : dwY - dwCurY;
+		_FillRect(dwXmin, dwYmin, dwX + dwCurX, dwYmin);
+		_FillRect(dwXmin, dwY + dwCurY, dwX + dwCurX, dwY + dwCurY);
+		dwXmin = (dwCurY > dwX) ? 0 : dwX - dwCurY;
+		dwYmin = (dwCurX > dwY) ? 0 : dwY - dwCurX;
+		_FillRect(dwXmin, dwYmin, dwX + dwCurY, dwYmin);
+		_FillRect(dwXmin, dwY + dwCurX, dwX + dwCurY, dwY + dwCurX);
 
-		if ( d < 0 ) {
-			d += (dwCurX << 2) + 6 ;
+		if (d < 0) {
+			d += (dwCurX << 2) + 6;
 		} else {
 			d += ((dwCurX - dwCurY) << 2) + 10;
-			dwCurY-- ;
+			dwCurY--;
 		}
 
-		dwCurX++ ;
+		dwCurX++;
 	}
 	_ShowCanvas();
 }
@@ -489,7 +514,8 @@ void LCDD_DrawFilledCircle( uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t d
  * \param pString  String to display.
  * \param color    String color.
  */
-extern void LCDD_DrawString( uint32_t x, uint32_t y, const char *pString, uint32_t color )
+extern void
+LCDD_DrawString(uint32_t x, uint32_t y, const char *pString, uint32_t color)
 {
 	uint32_t xorg = x;
 	while (*pString) {
@@ -500,7 +526,7 @@ extern void LCDD_DrawString( uint32_t x, uint32_t y, const char *pString, uint32
 			LCDD_DrawChar(x, y, *pString, color);
 			x += gFont.width + 2;
 		}
-		pString ++;
+		pString++;
 	}
 }
 
@@ -514,7 +540,9 @@ extern void LCDD_DrawString( uint32_t x, uint32_t y, const char *pString, uint32
  * \param fontColor String color.
  * \param bgColor   Background color.
  */
-extern void LCDD_DrawStringWithBGColor( uint32_t x, uint32_t y, const char *pString, uint32_t fontColor, uint32_t bgColor )
+extern void
+LCDD_DrawStringWithBGColor(uint32_t x, uint32_t y, const char *pString,
+			   uint32_t fontColor, uint32_t bgColor)
 {
 	uint32_t xorg = x;
 	while (*pString) {
@@ -522,10 +550,11 @@ extern void LCDD_DrawStringWithBGColor( uint32_t x, uint32_t y, const char *pStr
 			y += gFont.height + 2;
 			x = xorg;
 		} else {
-			LCDD_DrawCharWithBGColor(x, y, *pString, fontColor, bgColor);
+			LCDD_DrawCharWithBGColor(x, y, *pString, fontColor,
+						 bgColor);
 			x += gFont.width + 2;
 		}
-		pString ++;
+		pString++;
 	}
 }
 
@@ -539,19 +568,25 @@ extern void LCDD_DrawStringWithBGColor( uint32_t x, uint32_t y, const char *pStr
  *
  * \return String width in pixels.
  */
-extern void LCDD_GetStringSize( const char *pString, uint32_t *pWidth, uint32_t *pHeight )
+extern void
+LCDD_GetStringSize(const char *pString, uint32_t * pWidth, uint32_t * pHeight)
 {
 	uint32_t width = 0;
 	uint32_t height = gFont.height;
 	while (*pString) {
-		if (*pString == '\n') height += gFont.height + 2;
-		else                  width  += gFont.height + 2;
-		pString ++;
+		if (*pString == '\n')
+			height += gFont.height + 2;
+		else
+			width += gFont.height + 2;
+		pString++;
 	}
-	if (width > 0) width -= 2;
+	if (width > 0)
+		width -= 2;
 
-	if (pWidth) *pWidth  = width;
-	if (pHeight)*pHeight = height;
+	if (pWidth)
+		*pWidth = width;
+	if (pHeight)
+		*pHeight = height;
 }
 
 /**
@@ -563,28 +598,29 @@ extern void LCDD_GetStringSize( const char *pString, uint32_t *pWidth, uint32_t 
  * \param dwWidth   Image width.
  * \param dwHeight  Image height.
  */
-void LCDD_DrawImage( uint32_t dwX, uint32_t dwY, const uint8_t *pImage, uint32_t dwWidth, uint32_t dwHeight )
+void
+LCDD_DrawImage(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
+	       uint32_t dwWidth, uint32_t dwHeight)
 {
 	sLCDDLayer *pDisp = LCDD_GetCanvas();
-	uint16_t cw  = pDisp->bMode/8;      /* color width */
-	uint32_t rw  = pDisp->wImgW * cw;   /* Row width in bytes */
-	uint32_t rws = dwWidth * cw;        /* Source Row Width */
-	uint32_t rl  = (rw  & 0x3) ? ((rw  | 0x3) + 1) :  rw; /* Aligned length*/
-	uint32_t rls = (rws & 0x3) ? ((rws | 0x3) + 1) : rws; /* Aligned length */
+	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	uint32_t rw = pDisp->wImgW * cw;	/* Row width in bytes */
+	uint32_t rws = dwWidth * cw;	/* Source Row Width */
+	uint32_t rl = (rw & 0x3) ? ((rw | 0x3) + 1) : rw;	/* Aligned length */
+	uint32_t rls = (rws & 0x3) ? ((rws | 0x3) + 1) : rws;	/* Aligned length */
 	uint8_t *pSrc, *pDst;
 	uint32_t i;
 
-	pSrc = (uint8_t*)pImage;
+	pSrc = (uint8_t *) pImage;
 	pDst = pDisp->pBuffer;
-	pDst = &pDst[dwX*cw + dwY*rl];
+	pDst = &pDst[dwX * cw + dwY * rl];
 
-	for (i = 0; i < dwHeight; i ++) {
+	for (i = 0; i < dwHeight; i++) {
 		memcpy(pDst, pSrc, rws);
 		pSrc = &pSrc[rls];
 		pDst = &pDst[rl];
 	}
 }
-
 
 /**
  * \brief Clear a window with an color.
@@ -595,11 +631,12 @@ void LCDD_DrawImage( uint32_t dwX, uint32_t dwY, const uint8_t *pImage, uint32_t
  * \param dwHeight    window height.
  * \param dwColor     background color
  */
-extern void LCDD_ClearWindow( uint32_t dwX, uint32_t dwY, uint32_t dwWidth, uint32_t dwHeight, uint32_t dwColor )
+extern void
+LCDD_ClearWindow(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
+		 uint32_t dwHeight, uint32_t dwColor)
 {
 	_SetFrontColor(dwColor);
 	_HideCanvas();
 	_FillRect(0, 0, dwX + dwWidth - 1, dwY + dwHeight - 1);
 	_ShowCanvas();
 }
-

@@ -47,7 +47,6 @@
 /** Slave address */
 #define WM8904_SLAVE_ADDRESS        0x1a | WM8904_CSB_STATE
 
-
 /** Reset register*/
 #define WM8904_REG_RESET                           0x00
 
@@ -148,11 +147,10 @@
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint16_t WM8904_Read(Twid *pTwid, uint32_t device, uint32_t regAddr);
-extern void WM8904_Write(Twid *pTwid, uint32_t device, uint32_t regAddr, uint16_t data);
-extern uint8_t WM8904_Init(Twid *pTwid, uint32_t device, uint32_t PCK);
-extern uint8_t WM8904_VolumeSet(Twid *pTwid,  uint32_t device, uint16_t value);
-extern void WM8904_IN2R_IN1L(Twid *pTwid, uint32_t device);
-#endif // WM8904_H
-
-
+extern uint16_t WM8904_Read(Twid * pTwid, uint32_t device, uint32_t regAddr);
+extern void WM8904_Write(Twid * pTwid, uint32_t device, uint32_t regAddr,
+			 uint16_t data);
+extern uint8_t WM8904_Init(Twid * pTwid, uint32_t device, uint32_t PCK);
+extern uint8_t WM8904_VolumeSet(Twid * pTwid, uint32_t device, uint16_t value);
+extern void WM8904_IN2R_IN1L(Twid * pTwid, uint32_t device);
+#endif				// WM8904_H

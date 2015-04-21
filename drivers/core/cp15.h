@@ -34,40 +34,40 @@
 /*----------------------------------------------------------------------------
  *        Definition
  *----------------------------------------------------------------------------*/
-#define CP15_L4_BIT 15 // Determines if the T bit is set when load instructions 
+#define CP15_L4_BIT 15		// Determines if the T bit is set when load instructions
 // change the PC:
 // 0 = loads to PC set the T bit
 // 1 = loads to PC do not set T bit
 
-#define CP15_RR_BIT 14 // RR bit Replacement strategy for Icache and Dcache: 
+#define CP15_RR_BIT 14		// RR bit Replacement strategy for Icache and Dcache:
 // 0 = Random replacement
 // 1 = Round-robin replacement.
 
-#define CP15_V_BIT  13 // V bit Location of exception vectors: 
+#define CP15_V_BIT  13		// V bit Location of exception vectors:
 // 0 = Normal exception vectors selected address range = 0x0000 0000 to 0x0000 001C
 // 1 = High exception vect selected, address range = 0xFFFF 0000 to 0xFFFF 001C
 
-#define CP15_I_BIT  12 // I bit Icache enable/disable: 
+#define CP15_I_BIT  12		// I bit Icache enable/disable:
 // 0 = Icache disabled
 // 1 = Icache enabled
 
-#define CP15_R_BIT   9 // R bit ROM protection
+#define CP15_R_BIT   9		// R bit ROM protection
 
-#define CP15_S_BIT   8 // S bit System protection
+#define CP15_S_BIT   8		// S bit System protection
 
-#define CP15_B_BIT   7 // B bit Endianness: 
+#define CP15_B_BIT   7		// B bit Endianness:
 // 0 = Little-endian operation
 // 1 = Big-endian operation.
 
-#define CP15_C_BIT   2 // C bit Dcache enable/disable: 
+#define CP15_C_BIT   2		// C bit Dcache enable/disable:
 // 0 = cache disabled
 // 1 = cache enabled
 
-#define CP15_A_BIT   1 // A bit Alignment fault enable/disable:
+#define CP15_A_BIT   1		// A bit Alignment fault enable/disable:
 // 0 = Data address alignment fault checking disabled
 // 1 = Data address alignment fault checking enabled
 
-#define CP15_M_BIT   0 // M bit MMU enable/disable: 0 = disabled 1 = enabled.
+#define CP15_M_BIT   0		// M bit MMU enable/disable: 0 = disabled 1 = enabled.
 // 0 = disabled
 // 1 = enabled
 
@@ -78,7 +78,6 @@
 /** Manager Accesses are not checked against the access permission bits so a permission fault cannot be generated. */
 #define CP15_DOMAIN_MANAGER_ACCESS 0x03
 
-
 #define CP15_ICache             1
 #define CP15_DCache             0
 
@@ -86,7 +85,6 @@
 #define CP15_PMCR_DIVIDER       3
 #define CP15_PMCR_RESET         2
 #define CP15_PMCR_ENABLE        0
-
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions */
@@ -115,20 +113,20 @@ extern void CP15_InvalidateDcacheBySetWay(void);
 extern void CP15_CleanDCacheBySetWay(void);
 extern void CP15_CleanInvalidateDCacheBySetWay(void);
 
-extern void CP15_InvalidateDcacheByMva(uint32_t startAddr, uint32_t endAddr  );
-extern void CP15_CleanDCacheByMva(uint32_t startAddr, uint32_t endAddr  );
-extern void CP15_CleanInvalidateDcacheByMva(uint32_t startAddr, uint32_t endAddr  );
+extern void CP15_InvalidateDcacheByMva(uint32_t startAddr, uint32_t endAddr);
+extern void CP15_CleanDCacheByMva(uint32_t startAddr, uint32_t endAddr);
+extern void CP15_CleanInvalidateDcacheByMva(uint32_t startAddr,
+					    uint32_t endAddr);
 
 extern void CP15_CleanDCacheUMva(void);
 extern void CP15_InvalidateTranslationTable(void);
 
-extern void CP15_coherent_dcache_for_dma (uint32_t startAddr, uint32_t endAddr );
-extern void CP15_invalidate_dcache_for_dma (uint32_t startAddr, uint32_t endAddr );
-extern void CP15_clean_dcache_for_dma (uint32_t startAddr, uint32_t endAddr );
-extern void CP15_flush_dcache_for_dma (uint32_t startAddr, uint32_t endAddr );
-extern void CP15_flush_kern_dcache_for_dma (uint32_t startAddr, uint32_t size );
-
-
+extern void CP15_coherent_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void CP15_invalidate_dcache_for_dma(uint32_t startAddr,
+					   uint32_t endAddr);
+extern void CP15_clean_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void CP15_flush_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void CP15_flush_kern_dcache_for_dma(uint32_t startAddr, uint32_t size);
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions  from CP15.c                                       */
@@ -136,22 +134,20 @@ extern void CP15_flush_kern_dcache_for_dma (uint32_t startAddr, uint32_t size );
 
 /** MMU (Status/Enable/Disable) */
 extern unsigned int CP15_IsMMUEnabled(void);
-extern void         CP15_EnableMMU(void);
-extern void         CP15_DisableMMU(void);
+extern void CP15_EnableMMU(void);
+extern void CP15_DisableMMU(void);
 
 /** I cache (Status/Enable/Disable) */
 extern unsigned int CP15_IsIcacheEnabled(void);
-extern void         CP15_EnableIcache(void);
-extern void         CP15_DisableIcache(void);
+extern void CP15_EnableIcache(void);
+extern void CP15_DisableIcache(void);
 
 /** D cache (Status/Enable/Disable) */
 extern unsigned int CP15_IsDcacheEnabled(void);
-extern void         CP15_EnableDcache(void);
-extern void         CP15_DisableDcache(void);
-
+extern void CP15_EnableDcache(void);
+extern void CP15_DisableDcache(void);
 
 extern void CP15_InvalidateTLB(void);
-
 
 extern void CP15_CacheClean(uint8_t CacheType);
 extern void CP15_CacheInvalidate(uint8_t CacheType);
@@ -160,5 +156,4 @@ extern void CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add);
 extern void CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add);
 extern void CP15_FlushDCacheByVA(uint32_t S_Add, uint32_t E_Add);
 
-#endif // #ifndef _CP15_H
-
+#endif				// #ifndef _CP15_H

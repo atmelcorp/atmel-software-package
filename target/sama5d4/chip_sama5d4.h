@@ -33,12 +33,12 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 #include <stdint.h>
 #ifdef __cplusplus
-#define __I  volatile       /**< Defines 'read-only'  permissions */
+#define __I  volatile	    /**< Defines 'read-only'  permissions */
 #else
 #define __I  volatile const /**< Defines 'read-only'  permissions */
 #endif
-#define   __O  volatile       /**< Defines 'write-only' permissions */
-#define   __IO volatile       /**< Defines 'read/write' permissions */
+#define   __O  volatile	      /**< Defines 'write-only' permissions */
+#define   __IO volatile	      /**< Defines 'read/write' permissions */
 #endif
 
 #if defined(CHIP_SAMA5D41)
@@ -53,4 +53,4 @@
 #error "You're selected MPU or MCU is not supported"
 #endif
 
-#endif /* _SAMA5D4_ */
+#endif				/* _SAMA5D4_ */

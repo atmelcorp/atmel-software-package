@@ -29,9 +29,9 @@
 
 /** \file */
 
- #ifndef _SDMMC_LIB_H
- #define _SDMMC_LIB_H
- 
+#ifndef _SDMMC_LIB_H
+#define _SDMMC_LIB_H
+
 /*------------------------------------------------------------------------------
  *      Includes
  *----------------------------------------------------------------------------*/
@@ -43,4 +43,4 @@
 #include "libsdmmc/sdmmc_hal.h"
 //#include "include\sdmmc_dbg.h"
 
-#endif /* #define _SDMMC_LIB_H */
+#endif				/* #define _SDMMC_LIB_H */

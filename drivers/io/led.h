@@ -60,13 +60,12 @@
 //         Global Functions
 //------------------------------------------------------------------------------
 
-extern uint32_t LED_Configure( uint32_t dwLed ) ;
+extern uint32_t LED_Configure(uint32_t dwLed);
 
-extern uint32_t LED_Set( uint32_t dwLed ) ;
+extern uint32_t LED_Set(uint32_t dwLed);
 
-extern uint32_t LED_Clear( uint32_t dwLed ) ;
+extern uint32_t LED_Clear(uint32_t dwLed);
 
-extern uint32_t LED_Toggle( uint32_t dwLed ) ;
+extern uint32_t LED_Toggle(uint32_t dwLed);
 
-#endif /* #ifndef LED_H */
-
+#endif				/* #ifndef LED_H */

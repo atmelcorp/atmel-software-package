@@ -47,8 +47,8 @@
 * \brief Returns 1 if the given transfer has ended; otherwise returns 0.
 * \param pAsync  Pointer to an Async instance.
 */
-uint32_t ASYNC_IsFinished( Async* pAsync )
+uint32_t
+ASYNC_IsFinished(Async * pAsync)
 {
-	return (pAsync->status != ASYNC_STATUS_PENDING) ;
+	return (pAsync->status != ASYNC_STATUS_PENDING);
 }
-

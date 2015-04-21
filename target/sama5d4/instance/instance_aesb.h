@@ -32,27 +32,27 @@
 
 /* ========== Register definition for AESB peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_AESB_CR                      (0xF0020000U) /**< \brief (AESB) Control Register */
-  #define REG_AESB_MR                      (0xF0020004U) /**< \brief (AESB) Mode Register */
-  #define REG_AESB_IER                     (0xF0020010U) /**< \brief (AESB) Interrupt Enable Register */
-  #define REG_AESB_IDR                     (0xF0020014U) /**< \brief (AESB) Interrupt Disable Register */
-  #define REG_AESB_IMR                     (0xF0020018U) /**< \brief (AESB) Interrupt Mask Register */
-  #define REG_AESB_ISR                     (0xF002001CU) /**< \brief (AESB) Interrupt Status Register */
-  #define REG_AESB_KEYWR                   (0xF0020020U) /**< \brief (AESB) Key Word Register */
-  #define REG_AESB_IDATAR                  (0xF0020040U) /**< \brief (AESB) Input Data Register */
-  #define REG_AESB_ODATAR                  (0xF0020050U) /**< \brief (AESB) Output Data Register */
-  #define REG_AESB_IVR                     (0xF0020060U) /**< \brief (AESB) Initialization Vector Register */
+#define REG_AESB_CR                      (0xF0020000U) /**< \brief (AESB) Control Register */
+#define REG_AESB_MR                      (0xF0020004U) /**< \brief (AESB) Mode Register */
+#define REG_AESB_IER                     (0xF0020010U) /**< \brief (AESB) Interrupt Enable Register */
+#define REG_AESB_IDR                     (0xF0020014U) /**< \brief (AESB) Interrupt Disable Register */
+#define REG_AESB_IMR                     (0xF0020018U) /**< \brief (AESB) Interrupt Mask Register */
+#define REG_AESB_ISR                     (0xF002001CU) /**< \brief (AESB) Interrupt Status Register */
+#define REG_AESB_KEYWR                   (0xF0020020U) /**< \brief (AESB) Key Word Register */
+#define REG_AESB_IDATAR                  (0xF0020040U) /**< \brief (AESB) Input Data Register */
+#define REG_AESB_ODATAR                  (0xF0020050U) /**< \brief (AESB) Output Data Register */
+#define REG_AESB_IVR                     (0xF0020060U) /**< \brief (AESB) Initialization Vector Register */
 #else
-  #define REG_AESB_CR     (*(__O  uint32_t*)0xF0020000U) /**< \brief (AESB) Control Register */
-  #define REG_AESB_MR     (*(__IO uint32_t*)0xF0020004U) /**< \brief (AESB) Mode Register */
-  #define REG_AESB_IER    (*(__O  uint32_t*)0xF0020010U) /**< \brief (AESB) Interrupt Enable Register */
-  #define REG_AESB_IDR    (*(__O  uint32_t*)0xF0020014U) /**< \brief (AESB) Interrupt Disable Register */
-  #define REG_AESB_IMR    (*(__I  uint32_t*)0xF0020018U) /**< \brief (AESB) Interrupt Mask Register */
-  #define REG_AESB_ISR    (*(__I  uint32_t*)0xF002001CU) /**< \brief (AESB) Interrupt Status Register */
-  #define REG_AESB_KEYWR  (*(__O  uint32_t*)0xF0020020U) /**< \brief (AESB) Key Word Register */
-  #define REG_AESB_IDATAR (*(__O  uint32_t*)0xF0020040U) /**< \brief (AESB) Input Data Register */
-  #define REG_AESB_ODATAR (*(__I  uint32_t*)0xF0020050U) /**< \brief (AESB) Output Data Register */
-  #define REG_AESB_IVR    (*(__O  uint32_t*)0xF0020060U) /**< \brief (AESB) Initialization Vector Register */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#define REG_AESB_CR     (*(__O  uint32_t*)0xF0020000U) /**< \brief (AESB) Control Register */
+#define REG_AESB_MR     (*(__IO uint32_t*)0xF0020004U) /**< \brief (AESB) Mode Register */
+#define REG_AESB_IER    (*(__O  uint32_t*)0xF0020010U) /**< \brief (AESB) Interrupt Enable Register */
+#define REG_AESB_IDR    (*(__O  uint32_t*)0xF0020014U) /**< \brief (AESB) Interrupt Disable Register */
+#define REG_AESB_IMR    (*(__I  uint32_t*)0xF0020018U) /**< \brief (AESB) Interrupt Mask Register */
+#define REG_AESB_ISR    (*(__I  uint32_t*)0xF002001CU) /**< \brief (AESB) Interrupt Status Register */
+#define REG_AESB_KEYWR  (*(__O  uint32_t*)0xF0020020U) /**< \brief (AESB) Key Word Register */
+#define REG_AESB_IDATAR (*(__O  uint32_t*)0xF0020040U) /**< \brief (AESB) Input Data Register */
+#define REG_AESB_ODATAR (*(__I  uint32_t*)0xF0020050U) /**< \brief (AESB) Output Data Register */
+#define REG_AESB_IVR    (*(__O  uint32_t*)0xF0020060U) /**< \brief (AESB) Initialization Vector Register */
+#endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
-#endif /* _SAMA5D4_AESB_INSTANCE_ */
+#endif				/* _SAMA5D4_AESB_INSTANCE_ */
