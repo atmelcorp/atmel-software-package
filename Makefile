@@ -33,11 +33,15 @@ include $(MAKEFILEDIR)/Makefile.inc
 VPATH = $(MAKEFILEDIR)
 
 LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
+USER_LIBRARIES = $(LIBDIR)/lwip/*.a
 
 #EXAMPLES = $(wildcard $(MAKEFILEDIR)/examples/*/build)
-EXAMPLES = $(MAKEFILEDIR)/examples/getting_started
+EXAMPLES = $(MAKEFILEDIR)/examples/getting_started $(MAKEFILEDIR)/examples/rtc $(MAKEFILEDIR)/examples/gmac
 
 $(LIBRARIES):
+	$(MAKE) -f $(@D)/Makefile
+
+$(USER_LIBRARIES):
 	$(MAKE) -f $(@D)/Makefile
 
 all: $(LIBRARIES) $(addsuffix /build,$(EXAMPLES))
@@ -45,12 +49,14 @@ all: $(LIBRARIES) $(addsuffix /build,$(EXAMPLES))
 .PHONY: clean
 clean:
 	-rm -f $(LIBRARIES)
+	-rm -f $(USER_LIBRARIES)
 	-rm -rf $(UTILSDIR)/build
 	-rm -rf $(TARGETDIR)/$(SERIEDIRNAME)/build
 	-rm -rf $(DRIVERDIR)/build
 	-rm -rf $(EXAMPLEDIR)/*/build
+	-rm -rf $(LIBDIR)/*/build
 
-$(addsuffix /build,$(EXAMPLES)): $(LIBRARIES)
+$(addsuffix /build,$(EXAMPLES)): $(LIBRARIES) $(USER_LIBRARIES)
 	$(MAKE) -f $(@D)/Makefile
 
 list-boards:
