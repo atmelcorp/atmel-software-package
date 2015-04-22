@@ -36,7 +36,11 @@ LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
 USER_LIBRARIES = $(LIBDIR)/lwip/*.a
 
 #EXAMPLES = $(wildcard $(MAKEFILEDIR)/examples/*/build)
-EXAMPLES = $(MAKEFILEDIR)/examples/getting_started $(MAKEFILEDIR)/examples/rtc $(MAKEFILEDIR)/examples/gmac
+EXAMPLES = $(MAKEFILEDIR)/examples/getting_started \
+	$(MAKEFILEDIR)/examples/rtc \
+	$(MAKEFILEDIR)/examples/gmac \
+	$(MAKEFILEDIR)/examples/xdma \
+	$(MAKEFILEDIR)/examples/trng
 
 $(LIBRARIES):
 	$(MAKE) -f $(@D)/Makefile
