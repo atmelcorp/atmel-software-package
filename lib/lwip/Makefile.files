@@ -1,0 +1,64 @@
+OBJECTS = ./sama5/gmacif.o \
+./sama5/arch/sys_arch.o \
+./src/api/sockets.o \
+./src/api/netdb.o \
+./src/api/err.o \
+./src/api/api_msg.o \
+./src/api/api_lib.o \
+./src/api/netbuf.o \
+./src/api/tcpip.o \
+./src/api/netifapi.o \
+./src/netif/ethernetif.o \
+./src/netif/slipif.o \
+./src/netif/loopif.o \
+./src/netif/etharp.o \
+./src/netif/ppp/fsm.o \
+./src/netif/ppp/ppp.o \
+./src/netif/ppp/md5.o \
+./src/netif/ppp/ppp_oe.o \
+./src/netif/ppp/lcp.o \
+./src/netif/ppp/chpms.o \
+./src/netif/ppp/magic.o \
+./src/netif/ppp/randm.o \
+./src/netif/ppp/vj.o \
+./src/netif/ppp/pap.o \
+./src/netif/ppp/auth.o \
+./src/netif/ppp/chap.o \
+./src/netif/ppp/ipcp.o \
+./src/core/mem.o \
+./src/core/stats.o \
+./src/core/pbuf.o \
+./src/core/tcp_in.o \
+./src/core/netif.o \
+./src/core/dhcp.o \
+./src/core/sys.o \
+./src/core/memp.o \
+./src/core/init.o \
+./src/core/ipv4/igmp.o \
+./src/core/ipv4/icmp.o \
+./src/core/ipv4/inet_chksum.o \
+./src/core/ipv4/ip_frag.o \
+./src/core/ipv4/autoip.o \
+./src/core/ipv4/inet.o \
+./src/core/ipv4/ip_addr.o \
+./src/core/ipv4/ip.o \
+./src/core/raw.o \
+./src/core/snmp/mib_structs.o \
+./src/core/snmp/msg_in.o \
+./src/core/snmp/msg_out.o \
+./src/core/snmp/asn1_enc.o \
+./src/core/snmp/asn1_dec.o \
+./src/core/snmp/mib2.o \
+./src/core/dns.o \
+./src/core/tcp.o \
+./src/core/udp.o \
+./src/core/tcp_out.o
+# ./src/core/ipv6/icmp6.o \
+# ./src/core/ipv6/ip6.o \
+# ./src/core/ipv6/inet6.o \
+# ./src/core/ipv6/ip6_addr.o \
+# ./test/unit/lwip_unittests.o \
+# ./test/unit/udp/test_udp.o \
+# ./test/unit/tcp/tcp_helper.o \
+# ./test/unit/tcp/test_tcp_oos.o \
+# ./test/unit/tcp/test_tcp.o \
