@@ -39,6 +39,9 @@ OBJECTS_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram/sdmmc.o
 BUILDDIR_SRAM = $(MAKEFILEDIR)/build/$(TARGET)/sram
 BUILDDIR_DDRAM = $(MAKEFILEDIR)/build/$(TARGET)/ddram
 
+-include $(OBJECTS_SRAM:.o=.d)
+-include $(OBJECTS_DDRAM:.o=.d)
+
 #-------------------------------------------------------------------------------
 # Rules
 #-------------------------------------------------------------------------------
@@ -48,9 +51,23 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
+	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@cp -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_SRAM)/$*.d
+	@rm -f $(BUILDDIR_SRAM)/$*.d.tmp
 	$(CC) -c $(CFLAGS) $(call optimization,sram) $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
+@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+	@cp -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp
+	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_DDRAM)/$*.d
+	@rm -f $(BUILDDIR_DDRAM)/$*.d.tmp
 	$(CC) -c $(CFLAGS) $(call optimization,ddram) $< -o $@
 
 libsdmmc-$(TARGET)_sram.a: $(OBJECTS_SRAM)
