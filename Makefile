@@ -42,6 +42,8 @@ EXAMPLES = $(MAKEFILEDIR)/examples/getting_started \
 	$(MAKEFILEDIR)/examples/xdma \
 	$(MAKEFILEDIR)/examples/trng
 
+.PHONY: clean $(LIBRARIES) $(USER_LIBRARIES) $(addsuffix /build,$(EXAMPLES)) list-boards
+
 $(LIBRARIES):
 	$(MAKE) -f $(@D)/Makefile
 
@@ -50,7 +52,6 @@ $(USER_LIBRARIES):
 
 all: $(LIBRARIES) $(addsuffix /build,$(EXAMPLES))
 
-.PHONY: clean
 clean:
 	-rm -f $(LIBRARIES)
 	-rm -f $(USER_LIBRARIES)

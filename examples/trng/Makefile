@@ -59,6 +59,9 @@ CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
 LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIRNAME) -L$(LIBDIR)/lwip
 LINKS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
+LINKS_SRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
+LINKS_DDRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_ddram -ldrivers-$(TARGET)_ddram -lutils-$(TARGET)_ddram -Wl,--end-group
+
 
 #-------------------------------------------------------------------------------
 #		Files
@@ -97,8 +100,9 @@ $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
 	$(CC) $(CFLAGS) $(call optimization,$(ddram)) -c $< -o $@
 
 $(BUILDDIR_SRAM)/trng.elf: $(OBJECTS_SRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS)
-	$(SIZE) $^ $@
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
+
+$(BUILDDIR_SRAM)/trng.elf: $(LIBS)
 
 $(BUILDDIR_SRAM)/trng.symbols: $(BUILDDIR_SRAM)/trng.elf
 	$(NM) $< >$@
@@ -107,7 +111,9 @@ $(BUILDDIR_SRAM)/trng.bin: $(BUILDDIR_SRAM)/trng.elf
 	$(OBJCOPY) -O binary $< $@
 
 $(BUILDDIR_DDRAM)/trng.elf: $(OBJECTS_DDRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
+
+$(BUILDDIR_DDRAM)/trng.elf: $(LIBS)
 
 $(BUILDDIR_DDRAM)/trng.symbols: $(BUILDDIR_DDRAM)/trng.elf
 	$(NM) $< >$@
