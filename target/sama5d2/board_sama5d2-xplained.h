@@ -7,7 +7,7 @@
  *
  * \section Contents
  *
- *  - sama5d2-XULT 
+ *  - sama5d2-XULT
  *  - For sama5d2-XULT information, see \subpage sama5d2_xult_board_info.
  *  - For operating frequency information, see \subpage sama5d2_xult_opfreq.
  *  - For using portable PIO definitions, see \subpage sama5d2_xult_piodef.
@@ -31,16 +31,16 @@
  * This file can be used as a template and modified to fit a custom board, with
  * specific PIOs usage or memory connections.
  */
-  
+
 /**
  *  \file board.h
  *
- *  Definition of sama5d2-XULT 
+ *  Definition of sama5d2-XULT
  *  characteristics, sama5d4-dependant PIOs and external components interfacing.
  */
 
-#ifndef _BOARD_
-#define _BOARD_
+#ifndef _BOARD_D2_H
+#define _BOARD_D2_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -86,40 +86,37 @@
 #define BOARD_MAINOSC           12000000
 #define BOARD_MAINOSC_MHZ       BOARD_MAINOSC/1000000
 
-
 /* =================== PIN CONSOLE definition ================== */
 
-/** CONSOLE pin definition, Use only UART */   
+/** CONSOLE pin definition, Use only UART */
 #define PINS_CONSOLE            PINS_UART1_IOS1
-#define CONSOLE_PER_ADD         UART1    
-#define CONSOLE_ID              ID_UART1 
-#define CONSOLE_BAUDRATE        115200   
-   
+#define CONSOLE_PER_ADD         UART1
+#define CONSOLE_ID              ID_UART1
+#define CONSOLE_BAUDRATE        115200
+
 /* =================== PIN LED definition ====================== */
 
 /* RGB LED index */
 #define LED_RED       0
-#define LED_GREEN     1 
-#define LED_BLUE      2 /* led blue shared with SDHC0 card detect (eMMC) */
-
-#define PIO_CFGR_LED  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_OUTPUT | PIO_CFGR_PUEN_DISABLED | PIO_CFGR_PDEN_DISABLED)
+#define LED_GREEN     1
+#define LED_BLUE      2 /* led blue shared with SDHC0 (eMMC) card detect used only by RomBoot */
 
 /** LED #0 pin definition (LED_RED). */
 #define PIN_LED_RED     {\
-  { ID_PIOA, PIO_PA13, PIO_CFGR_FUNC_A, PIO_CFGR_LED },\
-}    
+	{ PIO_PA13, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+}
 #define PIN_LED_0       PIN_LED_RED
 
 /** LED #1 pin definition (LED_GREEN). */
 #define PIN_LED_GREEN   {\
-  { ID_PIOB, PIO_PB5, PIO_CFGR_FUNC_A, PIO_CFGR_LED },\
-}    
+	{ PIO_PB5, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+}
 #define PIN_LED_1       PIN_LED_GREEN
 
 /** LED #2 pin definition (LED_BLUE). */
 #define PIN_LED_BLUE    [\
-  { ID_PIOB, PIO_PB0, PIO_CFGR_FUNC_A, PIO_CFGR_LED },\
-}    
+	{ PIO_PB0, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+}
 #define PIN_LED_2       PIN_LED_BLUE
 
 /** List of all LEDs definitions. */
@@ -127,18 +124,17 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-#define PIO_CFGR_PB  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED | \
-                      PIO_CFGR_IFEN_ENABLED | PIO_CFGR_EVTSEL_FALLING )
+#define PIO_CFG_PB  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 
 #define PIN_PUSHBUTTON_1 {\
-  { ID_PIOB, PIO_PB6, PIO_CFGR_FUNC_A, PIO_CFGR_PB },\
-}    
+	{ PIO_PB6, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
+}
 #define PIN_PUSHBUTTON_2 {\
-  { ID_PIOB, PIO_PB6, PIO_CFGR_FUNC_A, PIO_CFGR_PB },\
-} 
+	{ PIO_PB6, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
+}
 
 /** List of all push button definitions. */
-#define PINS_PUSHBUTTONS    PIN_PUSHBUTTON_1, PIN_PUSHBUTTON_2 
+#define PINS_PUSHBUTTONS    PIN_PUSHBUTTON_1, PIN_PUSHBUTTON_2
 
 /** Push button index. */
 #define PUSHBUTTON_BP1   0
@@ -146,76 +142,69 @@
 
 /* ================== PIN PMIC definition ====================== */
 
-#define PIO_CFGR_CHGLEV  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_OUTPUT | PIO_CFGR_PUEN_ENABLED)    
 #define PIN_PMIC_CHGLEV  {\
-  { ID_PIOA, PIO_PA12, PIO_CFGR_FUNC_A, PIO_CFGR_CHGLEV },\
-}    
+	{ PIO_PA12, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_PULLUP },\
+}
 
-#define PIO_CFGR_PMIC_IRQ  PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED | PIO_CFGR_EVTSEL_FALLING )
+#define PIO_CFG_PMIC_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
 #define PIN_PMIC_IRQ     {\
-  { ID_PIOB, PIO_PB13, PIO_CFGR_FUNC_A, PIO_CFGR_PMIC_IRQ },\
-}    
+	{ PIO_PB13, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PMIC_IRQ },\
+}
 
 /* ================== PIN USB definition ======================= */
 
-#define PIO_CFGR_OVCUR  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED)
-#define PIO_CFGR_VBUS   (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_DISABLED | PIO_CFGR_PDEN_DISABLED)
-#define PIO_CFGR_PWREN  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_OUTPUT | PIO_CFGR_PUEN_ENABLED)
-
 /** USB VBus pin */
 #define PIN_USB_VBUS      {\
-  { ID_PIOA, PIO_PA31, PIO_CFGR_FUNC_A, PIO_CFGR_VBUS },\
-}    
+	{ PIO_PA31, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT },\
+}
 /** USB OverCurrent detection*/
 #define PIN_USB_OVCUR     {\
-  { ID_PIOA, PIO_PA29, PIO_CFGR_FUNC_A, PIO_CFGR_OVCUR },\
-}    
+	{ PIO_PA29, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT },\
+}
 /** USB Power Enable A, Active high */
 #define PIN_USB_POWER_ENA {\
-  { ID_PIOB, PIO_PB9, PIO_CFGR_FUNC_A, PIO_CFGR_PEN },\
-}    
+	{ PIO_PB9, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
+}
 /** USB Power Enable B, Active high  */
 #define PIN_USB_POWER_ENB {\
-  { ID_PIOB, PIO_PB10, PIO_CFGR_FUNC_A, PIO_CFGR_PWREN },\
-}    
+	{ PIO_PB10, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
+}
 
 /* ================= PIN GMAC IRQ definition ==================== */
 
-#define PIO_CFGR_GMAC_IRQ  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED | PIO_CFGR_EVTSEL_FALLING )
-#define PIN_GMAC_IRQ     {\
-  { ID_PIOC, PIO_PC9, PIO_CFGR_FUNC_A, PIO_CFGR_GMAC_IRQ },\
-}    
+#define PIO_CFG_GMAC_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
+#define PIN_GMAC_IRQ	{\
+	{ PIO_PC9, PIOA, ID_PIOC, PIO_INPUT, PIO_CFG_GMAC_IRQ },\
+}
 
 /* ================= PIN LCD IRQ definition ===================== */
 
-#define PIO_CFGR_LCD_IRQ  (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED | PIO_CFGR_EVTSEL_FALLING )
+#define PIO_CFG_LCD_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
 
-#define PIN_QT1070_IRQ  {\
-  { ID_PIOB, PIO_PB7, PIO_CFGR_FUNC_A, PIO_CFGR_LCD_IRQ },\
-}    
+#define PIN_QT1070_IRQ {\
+	{ PIO_PB7, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+}
 #define PIN_MXT336S_IRQ {\
-  { ID_PIOB, PIO_PB8, PIO_CFGR_FUNC_A, PIO_CFGR_LCD_IRQ },\
-}    
-#define PIN_MXT768E_IRQ {\
-  { ID_PIOB, PIO_PB8, PIO_CFGR_FUNC_A, PIO_CFGR_LCD_IRQ },\
-}    
+	{ PIO_PB8, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+}
+#define PIN_MXT768E_IRQ	{\
+  { PIO_PB8, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+}
 
 /* =================== PIN ISC definition ======================= */
 
-#define PIN_ISC_RST     {\
-  { ID_PIOB, PIO_PB11, PIO_CFGR_FUNC_A, PIO_CFGR_RESET },\
-}    
-#define PIN_ISC_PWD     {\
-  { ID_PIOB, PIO_PB12, PIO_CFGR_FUNC_A, PIO_CFGR_RESET },\
-}  
+#define PIN_ISC_RST	{\
+	{ PIO_PB11, PIOA, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT },\
+}
+#define PIN_ISC_PWD	{\
+	{ PIO_PB12, PIOA, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT },\
+}
 
 /* =================== PIN HSDHC definition ======================= */
 
-/* Card detect, input, pull-up */
-#define PIO_CFGR_HSDHC1 (PIO_CFGR_FUNC_GPIO | PIO_CFGR_DIR_INPUT | PIO_CFGR_PUEN_ENABLED )
-#define PIN_HSDHC1_CD   {\
-  { ID_PIOA, PIO_PA30, PIO_CFGR_FUNC_A, PIO_CFGR_HSDHC },\
-}    
+#define PIN_HSDHC1_CD	{\
+	{ PIO_PA30, PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP },\
+}
 
 
 #define swap(a, b) { uint16_t t = a; a = b; b = t; }
@@ -224,8 +213,7 @@
 /*----------------------------------------------------------------------------
  *        Headers for board
  *----------------------------------------------------------------------------*/
- 
 
 
-#endif /* #ifndef _BOARD_ */
 
+#endif /* #ifndef _BOARD_D2_H */
