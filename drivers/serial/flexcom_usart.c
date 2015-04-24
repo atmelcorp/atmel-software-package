@@ -61,8 +61,6 @@
  * \ref usart.h\n
 */
 
-
-
 /**
  * \file
  *
@@ -95,30 +93,34 @@
  *  \param baudrate  Baudrate at which the USART should operate (in Hz).
  *  \param masterClock  Frequency of the system master clock (in Hz).
  */
-void flexcom_usart_configure(Flexcom *pflexcom, uint32_t mode, uint32_t baudrate, uint32_t masterClock)
+void flexcom_usart_configure(Flexcom * pflexcom, uint32_t mode,
+			     uint32_t baudrate, uint32_t masterClock)
 {
-    /* Reset and disable receiver & transmitter*/
-    pflexcom->FX_US_CR = FX_US_CR_RSTRX | FX_US_CR_RSTTX | FX_US_CR_RXDIS | FX_US_CR_TXDIS;
-    /* Configure mode*/
-    pflexcom->FX_US_MR = mode;
-    /* Configure baudrate*/
-    /* Asynchronous, no oversampling*/
-    if (((mode & FX_US_MR_SYNC) == 0) && ((mode & FX_US_MR_OVER) == 0)) {
-      pflexcom->FX_US_BRGR = (masterClock / baudrate) / 16;
-    }
-    if( ((mode & FX_US_MR_USART_MODE_SPI_MASTER) == FX_US_MR_USART_MODE_SPI_MASTER)
-        || ((mode & FX_US_MR_SYNC) == FX_US_MR_SYNC)) 
-    {
-      if( (mode & FX_US_MR_USCLKS_Msk) == FX_US_MR_USCLKS_MCK) {
-        usart->FX_US_BRGR = masterClock / baudrate;
-      } else {
-        if ( (mode & FX_US_MR_USCLKS_DIV) == FX_US_MR_USCLKS_DIV) {
-          pflexcom->FX_US_BRGR = masterClock / baudrate / 8;
-        }
-      }
-    }
-    /* TODO other modes*/
+	/* Reset and disable receiver & transmitter */
+	pflexcom->FX_US_CR =
+	    FX_US_CR_RSTRX | FX_US_CR_RSTTX | FX_US_CR_RXDIS | FX_US_CR_TXDIS;
+	/* Configure mode */
+	pflexcom->FX_US_MR = mode;
+	/* Configure baudrate */
+	/* Asynchronous, no oversampling */
+	if (((mode & FX_US_MR_SYNC) == 0) && ((mode & FX_US_MR_OVER) == 0)) {
+		pflexcom->FX_US_BRGR = (masterClock / baudrate) / 16;
+	}
+	if (((mode & FX_US_MR_USART_MODE_SPI_MASTER) ==
+	     FX_US_MR_USART_MODE_SPI_MASTER)
+	    || ((mode & FX_US_MR_SYNC) == FX_US_MR_SYNC)) {
+		if ((mode & FX_US_MR_USCLKS_Msk) == FX_US_MR_USCLKS_MCK) {
+			usart->FX_US_BRGR = masterClock / baudrate;
+		} else {
+			if ((mode & FX_US_MR_USCLKS_DIV) == FX_US_MR_USCLKS_DIV) {
+				pflexcom->FX_US_BRGR =
+				    masterClock / baudrate / 8;
+			}
+		}
+	}
+	/* TODO other modes */
 }
+
 /**
  * \brief Enables or disables the transmitter of an USART peripheral.
  *
@@ -127,13 +129,13 @@ void flexcom_usart_configure(Flexcom *pflexcom, uint32_t mode, uint32_t baudrate
  * \param enabled  If true, the transmitter is enabled; otherwise it is
  *                disabled.
  */
-void flexcom_usart_set_transmitter_enabled(Flexcom *pflexcom, uint8_t enabled)
+void flexcom_usart_set_transmitter_enabled(Flexcom * pflexcom, uint8_t enabled)
 {
-    if (enabled) {
-      pflexcom->FX_US_CR = FX_US_CR_TXEN;
-    } else {
-      pflexcom->FX_US_CR = FX_US_CR_TXDIS;
-    }
+	if (enabled) {
+		pflexcom->FX_US_CR = FX_US_CR_TXEN;
+	} else {
+		pflexcom->FX_US_CR = FX_US_CR_TXDIS;
+	}
 }
 
 /**
@@ -143,13 +145,13 @@ void flexcom_usart_set_transmitter_enabled(Flexcom *pflexcom, uint8_t enabled)
  * \param usart  Pointer to an USART peripheral
  * \param enabled  If true, the receiver is enabled; otherwise it is disabled.
  */
-void flexcom_usart_set_receiverenabled(Flexcom *pflexcom, uint8_t enabled)
+void flexcom_usart_set_receiverenabled(Flexcom * pflexcom, uint8_t enabled)
 {
-    if (enabled) {
-      pflexcom->FX_US_CR = FX_US_CR_RXEN;
-    } else {
-      pflexcom->FX_US_CR = FX_US_CR_RXDIS;
-    }
+	if (enabled) {
+		pflexcom->FX_US_CR = FX_US_CR_RXEN;
+	} else {
+		pflexcom->FX_US_CR = FX_US_CR_RXDIS;
+	}
 }
 
 /**
@@ -159,13 +161,13 @@ void flexcom_usart_set_receiverenabled(Flexcom *pflexcom, uint8_t enabled)
  * \param usart  Pointer to an USART peripheral
  * \param enabled  If true, the RTS is enabled (0); otherwise it is disabled.
  */
-void flexcom_usart_set_rts_enabled( Flexcom *pflexcom, uint8_t enabled)
+void flexcom_usart_set_rts_enabled(Flexcom * pflexcom, uint8_t enabled)
 {
-    if (enabled) {
-      pflexcom->FX_US_CR = FX_US_CR_RTSEN;
-    } else {
-      pflexcom->FX_US_CR = FX_US_CR_RTSDIS;
-    }
+	if (enabled) {
+		pflexcom->FX_US_CR = FX_US_CR_RTSEN;
+	} else {
+		pflexcom->FX_US_CR = FX_US_CR_RTSDIS;
+	}
 }
 
 /**
@@ -179,22 +181,22 @@ void flexcom_usart_set_rts_enabled( Flexcom *pflexcom, uint8_t enabled)
  *        the same format as the US_THR register in the datasheet).
  * \param timeOut  Time out value (0 = no timeout).
  */
-void flexcom_usart_write( Flexcom *pflexcom, uint16_t data, volatile uint32_t timeOut)
+void flexcom_usart_write(Flexcom * pflexcom, uint16_t data,
+			 volatile uint32_t timeOut)
 {
-    if (timeOut == 0) {
-      while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0);
-    } else {
-      while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0) {
-        if (timeOut == 0) {
-          TRACE_ERROR("USART_Write: Timed out.\n\r");
-          return;
-        }
-        timeOut--;
-      }
-    }
-    pflexcom->US_THR = data;
+	if (timeOut == 0) {
+		while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0) ;
+	} else {
+		while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0) {
+			if (timeOut == 0) {
+				TRACE_ERROR("USART_Write: Timed out.\n\r");
+				return;
+			}
+			timeOut--;
+		}
+	}
+	pflexcom->US_THR = data;
 }
-
 
 /**
  * \brief  Reads and return a packet of data on the specified USART peripheral. This
@@ -204,20 +206,21 @@ void flexcom_usart_write( Flexcom *pflexcom, uint16_t data, volatile uint32_t ti
  * \param usart  Pointer to an USART peripheral.
  * \param timeOut  Time out value (0 -> no timeout).
  */
-uint16_t flexcom_usart_read( Flexcom *pflexcom, volatile uint32_t timeOut)
+uint16_t flexcom_usart_read(Flexcom * pflexcom, volatile uint32_t timeOut)
 {
-    if (timeOut == 0) {
-      while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0);
-    } else {
-      while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0) {
-        if (timeOut == 0) {
-          TRACE_ERROR( "FLEXCOM USART_Read: Timed out.\n\r" ) ;
-          return 0;
-        }
-        timeOut--;
-      }
-    }
-    return pflexcom->US_RHR;
+	if (timeOut == 0) {
+		while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0) ;
+	} else {
+		while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0) {
+			if (timeOut == 0) {
+				TRACE_ERROR
+				    ("FLEXCOM USART_Read: Timed out.\n\r");
+				return 0;
+			}
+			timeOut--;
+		}
+	}
+	return pflexcom->US_RHR;
 }
 
 /**
@@ -226,13 +229,13 @@ uint16_t flexcom_usart_read( Flexcom *pflexcom, volatile uint32_t timeOut)
  *
  * \param usart  Pointer to an USART instance.
  */
-uint8_t flexcom_usart_is_data_available(Flexcom *pflexcom)
+uint8_t flexcom_usart_is_data_available(Flexcom * pflexcom)
 {
-    if ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) != 0) {
-      return 1;
-    } else {
-      return 0;
-    }
+	if ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) != 0) {
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 /**
@@ -241,10 +244,10 @@ uint8_t flexcom_usart_is_data_available(Flexcom *pflexcom)
  * \param pFlexcom  Pointer to an USART instance.
  * \param filter  Filter value.
  */
-void flexcom_usart_set_irda_filter(Flexcom *pflexcom, uint8_t filter)
+void flexcom_usart_set_irda_filter(Flexcom * pflexcom, uint8_t filter)
 {
-    assert( pflexcom != NULL ) ;
-    pflexcom->FX_US_IF = filter;
+	assert(pflexcom != NULL);
+	pflexcom->FX_US_IF = filter;
 }
 
 /**
@@ -255,32 +258,32 @@ void flexcom_usart_set_irda_filter(Flexcom *pflexcom, uint8_t filter)
  * \param usart  Pointer to an USART peripheral.
  * \param c  Character to send
  */
-void flexcom_usart_put_char( Flexcom *pflexcom, uint8_t c)
+void flexcom_usart_put_char(Flexcom * pflexcom, uint8_t c)
 {
-    /* Wait for the transmitter to be ready*/
-    while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0);
-    /* Send character*/
-    pflexcom->FX_US_THR = c;
-    /* Wait for the transfer to complete*/
-    while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0);
+	/* Wait for the transmitter to be ready */
+	while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0) ;
+	/* Send character */
+	pflexcom->FX_US_THR = c;
+	/* Wait for the transfer to complete */
+	while ((pflexcom->FX_US_CSR & FX_US_CSR_TXEMPTY) == 0) ;
 }
 
 /**
  * \brief   Return 1 if a character can be read in USART
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t flexcom_usart_is_rx_ready(Flexcom *pflexcom)
+uint32_t flexcom_usart_is_rx_ready(Flexcom * pflexcom)
 {
-    return (pflexcom->FX_US_CSR & FX_US_CSR_RXRDY);
+	return (pflexcom->FX_US_CSR & FX_US_CSR_RXRDY);
 }
 
 /**
  * \brief   Get present status
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t usart_get_status(Flexcom *pflexcom)
+uint32_t USART_GetStatus(Flexcom * pflexcom)
 {
-    return pflexcom->FX_US_CSR;
+	return pflexcom->FX_US_CSR;
 }
 
 /**
@@ -288,9 +291,9 @@ uint32_t usart_get_status(Flexcom *pflexcom)
  * \param usart  Pointer to an USART peripheral.
  * \param mode  Interrupt mode.
  */
-void flexcom_usart_enable_it(Flexcom *pflexcom, uint32_t mode)
+void flexcom_usart_enable_it(Flexcom * pflexcom, uint32_t mode)
 {
-    pflexcom->FX_US_IER = mode;
+	pflexcom->FX_US_IER = mode;
 }
 
 /**
@@ -298,18 +301,18 @@ void flexcom_usart_enable_it(Flexcom *pflexcom, uint32_t mode)
  * \param usart  Pointer to an USART peripheral.
  * \param mode  Interrupt mode.
  */
-void flexcom_usart_disable_it(Flexcom *pflexcom, uint32_t mode)
-{       
-    pflexcom->FX_US_IDR = mode;
+void flexcom_usart_disable_it(Flexcom * pflexcom, uint32_t mode)
+{
+	pflexcom->FX_US_IDR = mode;
 }
 
 /**
  * \brief   Return interrupt mask
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t flexcom_usart_get_it_mask(Flexcom *pflexcom)
+uint32_t flexcom_usart_get_it_mask(Flexcom * pflexcom)
 {
-    return pflexcom->FX_US_IMR;
+	return pflexcom->FX_US_IMR;
 }
 
 /**
@@ -319,8 +322,8 @@ uint32_t flexcom_usart_get_it_mask(Flexcom *pflexcom)
  * \param usart  Pointer to an USART peripheral.
  * \return Character received.
  */
-uint8_t flexcom_usart_get_char(Flexcom *pflexcom)
+uint8_t flexcom_usart_get_char(Flexcom * pflexcom)
 {
-    while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0);
-    return pflexcom->FX_US_RHR;
+	while ((pflexcom->FX_US_CSR & FX_US_CSR_RXRDY) == 0) ;
+	return pflexcom->FX_US_RHR;
 }

@@ -89,32 +89,38 @@
 #define US_SPI_BPMODE_3         (US_SPI_CPOL_1|US_SPI_CPHA_0)
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void flexcom_usart_configure( Flexcom *pflexcom, uint32_t mode, uint32_t baudrate, uint32_t masterClock ) ;
-extern uint32_t flexcom_usart_get_status( Flexcom *pflexcom ) ;
-extern void flexcom_usart_enable_it( Flexcom *pflexcom, uint32_t mode ) ;
-extern void flexcom_usart_disable_it( Flexcom *pflexcom, uint32_t mode ) ;
-extern uint32_t flexcom_usart_get_it_mask( Flexcom *pflexcom ) ;
-extern void flexcom_usart_set_transmitter_enabled( Flexcom *pflexcom, uint8_t enabled ) ;
-extern void flexcom_usart_set_receiver_enabled( Flexcom *pflexcom, uint8_t enabled ) ;
-extern void flexcom_usart_set_rts_enabled(Flexcom *pflexcom, uint8_t enabled);
-extern void flexcom_usart_write( Flexcom *pflexcom, uint16_t data, volatile uint32_t timeOut ) ;
-extern uint16_t flexcom_usart_read( Flexcom *pflexcom, volatile uint32_t timeOut ) ;
-extern uint8_t flexcom_usart_is_data_available( Flexcom *pflexcom ) ;
-extern void flexcom_usart_set_irda_filter( Flexcom *pflexcom, uint8_t filter);
-extern void flexcom_usart_put_char( Flexcom *pflexcom, uint8_t c ) ;
-extern uint32_t flexcom_usart_is_rx_ready( Flexcom *pflexcom ) ;
-extern uint8_t flexcom_usart_get_char( Flexcom *pflexcom ) ;
+extern void flexcom_usart_configure(Flexcom * pflexcom, uint32_t mode,
+				    uint32_t baudrate,
+				    uint32_t masterClock);
+extern uint32_t flexcom_usart_get_status(Flexcom * pflexcom);
+extern void flexcom_usart_enable_it(Flexcom * pflexcom, uint32_t mode);
+extern void flexcom_usart_disable_it(Flexcom * pflexcom, uint32_t mode);
+extern uint32_t flexcom_usart_get_it_mask(Flexcom * pflexcom);
+extern void flexcom_usart_set_transmitter_enabled(Flexcom * pflexcom,
+						  uint8_t enabled);
+extern void flexcom_usart_set_receiver_enabled(Flexcom * pflexcom,
+					       uint8_t enabled);
+extern void flexcom_usart_set_rts_enabled(Flexcom * pflexcom,
+					  uint8_t enabled);
+extern void flexcom_usart_write(Flexcom * pflexcom, uint16_t data,
+				volatile uint32_t timeOut);
+extern uint16_t flexcom_usart_read(Flexcom * pflexcom,
+				   volatile uint32_t timeOut);
+extern uint8_t flexcom_usart_is_data_available(Flexcom * pflexcom);
+extern void flexcom_usart_set_irda_filter(Flexcom * pflexcom,
+					  uint8_t filter);
+extern void flexcom_usart_put_char(Flexcom * pflexcom, uint8_t c);
+extern uint32_t flexcom_usart_is_rx_ready(Flexcom * pflexcom);
+extern uint8_t flexcom_usart_get_char(Flexcom * pflexcom);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* #ifndef _USART_ */
-
