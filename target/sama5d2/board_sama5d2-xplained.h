@@ -101,21 +101,23 @@
 #define LED_GREEN     1
 #define LED_BLUE      2 /* led blue shared with SDHC0 (eMMC) card detect used only by RomBoot */
 
+#define PIO_CFG_LED  (PIO_OUTPUT | PIO_OPENDRAIN)
+
 /** LED #0 pin definition (LED_RED). */
 #define PIN_LED_RED     {\
-	{ PIO_PA13, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+	{ PIO_PA13, PIO_ADD, ID_PIO_ADD, PIO_OUTPUT_0, PIO_OPENDRAIN },\
 }
 #define PIN_LED_0       PIN_LED_RED
 
 /** LED #1 pin definition (LED_GREEN). */
 #define PIN_LED_GREEN   {\
-	{ PIO_PB5, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+	{ PIO_PB5, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
 }
 #define PIN_LED_1       PIN_LED_GREEN
 
 /** LED #2 pin definition (LED_BLUE). */
 #define PIN_LED_BLUE    [\
-	{ PIO_PB0, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
+	{ PIO_PB0, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
 }
 #define PIN_LED_2       PIN_LED_BLUE
 
@@ -124,13 +126,13 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-#define PIO_CFG_PB  (PIO_PULLUP | PIO_IT_FALL_EDGE)
+#define PIO_CFG_PB  (PIO_PULLUP)
 
 #define PIN_PUSHBUTTON_1 {\
-	{ PIO_PB6, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
+	{ PIO_PB6, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
 }
 #define PIN_PUSHBUTTON_2 {\
-	{ PIO_PB6, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
+	{ PIO_PB6, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_PB },\
 }
 
 /** List of all push button definitions. */
@@ -143,67 +145,67 @@
 /* ================== PIN PMIC definition ====================== */
 
 #define PIN_PMIC_CHGLEV  {\
-	{ PIO_PA12, PIOA, ID_PIOA, PIO_OUTPUT_0, PIO_PULLUP },\
+	{ PIO_PA12, PIO_ADD, ID_PIO_ADD, PIO_OUTPUT_0, PIO_PULLUP },\
 }
 
-#define PIO_CFG_PMIC_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
+#define PIO_CFG_PMIC_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 #define PIN_PMIC_IRQ     {\
-	{ PIO_PB13, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_PMIC_IRQ },\
+	{ PIO_PB13, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_PMIC_IRQ },\
 }
 
 /* ================== PIN USB definition ======================= */
 
 /** USB VBus pin */
 #define PIN_USB_VBUS      {\
-	{ PIO_PA31, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT },\
+	{ PIO_PA31, PIO_ADD, ID_PIO_ADD, PIO_INPUT, PIO_DEFAULT },\
 }
 /** USB OverCurrent detection*/
 #define PIN_USB_OVCUR     {\
-	{ PIO_PA29, PIOA, ID_PIOA, PIO_INPUT, PIO_DEFAULT },\
+	{ PIO_PA29, PIO_ADD, ID_PIO_ADD, PIO_INPUT, PIO_DEFAULT },\
 }
 /** USB Power Enable A, Active high */
 #define PIN_USB_POWER_ENA {\
-	{ PIO_PB9, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
+	{ PIO_PB9, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 /** USB Power Enable B, Active high  */
 #define PIN_USB_POWER_ENB {\
-	{ PIO_PB10, PIOA, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
+	{ PIO_PB10, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
 /* ================= PIN GMAC IRQ definition ==================== */
 
-#define PIO_CFG_GMAC_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
+#define PIO_CFG_GMAC_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 #define PIN_GMAC_IRQ	{\
-	{ PIO_PC9, PIOA, ID_PIOC, PIO_INPUT, PIO_CFG_GMAC_IRQ },\
+	{ PIO_PC9, PIO_ADD, ID_PIOC, PIO_INPUT, PIO_CFG_GMAC_IRQ },\
 }
 
 /* ================= PIN LCD IRQ definition ===================== */
 
-#define PIO_CFG_LCD_IRQ  PIO_PULLUP | PIO_IT_FALL_EDGE
+#define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 
 #define PIN_QT1070_IRQ {\
-	{ PIO_PB7, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+	{ PIO_PB7, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 #define PIN_MXT336S_IRQ {\
-	{ PIO_PB8, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+	{ PIO_PB8, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 #define PIN_MXT768E_IRQ	{\
-  { PIO_PB8, PIOA, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+  { PIO_PB8, PIO_ADD, ID_PIOB, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 
 /* =================== PIN ISC definition ======================= */
 
 #define PIN_ISC_RST	{\
-	{ PIO_PB11, PIOA, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT },\
+	{ PIO_PB11, PIO_ADD, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT },\
 }
 #define PIN_ISC_PWD	{\
-	{ PIO_PB12, PIOA, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT },\
+	{ PIO_PB12, PIO_ADD, ID_PIOB, PIO_OUTPUT_1, PIO_DEFAULT  },\
 }
 
 /* =================== PIN HSDHC definition ======================= */
 
 #define PIN_HSDHC1_CD	{\
-	{ PIO_PA30, PIOA, ID_PIOA, PIO_INPUT, PIO_PULLUP },\
+	{ PIO_PA30, PIO_ADD, ID_PIO_ADD, PIO_INPUT, PIO_PULLUP },\
 }
 
 
