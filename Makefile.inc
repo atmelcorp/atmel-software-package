@@ -2,7 +2,7 @@ all:
 
 SOFTPACK_VERSION="2.0"
 AVAILABLE_MEMORIES = sram ddram
-AVAILABLE_BOARDS = sama5d4-xplained sama5d4-ek
+AVAILABLE_BOARDS = sama5d4-xplained sama5d4-ek sama5d2-xplained
 MEMORIES = sram ddram
 
 eq = $(and $(findstring $(1),$(2)),$(findstring $(2),$(1)))
@@ -21,8 +21,6 @@ endif
 ifeq ("y",$(TARGET:sama5d4-%="y"))
 SERIE=SERIE_SAMA5D4
 SERIEDIRNAME=sama5d4
-endif
-
 ifeq ("y",$(TARGET:%-xplained="y"))
 BOARD=BOARD_SAMA5D4_XPLAINED
 CHIP=CHIP_SAMA5D44
@@ -31,6 +29,17 @@ endif
 ifeq ("y",$(TARGET:%-ek="y"))
 BOARD=BOARD_SAMA5D4_EK
 endif
+endif
+
+ifeq ("y",$(TARGET:sama5d2-%="y"))
+SERIE=SERIE_SAMA5D2
+SERIEDIRNAME=sama5d2
+ifeq ("y",$(TARGET:%-xplained="y"))
+BOARD=BOARD_SAMA5D2_XPLAINED
+CHIP=CHIP_SAMA5D21
+endif
+endif
+
 
 #-------------------------------------------------------------------------------
 #		Setup cross-compilation tools
