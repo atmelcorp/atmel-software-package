@@ -147,7 +147,7 @@ typedef enum IRQn
 #include "component/component_sha.h"
 #include "component/component_shdwc.h"
 #include "component/component_smc.h"
-#include "component/component_spi.h"
+//#include "component/component_spi.h"
 #include "component/component_ssc.h"
 #include "component/component_tc.h"
 #include "component/component_tdes.h"
