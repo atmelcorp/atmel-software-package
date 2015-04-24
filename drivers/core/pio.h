@@ -170,18 +170,18 @@ extern "C" {
  *     - PIO_IT_FALL_EDGE
  *     - PIO_IT_RISE_EDGE
  */
-	typedef struct _Pin {
-		/*  Bitmask indicating which pin(s) to configure. */
-		uint32_t mask;
-		/*  Pointer to the PIO controller which has the pin(s). */
-		Pio *pio;
-		/*  Peripheral ID of the PIO controller which has the pin(s). */
-		uint8_t id;
-		/*  Pin type. */
-		uint8_t type;
-		/*  Pin attribute. */
-		uint8_t attribute;
-	} Pin;
+typedef struct _Pin {
+	/*  Bitmask indicating which pin(s) to configure. */
+	uint32_t mask;
+	/*  Pointer to the PIO controller which has the pin(s). */
+	Pio *pio;
+	/*  Peripheral ID of the PIO controller which has the pin(s). */
+	uint8_t id;
+	/*  Pin type. */
+	uint8_t type;
+	/*  Pin attribute. */
+	uint8_t attribute;
+} Pin;
 
 /*
  *         Global Access Macros
@@ -191,25 +191,25 @@ extern "C" {
  *         Global Functions
  */
 
-	extern uint8_t PIO_Configure(const Pin * list, uint32_t size);
+extern uint8_t PIO_Configure(const Pin * list, uint32_t size);
 
-	extern void PIO_Set(const Pin * pin);
+extern void PIO_Set(const Pin * pin);
 
-	extern void PIO_Clear(const Pin * pin);
+extern void PIO_Clear(const Pin * pin);
 
-	extern uint8_t PIO_Get(const Pin * pin);
+extern uint8_t PIO_Get(const Pin * pin);
 
-	extern uint8_t PIO_GetOutputDataStatus(const Pin * pin);
+extern uint8_t PIO_GetOutputDataStatus(const Pin * pin);
 
-	extern void PIO_SetDebounceFilter(const Pin * pin, uint32_t cuttoff);
+extern void PIO_SetDebounceFilter(const Pin * pin, uint32_t cuttoff);
 
-	extern void PIO_EnableWriteProtect(const Pin * pin);
+extern void PIO_EnableWriteProtect(const Pin * pin);
 
-	extern void PIO_DisableWriteProtect(const Pin * pin);
+extern void PIO_DisableWriteProtect(const Pin * pin);
 
-	extern uint32_t PIO_GetWriteProtectViolationInfo(const Pin * pin);
+extern uint32_t PIO_GetWriteProtectViolationInfo(const Pin * pin);
 
-	extern void PIO_Output_Low(Pio * pio, uint32_t pioId, uint32_t mask);
+extern void PIO_Output_Low(Pio * pio, uint32_t pioId, uint32_t mask);
 
 #ifdef __cplusplus
 }

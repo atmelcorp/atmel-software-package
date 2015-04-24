@@ -74,51 +74,51 @@
 extern "C" {
 #endif
 
-	extern void RTC_SetHourMode(Rtc * pRtc, uint32_t dwMode);
+extern void RTC_SetHourMode(Rtc * pRtc, uint32_t dwMode);
 
-	extern uint32_t RTC_GetHourMode(Rtc * pRtc);
+extern uint32_t RTC_GetHourMode(Rtc * pRtc);
 
-	extern void RTC_EnableIt(Rtc * pRtc, uint32_t dwSources);
+extern void RTC_EnableIt(Rtc * pRtc, uint32_t dwSources);
 
-	extern void RTC_DisableIt(Rtc * pRtc, uint32_t dwSources);
+extern void RTC_DisableIt(Rtc * pRtc, uint32_t dwSources);
 
-	extern int RTC_SetTime(Rtc * pRtc, uint8_t ucHour, uint8_t ucMinute,
-			       uint8_t ucSecond);
+extern int RTC_SetTime(Rtc * pRtc, uint8_t ucHour, uint8_t ucMinute,
+		       uint8_t ucSecond);
 
-	extern void RTC_GetTime(Rtc * pRtc, uint8_t * pucHour,
-				uint8_t * pucMinute, uint8_t * pucSecond);
+extern void RTC_GetTime(Rtc * pRtc, uint8_t * pucHour,
+			uint8_t * pucMinute, uint8_t * pucSecond);
 
-	extern int RTC_SetTimeAlarm(Rtc * pRtc, uint8_t * pucHour,
-				    uint8_t * pucMinute, uint8_t * pucSecond);
+extern int RTC_SetTimeAlarm(Rtc * pRtc, uint8_t * pucHour,
+			    uint8_t * pucMinute, uint8_t * pucSecond);
 
-	extern void RTC_GetDate(Rtc * pRtc, uint16_t * pwYear,
-				uint8_t * pucMonth, uint8_t * pucDay,
-				uint8_t * pucWeek);
+extern void RTC_GetDate(Rtc * pRtc, uint16_t * pwYear,
+			uint8_t * pucMonth, uint8_t * pucDay,
+			uint8_t * pucWeek);
 
-	extern int RTC_SetDate(Rtc * pRtc, uint16_t wYear, uint8_t ucMonth,
-			       uint8_t ucDay, uint8_t ucWeek);
+extern int RTC_SetDate(Rtc * pRtc, uint16_t wYear, uint8_t ucMonth,
+		       uint8_t ucDay, uint8_t ucWeek);
 
-	extern int RTC_SetDateAlarm(Rtc * pRtc, uint8_t * pucMonth,
-				    uint8_t * pucDay);
+extern int RTC_SetDateAlarm(Rtc * pRtc, uint8_t * pucMonth,
+			    uint8_t * pucDay);
 
-	extern void RTC_ClearSCCR(Rtc * pRtc, uint32_t dwMask);
+extern void RTC_ClearSCCR(Rtc * pRtc, uint32_t dwMask);
 
-	extern uint32_t RTC_GetSR(Rtc * pRtc, uint32_t dwMask);
+extern uint32_t RTC_GetSR(Rtc * pRtc, uint32_t dwMask);
 
-	extern void RTC_GetTamperTime(Rtc * pRtc, uint8_t * pucHour,
-				      uint8_t * pucMinute, uint8_t * pucSecond,
-				      uint8_t ucRegNum);
+extern void RTC_GetTamperTime(Rtc * pRtc, uint8_t * pucHour,
+			      uint8_t * pucMinute, uint8_t * pucSecond,
+			      uint8_t ucRegNum);
 
-	extern void RTC_GetTamperDate(Rtc * pRtc, uint16_t * pwYear,
-				      uint8_t * pucMonth, uint8_t * pucDay,
-				      uint8_t * pucWeek, uint8_t ucRegNum);
+extern void RTC_GetTamperDate(Rtc * pRtc, uint16_t * pwYear,
+			      uint8_t * pucMonth, uint8_t * pucDay,
+			      uint8_t * pucWeek, uint8_t ucRegNum);
 
-	extern uint32_t RTC_GetTamperSource(Rtc * pRtc, uint8_t ucRegNum);
+extern uint32_t RTC_GetTamperSource(Rtc * pRtc, uint8_t ucRegNum);
 
-	extern uint32_t RTC_GetTamperEventCounter(Rtc * pRtc);
+extern uint32_t RTC_GetTamperEventCounter(Rtc * pRtc);
 
-	extern uint8_t RTC_IsTamperOccurInBackupMode(Rtc * pRtc,
-						     uint8_t ucRegNum);
+extern uint8_t RTC_IsTamperOccurInBackupMode(Rtc * pRtc,
+					     uint8_t ucRegNum);
 
 #ifdef __cplusplus
 }

@@ -152,66 +152,66 @@ extern "C" {
 #endif
 
 /** Receive buffer descriptor struct */
-	typedef struct _EmacRxDescriptor {
-		union _EmacRxAddr {
-			uint32_t val;
-			struct _EmacRxAddrBM {
-				uint32_t bOwnership:1,
-						/**< User clear, EMAC set this to one once
+typedef struct _EmacRxDescriptor {
+	union _EmacRxAddr {
+		uint32_t val;
+		struct _EmacRxAddrBM {
+			uint32_t bOwnership:1,
+					/**< User clear, EMAC set this to one once
                                          it has successfully written a frame to
                                          memory */
-				 bWrap:1,	/**< Marks last descriptor in receive buffer */
-				 addrDW:30;	/**< Address in number of DW */
-			} bm;
-		} addr;		   /**< Address, Wrap & Ownership */
-		union _EmacRxStatus {
-			uint32_t val;
-			struct _EmacRxStatusBM {
-				uint32_t len:12,	/** Length of frame including FCS */
-				 offset:2,		/** Receive buffer offset,
+			 bWrap:1,	/**< Marks last descriptor in receive buffer */
+			 addrDW:30;	/**< Address in number of DW */
+		} bm;
+	} addr;		   /**< Address, Wrap & Ownership */
+	union _EmacRxStatus {
+		uint32_t val;
+		struct _EmacRxStatusBM {
+			uint32_t len:12,	/** Length of frame including FCS */
+			 offset:2,		/** Receive buffer offset,
                                                 bits 13:12 of frame length for jumbo
                                                 frame */
-				 bSof:1,		/** Start of frame */
-				 bEof:1,		/** End of frame */
-				 bCFI:1,		/** Concatenation Format Indicator */
-				 vlanPriority:3,	/** VLAN priority (if VLAN detected) */
-				 bPriorityDetected:1,	/** Priority tag detected */
-				 bVlanDetected:1,	/**< VLAN tag detected */
-				 bTypeIDMatch:1,	/**< Type ID match */
-				 bAddr4Match:1,		/**< Address register 4 match */
-				 bAddr3Match:1,		/**< Address register 3 match */
-				 bAddr2Match:1,		/**< Address register 2 match */
-				 bAddr1Match:1,		/**< Address register 1 match */
-				 reserved:1, bExtAddrMatch:1,
-							/**< External address match */
-				 bUniHashMatch:1,	/**< Unicast hash match */
-				 bMultiHashMatch:1,	/**< Multicast hash match */
-				 bBroadcastDetected:1;	/**< Global all ones broadcast
+			 bSof:1,		/** Start of frame */
+			 bEof:1,		/** End of frame */
+			 bCFI:1,		/** Concatenation Format Indicator */
+			 vlanPriority:3,	/** VLAN priority (if VLAN detected) */
+			 bPriorityDetected:1,	/** Priority tag detected */
+			 bVlanDetected:1,	/**< VLAN tag detected */
+			 bTypeIDMatch:1,	/**< Type ID match */
+			 bAddr4Match:1,		/**< Address register 4 match */
+			 bAddr3Match:1,		/**< Address register 3 match */
+			 bAddr2Match:1,		/**< Address register 2 match */
+			 bAddr1Match:1,		/**< Address register 1 match */
+			 reserved:1, bExtAddrMatch:1,
+						/**< External address match */
+			 bUniHashMatch:1,	/**< Unicast hash match */
+			 bMultiHashMatch:1,	/**< Multicast hash match */
+			 bBroadcastDetected:1;	/**< Global all ones broadcast
                                                  address detected */
-			} bm;
-		} status;
-	} PACKED_ATTR sEmacRxDescriptor;	/* GCC */
+		} bm;
+	} status;
+} PACKED_ATTR sEmacRxDescriptor;	/* GCC */
 
 /** Transmit buffer descriptor struct */
-	typedef struct _EmacTxDescriptor {
-		uint32_t addr;
-		union _EmacTxStatus {
-			uint32_t val;
-			struct _EmacTxStatusBM {
-				uint32_t len:11,/**< Length of buffer */
-				 reserved:4, bLastBuffer:1,
-						/**< Last buffer (in the current frame) */
-				 bNoCRC:1,	/**< No CRC */
-				 reserved1:10, bExhausted:1,
-						/**< Buffer exhausted in mid frame */
-				 bUnderrun:1,	/**< Transmit underrun */
-				 bError:1,	/**< Retry limit exceeded, error detected */
-				 bWrap:1,	/**< Marks last descriptor in TD list */
-				 bUsed:1;	/**< User clear, EMAC sets this once a frame
+typedef struct _EmacTxDescriptor {
+	uint32_t addr;
+	union _EmacTxStatus {
+		uint32_t val;
+		struct _EmacTxStatusBM {
+			uint32_t len:11,/**< Length of buffer */
+			 reserved:4, bLastBuffer:1,
+					/**< Last buffer (in the current frame) */
+			 bNoCRC:1,	/**< No CRC */
+			 reserved1:10, bExhausted:1,
+					/**< Buffer exhausted in mid frame */
+			 bUnderrun:1,	/**< Transmit underrun */
+			 bError:1,	/**< Retry limit exceeded, error detected */
+			 bWrap:1,	/**< Marks last descriptor in TD list */
+			 bUsed:1;	/**< User clear, EMAC sets this once a frame
                                          has been successfully transmitted */
-			} bm;
-		} status;
-	} PACKED_ATTR sEmacTxDescriptor;	/* GCC */
+		} bm;
+	} status;
+} PACKED_ATTR sEmacTxDescriptor;	/* GCC */
 
 /**     @}*/
 /*----------------------------------------------------------------------------
@@ -220,80 +220,78 @@ extern "C" {
 
 /** \addtogroup emac_functions
         @{*/
-	extern void EMAC_NetworkControl(Emac * pEmac, uint32_t bmNCR);
-	extern uint32_t EMAC_GetNetworkControl(Emac * pEmac);
-	extern void EMAC_ReceiveEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_TransmitEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_ManagementEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_ClearStatistics(Emac * pEmac);
-	extern void EMAC_IncreaseStatistics(Emac * pEmac);
-	extern void EMAC_StatisticsWriteEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_BackPressureEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_TransmissionStart(Emac * pEmac);
-	extern void EMAC_TransmissionHalt(Emac * pEmac);
+extern void EMAC_NetworkControl(Emac * pEmac, uint32_t bmNCR);
+extern uint32_t EMAC_GetNetworkControl(Emac * pEmac);
+extern void EMAC_ReceiveEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransmitEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_ManagementEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_ClearStatistics(Emac * pEmac);
+extern void EMAC_IncreaseStatistics(Emac * pEmac);
+extern void EMAC_StatisticsWriteEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BackPressureEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransmissionStart(Emac * pEmac);
+extern void EMAC_TransmissionHalt(Emac * pEmac);
 
-	extern void EMAC_Configure(Emac * pEmac, uint32_t dwCfg);
-	extern uint32_t EMAC_GetConfigure(Emac * pEmac);
-	extern void EMAC_SetSpeed(Emac * pEmac, uint8_t bSpeed);
-	extern void EMAC_FullDuplexEnable(Emac * pEmac, uint8_t bFD);
-	extern void EMAC_CpyAllEnable(Emac * pEmac, uint8_t bCAF);
-	extern void EMAC_JumboFrameEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_BroadcastDisable(Emac * pEmac, uint8_t bDisEna);
-	extern void EMAC_MulticastHashEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_BigFrameEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern uint8_t EMAC_SetClock(Emac * pEmac, uint32_t dwMck);
-	extern void EMAC_RetryTestEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_PauseFrameEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_SetRxBufferOffset(Emac * pEmac, uint8_t bOffset);
-	extern void EMAC_RxLenthCheckEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_DiscardFCSEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_EFRHD(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_IRXFCS(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_Configure(Emac * pEmac, uint32_t dwCfg);
+extern uint32_t EMAC_GetConfigure(Emac * pEmac);
+extern void EMAC_SetSpeed(Emac * pEmac, uint8_t bSpeed);
+extern void EMAC_FullDuplexEnable(Emac * pEmac, uint8_t bFD);
+extern void EMAC_CpyAllEnable(Emac * pEmac, uint8_t bCAF);
+extern void EMAC_JumboFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BroadcastDisable(Emac * pEmac, uint8_t bDisEna);
+extern void EMAC_MulticastHashEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BigFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern uint8_t EMAC_SetClock(Emac * pEmac, uint32_t dwMck);
+extern void EMAC_RetryTestEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_PauseFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_SetRxBufferOffset(Emac * pEmac, uint8_t bOffset);
+extern void EMAC_RxLenthCheckEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_DiscardFCSEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_EFRHD(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_IRXFCS(Emac * pEmac, uint8_t bEnaDis);
 
-	extern uint32_t EMAC_GetStatus(Emac * pEmac);
-	extern uint8_t EMAC_GetMDIO(Emac * pEmac);
-	extern uint8_t EMAC_IsIdle(Emac * pEmac);
+extern uint32_t EMAC_GetStatus(Emac * pEmac);
+extern uint8_t EMAC_GetMDIO(Emac * pEmac);
+extern uint8_t EMAC_IsIdle(Emac * pEmac);
 
-	extern uint32_t EMAC_GetTxStatus(Emac * pEmac);
-	extern void EMAC_ClearTxStatus(Emac * pEmac, uint32_t dwStatus);
+extern uint32_t EMAC_GetTxStatus(Emac * pEmac);
+extern void EMAC_ClearTxStatus(Emac * pEmac, uint32_t dwStatus);
 
-	extern uint32_t EMAC_GetRxStatus(Emac * pEmac);
-	extern void EMAC_ClearRxStatus(Emac * pEmac, uint32_t dwStatus);
+extern uint32_t EMAC_GetRxStatus(Emac * pEmac);
+extern void EMAC_ClearRxStatus(Emac * pEmac, uint32_t dwStatus);
 
-	extern void EMAC_SetTxQueue(Emac * pEmac, uint32_t dwAddr);
-	extern uint32_t EMAC_GetTxQueue(Emac * pEmac);
+extern void EMAC_SetTxQueue(Emac * pEmac, uint32_t dwAddr);
+extern uint32_t EMAC_GetTxQueue(Emac * pEmac);
 
-	extern void EMAC_SetRxQueue(Emac * pEmac, uint32_t dwAddr);
-	extern uint32_t EMAC_GetRxQueue(Emac * pEmac);
+extern void EMAC_SetRxQueue(Emac * pEmac, uint32_t dwAddr);
+extern uint32_t EMAC_GetRxQueue(Emac * pEmac);
 
-	extern void EMAC_EnableIt(Emac * pEmac, uint32_t dwSources);
-	extern void EMAC_DisableIt(Emac * pEmac, uint32_t dwSources);
-	extern uint32_t EMAC_GetItMask(Emac * pEmac);
-	extern uint32_t EMAC_GetItStatus(Emac * pEmac);
+extern void EMAC_EnableIt(Emac * pEmac, uint32_t dwSources);
+extern void EMAC_DisableIt(Emac * pEmac, uint32_t dwSources);
+extern uint32_t EMAC_GetItMask(Emac * pEmac);
+extern uint32_t EMAC_GetItStatus(Emac * pEmac);
 
-	extern void EMAC_PHYMaintain(Emac * pEmac,
-				     uint8_t bPhyAddr, uint8_t bRegAddr,
-				     uint8_t bRW, uint16_t wData);
-	extern uint16_t EMAC_PHYData(Emac * pEmac);
+extern void EMAC_PHYMaintain(Emac * pEmac,
+			     uint8_t bPhyAddr, uint8_t bRegAddr,
+			     uint8_t bRW, uint16_t wData);
+extern uint16_t EMAC_PHYData(Emac * pEmac);
 
-	extern void EMAC_SetPauseTime(Emac * pEmac, uint16_t wPTime);
+extern void EMAC_SetPauseTime(Emac * pEmac, uint16_t wPTime);
 
-	extern void EMAC_SetHash(Emac * pEmac, uint32_t dwHashTop,
-				 uint32_t dwHashBottom);
-	extern void EMAC_SetHash64(Emac * pEmac, uint64_t ddwHash);
+extern void EMAC_SetHash(Emac * pEmac, uint32_t dwHashTop,
+			 uint32_t dwHashBottom);
+extern void EMAC_SetHash64(Emac * pEmac, uint64_t ddwHash);
 
-	extern void EMAC_SetAddress(Emac * pEmac, uint8_t bIndex,
-				    uint8_t * pMacAddr);
-	extern void EMAC_SetAddress32(Emac * pEmac, uint8_t bIndex,
-				      uint32_t dwMacT, uint32_t dwMacB);
-	extern void EMAC_SetAddress64(Emac * pEmac, uint8_t bIndex,
-				      uint64_t ddwMac);
+extern void EMAC_SetAddress(Emac * pEmac, uint8_t bIndex, uint8_t * pMacAddr);
+extern void EMAC_SetAddress32(Emac * pEmac, uint8_t bIndex,
+			      uint32_t dwMacT, uint32_t dwMacB);
+extern void EMAC_SetAddress64(Emac * pEmac, uint8_t bIndex, uint64_t ddwMac);
 
-	extern void EMAC_SetTypeID(Emac * pEmac, uint16_t wTID);
-	extern uint16_t EMAC_GetTypeID(Emac * pEmac);
+extern void EMAC_SetTypeID(Emac * pEmac, uint16_t wTID);
+extern uint16_t EMAC_GetTypeID(Emac * pEmac);
 
-	extern void EMAC_RMIIEnable(Emac * pEmac, uint8_t bEnaDis);
-	extern void EMAC_TransceiverClockEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_RMIIEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransceiverClockEnable(Emac * pEmac, uint8_t bEnaDis);
 /**     @}*/
 
 #ifdef __cplusplus

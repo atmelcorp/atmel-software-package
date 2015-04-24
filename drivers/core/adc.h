@@ -120,39 +120,37 @@ extern "C" {
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
-	extern void ADC_Initialize(Adc * pAdc, uint32_t dwId);
-	extern uint32_t ADC_SetClock(Adc * pAdc, uint32_t dwPres,
-				     uint32_t dwMck);
-	extern void ADC_SetTiming(Adc * pAdc, uint32_t dwStartup,
-				  uint32_t dwTracking, uint32_t dwSettling);
-	extern void ADC_SetTrigger(Adc * pAdc, uint32_t dwTrgSel);
-	extern void ADC_SetTriggerMode(Adc * pAdc, uint32_t dwMode);
-	extern void ADC_SetLowResolution(Adc * pAdc, uint32_t bEnDis);
-	extern void ADC_SetSleepMode(Adc * pAdc, uint8_t bEnDis);
-	extern void ADC_SetFastWakeup(Adc * pAdc, uint8_t bEnDis);
-	extern void ADC_SetSequenceMode(Adc * pAdc, uint8_t bEnDis);
-	extern void ADC_SetSequence(Adc * pAdc, uint32_t dwSEQ1,
-				    uint32_t dwSEQ2);
-	extern void ADC_SetSequenceByList(Adc * pAdc, uint8_t ucChList[],
-					  uint8_t ucNumCh);
-	extern void ADC_SetTagEnable(Adc * pAdc, uint8_t bEnDis);
-	extern void ADC_ConfigureExtMode(Adc * pAdc, uint32_t dwMode);
-	extern void ADC_SetCompareChannel(Adc * pAdc, uint32_t dwChannel);
-	extern void ADC_SetCompareMode(Adc * pAdc, uint32_t dwMode);
-	extern void ADC_SetComparisonWindow(Adc * pAdc, uint32_t dwHi_Lo);
-	extern uint8_t ADC_CheckConfiguration(Adc * pAdc, uint32_t dwMcK);
-	extern uint32_t ADC_GetConvertedData(Adc * pAdc, uint32_t dwChannel);
-	extern void ADC_SetTsAverage(Adc * pADC, uint32_t dwAvg2Conv);
-	extern uint32_t ADC_GetTsXPosition(Adc * pADC);
-	extern uint32_t ADC_GetTsYPosition(Adc * pADC);
-	extern uint32_t ADC_GetTsPressure(Adc * pADC);
-	extern void ADC_SetTsDebounce(Adc * pADC, uint32_t dwTime);
-	extern void ADC_SetTsPenDetect(Adc * pADC, uint8_t bEnDis);
-	extern void ADC_SetStartupTime(Adc * pAdc, uint32_t dwUs);
-	extern void ADC_SetTrackingTime(Adc * pAdc, uint32_t dwNs);
-	extern void ADC_SetTriggerPeriod(Adc * pAdc, uint32_t dwPeriod);
-	extern void ADC_SetTsMode(Adc * pADC, uint32_t dwMode);
-	extern void ADC_TsCalibration(Adc * pAdc);
+extern void ADC_Initialize(Adc * pAdc, uint32_t dwId);
+extern uint32_t ADC_SetClock(Adc * pAdc, uint32_t dwPres, uint32_t dwMck);
+extern void ADC_SetTiming(Adc * pAdc, uint32_t dwStartup,
+			  uint32_t dwTracking, uint32_t dwSettling);
+extern void ADC_SetTrigger(Adc * pAdc, uint32_t dwTrgSel);
+extern void ADC_SetTriggerMode(Adc * pAdc, uint32_t dwMode);
+extern void ADC_SetLowResolution(Adc * pAdc, uint32_t bEnDis);
+extern void ADC_SetSleepMode(Adc * pAdc, uint8_t bEnDis);
+extern void ADC_SetFastWakeup(Adc * pAdc, uint8_t bEnDis);
+extern void ADC_SetSequenceMode(Adc * pAdc, uint8_t bEnDis);
+extern void ADC_SetSequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
+extern void ADC_SetSequenceByList(Adc * pAdc, uint8_t ucChList[],
+				  uint8_t ucNumCh);
+extern void ADC_SetTagEnable(Adc * pAdc, uint8_t bEnDis);
+extern void ADC_ConfigureExtMode(Adc * pAdc, uint32_t dwMode);
+extern void ADC_SetCompareChannel(Adc * pAdc, uint32_t dwChannel);
+extern void ADC_SetCompareMode(Adc * pAdc, uint32_t dwMode);
+extern void ADC_SetComparisonWindow(Adc * pAdc, uint32_t dwHi_Lo);
+extern uint8_t ADC_CheckConfiguration(Adc * pAdc, uint32_t dwMcK);
+extern uint32_t ADC_GetConvertedData(Adc * pAdc, uint32_t dwChannel);
+extern void ADC_SetTsAverage(Adc * pADC, uint32_t dwAvg2Conv);
+extern uint32_t ADC_GetTsXPosition(Adc * pADC);
+extern uint32_t ADC_GetTsYPosition(Adc * pADC);
+extern uint32_t ADC_GetTsPressure(Adc * pADC);
+extern void ADC_SetTsDebounce(Adc * pADC, uint32_t dwTime);
+extern void ADC_SetTsPenDetect(Adc * pADC, uint8_t bEnDis);
+extern void ADC_SetStartupTime(Adc * pAdc, uint32_t dwUs);
+extern void ADC_SetTrackingTime(Adc * pAdc, uint32_t dwNs);
+extern void ADC_SetTriggerPeriod(Adc * pAdc, uint32_t dwPeriod);
+extern void ADC_SetTsMode(Adc * pADC, uint32_t dwMode);
+extern void ADC_TsCalibration(Adc * pAdc);
 
 #ifdef __cplusplus
 }

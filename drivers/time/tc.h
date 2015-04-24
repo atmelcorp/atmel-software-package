@@ -60,15 +60,15 @@
 extern "C" {
 #endif
 
-	extern void TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode);
+extern void TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode);
 
-	extern void TC_Start(Tc * pTc, uint32_t dwChannel);
+extern void TC_Start(Tc * pTc, uint32_t dwChannel);
 
-	extern void TC_Stop(Tc * pTc, uint32_t dwChannel);
+extern void TC_Stop(Tc * pTc, uint32_t dwChannel);
 
-	extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t dwMCk,
-					  uint32_t * dwDiv, uint32_t * dwTcClks,
-					  uint32_t dwBoardMCK);
+extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t dwMCk,
+				  uint32_t * dwDiv, uint32_t * dwTcClks,
+				  uint32_t dwBoardMCK);
 
 #ifdef __cplusplus
 }

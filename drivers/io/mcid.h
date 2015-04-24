@@ -108,30 +108,30 @@ extern "C" {
 /**
  *  \brief MCI Driver
  */
-	typedef struct _Mcid {
-	/** Pointer to a MCI peripheral. */
-		Hsmci *pMciHw;
-	/** Pointer to a DMA driver */
-		sXdmad *pXdmad;
-	/** Pointer to currently executing command. */
-		void *pCmd;
-	/** MCK source, Hz */
-		uint32_t dwMck;
-	/** DMA transfer channel */
-		uint32_t dwDmaCh;
-	/** DMA transferred data index (bytes) */
-		uint32_t dwXfrNdx;
-	/** DMA transfer size (bytes) */
-		uint32_t dwXSize;
-	/** MCI peripheral identifier. */
-		uint8_t bID;
-	/** Polling mode */
-		uint8_t bPolling;
-	/** Reserved */
-		uint8_t reserved;
-	/** state. */
-		volatile uint8_t bState;
-	} sMcid;
+typedef struct _Mcid {
+/** Pointer to a MCI peripheral. */
+	Hsmci *pMciHw;
+/** Pointer to a DMA driver */
+	sXdmad *pXdmad;
+/** Pointer to currently executing command. */
+	void *pCmd;
+/** MCK source, Hz */
+	uint32_t dwMck;
+/** DMA transfer channel */
+	uint32_t dwDmaCh;
+/** DMA transferred data index (bytes) */
+	uint32_t dwXfrNdx;
+/** DMA transfer size (bytes) */
+	uint32_t dwXSize;
+/** MCI peripheral identifier. */
+	uint8_t bID;
+/** Polling mode */
+	uint8_t bPolling;
+/** Reserved */
+	uint8_t reserved;
+/** state. */
+	volatile uint8_t bState;
+} sMcid;
 
 /**     @}*/
 /*----------------------------------------------------------------------------
@@ -139,31 +139,31 @@ extern "C" {
  *----------------------------------------------------------------------------*/
 /** \addtogroup mcid_functions MCI Driver Functions
         @{*/
-	extern void MCID_Init(sMcid * pMcid,
-			      Hsmci * pMci, uint8_t bID, uint32_t dwMck,
-			      sXdmad * pXdmad, uint8_t bPolling);
+extern void MCID_Init(sMcid * pMcid,
+		      Hsmci * pMci, uint8_t bID, uint32_t dwMck,
+		      sXdmad * pXdmad, uint8_t bPolling);
 
-	extern void MCID_Reset(sMcid * pMcid);
+extern void MCID_Reset(sMcid * pMcid);
 
-	extern void MCID_SetSlot(Hsmci * pMci, uint8_t slot);
+extern void MCID_SetSlot(Hsmci * pMci, uint8_t slot);
 
-	extern uint32_t MCID_Lock(sMcid * pMcid, uint8_t bSlot);
+extern uint32_t MCID_Lock(sMcid * pMcid, uint8_t bSlot);
 
-	extern uint32_t MCID_Release(sMcid * pMcid);
+extern uint32_t MCID_Release(sMcid * pMcid);
 
-	extern void MCID_Handler(sMcid * pMcid);
+extern void MCID_Handler(sMcid * pMcid);
 
-	extern uint32_t MCID_SendCmd(sMcid * pMcid, void *pCmd);
+extern uint32_t MCID_SendCmd(sMcid * pMcid, void *pCmd);
 
-	extern uint32_t MCID_CancelCmd(sMcid * pMcid);
+extern uint32_t MCID_CancelCmd(sMcid * pMcid);
 
-	extern uint32_t MCID_IsCmdCompleted(sMcid * pMcid);
+extern uint32_t MCID_IsCmdCompleted(sMcid * pMcid);
 
-	extern uint32_t MCID_IOCtrl(sMcid * pMcid, uint32_t bCtl,
-				    uint32_t param);
+extern uint32_t MCID_IOCtrl(sMcid * pMcid, uint32_t bCtl,
+			    uint32_t param);
 
 #ifdef __cplusplus
 }
 #endif
 /**     @}*//**@}*/
-#endif				//#ifndef HSMCID_H
+#endif  //#ifndef HSMCID_H

@@ -75,19 +75,19 @@ extern "C" {
  *         Global functions
  */
 
-	extern void PIO_InitializeInterrupts(uint32_t dwPriority);
+extern void PIO_InitializeInterrupts(uint32_t dwPriority);
 
-	extern void PIO_ConfigureIt(const Pin * pPin);
+extern void PIO_ConfigureIt(const Pin * pPin);
 
-	extern void PIO_EnableIt(const Pin * pPin);
+extern void PIO_EnableIt(const Pin * pPin);
 
-	extern void PIO_DisableIt(const Pin * pPin);
+extern void PIO_DisableIt(const Pin * pPin);
 
-	extern void PIO_IT_InterruptHandler(void);
+extern void PIO_IT_InterruptHandler(void);
 
-	extern void PioInterruptHandler(uint32_t id, Pio * pPio);
+extern void PioInterruptHandler(uint32_t id, Pio * pPio);
 
-	extern void PIO_CaptureHandler(void);
+extern void PIO_CaptureHandler(void);
 
 #ifdef __cplusplus
 }

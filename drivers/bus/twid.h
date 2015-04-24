@@ -66,38 +66,38 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Export functions
  *----------------------------------------------------------------------------*/
-	extern void TWID_Initialize(Twid * pTwid, Twi * pTwi);
+extern void TWID_Initialize(Twid * pTwid, Twi * pTwi);
 
-	extern void TWID_Handler(Twid * pTwid);
+extern void TWID_Handler(Twid * pTwid);
 
-	extern uint8_t TWID_Read(Twid * pTwid,
-				 uint8_t address,
-				 uint32_t iaddress,
-				 uint8_t isize,
-				 uint8_t * pData, uint32_t num, Async * pAsync);
+extern uint8_t TWID_Read(Twid * pTwid,
+			 uint8_t address,
+			 uint32_t iaddress,
+			 uint8_t isize,
+			 uint8_t * pData, uint32_t num, Async * pAsync);
 
-	extern uint8_t TWID_DmaRead(Twid * pTwid,
-				    uint8_t address,
-				    uint32_t iaddress,
-				    uint8_t isize,
-				    uint8_t * pData,
-				    uint32_t num,
-				    Async * pAsync, uint8_t TWI_ID);
+extern uint8_t TWID_DmaRead(Twid * pTwid,
+			    uint8_t address,
+			    uint32_t iaddress,
+			    uint8_t isize,
+			    uint8_t * pData,
+			    uint32_t num,
+			    Async * pAsync, uint8_t TWI_ID);
 
-	extern uint8_t TWID_Write(Twid * pTwid,
-				  uint8_t address,
-				  uint32_t iaddress,
-				  uint8_t isize,
-				  uint8_t * pData,
-				  uint32_t num, Async * pAsync);
+extern uint8_t TWID_Write(Twid * pTwid,
+			  uint8_t address,
+			  uint32_t iaddress,
+			  uint8_t isize,
+			  uint8_t * pData,
+			  uint32_t num, Async * pAsync);
 
-	extern uint8_t TWID_DmaWrite(Twid * pTwid,
-				     uint8_t address,
-				     uint32_t iaddress,
-				     uint8_t isize,
-				     uint8_t * pData,
-				     uint32_t num,
-				     Async * pAsync, uint8_t TWI_ID);
+extern uint8_t TWID_DmaWrite(Twid * pTwid,
+			     uint8_t address,
+			     uint32_t iaddress,
+			     uint8_t isize,
+			     uint8_t * pData,
+			     uint32_t num,
+			     Async * pAsync, uint8_t TWI_ID);
 #ifdef __cplusplus
 }
 #endif
