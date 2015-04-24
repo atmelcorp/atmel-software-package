@@ -58,6 +58,7 @@
  *----------------------------------------------------------------------------*/
 
 //#include "board.h"
+#include <stdio.h>
 #include "core/pmc.h"
 
 #include "bus/xdmad.h"
