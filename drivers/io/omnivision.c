@@ -48,7 +48,7 @@
 /** terminating list entry for value in configuration file */
 #define OV_VAL_TERM 0xFF
 
-static const Pin pin_ISI_RST = PIN_ISI_RST;
+static const struct _pin pin_ISI_RST = PIN_ISI_RST;
 static uint8_t twiSlaveAddr = OV_CAPTOR_ADDRESS_1;
 /*----------------------------------------------------------------------------
  *        Local Functions

@@ -1,4 +1,4 @@
-OBJECTS += core/pio.o    \
+OBJECTS += core/pio3.o    \
 	core/pio_it.o   \
 	core/l2cc.o     \
 	core/adc.o      \

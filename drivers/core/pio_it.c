@@ -59,10 +59,10 @@
  */
 typedef struct _InterruptSource {
 	/* Pointer to the source pin instance. */
-	const Pin *pPin;
+	const struct _pin *pPin;
 
 	/* Interrupt handler. */
-	void (*handler) (const Pin *);
+	void (*handler) (const struct _pin *);
 } InterruptSource;
 
 /*----------------------------------------------------------------------------

@@ -71,8 +71,8 @@
  *-----------------------------------------------------------------------------*/
 /** Variable for state of send and receive froom USART */
 static uint8_t StateUsartGlobal = USART_RCV;
-/** Pin reset master card */
-static Pin st_pinIso7816RstMC;
+/** struct _pin reset master card */
+static struct _pin st_pinIso7816RstMC;
 static uint32_t maxMck;
 /*----------------------------------------------------------------------------
  *          Internal functions
@@ -585,7 +585,7 @@ ISO7816_Decode_ATR(uint8_t * pAtr)
  *  \param pPinIso7816RstMC Pin ISO 7816 Rst MC
  */
 void
-ISO7816_Init(const Pin pPinIso7816RstMC)
+ISO7816_Init(const struct _pin pPinIso7816RstMC)
 {
 	TRACE_DEBUG("ISO_Init\n\r");
 

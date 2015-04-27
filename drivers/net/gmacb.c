@@ -325,8 +325,8 @@ GMACB_ResetPhy(GMacb * pMacb)
 uint8_t
 GMACB_InitPhy(GMacb * pMacb,
 	      uint32_t mck,
-	      const Pin * pResetPins,
-	      uint32_t nbResetPins, const Pin * pGmacPins, uint32_t nbGmacPins)
+	      const struct _pin * pResetPins,
+	      uint32_t nbResetPins, const struct _pin * pGmacPins, uint32_t nbGmacPins)
 {
 	sGmacd *pDrv = pMacb->pGmacd;
 	Gmac *pHw = pDrv->pHw;

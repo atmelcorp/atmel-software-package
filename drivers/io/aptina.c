@@ -45,7 +45,7 @@
 #define MT_9V022         0x05
 
 uint8_t BUF[3];
-static const Pin pin_ISI_RST = PIN_ISI_RST;
+static const struct _pin pin_ISI_RST = PIN_ISI_RST;
 
 /*----------------------------------------------------------------------------
  *        Local Functions

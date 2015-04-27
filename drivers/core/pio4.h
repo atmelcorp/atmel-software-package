@@ -56,12 +56,12 @@
  *          PIO_PULLUP
  *     };
  *     \endcode
- *  -# Configure a pin array by calling PIO_Configure() with a pointer to the
+ *  -# Configure a pin array by calling pio_configure() with a pointer to the
  *     array and its size (which is computed using the PIO_LISTSIZE macro).
  *  -# Change and get the value of a user-controlled pin using the pio_set,
  *     pio_clear and pio_get methods.
  *  -# Get the level being currently output by a user-controlled pin configured
- *     as an output using PIO_GetOutputDataStatus().
+ *     as an output using pio_get_output_date_status().
  */
 
 #ifndef _PIO4_H
@@ -157,21 +157,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*------------------------------------------------------------------------------
- *         Global Types
- *------------------------------------------------------------------------------*/
-
-struct _pin
-{
-	uint32_t mask;		/*  Bitmask indicating which pin(s) to configure. */
-	Pio *pio;			/*  Pointer to the PIO controller which has the pin(s). */
-	uint8_t id;			/*  Peripheral ID of the PIO controller which has the pin(s). */
-	uint8_t type;		/*  Pin type */
-	uint8_t attribute;	/*  Pin config attribute. */
-};
-
-#define PIN_LISTSIZE(pPins)	(sizeof(pPins) / sizeof(struct _pin))
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */

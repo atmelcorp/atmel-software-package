@@ -93,9 +93,9 @@ extern void GMACB_Init(GMacb * pMacb, sGmacd * pGmacd, uint8_t phyAddress);
 
 extern uint8_t GMACB_InitPhy(GMacb * pMacb,
 			     uint32_t mck,
-			     const Pin * pResetPins,
+			     const struct _pin * pResetPins,
 			     uint32_t nbResetPins,
-			     const Pin * pEmacPins, uint32_t nbEmacPins);
+			     const struct _pin * pEmacPins, uint32_t nbEmacPins);
 
 extern uint8_t GMACB_AutoNegotiate(GMacb * pMacb);
 

@@ -34,12 +34,12 @@
  *
  * \section Usage
  * <ul>
- * <li>  Initialize the PIO with the desired period using PIO_Configure().
- * <li>  Set a high or low output level on the given PIO using PIO_Set() or PIO_Clear().
- * <li>  Get the level of the given PIOs using PIO_Get() or PIO_GetOutputDataStatus().
- * <li>  Configures Glitch or Debouncing filter for given input PIO using PIO_SetDebounceFilter().
- * <li>  Enable & disable write protect of the given PIOs using PIO_EnableWriteProtect() or PIO_DisableWriteProtect().
- * <li>  Get write protect violation information of given PIO using PIO_GetWriteProtectViolationInfo().
+ * <li>  Initialize the PIO with the desired period using pio_configure().
+ * <li>  Set a high or low output level on the given PIO using pio_set() or pio_clear().
+ * <li>  Get the level of the given PIOs using pio_get() or pio_get_output_date_status().
+ * <li>  Configures Glitch or Debouncing filter for given input PIO using pio_set_debounce_filter().
+ * <li>  Enable & disable write protect of the given PIOs using pio_enable_write_protect() or pio_disable_write_protect().
+ * <li>  Get write protect violation information of given PIO using pio_get_write_protect_violation_info().
  * </li>
  * </ul>
  *
@@ -220,7 +220,7 @@ void pio_clear(const struct _pin *pin)
  * \brief Returns 1 if one or more PIO of the given Pin instance currently have
  * a high level; otherwise returns 0. This method returns the actual value that
  * is being read on the pin. To return the supposed output value of a pin, use
- * PIO_GetOutputDataStatus() instead.
+ * pio_get_output_date_status() instead.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  *
@@ -249,7 +249,7 @@ uint8_t pio_get(const struct _pin *pin)
 /**
  * \brief Returns 1 if one or more PIO of the given Pin are configured to output a
  * high level (even if they are not output).
- * To get the actual value of the pin, use PIO_Get() instead.
+ * To get the actual value of the pin, use pio_get() instead.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  *

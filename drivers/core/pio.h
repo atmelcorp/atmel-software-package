@@ -30,6 +30,23 @@
 #ifndef _PIO_
 #define _PIO_
 
+/*------------------------------------------------------------------------------
+ *         Global Types
+ *------------------------------------------------------------------------------*/
+
+#include "chip.h"
+
+struct _pin
+{
+	uint32_t mask;		/*  Bitmask indicating which pin(s) to configure. */
+	Pio *pio;			/*  Pointer to the PIO controller which has the pin(s). */
+	uint8_t id;			/*  Peripheral ID of the PIO controller which has the pin(s). */
+	uint8_t type;		/*  Pin type */
+	uint8_t attribute;	/*  Pin config attribute. */
+};
+
+#define PIO_LISTSIZE(pPins)	(sizeof(pPins) / sizeof(struct _pin))
+
 /*
  *         Headers
  */

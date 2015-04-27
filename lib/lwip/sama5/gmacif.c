@@ -72,7 +72,7 @@
 static struct gmacif Gmacif_config;
 
 /** The PINs for GMAC */
-static const Pin gmacPins[] = {BOARD_GMAC_RUN_PINS0};
+static const struct _pin gmacPins[] = {BOARD_GMAC_RUN_PINS0};
 //static const Pin gmacModePins[] = {BOARD_GMAC_MODE_PINS};
 
 /* The GMAC driver instance */

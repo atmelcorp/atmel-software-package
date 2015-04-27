@@ -34,12 +34,12 @@
  *
  * \section Usage
  * <ul>
- * <li>  Initialize the PIO with the desired period using PIO_Configure().
- * <li>  Set a high or low output level on the given PIO using PIO_Set() or PIO_Clear().
- * <li>  Get the level of the given PIOs using PIO_Get() or PIO_GetOutputDataStatus().
- * <li>  Configures Glitch or Debouncing filter for given input PIO using PIO_SetDebounceFilter().
- * <li>  Enable & disable write protect of the given PIOs using PIO_EnableWriteProtect() or PIO_DisableWriteProtect().
- * <li>  Get write protect violation information of given PIO using PIO_GetWriteProtectViolationInfo().
+ * <li>  Initialize the PIO with the desired period using pio_configure().
+ * <li>  Set a high or low output level on the given PIO using pio_set() or pio_clear().
+ * <li>  Get the level of the given PIOs using pio_get() or pio_get_output_date_status().
+ * <li>  Configures Glitch or Debouncing filter for given input PIO using pio_set_debounce_filter().
+ * <li>  Enable & disable write protect of the given PIOs using pio_enable_write_protect() or pio_disable_write_protect().
+ * <li>  Get write protect violation information of given PIO using pio_get_write_protect_violation_info().
  * </li>
  * </ul>
  *
@@ -63,7 +63,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "core/pio3.h"
+#include "core/pio.h"
 #include "core/pmc.h"
 
 /*----------------------------------------------------------------------------
@@ -282,7 +282,7 @@ static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
  *
  * \return 1 if the pins have been configured properly; otherwise 0.
  */
-uint8_t pio_configure(const struct _pin_t *list, uint32_t size)
+uint8_t pio_configure(const struct _pin *list, uint32_t size)
 {
 	/* Configure pins */
 	while (size > 0) {
@@ -336,7 +336,7 @@ uint8_t pio_configure(const struct _pin_t *list, uint32_t size)
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
-void void pio_set(const struct _pin_t *pin)
+void pio_set(const struct _pin *pin)
 {
 	pin->pio->PIO_SODR = pin->mask;
 }
@@ -348,7 +348,7 @@ void void pio_set(const struct _pin_t *pin)
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
-void void pio_clear(const struct _pin_t *pin)
+void pio_clear(const struct _pin *pin)
 {
 	pin->pio->PIO_CODR = pin->mask;
 }
@@ -357,14 +357,14 @@ void void pio_clear(const struct _pin_t *pin)
  * \brief Returns 1 if one or more PIO of the given Pin instance currently have
  * a high level; otherwise returns 0. This method returns the actual value that
  * is being read on the pin. To return the supposed output value of a pin, use
- * PIO_GetOutputDataStatus() instead.
+ * pio_get_output_date_status() instead.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  *
  * \return 1 if the Pin instance contains at least one PIO that currently has
  * a high level; otherwise 0.
  */
-uint8_t void pio_get(const struct _pin_t *pin)
+uint8_t pio_get(const struct _pin *pin)
 {
 	uint32_t reg;
 
@@ -383,14 +383,14 @@ uint8_t void pio_get(const struct _pin_t *pin)
 /**
  * \brief Returns 1 if one or more PIO of the given Pin are configured to output a
  * high level (even if they are not output).
- * To get the actual value of the pin, use PIO_Get() instead.
+ * To get the actual value of the pin, use pio_get() instead.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  *
  * \return 1 if the Pin instance contains at least one PIO that is configured
  * to output a high level; otherwise 0.
  */
-uint8_t pio_get_output_data_status(const struct _pin_t *pin)
+uint8_t pio_get_output_data_status(const struct _pin *pin)
 {
 	if ((pin->pio->PIO_ODSR & pin->mask) == 0) {
 		return 0;
@@ -405,7 +405,7 @@ uint8_t pio_get_output_data_status(const struct _pin_t *pin)
  * \param pin  Pointer to a Pin instance describing one or more pins.
  * \param cuttoff  Cutt off frequency for debounce filter.
  */
-void pio_set_debounce_filter(const struct _pin_t *pin, uint32_t cuttoff)
+void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 {
 	Pio *pio = pin->pio;
 
@@ -425,7 +425,7 @@ void pio_set_debounce_filter(const struct _pin_t *pin, uint32_t cuttoff)
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
-void pio_enable_write_protect(const struct _pin_t *pin)
+void pio_enable_write_protect(const struct _pin *pin)
 {
 	Pio *pio = pin->pio;
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN);
@@ -436,7 +436,7 @@ void pio_enable_write_protect(const struct _pin_t *pin)
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
-void pio_disable_write_protect(const struct _pin_t *pin)
+void pio_disable_write_protect(const struct _pin *pin)
 {
 	Pio *pio = pin->pio;
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS);
@@ -447,7 +447,7 @@ void pio_disable_write_protect(const struct _pin_t *pin)
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
-uint32_t pio_get_write_protect_violation_info(const struct _pin_t * pin)
+uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 {
 	Pio *pio = pin->pio;
 	return (pio->PIO_WPSR);

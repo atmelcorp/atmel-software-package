@@ -56,12 +56,12 @@
  *          PIO_PULLUP
  *     };
  *     \endcode
- *  -# Configure a pin array by calling PIO_Configure() with a pointer to the
+ *  -# Configure a pin array by calling pio_configure() with a pointer to the
  *     array and its size (which is computed using the PIO_LISTSIZE macro).
  *  -# Change and get the value of a user-controlled pin using the pio_set,
  *     pio_clear and pio_get methods.
  *  -# Get the level being currently output by a user-controlled pin configured
- *     as an output using PIO_GetOutputDataStatus().
+ *     as an output using pio_get_output_date_status().
  */
 
 #ifndef _PIO3_H
@@ -135,34 +135,21 @@
 extern "C" {
 #endif
 
-/*------------------------------------------------------------------------------
- *         Global Types
- *------------------------------------------------------------------------------*/
-
-struct _pin_t
-{
-	uint32_t mask;		/*  Bitmask indicating which pin(s) to configure. */
-	Pio *pio;			/*  Pointer to the PIO controller which has the pin(s). */
-	uint8_t id;			/*  Peripheral ID of the PIO controller which has the pin(s). */
-	uint8_t type;		/*  Pin type mode input or output. */
-	uint8_t attribute;	/*  Pin attribute. */
-};
-
-#define PIO_LISTSIZE(pPins)	(sizeof(pPins) / sizeof(struct _pin_t))
+#define PIO_LISTSIZE(pPins)	(sizeof(pPins) / sizeof(struct _pin))
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern uint8_t pio_configure(const struct _pin_t *list, uint32_t size) ;
-extern void pio_set(const struct _pin_t *pin) ;
-extern void pio_clear(const struct _pin_t *pin) ;
-extern uint8_t pio_get(const struct _pin_t *pin) ;
-extern uint8_t pio_get_output_data_status(const struct _pin_t *pin) ;
-extern void pio_set_debounce_filter(const struct _pin_t *pin, uint32_t cuttoff);
-extern void pio_enable_write_protect(const struct _pin_t *pin);
-extern void pio_disable_write_protect(const struct _pin_t *pin);
-extern uint32_t pio_get_write_protect_violation_info(const struct _pin_t * pin);
+extern uint8_t pio_configure(const struct _pin *list, uint32_t size) ;
+extern void pio_set(const struct _pin *pin) ;
+extern void pio_clear(const struct _pin *pin) ;
+extern uint8_t pio_get(const struct _pin *pin) ;
+extern uint8_t pio_get_output_data_status(const struct _pin *pin) ;
+extern void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff);
+extern void pio_enable_write_protect(const struct _pin *pin);
+extern void pio_disable_write_protect(const struct _pin *pin);
+extern uint32_t pio_get_write_protect_violation_info(const struct _pin * pin);
 extern void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask);
 
 

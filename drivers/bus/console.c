@@ -39,6 +39,7 @@
 *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "chip.h"
 
 #include "core/pio.h"
 #include "core/pmc.h"
@@ -64,7 +65,7 @@
 *----------------------------------------------------------------------------*/
 
 /** Pins for CONSOLE */
-static const pin_t pinsConsole[] = PINS_CONSOLE;
+static const struct _pin pinsConsole[] = {PINS_CONSOLE};
 
 /** Console initialize status */
 static uint8_t _bConsoleIsInitialized = 0;

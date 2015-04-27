@@ -40,6 +40,12 @@ CHIP=CHIP_SAMA5D21
 endif
 endif
 
+# select chip related pio API
+ifeq ($(SERIE),SERIE_SAMA5D2)
+PIO_API=API_PIOv4
+else
+PIO_API=API_PIOv3
+endif
 
 #-------------------------------------------------------------------------------
 #		Setup cross-compilation tools
@@ -93,10 +99,11 @@ CFLAGS += -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CFLAGS += -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
-# To reduce application size use only integer printf function.
-CFLAGS += -Dprintf=iprintf
 CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall -g3
 CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="\"$(SOFTPACK_VERSION)\""
+CFLAGS += -D$(PIO_API)
+# To reduce application size use only integer printf function.
+CFLAGS += -Dprintf=iprintf
 
 # linkker flags
 LDFLAGS= -mcpu=cortex-a5 -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=entry -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
