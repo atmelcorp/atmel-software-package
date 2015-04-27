@@ -15,21 +15,3 @@ OBJECTS += io/ov7740_config.o \
 	io/aptina.o          \
 	io/led.o             \
 	io/omnivision.o
-
-SOURCES += io/ov7740_config.c \
-	io/iso7816_4.c       \
-	io/mt.c              \
-	io/ov.c              \
-	io/tsd_com.c         \
-	io/tsd_tsadc.c       \
-	io/ov2643_config.c   \
-	io/ov9740_config.c   \
-	io/ov5640_config.c   \
-	io/mcid_dma.c        \
-	io/qt1070.c          \
-	io/ov2640_config.c   \
-	io/mt9v022_config.c  \
-	io/mtyuv.c           \
-	io/aptina.c          \
-	io/led.c             \
-	io/omnivision.c

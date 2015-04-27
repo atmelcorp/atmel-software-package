@@ -4,10 +4,3 @@ OBJECTS += crypto/trng.o \
 	crypto/tdes.o   \
 	crypto/aesb.o   \
 	crypto/aes.o
-
-SOURCES += crypto/trng.c \
-	crypto/sha.c    \
-	crypto/icm.c    \
-	crypto/tdes.c   \
-	crypto/aesb.c   \
-	crypto/aes.c

@@ -3,9 +3,3 @@ OBJECTS += time/rtc_calib.o \
 	time/timetick.o    \
 	time/pit.o         \
 	time/rtc.o
-
-SOURCES += time/rtc_calib.c \
-	time/tc.c          \
-	time/timetick.c    \
-	time/pit.c         \
-	time/rtc.c

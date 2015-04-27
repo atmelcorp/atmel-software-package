@@ -4,10 +4,3 @@ OBJECTS += av/lcd_draw.o    \
 	av/lcdd.o          \
 	av/isi.o           \
 	av/wm8904.o
-
-SOURCES += av/lcd_draw.c    \
-	av/lcd_font.c      \
-	av/lcd_font10x14.c \
-	av/lcdd.c          \
-	av/isi.c           \
-	av/wm8904.c

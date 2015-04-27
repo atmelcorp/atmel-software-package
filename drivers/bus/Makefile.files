@@ -8,14 +8,3 @@ OBJECTS += bus/hsmci.o                 \
 	bus/ssc.o                     \
 	bus/spi.o                     \
 	bus/can.o
-
-SOURCES += bus/hsmci.c                 \
-	bus/dbgu_console.c            \
-	bus/xdmad.c                   \
-	bus/xdma_hardware_interface.c \
-	bus/twi.c                     \
-	bus/xdmac.c                   \
-	bus/twid.c                    \
-	bus/ssc.c                     \
-	bus/spi.c                     \
-	bus/can.c
