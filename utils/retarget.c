@@ -51,7 +51,7 @@ int
 fputc(int ch, FILE * f)
 {
 	if ((f == stdout) || (f == stderr)) {
-		DBGU_PutChar(ch);
+		console_put_char(ch);
 		return ch;
 	} else {
 		return EOF;
@@ -69,7 +69,7 @@ fputc(int ch, FILE * f)
 void
 _ttywrch(int ch)
 {
-	DBGU_PutChar((uint8_t) ch);
+	console_put_char((uint8_t) ch);
 }
 
 void

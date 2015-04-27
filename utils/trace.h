@@ -37,7 +37,7 @@
  *
  *  \par Usage
  *  -# Initialize the DBGU using TRACE_CONFIGURE() if you intend to eventually
- *     disable ALL traces; otherwise use DBGU_Configure().
+ *     disable ALL traces; otherwise use console_configure().
  *  -# Uses the TRACE_DEBUG(), TRACE_INFO(), TRACE_WARNING(), TRACE_ERROR()
  *     TRACE_FATAL() macros to output traces throughout the program.
  *  -# Each type of trace has a level : Debug 5, Info 4, Warning 3, Error 2
@@ -127,8 +127,8 @@ extern void TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk);
 #else
 #define TRACE_CONFIGURE_ISP(mode, baudrate, mck) { \
     const Pin pinsDBGU[] = {PINS_DBGU}; \
-    PIO_Configure(pinsDBGU, PIO_LISTSIZE(pinsDBGU)); \
-    DBGU_Configure( baudrate, mck ) ; \
+    pio_configure(pinsDBGU, PIO_LISTSIZE(pinsDBGU)); \
+    console_configure( baudrate, mck ) ; \
     }
 #endif
 

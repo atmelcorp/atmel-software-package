@@ -105,8 +105,8 @@ DbgReceiveByte(uint8_t * pByte, uint32_t timeOut)
 	uint32_t delay;
 	tick = GetTickCount();
 	while (1) {
-		if (DBGU_IsRxReady()) {
-			uint8_t tmp = DBGU_GetChar();
+		if (console_is_rx_ready()) {
+			uint8_t tmp = console_get_char();
 			if (pByte)
 				*pByte = tmp;
 			return 1;
@@ -147,15 +147,15 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 		       TIMEOUT_RX_START / 1000);
 		tick0 = GetTickCount();
 		while (1) {
-			if (DBGU_IsRxReady()) {
-				pBuffer[rxCnt++] = DBGU_GetChar();
-				DBGU_PutChar(' ');
+			if (console_is_rx_ready()) {
+				pBuffer[rxCnt++] = console_get_char();
+				console_put_char(' ');
 				break;
 			} else {
 				delay = GetDelayInTicks(tick0, GetTickCount());
 				if ((delay % 1000) == 0) {
 					if (xSign == 0) {
-						DBGU_PutChar('*');
+						console_put_char('*');
 						xSign = 1;
 					}
 				} else if (xSign) {
@@ -173,10 +173,10 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 	while (1) {
 		tick0 = GetTickCount();
 		while (1) {
-			if (DBGU_IsRxReady()) {
-				pBuffer[rxCnt++] = DBGU_GetChar();
+			if (console_is_rx_ready()) {
+				pBuffer[rxCnt++] = console_get_char();
 				if ((rxCnt % (10 * 1024)) == 0) {
-					DBGU_PutChar('.');
+					console_put_char('.');
 				}
 				if (rxCnt >= maxSize) {
 					/* Wait until file transfer finished */
@@ -214,16 +214,16 @@ DbgReceive1KXModem(uint8_t * pktBuffer, uint32_t address, uint32_t maxSize)
 	uint8_t *pBuffer = (uint8_t *) address;
 	uint32_t totalLen = 0;
 
-	DBGU_PutChar('C');
+	console_put_char('C');
 	while (1) {
 		if (!DbgReceiveByte(&inChar, SOH_TIMEOUT)) {
-			DBGU_PutChar('C');
+			console_put_char('C');
 			continue;
 		}
 		/* Done */
 		if (EOT == inChar) {
 			error = 0;
-			DBGU_PutChar(ACK);
+			console_put_char(ACK);
 			break;
 		} else if (CAN == inChar) {
 			error = 2;
@@ -263,7 +263,7 @@ DbgReceive1KXModem(uint8_t * pktBuffer, uint32_t address, uint32_t maxSize)
 		inCrc += inCheckSum;
 		/* If CRC error, NAK */
 		if (error || (inCrc != myCrc)) {
-			DBGU_PutChar(NAK);
+			console_put_char(NAK);
 			error = 0;
 		}
 		/* Save packet, ACK and next */
@@ -274,7 +274,7 @@ DbgReceive1KXModem(uint8_t * pktBuffer, uint32_t address, uint32_t maxSize)
 			if (totalLen + pktLen > maxSize) {
 				/* Copy until buffer full? */
 				/* Stop transfer */
-				DBGU_PutChar(CAN);
+				console_put_char(CAN);
 				return totalLen;
 			}
 
@@ -283,7 +283,7 @@ DbgReceive1KXModem(uint8_t * pktBuffer, uint32_t address, uint32_t maxSize)
 				pBuffer[totalLen + i] = pktBuffer[i];
 			}
 			totalLen += pktLen;
-			DBGU_PutChar(ACK);
+			console_put_char(ACK);
 		}
 	}
 

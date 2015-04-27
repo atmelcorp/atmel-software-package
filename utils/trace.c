@@ -35,7 +35,7 @@
 
 #include "board.h"
 #include "trace.h"
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 #include "core/pio.h"
 
 /*------------------------------------------------------------------------------
@@ -56,9 +56,9 @@ uint32_t dwTraceLevel = TRACE_LEVEL;
 extern void
 TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk)
 {
-	const Pin pinsDBUG[] = { PINS_DBGU };
+	const struct _pin pinsDBUG[] = { PINS_CONSOLE };
 
-	PIO_Configure(pinsDBUG, PIO_LISTSIZE(pinsDBUG));
+	pio_configure(pinsDBUG, PIO_LISTSIZE(pinsDBUG));
 
-	DBGU_Configure(dwBaudRate, dwMCk);
+	console_configure(dwBaudRate, dwMCk);
 }

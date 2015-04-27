@@ -123,7 +123,7 @@ _write(int file, char *ptr, int len)
 
 //    for ( ; *ptr != 0 ; ptr++ )
 	for (iIndex = 0; iIndex < len; iIndex++, ptr++) {
-		DBGU_PutChar(*ptr);
+		console_put_char(*ptr);
 	}
 
 	return iIndex;
