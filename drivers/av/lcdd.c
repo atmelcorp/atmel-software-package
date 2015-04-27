@@ -537,7 +537,7 @@ LCDD_Initialize(void)
 	Pmc *pPmc = PMC;
 
 	/* Configure PIO */
-	PIO_Configure(pPinsLCD, PIO_LISTSIZE(pPinsLCD));
+	pio_configure(pPinsLCD, PIO_LISTSIZE(pPinsLCD));
 
 	LCDD_Off();
 
@@ -559,7 +559,7 @@ LCDD_Initialize(void)
 	lcddCanvas.pBuffer = NULL;
 
 	/* Enable peripheral clock */
-	PMC_EnablePeripheral(ID_LCDC);
+	pmc_enable_peripheral(ID_LCDC);
 	pPmc->PMC_SCER = (0x1u << 3);
 
 	/* Timing Engine Configuration */
@@ -1154,7 +1154,7 @@ LCDD_ShowBMPRotated(uint8_t bLayer,
 		   to one. */
 		LCDD_SetDMA(pBuffer, pTD, (uint32_t) pDmaR);
 	}
-	CP15_flush_dcache_for_dma((uint32_t) pTD,
+	cp15_flush_dcache_for_dma((uint32_t) pTD,
 				  ((uint32_t) pTD) + sizeof (pTD));
 	/* Set window & position */
 	if (pWinR) {
@@ -1415,7 +1415,7 @@ LCDD_On(void)
 	Lcdc *pHw = LCDC;
 
 	/* Enable peripheral clock */
-	PMC_EnablePeripheral(ID_LCDC);
+	pmc_enable_peripheral(ID_LCDC);
 	pPmc->PMC_SCER = (0x1u << 3);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
@@ -1539,7 +1539,7 @@ LCDD_Off(void)
 	while (pHw->LCDC_LCDSR & LCDC_LCDSR_CLKSTS) ;
 
 	/* Disable peripheral clock */
-	PMC_DisablePeripheral(ID_LCDC);
+	pmc_disable_peripheral(ID_LCDC);
 	/* LCD Clock Disable */
 	pPmc->PMC_SCDR = (0x1u << 3);
 
@@ -1582,7 +1582,7 @@ LCDD_Flush_CurrentCanvas(void)
 	base = (uint32_t) pCurrentLayer->pBuffer;
 	height = pCurrentLayer->wImgH;
 	width = pCurrentLayer->wImgW;
-	CP15_flush_dcache_for_dma((uint32_t) base,
+	cp15_flush_dcache_for_dma((uint32_t) base,
 				  ((uint32_t) base) + height * width * 4);
 }
 

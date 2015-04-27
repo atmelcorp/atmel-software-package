@@ -59,15 +59,15 @@
 extern "C" {
 #endif
 
-extern void AIC_EnableIT(uint32_t source);
-extern void AIC_DisableIT(uint32_t source);
-extern void AIC_ConfigureIT(uint32_t source, uint8_t mode);
-extern void AIC_SetSourceVector(uint32_t source, uint32_t handler);
-extern void AIC_SetOrClearIT(uint32_t source, uint8_t set);
-extern void AIC_EndIT(Aic * aic);
-extern uint32_t AIC_DebugConfig(Aic * aic, uint8_t protect, uint8_t mask);
-extern void AIC_WriteProtection(Aic * aic, uint32_t enable);
-extern uint32_t AIC_ViolationOccured(Aic * aic, uint32_t * pViolationSource);
+extern void aic_enable(uint32_t source);
+extern void aic_disable(uint32_t source);
+extern void aic_configure(uint32_t source, uint8_t mode);
+extern void aic_set_source_vector(uint32_t source, uint32_t handler);
+extern void aic_set_or_clear(uint32_t source, uint8_t set);
+extern void aic_end_interrupt(Aic * aic);
+extern uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask);
+extern void aic_write_protection(Aic * aic, uint32_t enable);
+extern uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource);
 
 #ifdef __cplusplus
 }

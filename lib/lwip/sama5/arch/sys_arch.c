@@ -77,7 +77,7 @@ void sys_init_timing(void)
     dwClockTick = 0;
 
     /* Enable peripheral clock. */
-    PMC_EnablePeripheral( ID_TC0 ) ;
+    pmc_enable_peripheral( ID_TC0 ) ;
 
     /* Configure TC for a CLOCK_CONF_SECOND frequency. */
     TC_FindMckDivisor( CLOCK_CONF_SECOND, BOARD_MCK, &div, &tcclks, BOARD_MCK );
@@ -86,7 +86,7 @@ void sys_init_timing(void)
 
     /* Configure and enable interrupt on RC compare */
     //IRQ_ConfigureIT(ID_TC0,(0x0 << 5), TC0_IrqHandler);
-    AIC_EnableIT(ID_TC0);
+    aic_enable(ID_TC0);
     TC0->TC_CHANNEL[ 0 ].TC_IER = TC_IER_CPCS ;
 
     /* Start timer */

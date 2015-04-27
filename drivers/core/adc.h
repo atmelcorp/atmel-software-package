@@ -37,12 +37,12 @@
  *  \section Usage
  *
  *  -# Configurate the pins for ADC.
- *  -# Initialize the ADC with ADC_Initialize().
- *  -# Set ADC clock and timing with ADC_SetClock() and ADC_SetTiming().
- *  -# Select the active channel using ADC_EnableChannel().
- *  -# Start the conversion with ADC_StartConversion().
- *  -# Wait the end of the conversion by polling status with ADC_GetStatus().
- *  -# Finally, get the converted data using ADC_GetConvertedData() or ADC_GetLastConvertedData().
+ *  -# Initialize the ADC with adc_initialize().
+ *  -# Set ADC clock and timing with adc_set_clock() and adc_set_timing().
+ *  -# Select the active channel using adc_enable_channel().
+ *  -# Start the conversion with adc_start_conversion().
+ *  -# Wait the end of the conversion by polling status with adc_get_status().
+ *  -# Finally, get the converted data using adc_get_converted_data() or adc_get_last_converted_data().
  *
 */
 #ifndef _ADC_
@@ -81,76 +81,76 @@ extern "C" {
  *         Macros function of register access
  *------------------------------------------------------------------------------*/
 
-#define ADC_GetModeReg( pAdc )                ((pAdc)->ADC_MR)
+#define adc_get_mode_reg( pAdc )                ((pAdc)->ADC_MR)
 
-#define ADC_StartConversion( pAdc )           ((pAdc)->ADC_CR = ADC_CR_START)
+#define adc_start_conversion( pAdc )           ((pAdc)->ADC_CR = ADC_CR_START)
 
-#define ADC_EnableChannel( pAdc, dwChannel )    {\
+#define adc_enable_channel( pAdc, dwChannel )    {\
             (pAdc)->ADC_CHER = (1 << (dwChannel));\
         }
 
-#define ADC_DisableChannel(pAdc, dwChannel)  {\
+#define adc_disable_channel(pAdc, dwChannel)  {\
             (pAdc)->ADC_CHDR = (1 << (dwChannel));\
         }
 
-#define ADC_EnableIt(pAdc, dwMode)            {\
+#define adc_enable_interrupt(pAdc, dwMode)            {\
             (pAdc)->ADC_IER = (dwMode);\
         }
 
-#define ADC_DisableIt(pAdc, dwMode)           {\
+#define adc_disable_interrupt(pAdc, dwMode)           {\
             (pAdc)->ADC_IDR = (dwMode);\
         }
 
-#define ADC_SetChannelGain(pAdc,dwMode)       {\
+#define adc_set_channel_gain(pAdc,dwMode)       {\
             (pAdc)->ADC_CGR = dwMode;\
         }
 
-#define ADC_EnableDataReadyIt(pAdc)         ((pAdc)->ADC_IER = ADC_IER_DRDY)
+#define adc_enable_data_ready_it(pAdc)         ((pAdc)->ADC_IER = ADC_IER_DRDY)
 
-#define ADC_GetStatus(pAdc)                 ((pAdc)->ADC_ISR)
+#define adc_get_status(pAdc)                 ((pAdc)->ADC_ISR)
 
-#define ADC_GetCompareMode(pAdc)            (((pAdc)->ADC_EMR)& (ADC_EMR_CMPMODE_Msk))
+#define adc_get_compare_mode(pAdc)            (((pAdc)->ADC_EMR)& (ADC_EMR_CMPMODE_Msk))
 
-#define ADC_GetChannelStatus(pAdc)          ((pAdc)->ADC_CHSR)
+#define adc_get_channel_status(pAdc)          ((pAdc)->ADC_CHSR)
 
-#define ADC_GetInterruptMaskStatus(pAdc)    ((pAdc)->ADC_IMR)
+#define adc_interrupt_mask_status(pAdc)    ((pAdc)->ADC_IMR)
 
-#define ADC_GetLastConvertedData(pAdc)      ((pAdc)->ADC_LCDR)
+#define adc_get_last_converted_data(pAdc)      ((pAdc)->ADC_LCDR)
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
-extern void ADC_Initialize(Adc * pAdc, uint32_t dwId);
-extern uint32_t ADC_SetClock(Adc * pAdc, uint32_t dwPres, uint32_t dwMck);
-extern void ADC_SetTiming(Adc * pAdc, uint32_t dwStartup,
+extern void adc_initialize(Adc * pAdc, uint32_t dwId);
+extern uint32_t adc_set_clock(Adc * pAdc, uint32_t dwPres, uint32_t dwMck);
+extern void adc_set_timing(Adc * pAdc, uint32_t dwStartup,
 			  uint32_t dwTracking, uint32_t dwSettling);
-extern void ADC_SetTrigger(Adc * pAdc, uint32_t dwTrgSel);
-extern void ADC_SetTriggerMode(Adc * pAdc, uint32_t dwMode);
-extern void ADC_SetLowResolution(Adc * pAdc, uint32_t bEnDis);
-extern void ADC_SetSleepMode(Adc * pAdc, uint8_t bEnDis);
-extern void ADC_SetFastWakeup(Adc * pAdc, uint8_t bEnDis);
-extern void ADC_SetSequenceMode(Adc * pAdc, uint8_t bEnDis);
-extern void ADC_SetSequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
-extern void ADC_SetSequenceByList(Adc * pAdc, uint8_t ucChList[],
+extern void adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel);
+extern void adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode);
+extern void adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis);
+extern void adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis);
+extern void adc_set_fast_wakeup(Adc * pAdc, uint8_t bEnDis);
+extern void adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis);
+extern void adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
+extern void adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[],
 				  uint8_t ucNumCh);
-extern void ADC_SetTagEnable(Adc * pAdc, uint8_t bEnDis);
-extern void ADC_ConfigureExtMode(Adc * pAdc, uint32_t dwMode);
-extern void ADC_SetCompareChannel(Adc * pAdc, uint32_t dwChannel);
-extern void ADC_SetCompareMode(Adc * pAdc, uint32_t dwMode);
-extern void ADC_SetComparisonWindow(Adc * pAdc, uint32_t dwHi_Lo);
-extern uint8_t ADC_CheckConfiguration(Adc * pAdc, uint32_t dwMcK);
-extern uint32_t ADC_GetConvertedData(Adc * pAdc, uint32_t dwChannel);
-extern void ADC_SetTsAverage(Adc * pADC, uint32_t dwAvg2Conv);
-extern uint32_t ADC_GetTsXPosition(Adc * pADC);
-extern uint32_t ADC_GetTsYPosition(Adc * pADC);
-extern uint32_t ADC_GetTsPressure(Adc * pADC);
-extern void ADC_SetTsDebounce(Adc * pADC, uint32_t dwTime);
-extern void ADC_SetTsPenDetect(Adc * pADC, uint8_t bEnDis);
-extern void ADC_SetStartupTime(Adc * pAdc, uint32_t dwUs);
-extern void ADC_SetTrackingTime(Adc * pAdc, uint32_t dwNs);
-extern void ADC_SetTriggerPeriod(Adc * pAdc, uint32_t dwPeriod);
-extern void ADC_SetTsMode(Adc * pADC, uint32_t dwMode);
-extern void ADC_TsCalibration(Adc * pAdc);
+extern void adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis);
+extern void adc_configure_ext_mode(Adc * pAdc, uint32_t dwMode);
+extern void adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel);
+extern void adc_set_compare_mode(Adc * pAdc, uint32_t dwMode);
+extern void adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo);
+extern uint8_t adc_set_configuration(Adc * pAdc, uint32_t dwMcK);
+extern uint32_t adc_get_converted_data(Adc * pAdc, uint32_t dwChannel);
+extern void adc_set_ts_average(Adc * pADC, uint32_t dwAvg2Conv);
+extern uint32_t adc_get_ts_xposition(Adc * pADC);
+extern uint32_t adc_get_ts_yposition(Adc * pADC);
+extern uint32_t adc_get_ts_pressure(Adc * pADC);
+extern void adc_set_ts_debounce(Adc * pADC, uint32_t dwTime);
+extern void adc_set_ts_pen_detect(Adc * pADC, uint8_t bEnDis);
+extern void adc_set_startup_time(Adc * pAdc, uint32_t dwUs);
+extern void adc_set_tracking_time(Adc * pAdc, uint32_t dwNs);
+extern void adc_set_trigger_period(Adc * pAdc, uint32_t dwPeriod);
+extern void adc_set_ts_mode(Adc * pADC, uint32_t dwMode);
+extern void adc_ts_calibration(Adc * pAdc);
 
 #ifdef __cplusplus
 }

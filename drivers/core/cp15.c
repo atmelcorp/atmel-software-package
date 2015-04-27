@@ -69,8 +69,8 @@
  * </ul>
  * \section Usage
  *
- * -# Enable or disable D cache with CP15_EnableDcache() and CP15_DisableDcache()
- * -# Enable or disable I cache with CP15_EnableIcache() and CP15_DisableIcache()
+ * -# Enable or disable D cache with cp15_enable_dcache() and cp15_disable_dcache()
+ * -# Enable or disable I cache with cp15_enable_icache() and cp15_disable_icache()
  *
  * Related files:\n
  * \ref cp15.h\n
@@ -132,11 +132,11 @@
  * \return 0 if I_cache disable, 1 if I_cache enable
  */
 unsigned int
-CP15_IsIcacheEnabled(void)
+cp15_is_icached_enabled(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 	return ((control & (1 << CP15_I_BIT)) != 0);
 }
 
@@ -144,17 +144,17 @@ CP15_IsIcacheEnabled(void)
  * \brief  Enable Instruction cache
  */
 void
-CP15_EnableIcache(void)
+cp15_enable_icache(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
 	// Check if cache is disabled
 	if ((control & (1 << CP15_I_BIT)) == 0) {
 
 		control |= (1 << CP15_I_BIT);
-		CP15_WriteControl(control);
+		cp15_write_control(control);
 		TRACE_INFO("I cache enabled.\n\r");
 	} else {
 
@@ -166,17 +166,17 @@ CP15_EnableIcache(void)
  * \brief  Disable Instruction cache
  */
 void
-CP15_DisableIcache(void)
+cp15_disable_icache(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
 	// Check if cache is enabled
 	if ((control & (1 << CP15_I_BIT)) != 0) {
 
 		control &= ~(1ul << CP15_I_BIT);
-		CP15_WriteControl(control);
+		cp15_write_control(control);
 		TRACE_INFO("I cache disabled.\n\r");
 	} else {
 
@@ -189,11 +189,11 @@ CP15_DisableIcache(void)
  * \return  0 if MMU disable, 1 if MMU enable
  */
 unsigned int
-CP15_IsMMUEnabled(void)
+cp15_is_mmu_enabled(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 	return ((control & (1 << CP15_M_BIT)) != 0);
 }
 
@@ -201,17 +201,17 @@ CP15_IsMMUEnabled(void)
  * \brief  Enable MMU
  */
 void
-CP15_EnableMMU(void)
+cp15_enable_mmu(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
 	// Check if MMU is disabled
 	if ((control & (1 << CP15_M_BIT)) == 0) {
 
 		control |= (1 << CP15_M_BIT);
-		CP15_WriteControl(control);
+		cp15_write_control(control);
 		TRACE_INFO("MMU enabled.\n\r");
 	} else {
 
@@ -223,18 +223,18 @@ CP15_EnableMMU(void)
  * \brief  Disable MMU
  */
 void
-CP15_DisableMMU(void)
+cp15_disable_mmu(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
 	// Check if MMU is enabled
 	if ((control & (1 << CP15_M_BIT)) != 0) {
 
 		control &= ~(1ul << CP15_M_BIT);
 		control &= ~(1ul << CP15_C_BIT);
-		CP15_WriteControl(control);
+		cp15_write_control(control);
 		TRACE_INFO("MMU disabled.\n\r");
 	} else {
 
@@ -247,11 +247,11 @@ CP15_DisableMMU(void)
  * \return  0 if D_cache disable, 1 if D_cache enable (with MMU of course)
  */
 unsigned int
-CP15_IsDcacheEnabled(void)
+cp15_is_dcache_enabled(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 	return ((control & ((1 << CP15_C_BIT) || (1 << CP15_M_BIT))) != 0);
 }
 
@@ -259,20 +259,20 @@ CP15_IsDcacheEnabled(void)
  * \brief  Enable Data cache
  */
 void
-CP15_EnableDcache(void)
+cp15_enable_dcache(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
-	if (!CP15_IsMMUEnabled()) {
+	if (!cp15_is_mmu_enabled()) {
 		TRACE_ERROR("Do nothing: MMU not enabled\n\r");
 	} else {
 		// Check if cache is disabled
 		if ((control & (1 << CP15_C_BIT)) == 0) {
 
 			control |= (1 << CP15_C_BIT);
-			CP15_WriteControl(control);
+			cp15_write_control(control);
 			TRACE_INFO("D cache enabled.\n\r");
 		} else {
 
@@ -285,17 +285,17 @@ CP15_EnableDcache(void)
  * \brief  Disable Data cache
  */
 void
-CP15_DisableDcache(void)
+cp15_disable_dcache(void)
 {
 	unsigned int control;
 
-	control = CP15_ReadControl();
+	control = cp15_read_control();
 
 	// Check if cache is enabled
 	if ((control & (1 << CP15_C_BIT)) != 0) {
 
 		control &= ~(1ul << CP15_C_BIT);
-		CP15_WriteControl(control);
+		cp15_write_control(control);
 		TRACE_INFO("D cache disabled.\n\r");
 	} else {
 
@@ -307,7 +307,7 @@ CP15_DisableDcache(void)
  * \brief  Invalidate TLB
  */
 void
-CP15_InvalidateTLB(void)
+cp15_invalidate_tlb(void)
 {
       asm("MCR   p15, 0, %0, c8, c3, 0": :"r"(1));
 	asm("DSB");
@@ -317,12 +317,12 @@ CP15_InvalidateTLB(void)
  * \brief  Clean Data cache
  */
 void
-CP15_CacheClean(uint8_t CacheType)
+cp15_cache_clean(uint8_t CacheType)
 {
 	assert(!CacheType);
-	CP15_SelectDCache();
+	cp15_select_dcache();
 
-	CP15_CleanDCacheBySetWay();
+	cp15_clean_dcache_by_set_way();
 	asm("DSB");
 
 }
@@ -331,16 +331,16 @@ CP15_CacheClean(uint8_t CacheType)
  * \brief  Invalidate D/Icache
  */
 void
-CP15_CacheInvalidate(uint8_t CacheType)
+cp15_cache_invalidate(uint8_t CacheType)
 {
 	if (CacheType) {
-		CP15_SelectICache();
-		CP15_InvalidateIcacheInnerSharable();
+		cp15_select_icache();
+		cp15_invalid_icache_inner_sharable();
 		asm("DSB");
 		asm("ISB");
 	} else {
-		CP15_SelectDCache();
-		CP15_InvalidateDcacheBySetWay();
+		cp15_select_dcache();
+		cp15_invalid_dcache_by_set_way();
 		asm("DSB");
 		asm("ISB");
 	}
@@ -351,12 +351,12 @@ CP15_CacheInvalidate(uint8_t CacheType)
  * \brief  Flush(Clean and invalidate) Data cache
  */
 void
-CP15_CacheFlush(uint8_t CacheType)
+cp15_cache_flush(uint8_t CacheType)
 {
 	assert(!CacheType);
 
-	CP15_SelectDCache();
-	CP15_CleanInvalidateDCacheBySetWay();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 
 	asm("DSB");
 
@@ -366,22 +366,22 @@ CP15_CacheFlush(uint8_t CacheType)
  * \brief  Invalidate Data cache by address
  */
 void
-CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+cp15_invalid_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
 {
 
-	CP15_SelectDCache();
-	CP15_InvalidateDcacheByMva(S_Add, E_Add);
+	cp15_select_dcache();
+	cp15_invalid_dcache_by_mva(S_Add, E_Add);
 }
 
 /**
  * \brief  Clean Data cache by address
  */
 void
-CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+cp15_clean_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
 {
 
-	CP15_SelectDCache();
-	CP15_CleanDCacheByMva(S_Add, E_Add);
+	cp15_select_dcache();
+	cp15_clean_dcache_by_mva(S_Add, E_Add);
 }
 
 /**
@@ -389,9 +389,9 @@ CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add)
  */
 
 void
-CP15_FlushDCacheByVA(uint32_t S_Add, uint32_t E_Add)
+cp15_flush_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
 {
 
-	CP15_SelectDCache();
-	CP15_CleanInvalidateDcacheByMva(S_Add, E_Add);
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_mva(S_Add, E_Add);
 }

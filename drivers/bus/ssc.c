@@ -89,7 +89,7 @@ SSC_Configure(Ssc * ssc, uint32_t bitRate, uint32_t masterClock)
 	uint32_t id;
 	uint32_t maxClock;
 	id = (ssc == SSC0) ? ID_SSC0 : ID_SSC1;
-	maxClock = PMC_SetPeriMaxClock(id, masterClock);
+	maxClock = pmc_set_peri_max_clock(id, masterClock);
 
 	/* Reset, disable receiver & transmitter */
 	ssc->SSC_CR = SSC_CR_RXDIS | SSC_CR_TXDIS | SSC_CR_SWRST;
@@ -103,7 +103,7 @@ SSC_Configure(Ssc * ssc, uint32_t bitRate, uint32_t masterClock)
 		ssc->SSC_CMR = 0;
 	}
 	/* Enable SSC peripheral clock */
-	//PMC_EnablePeripheral(id);
+	//pmc_enable_peripheral(id);
 }
 
 /**

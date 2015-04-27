@@ -267,8 +267,8 @@ XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
 	XDMAC_GetGIsr(pXdmac);
 	_dwdmaId = (_iController == 0) ? ID_XDMAC0 : ID_XDMAC1;
 	/* Enable clock of the DMA peripheral */
-	if (!PMC_IsPeriphEnabled(_dwdmaId)) {
-		PMC_EnablePeripheral(_dwdmaId);
+	if (!pmc_is_periph_enabled(_dwdmaId)) {
+		pmc_enable_peripheral(_dwdmaId);
 	}
 	/* Clear dummy status */
 	XDMAC_GetChannelIsr(pXdmac, iChannel);

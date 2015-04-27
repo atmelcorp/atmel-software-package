@@ -86,17 +86,17 @@ typedef enum {
 	DWstallSBFfull		// Data Write operation that stalls the pipeline because the store buffer is full.
 } PerfEventType;
 
-extern uint32_t CP15_CycleCounterInit(void);
-extern uint32_t CP15_GetCycleCounter(void);
+extern uint32_t cp15_init_cycle_counter(void);
+extern uint32_t cp15_get_cycle_counter(void);
 
-extern uint32_t CP15_ReadOverflowStatus(uint8_t EventCounter);
-extern void CP15_OverflowStatus(uint8_t Enable, uint8_t ClearCounterFlag);
-extern void CP15_SoftINCR(uint8_t IncrCounter);
+extern uint32_t cp15_read_overflow_status(uint8_t EventCounter);
+extern void cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag);
+extern void cp15_soft_incr(uint8_t IncrCounter);
 
-extern uint32_t CP15_CountEvent(uint8_t Counter);
-extern void CP15_EnableUserMode(void);
-extern void CP15_EnableIT(uint8_t Enable, uint8_t Counter);
-extern void CP15_DisableIT(uint8_t Disable, uint8_t Counter);
-extern void CP15_PerfCounterInit(PerfEventType Event, uint8_t Counter);
+extern uint32_t cp15_count_evt(uint8_t Counter);
+extern void cp15_enable_user_mode(void);
+extern void cp15_enable_iterrupt(uint8_t Enable, uint8_t Counter);
+extern void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter);
+extern void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter);
 
 #endif

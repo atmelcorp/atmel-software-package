@@ -35,7 +35,7 @@
  *
  * \section Usage
  * <ul>
- * <li> Each interrupt source can be enabled or disabled by using the AIC_EnableIT() and AIC_DisableIT()</li>
+ * <li> Each interrupt source can be enabled or disabled by using the aic_enable() and aic_disable()</li>
  * </ul>
  *
  * For more accurate information, please look at the AIC section of the
@@ -77,9 +77,9 @@
  * interrupt handler function. Mode is the value that will be put in AIC_SMRx
  * and the function address will be set in AIC_SVRx.
  * The interrupt is disabled before configuration, so it is useless
- * to do it before calling this function. When AIC_ConfigureIT returns, the
+ * to do it before calling this function. When aic_configure returns, the
  * interrupt will always be disabled and cleared; it must be enabled by a
- * call to AIC_EnableIT().
+ * call to aic_enable().
  *
  * \param source  Interrupt source to configure.
  * \param mode  Triggering mode and priority of the interrupt.
@@ -135,7 +135,7 @@ static void
 _aic_SetSourceVector(Aic * aic, uint32_t source, uint32_t handler)
 {
 	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
-		AIC_WriteProtection(aic, 1);
+		aic_write_protection(aic, 1);
 	}
 	aic->AIC_SSR = AIC_SSR_INTSEL(source);
 	aic->AIC_SVR = handler;
@@ -175,13 +175,13 @@ _aic_SetIT(Aic * aic, uint32_t source)
 static uint8_t
 _isH64Matrix(uint32_t pid)
 {
-	if ((pid == ID_ARM) || (pid == ID_XDMAC0) ||
+	if (/* (pid == ID_ARM) || */ (pid == ID_XDMAC0) ||
 	    //(pid == ID_PKCC) ||
 	    (pid == ID_AESB) ||
 	    (pid == ID_MPDDRC) ||
-	    (pid == ID_VDEC) ||
+	    /* (pid == ID_VDEC) || */
 	    (pid == ID_XDMAC1) ||
-	    (pid == ID_LCDC) || (pid == ID_ISI) || (pid == ID_L2CC)) {
+	    (pid == ID_LCDC) /* || (pid == ID_ISI) */ || (pid == ID_L2CC)) {
 		return 1;
 	} else {
 		return 0;
@@ -194,7 +194,7 @@ _isH64Matrix(uint32_t pid)
  * \param source  Interrupt source to enable.
  */
 void
-AIC_EnableIT(uint32_t source)
+aic_enable(uint32_t source)
 {
 	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
@@ -223,7 +223,7 @@ AIC_EnableIT(uint32_t source)
  * \param source  Interrupt source to disable.
  */
 void
-AIC_DisableIT(uint32_t source)
+aic_disable(uint32_t source)
 {
 	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
@@ -252,7 +252,7 @@ AIC_DisableIT(uint32_t source)
  * \param mode    mode combined of priority level and interrupt source type.
  */
 void
-AIC_ConfigureIT(uint32_t source, uint8_t mode)
+aic_configure(uint32_t source, uint8_t mode)
 {
 	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
@@ -284,7 +284,7 @@ AIC_ConfigureIT(uint32_t source, uint8_t mode)
  * \param handler handler for the interrupt.
  */
 void
-AIC_SetSourceVector(uint32_t source, uint32_t handler)
+aic_set_source_vector(uint32_t source, uint32_t handler)
 {
 	Matrix *pMatrix;
 	Aic *aic = AIC;
@@ -307,7 +307,7 @@ AIC_SetSourceVector(uint32_t source, uint32_t handler)
  * \param mode    mode combined of priority level and interrupt source type.
  */
 void
-AIC_SetOrClearIT(uint32_t source, uint8_t set)
+aic_set_or_clear(uint32_t source, uint8_t set)
 {
 	Matrix *pMatrix;
 	Aic *aic = AIC;
@@ -332,7 +332,7 @@ AIC_SetOrClearIT(uint32_t source, uint8_t set)
  * \param aic  AIC instance.
  */
 void
-AIC_EndIT(Aic * aic)
+aic_end_interrupt(Aic * aic)
 {
 	aic->AIC_EOICR = AIC_EOICR_ENDIT;
 }
@@ -347,7 +347,7 @@ AIC_EndIT(Aic * aic)
  * \retval        0 - succeed.  1 - failed.
  */
 uint32_t
-AIC_DebugConfig(Aic * aic, uint8_t protect, uint8_t mask)
+aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask)
 {
 	uint32_t tmp;
 
@@ -369,7 +369,7 @@ AIC_DebugConfig(Aic * aic, uint8_t protect, uint8_t mask)
  * \param enable  Enable/Disable AIC write protection mode.
  */
 void
-AIC_WriteProtection(Aic * aic, uint32_t enable)
+aic_write_protection(Aic * aic, uint32_t enable)
 {
 	if (enable) {
 		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD | AIC_WPMR_WPEN;
@@ -387,7 +387,7 @@ AIC_WriteProtection(Aic * aic, uint32_t enable)
  * \retval        0 - No violation occured.  1 - violation occured.
  */
 uint32_t
-AIC_ViolationOccured(Aic * aic, uint32_t * pViolationSource)
+aic_violation_occured(Aic * aic, uint32_t * pViolationSource)
 {
 	if (aic->AIC_WPSR & AIC_WPSR_WPVS) {
 		*pViolationSource =

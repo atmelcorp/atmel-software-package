@@ -233,7 +233,7 @@ CAN_CalcBaudrate(Can * pCan, uint32_t dwBaudrate, uint32_t dwMck)
 		id = ID_CAN0;
 	else if ((uint32_t) pCan == (uint32_t) CAN1)
 		id = ID_CAN1;
-	maxClock = PMC_SetPeriMaxClock(id, dwMck);
+	maxClock = pmc_set_peri_max_clock(id, dwMck);
 
 	if (dwBaudrate >= 1000)
 		TQ = 8;

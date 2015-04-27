@@ -135,7 +135,7 @@ SPI_DisableIt(Spi * spi, uint32_t dwSources)
 extern void
 SPI_Configure(Spi * spi, uint32_t dwId, uint32_t dwConfiguration)
 {
-	PMC_EnablePeripheral(dwId);
+	pmc_enable_peripheral(dwId);
 	spi->SPI_CR = SPI_CR_SPIDIS;
 
 	/* Execute a software reset of the SPI twice */

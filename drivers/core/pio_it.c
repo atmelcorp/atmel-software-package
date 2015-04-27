@@ -160,42 +160,42 @@ PIO_InitializeInterrupts(uint32_t dwPriority)
 
 	/* Configure PIO interrupt sources */
 	TRACE_DEBUG("PIO_Initialize: Configuring PIOA\n\r");
-	PMC_EnablePeripheral(ID_PIOA);
+	pmc_enable_peripheral(ID_PIOA);
 	PIOA->PIO_ISR;
 	PIOA->PIO_IDR = 0xFFFFFFFF;
 	//IRQ_ConfigureIT(ID_PIOA, dwPriority, PIO_IT_InterruptHandler);
-	AIC_EnableIT(ID_PIOA);
+	aic_enable(ID_PIOA);
 
 	/* Configure PIO interrupt sources */
 	TRACE_DEBUG("PIO_Initialize: Configuring PIOB\n\r");
-	PMC_EnablePeripheral(ID_PIOB);
+	pmc_enable_peripheral(ID_PIOB);
 	PIOB->PIO_ISR;
 	PIOB->PIO_IDR = 0xFFFFFFFF;
-	AIC_EnableIT(ID_PIOB);
+	aic_enable(ID_PIOB);
 
 	/* Configure PIO interrupt sources */
 	TRACE_DEBUG("PIO_Initialize: Configuring PIOC\n\r");
-	PMC_EnablePeripheral(ID_PIOC);
+	pmc_enable_peripheral(ID_PIOC);
 	PIOC->PIO_ISR;
 	PIOC->PIO_IDR = 0xFFFFFFFF;
 	//IRQ_ConfigureIT(ID_PIOC, dwPriority, PIO_IT_InterruptHandler);
-	AIC_EnableIT(ID_PIOC);
+	aic_enable(ID_PIOC);
 
 	/* Configure PIO interrupt sources */
 	TRACE_DEBUG("PIO_Initialize: Configuring PIOD\n\r");
-	PMC_EnablePeripheral(ID_PIOD);
+	pmc_enable_peripheral(ID_PIOD);
 	PIOD->PIO_ISR;
 	PIOD->PIO_IDR = 0xFFFFFFFF;
 	//IRQ_ConfigureIT(ID_PIOD, dwPriority, PIO_IT_InterruptHandler);
-	AIC_EnableIT(ID_PIOD);
+	aic_enable(ID_PIOD);
 
 	/* Configure PIO interrupt sources */
 	TRACE_DEBUG("PIO_Initialize: Configuring PIOC\n\r");
-	PMC_EnablePeripheral(ID_PIOE);
+	pmc_enable_peripheral(ID_PIOE);
 	PIOE->PIO_ISR;
 	PIOE->PIO_IDR = 0xFFFFFFFF;
 	//IRQ_ConfigureIT(ID_PIOE, dwPriority, PIO_IT_InterruptHandler);
-	AIC_EnableIT(ID_PIOE);
+	aic_enable(ID_PIOE);
 }
 
 /**
@@ -203,10 +203,10 @@ PIO_InitializeInterrupts(uint32_t dwPriority)
  * change. The provided interrupt handler will be called with the triggering
  * pin as its parameter (enabling different pin instances to share the same
  * handler).
- * \param pPin  Pointer to a Pin instance.
+ * \param pPin  Pointer to a _pin instance.
  */
 extern void
-PIO_ConfigureIt(const Pin * pPin)
+PIO_ConfigureIt(const struct _pin * pPin)
 {
 	Pio *pio;
 	InterruptSource *pSource;
@@ -252,7 +252,7 @@ PIO_ConfigureIt(const Pin * pPin)
  * \param pPin  Interrupt source to enable.
  */
 extern void
-PIO_EnableIt(const Pin * pPin)
+PIO_EnableIt(const struct _pin * pPin)
 {
 	TRACE_DEBUG("PIO_EnableIt()\n\r");
 
@@ -281,7 +281,7 @@ PIO_EnableIt(const Pin * pPin)
  * \param pPin  Interrupt source to disable.
  */
 extern void
-PIO_DisableIt(const Pin * pPin)
+PIO_DisableIt(const struct _pin * pPin)
 {
 	assert(pPin != NULL);
 

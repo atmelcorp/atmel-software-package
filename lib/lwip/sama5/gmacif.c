@@ -158,11 +158,11 @@ static void glow_level_init(struct netif *netif)
     
     /* Setup GMAC buffers and interrupts */
     //IRQ_ConfigureIT(ID_GMAC0, (0x0 << 5), GMAC_IrqHandler);
-    AIC_EnableIT(ID_GMAC0);
+    aic_enable(ID_GMAC0);
 
     /* Hard reset PHY*/
-    //PMC_EnablePeripheral(ID_PIOB);
-    //PIO_Configure(gmacModePins, 1);
+    //pmc_enable_peripheral(ID_PIOB);
+    //pio_configure(gmacModePins, 1);
 
     /* Init GMACB driver */
     GMACB_Init(pGmacb, pGmacd, BOARD_GMAC_PHY_ADDR);

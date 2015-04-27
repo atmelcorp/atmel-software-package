@@ -81,6 +81,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "core/pwmc.h"
 
 #include <stdint.h>
 #include <assert.h>

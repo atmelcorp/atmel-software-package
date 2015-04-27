@@ -407,7 +407,7 @@ GMACD_Init(sGmacd * pGmacd,
 	pGmacd->bId = bID;
 
 	/* Power ON */
-	PMC_EnablePeripheral(bID);
+	pmc_enable_peripheral(bID);
 
 	/* Disable TX & RX and more */
 	GMAC_NetworkControl(pHw, 0);

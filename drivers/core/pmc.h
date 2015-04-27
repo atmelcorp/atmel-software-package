@@ -53,28 +53,28 @@ typedef struct _PeripheralClockMaxFreq {
 extern "C" {
 #endif
 
-extern void PMC_EnablePeripheral(uint32_t dwId);
-extern void PMC_DisablePeripheral(uint32_t dwId);
+extern void pmc_enable_peripheral(uint32_t dwId);
+extern void pmc_disable_peripheral(uint32_t dwId);
 
-extern void PMC_EnableAllPeripherals(void);
-extern void PMC_DisableAllPeripherals(void);
+extern void pmc_enable_all_peripherals(void);
+extern void pmc_disable_all_peripherals(void);
 
-extern uint32_t PMC_IsPeriphEnabled(uint32_t dwId);
+extern uint32_t pmc_is_periph_enabled(uint32_t dwId);
 
-extern void PMC_SelectExt32KCrystal(void);
-extern void PMC_SelectInt32kCrystal(void);
-extern void PMC_SelectExt12M_Osc(void);
-extern void PMC_SelectInt12M_Osc(void);
-extern void PMC_SwitchMck2Pll(void);
-extern void PMC_SwitchMck2Main(void);
-extern uint32_t PMC_SwitchMck2Slck(void);
-extern void PMC_SetPllA(uint32_t pll, uint32_t cpcr);
-extern void PMC_SetMckPrescaler(uint32_t prescaler);
-extern void PMC_SetMckDivider(uint32_t divider);
-extern void PMC_SetMckPllaDiv(uint32_t divider);
-extern void PMC_DisablePllA(void);
-extern uint32_t PMC_GetPeriMaxFreq(uint32_t dwId);
-extern uint32_t PMC_SetPeriMaxClock(uint32_t dwId, uint32_t mck);
+extern void pmc_select_external_crystal(void);
+extern void pmc_select_internal_crystal(void);
+extern void pmc_select_external_osc(void);
+extern void pmc_select_internal_osc(void);
+extern void pmc_switch_mck_to_pll(void);
+extern void pmc_switch_mck_to_main(void);
+extern uint32_t pmc_switch_mck_to_slck(void);
+extern void pmc_set_pll_a(uint32_t pll, uint32_t cpcr);
+extern void pmc_set_mck_prescaler(uint32_t prescaler);
+extern void pmc_set_mck_divider(uint32_t divider);
+extern void pmc_set_mck_pll_a_div(uint32_t divider);
+extern void pmc_disable_pll_a(void);
+extern uint32_t pmc_get_peri_max_freq(uint32_t dwId);
+extern uint32_t pmc_set_peri_max_clock(uint32_t dwId, uint32_t mck);
 #ifdef __cplusplus
 }
 #endif

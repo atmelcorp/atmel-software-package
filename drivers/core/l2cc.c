@@ -84,11 +84,11 @@ L2CC_ExclusiveCache(L2cc * pL2CC, uint8_t Enable)
 	}
 	Aux_Cfg = pL2CC->L2CC_ACR;
 	if (Enable) {
-		CP15_ExclusiveCache();
+		cp15_exclusive_cache();
 		Aux_Cfg |= L2CC_ACR_EXCC;
 		TRACE_INFO("L2 Exclusive mode Enabled\n\r");
 	} else {
-		CP15_NonExclusiveCache();
+		cp15_non_exclusive_cache();
 		Aux_Cfg &= ~L2CC_ACR_EXCC;
 		TRACE_INFO("L2 Exclusive mode Disabled\n\r");
 	}
@@ -518,7 +518,7 @@ L2CC_InstructionLockdown(L2cc * pL2CC, uint8_t Way)
 static void
 L2CC_Clean(void)
 {
-	CP15_CacheClean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
+	cp15_cache_clean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
 	L2CC_CleanWay(L2CC, 0xFF);	// forces the address out past level 2
 	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 clean
 }
@@ -528,16 +528,16 @@ L2CC_Invalidate(void)
 {
 	L2CC_InvalidateWay(L2CC, 0xFF);	// forces the address out past level 2
 	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 inval
-	CP15_CacheInvalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
+	cp15_cache_invalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
 }
 
 static void
 L2CC_CleanInvalidate(void)
 {
-	CP15_CacheClean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
+	cp15_cache_clean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
 	L2CC_CleanInvalidateWay(L2CC, 0xFF);	// forces the address out past level 2
 	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 inval
-	CP15_CacheInvalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
+	cp15_cache_invalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
 }
 
 /**

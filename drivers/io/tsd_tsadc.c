@@ -130,25 +130,25 @@ TSD_Handler(uint32_t dwAdcStatus)
 		}
 		bTsFlags = 0;
 		/* Stop periodic trigger & enable pen */
-		ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_NO_FILTER);
-		ADC_SetTsDebounce(pAdc, BOARD_TOUCHSCREEN_DEBOUNCE);
-		ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
+		adc_set_ts_average(pAdc, ADC_TSMR_TSAV_NO_FILTER);
+		adc_set_ts_debounce(pAdc, BOARD_TOUCHSCREEN_DEBOUNCE);
+		adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
 		/* Disable pen release detect */
-		ADC_DisableIt(pAdc, ADC_IDR_NOPEN);
+		adc_disable_interrupt(pAdc, ADC_IDR_NOPEN);
 		/* Enable pen press detect */
-		ADC_EnableIt(pAdc, ADC_IER_PEN);
+		adc_enable_interrupt(pAdc, ADC_IER_PEN);
 	}
 	/* Pen pressed */
 	else if (status & ADC_ISR_PEN) {
 		bTsFlags |= TS_PEN_STAT;
 		/* Configure for peripdic trigger */
-		ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_AVG8CONV);
-		ADC_SetTsDebounce(pAdc, 300);	/* 300ns */
-		ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_PERIOD_TRIG);
+		adc_set_ts_average(pAdc, ADC_TSMR_TSAV_AVG8CONV);
+		adc_set_ts_debounce(pAdc, 300);	/* 300ns */
+		adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_PERIOD_TRIG);
 		/* Disable pen press detect */
-		ADC_DisableIt(pAdc, ADC_IDR_PEN);
+		adc_disable_interrupt(pAdc, ADC_IDR_PEN);
 		/* Enable pen release detect */
-		ADC_EnableIt(pAdc,
+		adc_enable_interrupt(pAdc,
 			     ADC_IER_NOPEN | ADC_IER_XRDY | ADC_IER_YRDY |
 			     ADC_IER_PRDY);
 	} else if (status & ADC_ISR_PENS) {
@@ -177,7 +177,7 @@ TSD_Handler(uint32_t dwAdcStatus)
 		TSDCom_InterpolateMeasurement(dwRaw, dwTsData);
 
 		/* Get P: Rp = Rxp*(Xpos/1024)*[(Z2/Z1)-1] */
-		dwRaw[2] = ADC_GetTsPressure(pAdc);
+		dwRaw[2] = adc_get_ts_pressure(pAdc);
 #ifdef TS_XY_SWAP
 		xpos = (dwRaw[1]);
 #else
@@ -228,11 +228,11 @@ TSD_GetRawMeasurement(uint32_t * pData)
 	Adc *pAdc = ADC;
 	uint32_t xr, yr;
 #ifdef TS_XY_SWAP
-	yr = ADC_GetTsXPosition(pAdc);
-	xr = ADC_GetTsYPosition(pAdc);
+	yr = adc_get_ts_xposition(pAdc);
+	xr = adc_get_ts_yposition(pAdc);
 #else
-	xr = ADC_GetTsXPosition(pAdc);
-	yr = ADC_GetTsYPosition(pAdc);
+	xr = adc_get_ts_xposition(pAdc);
+	yr = adc_get_ts_yposition(pAdc);
 #endif
 	pData[0] = ((xr & ADC_XPOSR_XPOS_Msk) >> ADC_XPOSR_XPOS_Pos) * 1024;
 	pData[0] /= ((xr & ADC_XPOSR_XSCALE_Msk) >> ADC_XPOSR_XSCALE_Pos);
@@ -251,7 +251,7 @@ TSD_WaitPenPressed(void)
 	uint32_t dwStatus;
 	/* Wait for touch & end of conversion */
 	while (1) {
-		dwStatus = ADC_GetStatus(pAdc);
+		dwStatus = adc_get_status(pAdc);
 		if (dwStatus & ADC_ISR_PEN)
 			bFlags |= 8;
 		if (dwStatus & ADC_ISR_XRDY)
@@ -274,7 +274,7 @@ TSD_WaitPenReleased(void)
 	Adc *pAdc = ADC;
 
 	/* Wait for contact loss */
-	while ((ADC_GetStatus(pAdc) & ADC_ISR_NOPEN) == 0) ;
+	while ((adc_get_status(pAdc) & ADC_ISR_NOPEN) == 0) ;
 }
 
 /**
@@ -292,19 +292,19 @@ TSD_Initialize(void)
 	bTsFlags = 0;
 
 	/* Configuration */
-	PMC_EnablePeripheral(ID_ADC);
+	pmc_enable_peripheral(ID_ADC);
 
-	ADC_SetClock(pAdc, BOARD_TOUCHSCREEN_ADCCLK, BOARD_MCK);
-	ADC_SetStartupTime(pAdc, BOARD_TOUCHSCREEN_STARTUP);
-	ADC_SetTrackingTime(pAdc, BOARD_TOUCHSCREEN_SHTIM);
+	adc_set_clock(pAdc, BOARD_TOUCHSCREEN_ADCCLK, BOARD_MCK);
+	adc_set_startup_time(pAdc, BOARD_TOUCHSCREEN_STARTUP);
+	adc_set_tracking_time(pAdc, BOARD_TOUCHSCREEN_SHTIM);
 
-	ADC_SetTriggerPeriod(pAdc, 20000000);	/*  20ms */
+	adc_set_trigger_period(pAdc, 20000000);	/*  20ms */
 
-	ADC_SetTsMode(pAdc, ADC_TSMR_TSMODE_4_WIRE);
-	ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_NO_FILTER);
+	adc_set_ts_mode(pAdc, ADC_TSMR_TSMODE_4_WIRE);
+	adc_set_ts_average(pAdc, ADC_TSMR_TSAV_NO_FILTER);
 
-	ADC_SetTsPenDetect(pAdc, 1);
-	ADC_SetTsDebounce(pAdc, BOARD_TOUCHSCREEN_DEBOUNCE);
+	adc_set_ts_pen_detect(pAdc, 1);
+	adc_set_ts_debounce(pAdc, BOARD_TOUCHSCREEN_DEBOUNCE);
 }
 
 /**
@@ -315,17 +315,17 @@ TSD_Enable(uint8_t bEnDis)
 {
 	Adc *pAdc = ADC;
 	if (bEnDis) {
-		ADC_SetTsAverage(pAdc, ADC_TSMR_TSAV_NO_FILTER);
-		ADC_TsCalibration(pAdc);
-		ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
-		ADC_EnableIt(pAdc, ADC_IER_PEN);
+		adc_set_ts_average(pAdc, ADC_TSMR_TSAV_NO_FILTER);
+		adc_ts_calibration(pAdc);
+		adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
+		adc_enable_interrupt(pAdc, ADC_IER_PEN);
 	} else {
-		ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_NO_TRIGGER);
-		ADC_DisableIt(pAdc, TS_STATUSES);
-		ADC_GetStatus(pAdc);
-		ADC_GetTsXPosition(pAdc);
-		ADC_GetTsYPosition(pAdc);
-		ADC_GetTsPressure(pAdc);
+		adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_NO_TRIGGER);
+		adc_disable_interrupt(pAdc, TS_STATUSES);
+		adc_get_status(pAdc);
+		adc_get_ts_xposition(pAdc);
+		adc_get_ts_yposition(pAdc);
+		adc_get_ts_pressure(pAdc);
 	}
 }
 
@@ -347,7 +347,7 @@ TSD_Calibrate(void)
 	TSD_Enable(0);
 
 	/* Enable capturing */
-	ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
+	adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_PEN_TRIG);
 
 	/* Do calibration */
 	ret = TSDCom_Calibrate();
@@ -367,11 +367,11 @@ TSD_DeInitialize(void)
 {
 	Adc *pAdc = ADC;
 	/* Disable TS related interrupts */
-	ADC_DisableIt(pAdc, TS_STATUSES);
+	adc_disable_interrupt(pAdc, TS_STATUSES);
 	/* Disable Trigger */
-	ADC_SetTriggerMode(pAdc, ADC_TRGR_TRGMOD_NO_TRIGGER);
+	adc_set_trigger_mode(pAdc, ADC_TRGR_TRGMOD_NO_TRIGGER);
 	/* Disable TS mode */
-	ADC_SetTsMode(pAdc, ADC_TSMR_TSMODE_NONE);
+	adc_set_ts_mode(pAdc, ADC_TSMR_TSMODE_NONE);
 	bTsFlags = 0;
 }
 

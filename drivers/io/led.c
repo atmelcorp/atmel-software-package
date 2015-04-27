@@ -69,7 +69,7 @@ LED_Configure(uint32_t dwLed)
 		return 0;
 	}
 	// Configure LED
-	return (PIO_Configure(&pinsLeds[dwLed], 1));
+	return (pio_configure(&pinsLeds[dwLed], 1));
 #else
 	return 0;
 #endif
@@ -92,9 +92,9 @@ LED_Set(uint32_t dwLed)
 	/* Turn LED on */
 	if (pinsLeds[dwLed].type == PIO_OUTPUT_0) {
 
-		PIO_Set(&pinsLeds[dwLed]);
+		pio_set(&pinsLeds[dwLed]);
 	} else {
-		PIO_Clear(&pinsLeds[dwLed]);
+		pio_clear(&pinsLeds[dwLed]);
 	}
 
 	return 1;
@@ -120,9 +120,9 @@ LED_Clear(uint32_t dwLed)
 
 	/* Turn LED off */
 	if (pinsLeds[dwLed].type == PIO_OUTPUT_0) {
-		PIO_Clear(&pinsLeds[dwLed]);
+		pio_clear(&pinsLeds[dwLed]);
 	} else {
-		PIO_Set(&pinsLeds[dwLed]);
+		pio_set(&pinsLeds[dwLed]);
 	}
 
 	return 1;
@@ -147,10 +147,10 @@ LED_Toggle(uint32_t dwLed)
 	}
 
 	/* Toggle LED */
-	if (PIO_GetOutputDataStatus(&pinsLeds[dwLed])) {
-		PIO_Clear(&pinsLeds[dwLed]);
+	if (pio_get_output_data_status(&pinsLeds[dwLed])) {
+		pio_clear(&pinsLeds[dwLed]);
 	} else {
-		PIO_Set(&pinsLeds[dwLed]);
+		pio_set(&pinsLeds[dwLed]);
 	}
 
 	return 1;

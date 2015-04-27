@@ -174,7 +174,7 @@ static void
 ISO7816_IccPowerOn(void)
 {
 	/* Set RESET Master Card */
-	PIO_Set(&st_pinIso7816RstMC);
+	pio_set(&st_pinIso7816RstMC);
 }
 
 /*----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ void
 ISO7816_IccPowerOff(void)
 {
 	/* Clear RESET Master Card */
-	PIO_Clear(&st_pinIso7816RstMC);
+	pio_clear(&st_pinIso7816RstMC);
 }
 
 /**
@@ -440,7 +440,7 @@ ISO7816_SetDataRateandClockFrequency(uint32_t dwClockFrequency,
 uint8_t
 ISO7816_StatusReset(void)
 {
-	return PIO_Get(&st_pinIso7816RstMC);
+	return pio_get(&st_pinIso7816RstMC);
 }
 
 /**
@@ -592,12 +592,12 @@ ISO7816_Init(const struct _pin pPinIso7816RstMC)
 	/* Pin ISO7816 initialize */
 	st_pinIso7816RstMC = pPinIso7816RstMC;
 
-	USART_Configure(BOARD_ISO7816_BASE_USART, US_MR_USART_MODE_IS07816_T_0 | US_MR_USCLKS_MCK | US_MR_NBSTOP_1_BIT | US_MR_PAR_EVEN | US_MR_CHRL_8_BIT | US_MR_CLKO | (3 << 24),	/* MAX_ITERATION */
+	usart_configure(BOARD_ISO7816_BASE_USART, US_MR_USART_MODE_IS07816_T_0 | US_MR_USCLKS_MCK | US_MR_NBSTOP_1_BIT | US_MR_PAR_EVEN | US_MR_CHRL_8_BIT | US_MR_CLKO | (3 << 24),	/* MAX_ITERATION */
 			1, 0);
 
 	/* Configure USART */
-	//PMC_EnablePeripheral(BOARD_ISO7816_ID_USART);
-	maxMck = PMC_SetPeriMaxClock(BOARD_ISO7816_ID_USART, BOARD_MCK);
+	//pmc_enable_peripheral(BOARD_ISO7816_ID_USART);
+	maxMck = pmc_set_peri_max_clock(BOARD_ISO7816_ID_USART, BOARD_MCK);
 	/* Disable interrupts */
 	BOARD_ISO7816_BASE_USART->US_IDR = (uint32_t) - 1;
 
@@ -612,7 +612,7 @@ ISO7816_Init(const struct _pin pPinIso7816RstMC)
 	/* Write the Timeguard Register */
 	BOARD_ISO7816_BASE_USART->US_TTGR = 5;
 
-	USART_SetTransmitterEnabled(BOARD_ISO7816_BASE_USART, 1);
-	USART_SetReceiverEnabled(BOARD_ISO7816_BASE_USART, 1);
+	usart_set_transmitter_enabled(BOARD_ISO7816_BASE_USART, 1);
+	usart_set_receiver_enabled(BOARD_ISO7816_BASE_USART, 1);
 
 }

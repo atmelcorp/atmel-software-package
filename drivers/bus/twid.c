@@ -136,18 +136,15 @@ TWID_Initialize(Twid * pTwid, Twi * pTwi)
  * \brief Configure xDMA write linker list for TWI transfer.
  */
 static void
-_xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t TWI_ID)
+_xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Thr;
+	Twi* twi = (Twi*)GET_TWI_ADDR_FROM_ID(twi_id);
 
 	Thr = (uint32_t) & (TWI0->TWI_THR);
-	if (TWI_ID == ID_TWI1) {
-		Thr = (uint32_t) & (TWI1->TWI_THR);
-	}
-	if (TWI_ID == ID_TWI2) {
-		Thr = (uint32_t) & (TWI2->TWI_THR);
-	}
+	if (twi)
+		Thr = (uint32_t) & (twi->TWI_THR);
 	for (i = 0; i < 1; i++) {
 		dmaWriteLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
 		    | ((i == len - 1) ? 0 : XDMA_UBC_NDE_FETCH_EN)
@@ -171,12 +168,12 @@ _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t TWI_ID)
 	    | XDMAC_CC_DAM_FIXED_AM
 	    |
 	    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
-			   (0, TWI_ID, XDMAD_TRANSFER_TX));
+			   (0, twi_id, XDMAD_TRANSFER_TX));
 	xdmaCndc =
 	    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 	    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 	    XDMAC_CNDC_NDDUP_DST_PARAMS_UNCHANGED;
-	CP15_coherent_dcache_for_dma((uint32_t) & dmaWriteLinkList,
+	cp15_coherent_dcache_for_dma((uint32_t) & dmaWriteLinkList,
 				     ((uint32_t) & dmaWriteLinkList +
 				      sizeof (LinkedListDescriporView1) * len));
 	XDMAD_ConfigureTransfer(&twi_dma, dmaWriteChannel, &twi_dmaCfg,
@@ -187,18 +184,22 @@ _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t TWI_ID)
  * \brief Configure xDMA read linker list for TWI transfer.
  */
 static void
-_xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t TWI_ID)
+_xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Rhr;
+	Twi* twi = GET_TWI_ADDR_FROM_ID(twi_id);
 
 	Rhr = (uint32_t) & (TWI0->TWI_RHR);
-	if (TWI_ID == ID_TWI1) {
-		Rhr = (uint32_t) & (TWI1->TWI_RHR);
+	if (twi) {
+		Rhr = twi->TWI_RHR;
 	}
-	if (TWI_ID == ID_TWI2) {
-		Rhr = (uint32_t) & (TWI2->TWI_RHR);
-	}
+	/* if (twi_id == ID_TWI1) { */
+	/* 	Rhr = (uint32_t) & (TWI1->TWI_RHR); */
+	/* } */
+	/* if (twi_id == ID_TWI2) { */
+	/* 	Rhr = (uint32_t) & (TWI2->TWI_RHR); */
+	/* } */
 	for (i = 0; i < 1; i++) {
 		dmaReadLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
 		    | ((i == len - 1) ? 0 : XDMA_UBC_NDE_FETCH_EN)
@@ -222,12 +223,12 @@ _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t TWI_ID)
 	    | XDMAC_CC_DAM_INCREMENTED_AM
 	    |
 	    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
-			   (0, TWI_ID, XDMAD_TRANSFER_RX));
+			   (0, twi_id, XDMAD_TRANSFER_RX));
 	xdmaCndc =
 	    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 	    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 	    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-	CP15_coherent_dcache_for_dma((uint32_t) & dmaReadLinkList,
+	cp15_coherent_dcache_for_dma((uint32_t) & dmaReadLinkList,
 				     ((uint32_t) & dmaReadLinkList +
 				      sizeof (LinkedListDescriporView1) * len));
 	XDMAD_ConfigureTransfer(&twi_dma, dmaReadChannel, &twi_dmaCfg, xdmaCndc,
@@ -451,7 +452,7 @@ TWID_Read(Twid * pTwid,
  * \param pData  Data buffer for storing received bytes.
  * \param num  Number of bytes to read.
  * \param pAsync  Asynchronous transfer descriptor.
- * \param TWI_ID  TWI ID for TWI0, TWI1, TWI2.
+ * \param twi_id  TWI ID for TWI0, TWI1, TWI2.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t
@@ -459,7 +460,7 @@ TWID_DmaRead(Twid * pTwid,
 	     uint8_t address,
 	     uint32_t iaddress,
 	     uint8_t isize,
-	     uint8_t * pData, uint32_t num, Async * pAsync, uint8_t TWI_ID)
+	     uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi;
 	AsyncTwi *pTransfer;
@@ -499,8 +500,8 @@ TWID_DmaRead(Twid * pTwid,
 	/* Synchronous transfer */
 	else {
 
-		TWID_DmaInitializeRead(TWI_ID);
-		_xdma_configure_read(pData, num, TWI_ID);
+		TWID_DmaInitializeRead(twi_id);
+		_xdma_configure_read(pData, num, twi_id);
 		/* Start read */
 		XDMAD_StartTransfer(&twi_dma, dmaReadChannel);
 
@@ -551,7 +552,7 @@ TWID_DmaRead(Twid * pTwid,
  * \param pData  Data buffer for storing received bytes.
  * \param num  Data buffer to send.
  * \param pAsync  Asynchronous transfer descriptor.
- * \param TWI_ID  TWI ID for TWI0, TWI1, TWI2.
+ * \param twi_id  TWI ID for TWI0, TWI1, TWI2.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t
@@ -559,7 +560,7 @@ TWID_DmaWrite(Twid * pTwid,
 	      uint8_t address,
 	      uint32_t iaddress,
 	      uint8_t isize,
-	      uint8_t * pData, uint32_t num, Async * pAsync, uint8_t TWI_ID)
+	      uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi = pTwid->pTwi;
 	AsyncTwi *pTransfer = (AsyncTwi *) pTwid->pTransfer;
@@ -597,10 +598,10 @@ TWID_DmaWrite(Twid * pTwid,
 	/* Synchronous transfer */
 	else {
 
-		CP15_coherent_dcache_for_dma((uint32_t) pData,
+		cp15_coherent_dcache_for_dma((uint32_t) pData,
 					     (uint32_t) pData);
-		TWID_DmaInitializeWrite(TWI_ID);
-		_xdma_configure_write(pData, num, TWI_ID);
+		TWID_DmaInitializeWrite(twi_id);
+		_xdma_configure_write(pData, num, twi_id);
 		/* Set slave address and number of internal address bytes. */
 		pTwi->TWI_MMR = 0;
 		pTwi->TWI_MMR = (isize << 8) | (address << 16);
@@ -635,7 +636,7 @@ TWID_DmaWrite(Twid * pTwid,
 			TRACE_ERROR("TWID Timeout Write\n\r");
 		}
 
-		CP15_invalidate_dcache_for_dma((uint32_t) pData,
+		cp15_invalidate_dcache_for_dma((uint32_t) pData,
 					       (uint32_t) (pData));
 		XDMAD_FreeChannel(&twi_dma, dmaWriteChannel);
 

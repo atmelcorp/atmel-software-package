@@ -57,10 +57,10 @@ static void
 ov_reset(void)
 {
 	volatile uint32_t i;
-	PIO_Configure(&pin_ISI_RST, 1);
-	PIO_Clear(&pin_ISI_RST);
+	pio_configure(&pin_ISI_RST, 1);
+	pio_clear(&pin_ISI_RST);
 	for (i = 0; i < 6000; i++) ;
-	PIO_Set(&pin_ISI_RST);
+	pio_set(&pin_ISI_RST);
 	for (i = 0; i < 6000; i++) ;
 }
 

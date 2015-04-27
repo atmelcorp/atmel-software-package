@@ -53,17 +53,17 @@
  *
  * \section Usage
  * <ul>
- * <li> Initialize the ADC controller using ADC_Initialize().
- * <li> ADC clock and timing configuration using ADC_SetClock() and ADC_SetTiming().
- * <li> For ADC trigger using ADC_SetTrigger(), ADC_SetTriggerMode() and
- * ADC_SetTriggerPeriod().
- * <li> For ADC sequence mode using ADC_SetSequenceMode(), ADC_SetSequence() and
- * ADC_SetSequenceByList().
- * <li> For ADC compare mode using ADC_SetCompareChannel(), ADC_SetCompareMode()
- * and ADC_SetComparisonWindow().
- * <li> ADC works with touchscreen using ADC_TsCalibration(), ADC_SetTsMode(),
- * ADC_SetTsDebounce(), ADC_SetTsPenDetect(), ADC_SetTsAverage(),
- * ADC_GetTsXPosition(), ADC_GetTsYPosition() and ADC_GetTsPressure().
+ * <li> Initialize the ADC controller using adc_initialize().
+ * <li> ADC clock and timing configuration using adc_set_clock() and adc_set_timing().
+ * <li> For ADC trigger using adc_set_trigger(), adc_set_trigger_mode() and
+ * adc_set_trigger_period().
+ * <li> For ADC sequence mode using adc_set_sequence_mode(), adc_set_sequence() and
+ * adc_set_sequence_by_list().
+ * <li> For ADC compare mode using adc_set_compare_channel(), adc_set_compare_mode()
+ * and adc_set_comparison_window().
+ * <li> ADC works with touchscreen using adc_ts_calibration(), adc_set_ts_mode(),
+ * adc_set_ts_debounce(), adc_set_ts_pen_detect(), adc_set_ts_average(),
+ * adc_get_ts_xposition(), adc_get_ts_yposition() and adc_get_ts_pressure().
  * </li>
  * </ul>
  *
@@ -107,10 +107,10 @@ static uint32_t dwAdcClock = 0;
  * \param dwID ADC Index
  */
 extern void
-ADC_Initialize(Adc * pAdc, uint32_t dwID)
+adc_initialize(Adc * pAdc, uint32_t dwID)
 {
 	/* Enable peripheral clock */
-	PMC_EnablePeripheral(dwID);
+	pmc_enable_peripheral(dwID);
 
 	/*  Reset the controller */
 	pAdc->ADC_CR = ADC_CR_SWRST;
@@ -129,10 +129,10 @@ ADC_Initialize(Adc * pAdc, uint32_t dwID)
  *
  * \return ADC clock
  */
-//dwAdcClock = ADC_SetClock( ADC, 2, dwMaxAdcClock ) ;
+//dwAdcClock = adc_set_clock( ADC, 2, dwMaxAdcClock ) ;
 
 extern uint32_t
-ADC_SetClock(Adc * pAdc, uint32_t dwClk, uint32_t dwMck)
+adc_set_clock(Adc * pAdc, uint32_t dwClk, uint32_t dwMck)
 {
 	uint32_t dwPres, dwMr;
 	/* Formula for PRESCAL is:
@@ -171,7 +171,7 @@ ADC_SetClock(Adc * pAdc, uint32_t dwClk, uint32_t dwMck)
  * \param dwSettling settling value
  */
 extern void
-ADC_SetTiming(Adc * pAdc, uint32_t dwStartup, uint32_t dwTracking,
+adc_set_timing(Adc * pAdc, uint32_t dwStartup, uint32_t dwTracking,
 	      uint32_t dwSettling)
 {
 	uint32_t dwMr;
@@ -196,7 +196,7 @@ ADC_SetTiming(Adc * pAdc, uint32_t dwStartup, uint32_t dwTracking,
  * \param dwTrgSel Trigger selection
  */
 extern void
-ADC_SetTrigger(Adc * pAdc, uint32_t dwTrgSel)
+adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel)
 {
 	uint32_t dwMr;
 
@@ -219,7 +219,7 @@ ADC_SetTrigger(Adc * pAdc, uint32_t dwTrgSel)
  * \param dwMode Trigger mode.
  */
 void
-ADC_SetTriggerMode(Adc * pAdc, uint32_t dwMode)
+adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode)
 {
 	uint32_t dwTrgr = pAdc->ADC_TRGR & ~ADC_TRGR_TRGMOD_Msk;
 	pAdc->ADC_TRGR = dwTrgr | dwMode;
@@ -232,7 +232,7 @@ ADC_SetTriggerMode(Adc * pAdc, uint32_t dwMode)
  * \param bEnDis Enable/Disable low resolution.
  */
 extern void
-ADC_SetLowResolution(Adc * pAdc, uint32_t bEnDis)
+adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis)
 {
 	if (bEnDis) {
 		pAdc->ADC_MR |= ADC_MR_LOWRES;
@@ -248,7 +248,7 @@ ADC_SetLowResolution(Adc * pAdc, uint32_t bEnDis)
  * \param bEnDis Enable/Disable sleep mode.
  */
 extern void
-ADC_SetSleepMode(Adc * pAdc, uint8_t bEnDis)
+adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
 		pAdc->ADC_MR |= ADC_MR_SLEEP;
@@ -264,7 +264,7 @@ ADC_SetSleepMode(Adc * pAdc, uint8_t bEnDis)
  * \param bEnDis Enable/Disable seqnence mode.
  */
 extern void
-ADC_SetSequenceMode(Adc * pAdc, uint8_t bEnDis)
+adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
 		/* User Sequence Mode: The sequence respects what is defined in
@@ -284,7 +284,7 @@ ADC_SetSequenceMode(Adc * pAdc, uint8_t bEnDis)
  * \param dwSEQ2 Sequence 9 ~ 16 channel number.
  */
 extern void
-ADC_SetSequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2)
+adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2)
 {
 	pAdc->ADC_SEQR1 = dwSEQ1;
 }
@@ -297,7 +297,7 @@ ADC_SetSequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2)
  * \param ucNumCh  Number of channels in list.
  */
 extern void
-ADC_SetSequenceByList(Adc * pAdc, uint8_t ucChList[], uint8_t ucNumCh)
+adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[], uint8_t ucNumCh)
 {
 	uint8_t i;
 	uint8_t ucShift;
@@ -318,7 +318,7 @@ ADC_SetSequenceByList(Adc * pAdc, uint8_t ucChList[], uint8_t ucNumCh)
  * \param bEnDis Enable/Disable TAG value.
  */
 extern void
-ADC_SetTagEnable(Adc * pAdc, uint8_t bEnDis)
+adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
 		pAdc->ADC_EMR |= ADC_EMR_TAG;
@@ -334,7 +334,7 @@ ADC_SetTagEnable(Adc * pAdc, uint8_t bEnDis)
  * \param dwChannel channel number to be set,16 for all channels
  */
 extern void
-ADC_SetCompareChannel(Adc * pAdc, uint32_t dwChannel)
+adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel)
 {
 	assert(dwChannel <= 16);
 
@@ -354,7 +354,7 @@ ADC_SetCompareChannel(Adc * pAdc, uint32_t dwChannel)
  * \param dwMode compare mode
  */
 extern void
-ADC_SetCompareMode(Adc * pAdc, uint32_t dwMode)
+adc_set_compare_mode(Adc * pAdc, uint32_t dwMode)
 {
 	pAdc->ADC_EMR &= ~(ADC_EMR_CMPMODE_Msk);
 	pAdc->ADC_EMR |= (dwMode & ADC_EMR_CMPMODE_Msk);
@@ -367,7 +367,7 @@ ADC_SetCompareMode(Adc * pAdc, uint32_t dwMode)
  * \param dwHi_Lo Comparison Window
  */
 extern void
-ADC_SetComparisonWindow(Adc * pAdc, uint32_t dwHi_Lo)
+adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo)
 {
 	pAdc->ADC_CWR = dwHi_Lo;
 }
@@ -381,7 +381,7 @@ ADC_SetComparisonWindow(Adc * pAdc, uint32_t dwHi_Lo)
  * \return 0 if check ok, others if not ok.
  */
 extern uint8_t
-ADC_CheckConfiguration(Adc * pAdc, uint32_t dwMck)
+adc_set_configuration(Adc * pAdc, uint32_t dwMck)
 {
 	uint8_t bOk = 0;
 	uint32_t dwMr;
@@ -410,7 +410,7 @@ ADC_CheckConfiguration(Adc * pAdc, uint32_t dwMck)
  * \param dwChannel channel to get converted value
  */
 extern uint32_t
-ADC_GetConvertedData(Adc * pAdc, uint32_t dwChannel)
+adc_get_converted_data(Adc * pAdc, uint32_t dwChannel)
 {
 	uint32_t dwData = 0;
 
@@ -427,7 +427,7 @@ ADC_GetConvertedData(Adc * pAdc, uint32_t dwChannel)
  * \param dwUs  Startup time in uS.
  */
 void
-ADC_SetStartupTime(Adc * pAdc, uint32_t dwUs)
+adc_set_startup_time(Adc * pAdc, uint32_t dwUs)
 {
 	uint32_t dwStart;
 	uint32_t dwMr;
@@ -489,7 +489,7 @@ ADC_SetStartupTime(Adc * pAdc, uint32_t dwUs)
  * \param dwNs  Tracking time in nS.
  */
 void
-ADC_SetTrackingTime(Adc * pAdc, uint32_t dwNs)
+adc_set_tracking_time(Adc * pAdc, uint32_t dwNs)
 {
 	uint32_t dwShtim;
 	uint32_t dwMr;
@@ -519,7 +519,7 @@ ADC_SetTrackingTime(Adc * pAdc, uint32_t dwNs)
  * \param dwPeriod Trigger period in nS.
  */
 void
-ADC_SetTriggerPeriod(Adc * pAdc, uint32_t dwPeriod)
+adc_set_trigger_period(Adc * pAdc, uint32_t dwPeriod)
 {
 	uint32_t dwTrgper;
 	uint32_t dwDiv = 100000000;
@@ -548,7 +548,7 @@ ADC_SetTriggerPeriod(Adc * pAdc, uint32_t dwPeriod)
  * \param pAdc Pointer to an Adc instance.
  */
 void
-ADC_TsCalibration(Adc * pAdc)
+adc_ts_calibration(Adc * pAdc)
 {
 	pAdc->ADC_CR = ADC_CR_TSCALIB;
 }
@@ -563,7 +563,7 @@ ADC_TsCalibration(Adc * pAdc)
  * \param dwMode Desired mode
  */
 void
-ADC_SetTsMode(Adc * pADC, uint32_t dwMode)
+adc_set_ts_mode(Adc * pADC, uint32_t dwMode)
 {
 	pADC->ADC_TSMR = (pADC->ADC_TSMR & ~ADC_TSMR_TSMODE_Msk) | dwMode;
 }
@@ -574,7 +574,7 @@ ADC_SetTsMode(Adc * pADC, uint32_t dwMode)
  * \param dwMode ADC extended mode.
  */
 void
-ADC_ConfigureExtMode(Adc * pAdc, uint32_t dwMode)
+adc_configure_ext_mode(Adc * pAdc, uint32_t dwMode)
 {
 	pAdc->ADC_EMR = dwMode;
 }
@@ -585,7 +585,7 @@ ADC_ConfigureExtMode(Adc * pAdc, uint32_t dwMode)
  * \param dwTime Debounce time in nS.
  */
 void
-ADC_SetTsDebounce(Adc * pADC, uint32_t dwTime)
+adc_set_ts_debounce(Adc * pADC, uint32_t dwTime)
 {
 	uint32_t dwDiv = 1000000000;
 	uint32_t dwClk = dwAdcClock;
@@ -624,7 +624,7 @@ ADC_SetTsDebounce(Adc * pADC, uint32_t dwTime)
  *               in normal mode otherwise.
  */
 void
-ADC_SetTsPenDetect(Adc * pADC, uint8_t bEnDis)
+adc_set_ts_pen_detect(Adc * pADC, uint8_t bEnDis)
 {
 	if (bEnDis)
 		pADC->ADC_TSMR |= ADC_TSMR_PENDET;
@@ -642,7 +642,7 @@ ADC_SetTsPenDetect(Adc * pADC, uint8_t bEnDis)
  * \param dwAvg2Conv Average mode for touch screen
  */
 void
-ADC_SetTsAverage(Adc * pADC, uint32_t dwAvg2Conv)
+adc_set_ts_average(Adc * pADC, uint32_t dwAvg2Conv)
 {
 	uint32_t dwMr = pADC->ADC_TSMR & ~ADC_TSMR_TSAV_Msk;
 	uint32_t dwTSAV = dwAvg2Conv >> ADC_TSMR_TSAV_Pos;
@@ -661,7 +661,7 @@ ADC_SetTsAverage(Adc * pADC, uint32_t dwAvg2Conv)
  * \param pADC   Pointer to an Adc instance.
  */
 uint32_t
-ADC_GetTsXPosition(Adc * pADC)
+adc_get_ts_xposition(Adc * pADC)
 {
 	return pADC->ADC_XPOSR;
 }
@@ -671,7 +671,7 @@ ADC_GetTsXPosition(Adc * pADC)
  * \param pADC   Pointer to an Adc instance.
  */
 uint32_t
-ADC_GetTsYPosition(Adc * pADC)
+adc_get_ts_yposition(Adc * pADC)
 {
 	return pADC->ADC_YPOSR;
 }
@@ -681,7 +681,7 @@ ADC_GetTsYPosition(Adc * pADC)
  * \param pADC   Pointer to an Adc instance.
  */
 uint32_t
-ADC_GetTsPressure(Adc * pADC)
+adc_get_ts_pressure(Adc * pADC)
 {
 	return pADC->ADC_PRESSR;
 }

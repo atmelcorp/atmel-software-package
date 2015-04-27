@@ -89,71 +89,71 @@
 /*------------------------------------------------------------------------------ */
 /*         Exported functions */
 /*------------------------------------------------------------------------------ */
-extern unsigned int CP15_ReadID(void);
-extern unsigned int CP15_ReadControl(void);
-extern void CP15_ExclusiveCache(void);
-extern void CP15_NonExclusiveCache(void);
-extern void CP15_ISB(void);
-extern void CP15_DSB(void);
-extern void CP15_DMB(void);
-extern void CP15_SelectDCache(void);
-extern void CP15_SelectICache(void);
-extern void CP15_WriteControl(unsigned int value);
-extern void CP15_WriteTTB(unsigned int value);
-extern void CP15_WriteDomainAccessControl(unsigned int value);
+extern unsigned int cp15_read_id(void);
+extern unsigned int cp15_read_control(void);
+extern void cp15_exclusive_cache(void);
+extern void cp15_non_exclusive_cache(void);
+extern void cp15_isb(void);
+extern void cp15_dsb(void);
+extern void cp15_dmb(void);
+extern void cp15_select_dcache(void);
+extern void cp15_select_icache(void);
+extern void cp15_write_control(unsigned int value);
+extern void cp15_write_ttb(unsigned int value);
+extern void cp15_write_domain_access_control(unsigned int value);
 
-extern void CP15_InvalidateIcacheInnerSharable(void);
-extern void CP15_InvalidateBTBinnerSharable(void);
-extern void CP15_InvalidateIcache(void);
-extern void CP15_InvalidateIcacheByMva(void);
-extern void CP15_InvalidateBTB(void);
-extern void CP15_InvalidateBTBbyMva(uint32_t VA_Addr);
+extern void cp15_invalid_icache_inner_sharable(void);
+extern void cp15_invalid_btb_inner_sharable(void);
+extern void cp15_invalid_icache(void);
+extern void cp15_invalid_icache_by_mva(void);
+extern void cp15_invalid_btb(void);
+extern void cp15_invalid_btb_by_mva(uint32_t VA_Addr);
 
-extern void CP15_InvalidateDcacheBySetWay(void);
-extern void CP15_CleanDCacheBySetWay(void);
-extern void CP15_CleanInvalidateDCacheBySetWay(void);
+extern void cp15_invalid_dcache_by_set_way(void);
+extern void cp15_clean_dcache_by_set_way(void);
+extern void cp15_clean_invalid_dcache_by_set_way(void);
 
-extern void CP15_InvalidateDcacheByMva(uint32_t startAddr, uint32_t endAddr);
-extern void CP15_CleanDCacheByMva(uint32_t startAddr, uint32_t endAddr);
-extern void CP15_CleanInvalidateDcacheByMva(uint32_t startAddr,
+extern void cp15_invalid_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
+extern void cp15_clean_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
+extern void cp15_clean_invalid_dcache_by_mva(uint32_t startAddr,
 					    uint32_t endAddr);
 
-extern void CP15_CleanDCacheUMva(void);
-extern void CP15_InvalidateTranslationTable(void);
+extern void cp15_clean_dcache_umva(void);
+extern void cp15_invalid_translation_table(void);
 
-extern void CP15_coherent_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void CP15_invalidate_dcache_for_dma(uint32_t startAddr,
+extern void cp15_coherent_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void cp15_invalidate_dcache_for_dma(uint32_t startAddr,
 					   uint32_t endAddr);
-extern void CP15_clean_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void CP15_flush_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void CP15_flush_kern_dcache_for_dma(uint32_t startAddr, uint32_t size);
+extern void cp15_clean_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void cp15_flush_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+extern void cp15_flush_kern_dcache_for_dma(uint32_t startAddr, uint32_t size);
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions  from CP15.c                                       */
 /*------------------------------------------------------------------------------ */
 
 /** MMU (Status/Enable/Disable) */
-extern unsigned int CP15_IsMMUEnabled(void);
-extern void CP15_EnableMMU(void);
-extern void CP15_DisableMMU(void);
+extern unsigned int cp15_is_mmu_enabled(void);
+extern void cp15_enable_mmu(void);
+extern void cp15_disable_mmu(void);
 
 /** I cache (Status/Enable/Disable) */
-extern unsigned int CP15_IsIcacheEnabled(void);
-extern void CP15_EnableIcache(void);
-extern void CP15_DisableIcache(void);
+extern unsigned int cp15_is_icached_enabled(void);
+extern void cp15_enable_icache(void);
+extern void cp15_disable_icache(void);
 
 /** D cache (Status/Enable/Disable) */
-extern unsigned int CP15_IsDcacheEnabled(void);
-extern void CP15_EnableDcache(void);
-extern void CP15_DisableDcache(void);
+extern unsigned int cp15_is_dcache_enabled(void);
+extern void cp15_enable_dcache(void);
+extern void cp15_disable_dcache(void);
 
-extern void CP15_InvalidateTLB(void);
+extern void cp15_invalidate_tlb(void);
 
-extern void CP15_CacheClean(uint8_t CacheType);
-extern void CP15_CacheInvalidate(uint8_t CacheType);
-extern void CP15_CacheFlush(uint8_t CacheType);
-extern void CP15_InvalidateDCacheByVA(uint32_t S_Add, uint32_t E_Add);
-extern void CP15_CleanDCacheByVA(uint32_t S_Add, uint32_t E_Add);
-extern void CP15_FlushDCacheByVA(uint32_t S_Add, uint32_t E_Add);
+extern void cp15_cache_clean(uint8_t CacheType);
+extern void cp15_cache_invalidate(uint8_t CacheType);
+extern void cp15_cache_flush(uint8_t CacheType);
+extern void cp15_invalid_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
+extern void cp15_clean_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
+extern void cp15_flush_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
 
 #endif				// #ifndef _CP15_H

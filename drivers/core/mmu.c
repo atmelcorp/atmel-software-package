@@ -240,7 +240,7 @@ MMU_Initialize(uint32_t * pTB)
 		    (1 << 2) |	// B bit : write-back => YES
 		    (2 << 0);	// Set as 1 Mbyte section
 
-	CP15_WriteTTB((unsigned int) pTB);
+	cp15_write_ttb((unsigned int) pTB);
 	/* Program the domain access register */
-	CP15_WriteDomainAccessControl(0xC0000000);	// only domain 15: access are not checked
+	cp15_write_domain_access_control(0xC0000000);	// only domain 15: access are not checked
 }

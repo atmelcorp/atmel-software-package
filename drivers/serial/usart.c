@@ -36,7 +36,7 @@
  *
  * To start a USART transfer with \ref dmad_module "DMA" support, the user could follow these steps:
  * <ul>
- * <li> Configure USART with expected mode and baudrate(see \ref USART_Configure), which could be done by:
+ * <li> Configure USART with expected mode and baudrate(see \ref usart_configure), which could be done by:
  * -# Resetting and disabling transmitter and receiver by setting US_CR(Control Register). </li>
  * -# Configuring the USART in a specific mode by setting USART_MODE bits in US_MR(Mode Register) </li>
  * -# Setting baudrate which is different from mode to mode.
@@ -48,8 +48,8 @@
  * \section Usage
  * <ul>
  * <li>  Enable or disable USART transmitter or receiver using
- * USART_SetTransmitterEnabled() and USART_SetReceiverEnabled().
- * <li>  Enable or disable USART interrupt using USART_EnableIt() or USART_DisableIt().
+ * usart_set_transmitter_enabled() and usart_set_receiver_enabled().
+ * <li>  Enable or disable USART interrupt using usart_enable_it() or usart_disable_it().
  * </li>
  * </ul>
  *
@@ -91,7 +91,7 @@
  *  \param baudrate  Baudrate at which the USART should operate (in Hz).
  *  \param masterClock  Frequency of the system master clock (in Hz).
  */
-void USART_Configure(Usart *usart, uint32_t mode,
+void usart_configure(Usart *usart, uint32_t mode,
 		     uint32_t baudrate, uint32_t masterClock)
 {
 	/* Reset and disable receiver & transmitter */
@@ -121,7 +121,7 @@ void USART_Configure(Usart *usart, uint32_t mode,
  * \brief   Get present status
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t USART_GetStatus(Usart *usart)
+uint32_t usart_get_status(Usart *usart)
 {
 	return usart->US_CSR;
 }
@@ -131,7 +131,7 @@ uint32_t USART_GetStatus(Usart *usart)
  * \param usart  Pointer to an USART peripheral.
  * \param mode  Interrupt mode.
  */
-void USART_EnableIt(Usart *usart, uint32_t mode)
+void usart_enable_it(Usart *usart, uint32_t mode)
 {
 	usart->US_IER = mode;
 }
@@ -141,7 +141,7 @@ void USART_EnableIt(Usart *usart, uint32_t mode)
  * \param usart  Pointer to an USART peripheral.
  * \param mode  Interrupt mode.
  */
-void USART_DisableIt(Usart *usart, uint32_t mode)
+void usart_disable_it(Usart *usart, uint32_t mode)
 {
 	usart->US_IDR = mode;
 }
@@ -150,7 +150,7 @@ void USART_DisableIt(Usart *usart, uint32_t mode)
  * \brief   Return interrupt mask
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t USART_GetItMask(Usart *usart)
+uint32_t usart_get_it_mask(Usart *usart)
 {
 	return usart->US_IMR;
 }
@@ -161,7 +161,7 @@ uint32_t USART_GetItMask(Usart *usart)
  * \param enabled  If true, the transmitter is enabled; otherwise it is
  *                disabled.
  */
-void USART_SetTransmitterEnabled(Usart *usart, uint8_t enabled)
+void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled)
 {
 	if (enabled) {
 		usart->US_CR = US_CR_TXEN;
@@ -175,7 +175,7 @@ void USART_SetTransmitterEnabled(Usart *usart, uint8_t enabled)
  * \param usart  Pointer to an USART peripheral
  * \param enabled  If true, the receiver is enabled; otherwise it is disabled.
  */
-void USART_SetReceiverEnabled(Usart *usart, uint8_t enabled)
+void usart_set_receiver_enabled(Usart *usart, uint8_t enabled)
 {
 	if (enabled) {
 		usart->US_CR = US_CR_RXEN;
@@ -189,7 +189,7 @@ void USART_SetReceiverEnabled(Usart *usart, uint8_t enabled)
  * \param usart  Pointer to an USART peripheral
  * \param enabled  If true, the RTS is enabled (0); otherwise it is disabled.
  */
-void USART_SetRTSEnabled(Usart *usart, uint8_t enabled)
+void usart_set_rts_enabled(Usart *usart, uint8_t enabled)
 {
 	if (enabled) {
 		usart->US_CR = US_CR_RTSEN;
@@ -207,14 +207,14 @@ void USART_SetRTSEnabled(Usart *usart, uint8_t enabled)
  *        the same format as the US_THR register in the datasheet).
  * \param timeOut  Time out value (0 = no timeout).
  */
-void USART_Write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
+void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
 {
 	if (timeOut == 0) {
 		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
 	} else {
 		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) {
 			if (timeOut == 0) {
-				TRACE_ERROR("USART_Write: Timed out.\n\r");
+				TRACE_ERROR("usart_write: Timed out.\n\r");
 				return;
 			}
 			timeOut--;
@@ -230,14 +230,14 @@ void USART_Write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
  * \param usart  Pointer to an USART peripheral.
  * \param timeOut  Time out value (0 -> no timeout).
  */
-uint16_t USART_Read(Usart *usart, volatile uint32_t timeOut)
+uint16_t usart_read(Usart *usart, volatile uint32_t timeOut)
 {
 	if (timeOut == 0) {
 		while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
 	} else {
 		while ((usart->US_CSR & US_CSR_RXRDY) == 0) {
 			if (timeOut == 0) {
-				TRACE_ERROR("USART_Read: Timed out.\n\r");
+				TRACE_ERROR("usart_read: Timed out.\n\r");
 				return 0;
 			}
 			timeOut--;
@@ -251,7 +251,7 @@ uint16_t USART_Read(Usart *usart, volatile uint32_t timeOut)
  * otherwise returns 0.
  * \param usart  Pointer to an USART instance.
  */
-uint8_t USART_IsDataAvailable(Usart *usart)
+uint8_t usart_is_data_available(Usart *usart)
 {
 	if ((usart->US_CSR & US_CSR_RXRDY) != 0) {
 		return 1;
@@ -264,7 +264,7 @@ uint8_t USART_IsDataAvailable(Usart *usart)
  * \brief   Return 1 if a character can be read in USART
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t USART_IsRxReady(Usart *usart)
+uint32_t usart_is_rx_ready(Usart *usart)
 {
 	return (usart->US_CSR & US_CSR_RXRDY);
 }
@@ -276,7 +276,7 @@ uint32_t USART_IsRxReady(Usart *usart)
  * \param usart  Pointer to an USART peripheral.
  * \param c  Character to send
  */
-void USART_PutChar(Usart *usart, uint8_t c)
+void usart_put_char(Usart *usart, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */
 	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
@@ -292,7 +292,7 @@ void USART_PutChar(Usart *usart, uint8_t c)
  * \param usart  Pointer to an USART peripheral.
  * \return Character received.
  */
-uint8_t USART_GetChar(Usart *usart)
+uint8_t usart_get_char(Usart *usart)
 {
 	while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
 	return usart->US_RHR;
@@ -303,7 +303,7 @@ uint8_t USART_GetChar(Usart *usart)
  * \param usart  Pointer to an USART instance.
  * \param filter  Filter value.
  */
-void USART_SetIrdaFilter(Usart *usart, uint8_t filter)
+void usart_set_irda_filter(Usart *usart, uint8_t filter)
 {
 	assert(usart != NULL);
 

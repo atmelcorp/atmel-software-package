@@ -121,7 +121,7 @@ CP15_ClearPMCNT(void)
  * \param ClearCounterFlag  selects the counter flag to clear
  */
 void
-CP15_OverflowStatus(uint8_t Enable, uint8_t ClearCounterFlag)
+cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
 {
 	uint32_t OFW_Value = 0;
 
@@ -135,7 +135,7 @@ CP15_OverflowStatus(uint8_t Enable, uint8_t ClearCounterFlag)
  * \param EventCounter  Counter of the events
  */
 uint32_t
-CP15_ReadOverflowStatus(uint8_t EventCounter)
+cp15_read_overflow_status(uint8_t EventCounter)
 {
 	uint32_t OFW_Value = 0;
 
@@ -149,7 +149,7 @@ CP15_ReadOverflowStatus(uint8_t EventCounter)
  * \param IncrCounter  0 or 1  counters
  */
 void
-CP15_SoftINCR(uint8_t IncrCounter)
+cp15_soft_incr(uint8_t IncrCounter)
 {
 	uint32_t INRC_Value = 0;
 
@@ -181,7 +181,7 @@ CP15_SelectEvent(PerfEventType EventType, uint8_t Counter)
  * \brief Enables USER mode
  */
 void
-CP15_EnableUserMode(void)
+cp15_enable_user_mode(void)
 {
 	uint8_t Value = 1;
       asm("mcr     p15, 0, %0, c9, c14, 0": :"r"(Value));
@@ -193,7 +193,7 @@ CP15_EnableUserMode(void)
  * \param Counter  0 or 1  counters
  */
 void
-CP15_EnableIT(uint8_t Enable, uint8_t Counter)
+cp15_enable_iterrupt(uint8_t Enable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
 
@@ -207,7 +207,7 @@ CP15_EnableIT(uint8_t Enable, uint8_t Counter)
  * \param Counter  0 or 1  counters
  */
 void
-CP15_DisableIT(uint8_t Disable, uint8_t Counter)
+cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
 
@@ -219,12 +219,12 @@ CP15_DisableIT(uint8_t Disable, uint8_t Counter)
  * \brief Initialize Cycle counter with Divider 64
  */
 uint32_t
-CP15_CycleCounterInit(void)
+cp15_init_cycle_counter(void)
 {
 	uint32_t value;
 	CP15_ClearPMCNT();
 	CP15_EnablePMCNT();
-	CP15_OverflowStatus(ENABLE, CP15_BothCounter);
+	cp15_overflow_status(ENABLE, CP15_BothCounter);
 	CP15_CycleCountDivider(CP15_CountDivider64);
 	CP15_PMUControl(CP15_ResetCycCounter, ENABLE);
 
@@ -241,12 +241,12 @@ CP15_CycleCounterInit(void)
  */
 
 void
-CP15_PerfCounterInit(PerfEventType Event, uint8_t Counter)
+cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
 {
 
 	CP15_PMUControl(CP15_ResetPerCounter, ENABLE);
 	CP15_SelectEvent(Event, Counter);
-	CP15_OverflowStatus(DISABLE, CP15_BothCounter);
+	cp15_overflow_status(DISABLE, CP15_BothCounter);
 	CP15_EnableCounter(Counter);
 }
 
@@ -255,7 +255,7 @@ CP15_PerfCounterInit(PerfEventType Event, uint8_t Counter)
  * \param Counter  0 or 1  counters
  */
 uint32_t
-CP15_CountEvent(uint8_t Counter)
+cp15_count_evt(uint8_t Counter)
 {
 	uint32_t value;
 
@@ -270,7 +270,7 @@ CP15_CountEvent(uint8_t Counter)
 
  */
 uint32_t
-CP15_GetCycleCounter(void)
+cp15_get_cycle_counter(void)
 {
 	uint32_t value;
 

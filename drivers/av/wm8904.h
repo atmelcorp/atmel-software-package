@@ -37,7 +37,7 @@
 #ifndef WM8904_H
 #define WM8904_H
 
-#include "board.h"
+#include "bus/twid.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions

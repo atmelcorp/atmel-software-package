@@ -251,12 +251,12 @@ extern uint32_t console_get_integer(uint32_t * pvalue)
 *  \param dwMin     Minimum value
 *  \param dwMax     Maximum value
 */
-extern uint32_t console_GetIntegerMinMax(uint32_t * pvalue, uint32_t min,
+extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					 uint32_t max)
 {
 	uint32_t value = 0;
 
-	if (console_GetInteger(&value) == 0)
+	if (console_get_integer(&value) == 0)
 		return 0;
 	if (value < min || value > max) {
 		printf("\n\rThe number have to be between %u and %u\n\r",
@@ -273,7 +273,7 @@ extern uint32_t console_GetIntegerMinMax(uint32_t * pvalue, uint32_t min,
 *
 *  \param pvalue  Pointer to the uint32_t variable to contain the input value.
 */
-extern uint32_t console_GetHexa32(uint32_t * pvalue)
+extern uint32_t console_get_hexa_32(uint32_t * pvalue)
 {
 	uint8_t key;
 	uint32_t dw = 0;

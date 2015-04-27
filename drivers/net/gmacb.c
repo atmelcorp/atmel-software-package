@@ -338,12 +338,12 @@ GMACB_InitPhy(GMacb * pMacb,
 
 	if (pResetPins) {
 		/* Configure PINS */
-		PIO_Configure(pResetPins, nbResetPins);
+		pio_configure(pResetPins, nbResetPins);
 	}
 	/* Configure GMAC runtime pins */
 	if (rc) {
 
-		PIO_Configure(pGmacPins, nbGmacPins);
+		pio_configure(pGmacPins, nbGmacPins);
 		rc = GMAC_SetMdcClock(pHw, mck);
 		if (!rc) {
 			TRACE_ERROR("No Valid MDC clock\n\r");

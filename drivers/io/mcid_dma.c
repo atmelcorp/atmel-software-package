@@ -144,9 +144,9 @@ static sSdHalFunctions sdHal = {
 static uint8_t
 _PeripheralEnable(uint32_t id)
 {
-	if (PMC_IsPeriphEnabled(id))
+	if (pmc_is_periph_enabled(id))
 		return 0;
-	PMC_EnablePeripheral(id);
+	pmc_enable_peripheral(id);
 	return 1;
 }
 
@@ -337,7 +337,7 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 			xdmadRxCfg.mbr_bc = 0;
 			XDMAD_ConfigureTransfer(pXdmad, pMcid->dwDmaCh,
 						&xdmadRxCfg, 0, 0);
-			//CP15_coherent_dcache_for_dma ((uint32_t)memAddress, ((uint32_t)memAddress + (pMcid->dwXSize)));
+			//cp15_coherent_dcache_for_dma ((uint32_t)memAddress, ((uint32_t)memAddress + (pMcid->dwXSize)));
 		} else {
 			xdmadTxCfg.mbr_ubc = toWCOUNT(pMcid->dwXSize);
 			xdmadTxCfg.mbr_sa = (uint32_t) memAddress;

@@ -246,8 +246,8 @@ static UdphsDmaDescriptor *pDmaLL;
 static uint8_t
 UDPHS_EnablePeripheralClock(void)
 {
-	if (!PMC_IsPeriphEnabled(ID_UDPHS)) {
-		PMC_EnablePeripheral(ID_UDPHS);
+	if (!pmc_is_periph_enabled(ID_UDPHS)) {
+		pmc_enable_peripheral(ID_UDPHS);
 		return 1;
 	}
 	return 0;
@@ -259,7 +259,7 @@ UDPHS_EnablePeripheralClock(void)
 static inline void
 UDPHS_DisablePeripheralClock(void)
 {
-	PMC_DisablePeripheral(ID_UDPHS);
+	pmc_disable_peripheral(ID_UDPHS);
 }
 
 /**
@@ -748,7 +748,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		Udphs *pUdp = UDPHS;
 
 		/* Single transfer */
-		CP15_coherent_dcache_for_dma((uint32_t) & pXfr->
+		cp15_coherent_dcache_for_dma((uint32_t) & pXfr->
 					     pData[pXfr->transferred],
 					     ((uint32_t) & pXfr->
 					      pData[pXfr->transferred]) +
@@ -784,7 +784,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		int32_t iRemain, iXfred;
 		uint8_t bRc = USBD_STATUS_SUCCESS;
 
-		CP15_flush_dcache_for_dma((uint32_t) & pXfr->
+		cp15_flush_dcache_for_dma((uint32_t) & pXfr->
 					  pData[pXfr->transferred],
 					  ((uint32_t) & pXfr->
 					   pData[pXfr->transferred]) +

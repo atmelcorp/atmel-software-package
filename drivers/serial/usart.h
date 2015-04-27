@@ -39,14 +39,14 @@
  *
  * -# Enable the USART peripheral clock in the PMC.
  * -# Enable the required USART PIOs (see pio.h).
- * -# Configure the UART by calling USART_Configure.
+ * -# Configure the UART by calling usart_configure.
  * -# Enable the transmitter and/or the receiver of the USART using
- *    USART_SetTransmitterEnabled and USART_SetReceiverEnabled.
- * -# Send data through the USART using the USART_Write methods.
- * -# Receive data from the USART using the USART_Read functions; the availability of data can be polled
- *    with USART_IsDataAvailable.
+ *    usart_set_transmitter_enabled and usart_set_receiver_enabled.
+ * -# Send data through the USART using the usart_write methods.
+ * -# Receive data from the USART using the usart_read functions; the availability of data can be polled
+ *    with usart_is_data_available.
  * -# Disable the transmitter and/or the receiver of the USART with
- *    USART_SetTransmitterEnabled and USART_SetReceiverEnabled.
+ *    usart_set_transmitter_enabled and usart_set_receiver_enabled.
  */
 
 #ifndef _USART_
@@ -77,21 +77,21 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void USART_Configure(Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock);
-extern uint32_t USART_GetStatus(Usart * usart);
-extern void USART_EnableIt(Usart *usart, uint32_t mode);
-extern void USART_DisableIt(Usart *usart, uint32_t mode);
-extern uint32_t USART_GetItMask(Usart *usart);
-extern void USART_SetTransmitterEnabled(Usart *usart, uint8_t enabled);
-extern void USART_SetReceiverEnabled(Usart *usart, uint8_t enabled);
-extern void USART_SetRTSEnabled(Usart *usart, uint8_t enabled);
-extern void USART_Write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
-extern uint16_t USART_Read(Usart *usart, volatile uint32_t timeOut);
-extern uint8_t USART_IsDataAvailable(Usart *usart);
-extern uint32_t USART_IsRxReady(Usart *usart);
-extern void USART_PutChar(Usart *usart, uint8_t c);
-extern uint8_t USART_GetChar(Usart *usart);
-extern void USART_SetIrdaFilter(Usart *usart, uint8_t filter);
+extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock);
+extern uint32_t usart_get_status(Usart * usart);
+extern void usart_enable_it(Usart *usart, uint32_t mode);
+extern void usart_disable_it(Usart *usart, uint32_t mode);
+extern uint32_t usart_get_it_mask(Usart *usart);
+extern void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
+extern void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
+extern void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
+extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
+extern uint16_t usart_read(Usart *usart, volatile uint32_t timeOut);
+extern uint8_t usart_is_data_available(Usart *usart);
+extern uint32_t usart_is_rx_ready(Usart *usart);
+extern void usart_put_char(Usart *usart, uint8_t c);
+extern uint8_t usart_get_char(Usart *usart);
+extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
 
 #ifdef __cplusplus
 }
