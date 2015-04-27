@@ -455,7 +455,7 @@ BOARD_ConfigureSdram(void)
 void
 BOARD_ConfigureNandFlash(uint8_t busWidth)
 {
-	PMC_EnablePeripheral(ID_HSMC);
+	pmc_enable_peripheral(ID_HSMC);
 	matrix_configure_slave_nand();
 
 	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = 0 | HSMC_SETUP_NWE_SETUP(2)
@@ -488,7 +488,7 @@ void
 BOARD_ConfigureNorFlash(uint8_t busWidth)
 {
 	uint32_t dbw;
-	PMC_EnablePeripheral(ID_HSMC);
+	pmc_enable_peripheral(ID_HSMC);
 	if (busWidth == 8) {
 		dbw = HSMC_MODE_DBW_BIT_8;
 	} else {
