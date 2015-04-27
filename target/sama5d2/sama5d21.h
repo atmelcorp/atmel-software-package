@@ -246,9 +246,21 @@ typedef enum IRQn
 #define ID_HSMC           (17) /**< \brief Multi-bit ECC Interrupt (HSMC) */
 #define ID_PIOA           (18) /**< \brief Parallel I/O Controller (PIOA) */
 #define ID_FLEXCOM0       (19) /**< \brief FLEXCOM 0 (FLEXCOM0) */
+#define ID_USART0         (19) /**< \brief USART (USART0) from FLEXCOM0 */
+#define ID_FCOMSPI0       (19) /**< \brief Serial Peripheral Interface (SPI0) from FLEXCOM0 */
+#define ID_TWI0           (19) /**< \brief Two-Wire Interface (TWI0) from FLEXCOM0 */
 #define ID_FLEXCOM1       (20) /**< \brief FLEXCOM 1 (FLEXCOM1) */
+#define ID_USART1         (20) /**< \brief USART (USART1) from FLEXCOM1 */
+#define ID_FCOMSPI1       (20) /**< \brief Serial Peripheral Interface (SPI1) from FLEXCOM1 */
+#define ID_TWI1           (20) /**< \brief Two-Wire Interface (TWI1) from FLEXCOM1 */
 #define ID_FLEXCOM3       (22) /**< \brief FLEXCOM 3 (FLEXCOM3) */
+#define ID_USART3         (22) /**< \brief USART (USART3) from FLEXCOM3 */
+#define ID_FCOMSPI3       (22) /**< \brief Serial Peripheral Interface (SPI3) from FLEXCOM3 */
+#define ID_TWI3           (22) /**< \brief Two-Wire Interface (TWI3) from FLEXCOM3 */
 #define ID_FLEXCOM4       (23) /**< \brief FLEXCOM 4 (FLEXCOM4) */
+#define ID_USART4         (22) /**< \brief USART (USART4) from FLEXCOM4 */
+#define ID_FCOMSPI4       (22) /**< \brief Serial Peripheral Interface (SPI4) from FLEXCOM4 */
+#define ID_TWI4           (22) /**< \brief Two-Wire Interface (TWI4) from FLEXCOM4 */
 #define ID_UART0          (24) /**< \brief UART 0 (UART0) */
 #define ID_UART1          (25) /**< \brief UART 1 (UART1) */
 #define ID_UART2          (26) /**< \brief UART 2 (UART2) */
@@ -325,7 +337,13 @@ typedef enum IRQn
 #define PWM      (0xF802C000U) /**< \brief (PWM     ) Base Address */
 #define SFR      (0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 (0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
+#define USART0   (0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
+#define FCOMSPI0 (0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
+#define TWI0     (0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
 #define FLEXCOM1 (0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
+#define USART1   (0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
+#define FCOMSPI1 (0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
+#define TWI1     (0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
 #define SAIC     (0xF803C000U) /**< \brief (SAIC    ) Base Address */
 #define ICM      (0xF8040000U) /**< \brief (ICM     ) Base Address */
 #define RSTC     (0xF8048000U) /**< \brief (RSTC    ) Base Address */
@@ -343,7 +361,13 @@ typedef enum IRQn
 #define UART3    (0xFC008000U) /**< \brief (UART3   ) Base Address */
 #define UART4    (0xFC00C000U) /**< \brief (UART4   ) Base Address */
 #define FLEXCOM3 (0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
+#define USART3   (0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI3 (0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI3     (0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 (0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
+#define USART4   (0xFC018200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI4 (0xFC018400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI4     (0xFC018600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define TRNG     (0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      (0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   (0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
@@ -384,7 +408,13 @@ typedef enum IRQn
 #define PWM      ((Pwm      *)0xF802C000U) /**< \brief (PWM     ) Base Address */
 #define SFR      ((Sfr      *)0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
+#define USART0   ((Usart    *)0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
+#define FCOMSPI0 ((Spi      *)0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
+#define TWI0     ((Twi      *)0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
 #define FLEXCOM1 ((Flexcom  *)0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
+#define USART1   ((Usart    *)0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
+#define FCOMSPI1 ((Spi      *)0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
+#define TWI1     ((Twi      *)0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
 #define SAIC     ((Aic      *)0xF803C000U) /**< \brief (SAIC    ) Base Address */
 #define ICM      ((Icm      *)0xF8040000U) /**< \brief (ICM     ) Base Address */
 #define RSTC     ((Rstc     *)0xF8048000U) /**< \brief (RSTC    ) Base Address */
@@ -402,7 +432,13 @@ typedef enum IRQn
 #define UART3    ((Uart     *)0xFC008000U) /**< \brief (UART3   ) Base Address */
 #define UART4    ((Uart     *)0xFC00C000U) /**< \brief (UART4   ) Base Address */
 #define FLEXCOM3 ((Flexcom  *)0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
+#define USART3   ((Usart    *)0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI3 ((Spi      *)0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI3     ((Twi      *)0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 ((Flexcom  *)0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
+#define USART4   ((Usart    *)0xFC018200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI4 ((Spi      *)0xFC018400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define TRNG     ((Trng     *)0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      ((Aic      *)0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   ((Twihs    *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
