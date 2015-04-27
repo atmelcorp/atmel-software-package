@@ -53,12 +53,10 @@ uint32_t dwTraceLevel = TRACE_LEVEL;
  *  \param dwBaudRate  U(S)ART baudrate.
  *  \param dwMCk  Master clock frequency.
  */
-extern void
-TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk)
+extern void trace_configure(uint32_t baudrate, uint32_t masterclock)
 {
-	const struct _pin pinsDBUG[] = { PINS_CONSOLE };
+	const struct pin pinsCONSOLE[] = {PINS_CONSOLE};
 
-	pio_configure(pinsDBUG, PIO_LISTSIZE(pinsDBUG));
-
-	console_configure(dwBaudRate, dwMCk);
+	pio_configure(pinsCONSOLE, PIO_LISTSIZE(pinsCONSOLE));
+	console_configure(baudrate, masterclock);
 }

@@ -65,7 +65,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "pio.h"
+#include "core/pio.h"
 
 #ifdef __cplusplus
 extern "C" {

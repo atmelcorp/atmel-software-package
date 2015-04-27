@@ -34,7 +34,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "core/pio.h"
+#include "core/pio4_it.h"
 #include "core/aic.h"
 #include "core/pmc.h"
 #include "utils/trace.h"
@@ -71,7 +71,7 @@ struct _interrupt_source {
 static struct _interrupt_source int_sources[MAX_INTERRUPT_SOURCES];
 
 /* Number of currently defined interrupt sources. */
-static uint32_t _dwNumSources = 0;
+static uint32_t num_sources = 0;
 
 const uint8_t idt[PIOIO_GROUP_NUMBER] = {ID_PIOA, ID_PIOB, ID_PIOC, ID_PIOD};
 
@@ -88,7 +88,7 @@ extern void _pio_it_handler(uint8_t id)
 {
 	uint32_t status;
 	uint32_t i;
-	PioIo_group* pioiog = PIO_ADD->Pio->PIO_IO_GROUP[id];
+	PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
 
 	/* Read PIO controller status */
 	status = pioiog->PIO_ISR;
@@ -101,9 +101,9 @@ extern void _pio_it_handler(uint8_t id)
 		i = 0;
 		while (status != 0) {
 			/* There cannot be an unconfigured source enabled. */
-			assert(i < _dwNumSources);
+			assert(i < num_sources);
 			/* Source is configured on the same controller */
-			if (int_sources[i].pin->id == id) {
+			if ( int_sources[i].pin->id == id) {
 				/* Source has PIOs whose statuses have changed */
 				if ((status & int_sources[i].pin->mask) != 0) {
 					TRACE_DEBUG ("Interrupt source #%d triggered\n\r", i);
@@ -116,6 +116,7 @@ extern void _pio_it_handler(uint8_t id)
 	}
 }
 
+
 /*----------------------------------------------------------------------------
  *        Global Functions
  *----------------------------------------------------------------------------*/
@@ -127,7 +128,8 @@ extern void _pio_it_handler(uint8_t id)
  */
 extern void pio_it_handler(void)
 {
-	for(uint8_t i=0; i<PIOIO_GROUP_NUMBER); i++) {
+	uint8_t i;
+	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
 		_pio_it_handler(idt[i]);
 	}
 }
@@ -143,18 +145,19 @@ extern void pio_it_handler(void)
  */
 extern void pio_it_initialize(uint32_t priority)
 {
+	uint8_t i;
 	uint32_t status, id ;
 
 	TRACE_DEBUG("pio_it_initialize()\n\r");
 	/* Reset sources */
-	_dwNumSources = 0;
+	num_sources = 0;
 
-	for(uint8_t i=0; i<PIOIO_GROUP_NUMBER); i++) {
+	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
 		/* Configure PIO interrupt sources */
 		id = idt[i];
 		TRACE_DEBUG("PIO_Initialize: Configuring PIO%c \n\r", 0x40+id);
 		pmc_enable_peripheral(id);
-		PioIo_group* pioiog = PIO_ADD->Pio->PIO_IO_GROUP[id];
+		PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
 		/* Read PIO Interrupt Status Register */
 		status = pioiog->PIO_ISR;
 		/* Disable all interrupt */
@@ -174,13 +177,16 @@ extern void pio_it_configure(const struct _pin *pin)
 {
 	TRACE_DEBUG("pio_it_configure()\n\r");
 	assert(pin != NULL);
-	assert(_dwNumSources < MAX_INTERRUPT_SOURCES);
-	const struct _interrupt_source *p_int_source;
+	assert(num_sources < MAX_INTERRUPT_SOURCES);
+	struct _interrupt_source *p_int_source;
+	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 
 	// Add pio interrupt to int_sources
-	p_int_source = &(int_sources[_dwNumSources]);
+	p_int_source = &(int_sources[num_sources]);
 	p_int_source->pin = pin;
-	_dwNumSources++;
+	num_sources++;
+	/* disable additional interrupt mode */
+	pioiog->PIO_IDR = pin->mask;
 }
 
 /**
@@ -193,13 +199,13 @@ extern void pio_it_enable(const struct _pin *pin)
 {
 	TRACE_DEBUG("pio_it_enable() \n\r");
 	assert(pin != NULL);
-	PioIo_group* pioiog = &pin->Pio->PIO_IO_GROUP[pin->id];
+	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 
 #ifndef NOASSERT
 	uint32_t i = 0;
 	uint32_t dwFound = 0;
 
-	while ((i < _dwNumSources) && !dwFound) {
+	while ((i < num_sources) && !dwFound) {
 		if (int_sources[i].pin == pin) {
 			dwFound = 1;
 		}
@@ -222,6 +228,6 @@ extern void pio_it_disable(const struct _pin *pin)
 {
 	assert(pin != NULL);
 	TRACE_DEBUG("pio_it_disable()\n\r");
-	PioIo_group* pioiog = &pin->Pio->PIO_IO_GROUP[pin->id];
+	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 	pioiog->PIO_IDR = pin->mask;
 }

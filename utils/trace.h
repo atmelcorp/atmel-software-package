@@ -109,13 +109,12 @@
  * ------------------------------------------------------------------------------
  */
 
-extern void TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk);
+extern void trace_configure(uint32_t baudrate, uint32_t masterclock);
 
 /**
  *  Initializes the DBGU for ISP project
- *
- *  \param mode  DBGU mode.
- *  \param baudrate  DBGU baudrate.
+ *  \param mode  CONSOLE mode.
+ *  \param baudrate  CONSOLE baudrate.
  *  \param mck  Master clock frequency.
  */
 #ifndef DYNTRACE
@@ -125,11 +124,11 @@ extern void TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk);
 #if (TRACE_LEVEL==0) && (DYNTRACE==0)
 #define TRACE_CONFIGURE_ISP(mode, baudrate, mck) {}
 #else
-#define TRACE_CONFIGURE_ISP(mode, baudrate, mck) { \
-    const Pin pinsDBGU[] = {PINS_DBGU}; \
-    pio_configure(pinsDBGU, PIO_LISTSIZE(pinsDBGU)); \
-    console_configure( baudrate, mck ) ; \
-    }
+	#define TRACE_CONFIGURE_ISP(mode, baudrate, mck) { \
+		const struct _pin pinsCONSOLE[] = {PINS_CONSOLE}; \
+		pio_configure(pinsCONSOLE, PIO_LISTSIZE(pinsCONSOLE)); \
+		console_configure(baudrate, masterclock); \
+		}
 #endif
 
 /**
@@ -212,12 +211,13 @@ extern void TRACE_CONFIGURE(uint32_t dwBaudRate, uint32_t dwMCk);
 
 #endif
 
-/**
- *        Exported variables
- */
+/* ------------------------------------------------------------------------------
+ *         Exported variables
+ * ----------------------------------------------------------------------------*/
+
 /** Depending on DYN_TRACES, dwTraceLevel is a modifable runtime variable or a define */
 #if !defined(NOTRACE) && (DYN_TRACES == 1)
 extern uint32_t dwTraceLevel;
 #endif
 
-#endif				//#ifndef TRACE_H
+#endif	//#ifndef _TRACE_H
