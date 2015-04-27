@@ -1,16 +1,5 @@
-/* ---------------------------------------------------------------------------- */
-/*                  Atmel Microcontroller Software Support                      */
-/* ---------------------------------------------------------------------------- */
-/* Copyright (c) 2015, Atmel Corporation                                        */
-/*                                                                              */
-/* All rights reserved.                                                         */
-/*                                                                              */
-/* Redistribution and use in source and binary forms, with or without           */
-/* modification, are permitted provided that the following condition is met:    */
-/*                                                                              */
-/* - Redistributions of source code must retain the above copyright notice,     */
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2015, Atmel Corporation
  *
@@ -41,25 +30,20 @@
 #ifndef _CONSOLE_H_
 #define _CONSOLE_H_
 
-/*----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
 
-/*----------------------------------------------------------------------------
- *         Global Definitions
- *----------------------------------------------------------------------------*/
-
-/* ------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  *         Global function
- * ------------------------------------------------------------------------------*/
+ * ---------------------------------------------------------------------------*/
 
 extern void console_configure(uint32_t baudrate, uint32_t master_clock);
 extern void console_put_char(uint8_t uc);
 extern uint32_t console_get_char(void);
 extern uint32_t console_is_rx_ready(void);
-
 extern void console_dump_frame(uint8_t * pframe, uint32_t size);
 extern void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				uint32_t address);
@@ -68,5 +52,4 @@ extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					    uint32_t max);
 extern uint32_t console_get_hexa_32(uint32_t * pvalue);
 
-//=============================================================================
-#endif				/* _CONSOLE_H_ */
+#endif	/* _CONSOLE_H_ */

@@ -63,11 +63,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "core/pio4.h"
-#include "core/pmc.h"
+#include "core/pio.h"
 
 #include <string.h>
-
 
 /*----------------------------------------------------------------------------
  *        Local define
@@ -115,6 +113,7 @@ struct _bitfield_pio_cfgr_func {
  *
  * \return 1 if the pins have been configured properly; otherwise 0.
  */
+
 uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 {
 	struct _bitfield_pio_cfgr_func 	bf1;

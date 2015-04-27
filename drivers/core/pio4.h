@@ -126,7 +126,7 @@
 #define PIO_DRVSTR_Msk				(0x3u << 10)
 #define PIO_DRVSTR_HI 				(0x0u << 10) /* High drive */
 #define PIO_DRVSTR_ME 				(0x1u << 10) /* Medium drive */
-#define PIO_DRVSTR_LO 				(0x2u << 10)/* Low drive */
+#define PIO_DRVSTR_LO 				(0x2u << 10) /* Low drive */
 
 #define PIO_EVTSEL_Msk				(0x7u << 12)
 /* Event detection on input falling edge. */
@@ -162,7 +162,7 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern uint8_t pio_configure(const struct _pin *list, uint32_t size) ;
+extern uint8_t pio_configure(const struct _pin *pin_list, uint32_t size);
 extern void pio_set(const struct _pin *pin);
 extern void pio_clear(const struct _pin *pin);
 extern uint8_t pio_get(const struct _pin *pin) ;
