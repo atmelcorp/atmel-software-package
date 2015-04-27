@@ -428,6 +428,32 @@ extern "C" {
 #endif				/* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /*@}*/
 
+/**
+ * \brief retrieve TWI ID from its base address
+ * \return TWI ID on success, ID_PERIPH_COUNT otherwise
+ */
+static inline uint32_t GET_TWI_ID_FROM_ADDR(const void* addr)
+{
+	if (addr == (void*)TWI0) return ID_TWI0; /**< \brief TWI 0 (TWI0) */
+	else if (addr == (void*)TWI1) return ID_TWI1; /**< \brief TWI 1 (TWI1) */
+	else if (addr == (void*)TWI2) return ID_TWI2; /**< \brief TWI 3 (TWI3) */
+	else if (addr == (void*)TWI3) return ID_TWI3; /**< \brief TWI 4 (TWI4) */
+	else return ID_PERIPH_COUNT;
+}
+
+/**
+ * \brief retrieve TWI base address from its ID
+ * \return TWI base address on success, 0 otherwise
+ */
+static inline void* GET_TWI_ADDR_FROM_ID(const uint32_t id)
+{
+	if (id == ID_TWI0) return TWI0; /**< \brief TWI 0 (TWI0) */
+	else if (id == ID_TWI1) return TWI1; /**< \brief TWI 1 (TWI1) */
+	else if (id == ID_TWI2) return TWI2; /**< \brief TWI 3 (TWI2) */
+	else if (id == ID_TWI3) return TWI3; /**< \brief TWI 4 (TWI3) */
+	else return (void*)0;
+}
+
 /* ************************************************************************** */
 /*   PIO DEFINITIONS FOR SAMA5D44 */
 /* ************************************************************************** */
