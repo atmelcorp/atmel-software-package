@@ -39,14 +39,14 @@
  *
  * -# Enable the USART peripheral clock in the PMC.
  * -# Enable the required USART PIOs (see pio.h).
- * -# Configure the UART by calling USART_Configure.
+ * -# Configure the UART by calling usart_configure.
  * -# Enable the transmitter and/or the receiver of the USART using
- *    USART_SetTransmitterEnabled and USART_SetReceiverEnabled.
- * -# Send data through the USART using the USART_Write methods.
- * -# Receive data from the USART using the USART_Read functions; the availability of data can be polled
- *    with USART_IsDataAvailable.
+ *    usart_set_transmitter_enabled and usart_set_receiver_enabled.
+ * -# Send data through the USART using the usart_write methods.
+ * -# Receive data from the USART using the usart_read functions; the availability of data can be polled
+ *    with usart_is_data_available.
  * -# Disable the transmitter and/or the receiver of the USART with
- *    USART_SetTransmitterEnabled and USART_SetReceiverEnabled.
+ *    usart_set_transmitter_enabled and usart_set_receiver_enabled.
  */
 
 #ifndef _FLEXCOM_

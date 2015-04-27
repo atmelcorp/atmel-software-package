@@ -36,7 +36,7 @@
  *
  * To start a USART transfer with \ref dmad_module "DMA" support, the user could follow these steps:
  * <ul>
- * <li> Configure USART with expected mode and baudrate(see \ref USART_Configure), which could be done by:
+ * <li> Configure USART with expected mode and baudrate(see \ref usart_configure), which could be done by:
  * -# Resetting and disabling transmitter and receiver by setting US_CR(Control Register). </li>
  * -# Configuring the USART in a specific mode by setting USART_MODE bits in US_MR(Mode Register) </li>
  * -# Setting baudrate which is different from mode to mode.
@@ -48,8 +48,8 @@
  * \section Usage
  * <ul>
  * <li>  Enable or disable USART transmitter or receiver using
- * USART_SetTransmitterEnabled() and USART_SetReceiverEnabled().
- * <li>  Enable or disable USART interrupt using USART_EnableIt() or USART_DisableIt().
+ * usart_set_transmitter_enabled() and usart_set_receiver_enabled().
+ * <li>  Enable or disable USART interrupt using usart_enable_it() or usart_disable_it().
  * </li>
  * </ul>
  *
@@ -97,13 +97,13 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 	assert(flexcom);
 	uint32_t current_protocol = flexcom->FLEX_MR;
 
-	USART_SetReceiverEnabled(&flexcom->usart, 0u);
+	usart_set_receiver_enabled(&flexcom->usart, 0u);
 	
 	/* Shutdown previous protocol */
 	switch (current_protocol) {
 	case FLEX_MR_OPMODE_USART:
-		USART_SetReceiverEnabled(&flexcom->usart, 0u);
-		USART_SetTransmitterEnabled(&flexcom->usart, 0u);
+		usart_set_receiver_enabled(&flexcom->usart, 0u);
+		usart_set_transmitter_enabled(&flexcom->usart, 0u);
 		break;
 	case FLEX_MR_OPMODE_SPI:
 		SPI_Disable(&flexcom->spi);
