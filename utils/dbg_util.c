@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include "dbg_util.h"
 #include "time/timetick.h"
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 
 /*-------------------------------
  *          Defines

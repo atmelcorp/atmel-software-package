@@ -40,7 +40,7 @@
 
 //#include "board.h"
 
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 
 #include <stdio.h>
 #include <stdarg.h>

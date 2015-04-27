@@ -33,7 +33,7 @@
 
 //#include "board.h"
 #include <stdio.h>
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 
 /* Disable semihosting */
 #pragma import(__use_no_semihosting_swi)
