@@ -131,9 +131,9 @@ int main(void)
 
 #if defined (ddram)
 	MMU_Initialize((uint32_t *) 0x20C000);
-	CP15_EnableMMU();
-	CP15_EnableIcache();
-	CP15_EnableDcache();
+	cp15_enable_mmu();
+	cp15_enable_icache();
+	cp15_enable_dcache();
 #endif
 
 	/* Output example information */
@@ -142,9 +142,9 @@ int main(void)
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
 	/* Enable TRNG peripheral clock */
-	PMC_EnablePeripheral(ID_TRNG);
+	pmc_enable_peripheral(ID_TRNG);
 
-	AIC_EnableIT(ID_TRNG);
+	aic_enable(ID_TRNG);
 	TRNG_EnableIt();
 	TRNG_Enable(0x524e47);
 	while (1) ;

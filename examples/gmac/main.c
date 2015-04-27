@@ -149,7 +149,7 @@
  *---------------------------------------------------------------------------*/
 
 /** The PINs for GMAC */
-static const Pin gmacPins[] = { BOARD_GMAC_RUN_PINS0 };
+static const struct _pin gmacPins[] = { BOARD_GMAC_RUN_PINS0 };
 
 /** The MAC address used for demo */
 static uint8_t GMacAddress[6] = { 0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54 };
@@ -639,9 +639,9 @@ main(void)
 	WDT_Disable(WDT);
 #if defined (ddram)
 	MMU_Initialize((uint32_t *) 0x20C000);
-	CP15_EnableMMU();
-	CP15_EnableIcache();
-	CP15_EnableDcache();
+	cp15_enable_mmu();
+	cp15_enable_icache();
+	cp15_enable_dcache();
 #endif
 	printf("-- GMAC Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
@@ -668,7 +668,7 @@ main(void)
 	GMAC_SetAddress(gGmacd.pHw, 0, GMacAddress);
 
 	/* Setup interrupts */
-	AIC_EnableIT(ID_GMAC0);
+	aic_enable(ID_GMAC0);
 	GMACB_Init(pGmacb, pGmacd, BOARD_GMAC_PHY_ADDR);
 	GMACB_ResetPhy(pGmacb);
 	/* PHY initialize */

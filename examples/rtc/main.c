@@ -112,7 +112,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 #include "time/rtc_calib.h"
 #include "time/tc.h"
 #include "core/pmc.h"
@@ -204,7 +204,7 @@ static unsigned int bMenuShown = 0;
 static inline void uart_puts(const char *pStr)
 {
 	while (*pStr) {
-		DBGU_PutChar(*pStr++);
+		console_put_char(*pStr++);
 	}
 }
 
@@ -236,7 +236,7 @@ static int get_new_time(void)
 
 	/* use time[] as a format template */
 	while (1) {
-		ucKey = DBGU_GetChar();
+		ucKey = console_get_char();
 
 		/* end input */
 		if (ucKey == 0x0d || ucKey == 0x0a) {
@@ -272,12 +272,12 @@ static int get_new_time(void)
 			continue;
 		}
 
-		DBGU_PutChar(ucKey);
+		console_put_char(ucKey);
 		rtc_time[i++] = ucKey;
 
 		/* ignore non digit position if not end */
 		if (!is_digit(rtc_time[i]) && i < 8) {
-			DBGU_PutChar(rtc_time[i]);
+			console_put_char(rtc_time[i]);
 			++i;
 		}
 	}
@@ -333,7 +333,7 @@ static int get_new_date(void)
 
 	/* use time[] as a format template */
 	while (1) {
-		ucKey = DBGU_GetChar();
+		ucKey = console_get_char();
 
 		/* end input */
 		if (ucKey == 0x0d || ucKey == 0x0a) {
@@ -369,12 +369,12 @@ static int get_new_date(void)
 			continue;
 		}
 
-		DBGU_PutChar(ucKey);
+		console_put_char(ucKey);
 		date[i++] = ucKey;
 
 		/* ignore non digit position */
 		if (!is_digit(date[i]) && i < 10) {
-			DBGU_PutChar(date[i]);
+			console_put_char(date[i]);
 			++i;
 		}
 	}
@@ -513,7 +513,7 @@ static void configure_tc(void)
 	uint32_t tcclks;
 
 	/** Enable peripheral clock. */
-	PMC_EnablePeripheral(ID_TC0);
+	pmc_enable_peripheral(ID_TC0);
 
 	/* Configure TC for a 4Hz frequency and trigger on RC compare. */
 	TC_FindMckDivisor(4, BOARD_MCK / 2, &div, &tcclks, BOARD_MCK);
@@ -522,7 +522,7 @@ static void configure_tc(void)
 
 	/* Configure and enable interrupt on RC compare */
 	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
-	AIC_EnableIT(ID_TC0);
+	aic_enable(ID_TC0);
 
 	TC_Start(TC0, 0);
 
@@ -568,7 +568,7 @@ extern int main(void)
 
 	/* Configure RTC interrupts */
 	RTC_EnableIt(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
-	AIC_EnableIT(ID_SYS);
+	aic_enable(ID_SYS);
 	/* Refresh display once */
 	_RefreshDisplay();
 	newHour = 0;
@@ -581,12 +581,12 @@ extern int main(void)
 
 	/* Handle keypresses */
 	while (1) {
-		ucKey = DBGU_GetChar();
+		ucKey = console_get_char();
 
 		/* set time */
 		if (ucKey == 't') {
 			bState = STATE_SET_TIME;
-			AIC_DisableIT(ID_TC0);
+			aic_disable(ID_TC0);
 
 			do {
 				printf("\n\r\n\r Set time(hh:mm:ss): ");
@@ -605,7 +605,7 @@ extern int main(void)
 			bMenuShown = 0;
 			_RefreshDisplay();
 			CountDownTimer = 0;
-			AIC_EnableIT(ID_TC0);
+			aic_enable(ID_TC0);
 		}
 
 		if (ucKey == 'p') {
@@ -620,7 +620,7 @@ extern int main(void)
 		/* set date */
 		if (ucKey == 'd') {
 			bState = STATE_SET_DATE;
-			AIC_DisableIT(ID_TC0);
+			aic_disable(ID_TC0);
 
 			do {
 				printf("\n\r\n\r Set date(mm/dd/yyyy): ");
@@ -643,14 +643,14 @@ extern int main(void)
 			bState = STATE_MENU;
 			bMenuShown = 0;
 			CountDownTimer = 0;
-			AIC_EnableIT(ID_TC0);
+			aic_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 
 		/* set time alarm */
 		if (ucKey == 'i') {
 			bState = STATE_SET_TIME_ALARM;
-			AIC_DisableIT(ID_TC0);
+			aic_disable(ID_TC0);
 
 			do {
 				printf("\n\r\n\r Set time alarm(hh:mm:ss): ");
@@ -671,14 +671,14 @@ extern int main(void)
 			bMenuShown = 0;
 			alarmTriggered = 0;
 			CountDownTimer = 0;
-			AIC_EnableIT(ID_TC0);
+			aic_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 
 		/* set date alarm */
 		if (ucKey == 'm') {
 			bState = STATE_SET_DATE_ALARM;
-			AIC_DisableIT(ID_TC0);
+			aic_disable(ID_TC0);
 
 			do {
 				printf("\n\r\n\r Set date alarm(mm/dd/): ");
@@ -699,7 +699,7 @@ extern int main(void)
 			bMenuShown = 0;
 			alarmTriggered = 0;
 			CountDownTimer = 0;
-			AIC_EnableIT(ID_TC0);
+			aic_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 

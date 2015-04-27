@@ -96,7 +96,7 @@
 #include "core/wdt.h"
 #include "core/aic.h"
 
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 #include "bus/xdmad.h"
 #include "bus/xdmac.h"
 
@@ -370,12 +370,12 @@ extern int main(void)
 	XDMAD_PrepareChannel(&xdmad, dmaChannel);
 
 	/*Enable xDMA interrupt */
-	AIC_EnableIT(ID_XDMAC0);
-	AIC_EnableIT(ID_XDMAC1);
+	aic_enable(ID_XDMAC0);
+	aic_enable(ID_XDMAC1);
 	/* Display menu */
 	_displayMenu();
 	for (;;) {
-		key = DBGU_GetChar();
+		key = console_get_char();
 		if ((key == 'a') || (key == 'b') || (key == 'c')
 		    || (key == 'd')) {
 			dmaDataWidth = key - 'a';

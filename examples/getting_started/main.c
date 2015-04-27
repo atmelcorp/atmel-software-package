@@ -108,7 +108,7 @@
 
 #include "io/led.h"
 
-#include "bus/dbgu_console.h"
+#include "bus/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -213,9 +213,9 @@ static void
 _DBGU_Handler(void)
 {
 	uint8_t key;
-	if (!DBGU_IsRxReady())
+	if (!console_is_rx_ready())
 		return;
-	key = DBGU_GetChar();
+	key = console_get_char();
 	switch (key) {
 	case '1':
 	case '2':
@@ -224,7 +224,7 @@ _DBGU_Handler(void)
 	}
 }
 
-#endif				/*  */
+#endif /*  */
 
 /**
  *  \brief Handler for PIT interrupt.
@@ -262,7 +262,7 @@ ConfigurePit(void)
 	PIT_Init(BLINK_PERIOD, BOARD_MCK / 2 / 1000000);
 
 	/* Configure interrupt on PIT */
-	AIC_EnableIT(ID_PIT);
+	aic_enable(ID_PIT);
 	PIT_EnableIT();
 
 	/* Enable the pit */
@@ -281,12 +281,12 @@ _ConfigureButtons(void)
 {
 
 	/* Configure pios as inputs. */
-	PIO_Configure(&pinPB1, 1);
-	PIO_Configure(&pinPB2, 1);
+	pio_configure(&pinPB1, 1);
+	pio_configure(&pinPB2, 1);
 
 	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
-	PIO_SetDebounceFilter(&pinPB1, 10);
-	PIO_SetDebounceFilter(&pinPB2, 10);
+	pio_set_debounce_filter(&pinPB1, 10);
+	pio_set_debounce_filter(&pinPB2, 10);
 
 	/* Enable PIO controller IRQs. */
 	PIO_InitializeInterrupts(0);
@@ -340,7 +340,7 @@ _ConfigureTc(void)
 	uint32_t tcclks;
 
 	/** Enable peripheral clock. */
-	PMC_EnablePeripheral(ID_TC0);
+	pmc_enable_peripheral(ID_TC0);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	TC_FindMckDivisor(4, BOARD_MCK / 2, &div, &tcclks, BOARD_MCK);
@@ -349,7 +349,7 @@ _ConfigureTc(void)
 
 	/* Configure and enable interrupt on RC compare */
 	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
-	AIC_EnableIT(ID_TC0);
+	aic_enable(ID_TC0);
 
 	/** Start the counter if LED1 is enabled. */
 	if (bLed1Active) {
@@ -392,9 +392,9 @@ main(void)
 
 #if defined (ddram)
 	MMU_Initialize((uint32_t *) 0x20C000);
-	CP15_EnableMMU();
-	CP15_EnableDcache();
-	CP15_EnableIcache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+	cp15_enable_icache();
 
 #endif
 
