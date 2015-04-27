@@ -145,11 +145,11 @@ typedef struct {
 	__I  uint32_t Reserved3[54];
 	__I  uint32_t FLEX_VERSION;     /**< \brief (Flexcom Offset: 0x0FC) FLEXCOM Version Register */
 	__I  uint32_t Reserved4[64];
-	__IO Usart usart;
+	     Usart usart;
 	__I  uint32_t Reserved11[64];
-	__IO Spi spi;
+	     Spi spi;
 	__I  uint32_t Reserved16[64];
-	__IO Twi twi;
+	     Twi twi;
 } Flexcom;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- FLEX_MR : (FLEXCOM Offset: 0x000) FLEXCOM Mode Register -------- */
