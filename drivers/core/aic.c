@@ -168,16 +168,13 @@ static void _aic_set_it(Aic * aic, uint32_t source)
  */
 static uint8_t _is_h64_matrix(uint32_t pid)
 {
-	if ((pid == ID_ARM_PMU) || (pid == ID_XDMAC0) ||
-	    //(pid == ID_PKCC) ||
-	    (pid == ID_AESB) || (pid == ID_MPDDRC) ||
-	    //(pid == ID_VDEC) ||
-	    (pid == ID_XDMAC1) ||
-	    (pid == ID_LCDC) || (pid == ID_ISI) || (pid == ID_L2CC)) {
-		return 1;
-	} else {
-		return 0;
+	uint8_t i;
+	for (i=0; i<ID_H64_MATRIX_SIZE; i++) {
+		if( pid == _id_h64_matrix[i]) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 /*----------------------------------------------------------------------------
