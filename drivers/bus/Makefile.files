@@ -1,5 +1,5 @@
 OBJECTS += bus/hsmci.o                \
-	bus/console_dbgu.o            \
+	bus/console.o                 \
 	bus/xdmad.o                   \
 	bus/xdma_hardware_interface.o \
 	bus/twi.o                     \

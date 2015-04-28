@@ -1,1 +1,3 @@
-OBJECTS += serial/usart.o
+OBJECTS += serial/usart.o \
+	serial/uart.o     \
+	serial/dbgu.o
