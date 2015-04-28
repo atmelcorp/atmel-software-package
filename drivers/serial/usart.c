@@ -89,10 +89,10 @@
  *  \param usart  Pointer to the USART peripheral to configure.
  *  \param mode  Desired value for the USART mode register (see the datasheet).
  *  \param baudrate  Baudrate at which the USART should operate (in Hz).
- *  \param masterClock  Frequency of the system master clock (in Hz).
+ *  \param clock  Frequency of the system master clock (in Hz).
  */
 void usart_configure(Usart *usart, uint32_t mode,
-		     uint32_t baudrate, uint32_t masterClock)
+		     uint32_t baudrate, uint32_t clock)
 {
 	/* Reset and disable receiver & transmitter */
 	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
@@ -102,19 +102,22 @@ void usart_configure(Usart *usart, uint32_t mode,
 	/* Asynchronous, no oversampling */
 	if (((mode & US_MR_SYNC) == 0)
 	    && ((mode & US_MR_OVER) == 0)) {
-		usart->US_BRGR = (masterClock / baudrate) / 16;
+		usart->US_BRGR = (clock / baudrate) / 16;
 	}
 	if (((mode & US_MR_USART_MODE_SPI_MASTER) ==
 	     US_MR_USART_MODE_SPI_MASTER) || ((mode & US_MR_SYNC) == US_MR_SYNC)) {
 		if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_MCK) {
-			usart->US_BRGR = masterClock / baudrate;
+			usart->US_BRGR = clock / baudrate;
 		} else {
 			if ((mode & US_MR_USCLKS_DIV) == US_MR_USCLKS_DIV) {
-				usart->US_BRGR = masterClock / baudrate / 8;
+				usart->US_BRGR = clock / baudrate / 8;
 			}
 		}
 	}
 	/* TODO other modes */
+
+	/* Enable receiver and transmitter */
+	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
 }
 
 /**

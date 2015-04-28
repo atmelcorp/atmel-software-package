@@ -410,6 +410,7 @@
 #define PIN_ADTRG       {PIO_PE31A_ADTRG, PIOE, ID_PIOE, PIO_PERIPH_A, PIO_PULLUP}
 
 /** CONSOLE pin definition, Use only USART */
+#define CONSOLE_DRIVER          DRV_DBGU
 #define PINS_CONSOLE            {PIN_USART3_TXD,PIN_USART3_RXD}
 #define CONSOLE_PER_ADD         USART3
 #define CONSOLE_ID              ID_USART3

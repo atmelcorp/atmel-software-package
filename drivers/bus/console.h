@@ -34,7 +34,20 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#define DRV_UART     (1)
+#define DRV_USART    (2)
+#define DRV_DBGU     (3)
+//#define DRV_FLEXCOM  (4)
+
 #include <stdint.h>
+
+struct _console {
+	void* addr;
+	void (*init)(void*, uint32_t, uint32_t, uint32_t);
+	void (*put_char)(void*, uint8_t);
+	uint32_t (*get_char)(void*);
+	uint32_t (*is_rx_ready)(void*);
+};
 
 /* ----------------------------------------------------------------------------
  *         Global function

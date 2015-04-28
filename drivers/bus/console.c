@@ -53,6 +53,36 @@
 *        Variables
 *----------------------------------------------------------------------------*/
 
+/* Initialize console structure according to board configuration */
+#if CONSOLE_DRIVER == DRV_USART
+#include "serial/usart.h"
+static struct _console console = {
+	CONSOLE_PER_ADD,
+	usart_configure,
+	usart_put_char,
+	usart_get_char,
+	usart_is_rx_ready
+};
+#elif CONSOLE_DRIVER == DRV_UART
+#include "serial/uart.h"
+static struct _console console = {
+	CONSOLE_PER_ADD,
+	uart_configure,
+	uart_put_char,
+	uart_get_char,
+	uart_is_rx_ready
+};
+#elif CONSOLE_DRIVER == DRV_DBGU
+#include "serial/dbgu.h"
+static struct _console console = {
+	CONSOLE_PER_ADD,
+	dbgu_configure,
+	dbgu_put_char,
+	dbgu_get_char,
+	dbgu_is_rx_ready
+};
+#endif
+
 /** Pins for CONSOLE */
 static const struct _pin pinsConsole[] = {PINS_CONSOLE};
 
@@ -67,22 +97,27 @@ static uint8_t _bConsoleIsInitialized = 0;
 * \brief Configures a CONSOLE peripheral with the specified parameters.
 *
 * \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
-* \param masterClock  Frequency of the system master clock (in Hz).
+* \param clock  Frequency of the system master clock (in Hz).
 */
-extern void console_configure(uint32_t baudrate, uint32_t masterclock)
+extern void console_configure(uint32_t baudrate, uint32_t clock)
 {
-	uint32_t mode;
-
 	/* Configure PIO */
-	pio_configure(pinsConsole, PIN_LISTSIZE(pinsConsole));
-	/* Enable peripheral */
-	pmc_enable_peripheral(CONSOLE_ID);
-	/* Configure mode register */
-	mode = UART_MR_CHMODE_NORMAL | UART_MR_PAR_NO;
-	uart_configure(CONSOLE_PER_ADD, mode, baudrate, masterclock);
-	/* Enable Receiver and transmitter */
-	uart_set_transmitter_enabled(CONSOLE_PER_ADD, 1);
-	uart_set_receiver_enabled(CONSOLE_PER_ADD, 1);
+	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
+
+	if (ID_PERIPH_COUNT != CONSOLE_ID) {
+		pmc_enable_peripheral(CONSOLE_ID);
+	}
+
+	uint32_t mode;
+	if (console.addr != DBGU) {
+		mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+	} else {
+		mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
+	}
+
+	/* Initialize driver to use */
+	console.init(console.addr, mode, baudrate, clock);
+
 	/* Finally */
 	_bConsoleIsInitialized = 1;
 
@@ -100,8 +135,9 @@ extern void console_configure(uint32_t baudrate, uint32_t masterclock)
 extern void console_put_char(uint8_t c)
 {
 	if (!_bConsoleIsInitialized)
-		return;
-	uart_put_char(CONSOLE_PER_ADD, c, 0);
+		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+
+	console.put_char(console.addr, c);
 }
 
 /**
@@ -113,8 +149,8 @@ extern void console_put_char(uint8_t c)
 extern uint32_t console_get_char(void)
 {
 	if (!_bConsoleIsInitialized)
-		return 0;
-	return uart_get_char(CONSOLE_PER_ADD);
+		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+	return console.get_char(console.addr);
 }
 
 /**
@@ -125,8 +161,8 @@ extern uint32_t console_get_char(void)
 extern uint32_t console_is_rx_ready(void)
 {
 	if (!_bConsoleIsInitialized)
-		return 0;
-	return uart_is_rx_ready(CONSOLE_PER_ADD);
+		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+	return console.is_rx_ready(console.addr);
 }
 
 /**
@@ -290,3 +326,19 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
 	return 1;
 }
 
+#if defined __ICCARM__  /* IAR Ewarm 5.41+ */
+/**
+ * \brief Outputs a character on the DBGU.
+ *
+ * \param c  Character to output.
+ *
+ * \return The character that was output.
+ */
+extern WEAK signed int
+putchar(signed int c)
+{
+	dbgu_put_char(c);
+
+	return c;
+}
+#endif  /* defined __ICCARM__ */

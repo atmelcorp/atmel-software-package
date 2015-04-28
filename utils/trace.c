@@ -55,8 +55,5 @@ uint32_t dwTraceLevel = TRACE_LEVEL;
  */
 extern void trace_configure(uint32_t baudrate, uint32_t masterclock)
 {
-	const struct pin pinsCONSOLE[] = {PINS_CONSOLE};
-
-	pio_configure(pinsCONSOLE, PIO_LISTSIZE(pinsCONSOLE));
 	console_configure(baudrate, masterclock);
 }
