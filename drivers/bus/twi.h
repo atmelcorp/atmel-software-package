@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -65,41 +65,23 @@ extern "C" {
  *        External function
  *----------------------------------------------------------------------------*/
 
-extern void TWI_ConfigureMaster(Twi * pTwi, uint32_t twck,
-				uint32_t mck);
-
-extern void TWI_ConfigureSlave(Twi * pTwi, uint8_t slaveAddress);
-
-extern void TWI_Stop(Twi * pTwi);
-
-extern void TWI_StartRead(Twi * pTwi,
-			  uint8_t address,
-			  uint32_t iaddress, uint8_t isize);
-
-extern uint8_t TWI_ReadByte(Twi * pTwi);
-
-extern void TWI_WriteByte(Twi * pTwi, uint8_t byte);
-
-extern void TWI_StartWrite(Twi * pTwi,
-			   uint8_t address,
-			   uint32_t iaddress,
-			   uint8_t isize, uint8_t byte);
-
-extern uint8_t TWI_ByteReceived(Twi * pTwi);
-
-extern uint8_t TWI_ByteSent(Twi * pTwi);
-
-extern uint8_t TWI_TransferComplete(Twi * pTwi);
-
-extern void TWI_EnableIt(Twi * pTwi, uint32_t sources);
-
-extern void TWI_DisableIt(Twi * pTwi, uint32_t sources);
-
-extern uint32_t TWI_GetStatus(Twi * pTwi);
-
-extern uint32_t TWI_GetMaskedStatus(Twi * pTwi);
-
-extern void TWI_SendSTOPCondition(Twi * pTwi);
+extern void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
+extern void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
+extern void  twi_stop(Twi * pTwi);
+extern void twi_start_read(Twi * pTwi, uint8_t address,
+						   uint32_t iaddress, uint8_t isize);
+extern uint8_t twi_read_byte(Twi * pTwi);
+extern void twi_write_byte(Twi * pTwi, uint8_t byte);
+extern void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
+							uint8_t isize, uint8_t byte);
+extern uint8_t twi_is_byte_received(Twi * pTwi);
+extern uint8_t twi_byte_sent(Twi * pTwi);
+extern uint8_t twi_is_transfer_complete(Twi * pTwi);
+extern void twi_enable_it(Twi * pTwi, uint32_t sources);
+extern void twi_disable_it(Twi * pTwi, uint32_t sources);
+extern uint32_t twi_get_status(Twi * pTwi);
+extern uint32_t twi_get_masked_status(Twi * pTwi);
+extern void twi_send_stop_condition(Twi * pTwi);
 
 #ifdef __cplusplus
 }

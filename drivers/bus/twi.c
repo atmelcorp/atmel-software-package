@@ -98,34 +98,28 @@
  * \param dwTwCk  Desired TWI clock frequency.
  * \param dwMCk  Master clock frequency.
  */
-void
-TWI_ConfigureMaster(Twi * twi, uint32_t dwTwCk, uint32_t dwMCk)
+void twi_configure_master(Twi * pTwi, uint32_t dwTwCk, uint32_t dwMCk)
 {
-	uint32_t dwCkDiv = 0;
-	uint32_t dwClDiv;
-	uint32_t dwOk = 0;
-	uint32_t id = GET_TWI_ID_FROM_ADDR(twi);
-	uint32_t maxClock;
+	uint32_t dwCkDiv, dwClDiv, dwOk, maxClock;
+	uint32_t id = GET_TWI_ID_FROM_ADDR(pTwi);
 
-	TRACE_DEBUG("TWI_ConfigureMaster()\n\r");
-	assert(twi);
+	dwCkDiv = 0;
+	dwOk = 0;
+
+	TRACE_DEBUG("twi_ConfigureMaster()\n\r");
+	assert(pTwi);
 	assert(id != ID_PERIPH_COUNT);
-
 	/* SVEN: TWI Slave Mode Enabled */
-	twi->TWI_CR = TWI_CR_SVEN;
+	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Reset the TWI */
-	twi->TWI_CR = TWI_CR_SWRST;
-	twi->TWI_RHR;
-
+	pTwi->TWI_CR = TWI_CR_SWRST;
+	pTwi->TWI_RHR;
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled. */
-	twi->TWI_CR = TWI_CR_SVDIS;
-	twi->TWI_CR = TWI_CR_MSDIS;
-
+	pTwi->TWI_CR = TWI_CR_SVDIS;
+	pTwi->TWI_CR = TWI_CR_MSDIS;
 	/* Set master mode */
-	twi->TWI_CR = TWI_CR_MSEN;
-
+	pTwi->TWI_CR = TWI_CR_MSEN;
 	maxClock = pmc_set_peri_max_clock(id, dwMCk);
-
 	/* Configure clock */
 	while (!dwOk) {
 		dwClDiv = ((maxClock / (2 * dwTwCk)) - 8) / (1 << dwCkDiv);
@@ -135,13 +129,10 @@ TWI_ConfigureMaster(Twi * twi, uint32_t dwTwCk, uint32_t dwMCk)
 			dwCkDiv++;
 		}
 	}
-
 	assert(dwCkDiv < 8);
-	TRACE_DEBUG("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", dwCkDiv,
-		    dwClDiv);
-
-	twi->TWI_CWGR = 0;
-	twi->TWI_CWGR = (dwCkDiv << 16) | (dwClDiv << 8) | dwClDiv;
+	TRACE_DEBUG("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", dwCkDiv, dwClDiv);
+	pTwi->TWI_CWGR = 0;
+	pTwi->TWI_CWGR = (dwCkDiv << 16) | (dwClDiv << 8) | dwClDiv;
 }
 
 /**
@@ -149,43 +140,35 @@ TWI_ConfigureMaster(Twi * twi, uint32_t dwTwCk, uint32_t dwMCk)
  * \param twi  Pointer to an Twi instance.
  * \param slaveAddress Slave address.
  */
-void
-TWI_ConfigureSlave(Twi * twi, uint8_t slaveAddress)
+void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress)
 {
 	uint32_t i;
 
 	/* TWI software reset */
-	twi->TWI_CR = TWI_CR_SWRST;
-	twi->TWI_RHR;
-
+	pTwi->TWI_CR = TWI_CR_SWRST;
+	pTwi->TWI_RHR;
 	/* Wait at least 10 ms */
 	for (i = 0; i < 1000000; i++) ;
-
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled */
-	twi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
-
+	pTwi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
 	/* Configure slave address. */
-	twi->TWI_SMR = 0;
-	twi->TWI_SMR = TWI_SMR_SADR(slaveAddress);
-
+	pTwi->TWI_SMR = 0;
+	pTwi->TWI_SMR = TWI_SMR_SADR(slaveAddress);
 	/* SVEN: TWI Slave Mode Enabled */
-	twi->TWI_CR = TWI_CR_SVEN;
-
+	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Wait at least 10 ms */
 	for (i = 0; i < 1000000; i++) ;
-	assert((twi->TWI_CR & TWI_CR_SVDIS) != TWI_CR_SVDIS);
+	assert((pTwi->TWI_CR & TWI_CR_SVDIS) != TWI_CR_SVDIS);
 }
 
 /**
  * \brief Sends a STOP condition on the TWI.
  * \param twi  Pointer to an Twi instance.
  */
-void
-TWI_Stop(Twi * twi)
+void twi_stop(Twi * pTwi)
 {
-	assert(twi != NULL);
-
-	twi->TWI_CR = TWI_CR_STOP;
+	assert(pTwi != NULL);
+	pTwi->TWI_CR = TWI_CR_STOP;
 }
 
 /**
@@ -197,24 +180,20 @@ TWI_Stop(Twi * twi)
  * \param iaddress  Optional internal address bytes.
  * \param isize  Number of internal address bytes.
  */
-void
-TWI_StartRead(Twi * twi, uint8_t address, uint32_t iaddress, uint8_t isize)
+void twi_start_read(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isize)
 {
-	assert(twi != NULL);
+	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
 	assert(isize < 4);
-
 	/* Set slave address and number of internal address bytes. */
-	twi->TWI_MMR = 0;
-	twi->TWI_MMR = (isize << 8) | TWI_MMR_MREAD | (address << 16);
-
+	pTwi->TWI_MMR = 0;
+	pTwi->TWI_MMR = (isize << 8) | TWI_MMR_MREAD | (address << 16);
 	/* Set internal address bytes */
-	twi->TWI_IADR = 0;
-	twi->TWI_IADR = iaddress;
-
+	pTwi->TWI_IADR = 0;
+	pTwi->TWI_IADR = iaddress;
 	/* Send START condition */
-	twi->TWI_CR = TWI_CR_START;
+	pTwi->TWI_CR = TWI_CR_START;
 }
 
 /**
@@ -223,12 +202,10 @@ TWI_StartRead(Twi * twi, uint8_t address, uint32_t iaddress, uint8_t isize)
  * \param twi  Pointer to an Twi instance.
  * \return byte read.
  */
-uint8_t
-TWI_ReadByte(Twi * twi)
+uint8_t twi_read_byte(Twi * pTwi)
 {
-	assert(twi != NULL);
-
-	return twi->TWI_RHR;
+	assert(pTwi != NULL);
+	return pTwi->TWI_RHR;
 }
 
 /**
@@ -239,12 +216,10 @@ TWI_ReadByte(Twi * twi)
  * \param twi  Pointer to an Twi instance.
  * \param byte  Byte to send.
  */
-void
-TWI_WriteByte(Twi * twi, uint8_t byte)
+void twi_write_byte(Twi * pTwi, uint8_t byte)
 {
-	assert(twi != NULL);
-
-	twi->TWI_THR = byte;
+	assert(pTwi != NULL);
+	pTwi->TWI_THR = byte;
 }
 
 /**
@@ -258,25 +233,20 @@ TWI_WriteByte(Twi * twi, uint8_t byte)
  * \param isize  Number of internal address bytes.
  * \param byte  First byte to send.
  */
-void
-TWI_StartWrite(Twi * twi,
-	       uint8_t address, uint32_t iaddress, uint8_t isize, uint8_t byte)
+void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isize, uint8_t byte)
 {
-	assert(twi != NULL);
+	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
 	assert(isize < 4);
-
 	/* Set slave address and number of internal address bytes. */
-	twi->TWI_MMR = 0;
-	twi->TWI_MMR = (isize << 8) | (address << 16);
-
+	pTwi->TWI_MMR = 0;
+	pTwi->TWI_MMR = (isize << 8) | (address << 16);
 	/* Set internal address bytes. */
-	twi->TWI_IADR = 0;
-	twi->TWI_IADR = iaddress;
-
+	pTwi->TWI_IADR = 0;
+	pTwi->TWI_IADR = iaddress;
 	/* Write first byte to send. */
-	TWI_WriteByte(twi, byte);
+	twi_write_byte(pTwi, byte);
 }
 
 /**
@@ -285,10 +255,10 @@ TWI_StartWrite(Twi * twi,
  * \return 1 if a byte has been received and can be read on the given TWI
  * peripheral; otherwise, returns 0. This function resets the status register.
  */
-uint8_t
-TWI_ByteReceived(Twi * twi)
+uint8_t twi_is_byte_received(Twi * pTwi)
 {
-	return ((twi->TWI_SR & TWI_SR_RXRDY) == TWI_SR_RXRDY);
+	assert(pTwi != NULL);
+	return ((pTwi->TWI_SR & TWI_SR_RXRDY) == TWI_SR_RXRDY);
 }
 
 /**
@@ -297,10 +267,10 @@ TWI_ByteReceived(Twi * twi)
  * \return 1 if a byte has been sent  so another one can be stored for
  * transmission; otherwise returns 0. This function clears the status register.
  */
-uint8_t
-TWI_ByteSent(Twi * twi)
+uint8_t twi_byte_sent(Twi * pTwi)
 {
-	return ((twi->TWI_SR & TWI_SR_TXRDY) == TWI_SR_TXRDY);
+	assert(pTwi != NULL);
+	return ((pTwi->TWI_SR & TWI_SR_TXRDY) == TWI_SR_TXRDY);
 }
 
 /**
@@ -309,10 +279,10 @@ TWI_ByteSent(Twi * twi)
  * \return  1 if the current transmission is complete (the STOP has been sent);
  * otherwise returns 0.
  */
-uint8_t
-TWI_TransferComplete(Twi * twi)
+uint8_t twi_is_transfer_complete(Twi * pTwi)
 {
-	return ((twi->TWI_SR & TWI_SR_TXCOMP) == TWI_SR_TXCOMP);
+	assert(pTwi != NULL);
+	return ((pTwi->TWI_SR & TWI_SR_TXCOMP) == TWI_SR_TXCOMP);
 }
 
 /**
@@ -320,13 +290,11 @@ TWI_TransferComplete(Twi * twi)
  * \param twi  Pointer to an Twi instance.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void
-TWI_EnableIt(Twi * twi, uint32_t sources)
+void twi_enable_it(Twi * pTwi, uint32_t sources)
 {
-	assert(twi != NULL);
+	assert(pTwi != NULL);
 	assert((sources & 0xFFFFF088) == 0);
-
-	twi->TWI_IER = sources;
+	pTwi->TWI_IER = sources;
 }
 
 /**
@@ -334,13 +302,11 @@ TWI_EnableIt(Twi * twi, uint32_t sources)
  * \param twi  Pointer to an Twi instance.
  * \param sources  Bitwise OR of selected interrupt sources.
  */
-void
-TWI_DisableIt(Twi * twi, uint32_t sources)
+void twi_disable_it(Twi * pTwi, uint32_t sources)
 {
-	assert(twi != NULL);
+	assert(pTwi != NULL);
 	assert((sources & 0xFFFFF088) == 0);
-
-	twi->TWI_IDR = sources;
+	pTwi->TWI_IDR = sources;
 }
 
 /**
@@ -350,12 +316,10 @@ TWI_DisableIt(Twi * twi, uint32_t sources)
  * \param twi  Pointer to an Twi instance.
  * \return  TWI status register.
  */
-uint32_t
-TWI_GetStatus(Twi * twi)
+uint32_t twi_get_status(Twi * pTwi)
 {
-	assert(twi != NULL);
-
-	return twi->TWI_SR;
+	assert(pTwi != NULL);
+	return pTwi->TWI_SR;
 }
 
 /**
@@ -365,16 +329,12 @@ TWI_GetStatus(Twi * twi)
  * read may yield different values.
  * \param twi  Pointer to an Twi instance.
  */
-uint32_t
-TWI_GetMaskedStatus(Twi * twi)
+uint32_t twi_get_masked_status(Twi * pTwi)
 {
 	uint32_t status;
-
-	assert(twi != NULL);
-
-	status = twi->TWI_SR;
-	status &= twi->TWI_IMR;
-
+	assert(pTwi != NULL);
+	status = pTwi->TWI_SR;
+	status &= pTwi->TWI_IMR;
 	return status;
 }
 
@@ -383,10 +343,8 @@ TWI_GetMaskedStatus(Twi * twi)
  *  the current byte transmission in master read mode.
  * \param twi  Pointer to an Twi instance.
  */
-void
-TWI_SendSTOPCondition(Twi * twi)
+void twi_send_stop_condition(Twi * pTwi)
 {
-	assert(twi != NULL);
-
-	twi->TWI_CR |= TWI_CR_STOP;
+	assert(pTwi != NULL);
+	pTwi->TWI_CR |= TWI_CR_STOP;
 }
