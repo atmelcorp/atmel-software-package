@@ -93,6 +93,20 @@ extern void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
 extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
 
+#ifdef FIFO_ENABLED
+void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
+			  uint8_t rx_down_thres, uint8_t rx_up_thres,
+			  uint32_t ready_modes);
+void usart_fifo_disable(Usart *usart);
+void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask);
+void usart_fifo_disable_it(Usart *usart, uint32_t interrupt_mask);
+uint32_t usart_fifo_get_interrupts(Usart *usart);
+uint32_t usart_fifo_rx_size(Usart *usart);
+uint32_t usart_fifo_tx_size(Usart *usart);
+uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len);
+uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t len);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

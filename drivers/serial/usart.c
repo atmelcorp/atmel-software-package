@@ -73,6 +73,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "resources/compiler_defines.h"
 #include "serial/usart.h"
 
 #include "utils/trace.h"
@@ -80,6 +81,15 @@
 #include <assert.h>
 #include <string.h>
 
+#ifdef FIFO_ENABLED
+/* Clear FIFO related register if present. Dummy function otherwise. */
+static inline void _clear_fifo_control_flags(uint32_t* control_reg)
+{
+	*control_reg |= US_CR_FIFODIS | US_CR_TXFCLR | US_CR_RXFCLR | US_CR_TXFLCLR;
+}
+#else
+#define _clear_fifo_control_flags(dummy) do {} while(0)
+#endif
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
@@ -95,9 +105,14 @@ void usart_configure(Usart *usart, uint32_t mode,
 		     uint32_t baudrate, uint32_t clock)
 {
 	/* Reset and disable receiver & transmitter */
-	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+	/* Reset and disable FIFO if present */
+	_clear_fifo_control_flags(&control);
+	/* apply */
+	usart->US_CR = control;
 	/* Configure mode */
 	usart->US_MR = mode;
+
 	/* Configure baudrate */
 	/* Asynchronous, no oversampling */
 	if (((mode & US_MR_SYNC) == 0)
@@ -213,9 +228,9 @@ void usart_set_rts_enabled(Usart *usart, uint8_t enabled)
 void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
 {
 	if (timeOut == 0) {
-		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+		while ((usart->US_CSR & US_CSR_TXRDY) == 0) ;
 	} else {
-		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) {
+		while ((usart->US_CSR & US_CSR_TXRDY) == 0) {
 			if (timeOut == 0) {
 				TRACE_ERROR("usart_write: Timed out.\n\r");
 				return;
@@ -285,8 +300,6 @@ void usart_put_char(Usart *usart, uint8_t c)
 	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
 	/* Send character */
 	usart->US_THR = c;
-	/* Wait for the transfer to complete */
-	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
 }
 
 /**
@@ -312,3 +325,218 @@ void usart_set_irda_filter(Usart *usart, uint8_t filter)
 
 	usart->US_IF = filter;
 }
+
+
+#ifdef FIFO_ENABLED
+/**
+ * \brief Configure the FIFO of USART device
+ *
+ * \param usart Pointer to an USART instance.
+ * \param tx_thres
+ * \param rx_down_thres
+ * \param rx_up_thres
+ * \param ready_modes
+ */
+void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
+			  uint8_t rx_down_thres, uint8_t rx_up_thres,
+			  uint32_t ready_modes)
+{
+	/* Disable transmitter & receiver */
+	usart->US_CR = US_CR_RXDIS | US_CR_TXDIS;
+	/* Enable FIFO */
+	usart->US_CR = US_CR_FIFOEN;
+	/* Configure FIFO */
+	usart->US_FMR = US_FMR_TXFTHRES(tx_thres) | US_FMR_RXFTHRES(rx_down_thres)
+		| US_FMR_RXFTHRES2(rx_up_thres) | ready_modes;
+
+	/* Reenable receiver & transmitter */
+	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+}
+
+/**
+ * \brief Disable the FIFO mode from the USART device
+ *
+ * \param usart Pointer to an USART instance.
+ * \note receiver and transmitter are reenabled.
+ */
+void usart_fifo_disable(Usart *usart)
+{
+	/* Reset and disable receiver & transmitter */
+	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+	/* clear and disable FIFO */
+	_clear_fifo_control_flags(&control);
+	/* apply */
+	usart->US_CR = control;
+
+	/* Reenable receiver & transmitter */
+	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+}
+
+/**
+ * \brief Enable FIFO related interrupts according to the given mask
+ *
+ * \param usart Pointer to an USART instance.
+ * \param interrupt_mask The mask to apply
+ */
+void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask)
+{
+	usart->US_FIER = interrupt_mask;
+}
+
+/**
+ * \brief Disable FIFO related interrupts according to the given mask
+ *
+ * \param usart Pointer to an USART instance.
+ * \param interrupt_mask The mask to apply
+ */
+void usart_fifo_disable_it(Usart *usart, uint32_t interrupt_mask)
+{
+	usart->US_FIDR = interrupt_mask;
+}
+
+/**
+ * \brief Retrive FIFO related interrupt mask.
+ *
+ * \param usart Pointer to an USART instance.
+ * \return current FIFO interrupt mask.
+ */
+uint32_t usart_fifo_get_interrupts(Usart *usart)
+{
+	return usart->US_FIMR;
+}
+
+
+/**
+ * \brief Get the size occupied in the input FIFO of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ * \return Size occupied in the input FIFO (not read yet) in octet
+ */
+uint32_t usart_fifo_rx_size(Usart *usart)
+{
+	return (usart->US_FLR & US_FLR_RXFL_Msk) >> US_FLR_RXFL_Pos;
+}
+
+/**
+ * \brief Get the size occupied in the ouput FIFO of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ * \return Size occupied in the output FIFO (not sent yet) in octet
+ */
+uint32_t usart_fifo_tx_size(Usart *usart)
+{
+	return (usart->US_FLR & US_FLR_TXFL_Msk) >> US_FLR_TXFL_Pos;
+}
+
+/**
+ * \brief Reads from USART device input channel until the specified length is
+ * reached.
+ *
+ * \param usart Pointer to an USART instance.
+ * \param stream Pointer to the receive buffer.
+ * \param len Size of the receive buffer, in octets.
+ *
+ * \return Number of read octets
+ *
+ * \warning WORKS ONLY IN LITTLE ENDIAN MODE!
+ *
+ * \note The FIFO must be configured before using this function.
+ * \note In case of a TIMEOUT or a BREAK, a null character is appended to the
+ * buffer and the returned value should be inferior to \ref len.
+ */
+uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
+{
+	uint8_t* buffer = stream;
+	uint32_t left = len;
+	while (left > 0) {
+		/* Stop reception if a timeout or break occur */
+		if ((usart->US_CSR & (US_CSR_TIMEOUT | US_CSR_RXBRK)) == 0) {
+			*buffer = '\0';
+			--left;
+			break;
+		}
+
+		if ((usart->US_CSR & US_CSR_RXRDY) == 0) continue;
+
+		/* Get FIFO size (in octets) and clamp it */
+		uint32_t buf_size = usart_fifo_rx_size(usart);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the buffer as must as possible with four data reads */
+		while (buf_size / sizeof(uint32_t) >= 1) {
+			*(uint32_t*)buffer = usart->US_RHR;
+			buffer += sizeof(uint32_t);
+			left -= sizeof(uint32_t);
+			buf_size -= sizeof(uint32_t);
+		}
+		/* Add tail data if stream is not 4 octet aligned */
+		if (buf_size >= sizeof(uint16_t)) {
+			/* two data read */
+			readhw(&usart->US_RHR, (uint16_t*)buffer);
+			left -= sizeof(uint16_t);
+			buffer += sizeof(uint16_t);
+		}
+		if (buf_size >= sizeof(uint8_t)) {
+			/* one data read */
+			readb(&usart->US_RHR, buffer);
+			left -= sizeof(uint16_t);
+		}
+	}
+	return len - left;
+}
+
+/**
+ * \brief Writes given data to USART device output channel until the specified
+ * length is reached.
+ *
+ * \param usart Pointer to an USART instance.
+ * \param stream Pointer to the data to send.
+ * \param len Size of the data to send, in octets.
+ *
+ * \return Number of written octets
+ *
+ * \warning WORKS ONLY IN LITTLE ENDIAN MODE!
+ *
+ * \note The FIFO must be configured before using this function.
+ * \note This function do not wait for the FIFO to be empty.
+ * \note In case of a TIMEOUT the transmission is aborted and the returned value
+ * should be inferior to \ref len.
+ */
+uint32_t usart_write_stream(Usart *usart, const void *stream,
+			    uint32_t len)
+{
+	const uint8_t* buffer = stream;
+	uint32_t left = len;
+
+	while (left > 0) {
+		if ((usart->US_CSR & US_CSR_TXRDY) == 0) continue;
+
+		/* Get FIFO free size (int octet) and clamp it */
+		uint32_t buf_size = USART_FIFO_DEPTH - usart_fifo_tx_size(usart);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the FIFO as must as possible with four data writes */
+		while (buf_size / sizeof(uint32_t) >= 1) {
+			usart->US_THR = *(uint32_t*)buffer;
+			buffer += sizeof(uint32_t);
+			left -= sizeof(uint32_t);
+			buf_size -= sizeof(uint32_t);
+		}
+		/* Add tail data if stream is not 4 octet aligned */
+		if (buf_size >= sizeof(uint16_t)) {
+			/* two data write */
+			writehw(&usart->US_THR, *(uint16_t*)buffer);
+			buffer += sizeof(uint16_t);
+			left -= sizeof(uint16_t);
+			buf_size -= sizeof(uint16_t);
+		}
+		if (buf_size >= sizeof(uint8_t)) {
+			/* one data write */
+			writeb(&usart->US_THR, *buffer);
+			buffer += sizeof(uint16_t);
+			left -= sizeof(uint8_t);
+		}
+	}
+	return len - left;
+}
+#endif
