@@ -98,15 +98,12 @@
  * \param dwTwCk  Desired TWI clock frequency.
  * \param dwMCk  Master clock frequency.
  */
-void twi_configure_master(Twi * pTwi, uint32_t dwTwCk, uint32_t dwMCk)
+void twi_configure_master(Twi * pTwi, uint32_t twi_clock, uint32_t master_clock)
 {
-	uint32_t dwCkDiv, dwClDiv, dwOk, maxClock;
+	uint32_t ck_div, cl_div, ok, max_clock;
 	uint32_t id = GET_TWI_ID_FROM_ADDR(pTwi);
 
-	dwCkDiv = 0;
-	dwOk = 0;
-
-	TRACE_DEBUG("twi_ConfigureMaster()\n\r");
+	TRACE_DEBUG("twi_configure_master()\n\r");
 	assert(pTwi);
 	assert(id != ID_PERIPH_COUNT);
 	/* SVEN: TWI Slave Mode Enabled */
@@ -119,20 +116,18 @@ void twi_configure_master(Twi * pTwi, uint32_t dwTwCk, uint32_t dwMCk)
 	pTwi->TWI_CR = TWI_CR_MSDIS;
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;
-	maxClock = pmc_set_peri_max_clock(id, dwMCk);
+	max_clock = pmc_set_peri_max_clock(id, master_clock);
 	/* Configure clock */
-	while (!dwOk) {
-		dwClDiv = ((maxClock / (2 * dwTwCk)) - 8) / (1 << dwCkDiv);
-		if (dwClDiv <= 255) {
-			dwOk = 1;
-		} else {
-			dwCkDiv++;
-		}
+	ck_div = 0;
+	ok = 0;
+	while (!ok) {
+		cl_div = ((max_clock / (2 * twi_clock)) - 8) / (1 << ck_div);
+		(cl_div <= 255) ? ok = 1 : ck_div++;
 	}
-	assert(dwCkDiv < 8);
-	TRACE_DEBUG("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", dwCkDiv, dwClDiv);
+	assert(ck_div < 8);
+	TRACE_DEBUG("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", ck_div, cl_div);
 	pTwi->TWI_CWGR = 0;
-	pTwi->TWI_CWGR = (dwCkDiv << 16) | (dwClDiv << 8) | dwClDiv;
+	pTwi->TWI_CWGR = (cl_div << 16) | (cl_div << 8) | cl_div;
 }
 
 /**
@@ -140,10 +135,12 @@ void twi_configure_master(Twi * pTwi, uint32_t dwTwCk, uint32_t dwMCk)
  * \param twi  Pointer to an Twi instance.
  * \param slaveAddress Slave address.
  */
-void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress)
+void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 {
 	uint32_t i;
 
+	TRACE_DEBUG("twi_configure_slave()\n\r");
+	assert(pTwi);
 	/* TWI software reset */
 	pTwi->TWI_CR = TWI_CR_SWRST;
 	pTwi->TWI_RHR;
@@ -153,7 +150,7 @@ void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress)
 	pTwi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
 	/* Configure slave address. */
 	pTwi->TWI_SMR = 0;
-	pTwi->TWI_SMR = TWI_SMR_SADR(slaveAddress);
+	pTwi->TWI_SMR = TWI_SMR_SADR(slave_address);
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Wait at least 10 ms */
