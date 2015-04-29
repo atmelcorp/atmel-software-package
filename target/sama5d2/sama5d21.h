@@ -238,7 +238,8 @@ typedef enum IRQn
 /*   CONFIGURATION ID H64 MATRIX FOR SAMA5D21 */
 /* ************************************************************************** */
 
-const uint32_t _id_h64_matrix[] = {
+const uint8_t _id_h64_matrix[] = {
+	ID_ARM_PMU,
 	ID_XDMAC0,
 	ID_XDMAC1,
 	ID_AES,
@@ -252,10 +253,11 @@ const uint32_t _id_h64_matrix[] = {
 	ID_ISC,
 	ID_QSPI0,
 	ID_QSPI1,
-	ID_L2CC,
-} ;
+	ID_L2CC
+};
 
 #define ID_H64_MATRIX_SIZE 	sizeof(_id_h64_matrix)
+
 
 /* ************************************************************************** */
 /*   BASE ADDRESS DEFINITIONS FOR SAMA5D21 */
