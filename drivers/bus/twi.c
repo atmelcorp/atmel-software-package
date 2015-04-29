@@ -36,27 +36,27 @@
  * <ul>
  * <li> Configures a TWI peripheral to operate in master mode, at the given
  * frequency (in Hz) using TWI_Configure(). </li>
- * <li> Sends a STOP condition on the TWI using TWI_Stop().</li>
+ * <li> Sends a STOP condition on the TWI using twi_stop().</li>
  * <li> Starts a read operation on the TWI bus with the specified slave using
- * TWI_StartRead(). Data must then be read using TWI_ReadByte() whenever
- * a byte is available (poll using TWI_ByteReceived()).</li>
+ * twi_start_read(). Data must then be read using twi_read_byte() whenever
+ * a byte is available (poll using twi_is_byte_received()).</li>
  * <li> Starts a write operation on the TWI to access the selected slave using
- * TWI_StartWrite(). A byte of data must be provided to start the write;
+ * twi_start_write(). A byte of data must be provided to start the write;
  * other bytes are written next.</li>
- * <li> Sends a byte of data to one of the TWI slaves on the bus using TWI_WriteByte().
- * This function must be called once before TWI_StartWrite() with the first byte of data
+ * <li> Sends a byte of data to one of the TWI slaves on the bus using twi_write_byte().
+ * This function must be called once before twi_start_write() with the first byte of data
  * to send, then it shall be called repeatedly after that to send the remaining bytes.</li>
  * <li> Check if a byte has been received and can be read on the given TWI
- * peripheral using TWI_ByteReceived().<
- * Check if a byte has been sent using TWI_ByteSent().</li>
+ * peripheral using twi_is_byte_received().<
+ * Check if a byte has been sent using twi_byte_sent().</li>
  * <li> Check if the current transmission is complete (the STOP has been sent)
- * using TWI_TransferComplete().</li>
+ * using twi_is_transfer_complete().</li>
  * <li> Enables & disable the selected interrupts sources on a TWI peripheral
- * using TWI_EnableIt() and TWI_DisableIt().</li>
+ * using twi_enable_it() and twi_enable_it().</li>
  * <li> Get current status register of the given TWI peripheral using
- * TWI_GetStatus(). Get current status register of the given TWI peripheral, but
+ * twi_get_status(). Get current status register of the given TWI peripheral, but
  * masking interrupt sources which are not currently enabled using
- * TWI_GetMaskedStatus().</li>
+ * twi_get_masked_status().</li>
  * </ul>
  * For more accurate information, please look at the TWI section of the
  * Datasheet.
@@ -169,8 +169,8 @@ void twi_stop(Twi * pTwi)
 
 /**
  * \brief Starts a read operation on the TWI bus with the specified slave, it returns
- * immediately. Data must then be read using TWI_ReadByte() whenever a byte is
- * available (poll using TWI_ByteReceived()).
+ * immediately. Data must then be read using twi_read_byte() whenever a byte is
+ * available (poll using twi_is_byte_received()).
  * \param twi  Pointer to an Twi instance.
  * \param address  Slave address on the bus.
  * \param iaddress  Optional internal address bytes.
@@ -194,7 +194,7 @@ void twi_start_read(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isiz
 
 /**
  * \brief Reads a byte from the TWI bus. The read operation must have been started
- * using TWI_StartRead() and a byte must be available (check with TWI_ByteReceived()).
+ * using twi_start_read() and a byte must be available (check with twi_is_byte_received()).
  * \param twi  Pointer to an Twi instance.
  * \return byte read.
  */
@@ -206,7 +206,7 @@ uint8_t twi_read_byte(Twi * pTwi)
 
 /**
  * \brief Sends a byte of data to one of the TWI slaves on the bus.
- * \note This function must be called once before TWI_StartWrite() with
+ * \note This function must be called once before twi_start_write() with
  * the first byte of data  to send, then it shall be called repeatedly
  * after that to send the remaining bytes.
  * \param twi  Pointer to an Twi instance.

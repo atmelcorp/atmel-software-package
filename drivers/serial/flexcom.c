@@ -27,47 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup usart_module Working with USART
- * \section Purpose
- * The USART driver provides the interface to configure and use the USART peripheral.\n
- *
- * The USART supports several kinds of communication modes such as full-duplex asynchronous/
- * synchronous serial communication,RS485 with driver control signal,ISO7816,SPI and Test modes.
- *
- * To start a USART transfer with \ref dmad_module "DMA" support, the user could follow these steps:
- * <ul>
- * <li> Configure USART with expected mode and baudrate(see \ref usart_configure), which could be done by:
- * -# Resetting and disabling transmitter and receiver by setting US_CR(Control Register). </li>
- * -# Configuring the USART in a specific mode by setting USART_MODE bits in US_MR(Mode Register) </li>
- * -# Setting baudrate which is different from mode to mode.
-   </li>
- * <li> Enable transmitter or receiver respectively by set US_CR_TXEN or US_CR_RXEN in US_CR.</li>
- * <li> Read from or write to the peripheral with  \ref dmad_module </li>
- * </ul>
- *
- * \section Usage
- * <ul>
- * <li>  Enable or disable USART transmitter or receiver using
- * usart_set_transmitter_enabled() and usart_set_receiver_enabled().
- * <li>  Enable or disable USART interrupt using usart_enable_it() or usart_disable_it().
- * </li>
- * </ul>
- *
- * For more accurate information, please look at the USART section of the
- * Datasheet.
- *
- * Related files :\n
- * \ref usart.c\n
- * \ref usart.h\n
-*/
-
-/**
- * \file
- *
- * Implementation of USART (Universal Synchronous Asynchronous Receiver Transmitter)
- * controller.
- *
- */
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -109,7 +68,7 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 		SPI_Disable(&flexcom->spi);
 		break;
 	case FLEX_MR_OPMODE_TWI:
-		TWI_Stop(&flexcom->twi);
+		twi_stop(&flexcom->twi);
 	default:
 		break;
 	}

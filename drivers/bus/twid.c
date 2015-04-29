@@ -256,24 +256,24 @@ TWID_Handler(Twid * pTwid)
 	assert(pTwi != NULL);
 
 	/* Retrieve interrupt status */
-	status = TWI_GetMaskedStatus(pTwi);
+	status = twi_get_masked_status(pTwi);
 
 	/* Byte received */
 	if (TWI_STATUS_RXRDY(status)) {
 
-		pTransfer->pData[pTransfer->transferred] = TWI_ReadByte(pTwi);
+		pTransfer->pData[pTransfer->transferred] = twi_read_byte(pTwi);
 		pTransfer->transferred++;
 
 		/* check for transfer finish */
 		if (pTransfer->transferred == pTransfer->num) {
 
-			TWI_DisableIt(pTwi, TWI_IDR_RXRDY);
-			TWI_EnableIt(pTwi, TWI_IER_TXCOMP);
+			twi_enable_it(pTwi, TWI_IDR_RXRDY);
+			twi_enable_it(pTwi, TWI_IER_TXCOMP);
 		}
 		/* Last byte? */
 		else if (pTransfer->transferred == (pTransfer->num - 1)) {
 
-			TWI_Stop(pTwi);
+			twi_stop(pTwi);
 		}
 	}
 	/* Byte sent */
@@ -282,14 +282,14 @@ TWID_Handler(Twid * pTwid)
 		/* Transfer finished ? */
 		if (pTransfer->transferred == pTransfer->num) {
 
-			TWI_DisableIt(pTwi, TWI_IDR_TXRDY);
-			TWI_EnableIt(pTwi, TWI_IER_TXCOMP);
-			TWI_SendSTOPCondition(pTwi);
+			twi_enable_it(pTwi, TWI_IDR_TXRDY);
+			twi_enable_it(pTwi, TWI_IER_TXCOMP);
+			twi_send_stop_condition(pTwi);
 		}
 		/* Bytes remaining */
 		else {
 
-			TWI_WriteByte(pTwi,
+			twi_write_byte(pTwi,
 				      pTransfer->pData[pTransfer->transferred]);
 			pTransfer->transferred++;
 		}
@@ -297,7 +297,7 @@ TWID_Handler(Twid * pTwid)
 	/* Transfer complete */
 	else if (TWI_STATUS_TXCOMP(status)) {
 
-		TWI_DisableIt(pTwi, TWI_IDR_TXCOMP);
+		twi_enable_it(pTwi, TWI_IDR_TXCOMP);
 		pTransfer->status = 0;
 		if (pTransfer->callback) {
 			pTransfer->callback((Async *) (void *) pTransfer);
@@ -357,56 +357,56 @@ TWID_Read(Twid * pTwid,
 		pTransfer->transferred = 0;
 
 		/* Enable read interrupt and start the transfer */
-		TWI_EnableIt(pTwi, TWI_IER_RXRDY);
-		TWI_StartRead(pTwi, address, iaddress, isize);
+		twi_enable_it(pTwi, TWI_IER_RXRDY);
+		twi_start_read(pTwi, address, iaddress, isize);
 	}
 	/* Synchronous transfer */
 	else {
 
 		/* Start read */
-		TWI_StartRead(pTwi, address, iaddress, isize);
+		twi_start_read(pTwi, address, iaddress, isize);
 		if (num != 1) {
-			status = TWI_GetStatus(pTwi);
+			status = twi_get_status(pTwi);
 
 			if (status & TWI_SR_NACK)
 				TRACE_ERROR("TWID NACK error\n\r");
 			timeout = 0;
 			while (!(status & TWI_SR_RXRDY)
 			       && (++timeout < TWITIMEOUTMAX)) {
-				status = TWI_GetStatus(pTwi);
-				//TRACE_ERROR("TWID status %x\n\r",TWI_GetStatus(pTwi));
+				status = twi_get_status(pTwi);
+				//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
 			}
 
-			pData[0] = TWI_ReadByte(pTwi);
+			pData[0] = twi_read_byte(pTwi);
 			for (i = 1; i < num - 1; i++) {
-				status = TWI_GetStatus(pTwi);
+				status = twi_get_status(pTwi);
 				if (status & TWI_SR_NACK)
 					TRACE_ERROR("TWID NACK error\n\r");
 				timeout = 0;
 				while (!(status & TWI_SR_RXRDY)
 				       && (++timeout < TWITIMEOUTMAX)) {
-					status = TWI_GetStatus(pTwi);
-					//TRACE_ERROR("TWID status %x\n\r",TWI_GetStatus(pTwi));
+					status = twi_get_status(pTwi);
+					//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
 				}
-				pData[i] = TWI_ReadByte(pTwi);
+				pData[i] = twi_read_byte(pTwi);
 			}
 		}
-		TWI_Stop(pTwi);
-		status = TWI_GetStatus(pTwi);
+		twi_stop(pTwi);
+		status = twi_get_status(pTwi);
 		if (status & TWI_SR_NACK)
 			TRACE_ERROR("TWID NACK error\n\r");
 		timeout = 0;
 		while (!(status & TWI_SR_RXRDY) && (++timeout < TWITIMEOUTMAX)) {
-			status = TWI_GetStatus(pTwi);
-			//TRACE_ERROR("TWID status %x\n\r",TWI_GetStatus(pTwi));
+			status = twi_get_status(pTwi);
+			//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
 		}
 
-		pData[i] = TWI_ReadByte(pTwi);
+		pData[i] = twi_read_byte(pTwi);
 		timeout = 0;
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		while (!(status & TWI_SR_TXCOMP) && (++timeout < TWITIMEOUTMAX)) {
-			status = TWI_GetStatus(pTwi);
-			//TRACE_ERROR("TWID status %x\n\r",TWI_GetStatus(pTwi));
+			status = twi_get_status(pTwi);
+			//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
 		}
 #if 0
 		/* Read all bytes, setting STOP before the last byte */
@@ -415,23 +415,23 @@ TWID_Read(Twid * pTwid,
 			/* Last byte ? */
 			if (num == 1) {
 
-				TWI_Stop(pTwi);
+				twi_stop(pTwi);
 			}
 
 			/* Wait for byte then read and store it */
 			timeout = 0;
-			while (!TWI_ByteReceived(pTwi)
+			while (!twi_is_byte_received(pTwi)
 			       && (++timeout < TWITIMEOUTMAX)) ;
 			if (timeout == TWITIMEOUTMAX) {
 				TRACE_ERROR("TWID Timeout BR\n\r");
 			}
-			*pData++ = TWI_ReadByte(pTwi);
+			*pData++ = twi_read_byte(pTwi);
 			num--;
 		}
 
 		/* Wait for transfer to be complete */
 		timeout = 0;
-		while (!TWI_TransferComplete(pTwi)
+		while (!twi_is_transfer_complete(pTwi)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout TC\n\r");
@@ -494,8 +494,8 @@ TWID_DmaRead(Twid * pTwid,
 		pTransfer->transferred = 0;
 
 		/* Enable read interrupt and start the transfer */
-		TWI_EnableIt(pTwi, TWI_IER_RXRDY);
-		TWI_StartRead(pTwi, address, iaddress, isize);
+		twi_enable_it(pTwi, TWI_IER_RXRDY);
+		twi_start_read(pTwi, address, iaddress, isize);
 	}
 	/* Synchronous transfer */
 	else {
@@ -505,30 +505,30 @@ TWID_DmaRead(Twid * pTwid,
 		/* Start read */
 		XDMAD_StartTransfer(&twi_dma, dmaReadChannel);
 
-		TWI_StartRead(pTwi, address, iaddress, isize);
+		twi_start_read(pTwi, address, iaddress, isize);
 
 		while ((XDMAD_IsTransferDone(&twi_dma, dmaReadChannel))
 		       && (++timeout < TWITIMEOUTMAX)) ;
 
 		XDMAD_StopTransfer(&twi_dma, dmaReadChannel);
 
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_RXRDY)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 
-		TWI_Stop(pTwi);
+		twi_stop(pTwi);
 
-		TWI_ReadByte(pTwi);
+		twi_read_byte(pTwi);
 
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_RXRDY)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 
-		TWI_ReadByte(pTwi);
+		twi_read_byte(pTwi);
 
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_TXCOMP)
 		       && (++timeout < TWITIMEOUTMAX)) ;
@@ -592,8 +592,8 @@ TWID_DmaWrite(Twid * pTwid,
 		pTransfer->transferred = 1;
 
 		/* Enable write interrupt and start the transfer */
-		TWI_StartWrite(pTwi, address, iaddress, isize, *pData);
-		TWI_EnableIt(pTwi, TWI_IER_TXRDY);
+		twi_start_write(pTwi, address, iaddress, isize, *pData);
+		twi_enable_it(pTwi, TWI_IER_TXRDY);
 	}
 	/* Synchronous transfer */
 	else {
@@ -615,22 +615,22 @@ TWID_DmaWrite(Twid * pTwid,
 
 		XDMAD_StopTransfer(&twi_dma, dmaWriteChannel);
 
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_TXRDY) && (timeout++ < TWITIMEOUTMAX)) {
-			status = TWI_GetStatus(pTwi);
+			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout TXRDY\n\r");
 		}
 
 		/* Send a STOP condition */
-		TWI_Stop(pTwi);
+		twi_stop(pTwi);
 
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_TXCOMP) && (++timeout < TWITIMEOUTMAX)) {
-			status = TWI_GetStatus(pTwi);
+			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout Write\n\r");
@@ -694,25 +694,25 @@ TWID_Write(Twid * pTwid,
 		pTransfer->transferred = 1;
 
 		/* Enable write interrupt and start the transfer */
-		TWI_StartWrite(pTwi, address, iaddress, isize, *pData);
-		TWI_EnableIt(pTwi, TWI_IER_TXRDY);
+		twi_start_write(pTwi, address, iaddress, isize, *pData);
+		twi_enable_it(pTwi, TWI_IER_TXRDY);
 	}
 	/* Synchronous transfer */
 	else {
 
 		// Start write
-		TWI_StartWrite(pTwi, address, iaddress, isize, *pData++);
+		twi_start_write(pTwi, address, iaddress, isize, *pData++);
 		num--;
 		if (singleTransfer) {
 			/* Send a STOP condition */
-			TWI_SendSTOPCondition(pTwi);
+			twi_send_stop_condition(pTwi);
 		}
-		status = TWI_GetStatus(pTwi);
+		status = twi_get_status(pTwi);
 
 		if (status & TWI_SR_NACK)
 			TRACE_ERROR("TWID NACK error\n\r");
 		while (!(status & TWI_SR_TXRDY) && (timeout++ < TWITIMEOUTMAX)) {
-			status = TWI_GetStatus(pTwi);
+			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout BS\n\r");
@@ -723,14 +723,14 @@ TWID_Write(Twid * pTwid,
 
 			/* Wait before sending the next byte */
 			timeout = 0;
-			TWI_WriteByte(pTwi, *pData++);
-			status = TWI_GetStatus(pTwi);
+			twi_write_byte(pTwi, *pData++);
+			status = twi_get_status(pTwi);
 
 			if (status & TWI_SR_NACK)
 				TRACE_ERROR("TWID NACK error\n\r");
 			while (!(status & TWI_SR_TXRDY)
 			       && (timeout++ < TWITIMEOUTMAX)) {
-				status = TWI_GetStatus(pTwi);
+				status = twi_get_status(pTwi);
 			}
 			if (timeout == TWITIMEOUTMAX) {
 				TRACE_ERROR("TWID Timeout BS\n\r");
@@ -743,9 +743,9 @@ TWID_Write(Twid * pTwid,
 		timeout = 0;
 		if (!singleTransfer) {
 			/* Send a STOP condition */
-			TWI_SendSTOPCondition(pTwi);
+			twi_send_stop_condition(pTwi);
 		}
-		while (!TWI_TransferComplete(pTwi)
+		while (!twi_is_transfer_complete(pTwi)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout TC2\n\r");
