@@ -18,35 +18,6 @@ $(info The wanted target "$(TARGET)" is not supported)
 $(error Please set TARGET to one value from the list above: $(AVAILABLE_BOARDS))
 endif
 
-ifeq ("y",$(TARGET:sama5d4-%="y"))
-SERIE=SERIE_SAMA5D4
-SERIEDIRNAME=sama5d4
-ifeq ("y",$(TARGET:%-xplained="y"))
-BOARD=BOARD_SAMA5D4_XPLAINED
-CHIP=CHIP_SAMA5D44
-endif
-
-ifeq ("y",$(TARGET:%-ek="y"))
-BOARD=BOARD_SAMA5D4_EK
-endif
-endif
-
-ifeq ("y",$(TARGET:sama5d2-%="y"))
-SERIE=SERIE_SAMA5D2
-SERIEDIRNAME=sama5d2
-ifeq ("y",$(TARGET:%-xplained="y"))
-BOARD=BOARD_SAMA5D2_XPLAINED
-CHIP=CHIP_SAMA5D21
-endif
-endif
-
-# select chip related pio API
-ifeq ($(SERIE),SERIE_SAMA5D2)
-PIO_API=API_PIOv4
-else
-PIO_API=API_PIOv3
-endif
-
 #-------------------------------------------------------------------------------
 #		Setup cross-compilation tools
 #-------------------------------------------------------------------------------
@@ -63,30 +34,13 @@ GDB = $(CROSS_COMPILE)gdb
 NM = $(CROSS_COMPILE)nm
 
 #-------------------------------------------------------------------------------
-#		Setup paths
-#-------------------------------------------------------------------------------
-ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
-LIBDIR := $(ROOTDIR)/lib
-TARGETDIR := $(ROOTDIR)/target
-DRIVERDIR := $(ROOTDIR)/drivers
-UTILSDIR := $(ROOTDIR)/utils
-RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIEDIRNAME)
-EXAMPLEDIR := $(ROOTDIR)/examples
-
-#-------------------------------------------------------------------------------
 #		Setup compilation params
 #-------------------------------------------------------------------------------
 
-# include dirs
-INCLUDE_TARGET = -I$(TARGETDIR) -I$(TARGETDIR)/include
-INCLUDE_UTILS = -I$(UTILSDIR)
-INCLUDE_LIB = -I$(LIBDIR)
-INCLUDE_DRIVER = -I$(DRIVERDIR)
-INCLUDE_ROOTDIR = -I$(ROOTDIR)
-
-OPTIMIZE_MEMORY = -Os
-OPTIMIZE_EXEC =
-optimization = $(if $(call eq,sram,$(1)),$(OPTIMIZE_MEMORY),$(OPTIMIZE_EXEC))
+OPTIMIZE_sram = -Os
+OPTIMIZE_ddram =
+OPTIMIZE_perf = -O2
+optimization = $(OPTIMIZE_$(1))
 
 # C flags
 CFLAGS = -Wall -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int
@@ -101,22 +55,30 @@ CFLAGS += -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
 CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall -g3
 CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="\"$(SOFTPACK_VERSION)\""
-CFLAGS += -D$(PIO_API)
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
 
 # linkker flags
 LDFLAGS= -mcpu=cortex-a5 -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=entry -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
 
+ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+include $(ROOTDIR)/Makefile.sama5d4
+include $(ROOTDIR)/Makefile.sama5d2
+
 #-------------------------------------------------------------------------------
-# we detect OS (Linux/Windows/Cygwin)
-# not defined for Cygwin
-#ifdef $(OS)
-ifdef SystemRoot
-RM=del
-RMDIR=rmdir /s /q
-PATHSEP=\\
-else
-RM=rm -f
-RMDIR=rm -fr
-endif
+#		Setup paths
+#-------------------------------------------------------------------------------
+LIBDIR := $(ROOTDIR)/lib
+TARGETDIR := $(ROOTDIR)/target
+DRIVERDIR := $(ROOTDIR)/drivers
+UTILSDIR := $(ROOTDIR)/utils
+RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIENAME)
+EXAMPLEDIR := $(ROOTDIR)/examples
+
+# include dirs
+INCLUDE_TARGET = -I$(TARGETDIR) -I$(TARGETDIR)/include
+INCLUDE_UTILS = -I$(UTILSDIR)
+INCLUDE_LIB = -I$(LIBDIR)
+INCLUDE_DRIVER = -I$(DRIVERDIR)
+INCLUDE_ROOTDIR = -I$(ROOTDIR)

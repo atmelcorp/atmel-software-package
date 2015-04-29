@@ -1,0 +1,13 @@
+ifeq ("y",$(TARGET:sama5d2-%="y"))
+SERIE=SERIE_SAMA5D2
+SERIENAME=sama5d2
+
+ifeq ("y",$(TARGET:%-xplained="y"))
+BOARD=BOARD_SAMA5D2_XPLAINED
+CHIP=CHIP_SAMA5D21
+endif
+
+PIO_API := API_PIOv3
+CFLAGS += -DFIFO_ENABLED -D$(PIO_API)
+
+endif

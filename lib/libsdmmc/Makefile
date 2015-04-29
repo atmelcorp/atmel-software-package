@@ -51,7 +51,7 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_SRAM)/$*.d
 	@cp -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp
 	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
@@ -61,7 +61,7 @@ $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
 	$(CC) -c $(CFLAGS) $(call optimization,sram) $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
-@$(CC) $(CFLAGS) $(call optimization,$(sram)) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
 	@cp -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp
 	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d

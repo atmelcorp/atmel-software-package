@@ -57,8 +57,7 @@ TRACE_LEVEL = 4
 INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
-LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIRNAME)
-LINKS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
+LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIENAME)
 LINKS_SRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
 LINKS_DDRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_ddram -ldrivers-$(TARGET)_ddram -lutils-$(TARGET)_ddram -Wl,--end-group
 
@@ -74,7 +73,7 @@ OBJECTS += main.o
 OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
 OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
 
-LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
+LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
 
 #-------------------------------------------------------------------------------
 #		Rules
@@ -95,13 +94,13 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
-	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
+	$(CC) $(CFLAGS) $(call optimization,sram) -c $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
-	$(CC) $(CFLAGS) $(call optimization,$(ddram)) -c $< -o $@
+	$(CC) $(CFLAGS) $(call optimization,ddram) -c $< -o $@
 
 $(BUILDDIR_SRAM)/rtc.elf: $(OBJECTS_SRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(SERIENAME)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
 
 $(BUILDDIR_SRAM)/rtc.elf: $(LIBS)
 
@@ -135,4 +134,4 @@ size_ddram:
 	$(SIZE) $(OBJECTS_DDRAM) $(BUILDDIR_DDRAM)/rtc.elf
 
 debug_sram: $(BUILDDIR_SRAM)/rtc.elf
-	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/rtc.elf
+	$(GDB) -x "$(RESOURCEDIR)/$(SERIENAME)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/rtc.elf

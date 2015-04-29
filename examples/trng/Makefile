@@ -57,8 +57,7 @@ TRACE_LEVEL = 4
 INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
-LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIEDIRNAME) -L$(LIBDIR)/lwip
-LINKS = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
+LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIENAME) -L$(LIBDIR)/lwip
 LINKS_SRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
 LINKS_DDRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_ddram -ldrivers-$(TARGET)_ddram -lutils-$(TARGET)_ddram -Wl,--end-group
 
@@ -73,7 +72,10 @@ OBJECTS += main.o
 OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
 OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
 
-LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
+LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
+
+-include $(OBJECTS_SRAM:.o=.d)
+-include $(OBJECTS_DDRAM:.o=.d)
 
 #-------------------------------------------------------------------------------
 #		Rules
@@ -94,13 +96,25 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
-	$(CC) $(CFLAGS) $(call optimization,$(sram)) -c $< -o $@
+	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_SRAM)/$*.d
+	@rm -f $(BUILDDIR_SRAM)/$*.d.tmp
+	$(CC) $(CFLAGS) $(call optimization,sram) -c $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
-	$(CC) $(CFLAGS) $(call optimization,$(ddram)) -c $< -o $@
+	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
+	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR_DDRAM)/$*.d
+	@rm -f $(BUILDDIR_DDRAM)/$*.d.tmp
+	$(CC) $(CFLAGS) $(call optimization,dram) -c $< -o $@
 
 $(BUILDDIR_SRAM)/trng.elf: $(OBJECTS_SRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(SERIENAME)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
 
 $(BUILDDIR_SRAM)/trng.elf: $(LIBS)
 
@@ -121,7 +135,7 @@ $(BUILDDIR_DDRAM)/trng.symbols: $(BUILDDIR_DDRAM)/trng.elf
 $(BUILDDIR_DDRAM)/trng.bin: $(BUILDDIR_DDRAM)/trng.elf
 	$(OBJCOPY) -O binary $< $@
 
-$(LIBS):
+$(LIBS): $(OBJECTS_SRAM) $(OBJECTS_DRAM)
 	$(MAKE) -f $(@D)/Makefile
 
 .PHONY: clean
@@ -135,4 +149,4 @@ size_ddram:
 	$(SIZE) $(OBJECTS_DDRAM) $(BUILDDIR_DDRAM)/trng.elf
 
 debug_sram: $(BUILDDIR_SRAM)/trng.elf
-	$(GDB) -x "$(RESOURCEDIR)/$(TARGET)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/trng.elf
+	$(GDB) -x "$(RESOURCEDIR)/$(SERIENAME)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/trng.elf

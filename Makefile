@@ -32,7 +32,7 @@ include $(MAKEFILEDIR)/Makefile.inc
 
 VPATH = $(MAKEFILEDIR)
 
-LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIEDIRNAME)/*.a $(DRIVERDIR)/*.a
+LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
 USER_LIBRARIES = $(LIBDIR)/lwip/*.a
 
 #EXAMPLES = $(wildcard $(MAKEFILEDIR)/examples/*/build)
@@ -56,7 +56,7 @@ clean:
 	-rm -f $(LIBRARIES)
 	-rm -f $(USER_LIBRARIES)
 	-rm -rf $(UTILSDIR)/build
-	-rm -rf $(TARGETDIR)/$(SERIEDIRNAME)/build
+	-rm -rf $(TARGETDIR)/$(SERIENAME)/build
 	-rm -rf $(DRIVERDIR)/build
 	-rm -rf $(EXAMPLEDIR)/*/build
 	-rm -rf $(LIBDIR)/*/build

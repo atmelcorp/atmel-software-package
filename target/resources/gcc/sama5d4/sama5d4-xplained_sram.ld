@@ -1,1 +1,0 @@
-sama5d4_sram.ld
