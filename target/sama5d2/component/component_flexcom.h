@@ -64,11 +64,11 @@ typedef struct {
 	__IO uint32_t US_CMPR;     /**< \brief (Flexcom Offset: 0x290) USART Comparison Register */
 	__I  uint32_t Reserved8[3];
 	__IO uint32_t US_FMR;      /**< \brief (Flexcom Offset: 0x2A0) USART FIFO Mode Register */
-	__I  uint32_t US_FESR;     /**< \brief (Flexcom Offset: 0x2A4) USART FIFO Level Register */
+	__I  uint32_t US_FLR;      /**< \brief (Flexcom Offset: 0x2A4) USART FIFO Level Register */
 	__O  uint32_t US_FIER;     /**< \brief (Flexcom Offset: 0x2A8) USART FIFO Interrupt Enable Register */
 	__O  uint32_t US_FIDR;     /**< \brief (Flexcom Offset: 0x2AC) USART FIFO Interrupt Disable Register */
 	__I  uint32_t US_FIMR;     /**< \brief (Flexcom Offset: 0x2B0) USART FIFO Interrupt Mask Register */
-	__I  uint32_t US_FLR;      /**< \brief (Flexcom Offset: 0x2B4) USART FIFO Event Status Register */
+	__I  uint32_t US_FESR;     /**< \brief (Flexcom Offset: 0x2B4) USART FIFO Event Status Register */
 	__I  uint32_t Reserved9[11];
 	__IO uint32_t US_WPMR;     /**< \brief (Flexcom Offset: 0x2E4) USART Write Protection Mode Register */
 	__I  uint32_t US_WPSR;     /**< \brief (Flexcom Offset: 0x2E8) USART Write Protection Status Register */
