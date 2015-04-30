@@ -68,7 +68,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "core/pmc_d2.h"
+#include "core/pmc.h"
 #include "utils/trace.h"
 
 #include <assert.h>
@@ -205,18 +205,11 @@ extern void pmc_select_external_slow_clock_32Khz(void)
 }
 
 /**
- * \brief Select internal 12K RC oscillator.
+ * \brief Select internal 64Khz RC oscillator.
  */
-extern void pmc_select_internal_slow_clock_12KHz(void)
+extern void pmc_select_internal_slow_clock_64KHz(void)
 {
-	/* switch from external RC 32kHz to internal OSC 32 kHz */
-	volatile uint32_t count;
-	/* switch slow clock source to internal OSC 32 kHz */
-	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
-	/* Wait 5 slow clock cycles for internal resynchronization */
-	for (count = 0; count < 0x1000; count++) ;
-	/* wait slow clock status change for internal RC 32 kHz selection */
-	//   while(PMC->PMC_SR & PMC_SR_OSCSELS);
+	/* switch from external RC 32kHz to internal OSC 64 kHz */
 }
 
 /**
@@ -256,7 +249,7 @@ extern void pmc_select_external_main_osc(void)
 }
 
 /**
- * \brief Select internal RC 12M OSC.
+ * \brief Select internal RC 12MHz OSC.
  * When switching the source of the main clock between the RC oscillator
  * and the crystal oscillator, both oscillators must be enabled.
  * After completion of the switch, the unused oscillator can be disabled.

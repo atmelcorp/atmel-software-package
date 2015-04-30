@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,12 +27,13 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _PMC_
-#define _PMC_
+#ifndef _PMC_H_
+#define _PMC_H_
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -53,29 +54,35 @@ typedef struct _PeripheralClockMaxFreq {
 extern "C" {
 #endif
 
-extern void pmc_enable_peripheral(uint32_t dwId);
-extern void pmc_disable_peripheral(uint32_t dwId);
-
+extern void pmc_enable_peripheral(uint32_t id);
+extern void pmc_disable_peripheral(uint32_t id);
 extern void pmc_enable_all_peripherals(void);
 extern void pmc_disable_all_peripherals(void);
 
-extern uint32_t pmc_is_periph_enabled(uint32_t dwId);
+extern uint32_t pmc_is_peripheral_enabled(uint32_t id);
 
-extern void pmc_select_external_crystal(void);
-extern void pmc_select_internal_crystal(void);
-extern void pmc_select_external_osc(void);
-extern void pmc_select_internal_osc(void);
+extern void pmc_select_internal_slow_clock_32KHz(void);
+extern void pmc_select_internal_slow_clock_64KHz(void);
+extern void pmc_select_internal_12MHz(void);
+extern void pmc_select_external_slow_clock_32Khz(void);
+extern void pmc_select_external_main_osc(void);
+
 extern void pmc_switch_mck_to_pll(void);
 extern void pmc_switch_mck_to_main(void);
 extern uint32_t pmc_switch_mck_to_slck(void);
-extern void pmc_set_pll_a(uint32_t pll, uint32_t cpcr);
+
 extern void pmc_set_mck_prescaler(uint32_t prescaler);
 extern void pmc_set_mck_divider(uint32_t divider);
-extern void pmc_set_mck_pll_a_div(uint32_t divider);
-extern void pmc_disable_pll_a(void);
-extern uint32_t pmc_get_peri_max_freq(uint32_t dwId);
-extern uint32_t pmc_set_peri_max_clock(uint32_t dwId, uint32_t mck);
+
+extern void pmc_set_plla(uint32_t pll, uint32_t cpcr);
+extern void pmc_set_mck_plla_div(uint32_t divider);
+extern void pmc_disable_plla(void);
+
+extern uint32_t pmc_set_peripheral_max_clock(uint32_t Id, uint32_t mck);
+extern uint32_t pmc_get_peripheral_max_clock(uint32_t id, uint32_t mck);
+
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _PMC_ */
+
+#endif	/* #ifndef _PMC_H_ */
