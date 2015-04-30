@@ -326,7 +326,7 @@ extern void pmc_set_mck_prescaler(uint32_t prescaler)
  * \brief Configure MCK PLLA divider.
  * \param divider PLL divider value.
  */
-extern void pmc_set_mck_pll_a_div(uint32_t divider)
+extern void pmc_set_mck_plla_div(uint32_t divider)
 {
 	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
 		if (divider == 0) {
@@ -357,7 +357,7 @@ extern void pmc_set_mck_divider(uint32_t divider)
  * \param pll pll value.
  * \param cpcr cpcr value.
  */
-extern void pmc_set_pll_a(uint32_t pll, uint32_t cpcr)
+extern void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 {
 	PMC->CKGR_PLLAR = pll;
 	PMC->PMC_PLLICPR = cpcr;
@@ -367,7 +367,7 @@ extern void pmc_set_pll_a(uint32_t pll, uint32_t cpcr)
 /**
  * \brief Disable PLLA Register.
  */
-extern void pmc_disable_pll_a(void)
+extern void pmc_disable_plla(void)
 {
 	PMC->CKGR_PLLAR =
 	    (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);

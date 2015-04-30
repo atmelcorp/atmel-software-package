@@ -61,11 +61,12 @@ extern void pmc_switch_mck_to_pll(void);
 extern void pmc_switch_mck_to_main(void);
 extern uint32_t pmc_switch_mck_to_slck(void);
 
-extern void pmc_set_pll_a(uint32_t pll, uint32_t cpcr);
 extern void pmc_set_mck_prescaler(uint32_t prescaler);
 extern void pmc_set_mck_divider(uint32_t divider);
-extern void pmc_set_mck_pll_a_div(uint32_t divider);
-extern void pmc_disable_pll_a(void);
+
+extern void pmc_set_plla(uint32_t pll, uint32_t cpcr);
+extern void pmc_set_mck_plla_div(uint32_t divider);
+extern void pmc_disable_plla(void);
 
 extern uint32_t pmc_get_peripheral_max_clock(uint32_t id, uint32_t mck);
 
