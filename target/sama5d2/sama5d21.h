@@ -436,6 +436,31 @@ static inline void* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 	else return (void*)0;
 }
 
+/**
+ *
+ */
+static inline uint32_t GET_SPI_ID_FROM_ADDR(const void* addr)
+{
+	if (addr == (void*)SPI0) return ID_SPI0;
+	else if (addr == (void*)SPI1) return ID_SPI1;
+	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+	else return ID_PERIPH_COUNT;
+}
+
+static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
+{
+	if (id == ID_SPI0) return SPI0; /**< \brief SPI 0 (SPI0) */
+	else if (id == ID_SPI1) return SPI1; /**< \brief SPI 1 (SPI1) */
+	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+	else return (void*)0;
+}
+
 /* ************************************************************************** */
 /*   PIO DEFINITIONS FOR SAMA5D21 */
 /* ************************************************************************** */

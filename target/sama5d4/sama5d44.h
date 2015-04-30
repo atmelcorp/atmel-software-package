@@ -474,6 +474,25 @@ static inline void* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 	else return (void*)0;
 }
 
+/**
+ *
+ */
+static inline uint32_t GET_SPI_ID_FROM_ADDR(const void* addr)
+{
+	if (addr == (void*)SPI0) return ID_SPI0;
+	else if (addr == (void*)SPI1) return ID_SPI1;
+	else if (addr == (void*)SPI2) return ID_SPI2;
+	else return ID_PERIPH_COUNT;
+}
+
+static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
+{
+	if (id == ID_SPI0) return SPI0; /**< \brief SPI 0 (SPI0) */
+	else if (id == ID_SPI1) return SPI1; /**< \brief SPI 1 (SPI1) */
+	else if (id == ID_SPI2) return SPI2; /**< \brief SPI 3 (SPI2) */
+	else return (void*)0;
+}
+	
 /* ************************************************************************** */
 /*   PIO DEFINITIONS FOR SAMA5D44 */
 /* ************************************************************************** */
