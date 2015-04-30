@@ -74,6 +74,17 @@
 #include "core/pmc.h"
 #include <stdint.h>
 
+#include <assert.h>
+
+#ifdef FIFO_ENABLED
+static inline void _clear_fifo_control_flags(uint32_t* control_reg)
+{
+	*control_reg |= SPI_CR_TXFCLR | SPI_CR_RXFCLR | SPI_CR_FIFODIS;
+}
+#else
+#define _clear_fifo_control_flags(dummy) do {} while(0)
+#endif
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -125,13 +136,19 @@ extern void spi_disable_it(Spi * spi, uint32_t dwSources)
  * using several macros (see \ref spi_configuration_macros).
  *
  * \param spi  Pointer to an Spi instance.
- * \param dwId   Peripheral ID of the SPI.
  * \param dwConfiguration  Value of the SPI configuration register.
  */
-extern void spi_configure(Spi * spi, uint32_t dwId, uint32_t dwConfiguration)
+extern void spi_configure(Spi * spi, uint32_t dwConfiguration)
 {
-	pmc_enable_peripheral(dwId);
-	spi->SPI_CR = SPI_CR_SPIDIS;
+	uint32_t spi_id = GET_SPI_ID_FROM_ADDR(spi);
+	assert(spi_id != ID_PERIPH_COUNT);
+	/* Enable device */
+	pmc_enable_peripheral(spi_id);
+	uint32_t control_reg = SPI_CR_SPIDIS;
+	/* Add clear FIFO flags if present */
+	_clear_fifo_control_flags(&control_reg);
+	/* Apply */
+	spi->SPI_CR = control_reg;
 
 	/* Execute a software reset of the SPI twice */
 	spi->SPI_CR = SPI_CR_SWRST;
@@ -275,3 +292,131 @@ extern uint32_t spi_is_finished(Spi * spi)
 {
 	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
 }
+
+#ifdef FIFO_ENABLED
+void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
+			uint8_t rx_thres,
+			uint32_t ready_modes)
+{
+	/* Disable SPI and activate FIFO */
+	spi->SPI_CR = SPI_CR_SPIDIS | SPI_CR_FIFOEN;
+
+	/* Configure FIFO */
+	spi->SPI_FMR = SPI_FMR_TXFTHRES(tx_thres) | SPI_FMR_RXFTHRES(rx_thres)
+		| ready_modes;
+
+	/* Reenable SPI */
+	spi->SPI_CR = SPI_CR_SPIEN;
+}
+
+void spi_fifo_disable(Spi* spi)
+{
+}
+
+uint32_t spi_fifo_rx_size(Spi *spi)
+{
+	return (spi->SPI_FLR & SPI_FLR_RXFL_Msk) >> SPI_FLR_RXFL_Pos;
+}
+
+uint32_t spi_fifo_tx_size(Spi *spi)
+{
+	return (spi->SPI_FLR & SPI_FLR_TXFL_Msk) >> SPI_FLR_TXFL_Pos;
+}
+
+static inline uint32_t spi_is_master(Spi* spi)
+{
+	return (spi->SPI_MR & SPI_MR_MSTR);
+}
+
+static inline uint32_t spi_is_periph_select(Spi* spi)
+{
+	return (spi->SPI_MR & SPI_MR_PS);
+}
+
+uint32_t spi_read_stream(Spi *spi, void *stream, uint32_t len)
+{
+	uint8_t* buffer = stream;
+	uint32_t left = len;
+
+	uint8_t is_master = spi_is_master(spi);
+	uint32_t max_size = is_master ? sizeof(uint16_t) : sizeof(uint32_t);
+
+	while (left > 0) {
+		if ((spi->SPI_SR & SPI_SR_RDRF) == 0) continue;
+
+		/* Get FIFO size (in octets) and clamp it */
+		uint32_t buf_size = spi_fifo_rx_size(spi);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the buffer as must as possible with four data reads */
+		while (buf_size >= max_size) {
+			if (is_master)
+				readhw(&spi->SPI_RDR, (uint16_t*)buffer);
+			else
+				*(uint32_t*)buffer = spi->SPI_RDR;
+			buffer += max_size;
+			left -= max_size;
+			buf_size -= max_size;
+		}
+		/* Add tail data if stream is not 4 octet aligned */
+		if (buf_size >= sizeof(uint16_t)) {
+			/* two data read */
+			readhw(&spi->SPI_RDR, (uint16_t*)buffer);
+			left -= sizeof(uint16_t);
+			buffer += sizeof(uint16_t);
+			buf_size -= max_size;
+		}
+		if (buf_size >= sizeof(uint8_t)) {
+			/* two data read */
+			readb(&spi->SPI_RDR, (uint8_t*)buffer);
+			left -= sizeof(uint16_t);
+			buffer += sizeof(uint16_t);
+		}
+	}
+	return len - left;
+}
+
+uint32_t spi_write_stream(Spi *spi, uint32_t chip_select, const void *stream, uint32_t len)
+{
+	const uint8_t* buffer = stream;
+	uint32_t left = len;
+
+	uint8_t is_ps = spi_is_periph_select(spi);
+	uint32_t max_size = is_ps ? sizeof(uint16_t) : sizeof(uint32_t);
+
+	while (left > 0) {
+		if ((spi->SPI_SR & SPI_SR_TDRE) == 0) continue;
+
+		/* Get FIFO free size (int octet) and clamp it */
+		uint32_t buf_size = SPI_FIFO_DEPTH - spi_fifo_tx_size(spi);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the FIFO as must as possible */
+		while (buf_size >= max_size) {
+			if (is_ps)
+				spi->SPI_TDR = *(uint16_t*)buffer | SPI_PCS(chip_select)
+					| (left == len ? SPI_TDR_LASTXFER : 0);
+			else
+				spi->SPI_TDR = *(uint32_t*)buffer;
+			buffer += max_size;
+			left -= max_size;
+			buf_size -= max_size;
+		}
+		if (buf_size >= sizeof(uint16_t)) {
+			spi->SPI_TDR = *(uint16_t*)buffer | SPI_PCS(chip_select)
+				| (is_ps && (left == len) ? SPI_TDR_LASTXFER : 0);
+			buffer += max_size;
+			left -= sizeof(uint16_t);
+			buf_size -= max_size;
+		}
+		if (buf_size >= sizeof(uint8_t)) {
+			spi->SPI_TDR = *(uint8_t*)buffer | SPI_PCS(chip_select)
+				| (is_ps && (left == len) ? SPI_TDR_LASTXFER : 0);
+			buffer += max_size;
+			left -= sizeof(uint16_t);
+		}
+	}
+	return len - left;
+}
+
+#endif

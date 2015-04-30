@@ -87,15 +87,13 @@ extern void spi_disable(Spi * spi);
 extern void spi_enable_it(Spi * spi, uint32_t dwSources);
 extern void spi_disable_it(Spi * spi, uint32_t dwSources);
 
-extern void spi_configure(Spi * spi, uint32_t dwId,
-			  uint32_t dwConfiguration);
+extern void spi_configure(Spi * spi, uint32_t dwConfiguration);
 extern void spi_set_mode(Spi * spi, uint32_t dwConfiguration);
 
 extern void spi_chip_select(Spi * spi, uint8_t cS);
 extern void spi_release_cs(Spi * spi);
 
-extern void spi_configure_npcs(Spi * spi, uint32_t dwNpcs,
-			      uint32_t dwConfiguration);
+extern void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration);
 extern void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs,
 				uint32_t bReleaseOnLast);
 
@@ -104,7 +102,20 @@ extern void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData);
 extern void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData);
 
 extern uint32_t spi_get_status(Spi * spi);
-extern uint32_t spi_is_finished(Spi * pSpi);
+extern uint32_t spi_is_finished(Spi * spi);
+
+#ifdef FIFO_ENABLED
+void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
+			uint8_t rx_thres,
+			uint32_t ready_modes);
+void spi_fifo_disable(Spi* spi);
+
+uint32_t spi_fifo_rx_size(Spi *spi);
+uint32_t spi_fifo_tx_size(Spi *spi);
+
+uint32_t spi_read_stream(Spi *spi, void *stream, uint32_t len);
+uint32_t spi_write_stream(Spi *spi, uint32_t chip_select, const void *stream, uint32_t len);
+#endif
 
 #ifdef __cplusplus
 }
