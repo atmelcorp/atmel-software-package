@@ -27,40 +27,36 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _PIT_
-#define _PIT_
+#ifndef _PIT_H_
+#define _PIT_H_
+
+/*------------------------------------------------------------------------------
+ *         Headers
+ *------------------------------------------------------------------------------*/
+
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern void PIT_Init(uint32_t period, uint32_t pit_frequency);
-
-extern void PIT_SetPIV(uint32_t piv);
-
-extern void PIT_Enable(void);
-
-extern void PIT_Disable(void);
-
-extern void PIT_EnableIT(void);
-
-extern void PIT_DisableIT(void);
-
-extern uint32_t PIT_GetMode(void);
-
-extern uint32_t PIT_GetStatus(void);
-
-extern uint32_t PIT_GetPIIR(void);
-
-extern uint32_t PIT_GetPIVR(void);
+extern void pit_init(uint32_t period, uint32_t pit_frequency);
+extern void pit_set_piv(uint32_t piv);
+extern void pit_enable(void);
+extern void pit_disable(void);
+extern void pit_enable_it(void);
+extern void pit_disable_it(void);
+extern uint32_t pit_get_mode(void);
+extern uint32_t pit_get_status(void);
+extern uint32_t pit_get_piir(void);
+extern uint32_t pit_get_pivr(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _PIT_ */
+
+#endif	/* #ifndef _PIT_H_ */

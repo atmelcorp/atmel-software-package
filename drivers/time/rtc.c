@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -60,9 +60,9 @@
  * \section Usage
  * <ul>
  * <li>  Enable & disable RTC interrupt using RTC_EnableIt() and RTC_DisableIt().
- * <li>  Set RTC data, time, alarm using RTC_SetDate(), RTC_SetTime(),
- * RTC_SetTimeAlarm() and RTC_SetDateAlarm().
- * <li>  Get RTC data, time using RTC_GetDate() and RTC_GetTime().
+ * <li>  Set RTC data, time, alarm using rtc_set_date(), RTC_SetTime(),
+ * rtc_set_time_alarm() and rtc_set_date_alarm().
+ * <li>  Get RTC data, time using rtc_get_date() and rtc_get_time().
  * </li>
  * </ul>
  *
@@ -105,6 +105,14 @@
 #define BCD_FACTOR     10
 
 /*----------------------------------------------------------------------------
+ *        Variables
+ *----------------------------------------------------------------------------*/
+
+static uint8_t _flag_alarm;
+static uint8_t _flag_hms;
+static uint8_t _flag_minute_change;
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -114,12 +122,10 @@
  * \param pRtc  Pointer to a Rtc instance
  * \param dwMode  Hour mode.
  */
-extern void
-RTC_SetHourMode(Rtc * pRtc, uint32_t dwMode)
+extern void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
 {
-	assert((dwMode & 0xFFFFFFFE) == 0);
-
-	pRtc->RTC_MR = dwMode;
+	assert((mode & 0xFFFFFFFE) == 0);
+	pRtc->RTC_MR = mode;
 }
 
 /**
@@ -128,17 +134,13 @@ RTC_SetHourMode(Rtc * pRtc, uint32_t dwMode)
  * \param pRtc  Pointer to a Rtc instance
  * \return Hour mode.
  */
-extern uint32_t
-RTC_GetHourMode(Rtc * pRtc)
+extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
 {
-	uint32_t dwMode;
-
-	TRACE_DEBUG("RTC_SetHourMode()\n\r");
-
-	dwMode = pRtc->RTC_MR;
-	dwMode &= 0xFFFFFFFE;
-
-	return dwMode;
+	uint32_t mode;
+	TRACE_DEBUG("rtc_get_hour_mode()\n\r");
+	mode = pRtc->RTC_MR;
+	mode &= 0xFFFFFFFE;
+	return mode;
 }
 
 /**
@@ -147,14 +149,11 @@ RTC_GetHourMode(Rtc * pRtc)
  * \param pRtc  Pointer to a Rtc instance
  * \param dwSources  Interrupt sources to enable.
  */
-extern void
-RTC_EnableIt(Rtc * pRtc, uint32_t dwSources)
+extern void rtc_enable_it(Rtc * pRtc, uint32_t sources)
 {
-	assert((dwSources & (uint32_t) (~0x1F)) == 0);
-
-	TRACE_DEBUG("RTC_EnableIt()\n\r");
-
-	pRtc->RTC_IER = dwSources;
+	assert((sources & (uint32_t) (~0x1F)) == 0);
+	TRACE_DEBUG("rtc_enable_it()\n\r");
+	pRtc->RTC_IER = sources;
 }
 
 /**
@@ -163,14 +162,11 @@ RTC_EnableIt(Rtc * pRtc, uint32_t dwSources)
  * \param pRtc  Pointer to a Rtc instance
 * \param dwSources  Interrupt sources to disable.
 */
-extern void
-RTC_DisableIt(Rtc * pRtc, uint32_t dwSources)
+extern void rtc_disable_it(Rtc * pRtc, uint32_t sources)
 {
-	assert((dwSources & (uint32_t) (~0x1F)) == 0);
-
-	TRACE_DEBUG("RTC_DisableIt()\n\r");
-
-	pRtc->RTC_IDR = dwSources;
+	assert((sources & (uint32_t) (~0x1F)) == 0);
+	TRACE_DEBUG("rtc_disable_it()\n\r");
+	pRtc->RTC_IDR = sources;
 }
 
 /**
@@ -181,50 +177,40 @@ RTC_DisableIt(Rtc * pRtc, uint32_t dwSources)
  * bits again. Please look at the RTC section of the datasheet for detail.
  *
  * \param pRtc  Pointer to a Rtc instance
- * \param ucHour    Current hour in 12 or 24 hour mode.
- * \param ucMinute  Current minute.
- * \param ucSecond  Current second.
+ * \param pTime Pointer to structure time
  *
  * \return 0 sucess, 1 fail to set
  */
-extern int
-RTC_SetTime(Rtc * pRtc, uint8_t ucHour, uint8_t ucMinute, uint8_t ucSecond)
+extern int rtc_set_time(Rtc * pRtc, struct _time *pTime)
 {
-	uint32_t dwTime = 0;
-	uint8_t ucHour_bcd;
-	uint8_t ucMin_bcd;
-	uint8_t ucSec_bcd;
+	uint32_t ltime = 0;
+	uint8_t hour_bcd , min_bcd, sec_bcd;
 
-	TRACE_DEBUG("RTC_SetTime(%02d:%02d:%02d)\n\r", ucHour, ucMinute,
-		    ucSecond);
+	TRACE_DEBUG("rtc_set_time(%02d:%02d:%02d)\n\r", pTime->hour, pTime->min, pTime->sec);
 
 	/* if 12-hour mode, set AMPM bit */
 	if ((pRtc->RTC_MR & RTC_MR_HRMOD) == RTC_MR_HRMOD) {
-		if (ucHour > 12) {
-			ucHour -= 12;
-			dwTime |= RTC_TIMR_AMPM;
+		if (pTime->hour > 12) {
+			pTime->hour -= 12;
+			ltime |= RTC_TIMR_AMPM;
 		}
 	}
-	ucHour_bcd = (ucHour % 10) | ((ucHour / 10) << 4);
-	ucMin_bcd = (ucMinute % 10) | ((ucMinute / 10) << 4);
-	ucSec_bcd = (ucSecond % 10) | ((ucSecond / 10) << 4);
-
+	hour_bcd = (pTime->hour % 10) | ((pTime->hour / 10) << 4);
+	min_bcd = (pTime->min % 10) | ((pTime->min / 10) << 4);
+	sec_bcd = (pTime->sec % 10) | ((pTime->sec / 10) << 4);
 	/* value overflow */
-	if ((ucHour_bcd & (uint8_t) (~RTC_HOUR_BIT_LEN_MASK)) |
-	    (ucMin_bcd & (uint8_t) (~RTC_MIN_BIT_LEN_MASK)) |
-	    (ucSec_bcd & (uint8_t) (~RTC_SEC_BIT_LEN_MASK))) {
+	if ((hour_bcd & (uint8_t) (~RTC_HOUR_BIT_LEN_MASK)) |
+	    (min_bcd & (uint8_t) (~RTC_MIN_BIT_LEN_MASK)) |
+	    (sec_bcd & (uint8_t) (~RTC_SEC_BIT_LEN_MASK))) {
 		return 1;
 	}
-
-	dwTime = ucSec_bcd | (ucMin_bcd << 8) | (ucHour_bcd << 16);
-
+	ltime = sec_bcd | (min_bcd << 8) | (hour_bcd << 16);
 	pRtc->RTC_CR |= RTC_CR_UPDTIM;
 	while ((pRtc->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
 	pRtc->RTC_SCCR = RTC_SCCR_ACKCLR;
-	pRtc->RTC_TIMR = dwTime;
+	pRtc->RTC_TIMR = ltime;
 	pRtc->RTC_CR &= (uint32_t) (~RTC_CR_UPDTIM);
 	pRtc->RTC_SCCR |= RTC_SCCR_SECCLR;
-
 	return (int) (pRtc->RTC_VER & RTC_VER_NVTIM);
 }
 
@@ -232,44 +218,32 @@ RTC_SetTime(Rtc * pRtc, uint8_t ucHour, uint8_t ucMinute, uint8_t ucSecond)
  * \brief Retrieves the current time as stored in the RTC in several variables.
  *
  * \param pRtc  Pointer to a Rtc instance
- * \param pucHour    If not null, current hour is stored in this variable.
- * \param pucMinute  If not null, current minute is stored in this variable.
- * \param pucSecond  If not null, current second is stored in this variable.
+ * \param pTime Pointer to structure time
  */
-extern void
-RTC_GetTime(Rtc * pRtc, uint8_t * pucHour, uint8_t * pucMinute,
-	    uint8_t * pucSecond)
+extern void rtc_get_time(Rtc * pRtc, struct _time *pTime)
 {
-	uint32_t dwTime;
+	uint32_t ltime;
 
-	TRACE_DEBUG("RTC_GetTime()\n\r");
-
+	TRACE_DEBUG("rtc_get_time()\n\r");
 	/* Get current RTC time */
-	dwTime = pRtc->RTC_TIMR;
-	while (dwTime != pRtc->RTC_TIMR) {
-		dwTime = pRtc->RTC_TIMR;
+	ltime = pRtc->RTC_TIMR;
+	while (ltime != pRtc->RTC_TIMR) {
+		ltime = pRtc->RTC_TIMR;
 	}
-
 	/* Hour */
-	if (pucHour) {
-		*pucHour = ((dwTime & 0x00300000) >> 20) * 10
-		    + ((dwTime & 0x000F0000) >> 16);
-
-		if ((dwTime & RTC_TIMR_AMPM) == RTC_TIMR_AMPM) {
-			*pucHour += 12;
+	if (pTime->hour) {
+		pTime->hour = ((ltime & 0x00300000) >> 20) * 10 + ((ltime & 0x000F0000) >> 16);
+		if ((ltime & RTC_TIMR_AMPM) == RTC_TIMR_AMPM) {
+			pTime->hour += 12;
 		}
 	}
-
 	/* Minute */
-	if (pucMinute) {
-		*pucMinute = ((dwTime & 0x00007000) >> 12) * 10
-		    + ((dwTime & 0x00000F00) >> 8);
+	if (pTime->min) {
+		pTime->min = ((ltime & 0x00007000) >> 12) * 10 + ((ltime & 0x00000F00) >> 8);
 	}
-
 	/* Second */
-	if (pucSecond) {
-		*pucSecond = ((dwTime & 0x00000070) >> 4) * 10
-		    + (dwTime & 0x0000000F);
+	if (pTime->sec) {
+		pTime->sec = ((ltime & 0x00000070) >> 4) * 10 + (ltime & 0x0000000F);
 	}
 }
 
@@ -282,43 +256,29 @@ RTC_GetTime(Rtc * pRtc, uint8_t * pucHour, uint8_t * pucMinute,
  * AM (as expected in the time registers).
  *
  * \param pRtc  Pointer to a Rtc instance
- * \param pucHour    If not null, the time alarm will hour-match this value.
- * \param pucMinute  If not null, the time alarm will minute-match this value.
- * \param pucSecond  If not null, the time alarm will second-match this value.
+ * \param pTime Pointer to structure time.
  *
  * \return 0 success, 1 fail to set
  */
-extern int
-RTC_SetTimeAlarm(Rtc * pRtc, uint8_t * pucHour, uint8_t * pucMinute,
-		 uint8_t * pucSecond)
+extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
 {
-	uint32_t dwAlarm = 0;
+	uint32_t alarm = 0;
 
-	TRACE_DEBUG("RTC_SetTimeAlarm()\n\r");
+	TRACE_DEBUG("rtc_set_time_alarm()\n\r");
 
 	/* Hour */
-	if (pucHour) {
-		dwAlarm |=
-		    RTC_TIMALR_HOUREN | ((*pucHour / 10) << 20) |
-		    ((*pucHour % 10) << 16);
+	if (pTime->hour) {
+		alarm |= RTC_TIMALR_HOUREN | ((pTime->hour / 10) << 20) | ((pTime->hour % 10) << 16);
 	}
-
 	/* Minute */
-	if (pucMinute) {
-		dwAlarm |=
-		    RTC_TIMALR_MINEN | ((*pucMinute / 10) << 12) |
-		    ((*pucMinute % 10) << 8);
+	if (pTime->min) {
+		alarm |= RTC_TIMALR_MINEN | ((pTime->min / 10) << 12) | ((pTime->min % 10) << 8);
 	}
-
 	/* Second */
-	if (pucSecond) {
-		dwAlarm |=
-		    RTC_TIMALR_SECEN | ((*pucSecond / 10) << 4) | (*pucSecond %
-								   10);
+	if (pTime->sec) {
+		alarm |= RTC_TIMALR_SECEN | ((pTime->sec / 10) << 4) | (pTime->sec % 10);
 	}
-
-	pRtc->RTC_TIMALR = dwAlarm;
-
+	pRtc->RTC_TIMALR = alarm;
 	return (int) (pRtc->RTC_VER & RTC_VER_NVTIMALR);
 }
 
@@ -327,45 +287,32 @@ RTC_SetTimeAlarm(Rtc * pRtc, uint8_t * pucHour, uint8_t * pucMinute,
  * Month, day and week values are numbered starting at 1.
  *
  * \param pRtc  Pointer to a Rtc instance
- * \param pwYear  Current year (optional).
- * \param pucMonth  Current month (optional).
- * \param pucDay  Current day (optional).
- * \param pucWeek  Current day in current week (optional).
+ * \param pDate	Pointer to structure Date.
  */
-extern void
-RTC_GetDate(Rtc * pRtc, uint16_t * pwYear, uint8_t * pucMonth, uint8_t * pucDay,
-	    uint8_t * pucWeek)
+extern void rtc_get_date(Rtc * pRtc, struct _date *pDate)
 {
-	uint32_t dwDate;
+	uint32_t date;
 
 	/* Get current date (multiple reads are necessary to insure a stable value) */
 	do {
-		dwDate = pRtc->RTC_CALR;
-	} while (dwDate != pRtc->RTC_CALR);
-
+		date = pRtc->RTC_CALR;
+	} while (date != pRtc->RTC_CALR);
 	/* Retrieve year */
-	if (pwYear) {
-		*pwYear = (((dwDate >> 4) & 0x7) * 1000)
-		    + ((dwDate & 0xF) * 100)
-		    + (((dwDate >> 12) & 0xF) * 10)
-		    + ((dwDate >> 8) & 0xF);
+	if (pDate->year) {
+		pDate->year = (((date >> 4) & 0x7) * 1000) + ((date & 0xF) * 100)
+			+ (((date >> 12) & 0xF) * 10) + ((date >> 8) & 0xF);
 	}
-
 	/* Retrieve month */
-	if (pucMonth) {
-		*pucMonth =
-		    (((dwDate >> 20) & 1) * 10) + ((dwDate >> 16) & 0xF);
+	if (pDate->month) {
+		pDate->month = (((date >> 20) & 1) * 10) + ((date >> 16) & 0xF);
 	}
-
 	/* Retrieve day */
-	if (pucDay) {
-		*pucDay =
-		    (((dwDate >> 28) & 0x3) * 10) + ((dwDate >> 24) & 0xF);
+	if (pDate->day) {
+		pDate->day = (((date >> 28) & 0x3) * 10) + ((date >> 24) & 0xF);
 	}
-
 	/* Retrieve week */
-	if (pucWeek) {
-		*pucWeek = ((dwDate >> 21) & 0x7);
+	if (pDate->week) {
+		pDate->week = ((date >> 21) & 0x7);
 	}
 }
 
@@ -378,54 +325,38 @@ RTC_GetDate(Rtc * pRtc, uint16_t * pwYear, uint8_t * pucMonth, uint8_t * pucDay,
  * bits again. Please look at the RTC section of the datasheet for detail.
  *
  * \param pRtc  Pointer to a Rtc instance
- * \param wYear  Current year.
- * \param ucMonth Current month.
- * \param ucDay   Current day.
- * \param ucWeek  Day number in current week.
+ * \param pDate	Pointer to structure Date
  *
  * \return 0 success, 1 fail to set
  */
-extern int
-RTC_SetDate(Rtc * pRtc, uint16_t wYear, uint8_t ucMonth, uint8_t ucDay,
-	    uint8_t ucWeek)
+extern int rtc_set_date(Rtc * pRtc, struct _date *pDate)
 {
-	uint32_t wDate;
-	uint8_t ucCent_bcd;
-	uint8_t ucYear_bcd;
-	uint8_t ucMonth_bcd;
-	uint8_t ucDay_bcd;
-	uint8_t ucWeek_bcd;
+	uint32_t ldate;
+	uint8_t cent_bcd, year_bcd, month_bcd, day_bcd, week_bcd;
 
-	ucCent_bcd = ((wYear / 100) % 10) | ((wYear / 1000) << 4);
-	ucYear_bcd = (wYear % 10) | (((wYear / 10) % 10) << 4);
-	ucMonth_bcd = ((ucMonth % 10) | (ucMonth / 10) << 4);
-	ucDay_bcd = ((ucDay % 10) | (ucDay / 10) << 4);
-	ucWeek_bcd = ((ucWeek % 10) | (ucWeek / 10) << 4);
-
+	cent_bcd = ((pDate->year / 100) % 10) | ((pDate->year / 1000) << 4);
+	year_bcd = (pDate->year % 10) | (((pDate->year / 10) % 10) << 4);
+	month_bcd = ((pDate->month % 10) | (pDate->month / 10) << 4);
+	day_bcd = ((pDate->day % 10) | (pDate->day / 10) << 4);
+	week_bcd = ((pDate->week % 10) | (pDate->week / 10) << 4);
 	/* value over flow */
-	if ((ucCent_bcd & (uint8_t) (~RTC_CENT_BIT_LEN_MASK)) |
-	    (ucYear_bcd & (uint8_t) (~RTC_YEAR_BIT_LEN_MASK)) |
-	    (ucMonth_bcd & (uint8_t) (~RTC_MONTH_BIT_LEN_MASK)) |
-	    (ucWeek_bcd & (uint8_t) (~RTC_WEEK_BIT_LEN_MASK)) |
-	    (ucDay_bcd & (uint8_t) (~RTC_DATE_BIT_LEN_MASK))
+	if ((cent_bcd & (uint8_t) (~RTC_CENT_BIT_LEN_MASK)) |
+	    (year_bcd & (uint8_t) (~RTC_YEAR_BIT_LEN_MASK)) |
+	    (month_bcd & (uint8_t) (~RTC_MONTH_BIT_LEN_MASK)) |
+	    (week_bcd & (uint8_t) (~RTC_WEEK_BIT_LEN_MASK)) |
+	    (day_bcd & (uint8_t) (~RTC_DATE_BIT_LEN_MASK))
 	    ) {
 		return 1;
 	}
-
 	/* Convert values to date register value */
-	wDate = ucCent_bcd |
-	    (ucYear_bcd << 8) |
-	    (ucMonth_bcd << 16) | (ucWeek_bcd << 21) | (ucDay_bcd << 24);
-
+	ldate = cent_bcd | (year_bcd << 8) | (month_bcd << 16) | (week_bcd << 21) | (day_bcd << 24);
 	/* Update calendar register  */
 	pRtc->RTC_CR |= RTC_CR_UPDCAL;
 	while ((pRtc->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
-
 	pRtc->RTC_SCCR = RTC_SCCR_ACKCLR;
-	pRtc->RTC_CALR = wDate;
+	pRtc->RTC_CALR = ldate;
 	pRtc->RTC_CR &= (uint32_t) (~RTC_CR_UPDCAL);
 	pRtc->RTC_SCCR |= RTC_SCCR_SECCLR;	/* clear SECENV in SCCR */
-
 	return (int) (pRtc->RTC_VER & RTC_VER_NVCAL);
 }
 
@@ -440,31 +371,21 @@ RTC_SetDate(Rtc * pRtc, uint16_t wYear, uint8_t ucMonth, uint8_t ucDay,
  *
  * \return 0 success, 1 fail to set
  */
-extern int
-RTC_SetDateAlarm(Rtc * pRtc, uint8_t * pucMonth, uint8_t * pucDay)
+extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
 {
-	uint32_t dwAlarm;
+	uint32_t alarm;
 
-	dwAlarm = ((pucMonth) || (pucDay)) ? (0) : (0x01010000);
-
-	TRACE_DEBUG("RTC_SetDateAlarm()\n\r");
-
+	alarm = ((pDate->month) || (pDate->day)) ? (0) : (0x01010000);
+	TRACE_DEBUG("rtc_set_date_alarm()\n\r");
 	/* Compute alarm field value */
-	if (pucMonth) {
-		dwAlarm |=
-		    RTC_CALALR_MTHEN | ((*pucMonth / 10) << 20) |
-		    ((*pucMonth % 10) << 16);
+	if (pDate->month) {
+		alarm |= RTC_CALALR_MTHEN | ((pDate->month / 10) << 20) | ((pDate->month % 10) << 16);
 	}
-
-	if (pucDay) {
-		dwAlarm |=
-		    RTC_CALALR_DATEEN | ((*pucDay / 10) << 28) | ((*pucDay % 10)
-								  << 24);
+	if (pDate->day) {
+		alarm |= RTC_CALALR_DATEEN | ((pDate->day / 10) << 28) | ((pDate->day % 10) << 24);
 	}
-
 	/* Set alarm */
-	pRtc->RTC_CALALR = dwAlarm;
-
+	pRtc->RTC_CALALR = alarm;
 	return (int) (pRtc->RTC_VER & RTC_VER_NVCALALR);
 }
 
@@ -474,15 +395,12 @@ RTC_SetDateAlarm(Rtc * pRtc, uint8_t * pucMonth, uint8_t * pucDay)
  * \param pRtc  Pointer to a Rtc instance
  * \param dwMask Bits mask of cleared events
  */
-extern void
-RTC_ClearSCCR(Rtc * pRtc, uint32_t dwMask)
+extern void rtc_clear_sccr(Rtc * pRtc, uint32_t mask)
 {
 	/* Clear all flag bits in status clear command register */
-	dwMask &=
-	    RTC_SCCR_ACKCLR | RTC_SCCR_ALRCLR | RTC_SCCR_SECCLR |
-	    RTC_SCCR_TIMCLR | RTC_SCCR_CALCLR;
-
-	pRtc->RTC_SCCR = dwMask;
+	mask &= RTC_SCCR_ACKCLR | RTC_SCCR_ALRCLR | RTC_SCCR_SECCLR |
+		RTC_SCCR_TIMCLR | RTC_SCCR_CALCLR;
+	pRtc->RTC_SCCR = mask;
 }
 
 /**
@@ -493,123 +411,91 @@ RTC_ClearSCCR(Rtc * pRtc, uint32_t dwMask)
  *
  * \return Status register & mask
  */
-extern uint32_t
-RTC_GetSR(Rtc * pRtc, uint32_t dwMask)
+extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
 {
-	uint32_t dwEvent;
-
-	dwEvent = pRtc->RTC_SR;
-
-	return (dwEvent & dwMask);
+	return ((pRtc->RTC_SR) & mask);
 }
 
 /**
  * \brief Get the RTC tamper time value.
  *
- * \note This function should be called before RTC_GetTamperSource()
+ * \note This function should be called before rtc_get_tamper_source()
  *       function call, Otherwise the tamper time will be cleared.
  *
  * \param pRtc       Pointer to an RTC instance.
- * \param pucHour    If not null, tamper hour is stored in this variable.
- * \param pucMinute  If not null, tamper minute is stored in this variable.
- * \param pucSecond  If not null, tamper second is stored in this variable.
- * \param ucRegNum   Tamper register set number.
+ * \param pTime    	 Pointer to structure Time.
+ * \param reg_num    Tamper register set number.
  */
-extern void
-RTC_GetTamperTime(Rtc * pRtc, uint8_t * pucHour, uint8_t * pucMinute,
-		  uint8_t * pucSecond, uint8_t ucRegNum)
+extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
 {
-	uint32_t dwTime;
-	uint32_t dwTemp;
+	uint32_t ltime, temp;
 
-	TRACE_DEBUG("RTC_GetTamperTime()\n\r");
+	TRACE_DEBUG("rtc_get_tamper_time()\n\r");
 
 	/* Get current RTC time */
-	dwTime = pRtc->RTC_TS[ucRegNum].RTC_TSTR;
-	while (dwTime != pRtc->RTC_TS[ucRegNum].RTC_TSTR) {
-		dwTime = pRtc->RTC_TS[ucRegNum].RTC_TSTR;
+	ltime = pRtc->RTC_TS[reg_num].RTC_TSTR;
+	while (ltime != pRtc->RTC_TS[reg_num].RTC_TSTR) {
+		ltime = pRtc->RTC_TS[reg_num].RTC_TSTR;
 	}
-
 	/* Hour */
-	if (pucHour) {
-		dwTemp = (dwTime & RTC_TSTR_HOUR_Msk) >> RTC_TSTR_HOUR_Pos;
-		*pucHour =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
-
-		if ((dwTime & RTC_TSTR_AMPM) == RTC_TSTR_AMPM) {
-			*pucHour += 12;
+	if (pTime->hour) {
+		temp = (ltime & RTC_TSTR_HOUR_Msk) >> RTC_TSTR_HOUR_Pos;
+		pTime->hour = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+		if ((ltime & RTC_TSTR_AMPM) == RTC_TSTR_AMPM) {
+			pTime->hour += 12;
 		}
 	}
-
 	/* Minute */
-	if (pucMinute) {
-		dwTemp = (dwTime & RTC_TSTR_MIN_Msk) >> RTC_TSTR_MIN_Pos;
-		*pucMinute =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
+	if (pTime->min) {
+		temp = (ltime & RTC_TSTR_MIN_Msk) >> RTC_TSTR_MIN_Pos;
+		pTime->min = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
-
 	/* Second */
-	if (pucSecond) {
-		dwTemp = (dwTime & RTC_TSTR_SEC_Msk) >> RTC_TSTR_SEC_Pos;
-		*pucSecond =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
+	if (pTime->sec) {
+		temp = (ltime & RTC_TSTR_SEC_Msk) >> RTC_TSTR_SEC_Pos;
+		pTime->sec = temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
 }
 
 /**
  * \brief Get the RTC tamper date.
  *
- * \note This function should be called before RTC_GetTamperSource()
+ * \note This function should be called before rtc_get_tamper_source()
  *       function call, Otherwise the tamper date will be cleared.
  *
  * \param pRtc      Pointer to an RTC instance.
- * \param pwYear    If not null, tamper year is stored in this variable.
- * \param pucMonth  If not null, tamper month is stored in this variable.
- * \param pucDay    If not null, tamper day is stored in this variable.
- * \param pucWeek   If not null, tamper day in week is stored in this variable.
- * \param ucRegNum  Tamper register set number.
+ * \param pDate     Pointer to structure Date
+ * \param reg_num   Tamper register set number.
  */
-extern void
-RTC_GetTamperDate(Rtc * pRtc, uint16_t * pwYear, uint8_t * pucMonth,
-		  uint8_t * pucDay, uint8_t * pucWeek, uint8_t ucRegNum)
+extern void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num)
 {
-	uint32_t dwDate;
-	uint32_t dwCent;
-	uint32_t dwTemp;
+	uint32_t date, cent, temp;
 
 	/* Get the current date (multiple reads are to insure a stable value). */
-	dwDate = pRtc->RTC_TS[ucRegNum].RTC_TSDR;
-	while (dwDate != pRtc->RTC_TS[ucRegNum].RTC_TSDR) {
-		dwDate = pRtc->RTC_TS[ucRegNum].RTC_TSDR;
+	date = pRtc->RTC_TS[reg_num].RTC_TSDR;
+	while (date != pRtc->RTC_TS[reg_num].RTC_TSDR) {
+		date = pRtc->RTC_TS[reg_num].RTC_TSDR;
 	}
-
 	/* Retrieve year */
-	if (pwYear) {
-		dwTemp = (dwDate & RTC_TSDR_CENT_Msk) >> RTC_TSDR_CENT_Pos;
-		dwCent =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
-		dwTemp = (dwDate & RTC_TSDR_YEAR_Msk) >> RTC_TSDR_YEAR_Pos;
-		*pwYear = (dwCent * BCD_FACTOR * BCD_FACTOR) +
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
+	if (pDate->year) {
+		temp = (date & RTC_TSDR_CENT_Msk) >> RTC_TSDR_CENT_Pos;
+		cent = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+		temp = (date & RTC_TSDR_YEAR_Msk) >> RTC_TSDR_YEAR_Pos;
+		pDate->year = (cent * BCD_FACTOR * BCD_FACTOR) + (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
-
 	/* Retrieve month */
-	if (pucMonth) {
-		dwTemp = (dwDate & RTC_TSDR_MONTH_Msk) >> RTC_TSDR_MONTH_Pos;
-		*pucMonth =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
+	if (pDate->month) {
+		temp = (date & RTC_TSDR_MONTH_Msk) >> RTC_TSDR_MONTH_Pos;
+		pDate->month = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
-
 	/* Retrieve day */
-	if (pucDay) {
-		dwTemp = (dwDate & RTC_TSDR_DATE_Msk) >> RTC_TSDR_DATE_Pos;
-		*pucDay =
-		    (dwTemp >> BCD_SHIFT) * BCD_FACTOR + (dwTemp & BCD_MASK);
+	if (pDate->day) {
+		temp = (date & RTC_TSDR_DATE_Msk) >> RTC_TSDR_DATE_Pos;
+		pDate->day = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
-
 	/* Retrieve week */
-	if (pucWeek) {
-		*pucWeek = ((dwDate & RTC_TSDR_DAY_Msk) >> RTC_TSDR_DAY_Pos);
+	if (pDate->week) {
+		pDate->week= ((date & RTC_TSDR_DAY_Msk) >> RTC_TSDR_DAY_Pos);
 	}
 }
 
@@ -621,33 +507,30 @@ RTC_GetTamperDate(Rtc * pRtc, uint16_t * pwYear, uint8_t * pucMonth,
  *
  * \return Tamper source.
  */
-extern uint32_t
-RTC_GetTamperSource(Rtc * pRtc, uint8_t ucRegNum)
+extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num)
 {
-	return pRtc->RTC_TS[ucRegNum].RTC_TSSR;
+	return pRtc->RTC_TS[reg_num].RTC_TSSR;
 }
 
 /**
  * \brief Get the RTC tamper event counter.
  *
- * \note This function should be called before RTC_GetTamperSource()
+ * \note This function should be called before rtc_get_tamper_source()
  *       function call, Otherwise the tamper event counter will be cleared.
  *
  * \param pRtc Pointer to an RTC instance.
  *
  * \return Tamper event counter
  */
-extern uint32_t
-RTC_GetTamperEventCounter(Rtc * pRtc)
+extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc)
 {
-	return (pRtc->RTC_TS[0].RTC_TSTR & RTC_TSTR_TEVCNT_Msk) >>
-	    RTC_TSTR_TEVCNT_Pos;
+	return (pRtc->RTC_TS[0].RTC_TSTR & RTC_TSTR_TEVCNT_Msk) >> RTC_TSTR_TEVCNT_Pos;
 }
 
 /**
  * \brief Check the system is in backup mode when RTC tamper event happen.
  *
- * \note This function should be called before RTC_GetTamperSource()
+ * \note This function should be called before rtc_get_tamper_source()
  *       function call, Otherwise the flag indicates tamper occur in backup
  *       mode will be cleared.
  *
@@ -657,12 +540,26 @@ RTC_GetTamperEventCounter(Rtc * pRtc)
  * \return 1 - The system is in backup mode when the tamper event occurs.
  *         0 - The system is different from backup mode.
  */
-extern uint8_t
-RTC_IsTamperOccurInBackupMode(Rtc * pRtc, uint8_t ucRegNum)
+extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num)
 {
-	if (pRtc->RTC_TS[ucRegNum].RTC_TSTR & RTC_TSTR_BACKUP) {
+	if (pRtc->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
 		return 1;
 	} else {
 		return 0;
 	}
+}
+
+/**
+ * \brief Convert number of second (count) to HMS format.
+ *
+ */
+void rtc_convert_time_to_hms (struct _time *pTime, uint32_t count)
+{
+  uint32_t temps = count;
+  pTime->hour = pTime->min = pTime->sec= 0;
+  temps = temps%86400;
+  pTime->hour = temps/3600 ;
+  temps -= pTime->hour*3600 ;
+  pTime->min = temps/60;
+  pTime->sec = temps%60;
 }

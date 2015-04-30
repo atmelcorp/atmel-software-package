@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -36,7 +36,6 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-//#include "board.h"
 #include "time/timetick.h"
 #include "time/tc.h"
 #include "time/pit.h"
@@ -46,7 +45,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Tick Counter united by ms */
-static volatile uint32_t _dwTickCount = 0;
+static volatile uint32_t _tick_count = 0;
 
 /*----------------------------------------------------------------------------
  *         Exported Functions
@@ -55,10 +54,9 @@ static volatile uint32_t _dwTickCount = 0;
 /**
  *  \brief Handler for Sytem Tick interrupt.
  */
-extern void
-TimeTick_Increment(uint32_t dwInc)
+extern void timetick_increment(uint32_t inc)
 {
-	_dwTickCount += dwInc;
+	_tick_count += inc;
 }
 
 /**
@@ -69,13 +67,12 @@ TimeTick_Increment(uint32_t dwInc)
  *  \note PIT is enabled automatically in this function.
  *  \param new_mck  Current master clock.
  */
-extern uint32_t
-TimeTick_Configure(uint32_t new_mck)
+extern uint32_t timetick_configure(uint32_t new_mck)
 {
-	_dwTickCount = 0;
-	PIT_Init(1000, new_mck / 1000000);
-	PIT_EnableIT();
-	PIT_Enable();
+	_tick_count = 0;
+	pit_init(1000, new_mck/1000000);
+	pit_enable_it();
+	pit_enable();
 	return 0;
 }
 
@@ -84,8 +81,7 @@ TimeTick_Configure(uint32_t new_mck)
  * \param startTick Start tick point.
  * \param endTick   End tick point.
  */
-extern uint32_t
-GetDelayInTicks(uint32_t startTick, uint32_t endTick)
+extern uint32_t timetick_get_delay_in_ticks(uint32_t startTick, uint32_t endTick)
 {
 	if (endTick >= startTick)
 		return (endTick - startTick);
@@ -95,42 +91,35 @@ GetDelayInTicks(uint32_t startTick, uint32_t endTick)
 /**
  *  \brief Get current Tick Count, in ms.
  */
-extern uint32_t
-GetTickCount(void)
+extern uint32_t timetick_get_tick_count(void)
 {
-	return _dwTickCount;
+	return _tick_count;
 }
 
 /**
  *  \brief Sync Wait for several ms
  */
-extern void
-Wait(volatile uint32_t dwMs)
+extern void timetick_wait(volatile uint32_t ms)
 {
-	uint32_t dwStart;
-	uint32_t dwCurrent;
-
-	dwStart = _dwTickCount;
+	uint32_t start, current;
+	start = _tick_count;
 	do {
-		dwCurrent = _dwTickCount;
-	} while (dwCurrent - dwStart < dwMs);
+		current = _tick_count;
+	} while (current - start < ms);
 }
 
 /**
  *  \brief Sync Sleep for several ms
  */
-extern void
-Sleep(volatile uint32_t dwMs)
+extern void timetick_sleep(volatile uint32_t ms)
 {
-	uint32_t dwStart;
-	uint32_t dwCurrent;
+	uint32_t start, current;
 	asm("CPSIE   I");
-	dwStart = _dwTickCount;
+	dwStart = _tick_count;
 
 	do {
-		dwCurrent = _dwTickCount;
-
-		if (dwCurrent - dwStart > dwMs) {
+		current = _tick_count;
+		if (current - start > ms) {
 			break;
 		}
 		asm("WFI");
