@@ -65,7 +65,7 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 		usart_set_transmitter_enabled(&flexcom->usart, 0u);
 		break;
 	case FLEX_MR_OPMODE_SPI:
-		SPI_Disable(&flexcom->spi);
+		spi_disable(&flexcom->spi);
 		break;
 	case FLEX_MR_OPMODE_TWI:
 		twi_stop(&flexcom->twi);
