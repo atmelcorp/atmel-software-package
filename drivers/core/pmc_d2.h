@@ -67,7 +67,7 @@ extern void pmc_set_mck_divider(uint32_t divider);
 extern void pmc_set_mck_pll_a_div(uint32_t divider);
 extern void pmc_disable_pll_a(void);
 
-extern uint32_t pmc_set_peri_max_clock(uint32_t id, uint32_t mck);
+extern uint32_t pmc_get_peripheral_max_clock(uint32_t id, uint32_t mck);
 
 #ifdef __cplusplus
 }

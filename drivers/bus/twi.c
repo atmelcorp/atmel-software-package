@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -81,7 +81,7 @@
 
 #include "chip.h"
 #include "bus/twi.h"
-#include "core/pmc.h"
+#include "core/pmc_d2.h"
 #include "utils/trace.h"
 
 #include <stddef.h>
@@ -116,10 +116,9 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock, uint32_t master_clock)
 	pTwi->TWI_CR = TWI_CR_MSDIS;
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;
-	max_clock = pmc_set_peri_max_clock(id, master_clock);
+	max_clock = pmc_get_peripheral_max_clock(id, master_clock);
 	/* Configure clock */
-	ck_div = 0;
-	ok = 0;
+	ck_div = 0; ok = 0;
 	while (!ok) {
 		cl_div = ((max_clock / (2 * twi_clock)) - 8) / (1 << ck_div);
 		(cl_div <= 255) ? ok = 1 : ck_div++;

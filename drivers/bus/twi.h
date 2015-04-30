@@ -34,8 +34,8 @@
  *
  */
 
-#ifndef _TWI_
-#define _TWI_
+#ifndef _TWI_H_
+#define _TWI_H_
 
 /*------------------------------------------------------------------------------
  *         Headers
@@ -67,7 +67,7 @@ extern "C" {
 
 extern void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
 extern void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
-extern void  twi_stop(Twi * pTwi);
+extern void twi_stop(Twi * pTwi);
 extern void twi_start_read(Twi * pTwi, uint8_t address,
 						   uint32_t iaddress, uint8_t isize);
 extern uint8_t twi_read_byte(Twi * pTwi);
@@ -86,4 +86,4 @@ extern void twi_send_stop_condition(Twi * pTwi);
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _TWI_ */
+#endif				/* #ifndef _TWI_H_ */
