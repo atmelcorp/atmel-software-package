@@ -73,7 +73,7 @@ OBJECTS += main.o mini_ip.o
 OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
 OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
 
-LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a $(LIBDIR)/lwip/*.a
+LIBS = $(LIBDIR)/lwip/*.a
 
 -include $(OBJECTS_SRAM:.o=.d)
 -include $(OBJECTS_DDRAM:.o=.d)
@@ -97,7 +97,7 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@$(CC) $(CFLAGS) -M $< -o $(BUILDDIR_SRAM)/$*.d
 	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
@@ -106,7 +106,7 @@ $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
 	$(CC) $(CFLAGS) $(call optimization,sram) -c $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
-	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+	@$(CC) $(CFLAGS) -M $< -o $(BUILDDIR_DDRAM)/$*.d
 	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
@@ -123,12 +123,14 @@ $(BUILDDIR_SRAM)/gmac.symbols: $(BUILDDIR_SRAM)/gmac.elf
 $(BUILDDIR_SRAM)/gmac.bin: $(BUILDDIR_SRAM)/gmac.elf
 	$(OBJCOPY) -O binary $< $@
 
-$(BUILDDIR_SRAM)/gmac.elf: $(LIBS)
+$(BUILDDIR_SRAM)/gmac.elf: $(LIBS) $(DRIVERDIR)/libdrivers-$(TARGET)_sram.a \
+	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a
 
 $(BUILDDIR_DDRAM)/gmac.elf: $(OBJECTS_DDRAM)
 	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_DDRAM)
 
-$(BUILDDIR_DDRAM)/gmac.elf: $(LIBS)
+$(BUILDDIR_DDRAM)/gmac.elf: $(LIBS)  $(DRIVERDIR)/libdrivers-$(TARGET)_ddram.a \
+	$(UTILSDIR)/libutils-$(TARGET)_ddram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_ddram.a
 
 $(BUILDDIR_DDRAM)/gmac.symbols: $(BUILDDIR_DDRAM)/gmac.elf
 	$(NM) $< >$@

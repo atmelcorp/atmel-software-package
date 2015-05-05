@@ -1,3 +1,5 @@
+ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
 all:
 
 SOFTPACK_VERSION="2.0"
@@ -60,8 +62,6 @@ CFLAGS += -Dprintf=iprintf
 
 # linkker flags
 LDFLAGS= -mcpu=cortex-a5 -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=entry -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
-
-ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 include $(ROOTDIR)/Makefile.sama5d4
 include $(ROOTDIR)/Makefile.sama5d2

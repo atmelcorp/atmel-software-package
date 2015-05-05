@@ -30,8 +30,6 @@
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/Makefile.inc
 
-VPATH = $(MAKEFILEDIR)
-
 LIBRARIES = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
 USER_LIBRARIES = $(LIBDIR)/lwip/*.a
 
@@ -44,13 +42,7 @@ EXAMPLES = $(MAKEFILEDIR)/examples/getting_started \
 
 .PHONY: clean $(LIBRARIES) $(USER_LIBRARIES) $(addsuffix /build,$(EXAMPLES)) list-boards
 
-$(LIBRARIES):
-	$(MAKE) -f $(@D)/Makefile
-
-$(USER_LIBRARIES):
-	$(MAKE) -f $(@D)/Makefile
-
-all: $(LIBRARIES) $(addsuffix /build,$(EXAMPLES))
+all: $(addsuffix /build,$(EXAMPLES))
 
 clean:
 	-rm -f $(LIBRARIES)
@@ -61,7 +53,7 @@ clean:
 	-rm -rf $(EXAMPLEDIR)/*/build
 	-rm -rf $(LIBDIR)/*/build
 
-$(addsuffix /build,$(EXAMPLES)): $(LIBRARIES) $(USER_LIBRARIES)
+$(addsuffix /build,$(EXAMPLES)):
 	$(MAKE) -f $(@D)/Makefile
 
 list-boards:

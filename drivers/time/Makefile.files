@@ -1,4 +1,4 @@
-OBJECTS += time/rtc_calib.o \
+DRIVER_OBJECTS += time/rtc_calib.o \
 	time/tc.o          \
 	time/timetick.o    \
 	time/pit.o         \

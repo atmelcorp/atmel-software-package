@@ -1,3 +1,3 @@
-OBJECTS += serial/usart.o \
+DRIVER_OBJECTS += serial/usart.o \
 	serial/uart.o     \
 	serial/dbgu.o

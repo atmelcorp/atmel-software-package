@@ -29,9 +29,14 @@
 #   Makefile for compiling the Getting Started with sama5d4x Microcontrollers project
 
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
-include $(MAKEFILEDIR)/../../Makefile.inc
 
-VPATH = $(MAKEFILEDIR)
+include $(MAKEFILEDIR)/../../Makefile.inc
+include $(DRIVERDIR)/Makefile.inc
+include $(UTILSDIR)/Makefile.inc
+include $(TARGETDIR)/$(SERIENAME)/Makefile.inc
+
+vpath %.c $(MAKEFILEDIR) $(DRIVERDIR) $(UTILSDIR) $(TARGETDIR)/$(SERIENAME)
+vpath %.S $(DRIVERDIR) $(TARGETDIR)/$(SERIENAME)
 
 #-------------------------------------------------------------------------------
 #        User-modifiable options
@@ -72,8 +77,6 @@ OBJECTS += main.o
 OBJECTS_SRAM = $(addprefix $(BUILDDIR_SRAM)/,$(OBJECTS))
 OBJECTS_DDRAM = $(addprefix $(BUILDDIR_DDRAM)/,$(OBJECTS))
 
-LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
-
 -include $(OBJECTS_SRAM:.o=.d)
 -include $(OBJECTS_DDRAM:.o=.d)
 
@@ -82,7 +85,7 @@ LIBS = $(UTILSDIR)/*.a $(TARGETDIR)/$(SERIENAME)/*.a $(DRIVERDIR)/*.a
 #-------------------------------------------------------------------------------
 .PHONY: clean size_sram debug_sram
 
-all: $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM) $(LIBS) build_sram build_ddram
+all: $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM) build_sram build_ddram
 
 build_sram: $(BUILDDIR_SRAM)/trng.elf \
 	$(BUILDDIR_SRAM)/trng.symbols \
@@ -96,7 +99,7 @@ $(BUILDDIR_SRAM) $(BUILDDIR_DDRAM):
 	mkdir -p $@
 
 $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_SRAM)/$*.d
+	@$(CC) $(CFLAGS) -M $< -o $(BUILDDIR_SRAM)/$*.d
 	@mv -f $(BUILDDIR_SRAM)/$*.d $(BUILDDIR_SRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_SRAM)/$*.o:|' < $(BUILDDIR_SRAM)/$*.d.tmp > $(BUILDDIR_SRAM)/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
@@ -105,7 +108,7 @@ $(OBJECTS_SRAM): $(BUILDDIR_SRAM)/%.o: %.c
 	$(CC) $(CFLAGS) $(call optimization,sram) -c $< -o $@
 
 $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
-	@$(CC) $(CFLAGS) -MM $< -o $(BUILDDIR_DDRAM)/$*.d
+	@$(CC) $(CFLAGS) -M $< -o $(BUILDDIR_DDRAM)/$*.d
 	@mv -f $(BUILDDIR_DDRAM)/$*.d $(BUILDDIR_DDRAM)/$*.d.tmp;
 	@sed -e 's|.*:|$(BUILDDIR_DDRAM)/$*.o:|' < $(BUILDDIR_DDRAM)/$*.d.tmp > $(BUILDDIR_DDRAM)/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
@@ -116,7 +119,8 @@ $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
 $(BUILDDIR_SRAM)/trng.elf: $(OBJECTS_SRAM)
 	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(SERIENAME)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
 
-$(BUILDDIR_SRAM)/trng.elf: $(LIBS)
+$(BUILDDIR_SRAM)/trng.elf: $(DRIVERDIR)/libdrivers-$(TARGET)_sram.a \
+	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a
 
 $(BUILDDIR_SRAM)/trng.symbols: $(BUILDDIR_SRAM)/trng.elf
 	$(NM) $< >$@
@@ -127,16 +131,14 @@ $(BUILDDIR_SRAM)/trng.bin: $(BUILDDIR_SRAM)/trng.elf
 $(BUILDDIR_DDRAM)/trng.elf: $(OBJECTS_DDRAM)
 	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
 
-$(BUILDDIR_DDRAM)/trng.elf: $(LIBS)
+$(BUILDDIR_DDRAM)/trng.elf: $(DRIVERDIR)/libdrivers-$(TARGET)_sram.a \
+	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a
 
 $(BUILDDIR_DDRAM)/trng.symbols: $(BUILDDIR_DDRAM)/trng.elf
 	$(NM) $< >$@
 
 $(BUILDDIR_DDRAM)/trng.bin: $(BUILDDIR_DDRAM)/trng.elf
 	$(OBJCOPY) -O binary $< $@
-
-$(LIBS): $(OBJECTS_SRAM) $(OBJECTS_DRAM)
-	$(MAKE) -f $(@D)/Makefile
 
 .PHONY: clean
 clean:

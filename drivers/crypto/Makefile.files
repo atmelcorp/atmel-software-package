@@ -1,4 +1,4 @@
-OBJECTS += crypto/trng.o \
+DRIVER_OBJECTS += crypto/trng.o \
 	crypto/sha.o    \
 	crypto/icm.o    \
 	crypto/tdes.o   \

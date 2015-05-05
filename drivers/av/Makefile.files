@@ -1,4 +1,4 @@
-OBJECTS += av/lcd_draw.o    \
+DRIVER_OBJECTS += av/lcd_draw.o    \
 	av/lcd_font.o      \
 	av/lcd_font10x14.o \
 	av/lcdd.o          \

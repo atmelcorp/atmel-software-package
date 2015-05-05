@@ -1,1 +1,1 @@
-OBJECTS += mem/smcNfc.o
+DRIVER_OBJECTS += mem/smcNfc.o

@@ -1,4 +1,4 @@
-OBJECTS += bus/hsmci.o                \
+DRIVER_OBJECTS += bus/hsmci.o                \
 	bus/console.o                 \
 	bus/xdmad.o                   \
 	bus/xdma_hardware_interface.o \

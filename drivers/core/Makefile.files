@@ -1,4 +1,4 @@
-OBJECTS += core/pio_it.o   \
+DRIVER_OBJECTS += core/pio_it.o   \
 	core/l2cc.o     \
 	core/adc.o      \
 	core/pwmc.o     \
@@ -11,10 +11,10 @@ OBJECTS += core/pio_it.o   \
 	core/async.o    \
 	core/mmu.o      
 
-OBJECTS_ASM += core/cp15_asm_gcc.o
+DRIVER_OBJECTS_ASM += core/cp15_asm_gcc.o
 
 ifeq (PIO_APIv4,$(PIO_API))
-OBJECTS += core/pio4.o
+DRIVER_OBJECTS += core/pio4.o
 else
-OBJECTS += core/pio3.o
+DRIVER_OBJECTS += core/pio3.o
 endif

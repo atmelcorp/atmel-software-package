@@ -1,4 +1,4 @@
-OBJECTS += io/ov7740_config.o \
+DRIVER_OBJECTS += io/ov7740_config.o \
 	io/iso7816_4.o       \
 	io/mt.o              \
 	io/ov.o              \
