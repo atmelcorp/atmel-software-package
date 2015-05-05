@@ -463,7 +463,7 @@ uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the buffer as must as possible with four data reads */
-		while (buf_size / sizeof(uint32_t) >= 1) {
+		while (buf_size >= sizeof(uint32_t)) {
 			*(uint32_t*)buffer = usart->US_RHR;
 			buffer += sizeof(uint32_t);
 			left -= sizeof(uint32_t);
@@ -516,7 +516,7 @@ uint32_t usart_write_stream(Usart *usart, const void *stream,
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the FIFO as must as possible with four data writes */
-		while (buf_size / sizeof(uint32_t) >= 1) {
+		while (buf_size >= sizeof(uint32_t)) {
 			usart->US_THR = *(uint32_t*)buffer;
 			buffer += sizeof(uint32_t);
 			left -= sizeof(uint32_t);
