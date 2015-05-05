@@ -115,7 +115,7 @@ extern void timetick_sleep(volatile uint32_t ms)
 {
 	uint32_t start, current;
 	asm("CPSIE   I");
-	dwStart = _tick_count;
+	start = _tick_count;
 
 	do {
 		current = _tick_count;

@@ -35,14 +35,14 @@
  *  Methods and definitions for Global time tick and wait functions.
  *
  *  Defines a common and simpliest use of Time Tick, to increase tickCount
- *  every 1ms, the application can get this value through GetTickCount().
+ *  every 1ms, the application can get this value through timetick_get_tick_count().
  *
  *  \par Usage
  *
  *  -# Configure the System Tick with TimeTick_Configure() when MCK changed
  *     \note
- *     Must be done before any invoke of GetTickCount(), Wait() or Sleep().
- *  -# Uses GetTickCount to get current tick value.
+ *     Must be done before any invoke of timetick_get_tick_count(), Wait() or Sleep().
+ *  -# Uses timetick_get_tick_count to get current tick value.
  *  -# Uses Wait to wait several ms.
  *  -# Uses Sleep to enter wait for interrupt mode to wait several ms.
  *

@@ -235,13 +235,13 @@ PIT_IrqHandler(void)
 	uint32_t status;
 
 	/* Read the PIT status register */
-	status = PIT_GetStatus() & PIT_SR_PITS;
+	status = pit_get_status() & PIT_SR_PITS;
 	if (status != 0) {
 
 		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
 		   Read the PIVR to acknowledge interrupt and get number of ticks
 		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
-		dwTimeStamp += (PIT_GetPIVR() >> 20);
+		dwTimeStamp += (pit_get_pivr() >> 20);
 	}
 #ifdef NO_PUSHBUTTON
 	_DBGU_Handler();
@@ -259,14 +259,14 @@ ConfigurePit(void)
 	PMC->PMC_PCER0 = 1 << ID_PIT;
 
 	/* Initialize the PIT to the desired frequency */
-	PIT_Init(BLINK_PERIOD, BOARD_MCK / 2 / 1000000);
+	pit_init(BLINK_PERIOD, BOARD_MCK / 2 / 1000000);
 
 	/* Configure interrupt on PIT */
 	aic_enable(ID_PIT);
-	PIT_EnableIT();
+	pit_enable_it();
 
 	/* Enable the pit */
-	PIT_Enable();
+	pit_enable();
 }
 
 #ifndef NO_PUSHBUTTON

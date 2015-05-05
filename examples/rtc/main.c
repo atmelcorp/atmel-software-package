@@ -159,21 +159,11 @@ volatile uint32_t CountDownTimer = 0;
 /** Current state of application. */
 static unsigned int bState = STATE_MENU;
 
-/** Edited hour. */
-static unsigned char newHour;
-/** Edited minute. */
-static unsigned char newMinute;
-/** Edited second. */
-static unsigned char newSecond;
+/** Edited time */
+struct _time new_time;
 
-/** Edited year. */
-static unsigned short newYear;
-/** Edited month. */
-static unsigned char newMonth;
-/** Edited day. */
-static unsigned char newDay;
-/** Edited day-of-the-week. */
-static unsigned char newWeek;
+/** Edited date */
+struct _date new_date;
 
 /** Indicates if alarm has been triggered and not yet cleared. */
 static unsigned char alarmTriggered = 0;
@@ -224,7 +214,7 @@ static signed int print_to_buf(char *pBuf, const char *pFormat, ...)
 }
 
 /**
- * \brief Get new time, successful value is put in newHour, newMinute, newSecond.
+ * \brief Get new time, successful value is put in new_time.hour, new_time.min, new_time.sec.
  */
 static int get_new_time(void)
 {
@@ -232,7 +222,7 @@ static int get_new_time(void)
 	int i = 0;
 
 	/* clear setting variable */
-	newHour = newMinute = newSecond = 0xFF;
+	new_time.hour = new_time.min = new_time.sec = 0xFF;
 
 	/* use time[] as a format template */
 	while (1) {
@@ -290,9 +280,9 @@ static int get_new_time(void)
 		return 1;	/* failure input */
 	}
 
-	newHour = to_digit(rtc_time[0]) * 10 + to_digit(rtc_time[1]);
-	newMinute = to_digit(rtc_time[3]) * 10 + to_digit(rtc_time[4]);
-	newSecond = to_digit(rtc_time[6]) * 10 + to_digit(rtc_time[7]);
+	new_time.hour = to_digit(rtc_time[0]) * 10 + to_digit(rtc_time[1]);
+	new_time.min = to_digit(rtc_time[3]) * 10 + to_digit(rtc_time[4]);
+	new_time.sec = to_digit(rtc_time[6]) * 10 + to_digit(rtc_time[7]);
 
 	/* success input. verification of data is left to RTC internal Error Checking */
 	return 0;
@@ -320,7 +310,7 @@ static char compute_week(int year, int month, int day)
 }
 
 /**
- * \brief Get new time, successful value is put in newYear, newMonth, newDay, newWeek.
+ * \brief Get new time, successful value is put in new_date.year, new_date.month, new_date.day, new_date.week.
  */
 static int get_new_date(void)
 {
@@ -328,8 +318,8 @@ static int get_new_date(void)
 	int i = 0;
 
 	/* clear setting variable */
-	newYear = 0xFFFF;
-	newMonth = newDay = newWeek = 0xFF;
+	new_date.year = 0xFFFF;
+	new_date.month = new_date.day = new_date.week = 0xFF;
 
 	/* use time[] as a format template */
 	while (1) {
@@ -388,14 +378,14 @@ static int get_new_date(void)
 	}
 
 	/* MM-DD-YY */
-	newMonth = to_digit(date[0]) * 10 + to_digit(date[1]);
-	newDay = to_digit(date[3]) * 10 + to_digit(date[4]);
+	new_date.month = to_digit(date[0]) * 10 + to_digit(date[1]);
+	new_date.day = to_digit(date[3]) * 10 + to_digit(date[4]);
 	/* not scenario of getting mm/dd/ only for alarm */
 	if (i != 6) {
-		newYear =
+		new_date.year =
 		    to_digit(date[6]) * 1000 + to_digit(date[7]) * 100 +
 		    to_digit(date[8]) * 10 + to_digit(date[9]);
-		newWeek = compute_week(newYear, newMonth, newDay);
+		new_date.week = compute_week(new_date.year, new_date.month, new_date.day);
 	}
 
 	/* success input. verification of data is left to RTC internal Error Checking */
@@ -425,17 +415,18 @@ void TC0_IrqHandler(void)
  */
 static void _RefreshDisplay(void)
 {
-
-	unsigned char hour, minute, second;
-	unsigned short year;
-	unsigned char month, day, week;
+	struct _time current_time;
+	/* unsigned char hour, minute, second; */
+	struct _date current_date;
+	/* unsigned short year; */
+	/* unsigned char month, day, week; */
 
 	/* not in menu display mode, in set mode */
 	if (bState != STATE_MENU) {
 	} else {
 		/* Retrieve date and time */
-		RTC_GetTime(RTC, &hour, &minute, &second);
-		RTC_GetDate(RTC, &year, &month, &day, &week);
+		rtc_get_time(RTC, &current_time);
+		rtc_get_date(RTC, &current_date);
 
 		/* display */
 		if (!bMenuShown) {
@@ -458,10 +449,10 @@ static void _RefreshDisplay(void)
 		}
 
 		/* update current date and time */
-		print_to_buf(rtc_time, "%02d:%02d:%02d", hour, minute, second);
-		print_to_buf(date, "%02d/%02d/%04d", month, day, year);
+		print_to_buf(rtc_time, "%02d:%02d:%02d", current_time.hour, current_time.min, current_time.sec);
+		print_to_buf(date, "%02d/%02d/%04d", current_date.month, current_date.day, current_date.year);
 		print_to_buf(calendar, " [Time/Date: %s, %s %s ][Alarm status:%s]",
-			  rtc_time, date, pDayNames[week - 1],
+			  rtc_time, date, pDayNames[current_date.week - 1],
 			  alarmTriggered ? "Triggered!" : "");
 
 		printf("\r%s", calendar);
@@ -478,19 +469,19 @@ void SYS_IrqHandler(void)
 	/* Second increment interrupt */
 	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
 		/* Disable RTC interrupt */
-		RTC_DisableIt(RTC, RTC_IDR_SECDIS);
+		rtc_disable_it(RTC, RTC_IDR_SECDIS);
 
 		_RefreshDisplay();
 
 		RTC->RTC_SCCR = RTC_SCCR_SECCLR;
 
-		RTC_EnableIt(RTC, RTC_IER_SECEN);
+		rtc_enable_it(RTC, RTC_IER_SECEN);
 	}
 	/* Time or date alarm */
 	else {
 		if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
 			/* Disable RTC interrupt */
-			RTC_DisableIt(RTC, RTC_IDR_ALRDIS);
+			rtc_disable_it(RTC, RTC_IDR_ALRDIS);
 
 			alarmTriggered = 1;
 			_RefreshDisplay();
@@ -499,7 +490,7 @@ void SYS_IrqHandler(void)
 			bMenuShown = 0;
 			RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
 
-			RTC_EnableIt(RTC, RTC_IER_ALREN);
+			rtc_enable_it(RTC, RTC_IER_ALREN);
 		}
 	}
 }
@@ -557,24 +548,25 @@ extern int main(void)
 	Temperature = 25;
 
 	/* Default RTC configuration */
-	RTC_SetHourMode(RTC, 0);	/* 24-hour mode */
-	if (RTC_SetTimeAlarm(RTC, 0, 0, 0)) {
+	rtc_set_hour_mode(RTC, 0);	/* 24-hour mode */
+	struct _time empty_time = {0,0,0};
+	if (rtc_set_time_alarm(RTC, &empty_time)) {
 		printf("\n\r Disable time alarm fail!");
 	}
-
-	if (RTC_SetDateAlarm(RTC, 0, 0)) {
+	struct _date empty_date = {0,0,0};
+	if (rtc_set_date_alarm(RTC, &empty_date)) {
 		printf("\n\r Disable date alarm fail!");
 	}
 
 	/* Configure RTC interrupts */
-	RTC_EnableIt(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
+	rtc_enable_it(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
 	aic_enable(ID_SYS);
 	/* Refresh display once */
 	_RefreshDisplay();
-	newHour = 0;
-	newMinute = 0;
-	newSecond = 30;
-	RTC_SetTimeAlarm(RTC, &newHour, &newMinute, &newSecond);
+	new_time.hour = 0;
+	new_time.min = 0;
+	new_time.sec = 30;
+	rtc_set_time_alarm(RTC, &new_time);
 	bMenuShown = 0;
 	alarmTriggered = 0;
 	RTC_ClockCalibration(RTC, Temperature);
@@ -593,9 +585,8 @@ extern int main(void)
 			} while (get_new_time());
 
 			/* if valid input, none of variable for time is 0xff */
-			if (newHour != 0xFF) {
-				if (RTC_SetTime
-				    (RTC, newHour, newMinute, newSecond)) {
+			if (new_time.hour != 0xFF) {
+				if (rtc_set_time (RTC, &new_time)) {
 					printf
 					    ("\n\r Time not set, invalid input!\n\r");
 				}
@@ -627,16 +618,15 @@ extern int main(void)
 			} while (get_new_date());
 
 			/* if valid input, none of variable for date is 0xff(ff) */
-			if (newYear != 0xFFFF) {
-				if (RTC_SetDate
-				    (RTC, newYear, newMonth, newDay, newWeek)) {
+			if (new_date.year != 0xFFFF) {
+				if (rtc_set_date(RTC, &new_date)) {
 					printf
 					    ("\n\r Date not set, invalid input!\n\r");
 				}
 			}
 
 			/* only 'mm/dd' inputed */
-			if (newMonth != 0xFF && newYear == 0xFFFF) {
+			if (new_date.month != 0xFF && new_date.year == 0xFFFF) {
 				printf("\n\r Not Set for no year field!\n\r");
 			}
 
@@ -656,15 +646,14 @@ extern int main(void)
 				printf("\n\r\n\r Set time alarm(hh:mm:ss): ");
 			} while (get_new_time());
 
-			if (newHour != 0xFF) {
-				if (RTC_SetTimeAlarm
-				    (RTC, &newHour, &newMinute, &newSecond)) {
+			if (new_time.hour != 0xFF) {
+				if (rtc_set_time_alarm(RTC, &new_time)) {
 					printf
 					    ("\n\r Time alarm not set, invalid input!\n\r");
 				} else {
 					printf
 					    ("\n\r Time alarm is set at %02d:%02d:%02d!",
-					     newHour, newMinute, newSecond);
+					     new_time.hour, new_time.min, new_time.sec);
 				}
 			}
 			bState = STATE_MENU;
@@ -684,14 +673,14 @@ extern int main(void)
 				printf("\n\r\n\r Set date alarm(mm/dd/): ");
 			} while (get_new_date());
 
-			if (newYear == 0xFFFF && newMonth != 0xFF) {
-				if (RTC_SetDateAlarm(RTC, &newMonth, &newDay)) {
+			if (new_date.year == 0xFFFF && new_date.month != 0xFF) {
+				if (rtc_set_date_alarm(RTC, &new_date)) {
 					printf
 					    ("\n\r Date alarm not set, invalid input!\n\r");
 				} else {
 					printf
 					    ("\n\r Date alarm is set on %02d/%02d!",
-					     newMonth, newDay);
+					     new_date.month, new_date.day);
 				}
 
 			}

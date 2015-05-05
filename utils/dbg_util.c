@@ -103,7 +103,7 @@ DbgReceiveByte(uint8_t * pByte, uint32_t timeOut)
 {
 	uint32_t tick;
 	uint32_t delay;
-	tick = GetTickCount();
+	tick = timetick_get_tick_count();
 	while (1) {
 		if (console_is_rx_ready()) {
 			uint8_t tmp = console_get_char();
@@ -115,7 +115,7 @@ DbgReceiveByte(uint8_t * pByte, uint32_t timeOut)
 		if (timeOut == 0) {
 			/* Never timeout */
 		} else {
-			delay = GetDelayInTicks(tick, GetTickCount());
+			delay = timetick_get_delay_in_ticks(tick, timetick_get_tick_count());
 			if (delay > timeOut) {
 				return 0;
 			}
@@ -145,14 +145,14 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 	if (bStart) {
 		printf("\n\r-- Please start binary data in %d seconds:\n\r",
 		       TIMEOUT_RX_START / 1000);
-		tick0 = GetTickCount();
+		tick0 = timetick_get_tick_count();
 		while (1) {
 			if (console_is_rx_ready()) {
 				pBuffer[rxCnt++] = console_get_char();
 				console_put_char(' ');
 				break;
 			} else {
-				delay = GetDelayInTicks(tick0, GetTickCount());
+				delay = timetick_get_delay_in_ticks(tick0, timetick_get_tick_count());
 				if ((delay % 1000) == 0) {
 					if (xSign == 0) {
 						console_put_char('*');
@@ -171,7 +171,7 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 	}
 	/* Get data */
 	while (1) {
-		tick0 = GetTickCount();
+		tick0 = timetick_get_tick_count();
 		while (1) {
 			if (console_is_rx_ready()) {
 				pBuffer[rxCnt++] = console_get_char();
@@ -184,7 +184,7 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 				}
 				break;
 			}
-			delay = GetDelayInTicks(tick0, GetTickCount());
+			delay = timetick_get_delay_in_ticks(tick0, timetick_get_tick_count());
 			if (delay > TIMEOUT_RX) {
 				return rxCnt;
 			}

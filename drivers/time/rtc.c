@@ -59,8 +59,8 @@
  *
  * \section Usage
  * <ul>
- * <li>  Enable & disable RTC interrupt using RTC_EnableIt() and RTC_DisableIt().
- * <li>  Set RTC data, time, alarm using rtc_set_date(), RTC_SetTime(),
+ * <li>  Enable & disable RTC interrupt using rtc_enable_it() and rtc_disable_it().
+ * <li>  Set RTC data, time, alarm using rtc_set_date(), rtc_set_time(),
  * rtc_set_time_alarm() and rtc_set_date_alarm().
  * <li>  Get RTC data, time using rtc_get_date() and rtc_get_time().
  * </li>
@@ -453,7 +453,7 @@ extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_nu
 	/* Second */
 	if (pTime->sec) {
 		temp = (ltime & RTC_TSTR_SEC_Msk) >> RTC_TSTR_SEC_Pos;
-		pTime->sec = temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+		pTime->sec = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
 	}
 }
 

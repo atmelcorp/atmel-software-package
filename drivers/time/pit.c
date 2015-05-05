@@ -34,15 +34,15 @@
  *
  * \section Usage
  * <ul>
- * <li>  Initialize the PIT with the desired period using PIT_Init().
+ * <li>  Initialize the PIT with the desired period using pit_init().
  *    Alternatively, the Periodic Interval Value (PIV) can be configured
- *    manually using PIT_SetPIV(). </li>
- * <li>  Start the PIT counting using PIT_Enable().
- * <li>  Enable & disable the PIT interrupt using PIT_EnableIT() and
- *    PIT_DisableIT(). </li>
- * <li>  Retrieve the current status of the PIT using PIT_GetStatus(). </li>
+ *    manually using pit_set_piv(). </li>
+ * <li>  Start the PIT counting using pit_enable().
+ * <li>  Enable & disable the PIT interrupt using pit_enable_it() and
+ *    pit_disable_it(). </li>
+ * <li>  Retrieve the current status of the PIT using pit_get_status(). </li>
  * <li>  To get the current value of the internal counter and the number of ticks
- *    that have occurred, use either PIT_GetPIVR() or PIT_GetPIIR() depending
+ *    that have occurred, use either pit_get_pivr() or pit_get_piir() depending
  *    on whether you want the values to be cleared or not. </li>
  *
  * </ul>
