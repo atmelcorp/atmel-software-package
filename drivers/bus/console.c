@@ -109,11 +109,11 @@ extern void console_configure(uint32_t baudrate, uint32_t clock)
 	}
 
 	uint32_t mode;
-	if (console.addr != DBGU) {
-		mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
-	} else {
-		mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
-	}
+#if CONSOLE_DRIVER != DRV_DBGU
+	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+#else
+	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
+#endif
 
 	/* Initialize driver to use */
 	console.init(console.addr, mode, baudrate, clock);
@@ -135,7 +135,8 @@ extern void console_configure(uint32_t baudrate, uint32_t clock)
 extern void console_put_char(uint8_t c)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+		console_configure(CONSOLE_BAUDRATE,
+				  pmc_get_peripheral_max_clock(CONSOLE_ID));
 
 	console.put_char(console.addr, c);
 }
@@ -149,7 +150,8 @@ extern void console_put_char(uint8_t c)
 extern uint32_t console_get_char(void)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+		console_configure(CONSOLE_BAUDRATE,
+				  pmc_get_peripheral_max_clock(CONSOLE_ID));
 	return console.get_char(console.addr);
 }
 
@@ -161,7 +163,8 @@ extern uint32_t console_get_char(void)
 extern uint32_t console_is_rx_ready(void)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE, BOARD_MCK/2);
+		console_configure(CONSOLE_BAUDRATE,
+				  pmc_get_peripheral_max_clock(CONSOLE_ID));
 	return console.is_rx_ready(console.addr);
 }
 
