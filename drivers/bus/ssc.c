@@ -89,7 +89,7 @@ SSC_Configure(Ssc * ssc, uint32_t bitRate, uint32_t masterClock)
 	uint32_t id;
 	uint32_t maxClock;
 	id = (ssc == SSC0) ? ID_SSC0 : ID_SSC1;
-	maxClock = pmc_set_peri_max_clock(id, masterClock);
+	maxClock = pmc_set_peripheral_max_clock(id);
 
 	/* Reset, disable receiver & transmitter */
 	ssc->SSC_CR = SSC_CR_RXDIS | SSC_CR_TXDIS | SSC_CR_SWRST;

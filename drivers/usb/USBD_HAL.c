@@ -246,7 +246,7 @@ static UdphsDmaDescriptor *pDmaLL;
 static uint8_t
 UDPHS_EnablePeripheralClock(void)
 {
-	if (!pmc_is_periph_enabled(ID_UDPHS)) {
+	if (!pmc_is_peripheral_enabled(ID_UDPHS)) {
 		pmc_enable_peripheral(ID_UDPHS);
 		return 1;
 	}

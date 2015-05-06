@@ -144,7 +144,7 @@ static sSdHalFunctions sdHal = {
 static uint8_t
 _PeripheralEnable(uint32_t id)
 {
-	if (pmc_is_periph_enabled(id))
+	if (pmc_is_peripheral_enabled(id))
 		return 0;
 	pmc_enable_peripheral(id);
 	return 1;

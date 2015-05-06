@@ -38,6 +38,8 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "resources/compiler_defines.h"
+#include "core/pmc.h"
 
 
 /*----------------------------------------------------------------------------
@@ -185,7 +187,7 @@ extern WEAK void low_level_init(void)
 
 	/* clock configure */
     if ((uint32_t)low_level_init < DDR_CS_ADDR) /* Code not in external mem */ {
-        pmc_select_external_main_osc();
+        pmc_select_external_osc();
         pmc_switch_mck_to_main();
         pmc_set_plla( CKGR_PLLAR_ONE |
                      CKGR_PLLAR_PLLACOUNT(0x3F) |
@@ -194,7 +196,7 @@ extern WEAK void low_level_init(void)
                      1,
                      PMC_PLLICPR_IPLL_PLLA(0x0));
         pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-        pmc_set_mck_prescaler((PMC_MCKR_PRES_CLOCK);
+        pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
         pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
         pmc_switch_mck_to_pll();
     }

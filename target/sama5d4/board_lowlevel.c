@@ -51,55 +51,77 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** Array of Max peripheral Frequence support for SAMA5 chip*/
-const PeripheralClockMaxFreq periClkMaxFreq[] = {
-	/* peripheral ID, Max frequency */
-	{ID_DBGU, (BOARD_MCK >> 1)},
-	{ID_PIT, (BOARD_MCK >> 1)},
-	{ID_WDT, (BOARD_MCK >> 1)},
-	{ID_HSMC, (BOARD_MCK >> 1)},
-	{ID_PIOA, (BOARD_MCK >> 1)},
-	{ID_PIOB, (BOARD_MCK >> 1)},
-	{ID_PIOC, (BOARD_MCK >> 1)},
-	{ID_PIOD, (BOARD_MCK >> 1)},
-	{ID_PIOE, (BOARD_MCK >> 1)},
-	{ID_USART0, (BOARD_MCK >> 1)},
-	{ID_USART1, (BOARD_MCK >> 1)},
-	{ID_USART2, (BOARD_MCK >> 1)},
-	{ID_USART3, (BOARD_MCK >> 1)},
-	{ID_UART0, (BOARD_MCK >> 1)},
-	{ID_UART1, (BOARD_MCK >> 1)},
-	{ID_TWI0, (BOARD_MCK >> 1)},
-	{ID_TWI1, (BOARD_MCK >> 1)},
-	{ID_TWI2, (BOARD_MCK >> 1)},
-	{ID_HSMCI0, (BOARD_MCK >> 1)},
-	{ID_HSMCI1, (BOARD_MCK >> 1)},
-	{ID_SPI0, (BOARD_MCK >> 1)},
-	{ID_SPI1, (BOARD_MCK >> 1)},
-	{ID_TC0, (BOARD_MCK >> 1)},
-	{ID_TC1, (BOARD_MCK >> 1)},
-	{ID_PWM, (BOARD_MCK >> 1)},
-	{ID_ADC, (BOARD_MCK >> 1)},
-	{ID_XDMAC0, BOARD_MCK},
-	{ID_XDMAC1, BOARD_MCK},
-	{ID_UHPHS, (BOARD_MCK >> 1)},
-	{ID_UDPHS, (BOARD_MCK >> 1)},
-	{ID_GMAC0, (BOARD_MCK >> 1)},
-	{ID_GMAC1, (BOARD_MCK >> 1)},
-	{ID_LCDC, BOARD_MCK},
-	{ID_ISI, BOARD_MCK},
-	{ID_SSC0, (BOARD_MCK >> 1)},
-	{ID_SSC1, (BOARD_MCK >> 1)},
-	{ID_SHA, (BOARD_MCK >> 1)},
-	{ID_AES, (BOARD_MCK >> 1)},
-	{ID_TDES, (BOARD_MCK >> 1)},
-	{ID_TDES, (BOARD_MCK >> 1)},
-	{ID_TRNG, (BOARD_MCK >> 1)},
-	{ID_ICM, (BOARD_MCK >> 1)},
-	{ID_ARM, (BOARD_MCK >> 1)},
-	{ID_IRQ, (BOARD_MCK >> 1)},
-	{ID_SFC, (BOARD_MCK >> 1)},
-	{ID_MPDDRC, BOARD_MCK}
+/** Array of dividers to compute max supported peripheral frequence for SAMA5D4
+ *  chips.
+ */
+const uint32_t peripherals_min_clock_dividers[] = {
+	0, /* There is no ID 0 */
+	0, /* ID_SYS */
+	2, /* ID_ARM */
+	2, /* ID_PIT */
+	2, /* ID_WDT */
+	2, /* ID_PIOD */
+	2, /* ID_USART0 */
+	2, /* ID_USART1 */
+	1, /* ID_XDMAC0 */
+	2, /* ID_ICM */
+	0,
+	0,
+	2, /* ID_AES */
+	0, /* ID_AESB */
+	2, /* ID_TDES */
+	2, /* ID_SHA */
+	1, /* ID_MPDDRC */
+	0, /* ID_MATRIX1 */ 
+	0, /* ID_MATRIX0 */ 
+	0, /* ID_VDEC */
+	0,
+	0, /* ID_MSADCC */  
+	2, /* ID_HSMC */    
+	2, /* ID_PIOA */    
+	2, /* ID_PIOB */    
+	2, /* ID_PIOC */    
+	2, /* ID_PIOE */    
+	2, /* ID_UART0    */
+	2, /* ID_UART1    */
+	2, /* ID_USART2   */
+	2, /* ID_USART3   */
+	2, /* ID_USART4   */
+	2, /* ID_TWI0 */
+	2, /* ID_TWI1 */
+	2, /* ID_TWI2     */
+	2, /* ID_HSMCI0   */
+	2, /* ID_HSMCI1   */
+	2, /* ID_SPI0     */
+	2, /* ID_SPI1     */
+	2, /* ID_SPI2     */
+	2, /* ID_TC0      */
+	2, /* ID_TC1      */
+	2, /* ID_TC2      */
+	2, /* ID_PWM      */
+	2, /* ID_ADC      */
+	2, /* ID_DBGU */
+	2, /* ID_UHPHS    */
+	2, /* ID_UDPHS    */
+	2, /* ID_SSC0     */
+	2, /* ID_SSC1     */
+	1, /* ID_XDMAC1   */
+	1, /* ID_LCDC     */
+	1, /* ID_ISI      */
+	2, /* ID_TRNG     */
+	2, /* ID_GMAC0    */
+	2, /* ID_GMAC1    */
+	2, /* ID_IRQ      */
+	2, /* ID_SFC      */
+	0,
+	0,
+	0,
+	0, /* ID_SMD      */
+	2, /* ID_TWI3     */
+	0, /* ID_SFR      */
+	0, /* ID_AIC      */
+	0, /* ID_SAIC     */
+	0  /* ID_L2CC     */
 };
 
 static const char *abort_status[][2] = {
@@ -642,12 +664,12 @@ LowLevelInit(void)
 	if ((uint32_t) LowLevelInit < DDR_CS_ADDR) {	/* Code not in external mem */
 		pmc_select_external_osc();
 		pmc_switch_mck_to_main();
-		pmc_set_pll_a(CKGR_PLLAR_ONE |
+		pmc_set_plla(CKGR_PLLAR_ONE |
 			    CKGR_PLLAR_PLLACOUNT(0x3F) |
 			    CKGR_PLLAR_OUTA(0x0) |
 			    CKGR_PLLAR_MULA(87) |
 			    1, PMC_PLLICPR_IPLL_PLLA(0x0));
-		pmc_set_mck_pll_a_div(PMC_MCKR_PLLADIV2);
+		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
 		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 		pmc_switch_mck_to_pll();

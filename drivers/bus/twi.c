@@ -81,7 +81,7 @@
 
 #include "chip.h"
 #include "bus/twi.h"
-#include "core/pmc_d2.h"
+#include "core/pmc.h"
 #include "utils/trace.h"
 
 #include <stddef.h>
@@ -116,7 +116,7 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock, uint32_t master_clock)
 	pTwi->TWI_CR = TWI_CR_MSDIS;
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;
-	max_clock = pmc_get_peripheral_max_clock(id, master_clock);
+	max_clock = pmc_get_peripheral_max_clock(id);
 	/* Configure clock */
 	ck_div = 0; ok = 0;
 	while (!ok) {

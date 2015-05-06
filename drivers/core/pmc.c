@@ -68,6 +68,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "board.h"
 #include "core/pmc.h"
 #include "utils/trace.h"
 
@@ -78,7 +79,19 @@
  *----------------------------------------------------------------------------*/
 #define MAX_PERI_ID  ID_L2CC
 
-extern const PeripheralClockMaxFreq periClkMaxFreq[];
+extern const uint32_t peripherals_min_clock_dividers[];
+uint32_t board_master_clock;
+
+static void _pmc_compute_mck(void)
+{
+	uint32_t mckr_value = PMC->PMC_MCKR;
+	uint32_t pllar_value = PMC->CKGR_PLLAR;
+	uint32_t mdiv = (PMC_MCKR_MDIV(mckr_value) < 3) ?
+		(1u << PMC_MCKR_MDIV(mckr_value)) : 3;
+	
+	board_master_clock = BOARD_MAINOSC / mdiv / (mckr_value & PMC_MCKR_PLLADIV2 ? 2:1)
+		* (((CKGR_PLLAR_MULA_Msk & pllar_value) >> CKGR_PLLAR_MULA_Pos) + 1);
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -87,37 +100,61 @@ extern const PeripheralClockMaxFreq periClkMaxFreq[];
 /**
  * \brief Get maximum frequency clock for giving peripheral ID.
  *
- * \param dwId  Peripheral ID (ID_xxx).
+ * \param id  Peripheral ID (ID_xxx).
  */
-extern uint32_t pmc_get_peripheral_max_clock(uint32_t Id)
+uint32_t pmc_get_peripheral_max_clock(uint32_t id)
 {
-	uint8_t i;
-	for (i = 0; i < MAX_PERI_ID; i++) {
-		if (Id == periClkMaxFreq[i].bPeriphID)
-			return periClkMaxFreq[i].bMaxFrequency;
+	assert(id < ID_PERIPH_COUNT);
+	uint32_t divider = peripherals_min_clock_dividers[id];
+	if (divider) {
+		return board_master_clock / divider;
+	} else {
+		return 0;
 	}
-	return 0;
+}
+
+uint32_t pmc_get_peripheral_clock(uint32_t id)
+{
+	assert(id < ID_PERIPH_COUNT);
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	return (PMC->PMC_PCR & (0x3u << 16)) >> 16;
+}
+
+uint32_t pmc_get_master_clock(void)
+{
+	return board_master_clock;
+}
+
+uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div)
+{
+	uint32_t clock = board_master_clock >> (uint32_t)div;
+	uint32_t max_clock = pmc_get_peripheral_max_clock(id);
+	if (clock > max_clock)
+		pmc_set_peripheral_max_clock(id);
+	else
+		PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD | ( div << 16) | PMC_PCR_EN;
+	return clock;
 }
 
 /**
  * \brief Set maximum frequency clock for giving peripheral ID.
  *
- * \param dwId  Peripheral ID (ID_xxx).
+ * \param id  Peripheral ID (ID_xxx).
  * \param mck  Master clock.
  * \return Peripheral clock.
  */
-extern uint32_t pmc_set_peripheral_max_clock(uint32_t Id, uint32_t mck)
+extern uint32_t pmc_set_peripheral_max_clock(uint32_t id)
 {
 	uint32_t maxClock;
 	uint8_t i;
 	/* Disable peripheral clock */
-	PMC->PMC_PCR = PMC_PCR_PID(dwId) | PMC_PCR_CMD;
-	maxClock = pmc_get_peripheral_max_clock(Id);
+	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD;
+	maxClock = pmc_get_peripheral_max_clock(id);
 	for (i = 0; i < 4; i++) {
-		if (mck / (1 << i) <= maxClock)
+		if (board_master_clock / (1 << i) <= maxClock)
 			break;
 	}
-	PMC->PMC_PCR = PMC_PCR_PID(Id) | PMC_PCR_CMD | (i << 16) | PMC_PCR_EN;
+	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD | (i << 16) | PMC_PCR_EN;
 	return maxClock;
 }
 
@@ -127,23 +164,23 @@ extern uint32_t pmc_set_peripheral_max_clock(uint32_t Id, uint32_t mck)
  *
  * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
  *
- * \param dwId  Peripheral ID (ID_xxx).
+ * \param id  Peripheral ID (ID_xxx).
  */
-extern void pmc_enable_peripheral(uint32_t Id)
+void pmc_enable_peripheral(uint32_t id)
 {
-	if (Id < 32) {
-		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << Id)) ==
-		    ((uint32_t) 1 << Id)) {
-			//   TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", Id ) ;
+	if (id < 32) {
+		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) ==
+		    ((uint32_t) 1 << id)) {
+			//   TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
 		} else {
-			PMC->PMC_PCER0 = (1 << Id);
+			PMC->PMC_PCER0 = (1 << id);
 		}
 	} else {
-		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (Id - 32))) ==
-		    ((uint32_t) 1 << (Id - 32))) {
-			// TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", Id ) ;
+		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) ==
+		    ((uint32_t) 1 << (id - 32))) {
+			// TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
 		} else {
-			PMC->PMC_PCER1 = 1 << (Id - 32);
+			PMC->PMC_PCER1 = 1 << (id - 32);
 		}
 	}
 }
@@ -154,27 +191,27 @@ extern void pmc_enable_peripheral(uint32_t Id)
  *
  * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
  *
- * \param dwId  Peripheral ID (ID_xxx).
+ * \param id  Peripheral ID (ID_xxx).
  */
-extern void pmc_disable_peripheral(uint32_t Id)
+void pmc_disable_peripheral(uint32_t id)
 {
-	if (Id < 32) {
-		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << Id)) !=
-		    ((uint32_t) 1 << Id)) {
+	if (id < 32) {
+		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) !=
+		    ((uint32_t) 1 << id)) {
 			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
 				    " %u is not enabled\n\r",
-				    (unsigned int) Id);
+				    (unsigned int) id);
 		} else {
-			PMC->PMC_PCDR0 = 1 << Id;
+			PMC->PMC_PCDR0 = 1 << id;
 		}
 	} else {
-		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (Id - 32))) !=
-		    ((uint32_t) 1 << (Id - 32))) {
+		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) !=
+		    ((uint32_t) 1 << (id - 32))) {
 			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
 				    " %u is not enabled\n\r",
-				    (unsigned int) Id);
+				    (unsigned int) id);
 		} else {
-			PMC->PMC_PCDR1 = 1 << (Id - 32);
+			PMC->PMC_PCDR1 = 1 << (id - 32);
 		}
 	}
 }
@@ -182,7 +219,7 @@ extern void pmc_disable_peripheral(uint32_t Id)
 /**
  * \brief Enable all the peripherals clock via PMC.
  */
-extern void pmc_enable_all_peripherals(void)
+void pmc_enable_all_peripherals(void)
 {
 	PMC->PMC_PCER0 = 0xFFFFFFFF;
 	PMC->PMC_PCER1 = 0xFFFFFFFF;
@@ -192,7 +229,7 @@ extern void pmc_enable_all_peripherals(void)
 /**
  * \brief Disable all the peripherals clock via PMC.
  */
-extern void pmc_disable_all_peripherals(void)
+void pmc_disable_all_peripherals(void)
 {
 	TRACE_DEBUG("Disable all periph clocks\n\r");
 	PMC->PMC_PCDR0 = 0xFFFFFFFF;
@@ -202,48 +239,62 @@ extern void pmc_disable_all_peripherals(void)
 /**
  * \brief Get Peripheral Status for the given peripheral ID.
  *
- * \param dwId  Peripheral ID (ID_xxx).
+ * \param id  Peripheral ID (ID_xxx).
  */
-extern uint32_t pmc_is_peripheral_enabled(uint32_t Id)
+extern uint32_t pmc_is_peripheral_enabled(uint32_t id)
 {
-	if (Id < 32) {
-		return (PMC->PMC_PCSR0 & (1 << Id));
+	if (id < 32) {
+		return (PMC->PMC_PCSR0 & (1 << id));
 	} else {
-		return (PMC->PMC_PCSR1 & (1 << (Id - 32)));
+		return (PMC->PMC_PCSR1 & (1 << (id - 32)));
 	}
 }
 
 /**
  * \brief Select external 32K crystal.
  */
-extern void pmc_select_external_slow_clock_32Khz(void)
+void pmc_select_external_crystal(void)
 {
+	int8_t return_to_sclock = 0;
+	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
+		pmc_switch_mck_to_main();
+		return_to_sclock = 1;
+	}
+	/* switch from internal RC 32kHz to external OSC 32 kHz */
 	volatile uint32_t count;
 	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
 	/* Wait 5 slow clock cycles for internal resynchronization */
 	for (count = 0; count < 0x1000; count++) ;
-	/* wait slow clock status change for external OSC 32 kHz selection */
+	/* Switch to slow clock again if needed */
+	if (return_to_sclock)
+		pmc_switch_mck_to_slck();	
 }
 
 /**
  * \brief Select internal 32K crystal.
  */
-extern void pmc_select_internal_slow_clock_32KHz(void)
+void pmc_select_internal_crystal(void)
 {
-	/* switch from external RC 32kHz to internal OSC 32 kHz */
+	int8_t return_to_sclock = 0;
+	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
+		pmc_switch_mck_to_main();
+		return_to_sclock = 1;
+	}
+	/* switch from extenal OSC 32kHz to internal RC 32 kHz */
 	volatile uint32_t count;
 	/* switch slow clock source to internal OSC 32 kHz */
 	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
 	/* Wait 5 slow clock cycles for internal resynchronization */
-	for (count = 0; count < 0x1000; count++) ;
-	/* wait slow clock status change for internal RC 32 kHz selection */
-	//   while(PMC->PMC_SR & PMC_SR_OSCSELS);
+	for (count = 0; count < 0x1000; count++);
+	/* Switch to slow clock again if needed */
+	if (return_to_sclock)
+		pmc_switch_mck_to_slck();
 }
 
 /**
  * \brief Select external 12M OSC.
  */
-extern void pmc_select_external_main_osc(void)
+void pmc_select_external_osc(void)
 {
 	/* switch from internal RC 12 MHz to external OSC 12 MHz */
 	/* wait Main XTAL Oscillator stabilization */
@@ -264,7 +315,7 @@ extern void pmc_select_external_main_osc(void)
 /**
  * \brief Select internal 12M OSC.
  */
-extern void pmc_select_internal_12MHz(void)
+void pmc_select_internal_osc(void)
 {
 	/* switch from external OSC 12 MHz to internal RC 12 MHz */
 	/* Wait internal 12 MHz RC Startup Time for clock stabilization (software loop) */
@@ -283,23 +334,25 @@ extern void pmc_select_internal_12MHz(void)
 /**
  * \brief Switch PMC from MCK to PLL clock.
  */
-extern void pmc_switch_mck_to_pll(void)
+void pmc_switch_mck_to_pll(void)
 {
 	/* Select PLL as input clock for PCK and MCK */
 	PMC->PMC_MCKR =
 	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	_pmc_compute_mck();
 }
 
 /**
  * \brief Switch PMC from MCK to main clock.
  */
-extern void pmc_switch_mck_to_main(void)
+void pmc_switch_mck_to_main(void)
 {
 	/* Select Main Oscillator as input clock for PCK and MCK */
 	PMC->PMC_MCKR =
 	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	_pmc_compute_mck();
 }
 
 /**
@@ -310,7 +363,8 @@ extern uint32_t pmc_switch_mck_to_slck(void)
 	/* Select Slow Clock as input clock for PCK and MCK */
 	PMC->PMC_MCKR =
 	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	_pmc_compute_mck();
 	return PMC->PMC_MCKR;
 }
 
@@ -318,7 +372,7 @@ extern uint32_t pmc_switch_mck_to_slck(void)
  * \brief Configure MCK Prescaler.
  * \param prescaler prescaler value.
  */
-extern void pmc_set_mck_prescaler(uint32_t prescaler)
+void pmc_set_mck_prescaler(uint32_t prescaler)
 {
 	/* Change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
@@ -329,7 +383,7 @@ extern void pmc_set_mck_prescaler(uint32_t prescaler)
  * \brief Configure MCK PLLA divider.
  * \param divider PLL divider value.
  */
-extern void pmc_set_mck_plla_div(uint32_t divider)
+void pmc_set_mck_plla_div(uint32_t divider)
 {
 	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
 		if (divider == 0) {
@@ -348,7 +402,7 @@ extern void pmc_set_mck_plla_div(uint32_t divider)
  * \brief Configure MCK Divider.
  * \param divider divider value.
  */
-extern void pmc_set_mck_divider(uint32_t divider)
+void pmc_set_mck_divider(uint32_t divider)
 {
 	/* change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
@@ -360,7 +414,7 @@ extern void pmc_set_mck_divider(uint32_t divider)
  * \param pll pll value.
  * \param cpcr cpcr value.
  */
-extern void pmc_set_plla(uint32_t pll, uint32_t cpcr)
+void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 {
 	PMC->CKGR_PLLAR = pll;
 	PMC->PMC_PLLICPR = cpcr;
@@ -370,7 +424,7 @@ extern void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 /**
  * \brief Disable PLLA Register.
  */
-extern void pmc_disable_plla(void)
+void pmc_disable_plla(void)
 {
 	PMC->CKGR_PLLAR =
 	    (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);

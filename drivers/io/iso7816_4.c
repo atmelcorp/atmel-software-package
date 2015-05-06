@@ -597,7 +597,7 @@ ISO7816_Init(const struct _pin pPinIso7816RstMC)
 
 	/* Configure USART */
 	//pmc_enable_peripheral(BOARD_ISO7816_ID_USART);
-	maxMck = pmc_set_peri_max_clock(BOARD_ISO7816_ID_USART, BOARD_MCK);
+	maxMck = pmc_set_peripheral_max_clock(BOARD_ISO7816_ID_USART);
 	/* Disable interrupts */
 	BOARD_ISO7816_BASE_USART->US_IDR = (uint32_t) - 1;
 
