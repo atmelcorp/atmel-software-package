@@ -1019,5 +1019,6 @@ typedef volatile unsigned int AT91_REG; /* Hardware register definition */
 //=============================================================================
 #define USART_FIFO_DEPTH (32u)
 #define SPI_FIFO_DEPTH (32u)
+#define TWI_FIFO_DEPTH (32u)
 #endif // _CHIP_H_
 

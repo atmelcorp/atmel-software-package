@@ -344,3 +344,62 @@ void twi_send_stop_condition(Twi * pTwi)
 	assert(pTwi != NULL);
 	pTwi->TWI_CR |= TWI_CR_STOP;
 }
+
+#ifdef FIFO_ENABLED
+void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
+			uint8_t rx_thres,
+			uint32_t ready_modes)
+{
+	/* Disable TWI master and slave mode and activate FIFO */
+	twi->TWI_CR = TWI_CR_MSDIS | TWI_CR_SVDIS | TWI_CR_FIFOEN;
+
+	/* Configure FIFO */
+	twi->TWI_FMR = TWI_FMR_TXFTHRES(tx_thres) | TWI_FMR_RXFTHRES(rx_thres)
+		| ready_modes;
+}
+
+uint32_t twi_fifo_rx_size(Twi *twi)
+{
+	return (twi->TWI_FLR & TWI_FLR_RXFL_Msk) >> TWI_FLR_RXFL_Pos;
+}
+
+uint32_t twi_fifo_tx_size(Twi *twi)
+{
+	return (twi->TWI_FLR & TWI_FLR_TXFL_Msk) >> TWI_FLR_TXFL_Pos;
+}
+
+uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t len)
+{
+	const uint8_t* buffer = stream;
+	uint32_t left = len;
+
+	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
+	twi->TWI_MMR = TWI_MMR_DADR(addr);
+	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
+
+	while (left > 0) {
+		if ((twi->TWI_SR & TWI_SR_TXRDY) == 0) continue;
+
+		/* Get FIFO free size (int octet) and clamp it */
+		uint32_t buf_size = TWI_FIFO_DEPTH - twi_fifo_tx_size(twi);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the FIFO as must as possible */
+		while (buf_size > sizeof(uint32_t)) {
+			twi->TWI_THR = *(uint32_t*)buffer;
+			buffer += sizeof(uint32_t);
+			left -= sizeof(uint32_t);
+			buf_size -= sizeof(uint32_t);
+		}
+		while (buf_size >= sizeof(uint8_t)) {
+			twi->TWI_THR = *(uint8_t*)buffer;
+			buffer += sizeof(uint16_t);
+			left -= sizeof(uint16_t);
+			buf_size -= sizeof(uint32_t);
+		}
+
+	}
+	return len - left;
+}
+
+#endif
