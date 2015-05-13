@@ -219,32 +219,32 @@ static void v_arm_clr_cpsr_bits(uint32_t mask)
 /*  *\/ */
 /* static unsigned int v_arm_get_status_Icache(void) */
 /* { */
-/* 	uint32_t ctl; */
-/* 	ctl = v_arm_read_control(); */
-/* 	if  ((ctl & (1 << 12)) == (1 << 12)) */
-/* 		return 1; */
-/* 	else */
-/* 		return 0; */
+/*	uint32_t ctl; */
+/*	ctl = v_arm_read_control(); */
+/*	if  ((ctl & (1 << 12)) == (1 << 12)) */
+/*		return 1; */
+/*	else */
+/*		return 0; */
 /* } */
 /* /\** */
 /*  * \brief Enable I Cache */
 /*  *\/ */
 /* void v_arm_enable_Icache(void) */
 /* { */
-/* 	unsigned int ctl; */
-/* 	ctl = v_arm_read_control(); */
-/* 	ctl |= (1 << 12); */
-/* 	v_arm_write_control(ctl); */
+/*	unsigned int ctl; */
+/*	ctl = v_arm_read_control(); */
+/*	ctl |= (1 << 12); */
+/*	v_arm_write_control(ctl); */
 /* } */
 /* /\** */
 /*  * \brief Disable I Cache */
 /*  *\/ */
 /* void v_arm_disable_Icache(void) */
 /* { */
-/* 	unsigned int ctl; */
-/* 	ctl = v_arm_read_control(); */
-/* 	ctl &= ~(1 << 12); */
-/* 	v_arm_write_control(ctl); */
+/*	unsigned int ctl; */
+/*	ctl = v_arm_read_control(); */
+/*	ctl &= ~(1 << 12); */
+/*	v_arm_write_control(ctl); */
 /* } */
 
 /*----------------------------------------------------------------------------
@@ -437,7 +437,7 @@ void non_secure_it_init(void)
 	v_arm_set_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
 	uint32_t i;
 
-        /* Disable all interrupts */
+	/* Disable all interrupts */
 	for (i = 1; i < ID_PERIPH_COUNT; i++){
 		AIC->AIC_SSR = i;
 		AIC->AIC_IDCR = AIC_IDCR_INTD;
@@ -451,7 +451,7 @@ void non_secure_it_init(void)
 	for (i = 0; i < 8; i++){
 		AIC->AIC_EOICR = 0;
 	}
-	
+
 	/* Assign handler addesses */
 	AIC->AIC_SSR =  3; AIC->AIC_SVR = (uint32_t) PIT_Handler;              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
 	AIC->AIC_SSR =  4; AIC->AIC_SVR = (uint32_t) WDT_Handler;              /**<  4 SAMA5D2x Watchdog timer Interrupt (WDT) */
@@ -511,7 +511,7 @@ void non_secure_it_init(void)
 	AIC->AIC_SSR = 78; AIC->AIC_SVR = (uint32_t) CHIPID_Handler;           /**< 78 SAMA5D2x Chip ID (CHIPID) */
 
 	AIC->AIC_SPU = (uint32_t)Spurious_handler;
-	
+
 	/* Enable IRQ and FIQ at core level */
 	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
 }
