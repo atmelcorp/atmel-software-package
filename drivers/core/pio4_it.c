@@ -34,7 +34,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "core/pio4_it.h"
+#include "core/pio_it.h"
 #include "core/aic.h"
 #include "core/pmc.h"
 #include "utils/trace.h"
@@ -84,7 +84,7 @@ const uint8_t idt[PIOIO_GROUP_NUMBER] = {ID_PIOA, ID_PIOB, ID_PIOC, ID_PIOD};
  * \param id  PIO controller ID.
  * \param pPio  PIO controller base address.
  */
-extern void _pio_it_handler(uint8_t id)
+void _pio_it_handler(uint8_t id)
 {
 	uint32_t status;
 	uint32_t i;
@@ -126,7 +126,7 @@ extern void _pio_it_handler(uint8_t id)
  * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
  * the user-configured handlers.
  */
-extern void pio_it_handler(void)
+void pio_it_handler(void)
 {
 	uint8_t i;
 	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
@@ -143,12 +143,12 @@ extern void pio_it_handler(void)
  *
  * \param priority  PIO controller interrupts priority.
  */
-extern void pio_it_initialize(uint32_t priority)
+void pio_initialize_it(uint32_t priority)
 {
 	uint8_t i;
 	uint32_t status, id ;
 
-	TRACE_DEBUG("pio_it_initialize()\n\r");
+	TRACE_DEBUG("pio_initialize_it()\n\r");
 	/* Reset sources */
 	num_sources = 0;
 
@@ -162,7 +162,7 @@ extern void pio_it_initialize(uint32_t priority)
 		status = pioiog->PIO_ISR;
 		/* Disable all interrupt */
 		pioiog->PIO_IDR = 0xFFFFFFFF;
-		aic_enable_it(id);
+		aic_enable(id);
 	}
 }
 
@@ -173,9 +173,9 @@ extern void pio_it_initialize(uint32_t priority)
  * handler).
  * \param pPin  Pointer to a Pin instance.
  */
-extern void pio_it_configure(const struct _pin *pin)
+void pio_configure_it(const struct _pin *pin)
 {
-	TRACE_DEBUG("pio_it_configure()\n\r");
+	TRACE_DEBUG("pio_configure_it()\n\r");
 	assert(pin != NULL);
 	assert(num_sources < MAX_INTERRUPT_SOURCES);
 	struct _interrupt_source *p_int_source;
@@ -195,9 +195,9 @@ extern void pio_it_configure(const struct _pin *pin)
  * the interrupt.
  * \param pin  Interrupt source to enable.
  */
-extern void pio_it_enable(const struct _pin *pin)
+void pio_enable_it(const struct _pin *pin)
 {
-	TRACE_DEBUG("pio_it_enable() \n\r");
+	TRACE_DEBUG("pio_enable_it() \n\r");
 	assert(pin != NULL);
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 
@@ -224,10 +224,10 @@ extern void pio_it_enable(const struct _pin *pin)
  *
  * \param pin  Interrupt source to disable.
  */
-extern void pio_it_disable(const struct _pin *pin)
+void pio_disable_it(const struct _pin *pin)
 {
 	assert(pin != NULL);
-	TRACE_DEBUG("pio_it_disable()\n\r");
+	TRACE_DEBUG("pio_enable_it()\n\r");
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 	pioiog->PIO_IDR = pin->mask;
 }

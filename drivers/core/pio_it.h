@@ -50,12 +50,12 @@
  *
  *  \par Usage
  *
- *  -# Initialize the PIO interrupt mechanism using PIO_InitializeInterrupts()
+ *  -# Initialize the PIO interrupt mechanism using pio_initialize_it()
  *     with the desired priority (0 ... 7).
  *  -# Configure a status change interrupt on one or more pin(s) with
- *     PIO_ConfigureIt().
- *  -# Enable & disable interrupts on pins using PIO_EnableIt() and
- *     PIO_DisableIt().
+ *     pio_configure_it().
+ *  -# Enable & disable interrupts on pins using pio_enable_it() and
+ *     pio_enable_it().
  */
 
 #ifndef _PIO_IT_
@@ -75,19 +75,17 @@ extern "C" {
  *         Global functions
  */
 
-extern void PIO_InitializeInterrupts(uint32_t dwPriority);
+void pio_initialize_it(uint32_t prority);
 
-extern void PIO_ConfigureIt(const struct _pin * pPin);
+void pio_configure_it(const struct _pin * pin);
 
-extern void PIO_EnableIt(const struct _pin * pPin);
+void pio_enable_it(const struct _pin * pin);
 
-extern void PIO_DisableIt(const struct _pin * pPin);
+void pio_disable_it(const struct _pin * pin);
 
-extern void PIO_IT_InterruptHandler(void);
+void pio_it_handlers(void);
 
-extern void PioInterruptHandler(uint32_t id, Pio * pPio);
-
-extern void PIO_CaptureHandler(void);
+void pio_capture_handler(void);
 
 #ifdef __cplusplus
 }

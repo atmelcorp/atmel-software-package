@@ -75,15 +75,13 @@ extern "C" {
  *        Global Functions
  *----------------------------------------------------------------------------*/
 
-extern void pio_it_handler(void);
+void pio_it_handler(void);
 
-extern void pio_it_initialize(uint32_t priority);
+void pio_initialize_it(uint32_t priority);
 
-extern void pio_it_configure(const struct _pin *pin);
+void pio_configure_it(const struct _pin *pin);
 
-extern void pio_it_enable(const struct _pin *pin);
-
-extern void pio_it_disable(const struct _pin *pin);
+void pio_enable_it(const struct _pin *pin);
 
 #ifdef __cplusplus
 }

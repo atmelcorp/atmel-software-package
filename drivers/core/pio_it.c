@@ -84,8 +84,7 @@ static uint32_t _dwNumSources = 0;
  * \param id  PIO controller ID.
  * \param pPio  PIO controller base address.
  */
-extern void
-PioInterruptHandler(uint32_t id, Pio * pPio)
+static void _pio_it_handlers(uint32_t id, Pio * pPio)
 {
 	uint32_t status;
 	uint32_t i;
@@ -131,14 +130,13 @@ PioInterruptHandler(uint32_t id, Pio * pPio)
  * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
  * the user-configured handlers.
  */
-void
-PIO_IT_InterruptHandler(void)
+void pio_it_handlers(void)
 {
-	PioInterruptHandler(ID_PIOA, PIOA);
-	PioInterruptHandler(ID_PIOB, PIOB);
-	PioInterruptHandler(ID_PIOC, PIOC);
-	PioInterruptHandler(ID_PIOD, PIOD);
-	PioInterruptHandler(ID_PIOE, PIOE);
+	_pio_it_handlers(ID_PIOA, PIOA);
+	_pio_it_handlers(ID_PIOB, PIOB);
+	_pio_it_handlers(ID_PIOC, PIOC);
+	_pio_it_handlers(ID_PIOD, PIOD);
+	_pio_it_handlers(ID_PIOE, PIOE);
 }
 
 /**
@@ -150,8 +148,8 @@ PIO_IT_InterruptHandler(void)
  *
  * \param dwPriority  PIO controller interrupts priority.
  */
-extern void
-PIO_InitializeInterrupts(uint32_t dwPriority)
+void
+pio_initialize_it(uint32_t dwPriority)
 {
 	TRACE_DEBUG("PIO_Initialize()\n\r");
 
@@ -205,13 +203,13 @@ PIO_InitializeInterrupts(uint32_t dwPriority)
  * handler).
  * \param pPin  Pointer to a _pin instance.
  */
-extern void
-PIO_ConfigureIt(const struct _pin * pPin)
+void
+pio_configure_it(const struct _pin * pPin)
 {
 	Pio *pio;
 	InterruptSource *pSource;
 
-	TRACE_DEBUG("PIO_ConfigureIt()\n\r");
+	TRACE_DEBUG("pio_configure_it()\n\r");
 
 	assert(pPin);
 	pio = pPin->pio;
@@ -251,10 +249,10 @@ PIO_ConfigureIt(const struct _pin * pPin)
  * the interrupt.
  * \param pPin  Interrupt source to enable.
  */
-extern void
-PIO_EnableIt(const struct _pin * pPin)
+void
+pio_enable_it(const struct _pin * pPin)
 {
-	TRACE_DEBUG("PIO_EnableIt()\n\r");
+	TRACE_DEBUG("pio_enable_it()\n\r");
 
 	assert(pPin != NULL);
 
@@ -280,12 +278,11 @@ PIO_EnableIt(const struct _pin * pPin)
  *
  * \param pPin  Interrupt source to disable.
  */
-extern void
-PIO_DisableIt(const struct _pin * pPin)
+void pio_disable_it(const struct _pin * pPin)
 {
 	assert(pPin != NULL);
 
-	TRACE_DEBUG("PIO_DisableIt()\n\r");
+	TRACE_DEBUG("pio_enable_it()\n\r");
 
 	pPin->pio->PIO_IDR = pPin->mask;
 }
