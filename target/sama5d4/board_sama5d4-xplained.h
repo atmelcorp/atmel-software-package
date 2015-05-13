@@ -30,14 +30,6 @@
 /** Display height in pixels. */
 #define BOARD_LCD_HEIGHT            272
 
-/** LED #0 pin definition (LED_BLUE). */
-#define PIN_LED_0   {(PIO_PE15), PIOE, ID_PIOE, PIO_OUTPUT_1, PIO_DEFAULT}
-/** LED #1 pin definition (LED_RED). */
-#define PIN_LED_1   {(PIO_PD30), PIOD, ID_PIOD, PIO_OUTPUT_0, PIO_DEFAULT}
-
-/** List of all LEDs definitions. */
-#define PINS_LEDS   PIN_LED_0, PIN_LED_1
-
 /** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
 #define PIN_PUSHBUTTON_1    {PIO_PE8, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
 #define PIN_PUSHBUTTON_2    {PIO_PE8, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
