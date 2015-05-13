@@ -37,10 +37,12 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "chip.h"
 #include "board.h"
 #include "resources/compiler_defines.h"
 #include "core/pmc.h"
-
+#include "core/pio.h"
+#include <stdio.h>
 
 /*----------------------------------------------------------------------------
  *        Definiation
@@ -53,105 +55,197 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+/** Array of dividers to compute max supported peripheral frequence for SAMA5D2
+ *  chips.
+ */
+const uint32_t peripherals_min_clock_dividers[] = {
+	2,/* ID_SAIC_FIQ */
+	2,/* ID_PMC */
+	2,/* ID_ARM_PMU */
+	2,/* ID_PIT */
+	2,/* ID_WDT */
+	2,/* ID_GMAC */
+	1,/* ID_XDMAC0 */
+	1,/* ID_XDMAC1 */
+	2,/* ID_ICM */
+	2,/* ID_AES */
+	1,/* ID_AESB */
+	2,/* ID_TDES */
+	2,/* ID_SHA */
+	2,/* ID_MPDDRC */
+	2,/* ID_MATRIX1 */
+	1,/* ID_MATRIX0 */
+	0,
+	2,/* ID_HSMC */
+	2,/* ID_PIOA */
+	2,/* ID_FLEXCOM0 */
+	2,/* ID_FLEXCOM1 */
+	2,/* ID_FLEXCOM2 */
+	2,/* ID_FLEXCOM3 */
+	2,/* ID_FLEXCOM4 */
+	2,/* ID_UART0 */
+	2,/* ID_UART1 */
+	2,/* ID_UART2 */
+	2,/* ID_UART3 */
+	2,/* ID_UART4 */
+	2,/* ID_TWIHS0 */
+	2,/* ID_TWIHS1 */
+	1,/* ID_SDHC0 */
+	1,/* ID_SDHC1 */
+	2,/* ID_SPI0 */
+	2,/* ID_SPI1 */
+	2,/* ID_TC0 */
+	2,/* ID_TC1 */
+	0,
+	2,/* ID_PWM */
+	0,
+	2,/* ID_ADC */
+	2,/* ID_UHPHS */
+	2,/* ID_UDPHS */
+	2,/* ID_SSC0 */
+	2,/* ID_SSC1 */
+	1,/* ID_LCDC */
+	2,/* ID_ISC */
+	2,/* ID_TRNG */
+	2,/* ID_PDMIC */
+	2,/* ID_AIC_IRQ */
+	2,/* ID_SFC */
+	2,/* ID_SECURAM */
+	2,/* ID_QSPI0 */
+	2,/* ID_QSPI1 */
+	2,/* ID_I2SC0 */
+	2,/* ID_I2SC1 */
+	0,
+	0,
+	0,
+	2,/* ID_CLASSD */
+	2,/* ID_SFR */
+	2,/* ID_SAIC */
+	2,/* ID_AIC */
+	2,/* ID_L2CC */
+	2,/* ID_CAN0_INT1 */
+	2,/* ID_CAN1_INT1 */
+	2,/* ID_GMAC_Q1 */
+	2,/* ID_GMAC_Q2 */
+	2,/* ID_PIOB */
+	2,/* ID_PIOC */
+	2,/* ID_PIOD */
+	2,/* ID_SDHC0_TIMER */
+	0,
+	2,/* ID_RSTC */
+	2,/* ID_RTC */
+	2,/* ID_ACC */
+	2,/* ID_RXLP */
+	0,
+	2,/* ID_CHIPID */
+};
 static const char* abort_status[][2]=
 {
-  // IFSR status        ,       DFSR status
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//0
-  {"Unknown(reserved status)",                          "Alignment Fault"                               },//1
-  {"Debug Event",                                       "Debug Event"                                   },//2
-  {"Access flag - section",                             "Access flag - section"                         },//3
-  {"Unknown(reserved status)",                          "Instruction cache maintenance"                 },//4
-  {"Translation fault - section",                       "Translation fault - section"                   },//5
-  {"Access flag - Page",                                "Access flag - Page"                            },//6
-  {"Translation fault -Page",                           "Translation fault -Page"                       },//7
-  {"Synchronous external abort",                        "Synchronous external abort, nontranslation"    },//8
-  {"Domain fault - Section",                            "Domain fault - Section"                        },//9
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//10
-  {"Domain fault - Page",                               "Domain fault - Page"                           },//11
-  {"Synchronous external abort - L1 Translation",       "Synchronous external abort - L1 Translation"   },//12
-  {"Permission fault - Section",                        "Permission fault - Section"                    },//13
-  {"Synchronous external abort - L2 Translation",       "Synchronous external abort - L2 Translation"   },//14
-  {"Permission fault - Page",                           "Permission fault - Page"                       },//15
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//16
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//17
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//18
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//19
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//20
-  {"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//21
-  {"Unknown(reserved status)",                          "Asynchronous external abort"}
+	// IFSR status        ,       DFSR status
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//0
+	{"Unknown(reserved status)",                          "Alignment Fault"                               },//1
+	{"Debug Event",                                       "Debug Event"                                   },//2
+	{"Access flag - section",                             "Access flag - section"                         },//3
+	{"Unknown(reserved status)",                          "Instruction cache maintenance"                 },//4
+	{"Translation fault - section",                       "Translation fault - section"                   },//5
+	{"Access flag - Page",                                "Access flag - Page"                            },//6
+	{"Translation fault -Page",                           "Translation fault -Page"                       },//7
+	{"Synchronous external abort",                        "Synchronous external abort, nontranslation"    },//8
+	{"Domain fault - Section",                            "Domain fault - Section"                        },//9
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//10
+	{"Domain fault - Page",                               "Domain fault - Page"                           },//11
+	{"Synchronous external abort - L1 Translation",       "Synchronous external abort - L1 Translation"   },//12
+	{"Permission fault - Section",                        "Permission fault - Section"                    },//13
+	{"Synchronous external abort - L2 Translation",       "Synchronous external abort - L2 Translation"   },//14
+	{"Permission fault - Page",                           "Permission fault - Page"                       },//15
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//16
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//17
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//18
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//19
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//20
+	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//21
+	{"Unknown(reserved status)",                          "Asynchronous external abort"}
 };
 
 /*----------------------------------------------------------------------------
  *        Low level functions
  *----------------------------------------------------------------------------*/
 
-extern uint32_t v_arm_read_control(void)
-{
-  asm("mov r0, #0");
-  // read CP15 register SCTLR System Control Register
-  asm("MRC p15, 0, r0, c1, c0, 0");
-  asm("bx lr");
-}
-extern void v_arm_write_control(uint32_t ctl)
-{
-  // write CP15 register SCTLR System Control Register
-  asm("MCR p15, 0, r0, c1, c0, 0");
-  asm("bx lr");
-}
+/* extern inline uint32_t v_arm_read_control(void) */
+/* { */
+/*   asm("mov r0, #0"); */
+/*   // read CP15 register SCTLR System Control Register */
+/*   asm("MRC p15, 0, r0, c1, c0, 0"); */
+/*   asm("bx lr"); */
+/* } */
+/* extern inline void v_arm_write_control(uint32_t ctl) */
+/* { */
+/*   // write CP15 register SCTLR System Control Register */
+/*   asm("MCR p15, 0, r0, c1, c0, 0"); */
+/*   asm("bx lr"); */
+/* } */
 
-#if (DEVICE_CORE_0_TYPE == CORE_TYPE_CA5)
-uint32_t v_arm_get_cpsr(void)
+/* #if (DEVICE_CORE_0_TYPE == CORE_TYPE_CA5) */
+/* static inline uint32_t v_arm_get_cpsr(void) */
+/* { */
+/*   asm("MRS R0, CPSR"); // Get current CPSR */
+/*   asm("bx lr"); */
+/* } */
+/* #endif */
+static void v_arm_set_cpsr_bits(uint32_t mask)
 {
-  asm("MRS R0, CPSR"); // Get current CPSR
-  asm("bx lr");
+	uint32_t cpsr = 0;
+	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
+		      "orr %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
+		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
+		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
+
+	/* asm("MRS R1, CPSR");   // Get current CPSR */
+	/* asm("ORR R0, R0, R1"); // Calculate new CPSR value */
+	/* asm("MSR CPSR_c,R0");  // Set new value */
+	/* asm("bx lr"); */
 }
-void v_arm_set_cpsr_bits(uint32_t mask)
+static void v_arm_clr_cpsr_bits(uint32_t mask)
 {
-  asm("MRS R1, CPSR");   // Get current CPSR
-  asm("ORR R0, R0, R1"); // Calculate new CPSR value
-  asm("MSR CPSR_c,R0");  // Set new value
-  asm("bx lr");
+	uint32_t cpsr = 0;
+	mask = ~mask;
+	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
+		      "and %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
+		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
+		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
 }
-void v_arm_clr_cpsr_bits(uint32_t mask)
-{
-  asm("MRS R1, CPSR");   // Get current CPSR
-  asm("MVN R0, R0");     // invert
-  asm("AND R0, R0, R1"); // Calculate new CPSR value
-  asm("MSR CPSR_c,R0");  // Set new value
-  asm("bx lr");
-}
-/**
- * \brief Get status I Cache
- */
-unsigned int v_arm_get_status_Icache(void)
-{
-	uint32_tctl;
-  	ctl = v_arm_read_control();
-  	if  ((ctl & (1 << 12)) == (1 << 12))
-		return 1;
-  	else
-		return 0;
-}
-/**
- * \brief Enable I Cache
- */
-void v_arm_enable_Icache(void)
-{
- 	unsigned int ctl;
-  	ctl = v_arm_read_control();
-  	ctl |= (1 << 12);
-  	v_arm_write_control(ctl);
-}
-/**
- * \brief Disable I Cache
- */
-void v_arm_disable_Icache(void)
-{
-	unsigned int ctl;
-  	ctl = v_arm_read_control();
-  	ctl &= ~(1 << 12);
-  	v_arm_write_control(ctl);
-}
+/* /\** */
+/*  * \brief Get status I Cache */
+/*  *\/ */
+/* static unsigned int v_arm_get_status_Icache(void) */
+/* { */
+/* 	uint32_t ctl; */
+/* 	ctl = v_arm_read_control(); */
+/* 	if  ((ctl & (1 << 12)) == (1 << 12)) */
+/* 		return 1; */
+/* 	else */
+/* 		return 0; */
+/* } */
+/* /\** */
+/*  * \brief Enable I Cache */
+/*  *\/ */
+/* void v_arm_enable_Icache(void) */
+/* { */
+/* 	unsigned int ctl; */
+/* 	ctl = v_arm_read_control(); */
+/* 	ctl |= (1 << 12); */
+/* 	v_arm_write_control(ctl); */
+/* } */
+/* /\** */
+/*  * \brief Disable I Cache */
+/*  *\/ */
+/* void v_arm_disable_Icache(void) */
+/* { */
+/* 	unsigned int ctl; */
+/* 	ctl = v_arm_read_control(); */
+/* 	ctl &= ~(1 << 12); */
+/* 	v_arm_write_control(ctl); */
+/* } */
 
 /*----------------------------------------------------------------------------
  *
@@ -178,30 +272,30 @@ void secure_it_init(void);
  */
 extern WEAK void low_level_init(void)
 {
-    volatile uint32_t * pAicFuse = (volatile uint32_t *) REG_SFR_AICREDIR;
+	volatile uint32_t * pAicFuse = (volatile uint32_t *) REG_SFR_AICREDIR;
 
-    non_secure_it_init();
-    if(!(*pAicFuse)) {
-      secure_it_init();
-    }
+	non_secure_it_init();
+	if(!(*pAicFuse)) {
+		secure_it_init();
+	}
 
 	/* clock configure */
-    if ((uint32_t)low_level_init < DDR_CS_ADDR) /* Code not in external mem */ {
-        pmc_select_external_osc();
-        pmc_switch_mck_to_main();
-        pmc_set_plla( CKGR_PLLAR_ONE |
-                     CKGR_PLLAR_PLLACOUNT(0x3F) |
-                     CKGR_PLLAR_OUTA(0x0) |
-                     CKGR_PLLAR_MULA(87) |
-                     1,
-                     PMC_PLLICPR_IPLL_PLLA(0x0));
-        pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-        pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-        pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
-        pmc_switch_mck_to_pll();
-    }
-    /* Remap */
-   board_remap_ram();
+	if ((uint32_t)low_level_init < DDR_CS_ADDR) /* Code not in external mem */ {
+		pmc_select_external_osc();
+		pmc_switch_mck_to_main();
+		pmc_set_plla( CKGR_PLLAR_ONE |
+			      CKGR_PLLAR_PLLACOUNT(0x3F) |
+			      CKGR_PLLAR_OUTA(0x0) |
+			      CKGR_PLLAR_MULA(87) |
+			      1,
+			      PMC_PLLICPR_IPLL_PLLA(0x0));
+		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
+		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
+		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
+		pmc_switch_mck_to_pll();
+	}
+	/* Remap */
+	board_remap_ram();
 }
 
 /**
@@ -210,7 +304,7 @@ extern WEAK void low_level_init(void)
  */
 void default_spurious_handler(void)
 {
-    while (1);
+	while (1);
 }
 
 /**
@@ -219,20 +313,20 @@ void default_spurious_handler(void)
  */
 void abort_c_handler(void)
 {
-    uint32_t v1,v2, dfsr;
-    v1= 0;
-    v2= 0;
-    asm("mrc   p15, 0, %0, c5, c0, 0" : : "r"(v1));
-    asm("mrc   p15, 0, %0, c6, c0, 0" : : "r"(v2));
+	uint32_t v1,v2, dfsr;
+	v1= 0;
+	v2= 0;
+	asm("mrc   p15, 0, %0, c5, c0, 0" : : "r"(v1));
+	asm("mrc   p15, 0, %0, c6, c0, 0" : : "r"(v2));
 
-    dfsr = ((v1 >> 4) & 0x0F);
-    printf("\n\r######################################################################\n\r");
-    printf("Data Abort occured in %x domain\n\r", (uint32_t)dfsr);
-    dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-    printf("Data abort fault reason is: %s\n\r", (char*)abort_status[dfsr][1]);
-    printf("Data fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
-    printf("-[Info]-Data fault status register value = 0x%x\n\r",(uint32_t)v1);
-    while(1);
+	dfsr = ((v1 >> 4) & 0x0F);
+	printf("\n\r######################################################################\n\r");
+	printf("Data Abort occured in %x domain\n\r", (uint32_t)dfsr);
+	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+	printf("Data abort fault reason is: %s\n\r", (char*)abort_status[dfsr][1]);
+	printf("Data fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
+	printf("-[Info]-Data fault status register value = 0x%x\n\r",(uint32_t)v1);
+	while(1);
 }
 
 /**
@@ -241,19 +335,19 @@ void abort_c_handler(void)
  */
 void prefetch_c_handler(void)
 {
-    uint32_t v1,v2, ifsr;
-    v1= 0;
-    v2= 0;
+	uint32_t v1,v2, ifsr;
+	v1= 0;
+	v2= 0;
 
-    asm("mrc   p15, 0, %0, c5, c0, 1" : : "r"(v1));
-    asm("mrc   p15, 0, %0, c6, c0, 2" : : "r"(v2));
+	asm("mrc   p15, 0, %0, c5, c0, 1" : : "r"(v1));
+	asm("mrc   p15, 0, %0, c6, c0, 2" : : "r"(v2));
 
-    ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-    printf("\n\r######################################################################\n\r");
-    printf("Instruction prefetch abort reason is: %s\n\r", (char*)abort_status[ifsr][0]);
-    printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
-    printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",(uint32_t)v1);
-    while(1);
+	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+	printf("\n\r######################################################################\n\r");
+	printf("Instruction prefetch abort reason is: %s\n\r", (char*)abort_status[ifsr][0]);
+	printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
+	printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",(uint32_t)v1);
+	while(1);
 }
 
 /**
@@ -271,7 +365,7 @@ void undefined_c_Handler(void)
  */
 void dummy_handler(void)
 {
-    while(1) ;
+	while(1) ;
 }
 
 #pragma weak PIT_Handler=dummy_handler              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
@@ -339,8 +433,25 @@ void dummy_handler(void)
  */
 void non_secure_it_init(void)
 {
-    uint32_t i;
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+	uint32_t i;
 
+        /* Disable all interrupts */
+	for (i = 1; i < ID_PERIPH_COUNT; i++){
+		AIC->AIC_SSR = i;
+		AIC->AIC_IDCR = AIC_IDCR_INTD;
+	}
+	/* Clear All pending interrupts flags */
+	for (i = 0; i < ID_PERIPH_COUNT; i++){
+		AIC->AIC_SSR  = i;
+		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
+	}
+	/* /\* Perform 8 IT acknoledge (write any value in EOICR) *\/ */
+	for (i = 0; i < 8; i++){
+		AIC->AIC_EOICR = 0;
+	}
+	
 	/* Assign handler addesses */
 	AIC->AIC_SSR =  3; AIC->AIC_SVR = (uint32_t) PIT_Handler;              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
 	AIC->AIC_SSR =  4; AIC->AIC_SVR = (uint32_t) WDT_Handler;              /**<  4 SAMA5D2x Watchdog timer Interrupt (WDT) */
@@ -399,23 +510,10 @@ void non_secure_it_init(void)
 	AIC->AIC_SSR = 76; AIC->AIC_SVR = (uint32_t) RXLP_Handler;             /**< 76 SAMA5D2x Uart Low Power (RXLP) */
 	AIC->AIC_SSR = 78; AIC->AIC_SVR = (uint32_t) CHIPID_Handler;           /**< 78 SAMA5D2x Chip ID (CHIPID) */
 
-    AIC->AIC_SPU = (uint32_t)Spurious_handler;
-    /* Disable all interrupts */
-    for (i = 1; i < ID_PERIPH_COUNT; i++){
-        AIC->AIC_SSR = i;
-        AIC->AIC_IDCR = AIC_IDCR_INTD;
-    }
-    /* Clear All pending interrupts flags */
-    for (i = 0; i < ID_PERIPH_COUNT; i++){
-        AIC->AIC_SSR  = i;
-        AIC->AIC_ICCR = AIC_ICCR_INTCLR;
-    }
-    /* Perform 8 IT acknoledge (write any value in EOICR) */
-    for (i = 0; i < 8; i++){
-        AIC->AIC_EOICR = 0;
-    }
-    /* Enable IRQ and FIQ at core level */
-    v_arm_clr_cpsr(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+	AIC->AIC_SPU = (uint32_t)Spurious_handler;
+	
+	/* Enable IRQ and FIQ at core level */
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
 }
 
 /**
@@ -423,7 +521,7 @@ void non_secure_it_init(void)
  */
 void secure_it_init(void)
 {
-    uint32_t i;
+	uint32_t i;
 
 	/* Assign handler addesses */
 	SAIC->AIC_SSR =  3; SAIC->AIC_SVR = (uint32_t) PIT_Handler;              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
@@ -483,22 +581,22 @@ void secure_it_init(void)
 	SAIC->AIC_SSR = 76; SAIC->AIC_SVR = (uint32_t) RXLP_Handler;             /**< 76 SAMA5D2x Uart Low Power (RXLP) */
 	SAIC->AIC_SSR = 78; SAIC->AIC_SVR = (uint32_t) CHIPID_Handler;           /**< 78 SAMA5D2x Chip ID (CHIPID) */
 
-    SAIC->AIC_SPU = (uint32_t) Spurious_handler;
+	SAIC->AIC_SPU = (uint32_t) Spurious_handler;
 
-    /* Disable all interrupts */
-    for (i = 1; i < ID_PERIPH_COUNT; i++){
-        SAIC->AIC_SSR = i;
-        SAIC->AIC_IDCR = AIC_IDCR_INTD;
-    }
-    /* Clear All pending interrupts flags */
-    for (i = 0; i < ID_PERIPH_COUNT; i++){
-        SAIC->AIC_SSR = i;
-        SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
-    }
-    /* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
-    for (i = 0; i < 8; i++){
-        SAIC->AIC_EOICR = 0;
-    }
-    /* Enable IRQ and FIQ at core level */
-    v_arm_clr_cpsr(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+	/* Disable all interrupts */
+	for (i = 1; i < ID_PERIPH_COUNT; i++){
+		SAIC->AIC_SSR = i;
+		SAIC->AIC_IDCR = AIC_IDCR_INTD;
+	}
+	/* Clear All pending interrupts flags */
+	for (i = 0; i < ID_PERIPH_COUNT; i++){
+		SAIC->AIC_SSR = i;
+		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
+	}
+	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
+	for (i = 0; i < 8; i++){
+		SAIC->AIC_EOICR = 0;
+	}
+	/* Enable IRQ and FIQ at core level */
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
 }
