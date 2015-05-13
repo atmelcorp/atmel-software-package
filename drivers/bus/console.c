@@ -104,9 +104,7 @@ void console_configure(uint32_t baudrate, uint32_t clock)
 	/* Configure PIO */
 	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
 
-	if (ID_PERIPH_COUNT != CONSOLE_ID) {
-		pmc_enable_peripheral(CONSOLE_ID);
-	}
+	pmc_enable_peripheral(CONSOLE_ID);
 
 	uint32_t mode;
 #if CONSOLE_DRIVER != DRV_DBGU
