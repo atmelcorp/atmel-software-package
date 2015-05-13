@@ -44,7 +44,7 @@
  *------------------------------------------------------------------------------*/
 
 #ifdef PINS_LEDS
-static const struct _pin pinsLeds[] = { PINS_LEDS };
+static const struct _pin pinsLeds[] = PINS_LEDS;
 
 static const uint32_t numLeds = PIO_LISTSIZE(pinsLeds);
 #endif
@@ -69,7 +69,7 @@ LED_Configure(uint32_t dwLed)
 		return 0;
 	}
 	// Configure LED
-	return (pio_configure(&pinsLeds[dwLed], 1));
+	return pio_configure(&pinsLeds[dwLed], 1);
 #else
 	return 0;
 #endif
@@ -137,8 +137,7 @@ LED_Clear(uint32_t dwLed)
  *  \param dwLed  Number of the LED to toggle.
  *  \return 1 if the LED has been toggled; otherwise 0.
  */
-extern uint32_t
-LED_Toggle(uint32_t dwLed)
+extern uint32_t LED_Toggle(uint32_t dwLed)
 {
 #ifdef PINS_LEDS
 	/* Check if LED exists */

@@ -99,11 +99,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "chip.h"
 
 #include "core/aic.h"
 #include "core/pmc.h"
 #include "core/wdt.h"
-#include "core/pio_it.h"
+#include "core/pio4_it.h"
 #include "core/mmu.h"
 
 #include "io/led.h"
@@ -229,8 +230,7 @@ _DBGU_Handler(void)
 /**
  *  \brief Handler for PIT interrupt.
  */
-void
-PIT_IrqHandler(void)
+void PIT_Handler(void)
 {
 	uint32_t status;
 
@@ -253,16 +253,18 @@ PIT_IrqHandler(void)
  *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
  *  every interrupt every millisecond
  */
-static void
-ConfigurePit(void)
+static void ConfigurePit(void)
 {
-	PMC->PMC_PCER0 = 1 << ID_PIT;
+	/* Enable PIT controller */
+	pmc_enable_peripheral(ID_PIT);
 
 	/* Initialize the PIT to the desired frequency */
-	pit_init(BLINK_PERIOD, BOARD_MCK / 2 / 1000000);
+	pit_init(BLINK_PERIOD);
 
 	/* Configure interrupt on PIT */
 	aic_enable(ID_PIT);
+	aic_set_source_vector(ID_PIT, (uint32_t)PIT_Handler);
+
 	pit_enable_it();
 
 	/* Enable the pit */
@@ -289,15 +291,15 @@ _ConfigureButtons(void)
 	pio_set_debounce_filter(&pinPB2, 10);
 
 	/* Enable PIO controller IRQs. */
-	PIO_InitializeInterrupts(0);
+	pio_initialize_it(0);
 
 	/* Initialize pios interrupt handlers, see PIO definition in board.h. */
-	PIO_ConfigureIt(&pinPB1);
-	PIO_ConfigureIt(&pinPB2);
+	pio_configure_it(&pinPB1);
+	pio_configure_it(&pinPB2);
 
 	/* Enable PIO line interrupts. */
-	PIO_EnableIt(&pinPB1);
-	PIO_EnableIt(&pinPB2);
+	pio_enable_it(&pinPB1);
+	pio_enable_it(&pinPB2);
 }
 #endif				/*  */
 
@@ -316,8 +318,7 @@ _ConfigureLeds(void)
 /**
  *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
  */
-void
-TC0_IrqHandler(void)
+void TC0_Handler(void)
 {
 	volatile uint32_t dummy;
 
@@ -333,8 +334,7 @@ TC0_IrqHandler(void)
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
  */
-static void
-_ConfigureTc(void)
+static void _ConfigureTc(void)
 {
 	uint32_t div;
 	uint32_t tcclks;
@@ -342,18 +342,21 @@ _ConfigureTc(void)
 	/** Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
 
+	/* Put the source vector */
+	aic_set_source_vector(ID_TC0, (uint32_t)TC0_Handler);
+	
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	TC_FindMckDivisor(4, BOARD_MCK / 2, &div, &tcclks, BOARD_MCK);
+	TC_FindMckDivisor(4, &div, &tcclks);
 	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
-	TC0->TC_CHANNEL[0].TC_RC = (BOARD_MCK / div) / 4;
+	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
 	/* Configure and enable interrupt on RC compare */
 	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
 	aic_enable(ID_TC0);
 
-	/** Start the counter if LED1 is enabled. */
+	/* /\** Start the counter if LED1 is enabled. *\/ */
 	if (bLed1Active) {
-		TC_Start(TC0, 0);
+	TC_Start(TC0, 0);
 	}
 }
 
@@ -397,7 +400,6 @@ main(void)
 	cp15_enable_icache();
 
 #endif
-
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
@@ -408,7 +410,7 @@ main(void)
 	ConfigurePit();
 
 	/* PIO configuration for LEDs and Buttons. */
-	PIO_InitializeInterrupts(IRQ_PRIOR_PIO);
+	pio_initialize_it(IRQ_PRIOR_PIO);
 	printf("Configure TC.\n\r");
 	_ConfigureTc();
 	printf("Configure LED PIOs.\n\r");
