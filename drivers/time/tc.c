@@ -73,6 +73,7 @@
 
 #include "chip.h"
 #include "time/tc.h"
+#include "core/pmc.h"
 
 #include <assert.h>
 
@@ -91,10 +92,10 @@
  * \param dwChannel Channel number.
  * \param dwMode  Operating mode (TC_CMR value).
  */
-extern void
+void
 TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode)
 {
-	TcChannel *pTcCh;
+	volatile TcChannel *pTcCh;
 
 	assert(dwChannel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
@@ -121,16 +122,16 @@ TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode)
  * \param pTc  Pointer to a Tc instance.
  * \param dwChannel Channel number.
  */
-extern void
-TC_Start(Tc * pTc, uint32_t dwChannel)
+void TC_Start(Tc * pTc, uint32_t dwChannel)
 {
-	TcChannel *pTcCh;
+	volatile TcChannel *pTcCh;
 
 	assert(dwChannel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
 
 	pTcCh = pTc->TC_CHANNEL + dwChannel;
 	pTcCh->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
+	pTcCh->TC_IER = TC_IER_COVFS;
 }
 
 /**
@@ -141,16 +142,17 @@ TC_Start(Tc * pTc, uint32_t dwChannel)
  * \param pTc     Pointer to a Tc instance.
  * \param dwChannel Channel number.
  */
-extern void
+void
 TC_Stop(Tc * pTc, uint32_t dwChannel)
 {
-	TcChannel *pTcCh;
+	volatile TcChannel *pTcCh;
 
 	assert(dwChannel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
 
 	pTcCh = pTc->TC_CHANNEL + dwChannel;
 	pTcCh->TC_CCR = TC_CCR_CLKDIS;
+	pTcCh->TC_IDR = TC_IER_COVFS;
 }
 
 /**
@@ -167,20 +169,21 @@ TC_Stop(Tc * pTc, uint32_t dwChannel)
  * \param dwMCk  Master clock frequency.
  * \param dwDiv  Divisor value.
  * \param dwTcClks  TCCLKS field value for divisor.
- * \param dwBoardMCK  Board clock frequency.
+ * \param board_mck  Board clock frequency.
  *
  * \return 1 if a proper divisor has been found, otherwise 0.
  */
-extern uint32_t
-TC_FindMckDivisor(uint32_t dwFreq, uint32_t dwMCk, uint32_t * dwDiv,
-		  uint32_t * dwTcClks, uint32_t dwBoardMCK)
+extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t * dwDiv,
+				  uint32_t * dwTcClks)
 {
-	const uint32_t adwDivisors[5] = { 2, 8, 32, 128, dwBoardMCK / 32768 };
+	const uint32_t master_clock = pmc_get_master_clock();
+	const uint32_t periph_clock = pmc_get_peripheral_max_clock(ID_TC0);
+	const uint32_t adwDivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
 
 	uint32_t dwIndex = 0;
 
 	/*  Satisfy lower bound */
-	while (dwFreq < ((dwMCk / adwDivisors[dwIndex]) / 65536)) {
+	while (dwFreq < ((periph_clock / adwDivisors[dwIndex]) / 65536)) {
 		dwIndex++;
 
 		/*  If no divisor can be found, return 0 */
@@ -192,7 +195,7 @@ TC_FindMckDivisor(uint32_t dwFreq, uint32_t dwMCk, uint32_t * dwDiv,
 	/*  Try to maximize DIV while satisfying upper bound */
 	while (dwIndex < 4) {
 
-		if (dwFreq > (dwMCk / adwDivisors[dwIndex + 1])) {
+		if (dwFreq > (periph_clock / adwDivisors[dwIndex + 1])) {
 			break;
 		}
 		dwIndex++;

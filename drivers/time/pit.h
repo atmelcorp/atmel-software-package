@@ -44,12 +44,12 @@
 extern "C" {
 #endif
 
-extern void pit_init(uint32_t period, uint32_t pit_frequency);
-extern void pit_set_piv(uint32_t piv);
-extern void pit_enable(void);
-extern void pit_disable(void);
-extern void pit_enable_it(void);
-extern void pit_disable_it(void);
+void pit_init(uint32_t period);
+void pit_set_piv(uint32_t piv);
+void pit_enable(void);
+void pit_disable(void);
+void pit_enable_it(void);
+void pit_disable_it(void);
 extern uint32_t pit_get_mode(void);
 extern uint32_t pit_get_status(void);
 extern uint32_t pit_get_piir(void);

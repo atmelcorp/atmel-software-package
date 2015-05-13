@@ -68,6 +68,7 @@
 
 #include "chip.h"
 #include "time/pit.h"
+#include "core/pmc.h"
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -81,8 +82,9 @@
 *  \param pit_frequency  Master clock frequency in MHz.
 */
 
-void pit_init(uint32_t period, uint32_t pit_frequency)
+void pit_init(uint32_t period)
 {
+	uint32_t pit_frequency = pmc_get_peripheral_max_clock(ID_PIT) / 1000000;
 	PIT->PIT_MR = period ? (period * pit_frequency + 8) >> 4 : 0;
 	PIT->PIT_MR |= PIT_MR_PITEN;
 }
