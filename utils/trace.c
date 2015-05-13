@@ -53,7 +53,7 @@ uint32_t dwTraceLevel = TRACE_LEVEL;
  *  \param dwBaudRate  U(S)ART baudrate.
  *  \param dwMCk  Master clock frequency.
  */
-extern void trace_configure(uint32_t baudrate, uint32_t masterclock)
+void trace_configure(uint32_t baudrate, uint32_t masterclock)
 {
 	console_configure(baudrate, masterclock);
 }

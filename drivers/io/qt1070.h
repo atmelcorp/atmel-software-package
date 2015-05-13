@@ -143,11 +143,11 @@ extern uint8_t QT1070_GetDetection_Status(Twid * pTwid);
 extern uint8_t QT1070_GetKey_Status(Twid * pTwid);
 extern uint16_t QT1070_GetKey_Signal(Twid * pTwid, uint8_t key);
 extern uint16_t QT1070_GetKey_Reference(Twid * pTwid, uint8_t key);
-extern void QT1070_SetThreshold(Twid * pTwid, uint8_t key, uint8_t threshold);
-extern void QT1070_SetAveAks(Twid * pTwid, uint8_t key, uint8_t Ave,
+void QT1070_SetThreshold(Twid * pTwid, uint8_t key, uint8_t threshold);
+void QT1070_SetAveAks(Twid * pTwid, uint8_t key, uint8_t Ave,
 			     uint8_t Aks);
-extern void QT1070_SetDetectionIntegrator(Twid * pTwid, uint8_t key,
+void QT1070_SetDetectionIntegrator(Twid * pTwid, uint8_t key,
 					  uint8_t di);
-extern void QT1070_StartCalibrate(Twid * pTwid);
-extern void QT1070_StartReset(Twid * pTwid);
+void QT1070_StartCalibrate(Twid * pTwid);
+void QT1070_StartReset(Twid * pTwid);
 #endif				// QT1070_H

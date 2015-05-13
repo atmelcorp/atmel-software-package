@@ -116,13 +116,13 @@ typedef union _SmcStatus {
  * NFC functions
  */
 
-extern void SMC_NFC_Configure(uint32_t mode);
-extern void SMC_NFC_Reset(void);
-extern void SMC_NFC_EnableNfc(void);
-extern void SMC_NFC_EnableSpareRead(void);
-extern void SMC_NFC_DisableSpareRead(void);
-extern void SMC_NFC_EnableSpareWrite(void);
-extern void SMC_NFC_DisableSpareWrite(void);
+void SMC_NFC_Configure(uint32_t mode);
+void SMC_NFC_Reset(void);
+void SMC_NFC_EnableNfc(void);
+void SMC_NFC_EnableSpareRead(void);
+void SMC_NFC_DisableSpareRead(void);
+void SMC_NFC_EnableSpareWrite(void);
+void SMC_NFC_DisableSpareWrite(void);
 extern uint8_t SMC_NFC_isSpareRead(void);
 extern uint8_t SMC_NFC_isSpareWrite(void);
 extern uint8_t SMC_NFC_isTransferComplete(void);
@@ -130,20 +130,20 @@ extern uint8_t SMC_NFC_isReadyBusy(void);
 extern uint8_t SMC_NFC_isNfcBusy(void);
 extern uint32_t SMC_NFC_GetStatus(void);
 
-extern void SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle,
+void SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle,
 				uint32_t cycle0);
-extern void SMC_NFC_Wait_CommandDone(void);
-extern void SMC_NFC_Wait_XfrDone(void);
-extern void SMC_NFC_Wait_RBbusy(void);
-extern void SMC_NFC_Wait_HammingReady(void);
+void SMC_NFC_Wait_CommandDone(void);
+void SMC_NFC_Wait_XfrDone(void);
+void SMC_NFC_Wait_RBbusy(void);
+void SMC_NFC_Wait_HammingReady(void);
 
 #ifdef _SMC_ECC_PRESENT
-extern void SMC_ECC_Configure(uint32_t type, uint32_t pageSize);
+void SMC_ECC_Configure(uint32_t type, uint32_t pageSize);
 extern uint32_t SMC_ECC_GetCorrectoinType(void);
 extern uint8_t SMC_ECC_GetStatus(uint8_t eccNumber);
 
-extern void SMC_ECC_GetValue(uint32_t * ecc);
-extern void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t * code,
+void SMC_ECC_GetValue(uint32_t * ecc);
+void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t * code,
 				 uint8_t busWidth);
 extern uint8_t SMC_ECC_VerifyHsiao(uint8_t * data, uint32_t size,
 				   const uint8_t * originalCode,

@@ -211,9 +211,9 @@ typedef struct _LinkedListDescriporView3 {
  *----------------------------------------------------------------------------*/
 /** \addtogroup dmad_functions DMA Driver Functionos
         @{*/
-extern void XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode);
+void XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode);
 
-extern void XDMAD_Handler(sXdmad * pDmad);
+void XDMAD_Handler(sXdmad * pDmad);
 
 extern uint32_t XDMAD_AllocateChannel(sXdmad * pXdmad,
 				      uint8_t bSrcID, uint8_t bDstID);

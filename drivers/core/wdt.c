@@ -89,7 +89,7 @@
  * \param pWDT  Pointer to an Wdt instance.
  * \param dwMode   WDT mode to be set
  */
-extern void
+void
 WDT_Enable(Wdt * pWDT, uint32_t dwMode)
 {
 	pWDT->WDT_MR = dwMode;
@@ -102,7 +102,7 @@ WDT_Enable(Wdt * pWDT, uint32_t dwMode)
  * Only a processor reset resets it.
  * \param pWDT  Pointer to an Wdt instance.
  */
-extern void
+void
 WDT_Disable(Wdt * pWDT)
 {
 	pWDT->WDT_MR = WDT_MR_WDDIS;
@@ -112,7 +112,7 @@ WDT_Disable(Wdt * pWDT)
  * \brief Watchdog restart.
  * \param pWDT  Pointer to an Wdt instance.
  */
-extern void
+void
 WDT_Restart(Wdt * pWDT)
 {
 	pWDT->WDT_CR = 0xA5000001;

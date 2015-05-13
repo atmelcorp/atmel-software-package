@@ -65,11 +65,11 @@
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-extern void timetick_increment(uint32_t inc);
+void timetick_increment(uint32_t inc);
 extern uint32_t timetick_configure(uint32_t nex_mck);
 extern uint32_t timetick_get_delay_in_ticks(uint32_t startTick, uint32_t endTick);
 extern uint32_t timetick_get_tick_count(void);
-extern void timetick_wait(volatile uint32_t ms);
-extern void timetick_sleep(volatile uint32_t ms);
+void timetick_wait(volatile uint32_t ms);
+void timetick_sleep(volatile uint32_t ms);
 
 #endif				/* _TIMETICK_ */

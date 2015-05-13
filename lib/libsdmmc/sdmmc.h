@@ -525,7 +525,7 @@
         @{*/
 
 extern uint8_t SD_Init(sSdCard * pSd);
-extern void SD_DeInit(sSdCard * pSd);
+void SD_DeInit(sSdCard * pSd);
 
 extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
 extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
@@ -577,19 +577,19 @@ extern uint8_t SDIO_WriteBytes(sSdCard * pSd,
 			       uint16_t wSize,
 			       fSdmmcCallback fCallback, void *pArg);
 
-extern void _DumpREG(void *pREG, uint32_t dwSize);
+void _DumpREG(void *pREG, uint32_t dwSize);
 
-extern void SDIO_DumpCardInformation(sSdCard * pSd);
+void SDIO_DumpCardInformation(sSdCard * pSd);
 
-extern void SD_DumpCID(void *pCID);
+void SD_DumpCID(void *pCID);
 
-extern void SD_DumpCSD(void *pCSD);
+void SD_DumpCSD(void *pCSD);
 
-extern void SD_DumpExtCSD(void *pExtCSD);
+void SD_DumpExtCSD(void *pExtCSD);
 
-extern void SD_DumpSCR(void *pSCR);
+void SD_DumpSCR(void *pSCR);
 
-extern void SD_DumpSdStatus(void *pSdST);
+void SD_DumpSdStatus(void *pSdST);
 
 /**     @}*/
 /** @}*/

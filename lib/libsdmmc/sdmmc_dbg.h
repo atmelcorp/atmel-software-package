@@ -59,7 +59,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Initialize the SD/MMC card driver struct */
-extern void SDD_Initialize(sSdCard * pSd,
+void SDD_Initialize(sSdCard * pSd,
 			   const void *pDrv, uint8_t bSlot,
 			   const sSdHalFunctions * pHalFunctions);
 

@@ -196,46 +196,46 @@ typedef struct _GmacTxDescriptor {
 //         PHY Exported functions
 //-----------------------------------------------------------------------------
 extern uint8_t GMAC_IsIdle(Gmac * pGmac);
-extern void GMAC_PHYMaintain(Gmac * pGmac,
+void GMAC_PHYMaintain(Gmac * pGmac,
 			     uint8_t bPhyAddr,
 			     uint8_t bRegAddr, uint8_t bRW, uint16_t wData);
 extern uint16_t GMAC_PHYData(Gmac * pGmac);
-extern void GMAC_ClearStatistics(Gmac * pGmac);
-extern void GMAC_IncreaseStatistics(Gmac * pGmac);
-extern void GMAC_StatisticsWriteEnable(Gmac * pGmac, uint8_t bEnaDis);
+void GMAC_ClearStatistics(Gmac * pGmac);
+void GMAC_IncreaseStatistics(Gmac * pGmac);
+void GMAC_StatisticsWriteEnable(Gmac * pGmac, uint8_t bEnaDis);
 extern uint8_t GMAC_SetMdcClock(Gmac * pGmac, uint32_t mck);
-extern void GMAC_EnableMdio(Gmac * pGmac);
-extern void GMAC_DisableMdio(Gmac * pGmac);
-extern void GMAC_EnableMII(Gmac * pGmac);
-extern void GMAC_EnableRMII(Gmac * pGmac);
-extern void GMAC_EnableGMII(Gmac * pGmac);
-extern void GMAC_SetLinkSpeed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex);
-extern void GMAC_EnableIt(Gmac * pGmac, uint32_t dwSources);
-extern void GMAC_DisableIt(Gmac * pGmac, uint32_t dwSources);
+void GMAC_EnableMdio(Gmac * pGmac);
+void GMAC_DisableMdio(Gmac * pGmac);
+void GMAC_EnableMII(Gmac * pGmac);
+void GMAC_EnableRMII(Gmac * pGmac);
+void GMAC_EnableGMII(Gmac * pGmac);
+void GMAC_SetLinkSpeed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex);
+void GMAC_EnableIt(Gmac * pGmac, uint32_t dwSources);
+void GMAC_DisableIt(Gmac * pGmac, uint32_t dwSources);
 extern uint32_t GMAC_GetItStatus(Gmac * pGmac);
 extern uint32_t GMAC_GetItMask(Gmac * pGmac);
 extern uint32_t GMAC_GetTxStatus(Gmac * pGmac);
-extern void GMAC_ClearTxStatus(Gmac * pGmac, uint32_t dwStatus);
+void GMAC_ClearTxStatus(Gmac * pGmac, uint32_t dwStatus);
 extern uint32_t GMAC_GetRxStatus(Gmac * pGmac);
-extern void GMAC_ClearRxStatus(Gmac * pGmac, uint32_t dwStatus);
-extern void GMAC_ReceiveEnable(Gmac * pGmac, uint8_t bEnaDis);
-extern void GMAC_TransmitEnable(Gmac * pGmac, uint8_t bEnaDis);
-extern void GMAC_SetRxQueue(Gmac * pGmac, uint32_t dwAddr);
+void GMAC_ClearRxStatus(Gmac * pGmac, uint32_t dwStatus);
+void GMAC_ReceiveEnable(Gmac * pGmac, uint8_t bEnaDis);
+void GMAC_TransmitEnable(Gmac * pGmac, uint8_t bEnaDis);
+void GMAC_SetRxQueue(Gmac * pGmac, uint32_t dwAddr);
 extern uint32_t GMAC_SetLocalLoopBack(Gmac * pGmac);
 extern uint32_t GMAC_GetRxQueue(Gmac * pGmac);
-extern void GMAC_SetTxQueue(Gmac * pGmac, uint32_t dwAddr);
+void GMAC_SetTxQueue(Gmac * pGmac, uint32_t dwAddr);
 extern uint32_t GMAC_GetTxQueue(Gmac * pGmac);
-extern void GMAC_NetworkControl(Gmac * pGmac, uint32_t bmNCR);
+void GMAC_NetworkControl(Gmac * pGmac, uint32_t bmNCR);
 extern uint32_t GMAC_GetNetworkControl(Gmac * pGmac);
-extern void GMAC_SetAddress(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr);
-extern void GMAC_SetAddress32(Gmac * pGmac, uint8_t bIndex,
+void GMAC_SetAddress(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr);
+void GMAC_SetAddress32(Gmac * pGmac, uint8_t bIndex,
 			      uint32_t dwMacT, uint32_t dwMacB);
-extern void GMAC_SetAddress64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac);
-extern void GMAC_Configure(Gmac * pGmac, uint32_t dwCfg);
+void GMAC_SetAddress64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac);
+void GMAC_Configure(Gmac * pGmac, uint32_t dwCfg);
 extern uint32_t GMAC_GetConfigure(Gmac * pGmac);
-extern void GMAC_TransmissionStart(Gmac * pGmac);
-extern void GMAC_TransmissionHalt(Gmac * pGmac);
-extern void GMAC_EnableRGMII(Gmac * pGmac, uint32_t duplex, uint32_t speed);
+void GMAC_TransmissionStart(Gmac * pGmac);
+void GMAC_TransmissionHalt(Gmac * pGmac);
+void GMAC_EnableRGMII(Gmac * pGmac, uint32_t duplex, uint32_t speed);
 
 #ifdef __cplusplus
 }

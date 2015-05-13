@@ -106,7 +106,7 @@ static uint32_t dwAdcClock = 0;
  * \param pAdc Pointer to an Adc instance.
  * \param dwID ADC Index
  */
-extern void
+void
 adc_initialize(Adc * pAdc, uint32_t dwID)
 {
 	/* Enable peripheral clock */
@@ -170,7 +170,7 @@ adc_set_clock(Adc * pAdc, uint32_t dwClk, uint32_t dwMck)
  * \param dwTracking tracking value
  * \param dwSettling settling value
  */
-extern void
+void
 adc_set_timing(Adc * pAdc, uint32_t dwStartup, uint32_t dwTracking,
 	      uint32_t dwSettling)
 {
@@ -195,7 +195,7 @@ adc_set_timing(Adc * pAdc, uint32_t dwStartup, uint32_t dwTracking,
  * \param pAdc Pointer to an Adc instance.
  * \param dwTrgSel Trigger selection
  */
-extern void
+void
 adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel)
 {
 	uint32_t dwMr;
@@ -231,7 +231,7 @@ adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode)
  * \param pAdc Pointer to an Adc instance.
  * \param bEnDis Enable/Disable low resolution.
  */
-extern void
+void
 adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis)
 {
 	if (bEnDis) {
@@ -247,7 +247,7 @@ adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis)
  * \param pAdc Pointer to an Adc instance.
  * \param bEnDis Enable/Disable sleep mode.
  */
-extern void
+void
 adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
@@ -263,7 +263,7 @@ adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis)
  * \param pAdc  Pointer to an Adc instance.
  * \param bEnDis Enable/Disable seqnence mode.
  */
-extern void
+void
 adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
@@ -283,7 +283,7 @@ adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis)
  * \param dwSEQ1 Sequence 1 ~ 8  channel number.
  * \param dwSEQ2 Sequence 9 ~ 16 channel number.
  */
-extern void
+void
 adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2)
 {
 	pAdc->ADC_SEQR1 = dwSEQ1;
@@ -296,7 +296,7 @@ adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2)
  * \param ucChList Channel list.
  * \param ucNumCh  Number of channels in list.
  */
-extern void
+void
 adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[], uint8_t ucNumCh)
 {
 	uint8_t i;
@@ -317,7 +317,7 @@ adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[], uint8_t ucNumCh)
  * \param pAdc   Pointer to an Adc instance.
  * \param bEnDis Enable/Disable TAG value.
  */
-extern void
+void
 adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis)
 {
 	if (bEnDis) {
@@ -333,7 +333,7 @@ adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis)
  * \param pAdc Pointer to an Adc instance.
  * \param dwChannel channel number to be set,16 for all channels
  */
-extern void
+void
 adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel)
 {
 	assert(dwChannel <= 16);
@@ -353,7 +353,7 @@ adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel)
  * \param pAdc Pointer to an Adc instance.
  * \param dwMode compare mode
  */
-extern void
+void
 adc_set_compare_mode(Adc * pAdc, uint32_t dwMode)
 {
 	pAdc->ADC_EMR &= ~(ADC_EMR_CMPMODE_Msk);
@@ -366,7 +366,7 @@ adc_set_compare_mode(Adc * pAdc, uint32_t dwMode)
  * \param pAdc Pointer to an Adc instance.
  * \param dwHi_Lo Comparison Window
  */
-extern void
+void
 adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo)
 {
 	pAdc->ADC_CWR = dwHi_Lo;

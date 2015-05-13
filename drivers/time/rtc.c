@@ -122,7 +122,7 @@ static uint8_t _flag_minute_change;
  * \param pRtc  Pointer to a Rtc instance
  * \param dwMode  Hour mode.
  */
-extern void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
+void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
 {
 	assert((mode & 0xFFFFFFFE) == 0);
 	pRtc->RTC_MR = mode;
@@ -149,7 +149,7 @@ extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
  * \param pRtc  Pointer to a Rtc instance
  * \param dwSources  Interrupt sources to enable.
  */
-extern void rtc_enable_it(Rtc * pRtc, uint32_t sources)
+void rtc_enable_it(Rtc * pRtc, uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
 	TRACE_DEBUG("rtc_enable_it()\n\r");
@@ -162,7 +162,7 @@ extern void rtc_enable_it(Rtc * pRtc, uint32_t sources)
  * \param pRtc  Pointer to a Rtc instance
 * \param dwSources  Interrupt sources to disable.
 */
-extern void rtc_disable_it(Rtc * pRtc, uint32_t sources)
+void rtc_disable_it(Rtc * pRtc, uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
 	TRACE_DEBUG("rtc_disable_it()\n\r");
@@ -220,7 +220,7 @@ extern int rtc_set_time(Rtc * pRtc, struct _time *pTime)
  * \param pRtc  Pointer to a Rtc instance
  * \param pTime Pointer to structure time
  */
-extern void rtc_get_time(Rtc * pRtc, struct _time *pTime)
+void rtc_get_time(Rtc * pRtc, struct _time *pTime)
 {
 	uint32_t ltime;
 
@@ -289,7 +289,7 @@ extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
  * \param pRtc  Pointer to a Rtc instance
  * \param pDate	Pointer to structure Date.
  */
-extern void rtc_get_date(Rtc * pRtc, struct _date *pDate)
+void rtc_get_date(Rtc * pRtc, struct _date *pDate)
 {
 	uint32_t date;
 
@@ -395,7 +395,7 @@ extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
  * \param pRtc  Pointer to a Rtc instance
  * \param dwMask Bits mask of cleared events
  */
-extern void rtc_clear_sccr(Rtc * pRtc, uint32_t mask)
+void rtc_clear_sccr(Rtc * pRtc, uint32_t mask)
 {
 	/* Clear all flag bits in status clear command register */
 	mask &= RTC_SCCR_ACKCLR | RTC_SCCR_ALRCLR | RTC_SCCR_SECCLR |
@@ -426,7 +426,7 @@ extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
  * \param pTime    	 Pointer to structure Time.
  * \param reg_num    Tamper register set number.
  */
-extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
+void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
 {
 	uint32_t ltime, temp;
 
@@ -467,7 +467,7 @@ extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_nu
  * \param pDate     Pointer to structure Date
  * \param reg_num   Tamper register set number.
  */
-extern void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num)
+void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num)
 {
 	uint32_t date, cent, temp;
 

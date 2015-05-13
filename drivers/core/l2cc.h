@@ -147,37 +147,37 @@ typedef struct {
  *----------------------------------------------------------------------------*/
 
 extern unsigned int L2CC_IsEnabled(L2cc * pL2CC);
-extern void L2CC_Enable(L2cc * pL2CC);
-extern void L2CC_Disable(L2cc * pL2CC);
-extern void L2CC_ExclusiveCache(L2cc * pL2CC, uint8_t Enable);
-extern void L2CC_ConfigLatRAM(L2cc * pL2CC, RAMLatencyControl * pLat);
-extern void L2CC_Config(L2cc * pL2CC, L2CC_Control L2cc_Config);
-extern void L2CC_DataPrefetchEnable(L2cc * pL2CC);
-extern void L2CC_InstPrefetchEnable(L2cc * pL2CC);
-extern void L2CC_EnableResetCounter(L2cc * pL2CC, uint8_t EvenetCounter);
-extern void L2CC_EventConfig(L2cc * pL2CC, uint8_t EventCounter,
+void L2CC_Enable(L2cc * pL2CC);
+void L2CC_Disable(L2cc * pL2CC);
+void L2CC_ExclusiveCache(L2cc * pL2CC, uint8_t Enable);
+void L2CC_ConfigLatRAM(L2cc * pL2CC, RAMLatencyControl * pLat);
+void L2CC_Config(L2cc * pL2CC, L2CC_Control L2cc_Config);
+void L2CC_DataPrefetchEnable(L2cc * pL2CC);
+void L2CC_InstPrefetchEnable(L2cc * pL2CC);
+void L2CC_EnableResetCounter(L2cc * pL2CC, uint8_t EvenetCounter);
+void L2CC_EventConfig(L2cc * pL2CC, uint8_t EventCounter,
 			     uint8_t Source, uint8_t IntGen);
 extern unsigned int L2CC_EventCounterValue(L2cc * pL2CC, uint8_t EventCounter);
-extern void L2CC_EnableIT(L2cc * pL2CC, uint16_t ITSource);
-extern void L2CC_DisableIT(L2cc * pL2CC, uint16_t ITSource);
+void L2CC_EnableIT(L2cc * pL2CC, uint16_t ITSource);
+void L2CC_DisableIT(L2cc * pL2CC, uint16_t ITSource);
 extern unsigned short L2CC_ITStatusRaw(L2cc * pL2CC, uint16_t ITSource);
 extern unsigned short L2CC_ITStatusMask(L2cc * pL2CC, uint16_t ITSource);
-extern void L2CC_ITClear(L2cc * pL2CC, uint16_t ITSource);
+void L2CC_ITClear(L2cc * pL2CC, uint16_t ITSource);
 uint8_t L2CC_PollSPNIDEN(L2cc * pL2CC);
-extern void L2CC_CacheSync(L2cc * pL2CC);
-extern void L2CC_InvalidateWay(L2cc * pL2CC, uint8_t Way);
-extern void L2CC_CleanWay(L2cc * pL2CC, uint8_t Way);
-extern void L2CC_InvalidatePAL(L2cc * pL2CC, uint32_t P_Address);
-extern void L2CC_CleanPAL(L2cc * pL2CC, uint32_t P_Address);
-extern void L2CC_CleanIx(L2cc * pL2CC, uint32_t P_Address);
+void L2CC_CacheSync(L2cc * pL2CC);
+void L2CC_InvalidateWay(L2cc * pL2CC, uint8_t Way);
+void L2CC_CleanWay(L2cc * pL2CC, uint8_t Way);
+void L2CC_InvalidatePAL(L2cc * pL2CC, uint32_t P_Address);
+void L2CC_CleanPAL(L2cc * pL2CC, uint32_t P_Address);
+void L2CC_CleanIx(L2cc * pL2CC, uint32_t P_Address);
 
-extern void L2CC_CleanIndex(L2cc * pL2CC, uint32_t P_Address, uint8_t Way);
-extern void L2CC_CleanInvalidateIndex(L2cc * pL2CC, uint32_t P_Address,
+void L2CC_CleanIndex(L2cc * pL2CC, uint32_t P_Address, uint8_t Way);
+void L2CC_CleanInvalidateIndex(L2cc * pL2CC, uint32_t P_Address,
 				      uint8_t Way);
-extern void L2CC_DataLockdown(L2cc * pL2CC, uint8_t Way);
-extern void L2CC_InstructionLockdown(L2cc * pL2CC, uint8_t Way);
-extern void L2CC_CacheMaintenance(uint8_t Maint_Op);
-extern void Enable_L2CC(void);
+void L2CC_DataLockdown(L2cc * pL2CC, uint8_t Way);
+void L2CC_InstructionLockdown(L2cc * pL2CC, uint8_t Way);
+void L2CC_CacheMaintenance(uint8_t Maint_Op);
+void Enable_L2CC(void);
 
 #ifdef __cplusplus
 }

@@ -139,19 +139,19 @@ typedef struct _Mcid {
  *----------------------------------------------------------------------------*/
 /** \addtogroup mcid_functions MCI Driver Functions
         @{*/
-extern void MCID_Init(sMcid * pMcid,
+void MCID_Init(sMcid * pMcid,
 		      Hsmci * pMci, uint8_t bID, uint32_t dwMck,
 		      sXdmad * pXdmad, uint8_t bPolling);
 
-extern void MCID_Reset(sMcid * pMcid);
+void MCID_Reset(sMcid * pMcid);
 
-extern void MCID_SetSlot(Hsmci * pMci, uint8_t slot);
+void MCID_SetSlot(Hsmci * pMci, uint8_t slot);
 
 extern uint32_t MCID_Lock(sMcid * pMcid, uint8_t bSlot);
 
 extern uint32_t MCID_Release(sMcid * pMcid);
 
-extern void MCID_Handler(sMcid * pMcid);
+void MCID_Handler(sMcid * pMcid);
 
 extern uint32_t MCID_SendCmd(sMcid * pMcid, void *pCmd);
 

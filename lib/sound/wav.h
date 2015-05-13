@@ -71,6 +71,6 @@ typedef struct _WavHeader {
 
 extern unsigned char WAV_IsValid(const WavHeader * header);
 
-extern void WAV_DisplayInfo(const WavHeader * header);
+void WAV_DisplayInfo(const WavHeader * header);
 
 #endif				//#ifndef WAV_H

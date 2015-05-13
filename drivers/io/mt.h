@@ -65,5 +65,5 @@ struct capture_size1 {
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
-extern void mt_configure(Twid * pTwid, uint32_t width, uint32_t heigth);
+void mt_configure(Twid * pTwid, uint32_t width, uint32_t heigth);
 #endif

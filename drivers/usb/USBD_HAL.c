@@ -1087,8 +1087,8 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 /*---------------------------------------------------------------------------
  *      Exported functions
  *---------------------------------------------------------------------------*/
-	extern void UDPHS_IrqHandler(void);
-	extern void USBD_HAL_ForceFs(void);
+	void UDPHS_IrqHandler(void);
+	void USBD_HAL_ForceFs(void);
 /**
  * USBD (UDP) interrupt handler
  * Manages device resume, suspend, end of bus reset.
@@ -2149,7 +2149,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		TRACE_DEBUG_WP("\n\r");
 	}
 
-	extern void USBD_HAL_ForceFs(void) {
+	void USBD_HAL_ForceFs(void) {
 		forceUsbFS = 1;
 	}
 

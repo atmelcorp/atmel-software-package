@@ -173,9 +173,9 @@ typedef struct _GmacDriver {
  *         GMAC Exported functions
  *---------------------------------------------------------------------------*/
 
-extern void GMACD_Handler(sGmacd * pGmacd);
+void GMACD_Handler(sGmacd * pGmacd);
 
-extern void GMACD_Init(sGmacd * pGmacd,
+void GMACD_Init(sGmacd * pGmacd,
 		       Gmac * pHw,
 		       uint8_t bID, uint8_t enableCAF, uint8_t enableNBC);
 
@@ -188,7 +188,7 @@ extern uint8_t GMACD_InitTransfer(sGmacd * pGmacd,
 				  fGmacdTransferCallback * pTxCb,
 				  uint16_t wTxSize);
 
-extern void GMACD_Reset(sGmacd * pGmacd);
+void GMACD_Reset(sGmacd * pGmacd);
 
 extern uint8_t GMACD_SendSG(sGmacd * pGmacd,
 			    const sGmacSGList * sgl,
@@ -204,7 +204,7 @@ extern uint8_t GMACD_Poll(sGmacd * pGmacd,
 			  uint8_t * pFrame,
 			  uint32_t frameSize, uint32_t * pRcvSize);
 
-extern void GMACD_SetRxCallback(sGmacd * pGmacd, fGmacdTransferCallback fRxCb);
+void GMACD_SetRxCallback(sGmacd * pGmacd, fGmacdTransferCallback fRxCb);
 
 extern uint8_t GMACD_SetTxWakeupCallback(sGmacd * pGmacd,
 					 fGmacdWakeupCallback fWakeup,

@@ -63,28 +63,29 @@ extern uint32_t board_master_clock;
 extern "C" {
 #endif
 
-extern void pmc_enable_peripheral(uint32_t id);
-extern void pmc_disable_peripheral(uint32_t id);
+void pmc_enable_peripheral(uint32_t id);
+void pmc_disable_peripheral(uint32_t id);
 
-extern void pmc_enable_all_peripherals(void);
-extern void pmc_disable_all_peripherals(void);
+void pmc_enable_all_peripherals(void);
+void pmc_disable_all_peripherals(void);
 
 extern uint32_t pmc_is_peripheral_enabled(uint32_t id);
 
-extern void pmc_select_external_crystal(void);
-extern void pmc_select_internal_crystal(void);
-extern void pmc_select_external_osc(void);
-extern void pmc_select_internal_osc(void);
-extern void pmc_switch_mck_to_pll(void);
-extern void pmc_switch_mck_to_main(void);
+void pmc_select_external_crystal(void);
+void pmc_select_internal_crystal(void);
+void pmc_select_external_osc(void);
+void pmc_select_internal_osc(void);
+void pmc_switch_mck_to_pll(void);
+void pmc_switch_mck_to_main(void);
 extern uint32_t pmc_switch_mck_to_slck(void);
-extern void pmc_set_plla(uint32_t pll, uint32_t cpcr);
-extern void pmc_set_mck_prescaler(uint32_t prescaler);
-extern void pmc_set_mck_divider(uint32_t divider);
-extern void pmc_set_mck_plla_div(uint32_t divider);
-extern void pmc_disable_plla(void);
+void pmc_set_plla(uint32_t pll, uint32_t cpcr);
+void pmc_set_mck_prescaler(uint32_t prescaler);
+void pmc_set_mck_divider(uint32_t divider);
+void pmc_set_mck_plla_div(uint32_t divider);
+void pmc_disable_plla(void);
 extern uint32_t pmc_get_peripheral_max_clock(uint32_t id);
 uint32_t pmc_get_peripheral_clock(uint32_t id);
+uint32_t pmc_get_master_clock(void);
 extern uint32_t pmc_set_peripheral_max_clock(uint32_t id);
 uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div);
 #ifdef __cplusplus

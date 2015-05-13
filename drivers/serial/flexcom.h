@@ -66,7 +66,7 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void flexcom_select(Flexcom * flexcom, uint32_t protocol);
+void flexcom_select(Flexcom * flexcom, uint32_t protocol);
 
 #ifdef __cplusplus
 }

@@ -45,15 +45,15 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void AESB_Start(void);
-extern void AESB_SoftReset(void);
-extern void AESB_Configure(uint32_t mode);
-extern void AESB_EnableIt(uint32_t sources);
-extern void AESB_DisableIt(uint32_t sources);
+void AESB_Start(void);
+void AESB_SoftReset(void);
+void AESB_Configure(uint32_t mode);
+void AESB_EnableIt(uint32_t sources);
+void AESB_DisableIt(uint32_t sources);
 extern uint32_t AESB_GetStatus(void);
-extern void AESB_WriteKey(const uint32_t * pKey);
-extern void AESB_SetInput(uint32_t * data);
-extern void AESB_GetOutput(uint32_t * data);
-extern void AESB_SetVector(const uint32_t * pVector);
+void AESB_WriteKey(const uint32_t * pKey);
+void AESB_SetInput(uint32_t * data);
+void AESB_GetOutput(uint32_t * data);
+void AESB_SetVector(const uint32_t * pVector);
 
 #endif				/* #ifndef _AESB_ */

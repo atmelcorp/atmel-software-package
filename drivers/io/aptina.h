@@ -96,11 +96,11 @@ struct mt_reg {
  *       Exported functions
  *----------------------------------------------------------------------------*/
 extern uint8_t mt_init(Twid * pTwid);
-extern void mt_DumpRegisters(Twid * pTwid);
+void mt_DumpRegisters(Twid * pTwid);
 extern uint32_t mt_write_regs(Twid * pTwid, const struct mt_reg *pReglist);
 extern uint8_t mt_read_reg(Twid * pTwid, uint8_t reg, uint8_t * pData);
 //extern uint8_t mt_write_reg(Twid *pTwid, uint8_t reg, uint8_t val);
 extern uint8_t mt_write_reg(Twid * pTwid, uint8_t reg, uint8_t * val);
-//extern void write_command (Twid *pTwid,uint8_t reg,uint8_t data1,uint8_t data2);
+//void write_command (Twid *pTwid,uint8_t reg,uint8_t data1,uint8_t data2);
 
 #endif

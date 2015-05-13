@@ -47,4 +47,4 @@ typedef struct {
 	uint16_t CORRECTION;
 } RTC_PPMLookup;
 
-extern void RTC_ClockCalibration(Rtc * pRtc, int32_t CurrentTempr);
+void RTC_ClockCalibration(Rtc * pRtc, int32_t CurrentTempr);

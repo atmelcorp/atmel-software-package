@@ -54,7 +54,7 @@ static volatile uint32_t _tick_count = 0;
 /**
  *  \brief Handler for Sytem Tick interrupt.
  */
-extern void timetick_increment(uint32_t inc)
+void timetick_increment(uint32_t inc)
 {
 	_tick_count += inc;
 }
@@ -70,7 +70,7 @@ extern void timetick_increment(uint32_t inc)
 extern uint32_t timetick_configure(uint32_t new_mck)
 {
 	_tick_count = 0;
-	pit_init(1000, new_mck/1000000);
+	pit_init(1000);
 	pit_enable_it();
 	pit_enable();
 	return 0;
@@ -99,7 +99,7 @@ extern uint32_t timetick_get_tick_count(void)
 /**
  *  \brief Sync Wait for several ms
  */
-extern void timetick_wait(volatile uint32_t ms)
+void timetick_wait(volatile uint32_t ms)
 {
 	uint32_t start, current;
 	start = _tick_count;
@@ -111,7 +111,7 @@ extern void timetick_wait(volatile uint32_t ms)
 /**
  *  \brief Sync Sleep for several ms
  */
-extern void timetick_sleep(volatile uint32_t ms)
+void timetick_sleep(volatile uint32_t ms)
 {
 	uint32_t start, current;
 	asm("CPSIE   I");

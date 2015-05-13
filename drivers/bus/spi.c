@@ -94,7 +94,7 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
  *
  * \param spi  Pointer to an Spi instance.
  */
-extern void spi_enable(Spi * spi)
+void spi_enable(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_SPIEN;
 }
@@ -104,7 +104,7 @@ extern void spi_enable(Spi * spi)
  *
  * \param spi  Pointer to an Spi instance.
  */
-extern void spi_disable(Spi * spi)
+void spi_disable(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_SPIDIS;
 }
@@ -115,7 +115,7 @@ extern void spi_disable(Spi * spi)
  * \param spi  Pointer to an Spi instance.
  * \param dwSources Bitwise OR of selected interrupt sources.
  */
-extern void spi_enable_it(Spi * spi, uint32_t dwSources)
+void spi_enable_it(Spi * spi, uint32_t dwSources)
 {
 	spi->SPI_IER = dwSources;
 }
@@ -126,7 +126,7 @@ extern void spi_enable_it(Spi * spi, uint32_t dwSources)
  * \param spi  Pointer to an Spi instance.
  * \param dwSources Bitwise OR of selected interrupt sources.
  */
-extern void spi_disable_it(Spi * spi, uint32_t dwSources)
+void spi_disable_it(Spi * spi, uint32_t dwSources)
 {
 	spi->SPI_IDR = dwSources;
 }
@@ -138,7 +138,7 @@ extern void spi_disable_it(Spi * spi, uint32_t dwSources)
  * \param spi  Pointer to an Spi instance.
  * \param dwConfiguration  Value of the SPI configuration register.
  */
-extern void spi_configure(Spi * spi, uint32_t dwConfiguration)
+void spi_configure(Spi * spi, uint32_t dwConfiguration)
 {
 	uint32_t spi_id = GET_SPI_ID_FROM_ADDR(spi);
 	assert(spi_id != ID_PERIPH_COUNT);
@@ -162,7 +162,7 @@ extern void spi_configure(Spi * spi, uint32_t dwConfiguration)
  * \param spi  Pointer to an Spi instance.
  * \param cS  Chip select of NPSCx.
  */
-extern void spi_chip_select(Spi * spi, uint8_t cS)
+void spi_chip_select(Spi * spi, uint8_t cS)
 {
 	spi->SPI_MR |= SPI_MR_PCS_Msk;
 	spi->SPI_MR &= ~(SPI_MR_PCS(cS));
@@ -174,7 +174,7 @@ extern void spi_chip_select(Spi * spi, uint8_t cS)
  * \param spi  Pointer to an Spi instance.
  * \param dwConfiguration  Value of the SPI mode register.
  */
-extern void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
+void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
 {
 	spi->SPI_MR = dwConfiguration;
 }
@@ -184,7 +184,7 @@ extern void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
  *
  * \param spi  Pointer to an Spi instance.
  */
-extern void spi_release_cs(Spi * spi)
+void spi_release_cs(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_LASTXFER;
 }
@@ -255,7 +255,7 @@ extern uint32_t spi_read(Spi * spi)
  * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
  * \param wData  Word of data to send.
  */
-extern void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
 {
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
@@ -272,7 +272,7 @@ extern void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
  * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
  * \param wData  Word of data to send.
  */
-extern void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
 {
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;

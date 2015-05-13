@@ -53,12 +53,12 @@ struct _console {
  *         Global function
  * ---------------------------------------------------------------------------*/
 
-extern void console_configure(uint32_t baudrate, uint32_t master_clock);
-extern void console_put_char(uint8_t uc);
+void console_configure(uint32_t baudrate, uint32_t master_clock);
+void console_put_char(uint8_t uc);
 extern uint32_t console_get_char(void);
 extern uint32_t console_is_rx_ready(void);
-extern void console_dump_frame(uint8_t * pframe, uint32_t size);
-extern void console_dump_memory(uint8_t * pbuffer, uint32_t size,
+void console_dump_frame(uint8_t * pframe, uint32_t size);
+void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				uint32_t address);
 extern uint32_t console_get_integer(uint32_t * pvalue);
 extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,

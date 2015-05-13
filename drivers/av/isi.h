@@ -80,17 +80,17 @@ typedef struct {
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-extern void ISI_Enable(void);
-extern void ISI_Disable(void);
-extern void ISI_DmaChannelEnable(uint32_t channel);
-extern void ISI_DmaChannelDisable(uint32_t channel);
-extern void ISI_EnableInterrupt(uint32_t flag);
-extern void ISI_DisableInterrupt(uint32_t flag);
-extern void ISI_CodecPathFull(void);
-extern void ISI_SetFrame(uint32_t frate);
+void ISI_Enable(void);
+void ISI_Disable(void);
+void ISI_DmaChannelEnable(uint32_t channel);
+void ISI_DmaChannelDisable(uint32_t channel);
+void ISI_EnableInterrupt(uint32_t flag);
+void ISI_DisableInterrupt(uint32_t flag);
+void ISI_CodecPathFull(void);
+void ISI_SetFrame(uint32_t frate);
 extern uint8_t ISI_BytesForOnePixel(uint8_t bmpRgb);
-extern void ISI_Reset(void);
-extern void ISI_Init(pIsi_Video pVideo);
+void ISI_Reset(void);
+void ISI_Init(pIsi_Video pVideo);
 extern uint32_t ISI_StatusRegister(void);
 
 #endif				//#ifndef ISI_H

@@ -58,7 +58,7 @@
  * \param baudrate  Baudrate at which the DBGU should operate (in Hz).
  * \param clock  Frequency of the system master clock (in Hz).
  */
-extern void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate, uint32_t clock)
+void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate, uint32_t clock)
 {
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
@@ -77,7 +77,7 @@ extern void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate, uint32_
  * \note This function is synchronous (i.e. uses polling).
  * \param c  Character to send.
  */
-extern void dbgu_put_char(Dbgu* dbgu, uint8_t c)
+void dbgu_put_char(Dbgu* dbgu, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */
 	while ((dbgu->DBGU_SR & DBGU_SR_TXEMPTY) == 0) ;

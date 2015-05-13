@@ -77,19 +77,19 @@ typedef struct _LinkedListDescriporIcmRegion {
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
-extern void ICM_Enable(void);
-extern void ICM_Disable(void);
-extern void ICM_SoftReset(void);
-extern void ICM_ReComputeHash(uint8_t region);
-extern void ICM_EnableMonitor(uint8_t region);
-extern void ICM_DisableMonitor(uint8_t region);
-extern void ICM_Configure(uint32_t mode);
-extern void ICM_EnableIt(uint32_t sources);
-extern void ICM_DisableIt(uint32_t sources);
+void ICM_Enable(void);
+void ICM_Disable(void);
+void ICM_SoftReset(void);
+void ICM_ReComputeHash(uint8_t region);
+void ICM_EnableMonitor(uint8_t region);
+void ICM_DisableMonitor(uint8_t region);
+void ICM_Configure(uint32_t mode);
+void ICM_EnableIt(uint32_t sources);
+void ICM_DisableIt(uint32_t sources);
 extern uint32_t ICM_GetIntStatus(void);
 extern uint32_t ICM_GetStatus(void);
 extern uint32_t ICM_GetUStatus(void);
-extern void ICM_SetDescStartAddress(uint32_t addr);
-extern void ICM_SetHashStartAddress(uint32_t addr);
-extern void ICM_SetInitHashValue(uint32_t val);
+void ICM_SetDescStartAddress(uint32_t addr);
+void ICM_SetHashStartAddress(uint32_t addr);
+void ICM_SetInitHashValue(uint32_t val);
 #endif				/* #ifndef _ICM_ */

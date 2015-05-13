@@ -58,8 +58,8 @@ extern int _heap;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void _exit(int status);
-extern void _kill(int pid, int sig);
+void _exit(int status);
+void _kill(int pid, int sig);
 extern int _getpid(void);
 
 extern caddr_t
@@ -129,7 +129,7 @@ _write(int file, char *ptr, int len)
 	return iIndex;
 }
 
-extern void
+void
 _exit(int status)
 {
 	printf("Exiting with status %d.\n", status);
@@ -137,7 +137,7 @@ _exit(int status)
 	for (;;) ;
 }
 
-extern void
+void
 _kill(int pid, int sig)
 {
 	return;

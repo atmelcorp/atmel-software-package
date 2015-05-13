@@ -170,7 +170,7 @@ const RTC_PPMLookup PPM_Lookup[] = {
 /**
  * \brief RTC calibration for Temperature or PPM drift
  */
-extern void
+void
 RTC_ClockCalibration(Rtc * pRtc, int32_t CurrentTempr)
 {
 	uint16_t i;

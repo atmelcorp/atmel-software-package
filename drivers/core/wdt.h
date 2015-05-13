@@ -56,11 +56,11 @@ extern "C" {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void WDT_Enable(Wdt * pWDT, uint32_t dwMode);
+void WDT_Enable(Wdt * pWDT, uint32_t dwMode);
 
-extern void WDT_Disable(Wdt * pWDT);
+void WDT_Disable(Wdt * pWDT);
 
-extern void WDT_Restart(Wdt * pWDT);
+void WDT_Restart(Wdt * pWDT);
 
 extern uint32_t WDT_GetStatus(Wdt * pWDT);
 

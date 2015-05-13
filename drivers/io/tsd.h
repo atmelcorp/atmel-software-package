@@ -67,20 +67,20 @@
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-extern void TSD_Handler(uint32_t dwAdcStatus);
-extern void TSD_Initialize(void);
-extern void TSD_DeInitialize(void);
-extern void TSD_Enable(uint8_t bEnDis);
+void TSD_Handler(uint32_t dwAdcStatus);
+void TSD_Initialize(void);
+void TSD_DeInitialize(void);
+void TSD_Enable(uint8_t bEnDis);
 extern uint8_t TSD_Calibrate(void);
 
 /* calibration used functions */
-extern void TSD_GetRawMeasurement(uint32_t * pData);
-extern void TSD_WaitPenPressed(void);
-extern void TSD_WaitPenReleased(void);
+void TSD_GetRawMeasurement(uint32_t * pData);
+void TSD_WaitPenPressed(void);
+void TSD_WaitPenReleased(void);
 
 /* callbacks */
-extern void TSD_PenPressed(uint32_t x, uint32_t y, uint32_t pressure);
-extern void TSD_PenMoved(uint32_t x, uint32_t y, uint32_t pressure);
-extern void TSD_PenReleased(uint32_t x, uint32_t y);
+void TSD_PenPressed(uint32_t x, uint32_t y, uint32_t pressure);
+void TSD_PenMoved(uint32_t x, uint32_t y, uint32_t pressure);
+void TSD_PenReleased(uint32_t x, uint32_t y);
 
 #endif				//#ifndef TSD_H

@@ -77,21 +77,21 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock);
+void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock);
 extern uint32_t usart_get_status(Usart * usart);
-extern void usart_enable_it(Usart *usart, uint32_t mode);
-extern void usart_disable_it(Usart *usart, uint32_t mode);
+void usart_enable_it(Usart *usart, uint32_t mode);
+void usart_disable_it(Usart *usart, uint32_t mode);
 extern uint32_t usart_get_it_mask(Usart *usart);
-extern void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
-extern void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
-extern void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
-extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
+void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
+void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
+void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
+void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
 extern uint16_t usart_read(Usart *usart, volatile uint32_t timeOut);
 extern uint8_t usart_is_data_available(Usart *usart);
 extern uint32_t usart_is_rx_ready(Usart *usart);
-extern void usart_put_char(Usart *usart, uint8_t c);
+void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
-extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
+void usart_set_irda_filter(Usart *usart, uint8_t filter);
 
 #ifdef FIFO_ENABLED
 void usart_fifo_configure(Usart *usart, uint8_t tx_thres,

@@ -84,7 +84,7 @@ static struct _console console = {
 #endif
 
 /** Pins for CONSOLE */
-static const struct _pin pinsConsole[] = {PINS_CONSOLE};
+static const struct _pin pinsConsole[] = PINS_CONSOLE;
 
 /** Console initialize status */
 static uint8_t _bConsoleIsInitialized = 0;
@@ -99,7 +99,7 @@ static uint8_t _bConsoleIsInitialized = 0;
 * \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
 * \param clock  Frequency of the system master clock (in Hz).
 */
-extern void console_configure(uint32_t baudrate, uint32_t clock)
+void console_configure(uint32_t baudrate, uint32_t clock)
 {
 	/* Configure PIO */
 	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
@@ -132,7 +132,7 @@ extern void console_configure(uint32_t baudrate, uint32_t clock)
 * \note This function is synchronous (i.e. uses polling).
 * \param c  Character to send.
 */
-extern void console_put_char(uint8_t c)
+void console_put_char(uint8_t c)
 {
 	if (!_bConsoleIsInitialized)
 		console_configure(CONSOLE_BAUDRATE,
@@ -174,7 +174,7 @@ extern uint32_t console_is_rx_ready(void)
 *  \param pucFrame Pointer to the frame to dump.
 *  \param size   Buffer size in bytes.
 */
-extern void console_dump_frame(uint8_t * pframe, uint32_t size)
+void console_dump_frame(uint8_t * pframe, uint32_t size)
 {
 	uint32_t dw;
 
@@ -191,7 +191,7 @@ extern void console_dump_frame(uint8_t * pframe, uint32_t size)
 *  \param size     Buffer size in bytes.
 *  \param address  Start address to display
 */
-extern void console_dump_memory(uint8_t * pbuffer, uint32_t size,
+void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				uint32_t address)
 {
 	uint32_t i, j;

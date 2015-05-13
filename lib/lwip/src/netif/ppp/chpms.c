@@ -109,8 +109,8 @@ typedef struct {
 /***********************************/
 
 /* XXX Don't know what to do with these. */
-extern void setkey(const char *);
-extern void encrypt(char *, int);
+void setkey(const char *);
+void encrypt(char *, int);
 
 static void DesEncrypt (u_char *, u_char *, u_char *);
 static void MakeKey (u_char *, u_char *);

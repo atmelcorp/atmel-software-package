@@ -109,7 +109,7 @@
  * ------------------------------------------------------------------------------
  */
 
-extern void trace_configure(uint32_t baudrate, uint32_t masterclock);
+void trace_configure(uint32_t baudrate, uint32_t masterclock);
 
 /**
  *  Initializes the DBGU for ISP project

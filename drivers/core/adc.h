@@ -120,37 +120,37 @@ extern "C" {
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
-extern void adc_initialize(Adc * pAdc, uint32_t dwId);
+void adc_initialize(Adc * pAdc, uint32_t dwId);
 extern uint32_t adc_set_clock(Adc * pAdc, uint32_t dwPres, uint32_t dwMck);
-extern void adc_set_timing(Adc * pAdc, uint32_t dwStartup,
+void adc_set_timing(Adc * pAdc, uint32_t dwStartup,
 			  uint32_t dwTracking, uint32_t dwSettling);
-extern void adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel);
-extern void adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis);
-extern void adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_fast_wakeup(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
-extern void adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[],
+void adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel);
+void adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode);
+void adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis);
+void adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis);
+void adc_set_fast_wakeup(Adc * pAdc, uint8_t bEnDis);
+void adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis);
+void adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
+void adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[],
 				  uint8_t ucNumCh);
-extern void adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis);
-extern void adc_configure_ext_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel);
-extern void adc_set_compare_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo);
+void adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis);
+void adc_configure_ext_mode(Adc * pAdc, uint32_t dwMode);
+void adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel);
+void adc_set_compare_mode(Adc * pAdc, uint32_t dwMode);
+void adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo);
 extern uint8_t adc_set_configuration(Adc * pAdc, uint32_t dwMcK);
 extern uint32_t adc_get_converted_data(Adc * pAdc, uint32_t dwChannel);
-extern void adc_set_ts_average(Adc * pADC, uint32_t dwAvg2Conv);
+void adc_set_ts_average(Adc * pADC, uint32_t dwAvg2Conv);
 extern uint32_t adc_get_ts_xposition(Adc * pADC);
 extern uint32_t adc_get_ts_yposition(Adc * pADC);
 extern uint32_t adc_get_ts_pressure(Adc * pADC);
-extern void adc_set_ts_debounce(Adc * pADC, uint32_t dwTime);
-extern void adc_set_ts_pen_detect(Adc * pADC, uint8_t bEnDis);
-extern void adc_set_startup_time(Adc * pAdc, uint32_t dwUs);
-extern void adc_set_tracking_time(Adc * pAdc, uint32_t dwNs);
-extern void adc_set_trigger_period(Adc * pAdc, uint32_t dwPeriod);
-extern void adc_set_ts_mode(Adc * pADC, uint32_t dwMode);
-extern void adc_ts_calibration(Adc * pAdc);
+void adc_set_ts_debounce(Adc * pADC, uint32_t dwTime);
+void adc_set_ts_pen_detect(Adc * pADC, uint8_t bEnDis);
+void adc_set_startup_time(Adc * pAdc, uint32_t dwUs);
+void adc_set_tracking_time(Adc * pAdc, uint32_t dwNs);
+void adc_set_trigger_period(Adc * pAdc, uint32_t dwPeriod);
+void adc_set_ts_mode(Adc * pADC, uint32_t dwMode);
+void adc_ts_calibration(Adc * pAdc);
 
 #ifdef __cplusplus
 }

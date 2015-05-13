@@ -75,6 +75,6 @@ typedef struct _isi_Video {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void VIDEO_Ycc2Rgb(uint8_t * ycc, uint16_t * rgb, uint32_t len);
+void VIDEO_Ycc2Rgb(uint8_t * ycc, uint16_t * rgb, uint32_t len);
 
 #endif

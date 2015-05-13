@@ -64,7 +64,7 @@ const Font gFont = { 10, 14 };
  * \param c  Character to output.
  * \param color  Character color.
  */
-extern void
+void
 LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 {
 	uint32_t row, col;
@@ -97,7 +97,7 @@ LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
  * \param fontColor  Character color.
  * \param bgColor    Background color.
  */
-extern void
+void
 LCDD_DrawCharWithBGColor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
 			 uint32_t bgColor)
 {

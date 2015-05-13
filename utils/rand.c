@@ -50,7 +50,7 @@ static uint32_t _dwRandNext = 1;
  *
  *  \param dwSeed rand initiation seed
  */
-extern void
+void
 srand(uint32_t dwSeed)
 {
 	_dwRandNext = dwSeed;
