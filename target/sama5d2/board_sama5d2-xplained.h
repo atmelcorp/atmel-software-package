@@ -48,6 +48,9 @@
 
 #include "chip.h"
 
+#include "board_lowlevel.h"
+#include "board_memories.h"
+
 /*----------------------------------------------------------------------------
  *        HW BOARD Definitions
  *----------------------------------------------------------------------------*/
@@ -89,11 +92,11 @@
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */
-#define PINS_CONSOLE            PINS_UART1_IOS1
-#define CONSOLE_PER_ADD         UART1
-#define CONSOLE_ID              ID_UART1
+#define PINS_CONSOLE            PINS_UART0_IOS1
+#define CONSOLE_PER_ADD         UART0
+#define CONSOLE_ID              ID_UART0
 #define CONSOLE_BAUDRATE        115200
-#define CONSOLE_DRIVER          DRV_USART
+#define CONSOLE_DRIVER          DRV_UART
 
 /* =================== PIN LED definition ====================== */
 
@@ -104,26 +107,14 @@
 
 #define PIO_CFG_LED  (PIO_OUTPUT | PIO_OPENDRAIN)
 
-/** LED #0 pin definition (LED_RED). */
-#define PIN_LED_RED     {\
-	{ PIO_PA13, PIO_ADD, ID_PIO_ADD, PIO_OUTPUT_0, PIO_OPENDRAIN },\
-}
-#define PIN_LED_0       PIN_LED_RED
+/** LED #0 pin definition (Green). */
+#define PIN_LED_0       { PIO_PD21, PIO_ADD, PIO_GROUP_D, PIO_OUTPUT_0, PIO_OPENDRAIN }
 
-/** LED #1 pin definition (LED_GREEN). */
-#define PIN_LED_GREEN   {\
-	{ PIO_PB5, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
-}
-#define PIN_LED_1       PIN_LED_GREEN
-
-/** LED #2 pin definition (LED_BLUE). */
-#define PIN_LED_BLUE    [\
-	{ PIO_PB0, PIO_ADD, ID_PIOB, PIO_OUTPUT_0, PIO_OPENDRAIN },\
-}
-#define PIN_LED_2       PIN_LED_BLUE
+/** LED #1 pin definition (Green). */
+#define PIN_LED_1       { PIO_PD22, PIO_ADD, PIO_GROUP_D, PIO_OUTPUT_0, PIO_OPENDRAIN }
 
 /** List of all LEDs definitions. */
-#define PINS_LEDS       PIN_LED_0, PIN_LED_1, PIN_LED_2
+#define PINS_LEDS       {PIN_LED_0, PIN_LED_1}
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
