@@ -64,8 +64,10 @@
 
 #include "chip.h"
 #include "core/pio.h"
+#include "core/pmc.h"
 
 #include <string.h>
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local define
@@ -75,13 +77,13 @@ struct _bitfield_pio_cfgr_func {
 	uint32_t
 	func		: 3,
 	rfu3_7		: 5,
-	dir			: 1,
+	dir		: 1,
 	puen		: 1,
 	pden		: 1,
 	rfu11		: 1,
 	ifen		: 1,
 	ifscen		: 1,
-	opd			: 1,
+	opd		: 1,
 	schmitt		: 1,
 	drvstr		: 2,
 	rfu18_23	: 6,
@@ -92,11 +94,29 @@ struct _bitfield_pio_cfgr_func {
 	tampen		: 1;
 };
 
+union _pio_cfg {
+	struct _bitfield_pio_cfgr_func bitfield;
+	uint32_t uint32_value;
+};
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-
+static inline uint32_t get_pio_id_from_group(uint32_t group) {
+	switch(group) {
+	case PIO_GROUP_A:
+		return ID_PIOA;
+	case PIO_GROUP_B:
+		return ID_PIOB;
+	case PIO_GROUP_C:
+		return ID_PIOC;
+	case PIO_GROUP_D:
+		return ID_PIOD;
+	default:
+		return ID_PERIPH_COUNT;
+	}
+}
 
 /*----------------------------------------------------------------------------
  *         Exported functions
@@ -116,75 +136,79 @@ struct _bitfield_pio_cfgr_func {
 
 uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 {
-	struct _bitfield_pio_cfgr_func 	bf1;
+	union _pio_cfg cfg;
 	uint8_t group;
 	PioIo_group* pioiog;
 
 	/* Configure pins */
-	while (size > 0)
+	while (size--)
 	{
-		memset (&bf1, 0x00, sizeof(struct _bitfield_pio_cfgr_func));
+		assert(pin_list->id < PIO_GROUP_LENGTH);
+		cfg.uint32_value = 0;
 		group = pin_list->id;
 		pioiog = &pin_list->pio->PIO_IO_GROUP[group];
 
 		if ( pin_list->attribute != PIO_DEFAULT) {
-			bf1.puen = (pin_list->attribute & PIO_PULLUP)? 1:0 ;
-			bf1.pden = (pin_list->attribute & PIO_PULLDOWN)? 1:0 ;
-			bf1.ifen = (pin_list->attribute & PIO_DEGLITCH)? 1:0 ;
-			bf1.ifscen = (pin_list->attribute & PIO_FILTER_SLOW_CLOCK)? 1:0 ;
-			bf1.opd	= (pin_list->attribute & PIO_OPENDRAIN)? 1:0 ;
-			bf1.schmitt	= (pin_list->attribute & PIO_TRIGGER_DIS)? 1:0 ;
-			bf1.drvstr = pin_list->attribute & PIO_DRVSTR_Msk;
-			bf1.evtsel = pin_list->attribute & PIO_EVTSEL_Msk;
-			bf1.pcfs = (pin_list->attribute & PIO_PCFS_FREEZE)? 1:0 ;
-			bf1.icfs = (pin_list->attribute & PIO_ICFS_FREEZE)? 1:0 ;
-			bf1.tampen = (pin_list->attribute & PIO_TAMPEN_FREEZE)? 1:0 ;
+			cfg.bitfield.puen = (pin_list->attribute & PIO_PULLUP)? 1:0 ;
+			cfg.bitfield.pden = (pin_list->attribute & PIO_PULLDOWN)? 1:0 ;
+			cfg.bitfield.ifen = (pin_list->attribute & PIO_DEGLITCH)? 1:0 ;
+			cfg.bitfield.ifscen = (pin_list->attribute & PIO_FILTER_SLOW_CLOCK)? 1:0 ;
+			cfg.bitfield.opd	= (pin_list->attribute & PIO_OPENDRAIN)? 1:0 ;
+			cfg.bitfield.schmitt	= (pin_list->attribute & PIO_TRIGGER_DIS)? 1:0 ;
+			cfg.bitfield.drvstr = pin_list->attribute & PIO_DRVSTR_Msk;
+			cfg.bitfield.evtsel = pin_list->attribute & PIO_EVTSEL_Msk;
+			cfg.bitfield.pcfs = (pin_list->attribute & PIO_PCFS_FREEZE)? 1:0 ;
+			cfg.bitfield.icfs = (pin_list->attribute & PIO_ICFS_FREEZE)? 1:0 ;
+			/* cfg.bitfield.tampen = (pin_list->attribute & PIO_TAMPEN_FREEZE)? 1:0 ; */
 		}
 
-        switch ( pin_list->type ){
+		switch ( pin_list->type ){
 
-            case PIO_PERIPH_A:
-				bf1.func = PIO_CFGR_FUNC_PERIPH_A;
-				break;
-			case PIO_PERIPH_B:
-				bf1.func = PIO_CFGR_FUNC_PERIPH_B;
-				break;
-            case PIO_PERIPH_C:
-				bf1.func = PIO_CFGR_FUNC_PERIPH_C;
-				break;
-            case PIO_PERIPH_D:
-				bf1.func = PIO_CFGR_FUNC_PERIPH_D;
-				break;
-            case PIO_PERIPH_E:
-				bf1.func = PIO_CFGR_FUNC_PERIPH_E;
-				break;
+		case PIO_PERIPH_A:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_A;
+			break;
+		case PIO_PERIPH_B:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_B;
+			break;
+		case PIO_PERIPH_C:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_C;
+			break;
+		case PIO_PERIPH_D:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_D;
+			break;
+		case PIO_PERIPH_E:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_E;
+			break;
 
-			case PIO_GENERIC:
-			case PIO_INPUT:
-				bf1.dir = 0;
-                break;
+		case PIO_GENERIC:
+		case PIO_INPUT:
+			cfg.bitfield.dir = 0;
+			break;
 
-            case PIO_OUTPUT_0:
-				bf1.dir = 1;
-				pio_clear(pin_list);
-                break;
+		case PIO_OUTPUT_0:
+			cfg.bitfield.dir = 1;
+			pio_clear(pin_list);
+			break;
 
-			case PIO_OUTPUT_1:
-				bf1.dir = 1;
-				pio_set(pin_list);
-                break;
+		case PIO_OUTPUT_1:
+			cfg.bitfield.dir = 1;
+			pio_set(pin_list);
+			break;
 
-            default:
-			case PIO_PERIPH_F:
-            case PIO_PERIPH_G:
-				return 0;
-        }
+		default:
+		case PIO_PERIPH_F:
+		case PIO_PERIPH_G:
+			return 0;
+		}
 
 		pioiog->PIO_MSKR = pin_list->mask;
-		memcpy ((void*)pioiog->PIO_CFGR, &bf1, sizeof(struct _bitfield_pio_cfgr_func));
+		pioiog->PIO_CFGR = cfg.uint32_value;
 
-  		pin_list++;
-		size--;
+		/* Enable the PIO group if needed */
+		uint32_t pio_group = get_pio_id_from_group(pin_list->id);
+		pmc_enable_peripheral(pio_group);
+
+		++pin_list;
 	}
 	return 1;
 }
@@ -198,6 +222,7 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
  */
 void pio_set(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 	pioiog->PIO_SODR = pin->mask;
 }
@@ -211,6 +236,7 @@ void pio_set(const struct _pin *pin)
  */
 void pio_clear(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 	pioiog->PIO_CODR = pin->mask;
 }
@@ -228,20 +254,21 @@ void pio_clear(const struct _pin *pin)
  */
 uint8_t pio_get(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
     uint32_t reg ;
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
 
     if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
-        reg = pioiog->PIO_ODSR ;
+	reg = pioiog->PIO_ODSR ;
     }
     else {
-        reg = pioiog->PIO_PDSR ;
+	reg = pioiog->PIO_PDSR ;
     }
     if ( (reg & pin->mask) == 0 ) {
-        return 0 ;
+	return 0 ;
     }
     else {
-        return 1 ;
+	return 1 ;
     }
 }
 
@@ -257,13 +284,14 @@ uint8_t pio_get(const struct _pin *pin)
  */
 uint8_t pio_get_output_data_status(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
-    if ((pioiog->PIO_ODSR & pin->mask) == 0) {
-        return 0;
-    }
-    else {
-        return 1;
-    }
+	if ((pioiog->PIO_ODSR & pin->mask) == 0) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
 }
 
 /**
@@ -274,6 +302,7 @@ uint8_t pio_get_output_data_status(const struct _pin *pin)
  */
 void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	Pio *pio = pin->pio;
 	if (cuttoff == 0) {
 	   pio->S_PIO_SCDR = 0;
@@ -291,6 +320,7 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
  */
 void pio_enable_write_protect(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	Pio *pio = pin->pio;
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN  );
 }
@@ -302,6 +332,7 @@ void pio_enable_write_protect(const struct _pin *pin)
  */
 void pio_disable_write_protect(const struct _pin *pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	Pio *pio = pin->pio;
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS );
 }
@@ -313,6 +344,7 @@ void pio_disable_write_protect(const struct _pin *pin)
  */
 uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 {
+	assert(pin->id < PIO_GROUP_LENGTH);
 	Pio *pio = pin->pio;
 	return pio->PIO_WPSR;
 }

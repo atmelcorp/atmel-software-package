@@ -77,8 +77,19 @@
  *         Definitions
  *------------------------------------------------------------------------------*/
 
+/* The IO group is A (or 0) */
+#define PIO_GROUP_A                 0
+/* The IO group is B (or 1) */
+#define PIO_GROUP_B                 1
+/* The IO group is C (or 2) */
+#define PIO_GROUP_C                 2
+/* The IO group is D (or 3) */
+#define PIO_GROUP_D                 3
+
+#define PIO_GROUP_LENGTH            PIOIO_GROUP_NUMBER
+
 /*  The pin is controlled by the generic PIO. */
-#define PIO_GENERIC					0
+#define PIO_GENERIC                 0
 /*  The pin is controlled by the associated signal of peripheral A. */
 #define PIO_PERIPH_A                1
 /*  The pin is controlled by the associated signal of peripheral B. */
@@ -95,9 +106,9 @@
 #define PIO_PERIPH_G                7
 
 /*  The pin is an input. */
-#define PIO_INPUT					10
+#define PIO_INPUT		    10
 /*  The pin is an output. */
-#define PIO_OUTPUT					11
+#define PIO_OUTPUT		    11
 /*  The pin is an output and has a default level of 0. */
 #define PIO_OUTPUT_0                11
 /*  The pin is an output and has a default level of 1. */
@@ -115,37 +126,37 @@
 /*  The internal glitch filter is active. */
 #define PIO_DEGLITCH                (0x1u << 3)
 /* The internal pin filter slow clock is active. */
-#define PIO_FILTER_SLOW_CLOCK		(0x1u << 4)
+#define PIO_FILTER_SLOW_CLOCK	    (0x1u << 4)
 /*  The internal Schmitt trigger is disable. */
-#define PIO_TRIGGER_DIS            	(0x1u << 5)
+#define PIO_TRIGGER_DIS             (0x1u << 5)
 
 /*  The internal debouncing filter is active. */
 #define PIO_DEBOUNCE                (0x1u << 6)
 
 /*  Drive Strength. */
-#define PIO_DRVSTR_Msk				(0x3u << 10)
-#define PIO_DRVSTR_HI 				(0x0u << 10) /* High drive */
-#define PIO_DRVSTR_ME 				(0x1u << 10) /* Medium drive */
-#define PIO_DRVSTR_LO 				(0x2u << 10) /* Low drive */
+#define PIO_DRVSTR_Msk              (0x3u << 10)
+#define PIO_DRVSTR_HI               (0x0u << 10) /* High drive */
+#define PIO_DRVSTR_ME               (0x1u << 10) /* Medium drive */
+#define PIO_DRVSTR_LO               (0x2u << 10) /* Low drive */
 
-#define PIO_EVTSEL_Msk				(0x7u << 12)
+#define PIO_EVTSEL_Msk              (0x7u << 12)
 /* Event detection on input falling edge. */
-#define PIO_IT_FALL_EDGE			(0x0u << 12)
+#define PIO_IT_FALL_EDGE            (0x0u << 12)
 /* Event detection on input rising edge. */
-#define PIO_IT_RISE_EDGE			(0x1u << 12)
+#define PIO_IT_RISE_EDGE            (0x1u << 12)
 /* Event detection on input both edge. */
-#define PIO_IT_BOTH_EDGE 			(0x2u << 12)
+#define PIO_IT_BOTH_EDGE            (0x2u << 12)
 /* Event detection on low level input. */
-#define PIO_IT_LOW_LEVEL			(0x3u << 12)
+#define PIO_IT_LOW_LEVEL            (0x3u << 12)
 /*Event detection on high level input. */
-#define PIO_IT_HIGH_LEVEL			(0x4u << 12)
+#define PIO_IT_HIGH_LEVEL           (0x4u << 12)
 
 /* The fields are freeze and can not be written for this I/O line. Only an hardware reset can release thess fields. */
-#define PIO_PCFS_FREEZE				(0x1u << 19)
+#define PIO_PCFS_FREEZE                                 (0x1u << 19)
 /* \brief (PIO_CFGR) The fileds are not freezed and can be written for this I/O line. */
-#define PIO_ICFS_FREEZE 			(0x1u << 20)
+#define PIO_ICFS_FREEZE                                 (0x1u << 20)
 /* The selected I/O lines are automatically set in GPIO input with pull-up in case of a tamper event detection. */
-#define PIO_TAMPEN_FREEZE  			(0x1u << 21)
+#define PIO_TAMPEN_FREEZE                       (0x1u << 21)
 
 
 #define PIO_WPMR_WPEN_EN            ( 0x01 << 0 )
