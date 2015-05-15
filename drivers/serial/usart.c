@@ -485,7 +485,7 @@ uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
 		if (buf_size >= sizeof(uint8_t)) {
 			/* one data read */
 			readb(&usart->US_RHR, buffer);
-			left -= sizeof(uint16_t);
+			left -= sizeof(uint8_t);
 		}
 	}
 	return len - left;
@@ -539,7 +539,7 @@ uint32_t usart_write_stream(Usart *usart, const void *stream,
 		if (buf_size >= sizeof(uint8_t)) {
 			/* one data write */
 			writeb(&usart->US_THR, *buffer);
-			buffer += sizeof(uint16_t);
+			buffer += sizeof(uint8_t);
 			left -= sizeof(uint8_t);
 		}
 	}
