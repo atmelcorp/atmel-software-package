@@ -131,6 +131,9 @@ void usart_configure(Usart *usart, uint32_t mode,
 	}
 	/* TODO other modes */
 
+	/* Disable all interrupts */
+	usart->US_IDR = 0xFFFFFFFF;
+
 	/* Enable receiver and transmitter */
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
 }
@@ -348,6 +351,9 @@ void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
 	/* Configure FIFO */
 	usart->US_FMR = US_FMR_TXFTHRES(tx_thres) | US_FMR_RXFTHRES(rx_down_thres)
 		| US_FMR_RXFTHRES2(rx_up_thres) | ready_modes;
+
+	/* Disable all fifo related interrupts */
+	usart->US_FIDR = 0xFFFFFFFF;
 
 	/* Reenable receiver & transmitter */
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
