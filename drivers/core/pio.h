@@ -57,4 +57,27 @@ struct _pin
 #include "core/pio3.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*------------------------------------------------------------------------------*/
+/*         Exported functions                                                   */
+/*------------------------------------------------------------------------------*/
+
+extern uint8_t pio_configure(const struct _pin *pin_list, uint32_t size);
+void pio_set(const struct _pin *pin);
+void pio_clear(const struct _pin *pin);
+extern uint8_t pio_get(const struct _pin *pin) ;
+extern uint8_t pio_get_output_data_status(const struct _pin *pin) ;
+void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff);
+void pio_enable_write_protect(const struct _pin *pin);
+void pio_disable_write_protect(const struct _pin *pin);
+extern uint32_t pio_get_write_protect_violation_info(const struct _pin * pin);
+void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask);
+
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* _PIO_ */
