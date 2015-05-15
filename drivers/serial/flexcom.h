@@ -56,6 +56,7 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include "chip.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
