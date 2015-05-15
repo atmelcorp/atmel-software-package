@@ -302,7 +302,8 @@ void usart_put_char(Usart *usart, uint8_t c)
 	/* Wait for the transmitter to be ready */
 	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
 	/* Send character */
-	usart->US_THR = c;
+	/* Force an octet write to avoid race conditions with FIFO mode */
+	writeb(&usart->US_THR, c);
 }
 
 /**
@@ -314,7 +315,10 @@ void usart_put_char(Usart *usart, uint8_t c)
 uint8_t usart_get_char(Usart *usart)
 {
 	while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
-	return usart->US_RHR;
+	/* Force an octet read to avoid race conditions with FIFO mode */
+	uint8_t v;
+	readb(&usart->US_RHR, &v);
+	return v;
 }
 
 /**
