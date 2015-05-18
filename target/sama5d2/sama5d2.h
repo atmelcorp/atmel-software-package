@@ -173,12 +173,27 @@
  * \brief retrieve TWI ID from its base address
  * \return TWI ID on success, ID_PERIPH_COUNT otherwise
  */
-static inline uint32_t GET_TWI_ID_FROM_ADDR(const void* addr)
+static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
 {
 	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+#ifdef TWI1
 	else if (addr == (void*)TWI1) return ID_FLEXCOM1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+#endif
+#ifdef TWI2
+	else if (addr == (void*)TWI2) return ID_FLEXCOM2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+#endif
+#ifdef TWI3
 	else if (addr == (void*)TWI3) return ID_FLEXCOM3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+#endif
+#ifdef TWI4
 	else if (addr == (void*)TWI4) return ID_FLEXCOM4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+#endif
+#ifdef TWIHS0
+	else if (addr == (void*)TWIHS0) return ID_TWIHS0; /**< \brief TWIHS0 */
+#endif
+#ifdef TWIHS0
+	else if (addr == (void*)TWIHS1) return ID_TWIHS1; /**< \brief TWIHS1 */
+#endif
 	else return ID_PERIPH_COUNT;
 }
 
@@ -186,19 +201,34 @@ static inline uint32_t GET_TWI_ID_FROM_ADDR(const void* addr)
  * \brief retrieve TWI base address from its ID
  * \return TWI base address on success, 0 otherwise
  */
-static inline void* GET_TWI_ADDR_FROM_ID(const uint32_t id)
+static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 {
 	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+#ifdef TWI1
 	else if (id == ID_FLEXCOM1) return TWI1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+#endif
+#ifdef TWI2
+	else if (id == ID_FLEXCOM2) return TWI2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+#endif
+#ifdef TWI3
 	else if (id == ID_FLEXCOM3) return TWI3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+#endif
+#ifdef TWI4
 	else if (id == ID_FLEXCOM4) return TWI4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+#endif
+#ifdef TWIHS0
+	else if (id == ID_TWIHS0) return TWIHS0; /**< \brief TWIHS0 */
+#endif
+#ifdef TWIHS1
+	else if (id == ID_TWIHS1) return TWIHS1; /**< \brief TWIHS1 */
+#endif
 	else return (void*)0;
 }
 
 /**
  *
  */
-static inline uint32_t GET_SPI_ID_FROM_ADDR(const void* addr)
+static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
 {
 	if (addr == (void*)SPI0) return ID_SPI0;
 	else if (addr == (void*)SPI1) return ID_SPI1;
