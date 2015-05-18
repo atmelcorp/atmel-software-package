@@ -201,15 +201,8 @@ resetHandler:
 	strcc   r3, [r1], #4
 	bcc     1b
 
-/* Perform low-level initialization of the chip using LowLevelInit() */
-	ldr     sp, =_cstack
-	stmfd   sp!, {r0}
-	ldr     r0, =LowLevelInit
-	blx     r0
-
 /* Initialize the postrelocate segment */
-
-	ldmfd   sp!, {r0}
+	;; ldmfd   sp!, {r0}
 	ldr     r1, =_spostrelocate
 	ldr     r2, =_epostrelocate
 1:
@@ -227,6 +220,12 @@ resetHandler:
 	strcc   r2, [r0], #4
 	bcc     1b
 
+/* Perform low-level initialization of the chip using LowLevelInit() */
+	;; ldr     sp, =_cstack
+	;; stmfd   sp!, {r0}
+	ldr     r0, =LowLevelInit
+	blx     r0
+	
 	MRS     r0, cpsr
 /* Set up the fast interrupt stack pointer.*/
 	bic     r0, r0, #MODE_MSK
@@ -258,7 +257,7 @@ resetHandler:
 	bic     sp,sp,#0x7
 
 		// Redirect FIQ to IRQ
-	LDR  r0,  =AICREDIR_KEY
+	LDR  r0, = AICREDIR_KEY
 	LDR  r1, = REG_SFR_UID
 	LDR  r2, = REG_SFR_AICREDIR
 	LDR  r3,[r1]
@@ -267,14 +266,14 @@ resetHandler:
 	STR  r0, [r2]
 
 /*Initialize the C library  */
-       ldr     r3, =__libc_init_array
-       mov     lr, pc
-       bx      r3
+	ldr     r3, =__libc_init_array
+	mov     lr, pc
+	bx      r3
 
 /* Branch to main()
  ******************/
-       ldr     r0, =main
-       blx     r0
+	ldr     r0, =main
+	blx     r0
 
 /* Loop indefinitely when program is finished */
 1:
