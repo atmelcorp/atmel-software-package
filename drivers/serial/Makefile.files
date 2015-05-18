@@ -1,3 +1,10 @@
 DRIVER_OBJECTS += serial/usart.o \
-	serial/uart.o     \
-	serial/dbgu.o
+	serial/uart.o
+
+ifdef HAVE_FLEXCOM
+DRIVER_OBJECTS += serial/flexcom.o
+endif
+
+ifdef HAVE_DBGU
+DRIVER_OBJECTS += serial/dbgu.o
+endif

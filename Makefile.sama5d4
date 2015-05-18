@@ -10,4 +10,6 @@ endif
 PIO_API := API_PIOv3
 CFLAGS += -D$(PIO_API)
 
+HAVE_DBGU := 1
+
 endif

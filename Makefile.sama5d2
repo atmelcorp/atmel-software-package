@@ -10,4 +10,6 @@ endif
 PIO_API := API_PIOv4
 CFLAGS += -DFIFO_ENABLED -D$(PIO_API)
 
+HAVE_FLEXCOM=1
+
 endif
