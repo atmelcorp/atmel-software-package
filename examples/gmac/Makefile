@@ -33,7 +33,7 @@ LDPATH = -L$(LIBDIR)/lwip
 LINKS_SRAM = -Wl,--start-group -llwip-$(TARGET)_sram -Wl,--end-group
 LINKS_DDRAM = -Wl,--start-group -llwip-$(TARGET)_ddram -Wl,--end-group
 
-OBJECTS += main.o mini_ip.o
+OBJECTS += mini_ip.o
 
 BINNAME = gmac
 
