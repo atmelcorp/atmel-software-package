@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -77,7 +77,7 @@
  *     \endcode
  *  -# Pressing and release button 1 or type "1" in the terminal application on
  *     PC should make the first LED stop & restart blinking.
- *     Pressing and release button 2 or type "1" in the terminal application on
+ *     Pressing and release button 2 or type "2" in the terminal application on
  *     PC should make the other LED stop & restart blinking.
  *
  *  \section References
@@ -163,8 +163,7 @@ volatile uint32_t dwTimeStamp = 0;
  *
  *  Change active states of LEDs when corresponding button events happened.
  */
-static void
-ProcessButtonEvt(uint8_t ucButton)
+static void process_button_evt(uint8_t ucButton)
 {
 	if (ucButton == 0) {
 		bLed0Active = !bLed0Active;
@@ -201,8 +200,8 @@ PIOE_IrqHandler(void)
 {
 	volatile uint32_t status;
 	status = PIOE->PIO_ISR;
-	ProcessButtonEvt(0);
-	ProcessButtonEvt(1);
+	process_button_evt(0);
+	process_button_evt(1);
 }
 #else				/*  */
 /**
@@ -210,8 +209,7 @@ PIOE_IrqHandler(void)
  *
  *  Handle process LED1 or LED2 status change.
  */
-static void
-_DBGU_Handler(void)
+static void console_handler(void)
 {
 	uint8_t key;
 	if (!console_is_rx_ready())
@@ -220,7 +218,7 @@ _DBGU_Handler(void)
 	switch (key) {
 	case '1':
 	case '2':
-		ProcessButtonEvt(key - '1');
+		process_button_evt(key - '1');
 		break;
 	}
 }
@@ -230,7 +228,7 @@ _DBGU_Handler(void)
 /**
  *  \brief Handler for PIT interrupt.
  */
-void PIT_Handler(void)
+static void pit_handler(void)
 {
 	uint32_t status;
 
@@ -243,17 +241,13 @@ void PIT_Handler(void)
 		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
 		dwTimeStamp += (pit_get_pivr() >> 20);
 	}
-#ifdef NO_PUSHBUTTON
-	_DBGU_Handler();
-
-#endif				/*  */
 }
 
 /**
  *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
  *  every interrupt every millisecond
  */
-static void ConfigurePit(void)
+static void configure_pit(void)
 {
 	/* Enable PIT controller */
 	pmc_enable_peripheral(ID_PIT);
@@ -263,7 +257,7 @@ static void ConfigurePit(void)
 
 	/* Configure interrupt on PIT */
 	aic_enable(ID_PIT);
-	aic_set_source_vector(ID_PIT, (uint32_t)PIT_Handler);
+	aic_set_source_vector(ID_PIT, (uint32_t)pit_handler);
 
 	pit_enable_it();
 
@@ -278,8 +272,7 @@ static void ConfigurePit(void)
  *  Configure the PIO as inputs and generate corresponding interrupt when
  *  pressed or released.
  */
-static void
-_ConfigureButtons(void)
+static void configure_buttons(void)
 {
 
 	/* Configure pios as inputs. */
@@ -308,8 +301,7 @@ _ConfigureButtons(void)
  *
  *  Configures LEDs \#1 and \#2 (cleared by default).
  */
-static void
-_ConfigureLeds(void)
+static void configure_leds(void)
 {
 	LED_Configure(0);
 	LED_Configure(1);
@@ -318,7 +310,7 @@ _ConfigureLeds(void)
 /**
  *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
  */
-void TC0_Handler(void)
+static void tc_handler(void)
 {
 	volatile uint32_t dummy;
 
@@ -334,7 +326,7 @@ void TC0_Handler(void)
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
  */
-static void _ConfigureTc(void)
+static void configure_tc(void)
 {
 	uint32_t div;
 	uint32_t tcclks;
@@ -343,10 +335,11 @@ static void _ConfigureTc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, (uint32_t)TC0_Handler);
-	
+	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
+
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	TC_FindMckDivisor(4, &div, &tcclks);
+	printf("TC: Select %iu divisor", div);
 	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
@@ -365,8 +358,7 @@ static void _ConfigureTc(void)
  *  by the SAM3's microcontrollers's system tick).
  *  \param delay  Delay to wait for, in milliseconds.
  */
-static void
-_Wait(unsigned long delay)
+static void _Wait(unsigned long delay)
 {
 	volatile uint32_t start = dwTimeStamp;
 	uint32_t elapsed;
@@ -386,19 +378,20 @@ _Wait(unsigned long delay)
  *
  *  \return Unused (ANSI-C compatibility).
  */
-extern int
-main(void)
+int main(void)
 {
 
 	/* Disable watchdog */
 	WDT_Disable(WDT);
+
+	/* Initialize console */
+	console_configure(CONSOLE_BAUDRATE);
 
 #if defined (ddram)
 	MMU_Initialize((uint32_t *) 0x20C000);
 	cp15_enable_mmu();
 	cp15_enable_dcache();
 	cp15_enable_icache();
-
 #endif
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
@@ -407,22 +400,26 @@ main(void)
 
 	/* Configure PIT. */
 	printf("Configure PIT \n\r");
-	ConfigurePit();
+	configure_pit();
 
 	/* PIO configuration for LEDs and Buttons. */
 	pio_initialize_it(IRQ_PRIOR_PIO);
 	printf("Configure TC.\n\r");
-	_ConfigureTc();
+	configure_tc();
 	printf("Configure LED PIOs.\n\r");
-	_ConfigureLeds();
+	configure_leds();
 
 #ifndef NO_PUSHBUTTON
 	printf("Configure buttons with debouncing.\n\r");
-	_ConfigureButtons();
+	configure_buttons();
 	printf("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");
 	printf("Press USRBP2 to Start/Stop the red LED D2 blinking.\n\r");
 
 #else
+	printf("Initializing console interrupts\r\n");
+	aic_set_source_vector(CONSOLE_ID, (uint32_t)console_handler);
+	aic_enable(CONSOLE_ID);
+	console_enable_interrupts(US_IER_RXRDY);
 	printf("No push buttons, uses DBG key 1 & 2 instead.\n\r");
 	printf("Press 1 to Start/Stop the blue LED D1 blinking.\n\r");
 	printf("Press 2 to Start/Stop the red LED D2 blinking.\n\r");
