@@ -61,7 +61,8 @@ static struct _console console = {
 	usart_configure,
 	usart_put_char,
 	usart_get_char,
-	usart_is_rx_ready
+	usart_is_rx_ready,
+	usart_enable_it
 };
 #elif CONSOLE_DRIVER == DRV_UART
 #include "serial/uart.h"
@@ -80,7 +81,8 @@ static struct _console console = {
 	dbgu_configure,
 	dbgu_put_char,
 	dbgu_get_char,
-	dbgu_is_rx_ready
+	dbgu_is_rx_ready,
+	dbgu_enable_it
 };
 #endif
 

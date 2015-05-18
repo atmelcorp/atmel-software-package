@@ -54,9 +54,9 @@
 
 void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate);
 void dbgu_put_char(Dbgu* dbgu, unsigned char c);
-extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu);
-extern uint32_t dbgu_get_char(Dbgu* dbgu);
-
+uint32_t dbgu_is_rx_ready(Dbgu* dbgu);
+uint32_t dbgu_get_char(Dbgu* dbgu);
+void dbgu_enable_it(Dbgu* dbgu, uint32_t mode);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

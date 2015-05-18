@@ -110,3 +110,13 @@ extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu)
 {
 	return (dbgu->DBGU_SR & DBGU_SR_RXRDY) > 0;
 }
+
+/**
+ * \brief   Enable interrupt
+ * \param usart  Pointer to an USART peripheral.
+ * \param mode  Interrupt mode.
+ */
+void dbgu_enable_it(Dbgu* dbgu, uint32_t mode)
+{
+	dbgu->DBGU_IER = mode;
+}
