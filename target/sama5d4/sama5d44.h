@@ -233,7 +233,7 @@ typedef enum IRQn {
 /** \addtogroup SAMA5D44_id Peripheral Ids Definitions */
 /*@{*/
 
-#define ID_SYS     ( 1)	/**< \brief System Controller Interrupt (SYS) */
+#define ID_PMC     ( 1)	/**< \brief System Controller Interrupt (SYS) */
 #define ID_ARM     ( 2)	/**< \brief Performance Monitor Unit (ARM) */
 #define ID_PIT     ( 3)	/**< \brief Periodic Interval Timer Interrupt (PIT) */
 #define ID_WDT     ( 4)	/**< \brief Watchdog timer Interrupt (WDT) */
