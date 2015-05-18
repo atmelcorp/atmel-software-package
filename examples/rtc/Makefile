@@ -30,7 +30,7 @@
 
 MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-BINNAME = fifo
+BINNAME = rtc
 
 include $(MAKEFILEDIR)/../../Makefile.inc
 include $(MAKEFILEDIR)/../../Makefile.template
