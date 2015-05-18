@@ -121,7 +121,7 @@ $(OBJECTS_DDRAM): $(BUILDDIR_DDRAM)/%.o: %.c
 	$(CC) $(CFLAGS) $(call optimization,ddram) -c $< -o $@
 
 $(BUILDDIR_SRAM)/$(BINNAME).elf: $(OBJECTS_SRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T$(LINKER_SCRIPT_SRAM) -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T$(LINKER_SCRIPT_SRAM) -Wl,-Map,$(BUILDDIR_SRAM)/$(BINNAME).map -o $@ $^ $(LINKS_SRAM)
 
 $(BUILDDIR_SRAM)/$(BINNAME).elf: $(DRIVERDIR)/libdrivers-$(TARGET)_sram.a \
 	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a
@@ -133,7 +133,7 @@ $(BUILDDIR_SRAM)/$(BINNAME).bin: $(BUILDDIR_SRAM)/$(BINNAME).elf
 	$(OBJCOPY) -O binary $< $@
 
 $(BUILDDIR_DDRAM)/$(BINNAME).elf: $(OBJECTS_DDRAM)
-	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T$(LINKER_SCRIPT_DDRAM) -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_DDRAM)
+	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T$(LINKER_SCRIPT_DDRAM) -Wl,-Map,$(BUILDDIR_DDRAM)/$(BINNAME).map -o $@ $^ $(LINKS_DDRAM)
 
 $(BUILDDIR_DDRAM)/$(BINNAME).elf: $(DRIVERDIR)/libdrivers-$(TARGET)_ddram.a \
 	$(UTILSDIR)/libutils-$(TARGET)_ddram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_ddram.a
