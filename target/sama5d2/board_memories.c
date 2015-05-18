@@ -70,7 +70,7 @@ void board_remap_ram(void)
  * \brief Initialize Vdd EBI drive
  * \param 0: 1.8V 1: 3.3V
  */
-void board_configure_vdd_mem_sel(uint8_t VddMemSel)
+void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
 {
 }
 
@@ -85,25 +85,25 @@ static void matrix_configure_slave_nand(void)
 /**
  * \brief Configures DDR3
  */
-void board_configure_ddram(void)
+void board_cfg_ddram(void)
 {
 }
 
 /**
  * \brief Configures SDRAM.
  */
-void board_configure_sdram(void)
+void board_cfg_sdram(void)
 {
 }
 
 /** \brief Configures NandFlash
  */
-void board_configure_nand_flash(uint8_t busWidth)
+void board_cfg_nand_flash(uint8_t busWidth)
 {
 }
 
 /** \brief Configures NorFlash
  */
-void  board_configure_nor_flash(uint8_t busWidth)
+void  board_cfg_nor_flash(uint8_t busWidth)
 {
 }

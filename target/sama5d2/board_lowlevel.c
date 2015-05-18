@@ -42,14 +42,8 @@
 #include "resources/compiler_defines.h"
 #include "core/pmc.h"
 #include "core/pio.h"
+#include "core/cpsr.h"
 #include <stdio.h>
-
-/*----------------------------------------------------------------------------
- *        Definiation
- *----------------------------------------------------------------------------*/
-
-#define CPSR_MASK_IRQ 0x00000080
-#define CPSR_MASK_FIQ 0x00000040
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -168,86 +162,6 @@ static const char* abort_status[][2]=
 };
 
 /*----------------------------------------------------------------------------
- *        Low level functions
- *----------------------------------------------------------------------------*/
-
-/* extern inline uint32_t v_arm_read_control(void) */
-/* { */
-/*   asm("mov r0, #0"); */
-/*   // read CP15 register SCTLR System Control Register */
-/*   asm("MRC p15, 0, r0, c1, c0, 0"); */
-/*   asm("bx lr"); */
-/* } */
-/* extern inline void v_arm_write_control(uint32_t ctl) */
-/* { */
-/*   // write CP15 register SCTLR System Control Register */
-/*   asm("MCR p15, 0, r0, c1, c0, 0"); */
-/*   asm("bx lr"); */
-/* } */
-
-/* #if (DEVICE_CORE_0_TYPE == CORE_TYPE_CA5) */
-/* static inline uint32_t v_arm_get_cpsr(void) */
-/* { */
-/*   asm("MRS R0, CPSR"); // Get current CPSR */
-/*   asm("bx lr"); */
-/* } */
-/* #endif */
-static void v_arm_set_cpsr_bits(uint32_t mask)
-{
-	uint32_t cpsr = 0;
-	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
-		      "orr %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
-		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
-		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
-
-	/* asm("MRS R1, CPSR");   // Get current CPSR */
-	/* asm("ORR R0, R0, R1"); // Calculate new CPSR value */
-	/* asm("MSR CPSR_c,R0");  // Set new value */
-	/* asm("bx lr"); */
-}
-static void v_arm_clr_cpsr_bits(uint32_t mask)
-{
-	uint32_t cpsr = 0;
-	mask = ~mask;
-	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
-		      "and %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
-		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
-		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
-}
-/* /\** */
-/*  * \brief Get status I Cache */
-/*  *\/ */
-/* static unsigned int v_arm_get_status_Icache(void) */
-/* { */
-/*	uint32_t ctl; */
-/*	ctl = v_arm_read_control(); */
-/*	if  ((ctl & (1 << 12)) == (1 << 12)) */
-/*		return 1; */
-/*	else */
-/*		return 0; */
-/* } */
-/* /\** */
-/*  * \brief Enable I Cache */
-/*  *\/ */
-/* void v_arm_enable_Icache(void) */
-/* { */
-/*	unsigned int ctl; */
-/*	ctl = v_arm_read_control(); */
-/*	ctl |= (1 << 12); */
-/*	v_arm_write_control(ctl); */
-/* } */
-/* /\** */
-/*  * \brief Disable I Cache */
-/*  *\/ */
-/* void v_arm_disable_Icache(void) */
-/* { */
-/*	unsigned int ctl; */
-/*	ctl = v_arm_read_control(); */
-/*	ctl &= ~(1 << 12); */
-/*	v_arm_write_control(ctl); */
-/* } */
-
-/*----------------------------------------------------------------------------
  *
  *----------------------------------------------------------------------------*/
 
@@ -257,7 +171,6 @@ void default_spurious_handler(void);
 void abort_c_handler(void);
 void prefetch_c_handler(void);
 void undefined_c_Handler(void);
-void v_arm_clr_cpsr_bits(uint32_t mask);
 void dummy_handler(void);
 void non_secure_it_init(void);
 void secure_it_init(void);

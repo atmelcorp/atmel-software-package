@@ -118,6 +118,7 @@ void SFR_IrqHandler(void);
 void AIC1_IrqHandler(void);
 void SAIC1_IrqHandler(void);
 void L2CC_IrqHandler(void);
-void LowLevelInit(void);
+
+void low_level_init(void);
 
 #endif  /* BOARD_LOWLEVEL_H */

@@ -119,7 +119,7 @@
  * internal ROM or the EBI CS0.
  */
 void
-BOARD_RemapRom(void)
+board_remap_rom(void)
 {
 	AXIMX->AXIMX_REMAP = 0;
 }
@@ -130,7 +130,7 @@ BOARD_RemapRom(void)
  */
 
 void
-BOARD_RemapRam(void)
+board_remap_ram(void)
 {
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 }
@@ -140,7 +140,7 @@ BOARD_RemapRam(void)
  * \param VddMemSel 0: 1.8V 1: 3.3V
  */
 void
-BOARD_ConfigureVddMemSel(uint8_t VddMemSel)
+board_cfg_vdd_mem_sel(uint8_t VddMemSel)
 {
 }
 
@@ -209,7 +209,7 @@ matrix_configure_slave_nand(void)
  Bank address BA[2:0] a(24,25) (8)
  */
 void
-BOARD_ConfigureDdram(uint8_t device)
+board_cfg_ddram(uint8_t device)
 {
 	volatile uint8_t *pDdr = (uint8_t *) DDR_CS_ADDR;
 	volatile uint32_t i;
@@ -446,14 +446,14 @@ BOARD_ConfigureDdram(uint8_t device)
  * \brief Configures the EBI for Sdram (LPSDR Micron MT48H8M16) access.
  */
 void
-BOARD_ConfigureSdram(void)
+board_cfg_sdram(void)
 {
 }
 
 /** \brief Configures the EBI for NandFlash access at 133Mhz.
  */
 void
-BOARD_ConfigureNandFlash(uint8_t busWidth)
+board_cfg_nand_flash(uint8_t busWidth)
 {
 	pmc_enable_peripheral(ID_HSMC);
 	matrix_configure_slave_nand();
@@ -485,7 +485,7 @@ BOARD_ConfigureNandFlash(uint8_t busWidth)
 }
 
 void
-BOARD_ConfigureNorFlash(uint8_t busWidth)
+board_cfg_nor_flash(uint8_t busWidth)
 {
 	uint32_t dbw;
 	pmc_enable_peripheral(ID_HSMC);

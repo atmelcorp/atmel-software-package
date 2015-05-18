@@ -223,9 +223,9 @@ resetHandler:
 /* Perform low-level initialization of the chip using LowLevelInit() */
 	;; ldr     sp, =_cstack
 	;; stmfd   sp!, {r0}
-	ldr     r0, =LowLevelInit
+	ldr     r0, =low_level_init
 	blx     r0
-	
+
 	MRS     r0, cpsr
 /* Set up the fast interrupt stack pointer.*/
 	bic     r0, r0, #MODE_MSK

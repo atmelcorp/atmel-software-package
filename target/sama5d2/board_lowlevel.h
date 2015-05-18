@@ -144,6 +144,6 @@ void ACC_Handler(void);
 void RXLP_Handler(void);
 void CHIPID_Handler(void);
 
-void LowLevelInit(void);
+void low_level_init(void);
 
 #endif  /* BOARD_LOWLEVEL_H */

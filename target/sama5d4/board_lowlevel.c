@@ -40,12 +40,9 @@
 #include "board.h"
 #include "resources/compiler_defines.h"
 #include "core/pmc.h"
+#include "core/cpsr.h"
 
-/*----------------------------------------------------------------------------
- *        Definiation
- *----------------------------------------------------------------------------*/
-#define CPSR_MASK_IRQ 0x00000080
-#define CPSR_MASK_FIQ 0x00000040
+#include <stdio.h>
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -72,16 +69,16 @@ const uint32_t peripherals_min_clock_dividers[] = {
 	2, /* ID_TDES */
 	2, /* ID_SHA */
 	1, /* ID_MPDDRC */
-	0, /* ID_MATRIX1 */ 
-	0, /* ID_MATRIX0 */ 
+	0, /* ID_MATRIX1 */
+	0, /* ID_MATRIX0 */
 	0, /* ID_VDEC */
 	0,
-	0, /* ID_MSADCC */  
-	2, /* ID_HSMC */    
-	2, /* ID_PIOA */    
-	2, /* ID_PIOB */    
-	2, /* ID_PIOC */    
-	2, /* ID_PIOE */    
+	0, /* ID_MSADCC */
+	2, /* ID_HSMC */
+	2, /* ID_PIOA */
+	2, /* ID_PIOB */
+	2, /* ID_PIOC */
+	2, /* ID_PIOE */
 	2, /* ID_UART0    */
 	2, /* ID_UART1    */
 	2, /* ID_USART2   */
@@ -156,12 +153,11 @@ static const char *abort_status[][2] = {
  *        Internal functions
  *----------------------------------------------------------------------------*/
 
-void v_ARM_ClrCPSR_bits(unsigned int mask);
 void NonSecureITInit(void);
-void SecureITInit(void);
-void Prefetch_C_Handler(void);
-void Abort_C_Handler(void);
-void Undefined_C_Handler(void);
+void secure_it_init(void);
+void prefetch_c_handler(void);
+void abort_c_handler(void);
+void undefined_c_Handler(void);
 
 /**
  * \brief Default spurious interrupt handler. Infinite loop.
@@ -173,7 +169,7 @@ defaultSpuriousHandler(void)
 }
 
 void
-Abort_C_Handler(void)
+abort_c_handler(void)
 {
 	uint32_t v1, v2, dfsr;
 	v1 = 0;
@@ -199,7 +195,7 @@ Abort_C_Handler(void)
 }
 
 void
-Prefetch_C_Handler(void)
+prefetch_c_handler(void)
 {
 	uint32_t v1, v2, ifsr;
 	v1 = 0;
@@ -224,20 +220,10 @@ Prefetch_C_Handler(void)
 }
 
 void
-Undefined_C_Handler(void)
+undefined_c_Handler(void)
 {
 	printf("Undefined abort \n\r");
 	while (1) ;
-}
-
-void
-v_ARM_ClrCPSR_bits(unsigned int mask)
-{
-	asm("MRS R1, CPSR");	// Get current CPSR
-	asm("MVN R0, R0");	// invert
-	asm("AND R0, R0, R1");	// Calculate new CPSR value
-	asm("MSR CPSR_c,R0");	// Set new value
-	asm("bx lr");
 }
 
 void Dummy_Handler(void);
@@ -316,7 +302,7 @@ void Dummy_Handler(void);
 void
 Dummy_Handler(void)
 {
-	while (1) ;
+	while (1);
 }
 
 /**
@@ -326,6 +312,25 @@ void
 NonSecureITInit(void)
 {
 	uint32_t i;
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+
+	/* Disable all interrupts */
+	for (i = 1; i < ID_PERIPH_COUNT; i++) {
+		AIC->AIC_SSR = i;
+		AIC->AIC_IDCR = AIC_IDCR_INTD;
+	}
+	/* Clear All pending interrupts flags */
+	for (i = 0; i < ID_PERIPH_COUNT; i++) {
+		AIC->AIC_SSR = i;
+		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
+	}
+
+	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
+	for (i = 0; i < 8; i++) {
+		AIC->AIC_EOICR = 0;
+	}
+
 	/* Assign handler addesses */
 	AIC->AIC_SSR = 0;
 	AIC->AIC_SVR = (unsigned int) SAIC0_Handler;
@@ -463,32 +468,38 @@ NonSecureITInit(void)
 	AIC->AIC_SVR = (unsigned int) L2CC_IrqHandler;
 
 	AIC->AIC_SPU = (unsigned int) Spurious_handler;
-	/* Disable all interrupts */
-	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR = i;
-		AIC->AIC_IDCR = AIC_IDCR_INTD;
-	}
-	/* Clear All pending interrupts flags */
-	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR = i;
-		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
-	}
 
-	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
-	for (i = 0; i < 8; i++) {
-		AIC->AIC_EOICR = 0;
-	}
+
 	/* Enable IRQ and FIQ at core level */
-	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**
  * \brief Secure Interupt Init.
  */
 void
-SecureITInit(void)
+secure_it_init(void)
 {
 	uint32_t i;
+
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+
+	/* Disable all interrupts */
+	for (i = 1; i < ID_PERIPH_COUNT; i++) {
+		SAIC->AIC_SSR = i;
+		SAIC->AIC_IDCR = AIC_IDCR_INTD;
+	}
+	/* Clear All pending interrupts flags */
+	for (i = 0; i < ID_PERIPH_COUNT; i++) {
+		SAIC->AIC_SSR = i;
+		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
+	}
+
+	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
+	for (i = 0; i < 8; i++) {
+		SAIC->AIC_EOICR = 0;
+	}
 
 	/* Assign handler addesses */
 	SAIC->AIC_SSR = 0;
@@ -628,40 +639,24 @@ SecureITInit(void)
 
 	SAIC->AIC_SPU = (unsigned int) Spurious_handler;
 
-	/* Disable all interrupts */
-	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR = i;
-		SAIC->AIC_IDCR = AIC_IDCR_INTD;
-	}
-	/* Clear All pending interrupts flags */
-	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR = i;
-		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
-	}
-
-	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
-	for (i = 0; i < 8; i++) {
-		SAIC->AIC_EOICR = 0;
-	}
 	/* Enable IRQ and FIQ at core level */
-	v_ARM_ClrCPSR_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**
  * \brief Performs the low-level initialization of the chip.
  * It also enable a low level on the pin NRST triggers a user reset.
  */
-extern WEAK void
-LowLevelInit(void)
+WEAK void low_level_init(void)
 {
 	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
 	NonSecureITInit();
 	if (!(AicFuse)) {
-		SecureITInit();
+		secure_it_init();
 	}
 
-	if ((uint32_t) LowLevelInit < DDR_CS_ADDR) {	/* Code not in external mem */
+	if ((uint32_t) low_level_init < DDR_CS_ADDR) {	/* Code not in external mem */
 		pmc_select_external_osc();
 		pmc_switch_mck_to_main();
 		pmc_set_plla(CKGR_PLLAR_ONE |
@@ -675,5 +670,5 @@ LowLevelInit(void)
 		pmc_switch_mck_to_pll();
 	}
 	/* Remap */
-	BOARD_RemapRam();
+	board_remap_ram();
 }
