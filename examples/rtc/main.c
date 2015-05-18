@@ -507,9 +507,9 @@ static void configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Configure TC for a 4Hz frequency and trigger on RC compare. */
-	TC_FindMckDivisor(4, BOARD_MCK / 2, &div, &tcclks, BOARD_MCK);
+	TC_FindMckDivisor(4, &div, &tcclks);
 	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
-	TC0->TC_CHANNEL[0].TC_RC = (BOARD_MCK / div) / 4;
+	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
 	/* Configure and enable interrupt on RC compare */
 	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
@@ -529,7 +529,7 @@ static void configure_tc(void)
  * \return Unused (ANSI-C compatibility).
  */
 
-extern int main(void)
+int main(void)
 {
 	uint8_t ucKey;
 
@@ -560,7 +560,7 @@ extern int main(void)
 
 	/* Configure RTC interrupts */
 	rtc_enable_it(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
-	aic_enable(ID_SYS);
+	aic_enable(ID_PMC);
 	/* Refresh display once */
 	_RefreshDisplay();
 	new_time.hour = 0;

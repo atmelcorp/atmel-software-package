@@ -114,11 +114,14 @@
 #include "core/pio.h"
 #include "core/wdt.h"
 #include "core/aic.h"
+#include "core/pmc.h"
 
 #include "net/gmacd.h"
 #include "net/gmacb.h"
 
 #include "mini_ip.h"
+
+#include <stdio.h>
 
 /*---------------------------------------------------------------------------
  *         Local Define
@@ -673,7 +676,7 @@ main(void)
 	GMACB_ResetPhy(pGmacb);
 	/* PHY initialize */
 	if (!GMACB_InitPhy
-	    (pGmacb, BOARD_MCK, 0, 0, gmacPins, PIO_LISTSIZE(gmacPins))) {
+	    (pGmacb, pmc_get_master_clock(), 0, 0, gmacPins, PIO_LISTSIZE(gmacPins))) {
 		printf("PHY Initialize ERROR!\n\r");
 		return 0;
 	}
@@ -683,7 +686,7 @@ main(void)
 		return 0;
 	}
 
-	for (delay = 0; delay < (BOARD_MCK / 5); delay++)
+	for (delay = 0; delay < (pmc_get_master_clock() / 5); delay++)
 		asm("nop");
 	delay = 0;
 	gtotal_request = 0;
@@ -693,7 +696,7 @@ main(void)
 		if (gtotal_request >= GMAX_ARP_REQUEST)
 			break;
 
-		if ((delay++) >= (BOARD_MCK / 1000000)) {
+		if ((delay++) >= (pmc_get_master_clock() / 1000000)) {
 			delay = 0;
 			gtotal_request++;
 			printf("arp... \n\r");
