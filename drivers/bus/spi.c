@@ -72,6 +72,9 @@
 
 #include "bus/spi.h"
 #include "core/pmc.h"
+
+#include "utils/io.h"
+
 #include <stdint.h>
 
 #include <assert.h>

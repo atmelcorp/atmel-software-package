@@ -78,6 +78,7 @@
 #include "core/pmc.h"
 
 #include "utils/trace.h"
+#include "utils/io.h"
 
 #include <assert.h>
 #include <string.h>
