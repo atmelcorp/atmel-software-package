@@ -38,7 +38,7 @@
 #define PIN_LED_2   {(PIO_PE28), PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
 
 /** List of all LEDs definitions. */
-#define PINS_LEDS   PIN_LED_0, PIN_LED_1,PIN_LED_2
+#define PINS_LEDS   {PIN_LED_0, PIN_LED_1,PIN_LED_2}
 
 /** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
 #define PIN_PUSHBUTTON_1    {PIO_PE13, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
