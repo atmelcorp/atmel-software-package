@@ -1,5 +1,4 @@
-DRIVER_OBJECTS += core/pio_it.o   \
-	core/l2cc.o     \
+DRIVER_OBJECTS += core/l2cc.o     \
 	core/adc.o      \
 	core/pwmc.o     \
 	core/cp15.o     \
@@ -9,12 +8,16 @@ DRIVER_OBJECTS += core/pio_it.o   \
 	core/cp15_pmu.o \
 	core/pmc.o      \
 	core/async.o    \
+	core/cpsr.o	\
 	core/mmu.o      
 
-DRIVER_OBJECTS_ASM += core/cp15_asm_gcc.o
+DRIVER_OBJECTS_ASM += core/cp15_asm_gcc.o \
+		   core/cpsr_gcc.o
 
-ifeq (PIO_APIv4,$(PIO_API))
-DRIVER_OBJECTS += core/pio4.o
+ifeq (API_PIOv4,$(PIO_API))
+DRIVER_OBJECTS += core/pio4.o \
+       core/pio4_it.o
 else
-DRIVER_OBJECTS += core/pio3.o
+DRIVER_OBJECTS += core/pio3.o \
+       core/pio_it.o
 endif
