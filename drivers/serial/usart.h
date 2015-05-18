@@ -56,6 +56,7 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include "chip.h"
 
 /*------------------------------------------------------------------------------
  *         Definitions
@@ -77,7 +78,7 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate, uint32_t masterClock);
+void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
 extern uint32_t usart_get_status(Usart * usart);
 void usart_enable_it(Usart *usart, uint32_t mode);
 void usart_disable_it(Usart *usart, uint32_t mode);

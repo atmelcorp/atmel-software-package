@@ -70,7 +70,8 @@ static struct _console console = {
 	uart_configure,
 	uart_put_char,
 	uart_get_char,
-	uart_is_rx_ready
+	uart_is_rx_ready,
+	uart_set_int
 };
 #elif CONSOLE_DRIVER == DRV_DBGU
 #include "serial/dbgu.h"
@@ -97,9 +98,8 @@ static uint8_t _bConsoleIsInitialized = 0;
 * \brief Configures a CONSOLE peripheral with the specified parameters.
 *
 * \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
-* \param clock  Frequency of the system master clock (in Hz).
 */
-void console_configure(uint32_t baudrate, uint32_t clock)
+void console_configure(uint32_t baudrate)
 {
 	/* Configure PIO */
 	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
@@ -114,7 +114,7 @@ void console_configure(uint32_t baudrate, uint32_t clock)
 #endif
 
 	/* Initialize driver to use */
-	console.init(console.addr, mode, baudrate, clock);
+	console.init(console.addr, mode, baudrate);
 
 	/* Finally */
 	_bConsoleIsInitialized = 1;
@@ -133,8 +133,7 @@ void console_configure(uint32_t baudrate, uint32_t clock)
 void console_put_char(uint8_t c)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE,
-				  pmc_get_peripheral_max_clock(CONSOLE_ID));
+		console_configure(CONSOLE_BAUDRATE);
 
 	console.put_char(console.addr, c);
 }
@@ -148,8 +147,7 @@ void console_put_char(uint8_t c)
 extern uint32_t console_get_char(void)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE,
-				  pmc_get_peripheral_max_clock(CONSOLE_ID));
+		console_configure(CONSOLE_BAUDRATE);
 	return console.get_char(console.addr);
 }
 
@@ -161,8 +159,7 @@ extern uint32_t console_get_char(void)
 extern uint32_t console_is_rx_ready(void)
 {
 	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE,
-				  pmc_get_peripheral_max_clock(CONSOLE_ID));
+		console_configure(CONSOLE_BAUDRATE);
 	return console.is_rx_ready(console.addr);
 }
 
@@ -289,6 +286,11 @@ extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 	printf("\n\r");
 	*pvalue = value;
 	return 1;
+}
+
+void console_enable_interrupts(uint32_t mask)
+{
+	console.enable_interrupts(console.addr, mask);
 }
 
 /**

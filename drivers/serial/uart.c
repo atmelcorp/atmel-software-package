@@ -51,13 +51,15 @@
  * \param baudrate  Desired baudrate (e.g. 115200).
  * \param mck  Frequency of the system master clock in Hz.
  */
-void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate, uint32_t mck)
+void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate)
 {
+	uint32_t uart_id = GET_UART_ID_FROM_ADDR(pUart);
 	// Reset & disable receiver and transmitter, disable interrupts
-	pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS;
+	pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS
+		| UART_CR_RSTSTA;
 	pUart->UART_IDR = 0xFFFFFFFF;
 	// Configure baud rate
-	pUart->UART_BRGR = mck / (baudrate * 16);
+	pUart->UART_BRGR = pmc_get_peripheral_max_clock(uart_id) / (baudrate * 16);
 	// Configure mode register
 	pUart->UART_MR = mode;
 	// Enable receiver and transmitter

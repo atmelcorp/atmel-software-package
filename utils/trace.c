@@ -55,5 +55,5 @@ uint32_t dwTraceLevel = TRACE_LEVEL;
  */
 void trace_configure(uint32_t baudrate, uint32_t masterclock)
 {
-	console_configure(baudrate, masterclock);
+	console_configure(baudrate);
 }

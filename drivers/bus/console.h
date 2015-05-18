@@ -34,35 +34,37 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 #define DRV_UART     (1)
 #define DRV_USART    (2)
 #define DRV_DBGU     (3)
 //#define DRV_FLEXCOM  (4)
 
-#include <stdint.h>
-
 struct _console {
 	void* addr;
-	void (*init)(void*, uint32_t, uint32_t, uint32_t);
+	void (*init)(void*, uint32_t, uint32_t);
 	void (*put_char)(void*, uint8_t);
 	uint32_t (*get_char)(void*);
 	uint32_t (*is_rx_ready)(void*);
+	void (*enable_interrupts)(void*, uint32_t);
 };
 
 /* ----------------------------------------------------------------------------
  *         Global function
  * ---------------------------------------------------------------------------*/
 
-void console_configure(uint32_t baudrate, uint32_t master_clock);
+void console_configure(uint32_t baudrate);
 void console_put_char(uint8_t uc);
-extern uint32_t console_get_char(void);
-extern uint32_t console_is_rx_ready(void);
+uint32_t console_get_char(void);
+uint32_t console_is_rx_ready(void);
+void console_enable_interrupts(uint32_t mask);
 void console_dump_frame(uint8_t * pframe, uint32_t size);
 void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				uint32_t address);
-extern uint32_t console_get_integer(uint32_t * pvalue);
-extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
+uint32_t console_get_integer(uint32_t * pvalue);
+uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					    uint32_t max);
-extern uint32_t console_get_hexa_32(uint32_t * pvalue);
+uint32_t console_get_hexa_32(uint32_t * pvalue);
 
 #endif	/* _CONSOLE_H_ */

@@ -44,6 +44,8 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 /*------------------------------------------------------------------------------
  *         Definitions
  *------------------------------------------------------------------------------*/
@@ -52,7 +54,7 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void uart_configure(Uart* puart, uint32_t mode, uint32_t baudrate, uint32_t mck);
+void uart_configure(Uart* puart, uint32_t mode, uint32_t baudrate);
 void uart_set_transmitter_enabled(Uart* puart, uint8_t enabled);
 void uart_set_receiver_enabled (Uart* puart, uint8_t enabled);
 void uart_set_int (Uart* puart, uint32_t int_mask);

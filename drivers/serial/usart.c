@@ -75,6 +75,7 @@
 #include "chip.h"
 #include "resources/compiler_defines.h"
 #include "serial/usart.h"
+#include "core/pmc.h"
 
 #include "utils/trace.h"
 
@@ -102,8 +103,9 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
  *  \param clock  Frequency of the system master clock (in Hz).
  */
 void usart_configure(Usart *usart, uint32_t mode,
-		     uint32_t baudrate, uint32_t clock)
+		     uint32_t baudrate)
 {
+	uint32_t clock = pmc_get_peripheral_max_clock(GET_USART_ID_FROM_ADDR(usart));
 	/* Reset and disable receiver & transmitter */
 	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
 	/* Reset and disable FIFO if present */

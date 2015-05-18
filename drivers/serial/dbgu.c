@@ -58,8 +58,9 @@
  * \param baudrate  Baudrate at which the DBGU should operate (in Hz).
  * \param clock  Frequency of the system master clock (in Hz).
  */
-void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate, uint32_t clock)
+void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 {
+	uint32_t clock = pmc_get_peripheral_max_clock(GET_USART_ID_FROM_ADDR(dbgu));
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
 	dbgu->DBGU_IDR = 0xFFFFFFFF;
