@@ -593,7 +593,7 @@ ISO7816_Init(const struct _pin pPinIso7816RstMC)
 	st_pinIso7816RstMC = pPinIso7816RstMC;
 
 	usart_configure(BOARD_ISO7816_BASE_USART, US_MR_USART_MODE_IS07816_T_0 | US_MR_USCLKS_MCK | US_MR_NBSTOP_1_BIT | US_MR_PAR_EVEN | US_MR_CHRL_8_BIT | US_MR_CLKO | (3 << 24),	/* MAX_ITERATION */
-			1, 0);
+			1);
 
 	/* Configure USART */
 	//pmc_enable_peripheral(BOARD_ISO7816_ID_USART);
