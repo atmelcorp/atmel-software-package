@@ -85,12 +85,12 @@ uint32_t board_master_clock;
 static void _pmc_compute_mck(void)
 {
 	uint32_t mckr_value = PMC->PMC_MCKR;
-	uint32_t pllar_value = PMC->CKGR_PLLAR;
+	uint32_t pllar_value = (CKGR_PLLAR_MULA_Msk & PMC->CKGR_PLLAR) >> CKGR_PLLAR_MULA_Pos;
 	uint32_t mdiv = (PMC_MCKR_MDIV(mckr_value) < 3) ?
 		(1u << PMC_MCKR_MDIV(mckr_value)) : 3;
 	
 	board_master_clock = BOARD_MAINOSC / mdiv / (mckr_value & PMC_MCKR_PLLADIV2 ? 2:1)
-		* (((CKGR_PLLAR_MULA_Msk & pllar_value) >> CKGR_PLLAR_MULA_Pos) + 1);
+		* (pllar_value + 1);
 }
 
 /*----------------------------------------------------------------------------
