@@ -284,7 +284,13 @@ const uint32_t _id_h64_matrix[] = {
 #define PWM      (0xF802C000U) /**< \brief (PWM     ) Base Address */
 #define SFR      (0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 (0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
+#define USART0   (0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
+#define FCOMSPI0 (0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
+#define TWI0     (0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
 #define FLEXCOM1 (0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
+#define USART1   (0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
+#define FCOMSPI1 (0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
+#define TWI1     (0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
 #define SAIC     (0xF803C000U) /**< \brief (SAIC    ) Base Address */
 #define ICM      (0xF8040000U) /**< \brief (ICM     ) Base Address */
 #define RSTC     (0xF8048000U) /**< \brief (RSTC    ) Base Address */
@@ -302,8 +308,17 @@ const uint32_t _id_h64_matrix[] = {
 #define UART3    (0xFC008000U) /**< \brief (UART3   ) Base Address */
 #define UART4    (0xFC00C000U) /**< \brief (UART4   ) Base Address */
 #define FLEXCOM2 (0xFC010000U) /**< \brief (FLEXCOM2) Base Address */
+#define USART2   (0xFC010200U) /**< \brief (FLEXCOM2_USART) Base Address */
+#define FCOMSPI2 (0xFC010400U) /**< \brief (FLEXCOM2_SPI) Base Address */
+#define TWI2     (0xFC010600U) /**< \brief (FLEXCOM2_TWI) Base Address */
 #define FLEXCOM3 (0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
+#define USART3   (0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI3 (0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI3     (0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 (0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
+#define USART4   (0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
+#define FCOMSPI4 (0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
+#define TWI4     (0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
 #define TRNG     (0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      (0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   (0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
@@ -344,7 +359,13 @@ const uint32_t _id_h64_matrix[] = {
 #define PWM      ((Pwm      *)0xF802C000U) /**< \brief (PWM     ) Base Address */
 #define SFR      ((Sfr      *)0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
+#define USART0   ((Usart    *)0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
+#define FCOMSPI0 ((Spi      *)0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
+#define TWI0     ((Twi      *)0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
 #define FLEXCOM1 ((Flexcom  *)0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
+#define USART1   ((Usart    *)0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
+#define FCOMSPI1 ((Spi      *)0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
+#define TWI1     ((Twi      *)0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
 #define SAIC     ((Aic      *)0xF803C000U) /**< \brief (SAIC    ) Base Address */
 #define ICM      ((Icm      *)0xF8040000U) /**< \brief (ICM     ) Base Address */
 #define RSTC     ((Rstc     *)0xF8048000U) /**< \brief (RSTC    ) Base Address */
@@ -362,8 +383,17 @@ const uint32_t _id_h64_matrix[] = {
 #define UART3    ((Uart     *)0xFC008000U) /**< \brief (UART3   ) Base Address */
 #define UART4    ((Uart     *)0xFC00C000U) /**< \brief (UART4   ) Base Address */
 #define FLEXCOM2 ((Flexcom  *)0xFC010000U) /**< \brief (FLEXCOM2) Base Address */
+#define USART2   ((Usart    *)0xFC010200U) /**< \brief (FLEXCOM2_USART) Base Address */
+#define FCOMSPI2 ((Spi      *)0xFC010400U) /**< \brief (FLEXCOM2_SPI) Base Address */
+#define TWI2     ((Twi      *)0xFC010600U) /**< \brief (FLEXCOM2_TWI) Base Address */
 #define FLEXCOM3 ((Flexcom  *)0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
+#define USART3   ((Usart    *)0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
+#define FCOMSPI3 ((Spi      *)0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
+#define TWI3     ((Twi      *)0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 ((Flexcom  *)0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
+#define USART4   ((Usart    *)0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
+#define FCOMSPI4 ((Spi      *)0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
+#define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
 #define TRNG     ((Trng     *)0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      ((Aic      *)0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   ((Twihs    *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */

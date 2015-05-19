@@ -323,9 +323,9 @@ const WEAK uint8_t _id_h64_matrix[] = {
 #define FCOMSPI3 (0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
 #define TWI3     (0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 (0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
-#define USART4   (0xFC018200U) /**< \brief (FLEXCOM3_USART) Base Address */
-#define FCOMSPI4 (0xFC018400U) /**< \brief (FLEXCOM3_SPI) Base Address */
-#define TWI4     (0xFC018600U) /**< \brief (FLEXCOM3_TWI) Base Address */
+#define USART4   (0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
+#define FCOMSPI4 (0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
+#define TWI4     (0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
 #define TRNG     (0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      (0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   (0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
@@ -394,9 +394,9 @@ const WEAK uint8_t _id_h64_matrix[] = {
 #define FCOMSPI3 ((Spi      *)0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
 #define TWI3     ((Twi      *)0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
 #define FLEXCOM4 ((Flexcom  *)0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
-#define USART4   ((Usart    *)0xFC018200U) /**< \brief (FLEXCOM3_USART) Base Address */
-#define FCOMSPI4 ((Spi      *)0xFC018400U) /**< \brief (FLEXCOM3_SPI) Base Address */
-#define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM3_TWI) Base Address */
+#define USART4   ((Usart    *)0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
+#define FCOMSPI4 ((Spi      *)0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
+#define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
 #define TRNG     ((Trng     *)0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      ((Aic      *)0xFC020000U) /**< \brief (AIC     ) Base Address */
 #define TWIHS1   ((Twihs    *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
