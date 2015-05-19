@@ -682,46 +682,6 @@
  * - \ref  PIN_PCK1
  */
 
-/** BLUE LED index definition. */
-#define LED_BLUE      0
-/** RED LED index definition. */
-#define LED_RED       1
-
-#if defined(BOARD_SAMA5D4_EK)
-/** LED #0 pin definition (LED_BLUE). */
-#define PIN_LED_0   {(PIO_PE8), PIOE, ID_PIOE, PIO_OUTPUT_1, PIO_DEFAULT}
-/** LED #1 pin definition (LED_RED). */
-#define PIN_LED_1   {(PIO_PE9), PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
-/** LED #2 pin definition (LED_GREEN). */
-#define PIN_LED_2   {(PIO_PE28), PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
-
-/** List of all LEDs definitions. */
-#define PINS_LEDS   PIN_LED_0, PIN_LED_1,PIN_LED_2
-
-/** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
-#define PIN_PUSHBUTTON_1    {PIO_PE13, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
-#define PIN_PUSHBUTTON_2    {PIO_PE13, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
-#elif defined(BOARD_SAMA5D4_XPLAINED)
-/** LED #0 pin definition (LED_BLUE). */
-#define PIN_LED_0   {(PIO_PE15), PIOE, ID_PIOE, PIO_OUTPUT_1, PIO_DEFAULT}
-/** LED #1 pin definition (LED_RED). */
-#define PIN_LED_1   {(PIO_PD30), PIOD, ID_PIOD, PIO_OUTPUT_0, PIO_DEFAULT}
-
-/** List of all LEDs definitions. */
-#define PINS_LEDS   {PIN_LED_0, PIN_LED_1}
-
-/** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
-#define PIN_PUSHBUTTON_1    {PIO_PE8, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
-#define PIN_PUSHBUTTON_2    {PIO_PE8, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
-#endif
-/** List of all push button definitions. */
-#define PINS_PUSHBUTTONS    PIN_PUSHBUTTON_1
-
-/** Push button #1 index. */
-#define PUSHBUTTON_BP1   0
-/** Push button #2 index. */
-#define PUSHBUTTON_BP2   1
-
 /** catb button */
 #define PIN_SBUTTON0    {1 << 18, PIOD, ID_PIOD, PIO_PERIPH_B, PIO_DEFAULT}
 #define PIN_SBUTTON1    {1 << 19, PIOD, ID_PIOD, PIO_PERIPH_B, PIO_DEFAULT}

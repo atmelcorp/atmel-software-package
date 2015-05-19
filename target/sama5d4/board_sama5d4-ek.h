@@ -40,9 +40,19 @@
 /** List of all LEDs definitions. */
 #define PINS_LEDS   {PIN_LED_0, PIN_LED_1,PIN_LED_2}
 
+/** BLUE LED index definition. */
+#define LED_BLUE      0
+/** RED LED index definition. */
+#define LED_RED       1
+
 /** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
 #define PIN_PUSHBUTTON_1    {PIO_PE13, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
-#define PIN_PUSHBUTTON_2    {PIO_PE13, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
+
+/** List of all push button definitions. */
+#define PINS_PUSHBUTTONS    {PIN_PUSHBUTTON_1}
+
+/** Push button #1 index. */
+#define PUSHBUTTON_BP1   0
 
 /*----------------------------------------------------------------------------
  *        Relative definitions of Softpack Example
