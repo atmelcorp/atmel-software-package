@@ -134,7 +134,7 @@ void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
  * \param pRtc  Pointer to a Rtc instance
  * \return Hour mode.
  */
-uint32_t rtc_get_hour_mode(Rtc * pRtc)
+extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
 {
 	uint32_t mode;
 	TRACE_DEBUG("rtc_get_hour_mode()\n\r");
@@ -181,7 +181,7 @@ void rtc_disable_it(Rtc * pRtc, uint32_t sources)
  *
  * \return 0 sucess, 1 fail to set
  */
-int rtc_set_time(Rtc * pRtc, struct _time *pTime)
+extern int rtc_set_time(Rtc * pRtc, struct _time *pTime)
 {
 	uint32_t ltime = 0;
 	uint8_t hour_bcd , min_bcd, sec_bcd;
@@ -260,7 +260,7 @@ void rtc_get_time(Rtc * pRtc, struct _time *pTime)
  *
  * \return 0 success, 1 fail to set
  */
-int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
+extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
 {
 	uint32_t alarm = 0;
 
@@ -329,7 +329,7 @@ void rtc_get_date(Rtc * pRtc, struct _date *pDate)
  *
  * \return 0 success, 1 fail to set
  */
-int rtc_set_date(Rtc * pRtc, struct _date *pDate)
+extern int rtc_set_date(Rtc * pRtc, struct _date *pDate)
 {
 	uint32_t ldate;
 	uint8_t cent_bcd, year_bcd, month_bcd, day_bcd, week_bcd;
@@ -371,7 +371,7 @@ int rtc_set_date(Rtc * pRtc, struct _date *pDate)
  *
  * \return 0 success, 1 fail to set
  */
-int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
+extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
 {
 	uint32_t alarm;
 
@@ -411,7 +411,7 @@ void rtc_clear_sccr(Rtc * pRtc, uint32_t mask)
  *
  * \return Status register & mask
  */
-uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
+extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
 {
 	return ((pRtc->RTC_SR) & mask);
 }
@@ -423,7 +423,7 @@ uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
  *       function call, Otherwise the tamper time will be cleared.
  *
  * \param pRtc       Pointer to an RTC instance.
- * \param pTime      Pointer to structure Time.
+ * \param pTime    	 Pointer to structure Time.
  * \param reg_num    Tamper register set number.
  */
 void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
@@ -507,7 +507,7 @@ void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num)
  *
  * \return Tamper source.
  */
-uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num)
+extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num)
 {
 	return pRtc->RTC_TS[reg_num].RTC_TSSR;
 }
@@ -522,7 +522,7 @@ uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num)
  *
  * \return Tamper event counter
  */
-uint32_t rtc_get_tamper_event_counter(Rtc * pRtc)
+extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc)
 {
 	return (pRtc->RTC_TS[0].RTC_TSTR & RTC_TSTR_TEVCNT_Msk) >> RTC_TSTR_TEVCNT_Pos;
 }
@@ -540,7 +540,7 @@ uint32_t rtc_get_tamper_event_counter(Rtc * pRtc)
  * \return 1 - The system is in backup mode when the tamper event occurs.
  *         0 - The system is different from backup mode.
  */
-uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num)
+extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num)
 {
 	if (pRtc->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
 		return 1;

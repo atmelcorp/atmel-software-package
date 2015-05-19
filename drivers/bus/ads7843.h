@@ -46,10 +46,10 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void ADS7843_Initialize(void);
+extern void ADS7843_Initialize(void);
 
-void ADS7843_Reset(void);
+extern void ADS7843_Reset(void);
 
-void ADS7843_GetPosition(uint32_t * px_pos, uint32_t * py_pos);
+extern void ADS7843_GetPosition(uint32_t * px_pos, uint32_t * py_pos);
 
 #endif				/* #ifndef _ADS7843_H */

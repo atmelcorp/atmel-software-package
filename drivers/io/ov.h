@@ -47,7 +47,7 @@ struct capture_size {
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
-void ov_configure(Twid * pTwid, uint8_t type, uint32_t width,
+extern void ov_configure(Twid * pTwid, uint8_t type, uint32_t width,
 			 uint32_t heigth);
-void ov_5640Afc_Firmware(Twid * pTwid);
+extern void ov_5640Afc_Firmware(Twid * pTwid);
 #endif

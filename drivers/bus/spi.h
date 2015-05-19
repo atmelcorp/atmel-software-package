@@ -81,25 +81,25 @@ extern "C" {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void spi_enable(Spi * spi);
-void spi_disable(Spi * spi);
+extern void spi_enable(Spi * spi);
+extern void spi_disable(Spi * spi);
 
-void spi_enable_it(Spi * spi, uint32_t dwSources);
-void spi_disable_it(Spi * spi, uint32_t dwSources);
+extern void spi_enable_it(Spi * spi, uint32_t dwSources);
+extern void spi_disable_it(Spi * spi, uint32_t dwSources);
 
-void spi_configure(Spi * spi, uint32_t dwConfiguration);
-void spi_set_mode(Spi * spi, uint32_t dwConfiguration);
+extern void spi_configure(Spi * spi, uint32_t dwConfiguration);
+extern void spi_set_mode(Spi * spi, uint32_t dwConfiguration);
 
-void spi_chip_select(Spi * spi, uint8_t cS);
-void spi_release_cs(Spi * spi);
+extern void spi_chip_select(Spi * spi, uint8_t cS);
+extern void spi_release_cs(Spi * spi);
 
-void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration);
-void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs,
+extern void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration);
+extern void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs,
 				uint32_t bReleaseOnLast);
 
 extern uint32_t spi_read(Spi * spi);
-void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData);
-void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData);
+extern void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData);
+extern void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData);
 
 extern uint32_t spi_get_status(Spi * spi);
 extern uint32_t spi_is_finished(Spi * spi);

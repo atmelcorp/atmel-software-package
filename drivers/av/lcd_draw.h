@@ -74,46 +74,46 @@
  *----------------------------------------------------------------------------*/
 /** \addtogroup lcdd_draw_func LCD Drawing Functions */
 /** @{*/
-void LCDD_Fill0(void);
+extern void LCDD_Fill0(void);
 
-void LCDD_Fill(uint32_t color);
+extern void LCDD_Fill(uint32_t color);
 
-void LCDD_DrawPixel(uint32_t x, uint32_t y, uint32_t c);
+extern void LCDD_DrawPixel(uint32_t x, uint32_t y, uint32_t c);
 
 extern uint32_t LCDD_ReadPixel(uint32_t x, uint32_t y);
 
-void LCDD_DrawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
+extern void LCDD_DrawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 			  uint32_t color);
 
-void LCDD_DrawRectangle(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
+extern void LCDD_DrawRectangle(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 			       uint32_t dwHeight, uint32_t dwColor);
 
-void LCDD_DrawFilledRectangle(uint32_t dwX1, uint32_t dwY1,
+extern void LCDD_DrawFilledRectangle(uint32_t dwX1, uint32_t dwY1,
 				     uint32_t dwX2, uint32_t dwY2,
 				     uint32_t dwColor);
 
-void LCDD_DrawCircle(uint32_t x, uint32_t y, uint32_t r, uint32_t color);
-void LCDD_DrawFilledCircle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
+extern void LCDD_DrawCircle(uint32_t x, uint32_t y, uint32_t r, uint32_t color);
+extern void LCDD_DrawFilledCircle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
 				  uint32_t dwColor);
 
-void LCDD_DrawString(uint32_t x, uint32_t y, const char *pString,
+extern void LCDD_DrawString(uint32_t x, uint32_t y, const char *pString,
 			    uint32_t color);
 
-void LCDD_DrawStringWithBGColor(uint32_t x, uint32_t y,
+extern void LCDD_DrawStringWithBGColor(uint32_t x, uint32_t y,
 				       const char *pString, uint32_t fontColor,
 				       uint32_t bgColor);
 
-void LCDD_GetStringSize(const char *pString, uint32_t * pWidth,
+extern void LCDD_GetStringSize(const char *pString, uint32_t * pWidth,
 			       uint32_t * pHeight);
 
-void LCDD_DrawImage(uint32_t x, uint32_t y, const uint8_t * pImage,
+extern void LCDD_DrawImage(uint32_t x, uint32_t y, const uint8_t * pImage,
 			   uint32_t width, uint32_t height);
 
 void LCDD_DrawGIMPImage(uint32_t dwX, uint32_t dwY,
 			const SGIMPImage * pGIMPImage, uint32_t dwWidth,
 			uint32_t dwHeight);
 
-void LCDD_ClearWindow(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
+extern void LCDD_ClearWindow(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 			     uint32_t dwHeight, uint32_t dwColor);
 /** @}*/
 /**@}*/

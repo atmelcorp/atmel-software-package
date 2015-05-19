@@ -90,23 +90,23 @@ struct _date
 extern "C" {
 #endif
 
-void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode);
-uint32_t rtc_get_hour_mode(Rtc * pRtc);
-void rtc_enable_it(Rtc * pRtc, uint32_t sources);
-void rtc_disable_it(Rtc * pRtc, uint32_t sources);
-int rtc_set_time(Rtc * pRtc, struct _time *pTime);
-void rtc_get_time(Rtc * pRtc, struct _time *pTime);
-int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime);
-void rtc_get_date(Rtc * pRtc, struct _date *pDate);
-int rtc_set_date(Rtc * pRtc, struct _date *pDate);
-int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate);
-void rtc_clear_sccr(Rtc * pRtc, uint32_t mask);
-uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask);
-void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num);
-void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num);
-uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num);
-uint32_t rtc_get_tamper_event_counter(Rtc * pRtc);
-uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num);
+extern void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode);
+extern uint32_t rtc_get_hour_mode(Rtc * pRtc);
+extern void rtc_enable_it(Rtc * pRtc, uint32_t sources);
+extern void rtc_disable_it(Rtc * pRtc, uint32_t sources);
+extern int rtc_set_time(Rtc * pRtc, struct _time *pTime);
+extern void rtc_get_time(Rtc * pRtc, struct _time *pTime);
+extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime);
+extern void rtc_get_date(Rtc * pRtc, struct _date *pDate);
+extern int rtc_set_date(Rtc * pRtc, struct _date *pDate);
+extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate);
+extern void rtc_clear_sccr(Rtc * pRtc, uint32_t mask);
+extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask);
+extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num);
+extern void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num);
+extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num);
+extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc);
+extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num);
 
 #ifdef __cplusplus
 }

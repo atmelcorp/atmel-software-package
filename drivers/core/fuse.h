@@ -52,7 +52,7 @@ extern "C" {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 extern uint32_t FUSE_Read(uint8_t wordPosition);
-void FUSE_Write(uint32_t data, uint8_t wordPosition);
+extern void FUSE_Write(uint32_t data, uint8_t wordPosition);
 
 #ifdef __cplusplus
 }

@@ -78,34 +78,34 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
+extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
 extern uint32_t usart_get_status(Usart * usart);
-void usart_enable_it(Usart *usart, uint32_t mode);
-void usart_disable_it(Usart *usart, uint32_t mode);
+extern void usart_enable_it(Usart *usart, uint32_t mode);
+extern void usart_disable_it(Usart *usart, uint32_t mode);
 extern uint32_t usart_get_it_mask(Usart *usart);
-void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
-void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
-void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
-void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
+extern void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
+extern void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
+extern void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
+extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
 extern uint16_t usart_read(Usart *usart, volatile uint32_t timeOut);
 extern uint8_t usart_is_data_available(Usart *usart);
 extern uint32_t usart_is_rx_ready(Usart *usart);
-void usart_put_char(Usart *usart, uint8_t c);
+extern void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
-void usart_set_irda_filter(Usart *usart, uint8_t filter);
+extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
 
 #ifdef FIFO_ENABLED
-void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
+extern void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
 			  uint8_t rx_down_thres, uint8_t rx_up_thres,
 			  uint32_t ready_modes);
-void usart_fifo_disable(Usart *usart);
-void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask);
-void usart_fifo_disable_it(Usart *usart, uint32_t interrupt_mask);
-uint32_t usart_fifo_get_interrupts(Usart *usart);
-uint32_t usart_fifo_rx_size(Usart *usart);
-uint32_t usart_fifo_tx_size(Usart *usart);
-uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len);
-uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t len);
+extern void usart_fifo_disable(Usart *usart);
+extern void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask);
+extern void usart_fifo_disable_it(Usart *usart, uint32_t interrupt_mask);
+extern uint32_t usart_fifo_get_interrupts(Usart *usart);
+extern uint32_t usart_fifo_rx_size(Usart *usart);
+extern uint32_t usart_fifo_tx_size(Usart *usart);
+extern uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len);
+extern uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t len);
 #endif
 
 #ifdef __cplusplus

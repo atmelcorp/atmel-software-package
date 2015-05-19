@@ -40,15 +40,15 @@
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-void RSTC_ConfigureMode(uint32_t rmr);
+extern void RSTC_ConfigureMode(uint32_t rmr);
 
-void RSTC_SetUserResetEnable(uint8_t enable);
+extern void RSTC_SetUserResetEnable(uint8_t enable);
 
-void RSTC_SetUserResetInterruptEnable(uint8_t enable);
+extern void RSTC_SetUserResetInterruptEnable(uint8_t enable);
 
-void RSTC_ProcessorReset(void);
+extern void RSTC_ProcessorReset(void);
 
-void RSTC_PeripheralReset(void);
+extern void RSTC_PeripheralReset(void);
 
 extern uint8_t RSTC_GetNrstLevel(void);
 

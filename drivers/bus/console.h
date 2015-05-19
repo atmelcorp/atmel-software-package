@@ -54,17 +54,17 @@ struct _console {
  *         Global function
  * ---------------------------------------------------------------------------*/
 
-void console_configure(uint32_t baudrate);
-void console_put_char(uint8_t uc);
-uint32_t console_get_char(void);
-uint32_t console_is_rx_ready(void);
-void console_enable_interrupts(uint32_t mask);
-void console_dump_frame(uint8_t * pframe, uint32_t size);
-void console_dump_memory(uint8_t * pbuffer, uint32_t size,
+extern void console_configure(uint32_t baudrate);
+extern void console_put_char(uint8_t uc);
+extern uint32_t console_get_char(void);
+extern uint32_t console_is_rx_ready(void);
+extern void console_enable_interrupts(uint32_t mask);
+extern void console_dump_frame(uint8_t * pframe, uint32_t size);
+extern void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				uint32_t address);
-uint32_t console_get_integer(uint32_t * pvalue);
-uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
+extern uint32_t console_get_integer(uint32_t * pvalue);
+extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					    uint32_t max);
-uint32_t console_get_hexa_32(uint32_t * pvalue);
+extern uint32_t console_get_hexa_32(uint32_t * pvalue);
 
 #endif	/* _CONSOLE_H_ */

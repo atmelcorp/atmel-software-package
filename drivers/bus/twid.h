@@ -66,9 +66,9 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Export functions
  *----------------------------------------------------------------------------*/
-void TWID_Initialize(Twid * pTwid, Twi * pTwi);
+extern void TWID_Initialize(Twid * pTwid, Twi * pTwi);
 
-void TWID_Handler(Twid * pTwid);
+extern void TWID_Handler(Twid * pTwid);
 
 extern uint8_t TWID_Read(Twid * pTwid,
 			 uint8_t address,

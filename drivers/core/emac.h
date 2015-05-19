@@ -220,78 +220,78 @@ typedef struct _EmacTxDescriptor {
 
 /** \addtogroup emac_functions
         @{*/
-void EMAC_NetworkControl(Emac * pEmac, uint32_t bmNCR);
+extern void EMAC_NetworkControl(Emac * pEmac, uint32_t bmNCR);
 extern uint32_t EMAC_GetNetworkControl(Emac * pEmac);
-void EMAC_ReceiveEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_TransmitEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_ManagementEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_ClearStatistics(Emac * pEmac);
-void EMAC_IncreaseStatistics(Emac * pEmac);
-void EMAC_StatisticsWriteEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_BackPressureEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_TransmissionStart(Emac * pEmac);
-void EMAC_TransmissionHalt(Emac * pEmac);
+extern void EMAC_ReceiveEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransmitEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_ManagementEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_ClearStatistics(Emac * pEmac);
+extern void EMAC_IncreaseStatistics(Emac * pEmac);
+extern void EMAC_StatisticsWriteEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BackPressureEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransmissionStart(Emac * pEmac);
+extern void EMAC_TransmissionHalt(Emac * pEmac);
 
-void EMAC_Configure(Emac * pEmac, uint32_t dwCfg);
+extern void EMAC_Configure(Emac * pEmac, uint32_t dwCfg);
 extern uint32_t EMAC_GetConfigure(Emac * pEmac);
-void EMAC_SetSpeed(Emac * pEmac, uint8_t bSpeed);
-void EMAC_FullDuplexEnable(Emac * pEmac, uint8_t bFD);
-void EMAC_CpyAllEnable(Emac * pEmac, uint8_t bCAF);
-void EMAC_JumboFrameEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_BroadcastDisable(Emac * pEmac, uint8_t bDisEna);
-void EMAC_MulticastHashEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_BigFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_SetSpeed(Emac * pEmac, uint8_t bSpeed);
+extern void EMAC_FullDuplexEnable(Emac * pEmac, uint8_t bFD);
+extern void EMAC_CpyAllEnable(Emac * pEmac, uint8_t bCAF);
+extern void EMAC_JumboFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BroadcastDisable(Emac * pEmac, uint8_t bDisEna);
+extern void EMAC_MulticastHashEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_BigFrameEnable(Emac * pEmac, uint8_t bEnaDis);
 extern uint8_t EMAC_SetClock(Emac * pEmac, uint32_t dwMck);
-void EMAC_RetryTestEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_PauseFrameEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_SetRxBufferOffset(Emac * pEmac, uint8_t bOffset);
-void EMAC_RxLenthCheckEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_DiscardFCSEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_EFRHD(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_IRXFCS(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_RetryTestEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_PauseFrameEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_SetRxBufferOffset(Emac * pEmac, uint8_t bOffset);
+extern void EMAC_RxLenthCheckEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_DiscardFCSEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_EFRHD(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_IRXFCS(Emac * pEmac, uint8_t bEnaDis);
 
 extern uint32_t EMAC_GetStatus(Emac * pEmac);
 extern uint8_t EMAC_GetMDIO(Emac * pEmac);
 extern uint8_t EMAC_IsIdle(Emac * pEmac);
 
 extern uint32_t EMAC_GetTxStatus(Emac * pEmac);
-void EMAC_ClearTxStatus(Emac * pEmac, uint32_t dwStatus);
+extern void EMAC_ClearTxStatus(Emac * pEmac, uint32_t dwStatus);
 
 extern uint32_t EMAC_GetRxStatus(Emac * pEmac);
-void EMAC_ClearRxStatus(Emac * pEmac, uint32_t dwStatus);
+extern void EMAC_ClearRxStatus(Emac * pEmac, uint32_t dwStatus);
 
-void EMAC_SetTxQueue(Emac * pEmac, uint32_t dwAddr);
+extern void EMAC_SetTxQueue(Emac * pEmac, uint32_t dwAddr);
 extern uint32_t EMAC_GetTxQueue(Emac * pEmac);
 
-void EMAC_SetRxQueue(Emac * pEmac, uint32_t dwAddr);
+extern void EMAC_SetRxQueue(Emac * pEmac, uint32_t dwAddr);
 extern uint32_t EMAC_GetRxQueue(Emac * pEmac);
 
-void EMAC_EnableIt(Emac * pEmac, uint32_t dwSources);
-void EMAC_DisableIt(Emac * pEmac, uint32_t dwSources);
+extern void EMAC_EnableIt(Emac * pEmac, uint32_t dwSources);
+extern void EMAC_DisableIt(Emac * pEmac, uint32_t dwSources);
 extern uint32_t EMAC_GetItMask(Emac * pEmac);
 extern uint32_t EMAC_GetItStatus(Emac * pEmac);
 
-void EMAC_PHYMaintain(Emac * pEmac,
+extern void EMAC_PHYMaintain(Emac * pEmac,
 			     uint8_t bPhyAddr, uint8_t bRegAddr,
 			     uint8_t bRW, uint16_t wData);
 extern uint16_t EMAC_PHYData(Emac * pEmac);
 
-void EMAC_SetPauseTime(Emac * pEmac, uint16_t wPTime);
+extern void EMAC_SetPauseTime(Emac * pEmac, uint16_t wPTime);
 
-void EMAC_SetHash(Emac * pEmac, uint32_t dwHashTop,
+extern void EMAC_SetHash(Emac * pEmac, uint32_t dwHashTop,
 			 uint32_t dwHashBottom);
-void EMAC_SetHash64(Emac * pEmac, uint64_t ddwHash);
+extern void EMAC_SetHash64(Emac * pEmac, uint64_t ddwHash);
 
-void EMAC_SetAddress(Emac * pEmac, uint8_t bIndex, uint8_t * pMacAddr);
-void EMAC_SetAddress32(Emac * pEmac, uint8_t bIndex,
+extern void EMAC_SetAddress(Emac * pEmac, uint8_t bIndex, uint8_t * pMacAddr);
+extern void EMAC_SetAddress32(Emac * pEmac, uint8_t bIndex,
 			      uint32_t dwMacT, uint32_t dwMacB);
-void EMAC_SetAddress64(Emac * pEmac, uint8_t bIndex, uint64_t ddwMac);
+extern void EMAC_SetAddress64(Emac * pEmac, uint8_t bIndex, uint64_t ddwMac);
 
-void EMAC_SetTypeID(Emac * pEmac, uint16_t wTID);
+extern void EMAC_SetTypeID(Emac * pEmac, uint16_t wTID);
 extern uint16_t EMAC_GetTypeID(Emac * pEmac);
 
-void EMAC_RMIIEnable(Emac * pEmac, uint8_t bEnaDis);
-void EMAC_TransceiverClockEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_RMIIEnable(Emac * pEmac, uint8_t bEnaDis);
+extern void EMAC_TransceiverClockEnable(Emac * pEmac, uint8_t bEnaDis);
 /**     @}*/
 
 #ifdef __cplusplus

@@ -43,14 +43,14 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void SHA_Start(void);
-void SHA_SoftReset(void);
-void SHA_FirstBlock(void);
-void SHA_Configure(uint32_t mode);
-void SHA_EnableIt(uint32_t sources);
-void SHA_DisableIt(uint32_t sources);
+extern void SHA_Start(void);
+extern void SHA_SoftReset(void);
+extern void SHA_FirstBlock(void);
+extern void SHA_Configure(uint32_t mode);
+extern void SHA_EnableIt(uint32_t sources);
+extern void SHA_DisableIt(uint32_t sources);
 extern uint32_t SHA_GetStatus(void);
-void SHA_SetInput(uint32_t * data, uint8_t len);
-void SHA_GetOutput(uint32_t * data);
+extern void SHA_SetInput(uint32_t * data, uint8_t len);
+extern void SHA_GetOutput(uint32_t * data);
 
 #endif				/* #ifndef _SHA_ */

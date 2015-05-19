@@ -64,21 +64,21 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-void PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode);
+extern void PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode);
 
-void PWMC_EnableChannel(Pwm * pPwm, uint8_t channel);
+extern void PWMC_EnableChannel(Pwm * pPwm, uint8_t channel);
 
-void PWMC_DisableChannel(Pwm * pPwm, uint8_t channel);
+extern void PWMC_DisableChannel(Pwm * pPwm, uint8_t channel);
 
-void PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel);
+extern void PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel);
 
-void PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel);
+extern void PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel);
 
-void PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel,
+extern void PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel,
 				  uint32_t mode);
-void PWMC_SetPeriod(Pwm * pPwm, uint8_t channel,
+extern void PWMC_SetPeriod(Pwm * pPwm, uint8_t channel,
 			   uint16_t period);
-void PWMC_SetDutyCycle(Pwm * pPwm, uint8_t channel,
+extern void PWMC_SetDutyCycle(Pwm * pPwm, uint8_t channel,
 			      uint16_t duty);
 
 #ifdef __cplusplus

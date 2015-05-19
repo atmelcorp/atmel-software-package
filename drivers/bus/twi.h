@@ -65,23 +65,23 @@ extern "C" {
  *        External function
  *----------------------------------------------------------------------------*/
 
-void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
-void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
-void twi_stop(Twi * pTwi);
-void twi_start_read(Twi * pTwi, uint8_t address,
+extern void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
+extern void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
+extern void twi_stop(Twi * pTwi);
+extern void twi_start_read(Twi * pTwi, uint8_t address,
 						   uint32_t iaddress, uint8_t isize);
 extern uint8_t twi_read_byte(Twi * pTwi);
-void twi_write_byte(Twi * pTwi, uint8_t byte);
-void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
+extern void twi_write_byte(Twi * pTwi, uint8_t byte);
+extern void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
 							uint8_t isize, uint8_t byte);
 extern uint8_t twi_is_byte_received(Twi * pTwi);
 extern uint8_t twi_byte_sent(Twi * pTwi);
 extern uint8_t twi_is_transfer_complete(Twi * pTwi);
-void twi_enable_it(Twi * pTwi, uint32_t sources);
-void twi_disable_it(Twi * pTwi, uint32_t sources);
+extern void twi_enable_it(Twi * pTwi, uint32_t sources);
+extern void twi_disable_it(Twi * pTwi, uint32_t sources);
 extern uint32_t twi_get_status(Twi * pTwi);
 extern uint32_t twi_get_masked_status(Twi * pTwi);
-void twi_send_stop_condition(Twi * pTwi);
+extern void twi_send_stop_condition(Twi * pTwi);
 
 #ifdef FIFO_ENABLED
 void twi_fifo_configure(Twi* twi, uint8_t tx_thres,

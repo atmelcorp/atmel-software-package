@@ -87,9 +87,9 @@ typedef struct _GMacb {
 /*---------------------------------------------------------------------------
  *         Exported functions
  *---------------------------------------------------------------------------*/
-void GMACB_SetupTimeout(GMacb * pMacb, uint32_t toMax);
+extern void GMACB_SetupTimeout(GMacb * pMacb, uint32_t toMax);
 
-void GMACB_Init(GMacb * pMacb, sGmacd * pGmacd, uint8_t phyAddress);
+extern void GMACB_Init(GMacb * pMacb, sGmacd * pGmacd, uint8_t phyAddress);
 
 extern uint8_t GMACB_InitPhy(GMacb * pMacb,
 			     uint32_t mck,
@@ -105,7 +105,7 @@ extern uint8_t GMACB_Send(GMacb * pMacb, void *pBuffer, uint32_t size);
 
 extern uint32_t GMACB_Poll(GMacb * pMacb, uint8_t * pBuffer, uint32_t size);
 
-void GMACB_DumpRegisters(GMacb * pMacb);
+extern void GMACB_DumpRegisters(GMacb * pMacb);
 
 extern uint8_t GMACB_ResetPhy(GMacb * pMacb);
 
