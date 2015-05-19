@@ -252,7 +252,7 @@ static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
 
 static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
 {
-      	if (addr == (void*)UART0) return ID_UART0;
+	if (addr == (void*)UART0) return ID_UART0;
 #ifdef UART1
 	else if (addr == (void*)UART1) return ID_UART1;
 #endif

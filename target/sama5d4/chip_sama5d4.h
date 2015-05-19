@@ -42,15 +42,15 @@
 #endif
 
 #if defined(CHIP_SAMA5D41)
-#include "sama5d41.h"
+  #include "sama5d41.h"
 #elif defined(CHIP_SAMA5D42)
-#include "sama5d42.h"
+  #include "sama5d42.h"
 #elif defined(CHIP_SAMA5D43)
-#include "sama5d43.h"
+  #include "sama5d43.h"
 #elif defined(CHIP_SAMA5D44)
-#include "sama5d44.h"
+  #include "sama5d44.h"
 #else
-#error "You're selected MPU or MCU is not supported"
+  #error Library does not support the specified device.
 #endif
 
 /**
@@ -126,7 +126,7 @@ static inline Spi* GET_SPI_ADDR_FROM_ID(const uint32_t id)
 
 static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
 {
-      	if (addr == (void*)UART0) return ID_UART0;
+	if (addr == (void*)UART0) return ID_UART0;
 #ifdef UART1
 	else if (addr == (void*)UART1) return ID_UART1;
 #endif
@@ -160,4 +160,4 @@ static inline uint32_t GET_USART_ID_FROM_ADDR(const Usart* addr)
 	else return ID_PERIPH_COUNT;
 }
 
-#endif				/* _SAMA5D4_ */
+#endif /* _SAMA5D4_ */
