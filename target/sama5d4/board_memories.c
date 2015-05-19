@@ -111,6 +111,17 @@
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
+#define DDR2_BA0(r) (1 << (26 + r))
+#define DDR2_BA1(r) (1 << (27 + r))
+
+#define H64MX_DDR_SLAVE_PORT0   3
+
+#define MATRIX_KEY_VAL (0x4D4154u)
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -118,8 +129,7 @@
  * \brief Changes the mapping of the chip so that the remap area mirrors the
  * internal ROM or the EBI CS0.
  */
-void
-board_remap_rom(void)
+void board_remap_rom(void)
 {
 	AXIMX->AXIMX_REMAP = 0;
 }
@@ -129,8 +139,7 @@ board_remap_rom(void)
  * internal RAM.
  */
 
-void
-board_remap_ram(void)
+void board_remap_ram(void)
 {
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 }
@@ -139,20 +148,13 @@ board_remap_ram(void)
  * \brief Initialize Vdd EBI drive
  * \param VddMemSel 0: 1.8V 1: 3.3V
  */
-void
-board_cfg_vdd_mem_sel(uint8_t VddMemSel)
+void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
 {
 }
 
-#define DDR2_BA0(r) (1 << (26 + r))
-#define DDR2_BA1(r) (1 << (27 + r))
-
-#define H64MX_DDR_SLAVE_PORT0   3
-
-static void
-matrix_configure_slave_ddr(void)
+static void matrix_configure_slave_ddr(void)
 {
-	int ddr_port;
+	int port;
 
 	/* Disable write protection */
 	MATRIX0->MATRIX_WPMR = MPDDRC_WPMR_WPKEY_PASSWD;
@@ -162,24 +164,17 @@ matrix_configure_slave_ddr(void)
 	MATRIX0->MATRIX_SRTSR[11] = 0x05;
 	MATRIX0->MATRIX_SASSR[11] = 0x04;
 
-	ddr_port = 1;
-
 	/* Partition external DDR */
 	/* DDR port 0 not used from NWd */
-	for (ddr_port = 1; ddr_port < 8; ddr_port++) {
-		MATRIX0->MATRIX_SSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
-		    0x00FFFFFF;
-		MATRIX0->MATRIX_SRTSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
-		    0x0000000F;
-		MATRIX0->MATRIX_SASSR[H64MX_DDR_SLAVE_PORT0 + ddr_port] =
-		    0x0000FFFF;
+	for (port = 1; port < 8; port++)
+	{
+		MATRIX0->MATRIX_SSR[H64MX_DDR_SLAVE_PORT0 + port] = 0x00FFFFFF;
+		MATRIX0->MATRIX_SRTSR[H64MX_DDR_SLAVE_PORT0 + port] = 0x0000000F;
+		MATRIX0->MATRIX_SASSR[H64MX_DDR_SLAVE_PORT0 + port] = 0x0000FFFF;
 	}
 }
 
-#define MATRIX_KEY_VAL (0x4D4154u)
-
-static void
-matrix_configure_slave_nand(void)
+static void matrix_configure_slave_nand(void)
 {
 	/* Disable write protection */
 	MATRIX0->MATRIX_WPMR = MATRIX_WPMR_WPKEY(MATRIX_KEY_VAL);
@@ -208,12 +203,10 @@ matrix_configure_slave_nand(void)
  Column address A[9:0] (1K)
  Bank address BA[2:0] a(24,25) (8)
  */
-void
-board_cfg_ddram(uint8_t device)
+void board_cfg_ddram(uint8_t device)
 {
-	volatile uint8_t *pDdr = (uint8_t *) DDR_CS_ADDR;
+	volatile uint8_t* pDdr = (uint8_t*)DDR_CS_ADDR;
 	volatile uint32_t i;
-
 	volatile uint32_t dummy_value;
 
 	matrix_configure_slave_ddr();
@@ -235,14 +228,14 @@ board_cfg_ddram(uint8_t device)
 
 	/* Step 1: Program the memory device type */
 	/* DBW = 0 (32 bits bus wide); Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
-
 	MPDDRC->MPDDRC_MD = MPDDRC_MD_MD_DDR2_SDRAM | MPDDRC_MD_DBW_DBW_32_BITS;
-
-	if (device == DDRAM_MT47H128M8CF) {
+	if (device == DDRAM_MT47H128M8CF)
+	{
 		MPDDRC->MPDDRC_RD_DATA_PATH =
 		    MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 	}
-	if (device == DDRAM_MT47H128M16) {
+	else if (device == DDRAM_MT47H128M16)
+	{
 		MPDDRC->MPDDRC_RD_DATA_PATH =
 		    MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
 	}
@@ -257,8 +250,8 @@ board_cfg_ddram(uint8_t device)
 	    MPDDRC_CR_NB_8_BANKS |
 	    MPDDRC_CR_NDQS_DISABLED |
 	    MPDDRC_CR_UNAL_SUPPORTED | MPDDRC_CR_OCD_DDR2_EXITCALIB;
-
-	if (device == DDRAM_MT47H128M8CF) {
+	if (device == DDRAM_MT47H128M8CF)
+	{
 		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)	//  40 ns
 		    | MPDDRC_TPR0_TRCD(3)	//  12.5 ns
 		    | MPDDRC_TPR0_TWR(3)	//  15 ns
@@ -268,7 +261,8 @@ board_cfg_ddram(uint8_t device)
 		    | MPDDRC_TPR0_TWTR(2)	//  2 clock cycle
 		    | MPDDRC_TPR0_TMRD(2);	//  2 clock cycles
 	}
-	if (device == DDRAM_MT47H128M16) {
+	else if (device == DDRAM_MT47H128M16)
+	{
 		MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TRAS(8)	//  40 ns
 		    | MPDDRC_TPR0_TRCD(3)	//  12.5 ns
 		    | MPDDRC_TPR0_TWR(3)	//  15 ns
@@ -278,20 +272,20 @@ board_cfg_ddram(uint8_t device)
 		    | MPDDRC_TPR0_TWTR(2)	//  2 clock cycle
 		    | MPDDRC_TPR0_TMRD(2);	//  2 clock cycles
 	}
-
 	MPDDRC->MPDDRC_TPR1 = MPDDRC_TPR1_TRFC(23)
 	    | MPDDRC_TPR1_TXSNR(25)
 	    | MPDDRC_TPR1_TXSRD(200)
 	    | MPDDRC_TPR1_TXP(2);
-
-	if (device == DDRAM_MT47H128M8CF) {
+	if (device == DDRAM_MT47H128M8CF)
+	{
 		MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TXARD(8)
 		    | MPDDRC_TPR2_TXARDS(2)
 		    | MPDDRC_TPR2_TRPA(3)
 		    | MPDDRC_TPR2_TRTP(2)
 		    | MPDDRC_TPR2_TFAW(7);
 	}
-	if (device == DDRAM_MT47H128M8CF) {
+	else if (device == DDRAM_MT47H128M8CF)
+	{
 		MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TXARD(8)
 		    | MPDDRC_TPR2_TXARDS(2)
 		    | MPDDRC_TPR2_TRPA(3)
@@ -435,6 +429,7 @@ board_cfg_ddram(uint8_t device)
 	   refreshed, 8192 REFRESH commands must be issued every 64ms (commercial) */
 	/* ((64 x 10(^-3))/8192) x133 x (10^6) */
 	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(0x2b0);	/* Set Refresh timer 7.8125 us */
+
 	/* OK now we are ready to work on the DDRSDR */
 	/* wait for end of calibration */
 	for (i = 0; i < 500; i++) {
@@ -445,62 +440,61 @@ board_cfg_ddram(uint8_t device)
 /**
  * \brief Configures the EBI for Sdram (LPSDR Micron MT48H8M16) access.
  */
-void
-board_cfg_sdram(void)
+void board_cfg_sdram(void)
 {
 }
 
 /** \brief Configures the EBI for NandFlash access at 133Mhz.
  */
-void
-board_cfg_nand_flash(uint8_t busWidth)
+void board_cfg_nand_flash(uint8_t busWidth)
 {
 	pmc_enable_peripheral(ID_HSMC);
+
 	matrix_configure_slave_nand();
 
-	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = 0 | HSMC_SETUP_NWE_SETUP(2)
-	    | HSMC_SETUP_NCS_WR_SETUP(2)
-	    | HSMC_SETUP_NRD_SETUP(2)
-	    | HSMC_SETUP_NCS_RD_SETUP(2);
-
-	HSMC->SMC_CS_NUMBER[3].HSMC_PULSE = 0 | HSMC_PULSE_NWE_PULSE(7)
-	    | HSMC_PULSE_NCS_WR_PULSE(7)
-	    | HSMC_PULSE_NRD_PULSE(7)
-	    | HSMC_PULSE_NCS_RD_PULSE(7);
-
-	HSMC->SMC_CS_NUMBER[3].HSMC_CYCLE = 0 | HSMC_CYCLE_NWE_CYCLE(13)
-	    | HSMC_CYCLE_NRD_CYCLE(13);
-
-	HSMC->SMC_CS_NUMBER[3].HSMC_TIMINGS = HSMC_TIMINGS_TCLR(3)
-	    | HSMC_TIMINGS_TADL(27)
-	    | HSMC_TIMINGS_TAR(3)
-	    | HSMC_TIMINGS_TRR(6)
-	    | HSMC_TIMINGS_TWB(5)
-	    | HSMC_TIMINGS_RBNSEL(3)
-	    | (HSMC_TIMINGS_NFSEL);
+	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = HSMC_SETUP_NWE_SETUP(2) |
+	                                    HSMC_SETUP_NCS_WR_SETUP(2) |
+	                                    HSMC_SETUP_NRD_SETUP(2) |
+	                                    HSMC_SETUP_NCS_RD_SETUP(2);
+	HSMC->SMC_CS_NUMBER[3].HSMC_PULSE = HSMC_PULSE_NWE_PULSE(7) |
+	                                    HSMC_PULSE_NCS_WR_PULSE(7) |
+	                                    HSMC_PULSE_NRD_PULSE(7) |
+	                                    HSMC_PULSE_NCS_RD_PULSE(7);
+	HSMC->SMC_CS_NUMBER[3].HSMC_CYCLE = HSMC_CYCLE_NWE_CYCLE(13) |
+	                                    HSMC_CYCLE_NRD_CYCLE(13);
+	HSMC->SMC_CS_NUMBER[3].HSMC_TIMINGS = HSMC_TIMINGS_TCLR(3) |
+	                                      HSMC_TIMINGS_TADL(27) |
+	                                      HSMC_TIMINGS_TAR(3) |
+	                                      HSMC_TIMINGS_TRR(6) |
+	                                      HSMC_TIMINGS_TWB(5) |
+	                                      HSMC_TIMINGS_RBNSEL(3) |
+	                                      HSMC_TIMINGS_NFSEL;
 	HSMC->SMC_CS_NUMBER[3].HSMC_MODE = HSMC_MODE_READ_MODE |
-	    HSMC_MODE_WRITE_MODE |
-	    ((busWidth == 8) ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
-	    HSMC_MODE_TDF_CYCLES(1);
+	                                   HSMC_MODE_WRITE_MODE |
+	                                   (busWidth == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
+	                                   HSMC_MODE_TDF_CYCLES(1);
 }
 
-void
-board_cfg_nor_flash(uint8_t busWidth)
+/** \brief Configure SMC, NCS0 is assigned to a norflash.
+ */
+void board_cfg_nor_flash(uint8_t busWidth)
 {
-	uint32_t dbw;
 	pmc_enable_peripheral(ID_HSMC);
-	if (busWidth == 8) {
-		dbw = HSMC_MODE_DBW_BIT_8;
-	} else {
-		dbw = HSMC_MODE_DBW_BIT_16;
-	}
-	/* Configure SMC, NCS0 is assigned to a norflash */
-	HSMC->SMC_CS_NUMBER[0].HSMC_SETUP = 0x00020001;
-	HSMC->SMC_CS_NUMBER[0].HSMC_PULSE = 0x0B0B0A0A;
-	HSMC->SMC_CS_NUMBER[0].HSMC_CYCLE = 0x000E000B;
-	HSMC->SMC_CS_NUMBER[0].HSMC_TIMINGS = 0x00000000;
-	HSMC->SMC_CS_NUMBER[0].HSMC_MODE = HSMC_MODE_WRITE_MODE
-	    | HSMC_MODE_READ_MODE
-	    | dbw | HSMC_MODE_EXNW_MODE_DISABLED | HSMC_MODE_TDF_CYCLES(1);
 
+	HSMC->SMC_CS_NUMBER[0].HSMC_SETUP = HSMC_SETUP_NWE_SETUP(1) |
+	                                    HSMC_SETUP_NCS_WR_SETUP(0) |
+	                                    HSMC_SETUP_NRD_SETUP(2) |
+	                                    HSMC_SETUP_NCS_RD_SETUP(0);
+	HSMC->SMC_CS_NUMBER[0].HSMC_PULSE = HSMC_PULSE_NWE_PULSE(10) |
+	                                    HSMC_PULSE_NCS_WR_PULSE(10) |
+	                                    HSMC_PULSE_NRD_PULSE(11) |
+	                                    HSMC_PULSE_NCS_RD_PULSE(11);
+	HSMC->SMC_CS_NUMBER[0].HSMC_CYCLE = HSMC_CYCLE_NWE_CYCLE(11) |
+	                                    HSMC_CYCLE_NRD_CYCLE(14);
+	HSMC->SMC_CS_NUMBER[0].HSMC_TIMINGS = 0;
+	HSMC->SMC_CS_NUMBER[0].HSMC_MODE = HSMC_MODE_READ_MODE |
+	                                   HSMC_MODE_WRITE_MODE |
+	                                   (busWidth == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
+	                                   HSMC_MODE_EXNW_MODE_DISABLED |
+	                                   HSMC_MODE_TDF_CYCLES(1);
 }
