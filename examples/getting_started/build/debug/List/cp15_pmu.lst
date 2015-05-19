@@ -1,0 +1,372 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:46
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15_pmu.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15_pmu.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\cp15_pmu.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\cp15_pmu.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15_pmu.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file */
+     31          
+     32          /*----------------------------------------------------------------------------
+     33           *        Headers
+     34           *----------------------------------------------------------------------------*/
+     35          
+     36          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     37          
+     38          #if defined(__ICCARM__)
+     39          #include <intrinsics.h>
+     40          #endif
+     41          
+     42          #include "core/cp15_pmu.h"
+     43          #include "core/l2cc.h"
+     44          
+     45          /*----------------------------------------------------------------------------
+     46           *        Global functions
+     47           *----------------------------------------------------------------------------*/
+     48          
+     49          /**
+     50           * \brief Resets the counter and enables/disables all counters including PMCCNTR.
+     51           * \param ResetCounterType  CounterType: Performance or Cycle counter
+     52           */
+     53          static void cp15_pmu_control(uint8_t ResetCounterType, uint8_t EnableCounter)
+     54          {
+     55          	uint32_t PMU_Value = 0;
+     56          
+     57                asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
+     58          	PMU_Value |= ((ResetCounterType << 1) | EnableCounter);
+     59                asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
+     60          }
+     61          
+     62          /**
+     63           * \brief Select Cycle Count divider
+     64           * \param Divider  0 for increment of counter at every single cycle or 1 for at every 64th cycle
+     65           */
+     66          static void cp15_cycle_count_divider(uint8_t Divider)
+     67          {
+     68          	uint32_t PMU_Value = 0;
+     69          
+     70          	assert((Divider > 1 ? 0 : 1));
+     71          
+     72                asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
+     73          	PMU_Value |= (Divider << 3);
+     74                asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
+     75          }
+     76          
+     77          /**
+     78           * \brief Enables PMCCNTR.
+     79           */
+     80          static void cp15_enable_PMCNT(void)
+     81          {
+     82          	uint32_t CNT_Value = 0;
+     83          
+     84                asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
+     85          	CNT_Value |= (uint32_t) ((1 << CP15_PMCNTENSET));
+     86                asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
+     87          }
+     88          
+     89          /**
+     90           * \brief Enables PMCCNTR.
+     91           */
+     92          static void cp15_enable_counter(uint8_t Counter)
+     93          {
+     94          	uint32_t CNT_Value = 0;
+     95          
+     96                asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
+     97          	CNT_Value |= Counter;
+     98                asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
+     99          }
+    100          
+    101          /**
+    102           * \brief Disables/clear PMCCNTR.
+    103           * \param Counter  0 or 1 to selct counter
+    104           */
+    105          
+    106          static void cp15_clear_PMCNT(void)
+    107          {
+    108          	uint32_t CNT_Value = 0;
+    109          
+    110                asm("mrc     p15, 0, %0, c9, c12, 2":"=r"(CNT_Value));
+    111          	CNT_Value |= (uint32_t) (1 << CP15_PMCNTENCLEAR);
+    112                asm("mcr     p15, 0, %0, c9, c12, 2": :"r"(CNT_Value));
+    113          }
+    114          
+    115          /**
+    116           * \brief Disables/Enables overflow flag.
+    117           * \param Enable  Enables or disables the flag option
+    118           * \param ClearCounterFlag  selects the counter flag to clear
+    119           */
+    120          void cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
+    121          {
+    122          	uint32_t OFW_Value = 0;
+    123          
+    124                asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
+    125          	OFW_Value |= ((Enable << 31) | ClearCounterFlag);
+    126                asm("mcr     p15, 0, %0, c9, c12, 3": :"r"(OFW_Value));
+    127          }
+    128          
+    129          /**
+    130           * \brief Disables/Enables overflow flag.
+    131           * \param EventCounter  Counter of the events
+    132           */
+    133          uint32_t cp15_read_overflow_status(uint8_t EventCounter)
+    134          {
+    135          	uint32_t OFW_Value = 0;
+    136          
+    137                asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
+    138          	OFW_Value = ((OFW_Value & EventCounter) >> (EventCounter - 1));
+    139          	return OFW_Value;
+    140          }
+    141          
+    142          /**
+    143           * \brief Increments the count of a performance monitor count register.
+    144           * \param IncrCounter  0 or 1  counters
+    145           */
+    146          void cp15_soft_incr(uint8_t IncrCounter)
+    147          {
+    148          	uint32_t INRC_Value = 0;
+    149          
+    150                asm("mrc     p15, 0, %0, c9, c12, 4":"=r"(INRC_Value));
+    151          	INRC_Value |= IncrCounter;
+    152                asm("mcr     p15, 0, %0, c9, c12, 4": :"r"(INRC_Value));
+    153          }
+    154          
+    155          /**
+    156           * \brief Increments the count of a performance monitor count register.
+    157           * \param EventType  Select Event Type
+    158           * \param Counter  0 or 1  counters
+    159           */
+    160          static void cp15_select_event(PerfEventType EventType, uint8_t Counter)
+    161          {
+    162          	uint32_t CounterSelect = 0;
+    163          	assert((Counter == 1) || (Counter == 2));
+    164          	CounterSelect = (Counter & 0x1F);
+    165                asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(CounterSelect));
+    166          	CounterSelect = (EventType & 0xFF);
+    167                asm("mcr     p15, 0, %0, c9, c13, 1": :"r"(CounterSelect));
+    168          				// PMXEVTYPER
+    169                asm("mrc     p15, 0, %0, c9, c13, 1":"=r"(CounterSelect));
+    170          				// PMXEVTYPER
+    171          }
+    172          
+    173          /**
+    174           * \brief Enables USER mode
+    175           */
+    176          void cp15_enable_user_mode(void)
+    177          {
+    178          	uint8_t Value = 1;
+    179                asm("mcr     p15, 0, %0, c9, c14, 0": :"r"(Value));
+    180          }
+    181          
+    182          /**
+    183           * \brief Enables Oveflows interrupt
+    184           * \param Enable  Enables the Interrupt
+    185           * \param Counter  0 or 1  counters
+    186           */
+    187          void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter)
+    188          {
+    189          	uint32_t ITE_Value = 0;
+    190          
+    191          	ITE_Value |= ((Enable << 31) | Counter);
+    192                asm("mcr     p15, 0, %0, c9, c14, 1": :"r"(ITE_Value));
+    193          }
+    194          
+    195          /**
+    196           * \brief Disables Oveflows interrupt
+    197           * \param Disable  Disables the Interrupt
+    198           * \param Counter  0 or 1  counters
+    199           */
+    200          void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
+    201          {
+    202          	uint32_t ITE_Value = 0;
+    203          
+    204          	ITE_Value |= ((Disable << 31) | Counter);
+    205                asm("mcr     p15, 0, %0, c9, c14, 2": :"r"(ITE_Value));
+    206          }
+    207          
+    208          /**
+    209           * \brief Initialize Cycle counter with Divider 64
+    210           */
+    211          uint32_t cp15_init_cycle_counter(void)
+    212          {
+    213          	uint32_t value;
+    214          	cp15_clear_PMCNT();
+    215          	cp15_enable_PMCNT();
+    216          	cp15_overflow_status(ENABLE, CP15_BothCounter);
+    217          	cp15_cycle_count_divider(CP15_CountDivider64);
+    218          	cp15_pmu_control(CP15_ResetCycCounter, ENABLE);
+    219          
+    220                asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
+    221          
+    222          	return value;
+    223          
+    224          }
+    225          
+    226          /**
+    227           * \brief Initialize Performance monitor counter with Divider 64
+    228           * \param Event  Event type
+    229           * \param Counter  0 or 1  counters
+    230           */
+    231          
+    232          void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
+    233          {
+    234          
+    235          	cp15_pmu_control(CP15_ResetPerCounter, ENABLE);
+    236          	cp15_select_event(Event, Counter);
+    237          	cp15_overflow_status(DISABLE, CP15_BothCounter);
+    238          	cp15_enable_counter(Counter);
+    239          }
+    240          
+    241          /**
+    242           * \brief gives total number of event count
+    243           * \param Counter  0 or 1  counters
+    244           */
+    245          uint32_t cp15_count_evt(uint8_t Counter)
+    246          {
+    247          	uint32_t value;
+    248          
+    249                asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(Counter));
+    250                asm("mrc     p15, 0, %0, c9, c13, 2":"=r"(value));
+    251          				// PMXEVTYPER
+    252          	return (value);
+    253          }
+    254          
+    255          /**
+    256           * \brief gives total number of cycle count
+    257          
+    258           */
+    259          uint32_t cp15_get_cycle_counter(void)
+    260          {
+    261          	uint32_t value;
+    262          
+    263                asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
+    264          	return value;
+    265          
+    266          }
+
+Errors: 11
+Warnings: 1

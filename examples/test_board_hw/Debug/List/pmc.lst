@@ -1,0 +1,423 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        30/Apr/2015  14:03:59
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pmc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pmc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\pmc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\pmc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pmc.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup pmc_module Working with PMC
+     31           * \section Purpose
+     32           * The PMC driver provides the Interface for configuration the Power Management
+     33           *  Controller (PMC).
+     34           *
+     35           * \section Usage
+     36           * <ul>
+     37           * <li>  Enable & disable peripherals using pmc_enable_peripheral() and
+     38           * pmc_enable_all_peripherals() or pmc_disable_peripheral() and
+     39           * pmc_disable_all_peripherals().
+     40           * <li>  Get & set maximum frequency clock for giving peripheral using
+     41           * pmc_get_peri_max_freq() and pmc_set_peri_max_clock().
+     42           * <li>  Get Peripheral Status for the given peripheral using pmc_is_periph_enabled()
+     43           * <li>  Select clocks's source using pmc_select_external_crystal(),
+     44           * pmc_select_internal_crystal(), pmc_select_external_osc() and pmc_select_internal_osc().
+     45           * <li>  Switch MCK using pmc_switch_mck_to_pll(), pmc_switch_mck_to_main() and
+     46           * pmc_switch_mck_to_slck().
+     47           * <li>  Config PLL using pmc_set_pll_a() and pmc_disable_pll_a().
+     48           * </li>
+     49           * </ul>
+     50           * For more accurate information, please look at the PMC section of the
+     51           * Datasheet.
+     52           *
+     53           * Related files :\n
+     54           * \ref pmc.c\n
+     55           * \ref pmc.h\n
+     56          */
+     57          /*@{*/
+     58          /*@}*/
+     59          
+     60          /**
+     61           * \file
+     62           *
+     63           * Implementation of PIO (Parallel Input/Output) controller.
+     64           *
+     65           */
+     66          /*----------------------------------------------------------------------------
+     67           *        Headers
+     68           *----------------------------------------------------------------------------*/
+     69          
+     70          #include "chip.h"
+     71          #include "core/pmc.h"
+     72          #include "utils/trace.h"
+     73          
+     74          #include <assert.h>
+     75          
+     76          /*----------------------------------------------------------------------------
+     77           *        Definition
+     78           *----------------------------------------------------------------------------*/
+     79          #define MAX_PERI_ID  ID_L2CC
+     80          
+     81          extern const PeripheralClockMaxFreq periClkMaxFreq[];
+     82          
+     83          /*----------------------------------------------------------------------------
+     84           *        Exported functions
+     85           *----------------------------------------------------------------------------*/
+     86          
+     87          /**
+     88           * \brief Get maximum frequency clock for giving peripheral ID.
+     89           *
+     90           * \param dwId  Peripheral ID (ID_xxx).
+     91           */
+     92          extern uint32_t pmc_get_peripheral_max_clock(uint32_t Id)
+     93          {
+     94          	uint8_t i;
+     95          	for (i = 0; i < MAX_PERI_ID; i++) {
+     96          		if (Id == periClkMaxFreq[i].bPeriphID)
+     97          			return periClkMaxFreq[i].bMaxFrequency;
+     98          	}
+     99          	return 0;
+    100          }
+    101          
+    102          /**
+    103           * \brief Set maximum frequency clock for giving peripheral ID.
+    104           *
+    105           * \param dwId  Peripheral ID (ID_xxx).
+    106           * \param mck  Master clock.
+    107           * \return Peripheral clock.
+    108           */
+    109          extern uint32_t pmc_set_peripheral_max_clock(uint32_t Id, uint32_t mck)
+    110          {
+    111          	uint32_t maxClock;
+    112          	uint8_t i;
+    113          	/* Disable peripheral clock */
+    114          	PMC->PMC_PCR = PMC_PCR_PID(dwId) | PMC_PCR_CMD;
+    115          	maxClock = pmc_get_peripheral_max_clock(Id);
+    116          	for (i = 0; i < 4; i++) {
+    117          		if (mck / (1 << i) <= maxClock)
+    118          			break;
+    119          	}
+    120          	PMC->PMC_PCR = PMC_PCR_PID(Id) | PMC_PCR_CMD | (i << 16) | PMC_PCR_EN;
+    121          	return maxClock;
+    122          }
+    123          
+    124          /**
+    125           * \brief Enables the clock of a peripheral. The peripheral ID is used
+    126           * to identify which peripheral is targeted.
+    127           *
+    128           * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
+    129           *
+    130           * \param dwId  Peripheral ID (ID_xxx).
+    131           */
+    132          extern void pmc_enable_peripheral(uint32_t Id)
+    133          {
+    134          	if (dwId < 32) {
+    135          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << Id)) ==
+    136          		    ((uint32_t) 1 << Id)) {
+    137          			//   TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", Id ) ;
+    138          		} else {
+    139          			PMC->PMC_PCER0 = (1 << Id);
+    140          		}
+    141          	} else {
+    142          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (Id - 32))) ==
+    143          		    ((uint32_t) 1 << (Id - 32))) {
+    144          			// TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", Id ) ;
+    145          		} else {
+    146          			PMC->PMC_PCER1 = 1 << (Id - 32);
+    147          		}
+    148          	}
+    149          }
+    150          
+    151          /**
+    152           * \brief Disables the clock of a peripheral. The peripheral ID is used
+    153           * to identify which peripheral is targeted.
+    154           *
+    155           * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
+    156           *
+    157           * \param dwId  Peripheral ID (ID_xxx).
+    158           */
+    159          extern void pmc_disable_peripheral(uint32_t Id)
+    160          {
+    161          	if (Id < 32) {
+    162          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << Id)) !=
+    163          		    ((uint32_t) 1 << Id)) {
+    164          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
+    165          				    " %u is not enabled\n\r",
+    166          				    (unsigned int) Id);
+    167          		} else {
+    168          			PMC->PMC_PCDR0 = 1 << Id;
+    169          		}
+    170          	} else {
+    171          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (Id - 32))) !=
+    172          		    ((uint32_t) 1 << (Id - 32))) {
+    173          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
+    174          				    " %u is not enabled\n\r",
+    175          				    (unsigned int) Id);
+    176          		} else {
+    177          			PMC->PMC_PCDR1 = 1 << (Id - 32);
+    178          		}
+    179          	}
+    180          }
+    181          
+    182          /**
+    183           * \brief Enable all the peripherals clock via PMC.
+    184           */
+    185          extern void pmc_enable_all_peripherals(void)
+    186          {
+    187          	PMC->PMC_PCER0 = 0xFFFFFFFF;
+    188          	PMC->PMC_PCER1 = 0xFFFFFFFF;
+    189          	TRACE_DEBUG("Enable all periph clocks\n\r");
+    190          }
+    191          
+    192          /**
+    193           * \brief Disable all the peripherals clock via PMC.
+    194           */
+    195          extern void pmc_disable_all_peripherals(void)
+    196          {
+    197          	TRACE_DEBUG("Disable all periph clocks\n\r");
+    198          	PMC->PMC_PCDR0 = 0xFFFFFFFF;
+    199          	PMC->PMC_PCDR1 = 0xFFFFFFFF;
+    200          }
+    201          
+    202          /**
+    203           * \brief Get Peripheral Status for the given peripheral ID.
+    204           *
+    205           * \param dwId  Peripheral ID (ID_xxx).
+    206           */
+    207          extern uint32_t pmc_is_peripheral_enabled(uint32_t Id)
+    208          {
+    209          	if (Id < 32) {
+    210          		return (PMC->PMC_PCSR0 & (1 << Id));
+    211          	} else {
+    212          		return (PMC->PMC_PCSR1 & (1 << (Id - 32)));
+    213          	}
+    214          }
+    215          
+    216          /**
+    217           * \brief Select external 32K crystal.
+    218           */
+    219          extern void pmc_select_external_slow_clock_32Khz(void)
+    220          {
+    221          	volatile uint32_t count;
+    222          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
+    223          	/* Wait 5 slow clock cycles for internal resynchronization */
+    224          	for (count = 0; count < 0x1000; count++) ;
+    225          	/* wait slow clock status change for external OSC 32 kHz selection */
+    226          }
+    227          
+    228          /**
+    229           * \brief Select internal 32K crystal.
+    230           */
+    231          extern void pmc_select_internal_slow_clock_32KHz(void)
+    232          {
+    233          	/* switch from external RC 32kHz to internal OSC 32 kHz */
+    234          	volatile uint32_t count;
+    235          	/* switch slow clock source to internal OSC 32 kHz */
+    236          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
+    237          	/* Wait 5 slow clock cycles for internal resynchronization */
+    238          	for (count = 0; count < 0x1000; count++) ;
+    239          	/* wait slow clock status change for internal RC 32 kHz selection */
+    240          	//   while(PMC->PMC_SR & PMC_SR_OSCSELS);
+    241          }
+    242          
+    243          /**
+    244           * \brief Select external 12M OSC.
+    245           */
+    246          extern void pmc_select_external_main_osc(void)
+    247          {
+    248          	/* switch from internal RC 12 MHz to external OSC 12 MHz */
+    249          	/* wait Main XTAL Oscillator stabilization */
+    250          	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
+    251          		return;
+    252          	/* enable external OSC 12 MHz */
+    253          	PMC->CKGR_MOR |= CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+    254          	/* wait Main CLK Ready */
+    255          	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY)) ;
+    256          	/* switch MAIN clock to external OSC 12 MHz */
+    257          	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
+    258          	/* wait MAIN clock status change for external OSC 12 MHz selection */
+    259          	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS)) ;
+    260          	/* in case where MCK is running on MAIN CLK */
+    261          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    262          }
+    263          
+    264          /**
+    265           * \brief Select internal 12M OSC.
+    266           */
+    267          extern void pmc_select_internal_12MHz(void)
+    268          {
+    269          	/* switch from external OSC 12 MHz to internal RC 12 MHz */
+    270          	/* Wait internal 12 MHz RC Startup Time for clock stabilization (software loop) */
+    271          	while (!(PMC->PMC_SR & PMC_SR_MOSCRCS)) ;
+    272          	/* switch MAIN clock to internal RC 12 MHz */
+    273          	PMC->CKGR_MOR =
+    274          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
+    275          	/* in case where MCK is running on MAIN CLK */
+    276          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    277          	/* disable external OSC 12 MHz   */
+    278          	PMC->CKGR_MOR =
+    279          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
+    280          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    281          }
+    282          
+    283          /**
+    284           * \brief Switch PMC from MCK to PLL clock.
+    285           */
+    286          extern void pmc_switch_mck_to_pll(void)
+    287          {
+    288          	/* Select PLL as input clock for PCK and MCK */
+    289          	PMC->PMC_MCKR =
+    290          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
+    291          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    292          }
+    293          
+    294          /**
+    295           * \brief Switch PMC from MCK to main clock.
+    296           */
+    297          extern void pmc_switch_mck_to_main(void)
+    298          {
+    299          	/* Select Main Oscillator as input clock for PCK and MCK */
+    300          	PMC->PMC_MCKR =
+    301          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
+    302          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    303          }
+    304          
+    305          /**
+    306           * \brief Switch PMC from MCK to slow clock.
+    307           */
+    308          extern uint32_t pmc_switch_mck_to_slck(void)
+    309          {
+    310          	/* Select Slow Clock as input clock for PCK and MCK */
+    311          	PMC->PMC_MCKR =
+    312          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
+    313          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    314          	return PMC->PMC_MCKR;
+    315          }
+    316          
+    317          /**
+    318           * \brief Configure MCK Prescaler.
+    319           * \param prescaler prescaler value.
+    320           */
+    321          extern void pmc_set_mck_prescaler(uint32_t prescaler)
+    322          {
+    323          	/* Change MCK Prescaler divider in PMC_MCKR register */
+    324          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
+    325          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    326          }
+    327          
+    328          /**
+    329           * \brief Configure MCK PLLA divider.
+    330           * \param divider PLL divider value.
+    331           */
+    332          extern void pmc_set_mck_plla_div(uint32_t divider)
+    333          {
+    334          	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
+    335          		if (divider == 0) {
+    336          			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PLLADIV2);
+    337          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    338          		}
+    339          	} else {
+    340          		if (divider == PMC_MCKR_PLLADIV2) {
+    341          			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_PLLADIV2);
+    342          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    343          		}
+    344          	}
+    345          }
+    346          
+    347          /**
+    348           * \brief Configure MCK Divider.
+    349           * \param divider divider value.
+    350           */
+    351          extern void pmc_set_mck_divider(uint32_t divider)
+    352          {
+    353          	/* change MCK Prescaler divider in PMC_MCKR register */
+    354          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
+    355          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+    356          }
+    357          
+    358          /**
+    359           * \brief Configure PLL Register.
+    360           * \param pll pll value.
+    361           * \param cpcr cpcr value.
+    362           */
+    363          extern void pmc_set_plla(uint32_t pll, uint32_t cpcr)
+    364          {
+    365          	PMC->CKGR_PLLAR = pll;
+    366          	PMC->PMC_PLLICPR = cpcr;
+    367          	while (!(PMC->PMC_SR & PMC_SR_LOCKA)) ;
+    368          }
+    369          
+    370          /**
+    371           * \brief Disable PLLA Register.
+    372           */
+    373          extern void pmc_disable_plla(void)
+    374          {
+    375          	PMC->CKGR_PLLAR =
+    376          	    (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
+    377          }
+
+Errors: 18
+Warnings: 1

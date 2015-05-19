@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -37,6 +37,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "chip.h"
 #include "board.h"
 #include "resources/compiler_defines.h"
 #include "core/pmc.h"

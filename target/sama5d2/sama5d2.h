@@ -217,10 +217,10 @@ static inline Twi* get_twi_addr_from_id(const uint32_t id)
 	else if (id == ID_FLEXCOM4) return TWI4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
 #endif
 #ifdef TWIHS0
-	else if (id == ID_TWIHS0) return TWIHS0; /**< \brief TWIHS0 */
+	else if (id == ID_TWIHS0) return (Twi*)TWIHS0; /**< \brief TWIHS0 */
 #endif
 #ifdef TWIHS1
-	else if (id == ID_TWIHS1) return TWIHS1; /**< \brief TWIHS1 */
+	else if (id == ID_TWIHS1) return (Twi*)TWIHS1; /**< \brief TWIHS1 */
 #endif
 	else return (void*)0;
 }

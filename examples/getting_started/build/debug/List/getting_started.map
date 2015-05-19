@@ -1,0 +1,507 @@
+###############################################################################
+#
+# IAR ELF Linker V7.40.2.8542/W32 for ARM                 19/May/2015  13:21:26
+# Copyright 2007-2015 IAR Systems AB.
+#
+#    Output file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Exe\getting_started.out
+#    Map file     =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\getting_started.map
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\aic.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\async.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\board_cstartup_iar.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\board_lowlevel.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\board_memories.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\can.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\console.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\cp15.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\cp15_asm_iar.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\cp15_pmu.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\flexcom.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\l2cc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\led.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\main.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\mmu.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pio4.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pio4_it.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pit.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pmc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pwmc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rstc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rtc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rtc_calib.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\spi.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\ssc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\tc.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\timetick.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\twi.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\twid.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\uart.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\usart.o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\wdt.o
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Exe\getting_started.out
+#        --map
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\getting_started.map
+#        --config
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\..\..\target\resources\iar\sram.icf
+#        --entry __iar_program_start --vfe
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__SystemLibrary = DLib
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"P1":  place in [from 0x00200000 to 0x002000ff] { section .vectors };
+"P2":  place in [from 0x00200100 to 0x0021ffff] { ro };
+"P4":  place in [from 0x00200100 to 0x0021ffff] {
+          rw, block IRQ_STACK, block FIQ_STACK, block ABT_STACK,
+          block UND_STACK, block CSTACK, block HEAP };
+
+  Section                 Kind        Address    Size  Object
+  -------                 ----        -------    ----  ------
+"P1":                                            0x3c
+  .vectors                ro code  0x00200000    0x3c  board_cstartup_iar.o [1]
+                                 - 0x0020003c    0x3c
+
+"P2":                                          0x3824
+  SOFTPACK                ro code  0x00200100  0x107c  board_lowlevel.o [1]
+  SOFTPACK                ro code  0x0020117c   0x370  pmc.o [1]
+  SOFTPACK                ro code  0x002014ec    0x34  board_memories.o [1]
+  .text                   ro code  0x00201520    0x28  printf.o [3]
+  .text                   ro code  0x00201548   0x17c  I32DivMod.o [4]
+  .text                   ro code  0x002016c4    0x1e  assert.o [3]
+  .text                   ro code  0x002016e2   0x4fa  xprintfsmall_nomb.o [3]
+  .text                   ro code  0x00201bdc     0x4  IntDivZer.o [4]
+  Veneer                  ro code  0x00201be0     0x8  - Linker created -
+  .text                   ro code  0x00201be8     0x6  abort.o [3]
+  .text                   ro code  0x00201bf0    0x20  strchr.o [4]
+  .text                   ro code  0x00201c10    0x54  strlen.o [4]
+  .text                   ro code  0x00201c64    0x94  memchr.o [4]
+  .text                   ro code  0x00201cf8    0x14  XXexit.o [4]
+  SOFTPACK                ro code  0x00201d0c   0x3ac  main.o [1]
+  SOFTPACK                ro code  0x002020b8   0x16c  led.o [1]
+  SOFTPACK                ro code  0x00202224   0x1c4  tc.o [1]
+  SOFTPACK                ro code  0x002023e8   0x150  console.o [1]
+  SOFTPACK                ro code  0x00202538    0xac  pit.o [1]
+  SOFTPACK                ro code  0x002025e4   0x238  aic.o [1]
+  SOFTPACK                ro code  0x0020281c     0xc  wdt.o [1]
+  SOFTPACK                ro code  0x00202828    0x84  pio4_it.o [1]
+  SOFTPACK                ro code  0x002028ac   0x2dc  pio4.o [1]
+  .text                   ro code  0x00202b88    0xb0  ABImemcpy.o [4]
+  .text                   ro code  0x00202c38   0x184  board_cstartup_iar.o [1]
+  .cp15_invalid_translation_table
+                          ro code  0x00202dbc    0x1c  cp15_asm_iar.o [1]
+  .cp15_invalid_btb       ro code  0x00202dd8    0x14  cp15_asm_iar.o [1]
+  .cp15_invalid_icache    ro code  0x00202dec    0x10  cp15_asm_iar.o [1]
+  .cp15_invalid_dcache_by_set_way
+                          ro code  0x00202dfc    0x48  cp15_asm_iar.o [1]
+  .rodata                 const    0x00202e44   0x13c  board_lowlevel.o [1]
+  SOFTPACK                ro code  0x00202f80   0x114  uart.o [1]
+  .rodata                 const    0x00203094    0x4c  board_lowlevel.o [1]
+  .rodata                 const    0x002030e0    0x44  tc.o [1]
+  .rodata                 const    0x00203124    0x40  pio4.o [1]
+  .rodata                 const    0x00203164    0x40  pmc.o [1]
+  .rodata                 const    0x002031a4    0x40  tc.o [1]
+  .rodata                 const    0x002031e4    0x3c  board_lowlevel.o [1]
+  .rodata                 const    0x00203220    0x3c  board_lowlevel.o [1]
+  .rodata                 const    0x0020325c    0x34  board_lowlevel.o [1]
+  .rodata                 const    0x00203290    0x34  main.o [1]
+  .rodata                 const    0x002032c4    0x34  main.o [1]
+  .rodata                 const    0x002032f8    0x30  main.o [1]
+  .text                   ro code  0x00203328    0x30  data_init.o [4]
+  .rodata                 const    0x00203358    0x2c  board_lowlevel.o [1]
+  .rodata                 const    0x00203384    0x2c  board_lowlevel.o [1]
+  .rodata                 const    0x002033b0    0x2c  board_lowlevel.o [1]
+  .rodata                 const    0x002033dc    0x2c  board_lowlevel.o [1]
+  .rodata                 const    0x00203408    0x2c  board_lowlevel.o [1]
+  .text                   ro code  0x00203434    0x2c  cmain.o [4]
+  .text                   ro code  0x00203460     0x4  low_level_init.o [3]
+  Veneer                  ro code  0x00203464     0x8  - Linker created -
+  .text                   ro code  0x0020346c     0x4  exit.o [3]
+  .text                   ro code  0x00203470    0x10  cexit.o [4]
+  .text                   ro code  0x00203480    0x2c  copy_init3.o [4]
+  .rodata                 const    0x002034ac    0x24  board_lowlevel.o [1]
+  .rodata                 const    0x002034d0    0x24  board_lowlevel.o [1]
+  .rodata                 const    0x002034f4    0x24  main.o [1]
+  .rodata                 const    0x00203518    0x24  main.o [1]
+  .iar.init_table         const    0x0020353c    0x14  - Linker created -
+  .rodata                 const    0x00203550    0x20  board_lowlevel.o [1]
+  .rodata                 const    0x00203570    0x20  pio4.o [1]
+  .rodata                 const    0x00203590    0x20  assert.o [3]
+  .rodata                 const    0x002035b0    0x1c  board_lowlevel.o [1]
+  .rodata                 const    0x002035cc    0x1c  board_lowlevel.o [1]
+  .rodata                 const    0x002035e8    0x1c  board_lowlevel.o [1]
+  .rodata                 const    0x00203604    0x1c  board_lowlevel.o [1]
+  .rodata                 const    0x00203620    0x1c  board_lowlevel.o [1]
+  .rodata                 const    0x0020363c    0x1c  pio4.o [1]
+  .rodata                 const    0x00203658    0x18  board_lowlevel.o [1]
+  .rodata                 const    0x00203670    0x18  board_lowlevel.o [1]
+  .rodata                 const    0x00203688    0x18  board_lowlevel.o [1]
+  .rodata                 const    0x002036a0    0x18  board_lowlevel.o [1]
+  .rodata                 const    0x002036b8    0x18  console.o [1]
+  .rodata                 const    0x002036d0    0x18  led.o [1]
+  .rodata                 const    0x002036e8    0x18  main.o [1]
+  .rodata                 const    0x00203700    0x18  main.o [1]
+  .rodata                 const    0x00203718    0x18  main.o [1]
+  .rodata                 const    0x00203730    0x18  pmc.o [1]
+  .text                   ro code  0x00203748    0x16  xprout.o [3]
+  .rodata                 const    0x00203760    0x14  board_lowlevel.o [1]
+  .rodata                 const    0x00203774    0x14  board_lowlevel.o [1]
+  .rodata                 const    0x00203788    0x14  board_lowlevel.o [1]
+  .rodata                 const    0x0020379c    0x14  main.o [1]
+  .rodata                 const    0x002037b0    0x14  tc.o [1]
+  .rodata                 const    0x002037c4    0x10  board_lowlevel.o [1]
+  .rodata                 const    0x002037d4    0x10  main.o [1]
+  .rodata                 const    0x002037e4    0x10  main.o [1]
+  .rodata                 const    0x002037f4    0x10  wdt.o [1]
+  .rodata                 const    0x00203804     0xc  board_lowlevel.o [1]
+  .rodata                 const    0x00203810     0xc  main.o [1]
+  .rodata                 const    0x0020381c     0xc  main.o [1]
+  .rodata                 const    0x00203828     0x8  main.o [1]
+  .rodata                 const    0x00203830     0x8  xprintfsmall_nomb.o [3]
+  .rodata                 const    0x00203838     0x4  led.o [1]
+  .rodata                 const    0x0020383c     0x4  pio4_it.o [1]
+  .text                   ro code  0x00203840     0x4  vectortrap.o [4]
+  .rodata                 const    0x00203844     0x0  copy_init3.o [4]
+  Initializer bytes       const    0x00203844    0xe0  <for P4 s0>
+                                 - 0x00203924  0x3824
+
+"P4":                                          0x4244
+  P4 s0                            0x00203924    0xe0  <Init block>
+    .data                 inited   0x00203924    0xb8  board_lowlevel.o [1]
+    .data                 inited   0x002039dc    0x18  console.o [1]
+    .bss                  inited   0x002039f4     0x4  main.o [1]
+    .bss                  inited   0x002039f8     0x4  pio4_it.o [1]
+    .bss                  inited   0x002039fc     0x4  pmc.o [1]
+    .data                 inited   0x00203a00     0x1  main.o [1]
+    .data                 inited   0x00203a01     0x1  main.o [1]
+    .bss                  inited   0x00203a02     0x1  console.o [1]
+  IRQ_STACK                        0x00203a08    0x60  <Block>
+    IRQ_STACK             uninit   0x00203a08    0x60  <Block tail>
+  FIQ_STACK                        0x00203a68    0x60  <Block>
+    FIQ_STACK             uninit   0x00203a68    0x60  <Block tail>
+  ABT_STACK                        0x00203ac8    0x60  <Block>
+    ABT_STACK             uninit   0x00203ac8    0x60  <Block tail>
+  UND_STACK                        0x00203b28    0x40  <Block>
+    UND_STACK             uninit   0x00203b28    0x40  <Block tail>
+  CSTACK                           0x00203b68  0x4000  <Block>
+    CSTACK                uninit   0x00203b68  0x4000  <Block tail>
+                                 - 0x00207b68  0x4244
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address     Size
+          -------     ----
+Copy (__iar_copy_init3)
+    1 source range, total size 0xe0 (100% of destination):
+          0x00203844  0xe0
+    1 destination range, total size 0xdf:
+          0x00203924  0xdf
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module                ro code  ro data  rw data
+    ------                -------  -------  -------
+C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj: [1]
+    aic.o                     568
+    board_cstartup_iar.o      448
+    board_lowlevel.o        4 220    1 396      184
+    board_memories.o           52
+    console.o                 336       49       25
+    cp15_asm_iar.o            136
+    led.o                     364       28
+    main.o                    940      386        6
+    pio4.o                    732      124
+    pio4_it.o                 132        8        4
+    pit.o                     172
+    pmc.o                     880       92        4
+    tc.o                      452      152
+    uart.o                    276
+    wdt.o                      12       16
+    -----------------------------------------------
+    Total:                  9 720    2 251      223
+
+command line: [2]
+    -----------------------------------------------
+    Total:
+
+dl7Sx_tln.a: [3]
+    abort.o                     6
+    assert.o                   30       32
+    exit.o                      4
+    low_level_init.o            4
+    printf.o                   40
+    xprintfsmall_nomb.o     1 274        8
+    xprout.o                   22
+    -----------------------------------------------
+    Total:                  1 380       40
+
+rt7Sx_tl.a: [4]
+    ABImemcpy.o               176
+    I32DivMod.o               380
+    IntDivZer.o                 4
+    XXexit.o                   20
+    cexit.o                    16
+    cmain.o                    44
+    copy_init3.o               44
+    data_init.o                48
+    memchr.o                  148
+    strchr.o                   32
+    strlen.o                   84
+    vectortrap.o                4
+    -----------------------------------------------
+    Total:                  1 000
+
+    Gaps                        2        2
+    Linker created             16       21   16 736
+---------------------------------------------------
+    Grand Total:           12 118    2 314   16 959
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                      Address   Size  Type      Object
+-----                      -------   ----  ----      ------
+.iar.init_table$$Base   0x0020353c          --   Gb  - Linker created -
+.iar.init_table$$Limit  0x00203550          --   Gb  - Linker created -
+?main                   0x00203434         Code  Gb  cmain.o [4]
+ABT_STACK$$Base         0x00203ac8          --   Gb  - Linker created -
+ABT_STACK$$Limit        0x00203b28          --   Gb  - Linker created -
+ACC_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+ADC_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+AESB_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+AES_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+AIC_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+CHIPID_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+CLASSD_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+CSTACK$$Base            0x00203b68          --   Gb  - Linker created -
+CSTACK$$Limit           0x00207b68          --   Gb  - Linker created -
+FIQ_STACK$$Base         0x00203a68          --   Gb  - Linker created -
+FIQ_STACK$$Limit        0x00203ac8          --   Gb  - Linker created -
+FIQ_handler             0x00202d78         Code  Gb  board_cstartup_iar.o [1]
+FLEXCOM0_Handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+FLEXCOM1_Handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+FLEXCOM2_Handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+FLEXCOM3_Handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+FLEXCOM4_Handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+GET_UART_ID_FROM_ADDR   0x00202f80   0x84  Code  Lc  uart.o [1]
+GMAC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+HSMC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+I2SC0_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+I2SC1_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+ICM_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+IRQ_STACK$$Base         0x00203a08          --   Gb  - Linker created -
+IRQ_STACK$$Limit        0x00203a68          --   Gb  - Linker created -
+IRQ_handler             0x00202d34         Code  Gb  board_cstartup_iar.o [1]
+L2CC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+LCDC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+LoadInt                 0x00201a77   0x4c  Code  Lc  xprintfsmall_nomb.o [3]
+MATRIX0_Handler         0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+MATRIX1_Handler         0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+MPDDRC_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PDMIC_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PIOA_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PIOB_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PIOC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PIOD_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PIT_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+PWM_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+QSPI0_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+QSPI1_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+RXLP_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+Region$$Table$$Base     0x0020353c          --   Gb  - Linker created -
+Region$$Table$$Limit    0x00203550          --   Gb  - Linker created -
+SAIC_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SFC_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SFR_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SHA_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SPI0_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SPI1_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SSC0_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SSC1_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+SWI_Handler             0x00203840         Code  Wk  vectortrap.o [4]
+Spurious_handler        0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TC0_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TC1_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TDES_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TRNG_Handler            0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TWIHS0_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+TWIHS1_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UART0_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UART1_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UART2_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UART3_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UART4_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UDPHS_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UHPHS_Handler           0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+UND_STACK$$Base         0x00203b28          --   Gb  - Linker created -
+UND_STACK$$Limit        0x00203b68          --   Gb  - Linker created -
+WDT_Disable             0x0020281c    0xc  Code  Gb  wdt.o [1]
+WDT_Handler             0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+XDMAC0_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+XDMAC1_Handler          0x00200288    0x4  Code  Wk  board_lowlevel.o [1]
+_LitobSmallNoMb         0x00201ac3   0xec  Code  Lc  xprintfsmall_nomb.o [3]
+_PrintfSmallNoMb        0x002016e3  0x38e  Code  Gb  xprintfsmall_nomb.o [3]
+_Prout                  0x00203749   0x16  Code  Gb  xprout.o [3]
+_PutcharsSmallNoMb      0x00201baf   0x2e  Code  Lc  xprintfsmall_nomb.o [3]
+_Wait                   0x00201f38   0x34  Code  Lc  main.o [1]
+__ICFEDIT_region_RAM_end__ {Abs}
+                        0x0021ffff          --   Gb  command line/config [2]
+__ICFEDIT_region_RAM_start__ {Abs}
+                        0x00200000          --   Gb  command line/config [2]
+__ICFEDIT_size_cstack__ {Abs}
+                        0x00004000          --   Gb  command line/config [2]
+__ICFEDIT_size_fiqstack__ {Abs}
+                        0x00000060          --   Gb  command line/config [2]
+__ICFEDIT_size_heap__ {Abs}
+                        0x00000400          --   Gb  command line/config [2]
+__ICFEDIT_size_irqstack__ {Abs}
+                        0x00000060          --   Gb  command line/config [2]
+__ICFEDIT_size_vectors__ {Abs}
+                        0x00000100          --   Gb  command line/config [2]
+__aeabi_assert          0x002016c5   0x1e  Code  Gb  assert.o [3]
+__aeabi_idiv0           0x00201bdc         Code  Gb  IntDivZer.o [4]
+__aeabi_memcpy4         0x00202b88         Code  Gb  ABImemcpy.o [4]
+__aeabi_memcpy8         0x00202b88         Code  Gb  ABImemcpy.o [4]
+__aeabi_uidiv           0x00201548         Code  Gb  I32DivMod.o [4]
+__aeabi_uidivmod        0x00201548         Code  Gb  I32DivMod.o [4]
+__cmain                 0x00203434         Code  Gb  cmain.o [4]
+__exit                  0x00201cf8         Code  Gb  XXexit.o [4]
+__iar_Memchr            0x00201c64         Code  Gb  memchr.o [4]
+__iar_Strchr            0x00201bf0         Code  Gb  strchr.o [4]
+__iar_copy_init3        0x00203481   0x2c  Code  Gb  copy_init3.o [4]
+__iar_data_init3        0x00203329   0x30  Code  Gb  data_init.o [4]
+__iar_program_start     0x00202c38         Code  Gb  board_cstartup_iar.o [1]
+__low_level_init        0x00203461    0x4  Code  Gb  low_level_init.o [3]
+_aic_enable_it          0x002025e4   0x14  Code  Lc  aic.o [1]
+_aic_set_source_vector  0x002025f8   0x38  Code  Lc  aic.o [1]
+_bConsoleIsInitialized  0x00203a02    0x1  Data  Lc  console.o [1]
+_call_main              0x00203448         Code  Gb  cmain.o [4]
+_exit                   0x00203470         Code  Gb  cexit.o [4]
+_id_h64_matrix          0x002037f4   0x10  Data  Wk  wdt.o [1]
+_is_h64_matrix          0x00202630   0x4c  Code  Lc  aic.o [1]
+_main                   0x00203450         Code  Gb  cmain.o [4]
+_pmc_compute_mck        0x0020117c   0x74  Code  Lc  pmc.o [1]
+_reset_vector           0x00200000         Data  Gb  board_cstartup_iar.o [1]
+abort                   0x00201be9    0x6  Code  Gb  abort.o [3]
+abort_c_handler         0x00200190   0x80  Code  Gb  board_lowlevel.o [1]
+abort_status            0x00203924   0xb8  Data  Lc  board_lowlevel.o [1]
+aic_enable              0x0020267c   0xd8  Code  Gb  aic.o [1]
+aic_set_source_vector   0x00202754   0x90  Code  Gb  aic.o [1]
+aic_write_protection    0x002027e4   0x20  Code  Gb  aic.o [1]
+bLed0Active             0x00203a00    0x1  Data  Gb  main.o [1]
+bLed1Active             0x00203a01    0x1  Data  Gb  main.o [1]
+board_master_clock      0x002039fc    0x4  Data  Gb  pmc.o [1]
+board_remap_ram         0x002014ec   0x34  Code  Gb  board_memories.o [1]
+configure_leds          0x00201e58   0x18  Code  Lc  main.o [1]
+configure_pit           0x00201e24   0x34  Code  Lc  main.o [1]
+configure_tc            0x00201e98   0xa0  Code  Lc  main.o [1]
+console                 0x002039dc   0x18  Data  Lc  console.o [1]
+console_configure       0x002023e8   0x50  Code  Gb  console.o [1]
+console_enable_interrupts
+                        0x002024ec   0x24  Code  Gb  console.o [1]
+console_get_char        0x0020247c   0x38  Code  Gb  console.o [1]
+console_handler         0x00201db0   0x40  Code  Lc  main.o [1]
+console_is_rx_ready     0x002024b4   0x38  Code  Gb  console.o [1]
+console_put_char        0x00202438   0x44  Code  Gb  console.o [1]
+cp15_invalid_btb        0x00202dd8         Code  Gb  cp15_asm_iar.o [1]
+cp15_invalid_dcache_by_set_way
+                        0x00202dfc         Code  Gb  cp15_asm_iar.o [1]
+cp15_invalid_icache     0x00202dec         Code  Gb  cp15_asm_iar.o [1]
+cp15_invalid_translation_table
+                        0x00202dbc         Code  Gb  cp15_asm_iar.o [1]
+dummy_handler           0x00200288    0x4  Code  Gb  board_lowlevel.o [1]
+dwTimeStamp             0x002039f4    0x4  Data  Gb  main.o [1]
+exit                    0x0020346d    0x4  Code  Gb  exit.o [3]
+get_pio_id_from_group   0x002028ac   0x44  Code  Lc  pio4.o [1]
+idt                     0x0020383c    0x4  Data  Gb  pio4_it.o [1]
+led_clear               0x00202154   0x64  Code  Gb  led.o [1]
+led_configure           0x002020b8   0x38  Code  Gb  led.o [1]
+led_set                 0x002020f0   0x64  Code  Gb  led.o [1]
+led_toggle              0x002021b8   0x64  Code  Gb  led.o [1]
+low_level_init          0x0020012c   0x64  Code  Wk  board_lowlevel.o [1]
+main                    0x00201f6c   0xec  Code  Gb  main.o [1]
+memchr                  0x00201c64         Code  Gb  memchr.o [4]
+non_secure_it_init      0x0020028c  0x6c8  Code  Gb  board_lowlevel.o [1]
+numLeds                 0x00203838    0x4  Data  Lc  led.o [1]
+num_sources             0x002039f8    0x4  Data  Lc  pio4_it.o [1]
+peripherals_min_clock_dividers
+                        0x00202e44  0x13c  Data  Gb  board_lowlevel.o [1]
+pinsConsole             0x002036b8   0x18  Data  Lc  console.o [1]
+pinsLeds                0x002036d0   0x18  Data  Lc  led.o [1]
+pio_clear               0x00202ae0   0x44  Code  Gb  pio4.o [1]
+pio_configure           0x002028f0  0x1ac  Code  Gb  pio4.o [1]
+pio_get_output_data_status
+                        0x00202b24   0x58  Code  Gb  pio4.o [1]
+pio_initialize_it       0x00202828   0x7c  Code  Gb  pio4_it.o [1]
+pio_set                 0x00202a9c   0x44  Code  Gb  pio4.o [1]
+pit_enable              0x00202590   0x18  Code  Gb  pit.o [1]
+pit_enable_it           0x002025a8   0x18  Code  Gb  pit.o [1]
+pit_get_pivr            0x002025cc    0xc  Code  Gb  pit.o [1]
+pit_get_status          0x002025c0    0xc  Code  Gb  pit.o [1]
+pit_handler             0x00201df0   0x34  Code  Lc  main.o [1]
+pit_init                0x00202538   0x58  Code  Gb  pit.o [1]
+pmc_enable_peripheral   0x00201264   0x80  Code  Gb  pmc.o [1]
+pmc_get_master_clock    0x00201240   0x24  Code  Gb  pmc.o [1]
+pmc_get_peripheral_max_clock
+                        0x002011f0   0x50  Code  Gb  pmc.o [1]
+pmc_select_external_osc
+                        0x002012e4   0x7c  Code  Gb  pmc.o [1]
+pmc_set_mck_divider     0x00201464   0x2c  Code  Gb  pmc.o [1]
+pmc_set_mck_plla_div    0x002013f4   0x70  Code  Gb  pmc.o [1]
+pmc_set_mck_prescaler   0x002013c8   0x2c  Code  Gb  pmc.o [1]
+pmc_set_plla            0x00201490   0x24  Code  Gb  pmc.o [1]
+pmc_switch_mck_to_main  0x00201394   0x34  Code  Gb  pmc.o [1]
+pmc_switch_mck_to_pll   0x00201360   0x34  Code  Gb  pmc.o [1]
+prefetch_c_handler      0x00200210   0x68  Code  Gb  board_lowlevel.o [1]
+printf                  0x00201521   0x28  Code  Gb  printf.o [3]
+process_button_evt      0x00201d0c   0xa4  Code  Lc  main.o [1]
+putchar                 0x0020251c   0x1c  Code  Wk  console.o [1]
+secure_it_init          0x002009b4  0x6c0  Code  Gb  board_lowlevel.o [1]
+strchr                  0x00201bf0         Code  Gb  strchr.o [4]
+strlen                  0x00201c10         Code  Gb  strlen.o [4]
+tc_configure            0x00202224   0x54  Code  Gb  tc.o [1]
+tc_find_mck_divisor     0x00202308   0xd4  Code  Gb  tc.o [1]
+tc_handler              0x00201e70   0x28  Code  Lc  main.o [1]
+tc_start                0x00202278   0x48  Code  Gb  tc.o [1]
+tc_stop                 0x002022c0   0x48  Code  Gb  tc.o [1]
+uart_configure          0x00203004   0x50  Code  Gb  uart.o [1]
+uart_get_char           0x0020307c   0x18  Code  Gb  uart.o [1]
+uart_is_rx_ready        0x00203070    0xc  Code  Gb  uart.o [1]
+uart_put_char           0x00203054   0x1c  Code  Gb  uart.o [1]
+undefined_c_Handler     0x00200278   0x10  Code  Gb  board_lowlevel.o [1]
+v_arm_clr_cpsr_bits     0x00200114   0x18  Code  Lc  board_lowlevel.o [1]
+v_arm_set_cpsr_bits     0x00200100   0x14  Code  Lc  board_lowlevel.o [1]
+
+
+[1] = C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj
+[2] = command line
+[3] = dl7Sx_tln.a
+[4] = rt7Sx_tl.a
+
+  12 118 bytes of readonly  code memory
+   2 314 bytes of readonly  data memory
+  16 959 bytes of readwrite data memory
+
+Errors: none
+Warnings: none

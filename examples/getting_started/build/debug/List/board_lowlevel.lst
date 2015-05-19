@@ -1,0 +1,664 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:45
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\board_lowlevel.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\board_lowlevel.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D24 -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\board_lowlevel.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\board_lowlevel.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\board_lowlevel.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           * \file
+     32           *
+     33           * Provides the low-level initialization function that called on chip startup.
+     34           */
+     35          
+     36          /*----------------------------------------------------------------------------
+     37           *        Headers
+     38           *----------------------------------------------------------------------------*/
+     39          
+     40          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     41          #include "board.h"
+     42          #include "resources/compiler_defines.h"
+     43          #include "core/pmc.h"
+     44          #include "core/pio.h"
+     45          #include <stdio.h>
+     46          
+     47          /*----------------------------------------------------------------------------
+     48           *        Definiation
+     49           *----------------------------------------------------------------------------*/
+     50          
+     51          #define CPSR_MASK_IRQ 0x00000080
+     52          #define CPSR_MASK_FIQ 0x00000040
+     53          
+     54          /*----------------------------------------------------------------------------
+     55           *        Local variables
+     56           *----------------------------------------------------------------------------*/
+     57          
+     58          /** Array of dividers to compute max supported peripheral frequence for SAMA5D2
+     59           *  chips.
+     60           */
+     61          const uint32_t peripherals_min_clock_dividers[] = {
+     62          	2,/* ID_SAIC_FIQ */
+     63          	2,/* ID_PMC */
+     64          	2,/* ID_ARM_PMU */
+     65          	2,/* ID_PIT */
+     66          	2,/* ID_WDT */
+     67          	2,/* ID_GMAC */
+     68          	1,/* ID_XDMAC0 */
+     69          	1,/* ID_XDMAC1 */
+     70          	2,/* ID_ICM */
+     71          	2,/* ID_AES */
+     72          	1,/* ID_AESB */
+     73          	2,/* ID_TDES */
+     74          	2,/* ID_SHA */
+     75          	2,/* ID_MPDDRC */
+     76          	2,/* ID_MATRIX1 */
+     77          	1,/* ID_MATRIX0 */
+     78          	0,
+     79          	2,/* ID_HSMC */
+     80          	2,/* ID_PIOA */
+     81          	2,/* ID_FLEXCOM0 */
+     82          	2,/* ID_FLEXCOM1 */
+     83          	2,/* ID_FLEXCOM2 */
+     84          	2,/* ID_FLEXCOM3 */
+     85          	2,/* ID_FLEXCOM4 */
+     86          	2,/* ID_UART0 */
+     87          	2,/* ID_UART1 */
+     88          	2,/* ID_UART2 */
+     89          	2,/* ID_UART3 */
+     90          	2,/* ID_UART4 */
+     91          	2,/* ID_TWIHS0 */
+     92          	2,/* ID_TWIHS1 */
+     93          	1,/* ID_SDHC0 */
+     94          	1,/* ID_SDHC1 */
+     95          	2,/* ID_SPI0 */
+     96          	2,/* ID_SPI1 */
+     97          	2,/* ID_TC0 */
+     98          	2,/* ID_TC1 */
+     99          	0,
+    100          	2,/* ID_PWM */
+    101          	0,
+    102          	2,/* ID_ADC */
+    103          	2,/* ID_UHPHS */
+    104          	2,/* ID_UDPHS */
+    105          	2,/* ID_SSC0 */
+    106          	2,/* ID_SSC1 */
+    107          	1,/* ID_LCDC */
+    108          	2,/* ID_ISC */
+    109          	2,/* ID_TRNG */
+    110          	2,/* ID_PDMIC */
+    111          	2,/* ID_AIC_IRQ */
+    112          	2,/* ID_SFC */
+    113          	2,/* ID_SECURAM */
+    114          	2,/* ID_QSPI0 */
+    115          	2,/* ID_QSPI1 */
+    116          	2,/* ID_I2SC0 */
+    117          	2,/* ID_I2SC1 */
+    118          	0,
+    119          	0,
+    120          	0,
+    121          	2,/* ID_CLASSD */
+    122          	2,/* ID_SFR */
+    123          	2,/* ID_SAIC */
+    124          	2,/* ID_AIC */
+    125          	2,/* ID_L2CC */
+    126          	2,/* ID_CAN0_INT1 */
+    127          	2,/* ID_CAN1_INT1 */
+    128          	2,/* ID_GMAC_Q1 */
+    129          	2,/* ID_GMAC_Q2 */
+    130          	2,/* ID_PIOB */
+    131          	2,/* ID_PIOC */
+    132          	2,/* ID_PIOD */
+    133          	2,/* ID_SDHC0_TIMER */
+    134          	0,
+    135          	2,/* ID_RSTC */
+    136          	2,/* ID_RTC */
+    137          	2,/* ID_ACC */
+    138          	2,/* ID_RXLP */
+    139          	0,
+    140          	2,/* ID_CHIPID */
+    141          };
+    142          static const char* abort_status[][2]=
+    143          {
+    144          	// IFSR status        ,       DFSR status
+    145          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//0
+    146          	{"Unknown(reserved status)",                          "Alignment Fault"                               },//1
+    147          	{"Debug Event",                                       "Debug Event"                                   },//2
+    148          	{"Access flag - section",                             "Access flag - section"                         },//3
+    149          	{"Unknown(reserved status)",                          "Instruction cache maintenance"                 },//4
+    150          	{"Translation fault - section",                       "Translation fault - section"                   },//5
+    151          	{"Access flag - Page",                                "Access flag - Page"                            },//6
+    152          	{"Translation fault -Page",                           "Translation fault -Page"                       },//7
+    153          	{"Synchronous external abort",                        "Synchronous external abort, nontranslation"    },//8
+    154          	{"Domain fault - Section",                            "Domain fault - Section"                        },//9
+    155          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//10
+    156          	{"Domain fault - Page",                               "Domain fault - Page"                           },//11
+    157          	{"Synchronous external abort - L1 Translation",       "Synchronous external abort - L1 Translation"   },//12
+    158          	{"Permission fault - Section",                        "Permission fault - Section"                    },//13
+    159          	{"Synchronous external abort - L2 Translation",       "Synchronous external abort - L2 Translation"   },//14
+    160          	{"Permission fault - Page",                           "Permission fault - Page"                       },//15
+    161          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//16
+    162          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//17
+    163          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//18
+    164          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//19
+    165          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//20
+    166          	{"Unknown(reserved status)",                          "Unknown(reserved status)"                      },//21
+    167          	{"Unknown(reserved status)",                          "Asynchronous external abort"}
+    168          };
+    169          
+    170          /*----------------------------------------------------------------------------
+    171           *        Low level functions
+    172           *----------------------------------------------------------------------------*/
+    173          
+    174          static void v_arm_set_cpsr_bits(uint32_t mask)
+    175          {
+    176          /*
+    177          	uint32_t cpsr = 0;
+    178          	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
+    179          		      "orr %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
+    180          		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
+    181          		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
+    182          */
+    183          	asm("MRS R1, CPSR");   // Get current CPSR
+    184          	asm("ORR R0, R0, R1"); // Calculate new CPSR value
+    185          	asm("MSR CPSR_c,R0");  // Set new value
+    186          	asm("bx lr");
+    187          }
+    188          static void v_arm_clr_cpsr_bits(uint32_t mask)
+    189          {
+    190          /*
+    191          	uint32_t cpsr = 0;
+    192          	mask = ~mask;
+    193          	asm volatile ("mrs %[cpsr_wrt], CPSR\r\n"
+    194          		      "and %[cpsr_wrt], %[cpsr_rd], %[mask_to_apl]\r\n"
+    195          		      "msr CPSR_c, %[cpsr_rd]" : [cpsr_wrt] "=r"(cpsr)
+    196          		      : [cpsr_rd] "r" (cpsr), [mask_to_apl] "r" (mask));
+    197          */
+    198          	asm("MRS R1, CPSR");   // Get current CPSR
+    199          	asm("MVN R0, R0");     // invert
+    200          	asm("AND R0, R0, R1"); // Calculate new CPSR value
+    201          	asm("MSR CPSR_c,R0");  // Set new value
+    202          	asm("bx lr");
+    203          
+    204          }
+    205          
+    206          /*----------------------------------------------------------------------------
+    207           *
+    208           *----------------------------------------------------------------------------*/
+    209          
+    210          extern WEAK void low_level_init(void);
+    211          
+    212          void default_spurious_handler(void);
+    213          void abort_c_handler(void);
+    214          void prefetch_c_handler(void);
+    215          void undefined_c_Handler(void);
+    216          void v_arm_clr_cpsr_bits(uint32_t mask);
+    217          void dummy_handler(void);
+    218          void non_secure_it_init(void);
+    219          void secure_it_init(void);
+    220          
+    221          /*----------------------------------------------------------------------------
+    222           *        Functions
+    223           *----------------------------------------------------------------------------*/
+    224          
+    225          /**
+    226           * \brief Performs the low-level initialization of the chip.
+    227           * It also enable a low level on the pin NRST triggers a user reset.
+    228           */
+    229          extern WEAK void low_level_init(void)
+    230          {
+    231          	volatile uint32_t * pAicFuse = (volatile uint32_t *) REG_SFR_AICREDIR;
+    232          
+    233          	non_secure_it_init();
+    234          	if(!(*pAicFuse)) {
+    235          		secure_it_init();
+    236          	}
+    237          
+    238          	/* clock configure */
+    239          	if ((uint32_t)low_level_init < DDR_CS_ADDR) /* Code not in external mem */ {
+    240          		pmc_select_external_osc();
+    241          		pmc_switch_mck_to_main();
+    242          		pmc_set_plla( CKGR_PLLAR_ONE |
+    243          			      CKGR_PLLAR_PLLACOUNT(0x3F) |
+    244          			      CKGR_PLLAR_OUTA(0x0) |
+    245          			      CKGR_PLLAR_MULA(87) |
+    246          			      1,
+    247          			      PMC_PLLICPR_IPLL_PLLA(0x0));
+    248          		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
+    249          		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
+    250          		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
+    251          		pmc_switch_mck_to_pll();
+    252          	}
+    253          	/* Remap */
+    254          	board_remap_ram();
+    255          }
+    256          
+    257          /**
+    258           * \brief Default spurious interrupt handler.
+    259           * Infinite loop.
+    260           */
+    261          void default_spurious_handler(void)
+    262          {
+    263          	while (1);
+    264          }
+    265          
+    266          /**
+    267           * \brief Abort c handler.
+    268           * Infinite loop.
+    269           */
+    270          void abort_c_handler(void)
+    271          {
+    272          	uint32_t v1,v2, dfsr;
+    273          	v1= 0;
+    274          	v2= 0;
+    275          	asm("mrc   p15, 0, %0, c5, c0, 0" : : "r"(v1));
+    276          	asm("mrc   p15, 0, %0, c6, c0, 0" : : "r"(v2));
+    277          
+    278          	dfsr = ((v1 >> 4) & 0x0F);
+    279          	printf("\n\r######################################################################\n\r");
+    280          	printf("Data Abort occured in %x domain\n\r", (uint32_t)dfsr);
+    281          	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+    282          	printf("Data abort fault reason is: %s\n\r", (char*)abort_status[dfsr][1]);
+    283          	printf("Data fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
+    284          	printf("-[Info]-Data fault status register value = 0x%x\n\r",(uint32_t)v1);
+    285          	while(1);
+    286          }
+    287          
+    288          /**
+    289           * \brief Prefetch c handler.
+    290           * Infinite loop.
+    291           */
+    292          void prefetch_c_handler(void)
+    293          {
+    294          	uint32_t v1,v2, ifsr;
+    295          	v1= 0;
+    296          	v2= 0;
+    297          
+    298          	asm("mrc   p15, 0, %0, c5, c0, 1" : : "r"(v1));
+    299          	asm("mrc   p15, 0, %0, c6, c0, 2" : : "r"(v2));
+    300          
+    301          	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+    302          	printf("\n\r######################################################################\n\r");
+    303          	printf("Instruction prefetch abort reason is: %s\n\r", (char*)abort_status[ifsr][0]);
+    304          	printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",(uint32_t)v2);
+    305          	printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",(uint32_t)v1);
+    306          	while(1);
+    307          }
+    308          
+    309          /**
+    310           * \brief Undefined c handler.
+    311           * Infinite loop.
+    312           */
+    313          void undefined_c_Handler(void)
+    314          {
+    315          	printf("Undefined abort \n\r");
+    316          	while(1);
+    317          }
+    318          
+    319          /**
+    320           * \brief dummy default handler.
+    321           */
+    322          void dummy_handler(void)
+    323          {
+    324          	while(1) ;
+    325          }
+    326          
+    327          #pragma weak PIT_Handler=dummy_handler              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
+    328          #pragma weak WDT_Handler=dummy_handler              /**<  4 SAMA5D2x Watchdog timer Interrupt (WDT) */
+    329          #pragma weak GMAC_Handler=dummy_handler             /**<  5 SAMA5D2x Ethernet MAC (GMAC) */
+    330          #pragma weak XDMAC0_Handler=dummy_handler           /**<  6 SAMA5D2x DMA Controller 0 (XDMAC0) */
+    331          #pragma weak XDMAC1_Handler=dummy_handler           /**<  7 SAMA5D2x DMA Controller 1 (XDMAC1) */
+    332          #pragma weak ICM_Handler=dummy_handler              /**<  8 SAMA5D2x Integritry Check Monitor (ICM) */
+    333          #pragma weak AES_Handler=dummy_handler              /**<  9 SAMA5D2x Advanced Enion Standard (AES) */
+    334          #pragma weak AESB_Handler=dummy_handler             /**< 10 SAMA5D2x AES bridge (AESB) */
+    335          #pragma weak TDES_Handler=dummy_handler             /**< 11 SAMA5D2x Triple Data Enion Standard (TDES) */
+    336          #pragma weak SHA_Handler=dummy_handler              /**< 12 SAMA5D2x SHA Signature (SHA) */
+    337          #pragma weak MPDDRC_Handler=dummy_handler           /**< 13 SAMA5D2x MPDDR controller (MPDDRC) */
+    338          #pragma weak MATRIX1_Handler=dummy_handler          /**< 14 SAMA5D2x H32MX, 32-bit AHB Matrix (MATRIX1) */
+    339          #pragma weak MATRIX0_Handler=dummy_handler          /**< 15 SAMA5D2x H64MX, 64-bit AHB Matrix (MATRIX0) */
+    340          #pragma weak HSMC_Handler=dummy_handler             /**< 17 SAMA5D2x Multi-bit ECC Interrupt (HSMC) */
+    341          #pragma weak PIOA_Handler=dummy_handler             /**< 18 SAMA5D2x Parallel I/O Controller (PIOA) */
+    342          #pragma weak FLEXCOM0_Handler=dummy_handler         /**< 19 SAMA5D2x FLEXCOM 0 (FLEXCOM0) */
+    343          #pragma weak FLEXCOM1_Handler=dummy_handler         /**< 20 SAMA5D2x FLEXCOM 1 (FLEXCOM1) */
+    344          #pragma weak FLEXCOM2_Handler=dummy_handler         /**< 21 SAMA5D2x FLEXCOM 2 (FLEXCOM2) */
+    345          #pragma weak FLEXCOM3_Handler=dummy_handler         /**< 22 SAMA5D2x FLEXCOM 3 (FLEXCOM3) */
+    346          #pragma weak FLEXCOM4_Handler=dummy_handler         /**< 23 SAMA5D2x FLEXCOM 4 (FLEXCOM4) */
+    347          #pragma weak UART0_Handler=dummy_handler            /**< 24 SAMA5D2x UART 0 (UART0) */
+    348          #pragma weak UART1_Handler=dummy_handler            /**< 25 SAMA5D2x UART 1 (UART1) */
+    349          #pragma weak UART2_Handler=dummy_handler            /**< 26 SAMA5D2x UART 2 (UART2) */
+    350          #pragma weak UART3_Handler=dummy_handler            /**< 27 SAMA5D2x UART 3 (UART3) */
+    351          #pragma weak UART4_Handler=dummy_handler            /**< 28 SAMA5D2x UART 4 (UART4) */
+    352          #pragma weak TWIHS0_Handler=dummy_handler           /**< 29 SAMA5D2x Two-Wire Interface 0 (TWIHS0) */
+    353          #pragma weak TWIHS1_Handler=dummy_handler           /**< 30 SAMA5D2x Two-Wire Interface 1 (TWIHS1) */
+    354          #pragma weak SPI0_Handler=dummy_handler             /**< 33 SAMA5D2x Serial Peripheral Interface 0 (SPI0) */
+    355          #pragma weak SPI1_Handler=dummy_handler             /**< 34 SAMA5D2x Serial Peripheral Interface 1 (SPI1) */
+    356          #pragma weak TC0_Handler=dummy_handler              /**< 35 SAMA5D2x Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+    357          #pragma weak TC1_Handler=dummy_handler              /**< 36 SAMA5D2x Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+    358          #pragma weak PWM_Handler=dummy_handler              /**< 38 SAMA5D2x Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
+    359          #pragma weak ADC_Handler=dummy_handler              /**< 40 SAMA5D2x Touch Screen ADC Controller (ADC) */
+    360          #pragma weak UHPHS_Handler=dummy_handler            /**< 41 SAMA5D2x USB Host High Speed (UHPHS) */
+    361          #pragma weak UDPHS_Handler=dummy_handler            /**< 42 SAMA5D2x USB Device High Speed (UDPHS) */
+    362          #pragma weak SSC0_Handler=dummy_handler             /**< 43 SAMA5D2x Synchronous Serial Controller 0 (SSC0) */
+    363          #pragma weak SSC1_Handler=dummy_handler             /**< 44 SAMA5D2x Synchronous Serial Controller 1 (SSC1) */
+    364          #pragma weak LCDC_Handler=dummy_handler             /**< 45 SAMA5D2x LCD Controller (LCDC) */
+    365          #pragma weak TRNG_Handler=dummy_handler             /**< 47 SAMA5D2x True Random Number Generator (TRNG) */
+    366          #pragma weak PDMIC_Handler=dummy_handler            /**< 48 SAMA5D2x Pulse Density Modulation Interface Controller (PDMIC) */
+    367          #pragma weak SFC_Handler=dummy_handler              /**< 50 SAMA5D2x Fuse Controller (SFC) */
+    368          #pragma weak QSPI0_Handler=dummy_handler            /**< 52 SAMA5D2x QSPI 0 (QSPI0) */
+    369          #pragma weak QSPI1_Handler=dummy_handler            /**< 53 SAMA5D2x QSPI 1 (QSPI1) */
+    370          #pragma weak I2SC0_Handler=dummy_handler            /**< 54 SAMA5D2x Inter-IC Sound Controller 0 (I2SC0) */
+    371          #pragma weak I2SC1_Handler=dummy_handler            /**< 55 SAMA5D2x Inter-IC Sound Controller 1 (I2SC1) */
+    372          #pragma weak CLASSD_Handler=dummy_handler           /**< 59 SAMA5D2x Audio Class D amplifier (CLASSD) */
+    373          #pragma weak SFR_Handler=dummy_handler              /**< 60 SAMA5D2x Special Function Register  (SFR) */
+    374          #pragma weak SAIC_Handler=dummy_handler             /**< 61 SAMA5D2x Secured Advanced Interrupt Controller  (SAIC) */
+    375          #pragma weak AIC_Handler=dummy_handler              /**< 62 SAMA5D2x Advanced Interrupt Controller  (AIC) */
+    376          #pragma weak L2CC_Handler=dummy_handler             /**< 63 SAMA5D2x L2 Cache Controller (L2CC) */
+    377          #pragma weak PIOB_Handler=dummy_handler             /**< 68 SAMA5D2x  (PIOB) */
+    378          #pragma weak PIOC_Handler=dummy_handler             /**< 69 SAMA5D2x  (PIOC) */
+    379          #pragma weak PIOD_Handler=dummy_handler             /**< 70 SAMA5D2x  (PIOD) */
+    380          #pragma weak ACC_Handler=dummy_handler              /**< 75 SAMA5D2x Analog Comparator (ACC) */
+    381          #pragma weak RXLP_Handler=dummy_handler             /**< 76 SAMA5D2x Uart Low Power (RXLP) */
+    382          #pragma weak CHIPID_Handler=dummy_handler           /**< 78 SAMA5D2x Chip ID (CHIPID) */
+    383          
+    384          #pragma weak Spurious_handler=dummy_handler
+    385          
+    386          
+    387          /**
+    388           * \brief Non-secure Interupt Init.
+    389           */
+    390          void non_secure_it_init(void)
+    391          {
+    392          	/* Disable IRQ and FIQ at core level */
+    393          	v_arm_set_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+    394          	uint32_t i;
+    395          
+    396          	/* Disable all interrupts */
+    397          	for (i = 1; i < ID_PERIPH_COUNT; i++){
+    398          		AIC->AIC_SSR = i;
+    399          		AIC->AIC_IDCR = AIC_IDCR_INTD;
+    400          	}
+    401          	/* Clear All pending interrupts flags */
+    402          	for (i = 0; i < ID_PERIPH_COUNT; i++){
+    403          		AIC->AIC_SSR  = i;
+    404          		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
+    405          	}
+    406          	/* /\* Perform 8 IT acknoledge (write any value in EOICR) *\/ */
+    407          	for (i = 0; i < 8; i++){
+    408          		AIC->AIC_EOICR = 0;
+    409          	}
+    410          
+    411          	/* Assign handler addesses */
+    412          	AIC->AIC_SSR =  3; AIC->AIC_SVR = (uint32_t) PIT_Handler;              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
+    413          	AIC->AIC_SSR =  4; AIC->AIC_SVR = (uint32_t) WDT_Handler;              /**<  4 SAMA5D2x Watchdog timer Interrupt (WDT) */
+    414          	AIC->AIC_SSR =  5; AIC->AIC_SVR = (uint32_t) GMAC_Handler;             /**<  5 SAMA5D2x Ethernet MAC (GMAC) */
+    415          	AIC->AIC_SSR =  6; AIC->AIC_SVR = (uint32_t) XDMAC0_Handler;           /**<  6 SAMA5D2x DMA Controller 0 (XDMAC0) */
+    416          	AIC->AIC_SSR =  7; AIC->AIC_SVR = (uint32_t) XDMAC1_Handler;           /**<  7 SAMA5D2x DMA Controller 1 (XDMAC1) */
+    417          	AIC->AIC_SSR =  8; AIC->AIC_SVR = (uint32_t) ICM_Handler;              /**<  8 SAMA5D2x Integritry Check Monitor (ICM) */
+    418          	AIC->AIC_SSR =  9; AIC->AIC_SVR = (uint32_t) AES_Handler;              /**<  9 SAMA5D2x Advanced Enion Standard (AES) */
+    419          	AIC->AIC_SSR = 10; AIC->AIC_SVR = (uint32_t) AESB_Handler;             /**< 10 SAMA5D2x AES bridge (AESB) */
+    420          	AIC->AIC_SSR = 11; AIC->AIC_SVR = (uint32_t) TDES_Handler;             /**< 11 SAMA5D2x Triple Data Enion Standard (TDES) */
+    421          	AIC->AIC_SSR = 12; AIC->AIC_SVR = (uint32_t) SHA_Handler;              /**< 12 SAMA5D2x SHA Signature (SHA) */
+    422          	AIC->AIC_SSR = 13; AIC->AIC_SVR = (uint32_t) MPDDRC_Handler;           /**< 13 SAMA5D2x MPDDR controller (MPDDRC) */
+    423          	AIC->AIC_SSR = 14; AIC->AIC_SVR = (uint32_t) MATRIX1_Handler;          /**< 14 SAMA5D2x H32MX, 32-bit AHB Matrix (MATRIX1) */
+    424          	AIC->AIC_SSR = 15; AIC->AIC_SVR = (uint32_t) MATRIX0_Handler;          /**< 15 SAMA5D2x H64MX, 64-bit AHB Matrix (MATRIX0) */
+    425          	AIC->AIC_SSR = 17; AIC->AIC_SVR = (uint32_t) HSMC_Handler;             /**< 17 SAMA5D2x Multi-bit ECC Interrupt (HSMC) */
+    426          	AIC->AIC_SSR = 18; AIC->AIC_SVR = (uint32_t) PIOA_Handler;             /**< 18 SAMA5D2x Parallel I/O Controller (PIOA) */
+    427          	AIC->AIC_SSR = 19; AIC->AIC_SVR = (uint32_t) FLEXCOM0_Handler;         /**< 19 SAMA5D2x FLEXCOM 0 (FLEXCOM0) */
+    428          	AIC->AIC_SSR = 20; AIC->AIC_SVR = (uint32_t) FLEXCOM1_Handler;         /**< 20 SAMA5D2x FLEXCOM 1 (FLEXCOM1) */
+    429          	AIC->AIC_SSR = 21; AIC->AIC_SVR = (uint32_t) FLEXCOM2_Handler;         /**< 21 SAMA5D2x FLEXCOM 2 (FLEXCOM2) */
+    430          	AIC->AIC_SSR = 22; AIC->AIC_SVR = (uint32_t) FLEXCOM3_Handler;         /**< 22 SAMA5D2x FLEXCOM 3 (FLEXCOM3) */
+    431          	AIC->AIC_SSR = 23; AIC->AIC_SVR = (uint32_t) FLEXCOM4_Handler;         /**< 23 SAMA5D2x FLEXCOM 4 (FLEXCOM4) */
+    432          	AIC->AIC_SSR = 24; AIC->AIC_SVR = (uint32_t) UART0_Handler;            /**< 24 SAMA5D2x UART 0 (UART0) */
+    433          	AIC->AIC_SSR = 25; AIC->AIC_SVR = (uint32_t) UART1_Handler;            /**< 25 SAMA5D2x UART 1 (UART1) */
+    434          	AIC->AIC_SSR = 26; AIC->AIC_SVR = (uint32_t) UART2_Handler;            /**< 26 SAMA5D2x UART 2 (UART2) */
+    435          	AIC->AIC_SSR = 27; AIC->AIC_SVR = (uint32_t) UART3_Handler;            /**< 27 SAMA5D2x UART 3 (UART3) */
+    436          	AIC->AIC_SSR = 28; AIC->AIC_SVR = (uint32_t) UART4_Handler;            /**< 28 SAMA5D2x UART 4 (UART4) */
+    437          	AIC->AIC_SSR = 29; AIC->AIC_SVR = (uint32_t) TWIHS0_Handler;           /**< 29 SAMA5D2x Two-Wire Interface 0 (TWIHS0) */
+    438          	AIC->AIC_SSR = 30; AIC->AIC_SVR = (uint32_t) TWIHS1_Handler;           /**< 30 SAMA5D2x Two-Wire Interface 1 (TWIHS1) */
+    439          	AIC->AIC_SSR = 33; AIC->AIC_SVR = (uint32_t) SPI0_Handler;             /**< 33 SAMA5D2x Serial Peripheral Interface 0 (SPI0) */
+    440          	AIC->AIC_SSR = 34; AIC->AIC_SVR = (uint32_t) SPI1_Handler;             /**< 34 SAMA5D2x Serial Peripheral Interface 1 (SPI1) */
+    441          	AIC->AIC_SSR = 35; AIC->AIC_SVR = (uint32_t) TC0_Handler;              /**< 35 SAMA5D2x Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+    442          	AIC->AIC_SSR = 36; AIC->AIC_SVR = (uint32_t) TC1_Handler;              /**< 36 SAMA5D2x Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+    443          	AIC->AIC_SSR = 38; AIC->AIC_SVR = (uint32_t) PWM_Handler;              /**< 38 SAMA5D2x Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
+    444          	AIC->AIC_SSR = 40; AIC->AIC_SVR = (uint32_t) ADC_Handler;              /**< 40 SAMA5D2x Touch Screen ADC Controller (ADC) */
+    445          	AIC->AIC_SSR = 41; AIC->AIC_SVR = (uint32_t) UHPHS_Handler;            /**< 41 SAMA5D2x USB Host High Speed (UHPHS) */
+    446          	AIC->AIC_SSR = 42; AIC->AIC_SVR = (uint32_t) UDPHS_Handler;            /**< 42 SAMA5D2x USB Device High Speed (UDPHS) */
+    447          	AIC->AIC_SSR = 43; AIC->AIC_SVR = (uint32_t) SSC0_Handler;             /**< 43 SAMA5D2x Synchronous Serial Controller 0 (SSC0) */
+    448          	AIC->AIC_SSR = 44; AIC->AIC_SVR = (uint32_t) SSC1_Handler;             /**< 44 SAMA5D2x Synchronous Serial Controller 1 (SSC1) */
+    449          	AIC->AIC_SSR = 45; AIC->AIC_SVR = (uint32_t) LCDC_Handler;             /**< 45 SAMA5D2x LCD Controller (LCDC) */
+    450          	AIC->AIC_SSR = 47; AIC->AIC_SVR = (uint32_t) TRNG_Handler;             /**< 47 SAMA5D2x True Random Number Generator (TRNG) */
+    451          	AIC->AIC_SSR = 48; AIC->AIC_SVR = (uint32_t) PDMIC_Handler;            /**< 48 SAMA5D2x Pulse Density Modulation Interface Controller (PDMIC) */
+    452          	AIC->AIC_SSR = 50; AIC->AIC_SVR = (uint32_t) SFC_Handler;              /**< 50 SAMA5D2x Fuse Controller (SFC) */
+    453          	AIC->AIC_SSR = 52; AIC->AIC_SVR = (uint32_t) QSPI0_Handler;            /**< 52 SAMA5D2x QSPI 0 (QSPI0) */
+    454          	AIC->AIC_SSR = 53; AIC->AIC_SVR = (uint32_t) QSPI1_Handler;            /**< 53 SAMA5D2x QSPI 1 (QSPI1) */
+    455          	AIC->AIC_SSR = 54; AIC->AIC_SVR = (uint32_t) I2SC0_Handler;            /**< 54 SAMA5D2x Inter-IC Sound Controller 0 (I2SC0) */
+    456          	AIC->AIC_SSR = 55; AIC->AIC_SVR = (uint32_t) I2SC1_Handler;            /**< 55 SAMA5D2x Inter-IC Sound Controller 1 (I2SC1) */
+    457          	AIC->AIC_SSR = 59; AIC->AIC_SVR = (uint32_t) CLASSD_Handler;           /**< 59 SAMA5D2x Audio Class D amplifier (CLASSD) */
+    458          	AIC->AIC_SSR = 60; AIC->AIC_SVR = (uint32_t) SFR_Handler;              /**< 60 SAMA5D2x Special Function Register  (SFR) */
+    459          	AIC->AIC_SSR = 61; AIC->AIC_SVR = (uint32_t) SAIC_Handler;             /**< 61 SAMA5D2x Secured Advanced Interrupt Controller  (SAIC) */
+    460          	AIC->AIC_SSR = 62; AIC->AIC_SVR = (uint32_t) AIC_Handler;              /**< 62 SAMA5D2x Advanced Interrupt Controller  (AIC) */
+    461          	AIC->AIC_SSR = 63; AIC->AIC_SVR = (uint32_t) L2CC_Handler;             /**< 63 SAMA5D2x L2 Cache Controller (L2CC) */
+    462          	AIC->AIC_SSR = 68; AIC->AIC_SVR = (uint32_t) PIOB_Handler;             /**< 68 SAMA5D2x  (PIOB) */
+    463          	AIC->AIC_SSR = 69; AIC->AIC_SVR = (uint32_t) PIOC_Handler;             /**< 69 SAMA5D2x  (PIOC) */
+    464          	AIC->AIC_SSR = 70; AIC->AIC_SVR = (uint32_t) PIOD_Handler;             /**< 70 SAMA5D2x  (PIOD) */
+    465          	AIC->AIC_SSR = 75; AIC->AIC_SVR = (uint32_t) ACC_Handler;              /**< 75 SAMA5D2x Analog Comparator (ACC) */
+    466          	AIC->AIC_SSR = 76; AIC->AIC_SVR = (uint32_t) RXLP_Handler;             /**< 76 SAMA5D2x Uart Low Power (RXLP) */
+    467          	AIC->AIC_SSR = 78; AIC->AIC_SVR = (uint32_t) CHIPID_Handler;           /**< 78 SAMA5D2x Chip ID (CHIPID) */
+    468          
+    469          	AIC->AIC_SPU = (uint32_t)Spurious_handler;
+    470          
+    471          	/* Enable IRQ and FIQ at core level */
+    472          	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+    473          }
+    474          
+    475          /**
+    476           * \brief Secure interrupt init.
+    477           */
+    478          void secure_it_init(void)
+    479          {
+    480          	uint32_t i;
+    481          
+    482          	/* Assign handler addesses */
+    483          	SAIC->AIC_SSR =  3; SAIC->AIC_SVR = (uint32_t) PIT_Handler;              /**<  3 SAMA5D2x Periodic Interval Timer Interrupt (PIT) */
+    484          	SAIC->AIC_SSR =  4; SAIC->AIC_SVR = (uint32_t) WDT_Handler;              /**<  4 SAMA5D2x Watchdog timer Interrupt (WDT) */
+    485          	SAIC->AIC_SSR =  5; SAIC->AIC_SVR = (uint32_t) GMAC_Handler;             /**<  5 SAMA5D2x Ethernet MAC (GMAC) */
+    486          	SAIC->AIC_SSR =  6; SAIC->AIC_SVR = (uint32_t) XDMAC0_Handler;           /**<  6 SAMA5D2x DMA Controller 0 (XDMAC0) */
+    487          	SAIC->AIC_SSR =  7; SAIC->AIC_SVR = (uint32_t) XDMAC1_Handler;           /**<  7 SAMA5D2x DMA Controller 1 (XDMAC1) */
+    488          	SAIC->AIC_SSR =  8; SAIC->AIC_SVR = (uint32_t) ICM_Handler;              /**<  8 SAMA5D2x Integritry Check Monitor (ICM) */
+    489          	SAIC->AIC_SSR =  9; SAIC->AIC_SVR = (uint32_t) AES_Handler;              /**<  9 SAMA5D2x Advanced Enion Standard (AES) */
+    490          	SAIC->AIC_SSR = 10; SAIC->AIC_SVR = (uint32_t) AESB_Handler;             /**< 10 SAMA5D2x AES bridge (AESB) */
+    491          	SAIC->AIC_SSR = 11; SAIC->AIC_SVR = (uint32_t) TDES_Handler;             /**< 11 SAMA5D2x Triple Data Enion Standard (TDES) */
+    492          	SAIC->AIC_SSR = 12; SAIC->AIC_SVR = (uint32_t) SHA_Handler;              /**< 12 SAMA5D2x SHA Signature (SHA) */
+    493          	SAIC->AIC_SSR = 13; SAIC->AIC_SVR = (uint32_t) MPDDRC_Handler;           /**< 13 SAMA5D2x MPDDR controller (MPDDRC) */
+    494          	SAIC->AIC_SSR = 14; SAIC->AIC_SVR = (uint32_t) MATRIX1_Handler;          /**< 14 SAMA5D2x H32MX, 32-bit AHB Matrix (MATRIX1) */
+    495          	SAIC->AIC_SSR = 15; SAIC->AIC_SVR = (uint32_t) MATRIX0_Handler;          /**< 15 SAMA5D2x H64MX, 64-bit AHB Matrix (MATRIX0) */
+    496          	SAIC->AIC_SSR = 17; SAIC->AIC_SVR = (uint32_t) HSMC_Handler;             /**< 17 SAMA5D2x Multi-bit ECC Interrupt (HSMC) */
+    497          	SAIC->AIC_SSR = 18; SAIC->AIC_SVR = (uint32_t) PIOA_Handler;             /**< 18 SAMA5D2x Parallel I/O Controller (PIOA) */
+    498          	SAIC->AIC_SSR = 19; SAIC->AIC_SVR = (uint32_t) FLEXCOM0_Handler;         /**< 19 SAMA5D2x FLEXCOM 0 (FLEXCOM0) */
+    499          	SAIC->AIC_SSR = 20; SAIC->AIC_SVR = (uint32_t) FLEXCOM1_Handler;         /**< 20 SAMA5D2x FLEXCOM 1 (FLEXCOM1) */
+    500          	SAIC->AIC_SSR = 21; SAIC->AIC_SVR = (uint32_t) FLEXCOM2_Handler;         /**< 21 SAMA5D2x FLEXCOM 2 (FLEXCOM2) */
+    501          	SAIC->AIC_SSR = 22; SAIC->AIC_SVR = (uint32_t) FLEXCOM3_Handler;         /**< 22 SAMA5D2x FLEXCOM 3 (FLEXCOM3) */
+    502          	SAIC->AIC_SSR = 23; SAIC->AIC_SVR = (uint32_t) FLEXCOM4_Handler;         /**< 23 SAMA5D2x FLEXCOM 4 (FLEXCOM4) */
+    503          	SAIC->AIC_SSR = 24; SAIC->AIC_SVR = (uint32_t) UART0_Handler;            /**< 24 SAMA5D2x UART 0 (UART0) */
+    504          	SAIC->AIC_SSR = 25; SAIC->AIC_SVR = (uint32_t) UART1_Handler;            /**< 25 SAMA5D2x UART 1 (UART1) */
+    505          	SAIC->AIC_SSR = 26; SAIC->AIC_SVR = (uint32_t) UART2_Handler;            /**< 26 SAMA5D2x UART 2 (UART2) */
+    506          	SAIC->AIC_SSR = 27; SAIC->AIC_SVR = (uint32_t) UART3_Handler;            /**< 27 SAMA5D2x UART 3 (UART3) */
+    507          	SAIC->AIC_SSR = 28; SAIC->AIC_SVR = (uint32_t) UART4_Handler;            /**< 28 SAMA5D2x UART 4 (UART4) */
+    508          	SAIC->AIC_SSR = 29; SAIC->AIC_SVR = (uint32_t) TWIHS0_Handler;           /**< 29 SAMA5D2x Two-Wire Interface 0 (TWIHS0) */
+    509          	SAIC->AIC_SSR = 30; SAIC->AIC_SVR = (uint32_t) TWIHS1_Handler;           /**< 30 SAMA5D2x Two-Wire Interface 1 (TWIHS1) */
+    510          	SAIC->AIC_SSR = 33; SAIC->AIC_SVR = (uint32_t) SPI0_Handler;             /**< 33 SAMA5D2x Serial Peripheral Interface 0 (SPI0) */
+    511          	SAIC->AIC_SSR = 34; SAIC->AIC_SVR = (uint32_t) SPI1_Handler;             /**< 34 SAMA5D2x Serial Peripheral Interface 1 (SPI1) */
+    512          	SAIC->AIC_SSR = 35; SAIC->AIC_SVR = (uint32_t) TC0_Handler;              /**< 35 SAMA5D2x Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+    513          	SAIC->AIC_SSR = 36; SAIC->AIC_SVR = (uint32_t) TC1_Handler;              /**< 36 SAMA5D2x Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+    514          	SAIC->AIC_SSR = 38; SAIC->AIC_SVR = (uint32_t) PWM_Handler;              /**< 38 SAMA5D2x Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
+    515          	SAIC->AIC_SSR = 40; SAIC->AIC_SVR = (uint32_t) ADC_Handler;              /**< 40 SAMA5D2x Touch Screen ADC Controller (ADC) */
+    516          	SAIC->AIC_SSR = 41; SAIC->AIC_SVR = (uint32_t) UHPHS_Handler;            /**< 41 SAMA5D2x USB Host High Speed (UHPHS) */
+    517          	SAIC->AIC_SSR = 42; SAIC->AIC_SVR = (uint32_t) UDPHS_Handler;            /**< 42 SAMA5D2x USB Device High Speed (UDPHS) */
+    518          	SAIC->AIC_SSR = 43; SAIC->AIC_SVR = (uint32_t) SSC0_Handler;             /**< 43 SAMA5D2x Synchronous Serial Controller 0 (SSC0) */
+    519          	SAIC->AIC_SSR = 44; SAIC->AIC_SVR = (uint32_t) SSC1_Handler;             /**< 44 SAMA5D2x Synchronous Serial Controller 1 (SSC1) */
+    520          	SAIC->AIC_SSR = 45; SAIC->AIC_SVR = (uint32_t) LCDC_Handler;             /**< 45 SAMA5D2x LCD Controller (LCDC) */
+    521          	SAIC->AIC_SSR = 47; SAIC->AIC_SVR = (uint32_t) TRNG_Handler;             /**< 47 SAMA5D2x True Random Number Generator (TRNG) */
+    522          	SAIC->AIC_SSR = 48; SAIC->AIC_SVR = (uint32_t) PDMIC_Handler;            /**< 48 SAMA5D2x Pulse Density Modulation Interface Controller (PDMIC) */
+    523          	SAIC->AIC_SSR = 50; SAIC->AIC_SVR = (uint32_t) SFC_Handler;              /**< 50 SAMA5D2x Fuse Controller (SFC) */
+    524          	SAIC->AIC_SSR = 52; SAIC->AIC_SVR = (uint32_t) QSPI0_Handler;            /**< 52 SAMA5D2x QSPI 0 (QSPI0) */
+    525          	SAIC->AIC_SSR = 53; SAIC->AIC_SVR = (uint32_t) QSPI1_Handler;            /**< 53 SAMA5D2x QSPI 1 (QSPI1) */
+    526          	SAIC->AIC_SSR = 54; SAIC->AIC_SVR = (uint32_t) I2SC0_Handler;            /**< 54 SAMA5D2x Inter-IC Sound Controller 0 (I2SC0) */
+    527          	SAIC->AIC_SSR = 55; SAIC->AIC_SVR = (uint32_t) I2SC1_Handler;            /**< 55 SAMA5D2x Inter-IC Sound Controller 1 (I2SC1) */
+    528          	SAIC->AIC_SSR = 59; SAIC->AIC_SVR = (uint32_t) CLASSD_Handler;           /**< 59 SAMA5D2x Audio Class D amplifier (CLASSD) */
+    529          	SAIC->AIC_SSR = 60; SAIC->AIC_SVR = (uint32_t) SFR_Handler;              /**< 60 SAMA5D2x Special Function Register  (SFR) */
+    530          	SAIC->AIC_SSR = 61; SAIC->AIC_SVR = (uint32_t) SAIC_Handler;             /**< 61 SAMA5D2x Secured Advanced Interrupt Controller  (SAIC) */
+    531          	SAIC->AIC_SSR = 62; SAIC->AIC_SVR = (uint32_t) AIC_Handler;              /**< 62 SAMA5D2x Advanced Interrupt Controller  (AIC) */
+    532          	SAIC->AIC_SSR = 63; SAIC->AIC_SVR = (uint32_t) L2CC_Handler;             /**< 63 SAMA5D2x L2 Cache Controller (L2CC) */
+    533          	SAIC->AIC_SSR = 68; SAIC->AIC_SVR = (uint32_t) PIOB_Handler;             /**< 68 SAMA5D2x  (PIOB) */
+    534          	SAIC->AIC_SSR = 69; SAIC->AIC_SVR = (uint32_t) PIOC_Handler;             /**< 69 SAMA5D2x  (PIOC) */
+    535          	SAIC->AIC_SSR = 70; SAIC->AIC_SVR = (uint32_t) PIOD_Handler;             /**< 70 SAMA5D2x  (PIOD) */
+    536          	SAIC->AIC_SSR = 75; SAIC->AIC_SVR = (uint32_t) ACC_Handler;              /**< 75 SAMA5D2x Analog Comparator (ACC) */
+    537          	SAIC->AIC_SSR = 76; SAIC->AIC_SVR = (uint32_t) RXLP_Handler;             /**< 76 SAMA5D2x Uart Low Power (RXLP) */
+    538          	SAIC->AIC_SSR = 78; SAIC->AIC_SVR = (uint32_t) CHIPID_Handler;           /**< 78 SAMA5D2x Chip ID (CHIPID) */
+    539          
+    540          	SAIC->AIC_SPU = (uint32_t) Spurious_handler;
+    541          
+    542          	/* Disable all interrupts */
+    543          	for (i = 1; i < ID_PERIPH_COUNT; i++){
+    544          		SAIC->AIC_SSR = i;
+    545          		SAIC->AIC_IDCR = AIC_IDCR_INTD;
+    546          	}
+    547          	/* Clear All pending interrupts flags */
+    548          	for (i = 0; i < ID_PERIPH_COUNT; i++){
+    549          		SAIC->AIC_SSR = i;
+    550          		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
+    551          	}
+    552          	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
+    553          	for (i = 0; i < 8; i++){
+    554          		SAIC->AIC_EOICR = 0;
+    555          	}
+    556          	/* Enable IRQ and FIQ at core level */
+    557          	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ|CPSR_MASK_FIQ);
+    558          }
+
+Errors: 11
+Warnings: 1

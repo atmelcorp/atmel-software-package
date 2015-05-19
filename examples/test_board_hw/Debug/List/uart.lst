@@ -1,0 +1,219 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        29/Apr/2015  16:09:38
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\uart.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\uart.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /*------------------------------------------------------------------------------
+     31           *         Headers
+     32           *------------------------------------------------------------------------------*/
+     33          
+     34          #include "chip.h"
+     35          #include "serial/uart.h"
+     36          
+     37          #include <stdint.h>
+     38          
+     39          /*------------------------------------------------------------------------------
+     40           *         Exported functions
+     41           *------------------------------------------------------------------------------*/
+     42          
+     43          /*
+     44           * Initializes the UART with the given parameters, and enables both the
+     45           * transmitter and the receiver. The mode parameter contains the value of the
+     46           * UART_MR register.
+     47           * Value UART_STANDARD can be used for mode to get the most common configuration
+     48           * (i.e. aysnchronous, 8bits, no parity, 1 stop bit, no flow control).
+     49           * \param mode  Operating mode to configure.
+     50           * \param baudrate  Desired baudrate (e.g. 115200).
+     51           * \param mck  Frequency of the system master clock in Hz.
+     52           */
+     53          void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate, uint32_t mck)
+     54          {
+     55              // Reset & disable receiver and transmitter, disable interrupts
+     56              pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS;
+     57              pUart->UART_IDR = 0xFFFFFFFF;
+     58              // Configure baud rate
+     59              pUart->UART_BRGR = mck / (baudrate * 16);
+     60              // Configure mode register
+     61              pUart->UART_MR = mode;
+     62              // Enable receiver and transmitter
+     63              pUart->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
+     64          }
+     65          
+     66          /* Enable transmitter
+     67           *
+     68           */
+     69          void uart_set_transmitter_enabled (Uart* pUart, uint8_t enabled)
+     70          {
+     71              if (enabled) pUart->UART_CR = UART_CR_TXEN;
+     72              else pUart->UART_CR = UART_CR_TXDIS;
+     73          }
+     74          
+     75          /* Enable receiver
+     76           *
+     77           */
+     78          void uart_set_receiver_enabled (Uart* pUart, uint8_t enabled)
+     79          {
+     80          	if (enabled)
+     81          		pUart->UART_CR = UART_CR_RXEN;
+     82          	else
+     83          		pUart->UART_CR = UART_CR_RXDIS;
+     84          }
+     85          
+     86          /* Set interrupt register
+     87           *
+     88           */
+     89          void uart_set_int (Uart* pUart, uint32_t int_mask)
+     90          {
+     91            pUart->UART_IER |= int_mask;
+     92          }
+     93          
+     94          /**
+     95           * Outputs a character on the UART line.
+     96           * \note This function is synchronous (i.e. uses polling).
+     97           * \param c  Character to send.
+     98           * \param wait = 1 if wait transfer complete
+     99           */
+    100          void uart_put_char(Uart* pUart, unsigned char c)
+    101          {
+    102              // Wait for the transmitter to be ready
+    103              while ((pUart->UART_SR & UART_SR_TXEMPTY) == 0);
+    104              // Send characterx
+    105              pUart->UART_THR = c;
+    106          }
+    107          
+    108          /**
+    109           * Return 1 if a character can be read in UART
+    110           */
+    111          uint32_t uart_is_rx_ready(Uart* pUart)
+    112          {
+    113              return (pUart->UART_SR & UART_SR_RXRDY);
+    114          }
+    115          
+    116          /**
+    117           * Return 1 if a character can be write in UART
+    118           */
+    119          uint32_t uart_is_tx_ready(Uart* pUart)
+    120          {
+    121              return (pUart->UART_SR & UART_SR_TXRDY);
+    122          }
+    123          
+    124          /**
+    125           * \brief Reads and returns a character from the UART.
+    126           * \note This function is synchronous (i.e. uses polling).
+    127           * \return Character received.
+    128           */
+    129          uint8_t uart_get_char(Uart* pUart)
+    130          {
+    131              while ((pUart->UART_SR & UART_SR_RXRDY) == 0);
+    132              return pUart->UART_RHR;
+    133          }
+    134          
+    135          
+    136          
+    137          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      20   uart_configure
+        20 __aeabi_uidiv
+       0   uart_get_char
+       0   uart_is_rx_ready
+       0   uart_is_tx_ready
+       0   uart_put_char
+       0   uart_set_int
+       0   uart_set_receiver_enabled
+       0   uart_set_transmitter_enabled
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      48  _id_h64_matrix
+      68  uart_configure
+      24  uart_get_char
+      12  uart_is_rx_ready
+      12  uart_is_tx_ready
+      28  uart_put_char
+      16  uart_set_int
+      40  uart_set_receiver_enabled
+      40  uart_set_transmitter_enabled
+
+ 
+  48 bytes in section .rodata
+ 240 bytes in section .text
+ 
+ 240 bytes of CODE  memory
+  48 bytes of CONST memory
+
+Errors: none
+Warnings: 1

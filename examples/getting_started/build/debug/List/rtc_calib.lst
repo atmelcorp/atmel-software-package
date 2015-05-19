@@ -1,0 +1,298 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:50
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc_calib.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc_calib.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D24 -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\rtc_calib.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rtc_calib.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc_calib.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2014, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           * \file
+     32           *
+     33           * Interface for Real Time Clock calibration (RTC) .
+     34           *
+     35           */
+     36          
+     37          //#include "board.h"
+     38          #include "time/rtc_calib.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     39          #include "time/rtc.h"
+     40          
+     41          const RTC_PPMLookup PPM_Lookup[] = {
+     42          	{-40, -168, 0, 1, 22},
+     43          	{-39, -163, 0, 1, 23},
+     44          	{-38, -158, 0, 1, 24},
+     45          	{-37, -153, 0, 1, 25},
+     46          	{-36, -148, 0, 1, 25},
+     47          	{-35, -143, 0, 1, 26},
+     48          	{-34, -138, 0, 1, 27},
+     49          	{-33, -134, 0, 1, 28},
+     50          	{-32, -129, 0, 1, 29},
+     51          	{-31, -124, 0, 1, 31},
+     52          	{-30, -120, 0, 1, 32},
+     53          	{-29, -116, 0, 1, 33},
+     54          	{-28, -111, 0, 1, 34},
+     55          	{-27, -107, 0, 1, 36},
+     56          	{-26, -103, 0, 1, 37},
+     57          	{-25, -99, 0, 1, 38},
+     58          	{-24, -95, 0, 1, 40},
+     59          	{-23, -91, 0, 1, 42},
+     60          	{-22, -87, 0, 1, 44},
+     61          	{-21, -84, 0, 1, 45},
+     62          	{-20, -80, 0, 1, 48},
+     63          	{-19, -76, 0, 1, 50},
+     64          	{-18, -73, 0, 1, 53},
+     65          	{-17, -70, 0, 1, 55},
+     66          	{-16, -66, 0, 1, 58},
+     67          	{-15, -63, 0, 1, 61},
+     68          	{-14, -60, 0, 1, 64},
+     69          	{-13, -57, 0, 1, 68},
+     70          	{-12, -54, 0, 1, 71},
+     71          	{-11, -51, 0, 1, 76},
+     72          	{-10, -48, 0, 1, 80},
+     73          	{-9, -45, 0, 1, 86},
+     74          	{-8, -43, 0, 1, 90},
+     75          	{-7, -40, 0, 1, 97},
+     76          	{-6, -37, 0, 1, 105},
+     77          	{-5, -35, 0, 1, 111},
+     78          	{-4, -33, 0, 1, 117},
+     79          	{-3, -30, 0, 0, 6},
+     80          	{-2, -28, 0, 0, 6},
+     81          	{-1, -26, 0, 0, 7},
+     82          	{0, -24, 0, 0, 7},
+     83          	{1, -22, 0, 0, 8},
+     84          	{2, -20, 0, 0, 9},
+     85          	{3, -18, 0, 0, 10},
+     86          	{4, -17, 0, 0, 10},
+     87          	{5, -15, 0, 0, 12},
+     88          	{6, -13, 0, 0, 14},
+     89          	{7, -12, 0, 0, 15},
+     90          	{8, -11, 0, 0, 17},
+     91          	{9, -9, 0, 0, 21},
+     92          	{10, -8, 0, 0, 23},
+     93          	{11, -7, 0, 0, 27},
+     94          	{12, -6, 0, 0, 32},
+     95          	{13, -5, 0, 0, 38},
+     96          	{14, -4, 0, 0, 48},
+     97          	{15, -3, 0, 0, 64},
+     98          	{16, -2, 0, 0, 97},
+     99          	{17, -2, 0, 0, 97},
+    100          	{18, -1, 0, 0, 127},
+    101          	{19, 0, 1, 0, 0},
+    102          	{20, 0, 1, 0, 0},
+    103          	{21, 0, 1, 0, 0},
+    104          	{22, 1, 1, 0, 127},
+    105          	{23, 1, 1, 0, 127},
+    106          	{24, 1, 1, 0, 127},
+    107          	{25, 1, 1, 0, 127},
+    108          	{26, 1, 1, 0, 127},
+    109          	{27, 1, 1, 0, 127},
+    110          	{28, 1, 1, 0, 127},
+    111          	{29, 0, 1, 0, 0},
+    112          	{30, 0, 1, 0, 0},
+    113          	{31, 0, 1, 0, 0},
+    114          	{32, -1, 0, 0, 127},
+    115          	{33, -2, 0, 0, 97},
+    116          	{34, -2, 0, 0, 97},
+    117          	{35, -3, 0, 0, 64},
+    118          	{36, -4, 0, 0, 48},
+    119          	{37, -5, 0, 0, 38},
+    120          	{38, -6, 0, 0, 32},
+    121          	{39, -7, 0, 0, 27},
+    122          	{40, -8, 0, 0, 23},
+    123          	{41, -9, 0, 0, 21},
+    124          	{42, -11, 0, 0, 17},
+    125          	{43, -12, 0, 0, 15},
+    126          	{44, -13, 0, 0, 14},
+    127          	{45, -15, 0, 0, 12},
+    128          	{46, -17, 0, 0, 10},
+    129          	{47, -18, 0, 0, 10},
+    130          	{48, -20, 0, 0, 9},
+    131          	{49, -22, 0, 0, 8},
+    132          	{50, -24, 0, 0, 7},
+    133          	{51, -26, 0, 0, 7},
+    134          	{52, -28, 0, 0, 6},
+    135          	{53, -30, 0, 0, 6},
+    136          	{54, -33, 0, 1, 117},
+    137          	{55, -35, 0, 1, 111},
+    138          	{56, -37, 0, 1, 105},
+    139          	{57, -40, 0, 1, 97},
+    140          	{58, -43, 0, 1, 90},
+    141          	{59, -45, 0, 1, 86},
+    142          	{60, -48, 0, 1, 80},
+    143          	{61, -51, 0, 1, 76},
+    144          	{62, -54, 0, 1, 71},
+    145          	{63, -57, 0, 1, 68},
+    146          	{64, -60, 0, 1, 64},
+    147          	{65, -63, 0, 1, 61},
+    148          	{66, -66, 0, 1, 58},
+    149          	{67, -70, 0, 1, 55},
+    150          	{68, -73, 0, 1, 53},
+    151          	{69, -76, 0, 1, 50},
+    152          	{70, -80, 0, 1, 48},
+    153          	{71, -84, 0, 1, 45},
+    154          	{72, -87, 0, 1, 44},
+    155          	{73, -91, 0, 1, 42},
+    156          	{74, -95, 0, 1, 40},
+    157          	{75, -99, 0, 1, 38},
+    158          	{76, -103, 0, 1, 37},
+    159          	{77, -107, 0, 1, 36},
+    160          	{78, -111, 0, 1, 34},
+    161          	{79, -116, 0, 1, 33},
+    162          	{80, -120, 0, 1, 32},
+    163          	{81, -124, 0, 1, 31},
+    164          	{82, -129, 0, 1, 29},
+    165          	{83, -134, 0, 1, 28},
+    166          	{84, -138, 0, 1, 27},
+    167          	{85, -143, 0, 1, 26}
+    168          };
+    169          
+    170          /**
+    171           * \brief RTC calibration for Temperature or PPM drift
+    172           */
+    173          void
+    174          RTC_ClockCalibration(Rtc * pRtc, int32_t CurrentTempr)
+    175          {
+    176          	uint16_t i;
+    177          	uint32_t MR_Reg, Size;
+    178          
+    179          	Size = sizeof (PPM_Lookup);
+    180          
+    181          	MR_Reg = 0;
+    182          	for (i = 0; i < Size; i++) {
+    183          		if (PPM_Lookup[i].Tempr == CurrentTempr) {
+    184          			MR_Reg |= RTC_MR_CORRECTION(PPM_Lookup[i].CORRECTION);
+    185          			MR_Reg |= (PPM_Lookup[i].HIGHPPM << 15);
+    186          			MR_Reg |= (PPM_Lookup[i].NEGPPM << 4);
+    187          			pRtc->RTC_MR = MR_Reg;	// update the calibration value
+    188          			break;
+    189          		}
+    190          	}
+    191          
+    192          }
+
+Errors: 11
+Warnings: 1

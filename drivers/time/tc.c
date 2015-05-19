@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -89,17 +89,16 @@
  * interrupts of the timer are also disabled.
  *
  * \param pTc  Pointer to a Tc instance.
- * \param dwChannel Channel number.
- * \param dwMode  Operating mode (TC_CMR value).
+ * \param channel Channel number.
+ * \param mode  Operating mode (TC_CMR value).
  */
-void
-TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode)
+void tc_configure(Tc * pTc, uint32_t channel, uint32_t mode)
 {
 	volatile TcChannel *pTcCh;
 
-	assert(dwChannel <
+	assert(channel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
-	pTcCh = pTc->TC_CHANNEL + dwChannel;
+	pTcCh = pTc->TC_CHANNEL + channel;
 
 	/*  Disable TC clock */
 	pTcCh->TC_CCR = TC_CCR_CLKDIS;
@@ -111,7 +110,7 @@ TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode)
 	pTcCh->TC_SR;
 
 	/*  Set mode */
-	pTcCh->TC_CMR = dwMode;
+	pTcCh->TC_CMR = mode;
 }
 
 /**
@@ -120,16 +119,16 @@ TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode)
  * Enables the timer clock and performs a software reset to start the counting.
  *
  * \param pTc  Pointer to a Tc instance.
- * \param dwChannel Channel number.
+ * \param channel Channel number.
  */
-void TC_Start(Tc * pTc, uint32_t dwChannel)
+void tc_start(Tc * pTc, uint32_t channel)
 {
 	volatile TcChannel *pTcCh;
 
-	assert(dwChannel <
+	assert(channel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
 
-	pTcCh = pTc->TC_CHANNEL + dwChannel;
+	pTcCh = pTc->TC_CHANNEL + channel;
 	pTcCh->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 	pTcCh->TC_IER = TC_IER_COVFS;
 }
@@ -140,17 +139,16 @@ void TC_Start(Tc * pTc, uint32_t dwChannel)
  * Disables the timer clock, stopping the counting.
  *
  * \param pTc     Pointer to a Tc instance.
- * \param dwChannel Channel number.
+ * \param channel Channel number.
  */
-void
-TC_Stop(Tc * pTc, uint32_t dwChannel)
+void tc_stop(Tc * pTc, uint32_t channel)
 {
 	volatile TcChannel *pTcCh;
 
-	assert(dwChannel <
+	assert(channel <
 	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
 
-	pTcCh = pTc->TC_CHANNEL + dwChannel;
+	pTcCh = pTc->TC_CHANNEL + channel;
 	pTcCh->TC_CCR = TC_CCR_CLKDIS;
 	pTcCh->TC_IDR = TC_IER_COVFS;
 }
@@ -165,29 +163,29 @@ TC_Stop(Tc * pTc, uint32_t dwChannel)
  * \endcode
  * with DIV being the highest possible value.
  *
- * \param dwFreq  Desired timer frequency.
+ * \param freq  Desired timer frequency.
  * \param dwMCk  Master clock frequency.
- * \param dwDiv  Divisor value.
- * \param dwTcClks  TCCLKS field value for divisor.
+ * \param div  Divisor value.
+ * \param tc_clks  TCCLKS field value for divisor.
  * \param board_mck  Board clock frequency.
  *
  * \return 1 if a proper divisor has been found, otherwise 0.
  */
-extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t * dwDiv,
-				  uint32_t * dwTcClks)
+extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t * div,
+				  uint32_t * tc_clks)
 {
 	const uint32_t master_clock = pmc_get_master_clock();
 	const uint32_t periph_clock = pmc_get_peripheral_max_clock(ID_TC0);
-	const uint32_t adwDivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
+	const uint32_t adivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
 
 	uint32_t dwIndex = 0;
 
 	/*  Satisfy lower bound */
-	while (dwFreq < ((periph_clock / adwDivisors[dwIndex]) / 65536)) {
+	while (freq < ((periph_clock / adivisors[dwIndex]) / 65536)) {
 		dwIndex++;
 
 		/*  If no divisor can be found, return 0 */
-		if (dwIndex == (sizeof (adwDivisors) / sizeof (adwDivisors[0]))) {
+		if (dwIndex == (sizeof (adivisors) / sizeof (adivisors[0]))) {
 			return 0;
 		}
 	}
@@ -195,18 +193,18 @@ extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t * dwDiv,
 	/*  Try to maximize DIV while satisfying upper bound */
 	while (dwIndex < 4) {
 
-		if (dwFreq > (periph_clock / adwDivisors[dwIndex + 1])) {
+		if (freq > (periph_clock / adivisors[dwIndex + 1])) {
 			break;
 		}
 		dwIndex++;
 	}
 
 	/*  Store results */
-	if (dwDiv) {
-		*dwDiv = adwDivisors[dwIndex];
+	if (div) {
+		*div = adivisors[dwIndex];
 	}
-	if (dwTcClks) {
-		*dwTcClks = dwIndex;
+	if (tc_clks) {
+		*tc_clks = dwIndex;
 	}
 
 	return 1;

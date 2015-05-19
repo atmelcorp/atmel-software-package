@@ -1,0 +1,352 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:48
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\mmu.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\mmu.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\mmu.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\mmu.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\mmu.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file */
+     31          
+     32          /**
+     33           * \addtogroup mmu MMU Initialization
+     34           *
+     35           * \section Usage
+     36           *
+     37           * Translation Lookaside Buffers (TLBs) are an implementation technique that caches translations or
+     38           * translation table entries. TLBs avoid the requirement for every memory access to perform a translation table
+     39           * lookup. The ARM architecture does not specify the exact form of the TLB structures for any design. In a
+     40           * similar way to the requirements for caches, the architecture only defines certain principles for TLBs:
+     41           *
+     42           * The MMU supports memory accesses based on memory sections or pages:
+     43           * Supersections Consist of 16MB blocks of memory. Support for Supersections is optional.
+     44           * -# Sections Consist of 1MB blocks of memory.
+     45           * -# Large pages Consist of 64KB blocks of memory.
+     46           * -# Small pages Consist of 4KB blocks of memory.
+     47           *
+     48           * Access to a memory region is controlled by the access permission bits and the domain field in the TLB entry.
+     49           * Memory region attributes
+     50           * Each TLB entry has an associated set of memory region attributes. These control accesses to the caches,
+     51           * how the write buffer is used, and if the memory region is Shareable and therefore must be kept coherent.
+     52           *
+     53           * Related files:\n
+     54           * \ref mmu.c\n
+     55           * \ref mmu.h \n
+     56           */
+     57          
+     58          /*------------------------------------------------------------------------------ */
+     59          /*         Headers                                                               */
+     60          /*------------------------------------------------------------------------------ */
+     61          #include <chip.h>
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     62          #include "core/mmu.h"
+     63          
+     64          /*------------------------------------------------------------------------------ */
+     65          /*         Exported functions */
+     66          /*------------------------------------------------------------------------------ */
+     67          
+     68          /**
+     69           * \brief Initializes MMU.
+     70           * \param pTB  Address of the translation table.
+     71           */
+     72          void
+     73          MMU_Initialize(uint32_t * pTB)
+     74          {
+     75          	unsigned int index;
+     76          	unsigned int addr;
+     77          
+     78          	/* Reset table entries */
+     79          	for (index = 0; index < 4096; index++)
+     80          		pTB[index] = 0;
+     81          
+     82          	/* section Boot (code + data) */
+     83          	/* ROM address (after remap) 0x0000_0000 */
+     84          	pTB[0x000] = (0x000 << 20) |	// Physical Address
+     85          	    (3 << 10) |		// Access in supervisor mode (AP)
+     86          	    (0xF << 5) |	// Domain 0xF
+     87          	    (1 << 4) |		// (XN)
+     88          	    (0 << 3) |		// C bit : cachable => NO
+     89          	    (1 << 2) |		// B bit : write-back => YES
+     90          	    (2 << 0);		// Set as 1 Mbyte section
+     91          
+     92          	/* section ROM (code + data) */
+     93          	/* ROM address (after remap) 0x0010_0000 */
+     94          	pTB[0x001] = (0x001 << 20) |	// Physical Address
+     95          	    (3 << 10) |		// Access in supervisor mode (AP)
+     96          	    (0xF << 5) |	// Domain 0xF
+     97          	    (1 << 4) |		// (XN)
+     98          	    (0 << 3) |		// C bit : cachable => NO
+     99          	    (1 << 2) |		// B bit : write-back => YES
+    100          	    (2 << 0);		// Set as 1 Mbyte section
+    101          	/* section RAM 0 */
+    102          	/* SRAM address (after remap) 0x0030_0000 */
+    103          	pTB[0x002] = (0x002 << 20) |	// Physical Address
+    104          	    (1 << 12) |		// TEX[0]
+    105          	    (3 << 10) |		// Access in supervisor mode (AP)
+    106          	    (0xF << 5) |	// Domain 0xF
+    107          	    (1 << 4) |		// (XN)
+    108          	    (1 << 3) |		// C bit : cachable => YES
+    109          	    (1 << 2) |		// B bit : write-back => YES
+    110          	    (2 << 0);		// Set as 1 Mbyte section
+    111          
+    112          	/* section NFC SRAM  */
+    113          	/* SRAM address 0x0040_0000 */
+    114          	for (addr = 0x3; addr < 0xB; addr++)
+    115          		pTB[addr] = (addr << 20) |	// Physical Address
+    116          		    (3 << 10) |	// Access in supervisor mode (AP)
+    117          		    (0xF << 5) |	// Domain 0xF
+    118          		    (1 << 4) |	// (XN)
+    119          		    (0 << 3) |	// C bit : cachable => NO
+    120          		    (1 << 2) |	// B bit : write-back => YES
+    121          		    (2 << 0);	// Set as 1 Mbyte section
+    122          
+    123          	/* section PERIPH */
+    124          	/* periph address 0xF000_0000 */
+    125          	pTB[0xF00] = (0xF00ul << 20) |	// Physical Address
+    126          	    (3 << 10) |		// Access in supervisor mode (AP)
+    127          	    (0xF << 5) |	// Domain 0
+    128          	    (1 << 4) |		// (XN)
+    129          	    (0 << 3) |		// C bit : cachable => NO
+    130          	    (0 << 2) |		// B bit : write-back => NO
+    131          	    (2 << 0);		// Set as 1 Mbyte section
+    132          
+    133          	/* section PERIPH */
+    134          	/* periph address 0xF800_0000 */
+    135          	pTB[0xF80] = (0xF80ul << 20) |	// Physical Address
+    136          	    (3 << 10) |		// Access in supervisor mode (AP)
+    137          	    (0xF << 5) |	// Domain 0xF
+    138          	    (1 << 4) |		// (XN)
+    139          	    (0 << 3) |		// C bit : cachable => NO
+    140          	    (0 << 2) |		// B bit : write-back => NO
+    141          	    (2 << 0);		// Set as 1 Mbyte section
+    142          
+    143          	/* section PERIPH */
+    144          	/* periph address 0xFC00_0000 */
+    145          	pTB[0xFC0] = (0xFC0ul << 20) |	// Physical Address
+    146          	    (3 << 10) |		// Access in supervisor mode (AP)
+    147          	    (0xF << 5) |	// Domain 0xF
+    148          	    (1 << 4) |		// (XN)
+    149          	    (0 << 3) |		// C bit : cachable => NO
+    150          	    (0 << 2) |		// B bit : write-back => NO
+    151          	    (2 << 0);		// Set as 1 Mbyte section
+    152          
+    153          	/* section EBI CS0 */
+    154          	/* periph address 0x1000_0000 */
+    155          	for (addr = 0x100; addr < 0x200; addr++)
+    156          		pTB[addr] = (addr << 20) |	// Physical Address
+    157          		    (3 << 10) |	// Access in supervisor mode (AP)
+    158          		    (0xF << 5) |	// Domain 0
+    159          		    (1 << 4) |	// (XN)
+    160          		    (0 << 3) |	// C bit : cachable => NO
+    161          		    (0 << 2) |	// B bit : write-back => NO
+    162          		    (2 << 0);	// Set as 1 Mbyte section
+    163          
+    164          	/* section EBI CS1 */
+    165          	/* periph address 0x6000_0000 */
+    166          	for (addr = 0x600; addr < 0x700; addr++)
+    167          		pTB[addr] = (addr << 20) |	// Physical Address
+    168          		    (3 << 10) |	// Access in supervisor mode (AP)
+    169          		    (0xF << 5) |	// Domain 0xF
+    170          		    (1 << 4) |	// (XN)
+    171          		    (0 << 3) |	// C bit : cachable => NO
+    172          		    (0 << 2) |	// B bit : write-back => NO
+    173          		    (2 << 0);	// Set as 1 Mbyte section
+    174          
+    175          	/* section EBI CS2 */
+    176          	/* periph address 0x7000_0000 */
+    177          	for (addr = 0x700; addr < 0x800; addr++)
+    178          		pTB[addr] = (addr << 20) |	// Physical Address
+    179          		    (3 << 10) |	// Access in supervisor mode (AP)
+    180          		    (0xF << 5) |	// Domain 0xF
+    181          		    (1 << 4) |	// (XN)
+    182          		    (0 << 3) |	// C bit : cachable => NO
+    183          		    (0 << 2) |	// B bit : write-back => NO
+    184          		    (2 << 0);	// Set as 1 Mbyte section
+    185          
+    186          	/* section EBI CS3 */
+    187          	/* periph address 0x8000_0000 */
+    188          	for (addr = 0x800; addr < 0x880; addr++)
+    189          		pTB[addr] = (addr << 20) |	// Physical Address
+    190          		    (3 << 10) |	// Access in supervisor mode (AP)
+    191          		    (0xF << 5) |	// Domain 0xF
+    192          		    (1 << 4) |	// (XN)
+    193          		    (0 << 3) |	// C bit : cachable => NO
+    194          		    (0 << 2) |	// B bit : write-back => NO
+    195          		    (2 << 0);	// Set as 1 Mbyte section
+    196          
+    197          	/* section NFC */
+    198          	/* periph address 0x9000_0000 */
+    199          	for (addr = 0x900; addr < 0xA00; addr++)
+    200          		pTB[addr] = (addr << 20) |	// Physical Address
+    201          		    (3 << 10) |	// Access in supervisor mode (AP)
+    202          		    (0xF << 5) |	// Domain 0xF
+    203          		    (1 << 4) |	// (XN)
+    204          		    (0 << 3) |	// C bit : cachable => NO
+    205          		    (0 << 2) |	// B bit : write-back => NO
+    206          		    (2 << 0);	// Set as 1 Mbyte section
+    207          
+    208          	/* section SDRAM/DDRAM */
+    209          	/* periph address 0x2000_0000 */
+    210          	for (addr = 0x200; addr < 0x240; addr++)
+    211          		pTB[addr] = (addr << 20) |	// Physical Address
+    212          		    (3 << 10) |	// Access in supervisor mode (AP)
+    213          		    //(0x1 << 14)|   // TEX[2]
+    214          		    (0x1 << 12) |	// TEX[1:0]
+    215          		    (0xF << 5) |	// Domain 0xF
+    216          		    (1 << 3) |	// C bit : cachable => YES
+    217          		    (1 << 2) |	// B bit : write-back => YES
+    218          		    (2 << 0);	// Set as 1 Mbyte section
+    219          
+    220          	/* section SDRAM/DDRAM */
+    221          	/* periph address 0x2400_0000 */
+    222          	for (addr = 0x240; addr < 0x400; addr++)
+    223          		pTB[addr] = (addr << 20) |	// Physical Address
+    224          		    (1 << 19) |	// (NS)  Non-secure access is allowed
+    225          		    (3 << 10) |	// Access in supervisor mode (AP)
+    226          		    (0xF << 5) |	// Domain 0xF
+    227          		    (1 << 4) |	// (XN)
+    228          		    (0 << 3) |	// C bit : cachable => No
+    229          		    (0 << 2) |	// B bit : write-back => No
+    230          		    (2 << 0);	// Set as 1 Mbyte section
+    231          
+    232          	/* section DDRCS/AES */
+    233          	/* periph address 0x4000_0000 */
+    234          	for (addr = 0x400; addr < 0x600; addr++)
+    235          		pTB[addr] = (addr << 20) |	// Physical Address
+    236          		    (3 << 10) |	// Access in supervisor mode (AP)
+    237          		    (1 << 12) |	// TEX[0]
+    238          		    (0xF << 5) |	// Domain 0xF
+    239          		    (1 << 3) |	// C bit : cachable => YES
+    240          		    (1 << 2) |	// B bit : write-back => YES
+    241          		    (2 << 0);	// Set as 1 Mbyte section
+    242          
+    243          	cp15_write_ttb((unsigned int) pTB);
+    244          	/* Program the domain access register */
+    245          	cp15_write_domain_access_control(0xC0000000);	// only domain 15: access are not checked
+    246          }
+
+Errors: 11
+Warnings: 1

@@ -93,6 +93,7 @@
 /*------------------------------------------------------------------------------ */
 extern unsigned int cp15_read_id(void);
 extern unsigned int cp15_read_control(void);
+
 extern void cp15_exclusive_cache(void);
 extern void cp15_non_exclusive_cache(void);
 extern void cp15_isb(void);

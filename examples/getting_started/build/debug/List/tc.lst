@@ -1,0 +1,317 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:51
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\tc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\tc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\tc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\tc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\time\tc.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup tc_module
+     31           * \section Purpose
+     32           * The TC driver provides the Interface to configure the Timer Counter (TC).
+     33           *
+     34           * \section Usage
+     35           * <ul>
+     36           *  <li> Optionally, use TC_FindMckDivisor() to let the program find the best
+     37           *     TCCLKS field value automatically.</li>
+     38           *  <li> Configure a Timer Counter in the desired mode using TC_Configure().</li>
+     39           *  <li> Start or stop the timer clock using TC_Start() and TC_Stop().</li>
+     40           *  </li>
+     41           * </ul>
+     42           * For more accurate information, please look at the TC section of the Datasheet.
+     43           *
+     44           * Related files :\n
+     45           * \ref tc.c\n
+     46           * \ref tc.h.\n
+     47          */
+     48          
+     49          /**
+     50          *  \file
+     51          *
+     52          *  \section Purpose
+     53          *
+     54          *  Interface for configuring and using Timer Counter (TC) peripherals.
+     55          *
+     56          *  \section Usage
+     57          *  -# Optionally, use TC_FindMckDivisor() to let the program find the best
+     58          *     TCCLKS field value automatically.
+     59          *  -# Configure a Timer Counter in the desired mode using TC_Configure().
+     60          *  -# Start or stop the timer clock using TC_Start() and TC_Stop().
+     61          */
+     62          
+     63          /**
+     64           * \file
+     65           *
+     66           * Implementation of Timer Counter (TC).
+     67           *
+     68           */
+     69          
+     70          /*------------------------------------------------------------------------------
+     71           *         Headers
+     72           *------------------------------------------------------------------------------*/
+     73          
+     74          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     75          #include "time/tc.h"
+     76          #include "core/pmc.h"
+     77          
+     78          #include <assert.h>
+     79          
+     80          /*------------------------------------------------------------------------------
+     81           *         Global functions
+     82           *------------------------------------------------------------------------------*/
+     83          
+     84          /**
+     85           * \brief Configures a Timer Counter Channel
+     86           *
+     87           * Configures a Timer Counter to operate in the given mode. Timer is stopped
+     88           * after configuration and must be restarted with TC_Start(). All the
+     89           * interrupts of the timer are also disabled.
+     90           *
+     91           * \param pTc  Pointer to a Tc instance.
+     92           * \param channel Channel number.
+     93           * \param mode  Operating mode (TC_CMR value).
+     94           */
+     95          void tc_configure(Tc * pTc, uint32_t channel, uint32_t mode)
+     96          {
+     97          	volatile TcChannel *pTcCh;
+     98          
+     99          	assert(channel <
+    100          	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
+    101          	pTcCh = pTc->TC_CHANNEL + channel;
+    102          
+    103          	/*  Disable TC clock */
+    104          	pTcCh->TC_CCR = TC_CCR_CLKDIS;
+    105          
+    106          	/*  Disable interrupts */
+    107          	pTcCh->TC_IDR = 0xFFFFFFFF;
+    108          
+    109          	/*  Clear status register */
+    110          	pTcCh->TC_SR;
+    111          
+    112          	/*  Set mode */
+    113          	pTcCh->TC_CMR = mode;
+    114          }
+    115          
+    116          /**
+    117           * \brief Reset and Start the TC Channel
+    118           *
+    119           * Enables the timer clock and performs a software reset to start the counting.
+    120           *
+    121           * \param pTc  Pointer to a Tc instance.
+    122           * \param channel Channel number.
+    123           */
+    124          void tc_start(Tc * pTc, uint32_t channel)
+    125          {
+    126          	volatile TcChannel *pTcCh;
+    127          
+    128          	assert(channel <
+    129          	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
+    130          
+    131          	pTcCh = pTc->TC_CHANNEL + channel;
+    132          	pTcCh->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
+    133          	pTcCh->TC_IER = TC_IER_COVFS;
+    134          }
+    135          
+    136          /**
+    137           * \brief Stop TC Channel
+    138           *
+    139           * Disables the timer clock, stopping the counting.
+    140           *
+    141           * \param pTc     Pointer to a Tc instance.
+    142           * \param channel Channel number.
+    143           */
+    144          void tc_stop(Tc * pTc, uint32_t channel)
+    145          {
+    146          	volatile TcChannel *pTcCh;
+    147          
+    148          	assert(channel <
+    149          	       (sizeof (pTc->TC_CHANNEL) / sizeof (pTc->TC_CHANNEL[0])));
+    150          
+    151          	pTcCh = pTc->TC_CHANNEL + channel;
+    152          	pTcCh->TC_CCR = TC_CCR_CLKDIS;
+    153          	pTcCh->TC_IDR = TC_IER_COVFS;
+    154          }
+    155          
+    156          /**
+    157           * \brief Find best MCK divisor
+    158           *
+    159           * Finds the best MCK divisor given the timer frequency and MCK. The result
+    160           * is guaranteed to satisfy the following equation:
+    161           * \code
+    162           *   (MCK / (DIV * 65536)) <= freq <= (MCK / DIV)
+    163           * \endcode
+    164           * with DIV being the highest possible value.
+    165           *
+    166           * \param freq  Desired timer frequency.
+    167           * \param dwMCk  Master clock frequency.
+    168           * \param div  Divisor value.
+    169           * \param tc_clks  TCCLKS field value for divisor.
+    170           * \param board_mck  Board clock frequency.
+    171           *
+    172           * \return 1 if a proper divisor has been found, otherwise 0.
+    173           */
+    174          extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t * div,
+    175          				  uint32_t * tc_clks)
+    176          {
+    177          	const uint32_t master_clock = pmc_get_master_clock();
+    178          	const uint32_t periph_clock = pmc_get_peripheral_max_clock(ID_TC0);
+    179          	const uint32_t adivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
+    180          
+    181          	uint32_t dwIndex = 0;
+    182          
+    183          	/*  Satisfy lower bound */
+    184          	while (freq < ((periph_clock / adivisors[dwIndex]) / 65536)) {
+    185          		dwIndex++;
+    186          
+    187          		/*  If no divisor can be found, return 0 */
+    188          		if (dwIndex == (sizeof (adivisors) / sizeof (adivisors[0]))) {
+    189          			return 0;
+    190          		}
+    191          	}
+    192          
+    193          	/*  Try to maximize DIV while satisfying upper bound */
+    194          	while (dwIndex < 4) {
+    195          
+    196          		if (freq > (periph_clock / adivisors[dwIndex + 1])) {
+    197          			break;
+    198          		}
+    199          		dwIndex++;
+    200          	}
+    201          
+    202          	/*  Store results */
+    203          	if (div) {
+    204          		*div = adivisors[dwIndex];
+    205          	}
+    206          	if (tc_clks) {
+    207          		*tc_clks = dwIndex;
+    208          	}
+    209          
+    210          	return 1;
+    211          }
+
+Errors: 11
+Warnings: 1

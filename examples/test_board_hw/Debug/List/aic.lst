@@ -1,0 +1,498 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        29/Apr/2015  16:09:34
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\aic.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\aic.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\aic.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\aic.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\aic.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2014, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup aic_module
+     31           *
+     32           * \section Purpose
+     33           * The Advanced Interrupt Controller (AIC) is an 8-level priority, individually
+     34           * maskable, vectored interrupt controller, providing handling of up to thirty-two interrupt sources.
+     35           *
+     36           * \section Usage
+     37           * <ul>
+     38           * <li> Each interrupt source can be enabled or disabled by using the aic_enable() and aic_disable()</li>
+     39           * </ul>
+     40           *
+     41           * For more accurate information, please look at the AIC section of the
+     42           * Datasheet.
+     43           *
+     44           * Related files :\n
+     45           * \ref aic.c\n
+     46           * \ref aic.h\n
+     47           */
+     48          /*@{*/
+     49          /*@}*/
+     50          
+     51          /**
+     52          * \file
+     53          *
+     54          * Implementation of Advanced Interrupt Controller (AIC) controller.
+     55          *
+     56          */
+     57          
+     58          /*----------------------------------------------------------------------------
+     59           *        Headers
+     60           *----------------------------------------------------------------------------*/
+     61          
+     62          #include "chip.h"
+     63          #include "core/aic.h"
+     64          #include "core/cp15.h"
+     65          #include "core/cp15_pmu.h"
+     66          
+     67          #include <stdint.h>
+     68          #include <assert.h>
+     69          
+     70          /*------------------------------------------------------------------------------
+     71           *         Local functions
+     72           *------------------------------------------------------------------------------*/
+     73          
+     74          /**
+     75           * \brief Configures an interrupt in the AIC. The interrupt is identified by its
+     76           * source (ID_xxx) and is configured to use the specified mode and
+     77           * interrupt handler function. Mode is the value that will be put in AIC_SMRx
+     78           * and the function address will be set in AIC_SVRx.
+     79           * The interrupt is disabled before configuration, so it is useless
+     80           * to do it before calling this function. When aic_configure returns, the
+     81           * interrupt will always be disabled and cleared; it must be enabled by a
+     82           * call to aic_enable().
+     83           *
+     84           * \param source  Interrupt source to configure.
+     85           * \param mode  Triggering mode and priority of the interrupt.
+     86           * \param handler  Interrupt handler function.
+     87           */
+     88          
+     89          static void _aic_configure_it(uint32_t source, uint8_t mode)
+     90          {
+     91          	AIC->AIC_SSR = source;
+     92          	/* Disable the interrupt first */
+     93          	AIC->AIC_IDCR = AIC_IDCR_INTD;
+     94          	/* Configure mode and handler */
+     95          	AIC->AIC_SMR = mode;
+     96          	/* Clear interrupt */
+     97          	AIC->AIC_ICCR = AIC_ICCR_INTCLR;
+     98          }
+     99          
+    100          /**
+    101           * \brief Enables interrupts coming from the given AIC and (unique) source (ID_xxx).
+    102           *
+    103           * \param aic  AIC instance.
+    104           * \param source  Interrupt source to enable.
+    105           */
+    106          static void _aic_enable_it(Aic * aic, uint32_t source)
+    107          {
+    108          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+    109          	aic->AIC_IECR = AIC_IECR_INTEN;
+    110          }
+    111          
+    112          /**
+    113           * \brief Disables interrupts coming from the given AIC and (unique) source (ID_xxx).
+    114           *
+    115           * \param aic  AIC instance.
+    116           * \param source  Interrupt source to disable.
+    117           */
+    118          static void _aic_disable_it(Aic * aic, uint32_t source)
+    119          {
+    120          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+    121          	aic->AIC_IDCR = AIC_IDCR_INTD;
+    122          }
+    123          
+    124          /**
+    125           * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
+    126           *
+    127           * \param aic  AIC instance.
+    128           * \param source  Interrupt source to configure.
+    129           * \param handler handler for the interrupt.
+    130           */
+    131          static void _aic_set_source_vector(Aic * aic, uint32_t source, uint32_t handler)
+    132          {
+    133          	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
+    134          		aic_write_protection(aic, 1);
+    135          	}
+    136          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+    137          	aic->AIC_SVR = handler;
+    138          }
+    139          
+    140          /**
+    141           * \brief Clears interrupts coming from the given AIC and (unique) source (ID_xxx).
+    142           *
+    143           * \param aic  AIC instance.
+    144           * \param source  Interrupt source to disable.
+    145           */
+    146          static void _aic_clear_it(Aic * aic, uint32_t source)
+    147          {
+    148          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+    149          	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+    150          }
+    151          
+    152          /**
+    153           * \brief Sets interrupts coming from the given AIC and (unique) source (ID_xxx).
+    154           *
+    155           * \param aic  AIC instance.
+    156           * \param source  Interrupt source to disable.
+    157           */
+    158          static void _aic_set_it(Aic * aic, uint32_t source)
+    159          {
+    160          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+    161          	aic->AIC_ISCR = AIC_ISCR_INTSET;
+    162          }
+    163          
+    164          /**
+    165           * \brief return if the giving peripheral is H64 Matrix
+    166           *
+    167           * \param pid  peripheral ID
+    168           */
+    169          static uint8_t _is_h64_matrix(uint32_t pid)
+    170          {
+    171          	uint8_t i;
+    172          	for (i=0; i<ID_H64_MATRIX_SIZE; i++) {
+    173          		if( pid == _id_h64_matrix[i]) {
+    174          			return 1;
+    175          		}
+    176          	}
+    177          	return 0;
+    178          }
+    179          
+    180          /*----------------------------------------------------------------------------
+    181           *        Exported functions
+    182           *----------------------------------------------------------------------------*/
+    183          
+    184          /**
+    185           * \brief Enables interrupts coming from the given (unique) source (ID_xxx).
+    186           *
+    187           * \param source  Interrupt source to enable.
+    188           */
+    189          void aic_enable(uint32_t source)
+    190          {
+    191          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+    192          
+    193          	if (AicFuse) {
+    194          		_aic_enable_it(AIC, source);
+    195          	} else {
+    196          		if (_is_h64_matrix(source)) {
+    197          			if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    198          				_aic_enable_it(AIC, source);
+    199          			else
+    200          				_aic_enable_it(SAIC, source);
+    201          		} else {
+    202          			if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    203          				_aic_enable_it(AIC, source);
+    204          			else
+    205          				_aic_enable_it(SAIC, source);
+    206          		}
+    207          	}
+    208          }
+    209          
+    210          /**
+    211           * \brief Disables interrupts coming from the given (unique) source (ID_xxx).
+    212           *
+    213           * \param source  Interrupt source to disable.
+    214           */
+    215          void aic_disable(uint32_t source)
+    216          {
+    217          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+    218          
+    219          	if (AicFuse) {
+    220          		_aic_disable_it(AIC, source);
+    221          		return;
+    222          	}
+    223          
+    224          	if (_is_h64_matrix(source)) {
+    225          		if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    226          			_aic_disable_it(AIC, source);
+    227          		else
+    228          			_aic_disable_it(SAIC, source);
+    229          	} else {
+    230          		if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    231          			_aic_disable_it(AIC, source);
+    232          		else
+    233          			_aic_disable_it(SAIC, source);
+    234          	}
+    235          }
+    236          
+    237          /**
+    238           * \brief Configure interrupts' source mode.
+    239           *
+    240           * \param source  Interrupt source to configure.
+    241           * \param mode    mode combined of priority level and interrupt source type.
+    242           */
+    243          void aic_configure(uint32_t source, uint8_t mode)
+    244          {
+    245          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+    246          
+    247          	if (AicFuse) {
+    248          		_aic_configure_it(source, mode);
+    249          	} else {
+    250          		if (_is_h64_matrix(source)) {
+    251          			if (MATRIX0->
+    252          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    253          				_aic_configure_it(source, mode);
+    254          			else {
+    255          				// Does not apply For SAIC
+    256          			}
+    257          		} else {
+    258          			if (MATRIX1->
+    259          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+    260          				_aic_configure_it(source, mode);
+    261          			else {
+    262          				// does not apply for SAIC
+    263          			}
+    264          		}
+    265          	}
+    266          }
+    267          
+    268          /**
+    269           * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
+    270           *
+    271           * \param source  Interrupt source to configure.
+    272           * \param handler handler for the interrupt.
+    273           */
+    274          void aic_set_source_vector(uint32_t source, uint32_t handler)
+    275          {
+    276          	Matrix *pMatrix;
+    277          	Aic *aic = AIC;
+    278          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+    279          
+    280          	if (0 == AicFuse) {
+    281          		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
+    282          		if (0 ==
+    283          		    (pMatrix->
+    284          		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+    285          			aic = SAIC;
+    286          	}
+    287          	_aic_set_source_vector(aic, source, handler);
+    288          }
+    289          
+    290          /**
+    291           * \brief Configure interrupts' source mode.
+    292           *
+    293           * \param source  Interrupt source to configure.
+    294           * \param mode    mode combined of priority level and interrupt source type.
+    295           */
+    296          void aic_set_or_clear(uint32_t source, uint8_t set)
+    297          {
+    298          	Matrix *pMatrix;
+    299          	Aic *aic = AIC;
+    300          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+    301          
+    302          	if (0 == AicFuse) {
+    303          		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
+    304          		if (0 ==
+    305          		    (pMatrix->
+    306          		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+    307          			aic = SAIC;
+    308          	}
+    309          	if (set)
+    310          		_aic_set_it(aic, source);
+    311          	else
+    312          		_aic_clear_it(aic, source);
+    313          }
+    314          
+    315          /**
+    316           * \brief Indicate treatment completion for interrupts coming from the given AIC and (unique) source (ID_xxx).
+    317           *
+    318           * \param aic  AIC instance.
+    319           */
+    320          void aic_end_interrupt(Aic * aic)
+    321          {
+    322          	aic->AIC_EOICR = AIC_EOICR_ENDIT;
+    323          }
+    324          
+    325          /**
+    326           * \brief Configuration of protection mode and general interrupt mask for debug.
+    327           *
+    328           * \param aic     AIC instance.
+    329           * \param protect Enable/Disable protection mode.
+    330           * \param mask    Enable/Disable mask IRQ and FIQ.
+    331           *
+    332           * \retval        0 - succeed.  1 - failed.
+    333           */
+    334          uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask)
+    335          {
+    336          	uint32_t tmp;
+    337          
+    338          	/* return in case the "Write Protection Mode" is enabled */
+    339          	if (aic->AIC_WPMR & AIC_WPMR_WPEN)
+    340          		return 1;
+    341          
+    342          	tmp = protect ? (1 << 1) : (0 << 1);
+    343          	if (mask)
+    344          		tmp++;
+    345          	aic->AIC_DCR = tmp;
+    346          	return 0;
+    347          }
+    348          
+    349          /**
+    350           * \brief Enable/Disable AIC write protection mode.
+    351           *
+    352           * \param aic     AIC instance.
+    353           * \param enable  Enable/Disable AIC write protection mode.
+    354           */
+    355          void aic_write_protection(Aic * aic, uint32_t enable)
+    356          {
+    357          	if (enable) {
+    358          		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD | AIC_WPMR_WPEN;
+    359          	} else {
+    360          		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD;
+    361          	}
+    362          }
+    363          
+    364          /**
+    365           * \brief Get AIC Write Protection Status.
+    366           *
+    367           * \param aic     AIC instance.
+    368           * \param pViolationSource pointer to address to store the violation source
+    369           *
+    370           * \retval        0 - No violation occured.  1 - violation occured.
+    371           */
+    372          uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource)
+    373          {
+    374          	if (aic->AIC_WPSR & AIC_WPSR_WPVS) {
+    375          		*pViolationSource =
+    376          		    (aic->
+    377          		     AIC_WPSR & AIC_WPSR_WPVSRC_Msk) >> AIC_WPSR_WPVSRC_Pos;
+    378          	}
+    379          	return 0;
+    380          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   _aic_clear_it
+       0   _aic_configure_it
+       0   _aic_disable_it
+       0   _aic_enable_it
+       0   _aic_set_it
+      16   _aic_set_source_vector
+        16   -> aic_write_protection
+       0   _is_h64_matrix
+      16   aic_configure
+        16   -> _aic_configure_it
+        16   -> _is_h64_matrix
+       0   aic_debug_config
+      16   aic_disable
+        16   -> _aic_disable_it
+        16   -> _is_h64_matrix
+      16   aic_enable
+        16   -> _aic_enable_it
+        16   -> _is_h64_matrix
+       0   aic_end_interrupt
+      24   aic_set_or_clear
+        24   -> _aic_clear_it
+        24   -> _aic_set_it
+        24   -> _is_h64_matrix
+      24   aic_set_source_vector
+        24   -> _aic_set_source_vector
+        24   -> _is_h64_matrix
+       0   aic_violation_occured
+       0   aic_write_protection
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+       4  ??DataTable7_8
+      20  _aic_clear_it
+      56  _aic_configure_it
+      20  _aic_disable_it
+      20  _aic_enable_it
+      20  _aic_set_it
+      56  _aic_set_source_vector
+      48  _id_h64_matrix
+      80  _is_h64_matrix
+     176  aic_configure
+      84  aic_debug_config
+     216  aic_disable
+     216  aic_enable
+      12  aic_end_interrupt
+     172  aic_set_or_clear
+     144  aic_set_source_vector
+      36  aic_violation_occured
+      32  aic_write_protection
+
+ 
+    48 bytes in section .rodata
+ 1 396 bytes in section .text
+ 
+ 1 396 bytes of CODE  memory
+    48 bytes of CONST memory
+
+Errors: none
+Warnings: 1

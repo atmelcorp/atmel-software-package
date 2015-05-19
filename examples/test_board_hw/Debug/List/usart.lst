@@ -1,0 +1,422 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        29/Apr/2015  16:09:38
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\usart.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\usart.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup usart_module Working with USART
+     31           * \section Purpose
+     32           * The USART driver provides the interface to configure and use the USART peripheral.\n
+     33           *
+     34           * The USART supports several kinds of communication modes such as full-duplex asynchronous/
+     35           * synchronous serial communication,RS485 with driver control signal,ISO7816,SPI and Test modes.
+     36           *
+     37           * To start a USART transfer with \ref dmad_module "DMA" support, the user could follow these steps:
+     38           * <ul>
+     39           * <li> Configure USART with expected mode and baudrate(see \ref usart_configure), which could be done by:
+     40           * -# Resetting and disabling transmitter and receiver by setting US_CR(Control Register). </li>
+     41           * -# Configuring the USART in a specific mode by setting USART_MODE bits in US_MR(Mode Register) </li>
+     42           * -# Setting baudrate which is different from mode to mode.
+     43             </li>
+     44           * <li> Enable transmitter or receiver respectively by set US_CR_TXEN or US_CR_RXEN in US_CR.</li>
+     45           * <li> Read from or write to the peripheral with  \ref dmad_module </li>
+     46           * </ul>
+     47           *
+     48           * \section Usage
+     49           * <ul>
+     50           * <li>  Enable or disable USART transmitter or receiver using
+     51           * usart_set_transmitter_enabled() and usart_set_receiver_enabled().
+     52           * <li>  Enable or disable USART interrupt using usart_enable_it() or usart_disable_it().
+     53           * </li>
+     54           * </ul>
+     55           *
+     56           * For more accurate information, please look at the USART section of the
+     57           * Datasheet.
+     58           *
+     59           * Related files :\n
+     60           * \ref usart.c\n
+     61           * \ref usart.h\n
+     62          */
+     63          
+     64          /**
+     65           * \file
+     66           *
+     67           * Implementation of USART (Universal Synchronous Asynchronous Receiver Transmitter)
+     68           * controller.
+     69           *
+     70           */
+     71          /*-----------------------------------------------------------------------------
+     72          *         Headers
+     73           *---------------------------------------------------------------------------*/
+     74          
+     75          #include "chip.h"
+     76          #include "serial/usart.h"
+     77          
+     78          #include "utils/trace.h"
+     79          
+     80          #include <assert.h>
+     81          #include <string.h>
+     82          
+     83          /*----------------------------------------------------------------------------
+     84           *         Exported functions
+     85           *----------------------------------------------------------------------------*/
+     86          
+     87          /**
+     88           * \brief Configures an USART peripheral with the specified parameters.
+     89           *  \param usart  Pointer to the USART peripheral to configure.
+     90           *  \param mode  Desired value for the USART mode register (see the datasheet).
+     91           *  \param baudrate  Baudrate at which the USART should operate (in Hz).
+     92           *  \param clock  Frequency of the system master clock (in Hz).
+     93           */
+     94          void usart_configure(Usart *usart, uint32_t mode,
+     95          		     uint32_t baudrate, uint32_t clock)
+     96          {
+     97          	/* Reset and disable receiver & transmitter */
+     98          	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+     99          	/* Configure mode */
+    100          	usart->US_MR = mode;
+    101          	/* Configure baudrate */
+    102          	/* Asynchronous, no oversampling */
+    103          	if (((mode & US_MR_SYNC) == 0)
+    104          	    && ((mode & US_MR_OVER) == 0)) {
+    105          		usart->US_BRGR = (clock / baudrate) / 16;
+    106          	}
+    107          	if (((mode & US_MR_USART_MODE_SPI_MASTER) ==
+    108          	     US_MR_USART_MODE_SPI_MASTER) || ((mode & US_MR_SYNC) == US_MR_SYNC)) {
+    109          		if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_MCK) {
+    110          			usart->US_BRGR = clock / baudrate;
+    111          		} else {
+    112          			if ((mode & US_MR_USCLKS_DIV) == US_MR_USCLKS_DIV) {
+    113          				usart->US_BRGR = clock / baudrate / 8;
+    114          			}
+    115          		}
+    116          	}
+    117          	/* TODO other modes */
+    118          
+    119          	/* Enable receiver and transmitter */
+    120          	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+    121          }
+    122          
+    123          /**
+    124           * \brief   Get present status
+    125           * \param usart  Pointer to an USART peripheral.
+    126           */
+    127          uint32_t usart_get_status(Usart *usart)
+    128          {
+    129          	return usart->US_CSR;
+    130          }
+    131          
+    132          /**
+    133           * \brief   Enable interrupt
+    134           * \param usart  Pointer to an USART peripheral.
+    135           * \param mode  Interrupt mode.
+    136           */
+    137          void usart_enable_it(Usart *usart, uint32_t mode)
+    138          {
+    139          	usart->US_IER = mode;
+    140          }
+    141          
+    142          /**
+    143           * \brief   Disable interrupt
+    144           * \param usart  Pointer to an USART peripheral.
+    145           * \param mode  Interrupt mode.
+    146           */
+    147          void usart_disable_it(Usart *usart, uint32_t mode)
+    148          {
+    149          	usart->US_IDR = mode;
+    150          }
+    151          
+    152          /**
+    153           * \brief   Return interrupt mask
+    154           * \param usart  Pointer to an USART peripheral.
+    155           */
+    156          uint32_t usart_get_it_mask(Usart *usart)
+    157          {
+    158          	return usart->US_IMR;
+    159          }
+    160          
+    161          /**
+    162           * \brief Enables or disables the transmitter of an USART peripheral.
+    163           * \param usart  Pointer to an USART peripheral
+    164           * \param enabled  If true, the transmitter is enabled; otherwise it is
+    165           *                disabled.
+    166           */
+    167          void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled)
+    168          {
+    169          	if (enabled) {
+    170          		usart->US_CR = US_CR_TXEN;
+    171          	} else {
+    172          		usart->US_CR = US_CR_TXDIS;
+    173          	}
+    174          }
+    175          
+    176          /**
+    177           * \brief Enables or disables the receiver of an USART peripheral
+    178           * \param usart  Pointer to an USART peripheral
+    179           * \param enabled  If true, the receiver is enabled; otherwise it is disabled.
+    180           */
+    181          void usart_set_receiver_enabled(Usart *usart, uint8_t enabled)
+    182          {
+    183          	if (enabled) {
+    184          		usart->US_CR = US_CR_RXEN;
+    185          	} else {
+    186          		usart->US_CR = US_CR_RXDIS;
+    187          	}
+    188          }
+    189          
+    190          /**
+    191           * \brief Enables or disables the Request To Send (RTS) of an USART peripheral
+    192           * \param usart  Pointer to an USART peripheral
+    193           * \param enabled  If true, the RTS is enabled (0); otherwise it is disabled.
+    194           */
+    195          void usart_set_rts_enabled(Usart *usart, uint8_t enabled)
+    196          {
+    197          	if (enabled) {
+    198          		usart->US_CR = US_CR_RTSEN;
+    199          	} else {
+    200          		usart->US_CR = US_CR_RTSDIS;
+    201          	}
+    202          }
+    203          
+    204          /**
+    205           * \brief Sends one packet of data through the specified USART peripheral. This
+    206           * function operates synchronously, so it only returns when the data has been
+    207           * actually sent.
+    208           * \param usart  Pointer to an USART peripheral.
+    209           * \param data  Data to send including 9nth bit and sync field if necessary (in
+    210           *        the same format as the US_THR register in the datasheet).
+    211           * \param timeOut  Time out value (0 = no timeout).
+    212           */
+    213          void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
+    214          {
+    215          	if (timeOut == 0) {
+    216          		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+    217          	} else {
+    218          		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) {
+    219          			if (timeOut == 0) {
+    220          				TRACE_ERROR("usart_write: Timed out.\n\r");
+    221          				return;
+    222          			}
+    223          			timeOut--;
+    224          		}
+    225          	}
+    226          	usart->US_THR = data;
+    227          }
+    228          
+    229          /**
+    230           * \brief  Reads and return a packet of data on the specified USART peripheral. This
+    231           * function operates asynchronously, so it waits until some data has been
+    232           * received.
+    233           * \param usart  Pointer to an USART peripheral.
+    234           * \param timeOut  Time out value (0 -> no timeout).
+    235           */
+    236          uint16_t usart_read(Usart *usart, volatile uint32_t timeOut)
+    237          {
+    238          	if (timeOut == 0) {
+    239          		while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
+    240          	} else {
+    241          		while ((usart->US_CSR & US_CSR_RXRDY) == 0) {
+    242          			if (timeOut == 0) {
+    243          				TRACE_ERROR("usart_read: Timed out.\n\r");
+    244          				return 0;
+    245          			}
+    246          			timeOut--;
+    247          		}
+    248          	}
+    249          	return usart->US_RHR;
+    250          }
+    251          
+    252          /**
+    253           * \brief  Returns 1 if some data has been received and can be read from an USART;
+    254           * otherwise returns 0.
+    255           * \param usart  Pointer to an USART instance.
+    256           */
+    257          uint8_t usart_is_data_available(Usart *usart)
+    258          {
+    259          	if ((usart->US_CSR & US_CSR_RXRDY) != 0) {
+    260          		return 1;
+    261          	} else {
+    262          		return 0;
+    263          	}
+    264          }
+    265          
+    266          /**
+    267           * \brief   Return 1 if a character can be read in USART
+    268           * \param usart  Pointer to an USART peripheral.
+    269           */
+    270          uint32_t usart_is_rx_ready(Usart *usart)
+    271          {
+    272          	return (usart->US_CSR & US_CSR_RXRDY);
+    273          }
+    274          
+    275          /**
+    276           * \brief  Sends one packet of data through the specified USART peripheral. This
+    277           * function operates synchronously, so it only returns when the data has been
+    278           * actually sent.
+    279           * \param usart  Pointer to an USART peripheral.
+    280           * \param c  Character to send
+    281           */
+    282          void usart_put_char(Usart *usart, uint8_t c)
+    283          {
+    284          	/* Wait for the transmitter to be ready */
+    285          	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+    286          	/* Send character */
+    287          	usart->US_THR = c;
+    288          	/* Wait for the transfer to complete */
+    289          	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+    290          }
+    291          
+    292          /**
+    293           * \brief  Reads and returns a character from the USART.
+    294           * \note This function is synchronous (i.e. uses polling).
+    295           * \param usart  Pointer to an USART peripheral.
+    296           * \return Character received.
+    297           */
+    298          uint8_t usart_get_char(Usart *usart)
+    299          {
+    300          	while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
+    301          	return usart->US_RHR;
+    302          }
+    303          
+    304          /**
+    305           * \brief  Sets the filter value for the IRDA demodulator.
+    306           * \param usart  Pointer to an USART instance.
+    307           * \param filter  Filter value.
+    308           */
+    309          void usart_set_irda_filter(Usart *usart, uint8_t filter)
+    310          {
+    311          	assert(usart != NULL);
+    312          
+    313          	usart->US_IF = filter;
+    314          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      20   usart_configure
+        20 __aeabi_uidiv
+       0   usart_disable_it
+       0   usart_enable_it
+       0   usart_get_char
+       0   usart_get_it_mask
+       0   usart_get_status
+       0   usart_is_data_available
+       0   usart_is_rx_ready
+       0   usart_put_char
+      16   usart_read
+        16   -> printf
+      16   usart_set_irda_filter
+        16   -> __aeabi_assert
+        16   -> __iar_EmptyStepPoint
+       0   usart_set_receiver_enabled
+       0   usart_set_rts_enabled
+       0   usart_set_transmitter_enabled
+      16   usart_write
+        16   -> printf
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable2
+       4  ??DataTable2_1
+       4  ??DataTable2_2
+       4  ??DataTable2_3
+      32  ?_0
+      32  ?_1
+      16  ?_2
+      68  ?_3
+      48  _id_h64_matrix
+     156  usart_configure
+       8  usart_disable_it
+       8  usart_enable_it
+      24  usart_get_char
+       8  usart_get_it_mask
+       8  usart_get_status
+      32  usart_is_data_available
+      12  usart_is_rx_ready
+      40  usart_put_char
+     104  usart_read
+      56  usart_set_irda_filter
+      40  usart_set_receiver_enabled
+      40  usart_set_rts_enabled
+      40  usart_set_transmitter_enabled
+     108  usart_write
+
+ 
+ 196 bytes in section .rodata
+ 700 bytes in section .text
+ 
+ 700 bytes of CODE  memory
+ 196 bytes of CONST memory
+
+Errors: none
+Warnings: 1

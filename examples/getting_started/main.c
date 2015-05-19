@@ -195,8 +195,7 @@ static void process_button_evt(uint8_t ucButton)
  *
  *  Handle process led1 status change.
  */
-void
-PIOE_IrqHandler(void)
+void PIOE_IrqHandler(void)
 {
 	volatile uint32_t status;
 	status = PIOE->PIO_ISR;
@@ -335,11 +334,11 @@ static void configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc_handler);
+	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	TC_FindMckDivisor(4, &div, &tcclks);
-	printf("TC: Select %u divisor\n", (unsigned int)div);
+	printf("TC: Select %u divisor\r\n", (unsigned int)div);
 	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 

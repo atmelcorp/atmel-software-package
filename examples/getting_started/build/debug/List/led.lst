@@ -1,0 +1,255 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:47
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\io\led.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\io\led.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\led.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\led.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\io\led.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           * \file
+     32           */
+     33          
+     34          /*------------------------------------------------------------------------------
+     35           *         Headers
+     36           *------------------------------------------------------------------------------*/
+     37          
+     38          #include "board.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     39          #include "io/led.h"
+     40          #include "core/pio.h"
+     41          
+     42          /*------------------------------------------------------------------------------
+     43           *         Local Variables
+     44           *------------------------------------------------------------------------------*/
+     45          
+     46          #ifdef PINS_LEDS
+     47          static const struct _pin pinsLeds[] = PINS_LEDS;
+     48          
+     49          static const uint32_t numLeds = PIO_LISTSIZE(pinsLeds);
+     50          #endif
+     51          
+     52          /*------------------------------------------------------------------------------
+     53           *         Global Functions
+     54           *------------------------------------------------------------------------------*/
+     55          
+     56          /**
+     57           *  Configures the pin associated with the given LED number. If the LED does
+     58           *  not exist on the board, the function does nothing.
+     59           *  \param dwLed  Number of the LED to configure.
+     60           *  \return 1 if the LED exists and has been configured; otherwise 0.
+     61           */
+     62          extern uint32_t led_configure (uint32_t led)
+     63          {
+     64          #ifdef PINS_LEDS
+     65          	// Check that LED exists
+     66          	if (led >= numLeds) {
+     67          		return 0;
+     68          	}
+     69          	// Configure LED
+     70          	return pio_configure(&pinsLeds[led], 1);
+     71          #else
+     72          	return 0;
+     73          #endif
+     74          }
+     75          
+     76          /**
+     77           *  Turns the given LED on if it exists; otherwise does nothing.
+     78           *  \param dwLed  Number of the LED to turn on.
+     79           *  \return 1 if the LED has been turned on; 0 otherwise.
+     80           */
+     81          extern uint32_t led_set(uint32_t led)
+     82          {
+     83          #ifdef PINS_LEDS
+     84          	/* Check if LED exists */
+     85          	if (led >= numLeds) {
+     86          		return 0;
+     87          	}
+     88          
+     89          	/* Turn LED on */
+     90          	if (pinsLeds[led].type == PIO_OUTPUT_0) {
+     91          		pio_set(&pinsLeds[led]);
+     92          	} else {
+     93          		pio_clear(&pinsLeds[led]);
+     94          	}
+     95          	return 1;
+     96          #else
+     97          	return 0;
+     98          #endif
+     99          }
+    100          
+    101          /**
+    102           *  Turns a LED off.
+    103           *
+    104           *  \param dwLed  Number of the LED to turn off.
+    105           *  \return 1 if the LED has been turned off; 0 otherwise.
+    106           */
+    107          extern uint32_t led_clear (uint32_t led)
+    108          {
+    109          #ifdef PINS_LEDS
+    110          	/* Check if LED exists */
+    111          	if (led >= numLeds) {
+    112          		return 0;
+    113          	}
+    114          	/* Turn LED off */
+    115          	if (pinsLeds[led].type == PIO_OUTPUT_0) {
+    116          		pio_clear(&pinsLeds[led]);
+    117          	} else {
+    118          		pio_set(&pinsLeds[led]);
+    119          	}
+    120          	return 1;
+    121          #else
+    122          	return 0;
+    123          #endif
+    124          }
+    125          
+    126          /**
+    127           *  Toggles the current state of a LED.
+    128           *
+    129           *  \param dwLed  Number of the LED to toggle.
+    130           *  \return 1 if the LED has been toggled; otherwise 0.
+    131           */
+    132          extern uint32_t led_toggle(uint32_t led)
+    133          {
+    134          #ifdef PINS_LEDS
+    135          	/* Check if LED exists */
+    136          	if (led >= numLeds) {
+    137          		return 0;
+    138          	}
+    139          	/* Toggle LED */
+    140          	if (pio_get_output_data_status(&pinsLeds[led])) {
+    141          		pio_clear(&pinsLeds[led]);
+    142          	} else {
+    143          		pio_set(&pinsLeds[led]);
+    144          	}
+    145          	return 1;
+    146          #else
+    147          	return 0;
+    148          #endif
+    149          }
+
+Errors: 11
+Warnings: 1

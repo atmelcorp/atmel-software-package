@@ -1,0 +1,1765 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  10:18:20
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdmad.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdmad.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\xdmad.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\xdmad.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdmad.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2014, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup xdmad_module
+     31           *
+     32           * \section Xdma xDma Configuration Usage
+     33           *
+     34           * To configure a XDMA channel, the user has to follow these few steps :
+     35           * <ul>
+     36           * <li> Initialize a XDMA driver instance by XDMAD_Initialize().</li>
+     37           * <li> choose an available (disabled) channel using XDMAD_AllocateChannel().</li>
+     38           * <li> After the XDMAC selected channel has been programmed, XDMAD_PrepareChannel() is to enable
+     39           * clock and dma peripheral of the DMA, and set Configuration register to set up the transfer type
+     40           * (memory or non-memory peripheral for source and destination) and flow control device.</li>
+     41           * <li> Invoke XDMAD_StartTransfer() to start DMA transfer  or XDMAD_StopTransfer() to force stop DMA transfer.</li>
+     42            * <li> Once the buffer of data is transferred, XDMAD_IsTransferDone() checks if DMA transfer is finished.</li>
+     43           * <li> XDMAD_Handler() handles XDMA interrupt, and invoking XDMAD_SetCallback() if provided.</li>
+     44           * </ul>
+     45           *
+     46           * Related files:\n
+     47           * \ref xdmad.h\n
+     48           * \ref xdmad.c\n
+     49           */
+     50          
+     51          /** \file */
+     52          
+     53          /** \addtogroup dmad_functions
+     54            @{*/
+     55          
+     56          /*----------------------------------------------------------------------------
+     57           *        Includes
+     58           *----------------------------------------------------------------------------*/
+     59          
+     60          //#include "board.h"
+     61          #include <stdio.h>
+     62          #include "core/pmc.h"
+     63          
+     64          #include "bus/xdmad.h"
+
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned char const _id_h64_matrix[13]
+   \                     _id_h64_matrix:
+   \   00000000   0x02 0x06          DC8 2, 6, 7, 9, 12, 13, 15, 31, 45, 46, 52, 53, 63, 0, 0, 0
+   \              0x07 0x09    
+   \              0x0C 0x0D    
+   \              0x0F 0x1F    
+   \              0x2D 0x2E    
+   \              0x34 0x35    
+   \              0x3F 0x00    
+   \              0x00 0x00    
+     65          #include "bus/xdmac.h"
+     66          #include "bus/xdma_hardware_interface.h"
+     67          
+     68          #include <assert.h>
+     69          
+     70          /*----------------------------------------------------------------------------
+     71           *        Local functions
+     72           *----------------------------------------------------------------------------*/
+     73          /**
+     74           * \brief Try to allocate a DMA channel for on given controller.
+     75           * \param pDmad  Pointer to DMA driver instance.
+     76           * \param bXdmac xDMA controller ID (0 ~ 1).
+     77           * \param bSrcID Source peripheral ID, 0xFF for memory.
+     78           * \param bDstID Destination peripheral ID, 0xFF for memory.
+     79           * \return Channel number if allocation successful, return
+     80           * DMAD_ALLOC_FAILED if allocation failed.
+     81           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+     82          static uint32_t
+     83          XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
+     84          			   uint8_t bXdmac, uint8_t bSrcID, uint8_t bDstID)
+     85          {
+   \                     XDMAD_AllocateXdmacChannel:
+   \   00000000   0xE92D43F8         PUSH     {R3-R9,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+   \   0000000C   0xE1B08002         MOVS     R8,R2
+   \   00000010   0xE1B06003         MOVS     R6,R3
+     86          	uint32_t i;
+     87          	/* Can't support peripheral to peripheral */
+     88          	if (((bSrcID != XDMAD_TRANSFER_MEMORY)
+     89          	     && (bDstID != XDMAD_TRANSFER_MEMORY))) {
+   \   00000014   0xE1B00008         MOVS     R0,R8
+   \   00000018   0xE6EF0070         UXTB     R0,R0
+   \   0000001C   0xE35000FF         CMP      R0,#+255
+   \   00000020   0x0A000006         BEQ      ??XDMAD_AllocateXdmacChannel_0
+   \   00000024   0xE1B00006         MOVS     R0,R6
+   \   00000028   0xE6EF0070         UXTB     R0,R0
+   \   0000002C   0xE35000FF         CMP      R0,#+255
+   \   00000030   0x0A000002         BEQ      ??XDMAD_AllocateXdmacChannel_0
+     90          		return XDMAD_ALLOC_FAILED;
+   \   00000034   0xE3A000FF         MOV      R0,#+255
+   \   00000038   0xE3800CFF         ORR      R0,R0,#0xFF00
+   \   0000003C   0xEA00007B         B        ??XDMAD_AllocateXdmacChannel_1
+     91          	}
+     92          	/* dma transfer from peripheral to memory */
+     93          	if (bDstID == XDMAD_TRANSFER_MEMORY) {
+   \                     ??XDMAD_AllocateXdmacChannel_0:
+   \   00000040   0xE1B00006         MOVS     R0,R6
+   \   00000044   0xE6EF0070         UXTB     R0,R0
+   \   00000048   0xE35000FF         CMP      R0,#+255
+   \   0000004C   0x1A000009         BNE      ??XDMAD_AllocateXdmacChannel_2
+     94          		if ((!XDMAIF_IsValidatedPeripherOnDma(bXdmac, bSrcID))) {
+   \   00000050   0xE1B01008         MOVS     R1,R8
+   \   00000054   0xE6EF1071         UXTB     R1,R1
+   \   00000058   0xE1B00005         MOVS     R0,R5
+   \   0000005C   0xE6EF0070         UXTB     R0,R0
+   \   00000060   0x........         BL       XDMAIF_IsValidatedPeripherOnDma
+   \   00000064   0xE3500000         CMP      R0,#+0
+   \   00000068   0x1A000002         BNE      ??XDMAD_AllocateXdmacChannel_2
+     95          			return XDMAD_ALLOC_FAILED;
+   \   0000006C   0xE3A000FF         MOV      R0,#+255
+   \   00000070   0xE3800CFF         ORR      R0,R0,#0xFF00
+   \   00000074   0xEA00006D         B        ??XDMAD_AllocateXdmacChannel_1
+     96          		}
+     97          	}
+     98          	/* dma transfer from memory to peripheral */
+     99          	if (bSrcID == XDMAD_TRANSFER_MEMORY) {
+   \                     ??XDMAD_AllocateXdmacChannel_2:
+   \   00000078   0xE1B00008         MOVS     R0,R8
+   \   0000007C   0xE6EF0070         UXTB     R0,R0
+   \   00000080   0xE35000FF         CMP      R0,#+255
+   \   00000084   0x1A000009         BNE      ??XDMAD_AllocateXdmacChannel_3
+    100          		if ((!XDMAIF_IsValidatedPeripherOnDma(bXdmac, bDstID))) {
+   \   00000088   0xE1B01006         MOVS     R1,R6
+   \   0000008C   0xE6EF1071         UXTB     R1,R1
+   \   00000090   0xE1B00005         MOVS     R0,R5
+   \   00000094   0xE6EF0070         UXTB     R0,R0
+   \   00000098   0x........         BL       XDMAIF_IsValidatedPeripherOnDma
+   \   0000009C   0xE3500000         CMP      R0,#+0
+   \   000000A0   0x1A000002         BNE      ??XDMAD_AllocateXdmacChannel_3
+    101          			return XDMAD_ALLOC_FAILED;
+   \   000000A4   0xE3A000FF         MOV      R0,#+255
+   \   000000A8   0xE3800CFF         ORR      R0,R0,#0xFF00
+   \   000000AC   0xEA00005F         B        ??XDMAD_AllocateXdmacChannel_1
+    102          		}
+    103          	}
+    104          
+    105          	for (i = 0; i < pXdmad->numChannels; i++) {
+   \                     ??XDMAD_AllocateXdmacChannel_3:
+   \   000000B0   0xE3A00000         MOV      R0,#+0
+   \   000000B4   0xE1B07000         MOVS     R7,R0
+   \                     ??XDMAD_AllocateXdmacChannel_4:
+   \   000000B8   0xE5D40209         LDRB     R0,[R4, #+521]
+   \   000000BC   0xE1570000         CMP      R7,R0
+   \   000000C0   0x2A000058         BCS      ??XDMAD_AllocateXdmacChannel_5
+    106          		if (pXdmad->XdmaChannels[bXdmac][i].state == XDMAD_STATE_FREE) {
+   \   000000C4   0xE1B00005         MOVS     R0,R5
+   \   000000C8   0xE6EF0070         UXTB     R0,R0
+   \   000000CC   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000D0   0xE0900004         ADDS     R0,R0,R4
+   \   000000D4   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000D8   0xE0910000         ADDS     R0,R1,R0
+   \   000000DC   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   000000E0   0xE3500000         CMP      R0,#+0
+   \   000000E4   0x1A00004D         BNE      ??XDMAD_AllocateXdmacChannel_6
+    107          			/* Allocate the channel */
+    108          			pXdmad->XdmaChannels[bXdmac][i].state =
+    109          			    XDMAD_STATE_ALLOCATED;
+   \   000000E8   0xE1B00005         MOVS     R0,R5
+   \   000000EC   0xE6EF0070         UXTB     R0,R0
+   \   000000F0   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000F4   0xE0900004         ADDS     R0,R0,R4
+   \   000000F8   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000FC   0xE0910000         ADDS     R0,R1,R0
+   \   00000100   0xE3A01001         MOV      R1,#+1
+   \   00000104   0xE5C01017         STRB     R1,[R0, #+23]
+    110          			/* Get general informations */
+    111          			pXdmad->XdmaChannels[bXdmac][i].bSrcPeriphID = bSrcID;
+   \   00000108   0xE1B00005         MOVS     R0,R5
+   \   0000010C   0xE6EF0070         UXTB     R0,R0
+   \   00000110   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000114   0xE0900004         ADDS     R0,R0,R4
+   \   00000118   0xE1B01207         LSLS     R1,R7,#+4
+   \   0000011C   0xE0910000         ADDS     R0,R1,R0
+   \   00000120   0xE5C08011         STRB     R8,[R0, #+17]
+    112          			pXdmad->XdmaChannels[bXdmac][i].bDstPeriphID = bDstID;
+   \   00000124   0xE1B00005         MOVS     R0,R5
+   \   00000128   0xE6EF0070         UXTB     R0,R0
+   \   0000012C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000130   0xE0900004         ADDS     R0,R0,R4
+   \   00000134   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000138   0xE0910000         ADDS     R0,R1,R0
+   \   0000013C   0xE5C06012         STRB     R6,[R0, #+18]
+    113          			pXdmad->XdmaChannels[bXdmac][i].bSrcTxIfID =
+    114          			    XDMAIF_Get_ChannelNumber(bXdmac, bSrcID, 0);
+   \   00000140   0xE1B00005         MOVS     R0,R5
+   \   00000144   0xE6EF0070         UXTB     R0,R0
+   \   00000148   0xE1B00400         LSLS     R0,R0,#+8
+   \   0000014C   0xE0900004         ADDS     R0,R0,R4
+   \   00000150   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000154   0xE0919000         ADDS     R9,R1,R0
+   \   00000158   0xE3A02000         MOV      R2,#+0
+   \   0000015C   0xE1B01008         MOVS     R1,R8
+   \   00000160   0xE6EF1071         UXTB     R1,R1
+   \   00000164   0xE1B00005         MOVS     R0,R5
+   \   00000168   0xE6EF0070         UXTB     R0,R0
+   \   0000016C   0x........         BL       XDMAIF_Get_ChannelNumber
+   \   00000170   0xE5C90013         STRB     R0,[R9, #+19]
+    115          			pXdmad->XdmaChannels[bXdmac][i].bSrcRxIfID =
+    116          			    XDMAIF_Get_ChannelNumber(bXdmac, bSrcID, 1);
+   \   00000174   0xE1B00005         MOVS     R0,R5
+   \   00000178   0xE6EF0070         UXTB     R0,R0
+   \   0000017C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000180   0xE0900004         ADDS     R0,R0,R4
+   \   00000184   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000188   0xE0919000         ADDS     R9,R1,R0
+   \   0000018C   0xE3A02001         MOV      R2,#+1
+   \   00000190   0xE1B01008         MOVS     R1,R8
+   \   00000194   0xE6EF1071         UXTB     R1,R1
+   \   00000198   0xE1B00005         MOVS     R0,R5
+   \   0000019C   0xE6EF0070         UXTB     R0,R0
+   \   000001A0   0x........         BL       XDMAIF_Get_ChannelNumber
+   \   000001A4   0xE5C90014         STRB     R0,[R9, #+20]
+    117          			pXdmad->XdmaChannels[bXdmac][i].bDstTxIfID =
+    118          			    XDMAIF_Get_ChannelNumber(bXdmac, bDstID, 0);
+   \   000001A8   0xE1B00005         MOVS     R0,R5
+   \   000001AC   0xE6EF0070         UXTB     R0,R0
+   \   000001B0   0xE1B00400         LSLS     R0,R0,#+8
+   \   000001B4   0xE0900004         ADDS     R0,R0,R4
+   \   000001B8   0xE1B01207         LSLS     R1,R7,#+4
+   \   000001BC   0xE0919000         ADDS     R9,R1,R0
+   \   000001C0   0xE3A02000         MOV      R2,#+0
+   \   000001C4   0xE1B01006         MOVS     R1,R6
+   \   000001C8   0xE6EF1071         UXTB     R1,R1
+   \   000001CC   0xE1B00005         MOVS     R0,R5
+   \   000001D0   0xE6EF0070         UXTB     R0,R0
+   \   000001D4   0x........         BL       XDMAIF_Get_ChannelNumber
+   \   000001D8   0xE5C90015         STRB     R0,[R9, #+21]
+    119          			pXdmad->XdmaChannels[bXdmac][i].bDstTxIfID =
+    120          			    XDMAIF_Get_ChannelNumber(bXdmac, bDstID, 1);
+   \   000001DC   0xE1B00005         MOVS     R0,R5
+   \   000001E0   0xE6EF0070         UXTB     R0,R0
+   \   000001E4   0xE1B00400         LSLS     R0,R0,#+8
+   \   000001E8   0xE0900004         ADDS     R0,R0,R4
+   \   000001EC   0xE1B01207         LSLS     R1,R7,#+4
+   \   000001F0   0xE0919000         ADDS     R9,R1,R0
+   \   000001F4   0xE3A02001         MOV      R2,#+1
+   \   000001F8   0xE1B01006         MOVS     R1,R6
+   \   000001FC   0xE6EF1071         UXTB     R1,R1
+   \   00000200   0xE1B00005         MOVS     R0,R5
+   \   00000204   0xE6EF0070         UXTB     R0,R0
+   \   00000208   0x........         BL       XDMAIF_Get_ChannelNumber
+   \   0000020C   0xE5C90015         STRB     R0,[R9, #+21]
+    121          			return ((bXdmac << 8)) | ((i) & 0xFF);
+   \   00000210   0xE6EF5075         UXTB     R5,R5
+   \   00000214   0xE21700FF         ANDS     R0,R7,#0xFF
+   \   00000218   0xE1900405         ORRS     R0,R0,R5, LSL #+8
+   \   0000021C   0xEA000003         B        ??XDMAD_AllocateXdmacChannel_1
+    122          		}
+    123          	}
+   \                     ??XDMAD_AllocateXdmacChannel_6:
+   \   00000220   0xE2977001         ADDS     R7,R7,#+1
+   \   00000224   0xEAFFFFA3         B        ??XDMAD_AllocateXdmacChannel_4
+    124          	return XDMAD_ALLOC_FAILED;
+   \                     ??XDMAD_AllocateXdmacChannel_5:
+   \   00000228   0xE3A000FF         MOV      R0,#+255
+   \   0000022C   0xE3800CFF         ORR      R0,R0,#0xFF00
+   \                     ??XDMAD_AllocateXdmacChannel_1:
+   \   00000230   0xE8BD83F2         POP      {R1,R4-R9,PC}    ;; return
+    125          }
+    126          
+    127          /*----------------------------------------------------------------------------
+    128           *        Exported functions
+    129           *----------------------------------------------------------------------------*/
+    130          
+    131          /**
+    132           * \brief Initialize xDMA driver instance.
+    133           * \param pXdmad Pointer to xDMA driver instance.
+    134           * \param bPollingMode Polling DMA transfer:
+    135           *                     1. Via XDMAD_IsTransferDone(); or
+    136           *                     2. Via XDMAD_Handler().
+    137           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    138          void
+    139          XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode)
+    140          {
+   \                     XDMAD_Initialize:
+   \   00000000   0xE92D40F8         PUSH     {R3-R7,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    141          	uint32_t i, j;
+    142          
+    143          	assert(pXdmad != NULL);
+   \   0000000C   0xE3540000         CMP      R4,#+0
+   \   00000010   0x1A000004         BNE      ??XDMAD_Initialize_0
+   \   00000014   0xE3A0208F         MOV      R2,#+143
+   \   00000018   0x........         LDR      R1,??DataTable6
+   \   0000001C   0x........         LDR      R0,??DataTable6_1
+   \   00000020   0x........         BL       __aeabi_assert
+   \   00000024   0x........         BL       __iar_EmptyStepPoint
+    144          
+    145          	pXdmad->pXdmacs[0] = XDMAC0;
+   \                     ??XDMAD_Initialize_0:
+   \   00000028   0xE3A004F0         MOV      R0,#-268435456
+   \   0000002C   0xE3800B40         ORR      R0,R0,#0x10000
+   \   00000030   0xE5840000         STR      R0,[R4, #+0]
+    146          	pXdmad->pXdmacs[1] = XDMAC1;
+   \   00000034   0xE3A004F0         MOV      R0,#-268435456
+   \   00000038   0xE3800C40         ORR      R0,R0,#0x4000
+   \   0000003C   0xE5840004         STR      R0,[R4, #+4]
+    147          	pXdmad->pollingMode = bPollingMode;
+   \   00000040   0xE5C4520A         STRB     R5,[R4, #+522]
+    148          	pXdmad->numControllers = XDMAC_CONTROLLER_NUM;
+   \   00000044   0xE3A00002         MOV      R0,#+2
+   \   00000048   0xE5C40208         STRB     R0,[R4, #+520]
+    149          	pXdmad->numChannels = XDMAC_CHANNEL_NUM;
+   \   0000004C   0xE3A00010         MOV      R0,#+16
+   \   00000050   0xE5C40209         STRB     R0,[R4, #+521]
+    150          
+    151          	for (i = 0; i < pXdmad->numControllers; i++) {
+   \   00000054   0xE3A00000         MOV      R0,#+0
+   \   00000058   0xE1B06000         MOVS     R6,R0
+   \                     ??XDMAD_Initialize_1:
+   \   0000005C   0xE5D40208         LDRB     R0,[R4, #+520]
+   \   00000060   0xE1560000         CMP      R6,R0
+   \   00000064   0x2A000044         BCS      ??XDMAD_Initialize_2
+    152          		for (j = 0; j < pXdmad->numChannels; j++) {
+   \   00000068   0xE3A00000         MOV      R0,#+0
+   \   0000006C   0xE1B07000         MOVS     R7,R0
+   \                     ??XDMAD_Initialize_3:
+   \   00000070   0xE5D40209         LDRB     R0,[R4, #+521]
+   \   00000074   0xE1570000         CMP      R7,R0
+   \   00000078   0x2A00003D         BCS      ??XDMAD_Initialize_4
+    153          			pXdmad->XdmaChannels[i][j].fCallback = 0;
+   \   0000007C   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000080   0xE0900004         ADDS     R0,R0,R4
+   \   00000084   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000088   0xE0910000         ADDS     R0,R1,R0
+   \   0000008C   0xE3A01000         MOV      R1,#+0
+   \   00000090   0xE5801008         STR      R1,[R0, #+8]
+    154          			pXdmad->XdmaChannels[i][j].pArg = 0;
+   \   00000094   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000098   0xE0900004         ADDS     R0,R0,R4
+   \   0000009C   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000A0   0xE0910000         ADDS     R0,R1,R0
+   \   000000A4   0xE3A01000         MOV      R1,#+0
+   \   000000A8   0xE580100C         STR      R1,[R0, #+12]
+    155          			pXdmad->XdmaChannels[i][j].bIrqOwner = 0;
+   \   000000AC   0xE1B00406         LSLS     R0,R6,#+8
+   \   000000B0   0xE0900004         ADDS     R0,R0,R4
+   \   000000B4   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000B8   0xE0910000         ADDS     R0,R1,R0
+   \   000000BC   0xE3A01000         MOV      R1,#+0
+   \   000000C0   0xE5C01010         STRB     R1,[R0, #+16]
+    156          			pXdmad->XdmaChannels[i][j].bSrcPeriphID = 0;
+   \   000000C4   0xE1B00406         LSLS     R0,R6,#+8
+   \   000000C8   0xE0900004         ADDS     R0,R0,R4
+   \   000000CC   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000D0   0xE0910000         ADDS     R0,R1,R0
+   \   000000D4   0xE3A01000         MOV      R1,#+0
+   \   000000D8   0xE5C01011         STRB     R1,[R0, #+17]
+    157          			pXdmad->XdmaChannels[i][j].bDstPeriphID = 0;
+   \   000000DC   0xE1B00406         LSLS     R0,R6,#+8
+   \   000000E0   0xE0900004         ADDS     R0,R0,R4
+   \   000000E4   0xE1B01207         LSLS     R1,R7,#+4
+   \   000000E8   0xE0910000         ADDS     R0,R1,R0
+   \   000000EC   0xE3A01000         MOV      R1,#+0
+   \   000000F0   0xE5C01012         STRB     R1,[R0, #+18]
+    158          			pXdmad->XdmaChannels[i][j].bSrcTxIfID = 0;
+   \   000000F4   0xE1B00406         LSLS     R0,R6,#+8
+   \   000000F8   0xE0900004         ADDS     R0,R0,R4
+   \   000000FC   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000100   0xE0910000         ADDS     R0,R1,R0
+   \   00000104   0xE3A01000         MOV      R1,#+0
+   \   00000108   0xE5C01013         STRB     R1,[R0, #+19]
+    159          			pXdmad->XdmaChannels[i][j].bSrcRxIfID = 0;
+   \   0000010C   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000110   0xE0900004         ADDS     R0,R0,R4
+   \   00000114   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000118   0xE0910000         ADDS     R0,R1,R0
+   \   0000011C   0xE3A01000         MOV      R1,#+0
+   \   00000120   0xE5C01014         STRB     R1,[R0, #+20]
+    160          			pXdmad->XdmaChannels[i][j].bDstTxIfID = 0;
+   \   00000124   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000128   0xE0900004         ADDS     R0,R0,R4
+   \   0000012C   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000130   0xE0910000         ADDS     R0,R1,R0
+   \   00000134   0xE3A01000         MOV      R1,#+0
+   \   00000138   0xE5C01015         STRB     R1,[R0, #+21]
+    161          			pXdmad->XdmaChannels[i][j].bDstRxIfID = 0;
+   \   0000013C   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000140   0xE0900004         ADDS     R0,R0,R4
+   \   00000144   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000148   0xE0910000         ADDS     R0,R1,R0
+   \   0000014C   0xE3A01000         MOV      R1,#+0
+   \   00000150   0xE5C01016         STRB     R1,[R0, #+22]
+    162          			pXdmad->XdmaChannels[i][j].state = XDMAD_STATE_FREE;
+   \   00000154   0xE1B00406         LSLS     R0,R6,#+8
+   \   00000158   0xE0900004         ADDS     R0,R0,R4
+   \   0000015C   0xE1B01207         LSLS     R1,R7,#+4
+   \   00000160   0xE0910000         ADDS     R0,R1,R0
+   \   00000164   0xE3A01000         MOV      R1,#+0
+   \   00000168   0xE5C01017         STRB     R1,[R0, #+23]
+    163          		}
+   \   0000016C   0xE2977001         ADDS     R7,R7,#+1
+   \   00000170   0xEAFFFFBE         B        ??XDMAD_Initialize_3
+    164          	}
+   \                     ??XDMAD_Initialize_4:
+   \   00000174   0xE2966001         ADDS     R6,R6,#+1
+   \   00000178   0xEAFFFFB7         B        ??XDMAD_Initialize_1
+    165          }
+   \                     ??XDMAD_Initialize_2:
+   \   0000017C   0xE8BD80F1         POP      {R0,R4-R7,PC}    ;; return
+    166          
+    167          /**
+    168           * \brief Allocate a XDMA channel for upper layer.
+    169           * \param pXdmad  Pointer to xDMA driver instance.
+    170           * \param bSrcID Source peripheral ID, 0xFF for memory.
+    171           * \param bDstID Destination peripheral ID, 0xFF for memory.
+    172           * \return Channel number if allocation successful, return
+    173           * XDMAD_ALLOC_FAILED if allocation failed.
+    174           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    175          uint32_t
+    176          XDMAD_AllocateChannel(sXdmad * pXdmad, uint8_t bSrcID, uint8_t bDstID)
+    177          {
+   \                     XDMAD_AllocateChannel:
+   \   00000000   0xE92D41F0         PUSH     {R4-R8,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+   \   0000000C   0xE1B06002         MOVS     R6,R2
+    178          	uint32_t _iController;
+    179          	uint32_t dwChannel = XDMAD_ALLOC_FAILED;
+   \   00000010   0xE3A080FF         MOV      R8,#+255
+   \   00000014   0xE3888CFF         ORR      R8,R8,#0xFF00
+    180          	for (_iController = 0; _iController < pXdmad->numControllers;
+   \   00000018   0xE3A00000         MOV      R0,#+0
+   \   0000001C   0xE1B07000         MOVS     R7,R0
+   \                     ??XDMAD_AllocateChannel_0:
+   \   00000020   0xE5D40208         LDRB     R0,[R4, #+520]
+   \   00000024   0xE1570000         CMP      R7,R0
+   \   00000028   0x2A00000E         BCS      ??XDMAD_AllocateChannel_1
+    181          	     _iController++) {
+    182          		dwChannel =
+    183          		    XDMAD_AllocateXdmacChannel(pXdmad, _iController, bSrcID,
+    184          					       bDstID);
+   \   0000002C   0xE1B03006         MOVS     R3,R6
+   \   00000030   0xE6EF3073         UXTB     R3,R3
+   \   00000034   0xE1B02005         MOVS     R2,R5
+   \   00000038   0xE6EF2072         UXTB     R2,R2
+   \   0000003C   0xE1B01007         MOVS     R1,R7
+   \   00000040   0xE6EF1071         UXTB     R1,R1
+   \   00000044   0xE1B00004         MOVS     R0,R4
+   \   00000048   0x........         BL       XDMAD_AllocateXdmacChannel
+   \   0000004C   0xE1B08000         MOVS     R8,R0
+    185          		if (dwChannel != XDMAD_ALLOC_FAILED)
+   \   00000050   0xE3A000FF         MOV      R0,#+255
+   \   00000054   0xE3800CFF         ORR      R0,R0,#0xFF00
+   \   00000058   0xE1580000         CMP      R8,R0
+   \   0000005C   0x1A000001         BNE      ??XDMAD_AllocateChannel_1
+    186          			break;
+    187          	}
+   \                     ??XDMAD_AllocateChannel_2:
+   \   00000060   0xE2977001         ADDS     R7,R7,#+1
+   \   00000064   0xEAFFFFED         B        ??XDMAD_AllocateChannel_0
+    188          	return dwChannel;
+   \                     ??XDMAD_AllocateChannel_1:
+   \   00000068   0xE1B00008         MOVS     R0,R8
+   \   0000006C   0xE8BD81F0         POP      {R4-R8,PC}       ;; return
+    189          }
+    190          
+    191          /**
+    192           * \brief Free the specified xDMA channel.
+    193           * \param pXdmad     Pointer to xDMA driver instance.
+    194           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    195           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    196          eXdmadRC
+    197          XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel)
+    198          {
+   \                     XDMAD_FreeChannel:
+   \   00000000   0xE92D40F8         PUSH     {R3-R7,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    199          	uint8_t _iController = (dwChannel >> 8);
+   \   0000000C   0xE1B06425         LSRS     R6,R5,#+8
+    200          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   00000010   0xE1B07005         MOVS     R7,R5
+    201          
+    202          	assert(pXdmad != NULL);
+   \   00000014   0xE3540000         CMP      R4,#+0
+   \   00000018   0x1A000004         BNE      ??XDMAD_FreeChannel_0
+   \   0000001C   0xE3A020CA         MOV      R2,#+202
+   \   00000020   0x........         LDR      R1,??DataTable6
+   \   00000024   0x........         LDR      R0,??DataTable6_1
+   \   00000028   0x........         BL       __aeabi_assert
+   \   0000002C   0x........         BL       __iar_EmptyStepPoint
+    203          	switch (pXdmad->XdmaChannels[_iController][iChannel].state) {
+   \                     ??XDMAD_FreeChannel_0:
+   \   00000030   0xE1B00006         MOVS     R0,R6
+   \   00000034   0xE6EF0070         UXTB     R0,R0
+   \   00000038   0xE1B00400         LSLS     R0,R0,#+8
+   \   0000003C   0xE0900004         ADDS     R0,R0,R4
+   \   00000040   0xE1B01007         MOVS     R1,R7
+   \   00000044   0xE6EF1071         UXTB     R1,R1
+   \   00000048   0xE1B01201         LSLS     R1,R1,#+4
+   \   0000004C   0xE0910000         ADDS     R0,R1,R0
+   \   00000050   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000054   0xE3500001         CMP      R0,#+1
+   \   00000058   0x0A000006         BEQ      ??XDMAD_FreeChannel_1
+   \   0000005C   0xE3500002         CMP      R0,#+2
+   \   00000060   0x0A000002         BEQ      ??XDMAD_FreeChannel_2
+   \   00000064   0xE3500004         CMP      R0,#+4
+   \   00000068   0x0A000002         BEQ      ??XDMAD_FreeChannel_1
+   \   0000006C   0xEA00000B         B        ??XDMAD_FreeChannel_3
+    204          	case XDMAD_STATE_START:
+    205          		return XDMAD_BUSY;
+   \                     ??XDMAD_FreeChannel_2:
+   \   00000070   0xE3A00003         MOV      R0,#+3
+   \   00000074   0xEA00000A         B        ??XDMAD_FreeChannel_4
+    206          	case XDMAD_STATE_ALLOCATED:
+    207          	case XDMAD_STATE_DONE:
+    208          		pXdmad->XdmaChannels[_iController][iChannel].state =
+    209          		    XDMAD_STATE_FREE;
+   \                     ??XDMAD_FreeChannel_1:
+   \   00000078   0xE1B00006         MOVS     R0,R6
+   \   0000007C   0xE6EF0070         UXTB     R0,R0
+   \   00000080   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000084   0xE0900004         ADDS     R0,R0,R4
+   \   00000088   0xE1B01007         MOVS     R1,R7
+   \   0000008C   0xE6EF1071         UXTB     R1,R1
+   \   00000090   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000094   0xE0910000         ADDS     R0,R1,R0
+   \   00000098   0xE3A01000         MOV      R1,#+0
+   \   0000009C   0xE5C01017         STRB     R1,[R0, #+23]
+    210          		break;
+    211          	}
+    212          	return XDMAD_OK;
+   \                     ??XDMAD_FreeChannel_3:
+   \   000000A0   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_FreeChannel_4:
+   \   000000A4   0xE8BD80F2         POP      {R1,R4-R7,PC}    ;; return
+    213          }
+    214          
+    215          /**
+    216           * \brief Set the callback function for xDMA channel transfer.
+    217           * \param pXdmad     Pointer to xDMA driver instance.
+    218           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    219           * \param fCallback Pointer to callback function.
+    220           * \param pArg Pointer to optional argument for callback.
+    221           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    222          eXdmadRC
+    223          XDMAD_SetCallback(sXdmad * pXdmad,
+    224          		  uint32_t dwChannel,
+    225          		  XdmadTransferCallback fCallback, void *pArg)
+    226          {
+   \                     XDMAD_SetCallback:
+   \   00000000   0xE92D43F8         PUSH     {R3-R9,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+   \   0000000C   0xE1B06002         MOVS     R6,R2
+   \   00000010   0xE1B07003         MOVS     R7,R3
+    227          	uint8_t _iController = (dwChannel >> 8);
+   \   00000014   0xE1B08425         LSRS     R8,R5,#+8
+    228          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   00000018   0xE1B09005         MOVS     R9,R5
+    229          	assert(pXdmad != NULL);
+   \   0000001C   0xE3540000         CMP      R4,#+0
+   \   00000020   0x1A000004         BNE      ??XDMAD_SetCallback_0
+   \   00000024   0xE3A020E5         MOV      R2,#+229
+   \   00000028   0x........         LDR      R1,??DataTable6
+   \   0000002C   0x........         LDR      R0,??DataTable6_1
+   \   00000030   0x........         BL       __aeabi_assert
+   \   00000034   0x........         BL       __iar_EmptyStepPoint
+    230          	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    231          	    XDMAD_STATE_FREE)
+   \                     ??XDMAD_SetCallback_0:
+   \   00000038   0xE1B00008         MOVS     R0,R8
+   \   0000003C   0xE6EF0070         UXTB     R0,R0
+   \   00000040   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000044   0xE0900004         ADDS     R0,R0,R4
+   \   00000048   0xE1B01009         MOVS     R1,R9
+   \   0000004C   0xE6EF1071         UXTB     R1,R1
+   \   00000050   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000054   0xE0910000         ADDS     R0,R1,R0
+   \   00000058   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   0000005C   0xE3500000         CMP      R0,#+0
+   \   00000060   0x1A000001         BNE      ??XDMAD_SetCallback_1
+    232          		return XDMAD_ERROR;
+   \   00000064   0xE3A00004         MOV      R0,#+4
+   \   00000068   0xEA00001F         B        ??XDMAD_SetCallback_2
+    233          	else if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    234          		 XDMAD_STATE_START)
+   \                     ??XDMAD_SetCallback_1:
+   \   0000006C   0xE1B00008         MOVS     R0,R8
+   \   00000070   0xE6EF0070         UXTB     R0,R0
+   \   00000074   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000078   0xE0900004         ADDS     R0,R0,R4
+   \   0000007C   0xE1B01009         MOVS     R1,R9
+   \   00000080   0xE6EF1071         UXTB     R1,R1
+   \   00000084   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000088   0xE0910000         ADDS     R0,R1,R0
+   \   0000008C   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000090   0xE3500002         CMP      R0,#+2
+   \   00000094   0x1A000001         BNE      ??XDMAD_SetCallback_3
+    235          		return XDMAD_BUSY;
+   \   00000098   0xE3A00003         MOV      R0,#+3
+   \   0000009C   0xEA000012         B        ??XDMAD_SetCallback_2
+    236          
+    237          	pXdmad->XdmaChannels[_iController][iChannel].fCallback = fCallback;
+   \                     ??XDMAD_SetCallback_3:
+   \   000000A0   0xE1B00008         MOVS     R0,R8
+   \   000000A4   0xE6EF0070         UXTB     R0,R0
+   \   000000A8   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000AC   0xE0900004         ADDS     R0,R0,R4
+   \   000000B0   0xE1B01009         MOVS     R1,R9
+   \   000000B4   0xE6EF1071         UXTB     R1,R1
+   \   000000B8   0xE1B01201         LSLS     R1,R1,#+4
+   \   000000BC   0xE0910000         ADDS     R0,R1,R0
+   \   000000C0   0xE5806008         STR      R6,[R0, #+8]
+    238          	pXdmad->XdmaChannels[_iController][iChannel].pArg = pArg;
+   \   000000C4   0xE1B00008         MOVS     R0,R8
+   \   000000C8   0xE6EF0070         UXTB     R0,R0
+   \   000000CC   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000D0   0xE0900004         ADDS     R0,R0,R4
+   \   000000D4   0xE1B01009         MOVS     R1,R9
+   \   000000D8   0xE6EF1071         UXTB     R1,R1
+   \   000000DC   0xE1B01201         LSLS     R1,R1,#+4
+   \   000000E0   0xE0910000         ADDS     R0,R1,R0
+   \   000000E4   0xE580700C         STR      R7,[R0, #+12]
+    239          
+    240          	return XDMAD_OK;
+   \   000000E8   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_SetCallback_2:
+   \   000000EC   0xE8BD83F2         POP      {R1,R4-R9,PC}    ;; return
+    241          }
+    242          
+    243          /**
+    244           * \brief Enable clock of the xDMA peripheral, Enable the dma peripheral,
+    245           * configure configuration register for xDMA transfer.
+    246           * \param pXdmad     Pointer to xDMA driver instance.
+    247           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    248           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    249          eXdmadRC
+    250          XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
+    251          {
+   \                     XDMAD_PrepareChannel:
+   \   00000000   0xE92D43F8         PUSH     {R3-R9,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    252          	uint8_t _iController = (dwChannel >> 8);
+   \   0000000C   0xE1B08425         LSRS     R8,R5,#+8
+    253          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   00000010   0xE1B06005         MOVS     R6,R5
+    254          	uint32_t _dwdmaId;
+    255          
+    256          	assert(pXdmad != NULL);
+   \   00000014   0xE3540000         CMP      R4,#+0
+   \   00000018   0x1A000004         BNE      ??XDMAD_PrepareChannel_0
+   \   0000001C   0xE3A02F40         MOV      R2,#+256
+   \   00000020   0x........         LDR      R1,??DataTable6
+   \   00000024   0x........         LDR      R0,??DataTable6_1
+   \   00000028   0x........         BL       __aeabi_assert
+   \   0000002C   0x........         BL       __iar_EmptyStepPoint
+    257          	Xdmac *pXdmac = pXdmad->pXdmacs[_iController];
+   \                     ??XDMAD_PrepareChannel_0:
+   \   00000030   0xE1B00008         MOVS     R0,R8
+   \   00000034   0xE6EF0070         UXTB     R0,R0
+   \   00000038   0xE1B00100         LSLS     R0,R0,#+2
+   \   0000003C   0xE7909004         LDR      R9,[R0, +R4]
+    258          
+    259          	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    260          	    XDMAD_STATE_FREE)
+   \   00000040   0xE1B00008         MOVS     R0,R8
+   \   00000044   0xE6EF0070         UXTB     R0,R0
+   \   00000048   0xE1B00400         LSLS     R0,R0,#+8
+   \   0000004C   0xE0900004         ADDS     R0,R0,R4
+   \   00000050   0xE1B01006         MOVS     R1,R6
+   \   00000054   0xE6EF1071         UXTB     R1,R1
+   \   00000058   0xE1B01201         LSLS     R1,R1,#+4
+   \   0000005C   0xE0910000         ADDS     R0,R1,R0
+   \   00000060   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000064   0xE3500000         CMP      R0,#+0
+   \   00000068   0x1A000001         BNE      ??XDMAD_PrepareChannel_1
+    261          		return XDMAD_ERROR;
+   \   0000006C   0xE3A00004         MOV      R0,#+4
+   \   00000070   0xEA00004D         B        ??XDMAD_PrepareChannel_2
+    262          	else if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    263          		 XDMAD_STATE_START)
+   \                     ??XDMAD_PrepareChannel_1:
+   \   00000074   0xE1B00008         MOVS     R0,R8
+   \   00000078   0xE6EF0070         UXTB     R0,R0
+   \   0000007C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000080   0xE0900004         ADDS     R0,R0,R4
+   \   00000084   0xE1B01006         MOVS     R1,R6
+   \   00000088   0xE6EF1071         UXTB     R1,R1
+   \   0000008C   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000090   0xE0910000         ADDS     R0,R1,R0
+   \   00000094   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000098   0xE3500002         CMP      R0,#+2
+   \   0000009C   0x1A000001         BNE      ??XDMAD_PrepareChannel_3
+    264          		return XDMAD_BUSY;
+   \   000000A0   0xE3A00003         MOV      R0,#+3
+   \   000000A4   0xEA000040         B        ??XDMAD_PrepareChannel_2
+    265          	/* Clear dummy status */
+    266          	XDMAC_GetGlobalChStatus(pXdmac);
+   \                     ??XDMAD_PrepareChannel_3:
+   \   000000A8   0xE1B00009         MOVS     R0,R9
+   \   000000AC   0x........         BL       XDMAC_GetGlobalChStatus
+    267          	XDMAC_GetGIsr(pXdmac);
+   \   000000B0   0xE1B00009         MOVS     R0,R9
+   \   000000B4   0x........         BL       XDMAC_GetGIsr
+    268          	_dwdmaId = (_iController == 0) ? ID_XDMAC0 : ID_XDMAC1;
+   \   000000B8   0xE1B00008         MOVS     R0,R8
+   \   000000BC   0xE6EF0070         UXTB     R0,R0
+   \   000000C0   0xE3500000         CMP      R0,#+0
+   \   000000C4   0x1A000001         BNE      ??XDMAD_PrepareChannel_4
+   \   000000C8   0xE3A07006         MOV      R7,#+6
+   \   000000CC   0xEA000000         B        ??XDMAD_PrepareChannel_5
+   \                     ??XDMAD_PrepareChannel_4:
+   \   000000D0   0xE3A07007         MOV      R7,#+7
+    269          	/* Enable clock of the DMA peripheral */
+    270          	if (!pmc_is_peripheral_enabled(_dwdmaId)) {
+   \                     ??XDMAD_PrepareChannel_5:
+   \   000000D4   0xE1B00007         MOVS     R0,R7
+   \   000000D8   0x........         BL       pmc_is_peripheral_enabled
+   \   000000DC   0xE3500000         CMP      R0,#+0
+   \   000000E0   0x1A000001         BNE      ??XDMAD_PrepareChannel_6
+    271          		pmc_enable_peripheral(_dwdmaId);
+   \   000000E4   0xE1B00007         MOVS     R0,R7
+   \   000000E8   0x........         BL       pmc_enable_peripheral
+    272          	}
+    273          	/* Clear dummy status */
+    274          	XDMAC_GetChannelIsr(pXdmac, iChannel);
+   \                     ??XDMAD_PrepareChannel_6:
+   \   000000EC   0xE1B01006         MOVS     R1,R6
+   \   000000F0   0xE6EF1071         UXTB     R1,R1
+   \   000000F4   0xE1B00009         MOVS     R0,R9
+   \   000000F8   0x........         BL       XDMAC_GetChannelIsr
+    275          	/* Disables XDMAC interrupt for the given channel. */
+    276          	XDMAC_DisableGIt(pXdmac, -1);
+   \   000000FC   0xE3E01000         MVN      R1,#+0
+   \   00000100   0xE1B00009         MOVS     R0,R9
+   \   00000104   0x........         BL       XDMAC_DisableGIt
+    277          	XDMAC_DisableChannelIt(pXdmac, iChannel, -1);
+   \   00000108   0xE3E02000         MVN      R2,#+0
+   \   0000010C   0xE1B01006         MOVS     R1,R6
+   \   00000110   0xE6EF1071         UXTB     R1,R1
+   \   00000114   0xE1B00009         MOVS     R0,R9
+   \   00000118   0x........         BL       XDMAC_DisableChannelIt
+    278          	/* Disable the given dma channel. */
+    279          	XDMAC_DisableChannel(pXdmac, iChannel);
+   \   0000011C   0xE1B01006         MOVS     R1,R6
+   \   00000120   0xE6EF1071         UXTB     R1,R1
+   \   00000124   0xE1B00009         MOVS     R0,R9
+   \   00000128   0x........         BL       XDMAC_DisableChannel
+    280          	XDMAC_SetSourceAddr(pXdmac, iChannel, 0);
+   \   0000012C   0xE3A02000         MOV      R2,#+0
+   \   00000130   0xE1B01006         MOVS     R1,R6
+   \   00000134   0xE6EF1071         UXTB     R1,R1
+   \   00000138   0xE1B00009         MOVS     R0,R9
+   \   0000013C   0x........         BL       XDMAC_SetSourceAddr
+    281          	XDMAC_SetDestinationAddr(pXdmac, iChannel, 0);
+   \   00000140   0xE3A02000         MOV      R2,#+0
+   \   00000144   0xE1B01006         MOVS     R1,R6
+   \   00000148   0xE6EF1071         UXTB     R1,R1
+   \   0000014C   0xE1B00009         MOVS     R0,R9
+   \   00000150   0x........         BL       XDMAC_SetDestinationAddr
+    282          	XDMAC_SetBlockControl(pXdmac, iChannel, 0);
+   \   00000154   0xE3A02000         MOV      R2,#+0
+   \   00000158   0xE1B01006         MOVS     R1,R6
+   \   0000015C   0xE6EF1071         UXTB     R1,R1
+   \   00000160   0xE1B00009         MOVS     R0,R9
+   \   00000164   0x........         BL       XDMAC_SetBlockControl
+    283          	XDMAC_SetChannelConfig(pXdmac, iChannel, 0x20);
+   \   00000168   0xE3A02020         MOV      R2,#+32
+   \   0000016C   0xE1B01006         MOVS     R1,R6
+   \   00000170   0xE6EF1071         UXTB     R1,R1
+   \   00000174   0xE1B00009         MOVS     R0,R9
+   \   00000178   0x........         BL       XDMAC_SetChannelConfig
+    284          	XDMAC_SetDescriptorAddr(pXdmac, iChannel, 0, 0);
+   \   0000017C   0xE3A03000         MOV      R3,#+0
+   \   00000180   0xE3A02000         MOV      R2,#+0
+   \   00000184   0xE1B01006         MOVS     R1,R6
+   \   00000188   0xE6EF1071         UXTB     R1,R1
+   \   0000018C   0xE1B00009         MOVS     R0,R9
+   \   00000190   0x........         BL       XDMAC_SetDescriptorAddr
+    285          	XDMAC_SetDescriptorControl(pXdmac, iChannel, 0);
+   \   00000194   0xE3A02000         MOV      R2,#+0
+   \   00000198   0xE1B01006         MOVS     R1,R6
+   \   0000019C   0xE6EF1071         UXTB     R1,R1
+   \   000001A0   0xE1B00009         MOVS     R0,R9
+   \   000001A4   0x........         BL       XDMAC_SetDescriptorControl
+    286          	return XDMAD_OK;
+   \   000001A8   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_PrepareChannel_2:
+   \   000001AC   0xE8BD83F2         POP      {R1,R4-R9,PC}    ;; return
+    287          }
+    288          
+    289          /**
+    290           * \brief xDMA interrupt handler
+    291           * \param pDmad Pointer to DMA driver instance.
+    292           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    293          void
+    294          XDMAD_Handler(sXdmad * pDmad)
+    295          {
+   \                     XDMAD_Handler:
+   \   00000000   0xE92D4FF8         PUSH     {R3-R11,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+    296          	Xdmac *pXdmac;
+    297          	sXdmadChannel *pCh;
+    298          	uint32_t xdmaChannelIntStatus, xdmaGlobaIntStatus, xdmaGlobalChStatus;
+    299          	uint8_t bExec = 0;
+   \   00000008   0xE3A09000         MOV      R9,#+0
+    300          	uint8_t _iController, _iChannel;
+    301          	assert(pDmad != NULL);
+   \   0000000C   0xE3540000         CMP      R4,#+0
+   \   00000010   0x1A000004         BNE      ??XDMAD_Handler_0
+   \   00000014   0xE300212D         MOVW     R2,#+301
+   \   00000018   0x........         LDR      R1,??DataTable6
+   \   0000001C   0x........         LDR      R0,??DataTable6_2
+   \   00000020   0x........         BL       __aeabi_assert
+   \   00000024   0x........         BL       __iar_EmptyStepPoint
+    302          
+    303          	for (_iController = 0; _iController < pDmad->numControllers;
+   \                     ??XDMAD_Handler_0:
+   \   00000028   0xE3A00000         MOV      R0,#+0
+   \   0000002C   0xE1B0A000         MOVS     R10,R0
+   \                     ??XDMAD_Handler_1:
+   \   00000030   0xE5D40208         LDRB     R0,[R4, #+520]
+   \   00000034   0xE6EFA07A         UXTB     R10,R10
+   \   00000038   0xE15A0000         CMP      R10,R0
+   \   0000003C   0x2A000057         BCS      ??XDMAD_Handler_2
+    304          	     _iController++) {
+    305          		pXdmac = pDmad->pXdmacs[_iController];
+   \   00000040   0xE1B0000A         MOVS     R0,R10
+   \   00000044   0xE6EF0070         UXTB     R0,R0
+   \   00000048   0xE1B00100         LSLS     R0,R0,#+2
+   \   0000004C   0xE7900004         LDR      R0,[R0, +R4]
+   \   00000050   0xE1B05000         MOVS     R5,R0
+    306          		xdmaGlobaIntStatus = XDMAC_GetGIsr(pXdmac);
+   \   00000054   0xE1B00005         MOVS     R0,R5
+   \   00000058   0x........         BL       XDMAC_GetGIsr
+   \   0000005C   0xE1B08000         MOVS     R8,R0
+    307          		if ((xdmaGlobaIntStatus & 0xFFFF) == 0)
+   \   00000060   0xE1B00808         LSLS     R0,R8,#+16
+   \   00000064   0xE1B00820         LSRS     R0,R0,#+16
+   \   00000068   0xE3500000         CMP      R0,#+0
+   \   0000006C   0x0A000049         BEQ      ??XDMAD_Handler_3
+    308          			continue;
+    309          		xdmaGlobalChStatus = XDMAC_GetGlobalChStatus(pXdmac);
+   \                     ??XDMAD_Handler_4:
+   \   00000070   0xE1B00005         MOVS     R0,R5
+   \   00000074   0x........         BL       XDMAC_GetGlobalChStatus
+   \   00000078   0xE58D0000         STR      R0,[SP, #+0]
+    310          		for (_iChannel = 0; _iChannel < pDmad->numChannels; _iChannel++) {
+   \   0000007C   0xE3A00000         MOV      R0,#+0
+   \   00000080   0xE1B0B000         MOVS     R11,R0
+   \                     ??XDMAD_Handler_5:
+   \   00000084   0xE5D40209         LDRB     R0,[R4, #+521]
+   \   00000088   0xE6EFB07B         UXTB     R11,R11
+   \   0000008C   0xE15B0000         CMP      R11,R0
+   \   00000090   0x2A000040         BCS      ??XDMAD_Handler_3
+    311          			if (!(xdmaGlobaIntStatus & (1 << _iChannel)))
+   \   00000094   0xE3A00001         MOV      R0,#+1
+   \   00000098   0xE1100B38         TST      R0,R8, LSR R11
+   \   0000009C   0x0A00003B         BEQ      ??XDMAD_Handler_6
+    312          				continue;
+    313          			pCh = &pDmad->XdmaChannels[_iController][_iChannel];
+   \                     ??XDMAD_Handler_7:
+   \   000000A0   0xE1B0000A         MOVS     R0,R10
+   \   000000A4   0xE6EF0070         UXTB     R0,R0
+   \   000000A8   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000AC   0xE0900004         ADDS     R0,R0,R4
+   \   000000B0   0xE1B0100B         MOVS     R1,R11
+   \   000000B4   0xE6EF1071         UXTB     R1,R1
+   \   000000B8   0xE1B01201         LSLS     R1,R1,#+4
+   \   000000BC   0xE0910000         ADDS     R0,R1,R0
+   \   000000C0   0xE2900008         ADDS     R0,R0,#+8
+   \   000000C4   0xE1B06000         MOVS     R6,R0
+    314          			if (pCh->state == XDMAD_STATE_FREE)
+   \   000000C8   0xE5D6000F         LDRB     R0,[R6, #+15]
+   \   000000CC   0xE3500000         CMP      R0,#+0
+   \   000000D0   0x0A000032         BEQ      ??XDMAD_Handler_8
+    315          				return;
+    316          			if ((xdmaGlobalChStatus & (XDMAC_GS_ST0 << _iChannel))
+    317          			    == 0) {
+   \                     ??XDMAD_Handler_9:
+   \   000000D4   0xE59D0000         LDR      R0,[SP, #+0]
+   \   000000D8   0xE3A01001         MOV      R1,#+1
+   \   000000DC   0xE1110B30         TST      R1,R0, LSR R11
+   \   000000E0   0x1A00001E         BNE      ??XDMAD_Handler_10
+    318          				bExec = 0;
+   \   000000E4   0xE3A00000         MOV      R0,#+0
+   \   000000E8   0xE1B09000         MOVS     R9,R0
+    319          				xdmaChannelIntStatus =
+    320          				    XDMAC_GetChannelIsr(pXdmac, _iChannel);
+   \   000000EC   0xE1B0100B         MOVS     R1,R11
+   \   000000F0   0xE6EF1071         UXTB     R1,R1
+   \   000000F4   0xE1B00005         MOVS     R0,R5
+   \   000000F8   0x........         BL       XDMAC_GetChannelIsr
+   \   000000FC   0xE1B07000         MOVS     R7,R0
+    321          				if (xdmaChannelIntStatus & XDMAC_CIS_BIS) {
+   \   00000100   0xE3170001         TST      R7,#0x1
+   \   00000104   0x0A000009         BEQ      ??XDMAD_Handler_11
+    322          					if ((XDMAC_GetChannelItMask
+    323          					     (pXdmac,
+    324          					      _iChannel) & XDMAC_CIM_LIM) ==
+    325          					    0) {
+   \   00000108   0xE1B0100B         MOVS     R1,R11
+   \   0000010C   0xE6EF1071         UXTB     R1,R1
+   \   00000110   0xE1B00005         MOVS     R0,R5
+   \   00000114   0x........         BL       XDMAC_GetChannelItMask
+   \   00000118   0xE3100002         TST      R0,#0x2
+   \   0000011C   0x1A000003         BNE      ??XDMAD_Handler_11
+    326          						pCh->state = XDMAD_STATE_DONE;
+   \   00000120   0xE3A00004         MOV      R0,#+4
+   \   00000124   0xE5C6000F         STRB     R0,[R6, #+15]
+    327          						bExec = 1;
+   \   00000128   0xE3A00001         MOV      R0,#+1
+   \   0000012C   0xE1B09000         MOVS     R9,R0
+    328          					}
+    329          					//printf("XDMAC_CIS_BIS\n\r");
+    330          				}
+    331          				if (xdmaChannelIntStatus & XDMAC_CIS_FIS) {
+    332          					// printf("XDMAC_CIS_FIS\n\r");
+    333          				}
+    334          				if (xdmaChannelIntStatus & XDMAC_CIS_RBEIS) {
+    335          					//printf("XDMAC_CIS_RBEIS\n\r");
+    336          				}
+    337          				if (xdmaChannelIntStatus & XDMAC_CIS_WBEIS) {
+    338          					// printf("XDMAC_CIS_WBEIS\n\r");
+    339          				}
+    340          				if (xdmaChannelIntStatus & XDMAC_CIS_ROIS) {
+    341          					// printf("XDMAC_CIS_ROIS\n\r");
+    342          				}
+    343          				if (xdmaChannelIntStatus & XDMAC_CIS_LIS) {
+   \                     ??XDMAD_Handler_11:
+   \   00000130   0xE3170002         TST      R7,#0x2
+   \   00000134   0x0A000003         BEQ      ??XDMAD_Handler_12
+    344          					//printf("XDMAC_CIS_LIS\n\r");
+    345          
+    346          					pCh->state = XDMAD_STATE_DONE;
+   \   00000138   0xE3A00004         MOV      R0,#+4
+   \   0000013C   0xE5C6000F         STRB     R0,[R6, #+15]
+    347          					bExec = 1;
+   \   00000140   0xE3A00001         MOV      R0,#+1
+   \   00000144   0xE1B09000         MOVS     R9,R0
+    348          				}
+    349          				if (xdmaChannelIntStatus & XDMAC_CIS_DIS) {
+   \                     ??XDMAD_Handler_12:
+   \   00000148   0xE3170004         TST      R7,#0x4
+   \   0000014C   0x0A000003         BEQ      ??XDMAD_Handler_10
+    350          					pCh->state = XDMAD_STATE_DONE;
+   \   00000150   0xE3A00004         MOV      R0,#+4
+   \   00000154   0xE5C6000F         STRB     R0,[R6, #+15]
+    351          					bExec = 1;
+   \   00000158   0xE3A00001         MOV      R0,#+1
+   \   0000015C   0xE1B09000         MOVS     R9,R0
+    352          				}
+    353          			}
+    354          			// printf("bExec =%d, _iChannel=%d \n\r",bExec,_iChannel);
+    355          			/* Execute callback */
+    356          			if (bExec && pCh->fCallback) {
+   \                     ??XDMAD_Handler_10:
+   \   00000160   0xE1B00009         MOVS     R0,R9
+   \   00000164   0xE6EF0070         UXTB     R0,R0
+   \   00000168   0xE3500000         CMP      R0,#+0
+   \   0000016C   0x0A000007         BEQ      ??XDMAD_Handler_6
+   \   00000170   0xE5960000         LDR      R0,[R6, #+0]
+   \   00000174   0xE3500000         CMP      R0,#+0
+   \   00000178   0x0A000004         BEQ      ??XDMAD_Handler_6
+    357          				//XDMAC_DisableGIt( pXdmac,1 << _iChannel);
+    358          				pCh->fCallback(_iChannel, pCh->pArg);
+   \   0000017C   0xE5961004         LDR      R1,[R6, #+4]
+   \   00000180   0xE1B0000B         MOVS     R0,R11
+   \   00000184   0xE6EF0070         UXTB     R0,R0
+   \   00000188   0xE5962000         LDR      R2,[R6, #+0]
+   \   0000018C   0xE12FFF32         BLX      R2
+    359          			}
+    360          		}
+   \                     ??XDMAD_Handler_6:
+   \   00000190   0xE29BB001         ADDS     R11,R11,#+1
+   \   00000194   0xEAFFFFBA         B        ??XDMAD_Handler_5
+    361          	}
+   \                     ??XDMAD_Handler_3:
+   \   00000198   0xE29AA001         ADDS     R10,R10,#+1
+   \   0000019C   0xEAFFFFA3         B        ??XDMAD_Handler_1
+    362          }
+   \                     ??XDMAD_Handler_2:
+   \                     ??XDMAD_Handler_8:
+   \   000001A0   0xE8BD8FF1         POP      {R0,R4-R11,PC}   ;; return
+    363          
+    364          /**
+    365           * \brief Check if DMA transfer is finished.
+    366           *        In polling mode XDMAD_Handler() is polled.
+    367           * \param pXdmad    Pointer to DMA driver instance.
+    368           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    369           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    370          eXdmadRC
+    371          XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel)
+    372          {
+   \                     XDMAD_IsTransferDone:
+   \   00000000   0xE92D41F0         PUSH     {R4-R8,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    373          	uint8_t _iController = (dwChannel >> 8);
+   \   0000000C   0xE1B06425         LSRS     R6,R5,#+8
+    374          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   00000010   0xE1B08005         MOVS     R8,R5
+    375          	uint8_t state;
+    376          	state = pXdmad->XdmaChannels[_iController][iChannel].state;
+   \   00000014   0xE1B00006         MOVS     R0,R6
+   \   00000018   0xE6EF0070         UXTB     R0,R0
+   \   0000001C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000020   0xE0900004         ADDS     R0,R0,R4
+   \   00000024   0xE1B01008         MOVS     R1,R8
+   \   00000028   0xE6EF1071         UXTB     R1,R1
+   \   0000002C   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000030   0xE0910000         ADDS     R0,R1,R0
+   \   00000034   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000038   0xE1B07000         MOVS     R7,R0
+    377          	assert(pXdmad != NULL);
+   \   0000003C   0xE3540000         CMP      R4,#+0
+   \   00000040   0x1A000004         BNE      ??XDMAD_IsTransferDone_0
+   \   00000044   0xE3002179         MOVW     R2,#+377
+   \   00000048   0x........         LDR      R1,??DataTable6
+   \   0000004C   0x........         LDR      R0,??DataTable6_1
+   \   00000050   0x........         BL       __aeabi_assert
+   \   00000054   0x........         BL       __iar_EmptyStepPoint
+    378          	if (state == XDMAD_STATE_ALLOCATED)
+   \                     ??XDMAD_IsTransferDone_0:
+   \   00000058   0xE1B00007         MOVS     R0,R7
+   \   0000005C   0xE6EF0070         UXTB     R0,R0
+   \   00000060   0xE3500001         CMP      R0,#+1
+   \   00000064   0x1A000001         BNE      ??XDMAD_IsTransferDone_1
+    379          		return XDMAD_OK;
+   \   00000068   0xE3A00000         MOV      R0,#+0
+   \   0000006C   0xEA000011         B        ??XDMAD_IsTransferDone_2
+    380          	if (state == XDMAD_STATE_FREE)
+   \                     ??XDMAD_IsTransferDone_1:
+   \   00000070   0xE1B00007         MOVS     R0,R7
+   \   00000074   0xE6EF0070         UXTB     R0,R0
+   \   00000078   0xE3500000         CMP      R0,#+0
+   \   0000007C   0x1A000001         BNE      ??XDMAD_IsTransferDone_3
+    381          		return XDMAD_ERROR;
+   \   00000080   0xE3A00004         MOV      R0,#+4
+   \   00000084   0xEA00000B         B        ??XDMAD_IsTransferDone_2
+    382          	else if (state != XDMAD_STATE_DONE) {
+   \                     ??XDMAD_IsTransferDone_3:
+   \   00000088   0xE1B00007         MOVS     R0,R7
+   \   0000008C   0xE6EF0070         UXTB     R0,R0
+   \   00000090   0xE3500004         CMP      R0,#+4
+   \   00000094   0x0A000006         BEQ      ??XDMAD_IsTransferDone_4
+    383          		if (pXdmad->pollingMode)
+   \   00000098   0xE5D4020A         LDRB     R0,[R4, #+522]
+   \   0000009C   0xE3500000         CMP      R0,#+0
+   \   000000A0   0x0A000001         BEQ      ??XDMAD_IsTransferDone_5
+    384          			XDMAD_Handler(pXdmad);
+   \   000000A4   0xE1B00004         MOVS     R0,R4
+   \   000000A8   0x........         BL       XDMAD_Handler
+    385          		return XDMAD_BUSY;
+   \                     ??XDMAD_IsTransferDone_5:
+   \   000000AC   0xE3A00003         MOV      R0,#+3
+   \   000000B0   0xEA000000         B        ??XDMAD_IsTransferDone_2
+    386          	}
+    387          	return XDMAD_OK;
+   \                     ??XDMAD_IsTransferDone_4:
+   \   000000B4   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_IsTransferDone_2:
+   \   000000B8   0xE8BD81F0         POP      {R4-R8,PC}       ;; return
+    388          }
+    389          
+    390          /**
+    391           * \brief Configure DMA for a single transfer.
+    392           * \param pXdmad     Pointer to xDMA driver instance.
+    393           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    394           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    395          eXdmadRC
+    396          XDMAD_ConfigureTransfer(sXdmad * pXdmad,
+    397          			uint32_t dwChannel,
+    398          			sXdmadCfg * pXdmaParam,
+    399          			uint32_t dwXdmaDescCfg, uint32_t dwXdmaDescAddr)
+    400          {
+   \                     XDMAD_ConfigureTransfer:
+   \   00000000   0xE92D4FF8         PUSH     {R3-R11,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+   \   0000000C   0xE1B06002         MOVS     R6,R2
+   \   00000010   0xE1B07003         MOVS     R7,R3
+   \   00000014   0xE59D8028         LDR      R8,[SP, #+40]
+    401          	uint8_t _iController = (dwChannel >> 8);
+   \   00000018   0xE1B0A425         LSRS     R10,R5,#+8
+    402          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   0000001C   0xE1B09005         MOVS     R9,R5
+    403          	Xdmac *pXdmac = pXdmad->pXdmacs[_iController];
+   \   00000020   0xE1B0000A         MOVS     R0,R10
+   \   00000024   0xE6EF0070         UXTB     R0,R0
+   \   00000028   0xE1B00100         LSLS     R0,R0,#+2
+   \   0000002C   0xE790B004         LDR      R11,[R0, +R4]
+    404          	XDMAC_GetGIsr(pXdmac);
+   \   00000030   0xE1B0000B         MOVS     R0,R11
+   \   00000034   0x........         BL       XDMAC_GetGIsr
+    405          	XDMAC_GetChannelIsr(pXdmac, iChannel);
+   \   00000038   0xE1B01009         MOVS     R1,R9
+   \   0000003C   0xE6EF1071         UXTB     R1,R1
+   \   00000040   0xE1B0000B         MOVS     R0,R11
+   \   00000044   0x........         BL       XDMAC_GetChannelIsr
+    406          	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    407          	    XDMAD_STATE_FREE)
+   \   00000048   0xE1B0000A         MOVS     R0,R10
+   \   0000004C   0xE6EF0070         UXTB     R0,R0
+   \   00000050   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000054   0xE0900004         ADDS     R0,R0,R4
+   \   00000058   0xE1B01009         MOVS     R1,R9
+   \   0000005C   0xE6EF1071         UXTB     R1,R1
+   \   00000060   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000064   0xE0910000         ADDS     R0,R1,R0
+   \   00000068   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   0000006C   0xE3500000         CMP      R0,#+0
+   \   00000070   0x1A000001         BNE      ??XDMAD_ConfigureTransfer_0
+    408          		return XDMAD_ERROR;
+   \   00000074   0xE3A00004         MOV      R0,#+4
+   \   00000078   0xEA000076         B        ??XDMAD_ConfigureTransfer_1
+    409          	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    410          	    XDMAD_STATE_START)
+   \                     ??XDMAD_ConfigureTransfer_0:
+   \   0000007C   0xE1B0000A         MOVS     R0,R10
+   \   00000080   0xE6EF0070         UXTB     R0,R0
+   \   00000084   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000088   0xE0900004         ADDS     R0,R0,R4
+   \   0000008C   0xE1B01009         MOVS     R1,R9
+   \   00000090   0xE6EF1071         UXTB     R1,R1
+   \   00000094   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000098   0xE0910000         ADDS     R0,R1,R0
+   \   0000009C   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   000000A0   0xE3500002         CMP      R0,#+2
+   \   000000A4   0x1A000001         BNE      ??XDMAD_ConfigureTransfer_2
+    411          		return XDMAD_BUSY;
+   \   000000A8   0xE3A00003         MOV      R0,#+3
+   \   000000AC   0xEA000069         B        ??XDMAD_ConfigureTransfer_1
+    412          	/* Linked List is enabled */
+    413          	if ((dwXdmaDescCfg & XDMAC_CNDC_NDE) == XDMAC_CNDC_NDE_DSCR_FETCH_EN) {
+   \                     ??XDMAD_ConfigureTransfer_2:
+   \   000000B0   0xE3170001         TST      R7,#0x1
+   \   000000B4   0x0A00002E         BEQ      ??XDMAD_ConfigureTransfer_3
+    414          		if ((dwXdmaDescCfg & XDMAC_CNDC_NDVIEW_Msk) ==
+    415          		    XDMAC_CNDC_NDVIEW_NDV0) {
+   \   000000B8   0xE3170018         TST      R7,#0x18
+   \   000000BC   0x1A00000E         BNE      ??XDMAD_ConfigureTransfer_4
+    416          			XDMAC_SetChannelConfig(pXdmac, iChannel,
+    417          					       pXdmaParam->mbr_cfg);
+   \   000000C0   0xE596200C         LDR      R2,[R6, #+12]
+   \   000000C4   0xE1B01009         MOVS     R1,R9
+   \   000000C8   0xE6EF1071         UXTB     R1,R1
+   \   000000CC   0xE1B0000B         MOVS     R0,R11
+   \   000000D0   0x........         BL       XDMAC_SetChannelConfig
+    418          			XDMAC_SetSourceAddr(pXdmac, iChannel,
+    419          					    pXdmaParam->mbr_sa);
+   \   000000D4   0xE5962004         LDR      R2,[R6, #+4]
+   \   000000D8   0xE1B01009         MOVS     R1,R9
+   \   000000DC   0xE6EF1071         UXTB     R1,R1
+   \   000000E0   0xE1B0000B         MOVS     R0,R11
+   \   000000E4   0x........         BL       XDMAC_SetSourceAddr
+    420          			XDMAC_SetDestinationAddr(pXdmac, iChannel,
+    421          						 pXdmaParam->mbr_da);
+   \   000000E8   0xE5962008         LDR      R2,[R6, #+8]
+   \   000000EC   0xE1B01009         MOVS     R1,R9
+   \   000000F0   0xE6EF1071         UXTB     R1,R1
+   \   000000F4   0xE1B0000B         MOVS     R0,R11
+   \   000000F8   0x........         BL       XDMAC_SetDestinationAddr
+    422          		}
+    423          		if ((dwXdmaDescCfg & XDMAC_CNDC_NDVIEW_Msk) ==
+    424          		    XDMAC_CNDC_NDVIEW_NDV1) {
+   \                     ??XDMAD_ConfigureTransfer_4:
+   \   000000FC   0xE2170018         ANDS     R0,R7,#0x18
+   \   00000100   0xE3500008         CMP      R0,#+8
+   \   00000104   0x1A000004         BNE      ??XDMAD_ConfigureTransfer_5
+    425          			XDMAC_SetChannelConfig(pXdmac, iChannel,
+    426          					       pXdmaParam->mbr_cfg);
+   \   00000108   0xE596200C         LDR      R2,[R6, #+12]
+   \   0000010C   0xE1B01009         MOVS     R1,R9
+   \   00000110   0xE6EF1071         UXTB     R1,R1
+   \   00000114   0xE1B0000B         MOVS     R0,R11
+   \   00000118   0x........         BL       XDMAC_SetChannelConfig
+    427          		}
+    428          		XDMAC_SetDescriptorAddr(pXdmac, iChannel, dwXdmaDescAddr, 0);
+   \                     ??XDMAD_ConfigureTransfer_5:
+   \   0000011C   0xE3A03000         MOV      R3,#+0
+   \   00000120   0xE1B02008         MOVS     R2,R8
+   \   00000124   0xE1B01009         MOVS     R1,R9
+   \   00000128   0xE6EF1071         UXTB     R1,R1
+   \   0000012C   0xE1B0000B         MOVS     R0,R11
+   \   00000130   0x........         BL       XDMAC_SetDescriptorAddr
+    429          		XDMAC_SetDescriptorControl(pXdmac, iChannel, dwXdmaDescCfg);
+   \   00000134   0xE1B02007         MOVS     R2,R7
+   \   00000138   0xE1B01009         MOVS     R1,R9
+   \   0000013C   0xE6EF1071         UXTB     R1,R1
+   \   00000140   0xE1B0000B         MOVS     R0,R11
+   \   00000144   0x........         BL       XDMAC_SetDescriptorControl
+    430          		XDMAC_DisableChannelIt(pXdmac, iChannel, -1);
+   \   00000148   0xE3E02000         MVN      R2,#+0
+   \   0000014C   0xE1B01009         MOVS     R1,R9
+   \   00000150   0xE6EF1071         UXTB     R1,R1
+   \   00000154   0xE1B0000B         MOVS     R0,R11
+   \   00000158   0x........         BL       XDMAC_DisableChannelIt
+    431          		XDMAC_EnableChannelIt(pXdmac, iChannel, XDMAC_CIE_LIE);
+   \   0000015C   0xE3A02002         MOV      R2,#+2
+   \   00000160   0xE1B01009         MOVS     R1,R9
+   \   00000164   0xE6EF1071         UXTB     R1,R1
+   \   00000168   0xE1B0000B         MOVS     R0,R11
+   \   0000016C   0x........         BL       XDMAC_EnableChannelIt
+   \   00000170   0xEA000037         B        ??XDMAD_ConfigureTransfer_6
+    432          	}
+    433          	/* LLI is disabled. */
+    434          	else {
+    435          		XDMAC_SetSourceAddr(pXdmac, iChannel, pXdmaParam->mbr_sa);
+   \                     ??XDMAD_ConfigureTransfer_3:
+   \   00000174   0xE5962004         LDR      R2,[R6, #+4]
+   \   00000178   0xE1B01009         MOVS     R1,R9
+   \   0000017C   0xE6EF1071         UXTB     R1,R1
+   \   00000180   0xE1B0000B         MOVS     R0,R11
+   \   00000184   0x........         BL       XDMAC_SetSourceAddr
+    436          		XDMAC_SetDestinationAddr(pXdmac, iChannel, pXdmaParam->mbr_da);
+   \   00000188   0xE5962008         LDR      R2,[R6, #+8]
+   \   0000018C   0xE1B01009         MOVS     R1,R9
+   \   00000190   0xE6EF1071         UXTB     R1,R1
+   \   00000194   0xE1B0000B         MOVS     R0,R11
+   \   00000198   0x........         BL       XDMAC_SetDestinationAddr
+    437          		XDMAC_SetMicroblockControl(pXdmac, iChannel,
+    438          					   pXdmaParam->mbr_ubc);
+   \   0000019C   0xE5962000         LDR      R2,[R6, #+0]
+   \   000001A0   0xE1B01009         MOVS     R1,R9
+   \   000001A4   0xE6EF1071         UXTB     R1,R1
+   \   000001A8   0xE1B0000B         MOVS     R0,R11
+   \   000001AC   0x........         BL       XDMAC_SetMicroblockControl
+    439          		XDMAC_SetBlockControl(pXdmac, iChannel, pXdmaParam->mbr_bc);
+   \   000001B0   0xE5962010         LDR      R2,[R6, #+16]
+   \   000001B4   0xE1B01009         MOVS     R1,R9
+   \   000001B8   0xE6EF1071         UXTB     R1,R1
+   \   000001BC   0xE1B0000B         MOVS     R0,R11
+   \   000001C0   0x........         BL       XDMAC_SetBlockControl
+    440          		XDMAC_SetDataStride_MemPattern(pXdmac, iChannel,
+    441          					       pXdmaParam->mbr_ds);
+   \   000001C4   0xE5962014         LDR      R2,[R6, #+20]
+   \   000001C8   0xE1B01009         MOVS     R1,R9
+   \   000001CC   0xE6EF1071         UXTB     R1,R1
+   \   000001D0   0xE1B0000B         MOVS     R0,R11
+   \   000001D4   0x........         BL       XDMAC_SetDataStride_MemPattern
+    442          		XDMAC_SetSourceMicroBlockStride(pXdmac, iChannel,
+    443          						pXdmaParam->mbr_sus);
+   \   000001D8   0xE5962018         LDR      R2,[R6, #+24]
+   \   000001DC   0xE1B01009         MOVS     R1,R9
+   \   000001E0   0xE6EF1071         UXTB     R1,R1
+   \   000001E4   0xE1B0000B         MOVS     R0,R11
+   \   000001E8   0x........         BL       XDMAC_SetSourceMicroBlockStride
+    444          		XDMAC_SetDestinationMicroBlockStride(pXdmac, iChannel,
+    445          						     pXdmaParam->mbr_dus);
+   \   000001EC   0xE596201C         LDR      R2,[R6, #+28]
+   \   000001F0   0xE1B01009         MOVS     R1,R9
+   \   000001F4   0xE6EF1071         UXTB     R1,R1
+   \   000001F8   0xE1B0000B         MOVS     R0,R11
+   \   000001FC   0x........         BL       XDMAC_SetDestinationMicroBlockStride
+    446          		XDMAC_SetChannelConfig(pXdmac, iChannel, pXdmaParam->mbr_cfg);
+   \   00000200   0xE596200C         LDR      R2,[R6, #+12]
+   \   00000204   0xE1B01009         MOVS     R1,R9
+   \   00000208   0xE6EF1071         UXTB     R1,R1
+   \   0000020C   0xE1B0000B         MOVS     R0,R11
+   \   00000210   0x........         BL       XDMAC_SetChannelConfig
+    447          		XDMAC_SetDescriptorAddr(pXdmac, iChannel, 0, 0);
+   \   00000214   0xE3A03000         MOV      R3,#+0
+   \   00000218   0xE3A02000         MOV      R2,#+0
+   \   0000021C   0xE1B01009         MOVS     R1,R9
+   \   00000220   0xE6EF1071         UXTB     R1,R1
+   \   00000224   0xE1B0000B         MOVS     R0,R11
+   \   00000228   0x........         BL       XDMAC_SetDescriptorAddr
+    448          		XDMAC_SetDescriptorControl(pXdmac, iChannel, 0);
+   \   0000022C   0xE3A02000         MOV      R2,#+0
+   \   00000230   0xE1B01009         MOVS     R1,R9
+   \   00000234   0xE6EF1071         UXTB     R1,R1
+   \   00000238   0xE1B0000B         MOVS     R0,R11
+   \   0000023C   0x........         BL       XDMAC_SetDescriptorControl
+    449          		XDMAC_EnableChannelIt(pXdmac,
+    450          				      iChannel,
+    451          				      XDMAC_CIE_BIE |
+    452          				      XDMAC_CIE_DIE |
+    453          				      XDMAC_CIE_FIE |
+    454          				      XDMAC_CIE_RBIE |
+    455          				      XDMAC_CIE_WBIE | XDMAC_CIE_ROIE);
+   \   00000240   0xE3A0207D         MOV      R2,#+125
+   \   00000244   0xE1B01009         MOVS     R1,R9
+   \   00000248   0xE6EF1071         UXTB     R1,R1
+   \   0000024C   0xE1B0000B         MOVS     R0,R11
+   \   00000250   0x........         BL       XDMAC_EnableChannelIt
+    456          	}
+    457          	return XDMAD_OK;
+   \                     ??XDMAD_ConfigureTransfer_6:
+   \   00000254   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_ConfigureTransfer_1:
+   \   00000258   0xE8BD8FF2         POP      {R1,R4-R11,PC}   ;; return
+    458          }
+    459          
+    460          /**
+    461           * \brief Start xDMA transfer.
+    462           * \param pXdmad     Pointer to XDMA driver instance.
+    463           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    464           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    465          eXdmadRC
+    466          XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel)
+    467          {
+   \                     XDMAD_StartTransfer:
+   \   00000000   0xE92D41F0         PUSH     {R4-R8,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    468          	uint8_t _iController = (dwChannel >> 8);
+   \   0000000C   0xE1B06425         LSRS     R6,R5,#+8
+    469          	uint8_t iChannel = (dwChannel) & 0xFF;
+   \   00000010   0xE1B07005         MOVS     R7,R5
+    470          	Xdmac *pXdmac = pXdmad->pXdmacs[_iController];
+   \   00000014   0xE1B00006         MOVS     R0,R6
+   \   00000018   0xE6EF0070         UXTB     R0,R0
+   \   0000001C   0xE1B00100         LSLS     R0,R0,#+2
+   \   00000020   0xE7908004         LDR      R8,[R0, +R4]
+    471          	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    472          	    XDMAD_STATE_FREE) {
+   \   00000024   0xE1B00006         MOVS     R0,R6
+   \   00000028   0xE6EF0070         UXTB     R0,R0
+   \   0000002C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000030   0xE0900004         ADDS     R0,R0,R4
+   \   00000034   0xE1B01007         MOVS     R1,R7
+   \   00000038   0xE6EF1071         UXTB     R1,R1
+   \   0000003C   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000040   0xE0910000         ADDS     R0,R1,R0
+   \   00000044   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000048   0xE3500000         CMP      R0,#+0
+   \   0000004C   0x1A000003         BNE      ??XDMAD_StartTransfer_0
+    473          		printf("-E- XDMAD_STATE_FREE \n\r");
+   \   00000050   0x........         LDR      R0,??DataTable6_3
+   \   00000054   0x........         BL       printf
+    474          		return XDMAD_ERROR;
+   \   00000058   0xE3A00004         MOV      R0,#+4
+   \   0000005C   0xEA000024         B        ??XDMAD_StartTransfer_1
+    475          	} else if (pXdmad->XdmaChannels[_iController][iChannel].state ==
+    476          		   XDMAD_STATE_START) {
+   \                     ??XDMAD_StartTransfer_0:
+   \   00000060   0xE1B00006         MOVS     R0,R6
+   \   00000064   0xE6EF0070         UXTB     R0,R0
+   \   00000068   0xE1B00400         LSLS     R0,R0,#+8
+   \   0000006C   0xE0900004         ADDS     R0,R0,R4
+   \   00000070   0xE1B01007         MOVS     R1,R7
+   \   00000074   0xE6EF1071         UXTB     R1,R1
+   \   00000078   0xE1B01201         LSLS     R1,R1,#+4
+   \   0000007C   0xE0910000         ADDS     R0,R1,R0
+   \   00000080   0xE5D00017         LDRB     R0,[R0, #+23]
+   \   00000084   0xE3500002         CMP      R0,#+2
+   \   00000088   0x1A000003         BNE      ??XDMAD_StartTransfer_2
+    477          		printf("-E- XDMAD_STATE_START \n\r");
+   \   0000008C   0x........         LDR      R0,??DataTable6_4
+   \   00000090   0x........         BL       printf
+    478          		return XDMAD_BUSY;
+   \   00000094   0xE3A00003         MOV      R0,#+3
+   \   00000098   0xEA000015         B        ??XDMAD_StartTransfer_1
+    479          	}
+    480          	/* Change state to transferring */
+    481          	pXdmad->XdmaChannels[_iController][iChannel].state = XDMAD_STATE_START;
+   \                     ??XDMAD_StartTransfer_2:
+   \   0000009C   0xE1B00006         MOVS     R0,R6
+   \   000000A0   0xE6EF0070         UXTB     R0,R0
+   \   000000A4   0xE1B00400         LSLS     R0,R0,#+8
+   \   000000A8   0xE0900004         ADDS     R0,R0,R4
+   \   000000AC   0xE1B01007         MOVS     R1,R7
+   \   000000B0   0xE6EF1071         UXTB     R1,R1
+   \   000000B4   0xE1B01201         LSLS     R1,R1,#+4
+   \   000000B8   0xE0910000         ADDS     R0,R1,R0
+   \   000000BC   0xE3A01002         MOV      R1,#+2
+   \   000000C0   0xE5C01017         STRB     R1,[R0, #+23]
+    482          	XDMAC_EnableChannel(pXdmac, iChannel);
+   \   000000C4   0xE1B01007         MOVS     R1,R7
+   \   000000C8   0xE6EF1071         UXTB     R1,R1
+   \   000000CC   0xE1B00008         MOVS     R0,R8
+   \   000000D0   0x........         BL       XDMAC_EnableChannel
+    483          	if (pXdmad->pollingMode == 0) {
+   \   000000D4   0xE5D4020A         LDRB     R0,[R4, #+522]
+   \   000000D8   0xE3500000         CMP      R0,#+0
+   \   000000DC   0x1A000003         BNE      ??XDMAD_StartTransfer_3
+    484          		XDMAC_EnableGIt(pXdmac, 1 << iChannel);
+   \   000000E0   0xE3A00001         MOV      R0,#+1
+   \   000000E4   0xE1B01710         LSLS     R1,R0,R7
+   \   000000E8   0xE1B00008         MOVS     R0,R8
+   \   000000EC   0x........         BL       XDMAC_EnableGIt
+    485          	}
+    486          	return XDMAD_OK;
+   \                     ??XDMAD_StartTransfer_3:
+   \   000000F0   0xE3A00000         MOV      R0,#+0
+   \                     ??XDMAD_StartTransfer_1:
+   \   000000F4   0xE8BD81F0         POP      {R4-R8,PC}       ;; return
+    487          }
+    488          
+    489          /**
+    490           * \brief Stop DMA transfer.
+    491           * \param pXdmad     Pointer to DMA driver instance.
+    492           * \param dwChannel ControllerNumber << 8 | ChannelNumber.
+    493           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    494          eXdmadRC
+    495          XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel)
+    496          {
+   \                     XDMAD_StopTransfer:
+   \   00000000   0xE92D41F0         PUSH     {R4-R8,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    497          	uint8_t _iController = (dwChannel >> 8);
+   \   0000000C   0xE1B06425         LSRS     R6,R5,#+8
+    498          	uint8_t _iChannel = (dwChannel) & 0xFF;
+   \   00000010   0xE1B07005         MOVS     R7,R5
+    499          	Xdmac *pXdmac = pXdmad->pXdmacs[_iController];
+   \   00000014   0xE1B00006         MOVS     R0,R6
+   \   00000018   0xE6EF0070         UXTB     R0,R0
+   \   0000001C   0xE1B00100         LSLS     R0,R0,#+2
+   \   00000020   0xE7908004         LDR      R8,[R0, +R4]
+    500          
+    501          	pXdmad->XdmaChannels[_iController][_iChannel].state =
+    502          	    XDMAD_STATE_ALLOCATED;
+   \   00000024   0xE1B00006         MOVS     R0,R6
+   \   00000028   0xE6EF0070         UXTB     R0,R0
+   \   0000002C   0xE1B00400         LSLS     R0,R0,#+8
+   \   00000030   0xE0900004         ADDS     R0,R0,R4
+   \   00000034   0xE1B01007         MOVS     R1,R7
+   \   00000038   0xE6EF1071         UXTB     R1,R1
+   \   0000003C   0xE1B01201         LSLS     R1,R1,#+4
+   \   00000040   0xE0910000         ADDS     R0,R1,R0
+   \   00000044   0xE3A01001         MOV      R1,#+1
+   \   00000048   0xE5C01017         STRB     R1,[R0, #+23]
+    503          	/* Disable channel */
+    504          	XDMAC_DisableChannel(pXdmac, _iChannel);
+   \   0000004C   0xE1B01007         MOVS     R1,R7
+   \   00000050   0xE6EF1071         UXTB     R1,R1
+   \   00000054   0xE1B00008         MOVS     R0,R8
+   \   00000058   0x........         BL       XDMAC_DisableChannel
+    505          	/* Disable interrupts */
+    506          	XDMAC_DisableChannelIt(pXdmac, _iChannel, -1);
+   \   0000005C   0xE3E02000         MVN      R2,#+0
+   \   00000060   0xE1B01007         MOVS     R1,R7
+   \   00000064   0xE6EF1071         UXTB     R1,R1
+   \   00000068   0xE1B00008         MOVS     R0,R8
+   \   0000006C   0x........         BL       XDMAC_DisableChannelIt
+    507          	/* Clear pending status */
+    508          	XDMAC_GetChannelIsr(pXdmac, _iChannel);
+   \   00000070   0xE1B01007         MOVS     R1,R7
+   \   00000074   0xE6EF1071         UXTB     R1,R1
+   \   00000078   0xE1B00008         MOVS     R0,R8
+   \   0000007C   0x........         BL       XDMAC_GetChannelIsr
+    509          	XDMAC_GetGlobalChStatus(pXdmac);
+   \   00000080   0xE1B00008         MOVS     R0,R8
+   \   00000084   0x........         BL       XDMAC_GetGlobalChStatus
+    510          
+    511          	return XDMAD_OK;
+   \   00000088   0xE3A00000         MOV      R0,#+0
+   \   0000008C   0xE8BD81F0         POP      {R4-R8,PC}       ;; return
+    512          }
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable6:
+   \   00000000   0x........         DC32     ?_1
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable6_1:
+   \   00000000   0x........         DC32     ?_0
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable6_2:
+   \   00000000   0x........         DC32     ?_2
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable6_3:
+   \   00000000   0x........         DC32     ?_3
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable6_4:
+   \   00000000   0x........         DC32     ?_4
+
+   \                                 In section .rodata, align 4
+   \                     ?_0:
+   \   00000000   0x70 0x58          DC8 "pXdmad != NULL"
+   \              0x64 0x6D    
+   \              0x61 0x64    
+   \              0x20 0x21    
+   \              0x3D 0x20    
+   \              0x4E 0x55    
+   \              0x4C 0x4C    
+   \              0x00         
+   \   0000000F   0x00               DC8 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_1:
+   \   00000000   0x43 0x3A          DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+   \              0x5C 0x55    
+   \              0x73 0x65    
+   \              0x72 0x73    
+   \   00000008   0x5C 0x64          DC8 5CH, 64H, 66H, 72H, 6FH, 6EH, 65H, 6BH
+   \              0x66 0x72    
+   \              0x6F 0x6E    
+   \              0x65 0x6B    
+   \   00000010   0x5C 0x44          DC8 5CH, 44H, 6FH, 63H, 75H, 6DH, 65H, 6EH
+   \              0x6F 0x63    
+   \              0x75 0x6D    
+   \              0x65 0x6E    
+   \   00000018   0x74 0x73          DC8 74H, 73H, 5CH, 50H, 72H, 6FH, 6AH, 65H
+   \              0x5C 0x50    
+   \              0x72 0x6F    
+   \              0x6A 0x65    
+   \   00000020   0x63 0x74          DC8 63H, 74H, 5CH, 73H, 6FH, 66H, 74H, 70H
+   \              0x5C 0x73    
+   \              0x6F 0x66    
+   \              0x74 0x70    
+   \   00000028   0x61 0x63          DC8 61H, 63H, 6BH, 5CH, 64H, 72H, 69H, 76H
+   \              0x6B 0x5C    
+   \              0x64 0x72    
+   \              0x69 0x76    
+   \   00000030   0x65 0x72          DC8 65H, 72H, 73H, 5CH, 62H, 75H, 73H, 5CH
+   \              0x73 0x5C    
+   \              0x62 0x75    
+   \              0x73 0x5C    
+   \   00000038   0x78 0x64          DC8 78H, 64H, 6DH, 61H, 64H, 2EH, 63H, 0
+   \              0x6D 0x61    
+   \              0x64 0x2E    
+   \              0x63 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_2:
+   \   00000000   0x70 0x44          DC8 "pDmad != NULL"
+   \              0x6D 0x61    
+   \              0x64 0x20    
+   \              0x21 0x3D    
+   \              0x20 0x4E    
+   \              0x55 0x4C    
+   \              0x4C 0x00    
+   \   0000000E   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_3:
+   \   00000000   0x2D 0x45          DC8 "-E- XDMAD_STATE_FREE \012\015"
+   \              0x2D 0x20    
+   \              0x58 0x44    
+   \              0x4D 0x41    
+   \              0x44 0x5F    
+   \              0x53 0x54    
+   \              0x41 0x54    
+   \              0x45 0x5F    
+   \              0x46 0x52    
+   \              0x45 0x45    
+   \              0x20 0x0A    
+   \              0x0D 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_4:
+   \   00000000   0x2D 0x45          DC8 "-E- XDMAD_STATE_START \012\015"
+   \              0x2D 0x20    
+   \              0x58 0x44    
+   \              0x4D 0x41    
+   \              0x44 0x5F    
+   \              0x53 0x54    
+   \              0x41 0x54    
+   \              0x45 0x5F    
+   \              0x53 0x54    
+   \              0x41 0x52    
+   \              0x54 0x20    
+   \              0x0A 0x0D    
+   \              0x00         
+   \   00000019   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+    513          
+    514          /**@}*/
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      24   XDMAD_AllocateChannel
+        24   -> XDMAD_AllocateXdmacChannel
+      32   XDMAD_AllocateXdmacChannel
+        32   -> XDMAIF_Get_ChannelNumber
+        32   -> XDMAIF_IsValidatedPeripherOnDma
+      40   XDMAD_ConfigureTransfer
+        40   -> XDMAC_DisableChannelIt
+        40   -> XDMAC_EnableChannelIt
+        40   -> XDMAC_GetChannelIsr
+        40   -> XDMAC_GetGIsr
+        40   -> XDMAC_SetBlockControl
+        40   -> XDMAC_SetChannelConfig
+        40   -> XDMAC_SetDataStride_MemPattern
+        40   -> XDMAC_SetDescriptorAddr
+        40   -> XDMAC_SetDescriptorControl
+        40   -> XDMAC_SetDestinationAddr
+        40   -> XDMAC_SetDestinationMicroBlockStride
+        40   -> XDMAC_SetMicroblockControl
+        40   -> XDMAC_SetSourceAddr
+        40   -> XDMAC_SetSourceMicroBlockStride
+      24   XDMAD_FreeChannel
+        24   -> __aeabi_assert
+        24   -> __iar_EmptyStepPoint
+      40   XDMAD_Handler
+        40   -- Indirect call
+        40   -> XDMAC_GetChannelIsr
+        40   -> XDMAC_GetChannelItMask
+        40   -> XDMAC_GetGIsr
+        40   -> XDMAC_GetGlobalChStatus
+        40   -> __aeabi_assert
+        40   -> __iar_EmptyStepPoint
+      24   XDMAD_Initialize
+        24   -> __aeabi_assert
+        24   -> __iar_EmptyStepPoint
+      24   XDMAD_IsTransferDone
+        24   -> XDMAD_Handler
+        24   -> __aeabi_assert
+        24   -> __iar_EmptyStepPoint
+      32   XDMAD_PrepareChannel
+        32   -> XDMAC_DisableChannel
+        32   -> XDMAC_DisableChannelIt
+        32   -> XDMAC_DisableGIt
+        32   -> XDMAC_GetChannelIsr
+        32   -> XDMAC_GetGIsr
+        32   -> XDMAC_GetGlobalChStatus
+        32   -> XDMAC_SetBlockControl
+        32   -> XDMAC_SetChannelConfig
+        32   -> XDMAC_SetDescriptorAddr
+        32   -> XDMAC_SetDescriptorControl
+        32   -> XDMAC_SetDestinationAddr
+        32   -> XDMAC_SetSourceAddr
+        32   -> __aeabi_assert
+        32   -> __iar_EmptyStepPoint
+        32   -> pmc_enable_peripheral
+        32   -> pmc_is_peripheral_enabled
+      32   XDMAD_SetCallback
+        32   -> __aeabi_assert
+        32   -> __iar_EmptyStepPoint
+      24   XDMAD_StartTransfer
+        24   -> XDMAC_EnableChannel
+        24   -> XDMAC_EnableGIt
+        24   -> printf
+      24   XDMAD_StopTransfer
+        24   -> XDMAC_DisableChannel
+        24   -> XDMAC_DisableChannelIt
+        24   -> XDMAC_GetChannelIsr
+        24   -> XDMAC_GetGlobalChStatus
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable6
+       4  ??DataTable6_1
+       4  ??DataTable6_2
+       4  ??DataTable6_3
+       4  ??DataTable6_4
+      16  ?_0
+      64  ?_1
+      16  ?_2
+      24  ?_3
+      28  ?_4
+     112  XDMAD_AllocateChannel
+     564  XDMAD_AllocateXdmacChannel
+     604  XDMAD_ConfigureTransfer
+     168  XDMAD_FreeChannel
+     420  XDMAD_Handler
+     384  XDMAD_Initialize
+     188  XDMAD_IsTransferDone
+     432  XDMAD_PrepareChannel
+     240  XDMAD_SetCallback
+     248  XDMAD_StartTransfer
+     144  XDMAD_StopTransfer
+      16  _id_h64_matrix
+
+ 
+   164 bytes in section .rodata
+ 3 524 bytes in section SOFTPACK
+ 
+ 3 524 bytes of CODE  memory
+   164 bytes of CONST memory
+
+Errors: none
+Warnings: 1

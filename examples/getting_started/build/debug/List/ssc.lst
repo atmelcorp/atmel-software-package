@@ -1,0 +1,335 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:51
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\ssc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\ssc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\ssc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\ssc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\ssc.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2012, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup ssc_module Working with SSC
+     31           * \section Purpose
+     32           * The SSC driver provides the interface to configure and use the SSC
+     33           * peripheral.
+     34           *
+     35           * \section Usage
+     36           * -# Enable the SSC interface pins.
+     37           * -# Configure the SSC to operate at a specific frequency by calling
+     38           *    SSC_Configure(). This function enables the peripheral clock of the SSC,
+     39           *    but not its PIOs.
+     40           * -# Configure the transmitter and/or the receiver using the
+     41           *    SSC_ConfigureTransmitter() and SSC_ConfigureEmitter() functions.
+     42           * -# Enable the PIOs or the transmitter and/or the received.
+     43           * -# Enable the transmitter and/or the receiver using SSC_EnableTransmitter()
+     44           *    and SSC_EnableReceiver()
+     45           * -# Send data through the transmitter using SSC_Write()
+     46           * -# Receive data from the receiver using SSC_Read()
+     47           * -# Disable the transmitter and/or the receiver using SSC_DisableTransmitter()
+     48           *    and SSC_DisableReceiver()
+     49           *
+     50           * For more accurate information, please look at the SSC section of the
+     51           * Datasheet.
+     52           *
+     53           * Related files :\n
+     54           * \ref ssc.c\n
+     55           * \ref ssc.h.\n
+     56          */
+     57          /*@{*/
+     58          /*@}*/
+     59          
+     60          /**
+     61           * \file
+     62           *
+     63           * Implementation of Synchronous Serial (SSC) controller.
+     64           *
+     65           */
+     66          
+     67          /*----------------------------------------------------------------------------
+     68           *        Headers
+     69           *----------------------------------------------------------------------------*/
+     70          
+     71          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     72          #include "bus/ssc.h"
+     73          #include "core/pmc.h"
+     74          /*----------------------------------------------------------------------------
+     75           *       Exported functions
+     76           *----------------------------------------------------------------------------*/
+     77          
+     78          /**
+     79           * \brief Configures a SSC peripheral.If the divided clock is not used, the master
+     80           * clock frequency can be set to 0.
+     81           * \note The emitter and transmitter are disabled by this function.
+     82           * \param ssc  Pointer to an SSC instance.
+     83           * \param bitRate  bit rate.
+     84           * \param masterClock  master clock.
+     85           */
+     86          void
+     87          SSC_Configure(Ssc * ssc, uint32_t bitRate, uint32_t masterClock)
+     88          {
+     89          	uint32_t id;
+     90          	uint32_t maxClock;
+     91          	id = (ssc == SSC0) ? ID_SSC0 : ID_SSC1;
+     92          	maxClock = pmc_set_peripheral_max_clock(id);
+     93          
+     94          	/* Reset, disable receiver & transmitter */
+     95          	ssc->SSC_CR = SSC_CR_RXDIS | SSC_CR_TXDIS | SSC_CR_SWRST;
+     96          
+     97          	/* Configure clock frequency */
+     98          	if (bitRate != 0) {
+     99          
+    100          		ssc->SSC_CMR = maxClock / (2 * bitRate);
+    101          	} else {
+    102          
+    103          		ssc->SSC_CMR = 0;
+    104          	}
+    105          	/* Enable SSC peripheral clock */
+    106          	//pmc_enable_peripheral(id);
+    107          }
+    108          
+    109          /**
+    110           * \brief Configures the transmitter of a SSC peripheral.
+    111           * \param ssc  Pointer to an SSC instance.
+    112           * \param tcmr Transmit Clock Mode Register value.
+    113           * \param tfmr Transmit Frame Mode Register value.
+    114           */
+    115          void
+    116          SSC_ConfigureTransmitter(Ssc * ssc, uint32_t tcmr, uint32_t tfmr)
+    117          {
+    118          	ssc->SSC_TCMR = tcmr;
+    119          	ssc->SSC_TFMR = tfmr;
+    120          }
+    121          
+    122          /**
+    123           * \brief Configures the receiver of a SSC peripheral.
+    124           * \param ssc  Pointer to an SSC instance.
+    125           * \param rcmr Receive Clock Mode Register value.
+    126           * \param rfmr Receive Frame Mode Register value.
+    127           */
+    128          void
+    129          SSC_ConfigureReceiver(Ssc * ssc, uint32_t rcmr, uint32_t rfmr)
+    130          {
+    131          	ssc->SSC_RCMR = rcmr;
+    132          	ssc->SSC_RFMR = rfmr;
+    133          }
+    134          
+    135          /**
+    136           * \brief Enables the transmitter of a SSC peripheral.
+    137           * \param ssc  Pointer to an SSC instance.
+    138           */
+    139          void
+    140          SSC_EnableTransmitter(Ssc * ssc)
+    141          {
+    142          	ssc->SSC_CR = SSC_CR_TXEN;
+    143          }
+    144          
+    145          /**
+    146           * \brief Disables the transmitter of a SSC peripheral.
+    147           * \param ssc  Pointer to an SSC instance.
+    148           */
+    149          void
+    150          SSC_DisableTransmitter(Ssc * ssc)
+    151          {
+    152          	ssc->SSC_CR = SSC_CR_TXDIS;
+    153          }
+    154          
+    155          /**
+    156           * \brief Enables the receiver of a SSC peripheral.
+    157           * \param ssc  Pointer to an SSC instance.
+    158           */
+    159          void
+    160          SSC_EnableReceiver(Ssc * ssc)
+    161          {
+    162          	ssc->SSC_CR = SSC_CR_RXEN;
+    163          }
+    164          
+    165          /**
+    166           * \brief Disables the receiver of a SSC peripheral.
+    167           * \param ssc  Pointer to an SSC instance.
+    168           */
+    169          void
+    170          SSC_DisableReceiver(Ssc * ssc)
+    171          {
+    172          	ssc->SSC_CR = SSC_CR_RXDIS;
+    173          }
+    174          
+    175          /**
+    176           * \brief Enables one or more interrupt sources of a SSC peripheral.
+    177           * \param ssc  Pointer to an SSC instance.
+    178           * \param sources Bitwise OR of selected interrupt sources.
+    179           */
+    180          void
+    181          SSC_EnableInterrupts(Ssc * ssc, uint32_t sources)
+    182          {
+    183          	ssc->SSC_IER = sources;
+    184          }
+    185          
+    186          /**
+    187           * \brief Disables one or more interrupt sources of a SSC peripheral.
+    188           * \param ssc  Pointer to an SSC instance.
+    189           * \param sources Bitwise OR of selected interrupt sources.
+    190           */
+    191          void
+    192          SSC_DisableInterrupts(Ssc * ssc, uint32_t sources)
+    193          {
+    194          	ssc->SSC_IDR = sources;
+    195          }
+    196          
+    197          /**
+    198           * \brief Sends one data frame through a SSC peripheral. If another frame is currently
+    199           * being sent, this function waits for the previous transfer to complete.
+    200           * \param ssc  Pointer to an SSC instance.
+    201           * \param frame Data frame to send.
+    202           */
+    203          void
+    204          SSC_Write(Ssc * ssc, uint32_t frame)
+    205          {
+    206          	while ((ssc->SSC_SR & SSC_SR_TXRDY) == 0) ;
+    207          	ssc->SSC_THR = frame;
+    208          }
+    209          
+    210          /**
+    211           * \brief Waits until one frame is received on a SSC peripheral, and returns it.
+    212           * \param ssc  Pointer to an SSC instance.
+    213           */
+    214          uint32_t
+    215          SSC_Read(Ssc * ssc)
+    216          {
+    217          	while ((ssc->SSC_SR & SSC_SR_RXRDY) == 0) ;
+    218          	return ssc->SSC_RHR;
+    219          }
+    220          
+    221          /**
+    222           * \brief Return 1 if one frame is received, 0 otherwise.
+    223           * \param ssc  Pointer to an SSC instance.
+    224           */
+    225          uint8_t
+    226          SSC_IsRxReady(Ssc * ssc)
+    227          {
+    228          	return ((ssc->SSC_SR & SSC_SR_RXRDY) > 0);
+    229          }
+
+Errors: 11
+Warnings: 1

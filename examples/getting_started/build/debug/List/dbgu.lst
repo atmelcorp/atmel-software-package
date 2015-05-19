@@ -1,0 +1,218 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  10:33:51
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\dbgu.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\dbgu.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           * \file
+     32           *
+     33           * Implements DBGU console.
+     34           *
+     35           */
+     36          
+     37          /*----------------------------------------------------------------------------
+     38           *        Headers
+     39           *----------------------------------------------------------------------------*/
+     40          
+     41          #include "board.h"
+     42          
+     43          #include "core/pio.h"
+     44          #include "core/pmc.h"
+     45          
+     46          #include "serial/dbgu.h"
+
+  void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate);
+                      ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.h",55  Error[Pe020]: 
+          identifier "Dbgu" is undefined
+
+  void dbgu_put_char(Dbgu* dbgu, unsigned char c);
+                     ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.h",56  Error[Pe020]: 
+          identifier "Dbgu" is undefined
+
+  extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu);
+                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.h",57  Error[Pe020]: 
+          identifier "Dbgu" is undefined
+
+  extern uint32_t dbgu_get_char(Dbgu* dbgu);
+                                ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.h",58  Error[Pe020]: 
+          identifier "Dbgu" is undefined
+     47          #include <stdio.h>
+     48          #include <stdint.h>
+     49          
+     50          /*------------------------------------------------------------------------------
+     51          *         Exported functions
+     52          *------------------------------------------------------------------------------*/
+     53          
+     54          /**
+     55           * \brief Configures an DBGU peripheral with the specified parameters.
+     56           *
+     57           * \param dgbu  Pointer to the DBGU peripheral to configure
+     58           * \param baudrate  Baudrate at which the DBGU should operate (in Hz).
+     59           * \param clock  Frequency of the system master clock (in Hz).
+     60           */
+     61          void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
+                                     ^
+Error[Pe020]: identifier "Dbgu" is undefined
+     62          {
+     63          	uint32_t clock = pmc_get_peripheral_max_clock(GET_USART_ID_FROM_ADDR(dbgu));
+     64          	/* Reset and disable receiver & transmitter */
+     65          	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
+                 	                ^
+Error[Pe020]: identifier "DBGU_CR_RSTRX" is undefined
+
+  	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
+  	                                ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c",65  Error[Pe020]: 
+          identifier "DBGU_CR_RSTTX" is undefined
+     66          	dbgu->DBGU_IDR = 0xFFFFFFFF;
+     67          	dbgu->DBGU_CR = DBGU_CR_RXDIS | DBGU_CR_TXDIS;
+                 	                ^
+Error[Pe020]: identifier "DBGU_CR_RXDIS" is undefined
+
+  	dbgu->DBGU_CR = DBGU_CR_RXDIS | DBGU_CR_TXDIS;
+  	                                ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c",67  Error[Pe020]: 
+          identifier "DBGU_CR_TXDIS" is undefined
+     68          	/* Configure baudrate */
+     69          	dbgu->DBGU_BRGR = (clock / baudrate) / 16;
+     70          	/* Enable receiver and transmitter */
+     71          	dbgu->DBGU_CR = DBGU_CR_RXEN | DBGU_CR_TXEN;
+                 	                ^
+Error[Pe020]: identifier "DBGU_CR_RXEN" is undefined
+
+  	dbgu->DBGU_CR = DBGU_CR_RXEN | DBGU_CR_TXEN;
+  	                               ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\serial\dbgu.c",71  Error[Pe020]: 
+          identifier "DBGU_CR_TXEN" is undefined
+     72          }
+     73          
+     74          /**
+     75           * \brief Outputs a character on the DBGU line.
+     76           *
+     77           * \param Pointer to the DBGU peripheral
+     78           * \note This function is synchronous (i.e. uses polling).
+     79           * \param c  Character to send.
+     80           */
+     81          void dbgu_put_char(Dbgu* dbgu, uint8_t c)
+                                    ^
+Error[Pe020]: identifier "Dbgu" is undefined
+     82          {
+     83          	/* Wait for the transmitter to be ready */
+     84          	while ((dbgu->DBGU_SR & DBGU_SR_TXEMPTY) == 0) ;
+                 	                        ^
+Error[Pe020]: identifier "DBGU_SR_TXEMPTY" is undefined
+     85          
+     86          	/* Send character */
+     87          	dbgu->DBGU_THR = c;
+     88          }
+     89          
+     90          /**
+     91           * \brief Input a character from the DBGU line.
+     92           *
+     93           * \param Pointer to the DBGU peripheral
+     94           * \note This function is synchronous
+     95           * \return character received.
+     96           */
+     97          extern uint32_t dbgu_get_char(Dbgu* dbgu)
+                                               ^
+Error[Pe020]: identifier "Dbgu" is undefined
+     98          {
+     99          	while ((dbgu->DBGU_SR & DBGU_SR_RXRDY) == 0) ;
+                 	                        ^
+Error[Pe020]: identifier "DBGU_SR_RXRDY" is undefined
+    100          	return dbgu->DBGU_RHR;
+    101          }
+    102          
+    103          /**
+    104           * \brief Check if there is Input from DBGU line.
+    105           *
+    106           * \param  Pointer to the DBGU peripheral
+    107           * \return true if there is Input.
+    108           */
+    109          extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu)
+                                                  ^
+Error[Pe020]: identifier "Dbgu" is undefined
+    110          {
+    111          	return (dbgu->DBGU_SR & DBGU_SR_RXRDY) > 0;
+                 	                        ^
+Error[Pe020]: identifier "DBGU_SR_RXRDY" is undefined
+    112          }
+
+Errors: 17
+Warnings: 1

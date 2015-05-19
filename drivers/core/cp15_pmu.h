@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -86,6 +86,10 @@ typedef enum {
 	DWstallSBFfull		// Data Write operation that stalls the pipeline because the store buffer is full.
 } PerfEventType;
 
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
+
 extern uint32_t cp15_init_cycle_counter(void);
 extern uint32_t cp15_get_cycle_counter(void);
 
@@ -95,7 +99,7 @@ extern void cp15_soft_incr(uint8_t IncrCounter);
 
 extern uint32_t cp15_count_evt(uint8_t Counter);
 extern void cp15_enable_user_mode(void);
-extern void cp15_enable_iterrupt(uint8_t Enable, uint8_t Counter);
+extern void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter);
 extern void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter);
 extern void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter);
 

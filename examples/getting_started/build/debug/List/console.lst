@@ -1,0 +1,459 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:46
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\console.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\console.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\console.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\console.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\console.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31          * \file
+     32          *
+     33          * Implements CONSOLE.
+     34          *
+     35          */
+     36          
+     37          /*----------------------------------------------------------------------------
+     38          *        Headers
+     39          *----------------------------------------------------------------------------*/
+     40          
+     41          #include "board.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     42          #include "chip.h"
+     43          
+     44          #include "core/pio.h"
+     45          #include "core/pmc.h"
+     46          
+     47          #include "bus/console.h"
+     48          #include "serial/uart.h"
+     49          
+     50          #include <stdio.h>
+     51          
+     52          /*----------------------------------------------------------------------------
+     53          *        Variables
+     54          *----------------------------------------------------------------------------*/
+     55          
+     56          /* Initialize console structure according to board configuration */
+     57          #if CONSOLE_DRIVER == DRV_USART
+     58          #include "serial/usart.h"
+     59          static struct _console console = {
+     60          	CONSOLE_PER_ADD,
+     61          	usart_configure,
+     62          	usart_put_char,
+     63          	usart_get_char,
+     64          	usart_is_rx_ready
+     65          };
+     66          #elif CONSOLE_DRIVER == DRV_UART
+     67          #include "serial/uart.h"
+     68          static struct _console console = {
+     69          	CONSOLE_PER_ADD,
+     70          	(void (*)(void*, uint32_t, uint32_t)) uart_configure,
+     71          	(void (*) (void*, uint8_t)) uart_put_char,
+     72          	(uint32_t (*) (void*))uart_get_char,
+     73          	(uint32_t (*) (void*))uart_is_rx_ready,
+     74          	//uart_set_int
+     75          };
+     76          #elif CONSOLE_DRIVER == DRV_DBGU
+     77          #include "serial/dbgu.h"
+     78          static struct _console console = {
+     79          	CONSOLE_PER_ADD,
+     80          	dbgu_configure,
+     81          	dbgu_put_char,
+     82          	dbgu_get_char,
+     83          	dbgu_is_rx_ready
+     84          };
+     85          #endif
+     86          
+     87          /** Pins for CONSOLE */
+     88          static const struct _pin pinsConsole[] = PINS_CONSOLE;
+     89          
+     90          /** Console initialize status */
+     91          static uint8_t _bConsoleIsInitialized = 0;
+     92          
+     93          /*------------------------------------------------------------------------------
+     94          *         Exported functions
+     95          *------------------------------------------------------------------------------*/
+     96          
+     97          /**
+     98          * \brief Configures a CONSOLE peripheral with the specified parameters.
+     99          *
+    100          * \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
+    101          */
+    102          void console_configure(uint32_t baudrate)
+    103          {
+    104          	/* Configure PIO */
+    105          	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
+    106          
+    107          	pmc_enable_peripheral(CONSOLE_ID);
+    108          
+    109          	uint32_t mode;
+    110          #if CONSOLE_DRIVER != DRV_DBGU
+    111          	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+    112          #else
+    113          	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
+    114          #endif
+    115          
+    116          	/* Initialize driver to use */
+    117          	console.init(console.addr, mode, baudrate);
+    118          
+    119          	/* Finally */
+    120          	_bConsoleIsInitialized = 1;
+    121          
+    122          #if defined(__GNUC__)
+    123          	setvbuf(stdout, (char *)NULL, _IONBF, 0);
+    124          #endif
+    125          }
+    126          
+    127          /**
+    128          * \brief Outputs a character on the CONSOLE line.
+    129          *
+    130          * \note This function is synchronous (i.e. uses polling).
+    131          * \param c  Character to send.
+    132          */
+    133          void console_put_char(uint8_t c)
+    134          {
+    135          	if (!_bConsoleIsInitialized)
+    136          		console_configure(CONSOLE_BAUDRATE);
+    137          
+    138          	console.put_char(console.addr, c);
+    139          }
+    140          
+    141          /**
+    142          * \brief Input a character from the CONSOLE line.
+    143          *
+    144          * \note This function is synchronous
+    145          * \return character received.
+    146          */
+    147          extern uint32_t console_get_char(void)
+    148          {
+    149          	if (!_bConsoleIsInitialized)
+    150          		console_configure(CONSOLE_BAUDRATE);
+    151          	return console.get_char(console.addr);
+    152          }
+    153          
+    154          /**
+    155          * \brief Check if there is Input from DBGU line.
+    156          *
+    157          * \return true if there is Input.
+    158          */
+    159          extern uint32_t console_is_rx_ready(void)
+    160          {
+    161          	if (!_bConsoleIsInitialized)
+    162          		console_configure(CONSOLE_BAUDRATE);
+    163          	return console.is_rx_ready(console.addr);
+    164          }
+    165          
+    166          /**
+    167          *  Displays the content of the given frame on the DBGU.
+    168          *
+    169          *  \param pucFrame Pointer to the frame to dump.
+    170          *  \param size   Buffer size in bytes.
+    171          */
+    172          void console_dump_frame(uint8_t * pframe, uint32_t size)
+    173          {
+    174          	uint32_t dw;
+    175          
+    176          	for (dw = 0; dw < size; dw++) {
+    177          		printf("%02X ", pframe[dw]);
+    178          	}
+    179          	printf("\n\r");
+    180          }
+    181          
+    182          /**
+    183          *  Displays the content of the given buffer on the DBGU.
+    184          *
+    185          *  \param pbuffer  Pointer to the buffer to dump.
+    186          *  \param size     Buffer size in bytes.
+    187          *  \param address  Start address to display
+    188          */
+    189          void console_dump_memory(uint8_t * pbuffer, uint32_t size,
+    190          				uint32_t address)
+    191          {
+    192          	uint32_t i, j;
+    193          	uint32_t last_line_start;
+    194          	uint8_t *tmp;
+    195          
+    196          	for (i = 0; i < (size / 16); i++) {
+    197          		printf("0x%08X: ", (unsigned int)(address + (i * 16)));
+    198          		tmp = (uint8_t *) & pbuffer[i * 16];
+    199          		for (j = 0; j < 4; j++) {
+    200          			printf("%02X%02X%02X%02X ", tmp[0], tmp[1], tmp[2],
+    201          			       tmp[3]);
+    202          			tmp += 4;
+    203          		}
+    204          		tmp = (uint8_t *) & pbuffer[i * 16];
+    205          		for (j = 0; j < 16; j++) {
+    206          			console_put_char(*tmp++);
+    207          		}
+    208          		printf("\n\r");
+    209          	}
+    210          	if ((size % 16) != 0) {
+    211          		last_line_start = size - (size % 16);
+    212          		printf("0x%08X: ", (unsigned int)(address + last_line_start));
+    213          		for (j = last_line_start; j < last_line_start + 16; j++) {
+    214          			if ((j != last_line_start) && (j % 4 == 0)) {
+    215          				printf(" ");
+    216          			}
+    217          			if (j < size)
+    218          				printf("%02X", pbuffer[j]);
+    219          			else
+    220          				printf("  ");
+    221          		}
+    222          		printf(" ");
+    223          		for (j = last_line_start; j < size; j++) {
+    224          			console_put_char(pbuffer[j]);
+    225          		}
+    226          		printf("\n\r");
+    227          	}
+    228          }
+    229          
+    230          /**
+    231          *  Reads an integer
+    232          *
+    233          *  \param pvalue  Pointer to the uint32_t variable to contain the input value.
+    234          */
+    235          extern uint32_t console_get_integer(uint32_t * pvalue)
+    236          {
+    237          	uint8_t key;
+    238          	uint8_t nb = 0;
+    239          	uint32_t value = 0;
+    240          
+    241          	while (1) {
+    242          		key = console_get_char();
+    243          		console_put_char(key);
+    244          
+    245          		if (key >= '0' && key <= '9') {
+    246          			value = (value * 10) + (key - '0');
+    247          			nb++;
+    248          		} else {
+    249          			if (key == 0x0D || key == ' ') {
+    250          				if (nb == 0) {
+    251          					printf
+    252          					    ("\n\rWrite a number and press ENTER or SPACE!\n\r");
+    253          					return 0;
+    254          				} else {
+    255          					printf("\n\r");
+    256          					*pvalue = value;
+    257          					return 1;
+    258          				}
+    259          			} else {
+    260          				printf("\n\r'%c' not a number!\n\r", key);
+    261          				return 0;
+    262          			}
+    263          		}
+    264          	}
+    265          }
+    266          
+    267          /**
+    268          *  Reads an integer and check the value
+    269          *
+    270          *  \param pvalue  Pointer to the uint32_t variable to contain the input value.
+    271          *  \param dwMin     Minimum value
+    272          *  \param dwMax     Maximum value
+    273          */
+    274          extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
+    275          					 uint32_t max)
+    276          {
+    277          	uint32_t value = 0;
+    278          
+    279          	if (console_get_integer(&value) == 0)
+    280          		return 0;
+    281          	if (value < min || value > max) {
+    282          		printf("\n\rThe number have to be between %u and %u\n\r",
+    283          		       (unsigned int)min, (unsigned int)max);
+    284          		return 0;
+    285          	}
+    286          	printf("\n\r");
+    287          	*pvalue = value;
+    288          	return 1;
+    289          }
+    290          
+    291          void console_enable_interrupts(uint32_t mask)
+    292          {
+    293          	console.enable_interrupts(console.addr, mask);
+    294          }
+    295          
+    296          /**
+    297          *  Reads an hexadecimal number
+    298          *
+    299          *  \param pvalue  Pointer to the uint32_t variable to contain the input value.
+    300          */
+    301          extern uint32_t console_get_hexa_32(uint32_t * pvalue)
+    302          {
+    303          	uint8_t key;
+    304          	uint32_t dw = 0;
+    305          	uint32_t value = 0;
+    306          
+    307          	for (dw = 0; dw < 8; dw++) {
+    308          		key = console_get_char();
+    309          		console_put_char(key);
+    310          
+    311          		if (key >= '0' && key <= '9') {
+    312          			value = (value * 16) + (key - '0');
+    313          		} else {
+    314          			if (key >= 'A' && key <= 'F') {
+    315          				value = (value * 16) + (key - 'A' + 10);
+    316          			} else {
+    317          				if (key >= 'a' && key <= 'f') {
+    318          					value = (value * 16) + (key - 'a' + 10);
+    319          				} else {
+    320          					printf
+    321          					    ("\n\rIt is not a hexa character!\n\r");
+    322          					return 0;
+    323          				}
+    324          			}
+    325          		}
+    326          	}
+    327          	printf("\n\r");
+    328          	*pvalue = value;
+    329          	return 1;
+    330          }
+    331          
+    332          #if defined __ICCARM__ /* IAR Ewarm 5.41+ */
+    333          /**
+    334           * \brief Outputs a character on the DBGU.
+    335           *
+    336           * \param c  Character to output.
+    337           *
+    338           * \return The character that was output.
+    339           */
+    340          extern WEAK signed int putchar( signed int c )
+                        ^
+Error[Pe260]: explicit type is missing ("int" assumed)
+
+  extern WEAK signed int putchar( signed int c )
+              ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\bus\console.c",340  Error[Pe065]: 
+          expected a ";"
+    341          {
+    342              console_put_char( c ) ;
+    343              return c ;
+    344          }
+    345          #endif // defined __ICCARM__
+Warning[Pe012]: parsing restarts here after previous syntax error
+
+Errors: 13
+Warnings: 2

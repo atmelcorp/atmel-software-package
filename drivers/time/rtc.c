@@ -87,13 +87,19 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "chip.h"
+#include "board.h"
+#include "chip.h"
+
 #include "time/rtc.h"
 
 #include "utils/trace.h"
 
 #include <stdint.h>
 #include <assert.h>
+
+/*----------------------------------------------------------------------------
+ *        Define
+ *----------------------------------------------------------------------------*/
 
 /* The BCD code shift value */
 #define BCD_SHIFT      4

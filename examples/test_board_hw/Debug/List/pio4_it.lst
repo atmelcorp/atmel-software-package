@@ -1,0 +1,340 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        29/Apr/2015  16:09:36
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4_it.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4_it.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\pio4_it.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\pio4_it.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4_it.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file */
+     31          
+     32          /*----------------------------------------------------------------------------
+     33           *        Headers
+     34           *----------------------------------------------------------------------------*/
+     35          
+     36          #include "chip.h"
+     37          #include "core/pio4_it.h"
+     38          #include "core/aic.h"
+     39          #include "core/pmc.h"
+     40          #include "utils/trace.h"
+     41          
+     42          #include <assert.h>
+     43          
+     44          /*----------------------------------------------------------------------------
+     45           *        Local definitions
+     46           *----------------------------------------------------------------------------*/
+     47          
+     48          /* Maximum number of interrupt sources that can be defined. This
+     49           * constant can be increased, but the current value is the smallest possible
+     50           * that will be compatible with all existing projects. */
+     51          #define MAX_INTERRUPT_SOURCES       7
+     52          
+     53          /*----------------------------------------------------------------------------
+     54           *        Local types
+     55           *----------------------------------------------------------------------------*/
+     56          
+     57          /**
+     58           * Describes a PIO interrupt source, including the PIO instance triggering the
+     59           * interrupt and the associated interrupt handler.
+     60           */
+     61          struct _interrupt_source {
+     62          	const struct _pin *pin;					/* Pointer to the source pin instance. */
+     63          	void (*handler) (const struct _pin *); 	/* Interrupt handler. */
+     64          } ;
+     65          
+     66          /*----------------------------------------------------------------------------
+     67           *        Local variables
+     68           *----------------------------------------------------------------------------*/
+     69          
+     70          /* List of interrupt sources. */
+     71          static struct _interrupt_source int_sources[MAX_INTERRUPT_SOURCES];
+     72          
+     73          /* Number of currently defined interrupt sources. */
+     74          static uint32_t num_sources = 0;
+     75          
+     76          const uint8_t idt[PIOIO_GROUP_NUMBER] = {ID_PIOA, ID_PIOB, ID_PIOC, ID_PIOD};
+     77          
+     78          /*----------------------------------------------------------------------------
+     79           *        Local Functions
+     80           *----------------------------------------------------------------------------*/
+     81          
+     82          /**
+     83           * \brief Handles all interrupts on the given PIO controller.
+     84           * \param id  PIO controller ID.
+     85           * \param pPio  PIO controller base address.
+     86           */
+     87          extern void _pio_it_handler(uint8_t id)
+     88          {
+     89          	uint32_t status;
+     90          	uint32_t i;
+     91          	PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
+     92          
+     93          	/* Read PIO controller status */
+     94          	status = pioiog->PIO_ISR;
+     95          	status &= pioiog->PIO_IMR;
+     96          
+     97          	/* Check pending events */
+     98          	if (status != 0) {
+     99          		TRACE_DEBUG("PIO interrupt on PIO controller #%d\n\r", id);
+    100          		/* Find triggering source */
+    101          		i = 0;
+    102          		while (status != 0) {
+    103          			/* There cannot be an unconfigured source enabled. */
+    104          			assert(i < num_sources);
+    105          			/* Source is configured on the same controller */
+    106          			if ( int_sources[i].pin->id == id) {
+    107          				/* Source has PIOs whose statuses have changed */
+    108          				if ((status & int_sources[i].pin->mask) != 0) {
+    109          					TRACE_DEBUG ("Interrupt source #%d triggered\n\r", i);
+    110          					int_sources[i].handler(int_sources[i].pin);
+    111          					status &= ~(int_sources[i].pin->mask);
+    112          				}
+    113          			}
+    114          			i++;
+    115          		}
+    116          	}
+    117          }
+    118          
+    119          
+    120          /*----------------------------------------------------------------------------
+    121           *        Global Functions
+    122           *----------------------------------------------------------------------------*/
+    123          
+    124          /**
+    125           * Generic PIO interrupt handler. Single entry point for interrupts coming
+    126           * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
+    127           * the user-configured handlers.
+    128           */
+    129          extern void pio_it_handler(void)
+    130          {
+    131          	uint8_t i;
+    132          	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
+    133          		_pio_it_handler(idt[i]);
+    134          	}
+    135          }
+    136          
+    137          /**
+    138           * \brief Initializes the PIO interrupt management logic
+    139           *
+    140           * The desired priority of PIO interrupts must be provided.
+    141           * Calling this function multiple times result in the reset of currently
+    142           * configured interrupts.
+    143           *
+    144           * \param priority  PIO controller interrupts priority.
+    145           */
+    146          extern void pio_it_initialize(uint32_t priority)
+    147          {
+    148          	uint8_t i;
+    149          	uint32_t status, id ;
+    150          
+    151          	TRACE_DEBUG("pio_it_initialize()\n\r");
+    152          	/* Reset sources */
+    153          	num_sources = 0;
+    154          
+    155          	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
+    156          		/* Configure PIO interrupt sources */
+    157          		id = idt[i];
+    158          		TRACE_DEBUG("PIO_Initialize: Configuring PIO%c \n\r", 0x40+id);
+    159          		pmc_enable_peripheral(id);
+    160          		PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
+    161          		/* Read PIO Interrupt Status Register */
+    162          		status = pioiog->PIO_ISR;
+    163          		/* Disable all interrupt */
+    164          		pioiog->PIO_IDR = 0xFFFFFFFF;
+    165          		aic_enable_it(id);
+    166          	}
+    167          }
+    168          
+    169          /**
+    170           * Configures a PIO or a group of PIO to generate an interrupt on status
+    171           * change. The provided interrupt handler will be called with the triggering
+    172           * pin as its parameter (enabling different pin instances to share the same
+    173           * handler).
+    174           * \param pPin  Pointer to a Pin instance.
+    175           */
+    176          extern void pio_it_configure(const struct _pin *pin)
+    177          {
+    178          	TRACE_DEBUG("pio_it_configure()\n\r");
+    179          	assert(pin != NULL);
+    180          	assert(num_sources < MAX_INTERRUPT_SOURCES);
+    181          	struct _interrupt_source *p_int_source;
+    182          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    183          
+    184          	// Add pio interrupt to int_sources
+    185          	p_int_source = &(int_sources[num_sources]);
+    186          	p_int_source->pin = pin;
+    187          	num_sources++;
+    188          	/* disable additional interrupt mode */
+    189          	pioiog->PIO_IDR = pin->mask;
+    190          }
+    191          
+    192          /**
+    193           * Enables the given interrupt source if it has been configured. The status
+    194           * register of the corresponding PIO controller is cleared prior to enabling
+    195           * the interrupt.
+    196           * \param pin  Interrupt source to enable.
+    197           */
+    198          extern void pio_it_enable(const struct _pin *pin)
+    199          {
+    200          	TRACE_DEBUG("pio_it_enable() \n\r");
+    201          	assert(pin != NULL);
+    202          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    203          
+    204          #ifndef NOASSERT
+    205          	uint32_t i = 0;
+    206          	uint32_t dwFound = 0;
+    207          
+    208          	while ((i < num_sources) && !dwFound) {
+    209          		if (int_sources[i].pin == pin) {
+    210          			dwFound = 1;
+    211          		}
+    212          		i++;
+    213          	}
+    214          	assert(dwFound != 0);
+    215          #endif
+    216          
+    217          	i = pioiog->PIO_ISR;
+    218           	/* Configure interrupt enable register */
+    219          	pioiog->PIO_IER = pin->mask;	/* enable interrupt register */
+    220          }
+    221          
+    222          /**
+    223           * Disables a given interrupt source, with no added side effects.
+    224           *
+    225           * \param pin  Interrupt source to disable.
+    226           */
+    227          extern void pio_it_disable(const struct _pin *pin)
+    228          {
+    229          	assert(pin != NULL);
+    230          	TRACE_DEBUG("pio_it_disable()\n\r");
+    231          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    232          	pioiog->PIO_IDR = pin->mask;
+    233          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      24   _pio_it_handler
+        24   -- Indirect call
+        24   -> __aeabi_assert
+        24   -> __iar_EmptyStepPoint
+       8   pio_it_configure
+         8   -> __aeabi_assert
+         8   -> __iar_EmptyStepPoint
+       8   pio_it_disable
+         8   -> __aeabi_assert
+         8   -> __iar_EmptyStepPoint
+      24   pio_it_enable
+        24   -> __aeabi_assert
+        24   -> __iar_EmptyStepPoint
+       8   pio_it_handler
+         8   -> _pio_it_handler
+      24   pio_it_initialize
+        24   -> aic_enable_it
+        24   -> pmc_enable_peripheral
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable5
+       4  ??DataTable5_1
+       4  ??DataTable5_2
+       4  ??DataTable5_3
+       4  ??DataTable5_4
+       4  ??DataTable5_5
+       4  ??DataTable5_6
+       4  ??DataTable5_7
+      16  ?_0
+      68  ?_1
+      12  ?_2
+      36  ?_3
+      16  ?_4
+      48  _id_h64_matrix
+     224  _pio_it_handler
+       4  idt
+      56  int_sources
+       4  num_sources
+     148  pio_it_configure
+      64  pio_it_disable
+     168  pio_it_enable
+      60  pio_it_handler
+     124  pio_it_initialize
+
+ 
+  60 bytes in section .bss
+ 200 bytes in section .rodata
+ 820 bytes in section .text
+ 
+ 820 bytes of CODE  memory
+ 200 bytes of CONST memory
+  60 bytes of DATA  memory
+
+Errors: none
+Warnings: 3

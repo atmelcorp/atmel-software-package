@@ -82,6 +82,34 @@ struct _date
   uint8_t week;
 } ;
 
+
+#if defined SERIE_SAMA5D2
+
+	/* -------- RTC_TSTR : (RTC Offset: N/A) TimeStamp Time Register 0 -------- */
+	#define RTC_TSTR_SEC_Pos 0
+	#define RTC_TSTR_SEC_Msk (0x7fu << RTC_TSTR_SEC_Pos) /**< \brief (RTC_TSTR) SEConds of the tamper */
+	#define RTC_TSTR_MIN_Pos 8
+	#define RTC_TSTR_MIN_Msk (0x7fu << RTC_TSTR_MIN_Pos) /**< \brief (RTC_TSTR) MINutes of the tamper */
+	#define RTC_TSTR_HOUR_Pos 16
+	#define RTC_TSTR_HOUR_Msk (0x3fu << RTC_TSTR_HOUR_Pos) /**< \brief (RTC_TSTR) HOURs of the tamper */
+	#define RTC_TSTR_AMPM (0x1u << 22) /**< \brief (RTC_TSTR) AMPM indicator of the tamper */
+	#define RTC_TSTR_TEVCNT_Pos 24
+	#define RTC_TSTR_TEVCNT_Msk (0xfu << RTC_TSTR_TEVCNT_Pos) /**< \brief (RTC_TSTR) Tamper events counter */
+	#define RTC_TSTR_BACKUP (0x1u << 31) /**< \brief (RTC_TSTR) system mode of the tamper */
+	/* -------- RTC_TSDR : (RTC Offset: N/A) TimeStamp Date Register 0 -------- */
+	#define RTC_TSDR_CENT_Pos 0
+	#define RTC_TSDR_CENT_Msk (0x7fu << RTC_TSDR_CENT_Pos) /**< \brief (RTC_TSDR) Century of the tamper */
+	#define RTC_TSDR_YEAR_Pos 8
+	#define RTC_TSDR_YEAR_Msk (0xffu << RTC_TSDR_YEAR_Pos) /**< \brief (RTC_TSDR) Year of the tamper */
+	#define RTC_TSDR_MONTH_Pos 16
+	#define RTC_TSDR_MONTH_Msk (0x1fu << RTC_TSDR_MONTH_Pos) /**< \brief (RTC_TSDR) Month of the tamper */
+	#define RTC_TSDR_DAY_Pos 21
+	#define RTC_TSDR_DAY_Msk (0x7u << RTC_TSDR_DAY_Pos) /**< \brief (RTC_TSDR) Day of the tamper */
+	#define RTC_TSDR_DATE_Pos 24
+	#define RTC_TSDR_DATE_Msk (0x3fu << RTC_TSDR_DATE_Pos) /**< \brief (RTC_TSDR) Date of the tamper */
+
+#endif
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/

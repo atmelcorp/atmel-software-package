@@ -1,0 +1,684 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:50
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\rtc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rtc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\time\rtc.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup rtc_module Working with RTC
+     31           * \section Purpose
+     32           * The RTC driver provides the interface to configure and use the RTC
+     33           * peripheral.
+     34           *
+     35           * It manages date, time, and alarms.\n
+     36           * This timer is clocked by the 32kHz system clock, and is not impacted by
+     37           * power management settings (PMC). To be accurate, it is better to use an
+     38           * external 32kHz crystal instead of the internal 32kHz RC.\n
+     39           *
+     40           * It uses BCD format, and time can be set in AM/PM or 24h mode through a
+     41           * configuration bit in the mode register.\n
+     42           *
+     43           * To update date or time, the user has to follow these few steps :
+     44           * <ul>
+     45           * <li>Set UPDTIM and/or UPDCAL bit(s) in RTC_CR,</li>
+     46           * <li>Polling or IRQ on the ACKUPD bit of RTC_CR,</li>
+     47           * <li>Clear ACKUPD bit in RTC_SCCR,</li>
+     48           * <li>Update Time and/or Calendar values in RTC_TIMR/RTC_CALR (BCD format),</li>
+     49           * <li>Clear UPDTIM and/or UPDCAL bit in RTC_CR.</li>
+     50           * </ul>
+     51           * An alarm can be set to happen on month, date, hours, minutes or seconds,
+     52           * by setting the proper "Enable" bit of each of these fields in the Time and
+     53           * Calendar registers.
+     54           * This allows a large number of configurations to be available for the user.
+     55           * Alarm occurence can be detected even by polling or interrupt.
+     56           *
+     57           * A check of the validity of the date and time format and values written by the user is automatically done.
+     58           * Errors are reported through the Valid Entry Register.
+     59           *
+     60           * \section Usage
+     61           * <ul>
+     62           * <li>  Enable & disable RTC interrupt using rtc_enable_it() and rtc_disable_it().
+     63           * <li>  Set RTC data, time, alarm using rtc_set_date(), rtc_set_time(),
+     64           * rtc_set_time_alarm() and rtc_set_date_alarm().
+     65           * <li>  Get RTC data, time using rtc_get_date() and rtc_get_time().
+     66           * </li>
+     67           * </ul>
+     68           *
+     69           * For more accurate information, please look at the RTC section of the
+     70           * Datasheet.
+     71           *
+     72           * Related files :\n
+     73           * \ref rtc.c\n
+     74           * \ref rtc.h.\n
+     75          */
+     76          /*@{*/
+     77          /*@}*/
+     78          
+     79          /**
+     80           * \file
+     81           *
+     82           * Implementation of Real Time Clock (RTC) controller.
+     83           *
+     84           */
+     85          
+     86          /*----------------------------------------------------------------------------
+     87           *        Headers
+     88           *----------------------------------------------------------------------------*/
+     89          
+     90          #include "board.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     91          #include "chip.h"
+     92          
+     93          #include "time/rtc.h"
+     94          
+     95          #include "utils/trace.h"
+     96          
+     97          #include <stdint.h>
+     98          #include <assert.h>
+     99          
+    100          /*----------------------------------------------------------------------------
+    101           *        Define
+    102           *----------------------------------------------------------------------------*/
+    103          
+    104          /* The BCD code shift value */
+    105          #define BCD_SHIFT      4
+    106          
+    107          /* The BCD code mask value */
+    108          #define BCD_MASK       0xfu
+    109          
+    110          /* The BCD mul/div factor value */
+    111          #define BCD_FACTOR     10
+    112          
+    113          /*----------------------------------------------------------------------------
+    114           *        Variables
+    115           *----------------------------------------------------------------------------*/
+    116          
+    117          static uint8_t _flag_alarm;
+                                ^
+Warning[Pe177]: variable "_flag_alarm" was declared but never referenced
+    118          static uint8_t _flag_hms;
+                                ^
+Warning[Pe177]: variable "_flag_hms" was declared but never referenced
+    119          static uint8_t _flag_minute_change;
+                                ^
+Warning[Pe177]: variable "_flag_minute_change" was declared but never
+          referenced
+    120          
+    121          /*----------------------------------------------------------------------------
+    122           *        Exported functions
+    123           *----------------------------------------------------------------------------*/
+    124          
+    125          /**
+    126           * \brief Sets the RTC in either 12 or 24 hour mode.
+    127           *
+    128           * \param pRtc  Pointer to a Rtc instance
+    129           * \param dwMode  Hour mode.
+    130           */
+    131          void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
+    132          {
+    133          	assert((mode & 0xFFFFFFFE) == 0);
+    134          	pRtc->RTC_MR = mode;
+    135          }
+    136          
+    137          /**
+    138           * \brief Gets the RTC mode.
+    139           *
+    140           * \param pRtc  Pointer to a Rtc instance
+    141           * \return Hour mode.
+    142           */
+    143          extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
+    144          {
+    145          	uint32_t mode;
+    146          	TRACE_DEBUG("rtc_get_hour_mode()\n\r");
+    147          	mode = pRtc->RTC_MR;
+    148          	mode &= 0xFFFFFFFE;
+    149          	return mode;
+    150          }
+    151          
+    152          /**
+    153           * \brief Enables the selected interrupt sources of the RTC.
+    154           *
+    155           * \param pRtc  Pointer to a Rtc instance
+    156           * \param dwSources  Interrupt sources to enable.
+    157           */
+    158          void rtc_enable_it(Rtc * pRtc, uint32_t sources)
+    159          {
+    160          	assert((sources & (uint32_t) (~0x1F)) == 0);
+    161          	TRACE_DEBUG("rtc_enable_it()\n\r");
+    162          	pRtc->RTC_IER = sources;
+    163          }
+    164          
+    165          /**
+    166          * \brief Disables the selected interrupt sources of the RTC.
+    167          *
+    168           * \param pRtc  Pointer to a Rtc instance
+    169          * \param dwSources  Interrupt sources to disable.
+    170          */
+    171          void rtc_disable_it(Rtc * pRtc, uint32_t sources)
+    172          {
+    173          	assert((sources & (uint32_t) (~0x1F)) == 0);
+    174          	TRACE_DEBUG("rtc_disable_it()\n\r");
+    175          	pRtc->RTC_IDR = sources;
+    176          }
+    177          
+    178          /**
+    179           * \brief Sets the current time in the RTC.
+    180           *
+    181           * \note In successive update operations, the user must wait at least one second
+    182           * after resetting the UPDTIM/UPDCAL bit in the RTC_CR before setting these
+    183           * bits again. Please look at the RTC section of the datasheet for detail.
+    184           *
+    185           * \param pRtc  Pointer to a Rtc instance
+    186           * \param pTime Pointer to structure time
+    187           *
+    188           * \return 0 sucess, 1 fail to set
+    189           */
+    190          extern int rtc_set_time(Rtc * pRtc, struct _time *pTime)
+    191          {
+    192          	uint32_t ltime = 0;
+    193          	uint8_t hour_bcd , min_bcd, sec_bcd;
+    194          
+    195          	TRACE_DEBUG("rtc_set_time(%02d:%02d:%02d)\n\r", pTime->hour, pTime->min, pTime->sec);
+    196          
+    197          	/* if 12-hour mode, set AMPM bit */
+    198          	if ((pRtc->RTC_MR & RTC_MR_HRMOD) == RTC_MR_HRMOD) {
+    199          		if (pTime->hour > 12) {
+    200          			pTime->hour -= 12;
+    201          			ltime |= RTC_TIMR_AMPM;
+    202          		}
+    203          	}
+    204          	hour_bcd = (pTime->hour % 10) | ((pTime->hour / 10) << 4);
+    205          	min_bcd = (pTime->min % 10) | ((pTime->min / 10) << 4);
+    206          	sec_bcd = (pTime->sec % 10) | ((pTime->sec / 10) << 4);
+    207          	/* value overflow */
+    208          	if ((hour_bcd & (uint8_t) (~RTC_HOUR_BIT_LEN_MASK)) |
+    209          	    (min_bcd & (uint8_t) (~RTC_MIN_BIT_LEN_MASK)) |
+    210          	    (sec_bcd & (uint8_t) (~RTC_SEC_BIT_LEN_MASK))) {
+    211          		return 1;
+    212          	}
+    213          	ltime = sec_bcd | (min_bcd << 8) | (hour_bcd << 16);
+    214          	pRtc->RTC_CR |= RTC_CR_UPDTIM;
+    215          	while ((pRtc->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
+    216          	pRtc->RTC_SCCR = RTC_SCCR_ACKCLR;
+    217          	pRtc->RTC_TIMR = ltime;
+    218          	pRtc->RTC_CR &= (uint32_t) (~RTC_CR_UPDTIM);
+    219          	pRtc->RTC_SCCR |= RTC_SCCR_SECCLR;
+    220          	return (int) (pRtc->RTC_VER & RTC_VER_NVTIM);
+    221          }
+    222          
+    223          /**
+    224           * \brief Retrieves the current time as stored in the RTC in several variables.
+    225           *
+    226           * \param pRtc  Pointer to a Rtc instance
+    227           * \param pTime Pointer to structure time
+    228           */
+    229          void rtc_get_time(Rtc * pRtc, struct _time *pTime)
+    230          {
+    231          	uint32_t ltime;
+    232          
+    233          	TRACE_DEBUG("rtc_get_time()\n\r");
+    234          	/* Get current RTC time */
+    235          	ltime = pRtc->RTC_TIMR;
+    236          	while (ltime != pRtc->RTC_TIMR) {
+    237          		ltime = pRtc->RTC_TIMR;
+    238          	}
+    239          	/* Hour */
+    240          	if (pTime->hour) {
+    241          		pTime->hour = ((ltime & 0x00300000) >> 20) * 10 + ((ltime & 0x000F0000) >> 16);
+    242          		if ((ltime & RTC_TIMR_AMPM) == RTC_TIMR_AMPM) {
+    243          			pTime->hour += 12;
+    244          		}
+    245          	}
+    246          	/* Minute */
+    247          	if (pTime->min) {
+    248          		pTime->min = ((ltime & 0x00007000) >> 12) * 10 + ((ltime & 0x00000F00) >> 8);
+    249          	}
+    250          	/* Second */
+    251          	if (pTime->sec) {
+    252          		pTime->sec = ((ltime & 0x00000070) >> 4) * 10 + (ltime & 0x0000000F);
+    253          	}
+    254          }
+    255          
+    256          /**
+    257           * \brief Sets a time alarm on the RTC.
+    258           * The match is performed only on the provided variables;
+    259           * Setting all pointers to 0 disables the time alarm.
+    260           *
+    261           * \note In AM/PM mode, the hour value must have bit #7 set for PM, cleared for
+    262           * AM (as expected in the time registers).
+    263           *
+    264           * \param pRtc  Pointer to a Rtc instance
+    265           * \param pTime Pointer to structure time.
+    266           *
+    267           * \return 0 success, 1 fail to set
+    268           */
+    269          extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
+    270          {
+    271          	uint32_t alarm = 0;
+    272          
+    273          	TRACE_DEBUG("rtc_set_time_alarm()\n\r");
+    274          
+    275          	/* Hour */
+    276          	if (pTime->hour) {
+    277          		alarm |= RTC_TIMALR_HOUREN | ((pTime->hour / 10) << 20) | ((pTime->hour % 10) << 16);
+    278          	}
+    279          	/* Minute */
+    280          	if (pTime->min) {
+    281          		alarm |= RTC_TIMALR_MINEN | ((pTime->min / 10) << 12) | ((pTime->min % 10) << 8);
+    282          	}
+    283          	/* Second */
+    284          	if (pTime->sec) {
+    285          		alarm |= RTC_TIMALR_SECEN | ((pTime->sec / 10) << 4) | (pTime->sec % 10);
+    286          	}
+    287          	pRtc->RTC_TIMALR = alarm;
+    288          	return (int) (pRtc->RTC_VER & RTC_VER_NVTIMALR);
+    289          }
+    290          
+    291          /**
+    292           * \brief Retrieves the current year, month and day from the RTC.
+    293           * Month, day and week values are numbered starting at 1.
+    294           *
+    295           * \param pRtc  Pointer to a Rtc instance
+    296           * \param pDate	Pointer to structure Date.
+    297           */
+    298          void rtc_get_date(Rtc * pRtc, struct _date *pDate)
+    299          {
+    300          	uint32_t date;
+    301          
+    302          	/* Get current date (multiple reads are necessary to insure a stable value) */
+    303          	do {
+    304          		date = pRtc->RTC_CALR;
+    305          	} while (date != pRtc->RTC_CALR);
+    306          	/* Retrieve year */
+    307          	if (pDate->year) {
+    308          		pDate->year = (((date >> 4) & 0x7) * 1000) + ((date & 0xF) * 100)
+    309          			+ (((date >> 12) & 0xF) * 10) + ((date >> 8) & 0xF);
+    310          	}
+    311          	/* Retrieve month */
+    312          	if (pDate->month) {
+    313          		pDate->month = (((date >> 20) & 1) * 10) + ((date >> 16) & 0xF);
+    314          	}
+    315          	/* Retrieve day */
+    316          	if (pDate->day) {
+    317          		pDate->day = (((date >> 28) & 0x3) * 10) + ((date >> 24) & 0xF);
+    318          	}
+    319          	/* Retrieve week */
+    320          	if (pDate->week) {
+    321          		pDate->week = ((date >> 21) & 0x7);
+    322          	}
+    323          }
+    324          
+    325          /**
+    326           * \brief Sets the current year, month and day in the RTC.
+    327           * Month, day and week values must be numbered starting from 1.
+    328           *
+    329           * \note In successive update operations, the user must wait at least one second
+    330           * after resetting the UPDTIM/UPDCAL bit in the RTC_CR before setting these
+    331           * bits again. Please look at the RTC section of the datasheet for detail.
+    332           *
+    333           * \param pRtc  Pointer to a Rtc instance
+    334           * \param pDate	Pointer to structure Date
+    335           *
+    336           * \return 0 success, 1 fail to set
+    337           */
+    338          extern int rtc_set_date(Rtc * pRtc, struct _date *pDate)
+    339          {
+    340          	uint32_t ldate;
+    341          	uint8_t cent_bcd, year_bcd, month_bcd, day_bcd, week_bcd;
+    342          
+    343          	cent_bcd = ((pDate->year / 100) % 10) | ((pDate->year / 1000) << 4);
+    344          	year_bcd = (pDate->year % 10) | (((pDate->year / 10) % 10) << 4);
+    345          	month_bcd = ((pDate->month % 10) | (pDate->month / 10) << 4);
+    346          	day_bcd = ((pDate->day % 10) | (pDate->day / 10) << 4);
+    347          	week_bcd = ((pDate->week % 10) | (pDate->week / 10) << 4);
+    348          	/* value over flow */
+    349          	if ((cent_bcd & (uint8_t) (~RTC_CENT_BIT_LEN_MASK)) |
+    350          	    (year_bcd & (uint8_t) (~RTC_YEAR_BIT_LEN_MASK)) |
+    351          	    (month_bcd & (uint8_t) (~RTC_MONTH_BIT_LEN_MASK)) |
+    352          	    (week_bcd & (uint8_t) (~RTC_WEEK_BIT_LEN_MASK)) |
+    353          	    (day_bcd & (uint8_t) (~RTC_DATE_BIT_LEN_MASK))
+    354          	    ) {
+    355          		return 1;
+    356          	}
+    357          	/* Convert values to date register value */
+    358          	ldate = cent_bcd | (year_bcd << 8) | (month_bcd << 16) | (week_bcd << 21) | (day_bcd << 24);
+    359          	/* Update calendar register  */
+    360          	pRtc->RTC_CR |= RTC_CR_UPDCAL;
+    361          	while ((pRtc->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
+    362          	pRtc->RTC_SCCR = RTC_SCCR_ACKCLR;
+    363          	pRtc->RTC_CALR = ldate;
+    364          	pRtc->RTC_CR &= (uint32_t) (~RTC_CR_UPDCAL);
+    365          	pRtc->RTC_SCCR |= RTC_SCCR_SECCLR;	/* clear SECENV in SCCR */
+    366          	return (int) (pRtc->RTC_VER & RTC_VER_NVCAL);
+    367          }
+    368          
+    369          /**
+    370           * \brief Sets a date alarm in the RTC.
+    371           * The alarm will match only the provided values;
+    372           * Passing a null-pointer disables the corresponding field match.
+    373           *
+    374           * \param pRtc  Pointer to a Rtc instance
+    375           * \param pucMonth If not null, the RTC alarm will month-match this value.
+    376           * \param pucDay   If not null, the RTC alarm will day-match this value.
+    377           *
+    378           * \return 0 success, 1 fail to set
+    379           */
+    380          extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
+    381          {
+    382          	uint32_t alarm;
+    383          
+    384          	alarm = ((pDate->month) || (pDate->day)) ? (0) : (0x01010000);
+    385          	TRACE_DEBUG("rtc_set_date_alarm()\n\r");
+    386          	/* Compute alarm field value */
+    387          	if (pDate->month) {
+    388          		alarm |= RTC_CALALR_MTHEN | ((pDate->month / 10) << 20) | ((pDate->month % 10) << 16);
+    389          	}
+    390          	if (pDate->day) {
+    391          		alarm |= RTC_CALALR_DATEEN | ((pDate->day / 10) << 28) | ((pDate->day % 10) << 24);
+    392          	}
+    393          	/* Set alarm */
+    394          	pRtc->RTC_CALALR = alarm;
+    395          	return (int) (pRtc->RTC_VER & RTC_VER_NVCALALR);
+    396          }
+    397          
+    398          /**
+    399           * \brief Clear flag bits of status clear command register in the RTC.
+    400           *
+    401           * \param pRtc  Pointer to a Rtc instance
+    402           * \param dwMask Bits mask of cleared events
+    403           */
+    404          void rtc_clear_sccr(Rtc * pRtc, uint32_t mask)
+    405          {
+    406          	/* Clear all flag bits in status clear command register */
+    407          	mask &= RTC_SCCR_ACKCLR | RTC_SCCR_ALRCLR | RTC_SCCR_SECCLR |
+    408          		RTC_SCCR_TIMCLR | RTC_SCCR_CALCLR;
+    409          	pRtc->RTC_SCCR = mask;
+    410          }
+    411          
+    412          /**
+    413           * \brief Get flag bits of status register in the RTC.
+    414           *
+    415           * \param pRtc  Pointer to a Rtc instance
+    416           * \param dwMask Bits mask of Status Register
+    417           *
+    418           * \return Status register & mask
+    419           */
+    420          extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask)
+    421          {
+    422          	return ((pRtc->RTC_SR) & mask);
+    423          }
+    424          
+    425          /**
+    426           * \brief Get the RTC tamper time value.
+    427           *
+    428           * \note This function should be called before rtc_get_tamper_source()
+    429           *       function call, Otherwise the tamper time will be cleared.
+    430           *
+    431           * \param pRtc       Pointer to an RTC instance.
+    432           * \param pTime    	 Pointer to structure Time.
+    433           * \param reg_num    Tamper register set number.
+    434           */
+    435          void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
+    436          {
+    437          	uint32_t ltime, temp;
+    438          
+    439          	TRACE_DEBUG("rtc_get_tamper_time()\n\r");
+    440          
+    441          	/* Get current RTC time */
+    442          	ltime = pRtc->RTC_TS[reg_num].RTC_TSTR;
+    443          	while (ltime != pRtc->RTC_TS[reg_num].RTC_TSTR) {
+    444          		ltime = pRtc->RTC_TS[reg_num].RTC_TSTR;
+    445          	}
+    446          	/* Hour */
+    447          	if (pTime->hour) {
+    448          		temp = (ltime & RTC_TSTR_HOUR_Msk) >> RTC_TSTR_HOUR_Pos;
+    449          		pTime->hour = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    450          		if ((ltime & RTC_TSTR_AMPM) == RTC_TSTR_AMPM) {
+    451          			pTime->hour += 12;
+    452          		}
+    453          	}
+    454          	/* Minute */
+    455          	if (pTime->min) {
+    456          		temp = (ltime & RTC_TSTR_MIN_Msk) >> RTC_TSTR_MIN_Pos;
+    457          		pTime->min = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    458          	}
+    459          	/* Second */
+    460          	if (pTime->sec) {
+    461          		temp = (ltime & RTC_TSTR_SEC_Msk) >> RTC_TSTR_SEC_Pos;
+    462          		pTime->sec = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    463          	}
+    464          }
+    465          
+    466          /**
+    467           * \brief Get the RTC tamper date.
+    468           *
+    469           * \note This function should be called before rtc_get_tamper_source()
+    470           *       function call, Otherwise the tamper date will be cleared.
+    471           *
+    472           * \param pRtc      Pointer to an RTC instance.
+    473           * \param pDate     Pointer to structure Date
+    474           * \param reg_num   Tamper register set number.
+    475           */
+    476          void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num)
+    477          {
+    478          	uint32_t date, cent, temp;
+    479          
+    480          	/* Get the current date (multiple reads are to insure a stable value). */
+    481          	date = pRtc->RTC_TS[reg_num].RTC_TSDR;
+    482          	while (date != pRtc->RTC_TS[reg_num].RTC_TSDR) {
+    483          		date = pRtc->RTC_TS[reg_num].RTC_TSDR;
+    484          	}
+    485          	/* Retrieve year */
+    486          	if (pDate->year) {
+    487          		temp = (date & RTC_TSDR_CENT_Msk) >> RTC_TSDR_CENT_Pos;
+    488          		cent = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    489          		temp = (date & RTC_TSDR_YEAR_Msk) >> RTC_TSDR_YEAR_Pos;
+    490          		pDate->year = (cent * BCD_FACTOR * BCD_FACTOR) + (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    491          	}
+    492          	/* Retrieve month */
+    493          	if (pDate->month) {
+    494          		temp = (date & RTC_TSDR_MONTH_Msk) >> RTC_TSDR_MONTH_Pos;
+    495          		pDate->month = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    496          	}
+    497          	/* Retrieve day */
+    498          	if (pDate->day) {
+    499          		temp = (date & RTC_TSDR_DATE_Msk) >> RTC_TSDR_DATE_Pos;
+    500          		pDate->day = (temp >> BCD_SHIFT) * BCD_FACTOR + (temp & BCD_MASK);
+    501          	}
+    502          	/* Retrieve week */
+    503          	if (pDate->week) {
+    504          		pDate->week= ((date & RTC_TSDR_DAY_Msk) >> RTC_TSDR_DAY_Pos);
+    505          	}
+    506          }
+    507          
+    508          /**
+    509           * \brief Get the RTC tamper source.
+    510           *
+    511           * \param pRtc      Pointer to an RTC instance.
+    512           * \param ucRegNum  Current tamper register set number.
+    513           *
+    514           * \return Tamper source.
+    515           */
+    516          extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num)
+    517          {
+    518          	return pRtc->RTC_TS[reg_num].RTC_TSSR;
+    519          }
+    520          
+    521          /**
+    522           * \brief Get the RTC tamper event counter.
+    523           *
+    524           * \note This function should be called before rtc_get_tamper_source()
+    525           *       function call, Otherwise the tamper event counter will be cleared.
+    526           *
+    527           * \param pRtc Pointer to an RTC instance.
+    528           *
+    529           * \return Tamper event counter
+    530           */
+    531          extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc)
+    532          {
+    533          	return (pRtc->RTC_TS[0].RTC_TSTR & RTC_TSTR_TEVCNT_Msk) >> RTC_TSTR_TEVCNT_Pos;
+    534          }
+    535          
+    536          /**
+    537           * \brief Check the system is in backup mode when RTC tamper event happen.
+    538           *
+    539           * \note This function should be called before rtc_get_tamper_source()
+    540           *       function call, Otherwise the flag indicates tamper occur in backup
+    541           *       mode will be cleared.
+    542           *
+    543           * \param pRtc      Pointer to an RTC instance.
+    544           * \param ucRegNum  Current tamper register set number.
+    545           *
+    546           * \return 1 - The system is in backup mode when the tamper event occurs.
+    547           *         0 - The system is different from backup mode.
+    548           */
+    549          extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num)
+    550          {
+    551          	if (pRtc->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
+    552          		return 1;
+    553          	} else {
+    554          		return 0;
+    555          	}
+    556          }
+    557          
+    558          /**
+    559           * \brief Convert number of second (count) to HMS format.
+    560           *
+    561           */
+    562          void rtc_convert_time_to_hms (struct _time *pTime, uint32_t count)
+    563          {
+    564            uint32_t temps = count;
+    565            pTime->hour = pTime->min = pTime->sec= 0;
+    566            temps = temps%86400;
+    567            pTime->hour = temps/3600 ;
+    568            temps -= pTime->hour*3600 ;
+    569            pTime->min = temps/60;
+    570            pTime->sec = temps%60;
+    571          }
+
+Errors: 11
+Warnings: 4

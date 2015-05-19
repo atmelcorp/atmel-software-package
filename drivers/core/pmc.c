@@ -88,7 +88,7 @@ static void _pmc_compute_mck(void)
 	uint32_t pllar_value = (CKGR_PLLAR_MULA_Msk & PMC->CKGR_PLLAR) >> CKGR_PLLAR_MULA_Pos;
 	uint32_t mdiv = (PMC_MCKR_MDIV(mckr_value) < 3) ?
 		(1u << PMC_MCKR_MDIV(mckr_value)) : 3;
-	
+
 	board_master_clock = BOARD_MAINOSC / mdiv / (mckr_value & PMC_MCKR_PLLADIV2 ? 2:1)
 		* (pllar_value + 1);
 }
@@ -122,6 +122,9 @@ uint32_t pmc_get_peripheral_clock(uint32_t id)
 
 uint32_t pmc_get_master_clock(void)
 {
+	if (!board_master_clock) {
+		_pmc_compute_mck();
+	}
 	return board_master_clock;
 }
 
@@ -267,7 +270,7 @@ void pmc_select_external_crystal(void)
 	for (count = 0; count < 0x1000; count++) ;
 	/* Switch to slow clock again if needed */
 	if (return_to_sclock)
-		pmc_switch_mck_to_slck();	
+		pmc_switch_mck_to_slck();
 }
 
 /**

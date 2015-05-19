@@ -1,0 +1,1090 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  15:42:32
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\io\act8945A.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\io\act8945A.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\act8945A.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\act8945A.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\io\act8945A.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /*----------------------------------------------------------------------------
+     31          *        Headers
+     32          *----------------------------------------------------------------------------*/
+     33          
+     34          #include "board.h"
+     35          #include "chip.h"
+     36          
+     37          #include "core/pio.h"
+     38          #include "core/pmc.h"
+     39          
+     40          #include "bus/twi.h"
+     41          #include "bus/twid.h"
+     42          
+     43          #include "io/act8945A.h"
+     44          
+     45          #include <stdio.h>
+     46          #include <stdint.h>
+     47          #include <string.h>
+     48          
+     49          /*------------------------------------------------------------------------------
+     50           *         Local variables
+     51           *----------------------------------------------------------------------------*/
+     52          
+     53          //------------------------------------------------------------------------------
+     54          // PIOs defined: Need to be updated according to hardware used
+     55          //------------------------------------------------------------------------------
+     56          
+     57          
+     58          //------------------------------------------------------------------------------
+     59          
+     60          enum TWI_CMD
+     61          {
+     62              TWI_RD   = 0,
+     63              TWI_WR	 = 1
+     64          };
+     65          
+     66          enum TWI_STATUS
+     67          {
+     68            TWI_STATUS_RESET  = 0,
+     69            TWI_STATUS_HANDLE = 1u<<0,
+     70            TWI_STATUS_RFU2   = 1u<<1,
+     71            TWI_STATUS_RFU3   = 1u<<2,
+     72            TWI_STATUS_RFU4   = 1u<<3,
+     73            TWI_STATUS_READY  = 1u<<7,
+     74          };
+     75          
+     76          enum TWI_RESULT
+     77          {
+     78              TWI_SUCCES   = 0,
+     79              TWI_FAIL	 = 1
+     80          } ;
+     81          
+     82          // TWI clock frequency in Hz.
+     83          #define TWCK_400K            400000
+     84          #define TWCK_200K            200000
+     85          #define TWCK_100K            100000
+     86          
+     87          struct _handler_twi
+     88          {
+     89              uint8_t     IdTwi;      // ID TWI
+     90              uint8_t     Status;     // status of the TWI
+     91              uint8_t     PeriphAddr; // Address of the component
+     92              uint8_t     LenData;    // Lenfth of the data to be read or write
+     93              uint8_t     AddSize;    // Size of the address
+     94              uint16_t    RegMemAddr; // Address of the memory or register
+     95              uint32_t    Twck;       // default clock of the bus TWI
+     96              uint8_t*    pData;      // pointer to a data buffer
+     97              Twid        twid;
+     98          } ;
+     99          
+    100          struct _handler_twi LTWI = {0};
+    101          
+    102          // ACT8945A hardware interface
+    103          
+    104          /// Slave address
+    105          #define ACT8945A_ADDRESS   0x5B
+    106          
+    107          #define ACT8945A_TWI_ID  	ID_FLEXCOM0
+    108          #define ACT8945A_NUM_TWI 	0
+    109          
+    110          static const struct _pin pins_twi_act8945a[] = PINS_TWI0_IOS4;
+    111          
+    112          static const struct _pin pins_ctrl_act8945a[] = PIN_ACT8945A_CHGLEV;
+                                                                 ^
+Error[Pe020]: identifier "PIO_PA12" is undefined
+    113          
+    114          //------------------------------------------------------------------------------
+    115          static const sActReg ActReg[] =
+    116          {
+    117            {"SYSTEM0 ", 0x00},
+    118            {"SYSTEM1 ", 0x01},
+    119            {"REG1_20 ", 0x20},
+    120            {"REG1_21 ", 0x21},
+    121            {"REG1_22 ", 0x22},
+    122            {"REG2_30 ", 0x30},
+    123            {"REG2_31 ", 0x31},
+    124            {"REG2_32 ", 0x32},
+    125            {"REG3_40 ", 0x40},
+    126            {"REG3_41 ", 0x41},
+    127            {"REG3_42 ", 0x42},
+    128            {"REG4_50 ", 0x50},
+    129            {"REG4_51 ", 0x51},
+    130            {"REG5_54 ", 0x54},
+    131            {"REG5_55 ", 0x55},
+    132            {"REG6_60 ", 0x60},
+    133            {"REG6_61 ", 0x61},
+    134            {"REG7_64 ", 0x64},
+    135            {"REG7_65 ", 0x65},
+    136          };
+    137          #define NB_REG_ACT (sizeof(ActReg)/sizeof(ActReg[0]))
+    138          
+    139          static sActReg VoltReg[] =
+    140          {
+    141            {"V_OUT1 ", V_OUT1},
+    142            {"V_OUT2 ", V_OUT2},
+    143            {"V_OUT3 ", V_OUT3},
+    144            {"V_OUT4 ", V_OUT4},
+    145            {"V_OUT5 ", V_OUT5},
+    146            {"V_OUT6 ", V_OUT6},
+    147            {"V_OUT7 ", V_OUT7},
+    148          };
+    149          #define NB_REG_VOLT (sizeof(VoltReg)/sizeof(VoltReg[0]))
+    150          
+    151          static sActReg ActAcph[] =
+    152          {
+    153            {"APCH_70 ", ADD_APCH_70},
+    154            {"APCH_71 ", ADD_APCH_71},
+    155            {"APCH_78 ", ADD_APCH_78},
+    156            {"APCH_79 ", ADD_APCH_79},
+    157            {"APCH_7A ", ADD_APCH_7A},
+    158          };
+    159          #define NB_REG_APCH (sizeof(ActAcph)/sizeof(ActAcph[0]))
+    160          
+    161          static char OvpSet[4][8] =
+    162          {
+    163            {"6.6V "},
+    164            {"7.0V "},
+    165            {"7.5V "},
+    166            {"8.0V "},
+    167          } ;
+    168          
+    169          static char ChargState[4][24] =
+    170          {
+    171            {"Suspend/Disable/Fault"},
+    172            {"End of charge        "},
+    173            {"Fast charge/Top-off  "},
+    174            {"Precondition         "},
+    175          } ;
+    176          
+    177          //------------------------------------------------------------------------------
+    178          ///        Local functions
+    179          //------------------------------------------------------------------------------
+    180          
+    181          uint8_t twi_handler_init (struct _handler_twi* ltwi)
+    182          {
+    183              uint8_t Status = ltwi->Status;
+    184              static Twid twid;
+    185          
+    186              assert( ltwi->Twck != 0 );
+                     ^
+Warning[Pe223]: function "assert" declared implicitly
+    187              assert( ltwi->IdTwi != 0 );
+    188          
+    189          	memset((void*)&twid, 0x00, sizeof(twid));
+    190          
+    191          	// Change IP Clock TWI0
+    192          	PMC->PMC_PCR = PMC_PCR_PID(ACT8945A_TWI_ID) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK;
+    193          	pio_configure(pins_twi_act8945a, PIO_LISTSIZE(pins_twi_act8945a));
+    194          	pmc_enable_peripheral(ACT8945A_TWI_ID);
+    195          	twi_configure_master(ACT8945A_NUM_TWI, ltwi->Twck, pmc_get_master_clock());
+    196          
+    197          	TWID_Initialize(&twid, ACT8945A_NUM_TWI);
+    198          	ltwi->Status = Status | TWI_STATUS_HANDLE;
+    199              memcpy ((void*)&ltwi->twid, (void*)&twid, sizeof(Twid));
+    200              return ltwi->Status;
+    201          }
+    202          
+    203          uint8_t twi_rd_wr (struct _handler_twi* ltwi, enum TWI_CMD Cmd)
+    204          {
+    205            if (Cmd == TWI_RD)
+    206              return (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
+    207                                        ltwi->AddSize, (unsigned char*)ltwi->pData,
+    208                                        ltwi->LenData, 0);
+    209            else
+    210              return (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
+    211                                         ltwi->AddSize, (unsigned char*)ltwi->pData,
+    212                                         ltwi->LenData, 0);
+    213          }
+    214          
+    215          //------------------------------------------------------------------------------
+    216          //------------------------------------------------------------------------------
+    217          
+    218          uint8_t _is_twi_ready (struct _handler_twi* ltwi)
+    219          {
+    220            return ltwi->Status & TWI_STATUS_READY;
+    221          }
+    222          
+    223          //------------------------------------------------------------------------------
+    224          //------------------------------------------------------------------------------
+    225          
+    226          uint8_t _twid_rd_wr (struct _handler_twi* ltwi, enum TWI_CMD Cmd)
+    227          {
+    228            if (Cmd == TWI_RD)
+    229              return (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
+    230                                        ltwi->AddSize, (unsigned char*)ltwi->pData,
+    231                                        ltwi->LenData, 0);
+    232            else
+    233              return (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
+    234                                         ltwi->AddSize, (unsigned char*)ltwi->pData,
+    235                                         ltwi->LenData, 0);
+    236          }
+    237          
+    238          //------------------------------------------------------------------------------
+    239          //------------------------------------------------------------------------------
+    240          
+    241          void _ACT8945A_DelayMS (signed int delay)
+    242          {
+    243              unsigned int count;
+    244              for(;delay>0;delay--)
+    245                  for(count=0;count<(pmc_get_master_clock()/1000000);count++);
+    246          }
+    247          
+    248          //------------------------------------------------------------------------------
+    249          //------------------------------------------------------------------------------
+    250          
+    251          uint8_t bf_SYST0 = 0;
+    252          uint8_t bf_APCH78 = 0;
+    253          uint8_t bf_APCH79 = 0;
+    254          uint8_t bf_APCH7A = 0;
+    255          
+    256          void ACT8945A_IrqHandler( void )
+    257          {
+    258            BITFIELD_SYS0 BitField_Syst0;
+    259            BITFIELD_APCH78 BitField_APCH78;
+    260            BITFIELD_APCH78 BitField_APCH79;
+    261            BITFIELD_APCH7A BitField_APCH7A;
+    262          
+    263              LTWI.RegMemAddr = ADD_SYSTEM0;
+    264              LTWI.LenData = 1;
+    265              LTWI.pData = (uint8_t*)&BitField_Syst0;
+    266              _twid_rd_wr(&LTWI, TWI_RD);
+    267          
+    268              if ( bf_SYST0 != *LTWI.pData)
+    269              {
+    270                printf("&");
+    271                bf_SYST0 = *LTWI.pData;
+    272              }
+    273          
+    274              LTWI.RegMemAddr = ADD_APCH_7A;
+    275              LTWI.pData = (uint8_t*)&BitField_APCH7A;
+    276              _twid_rd_wr(&LTWI, TWI_RD);
+    277          
+    278              if ( bf_APCH7A != *LTWI.pData)
+    279              {
+    280                printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
+    281                bf_APCH7A = *LTWI.pData;
+    282              }
+    283          
+    284              LTWI.RegMemAddr = ADD_APCH_78;
+    285              LTWI.pData = (uint8_t*)&BitField_APCH78;
+    286              _twid_rd_wr(&LTWI, TWI_RD);
+    287          
+    288              if ( bf_APCH78 != *LTWI.pData)
+    289              {
+    290                if (BitField_APCH78.chgdat == 0x01) printf("\n\rcharger state machine: END-OF-CHARGE state \n\r");
+    291                bf_APCH78 = *LTWI.pData;
+    292              }
+    293          
+    294              LTWI.RegMemAddr = ADD_APCH_79;
+    295              LTWI.pData = (uint8_t*)&BitField_APCH79;
+    296              _twid_rd_wr(&LTWI, TWI_RD);
+    297          
+    298              if ( bf_APCH79 != *LTWI.pData)
+    299              {
+    300                printf("#");
+    301                bf_APCH79 = *LTWI.pData;
+    302              }
+    303          
+    304              printf("*");
+    305          
+    306          }
+    307          
+    308          //------------------------------------------------------------------------------
+    309          ///        Display register functions
+    310          //------------------------------------------------------------------------------
+    311          
+    312          void _ACT8945A_TwiError (void)
+    313          {
+    314            printf(" -E- Twi Error \n\r");
+    315          }
+    316          
+    317          //------------------------------------------------------------------------------
+    318          //------------------------------------------------------------------------------
+    319          // Dump and display the registers
+    320          void _ACT8945A_RegistersDump(void)
+    321          {
+    322              uint8_t data, i = 0;
+    323          
+    324              if (_is_twi_ready(&LTWI))
+    325              {
+    326                printf("\n\r *** DUMP Registers ACT8945A\n\r");
+    327                LTWI.LenData = 1;
+    328                LTWI.pData = &data;
+    329                for (i=0; i<NB_REG_ACT; i++)
+    330                {
+    331                  LTWI.RegMemAddr = ActReg[i].Address;
+    332                  _twid_rd_wr(&LTWI, TWI_RD);
+    333                  _ACT8945A_DelayMS(10);
+    334                  printf("%s: 0x%02x", ActReg[i].RegName, data);
+    335                  printf("\n\r");
+    336                }
+    337              }
+    338          }
+    339          
+    340          //------------------------------------------------------------------------------
+    341          //------------------------------------------------------------------------------
+    342          // Dump and display the ACPH registers
+    343          void _ACT8945A_APCH_RegistersDump (void)
+    344          {
+    345              uint8_t data, i = 0;
+    346          
+    347              if (_is_twi_ready(&LTWI))
+    348              {
+    349                printf("\n\r");
+    350                printf(" -I- DUMP Registers APCH ACT8945A\n\r");
+    351                LTWI.LenData = 1;
+    352                LTWI.pData = &data;
+    353                for (i=0; i<NB_REG_APCH; i++)
+    354                {
+    355                  LTWI.RegMemAddr = ActAcph[i].Address;
+    356                  _twid_rd_wr(&LTWI, TWI_RD);
+    357                  _ACT8945A_DelayMS(10);
+    358                  printf(" -I- %s: 0x%02X", ActAcph[i].RegName, data);
+    359                  printf("\n\r");
+    360                }
+    361              }
+    362          }
+    363          
+    364          //------------------------------------------------------------------------------
+    365          //------------------------------------------------------------------------------
+    366          // Convert the voltage setting to display value
+    367          float _ACT8945A_ConvertVoltageSetting (uint8_t Reg)
+    368          {
+    369              float Result = 0;
+    370              uint8_t Mul20, Mul53;
+    371          
+    372              Mul20 = (Reg & 0x07) >>0;
+    373              Mul53 = (Reg & 0x38) >>3;
+    374          
+    375              if (Reg <= 0x17)
+    376                  Result = 0.6 + (0.2*Mul53) + (0.025*Mul20);
+    377              else if (Reg <= 0x2F)
+    378                  Result = 1.2 + (0.4*(Mul53-3)) + (0.050*Mul20);
+    379              else
+    380                  Result = 2.4 + (0.8*(Mul53-6)) + (0.1*Mul20);
+    381              return Result;
+    382          }
+    383          
+    384          //------------------------------------------------------------------------------
+    385          //------------------------------------------------------------------------------
+    386          void _ACT8945A_DisplaySystemSetting (void)
+    387          {
+    388            uint8_t Status;
+    389            float Value;
+    390            BITFIELD_SYS0 BitField_Syst0;
+    391            BITFIELD_SYS1 BitField_Syst1;
+    392          
+    393              LTWI.RegMemAddr = ADD_SYSTEM0;
+    394              LTWI.LenData = 1;
+    395              LTWI.pData = (uint8_t*)&BitField_Syst0;
+    396              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    397              if(Status!=ACT8945A_RET_OK) return;
+    398          
+    399              Value = 2.3 + (BitField_Syst0.syslev*0.1);
+    400          
+    401              printf("\n\r");
+    402              printf(" -I- System Registers ACT8945A \n\r");
+    403              printf(" -I- SYST0 @0x00: 0x%02X \n\r", *LTWI.pData);
+    404              printf(" Reset Timer Setting:           %s \n\r", (BitField_Syst0.trst)? "65ms":"260ms");
+    405              printf(" SYSLEV Mode Select:            %s \n\r", (BitField_Syst0.nsysmode)?"int":"shutdown");
+    406              printf(" System Voltage Level Int.Mask: %s \n\r", (BitField_Syst0.nsyslevmsk)?"int":"no int");
+    407              printf(" System Voltage Status:         %s \n\r", (BitField_Syst0.nsysstat)?"vsys<syslev":"vsys>syslev");
+    408              printf(" SYSLEV Failing Treshold value: %.2fv \n\r", Value );
+    409          
+    410              LTWI.RegMemAddr = ADD_SYSTEM1;
+    411              LTWI.pData = (uint8_t*)&BitField_Syst1;
+    412              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    413              if(Status!=ACT8945A_RET_OK) return;
+    414          
+    415              printf("\n\r");
+    416              printf(" -I- SYST1 @0x01: 0x%02X \n\r", *LTWI.pData);
+    417              printf(" Master Off Ctrl, All regul:    %s \n\r", (BitField_Syst1.mstroff)?"OFF ":"ON ");
+    418              printf(" Scratchpad Bits, free user:    0x%02x \n\r", BitField_Syst1.scratch);
+    419          }
+    420          
+    421          //------------------------------------------------------------------------------
+    422          //------------------------------------------------------------------------------
+    423          // Display detailled infos of the register ACT8865 and ACT8945A
+    424          void _ACT8945A_DisplayVoltageSetting (void)
+    425          {
+    426            uint8_t data, x, Status;
+    427            float x1;
+    428            BITFIELD_CTRL1 BitField_Ctrl1;
+    429            BITFIELD_CTRL2 BitField_Ctrl2;
+    430          
+    431             printf(" * Voltage Setting & State ACT8945A \n\r");
+    432          
+    433            for (x=0; x<NB_REG_VOLT ; x++)
+    434            {
+    435              LTWI.RegMemAddr = VoltReg[x].Address;
+    436              LTWI.LenData = 1;
+    437              LTWI.pData = &data;
+    438              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    439              if(Status!=ACT8945A_RET_OK) return;
+    440              x1= _ACT8945A_ConvertVoltageSetting(data);
+    441          
+    442              LTWI.RegMemAddr = VoltReg[x].Address+1;
+    443              LTWI.LenData = 1;
+    444              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    445              if(Status!=ACT8945A_RET_OK) return;
+    446          
+    447              printf(" -I- %s= %.2fv ", VoltReg[x].RegName, (float)x1);
+    448          
+    449              if (VoltReg[x].Address >= V_OUT4)
+    450              {
+    451                memcpy (&BitField_Ctrl2, &data, 1);
+    452                printf("0x%02X %s", data, (BitField_Ctrl2.on)?"ON ":"OFF");
+    453                printf(" %s", (BitField_Ctrl2.dis)?"OFF":"ON ");
+    454                printf(" %s", (BitField_Ctrl2.lowiq)?"Normal":"LowPwr");
+    455                printf("\tDelay:0x%02X", BitField_Ctrl2.delay);
+    456                printf(" %s ", (BitField_Ctrl2.nfltmsk)?"En":"Dis");
+    457                printf(" %s", (BitField_Ctrl2.ok)?"OK":".<Tresh");
+    458              }
+    459              else
+    460              {
+    461                memcpy (&BitField_Ctrl1, &data, 1);
+    462                printf("0x%02X %s", data, (BitField_Ctrl1.on)?"ON  ":"OFF");
+    463                printf(" %s", (BitField_Ctrl1.phase)?"180°":"Osc");
+    464                printf(" %s", (BitField_Ctrl1.mode)?"PWM":"PowSav");
+    465                printf("\tDelay:0x%02X", BitField_Ctrl1.delay);
+    466                printf(" %s ", (BitField_Ctrl1.nfltmsk)?"En":"Dis");
+    467                printf(" %s", (BitField_Ctrl1.ok)?"OK":".<Tresh");
+    468              }
+    469              printf("\n\r");
+    470            }
+    471          }
+    472          
+    473          //----------------------------------------------------------------------------
+    474          //----------------------------------------------------------------------------
+    475          // Display detailled infos register APCH (ACT8945A)
+    476          uint8_t _ACT8945A_DisplayActivePathCharger (void)
+    477          {
+    478              BITFIELD_APCH71 BitField_APCH71;
+    479              BITFIELD_APCH78 BitField_APCH78;
+    480              BITFIELD_APCH79 BitField_APCH79;
+    481              BITFIELD_APCH7A BitField_APCH7A;
+    482          
+    483              uint8_t data, Status = ACT8945A_RET_OK;
+    484          
+    485                printf("\n\r");
+    486                printf(" -I- ACPH Registers ACT8945A \n\r");
+    487          
+    488                LTWI.RegMemAddr = ADD_APCH_70;
+    489                LTWI.LenData = 1;
+    490                LTWI.pData = &data;
+    491                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    492                if (Status) _ACT8945A_TwiError();
+    493                else
+    494                {
+    495                  printf(" -I- APCH @0x70: Reserved 0x%02X \n\r", data);
+    496                  printf("\n\r");
+    497                }
+    498          
+    499                LTWI.RegMemAddr = ADD_APCH_71;
+    500                LTWI.pData = (uint8_t*)&BitField_APCH71;
+    501                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    502                if (Status) _ACT8945A_TwiError();
+    503                else
+    504                {
+    505                  printf(" -I- APCH @0x71: 0x%02X \n\r", *LTWI.pData);
+    506                  printf(" Charge Suspend Control Input:        %X \n\r", BitField_APCH71.suschg);
+    507                  printf(" Bit 6 reserved \n\r");
+    508                  printf(" Total Charge Time-out Selection:     %02X \n\r", BitField_APCH71.tottimo);
+    509                  printf(" Precondition Charge Time-out Sel:    %02X \n\r", BitField_APCH71.pretimo);
+    510                  printf(" Input Over-Volt Prot.Threshold Sel:  %02X ", BitField_APCH71.ovpset);
+    511                  printf(" equ %s \n\r", &OvpSet[BitField_APCH71.ovpset][0]);
+    512                  printf("\n\r");
+    513                }
+    514          
+    515                LTWI.RegMemAddr = ADD_APCH_78;
+    516                LTWI.pData = (uint8_t*)&BitField_APCH78;
+    517                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    518                if (Status) _ACT8945A_TwiError();
+    519                else
+    520                {
+    521                  printf(" -I- APCH @0x78: 0x%02X \n\r", *LTWI.pData);
+    522                  printf(" Charge Time-out Interrupt Status:     %X \n\r", BitField_APCH78.timrstat);
+    523                  printf(" Battery Temperature Interrupt Status: %X \n\r", BitField_APCH78.tempstat);
+    524                  printf(" Input Voltage Interrupt Status:       %X \n\r", BitField_APCH78.instat);
+    525                  printf(" Charge State Interrupt Status:        %X \n\r", BitField_APCH78.chgstat);
+    526                  printf(" Charge Timer Status                   %X \n\r", BitField_APCH78.timrdat);
+    527                  printf(" Temperature Status                    %X \n\r", BitField_APCH78.tempdat);
+    528                  printf(" Input Voltage Status                  %X \n\r", BitField_APCH78.indat);
+    529                  printf(" Charge State Machine Status           %X \n\r", BitField_APCH78.chgdat);
+    530                  printf("\n\r");
+    531                }
+    532          
+    533                LTWI.RegMemAddr = ADD_APCH_79;
+    534                LTWI.pData = (uint8_t*)&BitField_APCH79;
+    535                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    536                if (Status) _ACT8945A_TwiError();
+    537                else
+    538                {
+    539                  printf(" -I- APCH @0x79: 0x%02X \n\r", *LTWI.pData);
+    540                  printf(" Total Charge Time-out Int Control:    %X \n\r", BitField_APCH79.timrtot);
+    541                  printf(" Batt.Temp.Int.Ctrl into valid range:  %X \n\r", BitField_APCH79.tempin);
+    542                  printf(" Inp.Voltage Int.Ctrl into valid range:%X \n\r", BitField_APCH79.incon);
+    543                  printf(" Charge State Int Ctrl into EOC state: %X \n\r", BitField_APCH79.chgeocin);
+    544                  printf(" PRECHARGE Time-out Int Ctrl:          %X \n\r", BitField_APCH79.timrpre);
+    545                  printf(" Batt.Temp.Int.Ctrl. out valid range:  %X \n\r", BitField_APCH79.tempout);
+    546                  printf(" Inp.Voltage Int.Ctrl. out valid range:%X \n\r", BitField_APCH79.indis);
+    547                  printf(" Charge State Int.Ctrl. out EOC state: %X \n\r", BitField_APCH79.chgeocout);
+    548                  printf("\n\r");
+    549                }
+    550          
+    551                LTWI.RegMemAddr = ADD_APCH_7A;
+    552                LTWI.pData = (uint8_t*)&BitField_APCH7A;
+    553                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    554                if (Status) _ACT8945A_TwiError();
+    555                else
+    556                {
+    557                  printf(" -I- APCH @0x7A: 0x%02X \n\r", *LTWI.pData);
+    558                  printf(" Bit 7-6 reserved:                     %02X \n\r", BitField_APCH7A.ruf76);
+    559                  printf(" Charge State:                         %02X ", BitField_APCH7A.cstate);
+    560                  printf(" %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
+    561                  printf(" Bit 3-2 reserved:                     %02X \n\r", BitField_APCH7A.ruf32);
+    562                  printf(" ACIN Status:                          %X \n\r", BitField_APCH7A.acinstat);
+    563                  printf(" Bit 0 reserved:                       %X \n\r", BitField_APCH7A.ruf0);
+    564                  printf("\n\r");
+    565                }
+    566                return Status;
+    567          }
+    568          
+    569          //------------------------------------------------------------------------------
+    570          //------------------------------------------------------------------------------
+    571          // Display the value of the register ACT8865 and ACT8945A
+    572          uint8_t _ACT8945A_DisplaySyslevFailingThreshold (void)
+    573          {
+    574              BITFIELD_SYS0 BitField_SYS0;
+    575              uint8_t Status = ACT8945A_RET_OK;
+    576              float Value;
+    577          
+    578                LTWI.RegMemAddr = ADD_SYSTEM0;
+    579                LTWI.LenData = 1;
+    580                LTWI.pData = (uint8_t*)&BitField_SYS0;
+    581                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    582                if (Status) _ACT8945A_TwiError();
+    583                else
+    584                {
+    585                  Value = 2.3 + (BitField_SYS0.syslev*0.1);
+    586                  printf("\n\r");
+    587                  printf(" -I- SYSLEV Failing Treshold value:0x%02X  %.2fv \n\r", BitField_SYS0.syslev, Value );
+    588                }
+    589                return Status;
+    590          }
+    591          //----------------------------------------------------------------------------
+    592          //        Exported functions
+    593          //----------------------------------------------------------------------------
+    594          
+    595          // Configure the state (ON/OFF) of the regulator OUT1 to OUT3
+    596          // Set bit to 1 to enable the regulator, clear bit to 0 to disable the regulator.
+    597          // Input: VOUT base register address
+    598          uint8_t ACT8945A_SetRegulatorStateOut1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
+    599          {
+    600              uint8_t Status = ACT8945A_RET_OK;
+    601              BITFIELD_CTRL1 BitField_Ctrl1;
+    602          
+    603              if (!_is_twi_ready(&LTWI)) return ACT8945A_RET_NOK;
+    604              if (RegVout!=V_OUT1 && RegVout!=V_OUT2 && RegVout!=V_OUT3 ) return ACT8945A_RET_NOK;
+    605          
+    606              //enable/disable output
+    607              LTWI.RegMemAddr = RegVout+1;
+    608              LTWI.LenData = 1;
+    609              LTWI.pData = (uint8_t*)&BitField_Ctrl1;
+    610              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    611              if (Status) return Status;
+    612              BitField_Ctrl1.on = (ON_OFF)? 1:0 ;
+    613              return Status= _twid_rd_wr(&LTWI, TWI_WR);
+    614          }
+    615          
+    616          //------------------------------------------------------------------------------
+    617          //------------------------------------------------------------------------------
+    618          // Configure the state (ON/OFF) of the regulator OUT4 to OUT7
+    619          // Input: VOUT base register address
+    620          uint8_t ACT8945A_SetRegulatorStateOut4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
+    621          {
+    622              uint8_t Status = ACT8945A_RET_OK;
+    623              BITFIELD_CTRL2 BitField_Ctrl2;
+    624          
+    625              if (!_is_twi_ready(&LTWI)) return ACT8945A_RET_NOK;
+    626              if (RegVout!=V_OUT4 && RegVout!=V_OUT5 && RegVout!=V_OUT6 && RegVout!=V_OUT7 ) return ACT8945A_RET_NOK;
+    627          
+    628              //enable/disable output
+    629              LTWI.RegMemAddr = RegVout+1;
+    630              LTWI.LenData = 1;
+    631              LTWI.pData = (uint8_t*)&BitField_Ctrl2;
+    632              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    633              if (Status) return Status;
+    634              BitField_Ctrl2.on = (ON_OFF)? 1:0 ;
+    635              return Status = _twid_rd_wr(&LTWI, TWI_WR);
+    636          }
+    637          
+    638          //------------------------------------------------------------------------------
+    639          //------------------------------------------------------------------------------
+    640          // Set the ouptut value of the regulator OUT4 to OUT7
+    641          // Input: Value in mv
+    642          //      : VOUT base register address
+    643          uint8_t ACT8945A_SetRegulatorVoltageOut4to7 (uint8_t RegVout, uint16_t VOut)
+    644          {
+    645              uint8_t data, RegSet;
+    646          
+    647              if (VOut>3900) return ACT8945A_RET_NOK;
+    648              if (RegVout!=V_OUT4 && RegVout!=V_OUT5 && RegVout!=V_OUT6 && RegVout!=V_OUT7 ) return ACT8945A_RET_NOK;
+    649              if (VOut<600) VOut = 600; // Min 0.6v
+    650          
+    651              if (VOut<1200) RegSet = (VOut-600)/25;
+    652              else if (VOut>=1200 && VOut<2400) RegSet = 0x18+((VOut-1200)/50);
+    653              else if (VOut>=2400 && VOut<=3900) RegSet = 0x30+((VOut-2400)/100);
+    654              else return ACT8945A_RET_NOK;
+    655          
+    656              //Set Output Voltage Selection
+    657              data = (RegSet&0x3F); // Bit[7:6] reserved
+    658              LTWI.pData = &data;
+    659              LTWI.RegMemAddr =  RegVout;
+    660              LTWI.LenData = 1;
+    661              return _twid_rd_wr(&LTWI, TWI_WR);
+    662          }
+    663          
+    664          //------------------------------------------------------------------------------
+    665          //------------------------------------------------------------------------------
+    666          // System Voltage Level Interrupt Mask. SYSLEV interrupt is masked by default,
+    667          // set to 1 to unmask this interrupt.
+    668          uint8_t ACT8945A_SetSystemVoltageLevelInterrupt (INT_ON_OFF_enum ON_OFF)
+    669          {
+    670              BITFIELD_SYS0 BitField_SYS0;
+    671              uint8_t Status = ACT8945A_RET_OK;
+    672          
+    673              if (!_is_twi_ready(&LTWI)) return ACT8945A_RET_NOK;
+    674          
+    675              LTWI.RegMemAddr = ADD_SYSTEM0;
+    676              LTWI.LenData = 1;
+    677              LTWI.pData = (uint8_t*)&BitField_SYS0;
+    678              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    679              if (Status) _ACT8945A_TwiError();
+    680              else
+    681              {
+    682                BitField_SYS0.nsyslevmsk = ON_OFF;
+    683                Status = _twid_rd_wr(&LTWI, TWI_WR);
+    684              }
+    685              return Status;
+    686          }
+    687          
+    688          //------------------------------------------------------------------------------
+    689          //------------------------------------------------------------------------------
+    690          // Regulator Fault Mask Control.
+    691          // Set bit to 1 enable fault-interrupts, clear bit to 0 to disable fault-interrupts
+    692          // Input: VOUT base register address
+    693          uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF)
+    694          {
+    695              uint8_t Status = ACT8945A_RET_OK;
+    696              BITFIELD_CTRL1 BitField_Ctrl1;
+    697              BITFIELD_CTRL2 BitField_Ctrl2;
+    698          
+    699              if (!_is_twi_ready(&LTWI)) return ACT8945A_RET_NOK;
+    700          
+    701              LTWI.RegMemAddr = RegVout+1;
+    702              LTWI.LenData = 1;
+    703          
+    704              switch (RegVout)
+    705              {
+    706                case V_OUT1:
+    707                case V_OUT2:
+    708                case V_OUT3:
+    709                  LTWI.pData = (uint8_t*)&BitField_Ctrl1;
+    710                  Status = _twid_rd_wr(&LTWI, TWI_RD);
+    711                  if (Status) return ACT8945A_RET_NOK;
+    712                  BitField_Ctrl1.nfltmsk = (ON_OFF)? 1:0 ;
+    713                break;
+    714          
+    715                case V_OUT4:
+    716                case V_OUT5:
+    717                case V_OUT6:
+    718                case V_OUT7:
+    719                  LTWI.pData = (uint8_t*)&BitField_Ctrl2;
+    720                  Status = _twid_rd_wr(&LTWI, TWI_RD);
+    721                  if (Status) return ACT8945A_RET_NOK;
+    722                  BitField_Ctrl2.nfltmsk = (ON_OFF)? 1:0 ;
+    723                break;
+    724          
+    725                default:
+    726                  break;
+    727              }
+    728              //set Int
+    729              return Status = _twid_rd_wr(&LTWI, TWI_WR);
+    730          }
+    731          
+    732          //------------------------------------------------------------------------------
+    733          //------------------------------------------------------------------------------
+    734          // Set or Clear an APCH interrupt
+    735          // Set bit to 1 enable interrupt,
+    736          // Clear bit to 0 to disable interrupt
+    737          
+    738          uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF)
+    739          {
+    740              uint8_t Status = ACT8945A_RET_OK;
+    741              BITFIELD_APCH78 BitField_APCH78;
+    742              BITFIELD_APCH79 BitField_APCH79;
+    743          
+    744              if (!_is_twi_ready(&LTWI)) return ACT8945A_RET_NOK;
+    745          
+    746              LTWI.RegMemAddr = ADD_APCH_78;
+    747              LTWI.LenData = 1;
+    748              LTWI.pData = (uint8_t*)&BitField_APCH78;
+    749              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    750          
+    751              LTWI.RegMemAddr = ADD_APCH_79;
+    752              LTWI.LenData = 1;
+    753              LTWI.pData = (uint8_t*)&BitField_APCH79;
+    754              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    755          
+    756              switch (IntType)
+    757              {
+    758                // Interrupt generated any time the input supply is disconnected when
+    759                // INSTAT[] bit is set to 1 and the INDIS[] bit is set to 1.
+    760                case INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL: // Interrupt
+    761                  BitField_APCH78.instat = (ON_OFF)? 1:0 ;
+    762                  BitField_APCH79.indis = (ON_OFF)? 1:0 ;
+    763                  break;
+    764          
+    765                // Interrupt generated any time the input supply is connected when
+    766                // INSTAT[] bit is set to 1 and the INCON[] bit is set to 1.
+    767                case INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL:
+    768                  BitField_APCH78.instat = (ON_OFF)? 1:0 ;
+    769                  BitField_APCH79.incon = (ON_OFF)? 1:0 ;
+    770                  break;
+    771          
+    772                // Interrupts based upon the status of the battery temperature.
+    773                // Set the TEMPOUT[] bit to 1 and TEMPSTAT[] bit to 1 to generate
+    774                // an interrupt when battery temperature goes out of the valid
+    775                // temperature range.
+    776                case BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL:
+    777                  BitField_APCH78.tempstat = (ON_OFF)? 1:0 ;
+    778                  BitField_APCH79.tempout = (ON_OFF)? 1:0 ;
+    779                  break;
+    780          
+    781                // Interrupts based upon the status of the battery temperature.
+    782                // Set the TEMPIN[] bit to 1 and TEMPSTAT[] bit to 1 to generate
+    783                // an interrupt when battery temperature returns to the valid range.
+    784                case BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL:
+    785                  BitField_APCH78.tempstat = (ON_OFF)? 1:0 ;
+    786                  BitField_APCH79.tempin = (ON_OFF)? 1:0 ;
+    787                  break;
+    788          
+    789                // Interrupt when the charger state machine goes into the
+    790                // END-OF-CHARGE (EOC). Set CHGEOCIN[] bit to 1 and CHGSTAT[] bit
+    791                // to 1 to generate an interrupt when the charger state machine goes
+    792                // into the END-OF-CHARGE (EOC)state.
+    793                case CHARGE_STATE_INTO_EOC_STATE_INT_CTRL:
+    794                  BitField_APCH78.chgstat = (ON_OFF)? 1:0 ;
+    795                  BitField_APCH79.chgeocin = (ON_OFF)? 1:0 ;
+    796                  break;
+    797          
+    798                // Interrupt when the charger state machine exit the
+    799                // END-OF-CHARGE (EOC). Set CHGEOCOUT[] bit to 1 and CHGSTAT[] bit
+    800                // to 1 to generate an interrupt when the charger state machine exits
+    801                // the EOC state.
+    802                case CHARGE_STATE_OUT_EOC_STATE_INT_CTRL:
+    803                  BitField_APCH78.chgstat = (ON_OFF)? 1:0 ;
+    804                  BitField_APCH79.chgeocout = (ON_OFF)? 1:0 ;
+    805                  break;
+    806          
+    807                // Interrupts based upon the status of the charge timers.
+    808                // Set the TIMRPRE[] bit to 1 and TIMRSTAT[] bit to 1 to generate an
+    809                // interrupt when the Precondition Timer expires.
+    810                case PRECHARGE_TIME_OUT_INT_CTRL:
+    811                  BitField_APCH78.timrstat = (ON_OFF)? 1:0 ;
+    812                  BitField_APCH79.timrpre = (ON_OFF)? 1:0 ;
+    813                  break;
+    814          
+    815                // Set the TIMRTOT[] bit to 1 and TIMRSTAT[] bit to 1 to generate an
+    816                // interrupt when the Total-Charge Timer expires.
+    817                case TOTAL_CHARGE_TIME_OUT_INT_CTRL:
+    818                  BitField_APCH78.timrstat = (ON_OFF)? 1:0 ;
+    819                  BitField_APCH79.timrtot = (ON_OFF)? 1:0 ;
+    820                  break;
+    821          
+    822                default:
+    823                  break;
+    824              }
+    825          
+    826              // Write configuration to registers
+    827              LTWI.RegMemAddr = ADD_APCH_78;
+    828              Status = _twid_rd_wr(&LTWI, TWI_WR);
+    829          
+    830              LTWI.RegMemAddr = ADD_APCH_79;
+    831              Status = _twid_rd_wr(&LTWI, TWI_WR);
+    832          
+    833              return Status;
+    834          }
+    835          
+    836          //------------------------------------------------------------------------------
+    837          //------------------------------------------------------------------------------
+    838          // Disable all interrupt from APCH
+    839          uint8_t ACT8945A_DisableAllAPCHInterrupt (void)
+    840          {
+    841            uint8_t Status = ACT8945A_RET_OK;
+    842          
+    843              Status |= ACT8945A_SetAPCHInterrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
+    844              Status |= ACT8945A_SetAPCHInterrupt(INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    845              Status |= ACT8945A_SetAPCHInterrupt(BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    846              Status |= ACT8945A_SetAPCHInterrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
+    847              Status |= ACT8945A_SetAPCHInterrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
+    848              Status |= ACT8945A_SetAPCHInterrupt(INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    849              Status |= ACT8945A_SetAPCHInterrupt(BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    850              Status |= ACT8945A_SetAPCHInterrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
+    851              return Status;
+    852          }
+    853          
+    854          //------------------------------------------------------------------------------
+    855          //------------------------------------------------------------------------------
+    856          // Set the Programmable System Voltage Monitor
+    857          // Input: Value in mv from 2300mv to 3800mv
+    858          uint8_t ACT8945A_SystemVoltageLevel (uint16_t Value)
+    859          {
+    860              BITFIELD_SYS0 BitField_SYS0;
+    861              uint8_t Status = ACT8945A_RET_OK;
+    862          
+    863                if (Value<2300 || Value>3800) return ACT8945A_RET_NOK;
+    864                LTWI.RegMemAddr = ADD_SYSTEM0;
+    865          
+    866                Status = _twid_rd_wr(&LTWI, TWI_RD);
+    867                LTWI.LenData = 1;
+    868                LTWI.pData = (uint8_t*)&BitField_SYS0;
+    869                if (Status) _ACT8945A_TwiError();
+    870                else
+    871                {
+    872                  BitField_SYS0.syslev = (Value-2300)/100;
+    873                  Status = _twid_rd_wr(&LTWI, TWI_WR);
+    874          
+    875                  #ifdef ECHO_CONSOLE
+    876                    _ACT8945A_DisplaySyslevFailingThreshold();
+    877                  #endif
+    878                }
+    879                return Status;
+    880          }
+    881          
+    882          //------------------------------------------------------------------------------
+    883          //------------------------------------------------------------------------------
+    884          // Charge Current Selection Input
+    885          // In USB-Mode”: CHGLEV = 1 -> I charge 450mA
+    886          //               CHGLEV = 0 -> I charge 1000mA
+    887          uint8_t ACT8945A_SetStateChangeLevelPin (CHG_LEVEL_enum State)
+    888          {
+    889              return 0;
+    890          }
+    891          
+    892          //------------------------------------------------------------------------------
+    893          //------------------------------------------------------------------------------
+    894          // Low Battery Indicator Output. nLBO is asserted low whenever the voltage
+    895          // at LBI is lower than 1.2V,
+    896          uint8_t ACT8945A_GetStateLBO (void)
+    897          {
+    898          	 return 0;
+    899          }
+    900          
+    901          //------------------------------------------------------------------------------
+    902          //------------------------------------------------------------------------------
+    903          // Init TWI interface
+    904          uint8_t ACT8945A_Begin (void)
+    905          {
+    906              uint8_t data, Status = ACT8945A_RET_OK;
+    907          
+    908              if (!_is_twi_ready(&LTWI))
+    909              {
+    910                  #ifdef ECHO_CONSOLE
+    911                    printf(" -I- Config PMIC ACT8945A \n\r");
+    912                    printf(" -I- TWI%1X @0x%02X TWCK:%dKHz \n\r", ACT8945A_NUM_TWI, ACT8945A_ADDRESS, TWCK_400K/100);
+    913                  #endif
+    914          
+    915                  // Configure pins
+    916                  pio_configure(pins_ctrl_act8945a, PIO_LISTSIZE(pins_ctrl_act8945a));
+    917          
+    918                  // Set TWI interface
+    919                  memset ((uint8_t*)&LTWI, 0x00, sizeof(LTWI));
+    920                  LTWI.IdTwi = ACT8945A_TWI_ID;
+    921                  LTWI.Twck = TWCK_400K;
+    922                  Status = twi_handler_init (&LTWI);
+    923                  LTWI.PeriphAddr = ACT8945A_ADDRESS;
+    924                  LTWI.AddSize = 1;
+    925                  LTWI.pData = &data;
+    926                  LTWI.LenData = 1;
+    927                  LTWI.Status |= TWI_STATUS_READY;
+    928              }
+    929              LTWI.RegMemAddr = ADD_SYSTEM0;
+    930              Status = _twid_rd_wr(&LTWI, TWI_RD);
+    931              if (!data) Status = ACT8945A_RET_NOK;
+    932              else Status = ACT8945A_RET_OK;
+    933              return Status;
+    934          }
+    935          
+    936          //------------------------------------------------------------------------------
+    937          //------------------------------------------------------------------------------
+    938          // Config interrupt on nIRQ pin to MPU
+    939          void ACT8945A_ActiveInterrupt (void)
+    940          {
+    941          }
+    942          
+    943          //------------------------------------------------------------------------------
+    944          //------------------------------------------------------------------------------
+    945          // Disable PMIC I2C
+    946          // Fonction called to disable the TWI interface
+    947          // Issue on PMIC revision 304 and 305
+    948          void ACT8945A_DisableTwi (void)
+    949          {
+    950              uint8_t data;
+    951          
+    952              LTWI.pData = &data;
+    953              LTWI.LenData = 1;
+    954          
+    955              //305
+    956              LTWI.RegMemAddr = 0xB;
+    957              data = 0xEF;
+    958              _twid_rd_wr(&LTWI, TWI_WR);
+    959          
+    960              LTWI.RegMemAddr = 0x2;
+    961              data = 0x07;
+    962              _twid_rd_wr(&LTWI, TWI_WR);
+    963          
+    964              LTWI.RegMemAddr = 0x3;
+    965              data = 0x01;
+    966              _twid_rd_wr(&LTWI, TWI_WR);
+    967          
+    968              //304
+    969              LTWI.RegMemAddr = 0xB;
+    970              data = 0xEE;
+    971              _twid_rd_wr(&LTWI, TWI_WR);
+    972          
+    973              LTWI.RegMemAddr = 0x2;
+    974              data = 0x07;
+    975              _twid_rd_wr(&LTWI, TWI_WR);
+    976          
+    977              LTWI.RegMemAddr = 0x3;
+    978              data = 0x01;
+    979              _twid_rd_wr(&LTWI, TWI_WR);
+    980          }
+    981          
+    982          //------------------------------------------------------------------------------
+    983          //------------------------------------------------------------------------------
+    984          
+    985          uint8_t ACT8945A_Test (void)
+    986          {
+    987              uint8_t Status = ACT8945A_RET_OK;
+    988              uint16_t x;
+    989          
+    990              printf("\n\r -I- ACT8945A Reset State \n\r");
+    991              Status = ACT8945A_Begin();
+    992              if (Status!=ACT8945A_RET_OK)
+    993              {
+    994                _ACT8945A_TwiError();
+    995                return Status;
+    996              }
+    997          
+    998              _ACT8945A_RegistersDump();
+    999              _ACT8945A_APCH_RegistersDump();
+   1000              _ACT8945A_DisplayActivePathCharger();
+   1001              _ACT8945A_DisplayVoltageSetting();
+   1002              ACT8945A_SystemVoltageLevel(3100);
+   1003              _ACT8945A_DisplaySystemSetting();
+   1004          
+   1005              Status = ACT8945A_SetSystemVoltageLevelInterrupt(ACT8945A_INT_OFF);
+   1006              Status = ACT8945A_DisableAllAPCHInterrupt();
+   1007          
+   1008              ACT8945A_SetAPCHInterrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+   1009              ACT8945A_SetAPCHInterrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+   1010          
+   1011              ACT8945A_SetAPCHInterrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+   1012              ACT8945A_SetAPCHInterrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+   1013          
+   1014              _ACT8945A_RegistersDump();
+   1015              _ACT8945A_APCH_RegistersDump();
+   1016          
+   1017              ACT8945A_ActiveInterrupt();
+   1018          
+   1019              // Change step by step (25mv) the output voltage OUT7 from 0.6v to max.
+   1020              ACT8945A_SetRegulatorStateOut4to7 (V_OUT7, ACT8945A_REG_ON);
+   1021              for (x=500; x<4000; x+=25)
+   1022              {
+   1023                ACT8945A_SetRegulatorVoltageOut4to7 (V_OUT7, x);
+   1024                _ACT8945A_DelayMS(10);
+   1025              }
+   1026              ACT8945A_SetRegulatorVoltageOut4to7 (V_OUT7, 600);
+   1027              ACT8945A_SetRegulatorStateOut4to7 (V_OUT7, ACT8945A_REG_OFF);
+   1028          
+   1029             return Status;
+   1030          }
+   1031          
+   1032          //------------------------------------------------------------------------------
+   1033          //------------------------------------------------------------------------------
+   1034          //------------------------------------------------------------------------------
+   1035          // End of file
+
+Errors: 1
+Warnings: 2

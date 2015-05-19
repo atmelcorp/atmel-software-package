@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -60,12 +60,9 @@
 //         Global Functions
 //------------------------------------------------------------------------------
 
-extern uint32_t LED_Configure(uint32_t dwLed);
-
-extern uint32_t LED_Set(uint32_t dwLed);
-
-extern uint32_t LED_Clear(uint32_t dwLed);
-
-extern uint32_t LED_Toggle(uint32_t dwLed);
+extern uint32_t led_configure(uint32_t led);
+extern uint32_t led_set(uint32_t led);
+extern uint32_t led_clear(uint32_t led);
+extern uint32_t led_toggle(uint32_t led);
 
 #endif				/* #ifndef LED_H */

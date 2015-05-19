@@ -1,0 +1,530 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        23/Apr/2015  10:12:15
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio3.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio3.c -D
+#        SERIE_SAMA5D2 -D BOARD_SAMA5D2_XPLAINED -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../utils\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\pio3.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\pio3.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio3.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup pio_module Working with PIO
+     31           * \section Purpose
+     32           * The PIO driver provides the Interface for configuration the Parallel Input/Output
+     33           *  Controller (PIO).
+     34           *
+     35           * \section Usage
+     36           * <ul>
+     37           * <li>  Initialize the PIO with the desired period using PIO_Configure().
+     38           * <li>  Set a high or low output level on the given PIO using PIO_Set() or PIO_Clear().
+     39           * <li>  Get the level of the given PIOs using PIO_Get() or PIO_GetOutputDataStatus().
+     40           * <li>  Configures Glitch or Debouncing filter for given input PIO using PIO_SetDebounceFilter().
+     41           * <li>  Enable & disable write protect of the given PIOs using PIO_EnableWriteProtect() or PIO_DisableWriteProtect().
+     42           * <li>  Get write protect violation information of given PIO using PIO_GetWriteProtectViolationInfo().
+     43           * </li>
+     44           * </ul>
+     45           *
+     46           * For more accurate information, please look at the PIT section of the Datasheet.
+     47           *
+     48           * Related files :\n
+     49           * \ref pio.c\n
+     50           * \ref pio.h\n
+     51          */
+     52          /*@{*/
+     53          /*@}*/
+     54          
+     55          /**
+     56           * \file
+     57           *
+     58           * Implementation of PIO (Parallel Input/Output) controller.
+     59           *
+     60           */
+     61          /*----------------------------------------------------------------------------
+     62           *        Headers
+     63           *----------------------------------------------------------------------------*/
+     64          
+     65          #include "chip.h"
+     66          #include "core/pio3.h"
+     67          #include "core/pmc.h"
+     68          
+     69          /*----------------------------------------------------------------------------
+     70           *        Local functions
+     71           *----------------------------------------------------------------------------*/
+     72          
+     73          /**
+     74           * \brief Configures one or more pin(s) of a PIO controller as being controlled by
+     75           * peripheral A. Optionally, the corresponding internal pull-up(s) can be enabled.
+     76           *
+     77           * \param pio  Pointer to a PIO controller.
+     78           * \param mask  Bitmask of one or more pin(s) to configure.
+     79           * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
+     80           *                      configured.
+     81           */
+     82          static void pio_set_peripheralA(Pio * pio, uint32_t mask, uint8_t enablePullUp)
+     83          {
+     84          	uint32_t abcdsr;
+     85          	/* Disable interrupts on the pin(s) */
+     86          	pio->PIO_IDR = mask;
+     87          	/* Enable the pull-up(s) if necessary */
+     88          	if (enablePullUp) {
+     89          		pio->PIO_PPDDR = mask;
+     90          		pio->PIO_PUER = mask;
+     91          	} else {
+     92          		//pio->PIO_PUDR = mask;
+     93          		pio->PIO_PPDDR = mask;
+     94          	}
+     95          	abcdsr = pio->PIO_ABCDSR[0];
+     96          	pio->PIO_ABCDSR[0] &= (~mask & abcdsr);
+     97          	abcdsr = pio->PIO_ABCDSR[1];
+     98          	pio->PIO_ABCDSR[1] &= (~mask & abcdsr);
+     99          	pio->PIO_PDR = mask;
+    100          
+    101          }
+    102          
+    103          /**
+    104           * \brief Configures one or more pin(s) of a PIO controller as being controlled by
+    105           * peripheral B. Optionally, the corresponding internal pull-up(s) can be enabled.
+    106           *
+    107           * \param pio  Pointer to a PIO controller.
+    108           * \param mask  Bitmask of one or more pin(s) to configure.
+    109           * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
+    110           *                      configured.
+    111           */
+    112          static void pio_set_peripheralB(Pio * pio, uint32_t mask, uint8_t enablePullUp)
+    113          {
+    114          	uint32_t abcdsr;
+    115          	/* Disable interrupts on the pin(s) */
+    116          	pio->PIO_IDR = mask;
+    117          	/* Enable the pull-up(s) if necessary */
+    118          	if (enablePullUp) {
+    119          		pio->PIO_PPDDR = mask;
+    120          		pio->PIO_PUER = mask;
+    121          	} else {
+    122          		pio->PIO_PUDR = mask;
+    123          		pio->PIO_PPDDR = mask;
+    124          	}
+    125          	abcdsr = pio->PIO_ABCDSR[0];
+    126          	pio->PIO_ABCDSR[0] = (mask | abcdsr);
+    127          	abcdsr = pio->PIO_ABCDSR[1];
+    128          	pio->PIO_ABCDSR[1] &= (~mask & abcdsr);
+    129          	pio->PIO_PDR = mask;
+    130          }
+    131          
+    132          /**
+    133           * \brief Configures one or more pin(s) of a PIO controller as being controlled by
+    134           * peripheral C. Optionally, the corresponding internal pull-up(s) can be enabled.
+    135           *
+    136           * \param pio  Pointer to a PIO controller.
+    137           * \param mask  Bitmask of one or more pin(s) to configure.
+    138           * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
+    139           *                      configured.
+    140           */
+    141          static void pio_set_peripheralC(Pio * pio, uint32_t mask, uint8_t enablePullUp)
+    142          {
+    143          	uint32_t abcdsr;
+    144          	/* Disable interrupts on the pin(s) */
+    145          	pio->PIO_IDR = mask;
+    146          	/* Enable the pull-up(s) if necessary */
+    147          	if (enablePullUp) {
+    148          		pio->PIO_PPDDR = mask;
+    149          		pio->PIO_PUER = mask;
+    150          	} else {
+    151          		pio->PIO_PUDR = mask;
+    152          		//  pio->PIO_PPDDR = mask;
+    153          	}
+    154          	abcdsr = pio->PIO_ABCDSR[0];
+    155          	pio->PIO_ABCDSR[0] &= (~mask & abcdsr);
+    156          	abcdsr = pio->PIO_ABCDSR[1];
+    157          	pio->PIO_ABCDSR[1] = (mask | abcdsr);
+    158          	pio->PIO_PDR = mask;
+    159          }
+    160          
+    161          /**
+    162           * \brief Configures one or more pin(s) of a PIO controller as being controlled by
+    163           * peripheral D. Optionally, the corresponding internal pull-up(s) can be enabled.
+    164           *
+    165           * \param pio  Pointer to a PIO controller.
+    166           * \param mask  Bitmask of one or more pin(s) to configure.
+    167           * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
+    168           *                      configured.
+    169           */
+    170          static void pio_set_peripheralD(Pio * pio, uint32_t mask, uint8_t enablePullUp)
+    171          {
+    172          	uint32_t abcdsr;
+    173          	/* Disable interrupts on the pin(s) */
+    174          	pio->PIO_IDR = mask;
+    175          
+    176          	/* Enable the pull-up(s) if necessary */
+    177          	if (enablePullUp) {
+    178          
+    179          		pio->PIO_PPDDR = mask;
+    180          		pio->PIO_PUER = mask;
+    181          	} else {
+    182          		pio->PIO_PUDR = mask;
+    183          	}
+    184          
+    185          	abcdsr = pio->PIO_ABCDSR[0];
+    186          	pio->PIO_ABCDSR[0] = (mask | abcdsr);
+    187          	abcdsr = pio->PIO_ABCDSR[1];
+    188          	pio->PIO_ABCDSR[1] = (mask | abcdsr);
+    189          
+    190          	pio->PIO_PDR = mask;
+    191          }
+    192          
+    193          /**
+    194           * \brief Configures one or more pin(s) or a PIO controller as inputs. Optionally,
+    195           * the corresponding internal pull-up(s) and glitch filter(s) can be enabled.
+    196           *
+    197           * \param pio  Pointer to a PIO controller.
+    198           * \param mask  Bitmask indicating which pin(s) to configure as input(s).
+    199           * \param enablePullUp  Indicates if the internal pull-up(s) must be enabled.
+    200           * \param enableFilter  Indicates if the glitch filter(s) must be enabled.
+    201           */
+    202          static void pio_set_input(Pio * pio, uint32_t mask, uint8_t attribute)
+    203          {
+    204          	/* Disable interrupts */
+    205          	pio->PIO_IDR = mask;
+    206          
+    207          	/* Enable pull-up(s) if necessary */
+    208          	if (attribute & PIO_PULLUP) {
+    209          		pio->PIO_PPDDR = mask;
+    210          		pio->PIO_PUER = mask;
+    211          	} else {
+    212          		pio->PIO_PUDR = mask;
+    213          	}
+    214          	/* Enable Input Filter if necessary */
+    215          	if (attribute & (PIO_DEGLITCH | PIO_DEBOUNCE))
+    216          		pio->PIO_IFER = mask;
+    217          	else
+    218          		pio->PIO_IFDR = mask;
+    219          
+    220          	/* Enable de-glitch or de-bounce if necessary */
+    221          	if (attribute & PIO_DEGLITCH) {
+    222          		pio->PIO_IFSCDR = mask;
+    223          	} else if (attribute & PIO_DEBOUNCE) {
+    224          		pio->PIO_IFSCER = mask;
+    225          	}
+    226          
+    227          	/* Configure pin as input */
+    228          	pio->PIO_ODR = mask;
+    229          	pio->PIO_PER = mask;
+    230          }
+    231          
+    232          /**
+    233           * \brief Configures one or more pin(s) of a PIO controller as outputs, with the
+    234           * given default value. Optionally, the multi-drive feature can be enabled
+    235           * on the pin(s).
+    236           *
+    237           * \param pio  Pointer to a PIO controller.
+    238           * \param mask  Bitmask indicating which pin(s) to configure.
+    239           * \param defaultValue  Default level on the pin(s).
+    240           * \param enableMultiDrive  Indicates if the pin(s) shall be configured as
+    241           *                          open-drain.
+    242           * \param enablePullUp  Indicates if the pin shall have its pull-up activated.
+    243           */
+    244          static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
+    245          						  uint8_t enableMultiDrive, uint8_t enablePullUp)
+    246          {
+    247          	/* Disable interrupts */
+    248          	pio->PIO_IDR = mask;
+    249          
+    250          	/* Enable pull-up(s) if necessary */
+    251          	if (enablePullUp) {
+    252          		pio->PIO_PPDDR = mask;
+    253          		pio->PIO_PUER = mask;
+    254          	} else {
+    255          		pio->PIO_PUDR = mask;
+    256          	}
+    257          
+    258          	/* Enable multi-drive if necessary */
+    259          	if (enableMultiDrive) {
+    260          
+    261          		pio->PIO_MDER = mask;
+    262          	} else {
+    263          
+    264          		pio->PIO_MDDR = mask;
+    265          	}
+    266          
+    267          	/* Set default value */
+    268          	if (defaultValue) {
+    269          
+    270          		pio->PIO_SODR = mask;
+    271          	} else {
+    272          
+    273          		pio->PIO_CODR = mask;
+    274          	}
+    275          
+    276          	/* Configure pin(s) as output(s) */
+    277          	pio->PIO_OER = mask;
+    278          	pio->PIO_PER = mask;
+    279          }
+    280          
+    281          /*----------------------------------------------------------------------------
+    282           *         Exported functions
+    283           *----------------------------------------------------------------------------*/
+    284          
+    285          /**
+    286           * \brief Configures a list of Pin instances, each of which can either hold a single
+    287           * pin or a group of pins, depending on the mask value; all pins are configured
+    288           * by this function. The size of the array must also be provided and is easily
+    289           * computed using PIO_LISTSIZE whenever its length is not known in advance.
+    290           *
+    291           * \param list  Pointer to a list of Pin instances.
+    292           * \param size  Size of the Pin list (calculated using PIO_LISTSIZE).
+    293           *
+    294           * \return 1 if the pins have been configured properly; otherwise 0.
+    295           */
+    296          uint8_t pio_configure(const struct _pin_t *list, uint32_t size)
+    297          {
+    298          	/* Configure pins */
+    299          	while (size > 0) {
+    300          		switch (list->type) {
+    301          
+    302          		case PIO_PERIPH_A:
+    303          			pio_set_peripheralA(list->pio, list->mask,
+    304          					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+    305          			break;
+    306          
+    307          		case PIO_PERIPH_B:
+    308          			pio_set_peripheralB(list->pio, list->mask,
+    309          					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+    310          			break;
+    311          
+    312          		case PIO_PERIPH_C:
+    313          			pio_set_peripheralC(list->pio, list->mask,
+    314          					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+    315          			break;
+    316          
+    317          		case PIO_PERIPH_D:
+    318          			pio_set_peripheralD(list->pio, list->mask,
+    319          					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+    320          			break;
+    321          		case PIO_INPUT:
+    322          			pmc_enable_peripheral(list->id);
+    323          			pio_set_input(list->pio, list->mask, list->attribute);
+    324          			break;
+    325          
+    326          		case PIO_OUTPUT_0:
+    327          		case PIO_OUTPUT_1:
+    328          			pio_set_output(list->pio, list->mask,
+    329          				      (list->type == PIO_OUTPUT_1),
+    330          				      (list->attribute & PIO_OPENDRAIN) ? 1 : 0,
+    331          				      (list->attribute & PIO_PULLUP) ? 1 : 0);
+    332          			break;
+    333          
+    334          		default:
+    335          			return 0;
+    336          		}
+    337          
+    338          		list++;
+    339          		size--;
+    340          	}
+    341          
+    342          	return 1;
+    343          }
+    344          
+    345          /**
+    346           * \brief Sets a high output level on all the PIOs defined in the given Pin instance.
+    347           * This has no immediate effects on PIOs that are not output, but the PIO
+    348           * controller will memorize the value they are changed to outputs.
+    349           *
+    350           * \param pin  Pointer to a Pin instance describing one or more pins.
+    351           */
+    352          void void pio_set(const struct _pin_t *pin)
+    353          {
+    354          	pin->pio->PIO_SODR = pin->mask;
+    355          }
+    356          
+    357          /**
+    358           * \brief Sets a low output level on all the PIOs defined in the given Pin instance.
+    359           * This has no immediate effects on PIOs that are not output, but the PIO
+    360           * controller will memorize the value they are changed to outputs.
+    361           *
+    362           * \param pin  Pointer to a Pin instance describing one or more pins.
+    363           */
+    364          void void pio_clear(const struct _pin_t *pin)
+    365          {
+    366          	pin->pio->PIO_CODR = pin->mask;
+    367          }
+    368          
+    369          /**
+    370           * \brief Returns 1 if one or more PIO of the given Pin instance currently have
+    371           * a high level; otherwise returns 0. This method returns the actual value that
+    372           * is being read on the pin. To return the supposed output value of a pin, use
+    373           * PIO_GetOutputDataStatus() instead.
+    374           *
+    375           * \param pin  Pointer to a Pin instance describing one or more pins.
+    376           *
+    377           * \return 1 if the Pin instance contains at least one PIO that currently has
+    378           * a high level; otherwise 0.
+    379           */
+    380          uint8_t void pio_get(const struct _pin_t *pin)
+    381          {
+    382          	uint32_t reg;
+    383          
+    384          	if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
+    385          		reg = pin->pio->PIO_ODSR;
+    386          	} else {
+    387          		reg = pin->pio->PIO_PDSR;
+    388          	}
+    389          
+    390          	if ((reg & pin->mask) == 0) {
+    391          		return 0;
+    392          	} else {
+    393          		return 1;
+    394          	}
+    395          }
+    396          
+    397          /**
+    398           * \brief Returns 1 if one or more PIO of the given Pin are configured to output a
+    399           * high level (even if they are not output).
+    400           * To get the actual value of the pin, use PIO_Get() instead.
+    401           *
+    402           * \param pin  Pointer to a Pin instance describing one or more pins.
+    403           *
+    404           * \return 1 if the Pin instance contains at least one PIO that is configured
+    405           * to output a high level; otherwise 0.
+    406           */
+    407          uint8_t pio_get_output_data_status(const struct _pin_t *pin)
+    408          {
+    409          	if ((pin->pio->PIO_ODSR & pin->mask) == 0) {
+    410          		return 0;
+    411          	} else {
+    412          		return 1;
+    413          	}
+    414          }
+    415          
+    416          /**
+    417           * \brief Configures Glitch or Debouncing filter for input.
+    418           *
+    419           * \param pin  Pointer to a Pin instance describing one or more pins.
+    420           * \param cuttoff  Cutt off frequency for debounce filter.
+    421           */
+    422          void pio_set_debounce_filter(const struct _pin_t *pin, uint32_t cuttoff)
+    423          {
+    424          	Pio *pio = pin->pio;
+    425          
+    426          	if (cuttoff == 0) {
+    427          		pio->PIO_IFSCDR = pin->mask;
+    428          		pio->PIO_SCDR = 0;
+    429          	} else {
+    430          		/* set Debouncing, 0 bit field no effect */
+    431          		pio->PIO_IFSCER = pin->mask;
+    432          		/* the lowest 14 bits work */
+    433          		pio->PIO_SCDR = ((32678 / (2 * (cuttoff))) - 1) & 0x3FFF;
+    434          	}
+    435          }
+    436          
+    437          /**
+    438           * \brief Enable write protect.
+    439           *
+    440           * \param pin  Pointer to a Pin instance describing one or more pins.
+    441           */
+    442          void pio_enable_write_protect(const struct _pin_t *pin)
+    443          {
+    444          	Pio *pio = pin->pio;
+    445          	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN);
+    446          }
+    447          
+    448          /**
+    449           * \brief Disable write protect.
+    450           *
+    451           * \param pin  Pointer to a Pin instance describing one or more pins.
+    452           */
+    453          void pio_disable_write_protect(const struct _pin_t *pin)
+    454          {
+    455          	Pio *pio = pin->pio;
+    456          	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS);
+    457          }
+    458          
+    459          /**
+    460           * \brief Get write protect violation information.
+    461           *
+    462           * \param pin  Pointer to a Pin instance describing one or more pins.
+    463           */
+    464          uint32_t pio_get_write_protect_violation_info(const struct _pin_t * pin)
+    465          {
+    466          	Pio *pio = pin->pio;
+    467          	return (pio->PIO_WPSR);
+    468          }
+    469          
+    470          /**
+    471           * \brief Configure all pio output low
+    472           *
+    473           * \param pio  Pointer to a Pio instance describing one or more pins.
+    474           * \param pioId PIO ID
+    475           * \param mask  Bitmask of one or more pin(s) to configure.
+    476           */
+    477          void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
+    478          {
+    479          	PMC->PMC_PCER0 = 1 << pioId;
+    480          	pio->PIO_PUDR = mask;	// all Pull-up Disable
+    481          	pio->PIO_PPDDR = mask;	// all Pull-down Disable
+    482          	pio->PIO_PER = mask;	// all PIO enable
+    483          	pio->PIO_OER = mask;	// all PIO output mode
+    484          	pio->PIO_CODR = mask;	// all PIO clear output
+    485          }
+
+Errors: 78
+Warnings: 2

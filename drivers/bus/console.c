@@ -68,11 +68,11 @@ static struct _console console = {
 #include "serial/uart.h"
 static struct _console console = {
 	CONSOLE_PER_ADD,
-	uart_configure,
-	uart_put_char,
-	uart_get_char,
-	uart_is_rx_ready,
-	uart_set_int
+	(void (*)(void*, uint32_t, uint32_t)) uart_configure,
+	(void (*) (void*, uint8_t)) uart_put_char,
+	(uint32_t (*) (void*))uart_get_char,
+	(uint32_t (*) (void*))uart_is_rx_ready,
+	//uart_set_int
 };
 #elif CONSOLE_DRIVER == DRV_DBGU
 #include "serial/dbgu.h"
@@ -331,7 +331,7 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
 	return 1;
 }
 
-#if defined __ICCARM__  /* IAR Ewarm 5.41+ */
+#if defined __ICCARM__ /* IAR Ewarm 5.41+ */
 /**
  * \brief Outputs a character on the DBGU.
  *
@@ -339,11 +339,9 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
  *
  * \return The character that was output.
  */
-extern WEAK signed int
-putchar(signed int c)
+extern WEAK signed int putchar( signed int c )
 {
-	dbgu_put_char(c);
-
-	return c;
+    console_put_char( c ) ;
+    return c ;
 }
-#endif  /* defined __ICCARM__ */
+#endif // defined __ICCARM__

@@ -1,0 +1,465 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:46
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\cp15.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\cp15.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\cp15.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2011, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          //-----------------------------------------------------------------------------
+     31          // Reg Reads                    Writes
+     32          //----------------------------------------------------------------------------
+     33          // 0   ID code                  Unpredictable
+     34          // 0   cache type               Unpredictable
+     35          // 0   TCM status               Unpredictable
+     36          // 1   Control                  Control
+     37          // 2   Translation table base   Translation table base
+     38          // 3   Domain access control    Domain access control
+     39          // 4                                                       (Reserved)
+     40          // 5   Data fault status        Data fault status
+     41          // 5   Instruction fault status Instruction fault status
+     42          // 6   Fault address            Fault address
+     43          // 7   cache operations         cache operations
+     44          // 8   Unpredictable            TLB operations
+     45          // 9   cache lockdown           cache lockdown
+     46          // 9   TCM region               TCM region
+     47          // 10  TLB lockdown             TLB lockdown
+     48          // 11                                                      (Reserved)
+     49          // 12                                                      (Reserved)
+     50          // 13  FCSE PID                 FCSE PID
+     51          // 13  Context ID               Context ID
+     52          // 14                                                      (Reserved)
+     53          // 15  Test configuration       Test configuration
+     54          //-----------------------------------------------------------------------------
+     55          
+     56          /** \page cp15_f CP15 Functions
+     57           *
+     58           * \section CP15 function Usage
+     59           *
+     60           * Methods to manage the Coprocessor 15. Coprocessor 15, or System Control
+     61           * Coprocessor CP15, is used to configure and control all the items in the
+     62           * list below:
+     63           * <ul>
+     64           * <li> ARM core
+     65           * <li> caches (Icache, Dcache and write buffer)
+     66           * <li> TCM
+     67           * <li> MMU
+     68           * <li> Other system options
+     69           * </ul>
+     70           * \section Usage
+     71           *
+     72           * -# Enable or disable D cache with cp15_enable_dcache() and cp15_disable_dcache()
+     73           * -# Enable or disable I cache with cp15_enable_icache() and cp15_disable_icache()
+     74           *
+     75           * Related files:\n
+     76           * \ref cp15.h\n
+     77           * \ref cp15.c\n
+     78           */
+     79          
+     80          /** \file */
+     81          
+     82          /**
+     83           * \addtogroup cp15_cache L1 Cache Operations
+     84           * \ingroup cache_module
+     85           *
+     86           * \section Usage
+     87           *
+     88           * They are performed as MCR instructions and only operate on a level 1 cache associated with
+     89           * ATM v7 processor.
+     90           * The supported operations are:
+     91           * <ul>
+     92           * <li> Any of these operations can be applied to
+     93           *  -# any data cache
+     94           *  -# any unified cache.
+     95           * <li> Invalidate by MVA
+     96           *   Performs an invalidate of a data or unified cache line based on the address it contains.
+     97           * <li> Invalidate by set/way
+     98           *   Performs an invalidate of a data or unified cache line based on its location in the cache hierarchy.
+     99           * <li> Clean by MVA
+    100           *   Performs a clean of a data or unified cache line based on the address it contains.
+    101           * <li> Clean by set/way
+    102           *   Performs a clean of a data or unified cache line based on its location in the cache hierarchy.
+    103           * <li> Clean and Invalidate by MVA
+    104           *   Performs a clean and invalidate of a data or unified cache line based on the address it contains.
+    105           * <li> Clean and Invalidate by set/way
+    106           *   Performs a clean and invalidate of a data or unified cache line based on its location in the cache hierarchy.
+    107           * </ul>
+    108           *
+    109           * Related files:\n
+    110           * \ref cp15.h\n
+    111           * \ref cp15_asm_gcc.S \n
+    112           * \ref cp15_asm_iar.s \n
+    113           */
+    114          
+    115          /*----------------------------------------------------------------------------
+    116           *        Headers
+    117           *----------------------------------------------------------------------------*/
+    118          
+    119          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+    120          #if defined(__ICCARM__)
+    121          #include <intrinsics.h>
+    122          #endif
+    123          #include "core/cp15.h"
+    124          #include "utils/trace.h"
+    125          #include <assert.h>
+    126          /*----------------------------------------------------------------------------
+    127           *        Global functions
+    128           *----------------------------------------------------------------------------*/
+    129          
+    130          /**
+    131           * \brief Check Instruction cache
+    132           * \return 0 if I_cache disable, 1 if I_cache enable
+    133           */
+    134          unsigned int cp15_is_icached_enabled(void)
+    135          {
+    136          	unsigned int control;
+    137          	control = cp15_read_control();
+    138          	return ((control & (1 << CP15_I_BIT)) != 0);
+    139          }
+    140          
+    141          /**
+    142           * \brief  Enable Instruction cache
+    143           */
+    144          void cp15_enable_icache(void)
+    145          {
+    146          	unsigned int control;
+    147          	control = cp15_read_control();
+    148          	// Check if cache is disabled
+    149          	if ((control & (1 << CP15_I_BIT)) == 0) {
+    150          
+    151          		control |= (1 << CP15_I_BIT);
+    152          		cp15_write_control(control);
+    153          		TRACE_INFO("I cache enabled.\n\r");
+    154          	} else {
+    155          
+    156          		TRACE_INFO("I cache is already enabled.\n\r");
+    157          	}
+    158          }
+    159          
+    160          /**
+    161           * \brief  Disable Instruction cache
+    162           */
+    163          void cp15_disable_icache(void)
+    164          {
+    165          	unsigned int control;
+    166          	control = cp15_read_control();
+    167          	// Check if cache is enabled
+    168          	if ((control & (1 << CP15_I_BIT)) != 0) {
+    169          
+    170          		control &= ~(1ul << CP15_I_BIT);
+    171          		cp15_write_control(control);
+    172          		TRACE_INFO("I cache disabled.\n\r");
+    173          	} else {
+    174          
+    175          		TRACE_INFO("I cache is already disabled.\n\r");
+    176          	}
+    177          }
+    178          
+    179          /**
+    180           * \brief  Check MMU
+    181           * \return  0 if MMU disable, 1 if MMU enable
+    182           */
+    183          unsigned int cp15_is_mmu_enabled(void)
+    184          {
+    185          	unsigned int control;
+    186          	control = cp15_read_control();
+    187          	return ((control & (1 << CP15_M_BIT)) != 0);
+    188          }
+    189          
+    190          /**
+    191           * \brief  Enable MMU
+    192           */
+    193          void cp15_enable_mmu(void)
+    194          {
+    195          	unsigned int control;
+    196          	control = cp15_read_control();
+    197          	// Check if MMU is disabled
+    198          	if ((control & (1 << CP15_M_BIT)) == 0) {
+    199          
+    200          		control |= (1 << CP15_M_BIT);
+    201          		cp15_write_control(control);
+    202          		TRACE_INFO("MMU enabled.\n\r");
+    203          	} else {
+    204          
+    205          		TRACE_INFO("MMU is already enabled.\n\r");
+    206          	}
+    207          }
+    208          
+    209          /**
+    210           * \brief  Disable MMU
+    211           */
+    212          void cp15_disable_mmu(void)
+    213          {
+    214          	unsigned int control;
+    215          	control = cp15_read_control();
+    216          	// Check if MMU is enabled
+    217          	if ((control & (1 << CP15_M_BIT)) != 0) {
+    218          
+    219          		control &= ~(1ul << CP15_M_BIT);
+    220          		control &= ~(1ul << CP15_C_BIT);
+    221          		cp15_write_control(control);
+    222          		TRACE_INFO("MMU disabled.\n\r");
+    223          	} else {
+    224          
+    225          		TRACE_INFO("MMU is already disabled.\n\r");
+    226          	}
+    227          }
+    228          
+    229          /**
+    230           * \brief  Check D_cache
+    231           * \return  0 if D_cache disable, 1 if D_cache enable (with MMU of course)
+    232           */
+    233          unsigned int cp15_is_dcache_enabled(void)
+    234          {
+    235          	unsigned int control;
+    236          	control = cp15_read_control();
+    237          	return ((control & ((1 << CP15_C_BIT) || (1 << CP15_M_BIT))) != 0);
+    238          }
+    239          
+    240          /**
+    241           * \brief  Enable Data cache
+    242           */
+    243          void cp15_enable_dcache(void)
+    244          {
+    245          	unsigned int control;
+    246          	control = cp15_read_control();
+    247          	if (!cp15_is_mmu_enabled()) {
+    248          		TRACE_ERROR("Do nothing: MMU not enabled\n\r");
+    249          	} else {
+    250          		// Check if cache is disabled
+    251          		if ((control & (1 << CP15_C_BIT)) == 0) {
+    252          
+    253          			control |= (1 << CP15_C_BIT);
+    254          			cp15_write_control(control);
+    255          			TRACE_INFO("D cache enabled.\n\r");
+    256          		} else {
+    257          
+    258          			TRACE_INFO("D cache is already enabled.\n\r");
+    259          		}
+    260          	}
+    261          }
+    262          
+    263          /**
+    264           * \brief  Disable Data cache
+    265           */
+    266          void cp15_disable_dcache(void)
+    267          {
+    268          	unsigned int control;
+    269          	control = cp15_read_control();
+    270          	// Check if cache is enabled
+    271          	if ((control & (1 << CP15_C_BIT)) != 0) {
+    272          
+    273          		control &= ~(1ul << CP15_C_BIT);
+    274          		cp15_write_control(control);
+    275          		TRACE_INFO("D cache disabled.\n\r");
+    276          	} else {
+    277          
+    278          		TRACE_INFO("D cache is already disabled.\n\r");
+    279          	}
+    280          }
+    281          
+    282          /**
+    283           * \brief  Invalidate TLB
+    284           */
+    285          void cp15_invalidate_tlb(void)
+    286          {
+    287          	asm("MCR   p15, 0, %0, c8, c3, 0": :"r"(1));
+    288          	asm("DSB");
+    289          }
+    290          
+    291          /**
+    292           * \brief  Clean Data cache
+    293           */
+    294          void cp15_cache_clean(uint8_t CacheType)
+    295          {
+    296          	assert(!CacheType);
+    297          	cp15_select_dcache();
+    298          	cp15_clean_dcache_by_set_way();
+    299          	asm("DSB");
+    300          }
+    301          
+    302          /**
+    303           * \brief  Invalidate D/Icache
+    304           */
+    305          void cp15_cache_invalidate(uint8_t CacheType)
+    306          {
+    307          	if (CacheType) {
+    308          		cp15_select_icache();
+    309          		cp15_invalid_icache_inner_sharable();
+    310          		asm("DSB");
+    311          		asm("ISB");
+    312          	} else {
+    313          		cp15_select_dcache();
+    314          		cp15_invalid_dcache_by_set_way();
+    315          		asm("DSB");
+    316          		asm("ISB");
+    317          	}
+    318          
+    319          }
+    320          
+    321          /**
+    322           * \brief  Flush(Clean and invalidate) Data cache
+    323           */
+    324          void cp15_cache_flush(uint8_t CacheType)
+    325          {
+    326          	assert(!CacheType);
+    327          	cp15_select_dcache();
+    328          	cp15_clean_invalid_dcache_by_set_way();
+    329          	asm("DSB");
+    330          
+    331          }
+    332          
+    333          /**
+    334           * \brief  Invalidate Data cache by address
+    335           */
+    336          void cp15_invalid_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+    337          {
+    338          	cp15_select_dcache();
+    339          	cp15_invalid_dcache_by_mva(S_Add, E_Add);
+    340          }
+    341          
+    342          /**
+    343           * \brief  Clean Data cache by address
+    344           */
+    345          void cp15_clean_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+    346          {
+    347          	cp15_select_dcache();
+    348          	cp15_clean_dcache_by_mva(S_Add, E_Add);
+    349          }
+    350          
+    351          /**
+    352           * \brief  Flush Data cache by address
+    353           */
+    354          
+    355          void cp15_flush_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+    356          {
+    357          	cp15_select_dcache();
+    358          	cp15_clean_invalid_dcache_by_mva(S_Add, E_Add);
+    359          }
+
+Errors: 11
+Warnings: 1

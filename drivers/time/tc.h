@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -60,14 +60,10 @@
 extern "C" {
 #endif
 
-void TC_Configure(Tc * pTc, uint32_t dwChannel, uint32_t dwMode);
-
-void TC_Start(Tc * pTc, uint32_t dwChannel);
-
-void TC_Stop(Tc * pTc, uint32_t dwChannel);
-
-extern uint32_t TC_FindMckDivisor(uint32_t dwFreq, uint32_t * dwDiv,
-				  uint32_t * dwTcClks);
+void tc_configure (Tc* pTc, uint32_t channel, uint32_t mode);
+void tc_start (Tc * pTc, uint32_t channel);
+void tc_stop (Tc * pTc, uint32_t channel);
+extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t* div, uint32_t * tc_clks);
 
 #ifdef __cplusplus
 }

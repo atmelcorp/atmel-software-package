@@ -1,0 +1,467 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:48
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\pio4.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pio4.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio4.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup pio_module Working with PIO
+     31           * \section Purpose
+     32           * The PIO driver provides the Interface for configuration the Parallel Input/Output
+     33           *  Controller (PIO).
+     34           *
+     35           * \section Usage
+     36           * <ul>
+     37           * <li>  Initialize the PIO with the desired period using pio_configure().
+     38           * <li>  Set a high or low output level on the given PIO using pio_set() or pio_clear().
+     39           * <li>  Get the level of the given PIOs using pio_get() or pio_get_output_date_status().
+     40           * <li>  Configures Glitch or Debouncing filter for given input PIO using pio_set_debounce_filter().
+     41           * <li>  Enable & disable write protect of the given PIOs using pio_enable_write_protect() or pio_disable_write_protect().
+     42           * <li>  Get write protect violation information of given PIO using pio_get_write_protect_violation_info().
+     43           * </li>
+     44           * </ul>
+     45           *
+     46           * For more accurate information, please look at the PIT section of the Datasheet.
+     47           *
+     48           * Related files :\n
+     49           * \ref pio.c\n
+     50           * \ref pio3.h\n
+     51          */
+     52          /*@{*/
+     53          /*@}*/
+     54          
+     55          /**
+     56           * \file
+     57           *
+     58           * Implementation of PIO V3 (Parallel Input/Output) controller.
+     59           *
+     60           */
+     61          /*----------------------------------------------------------------------------
+     62           *        Headers
+     63           *----------------------------------------------------------------------------*/
+     64          
+     65          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     66          #include "core/pio.h"
+     67          #include "core/pmc.h"
+     68          
+     69          #include <string.h>
+     70          #include <assert.h>
+     71          
+     72          /*----------------------------------------------------------------------------
+     73           *        Local define
+     74           *----------------------------------------------------------------------------*/
+     75          
+     76          struct _bitfield_pio_cfgr_func {
+     77          	uint32_t
+     78          	func		: 3,
+     79          	rfu3_7		: 5,
+     80          	dir		: 1,
+     81          	puen		: 1,
+     82          	pden		: 1,
+     83          	rfu11		: 1,
+     84          	ifen		: 1,
+     85          	ifscen		: 1,
+     86          	opd		: 1,
+     87          	schmitt		: 1,
+     88          	drvstr		: 2,
+     89          	rfu18_23	: 6,
+     90          	evtsel		: 3,
+     91          	rfu27_28	: 2,
+     92          	pcfs		: 1,
+     93          	icfs		: 1,
+     94          	tampen		: 1;
+     95          };
+     96          
+     97          union _pio_cfg {
+     98          	struct _bitfield_pio_cfgr_func bitfield;
+     99          	uint32_t uint32_value;
+    100          };
+    101          
+    102          /*----------------------------------------------------------------------------
+    103           *        Local functions
+    104           *----------------------------------------------------------------------------*/
+    105          
+    106          static inline uint32_t get_pio_id_from_group(uint32_t group) {
+    107          	switch(group) {
+    108          	case PIO_GROUP_A:
+    109          		return ID_PIOA;
+    110          	case PIO_GROUP_B:
+    111          		return ID_PIOB;
+    112          	case PIO_GROUP_C:
+    113          		return ID_PIOC;
+    114          	case PIO_GROUP_D:
+    115          		return ID_PIOD;
+    116          	default:
+    117          		return ID_PERIPH_COUNT;
+    118          	}
+    119          }
+    120          
+    121          /*----------------------------------------------------------------------------
+    122           *         Exported functions
+    123           *----------------------------------------------------------------------------*/
+    124          
+    125          /**
+    126           * \brief Configures a list of Pin instances, each of which can either hold a single
+    127           * pin or a group of pins, depending on the mask value; all pins are configured
+    128           * by this function. The size of the array must also be provided and is easily
+    129           * computed using PIO_LISTSIZE whenever its length is not known in advance.
+    130           *
+    131           * \param list  Pointer to a list of _pin instances.
+    132           * \param size  Size of the _pin list (calculated using PIN_LISTSIZE).
+    133           *
+    134           * \return 1 if the pins have been configured properly; otherwise 0.
+    135           */
+    136          
+    137          uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
+    138          {
+    139          	union _pio_cfg cfg;
+    140          	uint8_t group;
+    141          	PioIo_group* pioiog;
+    142          
+    143          	/* Configure pins */
+    144          	while (size--)
+    145          	{
+    146          		assert(pin_list->id < PIO_GROUP_LENGTH);
+    147          		cfg.uint32_value = 0;
+    148          		group = pin_list->id;
+    149          		pioiog = &pin_list->pio->PIO_IO_GROUP[group];
+    150          
+    151          		if ( pin_list->attribute != PIO_DEFAULT) {
+    152          			cfg.bitfield.puen = (pin_list->attribute & PIO_PULLUP)? 1:0 ;
+    153          			cfg.bitfield.pden = (pin_list->attribute & PIO_PULLDOWN)? 1:0 ;
+    154          			cfg.bitfield.ifen = (pin_list->attribute & PIO_DEGLITCH)? 1:0 ;
+    155          			cfg.bitfield.ifscen = (pin_list->attribute & PIO_FILTER_SLOW_CLOCK)? 1:0 ;
+    156          			cfg.bitfield.opd	= (pin_list->attribute & PIO_OPENDRAIN)? 1:0 ;
+    157          			cfg.bitfield.schmitt	= (pin_list->attribute & PIO_TRIGGER_DIS)? 1:0 ;
+    158          			cfg.bitfield.drvstr = pin_list->attribute & PIO_DRVSTR_Msk;
+    159          			cfg.bitfield.evtsel = pin_list->attribute & PIO_EVTSEL_Msk;
+    160          			cfg.bitfield.pcfs = (pin_list->attribute & PIO_PCFS_FREEZE)? 1:0 ;
+    161          			cfg.bitfield.icfs = (pin_list->attribute & PIO_ICFS_FREEZE)? 1:0 ;
+    162          			/* cfg.bitfield.tampen = (pin_list->attribute & PIO_TAMPEN_FREEZE)? 1:0 ; */
+    163          		}
+    164          
+    165          		switch ( pin_list->type ){
+    166          
+    167          		case PIO_PERIPH_A:
+    168          			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_A;
+    169          			break;
+    170          		case PIO_PERIPH_B:
+    171          			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_B;
+    172          			break;
+    173          		case PIO_PERIPH_C:
+    174          			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_C;
+    175          			break;
+    176          		case PIO_PERIPH_D:
+    177          			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_D;
+    178          			break;
+    179          		case PIO_PERIPH_E:
+    180          			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_E;
+    181          			break;
+    182          
+    183          		case PIO_GENERIC:
+    184          		case PIO_INPUT:
+    185          			cfg.bitfield.dir = 0;
+    186          			break;
+    187          
+    188          		case PIO_OUTPUT_0:
+    189          			cfg.bitfield.dir = 1;
+    190          			pio_clear(pin_list);
+    191          			break;
+    192          
+    193          		case PIO_OUTPUT_1:
+    194          			cfg.bitfield.dir = 1;
+    195          			pio_set(pin_list);
+    196          			break;
+    197          
+    198          		default:
+    199          		case PIO_PERIPH_F:
+    200          		case PIO_PERIPH_G:
+    201          			return 0;
+    202          		}
+    203          
+    204          		pioiog->PIO_MSKR = pin_list->mask;
+    205          		pioiog->PIO_CFGR = cfg.uint32_value;
+    206          
+    207          		/* Enable the PIO group if needed */
+    208          		uint32_t pio_group = get_pio_id_from_group(pin_list->id);
+    209          		pmc_enable_peripheral(pio_group);
+    210          
+    211          		++pin_list;
+    212          	}
+    213          	return 1;
+    214          }
+    215          
+    216          /**
+    217           * \brief Sets a high output level on all the PIOs defined in the given Pin instance.
+    218           * This has no immediate effects on PIOs that are not output, but the PIO
+    219           * controller will memorize the value they are changed to outputs.
+    220           *
+    221           * \param pin  Pointer to a Pin instance describing one or more pins.
+    222           */
+    223          void pio_set(const struct _pin *pin)
+    224          {
+    225          	assert(pin->id < PIO_GROUP_LENGTH);
+    226          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    227          	pioiog->PIO_SODR = pin->mask;
+    228          }
+    229          
+    230          /**
+    231           * \brief Sets a low output level on all the PIOs defined in the given Pin instance.
+    232           * This has no immediate effects on PIOs that are not output, but the PIO
+    233           * controller will memorize the value they are changed to outputs.
+    234           *
+    235           * \param pin  Pointer to a Pin instance describing one or more pins.
+    236           */
+    237          void pio_clear(const struct _pin *pin)
+    238          {
+    239          	assert(pin->id < PIO_GROUP_LENGTH);
+    240          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    241          	pioiog->PIO_CODR = pin->mask;
+    242          }
+    243          
+    244          /**
+    245           * \brief Returns 1 if one or more PIO of the given Pin instance currently have
+    246           * a high level; otherwise returns 0. This method returns the actual value that
+    247           * is being read on the pin. To return the supposed output value of a pin, use
+    248           * pio_get_output_date_status() instead.
+    249           *
+    250           * \param pin  Pointer to a Pin instance describing one or more pins.
+    251           *
+    252           * \return 1 if the Pin instance contains at least one PIO that currently has
+    253           * a high level; otherwise 0.
+    254           */
+    255          uint8_t pio_get(const struct _pin *pin)
+    256          {
+    257          	assert(pin->id < PIO_GROUP_LENGTH);
+    258              uint32_t reg ;
+    259          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    260          
+    261              if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
+    262          	reg = pioiog->PIO_ODSR ;
+    263              }
+    264              else {
+    265          	reg = pioiog->PIO_PDSR ;
+    266              }
+    267              if ( (reg & pin->mask) == 0 ) {
+    268          	return 0 ;
+    269              }
+    270              else {
+    271          	return 1 ;
+    272              }
+    273          }
+    274          
+    275          /**
+    276           * \brief Returns 1 if one or more PIO of the given Pin are configured to output a
+    277           * high level (even if they are not output).
+    278           * To get the actual value of the pin, use pio_get() instead.
+    279           *
+    280           * \param pin  Pointer to a Pin instance describing one or more pins.
+    281           *
+    282           * \return 1 if the Pin instance contains at least one PIO that is configured
+    283           * to output a high level; otherwise 0.
+    284           */
+    285          uint8_t pio_get_output_data_status(const struct _pin *pin)
+    286          {
+    287          	assert(pin->id < PIO_GROUP_LENGTH);
+    288          	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+    289          	if ((pioiog->PIO_ODSR & pin->mask) == 0) {
+    290          		return 0;
+    291          	}
+    292          	else {
+    293          		return 1;
+    294          	}
+    295          }
+    296          
+    297          /**
+    298           * \brief Configures Glitch or Debouncing filter for input.
+    299           *
+    300           * \param pin  Pointer to a Pin instance describing one or more pins.
+    301           * \param cuttoff  Cutt off frequency for debounce filter.
+    302           */
+    303          void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
+    304          {
+    305          	assert(pin->id < PIO_GROUP_LENGTH);
+    306          	Pio *pio = pin->pio;
+    307          	if (cuttoff == 0) {
+    308          	   pio->S_PIO_SCDR = 0;
+    309          	}
+    310          	else {
+    311          		/* the lowest 14 bits work */
+    312          		pio->S_PIO_SCDR = ((32678/(2*(cuttoff))) - 1) & 0x3FFF;
+    313          	}
+    314          }
+    315          
+    316          /**
+    317           * \brief Enable write protect.
+    318           *
+    319           * \param pin  Pointer to a Pin instance describing one or more pins.
+    320           */
+    321          void pio_enable_write_protect(const struct _pin *pin)
+    322          {
+    323          	assert(pin->id < PIO_GROUP_LENGTH);
+    324          	Pio *pio = pin->pio;
+    325          	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN  );
+    326          }
+    327          
+    328          /**
+    329           * \brief Disable write protect.
+    330           *
+    331           * \param pin  Pointer to a Pin instance describing one or more pins.
+    332           */
+    333          void pio_disable_write_protect(const struct _pin *pin)
+    334          {
+    335          	assert(pin->id < PIO_GROUP_LENGTH);
+    336          	Pio *pio = pin->pio;
+    337          	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS );
+    338          }
+    339          
+    340          /**
+    341           * \brief Get write protect violation information.
+    342           *
+    343           * \param pin  Pointer to a Pin instance describing one or more pins.
+    344           */
+    345          uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
+    346          {
+    347          	assert(pin->id < PIO_GROUP_LENGTH);
+    348          	Pio *pio = pin->pio;
+    349          	return pio->PIO_WPSR;
+    350          }
+    351          
+    352          /**
+    353           * \brief Configure all pio output low
+    354           *
+    355           * \param pio  Pointer to a Pio instance describing one or more pins.
+    356           * \param pioId PIO ID
+    357           * \param mask  Bitmask of one or more pin(s) to configure.
+    358           */
+    359          void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
+    360          {
+    361          }
+
+Errors: 11
+Warnings: 1

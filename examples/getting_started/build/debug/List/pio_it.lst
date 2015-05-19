@@ -1,0 +1,394 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  10:33:53
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio_it.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio_it.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D21
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\pio_it.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pio_it.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio_it.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file */
+     31          
+     32          /*----------------------------------------------------------------------------
+     33           *        Headers
+     34           *----------------------------------------------------------------------------*/
+     35          
+     36          #include "chip.h"
+     37          #include "core/pio_it.h"
+     38          #include "core/aic.h"
+     39          #include "core/pmc.h"
+     40          #include "utils/trace.h"
+     41          #include <assert.h>
+     42          
+     43          /*----------------------------------------------------------------------------
+     44           *        Local definitions
+     45           *----------------------------------------------------------------------------*/
+     46          
+     47          /* Maximum number of interrupt sources that can be defined. This
+     48           * constant can be increased, but the current value is the smallest possible
+     49           * that will be compatible with all existing projects. */
+     50          #define MAX_INTERRUPT_SOURCES       7
+     51          
+     52          /*----------------------------------------------------------------------------
+     53           *        Local types
+     54           *----------------------------------------------------------------------------*/
+     55          
+     56          /**
+     57           * Describes a PIO interrupt source, including the PIO instance triggering the
+     58           * interrupt and the associated interrupt handler.
+     59           */
+     60          typedef struct _InterruptSource {
+     61          	/* Pointer to the source pin instance. */
+     62          	const struct _pin *pPin;
+     63          
+     64          	/* Interrupt handler. */
+     65          	void (*handler) (const struct _pin *);
+     66          } InterruptSource;
+     67          
+     68          /*----------------------------------------------------------------------------
+     69           *        Local variables
+     70           *----------------------------------------------------------------------------*/
+     71          
+     72          /* List of interrupt sources. */
+     73          static InterruptSource _aIntSources[MAX_INTERRUPT_SOURCES];
+     74          
+     75          /* Number of currently defined interrupt sources. */
+     76          static uint32_t _dwNumSources = 0;
+     77          
+     78          /*----------------------------------------------------------------------------
+     79           *        Local Functions
+     80           *----------------------------------------------------------------------------*/
+     81          
+     82          /**
+     83           * \brief Handles all interrupts on the given PIO controller.
+     84           * \param id  PIO controller ID.
+     85           * \param pPio  PIO controller base address.
+     86           */
+     87          static void _pio_it_handlers(uint32_t id, Pio * pPio)
+     88          {
+     89          	uint32_t status;
+     90          	uint32_t i;
+     91          
+     92          	/* Read PIO controller status */
+     93          	status = pPio->PIO_ISR;
+                 	               ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_ISR"
+     94          	status &= pPio->PIO_IMR;
+                 	                ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_IMR"
+     95          
+     96          	/* Check pending events */
+     97          	if (status != 0) {
+     98          		TRACE_DEBUG("PIO interrupt on PIO controller #%d\n\r", id);
+     99          
+    100          		/* Find triggering source */
+    101          		i = 0;
+    102          		while (status != 0) {
+    103          			/* There cannot be an unconfigured source enabled. */
+    104          			assert(i < _dwNumSources);
+    105          
+    106          			/* Source is configured on the same controller */
+    107          			if (_aIntSources[i].pPin->id == id) {
+    108          				/* Source has PIOs whose statuses have changed */
+    109          				if ((status & _aIntSources[i].pPin->mask) != 0) {
+    110          					TRACE_DEBUG
+    111          					    ("Interrupt source #%d triggered\n\r",
+    112          					     i);
+    113          
+    114          					_aIntSources[i].handler(_aIntSources[i].
+    115          								pPin);
+    116          					status &= ~(_aIntSources[i].pPin->mask);
+    117          				}
+    118          			}
+    119          			i++;
+    120          		}
+    121          	}
+    122          }
+    123          
+    124          /*----------------------------------------------------------------------------
+    125           *        Global Functions
+    126           *----------------------------------------------------------------------------*/
+    127          
+    128          /**
+    129           * Generic PIO interrupt handler. Single entry point for interrupts coming
+    130           * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
+    131           * the user-configured handlers.
+    132           */
+    133          void pio_it_handlers(void)
+    134          {
+    135          	_pio_it_handlers(ID_PIOA, PIOA);
+    136          	_pio_it_handlers(ID_PIOB, PIOB);
+                 	                          ^
+Error[Pe020]: identifier "PIOB" is undefined
+    137          	_pio_it_handlers(ID_PIOC, PIOC);
+                 	                          ^
+Error[Pe020]: identifier "PIOC" is undefined
+    138          	_pio_it_handlers(ID_PIOD, PIOD);
+                 	                          ^
+Error[Pe020]: identifier "PIOD" is undefined
+    139          	_pio_it_handlers(ID_PIOE, PIOE);
+                 	                 ^
+Error[Pe020]: identifier "ID_PIOE" is undefined
+
+  	_pio_it_handlers(ID_PIOE, PIOE);
+  	                          ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\core\pio_it.c",139  Error[Pe020]: 
+          identifier "PIOE" is undefined
+    140          }
+    141          
+    142          /**
+    143           * \brief Initializes the PIO interrupt management logic
+    144           *
+    145           * The desired priority of PIO interrupts must be provided.
+    146           * Calling this function multiple times result in the reset of currently
+    147           * configured interrupts.
+    148           *
+    149           * \param dwPriority  PIO controller interrupts priority.
+    150           */
+    151          void
+    152          pio_initialize_it(uint32_t dwPriority)
+    153          {
+    154          	TRACE_DEBUG("PIO_Initialize()\n\r");
+    155          
+    156          	/* Reset sources */
+    157          	_dwNumSources = 0;
+    158          
+    159          	/* Configure PIO interrupt sources */
+    160          	TRACE_DEBUG("PIO_Initialize: Configuring PIOA\n\r");
+    161          	pmc_enable_peripheral(ID_PIOA);
+    162          	PIOA->PIO_ISR;
+                 	      ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_ISR"
+    163          	PIOA->PIO_IDR = 0xFFFFFFFF;
+                 	      ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_IDR"
+    164          	//IRQ_ConfigureIT(ID_PIOA, dwPriority, PIO_IT_InterruptHandler);
+    165          	aic_enable(ID_PIOA);
+    166          
+    167          	/* Configure PIO interrupt sources */
+    168          	TRACE_DEBUG("PIO_Initialize: Configuring PIOB\n\r");
+    169          	pmc_enable_peripheral(ID_PIOB);
+    170          	PIOB->PIO_ISR;
+                 	^
+Error[Pe020]: identifier "PIOB" is undefined
+    171          	PIOB->PIO_IDR = 0xFFFFFFFF;
+    172          	aic_enable(ID_PIOB);
+    173          
+    174          	/* Configure PIO interrupt sources */
+    175          	TRACE_DEBUG("PIO_Initialize: Configuring PIOC\n\r");
+    176          	pmc_enable_peripheral(ID_PIOC);
+    177          	PIOC->PIO_ISR;
+                 	^
+Error[Pe020]: identifier "PIOC" is undefined
+    178          	PIOC->PIO_IDR = 0xFFFFFFFF;
+    179          	//IRQ_ConfigureIT(ID_PIOC, dwPriority, PIO_IT_InterruptHandler);
+    180          	aic_enable(ID_PIOC);
+    181          
+    182          	/* Configure PIO interrupt sources */
+    183          	TRACE_DEBUG("PIO_Initialize: Configuring PIOD\n\r");
+    184          	pmc_enable_peripheral(ID_PIOD);
+    185          	PIOD->PIO_ISR;
+                 	^
+Error[Pe020]: identifier "PIOD" is undefined
+    186          	PIOD->PIO_IDR = 0xFFFFFFFF;
+    187          	//IRQ_ConfigureIT(ID_PIOD, dwPriority, PIO_IT_InterruptHandler);
+    188          	aic_enable(ID_PIOD);
+    189          
+    190          	/* Configure PIO interrupt sources */
+    191          	TRACE_DEBUG("PIO_Initialize: Configuring PIOC\n\r");
+    192          	pmc_enable_peripheral(ID_PIOE);
+                 	                      ^
+Error[Pe020]: identifier "ID_PIOE" is undefined
+    193          	PIOE->PIO_ISR;
+                 	^
+Error[Pe020]: identifier "PIOE" is undefined
+    194          	PIOE->PIO_IDR = 0xFFFFFFFF;
+    195          	//IRQ_ConfigureIT(ID_PIOE, dwPriority, PIO_IT_InterruptHandler);
+    196          	aic_enable(ID_PIOE);
+    197          }
+    198          
+    199          /**
+    200           * Configures a PIO or a group of PIO to generate an interrupt on status
+    201           * change. The provided interrupt handler will be called with the triggering
+    202           * pin as its parameter (enabling different pin instances to share the same
+    203           * handler).
+    204           * \param pPin  Pointer to a _pin instance.
+    205           */
+    206          void
+    207          pio_configure_it(const struct _pin * pPin)
+    208          {
+    209          	Pio *pio;
+    210          	InterruptSource *pSource;
+    211          
+    212          	TRACE_DEBUG("pio_configure_it()\n\r");
+    213          
+    214          	assert(pPin);
+    215          	pio = pPin->pio;
+    216          	assert(_dwNumSources < MAX_INTERRUPT_SOURCES);
+    217          
+    218          	pSource = &(_aIntSources[_dwNumSources]);
+    219          	pSource->pPin = pPin;
+    220          	_dwNumSources++;
+    221          
+    222          	/* PIO with additional interrupt support
+    223          	 * Configure additional interrupt mode registers */
+    224          	if (pPin->attribute & PIO_IT_AIME) {
+                 	                      ^
+Error[Pe020]: identifier "PIO_IT_AIME" is undefined
+    225          		/* enable additional interrupt mode */
+    226          		pio->PIO_AIMER = pPin->mask;
+                 		     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_AIMER"
+    227          
+    228          		/* if bit field of selected pin is 1, set as Rising Edge/High level detection event */
+    229          		if (pPin->attribute & PIO_IT_RE_OR_HL) {
+                 		                      ^
+Error[Pe020]: identifier "PIO_IT_RE_OR_HL" is undefined
+    230          			pio->PIO_REHLSR = pPin->mask;
+                 			     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_REHLSR"
+    231          		} else {
+    232          			pio->PIO_FELLSR = pPin->mask;
+                 			     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_FELLSR"
+    233          		}
+    234          
+    235          		/* if bit field of selected pin is 1, set as edge detection source */
+    236          		if (pPin->attribute & PIO_IT_EDGE)
+                 		                      ^
+Error[Pe020]: identifier "PIO_IT_EDGE" is undefined
+    237          			pio->PIO_ESR = pPin->mask;
+                 			     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_ESR"
+    238          		else
+    239          			pio->PIO_LSR = pPin->mask;
+                 			     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_LSR"
+    240          	} else {
+    241          		/* disable additional interrupt mode */
+    242          		pio->PIO_AIMDR = pPin->mask;
+                 		     ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_AIMDR"
+    243          	}
+    244          }
+    245          
+    246          /**
+    247           * Enables the given interrupt source if it has been configured. The status
+    248           * register of the corresponding PIO controller is cleared prior to enabling
+    249           * the interrupt.
+    250           * \param pPin  Interrupt source to enable.
+    251           */
+    252          void
+    253          pio_enable_it(const struct _pin * pPin)
+    254          {
+    255          	TRACE_DEBUG("pio_enable_it()\n\r");
+    256          
+    257          	assert(pPin != NULL);
+    258          
+    259          #ifndef NOASSERT
+    260          	uint32_t i = 0;
+    261          	uint32_t dwFound = 0;
+    262          
+    263          	while ((i < _dwNumSources) && !dwFound) {
+    264          		if (_aIntSources[i].pPin == pPin) {
+    265          			dwFound = 1;
+    266          		}
+    267          		i++;
+    268          	}
+    269          	assert(dwFound != 0);
+    270          #endif
+    271          
+    272          	pPin->pio->PIO_ISR;
+                 	           ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_ISR"
+    273          	pPin->pio->PIO_IER = pPin->mask;
+                 	           ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_IER"
+    274          }
+    275          
+    276          /**
+    277           * Disables a given interrupt source, with no added side effects.
+    278           *
+    279           * \param pPin  Interrupt source to disable.
+    280           */
+    281          void pio_disable_it(const struct _pin * pPin)
+    282          {
+    283          	assert(pPin != NULL);
+    284          
+    285          	TRACE_DEBUG("pio_enable_it()\n\r");
+    286          
+    287          	pPin->pio->PIO_IDR = pPin->mask;
+                 	           ^
+Error[Pe136]: struct "<unnamed>" has no field "PIO_IDR"
+    288          }
+
+Errors: 26
+Warnings: 1

@@ -1,0 +1,269 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:50
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\rstc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\rstc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\rstc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\rstc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\rstc.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file */
+     31          /*---------------------------------------------------------------------------
+     32           *         Headers
+     33           *---------------------------------------------------------------------------*/
+     34          
+     35          #include <chip.h>
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     36          #include "core/rstc.h"
+     37          
+     38          /*---------------------------------------------------------------------------
+     39           *         Defines
+     40           *---------------------------------------------------------------------------*/
+     41          
+     42          /** Keywords to write to the reset registers */
+     43          #define RSTC_KEY_PASSWORD           RSTC_MR_KEY(0xA5U)
+     44          
+     45          /*---------------------------------------------------------------------------
+     46           *         Exported functions
+     47           *---------------------------------------------------------------------------*/
+     48          
+     49          /**
+     50           * Configure the mode of the RSTC peripheral.
+     51           * The configuration is computed by the lib (RSTC_RMR_*).
+     52           * \param mr Desired mode configuration.
+     53           */
+     54          void
+     55          RSTC_ConfigureMode(uint32_t mr)
+     56          {
+     57          	Rstc *pHw = RSTC;
+     58          	mr &= ~RSTC_MR_KEY_Msk;
+     59          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+     60          }
+     61          
+     62          /**
+     63           * Enable/Disable the detection of a low level on the pin NRST as User Reset
+     64           * \param enable 1 to enable & 0 to disable.
+     65           */
+     66          void
+     67          RSTC_SetUserResetEnable(uint8_t enable)
+     68          {
+     69          	Rstc *pHw = RSTC;
+     70          	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+     71          	if (enable) {
+     72          		mr |= RSTC_MR_URSTEN;
+     73          	} else {
+     74          		mr &= ~RSTC_MR_URSTEN;
+     75          	}
+     76          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+     77          }
+     78          
+     79          /**
+     80           * Enable/Disable the interrupt of a User Reset (USRTS bit in RSTC_RST).
+     81           * \param enable 1 to enable & 0 to disable.
+     82           */
+     83          void
+     84          RSTC_SetUserResetInterruptEnable(uint8_t enable)
+     85          {
+     86          	Rstc *pHw = RSTC;
+     87          	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+     88          	if (enable) {
+     89          		mr |= RSTC_MR_URSTIEN;
+     90          	} else {
+     91          
+     92          		mr &= ~RSTC_MR_URSTIEN;
+     93          	}
+     94          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+     95          }
+     96          
+     97          /**
+     98           * Resets the processor.
+     99           */
+    100          void
+    101          RSTC_ProcessorReset(void)
+    102          {
+    103          	Rstc *pHw = RSTC;
+    104          	pHw->RSTC_CR = RSTC_CR_PROCRST | RSTC_KEY_PASSWORD;
+    105          }
+    106          
+    107          /**
+    108           * Resets the peripherals.
+    109           */
+    110          void
+    111          RSTC_PeripheralReset(void)
+    112          {
+    113          	Rstc *pHw = RSTC;
+    114          	pHw->RSTC_CR = RSTC_CR_PERRST | RSTC_KEY_PASSWORD;
+    115          }
+    116          
+    117          /**
+    118           * Return NRST pin level ( 1 or 0 ).
+    119           */
+    120          uint8_t
+    121          RSTC_GetNrstLevel(void)
+    122          {
+    123          	Rstc *pHw = RSTC;
+    124          	return ((pHw->RSTC_SR & RSTC_SR_NRSTL) > 0);
+    125          }
+    126          
+    127          /**
+    128           * Returns 1 if at least one high-to-low transition of NRST (User Reset) has
+    129           * been detected since the last read of RSTC_RSR.
+    130           */
+    131          uint8_t
+    132          RSTC_IsUserResetDetected(void)
+    133          {
+    134          	Rstc *pHw = RSTC;
+    135          	if (pHw->RSTC_SR & RSTC_SR_URSTS) {
+    136          		return 1;
+    137          	}
+    138          	return 0;
+    139          }
+    140          
+    141          /**
+    142           * Return 1 if a software reset command is being performed by the reset
+    143           * controller. The reset controller is busy.
+    144           */
+    145          uint8_t
+    146          RSTC_IsBusy(void)
+    147          {
+    148          	Rstc *pHw = RSTC;
+    149          	if (pHw->RSTC_SR & RSTC_SR_SRCMP) {
+    150          		return 1;
+    151          	}
+    152          	return 0;
+    153          }
+    154          
+    155          /**
+    156           * Get the status
+    157           */
+    158          uint32_t
+    159          RSTC_GetStatus(void)
+    160          {
+    161          	Rstc *pHw = RSTC;
+    162          	return (pHw->RSTC_SR);
+    163          }
+
+Errors: 11
+Warnings: 1

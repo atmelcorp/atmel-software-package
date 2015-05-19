@@ -1,0 +1,528 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:51
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\spi.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\spi.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\spi.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\spi.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\spi.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2011, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup spi_module Working with SPI
+     31           * \section Purpose
+     32           * The SPI driver provides the interface to configure and use the SPI
+     33           * peripheral.
+     34           *
+     35           * The Serial Peripheral Interface (SPI) circuit is a synchronous serial
+     36           * data link that provides communication with external devices in Master
+     37           * or Slave Mode.
+     38           *
+     39           * \section Usage
+     40           * To use the SPI, the user has to follow these few steps:
+     41           * -# Enable the SPI pins required by the application (see pio.h).
+     42           * -# Configure the SPI using the \ref spi_configure(). This enables the
+     43           *    peripheral clock. The mode register is loaded with the given value.
+     44           * -# Configure all the necessary chip selects with \ref spi_configure_npcs().
+     45           * -# Enable the SPI by calling \ref spi_enable().
+     46           * -# Send/receive data using \ref spi_write() and \ref spi_read(). Note that \ref spi_read()
+     47           *    must be called after \ref spi_write() to retrieve the last value read.
+     48           * -# Disable the SPI by calling \ref spi_disable().
+     49           *
+     50           * For more accurate information, please look at the SPI section of the
+     51           * Datasheet.
+     52           *
+     53           * Related files :\n
+     54           * \ref spi.c\n
+     55           * \ref spi.h\n
+     56          */
+     57          /*@{*/
+     58          /*@}*/
+     59          
+     60          /**
+     61           * \file
+     62           *
+     63           * Implementation of Serial Peripheral Interface (SPI) controller.
+     64           *
+     65           */
+     66          
+     67          /*----------------------------------------------------------------------------
+     68           *        Headers
+     69           *----------------------------------------------------------------------------*/
+     70          
+     71          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     72          
+     73          #include "bus/spi.h"
+     74          #include "core/pmc.h"
+     75          #include <stdint.h>
+     76          
+     77          #include <assert.h>
+     78          
+     79          #ifdef FIFO_ENABLED
+     80          static inline void _clear_fifo_control_flags(uint32_t* control_reg)
+     81          {
+     82          	*control_reg |= SPI_CR_TXFCLR | SPI_CR_RXFCLR | SPI_CR_FIFODIS;
+     83          }
+     84          #else
+     85          #define _clear_fifo_control_flags(dummy) do {} while(0)
+     86          #endif
+     87          
+     88          /*----------------------------------------------------------------------------
+     89           *        Exported functions
+     90           *----------------------------------------------------------------------------*/
+     91          
+     92          /**
+     93           * \brief Enables a SPI peripheral.
+     94           *
+     95           * \param spi  Pointer to an Spi instance.
+     96           */
+     97          void spi_enable(Spi * spi)
+     98          {
+     99          	spi->SPI_CR = SPI_CR_SPIEN;
+    100          }
+    101          
+    102          /**
+    103           * \brief Disables a SPI peripheral.
+    104           *
+    105           * \param spi  Pointer to an Spi instance.
+    106           */
+    107          void spi_disable(Spi * spi)
+    108          {
+    109          	spi->SPI_CR = SPI_CR_SPIDIS;
+    110          }
+    111          
+    112          /**
+    113           * \brief Enables one or more interrupt sources of a SPI peripheral.
+    114           *
+    115           * \param spi  Pointer to an Spi instance.
+    116           * \param dwSources Bitwise OR of selected interrupt sources.
+    117           */
+    118          void spi_enable_it(Spi * spi, uint32_t dwSources)
+    119          {
+    120          	spi->SPI_IER = dwSources;
+    121          }
+    122          
+    123          /**
+    124           * \brief Disables one or more interrupt sources of a SPI peripheral.
+    125           *
+    126           * \param spi  Pointer to an Spi instance.
+    127           * \param dwSources Bitwise OR of selected interrupt sources.
+    128           */
+    129          void spi_disable_it(Spi * spi, uint32_t dwSources)
+    130          {
+    131          	spi->SPI_IDR = dwSources;
+    132          }
+    133          
+    134          /**
+    135           * \brief Configures a SPI peripheral as specified. The configuration can be computed
+    136           * using several macros (see \ref spi_configuration_macros).
+    137           *
+    138           * \param spi  Pointer to an Spi instance.
+    139           * \param dwConfiguration  Value of the SPI configuration register.
+    140           */
+    141          void spi_configure(Spi * spi, uint32_t dwConfiguration)
+    142          {
+    143          	uint32_t spi_id = GET_SPI_ID_FROM_ADDR(spi);
+    144          	assert(spi_id != ID_PERIPH_COUNT);
+    145          	/* Enable device */
+    146          	pmc_enable_peripheral(spi_id);
+    147          	uint32_t control_reg = SPI_CR_SPIDIS;
+    148          	/* Add clear FIFO flags if present */
+    149          	_clear_fifo_control_flags(&control_reg);
+    150          	/* Apply */
+    151          	spi->SPI_CR = control_reg;
+    152          
+    153          	/* Execute a software reset of the SPI twice */
+    154          	spi->SPI_CR = SPI_CR_SWRST;
+    155          	spi->SPI_CR = SPI_CR_SWRST;
+    156          	spi->SPI_MR = dwConfiguration;
+    157          }
+    158          
+    159          /**
+    160           * \brief Configures SPI chip select.
+    161           *
+    162           * \param spi  Pointer to an Spi instance.
+    163           * \param cS  Chip select of NPSCx.
+    164           */
+    165          void spi_chip_select(Spi * spi, uint8_t cS)
+    166          {
+    167          	spi->SPI_MR |= SPI_MR_PCS_Msk;
+    168          	spi->SPI_MR &= ~(SPI_MR_PCS(cS));
+    169          }
+    170          
+    171          /**
+    172           * \brief Configures SPI Mode Register.
+    173           *
+    174           * \param spi  Pointer to an Spi instance.
+    175           * \param dwConfiguration  Value of the SPI mode register.
+    176           */
+    177          void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
+    178          {
+    179          	spi->SPI_MR = dwConfiguration;
+    180          }
+    181          
+    182          /**
+    183           * \brief Configures SPI to release last used CS line.
+    184           *
+    185           * \param spi  Pointer to an Spi instance.
+    186           */
+    187          void spi_release_cs(Spi * spi)
+    188          {
+    189          	spi->SPI_CR = SPI_CR_LASTXFER;
+    190          }
+    191          
+    192          /**
+    193           * \brief Configures a chip select of a SPI peripheral. The chip select configuration
+    194           * is computed using several macros (see \ref spi_configuration_macros).
+    195           *
+    196           * \param spi   Pointer to an Spi instance.
+    197           * \param dwNpcs  Chip select to configure (0, 1, 2 or 3).
+    198           * \param dwConfiguration  Desired chip select configuration.
+    199           */
+    200          void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration)
+    201          {
+    202          	spi->SPI_CSR[dwNpcs] = dwConfiguration;
+    203          }
+    204          
+    205          /**
+    206           * \brief Configures a chip select active mode of a SPI peripheral.
+    207           *
+    208           * \param spi   Pointer to an Spi instance.
+    209           * \param dwNpcs  Chip select to configure (0, 1, 2 or 3).
+    210           * \param bReleaseOnLast CS controlled by last transfer.
+    211           *                       spi_release_cs() is used to deactive CS.
+    212           */
+    213          void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs, uint32_t bReleaseOnLast)
+    214          {
+    215          	if (bReleaseOnLast) {
+    216          		spi->SPI_CSR[dwNpcs] |= SPI_CSR_CSAAT;
+    217          	} else {
+    218          		spi->SPI_CSR[dwNpcs] &= ~SPI_CSR_CSAAT;
+    219          	}
+    220          }
+    221          
+    222          /**
+    223           * \brief Get the current status register of the given SPI peripheral.
+    224           * \note This resets the internal value of the status register, so further
+    225           * read may yield different values.
+    226           * \param spi   Pointer to a Spi instance.
+    227           * \return  SPI status register.
+    228           */
+    229          extern uint32_t spi_get_status(Spi * spi)
+    230          {
+    231          	return spi->SPI_SR;
+    232          }
+    233          
+    234          /**
+    235           * \brief Reads and returns the last word of data received by a SPI peripheral. This
+    236           * method must be called after a successful spi_write call.
+    237           *
+    238           * \param spi  Pointer to an Spi instance.
+    239           *
+    240           * \return readed data.
+    241           */
+    242          extern uint32_t spi_read(Spi * spi)
+    243          {
+    244          	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
+    245          
+    246          	return spi->SPI_RDR & 0xFFFF;
+    247          }
+    248          
+    249          /**
+    250           * \brief Sends data through a SPI peripheral. If the SPI is configured to use a fixed
+    251           * peripheral select, the npcs value is meaningless. Otherwise, it identifies
+    252           * the component which shall be addressed.
+    253           *
+    254           * \param spi   Pointer to an Spi instance.
+    255           * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
+    256           * \param wData  Word of data to send.
+    257           */
+    258          void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+    259          {
+    260          	/* Send data */
+    261          	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
+    262          	spi->SPI_TDR = wData | SPI_PCS(dwNpcs);
+    263          	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
+    264          }
+    265          
+    266          /**
+    267           * \brief Sends last data through a SPI peripheral.
+    268           * If the SPI is configured to use a fixed peripheral select, the npcs value is
+    269           * meaningless. Otherwise, it identifies the component which shall be addressed.
+    270           *
+    271           * \param spi   Pointer to an Spi instance.
+    272           * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
+    273           * \param wData  Word of data to send.
+    274           */
+    275          void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+    276          {
+    277          	/* Send data */
+    278          	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
+    279          	spi->SPI_TDR = wData | SPI_PCS(dwNpcs) | SPI_TDR_LASTXFER;
+    280          	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
+    281          }
+    282          
+    283          /**
+    284           * \brief Check if SPI transfer finish.
+    285           *
+    286           * \param spi  Pointer to an Spi instance.
+    287           *
+    288           * \return Returns 1 if there is no pending write operation on the SPI; otherwise
+    289           * returns 0.
+    290           */
+    291          extern uint32_t spi_is_finished(Spi * spi)
+    292          {
+    293          	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
+    294          }
+    295          
+    296          #ifdef FIFO_ENABLED
+    297          void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
+    298          			uint8_t rx_thres,
+    299          			uint32_t ready_modes)
+    300          {
+    301          	/* Disable SPI and activate FIFO */
+    302          	spi->SPI_CR = SPI_CR_SPIDIS | SPI_CR_FIFOEN;
+    303          
+    304          	/* Configure FIFO */
+    305          	spi->SPI_FMR = SPI_FMR_TXFTHRES(tx_thres) | SPI_FMR_RXFTHRES(rx_thres)
+    306          		| ready_modes;
+    307          
+    308          	/* Reenable SPI */
+    309          	spi->SPI_CR = SPI_CR_SPIEN;
+    310          }
+    311          
+    312          void spi_fifo_disable(Spi* spi)
+    313          {
+    314          }
+    315          
+    316          uint32_t spi_fifo_rx_size(Spi *spi)
+    317          {
+    318          	return (spi->SPI_FLR & SPI_FLR_RXFL_Msk) >> SPI_FLR_RXFL_Pos;
+    319          }
+    320          
+    321          uint32_t spi_fifo_tx_size(Spi *spi)
+    322          {
+    323          	return (spi->SPI_FLR & SPI_FLR_TXFL_Msk) >> SPI_FLR_TXFL_Pos;
+    324          }
+    325          
+    326          static inline uint32_t spi_is_master(Spi* spi)
+    327          {
+    328          	return (spi->SPI_MR & SPI_MR_MSTR);
+    329          }
+    330          
+    331          static inline uint32_t spi_is_periph_select(Spi* spi)
+    332          {
+    333          	return (spi->SPI_MR & SPI_MR_PS);
+    334          }
+    335          
+    336          uint32_t spi_read_stream(Spi *spi, void *stream, uint32_t len)
+    337          {
+    338          	uint8_t* buffer = stream;
+    339          	uint32_t left = len;
+    340          
+    341          	uint8_t is_master = spi_is_master(spi);
+    342          	uint32_t max_size = is_master ? sizeof(uint16_t) : sizeof(uint32_t);
+    343          
+    344          	while (left > 0) {
+    345          		if ((spi->SPI_SR & SPI_SR_RDRF) == 0) continue;
+    346          
+    347          		/* Get FIFO size (in octets) and clamp it */
+    348          		uint32_t buf_size = spi_fifo_rx_size(spi);
+    349          		buf_size = buf_size > left ? left : buf_size;
+    350          
+    351          		/* Fill the buffer as must as possible with four data reads */
+    352          		while (buf_size >= max_size) {
+    353          			if (is_master)
+    354          				readhw(&spi->SPI_RDR, (uint16_t*)buffer);
+    355          			else
+    356          				*(uint32_t*)buffer = spi->SPI_RDR;
+    357          			buffer += max_size;
+    358          			left -= max_size;
+    359          			buf_size -= max_size;
+    360          		}
+    361          		/* Add tail data if stream is not 4 octet aligned */
+    362          		if (buf_size >= sizeof(uint16_t)) {
+    363          			/* two data read */
+    364          			readhw(&spi->SPI_RDR, (uint16_t*)buffer);
+    365          			left -= sizeof(uint16_t);
+    366          			buffer += sizeof(uint16_t);
+    367          			buf_size -= max_size;
+    368          		}
+    369          		if (buf_size >= sizeof(uint8_t)) {
+    370          			/* two data read */
+    371          			readb(&spi->SPI_RDR, (uint8_t*)buffer);
+    372          			left -= sizeof(uint16_t);
+    373          			buffer += sizeof(uint16_t);
+    374          		}
+    375          	}
+    376          	return len - left;
+    377          }
+    378          
+    379          uint32_t spi_write_stream(Spi *spi, uint32_t chip_select, const void *stream, uint32_t len)
+    380          {
+    381          	const uint8_t* buffer = stream;
+    382          	uint32_t left = len;
+    383          
+    384          	uint8_t is_ps = spi_is_periph_select(spi);
+    385          	uint32_t max_size = is_ps ? sizeof(uint16_t) : sizeof(uint32_t);
+    386          
+    387          	while (left > 0) {
+    388          		if ((spi->SPI_SR & SPI_SR_TDRE) == 0) continue;
+    389          
+    390          		/* Get FIFO free size (int octet) and clamp it */
+    391          		uint32_t buf_size = SPI_FIFO_DEPTH - spi_fifo_tx_size(spi);
+    392          		buf_size = buf_size > left ? left : buf_size;
+    393          
+    394          		/* Fill the FIFO as must as possible */
+    395          		while (buf_size >= max_size) {
+    396          			if (is_ps)
+    397          				spi->SPI_TDR = *(uint16_t*)buffer | SPI_PCS(chip_select)
+    398          					| (left == len ? SPI_TDR_LASTXFER : 0);
+    399          			else
+    400          				spi->SPI_TDR = *(uint32_t*)buffer;
+    401          			buffer += max_size;
+    402          			left -= max_size;
+    403          			buf_size -= max_size;
+    404          		}
+    405          		if (buf_size >= sizeof(uint16_t)) {
+    406          			spi->SPI_TDR = *(uint16_t*)buffer | SPI_PCS(chip_select)
+    407          				| (is_ps && (left == len) ? SPI_TDR_LASTXFER : 0);
+    408          			buffer += max_size;
+    409          			left -= sizeof(uint16_t);
+    410          			buf_size -= max_size;
+    411          		}
+    412          		if (buf_size >= sizeof(uint8_t)) {
+    413          			spi->SPI_TDR = *(uint8_t*)buffer | SPI_PCS(chip_select)
+    414          				| (is_ps && (left == len) ? SPI_TDR_LASTXFER : 0);
+    415          			buffer += max_size;
+    416          			left -= sizeof(uint16_t);
+    417          		}
+    418          	}
+    419          	return len - left;
+    420          }
+    421          
+    422          #endif
+
+Errors: 11
+Warnings: 1

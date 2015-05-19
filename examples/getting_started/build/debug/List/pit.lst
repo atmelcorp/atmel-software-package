@@ -1,0 +1,284 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:49
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\pit.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\time\pit.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\pit.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pit.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\time\pit.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup pit_module Working with PIT
+     31           * \section Purpose
+     32           * The PIT driver provides the Interface for configuration the Periodic
+     33           *  Interval Timer (PIT) peripheral.
+     34           *
+     35           * \section Usage
+     36           * <ul>
+     37           * <li>  Initialize the PIT with the desired period using pit_init().
+     38           *    Alternatively, the Periodic Interval Value (PIV) can be configured
+     39           *    manually using pit_set_piv(). </li>
+     40           * <li>  Start the PIT counting using pit_enable().
+     41           * <li>  Enable & disable the PIT interrupt using pit_enable_it() and
+     42           *    pit_disable_it(). </li>
+     43           * <li>  Retrieve the current status of the PIT using pit_get_status(). </li>
+     44           * <li>  To get the current value of the internal counter and the number of ticks
+     45           *    that have occurred, use either pit_get_pivr() or pit_get_piir() depending
+     46           *    on whether you want the values to be cleared or not. </li>
+     47           *
+     48           * </ul>
+     49           * For more accurate information, please look at the PIT section of the
+     50           * Datasheet.
+     51           *
+     52           * Related files :\n
+     53           * \ref pit.c\n
+     54           * \ref pit.h.\n
+     55          */
+     56          /*@{*/
+     57          /*@}*/
+     58          
+     59          /**
+     60           * \file
+     61           *
+     62           * Implementation of PIT (Periodic Interval Timer) controller.
+     63           *
+     64           */
+     65          /*------------------------------------------------------------------------------
+     66           *         Headers
+     67           *------------------------------------------------------------------------------*/
+     68          
+     69          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     70          #include "time/pit.h"
+     71          #include "core/pmc.h"
+     72          
+     73          /*------------------------------------------------------------------------------
+     74           *         Exported functions
+     75           *------------------------------------------------------------------------------*/
+     76          
+     77          /**
+     78          * \brief Initialize the Periodic Interval Timer to generate a tick at the
+     79          * specified period, given the current master clock frequency.
+     80          *
+     81          *  \param period  Period in uSecond.
+     82          *  \param pit_frequency  Master clock frequency in MHz.
+     83          */
+     84          
+     85          void pit_init(uint32_t period)
+     86          {
+     87          	uint32_t pit_frequency = pmc_get_peripheral_max_clock(ID_PIT) / 1000000;
+     88          	PIT->PIT_MR = period ? (period * pit_frequency + 8) >> 4 : 0;
+     89          	PIT->PIT_MR |= PIT_MR_PITEN;
+     90          }
+     91          
+     92          /**
+     93           * \brief Set the Periodic Interval Value of the PIT.
+     94           *
+     95           *  \param piv  PIV value to set.
+     96           */
+     97          void pit_set_piv(uint32_t piv)
+     98          {
+     99          	uint32_t dwMr = PIT->PIT_MR & (~PIT_MR_PIV_Msk);
+    100          	PIT->PIT_MR = dwMr | PIT_MR_PIV(piv);
+    101          }
+    102          
+    103          /**
+    104           * \brief Enables the PIT if this is not already the case.
+    105           *
+    106           */
+    107          void pit_enable(void)
+    108          {
+    109          	PIT->PIT_MR |= PIT_MR_PITEN;
+    110          }
+    111          
+    112          /**
+    113           * \brief Disnables the PIT when PIV value is reached.
+    114           *
+    115           */
+    116          void pit_disable(void)
+    117          {
+    118          	PIT->PIT_MR &= ~PIT_MR_PITEN;
+    119          }
+    120          
+    121          /**
+    122           * \brief Enable the PIT periodic interrupt.
+    123           *
+    124           */
+    125          void pit_enable_it(void)
+    126          {
+    127          	PIT->PIT_MR |= PIT_MR_PITIEN;
+    128          }
+    129          
+    130          /**
+    131           * \brief Disables the PIT periodic interrupt.
+    132           *
+    133           */
+    134          void pit_disable_it(void)
+    135          {
+    136          	PIT->PIT_MR &= ~PIT_MR_PITIEN;
+    137          }
+    138          
+    139          /**
+    140           * \brief Returns the value of the PIT mode register.
+    141           *
+    142           * \return PIT_MR value.
+    143           */
+    144          uint32_t pit_get_mode(void)
+    145          {
+    146          	return PIT->PIT_MR;
+    147          }
+    148          
+    149          /**
+    150           * \brief Returns the value of the PIT status register, clearing it as a side effect.
+    151           *
+    152           * \return PIT_SR value.
+    153           */
+    154          uint32_t pit_get_status(void)
+    155          {
+    156          	return PIT->PIT_SR;
+    157          }
+    158          
+    159          /**
+    160           * \brief Returns the value of the PIT Image Register, to read PICNT and CPIV without
+    161           *  clearing the current values.
+    162           *
+    163           * \return PIT_PIIR value.
+    164           */
+    165          uint32_t pit_get_piir(void)
+    166          {
+    167          	return PIT->PIT_PIIR;
+    168          }
+    169          
+    170          /**
+    171           * \brief Returns the value of the PIT Value Register, clearing it as a side effect.
+    172           *
+    173           * \return PITC_PIVR value.
+    174           */
+    175          uint32_t pit_get_pivr(void)
+    176          {
+    177          	return PIT->PIT_PIVR;
+    178          }
+
+Errors: 11
+Warnings: 1

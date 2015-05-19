@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -34,9 +34,11 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+
 #if defined(__ICCARM__)
 #include <intrinsics.h>
 #endif
+
 #include "core/cp15_pmu.h"
 #include "core/l2cc.h"
 
@@ -48,8 +50,7 @@
  * \brief Resets the counter and enables/disables all counters including PMCCNTR.
  * \param ResetCounterType  CounterType: Performance or Cycle counter
  */
-static void
-CP15_PMUControl(uint8_t ResetCounterType, uint8_t EnableCounter)
+static void cp15_pmu_control(uint8_t ResetCounterType, uint8_t EnableCounter)
 {
 	uint32_t PMU_Value = 0;
 
@@ -62,8 +63,7 @@ CP15_PMUControl(uint8_t ResetCounterType, uint8_t EnableCounter)
  * \brief Select Cycle Count divider
  * \param Divider  0 for increment of counter at every single cycle or 1 for at every 64th cycle
  */
-static void
-CP15_CycleCountDivider(uint8_t Divider)
+static void cp15_cycle_count_divider(uint8_t Divider)
 {
 	uint32_t PMU_Value = 0;
 
@@ -77,8 +77,7 @@ CP15_CycleCountDivider(uint8_t Divider)
 /**
  * \brief Enables PMCCNTR.
  */
-static void
-CP15_EnablePMCNT(void)
+static void cp15_enable_PMCNT(void)
 {
 	uint32_t CNT_Value = 0;
 
@@ -90,8 +89,7 @@ CP15_EnablePMCNT(void)
 /**
  * \brief Enables PMCCNTR.
  */
-static void
-CP15_EnableCounter(uint8_t Counter)
+static void cp15_enable_counter(uint8_t Counter)
 {
 	uint32_t CNT_Value = 0;
 
@@ -105,8 +103,7 @@ CP15_EnableCounter(uint8_t Counter)
  * \param Counter  0 or 1 to selct counter
  */
 
-static void
-CP15_ClearPMCNT(void)
+static void cp15_clear_PMCNT(void)
 {
 	uint32_t CNT_Value = 0;
 
@@ -120,8 +117,7 @@ CP15_ClearPMCNT(void)
  * \param Enable  Enables or disables the flag option
  * \param ClearCounterFlag  selects the counter flag to clear
  */
-void
-cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
+void cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
 {
 	uint32_t OFW_Value = 0;
 
@@ -134,8 +130,7 @@ cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
  * \brief Disables/Enables overflow flag.
  * \param EventCounter  Counter of the events
  */
-uint32_t
-cp15_read_overflow_status(uint8_t EventCounter)
+uint32_t cp15_read_overflow_status(uint8_t EventCounter)
 {
 	uint32_t OFW_Value = 0;
 
@@ -148,8 +143,7 @@ cp15_read_overflow_status(uint8_t EventCounter)
  * \brief Increments the count of a performance monitor count register.
  * \param IncrCounter  0 or 1  counters
  */
-void
-cp15_soft_incr(uint8_t IncrCounter)
+void cp15_soft_incr(uint8_t IncrCounter)
 {
 	uint32_t INRC_Value = 0;
 
@@ -163,8 +157,7 @@ cp15_soft_incr(uint8_t IncrCounter)
  * \param EventType  Select Event Type
  * \param Counter  0 or 1  counters
  */
-static void
-CP15_SelectEvent(PerfEventType EventType, uint8_t Counter)
+static void cp15_select_event(PerfEventType EventType, uint8_t Counter)
 {
 	uint32_t CounterSelect = 0;
 	assert((Counter == 1) || (Counter == 2));
@@ -180,8 +173,7 @@ CP15_SelectEvent(PerfEventType EventType, uint8_t Counter)
 /**
  * \brief Enables USER mode
  */
-void
-cp15_enable_user_mode(void)
+void cp15_enable_user_mode(void)
 {
 	uint8_t Value = 1;
       asm("mcr     p15, 0, %0, c9, c14, 0": :"r"(Value));
@@ -192,8 +184,7 @@ cp15_enable_user_mode(void)
  * \param Enable  Enables the Interrupt
  * \param Counter  0 or 1  counters
  */
-void
-cp15_enable_iterrupt(uint8_t Enable, uint8_t Counter)
+void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
 
@@ -206,8 +197,7 @@ cp15_enable_iterrupt(uint8_t Enable, uint8_t Counter)
  * \param Disable  Disables the Interrupt
  * \param Counter  0 or 1  counters
  */
-void
-cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
+void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
 
@@ -218,15 +208,14 @@ cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
 /**
  * \brief Initialize Cycle counter with Divider 64
  */
-uint32_t
-cp15_init_cycle_counter(void)
+uint32_t cp15_init_cycle_counter(void)
 {
 	uint32_t value;
-	CP15_ClearPMCNT();
-	CP15_EnablePMCNT();
+	cp15_clear_PMCNT();
+	cp15_enable_PMCNT();
 	cp15_overflow_status(ENABLE, CP15_BothCounter);
-	CP15_CycleCountDivider(CP15_CountDivider64);
-	CP15_PMUControl(CP15_ResetCycCounter, ENABLE);
+	cp15_cycle_count_divider(CP15_CountDivider64);
+	cp15_pmu_control(CP15_ResetCycCounter, ENABLE);
 
       asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
 
@@ -240,22 +229,20 @@ cp15_init_cycle_counter(void)
  * \param Counter  0 or 1  counters
  */
 
-void
-cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
+void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
 {
 
-	CP15_PMUControl(CP15_ResetPerCounter, ENABLE);
-	CP15_SelectEvent(Event, Counter);
+	cp15_pmu_control(CP15_ResetPerCounter, ENABLE);
+	cp15_select_event(Event, Counter);
 	cp15_overflow_status(DISABLE, CP15_BothCounter);
-	CP15_EnableCounter(Counter);
+	cp15_enable_counter(Counter);
 }
 
 /**
  * \brief gives total number of event count
  * \param Counter  0 or 1  counters
  */
-uint32_t
-cp15_count_evt(uint8_t Counter)
+uint32_t cp15_count_evt(uint8_t Counter)
 {
 	uint32_t value;
 
@@ -269,8 +256,7 @@ cp15_count_evt(uint8_t Counter)
  * \brief gives total number of cycle count
 
  */
-uint32_t
-cp15_get_cycle_counter(void)
+uint32_t cp15_get_cycle_counter(void)
 {
 	uint32_t value;
 

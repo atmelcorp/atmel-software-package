@@ -1,0 +1,326 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:49
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pwmc.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pwmc.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\pwmc.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\pwmc.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\pwmc.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2011, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup pwm_module Working with PWM
+     31           * \section Purpose
+     32           * The PWM driver provides the interface to configure and use the PWM
+     33           * peripheral.
+     34           *
+     35           * The PWM macrocell controls square output waveforms of 4 channels.
+     36           * Characteristics of output waveforms such as period, duty-cycle can be configured.\n
+     37           *
+     38           * Before enabling the channels, they must have been configured first.
+     39           * The main settings include:
+     40           * <ul>
+     41           * <li>Configuration of the clock generator.</li>
+     42           * <li>Selection of the clock for each channel.</li>
+     43           * <li>Configuration of output waveform characteristics, such as period, duty-cycle etc.</li>
+     44           * </ul>
+     45           *
+     46           * After the channels is enabled, the user must use respective update registers
+     47           * to change the wave characteristics to prevent unexpected output waveform.
+     48           * i.e. PWM_CUPDx register should be used if user want to change duty-cycle
+     49           * when the channel is enabled.
+     50           *
+     51           * \section Usage
+     52           * <ul>
+     53           * <li>  Configure PWM clock using PWMC_ConfigureClocks().
+     54           * <li>  Enable & disable given PWM channel using PWMC_EnableChannel() and PWMC_DisableChannel().
+     55           * <li>  Enable & disable interrupt of given PWM channel using PWMC_EnableChannelIt()
+     56           * and PWMC_DisableChannelIt().
+     57           * <li>  Set feature of the given PWM channel's output signal using PWMC_SetPeriod()
+     58           * and PWMC_SetDutyCycle().
+     59           * </li>
+     60           * </ul>
+     61           *
+     62           * For more accurate information, please look at the PWM section of the
+     63           * Datasheet.
+     64           *
+     65           * Related files :\n
+     66           * \ref pwmc.c\n
+     67           * \ref pwmc.h.\n
+     68           */
+     69          /*@{*/
+     70          /*@}*/
+     71          
+     72          /**
+     73           * \file
+     74           *
+     75           * Implementation of the Pulse Width Modulation Controller (PWM) peripheral.
+     76           *
+     77           */
+     78          
+     79          /*----------------------------------------------------------------------------
+     80           *        Headers
+     81           *----------------------------------------------------------------------------*/
+     82          
+     83          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     84          #include "core/pwmc.h"
+     85          
+     86          #include <stdint.h>
+     87          #include <assert.h>
+     88          
+     89          /*----------------------------------------------------------------------------
+     90           *        Exported functions
+     91           *----------------------------------------------------------------------------*/
+     92          
+     93          /**
+     94           * \brief Configures PWM clocks
+     95           * \param pPwm  Pointer to a Pwm instance
+     96           * \param mode  PWM clock source selection and divide factor.
+     97           */
+     98          void
+     99          PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode)
+    100          {
+    101          	pPwm->PWM_CLK = mode;
+    102          }
+    103          
+    104          /**
+    105           * \brief Enables the given PWM channel.
+    106           *
+    107           * This does NOT enable the corresponding pin;this must be done in the user code.
+    108           *
+    109           * \param pPwm  Pointer to a Pwm instance
+    110           * \param channel  Channel number.
+    111           */
+    112          void
+    113          PWMC_EnableChannel(Pwm * pPwm, uint8_t channel)
+    114          {
+    115          	pPwm->PWM_ENA = 0x1ul << channel;
+    116          }
+    117          
+    118          /**
+    119           * \brief Disables the given PWM channel.
+    120           *
+    121           * Beware, channel will be effectively disabled at the end of the current period.
+    122           * Application can check channel is disabled using the following wait loop:
+    123           * while ((PWM->PWM_SR & (1 << channel)) != 0);
+    124           *
+    125           * \param pPwm  Pointer to a Pwm instance
+    126           * \param channel  Channel number.
+    127           */
+    128          void
+    129          PWMC_DisableChannel(Pwm * pPwm, uint8_t channel)
+    130          {
+    131          	pPwm->PWM_DIS = 0x1ul << channel;
+    132          }
+    133          
+    134          /**
+    135           * \brief Enables the selected interrupts sources on a PWMC peripheral.
+    136           * \param pPwm  Pointer to a Pwm instance
+    137           * \param channel  Channel number.
+    138           */
+    139          void
+    140          PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel)
+    141          {
+    142          	pPwm->PWM_IER1 = 0x1ul << channel;
+    143          }
+    144          
+    145          /**
+    146           * \brief Disables the selected interrupts sources on a PWMC peripheral.
+    147           * \param pPwm  Pointer to a Pwm instance
+    148           * \param channel  Channel number.
+    149           */
+    150          void
+    151          PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel)
+    152          {
+    153          	pPwm->PWM_IDR1 = 0x1ul << channel;
+    154          }
+    155          
+    156          /**
+    157           * \brief Configures PWM a channel with the given parameters, basic configure function.
+    158           *
+    159           * The PWM controller must have been clocked in the PMC prior to calling this
+    160           * function.
+    161           * Beware: this function disables the channel. It waits until disable is effective.
+    162           *
+    163           * \param pPwm  Pointer to a Pwm instance
+    164           * \param channel  Channel number.
+    165           * \param mode  Channel mode.
+    166           */
+    167          void
+    168          PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel, uint32_t mode)
+    169          {
+    170          	pPwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+    171          }
+    172          
+    173          /**
+    174           * \brief Sets the period value used by a PWM channel.
+    175           *
+    176           * This function writes directly to the CPRD register if the channel is disabled;
+    177           * otherwise, it uses the update register CPRDUPD.
+    178           *
+    179           * \param pPwm  Pointer to a Pwm instance
+    180           * \param channel Channel number.
+    181           * \param period  Period value.
+    182           */
+    183          void
+    184          PWMC_SetPeriod(Pwm * pPwm, uint8_t channel, uint16_t period)
+    185          {
+    186          	/* If channel is disabled, write to CPRD */
+    187          	if ((pPwm->PWM_SR & (1 << channel)) == 0) {
+    188          		pPwm->PWM_CH_NUM[channel].PWM_CPRD = period;
+    189          	}
+    190          	/* Otherwise use update register */
+    191          	else {
+    192          		pPwm->PWM_CH_NUM[channel].PWM_CPRDUPD = period;
+    193          	}
+    194          }
+    195          
+    196          /**
+    197           * \brief Sets the duty cycle used by a PWM channel.
+    198           * This function writes directly to the CDTY register if the channel is disabled;
+    199           * otherwise it uses the update register CDTYUPD.
+    200           * Note that the duty cycle must always be inferior or equal to the channel
+    201           * period.
+    202           *
+    203           * \param pPwm  Pointer to a Pwm instance
+    204           * \param channel  Channel number.
+    205           * \param duty     Duty cycle value.
+    206           */
+    207          void
+    208          PWMC_SetDutyCycle(Pwm * pPwm, uint8_t channel, uint16_t duty)
+    209          {
+    210          	assert(duty <= pPwm->PWM_CH_NUM[channel].PWM_CPRD);
+    211          
+    212          	/* If channel is disabled, write to CDTY */
+    213          	if ((pPwm->PWM_SR & (1 << channel)) == 0) {
+    214          		pPwm->PWM_CH_NUM[channel].PWM_CDTY = duty;
+    215          	}
+    216          	/* Otherwise use update register */
+    217          	else {
+    218          		pPwm->PWM_CH_NUM[channel].PWM_CDTYUPD = duty;
+    219          	}
+    220          }
+
+Errors: 11
+Warnings: 1

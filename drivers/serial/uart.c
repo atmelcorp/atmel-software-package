@@ -104,7 +104,7 @@ void uart_put_char(Uart* pUart, unsigned char c)
 {
 	// Wait for the transmitter to be ready
 	while ((pUart->UART_SR & UART_SR_TXEMPTY) == 0);
-	// Send characterx
+	// Send character
 	pUart->UART_THR = c;
 }
 

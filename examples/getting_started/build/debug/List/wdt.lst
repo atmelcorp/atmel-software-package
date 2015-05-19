@@ -1,0 +1,259 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:53
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\wdt.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\core\wdt.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\wdt.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\wdt.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\core\wdt.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *        SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           * \file
+     32           *
+     33           * Implementation of Watchdog Timer (WDT) controller.
+     34           *
+     35           */
+     36          
+     37          /** \addtogroup wdt_module Working with WDT
+     38           * \section Purpose
+     39           * The WDT driver provides the interface to configure and use the WDT
+     40           * peripheral.
+     41           *
+     42           * The WDT can be used to prevent system lock-up if the software becomes
+     43           * trapped in a deadlock. It can generate a general reset or a processor
+     44           * reset only. It is clocked by slow clock divided by 128.
+     45           *
+     46           * The WDT is running at reset with 16 seconds watchdog period (slow clock at 32.768 kHz)
+     47           * and external reset generation enabled. The user must either disable it or
+     48           * reprogram it to meet the application requires.
+     49           *
+     50           * \section Usage
+     51           * To use the WDT, the user could follow these few steps:
+     52           * <ul>
+     53           * <li>Enable watchdog with given mode using \ref WDT_Enable().
+     54           * <li>Restart the watchdog using \ref WDT_Restart() within the watchdog period.
+     55           * </ul>
+     56           *
+     57           * For more accurate information, please look at the WDT section of the
+     58           * Datasheet.
+     59           *
+     60           * \note
+     61           * The Watchdog Mode Register (WDT_MR) can be written only once.\n
+     62           *
+     63           * Related files :\n
+     64           * \ref wdt.c\n
+     65           * \ref wdt.h.\n
+     66           */
+     67          /*@{*/
+     68          /*@}*/
+     69          
+     70          /*---------------------------------------------------------------------------
+     71           *        Headers
+     72           *---------------------------------------------------------------------------*/
+     73          
+     74          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     75          #include "core/wdt.h"
+     76          
+     77          #include <stdint.h>
+     78          
+     79          /*----------------------------------------------------------------------------
+     80           *        Exported functions
+     81           *----------------------------------------------------------------------------*/
+     82          
+     83          /**
+     84           * \brief Enable watchdog with given mode.
+     85           *
+     86           * \note The Watchdog Mode Register (WDT_MR) can be written only once.
+     87           * Only a processor reset resets it.
+     88           *
+     89           * \param pWDT  Pointer to an Wdt instance.
+     90           * \param dwMode   WDT mode to be set
+     91           */
+     92          void
+     93          WDT_Enable(Wdt * pWDT, uint32_t dwMode)
+     94          {
+     95          	pWDT->WDT_MR = dwMode;
+     96          }
+     97          
+     98          /**
+     99           * \brief Disable watchdog.
+    100           *
+    101           * \note The Watchdog Mode Register (WDT_MR) can be written only once.
+    102           * Only a processor reset resets it.
+    103           * \param pWDT  Pointer to an Wdt instance.
+    104           */
+    105          void
+    106          WDT_Disable(Wdt * pWDT)
+    107          {
+    108          	pWDT->WDT_MR = WDT_MR_WDDIS;
+    109          }
+    110          
+    111          /**
+    112           * \brief Watchdog restart.
+    113           * \param pWDT  Pointer to an Wdt instance.
+    114           */
+    115          void
+    116          WDT_Restart(Wdt * pWDT)
+    117          {
+    118          	pWDT->WDT_CR = 0xA5000001;
+    119          }
+    120          
+    121          /**
+    122           * \brief Watchdog get status.
+    123           * \param pWDT  Pointer to an Wdt instance.
+    124           */
+    125          extern uint32_t
+    126          WDT_GetStatus(Wdt * pWDT)
+    127          {
+    128          	return (pWDT->WDT_SR & 0x3);
+    129          }
+    130          
+    131          /**
+    132           * \brief Watchdog get status.
+    133           * \param pWDT  Pointer to an Wdt instance.
+    134           */
+    135          extern uint32_t
+    136          WDT_GetCounterValue(Wdt * pWDT)
+    137          {
+    138          	return (pWDT->WDT_MR & WDT_MR_WDV_Msk);
+    139          }
+    140          
+    141          /**
+    142           * \brief Watchdog get period.
+    143           *
+    144           * \param dwMs   desired watchdog period in millisecond.
+    145           */
+    146          extern uint32_t
+    147          WDT_GetPeriod(uint32_t dwMs)
+    148          {
+    149          	if ((dwMs < 4) || (dwMs > 16000)) {
+    150          		return 0;
+    151          	}
+    152          	return ((dwMs << 8) / 1000);
+    153          }
+
+Errors: 11
+Warnings: 1

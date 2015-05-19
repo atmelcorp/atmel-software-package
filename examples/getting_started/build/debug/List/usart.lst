@@ -1,0 +1,660 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:52
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\usart.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\usart.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\serial\usart.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup usart_module Working with USART
+     31           * \section Purpose
+     32           * The USART driver provides the interface to configure and use the USART peripheral.\n
+     33           *
+     34           * The USART supports several kinds of communication modes such as full-duplex asynchronous/
+     35           * synchronous serial communication,RS485 with driver control signal,ISO7816,SPI and Test modes.
+     36           *
+     37           * To start a USART transfer with \ref dmad_module "DMA" support, the user could follow these steps:
+     38           * <ul>
+     39           * <li> Configure USART with expected mode and baudrate(see \ref usart_configure), which could be done by:
+     40           * -# Resetting and disabling transmitter and receiver by setting US_CR(Control Register). </li>
+     41           * -# Configuring the USART in a specific mode by setting USART_MODE bits in US_MR(Mode Register) </li>
+     42           * -# Setting baudrate which is different from mode to mode.
+     43             </li>
+     44           * <li> Enable transmitter or receiver respectively by set US_CR_TXEN or US_CR_RXEN in US_CR.</li>
+     45           * <li> Read from or write to the peripheral with  \ref dmad_module </li>
+     46           * </ul>
+     47           *
+     48           * \section Usage
+     49           * <ul>
+     50           * <li>  Enable or disable USART transmitter or receiver using
+     51           * usart_set_transmitter_enabled() and usart_set_receiver_enabled().
+     52           * <li>  Enable or disable USART interrupt using usart_enable_it() or usart_disable_it().
+     53           * </li>
+     54           * </ul>
+     55           *
+     56           * For more accurate information, please look at the USART section of the
+     57           * Datasheet.
+     58           *
+     59           * Related files :\n
+     60           * \ref usart.c\n
+     61           * \ref usart.h\n
+     62          */
+     63          
+     64          /**
+     65           * \file
+     66           *
+     67           * Implementation of USART (Universal Synchronous Asynchronous Receiver Transmitter)
+     68           * controller.
+     69           *
+     70           */
+     71          /*-----------------------------------------------------------------------------
+     72          *         Headers
+     73           *---------------------------------------------------------------------------*/
+     74          
+     75          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     76          #include "resources/compiler_defines.h"
+     77          #include "serial/usart.h"
+     78          #include "core/pmc.h"
+     79          
+     80          #include "utils/trace.h"
+     81          
+     82          #include <assert.h>
+     83          #include <string.h>
+     84          
+     85          #ifdef FIFO_ENABLED
+     86          /* Clear FIFO related register if present. Dummy function otherwise. */
+     87          static inline void _clear_fifo_control_flags(uint32_t* control_reg)
+     88          {
+     89          	*control_reg |= US_CR_FIFODIS | US_CR_TXFCLR | US_CR_RXFCLR | US_CR_TXFLCLR;
+     90          }
+     91          #else
+     92          #define _clear_fifo_control_flags(dummy) do {} while(0)
+     93          #endif
+     94          /*----------------------------------------------------------------------------
+     95           *         Exported functions
+     96           *----------------------------------------------------------------------------*/
+     97          
+     98          /**
+     99           * \brief Configures an USART peripheral with the specified parameters.
+    100           *  \param usart  Pointer to the USART peripheral to configure.
+    101           *  \param mode  Desired value for the USART mode register (see the datasheet).
+    102           *  \param baudrate  Baudrate at which the USART should operate (in Hz).
+    103           *  \param clock  Frequency of the system master clock (in Hz).
+    104           */
+    105          void usart_configure(Usart *usart, uint32_t mode,
+    106          		     uint32_t baudrate)
+    107          {
+    108          	uint32_t clock = pmc_get_peripheral_max_clock(GET_USART_ID_FROM_ADDR(usart));
+    109          	/* Reset and disable receiver & transmitter */
+    110          	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+    111          	/* Reset and disable FIFO if present */
+    112          	_clear_fifo_control_flags(&control);
+    113          	/* apply */
+    114          	usart->US_CR = control;
+    115          	/* Configure mode */
+    116          	usart->US_MR = mode;
+    117          
+    118          	/* Configure baudrate */
+    119          	/* Asynchronous, no oversampling */
+    120          	if (((mode & US_MR_SYNC) == 0)
+    121          	    && ((mode & US_MR_OVER) == 0)) {
+    122          		usart->US_BRGR = (clock / baudrate) / 16;
+    123          	}
+    124          	if (((mode & US_MR_USART_MODE_SPI_MASTER) ==
+    125          	     US_MR_USART_MODE_SPI_MASTER) || ((mode & US_MR_SYNC) == US_MR_SYNC)) {
+    126          		if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_MCK) {
+    127          			usart->US_BRGR = clock / baudrate;
+    128          		} else {
+    129          			if ((mode & US_MR_USCLKS_DIV) == US_MR_USCLKS_DIV) {
+    130          				usart->US_BRGR = clock / baudrate / 8;
+    131          			}
+    132          		}
+    133          	}
+    134          	/* TODO other modes */
+    135          
+    136          	/* Disable all interrupts */
+    137          	usart->US_IDR = 0xFFFFFFFF;
+    138          
+    139          	/* Enable receiver and transmitter */
+    140          	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+    141          }
+    142          
+    143          /**
+    144           * \brief   Get present status
+    145           * \param usart  Pointer to an USART peripheral.
+    146           */
+    147          uint32_t usart_get_status(Usart *usart)
+    148          {
+    149          	return usart->US_CSR;
+    150          }
+    151          
+    152          /**
+    153           * \brief   Enable interrupt
+    154           * \param usart  Pointer to an USART peripheral.
+    155           * \param mode  Interrupt mode.
+    156           */
+    157          void usart_enable_it(Usart *usart, uint32_t mode)
+    158          {
+    159          	usart->US_IER = mode;
+    160          }
+    161          
+    162          /**
+    163           * \brief   Disable interrupt
+    164           * \param usart  Pointer to an USART peripheral.
+    165           * \param mode  Interrupt mode.
+    166           */
+    167          void usart_disable_it(Usart *usart, uint32_t mode)
+    168          {
+    169          	usart->US_IDR = mode;
+    170          }
+    171          
+    172          /**
+    173           * \brief   Return interrupt mask
+    174           * \param usart  Pointer to an USART peripheral.
+    175           */
+    176          uint32_t usart_get_it_mask(Usart *usart)
+    177          {
+    178          	return usart->US_IMR;
+    179          }
+    180          
+    181          /**
+    182           * \brief Enables or disables the transmitter of an USART peripheral.
+    183           * \param usart  Pointer to an USART peripheral
+    184           * \param enabled  If true, the transmitter is enabled; otherwise it is
+    185           *                disabled.
+    186           */
+    187          void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled)
+    188          {
+    189          	if (enabled) {
+    190          		usart->US_CR = US_CR_TXEN;
+    191          	} else {
+    192          		usart->US_CR = US_CR_TXDIS;
+    193          	}
+    194          }
+    195          
+    196          /**
+    197           * \brief Enables or disables the receiver of an USART peripheral
+    198           * \param usart  Pointer to an USART peripheral
+    199           * \param enabled  If true, the receiver is enabled; otherwise it is disabled.
+    200           */
+    201          void usart_set_receiver_enabled(Usart *usart, uint8_t enabled)
+    202          {
+    203          	if (enabled) {
+    204          		usart->US_CR = US_CR_RXEN;
+    205          	} else {
+    206          		usart->US_CR = US_CR_RXDIS;
+    207          	}
+    208          }
+    209          
+    210          /**
+    211           * \brief Enables or disables the Request To Send (RTS) of an USART peripheral
+    212           * \param usart  Pointer to an USART peripheral
+    213           * \param enabled  If true, the RTS is enabled (0); otherwise it is disabled.
+    214           */
+    215          void usart_set_rts_enabled(Usart *usart, uint8_t enabled)
+    216          {
+    217          	if (enabled) {
+    218          		usart->US_CR = US_CR_RTSEN;
+    219          	} else {
+    220          		usart->US_CR = US_CR_RTSDIS;
+    221          	}
+    222          }
+    223          
+    224          /**
+    225           * \brief Sends one packet of data through the specified USART peripheral. This
+    226           * function operates synchronously, so it only returns when the data has been
+    227           * actually sent.
+    228           * \param usart  Pointer to an USART peripheral.
+    229           * \param data  Data to send including 9nth bit and sync field if necessary (in
+    230           *        the same format as the US_THR register in the datasheet).
+    231           * \param timeOut  Time out value (0 = no timeout).
+    232           */
+    233          void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
+    234          {
+    235          	if (timeOut == 0) {
+    236          		while ((usart->US_CSR & US_CSR_TXRDY) == 0) ;
+    237          	} else {
+    238          		while ((usart->US_CSR & US_CSR_TXRDY) == 0) {
+    239          			if (timeOut == 0) {
+    240          				TRACE_ERROR("usart_write: Timed out.\n\r");
+    241          				return;
+    242          			}
+    243          			timeOut--;
+    244          		}
+    245          	}
+    246          	usart->US_THR = data;
+    247          }
+    248          
+    249          /**
+    250           * \brief  Reads and return a packet of data on the specified USART peripheral. This
+    251           * function operates asynchronously, so it waits until some data has been
+    252           * received.
+    253           * \param usart  Pointer to an USART peripheral.
+    254           * \param timeOut  Time out value (0 -> no timeout).
+    255           */
+    256          uint16_t usart_read(Usart *usart, volatile uint32_t timeOut)
+    257          {
+    258          	if (timeOut == 0) {
+    259          		while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
+    260          	} else {
+    261          		while ((usart->US_CSR & US_CSR_RXRDY) == 0) {
+    262          			if (timeOut == 0) {
+    263          				TRACE_ERROR("usart_read: Timed out.\n\r");
+    264          				return 0;
+    265          			}
+    266          			timeOut--;
+    267          		}
+    268          	}
+    269          	return usart->US_RHR;
+    270          }
+    271          
+    272          /**
+    273           * \brief  Returns 1 if some data has been received and can be read from an USART;
+    274           * otherwise returns 0.
+    275           * \param usart  Pointer to an USART instance.
+    276           */
+    277          uint8_t usart_is_data_available(Usart *usart)
+    278          {
+    279          	if ((usart->US_CSR & US_CSR_RXRDY) != 0) {
+    280          		return 1;
+    281          	} else {
+    282          		return 0;
+    283          	}
+    284          }
+    285          
+    286          /**
+    287           * \brief   Return 1 if a character can be read in USART
+    288           * \param usart  Pointer to an USART peripheral.
+    289           */
+    290          uint32_t usart_is_rx_ready(Usart *usart)
+    291          {
+    292          	return (usart->US_CSR & US_CSR_RXRDY);
+    293          }
+    294          
+    295          /**
+    296           * \brief  Sends one packet of data through the specified USART peripheral. This
+    297           * function operates synchronously, so it only returns when the data has been
+    298           * actually sent.
+    299           * \param usart  Pointer to an USART peripheral.
+    300           * \param c  Character to send
+    301           */
+    302          void usart_put_char(Usart *usart, uint8_t c)
+    303          {
+    304          	/* Wait for the transmitter to be ready */
+    305          	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+    306          	/* Send character */
+    307          	/* Force an octet write to avoid race conditions with FIFO mode */
+    308          	writeb(&usart->US_THR, c);
+    309          }
+    310          
+    311          /**
+    312           * \brief  Reads and returns a character from the USART.
+    313           * \note This function is synchronous (i.e. uses polling).
+    314           * \param usart  Pointer to an USART peripheral.
+    315           * \return Character received.
+    316           */
+    317          uint8_t usart_get_char(Usart *usart)
+    318          {
+    319          	while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
+    320          	/* Force an octet read to avoid race conditions with FIFO mode */
+    321          	uint8_t v;
+    322          	readb(&usart->US_RHR, &v);
+    323          	return v;
+    324          }
+    325          
+    326          /**
+    327           * \brief  Sets the filter value for the IRDA demodulator.
+    328           * \param usart  Pointer to an USART instance.
+    329           * \param filter  Filter value.
+    330           */
+    331          void usart_set_irda_filter(Usart *usart, uint8_t filter)
+    332          {
+    333          	assert(usart != NULL);
+    334          
+    335          	usart->US_IF = filter;
+    336          }
+    337          
+    338          
+    339          #ifdef FIFO_ENABLED
+    340          /**
+    341           * \brief Configure the FIFO of USART device
+    342           *
+    343           * \param usart Pointer to an USART instance.
+    344           * \param tx_thres
+    345           * \param rx_down_thres
+    346           * \param rx_up_thres
+    347           * \param ready_modes
+    348           */
+    349          void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
+    350          			  uint8_t rx_down_thres, uint8_t rx_up_thres,
+    351          			  uint32_t ready_modes)
+    352          {
+    353          	/* Disable transmitter & receiver */
+    354          	usart->US_CR = US_CR_RXDIS | US_CR_TXDIS;
+    355          	/* Enable FIFO */
+    356          	usart->US_CR = US_CR_FIFOEN;
+    357          	/* Configure FIFO */
+    358          	usart->US_FMR = US_FMR_TXFTHRES(tx_thres) | US_FMR_RXFTHRES(rx_down_thres)
+    359          		| US_FMR_RXFTHRES2(rx_up_thres) | ready_modes;
+    360          
+    361          	/* Disable all fifo related interrupts */
+    362          	usart->US_FIDR = 0xFFFFFFFF;
+    363          
+    364          	/* Reenable receiver & transmitter */
+    365          	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+    366          }
+    367          
+    368          /**
+    369           * \brief Disable the FIFO mode from the USART device
+    370           *
+    371           * \param usart Pointer to an USART instance.
+    372           * \note receiver and transmitter are reenabled.
+    373           */
+    374          void usart_fifo_disable(Usart *usart)
+    375          {
+    376          	/* Reset and disable receiver & transmitter */
+    377          	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+    378          	/* clear and disable FIFO */
+    379          	_clear_fifo_control_flags(&control);
+    380          	/* apply */
+    381          	usart->US_CR = control;
+    382          
+    383          	/* Reenable receiver & transmitter */
+    384          	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+    385          }
+    386          
+    387          /**
+    388           * \brief Enable FIFO related interrupts according to the given mask
+    389           *
+    390           * \param usart Pointer to an USART instance.
+    391           * \param interrupt_mask The mask to apply
+    392           */
+    393          void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask)
+    394          {
+    395          	usart->US_FIER = interrupt_mask;
+    396          }
+    397          
+    398          /**
+    399           * \brief Disable FIFO related interrupts according to the given mask
+    400           *
+    401           * \param usart Pointer to an USART instance.
+    402           * \param interrupt_mask The mask to apply
+    403           */
+    404          void usart_fifo_disable_it(Usart *usart, uint32_t interrupt_mask)
+    405          {
+    406          	usart->US_FIDR = interrupt_mask;
+    407          }
+    408          
+    409          /**
+    410           * \brief Retrive FIFO related interrupt mask.
+    411           *
+    412           * \param usart Pointer to an USART instance.
+    413           * \return current FIFO interrupt mask.
+    414           */
+    415          uint32_t usart_fifo_get_interrupts(Usart *usart)
+    416          {
+    417          	return usart->US_FIMR;
+    418          }
+    419          
+    420          
+    421          /**
+    422           * \brief Get the size occupied in the input FIFO of USART device.
+    423           *
+    424           * \param usart Pointer to an USART instance.
+    425           * \return Size occupied in the input FIFO (not read yet) in octet
+    426           */
+    427          uint32_t usart_fifo_rx_size(Usart *usart)
+    428          {
+    429          	return (usart->US_FLR & US_FLR_RXFL_Msk) >> US_FLR_RXFL_Pos;
+    430          }
+    431          
+    432          /**
+    433           * \brief Get the size occupied in the ouput FIFO of USART device.
+    434           *
+    435           * \param usart Pointer to an USART instance.
+    436           * \return Size occupied in the output FIFO (not sent yet) in octet
+    437           */
+    438          uint32_t usart_fifo_tx_size(Usart *usart)
+    439          {
+    440          	return (usart->US_FLR & US_FLR_TXFL_Msk) >> US_FLR_TXFL_Pos;
+    441          }
+    442          
+    443          /**
+    444           * \brief Reads from USART device input channel until the specified length is
+    445           * reached.
+    446           *
+    447           * \param usart Pointer to an USART instance.
+    448           * \param stream Pointer to the receive buffer.
+    449           * \param len Size of the receive buffer, in octets.
+    450           *
+    451           * \return Number of read octets
+    452           *
+    453           * \warning WORKS ONLY IN LITTLE ENDIAN MODE!
+    454           *
+    455           * \note The FIFO must be configured before using this function.
+    456           * \note In case of a TIMEOUT or a BREAK, a null character is appended to the
+    457           * buffer and the returned value should be inferior to \ref len.
+    458           */
+    459          uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
+    460          {
+    461          	uint8_t* buffer = stream;
+    462          	uint32_t left = len;
+    463          	while (left > 0) {
+    464          		/* Stop reception if a timeout or break occur */
+    465          		if ((usart->US_CSR & (US_CSR_TIMEOUT | US_CSR_RXBRK)) != 0) {
+    466          			*buffer = '\0';
+    467          			--left;
+    468          			break;
+    469          		}
+    470          
+    471          		if ((usart->US_CSR & US_CSR_RXRDY) == 0) continue;
+    472          
+    473          		/* Get FIFO size (in octets) and clamp it */
+    474          		uint32_t buf_size = usart_fifo_rx_size(usart);
+    475          		buf_size = buf_size > left ? left : buf_size;
+    476          
+    477          		/* Fill the buffer as must as possible with four data reads */
+    478          		while (buf_size >= sizeof(uint32_t)) {
+    479          			*(uint32_t*)buffer = usart->US_RHR;
+    480          			buffer += sizeof(uint32_t);
+    481          			left -= sizeof(uint32_t);
+    482          			buf_size -= sizeof(uint32_t);
+    483          		}
+    484          		/* Add tail data if stream is not 4 octet aligned */
+    485          		if (buf_size >= sizeof(uint16_t)) {
+    486          			/* two data read */
+    487          			readhw(&usart->US_RHR, (uint16_t*)buffer);
+    488          			left -= sizeof(uint16_t);
+    489          			buffer += sizeof(uint16_t);
+    490          		}
+    491          		if (buf_size >= sizeof(uint8_t)) {
+    492          			/* one data read */
+    493          			readb(&usart->US_RHR, buffer);
+    494          			left -= sizeof(uint8_t);
+    495          		}
+    496          	}
+    497          	return len - left;
+    498          }
+    499          
+    500          /**
+    501           * \brief Writes given data to USART device output channel until the specified
+    502           * length is reached.
+    503           *
+    504           * \param usart Pointer to an USART instance.
+    505           * \param stream Pointer to the data to send.
+    506           * \param len Size of the data to send, in octets.
+    507           *
+    508           * \return Number of written octets
+    509           *
+    510           * \warning WORKS ONLY IN LITTLE ENDIAN MODE!
+    511           *
+    512           * \note The FIFO must be configured before using this function.
+    513           * \note This function do not wait for the FIFO to be empty.
+    514           * \note In case of a TIMEOUT the transmission is aborted and the returned value
+    515           * should be inferior to \ref len.
+    516           */
+    517          uint32_t usart_write_stream(Usart *usart, const void *stream,
+    518          			    uint32_t len)
+    519          {
+    520          	const uint8_t* buffer = stream;
+    521          	uint32_t left = len;
+    522          
+    523          	while (left > 0) {
+    524          		if ((usart->US_CSR & US_CSR_TXRDY) == 0) continue;
+    525          
+    526          		/* Get FIFO free size (int octet) and clamp it */
+    527          		uint32_t buf_size = USART_FIFO_DEPTH - usart_fifo_tx_size(usart);
+    528          		buf_size = buf_size > left ? left : buf_size;
+    529          
+    530          		/* Fill the FIFO as must as possible with four data writes */
+    531          		while (buf_size >= sizeof(uint32_t)) {
+    532          			usart->US_THR = *(uint32_t*)buffer;
+    533          			buffer += sizeof(uint32_t);
+    534          			left -= sizeof(uint32_t);
+    535          			buf_size -= sizeof(uint32_t);
+    536          		}
+    537          		/* Add tail data if stream is not 4 octet aligned */
+    538          		if (buf_size >= sizeof(uint16_t)) {
+    539          			/* two data write */
+    540          			writehw(&usart->US_THR, *(uint16_t*)buffer);
+    541          			buffer += sizeof(uint16_t);
+    542          			left -= sizeof(uint16_t);
+    543          			buf_size -= sizeof(uint16_t);
+    544          		}
+    545          		if (buf_size >= sizeof(uint8_t)) {
+    546          			/* one data write */
+    547          			writeb(&usart->US_THR, *buffer);
+    548          			buffer += sizeof(uint8_t);
+    549          			left -= sizeof(uint8_t);
+    550          		}
+    551          	}
+    552          	return len - left;
+    553          }
+    554          #endif
+
+Errors: 11
+Warnings: 1

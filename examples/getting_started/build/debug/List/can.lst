@@ -1,0 +1,885 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:45
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\can.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\can.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\can.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\can.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\can.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2012, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \file
+     31           *  Implements functions for Controller Area Network (CAN)
+     32           *  peripheral operations.
+     33           */
+     34          /** \addtogroup can_module
+     35           *@{*/
+     36          
+     37          /*----------------------------------------------------------------------------
+     38           *        Headers
+     39           *----------------------------------------------------------------------------*/
+     40          
+     41          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     42          
+     43          #include <assert.h>
+     44          
+     45          #if defined(REG_CAN0_MR) || defined(REG_CAN_MR)
+     46          
+     47          /* ----------- CAN_MR Operations --------------- */
+     48          /**
+     49           * \brief Set CAN Mode Register (CAN_MR)
+     50           * \param pCan Pointer to Can instance.
+     51           * \param dwMr Mode register settings.
+     52           */
+     53          void
+     54          CAN_ConfigureMode(Can * pCan, uint32_t dwMr)
+     55          {
+     56          	pCan->CAN_MR = dwMr;
+     57          }
+     58          
+     59          /**
+     60           * \brief CAN Controller Enable/Disable
+     61           * \param pCan   Pointer to Can instance.
+     62           * \param bEnDis 1 to enable and 0 to disable.
+     63           */
+     64          void
+     65          CAN_Enable(Can * pCan, uint8_t bEnDis)
+     66          {
+     67          	if (bEnDis)
+     68          		pCan->CAN_MR |= CAN_MR_CANEN;
+     69          	else
+     70          		pCan->CAN_MR &= ~CAN_MR_CANEN;
+     71          }
+     72          
+     73          /**
+     74           * \brief CAN Low Power Mode Enable/Disable
+     75           * \param pCan   Pointer to Can instance.
+     76           * \param bEnDis 1 to enable and 0 to disable.
+     77           */
+     78          void
+     79          CAN_EnableLowPower(Can * pCan, uint8_t bEnDis)
+     80          {
+     81          	if (bEnDis)
+     82          		pCan->CAN_MR |= CAN_MR_LPM;
+     83          	else
+     84          		pCan->CAN_MR &= ~CAN_MR_LPM;
+     85          }
+     86          
+     87          /**
+     88           * \brief CAN Autobaud/Listen mode
+     89           * \param pCan   Pointer to Can instance.
+     90           * \param bEnDis 1 to enable and 0 to disable.
+     91           */
+     92          void
+     93          CAN_EnableAutobaud(Can * pCan, uint8_t bEnDis)
+     94          {
+     95          	if (bEnDis)
+     96          		pCan->CAN_MR |= CAN_MR_ABM;
+     97          	else
+     98          		pCan->CAN_MR &= ~CAN_MR_ABM;
+     99          }
+    100          
+    101          /**
+    102           * \brief CAN Overload Frame Enable/Disable
+    103           * \param pCan   Pointer to Can instance.
+    104           * \param bEnDis 1 to enable and 0 to disable.
+    105           */
+    106          void
+    107          CAN_EnableOverloadFrame(Can * pCan, uint8_t bEnDis)
+    108          {
+    109          	if (bEnDis)
+    110          		pCan->CAN_MR |= CAN_MR_OVL;
+    111          	else
+    112          		pCan->CAN_MR &= ~CAN_MR_OVL;
+    113          }
+    114          
+    115          /**
+    116           * \brief CAN Timestamp capture mode (@EOF/@SOF).
+    117           * \param pCan      Pointer to Can instance.
+    118           * \param bEofSof   1 for EOF/0 for SOF.
+    119           */
+    120          void
+    121          CAN_EnableTimeStampEof(Can * pCan, uint8_t bEofSof)
+    122          {
+    123          	if (bEofSof)
+    124          		pCan->CAN_MR |= CAN_MR_TEOF;
+    125          	else
+    126          		pCan->CAN_MR &= ~CAN_MR_TEOF;
+    127          }
+    128          
+    129          /**
+    130           * \brief CAN Time Triggered Mode Enable/Disable
+    131           * \param pCan      Pointer to Can instance.
+    132           * \param bEnDis    Enable/Disable Time Trigger Mode.
+    133           */
+    134          void
+    135          CAN_EnableTimeTriggerMode(Can * pCan, uint8_t bEnDis)
+    136          {
+    137          	if (bEnDis)
+    138          		pCan->CAN_MR |= CAN_MR_TTM;
+    139          	else
+    140          		pCan->CAN_MR &= ~CAN_MR_TTM;
+    141          }
+    142          
+    143          /**
+    144           * \brief CAN Timer Freeze Enable/Disable
+    145           * \param pCan      Pointer to Can instance.
+    146           * \param bEnDis    Enable/Disable Timer Freeze.
+    147           */
+    148          void
+    149          CAN_EnableTimerFreeze(Can * pCan, uint8_t bEnDis)
+    150          {
+    151          	if (bEnDis)
+    152          		pCan->CAN_MR |= CAN_MR_TIMFRZ;
+    153          	else
+    154          		pCan->CAN_MR &= ~CAN_MR_TIMFRZ;
+    155          }
+    156          
+    157          /**
+    158           * \brief CAN Repeat Disable/Enable.
+    159           * \param pCan      Pointer to Can instance.
+    160           * \param bEnDis    Disable/Enable Repeat.
+    161           */
+    162          void
+    163          CAN_DisableRepeat(Can * pCan, uint8_t bDisEn)
+    164          {
+    165          	if (bDisEn)
+    166          		pCan->CAN_MR |= CAN_MR_DRPT;
+    167          	else
+    168          		pCan->CAN_MR &= ~CAN_MR_DRPT;
+    169          }
+    170          
+    171          /* ---------- Interrupt settings ------------- */
+    172          
+    173          /**
+    174           * \brief CAN Interrupts Enable
+    175           * \param pCan      Pointer to Can instance.
+    176           * \param dwSources Interrupt sources bits.
+    177           */
+    178          void
+    179          CAN_EnableIt(Can * pCan, uint32_t dwSources)
+    180          {
+    181          	pCan->CAN_IER = dwSources;
+    182          }
+    183          
+    184          /**
+    185           * \brief CAN Interrupts Disable
+    186           * \param pCan      Pointer to Can instance.
+    187           * \param dwSources Interrupt sources bits.
+    188           */
+    189          void
+    190          CAN_DisableIt(Can * pCan, uint32_t dwSources)
+    191          {
+    192          	pCan->CAN_IDR = dwSources;
+    193          }
+    194          
+    195          /**
+    196           * \brief Return CAN Interrupts Masks
+    197           * \param pCan      Pointer to Can instance.
+    198           */
+    199          uint32_t
+    200          CAN_GetItMask(Can * pCan)
+    201          {
+    202          	return pCan->CAN_IMR;
+    203          }
+    204          
+    205          /**
+    206           * \brief Return CAN Statuses
+    207           * \param pCan      Pointer to Can instance.
+    208           */
+    209          uint32_t
+    210          CAN_GetStatus(Can * pCan)
+    211          {
+    212          	return pCan->CAN_SR;
+    213          }
+    214          
+    215          /**
+    216           * \brief Calculate and configure the baudrate
+    217           * \param pCan       Pointer to Can instance.
+    218           * \param dwBaudrate Baudrate value (kB/s)
+    219           *                   allowed: 100, 800, 500, 250, 125, 50, 25, 10
+    220           * \param dwMck      MCK.
+    221           * \return 1 in success, otherwise return 0.
+    222           */
+    223          uint8_t
+    224          CAN_CalcBaudrate(Can * pCan, uint32_t dwBaudrate, uint32_t dwMck)
+    225          {
+    226          	uint32_t BRP, PROPAG, PHASE1, PHASE2, SJW;
+    227          	uint8_t TQ;
+    228          	uint32_t t1t2;
+    229          	uint32_t maxClock;
+    230          	uint32_t id = ID_CAN0;
+    231          
+    232          	if ((uint32_t) pCan == (uint32_t) CAN0)
+    233          		id = ID_CAN0;
+    234          	else if ((uint32_t) pCan == (uint32_t) CAN1)
+    235          		id = ID_CAN1;
+    236          	maxClock = pmc_set_peripheral_max_clock(id, dwMck);
+    237          
+    238          	if (dwBaudrate >= 1000)
+    239          		TQ = 8;
+    240          	else
+    241          		TQ = 16;
+    242          	BRP = (maxClock / (dwBaudrate * 1000 * TQ)) - 1;
+    243          	if (BRP == 0) {
+    244          		return 0;
+    245          	}
+    246          
+    247          	/* Timing delay:
+    248          	   Delay Bus Driver     - 50ns
+    249          	   Delay Receiver       - 30ns
+    250          	   Delay Bus Line (20m) - 110ns */
+    251          	if ((TQ * dwBaudrate * 2 * (50 + 30 + 110) / 1000000) >= 1)
+    252          		PROPAG = (TQ * dwBaudrate * 2 * (50 + 30 + 110) / 1000000) - 1;
+    253          	else
+    254          		PROPAG = 0;
+    255          	t1t2 = TQ - 1 - (PROPAG + 1);
+    256          
+    257          	if ((t1t2 & 0x01) == 0x01) {
+    258          		PHASE1 = ((t1t2 - 1) / 2) - 1;
+    259          		PHASE2 = PHASE1 + 1;
+    260          	} else {
+    261          		PHASE1 = ((t1t2) / 2) - 1;
+    262          		PHASE2 = PHASE1;
+    263          	}
+    264          
+    265          	if (1 > (4 / (PHASE1 + 1)))
+    266          		SJW = 3;
+    267          	else
+    268          		SJW = PHASE1;
+    269          
+    270          	if ((PROPAG + PHASE1 + PHASE2) != (uint32_t) (TQ - 4)) {
+    271          		return 0;
+    272          	}
+    273          
+    274          	pCan->CAN_BR = CAN_BR_PHASE2(PHASE2)
+    275          	    | CAN_BR_PHASE1(PHASE1)
+    276          	    | CAN_BR_PROPAG(PROPAG)
+    277          	    | CAN_BR_SJW(SJW)
+    278          	    | CAN_BR_BRP(BRP)
+    279          	    | CAN_BR_SMP_ONCE;
+    280          	return 1;
+    281          }
+    282          
+    283          /**
+    284           * \brief Set CAN baudrate register
+    285           * \param pCan      Pointer to Can instance.
+    286           * \param dwBr      Setting value for CAN_BR.
+    287           */
+    288          void
+    289          CAN_ConfigureBaudrate(Can * pCan, uint32_t dwBr)
+    290          {
+    291          	pCan->CAN_BR = dwBr;
+    292          }
+    293          
+    294          /**
+    295           * \brief Set CAN Sampling Mode
+    296           * \param pCan      Pointer to Can instance.
+    297           * \param bAvg3     Sample 3 times/sample once at sample point.
+    298           */
+    299          void
+    300          CAN_SetSamplingMode(Can * pCan, uint8_t bAvg3)
+    301          {
+    302          	if (bAvg3)
+    303          		pCan->CAN_BR |= CAN_BR_SMP;
+    304          	else
+    305          		pCan->CAN_BR &= ~CAN_BR_SMP;
+    306          }
+    307          
+    308          /**
+    309           * \brief Return CAN Timer Register
+    310           * \param pCan      Pointer to Can instance.
+    311           */
+    312          uint32_t
+    313          CAN_GetTimer(Can * pCan)
+    314          {
+    315          	return pCan->CAN_TIM;
+    316          }
+    317          
+    318          /**
+    319           * \brief Return CAN TimeStamp Register
+    320           * \param pCan      Pointer to Can instance.
+    321           */
+    322          uint32_t
+    323          CAN_GetTimestamp(Can * pCan)
+    324          {
+    325          	return pCan->CAN_TIMESTP;
+    326          }
+    327          
+    328          /**
+    329           * \brief Return Error Count (TEC << 16) + REC
+    330           * \param pCan      Pointer to Can instance.
+    331           */
+    332          uint32_t
+    333          CAN_GetErrorCount(Can * pCan)
+    334          {
+    335          	return pCan->CAN_ECR;
+    336          }
+    337          
+    338          /**
+    339           * \brief Return Receive Error Count
+    340           * \param pCan      Pointer to Can instance.
+    341           */
+    342          uint32_t
+    343          CAN_GetRxErrorCount(Can * pCan)
+    344          {
+    345          	return (pCan->CAN_ECR & CAN_ECR_REC_Msk) >> CAN_ECR_REC_Pos;
+    346          }
+    347          
+    348          /**
+    349           * \brief Return Transmit Error Count
+    350           * \param pCan      Pointer to Can instance.
+    351           */
+    352          uint32_t
+    353          CAN_GetTxErrorCount(Can * pCan)
+    354          {
+    355          	return (pCan->CAN_ECR & CAN_ECR_TEC_Msk) >> CAN_ECR_TEC_Pos;
+    356          }
+    357          
+    358          /**
+    359           * \brief Set Transfer Command Register to initialize transfer requests.
+    360           * \param pCan       Pointer to Can instance.
+    361           * \param dwRequests Transfer Command Requests.
+    362           */
+    363          void
+    364          CAN_Command(Can * pCan, uint32_t dwRequests)
+    365          {
+    366          	pCan->CAN_TCR = dwRequests;
+    367          }
+    368          
+    369          /**
+    370           * \brief Resets CAN internal timer counter.
+    371           * \param pCan       Pointer to Can instance.
+    372           */
+    373          void
+    374          CAN_ResetTimer(Can * pCan)
+    375          {
+    376          	pCan->CAN_TCR = CAN_TCR_TIMRST;
+    377          }
+    378          
+    379          /**
+    380           * \brief Request transfer on mailbox.
+    381           * \param pCan       Pointer to Can instance.
+    382           * \param bMb        Mailbox number.
+    383           */
+    384          void
+    385          CAN_Tx(Can * pCan, uint8_t bMb)
+    386          {
+    387          	pCan->CAN_TCR = CAN_TCR_MB0 << bMb;
+    388          }
+    389          
+    390          /**
+    391           * \brief Abort transfer on several mailboxes.
+    392           * \param pCan       Pointer to Can instance.
+    393           * \param dwAborts   Abort requests.
+    394           */
+    395          void
+    396          CAN_Abort(Can * pCan, uint32_t dwAborts)
+    397          {
+    398          	pCan->CAN_ACR = dwAborts;
+    399          }
+    400          
+    401          /**
+    402           * \brief Abort transfer on single mailbox.
+    403           * \param pCan       Pointer to Can instance.
+    404           * \param bMb        Mailbox number.
+    405           */
+    406          void
+    407          CAN_AbortMailbox(Can * pCan, uint8_t bMb)
+    408          {
+    409          	pCan->CAN_ACR = CAN_ACR_MB0 << bMb;
+    410          }
+    411          
+    412          /**
+    413           * \brief Configure CAN Message Mode (_MMRx)
+    414           * \param pCan       Pointer to Can instance.
+    415           * \param bMb        Mailbox number.
+    416           * \param dwMr       Mode settings.
+    417           */
+    418          void
+    419          CAN_ConfigureMessageMode(Can * pCan, uint8_t bMb, uint32_t dwMr)
+    420          {
+    421          	pCan->CAN_MB[bMb].CAN_MMR = dwMr;
+    422          }
+    423          
+    424          /**
+    425           * \brief Return CAN Message Mode (_MMRx)
+    426           * \param pCan       Pointer to Can instance.
+    427           * \param bMb        Mailbox number.
+    428           */
+    429          uint32_t
+    430          CAN_GetMessageMode(Can * pCan, uint8_t bMb)
+    431          {
+    432          	return pCan->CAN_MB[bMb].CAN_MMR;
+    433          }
+    434          
+    435          /**
+    436           * \brief Set Mailbox Timemark for Time Triggered Mode.
+    437           * \param pCan       Pointer to Can instance.
+    438           * \param bMb        Mailbox number.
+    439           * \param bTimemarks Mailbox timemarks.
+    440           */
+    441          void
+    442          CAN_SetTimemark(Can * pCan, uint8_t bMb, uint8_t bTimemarks)
+    443          {
+    444          	uint32_t dwMmr = (pCan->CAN_MB[bMb].CAN_MMR) & (~0xFFu);
+    445          	pCan->CAN_MB[bMb].CAN_MMR = dwMmr | ((bTimemarks << 0) & 0xFF);
+    446          }
+    447          
+    448          /**
+    449           * \brief Set Mailbox Priority.
+    450           * \param pCan       Pointer to Can instance.
+    451           * \param bMb        Mailbox number.
+    452           * \param bPriority  Mailbox Priority.
+    453           */
+    454          void
+    455          CAN_SetPriority(Can * pCan, uint8_t bMb, uint8_t bPriority)
+    456          {
+    457          	uint32_t dwMmr = (pCan->CAN_MB[bMb].CAN_MMR & ~CAN_MMR_PRIOR_Msk);
+    458          	pCan->CAN_MB[bMb].CAN_MMR = dwMmr | CAN_MMR_PRIOR(bPriority);
+    459          }
+    460          
+    461          /**
+    462           * \brief Set Mailbox Object Type.
+    463           * \param pCan       Pointer to Can instance.
+    464           * \param bMb        Mailbox number.
+    465           * \param bType      Mailbox Object Type.
+    466           */
+    467          void
+    468          CAN_SetObjectType(Can * pCan, uint8_t bMb, uint8_t bType)
+    469          {
+    470          	uint32_t dwMr =
+    471          	    (pCan->CAN_MB[bMb].CAN_MMR & CAN_MMR_MOT_Msk) >> CAN_MMR_MOT_Pos;
+    472          	pCan->CAN_MB[bMb].CAN_MMR |=
+    473          	    dwMr | ((bType << CAN_MMR_MOT_Pos) & CAN_MMR_MOT_Msk);
+    474          }
+    475          
+    476          /**
+    477           * \brief Configure CAN Message Acceptance Mask (_MAMx)
+    478           * \param pCan       Pointer to Can instance.
+    479           * \param bMb        Mailbox number.
+    480           * \param dwMam      The setting value for _MAMx.
+    481           */
+    482          void
+    483          CAN_ConfigureMessageAcceptanceMask(Can * pCan, uint8_t bMb, uint32_t dwMAM)
+    484          {
+    485          	pCan->CAN_MB[bMb].CAN_MAM = dwMAM;
+    486          }
+    487          
+    488          /**
+    489           * \brief Return CAN Message Acceptance Mask (_MAMx)
+    490           * \param pCan       Pointer to Can instance.
+    491           * \param bMb        Mailbox number.
+    492           */
+    493          uint32_t
+    494          CAN_GetMessageAcceptanceMask(Can * pCan, uint8_t bMb)
+    495          {
+    496          	return pCan->CAN_MB[bMb].CAN_MAM;
+    497          }
+    498          
+    499          /**
+    500           * \brief Configure Identifier Version in CAN Message Acceptance Mask (_MAMx)
+    501           * \param pCan       Pointer to Can instance.
+    502           * \param bMb        Mailbox number.
+    503           * \param bIdCfg     IDvA and IDvB/IDvA only Identify.
+    504           */
+    505          void
+    506          CAN_ConfigureIdentifierMask(Can * pCan, uint8_t bMb, uint8_t bIdCfg)
+    507          {
+    508          	if (bIdCfg)
+    509          		pCan->CAN_MB[bMb].CAN_MAM |= CAN_MAM_MIDE;
+    510          	else
+    511          		pCan->CAN_MB[bMb].CAN_MAM &= ~CAN_MAM_MIDE;
+    512          }
+    513          
+    514          /**
+    515           * \brief Set Identifier for standard frame mode (MIDvA) mask
+    516           * \param pCan       Pointer to Can instance.
+    517           * \param bMb        Mailbox number.
+    518           * \param dwMIDvA    Identifier for standard frame mode.
+    519           */
+    520          void
+    521          CAN_SetMIDvAMask(Can * pCan, uint8_t bMb, uint32_t dwIDvA)
+    522          {
+    523          	uint32_t dwMam = pCan->CAN_MB[bMb].CAN_MAM & CAN_MAM_MIDvA_Msk;
+    524          	pCan->CAN_MB[bMb].CAN_MAM = dwMam | CAN_MAM_MIDvA(dwIDvA);
+    525          }
+    526          
+    527          /**
+    528           * \brief Set Complementary bits for identifier in extended frame mode (MIDvB) mask
+    529           * \param pCan       Pointer to Can instance.
+    530           * \param bMb        Mailbox number.
+    531           * \param dwMIDvB    Identifier for extended frame mode.
+    532           */
+    533          void
+    534          CAN_SetMIDvBMask(Can * pCan, uint8_t bMb, uint32_t dwIDvA)
+    535          {
+    536          	uint32_t dwMam = pCan->CAN_MB[bMb].CAN_MAM & CAN_MAM_MIDvB_Msk;
+    537          	pCan->CAN_MB[bMb].CAN_MAM = dwMam | CAN_MAM_MIDvB(dwIDvA);
+    538          }
+    539          
+    540          /**
+    541           * \brief Configure CAN Message ID (_MIDx)
+    542           * \param pCan       Pointer to Can instance.
+    543           * \param bMb        Mailbox number.
+    544           * \param dwMID      The setting value for _MIDx.
+    545           */
+    546          void
+    547          CAN_ConfigureMessageID(Can * pCan, uint8_t bMb, uint32_t dwMID)
+    548          {
+    549          	pCan->CAN_MB[bMb].CAN_MID = dwMID;
+    550          }
+    551          
+    552          /**
+    553           * \brief Return CAN Message ID (_MIDx)
+    554           * \param pCan       Pointer to Can instance.
+    555           * \param bMb        Mailbox number.
+    556           */
+    557          uint32_t
+    558          CAN_GetMessageID(Can * pCan, uint8_t bMb)
+    559          {
+    560          	return pCan->CAN_MB[bMb].CAN_MID;
+    561          }
+    562          
+    563          /**
+    564           * \brief Configure Identifier Version in CAN Message ID register (_MIDx)
+    565           * \param pCan       Pointer to Can instance.
+    566           * \param bMb        Mailbox number.
+    567           * \param bIdVer     2.0 Part B/2.0 Part A.
+    568           */
+    569          void
+    570          CAN_ConfigureIdVer(Can * pCan, uint8_t bMb, uint8_t bIdVer)
+    571          {
+    572          	uint32_t dwMid = pCan->CAN_MB[bMb].CAN_MID & CAN_MID_MIDE;
+    573          	pCan->CAN_MB[bMb].CAN_MID = dwMid | (bIdVer ? CAN_MID_MIDE : 0);
+    574          }
+    575          
+    576          /**
+    577           * \brief Set Identifier for standard frame mode (MIDvA) value
+    578           * \param pCan       Pointer to Can instance.
+    579           * \param bMb        Mailbox number.
+    580           * \param dwMIDvA    Identifier for standard frame mode.
+    581           */
+    582          void
+    583          CAN_SetMIDvA(Can * pCan, uint8_t bMb, uint32_t dwIDvA)
+    584          {
+    585          	uint32_t dwMam = pCan->CAN_MB[bMb].CAN_MID & CAN_MID_MIDvA_Msk;
+    586          	pCan->CAN_MB[bMb].CAN_MID = dwMam | CAN_MID_MIDvA(dwIDvA);
+    587          }
+    588          
+    589          /**
+    590           * \brief Set Complementary bits for identifier in extended frame mode (MIDvB) value
+    591           * \param pCan       Pointer to Can instance.
+    592           * \param bMb        Mailbox number.
+    593           * \param dwMIDvB    Identifier for extended frame mode.
+    594           */
+    595          void
+    596          CAN_SetMIDvB(Can * pCan, uint8_t bMb, uint32_t dwIDvA)
+    597          {
+    598          	uint32_t dwMam = pCan->CAN_MB[bMb].CAN_MID & CAN_MID_MIDvB_Msk;
+    599          	pCan->CAN_MB[bMb].CAN_MID = dwMam | CAN_MID_MIDvB(dwIDvA);
+    600          }
+    601          
+    602          /**
+    603           * \brief Return CAN Message Family ID (Masked ID)
+    604           * \param pCan       Pointer to Can instance.
+    605           * \param bMb        Mailbox number.
+    606           */
+    607          uint32_t
+    608          CAN_GetFamilyID(Can * pCan, uint8_t bMb)
+    609          {
+    610          	return pCan->CAN_MB[bMb].CAN_MFID;
+    611          }
+    612          
+    613          /**
+    614           * \brief Return CAN Message Status
+    615           * \param pCan       Pointer to Can instance.
+    616           * \param bMb        Mailbox number.
+    617           */
+    618          uint32_t
+    619          CAN_GetMessageStatus(Can * pCan, uint8_t bMb)
+    620          {
+    621          	return pCan->CAN_MB[bMb].CAN_MSR;
+    622          }
+    623          
+    624          /**
+    625           * \brief Return CAN Message Data Low
+    626           * \param pCan       Pointer to Can instance.
+    627           * \param bMb        Mailbox number.
+    628           */
+    629          uint32_t
+    630          CAN_GetMessageDataL(Can * pCan, uint8_t bMb)
+    631          {
+    632          	return pCan->CAN_MB[bMb].CAN_MDL;
+    633          }
+    634          
+    635          /**
+    636           * \brief Set CAN Message Data Low
+    637           * \param pCan       Pointer to Can instance.
+    638           * \param bMb        Mailbox number.
+    639           * \param dwL        Data Low Value.
+    640           */
+    641          void
+    642          CAN_SetMessageDataL(Can * pCan, uint8_t bMb, uint32_t dwL)
+    643          {
+    644          	pCan->CAN_MB[bMb].CAN_MDL = dwL;
+    645          }
+    646          
+    647          /**
+    648           * \brief Set CAN Message Data High
+    649           * \param pCan       Pointer to Can instance.
+    650           * \param bMb        Mailbox number.
+    651           * \param dwH        Data High Value.
+    652           */
+    653          void
+    654          CAN_SetMessageDataH(Can * pCan, uint8_t bMb, uint32_t dwH)
+    655          {
+    656          	pCan->CAN_MB[bMb].CAN_MDH = dwH;
+    657          }
+    658          
+    659          /**
+    660           * \brief Return CAN Message Data High
+    661           * \param pCan       Pointer to Can instance.
+    662           * \param bMb        Mailbox number.
+    663           */
+    664          uint32_t
+    665          CAN_GetMessageDataH(Can * pCan, uint8_t bMb)
+    666          {
+    667          	return pCan->CAN_MB[bMb].CAN_MDH;
+    668          }
+    669          
+    670          /**
+    671           * \brief Copy DW array to CAN Message Data.
+    672           * \param pCan       Pointer to Can instance.
+    673           * \param bMb        Mailbox number.
+    674           * \param pDwData    Pointer to a buffer for data.
+    675           */
+    676          void
+    677          CAN_SetMessage(Can * pCan, uint8_t bMb, uint32_t * pDwData)
+    678          {
+    679          	pCan->CAN_MB[bMb].CAN_MDL = pDwData[0];
+    680          	pCan->CAN_MB[bMb].CAN_MDH = pDwData[1];
+    681          }
+    682          
+    683          /**
+    684           * \brief Copy CAN Message Data to DW array.
+    685           * \param pCan       Pointer to Can instance.
+    686           * \param bMb        Mailbox number.
+    687           * \param pDwData    Pointer to a buffer for data.
+    688           */
+    689          void
+    690          CAN_GetMessage(Can * pCan, uint8_t bMb, uint32_t * pDwData)
+    691          {
+    692          	pDwData[0] = pCan->CAN_MB[bMb].CAN_MDL;
+    693          	pDwData[1] = pCan->CAN_MB[bMb].CAN_MDH;
+    694          }
+    695          
+    696          /**
+    697           * \brief Set CAN Message Data in u64
+    698           * \param pCan       Pointer to Can instance.
+    699           * \param bMb        Mailbox number.
+    700           */
+    701          void
+    702          CAN_SetMessageData64(Can * pCan, uint8_t bMb, uint64_t u64)
+    703          {
+    704          	pCan->CAN_MB[bMb].CAN_MDL = (uint32_t) u64;
+    705          	pCan->CAN_MB[bMb].CAN_MDH = (u64 >> 32);
+    706          }
+    707          
+    708          /**
+    709           * \brief Return CAN Message Data in u64
+    710           * \param pCan       Pointer to Can instance.
+    711           * \param bMb        Mailbox number.
+    712           */
+    713          uint64_t
+    714          CAN_GetMessageData64(Can * pCan, uint8_t bMb)
+    715          {
+    716          	uint64_t ddwMd = (uint64_t) pCan->CAN_MB[bMb].CAN_MDH << 32;
+    717          	ddwMd += pCan->CAN_MB[bMb].CAN_MDL;
+    718          	return ddwMd;
+    719          }
+    720          
+    721          /**
+    722           * \brief Set CAN Message Control Register (_MCRx).
+    723           * \param pCan       Pointer to Can instance.
+    724           * \param bMb        Mailbox number.
+    725           * \param dwCtrl     Control value.
+    726           */
+    727          void
+    728          CAN_MessageControl(Can * pCan, uint8_t bMb, uint32_t dwCtrl)
+    729          {
+    730          	pCan->CAN_MB[bMb].CAN_MCR = dwCtrl;
+    731          }
+    732          
+    733          /**
+    734           * \brief Start remote frame.
+    735           * \param pCan       Pointer to Can instance.
+    736           * \param bMb        Mailbox number.
+    737           */
+    738          void
+    739          CAN_MessageRemote(Can * pCan, uint8_t bMb)
+    740          {
+    741          	pCan->CAN_MB[bMb].CAN_MCR = CAN_MCR_MRTR;
+    742          }
+    743          
+    744          /**
+    745           * \brief Abort transmission.
+    746           * \param pCan       Pointer to Can instance.
+    747           * \param bMb        Mailbox number.
+    748           */
+    749          void
+    750          CAN_MessageAbort(Can * pCan, uint8_t bMb)
+    751          {
+    752          	pCan->CAN_MB[bMb].CAN_MCR = CAN_MCR_MACR;
+    753          }
+    754          
+    755          /**
+    756           * \brief Start transmission.
+    757           * \param pCan       Pointer to Can instance.
+    758           * \param bMb        Mailbox number.
+    759           * \param bLen       Message length.
+    760           */
+    761          void
+    762          CAN_MessageTx(Can * pCan, uint8_t bMb, uint8_t bLen)
+    763          {
+    764          	pCan->CAN_MB[bMb].CAN_MCR = CAN_MCR_MTCR | CAN_MCR_MDLC(bLen);
+    765          }
+    766          
+    767          /**
+    768           * \brief Start reception.
+    769           * \param pCan       Pointer to Can instance.
+    770           * \param bMb        Mailbox number.
+    771           */
+    772          void
+    773          CAN_MessageRx(Can * pCan, uint8_t bMb)
+    774          {
+    775          	pCan->CAN_MB[bMb].CAN_MCR = CAN_MCR_MTCR;
+    776          }
+    777          
+    778          #endif
+    779          /**@}*/
+
+Errors: 11
+Warnings: 1

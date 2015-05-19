@@ -1,0 +1,547 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:48
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\main.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\main.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D24 -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\main.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\main.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\main.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           *  \page getting-started Getting Started with sama5d4x Microcontrollers
+     32           *
+     33           *  \section Purpose
+     34           *
+     35           *  The Getting Started example will help new users get familiar with Atmel's
+     36           *  sama5d4x microcontroller. This basic application shows the startup
+     37           *  sequence of a chip and how to use its core peripherals.
+     38           *
+     39           *  \section Requirements
+     40           *
+     41           *  This package can be used with SAMA5D4-EK and SAMA5D4-XULT.
+     42           *
+     43           *  \section Description
+     44           *
+     45           *  The demonstration program makes two LEDs on the board blink at a fixed rate.
+     46           *  This rate is generated by using Time tick timer. The blinking can be stopped
+     47           *  using two buttons (one for each LED). If there is no enough buttons on board, please
+     48           *  type "1" or "2" in the terminal application on PC to control the LEDs
+     49           *  instead.
+     50           *
+     51           *  \section Usage
+     52           *
+     53           *  -# Build the program and download it inside the evaluation board. Please
+     54           *     refer to the
+     55           *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+     56           *     SAM-BA User Guide</a>, the
+     57           *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+     58           *     GNU-Based Software Development</a>
+     59           *     application note or to the
+     60           *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+     61           *     IAR EWARM User Guide</a>,
+     62           *     depending on your chosen solution.
+     63           *  -# On the computer, open and configure a terminal application
+     64           *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
+     65           *    - 115200 bauds
+     66           *    - 8 bits of data
+     67           *    - No parity
+     68           *    - 1 stop bit
+     69           *    - No flow control
+     70           *  -# Start the application.
+     71           *  -# Two LEDs should start blinking on the board. In the terminal window, the
+     72           *     following text should appear (values depend on the board and chip used):
+     73           *     \code
+     74           *      -- Getting Started Example xxx --
+     75           *      -- SAMxxxxx-xx
+     76           *      -- Compiled: xxx xx xxxx xx:xx:xx --
+     77           *     \endcode
+     78           *  -# Pressing and release button 1 or type "1" in the terminal application on
+     79           *     PC should make the first LED stop & restart blinking.
+     80           *     Pressing and release button 2 or type "2" in the terminal application on
+     81           *     PC should make the other LED stop & restart blinking.
+     82           *
+     83           *  \section References
+     84           *  - getting-started/main.c
+     85           *  - pio.h
+     86           *  - pio_it.h
+     87           *  - led.h
+     88           *  - trace.h
+     89           */
+     90          
+     91          /** \file
+     92           *
+     93           *  This file contains all the specific code for the getting-started example.
+     94           *
+     95           */
+     96          
+     97          /*----------------------------------------------------------------------------
+     98           *        Headers
+     99           *----------------------------------------------------------------------------*/
+    100          
+    101          #include "board.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+    102          #include "chip.h"
+    103          
+    104          #include "core/aic.h"
+    105          #include "core/pmc.h"
+    106          #include "core/wdt.h"
+    107          #include "core/pio.h"
+    108          #include "core/pio4_it.h"
+    109          #include "core/mmu.h"
+    110          
+    111          #include "io/led.h"
+    112          
+    113          #include "bus/console.h"
+    114          
+    115          #include <stdbool.h>
+    116          #include <stdio.h>
+    117          
+    118          #include "time/tc.h"
+    119          #include "time/pit.h"
+    120          
+    121          /*----------------------------------------------------------------------------
+    122           *        Local definitions
+    123           *----------------------------------------------------------------------------*/
+    124          
+    125          #define NO_PUSHBUTTON
+    126          
+    127          /** IRQ priority for PIO (The lower the value, the greater the priority) */
+    128          #define IRQ_PRIOR_PIO    0
+    129          
+    130          /** LED0 blink time, LED1 blink half this time, in ms */
+    131          #define BLINK_PERIOD        1000
+    132          
+    133          /** Delay for pushbutton debouncing (in milliseconds). */
+    134          #define DEBOUNCE_TIME       500
+    135          
+    136          /*----------------------------------------------------------------------------
+    137           *        Local variables
+    138           *----------------------------------------------------------------------------*/
+    139          
+    140          
+    141          #ifndef NO_PUSHBUTTON
+    142          /** Pushbutton \#1 pin instance. */
+    143          const Pin pinPB1 = PIN_PUSHBUTTON_1;
+    144          
+    145          /** Pushbutton \#2 pin instance. */
+    146          const Pin pinPB2 = PIN_PUSHBUTTON_2;
+    147          
+    148          #endif				/*  */
+    149          
+    150          /** LED0 blinking control. */
+    151          volatile bool bLed0Active = true;
+    152          
+    153          /** LED1 blinking control. */
+    154          volatile bool bLed1Active = true;
+    155          
+    156          /** Global timestamp in milliseconds since start of application */
+    157          volatile uint32_t dwTimeStamp = 0;
+    158          
+    159          /*----------------------------------------------------------------------------
+    160           *        Local functions
+    161           *----------------------------------------------------------------------------*/
+    162          
+    163          /**
+    164           *  \brief Process Buttons Events
+    165           *
+    166           *  Change active states of LEDs when corresponding button events happened.
+    167           */
+    168          static void process_button_evt(uint8_t ucButton)
+    169          {
+    170          	if (ucButton == 0) {
+    171          		bLed0Active = !bLed0Active;
+    172          		if (!bLed0Active) {
+    173          			led_clear(LED_RED);
+    174          		}
+    175          	}
+    176          
+    177          	else {
+    178          		bLed1Active = !bLed1Active;
+    179          
+    180          		/* Enable LED#2 and TC if they were disabled */
+    181          		if (bLed1Active) {
+    182          			led_set(LED_GREEN);
+    183          			tc_start(TC0, 0);
+    184          		}
+    185          
+    186          		/* Disable LED#2 and TC if they were enabled */
+    187          		else {
+    188          			led_clear(LED_GREEN);
+    189          			tc_stop(TC0, 0);
+    190          		}
+    191          	}
+    192          }
+    193          
+    194          #ifndef NO_PUSHBUTTON
+    195          /**
+    196           *  \brief Handler for Button 1 rising edge interrupt.
+    197           *
+    198           *  Handle process led1 status change.
+    199           */
+    200          void PIOE_IrqHandler(void)
+    201          {
+    202          	volatile uint32_t status;
+    203          	status = PIOE->PIO_ISR;
+    204          	process_button_evt(0);
+    205          	process_button_evt(1);
+    206          }
+    207          #else				/*  */
+    208          /**
+    209           *  \brief Handler for DBGU input.
+    210           *
+    211           *  Handle process LED1 or LED2 status change.
+    212           */
+    213          static void console_handler(void)
+    214          {
+    215          	uint8_t key;
+    216          	if (!console_is_rx_ready())
+    217          		return;
+    218          	key = console_get_char();
+    219          	switch (key) {
+    220          	case '1':
+    221          	case '2':
+    222          		process_button_evt(key - '1');
+    223          		break;
+    224          	}
+    225          }
+    226          
+    227          #endif /*  */
+    228          
+    229          /**
+    230           *  \brief Handler for PIT interrupt.
+    231           */
+    232          static void pit_handler(void)
+    233          {
+    234          	uint32_t status;
+    235          
+    236          	/* Read the PIT status register */
+    237          	status = pit_get_status() & PIT_SR_PITS;
+    238          	if (status != 0) {
+    239          
+    240          		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
+    241          		   Read the PIVR to acknowledge interrupt and get number of ticks
+    242          		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
+    243          		dwTimeStamp += (pit_get_pivr() >> 20);
+    244          	}
+    245          }
+    246          
+    247          /**
+    248           *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
+    249           *  every interrupt every millisecond
+    250           */
+    251          static void configure_pit(void)
+    252          {
+    253          	/* Enable PIT controller */
+    254          	pmc_enable_peripheral(ID_PIT);
+    255          	/* Initialize the PIT to the desired frequency */
+    256          	pit_init(BLINK_PERIOD);
+    257          	/* Configure interrupt on PIT */
+    258          	aic_enable(ID_PIT);
+    259          	aic_set_source_vector(ID_PIT, (uint32_t)pit_handler);
+    260          	pit_enable_it();
+    261          	/* Enable the pit */
+    262          	pit_enable();
+    263          }
+    264          
+    265          #ifndef NO_PUSHBUTTON
+    266          /**
+    267           *  \brief Configure the Pushbuttons
+    268           *
+    269           *  Configure the PIO as inputs and generate corresponding interrupt when
+    270           *  pressed or released.
+    271           */
+    272          static void configure_buttons(void)
+    273          {
+    274          	/* Configure pios as inputs. */
+    275          	pio_configure(&pinPB1, 1);
+    276          	pio_configure(&pinPB2, 1);
+    277          	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
+    278          	pio_set_debounce_filter(&pinPB1, 10);
+    279          	pio_set_debounce_filter(&pinPB2, 10);
+    280          	/* Enable PIO controller IRQs. */
+    281          	pio_initialize_it(0);
+    282          	/* Initialize pios interrupt handlers, see PIO definition in board.h. */
+    283          	pio_configure_it(&pinPB1);
+    284          	pio_configure_it(&pinPB2);
+    285          	/* Enable PIO line interrupts. */
+    286          	pio_enable_it(&pinPB1);
+    287          	pio_enable_it(&pinPB2);
+    288          }
+    289          #endif				/*  */
+    290          
+    291          /**
+    292           *  \brief Configure LEDs
+    293           *
+    294           */
+    295          static void configure_leds(void)
+    296          {
+    297          	led_configure(LED_RED);
+    298          	led_configure(LED_GREEN);
+    299          }
+    300          
+    301          /**
+    302           *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
+    303           */
+    304          static void tc_handler(void)
+    305          {
+    306          	volatile uint32_t dummy;
+    307          
+    308          	/* Clear status bit to acknowledge interrupt */
+    309          	dummy = TC0->TC_CHANNEL[0].TC_SR;
+    310          	(void) dummy;
+    311          
+    312          	/** Toggle LED state. */
+    313          	led_toggle(LED_GREEN);
+    314          	printf("2 ");
+    315          }
+    316          
+    317          /**
+    318           *  Configure Timer Counter 0 to generate an interrupt every 250ms.
+    319           */
+    320          static void configure_tc(void)
+    321          {
+    322          	uint32_t div;
+    323          	uint32_t tcclks;
+    324          
+    325          	/** Enable peripheral clock. */
+    326          	pmc_enable_peripheral(ID_TC0);
+    327          
+    328          	/* Put the source vector */
+    329          	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
+    330          
+    331          	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
+    332          	tc_find_mck_divisor(4, &div, &tcclks);
+    333          	printf("TC: Select %iu divisor", div);
+    334          	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
+    335          	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
+    336          
+    337          	/* Configure and enable interrupt on RC compare */
+    338          	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
+    339          	aic_enable(ID_TC0);
+    340          
+    341          	/* /\** Start the counter if LED1 is enabled. *\/ */
+    342          	if (bLed1Active) {
+    343          		tc_start(TC0, 0);
+    344          	}
+    345          }
+    346          
+    347          /**
+    348           *  Waits for the given number of milliseconds (using the dwTimeStamp generated
+    349           *  by the SAM3's microcontrollers's system tick).
+    350           *  \param delay  Delay to wait for, in milliseconds.
+    351           */
+    352          static void _Wait(unsigned long delay)
+    353          {
+    354          	volatile uint32_t start = dwTimeStamp;
+    355          	uint32_t elapsed;
+    356          
+    357          	do {
+    358          		elapsed = dwTimeStamp;
+    359          		elapsed -= start;
+    360          	} while (elapsed < delay);
+    361          }
+    362          
+    363          #define SOFTPACK_VERSION "0.1"
+    364          
+    365          /*----------------------------------------------------------------------------
+    366           *        Global functions
+    367           *----------------------------------------------------------------------------*/
+    368          
+    369          /**
+    370           *  \brief getting-started Application entry point.
+    371           *
+    372           *  \return Unused (ANSI-C compatibility).
+    373           */
+    374          int main(void)
+    375          {
+    376          	uint32_t master_clock;
+                 	         ^
+Warning[Pe550]: variable "master_clock" was set but never used
+    377          
+    378          	/* Disable watchdog */
+    379          	WDT_Disable(WDT);
+    380          
+    381          	/* Initialize console */
+    382          	master_clock = pmc_get_master_clock();
+    383          	console_configure(CONSOLE_BAUDRATE);
+    384          
+    385          #if defined (ddram)
+    386          	MMU_Initialize((uint32_t *) 0x20C000);
+    387          	cp15_enable_mmu();
+    388          	cp15_enable_dcache();
+    389          	cp15_enable_icache();
+    390          #endif
+    391          
+    392          	/* Output example information */
+    393          	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
+    394          	printf("-- %s\n\r", BOARD_NAME);
+    395          	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+    396          
+    397          	/* Configure PIT. */
+    398          	printf("Configure PIT \n\r");
+    399          	configure_pit();
+    400          
+    401          	/* PIO configuration for LEDs and Buttons. */
+    402          	pio_initialize_it(IRQ_PRIOR_PIO);
+    403          	printf("Configure TC.\n\r");
+    404          	configure_tc();
+    405          	printf("Configure LED PIOs.\n\r");
+    406          	configure_leds();
+    407          
+    408          #ifndef NO_PUSHBUTTON
+    409          
+    410          	printf("Configure buttons with debouncing.\n\r");
+    411          	configure_buttons();
+    412          	printf("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");
+    413          	printf("Press USRBP2 to Start/Stop the red LED D2 blinking.\n\r");
+    414          
+    415          #else
+    416          	printf("Initializing console interrupts\r\n");
+    417          	aic_set_source_vector(CONSOLE_ID, (uint32_t)console_handler);
+    418          	aic_enable(CONSOLE_ID);
+    419          	console_enable_interrupts(US_IER_RXRDY);
+    420          	printf("No push buttons, uses DBG key 1 & 2 instead.\n\r");
+    421          	printf("Press 1 to Start/Stop the blue LED D1 blinking.\n\r");
+    422          	printf("Press 2 to Start/Stop the red LED D2 blinking.\n\r");
+    423          
+    424          #endif
+    425          	while (1) {
+    426          
+    427          		/* Wait for LED to be active */
+    428          		while (!bLed0Active) ;
+    429          
+    430          		/* Toggle LED state if active */
+    431          		if (bLed0Active) {
+    432          			led_toggle(LED_RED);
+    433          			printf("1 ");
+    434          		}
+    435          
+    436          		/* Wait for 500ms */
+    437          		_Wait(500);
+    438          	}
+    439          }
+
+Errors: 11
+Warnings: 2

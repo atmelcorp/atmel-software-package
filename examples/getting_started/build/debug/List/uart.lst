@@ -1,0 +1,246 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:52
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c -D
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\uart.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\uart.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\serial\uart.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /*------------------------------------------------------------------------------
+     31           *         Headers
+     32           *------------------------------------------------------------------------------*/
+     33          
+     34          #include "chip.h"
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     35          #include "serial/uart.h"
+     36          #include "core/pmc.h"
+     37          
+     38          #include <stdint.h>
+     39          
+     40          /*------------------------------------------------------------------------------
+     41           *         Exported functions
+     42           *------------------------------------------------------------------------------*/
+     43          
+     44          /*
+     45           * Initializes the UART with the given parameters, and enables both the
+     46           * transmitter and the receiver. The mode parameter contains the value of the
+     47           * UART_MR register.
+     48           * Value UART_STANDARD can be used for mode to get the most common configuration
+     49           * (i.e. aysnchronous, 8bits, no parity, 1 stop bit, no flow control).
+     50           * \param mode  Operating mode to configure.
+     51           * \param baudrate  Desired baudrate (e.g. 115200).
+     52           * \param mck  Frequency of the system master clock in Hz.
+     53           */
+     54          void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate)
+     55          {
+     56          	uint32_t uart_id = GET_UART_ID_FROM_ADDR(pUart);
+     57          	// Reset & disable receiver and transmitter, disable interrupts
+     58          	pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS
+     59          		| UART_CR_RSTSTA;
+     60          	pUart->UART_IDR = 0xFFFFFFFF;
+     61          	// Configure baud rate
+     62          	pUart->UART_BRGR = pmc_get_peripheral_max_clock(uart_id) / (baudrate * 16);
+     63          	// Configure mode register
+     64          	pUart->UART_MR = mode;
+     65          	// Enable receiver and transmitter
+     66          	pUart->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
+     67          }
+     68          
+     69          /* Enable transmitter
+     70           *
+     71           */
+     72          void uart_set_transmitter_enabled (Uart* pUart, uint8_t enabled)
+     73          {
+     74          	if (enabled) pUart->UART_CR = UART_CR_TXEN;
+     75          	else pUart->UART_CR = UART_CR_TXDIS;
+     76          }
+     77          
+     78          /* Enable receiver
+     79           *
+     80           */
+     81          void uart_set_receiver_enabled (Uart* pUart, uint8_t enabled)
+     82          {
+     83          	if (enabled)
+     84          		pUart->UART_CR = UART_CR_RXEN;
+     85          	else
+     86          		pUart->UART_CR = UART_CR_RXDIS;
+     87          }
+     88          
+     89          /* Set interrupt register
+     90           *
+     91           */
+     92          void uart_set_int (Uart* pUart, uint32_t int_mask)
+     93          {
+     94          	pUart->UART_IER |= int_mask;
+     95          }
+     96          
+     97          /**
+     98           * Outputs a character on the UART line.
+     99           * \note This function is synchronous (i.e. uses polling).
+    100           * \param c  Character to send.
+    101           * \param wait = 1 if wait transfer complete
+    102           */
+    103          void uart_put_char(Uart* pUart, unsigned char c)
+    104          {
+    105          	// Wait for the transmitter to be ready
+    106          	while ((pUart->UART_SR & UART_SR_TXEMPTY) == 0);
+    107          	// Send character
+    108          	pUart->UART_THR = c;
+    109          }
+    110          
+    111          /**
+    112           * Return 1 if a character can be read in UART
+    113           */
+    114          uint32_t uart_is_rx_ready(Uart* pUart)
+    115          {
+    116          	return (pUart->UART_SR & UART_SR_RXRDY);
+    117          }
+    118          
+    119          /**
+    120           * Return 1 if a character can be write in UART
+    121           */
+    122          uint32_t uart_is_tx_ready(Uart* pUart)
+    123          {
+    124          	return (pUart->UART_SR & UART_SR_TXRDY);
+    125          }
+    126          
+    127          /**
+    128           * \brief Reads and returns a character from the UART.
+    129           * \note This function is synchronous (i.e. uses polling).
+    130           * \return Character received.
+    131           */
+    132          uint8_t uart_get_char(Uart* pUart)
+    133          {
+    134          	while ((pUart->UART_SR & UART_SR_RXRDY) == 0);
+    135          	return pUart->UART_RHR;
+    136          }
+    137          
+    138          
+    139          
+    140          
+
+Errors: 11
+Warnings: 1

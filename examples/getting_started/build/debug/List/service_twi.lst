@@ -1,0 +1,401 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  14:03:41
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D27 -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\service_twi.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\service_twi.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         ATMEL Microcontroller Software Support 
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           */
+      7          
+      8          //------------------------------------------------------------------------------
+      9          //         Headers
+     10          //------------------------------------------------------------------------------
+     11          
+     12          #include "board.h"
+
+  /* ----------------------------------------------------------------------------
+                                                                                ^
+"C:\Users\dfronek\Documents\Project\softpack\target\include\board.h",1  Warning[Pa050]: 
+          non-native end of line sequence detected (this diagnostic is only
+          issued once)
+
+  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+  	                              ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+  	                        ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
+          identifier "FCOMSPI0" is undefined
+
+  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
+          identifier "FCOMSPI1" is undefined
+
+  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
+          identifier "FCOMSPI3" is undefined
+
+  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+  	                                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
+          identifier "FCOMSPI4" is undefined
+
+  	if (addr == (void*)USART0) return ID_USART0;
+  	                   ^
+"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
+          identifier "USART0" is undefined
+     13             
+     14          #include "service_twi.h"
+     15          
+     16          //------------------------------------------------------------------------------
+     17          //------------------------------------------------------------------------------
+     18          
+     19          /// Pio pins to configure.
+     20          static const Pin pinsTWI0[] = {PINS_TWI0};
+                              ^
+Error[Pe020]: identifier "Pin" is undefined
+
+  static const Pin pinsTWI0[] = {PINS_TWI0};
+                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",20  Error[Pe020]: 
+          identifier "PINS_TWI0" is undefined
+     21          static const Pin pinsTWI1[] = {PINS_TWI1};
+                              ^
+Error[Pe020]: identifier "Pin" is undefined
+
+  static const Pin pinsTWI1[] = {PINS_TWI1};
+                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",21  Error[Pe020]: 
+          identifier "PINS_TWI1" is undefined
+     22          static const Pin pinsTWI2[] = {PINS_TWI2};
+                              ^
+Error[Pe020]: identifier "Pin" is undefined
+
+  static const Pin pinsTWI2[] = {PINS_TWI2};
+                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",22  Error[Pe020]: 
+          identifier "PINS_TWI2" is undefined
+     23          static const Pin pinsTWI3[] = {PINS_TWI3};
+                              ^
+Error[Pe020]: identifier "Pin" is undefined
+
+  static const Pin pinsTWI3[] = {PINS_TWI3};
+                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",23  Error[Pe020]: 
+          identifier "PINS_TWI3" is undefined
+     24          
+     25          /// TWI Clock
+     26          static uint32_t Twi0Clk = 0;
+     27          static uint32_t Twi1Clk = 0;
+     28          static uint32_t Twi2Clk = 0;
+     29          static uint32_t Twi3Clk = 0;
+     30          
+     31          //------------------------------------------------------------------------------
+     32          //------------------------------------------------------------------------------
+     33          
+     34          uint8_t IsTwiReady (psTwiHandle ltwi)
+     35          {
+     36            return ltwi->Status & TWI_STATUS_READY;
+     37          }
+     38          
+     39          //------------------------------------------------------------------------------
+     40          //------------------------------------------------------------------------------
+     41          
+     42          uint8_t TwiHandleInit (psTwiHandle ltwi)
+     43          {
+     44              uint8_t Status = ltwi->Status;
+     45              static Twid twid;
+     46              
+     47              assert( ltwi->Twck != 0 );
+                     ^
+Warning[Pe223]: function "assert" declared implicitly
+     48              assert( ltwi->IdTwi != 0 );
+     49              
+     50              memset((void*)&twid, 0x00, sizeof(twid));
+     51              switch (ltwi->IdTwi)
+     52              {
+     53                  case ID_TWI0:
+     54                    if (Twi0Clk!=ltwi->Twck) // Not same init clock previously done
+     55                    {
+     56                       // Change IP Clock TWI0  
+     57                      PMC->PMC_PCR = PMC_PCR_PID(ID_TWI0) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK;
+     58                      PIO_Configure(pinsTWI0, PIO_LISTSIZE(pinsTWI0));
+                             ^
+Warning[Pe223]: function "PIO_Configure" declared implicitly
+
+              PIO_Configure(pinsTWI0, PIO_LISTSIZE(pinsTWI0));
+                                      ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",58  Warning[Pe223]: 
+          function "PIO_LISTSIZE" declared implicitly
+     59                      PMC_EnablePeripheral(ID_TWI0);
+                             ^
+Warning[Pe223]: function "PMC_EnablePeripheral" declared implicitly
+     60                      Twi0Clk = ltwi->Twck;
+     61                      TWI_ConfigureMaster(TWI0, Twi0Clk, BOARD_MCK); 
+                             ^
+Warning[Pe223]: function "TWI_ConfigureMaster" declared implicitly
+
+              TWI_ConfigureMaster(TWI0, Twi0Clk, BOARD_MCK); 
+                                  ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",61  Error[Pe020]: 
+          identifier "TWI0" is undefined
+
+              TWI_ConfigureMaster(TWI0, Twi0Clk, BOARD_MCK); 
+                                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",61  Error[Pe020]: 
+          identifier "BOARD_MCK" is undefined
+     62                    } 
+     63                    TWID_Initialize(&twid, TWI0);
+                                                  ^
+Error[Pe020]: identifier "TWI0" is undefined
+     64                    ltwi->Status = Status | TWI_STATUS_HANDLE;
+     65                    break;
+     66                  
+     67                  case ID_TWI1:
+     68                    if (Twi1Clk!=ltwi->Twck) // Not same init clock previously done
+     69                    {  
+     70                      // Change IP Clock TWI1  
+     71                      PMC->PMC_PCR = PMC_PCR_PID(ID_TWI1) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK;  
+     72                      PIO_Configure(pinsTWI1, PIO_LISTSIZE(pinsTWI1));
+                             ^
+Warning[Pe223]: function "PIO_Configure" declared implicitly
+
+              PIO_Configure(pinsTWI1, PIO_LISTSIZE(pinsTWI1));
+                                      ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",72  Warning[Pe223]: 
+          function "PIO_LISTSIZE" declared implicitly
+     73                      PMC_EnablePeripheral(ID_TWI1);
+                             ^
+Warning[Pe223]: function "PMC_EnablePeripheral" declared implicitly
+     74                      Twi1Clk = ltwi->Twck;
+     75                      TWI_ConfigureMaster(TWI1, Twi1Clk, BOARD_MCK);
+                             ^
+Warning[Pe223]: function "TWI_ConfigureMaster" declared implicitly
+
+              TWI_ConfigureMaster(TWI1, Twi1Clk, BOARD_MCK);
+                                  ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",75  Error[Pe020]: 
+          identifier "TWI1" is undefined
+
+              TWI_ConfigureMaster(TWI1, Twi1Clk, BOARD_MCK);
+                                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",75  Error[Pe020]: 
+          identifier "BOARD_MCK" is undefined
+     76                    }
+     77                    TWID_Initialize(&twid, TWI1);
+                                                  ^
+Error[Pe020]: identifier "TWI1" is undefined
+     78                    ltwi->Status = Status | TWI_STATUS_HANDLE;          
+     79                    break;
+     80           
+     81                   case ID_TWI2:
+     82                    if (Twi2Clk!=ltwi->Twck) // Not same init clock previously done
+     83                    {  
+     84                      // Change IP Clock TWI2 
+     85                      PMC->PMC_PCR = PMC_PCR_PID(ID_TWI2) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK;  
+     86                      PIO_Configure(pinsTWI2, PIO_LISTSIZE(pinsTWI2));
+                             ^
+Warning[Pe223]: function "PIO_Configure" declared implicitly
+
+              PIO_Configure(pinsTWI2, PIO_LISTSIZE(pinsTWI2));
+                                      ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",86  Warning[Pe223]: 
+          function "PIO_LISTSIZE" declared implicitly
+     87                      PMC_EnablePeripheral(ID_TWI2);
+                             ^
+Warning[Pe223]: function "PMC_EnablePeripheral" declared implicitly
+     88                      Twi2Clk = ltwi->Twck;
+     89                      TWI_ConfigureMaster(TWI2, Twi2Clk, BOARD_MCK);
+                             ^
+Warning[Pe223]: function "TWI_ConfigureMaster" declared implicitly
+
+              TWI_ConfigureMaster(TWI2, Twi2Clk, BOARD_MCK);
+                                  ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",89  Error[Pe020]: 
+          identifier "TWI2" is undefined
+
+              TWI_ConfigureMaster(TWI2, Twi2Clk, BOARD_MCK);
+                                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",89  Error[Pe020]: 
+          identifier "BOARD_MCK" is undefined
+     90                    }
+     91                    TWID_Initialize(&twid, TWI2);
+                                                  ^
+Error[Pe020]: identifier "TWI2" is undefined
+     92                    ltwi->Status = Status | TWI_STATUS_HANDLE;          
+     93                    break;         
+     94           
+     95                    case ID_TWI3:
+     96                    if (Twi3Clk!=ltwi->Twck) // Not same init clock previously done
+     97                    {  
+     98                      // Change IP Clock TWI3 
+     99                      PMC->PMC_PCR = PMC_PCR_PID(ID_TWI3) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK;  
+    100                      PIO_Configure(pinsTWI3, PIO_LISTSIZE(pinsTWI3));
+                             ^
+Warning[Pe223]: function "PIO_Configure" declared implicitly
+
+              PIO_Configure(pinsTWI3, PIO_LISTSIZE(pinsTWI3));
+                                      ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",100  Warning[Pe223]: 
+          function "PIO_LISTSIZE" declared implicitly
+    101                      PMC_EnablePeripheral(ID_TWI3);
+                             ^
+Warning[Pe223]: function "PMC_EnablePeripheral" declared implicitly
+    102                      Twi3Clk = ltwi->Twck;
+    103                      TWI_ConfigureMaster(TWI3, Twi3Clk, BOARD_MCK);
+                             ^
+Warning[Pe223]: function "TWI_ConfigureMaster" declared implicitly
+
+              TWI_ConfigureMaster(TWI3, Twi3Clk, BOARD_MCK);
+                                  ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",103  Error[Pe020]: 
+          identifier "TWI3" is undefined
+
+              TWI_ConfigureMaster(TWI3, Twi3Clk, BOARD_MCK);
+                                                 ^
+"C:\Users\dfronek\Documents\Project\softpack\drivers\services\service_twi.c",103  Error[Pe020]: 
+          identifier "BOARD_MCK" is undefined
+    104                    }
+    105                    TWID_Initialize(&twid, TWI3);
+                                                  ^
+Error[Pe020]: identifier "TWI3" is undefined
+    106                    ltwi->Status = Status | TWI_STATUS_HANDLE;          
+    107                    break;               
+    108                    
+    109                   default:
+    110                    ltwi->Status = TWI_STATUS_RESET;
+    111                    break;
+    112              }
+    113           
+    114              memcpy ((void*)&ltwi->twid, (void*)&twid, sizeof(Twid));
+    115              return ltwi->Status;  
+    116          }  
+    117          
+    118          //------------------------------------------------------------------------------
+    119          //------------------------------------------------------------------------------
+    120          
+    121          uint8_t TwidRdWr (psTwiHandle ltwi, enum TWI_CMD Cmd)
+    122          {
+    123            if (Cmd == TWI_RD) 
+    124              return (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr, 
+    125                                        ltwi->AddSize, (unsigned char*)ltwi->pData, 
+    126                                        ltwi->LenData, 0);
+    127            else
+    128              return (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr, 
+    129                                         ltwi->AddSize, (unsigned char*)ltwi->pData, 
+    130                                         ltwi->LenData, 0);
+    131          }  
+    132          
+    133          //------------------------------------------------------------------------------
+    134          /// Dummy callback, to test asynchronous transfer modes.
+    135          //------------------------------------------------------------------------------
+    136          void TestCallback (void)
+    137          {
+    138              //printf("-I- Callback fired !\n\r");
+    139          }
+    140          
+    141          //------------------------------------------------------------------------------
+    142          //------------------------------------------------------------------------------
+    143          
+    144          uint8_t TwidRdWrAsync (psTwiHandle ltwi, enum TWI_CMD Cmd)
+    145          {
+    146            Async async;
+    147            uint8_t Status;
+    148          
+    149            memset(&async, 0, sizeof(async));
+    150            async.callback = (void*)TestCallback;
+    151            if (Cmd == TWI_RD) 
+    152            {  
+    153              
+    154              Status = (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr, ltwi->AddSize, 
+    155                                          (unsigned char*)ltwi->pData, ltwi->LenData, &async);
+    156              while (!ASYNC_IsFinished(&async));
+    157            }  
+    158            else
+    159            {  
+    160              Status = (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr, ltwi->AddSize, 
+    161                                           (unsigned char*)ltwi->pData, ltwi->LenData, &async);
+    162              while (!ASYNC_IsFinished(&async));
+    163            }
+    164            return Status;
+    165          }  
+    166          
+    167          //------------------------------------------------------------------------------
+    168          //------------------------------------------------------------------------------
+    169          //------------------------------------------------------------------------------
+    170          //End of file
+
+Errors: 31
+Warnings: 18

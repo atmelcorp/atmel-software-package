@@ -1,0 +1,152 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.30.1.7746/W32 for ARM        18/May/2015  11:30:34
+# Copyright 1999-2014 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\main.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\main.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D21 -lcN
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.0_2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw/../../target/sama5d2\
+#        --interwork --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\List\main.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\Debug\Obj\main.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\examples\test_board_hw\main.c
+      1          /* ----------------------------------------------------------------------------
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2015, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /**
+     31           *  \page test board hardware with sama5d2 Microcontrollers
+     32           *
+     33           *  \section Purpose
+     34           *
+     35           *  \section Requirements
+     36           *
+     37           *  This package can be used with SAMA5D2-XULT.
+     38           *
+     39           *  \section Description
+     40           *
+     41           * \file
+     42           *
+     43           *
+     44           */
+     45          
+     46          /*----------------------------------------------------------------------------
+     47           *        Headers
+     48           *----------------------------------------------------------------------------*/
+     49          
+     50          #include "board.h"
+     51          
+     52          #include "io/led.h"
+     53          
+     54          #include "bus/console.h"
+     55          
+     56          #include "time/tc.h"
+     57          #include "time/pit.h"
+     58          
+     59          #include <stdbool.h>
+     60          #include <stdio.h>
+     61          
+     62          /*----------------------------------------------------------------------------
+     63           *        Local definitions
+     64           *----------------------------------------------------------------------------*/
+     65          
+     66          
+     67          /*----------------------------------------------------------------------------
+     68           *        Local variables
+     69           *----------------------------------------------------------------------------*/
+     70          
+     71          
+     72          /*----------------------------------------------------------------------------
+     73           *        Local functions
+     74           *----------------------------------------------------------------------------*/
+     75          
+     76          
+     77          /*----------------------------------------------------------------------------
+     78           *        Global functions
+     79           *----------------------------------------------------------------------------*/
+     80          
+     81          
+     82          extern int main()
+     83          {
+     84          
+     85          	/* Disable watchdog */
+     86          	WDT_Disable(WDT);
+     87          
+     88          #if defined (ddram)
+     89          	MMU_Initialize((uint32_t *) 0x20C000);
+     90          	CP15_EnableMMU();
+     91          	CP15_EnableDcache();
+     92          	CP15_EnableIcache();
+     93          #endif
+     94          
+     95          	/* Output example information */
+     96          	printf("-- Test board HW %s --\n\r", SOFTPACK_VERSION);
+     97          	printf("-- %s\n\r", BOARD_NAME);
+     98          	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+     99          
+    100          	/* Configure PIT. */
+    101          	printf("Configure PIT \n\r");
+    102          	ConfigurePit();
+    103          
+    104          
+    105            return 0;
+    106          }
+
+Errors: 1
+Warnings: 3

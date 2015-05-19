@@ -1,0 +1,261 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  10:18:20
+# Copyright 1999-2015 IAR Systems AB.
+#
+#    Cpu mode     =  arm
+#    Endian       =  little
+#    Source file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdma_hardware_interface.c
+#    Command line =  
+#        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdma_hardware_interface.c
+#        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
+#        CHIP_SAMA5D21 -D sram --preprocess=l
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -lC
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
+#        -o
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa
+#        --no_clustering --no_scheduling --debug --endian=little
+#        --cpu=Cortex-A5 -e --fpu=None --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench
+#        7.2\arm\INC\c\DLib_Config_Normal.h" -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../drivers\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../examples\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../lib\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/include\
+#        -I
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started/../../target/sama5d2\
+#        --section .text=SOFTPACK --cpu_mode arm -On
+#    List file    =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\xdma_hardware_interface.lst
+#    Object file  =  
+#        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\Obj\xdma_hardware_interface.o
+#
+###############################################################################
+
+C:\Users\dfronek\Documents\Project\softpack\drivers\bus\xdma_hardware_interface.c
+      1          /* ----------------------------------------------------------------------------
+                                                                                               ^
+Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
+          only issued once)
+      2           *         SAM Software Package License
+      3           * ----------------------------------------------------------------------------
+      4           * Copyright (c) 2013, Atmel Corporation
+      5           *
+      6           * All rights reserved.
+      7           *
+      8           * Redistribution and use in source and binary forms, with or without
+      9           * modification, are permitted provided that the following conditions are met:
+     10           *
+     11           * - Redistributions of source code must retain the above copyright notice,
+     12           * this list of conditions and the disclaimer below.
+     13           *
+     14           * Atmel's name may not be used to endorse or promote products derived from
+     15           * this software without specific prior written permission.
+     16           *
+     17           * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+     18           * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+     19           * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+     20           * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+     21           * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     22           * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+     23           * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+     24           * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+     25           * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+     26           * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     27           * ----------------------------------------------------------------------------
+     28           */
+     29          
+     30          /** \addtogroup dmad_module
+     31           *
+     32           * \section DmaHw Dma Hardware Interface Usage
+     33           * <ul>
+     34           * <li> The DMA controller can handle the transfer between peripherals and memory
+     35           * and so receives the triggers from the peripherals. The hardware interface number
+     36           * are getting from XDMAIF_Get_ChannelNumber().</li>
+     37          
+     38           * <li> XDMAIF_IsValidatedPeripherOnDma() helps to check if the given DMAC has associated
+     39           * peripheral identifier coded by the given peripheral.</li>
+     40           *
+     41           * </ul>
+     42          */
+     43          /*@{*/
+     44          /*@}*/
+     45          
+     46          /** \file */
+     47          /*----------------------------------------------------------------------------
+     48          *        Headers
+     49          *----------------------------------------------------------------------------*/
+     50          #include "bus/xdma_hardware_interface.h"
+     51          
+     52          /*----------------------------------------------------------------------------
+     53           *        Local variables
+     54           *----------------------------------------------------------------------------*/
+     55          /** Array of DMA Channel definition for SAMA5 chip*/
+     56          static const XdmaHardwareInterface xdmaHwIf[] = {
+     57          	/* dmac, peripheral,  T/R, Channel Number */
+     58          	{0, ID_HSMCI0, 0, 0},
+                 	    ^
+Error[Pe020]: identifier "ID_HSMCI0" is undefined
+     59          	{0, ID_HSMCI0, 1, 0},
+     60          	{0, ID_HSMCI1, 0, 1},
+                 	    ^
+Error[Pe020]: identifier "ID_HSMCI1" is undefined
+     61          	{0, ID_HSMCI1, 1, 1},
+     62          	{0, ID_TWI0, 0, 2},
+     63          	{0, ID_TWI0, 1, 3},
+     64          	{0, ID_TWI1, 0, 4},
+     65          	{0, ID_TWI1, 1, 5},
+     66          	{0, ID_TWI2, 0, 6},
+     67          	{0, ID_TWI2, 1, 7},
+     68          	{0, ID_TWI3, 0, 8},
+     69          	{0, ID_TWI3, 1, 9},
+     70          	{0, ID_SPI0, 0, 10},
+     71          	{0, ID_SPI0, 1, 11},
+     72          	{0, ID_SPI1, 0, 12},
+     73          	{0, ID_SPI1, 1, 13},
+     74          	{0, ID_SPI2, 0, 14},
+                 	    ^
+Error[Pe020]: identifier "ID_SPI2" is undefined
+     75          	{0, ID_SPI2, 1, 15},
+     76          	{0, ID_USART2, 0, 16},
+     77          	{0, ID_USART2, 1, 17},
+     78          	{0, ID_USART3, 0, 18},
+     79          	{0, ID_USART3, 1, 19},
+     80          	{0, ID_USART4, 0, 20},
+     81          	{0, ID_USART4, 1, 21},
+     82          	{0, ID_UART0, 0, 22},
+     83          	{0, ID_UART0, 1, 23},
+     84          	{0, ID_UART1, 0, 24},
+     85          	{0, ID_UART1, 1, 25},
+     86          	{0, ID_SSC0, 0, 26},
+     87          	{0, ID_SSC0, 1, 27},
+     88          	{0, ID_SSC1, 0, 28},
+     89          	{0, ID_SSC1, 1, 29},
+     90          	{0, ID_DBGU, 0, 30},
+                 	    ^
+Error[Pe020]: identifier "ID_DBGU" is undefined
+     91          	{0, ID_DBGU, 1, 31},
+     92          	{0, ID_ADC, 1, 32},
+     93          	{0, ID_SMD, 1, 33},
+                 	    ^
+Error[Pe020]: identifier "ID_SMD" is undefined
+     94          	{0, ID_SMD, 1, 34},
+     95          	{0, ID_USART0, 0, 36},
+     96          	{0, ID_USART0, 1, 37},
+     97          	{0, ID_USART1, 0, 38},
+     98          	{0, ID_USART1, 1, 39},
+     99          	{0, ID_AES, 1, 40},
+    100          	{0, ID_AES, 0, 41},
+    101          	{0, ID_TDES, 0, 42},
+    102          	{0, ID_TDES, 1, 43},
+    103          	{0, ID_SHA, 0, 44},
+    104          	/* dmac 1 */
+    105          	{1, ID_HSMCI0, 0, 0},
+    106          	{1, ID_HSMCI0, 1, 0},
+    107          	{1, ID_HSMCI1, 0, 1},
+    108          	{1, ID_HSMCI1, 1, 1},
+    109          	{1, ID_TWI0, 0, 2},
+    110          	{1, ID_TWI0, 1, 3},
+    111          	{1, ID_TWI1, 0, 4},
+    112          	{1, ID_TWI1, 1, 5},
+    113          	{1, ID_TWI2, 0, 6},
+    114          	{1, ID_TWI2, 1, 7},
+    115          	{1, ID_TWI3, 0, 8},
+    116          	{1, ID_TWI3, 1, 9},
+    117          	{1, ID_SPI0, 0, 10},
+    118          	{1, ID_SPI0, 1, 11},
+    119          	{1, ID_SPI1, 0, 12},
+    120          	{1, ID_SPI1, 1, 13},
+    121          	{1, ID_SPI2, 0, 14},
+    122          	{1, ID_SPI2, 1, 15},
+    123          	{1, ID_USART2, 0, 16},
+    124          	{1, ID_USART2, 1, 17},
+    125          	{1, ID_USART3, 0, 18},
+    126          	{1, ID_USART3, 1, 19},
+    127          	{1, ID_USART4, 0, 20},
+    128          	{1, ID_USART4, 1, 21},
+    129          	{1, ID_UART0, 0, 22},
+    130          	{1, ID_UART0, 1, 23},
+    131          	{1, ID_UART1, 0, 24},
+    132          	{1, ID_UART1, 1, 25},
+    133          	{1, ID_SSC0, 0, 26},
+    134          	{1, ID_SSC0, 1, 27},
+    135          	{1, ID_SSC1, 0, 28},
+    136          	{1, ID_SSC1, 1, 29},
+    137          	{1, ID_DBGU, 0, 30},
+    138          	{1, ID_DBGU, 1, 31},
+    139          	{1, ID_ADC, 1, 32},
+    140          	{1, ID_SMD, 1, 33},
+    141          	{1, ID_SMD, 1, 34},
+    142          };
+    143          
+    144          /*----------------------------------------------------------------------------
+    145           *        Consts
+    146           *----------------------------------------------------------------------------*/
+    147          /** Number of recognized peripheral identifier code for DMA0/1. */
+    148          #define NUMPERIPHERAL   (sizeof(xdmaHwIf) / sizeof (XdmaHardwareInterface))
+    149          
+    150          /*----------------------------------------------------------------------------
+    151           *        Exported functions
+    152           *----------------------------------------------------------------------------*/
+    153          
+    154          /**
+    155           * \brief Get peripheral identifier coded for hardware handshaking interface
+    156           *
+    157           * \param bXdmac      DMA Controller number.
+    158           * \param bPeriphID  Peripheral ID.
+    159           * \param bTransfer  Transfer type 0: Tx, 1 :Rx.
+    160           * \return 0-15: peripheral identifier coded.
+    161           * \return 0xff: no associated peripheral identifier coded.
+    162           */
+    163          uint8_t
+    164          XDMAIF_Get_ChannelNumber(uint8_t bXdmac, uint8_t bPeriphID, uint8_t bTransfer)
+    165          {
+    166          	uint8_t i;
+    167          	for (i = 0; i < NUMPERIPHERAL; i++) {
+    168          		if ((xdmaHwIf[i].bXdmac == bXdmac)
+    169          		    && (xdmaHwIf[i].bPeriphID == bPeriphID)
+    170          		    && (xdmaHwIf[i].bTransfer == bTransfer)) {
+    171          			return xdmaHwIf[i].bIfID;
+    172          		}
+    173          	}
+    174          	return 0xff;
+    175          }
+    176          
+    177          /**
+    178           * \brief Check if the given DMAC has associated peripheral identifier coded by
+    179           * the given  peripheral.
+    180           *
+    181           * \param bXdmac     DMA Controller number.
+    182           * \param bPeriphID  Peripheral ID (0xff : memory only).
+    183           * \return 1:  Is a validated peripher. 0: no associated peripheral identifier coded.
+    184           */
+    185          uint8_t
+    186          XDMAIF_IsValidatedPeripherOnDma(uint8_t bXdmac, uint8_t bPeriphID)
+    187          {
+    188          	uint8_t i;
+    189          	/* It is always validated when transfer to memory */
+    190          	if (bPeriphID == 0xFF) {
+    191          		return 1;
+    192          	}
+    193          	for (i = 0; i < NUMPERIPHERAL; i++) {
+    194          		if ((xdmaHwIf[i].bXdmac == bXdmac)
+    195          		    && (xdmaHwIf[i].bPeriphID == bPeriphID)) {
+    196          			return 1;
+    197          		}
+    198          	}
+    199          	return 0;
+    200          }
+
+Errors: 5
+Warnings: 1
