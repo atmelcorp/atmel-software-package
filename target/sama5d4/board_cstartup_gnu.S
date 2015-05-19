@@ -37,13 +37,8 @@
 #define AIC_IVR     0x10
 #define AIC_EOICR   0x38
 #define SAIC        0xFC068400
-#define AIC_FVR     0x14
-
-#define IRQ_STACK_SIZE   8*3*4
-#define FIQ_STACK_SIZE   8*3*4
 
 #define MODE_MSK         0x1F
-#define ARM_MODE_ABT     0x17
 #define ARM_MODE_FIQ     0x11
 #define ARM_MODE_IRQ     0x12
 #define ARM_MODE_SVC     0x13
@@ -60,63 +55,62 @@
 //         Startup routine
 //------------------------------------------------------------------------------
 
-	    .align      4
-	    .arm
+	.align      4
+	.arm
 
 /* Exception vectors
  *******************/
-	    .section    .vectors, "a", %progbits
+	.section    .vectors, "a", %progbits
 
 resetVector:
-	ldr     pc, =resetHandler       /* Reset */
-undefVector:
-	b       undefVector             /* Undefined instruction */
-swiVector:
-	b       swiVector               /* Software interrupt */
-prefetchAbortVector:
-	b       prefetchAbortVector     /* Prefetch abort */
-dataAbortVector:
-	b       dataAbortVector         /* Data abort */
-reservedVector:
-	b       reservedVector          /* Reserved for future use */
-irqVector:
-	b       irqHandler              /* Interrupt */
-fiqVector:
-	b       fiqHandler              /* Fast interrupt */
+	ldr     pc, =resetHandler             /* Reset */
+	ldr     pc, =UndefInstr_IrqHandler    /* Undefined Instruction */
+1:
+	b       1b                            /* Software Interrupt */
+	ldr     pc, =PrefetchAbort_IrqHandler /* Prefetch Abort */
+	ldr     pc, =DataAbort_IrqHandler     /* Data Abort */
+1:
+	b       1b                            /* Reserved for future use */
+	b       irqHandler                    /* Interrupt */
+	b       fiqHandler                    /* Fast interrupt */
+
 //------------------------------------------------------------------------------
 /// Handles a fast interrupt request by branching to the address defined in the
 /// AIC.
 //------------------------------------------------------------------------------
 fiqHandler:
-	SUB     lr, lr, #4
-	STMFD   sp!, {lr}
-	/* MRS     lr, SPSR */
-	STMFD   sp!, {r0}
+	sub     lr, lr, #4
+	stmfd   sp!, {lr}
+	//mrs     lr, SPSR
+	stmfd   sp!, {r0}
 
 	/* Write in the IVR to support Protect Mode */
-	LDR     lr, =SAIC
-	LDR     r0, [r14, #AIC_IVR]
-	STR     lr, [r14, #AIC_IVR]
+
+	ldr     lr, =SAIC
+	ldr     r0, [r14, #AIC_IVR]
+	str     lr, [r14, #AIC_IVR]
 
 	/* Branch to interrupt handler in Supervisor mode */
-	MSR     CPSR_c, #ARM_MODE_SVC
-	STMFD   sp!, {r1-r3, r4, r12, lr}
 
-	MOV     r14, pc
-	BX      r0
+	msr     CPSR_c, #ARM_MODE_SVC
+	stmfd   sp!, {r1-r3, r4, r12, lr}
 
-	LDMIA   sp!, {r1-r3, r4, r12, lr}
-	MSR     CPSR_c, #ARM_MODE_FIQ | I_BIT | F_BIT
+	mov     r14, pc
+	bx      r0
+
+	ldmia   sp!, {r1-r3, r4, r12, lr}
+	msr     CPSR_c, #ARM_MODE_FIQ | I_BIT | F_BIT
 
 	/* Acknowledge interrupt */
-	LDR     lr, =SAIC
-	STR     lr, [r14, #AIC_EOICR]
+
+	ldr     lr, =SAIC
+	str     lr, [r14, #AIC_EOICR]
 
 	/* Restore interrupt context and branch back to calling code */
-	LDMIA   sp!, {r0}
-	/* MSR     SPSR_cxsf, lr*/
-	LDMIA   sp!, {pc}^
 
+	ldmia   sp!, {r0}
+	//msr     SPSR_cxsf, lr
+	ldmia   sp!, {pc}^
 
 //------------------------------------------------------------------------------
 /// Handles incoming interrupt requests by branching to the corresponding
@@ -124,73 +118,83 @@ fiqHandler:
 //------------------------------------------------------------------------------
 irqHandler:
 	/* Save interrupt context on the stack to allow nesting */
-	SUB     lr, lr, #4
-	STMFD   sp!, {lr}
-	MRS     lr, SPSR
-	STMFD   sp!, {r0, lr}
+
+	sub     lr, lr, #4
+	stmfd   sp!, {lr}
+	mrs     lr, SPSR
+	stmfd   sp!, {r0, lr}
 
 	/* Write in the IVR to support Protect Mode */
-	LDR     lr, =AIC
-	LDR     r0, [r14, #AIC_IVR]
-	STR     lr, [r14, #AIC_IVR]
+
+	ldr     lr, =AIC
+	ldr     r0, [r14, #AIC_IVR]
+	str     lr, [r14, #AIC_IVR]
 
 	/* Branch to interrupt handler in Supervisor mode */
-	MSR     CPSR_c, #ARM_MODE_SVC
-	STMFD   sp!, {r1-r3, r4, r12, lr}
+
+	msr     CPSR_c, #ARM_MODE_SVC
+	stmfd   sp!, {r1-r3, r4, r12, lr}
 
 	/* Check for 8-byte alignment and save lr plus a */
 	/* word to indicate the stack adjustment used (0 or 4) */
-	AND     r1, sp, #4
-	SUB     sp, sp, r1
-	STMFD   sp!, {r1, lr}
 
-	BLX     r0
+	and     r1, sp, #4
+	sub     sp, sp, r1
+	stmfd   sp!, {r1, lr}
 
-	LDMIA   sp!, {r1, lr}
-	ADD     sp, sp, r1
+	blx     r0
 
-	LDMIA   sp!, {r1-r3, r4, r12, lr}
-	MSR     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
+	ldmia   sp!, {r1, lr}
+	add     sp, sp, r1
+
+	ldmia   sp!, {r1-r3, r4, r12, lr}
+	msr     CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
 	/* Acknowledge interrupt */
-	LDR     lr, =AIC
-	STR     lr, [r14, #AIC_EOICR]
+
+	ldr     lr, =AIC
+	str     lr, [r14, #AIC_EOICR]
 
 	/* Restore interrupt context and branch back to calling code */
-	LDMIA   sp!, {r0, lr}
-	MSR     SPSR_cxsf, lr
-	LDMIA   sp!, {pc}^
+
+	ldmia   sp!, {r0, lr}
+	msr     SPSR_cxsf, lr
+	ldmia   sp!, {pc}^
 
 
 //------------------------------------------------------------------------------
 /// Initializes the chip and branches to the main() function.
 //------------------------------------------------------------------------------
-	    .section    .textEntry
-	    .global     entry
+	.section    .textEntry
+	.global     entry
 
 entry:
 resetHandler:
 
-	CPSIE   A
+	cpsie   a
 
 /* Enable VFP */
+
 	/* - Enable access to CP10 and CP11 in CP15.CACR */
 	//mrc     p15, 0, r0, c1, c0, 2
 	//orr     r0, r0, #0xf00000
 	//mcr     p15, 0, r0, c1, c0, 2
-/* - Enable access to CP10 and CP11 in CP15.NSACR */
-/* - Set FPEXC.EN (B30) */
+	/* - Enable access to CP10 and CP11 in CP15.NSACR */
+	/* - Set FPEXC.EN (B30) */
 	//fmrx    r0, fpexc
 	//orr     r0, r0, #0x40000000
 	//fmxr    fpexc, r0
 
 /* Useless instruction for referencing the .vectors section */
+
 	ldr     r0, =resetVector
 
 /* Set pc to actual code location (i.e. not in remap zone) */
+
 	ldr     pc, =1f
 
 /* Initialize the prerelocate segment */
+
 1:
 	ldr     r0, =_efixed
 	ldr     r1, =_sprerelocate
@@ -202,7 +206,8 @@ resetHandler:
 	bcc     1b
 
 /* Initialize the postrelocate segment */
-	;; ldmfd   sp!, {r0}
+
+	//ldmfd   sp!, {r0}
 	ldr     r1, =_spostrelocate
 	ldr     r2, =_epostrelocate
 1:
@@ -220,61 +225,67 @@ resetHandler:
 	strcc   r2, [r0], #4
 	bcc     1b
 
-/* Perform low-level initialization of the chip using LowLevelInit() */
-	;; ldr     sp, =_cstack
-	;; stmfd   sp!, {r0}
+/* Perform low-level initialization of the chip using low_level_init() */
+
+	//ldr     sp, =_cstack
+	//stmfd   sp!, {r0}
 	ldr     r0, =low_level_init
 	blx     r0
 
-	MRS     r0, cpsr
-/* Set up the fast interrupt stack pointer.*/
+	mrs     r0, CPSR
+
+/* Set up the fast interrupt stack pointer */
+
 	bic     r0, r0, #MODE_MSK
 	orr     r0, r0, #ARM_MODE_FIQ
-	msr     cpsr_c, r0
+	msr     CPSR_c, r0
 	ldr     sp, =_fiqstack
-	bic     sp,sp,#0x7
+	bic     sp, sp, #0x7
 
-/* Set up the normal interrupt stack pointer.*/
+/* Set up the normal interrupt stack pointer */
 
 	bic     r0, r0, #MODE_MSK
 	orr     r0, r0, #ARM_MODE_IRQ
-	msr     cpsr_c, r0
+	msr     CPSR_c, r0
 	ldr     sp, =_irqstack
-	bic     sp,sp,#0x7
+	bic     sp, sp, #0x7
 
-/* Set up the stack pointer.*/
+/* Set up the stack pointer */
 
-	bic     r0 ,r0, #MODE_MSK
-	orr     r0 ,r0, #ARM_MODE_SYS
-	msr     cpsr_c, r0
+	bic     r0, r0, #MODE_MSK
+	orr     r0, r0, #ARM_MODE_SYS
+	msr     CPSR_c, r0
 	ldr     sp, =_sysstack
-	bic     sp,sp,#0x7
+	bic     sp, sp, #0x7
 
-	bic     r0 ,r0, #MODE_MSK
-	orr     r0 ,r0, #ARM_MODE_SVC
-	msr     cpsr_c, r0
+	bic     r0, r0, #MODE_MSK
+	orr     r0, r0, #ARM_MODE_SVC
+	msr     CPSR_c, r0
 	ldr     sp, =_cstack
-	bic     sp,sp,#0x7
+	bic     sp, sp, #0x7
 
-		// Redirect FIQ to IRQ
-	LDR  r0, = AICREDIR_KEY
-	LDR  r1, = REG_SFR_UID
-	LDR  r2, = REG_SFR_AICREDIR
-	LDR  r3,[r1]
-	EORS r0, r0, r3
-	ORRS r0, r0, #0x01
-	STR  r0, [r2]
+/* Redirect FIQ to IRQ */
 
-/*Initialize the C library  */
+	ldr     r0, =AICREDIR_KEY
+	ldr     r1, =REG_SFR_UID
+	ldr     r2, =REG_SFR_AICREDIR
+	ldr     r3, [r1]
+	eors    r0, r0, r3
+	orrs    r0, r0, #0x01
+	str     r0, [r2]
+
+/* Initialize the C library */
+
 	ldr     r3, =__libc_init_array
 	mov     lr, pc
 	bx      r3
 
-/* Branch to main()
- ******************/
+/* Branch to main() */
+
 	ldr     r0, =main
 	blx     r0
 
 /* Loop indefinitely when program is finished */
+
 1:
 	b       1b

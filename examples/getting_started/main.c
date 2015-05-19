@@ -257,7 +257,7 @@ static void configure_pit(void)
 
 	/* Configure interrupt on PIT */
 	aic_enable(ID_PIT);
-	aic_set_source_vector(ID_PIT, (uint32_t)pit_handler);
+	aic_set_source_vector(ID_PIT, pit_handler);
 
 	pit_enable_it();
 
@@ -335,11 +335,11 @@ static void configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
+	aic_set_source_vector(ID_TC0, tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	TC_FindMckDivisor(4, &div, &tcclks);
-	printf("TC: Select %iu divisor", div);
+	printf("TC: Select %u divisor\n", (unsigned int)div);
 	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
@@ -417,7 +417,7 @@ int main(void)
 
 #else
 	printf("Initializing console interrupts\r\n");
-	aic_set_source_vector(CONSOLE_ID, (uint32_t)console_handler);
+	aic_set_source_vector(CONSOLE_ID, console_handler);
 	aic_enable(CONSOLE_ID);
 	console_enable_interrupts(US_IER_RXRDY);
 	printf("No push buttons, uses DBG key 1 & 2 instead.\n\r");

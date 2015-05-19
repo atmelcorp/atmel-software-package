@@ -37,113 +37,16 @@
 #ifndef BOARD_LOWLEVEL_H
 #define BOARD_LOWLEVEL_H
 
-#include <stdint.h>
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-uint32_t v_arm_read_control(void);
-void v_arm_write_control(uint32_t ctl);
-
-void defaultSpuriousHandler(void);
-void defaultFiqHandler(void);
-void defaultIrqHandler(void);
-
 /* Cortex-A5 core handlers */
-/*
-*/
 
-void SYS_IrqHandler(void);
-void Spurious_handler(void);
+WEAK extern void UndefInstr_IrqHandler(void);    /* Undefined Instruction */
+WEAK extern void PrefetchAbort_IrqHandler(void); /* Prefetch Abort */
+WEAK extern void DataAbort_IrqHandler(void);     /* Data Abort */
 
-/* Peripherals handlers */
-void SAIC_Handler(void);
-void ARM_Handler(void);
-void PIT_Handler(void);
-void WDT_Handler(void);
-void PIOD_Handler(void);
-void USART0_Handler(void);
-void USART1_Handler(void);
-void XDMAC0_Handler(void);
-void ICM_Handler(void);
-void PKCC_Handler(void);
-void SCI_Handler(void);
-void AES_Handler(void);
-void AESB_Handler(void);
-void TDES_Handler(void);
-void SHA_Handler(void);
-void MPDDRC_Handler(void);
-void H32MX_Handler(void);
-void H64MX_Handler(void);
-void VDEC_Handler(void);
-void SECUMOD_Handler(void);
-void MSADCC_Handler(void);
-void HSMC_Handler(void);
-void PIOA_Handler(void);
-void PIOB_Handler(void);
-void PIOC_Handler(void);
-void PIOE_Handler(void);
-void UART0_Handler(void);
-void UART1_Handler(void);
-void UART2_Handler(void);
-void UART3_Handler(void);
-void UART4_Handler(void);
-void USART2_Handler(void);
-void USART3_Handler(void);
-void USART4_Handler(void);
-void TWI0_Handler(void);
-void TWI1_Handler(void);
-void TWI2_Handler(void);
-void HSMCI0_Handler(void);
-void HSMCI1_Handler(void);
-void SPI0_Handler(void);
-void SPI1_Handler(void);
-void SPI2_Handler(void);
-void TC0_Handler(void);
-void TC1_Handler(void);
-void TC2_Handler(void);
-void PWM_Handler(void);
-void ADC_Handler(void);
-void DBGU_Handler(void);
-void UHPHS_Handler(void);
-void UDPHS_Handler(void);
-void SSC0_Handler(void);
-void SSC1_Handler(void);
-void XDMAC1_Handler(void);
-void LCDC_Handler(void);
-void ISI_Handler(void);
-void TRNG_Handler(void);
-void GMAC_Handler(void);
-void AIC_Handler(void);
-void SFC_Handler(void);
-void SECURAM_Handler(void);
-void CTB_Handler(void);
-void SMD_Handler(void);
-void TWI3_Handler(void);
-void CATB_Handler(void);
-void SFR_Handler(void);
-void SAIC1_Handler(void);
-void L2CC_Handler(void);
-void MATRIX1_Handler(void);
-void MATRIX0_Handler(void);
-void FLEXCOM0_Handler(void);
-void FLEXCOM1_Handler(void);
-void FLEXCOM2_Handler(void);
-void FLEXCOM3_Handler(void);
-void FLEXCOM4_Handler(void);
-void TWIHS0_Handler(void);
-void TWIHS1_Handler(void);
-void QSPI0_Handler(void);
-void QSPI1_Handler(void);
-void PDMIC_Handler(void);
-void I2SC0_Handler(void);
-void I2SC1_Handler(void);
-void CLASSD_Handler(void);
-void ACC_Handler(void);
-void RXLP_Handler(void);
-void CHIPID_Handler(void);
+extern void low_level_init(void);
 
-void low_level_init(void);
-
-#endif  /* BOARD_LOWLEVEL_H */
+#endif /* BOARD_LOWLEVEL_H */

@@ -40,85 +40,13 @@
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-void defaultSpuriousHandler(void);
-void defaultFiqHandler(void);
-void defaultIrqHandler(void);
 
 /* Cortex-A5 core handlers */
-/*
-*/
 
-void SYS_IrqHandler(void);
-void Spurious_handler(void);
+WEAK extern void UndefInstr_IrqHandler(void);    /* Undefined Instruction */
+WEAK extern void PrefetchAbort_IrqHandler(void); /* Prefetch Abort */
+WEAK extern void DataAbort_IrqHandler(void);     /* Data Abort */
 
-/* Peripherals handlers */
-void SAIC0_Handler(void);
-void ARM_IrqHandler(void);
-void PIT_IrqHandler(void);
-void WDT_IrqHandler(void);
-void PIOD_IrqHandler(void);
-void USART0_IrqHandler(void);
-void USART1_IrqHandler(void);
-void XDMAC0_IrqHandler(void);
-void ICM_IrqHandler(void);
-void PKCC_IrqHandler(void);
-void SCI_IrqHandler(void);
-void AES_IrqHandler(void);
-void AESB_IrqHandler(void);
-void TDES_IrqHandler(void);
-void SHA_IrqHandler(void);
-void MPDDRC_IrqHandler(void);
-void H32MX_IrqHandler(void);
-void H64MX_IrqHandler(void);
-void VDEC_IrqHandler(void);
-void SECUMOD_IrqHandler(void);
-void MSADCC_IrqHandler(void);
-void HSMC_IrqHandler(void);
-void PIOA_IrqHandler(void);
-void PIOB_IrqHandler(void);
-void PIOC_IrqHandler(void);
-void PIOE_IrqHandler(void);
-void UART0_IrqHandler(void);
-void UART1_IrqHandler(void);
-void USART2_IrqHandler(void);
-void USART3_IrqHandler(void);
-void USART4_IrqHandler(void);
-void TWI0_IrqHandler(void);
-void TWI1_IrqHandler(void);
-void TWI2_IrqHandler(void);
-void HSMCI0_IrqHandler(void);
-void HSMCI1_IrqHandler(void);
-void SPI0_IrqHandler(void);
-void SPI1_IrqHandler(void);
-void SPI2_IrqHandler(void);
-void TC0_IrqHandler(void);
-void TC1_IrqHandler(void);
-void TC2_IrqHandler(void);
-void PWM_IrqHandler(void);
-void ADC_IrqHandler(void);
-void DBGU_IrqHandler(void);
-void UHPHS_IrqHandler(void);
-void UDPHS_IrqHandler(void);
-void SSC0_IrqHandler(void);
-void SSC1_IrqHandler(void);
-void XDMAC1_IrqHandler(void);
-void LCDC_IrqHandler(void);
-void ISI_IrqHandler(void);
-void TRNG_IrqHandler(void);
-void GMAC0_IrqHandler(void);
-void GMAC1_IrqHandler(void);
-void AIC0_IrqHandler(void);
-void SFC_IrqHandler(void);
-void SECURAM_IrqHandler(void);
-void CTB_IrqHandler(void);
-void SMD_IrqHandler(void);
-void TWI3_IrqHandler(void);
-void CATB_IrqHandler(void);
-void SFR_IrqHandler(void);
-void AIC1_IrqHandler(void);
-void SAIC1_IrqHandler(void);
-void L2CC_IrqHandler(void);
+extern void low_level_init(void);
 
-void low_level_init(void);
-
-#endif  /* BOARD_LOWLEVEL_H */
+#endif /* BOARD_LOWLEVEL_H */

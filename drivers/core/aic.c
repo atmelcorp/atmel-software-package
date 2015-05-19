@@ -63,6 +63,7 @@
 #include "core/aic.h"
 #include "core/cp15.h"
 #include "core/cp15_pmu.h"
+#include "core/cpsr.h"
 
 #include <stdint.h>
 #include <assert.h>
@@ -70,6 +71,54 @@
 /*------------------------------------------------------------------------------
  *         Local functions
  *------------------------------------------------------------------------------*/
+
+/**
+ * \brief Default interrupt handler.
+ */
+static void _aic_default_irq_handler(void)
+{
+	while (1);
+}
+
+/**
+ * \brief Interrupt Init.
+ */
+static void _aic_initialize(Aic* aic)
+{
+	uint32_t i;
+
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+
+	/* Disable all interrupts */
+	for (i = 1; i < ID_PERIPH_COUNT; i++)
+	{
+		aic->AIC_SSR = i;
+		aic->AIC_IDCR = AIC_IDCR_INTD;
+	}
+
+	/* Clear All pending interrupts flags */
+	for (i = 0; i < ID_PERIPH_COUNT; i++)
+	{
+		aic->AIC_SSR = i;
+		aic->AIC_ICCR = AIC_ICCR_INTCLR;
+	}
+
+	/* Perform 8 IT acknowledge (write any value in EOICR) (VPy) */
+	for (i = 0; i < 8; i++)
+		aic->AIC_EOICR = 0;
+
+	/* Assign default handler */
+	for (i = 0; i < ID_PERIPH_COUNT; i++)
+	{
+		aic->AIC_SSR = i;
+		aic->AIC_SVR = (uint32_t)_aic_default_irq_handler;
+	}
+	aic->AIC_SPU = (uint32_t)_aic_default_irq_handler;
+
+	/* Enable IRQ and FIQ at core level */
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+}
 
 /**
  * \brief Configures an interrupt in the AIC. The interrupt is identified by its
@@ -128,13 +177,27 @@ static void _aic_disable_it(Aic * aic, uint32_t source)
  * \param source  Interrupt source to configure.
  * \param handler handler for the interrupt.
  */
-static void _aic_set_source_vector(Aic * aic, uint32_t source, uint32_t handler)
+static void _aic_set_source_vector(Aic * aic, uint32_t source, void (*handler)(void))
 {
 	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
 		aic_write_protection(aic, 1);
 	}
 	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_SVR = handler;
+	aic->AIC_SVR = (uint32_t)handler;
+}
+
+/**
+ * \brief Configure the spurious interrupt handler
+ *
+ * \param aic  AIC instance.
+ * \param handler handler for the interrupt.
+ */
+static void _aic_set_spurious_vector(Aic * aic, void (*handler)(void))
+{
+	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
+		aic_write_protection(aic, 1);
+	}
+	aic->AIC_SPU = (uint32_t)handler;
 }
 
 /**
@@ -180,6 +243,18 @@ static uint8_t _is_h64_matrix(uint32_t pid)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Set the default handler for all interrupts
+ */
+void aic_initialize(void)
+{
+	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+
+	_aic_initialize(AIC);
+	if (AicFuse)
+		_aic_initialize(SAIC);
+}
 
 /**
  * \brief Enables interrupts coming from the given (unique) source (ID_xxx).
@@ -271,7 +346,7 @@ void aic_configure(uint32_t source, uint8_t mode)
  * \param source  Interrupt source to configure.
  * \param handler handler for the interrupt.
  */
-void aic_set_source_vector(uint32_t source, uint32_t handler)
+void aic_set_source_vector(uint32_t source, void (*handler)(void))
 {
 	Matrix *pMatrix;
 	Aic *aic = AIC;
@@ -285,6 +360,22 @@ void aic_set_source_vector(uint32_t source, uint32_t handler)
 			aic = SAIC;
 	}
 	_aic_set_source_vector(aic, source, handler);
+}
+
+/**
+ * \brief Configure the spurious interrupt handler
+ *
+ * \param handler handler for the interrupt.
+ */
+void aic_set_spurious_vector(void (*handler)(void))
+{
+	Aic *aic = AIC;
+	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+
+	if (0 == AicFuse) {
+		aic = SAIC;
+	}
+	_aic_set_spurious_vector(aic, handler);
 }
 
 /**

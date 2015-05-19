@@ -41,6 +41,7 @@
 #include "resources/compiler_defines.h"
 #include "core/pmc.h"
 #include "core/cpsr.h"
+#include "core/aic.h"
 
 #include <stdio.h>
 
@@ -48,7 +49,7 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** Array of dividers to compute max supported peripheral frequence for SAMA5D4
+/** Array of dividers to compute max supported peripheral frequency for SAMA5D4
  *  chips.
  */
 const uint32_t peripherals_min_clock_dividers[] = {
@@ -121,554 +122,154 @@ const uint32_t peripherals_min_clock_dividers[] = {
 	0  /* ID_L2CC     */
 };
 
-static const char *abort_status[][2] = {
-	// IFSR status        ,       DFSR status
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//0
-	{"Unknown(reserved status)", "Alignment Fault"},	//1
-	{"Debug Event", "Debug Event"},	//2
-	{"Access flag - section", "Access flag - section"},	//3
-	{"Unknown(reserved status)", "Instruction cache maintenance"},	//4
-	{"Translation fault - section", "Translation fault - section"},	//5
-	{"Access flag - Page", "Access flag - Page"},	//6
-	{"Translation fault -Page", "Translation fault -Page"},	//7
-	{"Synchronous external abort", "Synchronous external abort, nontranslation"},	//8
-	{"Domain fault - Section", "Domain fault - Section"},	//9
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//10
-	{"Domain fault - Page", "Domain fault - Page"},	//11
-	{"Synchronous external abort - L1 Translation", "Synchronous external abort - L1 Translation"},	//12
-	{"Permission fault - Section", "Permission fault - Section"},	//13
-	{"Synchronous external abort - L2 Translation", "Synchronous external abort - L2 Translation"},	//14
-	{"Permission fault - Page", "Permission fault - Page"},	//15
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//16
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//17
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//18
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//19
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//20
-	{"Unknown(reserved status)", "Unknown(reserved status)"},	//21
-	{"Unknown(reserved status)", "Asynchronous external abort"}
+/* IFSR status */
+static const char* _prefetch_abort_status[32] = {
+	NULL,
+	NULL,
+	"debug event",
+	"access flag fault, section",
+	NULL,
+	"translation fault, section",
+	"access flag fault, page",
+	"translation fault, page",
+	"synchronous external abort",
+	"domain fault, section",
+	NULL,
+	"domain fault, page",
+	"L1 translation, synchronous external abort",
+	"permission fault, section",
+	"L2 translation, synchronous external abort",
+	"permission fault, page",
+};
 
+/* DFSR status */
+static const char* _data_abort_status[32] = {
+	NULL,
+	"alignment fault",
+	"debug event",
+	"access flag fault, section",
+	"instruction cache maintenance fault",
+	"translation fault, section",
+	"access flag fault, page",
+	"translation fault, page",
+	"synchronous external abort, nontranslation",
+	"domain fault, section",
+	NULL,
+	"domain fault, page",
+	"1st level translation, synchronous external abort",
+	"permission fault, section",
+	"2nd level translation, synchronous external abort",
+	"permission fault, page",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	"asynchronous external abort"
 };
 
 /*----------------------------------------------------------------------------
- *        Internal functions
+ *        Functions Prototypes
  *----------------------------------------------------------------------------*/
 
-void NonSecureITInit(void);
-void secure_it_init(void);
-void prefetch_c_handler(void);
-void abort_c_handler(void);
-void undefined_c_Handler(void);
+void Default_DataAbort_IrqHandler(void);
+void Default_PrefetchAbort_IrqHandler(void);
+void Default_UndefInstr_IrqHandler(void);
 
-/**
- * \brief Default spurious interrupt handler. Infinite loop.
- */
-void
-defaultSpuriousHandler(void)
-{
-	while (1) ;
-}
+#pragma weak UndefInstr_IrqHandler=Default_UndefInstr_IrqHandler
+#pragma weak PrefetchAbort_IrqHandler=Default_PrefetchAbort_IrqHandler
+#pragma weak DataAbort_IrqHandler=Default_DataAbort_IrqHandler
 
-void
-abort_c_handler(void)
-{
-	uint32_t v1, v2, dfsr;
-	v1 = 0;
-	v2 = 0;
-      asm("mrc   p15, 0, %0, c5, c0, 0": :"r"(v1));
-      asm("mrc   p15, 0, %0, c6, c0, 0": :"r"(v2));
-
-	dfsr = ((v1 >> 4) & 0x0F);
-	printf
-	    ("\n\r######################################################################\n\r");
-	printf("Data Abort occured in %x domain\n\r", (unsigned int) dfsr);
-	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-	printf("Data abort fault reason is: %s\n\r",
-	       (char *) abort_status[dfsr][1]);
-	printf("Data fault occured at Address = 0x%08x\n\n\r",
-	       (unsigned int) v2);
-
-	printf("-[Info]-Data fault status register value = 0x%x\n\r",
-	       (unsigned int) v1);
-
-	while (1) ;
-
-}
-
-void
-prefetch_c_handler(void)
-{
-	uint32_t v1, v2, ifsr;
-	v1 = 0;
-	v2 = 0;
-
-      asm("mrc   p15, 0, %0, c5, c0, 1": :"r"(v1));
-      asm("mrc   p15, 0, %0, c6, c0, 2": :"r"(v2));
-
-	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
-	printf
-	    ("\n\r######################################################################\n\r");
-	printf("Instruction prefetch abort reason is: %s\n\r",
-	       (char *) abort_status[ifsr][0]);
-	printf("Instruction prefetch Fault occured at Address = 0x%08x\n\n\r",
-	       (unsigned int) v2);
-
-	printf("-[INFO]- Prefetch Fault status register value by = 0x%x\n\r",
-	       (unsigned int) v1);
-
-	while (1) ;
-
-}
-
-void
-undefined_c_Handler(void)
-{
-	printf("Undefined abort \n\r");
-	while (1) ;
-}
-
-void Dummy_Handler(void);
-#pragma weak SAIC0_Handler=Dummy_Handler
-#pragma weak SYS_IrqHandler=Dummy_Handler
-#pragma weak ARM_IrqHandler=Dummy_Handler
-#pragma weak PIT_IrqHandler=Dummy_Handler
-#pragma weak WDT_IrqHandler=Dummy_Handler
-#pragma weak PIOD_IrqHandler=Dummy_Handler
-#pragma weak USART0_IrqHandler=Dummy_Handler
-#pragma weak USART1_IrqHandler=Dummy_Handler
-#pragma weak XDMAC0_IrqHandler=Dummy_Handler
-#pragma weak ICM_IrqHandler=Dummy_Handler
-#pragma weak PKCC_IrqHandler=Dummy_Handler
-#pragma weak SCI_IrqHandler=Dummy_Handler
-#pragma weak AES_IrqHandler=Dummy_Handler
-#pragma weak AESB_IrqHandler=Dummy_Handler
-#pragma weak TDES_IrqHandler=Dummy_Handler
-#pragma weak SHA_IrqHandler=Dummy_Handler
-#pragma weak MPDDRC_IrqHandler=Dummy_Handler
-#pragma weak H32MX_IrqHandler=Dummy_Handler
-#pragma weak H64MX_IrqHandler=Dummy_Handler
-#pragma weak VDEC_IrqHandler=Dummy_Handler
-#pragma weak SECUMOD_IrqHandler=Dummy_Handler
-#pragma weak MSADCC_IrqHandler=Dummy_Handler
-#pragma weak HSMC_IrqHandler=Dummy_Handler
-#pragma weak PIOA_IrqHandler=Dummy_Handler
-#pragma weak PIOB_IrqHandler=Dummy_Handler
-#pragma weak PIOC_IrqHandler=Dummy_Handler
-#pragma weak PIOE_IrqHandler=Dummy_Handler
-#pragma weak UART0_IrqHandler=Dummy_Handler
-#pragma weak UART1_IrqHandler=Dummy_Handler
-#pragma weak USART2_IrqHandler=Dummy_Handler
-#pragma weak USART3_IrqHandler=Dummy_Handler
-#pragma weak USART4_IrqHandler=Dummy_Handler
-#pragma weak TWI0_IrqHandler=Dummy_Handler
-#pragma weak TWI1_IrqHandler=Dummy_Handler
-#pragma weak TWI2_IrqHandler=Dummy_Handler
-#pragma weak HSMCI0_IrqHandler=Dummy_Handler
-#pragma weak HSMCI1_IrqHandler=Dummy_Handler
-#pragma weak SPI0_IrqHandler=Dummy_Handler
-#pragma weak SPI1_IrqHandler=Dummy_Handler
-#pragma weak SPI2_IrqHandler=Dummy_Handler
-#pragma weak TC0_IrqHandler=Dummy_Handler
-#pragma weak TC1_IrqHandler=Dummy_Handler
-#pragma weak TC2_IrqHandler=Dummy_Handler
-#pragma weak PWM_IrqHandler=Dummy_Handler
-#pragma weak ADC_IrqHandler=Dummy_Handler
-#pragma weak DBGU_IrqHandler=Dummy_Handler
-#pragma weak UHPHS_IrqHandler=Dummy_Handler
-#pragma weak UDPHS_IrqHandler=Dummy_Handler
-#pragma weak SSC0_IrqHandler=Dummy_Handler
-#pragma weak SSC1_IrqHandler=Dummy_Handler
-#pragma weak XDMAC1_IrqHandler=Dummy_Handler
-#pragma weak LCDC_IrqHandler=Dummy_Handler
-#pragma weak ISI_IrqHandler=Dummy_Handler
-#pragma weak TRNG_IrqHandler=Dummy_Handler
-#pragma weak GMAC0_IrqHandler=Dummy_Handler
-#pragma weak GMAC1_IrqHandler=Dummy_Handler
-#pragma weak AIC0_IrqHandler=Dummy_Handler
-#pragma weak SFC_IrqHandler=Dummy_Handler
-#pragma weak SECURAM_IrqHandler=Dummy_Handler
-#pragma weak CTB_IrqHandler=Dummy_Handler
-#pragma weak SMD_IrqHandler=Dummy_Handler
-#pragma weak TWI3_IrqHandler=Dummy_Handler
-#pragma weak CATB_IrqHandler=Dummy_Handler
-#pragma weak SFR_IrqHandler=Dummy_Handler
-#pragma weak AIC1_IrqHandler=Dummy_Handler
-#pragma weak SAIC1_IrqHandler=Dummy_Handler
-#pragma weak L2CC_IrqHandler=Dummy_Handler
-#pragma weak Spurious_handler=Dummy_Handler
-
-/**
- * \brief Dummy default handler.
- */
-void
-Dummy_Handler(void)
-{
-	while (1);
-}
-
-/**
- * \brief Non-secure Interupt Init.
- */
-void
-NonSecureITInit(void)
-{
-	uint32_t i;
-	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-
-	/* Disable all interrupts */
-	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR = i;
-		AIC->AIC_IDCR = AIC_IDCR_INTD;
-	}
-	/* Clear All pending interrupts flags */
-	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		AIC->AIC_SSR = i;
-		AIC->AIC_ICCR = AIC_ICCR_INTCLR;
-	}
-
-	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
-	for (i = 0; i < 8; i++) {
-		AIC->AIC_EOICR = 0;
-	}
-
-	/* Assign handler addesses */
-	AIC->AIC_SSR = 0;
-	AIC->AIC_SVR = (unsigned int) SAIC0_Handler;
-	AIC->AIC_SSR = 1;
-	AIC->AIC_SVR = (unsigned int) SYS_IrqHandler;
-	AIC->AIC_SSR = 2;
-	AIC->AIC_SVR = (unsigned int) ARM_IrqHandler;
-	AIC->AIC_SSR = 3;
-	AIC->AIC_SVR = (unsigned int) PIT_IrqHandler;
-	AIC->AIC_SSR = 4;
-	AIC->AIC_SVR = (unsigned int) WDT_IrqHandler;
-	AIC->AIC_SSR = 5;
-	AIC->AIC_SVR = (unsigned int) PIOD_IrqHandler;
-	AIC->AIC_SSR = 6;
-	AIC->AIC_SVR = (unsigned int) USART0_IrqHandler;
-	AIC->AIC_SSR = 7;
-	AIC->AIC_SVR = (unsigned int) USART1_IrqHandler;
-	AIC->AIC_SSR = 8;
-	AIC->AIC_SVR = (unsigned int) XDMAC0_IrqHandler;
-	AIC->AIC_SSR = 9;
-	AIC->AIC_SVR = (unsigned int) ICM_IrqHandler;
-	AIC->AIC_SSR = 10;
-	AIC->AIC_SVR = (unsigned int) PKCC_IrqHandler;
-	AIC->AIC_SSR = 11;
-	AIC->AIC_SVR = (unsigned int) SCI_IrqHandler;
-	AIC->AIC_SSR = 12;
-	AIC->AIC_SVR = (unsigned int) AES_IrqHandler;
-	AIC->AIC_SSR = 13;
-	AIC->AIC_SVR = (unsigned int) AESB_IrqHandler;
-	AIC->AIC_SSR = 14;
-	AIC->AIC_SVR = (unsigned int) TDES_IrqHandler;
-	AIC->AIC_SSR = 15;
-	AIC->AIC_SVR = (unsigned int) SHA_IrqHandler;
-	AIC->AIC_SSR = 16;
-	AIC->AIC_SVR = (unsigned int) MPDDRC_IrqHandler;
-	AIC->AIC_SSR = 17;
-	AIC->AIC_SVR = (unsigned int) H32MX_IrqHandler;
-	AIC->AIC_SSR = 18;
-	AIC->AIC_SVR = (unsigned int) H64MX_IrqHandler;
-	AIC->AIC_SSR = 19;
-	AIC->AIC_SVR = (unsigned int) VDEC_IrqHandler;
-	AIC->AIC_SSR = 20;
-	AIC->AIC_SVR = (unsigned int) SECUMOD_IrqHandler;
-	AIC->AIC_SSR = 21;
-	AIC->AIC_SVR = (unsigned int) MSADCC_IrqHandler;
-	AIC->AIC_SSR = 22;
-	AIC->AIC_SVR = (unsigned int) HSMC_IrqHandler;
-	AIC->AIC_SSR = 23;
-	AIC->AIC_SVR = (unsigned int) PIOA_IrqHandler;
-	AIC->AIC_SSR = 24;
-	AIC->AIC_SVR = (unsigned int) PIOB_IrqHandler;
-	AIC->AIC_SSR = 25;
-	AIC->AIC_SVR = (unsigned int) PIOC_IrqHandler;
-	AIC->AIC_SSR = 26;
-	AIC->AIC_SVR = (unsigned int) PIOE_IrqHandler;
-	AIC->AIC_SSR = 27;
-	AIC->AIC_SVR = (unsigned int) UART0_IrqHandler;
-	AIC->AIC_SSR = 28;
-	AIC->AIC_SVR = (unsigned int) UART1_IrqHandler;
-	AIC->AIC_SSR = 29;
-	AIC->AIC_SVR = (unsigned int) USART2_IrqHandler;
-	AIC->AIC_SSR = 30;
-	AIC->AIC_SVR = (unsigned int) USART3_IrqHandler;
-	AIC->AIC_SSR = 31;
-	AIC->AIC_SVR = (unsigned int) USART4_IrqHandler;
-	AIC->AIC_SSR = 32;
-	AIC->AIC_SVR = (unsigned int) TWI0_IrqHandler;
-	AIC->AIC_SSR = 33;
-	AIC->AIC_SVR = (unsigned int) TWI1_IrqHandler;
-	AIC->AIC_SSR = 34;
-	AIC->AIC_SVR = (unsigned int) TWI2_IrqHandler;
-	AIC->AIC_SSR = 35;
-	AIC->AIC_SVR = (unsigned int) HSMCI0_IrqHandler;
-	AIC->AIC_SSR = 36;
-	AIC->AIC_SVR = (unsigned int) HSMCI1_IrqHandler;
-	AIC->AIC_SSR = 37;
-	AIC->AIC_SVR = (unsigned int) SPI0_IrqHandler;
-	AIC->AIC_SSR = 38;
-	AIC->AIC_SVR = (unsigned int) SPI1_IrqHandler;
-	AIC->AIC_SSR = 39;
-	AIC->AIC_SVR = (unsigned int) SPI2_IrqHandler;
-	AIC->AIC_SSR = 40;
-	AIC->AIC_SVR = (unsigned int) TC0_IrqHandler;
-	AIC->AIC_SSR = 41;
-	AIC->AIC_SVR = (unsigned int) TC1_IrqHandler;
-	AIC->AIC_SSR = 42;
-	AIC->AIC_SVR = (unsigned int) TC2_IrqHandler;
-	AIC->AIC_SSR = 43;
-	AIC->AIC_SVR = (unsigned int) PWM_IrqHandler;
-	AIC->AIC_SSR = 44;
-	AIC->AIC_SVR = (unsigned int) ADC_IrqHandler;
-	AIC->AIC_SSR = 45;
-	AIC->AIC_SVR = (unsigned int) DBGU_IrqHandler;
-	AIC->AIC_SSR = 46;
-	AIC->AIC_SVR = (unsigned int) UHPHS_IrqHandler;
-	AIC->AIC_SSR = 47;
-	AIC->AIC_SVR = (unsigned int) UDPHS_IrqHandler;
-	AIC->AIC_SSR = 48;
-	AIC->AIC_SVR = (unsigned int) SSC0_IrqHandler;
-	AIC->AIC_SSR = 49;
-	AIC->AIC_SVR = (unsigned int) SSC1_IrqHandler;
-	AIC->AIC_SSR = 50;
-	AIC->AIC_SVR = (unsigned int) XDMAC1_IrqHandler;
-	AIC->AIC_SSR = 51;
-	AIC->AIC_SVR = (unsigned int) LCDC_IrqHandler;
-	AIC->AIC_SSR = 52;
-	AIC->AIC_SVR = (unsigned int) ISI_IrqHandler;
-	AIC->AIC_SSR = 53;
-	AIC->AIC_SVR = (unsigned int) TRNG_IrqHandler;
-	AIC->AIC_SSR = 54;
-	AIC->AIC_SVR = (unsigned int) GMAC0_IrqHandler;
-	AIC->AIC_SSR = 55;
-	AIC->AIC_SVR = (unsigned int) GMAC1_IrqHandler;
-	AIC->AIC_SSR = 56;
-	AIC->AIC_SVR = (unsigned int) AIC0_IrqHandler;
-	AIC->AIC_SSR = 57;
-	AIC->AIC_SVR = (unsigned int) SFC_IrqHandler;
-	AIC->AIC_SSR = 59;
-	AIC->AIC_SVR = (unsigned int) SECURAM_IrqHandler;
-	AIC->AIC_SSR = 60;
-	AIC->AIC_SVR = (unsigned int) CTB_IrqHandler;
-	AIC->AIC_SSR = 61;
-	AIC->AIC_SVR = (unsigned int) SMD_IrqHandler;
-	AIC->AIC_SSR = 62;
-	AIC->AIC_SVR = (unsigned int) TWI3_IrqHandler;
-	AIC->AIC_SSR = 63;
-	AIC->AIC_SVR = (unsigned int) CATB_IrqHandler;
-	AIC->AIC_SSR = 64;
-	AIC->AIC_SVR = (unsigned int) SFR_IrqHandler;
-	AIC->AIC_SSR = 65;
-	AIC->AIC_SVR = (unsigned int) AIC1_IrqHandler;
-	AIC->AIC_SSR = 66;
-	AIC->AIC_SVR = (unsigned int) SAIC1_IrqHandler;
-	AIC->AIC_SSR = 67;
-	AIC->AIC_SVR = (unsigned int) L2CC_IrqHandler;
-
-	AIC->AIC_SPU = (unsigned int) Spurious_handler;
-
-
-	/* Enable IRQ and FIQ at core level */
-	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-}
-
-/**
- * \brief Secure Interupt Init.
- */
-void
-secure_it_init(void)
-{
-	uint32_t i;
-
-	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-
-	/* Disable all interrupts */
-	for (i = 1; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR = i;
-		SAIC->AIC_IDCR = AIC_IDCR_INTD;
-	}
-	/* Clear All pending interrupts flags */
-	for (i = 0; i < ID_PERIPH_COUNT; i++) {
-		SAIC->AIC_SSR = i;
-		SAIC->AIC_ICCR = AIC_ICCR_INTCLR;
-	}
-
-	/* Perform 8 IT acknoledge (write any value in EOICR) (VPy) */
-	for (i = 0; i < 8; i++) {
-		SAIC->AIC_EOICR = 0;
-	}
-
-	/* Assign handler addesses */
-	SAIC->AIC_SSR = 0;
-	SAIC->AIC_SVR = (unsigned int) SAIC0_Handler;
-	SAIC->AIC_SSR = 1;
-	SAIC->AIC_SVR = (unsigned int) SYS_IrqHandler;
-	SAIC->AIC_SSR = 2;
-	SAIC->AIC_SVR = (unsigned int) ARM_IrqHandler;
-	SAIC->AIC_SSR = 3;
-	SAIC->AIC_SVR = (unsigned int) PIT_IrqHandler;
-	SAIC->AIC_SSR = 4;
-	SAIC->AIC_SVR = (unsigned int) WDT_IrqHandler;
-	SAIC->AIC_SSR = 5;
-	SAIC->AIC_SVR = (unsigned int) PIOD_IrqHandler;
-	SAIC->AIC_SSR = 6;
-	SAIC->AIC_SVR = (unsigned int) USART0_IrqHandler;
-	SAIC->AIC_SSR = 7;
-	SAIC->AIC_SVR = (unsigned int) USART1_IrqHandler;
-	SAIC->AIC_SSR = 8;
-	SAIC->AIC_SVR = (unsigned int) XDMAC0_IrqHandler;
-	SAIC->AIC_SSR = 9;
-	SAIC->AIC_SVR = (unsigned int) ICM_IrqHandler;
-	SAIC->AIC_SSR = 10;
-	SAIC->AIC_SVR = (unsigned int) PKCC_IrqHandler;
-	SAIC->AIC_SSR = 11;
-	SAIC->AIC_SVR = (unsigned int) SCI_IrqHandler;
-	SAIC->AIC_SSR = 12;
-	SAIC->AIC_SVR = (unsigned int) AES_IrqHandler;
-	SAIC->AIC_SSR = 13;
-	SAIC->AIC_SVR = (unsigned int) AESB_IrqHandler;
-	SAIC->AIC_SSR = 14;
-	SAIC->AIC_SVR = (unsigned int) TDES_IrqHandler;
-	SAIC->AIC_SSR = 15;
-	SAIC->AIC_SVR = (unsigned int) SHA_IrqHandler;
-	SAIC->AIC_SSR = 16;
-	SAIC->AIC_SVR = (unsigned int) MPDDRC_IrqHandler;
-	SAIC->AIC_SSR = 17;
-	SAIC->AIC_SVR = (unsigned int) H32MX_IrqHandler;
-	SAIC->AIC_SSR = 18;
-	SAIC->AIC_SVR = (unsigned int) H64MX_IrqHandler;
-	SAIC->AIC_SSR = 19;
-	SAIC->AIC_SVR = (unsigned int) VDEC_IrqHandler;
-	SAIC->AIC_SSR = 20;
-	SAIC->AIC_SVR = (unsigned int) SECUMOD_IrqHandler;
-	SAIC->AIC_SSR = 21;
-	SAIC->AIC_SVR = (unsigned int) MSADCC_IrqHandler;
-	SAIC->AIC_SSR = 22;
-	SAIC->AIC_SVR = (unsigned int) HSMC_IrqHandler;
-	SAIC->AIC_SSR = 23;
-	SAIC->AIC_SVR = (unsigned int) PIOA_IrqHandler;
-	SAIC->AIC_SSR = 24;
-	SAIC->AIC_SVR = (unsigned int) PIOB_IrqHandler;
-	SAIC->AIC_SSR = 25;
-	SAIC->AIC_SVR = (unsigned int) PIOC_IrqHandler;
-	SAIC->AIC_SSR = 26;
-	SAIC->AIC_SVR = (unsigned int) PIOE_IrqHandler;
-	SAIC->AIC_SSR = 27;
-	SAIC->AIC_SVR = (unsigned int) UART0_IrqHandler;
-	SAIC->AIC_SSR = 28;
-	SAIC->AIC_SVR = (unsigned int) UART1_IrqHandler;
-	SAIC->AIC_SSR = 29;
-	SAIC->AIC_SVR = (unsigned int) USART2_IrqHandler;
-	SAIC->AIC_SSR = 30;
-	SAIC->AIC_SVR = (unsigned int) USART3_IrqHandler;
-	SAIC->AIC_SSR = 31;
-	SAIC->AIC_SVR = (unsigned int) USART4_IrqHandler;
-	SAIC->AIC_SSR = 32;
-	SAIC->AIC_SVR = (unsigned int) TWI0_IrqHandler;
-	SAIC->AIC_SSR = 33;
-	SAIC->AIC_SVR = (unsigned int) TWI1_IrqHandler;
-	SAIC->AIC_SSR = 34;
-	SAIC->AIC_SVR = (unsigned int) TWI2_IrqHandler;
-	SAIC->AIC_SSR = 35;
-	SAIC->AIC_SVR = (unsigned int) HSMCI0_IrqHandler;
-	SAIC->AIC_SSR = 36;
-	SAIC->AIC_SVR = (unsigned int) HSMCI1_IrqHandler;
-	SAIC->AIC_SSR = 37;
-	SAIC->AIC_SVR = (unsigned int) SPI0_IrqHandler;
-	SAIC->AIC_SSR = 38;
-	SAIC->AIC_SVR = (unsigned int) SPI1_IrqHandler;
-	SAIC->AIC_SSR = 39;
-	SAIC->AIC_SVR = (unsigned int) SPI2_IrqHandler;
-	SAIC->AIC_SSR = 40;
-	SAIC->AIC_SVR = (unsigned int) TC0_IrqHandler;
-	SAIC->AIC_SSR = 41;
-	SAIC->AIC_SVR = (unsigned int) TC1_IrqHandler;
-	SAIC->AIC_SSR = 42;
-	SAIC->AIC_SVR = (unsigned int) TC2_IrqHandler;
-	SAIC->AIC_SSR = 43;
-	SAIC->AIC_SVR = (unsigned int) PWM_IrqHandler;
-	SAIC->AIC_SSR = 44;
-	SAIC->AIC_SVR = (unsigned int) ADC_IrqHandler;
-	SAIC->AIC_SSR = 45;
-	SAIC->AIC_SVR = (unsigned int) DBGU_IrqHandler;
-	SAIC->AIC_SSR = 46;
-	SAIC->AIC_SVR = (unsigned int) UHPHS_IrqHandler;
-	SAIC->AIC_SSR = 47;
-	SAIC->AIC_SVR = (unsigned int) UDPHS_IrqHandler;
-	SAIC->AIC_SSR = 48;
-	SAIC->AIC_SVR = (unsigned int) SSC0_IrqHandler;
-	SAIC->AIC_SSR = 49;
-	SAIC->AIC_SVR = (unsigned int) SSC1_IrqHandler;
-	SAIC->AIC_SSR = 50;
-	SAIC->AIC_SVR = (unsigned int) XDMAC1_IrqHandler;
-	SAIC->AIC_SSR = 51;
-	SAIC->AIC_SVR = (unsigned int) LCDC_IrqHandler;
-	SAIC->AIC_SSR = 52;
-	SAIC->AIC_SVR = (unsigned int) ISI_IrqHandler;
-	SAIC->AIC_SSR = 53;
-	SAIC->AIC_SVR = (unsigned int) TRNG_IrqHandler;
-	SAIC->AIC_SSR = 54;
-	SAIC->AIC_SVR = (unsigned int) GMAC0_IrqHandler;
-	SAIC->AIC_SSR = 55;
-	SAIC->AIC_SVR = (unsigned int) GMAC1_IrqHandler;
-	SAIC->AIC_SSR = 56;
-	SAIC->AIC_SVR = (unsigned int) AIC0_IrqHandler;
-	SAIC->AIC_SSR = 57;
-	SAIC->AIC_SVR = (unsigned int) SFC_IrqHandler;
-	SAIC->AIC_SSR = 59;
-	SAIC->AIC_SVR = (unsigned int) SECURAM_IrqHandler;
-	SAIC->AIC_SSR = 60;
-	SAIC->AIC_SVR = (unsigned int) CTB_IrqHandler;
-	SAIC->AIC_SSR = 61;
-	SAIC->AIC_SVR = (unsigned int) SMD_IrqHandler;
-	SAIC->AIC_SSR = 62;
-	SAIC->AIC_SVR = (unsigned int) TWI3_IrqHandler;
-	SAIC->AIC_SSR = 63;
-	SAIC->AIC_SVR = (unsigned int) CATB_IrqHandler;
-	SAIC->AIC_SSR = 64;
-	SAIC->AIC_SVR = (unsigned int) SFR_IrqHandler;
-	SAIC->AIC_SSR = 65;
-	SAIC->AIC_SVR = (unsigned int) AIC1_IrqHandler;
-	SAIC->AIC_SSR = 66;
-	SAIC->AIC_SVR = (unsigned int) SAIC1_IrqHandler;
-	SAIC->AIC_SSR = 67;
-	SAIC->AIC_SVR = (unsigned int) L2CC_IrqHandler;
-
-	SAIC->AIC_SPU = (unsigned int) Spurious_handler;
-
-	/* Enable IRQ and FIQ at core level */
-	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-}
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
 /**
  * \brief Performs the low-level initialization of the chip.
  * It also enable a low level on the pin NRST triggers a user reset.
  */
-WEAK void low_level_init(void)
+void low_level_init(void)
 {
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+	/* Setup default interrupt handlers */
+	aic_initialize();
 
-	NonSecureITInit();
-	if (!(AicFuse)) {
-		secure_it_init();
-	}
-
-	if ((uint32_t) low_level_init < DDR_CS_ADDR) {	/* Code not in external mem */
+	/* Configure clocking if code is not in external mem */
+	if ((uint32_t)low_level_init < DDR_CS_ADDR)
+	{
 		pmc_select_external_osc();
 		pmc_switch_mck_to_main();
 		pmc_set_plla(CKGR_PLLAR_ONE |
-			    CKGR_PLLAR_PLLACOUNT(0x3F) |
-			    CKGR_PLLAR_OUTA(0x0) |
-			    CKGR_PLLAR_MULA(87) |
-			    1, PMC_PLLICPR_IPLL_PLLA(0x0));
+			     CKGR_PLLAR_PLLACOUNT(0x3F) |
+			     CKGR_PLLAR_OUTA(0x0) |
+			     CKGR_PLLAR_MULA(87) |
+			     1, PMC_PLLICPR_IPLL_PLLA(0x0));
 		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
 		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 		pmc_switch_mck_to_pll();
 	}
+
 	/* Remap */
 	board_remap_ram();
+}
+
+/**
+ * \brief Default handler for "Data Abort" exception
+ */
+void Default_DataAbort_IrqHandler(void)
+{
+	uint32_t v1, v2, dfsr;
+
+	asm("mrc p15, 0, %0, c5, c0, 0" : "=r"(v1));
+	asm("mrc p15, 0, %0, c6, c0, 0" : "=r"(v2));
+
+	printf("\n\r####################\n\r");
+	dfsr = ((v1 >> 4) & 0x0F);
+	printf("Data Fault occured in %x domain\n\r", (unsigned int)dfsr);
+	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+	if (_data_abort_status[dfsr])
+		printf("Data Fault reason is: %s\n\r", _data_abort_status[dfsr]);
+	else
+		printf("Data Fault reason is unknown\n\r");
+	printf("Data Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
+	printf("Data Fault status register value: 0x%x\n\r", (unsigned int)v1);
+	printf("\n\r####################\n\r");
+
+	while(1);
+}
+
+/**
+ * \brief Default handler for "Prefetch Abort" exception
+ */
+void Default_PrefetchAbort_IrqHandler(void)
+{
+	uint32_t v1, v2, ifsr;
+
+	asm("mrc p15, 0, %0, c5, c0, 1" : "=r"(v1));
+	asm("mrc p15, 0, %0, c6, c0, 2" : "=r"(v2));
+
+	printf("\n\r####################\n\r");
+	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
+	if (_prefetch_abort_status[ifsr])
+		printf("Prefetch Fault reason is: %s\n\r", _prefetch_abort_status[ifsr]);
+	else
+		printf("Prefetch Fault reason is unknown\n\r");
+	printf("prefetch Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
+	printf("Prefetch Fault status register value: 0x%x\n\r", (unsigned int)v1);
+	printf("\n\r####################\n\r");
+
+	while(1);
+}
+
+/**
+ * \brief Default handler for "Undefined Instruction" exception
+ */
+void Default_UndefInstr_IrqHandler(void)
+{
+	printf("\n\r####################\n\r");
+	printf("Undefined Instruction\n\r");
+	printf("\n\r####################\n\r");
+
+	while(1);
 }
