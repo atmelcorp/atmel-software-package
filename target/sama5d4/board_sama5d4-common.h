@@ -86,9 +86,9 @@
  * Libc porting layers
  */
 #if defined   ( __CC_ARM   )	/* Keil uvision 4 */
-#include "include/rand.h"
+#include "rand.h"
 #elif defined ( __ICCARM__ )	/* IAR Ewarm 5.41+ */
-#include "include/rand.h"
+#include "rand.h"
 #elif defined (  __GNUC__  )	/* GCC CS3 2009q3-68/2010q1-188 */
 #include "rand.h"
 #include "syscalls.h"	  /** RedHat Newlib minimal stub */

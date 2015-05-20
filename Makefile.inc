@@ -56,7 +56,7 @@ CFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CFLAGS += -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
 CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall -g3
-CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="\"$(SOFTPACK_VERSION)\""
+CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="$(SOFTPACK_VERSION)"
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
 
@@ -74,6 +74,7 @@ TARGETDIR := $(ROOTDIR)/target
 DRIVERDIR := $(ROOTDIR)/drivers
 UTILSDIR := $(ROOTDIR)/utils
 RESOURCEDIR := $(TARGETDIR)/resources/gcc/$(SERIENAME)
+IAR_RESOURCEDIR := $(TARGETDIR)/resources/iar/$(SERIENAME)
 EXAMPLEDIR := $(ROOTDIR)/examples
 
 # include dirs

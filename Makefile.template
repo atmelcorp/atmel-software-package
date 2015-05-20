@@ -70,6 +70,10 @@ ifndef LINKER_SCRIPT_DDRAM
 LINKER_SCRIPT_DDRAM = "$(RESOURCEDIR)/$(TARGET)_ddram.ld"
 endif
 
+ifndef IAR_LINKER_SCRIPT
+IAR_LINKER_SCRIPT = $(IAR_RESOURCEDIR)/$(SERIENAME).icf
+endif
+
 #-------------------------------------------------------------------------------
 #		Files
 #-------------------------------------------------------------------------------
@@ -155,3 +159,22 @@ size_ddram: $(BUILDDIR_DDRAM)/$(BINNAME).elf
 
 debug_sram: $(BUILDDIR_SRAM)/$(BINNAME).elf
 	$(GDB) -x "$(RESOURCEDIR)/$(SERIENAME)_sram.gdb" -ex "reset" -readnow -se $(BUILDDIR_SRAM)/$(BINNAME).elf
+
+deps.d: $(OBJECTS:.o=.c)
+	rm -f $@
+	$(CC) $(CFLAGS) -M $< -o $@.tmp
+	@sed -e 's|.*:|$*.o:|' < $@.tmp >> $@
+	@sed -e 's/.*://' -e 's/\\$$//' < $@.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $@
+	@rm -f $@.tmp
+
+.PHONY: $(BINNAME).eww $(BINNAME).ewp
+
+$(BINNAME).ewp: deps.d
+	@bash $(ROOTDIR)/scripts/iar_gen_project.sh $(ROOTDIR) $(realpath $<) $(realpath $(ROOTDIR)/scripts/iar_project.template) $(IAR_LINKER_SCRIPT) $(BINNAME) $(SERIENAME) $(CHIP) $(BOARD) $(SERIE) $(PIO_API) SOFTPACK_VERSION=$(SOFTPACK_VERSION) > $@
+
+$(BINNAME).eww:
+	@bash $(ROOTDIR)/scripts/iar_gen_workspace.sh $(ROOTDIR)/scripts/iar_workspace.template $(BINNAME) > $@
+
+iar_project: $(BINNAME).ewp $(BINNAME).eww
+
