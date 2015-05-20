@@ -173,7 +173,7 @@
  * \brief retrieve TWI ID from its base address
  * \return TWI ID on success, ID_PERIPH_COUNT otherwise
  */
-static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
+static inline uint32_t get_twi_id_from_addr(const Twi* addr)
 {
 	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
 #ifdef TWI1
@@ -201,7 +201,7 @@ static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
  * \brief retrieve TWI base address from its ID
  * \return TWI base address on success, 0 otherwise
  */
-static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
+static inline Twi* get_twi_addr_from_id(const uint32_t id)
 {
 	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
 #ifdef TWI1
@@ -228,7 +228,7 @@ static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 /**
  *
  */
-static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
+static inline uint32_t get_spi_id_from_addr(const Spi* addr)
 {
 	if (addr == (void*)SPI0) return ID_SPI0;
 	else if (addr == (void*)SPI1) return ID_SPI1;
@@ -239,7 +239,7 @@ static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
 	else return ID_PERIPH_COUNT;
 }
 
-static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
+static inline void* get_spi_addr_from_id(const uint32_t id)
 {
 	if (id == ID_SPI0) return SPI0; /**< \brief SPI 0 (SPI0) */
 	else if (id == ID_SPI1) return SPI1; /**< \brief SPI 1 (SPI1) */
@@ -250,7 +250,7 @@ static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
 	else return (void*)0;
 }
 
-static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
+static inline uint32_t get_uart_id_from_addr(const Uart* addr)
 {
 	if (addr == (void*)UART0) return ID_UART0;
 #ifdef UART1
@@ -268,7 +268,7 @@ static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
 	else return ID_PERIPH_COUNT;
 }
 
-static inline uint32_t GET_USART_ID_FROM_ADDR(const Usart* addr)
+static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 {
 	if (addr == (void*)USART0) return ID_USART0;
 #ifdef USART1

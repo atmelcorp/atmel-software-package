@@ -53,7 +53,7 @@
  */
 void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate)
 {
-	uint32_t uart_id = GET_UART_ID_FROM_ADDR(pUart);
+	uint32_t uart_id = get_uart_id_from_addr(pUart);
 	// Reset & disable receiver and transmitter, disable interrupts
 	pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS
 		| UART_CR_RSTSTA;

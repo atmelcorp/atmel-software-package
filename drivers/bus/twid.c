@@ -140,7 +140,7 @@ _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Thr;
-	Twi* twi = (Twi*)GET_TWI_ADDR_FROM_ID(twi_id);
+	Twi* twi = (Twi*)get_twi_addr_from_id(twi_id);
 
 	Thr = (uint32_t) & (TWI0->TWI_THR);
 	if (twi)
@@ -188,7 +188,7 @@ _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Rhr;
-	Twi* twi = GET_TWI_ADDR_FROM_ID(twi_id);
+	Twi* twi = get_twi_addr_from_id(twi_id);
 
 	Rhr = (uint32_t) & (TWI0->TWI_RHR);
 	if (twi) {

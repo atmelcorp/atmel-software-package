@@ -143,7 +143,7 @@ void spi_disable_it(Spi * spi, uint32_t dwSources)
  */
 void spi_configure(Spi * spi, uint32_t dwConfiguration)
 {
-	uint32_t spi_id = GET_SPI_ID_FROM_ADDR(spi);
+	uint32_t spi_id = get_spi_id_from_addr(spi);
 	assert(spi_id != ID_PERIPH_COUNT);
 	/* Enable device */
 	pmc_enable_peripheral(spi_id);
