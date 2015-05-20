@@ -170,6 +170,29 @@
 #endif
 
 /**
+ * \brief retrieve Flexcom base address from its ID
+ * \return Flexcom base address on success, 0 otherwise
+ */
+static inline Flexcom* get_flexcom_addr_from_id(const uint32_t id)
+{
+	if (id == ID_FLEXCOM0) return FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+#ifdef FLEXCOM1
+	else if (id == ID_FLEXCOM1) return FLEXCOM1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+#endif
+#ifdef FLEXCOM2
+	else if (id == ID_FLEXCOM2) return FLEXCOM2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+#endif
+#ifdef FLEXCOM3
+	else if (id == ID_FLEXCOM3) return FLEXCOM3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+#endif
+#ifdef FLEXCOM4
+	else if (id == ID_FLEXCOM4) return FLEXCOM4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+#endif
+	else return (void*)0;
+}
+
+
+/**
  * \brief retrieve TWI ID from its base address
  * \return TWI ID on success, ID_PERIPH_COUNT otherwise
  */
