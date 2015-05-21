@@ -267,13 +267,15 @@ void aic_enable(uint32_t source)
 
 	if (AicFuse) {
 		_aic_enable_it(AIC, source);
-	} else {
+	}
+	else {
 		if (_is_h64_matrix(source)) {
 			if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
 				_aic_enable_it(AIC, source);
 			else
 				_aic_enable_it(SAIC, source);
-		} else {
+		}
+		else {
 			if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
 				_aic_enable_it(AIC, source);
 			else
@@ -354,9 +356,7 @@ void aic_set_source_vector(uint32_t source, void (*handler)(void))
 
 	if (0 == AicFuse) {
 		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
-		if (0 ==
-		    (pMatrix->
-		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+		if (0 == (pMatrix-> MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
 			aic = SAIC;
 	}
 	_aic_set_source_vector(aic, source, handler);

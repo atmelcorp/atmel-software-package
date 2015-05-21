@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:50
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:39:04
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -9,7 +9,7 @@
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\rstc.c
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\rstc.c -D
-#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D27
 #        -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
@@ -82,60 +82,23 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      34          
      35          #include <chip.h>
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
      36          #include "core/rstc.h"
      37          
      38          /*---------------------------------------------------------------------------
@@ -154,116 +117,265 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      51           * The configuration is computed by the lib (RSTC_RMR_*).
      52           * \param mr Desired mode configuration.
      53           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      54          void
      55          RSTC_ConfigureMode(uint32_t mr)
      56          {
      57          	Rstc *pHw = RSTC;
+   \                     RSTC_ConfigureMode:
+   \   00000000   0xE3A014F8         MOV      R1,#-134217728
+   \   00000004   0xE3811A48         ORR      R1,R1,#0x48000
      58          	mr &= ~RSTC_MR_KEY_Msk;
+   \   00000008   0xE1B00400         LSLS     R0,R0,#+8
+   \   0000000C   0xE1B00420         LSRS     R0,R0,#+8
      59          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+   \   00000010   0xE39024A5         ORRS     R2,R0,#0xA5000000
+   \   00000014   0xE5812008         STR      R2,[R1, #+8]
      60          }
+   \   00000018   0xE12FFF1E         BX       LR               ;; return
      61          
      62          /**
      63           * Enable/Disable the detection of a low level on the pin NRST as User Reset
      64           * \param enable 1 to enable & 0 to disable.
      65           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      66          void
      67          RSTC_SetUserResetEnable(uint8_t enable)
      68          {
      69          	Rstc *pHw = RSTC;
+   \                     RSTC_SetUserResetEnable:
+   \   00000000   0xE3A014F8         MOV      R1,#-134217728
+   \   00000004   0xE3811A48         ORR      R1,R1,#0x48000
      70          	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+   \   00000008   0xE5912008         LDR      R2,[R1, #+8]
+   \   0000000C   0xE1B02402         LSLS     R2,R2,#+8
+   \   00000010   0xE1B02422         LSRS     R2,R2,#+8
      71          	if (enable) {
+   \   00000014   0xE1B03000         MOVS     R3,R0
+   \   00000018   0xE6EF3073         UXTB     R3,R3
+   \   0000001C   0xE3530000         CMP      R3,#+0
+   \   00000020   0x0A000001         BEQ      ??RSTC_SetUserResetEnable_0
      72          		mr |= RSTC_MR_URSTEN;
+   \   00000024   0xE3922001         ORRS     R2,R2,#0x1
+   \   00000028   0xEA000000         B        ??RSTC_SetUserResetEnable_1
      73          	} else {
      74          		mr &= ~RSTC_MR_URSTEN;
+   \                     ??RSTC_SetUserResetEnable_0:
+   \   0000002C   0xE3D22001         BICS     R2,R2,#0x1
      75          	}
      76          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+   \                     ??RSTC_SetUserResetEnable_1:
+   \   00000030   0xE39234A5         ORRS     R3,R2,#0xA5000000
+   \   00000034   0xE5813008         STR      R3,[R1, #+8]
      77          }
+   \   00000038   0xE12FFF1E         BX       LR               ;; return
      78          
      79          /**
      80           * Enable/Disable the interrupt of a User Reset (USRTS bit in RSTC_RST).
      81           * \param enable 1 to enable & 0 to disable.
      82           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      83          void
      84          RSTC_SetUserResetInterruptEnable(uint8_t enable)
      85          {
      86          	Rstc *pHw = RSTC;
+   \                     RSTC_SetUserResetInterruptEnable:
+   \   00000000   0xE3A014F8         MOV      R1,#-134217728
+   \   00000004   0xE3811A48         ORR      R1,R1,#0x48000
      87          	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+   \   00000008   0xE5912008         LDR      R2,[R1, #+8]
+   \   0000000C   0xE1B02402         LSLS     R2,R2,#+8
+   \   00000010   0xE1B02422         LSRS     R2,R2,#+8
      88          	if (enable) {
+   \   00000014   0xE1B03000         MOVS     R3,R0
+   \   00000018   0xE6EF3073         UXTB     R3,R3
+   \   0000001C   0xE3530000         CMP      R3,#+0
+   \   00000020   0x0A000001         BEQ      ??RSTC_SetUserResetInterruptEnable_0
      89          		mr |= RSTC_MR_URSTIEN;
+   \   00000024   0xE3922010         ORRS     R2,R2,#0x10
+   \   00000028   0xEA000000         B        ??RSTC_SetUserResetInterruptEnable_1
      90          	} else {
      91          
      92          		mr &= ~RSTC_MR_URSTIEN;
+   \                     ??RSTC_SetUserResetInterruptEnable_0:
+   \   0000002C   0xE3D22010         BICS     R2,R2,#0x10
      93          	}
      94          	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+   \                     ??RSTC_SetUserResetInterruptEnable_1:
+   \   00000030   0xE39234A5         ORRS     R3,R2,#0xA5000000
+   \   00000034   0xE5813008         STR      R3,[R1, #+8]
      95          }
+   \   00000038   0xE12FFF1E         BX       LR               ;; return
      96          
      97          /**
      98           * Resets the processor.
      99           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     100          void
     101          RSTC_ProcessorReset(void)
     102          {
     103          	Rstc *pHw = RSTC;
+   \                     RSTC_ProcessorReset:
+   \   00000000   0xE3A004F8         MOV      R0,#-134217728
+   \   00000004   0xE3800A48         ORR      R0,R0,#0x48000
     104          	pHw->RSTC_CR = RSTC_CR_PROCRST | RSTC_KEY_PASSWORD;
+   \   00000008   0xE3A01001         MOV      R1,#+1
+   \   0000000C   0xE38114A5         ORR      R1,R1,#0xA5000000
+   \   00000010   0xE5801000         STR      R1,[R0, #+0]
     105          }
+   \   00000014   0xE12FFF1E         BX       LR               ;; return
     106          
     107          /**
     108           * Resets the peripherals.
     109           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     110          void
     111          RSTC_PeripheralReset(void)
     112          {
     113          	Rstc *pHw = RSTC;
+   \                     RSTC_PeripheralReset:
+   \   00000000   0xE3A004F8         MOV      R0,#-134217728
+   \   00000004   0xE3800A48         ORR      R0,R0,#0x48000
     114          	pHw->RSTC_CR = RSTC_CR_PERRST | RSTC_KEY_PASSWORD;
+   \   00000008   0xE3A01004         MOV      R1,#+4
+   \   0000000C   0xE38114A5         ORR      R1,R1,#0xA5000000
+   \   00000010   0xE5801000         STR      R1,[R0, #+0]
     115          }
+   \   00000014   0xE12FFF1E         BX       LR               ;; return
     116          
     117          /**
     118           * Return NRST pin level ( 1 or 0 ).
     119           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     120          uint8_t
     121          RSTC_GetNrstLevel(void)
     122          {
     123          	Rstc *pHw = RSTC;
+   \                     RSTC_GetNrstLevel:
+   \   00000000   0xE3A004F8         MOV      R0,#-134217728
+   \   00000004   0xE3800A48         ORR      R0,R0,#0x48000
     124          	return ((pHw->RSTC_SR & RSTC_SR_NRSTL) > 0);
+   \   00000008   0xE5900004         LDR      R0,[R0, #+4]
+   \   0000000C   0xE1B00820         LSRS     R0,R0,#+16
+   \   00000010   0xE2100001         ANDS     R0,R0,#0x1
+   \   00000014   0xE12FFF1E         BX       LR               ;; return
     125          }
     126          
     127          /**
     128           * Returns 1 if at least one high-to-low transition of NRST (User Reset) has
     129           * been detected since the last read of RSTC_RSR.
     130           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     131          uint8_t
     132          RSTC_IsUserResetDetected(void)
     133          {
     134          	Rstc *pHw = RSTC;
+   \                     RSTC_IsUserResetDetected:
+   \   00000000   0xE3A014F8         MOV      R1,#-134217728
+   \   00000004   0xE3811A48         ORR      R1,R1,#0x48000
     135          	if (pHw->RSTC_SR & RSTC_SR_URSTS) {
+   \   00000008   0xE5910004         LDR      R0,[R1, #+4]
+   \   0000000C   0xE3100001         TST      R0,#0x1
+   \   00000010   0x0A000001         BEQ      ??RSTC_IsUserResetDetected_0
     136          		return 1;
+   \   00000014   0xE3A00001         MOV      R0,#+1
+   \   00000018   0xEA000000         B        ??RSTC_IsUserResetDetected_1
     137          	}
     138          	return 0;
+   \                     ??RSTC_IsUserResetDetected_0:
+   \   0000001C   0xE3A00000         MOV      R0,#+0
+   \                     ??RSTC_IsUserResetDetected_1:
+   \   00000020   0xE12FFF1E         BX       LR               ;; return
     139          }
     140          
     141          /**
     142           * Return 1 if a software reset command is being performed by the reset
     143           * controller. The reset controller is busy.
     144           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     145          uint8_t
     146          RSTC_IsBusy(void)
     147          {
     148          	Rstc *pHw = RSTC;
+   \                     RSTC_IsBusy:
+   \   00000000   0xE3A014F8         MOV      R1,#-134217728
+   \   00000004   0xE3811A48         ORR      R1,R1,#0x48000
     149          	if (pHw->RSTC_SR & RSTC_SR_SRCMP) {
+   \   00000008   0xE5910004         LDR      R0,[R1, #+4]
+   \   0000000C   0xE3100B80         TST      R0,#0x20000
+   \   00000010   0x0A000001         BEQ      ??RSTC_IsBusy_0
     150          		return 1;
+   \   00000014   0xE3A00001         MOV      R0,#+1
+   \   00000018   0xEA000000         B        ??RSTC_IsBusy_1
     151          	}
     152          	return 0;
+   \                     ??RSTC_IsBusy_0:
+   \   0000001C   0xE3A00000         MOV      R0,#+0
+   \                     ??RSTC_IsBusy_1:
+   \   00000020   0xE12FFF1E         BX       LR               ;; return
     153          }
     154          
     155          /**
     156           * Get the status
     157           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     158          uint32_t
     159          RSTC_GetStatus(void)
     160          {
     161          	Rstc *pHw = RSTC;
+   \                     RSTC_GetStatus:
+   \   00000000   0xE3A004F8         MOV      R0,#-134217728
+   \   00000004   0xE3800A48         ORR      R0,R0,#0x48000
     162          	return (pHw->RSTC_SR);
+   \   00000008   0xE5900004         LDR      R0,[R0, #+4]
+   \   0000000C   0xE12FFF1E         BX       LR               ;; return
     163          }
 
-Errors: 11
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   RSTC_ConfigureMode
+       0   RSTC_GetNrstLevel
+       0   RSTC_GetStatus
+       0   RSTC_IsBusy
+       0   RSTC_IsUserResetDetected
+       0   RSTC_PeripheralReset
+       0   RSTC_ProcessorReset
+       0   RSTC_SetUserResetEnable
+       0   RSTC_SetUserResetInterruptEnable
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      28  RSTC_ConfigureMode
+      24  RSTC_GetNrstLevel
+      16  RSTC_GetStatus
+      36  RSTC_IsBusy
+      36  RSTC_IsUserResetDetected
+      24  RSTC_PeripheralReset
+      24  RSTC_ProcessorReset
+      60  RSTC_SetUserResetEnable
+      60  RSTC_SetUserResetInterruptEnable
+      56  _id_h64_matrix
+
+ 
+  56 bytes in section .rodata
+ 308 bytes in section SOFTPACK
+ 
+ 308 bytes of CODE  memory
+  56 bytes of CONST memory
+
+Errors: none
 Warnings: 1

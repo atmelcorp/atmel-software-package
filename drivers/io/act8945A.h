@@ -39,6 +39,34 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+enum TWI_CMD
+{
+    TWI_RD   = 0,
+    TWI_WR	 = 1
+};
+
+enum TWI_STATUS
+{
+  TWI_STATUS_RESET  = 0,
+  TWI_STATUS_HANDLE = 1u<<0,
+  TWI_STATUS_RFU2   = 1u<<1,
+  TWI_STATUS_RFU3   = 1u<<2,
+  TWI_STATUS_RFU4   = 1u<<3,
+  TWI_STATUS_READY  = 1u<<7,
+};
+
+enum TWI_RESULT
+{
+    TWI_SUCCES   = 0,
+    TWI_FAIL	 = 1
+} ;
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+/// Slave address
+#define ACT8945A_ADDRESS   0x5B
+
 #define ADD_SYSTEM0 0x00
 #define ADD_SYSTEM1 0x01
 
@@ -249,33 +277,34 @@ typedef enum
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-void _ACT8945A_TwiError (void);
-void _ACT8945A_DelayMS(signed int delay);
-float _ACT8945A_ConvertVoltageSetting (uint8_t Reg);
-void _ACT8945A_DisplaySystemSetting (void);
-void _ACT8945A_DisplayVoltageSetting (void);
-void _ACT8945A_RegistersDump(void);
-void _ACT8945A_APCH_RegistersDump (void);
-uint8_t _ACT8945A_DisplayActivePathCharger (void);
-uint8_t _ACT8945A_DisplaySyslevFailingThreshold (void);
+void _ACT8945A_twi_error (void);
+void _ACT8945A_delay_ms (uint32_t delay);
+float _ACT8945A_convert_voltage_setting (uint8_t Reg);
+void _ACT8945A_display_system_setting (void);
+void _ACT8945A_display_voltage_setting (void);
+void _ACT8945A_registers_dump (void);
+void _ACT8945A_registers_dump_apch (void);
 
-extern void ACT8945A_ActiveInterrupt (void);
-extern void ACT8945A_DisableTwi (void);
+uint8_t _ACT8945A_display_active_path_charger (void);
+uint8_t _ACT8945A_display_syslev_failing_threshold (void);
 
-extern uint8_t ACT8945A_SetRegulatorStateOut1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorStateOut4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorVoltageOut4to7 (uint8_t RegVout, uint16_t VOut);
-extern uint8_t ACT8945A_SetSystemVoltageLevelInterrupt (INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_DisableAllAPCHInterrupt (void);
-extern uint8_t ACT8945A_SystemVoltageLevel (uint16_t Value);
-extern uint8_t ACT8945A_SetStateChangeLevelPin (CHG_LEVEL_enum State);
-extern uint8_t ACT8945A_GetStateLBO (void);
-extern uint8_t ACT8945A_Begin(void);
-extern uint8_t ACT8945A_Test (void);
+extern void ACT8945A_active_interrupt (void);
+extern void ACT8945A_disable_twi (void);
 
-extern void ACT8945A_IrqHandler(void);
+extern uint8_t ACT8945A_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut);
+extern uint8_t ACT8945A_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_disable_all_APCH_interrupt (void);
+extern uint8_t ACT8945A_system_voltage_level (uint16_t Value);
+extern uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State);
+extern uint8_t ACT8945A_get_state_LBO_pin (void);
+extern uint8_t ACT8945A_begin(void);
+extern uint8_t ACT8945A_test (void);
+
+extern void ACT8945A_irq_handler(void);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

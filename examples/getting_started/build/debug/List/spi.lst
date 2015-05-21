@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:51
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:39:06
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -9,7 +9,7 @@
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\spi.c
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\bus\spi.c -D
-#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D27
 #        -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
@@ -118,60 +118,69 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      70          
      71          #include "chip.h"
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
 
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \   static __interwork __softfp uint32_t get_spi_id_from_addr(Spi const *)
+   \                     get_spi_id_from_addr:
+   \   00000000   0xE1B01000         MOVS     R1,R0
+   \   00000004   0xE35104F8         CMP      R1,#-134217728
+   \   00000008   0x1A000001         BNE      ??get_spi_id_from_addr_0
+   \   0000000C   0xE3A00021         MOV      R0,#+33
+   \   00000010   0xEA00001C         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_0:
+   \   00000014   0xE35104FC         CMP      R1,#-67108864
+   \   00000018   0x1A000001         BNE      ??get_spi_id_from_addr_2
+   \   0000001C   0xE3A00022         MOV      R0,#+34
+   \   00000020   0xEA000018         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_2:
+   \   00000024   0xE3A004F8         MOV      R0,#-134217728
+   \   00000028   0xE3800BD1         ORR      R0,R0,#0x34400
+   \   0000002C   0xE1510000         CMP      R1,R0
+   \   00000030   0x1A000001         BNE      ??get_spi_id_from_addr_3
+   \   00000034   0xE3A00013         MOV      R0,#+19
+   \   00000038   0xEA000012         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_3:
+   \   0000003C   0xE3A004F8         MOV      R0,#-134217728
+   \   00000040   0xE3800BE1         ORR      R0,R0,#0x38400
+   \   00000044   0xE1510000         CMP      R1,R0
+   \   00000048   0x1A000001         BNE      ??get_spi_id_from_addr_4
+   \   0000004C   0xE3A00014         MOV      R0,#+20
+   \   00000050   0xEA00000C         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_4:
+   \   00000054   0xE3A004FC         MOV      R0,#-67108864
+   \   00000058   0xE3800B51         ORR      R0,R0,#0x14400
+   \   0000005C   0xE1510000         CMP      R1,R0
+   \   00000060   0x1A000001         BNE      ??get_spi_id_from_addr_5
+   \   00000064   0xE3A00016         MOV      R0,#+22
+   \   00000068   0xEA000006         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_5:
+   \   0000006C   0xE3A004FC         MOV      R0,#-67108864
+   \   00000070   0xE3800B61         ORR      R0,R0,#0x18400
+   \   00000074   0xE1510000         CMP      R1,R0
+   \   00000078   0x1A000001         BNE      ??get_spi_id_from_addr_6
+   \   0000007C   0xE3A00017         MOV      R0,#+23
+   \   00000080   0xEA000000         B        ??get_spi_id_from_addr_1
+   \                     ??get_spi_id_from_addr_6:
+   \   00000084   0xE3A0004F         MOV      R0,#+79
+   \                     ??get_spi_id_from_addr_1:
+   \   00000088   0xE12FFF1E         BX       LR               ;; return
      72          
      73          #include "bus/spi.h"
      74          #include "core/pmc.h"
@@ -197,20 +206,32 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      94           *
      95           * \param spi  Pointer to an Spi instance.
      96           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      97          void spi_enable(Spi * spi)
      98          {
      99          	spi->SPI_CR = SPI_CR_SPIEN;
+   \                     spi_enable:
+   \   00000000   0xE3A01001         MOV      R1,#+1
+   \   00000004   0xE5801000         STR      R1,[R0, #+0]
     100          }
+   \   00000008   0xE12FFF1E         BX       LR               ;; return
     101          
     102          /**
     103           * \brief Disables a SPI peripheral.
     104           *
     105           * \param spi  Pointer to an Spi instance.
     106           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     107          void spi_disable(Spi * spi)
     108          {
     109          	spi->SPI_CR = SPI_CR_SPIDIS;
+   \                     spi_disable:
+   \   00000000   0xE3A01002         MOV      R1,#+2
+   \   00000004   0xE5801000         STR      R1,[R0, #+0]
     110          }
+   \   00000008   0xE12FFF1E         BX       LR               ;; return
     111          
     112          /**
     113           * \brief Enables one or more interrupt sources of a SPI peripheral.
@@ -218,10 +239,15 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     115           * \param spi  Pointer to an Spi instance.
     116           * \param dwSources Bitwise OR of selected interrupt sources.
     117           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     118          void spi_enable_it(Spi * spi, uint32_t dwSources)
     119          {
     120          	spi->SPI_IER = dwSources;
+   \                     spi_enable_it:
+   \   00000000   0xE5801014         STR      R1,[R0, #+20]
     121          }
+   \   00000004   0xE12FFF1E         BX       LR               ;; return
     122          
     123          /**
     124           * \brief Disables one or more interrupt sources of a SPI peripheral.
@@ -229,10 +255,15 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     126           * \param spi  Pointer to an Spi instance.
     127           * \param dwSources Bitwise OR of selected interrupt sources.
     128           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     129          void spi_disable_it(Spi * spi, uint32_t dwSources)
     130          {
     131          	spi->SPI_IDR = dwSources;
+   \                     spi_disable_it:
+   \   00000000   0xE5801018         STR      R1,[R0, #+24]
     132          }
+   \   00000004   0xE12FFF1E         BX       LR               ;; return
     133          
     134          /**
     135           * \brief Configures a SPI peripheral as specified. The configuration can be computed
@@ -241,23 +272,50 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     138           * \param spi  Pointer to an Spi instance.
     139           * \param dwConfiguration  Value of the SPI configuration register.
     140           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     141          void spi_configure(Spi * spi, uint32_t dwConfiguration)
     142          {
-    143          	uint32_t spi_id = GET_SPI_ID_FROM_ADDR(spi);
+   \                     spi_configure:
+   \   00000000   0xE92D4070         PUSH     {R4-R6,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    143          	uint32_t spi_id = get_spi_id_from_addr(spi);
+   \   0000000C   0xE1B00004         MOVS     R0,R4
+   \   00000010   0x........         BL       get_spi_id_from_addr
+   \   00000014   0xE1B06000         MOVS     R6,R0
     144          	assert(spi_id != ID_PERIPH_COUNT);
+   \   00000018   0xE356004F         CMP      R6,#+79
+   \   0000001C   0x1A000004         BNE      ??spi_configure_0
+   \   00000020   0xE3A02090         MOV      R2,#+144
+   \   00000024   0x........         LDR      R1,??DataTable0
+   \   00000028   0x........         LDR      R0,??DataTable0_1
+   \   0000002C   0x........         BL       __aeabi_assert
+   \   00000030   0x........         BL       __iar_EmptyStepPoint
     145          	/* Enable device */
     146          	pmc_enable_peripheral(spi_id);
+   \                     ??spi_configure_0:
+   \   00000034   0xE1B00006         MOVS     R0,R6
+   \   00000038   0x........         BL       pmc_enable_peripheral
     147          	uint32_t control_reg = SPI_CR_SPIDIS;
+   \   0000003C   0xE3A00002         MOV      R0,#+2
     148          	/* Add clear FIFO flags if present */
     149          	_clear_fifo_control_flags(&control_reg);
     150          	/* Apply */
     151          	spi->SPI_CR = control_reg;
+   \   00000040   0xE5840000         STR      R0,[R4, #+0]
     152          
     153          	/* Execute a software reset of the SPI twice */
     154          	spi->SPI_CR = SPI_CR_SWRST;
+   \   00000044   0xE3A01080         MOV      R1,#+128
+   \   00000048   0xE5841000         STR      R1,[R4, #+0]
     155          	spi->SPI_CR = SPI_CR_SWRST;
+   \   0000004C   0xE3A01080         MOV      R1,#+128
+   \   00000050   0xE5841000         STR      R1,[R4, #+0]
     156          	spi->SPI_MR = dwConfiguration;
+   \   00000054   0xE5845004         STR      R5,[R4, #+4]
     157          }
+   \   00000058   0xE8BD8070         POP      {R4-R6,PC}       ;; return
     158          
     159          /**
     160           * \brief Configures SPI chip select.
@@ -265,11 +323,25 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     162           * \param spi  Pointer to an Spi instance.
     163           * \param cS  Chip select of NPSCx.
     164           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     165          void spi_chip_select(Spi * spi, uint8_t cS)
     166          {
     167          	spi->SPI_MR |= SPI_MR_PCS_Msk;
+   \                     spi_chip_select:
+   \   00000000   0xE5902004         LDR      R2,[R0, #+4]
+   \   00000004   0xE3922BC0         ORRS     R2,R2,#0x30000
+   \   00000008   0xE5802004         STR      R2,[R0, #+4]
     168          	spi->SPI_MR &= ~(SPI_MR_PCS(cS));
+   \   0000000C   0xE5902004         LDR      R2,[R0, #+4]
+   \   00000010   0xE1B03001         MOVS     R3,R1
+   \   00000014   0xE6EF3073         UXTB     R3,R3
+   \   00000018   0xE3A0CBC0         MOV      R12,#+196608
+   \   0000001C   0xE01C3803         ANDS     R3,R12,R3, LSL #+16
+   \   00000020   0xE1D22003         BICS     R2,R2,R3
+   \   00000024   0xE5802004         STR      R2,[R0, #+4]
     169          }
+   \   00000028   0xE12FFF1E         BX       LR               ;; return
     170          
     171          /**
     172           * \brief Configures SPI Mode Register.
@@ -277,20 +349,31 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     174           * \param spi  Pointer to an Spi instance.
     175           * \param dwConfiguration  Value of the SPI mode register.
     176           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     177          void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
     178          {
     179          	spi->SPI_MR = dwConfiguration;
+   \                     spi_set_mode:
+   \   00000000   0xE5801004         STR      R1,[R0, #+4]
     180          }
+   \   00000004   0xE12FFF1E         BX       LR               ;; return
     181          
     182          /**
     183           * \brief Configures SPI to release last used CS line.
     184           *
     185           * \param spi  Pointer to an Spi instance.
     186           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     187          void spi_release_cs(Spi * spi)
     188          {
     189          	spi->SPI_CR = SPI_CR_LASTXFER;
+   \                     spi_release_cs:
+   \   00000000   0xE3A01740         MOV      R1,#+16777216
+   \   00000004   0xE5801000         STR      R1,[R0, #+0]
     190          }
+   \   00000008   0xE12FFF1E         BX       LR               ;; return
     191          
     192          /**
     193           * \brief Configures a chip select of a SPI peripheral. The chip select configuration
@@ -300,10 +383,17 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     197           * \param dwNpcs  Chip select to configure (0, 1, 2 or 3).
     198           * \param dwConfiguration  Desired chip select configuration.
     199           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     200          void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration)
     201          {
     202          	spi->SPI_CSR[dwNpcs] = dwConfiguration;
+   \                     spi_configure_npcs:
+   \   00000000   0xE1B03101         LSLS     R3,R1,#+2
+   \   00000004   0xE0933000         ADDS     R3,R3,R0
+   \   00000008   0xE5832030         STR      R2,[R3, #+48]
     203          }
+   \   0000000C   0xE12FFF1E         BX       LR               ;; return
     204          
     205          /**
     206           * \brief Configures a chip select active mode of a SPI peripheral.
@@ -313,14 +403,37 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     210           * \param bReleaseOnLast CS controlled by last transfer.
     211           *                       spi_release_cs() is used to deactive CS.
     212           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     213          void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs, uint32_t bReleaseOnLast)
     214          {
     215          	if (bReleaseOnLast) {
+   \                     spi_configure_cs_mode:
+   \   00000000   0xE3520000         CMP      R2,#+0
+   \   00000004   0x0A000007         BEQ      ??spi_configure_cs_mode_0
     216          		spi->SPI_CSR[dwNpcs] |= SPI_CSR_CSAAT;
+   \   00000008   0xE1B03101         LSLS     R3,R1,#+2
+   \   0000000C   0xE0933000         ADDS     R3,R3,R0
+   \   00000010   0xE5933030         LDR      R3,[R3, #+48]
+   \   00000014   0xE3933008         ORRS     R3,R3,#0x8
+   \   00000018   0xE1B0C101         LSLS     R12,R1,#+2
+   \   0000001C   0xE09CC000         ADDS     R12,R12,R0
+   \   00000020   0xE58C3030         STR      R3,[R12, #+48]
+   \   00000024   0xEA000006         B        ??spi_configure_cs_mode_1
     217          	} else {
     218          		spi->SPI_CSR[dwNpcs] &= ~SPI_CSR_CSAAT;
+   \                     ??spi_configure_cs_mode_0:
+   \   00000028   0xE1B03101         LSLS     R3,R1,#+2
+   \   0000002C   0xE0933000         ADDS     R3,R3,R0
+   \   00000030   0xE5933030         LDR      R3,[R3, #+48]
+   \   00000034   0xE3D33008         BICS     R3,R3,#0x8
+   \   00000038   0xE1B0C101         LSLS     R12,R1,#+2
+   \   0000003C   0xE09CC000         ADDS     R12,R12,R0
+   \   00000040   0xE58C3030         STR      R3,[R12, #+48]
     219          	}
     220          }
+   \                     ??spi_configure_cs_mode_1:
+   \   00000044   0xE12FFF1E         BX       LR               ;; return
     221          
     222          /**
     223           * \brief Get the current status register of the given SPI peripheral.
@@ -329,9 +442,14 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     226           * \param spi   Pointer to a Spi instance.
     227           * \return  SPI status register.
     228           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     229          extern uint32_t spi_get_status(Spi * spi)
     230          {
     231          	return spi->SPI_SR;
+   \                     spi_get_status:
+   \   00000000   0xE5900010         LDR      R0,[R0, #+16]
+   \   00000004   0xE12FFF1E         BX       LR               ;; return
     232          }
     233          
     234          /**
@@ -342,11 +460,22 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     239           *
     240           * \return readed data.
     241           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     242          extern uint32_t spi_read(Spi * spi)
     243          {
     244          	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
+   \                     spi_read:
+   \                     ??spi_read_0:
+   \   00000000   0xE5901010         LDR      R1,[R0, #+16]
+   \   00000004   0xE3110001         TST      R1,#0x1
+   \   00000008   0x0AFFFFFC         BEQ      ??spi_read_0
     245          
     246          	return spi->SPI_RDR & 0xFFFF;
+   \   0000000C   0xE5900008         LDR      R0,[R0, #+8]
+   \   00000010   0xE1B00800         LSLS     R0,R0,#+16
+   \   00000014   0xE1B00820         LSRS     R0,R0,#+16
+   \   00000018   0xE12FFF1E         BX       LR               ;; return
     247          }
     248          
     249          /**
@@ -358,13 +487,34 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     255           * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
     256           * \param wData  Word of data to send.
     257           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     258          void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
     259          {
+   \                     spi_write:
+   \   00000000   0xE92D4000         PUSH     {LR}
     260          	/* Send data */
     261          	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
+   \                     ??spi_write_0:
+   \   00000004   0xE5903010         LDR      R3,[R0, #+16]
+   \   00000008   0xE3130F80         TST      R3,#0x200
+   \   0000000C   0x0AFFFFFC         BEQ      ??spi_write_0
     262          	spi->SPI_TDR = wData | SPI_PCS(dwNpcs);
+   \   00000010   0xE1B03002         MOVS     R3,R2
+   \   00000014   0xE6FF3073         UXTH     R3,R3
+   \   00000018   0xE3A0C001         MOV      R12,#+1
+   \   0000001C   0xE1F0C11C         MVNS     R12,R12, LSL R1
+   \   00000020   0xE3A0EBC0         MOV      LR,#+196608
+   \   00000024   0xE01EC80C         ANDS     R12,LR,R12, LSL #+16
+   \   00000028   0xE19C3003         ORRS     R3,R12,R3
+   \   0000002C   0xE580300C         STR      R3,[R0, #+12]
     263          	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
+   \                     ??spi_write_1:
+   \   00000030   0xE5903010         LDR      R3,[R0, #+16]
+   \   00000034   0xE3130002         TST      R3,#0x2
+   \   00000038   0x0AFFFFFC         BEQ      ??spi_write_1
     264          }
+   \   0000003C   0xE8BD8000         POP      {PC}             ;; return
     265          
     266          /**
     267           * \brief Sends last data through a SPI peripheral.
@@ -375,13 +525,35 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     272           * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
     273           * \param wData  Word of data to send.
     274           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     275          void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
     276          {
+   \                     spi_write_last:
+   \   00000000   0xE92D4000         PUSH     {LR}
     277          	/* Send data */
     278          	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
+   \                     ??spi_write_last_0:
+   \   00000004   0xE5903010         LDR      R3,[R0, #+16]
+   \   00000008   0xE3130F80         TST      R3,#0x200
+   \   0000000C   0x0AFFFFFC         BEQ      ??spi_write_last_0
     279          	spi->SPI_TDR = wData | SPI_PCS(dwNpcs) | SPI_TDR_LASTXFER;
+   \   00000010   0xE1B03002         MOVS     R3,R2
+   \   00000014   0xE6FF3073         UXTH     R3,R3
+   \   00000018   0xE3A0C001         MOV      R12,#+1
+   \   0000001C   0xE1F0C11C         MVNS     R12,R12, LSL R1
+   \   00000020   0xE3A0EBC0         MOV      LR,#+196608
+   \   00000024   0xE01EC80C         ANDS     R12,LR,R12, LSL #+16
+   \   00000028   0xE19C3003         ORRS     R3,R12,R3
+   \   0000002C   0xE3933740         ORRS     R3,R3,#0x1000000
+   \   00000030   0xE580300C         STR      R3,[R0, #+12]
     280          	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
+   \                     ??spi_write_last_1:
+   \   00000034   0xE5903010         LDR      R3,[R0, #+16]
+   \   00000038   0xE3130002         TST      R3,#0x2
+   \   0000003C   0x0AFFFFFC         BEQ      ??spi_write_last_1
     281          }
+   \   00000040   0xE8BD8000         POP      {PC}             ;; return
     282          
     283          /**
     284           * \brief Check if SPI transfer finish.
@@ -391,10 +563,77 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     288           * \return Returns 1 if there is no pending write operation on the SPI; otherwise
     289           * returns 0.
     290           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     291          extern uint32_t spi_is_finished(Spi * spi)
     292          {
     293          	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
+   \                     spi_is_finished:
+   \   00000000   0xE5900010         LDR      R0,[R0, #+16]
+   \   00000004   0xE1B004A0         LSRS     R0,R0,#+9
+   \   00000008   0xE2100001         ANDS     R0,R0,#0x1
+   \   0000000C   0xE12FFF1E         BX       LR               ;; return
     294          }
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable0:
+   \   00000000   0x........         DC32     ?_1
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable0_1:
+   \   00000000   0x........         DC32     ?_0
+
+   \                                 In section .rodata, align 4
+   \                     ?_0:
+   \   00000000   0x73 0x70          DC8 "spi_id != ID_PERIPH_COUNT"
+   \              0x69 0x5F    
+   \              0x69 0x64    
+   \              0x20 0x21    
+   \              0x3D 0x20    
+   \              0x49 0x44    
+   \              0x5F 0x50    
+   \              0x45 0x52    
+   \              0x49 0x50    
+   \              0x48 0x5F    
+   \              0x43 0x4F    
+   \              0x55 0x4E    
+   \              0x54 0x00    
+   \   0000001A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_1:
+   \   00000000   0x43 0x3A          DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+   \              0x5C 0x55    
+   \              0x73 0x65    
+   \              0x72 0x73    
+   \   00000008   0x5C 0x64          DC8 5CH, 64H, 66H, 72H, 6FH, 6EH, 65H, 6BH
+   \              0x66 0x72    
+   \              0x6F 0x6E    
+   \              0x65 0x6B    
+   \   00000010   0x5C 0x44          DC8 5CH, 44H, 6FH, 63H, 75H, 6DH, 65H, 6EH
+   \              0x6F 0x63    
+   \              0x75 0x6D    
+   \              0x65 0x6E    
+   \   00000018   0x74 0x73          DC8 74H, 73H, 5CH, 50H, 72H, 6FH, 6AH, 65H
+   \              0x5C 0x50    
+   \              0x72 0x6F    
+   \              0x6A 0x65    
+   \   00000020   0x63 0x74          DC8 63H, 74H, 5CH, 73H, 6FH, 66H, 74H, 70H
+   \              0x5C 0x73    
+   \              0x6F 0x66    
+   \              0x74 0x70    
+   \   00000028   0x61 0x63          DC8 61H, 63H, 6BH, 5CH, 64H, 72H, 69H, 76H
+   \              0x6B 0x5C    
+   \              0x64 0x72    
+   \              0x69 0x76    
+   \   00000030   0x65 0x72          DC8 65H, 72H, 73H, 5CH, 62H, 75H, 73H, 5CH
+   \              0x73 0x5C    
+   \              0x62 0x75    
+   \              0x73 0x5C    
+   \   00000038   0x73 0x70          DC8 73H, 70H, 69H, 2EH, 63H, 0
+   \              0x69 0x2E    
+   \              0x63 0x00    
+   \   0000003E   0x00 0x00          DC8 0, 0
     295          
     296          #ifdef FIFO_ENABLED
     297          void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
@@ -524,5 +763,64 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     421          
     422          #endif
 
-Errors: 11
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   get_spi_id_from_addr
+       0   spi_chip_select
+      16   spi_configure
+        16   -> __aeabi_assert
+        16   -> __iar_EmptyStepPoint
+        16   -> get_spi_id_from_addr
+        16   -> pmc_enable_peripheral
+       0   spi_configure_cs_mode
+       0   spi_configure_npcs
+       0   spi_disable
+       0   spi_disable_it
+       0   spi_enable
+       0   spi_enable_it
+       0   spi_get_status
+       0   spi_is_finished
+       0   spi_read
+       0   spi_release_cs
+       0   spi_set_mode
+       4   spi_write
+       4   spi_write_last
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable0
+       4  ??DataTable0_1
+      28  ?_0
+      64  ?_1
+      56  _id_h64_matrix
+     140  get_spi_id_from_addr
+      44  spi_chip_select
+      92  spi_configure
+      72  spi_configure_cs_mode
+      16  spi_configure_npcs
+      12  spi_disable
+       8  spi_disable_it
+      12  spi_enable
+       8  spi_enable_it
+       8  spi_get_status
+      16  spi_is_finished
+      28  spi_read
+      12  spi_release_cs
+       8  spi_set_mode
+      64  spi_write
+      68  spi_write_last
+
+ 
+ 148 bytes in section .rodata
+ 616 bytes in section SOFTPACK
+ 
+ 616 bytes of CODE  memory
+ 148 bytes of CONST memory
+
+Errors: none
 Warnings: 1

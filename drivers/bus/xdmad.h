@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+
 #include <assert.h>
 
 /** \addtogroup dmad_defines DMA Driver Defines
@@ -217,13 +218,12 @@ extern void XDMAD_Handler(sXdmad * pDmad);
 
 extern uint32_t XDMAD_AllocateChannel(sXdmad * pXdmad,
 				      uint8_t bSrcID, uint8_t bDstID);
+
 extern eXdmadRC XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel);
 
 extern eXdmadRC XDMAD_ConfigureTransfer(sXdmad * pXdmad,
-					uint32_t dwChannel,
-					sXdmadCfg * pXdmaParam,
-					uint32_t dwXdmaDescCfg,
-					uint32_t dwXdmaDescAddr);
+					uint32_t dwChannel, sXdmadCfg * pXdmaParam,
+					uint32_t dwXdmaDescCfg, uint32_t dwXdmaDescAddr);
 
 extern eXdmadRC XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel);
 
@@ -231,8 +231,7 @@ extern eXdmadRC XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel);
 
 extern eXdmadRC XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel);
 
-extern eXdmadRC XDMAD_SetCallback(sXdmad * pXdmad,
-				  uint32_t dwChannel,
+extern eXdmadRC XDMAD_SetCallback(sXdmad * pXdmad, uint32_t dwChannel,
 				  XdmadTransferCallback fCallback, void *pArg);
 
 extern eXdmadRC XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel);

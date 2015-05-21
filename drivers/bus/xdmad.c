@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -72,15 +72,14 @@
  *----------------------------------------------------------------------------*/
 /**
  * \brief Try to allocate a DMA channel for on given controller.
- * \param pDmad  Pointer to DMA driver instance.
+ * \param pXdmad  Pointer to DMA driver instance.
  * \param bXdmac xDMA controller ID (0 ~ 1).
  * \param bSrcID Source peripheral ID, 0xFF for memory.
  * \param bDstID Destination peripheral ID, 0xFF for memory.
  * \return Channel number if allocation successful, return
  * DMAD_ALLOC_FAILED if allocation failed.
  */
-static uint32_t
-XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
+static uint32_t XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
 			   uint8_t bXdmac, uint8_t bSrcID, uint8_t bDstID)
 {
 	uint32_t i;
@@ -135,8 +134,7 @@ XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
  *                     1. Via XDMAD_IsTransferDone(); or
  *                     2. Via XDMAD_Handler().
  */
-void
-XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode)
+void XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode)
 {
 	uint32_t i, j;
 
@@ -172,8 +170,7 @@ XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode)
  * \return Channel number if allocation successful, return
  * XDMAD_ALLOC_FAILED if allocation failed.
  */
-uint32_t
-XDMAD_AllocateChannel(sXdmad * pXdmad, uint8_t bSrcID, uint8_t bDstID)
+uint32_t XDMAD_AllocateChannel(sXdmad * pXdmad, uint8_t bSrcID, uint8_t bDstID)
 {
 	uint32_t _iController;
 	uint32_t dwChannel = XDMAD_ALLOC_FAILED;
@@ -193,8 +190,7 @@ XDMAD_AllocateChannel(sXdmad * pXdmad, uint8_t bSrcID, uint8_t bDstID)
  * \param pXdmad     Pointer to xDMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel)
+eXdmadRC XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
@@ -219,9 +215,7 @@ XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel)
  * \param fCallback Pointer to callback function.
  * \param pArg Pointer to optional argument for callback.
  */
-eXdmadRC
-XDMAD_SetCallback(sXdmad * pXdmad,
-		  uint32_t dwChannel,
+eXdmadRC XDMAD_SetCallback(sXdmad * pXdmad, uint32_t dwChannel,
 		  XdmadTransferCallback fCallback, void *pArg)
 {
 	uint8_t _iController = (dwChannel >> 8);
@@ -246,8 +240,7 @@ XDMAD_SetCallback(sXdmad * pXdmad,
  * \param pXdmad     Pointer to xDMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
+eXdmadRC XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
@@ -288,29 +281,28 @@ XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
 
 /**
  * \brief xDMA interrupt handler
- * \param pDmad Pointer to DMA driver instance.
+ * \param pXdmad Pointer to DMA driver instance.
  */
-void
-XDMAD_Handler(sXdmad * pDmad)
+void XDMAD_Handler(sXdmad * pXdmad)
 {
 	Xdmac *pXdmac;
 	sXdmadChannel *pCh;
 	uint32_t xdmaChannelIntStatus, xdmaGlobaIntStatus, xdmaGlobalChStatus;
 	uint8_t bExec = 0;
 	uint8_t _iController, _iChannel;
-	assert(pDmad != NULL);
+	assert(pXdmad != NULL);
 
-	for (_iController = 0; _iController < pDmad->numControllers;
+	for (_iController = 0; _iController < pXdmad->numControllers;
 	     _iController++) {
-		pXdmac = pDmad->pXdmacs[_iController];
+		pXdmac = pXdmad->pXdmacs[_iController];
 		xdmaGlobaIntStatus = XDMAC_GetGIsr(pXdmac);
 		if ((xdmaGlobaIntStatus & 0xFFFF) == 0)
 			continue;
 		xdmaGlobalChStatus = XDMAC_GetGlobalChStatus(pXdmac);
-		for (_iChannel = 0; _iChannel < pDmad->numChannels; _iChannel++) {
+		for (_iChannel = 0; _iChannel < pXdmad->numChannels; _iChannel++) {
 			if (!(xdmaGlobaIntStatus & (1 << _iChannel)))
 				continue;
-			pCh = &pDmad->XdmaChannels[_iController][_iChannel];
+			pCh = &pXdmad->XdmaChannels[_iController][_iChannel];
 			if (pCh->state == XDMAD_STATE_FREE)
 				return;
 			if ((xdmaGlobalChStatus & (XDMAC_GS_ST0 << _iChannel))
@@ -367,8 +359,7 @@ XDMAD_Handler(sXdmad * pDmad)
  * \param pXdmad    Pointer to DMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel)
+eXdmadRC XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
@@ -392,11 +383,9 @@ XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel)
  * \param pXdmad     Pointer to xDMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_ConfigureTransfer(sXdmad * pXdmad,
-			uint32_t dwChannel,
-			sXdmadCfg * pXdmaParam,
-			uint32_t dwXdmaDescCfg, uint32_t dwXdmaDescAddr)
+eXdmadRC XDMAD_ConfigureTransfer(sXdmad * pXdmad, uint32_t dwChannel,
+			sXdmadCfg * pXdmaParam, uint32_t dwXdmaDescCfg,
+			uint32_t dwXdmaDescAddr)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
@@ -462,8 +451,7 @@ XDMAD_ConfigureTransfer(sXdmad * pXdmad,
  * \param pXdmad     Pointer to XDMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel)
+eXdmadRC XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
@@ -491,8 +479,7 @@ XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel)
  * \param pXdmad     Pointer to DMA driver instance.
  * \param dwChannel ControllerNumber << 8 | ChannelNumber.
  */
-eXdmadRC
-XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel)
+eXdmadRC XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel)
 {
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t _iChannel = (dwChannel) & 0xFF;

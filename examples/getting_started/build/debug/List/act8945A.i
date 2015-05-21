@@ -2362,7 +2362,7 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
  
  
 
-#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
  
  
@@ -2394,19 +2394,6 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
 
 
 
-
-
-
-
-
-
-
- 
- 
-
-
-
- 
 
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\resources/compiler_defines.h"
 
@@ -2415,22 +2402,15 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
  
 #line 14 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\resources/compiler_defines.h"
 
-#line 47 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-#line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
- 
- 
-#line 235 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
+#line 34 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
-#line 258 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
+
+
 
 
 
 
  
-#line 48 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-
-
-
  
 
 
@@ -2448,7 +2428,7 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
 
 
  
-#line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 50 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
 
 typedef enum IRQn
@@ -2470,6 +2450,7 @@ typedef enum IRQn
   PIOA_IRQn            = 18,  
   FLEXCOM0_IRQn        = 19,  
   FLEXCOM1_IRQn        = 20,  
+  FLEXCOM2_IRQn        = 21,  
   FLEXCOM3_IRQn        = 22,  
   FLEXCOM4_IRQn        = 23,  
   UART0_IRQn           = 24,  
@@ -2610,7 +2591,7 @@ typedef struct {
  
 
 
-#line 130 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 122 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_adc.h"
  
  
@@ -2838,7 +2819,7 @@ typedef struct {
  
 
 
-#line 131 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 123 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aes.h"
  
  
@@ -2994,7 +2975,7 @@ typedef struct {
  
 
 
-#line 132 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 124 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aesb.h"
  
  
@@ -3094,7 +3075,7 @@ typedef struct {
  
 
 
-#line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 125 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aic.h"
  
  
@@ -3234,7 +3215,7 @@ typedef struct {
  
 
 
-#line 134 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 126 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aximx.h"
  
  
@@ -3286,7 +3267,7 @@ typedef struct {
  
 
 
-#line 135 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 127 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_chipid.h"
  
  
@@ -3342,7 +3323,7 @@ typedef struct {
  
 
 
-#line 136 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 128 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_classd.h"
  
  
@@ -3433,7 +3414,7 @@ typedef struct {
  
 
 
-#line 137 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 129 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_flexcom.h"
  
  
@@ -3818,7 +3799,7 @@ typedef struct {
  
 
 
-#line 138 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 130 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_gmac.h"
  
  
@@ -4511,7 +4492,7 @@ typedef struct {
  
 
 
-#line 139 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 131 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_i2sc.h"
  
  
@@ -4608,7 +4589,7 @@ typedef struct {
  
 
 
-#line 140 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 132 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_icm.h"
  
  
@@ -4716,7 +4697,7 @@ typedef struct {
  
 
 
-#line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_isc.h"
  
  
@@ -4976,7 +4957,7 @@ typedef struct {
  
 
 
-#line 142 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 134 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_l2cc.h"
  
  
@@ -5135,7 +5116,7 @@ typedef struct {
  
 
 
-#line 143 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 135 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_lcdc.h"
  
  
@@ -5861,7 +5842,7 @@ typedef struct {
  
 
 
-#line 144 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 136 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_matrix.h"
  
  
@@ -6197,7 +6178,7 @@ typedef struct {
  
 
 
-#line 145 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 137 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_mpddrc.h"
  
  
@@ -6425,7 +6406,7 @@ typedef struct {
  
 
 
-#line 146 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 138 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pdmic.h"
  
  
@@ -6533,7 +6514,7 @@ typedef struct {
  
 
 
-#line 147 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 139 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pio.h"
  
  
@@ -6714,7 +6695,7 @@ typedef struct {
  
 
 
-#line 148 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 140 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pit.h"
  
  
@@ -6785,7 +6766,7 @@ typedef struct {
  
 
 
-#line 149 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pmc.h"
  
  
@@ -6952,7 +6933,7 @@ typedef struct {
  
 
 
-#line 150 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 142 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pwm.h"
  
  
@@ -7241,7 +7222,7 @@ typedef struct {
  
 
 
-#line 151 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 143 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_qspi.h"
  
  
@@ -7367,7 +7348,7 @@ typedef struct {
  
 
 
-#line 152 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 144 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rstc.h"
  
  
@@ -7425,7 +7406,7 @@ typedef struct {
  
 
 
-#line 153 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 145 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rtc.h"
  
  
@@ -7544,7 +7525,7 @@ typedef struct {
  
 
 
-#line 154 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 146 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rxlp.h"
  
  
@@ -7630,7 +7611,7 @@ typedef struct {
  
 
 
-#line 155 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 147 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sckc.h"
  
  
@@ -7684,7 +7665,7 @@ typedef struct {
  
 
 
-#line 156 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 148 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sfc.h"
  
  
@@ -7783,7 +7764,7 @@ typedef struct {
  
 
 
-#line 157 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 149 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sha.h"
  
  
@@ -7889,7 +7870,7 @@ typedef struct {
  
 
 
-#line 158 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 150 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_shdwc.h"
  
  
@@ -7952,7 +7933,7 @@ typedef struct {
  
 
 
-#line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 151 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_smc.h"
  
  
@@ -8546,7 +8527,7 @@ typedef struct {
  
 
 
-#line 160 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 152 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_ssc.h"
  
@@ -8682,7 +8663,7 @@ typedef struct {
  
 
 
-#line 162 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 154 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_tc.h"
  
  
@@ -8834,7 +8815,7 @@ typedef struct {
  
 
 
-#line 163 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 155 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_tdes.h"
  
  
@@ -8952,7 +8933,7 @@ typedef struct {
  
 
 
-#line 164 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 156 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_trng.h"
  
  
@@ -9033,7 +9014,7 @@ typedef struct {
  
 
 
-#line 165 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 157 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_twihs.h"
  
  
@@ -9162,7 +9143,7 @@ typedef struct {
  
 
 
-#line 166 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 158 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_uart.h"
  
  
@@ -9266,7 +9247,7 @@ typedef struct {
  
 
 
-#line 167 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_udphs.h"
  
  
@@ -9423,7 +9404,7 @@ typedef struct {
  
 
 
-#line 168 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 160 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_wdt.h"
  
  
@@ -9482,7 +9463,7 @@ typedef struct {
  
 
 
-#line 169 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 161 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_xdmac.h"
  
  
@@ -9654,7 +9635,7 @@ typedef struct {
  
 
 
-#line 170 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 162 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
 
  
@@ -9703,7 +9684,7 @@ typedef struct {
 
 
 
-#line 179 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 171 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_l2cc.h"
  
  
@@ -9740,7 +9721,7 @@ typedef struct {
  
 #line 95 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_l2cc.h"
 
-#line 180 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 172 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_lcdc.h"
  
  
@@ -9777,7 +9758,7 @@ typedef struct {
  
 #line 359 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_lcdc.h"
 
-#line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 173 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac1.h"
  
  
@@ -9814,7 +9795,7 @@ typedef struct {
  
 #line 521 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac1.h"
 
-#line 182 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 174 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_isc.h"
  
  
@@ -9851,7 +9832,7 @@ typedef struct {
  
 #line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_isc.h"
 
-#line 183 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 175 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_mpddrc.h"
  
  
@@ -9888,7 +9869,7 @@ typedef struct {
  
 #line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_mpddrc.h"
 
-#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 176 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac0.h"
  
  
@@ -9925,7 +9906,7 @@ typedef struct {
  
 #line 521 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac0.h"
 
-#line 185 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 177 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pmc.h"
  
  
@@ -9962,7 +9943,7 @@ typedef struct {
  
 #line 91 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pmc.h"
 
-#line 186 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 178 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix0.h"
  
  
@@ -9999,7 +9980,7 @@ typedef struct {
  
 #line 279 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix0.h"
 
-#line 187 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 179 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aesb.h"
  
  
@@ -10036,7 +10017,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aesb.h"
 
-#line 188 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 180 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi0.h"
  
  
@@ -10073,7 +10054,7 @@ typedef struct {
  
 #line 71 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi0.h"
 
-#line 189 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi1.h"
  
  
@@ -10110,7 +10091,7 @@ typedef struct {
  
 #line 71 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi1.h"
 
-#line 190 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 182 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sha.h"
  
  
@@ -10147,7 +10128,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sha.h"
 
-#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 183 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aes.h"
  
  
@@ -10184,7 +10165,7 @@ typedef struct {
  
 #line 79 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aes.h"
 
-#line 192 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi0.h"
  
  
@@ -10221,7 +10202,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi0.h"
 
-#line 193 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 185 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc0.h"
  
  
@@ -10258,7 +10239,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc0.h"
 
-#line 194 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 186 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_gmac.h"
  
  
@@ -10295,7 +10276,7 @@ typedef struct {
  
 #line 371 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_gmac.h"
 
-#line 195 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 187 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc0.h"
  
  
@@ -10332,7 +10313,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc0.h"
 
-#line 196 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 188 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc1.h"
  
  
@@ -10369,7 +10350,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc1.h"
 
-#line 197 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 189 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_hsmc.h"
  
  
@@ -10406,7 +10387,7 @@ typedef struct {
  
 #line 753 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_hsmc.h"
 
-#line 198 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 190 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pdmic.h"
  
  
@@ -10443,7 +10424,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pdmic.h"
 
-#line 199 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart0.h"
  
  
@@ -10480,7 +10461,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart0.h"
 
-#line 200 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 192 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart1.h"
  
  
@@ -10517,7 +10498,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart1.h"
 
-#line 201 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 193 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart2.h"
  
  
@@ -10554,7 +10535,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart2.h"
 
-#line 202 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 194 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs0.h"
  
  
@@ -10591,7 +10572,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs0.h"
 
-#line 203 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 195 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pwm.h"
  
  
@@ -10628,7 +10609,7 @@ typedef struct {
  
 #line 253 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pwm.h"
 
-#line 204 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 196 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfr.h"
  
  
@@ -10665,7 +10646,7 @@ typedef struct {
  
 #line 93 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfr.h"
 
-#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 197 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom0.h"
  
  
@@ -10702,7 +10683,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom0.h"
 
-#line 206 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 198 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom1.h"
  
  
@@ -10739,7 +10720,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom1.h"
 
-#line 207 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 199 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_saic.h"
  
  
@@ -10776,7 +10757,7 @@ typedef struct {
  
 #line 81 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_saic.h"
 
-#line 208 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 200 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_icm.h"
  
  
@@ -10813,7 +10794,7 @@ typedef struct {
  
 #line 67 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_icm.h"
 
-#line 209 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 201 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rstc.h"
  
  
@@ -10850,7 +10831,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rstc.h"
 
-#line 210 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 202 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_shdwc.h"
  
  
@@ -10887,7 +10868,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_shdwc.h"
 
-#line 211 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 203 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pit.h"
  
  
@@ -10924,7 +10905,7 @@ typedef struct {
  
 #line 45 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pit.h"
 
-#line 212 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 204 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_wdt.h"
  
  
@@ -10961,7 +10942,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_wdt.h"
 
-#line 213 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sckc.h"
  
  
@@ -11002,7 +10983,7 @@ typedef struct {
 
 
 
-#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 206 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rtc.h"
  
  
@@ -11039,7 +11020,7 @@ typedef struct {
  
 #line 79 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rtc.h"
 
-#line 215 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 207 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rxlp.h"
  
  
@@ -11076,7 +11057,7 @@ typedef struct {
  
 #line 51 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rxlp.h"
 
-#line 216 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 208 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_acc.h"
  
  
@@ -11113,7 +11094,7 @@ typedef struct {
  
 #line 57 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_acc.h"
 
-#line 217 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 209 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfc.h"
  
  
@@ -11150,7 +11131,7 @@ typedef struct {
  
 #line 53 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfc.h"
 
-#line 218 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 210 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc0.h"
  
  
@@ -11187,7 +11168,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc0.h"
 
-#line 219 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 211 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi1.h"
  
  
@@ -11224,7 +11205,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi1.h"
 
-#line 220 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 212 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc1.h"
  
  
@@ -11261,7 +11242,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc1.h"
 
-#line 221 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 213 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart3.h"
  
  
@@ -11298,7 +11279,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart3.h"
 
-#line 222 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart4.h"
  
  
@@ -11335,7 +11316,44 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart4.h"
 
-#line 223 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 215 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom2.h"
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+ 
+#line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom2.h"
+
+#line 216 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom3.h"
  
  
@@ -11372,7 +11390,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom3.h"
 
-#line 224 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 217 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom4.h"
  
  
@@ -11409,7 +11427,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom4.h"
 
-#line 225 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 218 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_trng.h"
  
  
@@ -11446,7 +11464,7 @@ typedef struct {
  
 #line 51 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_trng.h"
 
-#line 226 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 219 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aic.h"
  
  
@@ -11483,7 +11501,7 @@ typedef struct {
  
 #line 81 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aic.h"
 
-#line 227 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 220 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs1.h"
  
  
@@ -11520,7 +11538,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs1.h"
 
-#line 228 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 221 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_udphs.h"
  
  
@@ -11557,7 +11575,7 @@ typedef struct {
  
 #line 341 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_udphs.h"
 
-#line 229 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 222 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_adc.h"
  
  
@@ -11594,7 +11612,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_adc.h"
 
-#line 230 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 223 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pioa.h"
  
  
@@ -11631,7 +11649,7 @@ typedef struct {
  
 #line 265 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pioa.h"
 
-#line 231 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 224 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix1.h"
  
  
@@ -11668,7 +11686,7 @@ typedef struct {
  
 #line 279 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix1.h"
 
-#line 232 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 225 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tdes.h"
  
  
@@ -11705,7 +11723,7 @@ typedef struct {
  
 #line 65 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tdes.h"
 
-#line 233 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 226 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_classd.h"
  
  
@@ -11742,7 +11760,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_classd.h"
 
-#line 234 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 227 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc1.h"
  
  
@@ -11779,7 +11797,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc1.h"
 
-#line 235 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 228 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_chipid.h"
  
  
@@ -11816,42 +11834,31 @@ typedef struct {
  
 #line 41 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_chipid.h"
 
-#line 236 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
+#line 229 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
 
  
  
  
 
-const __weak uint8_t _id_h64_matrix[] = {
-	( 2),
+const __weak uint32_t _id_h64_matrix[] = {
 	( 6),
 	( 7),
 	( 9),
-	
+	(10),
 	(12),
 	(13),
 	(15),
 	(31),
-	
+	(32),
 	(45),
 	(46),
 	(52),
 	(53),
-	(63)
-};
+	(63),
+} ;
 
 
-
-
- 
- 
- 
- 
- 
-
-#line 412 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
- 
 
  
  
@@ -11859,7 +11866,16 @@ const __weak uint8_t _id_h64_matrix[] = {
  
  
 
-#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 411 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
  
  
@@ -11892,23 +11908,17 @@ const __weak uint8_t _id_h64_matrix[] = {
 
 
 
-#line 105 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 161 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 119 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 175 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 128 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 149 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 158 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
+#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 274 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-
-
-
-
-
+#line 330 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
 
 
@@ -11916,118 +11926,152 @@ const __weak uint8_t _id_h64_matrix[] = {
 
 
  
-#line 302 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 318 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 376 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 387 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 398 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 463 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 518 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-
-
-
-
- 
-#line 534 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 547 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 566 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 585 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 600 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 621 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 634 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 647 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 669 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 691 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 700 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 707 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-
-
- 
-
-
-
-
- 
-#line 722 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-#line 729 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
- 
-
-
- 
-#line 805 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d21.h"
-
-#line 421 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-
- 
-
- 
- 
- 
-
-
-#line 453 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-
- 
- 
- 
 
 
 
 
 
  
+#line 353 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
+#line 369 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
+#line 385 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
+#line 443 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 478 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-
+#line 454 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 486 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d21.h"
-
-
-
-
-
+#line 465 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
-#line 156 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
-#line 171 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+#line 530 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 585 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
 
 
 
 
  
-static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
+#line 601 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 614 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 633 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 652 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 667 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 688 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 701 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 714 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 736 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 758 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 767 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 774 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+
+
+ 
+
+
+
+
+ 
+#line 789 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 796 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+
+
+ 
+#line 928 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+
+#line 420 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+ 
+
+ 
+ 
+ 
+
+
+#line 451 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+ 
+ 
+ 
+
+
+
+
+
+ 
+ 
+ 
+
+ 
+
+ 
+#line 476 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+ 
+#line 484 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+
+
+
+
+ 
+
+#line 166 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+
+
+
+
+
+
+
+
+
+ 
+static inline Flexcom* get_flexcom_addr_from_id(const uint32_t id)
+{
+	if (id == (19)) return ((Flexcom *)0xF8034000U);  
+
+	else if (id == (20)) return ((Flexcom *)0xF8038000U);  
+
+
+	else if (id == (21)) return ((Flexcom *)0xFC010000U);  
+
+
+	else if (id == (22)) return ((Flexcom *)0xFC014000U);  
+
+
+	else if (id == (23)) return ((Flexcom *)0xFC018000U);  
+
+	else return (void*)0;
+}
+
+
+
+
+
+ 
+static inline uint32_t get_twi_id_from_addr(const Twi* addr)
 {
 	if (addr == (void*)((Twi *)0xF8034600U)) return (19);  
 
 	else if (addr == (void*)((Twi *)0xF8038600U)) return (20);  
 
 
-
+	else if (addr == (void*)((Twi *)0xFC010600U)) return (21);  
 
 
 	else if (addr == (void*)((Twi *)0xFC014600U)) return (22);  
@@ -12048,14 +12092,14 @@ static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
 
 
  
-static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
+static inline Twi* get_twi_addr_from_id(const uint32_t id)
 {
 	if (id == (19)) return ((Twi *)0xF8034600U);  
 
 	else if (id == (20)) return ((Twi *)0xF8038600U);  
 
 
-
+	else if (id == (21)) return ((Twi *)0xFC010600U);  
 
 
 	else if (id == (22)) return ((Twi *)0xFC014600U);  
@@ -12075,7 +12119,7 @@ static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 
 
  
-static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
+static inline uint32_t get_spi_id_from_addr(const Spi* addr)
 {
 	if (addr == (void*)((Spi *)0xF8000000U)) return (33);
 	else if (addr == (void*)((Spi *)0xFC000000U)) return (34);
@@ -12086,7 +12130,7 @@ static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
 	else return (79);
 }
 
-static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
+static inline void* get_spi_addr_from_id(const uint32_t id)
 {
 	if (id == (33)) return ((Spi *)0xF8000000U);  
 	else if (id == (34)) return ((Spi *)0xFC000000U);  
@@ -12097,7 +12141,7 @@ static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
 	else return (void*)0;
 }
 
-static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
+static inline uint32_t get_uart_id_from_addr(const Uart* addr)
 {
       	if (addr == (void*)((Uart *)0xF801C000U)) return (24);
 
@@ -12115,14 +12159,14 @@ static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
 	else return (79);
 }
 
-static inline uint32_t GET_USART_ID_FROM_ADDR(const Usart* addr)
+static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 {
 	if (addr == (void*)((Usart *)0xF8034200U)) return (19);
 
 	else if (addr == (void*)((Usart *)0xF8038200U)) return (20);
 
 
-
+	else if (addr == (void*)((Usart *)0xFC010200U)) return (21);
 
 
 	else if (addr == (void*)((Usart *)0xFC014200U)) return (22);
@@ -12560,39 +12604,34 @@ typedef volatile unsigned int AT91_REG;
 
 
 
- 
-
-#line 493 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-#line 504 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 494 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-#line 515 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 505 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-
-
-
-
-#line 529 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 540 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 552 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 563 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
+#line 516 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
 
+
+#line 530 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 541 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 553 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 564 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
 
  
 
@@ -12602,54 +12641,45 @@ typedef volatile unsigned int AT91_REG;
 
  
 
-#line 586 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
- 
-
-#line 595 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 604 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 611 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#line 642 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
- 
 
 
 
  
 
+#line 587 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
+ 
+
+#line 596 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 605 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 612 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 643 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12672,21 +12702,14 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+ 
 
 
-
-
-#line 695 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
-
-
-
-
-#line 720 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12698,27 +12721,7 @@ typedef volatile unsigned int AT91_REG;
 
 
 
-
-#line 744 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-
-#line 765 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-#line 782 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 696 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12728,11 +12731,39 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+#line 721 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+ 
 
 
 
 
 
+
+
+
+#line 745 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+
+
+
+
+
+
+#line 766 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+
+
+
+
+
+#line 783 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12762,6 +12793,20 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12806,7 +12851,7 @@ typedef volatile unsigned int AT91_REG;
 
 
 
-#line 884 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 885 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
 
 
@@ -13249,8 +13294,11 @@ void board_configure_nor_flash(uint8_t busWidth);
  
 
 
+ 
 
-#line 129 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
+
+
+#line 132 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
 
  
 
@@ -13304,11 +13352,11 @@ void board_configure_nor_flash(uint8_t busWidth);
 
 
 
-#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
+#line 194 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
 
  
 
-#line 200 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
+#line 203 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/board_sama5d2-xplained.h"
 
  
 
@@ -13698,6 +13746,90 @@ extern uint32_t pmc_set_peripheral_max_clock(uint32_t id);
 uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div);
 #line 39 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\serial/flexcom.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+
+#line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
+ 
+ 
+#line 235 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
+
+#line 258 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
+
+
+
+
+ 
+#line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\serial/flexcom.h"
+
+
+
+
+
+ 
+ 
+ 
+
+void flexcom_select(Flexcom * flexcom, uint32_t protocol);
+
+#line 41 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\bus/twi.h"
 
 
@@ -13777,7 +13909,7 @@ uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div);
 
  
 
-void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
+void twi_configure_master(Twi * pTwi, uint32_t twck);
 void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
 void twi_stop(Twi * pTwi);
 void twi_start_read(Twi * pTwi, uint8_t address,
@@ -13795,9 +13927,9 @@ extern uint32_t twi_get_status(Twi * pTwi);
 extern uint32_t twi_get_masked_status(Twi * pTwi);
 void twi_send_stop_condition(Twi * pTwi);
 
-#line 98 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\bus/twi.h"
+#line 97 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\bus/twi.h"
 
-#line 41 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+#line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\bus/twid.h"
 
 
@@ -13950,49 +14082,32 @@ extern uint32_t ASYNC_IsFinished(Async * pAsync);
  
 
  
-	typedef struct _Twid {
-	 
-		Twi *pTwi;
-	 
-		Async *pTransfer;
-	} Twid;
+struct _twid {
+	Twi *pTwi;			 
+	Async *pTransfer;	 
+};
 
 
 
  
-void TWID_Initialize(Twid * pTwid, Twi * pTwi);
+void twid_initialize(struct _twid* pTwid, Twi * pTwi);
 
-void TWID_Handler(Twid * pTwid);
+void twid_handler(struct _twid* pTwid);
 
-extern uint8_t TWID_Read(Twid * pTwid,
-			 uint8_t address,
-			 uint32_t iaddress,
-			 uint8_t isize,
-			 uint8_t * pData, uint32_t num, Async * pAsync);
+extern uint8_t twid_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
+			 uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync);
 
-extern uint8_t TWID_DmaRead(Twid * pTwid,
-			    uint8_t address,
-			    uint32_t iaddress,
-			    uint8_t isize,
-			    uint8_t * pData,
-			    uint32_t num,
+extern uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
+			    uint8_t isize, uint8_t * pData, uint32_t num,
 			    Async * pAsync, uint8_t TWI_ID);
 
-extern uint8_t TWID_Write(Twid * pTwid,
-			  uint8_t address,
-			  uint32_t iaddress,
-			  uint8_t isize,
-			  uint8_t * pData,
-			  uint32_t num, Async * pAsync);
+extern uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
+			  uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync);
 
-extern uint8_t TWID_DmaWrite(Twid * pTwid,
-			     uint8_t address,
-			     uint32_t iaddress,
-			     uint8_t isize,
-			     uint8_t * pData,
-			     uint32_t num,
-			     Async * pAsync, uint8_t TWI_ID);
-#line 42 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+extern uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address,
+			     uint32_t iaddress, uint8_t isize, uint8_t * pData,
+			     uint32_t num, Async * pAsync, uint8_t TWI_ID);
+#line 44 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../drivers\\io/act8945A.h"
 
@@ -14029,6 +14144,34 @@ extern uint8_t TWID_DmaWrite(Twid * pTwid,
 
 
 
+
+
+
+
+
+
+
+enum TWI_CMD
+{
+    TWI_RD   = 0,
+    TWI_WR	 = 1
+};
+
+enum TWI_STATUS
+{
+  TWI_STATUS_RESET  = 0,
+  TWI_STATUS_HANDLE = 1u<<0,
+  TWI_STATUS_RFU2   = 1u<<1,
+  TWI_STATUS_RFU3   = 1u<<2,
+  TWI_STATUS_RFU4   = 1u<<3,
+  TWI_STATUS_READY  = 1u<<7,
+};
+
+enum TWI_RESULT
+{
+    TWI_SUCCES   = 0,
+    TWI_FAIL	 = 1
+} ;
 
 
 
@@ -14246,39 +14389,40 @@ typedef enum
 
 
 
-void _ACT8945A_TwiError (void);
-void _ACT8945A_DelayMS(signed int delay);
-float _ACT8945A_ConvertVoltageSetting (uint8_t Reg);
-void _ACT8945A_DisplaySystemSetting (void);
-void _ACT8945A_DisplayVoltageSetting (void);
-void _ACT8945A_RegistersDump(void);
-void _ACT8945A_APCH_RegistersDump (void);
-uint8_t _ACT8945A_DisplayActivePathCharger (void);
-uint8_t _ACT8945A_DisplaySyslevFailingThreshold (void);
+void _ACT8945A_twi_error (void);
+void _ACT8945A_delay_ms (uint32_t delay);
+float _ACT8945A_convert_voltage_setting (uint8_t Reg);
+void _ACT8945A_display_system_setting (void);
+void _ACT8945A_display_voltage_setting (void);
+void _ACT8945A_registers_dump (void);
+void _ACT8945A_registers_dump_apch (void);
 
-extern void ACT8945A_ActiveInterrupt (void);
-extern void ACT8945A_DisableTwi (void);
+uint8_t _ACT8945A_display_active_path_charger (void);
+uint8_t _ACT8945A_display_syslev_failing_threshold (void);
 
-extern uint8_t ACT8945A_SetRegulatorStateOut1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorStateOut4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorVoltageOut4to7 (uint8_t RegVout, uint16_t VOut);
-extern uint8_t ACT8945A_SetSystemVoltageLevelInterrupt (INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_DisableAllAPCHInterrupt (void);
-extern uint8_t ACT8945A_SystemVoltageLevel (uint16_t Value);
-extern uint8_t ACT8945A_SetStateChangeLevelPin (CHG_LEVEL_enum State);
-extern uint8_t ACT8945A_GetStateLBO (void);
-extern uint8_t ACT8945A_Begin(void);
-extern uint8_t ACT8945A_Test (void);
+extern void ACT8945A_active_interrupt (void);
+extern void ACT8945A_disable_twi (void);
 
-extern void ACT8945A_IrqHandler(void);
+extern uint8_t ACT8945A_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut);
+extern uint8_t ACT8945A_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
+extern uint8_t ACT8945A_disable_all_APCH_interrupt (void);
+extern uint8_t ACT8945A_system_voltage_level (uint16_t Value);
+extern uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State);
+extern uint8_t ACT8945A_get_state_LBO_pin (void);
+extern uint8_t ACT8945A_begin(void);
+extern uint8_t ACT8945A_test (void);
 
-
-
+extern void ACT8945A_irq_handler(void);
 
 
-#line 44 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+
+
+
+#line 46 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 
 #line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdio.h"
  
@@ -14559,7 +14703,7 @@ _Pragma("function_effects = no_write(1)")      __intrinsic __nounwind size_t __w
 
 
  
-#line 46 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+#line 48 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 #line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\stdint.h"
  
  
@@ -14571,7 +14715,7 @@ _Pragma("function_effects = no_write(1)")      __intrinsic __nounwind size_t __w
 
 
  
-#line 47 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+#line 49 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
 #line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\string.h"
  
  
@@ -14849,7 +14993,47 @@ _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __no
 
 
  
-#line 48 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+#line 50 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+#line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\assert.h"
+ 
+ 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+ 
+
+
+  #pragma system_include
+
+
+#line 1 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\ycheck.h"
+ 
+ 
+
+ 
+
+
+  #pragma system_include
+
+
+
+
 
 
 
@@ -14862,27 +15046,100 @@ _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __no
 
 
 
-enum TWI_CMD
-{
-    TWI_RD   = 0,
-    TWI_WR	 = 1
-};
 
-enum TWI_STATUS
-{
-  TWI_STATUS_RESET  = 0,
-  TWI_STATUS_HANDLE = 1u<<0,
-  TWI_STATUS_RFU2   = 1u<<1,
-  TWI_STATUS_RFU3   = 1u<<2,
-  TWI_STATUS_RFU4   = 1u<<3,
-  TWI_STATUS_READY  = 1u<<7,
-};
 
-enum TWI_RESULT
-{
-    TWI_SUCCES   = 0,
-    TWI_FAIL	 = 1
-} ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+#line 67 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\ycheck.h"
+
+#line 29 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\assert.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#pragma no_bounds
+__intrinsic __nounwind void __aeabi_assert(char const *, char const *, int);
+#pragma no_bounds
+__intrinsic __nounwind int  __iar_ReportAssert(const char *, const char *,
+                                     const char *, const char *);
+
+_Pragma("object_attribute = __weak")
+__intrinsic __nounwind void __iar_EmptyStepPoint(void);
+#pragma no_bounds
+__intrinsic __nounwind void __iar_PrintAssert(const char*);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+ 
+
+
+
+
+#line 88 "C:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 7.2\\arm\\inc\\c\\assert.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+#line 51 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c"
+
+
+
+ 
 
 
 
@@ -14891,30 +15148,27 @@ enum TWI_RESULT
 
 struct _handler_twi
 {
-    uint8_t     IdTwi;      
-    uint8_t     Status;     
-    uint8_t     PeriphAddr; 
-    uint8_t     LenData;    
-    uint8_t     AddSize;    
-    uint16_t    RegMemAddr; 
-    uint32_t    Twck;       
-    uint8_t*    pData;      
-    Twid        twid;
+    uint8_t     	IdTwi;      
+    uint8_t     	Status;     
+    uint8_t     	PeriphAddr; 
+    uint8_t     	LenData;    
+    uint8_t     	AddSize;    
+    uint16_t    	RegMemAddr; 
+    uint32_t    	Twck;       
+    uint8_t*    	pData;      
+    struct _twid	twid;
 } ;
 
-struct _handler_twi LTWI = {0};
+struct _handler_twi htwi = {0};
 
 
 
 
 
 
+static const struct _pin pins_twi_act8945a[] = { { (1u << 21) | (1u << 22), ((Pio *)0xFC038000U), 3, 3, (0x0u << 0) },};
 
-
-
-static const struct _pin pins_twi_act8945a[] = { { (1u << 21), ((Pio *)0xFC038000U), 3, 2, (0x0u << 0) }, { (1u << 22), ((Pio *)0xFC038000U), 3, 2, (0x0u << 0) },};
-
-static const struct _pin pins_ctrl_act8945a[] = { { PIO_PA12, ((Pio *)0xFC038000U), 0, 11, (0x1u << 0) },};
+static const struct _pin pins_ctrl_act8945a[] = { { (1u << 12), ((Pio *)0xFC038000U), 0, 11, (0x1u << 0) },};
 
 
 static const sActReg ActReg[] =
@@ -14983,67 +15237,62 @@ static char ChargState[4][24] =
 
 
 
-uint8_t twi_handler_init (struct _handler_twi* ltwi)
+uint8_t _twi_handler_init (struct _handler_twi* phtwi)
 {
-    uint8_t Status = ltwi->Status;
-    static Twid twid;
+    uint8_t Status = phtwi->Status;
+    static struct _twid twid;
+	Twi* pTwi = 0;
+	Flexcom* pflexc = 0;
 
-    assert( ltwi->Twck != 0 );
-    assert( ltwi->IdTwi != 0 );
+    ((phtwi->Twck != 0) ? (void)0 : ( __aeabi_assert("phtwi->Twck != 0", "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c", 159), ( __iar_EmptyStepPoint())));
+    ((phtwi->IdTwi != 0) ? (void)0 : ( __aeabi_assert("phtwi->IdTwi != 0", "C:\\Users\\dfronek\\Documents\\Project\\softpack\\drivers\\io\\act8945A.c", 160), ( __iar_EmptyStepPoint())));
 
 	memset((void*)&twid, 0x00, sizeof(twid));
 
-	
-	((Pmc *)0xF0014000U)->PMC_PCR = (((0x7fu << 0) & (((19)) << 0))) | (0x1u << 12) | (0x1u << 28) | (0x2u << 16);
+	((Pmc *)0xF0014000U)->PMC_PCR = (((0x7fu << 0) & (((23)) << 0))) | (0x1u << 12) | (0x1u << 28) | (0x2u << 16);
 	pio_configure(pins_twi_act8945a, (sizeof(pins_twi_act8945a) / sizeof(struct _pin)));
-	pmc_enable_peripheral((19));
-	twi_configure_master(0, ltwi->Twck, pmc_get_master_clock());
+	pmc_enable_peripheral((23));
 
-	TWID_Initialize(&twid, 0);
-	ltwi->Status = Status | TWI_STATUS_HANDLE;
-    memcpy ((void*)&ltwi->twid, (void*)&twid, sizeof(Twid));
-    return ltwi->Status;
+	
+	pflexc = get_flexcom_addr_from_id((23));
+	flexcom_select(pflexc, (0x3u << 0));
+	
+	pTwi = &pflexc->twi;
+	twi_configure_master(pTwi, phtwi->Twck);
+	twid_initialize(&twid, pTwi);
+
+	phtwi->Status = Status | TWI_STATUS_HANDLE;
+    memcpy ((void*)&phtwi->twid, (void*)&twid, sizeof(twid));
+    return phtwi->Status;
 }
 
-uint8_t twi_rd_wr (struct _handler_twi* ltwi, enum TWI_CMD Cmd)
+
+
+
+uint8_t _is_twi_ready (struct _handler_twi* handler_twi)
+{
+  return handler_twi->Status & TWI_STATUS_READY;
+}
+
+
+
+
+uint8_t _twid_rd_wr (struct _handler_twi* handler_twi, enum TWI_CMD Cmd)
 {
   if (Cmd == TWI_RD)
-    return (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
-                              ltwi->AddSize, (unsigned char*)ltwi->pData,
-                              ltwi->LenData, 0);
+    return (uint8_t)twid_read(&handler_twi->twid, handler_twi->PeriphAddr,
+							  handler_twi->RegMemAddr, handler_twi->AddSize,
+							  (uint8_t*)handler_twi->pData, handler_twi->LenData, 0);
   else
-    return (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
-                               ltwi->AddSize, (unsigned char*)ltwi->pData,
-                               ltwi->LenData, 0);
+    return (uint8_t)twid_write(&handler_twi->twid, handler_twi->PeriphAddr,
+							   handler_twi->RegMemAddr, handler_twi->AddSize,
+							   (uint8_t*)handler_twi->pData, handler_twi->LenData, 0);
 }
 
 
 
 
-uint8_t _is_twi_ready (struct _handler_twi* ltwi)
-{
-  return ltwi->Status & TWI_STATUS_READY;
-}
-
-
-
-
-uint8_t _twid_rd_wr (struct _handler_twi* ltwi, enum TWI_CMD Cmd)
-{
-  if (Cmd == TWI_RD)
-    return (uint8_t)TWID_Read(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
-                              ltwi->AddSize, (unsigned char*)ltwi->pData,
-                              ltwi->LenData, 0);
-  else
-    return (uint8_t)TWID_Write(&ltwi->twid, ltwi->PeriphAddr, ltwi->RegMemAddr,
-                               ltwi->AddSize, (unsigned char*)ltwi->pData,
-                               ltwi->LenData, 0);
-}
-
-
-
-
-void _ACT8945A_DelayMS (signed int delay)
+void _ACT8945A_delay_ms (uint32_t delay)
 {
     unsigned int count;
     for(;delay>0;delay--)
@@ -15065,56 +15314,54 @@ void ACT8945A_IrqHandler( void )
   BITFIELD_APCH78 BitField_APCH79;
   BITFIELD_APCH7A BitField_APCH7A;
 
-    LTWI.RegMemAddr = 0x00;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_Syst0;
-    _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x00;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_Syst0;
+    _twid_rd_wr(&htwi, TWI_RD);
 
-    if ( bf_SYST0 != *LTWI.pData)
+    if ( bf_SYST0 != *htwi.pData)
     {
       printf("&");
-      bf_SYST0 = *LTWI.pData;
+      bf_SYST0 = *htwi.pData;
     }
 
-    LTWI.RegMemAddr = 0x7A;
-    LTWI.pData = (uint8_t*)&BitField_APCH7A;
-    _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x7A;
+    htwi.pData = (uint8_t*)&BitField_APCH7A;
+    _twid_rd_wr(&htwi, TWI_RD);
 
-    if ( bf_APCH7A != *LTWI.pData)
+    if ( bf_APCH7A != *htwi.pData)
     {
       printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
-      bf_APCH7A = *LTWI.pData;
+      bf_APCH7A = *htwi.pData;
     }
 
-    LTWI.RegMemAddr = 0x78;
-    LTWI.pData = (uint8_t*)&BitField_APCH78;
-    _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x78;
+    htwi.pData = (uint8_t*)&BitField_APCH78;
+    _twid_rd_wr(&htwi, TWI_RD);
 
-    if ( bf_APCH78 != *LTWI.pData)
+    if ( bf_APCH78 != *htwi.pData)
     {
       if (BitField_APCH78.chgdat == 0x01) printf("\n\rcharger state machine: END-OF-CHARGE state \n\r");
-      bf_APCH78 = *LTWI.pData;
+      bf_APCH78 = *htwi.pData;
     }
 
-    LTWI.RegMemAddr = 0x79;
-    LTWI.pData = (uint8_t*)&BitField_APCH79;
-    _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x79;
+    htwi.pData = (uint8_t*)&BitField_APCH79;
+    _twid_rd_wr(&htwi, TWI_RD);
 
-    if ( bf_APCH79 != *LTWI.pData)
+    if ( bf_APCH79 != *htwi.pData)
     {
       printf("#");
-      bf_APCH79 = *LTWI.pData;
+      bf_APCH79 = *htwi.pData;
     }
-
     printf("*");
-
 }
 
 
 
 
 
-void _ACT8945A_TwiError (void)
+void _ACT8945A_twi_error (void)
 {
   printf(" -E- Twi Error \n\r");
 }
@@ -15122,20 +15369,20 @@ void _ACT8945A_TwiError (void)
 
 
 
-void _ACT8945A_RegistersDump(void)
+void _ACT8945A_registers_dump(void)
 {
     uint8_t data, i = 0;
 
-    if (_is_twi_ready(&LTWI))
+    if (_is_twi_ready(&htwi))
     {
       printf("\n\r *** DUMP Registers ACT8945A\n\r");
-      LTWI.LenData = 1;
-      LTWI.pData = &data;
+      htwi.LenData = 1;
+      htwi.pData = &data;
       for (i=0; i<(sizeof(ActReg)/sizeof(ActReg[0])); i++)
       {
-        LTWI.RegMemAddr = ActReg[i].Address;
-        _twid_rd_wr(&LTWI, TWI_RD);
-        _ACT8945A_DelayMS(10);
+        htwi.RegMemAddr = ActReg[i].Address;
+        _twid_rd_wr(&htwi, TWI_RD);
+        _ACT8945A_delay_ms(10);
         printf("%s: 0x%02x", ActReg[i].RegName, data);
         printf("\n\r");
       }
@@ -15145,21 +15392,21 @@ void _ACT8945A_RegistersDump(void)
 
 
 
-void _ACT8945A_APCH_RegistersDump (void)
+void _ACT8945A_registers_dump_APCH (void)
 {
     uint8_t data, i = 0;
 
-    if (_is_twi_ready(&LTWI))
+    if (_is_twi_ready(&htwi))
     {
       printf("\n\r");
       printf(" -I- DUMP Registers APCH ACT8945A\n\r");
-      LTWI.LenData = 1;
-      LTWI.pData = &data;
+      htwi.LenData = 1;
+      htwi.pData = &data;
       for (i=0; i<(sizeof(ActAcph)/sizeof(ActAcph[0])); i++)
       {
-        LTWI.RegMemAddr = ActAcph[i].Address;
-        _twid_rd_wr(&LTWI, TWI_RD);
-        _ACT8945A_DelayMS(10);
+        htwi.RegMemAddr = ActAcph[i].Address;
+        _twid_rd_wr(&htwi, TWI_RD);
+        _ACT8945A_delay_ms(10);
         printf(" -I- %s: 0x%02X", ActAcph[i].RegName, data);
         printf("\n\r");
       }
@@ -15169,7 +15416,7 @@ void _ACT8945A_APCH_RegistersDump (void)
 
 
 
-float _ACT8945A_ConvertVoltageSetting (uint8_t Reg)
+float _ACT8945A_Convert_voltage_setting (uint8_t Reg)
 {
     float Result = 0;
     uint8_t Mul20, Mul53;
@@ -15188,37 +15435,37 @@ float _ACT8945A_ConvertVoltageSetting (uint8_t Reg)
 
 
 
-void _ACT8945A_DisplaySystemSetting (void)
+void _ACT8945A_display_system_setting (void)
 {
   uint8_t Status;
   float Value;
   BITFIELD_SYS0 BitField_Syst0;
   BITFIELD_SYS1 BitField_Syst1;
 
-    LTWI.RegMemAddr = 0x00;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_Syst0;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x00;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_Syst0;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if(Status!=0) return;
 
     Value = 2.3 + (BitField_Syst0.syslev*0.1);
 
     printf("\n\r");
     printf(" -I- System Registers ACT8945A \n\r");
-    printf(" -I- SYST0 @0x00: 0x%02X \n\r", *LTWI.pData);
+    printf(" -I- SYST0 @0x00: 0x%02X \n\r", *htwi.pData);
     printf(" Reset Timer Setting:           %s \n\r", (BitField_Syst0.trst)? "65ms":"260ms");
     printf(" SYSLEV Mode Select:            %s \n\r", (BitField_Syst0.nsysmode)?"int":"shutdown");
     printf(" System Voltage Level Int.Mask: %s \n\r", (BitField_Syst0.nsyslevmsk)?"int":"no int");
     printf(" System Voltage Status:         %s \n\r", (BitField_Syst0.nsysstat)?"vsys<syslev":"vsys>syslev");
     printf(" SYSLEV Failing Treshold value: %.2fv \n\r", Value );
 
-    LTWI.RegMemAddr = 0x01;
-    LTWI.pData = (uint8_t*)&BitField_Syst1;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x01;
+    htwi.pData = (uint8_t*)&BitField_Syst1;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if(Status!=0) return;
 
     printf("\n\r");
-    printf(" -I- SYST1 @0x01: 0x%02X \n\r", *LTWI.pData);
+    printf(" -I- SYST1 @0x01: 0x%02X \n\r", *htwi.pData);
     printf(" Master Off Ctrl, All regul:    %s \n\r", (BitField_Syst1.mstroff)?"OFF ":"ON ");
     printf(" Scratchpad Bits, free user:    0x%02x \n\r", BitField_Syst1.scratch);
 }
@@ -15226,7 +15473,7 @@ void _ACT8945A_DisplaySystemSetting (void)
 
 
 
-void _ACT8945A_DisplayVoltageSetting (void)
+void _ACT8945A_display_voltage_setting (void)
 {
   uint8_t data, x, Status;
   float x1;
@@ -15237,16 +15484,16 @@ void _ACT8945A_DisplayVoltageSetting (void)
 
   for (x=0; x<(sizeof(VoltReg)/sizeof(VoltReg[0])) ; x++)
   {
-    LTWI.RegMemAddr = VoltReg[x].Address;
-    LTWI.LenData = 1;
-    LTWI.pData = &data;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = VoltReg[x].Address;
+    htwi.LenData = 1;
+    htwi.pData = &data;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if(Status!=0) return;
-    x1= _ACT8945A_ConvertVoltageSetting(data);
+    x1= _ACT8945A_Convert_voltage_setting(data);
 
-    LTWI.RegMemAddr = VoltReg[x].Address+1;
-    LTWI.LenData = 1;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = VoltReg[x].Address+1;
+    htwi.LenData = 1;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if(Status!=0) return;
 
     printf(" -I- %s= %.2fv ", VoltReg[x].RegName, (float)x1);
@@ -15278,7 +15525,7 @@ void _ACT8945A_DisplayVoltageSetting (void)
 
 
 
-uint8_t _ACT8945A_DisplayActivePathCharger (void)
+uint8_t _ACT8945A_display_active_path_charger (void)
 {
     BITFIELD_APCH71 BitField_APCH71;
     BITFIELD_APCH78 BitField_APCH78;
@@ -15290,24 +15537,24 @@ uint8_t _ACT8945A_DisplayActivePathCharger (void)
       printf("\n\r");
       printf(" -I- ACPH Registers ACT8945A \n\r");
 
-      LTWI.RegMemAddr = 0x70;
-      LTWI.LenData = 1;
-      LTWI.pData = &data;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x70;
+      htwi.LenData = 1;
+      htwi.pData = &data;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
         printf(" -I- APCH @0x70: Reserved 0x%02X \n\r", data);
         printf("\n\r");
       }
 
-      LTWI.RegMemAddr = 0x71;
-      LTWI.pData = (uint8_t*)&BitField_APCH71;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x71;
+      htwi.pData = (uint8_t*)&BitField_APCH71;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
-        printf(" -I- APCH @0x71: 0x%02X \n\r", *LTWI.pData);
+        printf(" -I- APCH @0x71: 0x%02X \n\r", *htwi.pData);
         printf(" Charge Suspend Control Input:        %X \n\r", BitField_APCH71.suschg);
         printf(" Bit 6 reserved \n\r");
         printf(" Total Charge Time-out Selection:     %02X \n\r", BitField_APCH71.tottimo);
@@ -15317,13 +15564,13 @@ uint8_t _ACT8945A_DisplayActivePathCharger (void)
         printf("\n\r");
       }
 
-      LTWI.RegMemAddr = 0x78;
-      LTWI.pData = (uint8_t*)&BitField_APCH78;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x78;
+      htwi.pData = (uint8_t*)&BitField_APCH78;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
-        printf(" -I- APCH @0x78: 0x%02X \n\r", *LTWI.pData);
+        printf(" -I- APCH @0x78: 0x%02X \n\r", *htwi.pData);
         printf(" Charge Time-out Interrupt Status:     %X \n\r", BitField_APCH78.timrstat);
         printf(" Battery Temperature Interrupt Status: %X \n\r", BitField_APCH78.tempstat);
         printf(" Input Voltage Interrupt Status:       %X \n\r", BitField_APCH78.instat);
@@ -15335,13 +15582,13 @@ uint8_t _ACT8945A_DisplayActivePathCharger (void)
         printf("\n\r");
       }
 
-      LTWI.RegMemAddr = 0x79;
-      LTWI.pData = (uint8_t*)&BitField_APCH79;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x79;
+      htwi.pData = (uint8_t*)&BitField_APCH79;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
-        printf(" -I- APCH @0x79: 0x%02X \n\r", *LTWI.pData);
+        printf(" -I- APCH @0x79: 0x%02X \n\r", *htwi.pData);
         printf(" Total Charge Time-out Int Control:    %X \n\r", BitField_APCH79.timrtot);
         printf(" Batt.Temp.Int.Ctrl into valid range:  %X \n\r", BitField_APCH79.tempin);
         printf(" Inp.Voltage Int.Ctrl into valid range:%X \n\r", BitField_APCH79.incon);
@@ -15353,13 +15600,13 @@ uint8_t _ACT8945A_DisplayActivePathCharger (void)
         printf("\n\r");
       }
 
-      LTWI.RegMemAddr = 0x7A;
-      LTWI.pData = (uint8_t*)&BitField_APCH7A;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x7A;
+      htwi.pData = (uint8_t*)&BitField_APCH7A;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
-        printf(" -I- APCH @0x7A: 0x%02X \n\r", *LTWI.pData);
+        printf(" -I- APCH @0x7A: 0x%02X \n\r", *htwi.pData);
         printf(" Bit 7-6 reserved:                     %02X \n\r", BitField_APCH7A.ruf76);
         printf(" Charge State:                         %02X ", BitField_APCH7A.cstate);
         printf(" %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
@@ -15374,17 +15621,17 @@ uint8_t _ACT8945A_DisplayActivePathCharger (void)
 
 
 
-uint8_t _ACT8945A_DisplaySyslevFailingThreshold (void)
+uint8_t _ACT8945A_display_syslev_failing_threshold (void)
 {
     BITFIELD_SYS0 BitField_SYS0;
     uint8_t Status = 0;
     float Value;
 
-      LTWI.RegMemAddr = 0x00;
-      LTWI.LenData = 1;
-      LTWI.pData = (uint8_t*)&BitField_SYS0;
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      if (Status) _ACT8945A_TwiError();
+      htwi.RegMemAddr = 0x00;
+      htwi.LenData = 1;
+      htwi.pData = (uint8_t*)&BitField_SYS0;
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      if (Status) _ACT8945A_twi_error();
       else
       {
         Value = 2.3 + (BitField_SYS0.syslev*0.1);
@@ -15400,44 +15647,44 @@ uint8_t _ACT8945A_DisplaySyslevFailingThreshold (void)
 
 
 
-uint8_t ACT8945A_SetRegulatorStateOut1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
+uint8_t ACT8945A_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
 {
     uint8_t Status = 0;
     BITFIELD_CTRL1 BitField_Ctrl1;
 
-    if (!_is_twi_ready(&LTWI)) return 1;
+    if (!_is_twi_ready(&htwi)) return 1;
     if (RegVout!=0x20 && RegVout!=0x30 && RegVout!=0x40 ) return 1;
 
     
-    LTWI.RegMemAddr = RegVout+1;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_Ctrl1;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = RegVout+1;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_Ctrl1;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if (Status) return Status;
     BitField_Ctrl1.on = (ON_OFF)? 1:0 ;
-    return Status= _twid_rd_wr(&LTWI, TWI_WR);
+    return Status= _twid_rd_wr(&htwi, TWI_WR);
 }
 
 
 
 
 
-uint8_t ACT8945A_SetRegulatorStateOut4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
+uint8_t ACT8945A_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF)
 {
     uint8_t Status = 0;
     BITFIELD_CTRL2 BitField_Ctrl2;
 
-    if (!_is_twi_ready(&LTWI)) return 1;
+    if (!_is_twi_ready(&htwi)) return 1;
     if (RegVout!=0x50 && RegVout!=0x54 && RegVout!=0x60 && RegVout!=0x64 ) return 1;
 
     
-    LTWI.RegMemAddr = RegVout+1;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_Ctrl2;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = RegVout+1;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_Ctrl2;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if (Status) return Status;
     BitField_Ctrl2.on = (ON_OFF)? 1:0 ;
-    return Status = _twid_rd_wr(&LTWI, TWI_WR);
+    return Status = _twid_rd_wr(&htwi, TWI_WR);
 }
 
 
@@ -15445,7 +15692,7 @@ uint8_t ACT8945A_SetRegulatorStateOut4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_O
 
 
 
-uint8_t ACT8945A_SetRegulatorVoltageOut4to7 (uint8_t RegVout, uint16_t VOut)
+uint8_t ACT8945A_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut)
 {
     uint8_t data, RegSet;
 
@@ -15460,32 +15707,32 @@ uint8_t ACT8945A_SetRegulatorVoltageOut4to7 (uint8_t RegVout, uint16_t VOut)
 
     
     data = (RegSet&0x3F); 
-    LTWI.pData = &data;
-    LTWI.RegMemAddr =  RegVout;
-    LTWI.LenData = 1;
-    return _twid_rd_wr(&LTWI, TWI_WR);
+    htwi.pData = &data;
+    htwi.RegMemAddr = RegVout;
+    htwi.LenData = 1;
+    return _twid_rd_wr(&htwi, TWI_WR);
 }
 
 
 
 
 
-uint8_t ACT8945A_SetSystemVoltageLevelInterrupt (INT_ON_OFF_enum ON_OFF)
+uint8_t ACT8945A_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF)
 {
     BITFIELD_SYS0 BitField_SYS0;
     uint8_t Status = 0;
 
-    if (!_is_twi_ready(&LTWI)) return 1;
+    if (!_is_twi_ready(&htwi)) return 1;
 
-    LTWI.RegMemAddr = 0x00;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_SYS0;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
-    if (Status) _ACT8945A_TwiError();
+    htwi.RegMemAddr = 0x00;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_SYS0;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
+    if (Status) _ACT8945A_twi_error();
     else
     {
       BitField_SYS0.nsyslevmsk = ON_OFF;
-      Status = _twid_rd_wr(&LTWI, TWI_WR);
+      Status = _twid_rd_wr(&htwi, TWI_WR);
     }
     return Status;
 }
@@ -15495,24 +15742,24 @@ uint8_t ACT8945A_SetSystemVoltageLevelInterrupt (INT_ON_OFF_enum ON_OFF)
 
 
 
-uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF)
+uint8_t ACT8945A_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF)
 {
     uint8_t Status = 0;
     BITFIELD_CTRL1 BitField_Ctrl1;
     BITFIELD_CTRL2 BitField_Ctrl2;
 
-    if (!_is_twi_ready(&LTWI)) return 1;
+    if (!_is_twi_ready(&htwi)) return 1;
 
-    LTWI.RegMemAddr = RegVout+1;
-    LTWI.LenData = 1;
+    htwi.RegMemAddr = RegVout+1;
+    htwi.LenData = 1;
 
     switch (RegVout)
     {
       case 0x20:
       case 0x30:
       case 0x40:
-        LTWI.pData = (uint8_t*)&BitField_Ctrl1;
-        Status = _twid_rd_wr(&LTWI, TWI_RD);
+        htwi.pData = (uint8_t*)&BitField_Ctrl1;
+        Status = _twid_rd_wr(&htwi, TWI_RD);
         if (Status) return 1;
         BitField_Ctrl1.nfltmsk = (ON_OFF)? 1:0 ;
       break;
@@ -15521,8 +15768,8 @@ uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON
       case 0x54:
       case 0x60:
       case 0x64:
-        LTWI.pData = (uint8_t*)&BitField_Ctrl2;
-        Status = _twid_rd_wr(&LTWI, TWI_RD);
+        htwi.pData = (uint8_t*)&BitField_Ctrl2;
+        Status = _twid_rd_wr(&htwi, TWI_RD);
         if (Status) return 1;
         BitField_Ctrl2.nfltmsk = (ON_OFF)? 1:0 ;
       break;
@@ -15531,7 +15778,7 @@ uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON
         break;
     }
     
-    return Status = _twid_rd_wr(&LTWI, TWI_WR);
+    return Status = _twid_rd_wr(&htwi, TWI_WR);
 }
 
 
@@ -15540,23 +15787,23 @@ uint8_t ACT8945A_SetRegulatorFaultInterrupt (uint8_t RegVout, INT_ON_OFF_enum ON
 
 
 
-uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF)
+uint8_t ACT8945A_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF)
 {
     uint8_t Status = 0;
     BITFIELD_APCH78 BitField_APCH78;
     BITFIELD_APCH79 BitField_APCH79;
 
-    if (!_is_twi_ready(&LTWI)) return 1;
+    if (!_is_twi_ready(&htwi)) return 1;
 
-    LTWI.RegMemAddr = 0x78;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_APCH78;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x78;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_APCH78;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
 
-    LTWI.RegMemAddr = 0x79;
-    LTWI.LenData = 1;
-    LTWI.pData = (uint8_t*)&BitField_APCH79;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x79;
+    htwi.LenData = 1;
+    htwi.pData = (uint8_t*)&BitField_APCH79;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
 
     switch (IntType)
     {
@@ -15629,11 +15876,11 @@ uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF
     }
 
     
-    LTWI.RegMemAddr = 0x78;
-    Status = _twid_rd_wr(&LTWI, TWI_WR);
+    htwi.RegMemAddr = 0x78;
+    Status = _twid_rd_wr(&htwi, TWI_WR);
 
-    LTWI.RegMemAddr = 0x79;
-    Status = _twid_rd_wr(&LTWI, TWI_WR);
+    htwi.RegMemAddr = 0x79;
+    Status = _twid_rd_wr(&htwi, TWI_WR);
 
     return Status;
 }
@@ -15641,18 +15888,18 @@ uint8_t ACT8945A_SetAPCHInterrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF
 
 
 
-uint8_t ACT8945A_DisableAllAPCHInterrupt (void)
+uint8_t ACT8945A_disable_all_APCH_interrupt (void)
 {
   uint8_t Status = 0;
 
-    Status |= ACT8945A_SetAPCHInterrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL, ACT8945A_INT_OFF);
-    Status |= ACT8945A_SetAPCHInterrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL, ACT8945A_INT_OFF);
+    Status |= ACT8945A_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_OFF);
     return Status;
 }
 
@@ -15660,22 +15907,22 @@ uint8_t ACT8945A_DisableAllAPCHInterrupt (void)
 
 
 
-uint8_t ACT8945A_SystemVoltageLevel (uint16_t Value)
+uint8_t ACT8945A_set_system_voltage_level (uint16_t Value)
 {
     BITFIELD_SYS0 BitField_SYS0;
     uint8_t Status = 0;
 
       if (Value<2300 || Value>3800) return 1;
-      LTWI.RegMemAddr = 0x00;
+      htwi.RegMemAddr = 0x00;
 
-      Status = _twid_rd_wr(&LTWI, TWI_RD);
-      LTWI.LenData = 1;
-      LTWI.pData = (uint8_t*)&BitField_SYS0;
-      if (Status) _ACT8945A_TwiError();
+      Status = _twid_rd_wr(&htwi, TWI_RD);
+      htwi.LenData = 1;
+      htwi.pData = (uint8_t*)&BitField_SYS0;
+      if (Status) _ACT8945A_twi_error();
       else
       {
         BitField_SYS0.syslev = (Value-2300)/100;
-        Status = _twid_rd_wr(&LTWI, TWI_WR);
+        Status = _twid_rd_wr(&htwi, TWI_WR);
 
 
 
@@ -15689,7 +15936,7 @@ uint8_t ACT8945A_SystemVoltageLevel (uint16_t Value)
 
 
 
-uint8_t ACT8945A_SetStateChangeLevelPin (CHG_LEVEL_enum State)
+uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State)
 {
     return 0;
 }
@@ -15698,7 +15945,7 @@ uint8_t ACT8945A_SetStateChangeLevelPin (CHG_LEVEL_enum State)
 
 
 
-uint8_t ACT8945A_GetStateLBO (void)
+uint8_t ACT8945A_get_state_LBO_pin (void)
 {
 	 return 0;
 }
@@ -15706,11 +15953,12 @@ uint8_t ACT8945A_GetStateLBO (void)
 
 
 
-uint8_t ACT8945A_Begin (void)
+uint8_t ACT8945A_begin (void)
 {
     uint8_t data, Status = 0;
 
-    if (!_is_twi_ready(&LTWI))
+	memset ((void*)&htwi, 0x00, sizeof(htwi));
+    if (!_is_twi_ready(&htwi))
     {
 
 
@@ -15721,18 +15969,18 @@ uint8_t ACT8945A_Begin (void)
         pio_configure(pins_ctrl_act8945a, (sizeof(pins_ctrl_act8945a) / sizeof(struct _pin)));
 
         
-        memset ((uint8_t*)&LTWI, 0x00, sizeof(LTWI));
-        LTWI.IdTwi = (19);
-        LTWI.Twck = 400000;
-        Status = twi_handler_init (&LTWI);
-        LTWI.PeriphAddr = 0x5B;
-        LTWI.AddSize = 1;
-        LTWI.pData = &data;
-        LTWI.LenData = 1;
-        LTWI.Status |= TWI_STATUS_READY;
+        memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
+        htwi.IdTwi = (23);
+        htwi.Twck = 400000;
+        Status = _twi_handler_init (&htwi);
+        htwi.PeriphAddr = 0x5B;
+        htwi.AddSize = 1;
+        htwi.pData = &data;
+        htwi.LenData = 1;
+        htwi.Status |= TWI_STATUS_READY;
     }
-    LTWI.RegMemAddr = 0x00;
-    Status = _twid_rd_wr(&LTWI, TWI_RD);
+    htwi.RegMemAddr = 0x00;
+    Status = _twid_rd_wr(&htwi, TWI_RD);
     if (!data) Status = 1;
     else Status = 0;
     return Status;
@@ -15741,7 +15989,7 @@ uint8_t ACT8945A_Begin (void)
 
 
 
-void ACT8945A_ActiveInterrupt (void)
+void ACT8945A_active_interrupt (void)
 {
 }
 
@@ -15750,86 +15998,86 @@ void ACT8945A_ActiveInterrupt (void)
 
 
 
-void ACT8945A_DisableTwi (void)
+void ACT8945A_disable_twi (void)
 {
     uint8_t data;
 
-    LTWI.pData = &data;
-    LTWI.LenData = 1;
+    htwi.pData = &data;
+    htwi.LenData = 1;
 
     
-    LTWI.RegMemAddr = 0xB;
+    htwi.RegMemAddr = 0xB;
     data = 0xEF;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 
-    LTWI.RegMemAddr = 0x2;
+    htwi.RegMemAddr = 0x2;
     data = 0x07;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 
-    LTWI.RegMemAddr = 0x3;
+    htwi.RegMemAddr = 0x3;
     data = 0x01;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 
     
-    LTWI.RegMemAddr = 0xB;
+    htwi.RegMemAddr = 0xB;
     data = 0xEE;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 
-    LTWI.RegMemAddr = 0x2;
+    htwi.RegMemAddr = 0x2;
     data = 0x07;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 
-    LTWI.RegMemAddr = 0x3;
+    htwi.RegMemAddr = 0x3;
     data = 0x01;
-    _twid_rd_wr(&LTWI, TWI_WR);
+    _twid_rd_wr(&htwi, TWI_WR);
 }
 
 
 
 
-uint8_t ACT8945A_Test (void)
+uint8_t ACT8945A_test (void)
 {
     uint8_t Status = 0;
     uint16_t x;
 
     printf("\n\r -I- ACT8945A Reset State \n\r");
-    Status = ACT8945A_Begin();
-    if (Status!=0)
+    Status = ACT8945A_begin();
+    if (Status != 0)
     {
-      _ACT8945A_TwiError();
+      _ACT8945A_twi_error();
       return Status;
     }
+	
+    _ACT8945A_registers_dump();
+    _ACT8945A_registers_dump_APCH();
+    _ACT8945A_display_active_path_charger();
+    _ACT8945A_display_voltage_setting();
+    ACT8945A_set_system_voltage_level(3100);
+    _ACT8945A_display_system_setting();
 
-    _ACT8945A_RegistersDump();
-    _ACT8945A_APCH_RegistersDump();
-    _ACT8945A_DisplayActivePathCharger();
-    _ACT8945A_DisplayVoltageSetting();
-    ACT8945A_SystemVoltageLevel(3100);
-    _ACT8945A_DisplaySystemSetting();
+    Status = ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_OFF);
+    Status = ACT8945A_disable_all_APCH_interrupt();
 
-    Status = ACT8945A_SetSystemVoltageLevelInterrupt(ACT8945A_INT_OFF);
-    Status = ACT8945A_DisableAllAPCHInterrupt();
+    ACT8945A_set_APCH_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+    ACT8945A_set_APCH_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
 
-    ACT8945A_SetAPCHInterrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
-    ACT8945A_SetAPCHInterrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+    ACT8945A_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+    ACT8945A_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
 
-    ACT8945A_SetAPCHInterrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
-    ACT8945A_SetAPCHInterrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+    _ACT8945A_registers_dump();
+    _ACT8945A_registers_dump_APCH();
 
-    _ACT8945A_RegistersDump();
-    _ACT8945A_APCH_RegistersDump();
-
-    ACT8945A_ActiveInterrupt();
+    ACT8945A_active_interrupt();
 
     
-    ACT8945A_SetRegulatorStateOut4to7 (0x64, ACT8945A_REG_ON);
-    for (x=500; x<4000; x+=25)
+    ACT8945A_set_regulator_state_out4to7 (0x60, ACT8945A_REG_ON);
+    for (x=500; x<3300; x+=25)
     {
-      ACT8945A_SetRegulatorVoltageOut4to7 (0x64, x);
-      _ACT8945A_DelayMS(10);
+      ACT8945A_set_regulator_voltage_out4to7 (0x60, x);
+      _ACT8945A_delay_ms(10);
     }
-    ACT8945A_SetRegulatorVoltageOut4to7 (0x64, 600);
-    ACT8945A_SetRegulatorStateOut4to7 (0x64, ACT8945A_REG_OFF);
+    ACT8945A_set_regulator_voltage_out4to7 (0x60, 600);
+    ACT8945A_set_regulator_state_out4to7 (0x60, ACT8945A_REG_OFF);
 
    return Status;
 }

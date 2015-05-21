@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:45
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:38:59
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -9,7 +9,7 @@
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\async.c
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\async.c -D
-#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D27
 #        -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
@@ -49,7 +49,7 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
           only issued once)
       2           *         SAM Software Package License
       3           * ----------------------------------------------------------------------------
-      4           * Copyright (c) 2011, Atmel Corporation
+      4           * Copyright (c) 2015, Atmel Corporation
       5           *
       6           * All rights reserved.
       7           *
@@ -85,76 +85,73 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      37          /*----------------------------------------------------------------------------
      38           *        Headers
      39           *----------------------------------------------------------------------------*/
-     40          #include "chip.h"
+     40          
+     41          #include "chip.h"
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
+     42          #include "core/async.h"
+     43          
+     44          /*----------------------------------------------------------------------------
+     45           *        Global functions
+     46           *----------------------------------------------------------------------------*/
+     47          /**
+     48          * \brief Returns 1 if the given transfer has ended; otherwise returns 0.
+     49          * \param pAsync  Pointer to an Async instance.
+     50          */
 
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
-     41          #include "core/async.h"
-     42          
-     43          /*----------------------------------------------------------------------------
-     44           *        Global functions
-     45           *----------------------------------------------------------------------------*/
-     46          /**
-     47          * \brief Returns 1 if the given transfer has ended; otherwise returns 0.
-     48          * \param pAsync  Pointer to an Async instance.
-     49          */
-     50          uint32_t
-     51          ASYNC_IsFinished(Async * pAsync)
+   \                                 In section SOFTPACK, align 4, keep-with-next
+     51          uint32_t ASYNC_IsFinished(Async * pAsync)
      52          {
      53          	return (pAsync->status != ASYNC_STATUS_PENDING);
+   \                     ASYNC_IsFinished:
+   \   00000000   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000004   0xE35000FF         CMP      R0,#+255
+   \   00000008   0x0A000001         BEQ      ??ASYNC_IsFinished_0
+   \   0000000C   0xE3A00001         MOV      R0,#+1
+   \   00000010   0xEA000000         B        ??ASYNC_IsFinished_1
+   \                     ??ASYNC_IsFinished_0:
+   \   00000014   0xE3A00000         MOV      R0,#+0
+   \                     ??ASYNC_IsFinished_1:
+   \   00000018   0xE6EF0070         UXTB     R0,R0
+   \   0000001C   0xE12FFF1E         BX       LR               ;; return
      54          }
 
-Errors: 11
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   ASYNC_IsFinished
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      32  ASYNC_IsFinished
+      56  _id_h64_matrix
+
+ 
+ 56 bytes in section .rodata
+ 32 bytes in section SOFTPACK
+ 
+ 32 bytes of CODE  memory
+ 56 bytes of CONST memory
+
+Errors: none
 Warnings: 1

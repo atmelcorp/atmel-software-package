@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -32,12 +32,13 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-//#include "board.h"
+
 #include "bus/twid.h"
 #include "bus/xdmad.h"
 #include "utils/trace.h"
 #include "bus/xdma_hardware_interface.h"
 #include "core/cp15.h"
+
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
@@ -59,20 +60,15 @@ static LinkedListDescriporView1 dmaReadLinkList[1];
 typedef void (*TwiCallback) (Async *);
 
 /** \brief TWI asynchronous transfer descriptor.*/
-typedef struct _AsyncTwi {
+struct _async_twi {
+	volatile uint32_t status;	/** Asynchronous transfer status. */
+	TwiCallback callback;		/** Callback function to invoke when transfer completes or fails.*/
+	uint8_t *pData;				/** Pointer to the data buffer.*/
+	uint32_t num;				/** Total number of bytes to transfer.*/
+	uint32_t transferred; 		/** Number of already transferred bytes.*/
+};
 
-	/** Asynchronous transfer status. */
-	volatile uint32_t status;
-	// Callback function to invoke when transfer completes or fails.*/
-	TwiCallback callback;
-	/** Pointer to the data buffer.*/
-	uint8_t *pData;
-	/** Total number of bytes to transfer.*/
-	uint32_t num;
-	/** Number of already transferred bytes.*/
-	uint32_t transferred;
-
-} AsyncTwi;
+//struct _async_twi async_twi ;
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -81,13 +77,10 @@ typedef struct _AsyncTwi {
 /**
  * \brief Initializes a TWI DMA Read channel.
  */
-static void
-TWID_DmaInitializeRead(uint8_t TWI_ID)
+static void twid_dma_initialize_read(uint8_t TWI_ID)
 {
-
 	/* Allocate a XDMA channel, Read accesses into TWI_THR */
-	dmaReadChannel =
-	    XDMAD_AllocateChannel(&twi_dma, TWI_ID, XDMAD_TRANSFER_MEMORY);
+	dmaReadChannel =  XDMAD_AllocateChannel(&twi_dma, TWI_ID, XDMAD_TRANSFER_MEMORY);
 	if (dmaReadChannel == XDMAD_ALLOC_FAILED) {
 		printf("-E- Can't allocate XDMA channel\n\r");
 	}
@@ -97,13 +90,11 @@ TWID_DmaInitializeRead(uint8_t TWI_ID)
 /**
  * \brief Initializes a TWI DMA write channel.
  */
-static void
-TWID_DmaInitializeWrite(uint8_t TWI_ID)
+static void twid_dma_initialize_write(uint8_t TWI_ID)
 {
 
 	/* Allocate a XDMA channel, Write accesses into TWI_THR */
-	dmaWriteChannel =
-	    XDMAD_AllocateChannel(&twi_dma, XDMAD_TRANSFER_MEMORY, TWI_ID);
+	dmaWriteChannel = XDMAD_AllocateChannel(&twi_dma, XDMAD_TRANSFER_MEMORY, TWI_ID);
 	if (dmaWriteChannel == XDMAD_ALLOC_FAILED) {
 		printf("-E- Can't allocate XDMA channel\n\r");
 	}
@@ -117,17 +108,15 @@ TWID_DmaInitializeWrite(uint8_t TWI_ID)
  * \param pTwid  Pointer to the Twid instance to initialize.
  * \param pTwi  Pointer to the TWI peripheral to use.
  */
-void
-TWID_Initialize(Twid * pTwid, Twi * pTwi)
+void twid_initialize(struct _twid* pTwid, Twi * pTwi)
 {
-	TRACE_DEBUG("TWID_Initialize()\n\r");
+	TRACE_DEBUG("twid_initialize()\n\r");
 	assert(pTwid != NULL);
 	assert(pTwi != NULL);
 
 	/* Initialize driver. */
 	pTwid->pTwi = pTwi;
 	pTwid->pTransfer = 0;
-
 	/* Initialize XDMA driver instance with polling mode */
 	XDMAD_Initialize(&twi_dma, 1);
 }
@@ -135,8 +124,7 @@ TWID_Initialize(Twid * pTwid, Twi * pTwi)
 /**
  * \brief Configure xDMA write linker list for TWI transfer.
  */
-static void
-_xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
+static void _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Thr;
@@ -183,8 +171,7 @@ _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 /**
  * \brief Configure xDMA read linker list for TWI transfer.
  */
-static void
-_xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
+static void _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
 {
 	uint32_t i;
 	uint32_t xdmaCndc, Rhr;
@@ -241,16 +228,15 @@ _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
  * routine of the TWI peripheral if asynchronous read/write are needed.
   * \param pTwid  Pointer to a Twid instance.
  */
-void
-TWID_Handler(Twid * pTwid)
+void twid_handler(struct _twid* pTwid)
 {
 	uint32_t status;
-	AsyncTwi *pTransfer;
+	struct _async_twi* pTransfer;
 	Twi *pTwi;
 
 	assert(pTwid != NULL);
 
-	pTransfer = (AsyncTwi *) pTwid->pTransfer;
+	pTransfer = (struct _async_twi *) pTwid->pTransfer;
 	assert(pTransfer != NULL);
 	pTwi = pTwid->pTwi;
 	assert(pTwi != NULL);
@@ -318,21 +304,18 @@ TWID_Handler(Twid * pTwid)
  * \param pAsync  Asynchronous transfer descriptor.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
-uint8_t
-TWID_Read(Twid * pTwid,
-	  uint8_t address,
-	  uint32_t iaddress,
+uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 	  uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync)
 {
 	Twi *pTwi;
-	AsyncTwi *pTransfer;
+	struct _async_twi* pTransfer;
 	uint32_t timeout = 0;
 	uint32_t i = 0;
 	uint32_t status;
 
 	assert(pTwid != NULL);
 	pTwi = pTwid->pTwi;
-	pTransfer = (AsyncTwi *) pTwid->pTransfer;
+	pTransfer = (struct _async_twi*) pTwid->pTransfer;
 
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
@@ -341,7 +324,7 @@ TWID_Read(Twid * pTwid,
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
 
-		TRACE_ERROR("TWID_Read: A transfer is already pending\n\r");
+		TRACE_ERROR("twid_read: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
@@ -350,7 +333,7 @@ TWID_Read(Twid * pTwid,
 
 		/* Update the transfer descriptor */
 		pTwid->pTransfer = pAsync;
-		pTransfer = (AsyncTwi *) pAsync;
+		pTransfer = (struct _async_twi*) pAsync;
 		pTransfer->status = ASYNC_STATUS_PENDING;
 		pTransfer->pData = pData;
 		pTransfer->num = num;
@@ -455,21 +438,17 @@ TWID_Read(Twid * pTwid,
  * \param twi_id  TWI ID for TWI0, TWI1, TWI2.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
-uint8_t
-TWID_DmaRead(Twid * pTwid,
-	     uint8_t address,
-	     uint32_t iaddress,
-	     uint8_t isize,
-	     uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
+uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
+	     uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi;
-	AsyncTwi *pTransfer;
+	struct _async_twi* pTransfer;
 	uint32_t timeout = 0;
 	uint32_t status;
 
 	assert(pTwid != NULL);
 	pTwi = pTwid->pTwi;
-	pTransfer = (AsyncTwi *) pTwid->pTransfer;
+	pTransfer = (struct _async_twi*) pTwid->pTransfer;
 
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
@@ -478,7 +457,7 @@ TWID_DmaRead(Twid * pTwid,
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
 
-		TRACE_ERROR("TWID_Read: A transfer is already pending\n\r");
+		TRACE_ERROR("twid_read: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
@@ -487,7 +466,7 @@ TWID_DmaRead(Twid * pTwid,
 
 		/* Update the transfer descriptor */
 		pTwid->pTransfer = pAsync;
-		pTransfer = (AsyncTwi *) pAsync;
+		pTransfer = (struct _async_twi*) pAsync;
 		pTransfer->status = ASYNC_STATUS_PENDING;
 		pTransfer->pData = pData;
 		pTransfer->num = num;
@@ -500,7 +479,7 @@ TWID_DmaRead(Twid * pTwid,
 	/* Synchronous transfer */
 	else {
 
-		TWID_DmaInitializeRead(twi_id);
+		twid_dma_initialize_read(twi_id);
 		_xdma_configure_read(pData, num, twi_id);
 		/* Start read */
 		XDMAD_StartTransfer(&twi_dma, dmaReadChannel);
@@ -536,9 +515,7 @@ TWID_DmaRead(Twid * pTwid,
 			TRACE_ERROR("TWID Timeout Read\n\r");
 		}
 		XDMAD_FreeChannel(&twi_dma, dmaReadChannel);
-
 	}
-
 	return 0;
 }
 
@@ -555,66 +532,55 @@ TWID_DmaRead(Twid * pTwid,
  * \param twi_id  TWI ID for TWI0, TWI1, TWI2.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
-uint8_t
-TWID_DmaWrite(Twid * pTwid,
-	      uint8_t address,
-	      uint32_t iaddress,
-	      uint8_t isize,
-	      uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
+uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
+	      uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi = pTwid->pTwi;
-	AsyncTwi *pTransfer = (AsyncTwi *) pTwid->pTransfer;
+	struct _async_twi* pTransfer;
 	uint32_t timeout = 0;
 	uint32_t status;
 	//uint8_t singleTransfer = 0;
+
 	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
 	assert(isize < 4);
 
+	pTransfer = (struct _async_twi *) pTwid->pTransfer;
 //    if(num == 1) singleTransfer = 1;
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
-
 		TRACE_ERROR("TWI_Write: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
 	/* Asynchronous transfer */
 	if (pAsync) {
-
 		/* Update the transfer descriptor */
 		pTwid->pTransfer = pAsync;
-		pTransfer = (AsyncTwi *) pAsync;
+		pTransfer = (struct _async_twi*) pAsync;
 		pTransfer->status = ASYNC_STATUS_PENDING;
 		pTransfer->pData = pData;
 		pTransfer->num = num;
 		pTransfer->transferred = 1;
-
 		/* Enable write interrupt and start the transfer */
 		twi_start_write(pTwi, address, iaddress, isize, *pData);
 		twi_enable_it(pTwi, TWI_IER_TXRDY);
 	}
 	/* Synchronous transfer */
 	else {
-
-		cp15_coherent_dcache_for_dma((uint32_t) pData,
-					     (uint32_t) pData);
-		TWID_DmaInitializeWrite(twi_id);
+		cp15_coherent_dcache_for_dma((uint32_t) pData, (uint32_t) pData);
+		twid_dma_initialize_write(twi_id);
 		_xdma_configure_write(pData, num, twi_id);
 		/* Set slave address and number of internal address bytes. */
 		pTwi->TWI_MMR = 0;
 		pTwi->TWI_MMR = (isize << 8) | (address << 16);
-
 		/* Set internal address bytes. */
 		pTwi->TWI_IADR = 0;
 		pTwi->TWI_IADR = iaddress;
 		XDMAD_StartTransfer(&twi_dma, dmaWriteChannel);
-
 		while (XDMAD_IsTransferDone(&twi_dma, dmaWriteChannel)) ;
-
 		XDMAD_StopTransfer(&twi_dma, dmaWriteChannel);
-
 		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_TXRDY) && (timeout++ < TWITIMEOUTMAX)) {
@@ -623,10 +589,8 @@ TWID_DmaWrite(Twid * pTwid,
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout TXRDY\n\r");
 		}
-
 		/* Send a STOP condition */
 		twi_stop(pTwi);
-
 		status = twi_get_status(pTwi);
 		timeout = 0;
 		while (!(status & TWI_SR_TXCOMP) && (++timeout < TWITIMEOUTMAX)) {
@@ -635,13 +599,9 @@ TWID_DmaWrite(Twid * pTwid,
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout Write\n\r");
 		}
-
-		cp15_invalidate_dcache_for_dma((uint32_t) pData,
-					       (uint32_t) (pData));
+		cp15_invalidate_dcache_for_dma((uint32_t) pData, (uint32_t) (pData));
 		XDMAD_FreeChannel(&twi_dma, dmaWriteChannel);
-
 	}
-
 	return 0;
 }
 
@@ -657,49 +617,43 @@ TWID_DmaWrite(Twid * pTwid,
  * \param pAsync  Asynchronous transfer descriptor.
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
-uint8_t
-TWID_Write(Twid * pTwid,
-	   uint8_t address,
-	   uint32_t iaddress,
+uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 	   uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync)
 {
 	Twi *pTwi = pTwid->pTwi;
-	AsyncTwi *pTransfer = (AsyncTwi *) pTwid->pTransfer;
+	struct _async_twi* pTransfer;
 	uint32_t timeout = 0;
 	uint32_t status;
 	uint8_t singleTransfer = 0;
+
 	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
 	assert((iaddress & 0xFF000000) == 0);
 	assert(isize < 4);
 
+	pTransfer = (struct _async_twi *) pTwid->pTransfer;
 	if (num == 1)
 		singleTransfer = 1;
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
-
 		TRACE_ERROR("TWI_Write: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
-
 	/* Asynchronous transfer */
 	if (pAsync) {
-
 		/* Update the transfer descriptor */
 		pTwid->pTransfer = pAsync;
-		pTransfer = (AsyncTwi *) pAsync;
+		pTransfer = (struct _async_twi*) pAsync;
 		pTransfer->status = ASYNC_STATUS_PENDING;
 		pTransfer->pData = pData;
 		pTransfer->num = num;
 		pTransfer->transferred = 1;
-
 		/* Enable write interrupt and start the transfer */
 		twi_start_write(pTwi, address, iaddress, isize, *pData);
 		twi_enable_it(pTwi, TWI_IER_TXRDY);
 	}
 	/* Synchronous transfer */
 	else {
-
 		// Start write
 		twi_start_write(pTwi, address, iaddress, isize, *pData++);
 		num--;
@@ -708,7 +662,6 @@ TWID_Write(Twid * pTwid,
 			twi_send_stop_condition(pTwi);
 		}
 		status = twi_get_status(pTwi);
-
 		if (status & TWI_SR_NACK)
 			TRACE_ERROR("TWID NACK error\n\r");
 		while (!(status & TWI_SR_TXRDY) && (timeout++ < TWITIMEOUTMAX)) {
@@ -720,12 +673,10 @@ TWID_Write(Twid * pTwid,
 		timeout = 0;
 		/* Send all bytes */
 		while (num > 0) {
-
 			/* Wait before sending the next byte */
 			timeout = 0;
 			twi_write_byte(pTwi, *pData++);
 			status = twi_get_status(pTwi);
-
 			if (status & TWI_SR_NACK)
 				TRACE_ERROR("TWID NACK error\n\r");
 			while (!(status & TWI_SR_TXRDY)
@@ -735,10 +686,8 @@ TWID_Write(Twid * pTwid,
 			if (timeout == TWITIMEOUTMAX) {
 				TRACE_ERROR("TWID Timeout BS\n\r");
 			}
-
 			num--;
 		}
-
 		/* Wait for actual end of transfer */
 		timeout = 0;
 		if (!singleTransfer) {
@@ -750,8 +699,6 @@ TWID_Write(Twid * pTwid,
 		if (timeout == TWITIMEOUTMAX) {
 			TRACE_ERROR("TWID Timeout TC2\n\r");
 		}
-
 	}
-
 	return 0;
 }

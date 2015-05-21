@@ -54,9 +54,9 @@ static void cp15_pmu_control(uint8_t ResetCounterType, uint8_t EnableCounter)
 {
 	uint32_t PMU_Value = 0;
 
-      asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
+	asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
 	PMU_Value |= ((ResetCounterType << 1) | EnableCounter);
-      asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
 }
 
 /**
@@ -66,12 +66,10 @@ static void cp15_pmu_control(uint8_t ResetCounterType, uint8_t EnableCounter)
 static void cp15_cycle_count_divider(uint8_t Divider)
 {
 	uint32_t PMU_Value = 0;
-
 	assert((Divider > 1 ? 0 : 1));
-
-      asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 0":"=r"(PMU_Value));
 	PMU_Value |= (Divider << 3);
-      asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 0": :"r"(PMU_Value));
 }
 
 /**
@@ -80,10 +78,9 @@ static void cp15_cycle_count_divider(uint8_t Divider)
 static void cp15_enable_PMCNT(void)
 {
 	uint32_t CNT_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
 	CNT_Value |= (uint32_t) ((1 << CP15_PMCNTENSET));
-      asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
 }
 
 /**
@@ -92,10 +89,9 @@ static void cp15_enable_PMCNT(void)
 static void cp15_enable_counter(uint8_t Counter)
 {
 	uint32_t CNT_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 1":"=r"(CNT_Value));
 	CNT_Value |= Counter;
-      asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 1": :"r"(CNT_Value));
 }
 
 /**
@@ -106,10 +102,9 @@ static void cp15_enable_counter(uint8_t Counter)
 static void cp15_clear_PMCNT(void)
 {
 	uint32_t CNT_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 2":"=r"(CNT_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 2":"=r"(CNT_Value));
 	CNT_Value |= (uint32_t) (1 << CP15_PMCNTENCLEAR);
-      asm("mcr     p15, 0, %0, c9, c12, 2": :"r"(CNT_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 2": :"r"(CNT_Value));
 }
 
 /**
@@ -120,10 +115,9 @@ static void cp15_clear_PMCNT(void)
 void cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
 {
 	uint32_t OFW_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
 	OFW_Value |= ((Enable << 31) | ClearCounterFlag);
-      asm("mcr     p15, 0, %0, c9, c12, 3": :"r"(OFW_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 3": :"r"(OFW_Value));
 }
 
 /**
@@ -133,8 +127,7 @@ void cp15_overflow_status(uint8_t Enable, uint8_t ClearCounterFlag)
 uint32_t cp15_read_overflow_status(uint8_t EventCounter)
 {
 	uint32_t OFW_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 3":"=r"(OFW_Value));
 	OFW_Value = ((OFW_Value & EventCounter) >> (EventCounter - 1));
 	return OFW_Value;
 }
@@ -146,10 +139,9 @@ uint32_t cp15_read_overflow_status(uint8_t EventCounter)
 void cp15_soft_incr(uint8_t IncrCounter)
 {
 	uint32_t INRC_Value = 0;
-
-      asm("mrc     p15, 0, %0, c9, c12, 4":"=r"(INRC_Value));
+    asm("mrc     p15, 0, %0, c9, c12, 4":"=r"(INRC_Value));
 	INRC_Value |= IncrCounter;
-      asm("mcr     p15, 0, %0, c9, c12, 4": :"r"(INRC_Value));
+    asm("mcr     p15, 0, %0, c9, c12, 4": :"r"(INRC_Value));
 }
 
 /**
@@ -162,12 +154,12 @@ static void cp15_select_event(PerfEventType EventType, uint8_t Counter)
 	uint32_t CounterSelect = 0;
 	assert((Counter == 1) || (Counter == 2));
 	CounterSelect = (Counter & 0x1F);
-      asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(CounterSelect));
+    asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(CounterSelect));
 	CounterSelect = (EventType & 0xFF);
-      asm("mcr     p15, 0, %0, c9, c13, 1": :"r"(CounterSelect));
-				// PMXEVTYPER
-      asm("mrc     p15, 0, %0, c9, c13, 1":"=r"(CounterSelect));
-				// PMXEVTYPER
+    asm("mcr     p15, 0, %0, c9, c13, 1": :"r"(CounterSelect));
+	// PMXEVTYPER
+    asm("mrc     p15, 0, %0, c9, c13, 1":"=r"(CounterSelect));
+	// PMXEVTYPER
 }
 
 /**
@@ -176,7 +168,7 @@ static void cp15_select_event(PerfEventType EventType, uint8_t Counter)
 void cp15_enable_user_mode(void)
 {
 	uint8_t Value = 1;
-      asm("mcr     p15, 0, %0, c9, c14, 0": :"r"(Value));
+    asm("mcr     p15, 0, %0, c9, c14, 0": :"r"(Value));
 }
 
 /**
@@ -187,9 +179,8 @@ void cp15_enable_user_mode(void)
 void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
-
 	ITE_Value |= ((Enable << 31) | Counter);
-      asm("mcr     p15, 0, %0, c9, c14, 1": :"r"(ITE_Value));
+    asm("mcr     p15, 0, %0, c9, c14, 1": :"r"(ITE_Value));
 }
 
 /**
@@ -200,9 +191,8 @@ void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter)
 void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter)
 {
 	uint32_t ITE_Value = 0;
-
 	ITE_Value |= ((Disable << 31) | Counter);
-      asm("mcr     p15, 0, %0, c9, c14, 2": :"r"(ITE_Value));
+    asm("mcr     p15, 0, %0, c9, c14, 2": :"r"(ITE_Value));
 }
 
 /**
@@ -217,8 +207,7 @@ uint32_t cp15_init_cycle_counter(void)
 	cp15_cycle_count_divider(CP15_CountDivider64);
 	cp15_pmu_control(CP15_ResetCycCounter, ENABLE);
 
-      asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
-
+    asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
 	return value;
 
 }
@@ -231,7 +220,6 @@ uint32_t cp15_init_cycle_counter(void)
 
 void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
 {
-
 	cp15_pmu_control(CP15_ResetPerCounter, ENABLE);
 	cp15_select_event(Event, Counter);
 	cp15_overflow_status(DISABLE, CP15_BothCounter);
@@ -245,10 +233,9 @@ void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter)
 uint32_t cp15_count_evt(uint8_t Counter)
 {
 	uint32_t value;
-
-      asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(Counter));
-      asm("mrc     p15, 0, %0, c9, c13, 2":"=r"(value));
-				// PMXEVTYPER
+    asm("mcr     p15, 0, %0, c9, c12, 5": :"r"(Counter));
+    asm("mrc     p15, 0, %0, c9, c13, 2":"=r"(value));
+	// PMXEVTYPER
 	return (value);
 }
 
@@ -259,8 +246,7 @@ uint32_t cp15_count_evt(uint8_t Counter)
 uint32_t cp15_get_cycle_counter(void)
 {
 	uint32_t value;
-
-      asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
+    asm("mrc     p15, 0, %0, c9, c13, 0":"=r"(value));
 	return value;
 
 }

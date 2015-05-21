@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -117,12 +117,16 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+
 #if defined(__ICCARM__)
-#include <intrinsics.h>
+	#include <intrinsics.h>
 #endif
+
 #include "core/cp15.h"
 #include "utils/trace.h"
+
 #include <assert.h>
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/

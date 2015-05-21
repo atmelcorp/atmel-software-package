@@ -104,10 +104,12 @@
 #include "core/aic.h"
 #include "core/pmc.h"
 #include "core/wdt.h"
+#include "core/pio.h"
 #include "core/pio_it.h"
 #include "core/mmu.h"
 
 #include "io/led.h"
+#include "io/act8945A.h"
 
 #include "bus/console.h"
 
@@ -136,12 +138,13 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+
 #ifndef NO_PUSHBUTTON
 /** Pushbutton \#1 pin instance. */
-const Pin pinPB1 = PIN_PUSHBUTTON_1;
+static const struct _pin pinPB1[] = PIN_PUSHBUTTON_1;
 
 /** Pushbutton \#2 pin instance. */
-const Pin pinPB2 = PIN_PUSHBUTTON_2;
+static const struct _pin pinPB2[] = PIN_PUSHBUTTON_2;
 
 #endif				/*  */
 
@@ -368,6 +371,8 @@ static void _Wait(unsigned long delay)
 	} while (elapsed < delay);
 }
 
+#define SOFTPACK_VERSION "0.1"
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -379,11 +384,13 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
+	uint32_t master_clock;
 
 	/* Disable watchdog */
 	WDT_Disable(WDT);
 
 	/* Initialize console */
+	master_clock = pmc_get_master_clock();
 	console_configure(CONSOLE_BAUDRATE);
 
 #if defined (ddram)
@@ -392,6 +399,7 @@ int main(void)
 	cp15_enable_dcache();
 	cp15_enable_icache();
 #endif
+
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
@@ -409,6 +417,7 @@ int main(void)
 	configure_leds();
 
 #ifndef NO_PUSHBUTTON
+
 	printf("Configure buttons with debouncing.\n\r");
 	configure_buttons();
 	printf("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");

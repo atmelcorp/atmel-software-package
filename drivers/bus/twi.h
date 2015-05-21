@@ -84,16 +84,16 @@ extern uint32_t twi_get_masked_status(Twi * pTwi);
 extern void twi_send_stop_condition(Twi * pTwi);
 
 #ifdef FIFO_ENABLED
-void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
+extern void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
 			uint8_t rx_thres,
 			uint32_t ready_modes);
-void twi_fifo_disable(Twi* twi);
+extern void twi_fifo_disable(Twi* twi);
 
-uint32_t twi_fifo_rx_size(Twi *twi);
-uint32_t twi_fifo_tx_size(Twi *twi);
+extern uint32_t twi_fifo_rx_size(Twi *twi);
+extern uint32_t twi_fifo_tx_size(Twi *twi);
 
-uint32_t twi_read_stream(Twi *twi, void *stream, uint32_t len);
-uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t len);
+extern uint32_t twi_read_stream(Twi *twi, void *stream, uint32_t len);
+extern uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t len);
 #endif
 
 #ifdef __cplusplus

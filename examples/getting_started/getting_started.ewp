@@ -780,7 +780,7 @@
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkProgramEntryLabelSelect</name>
@@ -1932,6 +1932,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\drivers\bus\twid.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\drivers\bus\xdmad.c</name>
       </file>
     </group>
     <group>

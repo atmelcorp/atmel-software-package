@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:44
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:38:58
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -9,7 +9,7 @@
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\aic.c
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\aic.c -D
-#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D27
 #        -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
@@ -109,60 +109,23 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      61          
      62          #include "chip.h"
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
      63          #include "core/aic.h"
      64          #include "core/cp15.h"
      65          #include "core/cp15_pmu.h"
@@ -189,16 +152,33 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      86           * \param handler  Interrupt handler function.
      87           */
      88          
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      89          static void _aic_configure_it(uint32_t source, uint8_t mode)
      90          {
      91          	AIC->AIC_SSR = source;
+   \                     _aic_configure_it:
+   \   00000000   0xE3A024FC         MOV      R2,#-67108864
+   \   00000004   0xE3822B80         ORR      R2,R2,#0x20000
+   \   00000008   0xE5820000         STR      R0,[R2, #+0]
      92          	/* Disable the interrupt first */
      93          	AIC->AIC_IDCR = AIC_IDCR_INTD;
+   \   0000000C   0xE3A02001         MOV      R2,#+1
+   \   00000010   0x........         LDR      R3,??DataTable7  ;; 0xfc020044
+   \   00000014   0xE5832000         STR      R2,[R3, #+0]
      94          	/* Configure mode and handler */
      95          	AIC->AIC_SMR = mode;
+   \   00000018   0xE1B02001         MOVS     R2,R1
+   \   0000001C   0xE6EF2072         UXTB     R2,R2
+   \   00000020   0x........         LDR      R3,??DataTable7_1  ;; 0xfc020004
+   \   00000024   0xE5832000         STR      R2,[R3, #+0]
      96          	/* Clear interrupt */
      97          	AIC->AIC_ICCR = AIC_ICCR_INTCLR;
+   \   00000028   0xE3A02001         MOV      R2,#+1
+   \   0000002C   0x........         LDR      R3,??DataTable7_2  ;; 0xfc020048
+   \   00000030   0xE5832000         STR      R2,[R3, #+0]
      98          }
+   \   00000034   0xE12FFF1E         BX       LR               ;; return
      99          
     100          /**
     101           * \brief Enables interrupts coming from the given AIC and (unique) source (ID_xxx).
@@ -206,11 +186,19 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     103           * \param aic  AIC instance.
     104           * \param source  Interrupt source to enable.
     105           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     106          static void _aic_enable_it(Aic * aic, uint32_t source)
     107          {
     108          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+   \                     _aic_enable_it:
+   \   00000000   0xE211207F         ANDS     R2,R1,#0x7F
+   \   00000004   0xE5802000         STR      R2,[R0, #+0]
     109          	aic->AIC_IECR = AIC_IECR_INTEN;
+   \   00000008   0xE3A02001         MOV      R2,#+1
+   \   0000000C   0xE5802040         STR      R2,[R0, #+64]
     110          }
+   \   00000010   0xE12FFF1E         BX       LR               ;; return
     111          
     112          /**
     113           * \brief Disables interrupts coming from the given AIC and (unique) source (ID_xxx).
@@ -218,11 +206,19 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     115           * \param aic  AIC instance.
     116           * \param source  Interrupt source to disable.
     117           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     118          static void _aic_disable_it(Aic * aic, uint32_t source)
     119          {
     120          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+   \                     _aic_disable_it:
+   \   00000000   0xE211207F         ANDS     R2,R1,#0x7F
+   \   00000004   0xE5802000         STR      R2,[R0, #+0]
     121          	aic->AIC_IDCR = AIC_IDCR_INTD;
+   \   00000008   0xE3A02001         MOV      R2,#+1
+   \   0000000C   0xE5802044         STR      R2,[R0, #+68]
     122          }
+   \   00000010   0xE12FFF1E         BX       LR               ;; return
     123          
     124          /**
     125           * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
@@ -231,14 +227,32 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     128           * \param source  Interrupt source to configure.
     129           * \param handler handler for the interrupt.
     130           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     131          static void _aic_set_source_vector(Aic * aic, uint32_t source, uint32_t handler)
     132          {
+   \                     _aic_set_source_vector:
+   \   00000000   0xE92D4070         PUSH     {R4-R6,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+   \   0000000C   0xE1B06002         MOVS     R6,R2
     133          	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
+   \   00000010   0xE59400E4         LDR      R0,[R4, #+228]
+   \   00000014   0xE3100001         TST      R0,#0x1
+   \   00000018   0x0A000002         BEQ      ??_aic_set_source_vector_0
     134          		aic_write_protection(aic, 1);
+   \   0000001C   0xE3A01001         MOV      R1,#+1
+   \   00000020   0xE1B00004         MOVS     R0,R4
+   \   00000024   0x........         BL       aic_write_protection
     135          	}
     136          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+   \                     ??_aic_set_source_vector_0:
+   \   00000028   0xE215007F         ANDS     R0,R5,#0x7F
+   \   0000002C   0xE5840000         STR      R0,[R4, #+0]
     137          	aic->AIC_SVR = handler;
+   \   00000030   0xE5846008         STR      R6,[R4, #+8]
     138          }
+   \   00000034   0xE8BD8070         POP      {R4-R6,PC}       ;; return
     139          
     140          /**
     141           * \brief Clears interrupts coming from the given AIC and (unique) source (ID_xxx).
@@ -246,11 +260,19 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     143           * \param aic  AIC instance.
     144           * \param source  Interrupt source to disable.
     145           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     146          static void _aic_clear_it(Aic * aic, uint32_t source)
     147          {
     148          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+   \                     _aic_clear_it:
+   \   00000000   0xE211207F         ANDS     R2,R1,#0x7F
+   \   00000004   0xE5802000         STR      R2,[R0, #+0]
     149          	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+   \   00000008   0xE3A02001         MOV      R2,#+1
+   \   0000000C   0xE5802048         STR      R2,[R0, #+72]
     150          }
+   \   00000010   0xE12FFF1E         BX       LR               ;; return
     151          
     152          /**
     153           * \brief Sets interrupts coming from the given AIC and (unique) source (ID_xxx).
@@ -258,26 +280,61 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     155           * \param aic  AIC instance.
     156           * \param source  Interrupt source to disable.
     157           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     158          static void _aic_set_it(Aic * aic, uint32_t source)
     159          {
     160          	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+   \                     _aic_set_it:
+   \   00000000   0xE211207F         ANDS     R2,R1,#0x7F
+   \   00000004   0xE5802000         STR      R2,[R0, #+0]
     161          	aic->AIC_ISCR = AIC_ISCR_INTSET;
+   \   00000008   0xE3A02001         MOV      R2,#+1
+   \   0000000C   0xE580204C         STR      R2,[R0, #+76]
     162          }
+   \   00000010   0xE12FFF1E         BX       LR               ;; return
     163          
     164          /**
     165           * \brief return if the giving peripheral is H64 Matrix
     166           *
     167           * \param pid  peripheral ID
     168           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     169          static uint8_t _is_h64_matrix(uint32_t pid)
     170          {
+   \                     _is_h64_matrix:
+   \   00000000   0xE1B01000         MOVS     R1,R0
     171          	uint8_t i;
     172          	for (i=0; i<ID_H64_MATRIX_SIZE; i++) {
+   \   00000004   0xE3A00000         MOV      R0,#+0
+   \   00000008   0xE1B02000         MOVS     R2,R0
+   \                     ??_is_h64_matrix_0:
+   \   0000000C   0xE1B00002         MOVS     R0,R2
+   \   00000010   0xE6EF0070         UXTB     R0,R0
+   \   00000014   0xE350000E         CMP      R0,#+14
+   \   00000018   0x2A00000A         BCS      ??_is_h64_matrix_1
     173          		if( pid == _id_h64_matrix[i]) {
+   \   0000001C   0x........         LDR      R0,??DataTable7_3
+   \   00000020   0xE1B03002         MOVS     R3,R2
+   \   00000024   0xE6EF3073         UXTB     R3,R3
+   \   00000028   0xE1B03103         LSLS     R3,R3,#+2
+   \   0000002C   0xE7930000         LDR      R0,[R3, +R0]
+   \   00000030   0xE1510000         CMP      R1,R0
+   \   00000034   0x1A000001         BNE      ??_is_h64_matrix_2
     174          			return 1;
+   \   00000038   0xE3A00001         MOV      R0,#+1
+   \   0000003C   0xEA000002         B        ??_is_h64_matrix_3
     175          		}
     176          	}
+   \                     ??_is_h64_matrix_2:
+   \   00000040   0xE2922001         ADDS     R2,R2,#+1
+   \   00000044   0xEAFFFFF0         B        ??_is_h64_matrix_0
     177          	return 0;
+   \                     ??_is_h64_matrix_1:
+   \   00000048   0xE3A00000         MOV      R0,#+0
+   \                     ??_is_h64_matrix_3:
+   \   0000004C   0xE12FFF1E         BX       LR               ;; return
     178          }
     179          
     180          /*----------------------------------------------------------------------------
@@ -289,106 +346,323 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     186           *
     187           * \param source  Interrupt source to enable.
     188           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     189          void aic_enable(uint32_t source)
     190          {
+   \                     aic_enable:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE24DD008         SUB      SP,SP,#+8
+   \   00000008   0xE1B04000         MOVS     R4,R0
     191          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+   \   0000000C   0x........         LDR      R0,??DataTable7_4  ;; 0xf8030054
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE58D0000         STR      R0,[SP, #+0]
     192          
     193          	if (AicFuse) {
+   \   00000018   0xE59D0000         LDR      R0,[SP, #+0]
+   \   0000001C   0xE3500000         CMP      R0,#+0
+   \   00000020   0x0A000004         BEQ      ??aic_enable_0
     194          		_aic_enable_it(AIC, source);
-    195          	} else {
-    196          		if (_is_h64_matrix(source)) {
-    197          			if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    198          				_aic_enable_it(AIC, source);
-    199          			else
-    200          				_aic_enable_it(SAIC, source);
-    201          		} else {
-    202          			if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    203          				_aic_enable_it(AIC, source);
-    204          			else
-    205          				_aic_enable_it(SAIC, source);
-    206          		}
-    207          	}
-    208          }
-    209          
-    210          /**
-    211           * \brief Disables interrupts coming from the given (unique) source (ID_xxx).
-    212           *
-    213           * \param source  Interrupt source to disable.
-    214           */
-    215          void aic_disable(uint32_t source)
-    216          {
-    217          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
-    218          
-    219          	if (AicFuse) {
-    220          		_aic_disable_it(AIC, source);
-    221          		return;
-    222          	}
-    223          
-    224          	if (_is_h64_matrix(source)) {
-    225          		if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    226          			_aic_disable_it(AIC, source);
-    227          		else
-    228          			_aic_disable_it(SAIC, source);
-    229          	} else {
-    230          		if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    231          			_aic_disable_it(AIC, source);
-    232          		else
-    233          			_aic_disable_it(SAIC, source);
-    234          	}
-    235          }
-    236          
-    237          /**
-    238           * \brief Configure interrupts' source mode.
-    239           *
-    240           * \param source  Interrupt source to configure.
-    241           * \param mode    mode combined of priority level and interrupt source type.
-    242           */
-    243          void aic_configure(uint32_t source, uint8_t mode)
-    244          {
-    245          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
-    246          
-    247          	if (AicFuse) {
-    248          		_aic_configure_it(source, mode);
-    249          	} else {
-    250          		if (_is_h64_matrix(source)) {
-    251          			if (MATRIX0->
-    252          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    253          				_aic_configure_it(source, mode);
-    254          			else {
-    255          				// Does not apply For SAIC
-    256          			}
-    257          		} else {
-    258          			if (MATRIX1->
-    259          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-    260          				_aic_configure_it(source, mode);
-    261          			else {
-    262          				// does not apply for SAIC
-    263          			}
-    264          		}
-    265          	}
-    266          }
-    267          
-    268          /**
-    269           * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
-    270           *
-    271           * \param source  Interrupt source to configure.
-    272           * \param handler handler for the interrupt.
-    273           */
-    274          void aic_set_source_vector(uint32_t source, uint32_t handler)
-    275          {
-    276          	Matrix *pMatrix;
-    277          	Aic *aic = AIC;
-    278          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
-    279          
-    280          	if (0 == AicFuse) {
-    281          		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
-    282          		if (0 ==
-    283          		    (pMatrix->
-    284          		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+   \   00000024   0xE1B01004         MOVS     R1,R4
+   \   00000028   0xE3A004FC         MOV      R0,#-67108864
+   \   0000002C   0xE3800B80         ORR      R0,R0,#0x20000
+   \   00000030   0x........         BL       _aic_enable_it
+   \   00000034   0xEA000026         B        ??aic_enable_1
+    195          	}
+    196          	else {
+    197          		if (_is_h64_matrix(source)) {
+   \                     ??aic_enable_0:
+   \   00000038   0xE1B00004         MOVS     R0,R4
+   \   0000003C   0x........         BL       _is_h64_matrix
+   \   00000040   0xE3500000         CMP      R0,#+0
+   \   00000044   0x0A000011         BEQ      ??aic_enable_2
+    198          			if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \   00000048   0x........         LDR      R0,??DataTable7_5  ;; 0xf00182c0
+   \   0000004C   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000050   0xE1B01101         LSLS     R1,R1,#+2
+   \   00000054   0xE7910000         LDR      R0,[R1, +R0]
+   \   00000058   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   0000005C   0xE3A02001         MOV      R2,#+1
+   \   00000060   0xE1120130         TST      R2,R0, LSR R1
+   \   00000064   0x0A000004         BEQ      ??aic_enable_3
+    199          				_aic_enable_it(AIC, source);
+   \   00000068   0xE1B01004         MOVS     R1,R4
+   \   0000006C   0xE3A004FC         MOV      R0,#-67108864
+   \   00000070   0xE3800B80         ORR      R0,R0,#0x20000
+   \   00000074   0x........         BL       _aic_enable_it
+   \   00000078   0xEA000015         B        ??aic_enable_1
+    200          			else
+    201          				_aic_enable_it(SAIC, source);
+   \                     ??aic_enable_3:
+   \   0000007C   0xE1B01004         MOVS     R1,R4
+   \   00000080   0xE3A004F8         MOV      R0,#-134217728
+   \   00000084   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   00000088   0x........         BL       _aic_enable_it
+   \   0000008C   0xEA000010         B        ??aic_enable_1
+    202          		}
+    203          		else {
+    204          			if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \                     ??aic_enable_2:
+   \   00000090   0x........         LDR      R0,??DataTable7_6  ;; 0xfc03c2c0
+   \   00000094   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000098   0xE1B01101         LSLS     R1,R1,#+2
+   \   0000009C   0xE7910000         LDR      R0,[R1, +R0]
+   \   000000A0   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   000000A4   0xE3A02001         MOV      R2,#+1
+   \   000000A8   0xE1120130         TST      R2,R0, LSR R1
+   \   000000AC   0x0A000004         BEQ      ??aic_enable_4
+    205          				_aic_enable_it(AIC, source);
+   \   000000B0   0xE1B01004         MOVS     R1,R4
+   \   000000B4   0xE3A004FC         MOV      R0,#-67108864
+   \   000000B8   0xE3800B80         ORR      R0,R0,#0x20000
+   \   000000BC   0x........         BL       _aic_enable_it
+   \   000000C0   0xEA000003         B        ??aic_enable_1
+    206          			else
+    207          				_aic_enable_it(SAIC, source);
+   \                     ??aic_enable_4:
+   \   000000C4   0xE1B01004         MOVS     R1,R4
+   \   000000C8   0xE3A004F8         MOV      R0,#-134217728
+   \   000000CC   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   000000D0   0x........         BL       _aic_enable_it
+    208          		}
+    209          	}
+    210          }
+   \                     ??aic_enable_1:
+   \   000000D4   0xE8BD8013         POP      {R0,R1,R4,PC}    ;; return
+    211          
+    212          /**
+    213           * \brief Disables interrupts coming from the given (unique) source (ID_xxx).
+    214           *
+    215           * \param source  Interrupt source to disable.
+    216           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    217          void aic_disable(uint32_t source)
+    218          {
+   \                     aic_disable:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE24DD008         SUB      SP,SP,#+8
+   \   00000008   0xE1B04000         MOVS     R4,R0
+    219          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+   \   0000000C   0x........         LDR      R0,??DataTable7_4  ;; 0xf8030054
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE58D0000         STR      R0,[SP, #+0]
+    220          
+    221          	if (AicFuse) {
+   \   00000018   0xE59D0000         LDR      R0,[SP, #+0]
+   \   0000001C   0xE3500000         CMP      R0,#+0
+   \   00000020   0x0A000004         BEQ      ??aic_disable_0
+    222          		_aic_disable_it(AIC, source);
+   \   00000024   0xE1B01004         MOVS     R1,R4
+   \   00000028   0xE3A004FC         MOV      R0,#-67108864
+   \   0000002C   0xE3800B80         ORR      R0,R0,#0x20000
+   \   00000030   0x........         BL       _aic_disable_it
+    223          		return;
+   \   00000034   0xEA000026         B        ??aic_disable_1
+    224          	}
+    225          
+    226          	if (_is_h64_matrix(source)) {
+   \                     ??aic_disable_0:
+   \   00000038   0xE1B00004         MOVS     R0,R4
+   \   0000003C   0x........         BL       _is_h64_matrix
+   \   00000040   0xE3500000         CMP      R0,#+0
+   \   00000044   0x0A000011         BEQ      ??aic_disable_2
+    227          		if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \   00000048   0x........         LDR      R0,??DataTable7_5  ;; 0xf00182c0
+   \   0000004C   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000050   0xE1B01101         LSLS     R1,R1,#+2
+   \   00000054   0xE7910000         LDR      R0,[R1, +R0]
+   \   00000058   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   0000005C   0xE3A02001         MOV      R2,#+1
+   \   00000060   0xE1120130         TST      R2,R0, LSR R1
+   \   00000064   0x0A000004         BEQ      ??aic_disable_3
+    228          			_aic_disable_it(AIC, source);
+   \   00000068   0xE1B01004         MOVS     R1,R4
+   \   0000006C   0xE3A004FC         MOV      R0,#-67108864
+   \   00000070   0xE3800B80         ORR      R0,R0,#0x20000
+   \   00000074   0x........         BL       _aic_disable_it
+   \   00000078   0xEA000015         B        ??aic_disable_4
+    229          		else
+    230          			_aic_disable_it(SAIC, source);
+   \                     ??aic_disable_3:
+   \   0000007C   0xE1B01004         MOVS     R1,R4
+   \   00000080   0xE3A004F8         MOV      R0,#-134217728
+   \   00000084   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   00000088   0x........         BL       _aic_disable_it
+   \   0000008C   0xEA000010         B        ??aic_disable_4
+    231          	} else {
+    232          		if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \                     ??aic_disable_2:
+   \   00000090   0x........         LDR      R0,??DataTable7_6  ;; 0xfc03c2c0
+   \   00000094   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000098   0xE1B01101         LSLS     R1,R1,#+2
+   \   0000009C   0xE7910000         LDR      R0,[R1, +R0]
+   \   000000A0   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   000000A4   0xE3A02001         MOV      R2,#+1
+   \   000000A8   0xE1120130         TST      R2,R0, LSR R1
+   \   000000AC   0x0A000004         BEQ      ??aic_disable_5
+    233          			_aic_disable_it(AIC, source);
+   \   000000B0   0xE1B01004         MOVS     R1,R4
+   \   000000B4   0xE3A004FC         MOV      R0,#-67108864
+   \   000000B8   0xE3800B80         ORR      R0,R0,#0x20000
+   \   000000BC   0x........         BL       _aic_disable_it
+   \   000000C0   0xEA000003         B        ??aic_disable_4
+    234          		else
+    235          			_aic_disable_it(SAIC, source);
+   \                     ??aic_disable_5:
+   \   000000C4   0xE1B01004         MOVS     R1,R4
+   \   000000C8   0xE3A004F8         MOV      R0,#-134217728
+   \   000000CC   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   000000D0   0x........         BL       _aic_disable_it
+    236          	}
+    237          }
+   \                     ??aic_disable_4:
+   \                     ??aic_disable_1:
+   \   000000D4   0xE8BD8013         POP      {R0,R1,R4,PC}    ;; return
+    238          
+    239          /**
+    240           * \brief Configure interrupts' source mode.
+    241           *
+    242           * \param source  Interrupt source to configure.
+    243           * \param mode    mode combined of priority level and interrupt source type.
+    244           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    245          void aic_configure(uint32_t source, uint8_t mode)
+    246          {
+   \                     aic_configure:
+   \   00000000   0xE92D4038         PUSH     {R3-R5,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    247          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+   \   0000000C   0x........         LDR      R0,??DataTable7_4  ;; 0xf8030054
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE58D0000         STR      R0,[SP, #+0]
+    248          
+    249          	if (AicFuse) {
+   \   00000018   0xE59D0000         LDR      R0,[SP, #+0]
+   \   0000001C   0xE3500000         CMP      R0,#+0
+   \   00000020   0x0A000004         BEQ      ??aic_configure_0
+    250          		_aic_configure_it(source, mode);
+   \   00000024   0xE1B01005         MOVS     R1,R5
+   \   00000028   0xE6EF1071         UXTB     R1,R1
+   \   0000002C   0xE1B00004         MOVS     R0,R4
+   \   00000030   0x........         BL       _aic_configure_it
+   \   00000034   0xEA00001C         B        ??aic_configure_1
+    251          	} else {
+    252          		if (_is_h64_matrix(source)) {
+   \                     ??aic_configure_0:
+   \   00000038   0xE1B00004         MOVS     R0,R4
+   \   0000003C   0x........         BL       _is_h64_matrix
+   \   00000040   0xE3500000         CMP      R0,#+0
+   \   00000044   0x0A00000C         BEQ      ??aic_configure_2
+    253          			if (MATRIX0->
+    254          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \   00000048   0x........         LDR      R0,??DataTable7_5  ;; 0xf00182c0
+   \   0000004C   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000050   0xE1B01101         LSLS     R1,R1,#+2
+   \   00000054   0xE7910000         LDR      R0,[R1, +R0]
+   \   00000058   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   0000005C   0xE3A02001         MOV      R2,#+1
+   \   00000060   0xE1120130         TST      R2,R0, LSR R1
+   \   00000064   0x0A000010         BEQ      ??aic_configure_1
+    255          				_aic_configure_it(source, mode);
+   \   00000068   0xE1B01005         MOVS     R1,R5
+   \   0000006C   0xE6EF1071         UXTB     R1,R1
+   \   00000070   0xE1B00004         MOVS     R0,R4
+   \   00000074   0x........         BL       _aic_configure_it
+   \   00000078   0xEA00000B         B        ??aic_configure_1
+    256          			else {
+    257          				// Does not apply For SAIC
+    258          			}
+    259          		} else {
+    260          			if (MATRIX1->
+    261          			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
+   \                     ??aic_configure_2:
+   \   0000007C   0x........         LDR      R0,??DataTable7_6  ;; 0xfc03c2c0
+   \   00000080   0xE1B012A4         LSRS     R1,R4,#+5
+   \   00000084   0xE1B01101         LSLS     R1,R1,#+2
+   \   00000088   0xE7910000         LDR      R0,[R1, +R0]
+   \   0000008C   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   00000090   0xE3A02001         MOV      R2,#+1
+   \   00000094   0xE1120130         TST      R2,R0, LSR R1
+   \   00000098   0x0A000003         BEQ      ??aic_configure_1
+    262          				_aic_configure_it(source, mode);
+   \   0000009C   0xE1B01005         MOVS     R1,R5
+   \   000000A0   0xE6EF1071         UXTB     R1,R1
+   \   000000A4   0xE1B00004         MOVS     R0,R4
+   \   000000A8   0x........         BL       _aic_configure_it
+    263          			else {
+    264          				// does not apply for SAIC
+    265          			}
+    266          		}
+    267          	}
+    268          }
+   \                     ??aic_configure_1:
+   \   000000AC   0xE8BD8031         POP      {R0,R4,R5,PC}    ;; return
+    269          
+    270          /**
+    271           * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
+    272           *
+    273           * \param source  Interrupt source to configure.
+    274           * \param handler handler for the interrupt.
+    275           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    276          void aic_set_source_vector(uint32_t source, uint32_t handler)
+    277          {
+   \                     aic_set_source_vector:
+   \   00000000   0xE92D40F8         PUSH     {R3-R7,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
+    278          	Matrix *pMatrix;
+    279          	Aic *aic = AIC;
+   \   0000000C   0xE3A074FC         MOV      R7,#-67108864
+   \   00000010   0xE3877B80         ORR      R7,R7,#0x20000
+    280          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+   \   00000014   0x........         LDR      R0,??DataTable7_4  ;; 0xf8030054
+   \   00000018   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000001C   0xE58D0000         STR      R0,[SP, #+0]
+    281          
+    282          	if (0 == AicFuse) {
+   \   00000020   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000024   0xE3500000         CMP      R0,#+0
+   \   00000028   0x1A000013         BNE      ??aic_set_source_vector_0
+    283          		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
+   \   0000002C   0xE1B00004         MOVS     R0,R4
+   \   00000030   0x........         BL       _is_h64_matrix
+   \   00000034   0xE3500000         CMP      R0,#+0
+   \   00000038   0x0A000002         BEQ      ??aic_set_source_vector_1
+   \   0000003C   0xE3A064F0         MOV      R6,#-268435456
+   \   00000040   0xE3866B60         ORR      R6,R6,#0x18000
+   \   00000044   0xEA000001         B        ??aic_set_source_vector_2
+   \                     ??aic_set_source_vector_1:
+   \   00000048   0xE3A064FC         MOV      R6,#-67108864
+   \   0000004C   0xE3866BF0         ORR      R6,R6,#0x3C000
+    284          		if (0 == (pMatrix-> MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+   \                     ??aic_set_source_vector_2:
+   \   00000050   0xE1B002A4         LSRS     R0,R4,#+5
+   \   00000054   0xE1B00100         LSLS     R0,R0,#+2
+   \   00000058   0xE0900006         ADDS     R0,R0,R6
+   \   0000005C   0xE59002C0         LDR      R0,[R0, #+704]
+   \   00000060   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   00000064   0xE3A02001         MOV      R2,#+1
+   \   00000068   0xE1120130         TST      R2,R0, LSR R1
+   \   0000006C   0x1A000002         BNE      ??aic_set_source_vector_0
     285          			aic = SAIC;
+   \   00000070   0xE3A004F8         MOV      R0,#-134217728
+   \   00000074   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   00000078   0xE1B07000         MOVS     R7,R0
     286          	}
     287          	_aic_set_source_vector(aic, source, handler);
+   \                     ??aic_set_source_vector_0:
+   \   0000007C   0xE1B02005         MOVS     R2,R5
+   \   00000080   0xE1B01004         MOVS     R1,R4
+   \   00000084   0xE1B00007         MOVS     R0,R7
+   \   00000088   0x........         BL       _aic_set_source_vector
     288          }
+   \   0000008C   0xE8BD80F1         POP      {R0,R4-R7,PC}    ;; return
     289          
     290          /**
     291           * \brief Configure interrupts' source mode.
@@ -396,34 +670,91 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     293           * \param source  Interrupt source to configure.
     294           * \param mode    mode combined of priority level and interrupt source type.
     295           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     296          void aic_set_or_clear(uint32_t source, uint8_t set)
     297          {
+   \                     aic_set_or_clear:
+   \   00000000   0xE92D40F8         PUSH     {R3-R7,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
     298          	Matrix *pMatrix;
     299          	Aic *aic = AIC;
+   \   0000000C   0xE3A074FC         MOV      R7,#-67108864
+   \   00000010   0xE3877B80         ORR      R7,R7,#0x20000
     300          	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+   \   00000014   0x........         LDR      R0,??DataTable7_4  ;; 0xf8030054
+   \   00000018   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000001C   0xE58D0000         STR      R0,[SP, #+0]
     301          
     302          	if (0 == AicFuse) {
+   \   00000020   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000024   0xE3500000         CMP      R0,#+0
+   \   00000028   0x1A000013         BNE      ??aic_set_or_clear_0
     303          		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
+   \   0000002C   0xE1B00004         MOVS     R0,R4
+   \   00000030   0x........         BL       _is_h64_matrix
+   \   00000034   0xE3500000         CMP      R0,#+0
+   \   00000038   0x0A000002         BEQ      ??aic_set_or_clear_1
+   \   0000003C   0xE3A064F0         MOV      R6,#-268435456
+   \   00000040   0xE3866B60         ORR      R6,R6,#0x18000
+   \   00000044   0xEA000001         B        ??aic_set_or_clear_2
+   \                     ??aic_set_or_clear_1:
+   \   00000048   0xE3A064FC         MOV      R6,#-67108864
+   \   0000004C   0xE3866BF0         ORR      R6,R6,#0x3C000
     304          		if (0 ==
     305          		    (pMatrix->
     306          		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+   \                     ??aic_set_or_clear_2:
+   \   00000050   0xE1B002A4         LSRS     R0,R4,#+5
+   \   00000054   0xE1B00100         LSLS     R0,R0,#+2
+   \   00000058   0xE0900006         ADDS     R0,R0,R6
+   \   0000005C   0xE59002C0         LDR      R0,[R0, #+704]
+   \   00000060   0xE214101F         ANDS     R1,R4,#0x1F      ;; Zero extend
+   \   00000064   0xE3A02001         MOV      R2,#+1
+   \   00000068   0xE1120130         TST      R2,R0, LSR R1
+   \   0000006C   0x1A000002         BNE      ??aic_set_or_clear_0
     307          			aic = SAIC;
+   \   00000070   0xE3A004F8         MOV      R0,#-134217728
+   \   00000074   0xE3800BF0         ORR      R0,R0,#0x3C000
+   \   00000078   0xE1B07000         MOVS     R7,R0
     308          	}
     309          	if (set)
+   \                     ??aic_set_or_clear_0:
+   \   0000007C   0xE1B00005         MOVS     R0,R5
+   \   00000080   0xE6EF0070         UXTB     R0,R0
+   \   00000084   0xE3500000         CMP      R0,#+0
+   \   00000088   0x0A000003         BEQ      ??aic_set_or_clear_3
     310          		_aic_set_it(aic, source);
+   \   0000008C   0xE1B01004         MOVS     R1,R4
+   \   00000090   0xE1B00007         MOVS     R0,R7
+   \   00000094   0x........         BL       _aic_set_it
+   \   00000098   0xEA000002         B        ??aic_set_or_clear_4
     311          	else
     312          		_aic_clear_it(aic, source);
+   \                     ??aic_set_or_clear_3:
+   \   0000009C   0xE1B01004         MOVS     R1,R4
+   \   000000A0   0xE1B00007         MOVS     R0,R7
+   \   000000A4   0x........         BL       _aic_clear_it
     313          }
+   \                     ??aic_set_or_clear_4:
+   \   000000A8   0xE8BD80F1         POP      {R0,R4-R7,PC}    ;; return
     314          
     315          /**
     316           * \brief Indicate treatment completion for interrupts coming from the given AIC and (unique) source (ID_xxx).
     317           *
     318           * \param aic  AIC instance.
     319           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     320          void aic_end_interrupt(Aic * aic)
     321          {
     322          	aic->AIC_EOICR = AIC_EOICR_ENDIT;
+   \                     aic_end_interrupt:
+   \   00000000   0xE3A01001         MOV      R1,#+1
+   \   00000004   0xE5801038         STR      R1,[R0, #+56]
     323          }
+   \   00000008   0xE12FFF1E         BX       LR               ;; return
     324          
     325          /**
     326           * \brief Configuration of protection mode and general interrupt mask for debug.
@@ -434,19 +765,48 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     331           *
     332           * \retval        0 - succeed.  1 - failed.
     333           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     334          uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask)
     335          {
+   \                     aic_debug_config:
+   \   00000000   0xE1B03000         MOVS     R3,R0
     336          	uint32_t tmp;
     337          
     338          	/* return in case the "Write Protection Mode" is enabled */
     339          	if (aic->AIC_WPMR & AIC_WPMR_WPEN)
+   \   00000004   0xE59300E4         LDR      R0,[R3, #+228]
+   \   00000008   0xE3100001         TST      R0,#0x1
+   \   0000000C   0x0A000001         BEQ      ??aic_debug_config_0
     340          		return 1;
+   \   00000010   0xE3A00001         MOV      R0,#+1
+   \   00000014   0xEA00000D         B        ??aic_debug_config_1
     341          
     342          	tmp = protect ? (1 << 1) : (0 << 1);
+   \                     ??aic_debug_config_0:
+   \   00000018   0xE1B00001         MOVS     R0,R1
+   \   0000001C   0xE6EF0070         UXTB     R0,R0
+   \   00000020   0xE3500000         CMP      R0,#+0
+   \   00000024   0x0A000001         BEQ      ??aic_debug_config_2
+   \   00000028   0xE3A0C002         MOV      R12,#+2
+   \   0000002C   0xEA000000         B        ??aic_debug_config_3
+   \                     ??aic_debug_config_2:
+   \   00000030   0xE3A0C000         MOV      R12,#+0
     343          	if (mask)
+   \                     ??aic_debug_config_3:
+   \   00000034   0xE1B00002         MOVS     R0,R2
+   \   00000038   0xE6EF0070         UXTB     R0,R0
+   \   0000003C   0xE3500000         CMP      R0,#+0
+   \   00000040   0x0A000000         BEQ      ??aic_debug_config_4
     344          		tmp++;
+   \   00000044   0xE29CC001         ADDS     R12,R12,#+1
     345          	aic->AIC_DCR = tmp;
+   \                     ??aic_debug_config_4:
+   \   00000048   0xE583C06C         STR      R12,[R3, #+108]
     346          	return 0;
+   \   0000004C   0xE3A00000         MOV      R0,#+0
+   \                     ??aic_debug_config_1:
+   \   00000050   0xE12FFF1E         BX       LR               ;; return
     347          }
     348          
     349          /**
@@ -455,14 +815,27 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     352           * \param aic     AIC instance.
     353           * \param enable  Enable/Disable AIC write protection mode.
     354           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     355          void aic_write_protection(Aic * aic, uint32_t enable)
     356          {
     357          	if (enable) {
+   \                     aic_write_protection:
+   \   00000000   0xE3510000         CMP      R1,#+0
+   \   00000004   0x0A000002         BEQ      ??aic_write_protection_0
     358          		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD | AIC_WPMR_WPEN;
+   \   00000008   0x........         LDR      R2,??DataTable7_7  ;; 0x41494301
+   \   0000000C   0xE58020E4         STR      R2,[R0, #+228]
+   \   00000010   0xEA000001         B        ??aic_write_protection_1
     359          	} else {
     360          		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD;
+   \                     ??aic_write_protection_0:
+   \   00000014   0x........         LDR      R2,??DataTable7_8  ;; 0x41494300
+   \   00000018   0xE58020E4         STR      R2,[R0, #+228]
     361          	}
     362          }
+   \                     ??aic_write_protection_1:
+   \   0000001C   0xE12FFF1E         BX       LR               ;; return
     363          
     364          /**
     365           * \brief Get AIC Write Protection Status.
@@ -472,15 +845,136 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     369           *
     370           * \retval        0 - No violation occured.  1 - violation occured.
     371           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     372          uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource)
     373          {
+   \                     aic_violation_occured:
+   \   00000000   0xE1B02000         MOVS     R2,R0
     374          	if (aic->AIC_WPSR & AIC_WPSR_WPVS) {
+   \   00000004   0xE59200E8         LDR      R0,[R2, #+232]
+   \   00000008   0xE3100001         TST      R0,#0x1
+   \   0000000C   0x0A000002         BEQ      ??aic_violation_occured_0
     375          		*pViolationSource =
     376          		    (aic->
     377          		     AIC_WPSR & AIC_WPSR_WPVSRC_Msk) >> AIC_WPSR_WPVSRC_Pos;
+   \   00000010   0xE59200E8         LDR      R0,[R2, #+232]
+   \   00000014   0xE7EF0450         UBFX     R0,R0,#+8,#+16
+   \   00000018   0xE5810000         STR      R0,[R1, #+0]
     378          	}
     379          	return 0;
+   \                     ??aic_violation_occured_0:
+   \   0000001C   0xE3A00000         MOV      R0,#+0
+   \   00000020   0xE12FFF1E         BX       LR               ;; return
     380          }
 
-Errors: 11
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7:
+   \   00000000   0xFC020044         DC32     0xfc020044
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_1:
+   \   00000000   0xFC020004         DC32     0xfc020004
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_2:
+   \   00000000   0xFC020048         DC32     0xfc020048
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_3:
+   \   00000000   0x........         DC32     _id_h64_matrix
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_4:
+   \   00000000   0xF8030054         DC32     0xf8030054
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_5:
+   \   00000000   0xF00182C0         DC32     0xf00182c0
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_6:
+   \   00000000   0xFC03C2C0         DC32     0xfc03c2c0
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_7:
+   \   00000000   0x41494301         DC32     0x41494301
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable7_8:
+   \   00000000   0x41494300         DC32     0x41494300
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       0   _aic_clear_it
+       0   _aic_configure_it
+       0   _aic_disable_it
+       0   _aic_enable_it
+       0   _aic_set_it
+      16   _aic_set_source_vector
+        16   -> aic_write_protection
+       0   _is_h64_matrix
+      16   aic_configure
+        16   -> _aic_configure_it
+        16   -> _is_h64_matrix
+       0   aic_debug_config
+      16   aic_disable
+        16   -> _aic_disable_it
+        16   -> _is_h64_matrix
+      16   aic_enable
+        16   -> _aic_enable_it
+        16   -> _is_h64_matrix
+       0   aic_end_interrupt
+      24   aic_set_or_clear
+        24   -> _aic_clear_it
+        24   -> _aic_set_it
+        24   -> _is_h64_matrix
+      24   aic_set_source_vector
+        24   -> _aic_set_source_vector
+        24   -> _is_h64_matrix
+       0   aic_violation_occured
+       0   aic_write_protection
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable7
+       4  ??DataTable7_1
+       4  ??DataTable7_2
+       4  ??DataTable7_3
+       4  ??DataTable7_4
+       4  ??DataTable7_5
+       4  ??DataTable7_6
+       4  ??DataTable7_7
+       4  ??DataTable7_8
+      20  _aic_clear_it
+      56  _aic_configure_it
+      20  _aic_disable_it
+      20  _aic_enable_it
+      20  _aic_set_it
+      56  _aic_set_source_vector
+      56  _id_h64_matrix
+      80  _is_h64_matrix
+     176  aic_configure
+      84  aic_debug_config
+     216  aic_disable
+     216  aic_enable
+      12  aic_end_interrupt
+     172  aic_set_or_clear
+     144  aic_set_source_vector
+      36  aic_violation_occured
+      32  aic_write_protection
+
+ 
+    56 bytes in section .rodata
+ 1 396 bytes in section SOFTPACK
+ 
+ 1 396 bytes of CODE  memory
+    56 bytes of CONST memory
+
+Errors: none
 Warnings: 1

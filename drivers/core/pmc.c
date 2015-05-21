@@ -171,6 +171,7 @@ extern uint32_t pmc_set_peripheral_max_clock(uint32_t id)
  */
 void pmc_enable_peripheral(uint32_t id)
 {
+/*
 	if (id < 32) {
 		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) ==
 		    ((uint32_t) 1 << id)) {
@@ -186,6 +187,17 @@ void pmc_enable_peripheral(uint32_t id)
 			PMC->PMC_PCER1 = 1 << (id - 32);
 		}
 	}
+*/
+
+	uint32_t pcr_value;
+	PMC->PMC_PCR = PMC_PCR_PID(id); // map the Peripheral dw_id to PMC_PCR register for next Read operation
+	pcr_value = PMC->PMC_PCR;          // to retrieve info related to the Peripheral Clock of interest
+	if ((pcr_value & PMC_PCR_EN) != 0x0)
+	{
+		TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n\r", dw_id);
+	}
+	else
+		PMC->PMC_PCR = (pcr_value & ~PMC_PCR_PID_Msk) | PMC_PCR_CMD | PMC_PCR_PID(id) | PMC_PCR_EN;
 }
 
 /**

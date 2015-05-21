@@ -54,9 +54,9 @@
 *----------------------------------------------------------------------------*/
 
 /* Initialize console structure according to board configuration */
-#if CONSOLE_DRIVER == DRV_USART
+#if (CONSOLE_DRIVER == DRV_USART)
 #include "serial/usart.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	usart_configure,
 	usart_put_char,
@@ -64,19 +64,19 @@ static struct _console console = {
 	usart_is_rx_ready,
 	usart_enable_it
 };
-#elif CONSOLE_DRIVER == DRV_UART
+#elif (CONSOLE_DRIVER == DRV_UART)
 #include "serial/uart.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	(void (*)(void*, uint32_t, uint32_t)) uart_configure,
 	(void (*) (void*, uint8_t)) uart_put_char,
 	(uint32_t (*) (void*))uart_get_char,
 	(uint32_t (*) (void*))uart_is_rx_ready,
-	//uart_set_int
+	(void (*)(void*,uint32_t))uart_set_int
 };
-#elif CONSOLE_DRIVER == DRV_DBGU
+#elif (CONSOLE_DRIVER == DRV_DBGU)
 #include "serial/dbgu.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	dbgu_configure,
 	dbgu_put_char,
@@ -105,7 +105,6 @@ void console_configure(uint32_t baudrate)
 {
 	/* Configure PIO */
 	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
-
 	pmc_enable_peripheral(CONSOLE_ID);
 
 	uint32_t mode;
@@ -115,9 +114,13 @@ void console_configure(uint32_t baudrate)
 	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
 #endif
 
+	//console.addr = CONSOLE_PER_ADD;
+	//console.init = (void (*)(void*, uint32_t, uint32_t))uart_configure;
+
+
+
 	/* Initialize driver to use */
 	console.init(console.addr, mode, baudrate);
-
 	/* Finally */
 	_bConsoleIsInitialized = 1;
 
@@ -331,17 +334,21 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
 	return 1;
 }
 
-#if defined __ICCARM__ /* IAR Ewarm 5.41+ */
+/*----------------------------------------------------------------------------
+*
+*----------------------------------------------------------------------------*/
+
+#if defined __ICCARM__
 /**
- * \brief Outputs a character on the DBGU.
- *
+ * \brief Outputs a character on the CONSOLE.
  * \param c  Character to output.
- *
  * \return The character that was output.
  */
+
 extern WEAK signed int putchar( signed int c )
 {
-    console_put_char( c ) ;
+    console_put_char((uint8_t)c) ;
     return c ;
 }
+
 #endif // defined __ICCARM__

@@ -92,39 +92,42 @@
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */
-#define PINS_CONSOLE            PINS_UART0_IOS1
-#define CONSOLE_PER_ADD         UART0
-#define CONSOLE_ID              ID_UART0
+#define PINS_CONSOLE            PINS_UART1_IOS1
+#define CONSOLE_PER_ADD         UART1
+#define CONSOLE_ID              ID_UART1
 #define CONSOLE_BAUDRATE        115200
-#define CONSOLE_DRIVER          DRV_UART
+#define CONSOLE_DRIVER			DRV_UART
 
 /* =================== PIN LED definition ====================== */
 
 /* RGB LED index */
-#define LED_RED       0
+#define LED_RED       0    /* led red shared with SDHC0 (eMMC) card detect used only by RomBoot */
 #define LED_GREEN     1
-#define LED_BLUE      2 /* led blue shared with SDHC0 (eMMC) card detect used only by RomBoot */
+#define LED_BLUE      2
 
 #define PIO_CFG_LED  (PIO_OUTPUT | PIO_OPENDRAIN)
 
-/** LED #0 pin definition (Green). */
-#define PIN_LED_0       { PIO_PD21, PIO_ADD, PIO_GROUP_D, PIO_OUTPUT_0, PIO_OPENDRAIN }
+/** LED #0 pin definition (Red). */
+#define PIN_LED_0       { PIO_PA13, PIO_ADD, PIO_GROUP_A, PIO_OUTPUT_0, PIO_OPENDRAIN }
 
 /** LED #1 pin definition (Green). */
-#define PIN_LED_1       { PIO_PD22, PIO_ADD, PIO_GROUP_D, PIO_OUTPUT_0, PIO_OPENDRAIN }
+#define PIN_LED_1       { PIO_PB5, PIO_ADD, PIO_GROUP_B, PIO_OUTPUT_1, PIO_OPENDRAIN }
+
+/** LED #2 pin definition (Blue). */
+#define PIN_LED_2       { PIO_PB0, PIO_ADD, PIO_GROUP_B, PIO_OUTPUT_1, PIO_OPENDRAIN }
 
 /** List of all LEDs definitions. */
-#define PINS_LEDS       {PIN_LED_0, PIN_LED_1}
+#define PINS_LEDS       {PIN_LED_0, PIN_LED_1, PIN_LED_2}
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
 #define PIO_CFG_PB  (PIO_PULLUP)
 
 #define PIN_PUSHBUTTON_1 {\
-	{ PIO_PB6, PIO_ADD, PIO_GROUP_B, PIO_INPUT, PIO_CFG_PB },\
+	{ PIO_PC10, PIO_ADD, PIO_GROUP_C, PIO_INPUT, PIO_CFG_PB },\
 }
 #define PIN_PUSHBUTTON_2 {\
-	{ PIO_PB6, PIO_ADD, PIO_GROUP_B, PIO_INPUT, PIO_CFG_PB },\
+	{ PIO_PC11, PIO_ADD, PIO_GROUP_C, PIO_INPUT, PIO_CFG_PB },\
 }
 
 /** List of all push button definitions. */

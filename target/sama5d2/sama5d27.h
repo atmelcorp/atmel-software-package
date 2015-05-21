@@ -30,6 +30,8 @@
 #ifndef _SAMA5D27_
 #define _SAMA5D27_
 
+#include "resources/compiler_defines.h"
+
 /** \addtogroup SAMA5D27_definitions SAMA5D27 definitions
   This file defines all structures and symbols for SAMA5D27:
     - registers and bitfields
@@ -230,7 +232,7 @@ typedef enum IRQn
 /*   CONFIGURATION ID H64 MATRIX FOR SAMA5D27 */
 /* ************************************************************************** */
 
-const uint32_t _id_h64_matrix[] = {
+const WEAK uint32_t _id_h64_matrix[] = {
 	ID_XDMAC0,
 	ID_XDMAC1,
 	ID_AES,
@@ -247,7 +249,7 @@ const uint32_t _id_h64_matrix[] = {
 	ID_L2CC,
 } ;
 
-#define ID_H64_MATRIX_SIZE 	sizeof(_id_h64_matrix)
+#define ID_H64_MATRIX_SIZE 	(sizeof(_id_h64_matrix)/sizeof(uint32_t))
 
 /* ************************************************************************** */
 /*   BASE ADDRESS DEFINITIONS FOR SAMA5D27 */

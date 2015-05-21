@@ -36,7 +36,7 @@ C:\Users\dfronek\Documents\Project\softpack\target\sama5d2
 -DBOARD_SAMA5D2_XPLAINED=1
 -DAPI_PIOv4=1
 -DSERIE_SAMA5D2=1
--DCHIP_SAMA5D21=1
+-DCHIP_SAMA5D27=1
 -Dsram=1
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff

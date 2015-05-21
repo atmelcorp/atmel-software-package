@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:49
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:39:04
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -9,7 +9,7 @@
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pmc.c
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\drivers\core\pmc.c -D
-#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D24
+#        BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D CHIP_SAMA5D27
 #        -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
@@ -117,60 +117,23 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      69          
      70          #include "chip.h"
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
      71          #include "board.h"
      72          #include "core/pmc.h"
      73          #include "utils/trace.h"
@@ -183,18 +146,58 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
      80          #define MAX_PERI_ID  ID_L2CC
      81          
      82          extern const uint32_t peripherals_min_clock_dividers[];
+
+   \                                 In section .bss, align 4
      83          uint32_t board_master_clock;
+   \                     board_master_clock:
+   \   00000000                      DS8 4
      84          
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
      85          static void _pmc_compute_mck(void)
      86          {
+   \                     _pmc_compute_mck:
+   \   00000000   0xE92D40F0         PUSH     {R4-R7,LR}
      87          	uint32_t mckr_value = PMC->PMC_MCKR;
+   \   00000004   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000008   0xE5904000         LDR      R4,[R0, #+0]
      88          	uint32_t pllar_value = (CKGR_PLLAR_MULA_Msk & PMC->CKGR_PLLAR) >> CKGR_PLLAR_MULA_Pos;
+   \   0000000C   0x........         LDR      R0,??DataTable22_1  ;; 0xf0014028
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE7E65950         UBFX     R5,R0,#+18,#+7
      89          	uint32_t mdiv = (PMC_MCKR_MDIV(mckr_value) < 3) ?
      90          		(1u << PMC_MCKR_MDIV(mckr_value)) : 3;
+   \   00000018   0xE3A00FC0         MOV      R0,#+768
+   \   0000001C   0xE0100404         ANDS     R0,R0,R4, LSL #+8
+   \   00000020   0xE3500003         CMP      R0,#+3
+   \   00000024   0x2A000001         BCS      ??_pmc_compute_mck_0
+   \   00000028   0xE3A06001         MOV      R6,#+1
+   \   0000002C   0xEA000000         B        ??_pmc_compute_mck_1
+   \                     ??_pmc_compute_mck_0:
+   \   00000030   0xE3A06003         MOV      R6,#+3
      91          
      92          	board_master_clock = BOARD_MAINOSC / mdiv / (mckr_value & PMC_MCKR_PLLADIV2 ? 2:1)
      93          		* (pllar_value + 1);
+   \                     ??_pmc_compute_mck_1:
+   \   00000034   0xE3140D40         TST      R4,#0x1000
+   \   00000038   0x0A000001         BEQ      ??_pmc_compute_mck_2
+   \   0000003C   0xE3A07002         MOV      R7,#+2
+   \   00000040   0xEA000000         B        ??_pmc_compute_mck_3
+   \                     ??_pmc_compute_mck_2:
+   \   00000044   0xE3A07001         MOV      R7,#+1
+   \                     ??_pmc_compute_mck_3:
+   \   00000048   0xE3A008B7         MOV      R0,#+11993088
+   \   0000004C   0xE3800D6C         ORR      R0,R0,#0x1B00
+   \   00000050   0xE1B01006         MOVS     R1,R6
+   \   00000054   0x........         BL       __aeabi_uidiv
+   \   00000058   0xE1B01007         MOVS     R1,R7
+   \   0000005C   0x........         BL       __aeabi_uidiv
+   \   00000060   0xE2951001         ADDS     R1,R5,#+1
+   \   00000064   0xE0100091         MULS     R0,R1,R0
+   \   00000068   0x........         LDR      R1,??DataTable22_2
+   \   0000006C   0xE5810000         STR      R0,[R1, #+0]
      94          }
+   \   00000070   0xE8BD80F0         POP      {R4-R7,PC}       ;; return
      95          
      96          /*----------------------------------------------------------------------------
      97           *        Exported functions
@@ -205,41 +208,130 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     102           *
     103           * \param id  Peripheral ID (ID_xxx).
     104           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     105          uint32_t pmc_get_peripheral_max_clock(uint32_t id)
     106          {
+   \                     pmc_get_peripheral_max_clock:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
     107          	assert(id < ID_PERIPH_COUNT);
+   \   00000008   0xE354004F         CMP      R4,#+79
+   \   0000000C   0x3A000004         BCC      ??pmc_get_peripheral_max_clock_0
+   \   00000010   0xE3A0206B         MOV      R2,#+107
+   \   00000014   0x........         LDR      R1,??DataTable22_3
+   \   00000018   0x........         LDR      R0,??DataTable22_4
+   \   0000001C   0x........         BL       __aeabi_assert
+   \   00000020   0x........         BL       __iar_EmptyStepPoint
     108          	uint32_t divider = peripherals_min_clock_dividers[id];
+   \                     ??pmc_get_peripheral_max_clock_0:
+   \   00000024   0x........         LDR      R0,??DataTable22_5
+   \   00000028   0xE1B01104         LSLS     R1,R4,#+2
+   \   0000002C   0xE7911000         LDR      R1,[R1, +R0]
     109          	if (divider) {
+   \   00000030   0xE3510000         CMP      R1,#+0
+   \   00000034   0x0A000003         BEQ      ??pmc_get_peripheral_max_clock_1
     110          		return board_master_clock / divider;
+   \   00000038   0x........         LDR      R0,??DataTable22_2
+   \   0000003C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000040   0x........         BL       __aeabi_uidiv
+   \   00000044   0xEA000000         B        ??pmc_get_peripheral_max_clock_2
     111          	} else {
     112          		return 0;
+   \                     ??pmc_get_peripheral_max_clock_1:
+   \   00000048   0xE3A00000         MOV      R0,#+0
+   \                     ??pmc_get_peripheral_max_clock_2:
+   \   0000004C   0xE8BD8010         POP      {R4,PC}          ;; return
     113          	}
     114          }
     115          
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     116          uint32_t pmc_get_peripheral_clock(uint32_t id)
     117          {
+   \                     pmc_get_peripheral_clock:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
     118          	assert(id < ID_PERIPH_COUNT);
+   \   00000008   0xE354004F         CMP      R4,#+79
+   \   0000000C   0x3A000004         BCC      ??pmc_get_peripheral_clock_0
+   \   00000010   0xE3A02076         MOV      R2,#+118
+   \   00000014   0x........         LDR      R1,??DataTable22_3
+   \   00000018   0x........         LDR      R0,??DataTable22_4
+   \   0000001C   0x........         BL       __aeabi_assert
+   \   00000020   0x........         BL       __iar_EmptyStepPoint
     119          	PMC->PMC_PCR = PMC_PCR_PID(id);
+   \                     ??pmc_get_peripheral_clock_0:
+   \   00000024   0xE214007F         ANDS     R0,R4,#0x7F
+   \   00000028   0x........         LDR      R1,??DataTable22_6  ;; 0xf001410c
+   \   0000002C   0xE5810000         STR      R0,[R1, #+0]
     120          	return (PMC->PMC_PCR & (0x3u << 16)) >> 16;
+   \   00000030   0x........         LDR      R0,??DataTable22_6  ;; 0xf001410c
+   \   00000034   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000038   0xE7E10850         UBFX     R0,R0,#+16,#+2
+   \   0000003C   0xE8BD8010         POP      {R4,PC}          ;; return
     121          }
     122          
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     123          uint32_t pmc_get_master_clock(void)
     124          {
+   \                     pmc_get_master_clock:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
     125          	if (!board_master_clock) {
+   \   00000004   0x........         LDR      R0,??DataTable22_2
+   \   00000008   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000000C   0xE3500000         CMP      R0,#+0
+   \   00000010   0x1A000000         BNE      ??pmc_get_master_clock_0
     126          		_pmc_compute_mck();
+   \   00000014   0x........         BL       _pmc_compute_mck
     127          	}
     128          	return board_master_clock;
+   \                     ??pmc_get_master_clock_0:
+   \   00000018   0x........         LDR      R0,??DataTable22_2
+   \   0000001C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000020   0xE8BD8002         POP      {R1,PC}          ;; return
     129          }
     130          
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     131          uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div)
     132          {
+   \                     pmc_set_peripheral_divider:
+   \   00000000   0xE92D40F8         PUSH     {R3-R7,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+   \   00000008   0xE1B05001         MOVS     R5,R1
     133          	uint32_t clock = board_master_clock >> (uint32_t)div;
+   \   0000000C   0x........         LDR      R0,??DataTable22_2
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE1B06530         LSRS     R6,R0,R5
     134          	uint32_t max_clock = pmc_get_peripheral_max_clock(id);
+   \   00000018   0xE1B00004         MOVS     R0,R4
+   \   0000001C   0x........         BL       pmc_get_peripheral_max_clock
+   \   00000020   0xE1B07000         MOVS     R7,R0
     135          	if (clock > max_clock)
+   \   00000024   0xE1570006         CMP      R7,R6
+   \   00000028   0x2A000002         BCS      ??pmc_set_peripheral_divider_0
     136          		pmc_set_peripheral_max_clock(id);
+   \   0000002C   0xE1B00004         MOVS     R0,R4
+   \   00000030   0x........         BL       pmc_set_peripheral_max_clock
+   \   00000034   0xEA000008         B        ??pmc_set_peripheral_divider_1
     137          	else
     138          		PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD | ( div << 16) | PMC_PCR_EN;
+   \                     ??pmc_set_peripheral_divider_0:
+   \   00000038   0xE214007F         ANDS     R0,R4,#0x7F
+   \   0000003C   0xE1B01005         MOVS     R1,R5
+   \   00000040   0xE6EF1071         UXTB     R1,R1
+   \   00000044   0xE1900801         ORRS     R0,R0,R1, LSL #+16
+   \   00000048   0xE3A01540         MOV      R1,#+268435456
+   \   0000004C   0xE3811D40         ORR      R1,R1,#0x1000
+   \   00000050   0xE1910000         ORRS     R0,R1,R0
+   \   00000054   0x........         LDR      R1,??DataTable22_6  ;; 0xf001410c
+   \   00000058   0xE5810000         STR      R0,[R1, #+0]
     139          	return clock;
+   \                     ??pmc_set_peripheral_divider_1:
+   \   0000005C   0xE1B00006         MOVS     R0,R6
+   \   00000060   0xE8BD80F2         POP      {R1,R4-R7,PC}    ;; return
     140          }
     141          
     142          /**
@@ -249,19 +341,60 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     146           * \param mck  Master clock.
     147           * \return Peripheral clock.
     148           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     149          extern uint32_t pmc_set_peripheral_max_clock(uint32_t id)
     150          {
+   \                     pmc_set_peripheral_max_clock:
+   \   00000000   0xE92D4070         PUSH     {R4-R6,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
     151          	uint32_t maxClock;
     152          	uint8_t i;
     153          	/* Disable peripheral clock */
     154          	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD;
+   \   00000008   0xE214007F         ANDS     R0,R4,#0x7F
+   \   0000000C   0xE3900D40         ORRS     R0,R0,#0x1000
+   \   00000010   0x........         LDR      R1,??DataTable22_6  ;; 0xf001410c
+   \   00000014   0xE5810000         STR      R0,[R1, #+0]
     155          	maxClock = pmc_get_peripheral_max_clock(id);
+   \   00000018   0xE1B00004         MOVS     R0,R4
+   \   0000001C   0x........         BL       pmc_get_peripheral_max_clock
+   \   00000020   0xE1B05000         MOVS     R5,R0
     156          	for (i = 0; i < 4; i++) {
+   \   00000024   0xE3A00000         MOV      R0,#+0
+   \   00000028   0xE1B06000         MOVS     R6,R0
+   \                     ??pmc_set_peripheral_max_clock_0:
+   \   0000002C   0xE1B00006         MOVS     R0,R6
+   \   00000030   0xE6EF0070         UXTB     R0,R0
+   \   00000034   0xE3500004         CMP      R0,#+4
+   \   00000038   0xAA000008         BGE      ??pmc_set_peripheral_max_clock_1
     157          		if (board_master_clock / (1 << i) <= maxClock)
+   \   0000003C   0x........         LDR      R0,??DataTable22_2
+   \   00000040   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000044   0xE3A01001         MOV      R1,#+1
+   \   00000048   0xE1B01611         LSLS     R1,R1,R6
+   \   0000004C   0x........         BL       __aeabi_uidiv
+   \   00000050   0xE1550000         CMP      R5,R0
+   \   00000054   0x2A000001         BCS      ??pmc_set_peripheral_max_clock_1
     158          			break;
     159          	}
+   \                     ??pmc_set_peripheral_max_clock_2:
+   \   00000058   0xE2966001         ADDS     R6,R6,#+1
+   \   0000005C   0xEAFFFFF2         B        ??pmc_set_peripheral_max_clock_0
     160          	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD | (i << 16) | PMC_PCR_EN;
+   \                     ??pmc_set_peripheral_max_clock_1:
+   \   00000060   0xE214007F         ANDS     R0,R4,#0x7F
+   \   00000064   0xE1B01006         MOVS     R1,R6
+   \   00000068   0xE6EF1071         UXTB     R1,R1
+   \   0000006C   0xE1900801         ORRS     R0,R0,R1, LSL #+16
+   \   00000070   0xE3A01540         MOV      R1,#+268435456
+   \   00000074   0xE3811D40         ORR      R1,R1,#0x1000
+   \   00000078   0xE1910000         ORRS     R0,R1,R0
+   \   0000007C   0x........         LDR      R1,??DataTable22_6  ;; 0xf001410c
+   \   00000080   0xE5810000         STR      R0,[R1, #+0]
     161          	return maxClock;
+   \   00000084   0xE1B00005         MOVS     R0,R5
+   \   00000088   0xE8BD8070         POP      {R4-R6,PC}       ;; return
     162          }
     163          
     164          /**
@@ -272,269 +405,890 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     169           *
     170           * \param id  Peripheral ID (ID_xxx).
     171           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
     172          void pmc_enable_peripheral(uint32_t id)
     173          {
-    174          	if (id < 32) {
-    175          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) ==
-    176          		    ((uint32_t) 1 << id)) {
-    177          			//   TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
-    178          		} else {
-    179          			PMC->PMC_PCER0 = (1 << id);
-    180          		}
-    181          	} else {
-    182          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) ==
-    183          		    ((uint32_t) 1 << (id - 32))) {
-    184          			// TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
-    185          		} else {
-    186          			PMC->PMC_PCER1 = 1 << (id - 32);
-    187          		}
-    188          	}
-    189          }
-    190          
-    191          /**
-    192           * \brief Disables the clock of a peripheral. The peripheral ID is used
-    193           * to identify which peripheral is targeted.
-    194           *
-    195           * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
-    196           *
-    197           * \param id  Peripheral ID (ID_xxx).
-    198           */
-    199          void pmc_disable_peripheral(uint32_t id)
-    200          {
-    201          	if (id < 32) {
-    202          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) !=
-    203          		    ((uint32_t) 1 << id)) {
-    204          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
-    205          				    " %u is not enabled\n\r",
-    206          				    (unsigned int) id);
-    207          		} else {
-    208          			PMC->PMC_PCDR0 = 1 << id;
-    209          		}
-    210          	} else {
-    211          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) !=
-    212          		    ((uint32_t) 1 << (id - 32))) {
-    213          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
-    214          				    " %u is not enabled\n\r",
-    215          				    (unsigned int) id);
-    216          		} else {
-    217          			PMC->PMC_PCDR1 = 1 << (id - 32);
-    218          		}
-    219          	}
-    220          }
-    221          
-    222          /**
-    223           * \brief Enable all the peripherals clock via PMC.
-    224           */
-    225          void pmc_enable_all_peripherals(void)
-    226          {
-    227          	PMC->PMC_PCER0 = 0xFFFFFFFF;
-    228          	PMC->PMC_PCER1 = 0xFFFFFFFF;
-    229          	TRACE_DEBUG("Enable all periph clocks\n\r");
-    230          }
-    231          
-    232          /**
-    233           * \brief Disable all the peripherals clock via PMC.
-    234           */
-    235          void pmc_disable_all_peripherals(void)
-    236          {
-    237          	TRACE_DEBUG("Disable all periph clocks\n\r");
-    238          	PMC->PMC_PCDR0 = 0xFFFFFFFF;
-    239          	PMC->PMC_PCDR1 = 0xFFFFFFFF;
-    240          }
-    241          
-    242          /**
-    243           * \brief Get Peripheral Status for the given peripheral ID.
-    244           *
-    245           * \param id  Peripheral ID (ID_xxx).
+    174          /*
+    175          	if (id < 32) {
+    176          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) ==
+    177          		    ((uint32_t) 1 << id)) {
+    178          			//   TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
+    179          		} else {
+    180          			PMC->PMC_PCER0 = (1 << id);
+    181          		}
+    182          	} else {
+    183          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) ==
+    184          		    ((uint32_t) 1 << (id - 32))) {
+    185          			// TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", id ) ;
+    186          		} else {
+    187          			PMC->PMC_PCER1 = 1 << (id - 32);
+    188          		}
+    189          	}
+    190          */
+    191          
+    192          	uint32_t pcr_value;
+    193          	PMC->PMC_PCR = PMC_PCR_PID(id); // map the Peripheral dw_id to PMC_PCR register for next Read operation
+   \                     pmc_enable_peripheral:
+   \   00000000   0xE210207F         ANDS     R2,R0,#0x7F
+   \   00000004   0x........         LDR      R3,??DataTable22_6  ;; 0xf001410c
+   \   00000008   0xE5832000         STR      R2,[R3, #+0]
+    194          	pcr_value = PMC->PMC_PCR;          // to retrieve info related to the Peripheral Clock of interest
+   \   0000000C   0x........         LDR      R2,??DataTable22_6  ;; 0xf001410c
+   \   00000010   0xE5922000         LDR      R2,[R2, #+0]
+   \   00000014   0xE1B01002         MOVS     R1,R2
+    195          	if ((pcr_value & PMC_PCR_EN) != 0x0)
+   \   00000018   0xE3110540         TST      R1,#0x10000000
+   \   0000001C   0x1A000007         BNE      ??pmc_enable_peripheral_0
+    196          	{
+    197          		TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n\r", dw_id);
+    198          	}
+    199          	else
+    200          		PMC->PMC_PCR = (pcr_value & ~PMC_PCR_PID_Msk) | PMC_PCR_CMD | PMC_PCR_PID(id) | PMC_PCR_EN;
+   \   00000020   0xE1B023A1         LSRS     R2,R1,#+7
+   \   00000024   0xE210307F         ANDS     R3,R0,#0x7F
+   \   00000028   0xE1932382         ORRS     R2,R3,R2, LSL #+7
+   \   0000002C   0xE3A03540         MOV      R3,#+268435456
+   \   00000030   0xE3833D40         ORR      R3,R3,#0x1000
+   \   00000034   0xE1932002         ORRS     R2,R3,R2
+   \   00000038   0x........         LDR      R3,??DataTable22_6  ;; 0xf001410c
+   \   0000003C   0xE5832000         STR      R2,[R3, #+0]
+    201          }
+   \                     ??pmc_enable_peripheral_0:
+   \   00000040   0xE12FFF1E         BX       LR               ;; return
+    202          
+    203          /**
+    204           * \brief Disables the clock of a peripheral. The peripheral ID is used
+    205           * to identify which peripheral is targeted.
+    206           *
+    207           * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
+    208           *
+    209           * \param id  Peripheral ID (ID_xxx).
+    210           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    211          void pmc_disable_peripheral(uint32_t id)
+    212          {
+    213          	if (id < 32) {
+   \                     pmc_disable_peripheral:
+   \   00000000   0xE3500020         CMP      R0,#+32
+   \   00000004   0x2A00000B         BCS      ??pmc_disable_peripheral_0
+    214          		if ((PMC->PMC_PCSR0 & ((uint32_t) 1 << id)) !=
+    215          		    ((uint32_t) 1 << id)) {
+   \   00000008   0x........         LDR      R1,??DataTable22_7  ;; 0xf0014018
+   \   0000000C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000010   0xE3A02001         MOV      R2,#+1
+   \   00000014   0xE0111012         ANDS     R1,R1,R2, LSL R0
+   \   00000018   0xE3A02001         MOV      R2,#+1
+   \   0000001C   0xE1510012         CMP      R1,R2, LSL R0
+   \   00000020   0x1A000015         BNE      ??pmc_disable_peripheral_1
+    216          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
+    217          				    " %u is not enabled\n\r",
+    218          				    (unsigned int) id);
+    219          		} else {
+    220          			PMC->PMC_PCDR0 = 1 << id;
+   \   00000024   0xE3A01001         MOV      R1,#+1
+   \   00000028   0xE1B01011         LSLS     R1,R1,R0
+   \   0000002C   0x........         LDR      R2,??DataTable22_8  ;; 0xf0014014
+   \   00000030   0xE5821000         STR      R1,[R2, #+0]
+   \   00000034   0xEA000010         B        ??pmc_disable_peripheral_1
+    221          		}
+    222          	} else {
+    223          		if ((PMC->PMC_PCSR1 & ((uint32_t) 1 << (id - 32))) !=
+    224          		    ((uint32_t) 1 << (id - 32))) {
+   \                     ??pmc_disable_peripheral_0:
+   \   00000038   0x........         LDR      R1,??DataTable22_9  ;; 0xf0014108
+   \   0000003C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000040   0xE3A02001         MOV      R2,#+1
+   \   00000044   0xE1B03000         MOVS     R3,R0
+   \   00000048   0xE2533020         SUBS     R3,R3,#+32
+   \   0000004C   0xE0111312         ANDS     R1,R1,R2, LSL R3
+   \   00000050   0xE3A02001         MOV      R2,#+1
+   \   00000054   0xE1B03000         MOVS     R3,R0
+   \   00000058   0xE2533020         SUBS     R3,R3,#+32
+   \   0000005C   0xE1510312         CMP      R1,R2, LSL R3
+   \   00000060   0x1A000005         BNE      ??pmc_disable_peripheral_1
+    225          			TRACE_DEBUG("pmc_disable_peripheral: clock of peripheral"
+    226          				    " %u is not enabled\n\r",
+    227          				    (unsigned int) id);
+    228          		} else {
+    229          			PMC->PMC_PCDR1 = 1 << (id - 32);
+   \   00000064   0xE3A01001         MOV      R1,#+1
+   \   00000068   0xE1B02000         MOVS     R2,R0
+   \   0000006C   0xE2522020         SUBS     R2,R2,#+32
+   \   00000070   0xE1B01211         LSLS     R1,R1,R2
+   \   00000074   0x........         LDR      R2,??DataTable22_10  ;; 0xf0014104
+   \   00000078   0xE5821000         STR      R1,[R2, #+0]
+    230          		}
+    231          	}
+    232          }
+   \                     ??pmc_disable_peripheral_1:
+   \   0000007C   0xE12FFF1E         BX       LR               ;; return
+    233          
+    234          /**
+    235           * \brief Enable all the peripherals clock via PMC.
+    236           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    237          void pmc_enable_all_peripherals(void)
+    238          {
+    239          	PMC->PMC_PCER0 = 0xFFFFFFFF;
+   \                     pmc_enable_all_peripherals:
+   \   00000000   0xE3E00000         MVN      R0,#+0
+   \   00000004   0x........         LDR      R1,??DataTable22_11  ;; 0xf0014010
+   \   00000008   0xE5810000         STR      R0,[R1, #+0]
+    240          	PMC->PMC_PCER1 = 0xFFFFFFFF;
+   \   0000000C   0xE3E00000         MVN      R0,#+0
+   \   00000010   0x........         LDR      R1,??DataTable22_12  ;; 0xf0014100
+   \   00000014   0xE5810000         STR      R0,[R1, #+0]
+    241          	TRACE_DEBUG("Enable all periph clocks\n\r");
+    242          }
+   \   00000018   0xE12FFF1E         BX       LR               ;; return
+    243          
+    244          /**
+    245           * \brief Disable all the peripherals clock via PMC.
     246           */
-    247          extern uint32_t pmc_is_peripheral_enabled(uint32_t id)
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    247          void pmc_disable_all_peripherals(void)
     248          {
-    249          	if (id < 32) {
-    250          		return (PMC->PMC_PCSR0 & (1 << id));
-    251          	} else {
-    252          		return (PMC->PMC_PCSR1 & (1 << (id - 32)));
-    253          	}
-    254          }
-    255          
-    256          /**
-    257           * \brief Select external 32K crystal.
+    249          	TRACE_DEBUG("Disable all periph clocks\n\r");
+    250          	PMC->PMC_PCDR0 = 0xFFFFFFFF;
+   \                     pmc_disable_all_peripherals:
+   \   00000000   0xE3E00000         MVN      R0,#+0
+   \   00000004   0x........         LDR      R1,??DataTable22_8  ;; 0xf0014014
+   \   00000008   0xE5810000         STR      R0,[R1, #+0]
+    251          	PMC->PMC_PCDR1 = 0xFFFFFFFF;
+   \   0000000C   0xE3E00000         MVN      R0,#+0
+   \   00000010   0x........         LDR      R1,??DataTable22_10  ;; 0xf0014104
+   \   00000014   0xE5810000         STR      R0,[R1, #+0]
+    252          }
+   \   00000018   0xE12FFF1E         BX       LR               ;; return
+    253          
+    254          /**
+    255           * \brief Get Peripheral Status for the given peripheral ID.
+    256           *
+    257           * \param id  Peripheral ID (ID_xxx).
     258           */
-    259          void pmc_select_external_crystal(void)
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    259          extern uint32_t pmc_is_peripheral_enabled(uint32_t id)
     260          {
-    261          	int8_t return_to_sclock = 0;
-    262          	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
-    263          		pmc_switch_mck_to_main();
-    264          		return_to_sclock = 1;
+    261          	if (id < 32) {
+   \                     pmc_is_peripheral_enabled:
+   \   00000000   0xE3500020         CMP      R0,#+32
+   \   00000004   0x2A000004         BCS      ??pmc_is_peripheral_enabled_0
+    262          		return (PMC->PMC_PCSR0 & (1 << id));
+   \   00000008   0x........         LDR      R1,??DataTable22_7  ;; 0xf0014018
+   \   0000000C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000010   0xE3A02001         MOV      R2,#+1
+   \   00000014   0xE0110012         ANDS     R0,R1,R2, LSL R0
+   \   00000018   0xEA000004         B        ??pmc_is_peripheral_enabled_1
+    263          	} else {
+    264          		return (PMC->PMC_PCSR1 & (1 << (id - 32)));
+   \                     ??pmc_is_peripheral_enabled_0:
+   \   0000001C   0x........         LDR      R1,??DataTable22_9  ;; 0xf0014108
+   \   00000020   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000024   0xE3A02001         MOV      R2,#+1
+   \   00000028   0xE2500020         SUBS     R0,R0,#+32
+   \   0000002C   0xE0110012         ANDS     R0,R1,R2, LSL R0
+   \                     ??pmc_is_peripheral_enabled_1:
+   \   00000030   0xE12FFF1E         BX       LR               ;; return
     265          	}
-    266          	/* switch from internal RC 32kHz to external OSC 32 kHz */
-    267          	volatile uint32_t count;
-    268          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
-    269          	/* Wait 5 slow clock cycles for internal resynchronization */
-    270          	for (count = 0; count < 0x1000; count++) ;
-    271          	/* Switch to slow clock again if needed */
-    272          	if (return_to_sclock)
-    273          		pmc_switch_mck_to_slck();
-    274          }
-    275          
-    276          /**
-    277           * \brief Select internal 32K crystal.
-    278           */
-    279          void pmc_select_internal_crystal(void)
-    280          {
-    281          	int8_t return_to_sclock = 0;
-    282          	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
-    283          		pmc_switch_mck_to_main();
-    284          		return_to_sclock = 1;
-    285          	}
-    286          	/* switch from extenal OSC 32kHz to internal RC 32 kHz */
-    287          	volatile uint32_t count;
-    288          	/* switch slow clock source to internal OSC 32 kHz */
-    289          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
-    290          	/* Wait 5 slow clock cycles for internal resynchronization */
-    291          	for (count = 0; count < 0x1000; count++);
-    292          	/* Switch to slow clock again if needed */
-    293          	if (return_to_sclock)
-    294          		pmc_switch_mck_to_slck();
-    295          }
-    296          
-    297          /**
-    298           * \brief Select external 12M OSC.
-    299           */
-    300          void pmc_select_external_osc(void)
-    301          {
-    302          	/* switch from internal RC 12 MHz to external OSC 12 MHz */
-    303          	/* wait Main XTAL Oscillator stabilization */
-    304          	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
-    305          		return;
-    306          	/* enable external OSC 12 MHz */
-    307          	PMC->CKGR_MOR |= CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
-    308          	/* wait Main CLK Ready */
-    309          	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY)) ;
-    310          	/* switch MAIN clock to external OSC 12 MHz */
-    311          	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
-    312          	/* wait MAIN clock status change for external OSC 12 MHz selection */
-    313          	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS)) ;
-    314          	/* in case where MCK is running on MAIN CLK */
-    315          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    316          }
-    317          
-    318          /**
-    319           * \brief Select internal 12M OSC.
-    320           */
-    321          void pmc_select_internal_osc(void)
-    322          {
-    323          	/* switch from external OSC 12 MHz to internal RC 12 MHz */
-    324          	/* Wait internal 12 MHz RC Startup Time for clock stabilization (software loop) */
-    325          	while (!(PMC->PMC_SR & PMC_SR_MOSCRCS)) ;
-    326          	/* switch MAIN clock to internal RC 12 MHz */
-    327          	PMC->CKGR_MOR =
-    328          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
-    329          	/* in case where MCK is running on MAIN CLK */
-    330          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    331          	/* disable external OSC 12 MHz   */
-    332          	PMC->CKGR_MOR =
-    333          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
-    334          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    335          }
-    336          
-    337          /**
-    338           * \brief Switch PMC from MCK to PLL clock.
-    339           */
-    340          void pmc_switch_mck_to_pll(void)
-    341          {
-    342          	/* Select PLL as input clock for PCK and MCK */
-    343          	PMC->PMC_MCKR =
-    344          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
-    345          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
-    346          	_pmc_compute_mck();
+    266          }
+    267          
+    268          /**
+    269           * \brief Select external 32K crystal.
+    270           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    271          void pmc_select_external_crystal(void)
+    272          {
+   \                     pmc_select_external_crystal:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE24DD008         SUB      SP,SP,#+8
+    273          	int8_t return_to_sclock = 0;
+   \   00000008   0xE3A04000         MOV      R4,#+0
+    274          	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
+   \   0000000C   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE3500000         CMP      R0,#+0
+   \   00000018   0x1A000002         BNE      ??pmc_select_external_crystal_0
+    275          		pmc_switch_mck_to_main();
+   \   0000001C   0x........         BL       pmc_switch_mck_to_main
+    276          		return_to_sclock = 1;
+   \   00000020   0xE3A00001         MOV      R0,#+1
+   \   00000024   0xE1B04000         MOVS     R4,R0
+    277          	}
+    278          	/* switch from internal RC 32kHz to external OSC 32 kHz */
+    279          	volatile uint32_t count;
+    280          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
+   \                     ??pmc_select_external_crystal_0:
+   \   00000028   0x........         LDR      R0,??DataTable22_13  ;; 0xf8048050
+   \   0000002C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000030   0xE3900008         ORRS     R0,R0,#0x8
+   \   00000034   0x........         LDR      R1,??DataTable22_13  ;; 0xf8048050
+   \   00000038   0xE5810000         STR      R0,[R1, #+0]
+    281          	/* Wait 5 slow clock cycles for internal resynchronization */
+    282          	for (count = 0; count < 0x1000; count++) ;
+   \   0000003C   0xE3A00000         MOV      R0,#+0
+   \   00000040   0xE58D0000         STR      R0,[SP, #+0]
+   \                     ??pmc_select_external_crystal_1:
+   \   00000044   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000048   0xE3500D40         CMP      R0,#+4096
+   \   0000004C   0x2A000003         BCS      ??pmc_select_external_crystal_2
+   \   00000050   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000054   0xE2900001         ADDS     R0,R0,#+1
+   \   00000058   0xE58D0000         STR      R0,[SP, #+0]
+   \   0000005C   0xEAFFFFF8         B        ??pmc_select_external_crystal_1
+    283          	/* Switch to slow clock again if needed */
+    284          	if (return_to_sclock)
+   \                     ??pmc_select_external_crystal_2:
+   \   00000060   0xE1B00004         MOVS     R0,R4
+   \   00000064   0xE6AF0070         SXTB     R0,R0
+   \   00000068   0xE3500000         CMP      R0,#+0
+   \   0000006C   0x0A000000         BEQ      ??pmc_select_external_crystal_3
+    285          		pmc_switch_mck_to_slck();
+   \   00000070   0x........         BL       pmc_switch_mck_to_slck
+    286          }
+   \                     ??pmc_select_external_crystal_3:
+   \   00000074   0xE8BD8013         POP      {R0,R1,R4,PC}    ;; return
+    287          
+    288          /**
+    289           * \brief Select internal 32K crystal.
+    290           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    291          void pmc_select_internal_crystal(void)
+    292          {
+   \                     pmc_select_internal_crystal:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE24DD008         SUB      SP,SP,#+8
+    293          	int8_t return_to_sclock = 0;
+   \   00000008   0xE3A04000         MOV      R4,#+0
+    294          	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
+   \   0000000C   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000010   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000014   0xE3500000         CMP      R0,#+0
+   \   00000018   0x1A000002         BNE      ??pmc_select_internal_crystal_0
+    295          		pmc_switch_mck_to_main();
+   \   0000001C   0x........         BL       pmc_switch_mck_to_main
+    296          		return_to_sclock = 1;
+   \   00000020   0xE3A00001         MOV      R0,#+1
+   \   00000024   0xE1B04000         MOVS     R4,R0
+    297          	}
+    298          	/* switch from extenal OSC 32kHz to internal RC 32 kHz */
+    299          	volatile uint32_t count;
+    300          	/* switch slow clock source to internal OSC 32 kHz */
+    301          	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
+   \                     ??pmc_select_internal_crystal_0:
+   \   00000028   0x........         LDR      R0,??DataTable22_13  ;; 0xf8048050
+   \   0000002C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000030   0xE3D00008         BICS     R0,R0,#0x8
+   \   00000034   0x........         LDR      R1,??DataTable22_13  ;; 0xf8048050
+   \   00000038   0xE5810000         STR      R0,[R1, #+0]
+    302          	/* Wait 5 slow clock cycles for internal resynchronization */
+    303          	for (count = 0; count < 0x1000; count++);
+   \   0000003C   0xE3A00000         MOV      R0,#+0
+   \   00000040   0xE58D0000         STR      R0,[SP, #+0]
+   \                     ??pmc_select_internal_crystal_1:
+   \   00000044   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000048   0xE3500D40         CMP      R0,#+4096
+   \   0000004C   0x2A000003         BCS      ??pmc_select_internal_crystal_2
+   \   00000050   0xE59D0000         LDR      R0,[SP, #+0]
+   \   00000054   0xE2900001         ADDS     R0,R0,#+1
+   \   00000058   0xE58D0000         STR      R0,[SP, #+0]
+   \   0000005C   0xEAFFFFF8         B        ??pmc_select_internal_crystal_1
+    304          	/* Switch to slow clock again if needed */
+    305          	if (return_to_sclock)
+   \                     ??pmc_select_internal_crystal_2:
+   \   00000060   0xE1B00004         MOVS     R0,R4
+   \   00000064   0xE6AF0070         SXTB     R0,R0
+   \   00000068   0xE3500000         CMP      R0,#+0
+   \   0000006C   0x0A000000         BEQ      ??pmc_select_internal_crystal_3
+    306          		pmc_switch_mck_to_slck();
+   \   00000070   0x........         BL       pmc_switch_mck_to_slck
+    307          }
+   \                     ??pmc_select_internal_crystal_3:
+   \   00000074   0xE8BD8013         POP      {R0,R1,R4,PC}    ;; return
+    308          
+    309          /**
+    310           * \brief Select external 12M OSC.
+    311           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    312          void pmc_select_external_osc(void)
+    313          {
+    314          	/* switch from internal RC 12 MHz to external OSC 12 MHz */
+    315          	/* wait Main XTAL Oscillator stabilization */
+    316          	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
+   \                     pmc_select_external_osc:
+   \   00000000   0x........         LDR      R0,??DataTable22_14  ;; 0xf0014020
+   \   00000004   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000008   0xE3100740         TST      R0,#0x1000000
+   \   0000000C   0x1A000019         BNE      ??pmc_select_external_osc_0
+    317          		return;
+    318          	/* enable external OSC 12 MHz */
+    319          	PMC->CKGR_MOR |= CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+   \                     ??pmc_select_external_osc_1:
+   \   00000010   0x........         LDR      R0,??DataTable22_14  ;; 0xf0014020
+   \   00000014   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000018   0xE3A01001         MOV      R1,#+1
+   \   0000001C   0xE38119DC         ORR      R1,R1,#0x370000
+   \   00000020   0xE1910000         ORRS     R0,R1,R0
+   \   00000024   0x........         LDR      R1,??DataTable22_14  ;; 0xf0014020
+   \   00000028   0xE5810000         STR      R0,[R1, #+0]
+    320          	/* wait Main CLK Ready */
+    321          	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY)) ;
+   \                     ??pmc_select_external_osc_2:
+   \   0000002C   0x........         LDR      R0,??DataTable22_15  ;; 0xf0014024
+   \   00000030   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000034   0xE3100B40         TST      R0,#0x10000
+   \   00000038   0x0AFFFFFB         BEQ      ??pmc_select_external_osc_2
+    322          	/* switch MAIN clock to external OSC 12 MHz */
+    323          	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
+   \   0000003C   0x........         LDR      R0,??DataTable22_14  ;; 0xf0014020
+   \   00000040   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000044   0xE3A01740         MOV      R1,#+16777216
+   \   00000048   0xE38119DC         ORR      R1,R1,#0x370000
+   \   0000004C   0xE1910000         ORRS     R0,R1,R0
+   \   00000050   0x........         LDR      R1,??DataTable22_14  ;; 0xf0014020
+   \   00000054   0xE5810000         STR      R0,[R1, #+0]
+    324          	/* wait MAIN clock status change for external OSC 12 MHz selection */
+    325          	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS)) ;
+   \                     ??pmc_select_external_osc_3:
+   \   00000058   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   0000005C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000060   0xE3100B40         TST      R0,#0x10000
+   \   00000064   0x0AFFFFFB         BEQ      ??pmc_select_external_osc_3
+    326          	/* in case where MCK is running on MAIN CLK */
+    327          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_select_external_osc_4:
+   \   00000068   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   0000006C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000070   0xE3100008         TST      R0,#0x8
+   \   00000074   0x0AFFFFFB         BEQ      ??pmc_select_external_osc_4
+    328          }
+   \                     ??pmc_select_external_osc_0:
+   \   00000078   0xE12FFF1E         BX       LR               ;; return
+    329          
+    330          /**
+    331           * \brief Select internal 12M OSC.
+    332           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    333          void pmc_select_internal_osc(void)
+    334          {
+    335          	/* switch from external OSC 12 MHz to internal RC 12 MHz */
+    336          	/* Wait internal 12 MHz RC Startup Time for clock stabilization (software loop) */
+    337          	while (!(PMC->PMC_SR & PMC_SR_MOSCRCS)) ;
+   \                     pmc_select_internal_osc:
+   \                     ??pmc_select_internal_osc_0:
+   \   00000000   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   00000004   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000008   0xE3100B80         TST      R0,#0x20000
+   \   0000000C   0x0AFFFFFB         BEQ      ??pmc_select_internal_osc_0
+    338          	/* switch MAIN clock to internal RC 12 MHz */
+    339          	PMC->CKGR_MOR =
+    340          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
+   \   00000010   0x........         LDR      R0,??DataTable22_14  ;; 0xf0014020
+   \   00000014   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000018   0xE3D00740         BICS     R0,R0,#0x1000000
+   \   0000001C   0xE39009DC         ORRS     R0,R0,#0x370000
+   \   00000020   0x........         LDR      R1,??DataTable22_14  ;; 0xf0014020
+   \   00000024   0xE5810000         STR      R0,[R1, #+0]
+    341          	/* in case where MCK is running on MAIN CLK */
+    342          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_select_internal_osc_1:
+   \   00000028   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   0000002C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000030   0xE3100008         TST      R0,#0x8
+   \   00000034   0x0AFFFFFB         BEQ      ??pmc_select_internal_osc_1
+    343          	/* disable external OSC 12 MHz   */
+    344          	PMC->CKGR_MOR =
+    345          	    (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
+   \   00000038   0x........         LDR      R0,??DataTable22_14  ;; 0xf0014020
+   \   0000003C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000040   0xE3D00001         BICS     R0,R0,#0x1
+   \   00000044   0xE39009DC         ORRS     R0,R0,#0x370000
+   \   00000048   0x........         LDR      R1,??DataTable22_14  ;; 0xf0014020
+   \   0000004C   0xE5810000         STR      R0,[R1, #+0]
+    346          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_select_internal_osc_2:
+   \   00000050   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   00000054   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000058   0xE3100008         TST      R0,#0x8
+   \   0000005C   0x0AFFFFFB         BEQ      ??pmc_select_internal_osc_2
     347          }
+   \   00000060   0xE12FFF1E         BX       LR               ;; return
     348          
     349          /**
-    350           * \brief Switch PMC from MCK to main clock.
+    350           * \brief Switch PMC from MCK to PLL clock.
     351           */
-    352          void pmc_switch_mck_to_main(void)
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    352          void pmc_switch_mck_to_pll(void)
     353          {
-    354          	/* Select Main Oscillator as input clock for PCK and MCK */
+   \                     pmc_switch_mck_to_pll:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    354          	/* Select PLL as input clock for PCK and MCK */
     355          	PMC->PMC_MCKR =
-    356          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
+    356          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
+   \   00000004   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000008   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000000C   0xE3D00003         BICS     R0,R0,#0x3
+   \   00000010   0xE3900002         ORRS     R0,R0,#0x2
+   \   00000014   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000018   0xE5810000         STR      R0,[R1, #+0]
     357          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+   \                     ??pmc_switch_mck_to_pll_0:
+   \   0000001C   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   00000020   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000024   0xE3100008         TST      R0,#0x8
+   \   00000028   0x0AFFFFFB         BEQ      ??pmc_switch_mck_to_pll_0
     358          	_pmc_compute_mck();
+   \   0000002C   0x........         BL       _pmc_compute_mck
     359          }
+   \   00000030   0xE8BD8001         POP      {R0,PC}          ;; return
     360          
     361          /**
-    362           * \brief Switch PMC from MCK to slow clock.
+    362           * \brief Switch PMC from MCK to main clock.
     363           */
-    364          extern uint32_t pmc_switch_mck_to_slck(void)
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    364          void pmc_switch_mck_to_main(void)
     365          {
-    366          	/* Select Slow Clock as input clock for PCK and MCK */
+   \                     pmc_switch_mck_to_main:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    366          	/* Select Main Oscillator as input clock for PCK and MCK */
     367          	PMC->PMC_MCKR =
-    368          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
+    368          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
+   \   00000004   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000008   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000000C   0xE3D00003         BICS     R0,R0,#0x3
+   \   00000010   0xE3900001         ORRS     R0,R0,#0x1
+   \   00000014   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000018   0xE5810000         STR      R0,[R1, #+0]
     369          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+   \                     ??pmc_switch_mck_to_main_0:
+   \   0000001C   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   00000020   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000024   0xE3100008         TST      R0,#0x8
+   \   00000028   0x0AFFFFFB         BEQ      ??pmc_switch_mck_to_main_0
     370          	_pmc_compute_mck();
-    371          	return PMC->PMC_MCKR;
-    372          }
-    373          
-    374          /**
-    375           * \brief Configure MCK Prescaler.
-    376           * \param prescaler prescaler value.
-    377           */
-    378          void pmc_set_mck_prescaler(uint32_t prescaler)
-    379          {
-    380          	/* Change MCK Prescaler divider in PMC_MCKR register */
-    381          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
-    382          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    383          }
-    384          
-    385          /**
-    386           * \brief Configure MCK PLLA divider.
-    387           * \param divider PLL divider value.
-    388           */
-    389          void pmc_set_mck_plla_div(uint32_t divider)
-    390          {
-    391          	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
-    392          		if (divider == 0) {
-    393          			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PLLADIV2);
-    394          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    395          		}
-    396          	} else {
-    397          		if (divider == PMC_MCKR_PLLADIV2) {
-    398          			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_PLLADIV2);
-    399          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    400          		}
-    401          	}
-    402          }
-    403          
-    404          /**
-    405           * \brief Configure MCK Divider.
-    406           * \param divider divider value.
-    407           */
-    408          void pmc_set_mck_divider(uint32_t divider)
-    409          {
-    410          	/* change MCK Prescaler divider in PMC_MCKR register */
-    411          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
-    412          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
-    413          }
-    414          
-    415          /**
-    416           * \brief Configure PLL Register.
-    417           * \param pll pll value.
-    418           * \param cpcr cpcr value.
+   \   0000002C   0x........         BL       _pmc_compute_mck
+    371          }
+   \   00000030   0xE8BD8001         POP      {R0,PC}          ;; return
+    372          
+    373          /**
+    374           * \brief Switch PMC from MCK to slow clock.
+    375           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    376          extern uint32_t pmc_switch_mck_to_slck(void)
+    377          {
+   \                     pmc_switch_mck_to_slck:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    378          	/* Select Slow Clock as input clock for PCK and MCK */
+    379          	PMC->PMC_MCKR =
+    380          	    (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
+   \   00000004   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000008   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000000C   0xE3D00003         BICS     R0,R0,#0x3
+   \   00000010   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000014   0xE5810000         STR      R0,[R1, #+0]
+    381          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+   \                     ??pmc_switch_mck_to_slck_0:
+   \   00000018   0x........         LDR      R0,??DataTable22_16  ;; 0xf0014068
+   \   0000001C   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000020   0xE3100008         TST      R0,#0x8
+   \   00000024   0x0AFFFFFB         BEQ      ??pmc_switch_mck_to_slck_0
+    382          	_pmc_compute_mck();
+   \   00000028   0x........         BL       _pmc_compute_mck
+    383          	return PMC->PMC_MCKR;
+   \   0000002C   0x........         LDR      R0,??DataTable22  ;; 0xf0014030
+   \   00000030   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000034   0xE8BD8002         POP      {R1,PC}          ;; return
+    384          }
+    385          
+    386          /**
+    387           * \brief Configure MCK Prescaler.
+    388           * \param prescaler prescaler value.
+    389           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    390          void pmc_set_mck_prescaler(uint32_t prescaler)
+    391          {
+    392          	/* Change MCK Prescaler divider in PMC_MCKR register */
+    393          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
+   \                     pmc_set_mck_prescaler:
+   \   00000000   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000004   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000008   0xE3D11070         BICS     R1,R1,#0x70
+   \   0000000C   0xE1901001         ORRS     R1,R0,R1
+   \   00000010   0x........         LDR      R2,??DataTable22  ;; 0xf0014030
+   \   00000014   0xE5821000         STR      R1,[R2, #+0]
+    394          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_set_mck_prescaler_0:
+   \   00000018   0x........         LDR      R1,??DataTable22_16  ;; 0xf0014068
+   \   0000001C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000020   0xE3110008         TST      R1,#0x8
+   \   00000024   0x0AFFFFFB         BEQ      ??pmc_set_mck_prescaler_0
+    395          }
+   \   00000028   0xE12FFF1E         BX       LR               ;; return
+    396          
+    397          /**
+    398           * \brief Configure MCK PLLA divider.
+    399           * \param divider PLL divider value.
+    400           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    401          void pmc_set_mck_plla_div(uint32_t divider)
+    402          {
+    403          	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
+   \                     pmc_set_mck_plla_div:
+   \   00000000   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000004   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000008   0xE3110D40         TST      R1,#0x1000
+   \   0000000C   0x0A00000B         BEQ      ??pmc_set_mck_plla_div_0
+    404          		if (divider == 0) {
+   \   00000010   0xE3500000         CMP      R0,#+0
+   \   00000014   0x1A000014         BNE      ??pmc_set_mck_plla_div_1
+    405          			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PLLADIV2);
+   \   00000018   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   0000001C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000020   0xE3D11D40         BICS     R1,R1,#0x1000
+   \   00000024   0x........         LDR      R2,??DataTable22  ;; 0xf0014030
+   \   00000028   0xE5821000         STR      R1,[R2, #+0]
+    406          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_set_mck_plla_div_2:
+   \   0000002C   0x........         LDR      R1,??DataTable22_16  ;; 0xf0014068
+   \   00000030   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000034   0xE3110008         TST      R1,#0x8
+   \   00000038   0x1A00000B         BNE      ??pmc_set_mck_plla_div_1
+   \   0000003C   0xEAFFFFFA         B        ??pmc_set_mck_plla_div_2
+    407          		}
+    408          	} else {
+    409          		if (divider == PMC_MCKR_PLLADIV2) {
+   \                     ??pmc_set_mck_plla_div_0:
+   \   00000040   0xE3500D40         CMP      R0,#+4096
+   \   00000044   0x1A000008         BNE      ??pmc_set_mck_plla_div_1
+    410          			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_PLLADIV2);
+   \   00000048   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   0000004C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000050   0xE3911D40         ORRS     R1,R1,#0x1000
+   \   00000054   0x........         LDR      R2,??DataTable22  ;; 0xf0014030
+   \   00000058   0xE5821000         STR      R1,[R2, #+0]
+    411          			while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_set_mck_plla_div_3:
+   \   0000005C   0x........         LDR      R1,??DataTable22_16  ;; 0xf0014068
+   \   00000060   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000064   0xE3110008         TST      R1,#0x8
+   \   00000068   0x0AFFFFFB         BEQ      ??pmc_set_mck_plla_div_3
+    412          		}
+    413          	}
+    414          }
+   \                     ??pmc_set_mck_plla_div_1:
+   \   0000006C   0xE12FFF1E         BX       LR               ;; return
+    415          
+    416          /**
+    417           * \brief Configure MCK Divider.
+    418           * \param divider divider value.
     419           */
-    420          void pmc_set_plla(uint32_t pll, uint32_t cpcr)
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    420          void pmc_set_mck_divider(uint32_t divider)
     421          {
-    422          	PMC->CKGR_PLLAR = pll;
-    423          	PMC->PMC_PLLICPR = cpcr;
-    424          	while (!(PMC->PMC_SR & PMC_SR_LOCKA)) ;
+    422          	/* change MCK Prescaler divider in PMC_MCKR register */
+    423          	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
+   \                     pmc_set_mck_divider:
+   \   00000000   0x........         LDR      R1,??DataTable22  ;; 0xf0014030
+   \   00000004   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000008   0xE3D11FC0         BICS     R1,R1,#0x300
+   \   0000000C   0xE1901001         ORRS     R1,R0,R1
+   \   00000010   0x........         LDR      R2,??DataTable22  ;; 0xf0014030
+   \   00000014   0xE5821000         STR      R1,[R2, #+0]
+    424          	while (!(PMC->PMC_SR & PMC_SR_MCKRDY)) ;
+   \                     ??pmc_set_mck_divider_0:
+   \   00000018   0x........         LDR      R1,??DataTable22_16  ;; 0xf0014068
+   \   0000001C   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000020   0xE3110008         TST      R1,#0x8
+   \   00000024   0x0AFFFFFB         BEQ      ??pmc_set_mck_divider_0
     425          }
+   \   00000028   0xE12FFF1E         BX       LR               ;; return
     426          
     427          /**
-    428           * \brief Disable PLLA Register.
-    429           */
-    430          void pmc_disable_plla(void)
-    431          {
-    432          	PMC->CKGR_PLLAR =
-    433          	    (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
-    434          }
+    428           * \brief Configure PLL Register.
+    429           * \param pll pll value.
+    430           * \param cpcr cpcr value.
+    431           */
 
-Errors: 11
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    432          void pmc_set_plla(uint32_t pll, uint32_t cpcr)
+    433          {
+    434          	PMC->CKGR_PLLAR = pll;
+   \                     pmc_set_plla:
+   \   00000000   0x........         LDR      R2,??DataTable22_1  ;; 0xf0014028
+   \   00000004   0xE5820000         STR      R0,[R2, #+0]
+    435          	PMC->PMC_PLLICPR = cpcr;
+   \   00000008   0x........         LDR      R2,??DataTable22_17  ;; 0xf0014080
+   \   0000000C   0xE5821000         STR      R1,[R2, #+0]
+    436          	while (!(PMC->PMC_SR & PMC_SR_LOCKA)) ;
+   \                     ??pmc_set_plla_0:
+   \   00000010   0x........         LDR      R2,??DataTable22_16  ;; 0xf0014068
+   \   00000014   0xE5922000         LDR      R2,[R2, #+0]
+   \   00000018   0xE3120002         TST      R2,#0x2
+   \   0000001C   0x0AFFFFFB         BEQ      ??pmc_set_plla_0
+    437          }
+   \   00000020   0xE12FFF1E         BX       LR               ;; return
+    438          
+    439          /**
+    440           * \brief Disable PLLA Register.
+    441           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    442          void pmc_disable_plla(void)
+    443          {
+    444          	PMC->CKGR_PLLAR =
+    445          	    (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
+   \                     pmc_disable_plla:
+   \   00000000   0x........         LDR      R0,??DataTable22_1  ;; 0xf0014028
+   \   00000004   0xE5900000         LDR      R0,[R0, #+0]
+   \   00000008   0xE3D0077F         BICS     R0,R0,#0x1FC0000
+   \   0000000C   0x........         LDR      R1,??DataTable22_1  ;; 0xf0014028
+   \   00000010   0xE5810000         STR      R0,[R1, #+0]
+    446          }
+   \   00000014   0xE12FFF1E         BX       LR               ;; return
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22:
+   \   00000000   0xF0014030         DC32     0xf0014030
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_1:
+   \   00000000   0xF0014028         DC32     0xf0014028
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_2:
+   \   00000000   0x........         DC32     board_master_clock
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_3:
+   \   00000000   0x........         DC32     ?_1
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_4:
+   \   00000000   0x........         DC32     ?_0
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_5:
+   \   00000000   0x........         DC32     peripherals_min_clock_dividers
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_6:
+   \   00000000   0xF001410C         DC32     0xf001410c
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_7:
+   \   00000000   0xF0014018         DC32     0xf0014018
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_8:
+   \   00000000   0xF0014014         DC32     0xf0014014
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_9:
+   \   00000000   0xF0014108         DC32     0xf0014108
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_10:
+   \   00000000   0xF0014104         DC32     0xf0014104
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_11:
+   \   00000000   0xF0014010         DC32     0xf0014010
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_12:
+   \   00000000   0xF0014100         DC32     0xf0014100
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_13:
+   \   00000000   0xF8048050         DC32     0xf8048050
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_14:
+   \   00000000   0xF0014020         DC32     0xf0014020
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_15:
+   \   00000000   0xF0014024         DC32     0xf0014024
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_16:
+   \   00000000   0xF0014068         DC32     0xf0014068
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable22_17:
+   \   00000000   0xF0014080         DC32     0xf0014080
+
+   \                                 In section .rodata, align 4
+   \                     ?_0:
+   \   00000000   0x69 0x64          DC8 "id < ID_PERIPH_COUNT"
+   \              0x20 0x3C    
+   \              0x20 0x49    
+   \              0x44 0x5F    
+   \              0x50 0x45    
+   \              0x52 0x49    
+   \              0x50 0x48    
+   \              0x5F 0x43    
+   \              0x4F 0x55    
+   \              0x4E 0x54    
+   \              0x00         
+   \   00000015   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4
+   \                     ?_1:
+   \   00000000   0x43 0x3A          DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+   \              0x5C 0x55    
+   \              0x73 0x65    
+   \              0x72 0x73    
+   \   00000008   0x5C 0x64          DC8 5CH, 64H, 66H, 72H, 6FH, 6EH, 65H, 6BH
+   \              0x66 0x72    
+   \              0x6F 0x6E    
+   \              0x65 0x6B    
+   \   00000010   0x5C 0x44          DC8 5CH, 44H, 6FH, 63H, 75H, 6DH, 65H, 6EH
+   \              0x6F 0x63    
+   \              0x75 0x6D    
+   \              0x65 0x6E    
+   \   00000018   0x74 0x73          DC8 74H, 73H, 5CH, 50H, 72H, 6FH, 6AH, 65H
+   \              0x5C 0x50    
+   \              0x72 0x6F    
+   \              0x6A 0x65    
+   \   00000020   0x63 0x74          DC8 63H, 74H, 5CH, 73H, 6FH, 66H, 74H, 70H
+   \              0x5C 0x73    
+   \              0x6F 0x66    
+   \              0x74 0x70    
+   \   00000028   0x61 0x63          DC8 61H, 63H, 6BH, 5CH, 64H, 72H, 69H, 76H
+   \              0x6B 0x5C    
+   \              0x64 0x72    
+   \              0x69 0x76    
+   \   00000030   0x65 0x72          DC8 65H, 72H, 73H, 5CH, 63H, 6FH, 72H, 65H
+   \              0x73 0x5C    
+   \              0x63 0x6F    
+   \              0x72 0x65    
+   \   00000038   0x5C 0x70          DC8 5CH, 70H, 6DH, 63H, 2EH, 63H, 0
+   \              0x6D 0x63    
+   \              0x2E 0x63    
+   \              0x00         
+   \   0000003F   0x00               DC8 0
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      20   _pmc_compute_mck
+        20 __aeabi_uidiv
+       0   pmc_disable_all_peripherals
+       0   pmc_disable_peripheral
+       0   pmc_disable_plla
+       0   pmc_enable_all_peripherals
+       0   pmc_enable_peripheral
+       8   pmc_get_master_clock
+         8   -> _pmc_compute_mck
+       8   pmc_get_peripheral_clock
+         8   -> __aeabi_assert
+         8   -> __iar_EmptyStepPoint
+       8   pmc_get_peripheral_max_clock
+         8   -> __aeabi_assert
+         8   -> __iar_EmptyStepPoint
+         8 __aeabi_uidiv
+       0   pmc_is_peripheral_enabled
+      16   pmc_select_external_crystal
+        16   -> pmc_switch_mck_to_main
+        16   -> pmc_switch_mck_to_slck
+       0   pmc_select_external_osc
+      16   pmc_select_internal_crystal
+        16   -> pmc_switch_mck_to_main
+        16   -> pmc_switch_mck_to_slck
+       0   pmc_select_internal_osc
+       0   pmc_set_mck_divider
+       0   pmc_set_mck_plla_div
+       0   pmc_set_mck_prescaler
+      24   pmc_set_peripheral_divider
+        24   -> pmc_get_peripheral_max_clock
+        24   -> pmc_set_peripheral_max_clock
+      16   pmc_set_peripheral_max_clock
+        16   -> pmc_get_peripheral_max_clock
+        16 __aeabi_uidiv
+       0   pmc_set_plla
+       8   pmc_switch_mck_to_main
+         8   -> _pmc_compute_mck
+       8   pmc_switch_mck_to_pll
+         8   -> _pmc_compute_mck
+       8   pmc_switch_mck_to_slck
+         8   -> _pmc_compute_mck
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable22
+       4  ??DataTable22_1
+       4  ??DataTable22_10
+       4  ??DataTable22_11
+       4  ??DataTable22_12
+       4  ??DataTable22_13
+       4  ??DataTable22_14
+       4  ??DataTable22_15
+       4  ??DataTable22_16
+       4  ??DataTable22_17
+       4  ??DataTable22_2
+       4  ??DataTable22_3
+       4  ??DataTable22_4
+       4  ??DataTable22_5
+       4  ??DataTable22_6
+       4  ??DataTable22_7
+       4  ??DataTable22_8
+       4  ??DataTable22_9
+      24  ?_0
+      64  ?_1
+      56  _id_h64_matrix
+     116  _pmc_compute_mck
+       4  board_master_clock
+      28  pmc_disable_all_peripherals
+     128  pmc_disable_peripheral
+      24  pmc_disable_plla
+      28  pmc_enable_all_peripherals
+      68  pmc_enable_peripheral
+      36  pmc_get_master_clock
+      64  pmc_get_peripheral_clock
+      80  pmc_get_peripheral_max_clock
+      52  pmc_is_peripheral_enabled
+     120  pmc_select_external_crystal
+     124  pmc_select_external_osc
+     120  pmc_select_internal_crystal
+     100  pmc_select_internal_osc
+      44  pmc_set_mck_divider
+     112  pmc_set_mck_plla_div
+      44  pmc_set_mck_prescaler
+     100  pmc_set_peripheral_divider
+     140  pmc_set_peripheral_max_clock
+      36  pmc_set_plla
+      52  pmc_switch_mck_to_main
+      52  pmc_switch_mck_to_pll
+      56  pmc_switch_mck_to_slck
+
+ 
+     4 bytes in section .bss
+   144 bytes in section .rodata
+ 1 796 bytes in section SOFTPACK
+ 
+ 1 796 bytes of CODE  memory
+   144 bytes of CONST memory
+     4 bytes of DATA  memory
+
+Errors: none
 Warnings: 1

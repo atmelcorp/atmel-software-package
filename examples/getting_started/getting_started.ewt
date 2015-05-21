@@ -2139,6 +2139,9 @@
       <file>
         <name>$PROJ_DIR$\..\..\drivers\bus\twid.c</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\drivers\bus\xdmad.c</name>
+      </file>
     </group>
     <group>
       <name>core</name>

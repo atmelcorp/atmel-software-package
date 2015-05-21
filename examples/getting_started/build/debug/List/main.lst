@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        19/May/2015  13:45:48
+# IAR ANSI C/C++ Compiler V7.40.2.8542/W32 for ARM        21/May/2015  13:39:03
 # Copyright 1999-2015 IAR Systems AB.
 #
 #    Cpu mode     =  arm
@@ -10,7 +10,7 @@
 #    Command line =  
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\main.c
 #        -D BOARD_SAMA5D2_XPLAINED -D API_PIOv4 -D SERIE_SAMA5D2 -D
-#        CHIP_SAMA5D24 -D sram --preprocess=l
+#        CHIP_SAMA5D27 -D sram --preprocess=l
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
 #        -lC
 #        C:\Users\dfronek\Documents\Project\softpack\examples\getting_started\build\debug\List\
@@ -148,60 +148,23 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     100          
     101          #include "board.h"
 
-  	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",178  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
-  	                              ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",206  Error[Pe020]: 
-          identifier "TWI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",235  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",236  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",237  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
-  	                        ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",238  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",246  Error[Pe020]: 
-          identifier "FCOMSPI0" is undefined
-
-  	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",247  Error[Pe020]: 
-          identifier "FCOMSPI1" is undefined
-
-  	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",248  Error[Pe020]: 
-          identifier "FCOMSPI3" is undefined
-
-  	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
-  	                                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",249  Error[Pe020]: 
-          identifier "FCOMSPI4" is undefined
-
-  	if (addr == (void*)USART0) return ID_USART0;
-  	                   ^
-"C:\Users\dfronek\Documents\Project\softpack\target\sama5d2\sama5d2.h",273  Error[Pe020]: 
-          identifier "USART0" is undefined
+   \                                 In section .rodata, align 4
+   \   __absolute unsigned int const _id_h64_matrix[14]
+   \                     _id_h64_matrix:
+   \   00000000   0x00000006         DC32 6, 7, 9, 10, 12, 13, 15, 31, 32, 45, 46, 52, 53, 63
+   \              0x00000007   
+   \              0x00000009   
+   \              0x0000000A   
+   \              0x0000000C   
+   \              0x0000000D   
+   \              0x0000000F   
+   \              0x0000001F   
+   \              0x00000020   
+   \              0x0000002D   
+   \              0x0000002E   
+   \              0x00000034   
+   \              0x00000035   
+   \              0x0000003F   
     102          #include "chip.h"
     103          
     104          #include "core/aic.h"
@@ -212,336 +175,1174 @@ Warning[Pa050]: non-native end of line sequence detected (this diagnostic is
     109          #include "core/mmu.h"
     110          
     111          #include "io/led.h"
-    112          
-    113          #include "bus/console.h"
-    114          
-    115          #include <stdbool.h>
-    116          #include <stdio.h>
-    117          
-    118          #include "time/tc.h"
-    119          #include "time/pit.h"
-    120          
-    121          /*----------------------------------------------------------------------------
-    122           *        Local definitions
-    123           *----------------------------------------------------------------------------*/
-    124          
-    125          #define NO_PUSHBUTTON
-    126          
-    127          /** IRQ priority for PIO (The lower the value, the greater the priority) */
-    128          #define IRQ_PRIOR_PIO    0
-    129          
-    130          /** LED0 blink time, LED1 blink half this time, in ms */
-    131          #define BLINK_PERIOD        1000
-    132          
-    133          /** Delay for pushbutton debouncing (in milliseconds). */
-    134          #define DEBOUNCE_TIME       500
-    135          
-    136          /*----------------------------------------------------------------------------
-    137           *        Local variables
-    138           *----------------------------------------------------------------------------*/
-    139          
+    112          #include "io/act8945A.h"
+    113          
+    114          #include "bus/console.h"
+    115          
+    116          #include <stdbool.h>
+    117          #include <stdio.h>
+    118          
+    119          #include "time/tc.h"
+    120          #include "time/pit.h"
+    121          
+    122          /*----------------------------------------------------------------------------
+    123           *        Local definitions
+    124           *----------------------------------------------------------------------------*/
+    125          
+    126          #define NO_PUSHBUTTON
+    127          
+    128          /** IRQ priority for PIO (The lower the value, the greater the priority) */
+    129          #define IRQ_PRIOR_PIO    0
+    130          
+    131          /** LED0 blink time, LED1 blink half this time, in ms */
+    132          #define BLINK_PERIOD        1000
+    133          
+    134          /** Delay for pushbutton debouncing (in milliseconds). */
+    135          #define DEBOUNCE_TIME       500
+    136          
+    137          /*----------------------------------------------------------------------------
+    138           *        Local variables
+    139           *----------------------------------------------------------------------------*/
     140          
-    141          #ifndef NO_PUSHBUTTON
-    142          /** Pushbutton \#1 pin instance. */
-    143          const Pin pinPB1 = PIN_PUSHBUTTON_1;
-    144          
-    145          /** Pushbutton \#2 pin instance. */
-    146          const Pin pinPB2 = PIN_PUSHBUTTON_2;
-    147          
-    148          #endif				/*  */
-    149          
-    150          /** LED0 blinking control. */
-    151          volatile bool bLed0Active = true;
-    152          
-    153          /** LED1 blinking control. */
-    154          volatile bool bLed1Active = true;
-    155          
-    156          /** Global timestamp in milliseconds since start of application */
-    157          volatile uint32_t dwTimeStamp = 0;
-    158          
-    159          /*----------------------------------------------------------------------------
-    160           *        Local functions
-    161           *----------------------------------------------------------------------------*/
-    162          
-    163          /**
-    164           *  \brief Process Buttons Events
-    165           *
-    166           *  Change active states of LEDs when corresponding button events happened.
-    167           */
-    168          static void process_button_evt(uint8_t ucButton)
-    169          {
-    170          	if (ucButton == 0) {
-    171          		bLed0Active = !bLed0Active;
-    172          		if (!bLed0Active) {
-    173          			led_clear(LED_RED);
-    174          		}
-    175          	}
-    176          
-    177          	else {
-    178          		bLed1Active = !bLed1Active;
-    179          
-    180          		/* Enable LED#2 and TC if they were disabled */
-    181          		if (bLed1Active) {
-    182          			led_set(LED_GREEN);
-    183          			tc_start(TC0, 0);
-    184          		}
-    185          
-    186          		/* Disable LED#2 and TC if they were enabled */
-    187          		else {
-    188          			led_clear(LED_GREEN);
-    189          			tc_stop(TC0, 0);
-    190          		}
-    191          	}
-    192          }
-    193          
-    194          #ifndef NO_PUSHBUTTON
-    195          /**
-    196           *  \brief Handler for Button 1 rising edge interrupt.
-    197           *
-    198           *  Handle process led1 status change.
-    199           */
-    200          void PIOE_IrqHandler(void)
-    201          {
-    202          	volatile uint32_t status;
-    203          	status = PIOE->PIO_ISR;
-    204          	process_button_evt(0);
-    205          	process_button_evt(1);
-    206          }
-    207          #else				/*  */
-    208          /**
-    209           *  \brief Handler for DBGU input.
-    210           *
-    211           *  Handle process LED1 or LED2 status change.
-    212           */
-    213          static void console_handler(void)
-    214          {
-    215          	uint8_t key;
-    216          	if (!console_is_rx_ready())
-    217          		return;
-    218          	key = console_get_char();
-    219          	switch (key) {
-    220          	case '1':
-    221          	case '2':
-    222          		process_button_evt(key - '1');
-    223          		break;
-    224          	}
-    225          }
-    226          
-    227          #endif /*  */
-    228          
-    229          /**
-    230           *  \brief Handler for PIT interrupt.
-    231           */
-    232          static void pit_handler(void)
-    233          {
-    234          	uint32_t status;
-    235          
-    236          	/* Read the PIT status register */
-    237          	status = pit_get_status() & PIT_SR_PITS;
-    238          	if (status != 0) {
-    239          
-    240          		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
-    241          		   Read the PIVR to acknowledge interrupt and get number of ticks
-    242          		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
-    243          		dwTimeStamp += (pit_get_pivr() >> 20);
-    244          	}
-    245          }
-    246          
-    247          /**
-    248           *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
-    249           *  every interrupt every millisecond
-    250           */
-    251          static void configure_pit(void)
-    252          {
-    253          	/* Enable PIT controller */
-    254          	pmc_enable_peripheral(ID_PIT);
-    255          	/* Initialize the PIT to the desired frequency */
-    256          	pit_init(BLINK_PERIOD);
-    257          	/* Configure interrupt on PIT */
-    258          	aic_enable(ID_PIT);
-    259          	aic_set_source_vector(ID_PIT, (uint32_t)pit_handler);
-    260          	pit_enable_it();
-    261          	/* Enable the pit */
-    262          	pit_enable();
-    263          }
-    264          
-    265          #ifndef NO_PUSHBUTTON
-    266          /**
-    267           *  \brief Configure the Pushbuttons
-    268           *
-    269           *  Configure the PIO as inputs and generate corresponding interrupt when
-    270           *  pressed or released.
-    271           */
-    272          static void configure_buttons(void)
-    273          {
-    274          	/* Configure pios as inputs. */
-    275          	pio_configure(&pinPB1, 1);
-    276          	pio_configure(&pinPB2, 1);
-    277          	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
-    278          	pio_set_debounce_filter(&pinPB1, 10);
-    279          	pio_set_debounce_filter(&pinPB2, 10);
-    280          	/* Enable PIO controller IRQs. */
-    281          	pio_initialize_it(0);
-    282          	/* Initialize pios interrupt handlers, see PIO definition in board.h. */
-    283          	pio_configure_it(&pinPB1);
-    284          	pio_configure_it(&pinPB2);
-    285          	/* Enable PIO line interrupts. */
-    286          	pio_enable_it(&pinPB1);
-    287          	pio_enable_it(&pinPB2);
-    288          }
-    289          #endif				/*  */
-    290          
-    291          /**
-    292           *  \brief Configure LEDs
-    293           *
-    294           */
-    295          static void configure_leds(void)
-    296          {
-    297          	led_configure(LED_RED);
-    298          	led_configure(LED_GREEN);
-    299          }
-    300          
-    301          /**
-    302           *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
-    303           */
-    304          static void tc_handler(void)
-    305          {
-    306          	volatile uint32_t dummy;
-    307          
-    308          	/* Clear status bit to acknowledge interrupt */
-    309          	dummy = TC0->TC_CHANNEL[0].TC_SR;
-    310          	(void) dummy;
-    311          
-    312          	/** Toggle LED state. */
-    313          	led_toggle(LED_GREEN);
-    314          	printf("2 ");
-    315          }
-    316          
-    317          /**
-    318           *  Configure Timer Counter 0 to generate an interrupt every 250ms.
-    319           */
-    320          static void configure_tc(void)
-    321          {
-    322          	uint32_t div;
-    323          	uint32_t tcclks;
-    324          
-    325          	/** Enable peripheral clock. */
-    326          	pmc_enable_peripheral(ID_TC0);
-    327          
-    328          	/* Put the source vector */
-    329          	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
-    330          
-    331          	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-    332          	tc_find_mck_divisor(4, &div, &tcclks);
-    333          	printf("TC: Select %iu divisor", div);
-    334          	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
-    335          	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
-    336          
-    337          	/* Configure and enable interrupt on RC compare */
-    338          	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
-    339          	aic_enable(ID_TC0);
-    340          
-    341          	/* /\** Start the counter if LED1 is enabled. *\/ */
-    342          	if (bLed1Active) {
-    343          		tc_start(TC0, 0);
-    344          	}
-    345          }
-    346          
-    347          /**
-    348           *  Waits for the given number of milliseconds (using the dwTimeStamp generated
-    349           *  by the SAM3's microcontrollers's system tick).
-    350           *  \param delay  Delay to wait for, in milliseconds.
-    351           */
-    352          static void _Wait(unsigned long delay)
-    353          {
-    354          	volatile uint32_t start = dwTimeStamp;
-    355          	uint32_t elapsed;
-    356          
-    357          	do {
-    358          		elapsed = dwTimeStamp;
-    359          		elapsed -= start;
-    360          	} while (elapsed < delay);
-    361          }
-    362          
-    363          #define SOFTPACK_VERSION "0.1"
+    141          
+    142          #ifndef NO_PUSHBUTTON
+    143          /** Pushbutton \#1 pin instance. */
+    144          static const struct _pin pinPB1[] = PIN_PUSHBUTTON_1;
+    145          
+    146          /** Pushbutton \#2 pin instance. */
+    147          static const struct _pin pinPB2[] = PIN_PUSHBUTTON_2;
+    148          
+    149          #endif				/*  */
+    150          
+    151          /** LED0 blinking control. */
+
+   \                                 In section .data, align 1
+    152          volatile bool bLed1Active = true;
+   \                     bLed1Active:
+   \   00000000   0x01               DC8 1
+    153          
+    154          /** LED1 blinking control. */
+
+   \                                 In section .data, align 1
+    155          volatile bool bLed2Active = true;
+   \                     bLed2Active:
+   \   00000000   0x01               DC8 1
+    156          
+    157          /** Global timestamp in milliseconds since start of application */
+
+   \                                 In section .bss, align 4
+    158          volatile uint32_t dwTimeStamp = 0;
+   \                     dwTimeStamp:
+   \   00000000                      DS8 4
+    159          
+    160          /*----------------------------------------------------------------------------
+    161           *        Local functions
+    162           *----------------------------------------------------------------------------*/
+    163          
+    164          /**
+    165           *  \brief Process Buttons Events
+    166           *
+    167           *  Change active states of LEDs when corresponding button events happened.
+    168           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    169          static void process_button_evt(uint8_t ucButton)
+    170          {
+   \                     process_button_evt:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+   \   00000004   0xE1B04000         MOVS     R4,R0
+    171          	if (ucButton == 0) {
+   \   00000008   0xE1B00004         MOVS     R0,R4
+   \   0000000C   0xE6EF0070         UXTB     R0,R0
+   \   00000010   0xE3500000         CMP      R0,#+0
+   \   00000014   0x1A00000B         BNE      ??process_button_evt_0
+    172          		bLed1Active = !bLed1Active;
+   \   00000018   0x........         LDR      R0,??DataTable5_3
+   \   0000001C   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000020   0xE2300001         EORS     R0,R0,#0x1
+   \   00000024   0x........         LDR      R1,??DataTable5_3
+   \   00000028   0xE5C10000         STRB     R0,[R1, #+0]
+    173          		if (!bLed1Active) {
+   \   0000002C   0x........         LDR      R0,??DataTable5_3
+   \   00000030   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000034   0xE3500000         CMP      R0,#+0
+   \   00000038   0x1A000018         BNE      ??process_button_evt_1
+    174          			led_clear(LED_GREEN);
+   \   0000003C   0xE3A00001         MOV      R0,#+1
+   \   00000040   0x........         BL       led_clear
+   \   00000044   0xEA000015         B        ??process_button_evt_1
+    175          		}
+    176          	}
+    177          
+    178          	else {
+    179          		bLed2Active = !bLed2Active;
+   \                     ??process_button_evt_0:
+   \   00000048   0x........         LDR      R0,??DataTable5_4
+   \   0000004C   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000050   0xE2300001         EORS     R0,R0,#0x1
+   \   00000054   0x........         LDR      R1,??DataTable5_4
+   \   00000058   0xE5C10000         STRB     R0,[R1, #+0]
+    180          
+    181          		/* Enable LED#2 and TC if they were disabled */
+    182          		if (bLed2Active) {
+   \   0000005C   0x........         LDR      R0,??DataTable5_4
+   \   00000060   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000064   0xE3500000         CMP      R0,#+0
+   \   00000068   0x0A000006         BEQ      ??process_button_evt_2
+    183          			led_set(LED_BLUE);
+   \   0000006C   0xE3A00002         MOV      R0,#+2
+   \   00000070   0x........         BL       led_set
+    184          			tc_start(TC0, 0);
+   \   00000074   0xE3A01000         MOV      R1,#+0
+   \   00000078   0xE3A004F8         MOV      R0,#-134217728
+   \   0000007C   0xE3800CC0         ORR      R0,R0,#0xC000
+   \   00000080   0x........         BL       tc_start
+   \   00000084   0xEA000005         B        ??process_button_evt_1
+    185          		}
+    186          
+    187          		/* Disable LED#2 and TC if they were enabled */
+    188          		else {
+    189          			led_clear(LED_BLUE);
+   \                     ??process_button_evt_2:
+   \   00000088   0xE3A00002         MOV      R0,#+2
+   \   0000008C   0x........         BL       led_clear
+    190          			tc_stop(TC0, 0);
+   \   00000090   0xE3A01000         MOV      R1,#+0
+   \   00000094   0xE3A004F8         MOV      R0,#-134217728
+   \   00000098   0xE3800CC0         ORR      R0,R0,#0xC000
+   \   0000009C   0x........         BL       tc_stop
+    191          		}
+    192          	}
+    193          }
+   \                     ??process_button_evt_1:
+   \   000000A0   0xE8BD8010         POP      {R4,PC}          ;; return
+    194          
+    195          #ifndef NO_PUSHBUTTON
+    196          /**
+    197           *  \brief Handler for Button 1 rising edge interrupt.
+    198           *
+    199           *  Handle process led1 status change.
+    200           */
+    201          void PIOC_IrqHandler(void)
+    202          {
+    203          	volatile uint32_t status;
+    204          	status = PIOC->PIO_ISR;
+    205          	process_button_evt(0);
+    206          	process_button_evt(1);
+    207          }
+    208          #else				/*  */
+    209          /**
+    210           *  \brief Handler for DBGU input.
+    211           *
+    212           *  Handle process LED1 or LED2 status change.
+    213           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    214          static void console_handler(void)
+    215          {
+   \                     console_handler:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+    216          	uint8_t key;
+    217          	if (!console_is_rx_ready())
+   \   00000004   0x........         BL       console_is_rx_ready
+   \   00000008   0xE3500000         CMP      R0,#+0
+   \   0000000C   0x0A00000A         BEQ      ??console_handler_0
+    218          		return;
+    219          	key = console_get_char();
+   \                     ??console_handler_1:
+   \   00000010   0x........         BL       console_get_char
+   \   00000014   0xE1B04000         MOVS     R4,R0
+    220          	switch (key) {
+   \   00000018   0xE1B00004         MOVS     R0,R4
+   \   0000001C   0xE6EF0070         UXTB     R0,R0
+   \   00000020   0xE3500031         CMP      R0,#+49
+   \   00000024   0x0A000001         BEQ      ??console_handler_2
+   \   00000028   0xE3500032         CMP      R0,#+50
+   \   0000002C   0x1A000002         BNE      ??console_handler_3
+    221          	case '1':
+    222          	case '2':
+    223          		process_button_evt(key - '1');
+   \                     ??console_handler_2:
+   \   00000030   0xE2540031         SUBS     R0,R4,#+49
+   \   00000034   0xE6EF0070         UXTB     R0,R0
+   \   00000038   0x........         BL       process_button_evt
+    224          		break;
+    225          	}
+    226          }
+   \                     ??console_handler_3:
+   \                     ??console_handler_0:
+   \   0000003C   0xE8BD8010         POP      {R4,PC}          ;; return
+    227          
+    228          #endif /*  */
+    229          
+    230          /**
+    231           *  \brief Handler for PIT interrupt.
+    232           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    233          static void pit_handler(void)
+    234          {
+   \                     pit_handler:
+   \   00000000   0xE92D4010         PUSH     {R4,LR}
+    235          	uint32_t status;
+    236          
+    237          	/* Read the PIT status register */
+    238          	status = pit_get_status() & PIT_SR_PITS;
+   \   00000004   0x........         BL       pit_get_status
+   \   00000008   0xE2100001         ANDS     R0,R0,#0x1
+   \   0000000C   0xE1B04000         MOVS     R4,R0
+    239          	if (status != 0) {
+   \   00000010   0xE3540000         CMP      R4,#+0
+   \   00000014   0x0A000005         BEQ      ??pit_handler_0
+    240          
+    241          		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
+    242          		   Read the PIVR to acknowledge interrupt and get number of ticks
+    243          		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
+    244          		dwTimeStamp += (pit_get_pivr() >> 20);
+   \   00000018   0x........         BL       pit_get_pivr
+   \   0000001C   0x........         LDR      R1,??DataTable5_5
+   \   00000020   0xE5911000         LDR      R1,[R1, #+0]
+   \   00000024   0xE0910A20         ADDS     R0,R1,R0, LSR #+20
+   \   00000028   0x........         LDR      R1,??DataTable5_5
+   \   0000002C   0xE5810000         STR      R0,[R1, #+0]
+    245          	}
+    246          }
+   \                     ??pit_handler_0:
+   \   00000030   0xE8BD8010         POP      {R4,PC}          ;; return
+    247          
+    248          /**
+    249           *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
+    250           *  every interrupt every millisecond
+    251           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    252          static void configure_pit(void)
+    253          {
+   \                     configure_pit:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    254          	/* Enable PIT controller */
+    255          	pmc_enable_peripheral(ID_PIT);
+   \   00000004   0xE3A00003         MOV      R0,#+3
+   \   00000008   0x........         BL       pmc_enable_peripheral
+    256          	/* Initialize the PIT to the desired frequency */
+    257          	pit_init(BLINK_PERIOD);
+   \   0000000C   0xE3A00FFA         MOV      R0,#+1000
+   \   00000010   0x........         BL       pit_init
+    258          	/* Configure interrupt on PIT */
+    259          	aic_enable(ID_PIT);
+   \   00000014   0xE3A00003         MOV      R0,#+3
+   \   00000018   0x........         BL       aic_enable
+    260          	aic_set_source_vector(ID_PIT, (uint32_t)pit_handler);
+   \   0000001C   0x........         ADR      R1,pit_handler
+   \   00000020   0xE3A00003         MOV      R0,#+3
+   \   00000024   0x........         BL       aic_set_source_vector
+    261          	pit_enable_it();
+   \   00000028   0x........         BL       pit_enable_it
+    262          	/* Enable the pit */
+    263          	pit_enable();
+   \   0000002C   0x........         BL       pit_enable
+    264          }
+   \   00000030   0xE8BD8001         POP      {R0,PC}          ;; return
+    265          
+    266          #ifndef NO_PUSHBUTTON
+    267          /**
+    268           *  \brief Configure the Pushbuttons
+    269           *
+    270           *  Configure the PIO as inputs and generate corresponding interrupt when
+    271           *  pressed or released.
+    272           */
+    273          static void configure_buttons(void)
+    274          {
+    275          	/* Configure pios as inputs. */
+    276          	pio_configure(pinPB1, 1);
+    277          	pio_configure(pinPB2, 1);
+    278          	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
+    279          	pio_set_debounce_filter(pinPB1, 10);
+    280          	pio_set_debounce_filter(pinPB2, 10);
+    281          	/* Enable PIO controller IRQs. */
+    282          	pio_initialize_it(0);
+    283          	/* Initialize pios interrupt handlers, see PIO definition in board.h. */
+    284          	pio_configure_it(pinPB1);
+    285          	pio_configure_it(pinPB2);
+    286          	/* Enable PIO line interrupts. */
+    287          	pio_enable_it(pinPB1);
+    288          	pio_enable_it(pinPB2);
+    289          }
+    290          #endif				/*  */
+    291          
+    292          /**
+    293           *  \brief Configure LEDs
+    294           *
+    295           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    296          static void configure_leds(void)
+    297          {
+   \                     configure_leds:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    298          	led_configure(LED_RED);
+   \   00000004   0xE3A00000         MOV      R0,#+0
+   \   00000008   0x........         BL       led_configure
+    299          	led_configure(LED_GREEN);
+   \   0000000C   0xE3A00001         MOV      R0,#+1
+   \   00000010   0x........         BL       led_configure
+    300          	led_configure(LED_BLUE);
+   \   00000014   0xE3A00002         MOV      R0,#+2
+   \   00000018   0x........         BL       led_configure
+    301          }
+   \   0000001C   0xE8BD8001         POP      {R0,PC}          ;; return
+    302          
+    303          /**
+    304           *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
+    305           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    306          static void tc_handler(void)
+    307          {
+   \                     tc_handler:
+   \   00000000   0xE92D5000         PUSH     {R12,LR}
+    308          	volatile uint32_t dummy;
+    309          
+    310          	/* Clear status bit to acknowledge interrupt */
+    311          	dummy = TC0->TC_CHANNEL[0].TC_SR;
+   \   00000004   0x........         LDR      R0,??DataTable5_6  ;; 0xf800c020
+   \   00000008   0xE5900000         LDR      R0,[R0, #+0]
+   \   0000000C   0xE58D0000         STR      R0,[SP, #+0]
+    312          	(void) dummy;
+   \   00000010   0xE59D0000         LDR      R0,[SP, #+0]
+    313          
+    314          	/** Toggle LED state. */
+    315          	led_toggle(LED_BLUE);
+   \   00000014   0xE3A00002         MOV      R0,#+2
+   \   00000018   0x........         BL       led_toggle
+    316          	printf("2 ");
+   \   0000001C   0x........         ADR      R0,??DataTable5  ;; 0x32, 0x20, 0x00, 0x00
+   \   00000020   0x........         BL       printf
+    317          }
+   \   00000024   0xE8BD8001         POP      {R0,PC}          ;; return
+    318          
+    319          /**
+    320           *  Configure Timer Counter 0 to generate an interrupt every 250ms.
+    321           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    322          static void configure_tc(void)
+    323          {
+   \                     configure_tc:
+   \   00000000   0xE92D4000         PUSH     {LR}
+   \   00000004   0xE24DD00C         SUB      SP,SP,#+12
+    324          	uint32_t div;
+    325          	uint32_t tcclks;
+    326          
+    327          	/** Enable peripheral clock. */
+    328          	pmc_enable_peripheral(ID_TC0);
+   \   00000008   0xE3A00023         MOV      R0,#+35
+   \   0000000C   0x........         BL       pmc_enable_peripheral
+    329          
+    330          	/* Put the source vector */
+    331          	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
+   \   00000010   0x........         ADR      R1,tc_handler
+   \   00000014   0xE3A00023         MOV      R0,#+35
+   \   00000018   0x........         BL       aic_set_source_vector
+    332          
+    333          	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
+    334          	tc_find_mck_divisor(4, &div, &tcclks);
+   \   0000001C   0xE28D2004         ADD      R2,SP,#+4
+   \   00000020   0xE1B0100D         MOVS     R1,SP
+   \   00000024   0xE3A00004         MOV      R0,#+4
+   \   00000028   0x........         BL       tc_find_mck_divisor
+    335          	printf("TC: Select %iu divisor", div);
+   \   0000002C   0xE59D1000         LDR      R1,[SP, #+0]
+   \   00000030   0x........         LDR      R0,??DataTable5_7
+   \   00000034   0x........         BL       printf
+    336          	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
+   \   00000038   0xE59D0004         LDR      R0,[SP, #+4]
+   \   0000003C   0xE3902C40         ORRS     R2,R0,#0x4000
+   \   00000040   0xE3A01000         MOV      R1,#+0
+   \   00000044   0xE3A004F8         MOV      R0,#-134217728
+   \   00000048   0xE3800CC0         ORR      R0,R0,#0xC000
+   \   0000004C   0x........         BL       tc_configure
+    337          	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
+   \   00000050   0x........         BL       pmc_get_master_clock
+   \   00000054   0xE59D1000         LDR      R1,[SP, #+0]
+   \   00000058   0x........         BL       __aeabi_uidiv
+   \   0000005C   0xE1B00120         LSRS     R0,R0,#+2
+   \   00000060   0x........         LDR      R1,??DataTable5_8  ;; 0xf800c01c
+   \   00000064   0xE5810000         STR      R0,[R1, #+0]
+    338          
+    339          	/* Configure and enable interrupt on RC compare */
+    340          	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
+   \   00000068   0xE3A00010         MOV      R0,#+16
+   \   0000006C   0x........         LDR      R1,??DataTable5_9  ;; 0xf800c024
+   \   00000070   0xE5810000         STR      R0,[R1, #+0]
+    341          	aic_enable(ID_TC0);
+   \   00000074   0xE3A00023         MOV      R0,#+35
+   \   00000078   0x........         BL       aic_enable
+    342          
+    343          	/* /\** Start the counter if LED1 is enabled. *\/ */
+    344          	if (bLed2Active) {
+   \   0000007C   0x........         LDR      R0,??DataTable5_4
+   \   00000080   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000084   0xE3500000         CMP      R0,#+0
+   \   00000088   0x0A000003         BEQ      ??configure_tc_0
+    345          		tc_start(TC0, 0);
+   \   0000008C   0xE3A01000         MOV      R1,#+0
+   \   00000090   0xE3A004F8         MOV      R0,#-134217728
+   \   00000094   0xE3800CC0         ORR      R0,R0,#0xC000
+   \   00000098   0x........         BL       tc_start
+    346          	}
+    347          }
+   \                     ??configure_tc_0:
+   \   0000009C   0xE8BD8007         POP      {R0-R2,PC}       ;; return
+    348          
+    349          /**
+    350           *  Waits for the given number of milliseconds (using the dwTimeStamp generated
+    351           *  by the SAM3's microcontrollers's system tick).
+    352           *  \param delay  Delay to wait for, in milliseconds.
+    353           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    354          static void _Wait(unsigned long delay)
+    355          {
+   \                     _Wait:
+   \   00000000   0xE24DD004         SUB      SP,SP,#+4
+    356          	volatile uint32_t start = dwTimeStamp;
+   \   00000004   0x........         LDR      R1,??DataTable5_5
+   \   00000008   0xE5911000         LDR      R1,[R1, #+0]
+   \   0000000C   0xE58D1000         STR      R1,[SP, #+0]
+    357          	uint32_t elapsed;
+    358          
+    359          	do {
+    360          		elapsed = dwTimeStamp;
+   \                     ??_Wait_0:
+   \   00000010   0x........         LDR      R2,??DataTable5_5
+   \   00000014   0xE5922000         LDR      R2,[R2, #+0]
+   \   00000018   0xE1B01002         MOVS     R1,R2
+    361          		elapsed -= start;
+   \   0000001C   0xE59D2000         LDR      R2,[SP, #+0]
+   \   00000020   0xE0511002         SUBS     R1,R1,R2
+    362          	} while (elapsed < delay);
+   \   00000024   0xE1510000         CMP      R1,R0
+   \   00000028   0x3AFFFFF8         BCC      ??_Wait_0
+    363          }
+   \   0000002C   0xE28DD004         ADD      SP,SP,#+4        ;; stack cleaning
+   \   00000030   0xE12FFF1E         BX       LR               ;; return
     364          
-    365          /*----------------------------------------------------------------------------
-    366           *        Global functions
-    367           *----------------------------------------------------------------------------*/
-    368          
-    369          /**
-    370           *  \brief getting-started Application entry point.
-    371           *
-    372           *  \return Unused (ANSI-C compatibility).
-    373           */
-    374          int main(void)
-    375          {
-    376          	uint32_t master_clock;
+    365          #define SOFTPACK_VERSION "0.1"
+    366          
+    367          /*----------------------------------------------------------------------------
+    368           *        Global functions
+    369           *----------------------------------------------------------------------------*/
+    370          
+    371          /**
+    372           *  \brief getting-started Application entry point.
+    373           *
+    374           *  \return Unused (ANSI-C compatibility).
+    375           */
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+    376          int main(void)
+    377          {
+   \                     main:
+   \   00000000   0xE92D4038         PUSH     {R3-R5,LR}
+    378          	uint8_t status;
+    379          	uint32_t master_clock;
                  	         ^
 Warning[Pe550]: variable "master_clock" was set but never used
-    377          
-    378          	/* Disable watchdog */
-    379          	WDT_Disable(WDT);
     380          
-    381          	/* Initialize console */
-    382          	master_clock = pmc_get_master_clock();
-    383          	console_configure(CONSOLE_BAUDRATE);
-    384          
-    385          #if defined (ddram)
-    386          	MMU_Initialize((uint32_t *) 0x20C000);
-    387          	cp15_enable_mmu();
-    388          	cp15_enable_dcache();
-    389          	cp15_enable_icache();
-    390          #endif
-    391          
-    392          	/* Output example information */
-    393          	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
-    394          	printf("-- %s\n\r", BOARD_NAME);
-    395          	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
-    396          
-    397          	/* Configure PIT. */
-    398          	printf("Configure PIT \n\r");
-    399          	configure_pit();
-    400          
-    401          	/* PIO configuration for LEDs and Buttons. */
-    402          	pio_initialize_it(IRQ_PRIOR_PIO);
-    403          	printf("Configure TC.\n\r");
-    404          	configure_tc();
-    405          	printf("Configure LED PIOs.\n\r");
-    406          	configure_leds();
-    407          
-    408          #ifndef NO_PUSHBUTTON
-    409          
-    410          	printf("Configure buttons with debouncing.\n\r");
-    411          	configure_buttons();
-    412          	printf("Press USRBP1 to Start/Stop the blue LED D1 blinking.\n\r");
-    413          	printf("Press USRBP2 to Start/Stop the red LED D2 blinking.\n\r");
-    414          
-    415          #else
-    416          	printf("Initializing console interrupts\r\n");
-    417          	aic_set_source_vector(CONSOLE_ID, (uint32_t)console_handler);
-    418          	aic_enable(CONSOLE_ID);
-    419          	console_enable_interrupts(US_IER_RXRDY);
-    420          	printf("No push buttons, uses DBG key 1 & 2 instead.\n\r");
-    421          	printf("Press 1 to Start/Stop the blue LED D1 blinking.\n\r");
-    422          	printf("Press 2 to Start/Stop the red LED D2 blinking.\n\r");
-    423          
-    424          #endif
-    425          	while (1) {
+    381          	/* Disable watchdog */
+    382          	WDT_Disable(WDT);
+   \   00000004   0x........         LDR      R0,??DataTable5_10  ;; 0xf8048040
+   \   00000008   0x........         BL       WDT_Disable
+    383          
+    384          	/* Initialize console */
+    385          	master_clock = pmc_get_master_clock();
+   \   0000000C   0x........         BL       pmc_get_master_clock
+   \   00000010   0xE1B05000         MOVS     R5,R0
+    386          	console_configure(CONSOLE_BAUDRATE);
+   \   00000014   0xE3A00B40         MOV      R0,#+65536
+   \   00000018   0xE3800CC2         ORR      R0,R0,#0xC200
+   \   0000001C   0x........         BL       console_configure
+    387          
+    388          #if defined (ddram)
+    389          	MMU_Initialize((uint32_t *) 0x20C000);
+    390          	cp15_enable_mmu();
+    391          	cp15_enable_dcache();
+    392          	cp15_enable_icache();
+    393          #endif
+    394          
+    395          	/* Output example information */
+    396          	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
+   \   00000020   0x........         ADR      R1,??DataTable5_1  ;; "0.1"
+   \   00000024   0x........         LDR      R0,??DataTable5_11
+   \   00000028   0x........         BL       printf
+    397          	printf("-- %s\n\r", BOARD_NAME);
+   \   0000002C   0x........         LDR      R1,??DataTable5_12
+   \   00000030   0x........         LDR      R0,??DataTable5_13
+   \   00000034   0x........         BL       printf
+    398          	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+   \   00000038   0x........         LDR      R2,??DataTable5_14
+   \   0000003C   0x........         LDR      R1,??DataTable5_15
+   \   00000040   0x........         LDR      R0,??DataTable5_16
+   \   00000044   0x........         BL       printf
+    399          
+    400          	/* Configure PMIC */
+    401          	printf("Configure PMIC \n\r");
+   \   00000048   0x........         LDR      R0,??DataTable5_17
+   \   0000004C   0x........         BL       printf
+    402          	status = ACT8945A_begin();
+   \   00000050   0x........         BL       ACT8945A_begin
+   \   00000054   0xE1B04000         MOVS     R4,R0
+    403          	if(status != ACT8945A_RET_OK) {
+   \   00000058   0xE1B00004         MOVS     R0,R4
+   \   0000005C   0xE6EF0070         UXTB     R0,R0
+   \   00000060   0xE3500000         CMP      R0,#+0
+   \   00000064   0x0A000002         BEQ      ??main_0
+    404          		printf("-- ERROR -- PMIC ACT8945A TWI interface\n\r");
+   \   00000068   0x........         LDR      R0,??DataTable5_18
+   \   0000006C   0x........         BL       printf
+   \   00000070   0xEA000007         B        ??main_1
+    405          	}
+    406          	else {
+    407          		/* Set VLED (out6) to 3v3 */
+    408          		status = ACT8945A_set_regulator_voltage_out4to7 (V_OUT6, 2500);
+   \                     ??main_0:
+   \   00000074   0xE30019C4         MOVW     R1,#+2500
+   \   00000078   0xE3A00060         MOV      R0,#+96
+   \   0000007C   0x........         BL       ACT8945A_set_regulator_voltage_out4to7
+   \   00000080   0xE1B04000         MOVS     R4,R0
+    409          		status = ACT8945A_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
+   \   00000084   0xE3A01001         MOV      R1,#+1
+   \   00000088   0xE3A00060         MOV      R0,#+96
+   \   0000008C   0x........         BL       ACT8945A_set_regulator_state_out4to7
+   \   00000090   0xE1B04000         MOVS     R4,R0
+    410          	}
+    411          
+    412          	/* Configure PIT. */
+    413          	printf("Configure PIT \n\r");
+   \                     ??main_1:
+   \   00000094   0x........         LDR      R0,??DataTable5_19
+   \   00000098   0x........         BL       printf
+    414          	configure_pit();
+   \   0000009C   0x........         BL       configure_pit
+    415          
+    416          	/* PIO configuration for LEDs and Buttons. */
+    417          	pio_initialize_it(IRQ_PRIOR_PIO);
+   \   000000A0   0xE3A00000         MOV      R0,#+0
+   \   000000A4   0x........         BL       pio_initialize_it
+    418          	printf("Configure TC.\n\r");
+   \   000000A8   0x........         LDR      R0,??DataTable5_20
+   \   000000AC   0x........         BL       printf
+    419          	configure_tc();
+   \   000000B0   0x........         BL       configure_tc
+    420          	printf("Configure LED PIOs.\n\r");
+   \   000000B4   0x........         LDR      R0,??DataTable5_21
+   \   000000B8   0x........         BL       printf
+    421          	configure_leds();
+   \   000000BC   0x........         BL       configure_leds
+    422          
+    423          	//ACT8945A_test();
+    424          
+    425          #ifndef NO_PUSHBUTTON
     426          
-    427          		/* Wait for LED to be active */
-    428          		while (!bLed0Active) ;
-    429          
-    430          		/* Toggle LED state if active */
-    431          		if (bLed0Active) {
-    432          			led_toggle(LED_RED);
-    433          			printf("1 ");
-    434          		}
-    435          
-    436          		/* Wait for 500ms */
-    437          		_Wait(500);
-    438          	}
-    439          }
+    427          	printf("Configure buttons with debouncing.\n\r");
+    428          	configure_buttons();
+    429          	printf("Press USRBP1 to Start/Stop the blue LED D1 (GREEN) blinking.\n\r");
+    430          	printf("Press USRBP2 to Start/Stop the red LED D2 (BLUE) blinking.\n\r");
+    431          
+    432          #else
+    433          	printf("Initializing console interrupts\r\n");
+   \   000000C0   0x........         LDR      R0,??DataTable5_22
+   \   000000C4   0x........         BL       printf
+    434          	aic_set_source_vector(CONSOLE_ID, (uint32_t)console_handler);
+   \   000000C8   0x........         ADR      R1,console_handler
+   \   000000CC   0xE3A00019         MOV      R0,#+25
+   \   000000D0   0x........         BL       aic_set_source_vector
+    435          	aic_enable(CONSOLE_ID);
+   \   000000D4   0xE3A00019         MOV      R0,#+25
+   \   000000D8   0x........         BL       aic_enable
+    436          	console_enable_interrupts(US_IER_RXRDY);
+   \   000000DC   0xE3A00001         MOV      R0,#+1
+   \   000000E0   0x........         BL       console_enable_interrupts
+    437          
+    438          	printf("No push buttons, uses DBG key 1 & 2 instead.\n\r");
+   \   000000E4   0x........         LDR      R0,??DataTable5_23
+   \   000000E8   0x........         BL       printf
+    439          	printf("Press 1 to Start/Stop the blue LED D1 (GREEN) blinking.\n\r");
+   \   000000EC   0x........         LDR      R0,??DataTable5_24
+   \   000000F0   0x........         BL       printf
+    440          	printf("Press 2 to Start/Stop the red LED D2 (BLUE) blinking.\n\r");
+   \   000000F4   0x........         LDR      R0,??DataTable5_25
+   \   000000F8   0x........         BL       printf
+    441          
+    442          #endif
+    443          	while (1) {
+    444          
+    445          		/* Wait for LED to be active */
+    446          		while (!bLed1Active) ;
+   \                     ??main_2:
+   \                     ??main_3:
+   \   000000FC   0x........         LDR      R0,??DataTable5_3
+   \   00000100   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000104   0xE3500000         CMP      R0,#+0
+   \   00000108   0x0AFFFFFB         BEQ      ??main_3
+    447          
+    448          		/* Toggle LED state if active */
+    449          		if (bLed1Active) {
+   \   0000010C   0x........         LDR      R0,??DataTable5_3
+   \   00000110   0xE5D00000         LDRB     R0,[R0, #+0]
+   \   00000114   0xE3500000         CMP      R0,#+0
+   \   00000118   0x0A000003         BEQ      ??main_4
+    450          			led_toggle(LED_GREEN);
+   \   0000011C   0xE3A00001         MOV      R0,#+1
+   \   00000120   0x........         BL       led_toggle
+    451          			printf("1 ");
+   \   00000124   0x........         ADR      R0,??DataTable5_2  ;; 0x31, 0x20, 0x00, 0x00
+   \   00000128   0x........         BL       printf
+    452          		}
+    453          
+    454          		/* Wait for 500ms */
+    455          		_Wait(500);
+   \                     ??main_4:
+   \   0000012C   0xE3A00F7D         MOV      R0,#+500
+   \   00000130   0x........         BL       _Wait
+   \   00000134   0xEAFFFFF0         B        ??main_2
+    456          	}
+    457          }
 
-Errors: 11
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5:
+   \   00000000   0x32 0x20          DC8      0x32, 0x20, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_1:
+   \   00000000   0x30 0x2E          DC8      "0.1"
+   \              0x31 0x00    
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_2:
+   \   00000000   0x31 0x20          DC8      0x31, 0x20, 0x00, 0x00
+   \              0x00 0x00    
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_3:
+   \   00000000   0x........         DC32     bLed1Active
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_4:
+   \   00000000   0x........         DC32     bLed2Active
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_5:
+   \   00000000   0x........         DC32     dwTimeStamp
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_6:
+   \   00000000   0xF800C020         DC32     0xf800c020
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_7:
+   \   00000000   0x........         DC32     ?_1
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_8:
+   \   00000000   0xF800C01C         DC32     0xf800c01c
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_9:
+   \   00000000   0xF800C024         DC32     0xf800c024
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_10:
+   \   00000000   0xF8048040         DC32     0xf8048040
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_11:
+   \   00000000   0x........         DC32     ?_2
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_12:
+   \   00000000   0x........         DC32     ?_5
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_13:
+   \   00000000   0x........         DC32     ?_4
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_14:
+   \   00000000   0x........         DC32     ?_8
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_15:
+   \   00000000   0x........         DC32     ?_7
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_16:
+   \   00000000   0x........         DC32     ?_6
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_17:
+   \   00000000   0x........         DC32     ?_9
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_18:
+   \   00000000   0x........         DC32     ?_10
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_19:
+   \   00000000   0x........         DC32     ?_11
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_20:
+   \   00000000   0x........         DC32     ?_12
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_21:
+   \   00000000   0x........         DC32     ?_13
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_22:
+   \   00000000   0x........         DC32     ?_14
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_23:
+   \   00000000   0x........         DC32     ?_15
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_24:
+   \   00000000   0x........         DC32     ?_16
+
+   \                                 In section SOFTPACK, align 4, keep-with-next
+   \                     ??DataTable5_25:
+   \   00000000   0x........         DC32     ?_17
+
+   \                                 In section .rodata, align 4
+   \   00000000   0x32 0x20          DC8 "2 "
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_1:
+   \   00000000   0x54 0x43          DC8 "TC: Select %iu divisor"
+   \              0x3A 0x20    
+   \              0x53 0x65    
+   \              0x6C 0x65    
+   \              0x63 0x74    
+   \              0x20 0x25    
+   \              0x69 0x75    
+   \              0x20 0x64    
+   \              0x69 0x76    
+   \              0x69 0x73    
+   \              0x6F 0x72    
+   \              0x00         
+   \   00000017   0x00               DC8 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_2:
+   \   00000000   0x2D 0x2D          DC8 "-- Getting Started Example %s --\012\015"
+   \              0x20 0x47    
+   \              0x65 0x74    
+   \              0x74 0x69    
+   \              0x6E 0x67    
+   \              0x20 0x53    
+   \              0x74 0x61    
+   \              0x72 0x74    
+   \              0x65 0x64    
+   \              0x20 0x45    
+   \              0x78 0x61    
+   \              0x6D 0x70    
+   \              0x6C 0x65    
+   \              0x20 0x25    
+   \              0x73 0x20    
+   \              0x2D 0x2D    
+   \              0x0A 0x0D    
+   \              0x00         
+   \   00000023   0x00               DC8 0
+
+   \                                 In section .rodata, align 4
+   \   00000000   0x30 0x2E          DC8 "0.1"
+   \              0x31 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_4:
+   \   00000000   0x2D 0x2D          DC8 "-- %s\012\015"
+   \              0x20 0x25    
+   \              0x73 0x0A    
+   \              0x0D 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_5:
+   \   00000000   0x73 0x61          DC8 "sama5d2-xult"
+   \              0x6D 0x61    
+   \              0x35 0x64    
+   \              0x32 0x2D    
+   \              0x78 0x75    
+   \              0x6C 0x74    
+   \              0x00         
+   \   0000000D   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4
+   \                     ?_6:
+   \   00000000   0x2D 0x2D          DC8 "-- Compiled: %s %s --\012\015"
+   \              0x20 0x43    
+   \              0x6F 0x6D    
+   \              0x70 0x69    
+   \              0x6C 0x65    
+   \              0x64 0x3A    
+   \              0x20 0x25    
+   \              0x73 0x20    
+   \              0x25 0x73    
+   \              0x20 0x2D    
+   \              0x2D 0x0A    
+   \              0x0D 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_7:
+   \   00000000   0x4D 0x61          DC8 "May 21 2015"
+   \              0x79 0x20    
+   \              0x32 0x31    
+   \              0x20 0x32    
+   \              0x30 0x31    
+   \              0x35 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_8:
+   \   00000000   0x31 0x33          DC8 "13:39:02"
+   \              0x3A 0x33    
+   \              0x39 0x3A    
+   \              0x30 0x32    
+   \              0x00         
+   \   00000009   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4
+   \                     ?_9:
+   \   00000000   0x43 0x6F          DC8 "Configure PMIC \012\015"
+   \              0x6E 0x66    
+   \              0x69 0x67    
+   \              0x75 0x72    
+   \              0x65 0x20    
+   \              0x50 0x4D    
+   \              0x49 0x43    
+   \              0x20 0x0A    
+   \              0x0D 0x00    
+   \   00000012   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_10:
+   \   00000000   0x2D 0x2D          DC8 "-- ERROR -- PMIC ACT8945A TWI interface\012\015"
+   \              0x20 0x45    
+   \              0x52 0x52    
+   \              0x4F 0x52    
+   \              0x20 0x2D    
+   \              0x2D 0x20    
+   \              0x50 0x4D    
+   \              0x49 0x43    
+   \              0x20 0x41    
+   \              0x43 0x54    
+   \              0x38 0x39    
+   \              0x34 0x35    
+   \              0x41 0x20    
+   \              0x54 0x57    
+   \              0x49 0x20    
+   \              0x69 0x6E    
+   \              0x74 0x65    
+   \              0x72 0x66    
+   \              0x61 0x63    
+   \              0x65 0x0A    
+   \              0x0D 0x00    
+   \   0000002A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_11:
+   \   00000000   0x43 0x6F          DC8 "Configure PIT \012\015"
+   \              0x6E 0x66    
+   \              0x69 0x67    
+   \              0x75 0x72    
+   \              0x65 0x20    
+   \              0x50 0x49    
+   \              0x54 0x20    
+   \              0x0A 0x0D    
+   \              0x00         
+   \   00000011   0x00 0x00          DC8 0, 0, 0
+   \              0x00         
+
+   \                                 In section .rodata, align 4
+   \                     ?_12:
+   \   00000000   0x43 0x6F          DC8 "Configure TC.\012\015"
+   \              0x6E 0x66    
+   \              0x69 0x67    
+   \              0x75 0x72    
+   \              0x65 0x20    
+   \              0x54 0x43    
+   \              0x2E 0x0A    
+   \              0x0D 0x00    
+
+   \                                 In section .rodata, align 4
+   \                     ?_13:
+   \   00000000   0x43 0x6F          DC8 "Configure LED PIOs.\012\015"
+   \              0x6E 0x66    
+   \              0x69 0x67    
+   \              0x75 0x72    
+   \              0x65 0x20    
+   \              0x4C 0x45    
+   \              0x44 0x20    
+   \              0x50 0x49    
+   \              0x4F 0x73    
+   \              0x2E 0x0A    
+   \              0x0D 0x00    
+   \   00000016   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_14:
+   \   00000000   0x49 0x6E          DC8 "Initializing console interrupts\015\012"
+   \              0x69 0x74    
+   \              0x69 0x61    
+   \              0x6C 0x69    
+   \              0x7A 0x69    
+   \              0x6E 0x67    
+   \              0x20 0x63    
+   \              0x6F 0x6E    
+   \              0x73 0x6F    
+   \              0x6C 0x65    
+   \              0x20 0x69    
+   \              0x6E 0x74    
+   \              0x65 0x72    
+   \              0x72 0x75    
+   \              0x70 0x74    
+   \              0x73 0x0D    
+   \              0x0A 0x00    
+   \   00000022   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_15:
+   \   00000000   0x4E 0x6F          DC8 "No push buttons, uses DBG key 1 & 2 instead.\012\015"
+   \              0x20 0x70    
+   \              0x75 0x73    
+   \              0x68 0x20    
+   \              0x62 0x75    
+   \              0x74 0x74    
+   \              0x6F 0x6E    
+   \              0x73 0x2C    
+   \              0x20 0x75    
+   \              0x73 0x65    
+   \              0x73 0x20    
+   \              0x44 0x42    
+   \              0x47 0x20    
+   \              0x6B 0x65    
+   \              0x79 0x20    
+   \              0x31 0x20    
+   \              0x26 0x20    
+   \              0x32 0x20    
+   \              0x69 0x6E    
+   \              0x73 0x74    
+   \              0x65 0x61    
+   \              0x64 0x2E    
+   \              0x0A 0x0D    
+   \              0x00         
+   \   0000002F   0x00               DC8 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_16:
+   \   00000000   0x50 0x72          DC8 50H, 72H, 65H, 73H, 73H, 20H, 31H, 20H
+   \              0x65 0x73    
+   \              0x73 0x20    
+   \              0x31 0x20    
+   \   00000008   0x74 0x6F          DC8 74H, 6FH, 20H, 53H, 74H, 61H, 72H, 74H
+   \              0x20 0x53    
+   \              0x74 0x61    
+   \              0x72 0x74    
+   \   00000010   0x2F 0x53          DC8 2FH, 53H, 74H, 6FH, 70H, 20H, 74H, 68H
+   \              0x74 0x6F    
+   \              0x70 0x20    
+   \              0x74 0x68    
+   \   00000018   0x65 0x20          DC8 65H, 20H, 62H, 6CH, 75H, 65H, 20H, 4CH
+   \              0x62 0x6C    
+   \              0x75 0x65    
+   \              0x20 0x4C    
+   \   00000020   0x45 0x44          DC8 45H, 44H, 20H, 44H, 31H, 20H, 28H, 47H
+   \              0x20 0x44    
+   \              0x31 0x20    
+   \              0x28 0x47    
+   \   00000028   0x52 0x45          DC8 52H, 45H, 45H, 4EH, 29H, 20H, 62H, 6CH
+   \              0x45 0x4E    
+   \              0x29 0x20    
+   \              0x62 0x6C    
+   \   00000030   0x69 0x6E          DC8 69H, 6EH, 6BH, 69H, 6EH, 67H, 2EH, 0AH
+   \              0x6B 0x69    
+   \              0x6E 0x67    
+   \              0x2E 0x0A    
+   \   00000038   0x0D 0x00          DC8 0DH, 0
+   \   0000003A   0x00 0x00          DC8 0, 0
+
+   \                                 In section .rodata, align 4
+   \                     ?_17:
+   \   00000000   0x50 0x72          DC8 50H, 72H, 65H, 73H, 73H, 20H, 32H, 20H
+   \              0x65 0x73    
+   \              0x73 0x20    
+   \              0x32 0x20    
+   \   00000008   0x74 0x6F          DC8 74H, 6FH, 20H, 53H, 74H, 61H, 72H, 74H
+   \              0x20 0x53    
+   \              0x74 0x61    
+   \              0x72 0x74    
+   \   00000010   0x2F 0x53          DC8 2FH, 53H, 74H, 6FH, 70H, 20H, 74H, 68H
+   \              0x74 0x6F    
+   \              0x70 0x20    
+   \              0x74 0x68    
+   \   00000018   0x65 0x20          DC8 65H, 20H, 72H, 65H, 64H, 20H, 4CH, 45H
+   \              0x72 0x65    
+   \              0x64 0x20    
+   \              0x4C 0x45    
+   \   00000020   0x44 0x20          DC8 44H, 20H, 44H, 32H, 20H, 28H, 42H, 4CH
+   \              0x44 0x32    
+   \              0x20 0x28    
+   \              0x42 0x4C    
+   \   00000028   0x55 0x45          DC8 55H, 45H, 29H, 20H, 62H, 6CH, 69H, 6EH
+   \              0x29 0x20    
+   \              0x62 0x6C    
+   \              0x69 0x6E    
+   \   00000030   0x6B 0x69          DC8 6BH, 69H, 6EH, 67H, 2EH, 0AH, 0DH, 0
+   \              0x6E 0x67    
+   \              0x2E 0x0A    
+   \              0x0D 0x00    
+
+   \                                 In section .rodata, align 4
+   \   00000000   0x31 0x20          DC8 "1 "
+   \              0x00         
+   \   00000003   0x00               DC8 0
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       4   _Wait
+       8   configure_leds
+         8   -> led_configure
+       8   configure_pit
+         8   -> aic_enable
+         8   -> aic_set_source_vector
+         8   -> pit_enable
+         8   -> pit_enable_it
+         8   -> pit_init
+         8   -> pmc_enable_peripheral
+      16   configure_tc
+        16   -> aic_enable
+        16   -> aic_set_source_vector
+        16   -> pmc_enable_peripheral
+        16   -> pmc_get_master_clock
+        16   -> printf
+        16   -> tc_configure
+        16   -> tc_find_mck_divisor
+        16   -> tc_start
+        16 __aeabi_uidiv
+       8   console_handler
+         8   -> console_get_char
+         8   -> console_is_rx_ready
+         8   -> process_button_evt
+      16   main
+        16   -> ACT8945A_begin
+        16   -> ACT8945A_set_regulator_state_out4to7
+        16   -> ACT8945A_set_regulator_voltage_out4to7
+        16   -> WDT_Disable
+        16   -> _Wait
+        16   -> aic_enable
+        16   -> aic_set_source_vector
+        16   -> configure_leds
+        16   -> configure_pit
+        16   -> configure_tc
+        16   -> console_configure
+        16   -> console_enable_interrupts
+        16   -> led_toggle
+        16   -> pio_initialize_it
+        16   -> pmc_get_master_clock
+        16   -> printf
+       8   pit_handler
+         8   -> pit_get_pivr
+         8   -> pit_get_status
+       8   process_button_evt
+         8   -> led_clear
+         8   -> led_set
+         8   -> tc_start
+         8   -> tc_stop
+       8   tc_handler
+         8   -> led_toggle
+         8   -> printf
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable5
+       4  ??DataTable5_1
+       4  ??DataTable5_10
+       4  ??DataTable5_11
+       4  ??DataTable5_12
+       4  ??DataTable5_13
+       4  ??DataTable5_14
+       4  ??DataTable5_15
+       4  ??DataTable5_16
+       4  ??DataTable5_17
+       4  ??DataTable5_18
+       4  ??DataTable5_19
+       4  ??DataTable5_2
+       4  ??DataTable5_20
+       4  ??DataTable5_21
+       4  ??DataTable5_22
+       4  ??DataTable5_23
+       4  ??DataTable5_24
+       4  ??DataTable5_25
+       4  ??DataTable5_3
+       4  ??DataTable5_4
+       4  ??DataTable5_5
+       4  ??DataTable5_6
+       4  ??DataTable5_7
+       4  ??DataTable5_8
+       4  ??DataTable5_9
+       4  ?_0
+      24  ?_1
+      44  ?_10
+      20  ?_11
+      16  ?_12
+      24  ?_13
+      36  ?_14
+      48  ?_15
+      60  ?_16
+      56  ?_17
+       4  ?_18
+      36  ?_2
+       4  ?_3
+       8  ?_4
+      16  ?_5
+      24  ?_6
+      12  ?_7
+      12  ?_8
+      20  ?_9
+      52  _Wait
+      56  _id_h64_matrix
+       1  bLed1Active
+       1  bLed2Active
+      32  configure_leds
+      52  configure_pit
+     160  configure_tc
+      64  console_handler
+       4  dwTimeStamp
+     312  main
+      52  pit_handler
+     164  process_button_evt
+      40  tc_handler
+
+ 
+     4 bytes in section .bss
+     2 bytes in section .data
+   524 bytes in section .rodata
+ 1 032 bytes in section SOFTPACK
+ 
+ 1 032 bytes of CODE  memory
+   524 bytes of CONST memory
+     6 bytes of DATA  memory
+
+Errors: none
 Warnings: 2

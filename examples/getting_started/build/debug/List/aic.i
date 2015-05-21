@@ -2308,7 +2308,7 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
  
  
 
-#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
  
  
@@ -2340,6 +2340,15 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
 
 
 
+
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\resources/compiler_defines.h"
+
+
+
+ 
+#line 14 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\resources/compiler_defines.h"
+
+#line 34 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
 
 
@@ -2365,7 +2374,7 @@ typedef int __data_intptr_t; typedef unsigned int __data_uintptr_t;
 
 
  
-#line 48 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 50 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
 
 typedef enum IRQn
@@ -2528,7 +2537,7 @@ typedef struct {
  
 
 
-#line 120 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 122 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_adc.h"
  
  
@@ -2756,7 +2765,7 @@ typedef struct {
  
 
 
-#line 121 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 123 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aes.h"
  
  
@@ -2912,7 +2921,7 @@ typedef struct {
  
 
 
-#line 122 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 124 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aesb.h"
  
  
@@ -3012,7 +3021,7 @@ typedef struct {
  
 
 
-#line 123 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 125 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aic.h"
  
  
@@ -3152,7 +3161,7 @@ typedef struct {
  
 
 
-#line 124 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 126 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_aximx.h"
  
  
@@ -3204,7 +3213,7 @@ typedef struct {
  
 
 
-#line 125 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 127 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_chipid.h"
  
  
@@ -3260,7 +3269,7 @@ typedef struct {
  
 
 
-#line 126 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 128 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_classd.h"
  
  
@@ -3351,7 +3360,7 @@ typedef struct {
  
 
 
-#line 127 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 129 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_flexcom.h"
  
  
@@ -3736,7 +3745,7 @@ typedef struct {
  
 
 
-#line 128 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 130 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_gmac.h"
  
  
@@ -4429,7 +4438,7 @@ typedef struct {
  
 
 
-#line 129 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 131 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_i2sc.h"
  
  
@@ -4526,7 +4535,7 @@ typedef struct {
  
 
 
-#line 130 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 132 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_icm.h"
  
  
@@ -4634,7 +4643,7 @@ typedef struct {
  
 
 
-#line 131 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_isc.h"
  
  
@@ -4894,7 +4903,7 @@ typedef struct {
  
 
 
-#line 132 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 134 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_l2cc.h"
  
  
@@ -5053,7 +5062,7 @@ typedef struct {
  
 
 
-#line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 135 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_lcdc.h"
  
  
@@ -5779,7 +5788,7 @@ typedef struct {
  
 
 
-#line 134 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 136 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_matrix.h"
  
  
@@ -6115,7 +6124,7 @@ typedef struct {
  
 
 
-#line 135 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 137 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_mpddrc.h"
  
  
@@ -6343,7 +6352,7 @@ typedef struct {
  
 
 
-#line 136 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 138 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pdmic.h"
  
  
@@ -6451,7 +6460,7 @@ typedef struct {
  
 
 
-#line 137 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 139 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pio.h"
  
  
@@ -6632,7 +6641,7 @@ typedef struct {
  
 
 
-#line 138 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 140 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pit.h"
  
  
@@ -6703,7 +6712,7 @@ typedef struct {
  
 
 
-#line 139 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pmc.h"
  
  
@@ -6870,7 +6879,7 @@ typedef struct {
  
 
 
-#line 140 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 142 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_pwm.h"
  
  
@@ -7159,7 +7168,7 @@ typedef struct {
  
 
 
-#line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 143 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_qspi.h"
  
  
@@ -7285,7 +7294,7 @@ typedef struct {
  
 
 
-#line 142 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 144 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rstc.h"
  
  
@@ -7343,7 +7352,7 @@ typedef struct {
  
 
 
-#line 143 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 145 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rtc.h"
  
  
@@ -7462,7 +7471,7 @@ typedef struct {
  
 
 
-#line 144 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 146 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_rxlp.h"
  
  
@@ -7548,7 +7557,7 @@ typedef struct {
  
 
 
-#line 145 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 147 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sckc.h"
  
  
@@ -7602,7 +7611,7 @@ typedef struct {
  
 
 
-#line 146 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 148 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sfc.h"
  
  
@@ -7701,7 +7710,7 @@ typedef struct {
  
 
 
-#line 147 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 149 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_sha.h"
  
  
@@ -7807,7 +7816,7 @@ typedef struct {
  
 
 
-#line 148 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 150 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_shdwc.h"
  
  
@@ -7870,7 +7879,7 @@ typedef struct {
  
 
 
-#line 149 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 151 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_smc.h"
  
  
@@ -8464,7 +8473,7 @@ typedef struct {
  
 
 
-#line 150 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 152 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_ssc.h"
  
@@ -8600,7 +8609,7 @@ typedef struct {
  
 
 
-#line 152 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 154 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_tc.h"
  
  
@@ -8752,7 +8761,7 @@ typedef struct {
  
 
 
-#line 153 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 155 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_tdes.h"
  
  
@@ -8870,7 +8879,7 @@ typedef struct {
  
 
 
-#line 154 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 156 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_trng.h"
  
  
@@ -8951,7 +8960,7 @@ typedef struct {
  
 
 
-#line 155 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 157 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_twihs.h"
  
  
@@ -9080,7 +9089,7 @@ typedef struct {
  
 
 
-#line 156 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 158 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_uart.h"
  
  
@@ -9184,7 +9193,7 @@ typedef struct {
  
 
 
-#line 157 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_udphs.h"
  
  
@@ -9341,7 +9350,7 @@ typedef struct {
  
 
 
-#line 158 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 160 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_wdt.h"
  
  
@@ -9400,7 +9409,7 @@ typedef struct {
  
 
 
-#line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 161 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\component/component_xdmac.h"
  
  
@@ -9572,7 +9581,7 @@ typedef struct {
  
 
 
-#line 160 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 162 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
 
  
@@ -9621,7 +9630,7 @@ typedef struct {
 
 
 
-#line 169 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 171 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_l2cc.h"
  
  
@@ -9658,7 +9667,7 @@ typedef struct {
  
 #line 95 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_l2cc.h"
 
-#line 170 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 172 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_lcdc.h"
  
  
@@ -9695,7 +9704,7 @@ typedef struct {
  
 #line 359 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_lcdc.h"
 
-#line 171 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 173 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac1.h"
  
  
@@ -9732,7 +9741,7 @@ typedef struct {
  
 #line 521 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac1.h"
 
-#line 172 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 174 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_isc.h"
  
  
@@ -9769,7 +9778,7 @@ typedef struct {
  
 #line 159 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_isc.h"
 
-#line 173 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 175 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_mpddrc.h"
  
  
@@ -9806,7 +9815,7 @@ typedef struct {
  
 #line 141 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_mpddrc.h"
 
-#line 174 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 176 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac0.h"
  
  
@@ -9843,7 +9852,7 @@ typedef struct {
  
 #line 521 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_xdmac0.h"
 
-#line 175 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 177 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pmc.h"
  
  
@@ -9880,7 +9889,7 @@ typedef struct {
  
 #line 91 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pmc.h"
 
-#line 176 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 178 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix0.h"
  
  
@@ -9917,7 +9926,7 @@ typedef struct {
  
 #line 279 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix0.h"
 
-#line 177 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 179 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aesb.h"
  
  
@@ -9954,7 +9963,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aesb.h"
 
-#line 178 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 180 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi0.h"
  
  
@@ -9991,7 +10000,7 @@ typedef struct {
  
 #line 71 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi0.h"
 
-#line 179 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi1.h"
  
  
@@ -10028,7 +10037,7 @@ typedef struct {
  
 #line 71 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_qspi1.h"
 
-#line 180 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 182 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sha.h"
  
  
@@ -10065,7 +10074,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sha.h"
 
-#line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 183 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aes.h"
  
  
@@ -10102,7 +10111,7 @@ typedef struct {
  
 #line 79 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aes.h"
 
-#line 182 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi0.h"
  
  
@@ -10139,7 +10148,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi0.h"
 
-#line 183 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 185 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc0.h"
  
  
@@ -10176,7 +10185,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc0.h"
 
-#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 186 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_gmac.h"
  
  
@@ -10213,7 +10222,7 @@ typedef struct {
  
 #line 371 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_gmac.h"
 
-#line 185 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 187 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc0.h"
  
  
@@ -10250,7 +10259,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc0.h"
 
-#line 186 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 188 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc1.h"
  
  
@@ -10287,7 +10296,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tc1.h"
 
-#line 187 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 189 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_hsmc.h"
  
  
@@ -10324,7 +10333,7 @@ typedef struct {
  
 #line 753 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_hsmc.h"
 
-#line 188 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 190 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pdmic.h"
  
  
@@ -10361,7 +10370,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pdmic.h"
 
-#line 189 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart0.h"
  
  
@@ -10398,7 +10407,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart0.h"
 
-#line 190 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 192 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart1.h"
  
  
@@ -10435,7 +10444,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart1.h"
 
-#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 193 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart2.h"
  
  
@@ -10472,7 +10481,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart2.h"
 
-#line 192 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 194 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs0.h"
  
  
@@ -10509,7 +10518,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs0.h"
 
-#line 193 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 195 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pwm.h"
  
  
@@ -10546,7 +10555,7 @@ typedef struct {
  
 #line 253 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pwm.h"
 
-#line 194 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 196 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfr.h"
  
  
@@ -10583,7 +10592,7 @@ typedef struct {
  
 #line 93 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfr.h"
 
-#line 195 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 197 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom0.h"
  
  
@@ -10620,7 +10629,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom0.h"
 
-#line 196 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 198 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom1.h"
  
  
@@ -10657,7 +10666,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom1.h"
 
-#line 197 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 199 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_saic.h"
  
  
@@ -10694,7 +10703,7 @@ typedef struct {
  
 #line 81 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_saic.h"
 
-#line 198 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 200 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_icm.h"
  
  
@@ -10731,7 +10740,7 @@ typedef struct {
  
 #line 67 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_icm.h"
 
-#line 199 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 201 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rstc.h"
  
  
@@ -10768,7 +10777,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rstc.h"
 
-#line 200 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 202 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_shdwc.h"
  
  
@@ -10805,7 +10814,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_shdwc.h"
 
-#line 201 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 203 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pit.h"
  
  
@@ -10842,7 +10851,7 @@ typedef struct {
  
 #line 45 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pit.h"
 
-#line 202 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 204 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_wdt.h"
  
  
@@ -10879,7 +10888,7 @@ typedef struct {
  
 #line 43 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_wdt.h"
 
-#line 203 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sckc.h"
  
  
@@ -10920,7 +10929,7 @@ typedef struct {
 
 
 
-#line 204 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 206 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rtc.h"
  
  
@@ -10957,7 +10966,7 @@ typedef struct {
  
 #line 79 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rtc.h"
 
-#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 207 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rxlp.h"
  
  
@@ -10994,7 +11003,7 @@ typedef struct {
  
 #line 51 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_rxlp.h"
 
-#line 206 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 208 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_acc.h"
  
  
@@ -11031,7 +11040,7 @@ typedef struct {
  
 #line 57 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_acc.h"
 
-#line 207 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 209 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfc.h"
  
  
@@ -11068,7 +11077,7 @@ typedef struct {
  
 #line 53 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_sfc.h"
 
-#line 208 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 210 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc0.h"
  
  
@@ -11105,7 +11114,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc0.h"
 
-#line 209 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 211 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi1.h"
  
  
@@ -11142,7 +11151,7 @@ typedef struct {
  
 #line 61 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_spi1.h"
 
-#line 210 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 212 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc1.h"
  
  
@@ -11179,7 +11188,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_ssc1.h"
 
-#line 211 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 213 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart3.h"
  
  
@@ -11216,7 +11225,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart3.h"
 
-#line 212 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart4.h"
  
  
@@ -11253,7 +11262,7 @@ typedef struct {
  
 #line 63 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_uart4.h"
 
-#line 213 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 215 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom2.h"
  
  
@@ -11290,7 +11299,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom2.h"
 
-#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 216 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom3.h"
  
  
@@ -11327,7 +11336,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom3.h"
 
-#line 215 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 217 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom4.h"
  
  
@@ -11364,7 +11373,7 @@ typedef struct {
  
 #line 181 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_flexcom4.h"
 
-#line 216 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 218 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_trng.h"
  
  
@@ -11401,7 +11410,7 @@ typedef struct {
  
 #line 51 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_trng.h"
 
-#line 217 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 219 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aic.h"
  
  
@@ -11438,7 +11447,7 @@ typedef struct {
  
 #line 81 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_aic.h"
 
-#line 218 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 220 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs1.h"
  
  
@@ -11475,7 +11484,7 @@ typedef struct {
  
 #line 75 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_twihs1.h"
 
-#line 219 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 221 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_udphs.h"
  
  
@@ -11512,7 +11521,7 @@ typedef struct {
  
 #line 341 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_udphs.h"
 
-#line 220 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 222 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_adc.h"
  
  
@@ -11549,7 +11558,7 @@ typedef struct {
  
 #line 133 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_adc.h"
 
-#line 221 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 223 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pioa.h"
  
  
@@ -11586,7 +11595,7 @@ typedef struct {
  
 #line 265 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_pioa.h"
 
-#line 222 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 224 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix1.h"
  
  
@@ -11623,7 +11632,7 @@ typedef struct {
  
 #line 279 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_matrix1.h"
 
-#line 223 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 225 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tdes.h"
  
  
@@ -11660,7 +11669,7 @@ typedef struct {
  
 #line 65 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_tdes.h"
 
-#line 224 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 226 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_classd.h"
  
  
@@ -11697,7 +11706,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_classd.h"
 
-#line 225 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 227 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc1.h"
  
  
@@ -11734,7 +11743,7 @@ typedef struct {
  
 #line 59 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_i2sc1.h"
 
-#line 226 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 228 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
 #line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_chipid.h"
  
  
@@ -11771,15 +11780,14 @@ typedef struct {
  
 #line 41 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\instance/instance_chipid.h"
 
-#line 227 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 229 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
 
-
  
  
  
 
-const uint32_t _id_h64_matrix[] = {
+const __weak uint32_t _id_h64_matrix[] = {
 	( 6),
 	( 7),
 	( 9),
@@ -11804,7 +11812,7 @@ const uint32_t _id_h64_matrix[] = {
  
  
 
-#line 380 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
+#line 411 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
  
 
  
@@ -11813,7 +11821,7 @@ const uint32_t _id_h64_matrix[] = {
  
  
 
-#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 1 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
  
  
@@ -11846,23 +11854,17 @@ const uint32_t _id_h64_matrix[] = {
 
 
 
-#line 138 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 161 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 152 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 175 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 161 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 184 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 182 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 205 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 191 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
+#line 214 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 307 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-
-
-
-
-
+#line 330 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
 
 
@@ -11870,115 +11872,160 @@ const uint32_t _id_h64_matrix[] = {
 
 
  
-#line 330 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 346 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 362 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 420 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 431 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 442 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 507 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 562 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-
-
-
-
- 
-#line 578 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 591 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 610 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 629 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 644 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 665 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 678 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 691 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 713 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 735 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 744 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 751 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-
-
- 
-
-
-
-
- 
-#line 766 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-#line 773 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
- 
-
-
- 
-#line 882 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d24.h"
-
-#line 389 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
- 
-
- 
- 
- 
-
-
-#line 420 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
-
- 
- 
- 
 
 
 
 
 
  
+#line 353 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
+#line 369 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
+#line 385 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
+#line 443 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 445 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
-
+#line 454 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-#line 453 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d24.h"
-
-
-
-
-
+#line 465 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
  
-
-#line 162 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
-#line 171 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+#line 530 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 585 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
 
 
 
 
  
-static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
+#line 601 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 614 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 633 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 652 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 667 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 688 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 701 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 714 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 736 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 758 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 767 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 774 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+
+
+ 
+
+
+
+
+ 
+#line 789 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+#line 796 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+ 
+
+
+ 
+#line 928 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\pio/pio_sama5d27.h"
+
+#line 420 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+ 
+
+ 
+ 
+ 
+
+
+#line 451 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+ 
+ 
+ 
+
+
+
+
+
+ 
+ 
+ 
+
+ 
+
+ 
+#line 476 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+ 
+#line 484 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d27.h"
+
+
+
+
+
+ 
+
+#line 166 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+
+
+
+
+
+
+
+
+
+ 
+static inline Flexcom* get_flexcom_addr_from_id(const uint32_t id)
 {
-	if (addr == (void*)TWI0) return (19);  
-#line 192 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+	if (id == (19)) return ((Flexcom *)0xF8034000U);  
+
+	else if (id == (20)) return ((Flexcom *)0xF8038000U);  
+
+
+	else if (id == (21)) return ((Flexcom *)0xFC010000U);  
+
+
+	else if (id == (22)) return ((Flexcom *)0xFC014000U);  
+
+
+	else if (id == (23)) return ((Flexcom *)0xFC018000U);  
+
+	else return (void*)0;
+}
+
+
+
+
+
+ 
+static inline uint32_t get_twi_id_from_addr(const Twi* addr)
+{
+	if (addr == (void*)((Twi *)0xF8034600U)) return (19);  
+
+	else if (addr == (void*)((Twi *)0xF8038600U)) return (20);  
+
+
+	else if (addr == (void*)((Twi *)0xFC010600U)) return (21);  
+
+
+	else if (addr == (void*)((Twi *)0xFC014600U)) return (22);  
+
+
+	else if (addr == (void*)((Twi *)0xFC018600U)) return (23);  
+
+
 	else if (addr == (void*)((Twihs *)0xF8028000U)) return (29);  
 
 
@@ -11991,10 +12038,22 @@ static inline uint32_t GET_TWI_ID_FROM_ADDR(const Twi* addr)
 
 
  
-static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
+static inline Twi* get_twi_addr_from_id(const uint32_t id)
 {
-	if (id == (19)) return TWI0;  
-#line 220 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+	if (id == (19)) return ((Twi *)0xF8034600U);  
+
+	else if (id == (20)) return ((Twi *)0xF8038600U);  
+
+
+	else if (id == (21)) return ((Twi *)0xFC010600U);  
+
+
+	else if (id == (22)) return ((Twi *)0xFC014600U);  
+
+
+	else if (id == (23)) return ((Twi *)0xFC018600U);  
+
+
 	else if (id == (29)) return (Twi*)((Twihs *)0xF8028000U);  
 
 
@@ -12006,29 +12065,29 @@ static inline Twi* GET_TWI_ADDR_FROM_ID(const uint32_t id)
 
 
  
-static inline uint32_t GET_SPI_ID_FROM_ADDR(const Spi* addr)
+static inline uint32_t get_spi_id_from_addr(const Spi* addr)
 {
 	if (addr == (void*)((Spi *)0xF8000000U)) return (33);
 	else if (addr == (void*)((Spi *)0xFC000000U)) return (34);
-	else if (addr == (void*)FCOMSPI0) return (19);
-	else if (addr == (void*)FCOMSPI1) return (20);
-	else if (addr == (void*)FCOMSPI3) return (22);
-	else if (addr == (void*)FCOMSPI4) return (23);
+	else if (addr == (void*)((Spi *)0xF8034400U)) return (19);
+	else if (addr == (void*)((Spi *)0xF8038400U)) return (20);
+	else if (addr == (void*)((Spi *)0xFC014400U)) return (22);
+	else if (addr == (void*)((Spi *)0xFC018400U)) return (23);
 	else return (79);
 }
 
-static inline void* GET_SPI_ADDR_FROM_ID(const uint32_t id)
+static inline void* get_spi_addr_from_id(const uint32_t id)
 {
 	if (id == (33)) return ((Spi *)0xF8000000U);  
 	else if (id == (34)) return ((Spi *)0xFC000000U);  
-	else if (id == (19)) return FCOMSPI0;  
-	else if (id == (20)) return FCOMSPI1;  
-	else if (id == (22)) return FCOMSPI3;  
-	else if (id == (23)) return FCOMSPI4;  
+	else if (id == (19)) return ((Spi *)0xF8034400U);  
+	else if (id == (20)) return ((Spi *)0xF8038400U);  
+	else if (id == (22)) return ((Spi *)0xFC014400U);  
+	else if (id == (23)) return ((Spi *)0xFC018400U);  
 	else return (void*)0;
 }
 
-static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
+static inline uint32_t get_uart_id_from_addr(const Uart* addr)
 {
       	if (addr == (void*)((Uart *)0xF801C000U)) return (24);
 
@@ -12046,10 +12105,21 @@ static inline uint32_t GET_UART_ID_FROM_ADDR(const Uart* addr)
 	else return (79);
 }
 
-static inline uint32_t GET_USART_ID_FROM_ADDR(const Usart* addr)
+static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 {
-	if (addr == (void*)USART0) return (19);
-#line 286 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\target\\sama5d2\\sama5d2.h"
+	if (addr == (void*)((Usart *)0xF8034200U)) return (19);
+
+	else if (addr == (void*)((Usart *)0xF8038200U)) return (20);
+
+
+	else if (addr == (void*)((Usart *)0xFC010200U)) return (21);
+
+
+	else if (addr == (void*)((Usart *)0xFC014200U)) return (22);
+
+
+	else if (addr == (void*)((Usart *)0xFC018200U)) return (23);
+
 	else return (79);
 }
 
@@ -12480,39 +12550,34 @@ typedef volatile unsigned int AT91_REG;
 
 
 
- 
-
-#line 493 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-#line 504 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 494 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-#line 515 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 505 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
-
-
-
-
-#line 529 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 540 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 552 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 563 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
+#line 516 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
 
+
+#line 530 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 541 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 553 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 564 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
 
  
 
@@ -12522,54 +12587,45 @@ typedef volatile unsigned int AT91_REG;
 
  
 
-#line 586 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
- 
-
-#line 595 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 604 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
-#line 611 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#line 642 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
- 
 
 
 
  
 
+#line 587 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
+ 
+
+#line 596 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 605 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+#line 612 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#line 643 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12592,21 +12648,14 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+ 
 
 
-
-
-#line 695 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
 
 
-
-
-
-
-#line 720 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12618,27 +12667,7 @@ typedef volatile unsigned int AT91_REG;
 
 
 
-
-#line 744 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-
-#line 765 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
-
- 
-
-
-
-
-
-
-#line 782 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 696 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12648,11 +12677,39 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+#line 721 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+ 
 
 
 
 
 
+
+
+
+#line 745 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+
+
+
+
+
+
+#line 766 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+
+ 
+
+
+
+
+
+
+#line 783 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
  
 
@@ -12682,6 +12739,20 @@ typedef volatile unsigned int AT91_REG;
 
 
 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12726,7 +12797,7 @@ typedef volatile unsigned int AT91_REG;
 
 
 
-#line 884 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
+#line 885 "C:\\Users\\dfronek\\Documents\\Project\\softpack\\examples\\getting_started/../../target\\sama5d2/chip_sama5d2.h"
 
 
 
@@ -13496,7 +13567,7 @@ static void _aic_set_it(Aic * aic, uint32_t source)
 static uint8_t _is_h64_matrix(uint32_t pid)
 {
 	uint8_t i;
-	for (i=0; i<sizeof(_id_h64_matrix); i++) {
+	for (i=0; i<(sizeof(_id_h64_matrix)/sizeof(uint32_t)); i++) {
 		if( pid == _id_h64_matrix[i]) {
 			return 1;
 		}
@@ -13519,13 +13590,15 @@ void aic_enable(uint32_t source)
 
 	if (AicFuse) {
 		_aic_enable_it(((Aic *)0xFC020000U), source);
-	} else {
+	}
+	else {
 		if (_is_h64_matrix(source)) {
 			if (((Matrix *)0xF0018000U)->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
 				_aic_enable_it(((Aic *)0xFC020000U), source);
 			else
 				_aic_enable_it(((Aic *)0xF803C000U), source);
-		} else {
+		}
+		else {
 			if (((Matrix *)0xFC03C000U)->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
 				_aic_enable_it(((Aic *)0xFC020000U), source);
 			else
@@ -13606,9 +13679,7 @@ void aic_set_source_vector(uint32_t source, uint32_t handler)
 
 	if (0 == AicFuse) {
 		pMatrix = (_is_h64_matrix(source)) ? ((Matrix *)0xF0018000U) : ((Matrix *)0xFC03C000U);
-		if (0 ==
-		    (pMatrix->
-		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+		if (0 == (pMatrix-> MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
 			aic = ((Aic *)0xF803C000U);
 	}
 	_aic_set_source_vector(aic, source, handler);

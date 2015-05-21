@@ -98,7 +98,7 @@
  * \param dwTwCk  Desired TWI clock frequency.
  * \param dwMCk  Master clock frequency.
  */
-void twi_configure_master(Twi * pTwi, uint32_t twi_clock, uint32_t master_clock)
+void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 {
 	uint32_t ck_div, cl_div, ok, max_clock;
 	uint32_t id = get_twi_id_from_addr(pTwi);

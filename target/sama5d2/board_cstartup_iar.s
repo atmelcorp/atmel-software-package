@@ -51,16 +51,19 @@
 //------------------------------------------------------------------------------
 
 AT91C_BASE_AIC	DEFINE	0xFC020000
+AT91C_BASE_SAIC DEFINE  0xF803C000
 AIC_IVR     	DEFINE	0x10
 AIC_EOICR   	DEFINE	0x38
+AIC_FVR         DEFINE  0x14
+MODE_MSK 		DEFINE  0x1F  ; Bit mask for mode bits in CPSR
+I_BIT			DEFINE	0x80
+F_BIT			DEFINE	0x40
 
-#define L2CC_CR     0x00A00100
+#define REG_L2CC_CR     		0x00A00100
 
-#define REG_SFR_AICREDIR        0xF8028054
-#define REG_SFR_UID             0xF8028050
+#define REG_SFR_AICREDIR        0xF8030054
+#define REG_SFR_UID             0xF8030050
 #define AICREDIR_KEY            0x5F67B102
-
-MODE_MSK DEFINE 0x1F            ; Bit mask for mode bits in CPSR
 
 #define ARM_MODE_ABT     0x17
 #define ARM_MODE_FIQ     0x11
@@ -69,8 +72,7 @@ MODE_MSK DEFINE 0x1F            ; Bit mask for mode bits in CPSR
 #define ARM_MODE_SYS     0x1F
 #define ARM_MODE_UND     0x1B
 
-I_BIT		DEFINE	0x80
-F_BIT		DEFINE	0x40
+
 
 //------------------------------------------------------------------------------
 //         Startup routine
@@ -140,14 +142,17 @@ FIQ_Addr:       DCD   FIQ_handler
 
         SECTION .text:CODE:NOROOT(2)
 		PUBLIC	__iar_program_start
-        EXTERN  ?main
-		EXTERN 	low_level_init
+        EXTERN  __cmain
+		EXTERN 	__low_level_init
         REQUIRE _reset_vector
 
        	EXTERN  cp15_invalid_btb
         EXTERN  cp15_invalid_translation_table
         EXTERN  cp15_invalid_icache
         EXTERN  cp15_invalid_dcache_by_set_way
+
+		EXTWEAK __iar_init_core
+        EXTWEAK __iar_init_vfp
 
         ARM
 
@@ -158,21 +163,29 @@ __iar_program_start:
 ; Add initialization needed before setup of stackpointers here.
 ;
 
-        ldr     r4, =SFE(CSTACK)     ; End of SVC stack
-        bic     r4,r4,#0x7           ; Make sure SP is 8 aligned
-        mov     sp, r4
+        MRS     r0, cpsr                ; Original PSR value
 
-        ;; Set up the normal interrupt stack pointer.
+        ;; Set up the interrupt stack pointer.
 
-        msr   CPSR_c, #(ARM_MODE_IRQ | F_BIT | I_BIT)
-        ldr   sp, =SFE(IRQ_STACK)     ; End of IRQ_STACK
-        BIC     sp,sp,#0x7              ; Make sure SP is 8 aligned
+        bic     r0, r0, #MODE_MSK       ; Clear the mode bits
+        orr    r0, r0, #ARM_MODE_IRQ    ; Set IRQ mode bits
+        msr     cpsr_c, r0              ; Change the mode
+        ldr     sp, =SFE(IRQ_STACK)     ; End of IRQ_STACK
+        bic     sp,sp,#0x7              ; Make sure SP is 8 aligned
 
         ;; Set up the fast interrupt stack pointer.
 
+        bic     r0, r0, #MODE_MSK       ; Clear the mode bits
+        orr     r0, r0, #ARM_MODE_FIQ   ; Set FIR mode bits
+        msr     cpsr_c, r0              ; Change the mode
+        ldr     sp, =SFE(FIQ_STACK)     ; End of FIQ_STACK
+        bic     sp,sp,#0x7              ; Make sure SP is 8 aligned
+
+       ;; Set up the other stack pointer.
+/*
         msr     CPSR_c, #(ARM_MODE_FIQ | F_BIT | I_BIT)
         ldr     sp, =SFE(FIQ_STACK)     ; End of FIQ_STACK
-        bic   sp,sp,#0x7              ; Make sure SP is 8 aligned
+        bic   sp,sp,#0x7              	; Make sure SP is 8 aligned
 
         msr     CPSR_c, #(ARM_MODE_ABT | F_BIT | I_BIT)
         ldr     sp, =SFE(ABT_STACK)     ; End of ABT_STACK
@@ -181,64 +194,28 @@ __iar_program_start:
         msr     CPSR_c, #(ARM_MODE_UND | F_BIT | I_BIT)
         ldr     sp, =SFE(UND_STACK)     ; End of UND_STACK
         bic     sp,sp,#0x7              ; Make sure SP is 8 aligned
+*/
 
-        msr     CPSR_c, #(ARM_MODE_SYS | F_BIT | I_BIT)
-        ldr     sp, =SFE(CSTACK-0x3000) ; 0x1000 bytes of SYS stack
+        ;; Set up the normal stack pointer.
+
+		bic     r0 ,r0, #MODE_MSK       ; Clear the mode bits
+        orr     r0 ,r0, #ARM_MODE_SVC   ; Set System mode bits
+        msr     cpsr_c, r0              ; Change the mode
+        ldr     sp, =SFE(CSTACK)        ; End of CSTACK
         bic     sp,sp,#0x7              ; Make sure SP is 8 aligned
 
 
-        msr     CPSR_c, #(ARM_MODE_SVC | F_BIT | I_BIT)
-        cpsie	a
 
-        /* Enable VFP */
-        /* - Enable access to CP10 and CP11 in CP15.CACR */
-        mrc   p15, 0, r0, c1, c0, 2
-        orr   r0, r0, #0xf00000
-        mcr   p15, 0, r0, c1, c0, 2
-        /* - Enable access to CP10 and CP11 in CP15.NSACR */
-        /* - Set FPEXC.EN (B30) */
-#ifdef __ARMVFP__
-        mov   r3, #0x40000000
-        vmsr  FPEXC, r3
-#endif
+        ;; Turn on core features assumed to be enabled.
+          FUNCALL __iar_program_start, __iar_init_core
+        BL      __iar_init_core
 
-         // Redirect FIQ to IRQ
-        ldr r0,  =AICREDIR_KEY
-        ldr  r1, = REG_SFR_UID
-        ldr  r2, = REG_SFR_AICREDIR
-        ldr  r3,[r1]
-        eors r0, r0, r3
-        orrs r0, r0, #0x01
-        str  r0, [r2]
+        ;; Initialize VFP (if needed).
+          FUNCALL __iar_program_start, __iar_init_vfp
+        BL      __iar_init_vfp
 
-         /* Perform low-level initialization of the chip using LowLevelInit() */
-        ldr     r0, =low_level_init
-        blx     r0
-
-
-        mrc     p15, 0, r0, c1, c0, 0       ; Read CP15 Control Regsiter into r0
-        tst     r0, #0x1                    ; Is the MMU enabled?
-        bicne   r0, r0, #0x1                ; Clear bit 0
-        tst     r0, #0x4                    ; Is the Dcache enabled?
-        bicne   r0, r0, #0x4                ; Clear bit 2
-        mcrne   p15, 0, r0, c1, c0, 0       ; Write value back
-
-        // Disbale L2 cache
-        ldr r1,=L2CC_CR
-        mov r2,#0
-        str r2, [r1]
-
-        DMB
-        bl      cp15_invalid_translation_table
-        bl      cp15_invalid_btb
-        bl      cp15_invalid_icache
-        bl      cp15_invalid_dcache_by_set_way
-        DMB
-        ISB
-
-        	FUNCALL _reset_handler, ?main
-        ldr     r0, =?main
-        blx     r0
+          FUNCALL __iar_program_start, __cmain
+        B       __cmain
 
        ;; Loop indefinitely when program is finished
 loop4:  b       loop4
@@ -257,52 +234,47 @@ IRQ_handler:
 ;- Adjust and save LR_irq in IRQ stack
 		sub         lr, lr, #4
         stmfd       sp!, {lr}
-;- Save and r0 in IRQ stack
-        stmfd       sp!, {r0}
+		mrs			lr, SPSR
+        stmfd       sp!, {r0, lr}
 
 ;- Write in the IVR to support Protect Mode
 ;- No effect in Normal Mode
 ;- De-assert the NIRQ and clear the source in Protect Mode
-        ldr         r14, =AT91C_BASE_AIC
-	    ldr         r0 , [r14, #AIC_IVR]
-	   	str         r14, [r14, #AIC_IVR]
+        ldr         lr, =AT91C_BASE_AIC
+	    ldr         r0, [r14, #AIC_IVR]
+	   	str         lr, [r14, #AIC_IVR]
 
-;- Enable Interrupt and Switch in Supervisor Mode
+;- Branch to interrupt handler in Supervisor mode
         msr         CPSR_c, #ARM_MODE_SVC
+        stmfd       sp!, { r1-r3, r4, r12, lr}
 
-;- Save scratch/used registers and LR in User Stack
-        stmfd       sp!, { r1-r3, r12, r14}
-
-;- Branch to the routine pointed by the AIC_IVR
-        mov         r14, pc
-        bx          r0
+; Check for 8-byte alignment and save lr plus a
+; word to indicate the stack adjustment used (0 or 4)
+        and     	r1, sp, #4
+        sub     	sp, sp, r1
+        stmfd   	sp!, {r1, lr}
+        blx     	r0
+        ldmia   	sp!, {r1, lr}
+        add    		sp, sp, r1
 
 ;- Restore scratch/used registers and LR from User Stack
-        ldmia       sp!, { r1-r3, r12, r14}
+        ldmia       sp!, { r1-r3, r4, r12, lr}
+        msr         CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
-;- Disable Interrupt and switch back in IRQ mode
-        msr         CPSR_c, #I_BIT | ARM_MODE_IRQ
+;- Acknowledge interrupt
+        ldr         lr, =AT91C_BASE_AIC
+        str         lr, [r14, #AIC_EOICR]
 
-;- Mark the End of Interrupt on the AIC
-        ldr         r14, =AT91C_BASE_AIC
-        str         r14, [r14, #AIC_EOICR]
-
-;- Restore SPSR_irq and r0 from IRQ stack
-        ldmia       sp!, {r0}
-
-;- Restore adjusted  LR_irq from IRQ stack directly in the PC
+;- Restore interrupt context and branch back to calling code
+        ldmia       sp!, {r0, lr}
+		msr     	SPSR_cxsf, lr
 		ldmia       sp!, {pc}^
-
 
 ;------------------------------------------------------------------------------
 ;- Function             : FIQ_Handler
 ;- Treatments           : FIQ Controller Interrupt Handler.
 ;- Called Functions     : AIC_IVR[interrupt]
 ;------------------------------------------------------------------------------
-
-AT91C_BASE_SAIC   DEFINE   0xF803C000
-AIC_FVR           DEFINE   0x14
-
 
         SECTION .text:CODE:NOROOT(2)
         ARM
@@ -318,29 +290,29 @@ FIQ_handler:
 ;- Write in the IVR to support Protect Mode
 ;- No effect in Normal Mode
 ;- De-assert the NIRQ and clear the source in Protect Mode
-        ldr         r14, =AT91C_BASE_SAIC
-	    ldr         r0 , [r14, #AIC_IVR]
-	    str         r14, [r14, #AIC_IVR]
+        ldr         lr, =AT91C_BASE_SAIC
+	    ldr         r0, [r14, #AIC_IVR]
+	    str         lr, [r14, #AIC_IVR]
 
 ;- Enable Interrupt and Switch in Supervisor Mode
         msr         CPSR_c, #ARM_MODE_SVC
 
 ;- Save scratch/used registers and LR in User Stack
-        stmfd       sp!, { r1-r3, r12, r14}
+        stmfd       sp!, { r1-r3, r4, r12, lr}
 
 ;- Branch to the routine pointed by the AIC_IVR
         mov         r14, pc
         bx          r0
 
 ;- Restore scratch/used registers and LR from User Stack
-        ldmia       sp!, { r1-r3, r12, r14}
+        ldmia       sp!, { r1-r3, r4, r12, lr}
 
 ;- Disable Interrupt and switch back in IRQ mode
-        msr         CPSR_c, #ARM_MODE_FIQ
+        msr         CPSR_c, #ARM_MODE_FIQ | I_BIT | F_BIT
 
 ;- Mark the End of Interrupt on the AIC
-        ldr         r14, =AT91C_BASE_SAIC
-        str         r14, [r14, #AIC_EOICR]
+        ldr         lr, =AT91C_BASE_SAIC
+        str         lr, [r14, #AIC_EOICR]
 
 ;- Restore SPSR_irq and r0 from IRQ stack
         ldmia       sp!, {r0}
@@ -350,6 +322,5 @@ FIQ_handler:
 
 ;------------------------------------------------------------------------------
 ;------------------------------------------------------------------------------
-
 
         END
