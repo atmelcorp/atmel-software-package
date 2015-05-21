@@ -66,7 +66,6 @@
 #define ID_MATRIX0        (15) /**< \brief H64MX, 64-bit AHB Matrix (MATRIX0) */
 #define ID_HSMC           (17) /**< \brief Multi-bit ECC Interrupt (HSMC) */
 #define ID_PIOA           (18) /**< \brief Parallel I/O Controller (PIOA) */
-
 #define ID_FLEXCOM0       (19) /**< \brief FLEXCOM 0 (FLEXCOM0) */
 #define ID_USART0         (19) /**< \brief USART (USART0) from FLEXCOM0 */
 #define ID_FCOMSPI0       (19) /**< \brief Serial Peripheral Interface (SPI0) from FLEXCOM0 */
@@ -87,7 +86,6 @@
 #define ID_USART4         (23) /**< \brief USART (USART4) from FLEXCOM4 */
 #define ID_FCOMSPI4       (23) /**< \brief Serial Peripheral Interface (SPI4) from FLEXCOM4 */
 #define ID_TWI4           (23) /**< \brief Two-Wire Interface (TWI4) from FLEXCOM4 */
-
 #define ID_UART0          (24) /**< \brief UART 0 (UART0) */
 #define ID_UART1          (25) /**< \brief UART 1 (UART1) */
 #define ID_UART2          (26) /**< \brief UART 2 (UART2) */
@@ -95,10 +93,8 @@
 #define ID_UART4          (28) /**< \brief UART 4 (UART4) */
 #define ID_TWIHS0         (29) /**< \brief Two-Wire Interface 0 (TWIHS0) */
 #define ID_TWIHS1         (30) /**< \brief Two-Wire Interface 1 (TWIHS1) */
-
 #define ID_SDHC0          (31) /**< \brief Ultra High Speed SD Host Controller 0 (SDHC0) */
 #define ID_SDHC1          (32) /**< \brief Ultra High Speed SD Host Controller 1 (SDHC1) */
-
 #define ID_SPI0           (33) /**< \brief Serial Peripheral Interface 0 (SPI0) */
 #define ID_SPI1           (34) /**< \brief Serial Peripheral Interface 1 (SPI1) */
 #define ID_TC0            (35) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
@@ -113,27 +109,24 @@
 #define ID_ISC            (46) /**< \brief Camera Interface (ISC) */
 #define ID_TRNG           (47) /**< \brief True Random Number Generator (TRNG) */
 #define ID_PDMIC          (48) /**< \brief Pulse Density Modulation Interface Controller (PDMIC) */
-
 #define ID_AIC_IRQ        (49) /**< \brief IRQ Interrupt ID (AIC_IRQ) */
-
 #define ID_SFC            (50) /**< \brief Fuse Controller (SFC) */
 #define ID_SECURAM        (51) /**< \brief Secured RAM (SECURAM) */
 #define ID_QSPI0          (52) /**< \brief QSPI 0 (QSPI0) */
 #define ID_QSPI1          (53) /**< \brief QSPI 1 (QSPI1) */
 #define ID_I2SC0          (54) /**< \brief Inter-IC Sound Controller 0 (I2SC0) */
 #define ID_I2SC1          (55) /**< \brief Inter-IC Sound Controller 1 (I2SC1) */
+#define ID_CAN0_INT0      (56) /**< \brief MCAN 0 Interrupt0 (CAN0_INT0) */
+#define ID_CAN1_INT0      (57) /**< \brief MCAN 1 Interrupt0 (CAN1_INT0) */
 #define ID_CLASSD         (59) /**< \brief Audio Class D amplifier (CLASSD) */
 #define ID_SFR            (60) /**< \brief Special Function Register  (SFR) */
 #define ID_SAIC           (61) /**< \brief Secured Advanced Interrupt Controller  (SAIC) */
 #define ID_AIC            (62) /**< \brief Advanced Interrupt Controller  (AIC) */
 #define ID_L2CC           (63) /**< \brief L2 Cache Controller (L2CC) */
-
 #define ID_CAN0_INT1      (64) /**< \brief MCAN 0 Interrupt1 (CAN0_INT1) */
 #define ID_CAN1_INT1      (65) /**< \brief MCAN 1 Interrupt1 (CAN1_INT1) */
-
 #define ID_GMAC_Q1        (66) /**< \brief GMAC Queue 1 Interrupt (GMAC_Q1) */
 #define ID_GMAC_Q2        (67) /**< \brief GMAC Queue 2 Interrupt (GMAC_Q2) */
-
 #define ID_PIOB           (68) /**< \brief  (PIOB) */
 #define ID_PIOC           (69) /**< \brief  (PIOC) */
 #define ID_PIOD           (70) /**< \brief  (PIOD) */
@@ -333,6 +326,79 @@ static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 	else if (addr == (void*)USART4) return ID_USART4;
 #endif
 	else return ID_PERIPH_COUNT;
+}
+
+static inline uint32_t get_peripheral_clock_divider(uint32_t id)
+{
+	switch (id) {
+		case ID_PMC:
+		case ID_PIT:
+		case ID_WDT:
+		case ID_GMAC:
+		case ID_ICM:
+		case ID_MATRIX1:
+		case ID_TDES:
+		case ID_HSMC:
+		case ID_PIOA:
+		case ID_FLEXCOM0:
+		case ID_FLEXCOM1:
+		case ID_FLEXCOM2:
+		case ID_FLEXCOM3:
+		case ID_FLEXCOM4:
+		case ID_UART0:
+		case ID_UART1:
+		case ID_UART2:
+		case ID_UART3:
+		case ID_UART4:
+		case ID_TWIHS0:
+		case ID_TWIHS1:
+		case ID_SPI0:
+		case ID_SPI1:
+		case ID_TC0:
+		case ID_TC1:
+		case ID_PWM:
+		case ID_ADC:
+		case ID_UHPHS:
+		case ID_UDPHS:
+		case ID_SSC0:
+		case ID_SSC1:
+		case ID_TRNG:
+		case ID_PDMIC:
+		case ID_AIC_IRQ:
+		case ID_SFC:
+		case ID_SECURAM:
+		case ID_I2SC0:
+		case ID_I2SC1:
+		case ID_CAN0_INT0:
+		case ID_CAN1_INT0:
+		case ID_SAIC:
+		case ID_AIC:
+		case ID_CAN0_INT1:
+		case ID_CAN1_INT1:
+		case ID_RSTC:
+		case ID_RTC:
+		case ID_ACC:
+		case ID_RXLP:
+			return 2; // MCK/2
+
+		case ID_XDMAC0:
+		case ID_XDMAC1:
+		case ID_AES:
+		case ID_AESB:
+		case ID_SHA:
+		case ID_MPDDRC:
+		case ID_MATRIX0:
+		case ID_SDHC0:
+		case ID_SDHC1:
+		case ID_LCDC:
+		case ID_ISC:
+		case ID_QSPI0:
+		case ID_QSPI1:
+			return 1; // MCK
+
+		default:
+			return 0; // N/A
+	}
 }
 
 #endif /* _SAMA5D2_ */

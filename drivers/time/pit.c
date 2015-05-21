@@ -84,7 +84,7 @@
 
 void pit_init(uint32_t period)
 {
-	uint32_t pit_frequency = pmc_get_peripheral_max_clock(ID_PIT) / 1000000;
+	uint32_t pit_frequency = pmc_get_peripheral_clock(ID_PIT) / 1000000;
 	PIT->PIT_MR = period ? (period * pit_frequency + 8) >> 4 : 0;
 	PIT->PIT_MR |= PIT_MR_PITEN;
 }

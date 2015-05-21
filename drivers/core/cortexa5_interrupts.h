@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2013, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -30,51 +30,20 @@
 /**
  * \file
  *
- * Provides the low-level initialization function that called on chip startup.
+ * Cortex-A5 core interrupt handlers
+ *
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-
-#include "chip.h"
-#include "board.h"
-#include "resources/compiler_defines.h"
-#include "core/pmc.h"
-#include "core/cpsr.h"
-#include "core/aic.h"
-
-#include <stdio.h>
+#ifndef INTERRUPTS_CORTEXA5_H
+#define INTERRUPTS_CORTEXA5_H
 
 /*----------------------------------------------------------------------------
- *        Functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Performs the low-level initialization of the chip.
- * It also enable a low level on the pin NRST triggers a user reset.
- */
-void low_level_init(void)
-{
-	/* Setup default interrupt handlers */
-	aic_initialize();
+WEAK extern void undefined_instruction_irq_handler(void);
+WEAK extern void software_interrupt_irq_handler(void);
+WEAK extern void prefetch_abort_irq_handler(void);
+WEAK extern void data_abort_irq_handler(void);
 
-	/* Configure clocking if code is not in external mem */
-	if ((uint32_t)low_level_init < DDR_CS_ADDR)
-	{
-		pmc_select_external_osc();
-		pmc_switch_mck_to_main();
-		pmc_set_plla(CKGR_PLLAR_ONE |
-			     CKGR_PLLAR_PLLACOUNT(0x3F) |
-			     CKGR_PLLAR_OUTA(0x0) |
-			     CKGR_PLLAR_MULA(87) |
-			     1, PMC_PLLICPR_IPLL_PLLA(0x0));
-		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
-		pmc_switch_mck_to_pll();
-	}
-
-	/* Remap */
-	board_remap_ram();
-}
+#endif /* INTERRUPTS_CORTEXA5_H */

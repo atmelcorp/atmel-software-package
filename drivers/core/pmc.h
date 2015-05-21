@@ -37,25 +37,6 @@
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-/** Peripheral clock maxinum frequency */
-typedef struct _PeripheralClockMaxFreq {
-	uint32_t bPeriphID;		/**< Peripheral ID */
-	uint32_t bMaxFrequency;		/**< Max frequency*/
-} PeripheralClockMaxFreq;
-
-enum _dev_div {
-	DEV_DIV1 = 0,
-	DEV_DIV2 = 1,
-	DEV_DIV4 = 2,
-	DEV_DIV8 = 3
-};
-
-extern uint32_t board_master_clock;
-
-/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -63,13 +44,7 @@ extern uint32_t board_master_clock;
 extern "C" {
 #endif
 
-extern void pmc_enable_peripheral(uint32_t id);
-extern void pmc_disable_peripheral(uint32_t id);
-
-extern void pmc_enable_all_peripherals(void);
-extern void pmc_disable_all_peripherals(void);
-
-extern uint32_t pmc_is_peripheral_enabled(uint32_t id);
+extern uint32_t pmc_get_master_clock(void);
 
 extern void pmc_select_external_crystal(void);
 extern void pmc_select_internal_crystal(void);
@@ -77,17 +52,20 @@ extern void pmc_select_external_osc(void);
 extern void pmc_select_internal_osc(void);
 extern void pmc_switch_mck_to_pll(void);
 extern void pmc_switch_mck_to_main(void);
-extern uint32_t pmc_switch_mck_to_slck(void);
+extern void pmc_switch_mck_to_slck(void);
 extern void pmc_set_plla(uint32_t pll, uint32_t cpcr);
 extern void pmc_set_mck_prescaler(uint32_t prescaler);
 extern void pmc_set_mck_divider(uint32_t divider);
 extern void pmc_set_mck_plla_div(uint32_t divider);
 extern void pmc_disable_plla(void);
-extern uint32_t pmc_get_peripheral_max_clock(uint32_t id);
+
+extern void pmc_enable_peripheral(uint32_t id);
+extern void pmc_disable_peripheral(uint32_t id);
+extern uint32_t pmc_is_peripheral_enabled(uint32_t id);
 extern uint32_t pmc_get_peripheral_clock(uint32_t id);
-extern uint32_t pmc_get_master_clock(void);
-extern uint32_t pmc_set_peripheral_max_clock(uint32_t id);
-extern uint32_t pmc_set_peripheral_divider(uint32_t id, enum _dev_div div);
+extern void pmc_disable_all_peripherals(void);
+
+
 #ifdef __cplusplus
 }
 #endif

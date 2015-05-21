@@ -32,7 +32,6 @@
 //         Definitions
 //------------------------------------------------------------------------------
 
-
 #define AIC         0xFC06E000
 #define AIC_IVR     0x10
 #define AIC_EOICR   0x38
@@ -42,6 +41,8 @@
 #define ARM_MODE_FIQ     0x11
 #define ARM_MODE_IRQ     0x12
 #define ARM_MODE_SVC     0x13
+#define ARM_MODE_ABT     0x17
+#define ARM_MODE_UND     0x1B
 #define ARM_MODE_SYS     0x1F
 
 #define I_BIT            0x80
@@ -63,16 +64,23 @@
 	.section    .vectors, "a", %progbits
 
 resetVector:
-	ldr     pc, =resetHandler             /* Reset */
-	ldr     pc, =UndefInstr_IrqHandler    /* Undefined Instruction */
+/* Reset */
+	ldr     pc, =resetHandler
+/* Undefined Instruction */
+	ldr     pc, =undefined_instruction_irq_handler
+/* Software Interrupt */
+	ldr     pc, =software_interrupt_irq_handler
+/* Prefetch Abort */
+	ldr     pc, =prefetch_abort_irq_handler
+/* Data Abort */
+	ldr     pc, =data_abort_irq_handler
+/* Reserved for future use */
 1:
-	b       1b                            /* Software Interrupt */
-	ldr     pc, =PrefetchAbort_IrqHandler /* Prefetch Abort */
-	ldr     pc, =DataAbort_IrqHandler     /* Data Abort */
-1:
-	b       1b                            /* Reserved for future use */
-	b       irqHandler                    /* Interrupt */
-	b       fiqHandler                    /* Fast interrupt */
+	b       1b
+/* Interrupt */
+	b       irqHandler
+/* Fast interrupt */
+	b       fiqHandler
 
 //------------------------------------------------------------------------------
 /// Handles a fast interrupt request by branching to the address defined in the
@@ -205,9 +213,18 @@ resetHandler:
 	strcc   r3, [r1], #4
 	bcc     1b
 
+/* Perform low-level initialization of the chip using low_level_init() */
+
+	ldr     sp, =_cstack
+	stmfd   sp!, {r0}
+	ldr     r0, =low_level_init
+	blx     r0
+
+	mrs     r0, CPSR
+
 /* Initialize the postrelocate segment */
 
-	//ldmfd   sp!, {r0}
+	ldmfd   sp!, {r0}
 	ldr     r1, =_spostrelocate
 	ldr     r2, =_epostrelocate
 1:
@@ -224,15 +241,6 @@ resetHandler:
 	cmp     r0, r1
 	strcc   r2, [r0], #4
 	bcc     1b
-
-/* Perform low-level initialization of the chip using low_level_init() */
-
-	//ldr     sp, =_cstack
-	//stmfd   sp!, {r0}
-	ldr     r0, =low_level_init
-	blx     r0
-
-	mrs     r0, CPSR
 
 /* Set up the fast interrupt stack pointer */
 

@@ -160,4 +160,65 @@ static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+static inline uint32_t get_peripheral_clock_divider(uint32_t id)
+{
+	switch (id) {
+		case ID_PIT:
+		case ID_WDT:
+		case ID_PIOD:
+		case ID_USART0:
+		case ID_USART1:
+		case ID_ICM:
+		case ID_AES:
+		case ID_TDES:
+		case ID_SHA:
+		case ID_HSMC:
+		case ID_PIOA:
+		case ID_PIOB:
+		case ID_PIOC:
+		case ID_PIOE:
+		case ID_UART0:
+		case ID_UART1:
+		case ID_USART2:
+		case ID_USART3:
+		case ID_USART4:
+		case ID_TWI0:
+		case ID_TWI1:
+		case ID_TWI2:
+		case ID_HSMCI0:
+		case ID_HSMCI1:
+		case ID_SPI0:
+		case ID_SPI1:
+		case ID_SPI2:
+		case ID_TC0:
+		case ID_TC1:
+		case ID_TC2:
+		case ID_PWM:
+		case ID_ADC:
+		case ID_DBGU:
+		case ID_UHPHS:
+		case ID_UDPHS:
+		case ID_SSC0:
+		case ID_SSC1:
+		case ID_TRNG:
+		case ID_GMAC0:
+		case ID_GMAC1:
+		case ID_IRQ:
+		case ID_SFC:
+		case ID_TWI3:
+			return 2; // MCK/2
+
+		case ID_XDMAC0:
+		case ID_AESB:
+		case ID_MPDDRC:
+		case ID_XDMAC1:
+		case ID_LCDC:
+		case ID_ISI:
+			return 1; // MCK
+
+		default:
+			return 0; // N/A
+	}
+}
+
 #endif /* _SAMA5D4_ */

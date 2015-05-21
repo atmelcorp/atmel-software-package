@@ -100,7 +100,7 @@
  */
 void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 {
-	uint32_t ck_div, cl_div, ok, max_clock;
+	uint32_t ck_div, cl_div, ok, clock;
 	uint32_t id = get_twi_id_from_addr(pTwi);
 
 	TRACE_DEBUG("twi_configure_master()\n\r");
@@ -116,11 +116,11 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 	pTwi->TWI_CR = TWI_CR_MSDIS;
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;
-	max_clock = pmc_get_peripheral_max_clock(id);
+	clock = pmc_get_peripheral_clock(id);
 	/* Configure clock */
 	ck_div = 0; ok = 0;
 	while (!ok) {
-		cl_div = ((max_clock / (2 * twi_clock)) - 8) / (1 << ck_div);
+		cl_div = ((clock / (2 * twi_clock)) - 8) / (1 << ck_div);
 		(cl_div <= 255) ? ok = 1 : ck_div++;
 	}
 	assert(ck_div < 8);

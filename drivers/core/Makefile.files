@@ -1,4 +1,5 @@
-DRIVER_OBJECTS += core/l2cc.o     \
+DRIVER_OBJECTS += core/cortexa5_interrupts.o \
+	core/l2cc.o     \
 	core/adc.o      \
 	core/pwmc.o     \
 	core/cp15.o     \

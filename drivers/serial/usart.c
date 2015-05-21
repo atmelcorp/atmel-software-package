@@ -106,7 +106,7 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
 void usart_configure(Usart *usart, uint32_t mode,
 		     uint32_t baudrate)
 {
-	uint32_t clock = pmc_get_peripheral_max_clock(get_usart_id_from_addr(usart));
+	uint32_t clock = pmc_get_peripheral_clock(get_usart_id_from_addr(usart));
 	/* Reset and disable receiver & transmitter */
 	uint32_t control = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
 	/* Reset and disable FIFO if present */

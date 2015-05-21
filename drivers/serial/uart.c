@@ -59,7 +59,7 @@ void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate)
 		| UART_CR_RSTSTA;
 	pUart->UART_IDR = 0xFFFFFFFF;
 	// Configure baud rate
-	pUart->UART_BRGR = pmc_get_peripheral_max_clock(uart_id) / (baudrate * 16);
+	pUart->UART_BRGR = pmc_get_peripheral_clock(uart_id) / (baudrate * 16);
 	// Configure mode register
 	pUart->UART_MR = mode;
 	// Enable receiver and transmitter

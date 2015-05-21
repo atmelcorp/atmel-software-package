@@ -175,7 +175,7 @@ extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t * div,
 				  uint32_t * tc_clks)
 {
 	const uint32_t master_clock = pmc_get_master_clock();
-	const uint32_t periph_clock = pmc_get_peripheral_max_clock(ID_TC0);
+	const uint32_t periph_clock = pmc_get_peripheral_clock(ID_TC0);
 	const uint32_t adivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
 
 	uint32_t dwIndex = 0;

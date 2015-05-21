@@ -32,7 +32,8 @@ TARGET_CFLAGS += $(CFLAGS) $(TARGET_INCLUDES)
 TARGET_ASFLAGS = -mcpu=cortex-a5  -mfpu=vfpv4-d16 -Wall -g $(TARGET_INCLUDES) -D$(CHIP) -D__ASSEMBLY__
 
 TARGET_OBJECTS = board_lowlevel.o \
-	board_memories.o
+	board_memories.o \
+	cortexa5_interrupts.o
 
 TARGET_OBJECTS_ASM = board_cstartup_gnu.o
 

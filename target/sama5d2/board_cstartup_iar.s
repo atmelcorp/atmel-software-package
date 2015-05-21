@@ -93,10 +93,10 @@ F_BIT			DEFINE	0x40
 		PUBLIC  IRQ_handler
         PUBLIC  FIQ_handler
 
-        EXTERN  undefined_c_Handler
-        EXTERN  prefetch_c_handler
-        EXTERN  abort_c_handler
-        EXTERN  SWI_Handler
+        EXTERN  undefined_instruction_irq_handler
+        EXTERN  prefetch_abort_irq_handler
+        EXTERN  data_abort_irq_handler
+        EXTERN  software_interrupt_irq_handler
 
 
 
@@ -125,10 +125,10 @@ _reset_vector:                  ; Make this a DATA label, so that stack usage
         DATA
 
 reset_addr:     DCD   __iar_program_start
-undefined_addr: DCD   undefined_c_Handler
-SWI_Addr:       DCD   SWI_Handler
-prefetch_addr:  DCD   prefetch_c_handler
-abort_addr:     DCD   abort_c_handler
+undefined_addr: DCD   undefined_instruction_irq_handler
+SWI_Addr:       DCD   software_interrupt_irq_handler
+prefetch_addr:  DCD   prefetch_abort_irq_handler
+abort_addr:     DCD   data_abort_irq_handler
 IRQ_Addr:       DCD   IRQ_handler
 FIQ_Addr:       DCD   FIQ_handler
 

@@ -32,7 +32,6 @@
 //         Definitions
 //------------------------------------------------------------------------------
 
-
 #define AIC         0xFC020000
 #define AIC_IVR     0x10
 #define AIC_EOICR   0x38
@@ -63,16 +62,23 @@
 	.section    .vectors, "a", %progbits
 
 resetVector:
-	ldr     pc, =resetHandler             /* Reset */
-	ldr     pc, =UndefInstr_IrqHandler    /* Undefined Instruction */
+/* Reset */
+	ldr     pc, =resetHandler
+/* Undefined Instruction */
+	ldr     pc, =undefined_instruction_irq_handler
+/* Software Interrupt */
+	ldr     pc, =software_interrupt_irq_handler
+/* Prefetch Abort */
+	ldr     pc, =prefetch_abort_irq_handler
+/* Data Abort */
+	ldr     pc, =data_abort_irq_handler
+/* Reserved for future use */
 1:
-	b       1b                            /* Software Interrupt */
-	ldr     pc, =PrefetchAbort_IrqHandler /* Prefetch Abort */
-	ldr     pc, =DataAbort_IrqHandler     /* Data Abort */
-1:
-	b       1b                            /* Reserved for future use */
-	b       irqHandler                    /* Interrupt */
-	b       fiqHandler                    /* Fast interrupt */
+	b       1b
+/* Interrupt */
+	b       irqHandler
+/* Fast interrupt */
+	b       fiqHandler
 
 //------------------------------------------------------------------------------
 /// Handles a fast interrupt request by branching to the address defined in the

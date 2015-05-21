@@ -41,12 +41,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/* Cortex-A5 core handlers */
-
-WEAK extern void UndefInstr_IrqHandler(void);    /* Undefined Instruction */
-WEAK extern void PrefetchAbort_IrqHandler(void); /* Prefetch Abort */
-WEAK extern void DataAbort_IrqHandler(void);     /* Data Abort */
-
 extern void low_level_init(void);
 
 #endif /* BOARD_LOWLEVEL_H */
