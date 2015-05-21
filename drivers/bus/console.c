@@ -53,36 +53,42 @@
 *        Variables
 *----------------------------------------------------------------------------*/
 
+typedef void (*_init_handler) (void*,uint32_t,uint32_t);
+typedef void (*_put_char_handler) (void*, uint8_t);
+typedef uint32_t (*_get_char_handler) (void*);
+typedef uint32_t (*_rx_ready_handler) (void*);
+typedef void (*_enable_it_handler) (void*,uint32_t);
+
 /* Initialize console structure according to board configuration */
 #if CONSOLE_DRIVER == DRV_USART
 #include "serial/usart.h"
 static struct _console console = {
 	CONSOLE_PER_ADD,
-	usart_configure,
-	usart_put_char,
-	usart_get_char,
-	usart_is_rx_ready,
-	usart_enable_it
+	(_init_handler) usart_configure,
+	(_put_char_handler) usart_put_char,
+	(_get_char_handler) usart_get_char,
+	(_rx_ready_handler) usart_is_rx_ready,
+	(_enable_it_handler) usart_enable_it
 };
 #elif CONSOLE_DRIVER == DRV_UART
 #include "serial/uart.h"
 static struct _console console = {
 	CONSOLE_PER_ADD,
-	uart_configure,
-	uart_put_char,
-	uart_get_char,
-	uart_is_rx_ready,
-	uart_set_int
+	(_init_handler) uart_configure,
+	(_put_char_handler) uart_put_char,
+	(_get_char_handler) uart_get_char,
+	(_rx_ready_handler) uart_is_rx_ready,
+	(_enable_it_handler) uart_set_int
 };
 #elif CONSOLE_DRIVER == DRV_DBGU
 #include "serial/dbgu.h"
 static struct _console console = {
 	CONSOLE_PER_ADD,
-	dbgu_configure,
-	dbgu_put_char,
-	dbgu_get_char,
-	dbgu_is_rx_ready,
-	dbgu_enable_it
+	(_init_handler) dbgu_configure,
+	(_put_char_handler) dbgu_put_char,
+	(_get_char_handler) dbgu_get_char,
+	(_rx_ready_handler) dbgu_is_rx_ready,
+	(_enable_it_handler) dbgu_enable_it
 };
 #endif
 

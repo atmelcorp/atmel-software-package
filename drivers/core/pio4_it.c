@@ -84,7 +84,7 @@ const uint8_t idt[PIOIO_GROUP_NUMBER] = {ID_PIOA, ID_PIOB, ID_PIOC, ID_PIOD};
  * \param id  PIO controller ID.
  * \param pPio  PIO controller base address.
  */
-void _pio_it_handler(uint8_t id)
+static void _pio_it_handler(uint8_t id)
 {
 	uint32_t status;
 	uint32_t i;
@@ -126,7 +126,7 @@ void _pio_it_handler(uint8_t id)
  * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
  * the user-configured handlers.
  */
-void pio_it_handler(void)
+void pio_it_handlers(void)
 {
 	uint8_t i;
 	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
@@ -160,6 +160,7 @@ void pio_initialize_it(uint32_t priority)
 		PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
 		/* Read PIO Interrupt Status Register */
 		status = pioiog->PIO_ISR;
+		(void)status;
 		/* Disable all interrupt */
 		pioiog->PIO_IDR = 0xFFFFFFFF;
 		aic_enable(id);

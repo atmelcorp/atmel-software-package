@@ -100,7 +100,7 @@ void uart_set_int (Uart* pUart, uint32_t int_mask)
  * \param c  Character to send.
  * \param wait = 1 if wait transfer complete
  */
-void uart_put_char(Uart* pUart, unsigned char c)
+void uart_put_char(Uart* pUart, uint8_t c)
 {
 	// Wait for the transmitter to be ready
 	while ((pUart->UART_SR & UART_SR_TXEMPTY) == 0);

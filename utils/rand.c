@@ -35,6 +35,8 @@
 
 #include "board.h"
 
+#include "rand.h"
+
 /*------------------------------------------------------------------------------
  *         Global Variables
  *------------------------------------------------------------------------------*/
@@ -50,8 +52,7 @@ static uint32_t _dwRandNext = 1;
  *
  *  \param dwSeed rand initiation seed
  */
-void
-srand(uint32_t dwSeed)
+void srand(uint32_t dwSeed)
 {
 	_dwRandNext = dwSeed;
 }
@@ -59,8 +60,7 @@ srand(uint32_t dwSeed)
 /**
  *  Return a random number, maxinum assumed to be 65536
  */
-extern uint32_t
-rand(void)
+uint32_t rand(void)
 {
 	_dwRandNext = _dwRandNext * 1103515245 + 12345;
 

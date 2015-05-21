@@ -35,6 +35,8 @@
 
 #include "board.h"
 
+#include "math.h"
+
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
@@ -45,8 +47,7 @@
  *  \param dwA  First integer to compare.
  *  \param dwB  Second integer to compare.
  */
-extern uint32_t
-min(uint32_t dwA, uint32_t dwB)
+uint32_t min(uint32_t dwA, uint32_t dwB)
 {
 	if (dwA < dwB) {
 		return dwA;
@@ -62,8 +63,7 @@ min(uint32_t dwA, uint32_t dwB)
  *
  *  \note Do not call this function "abs", problem with gcc !
  */
-extern uint32_t
-absv(int32_t lValue)
+uint32_t absv(int32_t lValue)
 {
 	if (lValue < 0) {
 		return -lValue;
@@ -78,8 +78,7 @@ absv(int32_t lValue)
  *  \param dwX  Value.
  *  \param dwY  Power.
  */
-extern uint32_t
-power(uint32_t dwX, uint32_t dwY)
+uint32_t power(uint32_t dwX, uint32_t dwY)
 {
 	uint32_t dwResult = 1;
 
