@@ -2,7 +2,7 @@ ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 all:
 
-SOFTPACK_VERSION="2.0"
+SOFTPACK_VERSION=\"2.0\"
 AVAILABLE_MEMORIES = sram ddram
 AVAILABLE_BOARDS = sama5d4-xplained sama5d4-ek sama5d2-xplained
 MEMORIES = sram ddram
