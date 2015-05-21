@@ -171,7 +171,7 @@ static void process_button_evt(uint8_t ucButton)
 	if (ucButton == 0) {
 		bLed0Active = !bLed0Active;
 		if (!bLed0Active) {
-			LED_Clear(0);
+			led_clear(0);
 		}
 	}
 
@@ -180,14 +180,14 @@ static void process_button_evt(uint8_t ucButton)
 
 		/* Enable LED#2 and TC if they were disabled */
 		if (bLed1Active) {
-			LED_Set(1);
-			TC_Start(TC0, 0);
+			led_set(1);
+			tc_start(TC0, 0);
 		}
 
 		/* Disable LED#2 and TC if they were enabled */
 		else {
-			LED_Clear(1);
-			TC_Stop(TC0, 0);
+			led_clear(1);
+			tc_stop(TC0, 0);
 		}
 	}
 }
@@ -305,8 +305,8 @@ static void configure_buttons(void)
  */
 static void configure_leds(void)
 {
-	LED_Configure(0);
-	LED_Configure(1);
+	led_configure(0);
+	led_configure(1);
 }
 
 /**
@@ -321,7 +321,7 @@ static void tc_handler(void)
 	(void) dummy;
 
 	/** Toggle LED state. */
-	LED_Toggle(1);
+	led_toggle(1);
 	printf("2 ");
 }
 
@@ -340,9 +340,9 @@ static void configure_tc(void)
 	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	TC_FindMckDivisor(4, &div, &tcclks);
+	tc_find_mck_divisor(4, &div, &tcclks);
 	printf("TC: Select %u divisor\r\n", (unsigned int)div);
-	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
+	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
 	/* Configure and enable interrupt on RC compare */
@@ -351,7 +351,7 @@ static void configure_tc(void)
 
 	/* /\** Start the counter if LED1 is enabled. *\/ */
 	if (bLed1Active) {
-	TC_Start(TC0, 0);
+	tc_start(TC0, 0);
 	}
 }
 
@@ -440,7 +440,7 @@ int main(void)
 
 		/* Toggle LED state if active */
 		if (bLed0Active) {
-			LED_Toggle(0);
+			led_toggle(0);
 			printf("1 ");
 		}
 

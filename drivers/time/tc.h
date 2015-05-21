@@ -35,10 +35,10 @@
  *  Interface for configuring and using Timer Counter (TC) peripherals.
  *
  *  \section Usage
- *  -# Optionally, use TC_FindMckDivisor() to let the program find the best
+ *  -# Optionally, use tc_find_mck_divisor() to let the program find the best
  *     TCCLKS field value automatically.
- *  -# Configure a Timer Counter in the desired mode using TC_Configure().
- *  -# Start or stop the timer clock using TC_Start() and TC_Stop().
+ *  -# Configure a Timer Counter in the desired mode using tc_configure().
+ *  -# Start or stop the timer clock using tc_start() and tc_stop().
  */
 
 #ifndef _TC_

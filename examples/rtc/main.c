@@ -507,15 +507,15 @@ static void configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Configure TC for a 4Hz frequency and trigger on RC compare. */
-	TC_FindMckDivisor(4, &div, &tcclks);
-	TC_Configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
+	tc_find_mck_divisor(4, &div, &tcclks);
+	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
 
 	/* Configure and enable interrupt on RC compare */
 	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
 	aic_enable(ID_TC0);
 
-	TC_Start(TC0, 0);
+	tc_start(TC0, 0);
 
 }
 

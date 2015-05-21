@@ -33,10 +33,10 @@
  *
  * \section Usage
  * <ul>
- *  <li> Optionally, use TC_FindMckDivisor() to let the program find the best
+ *  <li> Optionally, use tc_find_mck_divisor() to let the program find the best
  *     TCCLKS field value automatically.</li>
- *  <li> Configure a Timer Counter in the desired mode using TC_Configure().</li>
- *  <li> Start or stop the timer clock using TC_Start() and TC_Stop().</li>
+ *  <li> Configure a Timer Counter in the desired mode using tc_configure().</li>
+ *  <li> Start or stop the timer clock using tc_start() and tc_stop().</li>
  *  </li>
  * </ul>
  * For more accurate information, please look at the TC section of the Datasheet.
@@ -54,10 +54,10 @@
 *  Interface for configuring and using Timer Counter (TC) peripherals.
 *
 *  \section Usage
-*  -# Optionally, use TC_FindMckDivisor() to let the program find the best
+*  -# Optionally, use tc_find_mck_divisor() to let the program find the best
 *     TCCLKS field value automatically.
-*  -# Configure a Timer Counter in the desired mode using TC_Configure().
-*  -# Start or stop the timer clock using TC_Start() and TC_Stop().
+*  -# Configure a Timer Counter in the desired mode using tc_configure().
+*  -# Start or stop the timer clock using tc_start() and tc_stop().
 */
 
 /**
@@ -85,7 +85,7 @@
  * \brief Configures a Timer Counter Channel
  *
  * Configures a Timer Counter to operate in the given mode. Timer is stopped
- * after configuration and must be restarted with TC_Start(). All the
+ * after configuration and must be restarted with tc_start(). All the
  * interrupts of the timer are also disabled.
  *
  * \param pTc  Pointer to a Tc instance.

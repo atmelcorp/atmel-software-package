@@ -80,8 +80,8 @@ void sys_init_timing(void)
     pmc_enable_peripheral( ID_TC0 ) ;
 
     /* Configure TC for a CLOCK_CONF_SECOND frequency. */
-    TC_FindMckDivisor( CLOCK_CONF_SECOND, &div, &tcclks);
-    TC_Configure( TC0, 0, tcclks | TC_CMR_CPCTRG );
+    tc_find_mck_divisor( CLOCK_CONF_SECOND, &div, &tcclks);
+    tc_configure( TC0, 0, tcclks | TC_CMR_CPCTRG );
     TC0->TC_CHANNEL[0].TC_RC = pmc_get_master_clock() / (CLOCK_CONF_SECOND * div);
 
     /* Configure and enable interrupt on RC compare */
@@ -90,7 +90,7 @@ void sys_init_timing(void)
     TC0->TC_CHANNEL[ 0 ].TC_IER = TC_IER_CPCS ;
 
     /* Start timer */
-    TC_Start( TC0, 0 );
+    tc_start( TC0, 0 );
 }
 
 /**

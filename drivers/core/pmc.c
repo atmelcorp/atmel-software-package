@@ -194,7 +194,7 @@ void pmc_enable_peripheral(uint32_t id)
 	pcr_value = PMC->PMC_PCR;          // to retrieve info related to the Peripheral Clock of interest
 	if ((pcr_value & PMC_PCR_EN) != 0x0)
 	{
-		TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n\r", dw_id);
+		TRACE_DEBUG( "pmc_enable_peripheral: clock of peripheral"  " %u is already enabled\n\r", dw_id);
 	}
 	else
 		PMC->PMC_PCR = (pcr_value & ~PMC_PCR_PID_Msk) | PMC_PCR_CMD | PMC_PCR_PID(id) | PMC_PCR_EN;
