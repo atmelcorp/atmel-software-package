@@ -345,11 +345,9 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
  *
  * \return The character that was output.
  */
-extern WEAK signed int
-putchar(signed int c)
+extern WEAK signed int putchar(signed int c)
 {
-	dbgu_put_char(c);
-
+	console_put_char(c);
 	return c;
 }
 #endif  /* defined __ICCARM__ */
