@@ -27,80 +27,73 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- *  \page test board hardware with sama5d2 Microcontrollers
- *
- *  \section Purpose
- *
- *  \section Requirements
- *
- *  This package can be used with SAMA5D2-XULT.
- *
- *  \section Description
- *
- * \file
- *
- *
- */
+#include <stdint.h>
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
+#include "chip.h"
 
-#include "board.h"
+#include "serial/flexcom.h"
+#include "serial/usart.h"
+#include "core/wdt.h"
+#include "core/pmc.h"
+#include "core/aic.h"
+#include "core/pio.h"
+#include "core/pio_it.h"
 
-#include "io/led.h"
+Flexcom* flexcom = FLEXCOM3;
+static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
 
-#include "bus/console.h"
+static const char data [] = "-- Write FIFO test PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING -- \r\n";
 
-#include "time/tc.h"
-#include "time/pit.h"
-
-#include <stdbool.h>
-#include <stdio.h>
-
-/*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
- *        Local functions
- *----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
- *        Global functions
- *----------------------------------------------------------------------------*/
-
-
-extern int main()
+static void usart_handler(void)
 {
+	char read_buffer[33];
+	uint32_t read = 0;
+	*read_buffer = '\0';
 
+	if (usart_is_rx_ready(&flexcom->usart)) {
+		uint32_t size = usart_fifo_rx_size(&flexcom->usart);
+		read = usart_read_stream(&flexcom->usart, read_buffer, size);
+		read_buffer[read] = '\0';
+	}
+	flexcom->usart.US_CR = US_CR_RSTSTA;
+
+	usart_write_stream(&flexcom->usart, read_buffer, read);
+}
+
+static void _configure_usart(void)
+{
+	pio_configure(usart_pins, 1);
+	pmc_enable_peripheral(ID_USART3);
+
+	aic_set_source_vector(ID_USART3, usart_handler);
+
+	uint32_t mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+
+	flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+
+	usart_configure(&flexcom->usart, mode, 115200);
+
+	usart_fifo_configure(&flexcom->usart, 16u, 7u, 4u,
+			     US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA);
+
+	usart_enable_it(&flexcom->usart, US_IER_RXRDY);
+	aic_enable(ID_USART3);
+}
+
+int main (void)
+{
 	/* Disable watchdog */
 	WDT_Disable(WDT);
 
 #if defined (ddram)
 	MMU_Initialize((uint32_t *) 0x20C000);
-	CP15_EnableMMU();
-	CP15_EnableDcache();
-	CP15_EnableIcache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+	cp15_enable_icache();
 #endif
+	_configure_usart();
 
-	/* Output example information */
-	printf("-- Test board HW %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	usart_write_stream(&flexcom->usart, data, sizeof(data));
 
-	/* Configure PIT. */
-	printf("Configure PIT \n\r");
-	ConfigurePit();
-
-
-  return 0;
+	while (1);
 }
