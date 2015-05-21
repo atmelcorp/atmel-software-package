@@ -259,8 +259,6 @@ typedef struct
     ruf76 : 2;
 } BITFIELD_APCH7A;
 
-#pragma bitfields=default
-
 typedef enum
 {
     CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, // bit[0]

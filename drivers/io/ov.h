@@ -31,8 +31,7 @@
 #define OV_H
 
 #include <stdint.h>
-
-typedef struct _Twid Twid;
+#include "bus/twid.h"
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -47,7 +46,7 @@ struct capture_size {
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
-extern void ov_configure(Twid * pTwid, uint8_t type, uint32_t width,
+extern void ov_configure(struct _twid * pTwid, uint8_t type, uint32_t width,
 			 uint32_t heigth);
-extern void ov_5640Afc_Firmware(Twid * pTwid);
+extern void ov_5640Afc_Firmware(struct _twid * pTwid);
 #endif

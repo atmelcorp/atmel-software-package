@@ -70,7 +70,7 @@ ov_reset(void)
  * \return  VER | (PID<<8)
  */
 static uint16_t
-ov_id8(Twid * pTwid)
+ov_id8(struct _twid * pTwid)
 {
 	uint8_t id, ver;
 	uint8_t status;
@@ -95,7 +95,7 @@ ov_id8(Twid * pTwid)
  * \return  VER | (PID<<8)
  */
 static uint16_t
-ov_id16(Twid * pTwid)
+ov_id16(struct _twid * pTwid)
 {
 	uint8_t id, ver;
 	// OV_PID
@@ -115,7 +115,7 @@ ov_id16(Twid * pTwid)
  * \return  VER | (PID<<8)
  */
 static uint16_t
-ov_id(Twid * pTwid)
+ov_id(struct _twid * pTwid)
 {
 	uint16_t id;
 	printf("-I- Try TWI address 0x%x \n\r", twiSlaveAddr);
@@ -152,12 +152,12 @@ ov_id(Twid * pTwid)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint8_t
-ov_read_reg8(Twid * pTwid, uint8_t reg, uint8_t * pData)
+ov_read_reg8(struct _twid * pTwid, uint8_t reg, uint8_t * pData)
 {
 	uint8_t status;
 
-	status = TWID_Write(pTwid, twiSlaveAddr, 0, 0, &reg, 1, 0);
-	status |= TWID_Read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
+	status = twid_write(pTwid, twiSlaveAddr, 0, 0, &reg, 1, 0);
+	status |= twid_read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
 	if (status != 0) {
 		TRACE_ERROR("ov_read_reg pb\n\r");
 	}
@@ -172,15 +172,15 @@ ov_read_reg8(Twid * pTwid, uint8_t reg, uint8_t * pData)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint8_t
-ov_read_reg16(Twid * pTwid, uint16_t reg, uint8_t * pData)
+ov_read_reg16(struct _twid * pTwid, uint16_t reg, uint8_t * pData)
 {
 	uint8_t status;
 	uint8_t reg8[2];
 	reg8[0] = reg >> 8;
 	reg8[1] = reg & 0xff;
 
-	status = TWID_Write(pTwid, twiSlaveAddr, 0, 0, reg8, 2, 0);
-	status |= TWID_Read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
+	status = twid_write(pTwid, twiSlaveAddr, 0, 0, reg8, 2, 0);
+	status |= twid_read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
 	if (status != 0) {
 
 		TRACE_ERROR("ov_read_reg pb\n\r");
@@ -196,11 +196,11 @@ ov_read_reg16(Twid * pTwid, uint16_t reg, uint8_t * pData)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint8_t
-ov_write_reg8(Twid * pTwid, uint8_t reg, uint8_t val)
+ov_write_reg8(struct _twid * pTwid, uint8_t reg, uint8_t val)
 {
 	uint8_t status;
 
-	status = TWID_Write(pTwid, twiSlaveAddr, reg, 1, &val, 1, 0);
+	status = twid_write(pTwid, twiSlaveAddr, reg, 1, &val, 1, 0);
 	if (status != 0) {
 		TRACE_ERROR("ov_write_reg pb\n\r");
 	}
@@ -216,10 +216,10 @@ ov_write_reg8(Twid * pTwid, uint8_t reg, uint8_t val)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint8_t
-ov_write_reg16(Twid * pTwid, uint16_t reg, uint8_t val)
+ov_write_reg16(struct _twid * pTwid, uint16_t reg, uint8_t val)
 {
 	uint8_t status;
-	status = TWID_Write(pTwid, twiSlaveAddr, reg, 2, &val, 1, 0);
+	status = twid_write(pTwid, twiSlaveAddr, reg, 2, &val, 1, 0);
 	if (status != 0) {
 		TRACE_ERROR("ov_write_reg pb\n\r");
 	}
@@ -235,7 +235,7 @@ ov_write_reg16(Twid * pTwid, uint16_t reg, uint8_t val)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint32_t
-ov_write_regs8(Twid * pTwid, const struct ov_reg * pReglist)
+ov_write_regs8(struct _twid * pTwid, const struct ov_reg * pReglist)
 {
 	uint32_t err;
 	uint32_t size = 0;
@@ -267,7 +267,7 @@ ov_write_regs8(Twid * pTwid, const struct ov_reg * pReglist)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint32_t
-ov_write_regs16(Twid * pTwid, const struct ov_reg * pReglist)
+ov_write_regs16(struct _twid * pTwid, const struct ov_reg * pReglist)
 {
 	uint32_t err = 0;
 	uint32_t size = 0;
@@ -291,7 +291,7 @@ ov_write_regs16(Twid * pTwid, const struct ov_reg * pReglist)
 }
 
 void
-isOV5640_AF_InitDone(Twid * pTwid)
+isOV5640_AF_InitDone(struct _twid * pTwid)
 {
 	uint8_t value = 0;
 	while (1) {
@@ -307,7 +307,7 @@ isOV5640_AF_InitDone(Twid * pTwid)
  * \return 0 if no error; otherwize TWID_ERROR_BUSY
  */
 uint32_t
-ov_5640_AF_single(Twid * pTwid)
+ov_5640_AF_single(struct _twid * pTwid)
 {
 	uint8_t value;
 	ov_write_reg16(pTwid, 0x3023, 1);
@@ -322,7 +322,7 @@ ov_5640_AF_single(Twid * pTwid)
 }
 
 uint32_t
-ov_5640_AF_continue(Twid * pTwid)
+ov_5640_AF_continue(struct _twid * pTwid)
 {
 	uint8_t value;
 	ov_write_reg16(pTwid, 0x3024, 1);
@@ -337,7 +337,7 @@ ov_5640_AF_continue(Twid * pTwid)
 }
 
 uint32_t
-ov_5640_AFPause(Twid * pTwid)
+ov_5640_AFPause(struct _twid * pTwid)
 {
 	uint8_t value;
 	ov_write_reg16(pTwid, 0x3023, 1);
@@ -352,7 +352,7 @@ ov_5640_AFPause(Twid * pTwid)
 }
 
 uint32_t
-ov_5640_AFrelease(Twid * pTwid)
+ov_5640_AFrelease(struct _twid * pTwid)
 {
 	uint8_t value;
 	ov_write_reg16(pTwid, 0x3023, 1);
@@ -371,7 +371,7 @@ ov_5640_AFrelease(Twid * pTwid)
  * \param pTwid TWI interface
  */
 void
-ov_DumpRegisters8(Twid * pTwid)
+ov_DumpRegisters8(struct _twid * pTwid)
 {
 	uint32_t i;
 	uint8_t value;
@@ -393,7 +393,7 @@ ov_DumpRegisters8(Twid * pTwid)
  * \param pTwid TWI interface
  */
 void
-ov_DumpRegisters16(Twid * pTwid)
+ov_DumpRegisters16(struct _twid * pTwid)
 {
 	uint32_t i;
 	uint8_t value;
@@ -416,7 +416,7 @@ ov_DumpRegisters16(Twid * pTwid)
  * \return OV type
  */
 uint8_t
-ov_init(Twid * pTwid)
+ov_init(struct _twid * pTwid)
 {
 	uint16_t id = 0;
 	uint8_t ovType;

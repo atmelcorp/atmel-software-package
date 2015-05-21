@@ -337,7 +337,7 @@ static void configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, (uint32_t)tc_handler);
+	aic_set_source_vector(ID_TC0, tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	tc_find_mck_divisor(4, &div, &tcclks);
@@ -371,8 +371,6 @@ static void _Wait(unsigned long delay)
 	} while (elapsed < delay);
 }
 
-#define SOFTPACK_VERSION "0.1"
-
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -384,13 +382,10 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
-	uint32_t master_clock;
-
 	/* Disable watchdog */
 	WDT_Disable(WDT);
 
 	/* Initialize console */
-	master_clock = pmc_get_master_clock();
 	console_configure(CONSOLE_BAUDRATE);
 
 #if defined (ddram)

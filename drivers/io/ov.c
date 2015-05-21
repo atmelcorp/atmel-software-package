@@ -60,7 +60,7 @@ const static struct capture_size ov_sizes[] = {
  * and frame period.
  */
 void
-ov_configure(Twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
+ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
 {
 	const struct ov_reg *reg_conf;
 	uint8_t goodCaptureSize = 0;
@@ -189,7 +189,7 @@ ov_configure(Twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heigth)
  * \brief  Configure the OV 5640 afc fireware.
  */
 void
-ov_5640Afc_Firmware(Twid * pTwid)
+ov_5640Afc_Firmware(struct _twid * pTwid)
 {
 	const struct ov_reg *reg_conf;
 	reg_conf = ov5640_afc;

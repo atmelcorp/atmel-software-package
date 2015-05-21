@@ -32,7 +32,7 @@
 
 #include <stdint.h>
 
-typedef struct _Twid Twid;
+#include "bus/twid.h"
 
 /*---------------------------------------------------------------------------
  *         TYPE
@@ -59,18 +59,18 @@ struct ov_reg {
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
-extern uint8_t ov_init(Twid * pTwid);
-extern void ov_DumpRegisters8(Twid * pTwid);
-extern void ov_DumpRegisters16(Twid * pTwid);
-extern uint32_t ov_write_regs8(Twid * pTwid, const struct ov_reg *pReglist);
-extern uint32_t ov_write_regs16(Twid * pTwid, const struct ov_reg *pReglist);
-extern uint8_t ov_read_reg8(Twid * pTwid, uint8_t reg, uint8_t * pData);
-extern uint8_t ov_read_reg16(Twid * pTwid, uint16_t reg, uint8_t * pData);
-extern uint8_t ov_write_reg8(Twid * pTwid, uint8_t reg, uint8_t val);
-extern uint8_t ov_write_reg16(Twid * pTwid, uint16_t reg, uint8_t val);
-extern void isOV5640_AF_InitDone(Twid * pTwid);
-extern uint32_t ov_5640_AF_single(Twid * pTwid);
-extern uint32_t ov_5640_AF_continue(Twid * pTwid);
-extern uint32_t ov_5640_AFPause(Twid * pTwid);
-extern uint32_t ov_5640_AFrelease(Twid * pTwid);
+extern uint8_t ov_init(struct _twid * pTwid);
+extern void ov_DumpRegisters8(struct _twid * pTwid);
+extern void ov_DumpRegisters16(struct _twid * pTwid);
+extern uint32_t ov_write_regs8(struct _twid * pTwid, const struct ov_reg *pReglist);
+extern uint32_t ov_write_regs16(struct _twid * pTwid, const struct ov_reg *pReglist);
+extern uint8_t ov_read_reg8(struct _twid * pTwid, uint8_t reg, uint8_t * pData);
+extern uint8_t ov_read_reg16(struct _twid * pTwid, uint16_t reg, uint8_t * pData);
+extern uint8_t ov_write_reg8(struct _twid * pTwid, uint8_t reg, uint8_t val);
+extern uint8_t ov_write_reg16(struct _twid * pTwid, uint16_t reg, uint8_t val);
+extern void isOV5640_AF_InitDone(struct _twid * pTwid);
+extern uint32_t ov_5640_AF_single(struct _twid * pTwid);
+extern uint32_t ov_5640_AF_continue(struct _twid * pTwid);
+extern uint32_t ov_5640_AFPause(struct _twid * pTwid);
+extern uint32_t ov_5640_AFrelease(struct _twid * pTwid);
 #endif

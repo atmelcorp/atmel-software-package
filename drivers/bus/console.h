@@ -39,7 +39,7 @@
 #define DRV_UART     (1)
 #define DRV_USART    (2)
 #define DRV_DBGU     (3)
-// #define DRV_FLEXCOM  (4)
+//#define DRV_FLEXCOM  (4)
 
 struct _console {
 	void* addr;

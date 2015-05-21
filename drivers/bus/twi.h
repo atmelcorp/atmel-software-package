@@ -65,7 +65,7 @@ extern "C" {
  *        External function
  *----------------------------------------------------------------------------*/
 
-extern void twi_configure_master(Twi * pTwi, uint32_t twck, uint32_t mck);
+extern void twi_configure_master(Twi * pTwi, uint32_t twck);
 extern void twi_configure_slave(Twi * pTwi, uint8_t slaveAddress);
 extern void twi_stop(Twi * pTwi);
 extern void twi_start_read(Twi * pTwi, uint8_t address,

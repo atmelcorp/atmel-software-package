@@ -45,7 +45,7 @@
 
 #include <stdint.h>
 
-typedef struct _Twid Twid;
+#include "bus/twid.h"
 
 /** define a structure for ovxxxx register initialization values */
 struct mt_reg {
@@ -95,12 +95,12 @@ struct mt_reg {
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
-extern uint8_t mt_init(Twid * pTwid);
-extern void mt_DumpRegisters(Twid * pTwid);
-extern uint32_t mt_write_regs(Twid * pTwid, const struct mt_reg *pReglist);
-extern uint8_t mt_read_reg(Twid * pTwid, uint8_t reg, uint8_t * pData);
-//extern uint8_t mt_write_reg(Twid *pTwid, uint8_t reg, uint8_t val);
-extern uint8_t mt_write_reg(Twid * pTwid, uint8_t reg, uint8_t * val);
-//extern void write_command (Twid *pTwid,uint8_t reg,uint8_t data1,uint8_t data2);
+extern uint8_t mt_init(struct _twid * pTwid);
+extern void mt_DumpRegisters(struct _twid * pTwid);
+extern uint32_t mt_write_regs(struct _twid * pTwid, const struct mt_reg *pReglist);
+extern uint8_t mt_read_reg(struct _twid * pTwid, uint8_t reg, uint8_t * pData);
+//extern uint8_t mt_write_reg(struct _twid *pTwid, uint8_t reg, uint8_t val);
+extern uint8_t mt_write_reg(struct _twid * pTwid, uint8_t reg, uint8_t * val);
+//extern void write_command (struct _twid *pTwid,uint8_t reg,uint8_t data1,uint8_t data2);
 
 #endif

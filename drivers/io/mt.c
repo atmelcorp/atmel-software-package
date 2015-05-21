@@ -42,7 +42,7 @@
  * and frame period.
  */
 void
-mt_configure(Twid * pTwid, uint32_t width, uint32_t heigth)
+mt_configure(struct _twid * pTwid, uint32_t width, uint32_t heigth)
 {
 	const struct mt_reg *reg_conf;
 	reg_conf = MT9v022_mono;

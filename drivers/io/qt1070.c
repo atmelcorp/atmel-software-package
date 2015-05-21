@@ -53,11 +53,11 @@
  * \return value in the given register.
  */
 static uint8_t
-QT1070_ReadReg(Twid * pTwid, uint8_t regAddr)
+QT1070_ReadReg(struct _twid * pTwid, uint8_t regAddr)
 {
 	uint8_t data;
-	TWID_Write(pTwid, QT1070_SLAVE_ADDRESS, 0, 0, &regAddr, 1, 0);
-	TWID_Read(pTwid, QT1070_SLAVE_ADDRESS, 0, 0, &data, 1, 0);
+	twid_write(pTwid, QT1070_SLAVE_ADDRESS, 0, 0, &regAddr, 1, 0);
+	twid_read(pTwid, QT1070_SLAVE_ADDRESS, 0, 0, &data, 1, 0);
 	return data;
 }
 
@@ -69,9 +69,9 @@ QT1070_ReadReg(Twid * pTwid, uint8_t regAddr)
  * \param data    Data to write.
  */
 static void
-QT1070_WriteReg(Twid * pTwid, uint32_t regAddr, uint8_t data)
+QT1070_WriteReg(struct _twid * pTwid, uint32_t regAddr, uint8_t data)
 {
-	TWID_Write(pTwid, QT1070_SLAVE_ADDRESS, regAddr, 1, &data, 1, 0);
+	twid_write(pTwid, QT1070_SLAVE_ADDRESS, regAddr, 1, &data, 1, 0);
 }
 
 /*----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ QT1070_WriteReg(Twid * pTwid, uint32_t regAddr, uint8_t data)
  */
 
 uint8_t
-QT1070_GetChipId(Twid * pTwid)
+QT1070_GetChipId(struct _twid * pTwid)
 {
 	return QT1070_ReadReg(pTwid, QT1070_CHIP_ID);
 }
@@ -98,7 +98,7 @@ QT1070_GetChipId(Twid * pTwid)
  */
 
 uint8_t
-QT1070_GetFirmwareVersion(Twid * pTwid)
+QT1070_GetFirmwareVersion(struct _twid * pTwid)
 {
 	return QT1070_ReadReg(pTwid, QT1070_REG_FIRMWARE_VERSION);
 }
@@ -111,7 +111,7 @@ QT1070_GetFirmwareVersion(Twid * pTwid)
 */
 
 uint8_t
-QT1070_GetDetection_Status(Twid * pTwid)
+QT1070_GetDetection_Status(struct _twid * pTwid)
 {
 	return QT1070_ReadReg(pTwid, QT1070_REG_DETECTION_STATUS);
 }
@@ -123,7 +123,7 @@ QT1070_GetDetection_Status(Twid * pTwid)
  * \return Key status.
  */
 uint8_t
-QT1070_GetKey_Status(Twid * pTwid)
+QT1070_GetKey_Status(struct _twid * pTwid)
 {
 	return QT1070_ReadReg(pTwid, QT1070_REG_KEY_STATUS);
 }
@@ -137,7 +137,7 @@ QT1070_GetKey_Status(Twid * pTwid)
  * \return Key signal value.
  */
 uint16_t
-QT1070_GetKey_Signal(Twid * pTwid, uint8_t key)
+QT1070_GetKey_Signal(struct _twid * pTwid, uint8_t key)
 {
 	uint8_t data[2];
 	data[0] = QT1070_ReadReg(pTwid, QT1070_REG_KEY0_SIGNAL_MSB + key * 2);
@@ -154,7 +154,7 @@ QT1070_GetKey_Signal(Twid * pTwid, uint8_t key)
  * \return Key reference data.
  */
 uint16_t
-QT1070_GetKey_Reference(Twid * pTwid, uint8_t key)
+QT1070_GetKey_Reference(struct _twid * pTwid, uint8_t key)
 {
 	uint8_t data[2];
 	data[0] = QT1070_ReadReg(pTwid, QT1070_REG_REFDATA0_MSB + key * 2);
@@ -170,7 +170,7 @@ QT1070_GetKey_Reference(Twid * pTwid, uint8_t key)
  * \param threshold Threshold value.
  */
 void
-QT1070_SetThreshold(Twid * pTwid, uint8_t key, uint8_t threshold)
+QT1070_SetThreshold(struct _twid * pTwid, uint8_t key, uint8_t threshold)
 {
 	// Do not use a setting of 0 as this causes a key to go into detection
 	// when its signal is equal to its reference.
@@ -188,7 +188,7 @@ QT1070_SetThreshold(Twid * pTwid, uint8_t key, uint8_t threshold)
  * \param Aks     AKS group index.
  */
 void
-QT1070_SetAveAks(Twid * pTwid, uint8_t key, uint8_t Ave, uint8_t Aks)
+QT1070_SetAveAks(struct _twid * pTwid, uint8_t key, uint8_t Ave, uint8_t Aks)
 {
 	QT1070_WriteReg(pTwid, QT1070_REG_AVEAKS_KEY0 + key, (Ave << 3) | Aks);
 }
@@ -204,7 +204,7 @@ QT1070_SetAveAks(Twid * pTwid, uint8_t key, uint8_t Ave, uint8_t Aks)
  */
 
 void
-QT1070_SetDetectionIntegrator(Twid * pTwid, uint8_t key, uint8_t di)
+QT1070_SetDetectionIntegrator(struct _twid * pTwid, uint8_t key, uint8_t di)
 {
 	QT1070_WriteReg(pTwid, QT1070_REG_DI_KEY0 + key, di);
 }
@@ -218,7 +218,7 @@ QT1070_SetDetectionIntegrator(Twid * pTwid, uint8_t key, uint8_t di)
  */
 
 void
-QT1070_StartCalibrate(Twid * pTwid)
+QT1070_StartCalibrate(struct _twid * pTwid)
 {
 	QT1070_WriteReg(pTwid, QT1070_REG_CALIRATE, 1);
 }
@@ -230,7 +230,7 @@ QT1070_StartCalibrate(Twid * pTwid)
  */
 
 void
-QT1070_StartReset(Twid * pTwid)
+QT1070_StartReset(struct _twid * pTwid)
 {
 	QT1070_WriteReg(pTwid, QT1070_REG_RESET, 1);
 }

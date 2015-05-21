@@ -60,7 +60,7 @@
  */
 void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 {
-	uint32_t clock = pmc_get_peripheral_max_clock(get_usart_id_from_addr(dbgu));
+	uint32_t clock = pmc_get_peripheral_max_clock(get_usart_id_from_addr((Usart*)dbgu));
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
 	dbgu->DBGU_IDR = 0xFFFFFFFF;

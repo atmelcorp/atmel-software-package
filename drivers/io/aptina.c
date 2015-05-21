@@ -51,7 +51,7 @@ static const struct _pin pin_ISI_RST = PIN_ISI_RST;
  *        Local Functions
  *----------------------------------------------------------------------------*/
 static void
-write_command(Twid * pTwid, uint8_t reg, uint8_t data1, uint8_t data2)
+write_command(struct _twid * pTwid, uint8_t reg, uint8_t data1, uint8_t data2)
 {
 	BUF[0] = reg;
 	BUF[1] = data1;
@@ -60,7 +60,7 @@ write_command(Twid * pTwid, uint8_t reg, uint8_t data1, uint8_t data2)
 }
 
 static void
-mt_reset(Twid * pTwid)
+mt_reset(struct _twid * pTwid)
 {
 	volatile uint32_t i;
 	pio_configure(&pin_ISI_RST, 1);
@@ -81,7 +81,7 @@ mt_reset(Twid * pTwid)
  * \return  VER | (PID<<8)
  */
 static unsigned short
-mt_id(Twid * pTwid)
+mt_id(struct _twid * pTwid)
 {
 	uint8_t id = 0;
 	uint8_t ver = 0;
@@ -108,11 +108,11 @@ mt_id(Twid * pTwid)
  * \return 0 if no error; otherwise TWID_ERROR_BUSY
  */
 uint8_t
-mt_read_reg(Twid * pTwid, uint8_t reg, uint8_t * pData)
+mt_read_reg(struct _twid * pTwid, uint8_t reg, uint8_t * pData)
 {
 	uint8_t status;
-	status = TWID_Write(pTwid, MT_CAPTOR_ADDRESS, 0, 0, &reg, 1, 0);
-	status |= TWID_Read(pTwid, MT_CAPTOR_ADDRESS, 0, 0, pData, 2, 0);
+	status = twid_write(pTwid, MT_CAPTOR_ADDRESS, 0, 0, &reg, 1, 0);
+	status |= twid_read(pTwid, MT_CAPTOR_ADDRESS, 0, 0, pData, 2, 0);
 	if (status != 0) {
 		TRACE_ERROR("mt_read_reg pb");
 	}
@@ -127,10 +127,10 @@ mt_read_reg(Twid * pTwid, uint8_t reg, uint8_t * pData)
  * \return 0 if no error; otherwise TWID_ERROR_BUSY
  */
 uint8_t
-mt_write_reg(Twid * pTwid, uint8_t reg, uint8_t * val)
+mt_write_reg(struct _twid * pTwid, uint8_t reg, uint8_t * val)
 {
 	uint8_t status;
-	status = TWID_Write(pTwid, MT_CAPTOR_ADDRESS, reg, 1, val, 2, 0);
+	status = twid_write(pTwid, MT_CAPTOR_ADDRESS, reg, 1, val, 2, 0);
 	if (status != 0) {
 		TRACE_ERROR("mt_write_reg pb");
 	}
@@ -145,7 +145,7 @@ mt_write_reg(Twid * pTwid, uint8_t reg, uint8_t * val)
  * \return 0 if no error; otherwise TWID_ERROR_BUSY
  */
 uint32_t
-mt_write_regs(Twid * pTwid, const struct mt_reg * pReglist)
+mt_write_regs(struct _twid * pTwid, const struct mt_reg * pReglist)
 {
 	uint32_t err;
 	uint32_t size = 0;
@@ -180,7 +180,7 @@ mt_write_regs(Twid * pTwid, const struct mt_reg * pReglist)
  * \param pTwid TWI interface
  */
 void
-mt_DumpRegisters(Twid * pTwid)
+mt_DumpRegisters(struct _twid * pTwid)
 {
 	uint32_t i;
 	uint8_t value;
@@ -203,7 +203,7 @@ mt_DumpRegisters(Twid * pTwid)
  * \return MT type
  */
 uint8_t
-mt_init(Twid * pTwid)
+mt_init(struct _twid * pTwid)
 {
 	uint16_t id = 0;
 	uint8_t mtType;
