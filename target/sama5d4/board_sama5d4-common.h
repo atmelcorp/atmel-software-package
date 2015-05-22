@@ -144,9 +144,6 @@
 /** Frequency of the board main oscillator */
 #define BOARD_MAINOSC           12000000
 
-/** Master clock frequency (when using board_lowlevel.c) */
-#define BOARD_MCK               ((unsigned long)((BOARD_MAINOSC / 3 / 2) * 88 ))
-
 /*----------------------------------------------------------------------------*/
 /**
  * \if document_A5D4_EK

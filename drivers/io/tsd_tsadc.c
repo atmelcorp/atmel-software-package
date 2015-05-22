@@ -294,7 +294,7 @@ TSD_Initialize(void)
 	/* Configuration */
 	pmc_enable_peripheral(ID_ADC);
 
-	adc_set_clock(pAdc, BOARD_TOUCHSCREEN_ADCCLK, BOARD_MCK);
+	adc_set_clock(pAdc, BOARD_TOUCHSCREEN_ADCCLK, pmc_get_master_clock());
 	adc_set_startup_time(pAdc, BOARD_TOUCHSCREEN_STARTUP);
 	adc_set_tracking_time(pAdc, BOARD_TOUCHSCREEN_SHTIM);
 

@@ -409,7 +409,7 @@ DelayMS(signed int delay)
 {
 	uint32_t count;
 	for (; delay > 0; delay--)
-		for (count = 0; count < (BOARD_MCK / 1000000); count++) ;
+		for (count = 0; count < (pmc_get_master_clock() / 1000000); count++) ;
 }
 
 uint8_t

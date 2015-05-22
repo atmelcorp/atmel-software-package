@@ -99,7 +99,7 @@ ISO7816_GetChar(uint8_t * pCharToReceive)
 
 	/* Wait USART ready for reception */
 	while (((BOARD_ISO7816_BASE_USART->US_CSR & US_CSR_RXRDY) == 0)) {
-		if (timeout++ > 12000 * (BOARD_MCK / 1000000)) {
+		if (timeout++ > 12000 * (pmc_get_master_clock() / 1000000)) {
 			TRACE_DEBUG("TimeOut\n\r");
 			return (0);
 		}
@@ -452,7 +452,7 @@ ISO7816_cold_reset(void)
 	volatile uint32_t i;
 
 	/* tb: wait 400 cycles */
-	for (i = 0; i < (120 * (BOARD_MCK / 1000000)); i++) {
+	for (i = 0; i < (120 * (pmc_get_master_clock() / 1000000)); i++) {
 	}
 
 	BOARD_ISO7816_BASE_USART->US_RHR;
@@ -473,7 +473,7 @@ ISO7816_warm_reset(void)
 	ISO7816_IccPowerOff();
 
 	/* tb: wait 400 cycles */
-	for (i = 0; i < (120 * (BOARD_MCK / 1000000)); i++) {
+	for (i = 0; i < (120 * (pmc_get_master_clock() / 1000000)); i++) {
 	}
 
 	BOARD_ISO7816_BASE_USART->US_RHR;
