@@ -95,8 +95,8 @@
 #define PINS_CONSOLE            PINS_UART1_IOS1
 #define CONSOLE_PER_ADD         UART1
 #define CONSOLE_ID              ID_UART1
-#define CONSOLE_BAUDRATE        115200
-#define CONSOLE_DRIVER			DRV_UART
+#define CONSOLE_BAUDRATE        57600
+#define CONSOLE_DRIVER          DRV_UART
 
 /* =================== PIN LED definition ====================== */
 
