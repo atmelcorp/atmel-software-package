@@ -28,7 +28,7 @@
  */
 
 /*------------------------------------------------------------------------------
- *      Linker script for running in internal SRAM on the SAMA5-MIURA
+ *      Linker script for running in internal SRAM on the SAMA5D2
  *----------------------------------------------------------------------------*/
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
@@ -109,23 +109,6 @@ SECTIONS
 	. = ALIGN(4);
 	_etext = .;
 
-
-	.prerelocate : AT (_etext)
-	{
-		. = ALIGN(4);
-		_sprerelocate = .;
-		. = ALIGN(4);
-		_eprerelocate = .;
-	} > sram
-
-	.postrelocate : AT (_efixed + SIZEOF(.prerelocate))
-	{
-		. = ALIGN(4);
-		_spostrelocate = .;
-		. = ALIGN(4);
-		_epostrelocate = .;
-	} > sram
-
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
 	{
@@ -158,6 +141,14 @@ SECTIONS
 		. += FIQ_STACK_SIZE;
 		. = ALIGN (4);
 		_fiqstack = . ;
+
+		. += ABT_STACK_SIZE;
+		. = ALIGN (4);
+		_abtstack = . ;
+
+		. += UND_STACK_SIZE;
+		. = ALIGN (4);
+		_undstack = . ;
 
 		. += SYS_STACK_SIZE;
 		. = ALIGN (4);

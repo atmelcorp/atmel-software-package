@@ -118,10 +118,12 @@ void default_prefetch_abort_irq_handler(void);
  */
 void default_undefined_instruction_irq_handler(void)
 {
-	printf("\n\r####################\n\r");
+	printf("\n\r");
+	printf("#####################\n\r");
 	printf("Undefined Instruction\n\r");
-	printf("\n\r####################\n\r");
+	printf("#####################\n\r");
 
+	asm("bkpt");
 	while(1);
 }
 
@@ -131,10 +133,12 @@ void default_undefined_instruction_irq_handler(void)
  */
 void default_software_interrupt_irq_handler(void)
 {
-	printf("\n\r####################\n\r");
+	printf("\n\r");
+	printf("##################\n\r");
 	printf("Software Interrupt\n\r");
-	printf("\n\r####################\n\r");
+	printf("##################\n\r");
 
+	asm("bkpt");
 	while(1);
 }
 
@@ -148,7 +152,8 @@ void default_data_abort_irq_handler(void)
 	asm("mrc p15, 0, %0, c5, c0, 0" : "=r"(v1));
 	asm("mrc p15, 0, %0, c6, c0, 0" : "=r"(v2));
 
-	printf("\n\r####################\n\r");
+	printf("\n\r");
+	printf("####################\n\r");
 	dfsr = ((v1 >> 4) & 0x0F);
 	printf("Data Fault occured in %x domain\n\r", (unsigned int)dfsr);
 	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
@@ -158,8 +163,9 @@ void default_data_abort_irq_handler(void)
 		printf("Data Fault reason is unknown\n\r");
 	printf("Data Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
 	printf("Data Fault status register value: 0x%x\n\r", (unsigned int)v1);
-	printf("\n\r####################\n\r");
+	printf("####################\n\r");
 
+	asm("bkpt");
 	while(1);
 }
 
@@ -173,7 +179,8 @@ void default_prefetch_abort_irq_handler(void)
 	asm("mrc p15, 0, %0, c5, c0, 1" : "=r"(v1));
 	asm("mrc p15, 0, %0, c6, c0, 2" : "=r"(v2));
 
-	printf("\n\r####################\n\r");
+	printf("\n\r");
+	printf("####################\n\r");
 	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
 	if (_prefetch_abort_status[ifsr])
 		printf("Prefetch Fault reason is: %s\n\r", _prefetch_abort_status[ifsr]);
@@ -181,7 +188,8 @@ void default_prefetch_abort_irq_handler(void)
 		printf("Prefetch Fault reason is unknown\n\r");
 	printf("prefetch Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
 	printf("Prefetch Fault status register value: 0x%x\n\r", (unsigned int)v1);
-	printf("\n\r####################\n\r");
+	printf("####################\n\r");
 
+	asm("bkpt");
 	while(1);
 }

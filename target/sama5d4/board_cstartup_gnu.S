@@ -33,11 +33,12 @@
 //------------------------------------------------------------------------------
 
 #define AIC         0xFC06E000
+#define SAIC        0xFC068400
 #define AIC_IVR     0x10
 #define AIC_EOICR   0x38
-#define SAIC        0xFC068400
 
 #define MODE_MSK         0x1F
+
 #define ARM_MODE_FIQ     0x11
 #define ARM_MODE_IRQ     0x12
 #define ARM_MODE_SVC     0x13
@@ -47,10 +48,6 @@
 
 #define I_BIT            0x80
 #define F_BIT            0x40
-
-#define REG_SFR_AICREDIR        0xF8028054
-#define REG_SFR_UID             0xF8028050
-#define AICREDIR_KEY            0x5F67B102
 
 //------------------------------------------------------------------------------
 //         Startup routine
@@ -103,8 +100,7 @@ fiqHandler:
 	msr     CPSR_c, #ARM_MODE_SVC
 	stmfd   sp!, {r1-r3, r4, r12, lr}
 
-	mov     r14, pc
-	bx      r0
+	blx      r0
 
 	ldmia   sp!, {r1-r3, r4, r12, lr}
 	msr     CPSR_c, #ARM_MODE_FIQ | I_BIT | F_BIT
@@ -181,18 +177,6 @@ resetHandler:
 
 	cpsie   a
 
-/* Enable VFP */
-
-	/* - Enable access to CP10 and CP11 in CP15.CACR */
-	//mrc     p15, 0, r0, c1, c0, 2
-	//orr     r0, r0, #0xf00000
-	//mcr     p15, 0, r0, c1, c0, 2
-	/* - Enable access to CP10 and CP11 in CP15.NSACR */
-	/* - Set FPEXC.EN (B30) */
-	//fmrx    r0, fpexc
-	//orr     r0, r0, #0x40000000
-	//fmxr    fpexc, r0
-
 /* Useless instruction for referencing the .vectors section */
 
 	ldr     r0, =resetVector
@@ -200,50 +184,11 @@ resetHandler:
 /* Set pc to actual code location (i.e. not in remap zone) */
 
 	ldr     pc, =1f
-
-/* Initialize the prerelocate segment */
-
 1:
-	ldr     r0, =_efixed
-	ldr     r1, =_sprerelocate
-	ldr     r2, =_eprerelocate
-1:
-	cmp     r1, r2
-	ldrcc   r3, [r0], #4
-	strcc   r3, [r1], #4
-	bcc     1b
-
-/* Perform low-level initialization of the chip using low_level_init() */
-
-	ldr     sp, =_cstack
-	stmfd   sp!, {r0}
-	ldr     r0, =low_level_init
-	blx     r0
-
-	mrs     r0, CPSR
-
-/* Initialize the postrelocate segment */
-
-	ldmfd   sp!, {r0}
-	ldr     r1, =_spostrelocate
-	ldr     r2, =_epostrelocate
-1:
-	cmp     r1, r2
-	ldrcc   r3, [r0], #4
-	strcc   r3, [r1], #4
-	bcc     1b
-
-/* Clear the zero segment */
-	ldr     r0, =_szero
-	ldr     r1, =_ezero
-	mov     r2, #0
-1:
-	cmp     r0, r1
-	strcc   r2, [r0], #4
-	bcc     1b
 
 /* Set up the fast interrupt stack pointer */
 
+	mrs     r0, CPSR
 	bic     r0, r0, #MODE_MSK
 	orr     r0, r0, #ARM_MODE_FIQ
 	msr     CPSR_c, r0
@@ -258,7 +203,23 @@ resetHandler:
 	ldr     sp, =_irqstack
 	bic     sp, sp, #0x7
 
-/* Set up the stack pointer */
+/* Set up the abort mode stack pointer */
+
+	bic     r0, r0, #MODE_MSK
+	orr     r0, r0, #ARM_MODE_ABT
+	msr     CPSR_c, r0
+	ldr     sp, =_abtstack
+	bic     sp, sp, #0x7
+
+/* Set up the undefined mode stack pointer */
+
+	bic     r0, r0, #MODE_MSK
+	orr     r0, r0, #ARM_MODE_UND
+	msr     CPSR_c, r0
+	ldr     sp, =_undstack
+	bic     sp, sp, #0x7
+
+/* Set up the system mode stack pointer */
 
 	bic     r0, r0, #MODE_MSK
 	orr     r0, r0, #ARM_MODE_SYS
@@ -266,27 +227,32 @@ resetHandler:
 	ldr     sp, =_sysstack
 	bic     sp, sp, #0x7
 
+/* Set up the supervisor mode stack pointer */
+
 	bic     r0, r0, #MODE_MSK
 	orr     r0, r0, #ARM_MODE_SVC
 	msr     CPSR_c, r0
 	ldr     sp, =_cstack
 	bic     sp, sp, #0x7
 
-/* Redirect FIQ to IRQ */
+/* Perform low-level initialization of the chip using low_level_init() */
 
-	ldr     r0, =AICREDIR_KEY
-	ldr     r1, =REG_SFR_UID
-	ldr     r2, =REG_SFR_AICREDIR
-	ldr     r3, [r1]
-	eors    r0, r0, r3
-	orrs    r0, r0, #0x01
-	str     r0, [r2]
+	ldr     r0, =low_level_init
+	blx     r0
+
+/* Clear the zero segment */
+	ldr     r0, =_szero
+	ldr     r1, =_ezero
+	mov     r2, #0
+1:
+	cmp     r0, r1
+	strcc   r2, [r0], #4
+	bcc     1b
 
 /* Initialize the C library */
 
-	ldr     r3, =__libc_init_array
-	mov     lr, pc
-	bx      r3
+	ldr     r0, =__libc_init_array
+	blx     r0
 
 /* Branch to main() */
 

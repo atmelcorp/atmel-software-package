@@ -87,9 +87,6 @@ static void _aic_initialize(Aic* aic)
 {
 	uint32_t i;
 
-	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-
 	/* Disable all interrupts */
 	for (i = 1; i < ID_PERIPH_COUNT; i++)
 	{
@@ -115,9 +112,6 @@ static void _aic_initialize(Aic* aic)
 		aic->AIC_SVR = (uint32_t)_aic_default_irq_handler;
 	}
 	aic->AIC_SPU = (uint32_t)_aic_default_irq_handler;
-
-	/* Enable IRQ and FIQ at core level */
-	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**
@@ -249,11 +243,19 @@ static uint8_t _is_h64_matrix(uint32_t pid)
  */
 void aic_initialize(void)
 {
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 
+	/* Set default vectors */
 	_aic_initialize(AIC);
-	if (AicFuse)
-		_aic_initialize(SAIC);
+	_aic_initialize(SAIC);
+
+	/* Redirect all interrupts to Non-secure AIC */
+	REG_SFR_AICREDIR = SFR_AICREDIR_AICREDIRKEY(0x5F67B102) | REG_SFR_SN1 |
+	                   SFR_AICREDIR_NSAIC;
+
+	/* Enable IRQ and FIQ at core level */
+	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**

@@ -9,14 +9,10 @@ define reset
 # Connect to the J-Link gdb server
 target remote localhost:2331
 
-# Reset the chip to get to a known state
-#monitor reset
-
 # Load the program
 load
 
-# Initializing PC and stack pointer
-mon reg pc = 0x200000
+# Initialize PC and zero registers
 mon reg pc = 0x200000
 mon reg r0 = 0x0
 mon reg r1 = 0x0
@@ -26,9 +22,11 @@ mon reg r4 = 0x0
 mon reg r5 = 0x0
 mon reg r6 = 0x0
 mon reg r7 = 0x0
-# Disable all interrupt and pass to supervisor mode
-mon reg cpsr = 0xd3
-info reg
 
-# end of 'reset' command
+# Disable all interrupts and go to supervisor mode
+mon reg cpsr = 0xd3
+
+# Show registers state
+mon regs
+
 end
