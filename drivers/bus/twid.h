@@ -58,7 +58,7 @@ extern "C" {
 /** \brief TWI driver structure. Holds the internal state of the driver.*/
 struct _twid {
 	Twi *pTwi;			/** Pointer to the underlying TWI peripheral.*/
-	Async *pTransfer;	/** Current asynchronous transfer being processed.*/
+	struct _async *pTransfer;	/** Current asynchronous transfer being processed.*/
 };
 
 /*----------------------------------------------------------------------------
@@ -69,18 +69,18 @@ extern void twid_initialize(struct _twid* pTwid, Twi * pTwi);
 extern void twid_handler(struct _twid* pTwid);
 
 extern uint8_t twid_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
-			 uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync);
+			 uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync);
 
 extern uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 			    uint8_t isize, uint8_t * pData, uint32_t num,
-			    Async * pAsync, uint8_t TWI_ID);
+			    struct _async * pAsync, uint8_t TWI_ID);
 
 extern uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
-			  uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync);
+			  uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync);
 
 extern uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address,
 			     uint32_t iaddress, uint8_t isize, uint8_t * pData,
-			     uint32_t num, Async * pAsync, uint8_t TWI_ID);
+			     uint32_t num, struct _async * pAsync, uint8_t TWI_ID);
 #ifdef __cplusplus
 }
 #endif

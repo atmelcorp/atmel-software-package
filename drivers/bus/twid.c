@@ -57,7 +57,7 @@ static LinkedListDescriporView1 dmaReadLinkList[1];
  *----------------------------------------------------------------------------*/
 
 /** TWI driver callback function.*/
-typedef void (*TwiCallback) (Async *);
+typedef void (*TwiCallback) (struct _async *);
 
 /** \brief TWI asynchronous transfer descriptor.*/
 struct _async_twi {
@@ -286,7 +286,7 @@ void twid_handler(struct _twid* pTwid)
 		twi_enable_it(pTwi, TWI_IDR_TXCOMP);
 		pTransfer->status = 0;
 		if (pTransfer->callback) {
-			pTransfer->callback((Async *) (void *) pTransfer);
+			pTransfer->callback((struct _async *) (void *) pTransfer);
 		}
 		pTwid->pTransfer = 0;
 	}
@@ -305,7 +305,7 @@ void twid_handler(struct _twid* pTwid)
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
-	  uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync)
+	  uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync)
 {
 	Twi *pTwi;
 	struct _async_twi* pTransfer;
@@ -439,7 +439,7 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
-	     uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
+	     uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi;
 	struct _async_twi* pTransfer;
@@ -533,7 +533,7 @@ uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
-	      uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync, uint8_t twi_id)
+	      uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync, uint8_t twi_id)
 {
 	Twi *pTwi = pTwid->pTwi;
 	struct _async_twi* pTransfer;
@@ -618,7 +618,7 @@ uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
  * \return 0 if the transfer has been started; otherwise returns a TWI error code.
  */
 uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
-	   uint8_t isize, uint8_t * pData, uint32_t num, Async * pAsync)
+	   uint8_t isize, uint8_t * pData, uint32_t num, struct _async * pAsync)
 {
 	Twi *pTwi = pTwid->pTwi;
 	struct _async_twi* pTransfer;
