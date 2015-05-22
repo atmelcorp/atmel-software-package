@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -40,22 +40,14 @@
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-extern void RSTC_ConfigureMode(uint32_t rmr);
-
-extern void RSTC_SetUserResetEnable(uint8_t enable);
-
-extern void RSTC_SetUserResetInterruptEnable(uint8_t enable);
-
-extern void RSTC_ProcessorReset(void);
-
-extern void RSTC_PeripheralReset(void);
-
-extern uint8_t RSTC_GetNrstLevel(void);
-
-extern uint8_t RSTC_IsUserResetDetected(void);
-
-extern uint8_t RSTC_IsBusy(void);
-
-extern uint32_t RSTC_GetStatus(void);
+extern void rstc_configure_mode(uint32_t rmr);
+extern void rstc_set_user_reset_enable(uint8_t enable);
+extern void rstc_set_user_reset_interrupt_enable(uint8_t enable);
+extern void rstc_processor_reset(void);
+extern void rstc_peripheral_reset(void);
+extern uint8_t rstc_get_nrst_level(void);
+extern uint8_t rstc_is_user_reset_detected(void);
+extern uint8_t rstc_is_busy(void);
+extern uint32_t rstc_get_status(void);
 
 #endif				/* #ifndef _RSTC_H */
