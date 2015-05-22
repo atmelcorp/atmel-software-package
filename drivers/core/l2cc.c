@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -32,57 +32,59 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "chip.h"
 #include "core/l2cc.h"
 #include "core/cp15.h"
 #include "utils/trace.h"
+
 #include <assert.h>
+
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
 /**
  * \brief Check if Level 2 cache is enable.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-unsigned int
-L2CC_IsEnabled(L2cc * pL2CC)
+uint32_t l2cc_is_enabled(L2cc * pL2cc)
 {
-	return ((pL2CC->L2CC_CR) & L2CC_CR_L2CEN);
+	return ((pL2cc->L2CC_CR) & L2CC_CR_L2CEN);
 }
 
 /**
  * \brief Enable Level 2 cache.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-void
-L2CC_Enable(L2cc * pL2CC)
+void l2cc_enable(L2cc * pL2cc)
 {
-	pL2CC->L2CC_CR |= L2CC_CR_L2CEN;
+	pL2cc->L2CC_CR |= L2CC_CR_L2CEN;
 	TRACE_INFO("L2 cache is enabled");
 }
 
 /**
  * \brief Disable Level 2 cache.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-void
-L2CC_Disable(L2cc * pL2CC)
+void l2cc_disable(L2cc * pL2cc)
 {
-	pL2CC->L2CC_CR &= (!L2CC_CR_L2CEN);
+	pL2cc->L2CC_CR &= (!L2CC_CR_L2CEN);
 	TRACE_INFO("L2 cache is Disabled");
 }
 
 /**
  * \brief Configures Level 2 cache as exclusive cache.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param Enable Enable/disable exclusive cache.
  */
-void
-L2CC_ExclusiveCache(L2cc * pL2CC, uint8_t Enable)
+void l2cc_exclusive_cache(L2cc * pL2cc, uint8_t Enable)
 {
 	uint32_t Aux_Cfg;
-	if (L2CC_IsEnabled(pL2CC)) {
-		pL2CC->L2CC_CR = DISABLE;
+	if (l2cc_is_enabled(pL2cc)) {
+		pL2cc->L2CC_CR = DISABLE;
 	}
-	Aux_Cfg = pL2CC->L2CC_ACR;
+	Aux_Cfg = pL2cc->L2CC_ACR;
 	if (Enable) {
 		cp15_exclusive_cache();
 		Aux_Cfg |= L2CC_ACR_EXCC;
@@ -92,43 +94,36 @@ L2CC_ExclusiveCache(L2cc * pL2CC, uint8_t Enable)
 		Aux_Cfg &= ~L2CC_ACR_EXCC;
 		TRACE_INFO("L2 Exclusive mode Disabled\n\r");
 	}
-
-	pL2CC->L2CC_ACR |= Aux_Cfg;
-
+	pL2cc->L2CC_ACR |= Aux_Cfg;
 }
 
 /**
  * \brief Configures Level 2 cache RAM Latency (Tag and Data).
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param pLat  Structure containing RAM Tag and Data latencies
  */
-void
-L2CC_ConfigLatRAM(L2cc * pL2CC, RAMLatencyControl * pLat)
+void l2cc_config_lat_ram(L2cc * pL2cc, struct _ram_latency_control * pLat)
 {
-	if (L2CC_IsEnabled(pL2CC)) {
-		pL2CC->L2CC_CR = DISABLE;
+	if (l2cc_is_enabled(pL2cc)) {
+		pL2cc->L2CC_CR = DISABLE;
 	}
 
-	pL2CC->L2CC_TRCR =
+	pL2cc->L2CC_TRCR =
 	    (L2CC_TRCR_TSETLAT(pLat->TagRAM.SetupLAT) |
-	     L2CC_TRCR_TRDLAT(pLat->TagRAM.ReadLAT) | L2CC_TRCR_TWRLAT(pLat->
-								       TagRAM.
-								       WriteLAT));
-	pL2CC->L2CC_DRCR =
+		 		L2CC_TRCR_TRDLAT(pLat->TagRAM.ReadLAT) |
+			 	L2CC_TRCR_TWRLAT(pLat->TagRAM.WriteLAT));
+	pL2cc->L2CC_DRCR =
 	    (L2CC_DRCR_DSETLAT(pLat->DataRAM.SetupLAT) |
-	     L2CC_DRCR_DRDLAT(pLat->DataRAM.ReadLAT) | L2CC_DRCR_DWRLAT(pLat->
-									DataRAM.
-									WriteLAT));
-
+		 		L2CC_DRCR_DRDLAT(pLat->DataRAM.ReadLAT) |
+				L2CC_DRCR_DWRLAT(pLat->DataRAM.WriteLAT));
 }
 
 /**
  * \brief Configures Level 2 cache.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param L2cc_Config  Configuration values to put in Auxiliary, prefetch, debug and powercontrol registers
  */
-void
-L2CC_Config(L2cc * pL2CC, L2CC_Control L2cc_Config)
+void l2cc_config(L2cc * pL2cc, struct _l2cc_control L2cc_Config)
 {
 	uint32_t AuxiliaryControl, DebugControl, PrefetchControl, PowerControl;
 
@@ -150,8 +145,8 @@ L2CC_Config(L2cc * pL2CC, L2CC_Control L2cc_Config)
 //    assert(0);
 //  }
 
-	if (L2CC_IsEnabled(pL2CC)) {
-		pL2CC->L2CC_CR = DISABLE;
+	if (l2cc_is_enabled(pL2cc)) {
+		pL2cc->L2CC_CR = DISABLE;
 	}
 
 	AuxiliaryControl = ((L2cc_Config.HPSO_Val << 10) |
@@ -182,425 +177,360 @@ L2CC_Config(L2cc * pL2CC, L2CC_Control L2cc_Config)
 	PowerControl = ((L2cc_Config.DCL_Val << 0) |
 			(L2cc_Config.DWB_Val << 1));
 
-	pL2CC->L2CC_ACR = AuxiliaryControl;
-
-	pL2CC->L2CC_DCR = DebugControl;
-
-	pL2CC->L2CC_PCR = PrefetchControl;
-
-	pL2CC->L2CC_POWCR = PowerControl;
-
+	pL2cc->L2CC_ACR = AuxiliaryControl;
+	pL2cc->L2CC_DCR = DebugControl;
+	pL2cc->L2CC_PCR = PrefetchControl;
+	pL2cc->L2CC_POWCR = PowerControl;
 }
 
 /**
  * \brief Enables Data prefetch on L2
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-void
-L2CC_DataPrefetchEnable(L2cc * pL2CC)
+void l2cc_data_prefetch_enable(L2cc * pL2cc)
 {
-
-	pL2CC->L2CC_PCR |= L2CC_PCR_DATPEN;
-
+	pL2cc->L2CC_PCR |= L2CC_PCR_DATPEN;
 }
 
 /**
  * \brief Enables instruction prefetch on L2
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-void
-L2CC_InstPrefetchEnable(L2cc * pL2CC)
+void l2cc_inst_prefetch_enable(L2cc * pL2cc)
 {
-
-	pL2CC->L2CC_PCR |= L2CC_PCR_INSPEN;
-
+	pL2cc->L2CC_PCR |= L2CC_PCR_INSPEN;
 }
 
 /**
  * \brief Enables instruction prefetch on L2
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param EventCounter Counter of the events.
  */
-void
-L2CC_EnableResetCounter(L2cc * pL2CC, uint8_t EventCounter)
+void l2cc_enable_reset_counter(L2cc * pL2cc, uint8_t EventCounter)
 {
-
 	assert((EventCounter > 3) ? 0 : 1);
-
-	pL2CC->L2CC_ECR = (L2CC_ECR_EVCEN | (EventCounter << 1));
-
+	pL2cc->L2CC_ECR = (L2CC_ECR_EVCEN | (EventCounter << 1));
 }
 
 /**
  * \brief Configures Event of Level 2 cache.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param EventCounter  Eventcounter 1 or 0
  * \param Source  Event Genration source
  * \param IntGen  Event Counter Interrupt Generation condition
  */
-void
-L2CC_EventConfig(L2cc * pL2CC, uint8_t EventCounter, uint8_t Source,
-		 uint8_t IntGen)
+void l2cc_event_config(L2cc * pL2cc, uint8_t EventCounter, uint8_t Source, uint8_t IntGen)
 {
-	if (L2CC_IsEnabled(pL2CC)) {
-		pL2CC->L2CC_CR = DISABLE;
+	if (l2cc_is_enabled(pL2cc)) {
+		pL2cc->L2CC_CR = DISABLE;
 	}
-
 	assert((EventCounter > 1) ? 0 : 1);
-
 	if (!EventCounter) {
-		pL2CC->L2CC_ECFGR0 = (Source | IntGen);
+		pL2cc->L2CC_ECFGR0 = (Source | IntGen);
 	} else {
-		pL2CC->L2CC_ECFGR1 = (Source | IntGen);
+		pL2cc->L2CC_ECFGR1 = (Source | IntGen);
 	}
 
 }
 
 /**
  * \brief Reads Eventcounter value.
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param EventCounter  choose Eventcounter 1 or 0
  */
-unsigned int
-L2CC_EventCounterValue(L2cc * pL2CC, uint8_t EventCounter)
+uint32_t l2cc_event_counter_value(L2cc * pL2cc, uint8_t EventCounter)
 {
-
 	assert((EventCounter > 1) ? 0 : 1);
-
 	if (!EventCounter) {
-		return pL2CC->L2CC_EVR0;
+		return pL2cc->L2CC_EVR0;
 	} else {
-		return pL2CC->L2CC_EVR1;
+		return pL2cc->L2CC_EVR1;
 	}
-
 }
 
 /**
  * \brief Enable interrupts
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-void
-L2CC_EnableIT(L2cc * pL2CC, uint16_t ITSource)
+void l2cc_enable_it(L2cc * pL2cc, uint16_t ITSource)
 {
-	pL2CC->L2CC_IMR |= ITSource;
+	pL2cc->L2CC_IMR |= ITSource;
 }
 
 /**
  * \brief Disable interrupts
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-void
-L2CC_DisableIT(L2cc * pL2CC, uint16_t ITSource)
+void l2cc_disable_it(L2cc * pL2cc, uint16_t ITSource)
 {
-	pL2CC->L2CC_IMR &= (!ITSource);
+	pL2cc->L2CC_IMR &= (!ITSource);
 }
 
 /**
  * \brief Enabled interrupt's raw status
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-unsigned short
-L2CC_ITStatusRaw(L2cc * pL2CC, uint16_t ITSource)
+unsigned short l2cc_it_status_raw(L2cc * pL2cc, uint16_t ITSource)
 {
-	return ((pL2CC->L2CC_RISR) & ITSource) ? 1 : 0;
+	return ((pL2cc->L2CC_RISR) & ITSource) ? 1 : 0;
 }
 
 /**
  * \brief Status of masked interrupts
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-unsigned short
-L2CC_ITStatusMask(L2cc * pL2CC, uint16_t ITSource)
+unsigned short l2cc_it_status_mask(L2cc * pL2cc, uint16_t ITSource)
 {
-	return ((pL2CC->L2CC_MISR) & ITSource) ? 1 : 0;
+	return ((pL2cc->L2CC_MISR) & ITSource) ? 1 : 0;
 }
 
 /**
  * \brief Clear interrupts
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-void
-L2CC_ITClear(L2cc * pL2CC, uint16_t ITSource)
+void l2cc_it_clear(L2cc * pL2cc, uint16_t ITSource)
 {
-	pL2CC->L2CC_ICR |= ITSource;
+	pL2cc->L2CC_ICR |= ITSource;
 }
 
 /**
  * \brief Poll SPNIDEN signal
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-uint8_t
-L2CC_PollSPNIDEN(L2cc * pL2CC)
+uint8_t l2cc_poll_spniden(L2cc * pL2cc)
 {
-	return ((pL2CC->L2CC_DCR & L2CC_DCR_SPNIDEN) >> 2);
+	return ((pL2cc->L2CC_DCR & L2CC_DCR_SPNIDEN) >> 2);
 }
 
 /**
  * \brief Synchronizes the L2 cache
- * \param pL2CC Pointer to the L2CC peripheral.
+ * \param pL2cc Pointer to the L2CC peripheral.
  */
-void
-L2CC_CacheSync(L2cc * pL2CC)
+void l2cc_cache_sync(L2cc * pL2cc)
 {
-	while ((pL2CC->L2CC_CSR) & L2CC_CSR_C) ;
-	pL2CC->L2CC_CSR = L2CC_CSR_C;
-	while ((pL2CC->L2CC_CSR) & L2CC_CSR_C) ;
+	while ((pL2cc->L2CC_CSR) & L2CC_CSR_C) ;
+	pL2cc->L2CC_CSR = L2CC_CSR_C;
+	while ((pL2cc->L2CC_CSR) & L2CC_CSR_C) ;
 }
 
 /**
  * \brief Invalidate cache by Physical addersse
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param P_Address  Physical addresse
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param phys_addr  Physical addresse
  */
-void
-L2CC_InvalidatePAL(L2cc * pL2CC, uint32_t P_Address)
+void l2cc_invalidate_pal(L2cc * pL2cc, uint32_t phys_addr)
 {
 	static uint32_t Tag;
 	static uint16_t Index;
-	Tag = (P_Address >> (OFFSET_BIT + INDEX_BIT));
-	Index = (P_Address >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
-
-	pL2CC->L2CC_IPALR =
-	    (L2CC_IPALR_TAG(Tag) | L2CC_IPALR_IDX(Index) | L2CC_IPALR_C);
-
-	while ((pL2CC->L2CC_IPALR) & L2CC_IPALR_C) ;
+	Tag = (phys_addr >> (OFFSET_BIT + INDEX_BIT));
+	Index = (phys_addr >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
+	pL2cc->L2CC_IPALR = (L2CC_IPALR_TAG(Tag) | L2CC_IPALR_IDX(Index) | L2CC_IPALR_C);
+	while ((pL2cc->L2CC_IPALR) & L2CC_IPALR_C) ;
 }
 
 /**
  * \brief Clean cache by Physical addersse
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param P_Address  Physical addresse
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param phys_addr  Physical addresse
  */
-void
-L2CC_CleanPAL(L2cc * pL2CC, uint32_t P_Address)
+void l2cc_clean_pal(L2cc * pL2cc, uint32_t phys_addr)
 {
 	static uint32_t Tag;
 	static uint16_t Index;
-	Tag = (P_Address >> (OFFSET_BIT + INDEX_BIT));
-	Index = (P_Address >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
 
-	pL2CC->L2CC_CPALR =
+	Tag = (phys_addr >> (OFFSET_BIT + INDEX_BIT));
+	Index = (phys_addr >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
+	pL2cc->L2CC_CPALR =
 	    (L2CC_CPALR_TAG(Tag) | L2CC_CPALR_IDX(Index) | L2CC_CPALR_C);
-
-	while ((pL2CC->L2CC_CPALR) & L2CC_CPALR_C) ;
+	while ((pL2cc->L2CC_CPALR) & L2CC_CPALR_C) ;
 }
 
 /**
  * \brief Clean index cache by Physical addersse
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param P_Address  Physical addresse
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param phys_addr  Physical addresse
  */
-void
-L2CC_CleanIx(L2cc * pL2CC, uint32_t P_Address)
+void l2cc_clean_ix(L2cc * pL2cc, uint32_t phys_addr)
 {
 	static uint32_t Tag;
 	static uint16_t Index;
-	Tag = (P_Address >> (OFFSET_BIT + INDEX_BIT));
-	Index = (P_Address >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
 
-	pL2CC->L2CC_CIPALR =
+	Tag = (phys_addr >> (OFFSET_BIT + INDEX_BIT));
+	Index = (phys_addr >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
+	pL2cc->L2CC_CIPALR =
 	    (L2CC_CIPALR_TAG(Tag) | L2CC_CIPALR_IDX(Index) | L2CC_CIPALR_C);
-
-	while ((pL2CC->L2CC_CIPALR) & L2CC_CIPALR_C) ;
+	while ((pL2cc->L2CC_CIPALR) & L2CC_CIPALR_C) ;
 }
 
 /**
  * \brief Invalidate cache by way
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param way  way number
  */
-void
-L2CC_InvalidateWay(L2cc * pL2CC, uint8_t Way)
+void l2cc_invalidate_way(L2cc * pL2cc, uint8_t way)
 {
-	pL2CC->L2CC_IWR = Way;
-
-	while (pL2CC->L2CC_IWR) ;
-	while (pL2CC->L2CC_CSR) ;
-
+	pL2cc->L2CC_IWR = way;
+	while (pL2cc->L2CC_IWR) ;
+	while (pL2cc->L2CC_CSR) ;
 }
 
 /**
  * \brief Clean cache by way
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param way  way number
  */
-void
-L2CC_CleanWay(L2cc * pL2CC, uint8_t Way)
+void l2cc_clean_way(L2cc * pL2cc, uint8_t way)
 {
-	pL2CC->L2CC_CWR = Way;
-
-	while (pL2CC->L2CC_CWR) ;
-	while (pL2CC->L2CC_CSR) ;
-
+	pL2cc->L2CC_CWR = way;
+	while (pL2cc->L2CC_CWR) ;
+	while (pL2cc->L2CC_CSR) ;
 }
 
 /**
  * \brief Clean Invalidate cache by way
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param way  way number
  */
-static void
-L2CC_CleanInvalidateWay(L2cc * pL2CC, uint8_t Way)
+static void l2cc_clean_invalidate_way(L2cc * pL2cc, uint8_t way)
 {
-	pL2CC->L2CC_CIWR = Way;
-
-	while (pL2CC->L2CC_CSR) ;
-
+	pL2cc->L2CC_CIWR = way;
+	while (pL2cc->L2CC_CSR) ;
 }
 
 /**
  * \brief Clean cache by Index
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param P_Address  Physical addresse
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param phys_addr  Physical addresse
+ * \param way  way number
  */
-void
-L2CC_CleanIndex(L2cc * pL2CC, uint32_t P_Address, uint8_t Way)
+void l2cc_clean_index(L2cc * pL2cc, uint32_t phys_addr, uint8_t way)
 {
 	static uint16_t Index;
-	Index = (P_Address >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
 
-	pL2CC->L2CC_CIR =
-	    (L2CC_CIR_IDX(Index) | L2CC_CIR_WAY(Way) | L2CC_CIR_C);
-
-	while ((pL2CC->L2CC_CIR) & L2CC_CIR_C) ;
+	Index = (phys_addr >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
+	pL2cc->L2CC_CIR =
+	    (L2CC_CIR_IDX(Index) | L2CC_CIR_WAY(way) | L2CC_CIR_C);
+	while ((pL2cc->L2CC_CIR) & L2CC_CIR_C) ;
 }
 
 /**
  * \brief Clean Invalidate cache by index
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param P_Address  Physical address
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param phys_addr  Physical address
+ * \param way  way number
  */
-void
-L2CC_CleanInvalidateIndex(L2cc * pL2CC, uint32_t P_Address, uint8_t Way)
+void l2cc_clean_invalidate_index(L2cc * pL2cc, uint32_t phys_addr, uint8_t way)
 {
 	static uint16_t Index;
-	Index = (P_Address >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
 
-	pL2CC->L2CC_CIIR =
+	Index = (phys_addr >> OFFSET_BIT) & ((1 << INDEX_BIT) - 1);
+	pL2cc->L2CC_CIIR =
 	    (L2CC_CIIR_IDX(Index) | L2CC_CIIR_WAY(Index) | L2CC_CIIR_C);
-
-	while ((pL2CC->L2CC_CIIR) & L2CC_CIIR_C) ;
+	while ((pL2cc->L2CC_CIIR) & L2CC_CIIR_C) ;
 }
 
 /**
  * \brief cache Data lockdown
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param way  way number
  */
-void
-L2CC_DataLockdown(L2cc * pL2CC, uint8_t Way)
+void l2cc_data_lockdown(L2cc * pL2cc, uint8_t way)
 {
-	pL2CC->L2CC_DLKR = Way;
-
-	while (pL2CC->L2CC_CSR) ;
+	pL2cc->L2CC_DLKR = way;
+	while (pL2cc->L2CC_CSR) ;
 }
 
 /**
  * \brief cache instruction lockdown
- * \param pL2CC Pointer to the L2CC peripheral.
- * \param Way  Way number
+ * \param pL2cc Pointer to the L2CC peripheral.
+ * \param way  way number
  */
-void
-L2CC_InstructionLockdown(L2cc * pL2CC, uint8_t Way)
+void l2cc_instruction_lockdown(L2cc * pL2cc, uint8_t way)
 {
-	pL2CC->L2CC_ILKR = Way;
-
-	while (pL2CC->L2CC_CSR) ;
+	pL2cc->L2CC_ILKR = way;
+	while (pL2cc->L2CC_CSR) ;
 }
 
-static void
-L2CC_Clean(void)
+static void l2cc_clean(void)
 {
 	cp15_cache_clean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
-	L2CC_CleanWay(L2CC, 0xFF);	// forces the address out past level 2
-	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 clean
+	l2cc_clean_way(L2CC, 0xFF);	// forces the address out past level 2
+	l2cc_cache_sync(L2CC);	// Ensures completion of the L2 clean
 }
 
-static void
-L2CC_Invalidate(void)
+static void l2cc_invalidate(void)
 {
-	L2CC_InvalidateWay(L2CC, 0xFF);	// forces the address out past level 2
-	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 inval
+	l2cc_invalidate_way(L2CC, 0xFF);	// forces the address out past level 2
+	l2cc_cache_sync(L2CC);	// Ensures completion of the L2 inval
 	cp15_cache_invalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
 }
 
-static void
-L2CC_CleanInvalidate(void)
+static void l2cc_clean_invalidate(void)
 {
 	cp15_cache_clean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
-	L2CC_CleanInvalidateWay(L2CC, 0xFF);	// forces the address out past level 2
-	L2CC_CacheSync(L2CC);	// Ensures completion of the L2 inval
+	l2cc_clean_invalidate_way(L2CC, 0xFF);	// forces the address out past level 2
+	l2cc_cache_sync(L2CC);	// Ensures completion of the L2 inval
 	cp15_cache_invalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
 }
 
 /**
  *  \brief L2 DCache maintenance (clean/invalidate/flush)
  */
-void
-L2CC_CacheMaintenance(uint8_t Maint_Op)
+void l2cc_cache_maintenance(uint8_t Maint_Op)
 {
-
 	switch (Maint_Op) {
-	case DCACHE_CLEAN:
-		L2CC_Clean();
-		break;
-	case DCACHE_INVAL:
-		L2CC_Invalidate();
-		break;
-	case DCACHE_FLUSH:
-		L2CC_CleanInvalidate();
-		break;
+		case DCACHE_CLEAN:
+			l2cc_clean();
+			break;
+		case DCACHE_INVAL:
+			l2cc_invalidate();
+			break;
+		case DCACHE_FLUSH:
+			l2cc_clean_invalidate();
+			break;
 	}
 }
 
 /**
  *  \brief Enable level two cache controller (L2CC)
  */
-void
-Enable_L2CC(void)
+void enable_l2cc(void)
 {
-	L2CC_Control L2Config;
+	struct _l2cc_control L2Config;
+
 	/*****1. configure L2CC ************/
 	L2Config.IPEN_Val = ENABLE;	// Instruction prefetch enable
 	L2Config.DPEN_Val = ENABLE;	// Data prefetch enable
-
 	L2Config.DLEN_Val = ENABLE;
 	L2Config.IDLEN_Val = ENABLE;
-	//L2Config.DWB_Val = ENABLE;        // Disable Write back (enables write through, Use this setting if DDR2 mem is not write-back)
-	L2Config.FWA_Val = FWA_NO_ALLOCATE;
 
+	// Disable Write back (enables write through, Use this setting if DDR2 mem is not write-back)
+	//L2Config.DWB_Val = ENABLE;
+
+	L2Config.FWA_Val = FWA_NO_ALLOCATE;
 	L2Config.OFFSET_Val = 31;
 	L2Config.PDEN_Val = ENABLE;
-
 	L2Config.STBYEN_Val = ENABLE;
 	L2Config.DCKGATEN_Val = ENABLE;
 
-	L2CC_EventConfig(L2CC, 0, L2CC_ECFGR0_ESRC_SRC_DRHIT,
-			 L2CC_ECFGR0_EIGEN_INT_DIS);
-	L2CC_EventConfig(L2CC, 1, L2CC_ECFGR0_ESRC_SRC_DWHIT,
-			 L2CC_ECFGR0_EIGEN_INT_DIS);
-	L2CC_EnableResetCounter(L2CC, RESET_BOTH_COUNTER);
-
-	L2CC_Config(L2CC, L2Config);
-
+	l2cc_event_config(L2CC, 0, L2CC_ECFGR0_ESRC_SRC_DRHIT, L2CC_ECFGR0_EIGEN_INT_DIS);
+	l2cc_event_config(L2CC, 1, L2CC_ECFGR0_ESRC_SRC_DWHIT, L2CC_ECFGR0_EIGEN_INT_DIS);
+	l2cc_enable_reset_counter(L2CC, RESET_BOTH_COUNTER);
+	l2cc_config(L2CC, L2Config);
 	/* Enable Prefetch */
-	L2CC_InstPrefetchEnable(L2CC);
-	L2CC_DataPrefetchEnable(L2CC);
-
-	/*2. Invalidate whole L2C     ********** */
-	L2CC_InvalidateWay(L2CC, 0xFF);
-	/*3. Disable all L2C Interrupt ********** */
-	L2CC_DisableIT(L2CC, 0x1FF);
-	/*4. Clear all L2C Interrupt ********** */
-	L2CC_ITClear(L2CC, 0);
-
-	L2CC_ExclusiveCache(L2CC, ENABLE);
-	L2CC_Enable(L2CC);
+	l2cc_inst_prefetch_enable(L2CC);
+	l2cc_data_prefetch_enable(L2CC);
+	/*2. Invalidate whole L2CC     ********** */
+	l2cc_invalidate_way(L2CC, 0xFF);
+	/*3. Disable all L2CC Interrupt ********** */
+	l2cc_disable_it(L2CC, 0x1FF);
+	/*4. Clear all L2CC Interrupt ********** */
+	l2cc_it_clear(L2CC, 0);
+	l2cc_exclusive_cache(L2CC, ENABLE);
+	l2cc_enable(L2CC);
 }

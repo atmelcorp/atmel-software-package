@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -56,19 +56,19 @@ extern "C" {
  *        Type
  *----------------------------------------------------------------------------*/
 /** \brief Asynchronous transfer descriptor. */
-typedef struct _Async {
+struct _async {
 	/** Asynchronous transfer status.*/
 	volatile uint32_t status;
 	/** Callback function to invoke when transfer completes or fails.*/
 	void *callback;
 	/** Driver storage area; do not use.*/
 	uint8_t pStorage[12];
-} Async;
+} ;
 
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
-extern uint32_t ASYNC_IsFinished(Async * pAsync);
+extern uint32_t async_is_finished(struct _async * pAsync);
 
 #ifdef __cplusplus
 }
