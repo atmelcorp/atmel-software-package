@@ -391,35 +391,6 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 			status = twi_get_status(pTwi);
 			//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
 		}
-#if 0
-		/* Read all bytes, setting STOP before the last byte */
-		while (num > 0) {
-
-			/* Last byte ? */
-			if (num == 1) {
-
-				twi_stop(pTwi);
-			}
-
-			/* Wait for byte then read and store it */
-			timeout = 0;
-			while (!twi_is_byte_received(pTwi)
-			       && (++timeout < TWITIMEOUTMAX)) ;
-			if (timeout == TWITIMEOUTMAX) {
-				TRACE_ERROR("TWID Timeout BR\n\r");
-			}
-			*pData++ = twi_read_byte(pTwi);
-			num--;
-		}
-
-		/* Wait for transfer to be complete */
-		timeout = 0;
-		while (!twi_is_transfer_complete(pTwi)
-		       && (++timeout < TWITIMEOUTMAX)) ;
-		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout TC\n\r");
-		}
-#endif
 	}
 
 	return 0;
