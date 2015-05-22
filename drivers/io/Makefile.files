@@ -15,3 +15,7 @@ DRIVER_OBJECTS += io/ov7740_config.o \
 	io/aptina.o          \
 	io/led.o             \
 	io/omnivision.o
+
+ifeq ("y", $(SERIENAME:sama5d2="y"))
+DRIVER_OBJECTS += io/act8945A.o
+endif
