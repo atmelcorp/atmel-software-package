@@ -641,7 +641,7 @@ main(void)
 	/* Disable watchdog */
 	WDT_Disable(WDT);
 #if defined (ddram)
-	MMU_Initialize((uint32_t *) 0x20C000);
+	mmu_initialize((uint32_t *) 0x20C000);
 	cp15_enable_mmu();
 	cp15_enable_icache();
 	cp15_enable_dcache();

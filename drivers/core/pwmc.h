@@ -37,12 +37,12 @@
  * \par Usage
  *
  *    -# Configures PWM clocks A & B to run at the given frequencies using
- *       PWMC_ConfigureClocks().
- *    -# Configure PWMC channel using PWMC_ConfigureChannel(), PWMC_SetPeriod()
- *       and PWMC_SetDutyCycle().
- *    -# Enable & disable channel using PWMC_EnableChannel() and PWMC_DisableChannel().
+ *       pwmc_configure_clocks().
+ *    -# Configure PWMC channel using pwmc_configure_channel(), pwmc_set_period()
+ *       and pwmc_set_duty_cycle().
+ *    -# Enable & disable channel using pwmc_enable_channel() and pwmc_disable_channel().
  *    -# Enable & disable the period interrupt for the given PWM channel using
- *       PWMC_EnableChannelIt() and PWMC_DisableChannelIt().
+ *       pwmc_enable_channel_it() and pwmc_disable_channel_it().
  *
  */
 

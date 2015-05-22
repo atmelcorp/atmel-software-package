@@ -50,12 +50,12 @@
  *
  * \section Usage
  * <ul>
- * <li>  Configure PWM clock using PWMC_ConfigureClocks().
- * <li>  Enable & disable given PWM channel using PWMC_EnableChannel() and PWMC_DisableChannel().
- * <li>  Enable & disable interrupt of given PWM channel using PWMC_EnableChannelIt()
- * and PWMC_DisableChannelIt().
- * <li>  Set feature of the given PWM channel's output signal using PWMC_SetPeriod()
- * and PWMC_SetDutyCycle().
+ * <li>  Configure PWM clock using pwmc_configure_clocks().
+ * <li>  Enable & disable given PWM channel using pwmc_enable_channel() and pwmc_disable_channel().
+ * <li>  Enable & disable interrupt of given PWM channel using pwmc_enable_channel_it()
+ * and pwmc_disable_channel_it().
+ * <li>  Set feature of the given PWM channel's output signal using pwmc_set_period()
+ * and pwmc_set_duty_cycle().
  * </li>
  * </ul>
  *

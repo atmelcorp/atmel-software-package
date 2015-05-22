@@ -70,7 +70,7 @@
  * \brief Initializes MMU.
  * \param pTB  Address of the translation table.
  */
-void mm_initialize(uint32_t * pTB)
+void mmu_initialize(uint32_t * pTB)
 {
 	uint32_t index , addr;
 
