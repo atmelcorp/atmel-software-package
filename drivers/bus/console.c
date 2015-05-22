@@ -62,7 +62,7 @@ typedef void (*_enable_it_handler) (void*,uint32_t);
 /* Initialize console structure according to board configuration */
 #if CONSOLE_DRIVER == DRV_USART
 #include "serial/usart.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	(_init_handler) usart_configure,
 	(_put_char_handler) usart_put_char,
@@ -72,7 +72,7 @@ static struct _console console = {
 };
 #elif CONSOLE_DRIVER == DRV_UART
 #include "serial/uart.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	(_init_handler) uart_configure,
 	(_put_char_handler) uart_put_char,
@@ -82,7 +82,7 @@ static struct _console console = {
 };
 #elif CONSOLE_DRIVER == DRV_DBGU
 #include "serial/dbgu.h"
-static struct _console console = {
+static const struct _console console = {
 	CONSOLE_PER_ADD,
 	(_init_handler) dbgu_configure,
 	(_put_char_handler) dbgu_put_char,
