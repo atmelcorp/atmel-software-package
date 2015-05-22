@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -95,8 +95,7 @@
  * \param pPwm  Pointer to a Pwm instance
  * \param mode  PWM clock source selection and divide factor.
  */
-void
-PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode)
+void pwmc_configure_clocks(Pwm * pPwm, uint32_t mode)
 {
 	pPwm->PWM_CLK = mode;
 }
@@ -109,8 +108,7 @@ PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode)
  * \param pPwm  Pointer to a Pwm instance
  * \param channel  Channel number.
  */
-void
-PWMC_EnableChannel(Pwm * pPwm, uint8_t channel)
+void pwmc_enable_channel(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_ENA = 0x1ul << channel;
 }
@@ -125,8 +123,7 @@ PWMC_EnableChannel(Pwm * pPwm, uint8_t channel)
  * \param pPwm  Pointer to a Pwm instance
  * \param channel  Channel number.
  */
-void
-PWMC_DisableChannel(Pwm * pPwm, uint8_t channel)
+void pwmc_disable_channel(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_DIS = 0x1ul << channel;
 }
@@ -136,8 +133,7 @@ PWMC_DisableChannel(Pwm * pPwm, uint8_t channel)
  * \param pPwm  Pointer to a Pwm instance
  * \param channel  Channel number.
  */
-void
-PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel)
+void pwmc_enable_channel_it(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_IER1 = 0x1ul << channel;
 }
@@ -147,8 +143,7 @@ PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel)
  * \param pPwm  Pointer to a Pwm instance
  * \param channel  Channel number.
  */
-void
-PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel)
+void pwmc_disable_channel_it(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_IDR1 = 0x1ul << channel;
 }
@@ -164,8 +159,7 @@ PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel)
  * \param channel  Channel number.
  * \param mode  Channel mode.
  */
-void
-PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel, uint32_t mode)
+void pwmc_configure_channel(Pwm * pPwm, uint8_t channel, uint32_t mode)
 {
 	pPwm->PWM_CH_NUM[channel].PWM_CMR = mode;
 }
@@ -180,8 +174,7 @@ PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel, uint32_t mode)
  * \param channel Channel number.
  * \param period  Period value.
  */
-void
-PWMC_SetPeriod(Pwm * pPwm, uint8_t channel, uint16_t period)
+void pwmc_set_period(Pwm * pPwm, uint8_t channel, uint16_t period)
 {
 	/* If channel is disabled, write to CPRD */
 	if ((pPwm->PWM_SR & (1 << channel)) == 0) {
@@ -204,8 +197,7 @@ PWMC_SetPeriod(Pwm * pPwm, uint8_t channel, uint16_t period)
  * \param channel  Channel number.
  * \param duty     Duty cycle value.
  */
-void
-PWMC_SetDutyCycle(Pwm * pPwm, uint8_t channel, uint16_t duty)
+void pwmc_set_duty_cycle(Pwm * pPwm, uint8_t channel, uint16_t duty)
 {
 	assert(duty <= pPwm->PWM_CH_NUM[channel].PWM_CPRD);
 

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -64,22 +64,14 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void PWMC_ConfigureClocks(Pwm * pPwm, uint32_t mode);
-
-extern void PWMC_EnableChannel(Pwm * pPwm, uint8_t channel);
-
-extern void PWMC_DisableChannel(Pwm * pPwm, uint8_t channel);
-
-extern void PWMC_EnableChannelIt(Pwm * pPwm, uint8_t channel);
-
-extern void PWMC_DisableChannelIt(Pwm * pPwm, uint8_t channel);
-
-extern void PWMC_ConfigureChannel(Pwm * pPwm, uint8_t channel,
-				  uint32_t mode);
-extern void PWMC_SetPeriod(Pwm * pPwm, uint8_t channel,
-			   uint16_t period);
-extern void PWMC_SetDutyCycle(Pwm * pPwm, uint8_t channel,
-			      uint16_t duty);
+extern void pwmc_configure_clocks(Pwm * pPwm, uint32_t mode);
+extern void pwmc_enable_channel(Pwm * pPwm, uint8_t channel);
+extern void pwmc_disable_channel(Pwm * pPwm, uint8_t channel);
+extern void pwmc_enable_channel_it(Pwm * pPwm, uint8_t channel);
+extern void pwmc_disable_channel_it(Pwm * pPwm, uint8_t channel);
+extern void pwmc_configure_channel(Pwm * pPwm, uint8_t channel, uint32_t mode);
+extern void pwmc_set_period(Pwm * pPwm, uint8_t channel,  uint16_t period);
+extern void pwmc_set_duty_cycle(Pwm * pPwm, uint8_t channel, uint16_t duty);
 
 #ifdef __cplusplus
 }

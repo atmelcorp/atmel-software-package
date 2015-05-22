@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -58,7 +58,8 @@
 /*------------------------------------------------------------------------------ */
 /*         Headers                                                               */
 /*------------------------------------------------------------------------------ */
-#include <chip.h>
+
+#include "chip.h"
 #include "core/mmu.h"
 
 /*------------------------------------------------------------------------------ */
@@ -69,11 +70,9 @@
  * \brief Initializes MMU.
  * \param pTB  Address of the translation table.
  */
-void
-MMU_Initialize(uint32_t * pTB)
+void mm_initialize(uint32_t * pTB)
 {
-	unsigned int index;
-	unsigned int addr;
+	uint32_t index , addr;
 
 	/* Reset table entries */
 	for (index = 0; index < 4096; index++)
