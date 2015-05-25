@@ -138,7 +138,6 @@
  *
  *  \section Definitions
  *  - \ref BOARD_MAINOSC
- *  - \ref BOARD_MCK
  */
 
 /** Frequency of the board main oscillator */
