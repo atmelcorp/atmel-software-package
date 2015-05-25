@@ -75,6 +75,14 @@ extern void pio_enable_write_protect(const struct _pin *pin);
 extern void pio_disable_write_protect(const struct _pin *pin);
 extern uint32_t pio_get_write_protect_violation_info(const struct _pin * pin);
 extern void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask);
+extern uint32_t pio_get_interrupt_status(const struct _pin *pin);
+
+extern void pio_initialize_it(uint32_t prority);
+extern void pio_configure_it(const struct _pin * pin);
+extern void pio_enable_it(const struct _pin * pin);
+extern void pio_disable_it(const struct _pin * pin);
+extern void pio_it_handlers(void);
+extern void pio_capture_handler(void);
 
 
 #ifdef __cplusplus

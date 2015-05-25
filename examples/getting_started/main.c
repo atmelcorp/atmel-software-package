@@ -105,7 +105,6 @@
 #include "core/pmc.h"
 #include "core/wdt.h"
 #include "core/pio.h"
-#include "core/pio_it.h"
 #include "core/mmu.h"
 
 #include "io/led.h"

@@ -79,6 +79,19 @@
  *         Definitions
  *------------------------------------------------------------------------------*/
 
+/* The IO group is A (equivalent to PIOA peripheral ID) */
+#define PIO_GROUP_A                 ID_PIOA
+/* The IO group is B (equivalent to PIOB peripheral ID) */
+#define PIO_GROUP_B                 ID_PIOB
+/* The IO group is C (equivalent to PIOC peripheral ID) */
+#define PIO_GROUP_C                 ID_PIOC
+/* The IO group is D (equivalent to PIOD peripheral ID) */
+#define PIO_GROUP_D                 ID_PIOD
+/* The IO group is E (equivalent to PIOE peripheral ID) */
+#define PIO_GROUP_E                 ID_PIOE
+
+#define PIO_GROUP_LENGTH            5
+
 /*  The pin is controlled by the associated signal of peripheral A. */
 #define PIO_PERIPH_A                0
 /*  The pin is controlled by the associated signal of peripheral B. */
@@ -130,5 +143,10 @@
 #define PIO_WPMR_WPEN_DIS           ( 0x00     << 0 )
 
 #define PIO_WPMR_WPKEY_VALID        ( 0x50494F << 8 )
+
+static inline uint32_t pio_group_to_id(int group)
+{
+	return group;
+}
 
 #endif	/* #ifndef _PIO3_H */

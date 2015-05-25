@@ -65,6 +65,11 @@
 #include "chip.h"
 #include "core/pio.h"
 #include "core/pmc.h"
+#include "core/aic.h"
+
+#include "utils/trace.h"
+
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -468,4 +473,256 @@ void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
 	pio->PIO_PER = mask;	// all PIO enable
 	pio->PIO_OER = mask;	// all PIO output mode
 	pio->PIO_CODR = mask;	// all PIO clear output
+}
+
+uint32_t pio_get_interrupt_status (const struct _pin *pin)
+{
+	return pin->pio->PIO_ISR;
+}
+
+
+/*----------------------------------------------------------------------------
+ *        Local definitions
+ *----------------------------------------------------------------------------*/
+
+/* Maximum number of interrupt sources that can be defined. This
+ * constant can be increased, but the current value is the smallest possible
+ * that will be compatible with all existing projects. */
+#define MAX_INTERRUPT_SOURCES       7
+
+/*----------------------------------------------------------------------------
+ *        Local types
+ *----------------------------------------------------------------------------*/
+
+/**
+ * Describes a PIO interrupt source, including the PIO instance triggering the
+ * interrupt and the associated interrupt handler.
+ */
+typedef struct _InterruptSource {
+	/* Pointer to the source pin instance. */
+	const struct _pin *pPin;
+
+	/* Interrupt handler. */
+	void (*handler) (const struct _pin *);
+} InterruptSource;
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+/* List of interrupt sources. */
+static InterruptSource _aIntSources[MAX_INTERRUPT_SOURCES];
+
+/* Number of currently defined interrupt sources. */
+static uint32_t _dwNumSources = 0;
+
+/*----------------------------------------------------------------------------
+ *        Local Functions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Handles all interrupts on the given PIO controller.
+ * \param id  PIO controller ID.
+ * \param pPio  PIO controller base address.
+ */
+static void _pio_it_handler(uint32_t id, Pio * pPio)
+{
+	uint32_t status;
+	uint32_t i;
+
+	/* Read PIO controller status */
+	status = pPio->PIO_ISR;
+	status &= pPio->PIO_IMR;
+
+	/* Check pending events */
+	if (status != 0) {
+		trace_debug("PIO interrupt on PIO controller #%d\n\r", id);
+
+		/* Find triggering source */
+		i = 0;
+		while (status != 0) {
+			/* There cannot be an unconfigured source enabled. */
+			assert(i < _dwNumSources);
+
+			/* Source is configured on the same controller */
+			if (_aIntSources[i].pPin->id == id) {
+				/* Source has PIOs whose statuses have changed */
+				if ((status & _aIntSources[i].pPin->mask) != 0) {
+					trace_debug
+					    ("Interrupt source #%d triggered\n\r",
+					     i);
+
+					_aIntSources[i].handler(_aIntSources[i].
+								pPin);
+					status &= ~(_aIntSources[i].pPin->mask);
+				}
+			}
+			i++;
+		}
+	}
+}
+
+/*----------------------------------------------------------------------------
+ *        Global Functions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * Generic PIO interrupt handler. Single entry point for interrupts coming
+ * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
+ * the user-configured handlers.
+ */
+void pio_it_handlers(void)
+{
+	_pio_it_handler(ID_PIOA, PIOA);
+	_pio_it_handler(ID_PIOB, PIOB);
+	_pio_it_handler(ID_PIOC, PIOC);
+	_pio_it_handler(ID_PIOD, PIOD);
+	_pio_it_handler(ID_PIOE, PIOE);
+}
+
+/**
+ * \brief Initializes the PIO interrupt management logic
+ *
+ * The desired priority of PIO interrupts must be provided.
+ * Calling this function multiple times result in the reset of currently
+ * configured interrupts.
+ *
+ * \param dwPriority  PIO controller interrupts priority.
+ */
+void pio_initialize_it(uint32_t dwPriority)
+{
+	/* trace_debug("PIO_Initialize()\n\r"); */
+
+	/* /\* Reset sources *\/ */
+	/* _dwNumSources = 0; */
+
+	/* /\* Configure PIO interrupt sources *\/ */
+	/* trace_debug("PIO_Initialize: Configuring PIOA\n\r"); */
+	/* pmc_enable_peripheral(ID_PIOA); */
+	/* PIOA->PIO_ISR; */
+	/* PIOA->PIO_IDR = 0xFFFFFFFF; */
+	/* aic_enable(ID_PIOA); */
+
+	/* /\* Configure PIO interrupt sources *\/ */
+	/* trace_debug("PIO_Initialize: Configuring PIOB\n\r"); */
+	/* PIOB->PIO_ISR; */
+	/* PIOB->PIO_IDR = 0xFFFFFFFF; */
+	/* aic_enable(ID_PIOB); */
+
+	/* /\* Configure PIO interrupt sources *\/ */
+	/* trace_debug("PIO_Initialize: Configuring PIOC\n\r"); */
+	/* pmc_enable_peripheral(ID_PIOC); */
+	/* PIOC->PIO_ISR; */
+	/* PIOC->PIO_IDR = 0xFFFFFFFF; */
+	/* aic_enable(ID_PIOC); */
+
+	/* /\* Configure PIO interrupt sources *\/ */
+	/* trace_debug("PIO_Initialize: Configuring PIOD\n\r"); */
+	/* pmc_enable_peripheral(ID_PIOD); */
+	/* PIOD->PIO_ISR; */
+	/* PIOD->PIO_IDR = 0xFFFFFFFF; */
+	/* aic_enable(ID_PIOD); */
+
+	/* /\* Configure PIO interrupt sources *\/ */
+	/* trace_debug("PIO_Initialize: Configuring PIOC\n\r"); */
+	/* pmc_enable_peripheral(ID_PIOE); */
+	/* PIOE->PIO_ISR; */
+	/* PIOE->PIO_IDR = 0xFFFFFFFF; */
+	/* aic_enable(ID_PIOE); */
+}
+
+/**
+ * Configures a PIO or a group of PIO to generate an interrupt on status
+ * change. The provided interrupt handler will be called with the triggering
+ * pin as its parameter (enabling different pin instances to share the same
+ * handler).
+ * \param pPin  Pointer to a _pin instance.
+ */
+void pio_configure_it(const struct _pin * pPin)
+{
+	Pio *pio;
+	InterruptSource *pSource;
+	
+	trace_debug("Enter in pio_configure_it()\n\r");
+
+	assert(pPin);
+	pio = pPin->pio;
+	
+	trace_debug("Enable PIO group\n\r");
+	pmc_enable_peripheral(pio_group_to_id(pPin->id));
+	pio->PIO_ISR;
+	pio->PIO_IDR = 0xFFFFFFFF;
+	aic_enable(pio_group_to_id(pPin->id));
+	
+	assert(_dwNumSources < MAX_INTERRUPT_SOURCES);
+
+	pSource = &(_aIntSources[_dwNumSources]);
+	pSource->pPin = pPin;
+	_dwNumSources++;
+
+	/* PIO with additional interrupt support
+	 * Configure additional interrupt mode registers */
+	if (pPin->attribute & PIO_IT_AIME) {
+		/* enable additional interrupt mode */
+		pio->PIO_AIMER = pPin->mask;
+
+		/* if bit field of selected pin is 1, set as Rising Edge/High level detection event */
+		if (pPin->attribute & PIO_IT_RE_OR_HL) {
+			pio->PIO_REHLSR = pPin->mask;
+		} else {
+			pio->PIO_FELLSR = pPin->mask;
+		}
+
+		/* if bit field of selected pin is 1, set as edge detection source */
+		if (pPin->attribute & PIO_IT_EDGE)
+			pio->PIO_ESR = pPin->mask;
+		else
+			pio->PIO_LSR = pPin->mask;
+	} else {
+		/* disable additional interrupt mode */
+		pio->PIO_AIMDR = pPin->mask;
+	}
+}
+
+/**
+ * Enables the given interrupt source if it has been configured. The status
+ * register of the corresponding PIO controller is cleared prior to enabling
+ * the interrupt.
+ * \param pPin  Interrupt source to enable.
+ */
+void pio_enable_it(const struct _pin * pPin)
+{
+	trace_debug("Enter in pio_enable_it()\n\r");
+
+	assert(pPin != NULL);
+
+#ifndef NOASSERT
+	uint32_t i = 0;
+	uint32_t dwFound = 0;
+
+	while ((i < _dwNumSources) && !dwFound) {
+		if (_aIntSources[i].pPin == pPin) {
+			dwFound = 1;
+		}
+		i++;
+	}
+	assert(dwFound != 0);
+#endif
+
+	pPin->pio->PIO_ISR;
+	pPin->pio->PIO_IER = pPin->mask;
+}
+
+/**
+ * Disables a given interrupt source, with no added side effects.
+ *
+ * \param pPin  Interrupt source to disable.
+ */
+void pio_disable_it(const struct _pin * pPin)
+{
+	assert(pPin != NULL);
+
+	trace_debug("Enter in pio_disable_it()\n\r");
+
+	pPin->pio->PIO_IDR = pPin->mask;
 }
