@@ -162,7 +162,7 @@ $(BINNAME).ewp: deps.d
 	@bash $(ROOTDIR)/scripts/iar_gen_project.sh $(ROOTDIR) $(realpath $<) $(realpath $(ROOTDIR)/scripts/iar_project.template) $(IAR_LINKER_SCRIPT) $(BINNAME) $(SERIENAME) $(CHIP) $(BOARD) $(SERIE) $(PIO_API) SOFTPACK_VERSION=$(SOFTPACK_VERSION) > $@
 
 $(BINNAME).eww:
-	@bash $(ROOTDIR)/scripts/iar_gen_workspace.sh $(ROOTDIR)/scripts/iar_workspace.template $(BINNAME) > $@
+	@bash $(ROOTDIR)/scripts/iar_gen_workspace.sh $(ROOTDIR)/scripts/iar_workspace.template $(BINNAME).out > $@
 
 iar_project: $(BINNAME).ewp $(BINNAME).eww
 
