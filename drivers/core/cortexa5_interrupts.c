@@ -41,6 +41,7 @@
 #include "board.h"
 #include "resources/compiler_defines.h"
 #include "core/aic.h"
+#include "cortexa5_interrupts.h"
 
 #include <stdio.h>
 
@@ -123,7 +124,7 @@ void default_undefined_instruction_irq_handler(void)
 	printf("Undefined Instruction\n\r");
 	printf("#####################\n\r");
 
-	asm("bkpt");
+	asm("bkpt #0");
 	while(1);
 }
 
@@ -138,7 +139,7 @@ void default_software_interrupt_irq_handler(void)
 	printf("Software Interrupt\n\r");
 	printf("##################\n\r");
 
-	asm("bkpt");
+	asm("bkpt #0");
 	while(1);
 }
 
@@ -165,7 +166,7 @@ void default_data_abort_irq_handler(void)
 	printf("Data Fault status register value: 0x%x\n\r", (unsigned int)v1);
 	printf("####################\n\r");
 
-	asm("bkpt");
+	asm("bkpt #0");
 	while(1);
 }
 
@@ -190,6 +191,6 @@ void default_prefetch_abort_irq_handler(void)
 	printf("Prefetch Fault status register value: 0x%x\n\r", (unsigned int)v1);
 	printf("####################\n\r");
 
-	asm("bkpt");
+	asm("bkpt #0");
 	while(1);
 }

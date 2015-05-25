@@ -45,47 +45,13 @@
 /*----------------------------------------------------------------------------
  *        Functions to access CP15 coprocessor register
  *----------------------------------------------------------------------------*/
-        PUBLIC  cp15_read_id
-        PUBLIC  cp15_exclusive_cache
-        PUBLIC  cp15_non_exclusive_cache
-        PUBLIC  cp15_isb
-        PUBLIC  cp15_dsb
-        PUBLIC  cp15_dmb
-        PUBLIC  cp15_select_icache
-        PUBLIC  cp15_select_dcache
-        PUBLIC  cp15_read_control
-        PUBLIC  cp15_write_control
-        PUBLIC  cp15_write_domain_access_control
-        PUBLIC  cp15_write_ttb
-        PUBLIC  cp15_invalid_icache_inner_sharable
-        PUBLIC  cp15_invalid_btb_inner_sharable
-        PUBLIC  cp15_invalid_icache
-        PUBLIC  cp15_invalid_icache_by_mva
-        PUBLIC  cp15_invalid_btb
-        PUBLIC  cp15_invalid_btb_by_mva
-
-        PUBLIC  cp15_invalid_dcache_by_set_way
-        PUBLIC  cp15_clean_dcache_by_set_way
-        PUBLIC  cp15_clean_invalid_dcache_by_set_way
-
-        PUBLIC  cp15_invalid_dcache_by_mva
-        PUBLIC  cp15_clean_dcache_by_mva
-        PUBLIC  cp15_clean_dcache_umva
-        PUBLIC  cp15_clean_invalid_dcache_by_mva
-        PUBLIC  cp15_invalid_translation_table
-
-        PUBLIC  cp15_coherent_dcache_for_dma
-        PUBLIC  cp15_invalidate_dcache_for_dma
-        PUBLIC  cp15_clean_dcache_for_dma
-        PUBLIC  cp15_flush_dcache_for_dma
-        PUBLIC  cp15_flush_kern_dcache_for_dma
 
 /**
  * \brief Register c0 accesses the ID Register, Cache Type Register, and TCM Status Registers.
  *  Reading from this register returns the device ID, the cache type, or the TCM status
  *   depending on the value of Opcode_2 used.
  */
-        SECTION .cp15_read_id:DATA:NOROOT(2)
+        SECTION .cp15_read_id:CODE:NOROOT(2)
         PUBLIC   cp15_read_id
 cp15_read_id:
         mov     r0, #0
@@ -96,7 +62,7 @@ cp15_read_id:
 /**
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        SECTION .cp15_isb:DATA:NOROOT(2)
+        SECTION .cp15_isb:CODE:NOROOT(2)
         PUBLIC   cp15_isb
 cp15_isb:
         mov     r0, #0
@@ -107,7 +73,7 @@ cp15_isb:
 /**
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        SECTION .cp15_dsb:DATA:NOROOT(2)
+        SECTION .cp15_dsb:CODE:NOROOT(2)
         PUBLIC   cp15_dsb
 cp15_dsb:
         mov     r0, #0
@@ -118,7 +84,7 @@ cp15_dsb:
 /**
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        SECTION .cp15_dmb:DATA:NOROOT(2)
+        SECTION .cp15_dmb:CODE:NOROOT(2)
         PUBLIC   cp15_dmb
 cp15_dmb:
         mov     r0, #0
@@ -129,7 +95,7 @@ cp15_dmb:
 /**
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        SECTION .cp15_exclusive_cache:DATA:NOROOT(2)
+        SECTION .cp15_exclusive_cache:CODE:NOROOT(2)
         PUBLIC   cp15_exclusive_cache
 cp15_exclusive_cache:
         mov     r0, #0
@@ -143,7 +109,7 @@ cp15_exclusive_cache:
 /**
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        SECTION .cp15_non_exclusive_cache:DATA:NOROOT(2)
+        SECTION .cp15_non_exclusive_cache:CODE:NOROOT(2)
         PUBLIC   cp15_non_exclusive_cache
 cp15_non_exclusive_cache:
         mov     r0, #0
@@ -156,7 +122,7 @@ cp15_non_exclusive_cache:
 /**
  * \brief Register c1 accesses the CSSELR Register, to select ICache
  */
-        SECTION .cp15_select_icache:DATA:NOROOT(2)
+        SECTION .cp15_select_icache:CODE:NOROOT(2)
         PUBLIC   cp15_select_icache
 cp15_select_icache:
         mrc     p15, 2, r0, c0, c0, 0           ; Read CSSELR
@@ -168,7 +134,7 @@ cp15_select_icache:
 /**
  * \brief Register c1 accesses the CSSELR Register, to select DCache
  */
-        SECTION .cp15_select_dcache:DATA:NOROOT(2)
+        SECTION .cp15_select_dcache:CODE:NOROOT(2)
         PUBLIC   cp15_select_dcache
 cp15_select_dcache:
         mrc     p15, 2, r0, c0, c0, 0           ; Read CSSELR

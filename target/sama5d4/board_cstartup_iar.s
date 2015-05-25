@@ -47,8 +47,8 @@
 //         Definitions
 //------------------------------------------------------------------------------
 
-AT91C_BASE_AIC  DEFINE 0xFC020000
-AT91C_BASE_SAIC DEFINE 0xF803C000
+AT91C_BASE_AIC  DEFINE 0xFC06E000
+AT91C_BASE_SAIC DEFINE 0xFC068400
 AIC_IVR         DEFINE 0x10
 AIC_EOICR       DEFINE 0x38
 

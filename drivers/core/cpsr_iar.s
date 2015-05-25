@@ -45,11 +45,8 @@
  *        Functions to access CP15 coprocessor register
  *----------------------------------------------------------------------------*/
 
-	PUBLIC v_arm_clr_cpsr_bits
-	PUBLIC v_arm_set_cpsr_bits
-	PUBLIC v_arm_read_control
-	PUBLIC v_arm_write_control
-
+        SECTION .v_arm_clr_cpsr_bits:CODE:NOROOT(2)
+        PUBLIC   v_arm_clr_cpsr_bits
 v_arm_clr_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -59,6 +56,8 @@ v_arm_clr_cpsr_bits:
 	pop	{r1}
 	bx	lr
 
+        SECTION .v_arm_set_cpsr_bits:CODE:NOROOT(2)
+        PUBLIC   v_arm_set_cpsr_bits
 v_arm_set_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -67,11 +66,17 @@ v_arm_set_cpsr_bits:
 	pop	{r1}
 	bx	lr
 
+        SECTION .v_arm_read_control:CODE:NOROOT(2)
+        PUBLIC   v_arm_read_control
 v_arm_read_control:
 	mov	r0,#0
 	mrc	p15, 0, r0, c1, c0, 0
 	bx	lr
 
+        SECTION .v_arm_write_control:CODE:NOROOT(2)
+        PUBLIC   v_arm_write_control
 v_arm_write_control:
 	mcr	p15, 0, r0, c1, c0, 0
 	bx	lr
+
+	END
