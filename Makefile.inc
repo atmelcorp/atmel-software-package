@@ -13,6 +13,10 @@ ifndef TARGET
 $(error "No TARGET specified.")
 endif
 
+ifndef $(or RELEASE,DEBUG)
+DEBUG=5
+endif
+
 SELECTED_BOARD=$(strip $(foreach board,$(AVAILABLE_BOARDS),$(if $(call eq,$(TARGET),$(board)),$(board))))
 
 ifeq (,$(SELECTED_BOARD))
@@ -55,10 +59,24 @@ CFLAGS += -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CFLAGS += -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
-CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall -g3
+CFLAGS += -mcpu=cortex-a5 -ffunction-sections -Wall
+
+
+# Trace level used for compilation
+# (can be overriden by adding TRACE_LEVEL=#number to the command-line)
+# TRACE_LEVEL_DEBUG      5
+# TRACE_LEVEL_INFO       4
+# TRACE_LEVEL_WARNING    3
+# TRACE_LEVEL_ERROR      2
+# TRACE_LEVEL_FATAL      1
+# TRACE_LEVEL_NO_TRACE   0
+ifdef DEBUG
+CFLAGS += -g3 -DTRACE_LEVEL=$(DEBUG)
+else
+CFLAGS += -DNDEBUG
+endif
+
 CFLAGS += -D$(CHIP) -D$(BOARD) -D$(SERIE) -DSOFTPACK_VERSION="$(SOFTPACK_VERSION)"
-# To reduce application size use only integer printf function.
-CFLAGS += -Dprintf=iprintf
 
 # linkker flags
 LDFLAGS= -mcpu=cortex-a5 -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=entry -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
