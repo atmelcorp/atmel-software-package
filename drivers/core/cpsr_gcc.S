@@ -26,12 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+	.section .text.v_arm_clr_cpsr_bits
 	.global v_arm_clr_cpsr_bits
-	.global v_arm_set_cpsr_bits
-	.global v_arm_read_control
-	.global v_arm_write_control
-
 v_arm_clr_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -41,6 +37,8 @@ v_arm_clr_cpsr_bits:
 	pop	{r1}
 	bx	lr
 
+	.section .text.v_arm_set_cpsr_bits
+	.global v_arm_set_cpsr_bits
 v_arm_set_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -49,11 +47,15 @@ v_arm_set_cpsr_bits:
 	pop	{r1}
 	bx	lr
 
+	.section .text.v_arm_read_control
+	.global v_arm_read_control
 v_arm_read_control:
 	mov	r0,#0
 	mrc	p15, 0, r0, c1, c0, 0
 	bx	lr
 
+	.section .text.v_arm_write_control
+	.global v_arm_write_control
 v_arm_write_control:
 	mcr	p15, 0, r0, c1, c0, 0
 	bx	lr

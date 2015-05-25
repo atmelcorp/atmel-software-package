@@ -73,7 +73,7 @@
  *  Reading from this register returns the device ID, the cache type, or the TCM status
  *   depending on the value of Opcode_2 used. 
  */
-        .section .cp15_read_id
+        .section .text.cp15_read_id
         .global   cp15_read_id
 cp15_read_id:
         mov     r0, #0
@@ -84,7 +84,7 @@ cp15_read_id:
 /** 
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        .section .cp15_isb
+        .section .text.cp15_isb
         .global   cp15_isb
 cp15_isb:
         mov     r0, #0
@@ -95,7 +95,7 @@ cp15_isb:
 /** 
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        .section .cp15_dsb
+        .section .text.cp15_dsb
         .global   cp15_dsb
 cp15_dsb:
         mov     r0, #0
@@ -106,7 +106,7 @@ cp15_dsb:
 /** 
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        .section .cp15_dmb
+        .section .text.cp15_dmb
         .global   cp15_dmb
 cp15_dmb:
         mov     r0, #0
@@ -117,7 +117,7 @@ cp15_dmb:
 /** 
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        .section .cp15_exclusive_cache
+        .section .text.cp15_exclusive_cache
         .global   cp15_exclusive_cache
 cp15_exclusive_cache:
         mov     r0, #0
@@ -131,7 +131,7 @@ cp15_exclusive_cache:
 /** 
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
-        .section .cp15_non_exclusive_cache
+        .section .text.cp15_non_exclusive_cache
         .global   cp15_non_exclusive_cache
 cp15_non_exclusive_cache:
         mov     r0, #0
@@ -144,7 +144,7 @@ cp15_non_exclusive_cache:
 /** 
  * \brief Register c1 accesses the CSSELR Register, to select ICache 
  */
-        .section .cp15_select_icache
+        .section .text.cp15_select_icache
         .global   cp15_select_icache
 cp15_select_icache:
         mrc     p15, 2, r0, c0, c0, 0           // Read CSSELR
@@ -156,7 +156,7 @@ cp15_select_icache:
 /** 
  * \brief Register c1 accesses the CSSELR Register, to select DCache
  */
-        .section .cp15_select_dcache
+        .section .text.cp15_select_dcache
         .global   cp15_select_dcache
 cp15_select_dcache:
         mrc     p15, 2, r0, c0, c0, 0           // Read CSSELR
@@ -173,14 +173,14 @@ cp15_select_dcache:
  * caches and MMU. It is recommended that you access this register using a
  * read-modify-write sequence
  */
-        .section .cp15_read_control
+        .section .text.cp15_read_control
         .global   cp15_read_control
 cp15_read_control:
         mov     r0, #0
         mrc     p15, 0, r0, c1, c0, 0   
         bx      lr
 
-        .section .cp15_write_control
+        .section .text.cp15_write_control
         .global   cp15_write_control
 cp15_write_control:
         mcr     p15, 0, r0, c1, c0, 0
@@ -194,7 +194,7 @@ cp15_write_control:
         nop
         bx      lr
 
-       .section .cp15_write_domain_access_control
+       .section .text.cp15_write_domain_access_control
        .global   cp15_write_domain_access_control
 cp15_write_domain_access_control:
         mcr     p15, 0, r0, c3, c0, 0
@@ -214,7 +214,7 @@ cp15_write_domain_access_control:
  * to a value of all zeros, indicates we are using TTB register 0.
  * write the address of our page table base to TTB register 0.
  */
-        .section .cp15_write_ttb
+        .section .text.cp15_write_ttb
         .global   cp15_write_ttb
 cp15_write_ttb:
        mcr     p15, 0, r0, c2, c0, 0
@@ -231,7 +231,7 @@ cp15_write_ttb:
 /**
  * \brief Invalidate I cache predictor array inner Sharable
  */
-        .section .cp15_invalid_icache_inner_sharable
+        .section .text.cp15_invalid_icache_inner_sharable
         .global   cp15_invalid_icache_inner_sharable
 cp15_invalid_icache_inner_sharable:
         mov     r0, #0
@@ -241,7 +241,7 @@ cp15_invalid_icache_inner_sharable:
 /**
  * \brief Invalidate entire branch predictor array inner Sharable
  */
-        .section .cp15_invalid_btb_inner_sharable
+        .section .text.cp15_invalid_btb_inner_sharable
         .global   cp15_invalid_btb_inner_sharable
 cp15_invalid_btb_inner_sharable:
         mov     r0, #0
@@ -251,7 +251,7 @@ cp15_invalid_btb_inner_sharable:
 /**
  * \brief Invalidate all instruction caches to PoU, also flushes branch target cache
  */
-        .section .cp15_invalid_icache
+        .section .text.cp15_invalid_icache
         .global   cp15_invalid_icache
 cp15_invalid_icache:
         mov     r0, #0
@@ -261,7 +261,7 @@ cp15_invalid_icache:
 /**
  * \brief Invalidate instruction caches by VA to PoU
  */
-        .section .cp15_invalid_icache_by_mva
+        .section .text.cp15_invalid_icache_by_mva
         .global   cp15_invalid_icache_by_mva
 cp15_invalid_icache_by_mva:
         mov     r0, #0
@@ -271,7 +271,7 @@ cp15_invalid_icache_by_mva:
 /**
  * \brief Invalidate entire branch predictor array
  */
-        .section .cp15_invalid_btb
+        .section .text.cp15_invalid_btb
         .global   cp15_invalid_btb
 cp15_invalid_btb:
         mov     r0, #0
@@ -281,7 +281,7 @@ cp15_invalid_btb:
 /**
  * \brief Invalidate branch predictor array entry by MVA
  */
-        .section .cp15_invalid_btb_by_mva
+        .section .text.cp15_invalid_btb_by_mva
         .global   cp15_invalid_btb_by_mva
 cp15_invalid_btb_by_mva:
         mcr     p15, 0, r0, c7, c5, 7
@@ -299,7 +299,7 @@ cp15_invalid_btb_by_mva:
 /**
  * \brief Invalidate entire data cache by set/way
  */
-        .section .cp15_invalid_dcache_by_set_way
+        .section .text.cp15_invalid_dcache_by_set_way
         .global   cp15_invalid_dcache_by_set_way
 cp15_invalid_dcache_by_set_way:
         mrc     p15, 1, r0, c0, c0, 0
@@ -327,7 +327,7 @@ inv_line_loop:
 /**
  * \brief Clean entire data cache by set/way
  */
-        .section .cp15_clean_dcache_by_set_way
+        .section .text.cp15_clean_dcache_by_set_way
         .global   cp15_clean_dcache_by_set_way
 cp15_clean_dcache_by_set_way:
         mrc     p15, 1, r0, c0, c0, 0
@@ -354,7 +354,7 @@ clean_line_loop:
 /**
  * \brief Clean and Invalidate entire data cache by set/way
  */
-        .section .cp15_clean_invalid_dcache_by_set_way
+        .section .text.cp15_clean_invalid_dcache_by_set_way
         .global   cp15_clean_invalid_dcache_by_set_way
 cp15_clean_invalid_dcache_by_set_way:
         mrc     p15, 1, r0, c0, c0, 0
@@ -386,7 +386,7 @@ clinv_line_loop:
 /**
  * \brief Invalidate data cache by VA to Poc
  */
-        .section .cp15_invalid_dcache_by_mva
+        .section .text.cp15_invalid_dcache_by_mva
         .global   cp15_invalid_dcache_by_mva
 cp15_invalid_dcache_by_mva: 
         mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
@@ -402,7 +402,7 @@ inv_loop:
 /**
  * \brief Clean data cache by MVA
  */
-        .section .cp15_clean_dcache_by_mva
+        .section .text.cp15_clean_dcache_by_mva
         .global   cp15_clean_dcache_by_mva
 cp15_clean_dcache_by_mva:   
         mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
@@ -417,7 +417,7 @@ clean_loop:
 /**
  * \brief Clean unified cache by MVA 
  */
-        .section .cp15_clean_dcache_umva
+        .section .text.cp15_clean_dcache_umva
         .global   cp15_clean_dcache_umva
 cp15_clean_dcache_umva:
         mov     r0, #0
@@ -427,7 +427,7 @@ cp15_clean_dcache_umva:
 /**
  * \brief Clean and invalidate data cache by VA to PoC
  */
-        .section .cp15_clean_invalid_dcache_by_mva
+        .section .text.cp15_clean_invalid_dcache_by_mva
         .global   cp15_clean_invalid_dcache_by_mva
 cp15_clean_invalid_dcache_by_mva:
         mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
@@ -448,7 +448,7 @@ clinv_loop:
  * \param start virtual start address of region
  * \param end virtual end address of region
  */
-        .section .cp15_coherent_dcache_for_dma
+        .section .text.cp15_coherent_dcache_for_dma
         .global   cp15_coherent_dcache_for_dma
 cp15_coherent_dcache_for_dma:
  
@@ -494,7 +494,7 @@ cp15_coherent_dcache_for_dma:
  * \param start virtual start address of region
  * \param end virtual end address of region
  */ 
-        .section .cp15_invalidate_dcache_for_dma
+        .section .text.cp15_invalidate_dcache_for_dma
         .global   cp15_invalidate_dcache_for_dma
 cp15_invalidate_dcache_for_dma:
 
@@ -527,7 +527,7 @@ cp15_invalidate_dcache_for_dma:
  * \param start virtual start address of region
  * \param end virtual end address of region
  */
-        .section .cp15_clean_dcache_for_dma
+        .section .text.cp15_clean_dcache_for_dma
         .global   cp15_clean_dcache_for_dma
 cp15_clean_dcache_for_dma:
         mrc     p15, 0, r3, c0, c0, 1        
@@ -552,7 +552,7 @@ cp15_clean_dcache_for_dma:
  * \param start virtual start address of region
  * \param end virtual end address of region
  */
-        .section .cp15_flush_dcache_for_dma
+        .section .text.cp15_flush_dcache_for_dma
         .global   cp15_flush_dcache_for_dma
 cp15_flush_dcache_for_dma:
         mrc     p15, 0, r3, c0, c0, 1        
@@ -577,7 +577,7 @@ cp15_flush_dcache_for_dma:
  * \param start virtual start address of region
  * \param end virtual end address of region
  */
-        .section .cp15_flush_kern_dcache_for_dma
+        .section .text.cp15_flush_kern_dcache_for_dma
         .global   cp15_flush_kern_dcache_for_dma
 cp15_flush_kern_dcache_for_dma:
         mrc     p15, 0, r3, c0, c0, 1         
