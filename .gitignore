@@ -1,0 +1,11 @@
+GPATH
+GRTAGS
+GTAGS
+*.o
+*.a
+*.d
+*/build
+*/*/build
+*.ewp
+*.eww
+*.ewd
