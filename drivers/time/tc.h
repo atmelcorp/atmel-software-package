@@ -60,10 +60,13 @@
 extern "C" {
 #endif
 
-void tc_configure (Tc* pTc, uint32_t channel, uint32_t mode);
-void tc_start (Tc * pTc, uint32_t channel);
-void tc_stop (Tc * pTc, uint32_t channel);
+extern void tc_configure (Tc* pTc, uint32_t channel, uint32_t mode);
+extern void tc_start (Tc * pTc, uint32_t channel);
+extern void tc_stop (Tc * pTc, uint32_t channel);
+extern void tc_enable_it(Tc* tc, uint32_t channel, uint32_t mask);
 extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t* div, uint32_t * tc_clks);
+extern uint32_t tc_get_status(Tc* tc, uint32_t channel_num);
+extern void tc_trigger_on_freq(Tc* tc, uint32_t channel_num, uint32_t freq);
 
 #ifdef __cplusplus
 }

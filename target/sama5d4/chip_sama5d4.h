@@ -160,6 +160,18 @@ static inline uint32_t get_usart_id_from_addr(const Usart* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+static inline uint32_t get_tc_id_from_addr(const Tc* addr)
+{
+	if (addr == TC0) return ID_TC0;
+#ifdef TC1
+	else if (addr == TC1) return ID_TC1;
+#endif
+#ifdef TC2
+	else if (addr == TC2) return ID_TC2;
+#endif
+	else return ID_PERIPH_COUNT;
+}
+
 static inline uint32_t get_peripheral_clock_divider(uint32_t id)
 {
 	switch (id) {

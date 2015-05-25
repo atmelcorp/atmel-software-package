@@ -154,6 +154,19 @@ void tc_stop(Tc * pTc, uint32_t channel)
 }
 
 /**
+ * \brief Enables TC channel interrupts
+ *
+ * \param tc Pointer to Tc instance
+ * \param channel Channel number
+ * \param mask mask of interrupts to enable
+ */
+void tc_enable_it(Tc* tc, uint32_t channel, uint32_t mask)
+{
+	assert(channel < (sizeof (tc->TC_CHANNEL) / sizeof (tc->TC_CHANNEL[0])));
+	tc->TC_CHANNEL[channel].TC_IER = mask;
+}
+
+/**
  * \brief Find best MCK divisor
  *
  * Finds the best MCK divisor given the timer frequency and MCK. The result
@@ -163,49 +176,53 @@ void tc_stop(Tc * pTc, uint32_t channel)
  * \endcode
  * with DIV being the highest possible value.
  *
- * \param freq  Desired timer frequency.
- * \param dwMCk  Master clock frequency.
+ * \param freq  Desired timer freq.
  * \param div  Divisor value.
  * \param tc_clks  TCCLKS field value for divisor.
- * \param board_mck  Board clock frequency.
  *
  * \return 1 if a proper divisor has been found, otherwise 0.
  */
-extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t * div,
+uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t * div,
 				  uint32_t * tc_clks)
 {
-	const uint32_t master_clock = pmc_get_master_clock();
 	const uint32_t periph_clock = pmc_get_peripheral_clock(ID_TC0);
-	const uint32_t adivisors[5] = { 2, 8, 32, 128, master_clock / 32768 };
+	const uint32_t available_freqs[5] = {periph_clock >> 1, periph_clock >> 3, periph_clock >> 5, periph_clock >> 7, 32768};
 
-	uint32_t dwIndex = 0;
-
-	/*  Satisfy lower bound */
-	while (freq < ((periph_clock / adivisors[dwIndex]) / 65536)) {
-		dwIndex++;
-
-		/*  If no divisor can be found, return 0 */
-		if (dwIndex == (sizeof (adivisors) / sizeof (adivisors[0]))) {
-			return 0;
-		}
-	}
-
-	/*  Try to maximize DIV while satisfying upper bound */
-	while (dwIndex < 4) {
-
-		if (freq > (periph_clock / adivisors[dwIndex + 1])) {
+	int i = 0;
+	for (i = 0; i < 5; ++i)
+	{
+		uint32_t tmp = freq << 1;
+		if (tmp > available_freqs[i])
 			break;
-		}
-		dwIndex++;
 	}
+
+	i = (i == 5 ? i-1 : i);
 
 	/*  Store results */
 	if (div) {
-		*div = adivisors[dwIndex];
+		*div = periph_clock / available_freqs[i];
 	}
 	if (tc_clks) {
-		*tc_clks = dwIndex;
+		*tc_clks = i;
 	}
 
 	return 1;
+}
+
+uint32_t tc_get_status(Tc* tc, uint32_t channel_num)
+{
+	return tc->TC_CHANNEL[channel_num].TC_SR;
+}
+
+
+void tc_trigger_on_freq(Tc* tc, uint32_t channel_num, uint32_t freq)
+{
+	uint32_t div = 0;
+	uint32_t tcclks = 0;
+	uint32_t tc_id = get_tc_id_from_addr(tc);
+	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+
+	tc_find_mck_divisor(freq, &div, &tcclks);
+	tc_configure(tc, channel_num, tcclks | TC_CMR_CPCTRG);
+	channel->TC_RC = (pmc_get_peripheral_clock(tc_id) / div) / freq;
 }
