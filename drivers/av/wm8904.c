@@ -40,6 +40,7 @@
 
 #include "av/wm8904.h"
 #include "bus/twid.h"
+#include "core/pmc.h"
 
 #include <stdio.h>
 

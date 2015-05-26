@@ -42,6 +42,7 @@
 
 #include "core/pio.h"
 #include "core/aic.h"
+#include "core/pmc.h"
 
 #include "net/gmacd.h"
 #include "net/gmacb.h"
