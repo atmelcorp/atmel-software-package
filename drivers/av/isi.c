@@ -135,7 +135,7 @@ void
 ISI_SetFrame(uint32_t frate)
 {
 	if (frate > 7) {
-		TRACE_ERROR("FRate too big\n\r");
+		trace_error("FRate too big\n\r");
 		frate = 7;
 	}
 	REG_ISI_CFG1 |= ISI_CFG1_FRATE(frate);
@@ -182,7 +182,7 @@ ISI_Reset(void)
 		timeout++;
 	}
 	if (timeout == 0x500000) {
-		TRACE_ERROR("ISI-Reset timeout\n\r");
+		trace_error("ISI-Reset timeout\n\r");
 	}
 }
 
@@ -200,7 +200,7 @@ ISI_Init(pIsi_Video pVideo)
 	// SFD lines are skipped at the beginning of the frame.
 	REG_ISI_CFG1 |=
 	    ISI_CFG1_SLD(pVideo->Hblank) + ISI_CFG1_SFD(pVideo->Vblank);
-	TRACE_DEBUG("ISI_CFG1=0x%X\n\r", REG_ISI_CFG1);
+	trace_debug("ISI_CFG1=0x%X\n\r", REG_ISI_CFG1);
 
 	// IM_VSIZE: Vertical size of the Image sensor [0..2047]
 	// Vertical size = IM_VSIZE + 1
@@ -215,13 +215,13 @@ ISI_Init(pIsi_Video pVideo)
 	} else {
 		REG_ISI_CFG2 |= ISI_CFG2_YCC_SWAP(2);
 	}
-	TRACE_DEBUG("ISI_CFG2=0x%X\n\r", REG_ISI_CFG2);
+	trace_debug("ISI_CFG2=0x%X\n\r", REG_ISI_CFG2);
 
 	// Vertical Preview size = PREV_VSIZE + 1 (480 max only in RGB mode).
 	// Horizontal Preview size = PREV_HSIZE + 1 (640 max only in RGB mode).
 
 	if ((pVideo->lcd_vsize > 480) || (pVideo->lcd_hsize > 800)) {
-		TRACE_ERROR("Size LCD bad define %u, %u\n\r",
+		trace_error("Size LCD bad define %u, %u\n\r",
 			    (unsigned int) pVideo->lcd_vsize,
 			    (unsigned int) pVideo->lcd_hsize);
 		REG_ISI_PSIZE = ((480 - 1)) + (((800 - 1) << 16));

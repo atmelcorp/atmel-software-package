@@ -37,7 +37,7 @@
 /** \addtogroup font_10x14
  *@{
  */
-#include "board.h"
+#include <stdint.h>
 
 /** Char set of font 10x14 */
 const uint8_t pCharset10x14[] = {

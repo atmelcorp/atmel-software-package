@@ -100,12 +100,12 @@ ISO7816_GetChar(uint8_t * pCharToReceive)
 	/* Wait USART ready for reception */
 	while (((BOARD_ISO7816_BASE_USART->US_CSR & US_CSR_RXRDY) == 0)) {
 		if (timeout++ > 12000 * (pmc_get_master_clock() / 1000000)) {
-			TRACE_DEBUG("TimeOut\n\r");
+			trace_debug("TimeOut\n\r");
 			return (0);
 		}
 	}
 
-	TRACE_DEBUG("T: %u\n\r", timeout);
+	trace_debug("T: %u\n\r", timeout);
 
 	/* At least one complete character has been received and US_RHR has not yet been read. */
 
@@ -118,9 +118,9 @@ ISO7816_GetChar(uint8_t * pCharToReceive)
 		       | US_CSR_NACK | (1 << 10)));
 
 	if (status != 0) {
-		/* TRACE_DEBUG("R:0x%X\n\r", status); */
-		TRACE_DEBUG("R:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
-		TRACE_DEBUG("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
+		/* trace_debug("R:0x%X\n\r", status); */
+		trace_debug("R:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
+		trace_debug("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
 		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
 	}
 
@@ -158,8 +158,8 @@ ISO7816_SendChar(uint8_t CharToSend)
 		       | US_CSR_NACK | (1 << 10)));
 
 	if (status != 0) {
-		TRACE_DEBUG("E:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
-		TRACE_DEBUG("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
+		trace_debug("E:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
+		trace_debug("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
 		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
 	}
 
@@ -210,13 +210,13 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 	uint8_t cmdCase;
 	uint8_t ins;
 
-	TRACE_DEBUG("pAPDU[0]=0x%X\n\r", pAPDU[0]);
-	TRACE_DEBUG("pAPDU[1]=0x%X\n\r", pAPDU[1]);
-	TRACE_DEBUG("pAPDU[2]=0x%X\n\r", pAPDU[2]);
-	TRACE_DEBUG("pAPDU[3]=0x%X\n\r", pAPDU[3]);
-	TRACE_DEBUG("pAPDU[4]=0x%X\n\r", pAPDU[4]);
-	TRACE_DEBUG("pAPDU[5]=0x%X\n\r", pAPDU[5]);
-	TRACE_DEBUG("wlength=%d\n\r", wLength);
+	trace_debug("pAPDU[0]=0x%X\n\r", pAPDU[0]);
+	trace_debug("pAPDU[1]=0x%X\n\r", pAPDU[1]);
+	trace_debug("pAPDU[2]=0x%X\n\r", pAPDU[2]);
+	trace_debug("pAPDU[3]=0x%X\n\r", pAPDU[3]);
+	trace_debug("pAPDU[4]=0x%X\n\r", pAPDU[4]);
+	trace_debug("pAPDU[5]=0x%X\n\r", pAPDU[5]);
+	trace_debug("wlength=%d\n\r", wLength);
 
 	ISO7816_SendChar(pAPDU[0]);	/* CLA */
 	ISO7816_SendChar(pAPDU[1]);	/* INS */
@@ -257,7 +257,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 		}
 	}
 
-	TRACE_DEBUG("CASE=0x%X NeNc=0x%X\n\r", cmdCase, NeNc);
+	trace_debug("CASE=0x%X NeNc=0x%X\n\r", cmdCase, NeNc);
 
 	/* Handle Procedure Bytes */
 	do {
@@ -265,18 +265,18 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 		ins = procByte ^ 0xff;
 		/* Handle NULL */
 		if (procByte == ISO_NULL_VAL) {
-			TRACE_DEBUG("INS\n\r");
+			trace_debug("INS\n\r");
 			continue;
 		}
 		/* Handle SW1 */
 		else if (((procByte & 0xF0) == 0x60)
 			 || ((procByte & 0xF0) == 0x90)) {
-			TRACE_DEBUG("SW1\n\r");
+			trace_debug("SW1\n\r");
 			SW1 = 1;
 		}
 		/* Handle INS */
 		else if (pAPDU[1] == procByte) {
-			TRACE_DEBUG("HdlINS\n\r");
+			trace_debug("HdlINS\n\r");
 			if (cmdCase == CASE2) {
 				/* receive data from card */
 				do {
@@ -292,7 +292,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 		}
 		/* Handle INS ^ 0xff */
 		else if (pAPDU[1] == ins) {
-			TRACE_DEBUG("HdlINS+\n\r");
+			trace_debug("HdlINS+\n\r");
 			if (cmdCase == CASE2) {
 				/* receive data from card */
 				ISO7816_GetChar(&pMessage[indexMessage++]);
@@ -302,7 +302,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 			NeNc--;
 		} else {
 			/* ?? */
-			TRACE_DEBUG("procByte=0x%X\n\r", procByte);
+			trace_debug("procByte=0x%X\n\r", procByte);
 			break;
 		}
 	} while (NeNc != 0);
@@ -325,7 +325,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 void
 ISO7816_Escape(void)
 {
-	TRACE_DEBUG("For user, if needed\n\r");
+	trace_debug("For user, if needed\n\r");
 }
 
 /**
@@ -334,7 +334,7 @@ ISO7816_Escape(void)
 void
 ISO7816_RestartClock(void)
 {
-	TRACE_DEBUG("ISO7816_RestartClock\n\r");
+	trace_debug("ISO7816_RestartClock\n\r");
 	BOARD_ISO7816_BASE_USART->US_BRGR = 13;
 }
 
@@ -344,7 +344,7 @@ ISO7816_RestartClock(void)
 void
 ISO7816_StopClock(void)
 {
-	TRACE_DEBUG("ISO7816_StopClock\n\r");
+	trace_debug("ISO7816_StopClock\n\r");
 	BOARD_ISO7816_BASE_USART->US_BRGR = 0;
 }
 
@@ -354,8 +354,8 @@ ISO7816_StopClock(void)
 void
 ISO7816_toAPDU(void)
 {
-	TRACE_DEBUG("ISO7816_toAPDU\n\r");
-	TRACE_DEBUG("Not supported at this time\n\r");
+	trace_debug("ISO7816_toAPDU\n\r");
+	trace_debug("Not supported at this time\n\r");
 }
 
 /**
@@ -587,7 +587,7 @@ ISO7816_Decode_ATR(uint8_t * pAtr)
 void
 ISO7816_Init(const struct _pin pPinIso7816RstMC)
 {
-	TRACE_DEBUG("ISO_Init\n\r");
+	trace_debug("ISO_Init\n\r");
 
 	/* Pin ISO7816 initialize */
 	st_pinIso7816RstMC = pPinIso7816RstMC;

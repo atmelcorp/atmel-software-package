@@ -238,7 +238,7 @@ void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut)
 	} else {
 		while ((usart->US_CSR & US_CSR_TXRDY) == 0) {
 			if (timeOut == 0) {
-				TRACE_ERROR("usart_write: Timed out.\n\r");
+				trace_error("usart_write: Timed out.\n\r");
 				return;
 			}
 			timeOut--;
@@ -261,7 +261,7 @@ uint16_t usart_read(Usart *usart, volatile uint32_t timeOut)
 	} else {
 		while ((usart->US_CSR & US_CSR_RXRDY) == 0) {
 			if (timeOut == 0) {
-				TRACE_ERROR("usart_read: Timed out.\n\r");
+				trace_error("usart_read: Timed out.\n\r");
 				return 0;
 			}
 			timeOut--;

@@ -114,7 +114,7 @@ mt_read_reg(struct _twid * pTwid, uint8_t reg, uint8_t * pData)
 	status = twid_write(pTwid, MT_CAPTOR_ADDRESS, 0, 0, &reg, 1, 0);
 	status |= twid_read(pTwid, MT_CAPTOR_ADDRESS, 0, 0, pData, 2, 0);
 	if (status != 0) {
-		TRACE_ERROR("mt_read_reg pb");
+		trace_error("mt_read_reg pb");
 	}
 	return status;
 }
@@ -132,7 +132,7 @@ mt_write_reg(struct _twid * pTwid, uint8_t reg, uint8_t * val)
 	uint8_t status;
 	status = twid_write(pTwid, MT_CAPTOR_ADDRESS, reg, 1, val, 2, 0);
 	if (status != 0) {
-		TRACE_ERROR("mt_write_reg pb");
+		trace_error("mt_write_reg pb");
 	}
 	return status;
 }
@@ -151,7 +151,7 @@ mt_write_regs(struct _twid * pTwid, const struct mt_reg * pReglist)
 	uint32_t size = 0;
 	const struct mt_reg *pNext = pReglist;
 	volatile uint32_t delay;
-	TRACE_DEBUG("mt_write_regs:");
+	trace_debug("mt_write_regs:");
 	BUF[0] = pNext->reg;
 	BUF[1] = pNext->va_h;
 	BUF[2] = pNext->va_l;
@@ -162,7 +162,7 @@ mt_write_regs(struct _twid * pTwid, const struct mt_reg * pReglist)
 		size++;
 		for (delay = 0; delay <= 10000; delay++) ;
 		if (err == TWID_ERROR_BUSY) {
-			TRACE_ERROR("mt_write_regs: TWI ERROR\n\r");
+			trace_error("mt_write_regs: TWI ERROR\n\r");
 			return err;
 		}
 		pNext++;
@@ -170,7 +170,7 @@ mt_write_regs(struct _twid * pTwid, const struct mt_reg * pReglist)
 		BUF[1] = pNext->va_h;
 		BUF[2] = pNext->va_l;
 	}
-	TRACE_DEBUG_WP("\n\r");
+	trace_debug_wp("\n\r");
 	mt_read_reg(pTwid, 0x00, &BUF[1]);
 	return 0;
 }
@@ -185,16 +185,16 @@ mt_DumpRegisters(struct _twid * pTwid)
 	uint32_t i;
 	uint8_t value;
 
-	TRACE_INFO_WP("Dump all camera register\n\r");
+	trace_info_wp("Dump all camera register\n\r");
 	for (i = 0; i <= 0x5C; i++) {
 		value = 0;
 		mt_read_reg(pTwid, i, &value);
-		TRACE_INFO_WP("[0x%02x]=0x%02x ", i, value);
+		trace_info_wp("[0x%02x]=0x%02x ", i, value);
 		if (((i + 1) % 5) == 0) {
-			TRACE_INFO_WP("\n\r");
+			trace_info_wp("\n\r");
 		}
 	}
-	TRACE_INFO_WP("\n\r");
+	trace_info_wp("\n\r");
 }
 
 /**
@@ -215,7 +215,7 @@ mt_init(struct _twid * pTwid)
 		break;
 	default:
 		mtType = OV_UNKNOWN;
-		TRACE_ERROR("Can not support product ID %x \n\r", id);
+		trace_error("Can not support product ID %x \n\r", id);
 		break;
 	}
 	return mtType;

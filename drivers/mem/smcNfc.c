@@ -403,7 +403,7 @@ _smc_ecc_GetW8BitPer256Ecc(uint32_t pageDataSize, uint8_t * code)
 		/* Get Parity and NParity value. */
 		eccParity = ecc[i];
 		eccParity = ~eccParity;
-		TRACE_DEBUG("ecc Parity%d is 0x%08x \n\r", (int) i,
+		trace_debug("ecc Parity%d is 0x%08x \n\r", (int) i,
 			    (uint32_t) eccParity);
 		code[i * 3] = eccParity & 0xff;
 		code[i * 3 + 1] = (eccParity >> 8) & 0xff;
@@ -535,7 +535,7 @@ _smc_ecc_VerifyW12BitPerPageEcc(uint8_t * data,
 	correctionCode[1] = verifyCode[1] ^ originalCode[1];
 	correctionCode[2] = verifyCode[2] ^ originalCode[2];
 	correctionCode[3] = verifyCode[3] ^ originalCode[3];
-	TRACE_DEBUG("Correction code = %02X %02X %02X %02X\n\r",
+	trace_debug("Correction code = %02X %02X %02X %02X\n\r",
 		    correctionCode[0], correctionCode[1], correctionCode[2],
 		    correctionCode[3]);
 	/* If all bytes are 0, there is no error */
@@ -596,13 +596,13 @@ _smc_ecc_VerifyW8BitPer256Ecc(uint8_t * data,
 	uint8_t bit;
 	uint8_t error = 0;
 
-	TRACE_DEBUG("_smc_ecc_VerifyW8BitPer256Ecc()\n\r");
+	trace_debug("_smc_ecc_VerifyW8BitPer256Ecc()\n\r");
 	while (position < size) {
 		/* Xor both codes together */
 		correctionCode[0] = verifyCode[0] ^ originalCode[0];
 		correctionCode[1] = verifyCode[1] ^ originalCode[1];
 		correctionCode[2] = verifyCode[2] ^ originalCode[2];
-		TRACE_DEBUG("Correction code = %02X %02X %02X\n\r",
+		trace_debug("Correction code = %02X %02X %02X\n\r",
 			    correctionCode[0], correctionCode[1],
 			    correctionCode[2]);
 
@@ -660,13 +660,13 @@ _smc_ecc_VerifyW9BitPer512Ecc(uint8_t * data,
 	uint8_t bit;
 	uint8_t error = 0;
 
-	TRACE_DEBUG("_smc_ecc_VerifyW9BitPer512Ecc()\n\r");
+	trace_debug("_smc_ecc_VerifyW9BitPer512Ecc()\n\r");
 	while (position < size) {
 		/* Xor both codes together */
 		correctionCode[0] = verifyCode[0] ^ originalCode[0];
 		correctionCode[1] = verifyCode[1] ^ originalCode[1];
 		correctionCode[2] = verifyCode[2] ^ originalCode[2];
-		TRACE_DEBUG("Correction code = %02X %02X %02X\n\r",
+		trace_debug("Correction code = %02X %02X %02X\n\r",
 			    correctionCode[0], correctionCode[1],
 			    correctionCode[2]);
 

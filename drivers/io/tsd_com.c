@@ -368,7 +368,7 @@ TSDCom_Calibrate(void)
 		LCDD_DrawString(strX + strW, strY + 2 * strH, "Error too big",
 				COLOR_RED);
 		LCDD_Flush_CurrentCanvas();
-		TRACE_WARNING("X %u, Y %u; Diff %d, %d\n\r",
+		trace_warning("X %u, Y %u; Diff %d, %d\n\r",
 			      (unsigned int) (measuredPoint.x),
 			      (unsigned int) (measuredPoint.y),
 			      (unsigned int) xDiff, (unsigned int) yDiff);

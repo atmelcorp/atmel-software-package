@@ -92,7 +92,7 @@ GMACB_ReadPhy(Gmac * pHw,
 {
 	GMAC_PHYMaintain(pHw, PhyAddress, Address, 1, 0);
 	if (GMACB_WaitPhy(pHw, retry) == 0) {
-		TRACE_ERROR("TimeOut GMACB_ReadPhy\n\r");
+		trace_error("TimeOut GMACB_ReadPhy\n\r");
 		return 0;
 	}
 	*pValue = GMAC_PHYData(pHw);
@@ -115,7 +115,7 @@ GMACB_WritePhy(Gmac * pHw,
 {
 	GMAC_PHYMaintain(pHw, PhyAddress, Address, 0, Value);
 	if (GMACB_WaitPhy(pHw, retry) == 0) {
-		TRACE_ERROR("TimeOut GMACB_WritePhy\n\r");
+		trace_error("TimeOut GMACB_WritePhy\n\r");
 		return 0;
 	}
 	return 1;
@@ -142,7 +142,7 @@ GMACB_FindValidPhy(GMacb * pMacb)
 	uint8_t phyAddress;
 	uint8_t cnt;
 
-	TRACE_DEBUG("GMACB_FindValidPhy\n\r");
+	trace_debug("GMACB_FindValidPhy\n\r");
 
 	GMAC_EnableMdio(pHw);
 	phyAddress = pMacb->phyAddress;
@@ -151,9 +151,9 @@ GMACB_FindValidPhy(GMacb * pMacb)
 	/* Check current phyAddress */
 	rc = phyAddress;
 	if (GMACB_ReadPhy(pHw, phyAddress, GMII_PHYID1R, &value, retryMax) == 0) {
-		TRACE_ERROR("GMACB PROBLEM\n\r");
+		trace_error("GMACB PROBLEM\n\r");
 	}
-	TRACE_DEBUG("_PHYID1  : 0x%X, addr: %d\n\r", value, phyAddress);
+	trace_debug("_PHYID1  : 0x%X, addr: %d\n\r", value, phyAddress);
 
 	/* Find another one */
 	if (value != GMII_OUI_MSB) {
@@ -165,9 +165,9 @@ GMACB_FindValidPhy(GMacb * pMacb)
 			if (GMACB_ReadPhy
 			    (pHw, phyAddress, GMII_PHYID1R, &value,
 			     retryMax) == 0) {
-				TRACE_ERROR("MACB PROBLEM\n\r");
+				trace_error("MACB PROBLEM\n\r");
 			}
-			TRACE_DEBUG("_PHYID1  : 0x%X, addr: %d\n\r", value,
+			trace_debug("_PHYID1  : 0x%X, addr: %d\n\r", value,
 				    phyAddress);
 			if (value == GMII_OUI_MSB) {
 
@@ -177,12 +177,12 @@ GMACB_FindValidPhy(GMacb * pMacb)
 		}
 	}
 	if (rc != 0xFF) {
-		TRACE_INFO("** Valid PHY Found: %d\n\r", rc);
+		trace_info("** Valid PHY Found: %d\n\r", rc);
 		GMACB_ReadPhy(pHw, phyAddress, GMII_PHYID1R, &value, retryMax);
-		TRACE_DEBUG("_PHYID1R  : 0x%X, addr: %d\n\r", value,
+		trace_debug("_PHYID1R  : 0x%X, addr: %d\n\r", value,
 			    phyAddress);
 		GMACB_ReadPhy(pHw, phyAddress, GMII_PHYID2R, &value, retryMax);
-		TRACE_DEBUG("_EMSR  : 0x%X, addr: %d\n\r", value, phyAddress);
+		trace_debug("_EMSR  : 0x%X, addr: %d\n\r", value, phyAddress);
 	}
 	GMAC_DisableMdio(pHw);
 	return rc;
@@ -206,36 +206,36 @@ GMACB_DumpRegisters(GMacb * pMacb)
 	uint32_t retryMax;
 	uint32_t value;
 
-	TRACE_INFO("GMACB_DumpRegisters\n\r");
+	trace_info("GMACB_DumpRegisters\n\r");
 
 	GMAC_EnableMdio(pHw);
 	phyAddress = pMacb->phyAddress;
 	retryMax = pMacb->retryMax;
 
-	TRACE_INFO("GMII MACB @%d) Registers:\n\r", phyAddress);
+	trace_info("GMII MACB @%d) Registers:\n\r", phyAddress);
 
 	GMACB_ReadPhy(pHw, phyAddress, GMII_BMCR, &value, retryMax);
-	TRACE_INFO(" _BMCR     : 0x%X\n\r", value);
+	trace_info(" _BMCR     : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_BMSR, &value, retryMax);
-	TRACE_INFO(" _BMSR     : 0x%X\n\r", value);
+	trace_info(" _BMSR     : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ANAR, &value, retryMax);
-	TRACE_INFO(" _ANAR     : 0x%X\n\r", value);
+	trace_info(" _ANAR     : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ANLPAR, &value, retryMax);
-	TRACE_INFO(" _ANLPAR   : 0x%X\n\r", value);
+	trace_info(" _ANLPAR   : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ANER, &value, retryMax);
-	TRACE_INFO(" _ANER     : 0x%X\n\r", value);
+	trace_info(" _ANER     : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ANNPR, &value, retryMax);
-	TRACE_INFO(" _ANNPR    : 0x%X\n\r", value);
+	trace_info(" _ANNPR    : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ANLPNPAR, &value, retryMax);
-	TRACE_INFO(" _ANLPNPAR : 0x%X\n\r", value);
+	trace_info(" _ANLPNPAR : 0x%X\n\r", value);
 
-	TRACE_INFO(" \n\r");
+	trace_info(" \n\r");
 
 	GMACB_ReadPhy(pHw, phyAddress, GMII_RXERCR, &value, retryMax);
-	TRACE_INFO(" _RXERCR   : 0x%X\n\r", value);
+	trace_info(" _RXERCR   : 0x%X\n\r", value);
 	GMACB_ReadPhy(pHw, phyAddress, GMII_ICSR, &value, retryMax);
-	TRACE_INFO(" _ICSR     : 0x%X\n\r", value);
-	TRACE_INFO(" \n\r");
+	trace_info(" _ICSR     : 0x%X\n\r", value);
+	trace_info(" \n\r");
 
 	GMAC_DisableMdio(pHw);
 }
@@ -282,7 +282,7 @@ GMACB_ResetPhy(GMacb * pMacb)
 	uint32_t timeout = 10;
 	uint8_t ret = 1;
 
-	TRACE_INFO(" GMACB_ResetPhy\n\r");
+	trace_info(" GMACB_ResetPhy\n\r");
 
 	phyAddress = pMacb->phyAddress;
 	retryMax = pMacb->retryMax;
@@ -334,7 +334,7 @@ GMACB_InitPhy(GMacb * pMacb,
 	uint8_t phy;
 
 	/* Perform RESET */
-	TRACE_DEBUG("RESET PHY\n\r");
+	trace_debug("RESET PHY\n\r");
 
 	if (pResetPins) {
 		/* Configure PINS */
@@ -346,14 +346,14 @@ GMACB_InitPhy(GMacb * pMacb,
 		pio_configure(pGmacPins, nbGmacPins);
 		rc = GMAC_SetMdcClock(pHw, mck);
 		if (!rc) {
-			TRACE_ERROR("No Valid MDC clock\n\r");
+			trace_error("No Valid MDC clock\n\r");
 			return 0;
 		}
 
 		/* Check PHY Address */
 		phy = GMACB_FindValidPhy(pMacb);
 		if (phy == 0xFF) {
-			TRACE_ERROR("PHY Access fail\n\r");
+			trace_error("PHY Access fail\n\r");
 			return 0;
 		}
 		if (phy != pMacb->phyAddress) {
@@ -361,7 +361,7 @@ GMACB_InitPhy(GMacb * pMacb,
 			GMACB_ResetPhy(pMacb);
 		}
 	} else {
-		TRACE_ERROR("PHY Reset Timeout\n\r");
+		trace_error("PHY Reset Timeout\n\r");
 	}
 	return rc;
 }
@@ -390,26 +390,26 @@ GMACB_AutoNegotiate(GMacb * pMacb)
 	GMAC_EnableMdio(pHw);
 
 	if (!GMACB_ReadPhy(pHw, phyAddress, GMII_PHYID1R, &value, retryMax)) {
-		TRACE_ERROR("Pb GEMAC_ReadPhy Id1\n\r");
+		trace_error("Pb GEMAC_ReadPhy Id1\n\r");
 		rc = 0;
 		goto AutoNegotiateExit;
 	}
-	TRACE_DEBUG("ReadPhy Id1 0x%X, addresse: %d\n\r", value, phyAddress);
+	trace_debug("ReadPhy Id1 0x%X, addresse: %d\n\r", value, phyAddress);
 	if (!GMACB_ReadPhy(pHw, phyAddress, GMII_PHYID2R, &phyAnar, retryMax)) {
-		TRACE_ERROR("Pb GMACB_ReadPhy Id2\n\r");
+		trace_error("Pb GMACB_ReadPhy Id2\n\r");
 		rc = 0;
 		goto AutoNegotiateExit;
 	}
-	TRACE_DEBUG("ReadPhy Id2 0x%X\n\r", phyAnar);
+	trace_debug("ReadPhy Id2 0x%X\n\r", phyAnar);
 
 	if ((value == GMII_OUI_MSB)
 	    && (((phyAnar) & (~GMII_LSB_MASK)) == GMII_OUI_LSB)) {
-		TRACE_DEBUG("Vendor Number Model = 0x%X\n\r",
+		trace_debug("Vendor Number Model = 0x%X\n\r",
 			    ((phyAnar >> 4) & 0x3F));
-		TRACE_DEBUG("Model Revision Number = 0x%X\n\r",
+		trace_debug("Model Revision Number = 0x%X\n\r",
 			    (phyAnar & 0xF));
 	} else {
-		TRACE_ERROR("Problem OUI value\n\r");
+		trace_error("Problem OUI value\n\r");
 	}
 
 	/* Set the Auto_negotiation Advertisement Register, MII advertising for Next page
@@ -437,14 +437,14 @@ GMACB_AutoNegotiate(GMacb * pMacb)
 	if (rc == 0) {
 		goto AutoNegotiateExit;
 	}
-	TRACE_DEBUG(" _BMCR: 0x%X\n\r", value);
+	trace_debug(" _BMCR: 0x%X\n\r", value);
 
 	// Check AutoNegotiate complete
 	while (1) {
 		rc = GMACB_ReadPhy(pHw, phyAddress, GMII_BMSR, &value,
 				   retryMax);
 		if (rc == 0) {
-			TRACE_ERROR("rc==0\n\r");
+			trace_error("rc==0\n\r");
 			goto AutoNegotiateExit;
 		}
 		/* Done successfully */
@@ -456,7 +456,7 @@ GMACB_AutoNegotiate(GMacb * pMacb)
 		if (retryMax) {
 			if (++retryCount >= retryMax) {
 				GMACB_DumpRegisters(pMacb);
-				TRACE_ERROR("TimeOut\n\r");
+				trace_error("TimeOut\n\r");
 				rc = 0;
 				goto AutoNegotiateExit;
 			}
@@ -493,7 +493,7 @@ GMACB_AutoNegotiate(GMacb * pMacb)
 			break;
 		}
 	}
-	TRACE_INFO("-I- GMAC_EnableRGMII duplex %d, speed %d\n\r", duplex,
+	trace_info("-I- GMAC_EnableRGMII duplex %d, speed %d\n\r", duplex,
 		   speed);
 	/* Setup GMAC mode  */
 	GMAC_EnableRGMII(pHw, duplex, speed);

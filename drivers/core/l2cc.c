@@ -60,7 +60,7 @@ uint32_t l2cc_is_enabled(L2cc * pL2cc)
 void l2cc_enable(L2cc * pL2cc)
 {
 	pL2cc->L2CC_CR |= L2CC_CR_L2CEN;
-	TRACE_INFO("L2 cache is enabled");
+	trace_info("L2 cache is enabled");
 }
 
 /**
@@ -70,7 +70,7 @@ void l2cc_enable(L2cc * pL2cc)
 void l2cc_disable(L2cc * pL2cc)
 {
 	pL2cc->L2CC_CR &= (!L2CC_CR_L2CEN);
-	TRACE_INFO("L2 cache is Disabled");
+	trace_info("L2 cache is Disabled");
 }
 
 /**
@@ -88,11 +88,11 @@ void l2cc_exclusive_cache(L2cc * pL2cc, uint8_t Enable)
 	if (Enable) {
 		cp15_exclusive_cache();
 		Aux_Cfg |= L2CC_ACR_EXCC;
-		TRACE_INFO("L2 Exclusive mode Enabled\n\r");
+		trace_info("L2 Exclusive mode Enabled\n\r");
 	} else {
 		cp15_non_exclusive_cache();
 		Aux_Cfg &= ~L2CC_ACR_EXCC;
-		TRACE_INFO("L2 Exclusive mode Disabled\n\r");
+		trace_info("L2 Exclusive mode Disabled\n\r");
 	}
 	pL2cc->L2CC_ACR |= Aux_Cfg;
 }
@@ -141,7 +141,7 @@ void l2cc_config(L2cc * pL2cc, struct _l2cc_control L2cc_Config)
 	}
 //  if( ((L2cc_Config.IDLEN_Val==1) || (L2cc_Config.DLFWRDIS_Val==0)) && L2cc_Config.DLEN_Val==0)
 //  {
-//    TRACE_ERROR(" DLEN is not enabled for Double Line fill");
+//    trace_error(" DLEN is not enabled for Double Line fill");
 //    assert(0);
 //  }
 

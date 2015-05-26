@@ -326,7 +326,7 @@ UDPHS_EndOfTransfer(uint8_t bEndpoint, uint8_t bStatus)
 		uint32_t transferred = pXfr->transferred;
 		uint32_t remaining = pXfr->remaining + pXfr->buffered;
 
-		TRACE_DEBUG_WP("EoT ");
+		trace_debug_wp("EoT ");
 		if (pEp->state == UDPHS_ENDPOINT_SENDING)
 			pEp->sendZLP = 0;
 		pEp->state = UDPHS_ENDPOINT_IDLE;
@@ -340,12 +340,12 @@ UDPHS_EndOfTransfer(uint8_t bEndpoint, uint8_t bStatus)
 			pXfr->fCallback(pXfr->pArgument, bStatus, transferred,
 					remaining);
 		} else {
-			TRACE_DEBUG_WP("NoCB ");
+			trace_debug_wp("NoCB ");
 		}
 	} else if ((pEp->state == UDPHS_ENDPOINT_RECEIVINGM)
 		   || (pEp->state == UDPHS_ENDPOINT_SENDINGM)) {
 		MblTransfer *pXfr = (MblTransfer *) & (pEp->transfer);
-		TRACE_DEBUG_WP("EoMT ");
+		trace_debug_wp("EoMT ");
 
 		pEp->state = UDPHS_ENDPOINT_IDLE;
 		pXfr->listState = 0;
@@ -354,7 +354,7 @@ UDPHS_EndOfTransfer(uint8_t bEndpoint, uint8_t bStatus)
 		if (pXfr->fCallback) {
 			pXfr->fCallback(pXfr->pArgument, bStatus);
 		} else {
-			TRACE_DEBUG_WP("NoCB ");
+			trace_debug_wp("NoCB ");
 		}
 	}
 }
@@ -420,7 +420,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 	if (size > pBi->remaining)
 		size = pBi->remaining;
 
-	TRACE_DEBUG_WP("w%d.%d ", pTransfer->outCurr, size);
+	trace_debug_wp("w%d.%d ", pTransfer->outCurr, size);
 
 	/* Record last accessed buffer */
 	pTransfer->outLast = pTransfer->outCurr;
@@ -558,12 +558,12 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		USBGenericRequest *pReq = (USBGenericRequest *) reqBuf;
 		uint16_t wPktSize;
 
-		TRACE_DEBUG_WP("Ep%d ", bEndpoint);
-		//TRACE_DEBUG_WP("St:%x ", status);
+		trace_debug_wp("Ep%d ", bEndpoint);
+		//trace_debug_wp("St:%x ", status);
 		/* IN packet sent */
 		if ((pEpt->UDPHS_EPTCTL & UDPHS_EPTCTL_TXRDY)
 		    && (0 == (status & UDPHS_EPTSTA_TXRDY))) {
-			TRACE_DEBUG_WP("Wr ");
+			trace_debug_wp("Wr ");
 
 			/* Multi-buffer-list transfer state */
 			if (pEp->state == UDPHS_ENDPOINT_SENDINGM) {
@@ -596,14 +596,14 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 					}
 
 					/* Transfer remaining */
-					TRACE_DEBUG_WP("%d ", pEp->size);
+					trace_debug_wp("%d ", pEp->size);
 					/* Send next packet */
 					UDPHS_WritePayload(bEndpoint,
 							   pEp->size);
 					pEpt->UDPHS_EPTSETSTA =
 					    UDPHS_EPTSETSTA_TXRDY;
 				} else {
-					TRACE_DEBUG_WP("l%d ",
+					trace_debug_wp("l%d ",
 						       pXfr->transferred);
 					/* Disable interrupt on none-control EP */
 					if (type != UDPHS_EPTCFG_EPT_TYPE_CTRL8) {
@@ -619,12 +619,12 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 					pEp->sendZLP = 0;
 				}
 			} else {
-				TRACE_DEBUG("Err Wr %d\n\r", pEp->sendZLP);
+				trace_debug("Err Wr %d\n\r", pEp->sendZLP);
 			}
 		}
 		/* OUT packet received */
 		if (UDPHS_EPTSTA_RXRDY_TXKL & status) {
-			TRACE_DEBUG_WP("Rd ");
+			trace_debug_wp("Rd ");
 
 			/* NOT in receiving state */
 			if (pEp->state != UDPHS_ENDPOINT_RECEIVING) {
@@ -633,7 +633,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 				    && (0 ==
 					(status & UDPHS_EPTSTA_BYTE_COUNT_Msk)))
 				{
-					TRACE_DEBUG_WP("Ack ");
+					trace_debug_wp("Ack ");
 					pEpt->UDPHS_EPTCLRSTA =
 					    UDPHS_EPTCLRSTA_RXRDY_TXKL;
 					UDPHS_EndOfTransfer(bEndpoint,
@@ -641,13 +641,13 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 				}
 				/* data has been STALLed */
 				else if (UDPHS_EPTSTA_FRCESTALL & status) {
-					TRACE_DEBUG_WP("Discard ");
+					trace_debug_wp("Discard ");
 					pEpt->UDPHS_EPTCLRSTA =
 					    UDPHS_EPTCLRSTA_RXRDY_TXKL;
 				}
 				/* NAK the data */
 				else {
-					TRACE_DEBUG_WP("Nak ");
+					trace_debug_wp("Nak ");
 					pUdp->UDPHS_IEN &=
 					    ~(UDPHS_IEN_EPT_0 << bEndpoint);
 				}
@@ -659,7 +659,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 						 UDPHS_EPTSTA_BYTE_COUNT_Msk) >>
 						UDPHS_EPTSTA_BYTE_COUNT_Pos);
 
-				TRACE_DEBUG_WP("%d ", wPktSize);
+				trace_debug_wp("%d ", wPktSize);
 				UDPHS_ReadPayload(bEndpoint, wPktSize);
 				pEpt->UDPHS_EPTCLRSTA =
 				    UDPHS_EPTCLRSTA_RXRDY_TXKL;
@@ -687,14 +687,14 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 
 			/* ISO error */
 			if (type == UDPHS_EPTCFG_EPT_TYPE_ISO) {
-				TRACE_WARNING("IsoE[%d]\n\r", bEndpoint);
+				trace_warning("IsoE[%d]\n\r", bEndpoint);
 
 				UDPHS_EndOfTransfer(bEndpoint,
 						    USBD_STATUS_ABORTED);
 			}
 			/* If EP is not halted, clear STALL */
 			else {
-				TRACE_WARNING("Stall[%d]\n\r", bEndpoint);
+				trace_warning("Stall[%d]\n\r", bEndpoint);
 
 				if (pEp->state != UDPHS_ENDPOINT_HALTED) {
 					pEpt->UDPHS_EPTCLRSTA =
@@ -718,12 +718,12 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 
 			/* ISO Err Flow */
 			if (type == UDPHS_EPTCFG_EPT_TYPE_ISO) {
-				TRACE_WARNING("IsoFE[%d]\n\r", bEndpoint);
+				trace_warning("IsoFE[%d]\n\r", bEndpoint);
 				/* Acknowledge setup packet */
 				pEpt->UDPHS_EPTCLRSTA =
 				    UDPHS_EPTCLRSTA_RX_SETUP;
 			} else {
-				TRACE_DEBUG_WP("Stup ");
+				trace_debug_wp("Stup ");
 
 				/* Copy setup */
 				UDPHS_ReadRequest(pReq);
@@ -759,7 +759,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		/* Interrupt enable */
 		pUdp->UDPHS_IEN |= (1 << SHIFT_DMA << bEndpoint);
 
-		TRACE_DEBUG_WP("Dma[B%d:T%d] ", pXfr->buffered,
+		trace_debug_wp("Dma[B%d:T%d] ", pXfr->buffered,
 			       pXfr->transferred);
 		/* DMA Configure */
 		pUdp->UDPHS_DMA[bEndpoint].UDPHS_DMACONTROL = 0;
@@ -790,7 +790,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 					   pData[pXfr->transferred]) +
 					  pXfr->buffered);
 		dwDmaSr = pUdp->UDPHS_DMA[bEndpoint].UDPHS_DMASTATUS;
-		TRACE_DEBUG_WP("iDma%d,%x ", bEndpoint, dwDmaSr);
+		trace_debug_wp("iDma%d,%x ", bEndpoint, dwDmaSr);
 		/* Mbl transfer */
 		if (pEp->state == UDPHS_ENDPOINT_SENDINGM) {
 			/* Not implemented */
@@ -804,18 +804,18 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		pUdp->UDPHS_DMA[bEndpoint].UDPHS_DMACONTROL &=
 		    ~(UDPHS_DMACONTROL_END_TR_EN | UDPHS_DMACONTROL_END_B_EN);
 		if (UDPHS_DMASTATUS_END_BF_ST & dwDmaSr) {
-			TRACE_DEBUG_WP("EoDmaB ");
+			trace_debug_wp("EoDmaB ");
 			/* BUFF_COUNT holds the number of untransmitted bytes.
 			   BUFF_COUNT is equal to zero in case of good transfer */
 			iRemain = (dwDmaSr & UDPHS_DMASTATUS_BUFF_COUNT_Msk)
 			    >> UDPHS_DMASTATUS_BUFF_COUNT_Pos;
-			TRACE_DEBUG_WP("C%d ", iRemain);
+			trace_debug_wp("C%d ", iRemain);
 			iXfred = pXfr->buffered - iRemain;
 
 			pXfr->transferred += iXfred;
 			pXfr->buffered = iRemain;
 			pXfr->remaining -= iXfred;
-			TRACE_DEBUG_WP("[B%d:T%d:R%d] ", pXfr->buffered,
+			trace_debug_wp("[B%d:T%d:R%d] ", pXfr->buffered,
 				       pXfr->transferred, pXfr->remaining);
 			/* There is still data */
 			if (pXfr->remaining + pXfr->buffered > 0) {
@@ -833,16 +833,16 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 						UDPHS_DMACONTROL_CHANN_ENB);
 			}
 		} else if (UDPHS_DMASTATUS_END_TR_ST & dwDmaSr) {
-			TRACE_DEBUG_WP("EoDmaT ");
+			trace_debug_wp("EoDmaT ");
 			pXfr->transferred = pXfr->buffered -
 			    ((dwDmaSr & UDPHS_DMASTATUS_BUFF_COUNT_Msk)
 			     >> UDPHS_DMASTATUS_BUFF_COUNT_Pos);
 			pXfr->remaining = 0;
 
-			TRACE_DEBUG_WP("[B%d:T%d] ", pXfr->buffered,
+			trace_debug_wp("[B%d:T%d] ", pXfr->buffered,
 				       pXfr->transferred);
 		} else {
-			TRACE_ERROR("UDPHS_DmaHandler: ST 0x%X\n\r",
+			trace_error("UDPHS_DmaHandler: ST 0x%X\n\r",
 				    (unsigned int) dwDmaSr);
 			bRc = USBD_STATUS_ABORTED;
 		}
@@ -885,7 +885,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		}
 		/* Sending state */
 		pEp->state = UDPHS_ENDPOINT_SENDING;
-		TRACE_DEBUG_WP("Wr%d(%d) ", bEndpoint, dLength);
+		trace_debug_wp("Wr%d(%d) ", bEndpoint, dLength);
 		pEp->sendZLP = 0;
 		/* Setup transfer descriptor */
 		pXfr->pData = (void *) pData;
@@ -960,7 +960,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			}
 		}
 
-		TRACE_DEBUG_WP("AddW%d(%d) ", bEndpoint, dLength);
+		trace_debug_wp("AddW%d(%d) ", bEndpoint, dLength);
 		/* Add buffer to buffer list and update index */
 		pTx = &(pMbl->pMbl[pMbl->inCurr]);
 		pTx->pBuffer = (uint8_t *) pData;
@@ -983,7 +983,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			/* Change state */
 			pEp->state = UDPHS_ENDPOINT_SENDINGM;
 
-			TRACE_DEBUG_WP("StartM ");
+			trace_debug_wp("StartM ");
 
 			/* Fill data into FIFO */
 			for (;
@@ -1030,7 +1030,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		/* Receiving state */
 		pEp->state = UDPHS_ENDPOINT_RECEIVING;
 
-		TRACE_DEBUG_WP("Rd%d(%d) ", bEndpoint, dLength);
+		trace_debug_wp("Rd%d(%d) ", bEndpoint, dLength);
 		/* Setup transfer descriptor */
 		pXfr->pData = (void *) pData;
 		pXfr->remaining = dLength;
@@ -1104,11 +1104,11 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		status &= pUdp->UDPHS_IEN;
 
 		/* Handle all UDPHS interrupts */
-		TRACE_DEBUG_WP("\n\r%c ", USBD_HAL_IsHighSpeed()? 'H' : 'F');
+		trace_debug_wp("\n\r%c ", USBD_HAL_IsHighSpeed()? 'H' : 'F');
 		while (status) {
 			/* SOF */
 			if (status & UDPHS_INTSTA_INT_SOF) {
-				TRACE_DEBUG_WP("SOF ");
+				trace_debug_wp("SOF ");
 				/* SOF handler */
 				//USBD_SofHandler();
 
@@ -1118,7 +1118,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			}
 			/* Suspend, treated last */
 			else if (status == UDPHS_INTSTA_DET_SUSPD) {
-				TRACE_WARNING_WP("Susp ");
+				trace_warning_wp("Susp ");
 				/* Enable wakeup */
 				pUdp->UDPHS_IEN |=
 				    (UDPHS_IEN_WAKE_UP | UDPHS_IEN_ENDOFRSM);
@@ -1137,7 +1137,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 				 || (status & UDPHS_INTSTA_ENDOFRSM)) {
 				USBD_ResumeHandler();
 
-				TRACE_INFO_WP("Rsm ");
+				trace_info_wp("Rsm ");
 
 				/* Acknowledge interrupt */
 				pUdp->UDPHS_CLRINT = UDPHS_CLRINT_WAKE_UP
@@ -1154,7 +1154,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			}
 			/* Bus reset */
 			else if (status & UDPHS_INTSTA_ENDRESET) {
-				TRACE_DEBUG_WP("EoB ");
+				trace_debug_wp("EoB ");
 				/* Flush and enable the suspend interrupt */
 				pUdp->UDPHS_CLRINT =
 				    UDPHS_CLRINT_WAKE_UP |
@@ -1169,7 +1169,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			}
 			/* Upstream resume */
 			else if (status & UDPHS_INTSTA_UPSTR_RES) {
-				TRACE_DEBUG_WP("ExtRes ");
+				trace_debug_wp("ExtRes ");
 				/* Acknowledge interrupt */
 				pUdp->UDPHS_CLRINT = UDPHS_CLRINT_UPSTR_RES;
 			}
@@ -1199,9 +1199,9 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			status = pUdp->UDPHS_INTSTA;
 			status &= pUdp->UDPHS_IEN;
 
-			TRACE_DEBUG_WP("\n\r");
+			trace_debug_wp("\n\r");
 			if (status) {
-				TRACE_DEBUG_WP(" - ");
+				trace_debug_wp(" - ");
 			}
 		}
 	}
@@ -1377,7 +1377,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			}
 		}
 
-		//TRACE_DEBUG_WP("CfgE%d ", bEndpoint);
+		//trace_debug_wp("CfgE%d ", bEndpoint);
 
 		/* Abort the current transfer is the endpoint was configured and in
 		   Write or Read state */
@@ -1439,13 +1439,13 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		while ((UDPHS_EPTCFG_EPT_MAPD & pEpt->UDPHS_EPTCFG) == 0) {
 
 			/* resolved by clearing the reset IT in good place */
-			TRACE_ERROR("PB bEndpoint: 0x%X\n\r", bEndpoint);
-			TRACE_ERROR("PB bSizeEpt: 0x%X\n\r", bSizeEpt);
-			TRACE_ERROR("PB bEndpointDir: 0x%X\n\r", bEndpointDir);
-			TRACE_ERROR("PB bType: 0x%X\n\r", bType);
-			TRACE_ERROR("PB pEndpoint->bank: 0x%X\n\r",
+			trace_error("PB bEndpoint: 0x%X\n\r", bEndpoint);
+			trace_error("PB bSizeEpt: 0x%X\n\r", bSizeEpt);
+			trace_error("PB bEndpointDir: 0x%X\n\r", bEndpointDir);
+			trace_error("PB bType: 0x%X\n\r", bType);
+			trace_error("PB pEndpoint->bank: 0x%X\n\r",
 				    pEndpoint->bank);
-			TRACE_ERROR("PB UDPHS_EPTCFG: 0x%X\n\r",
+			trace_error("PB UDPHS_EPTCFG: 0x%X\n\r",
 				    (unsigned int) pEpt->UDPHS_EPTCFG);
 			for (;;) ;
 		}
@@ -1464,7 +1464,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 #endif
 		}
 
-		//TRACE_DEBUG_WP("<%x,%x,%x> ", pEpt->UDPHS_EPTCFG, pEpt->UDPHS_EPTCTL, pEpt->UDPHS_EPTSTA);
+		//trace_debug_wp("<%x,%x,%x> ", pEpt->UDPHS_EPTCFG, pEpt->UDPHS_EPTCTL, pEpt->UDPHS_EPTSTA);
 		return bEndpoint;
 	}
 
@@ -1487,7 +1487,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		if (pEndpoint->state > UDPHS_ENDPOINT_IDLE) {
 			return USBD_STATUS_LOCKED;
 		}
-		TRACE_DEBUG_WP("sXfrCb ");
+		trace_debug_wp("sXfrCb ");
 		/* Setup the transfer callback and extension data */
 		pTransfer->fCallback = (void *) fCallback;
 		pTransfer->pArgument = pCbData;
@@ -1513,7 +1513,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		if (pEndpoint->state > UDPHS_ENDPOINT_IDLE) {
 			return USBD_STATUS_LOCKED;
 		}
-		TRACE_DEBUG_WP("sMblXfr ");
+		trace_debug_wp("sMblXfr ");
 		/* Enable Multi-Buffer Transfer List */
 		if (pMbList) {
 			/* Reset list items */
@@ -1608,7 +1608,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		}
 		/* Sending state */
 		pEp->state = UDPHS_ENDPOINT_SENDING;
-		TRACE_DEBUG_WP("Wr%d(%d+%d) ", bEndpoint, bHdrLen, dLength);
+		trace_debug_wp("Wr%d(%d+%d) ", bEndpoint, bHdrLen, dLength);
 
 		pEp->sendZLP = 0;
 
@@ -1813,12 +1813,12 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		UDPHS_EnablePeripheralClock();
 		UDPHS_EnableUsbClock();
 
-		TRACE_INFO_WP("RWUp ");
+		trace_info_wp("RWUp ");
 
 		/* Activates a remote wakeup (edge on ESR), then clear ESR */
 		pUdp->UDPHS_CTRL |= UDPHS_CTRL_REWAKEUP;
 		while (pUdp->UDPHS_CTRL & UDPHS_CTRL_REWAKEUP) {
-			TRACE_DEBUG_WP("w");
+			trace_debug_wp("w");
 		}
 		UDPHS_EnableBIAS();
 	}
@@ -1953,13 +1953,13 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 
 		/* Check that endpoint is in Idle state */
 		if (pEndpoint->state != UDPHS_ENDPOINT_IDLE) {
-			TRACE_WARNING("UDP_Stall: EP%d locked\n\r", bEP);
+			trace_warning("UDP_Stall: EP%d locked\n\r", bEP);
 			return USBD_STATUS_LOCKED;
 		}
 		/* STALL endpoint */
 		pEpt->UDPHS_EPTSETSTA = UDPHS_EPTSETSTA_FRCESTALL;
 
-		TRACE_DEBUG_WP("Stall%d ", bEP);
+		trace_debug_wp("Stall%d ", bEP);
 		return USBD_STATUS_SUCCESS;
 	}
 
@@ -1987,7 +1987,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			if ((pEndpoint->state != UDPHS_ENDPOINT_DISABLED)
 			    && (pEndpoint->state != UDPHS_ENDPOINT_HALTED)) {
 
-				TRACE_DEBUG_WP("Halt%d ", bEndpoint);
+				trace_debug_wp("Halt%d ", bEndpoint);
 
 				/* Abort the current transfer if necessary */
 				UDPHS_EndOfTransfer(bEndpoint,
@@ -2020,7 +2020,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			/* Check if the endpoint is halted */
 			if (pEndpoint->state == UDPHS_ENDPOINT_HALTED) {
 
-				TRACE_DEBUG_WP("Unhalt%d ", bEndpoint);
+				trace_debug_wp("Unhalt%d ", bEndpoint);
 
 				/* Return endpoint to Idle state */
 				pEndpoint->state = UDPHS_ENDPOINT_IDLE;
@@ -2093,7 +2093,7 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 		switch (bIndex) {
 
 		case USBFeatureRequest_TESTPACKET:
-			TRACE_DEBUG_WP("TEST_PACKET ");
+			trace_debug_wp("TEST_PACKET ");
 
 			pUdp->UDPHS_DMA[1].UDPHS_DMACONTROL = 0;
 			pUdp->UDPHS_DMA[2].UDPHS_DMACONTROL = 0;
@@ -2124,17 +2124,17 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			break;
 
 		case USBFeatureRequest_TESTJ:
-			TRACE_DEBUG_WP("TEST_J ");
+			trace_debug_wp("TEST_J ");
 			pUdp->UDPHS_TST = UDPHS_TST_TST_J;
 			break;
 
 		case USBFeatureRequest_TESTK:
-			TRACE_DEBUG_WP("TEST_K ");
+			trace_debug_wp("TEST_K ");
 			pUdp->UDPHS_TST = UDPHS_TST_TST_K;
 			break;
 
 		case USBFeatureRequest_TESTSE0NAK:
-			TRACE_DEBUG_WP("TEST_SEO_NAK ");
+			trace_debug_wp("TEST_SEO_NAK ");
 			pUdp->UDPHS_IEN = 0;	// for test
 			break;
 
@@ -2143,10 +2143,10 @@ UDPHS_MblWriteFifo(uint8_t bEndpoint)
 			pUdp->UDPHS_EPT[0].UDPHS_EPTSETSTA =
 			    UDPHS_EPTSETSTA_TXRDY;
 			//while( 0 != (pUdp->UDPHS_EPT[0].UDPHS_EPTSTA & UDPHS_EPTSETSTA_TXRDY ) ) {}
-			TRACE_DEBUG_WP("SEND_ZLP ");
+			trace_debug_wp("SEND_ZLP ");
 			break;
 		}
-		TRACE_DEBUG_WP("\n\r");
+		trace_debug_wp("\n\r");
 	}
 
 	void USBD_HAL_ForceFs(void) {

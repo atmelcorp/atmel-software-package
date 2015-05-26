@@ -78,13 +78,13 @@ ov_id8(struct _twid * pTwid)
 	status = ov_read_reg8(pTwid, 0x0A, &id);
 	if (status != 0)
 		return 0;
-	TRACE_INFO("PID  = 0x%X\n\r", id);
+	trace_info("PID  = 0x%X\n\r", id);
 
 	// OV_VER
 	status = ov_read_reg8(pTwid, 0x0B, &ver);
 	if (status != 0)
 		return 0;
-	TRACE_INFO("VER  = 0x%X\n\r", ver);
+	trace_info("VER  = 0x%X\n\r", ver);
 
 	return ((uint16_t) (id << 8) | ver);
 }
@@ -100,11 +100,11 @@ ov_id16(struct _twid * pTwid)
 	uint8_t id, ver;
 	// OV_PID
 	ov_read_reg16(pTwid, 0x300A, &id);
-	TRACE_INFO("PID  = 0x%X\n\r", id);
+	trace_info("PID  = 0x%X\n\r", id);
 
 	// OV_VER
 	ov_read_reg16(pTwid, 0x300B, &ver);
-	TRACE_INFO("VER  = 0x%X\n\r", ver);
+	trace_info("VER  = 0x%X\n\r", ver);
 
 	return ((uint16_t) (id << 8) | ver);
 }
@@ -159,7 +159,7 @@ ov_read_reg8(struct _twid * pTwid, uint8_t reg, uint8_t * pData)
 	status = twid_write(pTwid, twiSlaveAddr, 0, 0, &reg, 1, 0);
 	status |= twid_read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
 	if (status != 0) {
-		TRACE_ERROR("ov_read_reg pb\n\r");
+		trace_error("ov_read_reg pb\n\r");
 	}
 	return status;
 }
@@ -183,7 +183,7 @@ ov_read_reg16(struct _twid * pTwid, uint16_t reg, uint8_t * pData)
 	status |= twid_read(pTwid, twiSlaveAddr, 0, 0, pData, 1, 0);
 	if (status != 0) {
 
-		TRACE_ERROR("ov_read_reg pb\n\r");
+		trace_error("ov_read_reg pb\n\r");
 	}
 	return status;
 }
@@ -202,7 +202,7 @@ ov_write_reg8(struct _twid * pTwid, uint8_t reg, uint8_t val)
 
 	status = twid_write(pTwid, twiSlaveAddr, reg, 1, &val, 1, 0);
 	if (status != 0) {
-		TRACE_ERROR("ov_write_reg pb\n\r");
+		trace_error("ov_write_reg pb\n\r");
 	}
 
 	return status;
@@ -221,7 +221,7 @@ ov_write_reg16(struct _twid * pTwid, uint16_t reg, uint8_t val)
 	uint8_t status;
 	status = twid_write(pTwid, twiSlaveAddr, reg, 2, &val, 1, 0);
 	if (status != 0) {
-		TRACE_ERROR("ov_write_reg pb\n\r");
+		trace_error("ov_write_reg pb\n\r");
 	}
 
 	return status;
@@ -242,20 +242,20 @@ ov_write_regs8(struct _twid * pTwid, const struct ov_reg * pReglist)
 	const struct ov_reg *pNext = pReglist;
 	volatile uint32_t delay;
 
-	TRACE_DEBUG("ov_write_regs:");
+	trace_debug("ov_write_regs:");
 	while (!((pNext->reg == OV_REG_TERM) && (pNext->val == OV_VAL_TERM))) {
 		err = ov_write_reg8(pTwid, pNext->reg, pNext->val);
 
 		size++;
 		for (delay = 0; delay <= 10000; delay++) ;
 		if (err == TWID_ERROR_BUSY) {
-			TRACE_ERROR("ov_write_regs: TWI ERROR\n\r");
+			trace_error("ov_write_regs: TWI ERROR\n\r");
 			return err;
 		}
 		//printf("(0x%02x,0x%02x) \n\r",  pNext->reg,pNext->val);
 		pNext++;
 	}
-	TRACE_DEBUG_WP("\n\r");
+	trace_debug_wp("\n\r");
 	return 0;
 }
 
@@ -274,19 +274,19 @@ ov_write_regs16(struct _twid * pTwid, const struct ov_reg * pReglist)
 	const struct ov_reg *pNext = pReglist;
 	volatile uint32_t delay;
 
-	TRACE_DEBUG("ov_write_regs:");
+	trace_debug("ov_write_regs:");
 	while (!((pNext->reg == OV_REG_TERM) && (pNext->val == OV_VAL_TERM))) {
 		err = ov_write_reg16(pTwid, pNext->reg, pNext->val);
 		size++;
 		for (delay = 0; delay <= 10000; delay++) ;
 		if (err == TWID_ERROR_BUSY) {
-			TRACE_ERROR("ov_write_regs: TWI ERROR\n\r");
+			trace_error("ov_write_regs: TWI ERROR\n\r");
 			return err;
 		}
 		//printf("(0x%02x,0x%02x) \n\r",  pNext->reg,pNext->val);
 		pNext++;
 	}
-	TRACE_DEBUG_WP("\n\r");
+	trace_debug_wp("\n\r");
 	return 0;
 }
 
@@ -376,16 +376,16 @@ ov_DumpRegisters8(struct _twid * pTwid)
 	uint32_t i;
 	uint8_t value;
 
-	TRACE_INFO_WP("Dump all camera register\n\r");
+	trace_info_wp("Dump all camera register\n\r");
 	for (i = 0; i <= 0x5C; i++) {
 		value = 0;
 		ov_read_reg8(pTwid, i, &value);
-		TRACE_INFO_WP("[0x%02x]=0x%02x ", i, value);
+		trace_info_wp("[0x%02x]=0x%02x ", i, value);
 		if (((i + 1) % 5) == 0) {
-			TRACE_INFO_WP("\n\r");
+			trace_info_wp("\n\r");
 		}
 	}
-	TRACE_INFO_WP("\n\r");
+	trace_info_wp("\n\r");
 }
 
 /**
@@ -398,16 +398,16 @@ ov_DumpRegisters16(struct _twid * pTwid)
 	uint32_t i;
 	uint8_t value;
 
-	TRACE_INFO_WP("Dump all camera register\n\r");
+	trace_info_wp("Dump all camera register\n\r");
 	for (i = 3000; i <= 0x305C; i++) {
 		value = 0;
 		ov_read_reg16(pTwid, i, &value);
-		TRACE_INFO_WP("[0x%02x]=0x%02x ", i, value);
+		trace_info_wp("[0x%02x]=0x%02x ", i, value);
 		if (((i + 1) % 5) == 0) {
-			TRACE_INFO_WP("\n\r");
+			trace_info_wp("\n\r");
 		}
 	}
-	TRACE_INFO_WP("\n\r");
+	trace_info_wp("\n\r");
 }
 
 /**
@@ -443,7 +443,7 @@ ov_init(struct _twid * pTwid)
 		break;
 	default:
 		ovType = OV_UNKNOWN;
-		TRACE_ERROR("Can not support product ID %x \n\r", id);
+		trace_error("Can not support product ID %x \n\r", id);
 		break;
 	}
 	return ovType;

@@ -138,23 +138,23 @@ BMP_displayHeader(uint32_t * pAddressHeader)
 
 	header = (BMPHeader *) pAddressHeader;
 
-	TRACE_INFO("BMP\n\r");
-	TRACE_INFO("type       0x%X \n\r", header->type);
-	TRACE_INFO("fileSize   %ld \n\r", header->fileSize);
-	TRACE_INFO("reserved1  %d \n\r", header->reserved1);
-	TRACE_INFO("reserved2  %d \n\r", header->reserved2);
-	TRACE_INFO("offset     %ld \n\r", header->offset);
-	TRACE_INFO("headerSize %ld \n\r", header->headerSize);
-	TRACE_INFO("width      %ld \n\r", header->width);
-	TRACE_INFO("height     %ld \n\r", header->height);
-	TRACE_INFO("planes     %d \n\r", header->planes);
-	TRACE_INFO("bits       %d \n\r", header->bits);
-	TRACE_INFO("compression %ld \n\r", header->compression);
-	TRACE_INFO("imageSize   %ld \n\r", header->imageSize);
-	TRACE_INFO("xresolution %ld \n\r", header->xresolution);
-	TRACE_INFO("yresolution %ld \n\r", header->yresolution);
-	TRACE_INFO("ncolours    %ld \n\r", header->ncolours);
-	TRACE_INFO("importantcolours %ld\n\r", header->importantcolours);
+	trace_info("BMP\n\r");
+	trace_info("type       0x%X \n\r", header->type);
+	trace_info("fileSize   %ld \n\r", header->fileSize);
+	trace_info("reserved1  %d \n\r", header->reserved1);
+	trace_info("reserved2  %d \n\r", header->reserved2);
+	trace_info("offset     %ld \n\r", header->offset);
+	trace_info("headerSize %ld \n\r", header->headerSize);
+	trace_info("width      %ld \n\r", header->width);
+	trace_info("height     %ld \n\r", header->height);
+	trace_info("planes     %d \n\r", header->planes);
+	trace_info("bits       %d \n\r", header->bits);
+	trace_info("compression %ld \n\r", header->compression);
+	trace_info("imageSize   %ld \n\r", header->imageSize);
+	trace_info("xresolution %ld \n\r", header->xresolution);
+	trace_info("yresolution %ld \n\r", header->yresolution);
+	trace_info("ncolours    %ld \n\r", header->ncolours);
+	trace_info("importantcolours %ld\n\r", header->importantcolours);
 #else
 	pAddressHeader = pAddressHeader;
 #endif
@@ -187,7 +187,7 @@ BMP_Decode(void *file, uint8_t * buffer, uint32_t width, uint32_t height,
 
 	// Verify that the file is valid
 	if (!BMP_IsValid(file)) {
-		TRACE_ERROR("BMP_Decode: File type is not 'BM' (0x%04X).\n\r",
+		trace_error("BMP_Decode: File type is not 'BM' (0x%04X).\n\r",
 			    header->type);
 
 		return 1;
@@ -195,14 +195,14 @@ BMP_Decode(void *file, uint8_t * buffer, uint32_t width, uint32_t height,
 	// Check that parameters match
 	if ((header->compression != 0) || (header->width != width)
 	    || (header->height != height)) {
-		TRACE_ERROR("BMP_Decode: File format not supported\n\r");
-		TRACE_ERROR(" -> .compression = %u\n\r",
+		trace_error("BMP_Decode: File format not supported\n\r");
+		trace_error(" -> .compression = %u\n\r",
 			    (unsigned int) header->compression);
-		TRACE_ERROR(" -> .width = %u\n\r",
+		trace_error(" -> .width = %u\n\r",
 			    (unsigned int) header->width);
-		TRACE_ERROR(" -> .height = %u\n\r",
+		trace_error(" -> .height = %u\n\r",
 			    (unsigned int) header->height);
-		TRACE_ERROR(" -> .bits = %d\n\r", header->bits);
+		trace_error(" -> .bits = %d\n\r", header->bits);
 
 		return 2;
 	}
@@ -212,7 +212,7 @@ BMP_Decode(void *file, uint8_t * buffer, uint32_t width, uint32_t height,
 	// Check that the bpp resolution is supported
 	// Only a 24-bit output & 24- or 8-bit input are supported
 	if (bpp != 24) {
-		TRACE_ERROR("BMP_Decode: Output resolution not supported\n\r");
+		trace_error("BMP_Decode: Output resolution not supported\n\r");
 
 		return 3;
 	} else {
@@ -289,9 +289,9 @@ BMP_Decode(void *file, uint8_t * buffer, uint32_t width, uint32_t height,
 				}
 			} else {
 
-				TRACE_ERROR
+				trace_error
 				    ("BMP_Decode: Input resolution not supported\n\r");
-				TRACE_INFO("header->bits 0x%X \n\r",
+				trace_info("header->bits 0x%X \n\r",
 					   header->bits);
 				return 4;
 			}

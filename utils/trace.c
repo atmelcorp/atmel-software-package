@@ -46,14 +46,3 @@
 #if !defined(NOTRACE) && (DYN_TRACES == 1)
 uint32_t dwTraceLevel = TRACE_LEVEL;
 #endif
-
-/**
- *  Initializes the DBGU Console
- *
- *  \param dwBaudRate  U(S)ART baudrate.
- *  \param dwMCk  Master clock frequency.
- */
-void trace_configure(uint32_t baudrate, uint32_t masterclock)
-{
-	console_configure(baudrate);
-}

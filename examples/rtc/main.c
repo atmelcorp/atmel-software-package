@@ -403,7 +403,7 @@ void TC0_IrqHandler(void)
 	if (CountDownTimer >= 240)	// Recalibrate at every 1 minute
 	{
 		RTC_ClockCalibration(RTC, Temperature);
-		TRACE_INFO("RTC has been re-calibrated \n\r");
+		trace_info("RTC has been re-calibrated \n\r");
 		CountDownTimer = 0;
 	}
 	CountDownTimer++;

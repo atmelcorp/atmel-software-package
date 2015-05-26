@@ -188,7 +188,7 @@ Compute256(const uint8_t * data, uint8_t * code)
 	code[1] = (~(uint32_t) code[1]);
 	code[2] = (~(uint32_t) code[2]);
 
-	TRACE_DEBUG("Computed code = %02X %02X %02X\n\r",
+	trace_debug("Computed code = %02X %02X %02X\n\r",
 		    code[0], code[1], code[2]);
 }
 
@@ -215,7 +215,7 @@ Verify256(uint8_t * pucData, const uint8_t * pucOriginalCode)
 	correctionCode[1] = computedCode[1] ^ pucOriginalCode[1];
 	correctionCode[2] = computedCode[2] ^ pucOriginalCode[2];
 
-	TRACE_DEBUG("Correction code = %02X %02X %02X\n\r", correctionCode[0],
+	trace_debug("Correction code = %02X %02X %02X\n\r", correctionCode[0],
 		    correctionCode[1], correctionCode[2]);
 
 	// If all bytes are 0, there is no error
@@ -272,7 +272,7 @@ Verify256(uint8_t * pucData, const uint8_t * pucOriginalCode)
 void
 Hamming_Compute256x(const uint8_t * pucData, uint32_t dwSize, uint8_t * puCode)
 {
-	TRACE_DEBUG("Hamming_Compute256x()\n\r");
+	trace_debug("Hamming_Compute256x()\n\r");
 
 	while (dwSize > 0) {
 		Compute256(pucData, puCode);
@@ -301,7 +301,7 @@ Hamming_Verify256x(uint8_t * pucData, uint32_t dwSize, const uint8_t * pucCode)
 	uint8_t error;
 	uint8_t result = 0;
 
-	TRACE_DEBUG("Hamming_Verify256x()\n\r");
+	trace_debug("Hamming_Verify256x()\n\r");
 
 	while (dwSize > 0) {
 		error = Verify256(pucData, pucCode);

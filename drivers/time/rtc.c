@@ -143,7 +143,7 @@ void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode)
 extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
 {
 	uint32_t mode;
-	TRACE_DEBUG("rtc_get_hour_mode()\n\r");
+	trace_debug("rtc_get_hour_mode()\n\r");
 	mode = pRtc->RTC_MR;
 	mode &= 0xFFFFFFFE;
 	return mode;
@@ -158,7 +158,7 @@ extern uint32_t rtc_get_hour_mode(Rtc * pRtc)
 void rtc_enable_it(Rtc * pRtc, uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
-	TRACE_DEBUG("rtc_enable_it()\n\r");
+	trace_debug("rtc_enable_it()\n\r");
 	pRtc->RTC_IER = sources;
 }
 
@@ -171,7 +171,7 @@ void rtc_enable_it(Rtc * pRtc, uint32_t sources)
 void rtc_disable_it(Rtc * pRtc, uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
-	TRACE_DEBUG("rtc_disable_it()\n\r");
+	trace_debug("rtc_disable_it()\n\r");
 	pRtc->RTC_IDR = sources;
 }
 
@@ -192,7 +192,7 @@ extern int rtc_set_time(Rtc * pRtc, struct _time *pTime)
 	uint32_t ltime = 0;
 	uint8_t hour_bcd , min_bcd, sec_bcd;
 
-	TRACE_DEBUG("rtc_set_time(%02d:%02d:%02d)\n\r", pTime->hour, pTime->min, pTime->sec);
+	trace_debug("rtc_set_time(%02d:%02d:%02d)\n\r", pTime->hour, pTime->min, pTime->sec);
 
 	/* if 12-hour mode, set AMPM bit */
 	if ((pRtc->RTC_MR & RTC_MR_HRMOD) == RTC_MR_HRMOD) {
@@ -230,7 +230,7 @@ void rtc_get_time(Rtc * pRtc, struct _time *pTime)
 {
 	uint32_t ltime;
 
-	TRACE_DEBUG("rtc_get_time()\n\r");
+	trace_debug("rtc_get_time()\n\r");
 	/* Get current RTC time */
 	ltime = pRtc->RTC_TIMR;
 	while (ltime != pRtc->RTC_TIMR) {
@@ -270,7 +270,7 @@ extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime)
 {
 	uint32_t alarm = 0;
 
-	TRACE_DEBUG("rtc_set_time_alarm()\n\r");
+	trace_debug("rtc_set_time_alarm()\n\r");
 
 	/* Hour */
 	if (pTime->hour) {
@@ -382,7 +382,7 @@ extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate)
 	uint32_t alarm;
 
 	alarm = ((pDate->month) || (pDate->day)) ? (0) : (0x01010000);
-	TRACE_DEBUG("rtc_set_date_alarm()\n\r");
+	trace_debug("rtc_set_date_alarm()\n\r");
 	/* Compute alarm field value */
 	if (pDate->month) {
 		alarm |= RTC_CALALR_MTHEN | ((pDate->month / 10) << 20) | ((pDate->month % 10) << 16);
@@ -436,7 +436,7 @@ void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num)
 {
 	uint32_t ltime, temp;
 
-	TRACE_DEBUG("rtc_get_tamper_time()\n\r");
+	trace_debug("rtc_get_tamper_time()\n\r");
 
 	/* Get current RTC time */
 	ltime = pRtc->RTC_TS[reg_num].RTC_TSTR;

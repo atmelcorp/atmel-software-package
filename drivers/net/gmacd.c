@@ -378,7 +378,7 @@ GMACD_Handler(sGmacd * pGmacd)
 			GMACD_TxCompleteHandler(pGmacd);
 
 		if (isr & GMAC_IER_HRESP) {
-			TRACE_ERROR("HRESP\n\r");
+			trace_error("HRESP\n\r");
 		}
 	}
 }
@@ -400,7 +400,7 @@ GMACD_Init(sGmacd * pGmacd,
 	/* Check parameters */
 	assert(GRX_BUFFERS * GMAC_RX_UNITSIZE > GMAC_FRAME_LENTGH_MAX);
 
-	TRACE_DEBUG("GMAC_Init\n\r");
+	trace_debug("GMAC_Init\n\r");
 
 	/* Initialize struct */
 	pGmacd->pHw = pHw;
@@ -475,7 +475,7 @@ GMACD_InitTransfer(sGmacd * pGmacd,
 	if (((uint32_t) pRxBuffer & 0x7)
 	    || ((uint32_t) pRxD & 0x7)) {
 		wRxSize--;
-		TRACE_DEBUG("RX list address adjusted\n\r");
+		trace_debug("RX list address adjusted\n\r");
 	}
 	pGmacd->pRxBuffer = (uint8_t *) ((uint32_t) pRxBuffer & 0xFFFFFFF8);
 	pGmacd->pRxD = (sGmacRxDescriptor *) ((uint32_t) pRxD & 0xFFFFFFF8);
@@ -485,7 +485,7 @@ GMACD_InitTransfer(sGmacd * pGmacd,
 	if (((uint32_t) pTxBuffer & 0x7)
 	    || ((uint32_t) pTxD & 0x7)) {
 		wTxSize--;
-		TRACE_DEBUG("TX list address adjusted\n\r");
+		trace_debug("TX list address adjusted\n\r");
 	}
 	pGmacd->pTxBuffer = (uint8_t *) ((uint32_t) pTxBuffer & 0xFFFFFFF8);
 	pGmacd->pTxD = (sGmacTxDescriptor *) ((uint32_t) pTxD & 0xFFFFFFF8);
@@ -540,15 +540,15 @@ GMACD_SendSG(sGmacd * pGmacd,
 	uint16_t wTxPos, wTxHead;
 	int i;
 
-	TRACE_DEBUG("GMACD_SendSG\n\r");
+	trace_debug("GMACD_SendSG\n\r");
 
 	/* Check parameter */
 	if (!sgl->len) {
-		TRACE_ERROR("GMACD_SendSG: ethernet frame is empty.\r\n");
+		trace_error("GMACD_SendSG: ethernet frame is empty.\r\n");
 		return GMACD_PARAM;
 	}
 	if (sgl->len >= pGmacd->wTxListSize) {
-		TRACE_ERROR
+		trace_error
 		    ("GMACD_SendSG: ethernet frame has too many buffers.\r\n");
 		return GMACD_PARAM;
 	}
@@ -573,7 +573,7 @@ GMACD_SendSG(sGmacd * pGmacd,
 		uint32_t status;
 
 		if (sg->size > GMAC_TX_UNITSIZE) {
-			TRACE_ERROR
+			trace_error
 			    ("GMACD_SendSG: buffer size is too big.\r\n");
 			return GMACD_PARAM;
 		}
@@ -711,7 +711,7 @@ GMACD_Poll(sGmacd * pGmacd,
 		/* Copy data in the frame buffer */
 		if (isFrame) {
 			if (tmpIdx == pGmacd->wRxI) {
-				TRACE_INFO
+				trace_info
 				    ("no EOF (Invalid of buffers too small)\n\r");
 
 				do {
@@ -747,7 +747,7 @@ GMACD_Poll(sGmacd * pGmacd,
 				if (tmpFrameSize < *pRcvSize) {
 					return GMACD_SIZE_TOO_SMALL;
 				}
-				TRACE_DEBUG("packet %d-%d (%d)\n\r",
+				trace_debug("packet %d-%d (%d)\n\r",
 					    pGmacd->wRxI, tmpIdx, *pRcvSize);
 				/* All data have been copied in the application frame buffer => release TD */
 				while (pGmacd->wRxI != tmpIdx) {

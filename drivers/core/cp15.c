@@ -154,10 +154,10 @@ void cp15_enable_icache(void)
 
 		control |= (1 << CP15_I_BIT);
 		cp15_write_control(control);
-		TRACE_INFO("I cache enabled.\n\r");
+		trace_info("I cache enabled.\n\r");
 	} else {
 
-		TRACE_INFO("I cache is already enabled.\n\r");
+		trace_info("I cache is already enabled.\n\r");
 	}
 }
 
@@ -173,10 +173,10 @@ void cp15_disable_icache(void)
 
 		control &= ~(1ul << CP15_I_BIT);
 		cp15_write_control(control);
-		TRACE_INFO("I cache disabled.\n\r");
+		trace_info("I cache disabled.\n\r");
 	} else {
 
-		TRACE_INFO("I cache is already disabled.\n\r");
+		trace_info("I cache is already disabled.\n\r");
 	}
 }
 
@@ -203,10 +203,10 @@ void cp15_enable_mmu(void)
 
 		control |= (1 << CP15_M_BIT);
 		cp15_write_control(control);
-		TRACE_INFO("MMU enabled.\n\r");
+		trace_info("MMU enabled.\n\r");
 	} else {
 
-		TRACE_INFO("MMU is already enabled.\n\r");
+		trace_info("MMU is already enabled.\n\r");
 	}
 }
 
@@ -223,10 +223,10 @@ void cp15_disable_mmu(void)
 		control &= ~(1ul << CP15_M_BIT);
 		control &= ~(1ul << CP15_C_BIT);
 		cp15_write_control(control);
-		TRACE_INFO("MMU disabled.\n\r");
+		trace_info("MMU disabled.\n\r");
 	} else {
 
-		TRACE_INFO("MMU is already disabled.\n\r");
+		trace_info("MMU is already disabled.\n\r");
 	}
 }
 
@@ -249,17 +249,17 @@ void cp15_enable_dcache(void)
 	unsigned int control;
 	control = cp15_read_control();
 	if (!cp15_is_mmu_enabled()) {
-		TRACE_ERROR("Do nothing: MMU not enabled\n\r");
+		trace_error("Do nothing: MMU not enabled\n\r");
 	} else {
 		// Check if cache is disabled
 		if ((control & (1 << CP15_C_BIT)) == 0) {
 
 			control |= (1 << CP15_C_BIT);
 			cp15_write_control(control);
-			TRACE_INFO("D cache enabled.\n\r");
+			trace_info("D cache enabled.\n\r");
 		} else {
 
-			TRACE_INFO("D cache is already enabled.\n\r");
+			trace_info("D cache is already enabled.\n\r");
 		}
 	}
 }
@@ -276,10 +276,10 @@ void cp15_disable_dcache(void)
 
 		control &= ~(1ul << CP15_C_BIT);
 		cp15_write_control(control);
-		TRACE_INFO("D cache disabled.\n\r");
+		trace_info("D cache disabled.\n\r");
 	} else {
 
-		TRACE_INFO("D cache is already disabled.\n\r");
+		trace_info("D cache is already disabled.\n\r");
 	}
 }
 

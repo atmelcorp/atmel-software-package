@@ -67,11 +67,11 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 	uint8_t i;
 
 	reg_conf = ov5640_yuv_vga;
-	TRACE_DEBUG("ovxxx_configure\n\r");
+	trace_debug("ovxxx_configure\n\r");
 	for (i = 0; i < sizeof (ov_sizes); i++) {
 		if (ov_sizes[i].width == width) {
 			if (ov_sizes[i].height != heigth) {
-				TRACE_INFO("ov configure vsize not define\n\r");
+				trace_info("ov configure vsize not define\n\r");
 			} else {
 				goodCaptureSize = 1;
 				break;
@@ -79,7 +79,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 		}
 	}
 	if (goodCaptureSize == 0) {
-		TRACE_ERROR("Problem size\n\r");
+		trace_error("Problem size\n\r");
 		while (1) ;
 	}
 	switch (ovType) {
@@ -97,7 +97,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 				reg_conf = ov2640_yuv_vga;
 				break;
 			default:
-				TRACE_DEBUG("ov2640_configure problem\n\r");
+				trace_debug("ov2640_configure problem\n\r");
 				break;
 			}
 			break;
@@ -112,7 +112,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 				reg_conf = ov7740_yuv_vga;
 				break;
 			default:
-				TRACE_DEBUG("ov7740_configure problem\n\r");
+				trace_debug("ov7740_configure problem\n\r");
 				break;
 			}
 			break;
@@ -131,7 +131,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 				reg_conf = ov9740_yuv_sxga;
 				break;
 			default:
-				TRACE_DEBUG("ov9740_configure problem\n\r");
+				trace_debug("ov9740_configure problem\n\r");
 				break;
 			}
 			break;
@@ -154,7 +154,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 				reg_conf = ov2643_yuv_vga;
 				break;
 			default:
-				TRACE_DEBUG("ov2643_configure problem\n\r");
+				trace_debug("ov2643_configure problem\n\r");
 				break;
 			}
 			break;
@@ -173,7 +173,7 @@ ov_configure(struct _twid * pTwid, uint8_t ovType, uint32_t width, uint32_t heig
 				reg_conf = ov5640_yuv_sxga;
 				break;
 			default:
-				TRACE_DEBUG("ov5640_configure problem\n\r");
+				trace_debug("ov5640_configure problem\n\r");
 				break;
 			}
 			break;

@@ -135,7 +135,7 @@ GMAC_SetMdcClock(Gmac * pGmac, uint32_t mck)
 	} else if (mck <= 240000000) {
 		clock_dividor = GMAC_NCFGR_CLK_MCK_96;	// MDC clock = MCK/96
 	} else {
-		TRACE_ERROR("E: No valid MDC clock.\n\r");
+		trace_error("E: No valid MDC clock.\n\r");
 		return 0;
 	}
 	pGmac->GMAC_NCFGR =

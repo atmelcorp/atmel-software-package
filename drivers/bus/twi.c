@@ -103,7 +103,7 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 	uint32_t ck_div, cl_div, ok, clock;
 	uint32_t id = get_twi_id_from_addr(pTwi);
 
-	TRACE_DEBUG("twi_configure_master()\n\r");
+	trace_debug("twi_configure_master()\n\r");
 	assert(pTwi);
 	assert(id != ID_PERIPH_COUNT);
 	/* SVEN: TWI Slave Mode Enabled */
@@ -124,7 +124,7 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 		(cl_div <= 255) ? ok = 1 : ck_div++;
 	}
 	assert(ck_div < 8);
-	TRACE_DEBUG("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", ck_div, cl_div);
+	trace_debug("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", ck_div, cl_div);
 	pTwi->TWI_CWGR = 0;
 	pTwi->TWI_CWGR = (cl_div << 16) | (cl_div << 8) | cl_div;
 }
@@ -138,7 +138,7 @@ void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 {
 	uint32_t i;
 
-	TRACE_DEBUG("twi_configure_slave()\n\r");
+	trace_debug("twi_configure_slave()\n\r");
 	assert(pTwi);
 	/* TWI software reset */
 	pTwi->TWI_CR = TWI_CR_SWRST;

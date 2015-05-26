@@ -110,7 +110,7 @@ static void twid_dma_initialize_write(uint8_t TWI_ID)
  */
 void twid_initialize(struct _twid* pTwid, Twi * pTwi)
 {
-	TRACE_DEBUG("twid_initialize()\n\r");
+	trace_debug("twid_initialize()\n\r");
 	assert(pTwid != NULL);
 	assert(pTwi != NULL);
 
@@ -324,7 +324,7 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
 
-		TRACE_ERROR("twid_read: A transfer is already pending\n\r");
+		trace_error("twid_read: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
@@ -352,24 +352,24 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 			status = twi_get_status(pTwi);
 
 			if (status & TWI_SR_NACK)
-				TRACE_ERROR("TWID NACK error\n\r");
+				trace_error("TWID NACK error\n\r");
 			timeout = 0;
 			while (!(status & TWI_SR_RXRDY)
 			       && (++timeout < TWITIMEOUTMAX)) {
 				status = twi_get_status(pTwi);
-				//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
+				//trace_error("TWID status %x\n\r",twi_get_status(pTwi));
 			}
 
 			pData[0] = twi_read_byte(pTwi);
 			for (i = 1; i < num - 1; i++) {
 				status = twi_get_status(pTwi);
 				if (status & TWI_SR_NACK)
-					TRACE_ERROR("TWID NACK error\n\r");
+					trace_error("TWID NACK error\n\r");
 				timeout = 0;
 				while (!(status & TWI_SR_RXRDY)
 				       && (++timeout < TWITIMEOUTMAX)) {
 					status = twi_get_status(pTwi);
-					//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
+					//trace_error("TWID status %x\n\r",twi_get_status(pTwi));
 				}
 				pData[i] = twi_read_byte(pTwi);
 			}
@@ -377,11 +377,11 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 		twi_stop(pTwi);
 		status = twi_get_status(pTwi);
 		if (status & TWI_SR_NACK)
-			TRACE_ERROR("TWID NACK error\n\r");
+			trace_error("TWID NACK error\n\r");
 		timeout = 0;
 		while (!(status & TWI_SR_RXRDY) && (++timeout < TWITIMEOUTMAX)) {
 			status = twi_get_status(pTwi);
-			//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
+			//trace_error("TWID status %x\n\r",twi_get_status(pTwi));
 		}
 
 		pData[i] = twi_read_byte(pTwi);
@@ -389,7 +389,7 @@ uint8_t twid_read(struct _twid* pTwid, uint8_t address,  uint32_t iaddress,
 		status = twi_get_status(pTwi);
 		while (!(status & TWI_SR_TXCOMP) && (++timeout < TWITIMEOUTMAX)) {
 			status = twi_get_status(pTwi);
-			//TRACE_ERROR("TWID status %x\n\r",twi_get_status(pTwi));
+			//trace_error("TWID status %x\n\r",twi_get_status(pTwi));
 		}
 	}
 
@@ -428,7 +428,7 @@ uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
 
-		TRACE_ERROR("twid_read: A transfer is already pending\n\r");
+		trace_error("twid_read: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
@@ -483,7 +483,7 @@ uint8_t twid_dma_read(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 		while (!(status & TWI_SR_TXCOMP)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout Read\n\r");
+			trace_error("TWID Timeout Read\n\r");
 		}
 		XDMAD_FreeChannel(&twi_dma, dmaReadChannel);
 	}
@@ -521,7 +521,7 @@ uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 //    if(num == 1) singleTransfer = 1;
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
-		TRACE_ERROR("TWI_Write: A transfer is already pending\n\r");
+		trace_error("TWI_Write: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 
@@ -558,7 +558,7 @@ uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout TXRDY\n\r");
+			trace_error("TWID Timeout TXRDY\n\r");
 		}
 		/* Send a STOP condition */
 		twi_stop(pTwi);
@@ -568,7 +568,7 @@ uint8_t twid_dma_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout Write\n\r");
+			trace_error("TWID Timeout Write\n\r");
 		}
 		cp15_invalidate_dcache_for_dma((uint32_t) pData, (uint32_t) (pData));
 		XDMAD_FreeChannel(&twi_dma, dmaWriteChannel);
@@ -607,7 +607,7 @@ uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 		singleTransfer = 1;
 	/* Check that no transfer is already pending */
 	if (pTransfer) {
-		TRACE_ERROR("TWI_Write: A transfer is already pending\n\r");
+		trace_error("TWI_Write: A transfer is already pending\n\r");
 		return TWID_ERROR_BUSY;
 	}
 	/* Asynchronous transfer */
@@ -634,12 +634,12 @@ uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 		}
 		status = twi_get_status(pTwi);
 		if (status & TWI_SR_NACK)
-			TRACE_ERROR("TWID NACK error\n\r");
+			trace_error("TWID NACK error\n\r");
 		while (!(status & TWI_SR_TXRDY) && (timeout++ < TWITIMEOUTMAX)) {
 			status = twi_get_status(pTwi);
 		}
 		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout BS\n\r");
+			trace_error("TWID Timeout BS\n\r");
 		}
 		timeout = 0;
 		/* Send all bytes */
@@ -649,13 +649,13 @@ uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 			twi_write_byte(pTwi, *pData++);
 			status = twi_get_status(pTwi);
 			if (status & TWI_SR_NACK)
-				TRACE_ERROR("TWID NACK error\n\r");
+				trace_error("TWID NACK error\n\r");
 			while (!(status & TWI_SR_TXRDY)
 			       && (timeout++ < TWITIMEOUTMAX)) {
 				status = twi_get_status(pTwi);
 			}
 			if (timeout == TWITIMEOUTMAX) {
-				TRACE_ERROR("TWID Timeout BS\n\r");
+				trace_error("TWID Timeout BS\n\r");
 			}
 			num--;
 		}
@@ -668,7 +668,7 @@ uint8_t twid_write(struct _twid* pTwid, uint8_t address, uint32_t iaddress,
 		while (!twi_is_transfer_complete(pTwi)
 		       && (++timeout < TWITIMEOUTMAX)) ;
 		if (timeout == TWITIMEOUTMAX) {
-			TRACE_ERROR("TWID Timeout TC2\n\r");
+			trace_error("TWID Timeout TC2\n\r");
 		}
 	}
 	return 0;
