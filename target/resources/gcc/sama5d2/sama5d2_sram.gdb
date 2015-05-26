@@ -15,8 +15,11 @@ load
 # Reset peripherals (using RSTC_CR)
 set *0xF8048000 = 0xA5000004
 
+# Disable Watchdog (using WDT_MR)
+set *0xF8048044 = 0x00008000
+
 # Disable D-Cache, I-Cache and MMU
-monitor cp15 1 0 0 0 = 0x00C50078
+mon cp15 1 0 0 0 = 0x00C50078
 
 # Disable all interrupts and go to supervisor mode
 mon reg cpsr = 0xd3
