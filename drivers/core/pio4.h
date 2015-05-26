@@ -71,6 +71,7 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include "chip.h"
 #include <stdint.h>
 
 /*------------------------------------------------------------------------------
@@ -164,5 +165,21 @@
 #define PIO_WPMR_WPEN_DIS           ( 0x00 << 0 )
 
 #define PIO_WPMR_WPKEY_VALID        ( 0x50494F << 8 )
+
+static inline uint32_t pio_group_to_id(int group)
+{
+	switch(group) {
+	case PIO_GROUP_A:
+		return ID_PIOA;
+	case PIO_GROUP_B:
+		return ID_PIOB;
+	case PIO_GROUP_C:
+		return ID_PIOC;
+	case PIO_GROUP_D:
+		return ID_PIOD;
+	default:
+		return 0;
+	};
+}
 
 #endif	/* #ifndef _PIO4_H */

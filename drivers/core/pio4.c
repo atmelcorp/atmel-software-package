@@ -464,26 +464,26 @@ void pio_it_handlers(void)
  */
 void pio_initialize_it(uint32_t priority)
 {
-	uint8_t i;
-	uint32_t status, id ;
+	/* uint8_t i; */
+	/* uint32_t status, id ; */
 
-	trace_debug("pio_initialize_it()\n\r");
-	/* Reset sources */
-	num_sources = 0;
+	/* trace_debug("pio_initialize_it()\n\r"); */
+	/* /\* Reset sources *\/ */
+	/* num_sources = 0; */
 
-	for(i=0; i<PIOIO_GROUP_NUMBER; i++) {
-		/* Configure PIO interrupt sources */
-		id = idt[i];
-		trace_debug("PIO_Initialize: Configuring PIO%c \n\r", 0x40+id);
-		pmc_enable_peripheral(id);
-		PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id];
-		/* Read PIO Interrupt Status Register */
-		status = pioiog->PIO_ISR;
-		(void)status;
-		/* Disable all interrupt */
-		pioiog->PIO_IDR = 0xFFFFFFFF;
-		aic_enable(id);
-	}
+	/* for(i=0; i<PIOIO_GROUP_NUMBER; i++) { */
+	/* 	/\* Configure PIO interrupt sources *\/ */
+	/* 	id = idt[i]; */
+	/* 	trace_debug("PIO_Initialize: Configuring PIO%c \n\r", 0x40+id); */
+	/* 	pmc_enable_peripheral(id); */
+	/* 	PioIo_group* pioiog = &PIO_ADD->PIO_IO_GROUP[id]; */
+	/* 	/\* Read PIO Interrupt Status Register *\/ */
+	/* 	status = pioiog->PIO_ISR; */
+	/* 	(void)status; */
+	/* 	/\* Disable all interrupt *\/ */
+	/* 	pioiog->PIO_IDR = 0xFFFFFFFF; */
+	/* 	aic_enable(id); */
+	/* } */
 }
 
 /**
@@ -506,7 +506,9 @@ void pio_configure_it(const struct _pin *pin)
 	p_int_source->pin = pin;
 	num_sources++;
 	/* disable additional interrupt mode */
-	pioiog->PIO_IDR = pin->mask;
+	pioiog->PIO_ISR;
+	pioiog->PIO_IDR = 0xFFFFFFFF;
+	aic_enable(pio_group_to_id(pin->id));
 }
 
 /**

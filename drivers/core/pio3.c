@@ -642,18 +642,18 @@ void pio_configure_it(const struct _pin * pPin)
 {
 	Pio *pio;
 	InterruptSource *pSource;
-	
+
 	trace_debug("Enter in pio_configure_it()\n\r");
 
 	assert(pPin);
 	pio = pPin->pio;
-	
+
 	trace_debug("Enable PIO group\n\r");
 	pmc_enable_peripheral(pio_group_to_id(pPin->id));
 	pio->PIO_ISR;
 	pio->PIO_IDR = 0xFFFFFFFF;
 	aic_enable(pio_group_to_id(pPin->id));
-	
+
 	assert(_dwNumSources < MAX_INTERRUPT_SOURCES);
 
 	pSource = &(_aIntSources[_dwNumSources]);
