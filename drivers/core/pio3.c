@@ -35,15 +35,20 @@
  * \section Usage
  * <ul>
  * <li>  Initialize the PIO with the desired period using pio_configure().
- * <li>  Set a high or low output level on the given PIO using pio_set() or pio_clear().
- * <li>  Get the level of the given PIOs using pio_get() or pio_get_output_date_status().
- * <li>  Configures Glitch or Debouncing filter for given input PIO using pio_set_debounce_filter().
- * <li>  Enable & disable write protect of the given PIOs using pio_enable_write_protect() or pio_disable_write_protect().
- * <li>  Get write protect violation information of given PIO using pio_get_write_protect_violation_info().
- * </li>
+ * <li>  Set a high or low output level on the given PIO using
+ * pio_set() or pio_clear().
+ * <li>  Get the level of the given PIOs using pio_get() or
+ * pio_get_output_date_status().
+ * <li>  Configures Glitch or Debouncing filter for given input PIO
+ * using pio_set_debounce_filter().
+ * <li>  Enable & disable write protect of the given PIOs using
+ * pio_enable_write_protect() or pio_disable_write_protect().
+ * <li>  Get write protect violation information of given PIO using
+ * pio_get_write_protect_violation_info().
  * </ul>
  *
- * For more accurate information, please look at the PIT section of the Datasheet.
+ * For more accurate information, please look at the PIT section of
+ * the Datasheet.
  *
  * Related files :\n
  * \ref pio.c\n
@@ -69,15 +74,127 @@
 
 #include "utils/trace.h"
 
+#include "resources/compiler_defines.h"
+
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
- *        Local functions
+ *        Local definitions
  *----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------
+ *        Local types
+ *----------------------------------------------------------------------------*/
+
+typedef const void(*const_handler_t)(void);
+typedef void(*handler_t)(void);
+
+/*----------------------------------------------------------------------------
+ *        Local functions declarations
+ *----------------------------------------------------------------------------*/
+
+#ifdef PIOA
+static void _pioa_handler(void);
+#endif
+#ifdef PIOB
+static void _piob_handler(void);
+#endif
+#ifdef PIOC
+static void _pioc_handler(void);
+#endif
+#ifdef PIOD
+static void _piod_handler(void);
+#endif
+#ifdef PIOE
+static void _pioe_handler(void);
+#endif
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+static void (*_handlers[PIO_GROUP_LENGTH])(uint32_t);
+
+static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
+#ifdef PIOA
+	(const_handler_t)_pioa_handler,
+#endif
+#ifdef PIOB
+	(const_handler_t)_piob_handler,
+#endif
+#ifdef PIOC
+	(const_handler_t)_pioc_handler,
+#endif
+#ifdef PIOD
+	(const_handler_t)_piod_handler,
+#endif
+#ifdef PIOE
+	(const_handler_t)_pioe_handler,
+#endif
+};
+
+/*----------------------------------------------------------------------------
+ *        Local functions definitions
+ *----------------------------------------------------------------------------*/
+
+#ifdef PIOA
+static void _pioa_handler(void)
+{
+	uint32_t status = PIOA->PIO_ISR;
+	_handlers[0](status);
+}
+#endif
+#ifdef PIOB
+static void _piob_handler(void)
+{
+	uint32_t status = PIOB->PIO_ISR;
+	_handlers[1](status);
+}
+#endif
+#ifdef PIOC
+static void _pioc_handler(void)
+{
+	uint32_t status = PIOC->PIO_ISR;
+	_handlers[2](status);
+}
+#endif
+#ifdef PIOD
+static void _piod_handler(void)
+{
+	uint32_t status = PIOD->PIO_ISR;
+	_handlers[3](status);
+}
+#endif
+#ifdef PIOE
+static void _pioe_handler(void)
+{
+	uint32_t status = PIOE->PIO_ISR;
+	_handlers[4](status);
+}
+#endif
+
+static inline uint32_t _pio_get_index(int group)
+{
+	switch(group) {
+	case PIO_GROUP_A:
+		return 0;
+	case PIO_GROUP_B:
+		return 1;
+	case PIO_GROUP_C:
+		return 2;
+	case PIO_GROUP_D:
+		return 3;
+	case PIO_GROUP_E:
+		return 4;
+	default:
+		return -1;
+	};
+}
+
 /**
- * \brief Configures one or more pin(s) of a PIO controller as being controlled by
- * peripheral A. Optionally, the corresponding internal pull-up(s) can be enabled.
+ * \brief Configures one or more pin(s) of a PIO controller as being
+ * controlled by peripheral A. Optionally, the corresponding internal
+ * pull-up(s) can be enabled.
  *
  * \param pio  Pointer to a PIO controller.
  * \param mask  Bitmask of one or more pin(s) to configure.
@@ -106,8 +223,9 @@ static void pio_set_peripheralA(Pio * pio, uint32_t mask, uint8_t enablePullUp)
 }
 
 /**
- * \brief Configures one or more pin(s) of a PIO controller as being controlled by
- * peripheral B. Optionally, the corresponding internal pull-up(s) can be enabled.
+ * \brief Configures one or more pin(s) of a PIO controller as being controlled
+ * by peripheral B. Optionally, the corresponding internal pull-up(s) can be
+ * enabled.
  *
  * \param pio  Pointer to a PIO controller.
  * \param mask  Bitmask of one or more pin(s) to configure.
@@ -135,8 +253,9 @@ static void pio_set_peripheralB(Pio * pio, uint32_t mask, uint8_t enablePullUp)
 }
 
 /**
- * \brief Configures one or more pin(s) of a PIO controller as being controlled by
- * peripheral C. Optionally, the corresponding internal pull-up(s) can be enabled.
+ * \brief Configures one or more pin(s) of a PIO controller as being
+ * controlled by peripheral C. Optionally, the corresponding internal
+ * pull-up(s) can be enabled.
  *
  * \param pio  Pointer to a PIO controller.
  * \param mask  Bitmask of one or more pin(s) to configure.
@@ -164,8 +283,9 @@ static void pio_set_peripheralC(Pio * pio, uint32_t mask, uint8_t enablePullUp)
 }
 
 /**
- * \brief Configures one or more pin(s) of a PIO controller as being controlled by
- * peripheral D. Optionally, the corresponding internal pull-up(s) can be enabled.
+ * \brief Configures one or more pin(s) of a PIO controller as being
+ * controlled by peripheral D. Optionally, the corresponding internal
+ * pull-up(s) can be enabled.
  *
  * \param pio  Pointer to a PIO controller.
  * \param mask  Bitmask of one or more pin(s) to configure.
@@ -192,8 +312,9 @@ static void pio_set_peripheralD(Pio * pio, uint32_t mask, uint8_t enablePullUp)
 }
 
 /**
- * \brief Configures one or more pin(s) or a PIO controller as inputs. Optionally,
- * the corresponding internal pull-up(s) and glitch filter(s) can be enabled.
+ * \brief Configures one or more pin(s) or a PIO controller as
+ * inputs. Optionally, the corresponding internal pull-up(s) and
+ * glitch filter(s) can be enabled.
  *
  * \param pio  Pointer to a PIO controller.
  * \param mask  Bitmask indicating which pin(s) to configure as input(s).
@@ -240,7 +361,7 @@ static void pio_set_input(Pio * pio, uint32_t mask, uint8_t attribute)
  * \param enablePullUp  Indicates if the pin shall have its pull-up activated.
  */
 static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
-						  uint8_t enableMultiDrive, uint8_t enablePullUp)
+			   uint8_t enableMultiDrive, uint8_t enablePullUp)
 {
 	/* Disable interrupts */
 	pio->PIO_IDR = mask;
@@ -277,10 +398,13 @@ static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Configures a list of Pin instances, each of which can either hold a single
- * pin or a group of pins, depending on the mask value; all pins are configured
- * by this function. The size of the array must also be provided and is easily
- * computed using PIO_LISTSIZE whenever its length is not known in advance.
+ * \brief Configures a list of Pin instances.
+ *
+ * \details Each of them can either hold a single pin or a group of
+ * pins, depending on the mask value; all pins are configured by this
+ * function. The size of the array must also be provided and is easily
+ * computed using PIO_LISTSIZE whenever its length is not known in
+ * advance.
  *
  * \param list  Pointer to a list of Pin instances.
  * \param size  Size of the Pin list (calculated using PIO_LISTSIZE).
@@ -335,9 +459,12 @@ uint8_t pio_configure(const struct _pin *list, uint32_t size)
 }
 
 /**
- * \brief Sets a high output level on all the PIOs defined in the given Pin instance.
- * This has no immediate effects on PIOs that are not output, but the PIO
- * controller will memorize the value they are changed to outputs.
+ * \brief Sets a high output level on all the PIOs defined in the
+ * given Pin instance.
+ *
+ * \details This has no immediate effects on PIOs that are not output,
+ * but the PIO controller will memorize the value they are changed to
+ * outputs.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
@@ -347,9 +474,12 @@ void pio_set(const struct _pin *pin)
 }
 
 /**
- * \brief Sets a low output level on all the PIOs defined in the given Pin instance.
- * This has no immediate effects on PIOs that are not output, but the PIO
- * controller will memorize the value they are changed to outputs.
+ * \brief Sets a low output level on all the PIOs defined in the given
+ * Pin instance.
+ *
+ * \details This has no immediate effects on PIOs that are not output,
+ * but the PIO controller will memorize the value they are changed to
+ * outputs.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  */
@@ -362,7 +492,7 @@ void pio_clear(const struct _pin *pin)
  * \brief Returns 1 if one or more PIO of the given Pin instance currently have
  * a high level; otherwise returns 0. This method returns the actual value that
  * is being read on the pin. To return the supposed output value of a pin, use
- * pio_get_output_date_status() instead.
+ * \ref pio_get_output_date_status() instead.
  *
  * \param pin  Pointer to a Pin instance describing one or more pins.
  *
@@ -475,212 +605,83 @@ void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
 	pio->PIO_CODR = mask;	// all PIO clear output
 }
 
-uint32_t pio_get_interrupt_status (const struct _pin *pin)
+void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t))
 {
-	return pin->pio->PIO_ISR;
+	assert(group < ID_PERIPH_COUNT);
+	uint32_t index = _pio_get_index(group);
+	assert(index <
+	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
+	_handlers[index] = handler;
+	aic_set_source_vector(group,
+			      (handler_t)_generic_handlers[index]);
+	aic_enable(group);
 }
 
-
-/*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------*/
-
-/* Maximum number of interrupt sources that can be defined. This
- * constant can be increased, but the current value is the smallest possible
- * that will be compatible with all existing projects. */
-#define MAX_INTERRUPT_SOURCES       7
-
-/*----------------------------------------------------------------------------
- *        Local types
- *----------------------------------------------------------------------------*/
-
-/**
- * Describes a PIO interrupt source, including the PIO instance triggering the
- * interrupt and the associated interrupt handler.
- */
-typedef struct _InterruptSource {
-	/* Pointer to the source pin instance. */
-	const struct _pin *pPin;
-
-	/* Interrupt handler. */
-	void (*handler) (const struct _pin *);
-} InterruptSource;
-
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-/* List of interrupt sources. */
-static InterruptSource _aIntSources[MAX_INTERRUPT_SOURCES];
-
-/* Number of currently defined interrupt sources. */
-static uint32_t _dwNumSources = 0;
-
-/*----------------------------------------------------------------------------
- *        Local Functions
- *----------------------------------------------------------------------------*/
-
-/**
- * \brief Handles all interrupts on the given PIO controller.
- * \param id  PIO controller ID.
- * \param pPio  PIO controller base address.
- */
-static void _pio_it_handler(uint32_t id, Pio * pPio)
+void pio_reset_all_it(void)
 {
-	uint32_t status;
-	uint32_t i;
-
-	/* Read PIO controller status */
-	status = pPio->PIO_ISR;
-	status &= pPio->PIO_IMR;
-
-	/* Check pending events */
-	if (status != 0) {
-		trace_debug("PIO interrupt on PIO controller #%d\n\r", id);
-
-		/* Find triggering source */
-		i = 0;
-		while (status != 0) {
-			/* There cannot be an unconfigured source enabled. */
-			assert(i < _dwNumSources);
-
-			/* Source is configured on the same controller */
-			if (_aIntSources[i].pPin->id == id) {
-				/* Source has PIOs whose statuses have changed */
-				if ((status & _aIntSources[i].pPin->mask) != 0) {
-					trace_debug
-					    ("Interrupt source #%d triggered\n\r",
-					     i);
-
-					_aIntSources[i].handler(_aIntSources[i].
-								pPin);
-					status &= ~(_aIntSources[i].pPin->mask);
-				}
-			}
-			i++;
-		}
-	}
-}
-
-/*----------------------------------------------------------------------------
- *        Global Functions
- *----------------------------------------------------------------------------*/
-
-/**
- * Generic PIO interrupt handler. Single entry point for interrupts coming
- * from any PIO controller (PIO A, B, C ...). Dispatches the interrupt to
- * the user-configured handlers.
- */
-void pio_it_handlers(void)
-{
-	_pio_it_handler(ID_PIOA, PIOA);
-	_pio_it_handler(ID_PIOB, PIOB);
-	_pio_it_handler(ID_PIOC, PIOC);
-	_pio_it_handler(ID_PIOD, PIOD);
-	_pio_it_handler(ID_PIOE, PIOE);
+#ifdef PIOA
+	PIOA->PIO_ISR;
+	PIOA->PIO_IDR = ~0;
+#endif
+#ifdef PIOB
+	PIOB->PIO_ISR;
+	PIOB->PIO_IDR = ~0;
+#endif
+#ifdef PIOC
+	PIOB->PIO_ISR;
+	PIOB->PIO_IDR = ~0;
+#endif
+#ifdef PIOD
+	PIOB->PIO_ISR;
+	PIOB->PIO_IDR = ~0;
+#endif
+#ifdef PIOE
+	PIOB->PIO_ISR;
+	PIOB->PIO_IDR = ~0;
+#endif
 }
 
 /**
- * \brief Initializes the PIO interrupt management logic
+ * \brief Generate an interrupt on status change for a PIO or a group
+ * of PIO.
+
+ * \details The provided interrupt handler will be called with the
+ * triggering pin as its parameter (enabling different pin instances
+ * to share the same handler).
  *
- * The desired priority of PIO interrupts must be provided.
- * Calling this function multiple times result in the reset of currently
- * configured interrupts.
- *
- * \param dwPriority  PIO controller interrupts priority.
+ * \param pin  Pointer to a _pin instance.
  */
-void pio_initialize_it(uint32_t dwPriority)
+void pio_configure_it(const struct _pin * pin)
 {
-	/* trace_debug("PIO_Initialize()\n\r"); */
-
-	/* /\* Reset sources *\/ */
-	/* _dwNumSources = 0; */
-
-	/* /\* Configure PIO interrupt sources *\/ */
-	/* trace_debug("PIO_Initialize: Configuring PIOA\n\r"); */
-	/* pmc_enable_peripheral(ID_PIOA); */
-	/* PIOA->PIO_ISR; */
-	/* PIOA->PIO_IDR = 0xFFFFFFFF; */
-	/* aic_enable(ID_PIOA); */
-
-	/* /\* Configure PIO interrupt sources *\/ */
-	/* trace_debug("PIO_Initialize: Configuring PIOB\n\r"); */
-	/* PIOB->PIO_ISR; */
-	/* PIOB->PIO_IDR = 0xFFFFFFFF; */
-	/* aic_enable(ID_PIOB); */
-
-	/* /\* Configure PIO interrupt sources *\/ */
-	/* trace_debug("PIO_Initialize: Configuring PIOC\n\r"); */
-	/* pmc_enable_peripheral(ID_PIOC); */
-	/* PIOC->PIO_ISR; */
-	/* PIOC->PIO_IDR = 0xFFFFFFFF; */
-	/* aic_enable(ID_PIOC); */
-
-	/* /\* Configure PIO interrupt sources *\/ */
-	/* trace_debug("PIO_Initialize: Configuring PIOD\n\r"); */
-	/* pmc_enable_peripheral(ID_PIOD); */
-	/* PIOD->PIO_ISR; */
-	/* PIOD->PIO_IDR = 0xFFFFFFFF; */
-	/* aic_enable(ID_PIOD); */
-
-	/* /\* Configure PIO interrupt sources *\/ */
-	/* trace_debug("PIO_Initialize: Configuring PIOC\n\r"); */
-	/* pmc_enable_peripheral(ID_PIOE); */
-	/* PIOE->PIO_ISR; */
-	/* PIOE->PIO_IDR = 0xFFFFFFFF; */
-	/* aic_enable(ID_PIOE); */
-}
-
-/**
- * Configures a PIO or a group of PIO to generate an interrupt on status
- * change. The provided interrupt handler will be called with the triggering
- * pin as its parameter (enabling different pin instances to share the same
- * handler).
- * \param pPin  Pointer to a _pin instance.
- */
-void pio_configure_it(const struct _pin * pPin)
-{
-	Pio *pio;
-	InterruptSource *pSource;
-
 	trace_debug("Enter in pio_configure_it()\n\r");
+	assert(pin);
+	Pio *pio = pin->pio;
 
-	assert(pPin);
-	pio = pPin->pio;
-
-	trace_debug("Enable PIO group\n\r");
-	pmc_enable_peripheral(pio_group_to_id(pPin->id));
-	pio->PIO_ISR;
-	pio->PIO_IDR = 0xFFFFFFFF;
-	aic_enable(pio_group_to_id(pPin->id));
-
-	assert(_dwNumSources < MAX_INTERRUPT_SOURCES);
-
-	pSource = &(_aIntSources[_dwNumSources]);
-	pSource->pPin = pPin;
-	_dwNumSources++;
+	pio->PIO_IDR = pin->mask;
 
 	/* PIO with additional interrupt support
 	 * Configure additional interrupt mode registers */
-	if (pPin->attribute & PIO_IT_AIME) {
+	if (pin->attribute & PIO_IT_AIME) {
 		/* enable additional interrupt mode */
-		pio->PIO_AIMER = pPin->mask;
+		pio->PIO_AIMER = pin->mask;
 
-		/* if bit field of selected pin is 1, set as Rising Edge/High level detection event */
-		if (pPin->attribute & PIO_IT_RE_OR_HL) {
-			pio->PIO_REHLSR = pPin->mask;
+		/* if bit field of selected pin is 1, set as Rising
+		 * Edge/High level detection event */
+		if (pin->attribute & PIO_IT_RE_OR_HL) {
+			pio->PIO_REHLSR = pin->mask;
 		} else {
-			pio->PIO_FELLSR = pPin->mask;
+			pio->PIO_FELLSR = pin->mask;
 		}
 
-		/* if bit field of selected pin is 1, set as edge detection source */
-		if (pPin->attribute & PIO_IT_EDGE)
-			pio->PIO_ESR = pPin->mask;
+		/* if bit field of selected pin is 1, set as edge
+		 * detection source */
+		if (pin->attribute & PIO_IT_EDGE)
+			pio->PIO_ESR = pin->mask;
 		else
-			pio->PIO_LSR = pPin->mask;
+			pio->PIO_LSR = pin->mask;
 	} else {
 		/* disable additional interrupt mode */
-		pio->PIO_AIMDR = pPin->mask;
+		pio->PIO_AIMDR = pin->mask;
 	}
 }
 
@@ -688,41 +689,28 @@ void pio_configure_it(const struct _pin * pPin)
  * Enables the given interrupt source if it has been configured. The status
  * register of the corresponding PIO controller is cleared prior to enabling
  * the interrupt.
- * \param pPin  Interrupt source to enable.
+ * \param pin  Interrupt source to enable.
  */
-void pio_enable_it(const struct _pin * pPin)
+void pio_enable_it(const struct _pin * pin)
 {
-	trace_debug("Enter in pio_enable_it()\n\r");
+trace_debug("Enter in pio_enable_it()\n\r");
 
-	assert(pPin != NULL);
+	assert(pin != NULL);
 
-#ifndef NOASSERT
-	uint32_t i = 0;
-	uint32_t dwFound = 0;
-
-	while ((i < _dwNumSources) && !dwFound) {
-		if (_aIntSources[i].pPin == pPin) {
-			dwFound = 1;
-		}
-		i++;
-	}
-	assert(dwFound != 0);
-#endif
-
-	pPin->pio->PIO_ISR;
-	pPin->pio->PIO_IER = pPin->mask;
+	pin->pio->PIO_ISR;
+	pin->pio->PIO_IER = pin->mask;
 }
 
 /**
  * Disables a given interrupt source, with no added side effects.
  *
- * \param pPin  Interrupt source to disable.
+ * \param pin  Interrupt source to disable.
  */
-void pio_disable_it(const struct _pin * pPin)
+void pio_disable_it(const struct _pin * pin)
 {
-	assert(pPin != NULL);
+	assert(pin != NULL);
 
 	trace_debug("Enter in pio_disable_it()\n\r");
 
-	pPin->pio->PIO_IDR = pPin->mask;
+	pin->pio->PIO_IDR = pin->mask;
 }

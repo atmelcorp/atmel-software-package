@@ -41,14 +41,14 @@
  *  -# Define a constant pin description array such as the following one, using
  *     the existing definitions provided by the board.h file if possible:
  *     \code
- *        const struct _pin_t pPins[] = {PIN_USART0_TXD, PIN_USART0_RXD};
+ *        const struct _pin_t pins[] = {PIN_USART0_TXD, PIN_USART0_RXD};
  *     \endcode
  *     Alternatively, it is possible to add new pins by provided the full Pin
  *     structure:
  *     \code
  *     // Pin instance to configure PA10 & PA11 as inputs with the internal
  *     // pull-up enabled.
- *     const Pin pPins = {
+ *     const Pin pins = {
  *          (1 << 10) | (1 << 11),
  *          REG_PIOA,
  *          ID_PIOA,
@@ -143,10 +143,5 @@
 #define PIO_WPMR_WPEN_DIS           ( 0x00     << 0 )
 
 #define PIO_WPMR_WPKEY_VALID        ( 0x50494F << 8 )
-
-static inline uint32_t pio_group_to_id(int group)
-{
-	return group;
-}
 
 #endif	/* #ifndef _PIO3_H */

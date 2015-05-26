@@ -38,14 +38,19 @@
 
 struct _pin
 {
-	uint32_t mask;		/*  Bitmask indicating which pin(s) to configure. */
-	Pio *pio;			/*  Pointer to the PIO controller which has the pin(s). */
-	uint8_t id;			/*  Peripheral ID of the PIO controller which has the pin(s). */
-	uint8_t type;		/*  Pin type */
-	uint8_t attribute;	/*  Pin config attribute. */
+	/** Bitmask indicating which pin(s) to configure. */
+	uint32_t mask;
+	/** Pointer to the PIO controller which has the pin(s). */
+	Pio *pio;
+	/** Peripheral ID of the PIO controller which has the pin(s). */
+	uint8_t id;
+	/** Pin type */
+	uint8_t type;
+	/** Pin config attribute. */
+	uint8_t attribute;
 };
 
-#define PIO_LISTSIZE(pPins)	(sizeof(pPins) / sizeof(struct _pin))
+#define PIO_LISTSIZE(pins)	(sizeof(pins) / sizeof(struct _pin))
 
 /*
  *         Headers
@@ -75,15 +80,14 @@ extern void pio_enable_write_protect(const struct _pin *pin);
 extern void pio_disable_write_protect(const struct _pin *pin);
 extern uint32_t pio_get_write_protect_violation_info(const struct _pin * pin);
 extern void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask);
-extern uint32_t pio_get_interrupt_status(const struct _pin *pin);
 
-extern void pio_initialize_it(uint32_t prority);
+extern void pio_reset_all_it(void);
 extern void pio_configure_it(const struct _pin * pin);
 extern void pio_enable_it(const struct _pin * pin);
 extern void pio_disable_it(const struct _pin * pin);
 extern void pio_it_handlers(void);
 extern void pio_capture_handler(void);
-
+extern void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t));
 
 #ifdef __cplusplus
 }
