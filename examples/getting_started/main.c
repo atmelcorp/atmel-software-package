@@ -119,21 +119,20 @@
 #include "time/pit.h"
 
 #include "utils/trace.h"
+#include "resources/compiler_defines.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
-
-//#define NO_PUSHBUTTON
-
-/** IRQ priority for PIO (The lower the value, the greater the priority) */
-#define IRQ_PRIOR_PIO    0
 
 /** LED0 blink time, LED1 blink half this time, in ms */
 #define BLINK_PERIOD        1000
 
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
+
+/** Maximum number of handled led */
+#define MAX_LEDS            5
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -144,14 +143,11 @@
 static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 #endif
 
-/** Pushbutton \#2 pin instance. */
-/* static const struct _pin pinPB2[] = PIN_PUSHBUTTON_2; */
-
-/** LED0 blinking control. */
-volatile bool bLed0Active = true;
-
-/** LED1 blinking control. */
-volatile bool bLed1Active = true;
+/* Only used to get the number of available leds */
+static const struct _pin pinsLeds[] = PINS_LEDS;
+/** Number of available leds */
+static const uint32_t num_leds = ARRAY_SIZE(pinsLeds);
+volatile bool led_status[MAX_LEDS];
 
 /** Global timestamp in milliseconds since start of application */
 volatile uint32_t dwTimeStamp = 0;
@@ -165,42 +161,33 @@ volatile uint32_t dwTimeStamp = 0;
  *
  *  Change active states of LEDs when corresponding button events happened.
  */
-static void process_button_evt(uint8_t ucButton)
+static void process_button_evt(uint8_t bt)
 {
-	if (ucButton == 0) {
-		bLed0Active = !bLed0Active;
-		if (!bLed0Active) {
-			led_clear(0);
-		}
+	if (bt >= num_leds) {
+		return;
 	}
-
-	else {
-		bLed1Active = !bLed1Active;
-
-		/* Enable LED#2 and TC if they were disabled */
-		if (bLed1Active) {
-			led_set(1);
-			tc_start(TC0, 0);
+	led_status[bt] = !led_status[bt];
+	if (bt == 0) {
+		if (!led_status[bt]) {
+			led_clear(bt);
 		}
-
-		/* Disable LED#2 and TC if they were enabled */
-		else {
-			led_clear(1);
-			tc_stop(TC0, 0);
+	} else if (bt < num_leds) {
+		if (led_status[bt]) {
+			led_set(bt);
+		} else {
+			led_clear(bt);
 		}
 	}
 }
 
 /**
- *  \brief Handler for Button 1 rising edge interrupt.
+ *  \brief Handler for Buttons rising edge interrupt.
  *
  *  Handle process led1 status change.
  */
-static void pio_handler(void)
+static void pio_handler(uint32_t status)
 {
-	uint32_t status;
 	int i = 0;
-	status = pio_get_interrupt_status(&button_pins[0]);
 	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i) {
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
@@ -218,11 +205,12 @@ static void console_handler(void)
 	if (!console_is_rx_ready())
 		return;
 	key = console_get_char();
-	switch (key) {
-	case '1':
-	case '2':
-		process_button_evt(key - '1');
-		break;
+	if (key >= '0' && key <= '9') {
+		process_button_evt(key - '0');
+	} else if (key == 's') {
+		tc_stop(TC0, 0);
+	} else if (key == 'b') {
+		tc_start(TC0, 0);
 	}
 }
 
@@ -237,9 +225,11 @@ static void pit_handler(void)
 	status = pit_get_status() & PIT_SR_PITS;
 	if (status != 0) {
 
-		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
-		   Read the PIVR to acknowledge interrupt and get number of ticks
-		   Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
+		/* 1 = The Periodic Interval timer has reached PIV
+		 * since the last read of PIT_PIVR. Read the PIVR to
+		 * acknowledge interrupt and get number of ticks
+		 * Returns the number of occurrences of periodic
+		 * intervals since the last read of PIT_PIVR. */
 		dwTimeStamp += (pit_get_pivr() >> 20);
 	}
 }
@@ -266,7 +256,6 @@ static void configure_pit(void)
 	pit_enable();
 }
 
-/* #ifndef NO_PUSHBUTTON */
 /**
  *  \brief Configure the Pushbuttons
  *
@@ -278,27 +267,22 @@ static void configure_buttons(void)
 	int i = 0;
 	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i)
 	{
-	/* Configure pios as inputs. */
-	pio_configure(&button_pins[i], 1);
-	/* pio_configure(&pinPB2, 1); */
+		/* Configure pios as inputs. */
+		pio_configure(&button_pins[i], 1);
 
-	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
-	pio_set_debounce_filter(&button_pins[i], 10);
-	/* pio_set_debounce_filter(&pinPB2, 10); */
+		/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
+		pio_set_debounce_filter(&button_pins[i], 10);
 
-	/* Enable PIO controller IRQs. */
-	pio_initialize_it(0);
+		/* Initialize pios interrupt with its handlers, see
+		 * PIO definition in board.h. */
+		pio_configure_it(&button_pins[i]);
+		pio_set_group_handler(button_pins[i].id, pio_handler);
 
-	/* Initialize pios interrupt handlers, see PIO definition in board.h. */
-	pio_configure_it(&button_pins[i]);
-	/* pio_configure_it(&pinPB2); */
-
-	/* Enable PIO line interrupts. */
-	pio_enable_it(button_pins);
-	/* pio_enable_it(&pinPB2); */
+		/* Enable PIO line interrupts. */
+		pio_enable_it(button_pins);
 	}
+
 }
-/* #endif				/\*  *\/ */
 
 /**
  *  \brief Configure LEDs
@@ -307,8 +291,10 @@ static void configure_buttons(void)
  */
 static void configure_leds(void)
 {
-	led_configure(0);
-	led_configure(1);
+	int i = 0;
+	for (i = 0; i < num_leds; ++i) {
+		led_configure(i);
+	}
 }
 
 /**
@@ -316,15 +302,19 @@ static void configure_leds(void)
  */
 static void tc_handler(void)
 {
-	volatile uint32_t dummy;
+	uint32_t dummy, i;
 
 	/* Clear status bit to acknowledge interrupt */
 	dummy = tc_get_status(TC0, 0);
 	(void) dummy;
 
-	/** Toggle LED state. */
-	led_toggle(1);
-	printf("2 ");
+	/** Toggle LEDs state. */
+	for (i = 1; i < num_leds; ++i) {
+		if (led_status[i]) {
+			led_toggle(i);
+			printf("%i ", (unsigned int)i);
+		}
+	}
 }
 
 /**
@@ -332,9 +322,6 @@ static void tc_handler(void)
  */
 static void configure_tc(void)
 {
-	uint32_t div;
-	uint32_t tcclks;
-
 	/** Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
 
@@ -342,17 +329,14 @@ static void configure_tc(void)
 	aic_set_source_vector(ID_TC0, tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	tc_find_mck_divisor(4, &div, &tcclks);
-	printf("TC: Select %u divisor\r\n", (unsigned int)div);
-	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
 	tc_trigger_on_freq(TC0, 0, 4);
 
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, 0, TC_IER_CPCS);
 	aic_enable(ID_TC0);
 
-	/* /\** Start the counter if LED1 is enabled. *\/ */
-	if (bLed1Active) {
+	/* Start the counter if LED1 is enabled. */
+	if (led_status[1]) {
 		tc_start(TC0, 0);
 	}
 }
@@ -364,7 +348,7 @@ static void configure_tc(void)
  */
 static void _Wait(unsigned long delay)
 {
-	volatile uint32_t start = dwTimeStamp;
+	uint32_t start = dwTimeStamp;
 	uint32_t elapsed;
 
 	do {
@@ -384,8 +368,17 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
+	int i = 0;
+	led_status[0] = true;
+	for (i = 1; i < num_leds; ++i) {
+		led_status[i] = led_status[i-1];
+	}
+
 	/* Disable watchdog */
 	WDT_Disable(WDT);
+
+	/* Disable all PIO interrupts */
+	pio_reset_all_it();
 
 	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
@@ -406,33 +399,35 @@ int main(void)
 	printf("Configure PIT \n\r");
 	configure_pit();
 
-	/* PIO configuration for LEDs and Buttons. */
-	pio_initialize_it(IRQ_PRIOR_PIO);
+	/* Configure TC */
 	printf("Configure TC.\n\r");
 	configure_tc();
+
+	/* PIO configuration for LEDs and Buttons. */
 	printf("Configure LED PIOs.\n\r");
 	configure_leds();
-
 	printf("Configure buttons with debouncing.\n\r");
 	configure_buttons();
+
 	printf("Initializing console interrupts\r\n");
-	aic_set_source_vector(button_pins->id, pio_handler);
 	aic_set_source_vector(CONSOLE_ID, console_handler);
 	aic_enable(CONSOLE_ID);
 	console_enable_interrupts(US_IER_RXRDY);
-	printf("use push buttons or DBG key 1 & 2.\n\r");
-	printf("Press 1 to Start/Stop the blue LED D1 blinking.\n\r");
-	printf("Press 2 to Start/Stop the red LED D2 blinking.\n\r");
+
+	printf("use push buttons or DBG key 0 to 9.\n\r");
+	printf("Press the number of the led to make it "
+	       "start ot stop blinking.\n\r");
+	printf("Press 's' to stop the TC and 'b' to start it\r\n");
 
 	while (1) {
 
 		/* Wait for LED to be active */
-		while (!bLed0Active) ;
+		while (!led_status[0]);
 
 		/* Toggle LED state if active */
-		if (bLed0Active) {
+		if (led_status[0]) {
 			led_toggle(0);
-			printf("1 ");
+			printf("0 ");
 		}
 
 		/* Wait for 500ms */
