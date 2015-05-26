@@ -4,7 +4,7 @@ all:
 
 SOFTPACK_VERSION=\"2.0\"
 AVAILABLE_MEMORIES = sram ddram
-AVAILABLE_BOARDS = sama5d4-xplained sama5d4-ek sama5d2-xplained
+AVAILABLE_BOARDS = sama5d4-xplained sama5d4-ek sama5d2-xplained sama5d2-vb
 MEMORIES = sram ddram
 
 eq = $(and $(findstring $(1),$(2)),$(findstring $(2),$(1)))
