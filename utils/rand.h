@@ -42,6 +42,8 @@
  *         Global Functions
  *------------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 void srand(uint32_t dwSeed);
 extern uint32_t rand(void);
 
