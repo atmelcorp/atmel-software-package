@@ -283,7 +283,7 @@ unsigned short l2cc_it_status_raw(L2cc * pL2cc, uint16_t ITSource)
  * \param pL2cc Pointer to the L2CC peripheral.
  * \param ITSource  Interrupt source
  */
-unsigned short l2cc_it_status_mask(L2cc * pL2cc, uint16_t ITSource)
+uint16_t l2cc_it_status_mask(L2cc * pL2cc, uint16_t ITSource)
 {
 	return ((pL2cc->L2CC_MISR) & ITSource) ? 1 : 0;
 }

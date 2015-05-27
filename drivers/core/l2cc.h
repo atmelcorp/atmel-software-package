@@ -165,7 +165,7 @@ extern uint32_t l2cc_event_counter_value(L2cc * pL2cc, uint8_t EventCounter);
 extern void l2cc_enable_it(L2cc * pL2cc, uint16_t ITSource);
 extern void l2cc_disable_it(L2cc * pL2cc, uint16_t ITSource);
 extern uint16_t l2cc_it_status_raw(L2cc * pL2cc, uint16_t ITSource);
-extern uint16_t l2ccC_it_status_mask(L2cc * pL2cc, uint16_t ITSource);
+extern uint16_t l2cc_it_status_mask(L2cc * pL2cc, uint16_t ITSource);
 extern void l2cc_it_clear(L2cc * pL2cc, uint16_t ITSource);
 extern uint8_t l2cc_poll_spniden(L2cc * pL2cc);
 extern void l2cc_cache_sync(L2cc * pL2cc);
