@@ -81,22 +81,6 @@ void isc_update_profile(void)
 }
 
 /**
- * \brief update the histogram table.
- */
-void isc_update_histogram_table(void)
-{
-	ISC->ISC_CTRLEN = ISC_CTRLEN_HISREQ;
-}
-
-/**
- * \brief  clear the histogram table.
- */
-void isc_clear_histogram_table(void)
-{
-	ISC->ISC_CTRLEN = ISC_CTRLEN_HISCLR;
-}
-
-/**
  * \brief Perform software reset of the interface.
  */
 void isc_software_reset(void)
@@ -500,6 +484,68 @@ void isc_sub420_configure(uint8_t enabled, uint8_t filter)
 		ISC->ISC_SUB420_CTRL = 0;
 	}
 }
+
+/*------------------------------------------
+ * Rounding, Limiting and Packing functions
+ *----------------------------------------*/
+/**
+ * \brief Configure Rounding, Limiting and Packing Mode.
+ * \param rlpMode Rounding, Limiting and Packing Mode.
+ * \param alpha Alpha Value for Alpha-enabled RGB Mode.
+ */
+void isc_rlp_configure(uint8_t rlpMode, uint8_t alpha)
+{
+	ISC->ISC_RLP_CFG = rlpMode;
+	if (alpha)
+		ISC->ISC_RLP_CFG |= ISC_RLP_CFG_ALPHA(alpha);
+}
+
+/*------------------------------------------
+ *         Histogram functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable Histogram
+ */
+void isc_histogram_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_HIS_CTRL = ISC_HIS_CTRL_ENABLE;
+	else
+		ISC->ISC_HIS_CTRL = 0;
+}
+
+/**
+ * \brief Configure Histogram.
+ * \param mode Histogram Operating Mode.
+ * \param baySel Bayer Color Component Selection.
+ * \param reset Histogram Reset After Read
+			0: Reset after read mode is disabled
+			1: Reset after read mode is enabled.
+ */
+void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset)
+{
+	ISC->ISC_HIS_CFG = mode | baySel;
+	if (reset)
+		ISC->ISC_HIS_CFG |= ISC_HIS_CFG_RAR;
+}
+
+ /**
+ * \brief update the histogram table.
+ */
+void isc_update_histogram_table(void)
+{
+	ISC->ISC_CTRLEN = ISC_CTRLEN_HISREQ;
+}
+
+/**
+ * \brief  clear the histogram table.
+ */
+void isc_clear_histogram_table(void)
+{
+	ISC->ISC_CTRLEN = ISC_CTRLEN_HISCLR;
+}
+
+
 
 
 

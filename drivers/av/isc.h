@@ -85,8 +85,6 @@ extern void isc_start_capture(void);
 extern void isc_stop_capture(void);
 extern uint32_t isc_get_ctrl_status(void);
 extern void isc_update_profile(void);
-extern void isc_update_histogram_table(void);
-extern void isc_clear_histogram_table(void);
 extern void isc_software_reset(void);
 
 /*------------------------------------------
@@ -165,5 +163,19 @@ extern void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
 extern void isc_sub422_enabled(uint8_t enabled);
 extern void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf);
 extern void isc_sub420_configure(uint8_t enabled, uint8_t filter);
+
+/*------------------------------------------
+ * Rounding, Limiting and Packing functions
+ *----------------------------------------*/
+extern void isc_rlp_configure(uint8_t rlpMode, uint8_t alpha);
+
+/*------------------------------------------
+ *         Histogram functions
+ *----------------------------------------*/
+extern void isc_histogram_enabled(uint8_t enabled);
+extern void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset);
+extern void isc_update_histogram_table(void);
+extern void isc_clear_histogram_table(void);
+
 #endif //#ifndef ISC_H
 
