@@ -337,3 +337,78 @@ void isc_cc_configure(sColorCorrectComponents* cc)
 	ISC->ISC_CC_BR_BG = ISC_CC_BR_BG_BRGAIN(cc->brGain) | ISC_CC_BR_BG_BGGAIN(cc->bgGain);
 	ISC->ISC_CC_BB_OB = ISC_CC_BB_OB_BBGAIN(cc->bbGain) | ISC_CC_BB_OB_BOFST(cc->bOffset);
 }
+
+/*------------------------------------------
+ *         Gamma Correction functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable Gamma Correction with giving channels.
+ * \param enabled 1: enable, 0: disable
+ * \param channels ISC_GAM_CTRL_BENABLE/ISC_GAM_CTRL_GENABLE/ISC_GAM_CTRL_RENABLE
+ */
+void isc_gamma_enabled(uint8_t enabled, uint8_t channels)
+{
+	if (enabled)
+		ISC->ISC_GAM_CTRL |= ISC_GAM_CTRL_ENABLE | channels;
+	else
+		ISC->ISC_GAM_CTRL = 0;
+}
+
+/**
+ * \brief Configure gamma correction with give table.
+ * \param rGamConstant Pointer to red Color Constant instance (64 half-word).
+ * \param rGamSlope Pointer to red Color Slope instance (64 half-word).
+ * \param gGamConstant Pointer to green Color Constant instance (64 half-word).
+ * \param gGamSlope Pointer to green Color Slope instance (64 half-word).
+ * \param bGamConstant Pointer to blue Color Constant instance (64 half-word).
+ * \param bGamSlope Pointer to blue Color Slope instance (64 half-word).
+ */
+void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
+						uint16_t* gGamConstant, uint16_t* gGamSlope,
+						uint16_t* bGamConstant, uint16_t* bGamSlope)
+{
+	uint8_t i;
+	for (i = 0; i < 64 ; i++) {
+		ISC->ISC_GAM_BENTRY[i]= ISC_GAM_BENTRY_BCONSTANT(bGamConstant[i])
+							| ISC_GAM_BENTRY_BSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_GENTRY[i]= ISC_GAM_GENTRY_GCONSTANT(bGamConstant[i])
+							| ISC_GAM_GENTRY_GSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_RENTRY[i]= ISC_GAM_RENTRY_RCONSTANT(bGamConstant[i])
+							| ISC_GAM_RENTRY_RSLOPE(bGamSlope[i]);
+}
+
+/*------------------------------------------
+ *        Color Space Conversion functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable Color Space Conversion.
+ */
+void isc_csc_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_CSC_CTRL = ISC_CSC_CTRL_ENABLE;
+	else
+		ISC->ISC_CSC_CTRL = 0;
+}
+
+/**
+ * \brief Color space convert with color space component.
+ * \param cs Pointer to structure sColorCorrectComponents
+ */
+void isc_cc_configure(sColorSpaceComponents* cs)
+{
+	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain) 
+						| ISC_CSC_YR_YG_YGGAIN(cs->YgGain);
+	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain) 
+						| ISC_CSC_YB_OY_YOFST(cs->Yoffset);
+	ISC->ISC_CSC_CBR_CBG = ISC_CSC_CBR_CBG_CBRGAIN(cs->cbrGain)
+						| ISC_CSC_CBR_CBG_CBGGAIN(cs->cbgGain);
+	ISC->ISC_CC_GB_OG = ISC_CC_GB_OG_GBGAIN(cs->gbGain) 
+						| ISC_CC_GB_OG_ROFST(cs->gOffset);
+	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain) 
+						| ISC_CSC_CBB_OCB_CBOFST(cs->cbOffset);
+	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain) 
+						| ISC_CSC_CRR_CRG_CRGGAIN(cs->crgGain);
+	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain) 
+						| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
+}

@@ -40,7 +40,11 @@
 #ifndef ISC_H
 #define ISC_H
 
-typedef struct _color_correction_Components{
+/*------------------------------------------------------------------------------
+ *         Type
+ *----------------------------------------------------------------------------*/
+/** color correction components structure */
+typedef struct _color_correction_components{
 	uint16_t rOffset; /** Red Component Offset (signed 13 bits, 1:12:0) */
 	uint16_t gOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
 	uint16_t bOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
@@ -54,6 +58,22 @@ typedef struct _color_correction_Components{
 	uint16_t brGain; /** Red Gain for Blue Component (signed 12 bits, 1:3:8) */
 	uint16_t bbGain; /** Blue Gain for Blue Component (signed 12 bits, 1:3:8)*/
 }sColorCorrectComponents;
+
+/** color space convertion components structure */
+typedef struct _color_space_components{
+	uint16_t YrGain;  /** Red Gain for Luminance (signed 12 bits 1:3:8) */
+	uint16_t YgGain;  /** Green Gain for Luminance (signed 12 bits 1:3:8)*/
+	uint16_t YbGain;  /** Blue Gain for Luminance Component (12 bits signed 1:3:8)*/
+	uint16_t Yoffset; /** Luminance Offset (11 bits signed 1:10:0)*/
+	uint16_t cbrGain:; /** Green Gain for Blue Chrominance (signed 12 bits 1:3:8)*/
+	uint16_t cbgGain:; /** Red Gain for Blue Chrominance (signed 12 bits, 1:3:8)*/
+	uint16_t cbbGain;  /** Blue Gain for Blue Chrominance (signed 12 bits 1:3:8)*/
+	uint16_t cbOffset; /** Blue Chrominance Offset (signed 11 bits 1:10:0)*/
+	uint16_t crrGain:; /** Red Gain for Red Chrominance (signed 12 bits 1:3:8)*/
+	uint16_t crgGain:; /** Green Gain for Red Chrominance (signed 12 bits 1:3:8)*/
+	uint16_t crbGain;  /** Blue Gain for Red Chrominance (signed 12 bits 1:3:8)*/
+	uint16_t crOffset; /** Red Chrominance Offset (signed 11 bits 1:10:0)*/
+}sColorSpaceComponents;
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -118,5 +138,19 @@ extern void isc_cfa_configure(uint8_t pattern, uint8_t edge);
 extern void isc_cc_enabled(uint8_t enabled);
 extern void isc_cc_configure(sColorCorrectComponents* cc);
  
+/*------------------------------------------
+ *         Gamma Correction functions
+ *----------------------------------------*/
+extern void isc_gamma_enabled(uint8_t enabled, uint8_t channels);
+extern void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
+							uint16_t* gGamConstant, uint16_t* gGamSlope,
+							uint16_t* bGamConstant, uint16_t* bGamSlope);
+
+/*------------------------------------------
+ *        Color Space Conversion functions
+ *----------------------------------------*/
+extern void isc_csc_enabled(uint8_t enabled);
+extern void isc_cc_configure(sColorSpaceComponents* cs);
+
 #endif //#ifndef ISC_H
 
