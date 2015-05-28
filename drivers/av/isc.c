@@ -283,3 +283,57 @@ void isc_wb_adjust_bayer_color(
 	ISC->ISC_WB_G_RGR = ISC_WB_G_RGR_RGAIN(rGain) | ISC_WB_G_RGR_GRGAIN(grGain);
 	ISC->ISC_WB_G_BGB = ISC_WB_G_BGB_BGAIN(bGain) | ISC_WB_G_BGB_GBGAIN(gbGain);
 }
+
+/*------------------------------------------
+ *         Color Filter Array functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable Color Filter Array Interpolation.
+ */
+void isc_cfa_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_CFA_CTRL = ISC_CFA_CTRL_ENABLE;
+	else
+		ISC->ISC_CFA_CTRL = 0;
+}
+
+/**
+ * \brief configure color filter array interpolation.
+ * \param pattern Color Filter Array Pattern
+ * \param edge Edge Interpolation
+			0: Edges are not interpolated.
+			1: Edge interpolation is performed.
+ */
+void isc_cfa_configure(uint8_t pattern, uint8_t edge)
+{
+	ISC->ISC_CFA_CFG = pattern | (edge << 4) 
+}
+
+/*------------------------------------------
+ *         Color Correction functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable Color Correction.
+ */
+void isc_cc_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_CC_CTRL = ISC_CC_CTRL_ENABLE;
+	else
+		ISC->ISC_CFA_CTRL = 0;
+}
+
+/**
+ * \brief Color correction with color component.
+ * \param cc Pointer to structure sColorCorrectComponents
+ */
+void isc_cc_configure(sColorCorrectComponents* cc)
+{
+	ISC->ISC_CC_RR_RG = ISC_CC_RR_RG_RRGAIN(cc->rrGain) | ISC_CC_RR_RG_RGGAIN(cc->rgGain);
+	ISC->ISC_CC_RB_OR = ISC_CC_RB_OR_RBGAIN(cc->rbGain) | ISC_CC_RB_OR_ROFST(cc->rOffset);
+	ISC->ISC_CC_GR_GG = ISC_CC_GR_GG_GRGAIN(cc->grGain) | ISC_CC_GR_GG_GGGAIN(cc->ggGain);
+	ISC->ISC_CC_GB_OG = ISC_CC_GB_OG_GBGAIN(cc->gbGain) | ISC_CC_GB_OG_ROFST(cc->gOffset);
+	ISC->ISC_CC_BR_BG = ISC_CC_BR_BG_BRGAIN(cc->brGain) | ISC_CC_BR_BG_BGGAIN(cc->bgGain);
+	ISC->ISC_CC_BB_OB = ISC_CC_BB_OB_BBGAIN(cc->bbGain) | ISC_CC_BB_OB_BOFST(cc->bOffset);
+}

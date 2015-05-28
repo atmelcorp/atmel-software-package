@@ -40,6 +40,20 @@
 #ifndef ISC_H
 #define ISC_H
 
+typedef struct _color_correction_Components{
+	uint16_t rOffset; /** Red Component Offset (signed 13 bits, 1:12:0) */
+	uint16_t gOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
+	uint16_t bOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
+	uint16_t rrGain; /** Red Gain for Red Component (signed 12 bits, 1:3:8)*/
+	uint16_t rgGain; /** Green Component (Red row) Gain (unsigned 13 bits, 0:4:9)*/
+	uint16_t rbGain; /** Blue Gain for Red Component (signed 12 bits, 1:3:8)*/
+	uint16_t ggGain; /** Green Gain for Green Component (signed 12 bits, 1:3:8)*/
+	uint16_t grGain; /** Red Gain for Green Component (signed 12 bits, 1:3:8)*/
+	uint16_t gbGain; /** Blue Gain for Green Component (signed 12 bits, 1:3:8)*/
+	uint16_t bgGain; /** Green Gain for Blue Component (signed 12 bits, 1:3:8) */
+	uint16_t brGain; /** Red Gain for Blue Component (signed 12 bits, 1:3:8) */
+	uint16_t bbGain; /** Blue Gain for Blue Component (signed 12 bits, 1:3:8)*/
+}sColorCorrectComponents;
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -91,6 +105,18 @@ extern void isc_wb_set_bayer_pattern(uint8_t pattern)
 extern void isc_wb_adjust_bayer_color(
 			uint32_t rOffset, uint32_t grOffset, uint32_t bOffset, uint32_t gbOffset,
 			uint32_t rGain, uint32_t grGain, uint32_t bGain, uint32_t gbGain );
-{
+
+/*------------------------------------------
+ *         Color Filter Array functions
+ *----------------------------------------*/
+extern void isc_cfa_enabled(uint8_t enabled);
+extern void isc_cfa_configure(uint8_t pattern, uint8_t edge);
+
+/*------------------------------------------
+ *         Color Correction functions
+ *----------------------------------------*/
+extern void isc_cc_enabled(uint8_t enabled);
+extern void isc_cc_configure(sColorCorrectComponents* cc);
+ 
 #endif //#ifndef ISC_H
 
