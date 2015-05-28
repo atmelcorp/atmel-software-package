@@ -43,12 +43,15 @@
 /*----------------------------------------------------------------------------
  *        Export functions
  *----------------------------------------------------------------------------*/
-
+ 
+/*------------------------------------------
+ *         ISC Control functions
+ *----------------------------------------*/
 /**
  * \brief Send Capture Input Stream Command to start a single shot capture or a 
  * multiple frame.
  */
-void ISC_StartCapture(void)
+void isc_start_capture(void)
 {
 	ISC->ISC_CTRLEN = ISC_CTRLEN_CAPTURE;
 }
@@ -56,20 +59,15 @@ void ISC_StartCapture(void)
 /**
  * \brief end the capture at the next Vertical Synchronization Detection. 
  */
-void ISC_StopCapture(void)
+void isc_stop_capture(void)
 {
 	ISC->ISC_CTRLDIS = ISC_CTRLDIS_DISABLE;
-}
-
-void ISC_StartCapture(void)
-{
-	ISC->ISC_CTRLEN = ISC_CTRLEN_CAPTURE;
 }
 
 /**
  * \brief Returns ISC Control Status.
  */
-uint32_t ISC_GetCtrlStatus(void)
+uint32_t isc_get_ctrl_status(void)
 {
 	return (ISC->ISC_CTRLSR);
 }
@@ -77,7 +75,7 @@ uint32_t ISC_GetCtrlStatus(void)
 /**
  * \brief update the color profile.
  */
-void ISC_UpdateProfile(void)
+void isc_update_profile(void)
 {
 	ISC->ISC_CTRLEN = ISC_CTRLEN_UPPRO;
 }
@@ -85,7 +83,7 @@ void ISC_UpdateProfile(void)
 /**
  * \brief update the histogram table.
  */
-void ISC_UpdateHistogram(void)
+void isc_update_histogram_table(void)
 {
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISREQ;
 }
@@ -93,7 +91,7 @@ void ISC_UpdateHistogram(void)
 /**
  * \brief  clear the histogram table.
  */
-void ISC_ClearHistogram(void)
+void isc_clear_histogram_table(void)
 {
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISCLR;
 }
@@ -101,11 +99,15 @@ void ISC_ClearHistogram(void)
 /**
  * \brief Perform software reset of the interface.
  */
-void ISC_Reset(void)
+void isc_software_reset(void)
 {
 	ISC->ISC_CTRLDIS = ISC_CTRLDIS_SWRST;
 }
 
+/*------------------------------------------
+ *      PFE(Parallel Front End) functions
+ *----------------------------------------*/
+ 
 /**
  * \brief  configure PFE(Parallel Front End) cropping area.
  * \param Hstart: Horizontal starting position of the cropping area
@@ -113,7 +115,7 @@ void ISC_Reset(void)
  * \param Vstart: Vertical starting position of the cropping area
  * \param Hend: Vertical ending position of the cropping area
  */
-void ISC_PFE_SetCroppingArea( 
+void isc_pfe_set_cropping_area( 
 					uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
 {
 	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(Hstart)
@@ -122,6 +124,10 @@ void ISC_PFE_SetCroppingArea(
 					 | ISC_PFE_CFG2_ROWMAX(Vend);
 }
 
+/*------------------------------------------
+ *         Clock configuration functions
+ *----------------------------------------*/
+ 
 /**
  * \brief Configure the ISP clock.
  * \param ispClockDiv ISP Clock Divider.
@@ -129,7 +135,7 @@ void ISC_PFE_SetCroppingArea(
 			0: HCLOCK is selected.
 			1: GCK is selected.
  */
-void ISC_ConfigureIspClock(uint32_t ispClockDiv, uint32_t ispClockSelection)
+void isc_configure_isp_clock(uint32_t ispClockDiv, uint32_t ispClockSelection)
 {
 	ISC->ISC_CLKCFG |= ISC_CLKCFG_ICDIV(ispClockDiv) | (ispClockSelection << 8);
 }
@@ -137,7 +143,7 @@ void ISC_ConfigureIspClock(uint32_t ispClockDiv, uint32_t ispClockSelection)
 /**
  * \brief Enables the ISP clock.
  */
-void ISC_EnableIspClock(void)
+void isc_enable_isp_clock(void)
 {
 	ISC->ISC_CLKEN = ISC_CLKEN_ICEN;
 }
@@ -145,7 +151,7 @@ void ISC_EnableIspClock(void)
 /**
  * \brief Disables the ISP clock.
  */
-void ISC_DisableIspClock(void)
+void isc_disable_isp_clock(void)
 {
 	ISC->ISC_CLKDIS = ISC_CLKDIS_ICDIS;
 }
@@ -153,7 +159,7 @@ void ISC_DisableIspClock(void)
 /**
  * \brief Software reset the ISP clock.
  */
-void ISC_ResetIspClock(void)
+void isc_reset_isp_clock(void)
 {
 	ISC->ISC_CLKDIS = ISC_CLKDIS_ICSWRST;
 }
@@ -166,7 +172,7 @@ void ISC_ResetIspClock(void)
 			1: GCK is selected.
 			2: 480-MHz system clock is selected.
  */
-void ISC_ConfigureMasterClock(uint32_t masterClockDiv, uint32_t masterClockSelection)
+void isc_configure_master_clock(uint32_t masterClockDiv, uint32_t masterClockSelection)
 {
 	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv) 
 					| ISC_CLKCFG_MCSEL(masterClockSelection);
@@ -175,7 +181,7 @@ void ISC_ConfigureMasterClock(uint32_t masterClockDiv, uint32_t masterClockSelec
 /**
  * \brief Enables the master clock.
  */
-void ISC_EnableMasterClock(void)
+void isc_enable_master_clock(void)
 {
 	ISC->ISC_CLKEN = ISC_CLKEN_MCEN;
 }
@@ -183,7 +189,7 @@ void ISC_EnableMasterClock(void)
 /**
  * \brief Disables the master clock.
  */
-void ISC_DisableMasterClock(void)
+void isc_disable_master_clock(void)
 {
 	ISC->ISC_CLKDIS = ISC_CLKDIS_MCDIS;
 }
@@ -191,7 +197,7 @@ void ISC_DisableMasterClock(void)
 /**
  * \brief Software reset the master clock.
  */
-void ISC_ResetMasterClock(void)
+void isc_reset_master_clock(void)
 {
 	ISC->ISC_CLKDIS = ISC_CLKDIS_MCSWRST;
 }
@@ -199,17 +205,19 @@ void ISC_ResetMasterClock(void)
 /**
  * \brief Returns ISC clock Status.
  */
-uint32_t ISC_GetClockStatus(void)
+uint32_t isc_get_clock_status(void)
 {
 	return (ISC->ISC_CLKSR);
 }
 
-
+/*------------------------------------------
+ *         Interrupt functions
+ *----------------------------------------*/
 /**
  * \brief Enable ISC interrupt
  * \param  flag of interrupt to enable
  */
-void ISC_EnableInterrupt(uint32_t flag)
+void isc_enable_interrupt(uint32_t flag)
 {
 	ISC->ISC_INTEN = flag;
 }
@@ -218,7 +226,7 @@ void ISC_EnableInterrupt(uint32_t flag)
  * \brief Disable ISC interrupt
  * \param  flag of interrupt to disable
  */
-void ISC_DisableInterrupt(uint32_t flag)
+void isc_disable_interrupt(uint32_t flag)
 {
 	ISC->ISC_INTDIS = flag;
 }
@@ -227,7 +235,18 @@ void ISC_DisableInterrupt(uint32_t flag)
  * \brief Return ISC status register
  * \return Status of ISC register
  */
-uint32_t ISC_StatusRegister(void)
+uint32_t isc_interrupt_status(void)
 {
 	return(ISC->ISC_INTSR);
 }
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

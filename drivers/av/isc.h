@@ -32,7 +32,7 @@
 /** \addtogroup isc_module
  * @{
  * \section isc_usage Usage
- * - ISC_StartCapture: Send Capture Input Stream Command to start a single 
+ * - isc_start_capture: Send Capture Input Stream Command to start a single 
  *						shot capture or a multiple frame
  */
 /**@}*/
@@ -41,32 +41,48 @@
 #define ISC_H
 
 
-/*----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-extern void ISC_StartCapture(void);
-extern void ISC_StopCapture(void);
-extern uint32_t ISC_GetCtrlStatus(void);
-extern void ISC_UpdateProfile(void);
-extern void ISC_UpdateHistogram(void);
-extern void ISC_ClearHistogram(void);
-extern void ISC_Reset(void);
-extern void ISC_PFE_SetCroppingArea( 
+/*------------------------------------------
+ *         ISC Control functions
+ *----------------------------------------*/
+extern void isc_start_capture(void);
+extern void isc_stop_capture(void);
+extern uint32_t isc_get_ctrl_status(void);
+extern void isc_update_profile(void);
+extern void isc_update_histogram_table(void);
+extern void isc_clear_histogram_table(void);
+extern void isc_software_reset(void);
+
+/*------------------------------------------
+ *      PFE(Parallel Front End) functions
+ *----------------------------------------*/
+extern void isc_pfe_set_cropping_area( 
 			uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
-extern void ISC_ConfigureIspClock(
+/*------------------------------------------
+ *         Clock configuration functions
+ *----------------------------------------*/
+ extern void isc_configure_isp_clock(
 			uint32_t ispClockDiv, uint32_t ispClockSelection);
-extern void ISC_EnableIspClock(void);
-extern void ISC_DisableIspClock(void);
-extern void ISC_ResetIspClock(void);
-extern void ISC_ConfigureMasterClock(
+extern void isc_enable_isp_clock(void);
+extern void isc_disable_isp_clock(void);
+extern void isc_reset_isp_clock(void);
+extern void isc_configure_master_clock(
 			uint32_t masterClockDiv, uint32_t masterClockSelection);
-extern void ISC_EnableMasterClock(void);
-extern void ISC_DisableMasterClock(void);
-extern void ISC_ResetMasterClock(void);
-extern uint32_t ISC_GetClockStatus(void);
-extern void ISC_EnableInterrupt(uint32_t flag);
-extern void ISC_DisableInterrupt(uint32_t flag);
-extern uint32_t ISC_StatusRegister(void);
+extern void isc_enable_master_clock(void);
+extern void isc_disable_master_clock(void);
+extern void isc_reset_master_clock(void);
+extern uint32_t isc_get_clock_status(void);
+/*------------------------------------------
+ *         Interrupt functions
+ *----------------------------------------*/
+extern void isc_enable_interrupt(uint32_t flag);
+extern void isc_disable_interrupt(uint32_t flag);
+extern uint32_t isc_interrupt_status(void);
+/*------------------------------------------
+ *         White Balance functions
+ *----------------------------------------*/
 
 #endif //#ifndef ISC_H
 
