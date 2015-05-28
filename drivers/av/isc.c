@@ -412,3 +412,97 @@ void isc_cc_configure(sColorSpaceComponents* cs)
 	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain) 
 						| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
 }
+
+/*------------------------------------------
+ *       Contrast And Brightness functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable contrast and brightness control.
+ */
+void isc_cbc_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_CBC_CTRL = ISC_CBC_CTRL_ENABLE;
+	else
+		ISC->ISC_CBC_CTRL = 0;
+}
+
+/**
+ * \brief Configure Contrast and brightness with give parameter.
+ * \param ccir656 CCIR656 Stream Enable.
+				0: Raw mode
+				1: CCIR mode
+ * \param byteOrder CCIR656 Byte Ordering.
+ * \param brightness Brightness Control (signed 11 bits 1:10:0).
+ * \param Contrast Contrast (signed 12 bits 1:3:8).
+ */
+void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
+						uint16_t brightness, uint16_t contrast)
+{
+   if (ccir656)
+		ISC->ISC_CBC_CFG = ISC_CBC_CFG_CCIR | byteOrder ;
+	else
+		ISC->ISC_CBC_CFG = 0;
+	ISC->ISC_CBC_BRIGHT = ISC_CBC_BRIGHT_BRIGHT(brightness);
+	ISC->ISC_CBC_CONTRAST = ISC_CBC_CONTRAST_CONTRAST(contrast);
+}
+
+/*------------------------------------------
+ *       Sub-sampling functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable 4:4:4 to 4:2:2 Chrominance Horizontal Subsampling Filter Enable.
+ */
+void isc_sub422_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_SUB422_CTRL = ISC_SUB422_CTRL_ENABLE;
+	else
+		ISC->ISC_SUB422_CTRL = 0;
+}
+
+/**
+ * \brief Configure Subsampling 4:4:4 to 4:2:2 with giving value.
+ * \param ccir656 CCIR656 Stream Enable. 
+				0: Raw mode
+				1: CCIR mode
+ * \param byteOrder CCIR656 Byte Ordering.
+ * \param lpf Low Pass Filter Selection.
+ */
+void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
+{
+   if (ccir656)
+		ISC->ISC_SUB422_CFG = ISC_SUB422_CFG_CCIR | byteOrder ;
+	else
+		ISC->ISC_SUB422_CFG = 0;
+	ISC->ISC_SUB422_CFG |= lpf;
+}
+
+/**
+ * \brief Configure 4:2:2 to 4:2:0 Vertical Subsampling Filter Enable 
+		(Center Aligned) with giving value.
+ * \param enabled Subsampler enabled.
+				0: disabled
+				1: enabled
+ * \param filter Interlaced or Progressive Chrominance Filter.
+		0: Progressive filter {0.5, 0.5}
+		1: Field-dependent filter, top field filter is {0.75, 0.25},
+			bottom field filter is {0.25, 0.75}
+ */
+void isc_sub420_configure(uint8_t enabled, uint8_t filter)
+{
+	if (enabled){
+		ISC->ISC_SUB420_CTRL = ISC_SUB420_CTRL_ENABLE;
+		if (filter){
+			ISC->ISC_SUB420_CTRL |= ISC_SUB420_CTRL_FILTER;
+		}
+	} else {
+		ISC->ISC_SUB420_CTRL = 0;
+	}
+}
+
+
+
+
+
+

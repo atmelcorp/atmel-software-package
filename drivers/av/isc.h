@@ -152,5 +152,18 @@ extern void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
 extern void isc_csc_enabled(uint8_t enabled);
 extern void isc_cc_configure(sColorSpaceComponents* cs);
 
+/*------------------------------------------
+ *       Contrast And Brightness functions
+ *----------------------------------------*/
+extern void isc_cbc_enabled(uint8_t enabled);
+extern void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
+						uint16_t brightness, uint16_t contrast);
+
+/*------------------------------------------
+ *       Sub-sampling functions
+ *----------------------------------------*/
+extern void isc_sub422_enabled(uint8_t enabled);
+extern void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf);
+extern void isc_sub420_configure(uint8_t enabled, uint8_t filter);
 #endif //#ifndef ISC_H
 
