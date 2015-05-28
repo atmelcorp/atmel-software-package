@@ -60,6 +60,7 @@ extern void isc_software_reset(void);
  *----------------------------------------*/
 extern void isc_pfe_set_cropping_area( 
 			uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
+
 /*------------------------------------------
  *         Clock configuration functions
  *----------------------------------------*/
@@ -74,15 +75,22 @@ extern void isc_enable_master_clock(void);
 extern void isc_disable_master_clock(void);
 extern void isc_reset_master_clock(void);
 extern uint32_t isc_get_clock_status(void);
+
 /*------------------------------------------
  *         Interrupt functions
  *----------------------------------------*/
 extern void isc_enable_interrupt(uint32_t flag);
 extern void isc_disable_interrupt(uint32_t flag);
 extern uint32_t isc_interrupt_status(void);
+
 /*------------------------------------------
  *         White Balance functions
  *----------------------------------------*/
-
+extern void isc_wb_enabled(uint8_t enabled);
+extern void isc_wb_set_bayer_pattern(uint8_t pattern)
+extern void isc_wb_adjust_bayer_color(
+			uint32_t rOffset, uint32_t grOffset, uint32_t bOffset, uint32_t gbOffset,
+			uint32_t rGain, uint32_t grGain, uint32_t bGain, uint32_t gbGain );
+{
 #endif //#ifndef ISC_H
 

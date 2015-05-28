@@ -240,13 +240,46 @@ uint32_t isc_interrupt_status(void)
 	return(ISC->ISC_INTSR);
 }
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+/*------------------------------------------
+ *         White Balance functions
+ *----------------------------------------*/
+/**
+ * \brief Enables/disable White Balance.
+ */
+void isc_wb_enabled(uint8_t enabled)
+{
+	if (enabled)
+		ISC->ISC_WB_CTRL = ISC_WB_CTRL_ENABLE;
+	else
+		ISC->ISC_WB_CTRL = 0;
+}
+
+/**
+ * \brief White Balance Bayer Configuration (Pixel Color Pattern).
+ */
+void isc_wb_set_bayer_pattern(uint8_t pattern)
+{
+	ISC->ISC_WB_CFG = pattern;
+}
+
+/**
+ * \brief adjust White Balance with color component.
+ * \param rOffset Offset Red Component (signed 13 bits 1:12:0)
+ * \param grOffset Offset Green Component for Red Row (signed 13 bits 1:12:0)
+ * \param bOffset Offset Blue Component (signed 13 bits, 1:12:0)
+ * \param gbOffset Offset Green Component for Blue Row (signed 13 bits, 1:12:0)
+ * \param rGain Red Component Gain (unsigned 13 bits, 0:4:9)
+ * \param grGain Green Component (Red row) Gain (unsigned 13 bits, 0:4:9)
+ * \param bGain Blue Component Gain (unsigned 13 bits, 0:4:9)
+ * \param gbGain Green Component (Blue row) Gain (unsigned 13 bits, 0:4:9)
+ */
+void isc_wb_adjust_bayer_color(
+				uint32_t rOffset, uint32_t grOffset, uint32_t bOffset, uint32_t gbOffset,
+				uint32_t rGain, uint32_t grGain, uint32_t bGain, uint32_t gbGain )
+{
+	ISC->ISC_WB_O_RGR = ISC_WB_O_RGR_ROFST(rOffset) | ISC_WB_O_RGR_GROFST(grOffset);
+	ISC->ISC_WB_O_BGB = ISC_WB_O_BGB_BOFST(bOffset) | ISC_WB_O_BGB_GBOFST(gbOffset);
+	ISC->ISC_WB_G_RGR = ISC_WB_G_RGR_RGAIN(rGain) | ISC_WB_G_RGR_GRGAIN(grGain);
+	ISC->ISC_WB_G_BGB = ISC_WB_G_BGB_BGAIN(bGain) | ISC_WB_G_BGB_GBGAIN(gbGain);
+}
