@@ -75,6 +75,59 @@ typedef struct _color_space_components{
 	uint16_t crOffset; /** Red Chrominance Offset (signed 11 bits 1:10:0)*/
 }sColorSpaceComponents;
 
+
+/** \brief Structure for ISC DMA descriptor view0 that can be
+ * performed when the pixel or data stream is packed.*/
+typedef struct _IscDmaDescriporView0 {
+	/** ISC DMA Control. */
+	uint32_t isc_dma_ctrl;
+	/** Next ISC DMA Descriptor Address number. */
+	uint32_t isc_dma_nda;
+	/** Transfer Address. */
+	uint32_t isc_dma_addr;
+	/** stride . */
+	uint32_t isc_dma_stride;
+} IscDmaDescView0;
+
+/** \brief Structure for ISC DMA descriptor view1 that can be
+ * performed for YCbCr semi-planar pixel stream.*/
+typedef struct _IscDmaDescriporView1 {
+	/** ISC DMA Control. */
+	uint32_t isc_dma_ctrl;
+	/** Next ISC DMA Descriptor Address number. */
+	uint32_t isc_dma_nda;
+	/** Transfer Address 0. */
+	uint32_t isc_dma_addr0;
+	/** stride 0 . */
+	uint32_t isc_dma_stride0;
+	/** Transfer Address 1. */
+	uint32_t isc_dma_addr1;
+	/** stride 1 . */
+	uint32_t isc_dma_stride1;
+
+} IscDmaDescView1;
+
+/** \brief Structure for ISC DMA descriptor view2 that can be
+ * performed for used for YCbCr planar pixel stream.*/
+typedef struct _IscDmaDescriporView2 {
+	/** ISC DMA Control. */
+	uint32_t isc_dma_ctrl;
+	/** Next ISC DMA Descriptor Address number. */
+	uint32_t isc_dma_nda;
+	/** Transfer Address 0. */
+	uint32_t isc_dma_addr0;
+	/** stride 0. */
+	uint32_t isc_dma_stride0;
+	/** Transfer Address 1. */
+	uint32_t isc_dma_addr1;
+	/** stride 1 . */
+	uint32_t isc_dma_stride1;
+	/** Transfer Address 2. */
+	uint32_t isc_dma_addr2;
+	/** stride 2. */
+	uint32_t isc_dma_stride2;
+} IscDmaDescView2;
+
 /*------------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
@@ -176,6 +229,12 @@ extern void isc_histogram_enabled(uint8_t enabled);
 extern void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset);
 extern void isc_update_histogram_table(void);
 extern void isc_clear_histogram_table(void);
+
+/*------------------------------------------
+ *         DMA functions
+ *----------------------------------------*/
+extern void isc_dma_configure_input_mode(uint32_t mode);
+extern void isc_dma_configure(uint32_t descEntry);
 
 #endif //#ifndef ISC_H
 

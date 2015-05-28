@@ -545,10 +545,25 @@ void isc_clear_histogram_table(void)
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISCLR;
 }
 
+/*------------------------------------------
+ *         DMA functions
+ *----------------------------------------*/
+/**
+ * \brief Configure ISC DMA input mode.
+ * \param mode Histogram Operating Mode.
+ */
+void isc_dma_configure_input_mode(uint32_t mode)
+{
+	ISC->ISC_DCFG = mode;
+}
 
-
-
-
-
+/**
+ * \brief Configure ISC DMA with giving entry.
+ * \param descEntry entry of DMA descriptor VIEW.
+ */
+void isc_dma_configure(uint32_t descEntry)
+{
+	ISC->ISC_DCTRL = descEntry;
+}
 
 
