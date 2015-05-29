@@ -68,7 +68,7 @@
  *         Headers
  */
 
-#include "core/pio.h"
+#include "resources/compiler_defines.h"
 
 #include <stdio.h>
 
@@ -170,7 +170,8 @@ void trace_configure(uint32_t baudrate);
 
 /* Trace compilation depends on TRACE_LEVEL value */
 #if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
-#define trace_debug(...)      { printf("-D- " __VA_ARGS__); }
+#define trace_debug(...)      { printf(__FILE__":"STRINGIFY(__LINE__)\
+				       " -D- " __VA_ARGS__); }
 #define trace_debug_wp(...)   { printf(__VA_ARGS__); }
 #else
 #define trace_debug(...)      { }
