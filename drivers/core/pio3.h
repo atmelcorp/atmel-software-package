@@ -64,6 +64,10 @@
  *     as an output using pio_get_output_date_status().
  */
 
+#ifndef _PIO_H
+#error "pio4.h cannot be included. pio.h should be used instead"
+#endif
+
 #ifndef _PIO3_H
 #define _PIO3_H
 

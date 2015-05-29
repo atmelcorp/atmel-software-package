@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _PIO_
-#define _PIO_
+#ifndef _PIO_H
+#define _PIO_H
 
 /*------------------------------------------------------------------------------
  *         Global Types
@@ -92,4 +92,4 @@ extern void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t));
 #ifdef __cplusplus
 }
 #endif
-#endif /* _PIO_ */
+#endif /* _PIO_H */
