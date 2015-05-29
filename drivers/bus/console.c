@@ -337,6 +337,34 @@ extern uint32_t console_get_hexa_32(uint32_t * pvalue)
 	return 1;
 }
 
+void console_clear_screen(void)
+{
+	printf("\033[2J\033[0;0f");
+}
+
+void console_reset_cursor(void)
+{
+	printf("\033[0;0f");
+}
+
+void console_echo(uint8_t c)
+{
+	switch (c) {
+	case '\r':
+	case '\n':
+		printf("\r\n");
+		break;
+	case 0x7F:
+		printf("\033[1D\033[K");
+		break;
+	case '\b':
+		printf("\033[1D\033[K");
+		break;
+	default:
+		console_put_char(c);
+	}
+}
+
 #if defined __ICCARM__  /* IAR Ewarm 5.41+ */
 /**
  * \brief Outputs a character on the DBGU.

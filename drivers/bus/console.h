@@ -67,4 +67,8 @@ extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					    uint32_t max);
 extern uint32_t console_get_hexa_32(uint32_t * pvalue);
 
+extern void console_echo(uint8_t c);
+extern void console_clear_screen(void);
+extern void console_reset_cursor(void);
+
 #endif	/* _CONSOLE_H_ */
