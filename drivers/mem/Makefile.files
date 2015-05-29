@@ -1,1 +1,2 @@
-DRIVER_OBJECTS += mem/smcNfc.o
+DRIVER_OBJECTS += mem/smcNfc.o \
+	       mem/at25df321.o
