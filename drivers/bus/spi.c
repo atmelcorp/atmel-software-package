@@ -79,6 +79,29 @@
 
 #include <assert.h>
 
+/*----------------------------------------------------------------------------
+ *        local functions
+ *----------------------------------------------------------------------------*/
+
+static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t periph_id)
+{
+	assert(bitrate>0);
+	return SPI_CSR_SCBR(
+		pmc_get_peripheral_clock(periph_id) / (bitrate*1000000));
+}
+
+static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t periph_id)
+{
+	return SPI_CSR_DLYBS(
+		pmc_get_peripheral_clock(periph_id) / (delay * 1000000u));
+}
+
+static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t periph_id)
+{
+	return SPI_CSR_DLYBCT(
+		pmc_get_peripheral_clock(periph_id) / (delay * 31250u));
+}
+
 #ifdef FIFO_ENABLED
 static inline void _clear_fifo_control_flags(uint32_t* control_reg)
 {
@@ -135,13 +158,14 @@ void spi_disable_it(Spi * spi, uint32_t dwSources)
 }
 
 /**
- * \brief Configures a SPI peripheral as specified. The configuration can be computed
+ * \brief Configures a SPI peripheral as specified. The configuration
+ * can be computed
  * using several macros (see \ref spi_configuration_macros).
  *
  * \param spi  Pointer to an Spi instance.
  * \param dwConfiguration  Value of the SPI configuration register.
  */
-void spi_configure(Spi * spi, uint32_t dwConfiguration)
+void spi_configure(Spi * spi, uint32_t configuration)
 {
 	uint32_t spi_id = get_spi_id_from_addr(spi);
 	assert(spi_id != ID_PERIPH_COUNT);
@@ -156,7 +180,7 @@ void spi_configure(Spi * spi, uint32_t dwConfiguration)
 	/* Execute a software reset of the SPI twice */
 	spi->SPI_CR = SPI_CR_SWRST;
 	spi->SPI_CR = SPI_CR_SWRST;
-	spi->SPI_MR = dwConfiguration;
+	spi->SPI_MR = configuration;
 }
 
 /**
@@ -193,16 +217,32 @@ void spi_release_cs(Spi * spi)
 }
 
 /**
- * \brief Configures a chip select of a SPI peripheral. The chip select configuration
- * is computed using several macros (see \ref spi_configuration_macros).
+ * \brief Configures a chip select of a SPI peripheral.
  *
- * \param spi   Pointer to an Spi instance.
- * \param dwNpcs  Chip select to configure (0, 1, 2 or 3).
- * \param dwConfiguration  Desired chip select configuration.
+ * \param spi Pointer to an Spi instance.
+ * \param cs Chip select to configure (0, 1, 2 or 3).
+ * \param bitrate
+ * \param delay_dlybs
+ * \param delay_dlybct
+ * \param spi_mode
+ * \param release_on_last
  */
-void spi_configure_npcs(Spi * spi, uint32_t dwNpcs, uint32_t dwConfiguration)
+void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
+		      uint32_t delay_dlybs, uint32_t delay_dlybct,
+		      uint32_t spi_mode, uint32_t release_on_last)
 {
-	spi->SPI_CSR[dwNpcs] = dwConfiguration;
+	uint32_t id = get_spi_id_from_addr(spi);
+	assert(id < ID_PERIPH_COUNT);
+
+	bitrate = _spi_compute_scbr(bitrate, id);
+	if (delay_dlybs)
+		delay_dlybs = _spi_compute_dlybs(delay_dlybs, id);
+	if (delay_dlybct)
+		delay_dlybct = _spi_compute_dlybct(delay_dlybct, id);
+	release_on_last = release_on_last ? SPI_CSR_CSAAT : 0;
+
+	spi->SPI_CSR[cs] = bitrate | delay_dlybs | delay_dlybct
+		| release_on_last | spi_mode;
 }
 
 /**
@@ -229,7 +269,7 @@ void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs, uint32_t bReleaseOnLast)
  * \param spi   Pointer to a Spi instance.
  * \return  SPI status register.
  */
-extern uint32_t spi_get_status(Spi * spi)
+uint32_t spi_get_status(Spi * spi)
 {
 	return spi->SPI_SR;
 }
@@ -242,7 +282,7 @@ extern uint32_t spi_get_status(Spi * spi)
  *
  * \return readed data.
  */
-extern uint32_t spi_read(Spi * spi)
+uint32_t spi_read(Spi * spi)
 {
 	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
 
@@ -258,11 +298,11 @@ extern uint32_t spi_read(Spi * spi)
  * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
  * \param wData  Word of data to send.
  */
-void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 {
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
-	spi->SPI_TDR = wData | SPI_PCS(dwNpcs);
+	spi->SPI_TDR = data | SPI_PCS(cs);
 	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
 }
 
@@ -275,11 +315,11 @@ void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData)
  * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
  * \param wData  Word of data to send.
  */
-void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
+void spi_write_last(Spi * spi, uint32_t cs, uint16_t data)
 {
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
-	spi->SPI_TDR = wData | SPI_PCS(dwNpcs) | SPI_TDR_LASTXFER;
+	spi->SPI_TDR = data | SPI_PCS(cs) | SPI_TDR_LASTXFER;
 	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
 }
 
@@ -291,7 +331,7 @@ void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData)
  * \return Returns 1 if there is no pending write operation on the SPI; otherwise
  * returns 0.
  */
-extern uint32_t spi_is_finished(Spi * spi)
+uint32_t spi_is_finished(Spi * spi)
 {
 	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
 }
