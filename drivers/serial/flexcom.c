@@ -57,7 +57,7 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 	uint32_t current_protocol = flexcom->FLEX_MR;
 
 	usart_set_receiver_enabled(&flexcom->usart, 0u);
-	
+
 	/* Shutdown previous protocol */
 	switch (current_protocol) {
 	case FLEX_MR_OPMODE_USART:

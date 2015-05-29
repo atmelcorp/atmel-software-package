@@ -134,7 +134,3 @@ uint8_t uart_get_char(Uart* pUart)
 	while ((pUart->UART_SR & UART_SR_RXRDY) == 0);
 	return pUart->UART_RHR;
 }
-
-
-
-
