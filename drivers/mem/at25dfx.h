@@ -27,29 +27,48 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _AT25DF321_HEADER_
-#define _AT25DF321_HEADER_
+#ifndef _AT25_HEADER_
+#define _AT25_HEADER_
 
 #include <stdint.h>
 
-#define AT25DF321_DEVICE_BSY               (0x1 << 0)
-#define AT25DF321_WRITE_ENABLED            (0x1 << 1)
-#define AT25DF321_WRITE_PROT_PIN_STATUS    (0x1 << 4)
-#define AT25DF321_ERASE_PRG_ERROR          (0x1 << 5)
-#define AT25DF321_SECTOR_PROT_LOCKED       (0x1 << 7)
-#define AT25DF321_SOFT_PROT_STATUS_MSK     (0x3 << 2)
+#define AT25_SUCCESS                  (0u)
+#define AT25_DEVICE_BSY               (0x1 << 0)
+#define AT25_WRITE_ENABLED            (0x1 << 1)
+#define AT25_WRITE_PROT_PIN_STATUS    (0x1 << 4)
+#define AT25_ERASE_PRG_ERROR          (0x1 << 5)
+#define AT25_SECTOR_PROT_LOCKED       (0x1 << 7)
+#define AT25_SOFT_PROT_STATUS_MSK     (0x3 << 2)
+#define AT25_SOFT_ALL_PROTECTED       (AT25_SOFT_PROT_STATUS_MSK)
+#define AT25_SOFT_SOME_PROTECTED      (AT25_SOFT_PROT_STATUS_MSK & (0x01))
+#define AT25_WRITE_ERROR              ~AT25_WRITE_ENABLED
 
-extern void at25df321_open(void);
-extern void at25df321_print_device_info(void);
-extern uint32_t at25df321_get_status(void);
-extern void at25df321_read_stream(uint32_t start_addr,
+#define AT25DFX_BLOCK_4K  (1)
+#define AT25DFX_BLOCK_32K (2)
+#define AT25DFX_BLOCK_64K (3)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern void at25_open(void);
+extern void at25_print_device_info(void);
+extern uint32_t at25_get_status(void);
+extern uint32_t at25_read_stream(uint32_t start_addr,
 				  uint8_t* data, uint32_t length);
-extern void at25df321_read_stream_low_speed(uint32_t start_addr,
+extern uint32_t at25_read_stream_low_speed(uint32_t start_addr,
 					    uint8_t* data, uint32_t length);
-extern void at25df321_unlock_sectors(void);
-extern void at25df321_write_stream(uint32_t start_addr,
+extern uint32_t at25_unlock_sectors(void);
+extern uint32_t at25_write_stream(uint32_t start_addr,
 				  const uint8_t* data, uint32_t length);
-extern unsigned char at25df321_is_protected(uint32_t addr);
-extern void at25df321_close(void);
+extern uint32_t at25_erase_block(uint32_t start_addr, uint32_t end_addr);
+extern uint32_t at25_erase_chip(void);
+extern unsigned char at25_is_protected(uint32_t addr);
+extern uint32_t at25_check_status(uint32_t mask);
+extern void at25_close(void);
 
-#endif /* _AT25DF321_HEADER_ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _AT25_HEADER_ */

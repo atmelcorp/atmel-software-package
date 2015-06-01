@@ -39,14 +39,14 @@
 
 #include "bus/console.h"
 
-#include "mem/at25df321.h"
+#include "mem/at25dfx.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define CMD_BUFFER_SIZE  128
-#define READ_BUFFER_SIZE  128
+#define READ_BUFFER_SIZE  256
 
 static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -96,7 +96,7 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	char* end_length = NULL;
 	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
-		printf("Args: %s"
+		printf("Args: %s\r\n"
 		       "Invalid address\r\n",
 		       buffer);
 		return;
@@ -104,21 +104,21 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	int length = strtol(end_addr, &end_length, 0);
 	if (end_length == end_addr) {
-		printf("Args: %s"
+		printf("Args: %s\r\n"
 		       "Invalid size\r\n",
 			buffer);
 		return;
 	}
 	int offset = 0;
 	while (length > READ_BUFFER_SIZE) {
-		at25df321_read_stream(addr+offset, read_buffer,
+		at25_read_stream(addr+offset, read_buffer,
 				      READ_BUFFER_SIZE);
 		offset += READ_BUFFER_SIZE;
 		length -= READ_BUFFER_SIZE;
 		console_dump_frame(read_buffer, READ_BUFFER_SIZE);
 
 	}
-	at25df321_read_stream(addr+offset, read_buffer,
+	at25_read_stream(addr+offset, read_buffer,
 			length);
 	console_dump_frame(read_buffer, length);
 }
@@ -128,24 +128,87 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 	char* end_addr = NULL;
 	unsigned int addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
-		printf("Args: %s"
+		printf("Args: %s\r\n"
 		       "Invalid address\r\n",
 			buffer);
 		return;
 	}
 
-	at25df321_write_stream(addr, (uint8_t*)end_addr, len);
+	len -= (end_addr+1) - (char*)buffer;
+
+	at25_write_stream(addr, (uint8_t*)end_addr+1, len);
 }
 
 static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	const char *dev_lbl = "device";
 	const char *status_lbl = "status";
+	uint32_t status = 0;
 	if (!strncmp((char*)buffer, dev_lbl, 6)) {
-		at25df321_print_device_info();
+		at25_print_device_info();
 	} else if (!strncmp((char*)buffer, status_lbl, 6)) {
-		at25df321_get_status();
+		status = at25_get_status();
+		printf("AT25 chip status:\r\n"
+		       "\t- Busy: %s\r\n"
+		       "\t- Write Enabled: %s\r\n"
+		       "\t- Software protection: %s\r\n"
+		       "\t- Write protect pin: %s\r\n"
+		       "\t- Erase/Program error: %s\r\n"
+		       "\t- Sector Protection Resgister: %s\r\n"
+		       "\t- Raw register value: 0x%X\r\n",
+		       status & AT25_DEVICE_BSY ? "yes":"no",
+		       status & AT25_WRITE_ENABLED ? "yes":"no",
+		       status & AT25_SOFT_PROT_STATUS_MSK ? "Some/all":"none",
+		       status & AT25_WRITE_PROT_PIN_STATUS ? "inactive":"active",
+		       status & AT25_ERASE_PRG_ERROR ? "yes":"no",
+		       status & AT25_SECTOR_PROT_LOCKED ? "locked":"unlocked",
+		       (unsigned int)status);
 	}
+}
+
+static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	char* end_addr = NULL;
+	char* erase_type_str = NULL;
+	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
+	if (end_addr == (char*)buffer) {
+		if (!strncmp((char*)buffer, "all", 3)) {
+			at25_erase_chip();
+		} else {
+			printf("Args: %s\r\n"
+			       "Invalid address\r\n",
+			       buffer);
+		}
+		return;
+	}
+
+	uint32_t erase_type = AT25DFX_BLOCK_4K;
+
+	erase_type_str = end_addr + 1;
+	switch(*erase_type_str) {
+	case '4':
+		if (*(erase_type_str+1) == 'k' || *(erase_type_str+1) == 'K') {
+			erase_type = AT25DFX_BLOCK_4K;
+		}
+		break;
+	case '3':
+		if (*(erase_type_str+1) == '2' &&
+		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
+			erase_type = AT25DFX_BLOCK_32K;
+		}
+		break;
+	case '6':
+		if (*(erase_type_str+1) == '4' &&
+		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
+			erase_type = AT25DFX_BLOCK_64K;
+		}
+		break;
+	default:
+		printf("Args: %s\r\n"
+		       "Invalid Erase type\r\n",
+		       buffer);
+	}
+	at25_erase_block(addr, erase_type);
 }
 
 static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
@@ -165,6 +228,9 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 		break;
 	case 'a':
 		_flash_query_arg_parser(buffer+2, len-2);
+		break;
+	case 'd':
+		_flash_delete_arg_parser(buffer+2, len-2);
 		break;
 	default:
 		printf("Command %c unknown\r\n", *buffer);
@@ -205,8 +271,8 @@ int main (void)
 	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
 
 	/* Open serial flash device */
-	at25df321_open();
-	/* at25df321_unlock_sectors(); */
+	at25_open();
+	at25_unlock_sectors();
 
 	while (1);
 }
