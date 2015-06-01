@@ -59,7 +59,11 @@ LINKER_SCRIPT_DDRAM = "$(RESOURCEDIR)/$(TARGET)_ddram.ld"
 endif
 
 ifndef IAR_LINKER_SCRIPT
-IAR_LINKER_SCRIPT = $(IAR_RESOURCEDIR)/$(SERIENAME).icf
+IAR_LINKER_SCRIPT = $(IAR_RESOURCEDIR)/$(VARIANT).icf
+endif
+
+ifndef IAR_DEBUG_SCRIPT
+IAR_DEBUG_SCRIPT = $(IAR_RESOURCEDIR)/$(VARIANT).mac
 endif
 
 #-------------------------------------------------------------------------------
@@ -156,7 +160,7 @@ deps.d: $(OBJECTS:.o=.c)
 		sed -e 's/^ *//' -e 's/$$/:/' >> $@
 	@rm -f $@.tmp
 
-.PHONY: $(BINNAME).eww $(BINNAME).ewp
+.PHONY: $(BINNAME).eww $(BINNAME).ewp $(BINNAME).ewd
 
 $(BINNAME).ewp: deps.d
 	@bash $(ROOTDIR)/scripts/iar_gen_project.sh $(ROOTDIR) $(realpath $<) $(realpath $(ROOTDIR)/scripts/iar_project.template) $(IAR_LINKER_SCRIPT) $(BINNAME).out $(SERIENAME) $(CHIP) $(BOARD) $(SERIE) $(PIO_API) SOFTPACK_VERSION=$(SOFTPACK_VERSION) > $@
@@ -164,5 +168,8 @@ $(BINNAME).ewp: deps.d
 $(BINNAME).eww:
 	@bash $(ROOTDIR)/scripts/iar_gen_workspace.sh $(ROOTDIR)/scripts/iar_workspace.template $(BINNAME) > $@
 
-iar_project: $(BINNAME).ewp $(BINNAME).eww
+$(BINNAME).ewd:
+	@bash $(ROOTDIR)/scripts/iar_gen_debug.sh $(ROOTDIR)/scripts/iar_debug.template $(IAR_DEBUG_SCRIPT) > $@
+
+iar_project: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
 
