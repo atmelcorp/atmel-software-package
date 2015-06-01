@@ -121,14 +121,12 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-#define PIO_CFG_PB  (PIO_PULLUP)
+#define PIO_CFG_PB  (PIO_PULLDOWN)
 
-#define PIN_PUSHBUTTON_1 { PIO_PC10, PIO_ADD, PIO_GROUP_C, PIO_INPUT, PIO_CFG_PB }
-
-#define PIN_PUSHBUTTON_2 { PIO_PC11, PIO_ADD, PIO_GROUP_C, PIO_INPUT, PIO_CFG_PB }
+#define PIN_PUSHBUTTON_1 { PIO_PB6, PIO_ADD, PIO_GROUP_B, PIO_INPUT, PIO_CFG_PB }
 
 /** List of all push button definitions. */
-#define PINS_PUSHBUTTONS    {PIN_PUSHBUTTON_1, PIN_PUSHBUTTON_2}
+#define PINS_PUSHBUTTONS    {PIN_PUSHBUTTON_1}
 
 /** Push button index. */
 #define PUSHBUTTON_BP1   0
@@ -148,6 +146,10 @@
 #define PIN_ACT8945A_LBO {\
 	{ PIO_PB13, PIOA, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
+
+/* ================== PIN Serial Flash definition ============== */
+
+#define PINS_SERIAL_FLASH PINS_SPI0_NPCS0_IOS1
 
 /* ================== PIN USB definition ======================= */
 
@@ -204,14 +206,23 @@
 	{ PIO_PA30, PIO_ADD, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
 
+/* =================== AT25x device definitions ================== */
+
+#define AT25_ID ID_SPI0
+#define AT25_ADDR SPI0
+
+#define AT25_FREQ 40
+#define AT25_LOW_FREQ 20
+
+#define AT25_DLYBS 100
+#define AT25_DLYCT 100
+
+#define AT25_SPI_MODE SPI_CSR_NCPHA
 
 #define swap(a, b) { uint16_t t = a; a = b; b = t; }
-
 
 /*----------------------------------------------------------------------------
  *        Headers for board
  *----------------------------------------------------------------------------*/
-
-
 
 #endif /* #ifndef _BOARD_D2_H */
