@@ -71,6 +71,9 @@ tmpdepxml=$(mktemp)
 # Everything fine, let's compute project dependencies (needed *.c files).
 cat $DEP_FILE |grep "\(drivers\|target\|utils\).*:\$" |sed -e "s/\.h/\.c/g" |sed -e "s%\(.*\)\(drivers.*\|utils.*\|target.*\)\:\$%\2%g" |xargs -I \{\} bash -c 'if [ -e {} ]; then echo {};fi' > $tmpdepfiles
 
+echo -e "drivers/core/cortexa5_interrupts.c\n" >> $tmpdepfiles
+echo -e "drivers/serial/uart.c\n" >> $tmpdepfiles
+
 # Generate the xml tree (source dependencies)
 (
     echo -e "<group>\n  <name>drivers</name>"
@@ -97,7 +100,7 @@ cat $DEP_FILE |grep "\(drivers\|target\|utils\).*:\$" |sed -e "s/\.h/\.c/g" |sed
 	    echo -e "    <group>"
 	    echo "      <name>$(basename $var)</name>"
 	    grep $tmpdepfiles -e "$var" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
-	    find $var -name "*.s" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
+	    find $var -name "*.s" | grep -e "$SERIENAME" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
 	    echo "    </group>"
 
 	fi
