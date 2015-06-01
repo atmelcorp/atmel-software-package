@@ -92,14 +92,18 @@ static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t periph_id)
 
 static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t periph_id)
 {
-	return SPI_CSR_DLYBS(
-		pmc_get_peripheral_clock(periph_id) / (delay * 1000000u));
+	uint32_t dlybs =
+		pmc_get_peripheral_clock(periph_id) / (delay * 1000000000u);
+	dlybs = dlybs > 0 ? dlybs : 1;
+	return SPI_CSR_DLYBS(dlybs);
 }
 
 static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t periph_id)
 {
-	return SPI_CSR_DLYBCT(
-		pmc_get_peripheral_clock(periph_id) / (delay * 31250u));
+	uint32_t dlybct =
+		pmc_get_peripheral_clock(periph_id) / (delay * 31250000u);
+	dlybct = dlybct > 0 ? dlybct : 1;
+	return SPI_CSR_DLYBCT(dlybct);
 }
 
 #ifdef FIFO_ENABLED
@@ -235,10 +239,8 @@ void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
 	assert(id < ID_PERIPH_COUNT);
 
 	bitrate = _spi_compute_scbr(bitrate, id);
-	if (delay_dlybs)
-		delay_dlybs = _spi_compute_dlybs(delay_dlybs, id);
-	if (delay_dlybct)
-		delay_dlybct = _spi_compute_dlybct(delay_dlybct, id);
+	delay_dlybs = _spi_compute_dlybs(delay_dlybs, id);
+	delay_dlybct = _spi_compute_dlybct(delay_dlybct, id);
 	release_on_last = release_on_last ? SPI_CSR_CSAAT : 0;
 
 	spi->SPI_CSR[cs] = bitrate | delay_dlybs | delay_dlybct
