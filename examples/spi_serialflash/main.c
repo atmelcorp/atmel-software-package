@@ -111,14 +111,14 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	int offset = 0;
 	while (length > READ_BUFFER_SIZE) {
-		at25_read_stream(addr+offset, read_buffer,
+		at25dfx_read_stream(addr+offset, read_buffer,
 				      READ_BUFFER_SIZE);
 		offset += READ_BUFFER_SIZE;
 		length -= READ_BUFFER_SIZE;
 		console_dump_frame(read_buffer, READ_BUFFER_SIZE);
 
 	}
-	at25_read_stream(addr+offset, read_buffer,
+	at25dfx_read_stream(addr+offset, read_buffer,
 			length);
 	console_dump_frame(read_buffer, length);
 }
@@ -136,7 +136,7 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	len -= (end_addr+1) - (char*)buffer;
 
-	at25_write_stream(addr, (uint8_t*)end_addr+1, len);
+	at25dfx_write_stream(addr, (uint8_t*)end_addr+1, len);
 }
 
 static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -145,9 +145,9 @@ static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	const char *status_lbl = "status";
 	uint32_t status = 0;
 	if (!strncmp((char*)buffer, dev_lbl, 6)) {
-		at25_print_device_info();
+		at25dfx_print_device_info();
 	} else if (!strncmp((char*)buffer, status_lbl, 6)) {
-		status = at25_get_status();
+		status = at25dfx_get_status();
 		printf("AT25 chip status:\r\n"
 		       "\t- Busy: %s\r\n"
 		       "\t- Write Enabled: %s\r\n"
@@ -156,12 +156,12 @@ static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 		       "\t- Erase/Program error: %s\r\n"
 		       "\t- Sector Protection Resgister: %s\r\n"
 		       "\t- Raw register value: 0x%X\r\n",
-		       status & AT25_DEVICE_BSY ? "yes":"no",
-		       status & AT25_WRITE_ENABLED ? "yes":"no",
-		       status & AT25_SOFT_PROT_STATUS_MSK ? "Some/all":"none",
-		       status & AT25_WRITE_PROT_PIN_STATUS ? "inactive":"active",
-		       status & AT25_ERASE_PRG_ERROR ? "yes":"no",
-		       status & AT25_SECTOR_PROT_LOCKED ? "locked":"unlocked",
+		       status & AT25DFX_DEVICE_BSY ? "yes":"no",
+		       status & AT25DFX_WRITE_ENABLED ? "yes":"no",
+		       status & AT25DFX_SOFT_PROT_STATUS_MSK ? "Some/all":"none",
+		       status & AT25DFX_WRITE_PROT_PIN_STATUS ? "inactive":"active",
+		       status & AT25DFX_ERASE_PRG_ERROR ? "yes":"no",
+		       status & AT25DFX_SECTOR_PROT_LOCKED ? "locked":"unlocked",
 		       (unsigned int)status);
 	}
 }
@@ -173,7 +173,7 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
 		if (!strncmp((char*)buffer, "all", 3)) {
-			at25_erase_chip();
+			at25dfx_erase_chip();
 		} else {
 			printf("Args: %s\r\n"
 			       "Invalid address\r\n",
@@ -207,8 +207,9 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		printf("Args: %s\r\n"
 		       "Invalid Erase type\r\n",
 		       buffer);
+		return;
 	}
-	at25_erase_block(addr, erase_type);
+	at25dfx_erase_block(addr, erase_type);
 }
 
 static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
@@ -271,8 +272,8 @@ int main (void)
 	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
 
 	/* Open serial flash device */
-	at25_open();
-	at25_unlock_sectors();
+	at25dfx_open();
+	at25dfx_unlock_sectors();
 
 	while (1);
 }

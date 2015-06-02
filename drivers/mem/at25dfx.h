@@ -27,21 +27,21 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _AT25_HEADER_
-#define _AT25_HEADER_
+#ifndef _AT25DFX_HEADER_
+#define _AT25DFX_HEADER_
 
 #include <stdint.h>
 
-#define AT25_SUCCESS                  (0u)
-#define AT25_DEVICE_BSY               (0x1 << 0)
-#define AT25_WRITE_ENABLED            (0x1 << 1)
-#define AT25_WRITE_PROT_PIN_STATUS    (0x1 << 4)
-#define AT25_ERASE_PRG_ERROR          (0x1 << 5)
-#define AT25_SECTOR_PROT_LOCKED       (0x1 << 7)
-#define AT25_SOFT_PROT_STATUS_MSK     (0x3 << 2)
-#define AT25_SOFT_ALL_PROTECTED       (AT25_SOFT_PROT_STATUS_MSK)
-#define AT25_SOFT_SOME_PROTECTED      (AT25_SOFT_PROT_STATUS_MSK & (0x01))
-#define AT25_WRITE_ERROR              ~AT25_WRITE_ENABLED
+#define AT25DFX_SUCCESS                  (0u)
+#define AT25DFX_DEVICE_BSY               (0x1 << 0)
+#define AT25DFX_WRITE_ENABLED            (0x1 << 1)
+#define AT25DFX_WRITE_PROT_PIN_STATUS    (0x1 << 4)
+#define AT25DFX_ERASE_PRG_ERROR          (0x1 << 5)
+#define AT25DFX_SECTOR_PROT_LOCKED       (0x1 << 7)
+#define AT25DFX_SOFT_PROT_STATUS_MSK     (0x3 << 2)
+#define AT25DFX_SOFT_ALL_PROTECTED       (AT25DFX_SOFT_PROT_STATUS_MSK)
+#define AT25DFX_SOFT_SOME_PROTECTED      (AT25DFX_SOFT_PROT_STATUS_MSK & (0x01))
+#define AT25DFX_WRITE_ERROR              ~AT25DFX_WRITE_ENABLED
 
 #define AT25DFX_BLOCK_4K  (1)
 #define AT25DFX_BLOCK_32K (2)
@@ -51,24 +51,24 @@
 extern "C" {
 #endif
 
-extern void at25_open(void);
-extern void at25_print_device_info(void);
-extern uint32_t at25_get_status(void);
-extern uint32_t at25_read_stream(uint32_t start_addr,
+extern void at25dfx_open(void);
+extern void at25dfx_print_device_info(void);
+extern uint32_t at25dfx_get_status(void);
+extern uint32_t at25dfx_read_stream(uint32_t start_addr,
 				  uint8_t* data, uint32_t length);
-extern uint32_t at25_read_stream_low_speed(uint32_t start_addr,
+extern uint32_t at25dfx_read_stream_low_speed(uint32_t start_addr,
 					    uint8_t* data, uint32_t length);
-extern uint32_t at25_unlock_sectors(void);
-extern uint32_t at25_write_stream(uint32_t start_addr,
+extern uint32_t at25dfx_unlock_sectors(void);
+extern uint32_t at25dfx_write_stream(uint32_t start_addr,
 				  const uint8_t* data, uint32_t length);
-extern uint32_t at25_erase_block(uint32_t start_addr, uint32_t end_addr);
-extern uint32_t at25_erase_chip(void);
-extern unsigned char at25_is_protected(uint32_t addr);
-extern uint32_t at25_check_status(uint32_t mask);
-extern void at25_close(void);
+extern uint32_t at25dfx_erase_block(uint32_t start_addr, uint32_t end_addr);
+extern uint32_t at25dfx_erase_chip(void);
+extern unsigned char at25dfx_is_protected(uint32_t addr);
+extern uint32_t at25dfx_check_status(uint32_t mask);
+extern void at25dfx_close(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AT25_HEADER_ */
+#endif /* _AT25DFX_HEADER_ */

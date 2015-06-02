@@ -208,16 +208,16 @@
 
 /* =================== AT25x device definitions ================== */
 
-#define AT25_ID ID_SPI0
-#define AT25_ADDR SPI0
+#define AT25DFX_ID ID_SPI0
+#define AT25DFX_ADDR SPI0
 
-#define AT25_FREQ 40
-#define AT25_LOW_FREQ 20
+#define AT25DFX_FREQ 40
+#define AT25DFX_LOW_FREQ 20
 
-#define AT25_DLYBS 100
-#define AT25_DLYCT 100
+#define AT25DFX_DLYBS 100
+#define AT25DFX_DLYCT 100
 
-#define AT25_SPI_MODE SPI_CSR_NCPHA
+#define AT25DFX_SPI_MODE SPI_CSR_NCPHA
 
 #define swap(a, b) { uint16_t t = a; a = b; b = t; }
 
