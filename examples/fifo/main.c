@@ -37,7 +37,6 @@
 #include "core/pmc.h"
 #include "core/aic.h"
 #include "core/pio.h"
-#include "core/pio_it.h"
 
 Flexcom* flexcom = FLEXCOM3;
 static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
