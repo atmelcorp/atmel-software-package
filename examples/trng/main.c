@@ -105,7 +105,7 @@
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-void TRNG_IrqHandler(void)
+static void trng_handler(void)
 {
 	if (TRNG_GetStatus() == TRNG_ISR_DATRDY) {
 		TRNG_DisableIt();
@@ -144,6 +144,7 @@ int main(void)
 	/* Enable TRNG peripheral clock */
 	pmc_enable_peripheral(ID_TRNG);
 
+	aic_set_source_vector(ID_TRNG, trng_handler);
 	aic_enable(ID_TRNG);
 	TRNG_EnableIt();
 	TRNG_Enable(0x524e47);
