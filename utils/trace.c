@@ -35,8 +35,8 @@
 
 #include "board.h"
 #include "trace.h"
-#include "bus/console.h"
-#include "core/pio.h"
+#include "misc/console.h"
+#include "peripherals/pio.h"
 
 /*------------------------------------------------------------------------------
  *         Internal variables

@@ -1,133 +1,179 @@
 #!/bin/bash
 
-ROOTDIR=$1
-DEP_FILE=$2
-TEMPLATE_FILE=$3
-LINKER_SCRIPT=$4
-BINARY_NAME=$5
-SERIENAME=$6
+SECTION=$1
+TEMPLATE_FILE=$2
+LINKER_SCRIPT=$3
+BINARY_NAME=$3
+SERIENAME=$3
 
-# Check script arguments
-if [ -z $ROOTDIR ]
+if [ -z $SECTION ]
 then
-    echo ROOTDIR is not defined 1>&2
+    echo SECTION not defined! 1>&2
     exit 1
-fi
-
-if [ ! -d $ROOTDIR ]
-then
-    echo $ROOTDIR is not a directory 1>&2
-    exit 1
-fi
-
-# Other params depends on current directory so we cd to $ROOTDIR before testing them
-cd $ROOTDIR
-
-if [ -z $DEP_FILE ]
-then
-    echo DEP_FILE not defined! 1>&2
-    exit 2
-fi
-
-if [ ! -f $DEP_FILE ]
-then
-    echo $DEP_FILE not a regular file 1>&2
-    exit 2
 fi
 
 if [ -z $TEMPLATE_FILE ]
 then
     echo TEMPLATE_FILE not defined! 1>&2
-    exit 3
+    exit 2
 fi
 
 if [ ! -f $TEMPLATE_FILE ]
 then
     echo $TEMPLATE_FILE not a regular file 1>&2
-    exit 3
+    exit 2
 fi
 
-if [ -z $LINKER_SCRIPT ]
-then
-    echo LINKER_SCRIPT not defined 1>&2
-    exit 4
-fi
+function _to_win_path() {
+    local str=${1//\/\//\/}
+    echo ${str//\//\\\\}
+}
 
-if [ -z $BINARY_NAME ]
-then
-    echo BINARY_NAME not defined 1>&2
-    exit 5
-fi
+function _insert_deps() {
+    local section=$1
+    local input=()
+    local tmpxml=$(mktemp)
 
-if [ -z $SERIENAME ]
-then
-    echo SERIENAME not defined 1>&2
-    exit 5
-fi
-
-tmpdepfiles=$(mktemp)
-tmpdepxml=$(mktemp)
-
-# Everything fine, let's compute project dependencies (needed *.c files).
-cat $DEP_FILE |grep "\(drivers\|target\|utils\).*:\$" |sed -e "s/\.h/\.c/g" |sed -e "s%\(.*\)\(drivers.*\|utils.*\|target.*\)\:\$%\2%g" |xargs -I \{\} bash -c 'if [ -e {} ]; then echo {};fi' > $tmpdepfiles
-
-echo -e "drivers/core/cortexa5_interrupts.c\n" >> $tmpdepfiles
-echo -e "drivers/serial/uart.c\n" >> $tmpdepfiles
-
-# Generate the xml tree (source dependencies)
-(
-    echo -e "<group>\n  <name>drivers</name>"
-
-    for var in drivers/*
+    while read -r line
     do
-	if [ -d $var ];then
-
-	    echo -e "    <group>"
-	    echo "      <name>$(basename $var)</name>"
-	    grep $tmpdepfiles -e "$var" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
-	    find $var -name "*.s" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
-	    echo "    </group>"
-	fi
+	input+=($line)
     done
 
-    echo "</group>"
+    (
+	echo -e "    <group>\n      <name>$section</name>"
 
-    echo -e "<group>\n  <name>target/</name>"
+	for path in ${input[@]}
+	do
+	    path=${path//.o/.c}
+	    path=${path//_gcc.c/_iar.s}
 
-    for var in target/*
+	    if [ ! -f $path ]
+	    then
+		echo File $path do not exists! 1>&2
+		rm -f $tmpxml 2>&1 > /dev/null
+		exit 3
+	    fi
+
+	    local win_path=$(_to_win_path $path)
+	    echo -e "      <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
+	done
+	echo -e "    </group>\n"
+    ) > $tmpxml
+
+    sed -e "/__REPLACE_DEP_LIST__/r $tmpxml" < $TEMPLATE_FILE
+
+    rm -f $tmpxml 2>&1 > /dev/null
+}
+
+function _insert_defines() {
+    local input=()
+    local tmpxml=$(mktemp)
+
+    while read -r line
     do
-	if [ -d $var ];then
-	    echo -e "    <group>"
-	    echo "      <name>$(basename $var)</name>"
-	    grep $tmpdepfiles -e "$var" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
-	    find $var -name "*.s" | grep -e "$SERIENAME" |sed -e "s|\(.*\)|      <file><name>\$PROJ_DIR\$/../../\1</name></file>|g"
-	    echo "    </group>"
-
-	fi
+	input+=($line)
     done
 
-    echo "</group>"
-    echo "<file>"
-    echo "  <name>\$PROJ_DIR\$/main.c</name>"
-    echo "</file>"
-) > $tmpdepxml
+    (
+	for define in ${input[@]}
+	do
+	    echo -e "	  <state>$define</state>"
+	done
 
-# Left parameters are needed defines to build. Let's make corresponding xml tree
-argv=("$@")
-for ((i=6;i<$#;i++))
-do
-    project_defines=$project_defines"<state>${argv[$i]}</state>\n"
-done
+    ) > $tmpxml
 
-# Populate the template and send it to stdout
-sed -e "/__REPLACE_DEP_LIST__/r $tmpdepxml" < $TEMPLATE_FILE |
-    sed -e "s/__REPLACE_DEP_LIST__//g" |
-    sed -e "s%__REPLACE_LINK_SCRIPT__%\$PROJ_DIR\$/$LINKER_SCRIPT%g" |
-    sed -e "s/__REPLACE_BIN_NAME__/$BINARY_NAME/g" |
-    sed -e "s%__REPLACE_DEFINES__%$project_defines%g" |
-    sed -e "s/__REPLACE_CHIP_SERIE__/$SERIENAME/g" |
-    sed -e "s%//%/%g"
+    sed -e "/__REPLACE_DEFINES__/r $tmpxml" < $TEMPLATE_FILE |
+	sed -e "s/__REPLACE_DEFINES__//g"
 
-# No need of temp files any more
-rm -f $tmpdepxml 2>&1 > /dev/null
-rm -f $tmpdepfiles 2>&1 > /dev/null
+    rm -f $tmpxml 2>&1 > /dev/null
+}
+
+function _insert_chip_serie_name() {
+    sed -e "s/__REPLACE_CHIP_SERIE__/$SERIENAME/g" < $TEMPLATE_FILE
+}
+
+function _insert_linker_script() {
+    local linker_script=$1
+
+    if [ ! -f $linker_script ]
+    then
+	echo File $linker_script do not exists! 1>&2
+	exit 3
+    fi
+
+    local win_path=$(_to_win_path $linker_script)
+
+    sed -e "s%__REPLACE_LINK_SCRIPT__%\$PROJ_DIR\$\\\\$win_path%g" < $TEMPLATE_FILE
+}
+
+function _insert_bin_name() {
+    local binary_name=$1
+
+    if [ -z $binary_name ]
+    then
+	echo binary_name not defined! 1>&2
+	exit 3
+    fi
+
+    sed -e "s/__REPLACE_BIN_NAME__/$binary_name/g" < $TEMPLATE_FILE
+}
+
+function _insert_project_files() {
+    local input=()
+    local tmpxml=$(mktemp)
+
+    while read -r line
+    do
+	input+=($line)
+    done
+
+    (
+	for path in ${input[@]}
+	do
+	    path=${path//.o/.c}
+	    path=${path//_gcc.c/_iar.s}
+
+	    if [ ! -f $path ]
+	    then
+		echo File $path do not exists! 1>&2
+		rm -f $tmpxml 2>&1 > /dev/null
+		exit 3
+	    fi
+
+	    local win_path=$(_to_win_path $path)
+	    echo -e "    <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
+	done
+    ) > $tmpxml
+
+    sed -e "/__REPLACE_PROJECT_FILES__/r $tmpxml" < $TEMPLATE_FILE
+
+    rm -f $tmpxml 2>&1 > /dev/null
+}
+
+function _finalize() {
+    sed -e "s/__REPLACE_DEP_LIST__//g" < $TEMPLATE_FILE
+}
+
+case $SECTION in
+    "drivers" | "target" | "utils")
+	_insert_deps $SECTION
+	;;
+    "definitions")
+	_insert_defines
+	;;
+    "binary")
+	_insert_bin_name $3
+	;;
+    "linker")
+	_insert_linker_script $3
+	;;
+    "chip_serie")
+	_insert_chip_serie_name $3
+	;;
+    "files")
+	_insert_project_files
+	;;
+    "finalize")
+	_finalize
+	;;
+esac

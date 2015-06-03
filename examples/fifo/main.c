@@ -31,12 +31,12 @@
 
 #include "chip.h"
 
-#include "serial/flexcom.h"
-#include "serial/usart.h"
-#include "core/wdt.h"
-#include "core/pmc.h"
-#include "core/aic.h"
-#include "core/pio.h"
+#include "peripherals/flexcom.h"
+#include "peripherals/usart.h"
+#include "peripherals/wdt.h"
+#include "peripherals/pmc.h"
+#include "peripherals/aic.h"
+#include "peripherals/pio.h"
 
 Flexcom* flexcom = FLEXCOM3;
 static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;

@@ -93,12 +93,12 @@
 #include <board.h>
 #include <string.h>
 
-#include "core/wdt.h"
-#include "core/aic.h"
+#include "peripherals/wdt.h"
+#include "peripherals/aic.h"
 
-#include "bus/console.h"
-#include "bus/xdmad.h"
-#include "bus/xdmac.h"
+#include "misc/console.h"
+#include "peripherals/xdmad.h"
+#include "peripherals/xdmac.h"
 
 /*----------------------------------------------------------------------------
  *         Local constants

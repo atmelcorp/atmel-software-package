@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2013, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -38,6 +38,8 @@ iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
 iar-cstartup-y ?= target/sama5d2/toolchain/iar/cstartup.s
 endif
+
+chip-serie-name-y = sama5d2
 
 target-y += target/sama5d2/board_lowlevel.o
 target-y += target/sama5d2/board_memories.o

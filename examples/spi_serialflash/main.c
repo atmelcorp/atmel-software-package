@@ -32,14 +32,14 @@
 #include "board.h"
 #include "chip.h"
 
-#include "core/wdt.h"
-#include "core/pmc.h"
-#include "core/aic.h"
-#include "core/pio.h"
+#include "peripherals/wdt.h"
+#include "peripherals/pmc.h"
+#include "peripherals/aic.h"
+#include "peripherals/pio.h"
 
-#include "bus/console.h"
+#include "misc/console.h"
 
-#include "mem/at25dfx.h"
+#include "memories/at25dfx.h"
 
 #include <stdio.h>
 #include <stdlib.h>

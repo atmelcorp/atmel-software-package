@@ -33,9 +33,9 @@
 
 #include "board.h"
 
-#include "core/aic.h"
-#include "core/pmc.h"
-#include "time/tc.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
+#include "peripherals/tc.h"
 
 #include "sys_arch.h"
 

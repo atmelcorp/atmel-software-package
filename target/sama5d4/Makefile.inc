@@ -39,6 +39,8 @@ iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.mac
 iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
 endif
 
+chip-serie-name-y = sama5d4
+
 target-y += target/sama5d4/board_lowlevel.o
 target-y += target/sama5d4/board_memories.o
 

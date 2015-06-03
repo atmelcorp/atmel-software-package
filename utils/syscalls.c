@@ -40,7 +40,7 @@
 
 //#include "board.h"
 
-#include "bus/console.h"
+#include "misc/console.h"
 
 #include <stdio.h>
 #include <stdarg.h>

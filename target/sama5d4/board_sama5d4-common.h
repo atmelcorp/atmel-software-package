@@ -701,49 +701,7 @@
  *        Headers for board
  *----------------------------------------------------------------------------*/
 
-//#include "include/dbg_util.h"
-//#include "include/hamming.h"
-//#include "include/math.h"
-//#include "include/wav.h"
-//#include "include/bmp.h"
-/* #include "core/async.h" */
-/* #include "core/pio.h" */
-
 #include "board_lowlevel.h"
 #include "board_memories.h"
-
-/* #include "bus/dbgu_console.h" */
-
-/* #include "bus/twid.h" */
-/* #include "bus/xdma_hardware_interface.h" */
-/* #include "bus/xdmad.h" */
-
-/* #include "av/lcdd.h" */
-/* #include "av/lcd_draw.h" */
-/* #include "av/lcd_font10x14.h" */
-/* #include "av/lcd_font.h" */
-/* #include "av/lcd_color.h" */
-/* #include "av/wm8904.h" */
-
-/* #include "net/gmac.h" */
-/* #include "net/gmii.h" */
-/* #include "net/gmacd.h" */
-/* #include "net/gmacb.h" */
-
-/* #include "io/iso7816_4.h" */
-/* #include "io/mcid.h" */
-/* #include "io/led.h" */
-/* #include "io/ov.h" */
-/* #include "io/omnivision.h" */
-/* #include "io/ovyuv.h" */
-/* #include "io/aptina.h" */
-/* #include "io/mtyuv.h" */
-/* #include "io/mt.h" */
-/* #include "io/tsd.h" */
-/* #include "io/tsd.h" */
-/* #include "io/tsd_com.h" */
-
-/* #include "time/timetick.h" */
-/* #include "time/rtc_calib.h" */
 
 #endif				/* #ifndef _BOARD_SAMA5D4_COMMON_HEADER_ */

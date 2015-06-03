@@ -111,13 +111,13 @@
 #include <board.h>
 #include <string.h>
 
-#include "core/pio.h"
-#include "core/wdt.h"
-#include "core/aic.h"
-#include "core/pmc.h"
+#include "peripherals/pio.h"
+#include "peripherals/wdt.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
 
-#include "net/gmacd.h"
-#include "net/gmacb.h"
+#include "peripherals/gmacd.h"
+#include "peripherals/gmacb.h"
 
 #include "mini_ip.h"
 

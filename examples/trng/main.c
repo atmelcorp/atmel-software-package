@@ -88,11 +88,11 @@
  *----------------------------------------------------------------------------*/
 #include <board.h>
 
-#include "core/wdt.h"
-#include "core/pmc.h"
-#include "core/aic.h"
+#include "peripherals/wdt.h"
+#include "peripherals/pmc.h"
+#include "peripherals/aic.h"
 
-#include "crypto/trng.h"
+#include "peripherals/trng.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

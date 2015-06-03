@@ -101,22 +101,22 @@
 #include "board.h"
 #include "chip.h"
 
-#include "core/aic.h"
-#include "core/pmc.h"
-#include "core/wdt.h"
-#include "core/pio.h"
-#include "core/mmu.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
+#include "peripherals/wdt.h"
+#include "peripherals/pio.h"
+#include "cortex-a/mmu.h"
 
-#include "io/led.h"
-#include "io/act8945A.h"
+#include "misc/led.h"
+#include "power/act8945a.h"
 
-#include "bus/console.h"
+#include "misc/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "time/tc.h"
-#include "time/pit.h"
+#include "peripherals/tc.h"
+#include "peripherals/pit.h"
 
 #include "trace.h"
 #include "compiler.h"

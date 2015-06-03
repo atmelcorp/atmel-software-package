@@ -298,14 +298,13 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$/../../</state>
-	  <state>$PROJ_DIR$/../../utils</state>
-          <state>$PROJ_DIR$/../../drivers</state>
-          <state>$PROJ_DIR$/../../examples</state>
-          <state>$PROJ_DIR$/../../lib</state>
-          <state>$PROJ_DIR$/../../target</state>
-          <state>$PROJ_DIR$/../../target/include</state>
-          <state>$PROJ_DIR$/../../target/__REPLACE_CHIP_SERIE__</state>
+          <state>$PROJ_DIR$\..\..\</state>
+	  <state>$PROJ_DIR$\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\drivers</state>
+          <state>$PROJ_DIR$\..\..\examples</state>
+          <state>$PROJ_DIR$\..\..\lib</state>
+          <state>$PROJ_DIR$\..\..\target</state>
+          <state>$PROJ_DIR$\..\..\target/__REPLACE_CHIP_SERIE__</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -567,13 +566,12 @@
         </option>
         <option>
           <name>AUserIncludes</name>
-          <state>$PROJ_DIR$/../../drivers</state>
-          <state>$PROJ_DIR$/../../examples</state>
-          <state>$PROJ_DIR$/../../lib</state>
-          <state>$PROJ_DIR$/../../target</state>
-          <state>$PROJ_DIR$/../../utils</state>
-          <state>$PROJ_DIR$/../../target/include</state>
-          <state>$PROJ_DIR$/../../target/__REPLACE_CHIP_SERIE__</state>
+          <state>$PROJ_DIR$\..\..\drivers</state>
+          <state>$PROJ_DIR$\..\..\examples</state>
+          <state>$PROJ_DIR$\..\..\lib</state>
+          <state>$PROJ_DIR$\..\..\target</state>
+          <state>$PROJ_DIR$\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\target\__REPLACE_CHIP_SERIE__</state>
         </option>
         <option>
           <name>AExtraOptionsCheckV2</name>
@@ -607,7 +605,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>getting_started.bin</state>
+          <state>__REPLACE_BIN_NAME__.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -662,7 +660,7 @@
         </option>
         <option>
           <name>IlinkOutputFile</name>
-          <state>__REPLACE_BIN_NAME__</state>
+          <state>__REPLACE_BIN_NAME__.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>

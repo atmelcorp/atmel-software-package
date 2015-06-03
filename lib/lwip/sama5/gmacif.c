@@ -40,12 +40,12 @@
 
 #include <board.h>
 
-#include "core/pio.h"
-#include "core/aic.h"
-#include "core/pmc.h"
+#include "peripherals/pio.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
 
-#include "net/gmacd.h"
-#include "net/gmacb.h"
+#include "peripherals/gmacd.h"
+#include "peripherals/gmacb.h"
 
 #include "lwip/opt.h"
 #include "gmacif.h"

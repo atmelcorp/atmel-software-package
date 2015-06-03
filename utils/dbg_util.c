@@ -39,8 +39,9 @@
 //#include <board.h>
 #include <stdio.h>
 #include "dbg_util.h"
-#include "time/timetick.h"
-#include "bus/console.h"
+#include "timetick.h"
+
+#include "misc/console.h"
 
 /*-------------------------------
  *          Defines

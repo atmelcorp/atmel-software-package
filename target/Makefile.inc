@@ -26,8 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/target
-
 lib-y += target/target.a
 
 target-y :=

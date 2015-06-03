@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2013, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -32,15 +32,13 @@ lib-y += drivers/drivers.a
 
 drivers-y :=
 
-include $(TOP)/drivers/av/Makefile.inc
-include $(TOP)/drivers/bus/Makefile.inc
-include $(TOP)/drivers/core/Makefile.inc
-include $(TOP)/drivers/crypto/Makefile.inc
-include $(TOP)/drivers/io/Makefile.inc
-include $(TOP)/drivers/net/Makefile.inc
-include $(TOP)/drivers/serial/Makefile.inc
-include $(TOP)/drivers/time/Makefile.inc
-include $(TOP)/drivers/mem/Makefile.inc
+include $(TOP)/drivers/audio/Makefile.inc
+include $(TOP)/drivers/cortex-a/Makefile.inc
+include $(TOP)/drivers/memories/Makefile.inc
+include $(TOP)/drivers/misc/Makefile.inc
+include $(TOP)/drivers/peripherals/Makefile.inc
+include $(TOP)/drivers/power/Makefile.inc
+include $(TOP)/drivers/video/Makefile.inc
 
 DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
 

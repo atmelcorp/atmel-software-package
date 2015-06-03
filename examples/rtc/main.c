@@ -112,12 +112,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "bus/console.h"
-#include "time/rtc_calib.h"
-#include "time/tc.h"
-#include "core/pmc.h"
-#include "core/aic.h"
-#include "core/wdt.h"
+#include "misc/console.h"
+#include "peripherals/rtc_calib.h"
+#include "peripherals/tc.h"
+#include "peripherals/pmc.h"
+#include "peripherals/aic.h"
+#include "peripherals/wdt.h"
 #include "trace.h"
 
 #include <stdint.h>

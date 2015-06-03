@@ -39,9 +39,9 @@
 
 #include "board.h"
 #include "compiler.h"
-#include "core/pmc.h"
-#include "core/cpsr.h"
-#include "core/aic.h"
+#include "peripherals/pmc.h"
+#include "cortex-a/cpsr.h"
+#include "peripherals/aic.h"
 
 #include <stdio.h>
 

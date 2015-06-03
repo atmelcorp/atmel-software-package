@@ -33,10 +33,10 @@ MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKEFILEDIR)/../../Makefile.inc
 include $(DRIVERDIR)/Makefile.inc
 include $(UTILSDIR)/Makefile.inc
-include $(TARGETDIR)/$(SERIENAME)/Makefile.inc
+include $(TARGETDIR)/Makefile.inc
 
-vpath %.c $(MAKEFILEDIR) $(DRIVERDIR) $(UTILSDIR) $(TARGETDIR)/$(SERIENAME)
-vpath %.S $(DRIVERDIR) $(TARGETDIR)/$(SERIENAME)
+vpath %.c $(MAKEFILEDIR) $(DRIVERDIR) $(UTILSDIR) $(TARGETDIR)
+vpath %.S $(DRIVERDIR) $(TARGETDIR)
 
 #-------------------------------------------------------------------------------
 #        User-modifiable options
@@ -62,7 +62,7 @@ TRACE_LEVEL = 4
 INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
 CFLAGS += $(INCLUDES) -DTRACE_LEVEL=$(TRACE_LEVEL)
 LD_OPTIONAL = #-Wl,--print-gc-sections -Wl,--stats
-LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR)/$(SERIENAME) -L$(LIBDIR)/lwip
+LDPATH = -L$(DRIVERDIR) -L$(UTILSDIR) -L$(TARGETDIR) -L$(LIBDIR)/lwip
 LINKS_SRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_sram -ldrivers-$(TARGET)_sram -lutils-$(TARGET)_sram -Wl,--end-group
 LINKS_DDRAM = -Wl,--start-group -lgcc -lc -l$(TARGET)_ddram -ldrivers-$(TARGET)_ddram -lutils-$(TARGET)_ddram -Wl,--end-group
 
@@ -121,7 +121,7 @@ $(BUILDDIR_SRAM)/xdma.elf: $(OBJECTS_SRAM)
 	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(SERIENAME)_sram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_SRAM)
 
 $(BUILDDIR_SRAM)/xdma.elf: $(DRIVERDIR)/libdrivers-$(TARGET)_sram.a \
-	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a
+	$(UTILSDIR)/libutils-$(TARGET)_sram.a $(TARGETDIR)/lib$(TARGET)_sram.a
 
 $(BUILDDIR_SRAM)/xdma.symbols: $(BUILDDIR_SRAM)/xdma.elf
 	$(NM) $< >$@
@@ -133,7 +133,7 @@ $(BUILDDIR_DDRAM)/xdma.elf: $(OBJECTS_DDRAM)
 	$(CC) $(LDPATH) $(LDFLAGS) $(LD_OPTIONAL) -T"$(RESOURCEDIR)/$(TARGET)_ddram.ld" -Wl,-Map,$(BUILDDIR_SRAM)/exportmap.map -o $@ $^ $(LINKS_DDRAM)
 
 $(BUILDDIR_DDRAM)/xdma.elf: $(DRIVERDIR)/libdrivers-$(TARGET)_ddram.a \
-	$(UTILSDIR)/libutils-$(TARGET)_ddram.a $(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_ddram.a
+	$(UTILSDIR)/libutils-$(TARGET)_ddram.a $(TARGETDIR)/lib$(TARGET)_ddram.a
 
 $(BUILDDIR_DDRAM)/xdma.symbols: $(BUILDDIR_DDRAM)/xdma.elf
 	$(NM) $< >$@
