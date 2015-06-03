@@ -118,8 +118,8 @@
 #include "time/tc.h"
 #include "time/pit.h"
 
-#include "utils/trace.h"
-#include "resources/compiler_defines.h"
+#include "trace.h"
+#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

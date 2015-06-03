@@ -111,10 +111,10 @@
  * - \ref BOARD_NAME
  */
 
-#if defined(BOARD_SAMA5D4_EK)
+#if defined(CONFIG_BOARD_SAMA5D4_EK)
 /** Name of the board */
 #define BOARD_NAME "SAMA5D4-EK"
-#elif defined(BOARD_SAMA5D4_XPLAINED)
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 /** Name of the board */
 #define BOARD_NAME "SAMA5D4-XPLAINED"
 #endif
@@ -123,6 +123,7 @@
 #if !defined sama5d4
 #define sama5d4
 #endif
+
 /** Core definition */
 #define cortexa5
 

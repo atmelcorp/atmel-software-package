@@ -70,7 +70,7 @@
 #include "chip.h"
 #include "board.h"
 #include "core/pmc.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <assert.h>
 

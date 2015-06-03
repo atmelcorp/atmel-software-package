@@ -33,7 +33,7 @@
 
 #include "chip.h"
 #include "av/isi.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Export functions

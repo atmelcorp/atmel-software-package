@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,82 +26,27 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-#        User-modifiable options
-#-------------------------------------------------------------------------------
+CFLAGS_INC += -I$(TOP)/drivers
 
-# Output directories
-DRIVERSUBDIRS = av bus core crypto io net serial time mem
+lib-y += drivers/drivers.a
 
-DRIVER_CFLAGS = $(CFLAGS)
+drivers-y :=
 
-#-------------------------------------------------------------------------------
-#		Tools
-#-------------------------------------------------------------------------------
-DRIVER_INCLUDES = $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER) $(INCLUDE_ROOTDIR) $(INCLUDE_LIB)
-DRIVER_CFLAGS += $(DRIVER_INCLUDES)
-ifdef TRACE_LEVEL
-DRIVER_CFLAGS += -DTRACE_LEVEL=$(TRACE_LEVEL)
-endif
-DRIVERA_ASFLAGS = -mcpu=cortex-a5  -mfpu=vfpv4-d16 -Wall -g $(DRIVER_INCLUDES) -D$(CHIP) -D__ASSEMBLY__
+include $(TOP)/drivers/av/Makefile.inc
+include $(TOP)/drivers/bus/Makefile.inc
+include $(TOP)/drivers/core/Makefile.inc
+include $(TOP)/drivers/crypto/Makefile.inc
+include $(TOP)/drivers/io/Makefile.inc
+include $(TOP)/drivers/net/Makefile.inc
+include $(TOP)/drivers/serial/Makefile.inc
+include $(TOP)/drivers/time/Makefile.inc
+include $(TOP)/drivers/mem/Makefile.inc
 
-DRIVER_BUILDDIR_SRAM = $(DRIVERDIR)/build/$(TARGET)/sram
-DRIVER_BUILDDIR_DDRAM = $(DRIVERDIR)/build/$(TARGET)/ddram
+DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
 
-DRIVER_OBJECTS =
-DRIVER_OBJECTS_ASM =
-include $(DRIVERDIR)/av/Makefile.files
-include	$(DRIVERDIR)/bus/Makefile.files
-include	$(DRIVERDIR)/core/Makefile.files
-include $(DRIVERDIR)/crypto/Makefile.files
-include $(DRIVERDIR)/io/Makefile.files
-include $(DRIVERDIR)/net/Makefile.files
-include $(DRIVERDIR)/serial/Makefile.files
-include $(DRIVERDIR)/time/Makefile.files
-include $(DRIVERDIR)/mem/Makefile.files
+-include $(DRIVERS_OBJS:.o=.d)
 
-DRIVER_OBJECTS_SRAM = $(addprefix $(DRIVER_BUILDDIR_SRAM)/,$(DRIVER_OBJECTS))
-DRIVER_OBJECTS_ASM_SRAM = $(addprefix $(DRIVER_BUILDDIR_SRAM)/,$(DRIVER_OBJECTS_ASM))
-DRIVER_OBJECTS_DDRAM = $(addprefix $(DRIVER_BUILDDIR_DDRAM)/,$(DRIVER_OBJECTS))
-DRIVER_OBJECTS_ASM_DDRAM = $(addprefix $(DRIVER_BUILDDIR_DDRAM)/,$(DRIVER_OBJECTS_ASM))
-
--include $(DRIVER_OBJECTS_SRAM:.o=.d)
--include $(DRIVER_OBJECTS_DDRAM:.o=.d)
-
-$(DRIVER_BUILDDIR_SRAM) $(DRIVER_BUILDDIR_DDRAM):
-	mkdir -p $(addprefix $@/, $(DRIVERSUBDIRS))
-
-$(DRIVER_OBJECTS_SRAM) $(DRIVER_OBJECTS_ASM_SRAM): | $(DRIVER_BUILDDIR_SRAM)
-
-$(DRIVER_OBJECTS_SRAM): $(DRIVER_BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(DRIVER_CFLAGS) -M $< -o $(DRIVER_BUILDDIR_SRAM)/$*.d
-	@mv -f $(DRIVER_BUILDDIR_SRAM)/$*.d $(DRIVER_BUILDDIR_SRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(DRIVER_BUILDDIR_SRAM)/$*.o:|' < $(DRIVER_BUILDDIR_SRAM)/$*.d.tmp > $(DRIVER_BUILDDIR_SRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(DRIVER_BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(DRIVER_BUILDDIR_SRAM)/$*.d
-	@rm -f $(DRIVER_BUILDDIR_SRAM)/$*.d.tmp
-	$(CC) $(DRIVER_CFLAGS) $(call optimization,sram) -c $< -o $@
-
-$(DRIVER_OBJECTS_DDRAM) $(DRIVER_OBJECTS_ASM_DDRAM): | $(DRIVER_BUILDDIR_DDRAM)
-
-$(DRIVER_OBJECTS_DDRAM): $(DRIVER_BUILDDIR_DDRAM)/%.o: %.c
-	@$(CC) $(DRIVER_CFLAGS) $(call optimization,ddram) -M $< -o $(DRIVER_BUILDDIR_DDRAM)/$*.d
-	@mv -f $(DRIVER_BUILDDIR_DDRAM)/$*.d $(DRIVER_BUILDDIR_DDRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(DRIVER_BUILDDIR_DDRAM)/$*.o:|' < $(DRIVER_BUILDDIR_DDRAM)/$*.d.tmp > $(DRIVER_BUILDDIR_DDRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(DRIVER_BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(DRIVER_BUILDDIR_DDRAM)/$*.d
-	@rm -f $(DRIVER_BUILDDIR_DDRAM)/$*.d.tmp
-	$(CC) $(DRIVER_CFLAGS) $(call optimization,ddram) -c $< -o $@
-
-$(DRIVER_OBJECTS_ASM_SRAM): $(DRIVER_BUILDDIR_SRAM)/%.o: %.S
-	$(CC) $(DRIVERA_ASFLAGS) $(call optimization,sram) -c $< -o $@
-
-$(DRIVER_OBJECTS_ASM_DDRAM): $(DRIVER_BUILDDIR_DDRAM)/%.o: %.S
-	$(CC) $(DRIVERA_ASFLAGS) $(call optimization,ddram) -c $< -o $@
-
-
-$(DRIVERDIR)/libdrivers-$(TARGET)_sram.a: $(DRIVER_OBJECTS_ASM_SRAM) $(DRIVER_OBJECTS_SRAM)
-	$(AR) -r $@ $^
-
-$(DRIVERDIR)/libdrivers-$(TARGET)_ddram.a: $(DRIVER_OBJECTS_ASM_DDRAM) $(DRIVER_OBJECTS_DDRAM)
-	$(AR) -r $@ $^
+$(BUILDDIR)/drivers/drivers.a: $(DRIVERS_OBJS)
+	@mkdir -p $(BUILDDIR)/drivers
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^

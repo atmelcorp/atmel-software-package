@@ -35,9 +35,9 @@
 
 #include "bus/twid.h"
 #include "bus/xdmad.h"
-#include "utils/trace.h"
 #include "bus/xdma_hardware_interface.h"
 #include "core/cp15.h"
+#include "trace.h"
 
 #include <assert.h>
 

@@ -38,7 +38,7 @@
 #include "net/gmacb.h"
 #include "net/gmii.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 /*---------------------------------------------------------------------------
  *         Definitions

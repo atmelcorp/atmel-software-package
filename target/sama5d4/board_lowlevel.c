@@ -38,7 +38,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 #include "core/pmc.h"
 #include "core/cpsr.h"
 #include "core/aic.h"

@@ -1,6 +1,0 @@
-DRIVER_OBJECTS += av/lcd_draw.o    \
-	av/lcd_font.o      \
-	av/lcd_font10x14.o \
-	av/lcdd.o          \
-	av/isi.o           \
-	av/wm8904.o

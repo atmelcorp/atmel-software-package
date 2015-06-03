@@ -34,7 +34,7 @@
 #include "core/pio.h"
 #include "bus/twid.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 /** Slave address of OMNIVISION chips. */
 #define OV_CAPTOR_ADDRESS_1   0x30

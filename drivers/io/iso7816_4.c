@@ -46,8 +46,8 @@
 #include "board.h"
 #include "core/pmc.h"
 #include "io/iso7816_4.h"
-#include "utils/trace.h"
 #include "serial/usart.h"
+#include "trace.h"
 
 /*------------------------------------------------------------------------------
  *         Definitions

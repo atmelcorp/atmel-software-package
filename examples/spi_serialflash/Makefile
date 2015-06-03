@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,11 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-#   Makefile for compiling the Getting Started with sama5d4x Microcontrollers project
+# Makefile for compiling the SPI SerialFlash example
 
-MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+TOP := ../..
 
-BINNAME = spi_serialflash
+BINNAME = spi-serialflash
 
-include $(MAKEFILEDIR)/../../Makefile.inc
-include $(MAKEFILEDIR)/../../Makefile.template
+obj-y += examples/spi_serialflash/main.o
+
+include $(TOP)/scripts/Makefile.rules

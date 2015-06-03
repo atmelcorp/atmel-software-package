@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,65 +26,20 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-TARGET_INCLUDES = $(INCLUDE_LIB) $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER)
-TARGET_CFLAGS = $(CFLAGS)
-TARGET_CFLAGS += $(TARGET_INCLUDES)
-TARGET_ASFLAGS = -mcpu=cortex-a5  -mfpu=vfpv4-d16 -Wall -g $(INCLUDES) -D$(CHIP) -D__ASSEMBLY__
+ifeq ($(CONFIG_SOC_SAMA5D4),y)
 
-TARGET_BUILDDIR_SRAM = $(TARGETDIR)/$(SERIENAME)/build/$(TARGET)/sram
-TARGET_BUILDDIR_DDRAM = $(TARGETDIR)/$(SERIENAME)/build/$(TARGET)/ddram
+CFLAGS_INC += -I$(TOP)/target/sama5d4
 
-TARGET_OBJECTS = board_lowlevel.o \
-	board_memories.o
-TARGET_OBJECTS_ASM = board_cstartup_gnu.o
+ifeq ($(VARIANT),sram)
+gnu-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
+gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.gdb
+gnu-cstartup-y ?= target/sama5d4/toolchain/gnu/cstartup.S
+iar-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.icf
+iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.mac
+iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
+endif
 
-TARGET_OBJECTS_SRAM = $(addprefix $(TARGET_BUILDDIR_SRAM)/,$(TARGET_OBJECTS))
-TARGET_OBJECTS_DDRAM = $(addprefix $(TARGET_BUILDDIR_DDRAM)/, $(TARGET_OBJECTS))
+target-y += target/sama5d4/board_lowlevel.o
+target-y += target/sama5d4/board_memories.o
 
-TARGET_OBJECTS_ASM_SRAM = $(addprefix $(TARGET_BUILDDIR_SRAM)/,$(TARGET_OBJECTS_ASM))
-TARGET_OBJECTS_ASM_DDRAM = $(addprefix $(TARGET_BUILDDIR_DDRAM)/, $(TARGET_OBJECTS_ASM))
-
--include $(TARGET_OBJECTS_SRAM:.o=.d)
--include $(TARGET_OBJECTS_DDRAM:.o=.d)
-
-#-------------------------------------------------------------------------------
-# Rules
-#-------------------------------------------------------------------------------
-$(TARGET_BUILDDIR_SRAM) $(TARGET_BUILDDIR_DDRAM):
-	mkdir -p $@
-
-$(TARGET_OBJECTS_SRAM): | $(TARGET_BUILDDIR_SRAM)
-
-$(TARGET_OBJECTS_SRAM): $(TARGET_BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(TARGET_CFLAGS) -M $< -o $(TARGET_BUILDDIR_SRAM)/$*.d
-	@cp -f $(TARGET_BUILDDIR_SRAM)/$*.d $(TARGET_BUILDDIR_SRAM)/$*.d.tmp
-	@mv -f $(TARGET_BUILDDIR_SRAM)/$*.d $(TARGET_BUILDDIR_SRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(TARGET_BUILDDIR_SRAM)/$*.o:|' < $(TARGET_BUILDDIR_SRAM)/$*.d.tmp > $(TARGET_BUILDDIR_SRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(TARGET_BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(TARGET_BUILDDIR_SRAM)/$*.d
-	@rm -f $(TARGET_BUILDDIR_SRAM)/$*.d.tmp
-	$(CC) -c $(TARGET_CFLAGS) $(call optimization,sram) $< -o $@
-
-$(TARGET_OBJECTS_DDRAM): | $(TARGET_BUILDDIR_DDRAM)
-
-$(TARGET_OBJECTS_DDRAM): $(TARGET_BUILDDIR_DDRAM)/%.o: %.c
-	@$(CC) $(TARGET_CFLAGS) -M $< -o $(TARGET_BUILDDIR_SRAM)/$*.d
-	@cp -f $(TARGET_BUILDDIR_SRAM)/$*.d $(TARGET_BUILDDIR_SRAM)/$*.d.tmp
-	@mv -f $(TARGET_BUILDDIR_SRAM)/$*.d $(TARGET_BUILDDIR_SRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(TARGET_BUILDDIR_SRAM)/$*.o:|' < $(TARGET_BUILDDIR_SRAM)/$*.d.tmp > $(TARGET_BUILDDIR_SRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(TARGET_BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(TARGET_BUILDDIR_SRAM)/$*.d
-	@rm -f $(TARGET_BUILDDIR_SRAM)/$*.d.tmp
-	$(CC) -c $(TARGET_CFLAGS) $(call optimization,ddram) $< -o $@
-
-$(TARGET_OBJECTS_ASM_SRAM): $(TARGET_BUILDDIR_SRAM)/%.o: %.S
-	$(CC) -c $(TARGET_ASFLAGS) $(call optimization,sram) $< -o $@
-
-$(TARGET_OBJECTS_ASM_DDRAM): $(TARGET_BUILDDIR_DDRAM)/%.o: %.S
-	$(CC) -c $(TARGET_ASFLAGS) $(call optimization,ddram) $< -o $@
-
-$(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_sram.a: $(TARGET_OBJECTS_SRAM) $(TARGET_OBJECTS_ASM_SRAM)
-	$(AR) -r $@ $^
-
-$(TARGETDIR)/$(SERIENAME)/lib$(TARGET)_ddram.a: $(TARGET_OBJECTS_DDRAM) $(TARGET_OBJECTS_ASM_DDRAM)
-	$(AR) -r $@ $^
+endif

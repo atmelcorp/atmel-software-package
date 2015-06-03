@@ -1,0 +1,29 @@
+#$(BUILDDIR)/iardeps.d: $(obj-y:.o=.c)
+#	@rm -f $@
+#	$(ECHO) DEPS
+#	$(Q)$(CC) $(CFLAGS) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) $( -M $< -o $@.tmp
+#	@sed -e 's|.*:|$*.o:|' < $@.tmp >> $@
+#	@sed -e 's/.*://' -e 's/\\$$//' < $@.tmp | fmt -1 | \
+#	    sed -e 's/^ *//' -e 's/$$/:/' >> $@
+#	@rm -f $@.tmp
+
+#$(BUILDDIR)/$(BINNAME).ewp: $(BUILDDIR)/iardeps.d
+#	@bash $(TOP)/scripts/iar_gen_project.sh $(realpath $(TOP)) $(realpath $<) $(realpath $(TOP)/scripts/iar_project.template) $(IAR_LINKER_SCRIPT) $(BINNAME).out $(SERIENAME) $(CHIP) $(BOARD) $(SERIE) $(PIO_API) SOFTPACK_VERSION=$(SOFTPACK_VERSION) > $@
+
+#$(BUILDDIR)/$(BINNAME).eww:
+#	@bash $(TOP)/scripts/iar_gen_workspace.sh $(TOP)/scripts/iar_workspace.template $(BINNAME) > $@
+
+#$(BUILDDIR)/$(BINNAME).ewd:
+#	@bash $(TOP)/scripts/iar_gen_debug.sh $(TOP)/scripts/iar_debug.template $(IAR_DEBUG_SCRIPT) > $@
+
+#iar: $(BUILDDIR)/$(BINNAME).ewp $(BUILDDIR)/$(BINNAME).eww $(BUILDDIR)/$(BINNAME).ewd
+
+IAR_DEPS := $(addprefix $(BUILDDIR)/,$(obj-y:.o=.d))
+
+iar: $(IAR_DEPS)
+	@echo obj-y = $(obj-y)
+	@echo drivers-y = $(drivers-y)
+	@echo utils-y = $(utils-y)
+	@echo target-y = $(target-y)
+	@echo iar-cstartup-y = $(iar-cstartup-y)
+	@echo IAR $(IAR_DEPS)

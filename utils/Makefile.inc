@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,61 +26,23 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Include common variables
+CFLAGS_INC += -I$(TOP)/utils
 
-UTILS_INCLUDES = $(INCLUDE_LIB) $(INCLUDE_TARGET) $(INCLUDE_UTILS) $(INCLUDE_DRIVER)
-UTILS_CFLAGS = $(CFLAGS)
-UTILS_CFLAGS += $(UTILS_INCLUDES)
+lib-y += utils/utils.a
 
-UTILS_OBJECTS = dbg_util.o \
-	hamming.o    \
-	retarget.o   \
-	math.o       \
-	rand.o       \
-	trace.o      \
-	syscalls.o
+utils-y := utils/dbg_util.o
+utils-y += utils/hamming.o
+utils-y += utils/retarget.o
+utils-y += utils/math.o
+utils-y += utils/rand.o
+utils-y += utils/trace.o
+utils-y += utils/syscalls.o
 
-UTILS_BUILDDIR_SRAM = $(UTILSDIR)/build/$(TARGET)/sram
-UTILS_BUILDDIR_DDRAM = $(UTILSDIR)/build/$(TARGET)/ddram
+UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
 
-UTILS_OBJECTS_SRAM = $(addprefix $(UTILS_BUILDDIR_SRAM)/,$(UTILS_OBJECTS))
-UTILS_OBJECTS_DDRAM = $(addprefix $(UTILS_BUILDDIR_DDRAM)/, $(UTILS_OBJECTS))
+-include $(UTILS_OBJS:.o=.d)
 
--include $(UTILS_OBJECTS_SRAM:.o=.d)
--include $(UTILS_OBJECTS_DDRAM:.o=.d)
-
-#-------------------------------------------------------------------------------
-# Rules
-#-------------------------------------------------------------------------------
-$(UTILS_BUILDDIR_SRAM) $(UTILS_BUILDDIR_DDRAM):
-	mkdir -p $@
-
-$(UTILS_OBJECTS_SRAM): | $(UTILS_BUILDDIR_SRAM)
-
-$(UTILS_OBJECTS_SRAM): $(UTILS_BUILDDIR_SRAM)/%.o: %.c
-	@$(CC) $(UTILS_CFLAGS) -M $< -o $(UTILS_BUILDDIR_SRAM)/$*.d
-	@cp -f $(UTILS_BUILDDIR_SRAM)/$*.d $(UTILS_BUILDDIR_SRAM)/$*.d.tmp
-	@mv -f $(UTILS_BUILDDIR_SRAM)/$*.d $(UTILS_BUILDDIR_SRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(UTILS_BUILDDIR_SRAM)/$*.o:|' < $(UTILS_BUILDDIR_SRAM)/$*.d.tmp > $(UTILS_BUILDDIR_SRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(UTILS_BUILDDIR_SRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(UTILS_BUILDDIR_SRAM)/$*.d
-	@rm -f $(UTILS_BUILDDIR_SRAM)/$*.d.tmp
-	$(CC) -c $(UTILS_CFLAGS) $(call optimization,sram) $< -o $@
-
-$(UTILS_OBJECTS_DDRAM): | $(UTILS_BUILDDIR_DDRAM)
-
-$(UTILS_OBJECTS_DDRAM): $(UTILS_BUILDDIR_DDRAM)/%.o: %.c
-	@$(CC) $(UTILS_CFLAGS) -M $< -o $(UTILS_BUILDDIR_DDRAM)/$*.d
-	@cp -f $(UTILS_BUILDDIR_DDRAM)/$*.d $(UTILS_BUILDDIR_DDRAM)/$*.d.tmp
-	@mv -f $(UTILS_BUILDDIR_DDRAM)/$*.d $(UTILS_BUILDDIR_DDRAM)/$*.d.tmp;
-	@sed -e 's|.*:|$(UTILS_BUILDDIR_DDRAM)/$*.o:|' < $(UTILS_BUILDDIR_DDRAM)/$*.d.tmp > $(UTILS_BUILDDIR_DDRAM)/$*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(UTILS_BUILDDIR_DDRAM)/$*.d.tmp | fmt -1 | \
-		sed -e 's/^ *//' -e 's/$$/:/' >> $(UTILS_BUILDDIR_DDRAM)/$*.d
-	@rm -f $(UTILS_BUILDDIR_DDRAM)/$*.d.tmp
-	$(CC) -c $(UTILS_CFLAGS) $(call optimization,ddram) $< -o $@
-
-$(UTILSDIR)/libutils-$(TARGET)_sram.a: $(UTILS_OBJECTS_SRAM)
-	$(AR) -r $@ $^
-
-$(UTILSDIR)/libutils-$(TARGET)_ddram.a: $(UTILS_OBJECTS_DDRAM)
-	$(AR) -r $@ $^
+$(BUILDDIR)/utils/utils.a: $(UTILS_OBJS)
+	@mkdir -p $(dir $@)
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^

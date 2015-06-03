@@ -65,4 +65,10 @@ extern int _read(int file, char *ptr, int len);
 
 extern int _write(int file, char *ptr, int len);
 
+extern void _exit(int status);
+
+extern void _kill(int pid, int sig);
+
+extern int _getpid(void);
+
 #endif				/* _SYSCALLS_HEADER_ */

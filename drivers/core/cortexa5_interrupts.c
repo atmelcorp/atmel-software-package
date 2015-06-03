@@ -39,7 +39,7 @@
 
 #include "chip.h"
 #include "board.h"
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 #include "core/aic.h"
 #include "cortexa5_interrupts.h"
 

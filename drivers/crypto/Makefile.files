@@ -1,6 +1,0 @@
-DRIVER_OBJECTS += crypto/trng.o \
-	crypto/sha.o    \
-	crypto/icm.o    \
-	crypto/tdes.o   \
-	crypto/aesb.o   \
-	crypto/aes.o

@@ -1,3 +1,0 @@
-DRIVER_OBJECTS += net/gmac.o \
-	net/gmacd.o  \
-	net/gmacb.o

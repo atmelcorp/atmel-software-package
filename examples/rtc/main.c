@@ -118,7 +118,7 @@
 #include "core/pmc.h"
 #include "core/aic.h"
 #include "core/wdt.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <stdint.h>
 #include <stdio.h>

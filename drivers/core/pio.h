@@ -56,10 +56,10 @@ struct _pin
  *         Headers
  */
 
-#if defined(API_PIOv4)
-#include "core/pio4.h"
-#elif defined(API_PIOv3)
+#if defined(CONFIG_HAVE_PIO3)
 #include "core/pio3.h"
+#elif defined(CONFIG_HAVE_PIO4)
+#include "core/pio4.h"
 #endif
 
 #ifdef __cplusplus

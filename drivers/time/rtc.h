@@ -83,7 +83,7 @@ struct _date
 } ;
 
 
-#if defined SERIE_SAMA5D2
+#ifdef CONFIG_SOC_SAMA5D2
 
 	/* -------- RTC_TSTR : (RTC Offset: N/A) TimeStamp Time Register 0 -------- */
 	#define RTC_TSTR_SEC_Pos 0

@@ -72,9 +72,8 @@
 #include "core/pmc.h"
 #include "core/aic.h"
 
-#include "utils/trace.h"
-
-#include "resources/compiler_defines.h"
+#include "trace.h"
+#include "compiler.h"
 
 #include <assert.h>
 

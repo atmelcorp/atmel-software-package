@@ -1,5 +1,0 @@
-DRIVER_OBJECTS += mem/smcNfc.o \
-
-ifeq ("y", $(TARGET:sama5d2-xplained="y"))
-DRIVER_OBJECTS += mem/at25dfx.o
-endif

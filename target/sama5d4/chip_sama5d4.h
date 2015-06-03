@@ -41,13 +41,13 @@
 #define   __IO volatile	      /**< Defines 'read/write' permissions */
 #endif
 
-#if defined(CHIP_SAMA5D41)
+#if defined(CONFIG_SOC_SAMA5D41)
   #include "sama5d41.h"
-#elif defined(CHIP_SAMA5D42)
+#elif defined(CONFIG_SOC_SAMA5D42)
   #include "sama5d42.h"
-#elif defined(CHIP_SAMA5D43)
+#elif defined(CONFIG_SOC_SAMA5D43)
   #include "sama5d43.h"
-#elif defined(CHIP_SAMA5D44)
+#elif defined(CONFIG_SOC_SAMA5D44)
   #include "sama5d44.h"
 #else
   #error Library does not support the specified device.

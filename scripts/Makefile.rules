@@ -1,0 +1,104 @@
+# ----------------------------------------------------------------------------
+#         SAM Software Package License
+# ----------------------------------------------------------------------------
+# Copyright (c) 2015, Atmel Corporation
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# - Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the disclaimer below.
+#
+# Atmel's name may not be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+# DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
+# default target
+all::
+
+include $(TOP)/scripts/Makefile.vars
+
+BUILDDIR ?= ./build
+
+#-------------------------------------------------------------------------------
+#		Rules
+#-------------------------------------------------------------------------------
+
+include $(TOP)/utils/Makefile.inc
+include $(TOP)/target/Makefile.inc
+include $(TOP)/drivers/Makefile.inc
+include $(TOP)/lib/Makefile.inc
+include $(TOP)/scripts/Makefile.config
+
+vpath %.c $(TOP)
+vpath %.S $(TOP)
+
+OBJS := $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y:.S=.o) $(obj-y))
+
+-include $(OBJS:.o=.d)
+
+.PHONY: all build clean size debug
+
+all:: build
+
+build: $(BUILDDIR)/$(BINNAME).elf \
+	$(BUILDDIR)/$(BINNAME).symbols \
+	$(BUILDDIR)/$(BINNAME).bin
+
+$(BUILDDIR):
+	@mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/%.d: %.c
+	@mkdir -p $(dir $@)
+	$(ECHO) DEP $<
+	$(Q)$(CC) $(CFLAGS) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -MM $< -MT $(basename $@).o -o $(basename $@).d
+
+$(BUILDDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(ECHO) CC $<
+	$(Q)$(CC) $(CFLAGS) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
+
+$(BUILDDIR)/%.d: %.S
+	@mkdir -p $(dir $@)
+	$(ECHO) DEP $<
+	$(Q)$(CC) $(CFLAGS_ASM) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -MM $< -MT $(basename $@).o -o $(basename $@).d
+
+$(BUILDDIR)/%.o: %.S
+	@mkdir -p $(dir $@)
+	$(ECHO) CC $<
+	$(Q)$(CC) $(CFLAGS_ASM) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
+
+$(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(addprefix $(BUILDDIR)/,$(lib-y))
+	$(ECHO) LINK $@
+	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $^
+
+$(BUILDDIR)/$(BINNAME).symbols: $(BUILDDIR)/$(BINNAME).elf
+	$(Q)$(NM) $< >$@
+
+$(BUILDDIR)/$(BINNAME).bin: $(BUILDDIR)/$(BINNAME).elf
+	$(ECHO) OBJCOPY $@
+	$(Q)$(OBJCOPY) -O binary $< $@
+
+clean:
+	@rm -rf $(BUILDDIR)
+
+size: $(BUILDDIR)/$(BINNAME).elf
+	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
+
+debug: $(BUILDDIR)/$(BINNAME).elf
+	$(Q)$(GDB) -x "$(gnu-debug-script-y)" -ex "reset" -readnow -se $(BUILDDIR)/$(BINNAME).elf
+
+include $(TOP)/scripts/Makefile.iar

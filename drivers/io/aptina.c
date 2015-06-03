@@ -35,7 +35,7 @@
 #include "bus/twid.h"
 #include "core/pio.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 #define MT_CAPTOR_ADDRESS   (0x90>>1)
 #define MT_REG_TERM 0xFF

@@ -43,7 +43,7 @@
 extern "C" {
 #endif
 
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 #include <stdint.h>

@@ -73,6 +73,7 @@
 
 /** Board definition */
 #define sama5d2xult
+
 /** Core definition */
 #define cortexa5
 

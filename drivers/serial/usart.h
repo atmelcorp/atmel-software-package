@@ -94,7 +94,7 @@ extern void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
 extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_USART_FIFO
 extern void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
 			  uint8_t rx_down_thres, uint8_t rx_up_thres,
 			  uint32_t ready_modes);

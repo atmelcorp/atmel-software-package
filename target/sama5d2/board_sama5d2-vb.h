@@ -35,19 +35,28 @@
 /**
  *  \file board.h
  *
- *  Definition of sama5d2-XULT
- *  characteristics, sama5d4-dependant PIOs and external components interfacing.
+ *  Definition of sama5d2-xb
+ *  characteristics, sama5d2-dependant PIOs and external components interfacing.
  */
 
 #ifndef _BOARD_D2_H
 #define _BOARD_D2_H
 
 /*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include "chip.h"
+
+#include "board_lowlevel.h"
+#include "board_memories.h"
+
+/*----------------------------------------------------------------------------
  *        HW BOARD Definitions
  *----------------------------------------------------------------------------*/
 
 /**
- * \page sama5d2_xult_board_info "sama5d2-XULT - Board informations"
+ * \page sama5d2_vb_board_info "sama5d2-vb - Board informations"
  * This page lists several definition related to the board description.
  *
  * \section Definitions
@@ -55,7 +64,7 @@
  */
 
 /** Name of the board */
-#define BOARD_NAME "sama5d2-xult"
+#define BOARD_NAME "sama5d2-vb"
 
 /** Family definition */
 #if !defined sama5d2
@@ -63,7 +72,8 @@
 #endif
 
 /** Board definition */
-#define sama5d2xult
+#define sama5d2vb
+
 /** Core definition */
 #define cortexa5
 

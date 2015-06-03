@@ -82,7 +82,7 @@
 #include "chip.h"
 #include "bus/twi.h"
 #include "core/pmc.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <stddef.h>
 #include <assert.h>

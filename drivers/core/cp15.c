@@ -123,7 +123,7 @@
 #endif
 
 #include "core/cp15.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <assert.h>
 

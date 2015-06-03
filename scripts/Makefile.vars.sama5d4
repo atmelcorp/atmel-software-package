@@ -1,0 +1,20 @@
+ifeq ("y",$(TARGET:sama5d4-%="y"))
+
+CONFIG_SOC_SAMA5 = y
+CONFIG_SOC_SAMA5D4 = y
+CONFIG_HAVE_PIO3 = y
+CONFIG_HAVE_DBGU = y
+
+ifeq ("y",$(TARGET:%-xplained="y"))
+CONFIG_SOC_SAMA5D44 = y
+CONFIG_BOARD_SAMA5D4_XPLAINED = y
+endif
+
+ifeq ("y",$(TARGET:%-ek="y"))
+CONFIG_SOC_SAMA5D44 = y
+CONFIG_BOARD_SAMA5D4_EK = y
+endif
+
+CFLAGS_CPU += -mcpu=cortex-a5  -mfpu=vfpv4-d16
+
+endif

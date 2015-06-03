@@ -73,7 +73,7 @@
 #include "bus/spi.h"
 #include "core/pmc.h"
 
-#include "utils/io.h"
+#include "io.h"
 
 #include <stdint.h>
 

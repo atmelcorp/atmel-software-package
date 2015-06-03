@@ -30,7 +30,7 @@
 #ifndef _SAMA5D27_
 #define _SAMA5D27_
 
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 
 /** \addtogroup SAMA5D27_definitions SAMA5D27 definitions
   This file defines all structures and symbols for SAMA5D27:

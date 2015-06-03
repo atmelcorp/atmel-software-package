@@ -44,7 +44,7 @@
 #include "av/lcd_color.h"
 #include "av/lcdd.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <board.h>
 #include <string.h>

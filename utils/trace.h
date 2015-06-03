@@ -68,7 +68,7 @@
  *         Headers
  */
 
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 
 #include <stdio.h>
 

@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "core/l2cc.h"
 #include "core/cp15.h"
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <assert.h>
 

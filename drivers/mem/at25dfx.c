@@ -27,7 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "resources/compiler_defines.h"
 
 #include "board.h"
 #include "chip.h"
@@ -40,7 +39,8 @@
 
 #include "mem/at25dfx.h"
 
-#include "utils/trace.h"
+#include "trace.h"
+#include "compiler.h"
 
 #include <stdio.h>
 #include <assert.h>

@@ -73,17 +73,17 @@
  *---------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "resources/compiler_defines.h"
+#include "compiler.h"
 #include "serial/usart.h"
 #include "core/pmc.h"
 
-#include "utils/trace.h"
-#include "utils/io.h"
+#include "trace.h"
+#include "io.h"
 
 #include <assert.h>
 #include <string.h>
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_USART_FIFO
 /* Clear FIFO related register if present. Dummy function otherwise. */
 static inline void _clear_fifo_control_flags(uint32_t* control_reg)
 {
@@ -337,7 +337,7 @@ void usart_set_irda_filter(Usart *usart, uint8_t filter)
 }
 
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_USART_FIFO
 /**
  * \brief Configure the FIFO of USART device
  *

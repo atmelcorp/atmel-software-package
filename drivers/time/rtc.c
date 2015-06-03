@@ -92,7 +92,7 @@
 
 #include "time/rtc.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <stdint.h>
 #include <assert.h>

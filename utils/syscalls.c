@@ -60,12 +60,8 @@ extern int _heap;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-void _exit(int status);
-void _kill(int pid, int sig);
-extern int _getpid(void);
 
-extern caddr_t
-_sbrk(int incr)
+caddr_t _sbrk(int incr)
 {
 	static unsigned char *heap = NULL;
 	unsigned char *prev_heap;
@@ -80,46 +76,39 @@ _sbrk(int incr)
 	return (caddr_t) prev_heap;
 }
 
-extern int
-link(char *old, char *new)
+int link(char *old, char *new)
 {
 	return -1;
 }
 
-extern int
-_close(int file)
+int _close(int file)
 {
 	return -1;
 }
 
-extern int
-_fstat(int file, struct stat *st)
+int _fstat(int file, struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 
 	return 0;
 }
 
-extern int
-_isatty(int file)
+int _isatty(int file)
 {
 	return 1;
 }
 
-extern int
-_lseek(int file, int ptr, int dir)
+int _lseek(int file, int ptr, int dir)
 {
 	return 0;
 }
 
-extern int
-_read(int file, char *ptr, int len)
+int _read(int file, char *ptr, int len)
 {
 	return 0;
 }
 
-extern int
-_write(int file, char *ptr, int len)
+int _write(int file, char *ptr, int len)
 {
 	int iIndex;
 
@@ -131,22 +120,19 @@ _write(int file, char *ptr, int len)
 	return iIndex;
 }
 
-void
-_exit(int status)
+void _exit(int status)
 {
 	printf("Exiting with status %d.\n", status);
 
 	for (;;) ;
 }
 
-void
-_kill(int pid, int sig)
+void _kill(int pid, int sig)
 {
 	return;
 }
 
-extern int
-_getpid(void)
+int _getpid(void)
 {
 	return -1;
 }
