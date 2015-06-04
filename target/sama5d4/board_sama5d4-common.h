@@ -141,8 +141,11 @@
  *  - \ref BOARD_MAINOSC
  */
 
-/** Frequency of the board main oscillator */
-#define BOARD_MAINOSC           12000000
+/** Frequency of the board slow clock oscillator */
+#define BOARD_SLOW_CLOCK_EXT_OSC 32768
+
+/** Frequency of the board main clock oscillator */
+#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
 /*----------------------------------------------------------------------------*/
 /**

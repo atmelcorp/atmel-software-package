@@ -86,10 +86,94 @@ static uint32_t _pmc_mck = 0;
 
 static void _pmc_compute_mck(void)
 {
+	uint32_t mck = 0;
 	uint32_t mckr = PMC->PMC_MCKR;
-	uint32_t pllar = (CKGR_PLLAR_MULA_Msk & PMC->CKGR_PLLAR) >> CKGR_PLLAR_MULA_Pos;
-	uint32_t mdiv = (PMC_MCKR_MDIV(mckr) < 3) ?  (1u << PMC_MCKR_MDIV(mckr)) : 3;
-	_pmc_mck = BOARD_MAINOSC / mdiv / (mckr & PMC_MCKR_PLLADIV2 ? 2 : 1) * (pllar + 1);
+	uint32_t pllar;
+	uint32_t pllmula;
+	uint32_t plldiva;
+
+	uint32_t css = mckr & PMC_MCKR_CSS_Msk;
+	switch (css) {
+	case PMC_MCKR_CSS_SLOW_CLK:
+		if (SCKC->SCKC_CR & SCKC_CR_OSCSEL)
+			mck = SLOW_CLOCK_INT_OSC; /* on-chip slow clock RC */
+		else
+			mck = BOARD_SLOW_CLOCK_EXT_OSC; /* external crystal */
+		break;
+	case PMC_MCKR_CSS_MAIN_CLK:
+		if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
+			mck = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+		else
+			mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		break;
+	case PMC_MCKR_CSS_PLLA_CLK:
+		if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
+			mck = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+		else
+			mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		pllar = PMC->CKGR_PLLAR;
+		pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
+		plldiva = (pllar & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
+		/* no need to handle plldiva=0 case, it is not possible since
+		   we are running on PLLA */
+		mck = mck * (pllmula + 1) / plldiva;
+		if (mckr & PMC_MCKR_PLLADIV2)
+			mck >>= 1;
+		break;
+	case PMC_MCKR_CSS_UPLL_CLK:
+		mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		break;
+	default:
+		/* should never get here... */
+		break;
+	}
+
+	uint32_t pres = mckr & PMC_MCKR_PRES_Msk;
+	switch (pres) {
+	case PMC_MCKR_PRES_CLOCK:
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV2:
+		mck >>= 1;
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV4:
+		mck >>= 2;
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV8:
+		mck >>= 3;
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV16:
+		mck >>= 4;
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV32:
+		mck >>= 5;
+		break;
+	case PMC_MCKR_PRES_CLOCK_DIV64:
+		mck >>= 6;
+		break;
+	default:
+		/* should never get here... */
+		break;
+	}
+
+	uint32_t mdiv = mckr & PMC_MCKR_MDIV_Msk;
+	switch (mdiv) {
+	case PMC_MCKR_MDIV_EQ_PCK:
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV2:
+		mck >>= 1; // divide by 2
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV4:
+		mck >>= 2; // divide by 4
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV3:
+		mck /= 3;  // divide by 3
+		break;
+	default:
+		/* should never get here... */
+		break;
+	}
+
+	_pmc_mck = mck;
 }
 
 /*----------------------------------------------------------------------------
@@ -208,7 +292,7 @@ void pmc_switch_mck_to_pll(void)
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
-	_pmc_compute_mck();
+	_pmc_mck = 0;
 }
 
 /**
@@ -220,7 +304,7 @@ void pmc_switch_mck_to_main(void)
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
-	_pmc_compute_mck();
+	_pmc_mck = 0;
 }
 
 /**
@@ -232,7 +316,7 @@ void pmc_switch_mck_to_slck(void)
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
-	_pmc_compute_mck();
+	_pmc_mck = 0;
 }
 
 /**

@@ -226,7 +226,11 @@ typedef struct {
 #define CKGR_MCFR_MAINFRDY (0x1u << 16)	/**< \brief (CKGR_MCFR) Main Clock Ready */
 #define CKGR_MCFR_RCMEAS (0x1u << 20) /**< \brief (CKGR_MCFR) RC Oscillator Frequency Measure (write-only) */
 /* -------- CKGR_PLLAR : (PMC Offset: 0x0028) PLLA Register -------- */
-#define CKGR_PLLAR_DIVA (0x1u << 0) /**< \brief (CKGR_PLLAR) Divider A */
+#define CKGR_PLLAR_DIVA_Pos 0
+#define CKGR_PLLAR_DIVA_Msk (0x1u << CKGR_PLLAR_DIVA_Pos) /**< \brief (CKGR_PLLAR) Divider A */
+#define CKGR_PLLAR_DIVA(value) ((CKGR_PLLAR_DIVA_Msk & ((value) << CKGR_PLLAR_DIVA_Pos)))
+#define   CKGR_PLLAR_DIVA_0 (0x0u << 0) /**< \brief (CKGR_PLLAR) Divider output is 0 */
+#define   CKGR_PLLAR_DIVA_BYPASS (0x1u << 0) /**< \brief (CKGR_PLLAR) Divider is bypassed */
 #define CKGR_PLLAR_PLLACOUNT_Pos 8
 #define CKGR_PLLAR_PLLACOUNT_Msk (0x3fu << CKGR_PLLAR_PLLACOUNT_Pos) /**< \brief (CKGR_PLLAR) PLLA Counter */
 #define CKGR_PLLAR_PLLACOUNT(value) ((CKGR_PLLAR_PLLACOUNT_Msk & ((value) << CKGR_PLLAR_PLLACOUNT_Pos)))

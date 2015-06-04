@@ -1026,5 +1026,12 @@ typedef volatile unsigned int AT91_REG; /* Hardware register definition */
 #define USART_FIFO_DEPTH (32u)
 #define SPI_FIFO_DEPTH (32u)
 #define TWI_FIFO_DEPTH (32u)
+
+/** Frequency of the on-chip slow clock oscillator */
+#define SLOW_CLOCK_INT_OSC 32000
+
+/** Frequency of the on-chip main clock oscillator */
+#define MAIN_CLOCK_INT_OSC 12000000
+
 #endif // _CHIP_H_
 

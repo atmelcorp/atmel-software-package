@@ -233,4 +233,10 @@ static inline uint32_t get_peripheral_clock_divider(uint32_t id)
 	}
 }
 
+/** Frequency of the on-chip slow clock oscillator */
+#define SLOW_CLOCK_INT_OSC 32000
+
+/** Frequency of the on-chip main clock oscillator */
+#define MAIN_CLOCK_INT_OSC 12000000
+
 #endif /* _SAMA5D4_ */
