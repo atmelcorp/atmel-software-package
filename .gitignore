@@ -9,3 +9,7 @@ GTAGS
 *.ewp
 *.eww
 *.ewd
+*.dep
+*.ewt
+examples/*/settings/
+*~
