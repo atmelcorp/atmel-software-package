@@ -30,24 +30,33 @@
 /**
   * \file syscalls.c
   *
-  * Implementation of newlib syscall.
+  * Implementation of syscall bindings.
   *
   */
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
-//#include "board.h"
-
+#include "syscalls.h"
 #include "misc/console.h"
+
+#ifdef __GNUC__
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "syscalls.h"
+/*----------------------------------------------------------------------------
+ *        Exported structures
+ *----------------------------------------------------------------------------*/
+
+struct __FILE {
+	int handle;
+};
+FILE __stdout;
+FILE __stderr;
+
 
 /*----------------------------------------------------------------------------
  *        Exported variables
@@ -112,7 +121,6 @@ int _write(int file, char *ptr, int len)
 {
 	int iIndex;
 
-//    for ( ; *ptr != 0 ; ptr++ )
 	for (iIndex = 0; iIndex < len; iIndex++, ptr++) {
 		console_put_char(*ptr);
 	}
@@ -124,7 +132,7 @@ void _exit(int status)
 {
 	printf("Exiting with status %d.\n", status);
 
-	for (;;) ;
+	for (;;);
 }
 
 void _kill(int pid, int sig)
@@ -136,3 +144,51 @@ int _getpid(void)
 {
 	return -1;
 }
+
+/*------------------------------------------------------------------------------
+ *  Outputs a character.
+ *------------------------------------------------------------------------------*/
+int fputc(int ch, FILE * f)
+{
+	if ((f == stdout) || (f == stderr)) {
+		console_put_char(ch);
+		return ch;
+	} else {
+		return EOF;
+	}
+}
+
+void _ttywrch(int ch)
+{
+	console_put_char((uint8_t) ch);
+}
+
+void _sys_exit(int return_code)
+{
+	while (1);		/* endless loop */
+}
+
+/*------------------------------------------------------------------------------
+ *  Low level functions I/O for assert().
+ *------------------------------------------------------------------------------*/
+void __assert_puts(const char *str)
+{
+	printf("%s", str);
+}
+
+#elif defined __ICCARM__  /* IAR Ewarm 5.41+ */
+
+/**
+ * \brief Outputs a character on the DBGU.
+ *
+ * \param c  Character to output.
+ *
+ * \return The character that was output.
+ */
+WEAK int putchar(int c)
+{
+	console_put_char(c);
+	return c;
+}
+
+#endif  /* defined __ICCARM__ */

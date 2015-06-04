@@ -364,18 +364,3 @@ void console_echo(uint8_t c)
 		console_put_char(c);
 	}
 }
-
-#if defined __ICCARM__  /* IAR Ewarm 5.41+ */
-/**
- * \brief Outputs a character on the DBGU.
- *
- * \param c  Character to output.
- *
- * \return The character that was output.
- */
-extern WEAK signed int putchar(signed int c)
-{
-	console_put_char(c);
-	return c;
-}
-#endif  /* defined __ICCARM__ */

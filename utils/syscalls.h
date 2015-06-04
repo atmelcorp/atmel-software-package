@@ -36,6 +36,10 @@
 #ifndef _SYSCALLS_HEADER_
 #define _SYSCALLS_HEADER_
 
+#include "compiler.h"
+
+#ifdef __GNUC__
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -70,5 +74,5 @@ extern void _exit(int status);
 extern void _kill(int pid, int sig);
 
 extern int _getpid(void);
-
+#endif
 #endif				/* _SYSCALLS_HEADER_ */
