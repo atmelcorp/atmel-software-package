@@ -38,7 +38,7 @@ $(BINNAME).ewp:
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "target" $(iar-project-template-y) > $@.1
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "utils" $@.1 > $@.2
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "drivers" $@.2 > $@.3
-	@tr '[:space:]' '\n' <<< "$(IAR_FLAGS)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.3 > $@.4
+	@tr '[:space:]' '\n' <<< "$(IAR_FLAGS) SOFTPACK_VERSION=$(SOFTPACK_VERSION)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.3 > $@.4
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.4 > $@.5
 	@bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.5 $(iar-linker-script-y) > $@.6
 	@bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.6 $(chip-serie-name-y) > $@.7
