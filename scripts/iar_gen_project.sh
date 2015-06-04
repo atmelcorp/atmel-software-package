@@ -122,10 +122,16 @@ function _insert_project_files() {
     local input=()
     local tmpxml=$(mktemp)
 
+    local section=$1
+
+    local input=()
+
     while read -r line
     do
 	input+=($line)
     done
+
+    local tmpxml=$(mktemp)
 
     (
 	for path in ${input[@]}
@@ -150,8 +156,38 @@ function _insert_project_files() {
     rm -f $tmpxml 2>&1 > /dev/null
 }
 
+function _insert_chip_serie_name() {
+    sed -e "s/__REPLACE_CHIP_SERIE__/$SERIENAME/g" < $TEMPLATE_FILE
+}
+
+function _insert_linker_script() {
+    local linker_script=$1
+
+    if [ ! -f $linker_script ]
+    then
+	echo File $linker_script do not exists! 1>&2
+	exit 3
+    fi
+
+    local win_path=$(_to_win_path $linker_script)
+
+    sed -e "s%__REPLACE_LINK_SCRIPT__%\$PROJ_DIR\$\\\\$win_path%g" < $TEMPLATE_FILE
+}
+
+function _insert_bin_name() {
+    local binary_name=$1
+
+    if [ -z $binary_name ]
+    then
+	echo binary_name not defined! 1>&2
+	exit 3
+    fi
+
+    sed -e "s/__REPLACE_BIN_NAME__/$binary_name/g" < $TEMPLATE_FILE
+}
+
 function _finalize() {
-    sed -e "s/__REPLACE_DEP_LIST__//g" < $TEMPLATE_FILE
+    sed -e "s/\(__REPLACE_DEP_LIST__\|__REPLACE_PROJECT_FILES__\)//g" < $TEMPLATE_FILE
 }
 
 case $SECTION in
@@ -170,7 +206,7 @@ case $SECTION in
     "chip_serie")
 	_insert_chip_serie_name $3
 	;;
-    "files")
+    "project_files")
 	_insert_project_files
 	;;
     "finalize")

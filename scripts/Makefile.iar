@@ -1,3 +1,31 @@
+# ----------------------------------------------------------------------------
+#         SAM Software Package License
+# ----------------------------------------------------------------------------
+# Copyright (c) 2015, Atmel Corporation
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# - Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the disclaimer below.
+#
+# Atmel's name may not be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+# DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
 iar-project-template-y ?= $(TOP)/scripts/iar_project.template
 iar-workspace-template-y ?= $(TOP)/scripts/iar_workspace.template
 iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
@@ -11,10 +39,10 @@ $(BINNAME).ewp:
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "utils" $@.1 > $@.2
 	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "drivers" $@.2 > $@.3
 	@tr '[:space:]' '\n' <<< "$(IAR_FLAGS)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.3 > $@.4
-	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "target" $@4 > $@.5
+	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.4 > $@.5
 	@bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.5 $(iar-linker-script-y) > $@.6
 	@bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.6 $(chip-serie-name-y) > $@.7
-	@bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.8 $(BINNAME) > $@.8
+	@bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.7 $(BINNAME) > $@.8
 	@bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.8 > $@
 	@rm -f $@.*
 

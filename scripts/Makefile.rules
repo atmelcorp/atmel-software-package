@@ -94,7 +94,7 @@ $(BUILDDIR)/$(BINNAME).bin: $(BUILDDIR)/$(BINNAME).elf
 
 clean:
 	@rm -rf $(BUILDDIR)
-	@rm -f *.eww *.ewp *.ewd
+	@rm -f $(BINNAME).eww $(BINNAME).ewp $(BINNAME).ewd
 
 size: $(BUILDDIR)/$(BINNAME).elf
 	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
