@@ -5,10 +5,13 @@
 #ifndef WEAK
 #if defined   ( __CC_ARM   )
 #define WEAK __attribute__ ((weak))
+#define CONSTRUCTOR __attribute__((constructor))
 #elif defined ( __ICCARM__ )
 #define WEAK __weak
+#define CONSTRUCTOR
 #elif defined (  __GNUC__  )
 #define WEAK __attribute__ ((weak))
+#define CONSTRUCTOR __attribute__((constructor))
 #endif
 #endif
 

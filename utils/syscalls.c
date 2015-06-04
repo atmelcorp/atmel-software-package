@@ -70,6 +70,12 @@ extern int _heap;
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+/* Desactivate stream buffering */
+CONSTRUCTOR static void _disable_io_buffering(void)
+{
+	setvbuf(stdout, (char *)NULL, _IONBF, 0);
+}
+
 caddr_t _sbrk(int incr)
 {
 	static unsigned char *heap = NULL;

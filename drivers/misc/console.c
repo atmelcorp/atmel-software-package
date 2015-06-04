@@ -126,10 +126,6 @@ void console_configure(uint32_t baudrate)
 
 	/* Finally */
 	_bConsoleIsInitialized = 1;
-
-#if defined(__GNUC__)
-	setvbuf(stdout, (char *)NULL, _IONBF, 0);
-#endif
 }
 
 /**
