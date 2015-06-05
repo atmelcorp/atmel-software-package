@@ -42,12 +42,14 @@ struct _pin
 	uint32_t mask;
 	/** Pointer to the PIO controller which has the pin(s). */
 	Pio *pio;
-	/** Peripheral ID of the PIO controller which has the pin(s). */
+	/** The IO group containing the pins you want to use.
+	    It can be the Peripheral ID of the PIO controller or the
+	    IOset which has the pin(s). It depends on the used API */
 	uint8_t id;
 	/** Pin type */
 	uint8_t type;
 	/** Pin config attribute. */
-	uint8_t attribute;
+	uint32_t attribute;
 };
 
 #define PIO_LISTSIZE(pins)	(sizeof(pins) / sizeof(struct _pin))
