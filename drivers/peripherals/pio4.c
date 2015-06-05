@@ -234,8 +234,10 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 			cfg.bitfield.ifscen = (pin_list->attribute & PIO_FILTER_SLOW_CLOCK)? 1:0;
 			cfg.bitfield.opd = (pin_list->attribute & PIO_OPENDRAIN)? 1:0;
 			cfg.bitfield.schmitt =(pin_list->attribute & PIO_TRIGGER_DIS)? 1:0;
-			cfg.bitfield.drvstr = pin_list->attribute & PIO_DRVSTR_Msk;
-			cfg.bitfield.evtsel = pin_list->attribute & PIO_EVTSEL_Msk;
+			cfg.bitfield.drvstr =
+				(pin_list->attribute & PIO_DRVSTR_Msk) >> PIO_EVTSEL_Pos;
+			cfg.bitfield.evtsel =
+				(pin_list->attribute & PIO_EVTSEL_Msk) >> PIO_EVTSEL_Pos;
 			cfg.bitfield.pcfs = (pin_list->attribute & PIO_PCFS_FREEZE)? 1:0 ;
 			cfg.bitfield.icfs = (pin_list->attribute & PIO_ICFS_FREEZE)? 1:0 ;
 			/* cfg.bitfield.tampen = (pin_list->attribute & PIO_TAMPEN_FREEZE)? 1:0 ; */
