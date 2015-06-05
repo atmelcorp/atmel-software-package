@@ -69,6 +69,7 @@
 
 #include "trace.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 
@@ -161,7 +162,7 @@ static void _pioa_handler(void)
 #ifdef ID_PIOB
 static void _piob_handler(void)
 {
-	uint32_t status = PIOA->PIO_IO_GROUP[PIO_GROUP_B].PIO_ISR;
+	uint32_t status = PIOA->PIO_PIO_[PIO_GROUP_B].S_PIO_ISR;
 	_handlers[PIO_GROUP_B](status);
 }
 #endif
@@ -196,6 +197,26 @@ static inline uint32_t _pio_group_to_id(int group)
 	};
 }
 
+static void* _pio_configure_pins(const struct _pin *pin, uint32_t periph_id)
+{
+	PioPio_* piogroup = &pin->pio->PIO_PIO_[pin->id];
+	if (MATRIX1->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
+		piogroup->S_PIO_SIONR = pin->mask;
+		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
+	} else {
+		piogroup->S_PIO_SIOSR = pin->mask;
+		return (void*) piogroup;
+	}
+}
+
+static void* _pio_retrive_group(const struct _pin *pin, uint32_t periph_id)
+{
+	if (MATRIX1->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
+		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
+	} else {
+		return (void*) &pin->pio->PIO_PIO_[pin->id];
+	}
+}
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
@@ -212,20 +233,20 @@ static inline uint32_t _pio_group_to_id(int group)
  *
  * \return 1 if the pins have been configured properly; otherwise 0.
  */
-
 uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 {
 	union _pio_cfg cfg;
-	uint8_t group;
 	PioIo_group* pioiog;
 
 	/* Configure pins */
 	while (size--)
 	{
+		/* Enable the PIO group if needed */
+		uint32_t periph_id = _pio_group_to_id(pin_list->id);
+
 		assert(pin_list->id < PIO_GROUP_LENGTH);
 		cfg.uint32_value = 0;
-		group = pin_list->id;
-		pioiog = &pin_list->pio->PIO_IO_GROUP[group];
+		pioiog = (PioIo_group*) _pio_configure_pins(pin_list, periph_id);
 
 		if ( pin_list->attribute != PIO_DEFAULT) {
 			cfg.bitfield.puen = (pin_list->attribute & PIO_PULLUP)? 1:0;
@@ -284,10 +305,7 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 
 		pioiog->PIO_MSKR = pin_list->mask;
 		pioiog->PIO_CFGR = cfg.uint32_value;
-
-		/* Enable the PIO group if needed */
-		uint32_t pio_group = _pio_group_to_id(pin_list->id);
-		pmc_enable_peripheral(pio_group);
+		pmc_enable_peripheral(periph_id);
 
 		++pin_list;
 	}
@@ -305,7 +323,8 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 void pio_set(const struct _pin *pin)
 {
 	assert(pin->id < PIO_GROUP_LENGTH);
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_SODR = pin->mask;
 }
 
@@ -320,7 +339,8 @@ void pio_set(const struct _pin *pin)
 void pio_clear(const struct _pin *pin)
 {
 	assert(pin->id < PIO_GROUP_LENGTH);
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_CODR = pin->mask;
 }
 
@@ -338,21 +358,22 @@ void pio_clear(const struct _pin *pin)
 uint8_t pio_get(const struct _pin *pin)
 {
 	assert(pin->id < PIO_GROUP_LENGTH);
-    uint32_t reg ;
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t reg ;
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 
-    if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
-	reg = pioiog->PIO_ODSR ;
-    }
-    else {
-	reg = pioiog->PIO_PDSR ;
-    }
-    if ( (reg & pin->mask) == 0 ) {
-	return 0 ;
-    }
-    else {
-	return 1 ;
-    }
+	if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
+		reg = pioiog->PIO_ODSR ;
+	}
+	else {
+		reg = pioiog->PIO_PDSR ;
+	}
+	if ( (reg & pin->mask) == 0 ) {
+		return 0 ;
+	}
+	else {
+		return 1 ;
+	}
 }
 
 /**
@@ -368,7 +389,9 @@ uint8_t pio_get(const struct _pin *pin)
 uint8_t pio_get_output_data_status(const struct _pin *pin)
 {
 	assert(pin->id < PIO_GROUP_LENGTH);
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
+
 	if ((pioiog->PIO_ODSR & pin->mask) == 0) {
 		return 0;
 	}
@@ -452,6 +475,7 @@ void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t))
 	uint32_t id = _pio_group_to_id(group);
 	aic_set_source_vector(id,
 			      (handler_t)_generic_handlers[group]);
+	aic_enable(id);
 }
 
 void pio_reset_all_it(void)
@@ -486,7 +510,8 @@ void pio_enable_it(const struct _pin *pin)
 {
 	trace_debug("pio_enable_it() \n\r");
 	assert(pin != NULL);
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 
 	pioiog->PIO_ISR;
 	/* Configure interrupt enable register */
@@ -502,6 +527,7 @@ void pio_disable_it(const struct _pin *pin)
 {
 	trace_debug("pio_enable_it()\n\r");
 	assert(pin != NULL);
-	PioIo_group* pioiog = &pin->pio->PIO_IO_GROUP[pin->id];
+	uint32_t periph_id = _pio_group_to_id(pin->id);
+	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_IDR = pin->mask;
 }

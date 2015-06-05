@@ -125,7 +125,7 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-#define PIO_CFG_PB  (PIO_PULLDOWN)
+#define PIO_CFG_PB  (PIO_PULLUP)
 
 #define PIN_PUSHBUTTON_1 { PIO_PB6, PIO_ADD, PIO_GROUP_B, PIO_INPUT, PIO_CFG_PB }
 
