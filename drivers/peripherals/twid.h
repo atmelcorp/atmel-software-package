@@ -47,6 +47,11 @@
 /** TWI driver is currently busy. */
 #define TWID_ERROR_BUSY              1
 
+// TWI clock frequency in Hz.
+#define TWCK_400K            400000
+#define TWCK_200K            200000
+#define TWCK_100K            100000
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -60,6 +65,42 @@ struct _twid {
 	Twi *pTwi;			/** Pointer to the underlying TWI peripheral.*/
 	struct _async *pTransfer;	/** Current asynchronous transfer being processed.*/
 };
+
+struct _handler_twi
+{
+	uint8_t	IdTwi;      // ID TWI
+	uint8_t	Status;     // status of the TWI
+	uint8_t	PeriphAddr; // Address of the component
+	uint8_t	LenData;    // Lenfth of the data to be read or write
+	uint8_t	AddSize;    // Size of the address
+	uint16_t	RegMemAddr; // Address of the memory or register
+	uint32_t	Twck;       // default clock of the bus TWI
+	uint8_t*	pData;      // pointer to a data buffer
+	struct _twid	twid;
+};
+
+
+	enum TWI_CMD
+	{
+		TWI_RD   = 0,
+		TWI_WR   = 1
+	};
+
+	enum TWI_STATUS
+	{
+		TWI_STATUS_RESET  = 0,
+		TWI_STATUS_HANDLE = 1u<<0,
+		TWI_STATUS_RFU2   = 1u<<1,
+		TWI_STATUS_RFU3   = 1u<<2,
+		TWI_STATUS_RFU4   = 1u<<3,
+		TWI_STATUS_READY  = 1u<<7,
+	};
+
+	enum TWI_RESULT
+	{
+		TWI_SUCCES   = 0,
+		TWI_FAIL	 = 1
+	};
 
 /*----------------------------------------------------------------------------
  *        Export functions

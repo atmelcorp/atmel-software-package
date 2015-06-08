@@ -34,13 +34,13 @@
 #include "board.h"
 #include "chip.h"
 
-#include "core/pio.h"
-#include "core/pmc.h"
+#include "peripherals/pio.h"
+#include "peripherals/pmc.h"
 
-#include "bus/twi.h"
-#include "bus/twid.h"
+#include "peripherals/twi.h"
+#include "peripherals/twid.h"
 
-#include "io/24mac402.h"
+#include "memories/24mac402.h"
 
 #include "crc.h"
 
@@ -163,7 +163,7 @@ void _at24mac402_set_dummy_add (uint8_t PerAdd, uint8_t RegAdd)
 //
 uint8_t at24mac402_get_serial_number (uint8_t* pSerNumbr)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EXT_MEM_ADD | BitA0ToA2;
 
 	// Tell the EEPROM where we would like to read from
@@ -188,7 +188,7 @@ uint8_t at24mac402_get_serial_number (uint8_t* pSerNumbr)
 //
 uint8_t at24mac402_get_mac_address(uint8_t* pMacAddr)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EXT_MEM_ADD | BitA0ToA2;
 
 	_at24mac402_set_dummy_add (i2c_address, AT24MAC402_EUI48_VALUE_ADD) ; // Location of the EUI-48
@@ -212,7 +212,7 @@ uint8_t at24mac402_get_mac_address(uint8_t* pMacAddr)
 //
 uint8_t at24mac402_read_eep (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EEP_ADD | BitA0ToA2;
 
 	_at24mac402_set_dummy_add (i2c_address, add) ;
@@ -235,7 +235,7 @@ uint8_t at24mac402_read_eep (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 //
 uint8_t at24mac402_write_eep (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EEP_ADD | BitA0ToA2;
 
 	_at24mac402_set_dummy_add (i2c_address, add) ;
@@ -263,7 +263,7 @@ uint8_t at24mac402_write_eep (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 //
 uint8_t at24mac402_write_eep_async (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EEP_ADD | BitA0ToA2;
 
 	_at24mac402_set_dummy_add (i2c_address, add) ;
@@ -286,7 +286,7 @@ uint8_t at24mac402_write_eep_async (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 //
 uint8_t at24mac402_read_eep_async (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t i2c_address = AT24MAC402_EEP_ADD | BitA0ToA2;
 
 	_at24mac402_set_dummy_add (i2c_address, add) ;
@@ -303,11 +303,11 @@ uint8_t at24mac402_read_eep_async (uint8_t add, uint8_t Len, uint8_t* pDataBuf)
 
 uint8_t at24mac402_get_info_board (struct _at24mac402_board_info* pInfo_board)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 	uint8_t crc = 0;
 
 	Status = at24mac402_read_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board);
-	if(Status != RET_OK) return Status;
+	if(Status != TWI_SUCCES) return Status;
 	crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
 	return (crc==pInfo_board->Crc) ? 0: 1;
 }
@@ -316,7 +316,7 @@ uint8_t at24mac402_get_info_board (struct _at24mac402_board_info* pInfo_board)
 //------------------------------------------------------------------------------
 uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board)
 {
-	uint8_t Status = RET_OK;
+	uint8_t Status = TWI_SUCCES;
 
 	pInfo_board->Crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
 	Status = at24mac402_write_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board);
@@ -354,7 +354,7 @@ void at24mac402_display_info_board (struct _at24mac402_board_info* pInfo_board)
 //------------------------------------------------------------------------------
 void at24mac402_display_register (void)
 {
-	uint8_t Len, Status = RET_OK;
+	uint8_t Len, Status = TWI_SUCCES;
 	struct _at24mac402_board_info sInfo = {0};
 
 	// Read Serial Number
@@ -415,11 +415,11 @@ uint8_t at24mac402_begin (void)
 
 uint8_t at24mac402_test (void)
 {
-	uint8_t Len, Status = RET_OK;
+	uint8_t Len, Status = TWI_SUCCES;
 	uint8_t Pattern[2] = {0xA5, 0x5A};
 
 	Status = at24mac402_begin();
-	if (Status) return Status = RET_NOK;
+	if (Status) return Status = TWI_FAIL;
 
 	//** start test
 	// Erase
@@ -435,7 +435,7 @@ uint8_t at24mac402_test (void)
 	memset (BufTwi, 0x00, AT24MAC402_BLOCK_SIZE);
 	Status = at24mac402_read_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, BufTwi);
 	// Compare
-	Status = RET_OK;
+	Status = TWI_SUCCES;
 	printf("-T- ");
 	for(Len=0; Len<AT24MAC402_BLOCK_SIZE; Len+=2) {
 		printf("%s", BufTwi[Len]!=Pattern[0] ? "!": "." );

@@ -54,30 +54,12 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-// TWI clock frequency in Hz.
-#define TWCK_400K            400000
-#define TWCK_200K            200000
-#define TWCK_100K            100000
-
-struct _handler_twi
-{
-	uint8_t     	IdTwi;      // ID TWI
-	uint8_t     	Status;     // status of the TWI
-	uint8_t     	PeriphAddr; // Address of the component
-	uint8_t     	LenData;    // Lenfth of the data to be read or write
-	uint8_t     	AddSize;    // Size of the address
-	uint16_t    	RegMemAddr; // Address of the memory or register
-	uint32_t    	Twck;       // default clock of the bus TWI
-	uint8_t*    	pData;      // pointer to a data buffer
-	struct _twid	twid;
-} ;
-
 struct _handler_twi htwi = {0};
 
 // ACT8945A hardware interface
 
 // Using Flexcom0 TWI
-#define ACT8945A_TWI_ID  	ID_FLEXCOM4
+#define ACT8945A_TWI_ID	ID_FLEXCOM4
 
 static const struct _pin pins_twi_act8945a[] = PINS_FLEXCOM4_TWI_IOS3;
 

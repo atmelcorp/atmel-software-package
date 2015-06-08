@@ -26,4 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+drivers-y += drivers/memories/24mac402.o
+
 drivers-$(CONFIG_HAVE_AT25DFX) += drivers/memories/at25dfx.o
