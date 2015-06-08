@@ -36,6 +36,7 @@ utils-y += utils/math.o
 utils-y += utils/rand.o
 utils-y += utils/trace.o
 utils-y += utils/syscalls.o
+utils-y += utils/crc.o
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
 
