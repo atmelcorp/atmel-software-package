@@ -40,7 +40,7 @@
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 
-#include "memories/24mac402.h"
+#include "at24mac402.h"
 
 #include "trace.h"
 #include "crc.h"
