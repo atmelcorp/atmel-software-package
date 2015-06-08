@@ -118,7 +118,8 @@ void twid_initialize(struct _twid* pTwid, Twi * pTwi)
 	pTwid->pTwi = pTwi;
 	pTwid->pTransfer = 0;
 	/* Initialize XDMA driver instance with polling mode */
-	XDMAD_Initialize(&twi_dma, 1);
+
+	// ************* need to be updated XDMAD_Initialize(&twi_dma, 1);
 }
 
 /**

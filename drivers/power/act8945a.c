@@ -36,13 +36,14 @@
 
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-
 #include "peripherals/flexcom.h"
-
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 
 #include "power/act8945a.h"
+
+#include "trace.h"
+
 
 #include <stdio.h>
 #include <stdint.h>
@@ -873,11 +874,6 @@ uint8_t ACT8945A_begin (void)
 	memset ((void*)&htwi, 0x00, sizeof(htwi));
 	if (!_is_twi_ready(&htwi))
 	{
-#ifdef ECHO_CONSOLE
-		printf(" -I- Config PMIC ACT8945A \n\r");
-		printf(" -I- TWI%1X @0x%02X TWCK:%dKHz \n\r", ACT8945A_NUM_TWI, ACT8945A_ADDRESS, TWCK_400K/100);
-#endif
-
 		// Configure pins
 		pio_configure(pins_ctrl_act8945a, PIO_LISTSIZE(pins_ctrl_act8945a));
 
@@ -885,6 +881,7 @@ uint8_t ACT8945A_begin (void)
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
 		htwi.IdTwi = ACT8945A_TWI_ID;
 		htwi.Twck = TWCK_400K;
+		trace_info("@0x%02X TWCK:%dKHz \n\r", ACT8945A_ADDRESS, TWCK_400K/100);
 		Status = _twi_handler_init (&htwi);
 		htwi.PeriphAddr = ACT8945A_ADDRESS;
 		htwi.AddSize = 1;

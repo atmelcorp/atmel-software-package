@@ -368,6 +368,7 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
+	uint8_t status;
 	int i = 0;
 	led_status[0] = true;
 	for (i = 1; i < num_leds; ++i) {
@@ -395,6 +396,13 @@ int main(void)
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+	status = ACT8945A_begin();
+	if(status) printf("--E-- Error init ACT8945A \n\r");
+	ACT8945A_set_regulator_voltage_out4to7 (V_OUT6, 2500);
+	ACT8945A_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
+#endif
+
 	/* Configure PIT. */
 	printf("Configure PIT \n\r");
 	configure_pit();
@@ -416,7 +424,7 @@ int main(void)
 
 	printf("use push buttons or DBG key 0 to 9.\n\r");
 	printf("Press the number of the led to make it "
-	       "start ot stop blinking.\n\r");
+	       "start or stop blinking.\n\r");
 	printf("Press 's' to stop the TC and 'b' to start it\r\n");
 
 	while (1) {
