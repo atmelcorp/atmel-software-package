@@ -108,16 +108,19 @@ extern void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData);
 extern uint32_t spi_get_status(Spi * spi);
 extern uint32_t spi_is_finished(Spi * spi);
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_SPI_FIFO
 extern void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
 			uint8_t rx_thres,
 			uint32_t ready_modes);
 extern void spi_fifo_disable(Spi* spi);
 
+extern void spi_fifo_clear(Spi* spi);
+
 extern uint32_t spi_fifo_rx_size(Spi *spi);
 extern uint32_t spi_fifo_tx_size(Spi *spi);
 
-extern uint32_t spi_read_stream(Spi *spi, void *stream, uint32_t len);
+extern uint32_t spi_read_stream(Spi *spi, uint32_t chip_select,
+				void *stream, uint32_t len);
 extern uint32_t spi_write_stream(Spi *spi, uint32_t chip_select,
 			  const void *stream, uint32_t len);
 #endif
