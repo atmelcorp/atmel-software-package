@@ -281,15 +281,12 @@ uint32_t at25dfx_erase_block(uint32_t start_addr, uint32_t block_size)
 
 	switch(block_size) {
 	case AT25DFX_BLOCK_4K:
-		assert((start_addr & ~0xFFF) == start_addr);
 		opcode = ERASE_4K;
 		break;
 	case AT25DFX_BLOCK_32K:
-		assert((start_addr & ~0x7FFF) == start_addr);
 		opcode = ERASE_32K;
 		break;
 	case AT25DFX_BLOCK_64K:
-		assert((start_addr & ~0xFFFF) == start_addr);
 		opcode = ERASE_64K;
 		break;
 	default:
