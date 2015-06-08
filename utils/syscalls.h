@@ -74,5 +74,9 @@ extern void _exit(int status);
 extern void _kill(int pid, int sig);
 
 extern int _getpid(void);
+
+extern void _ttywrch(int ch);
+
+extern void _sys_exit(int return_code);
 #endif
 #endif				/* _SYSCALLS_HEADER_ */

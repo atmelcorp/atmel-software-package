@@ -124,7 +124,8 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 		(cl_div <= 255) ? ok = 1 : ck_div++;
 	}
 	assert(ck_div < 8);
-	trace_debug("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", ck_div, cl_div);
+	trace_debug("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r",
+		    (unsigned int)ck_div, (unsigned int)cl_div);
 	pTwi->TWI_CWGR = 0;
 	pTwi->TWI_CWGR = (cl_div << 16) | (cl_div << 8) | cl_div;
 }

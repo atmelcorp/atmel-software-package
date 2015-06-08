@@ -174,14 +174,6 @@ void _sys_exit(int return_code)
 	while (1);		/* endless loop */
 }
 
-/*------------------------------------------------------------------------------
- *  Low level functions I/O for assert().
- *------------------------------------------------------------------------------*/
-void __assert_puts(const char *str)
-{
-	printf("%s", str);
-}
-
 #elif defined __ICCARM__  /* IAR Ewarm 5.41+ */
 
 /**

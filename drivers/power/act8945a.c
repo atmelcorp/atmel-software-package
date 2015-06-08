@@ -149,7 +149,7 @@ static char ChargState[4][24] =
 ///        Local functions
 //------------------------------------------------------------------------------
 
-uint8_t _twi_handler_init (struct _handler_twi* phtwi)
+static uint8_t _twi_handler_init (struct _handler_twi* phtwi)
 {
 	uint8_t Status = phtwi->Status;
 	static struct _twid twid;
@@ -182,7 +182,7 @@ uint8_t _twi_handler_init (struct _handler_twi* phtwi)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-uint8_t _is_twi_ready (struct _handler_twi* handler_twi)
+static uint8_t _is_twi_ready (struct _handler_twi* handler_twi)
 {
 	return handler_twi->Status & TWI_STATUS_READY;
 }
@@ -190,7 +190,7 @@ uint8_t _is_twi_ready (struct _handler_twi* handler_twi)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-uint8_t _twid_rd_wr (struct _handler_twi* handler_twi, enum TWI_CMD Cmd)
+static uint8_t _twid_rd_wr (struct _handler_twi* handler_twi, enum TWI_CMD Cmd)
 {
 	if (Cmd == TWI_RD)
 		return (uint8_t)twid_read(&handler_twi->twid, handler_twi->PeriphAddr,
@@ -305,7 +305,7 @@ void _ACT8945A_registers_dump(void)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Dump and display the ACPH registers
-void _ACT8945A_registers_dump_APCH (void)
+static void _ACT8945A_registers_dump_APCH (void)
 {
 	uint8_t data, i = 0;
 
@@ -329,7 +329,7 @@ void _ACT8945A_registers_dump_APCH (void)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Convert the voltage setting to display value
-float _ACT8945A_Convert_voltage_setting (uint8_t Reg)
+static float _ACT8945A_Convert_voltage_setting (uint8_t Reg)
 {
 	float Result = 0;
 	uint8_t Mul20, Mul53;

@@ -105,7 +105,8 @@ ISO7816_GetChar(uint8_t * pCharToReceive)
 		}
 	}
 
-	trace_debug("T: %u\n\r", timeout);
+	trace_debug("T: %u\n\r",
+		    (unsigned int)timeout);
 
 	/* At least one complete character has been received and US_RHR has not yet been read. */
 
@@ -119,8 +120,10 @@ ISO7816_GetChar(uint8_t * pCharToReceive)
 
 	if (status != 0) {
 		/* trace_debug("R:0x%X\n\r", status); */
-		trace_debug("R:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
-		trace_debug("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
+		trace_debug("R:0x%X\n\r",
+			    (unsigned int)BOARD_ISO7816_BASE_USART->US_CSR);
+		trace_debug("Nb:0x%X\n\r",
+			    (unsigned int)BOARD_ISO7816_BASE_USART->US_NER);
 		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
 	}
 
@@ -158,8 +161,10 @@ ISO7816_SendChar(uint8_t CharToSend)
 		       | US_CSR_NACK | (1 << 10)));
 
 	if (status != 0) {
-		trace_debug("E:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_CSR);
-		trace_debug("Nb:0x%X\n\r", BOARD_ISO7816_BASE_USART->US_NER);
+		trace_debug("E:0x%X\n\r",
+			    (unsigned int)BOARD_ISO7816_BASE_USART->US_CSR);
+		trace_debug("Nb:0x%X\n\r",
+			    (unsigned int)BOARD_ISO7816_BASE_USART->US_NER);
 		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
 	}
 

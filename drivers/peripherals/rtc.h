@@ -135,6 +135,7 @@ extern void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num
 extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num);
 extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc);
 extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num);
+extern void rtc_convert_time_to_hms (struct _time *pTime, uint32_t count);
 
 #ifdef __cplusplus
 }
