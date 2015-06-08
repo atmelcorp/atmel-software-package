@@ -34,7 +34,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include <stdio.h>
+#include "crc.h"
 
 /*------------------------------------------------------------------------------
  *         Local variables
@@ -71,7 +71,7 @@ static const uint8_t dscrc_table[] =
 	233,183, 85, 11,136,214, 52,106, 43,117,151,201, 74, 20,246,168,
 	116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53};
 
-uint8_t _do_crc8 (uint8_t value)
+static uint8_t _do_crc8 (uint8_t value)
 {
 	return dscrc_table[Crc8 ^ value];
 }

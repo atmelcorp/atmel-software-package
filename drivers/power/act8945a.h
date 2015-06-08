@@ -273,7 +273,7 @@ extern uint8_t ACT8945A_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_O
 extern uint8_t ACT8945A_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
 extern uint8_t ACT8945A_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
 extern uint8_t ACT8945A_disable_all_APCH_interrupt (void);
-extern uint8_t ACT8945A_system_voltage_level (uint16_t Value);
+extern uint8_t ACT8945A_set_system_voltage_level (uint16_t Value);
 extern uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State);
 extern uint8_t ACT8945A_get_state_LBO_pin (void);
 extern uint8_t ACT8945A_begin(void);
