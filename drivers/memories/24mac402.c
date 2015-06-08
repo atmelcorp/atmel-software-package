@@ -42,6 +42,7 @@
 
 #include "memories/24mac402.h"
 
+#include "trace.h"
 #include "crc.h"
 
 #include <stdio.h>
@@ -393,7 +394,9 @@ uint8_t at24mac402_begin (void)
 		memset ((uint8_t*)&htwi_eep, 0x00, sizeof(htwi_eep));
 		htwi_eep.IdTwi = ID_TWI1;
 		htwi_eep.Twck = TWCK_100K;
-		printf(" -I- @0x%02X TWCK:%dKHz \n\r", AT24MAC402_EXT_MEM_ADD, htwi_eep.Twck/1000);
+		trace_info("@0x%02X TWCK:%dKHz \n\r",
+			   (unsigned int)AT24MAC402_EXT_MEM_ADD,
+			   (unsigned int)htwi_eep.Twck/1000);
 		Status = _at24mac402_twi_handler_init (&htwi_eep);
 		htwi_eep.PeriphAddr = AT24MAC402_EXT_MEM_ADD;
 		htwi_eep.AddSize = 1;
