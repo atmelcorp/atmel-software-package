@@ -47,6 +47,7 @@ vpath %.c $(TOP)
 vpath %.S $(TOP)
 
 OBJS := $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y:.S=.o) $(obj-y))
+LIBS := $(addprefix $(BUILDDIR)/,$(lib-y))
 
 -include $(OBJS:.o=.d)
 
@@ -81,9 +82,9 @@ $(BUILDDIR)/%.o: %.S
 	$(ECHO) CC $<
 	$(Q)$(CC) $(CFLAGS_ASM) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
 
-$(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(addprefix $(BUILDDIR)/,$(lib-y))
+$(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(LIBS)
 	$(ECHO) LINK $@
-	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $^
+	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
 
 $(BUILDDIR)/$(BINNAME).symbols: $(BUILDDIR)/$(BINNAME).elf
 	$(Q)$(NM) $< >$@
