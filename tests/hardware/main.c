@@ -224,12 +224,6 @@ static void pit_handler(void)
 	/* Read the PIT status register */
 	status = pit_get_status() & PIT_SR_PITS;
 	if (status != 0) {
-
-		/* 1 = The Periodic Interval timer has reached PIV
-		 * since the last read of PIT_PIVR. Read the PIVR to
-		 * acknowledge interrupt and get number of ticks
-		 * Returns the number of occurrences of periodic
-		 * intervals since the last read of PIT_PIVR. */
 		dwTimeStamp += (pit_get_pivr() >> 20);
 	}
 }

@@ -58,14 +58,15 @@
 #define AT24MAC402
 // #define ONE-WIRE
 // #define NAND_FLASH
-#define EMMC
+//#define EMMC
 // #define SDRAM_DDR2
 #define SDRAM_DDR3
 #define	EEPROM
 #define SPI_FLASH
-#define QSPI_FLASH
-#define SDCARD
-#define GETH
+//#define QSPI_FLASH
+//#define SDCARD
+//#define GETH
+//#define LCD
 
 //------------------------------------------------------------------------------
 
@@ -227,8 +228,8 @@ typedef struct ParameterPageDataStructureDefinition
 
 #ifdef SPI_FLASH
 	#define SPIF_DEVICE		"AT25DF321A"
-	#define SPIF_INTERFACE	"SPI0, IOS1"
-	#define	SPIF_COMMENT 	"NPCS0"
+	#define SPIF_INTERFACE	"SPI0, IOS1, NPCS0"
+	#define	SPIF_COMMENT 	"32Mb/4MB"
 #endif
 
 //------------------------------------------------------------------------------
@@ -257,6 +258,11 @@ typedef struct ParameterPageDataStructureDefinition
 
 //------------------------------------------------------------------------------
 
+#ifdef LCD
+	#define LCD_DEVICE		"TM4301/TM7000"
+	#define LCD_INTERFACE	"18 bits data"
+	#define	LCD_COMMENT 	"RGB 6-6-6"
+#endif
 
 //------------------------------------------------------------------------------
 

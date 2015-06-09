@@ -35,6 +35,7 @@
 #include "chip.h"
 
 #include "peripherals/pmc.h"
+#include "peripherals/twid.h"
 #include "power/act8945A.h"
 
 #include "memories/at25dfx.h"
@@ -277,7 +278,7 @@ uint8_t EditInfoMpu (void)
 
 	printf ( " SERIAL NUMBER 0- : 0x%08x \n\r", SFR_SER_NUM0_REGISTER) ;
 	printf ( " SERIAL NUMBER 1- : 0x%08x \n\r", SFR_SER_NUM1_REGISTER) ;
-    printf("\n\r");
+    //printf("\n\r");
 	return 0;
 }
 
@@ -296,7 +297,7 @@ struct _stResult
 void check_hw_on_board (void)
 {
 	uint32_t MulA, PllaDiv2, Result, board_mck;
-	uint8_t index, status;
+	uint8_t i, index, status, sum;
 	struct _stResult sresult[16];
 
 	index = 0;
@@ -307,42 +308,47 @@ void check_hw_on_board (void)
     printf("-- Board name: %s -- \n\r",BOARD_NAME);
     printf("-- Compiled: %s %s -- \n\r", __DATE__, __TIME__);
 
-    printf("\n\r");
-    printf("==CONSOLE\n\r");
+    //printf("\n\r");
+    printf("--CONSOLE\n\r");
 	printf(" UART1, Bdr=57600\n\r");
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "CONSOLE");
+	strcpy (sresult[index++].string, "CONSOLE\t\t");
 
-    printf("\n\r");
-    printf("==MPU\n\r");
+    //printf("\n\r");
+    printf("**MPU\n\r");
     sresult[index].result = EditInfoMpu();
-	strcpy (sresult[index++].string, "MPU");
+	strcpy (sresult[index++].string, "MPU\t\t");
 
-    printf("==FREQ\n\r");
+	//printf("\n\r");
+    printf("--FREQ\n\r");
     MulA = (CKGR_PLLAR_MULA_Msk & PMC->CKGR_PLLAR) >> CKGR_PLLAR_MULA_Pos;
 	MulA ++;
     PllaDiv2 = (PMC->PMC_MCKR & PMC_MCKR_PLLADIV2 ? 2 : 1);
-    printf("==FREQ\n\r");
 	board_mck = pmc_get_master_clock();
     printf(" Osc:%dMHz \n\r Main OSC : %dMHz\n\r", BOARD_MAIN_CLOCK_EXT_OSC_MHZ, (int)board_mck/1000000);
     printf(" Check PCK: %03dMHz\n\r", (int)MulA*BOARD_MAIN_CLOCK_EXT_OSC_MHZ/PllaDiv2);
 
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	printf("\n\r");
-    printf("==PMIC \n\r");
-	sresult[index].result = ACT8945A_test();
-	strcpy (sresult[index++].string, "PMIC");
+	//printf("\n\r");
+    printf("--PMIC \n\r");
+	_ACT8945A_display_voltage_setting();
+	sresult[index].result = 0;
+	strcpy (sresult[index++].string, "PMIC\t\t");
 #endif
 
 #ifdef AT24MAC402
-	printf("\n\r");
-    printf("==EEP \n\r");
+	//printf("\n\r");
+    printf("--EEP \n\r");
 	printf(" Device   : %s\n\r", EEP_DEVICE);
     printf(" Interface: %s\n\r", EEP_INTERFACE);
     printf(" Comment  : %s\n\r", EEP_COMMENT);
-	sresult[index].result = at24mac402_test();
-	strcpy (sresult[index++].string, "EEP");
+	status = at24mac402_begin();
+	sresult[index].result = status;
+	strcpy (sresult[index++].string, "EEP\t\t");
+	if(status==TWI_SUCCES) {
+		at24mac402_display_register();
+	}
 #endif
 
 
@@ -350,8 +356,8 @@ void check_hw_on_board (void)
 	uint8_t Index = 0;
 	sPPDSD* OnfiPPDSD = GetPntPPDSD();
 
-    printf("\n\r");
-    printf("==NAND FLASH \n\r);
+    //printf("\n\r");
+    printf("--NAND FLASH \n\r);
     GetInfoNandFlash();
     OnfiPPDSD->ONFI_MIB.DeviceManufacturer[8]= 0;
     OnfiPPDSD->ONFI_MIB.DeviceModel[18]=0;
@@ -368,23 +374,23 @@ void check_hw_on_board (void)
     printf (" NumberOfLogicalUnits     : %d Unit \n\r", OnfiPPDSD->ONFI_MOB.NumberOfLogicalUnits[0] ) ;
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "NAND FLASH");
+	strcpy (sresult[index++].string, "NAND FLASH\t");
 #endif
 
 #ifdef EMMC
-    printf("\n\r");
-    printf("==eMMC\n\r");
+    //printf("\n\r");
+    printf("--eMMC\n\r");
 	printf(" Device   : %s\n\r", EMMC_DEVICE);
     printf(" Interface: %s\n\r", EMMC_INTERFACE);
     printf(" Comment  : %s\n\r", EMMC_COMMENT);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "EMMC");
+	strcpy (sresult[index++].string, "EMMC\t\t");
 #endif
 
 #ifdef SDRAM_DDR2
-    printf("\n\r");
-    printf("==SDRAM DDR2\n\r");
+    //printf("\n\r");
+    printf("--SDRAM DDR2\n\r");
 	printf(" Device   : %s\n\r", DDR2_DEVICE);
     printf(" Interface: %s\n\r", DDR2_INTERFACE);
     printf(" Comment  : %s\n\r", DDR2_COMMENT);
@@ -393,12 +399,12 @@ void check_hw_on_board (void)
     printf(" Total Size    : %dMb .. %dGB \n\r", (int)Result, (int)Result/128);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "SDRAM DDR2");
+	strcpy (sresult[index++].string, "SDRAM DDR2\t");
 #endif
 
 #ifdef SDRAM_DDR3
-    printf("\n\r");
-    printf("==SDRAM DDR3\n\r");
+    //printf("\n\r");
+    printf("--SDRAM DDR3\n\r");
 	printf(" Device   : %s\n\r", DDR3_DEVICE);
     printf(" Interface: %s\n\r", DDR3_INTERFACE);
     printf(" Comment  : %s\n\r", DDR3_COMMENT);
@@ -407,61 +413,78 @@ void check_hw_on_board (void)
     printf(" Total Size    : %dMb .. %dGB \n\r", (int)Result, (int)Result/128);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "SDRAM DDR3");
+	strcpy (sresult[index++].string, "SDRAM DDR3\t");
 #endif
 
 #ifdef SPI_FLASH
-    printf("\n\r");
-    printf("==SPI FLASH\n\r");
+    //printf("\n\r");
+    printf("--SPI FLASH\n\r");
 	printf(" Device   : %s\n\r", SPIF_DEVICE);
     printf(" Interface: %s\n\r", SPIF_INTERFACE);
     printf(" Comment  : %s\n\r", SPIF_COMMENT);
 
 	at25dfx_open();
-	at25dfx_unlock_sectors();
-	status = at25dfx_get_status();
-	at25dfx_print_device_info();
-
-	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "SPI FLASH");
+	status = at25dfx_unlock_sectors();
+	if (!status) {
+		at25dfx_get_status();
+		at25dfx_print_device_info();
+	}
+	sresult[index].result = status ? 1 : 0;
+	strcpy (sresult[index++].string, "SPI FLASH\t");
 #endif
 
 #ifdef QSPI_FLASH
-    printf("\n\r");
-    printf("==QSPI FLASH\n\r");
+    //printf("\n\r");
+    printf("--QSPI FLASH\n\r");
 	printf(" Device   : %s\n\r", QSPIF_DEVICE);
     printf(" Interface: %s\n\r", QSPIF_INTERFACE);
     printf(" Comment  : %s\n\r", QSPIF_COMMENT);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "QSPI FLASH");
+	strcpy (sresult[index++].string, "QSPI FLASH\t");
 #endif
 
 #ifdef SDCARD
-    printf("\n\r");
-    printf("==SDCARD\n\r");
+    //printf("\n\r");
+    printf("--SDCARD\n\r");
 	printf(" Device   : %s\n\r", SDCARD_DEVICE);
     printf(" Interface: %s\n\r", SDCARD_INTERFACE);
     printf(" Comment  : %s\n\r", SDCARD_COMMENT);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "SDCARD");
+	strcpy (sresult[index++].string, "SDCARD\t\t");
 #endif
 
 #ifdef GETH
-    printf("\n\r");
-    printf("==GETH\n\r");
+    //printf("\n\r");
+    printf("--GETH\n\r");
 	printf(" Device   : %s\n\r", GETH_DEVICE);
     printf(" Interface: %s\n\r", GETH_INTERFACE);
     printf(" Comment  : %s\n\r", GETH_COMMENT);
 
 	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "GETH");
+	strcpy (sresult[index++].string, "GETH\t\t");
 #endif
 
+#ifdef LCD
+    //printf("\n\r");
+    printf("--LCD\n\r");
+	printf(" Device   : %s\n\r", LCD_DEVICE);
+    printf(" Interface: %s\n\r", LCD_INTERFACE);
+    printf(" Comment  : %s\n\r", LCD_COMMENT);
 
+	sresult[index].result = 1;
+	strcpy (sresult[index++].string, "LCD\t\t");
+#endif
 
+    printf("\n\r ------------- RESULTS ------------------- \n\r");
+	sum = 0;
+	for (i=0 ; i!=index; i++) {
+		printf("%s : %s \n\r", sresult[i].string, sresult[i].result ? "FAILED": "OK");
+		sum += sresult[i].result;
+	}
     printf("\n\r");
+
 }
 
 //------------------------------------------------------------------------------

@@ -319,6 +319,7 @@ uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board)
 {
 	uint8_t Status = TWI_SUCCES;
 
+	pInfo_board->Crc_SN = compute_crc8 ((uint8_t*)SerNumbr, AT24MAC402_SER_NUM_SIZE);
 	pInfo_board->Crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
 	Status = at24mac402_write_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board);
 	return Status;
@@ -326,29 +327,33 @@ uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
+void _reset_buftwi (void)
+{
+	memset(BufTwi, 0x00, sizeof(BufTwi));
+}
+
 void at24mac402_display_info_board (struct _at24mac402_board_info* pInfo_board)
 {
-	uint8_t lbuf[32] = {0};
-
 	printf("\tInfo Size   : %02d\n\r", pInfo_board->PageSize);
-	memset(lbuf, 0x00, sizeof(lbuf));
-	memcpy(lbuf, (char*)pInfo_board->Manufacturer, SIZE_SUBC);
-	printf("\tManufacturer: %s\n\r", lbuf);
-	memset(lbuf, 0x00, sizeof(lbuf));
-	memcpy(lbuf, (char*)pInfo_board->Country, SIZE_MANUF_COUNTRY);
-	printf("\tMade in     : %s\n\r", lbuf);
+	_reset_buftwi();
+	memcpy(BufTwi, (char*)pInfo_board->Manufacturer, SIZE_SUBC);
+	printf("\tManufacturer: %s\n\r", BufTwi);
+	_reset_buftwi();
+	memcpy(BufTwi, (char*)pInfo_board->Country, SIZE_MANUF_COUNTRY);
+	printf("\tMade in     : %s\n\r", BufTwi);
 	printf("\tManuf year  : %d\n\r", pInfo_board->ManufYear+2000);
 	printf("\tWeek        : %02d\n\r", pInfo_board->ManufWeek);
-	memset(lbuf, 0x00, sizeof(lbuf));
-	memcpy(lbuf, (char*)pInfo_board->RevCode, SIZE_HW_REVISION);
-	printf("\tRevision    : %s\n\r", lbuf);
-	printf("\tCrc         : %02X\n\r", pInfo_board->Crc_SN);
+	_reset_buftwi();
+	memcpy(BufTwi, (char*)pInfo_board->RevCode, SIZE_HW_REVISION);
+	printf("\tRevision    : %s\n\r", BufTwi);
+	printf("\tCrcSN       : Ox%02X\n\r", pInfo_board->Crc_SN);
 	printf("\tExtended add: 0x%04X\n\r", pInfo_board->addr_ext_config);
-	memset(lbuf, 0x00, sizeof(lbuf));
-	memcpy(lbuf, (char*)pInfo_board->BoardIdent, SIZE_BOARD_IDENT);
-	printf("\tBoard       : %s\n\r", lbuf);
+	_reset_buftwi();
+	memcpy(BufTwi, (char*)pInfo_board->BoardIdent, SIZE_BOARD_IDENT);
+	printf("\tBoard       : %s\n\r", BufTwi);
 	printf("\tMapping     : %c\n\r", pInfo_board->RevMapping);
-	printf("\tCrc         : %02X\n\r", pInfo_board->Crc);
+	printf("\tCrc         : 0x%02X\n\r", pInfo_board->Crc);
 }
 
 //------------------------------------------------------------------------------
@@ -358,13 +363,13 @@ void at24mac402_display_register (void)
 	uint8_t Len, Status = TWI_SUCCES;
 	struct _at24mac402_board_info sInfo = {0};
 
-	// Read Serial Number
+	// Display Serial Number
 	printf(" -I- Serial Number: ");
 	for (Len=0; Len<AT24MAC402_SER_NUM_SIZE; Len++) {
 		printf("%02X", SerNumbr[Len]);
 	}
 	printf("\n\r");
-	// Read Mac address
+	// Display Mac address
 	printf(" -I- Mac add EUI48 ");
 	for (Len=0; Len<AT24MAC402_EUI48_SIZE; Len++) {
 		printf(":%02X", MacAddr48[Len]);

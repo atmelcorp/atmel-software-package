@@ -407,7 +407,7 @@ static void _act8945a_display_voltage_setting (void)
 		{
 			memcpy (&BitField_Ctrl1, &data, 1);
 			printf("0x%02X %s", data, (BitField_Ctrl1.on)?"ON  ":"OFF");
-			printf(" %s", (BitField_Ctrl1.phase)?"180°":"Osc");
+			printf(" %s", (BitField_Ctrl1.phase)?"180Â°":"Osc");
 			printf(" %s", (BitField_Ctrl1.mode)?"PWM":"PowSav");
 			printf("\tDelay:0x%02X", BitField_Ctrl1.delay);
 			printf(" %s ", (BitField_Ctrl1.nfltmsk)?"En":"Dis");
@@ -865,6 +865,11 @@ uint8_t act8945a_begin (void)
 		trace_info("@0x%02X TWCK:%dKHz \n\r", ACT8945A_ADDRESS, TWCK_400K/1000);
 		Status = _twi_handler_init (&htwi);
 		htwi.PeriphAddr = ACT8945A_ADDRESS;
+		trace_info("act8945A @0x%02X TWCK:%dKHz \n\r",
+			   (unsigned int)htwi.PeriphAddr,
+			   (unsigned int)htwi.Twck/1000);
+		Status = _twi_handler_init (&htwi);
+
 		htwi.AddSize = 1;
 		htwi.pData = &data;
 		htwi.LenData = 1;
@@ -882,6 +887,8 @@ uint8_t act8945a_begin (void)
 // Config interrupt on nIRQ pin to MPU
 void act8945a_active_interrupt (void)
 {
+	pio_configure_it(&pins_irq_act8945a[0]);
+	pio_enable_it(&pins_irq_act8945a[0]);
 }
 
 //------------------------------------------------------------------------------
@@ -931,12 +938,14 @@ uint8_t act8945a_test (void)
 	uint8_t Status = ACT8945A_RET_OK;
 	uint16_t x;
 
-	printf("\n\r -I- ACT8945A Reset State \n\r");
-	Status = act8945a_begin();
-	if (Status != ACT8945A_RET_OK)
-	{
-		_act8945a_twi_error();
-		return Status;
+	if (!_is_twi_ready(&htwi)) {
+		printf("\n\r -I- ACT8945A Reset State \n\r");
+		Status = act8945a_begin();
+		if (Status != ACT8945A_RET_OK)
+		{
+			_act8945a_twi_error();
+			return Status;
+		}
 	}
 	// Dump registers and display
 	_act8945a_registers_dump();
