@@ -85,18 +85,17 @@ static void _write_data(uint8_t data)
 
 static uint8_t _read_data(void)
 {
-	_write_garbage();
 	return spi_read(AT25DFX_ADDR) & 0xFF;
 }
 
 static void _assert_cs_auto_release(void)
 {
-	spi_configure_cs_mode(AT25DFX_ADDR, 0, 0);
+	spi_configure_cs_mode(AT25DFX_ADDR, 0, 1);
 }
 
 static void _assert_cs(void)
 {
-	spi_configure_cs_mode(AT25DFX_ADDR, 0, 1);
+	spi_configure_cs_mode(AT25DFX_ADDR, 0, 0);
 }
 
 static void _release_cs(void)

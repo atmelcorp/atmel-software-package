@@ -283,16 +283,16 @@ void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
  * \brief Configures a chip select active mode of a SPI peripheral.
  *
  * \param spi   Pointer to an Spi instance.
- * \param dwNpcs  Chip select to configure (0, 1, 2 or 3).
- * \param bReleaseOnLast CS controlled by last transfer.
+ * \param cs  Chip select to configure (0, 1, 2 or 3).
+ * \param release_on_last CS controlled by last transfer.
  *                       spi_release_cs() is used to deactive CS.
  */
-void spi_configure_cs_mode(Spi * spi, uint32_t dwNpcs, uint32_t bReleaseOnLast)
+void spi_configure_cs_mode(Spi * spi, uint32_t cs, uint32_t release_on_last)
 {
-	if (bReleaseOnLast) {
-		spi->SPI_CSR[dwNpcs] |= SPI_CSR_CSAAT;
+	if (!release_on_last) {
+		spi->SPI_CSR[cs] |= SPI_CSR_CSAAT;
 	} else {
-		spi->SPI_CSR[dwNpcs] &= ~SPI_CSR_CSAAT;
+		spi->SPI_CSR[cs] &= ~SPI_CSR_CSAAT;
 	}
 }
 
