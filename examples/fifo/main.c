@@ -82,7 +82,7 @@ static void _configure_usart(void)
 int main (void)
 {
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 #if defined (ddram)
 	mmu_initialize((uint32_t *) 0x20C000);

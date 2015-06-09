@@ -368,7 +368,9 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
 	uint8_t status;
+#endif
 	int i = 0;
 	led_status[0] = true;
 	for (i = 1; i < num_leds; ++i) {
@@ -376,7 +378,7 @@ int main(void)
 	}
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();

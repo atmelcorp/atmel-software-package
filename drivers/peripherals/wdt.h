@@ -34,18 +34,20 @@
  * Interface for Watchdog Timer (WDT) controller.
  *
  * \section Usage
- * -# Enable watchdog with given mode using \ref WDT_Enable().
- * -# Disable watchdog using \ref WDT_Disable()
- * -# Restart the watchdog using \ref WDT_Restart().
- * -# Get watchdog status using \ref  WDT_GetStatus().
- * -# Caculate watchdog period value using \ref WDT_GetPeriod().
+ * -# Enable watchdog with given mode using \ref wdt_enable().
+ * -# Disable watchdog using \ref wdt_disable()
+ * -# Restart the watchdog using \ref wdt_restart().
+ * -# Get watchdog status using \ref  wdt_get_status().
  */
 
-#ifndef _WDT_
-#define _WDT_
+#ifndef _WDT_H_
+#define _WDT_H_
+
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -56,19 +58,44 @@ extern "C" {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void WDT_Enable(Wdt * pWDT, uint32_t dwMode);
 
-void WDT_Disable(Wdt * pWDT);
+/**
+ * \brief Enable watchdog with given mode.
+ *
+ * \note The Watchdog Mode Register (WDT_MR) can be written only once.
+ * Only a processor reset resets it.
+ *
+ * \param mode WDT mode to be set
+ * \param delta WDT delta value
+ * \param counter WDT counter value
+ */
+extern void wdt_enable(uint32_t mode, uint32_t delta, uint32_t counter);
 
-void WDT_Restart(Wdt * pWDT);
+/**
+ * \brief Disable watchdog.
+ *
+ * \note The Watchdog Mode Register (WDT_MR) can be written only once.
+ * Only a processor reset resets it.
+ */
+extern void wdt_disable(void);
 
-extern uint32_t WDT_GetStatus(Wdt * pWDT);
+/**
+ * \brief Watchdog restart.
+ */
+extern void wdt_restart(void);
 
-extern uint32_t WDT_GetPeriod(uint32_t dwMs);
+/**
+ * \brief Watchdog get status.
+ */
+extern uint32_t wdt_get_status(void);
 
-extern uint32_t WDT_GetCounterValue(Wdt * pWDT);
+/**
+ * \brief Watchdog get counter value.
+ */
+extern uint32_t wdt_get_counter_value(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _WDT_ */
+
+#endif /* _WDT_H_ */

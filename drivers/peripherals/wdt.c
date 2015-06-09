@@ -50,8 +50,8 @@
  * \section Usage
  * To use the WDT, the user could follow these few steps:
  * <ul>
- * <li>Enable watchdog with given mode using \ref WDT_Enable().
- * <li>Restart the watchdog using \ref WDT_Restart() within the watchdog period.
+ * <li>Enable watchdog with given mode using \ref wdt_enable().
+ * <li>Restart the watchdog using \ref wdt_restart() within the watchdog period.
  * </ul>
  *
  * For more accurate information, please look at the WDT section of the
@@ -72,82 +72,50 @@
  *---------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
+#include <stdio.h>
 
-#include <stdint.h>
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static uint32_t _wdt_compute_period(uint32_t period)
+{
+	uint32_t value = period * (pmc_get_slow_clock() >> 7) / 1000;
+	if (value > 0xfff)
+		value = 0xfff;
+	return value;
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Enable watchdog with given mode.
- *
- * \note The Watchdog Mode Register (WDT_MR) can be written only once.
- * Only a processor reset resets it.
- *
- * \param pWDT  Pointer to an Wdt instance.
- * \param dwMode   WDT mode to be set
- */
-void
-WDT_Enable(Wdt * pWDT, uint32_t dwMode)
+void wdt_enable(uint32_t mode, uint32_t delta, uint32_t counter)
 {
-	pWDT->WDT_MR = dwMode;
+	WDT->WDT_MR = (mode & ~(WDT_MR_WDDIS | WDT_MR_WDD_Msk | WDT_MR_WDV_Msk)) |
+	              WDT_MR_WDD(_wdt_compute_period(delta)) |
+	              WDT_MR_WDV(_wdt_compute_period(counter));
 }
 
-/**
- * \brief Disable watchdog.
- *
- * \note The Watchdog Mode Register (WDT_MR) can be written only once.
- * Only a processor reset resets it.
- * \param pWDT  Pointer to an Wdt instance.
- */
-void
-WDT_Disable(Wdt * pWDT)
+void wdt_disable(void)
 {
-	pWDT->WDT_MR = WDT_MR_WDDIS;
+	WDT->WDT_MR = WDT_MR_WDDIS;
 }
 
-/**
- * \brief Watchdog restart.
- * \param pWDT  Pointer to an Wdt instance.
- */
-void
-WDT_Restart(Wdt * pWDT)
+void wdt_restart()
 {
-	pWDT->WDT_CR = 0xA5000001;
+	WDT->WDT_CR = WDT_CR_KEY_PASSWD | WDT_CR_WDRSTT;
 }
 
-/**
- * \brief Watchdog get status.
- * \param pWDT  Pointer to an Wdt instance.
- */
-extern uint32_t
-WDT_GetStatus(Wdt * pWDT)
+uint32_t wdt_get_status(void)
 {
-	return (pWDT->WDT_SR & 0x3);
+	return WDT->WDT_SR & (WDT_SR_WDUNF | WDT_SR_WDERR);
 }
 
-/**
- * \brief Watchdog get status.
- * \param pWDT  Pointer to an Wdt instance.
- */
-extern uint32_t
-WDT_GetCounterValue(Wdt * pWDT)
+uint32_t wdt_get_counter_value(void)
 {
-	return (pWDT->WDT_MR & WDT_MR_WDV_Msk);
+	return (WDT->WDT_MR & WDT_MR_WDV_Msk) >> WDT_MR_WDV_Pos;
 }
 
-/**
- * \brief Watchdog get period.
- *
- * \param dwMs   desired watchdog period in millisecond.
- */
-extern uint32_t
-WDT_GetPeriod(uint32_t dwMs)
-{
-	if ((dwMs < 4) || (dwMs > 16000)) {
-		return 0;
-	}
-	return ((dwMs << 8) / 1000);
-}

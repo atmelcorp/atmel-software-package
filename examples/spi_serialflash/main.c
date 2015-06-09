@@ -268,7 +268,7 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 int main (void)
 {
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
