@@ -43,7 +43,8 @@
  *    peripheral clock. The mode register is loaded with the given value.
  * -# Configure all the necessary chip selects with \ref spi_configure_npcs().
  * -# Enable the SPI by calling \ref spi_enable().
- * -# Send/receive data using \ref spi_write() and \ref spi_read(). Note that \ref spi_read()
+ * -# Send/receive data using \ref spi_write() and \ref
+ * spi_read(). Note that \ref spi_read()
  *    must be called after \ref spi_write() to retrieve the last value read.
  * -# Disable the SPI by calling \ref spi_disable().
  *
@@ -117,6 +118,21 @@ static inline uint32_t _spi_is_variable_ps(Spi* spi)
 	return (spi->SPI_MR & SPI_MR_PS);
 }
 
+static void _spi_write_dummy(Spi* spi)
+{
+	if (_spi_is_master(spi)) {
+		spi->SPI_TDR = 0xFF;
+	}
+}
+
+static inline void _spi_consume_read(Spi* spi)
+{
+	if (_spi_is_master(spi)) {
+		while(!(spi->SPI_SR & SPI_SR_RDRF));
+		(void)spi->SPI_RDR;
+	}
+}
+
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void _spi_fifo_clear(Spi* spi, uint32_t fifos)
 {
@@ -127,18 +143,8 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
 {
 	*control_reg |= SPI_CR_TXFCLR | SPI_CR_RXFCLR | SPI_CR_FIFODIS;
 }
-static inline void _spi_consume_read(Spi* spi)
-{
-	if (_spi_is_master(spi)) {
-		(void)spi->SPI_RDR;
-	} else {
-		uint8_t dummy;
-		readb(&spi->SPI_RDR, &dummy);
-	}
-}
 #else
 #define _clear_fifo_control_flags(dummy) do {} while(0)
-#define _spi_consume_read(dummy) do {} while(0)
 #endif
 
 /*----------------------------------------------------------------------------
@@ -303,16 +309,15 @@ uint32_t spi_get_status(Spi * spi)
 }
 
 /**
- * \brief Reads and returns the last word of data received by a SPI peripheral. This
- * method must be called after a successful spi_write call.
+ * \brief Reads data from SPI peripheral while sending dummy data.
  *
- * \param spi  Pointer to an Spi instance.
+ * \param spi Pointer to an Spi instance.
  *
  * \return readed data.
  */
 uint32_t spi_read(Spi * spi)
 {
-	writehw(&spi->SPI_TDR, 0xFF);
+	_spi_write_dummy(spi);
 	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
 	uint8_t value;
 	readb(&spi->SPI_RDR, &value);
@@ -320,32 +325,36 @@ uint32_t spi_read(Spi * spi)
 }
 
 /**
- * \brief Sends data through a SPI peripheral. If the SPI is configured to use a fixed
- * peripheral select, the npcs value is meaningless. Otherwise, it identifies
- * the component which shall be addressed.
+ * \brief Sends data through a SPI peripheral consuming reads.
+ *
+ * \details If the SPI is configured to use a fixed peripheral select,
+ * the npcs value is meaningless. Otherwise, it identifies the
+ * component which shall be addressed.
  *
  * \param spi   Pointer to an Spi instance.
- * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
- * \param wData  Word of data to send.
+ * \param cs  Chip select of the component to address (0, 1, 2 or 3).
+ * \param data  Word of data to send.
  */
 void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 {
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0);
-	if (_spi_is_variable_ps(spi))
+	if (_spi_is_variable_ps(spi)) {
 		spi->SPI_TDR = data | SPI_PCS(cs);
-	else
+	} else {
 		writehw(&spi->SPI_TDR, data);
-	while ((spi->SPI_SR & SPI_SR_TDRE) == 0);
-	/* Consume write to not pollute FIFO if present (dummy
+	}
+	/* Consume write to not corrupt FIFO if present (dummy
 	 * function if CONFIG_HAV_SPI_FIFO not defined) */
 	_spi_consume_read(spi);
 }
 
 /**
  * \brief Sends last data through a SPI peripheral.
- * If the SPI is configured to use a fixed peripheral select, the npcs value is
- * meaningless. Otherwise, it identifies the component which shall be addressed.
+ *
+ * \details If the SPI is configured to use a fixed peripheral select,
+ * the npcs value is meaningless. Otherwise, it identifies the
+ * component which shall be addressed.
  *
  * \param spi   Pointer to an Spi instance.
  * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
@@ -356,7 +365,9 @@ void spi_write_last(Spi * spi, uint32_t cs, uint16_t data)
 	/* Send data */
 	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
 	spi->SPI_TDR = data | SPI_PCS(cs) | SPI_TDR_LASTXFER;
-	while ((spi->SPI_SR & SPI_SR_TDRE) == 0) ;
+	/* Consume write to not corrupt FIFO if present (dummy
+	 * function if CONFIG_HAV_SPI_FIFO not defined) */
+	_spi_consume_read(spi);
 }
 
 /**
