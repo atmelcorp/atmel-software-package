@@ -57,7 +57,7 @@
 #define BitA0ToA2 0x04;
 
 struct _handler_twi htwi_eep = {0};
-uint8_t BufTwi[32] = {0};
+uint8_t BufTwi[AT24MAC402_PAGE_SIZE] = {0};
 
 // Using TWI1 IOS2
 #define at24mac402_TWI_ID	ID_TWIHS1
@@ -393,8 +393,8 @@ uint8_t at24mac402_begin (void)
 		// Set TWI interface
 		memset ((uint8_t*)&htwi_eep, 0x00, sizeof(htwi_eep));
 		htwi_eep.IdTwi = ID_TWI1;
-		htwi_eep.Twck = TWCK_100K;
-		trace_info("@0x%02X TWCK:%dKHz \n\r",
+		htwi_eep.Twck = TWCK_400K;
+		trace_info("at24mac402 @0x%02X TWCK:%dKHz \n\r",
 			   (unsigned int)AT24MAC402_EXT_MEM_ADD,
 			   (unsigned int)htwi_eep.Twck/1000);
 		Status = _at24mac402_twi_handler_init (&htwi_eep);

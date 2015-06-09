@@ -829,7 +829,7 @@ uint8_t act8945a_set_system_voltage_level (uint16_t Value)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Charge Current Selection Input
-// In USB-Mode”: CHGLEV = 1 -> I charge 450mA
+// In USB-Mode: CHGLEV = 1 -> I charge 450mA
 //               CHGLEV = 0 -> I charge 1000mA
 uint8_t act8945a_set_state_CHGLEV_pin (CHG_LEVEL_enum State)
 {
