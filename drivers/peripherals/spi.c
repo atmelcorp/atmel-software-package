@@ -88,7 +88,7 @@ static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t periph_id)
 {
 	assert(bitrate>0);
 	return SPI_CSR_SCBR(
-		pmc_get_peripheral_clock(periph_id) / (bitrate*1000000));
+		pmc_get_peripheral_clock(periph_id) / (bitrate*1000));
 }
 
 static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t periph_id)
