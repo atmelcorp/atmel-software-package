@@ -32,6 +32,17 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include <unistd.h>
+
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
+struct peripheral_xdma {
+	uint32_t id;   /**< Peripheral ID */
+	uint8_t  iftx; /**< DMA Interface for TX */
+	uint8_t  ifrx; /**< DMA Interface for RX */
+};
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -50,6 +61,84 @@ static const uint8_t _h64_peripherals[] = {
 	ID_ISI,     /* 52: Camera Interface (ISI) */
 	ID_L2CC,    /* 67: L2 Cache Controller  (L2CC) */
 };
+
+static const struct peripheral_xdma _xdmac0_peripherals[] = {
+	{ ID_HSMCI0,    0,  0 },
+	{ ID_HSMCI1,    1,  1 },
+	{ ID_TWI0,      2,  3 },
+	{ ID_TWI1,      4,  5 },
+	{ ID_TWI2,      6,  7 },
+	{ ID_TWI3,      8,  9 },
+	{ ID_SPI0,     10, 11 },
+	{ ID_SPI1,     12, 13 },
+	{ ID_SPI2,     14, 15 },
+	{ ID_USART2,   16, 17 },
+	{ ID_USART3,   18, 19 },
+	{ ID_USART4,   20, 21 },
+	{ ID_UART0,    22, 23 },
+	{ ID_UART1,    24, 25 },
+	{ ID_SSC0,     26, 27 },
+	{ ID_SSC1,     28, 29 },
+	{ ID_DBGU,     30, 31 },
+	{ ID_ADC,    0xff, 32 },
+	{ ID_SMD,      33, 34 },
+	{ ID_SMD,       1, 34 },
+	{ ID_USART0,   36, 37 },
+	{ ID_USART1,   38, 39 },
+	{ ID_AES,      40, 41 },
+	{ ID_TDES,     42, 43 },
+	{ ID_SHA,      44, 0xff },
+};
+
+static const struct peripheral_xdma _xdmac1_peripherals[] = {
+	{ ID_HSMCI0,    0,  0 },
+	{ ID_HSMCI1,    1,  1 },
+	{ ID_TWI0,      2,  3 },
+	{ ID_TWI1,      4,  5 },
+	{ ID_TWI2,      6,  7 },
+	{ ID_TWI3,      8,  9 },
+	{ ID_SPI0,     10, 11 },
+	{ ID_SPI1,     12, 13 },
+	{ ID_SPI2,     14, 15 },
+	{ ID_USART2,   16, 17 },
+	{ ID_USART3,   18, 19 },
+	{ ID_USART4,   20, 21 },
+	{ ID_UART0,    22, 23 },
+	{ ID_UART1,    24, 25 },
+	{ ID_SSC0,     26, 27 },
+	{ ID_SSC1,     28, 29 },
+	{ ID_DBGU,     30, 31 },
+	{ ID_ADC,    0xff, 32 },
+	{ ID_SMD,      33, 34 },
+};
+
+/*----------------------------------------------------------------------------
+ *        Private functions
+ *----------------------------------------------------------------------------*/
+
+static const struct peripheral_xdma *get_peripheral_xdma(uint32_t id, Xdmac *xdmac)
+{
+	const struct peripheral_xdma *_xdmac_peripherals;
+	int count, i;
+
+	if (xdmac == XDMAC0) {
+		_xdmac_peripherals = _xdmac0_peripherals;
+		count = ARRAY_SIZE(_xdmac0_peripherals);
+	} else if (xdmac == XDMAC1) {
+		_xdmac_peripherals = _xdmac1_peripherals;
+		count = ARRAY_SIZE(_xdmac1_peripherals);
+	} else {
+		return NULL;
+	}
+
+	for (i = 0; i < count; i++) {
+		if (_xdmac_peripherals[i].id == id) {
+			return &_xdmac_peripherals[i];
+		}
+	}
+
+	return NULL;
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -185,4 +274,19 @@ uint32_t get_peripheral_clock_divider(uint32_t id)
 	}
 
 	return 1;
+}
+
+uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
+{
+	const struct peripheral_xdma *periph_xdma = get_peripheral_xdma(id, xdmac);
+	if (periph_xdma) {
+		return transmit ? periph_xdma->iftx : periph_xdma->ifrx;
+	} else {
+		return 0xff;
+	}
+}
+
+bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac)
+{
+	return get_peripheral_xdma(id, xdmac) != NULL;
 }

@@ -63,7 +63,6 @@
 
 #include "peripherals/xdmad.h"
 #include "peripherals/xdmac.h"
-#include "peripherals/xdma_hardware_interface.h"
 
 #include <assert.h>
 
@@ -90,13 +89,13 @@ static uint32_t XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
 	}
 	/* dma transfer from peripheral to memory */
 	if (bDstID == XDMAD_TRANSFER_MEMORY) {
-		if ((!XDMAIF_IsValidatedPeripherOnDma(bXdmac, bSrcID))) {
+		if ((!is_peripheral_on_xdma_controller(bSrcID, pXdmad->pXdmacs[bXdmac]))) {
 			return XDMAD_ALLOC_FAILED;
 		}
 	}
 	/* dma transfer from memory to peripheral */
 	if (bSrcID == XDMAD_TRANSFER_MEMORY) {
-		if ((!XDMAIF_IsValidatedPeripherOnDma(bXdmac, bDstID))) {
+		if ((!is_peripheral_on_xdma_controller(bDstID, pXdmad->pXdmacs[bXdmac]))) {
 			return XDMAD_ALLOC_FAILED;
 		}
 	}
@@ -110,13 +109,13 @@ static uint32_t XDMAD_AllocateXdmacChannel(sXdmad * pXdmad,
 			pXdmad->XdmaChannels[bXdmac][i].bSrcPeriphID = bSrcID;
 			pXdmad->XdmaChannels[bXdmac][i].bDstPeriphID = bDstID;
 			pXdmad->XdmaChannels[bXdmac][i].bSrcTxIfID =
-			    XDMAIF_Get_ChannelNumber(bXdmac, bSrcID, 0);
+				get_peripheral_xdma_channel(bSrcID, pXdmad->pXdmacs[bXdmac], true);
 			pXdmad->XdmaChannels[bXdmac][i].bSrcRxIfID =
-			    XDMAIF_Get_ChannelNumber(bXdmac, bSrcID, 1);
+				get_peripheral_xdma_channel(bSrcID, pXdmad->pXdmacs[bXdmac], false);
 			pXdmad->XdmaChannels[bXdmac][i].bDstTxIfID =
-			    XDMAIF_Get_ChannelNumber(bXdmac, bDstID, 0);
-			pXdmad->XdmaChannels[bXdmac][i].bDstTxIfID =
-			    XDMAIF_Get_ChannelNumber(bXdmac, bDstID, 1);
+				get_peripheral_xdma_channel(bDstID, pXdmad->pXdmacs[bXdmac], true);
+			pXdmad->XdmaChannels[bXdmac][i].bDstRxIfID =
+				get_peripheral_xdma_channel(bDstID, pXdmad->pXdmacs[bXdmac], false);
 			return ((bXdmac << 8)) | ((i) & 0xFF);
 		}
 	}
@@ -256,26 +255,26 @@ eXdmadRC XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel)
 		 XDMAD_STATE_START)
 		return XDMAD_BUSY;
 	/* Clear dummy status */
-	XDMAC_GetGlobalChStatus(pXdmac);
-	XDMAC_GetGIsr(pXdmac);
+	xdmac_get_global_channel_status(pXdmac);
+	xdmac_get_global_isr(pXdmac);
 	_dwdmaId = (_iController == 0) ? ID_XDMAC0 : ID_XDMAC1;
 	/* Enable clock of the DMA peripheral */
 	if (!pmc_is_peripheral_enabled(_dwdmaId)) {
 		pmc_enable_peripheral(_dwdmaId);
 	}
 	/* Clear dummy status */
-	XDMAC_GetChannelIsr(pXdmac, iChannel);
+	xdmac_get_channel_isr(pXdmac, iChannel);
 	/* Disables XDMAC interrupt for the given channel. */
-	XDMAC_DisableGIt(pXdmac, -1);
-	XDMAC_DisableChannelIt(pXdmac, iChannel, -1);
+	xdmac_disable_global_it(pXdmac, -1);
+	xdmac_disable_channel_it(pXdmac, iChannel, -1);
 	/* Disable the given dma channel. */
-	XDMAC_DisableChannel(pXdmac, iChannel);
-	XDMAC_SetSourceAddr(pXdmac, iChannel, 0);
-	XDMAC_SetDestinationAddr(pXdmac, iChannel, 0);
-	XDMAC_SetBlockControl(pXdmac, iChannel, 0);
-	XDMAC_SetChannelConfig(pXdmac, iChannel, 0x20);
-	XDMAC_SetDescriptorAddr(pXdmac, iChannel, 0, 0);
-	XDMAC_SetDescriptorControl(pXdmac, iChannel, 0);
+	xdmac_disable_channel(pXdmac, iChannel);
+	xdmac_set_src_addr(pXdmac, iChannel, 0);
+	xdmac_set_dest_addr(pXdmac, iChannel, 0);
+	xdmac_set_block_control(pXdmac, iChannel, 0);
+	xdmac_set_channel_config(pXdmac, iChannel, 0x20);
+	xdmac_set_descriptor_addr(pXdmac, iChannel, 0, 0);
+	xdmac_set_descriptor_control(pXdmac, iChannel, 0);
 	return XDMAD_OK;
 }
 
@@ -295,10 +294,10 @@ void XDMAD_Handler(sXdmad * pXdmad)
 	for (_iController = 0; _iController < pXdmad->numControllers;
 	     _iController++) {
 		pXdmac = pXdmad->pXdmacs[_iController];
-		xdmaGlobaIntStatus = XDMAC_GetGIsr(pXdmac);
+		xdmaGlobaIntStatus = xdmac_get_global_isr(pXdmac);
 		if ((xdmaGlobaIntStatus & 0xFFFF) == 0)
 			continue;
-		xdmaGlobalChStatus = XDMAC_GetGlobalChStatus(pXdmac);
+		xdmaGlobalChStatus = xdmac_get_global_channel_status(pXdmac);
 		for (_iChannel = 0; _iChannel < pXdmad->numChannels; _iChannel++) {
 			if (!(xdmaGlobaIntStatus & (1 << _iChannel)))
 				continue;
@@ -309,9 +308,9 @@ void XDMAD_Handler(sXdmad * pXdmad)
 			    == 0) {
 				bExec = 0;
 				xdmaChannelIntStatus =
-				    XDMAC_GetChannelIsr(pXdmac, _iChannel);
+				    xdmac_get_channel_isr(pXdmac, _iChannel);
 				if (xdmaChannelIntStatus & XDMAC_CIS_BIS) {
-					if ((XDMAC_GetChannelItMask
+					if ((xdmac_get_channel_it_mask
 					     (pXdmac,
 					      _iChannel) & XDMAC_CIM_LIM) ==
 					    0) {
@@ -390,8 +389,8 @@ eXdmadRC XDMAD_ConfigureTransfer(sXdmad * pXdmad, uint32_t dwChannel,
 	uint8_t _iController = (dwChannel >> 8);
 	uint8_t iChannel = (dwChannel) & 0xFF;
 	Xdmac *pXdmac = pXdmad->pXdmacs[_iController];
-	XDMAC_GetGIsr(pXdmac);
-	XDMAC_GetChannelIsr(pXdmac, iChannel);
+	xdmac_get_global_isr(pXdmac);
+	xdmac_get_channel_isr(pXdmac, iChannel);
 	if (pXdmad->XdmaChannels[_iController][iChannel].state ==
 	    XDMAD_STATE_FREE)
 		return XDMAD_ERROR;
@@ -402,40 +401,40 @@ eXdmadRC XDMAD_ConfigureTransfer(sXdmad * pXdmad, uint32_t dwChannel,
 	if ((dwXdmaDescCfg & XDMAC_CNDC_NDE) == XDMAC_CNDC_NDE_DSCR_FETCH_EN) {
 		if ((dwXdmaDescCfg & XDMAC_CNDC_NDVIEW_Msk) ==
 		    XDMAC_CNDC_NDVIEW_NDV0) {
-			XDMAC_SetChannelConfig(pXdmac, iChannel,
+			xdmac_set_channel_config(pXdmac, iChannel,
 					       pXdmaParam->mbr_cfg);
-			XDMAC_SetSourceAddr(pXdmac, iChannel,
+			xdmac_set_src_addr(pXdmac, iChannel,
 					    pXdmaParam->mbr_sa);
-			XDMAC_SetDestinationAddr(pXdmac, iChannel,
+			xdmac_set_dest_addr(pXdmac, iChannel,
 						 pXdmaParam->mbr_da);
 		}
 		if ((dwXdmaDescCfg & XDMAC_CNDC_NDVIEW_Msk) ==
 		    XDMAC_CNDC_NDVIEW_NDV1) {
-			XDMAC_SetChannelConfig(pXdmac, iChannel,
+			xdmac_set_channel_config(pXdmac, iChannel,
 					       pXdmaParam->mbr_cfg);
 		}
-		XDMAC_SetDescriptorAddr(pXdmac, iChannel, dwXdmaDescAddr, 0);
-		XDMAC_SetDescriptorControl(pXdmac, iChannel, dwXdmaDescCfg);
-		XDMAC_DisableChannelIt(pXdmac, iChannel, -1);
-		XDMAC_EnableChannelIt(pXdmac, iChannel, XDMAC_CIE_LIE);
+		xdmac_set_descriptor_addr(pXdmac, iChannel, dwXdmaDescAddr, 0);
+		xdmac_set_descriptor_control(pXdmac, iChannel, dwXdmaDescCfg);
+		xdmac_disable_channel_it(pXdmac, iChannel, -1);
+		xdmac_enable_channel_it(pXdmac, iChannel, XDMAC_CIE_LIE);
 	}
 	/* LLI is disabled. */
 	else {
-		XDMAC_SetSourceAddr(pXdmac, iChannel, pXdmaParam->mbr_sa);
-		XDMAC_SetDestinationAddr(pXdmac, iChannel, pXdmaParam->mbr_da);
-		XDMAC_SetMicroblockControl(pXdmac, iChannel,
+		xdmac_set_src_addr(pXdmac, iChannel, pXdmaParam->mbr_sa);
+		xdmac_set_dest_addr(pXdmac, iChannel, pXdmaParam->mbr_da);
+		xdmac_set_microblock_control(pXdmac, iChannel,
 					   pXdmaParam->mbr_ubc);
-		XDMAC_SetBlockControl(pXdmac, iChannel, pXdmaParam->mbr_bc);
-		XDMAC_SetDataStride_MemPattern(pXdmac, iChannel,
+		xdmac_set_block_control(pXdmac, iChannel, pXdmaParam->mbr_bc);
+		xdmac_set_data_stride_mem_pattern(pXdmac, iChannel,
 					       pXdmaParam->mbr_ds);
-		XDMAC_SetSourceMicroBlockStride(pXdmac, iChannel,
+		xdmac_set_src_microblock_stride(pXdmac, iChannel,
 						pXdmaParam->mbr_sus);
-		XDMAC_SetDestinationMicroBlockStride(pXdmac, iChannel,
+		xdmac_set_dest_microblock_stride(pXdmac, iChannel,
 						     pXdmaParam->mbr_dus);
-		XDMAC_SetChannelConfig(pXdmac, iChannel, pXdmaParam->mbr_cfg);
-		XDMAC_SetDescriptorAddr(pXdmac, iChannel, 0, 0);
-		XDMAC_SetDescriptorControl(pXdmac, iChannel, 0);
-		XDMAC_EnableChannelIt(pXdmac,
+		xdmac_set_channel_config(pXdmac, iChannel, pXdmaParam->mbr_cfg);
+		xdmac_set_descriptor_addr(pXdmac, iChannel, 0, 0);
+		xdmac_set_descriptor_control(pXdmac, iChannel, 0);
+		xdmac_enable_channel_it(pXdmac,
 				      iChannel,
 				      XDMAC_CIE_BIE |
 				      XDMAC_CIE_DIE |
@@ -467,9 +466,9 @@ eXdmadRC XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel)
 	}
 	/* Change state to transferring */
 	pXdmad->XdmaChannels[_iController][iChannel].state = XDMAD_STATE_START;
-	XDMAC_EnableChannel(pXdmac, iChannel);
+	xdmac_enable_channel(pXdmac, iChannel);
 	if (pXdmad->pollingMode == 0) {
-		XDMAC_EnableGIt(pXdmac, 1 << iChannel);
+		xdmac_enable_global_it(pXdmac, 1 << iChannel);
 	}
 	return XDMAD_OK;
 }
@@ -488,12 +487,12 @@ eXdmadRC XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel)
 	pXdmad->XdmaChannels[_iController][_iChannel].state =
 	    XDMAD_STATE_ALLOCATED;
 	/* Disable channel */
-	XDMAC_DisableChannel(pXdmac, _iChannel);
+	xdmac_disable_channel(pXdmac, _iChannel);
 	/* Disable interrupts */
-	XDMAC_DisableChannelIt(pXdmac, _iChannel, -1);
+	xdmac_disable_channel_it(pXdmac, _iChannel, -1);
 	/* Clear pending status */
-	XDMAC_GetChannelIsr(pXdmac, _iChannel);
-	XDMAC_GetGlobalChStatus(pXdmac);
+	xdmac_get_channel_isr(pXdmac, _iChannel);
+	xdmac_get_global_channel_status(pXdmac);
 
 	return XDMAD_OK;
 }

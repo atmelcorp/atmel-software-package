@@ -43,542 +43,260 @@
 
 #include <stdint.h>
 #include <assert.h>
-/** \addtogroup dmac_functions XDMAC Functions
- *@{
- */
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Get XDMAC global type.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetType(Xdmac * pXdmac)
+uint32_t xdmac_get_type(Xdmac *xdmac)
 {
-	assert(pXdmac);
-	return pXdmac->XDMAC_GTYPE;
+	assert(xdmac);
+	return xdmac->XDMAC_GTYPE;
 }
 
-/**
- * \brief Get XDMAC global configuration.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetConfig(Xdmac * pXdmac)
+uint32_t xdmac_get_config(Xdmac *xdmac)
 {
-	assert(pXdmac);
-	return pXdmac->XDMAC_GCFG;
+	assert(xdmac);
+	return xdmac->XDMAC_GCFG;
 }
 
-/**
- * \brief Get XDMAC global weighted arbiter configuration.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetArbiter(Xdmac * pXdmac)
+uint32_t xdmac_get_arbiter(Xdmac *xdmac)
 {
-	assert(pXdmac);
-	return pXdmac->XDMAC_GWAC;
+	assert(xdmac);
+	return xdmac->XDMAC_GWAC;
 }
 
-/**
- * \brief Enables XDMAC global interrupt.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param dwInteruptMask IT to be enabled.
- */
-void
-XDMAC_EnableGIt(Xdmac * pXdmac, uint32_t dwInteruptMask)
+void xdmac_enable_global_it(Xdmac *xdmac, uint32_t dwInteruptMask)
 {
-	assert(pXdmac);
-	pXdmac->XDMAC_GIE = dwInteruptMask;
+	assert(xdmac);
+	xdmac->XDMAC_GIE = dwInteruptMask;
 }
 
-/**
- * \brief Disables XDMAC global interrupt
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param dwInteruptMask IT to be enabled
- */
-void
-XDMAC_DisableGIt(Xdmac * pXdmac, uint32_t dwInteruptMask)
+void xdmac_disable_global_it(Xdmac *xdmac, uint32_t dwInteruptMask)
 {
-	assert(pXdmac);
-	pXdmac->XDMAC_GID = dwInteruptMask;
+	assert(xdmac);
+	xdmac->XDMAC_GID = dwInteruptMask;
 }
 
-/**
- * \brief Get XDMAC global interrupt mask.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetGItMask(Xdmac * pXdmac)
+uint32_t xdmaC_get_global_it_mask(Xdmac *xdmac)
 {
-	assert(pXdmac);
-	return (pXdmac->XDMAC_GIM);
+	assert(xdmac);
+	return xdmac->XDMAC_GIM;
 }
 
-/**
- * \brief Get XDMAC global interrupt status.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetGIsr(Xdmac * pXdmac)
+uint32_t xdmac_get_global_isr(Xdmac *xdmac)
 {
-	assert(pXdmac);
-	return (pXdmac->XDMAC_GIS);
+	assert(xdmac);
+	return xdmac->XDMAC_GIS;
 }
 
-/**
- * \brief Get XDMAC masked global interrupt.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetMaskedGIsr(Xdmac * pXdmac)
+uint32_t xdmac_get_masked_global_isr(Xdmac *xdmac)
 {
-	uint32_t _dwStatus;
-	assert(pXdmac);
-	_dwStatus = pXdmac->XDMAC_GIS;
-	_dwStatus &= pXdmac->XDMAC_GIM;
-	return _dwStatus;
+	assert(xdmac);
+	return xdmac->XDMAC_GIS & xdmac->XDMAC_GIM;
 }
 
-/**
- * \brief enables the relevant channel of given XDMAC.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_EnableChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GE |= XDMAC_GE_EN0 << channel;
+	xdmac->XDMAC_GE |= XDMAC_GE_EN0 << channel;
 }
 
-/**
- * \brief enables the relevant channels of given XDMAC.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param bmChannels Channels bitmap.
- */
-void
-XDMAC_EnableChannels(Xdmac * pXdmac, uint8_t bmChannels)
+void xdmac_enable_channels(Xdmac *xdmac, uint8_t bmChannels)
 {
-	assert(pXdmac);
-	pXdmac->XDMAC_GE = bmChannels;
+	assert(xdmac);
+	xdmac->XDMAC_GE = bmChannels;
 }
 
-/**
- * \brief Disables the relevant channel of given XDMAC.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_DisableChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_disable_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GD |= XDMAC_GD_DI0 << channel;
+	xdmac->XDMAC_GD |= XDMAC_GD_DI0 << channel;
 }
 
-/**
- * \brief Disables the relevant channels of given XDMAC.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param bmChannels Channels bitmap.
- */
-void
-XDMAC_DisableChannels(Xdmac * pXdmac, uint8_t bmChannels)
+void xdmac_disable_channels(Xdmac *xdmac, uint8_t bmChannels)
 {
-	assert(pXdmac);
-	pXdmac->XDMAC_GD = bmChannels;
+	assert(xdmac);
+	xdmac->XDMAC_GD = bmChannels;
 }
 
-/**
- * \brief Get Global channel status of given XDMAC.
- * \note: When set to 1, this bit indicates that the channel x is enabled. If a channel disable request is issued, this bit remains asserted
-    until pending transaction is completed.
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetGlobalChStatus(Xdmac * pXdmac)
+uint32_t xdmac_get_global_channel_status(Xdmac *xdmac)
 {
-
-	assert(pXdmac);
-	return pXdmac->XDMAC_GS;
+	assert(xdmac);
+	return xdmac->XDMAC_GS;
 }
 
-/**
- * \brief Suspend the relevant channel's read.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_SuspendReadChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_suspend_read_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GRS |= XDMAC_GRS_RS0 << channel;
+	xdmac->XDMAC_GRS |= XDMAC_GRS_RS0 << channel;
 }
 
-/**
- * \brief Suspend the relevant channel's write.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_SuspendWriteChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_suspend_write_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GWS |= XDMAC_GWS_WS0 << channel;
+	xdmac->XDMAC_GWS |= XDMAC_GWS_WS0 << channel;
 }
 
-/**
- * \brief Suspend the relevant channel's read & write.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_SuspendReadWriteChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_suspend_read_write_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GRWS |= XDMAC_GRWS_RWS0 << channel;
+	xdmac->XDMAC_GRWS |= XDMAC_GRWS_RWS0 << channel;
 }
 
-/**
- * \brief Resume the relevant channel's read & write.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_ResumeReadWriteChannel(Xdmac * pXdmac, uint8_t channel)
+void xdmac_resume_read_write_channel(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GRWR |= XDMAC_GRWR_RWR0 << channel;
+	xdmac->XDMAC_GRWR |= XDMAC_GRWR_RWR0 << channel;
 }
 
-/**
- * \brief Set software transfer request on the relevant channel.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_SoftwareTransferReq(Xdmac * pXdmac, uint8_t channel)
+void xdmac_software_transfer_request(Xdmac *xdmac, uint8_t channel)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GSWR |= (XDMAC_GSWR_SWREQ0 << channel);
+	xdmac->XDMAC_GSWR |= (XDMAC_GSWR_SWREQ0 << channel);
 }
 
-/**
- * \brief Get software transfer status of the relevant channel.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- */
-uint32_t
-XDMAC_GetSoftwareTransferStatus(Xdmac * pXdmac)
+uint32_t xdmac_get_software_transfer_status(Xdmac *xdmac)
 {
-
-	assert(pXdmac);
-	return pXdmac->XDMAC_GSWS;
+	assert(xdmac);
+	return xdmac->XDMAC_GSWS;
 }
 
-/**
- * \brief Set software flush request on the relevant channel.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-void
-XDMAC_SoftwareFlushReq(Xdmac * pXdmac, uint8_t channel)
+void xdmac_software_flush_request(Xdmac *xdmac, uint8_t channel)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_GSWF |= XDMAC_GSWF_SWF0 << channel;
+	xdmac->XDMAC_GSWF |= XDMAC_GSWF_SWF0 << channel;
 }
 
-/**
- * \brief Disable interrupt with mask on the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param dwInteruptMask Interrupt mask.
- */
-void
-XDMAC_EnableChannelIt(Xdmac * pXdmac, uint8_t channel, uint32_t dwInteruptMask)
+void xdmac_enable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t dwInteruptMask)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CIE = dwInteruptMask;
+	xdmac->XDMAC_CHID[channel].XDMAC_CIE = dwInteruptMask;
 }
 
-/**
- * \brief Enable interrupt with mask on the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param dwInteruptMask Interrupt mask.
- */
-void
-XDMAC_DisableChannelIt(Xdmac * pXdmac, uint8_t channel, uint32_t dwInteruptMask)
+void xdmac_disable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t dwInteruptMask)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CID = dwInteruptMask;
+	xdmac->XDMAC_CHID[channel].XDMAC_CID = dwInteruptMask;
 }
 
-/**
- * \brief Get interrupt mask for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-uint32_t
-XDMAC_GetChannelItMask(Xdmac * pXdmac, uint8_t channel)
+uint32_t xdmac_get_channel_it_mask(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	return pXdmac->XDMAC_CHID[channel].XDMAC_CIM;
+	return xdmac->XDMAC_CHID[channel].XDMAC_CIM;
 }
 
-/**
- * \brief Get interrupt status for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-uint32_t
-XDMAC_GetChannelIsr(Xdmac * pXdmac, uint8_t channel)
+uint32_t xdmac_get_channel_isr(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	return pXdmac->XDMAC_CHID[channel].XDMAC_CIS;
+	return xdmac->XDMAC_CHID[channel].XDMAC_CIS;
 }
 
-/**
- * \brief Get masked interrupt status for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-uint32_t
-XDMAC_GetMaskChannelIsr(Xdmac * pXdmac, uint8_t channel)
+uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel)
 {
 	uint32_t status;
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	status = pXdmac->XDMAC_CHID[channel].XDMAC_CIS;
-	status &= pXdmac->XDMAC_CHID[channel].XDMAC_CIM;
-
+	status = xdmac->XDMAC_CHID[channel].XDMAC_CIS;
+	status &= xdmac->XDMAC_CHID[channel].XDMAC_CIM;
 	return status;
 }
 
-/**
- * \brief Set source address for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param addr Source address.
- */
-void
-XDMAC_SetSourceAddr(Xdmac * pXdmac, uint8_t channel, uint32_t addr)
+void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CSA = addr;
+	xdmac->XDMAC_CHID[channel].XDMAC_CSA = addr;
 }
 
-/**
- * \brief Set destination address for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param addr Destination address.
- */
-void
-XDMAC_SetDestinationAddr(Xdmac * pXdmac, uint8_t channel, uint32_t addr)
+void xdmac_set_dest_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CDA = addr;
+	xdmac->XDMAC_CHID[channel].XDMAC_CDA = addr;
 }
 
-/**
- * \brief Set next descriptor's address & interface for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param addr Address of next descriptor.
- * \param ndaif Interface of next descriptor.
- */
-void
-XDMAC_SetDescriptorAddr(Xdmac * pXdmac, uint8_t channel, uint32_t addr,
+void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr,
 			uint32_t ndaif)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CNDA = (addr & 0xFFFFFFFC) | ndaif;
+	xdmac->XDMAC_CHID[channel].XDMAC_CNDA = (addr & 0xFFFFFFFC) | ndaif;
 }
 
-/**
- * \brief Set next descriptor's configuration for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param config Configuration of next descriptor.
- */
-void
-XDMAC_SetDescriptorControl(Xdmac * pXdmac, uint8_t channel, uint32_t config)
+void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel, uint32_t config)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CNDC = config;
+	xdmac->XDMAC_CHID[channel].XDMAC_CNDC = config;
 }
 
-/**
- * \brief Set microblock length for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param ublen Microblock length.
- */
-void
-XDMAC_SetMicroblockControl(Xdmac * pXdmac, uint8_t channel, uint32_t ublen)
+void xdmac_set_microblock_control(Xdmac *xdmac, uint8_t channel, uint32_t ublen)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CUBC = ublen;
+	xdmac->XDMAC_CHID[channel].XDMAC_CUBC = ublen;
 }
 
-/**
- * \brief Set block length for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param blen Block length.
- */
-void
-XDMAC_SetBlockControl(Xdmac * pXdmac, uint8_t channel, uint32_t blen)
+void xdmac_set_block_control(Xdmac *xdmac, uint8_t channel, uint32_t blen)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CBC = blen;
+	xdmac->XDMAC_CHID[channel].XDMAC_CBC = blen;
 }
 
-/**
- * \brief Set configuration for the relevant channel of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param config Channel configuration.
- */
-void
-XDMAC_SetChannelConfig(Xdmac * pXdmac, uint8_t channel, uint32_t config)
+void xdmac_set_channel_config(Xdmac *xdmac, uint8_t channel, uint32_t config)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CC = config;
+	xdmac->XDMAC_CHID[channel].XDMAC_CC = config;
 }
 
-/**
- * \brief Get the relevant channel's configuration of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-uint32_t
-XDMAC_GetChannelConfig(Xdmac * pXdmac, uint8_t channel)
+uint32_t xdmac_get_channel_config(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	return pXdmac->XDMAC_CHID[channel].XDMAC_CC;
+	return xdmac->XDMAC_CHID[channel].XDMAC_CC;
 }
 
-/**
- * \brief Set the relevant channel's data stride memory pattern of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param dds_msp Data stride memory pattern.
- */
-void
-XDMAC_SetDataStride_MemPattern(Xdmac * pXdmac, uint8_t channel,
+void xdmac_set_data_stride_mem_pattern(Xdmac *xdmac, uint8_t channel,
 			       uint32_t dds_msp)
 {
-
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CDS_MSP = dds_msp;
+	xdmac->XDMAC_CHID[channel].XDMAC_CDS_MSP = dds_msp;
 }
 
-/**
- * \brief Set the relevant channel's source microblock stride of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param subs Source microblock stride.
- */
-void
-XDMAC_SetSourceMicroBlockStride(Xdmac * pXdmac, uint8_t channel, uint32_t subs)
+void xdmac_set_src_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t subs)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CSUS = subs;
+	xdmac->XDMAC_CHID[channel].XDMAC_CSUS = subs;
 }
 
-/**
- * \brief Set the relevant channel's destination microblock stride of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- * \param dubs Destination microblock stride.
- */
-void
-XDMAC_SetDestinationMicroBlockStride(Xdmac * pXdmac, uint8_t channel,
+void xdmac_set_dest_microblock_stride(Xdmac *xdmac, uint8_t channel,
 				     uint32_t dubs)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	pXdmac->XDMAC_CHID[channel].XDMAC_CDUS = dubs;
+	xdmac->XDMAC_CHID[channel].XDMAC_CDUS = dubs;
 }
 
-/**
- * \brief Get the relevant channel's destination address of given XDMA.
- *
- * \param pXdmac Pointer to the XDMAC peripheral.
- * \param channel Particular channel number.
- */
-uint32_t
-XDMAC_GetChDestinationAddr(Xdmac * pXdmac, uint8_t channel)
+uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel)
 {
-	assert(pXdmac);
+	assert(xdmac);
 	assert(channel < XDMAC_CHANNEL_NUM);
-	return pXdmac->XDMAC_CHID[channel].XDMAC_CDA;
+	return xdmac->XDMAC_CHID[channel].XDMAC_CDA;
 }
-
-/**@}*/

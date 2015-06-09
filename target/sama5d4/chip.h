@@ -31,6 +31,7 @@
 #define _CHIP_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 #define __I  volatile	    /**< Defines 'read-only'  permissions */
@@ -173,6 +174,24 @@ extern Matrix* get_peripheral_matrix(uint32_t id);
  * \return the clock divider for the peripheral
  */
 extern uint32_t get_peripheral_clock_divider(uint32_t id);
+
+/** \brief Returns the XDMAC interface number for a given peripheral
+ *
+ * \param id the Peripheral ID
+ * \param xdmac the XDMAC controller instance
+ * \param transmit a boolean, true for transmit, false for receive
+ * \return the XDMAC interface number or 0xff if none
+ */
+uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
+
+/** \brief Checks if a peripheral is usable with a XDMAC controller
+ *
+ * \param id the Peripheral ID
+ * \param xdmac the XDMAC controller instance
+ * \return true if the peripheral is usable on the given XDMAC controller,
+ * false otherwise
+ */
+bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
 
 #ifdef __cplusplus
 }

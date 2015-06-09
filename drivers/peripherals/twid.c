@@ -35,7 +35,6 @@
 
 #include "peripherals/twid.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/xdma_hardware_interface.h"
 #include "cortex-a/cp15.h"
 #include "trace.h"
 
@@ -156,8 +155,7 @@ static void _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 	    | XDMAC_CC_SAM_INCREMENTED_AM
 	    | XDMAC_CC_DAM_FIXED_AM
 	    |
-	    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
-			   (0, twi_id, XDMAD_TRANSFER_TX));
+	    XDMAC_CC_PERID(get_peripheral_xdma_channel(twi_id, XDMAC0, true));
 	xdmaCndc =
 	    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 	    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
@@ -210,8 +208,7 @@ static void _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
 	    | XDMAC_CC_SAM_FIXED_AM
 	    | XDMAC_CC_DAM_INCREMENTED_AM
 	    |
-	    XDMAC_CC_PERID(XDMAIF_Get_ChannelNumber
-			   (0, twi_id, XDMAD_TRANSFER_RX));
+	    XDMAC_CC_PERID(get_peripheral_xdma_channel(twi_id, XDMAC0, false));
 	xdmaCndc =
 	    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 	    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
