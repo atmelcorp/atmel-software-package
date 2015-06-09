@@ -74,6 +74,7 @@ void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
 {
 }
 
+#if 0
 static void matrix_configure_slave_ddr(void)
 {
 }
@@ -81,6 +82,7 @@ static void matrix_configure_slave_ddr(void)
 static void matrix_configure_slave_nand(void)
 {
 }
+#endif
 
 /**
  * \brief Configures DDR3

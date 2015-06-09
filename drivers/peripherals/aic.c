@@ -218,22 +218,6 @@ static void _aic_set_it(Aic * aic, uint32_t source)
 	aic->AIC_ISCR = AIC_ISCR_INTSET;
 }
 
-/**
- * \brief return if the giving peripheral is H64 Matrix
- *
- * \param pid  peripheral ID
- */
-static uint8_t _is_h64_matrix(uint32_t pid)
-{
-	uint8_t i;
-	for (i=0; i<ID_H64_MATRIX_SIZE; i++) {
-		if( pid == _id_h64_matrix[i]) {
-			return 1;
-		}
-	}
-	return 0;
-}
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -251,8 +235,8 @@ void aic_initialize(void)
 	_aic_initialize(SAIC);
 
 	/* Redirect all interrupts to Non-secure AIC */
-	REG_SFR_AICREDIR = SFR_AICREDIR_AICREDIRKEY(0x5F67B102) | REG_SFR_SN1 |
-	                   SFR_AICREDIR_NSAIC;
+	SFR->SFR_AICREDIR = (SFR_AICREDIR_AICREDIRKEY(0x5F67B102) ^ SFR->SFR_SN1) |
+	                    SFR_AICREDIR_NSAIC;
 
 	/* Enable IRQ and FIQ at core level */
 	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
@@ -265,24 +249,16 @@ void aic_initialize(void)
  */
 void aic_enable(uint32_t source)
 {
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
-
-	if (AicFuse) {
+	if (SFR->SFR_AICREDIR) {
 		_aic_enable_it(AIC, source);
+		return;
 	}
-	else {
-		if (_is_h64_matrix(source)) {
-			if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-				_aic_enable_it(AIC, source);
-			else
-				_aic_enable_it(SAIC, source);
-		}
-		else {
-			if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-				_aic_enable_it(AIC, source);
-			else
-				_aic_enable_it(SAIC, source);
-		}
+
+	Matrix* matrix = get_peripheral_matrix(source);
+	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
+		_aic_enable_it(AIC, source);
+	} else {
+		_aic_enable_it(SAIC, source);
 	}
 }
 
@@ -293,23 +269,16 @@ void aic_enable(uint32_t source)
  */
 void aic_disable(uint32_t source)
 {
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
-
-	if (AicFuse) {
+	if (SFR->SFR_AICREDIR) {
 		_aic_disable_it(AIC, source);
 		return;
 	}
 
-	if (_is_h64_matrix(source)) {
-		if (MATRIX0->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-			_aic_disable_it(AIC, source);
-		else
-			_aic_disable_it(SAIC, source);
+	Matrix* matrix = get_peripheral_matrix(source);
+	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
+		_aic_disable_it(AIC, source);
 	} else {
-		if (MATRIX1->MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-			_aic_disable_it(AIC, source);
-		else
-			_aic_disable_it(SAIC, source);
+		_aic_disable_it(SAIC, source);
 	}
 }
 
@@ -321,26 +290,16 @@ void aic_disable(uint32_t source)
  */
 void aic_configure(uint32_t source, uint8_t mode)
 {
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
+	if (SFR->SFR_AICREDIR) {
+		_aic_configure_it(source, mode);
+		return;
+	}
 
-	if (AicFuse) {
+	Matrix* matrix = get_peripheral_matrix(source);
+	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
 		_aic_configure_it(source, mode);
 	} else {
-		if (_is_h64_matrix(source)) {
-			if (MATRIX0->
-			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-				_aic_configure_it(source, mode);
-			else {
-				// Does not apply For SAIC
-			}
-		} else {
-			if (MATRIX1->
-			    MATRIX_SPSELR[source / 32] & (1 << (source % 32)))
-				_aic_configure_it(source, mode);
-			else {
-				// does not apply for SAIC
-			}
-		}
+		// Does not apply for SAIC
 	}
 }
 
@@ -352,15 +311,14 @@ void aic_configure(uint32_t source, uint8_t mode)
  */
 void aic_set_source_vector(uint32_t source, void (*handler)(void))
 {
-	Matrix *pMatrix;
 	Aic *aic = AIC;
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
-	if (0 == AicFuse) {
-		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
-		if (0 == (pMatrix-> MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+	if (SFR->SFR_AICREDIR == 0) {
+		Matrix* matrix = get_peripheral_matrix(source);
+		if ((matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) == 0)
 			aic = SAIC;
 	}
+
 	_aic_set_source_vector(aic, source, handler);
 }
 
@@ -372,11 +330,11 @@ void aic_set_source_vector(uint32_t source, void (*handler)(void))
 void aic_set_spurious_vector(void (*handler)(void))
 {
 	Aic *aic = AIC;
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
-	if (0 == AicFuse) {
+	if (SFR->SFR_AICREDIR == 0) {
 		aic = SAIC;
 	}
+
 	_aic_set_spurious_vector(aic, handler);
 }
 
@@ -388,21 +346,19 @@ void aic_set_spurious_vector(void (*handler)(void))
  */
 void aic_set_or_clear(uint32_t source, uint8_t set)
 {
-	Matrix *pMatrix;
 	Aic *aic = AIC;
-	volatile unsigned int AicFuse = REG_SFR_AICREDIR;
 
-	if (0 == AicFuse) {
-		pMatrix = (_is_h64_matrix(source)) ? MATRIX0 : MATRIX1;
-		if (0 ==
-		    (pMatrix->
-		     MATRIX_SPSELR[source / 32] & (1 << (source % 32))))
+	if (SFR->SFR_AICREDIR == 0) {
+		Matrix* matrix = get_peripheral_matrix(source);
+		if ((matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) == 0)
 			aic = SAIC;
 	}
-	if (set)
+
+	if (set) {
 		_aic_set_it(aic, source);
-	else
+	} else {
 		_aic_clear_it(aic, source);
+	}
 }
 
 /**

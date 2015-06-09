@@ -560,7 +560,7 @@ int main(void)
 
 	/* Configure RTC interrupts */
 	rtc_enable_it(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
-	aic_enable(ID_PMC);
+	aic_enable(ID_SYSC);
 	/* Refresh display once */
 	_RefreshDisplay();
 	new_time.hour = 0;

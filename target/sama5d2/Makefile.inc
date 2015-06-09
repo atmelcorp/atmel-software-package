@@ -41,6 +41,7 @@ endif
 
 chip-serie-name-y = sama5d2
 
+target-y += target/sama5d2/chip.o
 target-y += target/sama5d2/board_lowlevel.o
 target-y += target/sama5d2/board_memories.o
 

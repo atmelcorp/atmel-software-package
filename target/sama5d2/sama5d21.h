@@ -54,68 +54,66 @@
  extern "C" {
 #endif
 
-#if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 #include <stdint.h>
-#endif
 
 typedef enum IRQn
 {
-  PIT_IRQn             =  3, /**<  3 SAMA5D21 Periodic Interval Timer Interrupt (PIT) */
-  WDT_IRQn             =  4, /**<  4 SAMA5D21 Watchdog timer Interrupt (WDT) */
-  GMAC_IRQn            =  5, /**<  5 SAMA5D21 Ethernet MAC (GMAC) */
-  XDMAC0_IRQn          =  6, /**<  6 SAMA5D21 DMA Controller 0 (XDMAC0) */
-  XDMAC1_IRQn          =  7, /**<  7 SAMA5D21 DMA Controller 1 (XDMAC1) */
-  ICM_IRQn             =  8, /**<  8 SAMA5D21 Integritry Check Monitor (ICM) */
-  AES_IRQn             =  9, /**<  9 SAMA5D21 Advanced Enion Standard (AES) */
-  AESB_IRQn            = 10, /**< 10 SAMA5D21 AES bridge (AESB) */
-  TDES_IRQn            = 11, /**< 11 SAMA5D21 Triple Data Enion Standard (TDES) */
-  SHA_IRQn             = 12, /**< 12 SAMA5D21 SHA Signature (SHA) */
-  MPDDRC_IRQn          = 13, /**< 13 SAMA5D21 MPDDR controller (MPDDRC) */
-  MATRIX1_IRQn         = 14, /**< 14 SAMA5D21 H32MX, 32-bit AHB Matrix (MATRIX1) */
-  MATRIX0_IRQn         = 15, /**< 15 SAMA5D21 H64MX, 64-bit AHB Matrix (MATRIX0) */
-  HSMC_IRQn            = 17, /**< 17 SAMA5D21 Multi-bit ECC Interrupt (HSMC) */
-  PIOA_IRQn            = 18, /**< 18 SAMA5D21 Parallel I/O Controller (PIOA) */
-  FLEXCOM0_IRQn        = 19, /**< 19 SAMA5D21 FLEXCOM 0 (FLEXCOM0) */
-  FLEXCOM1_IRQn        = 20, /**< 20 SAMA5D21 FLEXCOM 1 (FLEXCOM1) */
-  FLEXCOM3_IRQn        = 22, /**< 22 SAMA5D21 FLEXCOM 3 (FLEXCOM3) */
-  FLEXCOM4_IRQn        = 23, /**< 23 SAMA5D21 FLEXCOM 4 (FLEXCOM4) */
-  UART0_IRQn           = 24, /**< 24 SAMA5D21 UART 0 (UART0) */
-  UART1_IRQn           = 25, /**< 25 SAMA5D21 UART 1 (UART1) */
-  UART2_IRQn           = 26, /**< 26 SAMA5D21 UART 2 (UART2) */
-  UART3_IRQn           = 27, /**< 27 SAMA5D21 UART 3 (UART3) */
-  UART4_IRQn           = 28, /**< 28 SAMA5D21 UART 4 (UART4) */
-  TWIHS0_IRQn          = 29, /**< 29 SAMA5D21 Two-Wire Interface 0 (TWIHS0) */
-  TWIHS1_IRQn          = 30, /**< 30 SAMA5D21 Two-Wire Interface 1 (TWIHS1) */
-  SPI0_IRQn            = 33, /**< 33 SAMA5D21 Serial Peripheral Interface 0 (SPI0) */
-  SPI1_IRQn            = 34, /**< 34 SAMA5D21 Serial Peripheral Interface 1 (SPI1) */
-  TC0_IRQn             = 35, /**< 35 SAMA5D21 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
-  TC1_IRQn             = 36, /**< 36 SAMA5D21 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-  PWM_IRQn             = 38, /**< 38 SAMA5D21 Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
-  ADC_IRQn             = 40, /**< 40 SAMA5D21 Touch Screen ADC Controller (ADC) */
-  UHPHS_IRQn           = 41, /**< 41 SAMA5D21 USB Host High Speed (UHPHS) */
-  UDPHS_IRQn           = 42, /**< 42 SAMA5D21 USB Device High Speed (UDPHS) */
-  SSC0_IRQn            = 43, /**< 43 SAMA5D21 Synchronous Serial Controller 0 (SSC0) */
-  SSC1_IRQn            = 44, /**< 44 SAMA5D21 Synchronous Serial Controller 1 (SSC1) */
-  LCDC_IRQn            = 45, /**< 45 SAMA5D21 LCD Controller (LCDC) */
-  ISC_IRQn             = 46, /**< 46 SAMA5D21 Camera Interface (ISC) */
-  TRNG_IRQn            = 47, /**< 47 SAMA5D21 True Random Number Generator (TRNG) */
-  PDMIC_IRQn           = 48, /**< 48 SAMA5D21 Pulse Density Modulation Interface Controller (PDMIC) */
-  SFC_IRQn             = 50, /**< 50 SAMA5D21 Fuse Controller (SFC) */
-  QSPI0_IRQn           = 52, /**< 52 SAMA5D21 QSPI 0 (QSPI0) */
-  QSPI1_IRQn           = 53, /**< 53 SAMA5D21 QSPI 1 (QSPI1) */
-  I2SC0_IRQn           = 54, /**< 54 SAMA5D21 Inter-IC Sound Controller 0 (I2SC0) */
-  I2SC1_IRQn           = 55, /**< 55 SAMA5D21 Inter-IC Sound Controller 1 (I2SC1) */
-  CLASSD_IRQn          = 59, /**< 59 SAMA5D21 Audio Class D amplifier (CLASSD) */
-  SFR_IRQn             = 60, /**< 60 SAMA5D21 Special Function Register  (SFR) */
-  SAIC_IRQn            = 61, /**< 61 SAMA5D21 Secured Advanced Interrupt Controller  (SAIC) */
-  AIC_IRQn             = 62, /**< 62 SAMA5D21 Advanced Interrupt Controller  (AIC) */
-  L2CC_IRQn            = 63, /**< 63 SAMA5D21 L2 Cache Controller (L2CC) */
-  PIOB_IRQn            = 68, /**< 68 SAMA5D21  (PIOB) */
-  PIOC_IRQn            = 69, /**< 69 SAMA5D21  (PIOC) */
-  PIOD_IRQn            = 70, /**< 70 SAMA5D21  (PIOD) */
-  ACC_IRQn             = 75, /**< 75 SAMA5D21 Analog Comparator (ACC) */
-  RXLP_IRQn            = 76, /**< 76 SAMA5D21 Uart Low Power (RXLP) */
-  CHIPID_IRQn          = 78, /**< 78 SAMA5D21 Chip ID (CHIPID) */
+  PIT_IRQn             =  3, /**<  3 Periodic Interval Timer Interrupt (PIT) */
+  WDT_IRQn             =  4, /**<  4 Watchdog timer Interrupt (WDT) */
+  GMAC_IRQn            =  5, /**<  5 Ethernet MAC (GMAC) */
+  XDMAC0_IRQn          =  6, /**<  6 DMA Controller 0 (XDMAC0) */
+  XDMAC1_IRQn          =  7, /**<  7 DMA Controller 1 (XDMAC1) */
+  ICM_IRQn             =  8, /**<  8 Integritry Check Monitor (ICM) */
+  AES_IRQn             =  9, /**<  9 Advanced Enion Standard (AES) */
+  AESB_IRQn            = 10, /**< 10 AES bridge (AESB) */
+  TDES_IRQn            = 11, /**< 11 Triple Data Enion Standard (TDES) */
+  SHA_IRQn             = 12, /**< 12 SHA Signature (SHA) */
+  MPDDRC_IRQn          = 13, /**< 13 MPDDR controller (MPDDRC) */
+  MATRIX1_IRQn         = 14, /**< 14 H32MX, 32-bit AHB Matrix (MATRIX1) */
+  MATRIX0_IRQn         = 15, /**< 15 H64MX, 64-bit AHB Matrix (MATRIX0) */
+  HSMC_IRQn            = 17, /**< 17 Multi-bit ECC Interrupt (HSMC) */
+  PIOA_IRQn            = 18, /**< 18 Parallel I/O Controller (PIOA) */
+  FLEXCOM0_IRQn        = 19, /**< 19 FLEXCOM 0 (FLEXCOM0) */
+  FLEXCOM1_IRQn        = 20, /**< 20 FLEXCOM 1 (FLEXCOM1) */
+  FLEXCOM3_IRQn        = 22, /**< 22 FLEXCOM 3 (FLEXCOM3) */
+  FLEXCOM4_IRQn        = 23, /**< 23 FLEXCOM 4 (FLEXCOM4) */
+  UART0_IRQn           = 24, /**< 24 UART 0 (UART0) */
+  UART1_IRQn           = 25, /**< 25 UART 1 (UART1) */
+  UART2_IRQn           = 26, /**< 26 UART 2 (UART2) */
+  UART3_IRQn           = 27, /**< 27 UART 3 (UART3) */
+  UART4_IRQn           = 28, /**< 28 UART 4 (UART4) */
+  TWIHS0_IRQn          = 29, /**< 29 Two-Wire Interface 0 (TWIHS0) */
+  TWIHS1_IRQn          = 30, /**< 30 Two-Wire Interface 1 (TWIHS1) */
+  SPI0_IRQn            = 33, /**< 33 Serial Peripheral Interface 0 (SPI0) */
+  SPI1_IRQn            = 34, /**< 34 Serial Peripheral Interface 1 (SPI1) */
+  TC0_IRQn             = 35, /**< 35 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
+  TC1_IRQn             = 36, /**< 36 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
+  PWM_IRQn             = 38, /**< 38 Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
+  ADC_IRQn             = 40, /**< 40 Touch Screen ADC Controller (ADC) */
+  UHPHS_IRQn           = 41, /**< 41 USB Host High Speed (UHPHS) */
+  UDPHS_IRQn           = 42, /**< 42 USB Device High Speed (UDPHS) */
+  SSC0_IRQn            = 43, /**< 43 Synchronous Serial Controller 0 (SSC0) */
+  SSC1_IRQn            = 44, /**< 44 Synchronous Serial Controller 1 (SSC1) */
+  LCDC_IRQn            = 45, /**< 45 LCD Controller (LCDC) */
+  ISC_IRQn             = 46, /**< 46 Camera Interface (ISC) */
+  TRNG_IRQn            = 47, /**< 47 True Random Number Generator (TRNG) */
+  PDMIC_IRQn           = 48, /**< 48 Pulse Density Modulation Interface Controller (PDMIC) */
+  SFC_IRQn             = 50, /**< 50 Fuse Controller (SFC) */
+  QSPI0_IRQn           = 52, /**< 52 QSPI 0 (QSPI0) */
+  QSPI1_IRQn           = 53, /**< 53 QSPI 1 (QSPI1) */
+  I2SC0_IRQn           = 54, /**< 54 Inter-IC Sound Controller 0 (I2SC0) */
+  I2SC1_IRQn           = 55, /**< 55 Inter-IC Sound Controller 1 (I2SC1) */
+  CLASSD_IRQn          = 59, /**< 59 Audio Class D amplifier (CLASSD) */
+  SFR_IRQn             = 60, /**< 60 Special Function Register  (SFR) */
+  SAIC_IRQn            = 61, /**< 61 Secured Advanced Interrupt Controller  (SAIC) */
+  AIC_IRQn             = 62, /**< 62 Advanced Interrupt Controller  (AIC) */
+  L2CC_IRQn            = 63, /**< 63 L2 Cache Controller (L2CC) */
+  PIOB_IRQn            = 68, /**< 68  (PIOB) */
+  PIOC_IRQn            = 69, /**< 69  (PIOC) */
+  PIOD_IRQn            = 70, /**< 70  (PIOD) */
+  ACC_IRQn             = 75, /**< 75 Analog Comparator (ACC) */
+  RXLP_IRQn            = 76, /**< 76 Uart Low Power (RXLP) */
+  CHIPID_IRQn          = 78, /**< 78 Chip ID (CHIPID) */
 
   PERIPH_COUNT_IRQn    = 79  /**< Number of peripheral IDs */
 } IRQn_Type;
@@ -128,8 +126,8 @@ typedef enum IRQn
 
 #include "component/component_acc.h"
 #include "component/component_adc.h"
-#include "component/component_aes.h"
 #include "component/component_aesb.h"
+#include "component/component_aes.h"
 #include "component/component_aic.h"
 #include "component/component_aximx.h"
 #include "component/component_chipid.h"
@@ -158,7 +156,6 @@ typedef enum IRQn
 #include "component/component_sha.h"
 #include "component/component_shdwc.h"
 #include "component/component_smc.h"
-//#include "component/component_spi.h"
 #include "component/component_ssc.h"
 #include "component/component_tc.h"
 #include "component/component_tdes.h"
@@ -171,174 +168,11 @@ typedef enum IRQn
 /*@}*/
 
 /* ************************************************************************** */
-/*   REGISTER ACCESS DEFINITIONS FOR SAMA5D21 */
-/* ************************************************************************** */
-/** \addtogroup SAMA5D21_reg Registers Access Definitions */
-/*@{*/
-
-#include "instance/instance_aximx.h"
-#include "instance/instance_l2cc.h"
-#include "instance/instance_lcdc.h"
-#include "instance/instance_xdmac1.h"
-#include "instance/instance_isc.h"
-#include "instance/instance_mpddrc.h"
-#include "instance/instance_xdmac0.h"
-#include "instance/instance_pmc.h"
-#include "instance/instance_matrix0.h"
-#include "instance/instance_aesb.h"
-#include "instance/instance_qspi0.h"
-#include "instance/instance_qspi1.h"
-#include "instance/instance_sha.h"
-#include "instance/instance_aes.h"
-#include "instance/instance_spi0.h"
-#include "instance/instance_ssc0.h"
-#include "instance/instance_gmac.h"
-#include "instance/instance_tc0.h"
-#include "instance/instance_tc1.h"
-#include "instance/instance_hsmc.h"
-#include "instance/instance_pdmic.h"
-#include "instance/instance_uart0.h"
-#include "instance/instance_uart1.h"
-#include "instance/instance_uart2.h"
-#include "instance/instance_twihs0.h"
-#include "instance/instance_pwm.h"
-#include "instance/instance_sfr.h"
-#include "instance/instance_flexcom0.h"
-#include "instance/instance_flexcom1.h"
-#include "instance/instance_saic.h"
-#include "instance/instance_icm.h"
-#include "instance/instance_rstc.h"
-#include "instance/instance_shdwc.h"
-#include "instance/instance_pit.h"
-#include "instance/instance_wdt.h"
-#include "instance/instance_sckc.h"
-#include "instance/instance_rtc.h"
-#include "instance/instance_rxlp.h"
-#include "instance/instance_acc.h"
-#include "instance/instance_sfc.h"
-#include "instance/instance_i2sc0.h"
-#include "instance/instance_spi1.h"
-#include "instance/instance_ssc1.h"
-#include "instance/instance_uart3.h"
-#include "instance/instance_uart4.h"
-#include "instance/instance_flexcom3.h"
-#include "instance/instance_flexcom4.h"
-#include "instance/instance_trng.h"
-#include "instance/instance_aic.h"
-#include "instance/instance_twihs1.h"
-#include "instance/instance_udphs.h"
-#include "instance/instance_adc.h"
-#include "instance/instance_pioa.h"
-#include "instance/instance_matrix1.h"
-#include "instance/instance_tdes.h"
-#include "instance/instance_classd.h"
-#include "instance/instance_i2sc1.h"
-#include "instance/instance_chipid.h"
-/*@}*/
-
-/* ************************************************************************** */
-/*   CONFIGURATION ID H64 MATRIX FOR SAMA5D21 */
-/* ************************************************************************** */
-
-const WEAK uint8_t _id_h64_matrix[] = {
-	ID_ARM_PMU,
-	ID_XDMAC0,
-	ID_XDMAC1,
-	ID_AES,
-	//ID_AESB,
-	ID_SHA,
-	ID_MPDDRC,
-	ID_MATRIX0,
-	ID_SDHC0,
-	//ID_SDHC1,
-	ID_LCDC,
-	ID_ISC,
-	ID_QSPI0,
-	ID_QSPI1,
-	ID_L2CC
-};
-
-#define ID_H64_MATRIX_SIZE 	sizeof(_id_h64_matrix)
-
-
-/* ************************************************************************** */
 /*   BASE ADDRESS DEFINITIONS FOR SAMA5D21 */
 /* ************************************************************************** */
 /** \addtogroup SAMA5D21_base Peripheral Base Address Definitions */
 /*@{*/
 
-#if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-#define AXIMX    (0x00600000U) /**< \brief (AXIMX   ) Base Address */
-#define L2CC     (0x00A00000U) /**< \brief (L2CC    ) Base Address */
-#define LCDC     (0xF0000000U) /**< \brief (LCDC    ) Base Address */
-#define XDMAC1   (0xF0004000U) /**< \brief (XDMAC1  ) Base Address */
-#define ISC      (0xF0008000U) /**< \brief (ISC     ) Base Address */
-#define MPDDRC   (0xF000C000U) /**< \brief (MPDDRC  ) Base Address */
-#define XDMAC0   (0xF0010000U) /**< \brief (XDMAC0  ) Base Address */
-#define PMC      (0xF0014000U) /**< \brief (PMC     ) Base Address */
-#define MATRIX0  (0xF0018000U) /**< \brief (MATRIX0 ) Base Address */
-#define AESB     (0xF001C000U) /**< \brief (AESB    ) Base Address */
-#define QSPI0    (0xF0020000U) /**< \brief (QSPI0   ) Base Address */
-#define QSPI1    (0xF0024000U) /**< \brief (QSPI1   ) Base Address */
-#define SHA      (0xF0028000U) /**< \brief (SHA     ) Base Address */
-#define AES      (0xF002C000U) /**< \brief (AES     ) Base Address */
-#define SPI0     (0xF8000000U) /**< \brief (SPI0    ) Base Address */
-#define SSC0     (0xF8004000U) /**< \brief (SSC0    ) Base Address */
-#define GMAC     (0xF8008000U) /**< \brief (GMAC    ) Base Address */
-#define TC0      (0xF800C000U) /**< \brief (TC0     ) Base Address */
-#define TC1      (0xF8010000U) /**< \brief (TC1     ) Base Address */
-#define HSMC     (0xF8014000U) /**< \brief (HSMC    ) Base Address */
-#define PDMIC    (0xF8018000U) /**< \brief (PDMIC   ) Base Address */
-#define UART0    (0xF801C000U) /**< \brief (UART0   ) Base Address */
-#define UART1    (0xF8020000U) /**< \brief (UART1   ) Base Address */
-#define UART2    (0xF8024000U) /**< \brief (UART2   ) Base Address */
-#define TWIHS0   (0xF8028000U) /**< \brief (TWIHS0  ) Base Address */
-#define PWM      (0xF802C000U) /**< \brief (PWM     ) Base Address */
-#define SFR      (0xF8030000U) /**< \brief (SFR     ) Base Address */
-#define FLEXCOM0 (0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
-#define USART0   (0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
-#define FCOMSPI0 (0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
-#define TWI0     (0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
-#define FLEXCOM1 (0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
-#define USART1   (0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
-#define FCOMSPI1 (0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
-#define TWI1     (0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
-#define SAIC     (0xF803C000U) /**< \brief (SAIC    ) Base Address */
-#define ICM      (0xF8040000U) /**< \brief (ICM     ) Base Address */
-#define RSTC     (0xF8048000U) /**< \brief (RSTC    ) Base Address */
-#define SHDWC    (0xF8048010U) /**< \brief (SHDWC   ) Base Address */
-#define PIT      (0xF8048030U) /**< \brief (PIT     ) Base Address */
-#define WDT      (0xF8048040U) /**< \brief (WDT     ) Base Address */
-#define SCKC     (0xF8048050U) /**< \brief (SCKC    ) Base Address */
-#define RTC      (0xF80480B0U) /**< \brief (RTC     ) Base Address */
-#define RXLP     (0xF8049000U) /**< \brief (RXLP    ) Base Address */
-#define ACC      (0xF804A000U) /**< \brief (ACC     ) Base Address */
-#define SFC      (0xF804C000U) /**< \brief (SFC     ) Base Address */
-#define I2SC0    (0xF8050000U) /**< \brief (I2SC0   ) Base Address */
-#define SPI1     (0xFC000000U) /**< \brief (SPI1    ) Base Address */
-#define SSC1     (0xFC004000U) /**< \brief (SSC1    ) Base Address */
-#define UART3    (0xFC008000U) /**< \brief (UART3   ) Base Address */
-#define UART4    (0xFC00C000U) /**< \brief (UART4   ) Base Address */
-#define FLEXCOM3 (0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
-#define USART3   (0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
-#define FCOMSPI3 (0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
-#define TWI3     (0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
-#define FLEXCOM4 (0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
-#define USART4   (0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
-#define FCOMSPI4 (0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
-#define TWI4     (0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
-#define TRNG     (0xFC01C000U) /**< \brief (TRNG    ) Base Address */
-#define AIC      (0xFC020000U) /**< \brief (AIC     ) Base Address */
-#define TWIHS1   (0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
-#define UDPHS    (0xFC02C000U) /**< \brief (UDPHS   ) Base Address */
-#define ADC      (0xFC030000U) /**< \brief (ADC     ) Base Address */
-#define PIOA     (0xFC038000U) /**< \brief (PIOA    ) Base Address */
-#define MATRIX1  (0xFC03C000U) /**< \brief (MATRIX1 ) Base Address */
-#define TDES     (0xFC044000U) /**< \brief (TDES    ) Base Address */
-#define CLASSD   (0xFC048000U) /**< \brief (CLASSD  ) Base Address */
-#define I2SC1    (0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
-#define CHIPID   (0xFC069000U) /**< \brief (CHIPID  ) Base Address */
-#else
 #define AXIMX    ((Aximx    *)0x00600000U) /**< \brief (AXIMX   ) Base Address */
 #define L2CC     ((L2cc     *)0x00A00000U) /**< \brief (L2CC    ) Base Address */
 #define LCDC     ((Lcdc     *)0xF0000000U) /**< \brief (LCDC    ) Base Address */
@@ -409,7 +243,7 @@ const WEAK uint8_t _id_h64_matrix[] = {
 #define CLASSD   ((Classd   *)0xFC048000U) /**< \brief (CLASSD  ) Base Address */
 #define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
 #define CHIPID   ((Chipid   *)0xFC069000U) /**< \brief (CHIPID  ) Base Address */
-#endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+
 /*@}*/
 
 /* ************************************************************************** */

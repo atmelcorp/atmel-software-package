@@ -183,6 +183,9 @@ typedef struct {
 #define   PMC_MCKR_MDIV_PCK_DIV4 (0x2u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 4. SysClk DDR is equal to 2 x MCK. DDRCK is equal to MCK. */
 #define   PMC_MCKR_MDIV_PCK_DIV3 (0x3u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 3. SysClk DDR is equal to 2 x MCK. DDRCK is equal to MCK. */
 #define PMC_MCKR_PLLADIV2 (0x1u << 12) /**< \brief (PMC_MCKR) PLLA Divisor by 2 */
+#define PMC_MCKR_H32MXDIV (0x1u << 24) /**< \brief (PMC_MCKR) AHB 32-bit Matrix Divisor */
+#define   PMC_MCKR_H32MXDIV_H32MXDIV1 (0x0u << 24) /**< \brief (PMC_MCKR) The AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency. It is possible only if the AHB 64-bit Matrix frequency does not exceed 90 MHz. */
+#define   PMC_MCKR_H32MXDIV_H32MXDIV2 (0x1u << 24) /**< \brief (PMC_MCKR) The AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2. */
 /* -------- PMC_USB : (PMC Offset: 0x0038) USB Clock Register -------- */
 #define PMC_USB_USBS (0x1u << 0) /**< \brief (PMC_USB) USB OHCI Input Clock Selection */
 #define PMC_USB_USBDIV_Pos 8
