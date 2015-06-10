@@ -86,42 +86,22 @@ static uint32_t _pmc_mck = 0;
 
 static void _pmc_compute_mck(void)
 {
-	uint32_t mck = 0;
+	uint32_t clk = 0;
 	uint32_t mckr = PMC->PMC_MCKR;
-	uint32_t pllar;
-	uint32_t pllmula;
-	uint32_t plldiva;
 
 	uint32_t css = mckr & PMC_MCKR_CSS_Msk;
 	switch (css) {
 	case PMC_MCKR_CSS_SLOW_CLK:
-		if (SCKC->SCKC_CR & SCKC_CR_OSCSEL)
-			mck = SLOW_CLOCK_INT_OSC; /* on-chip slow clock RC */
-		else
-			mck = BOARD_SLOW_CLOCK_EXT_OSC; /* external crystal */
+		clk = pmc_get_slow_clock();
 		break;
 	case PMC_MCKR_CSS_MAIN_CLK:
-		if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-			mck = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
-		else
-			mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		clk = pmc_get_main_clock();
 		break;
 	case PMC_MCKR_CSS_PLLA_CLK:
-		if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-			mck = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
-		else
-			mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
-		pllar = PMC->CKGR_PLLAR;
-		pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
-		plldiva = (pllar & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
-		/* no need to handle plldiva=0 case, it is not possible since
-		   we are running on PLLA */
-		mck = mck * (pllmula + 1) / plldiva;
-		if (mckr & PMC_MCKR_PLLADIV2)
-			mck >>= 1;
+		clk = pmc_get_plla_clock();
 		break;
 	case PMC_MCKR_CSS_UPLL_CLK:
-		mck = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		clk = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
 		break;
 	default:
 		/* should never get here... */
@@ -133,22 +113,22 @@ static void _pmc_compute_mck(void)
 	case PMC_MCKR_PRES_CLOCK:
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV2:
-		mck >>= 1;
+		clk >>= 1;
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV4:
-		mck >>= 2;
+		clk >>= 2;
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV8:
-		mck >>= 3;
+		clk >>= 3;
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV16:
-		mck >>= 4;
+		clk >>= 4;
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV32:
-		mck >>= 5;
+		clk >>= 5;
 		break;
 	case PMC_MCKR_PRES_CLOCK_DIV64:
-		mck >>= 6;
+		clk >>= 6;
 		break;
 	default:
 		/* should never get here... */
@@ -160,20 +140,54 @@ static void _pmc_compute_mck(void)
 	case PMC_MCKR_MDIV_EQ_PCK:
 		break;
 	case PMC_MCKR_MDIV_PCK_DIV2:
-		mck >>= 1; // divide by 2
+		clk >>= 1; // divide by 2
 		break;
 	case PMC_MCKR_MDIV_PCK_DIV4:
-		mck >>= 2; // divide by 4
+		clk >>= 2; // divide by 4
 		break;
 	case PMC_MCKR_MDIV_PCK_DIV3:
-		mck /= 3;  // divide by 3
+		clk /= 3;  // divide by 3
 		break;
 	default:
 		/* should never get here... */
 		break;
 	}
 
-	_pmc_mck = mck;
+	_pmc_mck = clk;
+}
+
+static uint32_t _pmc_get_pck_clock(uint32_t index)
+{
+	uint32_t clk = 0;
+	uint32_t pck = PMC->PMC_PCK[index];
+
+	switch (pck & PMC_PCK_CSS_Msk) {
+	case PMC_PCK_CSS_SLOW_CLK:
+		clk = pmc_get_slow_clock();
+		break;
+	case PMC_PCK_CSS_MAIN_CLK:
+		clk = pmc_get_main_clock();
+		break;
+	case PMC_PCK_CSS_PLLA_CLK:
+		clk = pmc_get_plla_clock();
+		break;
+	case PMC_PCK_CSS_UPLL_CLK:
+		//TODO: clk = pmc_get_upll_clock();
+		clk = 0;
+		break;
+	case PMC_PCK_CSS_MCK_CLK:
+		clk = pmc_get_master_clock();
+		break;
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+	case PMC_PCK_CSS_AUDIO_CLK:
+		//TODO: clk = pmc_get_audio_clock();
+		clk = 0;
+		break;
+#endif
+	}
+
+	uint32_t prescaler = (pck & PMC_PCK_PRES_Msk) >> PMC_PCK_PRES_Pos;
+	return clk / (prescaler + 1);
 }
 
 /*----------------------------------------------------------------------------
@@ -188,9 +202,72 @@ uint32_t pmc_get_master_clock(void)
 	return _pmc_mck;
 }
 
-/**
- * \brief Select external 32K crystal.
- */
+uint32_t pmc_get_slow_clock(void)
+{
+	if (SCKC->SCKC_CR & SCKC_CR_OSCSEL)
+		return SLOW_CLOCK_INT_OSC; /* on-chip slow clock RC */
+	else
+		return BOARD_SLOW_CLOCK_EXT_OSC; /* external crystal */
+}
+
+uint32_t pmc_get_main_clock(void)
+{
+	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
+		return MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+	else
+		return BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+}
+
+uint32_t pmc_get_plla_clock(void)
+{
+	uint32_t pllaclk, pllar, pllmula, plldiva;
+
+	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
+		pllaclk = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+	else
+		pllaclk = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+
+	pllar = PMC->CKGR_PLLAR;
+	pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
+	plldiva = (pllar & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
+	if (plldiva == 0) {
+		pllaclk = 0;
+	} else {
+		pllaclk = pllaclk * (pllmula + 1) / plldiva;
+		if (PMC->PMC_MCKR & PMC_MCKR_PLLADIV2)
+			pllaclk >>= 1;
+	}
+
+	return pllaclk;
+}
+
+uint32_t pmc_get_processor_clock(void)
+{
+	uint32_t procclk, mdiv;
+
+	procclk = pmc_get_master_clock();
+
+	mdiv = PMC->PMC_MCKR & PMC_MCKR_MDIV_Msk;
+	switch (mdiv) {
+	case PMC_MCKR_MDIV_EQ_PCK:
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV2:
+		procclk <<= 1; // multiply by 2
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV3:
+		procclk *= 3;  // multiply by 3
+		break;
+	case PMC_MCKR_MDIV_PCK_DIV4:
+		procclk <<= 2; // multiply by 4
+		break;
+	default:
+		/* should never get here... */
+		break;
+	}
+
+	return procclk;
+}
+
 void pmc_select_external_crystal(void)
 {
 	int return_to_sclock = 0;
@@ -212,9 +289,6 @@ void pmc_select_external_crystal(void)
 		pmc_switch_mck_to_slck();
 }
 
-/**
- * \brief Select internal 32K crystal.
- */
 void pmc_select_internal_crystal(void)
 {
 	int return_to_sclock = 0;
@@ -237,9 +311,6 @@ void pmc_select_internal_crystal(void)
 		pmc_switch_mck_to_slck();
 }
 
-/**
- * \brief Select external 12M OSC.
- */
 void pmc_select_external_osc(void)
 {
 	/* switch from internal RC 12 MHz to external OSC 12 MHz */
@@ -263,9 +334,6 @@ void pmc_select_external_osc(void)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-/**
- * \brief Select internal 12M OSC.
- */
 void pmc_select_internal_osc(void)
 {
 	/* switch from external OSC 12 MHz to internal RC 12 MHz */
@@ -283,9 +351,6 @@ void pmc_select_internal_osc(void)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-/**
- * \brief Switch PMC from MCK to PLL clock.
- */
 void pmc_switch_mck_to_pll(void)
 {
 	/* Select PLL as input clock for PCK and MCK */
@@ -295,9 +360,6 @@ void pmc_switch_mck_to_pll(void)
 	_pmc_mck = 0;
 }
 
-/**
- * \brief Switch PMC from MCK to main clock.
- */
 void pmc_switch_mck_to_main(void)
 {
 	/* Select Main Oscillator as input clock for PCK and MCK */
@@ -307,9 +369,6 @@ void pmc_switch_mck_to_main(void)
 	_pmc_mck = 0;
 }
 
-/**
- * \brief Switch PMC from MCK to slow clock.
- */
 void pmc_switch_mck_to_slck(void)
 {
 	/* Select Slow Clock as input clock for PCK and MCK */
@@ -319,10 +378,6 @@ void pmc_switch_mck_to_slck(void)
 	_pmc_mck = 0;
 }
 
-/**
- * \brief Configure MCK Prescaler.
- * \param prescaler prescaler value.
- */
 void pmc_set_mck_prescaler(uint32_t prescaler)
 {
 	/* Change MCK Prescaler divider in PMC_MCKR register */
@@ -330,10 +385,6 @@ void pmc_set_mck_prescaler(uint32_t prescaler)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-/**
- * \brief Configure MCK PLLA divider.
- * \param divider PLL divider value.
- */
 void pmc_set_mck_plla_div(uint32_t divider)
 {
 	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
@@ -349,10 +400,6 @@ void pmc_set_mck_plla_div(uint32_t divider)
 	}
 }
 
-/**
- * \brief Configure MCK Divider.
- * \param divider divider value.
- */
 void pmc_set_mck_divider(uint32_t divider)
 {
 	/* change MCK Prescaler divider in PMC_MCKR register */
@@ -360,11 +407,6 @@ void pmc_set_mck_divider(uint32_t divider)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-/**
- * \brief Configure PLL Register.
- * \param pll pll value.
- * \param cpcr cpcr value.
- */
 void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 {
 	PMC->CKGR_PLLAR = pll;
@@ -372,22 +414,11 @@ void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 	while (!(PMC->PMC_SR & PMC_SR_LOCKA));
 }
 
-/**
- * \brief Disable PLLA Register.
- */
 void pmc_disable_plla(void)
 {
 	PMC->CKGR_PLLAR = (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
 }
 
-/**
- * \brief Enables the clock of a peripheral. The peripheral ID is used
- * to identify which peripheral is targeted.
- *
- * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
- *
- * \param id  Peripheral ID (ID_xxx).
- */
 void pmc_enable_peripheral(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
@@ -398,14 +429,6 @@ void pmc_enable_peripheral(uint32_t id)
 	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_EN;
 }
 
-/**
- * \brief Disables the clock of a peripheral. The peripheral ID is used
- * to identify which peripheral is targeted.
- *
- * \note The ID must NOT be shifted (i.e. 1 << ID_xxx).
- *
- * \param id  Peripheral ID (ID_xxx).
- */
 void pmc_disable_peripheral(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
@@ -416,11 +439,6 @@ void pmc_disable_peripheral(uint32_t id)
 	PMC->PMC_PCR = PMC_PCR_CMD | (pcr & ~PMC_PCR_EN);
 }
 
-/**
- * \brief Get Peripheral Status for the given peripheral ID.
- *
- * \param id  Peripheral ID (ID_xxx).
- */
 uint32_t pmc_is_peripheral_enabled(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
@@ -431,11 +449,6 @@ uint32_t pmc_is_peripheral_enabled(uint32_t id)
 	return !!(pcr & PMC_PCR_EN);
 }
 
-/**
- * \brief Get current frequency clock for the given peripheral ID.
- *
- * \param id  Peripheral ID (ID_xxx).
- */
 uint32_t pmc_get_peripheral_clock(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
@@ -447,12 +460,78 @@ uint32_t pmc_get_peripheral_clock(uint32_t id)
 	return 0;
 }
 
-/**
- * \brief Disable all the peripherals clock via PMC.
- */
 void pmc_disable_all_peripherals(void)
 {
 	int i;
 	for (i = 2; i < ID_PERIPH_COUNT; i++)
 		pmc_disable_peripheral(i);
+}
+
+void pmc_configure_pck0(uint32_t clock_source, uint32_t prescaler)
+{
+	pmc_disable_pck0();
+	PMC->PMC_PCK[0] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+}
+
+void pmc_enable_pck0(void)
+{
+	PMC->PMC_SCER = PMC_SCER_PCK0;
+	while (!(PMC->PMC_SR & PMC_SR_PCKRDY0));
+}
+
+void pmc_disable_pck0(void)
+{
+	PMC->PMC_SCDR = PMC_SCDR_PCK0;
+	while (PMC->PMC_SCSR & PMC_SCSR_PCK0);
+}
+
+uint32_t pmc_get_pck0_clock(void)
+{
+	return _pmc_get_pck_clock(0);
+}
+
+void pmc_configure_pck1(uint32_t clock_source, uint32_t prescaler)
+{
+	pmc_disable_pck1();
+	PMC->PMC_PCK[1] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+}
+
+void pmc_enable_pck1(void)
+{
+	PMC->PMC_SCER = PMC_SCER_PCK1;
+	while (!(PMC->PMC_SR & PMC_SR_PCKRDY1));
+}
+
+void pmc_disable_pck1(void)
+{
+	PMC->PMC_SCDR = PMC_SCDR_PCK1;
+	while (PMC->PMC_SCSR & PMC_SCSR_PCK1);
+}
+
+uint32_t pmc_get_pck1_clock(void)
+{
+	return _pmc_get_pck_clock(1);
+}
+
+void pmc_configure_pck2(uint32_t clock_source, uint32_t prescaler)
+{
+	pmc_disable_pck2();
+	PMC->PMC_PCK[2] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+}
+
+void pmc_enable_pck2(void)
+{
+	PMC->PMC_SCER = PMC_SCER_PCK2;
+	while (!(PMC->PMC_SR & PMC_SR_PCKRDY2));
+}
+
+void pmc_disable_pck2(void)
+{
+	PMC->PMC_SCDR = PMC_SCDR_PCK2;
+	while (PMC->PMC_SCSR & PMC_SCSR_PCK2);
+}
+
+uint32_t pmc_get_pck2_clock(void)
+{
+	return _pmc_get_pck_clock(2);
 }
