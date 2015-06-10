@@ -27,38 +27,42 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _XDMAD_H
-#define _XDMAD_H
+#ifndef _XDMAD_H_
+#define _XDMAD_H_
 
 /*----------------------------------------------------------------------------
  *        Includes
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "xdmac.h"
 
-#include <assert.h>
+#include <stdbool.h>
 
-/** \addtogroup dmad_defines DMA Driver Defines
-        @{*/
 /*----------------------------------------------------------------------------
  *        Consts
  *----------------------------------------------------------------------------*/
-#define XDMAD_TRANSFER_MEMORY  0xFF   /**< DMA transfer from or to memory */
-#define XDMAD_ALLOC_FAILED     0xFFFF /**< Channel allocate failed */
 
-#define XDMAD_TRANSFER_TX      0
-#define XDMAD_TRANSFER_RX      1
+/** \addtogroup dmad_defines DMA Driver Defines
+        @{*/
+
+/** Pseudo Peripheral ID for memory transfers */
+#define XDMAD_PERIPH_MEMORY 0xFF
 
 /* XDMA_MBR_UBC */
+
 #define XDMA_UBC_NDE (0x1u << 24)
 #define   XDMA_UBC_NDE_FETCH_DIS (0x0u << 24)
 #define   XDMA_UBC_NDE_FETCH_EN  (0x1u << 24)
+
 #define XDMA_UBC_NSEN (0x1u << 25)
 #define   XDMA_UBC_NSEN_UNCHANGED (0x0u << 25)
 #define   XDMA_UBC_NSEN_UPDATED (0x1u << 25)
+
 #define XDMA_UBC_NDEN (0x1u << 26)
 #define   XDMA_UBC_NDEN_UNCHANGED (0x0u << 26)
 #define   XDMA_UBC_NDEN_UPDATED (0x1u << 26)
+
 #define XDMA_UBC_NVIEW_Pos 27
 #define    XDMA_UBC_NVIEW_Msk (0x3u << XDMA_UBC_NVIEW_Pos)
 #define    XDMA_UBC_NVIEW_NDV0 (0x0u << XDMA_UBC_NVIEW_Pos)
@@ -66,144 +70,83 @@
 #define    XDMA_UBC_NVIEW_NDV2 (0x2u << XDMA_UBC_NVIEW_Pos)
 #define    XDMA_UBC_NVIEW_NDV3 (0x3u << XDMA_UBC_NVIEW_Pos)
 
-/*----------------------------------------------------------------------------
- *        MACRO
- *----------------------------------------------------------------------------*/
-
 /**     @}*/
 
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
+
 /** \addtogroup dmad_structs DMA Driver Structs
         @{*/
 
 /** DMA status or return code */
-typedef enum _XdmadStatus {
+enum {
 	XDMAD_OK = 0,	     /**< Operation is sucessful */
 	XDMAD_PARTIAL_DONE,
 	XDMAD_DONE,
 	XDMAD_BUSY,	     /**< Channel occupied or transfer not finished */
 	XDMAD_ERROR,	     /**< Operation failed */
 	XDMAD_CANCELED	     /**< Operation canceled */
-} eXdmadStatus, eXdmadRC;
+};
 
-/** DMA state for channel */
-typedef enum _XdmadState {
-	XDMAD_STATE_FREE = 0,	   /**< Free channel */
-	XDMAD_STATE_ALLOCATED,	   /**< Allocated to some peripheral */
-	XDMAD_STATE_START,	   /**< DMA started */
-	XDMAD_STATE_IN_XFR,	   /**< DMA in trasfering */
-	XDMAD_STATE_DONE,	   /**< DMA transfer done */
-} eXdmadState;
+/** DMA channel */
+struct _xdmad_channel;
 
 /** DMA transfer callback */
-typedef void (*XdmadTransferCallback) (uint32_t status, void *pArg);
+typedef void (*xdmad_callback_t)(struct _xdmad_channel *channel, void *arg);
 
-/** DMA driver channel */
-typedef struct _XdmadChannel {
-	XdmadTransferCallback fCallback; /**< Callback */
-	void *pArg;			/**< Callback argument */
-	uint8_t bIrqOwner;		/**< Uses DMA handler or external one */
-	uint8_t bSrcPeriphID;		/**< HW ID for source */
-	uint8_t bDstPeriphID;		/**< HW ID for destination */
-	uint8_t bSrcTxIfID;		/**< DMA Tx Interface ID for source */
-	uint8_t bSrcRxIfID;		/**< DMA Rx Interface ID for source */
-	uint8_t bDstTxIfID;		/**< DMA Tx Interface ID for destination */
-	uint8_t bDstRxIfID;		/**< DMA Rx Interface ID for destination */
-	volatile uint8_t state;		/**< DMA channel state */
-} sXdmadChannel;
+/** DMA driver configuration */
+struct _xdmad_cfg {
+	uint32_t mbr_ubc; /**< Microblock Control */
+	void    *mbr_sa;  /**< Source Address */
+	void    *mbr_da;  /**< Destination Address */
+	uint32_t mbr_cfg; /**< Configuration Register */
+	uint32_t mbr_bc;  /**< Block Control */
+	uint32_t mbr_ds;  /**< Data Stride */
+	uint32_t mbr_sus; /**< Source Microblock Stride */
+	uint32_t mbr_dus; /**< Destination Microblock Stride */
+};
 
-/** DMA driver instance */
-typedef struct _Xdmad {
-	Xdmac *pXdmacs[2];
-	sXdmadChannel XdmaChannels[2][16];
-	uint8_t numControllers;
-	uint8_t numChannels;
-	uint8_t pollingMode;
-	uint8_t pollingTimeout;
-} sXdmad;
+/** Structure for storing parameters for DMA view0 that can be performed by the
+ * DMA Master transfer.*/
+struct _xdmad_desc_view0 {
+	void    *mbr_nda; /**< Next Descriptor Address */
+	uint32_t mbr_ubc; /**< Microblock Control */
+	uint32_t mbr_ta;  /**< Transfer Address */
+};
 
-typedef struct _XdmadCfg {
-	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
-	/** Source Address Member. */
-	uint32_t mbr_sa;
-	/** Destination Address Member. */
-	uint32_t mbr_da;
-	/** Configuration Register. */
-	uint32_t mbr_cfg;
-	/** Block Control Member. */
-	uint32_t mbr_bc;
-	/** Data Stride Member. */
-	uint32_t mbr_ds;
-	/** Source Microblock Stride Member. */
-	uint32_t mbr_sus;
-	/** Destination Microblock Stride Member. */
-	uint32_t mbr_dus;
-} sXdmadCfg;
+/** Structure for storing parameters for DMA view1 that can be performed by the
+ * DMA Master transfer.*/
+struct _xdmad_desc_view1 {
+	void    *mbr_nda; /**< Next Descriptor Address */
+	uint32_t mbr_ubc; /**< Microblock Control */
+	void    *mbr_sa;  /**< Source Address */
+	void    *mbr_da;  /**< Destination Address */
+};
 
-/** \brief Structure for storing parameters for DMA view0 that can be
- * performed by the DMA Master transfer.*/
-typedef struct _LinkedListDescriporView0 {
-	/** Next Descriptor Address number. */
-	uint32_t mbr_nda;
-	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
-	/** Transfer Address Member. */
-	uint32_t mbr_ta;
-} LinkedListDescriporView0;
+/** Structure for storing parameters for DMA view2 that can be performed by the
+ * DMA Master transfer.*/
+struct _xdmad_desc_view2 {
+	void    *mbr_nda; /**< Next Descriptor Address */
+	uint32_t mbr_ubc; /**< Microblock Control */
+	void    *mbr_sa;  /**< Source Address */
+	void    *mbr_da;  /**< Destination Address */
+	uint32_t mbr_cfg; /**< Configuration Register */
+};
 
-/** \brief Structure for storing parameters for DMA view1 that can be
- * performed by the DMA Master transfer.*/
-typedef struct _LinkedListDescriporView1 {
-	/** Next Descriptor Address number. */
-	uint32_t mbr_nda;
-	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
-	/** Source Address Member. */
-	uint32_t mbr_sa;
-	/** Destination Address Member. */
-	uint32_t mbr_da;
-} LinkedListDescriporView1;
-
-/** \brief Structure for storing parameters for DMA view2 that can be
- * performed by the DMA Master transfer.*/
-typedef struct _LinkedListDescriporView2 {
-	/** Next Descriptor Address number. */
-	uint32_t mbr_nda;
-	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
-	/** Source Address Member. */
-	uint32_t mbr_sa;
-	/** Destination Address Member. */
-	uint32_t mbr_da;
-	/** Configuration Register. */
-	uint32_t mbr_cfg;
-} LinkedListDescriporView2;
-
-/** \brief Structure for storing parameters for DMA view3 that can be
- * performed by the DMA Master transfer.*/
-typedef struct _LinkedListDescriporView3 {
-	/** Next Descriptor Address number. */
-	uint32_t mbr_nda;
-	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
-	/** Source Address Member. */
-	uint32_t mbr_sa;
-	/** Destination Address Member. */
-	uint32_t mbr_da;
-	/** Configuration Register. */
-	uint32_t mbr_cfg;
-	/** Block Control Member. */
-	uint32_t mbr_bc;
-	/** Data Stride Member. */
-	uint32_t mbr_ds;
-	/** Source Microblock Stride Member. */
-	uint32_t mbr_sus;
-	/** Destination Microblock Stride Member. */
-	uint32_t mbr_dus;
-} LinkedListDescriporView3;
+/** Structure for storing parameters for DMA view3 that can be performed by the
+ * DMA Master transfer.*/
+struct _xdmad_desc_view3 {
+	void    *mbr_nda; /**< Next Descriptor Address */
+	uint32_t mbr_ubc; /**< Microblock Control */
+	void    *mbr_sa;  /**< Source Address */
+	void    *mbr_da;  /**< Destination Address */
+	uint32_t mbr_cfg; /**< Configuration */
+	uint32_t mbr_bc;  /**< Block Control */
+	uint32_t mbr_ds;  /**< Data Stride */
+	uint32_t mbr_sus; /**< Source Microblock Stride */
+	uint32_t mbr_dus; /**< Destination Microblock Stride */
+};
 
 /**     @}*/
 
@@ -212,29 +155,82 @@ typedef struct _LinkedListDescriporView3 {
  *----------------------------------------------------------------------------*/
 /** \addtogroup dmad_functions DMA Driver Functionos
         @{*/
-extern void XDMAD_Initialize(sXdmad * pXdmad, uint8_t bPollingMode);
 
-extern void XDMAD_Handler(sXdmad * pDmad);
+/**
+ * \brief Initialize DMA driver instance.
+ * \param polling if true, interrupts will not be configured and xdmad_poll
+ * must be called to poll for transfer completion
+ */
+extern void xdmad_initialize(bool polling);
 
-extern uint32_t XDMAD_AllocateChannel(sXdmad * pXdmad,
-				      uint8_t bSrcID, uint8_t bDstID);
+/**
+ * \brief Poll for transfers completion.
+ * If polling mode is enabled, this function will call callbacks for completed
+ * transfers.  If interrupt mode is enabled, this function will do nothing.
+ */
+extern void xdmad_poll(void);
 
-extern eXdmadRC XDMAD_FreeChannel(sXdmad * pXdmad, uint32_t dwChannel);
+/**
+ * \brief Allocate an DMA channel
+ * \param src Source peripheral ID, XDMAD_PERIPH_MEMORY for memory.
+ * \param dest Destination peripheral ID, XDMAD_PERIPH_MEMORY for memory.
+ * \return Channel pointer if allocation successful, or NULL if channel
+ * allocation failed.
+ */
+extern struct _xdmad_channel *xdmad_allocate_channel(uint8_t src, uint8_t dest);
 
-extern eXdmadRC XDMAD_ConfigureTransfer(sXdmad * pXdmad,
-					uint32_t dwChannel, sXdmadCfg * pXdmaParam,
-					uint32_t dwXdmaDescCfg, uint32_t dwXdmaDescAddr);
+/**
+ * \brief Free the specified DMA channel.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmad_free_channel(struct _xdmad_channel *channel);
 
-extern eXdmadRC XDMAD_PrepareChannel(sXdmad * pXdmad, uint32_t dwChannel);
+/**
+ * \brief Set the callback function for an DMA channel transfer.
+ * \param channel Channel pointer
+ * \param callback Pointer to callback function.
+ * \param user_arg Pointer to user argument for callback.
+ */
+extern uint32_t xdmad_set_callback(struct _xdmad_channel *channel,
+		xdmad_callback_t callback, void *user_arg);
 
-extern eXdmadRC XDMAD_IsTransferDone(sXdmad * pXdmad, uint32_t dwChannel);
+/**
+ * \brief Enable clock of the DMA peripheral, Enable the peripheral,
+ * setup configuration register for transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmad_prepare_channel(struct _xdmad_channel *channel);
 
-extern eXdmadRC XDMAD_StartTransfer(sXdmad * pXdmad, uint32_t dwChannel);
+/**
+ * \brief Configure DMA for a single transfer.
+ * \param channel Channel pointer
+ * \param cfg DMA transfer configuration
+ * \param desc_cntrl optional descriptor control
+ * \param desc_addr optional descriptor address
+ */
+extern uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
+		struct _xdmad_cfg *cfg, uint32_t desc_cntrl, void *desc_addr);
 
-extern eXdmadRC XDMAD_SetCallback(sXdmad * pXdmad, uint32_t dwChannel,
-				  XdmadTransferCallback fCallback, void *pArg);
+/**
+ * \brief Start DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmad_start_transfer(struct _xdmad_channel *channel);
 
-extern eXdmadRC XDMAD_StopTransfer(sXdmad * pXdmad, uint32_t dwChannel);
+/**
+ * \brief Check if DMA transfer is finished.
+ * \param channel Channel pointer
+ */
+extern bool xdmad_is_transfer_done(struct _xdmad_channel *channel);
+
+/**
+ * \brief Stop DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmad_stop_transfer(struct _xdmad_channel *channel);
+
 /**     @}*/
+
 /**@}*/
-#endif				//#ifndef _XDMAD_H
+
+#endif /* _XDMAD_H_ */

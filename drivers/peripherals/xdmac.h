@@ -57,8 +57,9 @@
  *
  */
 
-#ifndef DMAC_H
-#define DMAC_H
+#ifndef _XDMAC_H_
+#define _XDMAC_H_
+
 /**@{*/
 
 /*------------------------------------------------------------------------------
@@ -66,7 +67,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-
 #include <stdint.h>
 
 /*------------------------------------------------------------------------------
@@ -76,12 +76,16 @@
 /** \addtogroup dmac_defines DMAC Definitions
  *      @{
  */
+
 /** Number of DMA channels */
-#define XDMAC_CONTROLLER_NUM            2
+#define XDMAC_CONTROLLERS 2
+
 /** Number of DMA channels */
-#define XDMAC_CHANNEL_NUM               16
+#define XDMAC_CHANNELS (XDMACCHID_NUMBER)
+
 /** Max DMA single transfer size */
-#define XDMAC_MAX_BT_SIZE               0xFFFF
+#define XDMAC_MAX_BT_SIZE 0xFFFF
+
 /**     @}*/
 
 /*----------------------------------------------------------------------------
@@ -111,62 +115,76 @@ extern "C" {
 #endif
 
 /**
+ * \brief Enable the XDMAC peripheral clock
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ */
+extern Xdmac *xdmac_get_instance(uint32_t index);
+
+/**
+ * \brief Get the XDMAC peripheral ID for a given XDMAC instance
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ */
+extern uint32_t xdmac_get_periph_id(Xdmac *xdmac);
+
+/**
  * \brief Get XDMAC global type.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_type(Xdmac *xdmac);
+extern uint32_t xdmac_get_type(Xdmac *xdmac);
 
 /**
  * \brief Get XDMAC global configuration.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_config(Xdmac *xdmac);
+extern uint32_t xdmac_get_config(Xdmac *xdmac);
 
 /**
  * \brief Get XDMAC global weighted arbiter configuration.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_arbiter(Xdmac *xdmac);
+extern uint32_t xdmac_get_arbiter(Xdmac *xdmac);
 
 /**
  * \brief Enables XDMAC global interrupt.
  *
  * \param xdmac Pointer to the XDMAC instance.
- * \param dwInteruptMask IT to be enabled.
+ * \param int_mask IT to be enabled.
  */
-void xdmac_enable_global_it(Xdmac *xdmac, uint32_t dwInteruptMask);
+extern void xdmac_enable_global_it(Xdmac *xdmac, uint32_t int_mask);
 
 /**
  * \brief Disables XDMAC global interrupt
  *
  * \param xdmac Pointer to the XDMAC instance.
- * \param dwInteruptMask IT to be enabled
+ * \param int_mask IT to be enabled
  */
-void xdmac_disable_global_it(Xdmac *xdmac, uint32_t dwInteruptMask);
+extern void xdmac_disable_global_it(Xdmac *xdmac, uint32_t int_mask);
 
 /**
  * \brief Get XDMAC global interrupt mask.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmaC_get_global_it_mask(Xdmac *xdmac);
+extern uint32_t xdmac_get_global_it_mask(Xdmac *xdmac);
 
 /**
  * \brief Get XDMAC global interrupt status.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_global_isr(Xdmac *xdmac);
+extern uint32_t xdmac_get_global_isr(Xdmac *xdmac);
 
 /**
  * \brief Get XDMAC masked global interrupt.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_masked_global_isr(Xdmac *xdmac);
+extern uint32_t xdmac_get_masked_global_isr(Xdmac *xdmac);
 
 /**
  * \brief enables the relevant channel of given XDMAC.
@@ -174,15 +192,15 @@ uint32_t xdmac_get_masked_global_isr(Xdmac *xdmac);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief enables the relevant channels of given XDMAC.
  *
  * \param xdmac Pointer to the XDMAC instance.
- * \param bmChannels Channels bitmap.
+ * \param channel_mask Channels bitmap.
  */
-void xdmac_enable_channels(Xdmac *xdmac, uint8_t bmChannels);
+extern void xdmac_enable_channels(Xdmac *xdmac, uint8_t channel_mask);
 
 /**
  * \brief Disables the relevant channel of given XDMAC.
@@ -190,15 +208,15 @@ void xdmac_enable_channels(Xdmac *xdmac, uint8_t bmChannels);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_disable_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_disable_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Disables the relevant channels of given XDMAC.
  *
  * \param xdmac Pointer to the XDMAC instance.
- * \param bmChannels Channels bitmap.
+ * \param channel_mask Channels bitmap.
  */
-void xdmac_disable_channels(Xdmac *xdmac, uint8_t bmChannels);
+extern void xdmac_disable_channels(Xdmac *xdmac, uint8_t channel_mask);
 
 /**
  * \brief Get Global channel status of given XDMAC.
@@ -206,7 +224,7 @@ void xdmac_disable_channels(Xdmac *xdmac, uint8_t bmChannels);
     until pending transaction is completed.
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_global_channel_status(Xdmac *xdmac);
+extern uint32_t xdmac_get_global_channel_status(Xdmac *xdmac);
 
 /**
  * \brief Suspend the relevant channel's read.
@@ -214,7 +232,7 @@ uint32_t xdmac_get_global_channel_status(Xdmac *xdmac);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_suspend_read_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_suspend_read_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Suspend the relevant channel's write.
@@ -222,7 +240,7 @@ void xdmac_suspend_read_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_suspend_write_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_suspend_write_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Suspend the relevant channel's read & write.
@@ -230,7 +248,7 @@ void xdmac_suspend_write_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_suspend_read_write_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_suspend_read_write_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Resume the relevant channel's read & write.
@@ -238,7 +256,7 @@ void xdmac_suspend_read_write_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_resume_read_write_channel(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_resume_read_write_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Set software transfer request on the relevant channel.
@@ -246,14 +264,14 @@ void xdmac_resume_read_write_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_software_transfer_request(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_software_transfer_request(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Get software transfer status of the relevant channel.
  *
  * \param xdmac Pointer to the XDMAC instance.
  */
-uint32_t xdmac_get_software_transfer_status(Xdmac *xdmac);
+extern uint32_t xdmac_get_software_transfer_status(Xdmac *xdmac);
 
 /**
  * \brief Set software flush request on the relevant channel.
@@ -261,25 +279,25 @@ uint32_t xdmac_get_software_transfer_status(Xdmac *xdmac);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-void xdmac_software_flush_request(Xdmac *xdmac, uint8_t channel);
+extern void xdmac_software_flush_request(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Disable interrupt with mask on the relevant channel of given XDMA.
  *
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
- * \param dwInteruptMask Interrupt mask.
+ * \param int_mask Interrupt mask.
  */
-void xdmac_enable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t dwInteruptMask);
+extern void xdmac_enable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t int_mask);
 
 /**
  * \brief Enable interrupt with mask on the relevant channel of given XDMA.
  *
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
- * \param dwInteruptMask Interrupt mask.
+ * \param int_mask Interrupt mask.
  */
-void xdmac_disable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t dwInteruptMask);
+extern void xdmac_disable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t int_mask);
 
 /**
  * \brief Get interrupt mask for the relevant channel of given XDMA.
@@ -287,7 +305,7 @@ void xdmac_disable_channel_it(Xdmac *xdmac, uint8_t channel, uint32_t dwInterupt
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-uint32_t xdmac_get_channel_it_mask(Xdmac *xdmac, uint8_t channel);
+extern uint32_t xdmac_get_channel_it_mask(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Get interrupt status for the relevant channel of given XDMA.
@@ -295,7 +313,7 @@ uint32_t xdmac_get_channel_it_mask(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-uint32_t xdmac_get_channel_isr(Xdmac *xdmac, uint8_t channel);
+extern uint32_t xdmac_get_channel_isr(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Get masked interrupt status for the relevant channel of given XDMA.
@@ -303,7 +321,7 @@ uint32_t xdmac_get_channel_isr(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel);
+extern uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Set source address for the relevant channel of given XDMA.
@@ -312,7 +330,7 @@ uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel);
  * \param channel Particular channel number.
  * \param addr Source address.
  */
-void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr);
+extern void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, void *addr);
 
 /**
  * \brief Set destination address for the relevant channel of given XDMA.
@@ -321,7 +339,7 @@ void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr);
  * \param channel Particular channel number.
  * \param addr Destination address.
  */
-void xdmac_set_dest_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr);
+extern void xdmac_set_dest_addr(Xdmac *xdmac, uint8_t channel, void *addr);
 
 /**
  * \brief Set next descriptor's address & interface for the relevant channel of given XDMA.
@@ -329,9 +347,9 @@ void xdmac_set_dest_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  * \param addr Address of next descriptor.
- * \param ndaif Interface of next descriptor.
+ * \param nda Next Descriptor Interface.
  */
-void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr, uint32_t ndaif);
+extern void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, void *addr, uint32_t ndaif);
 
 /**
  * \brief Set next descriptor's configuration for the relevant channel of given XDMA.
@@ -340,7 +358,7 @@ void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, uint32_t addr, uin
  * \param channel Particular channel number.
  * \param config Configuration of next descriptor.
  */
-void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel, uint32_t config);
+extern void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel, uint32_t config);
 
 /**
  * \brief Set microblock length for the relevant channel of given XDMA.
@@ -349,7 +367,7 @@ void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel, uint32_t config
  * \param channel Particular channel number.
  * \param ublen Microblock length.
  */
-void xdmac_set_microblock_control(Xdmac *xdmac, uint8_t channel, uint32_t ublen);
+extern void xdmac_set_microblock_control(Xdmac *xdmac, uint8_t channel, uint32_t ublen);
 
 /**
  * \brief Set block length for the relevant channel of given XDMA.
@@ -358,7 +376,7 @@ void xdmac_set_microblock_control(Xdmac *xdmac, uint8_t channel, uint32_t ublen)
  * \param channel Particular channel number.
  * \param blen Block length.
  */
-void xdmac_set_block_control(Xdmac *xdmac, uint8_t channel, uint32_t blen);
+extern void xdmac_set_block_control(Xdmac *xdmac, uint8_t channel, uint32_t blen);
 
 /**
  * \brief Set configuration for the relevant channel of given XDMA.
@@ -367,7 +385,7 @@ void xdmac_set_block_control(Xdmac *xdmac, uint8_t channel, uint32_t blen);
  * \param channel Particular channel number.
  * \param config Channel configuration.
  */
-void xdmac_set_channel_config(Xdmac *xdmac, uint8_t channel, uint32_t config);
+extern void xdmac_set_channel_config(Xdmac *xdmac, uint8_t channel, uint32_t config);
 
 /**
  * \brief Get the relevant channel's configuration of given XDMA.
@@ -375,7 +393,7 @@ void xdmac_set_channel_config(Xdmac *xdmac, uint8_t channel, uint32_t config);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-uint32_t xdmac_get_channel_config(Xdmac *xdmac, uint8_t channel);
+extern uint32_t xdmac_get_channel_config(Xdmac *xdmac, uint8_t channel);
 
 /**
  * \brief Set the relevant channel's data stride memory pattern of given XDMA.
@@ -384,7 +402,7 @@ uint32_t xdmac_get_channel_config(Xdmac *xdmac, uint8_t channel);
  * \param channel Particular channel number.
  * \param dds_msp Data stride memory pattern.
  */
-void xdmac_set_data_stride_mem_pattern(Xdmac *xdmac, uint8_t channel,
+extern void xdmac_set_data_stride_mem_pattern(Xdmac *xdmac, uint8_t channel,
 			       uint32_t dds_msp);
 
 /**
@@ -394,7 +412,7 @@ void xdmac_set_data_stride_mem_pattern(Xdmac *xdmac, uint8_t channel,
  * \param channel Particular channel number.
  * \param subs Source microblock stride.
  */
-void xdmac_set_src_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t subs);
+extern void xdmac_set_src_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t subs);
 
 /**
  * \brief Set the relevant channel's destination microblock stride of given XDMA.
@@ -403,7 +421,7 @@ void xdmac_set_src_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t sub
  * \param channel Particular channel number.
  * \param dubs Destination microblock stride.
  */
-void xdmac_set_dest_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t dubs);
+extern void xdmac_set_dest_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t dubs);
 
 /**
  * \brief Get the relevant channel's destination address of given XDMA.
@@ -411,10 +429,12 @@ void xdmac_set_dest_microblock_stride(Xdmac *xdmac, uint8_t channel, uint32_t du
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel Particular channel number.
  */
-uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel);
+extern uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel);
 
 #ifdef __cplusplus
 }
 #endif
+
 /**     @}*//**@}*/
-#endif				//#ifndef DMAC_H
+
+#endif /* _XDMAC_H_ */

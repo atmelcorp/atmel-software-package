@@ -90,87 +90,77 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <board.h>
-#include <string.h>
-
-#include "peripherals/wdt.h"
+#include "chip.h"
+#include "board.h"
 #include "peripherals/aic.h"
-
-#include "misc/console.h"
+#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/xdmac.h"
+#include "misc/console.h"
+
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 /*----------------------------------------------------------------------------
  *         Local constants
  *----------------------------------------------------------------------------*/
-#define XDMA_SINGLE          1
-#define XDMA_MULTI           2
-#define XDMA_LLI             3
 
-/** Maximum size of Linked List Item  in this example*/
-#define MAX_LLI_SIZE         2
-/** Microblock length for single transfer  */
-#define MICROBLOCK_LEN       16
+#define XDMA_SINGLE 1
+#define XDMA_MULTI  2
+#define XDMA_LL     3
+
+/** Maximum size of Linked List in this example */
+#define MAX_LL_SIZE 2
+
+/** Microblock length for single transfer */
+#define MICROBLOCK_LEN 16
+
 /** Buffer length */
-#define BUFFER_LEN         128
+#define BUFFER_LEN 128
+
 /** Polling or interrupt mode */
-#define POLLING_MODE   0
+#undef USE_POLLING
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-/** Global DMA driver instance for all DMA transfers in application. */
-static sXdmad xdmad;
-static sXdmadCfg xdmadCfg;
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8)))
-#endif
-static LinkedListDescriporView1 LLIview1[MAX_LLI_SIZE];
+/** DMA Linked List */
+ALIGNED(8) static struct _xdmad_desc_view1 xdmad_desc[MAX_LL_SIZE];
 
-/* DMA driver instance */
-static uint32_t dmaChannel;
+/** DMA channel */
+static struct _xdmad_channel *xdmad_channel;
 
-/* Linked lists for multi transfer buffer chaining structure instance. */
-//static sDmaTransferDescriptor dmaLinkList[MAX_LLI_SIZE];
+/** Source buffer */
+ALIGNED(8) static uint8_t src_buf[512];
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8)))
-#endif
-static uint8_t sourceBuffer[512];
+/** Destination buffer */
+ALIGNED(8) static uint8_t dest_buf[512];
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8)))
-#endif
-static uint8_t destinationBuffer[512];
+/* Current Programming DMA mode for Multiple Buffer Transfers */
+static uint8_t dma_mode = 0;
+static uint8_t dma_data_width = 0;
+static uint8_t dma_src_addr_mode = 0;
+static uint8_t dma_dest_addr_mode = 0;
+static uint8_t dma_memset = 0;
 
-/* Current Programming DMAC mode for Multiple Buffer Transfers */
-static uint8_t dmaProgrammingMode = 0;
-static uint8_t ConfigFlag = 0;
-static uint8_t dmaDataWidth = 0;
-static uint8_t dmaSourceAddrMode = 0;
-static uint8_t dmaDestAddrMode = 0;
-static uint8_t dmaMemSet = 0;
+/** DMA transfer completion notifier */
+static volatile bool transfer_complete = false;
 
 /*----------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
+
 /**
- * \brief Dump buffer to DBGU
- *
+ * \brief Dump buffer to console
  */
-static void _DumpBufferInfo(uint8_t * pcBuffer)
+static void _dump_buffer(uint8_t *buf)
 {
 	uint32_t i = 0;
 	while (i < BUFFER_LEN) {
-		printf("%02x ", pcBuffer[i++]);
-		if ((i % 16 == 0))
+		printf("%02x ", buf[i++]);
+		if (i % 16 == 0)
 			printf("\n\r");
 	}
 	printf("\n\r");
@@ -179,243 +169,245 @@ static void _DumpBufferInfo(uint8_t * pcBuffer)
 /**
  * \brief Display main menu.
  */
-static void _displayMenu(void)
+static void _display_menu(void)
 {
-	uint8_t ucChar[4];
-	printf("\n\rxDMA Menu :\n\r");
-	printf
-	    ("\n\r|====== Channel Configuration ================================|\n\r");
-	printf
-	    ("| Press [a|b|c|d] to set Date width                           |\n\r");
-	ucChar[0] = (dmaDataWidth == 0) ? 'X' : ' ';
-	ucChar[1] = (dmaDataWidth == 1) ? 'X' : ' ';
-	ucChar[2] = (dmaDataWidth == 2) ? 'X' : ' ';
-	ucChar[3] = (dmaDataWidth == 3) ? 'X' : ' ';
-	printf
-	    ("|   a: BYTE[%c] b: HALFWORD[%c] c: WORD[%c] d: DWORD[%c]          |\n\r",
-	     ucChar[0], ucChar[1], ucChar[2], ucChar[3]);
-	printf
-	    ("| Press [0|1|2|3] to set Source Addressing Mode               |\n\r");
-	ucChar[0] = (dmaSourceAddrMode == 0) ? 'X' : ' ';
-	ucChar[1] = (dmaSourceAddrMode == 1) ? 'X' : ' ';
-	ucChar[2] = (dmaSourceAddrMode == 2) ? 'X' : ' ';
-	ucChar[3] = (dmaSourceAddrMode == 3) ? 'X' : ' ';
-	printf
-	    ("|   0: FIXED[%c] 1: INCR[%c] 2: AM[%c] 3: DS_AM[%c]               |\n\r",
-	     ucChar[0], ucChar[1], ucChar[2], ucChar[3]);
-	printf
-	    ("| Press [4|5|6|7] to set Destination Addressing Mode          |\n\r");
-	ucChar[0] = (dmaDestAddrMode == 0) ? 'X' : ' ';
-	ucChar[1] = (dmaDestAddrMode == 1) ? 'X' : ' ';
-	ucChar[2] = (dmaDestAddrMode == 2) ? 'X' : ' ';
-	ucChar[3] = (dmaDestAddrMode == 3) ? 'X' : ' ';
-	printf
-	    ("|   4: FIXED[%c] 5: INCR[%c] 6: AM[%c] 7: DS_AM[%c]               |\n\r",
-	     ucChar[0], ucChar[1], ucChar[2], ucChar[3]);
-	printf
-	    ("| Press [8|9| to set MEMSET Mode                              |\n\r");
-	ucChar[0] = (dmaMemSet == 0) ? 'X' : ' ';
-	ucChar[1] = (dmaMemSet == 1) ? 'X' : ' ';
-	printf
-	    ("|   8: NORMAL Mode[%c] 9: HW_MODE[%c]                           |\n\r",
-	     ucChar[0], ucChar[1]);
-	printf
-	    ("|=============================================================|\n\r");
-	printf("\n\r- xDMA transfer type \n\r");
+	uint8_t c[4];
+
+	printf("\n\rxDMA Menu :\n\r\n\r");
+	printf("|====== Channel Configuration ================================|\n\r");
+	printf("| Press [a|b|c|d] to set Date width                           |\n\r");
+	c[0] = (dma_data_width == 0) ? 'X' : ' ';
+	c[1] = (dma_data_width == 1) ? 'X' : ' ';
+	c[2] = (dma_data_width == 2) ? 'X' : ' ';
+	c[3] = (dma_data_width == 3) ? 'X' : ' ';
+	printf("|   a: BYTE[%c] b: HALFWORD[%c] c: WORD[%c] d: DWORD[%c]          |\n\r",
+	       c[0], c[1], c[2], c[3]);
+	printf("| Press [0|1|2|3] to set Source Addressing Mode               |\n\r");
+	c[0] = (dma_src_addr_mode == 0) ? 'X' : ' ';
+	c[1] = (dma_src_addr_mode == 1) ? 'X' : ' ';
+	c[2] = (dma_src_addr_mode == 2) ? 'X' : ' ';
+	c[3] = (dma_src_addr_mode == 3) ? 'X' : ' ';
+	printf("|   0: FIXED[%c] 1: INCR[%c] 2: AM[%c] 3: DS_AM[%c]               |\n\r",
+	       c[0], c[1], c[2], c[3]);
+	printf("| Press [4|5|6|7] to set Destination Addressing Mode          |\n\r");
+	c[0] = (dma_dest_addr_mode == 0) ? 'X' : ' ';
+	c[1] = (dma_dest_addr_mode == 1) ? 'X' : ' ';
+	c[2] = (dma_dest_addr_mode == 2) ? 'X' : ' ';
+	c[3] = (dma_dest_addr_mode == 3) ? 'X' : ' ';
+	printf("|   4: FIXED[%c] 5: INCR[%c] 6: AM[%c] 7: DS_AM[%c]               |\n\r",
+	       c[0], c[1], c[2], c[3]);
+	printf("| Press [8|9| to set MEMSET Mode                              |\n\r");
+	c[0] = (dma_memset == 0) ? 'X' : ' ';
+	c[1] = (dma_memset == 1) ? 'X' : ' ';
+	printf("|   8: NORMAL Mode[%c] 9: HW_MODE[%c]                           |\n\r",
+	       c[0], c[1]);
+	printf("|=============================================================|\n\r");
+	printf("\n\r");
+	printf("- xDMA transfer type\n\r");
 	printf("    S: Single Block with Single Microblock transfer\n\r");
-	printf("    M: Single Block with Multiple Microblock transfer  \n\r");
+	printf("    M: Single Block with Multiple Microblock transfer\n\r");
 	printf("    L: Linked List Master transfer\n\r");
-	printf("- t: Start DMA transfer\n\r");
 	printf("- h: Display this menu\n\r");
 	printf("\n\r");
 }
 
 /**
+ * \brief Callback function called when DMA transfer is completed
+ */
+static void _dma_callback(struct _xdmad_channel *channel, void *arg)
+{
+	printf("-I- DMA transfer complete\n\r");
+	transfer_complete = true;
+}
+
+/**
  * \brief Programming DMAC for Multiple Buffer Transfers.
  */
-static uint8_t _configureTransferMode(void)
+static void _configure_transfer(void)
 {
-	uint32_t xdmaCndc;
-	uint8_t i;
-	if (dmaProgrammingMode < XDMA_LLI) {
-		xdmadCfg.mbr_ubc = MICROBLOCK_LEN;
-		xdmadCfg.mbr_sa = (uint32_t) sourceBuffer;
-		xdmadCfg.mbr_da = (uint32_t) destinationBuffer;
-		xdmadCfg.mbr_cfg = XDMAC_CC_TYPE_MEM_TRAN |
-		    XDMA_GET_CC_MEMSET(dmaMemSet) |
-		    XDMAC_CC_MEMSET_NORMAL_MODE |
-		    XDMAC_CC_CSIZE_CHK_1 |
-		    XDMA_GET_DATASIZE(dmaDataWidth) |
-		    XDMAC_CC_SIF_AHB_IF0 |
-		    XDMAC_CC_DIF_AHB_IF0 |
-		    XDMA_GET_CC_SAM(dmaSourceAddrMode) |
-		    XDMA_GET_CC_DAM(dmaDestAddrMode);
+	struct _xdmad_cfg xdmad_cfg;
 
-		xdmadCfg.mbr_bc = (dmaProgrammingMode == XDMA_SINGLE) ? 0 : 1;
-		xdmadCfg.mbr_ds = 0;
-		xdmadCfg.mbr_sus = 0;
-		xdmadCfg.mbr_dus = 0;
-		XDMAD_ConfigureTransfer(&xdmad, dmaChannel, &xdmadCfg, 0, 0);
-		printf("- Set Microblock length to [ %u ] \n\r",
-		       (unsigned int)xdmadCfg.mbr_ubc);
-		printf("- Set Block length [ %u ] \n\r",
-		       (unsigned int)xdmadCfg.mbr_bc);
-		printf("- Set Data Stride/Pattern [ %u ] \n\r",
-		       (unsigned int)xdmadCfg.mbr_ds);
-		printf("- Set Source Microblock Stride  [ %u ] \n\r",
-		       (unsigned int)xdmadCfg.mbr_sus);
-		printf("- Set Destination  Microblock Stride [ %u ]\n\r",
-		       (unsigned int)xdmadCfg.mbr_dus);
-		printf("- Press 't' to perform xDMA transfer...\n\r");
+	if (dma_mode != XDMA_LL) {
+		xdmad_cfg.mbr_ubc = MICROBLOCK_LEN;
+		xdmad_cfg.mbr_sa = src_buf;
+		xdmad_cfg.mbr_da = dest_buf;
+		xdmad_cfg.mbr_cfg = XDMAC_CC_TYPE_MEM_TRAN |
+		                    XDMA_GET_CC_MEMSET(dma_memset) |
+		                    XDMAC_CC_MEMSET_NORMAL_MODE |
+		                    XDMAC_CC_CSIZE_CHK_1 |
+		                    XDMA_GET_DATASIZE(dma_data_width) |
+		                    XDMAC_CC_SIF_AHB_IF0 |
+		                    XDMAC_CC_DIF_AHB_IF0 |
+		                    XDMA_GET_CC_SAM(dma_src_addr_mode) |
+		                    XDMA_GET_CC_DAM(dma_dest_addr_mode);
+		xdmad_cfg.mbr_bc = (dma_mode == XDMA_SINGLE) ? 0 : 1;
+		xdmad_cfg.mbr_ds = 0;
+		xdmad_cfg.mbr_sus = 0;
+		xdmad_cfg.mbr_dus = 0;
 
-	}
-	if (dmaProgrammingMode == XDMA_LLI) {
-		xdmadCfg.mbr_cfg = XDMAC_CC_TYPE_MEM_TRAN |
-		    XDMAC_CC_MBSIZE_SINGLE |
-		    XDMA_GET_CC_MEMSET(dmaMemSet) |
-		    XDMAC_CC_CSIZE_CHK_1 |
-		    XDMA_GET_DATASIZE(dmaDataWidth) |
-		    XDMAC_CC_SIF_AHB_IF0 |
-		    XDMAC_CC_DIF_AHB_IF0 |
-		    XDMA_GET_CC_SAM(dmaSourceAddrMode) |
-		    XDMA_GET_CC_DAM(dmaDestAddrMode);
-		xdmadCfg.mbr_bc = 0;
-		for (i = 0; i < MAX_LLI_SIZE; i++) {
-			LLIview1[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
-			    ((i == 0) ? XDMA_UBC_NSEN_UPDATED : 0) |
-			    ((i == 0) ? XDMA_UBC_NDEN_UPDATED : 0) |
-			    ((i ==
-			      MAX_LLI_SIZE -
-			      1) ? 0 : XDMA_UBC_NDE_FETCH_EN) | MICROBLOCK_LEN;
-			LLIview1[i].mbr_sa = (uint32_t) sourceBuffer + i;
-			LLIview1[i].mbr_da = (uint32_t) destinationBuffer + i;
-			LLIview1[i].mbr_nda =
-			    (i ==
-			     (MAX_LLI_SIZE - 1)) ? 0 : (uint32_t) & LLIview1[i +
-									     1];
+		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, 0, 0);
+
+		printf("- Microblock length: %u\n\r",
+				(unsigned int)xdmad_cfg.mbr_ubc);
+		printf("- Block length: %u\n\r",
+				(unsigned int)xdmad_cfg.mbr_bc);
+		printf("- Data Stride/Pattern: %u\n\r",
+				(unsigned int)xdmad_cfg.mbr_ds);
+		printf("- Source Microblock Stride: %u\n\r",
+				(unsigned int)xdmad_cfg.mbr_sus);
+		printf("- Destination  Microblock Stride: %u\n\r",
+				(unsigned int)xdmad_cfg.mbr_dus);
+	} else {
+		uint32_t i, desc_cntrl;
+
+		xdmad_cfg.mbr_cfg = XDMAC_CC_TYPE_MEM_TRAN |
+		                    XDMAC_CC_MBSIZE_SINGLE |
+		                    XDMA_GET_CC_MEMSET(dma_memset) |
+		                    XDMAC_CC_CSIZE_CHK_1 |
+		                    XDMA_GET_DATASIZE(dma_data_width) |
+		                    XDMAC_CC_SIF_AHB_IF0 |
+		                    XDMAC_CC_DIF_AHB_IF0 |
+		                    XDMA_GET_CC_SAM(dma_src_addr_mode) |
+		                    XDMA_GET_CC_DAM(dma_dest_addr_mode);
+		xdmad_cfg.mbr_bc = 0;
+
+		for (i = 0; i < MAX_LL_SIZE; i++) {
+			xdmad_desc[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
+			                        MICROBLOCK_LEN;
+			xdmad_desc[i].mbr_sa = src_buf + i;
+			xdmad_desc[i].mbr_da = dest_buf + i;
+			xdmad_desc[i].mbr_nda = &xdmad_desc[i + 1];
+			if (i == 0) {
+				/* first list element */
+				xdmad_desc[i].mbr_ubc |= XDMA_UBC_NSEN_UPDATED |
+			                                 XDMA_UBC_NDEN_UPDATED;
+			} else if (i == (MAX_LL_SIZE - 1)) {
+				/* last list element */
+				xdmad_desc[i].mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
+				xdmad_desc[i].mbr_nda = 0;
+			}
 		}
-		xdmaCndc = XDMAC_CNDC_NDVIEW_NDV1 |
+
+		desc_cntrl = XDMAC_CNDC_NDVIEW_NDV1 |
 		    XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 		    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 		    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-		XDMAD_ConfigureTransfer(&xdmad, dmaChannel, &xdmadCfg, xdmaCndc,
-					(uint32_t) & LLIview1[0]);
-		printf("- Press 't' to perform xDMA Master transfer...\n\r");
+
+		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, desc_cntrl,
+				xdmad_desc);
 	}
-	return 0;
+
+	xdmad_set_callback(xdmad_channel, _dma_callback, NULL);
+
+	printf("- Press 't' to perform xDMA transfer...\n\r");
 }
 
 /**
  * \brief Start DMAC Multiple Buffer Transfer.
  */
-static uint8_t _startDmaTransfer(void)
+static uint8_t _start_dma_transfer(void)
 {
 	uint32_t i;
+
 	/* Prepare source data to be transfered. */
 	for (i = 0; i < BUFFER_LEN; i++) {
-		sourceBuffer[i] = i;
-		destinationBuffer[i] = 0xFF;
+		src_buf[i] = i;
+		dest_buf[i] = 0xFF;
 	}
 
-	printf("-I- The Source Buffer 0 content before transfer\n\r");
-	_DumpBufferInfo((uint8_t *) sourceBuffer);
+	printf("-I- The Source Buffer content before transfer\n\r");
+	_dump_buffer(src_buf);
+
 	/* Start transfer */
-	XDMAD_StartTransfer(&xdmad, dmaChannel);
-	while (XDMAD_IsTransferDone(&xdmad, dmaChannel)) ;
+	transfer_complete = false;
+	xdmad_start_transfer(xdmad_channel);
+
+	/* Wait for completion */
+	while (!transfer_complete) {
+		/* always call xdmad_poll, it will do nothing if polling mode
+		 * is disabled */
+		xdmad_poll();
+	}
+
 	printf("-I- The Destination Buffer content after transfer\n\r");
-	_DumpBufferInfo((uint8_t *) destinationBuffer);
+	_dump_buffer(dest_buf);
+
 	return 0;
-}
-
-void XDMAC0_IrqHandler(void)
-{
-	XDMAD_Handler(&xdmad);
-}
-
-void XDMAC1_IrqHandler(void)
-{
-	XDMAD_Handler(&xdmad);
 }
 
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
+
 /**
  *  \brief dma Application entry point
- *
  *  \return Unused (ANSI-C compatibility)
  */
 extern int main(void)
 {
 	uint8_t key;
+	bool configured = false;
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 	/* Output example information */
-	printf("-- XDMA Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
-	/* Initialize XDMA driver instance with polling mode */
-	XDMAD_Initialize(&xdmad, POLLING_MODE);
+	printf("-- XDMA Example " SOFTPACK_VERSION " --\n\r");
+	printf("-- " BOARD_NAME "\n\r");
+	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+
+#ifdef USE_POLLING
+	/* Initialize XDMA driver instance in polling mode */
+	xdmad_initialize(true);
+	printf("\n\rDMA using polling mode\n\r");
+#else
+	/* Initialize XDMA driver instance in interrupt mode */
+	xdmad_initialize(false);
+	printf("\n\rDMA using interrupt mode\n\r");
+#endif
 
 	/* Allocate a XDMA channel. */
-	dmaChannel =
-	    XDMAD_AllocateChannel(&xdmad, XDMAD_TRANSFER_MEMORY,
-				  XDMAD_TRANSFER_MEMORY);
-	if (dmaChannel == XDMAD_ALLOC_FAILED) {
+	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
+	if (!xdmad_channel) {
 		printf("-E- Can't allocate XDMA channel\n\r");
 		return 0;
 	}
-	XDMAD_PrepareChannel(&xdmad, dmaChannel);
+	xdmad_prepare_channel(xdmad_channel);
 
-	/*Enable xDMA interrupt */
-	aic_enable(ID_XDMAC0);
-	aic_enable(ID_XDMAC1);
 	/* Display menu */
-	_displayMenu();
-	for (;;) {
+	_display_menu();
+	while (1) {
 		key = console_get_char();
-		if ((key == 'a') || (key == 'b') || (key == 'c')
-		    || (key == 'd')) {
-			dmaDataWidth = key - 'a';
-			_displayMenu();
-		}
-		if ((key >= '0') && (key <= '3')) {
-			dmaSourceAddrMode = key - '0';
-			_displayMenu();
-		}
-		if ((key >= '4') && (key <= '7')) {
-			dmaDestAddrMode = key - '4';
-			_displayMenu();
-		}
-		if ((key >= '8') && (key <= '9')) {
-			dmaMemSet = key - '8';
-			_displayMenu();
-		}
-		if ((key == 'S') || (key == 's')) {
-			dmaProgrammingMode = 1;
-			_configureTransferMode();
-			ConfigFlag = 1;
-		}
-		if ((key == 'M') || (key == 'm')) {
-			dmaProgrammingMode = 2;
-			_configureTransferMode();
-			ConfigFlag = 1;
-		}
-		if ((key == 'L') || (key == 'l')) {
-			dmaProgrammingMode = 3;
-			_configureTransferMode();
-			ConfigFlag = 1;
-		}
-		if ((key == 'H') || (key == 'h'))
-			_displayMenu();
-		if ((key == 'T') || (key == 't')) {
-			if (ConfigFlag) {
-				printf("-I- Start XDMA transfer\n\r");
-				_startDmaTransfer();
-				ConfigFlag = 0;
-			}
+		if (key >= 'a' && key <= 'd') {
+			dma_data_width = key - 'a';
+			_display_menu();
+		} else if (key >= '0' && key <= '3') {
+			dma_src_addr_mode = key - '0';
+			_display_menu();
+		} else if (key >= '4' && key <= '7') {
+			dma_dest_addr_mode = key - '4';
+			_display_menu();
+		} else if (key >= '8' && key <= '9') {
+			dma_memset = key - '8';
+			_display_menu();
+		} else if (key == 'S' || key == 's') {
+			dma_mode = 1;
+			_configure_transfer();
+			configured = true;
+		} else if (key == 'M' || key == 'm') {
+			dma_mode = 2;
+			_configure_transfer();
+			configured = true;
+		} else if (key == 'L' || key == 'l') {
+			dma_mode = 3;
+			_configure_transfer();
+			configured = true;
+		} else if (key == 'H' || key == 'h') {
+			_display_menu();
+		} else if (configured && (key == 'T' || key == 't')) {
+			printf("-I- Start XDMA transfer\n\r");
+			_start_dma_transfer();
+			configured = false;
 		}
 	}
 }
