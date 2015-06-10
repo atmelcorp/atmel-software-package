@@ -47,17 +47,17 @@
 #define SIZE_HW_REVISION 3
 
 struct _at24mac402_board_info {
-    uint8_t PageSize;
-    uint8_t Manufacturer[SIZE_SUBC];
-    uint8_t Country[SIZE_MANUF_COUNTRY];
-    uint8_t ManufYear;
-    uint8_t ManufWeek;
-	uint8_t RevCode[SIZE_HW_REVISION];
-	uint8_t Crc_SN;
+    uint8_t page_size;
+    uint8_t manufacturer[SIZE_SUBC];
+    uint8_t country[SIZE_MANUF_COUNTRY];
+    uint8_t manuf_year;
+    uint8_t manuf_week;
+	uint8_t rev_code[SIZE_HW_REVISION];
+	uint8_t crc_sn;
 	uint16_t addr_ext_config;
-    uint8_t BoardIdent[SIZE_BOARD_IDENT];
-    uint8_t RevMapping;
-    uint8_t Crc;
+    uint8_t board_ident[SIZE_BOARD_IDENT];
+    uint8_t rev_mapping;
+    uint8_t crc;
 } ;
 
 static struct _at24mac402_board_info DEFAULT_BOARD_INFO  =
@@ -75,9 +75,12 @@ extern uint8_t at24mac402_write_eep_async (uint8_t add, uint8_t Len, uint8_t* pD
 extern uint8_t at24mac402_read_eep_async (uint8_t add, uint8_t Len, uint8_t* pDataBuf);
 extern uint8_t at24mac402_get_info_board (struct _at24mac402_board_info* pInfo_board);
 extern uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board);
+
 extern void at24mac402_display_info_board (struct _at24mac402_board_info* pInfo_board);
 extern void at24mac402_display_register (void);
+
 extern uint8_t at24mac402_begin (void);
+
 extern uint8_t at24mac402_test (void);
 
 //------------------------------------------------------------------------------

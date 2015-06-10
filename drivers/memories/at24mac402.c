@@ -57,7 +57,7 @@
 #define BitA0ToA2 0x04;
 
 struct _handler_twi htwi_eep = {0};
-uint8_t BufTwi[AT24MAC402_PAGE_SIZE] = {0};
+uint8_t buf_twi[AT24MAC402_PAGE_SIZE] = {0};
 
 // Using TWI1 IOS2
 #define at24mac402_TWI_ID	ID_TWIHS1
@@ -310,7 +310,7 @@ uint8_t at24mac402_get_info_board (struct _at24mac402_board_info* pInfo_board)
 	Status = at24mac402_read_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board);
 	if(Status != TWI_SUCCES) return Status;
 	crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
-	return (crc==pInfo_board->Crc) ? 0: 1;
+	return (crc==pInfo_board->crc) ? 0: 1;
 }
 
 //------------------------------------------------------------------------------
@@ -319,8 +319,8 @@ uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board)
 {
 	uint8_t Status = TWI_SUCCES;
 
-	pInfo_board->Crc_SN = compute_crc8 ((uint8_t*)SerNumbr, AT24MAC402_SER_NUM_SIZE);
-	pInfo_board->Crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
+	pInfo_board->crc_sn = compute_crc8 ((uint8_t*)SerNumbr, AT24MAC402_SER_NUM_SIZE);
+	pInfo_board->crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1);
 	Status = at24mac402_write_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board);
 	return Status;
 }
@@ -330,30 +330,30 @@ uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board)
 
 void _reset_buftwi (void)
 {
-	memset(BufTwi, 0x00, sizeof(BufTwi));
+	memset(buf_twi, 0x00, sizeof(buf_twi));
 }
 
 void at24mac402_display_info_board (struct _at24mac402_board_info* pInfo_board)
 {
-	printf("\tInfo Size   : %02d\n\r", pInfo_board->PageSize);
+	printf("\tInfo Size   : %02d\n\r", pInfo_board->page_size);
 	_reset_buftwi();
-	memcpy(BufTwi, (char*)pInfo_board->Manufacturer, SIZE_SUBC);
-	printf("\tManufacturer: %s\n\r", BufTwi);
+	memcpy(buf_twi, (char*)pInfo_board->manufacturer, SIZE_SUBC);
+	printf("\tManufacturer: %s\n\r", buf_twi);
 	_reset_buftwi();
-	memcpy(BufTwi, (char*)pInfo_board->Country, SIZE_MANUF_COUNTRY);
-	printf("\tMade in     : %s\n\r", BufTwi);
-	printf("\tManuf year  : %d\n\r", pInfo_board->ManufYear+2000);
-	printf("\tWeek        : %02d\n\r", pInfo_board->ManufWeek);
+	memcpy(buf_twi, (char*)pInfo_board->country, SIZE_MANUF_COUNTRY);
+	printf("\tMade in     : %s\n\r", buf_twi);
+	printf("\tManuf year  : %d\n\r", pInfo_board->manuf_year+2000);
+	printf("\tWeek        : %02d\n\r", pInfo_board->manuf_week);
 	_reset_buftwi();
-	memcpy(BufTwi, (char*)pInfo_board->RevCode, SIZE_HW_REVISION);
-	printf("\tRevision    : %s\n\r", BufTwi);
-	printf("\tCrcSN       : Ox%02X\n\r", pInfo_board->Crc_SN);
+	memcpy(buf_twi, (char*)pInfo_board->rev_code, SIZE_HW_REVISION);
+	printf("\tRevision    : %s\n\r", buf_twi);
+	printf("\tCrcSN       : Ox%02X\n\r", pInfo_board->crc_sn);
 	printf("\tExtended add: 0x%04X\n\r", pInfo_board->addr_ext_config);
 	_reset_buftwi();
-	memcpy(BufTwi, (char*)pInfo_board->BoardIdent, SIZE_BOARD_IDENT);
-	printf("\tBoard       : %s\n\r", BufTwi);
-	printf("\tMapping     : %c\n\r", pInfo_board->RevMapping);
-	printf("\tCrc         : 0x%02X\n\r", pInfo_board->Crc);
+	memcpy(buf_twi, (char*)pInfo_board->board_ident, SIZE_BOARD_IDENT);
+	printf("\tBoard       : %s\n\r", buf_twi);
+	printf("\tMapping     : %c\n\r", pInfo_board->rev_mapping);
+	printf("\tCrc         : 0x%02X\n\r", pInfo_board->crc);
 }
 
 //------------------------------------------------------------------------------
@@ -378,8 +378,8 @@ void at24mac402_display_register (void)
 	// Check Info board
 	Status = at24mac402_get_info_board (&sInfo);
 	if (Status) {
-		memcpy (&BufTwi, &DEFAULT_BOARD_INFO, sizeof(struct _at24mac402_board_info));
-		Status = at24mac402_set_info_board ((struct _at24mac402_board_info*)&BufTwi);
+		memcpy (&buf_twi, &DEFAULT_BOARD_INFO, sizeof(struct _at24mac402_board_info));
+		Status = at24mac402_set_info_board ((struct _at24mac402_board_info*)&buf_twi);
 		Status = at24mac402_get_info_board (&sInfo);
 	}
 	printf(" -I- Manufacturing info\n\r");
@@ -405,7 +405,7 @@ uint8_t at24mac402_begin (void)
 		Status = _at24mac402_twi_handler_init (&htwi_eep);
 		htwi_eep.PeriphAddr = AT24MAC402_EXT_MEM_ADD;
 		htwi_eep.AddSize = 1;
-		htwi_eep.pData = &BufTwi[0];
+		htwi_eep.pData = &buf_twi[0];
 		htwi_eep.LenData = 1;
 	}
 	if( !(Status&TWI_STATUS_HANDLE)) return TWI_FAIL;
@@ -431,24 +431,24 @@ uint8_t at24mac402_test (void)
 
 	//** start test
 	// Erase
-	memset (BufTwi, 0x00, AT24MAC402_PAGE_SIZE);
-	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, BufTwi);
+	memset (buf_twi, 0x00, AT24MAC402_PAGE_SIZE);
+	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi);
 	// Write pattern
 	for(Len=0; Len<(AT24MAC402_BLOCK_SIZE); Len+=2) {
-		BufTwi[Len+0] = Pattern[0];
-		BufTwi[Len+1] = Pattern[1];
+		buf_twi[Len+0] = Pattern[0];
+		buf_twi[Len+1] = Pattern[1];
 	}
-	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, BufTwi);
+	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi);
 	// Read back
-	memset (BufTwi, 0x00, AT24MAC402_BLOCK_SIZE);
-	Status = at24mac402_read_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, BufTwi);
+	memset (buf_twi, 0x00, AT24MAC402_BLOCK_SIZE);
+	Status = at24mac402_read_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi);
 	// Compare
 	Status = TWI_SUCCES;
 	printf("-T- ");
 	for(Len=0; Len<AT24MAC402_BLOCK_SIZE; Len+=2) {
-		printf("%s", BufTwi[Len]!=Pattern[0] ? "!": "." );
-		printf("%s", BufTwi[Len+1]!=Pattern[1] ? "!": "." );
-		if( BufTwi[Len]!=Pattern[0] || BufTwi[Len+1]!=Pattern[1] ) {Status++;}
+		printf("%s", buf_twi[Len]!=Pattern[0] ? "!": "." );
+		printf("%s", buf_twi[Len+1]!=Pattern[1] ? "!": "." );
+		if( buf_twi[Len]!=Pattern[0] || buf_twi[Len+1]!=Pattern[1] ) {Status++;}
 	}
 	printf("\n\r");
 	return Status;
