@@ -55,8 +55,6 @@
 
 extern caddr_t _sbrk(int incr);
 
-extern int link(char *old, char *new);
-
 extern int _close(int file);
 
 extern int _fstat(int file, struct stat *st);

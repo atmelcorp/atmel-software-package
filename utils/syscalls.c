@@ -91,11 +91,6 @@ caddr_t _sbrk(int incr)
 	return (caddr_t) prev_heap;
 }
 
-int link(char *old, char *new)
-{
-	return -1;
-}
-
 int _close(int file)
 {
 	return -1;
