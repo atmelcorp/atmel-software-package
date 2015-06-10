@@ -896,7 +896,7 @@ void act8945a_active_interrupt (void)
 // Disable PMIC I2C
 // Fonction called to disable the TWI interface
 // Issue on PMIC revision 304 and 305
-void act8945a_disable_twi (void)
+void ACT8945A_disable_twi (void)
 {
 	uint8_t data;
 
