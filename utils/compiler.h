@@ -1,18 +1,23 @@
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
-/* Define WEAK attribute */
-#ifndef WEAK
-#if defined   ( __CC_ARM   )
-#define WEAK __attribute__ ((weak))
-#define CONSTRUCTOR __attribute__((constructor))
-#elif defined ( __ICCARM__ )
-#define WEAK __weak
-#define CONSTRUCTOR
-#elif defined (  __GNUC__  )
-#define WEAK __attribute__ ((weak))
-#define CONSTRUCTOR __attribute__((constructor))
-#endif
+#if defined(__CC_ARM)
+	#define WEAK __attribute__((weak))
+	#define CONSTRUCTOR __attribute__((constructor))
+	#define SECTION(a) __attribute__((__section__(a)))
+	#define ALIGNED(a) __attribute__((__aligned__(a)))
+#elif defined(__ICCARM__)
+	#define WEAK __weak
+	#define CONSTRUCTOR
+	#define SECTION(a) _Pragma(location = a)
+	#define ALIGNED(a) _Pragma(data_alignment = a)
+#elif defined(__GNUC__)
+	#define WEAK __attribute__((weak))
+	#define CONSTRUCTOR __attribute__((constructor))
+	#define SECTION(a) __attribute__((__section__(a)))
+	#define ALIGNED(a) __attribute__((__aligned__(a)))
+#else
+	#error Unknown compiler!
 #endif
 
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
