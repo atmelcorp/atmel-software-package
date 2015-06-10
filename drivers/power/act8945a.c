@@ -244,12 +244,17 @@ void act8945a_irq_handler(void)
 	htwi.pData = (uint8_t*)&BitField_APCH79;
 	_twid_rd_wr(&htwi, TWI_RD);
 
-	if ( bf_APCH79 != *htwi.pData)
-	{
-		printf("#");
-		bf_APCH79 = *htwi.pData;
+		htwi.RegMemAddr = ADD_APCH_79;
+		htwi.pData = (uint8_t*)&BitField_APCH79;
+		_twid_rd_wr(&htwi, TWI_RD);
+
+		if ( bf_APCH79 != *htwi.pData)
+		{
+			printf("#");
+			bf_APCH79 = *htwi.pData;
+		}
+		printf("*");
 	}
-	printf("*");
 }
 
 //------------------------------------------------------------------------------
@@ -295,15 +300,10 @@ static void _act8945a_registers_dump_APCH (void)
 	{
 		printf("\n\r");
 		printf(" -I- DUMP Registers APCH ACT8945A\n\r");
-		htwi.LenData = 1;
-		htwi.pData = &data;
-		for (i=0; i<NB_REG_APCH; i++)
-		{
-			htwi.RegMemAddr = ActAcph[i].Address;
-			_twid_rd_wr(&htwi, TWI_RD);
-			_act8945a_delay_ms(10);
-			printf(" -I- %s: 0x%02X", ActAcph[i].RegName, data);
-			printf("\n\r");
+		for (i=0; i<NB_REG_APCH; i++) {
+			_ACT8945A_rw_register (ActAcph[i].Address, &data, TWI_RD);
+			_ACT8945A_delay_ms(10);
+			printf(" %s: 0x%02X \n\r", ActAcph[i].RegName, data);
 		}
 	}
 }
@@ -337,10 +337,7 @@ static void _act8945a_display_system_setting (void)
 	BITFIELD_SYS0 BitField_Syst0;
 	BITFIELD_SYS1 BitField_Syst1;
 
-	htwi.RegMemAddr = ADD_SYSTEM0;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_Syst0;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
+	Status= _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_Syst0, TWI_RD);
 	if(Status!=ACT8945A_RET_OK) return;
 
 	Value = 2.3 + (BitField_Syst0.syslev*0.1);
@@ -354,9 +351,7 @@ static void _act8945a_display_system_setting (void)
 	printf(" System Voltage Status:         %s \n\r", (BitField_Syst0.nsysstat)?"vsys<syslev":"vsys>syslev");
 	printf(" SYSLEV Failing Treshold value: %.2fv \n\r", Value );
 
-	htwi.RegMemAddr = ADD_SYSTEM1;
-	htwi.pData = (uint8_t*)&BitField_Syst1;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
+	Status =_ACT8945A_rw_register (ADD_SYSTEM1, (uint8_t*)&BitField_Syst1, TWI_RD);
 	if(Status!=ACT8945A_RET_OK) return;
 
 	printf("\n\r");
@@ -379,16 +374,11 @@ static void _act8945a_display_voltage_setting (void)
 
 	for (x=0; x<NB_REG_VOLT ; x++)
 	{
-		htwi.RegMemAddr = VoltReg[x].Address;
-		htwi.LenData = 1;
-		htwi.pData = &data;
-		Status = _twid_rd_wr(&htwi, TWI_RD);
+		Status = _ACT8945A_rw_register (VoltReg[x].Address, &data, TWI_RD);
 		if(Status!=ACT8945A_RET_OK) return;
-		x1= _act8945a_Convert_voltage_setting(data);
+		x1= _ACT8945A_Convert_voltage_setting(data);
 
-		htwi.RegMemAddr = VoltReg[x].Address+1;
-		htwi.LenData = 1;
-		Status = _twid_rd_wr(&htwi, TWI_RD);
+		Status = _ACT8945A_rw_register (VoltReg[x].Address+1, &data, TWI_RD);
 		if(Status!=ACT8945A_RET_OK) return;
 
 		printf(" -I- %s= %.2fv ", VoltReg[x].RegName, (float)x1);
@@ -407,7 +397,7 @@ static void _act8945a_display_voltage_setting (void)
 		{
 			memcpy (&BitField_Ctrl1, &data, 1);
 			printf("0x%02X %s", data, (BitField_Ctrl1.on)?"ON  ":"OFF");
-			printf(" %s", (BitField_Ctrl1.phase)?"180°":"Osc");
+			printf(" %s", (BitField_Ctrl1.phase)?"180":"Osc");
 			printf(" %s", (BitField_Ctrl1.mode)?"PWM":"PowSav");
 			printf("\tDelay:0x%02X", BitField_Ctrl1.delay);
 			printf(" %s ", (BitField_Ctrl1.nfltmsk)?"En":"Dis");
@@ -432,37 +422,30 @@ static uint8_t _act8945a_display_active_path_charger (void)
 	printf("\n\r");
 	printf(" -I- ACPH Registers ACT8945A \n\r");
 
-	htwi.RegMemAddr = ADD_APCH_70;
-	htwi.LenData = 1;
-	htwi.pData = &data;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_APCH_70, &data, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		printf(" -I- APCH @0x70: Reserved 0x%02X \n\r", data);
 		printf("\n\r");
 	}
 
-	htwi.RegMemAddr = ADD_APCH_71;
-	htwi.pData = (uint8_t*)&BitField_APCH71;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_APCH_71, (uint8_t*)&BitField_APCH71, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		printf(" -I- APCH @0x71: 0x%02X \n\r", *htwi.pData);
-		printf(" Charge Suspend Control Input:        %X \n\r", BitField_APCH71.suschg);
+		printf(" Charge Suspend Control Input:         %X \n\r", BitField_APCH71.suschg);
 		printf(" Bit 6 reserved \n\r");
-		printf(" Total Charge Time-out Selection:     %02X \n\r", BitField_APCH71.tottimo);
-		printf(" Precondition Charge Time-out Sel:    %02X \n\r", BitField_APCH71.pretimo);
-		printf(" Input Over-Volt Prot.Threshold Sel:  %02X ", BitField_APCH71.ovpset);
+		printf(" Total Charge Time-out Selection:      %02X \n\r", BitField_APCH71.tottimo);
+		printf(" Precondition Charge Time-out Sel:     %02X \n\r", BitField_APCH71.pretimo);
+		printf(" Input Over-Volt Prot.Threshold Sel:   %02X ", BitField_APCH71.ovpset);
 		printf(" equ %s \n\r", &OvpSet[BitField_APCH71.ovpset][0]);
 		printf("\n\r");
 	}
 
-	htwi.RegMemAddr = ADD_APCH_78;
-	htwi.pData = (uint8_t*)&BitField_APCH78;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		printf(" -I- APCH @0x78: 0x%02X \n\r", *htwi.pData);
@@ -477,10 +460,8 @@ static uint8_t _act8945a_display_active_path_charger (void)
 		printf("\n\r");
 	}
 
-	htwi.RegMemAddr = ADD_APCH_79;
-	htwi.pData = (uint8_t*)&BitField_APCH79;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		printf(" -I- APCH @0x79: 0x%02X \n\r", *htwi.pData);
@@ -488,17 +469,15 @@ static uint8_t _act8945a_display_active_path_charger (void)
 		printf(" Batt.Temp.Int.Ctrl into valid range:  %X \n\r", BitField_APCH79.tempin);
 		printf(" Inp.Voltage Int.Ctrl into valid range:%X \n\r", BitField_APCH79.incon);
 		printf(" Charge State Int Ctrl into EOC state: %X \n\r", BitField_APCH79.chgeocin);
-		printf(" PRECHARGE Time-out Int Ctrl:          %X \n\r", BitField_APCH79.timrpre);
+		printf(" Precharge Time-out Int Ctrl:          %X \n\r", BitField_APCH79.timrpre);
 		printf(" Batt.Temp.Int.Ctrl. out valid range:  %X \n\r", BitField_APCH79.tempout);
 		printf(" Inp.Voltage Int.Ctrl. out valid range:%X \n\r", BitField_APCH79.indis);
 		printf(" Charge State Int.Ctrl. out EOC state: %X \n\r", BitField_APCH79.chgeocout);
 		printf("\n\r");
 	}
 
-	htwi.RegMemAddr = ADD_APCH_7A;
-	htwi.pData = (uint8_t*)&BitField_APCH7A;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_APCH_7A, (uint8_t*)&BitField_APCH7A, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		printf(" -I- APCH @0x7A: 0x%02X \n\r", *htwi.pData);
@@ -522,11 +501,8 @@ static uint8_t _act8945a_display_syslev_failing_threshold (void)
 	uint8_t Status = ACT8945A_RET_OK;
 	float Value;
 
-	htwi.RegMemAddr = ADD_SYSTEM0;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_SYS0;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_SYS0, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		Value = 2.3 + (BitField_SYS0.syslev*0.1);
@@ -551,13 +527,10 @@ uint8_t act8945a_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum O
 	if (RegVout!=V_OUT1 && RegVout!=V_OUT2 && RegVout!=V_OUT3 ) return ACT8945A_RET_NOK;
 
 	//enable/disable output
-	htwi.RegMemAddr = RegVout+1;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_Ctrl1;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
+	Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl1, TWI_RD);
 	if (Status) return Status;
 	BitField_Ctrl1.on = (ON_OFF)? 1:0 ;
-	return Status= _twid_rd_wr(&htwi, TWI_WR);
+	return Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl1, TWI_WR);
 }
 
 //------------------------------------------------------------------------------
@@ -573,13 +546,10 @@ uint8_t act8945a_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum O
 	if (RegVout!=V_OUT4 && RegVout!=V_OUT5 && RegVout!=V_OUT6 && RegVout!=V_OUT7 ) return ACT8945A_RET_NOK;
 
 	//enable/disable output
-	htwi.RegMemAddr = RegVout+1;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_Ctrl2;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
+	Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl2, TWI_RD);
 	if (Status) return Status;
 	BitField_Ctrl2.on = (ON_OFF)? 1:0 ;
-	return Status = _twid_rd_wr(&htwi, TWI_WR);
+	return Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl2, TWI_WR);
 }
 
 //------------------------------------------------------------------------------
@@ -591,21 +561,25 @@ uint8_t act8945a_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut)
 {
 	uint8_t data, RegSet;
 
-	if (VOut>3900) return ACT8945A_RET_NOK;
-	if (RegVout!=V_OUT4 && RegVout!=V_OUT5 && RegVout!=V_OUT6 && RegVout!=V_OUT7 ) return ACT8945A_RET_NOK;
-	if (VOut<600) VOut = 600; // Min 0.6v
+	if (VOut>3900)
+		return ACT8945A_RET_NOK;
+	if (RegVout!=V_OUT4 && RegVout!=V_OUT5 && RegVout!=V_OUT6 && RegVout!=V_OUT7 )
+		return ACT8945A_RET_NOK;
+	if (VOut<600)
+		VOut = 600; // Min 0.6v
 
-	if (VOut<1200) RegSet = (VOut-600)/25;
-	else if (VOut>=1200 && VOut<2400) RegSet = 0x18+((VOut-1200)/50);
-	else if (VOut>=2400 && VOut<=3900) RegSet = 0x30+((VOut-2400)/100);
-	else return ACT8945A_RET_NOK;
+	if (VOut<1200)
+		RegSet = (VOut-600)/25;
+	else if (VOut>=1200 && VOut<2400)
+		RegSet = 0x18+((VOut-1200)/50);
+	else if (VOut>=2400 && VOut<=3900)
+		RegSet = 0x30+((VOut-2400)/100);
+	else
+		return ACT8945A_RET_NOK;
 
 	//Set Output Voltage Selection
 	data = (RegSet&0x3F); // Bit[7:6] reserved
-	htwi.pData = &data;
-	htwi.RegMemAddr = RegVout;
-	htwi.LenData = 1;
-	return _twid_rd_wr(&htwi, TWI_WR);
+	return _ACT8945A_rw_register (RegVout, &data, TWI_WR);
 }
 
 //------------------------------------------------------------------------------
@@ -619,15 +593,12 @@ uint8_t act8945a_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF)
 
 	if (!_is_twi_ready(&htwi)) return ACT8945A_RET_NOK;
 
-	htwi.RegMemAddr = ADD_SYSTEM0;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_SYS0;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (Status) _act8945a_twi_error();
+	Status = _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_SYS0, TWI_RD);
+	if (Status) _ACT8945A_twi_error();
 	else
 	{
 		BitField_SYS0.nsyslevmsk = ON_OFF;
-		Status = _twid_rd_wr(&htwi, TWI_WR);
+		Status = _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_SYS0, TWI_WR);
 	}
 	return Status;
 }
@@ -645,35 +616,31 @@ uint8_t act8945a_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum
 
 	if (!_is_twi_ready(&htwi)) return ACT8945A_RET_NOK;
 
-	htwi.RegMemAddr = RegVout+1;
-	htwi.LenData = 1;
-
 	switch (RegVout)
 	{
-	case V_OUT1:
-	case V_OUT2:
-	case V_OUT3:
-		htwi.pData = (uint8_t*)&BitField_Ctrl1;
-		Status = _twid_rd_wr(&htwi, TWI_RD);
-		if (Status) return ACT8945A_RET_NOK;
-		BitField_Ctrl1.nfltmsk = (ON_OFF)? 1:0 ;
-		break;
+		case V_OUT1:
+		case V_OUT2:
+		case V_OUT3:
+			Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl1, TWI_RD);
+			if (Status) return ACT8945A_RET_NOK;
+			BitField_Ctrl1.nfltmsk = (ON_OFF)? 1:0 ;
+			Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl1, TWI_WR);
+			break;
 
-	case V_OUT4:
-	case V_OUT5:
-	case V_OUT6:
-	case V_OUT7:
-		htwi.pData = (uint8_t*)&BitField_Ctrl2;
-		Status = _twid_rd_wr(&htwi, TWI_RD);
-		if (Status) return ACT8945A_RET_NOK;
-		BitField_Ctrl2.nfltmsk = (ON_OFF)? 1:0 ;
-		break;
+		case V_OUT4:
+		case V_OUT5:
+		case V_OUT6:
+		case V_OUT7:
+			Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl2, TWI_RD);
+			if (Status) return ACT8945A_RET_NOK;
+			BitField_Ctrl2.nfltmsk = (ON_OFF)? 1:0 ;
+			Status = _ACT8945A_rw_register (RegVout+1, (uint8_t*)&BitField_Ctrl2, TWI_WR);
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
-	//set Int
-	return Status = _twid_rd_wr(&htwi, TWI_WR);
+	return Status;
 }
 
 //------------------------------------------------------------------------------
@@ -690,15 +657,8 @@ uint8_t act8945a_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_O
 
 	if (!_is_twi_ready(&htwi)) return ACT8945A_RET_NOK;
 
-	htwi.RegMemAddr = ADD_APCH_78;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_APCH78;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-
-	htwi.RegMemAddr = ADD_APCH_79;
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_APCH79;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
+	Status = _ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
+	Status = _ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_RD);
 
 	switch (IntType)
 	{
@@ -771,12 +731,8 @@ uint8_t act8945a_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_O
 	}
 
 	// Write configuration to registers
-	htwi.RegMemAddr = ADD_APCH_78;
-	Status = _twid_rd_wr(&htwi, TWI_WR);
-
-	htwi.RegMemAddr = ADD_APCH_79;
-	Status = _twid_rd_wr(&htwi, TWI_WR);
-
+	Status = _ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_WR);
+	Status |= _ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_WR);
 	return Status;
 }
 
@@ -807,21 +763,17 @@ uint8_t act8945a_set_system_voltage_level (uint16_t Value)
 	BITFIELD_SYS0 BitField_SYS0;
 	uint8_t Status = ACT8945A_RET_OK;
 
-	if (Value<2300 || Value>3800) return ACT8945A_RET_NOK;
-	htwi.RegMemAddr = ADD_SYSTEM0;
+	if (Value<2300 || Value>3800)
+		return ACT8945A_RET_NOK;
 
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	htwi.LenData = 1;
-	htwi.pData = (uint8_t*)&BitField_SYS0;
+	Status = _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_SYS0, TWI_RD);
 	if (Status) _act8945a_twi_error();
 	else
 	{
 		BitField_SYS0.syslev = (Value-2300)/100;
-		Status = _twid_rd_wr(&htwi, TWI_WR);
+		Status =  _ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_SYS0, TWI_WR);
 
-#ifdef ECHO_CONSOLE
-		_act8945a_display_syslev_failing_threshold();
-#endif
+		_ACT8945A_display_syslev_failing_threshold();
 	}
 	return Status;
 }
@@ -833,6 +785,12 @@ uint8_t act8945a_set_system_voltage_level (uint16_t Value)
 //               CHGLEV = 0 -> I charge 1000mA
 uint8_t act8945a_set_state_CHGLEV_pin (CHG_LEVEL_enum State)
 {
+	if ( State == ACT8945A_USB_MODE_100mA) {
+		pio_clear(&pins_chglev_act8945a[0]);
+	}
+	else {
+		pio_set(&pins_chglev_act8945a[0]);
+	}
 	return 0;
 }
 
@@ -852,11 +810,12 @@ uint8_t act8945a_begin (void)
 {
 	uint8_t data, Status = ACT8945A_RET_OK;
 
-	memset ((void*)&htwi, 0x00, sizeof(htwi));
 	if (!_is_twi_ready(&htwi))
 	{
+		memset ((void*)&htwi, 0x00, sizeof(htwi));
 		// Configure pins
-		pio_configure(pins_ctrl_act8945a, ARRAY_SIZE(pins_ctrl_act8945a));
+		pio_configure(pins_chglev_act8945a, ARRAY_SIZE(pins_chglev_act8945a));
+		pio_configure(pins_irq_act8945a, ARRAY_SIZE(pins_irq_act8945a));
 
 		// Set TWI interface
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
@@ -936,17 +895,16 @@ void ACT8945A_disable_twi (void)
 uint8_t act8945a_test (void)
 {
 	uint8_t Status = ACT8945A_RET_OK;
-	uint16_t x;
 
 	if (!_is_twi_ready(&htwi)) {
-		printf("\n\r -I- ACT8945A Reset State \n\r");
+		printf(" ACT8945A Reset State \n\r");
 		Status = act8945a_begin();
 		if (Status != ACT8945A_RET_OK)
 		{
-			_act8945a_twi_error();
+			_ACT8945A_twi_error();
 			return Status;
 		}
-	}
+}
 	// Dump registers and display
 	_act8945a_registers_dump();
 	_act8945a_registers_dump_APCH();
@@ -964,21 +922,24 @@ uint8_t act8945a_test (void)
 	act8945a_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
 	act8945a_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
 
-	_act8945a_registers_dump();
-	_act8945a_registers_dump_APCH();
+	_ACT8945A_registers_dump();
+	_ACT8945A_registers_dump_APCH();
+	_ACT8945A_display_active_path_charger();
+	_ACT8945A_display_voltage_setting();
+	ACT8945A_set_system_voltage_level(3100);
+	_ACT8945A_display_system_setting();
 
-	act8945a_active_interrupt();
+	Status = ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_OFF);
+	Status = ACT8945A_disable_all_APCH_interrupt();
 
-	// Change step by step (25mv) the output voltage OUT6 from 0.6v to max.
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
-	for (x=500; x<3300; x+=25)
-	{
-		act8945a_set_regulator_voltage_out4to7 (V_OUT6, x);
-		_act8945a_delay_ms(10);
-	}
-	act8945a_set_regulator_voltage_out4to7 (V_OUT6, 600);
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_OFF);
+	ACT8945A_set_APCH_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+	ACT8945A_set_APCH_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+	ACT8945A_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+	ACT8945A_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
 
+	Status = ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_ON);
+
+	ACT8945A_active_interrupt();
 	return Status;
 }
 
