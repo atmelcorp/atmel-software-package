@@ -393,6 +393,7 @@ uint32_t spi_is_finished(Spi * spi)
 
 static void _spi_fifo_set_rx_threshold(Spi* spi, uint8_t rx_thres)
 {
+	spi->SPI_FMR &= ~SPI_FMR_RXFTHRES_Msk;
 	spi->SPI_FMR |= SPI_FMR_RXFTHRES(rx_thres);
 }
 
