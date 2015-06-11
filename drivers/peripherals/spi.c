@@ -434,7 +434,6 @@ static uint32_t _spi_write_stream(Spi *spi, uint32_t chip_select,
 			left -= sizeof(uint8_t);
 		}
 	}
-	trace_debug("WRITTEN STRING SIZE: %u\r\n", len-left);
 	return len - left;
 }
 
@@ -523,8 +522,6 @@ uint32_t spi_read_stream(Spi *spi, uint32_t chip_select,
 			buffer += sizeof(uint8_t);
 		}
 	}
-	_spi_fifo_clear(spi, ~0);
-	trace_debug("READ STRING SIZE: %u\r\n", len-left);
 	return len - left;
 }
 
