@@ -415,9 +415,9 @@ static uint32_t _spi_write_stream(Spi *spi, uint32_t chip_select,
 
 		/* Fill the FIFO as must as possible */
 		while (buf_size >= max_size) {
-			if (is_ps)
-				spi->SPI_TDR = *(uint8_t*)buffer | SPI_PCS(chip_select)
-					| (left == len ? SPI_TDR_LASTXFER : 0);
+			if (is_ps) {
+				spi->SPI_TDR = *(uint8_t*)buffer | SPI_PCS(chip_select);
+			}
 			else {
 				uint32_t value =
 					*(uint8_t*)buffer |
