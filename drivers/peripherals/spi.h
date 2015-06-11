@@ -47,31 +47,8 @@
  *        Macros
  *----------------------------------------------------------------------------*/
 
-/**
- *
- * Here are several macros which should be used when configuring a SPI
- * peripheral.
- *
- * \section spi_configuration_macros SPI Configuration Macros
- * - \ref SPI_PCS
- * - \ref SPI_SCBR
- * - \ref SPI_DLYBS
- * - \ref SPI_DLYBCT
- */
-
-/** Calculate the PCS field value given the chip select NPCS value */
-#define SPI_PCS(npcs)       SPI_MR_PCS((~(1 << npcs) & 0xF))
-
-/** Calculates the value of the CSR SCBR field given the baudrate and MCK. */
-#define SPI_SCBR(baudrate, masterClock) SPI_CSR_SCBR((uint32_t)(masterClock / baudrate))
-
-/** Calculates the value of the CSR DLYBS field given the desired
- * delay (in ns) */
-#define SPI_DLYBS(delay, masterClock)  SPI_CSR_DLYBS((uint32_t)(((masterClock / 1000000) * delay) / 1000)+1)
-
-/** Calculates the value of the CSR DLYBCT field given the desired
- * delay (in ns) */
-#define SPI_DLYBCT(delay, masterClock) SPI_CSR_DLYBCT ((uint32_t)(((masterClock / 1000000) * delay) / 32000)+1)
+#define SPI_KEEP_CS_OW 0
+#define SPI_RELEASE_CS_OW 1
 
 /*------------------------------------------------------------------------------ */
 
