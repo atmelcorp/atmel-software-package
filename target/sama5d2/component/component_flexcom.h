@@ -588,7 +588,7 @@ typedef struct {
 #define   SPI_MR_CMPMODE_FLAG_ONLY (0x0u << 12) /**< \brief (SPI_MR) Any character is received and comparison function drives CMP flag. */
 #define   SPI_MR_CMPMODE_START_CONDITION (0x1u << 12) /**< \brief (SPI_MR) Comparison condition must be met to start reception of all incoming characters until REQCLR is set. */
 #define SPI_MR_PCS_Pos 16
-#define SPI_MR_PCS_Msk (0x3u << SPI_MR_PCS_Pos) /**< \brief (SPI_MR) Peripheral Chip Select */
+#define SPI_MR_PCS_Msk (0xFu << SPI_MR_PCS_Pos) /**< \brief (SPI_MR) Peripheral Chip Select */
 #define SPI_MR_PCS(value) ((SPI_MR_PCS_Msk & ((value) << SPI_MR_PCS_Pos)))
 #define SPI_MR_DLYBCS_Pos 24
 #define SPI_MR_DLYBCS_Msk (0xffu << SPI_MR_DLYBCS_Pos) /**< \brief (SPI_MR) Delay Between Chip Selects */
