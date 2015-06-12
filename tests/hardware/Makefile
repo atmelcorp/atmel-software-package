@@ -32,6 +32,6 @@ TOP := ../..
 
 BINNAME = test-hardware
 
-obj-y += tests/sama5d2/main.o
+obj-y += tests/hardware/main.o
 
 include $(TOP)/scripts/Makefile.rules
