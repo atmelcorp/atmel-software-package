@@ -101,16 +101,14 @@ static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t periph_id)
 static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t periph_id)
 {
 	uint32_t dlybs =
-		pmc_get_peripheral_clock(periph_id) / (delay * 1000000000u);
-	dlybs = dlybs > 0 ? dlybs : 1;
+		((pmc_get_peripheral_clock(periph_id)/1000000u) * delay) / 100;
 	return SPI_CSR_DLYBS(dlybs);
 }
 
 static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t periph_id)
 {
 	uint32_t dlybct =
-		pmc_get_peripheral_clock(periph_id) / (delay * 31250000u);
-	dlybct = dlybct > 0 ? dlybct : 1;
+		((pmc_get_peripheral_clock(periph_id)/31250u) * delay) / 100;
 	return SPI_CSR_DLYBCT(dlybct);
 }
 
