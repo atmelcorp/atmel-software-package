@@ -155,56 +155,26 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Enables a SPI peripheral.
- *
- * \param spi  Pointer to an Spi instance.
- */
 void spi_enable(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_SPIEN;
 }
 
-/**
- * \brief Disables a SPI peripheral.
- *
- * \param spi  Pointer to an Spi instance.
- */
 void spi_disable(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_SPIDIS;
 }
 
-/**
- * \brief Enables one or more interrupt sources of a SPI peripheral.
- *
- * \param spi  Pointer to an Spi instance.
- * \param dwSources Bitwise OR of selected interrupt sources.
- */
 void spi_enable_it(Spi * spi, uint32_t dwSources)
 {
 	spi->SPI_IER = dwSources;
 }
 
-/**
- * \brief Disables one or more interrupt sources of a SPI peripheral.
- *
- * \param spi  Pointer to an Spi instance.
- * \param dwSources Bitwise OR of selected interrupt sources.
- */
 void spi_disable_it(Spi * spi, uint32_t dwSources)
 {
 	spi->SPI_IDR = dwSources;
 }
 
-/**
- * \brief Configures a SPI peripheral as specified. The configuration
- * can be computed
- * using several macros (see \ref spi_configuration_macros).
- *
- * \param spi  Pointer to an Spi instance.
- * \param dwConfiguration  Value of the SPI configuration register.
- */
 void spi_configure(Spi * spi, uint32_t configuration)
 {
 	uint32_t spi_id = get_spi_id_from_addr(spi);
@@ -223,50 +193,22 @@ void spi_configure(Spi * spi, uint32_t configuration)
 	spi->SPI_MR = configuration;
 }
 
-/**
- * \brief Configures SPI chip select.
- *
- * \param spi  Pointer to an Spi instance.
- * \param cS  Chip select of NPSCx.
- */
 void spi_chip_select(Spi * spi, uint8_t cS)
 {
 	spi->SPI_MR |= SPI_MR_PCS_Msk;
 	spi->SPI_MR &= ~(SPI_MR_PCS(cS));
 }
 
-/**
- * \brief Configures SPI Mode Register.
- *
- * \param spi  Pointer to an Spi instance.
- * \param dwConfiguration  Value of the SPI mode register.
- */
 void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
 {
 	spi->SPI_MR = dwConfiguration;
 }
 
-/**
- * \brief Configures SPI to release last used CS line.
- *
- * \param spi  Pointer to an Spi instance.
- */
 void spi_release_cs(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_LASTXFER;
 }
 
-/**
- * \brief Configures a chip select of a SPI peripheral.
- *
- * \param spi Pointer to an Spi instance.
- * \param cs Chip select to configure (0, 1, 2 or 3).
- * \param bitrate
- * \param delay_dlybs
- * \param delay_dlybct
- * \param spi_mode
- * \param release_on_last
- */
 void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
 		      uint32_t delay_dlybs, uint32_t delay_dlybct,
 		      uint32_t spi_mode, uint32_t release_on_last)
@@ -283,14 +225,6 @@ void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
 		| release_on_last | spi_mode;
 }
 
-/**
- * \brief Configures a chip select active mode of a SPI peripheral.
- *
- * \param spi   Pointer to an Spi instance.
- * \param cs  Chip select to configure (0, 1, 2 or 3).
- * \param release_on_last CS controlled by last transfer.
- *                       spi_release_cs() is used to deactive CS.
- */
 void spi_configure_cs_mode(Spi * spi, uint32_t cs, uint32_t release_on_last)
 {
 	if (!release_on_last) {
@@ -300,25 +234,11 @@ void spi_configure_cs_mode(Spi * spi, uint32_t cs, uint32_t release_on_last)
 	}
 }
 
-/**
- * \brief Get the current status register of the given SPI peripheral.
- * \note This resets the internal value of the status register, so further
- * read may yield different values.
- * \param spi   Pointer to a Spi instance.
- * \return  SPI status register.
- */
 uint32_t spi_get_status(Spi * spi)
 {
 	return spi->SPI_SR;
 }
 
-/**
- * \brief Reads data from SPI peripheral while sending dummy data.
- *
- * \param spi Pointer to an Spi instance.
- *
- * \return readed data.
- */
 uint32_t spi_read(Spi * spi)
 {
 	_spi_write_dummy(spi);
@@ -329,15 +249,9 @@ uint32_t spi_read(Spi * spi)
 }
 
 /**
- * \brief Sends data through a SPI peripheral consuming reads.
- *
  * \details If the SPI is configured to use a fixed peripheral select,
  * the npcs value is meaningless. Otherwise, it identifies the
  * component which shall be addressed.
- *
- * \param spi   Pointer to an Spi instance.
- * \param cs  Chip select of the component to address (0, 1, 2 or 3).
- * \param data  Word of data to send.
  */
 void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 {
@@ -374,14 +288,6 @@ void spi_write_last(Spi * spi, uint32_t cs, uint16_t data)
 	_spi_consume_read(spi);
 }
 
-/**
- * \brief Check if SPI transfer finish.
- *
- * \param spi  Pointer to an Spi instance.
- *
- * \return Returns 1 if there is no pending write operation on the SPI; otherwise
- * returns 0.
- */
 uint32_t spi_is_finished(Spi * spi)
 {
 	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
