@@ -20,4 +20,7 @@
 #define _STRINGY_EXPAND(x) #x
 #define STRINGIFY(x) _STRINGY_EXPAND(x)
 
+#define BIG_ENDIAN_TO_HOST(x) (((x) & 0xFF) << 24) | (((x) & 0xFF00) << 8) \
+		| (((x) & 0xFF0000) >> 8) | (((x) & 0xFF000000) >> 24)
+
 #endif /* _COMPILER_H_ */

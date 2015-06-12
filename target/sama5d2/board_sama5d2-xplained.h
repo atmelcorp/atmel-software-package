@@ -151,9 +151,9 @@
 	{ PIO_PB13, PIOA, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
 
-/* ================== PIN Serial Flash definition ============== */
+/* ================== PIN SPI Serial Flash definition ============== */
 
-#define PINS_SERIAL_FLASH PINS_SPI0_NPCS0_IOS1
+#define PINS_SPI_SERIAL_FLASH PINS_SPI0_NPCS0_IOS1
 
 /* ================== PIN USB definition ======================= */
 
@@ -218,8 +218,10 @@
 #define AT25DFX_FREQ 40000
 #define AT25DFX_LOW_FREQ 20000
 
-#define AT25DFX_DLYBS 100
-#define AT25DFX_DLYCT 100
+#define AT25DFX_DLYBS 0
+#define AT25DFX_DLYCT 0
+
+#define AT25DFX_CHIP_SELECT 0
 
 #define AT25DFX_SPI_MODE SPI_CSR_NCPHA
 
