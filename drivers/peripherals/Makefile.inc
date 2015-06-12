@@ -42,6 +42,7 @@ drivers-y += drivers/peripherals/rtc_calib.o
 drivers-y += drivers/peripherals/sha.o
 drivers-y += drivers/peripherals/smc_nfc.o
 drivers-y += drivers/peripherals/spi.o
+drivers-y += drivers/peripherals/spid.o
 drivers-y += drivers/peripherals/tc.o
 drivers-y += drivers/peripherals/tdes.o
 drivers-y += drivers/peripherals/trng.o
