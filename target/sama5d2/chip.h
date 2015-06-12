@@ -167,10 +167,10 @@
 #define USART_FIFO_DEPTH (32u)
 
 /** SPI FIFO depth */
-#define SPI_FIFO_DEPTH (32u)
+#define SPI_FIFO_DEPTH (16u)
 
 /** TWI FIFO depth */
-#define TWI_FIFO_DEPTH (32u)
+#define TWI_FIFO_DEPTH (16u)
 
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
