@@ -95,8 +95,7 @@
  * \brief Configures a TWI peripheral to operate in master mode, at the given
  * frequency (in Hz). The duty cycle of the TWI clock is set to 50%.
  * \param twi  Pointer to an Twi instance.
- * \param dwTwCk  Desired TWI clock frequency.
- * \param dwMCk  Master clock frequency.
+ * \param twi_clock  Desired TWI clock frequency.
  */
 void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 {
@@ -120,14 +119,18 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 	/* Configure clock */
 	ck_div = 0; ok = 0;
 	while (!ok) {
-		cl_div = ((clock / (2 * twi_clock)) - 8) / (1 << ck_div);
-		(cl_div <= 255) ? ok = 1 : ck_div++;
+		cl_div = ((clock / (2 * twi_clock)) - 3) >> ck_div;
+		if (cl_div <= 255)
+			ok = 1;
+		else
+			ck_div++;
 	}
 	assert(ck_div < 8);
 	trace_debug("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r",
 		    (unsigned int)ck_div, (unsigned int)cl_div);
 	pTwi->TWI_CWGR = 0;
-	pTwi->TWI_CWGR = (cl_div << 16) | (cl_div << 8) | cl_div;
+	pTwi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div) | TWI_CWGR_CHDIV(cl_div) |
+		TWI_CWGR_CLDIV(cl_div);
 }
 
 /**

@@ -65,7 +65,7 @@ void low_level_init(void)
 		pmc_select_external_osc();
 		pmc_switch_mck_to_main();
 		pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-			     CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(87) |
+			     CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(82) |
 			     CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x0));
 		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
 		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
