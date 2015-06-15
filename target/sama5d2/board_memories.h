@@ -37,10 +37,42 @@
 #ifndef BOARD_MEMORIES_H
 #define BOARD_MEMORIES_H
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include <stdint.h>
+
+/*----------------------------------------------------------------------------
+ *        Define
+ *----------------------------------------------------------------------------*/
+
+#define CONFIG_BUS_SPEED_166MHZ
+
+/*----------------------------------------------------------------------------
+ *        Structure
+ *----------------------------------------------------------------------------*/
+
+struct ddramc_register {
+	uint32_t mdr;
+	uint32_t cr;
+	uint32_t rtr;
+	uint32_t t0pr;
+	uint32_t t1pr;
+	uint32_t t2pr;
+	uint32_t lpddr2_lpr;
+	uint32_t tim_calr;
+};
+
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
 void board_remap_rom(void);
 void board_remap_ram(void);
 void board_cfg_ddram(void);
+
+void ddramc_reg_config(struct ddramc_register *ddramc_config);
+void board_cfg_ddram (struct ddramc_register *ddramc_config);
 
 #endif  /* BOARD_MEMORIES_H */

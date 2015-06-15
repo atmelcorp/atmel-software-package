@@ -211,35 +211,22 @@ void ACT8945A_IrqHandler( uint32_t status )
 	BITFIELD_APCH78 BitField_APCH79;
 	BITFIELD_APCH7A BitField_APCH7A;
 
-	if (status & pins_twi_act8945a[0].mask)	{
-
-		htwi.RegMemAddr = ADD_SYSTEM0;
-		htwi.LenData = 1;
-		htwi.pData = (uint8_t*)&BitField_Syst0;
-		_twid_rd_wr(&htwi, TWI_RD);
-
-		if ( bf_SYST0 != *htwi.pData)
-		{
+	if (status & pins_irq_act8945a[0].mask)	{
+		printf("#");
+	}
+/*
+		_ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_Syst0, TWI_RD);
+		if ( bf_SYST0 != *htwi.pData) {
 			printf("&");
 			bf_SYST0 = *htwi.pData;
 		}
-
-		htwi.RegMemAddr = ADD_APCH_7A;
-		htwi.pData = (uint8_t*)&BitField_APCH7A;
-		_twid_rd_wr(&htwi, TWI_RD);
-
-		if ( bf_APCH7A != *htwi.pData)
-		{
+		_ACT8945A_rw_register (ADD_APCH_7A, (uint8_t*)&BitField_APCH7A, TWI_RD);
+		if ( bf_APCH7A != *htwi.pData) {
 			printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
 			bf_APCH7A = *htwi.pData;
 		}
-
-		htwi.RegMemAddr = ADD_APCH_78;
-		htwi.pData = (uint8_t*)&BitField_APCH78;
-		_twid_rd_wr(&htwi, TWI_RD);
-
-		if ( bf_APCH78 != *htwi.pData)
-		{
+		_ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
+		if ( bf_APCH78 != *htwi.pData) {
 			if (BitField_APCH78.chgdat == 0x01) printf("\n\rcharger state machine: END-OF-CHARGE state \n\r");
 			bf_APCH78 = *htwi.pData;
 		}
@@ -249,9 +236,7 @@ void ACT8945A_IrqHandler( uint32_t status )
 			bf_APCH79 = *htwi.pData;
 		}
 	}
-		_ACT8945A_display_active_path_charger();
 }
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -280,14 +265,14 @@ void _ACT8945A_registers_dump(void)
 {
 	uint8_t data, i = 0;
 
-	if (_is_twi_ready(&htwi))
-	{
-		printf("\n\r *** DUMP Registers ACT8945A\n\r");
-		for (i=0; i<NB_REG_ACT; i++) {
-			_ACT8945A_rw_register (ActReg[i].Address, &data, TWI_RD);
-			_ACT8945A_delay_ms(10);
-			printf(" %s: 0x%02x \n\r", ActReg[i].RegName, data);
-		}
+	if (!_is_twi_ready(&htwi))
+		return;
+
+	printf("\n\r *** DUMP Registers ACT8945A\n\r");
+	for (i=0; i<NB_REG_ACT; i++) {
+		_ACT8945A_rw_register (ActReg[i].Address, &data, TWI_RD);
+		_ACT8945A_delay_ms(10);
+		printf(" %s: 0x%02x \n\r", ActReg[i].RegName, data);
 	}
 }
 
@@ -857,7 +842,7 @@ uint8_t ACT8945A_begin (void)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Config interrupt on nIRQ pin to MPU
-void ACT8945A_active_interrupt (void)
+void ACT8945A_active_interrupt_handler (void)
 {
 	pio_configure_it(&pins_irq_act8945a[0]);
 	pio_enable_it(&pins_irq_act8945a[0]);
@@ -915,7 +900,7 @@ uint8_t ACT8945A_test (void)
 
 	Status = ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_ON);
 
-	ACT8945A_active_interrupt_handler();
+	//ACT8945A_active_interrupt_handler();
 	return Status;
 }
 

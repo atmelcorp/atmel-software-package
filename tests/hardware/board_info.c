@@ -34,6 +34,8 @@
 #include "board.h"
 #include "chip.h"
 
+#include "board_memories.h"
+
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "power/act8945A.h"
@@ -286,19 +288,30 @@ uint8_t EditInfoMpu (void)
 //
 //------------------------------------------------------------------------------
 
+void _display_driver_info (char* str1, char* str2, char* str3)
+{
+	printf(" Device   : %s\n\r", str1);
+    printf(" Interface: %s\n\r", str2);
+    printf(" Comment  : %s\n\r", str3);
+}
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+
 struct _stResult
 {
   uint8_t 	result ;
   char  	string[48];
 } ;
 
-#define BOARD_MAIN_CLOCK_EXT_OSC_MHZ BOARD_MAIN_CLOCK_EXT_OSC/1000000
-
 void check_hw_on_board (void)
 {
 	uint32_t MulA, PllaDiv2, Result, board_mck;
 	uint8_t i, index, status, sum;
 	struct _stResult sresult[16];
+
+	struct ddramc_register ddr3_conf;
 
 	index = 0;
 
@@ -332,6 +345,8 @@ void check_hw_on_board (void)
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	//printf("\n\r");
     printf("--PMIC \n\r");
+	_display_driver_info (PMIC_DEVICE, PMIC_INTERFACE, PMIC_COMMENT);
+	ACT8945A_active_interrupt_handler();
 	_ACT8945A_display_voltage_setting();
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "PMIC\t\t");
@@ -340,9 +355,7 @@ void check_hw_on_board (void)
 #ifdef AT24MAC402
 	//printf("\n\r");
     printf("--EEP \n\r");
-	printf(" Device   : %s\n\r", EEP_DEVICE);
-    printf(" Interface: %s\n\r", EEP_INTERFACE);
-    printf(" Comment  : %s\n\r", EEP_COMMENT);
+	_display_driver_info (EEP_DEVICE, EEP_INTERFACE, EEP_COMMENT);
 	status = at24mac402_begin();
 	sresult[index].result = status;
 	strcpy (sresult[index++].string, "EEP\t\t");
@@ -350,7 +363,6 @@ void check_hw_on_board (void)
 		at24mac402_display_register();
 	}
 #endif
-
 
 #ifdef NAND_FLASH
 	uint8_t Index = 0;
@@ -380,10 +392,7 @@ void check_hw_on_board (void)
 #ifdef EMMC
     //printf("\n\r");
     printf("--eMMC\n\r");
-	printf(" Device   : %s\n\r", EMMC_DEVICE);
-    printf(" Interface: %s\n\r", EMMC_INTERFACE);
-    printf(" Comment  : %s\n\r", EMMC_COMMENT);
-
+	_display_driver_info (EMMC_DEVICE, EMMC_INTERFACE, EMMC_COMMENT);
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "EMMC\t\t");
 #endif
@@ -391,9 +400,7 @@ void check_hw_on_board (void)
 #ifdef SDRAM_DDR2
     //printf("\n\r");
     printf("--SDRAM DDR2\n\r");
-	printf(" Device   : %s\n\r", DDR2_DEVICE);
-    printf(" Interface: %s\n\r", DDR2_INTERFACE);
-    printf(" Comment  : %s\n\r", DDR2_COMMENT);
+	_display_driver_info (DDR2_DEVICE, DDR2_INTERFACE, DDR2_COMMENT);
     printf(" Add Start/End : 0x%08x - 0x%08x  \n\r", ADDR_DDR2_START, ADDR_DDR2_END) ;
     Result = BOARD_DDRAM_SIZE/1024/1024;
     printf(" Total Size    : %dMb .. %dGB \n\r", (int)Result, (int)Result/128);
@@ -405,24 +412,21 @@ void check_hw_on_board (void)
 #ifdef SDRAM_DDR3
     //printf("\n\r");
     printf("--SDRAM DDR3\n\r");
-	printf(" Device   : %s\n\r", DDR3_DEVICE);
-    printf(" Interface: %s\n\r", DDR3_INTERFACE);
-    printf(" Comment  : %s\n\r", DDR3_COMMENT);
+	_display_driver_info (DDR3_DEVICE, DDR3_INTERFACE, DDR3_COMMENT);
     printf(" Add Start/End : 0x%08x - 0x%08x  \n\r", ADDR_DDR3_START, ADDR_DDR3_END) ;
     Result = BOARD_DDRAM_SIZE/1024/1024;
     printf(" Total Size    : %dMb .. %dGB \n\r", (int)Result, (int)Result/128);
 
-	sresult[index].result = 0;
+	ddramc_reg_config(&ddr3_conf);
+	board_cfg_ddram(&ddr3_conf);
+	sresult[index].result = test_ddr_sdram (ADDR_DDR3_START, ADDR_DDR3_END, BOARD_DDRAM_SIZE/128);
 	strcpy (sresult[index++].string, "SDRAM DDR3\t");
 #endif
 
 #ifdef SPI_FLASH
     //printf("\n\r");
     printf("--SPI FLASH\n\r");
-	printf(" Device   : %s\n\r", SPIF_DEVICE);
-    printf(" Interface: %s\n\r", SPIF_INTERFACE);
-    printf(" Comment  : %s\n\r", SPIF_COMMENT);
-
+	_display_driver_info (SPIF_DEVICE, SPIF_INTERFACE, SPIF_COMMENT);
 	at25dfx_open();
 	status = at25dfx_unlock_sectors();
 	if (!status) {
@@ -436,10 +440,7 @@ void check_hw_on_board (void)
 #ifdef QSPI_FLASH
     //printf("\n\r");
     printf("--QSPI FLASH\n\r");
-	printf(" Device   : %s\n\r", QSPIF_DEVICE);
-    printf(" Interface: %s\n\r", QSPIF_INTERFACE);
-    printf(" Comment  : %s\n\r", QSPIF_COMMENT);
-
+	_display_driver_info (QSPIF_DEVICE, QSPIF_INTERFACE, QSPIF_COMMENT);
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "QSPI FLASH\t");
 #endif
@@ -447,10 +448,7 @@ void check_hw_on_board (void)
 #ifdef SDCARD
     //printf("\n\r");
     printf("--SDCARD\n\r");
-	printf(" Device   : %s\n\r", SDCARD_DEVICE);
-    printf(" Interface: %s\n\r", SDCARD_INTERFACE);
-    printf(" Comment  : %s\n\r", SDCARD_COMMENT);
-
+	_display_driver_info (SDCARD_DEVICE, SDCARD_INTERFACE, SDCARD_COMMENT);
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "SDCARD\t\t");
 #endif
@@ -458,10 +456,7 @@ void check_hw_on_board (void)
 #ifdef GETH
     //printf("\n\r");
     printf("--GETH\n\r");
-	printf(" Device   : %s\n\r", GETH_DEVICE);
-    printf(" Interface: %s\n\r", GETH_INTERFACE);
-    printf(" Comment  : %s\n\r", GETH_COMMENT);
-
+	_display_driver_info (GETH_DEVICE, GETH_INTERFACE, GETH_COMMENT);
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "GETH\t\t");
 #endif
@@ -469,10 +464,7 @@ void check_hw_on_board (void)
 #ifdef LCD
     //printf("\n\r");
     printf("--LCD\n\r");
-	printf(" Device   : %s\n\r", LCD_DEVICE);
-    printf(" Interface: %s\n\r", LCD_INTERFACE);
-    printf(" Comment  : %s\n\r", LCD_COMMENT);
-
+	_display_driver_info (LCD_DEVICE, LCD_INTERFACE, LCD_COMMENT);
 	sresult[index].result = 1;
 	strcpy (sresult[index++].string, "LCD\t\t");
 #endif
@@ -480,7 +472,7 @@ void check_hw_on_board (void)
     printf("\n\r ------------- RESULTS ------------------- \n\r");
 	sum = 0;
 	for (i=0 ; i!=index; i++) {
-		printf("%s : %s \n\r", sresult[i].string, sresult[i].result ? "FAILED": "OK");
+		printf("%s : %s \n\r", sresult[i].string, sresult[i].result ? "Failed": "ok");
 		sum += sresult[i].result;
 	}
     printf("\n\r");

@@ -55,18 +55,28 @@
 //
 //------------------------------------------------------------------------------
 
+#define ACT8945A
 #define AT24MAC402
 // #define ONE-WIRE
 // #define NAND_FLASH
 //#define EMMC
 // #define SDRAM_DDR2
-#define SDRAM_DDR3
+// #define SDRAM_DDR3
 #define	EEPROM
 #define SPI_FLASH
 //#define QSPI_FLASH
 //#define SDCARD
 //#define GETH
 //#define LCD
+
+//------------------------------------------------------------------------------
+
+#ifdef ACT8945A
+	#define PMIC_DEVICE		"ACT8945A"
+	#define PMIC_INTERFACE	"FLEXCOM4 TWI, IOS3"
+	#define	PMIC_COMMENT 	"Advanced PMU for Atmel"
+#endif
+
 
 //------------------------------------------------------------------------------
 

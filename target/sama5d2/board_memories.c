@@ -67,7 +67,7 @@ static void matrix_configure_slave_ddr(void)
 /**
  * \brief Configures DDR3
  */
-void board_cfg_ddram(void)
+void board_cfg_ddram (struct ddramc_register *ddramc_config)
 {
 	matrix_configure_slave_ddr();
 	struct _mpddrc_desc desc;
