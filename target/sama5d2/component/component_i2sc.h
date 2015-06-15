@@ -76,17 +76,17 @@ typedef struct {
 #define   I2SC_MR_DATALENGTH_8_BITS (0x6u << 2) /**< \brief (I2SC_MR) Data length is set to 8 bits */
 #define   I2SC_MR_DATALENGTH_8_BITS_COMPACT (0x7u << 2) /**< \brief (I2SC_MR) Data length is set to 8-bit compact stereo. Left sample in bits 7:0 and right sample in bits 15:8 of the same word. */
 #define I2SC_MR_FORMAT_Pos 6
-#define I2SC_MR_FORMAT_Msk (0x3u << I2SC_MR_FORMAT_Pos) /**< \brief (I2SC_MR) I2S or TDM Format */
+#define I2SC_MR_FORMAT_Msk (0x3u << I2SC_MR_FORMAT_Pos) /**< \brief (I2SC_MR) Data Format */
 #define I2SC_MR_FORMAT(value) ((I2SC_MR_FORMAT_Msk & ((value) << I2SC_MR_FORMAT_Pos)))
 #define   I2SC_MR_FORMAT_I2S (0x0u << 6) /**< \brief (I2SC_MR) I2S format, stereo with I2SWS low for left channel, and MSB of sample starting one I2SCK period after I2SWS edge */
 #define   I2SC_MR_FORMAT_LJ (0x1u << 6) /**< \brief (I2SC_MR) Left-justified format, stereo with I2SWS high for left channel, and MSB of sample starting on I2SWS edge */
 #define   I2SC_MR_FORMAT_TDM (0x2u << 6) /**< \brief (I2SC_MR) TDM format, with (NBCHAN + 1) channels, I2SWS high at beginning of first channel, and MSB of sample starting one ISCK period after I2SWS edge */
 #define   I2SC_MR_FORMAT_TDMLJ (0x3u << 6) /**< \brief (I2SC_MR) TDM format, left-justified, with (NBCHAN + 1) channels, I2SWS high at beginning of first channel, and MSB of sample starting on I2SWS edge */
 #define I2SC_MR_RXMONO (0x1u << 8) /**< \brief (I2SC_MR) Receive Mono */
-#define I2SC_MR_RXDMA (0x1u << 9) /**< \brief (I2SC_MR) Single or Multiple */
+#define I2SC_MR_RXDMA (0x1u << 9) /**< \brief (I2SC_MR) Single or Multiple DMA Controller Channels for Receiver */
 #define I2SC_MR_RXLOOP (0x1u << 10) /**< \brief (I2SC_MR) Loop-back Test Mode */
 #define I2SC_MR_TXMONO (0x1u << 12) /**< \brief (I2SC_MR) Transmit Mono */
-#define I2SC_MR_TXDMA (0x1u << 13) /**< \brief (I2SC_MR) Single or Multiple */
+#define I2SC_MR_TXDMA (0x1u << 13) /**< \brief (I2SC_MR) Single or Multiple DMA Controller Channels for Transmitter */
 #define I2SC_MR_TXSAME (0x1u << 14) /**< \brief (I2SC_MR) Transmit Data when Underrun */
 #define I2SC_MR_NBCHAN_Pos 16
 #define I2SC_MR_NBCHAN_Msk (0x7u << I2SC_MR_NBCHAN_Pos) /**< \brief (I2SC_MR) Number of TDM Channels-1 */
@@ -113,7 +113,7 @@ typedef struct {
 #define   I2SC_MR_IMCKFS_M2SF1536 (0x2Fu << 24) /**< \brief (I2SC_MR) Sample frequency ratio set to 1536. */
 #define   I2SC_MR_IMCKFS_M2SF2048 (0x3Fu << 24) /**< \brief (I2SC_MR) Sample frequency ratio set to 2048. */
 #define I2SC_MR_IMCKMODE (0x1u << 30) /**< \brief (I2SC_MR) Master Clock Mode */
-#define I2SC_MR_IWS (0x1u << 31) /**< \brief (I2SC_MR) I2SWS TDM Slot Width */
+#define I2SC_MR_IWS (0x1u << 31) /**< \brief (I2SC_MR) I2SWS Slot Width */
 /* -------- I2SC_SR : (I2SC Offset: 0x08) Status Register -------- */
 #define I2SC_SR_RXEN (0x1u << 0) /**< \brief (I2SC_SR) Receiver Enabled */
 #define I2SC_SR_RXRDY (0x1u << 1) /**< \brief (I2SC_SR) Receive Ready */

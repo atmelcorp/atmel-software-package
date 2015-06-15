@@ -78,7 +78,7 @@ typedef struct {
 
 /** \brief Spi hardware registers */
 typedef struct {
-      	__O  uint32_t SPI_CR;      /**< \brief (Flexcom Offset: 0x400) SPI Control Register */
+	__O  uint32_t SPI_CR;      /**< \brief (Flexcom Offset: 0x400) SPI Control Register */
 	__IO uint32_t SPI_MR;      /**< \brief (Flexcom Offset: 0x404) SPI Mode Register */
 	__I  uint32_t SPI_RDR;     /**< \brief (Flexcom Offset: 0x408) SPI Receive Data Register */
 	__O  uint32_t SPI_TDR;     /**< \brief (Flexcom Offset: 0x40C) SPI Transmit Data Register */
@@ -209,8 +209,6 @@ typedef struct {
 #define   US_MR_USART_MODE_IRDA (0x8u << 0) /**< \brief (US_MR) IrDA */
 #define   US_MR_USART_MODE_LIN_MASTER (0xAu << 0) /**< \brief (US_MR) LIN master */
 #define   US_MR_USART_MODE_LIN_SLAVE (0xBu << 0) /**< \brief (US_MR) LIN Slave */
-#define   US_MR_USART_MODE_SPI_MASTER (0xEu << 0) /**< \brief (US_MR) SPI master */
-#define   US_MR_USART_MODE_SPI_SLAVE (0xFu << 0) /**< \brief (US_MR) SPI Slave */
 #define US_MR_USCLKS_Pos 4
 #define US_MR_USCLKS_Msk (0x3u << US_MR_USCLKS_Pos) /**< \brief (US_MR) Clock Selection */
 #define US_MR_USCLKS(value) ((US_MR_USCLKS_Msk & ((value) << US_MR_USCLKS_Pos)))
@@ -484,15 +482,15 @@ typedef struct {
 #define US_FMR_TXRDYM_Pos 0
 #define US_FMR_TXRDYM_Msk (0x3u << US_FMR_TXRDYM_Pos) /**< \brief (US_FMR) Transmitter Ready Mode */
 #define US_FMR_TXRDYM(value) ((US_FMR_TXRDYM_Msk & ((value) << US_FMR_TXRDYM_Pos)))
-#define   US_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least one data can be written in the transmit FIFO */
-#define   US_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least two data can be written in the transmit FIFO */
-#define   US_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least four data can be written in the transmit FIFO */
+#define   US_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least one data can be written in the Transmit FIFO */
+#define   US_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least two data can be written in the Transmit FIFO */
+#define   US_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (US_FMR) TXRDY will be at level '1' when at least four data can be written in the Transmit FIFO */
 #define US_FMR_RXRDYM_Pos 4
 #define US_FMR_RXRDYM_Msk (0x3u << US_FMR_RXRDYM_Pos) /**< \brief (US_FMR) Receiver Ready Mode */
 #define US_FMR_RXRDYM(value) ((US_FMR_RXRDYM_Msk & ((value) << US_FMR_RXRDYM_Pos)))
-#define   US_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least one unread data is in the receive FIFO */
-#define   US_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least two unread data are in the receive FIFO */
-#define   US_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least four unread data are in the receive FIFO */
+#define   US_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least one unread data is in the Receive FIFO */
+#define   US_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least two unread data are in the Receive FIFO */
+#define   US_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (US_FMR) RXRDY will be at level '1' when at least four unread data are in the Receive FIFO */
 #define US_FMR_FRTSC (0x1u << 7) /**< \brief (US_FMR) FIFO RTS pin Control enable (Hardware Handshaking mode only) */
 #define US_FMR_TXFTHRES_Pos 8
 #define US_FMR_TXFTHRES_Msk (0x3fu << US_FMR_TXFTHRES_Pos) /**< \brief (US_FMR) Transmit FIFO Threshold */
@@ -503,17 +501,11 @@ typedef struct {
 #define US_FMR_RXFTHRES2_Pos 24
 #define US_FMR_RXFTHRES2_Msk (0x3fu << US_FMR_RXFTHRES2_Pos) /**< \brief (US_FMR) Receive FIFO Threshold 2 */
 #define US_FMR_RXFTHRES2(value) ((US_FMR_RXFTHRES2_Msk & ((value) << US_FMR_RXFTHRES2_Pos)))
-/* -------- US_FESR : (FLEXCOM Offset: 0x2A4) USART FIFO Level Register -------- */
-#define US_FESR_TXFEF (0x1u << 0) /**< \brief (US_FESR) Transmit FIFO Empty Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_TXFFF (0x1u << 1) /**< \brief (US_FESR) Transmit FIFO Full Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_TXFTHF (0x1u << 2) /**< \brief (US_FESR) Transmit FIFO Threshold Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_RXFEF (0x1u << 3) /**< \brief (US_FESR) Receive FIFO Empty Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_RXFFF (0x1u << 4) /**< \brief (US_FESR) Receive FIFO Full Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_RXFTHF (0x1u << 5) /**< \brief (US_FESR) Receive FIFO Threshold Flag (cleared by writing RSTSTA bit in US_CR) */
-#define US_FESR_TXFPTEF (0x1u << 6) /**< \brief (US_FESR) Transmit FIFO Pointer Error Flag */
-#define US_FESR_RXFPTEF (0x1u << 7) /**< \brief (US_FESR) Receive FIFO Pointer Error Flag */
-#define US_FESR_TXFLOCK (0x1u << 8) /**< \brief (US_FESR) Transmit FIFO Lock */
-#define US_FESR_RXFTHF2 (0x1u << 9) /**< \brief (US_FESR) Receive FIFO Threshold Flag 2 (cleared by writing RSTSTA bit in US_CR) */
+/* -------- US_FLR : (FLEXCOM Offset: 0x2A4) USART FIFO Level Register -------- */
+#define US_FLR_TXFL_Pos 0
+#define US_FLR_TXFL_Msk (0x3fu << US_FLR_TXFL_Pos) /**< \brief (US_FLR) Transmit FIFO Level */
+#define US_FLR_RXFL_Pos 16
+#define US_FLR_RXFL_Msk (0x3fu << US_FLR_RXFL_Pos) /**< \brief (US_FLR) Receive FIFO Level */
 /* -------- US_FIER : (FLEXCOM Offset: 0x2A8) USART FIFO Interrupt Enable Register -------- */
 #define US_FIER_TXFEF (0x1u << 0) /**< \brief (US_FIER) TXFEF Interrupt Enable */
 #define US_FIER_TXFFF (0x1u << 1) /**< \brief (US_FIER) TXFFF Interrupt Enable */
@@ -544,11 +536,17 @@ typedef struct {
 #define US_FIMR_TXFPTEF (0x1u << 6) /**< \brief (US_FIMR) TXFPTEF Interrupt Mask */
 #define US_FIMR_RXFPTEF (0x1u << 7) /**< \brief (US_FIMR) RXFPTEF Interrupt Mask */
 #define US_FIMR_RXFTHF2 (0x1u << 9) /**< \brief (US_FIMR) RXFTHF2 Interrupt Mask */
-/* -------- US_FLR : (FLEXCOM Offset: 0x2B4) USART FIFO Event Status Register -------- */
-#define US_FLR_TXFL_Pos 0
-#define US_FLR_TXFL_Msk (0x3fu << US_FLR_TXFL_Pos) /**< \brief (US_FLR) Transmit FIFO Level */
-#define US_FLR_RXFL_Pos 16
-#define US_FLR_RXFL_Msk (0x3fu << US_FLR_RXFL_Pos) /**< \brief (US_FLR) Receive FIFO Level */
+/* -------- US_FESR : (FLEXCOM Offset: 0x2B4) USART FIFO Event Status Register -------- */
+#define US_FESR_TXFEF (0x1u << 0) /**< \brief (US_FESR) Transmit FIFO Empty Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_TXFFF (0x1u << 1) /**< \brief (US_FESR) Transmit FIFO Full Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_TXFTHF (0x1u << 2) /**< \brief (US_FESR) Transmit FIFO Threshold Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_RXFEF (0x1u << 3) /**< \brief (US_FESR) Receive FIFO Empty Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_RXFFF (0x1u << 4) /**< \brief (US_FESR) Receive FIFO Full Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_RXFTHF (0x1u << 5) /**< \brief (US_FESR) Receive FIFO Threshold Flag (cleared by writing RSTSTA bit in US_CR) */
+#define US_FESR_TXFPTEF (0x1u << 6) /**< \brief (US_FESR) Transmit FIFO Pointer Error Flag */
+#define US_FESR_RXFPTEF (0x1u << 7) /**< \brief (US_FESR) Receive FIFO Pointer Error Flag */
+#define US_FESR_TXFLOCK (0x1u << 8) /**< \brief (US_FESR) Transmit FIFO Lock */
+#define US_FESR_RXFTHF2 (0x1u << 9) /**< \brief (US_FESR) Receive FIFO Threshold Flag 2 (cleared by writing RSTSTA bit in US_CR) */
 /* -------- US_WPMR : (FLEXCOM Offset: 0x2E4) USART Write Protection Mode Register -------- */
 #define US_WPMR_WPEN (0x1u << 0) /**< \brief (US_WPMR) Write Protection Enable */
 #define US_WPMR_WPKEY_Pos 8
@@ -599,15 +597,15 @@ typedef struct {
 #define SPI_RDR_PCS_Pos 16
 #define SPI_RDR_PCS_Msk (0xfu << SPI_RDR_PCS_Pos) /**< \brief (SPI_RDR) Peripheral Chip Select */
 #define SPI_RDR_RD0_Pos 0
-#define SPI_RDR_RD0_Msk (0xffffu << SPI_RDR_RD0_Pos) /**< \brief (SPI_RDR) Receive Data */
-#define SPI_RDR_RD0_FIFO_MULTI_DATA_8_Pos 0
-#define SPI_RDR_RD0_FIFO_MULTI_DATA_8_Msk (0xffu << SPI_RDR_RD0_FIFO_MULTI_DATA_8_Pos) /**< \brief (SPI_RDR) Receive Data */
+#define SPI_RDR_RD0_Msk (0xffu << SPI_RDR_RD0_Pos) /**< \brief (SPI_RDR) Receive Data */
 #define SPI_RDR_RD1_Pos 8
 #define SPI_RDR_RD1_Msk (0xffu << SPI_RDR_RD1_Pos) /**< \brief (SPI_RDR) Receive Data */
 #define SPI_RDR_RD2_Pos 16
 #define SPI_RDR_RD2_Msk (0xffu << SPI_RDR_RD2_Pos) /**< \brief (SPI_RDR) Receive Data */
 #define SPI_RDR_RD3_Pos 24
 #define SPI_RDR_RD3_Msk (0xffu << SPI_RDR_RD3_Pos) /**< \brief (SPI_RDR) Receive Data */
+#define SPI_RDR_RD0_FIFO_MULTI_DATA_16_Pos 0
+#define SPI_RDR_RD0_FIFO_MULTI_DATA_16_Msk (0xffffu << SPI_RDR_RD0_FIFO_MULTI_DATA_16_Pos) /**< \brief (SPI_RDR) Receive Data */
 #define SPI_RDR_RD1_FIFO_MULTI_DATA_16_Pos 16
 #define SPI_RDR_RD1_FIFO_MULTI_DATA_16_Msk (0xffffu << SPI_RDR_RD1_FIFO_MULTI_DATA_16_Pos) /**< \brief (SPI_RDR) Receive Data */
 /* -------- SPI_TDR : (FLEXCOM Offset: 0x40C) SPI Transmit Data Register -------- */
@@ -723,15 +721,15 @@ typedef struct {
 #define SPI_FMR_TXRDYM_Pos 0
 #define SPI_FMR_TXRDYM_Msk (0x3u << SPI_FMR_TXRDYM_Pos) /**< \brief (SPI_FMR) Transmitter Data Register Empty Mode */
 #define SPI_FMR_TXRDYM(value) ((SPI_FMR_TXRDYM_Msk & ((value) << SPI_FMR_TXRDYM_Pos)))
-#define   SPI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least one data can be written in the transmit FIFO. */
-#define   SPI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least two data can be written in the transmit FIFO. */
-#define   SPI_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least four data can be written in the transmit FIFO. */
+#define   SPI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least one data can be written in the Transmit FIFO. */
+#define   SPI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least two data can be written in the Transmit FIFO. */
+#define   SPI_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least four data can be written in the Transmit FIFO. */
 #define SPI_FMR_RXRDYM_Pos 4
 #define SPI_FMR_RXRDYM_Msk (0x3u << SPI_FMR_RXRDYM_Pos) /**< \brief (SPI_FMR) Receiver Data Register Full Mode */
 #define SPI_FMR_RXRDYM(value) ((SPI_FMR_RXRDYM_Msk & ((value) << SPI_FMR_RXRDYM_Pos)))
-#define   SPI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least one unread data is in the receive FIFO. */
-#define   SPI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least two unread data are in the receive FIFO. */
-#define   SPI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least four unread data are in the receive FIFO. */
+#define   SPI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least one unread data is in the Receive FIFO. */
+#define   SPI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least two unread data are in the Receive FIFO. */
+#define   SPI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least four unread data are in the Receive FIFO. */
 #define SPI_FMR_TXFTHRES_Pos 16
 #define SPI_FMR_TXFTHRES_Msk (0x3fu << SPI_FMR_TXFTHRES_Pos) /**< \brief (SPI_FMR) Transmit FIFO Threshold */
 #define SPI_FMR_TXFTHRES(value) ((SPI_FMR_TXFTHRES_Msk & ((value) << SPI_FMR_TXFTHRES_Pos)))
@@ -788,9 +786,6 @@ typedef struct {
 #define TWI_CR_LOCKCLR (0x1u << 26) /**< \brief (TWI_CR) Lock Clear */
 #define TWI_CR_FIFOEN (0x1u << 28) /**< \brief (TWI_CR) FIFO Enable */
 #define TWI_CR_FIFODIS (0x1u << 29) /**< \brief (TWI_CR) FIFO Disable */
-#define TWI_CR_TXFCLR (0x1u << 24) /**< \brief (TWI_CR) Transmit FIFO Clear */
-#define TWI_CR_RXFCLR (0x1u << 25) /**< \brief (TWI_CR) Receive FIFO Clear */
-#define TWI_CR_TXFLCLR (0x1u << 26) /**< \brief (TWI_CR) Transmit FIFO Lock CLEAR */
 /* -------- TWI_MMR : (FLEXCOM Offset: 0x604) TWI Master Mode Register -------- */
 #define TWI_MMR_IADRSZ_Pos 8
 #define TWI_MMR_IADRSZ_Msk (0x3u << TWI_MMR_IADRSZ_Pos) /**< \brief (TWI_MMR) Internal Device Address Size */
@@ -928,11 +923,11 @@ typedef struct {
 #define TWI_RHR_RXDATA0_Pos 0
 #define TWI_RHR_RXDATA0_Msk (0xffu << TWI_RHR_RXDATA0_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 0 */
 #define TWI_RHR_RXDATA1_Pos 8
-#define TWI_RHR_RXDATA1_Msk (0xffu << TWI_RHR_RXDATA1_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 0 */
+#define TWI_RHR_RXDATA1_Msk (0xffu << TWI_RHR_RXDATA1_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 1 */
 #define TWI_RHR_RXDATA2_Pos 16
-#define TWI_RHR_RXDATA2_Msk (0xffu << TWI_RHR_RXDATA2_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 0 */
+#define TWI_RHR_RXDATA2_Msk (0xffu << TWI_RHR_RXDATA2_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 2 */
 #define TWI_RHR_RXDATA3_Pos 24
-#define TWI_RHR_RXDATA3_Msk (0xffu << TWI_RHR_RXDATA3_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 0 */
+#define TWI_RHR_RXDATA3_Msk (0xffu << TWI_RHR_RXDATA3_Pos) /**< \brief (TWI_RHR) Master or Slave Receive Holding Data 3 */
 /* -------- TWI_THR : (FLEXCOM Offset: 0x634) TWI Transmit Holding Register -------- */
 #define TWI_THR_TXDATA_Pos 0
 #define TWI_THR_TXDATA_Msk (0xffu << TWI_THR_TXDATA_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data */
@@ -941,13 +936,13 @@ typedef struct {
 #define TWI_THR_TXDATA0_Msk (0xffu << TWI_THR_TXDATA0_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 0 */
 #define TWI_THR_TXDATA0(value) ((TWI_THR_TXDATA0_Msk & ((value) << TWI_THR_TXDATA0_Pos)))
 #define TWI_THR_TXDATA1_Pos 8
-#define TWI_THR_TXDATA1_Msk (0xffu << TWI_THR_TXDATA1_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 0 */
+#define TWI_THR_TXDATA1_Msk (0xffu << TWI_THR_TXDATA1_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 1 */
 #define TWI_THR_TXDATA1(value) ((TWI_THR_TXDATA1_Msk & ((value) << TWI_THR_TXDATA1_Pos)))
 #define TWI_THR_TXDATA2_Pos 16
-#define TWI_THR_TXDATA2_Msk (0xffu << TWI_THR_TXDATA2_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 0 */
+#define TWI_THR_TXDATA2_Msk (0xffu << TWI_THR_TXDATA2_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 2 */
 #define TWI_THR_TXDATA2(value) ((TWI_THR_TXDATA2_Msk & ((value) << TWI_THR_TXDATA2_Pos)))
 #define TWI_THR_TXDATA3_Pos 24
-#define TWI_THR_TXDATA3_Msk (0xffu << TWI_THR_TXDATA3_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 0 */
+#define TWI_THR_TXDATA3_Msk (0xffu << TWI_THR_TXDATA3_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data 3 */
 #define TWI_THR_TXDATA3(value) ((TWI_THR_TXDATA3_Msk & ((value) << TWI_THR_TXDATA3_Pos)))
 /* -------- TWI_SMBTR : (FLEXCOM Offset: 0x638) TWI SMBus Timing Register -------- */
 #define TWI_SMBTR_PRESC_Pos 0
@@ -997,15 +992,15 @@ typedef struct {
 #define TWI_FMR_TXRDYM_Pos 0
 #define TWI_FMR_TXRDYM_Msk (0x3u << TWI_FMR_TXRDYM_Pos) /**< \brief (TWI_FMR) Transmitter Ready Mode */
 #define TWI_FMR_TXRDYM(value) ((TWI_FMR_TXRDYM_Msk & ((value) << TWI_FMR_TXRDYM_Pos)))
-#define   TWI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least one data can be written in the transmit FIFO */
-#define   TWI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least two data can be written in the transmit FIFO */
-#define   TWI_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least four data can be written in the transmit FIFO */
+#define   TWI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least one data can be written in the Transmit FIFO */
+#define   TWI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least two data can be written in the Transmit FIFO */
+#define   TWI_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (TWI_FMR) TXRDY will be at level '1' when at least four data can be written in the Transmit FIFO */
 #define TWI_FMR_RXRDYM_Pos 4
 #define TWI_FMR_RXRDYM_Msk (0x3u << TWI_FMR_RXRDYM_Pos) /**< \brief (TWI_FMR) Receiver Ready Mode */
 #define TWI_FMR_RXRDYM(value) ((TWI_FMR_RXRDYM_Msk & ((value) << TWI_FMR_RXRDYM_Pos)))
-#define   TWI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least one unread data is in the receive FIFO */
-#define   TWI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least two unread data are in the receive FIFO */
-#define   TWI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least four unread data are in the receive FIFO */
+#define   TWI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least one unread data is in the Receive FIFO */
+#define   TWI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least two unread data are in the Receive FIFO */
+#define   TWI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (TWI_FMR) RXRDY will be at level '1' when at least four unread data are in the Receive FIFO */
 #define TWI_FMR_TXFTHRES_Pos 16
 #define TWI_FMR_TXFTHRES_Msk (0x3fu << TWI_FMR_TXFTHRES_Pos) /**< \brief (TWI_FMR) Transmit FIFO Threshold */
 #define TWI_FMR_TXFTHRES(value) ((TWI_FMR_TXFTHRES_Msk & ((value) << TWI_FMR_TXFTHRES_Pos)))

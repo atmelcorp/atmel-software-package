@@ -63,7 +63,7 @@ typedef struct {
   __I  uint32_t MPDDRC_BDW_PORT_0123;   /**< \brief (Mpddrc Offset: 0x54) MPDDRC Bandwidth Port 0/1/2/3 Register */
   __I  uint32_t MPDDRC_BDW_PORT_4567;   /**< \brief (Mpddrc Offset: 0x58) MPDDRC Bandwidth Port 4/5/6/7 Register */
   __IO uint32_t MPDDRC_RD_DATA_PATH;    /**< \brief (Mpddrc Offset: 0x5C) MPDDRC Read Datapath Register */
-  __IO uint32_t MPDDRC_MCFGR;           /**< \brief (Mpddrc Offset: 0x60) MPDDRC Monitor configuration */
+  __IO uint32_t MPDDRC_MCFGR;           /**< \brief (Mpddrc Offset: 0x60) MPDDRC Monitor Configuration */
   __IO uint32_t MPDDRC_MADDR0;          /**< \brief (Mpddrc Offset: 0x64) MPDDRC Monitor Address High/Low port 0 */
   __IO uint32_t MPDDRC_MADDR1;          /**< \brief (Mpddrc Offset: 0x68) MPDDRC Monitor Address High/Low port 1 */
   __IO uint32_t MPDDRC_MADDR2;          /**< \brief (Mpddrc Offset: 0x6C) MPDDRC Monitor Address High/Low port 2 */
@@ -352,6 +352,10 @@ typedef struct {
 #define MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos 16
 #define MPDDRC_LPDDR23_TIM_CAL_RZQI_Msk (0x3u << MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) Built-in Self-Test for RZQ Information */
 #define MPDDRC_LPDDR23_TIM_CAL_RZQI(value) ((MPDDRC_LPDDR23_TIM_CAL_RZQI_Msk & ((value) << MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos)))
+#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_RZQ_NOT_SUPPORTED (0x0u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) RZQ self test not supported */
+#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_VDDCA_FLOAT (0x1u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) The ZQ pin can be connected to VDDCA or left floating. */
+#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_SHORTED_GROUND (0x2u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) The ZQ pin can be shorted to ground. */
+#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_SELF_TEST_OK (0x3u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) ZQ pin self test complete; no error condition detected */
 /* -------- MPDDRC_IO_CALIBR : (MPDDRC Offset: 0x34) MPDDRC IO Calibration -------- */
 #define MPDDRC_IO_CALIBR_RDIV_Pos 0
 #define MPDDRC_IO_CALIBR_RDIV_Msk (0x7u << MPDDRC_IO_CALIBR_RDIV_Pos) /**< \brief (MPDDRC_IO_CALIBR) Resistor Divider, Output Driver Impedance */
@@ -493,10 +497,10 @@ typedef struct {
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE (0x1u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by one cycle. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES (0x2u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by two cycles. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by three cycles, unique for LPDDR2 and DDR3 and LPDDR3.Not applicable for DDR2 and LPDDR1 devices. */
-/* -------- MPDDRC_MCFGR : (MPDDRC Offset: 0x60) MPDDRC Monitor configuration -------- */
-#define MPDDRC_MCFGR_EN_MONI (0x1u << 0) /**< \brief (MPDDRC_MCFGR) Enable monitor */
+/* -------- MPDDRC_MCFGR : (MPDDRC Offset: 0x60) MPDDRC Monitor Configuration -------- */
+#define MPDDRC_MCFGR_EN_MONI (0x1u << 0) /**< \brief (MPDDRC_MCFGR) Enable Monitor */
 #define MPDDRC_MCFGR_SOFT_RESET (0x1u << 1) /**< \brief (MPDDRC_MCFGR) Soft Reset */
-#define MPDDRC_MCFGR_RUN (0x1u << 4) /**< \brief (MPDDRC_MCFGR) Control monitor */
+#define MPDDRC_MCFGR_RUN (0x1u << 4) /**< \brief (MPDDRC_MCFGR) Control Monitor */
 #define MPDDRC_MCFGR_READ_WRITE_Pos 8
 #define MPDDRC_MCFGR_READ_WRITE_Msk (0x3u << MPDDRC_MCFGR_READ_WRITE_Pos) /**< \brief (MPDDRC_MCFGR) Read/Write Access */
 #define MPDDRC_MCFGR_READ_WRITE(value) ((MPDDRC_MCFGR_READ_WRITE_Msk & ((value) << MPDDRC_MCFGR_READ_WRITE_Pos)))

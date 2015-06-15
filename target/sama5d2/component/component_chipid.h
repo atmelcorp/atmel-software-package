@@ -101,6 +101,7 @@ typedef struct {
 #define   CHIPID_CIDR_SRAMSIZ_512K (0xFu << 16) /**< \brief (CHIPID_CIDR) 512 Kbytes */
 #define CHIPID_CIDR_ARCH_Pos 20
 #define CHIPID_CIDR_ARCH_Msk (0xffu << CHIPID_CIDR_ARCH_Pos) /**< \brief (CHIPID_CIDR) Architecture Identifier */
+#define   CHIPID_CIDR_ARCH_SAM4CxxE (0x66u << 20) /**< \brief (CHIPID_CIDR) SAM4CxE (144-pin version) */
 #define   CHIPID_CIDR_ARCH_SAMA5 (0xA5u << 20) /**< \brief (CHIPID_CIDR) SAMA5 */
 #define CHIPID_CIDR_NVPTYP_Pos 28
 #define CHIPID_CIDR_NVPTYP_Msk (0x7u << CHIPID_CIDR_NVPTYP_Pos) /**< \brief (CHIPID_CIDR) Nonvolatile Program Memory Type */

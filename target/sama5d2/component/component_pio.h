@@ -225,9 +225,9 @@ typedef struct {
 #define PIO_CFGR_DRVSTR_Pos 16
 #define PIO_CFGR_DRVSTR_Msk (0x3u << PIO_CFGR_DRVSTR_Pos) /**< \brief (PIO_CFGR) Drive Strength */
 #define PIO_CFGR_DRVSTR(value) ((PIO_CFGR_DRVSTR_Msk & ((value) << PIO_CFGR_DRVSTR_Pos)))
-#define   PIO_CFGR_DRVSTR_HI (0x0u << 16) /**< \brief (PIO_CFGR) High drive */
-#define   PIO_CFGR_DRVSTR_ME (0x1u << 16) /**< \brief (PIO_CFGR) Medium drive */
-#define   PIO_CFGR_DRVSTR_LO (0x2u << 16) /**< \brief (PIO_CFGR) Low drive */
+#define   PIO_CFGR_DRVSTR_LO (0x0u << 16) /**< \brief (PIO_CFGR) Low drive */
+#define   PIO_CFGR_DRVSTR_ME (0x2u << 16) /**< \brief (PIO_CFGR) Medium drive */
+#define   PIO_CFGR_DRVSTR_HI (0x3u << 16) /**< \brief (PIO_CFGR) High drive */
 #define PIO_CFGR_EVTSEL_Pos 24
 #define PIO_CFGR_EVTSEL_Msk (0x7u << PIO_CFGR_EVTSEL_Pos) /**< \brief (PIO_CFGR) Event Selection */
 #define PIO_CFGR_EVTSEL(value) ((PIO_CFGR_EVTSEL_Msk & ((value) << PIO_CFGR_EVTSEL_Pos)))
@@ -1038,101 +1038,101 @@ typedef struct {
 #define S_PIO_SIOSR_P31 (0x1u << 31) /**< \brief (S_PIO_SIOSR) Set I/O Secure */
 /* -------- S_PIO_IOSSR : (PIO Offset: N/A) Secure PIO I/O Security Status Register -------- */
 #define S_PIO_IOSSR_P0 (0x1u << 0) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P0_SECURE (0x0u << 0) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P0_NON_SECURE (0x1u << 0) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P0_SECURE (0x0u << 0) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P0_NON_SECURE (0x1u << 0) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P1 (0x1u << 1) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P1_SECURE (0x0u << 1) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P1_NON_SECURE (0x1u << 1) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P1_SECURE (0x0u << 1) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P1_NON_SECURE (0x1u << 1) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P2 (0x1u << 2) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P2_SECURE (0x0u << 2) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P2_NON_SECURE (0x1u << 2) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P2_SECURE (0x0u << 2) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P2_NON_SECURE (0x1u << 2) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P3 (0x1u << 3) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P3_SECURE (0x0u << 3) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P3_NON_SECURE (0x1u << 3) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P3_SECURE (0x0u << 3) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P3_NON_SECURE (0x1u << 3) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P4 (0x1u << 4) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P4_SECURE (0x0u << 4) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P4_NON_SECURE (0x1u << 4) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P4_SECURE (0x0u << 4) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P4_NON_SECURE (0x1u << 4) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P5 (0x1u << 5) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P5_SECURE (0x0u << 5) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P5_NON_SECURE (0x1u << 5) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P5_SECURE (0x0u << 5) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P5_NON_SECURE (0x1u << 5) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P6 (0x1u << 6) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P6_SECURE (0x0u << 6) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P6_NON_SECURE (0x1u << 6) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P6_SECURE (0x0u << 6) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P6_NON_SECURE (0x1u << 6) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P7 (0x1u << 7) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P7_SECURE (0x0u << 7) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P7_NON_SECURE (0x1u << 7) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P7_SECURE (0x0u << 7) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P7_NON_SECURE (0x1u << 7) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P8 (0x1u << 8) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P8_SECURE (0x0u << 8) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P8_NON_SECURE (0x1u << 8) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P8_SECURE (0x0u << 8) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P8_NON_SECURE (0x1u << 8) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P9 (0x1u << 9) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P9_SECURE (0x0u << 9) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P9_NON_SECURE (0x1u << 9) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P9_SECURE (0x0u << 9) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P9_NON_SECURE (0x1u << 9) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P10 (0x1u << 10) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P10_SECURE (0x0u << 10) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P10_NON_SECURE (0x1u << 10) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P10_SECURE (0x0u << 10) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P10_NON_SECURE (0x1u << 10) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P11 (0x1u << 11) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P11_SECURE (0x0u << 11) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P11_NON_SECURE (0x1u << 11) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P11_SECURE (0x0u << 11) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P11_NON_SECURE (0x1u << 11) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P12 (0x1u << 12) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P12_SECURE (0x0u << 12) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P12_NON_SECURE (0x1u << 12) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P12_SECURE (0x0u << 12) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P12_NON_SECURE (0x1u << 12) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P13 (0x1u << 13) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P13_SECURE (0x0u << 13) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P13_NON_SECURE (0x1u << 13) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P13_SECURE (0x0u << 13) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P13_NON_SECURE (0x1u << 13) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P14 (0x1u << 14) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P14_SECURE (0x0u << 14) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P14_NON_SECURE (0x1u << 14) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P14_SECURE (0x0u << 14) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P14_NON_SECURE (0x1u << 14) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P15 (0x1u << 15) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P15_SECURE (0x0u << 15) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P15_NON_SECURE (0x1u << 15) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P15_SECURE (0x0u << 15) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P15_NON_SECURE (0x1u << 15) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P16 (0x1u << 16) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P16_SECURE (0x0u << 16) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P16_NON_SECURE (0x1u << 16) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P16_SECURE (0x0u << 16) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P16_NON_SECURE (0x1u << 16) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P17 (0x1u << 17) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P17_SECURE (0x0u << 17) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P17_NON_SECURE (0x1u << 17) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P17_SECURE (0x0u << 17) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P17_NON_SECURE (0x1u << 17) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P18 (0x1u << 18) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P18_SECURE (0x0u << 18) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P18_NON_SECURE (0x1u << 18) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P18_SECURE (0x0u << 18) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P18_NON_SECURE (0x1u << 18) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P19 (0x1u << 19) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P19_SECURE (0x0u << 19) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P19_NON_SECURE (0x1u << 19) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P19_SECURE (0x0u << 19) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P19_NON_SECURE (0x1u << 19) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P20 (0x1u << 20) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P20_SECURE (0x0u << 20) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P20_NON_SECURE (0x1u << 20) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P20_SECURE (0x0u << 20) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P20_NON_SECURE (0x1u << 20) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P21 (0x1u << 21) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P21_SECURE (0x0u << 21) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P21_NON_SECURE (0x1u << 21) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P21_SECURE (0x0u << 21) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P21_NON_SECURE (0x1u << 21) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P22 (0x1u << 22) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P22_SECURE (0x0u << 22) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P22_NON_SECURE (0x1u << 22) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P22_SECURE (0x0u << 22) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P22_NON_SECURE (0x1u << 22) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P23 (0x1u << 23) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P23_SECURE (0x0u << 23) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P23_NON_SECURE (0x1u << 23) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P23_SECURE (0x0u << 23) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P23_NON_SECURE (0x1u << 23) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P24 (0x1u << 24) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P24_SECURE (0x0u << 24) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P24_NON_SECURE (0x1u << 24) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P24_SECURE (0x0u << 24) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P24_NON_SECURE (0x1u << 24) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P25 (0x1u << 25) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P25_SECURE (0x0u << 25) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P25_NON_SECURE (0x1u << 25) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P25_SECURE (0x0u << 25) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P25_NON_SECURE (0x1u << 25) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P26 (0x1u << 26) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P26_SECURE (0x0u << 26) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P26_NON_SECURE (0x1u << 26) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P26_SECURE (0x0u << 26) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P26_NON_SECURE (0x1u << 26) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P27 (0x1u << 27) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P27_SECURE (0x0u << 27) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P27_NON_SECURE (0x1u << 27) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P27_SECURE (0x0u << 27) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P27_NON_SECURE (0x1u << 27) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P28 (0x1u << 28) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P28_SECURE (0x0u << 28) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P28_NON_SECURE (0x1u << 28) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P28_SECURE (0x0u << 28) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P28_NON_SECURE (0x1u << 28) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P29 (0x1u << 29) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P29_SECURE (0x0u << 29) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P29_NON_SECURE (0x1u << 29) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P29_SECURE (0x0u << 29) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P29_NON_SECURE (0x1u << 29) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P30 (0x1u << 30) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P30_SECURE (0x0u << 30) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P30_NON_SECURE (0x1u << 30) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P30_SECURE (0x0u << 30) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P30_NON_SECURE (0x1u << 30) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 #define S_PIO_IOSSR_P31 (0x1u << 31) /**< \brief (S_PIO_IOSSR) I/O Security Status */
-#define   S_PIO_IOSSR_P31_SECURE (0x0u << 31) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode */
-#define   S_PIO_IOSSR_P31_NON_SECURE (0x1u << 31) /**< \brief (S_PIO_IOSSR) Set the I/O line of the I/O group x in Non-Secure mode. */
+#define   S_PIO_IOSSR_P31_SECURE (0x0u << 31) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Secure mode. */
+#define   S_PIO_IOSSR_P31_NON_SECURE (0x1u << 31) /**< \brief (S_PIO_IOSSR) The I/O line of the I/O group x is in Non-Secure mode. */
 /* -------- S_PIO_IOFR : (PIO Offset: N/A) Secure PIO I/O Freeze Register -------- */
 #define S_PIO_IOFR_FPHY (0x1u << 0) /**< \brief (S_PIO_IOFR) Freeze Physical Configuration */
 #define S_PIO_IOFR_FINT (0x1u << 1) /**< \brief (S_PIO_IOFR) Freeze Interrupt Configuration */

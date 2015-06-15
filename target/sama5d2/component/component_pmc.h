@@ -43,9 +43,9 @@ typedef struct {
   __O  uint32_t PMC_SCDR;       /**< \brief (Pmc Offset: 0x0004) System Clock Disable Register */
   __I  uint32_t PMC_SCSR;       /**< \brief (Pmc Offset: 0x0008) System Clock Status Register */
   __I  uint32_t Reserved1[1];
-  __O uint32_t PMC_PCER0;	     /**< \brief (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0 */
-  __O uint32_t PMC_PCDR0;	     /**< \brief (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0 */
-  __I uint32_t PMC_PCSR0;	     /**< \brief (Pmc Offset: 0x0018) Peripheral Clock Status Register 0 */
+  __O  uint32_t PMC_PCER0;      /**< \brief (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0 */
+  __O  uint32_t PMC_PCDR0;      /**< \brief (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0 */
+  __I  uint32_t PMC_PCSR0;      /**< \brief (Pmc Offset: 0x0018) Peripheral Clock Status Register 0 */
   __IO uint32_t CKGR_UCKR;      /**< \brief (Pmc Offset: 0x001C) UTMI Clock Register */
   __IO uint32_t CKGR_MOR;       /**< \brief (Pmc Offset: 0x0020) Main Oscillator Register */
   __IO uint32_t CKGR_MCFR;      /**< \brief (Pmc Offset: 0x0024) Main Clock Frequency Register */
@@ -71,12 +71,12 @@ typedef struct {
   __I  uint32_t PMC_WPSR;       /**< \brief (Pmc Offset: 0x00E8) Write Protection Status Register */
   __I  uint32_t Reserved8[4];
   __I  uint32_t PMC_VERSION;    /**< \brief (Pmc Offset: 0x00FC) Version Register */
-  __O uint32_t PMC_PCER1;	     /**< \brief (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1 */
-  __O uint32_t PMC_PCDR1;	     /**< \brief (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1 */
-  __I uint32_t PMC_PCSR1;	     /**< \brief (Pmc Offset: 0x0108) Peripheral Clock Status Register 1 */
+  __O  uint32_t PMC_PCER1;      /**< \brief (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1 */
+  __O  uint32_t PMC_PCDR1;      /**< \brief (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1 */
+  __I  uint32_t PMC_PCSR1;      /**< \brief (Pmc Offset: 0x0108) Peripheral Clock Status Register 1 */
   __IO uint32_t PMC_PCR;        /**< \brief (Pmc Offset: 0x010C) Peripheral Control Register */
   __IO uint32_t PMC_OCR;        /**< \brief (Pmc Offset: 0x0110) Oscillator Calibration Register */
-  __I  uint32_t Reserved10[12];
+  __I  uint32_t Reserved9[12];
   __I  uint32_t PMC_SLPWK_AIPR; /**< \brief (Pmc Offset: 0x0144) SleepWalking Activity In Progress Register */
   __IO uint32_t PMC_SLPWKCR;    /**< \brief (Pmc Offset: 0x0148) SleepWalking Control Register */
   __IO uint32_t PMC_AUDIO_PLL0; /**< \brief (Pmc Offset: 0x014C) Audio PLL Register 0 */
@@ -112,6 +112,99 @@ typedef struct {
 #define PMC_SCSR_PCK1 (0x1u << 9) /**< \brief (PMC_SCSR) Programmable Clock 1 Output Status */
 #define PMC_SCSR_PCK2 (0x1u << 10) /**< \brief (PMC_SCSR) Programmable Clock 2 Output Status */
 #define PMC_SCSR_ISCCK (0x1u << 18) /**< \brief (PMC_SCSR) ISC Clock Status */
+/* -------- PMC_PCER0 : (PMC Offset: 0x0010) Peripheral Clock Enable Register 0 -------- */
+#define PMC_PCER0_PID2 (0x1u << 2) /**< \brief (PMC_PCER0) Peripheral Clock 2 Enable */
+#define PMC_PCER0_PID3 (0x1u << 3) /**< \brief (PMC_PCER0) Peripheral Clock 3 Enable */
+#define PMC_PCER0_PID4 (0x1u << 4) /**< \brief (PMC_PCER0) Peripheral Clock 4 Enable */
+#define PMC_PCER0_PID5 (0x1u << 5) /**< \brief (PMC_PCER0) Peripheral Clock 5 Enable */
+#define PMC_PCER0_PID6 (0x1u << 6) /**< \brief (PMC_PCER0) Peripheral Clock 6 Enable */
+#define PMC_PCER0_PID7 (0x1u << 7) /**< \brief (PMC_PCER0) Peripheral Clock 7 Enable */
+#define PMC_PCER0_PID8 (0x1u << 8) /**< \brief (PMC_PCER0) Peripheral Clock 8 Enable */
+#define PMC_PCER0_PID9 (0x1u << 9) /**< \brief (PMC_PCER0) Peripheral Clock 9 Enable */
+#define PMC_PCER0_PID10 (0x1u << 10) /**< \brief (PMC_PCER0) Peripheral Clock 10 Enable */
+#define PMC_PCER0_PID11 (0x1u << 11) /**< \brief (PMC_PCER0) Peripheral Clock 11 Enable */
+#define PMC_PCER0_PID12 (0x1u << 12) /**< \brief (PMC_PCER0) Peripheral Clock 12 Enable */
+#define PMC_PCER0_PID13 (0x1u << 13) /**< \brief (PMC_PCER0) Peripheral Clock 13 Enable */
+#define PMC_PCER0_PID14 (0x1u << 14) /**< \brief (PMC_PCER0) Peripheral Clock 14 Enable */
+#define PMC_PCER0_PID15 (0x1u << 15) /**< \brief (PMC_PCER0) Peripheral Clock 15 Enable */
+#define PMC_PCER0_PID16 (0x1u << 16) /**< \brief (PMC_PCER0) Peripheral Clock 16 Enable */
+#define PMC_PCER0_PID17 (0x1u << 17) /**< \brief (PMC_PCER0) Peripheral Clock 17 Enable */
+#define PMC_PCER0_PID18 (0x1u << 18) /**< \brief (PMC_PCER0) Peripheral Clock 18 Enable */
+#define PMC_PCER0_PID19 (0x1u << 19) /**< \brief (PMC_PCER0) Peripheral Clock 19 Enable */
+#define PMC_PCER0_PID20 (0x1u << 20) /**< \brief (PMC_PCER0) Peripheral Clock 20 Enable */
+#define PMC_PCER0_PID21 (0x1u << 21) /**< \brief (PMC_PCER0) Peripheral Clock 21 Enable */
+#define PMC_PCER0_PID22 (0x1u << 22) /**< \brief (PMC_PCER0) Peripheral Clock 22 Enable */
+#define PMC_PCER0_PID23 (0x1u << 23) /**< \brief (PMC_PCER0) Peripheral Clock 23 Enable */
+#define PMC_PCER0_PID24 (0x1u << 24) /**< \brief (PMC_PCER0) Peripheral Clock 24 Enable */
+#define PMC_PCER0_PID25 (0x1u << 25) /**< \brief (PMC_PCER0) Peripheral Clock 25 Enable */
+#define PMC_PCER0_PID26 (0x1u << 26) /**< \brief (PMC_PCER0) Peripheral Clock 26 Enable */
+#define PMC_PCER0_PID27 (0x1u << 27) /**< \brief (PMC_PCER0) Peripheral Clock 27 Enable */
+#define PMC_PCER0_PID28 (0x1u << 28) /**< \brief (PMC_PCER0) Peripheral Clock 28 Enable */
+#define PMC_PCER0_PID29 (0x1u << 29) /**< \brief (PMC_PCER0) Peripheral Clock 29 Enable */
+#define PMC_PCER0_PID30 (0x1u << 30) /**< \brief (PMC_PCER0) Peripheral Clock 30 Enable */
+#define PMC_PCER0_PID31 (0x1u << 31) /**< \brief (PMC_PCER0) Peripheral Clock 31 Enable */
+/* -------- PMC_PCDR0 : (PMC Offset: 0x0014) Peripheral Clock Disable Register 0 -------- */
+#define PMC_PCDR0_PID2 (0x1u << 2) /**< \brief (PMC_PCDR0) Peripheral Clock 2 Disable */
+#define PMC_PCDR0_PID3 (0x1u << 3) /**< \brief (PMC_PCDR0) Peripheral Clock 3 Disable */
+#define PMC_PCDR0_PID4 (0x1u << 4) /**< \brief (PMC_PCDR0) Peripheral Clock 4 Disable */
+#define PMC_PCDR0_PID5 (0x1u << 5) /**< \brief (PMC_PCDR0) Peripheral Clock 5 Disable */
+#define PMC_PCDR0_PID6 (0x1u << 6) /**< \brief (PMC_PCDR0) Peripheral Clock 6 Disable */
+#define PMC_PCDR0_PID7 (0x1u << 7) /**< \brief (PMC_PCDR0) Peripheral Clock 7 Disable */
+#define PMC_PCDR0_PID8 (0x1u << 8) /**< \brief (PMC_PCDR0) Peripheral Clock 8 Disable */
+#define PMC_PCDR0_PID9 (0x1u << 9) /**< \brief (PMC_PCDR0) Peripheral Clock 9 Disable */
+#define PMC_PCDR0_PID10 (0x1u << 10) /**< \brief (PMC_PCDR0) Peripheral Clock 10 Disable */
+#define PMC_PCDR0_PID11 (0x1u << 11) /**< \brief (PMC_PCDR0) Peripheral Clock 11 Disable */
+#define PMC_PCDR0_PID12 (0x1u << 12) /**< \brief (PMC_PCDR0) Peripheral Clock 12 Disable */
+#define PMC_PCDR0_PID13 (0x1u << 13) /**< \brief (PMC_PCDR0) Peripheral Clock 13 Disable */
+#define PMC_PCDR0_PID14 (0x1u << 14) /**< \brief (PMC_PCDR0) Peripheral Clock 14 Disable */
+#define PMC_PCDR0_PID15 (0x1u << 15) /**< \brief (PMC_PCDR0) Peripheral Clock 15 Disable */
+#define PMC_PCDR0_PID16 (0x1u << 16) /**< \brief (PMC_PCDR0) Peripheral Clock 16 Disable */
+#define PMC_PCDR0_PID17 (0x1u << 17) /**< \brief (PMC_PCDR0) Peripheral Clock 17 Disable */
+#define PMC_PCDR0_PID18 (0x1u << 18) /**< \brief (PMC_PCDR0) Peripheral Clock 18 Disable */
+#define PMC_PCDR0_PID19 (0x1u << 19) /**< \brief (PMC_PCDR0) Peripheral Clock 19 Disable */
+#define PMC_PCDR0_PID20 (0x1u << 20) /**< \brief (PMC_PCDR0) Peripheral Clock 20 Disable */
+#define PMC_PCDR0_PID21 (0x1u << 21) /**< \brief (PMC_PCDR0) Peripheral Clock 21 Disable */
+#define PMC_PCDR0_PID22 (0x1u << 22) /**< \brief (PMC_PCDR0) Peripheral Clock 22 Disable */
+#define PMC_PCDR0_PID23 (0x1u << 23) /**< \brief (PMC_PCDR0) Peripheral Clock 23 Disable */
+#define PMC_PCDR0_PID24 (0x1u << 24) /**< \brief (PMC_PCDR0) Peripheral Clock 24 Disable */
+#define PMC_PCDR0_PID25 (0x1u << 25) /**< \brief (PMC_PCDR0) Peripheral Clock 25 Disable */
+#define PMC_PCDR0_PID26 (0x1u << 26) /**< \brief (PMC_PCDR0) Peripheral Clock 26 Disable */
+#define PMC_PCDR0_PID27 (0x1u << 27) /**< \brief (PMC_PCDR0) Peripheral Clock 27 Disable */
+#define PMC_PCDR0_PID28 (0x1u << 28) /**< \brief (PMC_PCDR0) Peripheral Clock 28 Disable */
+#define PMC_PCDR0_PID29 (0x1u << 29) /**< \brief (PMC_PCDR0) Peripheral Clock 29 Disable */
+#define PMC_PCDR0_PID30 (0x1u << 30) /**< \brief (PMC_PCDR0) Peripheral Clock 30 Disable */
+#define PMC_PCDR0_PID31 (0x1u << 31) /**< \brief (PMC_PCDR0) Peripheral Clock 31 Disable */
+/* -------- PMC_PCSR0 : (PMC Offset: 0x0018) Peripheral Clock Status Register 0 -------- */
+#define PMC_PCSR0_PID2 (0x1u << 2) /**< \brief (PMC_PCSR0) Peripheral Clock 2 Status */
+#define PMC_PCSR0_PID3 (0x1u << 3) /**< \brief (PMC_PCSR0) Peripheral Clock 3 Status */
+#define PMC_PCSR0_PID4 (0x1u << 4) /**< \brief (PMC_PCSR0) Peripheral Clock 4 Status */
+#define PMC_PCSR0_PID5 (0x1u << 5) /**< \brief (PMC_PCSR0) Peripheral Clock 5 Status */
+#define PMC_PCSR0_PID6 (0x1u << 6) /**< \brief (PMC_PCSR0) Peripheral Clock 6 Status */
+#define PMC_PCSR0_PID7 (0x1u << 7) /**< \brief (PMC_PCSR0) Peripheral Clock 7 Status */
+#define PMC_PCSR0_PID8 (0x1u << 8) /**< \brief (PMC_PCSR0) Peripheral Clock 8 Status */
+#define PMC_PCSR0_PID9 (0x1u << 9) /**< \brief (PMC_PCSR0) Peripheral Clock 9 Status */
+#define PMC_PCSR0_PID10 (0x1u << 10) /**< \brief (PMC_PCSR0) Peripheral Clock 10 Status */
+#define PMC_PCSR0_PID11 (0x1u << 11) /**< \brief (PMC_PCSR0) Peripheral Clock 11 Status */
+#define PMC_PCSR0_PID12 (0x1u << 12) /**< \brief (PMC_PCSR0) Peripheral Clock 12 Status */
+#define PMC_PCSR0_PID13 (0x1u << 13) /**< \brief (PMC_PCSR0) Peripheral Clock 13 Status */
+#define PMC_PCSR0_PID14 (0x1u << 14) /**< \brief (PMC_PCSR0) Peripheral Clock 14 Status */
+#define PMC_PCSR0_PID15 (0x1u << 15) /**< \brief (PMC_PCSR0) Peripheral Clock 15 Status */
+#define PMC_PCSR0_PID16 (0x1u << 16) /**< \brief (PMC_PCSR0) Peripheral Clock 16 Status */
+#define PMC_PCSR0_PID17 (0x1u << 17) /**< \brief (PMC_PCSR0) Peripheral Clock 17 Status */
+#define PMC_PCSR0_PID18 (0x1u << 18) /**< \brief (PMC_PCSR0) Peripheral Clock 18 Status */
+#define PMC_PCSR0_PID19 (0x1u << 19) /**< \brief (PMC_PCSR0) Peripheral Clock 19 Status */
+#define PMC_PCSR0_PID20 (0x1u << 20) /**< \brief (PMC_PCSR0) Peripheral Clock 20 Status */
+#define PMC_PCSR0_PID21 (0x1u << 21) /**< \brief (PMC_PCSR0) Peripheral Clock 21 Status */
+#define PMC_PCSR0_PID22 (0x1u << 22) /**< \brief (PMC_PCSR0) Peripheral Clock 22 Status */
+#define PMC_PCSR0_PID23 (0x1u << 23) /**< \brief (PMC_PCSR0) Peripheral Clock 23 Status */
+#define PMC_PCSR0_PID24 (0x1u << 24) /**< \brief (PMC_PCSR0) Peripheral Clock 24 Status */
+#define PMC_PCSR0_PID25 (0x1u << 25) /**< \brief (PMC_PCSR0) Peripheral Clock 25 Status */
+#define PMC_PCSR0_PID26 (0x1u << 26) /**< \brief (PMC_PCSR0) Peripheral Clock 26 Status */
+#define PMC_PCSR0_PID27 (0x1u << 27) /**< \brief (PMC_PCSR0) Peripheral Clock 27 Status */
+#define PMC_PCSR0_PID28 (0x1u << 28) /**< \brief (PMC_PCSR0) Peripheral Clock 28 Status */
+#define PMC_PCSR0_PID29 (0x1u << 29) /**< \brief (PMC_PCSR0) Peripheral Clock 29 Status */
+#define PMC_PCSR0_PID30 (0x1u << 30) /**< \brief (PMC_PCSR0) Peripheral Clock 30 Status */
+#define PMC_PCSR0_PID31 (0x1u << 31) /**< \brief (PMC_PCSR0) Peripheral Clock 31 Status */
 /* -------- CKGR_UCKR : (PMC Offset: 0x001C) UTMI Clock Register -------- */
 #define CKGR_UCKR_UPLLEN (0x1u << 16) /**< \brief (CKGR_UCKR) UTMI PLL Enable */
 #define CKGR_UCKR_UPLLCOUNT_Pos 20
@@ -234,7 +327,7 @@ typedef struct {
 #define PMC_SR_PCKRDY1 (0x1u << 9) /**< \brief (PMC_SR) Programmable Clock Ready Status */
 #define PMC_SR_PCKRDY2 (0x1u << 10) /**< \brief (PMC_SR) Programmable Clock Ready Status */
 #define PMC_SR_MOSCSELS (0x1u << 16) /**< \brief (PMC_SR) Main Oscillator Selection Status */
-#define PMC_SR_MOSCRCS (0x1u << 17) /**< \brief (PMC_SR) 12MHz RC Oscillator stabilized */
+#define PMC_SR_MOSCRCS (0x1u << 17) /**< \brief (PMC_SR) 12 MHz RC Oscillator Status */
 #define PMC_SR_CFDEV (0x1u << 18) /**< \brief (PMC_SR) Clock Failure Detector Event */
 #define PMC_SR_CFDS (0x1u << 19) /**< \brief (PMC_SR) Clock Failure Detector Status */
 #define PMC_SR_FOS (0x1u << 20) /**< \brief (PMC_SR) Clock Failure Detector Fault Output Status */
@@ -265,7 +358,6 @@ typedef struct {
 #define PMC_FSMR_FSTT13 (0x1u << 13) /**< \brief (PMC_FSMR) Fast Startup Input Enable 13 */
 #define PMC_FSMR_FSTT14 (0x1u << 14) /**< \brief (PMC_FSMR) Fast Startup Input Enable 14 */
 #define PMC_FSMR_FSTT15 (0x1u << 15) /**< \brief (PMC_FSMR) Fast Startup Input Enable 15 */
-#define PMC_FSMR_RTTAL (0x1u << 16) /**< \brief (PMC_FSMR) RTT Alarm Enable */
 #define PMC_FSMR_RTCAL (0x1u << 17) /**< \brief (PMC_FSMR) RTC Alarm Enable */
 #define PMC_FSMR_USBAL (0x1u << 18) /**< \brief (PMC_FSMR) USB Alarm Enable */
 #define PMC_FSMR_LPM (0x1u << 20) /**< \brief (PMC_FSMR) Low-power Mode */
@@ -318,58 +410,6 @@ typedef struct {
 #define PMC_VERSION_VERSION_Msk (0xfffu << PMC_VERSION_VERSION_Pos) /**< \brief (PMC_VERSION) Version of the Hardware Module */
 #define PMC_VERSION_MFN_Pos 16
 #define PMC_VERSION_MFN_Msk (0x7u << PMC_VERSION_MFN_Pos) /**< \brief (PMC_VERSION) Metal Fix Number */
-/* -------- PMC_PCR : (PMC Offset: 0x010C) Peripheral Control Register -------- */
-#define PMC_PCR_PID_Pos 0
-#define PMC_PCR_PID_Msk (0x7fu << PMC_PCR_PID_Pos) /**< \brief (PMC_PCR) Peripheral ID */
-#define PMC_PCR_PID(value) ((PMC_PCR_PID_Msk & ((value) << PMC_PCR_PID_Pos)))
-#define PMC_PCR_GCKCSS_Pos 8
-#define PMC_PCR_GCKCSS_Msk (0x7u << PMC_PCR_GCKCSS_Pos) /**< \brief (PMC_PCR) GCK Clock Source Selection */
-#define PMC_PCR_GCKCSS(value) ((PMC_PCR_GCKCSS_Msk & ((value) << PMC_PCR_GCKCSS_Pos)))
-#define   PMC_PCR_GCKCSS_SLOW_CLK (0x0u << 8) /**< \brief (PMC_PCR) Slow clock is selected */
-#define   PMC_PCR_GCKCSS_MAIN_CLK (0x1u << 8) /**< \brief (PMC_PCR) Main clock is selected */
-#define   PMC_PCR_GCKCSS_PLLA_CLK (0x2u << 8) /**< \brief (PMC_PCR) PLLACK is selected */
-#define   PMC_PCR_GCKCSS_UPLL_CLK (0x3u << 8) /**< \brief (PMC_PCR) UPLL Clock is selected */
-#define   PMC_PCR_GCKCSS_MCK_CLK (0x4u << 8) /**< \brief (PMC_PCR) Master Clock is selected */
-#define   PMC_PCR_GCKCSS_AUDIO_CLK (0x5u << 8) /**< \brief (PMC_PCR) Audio PLL clock is selected */
-#define PMC_PCR_CMD (0x1u << 12) /**< \brief (PMC_PCR) Command */
-#define PMC_PCR_GCKDIV_Pos 20
-#define PMC_PCR_GCKDIV_Msk (0xffu << PMC_PCR_GCKDIV_Pos) /**< \brief (PMC_PCR) Generated Clock Division Ratio */
-#define PMC_PCR_GCKDIV(value) ((PMC_PCR_GCKDIV_Msk & ((value) << PMC_PCR_GCKDIV_Pos)))
-#define PMC_PCR_EN (0x1u << 28) /**< \brief (PMC_PCR) Enable */
-#define PMC_PCR_GCKEN (0x1u << 29) /**< \brief (PMC_PCR) GCK Enable */
-/* -------- PMC_OCR : (PMC Offset: 0x0110) Oscillator Calibration Register -------- */
-#define PMC_OCR_CAL_Pos 0
-#define PMC_OCR_CAL_Msk (0x7fu << PMC_OCR_CAL_Pos) /**< \brief (PMC_OCR) 12 MHz RC Oscillator Calibration Bits */
-#define PMC_OCR_CAL(value) ((PMC_OCR_CAL_Msk & ((value) << PMC_OCR_CAL_Pos)))
-#define PMC_OCR_SEL (0x1u << 7) /**< \brief (PMC_OCR) Selection of RC Oscillator Calibration Bits */
-/* -------- PMC_SLPWK_AIPR : (PMC Offset: 0x0144) SleepWalking Activity In Progress Register -------- */
-#define PMC_SLPWK_AIPR_AIP (0x1u << 0) /**< \brief (PMC_SLPWK_AIPR) Activity In Progress */
-/* -------- PMC_SLPWKCR : (PMC Offset: 0x0148) SleepWalking Control Register -------- */
-#define PMC_SLPWKCR_PID_Pos 0
-#define PMC_SLPWKCR_PID_Msk (0x7fu << PMC_SLPWKCR_PID_Pos) /**< \brief (PMC_SLPWKCR) Peripheral ID */
-#define PMC_SLPWKCR_PID(value) ((PMC_SLPWKCR_PID_Msk & ((value) << PMC_SLPWKCR_PID_Pos)))
-#define PMC_SLPWKCR_CMD (0x1u << 12) /**< \brief (PMC_SLPWKCR) Command */
-#define PMC_SLPWKCR_ASR (0x1u << 16) /**< \brief (PMC_SLPWKCR) Activity Status Register */
-#define PMC_SLPWKCR_SLPWKSR (0x1u << 28) /**< \brief (PMC_SLPWKCR) SleepWalking Status Register */
-/* -------- PMC_AUDIO_PLL0 : (PMC Offset: 0x014C) Audio PLL Register 0 -------- */
-#define PMC_AUDIO_PLL0_PLLEN (0x1u << 0) /**< \brief (PMC_AUDIO_PLL0) PLL Enable */
-#define PMC_AUDIO_PLL0_PADEN (0x1u << 1) /**< \brief (PMC_AUDIO_PLL0) Pad Clock Enable */
-#define PMC_AUDIO_PLL0_PMCEN (0x1u << 2) /**< \brief (PMC_AUDIO_PLL0) PMC Clock Enable */
-#define PMC_AUDIO_PLL0_RESETN (0x1u << 3) /**< \brief (PMC_AUDIO_PLL0) Audio PLL Reset */
-#define PMC_AUDIO_PLL0_ND_Pos 8
-#define PMC_AUDIO_PLL0_ND_Msk (0x7fu << PMC_AUDIO_PLL0_ND_Pos) /**< \brief (PMC_AUDIO_PLL0) Loop Divider Ratio */
-#define PMC_AUDIO_PLL0_ND(value) ((PMC_AUDIO_PLL0_ND_Msk & ((value) << PMC_AUDIO_PLL0_ND_Pos)))
-#define PMC_AUDIO_PLL0_QDPMC_Pos 16
-#define PMC_AUDIO_PLL0_QDPMC_Msk (0x7fu << PMC_AUDIO_PLL0_QDPMC_Pos) /**< \brief (PMC_AUDIO_PLL0) Output Divider Ratio for PMC Clock */
-#define PMC_AUDIO_PLL0_QDPMC(value) ((PMC_AUDIO_PLL0_QDPMC_Msk & ((value) << PMC_AUDIO_PLL0_QDPMC_Pos)))
-/* -------- PMC_AUDIO_PLL1 : (PMC Offset: 0x0150) Audio PLL Register 1 -------- */
-#define PMC_AUDIO_PLL1_FRACR_Pos 0
-#define PMC_AUDIO_PLL1_FRACR_Msk (0x3fffffu << PMC_AUDIO_PLL1_FRACR_Pos) /**< \brief (PMC_AUDIO_PLL1) Fractional Loop Divider Setting */
-#define PMC_AUDIO_PLL1_FRACR(value) ((PMC_AUDIO_PLL1_FRACR_Msk & ((value) << PMC_AUDIO_PLL1_FRACR_Pos)))
-#define PMC_AUDIO_PLL1_QDAUDIO_Pos 24
-#define PMC_AUDIO_PLL1_QDAUDIO_Msk (0x7fu << PMC_AUDIO_PLL1_QDAUDIO_Pos) /**< \brief (PMC_AUDIO_PLL1) Output Divider Ratio for Pad Clock */
-#define PMC_AUDIO_PLL1_QDAUDIO(value) ((PMC_AUDIO_PLL1_QDAUDIO_Msk & ((value) << PMC_AUDIO_PLL1_QDAUDIO_Pos)))
-
 /* -------- PMC_PCER1 : (PMC Offset: 0x0100) Peripheral Clock Enable Register 1 -------- */
 #define PMC_PCER1_PID32 (0x1u << 0) /**< \brief (PMC_PCER1) Peripheral Clock 32 Enable */
 #define PMC_PCER1_PID33 (0x1u << 1) /**< \brief (PMC_PCER1) Peripheral Clock 33 Enable */
@@ -469,6 +509,64 @@ typedef struct {
 #define PMC_PCSR1_PID61 (0x1u << 29) /**< \brief (PMC_PCSR1) Peripheral Clock 61 Status */
 #define PMC_PCSR1_PID62 (0x1u << 30) /**< \brief (PMC_PCSR1) Peripheral Clock 62 Status */
 #define PMC_PCSR1_PID63 (0x1u << 31) /**< \brief (PMC_PCSR1) Peripheral Clock 63 Status */
+/* -------- PMC_PCR : (PMC Offset: 0x010C) Peripheral Control Register -------- */
+#define PMC_PCR_PID_Pos 0
+#define PMC_PCR_PID_Msk (0x7fu << PMC_PCR_PID_Pos) /**< \brief (PMC_PCR) Peripheral ID */
+#define PMC_PCR_PID(value) ((PMC_PCR_PID_Msk & ((value) << PMC_PCR_PID_Pos)))
+#define PMC_PCR_GCKCSS_Pos 8
+#define PMC_PCR_GCKCSS_Msk (0x7u << PMC_PCR_GCKCSS_Pos) /**< \brief (PMC_PCR) GCK Clock Source Selection */
+#define PMC_PCR_GCKCSS(value) ((PMC_PCR_GCKCSS_Msk & ((value) << PMC_PCR_GCKCSS_Pos)))
+#define   PMC_PCR_GCKCSS_SLOW_CLK (0x0u << 8) /**< \brief (PMC_PCR) Slow clock is selected */
+#define   PMC_PCR_GCKCSS_MAIN_CLK (0x1u << 8) /**< \brief (PMC_PCR) Main clock is selected */
+#define   PMC_PCR_GCKCSS_PLLA_CLK (0x2u << 8) /**< \brief (PMC_PCR) PLLACK is selected */
+#define   PMC_PCR_GCKCSS_UPLL_CLK (0x3u << 8) /**< \brief (PMC_PCR) UPLL Clock is selected */
+#define   PMC_PCR_GCKCSS_MCK_CLK (0x4u << 8) /**< \brief (PMC_PCR) Master Clock is selected */
+#define   PMC_PCR_GCKCSS_AUDIO_CLK (0x5u << 8) /**< \brief (PMC_PCR) Audio PLL clock is selected */
+#define PMC_PCR_CMD (0x1u << 12) /**< \brief (PMC_PCR) Command */
+#define PMC_PCR_DIV_Pos 16
+#define PMC_PCR_DIV_Msk (0x3u << PMC_PCR_DIV_Pos) /**< \brief (PMC_PCR) Divisor Value */
+#define PMC_PCR_DIV(value) ((PMC_PCR_DIV_Msk & ((value) << PMC_PCR_DIV_Pos)))
+#define   PMC_PCR_DIV_PERIPH_DIV_MCK (0x0u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK */
+#define   PMC_PCR_DIV_PERIPH_DIV2_MCK (0x1u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/2 */
+#define   PMC_PCR_DIV_PERIPH_DIV4_MCK (0x2u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/4 */
+#define   PMC_PCR_DIV_PERIPH_DIV8_MCK (0x3u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/8 */
+#define PMC_PCR_GCKDIV_Pos 20
+#define PMC_PCR_GCKDIV_Msk (0xffu << PMC_PCR_GCKDIV_Pos) /**< \brief (PMC_PCR) Generated Clock Division Ratio */
+#define PMC_PCR_GCKDIV(value) ((PMC_PCR_GCKDIV_Msk & ((value) << PMC_PCR_GCKDIV_Pos)))
+#define PMC_PCR_EN (0x1u << 28) /**< \brief (PMC_PCR) Enable */
+#define PMC_PCR_GCKEN (0x1u << 29) /**< \brief (PMC_PCR) GCK Enable */
+/* -------- PMC_OCR : (PMC Offset: 0x0110) Oscillator Calibration Register -------- */
+#define PMC_OCR_CAL_Pos 0
+#define PMC_OCR_CAL_Msk (0x7fu << PMC_OCR_CAL_Pos) /**< \brief (PMC_OCR) 12 MHz RC Oscillator Calibration Bits */
+#define PMC_OCR_CAL(value) ((PMC_OCR_CAL_Msk & ((value) << PMC_OCR_CAL_Pos)))
+#define PMC_OCR_SEL (0x1u << 7) /**< \brief (PMC_OCR) Selection of RC Oscillator Calibration Bits */
+/* -------- PMC_SLPWK_AIPR : (PMC Offset: 0x0144) SleepWalking Activity In Progress Register -------- */
+#define PMC_SLPWK_AIPR_AIP (0x1u << 0) /**< \brief (PMC_SLPWK_AIPR) Activity In Progress */
+/* -------- PMC_SLPWKCR : (PMC Offset: 0x0148) SleepWalking Control Register -------- */
+#define PMC_SLPWKCR_PID_Pos 0
+#define PMC_SLPWKCR_PID_Msk (0x7fu << PMC_SLPWKCR_PID_Pos) /**< \brief (PMC_SLPWKCR) Peripheral ID */
+#define PMC_SLPWKCR_PID(value) ((PMC_SLPWKCR_PID_Msk & ((value) << PMC_SLPWKCR_PID_Pos)))
+#define PMC_SLPWKCR_CMD (0x1u << 12) /**< \brief (PMC_SLPWKCR) Command */
+#define PMC_SLPWKCR_ASR (0x1u << 16) /**< \brief (PMC_SLPWKCR) Activity Status Register */
+#define PMC_SLPWKCR_SLPWKSR (0x1u << 28) /**< \brief (PMC_SLPWKCR) SleepWalking Status Register */
+/* -------- PMC_AUDIO_PLL0 : (PMC Offset: 0x014C) Audio PLL Register 0 -------- */
+#define PMC_AUDIO_PLL0_PLLEN (0x1u << 0) /**< \brief (PMC_AUDIO_PLL0) PLL Enable */
+#define PMC_AUDIO_PLL0_PADEN (0x1u << 1) /**< \brief (PMC_AUDIO_PLL0) Pad Clock Enable */
+#define PMC_AUDIO_PLL0_PMCEN (0x1u << 2) /**< \brief (PMC_AUDIO_PLL0) PMC Clock Enable */
+#define PMC_AUDIO_PLL0_RESETN (0x1u << 3) /**< \brief (PMC_AUDIO_PLL0) Audio PLL Reset */
+#define PMC_AUDIO_PLL0_ND_Pos 8
+#define PMC_AUDIO_PLL0_ND_Msk (0x7fu << PMC_AUDIO_PLL0_ND_Pos) /**< \brief (PMC_AUDIO_PLL0) Loop Divider Ratio */
+#define PMC_AUDIO_PLL0_ND(value) ((PMC_AUDIO_PLL0_ND_Msk & ((value) << PMC_AUDIO_PLL0_ND_Pos)))
+#define PMC_AUDIO_PLL0_QDPMC_Pos 16
+#define PMC_AUDIO_PLL0_QDPMC_Msk (0x7fu << PMC_AUDIO_PLL0_QDPMC_Pos) /**< \brief (PMC_AUDIO_PLL0) Output Divider Ratio for PMC Clock */
+#define PMC_AUDIO_PLL0_QDPMC(value) ((PMC_AUDIO_PLL0_QDPMC_Msk & ((value) << PMC_AUDIO_PLL0_QDPMC_Pos)))
+/* -------- PMC_AUDIO_PLL1 : (PMC Offset: 0x0150) Audio PLL Register 1 -------- */
+#define PMC_AUDIO_PLL1_FRACR_Pos 0
+#define PMC_AUDIO_PLL1_FRACR_Msk (0x3fffffu << PMC_AUDIO_PLL1_FRACR_Pos) /**< \brief (PMC_AUDIO_PLL1) Fractional Loop Divider Setting */
+#define PMC_AUDIO_PLL1_FRACR(value) ((PMC_AUDIO_PLL1_FRACR_Msk & ((value) << PMC_AUDIO_PLL1_FRACR_Pos)))
+#define PMC_AUDIO_PLL1_QDAUDIO_Pos 24
+#define PMC_AUDIO_PLL1_QDAUDIO_Msk (0x7fu << PMC_AUDIO_PLL1_QDAUDIO_Pos) /**< \brief (PMC_AUDIO_PLL1) Output Divider Ratio for Pad Clock */
+#define PMC_AUDIO_PLL1_QDAUDIO(value) ((PMC_AUDIO_PLL1_QDAUDIO_Msk & ((value) << PMC_AUDIO_PLL1_QDAUDIO_Pos)))
 
 /*@}*/
 

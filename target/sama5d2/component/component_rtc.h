@@ -220,6 +220,30 @@ typedef struct {
 #define RTC_VER_NVCAL (0x1u << 1) /**< \brief (RTC_VER) Non-valid Calendar */
 #define RTC_VER_NVTIMALR (0x1u << 2) /**< \brief (RTC_VER) Non-valid Time Alarm */
 #define RTC_VER_NVCALALR (0x1u << 3) /**< \brief (RTC_VER) Non-valid Calendar Alarm */
+/* -------- RTC_TSTR : (RTC Offset: N/A) TimeStamp Time Register 0 -------- */
+#define RTC_TSTR_SEC_Pos 0
+#define RTC_TSTR_SEC_Msk (0x7fu << RTC_TSTR_SEC_Pos) /**< \brief (RTC_TSTR) Seconds of the Tamper */
+#define RTC_TSTR_MIN_Pos 8
+#define RTC_TSTR_MIN_Msk (0x7fu << RTC_TSTR_MIN_Pos) /**< \brief (RTC_TSTR) Minutes of the Tamper */
+#define RTC_TSTR_HOUR_Pos 16
+#define RTC_TSTR_HOUR_Msk (0x3fu << RTC_TSTR_HOUR_Pos) /**< \brief (RTC_TSTR) Hours of the Tamper */
+#define RTC_TSTR_AMPM (0x1u << 22) /**< \brief (RTC_TSTR) AM/PM Indicator of the Tamper */
+#define RTC_TSTR_TEVCNT_Pos 24
+#define RTC_TSTR_TEVCNT_Msk (0xfu << RTC_TSTR_TEVCNT_Pos) /**< \brief (RTC_TSTR) Tamper Events Counter */
+#define RTC_TSTR_BACKUP (0x1u << 31) /**< \brief (RTC_TSTR) System Mode of the Tamper */
+/* -------- RTC_TSDR : (RTC Offset: N/A) TimeStamp Date Register 0 -------- */
+#define RTC_TSDR_CENT_Pos 0
+#define RTC_TSDR_CENT_Msk (0x7fu << RTC_TSDR_CENT_Pos) /**< \brief (RTC_TSDR) Century of the Tamper */
+#define RTC_TSDR_YEAR_Pos 8
+#define RTC_TSDR_YEAR_Msk (0xffu << RTC_TSDR_YEAR_Pos) /**< \brief (RTC_TSDR) Year of the Tamper */
+#define RTC_TSDR_MONTH_Pos 16
+#define RTC_TSDR_MONTH_Msk (0x1fu << RTC_TSDR_MONTH_Pos) /**< \brief (RTC_TSDR) Month of the Tamper */
+#define RTC_TSDR_DAY_Pos 21
+#define RTC_TSDR_DAY_Msk (0x7u << RTC_TSDR_DAY_Pos) /**< \brief (RTC_TSDR) Day of the Tamper */
+#define RTC_TSDR_DATE_Pos 24
+#define RTC_TSDR_DATE_Msk (0x3fu << RTC_TSDR_DATE_Pos) /**< \brief (RTC_TSDR) Date of the Tamper */
+#define RTC_TSDR_UTC_TIME_Pos 0
+#define RTC_TSDR_UTC_TIME_Msk (0xffffffffu << RTC_TSDR_UTC_TIME_Pos) /**< \brief (RTC_TSDR) Time of the Tamper (UTC format) */
 /* -------- RTC_TSSR : (RTC Offset: N/A) TimeStamp Source Register 0 -------- */
 #define RTC_TSSR_SHLDM (0x1u << 0) /**< \brief (RTC_TSSR) Shield Monitor */
 #define RTC_TSSR_DBLFM (0x1u << 1) /**< \brief (RTC_TSSR) Double Frequency Monitor */
@@ -245,14 +269,6 @@ typedef struct {
 #define RTC_TSSR_DET5 (0x1u << 21) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
 #define RTC_TSSR_DET6 (0x1u << 22) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
 #define RTC_TSSR_DET7 (0x1u << 23) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET8 (0x1u << 24) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET9 (0x1u << 25) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET10 (0x1u << 26) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET11 (0x1u << 27) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET12 (0x1u << 28) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET13 (0x1u << 29) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET14 (0x1u << 30) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
-#define RTC_TSSR_DET15 (0x1u << 31) /**< \brief (RTC_TSSR) PIOBU Intrusion Detector */
 /* -------- RTC_MSR : (RTC Offset: 0xD0) Milliseconds Register -------- */
 #define RTC_MSR_MS_Pos 0
 #define RTC_MSR_MS_Msk (0x3ffu << RTC_MSR_MS_Pos) /**< \brief (RTC_MSR) Number of 1/1024 seconds elapsed within 1 second */

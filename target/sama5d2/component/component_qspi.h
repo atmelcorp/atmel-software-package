@@ -81,20 +81,13 @@ typedef struct {
 #define QSPI_MR_CSMODE_Pos 4
 #define QSPI_MR_CSMODE_Msk (0x3u << QSPI_MR_CSMODE_Pos) /**< \brief (QSPI_MR) Chip Select Mode */
 #define QSPI_MR_CSMODE(value) ((QSPI_MR_CSMODE_Msk & ((value) << QSPI_MR_CSMODE_Pos)))
-#define   QSPI_MR_CSMODE_NOT_RELOADED (0x0u << 4) /**< \brief (QSPI_MR) The chip select is deasserted if TD has not been reloaded before the end of the current transfer. */
-#define   QSPI_MR_CSMODE_LASTXFER (0x1u << 4) /**< \brief (QSPI_MR) The chip select is deasserted when the bit LASTXFER is written at 1 and the character written in TD has been transferred. */
+#define   QSPI_MR_CSMODE_NOT_RELOADED (0x0u << 4) /**< \brief (QSPI_MR) The chip select is deasserted if QSPI_TDR.TD has not been reloaded before the end of the current transfer. */
+#define   QSPI_MR_CSMODE_LASTXFER (0x1u << 4) /**< \brief (QSPI_MR) The chip select is deasserted when the bit LASTXFER is written at 1 and the character written in QSPI_TDR.TD has been transferred. */
 #define   QSPI_MR_CSMODE_SYSTEMATICALLY (0x2u << 4) /**< \brief (QSPI_MR) The chip select is deasserted systematically after each transfer. */
 #define QSPI_MR_NBBITS_Pos 8
 #define QSPI_MR_NBBITS_Msk (0xfu << QSPI_MR_NBBITS_Pos) /**< \brief (QSPI_MR) Number Of Bits Per Transfer */
 #define QSPI_MR_NBBITS(value) ((QSPI_MR_NBBITS_Msk & ((value) << QSPI_MR_NBBITS_Pos)))
 #define   QSPI_MR_NBBITS_8_BIT (0x0u << 8) /**< \brief (QSPI_MR) 8 bits for transfer */
-#define   QSPI_MR_NBBITS_9_BIT (0x1u << 8) /**< \brief (QSPI_MR) 9 bits for transfer */
-#define   QSPI_MR_NBBITS_10_BIT (0x2u << 8) /**< \brief (QSPI_MR) 10 bits for transfer */
-#define   QSPI_MR_NBBITS_11_BIT (0x3u << 8) /**< \brief (QSPI_MR) 11 bits for transfer */
-#define   QSPI_MR_NBBITS_12_BIT (0x4u << 8) /**< \brief (QSPI_MR) 12 bits for transfer */
-#define   QSPI_MR_NBBITS_13_BIT (0x5u << 8) /**< \brief (QSPI_MR) 13 bits for transfer */
-#define   QSPI_MR_NBBITS_14_BIT (0x6u << 8) /**< \brief (QSPI_MR) 14 bits for transfer */
-#define   QSPI_MR_NBBITS_15_BIT (0x7u << 8) /**< \brief (QSPI_MR) 15 bits for transfer */
 #define   QSPI_MR_NBBITS_16_BIT (0x8u << 8) /**< \brief (QSPI_MR) 16 bits for transfer */
 #define QSPI_MR_DLYBCT_Pos 16
 #define QSPI_MR_DLYBCT_Msk (0xffu << QSPI_MR_DLYBCT_Pos) /**< \brief (QSPI_MR) Delay Between Consecutive Transfers */

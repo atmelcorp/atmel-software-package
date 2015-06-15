@@ -57,12 +57,19 @@ typedef struct {
   __IO uint32_t TWIHS_FILTR;   /**< \brief (Twihs Offset: 0x44) Filter Register */
   __I  uint32_t Reserved3[1];
   __IO uint32_t TWIHS_SWMR;    /**< \brief (Twihs Offset: 0x4C) SleepWalking Matching Register */
-  __I  uint32_t Reserved4[32];
+  __IO uint32_t TWIHS_FMR;     /**< \brief (Twihs Offset: 0x50) FIFO Mode Register */
+  __I  uint32_t TWIHS_FLR;     /**< \brief (Twihs Offset: 0x54) FIFO Level Register */
+  __I  uint32_t Reserved4[2];
+  __I  uint32_t TWIHS_FSR;     /**< \brief (Twihs Offset: 0x60) FIFO Status Register */
+  __O  uint32_t TWIHS_FIER;    /**< \brief (Twihs Offset: 0x64) FIFO Interrupt Enable Register */
+  __O  uint32_t TWIHS_FIDR;    /**< \brief (Twihs Offset: 0x68) FIFO Interrupt Disable Register */
+  __I  uint32_t TWIHS_FIMR;    /**< \brief (Twihs Offset: 0x6C) FIFO Interrupt Mask Register */
+  __I  uint32_t Reserved5[24];
   __I  uint32_t TWIHS_DR;      /**< \brief (Twihs Offset: 0xD0) Debug Register */
-  __I  uint32_t Reserved5[4];
+  __I  uint32_t Reserved6[4];
   __IO uint32_t TWIHS_WPMR;    /**< \brief (Twihs Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t TWIHS_WPSR;    /**< \brief (Twihs Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved6[4];
+  __I  uint32_t Reserved7[4];
   __I  uint32_t TWIHS_VER;     /**< \brief (Twihs Offset: 0xFC) Version Register */
 } Twihs;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
@@ -85,8 +92,10 @@ typedef struct {
 #define TWIHS_CR_CLEAR (0x1u << 15) /**< \brief (TWIHS_CR) Bus CLEAR Command */
 #define TWIHS_CR_ACMEN (0x1u << 16) /**< \brief (TWIHS_CR) Alternative Command Mode Enable */
 #define TWIHS_CR_ACMDIS (0x1u << 17) /**< \brief (TWIHS_CR) Alternative Command Mode Disable */
-#define TWIHS_CR_THRCLR (0x1u << 24) /**< \brief (TWIHS_CR) Transmit Holding Register clear */
-#define TWIHS_CR_LOCKCLR (0x1u << 26) /**< \brief (TWIHS_CR) FSM Lock Clear */
+#define TWIHS_CR_THRCLR (0x1u << 24) /**< \brief (TWIHS_CR) Transmit Holding Register Clear */
+#define TWIHS_CR_LOCKCLR (0x1u << 26) /**< \brief (TWIHS_CR) Lock Clear */
+#define TWIHS_CR_FIFOEN (0x1u << 28) /**< \brief (TWIHS_CR) FIFO Enable */
+#define TWIHS_CR_FIFODIS (0x1u << 29) /**< \brief (TWIHS_CR) FIFO Disable */
 /* -------- TWIHS_MMR : (TWIHS Offset: 0x04) Master Mode Register -------- */
 #define TWIHS_MMR_IADRSZ_Pos 8
 #define TWIHS_MMR_IADRSZ_Msk (0x3u << TWIHS_MMR_IADRSZ_Pos) /**< \brief (TWIHS_MMR) Internal Device Address Size */
@@ -209,10 +218,30 @@ typedef struct {
 /* -------- TWIHS_RHR : (TWIHS Offset: 0x30) Receive Holding Register -------- */
 #define TWIHS_RHR_RXDATA_Pos 0
 #define TWIHS_RHR_RXDATA_Msk (0xffu << TWIHS_RHR_RXDATA_Pos) /**< \brief (TWIHS_RHR) Master or Slave Receive Holding Data */
+#define TWIHS_RHR_RXDATA0_Pos 0
+#define TWIHS_RHR_RXDATA0_Msk (0xffu << TWIHS_RHR_RXDATA0_Pos) /**< \brief (TWIHS_RHR) Master or Slave Receive Holding Data 0 */
+#define TWIHS_RHR_RXDATA1_Pos 8
+#define TWIHS_RHR_RXDATA1_Msk (0xffu << TWIHS_RHR_RXDATA1_Pos) /**< \brief (TWIHS_RHR) Master or Slave Receive Holding Data 1 */
+#define TWIHS_RHR_RXDATA2_Pos 16
+#define TWIHS_RHR_RXDATA2_Msk (0xffu << TWIHS_RHR_RXDATA2_Pos) /**< \brief (TWIHS_RHR) Master or Slave Receive Holding Data 2 */
+#define TWIHS_RHR_RXDATA3_Pos 24
+#define TWIHS_RHR_RXDATA3_Msk (0xffu << TWIHS_RHR_RXDATA3_Pos) /**< \brief (TWIHS_RHR) Master or Slave Receive Holding Data 3 */
 /* -------- TWIHS_THR : (TWIHS Offset: 0x34) Transmit Holding Register -------- */
 #define TWIHS_THR_TXDATA_Pos 0
 #define TWIHS_THR_TXDATA_Msk (0xffu << TWIHS_THR_TXDATA_Pos) /**< \brief (TWIHS_THR) Master or Slave Transmit Holding Data */
 #define TWIHS_THR_TXDATA(value) ((TWIHS_THR_TXDATA_Msk & ((value) << TWIHS_THR_TXDATA_Pos)))
+#define TWIHS_THR_TXDATA0_Pos 0
+#define TWIHS_THR_TXDATA0_Msk (0xffu << TWIHS_THR_TXDATA0_Pos) /**< \brief (TWIHS_THR) Master or Slave Transmit Holding Data 0 */
+#define TWIHS_THR_TXDATA0(value) ((TWIHS_THR_TXDATA0_Msk & ((value) << TWIHS_THR_TXDATA0_Pos)))
+#define TWIHS_THR_TXDATA1_Pos 8
+#define TWIHS_THR_TXDATA1_Msk (0xffu << TWIHS_THR_TXDATA1_Pos) /**< \brief (TWIHS_THR) Master or Slave Transmit Holding Data 1 */
+#define TWIHS_THR_TXDATA1(value) ((TWIHS_THR_TXDATA1_Msk & ((value) << TWIHS_THR_TXDATA1_Pos)))
+#define TWIHS_THR_TXDATA2_Pos 16
+#define TWIHS_THR_TXDATA2_Msk (0xffu << TWIHS_THR_TXDATA2_Pos) /**< \brief (TWIHS_THR) Master or Slave Transmit Holding Data 2 */
+#define TWIHS_THR_TXDATA2(value) ((TWIHS_THR_TXDATA2_Msk & ((value) << TWIHS_THR_TXDATA2_Pos)))
+#define TWIHS_THR_TXDATA3_Pos 24
+#define TWIHS_THR_TXDATA3_Msk (0xffu << TWIHS_THR_TXDATA3_Pos) /**< \brief (TWIHS_THR) Master or Slave Transmit Holding Data 3 */
+#define TWIHS_THR_TXDATA3(value) ((TWIHS_THR_TXDATA3_Msk & ((value) << TWIHS_THR_TXDATA3_Pos)))
 /* -------- TWIHS_SMBTR : (TWIHS Offset: 0x38) SMBus Timing Register -------- */
 #define TWIHS_SMBTR_PRESC_Pos 0
 #define TWIHS_SMBTR_PRESC_Msk (0xfu << TWIHS_SMBTR_PRESC_Pos) /**< \brief (TWIHS_SMBTR) SMBus Clock Prescaler */
@@ -257,6 +286,66 @@ typedef struct {
 #define TWIHS_SWMR_DATAM_Pos 24
 #define TWIHS_SWMR_DATAM_Msk (0xffu << TWIHS_SWMR_DATAM_Pos) /**< \brief (TWIHS_SWMR) Data Match */
 #define TWIHS_SWMR_DATAM(value) ((TWIHS_SWMR_DATAM_Msk & ((value) << TWIHS_SWMR_DATAM_Pos)))
+/* -------- TWIHS_FMR : (TWIHS Offset: 0x50) FIFO Mode Register -------- */
+#define TWIHS_FMR_TXRDYM_Pos 0
+#define TWIHS_FMR_TXRDYM_Msk (0x3u << TWIHS_FMR_TXRDYM_Pos) /**< \brief (TWIHS_FMR) Transmitter Ready Mode */
+#define TWIHS_FMR_TXRDYM(value) ((TWIHS_FMR_TXRDYM_Msk & ((value) << TWIHS_FMR_TXRDYM_Pos)))
+#define   TWIHS_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (TWIHS_FMR) TXRDY will be at level '1' when at least one data can be written in the Transmit FIFO */
+#define   TWIHS_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (TWIHS_FMR) TXRDY will be at level '1' when at least two data can be written in the Transmit FIFO */
+#define   TWIHS_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (TWIHS_FMR) TXRDY will be at level '1' when at least four data can be written in the Transmit FIFO */
+#define TWIHS_FMR_RXRDYM_Pos 4
+#define TWIHS_FMR_RXRDYM_Msk (0x3u << TWIHS_FMR_RXRDYM_Pos) /**< \brief (TWIHS_FMR) Receiver Ready Mode */
+#define TWIHS_FMR_RXRDYM(value) ((TWIHS_FMR_RXRDYM_Msk & ((value) << TWIHS_FMR_RXRDYM_Pos)))
+#define   TWIHS_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (TWIHS_FMR) RXRDY will be at level '1' when at least one unread data is in the Receive FIFO */
+#define   TWIHS_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (TWIHS_FMR) RXRDY will be at level '1' when at least two unread data are in the Receive FIFO */
+#define   TWIHS_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (TWIHS_FMR) RXRDY will be at level '1' when at least four unread data are in the Receive FIFO */
+#define TWIHS_FMR_TXFTHRES_Pos 16
+#define TWIHS_FMR_TXFTHRES_Msk (0x3fu << TWIHS_FMR_TXFTHRES_Pos) /**< \brief (TWIHS_FMR) Transmit FIFO Threshold */
+#define TWIHS_FMR_TXFTHRES(value) ((TWIHS_FMR_TXFTHRES_Msk & ((value) << TWIHS_FMR_TXFTHRES_Pos)))
+#define TWIHS_FMR_RXFTHRES_Pos 24
+#define TWIHS_FMR_RXFTHRES_Msk (0x3fu << TWIHS_FMR_RXFTHRES_Pos) /**< \brief (TWIHS_FMR) Receive FIFO Threshold */
+#define TWIHS_FMR_RXFTHRES(value) ((TWIHS_FMR_RXFTHRES_Msk & ((value) << TWIHS_FMR_RXFTHRES_Pos)))
+/* -------- TWIHS_FLR : (TWIHS Offset: 0x54) FIFO Level Register -------- */
+#define TWIHS_FLR_TXFL_Pos 0
+#define TWIHS_FLR_TXFL_Msk (0x3fu << TWIHS_FLR_TXFL_Pos) /**< \brief (TWIHS_FLR) Transmit FIFO Level */
+#define TWIHS_FLR_RXFL_Pos 16
+#define TWIHS_FLR_RXFL_Msk (0x3fu << TWIHS_FLR_RXFL_Pos) /**< \brief (TWIHS_FLR) Receive FIFO Level */
+/* -------- TWIHS_FSR : (TWIHS Offset: 0x60) FIFO Status Register -------- */
+#define TWIHS_FSR_TXFEF (0x1u << 0) /**< \brief (TWIHS_FSR) Transmit FIFO Empty Flag (cleared on read) */
+#define TWIHS_FSR_TXFFF (0x1u << 1) /**< \brief (TWIHS_FSR) Transmit FIFO Full Flag (cleared on read) */
+#define TWIHS_FSR_TXFTHF (0x1u << 2) /**< \brief (TWIHS_FSR) Transmit FIFO Threshold Flag (cleared on read) */
+#define TWIHS_FSR_RXFEF (0x1u << 3) /**< \brief (TWIHS_FSR) Receive FIFO Empty Flag */
+#define TWIHS_FSR_RXFFF (0x1u << 4) /**< \brief (TWIHS_FSR) Receive FIFO Full Flag */
+#define TWIHS_FSR_RXFTHF (0x1u << 5) /**< \brief (TWIHS_FSR) Receive FIFO Threshold Flag */
+#define TWIHS_FSR_TXFPTEF (0x1u << 6) /**< \brief (TWIHS_FSR) Transmit FIFO Pointer Error Flag */
+#define TWIHS_FSR_RXFPTEF (0x1u << 7) /**< \brief (TWIHS_FSR) Receive FIFO Pointer Error Flag */
+/* -------- TWIHS_FIER : (TWIHS Offset: 0x64) FIFO Interrupt Enable Register -------- */
+#define TWIHS_FIER_TXFEF (0x1u << 0) /**< \brief (TWIHS_FIER) TXFEF Interrupt Enable */
+#define TWIHS_FIER_TXFFF (0x1u << 1) /**< \brief (TWIHS_FIER) TXFFF Interrupt Enable */
+#define TWIHS_FIER_TXFTHF (0x1u << 2) /**< \brief (TWIHS_FIER) TXFTHF Interrupt Enable */
+#define TWIHS_FIER_RXFEF (0x1u << 3) /**< \brief (TWIHS_FIER) RXFEF Interrupt Enable */
+#define TWIHS_FIER_RXFFF (0x1u << 4) /**< \brief (TWIHS_FIER) RXFFF Interrupt Enable */
+#define TWIHS_FIER_RXFTHF (0x1u << 5) /**< \brief (TWIHS_FIER) RXFTHF Interrupt Enable */
+#define TWIHS_FIER_TXFPTEF (0x1u << 6) /**< \brief (TWIHS_FIER) TXFPTEF Interrupt Enable */
+#define TWIHS_FIER_RXFPTEF (0x1u << 7) /**< \brief (TWIHS_FIER) RXFPTEF Interrupt Enable */
+/* -------- TWIHS_FIDR : (TWIHS Offset: 0x68) FIFO Interrupt Disable Register -------- */
+#define TWIHS_FIDR_TXFEF (0x1u << 0) /**< \brief (TWIHS_FIDR) TXFEF Interrupt Disable */
+#define TWIHS_FIDR_TXFFF (0x1u << 1) /**< \brief (TWIHS_FIDR) TXFFF Interrupt Disable */
+#define TWIHS_FIDR_TXFTHF (0x1u << 2) /**< \brief (TWIHS_FIDR) TXFTHF Interrupt Disable */
+#define TWIHS_FIDR_RXFEF (0x1u << 3) /**< \brief (TWIHS_FIDR) RXFEF Interrupt Disable */
+#define TWIHS_FIDR_RXFFF (0x1u << 4) /**< \brief (TWIHS_FIDR) RXFFF Interrupt Disable */
+#define TWIHS_FIDR_RXFTHF (0x1u << 5) /**< \brief (TWIHS_FIDR) RXFTHF Interrupt Disable */
+#define TWIHS_FIDR_TXFPTEF (0x1u << 6) /**< \brief (TWIHS_FIDR) TXFPTEF Interrupt Disable */
+#define TWIHS_FIDR_RXFPTEF (0x1u << 7) /**< \brief (TWIHS_FIDR) RXFPTEF Interrupt Disable */
+/* -------- TWIHS_FIMR : (TWIHS Offset: 0x6C) FIFO Interrupt Mask Register -------- */
+#define TWIHS_FIMR_TXFEF (0x1u << 0) /**< \brief (TWIHS_FIMR) TXFEF Interrupt Mask */
+#define TWIHS_FIMR_TXFFF (0x1u << 1) /**< \brief (TWIHS_FIMR) TXFFF Interrupt Mask */
+#define TWIHS_FIMR_TXFTHF (0x1u << 2) /**< \brief (TWIHS_FIMR) TXFTHF Interrupt Mask */
+#define TWIHS_FIMR_RXFEF (0x1u << 3) /**< \brief (TWIHS_FIMR) RXFEF Interrupt Mask */
+#define TWIHS_FIMR_RXFFF (0x1u << 4) /**< \brief (TWIHS_FIMR) RXFFF Interrupt Mask */
+#define TWIHS_FIMR_RXFTHF (0x1u << 5) /**< \brief (TWIHS_FIMR) RXFTHF Interrupt Mask */
+#define TWIHS_FIMR_TXFPTEF (0x1u << 6) /**< \brief (TWIHS_FIMR) TXFPTEF Interrupt Mask */
+#define TWIHS_FIMR_RXFPTEF (0x1u << 7) /**< \brief (TWIHS_FIMR) RXFPTEF Interrupt Mask */
 /* -------- TWIHS_DR : (TWIHS Offset: 0xD0) Debug Register -------- */
 #define TWIHS_DR_SWEN (0x1u << 0) /**< \brief (TWIHS_DR) SleepWalking Enable */
 #define TWIHS_DR_CLKRQ (0x1u << 1) /**< \brief (TWIHS_DR) Clock Request */

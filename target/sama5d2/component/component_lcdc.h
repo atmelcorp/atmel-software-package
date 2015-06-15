@@ -202,10 +202,7 @@ typedef struct {
   __IO uint32_t LCDC_OVR1CLUT[256]; /**< \brief (Lcdc Offset: 0x00000A00) Overlay 1 CLUT Register */
   __IO uint32_t LCDC_OVR2CLUT[256]; /**< \brief (Lcdc Offset: 0x00000E00) Overlay 2 CLUT Register */
   __IO uint32_t LCDC_HEOCLUT[256];  /**< \brief (Lcdc Offset: 0x00001200) High End Overlay CLUT Register */
-  __I  uint32_t Reserved7[635];
-  __I  uint32_t LCDC_ADDRSIZE;      /**< \brief (Lcdc Offset: 0x00001FEC) Address Size Register */
-  __I  uint32_t LCDC_IPNAME[2];     /**< \brief (Lcdc Offset: 0x00001FF0) IP Name1 Register */
-  __I  uint32_t LCDC_FEATURES;      /**< \brief (Lcdc Offset: 0x00001FF8) Features Register */
+  __I  uint32_t Reserved7[639];
   __I  uint32_t LCDC_VERSION;       /**< \brief (Lcdc Offset: 0x00001FFC) Version Register */
 } Lcdc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
@@ -260,10 +257,10 @@ typedef struct {
 #define LCDC_LCDCFG5_MODE_Pos 8
 #define LCDC_LCDCFG5_MODE_Msk (0x3u << LCDC_LCDCFG5_MODE_Pos) /**< \brief (LCDC_LCDCFG5) LCD Controller Output Mode */
 #define LCDC_LCDCFG5_MODE(value) ((LCDC_LCDCFG5_MODE_Msk & ((value) << LCDC_LCDCFG5_MODE_Pos)))
-#define   LCDC_LCDCFG5_MODE_OUTPUT_12BPP (0x0u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 12 bits per pixel */
-#define   LCDC_LCDCFG5_MODE_OUTPUT_16BPP (0x1u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 16 bits per pixel */
-#define   LCDC_LCDCFG5_MODE_OUTPUT_18BPP (0x2u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 18 bits per pixel */
-#define   LCDC_LCDCFG5_MODE_OUTPUT_24BPP (0x3u << 8) /**< \brief (LCDC_LCDCFG5) LCD output mode is set to 24 bits per pixel */
+#define   LCDC_LCDCFG5_MODE_OUTPUT_12BPP (0x0u << 8) /**< \brief (LCDC_LCDCFG5) LCD Output mode is set to 12 bits per pixel */
+#define   LCDC_LCDCFG5_MODE_OUTPUT_16BPP (0x1u << 8) /**< \brief (LCDC_LCDCFG5) LCD Output mode is set to 16 bits per pixel */
+#define   LCDC_LCDCFG5_MODE_OUTPUT_18BPP (0x2u << 8) /**< \brief (LCDC_LCDCFG5) LCD Output mode is set to 18 bits per pixel */
+#define   LCDC_LCDCFG5_MODE_OUTPUT_24BPP (0x3u << 8) /**< \brief (LCDC_LCDCFG5) LCD Output mode is set to 24 bits per pixel */
 #define LCDC_LCDCFG5_PP (0x1u << 10) /**< \brief (LCDC_LCDCFG5) Post Processing Enable */
 #define LCDC_LCDCFG5_VSPSU (0x1u << 12) /**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Setup Configuration */
 #define LCDC_LCDCFG5_VSPHO (0x1u << 13) /**< \brief (LCDC_LCDCFG5) LCD Controller Vertical synchronization Pulse Hold Configuration */
@@ -442,10 +439,10 @@ typedef struct {
 #define LCDC_BASECFG1_CLUTMODE_Pos 8
 #define LCDC_BASECFG1_CLUTMODE_Msk (0x3u << LCDC_BASECFG1_CLUTMODE_Pos) /**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_BASECFG1_CLUTMODE(value) ((LCDC_BASECFG1_CLUTMODE_Msk & ((value) << LCDC_BASECFG1_CLUTMODE_Pos)))
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 1 bit per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 2 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 4 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 8 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_BASECFG2 : (LCDC Offset: 0x00000074) Base Layer Configuration Register 2 -------- */
 #define LCDC_BASECFG2_XSTRIDE_Pos 0
 #define LCDC_BASECFG2_XSTRIDE_Msk (0xffffffffu << LCDC_BASECFG2_XSTRIDE_Pos) /**< \brief (LCDC_BASECFG2) Horizontal Stride */
@@ -566,10 +563,10 @@ typedef struct {
 #define LCDC_OVR1CFG1_CLUTMODE_Pos 8
 #define LCDC_OVR1CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR1CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR1CFG1_CLUTMODE(value) ((LCDC_OVR1CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR1CFG1_CLUTMODE_Pos)))
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 1 bit per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 2 bits per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 4 bits per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR1CFG1) Color lookup table mode set to 8 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_OVR1CFG2 : (LCDC Offset: 0x00000174) Overlay 1 Configuration Register 2 -------- */
 #define LCDC_OVR1CFG2_XPOS_Pos 0
 #define LCDC_OVR1CFG2_XPOS_Msk (0x7ffu << LCDC_OVR1CFG2_XPOS_Pos) /**< \brief (LCDC_OVR1CFG2) Horizontal Window Position */
@@ -724,10 +721,10 @@ typedef struct {
 #define LCDC_OVR2CFG1_CLUTMODE_Pos 8
 #define LCDC_OVR2CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR2CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR2CFG1_CLUTMODE(value) ((LCDC_OVR2CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR2CFG1_CLUTMODE_Pos)))
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 1 bit per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 2 bits per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 4 bits per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR2CFG1) Color lookup table mode set to 8 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_OVR2CFG2 : (LCDC Offset: 0x00000274) Overlay 2 Configuration Register 2 -------- */
 #define LCDC_OVR2CFG2_XPOS_Pos 0
 #define LCDC_OVR2CFG2_XPOS_Msk (0x7ffu << LCDC_OVR2CFG2_XPOS_Pos) /**< \brief (LCDC_OVR2CFG2) Horizontal Window Position */
@@ -967,10 +964,10 @@ typedef struct {
 #define LCDC_HEOCFG1_CLUTMODE_Pos 8
 #define LCDC_HEOCFG1_CLUTMODE_Msk (0x3u << LCDC_HEOCFG1_CLUTMODE_Pos) /**< \brief (LCDC_HEOCFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_HEOCFG1_CLUTMODE(value) ((LCDC_HEOCFG1_CLUTMODE_Msk & ((value) << LCDC_HEOCFG1_CLUTMODE_Pos)))
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_HEOCFG1) Color lookup table mode set to 1 bit per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_HEOCFG1) Color lookup table mode set to 2 bits per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_HEOCFG1) Color lookup table mode set to 4 bits per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_HEOCFG1) Color lookup table mode set to 8 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 8 bits per pixel */
 #define LCDC_HEOCFG1_YUVMODE_Pos 12
 #define LCDC_HEOCFG1_YUVMODE_Msk (0xfu << LCDC_HEOCFG1_YUVMODE_Pos) /**< \brief (LCDC_HEOCFG1) YUV Mode Input Selection */
 #define LCDC_HEOCFG1_YUVMODE(value) ((LCDC_HEOCFG1_YUVMODE_Msk & ((value) << LCDC_HEOCFG1_YUVMODE_Pos)))
@@ -1490,12 +1487,6 @@ typedef struct {
 #define LCDC_HEOCLUT_ACLUT_Pos 24
 #define LCDC_HEOCLUT_ACLUT_Msk (0xffu << LCDC_HEOCLUT_ACLUT_Pos) /**< \brief (LCDC_HEOCLUT[256]) Alpha Color entry */
 #define LCDC_HEOCLUT_ACLUT(value) ((LCDC_HEOCLUT_ACLUT_Msk & ((value) << LCDC_HEOCLUT_ACLUT_Pos)))
-/* -------- LCDC_ADDRSIZE : (LCDC Offset: 0x00001FEC) Address Size Register -------- */
-#define LCDC_ADDRSIZE_ADDRSIZE_Pos 0
-#define LCDC_ADDRSIZE_ADDRSIZE_Msk (0xffffu << LCDC_ADDRSIZE_ADDRSIZE_Pos) /**< \brief (LCDC_ADDRSIZE) APB Address Size */
-/* -------- LCDC_IPNAME[2] : (LCDC Offset: 0x00001FF0) IP Name1 Register -------- */
-#define LCDC_IPNAME_IPNAME_Pos 0
-#define LCDC_IPNAME_IPNAME_Msk (0xffffffffu << LCDC_IPNAME_IPNAME_Pos) /**< \brief (LCDC_IPNAME[2]) IP Name */
 /* -------- LCDC_VERSION : (LCDC Offset: 0x00001FFC) Version Register -------- */
 #define LCDC_VERSION_VERSION_Pos 0
 #define LCDC_VERSION_VERSION_Msk (0xfffu << LCDC_VERSION_VERSION_Pos) /**< \brief (LCDC_VERSION) Version of the Hardware Module */

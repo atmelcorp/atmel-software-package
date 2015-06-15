@@ -69,12 +69,10 @@ typedef struct {
 #define   SHDW_MR_LPDBC_6_RTCOUT0 (0x5u << 8) /**< \brief (SHDW_MR) WKUP0/1 in active state for at least 6 RTCOUT0 periods */
 #define   SHDW_MR_LPDBC_7_RTCOUT0 (0x6u << 8) /**< \brief (SHDW_MR) WKUP0/1 in active state for at least 7 RTCOUT0 periods */
 #define   SHDW_MR_LPDBC_8_RTCOUT0 (0x7u << 8) /**< \brief (SHDW_MR) WKUP0/1 in active state for at least 8 RTCOUT0 periods */
-
 #define SHDW_MR_RTTWKEN (0x1u << 16) /**< \brief (SHDW_MR)  */
 #define SHDW_MR_RTCWKEN (0x1u << 17) /**< \brief (SHDW_MR) Analog Comparator Controller Wake-up Enable */
-#define SHDW_MR_ACCWKEN (0x1u << 18)
+#define SHDW_MR_ACCWKEN (0x1u << 18) /**< \brief (SHDW_MR) Analog Comparator Controller Wake-up Enable */
 #define SHDW_MR_RXLPWKEN (0x1u << 19) /**< \brief (SHDW_MR) Debug Unit Wake-up Enable */
-
 #define SHDW_MR_WKUPDBC_Pos 24
 #define SHDW_MR_WKUPDBC_Msk (0x7u << SHDW_MR_WKUPDBC_Pos) /**< \brief (SHDW_MR) Wake-up Inputs Debouncer Period */
 #define SHDW_MR_WKUPDBC(value) ((SHDW_MR_WKUPDBC_Msk & ((value) << SHDW_MR_WKUPDBC_Pos)))
