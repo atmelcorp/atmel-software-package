@@ -863,7 +863,7 @@ uint8_t ACT8945A_begin (void)
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
 		htwi.IdTwi = ACT8945A_TWI_ID;
 		htwi.Twck = TWCK_400K;
-		trace_info("@0x%02X TWCK:%dKHz \n\r", ACT8945A_ADDRESS, TWCK_400K/100);
+		trace_info("@0x%02X TWCK:%dKHz \n\r", ACT8945A_ADDRESS, TWCK_400K/1000);
 		Status = _twi_handler_init (&htwi);
 		htwi.PeriphAddr = ACT8945A_ADDRESS;
 		htwi.AddSize = 1;
