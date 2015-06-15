@@ -62,7 +62,7 @@
 #include "peripherals/xdmad.h"
 
 #include <assert.h>
-#include <unistd.h>
+#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

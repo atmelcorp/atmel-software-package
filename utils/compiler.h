@@ -20,6 +20,13 @@
 	#error Unknown compiler!
 #endif
 
+#if defined(__CC_ARM) || defined(__GNUC__)
+	#include <unistd.h>
+#elif defined(__ICCARM__)
+	#define NULL ((void*)0)
+#endif
+
+
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
 
 #define _STRINGY_EXPAND(x) #x

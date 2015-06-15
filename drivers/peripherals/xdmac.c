@@ -42,7 +42,7 @@
 #include "peripherals/xdmac.h"
 
 #include <assert.h>
-#include <unistd.h>
+#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions
