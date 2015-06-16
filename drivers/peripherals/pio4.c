@@ -63,9 +63,11 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "board.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
+#include "peripherals/matrix.h"
 
 #include "trace.h"
 
@@ -155,28 +157,44 @@ static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
 #ifdef ID_PIOA
 static void _pioa_handler(void)
 {
-	uint32_t status = PIOA->PIO_IO_GROUP[PIO_GROUP_A].PIO_ISR;
+	uint32_t status = 0;
+	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOA))
+		status = PIOA->PIO_PIO_[PIO_GROUP_A].S_PIO_ISR;
+	else
+		status = PIOA->PIO_IO_GROUP[PIO_GROUP_A].PIO_ISR;
 	_handlers[PIO_GROUP_A](status);
 }
 #endif
 #ifdef ID_PIOB
 static void _piob_handler(void)
 {
-	uint32_t status = PIOA->PIO_PIO_[PIO_GROUP_B].S_PIO_ISR;
+	uint32_t status = 0;
+	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOB))
+		status = PIOA->PIO_PIO_[PIO_GROUP_B].S_PIO_ISR;
+	else
+		status = PIOA->PIO_IO_GROUP[PIO_GROUP_B].PIO_ISR;
 	_handlers[PIO_GROUP_B](status);
 }
 #endif
 #ifdef ID_PIOC
 static void _pioc_handler(void)
 {
-	uint32_t status = PIOA->PIO_IO_GROUP[PIO_GROUP_C].PIO_ISR;
+	uint32_t status = 0;
+	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOC))
+		status = PIOA->PIO_PIO_[PIO_GROUP_C].S_PIO_ISR;
+	else
+		status = PIOA->PIO_IO_GROUP[PIO_GROUP_C].PIO_ISR;
 	_handlers[PIO_GROUP_C](status);
 }
 #endif
 #ifdef ID_PIOD
 static void _piod_handler(void)
 {
-	uint32_t status = PIOA->PIO_IO_GROUP[PIO_GROUP_D].PIO_ISR;
+	uint32_t status = 0;
+	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOD))
+		status = PIOA->PIO_PIO_[PIO_GROUP_D].S_PIO_ISR;
+	else
+		status = PIOA->PIO_IO_GROUP[PIO_GROUP_D].PIO_ISR;
 	_handlers[PIO_GROUP_D](status);
 }
 #endif
@@ -200,7 +218,7 @@ static inline uint32_t _pio_group_to_id(int group)
 static void* _pio_configure_pins(const struct _pin *pin, uint32_t periph_id)
 {
 	PioPio_* piogroup = &pin->pio->PIO_PIO_[pin->id];
-	if (MATRIX1->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
+	if (!matrix_is_peripheral_secured(MATRIX1, periph_id)) {
 		piogroup->S_PIO_SIONR = pin->mask;
 		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
 	} else {
@@ -211,7 +229,7 @@ static void* _pio_configure_pins(const struct _pin *pin, uint32_t periph_id)
 
 static void* _pio_retrive_group(const struct _pin *pin, uint32_t periph_id)
 {
-	if (MATRIX1->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
+	if (!matrix_is_peripheral_secured(MATRIX1, periph_id)) {
 		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
 	} else {
 		return (void*) &pin->pio->PIO_PIO_[pin->id];
@@ -409,13 +427,13 @@ uint8_t pio_get_output_data_status(const struct _pin *pin)
 void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 {
 	assert(pin->id < PIO_GROUP_LENGTH);
-	Pio *pio = pin->pio;
 	if (cuttoff == 0) {
-	   pio->S_PIO_SCDR = 0;
+	   pin->pio->S_PIO_SCDR = 0;
 	}
 	else {
 		/* the lowest 14 bits work */
-		pio->S_PIO_SCDR = ((32678/(2*(cuttoff))) - 1) & 0x3FFF;
+		pin->pio->S_PIO_SCDR =
+			((BOARD_SLOW_CLOCK_EXT_OSC/(2*(cuttoff))) - 1) & 0x3FFF;
 	}
 }
 

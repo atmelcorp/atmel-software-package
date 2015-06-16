@@ -61,6 +61,7 @@
 
 #include "chip.h"
 #include "peripherals/aic.h"
+#include "peripherals/matrix.h"
 #include "cortex-a/cp15.h"
 #include "cortex-a/cp15_pmu.h"
 #include "cortex-a/cpsr.h"
@@ -255,7 +256,7 @@ void aic_enable(uint32_t source)
 	}
 
 	Matrix* matrix = get_peripheral_matrix(source);
-	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
+	if (!matrix_is_peripheral_secured(matrix, source)) {
 		_aic_enable_it(AIC, source);
 	} else {
 		_aic_enable_it(SAIC, source);
@@ -275,7 +276,7 @@ void aic_disable(uint32_t source)
 	}
 
 	Matrix* matrix = get_peripheral_matrix(source);
-	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
+	if (!matrix_is_peripheral_secured(matrix, source)) {
 		_aic_disable_it(AIC, source);
 	} else {
 		_aic_disable_it(SAIC, source);
@@ -296,7 +297,7 @@ void aic_configure(uint32_t source, uint8_t mode)
 	}
 
 	Matrix* matrix = get_peripheral_matrix(source);
-	if (matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) {
+	if (!matrix_is_peripheral_secured(matrix, source)) {
 		_aic_configure_it(source, mode);
 	} else {
 		// Does not apply for SAIC
@@ -315,7 +316,7 @@ void aic_set_source_vector(uint32_t source, void (*handler)(void))
 
 	if (SFR->SFR_AICREDIR == 0) {
 		Matrix* matrix = get_peripheral_matrix(source);
-		if ((matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) == 0)
+		if (matrix_is_peripheral_secured(matrix, source))
 			aic = SAIC;
 	}
 
@@ -350,7 +351,7 @@ void aic_set_or_clear(uint32_t source, uint8_t set)
 
 	if (SFR->SFR_AICREDIR == 0) {
 		Matrix* matrix = get_peripheral_matrix(source);
-		if ((matrix->MATRIX_SPSELR[source / 32] & (1 << (source % 32))) == 0)
+		if (matrix_is_peripheral_secured(matrix, source))
 			aic = SAIC;
 	}
 
