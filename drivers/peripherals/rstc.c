@@ -36,13 +36,6 @@
 #include "peripherals/rstc.h"
 
 /*---------------------------------------------------------------------------
- *         Defines
- *---------------------------------------------------------------------------*/
-
-/** Keywords to write to the reset registers */
-#define RSTC_KEY_PASSWORD           RSTC_MR_KEY(0xA5U)
-
-/*---------------------------------------------------------------------------
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
@@ -53,9 +46,7 @@
  */
 void rstc_configure_mode(uint32_t mr)
 {
-	Rstc *pHw = RSTC;
-	mr &= ~RSTC_MR_KEY_Msk;
-	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+	RSTC->RSTC_MR = (mr & ~RSTC_MR_KEY_Msk) | RSTC_MR_KEY_PASSWD;
 }
 
 /**
@@ -64,14 +55,13 @@ void rstc_configure_mode(uint32_t mr)
  */
 void rstc_set_user_reset_enable(uint8_t enable)
 {
-	Rstc *pHw = RSTC;
-	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+	uint32_t mr = RSTC->RSTC_MR;
 	if (enable) {
 		mr |= RSTC_MR_URSTEN;
 	} else {
 		mr &= ~RSTC_MR_URSTEN;
 	}
-	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+	RSTC->RSTC_MR = mr | RSTC_MR_KEY_PASSWD;
 }
 
 /**
@@ -80,15 +70,14 @@ void rstc_set_user_reset_enable(uint8_t enable)
  */
 void rstc_set_user_reset_interrupt_enable(uint8_t enable)
 {
-	Rstc *pHw = RSTC;
-	uint32_t mr = pHw->RSTC_MR & (~RSTC_MR_KEY_Msk);
+	uint32_t mr = RSTC->RSTC_MR;
 	if (enable) {
 		mr |= RSTC_MR_URSTIEN;
 	} else {
 
 		mr &= ~RSTC_MR_URSTIEN;
 	}
-	pHw->RSTC_MR = mr | RSTC_KEY_PASSWORD;
+	RSTC->RSTC_MR = mr | RSTC_MR_KEY_PASSWD;
 }
 
 /**
@@ -96,8 +85,7 @@ void rstc_set_user_reset_interrupt_enable(uint8_t enable)
  */
 void rstc_processor_reset(void)
 {
-	Rstc *pHw = RSTC;
-	pHw->RSTC_CR = RSTC_CR_PROCRST | RSTC_KEY_PASSWORD;
+	RSTC->RSTC_CR = RSTC_CR_PROCRST | RSTC_MR_KEY_PASSWD;
 }
 
 /**
@@ -105,8 +93,7 @@ void rstc_processor_reset(void)
  */
 void rstc_peripheral_reset(void)
 {
-	Rstc *pHw = RSTC;
-	pHw->RSTC_CR = RSTC_CR_PERRST | RSTC_KEY_PASSWORD;
+	RSTC->RSTC_CR = RSTC_CR_PERRST | RSTC_MR_KEY_PASSWD;
 }
 
 /**
@@ -114,8 +101,7 @@ void rstc_peripheral_reset(void)
  */
 uint8_t rstc_get_nrst_level(void)
 {
-	Rstc *pHw = RSTC;
-	return ((pHw->RSTC_SR & RSTC_SR_NRSTL) > 0);
+	return (RSTC->RSTC_SR & RSTC_SR_NRSTL) != 0;
 }
 
 /**
@@ -124,11 +110,7 @@ uint8_t rstc_get_nrst_level(void)
  */
 uint8_t rstc_is_user_reset_detected(void)
 {
-	Rstc *pHw = RSTC;
-	if (pHw->RSTC_SR & RSTC_SR_URSTS) {
-		return 1;
-	}
-	return 0;
+	return (RSTC->RSTC_SR & RSTC_SR_URSTS) != 0;
 }
 
 /**
@@ -137,11 +119,7 @@ uint8_t rstc_is_user_reset_detected(void)
  */
 uint8_t rstc_is_busy(void)
 {
-	Rstc *pHw = RSTC;
-	if (pHw->RSTC_SR & RSTC_SR_SRCMP) {
-		return 1;
-	}
-	return 0;
+	return (RSTC->RSTC_SR & RSTC_SR_SRCMP) != 0;
 }
 
 /**
@@ -149,6 +127,5 @@ uint8_t rstc_is_busy(void)
  */
 uint32_t rstc_get_status(void)
 {
-	Rstc *pHw = RSTC;
-	return (pHw->RSTC_SR);
+	return RSTC->RSTC_SR;
 }
