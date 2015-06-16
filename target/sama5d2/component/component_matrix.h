@@ -97,54 +97,13 @@ typedef struct {
   __I  uint32_t MATRIX_WPSR;                /**< \brief (Matrix Offset: 0x01E8) Write Protection Status Register */
   __I  uint32_t Reserved5[4];
   __I  uint32_t MATRIX_VERSION;             /**< \brief (Matrix Offset: 0x01FC) Version Register */
-  __IO uint32_t MATRIX_SSR0;                /**< \brief (Matrix Offset: 0x0200) Security Slave 0 Register */
-  __IO uint32_t MATRIX_SSR1;                /**< \brief (Matrix Offset: 0x0204) Security Slave 1 Register */
-  __IO uint32_t MATRIX_SSR2;                /**< \brief (Matrix Offset: 0x0208) Security Slave 2 Register */
-  __IO uint32_t MATRIX_SSR3;                /**< \brief (Matrix Offset: 0x020C) Security Slave 3 Register */
-  __IO uint32_t MATRIX_SSR4;                /**< \brief (Matrix Offset: 0x0210) Security Slave 4 Register */
-  __IO uint32_t MATRIX_SSR5;                /**< \brief (Matrix Offset: 0x0214) Security Slave 5 Register */
-  __IO uint32_t MATRIX_SSR6;                /**< \brief (Matrix Offset: 0x0218) Security Slave 6 Register */
-  __IO uint32_t MATRIX_SSR7;                /**< \brief (Matrix Offset: 0x021C) Security Slave 7 Register */
-  __IO uint32_t MATRIX_SSR8;                /**< \brief (Matrix Offset: 0x0220) Security Slave 8 Register */
-  __IO uint32_t MATRIX_SSR9;                /**< \brief (Matrix Offset: 0x0224) Security Slave 9 Register */
-  __IO uint32_t MATRIX_SSR10;               /**< \brief (Matrix Offset: 0x0228) Security Slave 10 Register */
-  __IO uint32_t MATRIX_SSR11;               /**< \brief (Matrix Offset: 0x022C) Security Slave 11 Register */
-  __IO uint32_t MATRIX_SSR12;               /**< \brief (Matrix Offset: 0x0230) Security Slave 12 Register */
-  __IO uint32_t MATRIX_SSR13;               /**< \brief (Matrix Offset: 0x0234) Security Slave 13 Register */
-  __IO uint32_t MATRIX_SSR14;               /**< \brief (Matrix Offset: 0x0238) Security Slave 14 Register */
+  __IO uint32_t MATRIX_SSR[15];                /**< \brief (Matrix Offset: 0x0200) Security Slave x Register */
   __I  uint32_t Reserved6[1];
-  __IO uint32_t MATRIX_SASSR0;              /**< \brief (Matrix Offset: 0x0240) Security Areas Split Slave 0 Register */
-  __IO uint32_t MATRIX_SASSR1;              /**< \brief (Matrix Offset: 0x0244) Security Areas Split Slave 1 Register */
-  __IO uint32_t MATRIX_SASSR2;              /**< \brief (Matrix Offset: 0x0248) Security Areas Split Slave 2 Register */
-  __IO uint32_t MATRIX_SASSR3;              /**< \brief (Matrix Offset: 0x024C) Security Areas Split Slave 3 Register */
-  __IO uint32_t MATRIX_SASSR4;              /**< \brief (Matrix Offset: 0x0250) Security Areas Split Slave 4 Register */
-  __IO uint32_t MATRIX_SASSR5;              /**< \brief (Matrix Offset: 0x0254) Security Areas Split Slave 5 Register */
-  __IO uint32_t MATRIX_SASSR6;              /**< \brief (Matrix Offset: 0x0258) Security Areas Split Slave 6 Register */
-  __IO uint32_t MATRIX_SASSR7;              /**< \brief (Matrix Offset: 0x025C) Security Areas Split Slave 7 Register */
-  __IO uint32_t MATRIX_SASSR8;              /**< \brief (Matrix Offset: 0x0260) Security Areas Split Slave 8 Register */
-  __IO uint32_t MATRIX_SASSR9;              /**< \brief (Matrix Offset: 0x0264) Security Areas Split Slave 9 Register */
-  __IO uint32_t MATRIX_SASSR10;             /**< \brief (Matrix Offset: 0x0268) Security Areas Split Slave 10 Register */
-  __IO uint32_t MATRIX_SASSR11;             /**< \brief (Matrix Offset: 0x026C) Security Areas Split Slave 11 Register */
-  __IO uint32_t MATRIX_SASSR12;             /**< \brief (Matrix Offset: 0x0270) Security Areas Split Slave 12 Register */
-  __IO uint32_t MATRIX_SASSR13;             /**< \brief (Matrix Offset: 0x0274) Security Areas Split Slave 13 Register */
-  __IO uint32_t MATRIX_SASSR14;             /**< \brief (Matrix Offset: 0x0278) Security Areas Split Slave 14 Register */
-  __I  uint32_t Reserved7[2];
-  __IO uint32_t MATRIX_SRTSR1;              /**< \brief (Matrix Offset: 0x0284) Security Region Top Slave 1 Register */
-  __IO uint32_t MATRIX_SRTSR2;              /**< \brief (Matrix Offset: 0x0288) Security Region Top Slave 2 Register */
-  __IO uint32_t MATRIX_SRTSR3;              /**< \brief (Matrix Offset: 0x028C) Security Region Top Slave 3 Register */
-  __IO uint32_t MATRIX_SRTSR4;              /**< \brief (Matrix Offset: 0x0290) Security Region Top Slave 4 Register */
-  __IO uint32_t MATRIX_SRTSR5;              /**< \brief (Matrix Offset: 0x0294) Security Region Top Slave 5 Register */
-  __IO uint32_t MATRIX_SRTSR6;              /**< \brief (Matrix Offset: 0x0298) Security Region Top Slave 6 Register */
-  __IO uint32_t MATRIX_SRTSR7;              /**< \brief (Matrix Offset: 0x029C) Security Region Top Slave 7 Register */
-  __IO uint32_t MATRIX_SRTSR8;              /**< \brief (Matrix Offset: 0x02A0) Security Region Top Slave 8 Register */
-  __IO uint32_t MATRIX_SRTSR9;              /**< \brief (Matrix Offset: 0x02A4) Security Region Top Slave 9 Register */
-  __IO uint32_t MATRIX_SRTSR10;             /**< \brief (Matrix Offset: 0x02A8) Security Region Top Slave 10 Register */
-  __IO uint32_t MATRIX_SRTSR11;             /**< \brief (Matrix Offset: 0x02AC) Security Region Top Slave 11 Register */
-  __IO uint32_t MATRIX_SRTSR12;             /**< \brief (Matrix Offset: 0x02B0) Security Region Top Slave 12 Register */
-  __IO uint32_t MATRIX_SRTSR13;             /**< \brief (Matrix Offset: 0x02B4) Security Region Top Slave 13 Register */
-  __IO uint32_t MATRIX_SRTSR14;             /**< \brief (Matrix Offset: 0x02B8) Security Region Top Slave 14 Register */
+  __IO uint32_t MATRIX_SASSR[15];              /**< \brief (Matrix Offset: 0x0240) Security Areas Split Slave x Register */
+  __I  uint32_t Reserved7[1];
+  __IO uint32_t MATRIX_SRTSR[15];              /**< \brief (Matrix Offset: 0x0284) Security Region Top Slave x Register */
   __I  uint32_t Reserved8[1];
-  __IO uint32_t MATRIX_SPSELR[3];           /**< \brief (Matrix Offset: 0x02C0) Security Peripheral Select 1 Register */
+  __IO uint32_t MATRIX_SPSELR[3];           /**< \brief (Matrix Offset: 0x02C0) Security Peripheral Select x Register */
 } Matrix;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MATRIX_MCFG0 : (MATRIX Offset: 0x0000) Master Configuration Register 0 -------- */

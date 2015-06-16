@@ -33,6 +33,7 @@ drivers-y += drivers/peripherals/aic.o
 drivers-y += drivers/peripherals/icm.o
 drivers-y += drivers/peripherals/iso7816_4.o
 drivers-y += drivers/peripherals/l2cc.o
+drivers-y += drivers/peripherals/matrix.o
 drivers-y += drivers/peripherals/pit.o
 drivers-y += drivers/peripherals/pmc.o
 drivers-y += drivers/peripherals/pwmc.o
