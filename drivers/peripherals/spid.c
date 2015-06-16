@@ -102,7 +102,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 		}
 		if (rx) {
 			for (i = 0; i < rx->size; ++i) {
-				rx->data[i] = spi_read(spi);
+				rx->data[i] = spi_read(spi, desc->chip_select);
 			}
 		}
 		desc->mutex++;

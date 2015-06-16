@@ -242,12 +242,16 @@ uint32_t spi_get_status(Spi * spi)
 	return spi->SPI_SR;
 }
 
-uint32_t spi_read(Spi * spi)
+uint16_t spi_read(Spi * spi, uint8_t cs)
 {
 	_spi_write_dummy(spi);
 	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
-	uint8_t value;
-	readb(&spi->SPI_RDR, &value);
+	uint16_t value;
+	if ((spi->SPI_CSR[cs] & SPI_CSR_BITS_Msk) < SPI_CSR_BITS_9_BIT) {
+		readb(&spi->SPI_RDR, (uint8_t*)&value);
+	} else {
+		readhw(&spi->SPI_RDR, &value);
+	}
 	return value;
 }
 

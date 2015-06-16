@@ -157,7 +157,7 @@ extern void spi_configure_cs_mode(Spi * spi, uint32_t cs,
  * \return readed data.
  */
 
-extern uint32_t spi_read(Spi * spi);
+extern uint16_t spi_read(Spi * spi, uint8_t cs);
 
 /**
  * \brief Sends data through a SPI peripheral consuming reads.
@@ -167,8 +167,8 @@ extern uint32_t spi_read(Spi * spi);
  * \param cs  Chip select of the component to address (0, 1, 2 or 3).
  * \param data  Word of data to send.
  */
-extern void spi_write(Spi * spi, uint32_t dwNpcs, uint16_t wData);
-extern void spi_write_last(Spi * spi, uint32_t dwNpcs, uint16_t wData);
+extern void spi_write(Spi * spi, uint32_t cs, uint16_t data);
+extern void spi_write_last(Spi * spi, uint32_t cs, uint16_t data);
 
 /**
  * \brief Get the current status register of the given SPI peripheral.
