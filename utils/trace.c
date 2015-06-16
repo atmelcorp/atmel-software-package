@@ -42,7 +42,5 @@
  *         Internal variables
  *------------------------------------------------------------------------------*/
 
-/** Trace level can be set at applet initialization */
-#if !defined(NOTRACE) && (DYN_TRACES == 1)
-uint32_t dwTraceLevel = TRACE_LEVEL;
-#endif
+/** Current trace level */
+uint32_t trace_level = TRACE_LEVEL;
