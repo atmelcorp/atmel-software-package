@@ -130,13 +130,10 @@
 #define PIO_OPENDRAIN               (0x1u << 2)
 /*  The internal glitch filter is active. */
 #define PIO_DEGLITCH                (0x1u << 3)
-/* The internal pin filter slow clock is active. */
-#define PIO_FILTER_SLOW_CLOCK	    (0x1u << 4)
+/* The internal Debounce filter is active. */
+#define PIO_DEBOUNCE                (0x1u << 4)
 /*  The internal Schmitt trigger is disable. */
 #define PIO_TRIGGER_DIS             (0x1u << 5)
-
-/*  The internal debouncing filter is active. */
-#define PIO_DEBOUNCE                (0x1u << 6)
 
 /*  Drive Strength. */
 #define PIO_DRVSTR_Pos              12

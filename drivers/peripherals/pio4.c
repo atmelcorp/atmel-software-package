@@ -270,7 +270,7 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 			cfg.bitfield.puen = (pin_list->attribute & PIO_PULLUP)? 1:0;
 			cfg.bitfield.pden = (pin_list->attribute & PIO_PULLDOWN)? 1:0;
 			cfg.bitfield.ifen = (pin_list->attribute & PIO_DEGLITCH)? 1:0;
-			cfg.bitfield.ifscen = (pin_list->attribute & PIO_FILTER_SLOW_CLOCK)? 1:0;
+			cfg.bitfield.ifscen = (pin_list->attribute & PIO_DEBOUNCE)? 1:0;
 			cfg.bitfield.opd = (pin_list->attribute & PIO_OPENDRAIN)? 1:0;
 			cfg.bitfield.schmitt =(pin_list->attribute & PIO_TRIGGER_DIS)? 1:0;
 			cfg.bitfield.drvstr =
