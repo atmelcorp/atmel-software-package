@@ -205,7 +205,6 @@ void cp15_enable_mmu(void)
 		cp15_write_control(control);
 		trace_info("MMU enabled.\n\r");
 	} else {
-
 		trace_info("MMU is already enabled.\n\r");
 	}
 }
@@ -225,7 +224,6 @@ void cp15_disable_mmu(void)
 		cp15_write_control(control);
 		trace_info("MMU disabled.\n\r");
 	} else {
-
 		trace_info("MMU is already disabled.\n\r");
 	}
 }
@@ -258,7 +256,6 @@ void cp15_enable_dcache(void)
 			cp15_write_control(control);
 			trace_info("D cache enabled.\n\r");
 		} else {
-
 			trace_info("D cache is already enabled.\n\r");
 		}
 	}
@@ -284,15 +281,6 @@ void cp15_disable_dcache(void)
 }
 
 /**
- * \brief  Invalidate TLB
- */
-void cp15_invalidate_tlb(void)
-{
-	asm("MCR   p15, 0, %0, c8, c3, 0": :"r"(1));
-	asm("DSB");
-}
-
-/**
  * \brief  Clean Data cache
  */
 void cp15_cache_clean(uint8_t CacheType)
@@ -311,15 +299,12 @@ void cp15_cache_invalidate(uint8_t CacheType)
 	if (CacheType) {
 		cp15_select_icache();
 		cp15_invalid_icache_inner_sharable();
-		asm("DSB");
-		asm("ISB");
 	} else {
 		cp15_select_dcache();
 		cp15_invalid_dcache_by_set_way();
-		asm("DSB");
-		asm("ISB");
 	}
-
+	asm ("DSB");
+	asm ("ISB");
 }
 
 /**

@@ -99,6 +99,7 @@ extern void cp15_non_exclusive_cache(void);
 extern void cp15_isb(void);
 extern void cp15_dsb(void);
 extern void cp15_dmb(void);
+extern void cp15_invalidate_tlb(void);
 extern void cp15_select_dcache(void);
 extern void cp15_select_icache(void);
 extern void cp15_write_control(unsigned int value);
@@ -119,7 +120,7 @@ extern void cp15_clean_invalid_dcache_by_set_way(void);
 extern void cp15_invalid_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
 extern void cp15_clean_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
 extern void cp15_clean_invalid_dcache_by_mva(uint32_t startAddr,
-					    uint32_t endAddr);
+					     uint32_t endAddr);
 
 extern void cp15_clean_dcache_umva(void);
 extern void cp15_invalid_translation_table(void);
@@ -149,8 +150,6 @@ extern void cp15_disable_icache(void);
 extern unsigned int cp15_is_dcache_enabled(void);
 extern void cp15_enable_dcache(void);
 extern void cp15_disable_dcache(void);
-
-extern void cp15_invalidate_tlb(void);
 
 extern void cp15_cache_clean(uint8_t CacheType);
 extern void cp15_cache_invalidate(uint8_t CacheType);

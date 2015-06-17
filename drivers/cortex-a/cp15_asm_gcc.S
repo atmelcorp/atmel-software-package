@@ -115,6 +115,17 @@ cp15_dmb:
 	bx      lr
 
 /**
+ * \brief  Invalidate TLB
+ */
+	.section .text.cp15_invalidate_tlb
+	.global  cp15_invalidate_tlb
+cp15_invalidate_tlb:
+	mov     r0, #1
+	mcr     p15, 0, r0, c8, c3, 0
+	dsb
+	bx      lr
+
+/**
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
  */
 	.section .text.cp15_exclusive_cache
@@ -305,7 +316,7 @@ cp15_invalid_dcache_by_set_way:
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
-	mov     r2, r0, lsr #13         // Num of stes
+	mov     r2, r0, lsr #13         // Num of sets
 	and     r2, r2, #0xFF           // 8bit is specific to CortexA5 with 32 KB
 	mov     r0, #0                  // 0:SHL:5
 inv_way_loop:
