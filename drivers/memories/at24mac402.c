@@ -399,7 +399,7 @@ uint8_t at24mac402_begin (void)
 		memset ((uint8_t*)&htwi_eep, 0x00, sizeof(htwi_eep));
 		htwi_eep.IdTwi = ID_TWI1;
 		htwi_eep.Twck = TWCK_400K;
-		trace_info("at24mac402 @0x%02X TWCK:%dKHz \n\r",
+		printf(" -I- at24mc402 @0x%02X TWCK:%dKHz \n\r",
 			   (unsigned int)AT24MAC402_EXT_MEM_ADD,
 			   (unsigned int)htwi_eep.Twck/1000);
 		Status = _at24mac402_twi_handler_init (&htwi_eep);
