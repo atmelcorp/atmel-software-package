@@ -103,8 +103,7 @@ static inline void _clear_fifo_control_flags(uint32_t* control_reg)
  *  \param baudrate  Baudrate at which the USART should operate (in Hz).
  *  \param clock  Frequency of the system master clock (in Hz).
  */
-void usart_configure(Usart *usart, uint32_t mode,
-		     uint32_t baudrate)
+void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate)
 {
 	uint32_t clock = pmc_get_peripheral_clock(get_usart_id_from_addr(usart));
 	/* Reset and disable receiver & transmitter */
@@ -488,11 +487,14 @@ uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
 			readhw(&usart->US_RHR, (uint16_t*)buffer);
 			left -= sizeof(uint16_t);
 			buffer += sizeof(uint16_t);
+			buf_size -= sizeof(uint16_t);
 		}
 		if (buf_size >= sizeof(uint8_t)) {
 			/* one data read */
 			readb(&usart->US_RHR, buffer);
+			buffer += sizeof(uint8_t);
 			left -= sizeof(uint8_t);
+			buf_size -= sizeof(uint8_t);
 		}
 	}
 	return len - left;
