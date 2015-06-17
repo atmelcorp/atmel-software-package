@@ -20,12 +20,22 @@
 	#error Unknown compiler!
 #endif
 
-#if defined(__CC_ARM) || defined(__GNUC__)
-	#include <unistd.h>
-#elif defined(__ICCARM__)
-	#define NULL ((void*)0)
+#if defined(__ICCARM__)
+	#define DSB()  asm("dsb")
+	#define ISB()  asm("isb")
+	#define COMPILER_BARRIER()
+#elif defined(__GNUC__) || defined(__CC_ARM)
+	#define DSB()  asm volatile ("dsb":::"memory")
+	#define ISB()  asm volatile ("isb":::"memory")
+	#define COMPILER_BARRIER()  asm volatile ("":::"memory")
+#else
+	#error Unknown compiler!
 #endif
 
+
+#ifndef NULL
+	#define NULL ((void*)0)
+#endif
 
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
 
