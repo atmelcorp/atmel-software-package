@@ -249,6 +249,16 @@ extern void pmc_disable_pck2(void);
  */
 extern uint32_t pmc_get_pck2_clock(void);
 
+/**
+ * \brief Enable DDR clock
+ */
+extern void pmc_enable_ddr_clock(void);
+
+/**
+ * \brief Disable DDR clock
+ */
+extern void pmc_disable_ddr_clock(void);
+
 #ifdef __cplusplus
 }
 #endif
