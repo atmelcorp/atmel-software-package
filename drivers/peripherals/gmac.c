@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,15 +27,17 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "chip.h"
+#include "board.h"
+#include "chip.h"
+
+
 #include "peripherals/gmac.h"
 #include "trace.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -75,8 +77,7 @@
 /**
  * Return 1 if PHY is idle
  */
-uint8_t
-GMAC_IsIdle(Gmac * pGmac)
+uint8_t gmac_is_idle(Gmac * pGmac)
 {
 	return ((pGmac->GMAC_NSR & GMAC_NSR_IDLE) > 0);
 }
@@ -84,10 +85,7 @@ GMAC_IsIdle(Gmac * pGmac)
 /**
  * Execute PHY maintenance command
  */
-void
-GMAC_PHYMaintain(Gmac * pGmac,
-		 uint8_t bPhyAddr,
-		 uint8_t bRegAddr, uint8_t bRW, uint16_t wData)
+void gmac_phy_maintain(Gmac * pGmac, uint8_t bPhyAddr, uint8_t bRegAddr, uint8_t bRW, uint16_t wData)
 {
 	/* Wait until bus idle */
 	while ((pGmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) ;
@@ -103,8 +101,7 @@ GMAC_PHYMaintain(Gmac * pGmac,
 /**
  * Return PHY maintenance data returned
  */
-uint16_t
-GMAC_PHYData(Gmac * pGmac)
+uint16_t gmac_phy_data(Gmac * pGmac)
 {
 	/* Wait until bus idle */
 	while ((pGmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) ;
@@ -119,10 +116,10 @@ GMAC_PHYData(Gmac * pGmac)
  *  \param mck Mdc clock
  *  \return 1 if successfully, 0 if MDC clock not found.
  */
-uint8_t
-GMAC_SetMdcClock(Gmac * pGmac, uint32_t mck)
+uint8_t gmac_set_mdc_clock(Gmac * pGmac, uint32_t mck)
 {
 	uint32_t clock_dividor;
+
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	if (mck <= 20000000) {
 		clock_dividor = GMAC_NCFGR_CLK_MCK_8;	// MDC clock = MCK/8
@@ -148,8 +145,7 @@ GMAC_SetMdcClock(Gmac * pGmac, uint32_t mck)
  *  \brief Enable MDI with PHY
  *  \param pGmac Pointer to an Gmac instance.
  */
-void
-GMAC_EnableMdio(Gmac * pGmac)
+void gmac_enable_mdio(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	pGmac->GMAC_NCR |= GMAC_NCR_MPE;
@@ -160,8 +156,7 @@ GMAC_EnableMdio(Gmac * pGmac)
  *  \brief Enable MDI with PHY
  *  \param pGmac Pointer to an Gmac instance.
  */
-void
-GMAC_DisableMdio(Gmac * pGmac)
+void gmac_disable_mdio(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	pGmac->GMAC_NCR &= ~GMAC_NCR_MPE;
@@ -172,8 +167,7 @@ GMAC_DisableMdio(Gmac * pGmac)
  *  \brief Enable MII mode for GMAC, called once after autonegotiate
  *  \param pGmac Pointer to an Gmac instance.
  */
-void
-GMAC_EnableMII(Gmac * pGmac)
+void gmac_enable_mii(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	pGmac->GMAC_UR &= ~GMAC_UR_RMII;
@@ -184,8 +178,7 @@ GMAC_EnableMII(Gmac * pGmac)
  *  \brief Enable GMII mode for GMAC, called once after autonegotiate
  *  \param pGmac Pointer to an Gmac instance.
  */
-void
-GMAC_EnableGMII(Gmac * pGmac)
+void gmac_enable_gmii(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	/* RGMII disable */
@@ -200,8 +193,7 @@ GMAC_EnableGMII(Gmac * pGmac)
  *  \param duplex: 1 full duplex 0 half duplex
  *  \param speed:   0 10M 1 100M
  */
-void
-GMAC_EnableRGMII(Gmac * pGmac, uint32_t duplex, uint32_t speed)
+void gmac_enable_rgmii(Gmac * pGmac, uint32_t duplex, uint32_t speed)
 {
 	pGmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 	if (duplex == GMAC_DUPLEX_HALF) {
@@ -231,18 +223,16 @@ GMAC_EnableRGMII(Gmac * pGmac, uint32_t duplex, uint32_t speed)
  *  \param speed        Link speed, 0 for 10M, 1 for 100M
  *  \param fullduplex   1 for Full Duplex mode
  */
-void
-GMAC_SetLinkSpeed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex)
+void gmac_set_link_speed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex)
 {
 	uint32_t ncfgr;
+
 	ncfgr = pGmac->GMAC_NCFGR;
 	ncfgr &= ~(GMAC_NCFGR_SPD | GMAC_NCFGR_FD);
 	if (speed) {
-
 		ncfgr |= GMAC_NCFGR_SPD;
 	}
 	if (fullduplex) {
-
 		ncfgr |= GMAC_NCFGR_FD;
 	}
 	pGmac->GMAC_NCFGR = ncfgr;
@@ -253,8 +243,7 @@ GMAC_SetLinkSpeed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex)
  *  \brief set local loop back
  *  \param pGmac Pointer to an Gmac instance.
  */
-uint32_t
-GMAC_SetLocalLoopBack(Gmac * pGmac)
+uint32_t gmac_set_local_loopback(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR |= GMAC_NCR_LBL;
 	return 0;
@@ -263,8 +252,7 @@ GMAC_SetLocalLoopBack(Gmac * pGmac)
 /**
  * Return interrupt mask.
  */
-uint32_t
-GMAC_GetItMask(Gmac * pGmac)
+uint32_t gmac_get_it_mask(Gmac * pGmac)
 {
 	return pGmac->GMAC_IMR;
 }
@@ -272,8 +260,7 @@ GMAC_GetItMask(Gmac * pGmac)
 /**
  * Return transmit status
  */
-uint32_t
-GMAC_GetTxStatus(Gmac * pGmac)
+uint32_t gmac_get_tx_status(Gmac * pGmac)
 {
 	return pGmac->GMAC_TSR;
 }
@@ -281,8 +268,7 @@ GMAC_GetTxStatus(Gmac * pGmac)
 /**
  * Clear transmit status
  */
-void
-GMAC_ClearTxStatus(Gmac * pGmac, uint32_t dwStatus)
+void gmac_clear_tx_status(Gmac * pGmac, uint32_t dwStatus)
 {
 	pGmac->GMAC_TSR = dwStatus;
 }
@@ -290,8 +276,7 @@ GMAC_ClearTxStatus(Gmac * pGmac, uint32_t dwStatus)
 /**
  * Return receive status
  */
-uint32_t
-GMAC_GetRxStatus(Gmac * pGmac)
+uint32_t gmac_get_rx_status(Gmac * pGmac)
 {
 	return pGmac->GMAC_RSR;
 }
@@ -299,8 +284,7 @@ GMAC_GetRxStatus(Gmac * pGmac)
 /**
  * Clear receive status
  */
-void
-GMAC_ClearRxStatus(Gmac * pGmac, uint32_t dwStatus)
+void gmac_clear_rx_status(Gmac * pGmac, uint32_t dwStatus)
 {
 	pGmac->GMAC_RSR = dwStatus;
 }
@@ -308,8 +292,7 @@ GMAC_ClearRxStatus(Gmac * pGmac, uint32_t dwStatus)
 /**
  * Enable/Disable GMAC receive.
  */
-void
-GMAC_ReceiveEnable(Gmac * pGmac, uint8_t bEnaDis)
+void gmac_receive_enable(Gmac * pGmac, uint8_t bEnaDis)
 {
 	if (bEnaDis)
 		pGmac->GMAC_NCR |= GMAC_NCR_RXEN;
@@ -320,8 +303,7 @@ GMAC_ReceiveEnable(Gmac * pGmac, uint8_t bEnaDis)
 /**
  * Enable/Disable GMAC transmit.
  */
-void
-GMAC_TransmitEnable(Gmac * pGmac, uint8_t bEnaDis)
+void gmac_transmit_enable(Gmac * pGmac, uint8_t bEnaDis)
 {
 	if (bEnaDis)
 		pGmac->GMAC_NCR |= GMAC_NCR_TXEN;
@@ -332,8 +314,7 @@ GMAC_TransmitEnable(Gmac * pGmac, uint8_t bEnaDis)
 /**
  * Set Rx Queue
  */
-void
-GMAC_SetRxQueue(Gmac * pGmac, uint32_t dwAddr)
+void gmac_set_rx_queue(Gmac * pGmac, uint32_t dwAddr)
 {
 	pGmac->GMAC_RBQB = GMAC_RBQB_ADDR_Msk & dwAddr;
 }
@@ -341,8 +322,7 @@ GMAC_SetRxQueue(Gmac * pGmac, uint32_t dwAddr)
 /**
  * Get Rx Queue Address
  */
-uint32_t
-GMAC_GetRxQueue(Gmac * pGmac)
+uint32_t gmac_get_rx_queue(Gmac * pGmac)
 {
 	return pGmac->GMAC_RBQB;
 }
@@ -350,8 +330,7 @@ GMAC_GetRxQueue(Gmac * pGmac)
 /**
  * Set Tx Queue
  */
-void
-GMAC_SetTxQueue(Gmac * pGmac, uint32_t dwAddr)
+void gmac_set_tx_queue(Gmac * pGmac, uint32_t dwAddr)
 {
 	pGmac->GMAC_TBQB = GMAC_TBQB_ADDR_Msk & dwAddr;
 }
@@ -359,8 +338,7 @@ GMAC_SetTxQueue(Gmac * pGmac, uint32_t dwAddr)
 /**
  * Get Tx Queue
  */
-uint32_t
-GMAC_GetTxQueue(Gmac * pGmac)
+uint32_t gmac_get_tx_queue(Gmac * pGmac)
 {
 	return pGmac->GMAC_TBQB;
 }
@@ -368,8 +346,7 @@ GMAC_GetTxQueue(Gmac * pGmac)
 /**
  * Write control value
  */
-void
-GMAC_NetworkControl(Gmac * pGmac, uint32_t bmNCR)
+void gmac_network_control(Gmac * pGmac, uint32_t bmNCR)
 {
 	pGmac->GMAC_NCR = bmNCR;
 }
@@ -377,8 +354,7 @@ GMAC_NetworkControl(Gmac * pGmac, uint32_t bmNCR)
 /**
  * Get control value
  */
-uint32_t
-GMAC_GetNetworkControl(Gmac * pGmac)
+uint32_t gmac_get_network_control(Gmac * pGmac)
 {
 	return pGmac->GMAC_NCR;
 }
@@ -386,8 +362,7 @@ GMAC_GetNetworkControl(Gmac * pGmac)
 /**
  * Enable interrupt(s).
  */
-void
-GMAC_EnableIt(Gmac * pGmac, uint32_t dwSources)
+void gmac_enable_it(Gmac * pGmac, uint32_t dwSources)
 {
 	pGmac->GMAC_IER = dwSources;
 }
@@ -395,8 +370,7 @@ GMAC_EnableIt(Gmac * pGmac, uint32_t dwSources)
 /**
  * Disable interrupt(s).
  */
-void
-GMAC_DisableIt(Gmac * pGmac, uint32_t dwSources)
+void gmac_disable_it(Gmac * pGmac, uint32_t dwSources)
 {
 	pGmac->GMAC_IDR = dwSources;
 }
@@ -404,8 +378,7 @@ GMAC_DisableIt(Gmac * pGmac, uint32_t dwSources)
 /**
  * Return interrupt status.
  */
-uint32_t
-GMAC_GetItStatus(Gmac * pGmac)
+uint32_t gmac_get_it_status(Gmac * pGmac)
 {
 	return pGmac->GMAC_ISR;
 }
@@ -413,8 +386,7 @@ GMAC_GetItStatus(Gmac * pGmac)
 /**
  * Set MAC Address
  */
-void
-GMAC_SetAddress(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr)
+void gmac_set_address(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr)
 {
 	pGmac->GMAC_SA[bIndex].GMAC_SAB = (pMacAddr[3] << 24)
 	    | (pMacAddr[2] << 16)
@@ -427,9 +399,7 @@ GMAC_SetAddress(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr)
 /**
  * Set MAC Address via 2 DW
  */
-void
-GMAC_SetAddress32(Gmac * pGmac, uint8_t bIndex, uint32_t dwMacT,
-		  uint32_t dwMacB)
+void gmac_set_address_32(Gmac * pGmac, uint8_t bIndex, uint32_t dwMacT, uint32_t dwMacB)
 {
 	pGmac->GMAC_SA[bIndex].GMAC_SAB = dwMacB;
 	pGmac->GMAC_SA[bIndex].GMAC_SAT = dwMacT;
@@ -438,8 +408,7 @@ GMAC_SetAddress32(Gmac * pGmac, uint8_t bIndex, uint32_t dwMacT,
 /**
  * Set MAC Address via int64
  */
-void
-GMAC_SetAddress64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac)
+void gmac_set_address_64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac)
 {
 	pGmac->GMAC_SA[bIndex].GMAC_SAB = (uint32_t) ddwMac;
 	pGmac->GMAC_SA[bIndex].GMAC_SAT = (uint32_t) (ddwMac >> 32);
@@ -448,8 +417,7 @@ GMAC_SetAddress64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac)
 /**
  * Clear all statistics registers
  */
-void
-GMAC_ClearStatistics(Gmac * pGmac)
+void gmac_clear_statistics(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR |= GMAC_NCR_CLRSTAT;
 }
@@ -457,8 +425,7 @@ GMAC_ClearStatistics(Gmac * pGmac)
 /**
  * Increase all statistics registers
  */
-void
-GMAC_IncreaseStatistics(Gmac * pGmac)
+void gmac_increase_statistics(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR |= GMAC_NCR_INCSTAT;
 }
@@ -466,8 +433,7 @@ GMAC_IncreaseStatistics(Gmac * pGmac)
 /**
  * Enable/Disable statistics registers writing.
  */
-void
-GMAC_StatisticsWriteEnable(Gmac * pGmac, uint8_t bEnaDis)
+void gmac_statistics_write_enable(Gmac * pGmac, uint8_t bEnaDis)
 {
 	if (bEnaDis)
 		pGmac->GMAC_NCR |= GMAC_NCR_WESTAT;
@@ -478,8 +444,7 @@ GMAC_StatisticsWriteEnable(Gmac * pGmac, uint8_t bEnaDis)
 /**
  * Setup network configuration register
  */
-void
-GMAC_Configure(Gmac * pGmac, uint32_t dwCfg)
+void gmac_configure(Gmac * pGmac, uint32_t dwCfg)
 {
 	pGmac->GMAC_NCFGR = dwCfg;
 }
@@ -487,8 +452,7 @@ GMAC_Configure(Gmac * pGmac, uint32_t dwCfg)
 /**
  * Return network configuration.
  */
-uint32_t
-GMAC_GetConfigure(Gmac * pGmac)
+uint32_t gmac_get_configure(Gmac * pGmac)
 {
 	return pGmac->GMAC_NCFGR;
 }
@@ -496,8 +460,7 @@ GMAC_GetConfigure(Gmac * pGmac)
 /**
  * Start transmission
  */
-void
-GMAC_TransmissionStart(Gmac * pGmac)
+void gmac_Transmission_start(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR |= GMAC_NCR_TSTART;
 }
@@ -505,8 +468,7 @@ GMAC_TransmissionStart(Gmac * pGmac)
 /**
  * Halt transmission
  */
-void
-GMAC_TransmissionHalt(Gmac * pGmac)
+void gmac_transmission_halt(Gmac * pGmac)
 {
 	pGmac->GMAC_NCR |= GMAC_NCR_THALT;
 }

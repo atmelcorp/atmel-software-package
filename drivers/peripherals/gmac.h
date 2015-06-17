@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -114,8 +114,8 @@ extern "C" {
 #define GMAC_FRAME_LENTGH_MAX       1536
 
 //
-#define GMAC_DUPLEX_HALF 0
-#define GMAC_DUPLEX_FULL 1
+#define GMAC_DUPLEX_HALF 	0
+#define GMAC_DUPLEX_FULL 	1
 
 //
 #define GMAC_SPEED_10M      0
@@ -129,115 +129,108 @@ extern "C" {
 /** \addtogroup gmac_structs
         @{*/
 /** Receive buffer descriptor struct */
-typedef struct _GmacRxDescriptor {
-	union _GmacRxAddr {
+struct gmac_rx_descriptor {
+	union gmac_rx_addr {
 		uint32_t val;
-		struct _GmacRxAddrBM {
-			uint32_t bOwnership:1,
-						/**< User clear, GMAC set this to one once
-                                         it has successfully written a frame to
-                                         memory */
-			 bWrap:1,		/**< Marks last descriptor in receive buffer */
-			 addrDW:30;		/**< Address in number of DW */
+		struct gmac_rx_addr_bm {
+			uint32_t bOwnership:1,	/**< User clear, GMAC set this to one once it has successfully written a frame to memory */
+			bWrap:1,				/**< Marks last descriptor in rx buffer */
+			addrDW:30;				/**< Address in number of DW */
 		} bm;
-	} addr;			   /**< Address, Wrap & Ownership */
-	union _GmacRxStatus {
+	} addr;			   				/**< Address, Wrap & Ownership */
+	union gmac_rx_status {
 		uint32_t val;
-		struct _GmacRxStatusBM {
-			uint32_t len:12,	/** Length of frame including FCS */
-			 offset:2,		/** Receive buffer offset,
-						    bits 13:12 of frame length for jumbo
-						    frame */
-			 bSof:1,		/** Start of frame */
-			 bEof:1,		/** End of frame */
-			 bCFI:1,		/** Concatenation Format Indicator */
-			 vlanPriority:3,	/** VLAN priority (if VLAN detected) */
+		struct gmac_rx_status_bm {
+			uint32_t len:12,		/** Length of frame including FCS */
+			 offset:2,				/** Receive buffer offset, bits 13:12 of frame length for jumbo frame */
+			 bSof:1,				/** Start of frame */
+			 bEof:1,				/** End of frame */
+			 bCFI:1,				/** Concatenation Format Indicator */
+			 vlanPriority:3,		/** VLAN priority (if VLAN detected) */
 			 bPriorityDetected:1,	/** Priority tag detected */
-			 bVlanDetected:1,	/**< VLAN tag detected */
-			 bTypeIDMatch:1,	/**< Type ID match */
-			 bAddr4Match:1,	/**< Address register 4 match */
-			 bAddr3Match:1,	/**< Address register 3 match */
-			 bAddr2Match:1,	/**< Address register 2 match */
-			 bAddr1Match:1,	/**< Address register 1 match */
-			 reserved:1, bExtAddrMatch:1,
-						/**< External address match */
-			 bUniHashMatch:1,	/**< Unicast hash match */
-			 bMultiHashMatch:1,	/**< Multicast hash match */
-			 bBroadcastDetected:1;	/**< Global all ones broadcast
-						   address detected */
+			 bVlanDetected:1,		/**< VLAN tag detected */
+			 bTypeIDMatch:1,		/**< Type ID match */
+			 bAddr4Match:1,			/**< Address register 4 match */
+			 bAddr3Match:1,			/**< Address register 3 match */
+			 bAddr2Match:1,			/**< Address register 2 match */
+			 bAddr1Match:1,			/**< Address register 1 match */
+			 reserved:1,
+			 bExtAddrMatch:1, 		/**< External address match */
+			 bUniHashMatch:1,		/**< Unicast hash match */
+			 bMultiHashMatch:1,		/**< Multicast hash match */
+			 bBroadcastDetected:1;	/**< Global all ones broadcast address detected */
 		} bm;
 	} status;
-} sGmacRxDescriptor;		/* GCC */
+} ;
 
 /** Transmit buffer descriptor struct */
-typedef struct _GmacTxDescriptor {
+struct gmac_tx_descriptor {
 	uint32_t addr;
-	union _GmacTxStatus {
+	union gmac_tx_status {
 		uint32_t val;
-		struct _GmacTxStatusBM {
+		struct gmac_tx_status_bm {
 			uint32_t len:11,	/**< Length of buffer */
-			 reserved:4, bLastBuffer:1,
-						/**< Last buffer (in the current frame) */
-			 bNoCRC:1,		/**< No CRC */
-			 reserved1:10, bExhausted:1,
-						/**< Buffer exhausted in mid frame */
-			 bUnderrun:1,		/**< Transmit underrun */
-			 bError:1,		/**< Retry limit exceeded, error detected */
-			 bWrap:1,		/**< Marks last descriptor in TD list */
-			 bUsed:1;		/**< User clear, GMAC sets this once a frame
-						   has been successfully transmitted */
+			reserved:4,
+			bLastBuffer:1,		/**< Last buffer (in the current frame) */
+			bNoCRC:1,			/**< No CRC */
+			reserved1:10,
+			bExhausted:1,		/**< Buffer exhausted in mid frame */
+			bUnderrun:1,		/**< Transmit underrun */
+			bError:1,			/**< Retry limit exceeded, error detected */
+			bWrap:1,			/**< Marks last descriptor in TD list */
+			bUsed:1;			/**< User clear, GMAC sets this once a frame has been successfully transmitted */
 		} bm;
 	} status;
-} sGmacTxDescriptor;		/* GCC */
+} ;
 
 /**     @}*/
 
-//-----------------------------------------------------------------------------
-//         PHY Exported functions
-//-----------------------------------------------------------------------------
-extern uint8_t GMAC_IsIdle(Gmac * pGmac);
-extern void GMAC_PHYMaintain(Gmac * pGmac,
-			     uint8_t bPhyAddr,
-			     uint8_t bRegAddr, uint8_t bRW, uint16_t wData);
-extern uint16_t GMAC_PHYData(Gmac * pGmac);
-extern void GMAC_ClearStatistics(Gmac * pGmac);
-extern void GMAC_IncreaseStatistics(Gmac * pGmac);
-extern void GMAC_StatisticsWriteEnable(Gmac * pGmac, uint8_t bEnaDis);
-extern uint8_t GMAC_SetMdcClock(Gmac * pGmac, uint32_t mck);
-extern void GMAC_EnableMdio(Gmac * pGmac);
-extern void GMAC_DisableMdio(Gmac * pGmac);
-extern void GMAC_EnableMII(Gmac * pGmac);
-extern void GMAC_EnableRMII(Gmac * pGmac);
-extern void GMAC_EnableGMII(Gmac * pGmac);
-extern void GMAC_SetLinkSpeed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex);
-extern void GMAC_EnableIt(Gmac * pGmac, uint32_t dwSources);
-extern void GMAC_DisableIt(Gmac * pGmac, uint32_t dwSources);
-extern uint32_t GMAC_GetItStatus(Gmac * pGmac);
-extern uint32_t GMAC_GetItMask(Gmac * pGmac);
-extern uint32_t GMAC_GetTxStatus(Gmac * pGmac);
-extern void GMAC_ClearTxStatus(Gmac * pGmac, uint32_t dwStatus);
-extern uint32_t GMAC_GetRxStatus(Gmac * pGmac);
-extern void GMAC_ClearRxStatus(Gmac * pGmac, uint32_t dwStatus);
-extern void GMAC_ReceiveEnable(Gmac * pGmac, uint8_t bEnaDis);
-extern void GMAC_TransmitEnable(Gmac * pGmac, uint8_t bEnaDis);
-extern void GMAC_SetRxQueue(Gmac * pGmac, uint32_t dwAddr);
-extern uint32_t GMAC_SetLocalLoopBack(Gmac * pGmac);
-extern uint32_t GMAC_GetRxQueue(Gmac * pGmac);
-extern void GMAC_SetTxQueue(Gmac * pGmac, uint32_t dwAddr);
-extern uint32_t GMAC_GetTxQueue(Gmac * pGmac);
-extern void GMAC_NetworkControl(Gmac * pGmac, uint32_t bmNCR);
-extern uint32_t GMAC_GetNetworkControl(Gmac * pGmac);
-extern void GMAC_SetAddress(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr);
-extern void GMAC_SetAddress32(Gmac * pGmac, uint8_t bIndex,
-			      uint32_t dwMacT, uint32_t dwMacB);
-extern void GMAC_SetAddress64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac);
-extern void GMAC_Configure(Gmac * pGmac, uint32_t dwCfg);
-extern uint32_t GMAC_GetConfigure(Gmac * pGmac);
-extern void GMAC_TransmissionStart(Gmac * pGmac);
-extern void GMAC_TransmissionHalt(Gmac * pGmac);
-extern void GMAC_EnableRGMII(Gmac * pGmac, uint32_t duplex, uint32_t speed);
+/*----------------------------------------------------------------------------
+ *        PHY Exported functions
+ *----------------------------------------------------------------------------*/
+
+extern uint8_t gmac_is_idle(Gmac * pGmac);
+extern void gmac_phy_maintain(Gmac * pGmac, uint8_t bPhyAddr, uint8_t bRegAddr, uint8_t bRW, uint16_t wData);
+extern uint16_t gmac_phy_data(Gmac * pGmac);
+extern uint8_t gmac_set_mdc_clock(Gmac * pGmac, uint32_t mck);
+extern void gmac_enable_mdio(Gmac * pGmac);
+extern void gmac_disable_mdio(Gmac * pGmac);
+extern void gmac_enable_mii(Gmac * pGmac);
+extern void gmac_enable_gmii(Gmac * pGmac);
+extern void gmac_enable_rgmii(Gmac * pGmac, uint32_t duplex, uint32_t speed);
+extern void gmac_set_link_speed(Gmac * pGmac, uint8_t speed, uint8_t fullduplex);
+extern uint32_t gmac_set_local_loopback(Gmac * pGmac);
+extern uint32_t gmac_get_it_mask(Gmac * pGmac);
+extern uint32_t gmac_get_tx_status(Gmac * pGmac);
+extern void gmac_clear_tx_status(Gmac * pGmac, uint32_t dwStatus);
+extern uint32_t gmac_get_rx_status(Gmac * pGmac);
+extern void gmac_clear_rx_status(Gmac * pGmac, uint32_t dwStatus);
+extern void gmac_receive_enable(Gmac * pGmac, uint8_t bEnaDis);
+extern void gmac_transmit_enable(Gmac * pGmac, uint8_t bEnaDis);
+extern void gmac_set_rx_queue(Gmac * pGmac, uint32_t dwAddr);
+extern uint32_t gmac_get_rx_queue(Gmac * pGmac);
+extern void gmac_set_tx_queue(Gmac * pGmac, uint32_t dwAddr);
+extern uint32_t gmac_get_tx_queue(Gmac * pGmac);
+extern void gmac_network_control(Gmac * pGmac, uint32_t bmNCR);
+extern uint32_t gmac_get_network_control(Gmac * pGmac);
+extern void gmac_enable_it(Gmac * pGmac, uint32_t dwSources);
+extern void gmac_disable_it(Gmac * pGmac, uint32_t dwSources);
+extern uint32_t gmac_get_it_status(Gmac * pGmac);
+extern void gmac_set_address(Gmac * pGmac, uint8_t bIndex, uint8_t * pMacAddr);
+extern void gmac_set_address_32(Gmac * pGmac, uint8_t bIndex, uint32_t dwMacT, uint32_t dwMacB);
+extern void gmac_set_address_64(Gmac * pGmac, uint8_t bIndex, uint64_t ddwMac);
+extern void gmac_clear_statistics(Gmac * pGmac);
+extern void gmac_increase_statistics(Gmac * pGmac);
+extern void gmac_statistics_write_enable(Gmac * pGmac, uint8_t bEnaDis);
+extern void gmac_configure(Gmac * pGmac, uint32_t dwCfg);
+extern uint32_t gmac_get_configure(Gmac * pGmac);
+extern void gmac_Transmission_start(Gmac * pGmac);
+extern void gmac_transmission_halt(Gmac * pGmac);
+
+
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif				// #ifndef GMAC_H
