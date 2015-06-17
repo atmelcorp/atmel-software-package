@@ -44,6 +44,9 @@
 #include "peripherals/matrix.h"
 #include "peripherals/mpddrc.h"
 
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -96,6 +99,11 @@ void board_cfg_ddram(void)
 {
 	matrix_configure_slave_ddr();
 	mpddrc_configure(MPDDRC_TYPE_DDR3);
+
+	mmu_initialize();
+	cp15_enable_mmu();
+	cp15_enable_icache();
+	cp15_enable_dcache();
 }
 
 /**
