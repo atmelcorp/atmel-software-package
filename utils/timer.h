@@ -29,99 +29,71 @@
 
 /**
  *  \file
- *  Implement simple PIT usage as system tick.
+ *
+ *  \par Purpose
+ *
+ *  Methods and definitions for an internal timer.
+ *
+ *  Defines a common and simpliest use of timer to generate delays using PIT
+ *
+ *  \par Usage
+ *
+ *  -# Configure the System Tick with timer_configure() when MCK changed
+ *     \note
+ *     Must be done before any invoke of timer_wait(), or timer_sleep()
+ *  -# Uses timer_wait to actively wait according to your timer resolution.
+ *  -# Uses timer_sleep to passively wait ccording to your timer resolution.
+ *
  */
+
+#ifndef TIMER_HEADER_
+#define TIMER_HEADER_
 
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "utils/timetick.h"
-#include "peripherals/tc.h"
-#include "peripherals/pit.h"
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *         Local variables
- *----------------------------------------------------------------------------*/
-
-/** Tick Counter united by ms */
-static volatile uint32_t _tick_count = 0;
-
-/*----------------------------------------------------------------------------
- *         Exported Functions
+ *         Global functions
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Handler for Sytem Tick interrupt.
- */
-void timetick_increment(uint32_t inc)
-{
-	_tick_count += inc;
-}
-
-/**
- *  \brief Configures the PIT & reset tickCount.
+ *  \brief Configures the PIT & reset _timer.
  *  Systick interrupt handler will generates 1ms interrupt and increase a
  *  tickCount.
- *  \note IRQ handler must be configured before invoking this function.
+ *
  *  \note PIT is enabled automatically in this function.
- *  \param new_mck  Current master clock.
+ *  \warning This function also set PIT handler to aic which is
+ *  mandatory to make the timer API work
+ *
+ *  \param resolution initialize PIT resolution (in nano seconds)
  */
-extern uint32_t timetick_configure(uint32_t new_mck)
-{
-	_tick_count = 0;
-	pit_init(1000);
-	pit_enable_it();
-	pit_enable();
-	return 0;
-}
+extern uint32_t timer_configure(uint32_t resolution);
 
 /**
- * Get Delayed number of tick
- * \param startTick Start tick point.
- * \param endTick   End tick point.
+ *  \brief Sync wait for count times resoltion
  */
-extern uint32_t timetick_get_delay_in_ticks(uint32_t startTick, uint32_t endTick)
-{
-	if (endTick >= startTick)
-		return (endTick - startTick);
-	return (endTick + (0xFFFFFFFF - startTick) + 1);
-}
+extern void timer_wait(volatile uint32_t count);
 
 /**
- *  \brief Get current Tick Count, in ms.
+ *  \brief Sync sleep for count times resolution
  */
-extern uint32_t timetick_get_tick_count(void)
-{
-	return _tick_count;
-}
+extern void timer_sleep(volatile uint32_t count);
 
 /**
- *  \brief Sync Wait for several ms
+ * \brief Compute elapsed number of ticks between start and end with
+ * taking overlaps into accounts
+ *
+ * \param start Start tick point.
+ * \param end End tick point.
  */
-void timetick_wait(volatile uint32_t ms)
-{
-	uint32_t start, current;
-	start = _tick_count;
-	do {
-		current = _tick_count;
-	} while (current - start < ms);
-}
+extern uint32_t timer_get_interval(uint32_t start, uint32_t end);
 
 /**
- *  \brief Sync Sleep for several ms
+ * \brief Returns the current number of ticks
  */
-void timetick_sleep(volatile uint32_t ms)
-{
-	uint32_t start, current;
-	asm("CPSIE   I");
-	start = _tick_count;
+extern uint32_t timer_get_tick(void);
 
-	do {
-		current = _tick_count;
-		if (current - start > ms) {
-			break;
-		}
-		asm("WFI");
-	} while (1);
-}
+#endif /* TIMER_HEADER_ */

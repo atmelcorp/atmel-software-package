@@ -29,47 +29,94 @@
 
 /**
  *  \file
- *
- *  \par Purpose
- *
- *  Methods and definitions for Global time tick and wait functions.
- *
- *  Defines a common and simpliest use of Time Tick, to increase tickCount
- *  every 1ms, the application can get this value through timetick_get_tick_count().
- *
- *  \par Usage
- *
- *  -# Configure the System Tick with TimeTick_Configure() when MCK changed
- *     \note
- *     Must be done before any invoke of timetick_get_tick_count(), Wait() or Sleep().
- *  -# Uses timetick_get_tick_count to get current tick value.
- *  -# Uses Wait to wait several ms.
- *  -# Uses Sleep to enter wait for interrupt mode to wait several ms.
- *
+ *  Implement simple PIT usage as system tick.
  */
-
-#ifndef _TIMETICK_
-#define _TIMETICK_
 
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include <stdint.h>
+#include "timer.h"
+#include "peripherals/tc.h"
+#include "peripherals/pit.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------
- *         Definitions
+ *         Local variables
  *----------------------------------------------------------------------------*/
+
+/** Tick Counter */
+static volatile uint32_t _timer = 0;
 
 /*----------------------------------------------------------------------------
- *         Global functions
+ *         Exported Functions
  *----------------------------------------------------------------------------*/
 
-void timetick_increment(uint32_t inc);
-extern uint32_t timetick_configure(uint32_t nex_mck);
-extern uint32_t timetick_get_delay_in_ticks(uint32_t startTick, uint32_t endTick);
-extern uint32_t timetick_get_tick_count(void);
-void timetick_wait(volatile uint32_t ms);
-void timetick_sleep(volatile uint32_t ms);
+/**
+ *  \brief Handler for Sytem Tick interrupt.
+ */
+static void timer_increment(void)
+{
+	uint32_t status;
 
-#endif				/* _TIMETICK_ */
+	/* Read the PIT status register */
+	status = pit_get_status() & PIT_SR_PITS;
+	if (status != 0) {
+
+		/* 1 = The Periodic Interval timer has reached PIV
+		 * since the last read of PIT_PIVR. Read the PIVR to
+		 * acknowledge interrupt and get number of ticks
+		 * Returns the number of occurrences of periodic
+		 * intervals since the last read of PIT_PIVR. */
+		_timer += (pit_get_pivr() >> 20);
+	}
+}
+
+uint32_t timer_configure(uint32_t resolution)
+{
+	_timer = 0;
+	pmc_enable_peripheral(ID_PIT);
+	pit_init(resolution);
+	aic_set_source_vector(ID_PIT, timer_increment);
+	aic_enable(ID_PIT);
+	pit_enable_it();
+	pit_enable();
+	return 0;
+}
+
+uint32_t timer_get_interval(uint32_t start, uint32_t end)
+{
+	if (end >= start)
+		return (end - start);
+	return (end + (0xFFFFFFFF - start) + 1);
+}
+
+void timer_wait(volatile uint32_t count)
+{
+	uint32_t start, current;
+	start = _timer;
+	do {
+		current = _timer;
+	} while (timer_get_interval(start, current) < count);
+}
+
+void timer_sleep(volatile uint32_t count)
+{
+	uint32_t start, current;
+	asm("CPSIE   I");
+	start = _timer;
+
+	do {
+		current = _timer;
+		if (current - start > count) {
+			break;
+		}
+		asm("WFI");
+	} while (1);
+}
+
+uint32_t timer_get_tick(void)
+{
+	return _timer;
+}

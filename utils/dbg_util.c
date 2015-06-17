@@ -39,7 +39,7 @@
 //#include <board.h>
 #include <stdio.h>
 #include "dbg_util.h"
-#include "timetick.h"
+#include "timer.h"
 
 #include "misc/console.h"
 
@@ -104,7 +104,7 @@ DbgReceiveByte(uint8_t * pByte, uint32_t timeOut)
 {
 	uint32_t tick;
 	uint32_t delay;
-	tick = timetick_get_tick_count();
+	tick = timer_get_tick();
 	while (1) {
 		if (console_is_rx_ready()) {
 			uint8_t tmp = console_get_char();
@@ -116,7 +116,7 @@ DbgReceiveByte(uint8_t * pByte, uint32_t timeOut)
 		if (timeOut == 0) {
 			/* Never timeout */
 		} else {
-			delay = timetick_get_delay_in_ticks(tick, timetick_get_tick_count());
+			delay = timer_get_interval(tick, timer_get_tick());
 			if (delay > timeOut) {
 				return 0;
 			}
@@ -146,14 +146,14 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 	if (bStart) {
 		printf("\n\r-- Please start binary data in %d seconds:\n\r",
 		       TIMEOUT_RX_START / 1000);
-		tick0 = timetick_get_tick_count();
+		tick0 = timer_get_tick();
 		while (1) {
 			if (console_is_rx_ready()) {
 				pBuffer[rxCnt++] = console_get_char();
 				console_put_char(' ');
 				break;
 			} else {
-				delay = timetick_get_delay_in_ticks(tick0, timetick_get_tick_count());
+				delay = timer_get_interval(tick0, timer_get_tick());
 				if ((delay % 1000) == 0) {
 					if (xSign == 0) {
 						console_put_char('*');
@@ -172,7 +172,7 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 	}
 	/* Get data */
 	while (1) {
-		tick0 = timetick_get_tick_count();
+		tick0 = timer_get_tick();
 		while (1) {
 			if (console_is_rx_ready()) {
 				pBuffer[rxCnt++] = console_get_char();
@@ -185,7 +185,7 @@ DbgReceiveBinary(uint8_t bStart, uint32_t address, uint32_t maxSize)
 				}
 				break;
 			}
-			delay = timetick_get_delay_in_ticks(tick0, timetick_get_tick_count());
+			delay = timer_get_interval(tick0, timer_get_tick());
 			if (delay > TIMEOUT_RX) {
 				return rxCnt;
 			}
