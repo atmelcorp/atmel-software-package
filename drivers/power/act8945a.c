@@ -823,7 +823,7 @@ uint8_t ACT8945A_begin (void)
 		htwi.IdTwi = ACT8945A_TWI_ID;
 		htwi.Twck = TWCK_400K;
 		htwi.PeriphAddr = ACT8945A_ADDRESS;
-		trace_info("act8945A @0x%02X TWCK:%dKHz \n\r",
+		printf("act8945A @0x%02X TWCK:%dKHz \n\r",
 			   (uint32_t)htwi.PeriphAddr,
 			   (uint32_t)htwi.Twck/1000);
 		Status = _twi_handler_init (&htwi);
