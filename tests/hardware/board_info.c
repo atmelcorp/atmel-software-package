@@ -36,13 +36,21 @@
 
 #include "board_memories.h"
 
+#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
+#include "peripherals/aic.h"
+#include "peripherals/pio.h"
+#include "peripherals/spid.h"
 #include "peripherals/twid.h"
 #include "power/act8945A.h"
 
-#include "memories/at25dfx.h"
+#include "memories/at25.h"
 
 #include "board_info.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //------------------------------------------------------------------------------
 //         Definitions
@@ -216,6 +224,40 @@ const stProc tab_cidr_proc[] =
 #define NB_ELEMENT_PROC  sizeof(tab_cidr_proc)/ sizeof(stProc)
 
 //------------------------------------------------------------------------------
+
+#ifdef SPI_FLASH
+
+#define CMD_BUFFER_SIZE  128
+#define READ_BUFFER_SIZE  256
+
+static const struct _pin at25_pins[] = PINS_SPI_SERIAL_FLASH;
+
+static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+static uint8_t read_buffer[READ_BUFFER_SIZE];
+
+typedef void (*_parser)(const uint8_t*, uint32_t);
+
+static _parser _cmd_parser;
+
+static struct _spi_desc spi_at25_desc = {
+	.addr           = AT25DFX_ADDR,
+	.bitrate        = AT25DFX_FREQ,
+	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
+	.dlybs          = AT25DFX_DLYBS,
+	.dlybct         = AT25DFX_DLYCT,
+	.id             = AT25DFX_ID,
+	.mutex          = 1,
+	.chip_select    = AT25DFX_CHIP_SELECT,
+	.spi_mode       = AT25DFX_SPI_MODE,
+	.transfert_mode = SPID_MODE_FIFO,
+	.dma = 0
+};
+
+static struct _at25 at25drv;
+
+#endif
+
+//------------------------------------------------------------------------------
 //         Local function
 //------------------------------------------------------------------------------
 
@@ -263,8 +305,8 @@ uint8_t EditInfoMpu (void)
   uint32_t reg_cidr, reg_exid;
   struct _chipid_cidr cidr;
 
-	reg_cidr = REG_CHIPID_CIDR;
-  	reg_exid = REG_CHIPID_EXID;
+	reg_cidr = CHIPID->CHIPID_CIDR;
+  	reg_exid = CHIPID->CHIPID_EXID;
 	cidr = *((struct _chipid_cidr *)&CHIP_CIDR_REGISTER);
 
     printf(" Reg.EXID \t\t\t\t\t: %08X\n\r", reg_exid);
@@ -299,6 +341,55 @@ void _display_driver_info (char* str1, char* str2, char* str3)
 //
 //------------------------------------------------------------------------------
 
+#ifdef SPI_FLASH
+
+uint8_t _test_spi_flash (void)
+{
+	uint8_t status;
+
+	/* configure spi serial flash pins */
+	pio_configure(at25_pins, ARRAY_SIZE(at25_pins));
+	/* open serial flash device */
+	if( AT25_SUCCESS == at25_configure(&at25drv, &spi_at25_desc)) {
+		if(at25_unprotect(&at25drv)) {
+			printf(" -E- Protection desactivation FAILED!\r\n");
+			status = 1;
+		}
+		else {
+			at25_read_status(&at25drv);
+			at25_print_device_info(&at25drv);
+
+			status = at25_read_status(&at25drv);
+			printf("at25 chip status:\r\n"
+		       "\t- Busy: %s\r\n"
+		       "\t- Write Enabled: %s\r\n"
+		       "\t- Software protection: %s\r\n"
+		       "\t- Write protect pin: %s\r\n"
+		       "\t- Erase/Program error: %s\r\n"
+		       "\t- Sector Protection Resgister: %s\r\n"
+		       "\t- Raw register value: 0x%X\r\n",
+		       status & AT25_STATUS_RDYBSY_BUSY ? "yes":"no",
+		       status & AT25_STATUS_WEL ? "yes":"no",
+		       status & AT25_STATUS_SWP ? "Some/all":"none",
+		       status & AT25_STATUS_WPP ? "inactive":"active",
+		       status & AT25_STATUS_EPE ? "yes":"no",
+		       status & AT25_STATUS_SPRL ? "locked":"unlocked",
+		       (unsigned int)status);
+			status = 0;
+		}
+	}
+	else {
+		printf(" -E- Device not supported FAILED!\r\n");
+		status = 1;
+	}
+	return status;
+}
+#endif
+
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+
 struct _stResult
 {
   uint8_t 	result ;
@@ -307,7 +398,7 @@ struct _stResult
 
 void check_hw_on_board (void)
 {
-	uint32_t MulA, PllaDiv2, Result, board_mck;
+	uint32_t MulA, PllaDiv2, board_mck;
 	uint8_t i, index, status, sum;
 	struct _stResult sresult[16];
 
@@ -427,13 +518,7 @@ void check_hw_on_board (void)
     //printf("\n\r");
     printf("--SPI FLASH\n\r");
 	_display_driver_info (SPIF_DEVICE, SPIF_INTERFACE, SPIF_COMMENT);
-	at25dfx_open();
-	status = at25dfx_unlock_sectors();
-	if (!status) {
-		at25dfx_get_status();
-		at25dfx_print_device_info();
-	}
-	sresult[index].result = status ? 1 : 0;
+	sresult[index].result = _test_spi_flash();
 	strcpy (sresult[index++].string, "SPI FLASH\t");
 #endif
 
