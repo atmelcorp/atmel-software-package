@@ -62,7 +62,7 @@
 //#define EMMC
 // #define SDRAM_DDR2
 // #define SDRAM_DDR3
-#define	EEPROM
+//#define	EEPROM
 #define SPI_FLASH
 //#define QSPI_FLASH
 //#define SDCARD
@@ -81,7 +81,7 @@
 //------------------------------------------------------------------------------
 
 #ifdef AT24MAC402
-	#include "memories/24mac402.h"
+	#include "memories/at24mac402.h"
 
 	#define EEP_DEVICE		"AT24MAC402"
 	#define EEP_INTERFACE	"TWI1, IOS2"
