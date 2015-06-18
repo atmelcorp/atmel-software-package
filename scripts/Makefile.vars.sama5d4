@@ -8,7 +8,6 @@ CONFIG_HAVE_DBGU = y
 ifeq ("y",$(TARGET:%-xplained="y"))
 CONFIG_SOC_SAMA5D44 = y
 CONFIG_BOARD_SAMA5D4_XPLAINED = y
-CONFIG_HAVE_DDR2 = y
 endif
 
 ifeq ("y",$(TARGET:%-ek="y"))
