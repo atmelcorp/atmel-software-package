@@ -9,9 +9,6 @@ define reset
 # Connect to the J-Link gdb server
 target remote localhost:2331
 
-# Load the program
-load
-
 # Reset peripherals (using RSTC_CR)
 set *0xF8048000 = 0xA5000004
 
@@ -20,6 +17,14 @@ set *0xF8048044 = 0x00008000
 
 # Disable D-Cache, I-Cache and MMU
 mon cp15 1 0 0 0 = 0x00C50078
+
+# Disable DDR clock and MPDDRC controller
+# to avoid corrupted RAM data on soft reset.
+set *0xF0014004 = 0x4
+set *0xF0014014 = (1 << 13)
+
+# Load the program
+load
 
 # Disable all interrupts and go to supervisor mode
 mon reg cpsr = 0xd3
