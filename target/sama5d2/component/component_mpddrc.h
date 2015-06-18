@@ -129,7 +129,7 @@ typedef struct {
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
 #define   MPDDRC_CR_NC_DDR9_MDDR8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits for DDR, 8-bit for low-power DDR1-SDRAM */
-#define   MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR, 9-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR, 9-bit for low-power DDR1-SDRAM */
 #define   MPDDRC_CR_NC_DDR11_MDDR10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits for DDR, 10-bit for low-power DDR1-SDRAM */
 #define   MPDDRC_CR_NC_DDR12_MDDR11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits for DDR, 11-bit for low-power DDR1-SDRAM */
 #define MPDDRC_CR_NR_Pos 2
@@ -359,7 +359,7 @@ typedef struct {
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_34 (0x1u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 34.3 ohms,DDR2/LP-DDR1 serial impedance line: Not applicable */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_40_RZQ_38_RZQ_37_RZQ_35 (0x2u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 40 ohms,LP-DDR3 serial impedance line = 38 ohms,DDR3 serial impedance line = 37 ohms,DDR2/LP-DDR1 serial impedance line = 35 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_48_RZQ_46_RZQ_44_RZQ_43 (0x3u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 48 ohms,LP-DDR3 serial impedance line = 46 ohms,DDR3 serial impedance line = 44 ohms,DDR2/LP-DDR1 serial impedance line = 43 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_57_RZQ_55_RZQ_52 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 60 ohms,LP-DDR3 serial impedance line = 57 ohms,DDR3 serial impedance line = 55 ohms,DDR2/LP-DDR1 serial impedance line = 52 ohms */
+#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 60 ohms,LP-DDR3 serial impedance line = 57 ohms,DDR3 serial impedance line = 55 ohms,DDR2/LP-DDR1 serial impedance line = 52 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_80_RZQ_77_RZQ_73_RZQ_70 (0x6u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 80 ohms,LP-DDR3 serial impedance line = 77 ohms,DDR3 serial impedance line = 73 ohms,DDR2/LP-DDR1 serial impedance line = 70 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_120_RZQ_115_RZQ_110_RZQ_105 (0x7u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 120 ohms,LP-DDR3 serial impedance line = 115 ohms,DDR3 serial impedance line = 110 ohms,DDR2/LP-DDR1 serial impedance line = 105 ohms */
 #define MPDDRC_IO_CALIBR_EN_CALIB (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Enable Calibration */

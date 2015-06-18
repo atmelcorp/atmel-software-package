@@ -40,7 +40,7 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 {
 	desc->type = MPDDRC_TYPE_DDR3;
 
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_57_RZQ_55_RZQ_52;
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
 
 	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM;
 
@@ -75,7 +75,7 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
-#else
+#endif
 
 static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 {
@@ -98,7 +98,7 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 
 	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
 		| MPDDRC_IO_CALIBR_CALCODEN(8)
-		| MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_50
+		| MPDDRC_IO_CALIBR_RDIV_RZQ_60
 		| MPDDRC_IO_CALIBR_TZQIO(5)
 		| MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 
@@ -135,7 +135,7 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 
 	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
 		| MPDDRC_IO_CALIBR_CALCODEN(8)
-		| MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_50
+		| MPDDRC_IO_CALIBR_RDIV_RZQ_60
 		| MPDDRC_IO_CALIBR_TZQIO(5)
 		| MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 
@@ -171,8 +171,6 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	desc->bank = 8192;
 }
 
-#endif
-
 void ddram_init_descriptor(struct _mpddrc_desc* desc,
 			   enum _ddram_devices device)
 {
@@ -181,14 +179,13 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 	case MT41K128M16:
 		_init_mt41k128m16(desc);
 		break;
-#else
+#endif
 	case MT47H128M8CF:
 		_init_mt47h128m8cf(desc);
 		break;
 	case MT47H128M16:
 		_init_mt47h128m16(desc);
 		break;
-#endif
 	default:
 		break;
 	}

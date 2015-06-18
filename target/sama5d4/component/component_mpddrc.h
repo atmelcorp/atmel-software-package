@@ -294,7 +294,7 @@ typedef struct {
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_34 (0x1u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2 RZQ = 34.3 ohms, DDR2/LPDDR1: Not applicable */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_40_RZQ_33_3 (0x2u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 40 ohms, DDR2/LPDDR1: RZQ = 33.3 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_48_RZQ_40 (0x3u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 48 ohms, DDR2/LPDDR1: RZQ = 40 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_50 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 60 ohms, DDR2/LPDDR1: RZQ = 50 ohms */
+#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 60 ohms, DDR2/LPDDR1: RZQ = 50 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_80_RZQ_66_7 (0x6u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2: RZQ = 80 ohms, DDR2/LPDDR1: RZQ = 66.7 ohms */
 #define   MPDDRC_IO_CALIBR_RDIV_RZQ_120_RZQ_100 (0x7u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 120 ohms, DDR2/LPDDR1: RZQ = 100 ohms */
 #define MPDDRC_IO_CALIBR_EN_CALIB (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Enable of the Calibration */
