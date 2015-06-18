@@ -31,8 +31,8 @@ define symbol __ICFEDIT_size_fiqstack__ = 0x60;
 define symbol __ICFEDIT_size_abtstack__ = 0x60;
 define symbol __ICFEDIT_size_undstack__ = 0x40;
 define symbol __ICFEDIT_size_sysstack__ = 0x40;
-define symbol __ICFEDIT_size_cstack__   = 0x400;
-define symbol __ICFEDIT_size_heap__     = 0x800;
+define symbol __ICFEDIT_size_cstack__   = 0x3000;
+define symbol __ICFEDIT_size_heap__     = 0x200;
 /**** End of ICF editor section. ###ICF###*/
 
 define memory mem with size = 4G;

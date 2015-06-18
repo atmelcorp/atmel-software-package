@@ -45,11 +45,11 @@ MEMORY
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
 C_STACK_SIZE   = 0x3000;
-IRQ_STACK_SIZE = 0x100;
-FIQ_STACK_SIZE = 0x100;
-SYS_STACK_SIZE = 0x500;
-ABT_STACK_SIZE = 0x10;
-UND_STACK_SIZE = 0x10;
+IRQ_STACK_SIZE = 0x60;
+FIQ_STACK_SIZE = 0x60;
+SYS_STACK_SIZE = 0x40;
+ABT_STACK_SIZE = 0x40;
+UND_STACK_SIZE = 0x40;
 HEAP_SIZE      = 0x200;
 
 /* Section Definitions */
