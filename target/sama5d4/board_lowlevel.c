@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -42,6 +42,7 @@
 #include "peripherals/pmc.h"
 #include "cortex-a/cpsr.h"
 #include "peripherals/aic.h"
+#include "peripherals/matrix.h"
 
 #include <stdio.h>
 
@@ -73,5 +74,5 @@ void low_level_init(void)
 	}
 
 	/* Remap */
-	board_remap_ram();
+	matrix_remap_ram();
 }

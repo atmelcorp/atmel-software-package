@@ -13,7 +13,7 @@
 #define PIN_USB_POWER_ENC {PIO_PE14, PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
 
 /** /def Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE      DDRAM_MT47H128M16
+#define BOARD_DDRAM_TYPE      MT47H128M16
 
 /** MCI0 Card detect pin definition. (PE2) */
 #define BOARD_MCI0_PIN_CD       {PIO_PE2, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP}
