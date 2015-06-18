@@ -38,33 +38,11 @@
 
 #include <stdlib.h>
 
-static void _set_ddr3_timings(void)
+static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
-	/*
-	 * According to MT41K128M16 datasheet
-	 * Maximum fresh period: 64ms, refresh count: 8k
-	 */
-
-	/* Assume timings for 8ns min clock period */
-	MPDDRC->MPDDRC_TPR0 = (MPDDRC_TPR0_TRAS(6)
-			| MPDDRC_TPR0_TRCD(3)
-			| MPDDRC_TPR0_TWR(3)
-			| MPDDRC_TPR0_TRC(9)
-			| MPDDRC_TPR0_TRP(3)
-			| MPDDRC_TPR0_TRRD(1)
-			| MPDDRC_TPR0_TWTR(2)
-			| MPDDRC_TPR0_TMRD(3));
-
-	MPDDRC->MPDDRC_TPR1 = (MPDDRC_TPR1_TRFC(27)
-			| MPDDRC_TPR1_TXSNR(29)
-			| MPDDRC_TPR1_TXSRD(0)
-			| MPDDRC_TPR1_TXP(3));
-
-	MPDDRC->MPDDRC_TPR2 = (MPDDRC_TPR2_TXARD(8)
-			| MPDDRC_TPR2_TXARDS(2)
-			| MPDDRC_TPR2_TRPA(3)
-			| MPDDRC_TPR2_TRTP(2)
-			| MPDDRC_TPR2_TFAW(7));
+	MPDDRC->MPDDRC_TPR0 = desc->tpr0;
+	MPDDRC->MPDDRC_TPR1 = desc->tpr1;
+	MPDDRC->MPDDRC_TPR2 = desc->tpr2;
 }
 
 static uint32_t _compute_ba_offset(void)
@@ -89,18 +67,16 @@ static void _send_nop_cmd(void)
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 }
 
-static void _send_lmr_cmd(uint32_t opcode, uint32_t ba_offset)
+static void _send_lmr_cmd(void)
 {
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LMR_CMD;
-
 	/* Perform a write to a DDR memory access to acknoledge the command */
-	*((uint32_t *)(DDR_CS_ADDR + (opcode << ba_offset))) = 0u;
+	*((uint32_t *)DDR_CS_ADDR) = 0u;
 }
 
 static void _send_ext_lmr_cmd(uint32_t opcode, uint32_t ba_offset)
 {
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_EXT_LMR_CMD;
-
 	/* Perform a write to a DDR memory access to acknoledge the command */
 	*((uint32_t *)(DDR_CS_ADDR + (opcode << ba_offset))) = 0u;
 }
@@ -108,6 +84,20 @@ static void _send_ext_lmr_cmd(uint32_t opcode, uint32_t ba_offset)
 static void _send_normal_cmd(void)
 {
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_NORMAL_CMD;
+	/* Perform a write to a DDR memory access to acknoledge the command */
+	*((uint32_t *)DDR_CS_ADDR) = 0;
+}
+
+static void _send_precharge_cmd(void)
+{
+	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_PRCGALL_CMD;
+	/* Perform a write to a DDR memory access to acknoledge the command */
+	*((uint32_t *)DDR_CS_ADDR) = 0;
+}
+
+static void _send_refresh_cmd(void)
+{
+	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_RFSH_CMD;
 	/* Perform a write to a DDR memory access to acknoledge the command */
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 }
@@ -121,40 +111,10 @@ static void _send_calib_cmd(void)
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 }
 
-static void _configure_ddr3(void)
+static void _configure_ddr3(struct _mpddrc_desc* desc)
 {
-	pmc_enable_peripheral(ID_MPDDRC);
-	pmc_enable_ddr_clock();
-
-	/* Configure time to have microseconds resolution */
-	timer_configure(1000);
-	/* Step1: Program memory device type */
-	MPDDRC->MPDDRC_MD = MPDDRC_MD_MD_DDR3_SDRAM;
-
-	/* set driver impedance */
-	uint32_t value = MPDDRC->MPDDRC_IO_CALIBR;
-	value &= ~MPDDRC_IO_CALIBR_RDIV_Msk;
-	value |= MPDDRC_IO_CALIBR_RDIV_RZQ_60_RZQ_57_RZQ_55_RZQ_52;
-	MPDDRC->MPDDRC_IO_CALIBR = value;
-
-	MPDDRC->MPDDRC_RD_DATA_PATH =
-		MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
-
-	/* Step 2: Program features of the DDR3-SDRAM device in the
-	 * configuration register and timing parameter registers (TPR0
-	 * ans TPR1) */
-
-	/* Configurations */
-	MPDDRC->MPDDRC_CR = (MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
-			     | MPDDRC_CR_NR_14_ROW_BITS
-			     | MPDDRC_CR_CAS_DDR_CAS5
-			     | MPDDRC_CR_DIS_DLL
-			     | MPDDRC_CR_NB_8_BANKS
-			     | MPDDRC_CR_DECOD_INTERLEAVED
-			     | MPDDRC_CR_UNAL_SUPPORTED);
-
 	/* Timings */
-	_set_ddr3_timings();
+	_set_ddr_timings(desc);
 	uint32_t ba_offset = _compute_ba_offset();
 
 	/*
@@ -164,7 +124,8 @@ static void _configure_ddr3(void)
 	_send_nop_cmd();
 
 	/*
-	 * Step 4: A pause of at least 500us must be observed before a single toggle.
+	 * Step 4: A pause of at least 500us must be observed before a
+	 * single toggle.
 	 */
 	timer_wait(500);
 	/*
@@ -196,19 +157,16 @@ static void _configure_ddr3(void)
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
 	 */
-	/* Not done here */
+	/* Not done for DDR3 */
 
 	/*
 	 * Step 10: Issue a Mode Register Set (MRS) cycle to reset DLL.
 	 */
-	_send_lmr_cmd(0x0, ba_offset);
+	_send_lmr_cmd();
 	timer_wait(50);
 	/*
 	 * Step 11: Issue a Calibration command (MRS) cycle to calibrate RTT and
 	 * RON values for the Process Voltage Temperature (PVT).
-	 * The application must write a six to the MODE field in the MPDDRC_MR
-	 * and perform a write access to the DDR3-SDRAM to acknowledge this command.
-	 * The write address must be chosen so that signals BA[2:0] are set to 0.
 	 */
 	_send_calib_cmd();
 	timer_wait(10);
@@ -223,34 +181,141 @@ static void _configure_ddr3(void)
 	 * Step 13: Perform a write access to any DDR3-SDRAM address.
 	 */
 	*((uint32_t *)(DDR_CS_ADDR)) = 0;
+}
 
-	/*
-	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
-	 * Refresh Timer Register (MPDDRC_RTR):
-	 * refresh rate = delay between refresh cycles.
-	 * The DDR3-SDRAM device requires a refresh every 7.81 us.
-	 */
-	/* Refresh Timer is (64ms / 8k) * master_clock */
+#endif
+
+static void _configure_ddr2(struct _mpddrc_desc* desc)
+{
+	/* Timings */
+	_set_ddr_timings(desc);
+	uint32_t ba_offset = _compute_ba_offset();
+
+	/* Step 3: An NOP command is issued to the DDR2-SDRAM. Program
+	 * the NOP command into the Mode Register and wait minimum 200
+	 * us */
+	_send_nop_cmd();
+	timer_wait(200);
+
+	/* Step 4:  Issue a NOP command. */
+	_send_nop_cmd();
+	timer_wait(1);
+
+	/* Step 5: Issue all banks precharge command. */
+	_send_precharge_cmd();
+	timer_wait(1);
+
+	/* Step 6: Issue an Extended Mode Register set (EMRS2) cycle
+	 * to chose between commercialor high  temperature
+	 * operations. */
+	_send_ext_lmr_cmd(0x2, ba_offset);
+	timer_wait(1);
+
+	/* Step 7: Issue an Extended Mode Register set (EMRS3) cycle
+	 * to set all registers to 0. */
+	_send_ext_lmr_cmd(0x3, ba_offset);
+	timer_wait(1);
+
+	/* Step 8:  Issue an Extended Mode Register set (EMRS1) cycle
+	 * to enable DLL. */
+	_send_ext_lmr_cmd(0x1, ba_offset);
+	timer_wait(5);
+
+	/* Step 9:  Program DLL field into the Configuration Register. */
+	MPDDRC->MPDDRC_CR |= MPDDRC_CR_DLL_RESET_ENABLED;
+
+	/* Step 10: A Mode Register set (MRS) cycle is issued to reset DLL. */
+	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LMR_CMD;
+	/* Perform a write to a DDR memory access to acknoledge the command */
+	*((uint32_t *)DDR_CS_ADDR) = 0;
+
+	timer_wait(1);
+
+	/* Step 11: Issue all banks precharge command to the DDR2-SDRAM. */
+	_send_precharge_cmd();
+	timer_wait(1);
+
+	/* Step 12: Two auto-refresh (CBR) cycles are
+	 * provided. Program the auto refresh command (CBR) into the
+	 * Mode Register. */
+	_send_refresh_cmd();
+	timer_wait(1);
+	_send_refresh_cmd();
+	timer_wait(1);
+
+	/* Step 13: Program DLL field into the Configuration Register
+	 * to low(Disable DLL reset). */
+	MPDDRC->MPDDRC_CR &= ~MPDDRC_CR_DLL_RESET_ENABLED;
+
+	/* Step 14: Issue a Mode Register set (MRS) cycle to program
+	 * the parameters of the DDR2-SDRAM devices. */
+	_send_lmr_cmd();
+	timer_wait(1);
+
+	/* Step 15: Program OCD field into the Configuration Register
+	 * to high (OCD calibration default). */
+	MPDDRC->MPDDRC_CR |= MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB;
+
+	/* Step 16: An Extended Mode Register set (EMRS1) cycle is
+	 * issued to OCD default value. */
+	_send_ext_lmr_cmd(0x1, ba_offset);
+	timer_wait(1);
+
+	/* Step 19,20: A mode Normal command is provided. Program the
+	 * Normal mode into Mode Register. */
+	_send_normal_cmd();
+	timer_wait(1);
+}
+
+extern void mpddrc_configure(struct _mpddrc_desc* desc)
+{
+	/* Configure time to have microseconds resolution */
+	timer_configure(1000);
+
+	/* controller and DDR clock */
+	pmc_enable_peripheral(ID_MPDDRC);
+	pmc_enable_ddr_clock();
+
+	/* Step1: Program memory device type */
+	MPDDRC->MPDDRC_MD = desc->mode;
+
+	/* set driver impedance */
+	uint32_t value = MPDDRC->MPDDRC_IO_CALIBR;
+	value &= ~MPDDRC_IO_CALIBR_RDIV_Msk;
+	value &= ~MPDDRC_IO_CALIBR_TZQIO_Msk;
+	value &= ~MPDDRC_IO_CALIBR_CALCODEP_Msk;
+	value &= ~MPDDRC_IO_CALIBR_CALCODEN_Msk;
+	value |= desc->io_calibr;
+	MPDDRC->MPDDRC_IO_CALIBR = value;
+
+	MPDDRC->MPDDRC_RD_DATA_PATH = desc->data_path;
+
+	/* Step 2: Program features of the DDR3-SDRAM device in the
+	 * configuration register and timing parameter registers (TPR0
+	 * ans TPR1) */
+
+	/* Configurations */
+	MPDDRC->MPDDRC_CR = desc->control;
+
+	switch(desc->type) {
+#ifdef CONFIG_HAVE_DDR3
+	case MPDDRC_TYPE_DDR3:
+		_configure_ddr3(desc);
+		break;
+#endif
+	case MPDDRC_TYPE_DDR2:
+		_configure_ddr2(desc);
+		break;
+	default:
+		trace_error("Device not handled\r\n");
+		abort();
+	}
+
+	/* Last step: Write the refresh rate */
+	/* Refresh Timer is (64ms / (bank_size)) * master_clock */
 	uint32_t master_clock = pmc_get_master_clock()/1000000;
-	MPDDRC->MPDDRC_RTR = 64000*master_clock/8192;
-	/* this value should be 0x511 with master_clock = 166 MHz */
-}
+	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000*master_clock/desc->bank);
 
-#endif
-
-#ifdef CONFIG_HAVE_DDR2
-static void _configure_ddr2(void)
-{
-}
-#endif
-
-extern void mpddrc_configure(enum _ram_type ram)
-{
-#if defined(CONFIG_HAVE_DDR3)
-		_configure_ddr3();
-#elif defined(CONFIG_HAVE_DDR2)
-		_configure_ddr2();
-#else
-#error "Memory type not supported!"
-#endif
+	/* wait for end of calibration */
+	timer_wait(1);
 }
