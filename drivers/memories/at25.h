@@ -30,6 +30,10 @@
 #ifndef _AT25DFX_HEADER_
 #define _AT25DFX_HEADER_
 
+//------------------------------------------------------------------------------
+//         Headers
+//------------------------------------------------------------------------------
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -131,20 +135,18 @@
 #define AT25_EXIT_4ADDR_MODE        0xE9
 
 /** SPI Flash Manufacturer JEDEC ID */
-#define ATMEL_SPI_FLASH             0x1F
-#define ST_SPI_FLASH                0x20
-#define WINBOND_SPI_FLASH           0xEF
-#define MACRONIX_SPI_FLASH          (0xC2u)
-#define SST_SPI_FLASH               (0xBFu)
+#define AT25_MANUF_ATMEL            0x1F
+#define AT25_MANUF_ST               0x20
+#define AT25_MANUF_WINBOND          0xEF
+#define AT25_MANUF_MACRONIX         0xC2
+#define AT25_MANUF_SST              0xBF
 
-#define AT25_ADDRESS_4_BYTES        (0x4Bu)
-#define AT25_ADDRESS_3_BYTES        (0x3Bu)
-#define AT25_SUCCESS                (0x0u)
-#define AT25_DEVICE_NOT_SUPPORTED   (0xFu)
-#define AT25_ADDR_OOB               (0xB0)
+#define AT25_ADDRESS_4_BYTES        0x4B
+#define AT25_ADDRESS_3_BYTES        0x3B
+#define AT25_SUCCESS                0x0
+#define AT25_DEVICE_NOT_SUPPORTED   0xF
+#define AT25_ADDR_OOB               0xB
 
-#define at25_man_id(at25) (at25)->desc->jedec_id
-#define _at25_page_size(at25) (at25)->desc->page_size
 /** Describes a serial firmware flash device parameters. */
 struct _at25_desc {
 

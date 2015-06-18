@@ -120,7 +120,7 @@ static void _at25_send_write_cmd(struct _at25* at25, uint32_t addr)
 		.size = 1
 	};
 
-	if (at25_man_id(at25) == SST_SPI_FLASH)
+	if (at25->desc->jedec_id == AT25_MANUF_SST)
 	{
 		cmd[0] = AT25_SEQUENTIAL_PROGRAM_1;
 		dummy_byte = 1;
@@ -531,7 +531,7 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 	}
 
 	/* Retrieve device page size */
-	uint32_t page_size = _at25_page_size(at25);
+	uint32_t page_size = at25->desc->page_size;
 
 	struct _buffer out = {
 		.data = (uint8_t*)data,
