@@ -51,35 +51,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Changes the mapping of the chip so that the remap area mirrors the
- * internal ROM or the EBI CS0.
- */
-void board_remap_rom(void)
-{
-	AXIMX->AXIMX_REMAP = 0;
-}
-
-/**
- * \brief Changes the mapping of the chip so that the remap area mirrors the
- * internal RAM.
- */
-
-void board_remap_ram(void)
-{
-	volatile uint32_t i;
-	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
-	for(i=1000;--i;);
-}
-
-/**
- * \brief Initialize Vdd EBI drive
- * \param 0: 1.8V 1: 3.3V
- */
-void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
-{
-}
-
 static void matrix_configure_slave_ddr(void)
 {
 	matrix_remove_write_protection(MATRIX0);

@@ -77,3 +77,24 @@ void matrix_remove_write_protection(Matrix* mtx)
 {
 	mtx->MATRIX_WPMR = MATRIX_WPMR_WPKEY_PASSWD;
 }
+
+/**
+ * \brief Changes the mapping of the chip so that the remap area mirrors the
+ * internal ROM or the EBI CS0.
+ */
+void matrix_remap_rom(void)
+{
+	AXIMX->AXIMX_REMAP = 0;
+}
+
+/**
+ * \brief Changes the mapping of the chip so that the remap area mirrors the
+ * internal RAM.
+ */
+
+void matrix_remap_ram(void)
+{
+	volatile uint32_t i;
+	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
+	for(i=1000;--i;);
+}

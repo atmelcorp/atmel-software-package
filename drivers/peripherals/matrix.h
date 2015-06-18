@@ -68,6 +68,10 @@ extern uint8_t matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id);
 
 extern void matrix_remove_write_protection(Matrix* mtx);
 
+extern void matrix_remap_rom(void);
+
+extern void matrix_remap_ram(void);
+
 #ifdef __cplusplus
 }
 #endif
