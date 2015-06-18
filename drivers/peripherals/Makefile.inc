@@ -40,7 +40,6 @@ drivers-y += drivers/peripherals/pmc.o
 drivers-y += drivers/peripherals/pwmc.o
 drivers-y += drivers/peripherals/rstc.o
 drivers-y += drivers/peripherals/rtc.o
-drivers-y += drivers/peripherals/rtc_calib.o
 drivers-y += drivers/peripherals/sha.o
 drivers-y += drivers/peripherals/smc_nfc.o
 drivers-y += drivers/peripherals/spi.o

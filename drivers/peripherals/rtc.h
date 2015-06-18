@@ -34,14 +34,14 @@
  *
  */
 
-#ifndef _RTC_
-#define _RTC_
+#ifndef _RTC_H_
+#define _RTC_H_
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "chip.h"
 
+#include "chip.h"
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -57,34 +57,22 @@
 #define RTC_DATE_BIT_LEN_MASK   0x3F
 #define RTC_WEEK_BIT_LEN_MASK   0x07
 
-/* The BCD code shift value */
-#define BCD_SHIFT      4
-
-/* The BCD code mask value */
-#define BCD_MASK       0xfu
-
-/* The BCD mul/div factor value */
-#define BCD_FACTOR     10
-
-
 struct _time
 {
-  uint8_t   hour;
-  uint8_t   min;
-  uint8_t   sec;
+  uint8_t hour;
+  uint8_t min;
+  uint8_t sec;
 } ;
 
 struct _date
 {
-  unsigned short year;
-  uint8_t month;
-  uint8_t day;
-  uint8_t week;
+  uint16_t year;
+  uint8_t  month;
+  uint8_t  day;
+  uint8_t  week;
 } ;
 
-
 #ifdef CONFIG_SOC_SAMA5D2
-
 	/* -------- RTC_TSTR : (RTC Offset: N/A) TimeStamp Time Register 0 -------- */
 	#define RTC_TSTR_SEC_Pos 0
 	#define RTC_TSTR_SEC_Msk (0x7fu << RTC_TSTR_SEC_Pos) /**< \brief (RTC_TSTR) SEConds of the tamper */
@@ -107,7 +95,6 @@ struct _date
 	#define RTC_TSDR_DAY_Msk (0x7u << RTC_TSDR_DAY_Pos) /**< \brief (RTC_TSDR) Day of the tamper */
 	#define RTC_TSDR_DATE_Pos 24
 	#define RTC_TSDR_DATE_Msk (0x3fu << RTC_TSDR_DATE_Pos) /**< \brief (RTC_TSDR) Date of the tamper */
-
 #endif
 
 /*----------------------------------------------------------------------------
@@ -118,26 +105,31 @@ struct _date
 extern "C" {
 #endif
 
-extern void rtc_set_hour_mode(Rtc * pRtc, uint32_t mode);
-extern uint32_t rtc_get_hour_mode(Rtc * pRtc);
-extern void rtc_enable_it(Rtc * pRtc, uint32_t sources);
-extern void rtc_disable_it(Rtc * pRtc, uint32_t sources);
-extern int rtc_set_time(Rtc * pRtc, struct _time *pTime);
-extern void rtc_get_time(Rtc * pRtc, struct _time *pTime);
-extern int rtc_set_time_alarm(Rtc * pRtc, struct _time *pTime);
-extern void rtc_get_date(Rtc * pRtc, struct _date *pDate);
-extern int rtc_set_date(Rtc * pRtc, struct _date *pDate);
-extern int rtc_set_date_alarm(Rtc * pRtc, struct _date *pDate);
-extern void rtc_clear_sccr(Rtc * pRtc, uint32_t mask);
-extern uint32_t rtc_get_sr(Rtc * pRtc, uint32_t mask);
-extern void rtc_get_tamper_time(Rtc * pRtc, struct _time *pTime,  uint8_t reg_num);
-extern void rtc_get_tamper_date(Rtc * pRtc, struct _date *pDate, uint8_t reg_num);
-extern uint32_t rtc_get_tamper_source(Rtc * pRtc, uint8_t reg_num);
-extern uint32_t rtc_get_tamper_event_counter(Rtc * pRtc);
-extern uint8_t rtc_is_tamper_occur_in_backup_mode(Rtc * pRtc, uint8_t reg_num);
-extern void rtc_convert_time_to_hms (struct _time *pTime, uint32_t count);
+extern void rtc_set_hour_mode(uint32_t mode);
+extern uint32_t rtc_get_hour_mode(void);
+extern void rtc_enable_it(uint32_t sources);
+extern void rtc_disable_it(uint32_t sources);
+extern int rtc_set_time(struct _time *time);
+extern void rtc_get_time(struct _time *time);
+extern int rtc_set_time_alarm(struct _time *time);
+extern void rtc_get_date(struct _date *date);
+extern int rtc_set_date(struct _date *date);
+extern int rtc_set_date_alarm(struct _date *date);
+extern void rtc_clear_sccr(uint32_t mask);
+extern uint32_t rtc_get_sr(uint32_t mask);
+extern void rtc_get_tamper_time(struct _time *time, uint8_t reg_num);
+extern void rtc_get_tamper_date(struct _date *date, uint8_t reg_num);
+extern uint32_t rtc_get_tamper_source(uint8_t reg_num);
+extern uint32_t rtc_get_tamper_event_counter(void);
+extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num);
+extern void rtc_convert_time_to_hms (struct _time *time, uint32_t count);
+
+/**
+ * \brief RTC calibration for Temperature or PPM drift
+ */
+extern void rtc_calibration(int32_t current_tempr);
 
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _RTC_ */
+#endif /* _RTC_H_ */

@@ -113,7 +113,7 @@
 
 #include "board.h"
 #include "misc/console.h"
-#include "peripherals/rtc_calib.h"
+#include "peripherals/rtc.h"
 #include "peripherals/tc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
@@ -189,16 +189,6 @@ static unsigned int bMenuShown = 0;
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Display a string on the terminal.
- */
-static inline void uart_puts(const char *pStr)
-{
-	while (*pStr) {
-		console_put_char(*pStr++);
-	}
-}
-
-/**
  * \brief Print a formatted string into a buffer.
  */
 static signed int print_to_buf(char *pBuf, const char *pFormat, ...)
@@ -230,7 +220,7 @@ static int get_new_time(void)
 
 		/* end input */
 		if (ucKey == 0x0d || ucKey == 0x0a) {
-			uart_puts("\n\r");
+			printf("\r\n");
 			break;
 		}
 
@@ -242,12 +232,12 @@ static int get_new_time(void)
 					--i;
 				}
 
-				uart_puts(pEraseSeq);
+				printf(pEraseSeq);
 				--i;
 
 				/* delimitor ':' for time is uneditable */
 				if (!is_digit(rtc_time[i]) && i > 0) {
-					uart_puts(pEraseSeq);
+					printf(pEraseSeq);
 					--i;
 				}
 			}
@@ -327,7 +317,7 @@ static int get_new_date(void)
 
 		/* end input */
 		if (ucKey == 0x0d || ucKey == 0x0a) {
-			uart_puts("\n\r");
+			printf("\r\n");
 			break;
 		}
 
@@ -339,12 +329,12 @@ static int get_new_date(void)
 					--i;
 				}
 
-				uart_puts(pEraseSeq);
+				printf(pEraseSeq);
 				--i;
 
 				/* delimitor '/' for date is uneditable */
 				if (!is_digit(date[i]) && i > 0) {
-					uart_puts(pEraseSeq);
+					printf(pEraseSeq);
 					--i;
 				}
 			}
@@ -395,19 +385,21 @@ static int get_new_date(void)
 /**
  *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
  */
-void TC0_IrqHandler(void)
+static void tc_handler(void)
 {
-	volatile uint32_t dummy;
+	uint32_t dummy;
+
 	/* Clear status bit to acknowledge interrupt */
-	dummy = TC0->TC_CHANNEL[0].TC_SR;
+	dummy = tc_get_status(TC0, 0);
+	(void) dummy;
+
 	if (CountDownTimer >= 240)	// Recalibrate at every 1 minute
 	{
-		RTC_ClockCalibration(RTC, Temperature);
-		trace_info("RTC has been re-calibrated \n\r");
+		rtc_calibration(Temperature);
+		trace_info("RTC has been re-calibrated \r\n");
 		CountDownTimer = 0;
 	}
 	CountDownTimer++;
-
 }
 
 /**
@@ -425,25 +417,25 @@ static void _RefreshDisplay(void)
 	if (bState != STATE_MENU) {
 	} else {
 		/* Retrieve date and time */
-		rtc_get_time(RTC, &current_time);
-		rtc_get_date(RTC, &current_date);
+		rtc_get_time(&current_time);
+		rtc_get_date(&current_date);
 
 		/* display */
 		if (!bMenuShown) {
-			printf("\n\rMenu:\n\r");
-			printf("  t - Set time\n\r");
-			printf("  d - Set date\n\r");
-			printf("  i - Set time alarm\n\r");
-			printf("  m - Set date alarm\n\r");
-			printf("  p - PPM calibration of RTC\n\r");
+			printf("\r\nMenu:\r\n");
+			printf("  t - Set time\r\n");
+			printf("  d - Set date\r\n");
+			printf("  i - Set time alarm\r\n");
+			printf("  m - Set date alarm\r\n");
+			printf("  p - PPM calibration of RTC\r\n");
 
 			if (alarmTriggered) {
-				printf("  c - Clear alarm notification\n\r");
+				printf("  c - Clear alarm notification\r\n");
 			}
 
-			printf("  q - Quit!\n\r");
+			printf("  q - Quit!\r\n");
 
-			printf("\n\r");
+			printf("\r\n");
 
 			bMenuShown = 1;
 		}
@@ -462,26 +454,26 @@ static void _RefreshDisplay(void)
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
  */
-void SYS_IrqHandler(void)
+static void sysc_handler(void)
 {
 	uint32_t dwStatus = RTC->RTC_SR;
 
 	/* Second increment interrupt */
 	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
 		/* Disable RTC interrupt */
-		rtc_disable_it(RTC, RTC_IDR_SECDIS);
+		rtc_disable_it(RTC_IDR_SECDIS);
 
 		_RefreshDisplay();
 
 		RTC->RTC_SCCR = RTC_SCCR_SECCLR;
 
-		rtc_enable_it(RTC, RTC_IER_SECEN);
+		rtc_enable_it(RTC_IER_SECEN);
 	}
 	/* Time or date alarm */
 	else {
 		if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
 			/* Disable RTC interrupt */
-			rtc_disable_it(RTC, RTC_IDR_ALRDIS);
+			rtc_disable_it(RTC_IDR_ALRDIS);
 
 			alarmTriggered = 1;
 			_RefreshDisplay();
@@ -490,7 +482,7 @@ void SYS_IrqHandler(void)
 			bMenuShown = 0;
 			RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
 
-			rtc_enable_it(RTC, RTC_IER_ALREN);
+			rtc_enable_it(RTC_IER_ALREN);
 		}
 	}
 }
@@ -500,23 +492,21 @@ void SYS_IrqHandler(void)
  */
 static void configure_tc(void)
 {
-	uint32_t div;
-	uint32_t tcclks;
-
 	/** Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
 
-	/* Configure TC for a 4Hz frequency and trigger on RC compare. */
-	tc_find_mck_divisor(4, &div, &tcclks);
-	tc_configure(TC0, 0, tcclks | TC_CMR_CPCTRG);
-	TC0->TC_CHANNEL[0].TC_RC = (pmc_get_master_clock() / div) / 4;
+	/* Put the source vector */
+	aic_set_source_vector(ID_TC0, tc_handler);
+
+	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
+	tc_trigger_on_freq(TC0, 0, 4);
 
 	/* Configure and enable interrupt on RC compare */
-	TC0->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
+	tc_enable_it(TC0, 0, TC_IER_CPCS);
 	aic_enable(ID_TC0);
 
+	/* Start the counter */
 	tc_start(TC0, 0);
-
 }
 
 /*----------------------------------------------------------------------------
@@ -534,42 +524,45 @@ int main(void)
 	uint8_t ucKey;
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 	/* Output example information */
-	printf("\n\r\n\r\n\r");
-	printf("-- RTC Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	printf("\r\n\r\n\r\n");
+	printf("-- RTC Example " SOFTPACK_VERSION " --\r\n");
+	printf("-- " BOARD_NAME "\r\n");
+	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
-	printf("Configure TC.\n\r");
-	configure_tc();
-	//put 25 °C as a default temp, if there is no temprature sensor
+	// put 25 °C as a default temp, if there is no temprature sensor
 	Temperature = 25;
 
+	printf("Configure TC.\r\n");
+	configure_tc();
+
 	/* Default RTC configuration */
-	rtc_set_hour_mode(RTC, 0);	/* 24-hour mode */
+	rtc_set_hour_mode(0);	/* 24-hour mode */
 	struct _time empty_time = {0,0,0};
-	if (rtc_set_time_alarm(RTC, &empty_time)) {
-		printf("\n\r Disable time alarm fail!");
+	if (rtc_set_time_alarm(&empty_time)) {
+		printf("\r\n Disable time alarm fail!");
 	}
 	struct _date empty_date = {0,0,0};
-	if (rtc_set_date_alarm(RTC, &empty_date)) {
-		printf("\n\r Disable date alarm fail!");
+	if (rtc_set_date_alarm(&empty_date)) {
+		printf("\r\n Disable date alarm fail!");
 	}
 
 	/* Configure RTC interrupts */
-	rtc_enable_it(RTC, RTC_IER_SECEN | RTC_IER_ALREN);
+	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
+	aic_set_source_vector(ID_SYSC, sysc_handler);
 	aic_enable(ID_SYSC);
+
 	/* Refresh display once */
 	_RefreshDisplay();
 	new_time.hour = 0;
 	new_time.min = 0;
 	new_time.sec = 30;
-	rtc_set_time_alarm(RTC, &new_time);
+	rtc_set_time_alarm(&new_time);
 	bMenuShown = 0;
 	alarmTriggered = 0;
-	RTC_ClockCalibration(RTC, Temperature);
+	rtc_calibration(Temperature);
 
 	/* Handle keypresses */
 	while (1) {
@@ -581,14 +574,14 @@ int main(void)
 			aic_disable(ID_TC0);
 
 			do {
-				printf("\n\r\n\r Set time(hh:mm:ss): ");
+				printf("\r\n\r\n Set time(hh:mm:ss): ");
 			} while (get_new_time());
 
 			/* if valid input, none of variable for time is 0xff */
 			if (new_time.hour != 0xFF) {
-				if (rtc_set_time (RTC, &new_time)) {
+				if (rtc_set_time (&new_time)) {
 					printf
-					    ("\n\r Time not set, invalid input!\n\r");
+					    ("\r\n Time not set, invalid input!\n\r");
 				}
 			}
 
@@ -599,9 +592,10 @@ int main(void)
 			aic_enable(ID_TC0);
 		}
 
-		if (ucKey == 'p') {
+		/* clock calibration */
+		else if (ucKey == 'p') {
 
-			RTC_ClockCalibration(RTC, 30);
+			rtc_calibration(30);
 
 			bState = STATE_MENU;
 			bMenuShown = 0;
@@ -609,25 +603,25 @@ int main(void)
 		}
 
 		/* set date */
-		if (ucKey == 'd') {
+		else if (ucKey == 'd') {
 			bState = STATE_SET_DATE;
 			aic_disable(ID_TC0);
 
 			do {
-				printf("\n\r\n\r Set date(mm/dd/yyyy): ");
+				printf("\r\n\r\n Set date(mm/dd/yyyy): ");
 			} while (get_new_date());
 
 			/* if valid input, none of variable for date is 0xff(ff) */
 			if (new_date.year != 0xFFFF) {
-				if (rtc_set_date(RTC, &new_date)) {
+				if (rtc_set_date(&new_date)) {
 					printf
-					    ("\n\r Date not set, invalid input!\n\r");
+					    ("\r\n Date not set, invalid input!\r\n");
 				}
 			}
 
 			/* only 'mm/dd' inputed */
 			if (new_date.month != 0xFF && new_date.year == 0xFFFF) {
-				printf("\n\r Not Set for no year field!\n\r");
+				printf("\r\n Not Set for no year field!\r\n");
 			}
 
 			bState = STATE_MENU;
@@ -638,21 +632,21 @@ int main(void)
 		}
 
 		/* set time alarm */
-		if (ucKey == 'i') {
+		else if (ucKey == 'i') {
 			bState = STATE_SET_TIME_ALARM;
 			aic_disable(ID_TC0);
 
 			do {
-				printf("\n\r\n\r Set time alarm(hh:mm:ss): ");
+				printf("\r\n\r\n Set time alarm(hh:mm:ss): ");
 			} while (get_new_time());
 
 			if (new_time.hour != 0xFF) {
-				if (rtc_set_time_alarm(RTC, &new_time)) {
+				if (rtc_set_time_alarm(&new_time)) {
 					printf
-					    ("\n\r Time alarm not set, invalid input!\n\r");
+					    ("\r\n Time alarm not set, invalid input!\r\n");
 				} else {
 					printf
-					    ("\n\r Time alarm is set at %02d:%02d:%02d!",
+					    ("\r\n Time alarm is set at %02d:%02d:%02d!",
 					     new_time.hour, new_time.min, new_time.sec);
 				}
 			}
@@ -665,21 +659,21 @@ int main(void)
 		}
 
 		/* set date alarm */
-		if (ucKey == 'm') {
+		else if (ucKey == 'm') {
 			bState = STATE_SET_DATE_ALARM;
 			aic_disable(ID_TC0);
 
 			do {
-				printf("\n\r\n\r Set date alarm(mm/dd/): ");
+				printf("\r\n\r\n Set date alarm(mm/dd/): ");
 			} while (get_new_date());
 
 			if (new_date.year == 0xFFFF && new_date.month != 0xFF) {
-				if (rtc_set_date_alarm(RTC, &new_date)) {
+				if (rtc_set_date_alarm(&new_date)) {
 					printf
-					    ("\n\r Date alarm not set, invalid input!\n\r");
+					    ("\r\n Date alarm not set, invalid input!\r\n");
 				} else {
 					printf
-					    ("\n\r Date alarm is set on %02d/%02d!",
+					    ("\r\n Date alarm is set on %02d/%02d!",
 					     new_date.month, new_date.day);
 				}
 
@@ -693,14 +687,14 @@ int main(void)
 		}
 
 		/* clear trigger flag */
-		if (ucKey == 'c') {
+		else if (ucKey == 'c') {
 			alarmTriggered = 0;
 			bMenuShown = 0;
 			_RefreshDisplay();
 		}
 
 		/* quit */
-		if (ucKey == 'q') {
+		else if (ucKey == 'q') {
 			break;
 		}
 	}
