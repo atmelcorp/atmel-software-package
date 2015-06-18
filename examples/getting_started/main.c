@@ -386,13 +386,6 @@ int main(void)
 	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
 
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
-
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

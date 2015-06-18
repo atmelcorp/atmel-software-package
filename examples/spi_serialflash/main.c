@@ -282,13 +282,6 @@ int main (void)
 	aic_enable(CONSOLE_ID);
 	_cmd_parser = _flash_cmd_parser;
 
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
-
 	/* Clear console */
 	console_clear_screen();
 	console_reset_cursor();
