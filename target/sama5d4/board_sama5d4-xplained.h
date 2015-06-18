@@ -15,6 +15,9 @@
 /** /def Definition of DDRAM's type */
 #define BOARD_DDRAM_TYPE      MT47H128M16
 
+/** \def Board DDR memory size in bytes */
+#define BOARD_DDR_MEMORY_SIZE    512*1024*1024
+
 /** MCI0 Card detect pin definition. (PE2) */
 #define BOARD_MCI0_PIN_CD       {PIO_PE2, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP}
 /** MCI0 power control. */

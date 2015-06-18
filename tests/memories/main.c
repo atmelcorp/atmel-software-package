@@ -199,7 +199,7 @@ int main(void)
 	trace_info("Buffer: %u bytes at 0x%08x\r\n", BUFFER_SIZE*4,
 		   (unsigned int)random_buffer);
 
-	_sram_loop_test(DDR_CS_ADDR, 1024*1024*64);
+	_sram_loop_test(DDR_CS_ADDR, BOARD_DDR_MEMORY_SIZE);
 	printf("goto sleep, good night\r\n");
 	while(1);
 }

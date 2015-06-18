@@ -94,8 +94,10 @@
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
 /** /def Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE      MT41K128M16
+#define BOARD_DDRAM_TYPE         MT41K128M16
 
+/** \def Board DDR memory size in bytes */
+#define BOARD_DDR_MEMORY_SIZE    512*1024*1024
 
 /* =================== PIN CONSOLE definition ================== */
 
