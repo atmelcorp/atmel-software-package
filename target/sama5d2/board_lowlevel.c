@@ -42,8 +42,8 @@
 #include "compiler.h"
 #include "peripherals/pmc.h"
 #include "cortex-a/cpsr.h"
-#include "cortex-a/cp15.h"
 #include "peripherals/aic.h"
+#include "peripherals/matrix.h"
 
 #include <stdio.h>
 
@@ -75,5 +75,5 @@ void low_level_init(void)
 	}
 
 	/* Remap */
-	board_remap_ram();
+	matrix_remap_ram();
 }

@@ -93,6 +93,10 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+/** /def Definition of DDRAM's type */
+#define BOARD_DDRAM_TYPE      MT41K128M16
+
+
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */

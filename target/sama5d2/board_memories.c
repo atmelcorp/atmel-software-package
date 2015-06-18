@@ -42,7 +42,8 @@
 #include "board.h"
 #include "peripherals/pmc.h"
 #include "peripherals/matrix.h"
-#include "peripherals/mpddrc.h"
+
+#include "memories/ddram.h"
 
 #include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
@@ -69,29 +70,7 @@ static void matrix_configure_slave_ddr(void)
 void board_cfg_ddram(void)
 {
 	matrix_configure_slave_ddr();
-	mpddrc_configure(MPDDRC_TYPE_DDR3);
-
-	mmu_initialize();
-	cp15_enable_mmu();
-	cp15_enable_icache();
-	cp15_enable_dcache();
-}
-
-/**
- * \brief Configures SDRAM.
- */
-void board_cfg_sdram(void)
-{
-}
-
-/** \brief Configures NandFlash
- */
-void board_cfg_nand_flash(uint8_t busWidth)
-{
-}
-
-/** \brief Configures NorFlash
- */
-void  board_cfg_nor_flash(uint8_t busWidth)
-{
+	struct _mpddrc_desc desc;
+	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
+	ddram_configure(&desc);
 }
