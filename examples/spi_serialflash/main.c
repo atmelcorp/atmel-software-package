@@ -49,7 +49,7 @@
 #define CMD_BUFFER_SIZE  128
 #define READ_BUFFER_SIZE  256
 
-static const struct _pin at25_pins[] = PINS_SPI_SERIAL_FLASH;
+static const struct _pin at25_pins[] = AT25_PINS;
 
 static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -59,24 +59,19 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
 static _parser _cmd_parser;
 
 static struct _spi_desc spi_at25_desc = {
-	.addr           = AT25DFX_ADDR,
-	.bitrate        = AT25DFX_FREQ,
-	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
-	.dlybs          = AT25DFX_DLYBS,
-	.dlybct         = AT25DFX_DLYCT,
-	.id             = AT25DFX_ID,
+	.addr           = AT25_ADDR,
+	.bitrate        = AT25_FREQ,
+	.attributes     = AT25_ATTRS,
+	.dlybs          = AT25_DLYBS,
+	.dlybct         = AT25_DLYCT,
 	.mutex          = 1,
-	.chip_select    = 0,
-	.spi_mode       = AT25DFX_SPI_MODE,
+	.chip_select    = AT25_CS,
+	.spi_mode       = AT25_SPI_MODE,
 	.transfert_mode = SPID_MODE_FIFO,
 	.dma = 0
 };
 
-static struct _at25 at25drv = {
-	.spid = &spi_at25_desc,
-	.desc = 0,
-	.addressing = !AT25_ADDRESS_4_BYTES
-};
+static struct _at25 at25drv;
 
 static void console_handler(void)
 {

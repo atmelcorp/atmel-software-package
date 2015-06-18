@@ -86,7 +86,6 @@
  *  (when using the initialization done by board_lowlevel.c).
  */
 
-
 /** Frequency of the board slow clock oscillator */
 #define BOARD_SLOW_CLOCK_EXT_OSC 32768
 
@@ -157,10 +156,6 @@
 	{ PIO_PB13, PIOA, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
 
-/* ================== PIN SPI Serial Flash definition ============== */
-
-#define PINS_SPI_SERIAL_FLASH PINS_SPI0_NPCS0_IOS1
-
 /* ================== PIN USB definition ======================= */
 
 /** USB VBus pin */
@@ -210,29 +205,22 @@
 	{ PIO_PB12, PIO_ADD, PIO_GROUP_B, PIO_OUTPUT_1, PIO_DEFAULT  },\
 }
 
-/* =================== PIN HSDHC definition ======================= */
+/* =================== PIN HSDHC definition ===================== */
 
 #define PIN_HSDHC1_CD	{\
 	{ PIO_PA30, PIO_ADD, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
 
-/* =================== AT25x device definitions ================== */
+/* =================== AT25 device definition =================== */
 
-#define AT25DFX_ID ID_SPI0
-#define AT25DFX_ADDR SPI0
-
-#define AT25DFX_FREQ 40000
-#define AT25DFX_LOW_FREQ 20000
-
-#define AT25DFX_DLYBS 0
-#define AT25DFX_DLYCT 0
-
-#define AT25DFX_CHIP_SELECT 0
-
-#define AT25DFX_SPI_MODE SPI_CSR_NCPHA
-
-/*----------------------------------------------------------------------------
- *        Headers for board
- *----------------------------------------------------------------------------*/
+#define AT25_PINS     PINS_SPI0_NPCS0_IOS1
+#define AT25_ADDR     SPI0
+#define AT25_CS       0
+#define AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define AT25_FREQ     40000 /* (value in KHz) */
+#define AT25_LOW_FREQ 20000 /* (value in KHz) */
+#define AT25_DLYBS    0
+#define AT25_DLYCT    0
+#define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 #endif /* #ifndef _BOARD_D2_H */

@@ -57,6 +57,7 @@ void spid_set_mode_to_fifo(struct _spi_desc* desc)
 
 void spid_configure(struct _spi_desc* desc)
 {
+	uint32_t id = get_spi_id_from_addr(desc->addr);
 	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_MSTR);
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
@@ -66,11 +67,11 @@ void spid_configure(struct _spi_desc* desc)
 		spi_fifo_configure(desc->addr, SPI_FIFO_DEPTH, SPI_FIFO_DEPTH,
 				   SPI_FMR_TXRDYM_ONE_DATA | SPI_FMR_RXRDYM_ONE_DATA);
 	}
-	aic_set_source_vector(desc->id, spid_fifo_error);
+	aic_set_source_vector(id, spid_fifo_error);
 	spi_enable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
-	aic_enable(desc->id);
+	aic_enable(id);
 #endif
-	pmc_enable_peripheral(desc->id);
+	pmc_enable_peripheral(id);
 	spi_enable(desc->addr);
 }
 
@@ -146,8 +147,9 @@ void spid_finish_transfert(struct _spi_desc* desc)
 
 void spid_close(const struct _spi_desc* desc)
 {
+	uint32_t id = get_spi_id_from_addr(desc->addr);
 	spi_disable(desc->addr);
-	pmc_disable_peripheral(desc->id);
+	pmc_disable_peripheral(id);
 }
 
 uint32_t spid_is_busy(const struct _spi_desc* desc)

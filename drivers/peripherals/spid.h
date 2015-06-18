@@ -52,7 +52,6 @@ struct _spi_desc
 	Spi* addr;
 	uint32_t bitrate;
 	uint32_t attributes;
-	uint16_t id;
 	uint8_t dlybs;
 	uint8_t dlybct;
 	volatile uint8_t mutex;
