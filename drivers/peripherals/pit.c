@@ -74,14 +74,6 @@
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-/**
-* \brief Initialize the Periodic Interval Timer to generate a tick at the
-* specified period, given the current master clock frequency.
-*
-*  \param period  Period in uSecond.
-*  \param pit_frequency  Master clock frequency in MHz.
-*/
-
 void pit_init(uint32_t period)
 {
 	uint32_t pit_frequency = pmc_get_peripheral_clock(ID_PIT) / 1000000;
@@ -89,89 +81,47 @@ void pit_init(uint32_t period)
 	PIT->PIT_MR |= PIT_MR_PITEN;
 }
 
-/**
- * \brief Set the Periodic Interval Value of the PIT.
- *
- *  \param piv  PIV value to set.
- */
 void pit_set_piv(uint32_t piv)
 {
 	uint32_t dwMr = PIT->PIT_MR & (~PIT_MR_PIV_Msk);
 	PIT->PIT_MR = dwMr | PIT_MR_PIV(piv);
 }
 
-/**
- * \brief Enables the PIT if this is not already the case.
- *
- */
 void pit_enable(void)
 {
 	PIT->PIT_MR |= PIT_MR_PITEN;
 }
 
-/**
- * \brief Disnables the PIT when PIV value is reached.
- *
- */
 void pit_disable(void)
 {
 	PIT->PIT_MR &= ~PIT_MR_PITEN;
 }
 
-/**
- * \brief Enable the PIT periodic interrupt.
- *
- */
 void pit_enable_it(void)
 {
 	PIT->PIT_MR |= PIT_MR_PITIEN;
 }
 
-/**
- * \brief Disables the PIT periodic interrupt.
- *
- */
 void pit_disable_it(void)
 {
 	PIT->PIT_MR &= ~PIT_MR_PITIEN;
 }
 
-/**
- * \brief Returns the value of the PIT mode register.
- *
- * \return PIT_MR value.
- */
 uint32_t pit_get_mode(void)
 {
 	return PIT->PIT_MR;
 }
 
-/**
- * \brief Returns the value of the PIT status register, clearing it as a side effect.
- *
- * \return PIT_SR value.
- */
 uint32_t pit_get_status(void)
 {
 	return PIT->PIT_SR;
 }
 
-/**
- * \brief Returns the value of the PIT Image Register, to read PICNT and CPIV without
- *  clearing the current values.
- *
- * \return PIT_PIIR value.
- */
 uint32_t pit_get_piir(void)
 {
 	return PIT->PIT_PIIR;
 }
 
-/**
- * \brief Returns the value of the PIT Value Register, clearing it as a side effect.
- *
- * \return PITC_PIVR value.
- */
 uint32_t pit_get_pivr(void)
 {
 	return PIT->PIT_PIVR;

@@ -44,15 +44,74 @@
 extern "C" {
 #endif
 
-void pit_init(uint32_t period);
-void pit_set_piv(uint32_t piv);
-void pit_enable(void);
-void pit_disable(void);
-void pit_enable_it(void);
-void pit_disable_it(void);
+/**
+* \brief Initialize the Periodic Interval Timer to generate a tick at the
+* specified period, given the current master clock frequency.
+*
+*  \param period Period in nano seconds.
+*/
+extern void pit_init(uint32_t period);
+
+/**
+ * \brief Set the Periodic Interval Value of the PIT.
+ *
+ *  \param piv  PIV value to set.
+ */
+extern void pit_set_piv(uint32_t piv);
+
+/**
+ * \brief Enables the PIT if this is not already the case.
+ *
+ */
+extern void pit_enable(void);
+
+/**
+ * \brief Disnables the PIT when PIV value is reached.
+ *
+ */
+extern void pit_disable(void);
+
+/**
+ * \brief Enable the PIT periodic interrupt.
+ *
+ */
+extern void pit_enable_it(void);
+
+/**
+ * \brief Disables the PIT periodic interrupt.
+ *
+ */
+extern void pit_disable_it(void);
+
+/**
+ * \brief Returns the value of the PIT mode register.
+ *
+ * \return PIT_MR value.
+ */
 extern uint32_t pit_get_mode(void);
+
+/**
+ * \brief Returns the value of the PIT status register, clearing it as
+ * a side effect.
+ *
+ * \return PIT_SR value.
+ */
 extern uint32_t pit_get_status(void);
+
+/**
+ * \brief Returns the value of the PIT Image Register, to read PICNT
+ *  and CPIV without clearing the current values.
+ *
+ * \return PIT_PIIR value.
+ */
 extern uint32_t pit_get_piir(void);
+
+/**
+ * \brief Returns the value of the PIT Value Register, clearing it as
+ * a side effect.
+ *
+ * \return PITC_PIVR value.
+ */
 extern uint32_t pit_get_pivr(void);
 
 #ifdef __cplusplus
