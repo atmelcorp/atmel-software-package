@@ -80,27 +80,27 @@ struct _handler_twi
 };
 
 
-	enum TWI_CMD
-	{
-		TWI_RD   = 0,
-		TWI_WR   = 1
-	};
+enum TWI_CMD
+{
+	TWI_RD   = 0,
+	TWI_WR   = 1
+};
 
-	enum TWI_STATUS
-	{
-		TWI_STATUS_RESET  = 0,
-		TWI_STATUS_HANDLE = 1u<<0,
-		TWI_STATUS_RFU2   = 1u<<1,
-		TWI_STATUS_RFU3   = 1u<<2,
-		TWI_STATUS_RFU4   = 1u<<3,
-		TWI_STATUS_READY  = 1u<<7,
-	};
+enum TWI_STATUS
+{
+	TWI_STATUS_RESET  = 0,
+	TWI_STATUS_HANDLE = 1u<<0,
+	TWI_STATUS_RFU2   = 1u<<1,
+	TWI_STATUS_RFU3   = 1u<<2,
+	TWI_STATUS_RFU4   = 1u<<3,
+	TWI_STATUS_READY  = 1u<<7,
+};
 
-	enum TWI_RESULT
-	{
-		TWI_SUCCES   = 0,
-		TWI_FAIL	 = 1
-	};
+enum TWI_RESULT
+{
+	TWI_SUCCES   = 0,
+	TWI_FAIL	 = 1
+};
 
 /*----------------------------------------------------------------------------
  *        Export functions
