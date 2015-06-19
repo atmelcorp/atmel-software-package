@@ -61,11 +61,11 @@
         <option>
           <name>FPU</name>
           <version>2</version>
-          <state>5</state>
+          <state>0</state>
         </option>
         <option>
           <name>OGCoreOrChip</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GRuntimeLibSelect</name>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>SAMA5D27	Atmel SAMA5D27</state>
+          <state>ATSAMA5D27	Atmel SAMA5D27</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -299,7 +299,7 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\..\</state>
-	  <state>$PROJ_DIR$\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\utils</state>
           <state>$PROJ_DIR$\..\..\drivers</state>
           <state>$PROJ_DIR$\..\..\examples</state>
           <state>$PROJ_DIR$\..\..\lib</state>

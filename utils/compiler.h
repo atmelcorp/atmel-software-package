@@ -1,6 +1,10 @@
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
+#if defined(__ICCARM__)
+#define _IAR_PRAGMA(x) _Pragma(#x)
+#endif
+
 #if defined(__CC_ARM)
 	#define WEAK __attribute__((weak))
 	#define CONSTRUCTOR __attribute__((constructor))
@@ -9,8 +13,8 @@
 #elif defined(__ICCARM__)
 	#define WEAK __weak
 	#define CONSTRUCTOR
-	#define SECTION(a) _Pragma(location = a)
-	#define ALIGNED(a) _Pragma(data_alignment = a)
+	#define SECTION(a) _IAR_PRAGMA(location = a)
+	#define ALIGNED(a) _IAR_PRAGMA(data_alignment = a)
 #elif defined(__GNUC__)
 	#define WEAK __attribute__((weak))
 	#define CONSTRUCTOR __attribute__((constructor))
