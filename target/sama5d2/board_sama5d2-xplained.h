@@ -150,7 +150,7 @@
 }
 
 #define PIN_ACT8945A_LBO {\
-	{ PIO_GROUP_A, PIO_PB13, PIO_INPUT, PIO_PULLUP },\
+	{ PIO_PB13, PIOA, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
 }
 
 /* ================== PIN USB definition ======================= */

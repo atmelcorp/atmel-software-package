@@ -66,6 +66,18 @@ static const struct _pin pins_chglev_act8945a[] = PIN_ACT8945A_CHGLEV;
 
 static const struct _pin pins_irq_act8945a[] = PIN_ACT8945A_IRQ;
 
+static const struct _pin pins_lbo_act8945a[] = PIN_ACT8945A_LBO;
+
+struct save_bitfield {
+	uint8_t syst00;
+	uint8_t apch78;
+	uint8_t apch79;
+	uint8_t apch7A;
+	uint8_t count_lbo;
+};
+
+struct save_bitfield sbf;
+
 //------------------------------------------------------------------------------
 static const sActReg ActReg[] =
 {
@@ -129,9 +141,9 @@ static char ChargState[4][24] =
 	{"Precondition         "},
 } ;
 
-//------------------------------------------------------------------------------
-///        Local functions
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+ *         Local functions
+ *----------------------------------------------------------------------------*/
 
 static uint8_t _twi_handler_init (struct _handler_twi* phtwi)
 {
@@ -196,15 +208,10 @@ void _ACT8945A_delay_ms (uint32_t delay)
 		for(count=0;count<(pmc_get_master_clock()/1000000);count++);
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-uint8_t bf_SYST0 = 0;
-uint8_t bf_APCH78 = 0;
-uint8_t bf_APCH79 = 0;
-uint8_t bf_APCH7A = 0;
-
-void ACT8945A_IrqHandler( uint32_t status )
+/*------------------------------------------------------------------------------
+ * Handler interrupt
+ *----------------------------------------------------------------------------*/
+void ACT8945A_irq_handler (uint32_t status)
 {
 	BITFIELD_SYS0 BitField_Syst0;
 	BITFIELD_APCH78 BitField_APCH78;
@@ -212,29 +219,46 @@ void ACT8945A_IrqHandler( uint32_t status )
 	BITFIELD_APCH7A BitField_APCH7A;
 
 	if (status & pins_irq_act8945a[0].mask)	{
-		printf("#");
-	}
-/*
+
 		_ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_Syst0, TWI_RD);
-		if ( bf_SYST0 != *htwi.pData) {
-			printf("&");
-			bf_SYST0 = *htwi.pData;
-		}
 		_ACT8945A_rw_register (ADD_APCH_7A, (uint8_t*)&BitField_APCH7A, TWI_RD);
-		if ( bf_APCH7A != *htwi.pData) {
-			printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
-			bf_APCH7A = *htwi.pData;
-		}
 		_ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
-		if ( bf_APCH78 != *htwi.pData) {
-			if (BitField_APCH78.chgdat == 0x01) printf("\n\rcharger state machine: END-OF-CHARGE state \n\r");
-			bf_APCH78 = *htwi.pData;
-		}
 		_ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_RD);
-		if ( bf_APCH79 != *htwi.pData) {
-			printf("#");
-			bf_APCH79 = *htwi.pData;
+
+		if ( sbf.syst00 != *htwi.pData) {
+			printf("SYST00 \n\r");
+			sbf.syst00 = *htwi.pData;
 		}
+		else if ( sbf.apch7A != *htwi.pData) {
+			printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
+			sbf.apch7A = *htwi.pData;
+		}
+		else if ( sbf.apch78 != *htwi.pData) {
+			if (BitField_APCH78.chgdat == 0x01)
+				printf("\n\r charger state machine: END-OF-CHARGE state \n\r");
+			sbf.apch78 = *htwi.pData;
+		}
+		else if ( sbf.apch79 != *htwi.pData) {
+			printf("APCH79 \n\r");
+			sbf.apch79 = *htwi.pData;
+		}
+		else {;}
+	}
+}
+
+/*------------------------------------------------------------------------------
+ * Handler interrupt
+ *----------------------------------------------------------------------------*/
+void ACT8945_lbo_handler (uint32_t status)
+{
+	if (status & pins_lbo_act8945a[0].mask) {
+		printf(" Int: Low Battery output \n\r");
+		pio_disable_it(&pins_lbo_act8945a[0]);
+		printf(" Launch Shutdown mode \n\r");
+		_ACT8945A_delay_ms(2);
+		// SHDWC_DoShutDown(1, 3, 100);
+		SHDWC->SHDW_MR =  (1 << 17) | 3 | ( (100 & 0xF) << 4);
+    	SHDWC->SHDW_CR = (uint32_t)((0xA5 << 24) | 1);
 	}
 }
 
@@ -249,9 +273,9 @@ uint8_t _ACT8945A_rw_register (uint8_t addr, uint8_t* pdata, enum TWI_CMD Cmd)
 	return _twid_rd_wr(&htwi, Cmd);
 }
 
-//------------------------------------------------------------------------------
-///        Display register functions
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+ *         Functions used to display registers content
+ *----------------------------------------------------------------------------*/
 
 void _ACT8945A_twi_error (void)
 {
@@ -481,7 +505,7 @@ uint8_t _ACT8945A_display_active_path_charger (void)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Display the value of the register ACT8865 and ACT8945A
+// Display the value of the register ACT8945A
 uint8_t _ACT8945A_display_syslev_failing_threshold (void)
 {
 	BITFIELD_SYS0 BitField_SYS0;
@@ -498,9 +522,10 @@ uint8_t _ACT8945A_display_syslev_failing_threshold (void)
 	}
 	return Status;
 }
-//----------------------------------------------------------------------------
-//        Exported functions
-//----------------------------------------------------------------------------
+
+/*------------------------------------------------------------------------------
+ *         Exported functions
+ *----------------------------------------------------------------------------*/
 
 // Configure the state (ON/OFF) of the regulator OUT1 to OUT3
 // Set bit to 1 to enable the regulator, clear bit to 0 to disable the regulator.
@@ -788,9 +813,11 @@ uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State)
 {
 	if ( State == ACT8945A_USB_MODE_100mA) {
 		pio_clear(&pins_chglev_act8945a[0]);
+		printf(" Charge Level: 100mA \n\r");
 	}
 	else {
 		pio_set(&pins_chglev_act8945a[0]);
+		printf(" Charge Level: 450mA \n\r");
 	}
 	return 0;
 }
@@ -801,7 +828,7 @@ uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State)
 // at LBI is lower than 1.2V,
 uint8_t ACT8945A_get_state_LBO_pin (void)
 {
-	return 0;
+	return pio_get(&pins_lbo_act8945a[0]);
 }
 
 //------------------------------------------------------------------------------
@@ -817,6 +844,7 @@ uint8_t ACT8945A_begin (void)
 		// Configure pins
 		pio_configure(pins_chglev_act8945a, PIO_LISTSIZE(pins_chglev_act8945a));
 		pio_configure(pins_irq_act8945a, PIO_LISTSIZE(pins_irq_act8945a));
+		pio_configure(pins_lbo_act8945a, PIO_LISTSIZE(pins_lbo_act8945a));
 
 		// Set TWI interface
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
@@ -832,10 +860,31 @@ uint8_t ACT8945A_begin (void)
 		htwi.LenData = 1;
 		htwi.Status |= TWI_STATUS_READY;
 	}
-	htwi.RegMemAddr = ADD_SYSTEM0;
-	Status = _twid_rd_wr(&htwi, TWI_RD);
-	if (!data) Status = ACT8945A_RET_NOK;
-	else Status = ACT8945A_RET_OK;
+	_ACT8945A_rw_register (ADD_SYSTEM0, htwi.pData, TWI_RD);
+	if (!data) return Status = ACT8945A_RET_NOK;
+	else {
+		/* Set Charge Level */
+		ACT8945A_set_state_CHGLEV_pin(ACT8945A_USB_MODE_450mA);
+
+		/* Set level interrupt */
+		ACT8945A_disable_all_APCH_interrupt();
+		ACT8945A_set_APCH_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+		ACT8945A_set_APCH_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
+		ACT8945A_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+		ACT8945A_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+		ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_ON);
+
+		/* Update register status for interrupt state*/
+		_ACT8945A_rw_register (ADD_SYSTEM0, &sbf.syst00, TWI_RD);
+		_ACT8945A_rw_register (ADD_APCH_78, &sbf.apch78, TWI_RD);
+		_ACT8945A_rw_register (ADD_APCH_79, &sbf.apch79, TWI_RD);
+		_ACT8945A_rw_register (ADD_APCH_7A, &sbf.apch7A, TWI_RD);
+		sbf.count_lbo = 0;
+
+		/* Finally activ interrupt */
+		ACT8945A_active_interrupt_handler();
+		Status = ACT8945A_RET_OK;
+	}
 	return Status;
 }
 
@@ -844,13 +893,19 @@ uint8_t ACT8945A_begin (void)
 // Config interrupt on nIRQ pin to MPU
 void ACT8945A_active_interrupt_handler (void)
 {
+	/* Configure PMIC line interrupts. */
 	pio_configure_it(&pins_irq_act8945a[0]);
 	pio_enable_it(&pins_irq_act8945a[0]);
+
+	/* Configure PMIC LBO line interrupts. */
+	//pio_configure_it(&pins_lbo_act8945a[0]);
+	//pio_set_group_handler(pins_lbo_act8945a[0].id, ACT8945_lbo_handler);
+	/* Enable LBO line interrupts. */
+	//pio_enable_it(&pins_lbo_act8945a[0]);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 void test_out6 (void)
 {
 	uint16_t x;
@@ -866,8 +921,9 @@ void test_out6 (void)
 	ACT8945A_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_OFF);
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+ *         TEST
+ *----------------------------------------------------------------------------*/
 
 uint8_t ACT8945A_test (void)
 {
@@ -881,7 +937,7 @@ uint8_t ACT8945A_test (void)
 			_ACT8945A_twi_error();
 			return Status;
 		}
-}
+	}
 	// Dump registers and display
 	_ACT8945A_registers_dump();
 	_ACT8945A_registers_dump_APCH();
@@ -900,7 +956,7 @@ uint8_t ACT8945A_test (void)
 
 	Status = ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_ON);
 
-	//ACT8945A_active_interrupt_handler();
+	ACT8945A_active_interrupt_handler();
 	return Status;
 }
 
