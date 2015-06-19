@@ -842,9 +842,7 @@ uint8_t ACT8945A_begin (void)
 	{
 		memset ((void*)&htwi, 0x00, sizeof(htwi));
 		// Configure pins
-		pio_configure(pins_chglev_act8945a, PIO_LISTSIZE(pins_chglev_act8945a));
-		pio_configure(pins_irq_act8945a, PIO_LISTSIZE(pins_irq_act8945a));
-		pio_configure(pins_lbo_act8945a, PIO_LISTSIZE(pins_lbo_act8945a));
+		pio_configure(pins_ctrl_act8945a, PIO_LISTSIZE(pins_ctrl_act8945a));
 
 		// Set TWI interface
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
