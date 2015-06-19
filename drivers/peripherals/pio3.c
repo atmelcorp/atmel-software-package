@@ -111,8 +111,11 @@ static void _pioe_handler(void);
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-static void (*_handlers[PIO_GROUP_LENGTH])(uint32_t);
+struct _handler {
+	uint32_t mask;
+	void (*handler)(uint32_t, uint32_t);
+};
+static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
 static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
 #ifdef PIOA
@@ -136,39 +139,73 @@ static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
  *        Local functions definitions
  *----------------------------------------------------------------------------*/
 
+static void _handler_push(void (*handler)(uint32_t, uint32_t), uint32_t mask)
+{
+	static int i = 0;
+	_handlers[i].mask = mask;
+	_handlers[i].handler = handler;
+	++i;
+	assert(i < ARRAY_SIZE(_handlers));
+}
+
 #ifdef PIOA
 static void _pioa_handler(void)
 {
 	uint32_t status = PIOA->PIO_ISR;
-	_handlers[0](status);
+	int i = 0;
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_A, status);
+		}
+	}
 }
 #endif
 #ifdef PIOB
 static void _piob_handler(void)
 {
 	uint32_t status = PIOB->PIO_ISR;
-	_handlers[1](status);
+	int i = 0;
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_B, status);
+		}
+	}
 }
 #endif
 #ifdef PIOC
 static void _pioc_handler(void)
 {
 	uint32_t status = PIOC->PIO_ISR;
-	_handlers[2](status);
+	int i = 0;
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_C, status);
+		}
+	}
 }
 #endif
 #ifdef PIOD
 static void _piod_handler(void)
 {
 	uint32_t status = PIOD->PIO_ISR;
-	_handlers[3](status);
+	int i = 0;
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_D, status);
+		}
+	}
 }
 #endif
 #ifdef PIOE
 static void _pioe_handler(void)
 {
 	uint32_t status = PIOE->PIO_ISR;
-	_handlers[4](status);
+	int i = 0;
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_E, status);
+		}
+	}
 }
 #endif
 
@@ -604,13 +641,14 @@ void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
 	pio->PIO_CODR = mask;	// all PIO clear output
 }
 
-void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t))
+void pio_add_handler_to_group(uint32_t group, uint32_t mask,
+			   void (*handler)(uint32_t, uint32_t))
 {
 	assert(group < ID_PERIPH_COUNT);
 	uint32_t index = _pio_get_index(group);
 	assert(index <
 	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
-	_handlers[index] = handler;
+	_handler_push(handler, mask);
 	aic_set_source_vector(group,
 			      (handler_t)_generic_handlers[index]);
 	aic_enable(group);

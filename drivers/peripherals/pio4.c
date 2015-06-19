@@ -70,6 +70,7 @@
 #include "peripherals/matrix.h"
 
 #include "trace.h"
+#include "compiler.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -132,8 +133,11 @@ static void _piod_handler(void);
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-static void (*_handlers[PIO_GROUP_LENGTH])(uint32_t);
+struct _handler {
+	uint32_t mask;
+	void (*handler)(uint32_t, uint32_t);
+};
+static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
 static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
 #ifdef ID_PIOA
@@ -154,48 +158,82 @@ static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
  *        Local functions definitions
  *----------------------------------------------------------------------------*/
 
+static void _handler_push(void (*handler)(uint32_t, uint32_t), uint32_t mask)
+{
+	static int i = 0;
+	_handlers[i].mask = mask;
+	_handlers[i].handler = handler;
+	++i;
+	assert(i < ARRAY_SIZE(_handlers));
+}
+
 #ifdef ID_PIOA
 static void _pioa_handler(void)
 {
 	uint32_t status = 0;
+	int i = 0;
 	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOA))
 		status = PIOA->PIO_PIO_[PIO_GROUP_A].S_PIO_ISR;
 	else
 		status = PIOA->PIO_IO_GROUP[PIO_GROUP_A].PIO_ISR;
-	_handlers[PIO_GROUP_A](status);
+
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_A, status);
+		}
+	}
 }
 #endif
 #ifdef ID_PIOB
 static void _piob_handler(void)
 {
 	uint32_t status = 0;
+	int i = 0;
 	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOB))
 		status = PIOA->PIO_PIO_[PIO_GROUP_B].S_PIO_ISR;
 	else
 		status = PIOA->PIO_IO_GROUP[PIO_GROUP_B].PIO_ISR;
-	_handlers[PIO_GROUP_B](status);
+
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_B, status);
+		}
+	}
+
 }
 #endif
 #ifdef ID_PIOC
 static void _pioc_handler(void)
 {
 	uint32_t status = 0;
+	int i = 0;
 	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOC))
 		status = PIOA->PIO_PIO_[PIO_GROUP_C].S_PIO_ISR;
 	else
 		status = PIOA->PIO_IO_GROUP[PIO_GROUP_C].PIO_ISR;
-	_handlers[PIO_GROUP_C](status);
+
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_C, status);
+		}
+	}
 }
 #endif
 #ifdef ID_PIOD
 static void _piod_handler(void)
 {
 	uint32_t status = 0;
+	int i = 0;
 	if (matrix_is_peripheral_secured(MATRIX1, ID_PIOD))
 		status = PIOA->PIO_PIO_[PIO_GROUP_D].S_PIO_ISR;
 	else
 		status = PIOA->PIO_IO_GROUP[PIO_GROUP_D].PIO_ISR;
-	_handlers[PIO_GROUP_D](status);
+
+	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
+		if (_handlers[i].mask & status) {
+			_handlers[i].handler(PIO_GROUP_D, status);
+		}
+	}
 }
 #endif
 
@@ -484,12 +522,13 @@ void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
 {
 }
 
-void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t))
+void pio_add_handler_to_group(uint32_t group, uint32_t mask,
+			   void (*handler)(uint32_t, uint32_t))
 {
-	trace_debug("Enter in pio_set_group_handler()\n\r");
+	trace_debug("Enter in pio_add_handler_to_group()\n\r");
 	assert(group <
 	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
-	_handlers[group] = handler;
+	_handler_push(handler, mask);
 	uint32_t id = _pio_group_to_id(group);
 	aic_set_source_vector(id,
 			      (handler_t)_generic_handlers[group]);

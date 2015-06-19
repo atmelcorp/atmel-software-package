@@ -30,6 +30,8 @@
 #ifndef _PIO_H
 #define _PIO_H
 
+#define IRQ_PIO_HANDLERS_SIZE 16
+
 /*------------------------------------------------------------------------------
  *         Global Types
  *------------------------------------------------------------------------------*/
@@ -89,7 +91,8 @@ extern void pio_enable_it(const struct _pin * pin);
 extern void pio_disable_it(const struct _pin * pin);
 extern void pio_it_handlers(void);
 extern void pio_capture_handler(void);
-extern void pio_set_group_handler(uint32_t group, void (*handler)(uint32_t));
+extern void pio_add_handler_to_group(uint32_t group, uint32_t mask,
+				  void (*handler)(uint32_t, uint32_t));
 
 #ifdef __cplusplus
 }
