@@ -123,6 +123,8 @@
   #error Library does not support the specified device.
 #endif
 
+#include "chip_pins.h"
+
 /* TODO: convert ISI driver to use component instead and remove this include and header file */
 #include "instance/instance_isi.h"
 

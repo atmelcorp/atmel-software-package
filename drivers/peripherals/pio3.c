@@ -209,7 +209,7 @@ static void _pioe_handler(void)
 }
 #endif
 
-static inline uint32_t _pio_get_index(int group)
+static uint32_t _pio_get_index(int group)
 {
 	switch(group) {
 	case PIO_GROUP_A:
@@ -223,7 +223,27 @@ static inline uint32_t _pio_get_index(int group)
 	case PIO_GROUP_E:
 		return 4;
 	default:
+		trace_fatal("Invalid PIO group!");
 		return -1;
+	};
+}
+
+static Pio *_pio_get_instance(int group)
+{
+	switch(group) {
+	case PIO_GROUP_A:
+		return PIOA;
+	case PIO_GROUP_B:
+		return PIOB;
+	case PIO_GROUP_C:
+		return PIOC;
+	case PIO_GROUP_D:
+		return PIOD;
+	case PIO_GROUP_E:
+		return PIOE;
+	default:
+		trace_fatal("Invalid PIO group!");
+		return NULL;
 	};
 }
 
@@ -433,53 +453,40 @@ static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Configures a list of Pin instances.
- *
- * \details Each of them can either hold a single pin or a group of
- * pins, depending on the mask value; all pins are configured by this
- * function. The size of the array must also be provided and is easily
- * computed using ARRAY_SIZE whenever its length is not known in
- * advance.
- *
- * \param list  Pointer to a list of Pin instances.
- * \param size  Size of the Pin list (calculated using ARRAY_SIZE).
- *
- * \return 1 if the pins have been configured properly; otherwise 0.
- */
 uint8_t pio_configure(const struct _pin *list, uint32_t size)
 {
 	/* Configure pins */
 	while (size > 0) {
+		Pio* pio = _pio_get_instance(list->group);
 		switch (list->type) {
 
 		case PIO_PERIPH_A:
-			pio_set_peripheralA(list->pio, list->mask,
+			pio_set_peripheralA(pio, list->mask,
 					   (list->attribute & PIO_PULLUP) ? 1 : 0);
 			break;
 
 		case PIO_PERIPH_B:
-			pio_set_peripheralB(list->pio, list->mask,
+			pio_set_peripheralB(pio, list->mask,
 					   (list->attribute & PIO_PULLUP) ? 1 : 0);
 			break;
 
 		case PIO_PERIPH_C:
-			pio_set_peripheralC(list->pio, list->mask,
+			pio_set_peripheralC(pio, list->mask,
 					   (list->attribute & PIO_PULLUP) ? 1 : 0);
 			break;
 
 		case PIO_PERIPH_D:
-			pio_set_peripheralD(list->pio, list->mask,
+			pio_set_peripheralD(pio, list->mask,
 					   (list->attribute & PIO_PULLUP) ? 1 : 0);
 			break;
 		case PIO_INPUT:
-			pmc_enable_peripheral(list->id);
-			pio_set_input(list->pio, list->mask, list->attribute);
+			pmc_enable_peripheral(list->group);
+			pio_set_input(pio, list->mask, list->attribute);
 			break;
 
 		case PIO_OUTPUT_0:
 		case PIO_OUTPUT_1:
-			pio_set_output(list->pio, list->mask,
+			pio_set_output(pio, list->mask,
 				      (list->type == PIO_OUTPUT_1),
 				      (list->attribute & PIO_OPENDRAIN) ? 1 : 0,
 				      (list->attribute & PIO_PULLUP) ? 1 : 0);
@@ -494,55 +501,27 @@ uint8_t pio_configure(const struct _pin *list, uint32_t size)
 	return 1;
 }
 
-/**
- * \brief Sets a high output level on all the PIOs defined in the
- * given Pin instance.
- *
- * \details This has no immediate effects on PIOs that are not output,
- * but the PIO controller will memorize the value they are changed to
- * outputs.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- */
 void pio_set(const struct _pin *pin)
 {
-	pin->pio->PIO_SODR = pin->mask;
+	Pio* pio = _pio_get_instance(pin->group);
+	pio->PIO_SODR = pin->mask;
 }
 
-/**
- * \brief Sets a low output level on all the PIOs defined in the given
- * Pin instance.
- *
- * \details This has no immediate effects on PIOs that are not output,
- * but the PIO controller will memorize the value they are changed to
- * outputs.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- */
 void pio_clear(const struct _pin *pin)
 {
-	pin->pio->PIO_CODR = pin->mask;
+	Pio* pio = _pio_get_instance(pin->group);
+	pio->PIO_CODR = pin->mask;
 }
 
-/**
- * \brief Returns 1 if one or more PIO of the given Pin instance currently have
- * a high level; otherwise returns 0. This method returns the actual value that
- * is being read on the pin. To return the supposed output value of a pin, use
- * \ref pio_get_output_date_status() instead.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- *
- * \return 1 if the Pin instance contains at least one PIO that currently has
- * a high level; otherwise 0.
- */
 uint8_t pio_get(const struct _pin *pin)
 {
 	uint32_t reg;
 
+	Pio* pio = _pio_get_instance(pin->group);
 	if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
-		reg = pin->pio->PIO_ODSR;
+		reg = pio->PIO_ODSR;
 	} else {
-		reg = pin->pio->PIO_PDSR;
+		reg = pio->PIO_PDSR;
 	}
 	if ((reg & pin->mask) == 0) {
 		return 0;
@@ -551,35 +530,19 @@ uint8_t pio_get(const struct _pin *pin)
 	}
 }
 
-/**
- * \brief Returns 1 if one or more PIO of the given Pin are configured to output a
- * high level (even if they are not output).
- * To get the actual value of the pin, use pio_get() instead.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- *
- * \return 1 if the Pin instance contains at least one PIO that is configured
- * to output a high level; otherwise 0.
- */
 uint8_t pio_get_output_data_status(const struct _pin *pin)
 {
-	if ((pin->pio->PIO_ODSR & pin->mask) == 0) {
+	Pio* pio = _pio_get_instance(pin->group);
+	if ((pio->PIO_ODSR & pin->mask) == 0) {
 		return 0;
 	} else {
 		return 1;
 	}
 }
 
-/**
- * \brief Configures Glitch or Debouncing filter for input.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- * \param cuttoff  Cutt off frequency for debounce filter.
- */
 void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 {
-	Pio *pio = pin->pio;
-
+	Pio* pio = _pio_get_instance(pin->group);
 	if (cuttoff == 0) {
 		pio->PIO_IFSCDR = pin->mask;
 		pio->PIO_SCDR = 0;
@@ -591,49 +554,28 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 	}
 }
 
-/**
- * \brief Enable write protect.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- */
 void pio_enable_write_protect(const struct _pin *pin)
 {
-	Pio *pio = pin->pio;
+	Pio* pio = _pio_get_instance(pin->group);
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN);
 }
 
-/**
- * \brief Disable write protect.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- */
 void pio_disable_write_protect(const struct _pin *pin)
 {
-	Pio *pio = pin->pio;
+	Pio* pio = _pio_get_instance(pin->group);
 	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS);
 }
 
-/**
- * \brief Get write protect violation information.
- *
- * \param pin  Pointer to a Pin instance describing one or more pins.
- */
 uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 {
-	Pio *pio = pin->pio;
+	Pio* pio = _pio_get_instance(pin->group);
 	return (pio->PIO_WPSR);
 }
 
-/**
- * \brief Configure all pio output low
- *
- * \param pio  Pointer to a Pio instance describing one or more pins.
- * \param pioId PIO ID
- * \param mask  Bitmask of one or more pin(s) to configure.
- */
-void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
+void pio_output_low(uint32_t group, uint32_t mask)
 {
-	PMC->PMC_PCER0 = 1 << pioId;
+	Pio* pio = _pio_get_instance(group);
+	PMC->PMC_PCER0 = 1 << group;
 	pio->PIO_PUDR = mask;	// all Pull-up Disable
 	pio->PIO_PPDDR = mask;	// all Pull-down Disable
 	pio->PIO_PER = mask;	// all PIO enable
@@ -665,35 +607,24 @@ void pio_reset_all_it(void)
 	PIOB->PIO_IDR = ~0;
 #endif
 #ifdef PIOC
-	PIOB->PIO_ISR;
-	PIOB->PIO_IDR = ~0;
+	PIOC->PIO_ISR;
+	PIOC->PIO_IDR = ~0;
 #endif
 #ifdef PIOD
-	PIOB->PIO_ISR;
-	PIOB->PIO_IDR = ~0;
+	PIOD->PIO_ISR;
+	PIOD->PIO_IDR = ~0;
 #endif
 #ifdef PIOE
-	PIOB->PIO_ISR;
-	PIOB->PIO_IDR = ~0;
+	PIOE->PIO_ISR;
+	PIOE->PIO_IDR = ~0;
 #endif
 }
 
-/**
- * \brief Generate an interrupt on status change for a PIO or a group
- * of PIO.
-
- * \details The provided interrupt handler will be called with the
- * triggering pin as its parameter (enabling different pin instances
- * to share the same handler).
- *
- * \param pin  Pointer to a _pin instance.
- */
 void pio_configure_it(const struct _pin * pin)
 {
-	trace_debug("Enter in pio_configure_it()\n\r");
 	assert(pin);
-	Pio *pio = pin->pio;
 
+	Pio* pio = _pio_get_instance(pin->group);
 	pio->PIO_IDR = pin->mask;
 
 	/* PIO with additional interrupt support
@@ -722,32 +653,19 @@ void pio_configure_it(const struct _pin * pin)
 	}
 }
 
-/**
- * Enables the given interrupt source if it has been configured. The status
- * register of the corresponding PIO controller is cleared prior to enabling
- * the interrupt.
- * \param pin  Interrupt source to enable.
- */
 void pio_enable_it(const struct _pin * pin)
 {
-trace_debug("Enter in pio_enable_it()\n\r");
-
 	assert(pin != NULL);
 
-	pin->pio->PIO_ISR;
-	pin->pio->PIO_IER = pin->mask;
+	Pio* pio = _pio_get_instance(pin->group);
+	pio->PIO_ISR;
+	pio->PIO_IER = pin->mask;
 }
 
-/**
- * Disables a given interrupt source, with no added side effects.
- *
- * \param pin  Interrupt source to disable.
- */
 void pio_disable_it(const struct _pin * pin)
 {
 	assert(pin != NULL);
 
-	trace_debug("Enter in pio_disable_it()\n\r");
-
-	pin->pio->PIO_IDR = pin->mask;
+	Pio* pio = _pio_get_instance(pin->group);
+	pio->PIO_IDR = pin->mask;
 }

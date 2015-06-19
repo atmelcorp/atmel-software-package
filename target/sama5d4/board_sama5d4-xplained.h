@@ -1,85 +1,155 @@
-#ifndef _BOARD_SAMA5D4_XPLAINED_HEADER_
-#define _BOARD_SAMA5D4_XPLAINED_HEADER_
+/* ----------------------------------------------------------------------------
+ *         SAM Software Package License
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2014, Atmel Corporation
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
+ */
 
-#include "board_sama5d4-common.h"
+#ifndef _BOARD_SAMA5D4_EK_H
+#define _BOARD_SAMA5D4_EK_H
 
-/** USB OverCurrent detection*/
-#define PIN_USB_OVCUR     {PIO_PE0, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP}
-/** USB Power Enable A:MicroAB:Active low */
-//#define PIN_USB_POWER_ENA {PIO_PE10, PIOE, ID_PIOE, PIO_OUTPUT_1, PIO_DEFAULT}
-/** USB Power Enable B:A:Active High  */
-#define PIN_USB_POWER_ENB {PIO_PE11, PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
-/** USB Power Enable C:A:Active High  */
-#define PIN_USB_POWER_ENC {PIO_PE14, PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_DEFAULT}
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include "chip.h"
+
+#include "board_lowlevel.h"
+#include "board_memories.h"
+
+/*----------------------------------------------------------------------------
+ *        HW BOARD Definitions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \page sama5d4-ek_board_info "sama5d4-ek - Board Informations"
+ * This page lists several definition related to the board description.
+ *
+ * \section Definitions
+ * - \ref BOARD_NAME
+ */
+
+/** Name of the board */
+#define BOARD_NAME "sama5d4-ek"
+
+/*----------------------------------------------------------------------------*/
+/**
+ *  \page sama5d4_ek_opfreq "sama5d4-ek - Operating Frequencies"
+ *  This page lists several definition related to the board operating frequency
+ *  (when using the initialization done by board_lowlevel.c).
+ */
+
+/** Frequency of the board slow clock oscillator */
+#define BOARD_SLOW_CLOCK_EXT_OSC 32768
+
+/** Frequency of the board main clock oscillator */
+#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
 /** /def Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE      MT47H128M16
+#define BOARD_DDRAM_TYPE         MT47H128M16
 
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    512*1024*1024
 
-/** MCI0 Card detect pin definition. (PE2) */
-#define BOARD_MCI0_PIN_CD       {PIO_PE2, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP}
-/** MCI0 power control. */
-#define BOARD_MCI0_PIN_POWER    {PIO_PE4, PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_PULLUP}
+/* =================== PIN CONSOLE definition ================== */
 
-/** MCI1 Card detect pin definition. (PE3) */
-#define BOARD_MCI1_PIN_CD       {PIO_PE3, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP}
-/** MCI1 power control: none, always powered on */
-//#define BOARD_MCI1_PIN_POWER    {PIO_PE15, PIOE, ID_PIOE, PIO_OUTPUT_0, PIO_PULLUP}
+/** CONSOLE pin definition, Use only USART */
+#define CONSOLE_DRIVER          DRV_DBGU
+#define PINS_CONSOLE            {PIN_USART3_TXD,PIN_USART3_RXD}
+#define CONSOLE_PER_ADD         USART3
+#define CONSOLE_ID              ID_USART3
+#define CONSOLE_BAUDRATE        115200
 
-/** Display width in pixels. */
-#define BOARD_LCD_WIDTH             480
-/** Display height in pixels. */
-#define BOARD_LCD_HEIGHT            272
+/* =================== PIN LED definition ====================== */
 
-/** LED #0 pin definition (LED_BLUE). */
-#define PIN_LED_0   {(PIO_PE15), PIOE, ID_PIOE, PIO_OUTPUT_1, PIO_DEFAULT}
-/** LED #1 pin definition (LED_RED). */
-#define PIN_LED_1   {(PIO_PD30), PIOD, ID_PIOD, PIO_OUTPUT_0, PIO_DEFAULT}
+/* RGB LED index */
+#define LED_BLUE  0
+#define LED_RED   1
+
+/** LED #0 pin definition (Blue). */
+#define PIN_LED_0 { PIO_GROUP_E, PIO_PE15, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/** LED #1 pin definition (Red). */
+#define PIN_LED_1 { PIO_GROUP_D, PIO_PD30, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /** List of all LEDs definitions. */
-#define PINS_LEDS   {PIN_LED_0, PIN_LED_1}
+#define PINS_LEDS { PIN_LED_0, PIN_LED_1 }
 
-/** BLUE LED index definition. */
-#define LED_BLUE      0
-/** RED LED index definition. */
-#define LED_RED       1
+/* =================== PIN PUSH BUTTON definition ============== */
 
-/** Push button #1 definition. Attributes = pull-up + debounce + interrupt on rising edge. */
-#define PIN_PUSHBUTTON_1    {PIO_PE8, PIOE, ID_PIOE, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE}
+#define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE)
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_E, PIO_PE8, PIO_INPUT, PIO_CFG_PB }
 
 /** List of all push button definitions. */
-#define PINS_PUSHBUTTONS    {PIN_PUSHBUTTON_1}
+#define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1 }
 
-/** Push button #1 index. */
-#define PUSHBUTTON_BP1   0
+/** Push button index. */
+#define PUSHBUTTON_BP1 0
 
-/** LCD image's scale */
-#define EXAMPLE_LCD_SCALE   1
+/* =================== AT25 device definition =================== */
 
-/** index of the first PWM channel used to light the LED*/
-#define EXAMPLE_PWM_CHANNEL_INDEX0  0
-/** index of the second PWM channel used to light the LED*/
-#define EXAMPLE_PWM_CHANNEL_INDEX1  2
-/** Pins of the first PWM channel used to light the LED*/
-#define EXAMPLE_PWM_CHANNEL_PINS0   {PIO_PB26C_PWMH0,  PIOB, ID_PIOB, PIO_PERIPH_C, PIO_DEFAULT}
-/** Pins of the second PWM channel used to light the LED*/
-#define EXAMPLE_PWM_CHANNEL_PINS1   {PIO_PC0B_PWMH2,   PIOC, ID_PIOE, PIO_PERIPH_B, PIO_DEFAULT}
+#define AT25_PINS     PINS_SPI0_NPCS0
+#define AT25_ADDR     SPI0
+#define AT25_CS       0
+#define AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define AT25_FREQ     40000 /* (value in KHz) */
+#define AT25_LOW_FREQ 20000 /* (value in KHz) */
+#define AT25_DLYBS    0
+#define AT25_DLYCT    0
+#define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
-/** pin for SPI CS signal */
-#define EXAMPLE_SPI_SLAVE_CS_PIN    PIN_SPI1_NPCS0
-/** SPI CS index */
-#define EXAMPLE_SPI_SLAVE_CS_IDX    0
+/* =================== Display device definition =================== */
 
-/** Eeprom Pins definition */
-#define EXAMPLE_TWI_SLAVE_PINS  PINS_TWI2
-/** TWI peripheral ID for eeprom device*/
-#define EXAMPLE_TWI_SLAVE_ID    ID_TWI2
-/** TWI base address for eeprom device */
-#define EXAMPLE_TWI_SLAVE_BASE  TWI2
+/** Display width in pixels. */
+#define BOARD_LCD_WIDTH 800
 
-/** SD card Power control pin instance */
-#define EXAMPLE_MCI_POWER_PINS  BOARD_MCI0_PIN_POWER
+/** Display height in pixels. */
+#define BOARD_LCD_HEIGHT 480
 
-#endif				/* _BOARD_SAMA5D4_XPLAINED_HEADER_ */
+/* =================== ISI device definition =================== */
+
+/** Image Sensor Interface vertical sync. */
+#define BOARD_ISI_VSYNC { PIO_GROUP_B, PIO_PB3C_ISI_VSYNC, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface horizontal sync. */
+#define BOARD_ISI_HSYNC { PIO_GROUP_B, PIO_PB4C_ISI_HSYNC, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface data clock. */
+#define BOARD_ISI_PCK { PIO_GROUP_B, PIO_PB1C_ISI_PCK, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface data pins. */
+#define BOARD_ISI_PINS_DATA { PIO_GROUP_C, 0x07F80000, PIO_PERIPH_A, PIO_DEFAULT } // pc19-26
+//#define BOARD_ISI_PINS_DATA2 { PIO_GROUP_C, 0x0000000F, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface reset pin. */
+#define PIN_ISI_RST { PIO_GROUP_B, 1 << 11, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/** Image Sensor Interface reset_n pin. */
+#define PIN_ISI_RSTN { PIO_GROUP_B, 1 << 5, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/** Image Sensor Interface pin list. */
+#define PINS_ISI BOARD_ISI_VSYNC, BOARD_ISI_HSYNC, BOARD_ISI_PCK , BOARD_ISI_PINS_DATA
+
+#endif /* _BOARD_SAMA5D4_EK_H */

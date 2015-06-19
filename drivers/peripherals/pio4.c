@@ -255,10 +255,10 @@ static inline uint32_t _pio_group_to_id(int group)
 
 static void* _pio_configure_pins(const struct _pin *pin, uint32_t periph_id)
 {
-	PioPio_* piogroup = &pin->pio->PIO_PIO_[pin->id];
+	PioPio_* piogroup = &PIOA->PIO_PIO_[pin->group];
 	if (!matrix_is_peripheral_secured(MATRIX1, periph_id)) {
 		piogroup->S_PIO_SIONR = pin->mask;
-		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
+		return (void*) &PIOA->PIO_IO_GROUP[pin->group];
 	} else {
 		piogroup->S_PIO_SIOSR = pin->mask;
 		return (void*) piogroup;
@@ -268,9 +268,9 @@ static void* _pio_configure_pins(const struct _pin *pin, uint32_t periph_id)
 static void* _pio_retrive_group(const struct _pin *pin, uint32_t periph_id)
 {
 	if (!matrix_is_peripheral_secured(MATRIX1, periph_id)) {
-		return (void*) &pin->pio->PIO_IO_GROUP[pin->id];
+		return (void*) &PIOA->PIO_IO_GROUP[pin->group];
 	} else {
-		return (void*) &pin->pio->PIO_PIO_[pin->id];
+		return (void*) &PIOA->PIO_PIO_[pin->group];
 	}
 }
 /*----------------------------------------------------------------------------
@@ -298,9 +298,9 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 	while (size--)
 	{
 		/* Enable the PIO group if needed */
-		uint32_t periph_id = _pio_group_to_id(pin_list->id);
+		uint32_t periph_id = _pio_group_to_id(pin_list->group);
 
-		assert(pin_list->id < PIO_GROUP_LENGTH);
+		assert(pin_list->group < PIO_GROUP_LENGTH);
 		cfg.uint32_value = 0;
 		pioiog = (PioIo_group*) _pio_configure_pins(pin_list, periph_id);
 
@@ -378,8 +378,8 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
  */
 void pio_set(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	assert(pin->group < PIO_GROUP_LENGTH);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_SODR = pin->mask;
 }
@@ -394,8 +394,8 @@ void pio_set(const struct _pin *pin)
  */
 void pio_clear(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	assert(pin->group < PIO_GROUP_LENGTH);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_CODR = pin->mask;
 }
@@ -413,9 +413,9 @@ void pio_clear(const struct _pin *pin)
  */
 uint8_t pio_get(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
+	assert(pin->group < PIO_GROUP_LENGTH);
 	uint32_t reg ;
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 
 	if ((pin->type == PIO_OUTPUT_0) || (pin->type == PIO_OUTPUT_1)) {
@@ -444,8 +444,8 @@ uint8_t pio_get(const struct _pin *pin)
  */
 uint8_t pio_get_output_data_status(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	assert(pin->group < PIO_GROUP_LENGTH);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 
 	if ((pioiog->PIO_ODSR & pin->mask) == 0) {
@@ -464,13 +464,13 @@ uint8_t pio_get_output_data_status(const struct _pin *pin)
  */
 void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
+	assert(pin->group < PIO_GROUP_LENGTH);
 	if (cuttoff == 0) {
-	   pin->pio->S_PIO_SCDR = 0;
+	   PIOA->S_PIO_SCDR = 0;
 	}
 	else {
 		/* the lowest 14 bits work */
-		pin->pio->S_PIO_SCDR =
+		PIOA->S_PIO_SCDR =
 			((BOARD_SLOW_CLOCK_EXT_OSC/(2*(cuttoff))) - 1) & 0x3FFF;
 	}
 }
@@ -482,9 +482,8 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
  */
 void pio_enable_write_protect(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	Pio *pio = pin->pio;
-	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN  );
+	assert(pin->group < PIO_GROUP_LENGTH);
+	PIOA->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN  );
 }
 
 /**
@@ -494,9 +493,8 @@ void pio_enable_write_protect(const struct _pin *pin)
  */
 void pio_disable_write_protect(const struct _pin *pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	Pio *pio = pin->pio;
-	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS );
+	assert(pin->group < PIO_GROUP_LENGTH);
+	PIOA->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS );
 }
 
 /**
@@ -506,20 +504,8 @@ void pio_disable_write_protect(const struct _pin *pin)
  */
 uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 {
-	assert(pin->id < PIO_GROUP_LENGTH);
-	Pio *pio = pin->pio;
-	return pio->PIO_WPSR;
-}
-
-/**
- * \brief Configure all pio output low
- *
- * \param pio  Pointer to a Pio instance describing one or more pins.
- * \param pioId PIO ID
- * \param mask  Bitmask of one or more pin(s) to configure.
- */
-void pio_output_low (Pio *pio, uint32_t pioId ,uint32_t mask)
-{
+	assert(pin->group < PIO_GROUP_LENGTH);
+	return PIOA->PIO_WPSR;
 }
 
 void pio_add_handler_to_group(uint32_t group, uint32_t mask,
@@ -567,7 +553,7 @@ void pio_enable_it(const struct _pin *pin)
 {
 	trace_debug("pio_enable_it() \n\r");
 	assert(pin != NULL);
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 
 	pioiog->PIO_ISR;
@@ -584,7 +570,7 @@ void pio_disable_it(const struct _pin *pin)
 {
 	trace_debug("pio_enable_it()\n\r");
 	assert(pin != NULL);
-	uint32_t periph_id = _pio_group_to_id(pin->id);
+	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
 	pioiog->PIO_IDR = pin->mask;
 }
