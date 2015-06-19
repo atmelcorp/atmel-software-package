@@ -110,7 +110,7 @@ static uint8_t _bConsoleIsInitialized = 0;
 void console_configure(uint32_t baudrate)
 {
 	/* Configure PIO */
-	pio_configure(pinsConsole, PIO_LISTSIZE(pinsConsole));
+	pio_configure(pinsConsole, ARRAY_SIZE(pinsConsole));
 
 	pmc_enable_peripheral(CONSOLE_ID);
 

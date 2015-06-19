@@ -46,7 +46,7 @@
 #ifdef PINS_LEDS
 static const struct _pin pinsLeds[] = PINS_LEDS;
 
-static const uint32_t numLeds = PIO_LISTSIZE(pinsLeds);
+static const uint32_t numLeds = ARRAY_SIZE(pinsLeds);
 #endif
 
 /*------------------------------------------------------------------------------

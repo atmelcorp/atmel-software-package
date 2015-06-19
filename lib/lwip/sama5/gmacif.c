@@ -169,7 +169,7 @@ static void glow_level_init(struct netif *netif)
     GMACB_Init(pGmacb, pGmacd, BOARD_GMAC_PHY_ADDR);
     
     /* PHY initialize */
-    if (!GMACB_InitPhy(pGmacb, pmc_get_master_clock(),  0, 0,  gmacPins, PIO_LISTSIZE(gmacPins)))
+    if (!GMACB_InitPhy(pGmacb, pmc_get_master_clock(),  0, 0,  gmacPins, ARRAY_SIZE(gmacPins)))
     {
         printf("P: PHY Initialize ERROR!\n\r");
         return ;

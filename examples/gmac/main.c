@@ -676,7 +676,7 @@ main(void)
 	GMACB_ResetPhy(pGmacb);
 	/* PHY initialize */
 	if (!GMACB_InitPhy
-	    (pGmacb, pmc_get_master_clock(), 0, 0, gmacPins, PIO_LISTSIZE(gmacPins))) {
+	    (pGmacb, pmc_get_master_clock(), 0, 0, gmacPins, ARRAY_SIZE(gmacPins))) {
 		printf("PHY Initialize ERROR!\n\r");
 		return 0;
 	}

@@ -92,7 +92,7 @@ uint8_t _at24mac402_twi_handler_init (struct _handler_twi * phtwi_eep)
 
 	memset((void*)&twid, 0x00, sizeof(twid));
 
-	pio_configure(pins_twi_at24mac402, PIO_LISTSIZE(pins_twi_at24mac402));
+	pio_configure(pins_twi_at24mac402, ARRAY_SIZE(pins_twi_at24mac402));
 	pmc_enable_peripheral(at24mac402_TWI_ID);
 
 	// Init twi

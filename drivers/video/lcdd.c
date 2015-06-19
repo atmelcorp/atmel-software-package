@@ -537,7 +537,7 @@ LCDD_Initialize(void)
 	Pmc *pPmc = PMC;
 
 	/* Configure PIO */
-	pio_configure(pPinsLCD, PIO_LISTSIZE(pPinsLCD));
+	pio_configure(pPinsLCD, ARRAY_SIZE(pPinsLCD));
 
 	LCDD_Off();
 

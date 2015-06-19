@@ -188,7 +188,7 @@ static void process_button_evt(uint8_t bt)
 static void pio_handler(uint32_t mask, uint32_t status)
 {
 	int i = 0;
-	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i) {
+	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
 	}
@@ -265,7 +265,7 @@ static void configure_pit(void)
 static void configure_buttons(void)
 {
 	int i = 0;
-	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i)
+	for (i = 0; i < ARRAY_SIZE(button_pins); ++i)
 	{
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);

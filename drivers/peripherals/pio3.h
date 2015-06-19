@@ -57,7 +57,7 @@
  *     };
  *     \endcode
  *  -# Configure a pin array by calling pio_configure() with a pointer to the
- *     array and its size (which is computed using the PIO_LISTSIZE macro).
+ *     array and its size (which is computed using the ARRAY_SIZE macro).
  *  -# Change and get the value of a user-controlled pin using the pio_set,
  *     pio_clear and pio_get methods.
  *  -# Get the level being currently output by a user-controlled pin configured

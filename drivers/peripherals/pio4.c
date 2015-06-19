@@ -281,7 +281,7 @@ static void* _pio_retrive_group(const struct _pin *pin, uint32_t periph_id)
  * \brief Configures a list of Pin instances, each of which can either
  * hold a single pin or a group of pins, depending on the mask value;
  * all pins are configured by this function. The size of the array
- * must also be provided and is easily computed using PIO_LISTSIZE
+ * must also be provided and is easily computed using ARRAY_SIZE
  * whenever its length is not known in advance.
  *
  * \param list  Pointer to a list of _pin instances.

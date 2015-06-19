@@ -54,8 +54,6 @@ struct _pin
 	uint32_t attribute;
 };
 
-#define PIO_LISTSIZE(pins)	(sizeof(pins) / sizeof(struct _pin))
-
 /*
  *         Headers
  */

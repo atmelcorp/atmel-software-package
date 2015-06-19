@@ -185,10 +185,10 @@ static void process_button_evt(uint8_t bt)
  *
  *  Handle process led1 status change.
  */
-static void pio_handler(uint32_t status)
+static void pio_handler(uint32_t group, uint32_t status)
 {
 	int i = 0;
-	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i) {
+	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
 	}
@@ -265,7 +265,7 @@ static void configure_pit(void)
 static void configure_buttons(void)
 {
 	int i = 0;
-	for (i = 0; i < PIO_LISTSIZE(button_pins); ++i)
+	for (i = 0; i < ARRAY_SIZE(button_pins); ++i)
 	{
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);
@@ -276,7 +276,8 @@ static void configure_buttons(void)
 		/* Initialize pios interrupt with its handlers, see
 		 * PIO definition in board.h. */
 		pio_configure_it(&button_pins[i]);
-		pio_set_group_handler(button_pins[i].id, pio_handler);
+		pio_add_handler_to_group(button_pins[i].id,
+					 button_pins[i].mask, pio_handler);
 
 		/* Enable PIO line interrupts. */
 		pio_enable_it(button_pins);
@@ -376,7 +377,7 @@ int main(void)
 	}
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
