@@ -282,7 +282,7 @@ typedef struct {
 #define GMAC_NSR_MDIO (0x1u << 1) /**< \brief (GMAC_NSR) MDIO Input Status */
 #define GMAC_NSR_IDLE (0x1u << 2) /**< \brief (GMAC_NSR) PHY Management Logic Idle */
 /* -------- GMAC_UR : (GMAC Offset: 0x00C) User Register -------- */
-#define GMAC_UR_MII (0x1u << 0) /**< \brief (GMAC_UR) MII Mode */
+#define GMAC_UR_RMII (0x1u << 0) /**< \brief (GMAC_UR) MII Mode */
 /* -------- GMAC_DCFGR : (GMAC Offset: 0x010) DMA Configuration Register -------- */
 #define GMAC_DCFGR_FBLDO_Pos 0
 #define GMAC_DCFGR_FBLDO_Msk (0x1fu << GMAC_DCFGR_FBLDO_Pos) /**< \brief (GMAC_DCFGR) Fixed Burst Length for DMA Data Operations: */

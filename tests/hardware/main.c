@@ -76,9 +76,6 @@
 static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 #endif
 
-/* Only used to get the number of available leds */
-static const struct _pin pinsLeds[] = PINS_LEDS;
-
 volatile bool led_status[MAX_LEDS] = {0};
 
 /** Global timestamp in milliseconds since start of application */
@@ -108,7 +105,7 @@ static void pio_handler(uint32_t status)
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
 	}
-	ACT8945A_IrqHandler(status);
+	ACT8945A_irq_handler(status);
 }
 
 /**
@@ -242,7 +239,7 @@ int main(void)
 	uint8_t status;
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable(WDT);
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
@@ -260,9 +257,15 @@ int main(void)
 	cp15_enable_icache();
 #endif
 
+
+
+
 	/* Configure PIT. */
 	printf("Configure PIT \n\r");
 	configure_pit();
+
+			check_hw_on_board();
+
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	status = ACT8945A_begin();
@@ -270,9 +273,6 @@ int main(void)
 	ACT8945A_set_regulator_voltage_out4to7 (V_OUT6, 2500);
 	ACT8945A_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
 #endif
-
-
-	//ACT8945A_test();
 
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
@@ -290,6 +290,10 @@ int main(void)
 	configure_tc();
 
 	led_status[LED_BLUE] = 1;
+
+TestLcdIli9488();
+
+
 	check_hw_on_board();
 
 	while (1) {;};

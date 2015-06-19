@@ -206,6 +206,7 @@ BMP280_RET_STATUS bmp280_init (struct param_bmp280* bmp280)
     psBMP280->chip_id = data;
 	if ( data != BMP280_CHIP_ID ) {
 		printf(" -E- Error Chip ID : 0x%x \n\r", data);
+		com_rslt = ERROR;
 	}
 	else {
 		printf(" -I- Chip ID: 0x%x \n\r", data);
@@ -1342,6 +1343,7 @@ BMP280_RET_STATUS bmp280_test (void)
 	double Temp, Pres;
 
 	com_rslt = bmp280_begin();
+	if (com_rslt) return com_rslt;
 
 	/*	For initialization it is required to set the mode of
 	 *	the sensor as "NORMAL"
@@ -1399,12 +1401,14 @@ BMP280_RET_STATUS bmp280_test (void)
 	actual_temp_s32 = bmp280_compensate_temperatureC(uncomp_temp_s32);
 
 	Temp = bmp280_compensate_T_double( (int32_t)uncomp_temp_s32);
+	printf (" TEMP: %2.2f °C \n\r", Temp);
 
 	/* Read the true pressure*/
 	/* Input value as uncompensated pressure*/
 	actual_pressure_s32 = bmp280_compensate_pressureP(uncomp_pres_s32);
 
 	Pres = bmp280_compensate_P_double((int32_t)uncomp_pres_s32);
+	printf (" PRES: %.2f \n\r", Pres);
 
 	/* Read the true temperature and pressure*/
 	/* Input value as uncompensated pressure and temperature*/

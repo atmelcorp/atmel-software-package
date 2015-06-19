@@ -73,9 +73,9 @@ struct _handler_twi
 	uint8_t	PeriphAddr; // Address of the component
 	uint8_t	LenData;    // Lenfth of the data to be read or write
 	uint8_t	AddSize;    // Size of the address
-	uint16_t	RegMemAddr; // Address of the memory or register
-	uint32_t	Twck;       // default clock of the bus TWI
-	uint8_t*	pData;      // pointer to a data buffer
+	uint16_t RegMemAddr; // Address of the memory or register
+	uint32_t Twck;       // default clock of the bus TWI
+	uint8_t* pData;      // pointer to a data buffer
 	struct _twid	twid;
 };
 

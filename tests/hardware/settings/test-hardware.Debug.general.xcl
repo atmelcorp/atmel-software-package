@@ -1,0 +1,13 @@
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\arm\bin\armproc.dll" 
+
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\arm\bin\armjlink.dll" 
+
+"C:\Users\dfronek\Documents\Project\softpack\tests\hardware\build\debug\Exe\test-hardware.out" 
+
+--plugin "C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\arm\bin\armbat.dll" 
+
+--macro "C:\Users\dfronek\Documents\Project\softpack\tests\hardware/../../target/sama5d2/toolchain/iar/sram.mac" 
+
+
+
+

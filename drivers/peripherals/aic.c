@@ -319,7 +319,6 @@ void aic_set_source_vector(uint32_t source, void (*handler)(void))
 		if (matrix_is_peripheral_secured(matrix, source))
 			aic = SAIC;
 	}
-
 	_aic_set_source_vector(aic, source, handler);
 }
 

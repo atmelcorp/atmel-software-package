@@ -46,14 +46,12 @@
 #include "lcd_color.h"
 #include "widget.h"
 
-
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pwmc.h"
 #include "peripherals/spi.h"
-
-
+#include "peripherals/spid.h"
 
 #include "trace.h"
 #include "compiler.h"
@@ -78,28 +76,35 @@
 
 #ifdef BOARD_LCD_ILI9488
 
-#define MXTX_SPI  	SPI1
-#define MXTX_ID  	ID_SPI1
-#define MXTX_CS  	1
+extern uint32_t dwTimeStamp ;
 
 /** Pio pins to configure. */
 static const struct _pin MXTX_Reset[] = MXTX_PIN_RESET;
-
 static const struct _pin MXTX_Pwm[] = BOARD_BACKLIGHT_PIN;
-
-/** Pins to configure for the application. */
 static const struct _pin spi_pins[] = BOARD_MXTX_PINS;
 
 /* Pixel cache used to speed up communication */
 #define MXTX_DATA_CACHE_SIZE  MXTX_LCD_WIDTH
 static LcdColor_t gLcdPixelCache[MXTX_DATA_CACHE_SIZE];
 
-extern uint32_t dwTimeStamp ;
-
 // LCD parameters
 MXTX_param sMXTX ;
 
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+
+static struct _spi_desc spi_ili9488_desc = {
+	.addr           = ILI9488_ADDR,
+	.bitrate        = ILI9488_FREQ,
+	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
+	.dlybs          = ILI9488_DLYBS,
+	.dlybct         = ILI9488_DLYCT,
+	.id             = ILI9488_ID,
+	.mutex          = 1,
+	.chip_select    = ILI9488_CHIP_SELECT,
+	.spi_mode       = ILI9488_SPI_MODE,
+	.transfert_mode = SPID_MODE_POLLING,
+	.dma = 0
+};
 
 /*----------------------------------------------------------------------------
  *        Local low level functions
@@ -121,24 +126,8 @@ static void mxtx_write_ram_buffer( const LcdColor_t *pBuf, uint32_t size );
 
 
 
-uint32_t SPI_Read( Spi* spi )
-{
-    while ( (spi->SPI_SR & SPI_SR_RDRF) == 0 ) ;
-    return spi->SPI_RDR & 0xFFFF ;
-}
 
-void SPI_Write( Spi* spi, uint32_t dwNpcs, uint16_t wData )
-{
-    /* Send data */
-    while ( (spi->SPI_SR & SPI_SR_TXEMPTY) == 0 ) ;
-    spi->SPI_TDR = wData | SPI_PCS( dwNpcs ) ;
-    while ( (spi->SPI_SR & SPI_SR_TDRE) == 0 ) ;
-}
-
-uint32_t SPI_IsFinished( Spi* spi )
-{
-    return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0) ;
-}
+// (uint8_t)spi_read(spi_ili9488_desc.addr);
 
 
 //=============================================================================
@@ -148,7 +137,7 @@ uint32_t SPI_IsFinished( Spi* spi )
  */
 static void mxtx_send_cmd ( uint8_t reg )
 {
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_CMD(reg));
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_CMD(reg));
 }
 
 //=============================================================================
@@ -158,7 +147,7 @@ static void mxtx_send_cmd ( uint8_t reg )
  */
 static void mxtx_write_reg ( uint8_t data )
 {
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_PARAM(data));
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_PARAM(data));
 }
 
 //=============================================================================
@@ -168,7 +157,7 @@ static void mxtx_write_reg ( uint8_t data )
  */
 static void mxtx_write_reg16( uint16_t data )
 {
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_PARAM(((data>>8) &0xFF)));
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_PARAM(((data>>8) &0xFF)));
     mxtx_write_reg((uint8_t)data);
 }
 
@@ -179,7 +168,7 @@ static void mxtx_write_reg16( uint16_t data )
  */
 static void mxtx_write_reg24 ( uint32_t data )
 {
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_PARAM(((data>>16) & 0xFF)));
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_PARAM(((data>>16) & 0xFF)));
     mxtx_write_reg16 ((uint16_t)data);
 }
 
@@ -191,7 +180,7 @@ static void mxtx_write_reg24 ( uint32_t data )
 #if 0
 static void mxtx_write_reg32 ( uint32_t data )
 {
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_PARAM((data>>24) & 0xFF));
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_PARAM((data>>24) & 0xFF));
     mxtx_write_reg24(data);
 }
 #endif
@@ -204,17 +193,17 @@ static void mxtx_write_reg32 ( uint32_t data )
  */
 static uint8_t mxtx_read_reg ( uint8_t reg )
 {
-    uint8_t value;
+    uint16_t value;
 
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_CMD(reg));
-    while(SPI_IsFinished(MXTX_SPI) !=1);
-    SPI_Read(MXTX_SPI);
-    SPI_Write(MXTX_SPI, MXTX_CS, MXTX_PARAM(0xFF));
-    while(SPI_IsFinished(MXTX_SPI) !=1);
-    value = (uint8_t)SPI_Read(MXTX_SPI);
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_CMD(reg));
+    while(spi_is_finished(spi_ili9488_desc.addr) !=1);
+    spi_read(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select);
+    spi_write(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select, MXTX_PARAM(0xFF));
+    while(spi_is_finished(spi_ili9488_desc.addr) !=1);
+    value = spi_read(spi_ili9488_desc.addr, spi_ili9488_desc.chip_select);
     mxtx_send_cmd(ILI9488_CMD_SPI_READ_SETTINGS);
     mxtx_write_reg(0);
-    return value;
+    return (uint8_t)value;
 }
 
 //=============================================================================
@@ -376,12 +365,8 @@ static void mxtx_init_interface (void)
     pwmc_set_duty_cycle(PWM, CHANNEL_PWM_LCD, 10);
     pwmc_enable_channel(PWM, CHANNEL_PWM_LCD);
 
-    spi_configure (MXTX_SPI, (SPI_MR_MSTR | SPI_MR_MODFDIS | SPI_PCS(MXTX_CS)));
+	spid_configure(&spi_ili9488_desc);
 
-	mode = (SPI_CSR_CPOL | SPI_CSR_BITS_9_BIT);
-	spi_configure_cs(MXTX_SPI, MXTX_CS, 40000, 100, 100, mode, 0);
-
-   spi_enable(MXTX_SPI);
 }
 
 //=============================================================================
