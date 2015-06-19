@@ -42,6 +42,8 @@
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
 #include "peripherals/twid.h"
+#include "peripherals/rtc.h"
+
 #include "power/act8945A.h"
 
 #include "memories/at25.h"
@@ -290,6 +292,24 @@ char* _board_info_get_cidr_proc (uint32_t cidr, uint32_t exid)
 
 //------------------------------------------------------------------------------
 
+struct time MTU = {6, 1, 59};
+struct time MTA = {18, 30, 00};
+struct date MDT = {2013, 11, 26, 1};
+Rtc rtc;
+
+/*
+void ConfigRTC (void)
+{
+  uint32_t status;
+
+  rtc_set_hour_mode(&rtc, 0); // mode 24h
+  status = rtc_set_time (&MTU);
+  status = rtc_set_date(&MDT);
+  status |= rtc_set_time_event (RTC_CR_TIMEVSEL_MINUTE); // Minute change
+  rtc_disable_interrupt (RTC_IER_ACKEN | RTC_IER_ALREN | RTC_IER_SECEN | RTC_IER_TIMEN | RTC_IER_CALEN);
+  rtc_enable_interrupt (RTC_IER_SECEN);
+}
+*/
 
 //------------------------------------------------------------------------------
 //         Global functions
@@ -433,7 +453,7 @@ void check_hw_on_board (void)
     printf(" Check PCK: %03dMHz\n\r", (int)MulA*BOARD_MAIN_CLOCK_EXT_OSC_MHZ/PllaDiv2);
 
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
+#ifdef ACT8945A
 	//printf("\n\r");
     printf("--PMIC \n\r");
 	_display_driver_info (PMIC_DEVICE, PMIC_INTERFACE, PMIC_COMMENT);
