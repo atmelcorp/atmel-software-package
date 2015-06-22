@@ -286,7 +286,7 @@ extern uint8_t ACT8945A_get_state_LBO_pin (void);
 extern uint8_t ACT8945A_begin(void);
 extern uint8_t ACT8945A_test (void);
 
-extern void ACT8945A_irq_handler (uint32_t status);
+extern void ACT8945A_irq_handler (uint32_t group, uint32_t status);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

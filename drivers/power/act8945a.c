@@ -53,6 +53,8 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
+static uint8_t init_interrupt_done = 0;
+
 struct _handler_twi htwi = {0};
 
 // ACT8945A hardware interface
@@ -211,7 +213,7 @@ void _ACT8945A_delay_ms (uint32_t delay)
 /*------------------------------------------------------------------------------
  * Handler interrupt
  *----------------------------------------------------------------------------*/
-void ACT8945A_irq_handler (uint32_t status)
+void ACT8945A_irq_handler (uint32_t group, uint32_t status)
 {
 	BITFIELD_SYS0 BitField_Syst0;
 	BITFIELD_APCH78 BitField_APCH78;
@@ -249,7 +251,7 @@ void ACT8945A_irq_handler (uint32_t status)
 /*------------------------------------------------------------------------------
  * Handler interrupt
  *----------------------------------------------------------------------------*/
-void ACT8945_lbo_handler (uint32_t status)
+void ACT8945_lbo_handler (uint32_t group, uint32_t status)
 {
 	if (status & pins_lbo_act8945a[0].mask) {
 		printf(" Int: Low Battery output \n\r");
@@ -257,8 +259,6 @@ void ACT8945_lbo_handler (uint32_t status)
 		printf(" Launch Shutdown mode \n\r");
 		_ACT8945A_delay_ms(2);
 		// SHDWC_DoShutDown(1, 3, 100);
-		SHDWC->SHDW_MR =  (1 << 17) | 3 | ( (100 & 0xF) << 4);
-    	SHDWC->SHDW_CR = (uint32_t)((0xA5 << 24) | 1);
 	}
 }
 
@@ -892,15 +892,21 @@ uint8_t ACT8945A_begin (void)
 // Config interrupt on nIRQ pin to MPU
 void ACT8945A_active_interrupt_handler (void)
 {
-	/* Configure PMIC line interrupts. */
-	pio_configure_it(&pins_irq_act8945a[0]);
-	pio_enable_it(&pins_irq_act8945a[0]);
+	if (!init_interrupt_done) {
+		/* Configure PMIC line interrupts. */
+		pio_configure_it(&pins_irq_act8945a[0]);
+		pio_add_handler_to_group(pins_irq_act8945a[0].group,
+								 pins_irq_act8945a[0].mask,
+								 ACT8945A_irq_handler);
+		pio_enable_it(&pins_irq_act8945a[0]);
 
-	/* Configure PMIC LBO line interrupts. */
-	//pio_configure_it(&pins_lbo_act8945a[0]);
-	//pio_set_group_handler(pins_lbo_act8945a[0].id, ACT8945_lbo_handler);
-	/* Enable LBO line interrupts. */
-	//pio_enable_it(&pins_lbo_act8945a[0]);
+		/* Configure PMIC LBO line interrupts. */
+		pio_configure_it(&pins_lbo_act8945a[0]);
+		pio_add_handler_to_group(pins_lbo_act8945a[0].group, pins_lbo_act8945a[0].mask, ACT8945_lbo_handler);
+		pio_enable_it(&pins_lbo_act8945a[0]);
+
+		init_interrupt_done = 1;
+	}
 }
 
 //------------------------------------------------------------------------------
