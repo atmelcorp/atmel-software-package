@@ -276,7 +276,7 @@ static void configure_buttons(void)
 		/* Initialize pios interrupt with its handlers, see
 		 * PIO definition in board.h. */
 		pio_configure_it(&button_pins[i]);
-		pio_add_handler_to_group(button_pins[i].id,
+		pio_add_handler_to_group(button_pins[i].group,
 					 button_pins[i].mask, pio_handler);
 
 		/* Enable PIO line interrupts. */

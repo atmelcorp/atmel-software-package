@@ -159,7 +159,7 @@ static uint8_t _twi_handler_init (struct _handler_twi* phtwi)
 
 	pmc_enable_peripheral(ACT8945A_TWI_ID);
 	/* PMC->PMC_PCR = PMC_PCR_PID(ACT8945A_TWI_ID) | PMC_PCR_CMD | PMC_PCR_EN | PMC_PCR_DIV_PERIPH_DIV4_MCK; */
-	pio_configure(pins_twi_act8945a, PIO_LISTSIZE(pins_twi_act8945a));
+	pio_configure(pins_twi_act8945a, ARRAY_SIZE(pins_twi_act8945a));
 	pmc_enable_peripheral(ACT8945A_TWI_ID);
 
 	// Use a flexcom, then init flexcom operating mode TWI
@@ -841,8 +841,9 @@ uint8_t ACT8945A_begin (void)
 	if (!_is_twi_ready(&htwi))
 	{
 		memset ((void*)&htwi, 0x00, sizeof(htwi));
-		// Configure pins
-		pio_configure(pins_ctrl_act8945a, PIO_LISTSIZE(pins_ctrl_act8945a));
+		pio_configure(pins_chglev_act8945a, ARRAY_SIZE(pins_chglev_act8945a));
+		pio_configure(pins_irq_act8945a, ARRAY_SIZE(pins_irq_act8945a));
+		pio_configure(pins_lbo_act8945a, ARRAY_SIZE(pins_lbo_act8945a));
 
 		// Set TWI interface
 		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));

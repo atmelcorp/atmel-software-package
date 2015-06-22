@@ -346,9 +346,9 @@ static void mxtx_init_interface (void)
 {
     uint32_t mode;
 
-    pio_configure(MXTX_Reset, PIO_LISTSIZE(MXTX_Reset));
-    pio_configure(spi_pins, PIO_LISTSIZE(spi_pins));
-    pio_configure(MXTX_Pwm, PIO_LISTSIZE(MXTX_Pwm));
+    pio_configure(MXTX_Reset, ARRAY_SIZE(MXTX_Reset));
+    pio_configure(spi_pins, ARRAY_SIZE(spi_pins));
+    pio_configure(MXTX_Pwm, ARRAY_SIZE(MXTX_Pwm));
 
     /* Enable PWM peripheral clock */
     pmc_enable_peripheral(ID_PWM);

@@ -113,7 +113,7 @@ uint8_t _bmp280_twi_handler_init (struct _handler_twi * phtwi_bmp280)
 
 	memset((void*)&twid, 0x00, sizeof(twid));
 
-	pio_configure(pins_twi_bmp280, PIO_LISTSIZE(pins_twi_bmp280));
+	pio_configure(pins_twi_bmp280, ARRAY_SIZE(pins_twi_bmp280));
 	pmc_enable_peripheral(BMP280_TWI_ID);
 
 	// Init twi

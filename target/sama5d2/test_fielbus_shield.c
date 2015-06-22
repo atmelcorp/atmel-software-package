@@ -103,7 +103,7 @@ static const struct _pin pinsCom3[] = PINS_COM3;
 void com0_configure(void)
 {
 	/* Configure Pios */
-	pio_configure(pinsCom0, PIO_LISTSIZE(pinsCom0));
+	pio_configure(pinsCom0, ARRAY_SIZE(pinsCom0));
 	pmc_enable_peripheral(COM0_ID);
 	/*Flexcom mode Usart */
 	flexcom_select(COM0_PER_ADD, FLEX_MR_OPMODE_USART);
@@ -120,7 +120,7 @@ void com0_configure(void)
 void com1_configure(void)
 {
 	/* Configure Pios */
-	pio_configure(pinsCom1, PIO_LISTSIZE(pinsCom1));
+	pio_configure(pinsCom1, ARRAY_SIZE(pinsCom1));
 	pmc_enable_peripheral(COM1_ID);
 	/*Flexcom mode Usart */
 	flexcom_select(COM1_PER_ADD, FLEX_MR_OPMODE_USART);
@@ -133,7 +133,7 @@ void com1_configure(void)
 void com2_configure(void)
 {
 	/* Configure Pios */
-	pio_configure(pinsCom2, PIO_LISTSIZE(pinsCom2));
+	pio_configure(pinsCom2, ARRAY_SIZE(pinsCom2));
 	pmc_enable_peripheral(COM2_ID);
 	/*Flexcom mode Usart */
 	flexcom_select(COM2_PER_ADD, FLEX_MR_OPMODE_USART);
@@ -146,7 +146,7 @@ void com2_configure(void)
 void com3_configure(void)
 {
 	/* Configure Pios */
-	pio_configure(pinsCom3, PIO_LISTSIZE(pinsCom3));
+	pio_configure(pinsCom3, ARRAY_SIZE(pinsCom3));
 	pmc_enable_peripheral(COM3_ID);
 	/*Flexcom mode Usart */
 	flexcom_select(COM3_PER_ADD, FLEX_MR_OPMODE_USART);

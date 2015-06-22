@@ -72,11 +72,11 @@ extern "C" {
  * \details Each of them can either hold a single pin or a group of
  * pins, depending on the mask value; all pins are configured by this
  * function. The size of the array must also be provided and is easily
- * computed using PIO_LISTSIZE whenever its length is not known in
+ * computed using ARRAY_SIZE whenever its length is not known in
  * advance.
  *
  * \param list  Pointer to a list of Pin instances.
- * \param size  Size of the Pin list (calculated using PIO_LISTSIZE).
+ * \param size  Size of the Pin list (calculated using ARRAY_SIZE).
  *
  * \return 1 if the pins have been configured properly; otherwise 0.
  */
