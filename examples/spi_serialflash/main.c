@@ -233,9 +233,32 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 	at25_erase_block(&at25drv, addr, erase_type);
 }
 
+static void print_menu(void)
+{
+	printf("Spi serial flash example mini-console:\r\n\r\n"
+	       "|===========        Commands        ====================|\r\n"
+	       "| a status                                              |\r\n"
+	       "|      Query device status                              |\r\n"
+	       "| a device                                              |\r\n"
+	       "|      Query serial flash JEDEC info                    |\r\n"
+	       "| r addr size                                           |\r\n"
+	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
+	       "| w addr str                                            |\r\n"
+	       "|      Write 'str' to address 'addr'                    |\r\n"
+	       "| d addr [4k|32k|64k]                                   |\r\n"
+	       "|      Erase block containing the address 'addr'        |\r\n"
+	       "|      The erase can be 4k, 32k or 64k                  |\r\n"
+	       "| m                                                     |\r\n"
+	       "|      Print this menu                                  |\r\n"
+	       "|=======================================================|\r\n");
+}
+
 static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
-
+	if (*buffer == 'm') {
+		print_menu();
+		return;
+	}
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
 		printf("%c%c\r\n", *buffer, *(buffer+1));
@@ -292,6 +315,8 @@ int main (void)
 	at25_configure(&at25drv, &spi_at25_desc);
 	if(at25_unprotect(&at25drv))
 		printf("Protection desactivation FAILED!\r\n");
+
+	print_menu();
 
 	while (1);
 }
