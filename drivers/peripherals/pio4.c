@@ -77,15 +77,8 @@
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
- *        Local define
- *----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
  *        Local types
  *----------------------------------------------------------------------------*/
-
-typedef const void(*const_handler_t)(void);
-typedef void(*handler_t)(void);
 
 struct _bitfield_pio_cfgr_func {
 	uint32_t
@@ -135,22 +128,22 @@ static void _piod_handler(void);
  *----------------------------------------------------------------------------*/
 struct _handler {
 	uint32_t mask;
-	void (*handler)(uint32_t, uint32_t);
+	pio_handler_t handler;
 };
 static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
-static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
+static const aic_handler_t _generic_handlers[PIO_GROUP_LENGTH] = {
 #ifdef ID_PIOA
-	(const_handler_t)_pioa_handler,
+	(const aic_handler_t)_pioa_handler,
 #endif
 #ifdef ID_PIOB
-	(const_handler_t)_piob_handler,
+	(const aic_handler_t)_piob_handler,
 #endif
 #ifdef ID_PIOC
-	(const_handler_t)_pioc_handler,
+	(const aic_handler_t)_pioc_handler,
 #endif
 #ifdef ID_PIOD
-	(const_handler_t)_piod_handler,
+	(const aic_handler_t)_piod_handler,
 #endif
 };
 
@@ -509,7 +502,7 @@ uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 }
 
 void pio_add_handler_to_group(uint32_t group, uint32_t mask,
-			   void (*handler)(uint32_t, uint32_t))
+			      pio_handler_t handler)
 {
 	trace_debug("Enter in pio_add_handler_to_group()\n\r");
 	assert(group <
@@ -517,7 +510,7 @@ void pio_add_handler_to_group(uint32_t group, uint32_t mask,
 	_handler_push(handler, mask);
 	uint32_t id = _pio_group_to_id(group);
 	aic_set_source_vector(id,
-			      (handler_t)_generic_handlers[group]);
+			      (aic_handler_t)_generic_handlers[group]);
 	aic_enable(id);
 }
 

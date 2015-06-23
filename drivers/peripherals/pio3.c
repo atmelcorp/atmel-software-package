@@ -75,18 +75,8 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include <stdio.h>
 #include <assert.h>
-
-/*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
- *        Local types
- *----------------------------------------------------------------------------*/
-
-typedef const void(*const_handler_t)(void);
-typedef void(*handler_t)(void);
 
 /*----------------------------------------------------------------------------
  *        Local functions declarations
@@ -113,25 +103,25 @@ static void _pioe_handler(void);
  *----------------------------------------------------------------------------*/
 struct _handler {
 	uint32_t mask;
-	void (*handler)(uint32_t, uint32_t);
+	pio_handler_t handler;
 };
 static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
-static const void (*_generic_handlers[PIO_GROUP_LENGTH])(void) = {
+static const aic_handler_t _generic_handlers[PIO_GROUP_LENGTH] = {
 #ifdef PIOA
-	(const_handler_t)_pioa_handler,
+	(const aic_handler_t)_pioa_handler,
 #endif
 #ifdef PIOB
-	(const_handler_t)_piob_handler,
+	(const aic_handler_t)_piob_handler,
 #endif
 #ifdef PIOC
-	(const_handler_t)_pioc_handler,
+	(const aic_handler_t)_pioc_handler,
 #endif
 #ifdef PIOD
-	(const_handler_t)_piod_handler,
+	(const aic_handler_t)_piod_handler,
 #endif
 #ifdef PIOE
-	(const_handler_t)_pioe_handler,
+	(const aic_handler_t)_pioe_handler,
 #endif
 };
 
@@ -584,7 +574,7 @@ void pio_output_low(uint32_t group, uint32_t mask)
 }
 
 void pio_add_handler_to_group(uint32_t group, uint32_t mask,
-			   void (*handler)(uint32_t, uint32_t))
+			      pio_handler_t handler)
 {
 	assert(group < ID_PERIPH_COUNT);
 	uint32_t index = _pio_get_index(group);
@@ -592,7 +582,7 @@ void pio_add_handler_to_group(uint32_t group, uint32_t mask,
 	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
 	_handler_push(handler, mask);
 	aic_set_source_vector(group,
-			      (handler_t)_generic_handlers[index]);
+			      (aic_handler_t)_generic_handlers[index]);
 	aic_enable(group);
 }
 

@@ -46,6 +46,8 @@ struct _pin
 	uint32_t attribute; /*< Pin config attribute. */
 };
 
+typedef void(*pio_handler_t)(uint32_t, uint32_t);
+
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -167,7 +169,7 @@ extern uint32_t pio_get_write_protect_violation_info(const struct _pin * pin);
 extern void pio_output_low(uint32_t group, uint32_t mask);
 
 extern void pio_add_handler_to_group(uint32_t group, uint32_t mask,
-				  void (*handler)(uint32_t, uint32_t));
+				     pio_handler_t handler);
 
 extern void pio_reset_all_it(void);
 
