@@ -671,3 +671,34 @@ void rtc_calibration(int32_t current_tempr)
 		}
 	}
 }
+
+/**
+ * \Set time event selection.
+ * \param mask Bits TIMEVSEL of Control Register
+ * \return Status register & mask
+ */
+
+uint32_t rtc_set_time_event (uint32_t EventMask)
+{
+   uint32_t reg;
+   reg = RTC->RTC_CR;
+   reg &= ~RTC_CR_TIMEVSEL_Msk;
+   reg |= EventMask;
+   RTC->RTC_CR = reg;
+   return RTC->RTC_CR;
+}
+
+/**
+ * \Set calendar event selection.
+ * \param mask Bits CALEVSEL of Control Register
+ * \return Status register & mask
+ */
+uint32_t rtc_set_calendar_event (uint32_t EventMask)
+{
+   uint32_t reg;
+   reg = RTC->RTC_CR;
+   reg &= ~RTC_CR_CALEVSEL_Msk;
+   reg |= EventMask;
+   RTC->RTC_CR = reg;
+   return RTC->RTC_CR;
+}
