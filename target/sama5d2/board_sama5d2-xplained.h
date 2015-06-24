@@ -150,14 +150,14 @@
 }
 
 #define PIN_ACT8945A_LBO {\
-	{ PIO_PB13, PIOA, PIO_GROUP_A, PIO_INPUT, PIO_PULLUP },\
+	{ PIO_GROUP_A, PIO_PB13, PIO_INPUT, PIO_PULLUP },\
 }
 
 /* ================== PIN USB definition ======================= */
 
 /** USB VBus pin */
 #define PIN_USB_VBUS      {\
-	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEFAULT },\
+	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEBOUNCE | PIO_IT_BOTH_EDGE },\
 }
 /** USB OverCurrent detection*/
 #define PIN_USB_OVCUR     {\
