@@ -95,57 +95,81 @@ struct _xdmad_channel;
 /** DMA transfer callback */
 typedef void (*xdmad_callback_t)(struct _xdmad_channel *channel, void *arg);
 
-/** DMA driver configuration */
+union _xdmac_cfg_reg {
+	uint32_t uint32_value;
+	struct {
+		uint32_t type:  1,
+			mbsize: 2,
+			dummy1: 1,
+			dsync:  1,
+			prot:   1,
+			sweq:   1,
+			memset: 1,
+			csize:  3,
+			dwidth: 2,
+			sif:    1,
+			dif:    1,
+			dummy2: 1,
+			sam:    2,
+			dam:    2,
+			dummy3: 1,
+			initd:  1,
+			rdip:   1,
+			wrip:   1,
+			perid:  7;
+	} bitfield;
+};
+
 struct _xdmad_cfg {
-	uint32_t mbr_ubc; /**< Microblock Control */
-	void    *mbr_sa;  /**< Source Address */
-	void    *mbr_da;  /**< Destination Address */
-	uint32_t mbr_cfg; /**< Configuration Register */
-	uint32_t mbr_bc;  /**< Block Control */
-	uint32_t mbr_ds;  /**< Data Stride */
-	uint32_t mbr_sus; /**< Source Microblock Stride */
-	uint32_t mbr_dus; /**< Destination Microblock Stride */
+	uint32_t ublock_size;        /**< Microblock Size */
+	uint32_t block_size;         /**< Block Size (number of Microblock) */
+	uint32_t data_stride;        /**< Data Stride */
+	uint32_t src_ublock_stride;  /**< Source Microblock Stride */
+	uint32_t dest_ublock_stride; /**< Destination Microblock Stride */
+	void    *src_addr;           /**< Source Address */
+	void    *dest_addr;          /**< Destination Address */
+	union _xdmac_cfg_reg cfg;    /**< Configuration Register */
 };
 
 /** Structure for storing parameters for DMA view0 that can be performed by the
  * DMA Master transfer.*/
 struct _xdmad_desc_view0 {
-	void    *mbr_nda; /**< Next Descriptor Address */
-	uint32_t mbr_ubc; /**< Microblock Control */
-	uint32_t mbr_ta;  /**< Transfer Address */
+	void    *next_desc;   /**< Next Descriptor Address */
+	uint32_t ublock_size; /**< Microblock Control */
+	uint32_t mbr_ta;      /**< Transfer Address */
 };
 
 /** Structure for storing parameters for DMA view1 that can be performed by the
  * DMA Master transfer.*/
 struct _xdmad_desc_view1 {
-	void    *mbr_nda; /**< Next Descriptor Address */
-	uint32_t mbr_ubc; /**< Microblock Control */
-	void    *mbr_sa;  /**< Source Address */
-	void    *mbr_da;  /**< Destination Address */
+	void    *next_desc;   /**< Next Descriptor Address */
+	uint32_t ublock_size; /**< Microblock Control */
+	void    *src_addr;    /**< Source Address */
+	void    *dest_addr;   /**< Destination Address */
 };
 
 /** Structure for storing parameters for DMA view2 that can be performed by the
  * DMA Master transfer.*/
 struct _xdmad_desc_view2 {
-	void    *mbr_nda; /**< Next Descriptor Address */
-	uint32_t mbr_ubc; /**< Microblock Control */
-	void    *mbr_sa;  /**< Source Address */
-	void    *mbr_da;  /**< Destination Address */
-	uint32_t mbr_cfg; /**< Configuration Register */
+	void    *next_desc;   /**< Next Descriptor Address */
+	uint32_t ublock_size; /**< Microblock Control */
+	void    *src_addr;    /**< Source Address */
+	void    *dest_addr;   /**< Destination Address */
+	union _xdmac_cfg_reg cfg; /**< Configuration Register */
 };
 
 /** Structure for storing parameters for DMA view3 that can be performed by the
  * DMA Master transfer.*/
 struct _xdmad_desc_view3 {
-	void    *mbr_nda; /**< Next Descriptor Address */
-	uint32_t mbr_ubc; /**< Microblock Control */
-	void    *mbr_sa;  /**< Source Address */
-	void    *mbr_da;  /**< Destination Address */
-	uint32_t mbr_cfg; /**< Configuration */
-	uint32_t mbr_bc;  /**< Block Control */
-	uint32_t mbr_ds;  /**< Data Stride */
-	uint32_t mbr_sus; /**< Source Microblock Stride */
-	uint32_t mbr_dus; /**< Destination Microblock Stride */
+	void    *next_desc;   /**< Next Descriptor Address */
+	uint32_t ublock_size; /**< Microblock Control */
+	void    *src_addr;    /**< Source Address */
+	void    *dest_addr;   /**< Destination Address */
+	union _xdmac_cfg_reg cfg;
+	uint32_t block_size;   /**< Block Control */
+	uint32_t data_stride;  /**< Data Stride */
+	uint32_t src_ublock_stride;  /**< Source Microblock Stride */
+	uint32_t dest_ublock_stride; /**< Destination Microblock Stride */
 };
 
 /**     @}*/

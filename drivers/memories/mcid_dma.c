@@ -215,23 +215,23 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 		if (bRd) {
 			//printf("_MciDMA read %d,%d \n\r",pCmd->wBlockSize, pCmd->bCmd );
 			for (i = 0; i < pCmd->wNbBlocks; i++) {
-				dmaLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+				dmaLinkList[i].ublock_size = XDMA_UBC_NVIEW_NDV1
 				    | ((i == pCmd->wNbBlocks - 1) ? 0 :
 				       XDMA_UBC_NDE_FETCH_EN)
 				    | XDMA_UBC_NDEN_UPDATED | pCmd->wBlockSize /
 				    4;
-				dmaLinkList[i].mbr_sa =
+				dmaLinkList[i].src_addr =
 				    (uint32_t) & (pHw->HSMCI_FIFO[i]);
-				dmaLinkList[i].mbr_da =
+				dmaLinkList[i].dest_addr =
 				    (uint32_t) & pCmd->pData[i *
 							     pCmd->wBlockSize];
 				if (i == pCmd->wNbBlocks - 1)
-					dmaLinkList[i].mbr_nda = 0;
+					dmaLinkList[i].next_desc = 0;
 				else
-					dmaLinkList[i].mbr_nda =
+					dmaLinkList[i].next_desc =
 					    (uint32_t) & dmaLinkList[i + 1];
 			}
-			xdmadRxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
+			xdmadRxCfg.mbr_cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
 			    | XDMAC_CC_MBSIZE_SINGLE
 			    | XDMAC_CC_DSYNC_PER2MEM
 			    | XDMAC_CC_CSIZE_CHK_1
@@ -260,23 +260,23 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 		} else {
 			//printf("_MciDMA write %d,%d \n\r",pCmd->wBlockSize, pCmd->bCmd );
 			for (i = 0; i < pCmd->wNbBlocks; i++) {
-				dmaLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+				dmaLinkList[i].ublock_size = XDMA_UBC_NVIEW_NDV1
 				    | ((i == pCmd->wNbBlocks - 1) ? 0 :
 				       XDMA_UBC_NDE_FETCH_EN)
 				    | XDMA_UBC_NDEN_UPDATED | pCmd->wBlockSize /
 				    4;
-				dmaLinkList[i].mbr_sa =
+				dmaLinkList[i].src_addr =
 				    (uint32_t) & pCmd->pData[i *
 							     pCmd->wBlockSize];
-				dmaLinkList[i].mbr_da =
+				dmaLinkList[i].dest_addr =
 				    (uint32_t) & (pHw->HSMCI_FIFO[i]);
 				if (i == pCmd->wNbBlocks - 1)
-					dmaLinkList[i].mbr_nda = 0;
+					dmaLinkList[i].next_desc = 0;
 				else
-					dmaLinkList[i].mbr_nda =
+					dmaLinkList[i].next_desc =
 					    (uint32_t) & dmaLinkList[i + 1];
 			}
-			xdmadTxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
+			xdmadTxCfg.mbr_cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
 			    | XDMAC_CC_MBSIZE_SINGLE
 			    | XDMAC_CC_DSYNC_MEM2PER
 			    | XDMAC_CC_CSIZE_CHK_1
@@ -322,11 +322,11 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 		}
 		/* Prepare DMA transfer */
 		if (bRd) {
-			xdmadRxCfg.mbr_ubc =
+			xdmadRxCfg.ublock_size =
 			    bFByte ? pMcid->dwXSize : toWCOUNT(pMcid->dwXSize);
-			xdmadRxCfg.mbr_sa = (uint32_t) & (pHw->HSMCI_RDR);
-			xdmadRxCfg.mbr_da = (uint32_t) memAddress;
-			xdmadRxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN |
+			xdmadRxCfg.src_addr = (uint32_t) & (pHw->HSMCI_RDR);
+			xdmadRxCfg.dest_addr = (uint32_t) memAddress;
+			xdmadRxCfg.mbr_cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
 			    XDMAC_CC_MEMSET_NORMAL_MODE |
 			    XDMAC_CC_DSYNC_PER2MEM |
 			    XDMAC_CC_CSIZE_CHK_1 |
@@ -334,15 +334,15 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 			     XDMAC_CC_DWIDTH_WORD) | XDMAC_CC_SIF_AHB_IF1 |
 			    XDMAC_CC_DIF_AHB_IF0 | XDMAC_CC_SAM_FIXED_AM |
 			    XDMAC_CC_DAM_INCREMENTED_AM;
-			xdmadRxCfg.mbr_bc = 0;
+			xdmadRxCfg.block_size = 0;
 			XDMAD_ConfigureTransfer(pXdmad, pMcid->dwDmaCh,
 						&xdmadRxCfg, 0, 0);
 			//cp15_coherent_dcache_for_dma ((uint32_t)memAddress, ((uint32_t)memAddress + (pMcid->dwXSize)));
 		} else {
-			xdmadTxCfg.mbr_ubc = toWCOUNT(pMcid->dwXSize);
-			xdmadTxCfg.mbr_sa = (uint32_t) memAddress;
-			xdmadTxCfg.mbr_da = (uint32_t) & (pHw->HSMCI_TDR);
-			xdmadTxCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN |
+			xdmadTxCfg.ublock_size = toWCOUNT(pMcid->dwXSize);
+			xdmadTxCfg.src_addr = (uint32_t) memAddress;
+			xdmadTxCfg.dest_addr = (uint32_t) & (pHw->HSMCI_TDR);
+			xdmadTxCfg.mbr_cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
 			    XDMAC_CC_MEMSET_NORMAL_MODE |
 			    XDMAC_CC_DSYNC_MEM2PER |
 			    XDMAC_CC_CSIZE_CHK_1 |
@@ -350,7 +350,7 @@ _MciDMA(sMcid * pMcid, uint32_t bFByte, uint8_t bRd)
 			     XDMAC_CC_DWIDTH_WORD) | XDMAC_CC_SIF_AHB_IF0 |
 			    XDMAC_CC_DIF_AHB_IF1 | XDMAC_CC_SAM_INCREMENTED_AM |
 			    XDMAC_CC_DAM_FIXED_AM;
-			xdmadTxCfg.mbr_bc = 0;
+			xdmadTxCfg.block_size = 0;
 			XDMAD_ConfigureTransfer(pXdmad, pMcid->dwDmaCh,
 						&xdmadTxCfg, 0, 0);
 		}

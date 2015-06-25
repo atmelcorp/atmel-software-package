@@ -88,13 +88,13 @@ FIPS PUB 140-2 and 140-3. use the TWI
  * performed by the DMA Master transfer.*/
 typedef struct _LinkedListDescriporView1 {
 	/** Next Descriptor Address number. */
-	uint32_t mbr_nda;
+	uint32_t next_desc;
 	/** Microblock Control Member. */
-	uint32_t mbr_ubc;
+	uint32_t ublock_size;
 	/** Source Address Member. */
-	uint32_t mbr_sa;
+	uint32_t src_addr;
 	/** Destination Address Member. */
-	uint32_t mbr_da;
+	uint32_t dest_addr;
 } LinkedListDescriporView1;
 /*----------------------------------------------------------------------------
  *        Local functions

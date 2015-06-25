@@ -134,18 +134,18 @@ static void _xdma_configure_write(uint8_t * buf, uint32_t len, uint8_t twi_id)
 	if (twi)
 		Thr = (uint32_t) & (twi->TWI_THR);
 	for (i = 0; i < 1; i++) {
-		dmaWriteLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+		dmaWriteLinkList[i].ublock_size = XDMA_UBC_NVIEW_NDV1
 		    | ((i == len - 1) ? 0 : XDMA_UBC_NDE_FETCH_EN)
 		    | len;
-		dmaWriteLinkList[i].mbr_sa = & buf[i];
-		dmaWriteLinkList[i].mbr_da = (void*)Thr;
+		dmaWriteLinkList[i].src_addr = & buf[i];
+		dmaWriteLinkList[i].dest_addr = (void*)Thr;
 		if (i == len - 1)
-			dmaWriteLinkList[i].mbr_nda = 0;
+			dmaWriteLinkList[i].next_desc = 0;
 		else
-			dmaWriteLinkList[i].mbr_nda =
+			dmaWriteLinkList[i].next_desc =
 			    & dmaWriteLinkList[i + 1];
 	}
-	twi_dmaCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
+	twi_dmaCfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
 	    | XDMAC_CC_MBSIZE_SINGLE
 	    | XDMAC_CC_DSYNC_MEM2PER
 	    | XDMAC_CC_CSIZE_CHK_1
@@ -187,18 +187,18 @@ static void _xdma_configure_read(uint8_t * buf, uint32_t len, uint8_t twi_id)
 	/* 	Rhr = (uint32_t) & (TWI2->TWI_RHR); */
 	/* } */
 	for (i = 0; i < 1; i++) {
-		dmaReadLinkList[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+		dmaReadLinkList[i].ublock_size = XDMA_UBC_NVIEW_NDV1
 		    | ((i == len - 1) ? 0 : XDMA_UBC_NDE_FETCH_EN)
 		    | len;
-		dmaReadLinkList[i].mbr_sa = (void*)Rhr;
-		dmaReadLinkList[i].mbr_da = & buf[i];
+		dmaReadLinkList[i].src_addr = (void*)Rhr;
+		dmaReadLinkList[i].dest_addr = & buf[i];
 		if (i == len - 1)
-			dmaReadLinkList[i].mbr_nda = 0;
+			dmaReadLinkList[i].next_desc = 0;
 		else
-			dmaReadLinkList[i].mbr_nda =
+			dmaReadLinkList[i].next_desc =
 			    & dmaReadLinkList[i + 1];
 	}
-	twi_dmaCfg.mbr_cfg = XDMAC_CC_TYPE_PER_TRAN
+	twi_dmaCfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
 	    | XDMAC_CC_MBSIZE_SINGLE
 	    | XDMAC_CC_DSYNC_PER2MEM
 	    | XDMAC_CC_CSIZE_CHK_1
