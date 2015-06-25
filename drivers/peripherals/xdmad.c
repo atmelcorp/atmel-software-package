@@ -180,9 +180,11 @@ void xdmad_initialize(bool polling)
 	_xdmad.polling = polling;
 
 	for (cont = 0; cont < XDMAC_CONTROLLERS; cont++) {
+		Xdmac* xdmac = xdmac_get_instance(cont);
 		for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
+			xdmac_get_channel_isr(xdmac, chan);
 			struct _xdmad_channel *channel = _xdmad_channel(cont, chan);
-			channel->xdmac = xdmac_get_instance(cont);
+			channel->xdmac = xdmac;
 			channel->id = chan;
 			channel->callback = 0;
 			channel->user_arg = 0;
@@ -194,9 +196,10 @@ void xdmad_initialize(bool polling)
 		}
 
 		if (!polling) {
+			uint32_t pid = xdmac_get_periph_id(xdmac);
 			/* enable interrupts */
-			aic_set_source_vector(ID_XDMAC0, xdmad_handler);
-			aic_enable(ID_XDMAC0);
+			aic_set_source_vector(pid, xdmad_handler);
+			aic_enable(pid);
 		}
 	}
 }
