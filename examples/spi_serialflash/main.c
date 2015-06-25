@@ -37,16 +37,19 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
+#include "peripherals/xdmad.h"
 
 #include "misc/console.h"
 
 #include "memories/at25.h"
 
+#include "mutex.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define CMD_BUFFER_SIZE  128
+#define CMD_BUFFER_SIZE  256
 #define READ_BUFFER_SIZE  256
 
 static const struct _pin at25_pins[] = AT25_PINS;
@@ -57,6 +60,9 @@ static uint8_t read_buffer[READ_BUFFER_SIZE];
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static _parser _cmd_parser;
+static uint32_t cmd_index = 0;
+
+mutex_t lock = 0;
 
 static struct _spi_desc spi_at25_desc = {
 	.addr           = AT25_ADDR,
@@ -64,26 +70,22 @@ static struct _spi_desc spi_at25_desc = {
 	.attributes     = AT25_ATTRS,
 	.dlybs          = AT25_DLYBS,
 	.dlybct         = AT25_DLYCT,
-	.mutex          = 1,
 	.chip_select    = AT25_CS,
 	.spi_mode       = AT25_SPI_MODE,
-	.transfert_mode = SPID_MODE_FIFO,
-	.dma = 0
+	.transfert_mode = SPID_MODE_DMA,
 };
 
 static struct _at25 at25drv;
 
 static void console_handler(void)
 {
-	volatile static uint32_t lock = 0;
 	static uint32_t index = 0;
 	uint8_t key;
 	if (!console_is_rx_ready())
 		return;
 	key = console_get_char();
-	if (lock)
+	if (mutex_try_lock(&lock))
 		return;
-	lock = 1;
 	if (index >= CMD_BUFFER_SIZE) {
 		printf("\r\nWARNING! command buffer size exeeded, "
 		       "reseting\r\n");
@@ -94,7 +96,7 @@ static void console_handler(void)
 	case '\r':
 	case '\n':
 		cmd_buffer[index]='\0';
-		_cmd_parser(cmd_buffer, index);
+		cmd_index = index;
 		index = 0;
 		break;
 	case 0x7F:
@@ -105,7 +107,7 @@ static void console_handler(void)
 		cmd_buffer[index++]=key;
 		break;
 	}
-	lock = 0;
+	mutex_free(&lock);
 }
 
 static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -129,6 +131,7 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	int offset = 0;
 	while (length > READ_BUFFER_SIZE) {
+		spid_wait_transfert(at25drv.spid);
 		if(at25_read(&at25drv, addr+offset, read_buffer,
 			      READ_BUFFER_SIZE)) {
 			/* Read failed, no need to dump anything */
@@ -301,9 +304,9 @@ int main (void)
 	_cmd_parser = _flash_cmd_parser;
 
 	/* Clear console */
-	console_clear_screen();
-	console_reset_cursor();
-
+	/* console_clear_screen(); */
+	/* console_reset_cursor(); */
+	xdmad_initialize(false);
 	printf("-- Spi flash Example " SOFTPACK_VERSION " --\n\r"
 	       "-- " BOARD_NAME " --\n\r"
 	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
@@ -318,5 +321,16 @@ int main (void)
 
 	print_menu();
 
-	while (1);
+	while (1) {
+		asm volatile ("cpsie I");
+		asm ("wfi");
+		if (mutex_try_lock(&lock)) {
+			continue;
+		}
+		if (cmd_index > 0) {
+			_cmd_parser(cmd_buffer, cmd_index);
+			cmd_index = 0;
+		}
+		mutex_free(&lock);
+	}
 }
