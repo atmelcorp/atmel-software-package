@@ -125,19 +125,26 @@ static inline uint32_t _spi_is_variable_ps(Spi* spi)
 static void _spi_write_dummy(Spi* spi)
 {
 	if (_spi_is_master(spi)) {
-		spi->SPI_TDR = 0xFF;
+		writehw(&spi->SPI_TDR, 0xFF);
 	}
 }
 
-static void _spi_consume_read(Spi* spi)
+static void _spi_consume_read(Spi* spi, uint32_t cs)
 {
 	if (_spi_is_master(spi)) {
 		while(!(spi->SPI_SR & SPI_SR_RDRF));
-		(void)spi->SPI_RDR;
+		uint16_t value;
+		if ((spi->SPI_CSR[cs] & SPI_CSR_BITS_Msk) < SPI_CSR_BITS_9_BIT) {
+			readb(&spi->SPI_RDR, (uint8_t*)&value);
+		} else {
+			readhw(&spi->SPI_RDR, &value);
+		}
+		(void)value;
 	}
 }
 
 #ifdef CONFIG_HAVE_SPI_FIFO
+
 static void _spi_fifo_clear(Spi* spi, uint32_t fifos)
 {
 	trace_debug("Spi: Clearing FIFOs\r\n");
@@ -181,17 +188,17 @@ void spi_configure(Spi * spi, uint32_t configuration)
 {
 	uint32_t spi_id = get_spi_id_from_addr(spi);
 	assert(spi_id != ID_PERIPH_COUNT);
-	/* Enable device */
-	pmc_enable_peripheral(spi_id);
+
+	/* Execute a software reset of the SPI twice */
+	spi->SPI_CR = SPI_CR_SWRST;
+	spi->SPI_CR = SPI_CR_SWRST;
+
 	uint32_t control_reg = SPI_CR_SPIDIS;
 	/* Add clear FIFO flags if present */
 	_clear_fifo_control_flags(&control_reg);
 	/* Apply */
 	spi->SPI_CR = control_reg;
 
-	/* Execute a software reset of the SPI twice */
-	spi->SPI_CR = SPI_CR_SWRST;
-	spi->SPI_CR = SPI_CR_SWRST;
 	spi->SPI_MR = configuration;
 }
 
@@ -267,11 +274,11 @@ void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 	if (_spi_is_variable_ps(spi)) {
 		spi->SPI_TDR = data | SPI_PCS(cs);
 	} else {
-		writehw(&spi->SPI_TDR, data);
+		writehw(&spi->SPI_TDR, (uint8_t)data);
 	}
 	/* Consume write to not corrupt FIFO if present (dummy
 	 * function if CONFIG_HAV_SPI_FIFO not defined) */
-	_spi_consume_read(spi);
+	_spi_consume_read(spi, cs);
 }
 
 /**
@@ -292,7 +299,7 @@ void spi_write_last(Spi * spi, uint32_t cs, uint16_t data)
 	spi->SPI_TDR = data | SPI_PCS(cs) | SPI_TDR_LASTXFER;
 	/* Consume write to not corrupt FIFO if present (dummy
 	 * function if CONFIG_HAV_SPI_FIFO not defined) */
-	_spi_consume_read(spi);
+	_spi_consume_read(spi, cs);
 }
 
 uint32_t spi_is_finished(Spi * spi)
@@ -365,6 +372,9 @@ void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
 
 void spi_fifo_disable(Spi* spi)
 {
+	uint32_t reg = 0;
+	_clear_fifo_control_flags(&reg);
+	spi->SPI_CR = reg;
 }
 
 uint32_t spi_fifo_rx_size(Spi *spi)

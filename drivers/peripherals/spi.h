@@ -199,8 +199,6 @@ extern void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
 			uint32_t ready_modes);
 extern void spi_fifo_disable(Spi* spi);
 
-extern void spi_fifo_clear(Spi* spi);
-
 extern uint32_t spi_fifo_rx_size(Spi *spi);
 extern uint32_t spi_fifo_tx_size(Spi *spi);
 
