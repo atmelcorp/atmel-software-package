@@ -32,13 +32,18 @@
 #define SPID_HEADER__
 
 #include <stdint.h>
+#include "mutex.h"
 
 #define SPID_SUCCESS         (0)
 #define SPID_INVALID_ID      (1)
 #define SPID_INVALID_BITRATE (2)
 #define SPID_ERROR_LOCK      (3)
 
-#define SPID_NO_CALLBACK     ((void*)0)
+#define SPID_NO_CALLBACK     ((spid_callback_t)0)
+
+struct _spi_desc;
+
+typedef void (*spid_callback_t)(struct _spi_desc* spid, void* args);
 
 enum _trans_mode
 {
@@ -49,16 +54,17 @@ enum _trans_mode
 
 struct _spi_desc
 {
-	Spi* addr;
-	uint32_t bitrate;
-	uint32_t attributes;
-	uint8_t dlybs;
-	uint8_t dlybct;
-	volatile uint8_t mutex;
-	uint8_t chip_select;
-	uint8_t spi_mode;
-	uint8_t transfert_mode;
-	void* dma;
+	Spi*               addr;
+	uint32_t           bitrate;
+	uint32_t           attributes;
+	uint8_t            dlybs;
+	uint8_t            dlybct;
+	uint8_t            chip_select;
+	uint8_t            spi_mode;
+	uint8_t            transfert_mode;
+	spid_callback_t    callback;
+	void*              cb_args;
+	mutex_t            mutex;
 };
 
 struct _buffer
@@ -67,11 +73,8 @@ struct _buffer
 	uint32_t size;
 };
 
-typedef void (*spid_callback_t)(struct _spi_desc*, void*);
-
 extern void spid_configure(struct _spi_desc* desc);
 
-extern void spid_set_mode_to_fifo(struct _spi_desc* desc);
 extern void spid_begin_transfert(struct _spi_desc* desc);
 
 extern uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,

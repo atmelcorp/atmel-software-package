@@ -31,34 +31,48 @@
 #include "peripherals/spi.h"
 #include "peripherals/spid.h"
 #include "peripherals/aic.h"
+#include "peripherals/xdmad.h"
+#include "peripherals/xdmac.h"
 
 #include "trace.h"
 
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
+#include <string.h>
 
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR)
+#define SPID_DMA_THRESHOLD      16
+
+static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
+					 void *arg)
+{
+	trace_debug("SPID DMA Transfert Finished\r\n");
+	struct _spi_desc* spid = (struct _spi_desc*) arg;
+
+	xdmad_free_channel(channel);
+
+	if (spid && spid->callback)
+		spid->callback(spid, spid->cb_args);
+}
+
+static void _spid_xdmad_cleanup_callback(struct _xdmad_channel *channel,
+					 void *arg)
+{
+	xdmad_free_channel(channel);
+}
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void spid_fifo_error(void)
 {
 	trace_error("Fifo pointer error encountered !!\r\n");
 }
-
-void spid_set_mode_to_fifo(struct _spi_desc* desc)
-{
-	if (desc->transfert_mode != SPID_MODE_FIFO) {
-		spi_fifo_configure(desc->addr, SPI_FIFO_DEPTH, SPI_FIFO_DEPTH,
-				   SPI_FMR_TXRDYM_ONE_DATA | SPI_FMR_RXRDYM_ONE_DATA);
-	}
-	desc->transfert_mode = SPID_MODE_FIFO;
-}
 #endif
 
 void spid_configure(struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
-	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_MSTR);
+	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_WDRBT | SPI_MR_MSTR);
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode, 0);
@@ -66,11 +80,12 @@ void spid_configure(struct _spi_desc* desc)
 	if (desc->transfert_mode == SPID_MODE_FIFO) {
 		spi_fifo_configure(desc->addr, SPI_FIFO_DEPTH, SPI_FIFO_DEPTH,
 				   SPI_FMR_TXRDYM_ONE_DATA | SPI_FMR_RXRDYM_ONE_DATA);
+		spi_enable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
+		aic_set_source_vector(id, spid_fifo_error);
+		aic_enable(id);
 	}
-	aic_set_source_vector(id, spid_fifo_error);
-	spi_enable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
-	aic_enable(id);
 #endif
+	(void)spi_get_status(desc->addr);
 	pmc_enable_peripheral(id);
 	spi_enable(desc->addr);
 }
@@ -81,6 +96,124 @@ void spid_begin_transfert(struct _spi_desc* desc)
 	spi_configure_cs_mode(desc->addr, desc->chip_select, SPI_KEEP_CS_OW);
 }
 
+static void _spid_init_dma_write_channel(const struct _spi_desc* desc,
+					 struct _xdmad_channel** channel,
+					 struct _xdmad_cfg* cfg)
+{
+	assert(cfg);
+	assert(channel);
+
+	uint32_t id = get_spi_id_from_addr(desc->addr);
+
+	memset(cfg, 0x0, sizeof(*cfg));
+
+	*channel =
+		xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
+	assert(*channel);
+
+	xdmad_prepare_channel(*channel);
+	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_DSYNC_MEM2PER
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_CSIZE_CHK_1
+		| XDMAC_CC_DWIDTH_BYTE
+		| XDMAC_CC_DIF_AHB_IF1
+		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_DAM_FIXED_AM;
+
+	cfg->dest_addr = (void*)&desc->addr->SPI_TDR;
+}
+
+static void _spid_init_dma_read_channel(const struct _spi_desc* desc,
+					 struct _xdmad_channel** channel,
+					 struct _xdmad_cfg* cfg)
+{
+	assert(cfg);
+	assert(channel);
+
+	uint32_t id = get_spi_id_from_addr(desc->addr);
+
+	memset(cfg, 0x0, sizeof(*cfg));
+
+	*channel =
+		xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
+	assert(*channel);
+
+	xdmad_prepare_channel(*channel);
+	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_DSYNC_PER2MEM
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_CSIZE_CHK_1
+		| XDMAC_CC_DWIDTH_BYTE
+		| XDMAC_CC_DIF_AHB_IF0
+		| XDMAC_CC_SIF_AHB_IF1
+		| XDMAC_CC_SAM_FIXED_AM;
+
+	cfg->src_addr = (void*)&desc->addr->SPI_RDR;
+}
+static uint32_t garbage = 0;
+static void _spid_dma_write(const struct _spi_desc* desc,
+			   const struct _buffer* buffer)
+{
+	struct _xdmad_channel* w_channel = NULL;
+	struct _xdmad_channel* r_channel = NULL;
+	struct _xdmad_cfg w_cfg;
+	struct _xdmad_cfg r_cfg;
+
+	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
+	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
+
+	w_cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM
+		>> XDMAC_CC_SAM_Pos;
+	w_cfg.src_addr = buffer->data;
+	w_cfg.ublock_size = buffer->size;
+	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
+	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback,
+			   NULL);
+
+	r_cfg.cfg.bitfield.dam = XDMAC_CC_DAM_FIXED_AM
+		>> XDMAC_CC_DAM_Pos;
+	r_cfg.dest_addr = &garbage;
+	r_cfg.ublock_size = buffer->size;
+	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
+	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
+			   (void*)desc);
+
+	xdmad_start_transfer(w_channel);
+	xdmad_start_transfer(r_channel);
+}
+
+static void _spid_dma_read(const struct _spi_desc* desc,
+			   struct _buffer* buffer)
+{
+	struct _xdmad_channel* w_channel = NULL;
+	struct _xdmad_channel* r_channel = NULL;
+	struct _xdmad_cfg w_cfg;
+	struct _xdmad_cfg r_cfg;
+
+	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
+	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
+
+	w_cfg.cfg.bitfield.sam = XDMAC_CC_SAM_FIXED_AM
+		>> XDMAC_CC_SAM_Pos;
+	w_cfg.src_addr = buffer->data;
+	w_cfg.ublock_size = buffer->size;
+	w_cfg.block_size = 0;
+	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
+	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback, NULL);
+
+	r_cfg.cfg.bitfield.dam = XDMAC_CC_DAM_INCREMENTED_AM
+		>> XDMAC_CC_DAM_Pos;
+	r_cfg.dest_addr = buffer->data;
+	r_cfg.ublock_size = buffer->size;
+	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
+	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
+			   (void*)desc);
+
+	xdmad_start_transfer(w_channel);
+	xdmad_start_transfer(r_channel);
+}
+
 uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			struct _buffer* tx, spid_callback_t cb,
 			void* user_args)
@@ -88,11 +221,12 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
 
-	if (!desc->mutex) {
+	desc->callback = cb;
+	desc->cb_args = user_args;
+
+	if (mutex_try_lock(&desc->mutex)) {
 		return SPID_ERROR_LOCK;
 	}
-
-	desc->mutex--;
 
 	switch (desc->transfert_mode) {
 	case SPID_MODE_POLLING:
@@ -106,11 +240,41 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 				rx->data[i] = spi_read(spi, desc->chip_select);
 			}
 		}
-		desc->mutex++;
+		mutex_free(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
 	case SPID_MODE_DMA:
+		if (tx) {
+			if (tx->size < SPID_DMA_THRESHOLD) {
+				for (i = 0; i < tx->size; ++i) {
+					spi_write(spi, desc->chip_select, tx->data[i]);
+				}
+				if (!rx) {
+					if (cb)
+						cb(desc, user_args);
+					mutex_free(&desc->mutex);
+				}
+			} else {
+				_spid_dma_write(desc, tx);
+				if (rx) {
+					spid_wait_transfert(desc);
+					mutex_lock(&desc->mutex);
+				}
+			}
+		}
+		if (rx) {
+			if (rx->size < SPID_DMA_THRESHOLD) {
+				for (i = 0; i < rx->size; ++i) {
+					rx->data[i] = spi_read(spi, desc->chip_select);
+				}
+				if (cb)
+					cb(desc, user_args);
+				mutex_free(&desc->mutex);
+			} else {
+				_spid_dma_read(desc, rx);
+			}
+		}
 		break;
 #ifdef CONFIG_HAVE_SPI_FIFO
 	case SPID_MODE_FIFO:
@@ -122,7 +286,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			spi_read_stream(spi, desc->chip_select,
 					rx->data, rx->size);
 		}
-		desc->mutex++;
+		mutex_free(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
@@ -143,24 +307,27 @@ void spid_finish_transfert_callback(struct _spi_desc* desc, void* user_args)
 void spid_finish_transfert(struct _spi_desc* desc)
 {
 	spi_release_cs(desc->addr);
+	mutex_free(&desc->mutex);
 }
 
 void spid_close(const struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
+#ifdef CONFIG_HAVE_SPI_FIFO
+	spi_fifo_disable(desc->addr);
+	spi_disable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
+	aic_disable(id);
+#endif
 	spi_disable(desc->addr);
 	pmc_disable_peripheral(id);
 }
 
 uint32_t spid_is_busy(const struct _spi_desc* desc)
 {
-	if (desc->mutex) {
-		return 0;
-	}
-	return 0;
+	return mutex_is_locked(&desc->mutex);
 }
 
 void spid_wait_transfert(const struct _spi_desc* desc)
 {
-	while(!desc->mutex);
+	while (mutex_is_locked(&desc->mutex));
 }
