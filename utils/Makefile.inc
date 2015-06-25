@@ -38,6 +38,8 @@ utils-y += utils/trace.o
 utils-y += utils/syscalls.o
 utils-y += utils/crc.o
 utils-y += utils/timer.o
+utils-y += utils/mutex.o
+utils-y += utils/mutex_gcc.o
 
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
