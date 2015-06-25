@@ -106,7 +106,7 @@ static const struct peripheral_xdma *get_peripheral_xdma(uint32_t id, Xdmac *xdm
 {
 	int i;
 
-	if (xdmac != XDMAC0 || xdmac != XDMAC1) {
+	if (xdmac != XDMAC0 && xdmac != XDMAC1) {
 		return NULL;
 	}
 
