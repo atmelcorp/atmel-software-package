@@ -54,17 +54,19 @@ enum _trans_mode
 
 struct _spi_desc
 {
-	Spi*               addr;
-	uint32_t           bitrate;
-	uint32_t           attributes;
-	uint8_t            dlybs;
-	uint8_t            dlybct;
-	uint8_t            chip_select;
-	uint8_t            spi_mode;
-	uint8_t            transfert_mode;
-	spid_callback_t    callback;
-	void*              cb_args;
-	mutex_t            mutex;
+	Spi*            addr;
+	uint32_t        bitrate;
+	uint32_t        attributes;
+	uint8_t         dlybs;
+	uint8_t         dlybct;
+	uint8_t         chip_select;
+	uint8_t         spi_mode;
+	uint8_t         transfert_mode;
+	spid_callback_t callback;
+	void*           cb_args;
+	mutex_t         mutex;
+	uint32_t        region_start;
+	uint32_t        region_end;
 };
 
 struct _buffer

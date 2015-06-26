@@ -34,6 +34,8 @@
 #include "peripherals/xdmad.h"
 #include "peripherals/xdmac.h"
 
+#include "cortex-a/cp15.h"
+
 #include "trace.h"
 
 #include <stddef.h>
@@ -44,6 +46,8 @@
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR)
 #define SPID_DMA_THRESHOLD      16
 
+static uint32_t _garbage = 0;
+
 static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 					 void *arg)
 {
@@ -51,6 +55,11 @@ static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 	struct _spi_desc* spid = (struct _spi_desc*) arg;
 
 	xdmad_free_channel(channel);
+
+	if (spid) {
+		cp15_invalidate_dcache_for_dma(spid->region_start,
+					       spid->region_end);
+	}
 
 	if (spid && spid->callback)
 		spid->callback(spid, spid->cb_args);
@@ -151,7 +160,7 @@ static void _spid_init_dma_read_channel(const struct _spi_desc* desc,
 
 	cfg->src_addr = (void*)&desc->addr->SPI_RDR;
 }
-static uint32_t garbage = 0;
+
 static void _spid_dma_write(const struct _spi_desc* desc,
 			   const struct _buffer* buffer)
 {
@@ -173,11 +182,13 @@ static void _spid_dma_write(const struct _spi_desc* desc,
 
 	r_cfg.cfg.bitfield.dam = XDMAC_CC_DAM_FIXED_AM
 		>> XDMAC_CC_DAM_Pos;
-	r_cfg.dest_addr = &garbage;
+	r_cfg.dest_addr = &_garbage;
 	r_cfg.ublock_size = buffer->size;
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
+
+	cp15_coherent_dcache_for_dma(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -209,6 +220,8 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
+
+	cp15_invalidate_dcache_for_dma(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -256,6 +269,9 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 					mutex_free(&desc->mutex);
 				}
 			} else {
+				desc->region_start = (uint32_t)tx->data;
+				desc->region_end = desc->region_start
+					+ tx->size;
 				_spid_dma_write(desc, tx);
 				if (rx) {
 					spid_wait_transfert(desc);
@@ -272,6 +288,9 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 					cb(desc, user_args);
 				mutex_free(&desc->mutex);
 			} else {
+				desc->region_start = (uint32_t)rx->data;
+				desc->region_end = desc->region_start
+					+ rx->size;
 				_spid_dma_read(desc, rx);
 			}
 		}
