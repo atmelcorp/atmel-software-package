@@ -89,164 +89,144 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-typedef enum
-{
-  ACT8945A_REG_OFF = 0,
-  ACT8945A_REG_ON = 1,
-} REG_ON_OFF_enum;
+#define ACT8945A_SET_OFF 0
+#define ACT8945A_SET_ON  1
 
-typedef enum
-{
-  ACT8945A_INT_OFF = 0,
-  ACT8945A_INT_ON = 1,
-} INT_ON_OFF_enum;
-
-typedef enum
+enum _pwr_usb_mode
 {
   ACT8945A_USB_MODE_100mA = 0,
   ACT8945A_USB_MODE_450mA = 1,
-} CHG_LEVEL_enum;
+};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 typedef struct
 {
-  char  RegName[16];
-  uint8_t   Address;
+	char  RegName[16];
+	uint8_t   Address;
 } sActReg, psActReg;
 
 // SYSTEM @0x00
-typedef struct
+struct _bitfield_sys0
 {
-  uint8_t
-    trst : 1,           // Reset time out 0->260 1->65ms
-    nsysmode : 1,       // response of SYSLEV voltage detector, 1->int 0>shutdown
-    nsyslevmsk : 1,     // 1->unmask int
-    nsysstat : 1,       // 1 if vsys < syslev voltage threshold
-    syslev : 4;         // defines SYSLEV voltage threshold
-} BITFIELD_SYS0;
+	uint8_t trst:       1,  // Reset time out 0->260 1->65ms
+		nsysmode:   1,  // response of SYSLEV voltage detector, 1->int 0>shutdown
+		nsyslevmsk: 1,  // 1->unmask int
+		nsysstat:   1,  // 1 if vsys < syslev voltage threshold
+		syslev:     4;  // defines SYSLEV voltage threshold
+};
 
 // SYSTEM @0x01
-typedef struct
+struct _bitfield_sys1
 {
-  uint8_t
-    scratch : 4,        // maybe be used by user to store system status information
-    ruf4 : 1,           //
-    mstroff : 1,        // Set bit to 1 to turn off all regulators
-    ruf67 : 2;          //
-} BITFIELD_SYS1;
+	uint8_t scratch: 4, // user area to store system status information
+		ruf4:    1,
+		mstroff: 1, // Set bit to 1 to turn off all regulators
+		ruf67:   2;
+};
 
 // REG1 @0x20, REG2 @0x30, REG3 @0x40
-typedef struct
+struct _bitfield_vset1
 {
-  uint8_t
-    vset1 : 6,
-    ruf_67 : 2;
-} BITFIELD_VSET1;
+	uint8_t vset1:  6,
+		ruf_67: 2;
+};
 
 // REG1 @0x21, REG2 @0x31, REG3 @0x41
-typedef struct
+struct _bitfield_vset2
 {
-  uint8_t
-    vset2 : 6,
-    ruf_67 : 2;
-} BITFIELD_VSET2;
+	uint8_t vset2:  6,
+		ruf_67: 2;
+};
 
 // REG1 @0x22, REG2 @0x32, REG3 @0x42
-typedef struct
+struct _bitfield_ctrl1
 {
-  uint8_t
-    ok : 1,
-    nfltmsk : 1,
-    delay : 3,
-    mode : 1,
-    phase : 1,
-    on : 1;
-} BITFIELD_CTRL1;
+	uint8_t ok:      1,
+		nfltmsk: 1,
+		delay:   3,
+		mode:    1,
+		phase:   1,
+		on:      1;
+};
 
 // REG4 @0x51, REG5 @0x55, REG6 @0x61, REG7 @0x65
-typedef struct
+struct _bitfield_ctrl2
 {
-  uint8_t
-    ok : 1,
-    nfltmsk : 1,
-    delay : 3,
-    lowiq : 1,
-    dis : 1,
-    on : 1;
-} BITFIELD_CTRL2;
+	uint8_t ok:      1,
+		nfltmsk: 1,
+		delay:   3,
+		lowiq:   1,
+		dis:     1,
+		on:      1;
+};
 
 //#pragma bitfields=reverse_disjoint_types
 
-typedef struct
+struct _bitfield_apch70
 {
-  uint8_t
-    ruf_0 : 1,
-    ruf_1 : 1,
-    ruf_2 : 1,
-    ruf_3 : 1,
-    ruf_45 : 2,
-    ruf_67 : 2;
-} BITFIELD_APCH70;
+	uint8_t ruf_0:  1,
+		ruf_1:  1,
+		ruf_2:  1,
+		ruf_3:  1,
+		ruf_45: 2,
+		ruf_67: 2;
+};
 
-typedef struct
+struct _bitfield_apch71
 {
-  uint8_t
-    ovpset : 2,
-    pretimo : 2,
-    tottimo : 2,
-    ruf6 : 1,
-    suschg : 1;
-} BITFIELD_APCH71;
+	uint8_t ovpset:  2,
+		pretimo: 2,
+		tottimo: 2,
+		ruf6:    1,
+		suschg:  1;
+};
 
-typedef struct
+struct _bitfield_apch78
 {
-  uint8_t
-    chgdat : 1,
-    indat : 1,
-    tempdat : 1,
-    timrdat : 1,
-    chgstat : 1,
-    instat : 1,
-    tempstat : 1,
-    timrstat : 1;
-} BITFIELD_APCH78;
+	uint8_t chgdat:   1,
+		indat:    1,
+		tempdat:  1,
+		timrdat:  1,
+		chgstat:  1,
+		instat:   1,
+		tempstat: 1,
+		timrstat: 1;
+};
 
-typedef struct
+struct _bitfield_apch79
 {
-  uint8_t
-    chgeocout : 1,
-    indis : 1,
-    tempout : 1,
-    timrpre : 1,
-    chgeocin : 1,
-    incon : 1,
-    tempin : 1,
-    timrtot : 1;
-} BITFIELD_APCH79;
+	uint8_t chgeocout: 1,
+		indis:     1,
+		tempout:   1,
+		timrpre:   1,
+		chgeocin:  1,
+		incon:     1,
+		tempin:    1,
+		timrtot:   1;
+};
 
-typedef struct
+struct _bitfield_apch7a
 {
-  uint8_t
-    ruf0 : 1,
-    acinstat : 1,
-    ruf32 : 2,
-    cstate : 2,
-    ruf76 : 2;
-} BITFIELD_APCH7A;
+	uint8_t ruf0:     1,
+		acinstat: 1,
+		ruf32:    2,
+		cstate:   2,
+		ruf76:    2;
+};
 
-typedef enum
+enum _it_apch
 {
-    CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, // bit[0]
-    INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL,
-    BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL,
-    PRECHARGE_TIME_OUT_INT_CTRL,
-    CHARGE_STATE_INTO_EOC_STATE_INT_CTRL,
-    INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL,
-    BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL,
-    TOTAL_CHARGE_TIME_OUT_INT_CTRL,
-} INT_APCH_enum ;
+	CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, // bit[0]
+	INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL,
+	BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL,
+	PRECHARGE_TIME_OUT_INT_CTRL,
+	CHARGE_STATE_INTO_EOC_STATE_INT_CTRL,
+	INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL,
+	BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL,
+	TOTAL_CHARGE_TIME_OUT_INT_CTRL,
+};
 
 /*------------------------------------------------------------------------------
  *        Exported functions
@@ -255,38 +235,32 @@ typedef enum
 extern void act8945a_active_interrupt (void);
 extern void act8945a_disable_twi (void);
 
-extern uint8_t act8945a_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t act8945a_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t act8945a_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut);
-extern uint8_t act8945a_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF);
-extern uint8_t act8945a_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
-extern uint8_t act8945a_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
-extern uint8_t act8945a_disable_all_apch_interrupt (void);
-extern uint8_t act8945a_set_system_voltage_level (uint16_t Value);
-extern uint8_t act8945a_set_state_CHGLEV_pin (CHG_LEVEL_enum State);
-extern uint8_t act8945a_get_state_lbo_pin (void);
+extern uint8_t act8945a_set_regulator_state_out1to3(uint8_t RegVout,
+						    uint8_t on_off);
+extern uint8_t act8945a_set_regulator_state_out4to7(uint8_t RegVout,
+						    uint8_t on_off);
+extern uint8_t act8945a_set_regulator_voltage_out4to7(uint8_t RegVout,
+						      uint16_t VOut);
+extern uint8_t act8945a_set_system_voltage_level_interrupt(uint8_t on_off);
+extern uint8_t act8945a_set_regulator_fault_interrupt(uint8_t RegVout,
+						      uint8_t on_off);
+extern uint8_t act8945a_set_apch_interrupt(enum _it_apch it_type,
+					   uint8_t on_off);
+extern uint8_t act8945a_disable_all_apch_interrupt(void);
+extern uint8_t act8945a_set_system_voltage_level(uint16_t salue);
+extern uint8_t act8945a_set_state_chglev_pin(enum _pwr_usb_mode state);
+extern uint8_t act8945a_get_state_lbo_pin(void);
 extern uint8_t act8945a_begin(void);
-extern uint8_t act8945a_test (void);
+extern uint8_t act8945a_test(void);
 
-uint8_t _ACT8945A_display_active_path_charger (void);
-uint8_t _ACT8945A_display_syslev_failing_threshold (void);
+extern uint8_t act8945a_disable_all_APCH_interrupt(void);
 
-extern void ACT8945A_active_interrupt (void);
+extern void test_out6(void);
 
-extern uint8_t ACT8945A_set_regulator_state_out1to3 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_set_regulator_state_out4to7 (uint8_t RegVout, REG_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut);
-extern uint8_t ACT8945A_set_system_voltage_level_interrupt (INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_set_regulator_fault_interrupt (uint8_t RegVout, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_set_APCH_interrupt (INT_APCH_enum IntType, INT_ON_OFF_enum ON_OFF);
-extern uint8_t ACT8945A_disable_all_APCH_interrupt (void);
-extern uint8_t ACT8945A_set_system_voltage_level (uint16_t Value);
-extern uint8_t ACT8945A_set_state_CHGLEV_pin (CHG_LEVEL_enum State);
-extern uint8_t ACT8945A_get_state_LBO_pin (void);
-extern uint8_t ACT8945A_begin(void);
-extern uint8_t ACT8945A_test (void);
+extern void act8945a_active_interrupt_handler (void);
 
-extern void ACT8945A_irq_handler (uint32_t group, uint32_t status);
+extern void act8945a_lbo_handler(uint32_t group, uint32_t status);
+extern void act8945a_irq_handler(uint32_t group, uint32_t status);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

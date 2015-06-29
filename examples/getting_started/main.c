@@ -395,7 +395,7 @@ int main(void)
 	status = act8945a_begin();
 	if(status) printf("--E-- Error init ACT8945A \n\r");
 	act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
+	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
 #endif
 
 	/* Configure PIT. */
@@ -417,7 +417,7 @@ int main(void)
 	aic_enable(CONSOLE_ID);
 	console_enable_interrupts(US_IER_RXRDY);
 
-	printf("use push buttons or DBG key 0 to 9.\n\r");
+	printf("use push buttons or console key 0 to 9.\n\r");
 	printf("Press the number of the led to make it "
 	       "start or stop blinking.\n\r");
 	printf("Press 's' to stop the TC and 'b' to start it\r\n");
