@@ -56,7 +56,7 @@ static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 
 	xdmad_free_channel(channel);
 
-	if (spid) {
+	if (spid->region_start && spid->region_end) {
 		cp15_invalidate_dcache_for_dma(spid->region_start,
 					       spid->region_end);
 	}
