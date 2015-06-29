@@ -129,6 +129,10 @@ extern void rtc_convert_time_to_hms (struct _time *time, uint32_t count);
  */
 extern void rtc_calibration(int32_t current_tempr);
 
+extern uint32_t rtc_set_calendar_event (uint32_t EventMask);
+
+extern uint32_t rtc_set_time_event (uint32_t EventMask);
+
 #ifdef __cplusplus
 }
 #endif

@@ -39,6 +39,9 @@
 #include "peripherals/flexcom.h"
 #include "peripherals/usart.h"
 
+#include "compiler.h"
+#include "test_fielbus_shield.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,20 +73,20 @@ COM1 (Rx, Tx) PB22/PB23 Flexcom3 Ios3
 
 /** COM0 RS232 definition **/
 #define PINS_COM0_USART         PINS_FLEXCOM4_USART_IOS2
-#define COM0_PER_ADD         	FLEXCOM4
-#define COM0_ID              	ID_FLEXCOM4
-#define COM0_BAUDRATE        	115200
-#define COM0_MODE_RS232			(US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
+#define COM0_PER_ADD            FLEXCOM4
+#define COM0_ID                 ID_FLEXCOM4
+#define COM0_BAUDRATE           115200
+#define COM0_MODE_RS232         (US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
 
 /** Pins for COM0 */
 static const struct _pin pinsCom0[] = PINS_COM0_USART;
 
 /** COM1 RS232 definition **/
-#define PINS_COM1_USART        	PINS_FLEXCOM3_USART_IOS3
-#define COM1_PER_ADD         	FLEXCOM3
-#define COM1_ID              	ID_FLEXCOM3
-#define COM1_BAUDRATE        	115200
-#define COM1_MODE_RS232			(US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
+#define PINS_COM1_USART         PINS_FLEXCOM3_USART_IOS3
+#define COM1_PER_ADD            FLEXCOM3
+#define COM1_ID                 ID_FLEXCOM3
+#define COM1_BAUDRATE           115200
+#define COM1_MODE_RS232         (US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
 
 /** Pins for COM1 */
 static const struct _pin pinsCom1[] = PINS_COM1_USART;
@@ -91,16 +94,16 @@ static const struct _pin pinsCom1[] = PINS_COM1_USART;
 
 /** COM2 RS232 definition **/
 #define PINS_COM2_USART         PINS_FLEXCOM0_USART_IOS1
-#define COM2_PER_ADD         	FLEXCOM0
-#define COM2_ID              	ID_FLEXCOM0
-#define COM2_BAUDRATE        	115200
-#define COM2_MODE_RS232			(US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
+#define COM2_PER_ADD            FLEXCOM0
+#define COM2_ID                 ID_FLEXCOM0
+#define COM2_BAUDRATE           115200
+#define COM2_MODE_RS232         (US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
 
 
 #define PINS_COM2_RS485         PINS_FLEXCOM0_USART_IOS1_RS485
-#define COM2_MODE_RS485			(US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
-									US_MR_CHMODE_NORMAL | US_MR_PAR_NO | \
-									US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
+#define COM2_MODE_RS485         (US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
+				 US_MR_CHMODE_NORMAL | US_MR_PAR_NO |	\
+				 US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
 
 /** Pins for COM2 */
 static const struct _pin pinsCom2[] = PINS_COM2_USART;
@@ -108,15 +111,15 @@ static const struct _pin pinsCom20[] = PINS_COM2_RS485;
 
 /** COM2 RS232 definition **/
 #define PINS_COM3_USART         PINS_FLEXCOM1_USART_IOS1
-#define COM3_PER_ADD         	FLEXCOM1
-#define COM3_ID              	ID_FLEXCOM1
-#define COM3_BAUDRATE        	115200
-#define COM3_MODE_RS232			(US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
+#define COM3_PER_ADD            FLEXCOM1
+#define COM3_ID                 ID_FLEXCOM1
+#define COM3_BAUDRATE           115200
+#define COM3_MODE_RS232         (US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT)
 
 #define PINS_COM3_RS485         PINS_FLEXCOM1_USART_IOS1_RS485
-#define COM3_MODE_RS485			(US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
-									US_MR_CHMODE_NORMAL | US_MR_PAR_NO | \
-									US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
+#define COM3_MODE_RS485         (US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
+				 US_MR_CHMODE_NORMAL | US_MR_PAR_NO |	\
+				 US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
 
 /** Pins for COM3 */
 static const struct _pin pinsCom3[] = PINS_COM3_USART;
@@ -157,7 +160,9 @@ static void configure_external_buttons(void)
 	pio_set_debounce_filter(&ext_pb_pins[EXT_PB1], 10);
 	/* Initialize pios ext_pb_pins with its handlers */
 	pio_configure_it(&ext_pb_pins[EXT_PB1]);
-	pio_add_handler_to_group(ext_pb_pins[EXT_PB1].group, ext_pb_pins[EXT_PB1].mask, external_pb1_handler);
+	pio_add_handler_to_group(ext_pb_pins[EXT_PB1].group,
+				 ext_pb_pins[EXT_PB1].mask,
+				 external_pb1_handler);
 	pio_enable_it(&ext_pb_pins[EXT_PB1]);
 
 	/* Configure pios as inputs. */
@@ -166,7 +171,9 @@ static void configure_external_buttons(void)
 	pio_set_debounce_filter(&ext_pb_pins[EXT_PB2], 10);
 	/* Initialize pios ext_pb_pins with its handlers */
 	pio_configure_it(&ext_pb_pins[EXT_PB2]);
-	pio_add_handler_to_group(ext_pb_pins[EXT_PB2].group, ext_pb_pins[EXT_PB2].mask, external_pb2_handler);
+	pio_add_handler_to_group(ext_pb_pins[EXT_PB2].group,
+				 ext_pb_pins[EXT_PB2].mask,
+				 external_pb2_handler);
 	pio_enable_it(&ext_pb_pins[EXT_PB2]);
 
 }
@@ -194,7 +201,9 @@ void com0_configure(const struct _pin * pin, uint32_t size, uint32_t mode)
 	/* Initialize driver to use */
 	usart_configure (&COM0_PER_ADD->usart, mode, COM0_BAUDRATE);
 
-	usart_fifo_configure(&COM0_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM0_PER_ADD->usart,
+			     16, 16, 16,
+			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 
 	//usart_set_transmitter_enabled(&COM0_PER_ADD->usart, 1);
 	//usart_set_receiver_enabled(&COM0_PER_ADD->usart, 1);
@@ -211,7 +220,9 @@ void com1_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	/* Initialize driver to use */
 	usart_configure (&COM1_PER_ADD->usart, mode, COM1_BAUDRATE);
 
-	usart_fifo_configure(&COM1_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM1_PER_ADD->usart,
+			     16, 16, 16,
+			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 void com2_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
@@ -224,7 +235,9 @@ void com2_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	/* Initialize driver to use */
 	usart_configure (&COM2_PER_ADD->usart, mode, COM2_BAUDRATE);
 
-	usart_fifo_configure(&COM2_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM2_PER_ADD->usart,
+			     16, 16, 16,
+			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 void com3_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
@@ -237,14 +250,16 @@ void com3_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	/* Initialize driver to use */
 	usart_configure (&COM3_PER_ADD->usart, mode, COM3_BAUDRATE);
 
-	usart_fifo_configure(&COM3_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM3_PER_ADD->usart,
+			     16, 16, 16,
+			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 
-void test_flexcom_usart (void)
+void test_flexcom_usart(void)
 {
-	uint8_t str[] = "Test FieldBus Shield Atmel2015";
-	uint8_t str1[48] = {0};
+	const char* str = "Test FieldBus Shield Atmel2015.";
+	char str1[48] = {0};
 	uint32_t len;
 
 	configure_command_relays();
@@ -256,11 +271,12 @@ void test_flexcom_usart (void)
 	com0_configure(&pinsCom0[0], ARRAY_SIZE(pinsCom0), COM0_MODE_RS232);
 	com1_configure(&pinsCom1[0], ARRAY_SIZE(pinsCom1), COM1_MODE_RS232);
 
-	len = usart_write_stream(&COM0_PER_ADD->usart, str, sizeof(str));
+	len = usart_write_stream(&COM0_PER_ADD->usart, str, strlen(str));
 	len = usart_read_stream(&COM1_PER_ADD->usart, str1, len);
 	len = usart_write_stream(&COM1_PER_ADD->usart, str1, len);
 	len = usart_read_stream(&COM0_PER_ADD->usart, str1, len);
-	printf("rx_len: %d str: %s \n\r", len, str1);
+	printf("rx_len: %d str: %s \n\r",
+	       (unsigned int)len, str1);
 
 	/* Loop com2 to Com3 */
 	//com2_configure(&pinsCom2[0], COM2_MODE_RS232);
@@ -271,14 +287,14 @@ void test_flexcom_usart (void)
 	//printf("rx_len: %d str: %s \n\r", len, str1);
 
 	/* test RS485 mode */
-	com2_configure(&pinsCom20[0],  ARRAY_SIZE(pinsCom20), COM2_MODE_RS485);
-	com3_configure(&pinsCom30[0],  ARRAY_SIZE(pinsCom30), COM3_MODE_RS485);
+	com2_configure(&pinsCom20[0], ARRAY_SIZE(pinsCom20), COM2_MODE_RS485);
+	com3_configure(&pinsCom30[0], ARRAY_SIZE(pinsCom30), COM3_MODE_RS485);
 
 	/* Loop com2 to Com3 */
 	len = usart_write_stream(&COM2_PER_ADD->usart, str, len);
 	len = usart_read_stream(&COM3_PER_ADD->usart, str1, len);
-	printf("rx_len: %d str: %s \n\r", len, str1);
+	printf("rx_len: %d str: %s \n\r",
+	       (unsigned int)len, str1);
 
 
 }
-

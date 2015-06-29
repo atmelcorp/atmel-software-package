@@ -46,7 +46,10 @@
 #include "misc/console.h"
 
 #include "power/act8945a.h"
-#include "services/test_rtc.h"
+#include "test_rtc.h"
+#include "test_fielbus_shield.h"
+#include "board_info.h"
+
 
 #include "timer.h"
 
@@ -240,12 +243,12 @@ int main(void)
 	timer_configure(BLINK_PERIOD);
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	status = ACT8945A_begin();
+	status = act8945a_begin();
 	if(status) printf("--E-- Error init ACT8945A \n\r");
-	ACT8945A_set_regulator_voltage_out4to7 (V_OUT6, 2500);
-	ACT8945A_set_regulator_state_out4to7 (V_OUT6, ACT8945A_REG_ON);
-	ACT8945A_set_regulator_voltage_out4to7 (V_OUT7, 1800);
-	ACT8945A_set_regulator_state_out4to7 (V_OUT7, ACT8945A_REG_ON);
+	act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
+	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
+	act8945a_set_regulator_voltage_out4to7 (V_OUT7, 1800);
+	act8945a_set_regulator_state_out4to7 (V_OUT7, ACT8945A_SET_ON);
 #endif
 
 	test_flexcom_usart();

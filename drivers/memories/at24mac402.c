@@ -62,6 +62,9 @@ uint8_t buf_twi[AT24MAC402_PAGE_SIZE] = {0};
 // Using TWI1 IOS2
 #define at24mac402_TWI_ID	ID_TWIHS1
 
+static struct _at24mac402_board_info DEFAULT_BOARD_INFO =
+{16*2, "ATMEL ", "RFO", 15, 01, "AAA", 0x00, 0x0000, "SAMA5D2-XULT", 'C', 0x00};
+
 static const struct _pin pins_twi_at24mac402[] = PINS_TWI1_IOS2;
 
 uint8_t SerNumbr[AT24MAC402_SER_NUM_SIZE] = {0};
@@ -78,6 +81,7 @@ static uint8_t _at24mac402_is_twi_handler_ready (struct _handler_twi * phtwi);
 static uint8_t _at24mac402_twid_rd_wr (struct _handler_twi * phtwi, enum TWI_CMD Cmd);
 static void _at24mac402_delay_ms (uint32_t delay);
 static void _at24mac402_set_dummy_add (uint8_t PerAdd, uint8_t RegAdd);
+static void _reset_buftwi (void);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

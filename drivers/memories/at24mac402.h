@@ -11,6 +11,7 @@
 //         Headers
 //------------------------------------------------------------------------------
 
+#include <stdint.h>
 
 //------------------------------------------------------------------------------
 //         Global definitions
@@ -59,9 +60,6 @@ struct _at24mac402_board_info {
     uint8_t rev_mapping;
     uint8_t crc;
 } ;
-
-static struct _at24mac402_board_info DEFAULT_BOARD_INFO  =
-{16*2, "ATMEL ", "RFO", 15, 01, "AAA", 0x00, 0x0000, "SAMA5D2-XULT", 'C', 0x00};
 
 /*----------------------------------------------------------------------------
  *         Exported functions

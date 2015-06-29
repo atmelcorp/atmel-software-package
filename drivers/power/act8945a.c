@@ -294,9 +294,12 @@ void act8945a_lbo_handler (uint32_t group, uint32_t status)
 		pio_disable_it(&pins_lbo_act8945a[0]);
 		printf(" Launch Shutdown mode \n\r");
 		_act8945a_delay_ms(2);
-		// SHDWC_DoShutDown(1, 3, 100);
-		SHDWC->SHDW_MR =  (1 << 17) | 3 | ((100 & 0xF) << 4);
-	SHDWC->SHDW_CR = (uint32_t)((0xA5 << 24) | 1);
+		/* shdwc_configure_wakeup_mode (SHDW_MR_LPDBCEN0_ENABLE | */
+		/* 			     SHDW_MR_LPDBC_2_RTCOUT0 | */
+		/* 			     SHDW_MR_WKUPDBC_32_SLCK); */
+		/* shdwc_set_wakeup_input (SHDW_WUIR_WKUPEN0_ENABLE, */
+		/* 			SHDW_WUIR_WKUPT0_LOW); */
+		/* shdwc_do_shutdown(); */
 	}
 }
 
@@ -357,7 +360,7 @@ static void _act8945a_display_system_setting (void)
 }
 
 // Display detailled infos of the register ACT8865 and ACT8945A
-static void _act8945a_display_voltage_setting (void)
+void act8945a_display_voltage_setting(void)
 {
 	uint8_t data, x, status;
 	float x1;
@@ -877,8 +880,8 @@ uint8_t act8945a_begin (void)
 		htwi.Twck = TWCK_400K;
 		htwi.PeriphAddr = ACT8945A_ADDRESS;
 		printf("act8945A @0x%02X TWCK:%dKHz \n\r",
-			   (unsigned int)htwi.PeriphAddr,
-			   (unsigned int)htwi.Twck/1000);
+		       (unsigned int)htwi.PeriphAddr,
+		       (unsigned int)htwi.Twck/1000);
 		status = _twi_handler_init (&htwi);
 		htwi.AddSize = 1;
 		htwi.pData = &data;
@@ -970,7 +973,7 @@ uint8_t act8945a_test (void)
 	_act8945a_registers_dump();
 	_act8945a_registers_dump_APCH();
 	_act8945a_display_active_path_charger();
-	_act8945a_display_voltage_setting();
+	act8945a_display_voltage_setting();
 	act8945a_set_system_voltage_level(3100);
 	_act8945a_display_system_setting();
 

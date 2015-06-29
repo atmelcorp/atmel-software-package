@@ -18,12 +18,7 @@
 #define _memtest_h
 
 
-/*
- * Define NULL pointer value.
- */
-#ifndef NULL
-#define NULL  (void *) 0
-#endif
+#include <stdint.h>
 
 /*
  * Set the data bus width.
@@ -36,6 +31,9 @@ typedef unsigned long datum;
 datum   memTestDataBus(volatile datum * address);
 datum * memTestAddressBus(volatile datum * baseAddress, unsigned long nBytes);
 datum * memTestDevice(volatile datum * baseAddress, unsigned long nBytes);
+
+uint8_t test_ddr_sdram(uint32_t* addr_start,
+		       uint32_t* addr_end, uint64_t nBytes);
 
 
 #endif /* _memtest_h */

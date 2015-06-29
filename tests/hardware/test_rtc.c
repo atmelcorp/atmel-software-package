@@ -56,7 +56,7 @@ struct _date MDT = {2015, 06, 01, 1};
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-void rtc_irq_handler(void)
+static void rtc_irq_handler(void)
 {
 	uint32_t reset_flag = 0;
 	uint8_t reg;

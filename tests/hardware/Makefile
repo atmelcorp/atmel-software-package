@@ -32,6 +32,10 @@ TOP := ../..
 
 BINNAME = test-hardware
 
-obj-y += tests/hardware/main.o
+obj-y += tests/hardware/main.o \
+	tests/hardware/board_info.o \
+	tests/hardware/test_mem.o \
+	tests/hardware/test_fielbus_shield.o \
+	tests/hardware/test_rtc.o
 
 include $(TOP)/scripts/Makefile.rules

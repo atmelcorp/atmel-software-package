@@ -35,6 +35,7 @@
 #include "chip.h"
 
 #include "board_info.h"
+#include "test_mem.h"
 
 #include <stdio.h>
 
@@ -216,25 +217,31 @@ uint32_t* _mem_test_device (volatile uint32_t* baseAddress, uint64_t nBytes)
 //         Global functions
 //------------------------------------------------------------------------------
 
-uint8_t test_ddr_sdram (uint32_t* addr_start, uint32_t* addr_end, uint64_t nBytes)
+uint8_t test_ddr_sdram(uint32_t* addr_start,
+		       uint32_t* addr_end, uint64_t nBytes)
 {
 	uint32_t pattern;
-    uint32_t* pMem = NULL;
+	uint32_t* pMem = NULL;
 
-    printf(" --T-- from 0x%x to 0x%x \n\r", addr_start, addr_start+nBytes);
+	printf(" --T-- from 0x%x to 0x%x \n\r",
+	       (unsigned int)addr_start,
+	       (unsigned int)(addr_start+nBytes));
 	pattern = _mem_test_data_bus (addr_start);
-    if ( pattern != 0) {
-		printf(" --E-- Error walking bit: 0x%X \n\r", pattern);
+	if ( pattern != 0) {
+		printf(" --E-- Error walking bit: 0x%X \n\r",
+		       (unsigned int)pattern);
 		return TEST_MEM_RET_NOK;
 	}
-    pMem = _mem_test_addr_bus(addr_start, nBytes);
+	pMem = _mem_test_addr_bus(addr_start, nBytes);
 	if ( pMem != NULL) {
-		printf(" --E-- Error adress bus: 0x%X \n\r", pMem);
+		printf(" --E-- Error adress bus: 0x%X \n\r",
+		       (unsigned int)pMem);
 		return TEST_MEM_RET_NOK;
 	}
-    pMem = _mem_test_device(addr_start, nBytes);
+	pMem = _mem_test_device(addr_start, nBytes);
 	if (pMem != NULL) {
-		printf(" --E-- Error r/w adress: 0x%X \n\r", pMem);
+		printf(" --E-- Error r/w adress: 0x%X \n\r",
+		       (unsigned int)pMem);
 		return TEST_MEM_RET_NOK;
 	}
 	return TEST_MEM_RET_OK;
