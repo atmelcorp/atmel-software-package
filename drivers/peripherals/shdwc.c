@@ -34,7 +34,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "shdwc.h"
+#include "peripherals/shdwc.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -81,12 +81,12 @@ void shdwc_configure_wakeup_mode (uint32_t config)
 
 	cfg.bfield.lpdbcen0 = (config & SHDW_MR_LPDBCEN0_ENABLE)? 1:0;
 	cfg.bfield.lpdbcen1 = (config & SHDW_MR_LPDBCEN1_ENABLE)? 1:0;
-	cfg.bfield.lpdbc = (config & SHDW_MR_LPDBC_Msk) >> SHDW_MR_LPDBC_Pos;
-	//cfg.bfield.rttwken =
-	//cfg.bfield.rtcwken =
-	cfg.bfield.accwken = (config & SHDW_MR_ACCWKEN)? 1:0;
-	cfg.bfield.rxlpwken = (config & SHDW_MR_ACCWKEN)? 1:0;
-	cfg.bfield.wkupdbc = (config & SHDW_MR_WKUPDBC_Msk) >> SHDW_MR_WKUPDBC_Pos ;
+	cfg.bfield.lpdbc 	= (config & SHDW_MR_LPDBC_Msk) >> SHDW_MR_LPDBC_Pos;
+	cfg.bfield.rttwken 	= (config & SHDW_MR_RTTWKEN)? 1:0;
+	cfg.bfield.rtcwken 	= (config & SHDW_MR_RTCWKEN)? 1:0;
+	cfg.bfield.accwken 	= (config & SHDW_MR_ACCWKEN)? 1:0;
+	cfg.bfield.rxlpwken = (config & SHDW_MR_RXLPWKEN)? 1:0;
+	cfg.bfield.wkupdbc 	= (config & SHDW_MR_WKUPDBC_Msk) >> SHDW_MR_WKUPDBC_Pos ;
 
 	SHDWC->SHDW_MR = cfg.uint32_value;
 }
