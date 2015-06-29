@@ -39,6 +39,7 @@
 #include "peripherals/flexcom.h"
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
+#include "peripherals/shdwc.h"
 
 #include "power/act8945a.h"
 
@@ -223,28 +224,26 @@ void ACT8945A_irq_handler (uint32_t group, uint32_t status)
 	if (status & pins_irq_act8945a[0].mask)	{
 
 		_ACT8945A_rw_register (ADD_SYSTEM0, (uint8_t*)&BitField_Syst0, TWI_RD);
-		_ACT8945A_rw_register (ADD_APCH_7A, (uint8_t*)&BitField_APCH7A, TWI_RD);
-		_ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
-		_ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_RD);
-
 		if ( sbf.syst00 != *htwi.pData) {
-			printf("SYST00 \n\r");
+			printf("SYST00 old:0x%02X new:0x%02X \n\r", sbf.syst00, *htwi.pData);
 			sbf.syst00 = *htwi.pData;
 		}
-		else if ( sbf.apch7A != *htwi.pData) {
-			printf("\n\r %s \n\r", &ChargState[BitField_APCH7A.cstate][0]);
-			sbf.apch7A = *htwi.pData;
-		}
-		else if ( sbf.apch78 != *htwi.pData) {
-			if (BitField_APCH78.chgdat == 0x01)
-				printf("\n\r charger state machine: END-OF-CHARGE state \n\r");
+		_ACT8945A_rw_register (ADD_APCH_78, (uint8_t*)&BitField_APCH78, TWI_RD);
+		if ( sbf.apch78 != *htwi.pData) {
+			printf("APCH78 old:0x%02X new:0x%02X \n\r", sbf.apch78, *htwi.pData);
 			sbf.apch78 = *htwi.pData;
 		}
-		else if ( sbf.apch79 != *htwi.pData) {
-			printf("APCH79 \n\r");
+		_ACT8945A_rw_register (ADD_APCH_79, (uint8_t*)&BitField_APCH79, TWI_RD);
+		if ( sbf.apch79 != *htwi.pData) {
+			printf("APCH79 old:0x%02X new:0x%02X \n\r", sbf.apch79, *htwi.pData);
 			sbf.apch79 = *htwi.pData;
 		}
-		else {;}
+		_ACT8945A_rw_register (ADD_APCH_7A, (uint8_t*)&BitField_APCH7A, TWI_RD);
+		if ( sbf.apch7A != *htwi.pData) {
+			printf("APCH7A old:0x%02X new:0x%02X \n\r", sbf.apch7A, *htwi.pData);
+			printf(" %s \n\r", &ChargState[*htwi.pData][0]);
+			sbf.apch7A = *htwi.pData;
+		}
 	}
 }
 
@@ -254,11 +253,20 @@ void ACT8945A_irq_handler (uint32_t group, uint32_t status)
 void ACT8945_lbo_handler (uint32_t group, uint32_t status)
 {
 	if (status & pins_lbo_act8945a[0].mask) {
-		printf(" Int: Low Battery output \n\r");
-		pio_disable_it(&pins_lbo_act8945a[0]);
-		printf(" Launch Shutdown mode \n\r");
-		_ACT8945A_delay_ms(2);
-		// SHDWC_DoShutDown(1, 3, 100);
+
+		if (sbf.count_lbo >=20) {
+			printf(" Int: Low Battery output \n\r");
+			pio_disable_it(&pins_lbo_act8945a[0]);
+			printf(" Launch Shutdown mode \n\r");
+			_ACT8945A_delay_ms(2);
+			/*
+			shdwc_configure_wakeup_mode (SHDW_MR_LPDBCEN0_ENABLE | SHDW_MR_LPDBC_2_RTCOUT0 | SHDW_MR_WKUPDBC_32_SLCK);
+			shdwc_set_wakeup_input (SHDW_WUIR_WKUPEN0_ENABLE, SHDW_WUIR_WKUPT0_LOW);
+			shdwc_do_shutdown();
+			*/
+		}
+		else
+			sbf.count_lbo++;
 	}
 }
 
@@ -871,6 +879,8 @@ uint8_t ACT8945A_begin (void)
 		ACT8945A_set_APCH_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_INT_ON);
 		ACT8945A_set_APCH_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
 		ACT8945A_set_APCH_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_INT_ON);
+		ACT8945A_set_APCH_interrupt(INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL, ACT8945A_INT_ON);
+
 		ACT8945A_set_system_voltage_level_interrupt(ACT8945A_INT_ON);
 
 		/* Update register status for interrupt state*/
@@ -878,7 +888,6 @@ uint8_t ACT8945A_begin (void)
 		_ACT8945A_rw_register (ADD_APCH_78, &sbf.apch78, TWI_RD);
 		_ACT8945A_rw_register (ADD_APCH_79, &sbf.apch79, TWI_RD);
 		_ACT8945A_rw_register (ADD_APCH_7A, &sbf.apch7A, TWI_RD);
-		sbf.count_lbo = 0;
 
 		/* Finally activ interrupt */
 		ACT8945A_active_interrupt_handler();
@@ -901,6 +910,7 @@ void ACT8945A_active_interrupt_handler (void)
 		pio_enable_it(&pins_irq_act8945a[0]);
 
 		/* Configure PMIC LBO line interrupts. */
+		sbf.count_lbo = 0;
 		pio_configure_it(&pins_lbo_act8945a[0]);
 		pio_add_handler_to_group(pins_lbo_act8945a[0].group, pins_lbo_act8945a[0].mask, ACT8945_lbo_handler);
 		pio_enable_it(&pins_lbo_act8945a[0]);
