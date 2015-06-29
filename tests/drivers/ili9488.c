@@ -53,6 +53,8 @@
 #include "peripherals/spi.h"
 #include "peripherals/spid.h"
 
+#include "timer.h"
+
 #include "trace.h"
 #include "compiler.h"
 
@@ -74,17 +76,15 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef BOARD_LCD_ILI9488
-
 extern uint32_t dwTimeStamp ;
 
 /** Pio pins to configure. */
-static const struct _pin MXTX_Reset[] = MXTX_PIN_RESET;
-static const struct _pin MXTX_Pwm[] = BOARD_BACKLIGHT_PIN;
-static const struct _pin spi_pins[] = BOARD_MXTX_PINS;
+static const struct _pin MXTX_Reset[] = MXTX_RESET_PIN;
+static const struct _pin MXTX_Pwm[] = MXTX_BACKLIGHT_PIN;
+static const struct _pin spi_pins[] = ILI9488_PINS;
 
 /* Pixel cache used to speed up communication */
-#define MXTX_DATA_CACHE_SIZE  MXTX_LCD_WIDTH
+#define MXTX_DATA_CACHE_SIZE  ILI9488_MXTX_WIDTH
 static LcdColor_t gLcdPixelCache[MXTX_DATA_CACHE_SIZE];
 
 // LCD parameters
@@ -95,15 +95,14 @@ MXTX_param sMXTX ;
 static struct _spi_desc spi_ili9488_desc = {
 	.addr           = ILI9488_ADDR,
 	.bitrate        = ILI9488_FREQ,
-	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
+	.attributes     = ILI9488_ATTRS,
 	.dlybs          = ILI9488_DLYBS,
 	.dlybct         = ILI9488_DLYCT,
-	.id             = ILI9488_ID,
 	.mutex          = 1,
-	.chip_select    = ILI9488_CHIP_SELECT,
+	.chip_select    = ILI9488_CS,
 	.spi_mode       = ILI9488_SPI_MODE,
 	.transfert_mode = SPID_MODE_POLLING,
-	.dma = 0
+	.dma 			= 0
 };
 
 /*----------------------------------------------------------------------------
@@ -122,13 +121,6 @@ static uint32_t mxtx_read_reg24 ( uint8_t reg );
 static void mxtx_nop (void);
 static void mxtx_write_single ( LcdColor_t data );
 static void mxtx_write_ram_buffer( const LcdColor_t *pBuf, uint32_t size );
-
-
-
-
-
-// (uint8_t)spi_read(spi_ili9488_desc.addr);
-
 
 //=============================================================================
 /**
@@ -215,7 +207,7 @@ static uint8_t mxtx_read_reg ( uint8_t reg )
 #if 0
 static uint16_t mxtx_read_reg16 ( uint8_t reg )
 {
-    uint16_t value;
+    uint16_t value = 0;
     uint8_t SPI_CNT = 0x81;
 
     mxtx_send_cmd(ILI9488_CMD_SPI_READ_SETTINGS);
@@ -238,7 +230,7 @@ static uint16_t mxtx_read_reg16 ( uint8_t reg )
  */
 static uint32_t mxtx_read_reg24 ( uint8_t reg )
 {
-    uint32_t value=0;
+    uint32_t value = 0;
     uint8_t SPI_CNT = 0x81;
 
     //Set LCD count to 0
@@ -327,19 +319,6 @@ static void mxtx_write_ram_buffer ( const LcdColor_t *pBuf, uint32_t size)
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-
-//=============================================================================
-static void mxtx_local_wait ( unsigned long delay )
-{
-    volatile uint32_t start = dwTimeStamp;
-    uint32_t elapsed;
-    do
-    {
-        elapsed = dwTimeStamp;
-        elapsed -= start;
-    }
-    while (elapsed < delay);
-}
 
 //=============================================================================
 static void mxtx_init_interface (void)
@@ -496,11 +475,11 @@ MXTX_param* mxtx_get_pnt_struct (void)
 static void mxtx_reset_display (void)
 {
     pio_set(MXTX_Reset);
-    mxtx_local_wait(10);
+    timer_wait(10);
     pio_clear(MXTX_Reset);
-    mxtx_local_wait(10);
+    timer_wait(10);
     pio_set(MXTX_Reset);
-    mxtx_local_wait(150);
+    timer_wait(150);
 }
 
 //=============================================================================
@@ -673,15 +652,15 @@ void mxtx_sleep_mode ( uint8_t is_sleep )
     {
       //Sleep In
       mxtx_send_cmd(ILI9488_CMD_DISPLAY_OFF);
-      mxtx_local_wait(120);
+      timer_wait(120);
       mxtx_send_cmd(ILI9488_CMD_ENTER_SLEEP_MODE);
-      mxtx_local_wait(120);
+      timer_wait(120);
     }
     else
     {
       //Sleep Out
       mxtx_send_cmd(ILI9488_CMD_SLEEP_OUT);
-      mxtx_local_wait(150);
+      timer_wait(150);
       mxtx_send_cmd(ILI9488_CMD_DISPLAY_ON);
     }
 }
@@ -718,7 +697,7 @@ void mxtx_set_partial_window( uint16_t Start, uint16_t End)
    mxtx_write_reg16(Start ) ;
    mxtx_write_reg16(End)  ;
    mxtx_send_cmd(ILI9488_CMD_PARTIAL_MODE_ON);
-   mxtx_local_wait(10);
+   timer_wait(10);
 }
 
 //=============================================================================
@@ -1586,20 +1565,8 @@ void mxtx_test_pattern (void)
       }
       base_color += 0x3300 ;
     }
-    mxtx_local_wait(1000);
+   timer_wait(1000);
   }
-}
-
-
-static void _LWait(unsigned long delay)
-{
-	uint32_t start = dwTimeStamp;
-	uint32_t elapsed;
-
-	do {
-		elapsed = dwTimeStamp;
-		elapsed -= start;
-	} while (elapsed < delay);
 }
 
 //=============================================================================
@@ -1753,7 +1720,7 @@ void TestLcdIli9488 (void)
     {
       for (i=0; i<360; i+=30)
       {
-        _LWait(100);
+        timer_wait(100);
         Pt2 = Pt1;
         // delete old filled circle
 
@@ -1775,7 +1742,5 @@ void TestLcdIli9488 (void)
 
 }
 
-
 //=============================================================================
 //=============================================================================
-#endif
