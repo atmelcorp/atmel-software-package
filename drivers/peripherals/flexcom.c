@@ -76,7 +76,7 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 	assert(protocol & FLEX_MR_OPMODE_NO_COM ||
 	       protocol & FLEX_MR_OPMODE_USART ||
 	       FLEX_MR_OPMODE_SPI || FLEX_MR_OPMODE_TWI);
-	
+
 	/* Activate the new mode () */
 	flexcom->FLEX_MR = protocol;
 }

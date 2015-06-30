@@ -393,9 +393,12 @@ int main(void)
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	status = act8945a_begin();
-	if(status) printf("--E-- Error init ACT8945A \n\r");
-	act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
+	if(status) {
+		printf("--E-- Error init ACT8945A \n\r");
+	} else {
+		act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
+		act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
+	}
 #endif
 
 	/* Configure PIT. */
