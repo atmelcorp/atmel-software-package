@@ -37,8 +37,6 @@
 #include "peripherals/shdwc.h"
 
 #include <stdint.h>
-#include <string.h>
-#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local Defines
@@ -69,10 +67,6 @@ union _shdwc_cfg {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \Configure the Shutdown mode register
- *
- */
 void shdwc_configure_wakeup_mode (uint32_t config)
 {
 	union _shdwc_cfg cfg;
@@ -91,21 +85,12 @@ void shdwc_configure_wakeup_mode (uint32_t config)
 	SHDWC->SHDW_MR = cfg.uint32_value;
 }
 
-/**
- * \Configure the Shutdown Wake-up Inputs Register
- * \param input_enable, WKUPEN0–WKUPEN15: define the corresponding wake_up input
- * \param input_type, WKUPT0–WKUPT15: define falling or rising edge on wake-up input
- */
 void shdwc_set_wakeup_input (uint32_t input_enable, uint32_t input_type)
 {
 	uint32_t wuir = (input_enable & 0x0000FFFF) | (input_type&0xFFFF0000) ;
 	SHDWC->SHDW_WUIR |= wuir;
 }
 
-/**
- * \Launch the ShutDown
- *
- */
 void shdwc_do_shutdown(void)
 {
 	SHDWC->SHDW_CR = (uint32_t)((SHDW_CR_KEY_PASSWD) | SHDW_CR_SHDW);

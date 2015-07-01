@@ -62,6 +62,7 @@ drivers-$(CONFIG_HAVE_PIO3) += drivers/peripherals/pio3.o
 drivers-$(CONFIG_HAVE_PIO4) += drivers/peripherals/pio4.o
 
 #drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/adc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
