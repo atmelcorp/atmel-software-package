@@ -186,9 +186,6 @@ void spi_disable_it(Spi * spi, uint32_t dwSources)
 
 void spi_configure(Spi * spi, uint32_t configuration)
 {
-	uint32_t spi_id = get_spi_id_from_addr(spi);
-	assert(spi_id != ID_PERIPH_COUNT);
-
 	/* Execute a software reset of the SPI twice */
 	spi->SPI_CR = SPI_CR_SWRST;
 	spi->SPI_CR = SPI_CR_SWRST;
