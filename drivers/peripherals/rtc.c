@@ -267,11 +267,6 @@ void rtc_set_hour_mode(uint32_t mode)
 	RTC->RTC_MR = mode;
 }
 
-/**
- * \brief Gets the RTC mode.
- *
- * \return Hour mode.
- */
 extern uint32_t rtc_get_hour_mode(void)
 {
 	uint32_t mode;
@@ -280,40 +275,19 @@ extern uint32_t rtc_get_hour_mode(void)
 	return mode;
 }
 
-/**
- * \brief Enables the selected interrupt sources of the RTC.
- *
- * \param dwSources  Interrupt sources to enable.
- */
 void rtc_enable_it(uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
 	RTC->RTC_IER = sources;
 }
 
-/**
-* \brief Disables the selected interrupt sources of the RTC.
-*
-* \param dwSources  Interrupt sources to disable.
-*/
 void rtc_disable_it(uint32_t sources)
 {
 	assert((sources & (uint32_t) (~0x1F)) == 0);
 	RTC->RTC_IDR = sources;
 }
 
-/**
- * \brief Sets the current time in the RTC.
- *
- * \note In successive update operations, the user must wait at least one second
- * after resetting the UPDTIM/UPDCAL bit in the RTC_CR before setting these
- * bits again. Please look at the RTC section of the datasheet for detail.
- *
- * \param time Pointer to structure time
- *
- * \return 0 sucess, 1 fail to set
- */
-extern int rtc_set_time(struct _time *time)
+int rtc_set_time(struct _time *time)
 {
 	uint32_t ltime = 0;
 	uint8_t hour_bcd , min_bcd, sec_bcd;
@@ -344,11 +318,6 @@ extern int rtc_set_time(struct _time *time)
 	return (int) (RTC->RTC_VER & RTC_VER_NVTIM);
 }
 
-/**
- * \brief Retrieves the current time as stored in the RTC in several variables.
- *
- * \param time Pointer to structure time
- */
 void rtc_get_time(struct _time *time)
 {
 	uint32_t ltime;
@@ -375,19 +344,7 @@ void rtc_get_time(struct _time *time)
 	}
 }
 
-/**
- * \brief Sets a time alarm on the RTC.
- * The match is performed only on the provided variables;
- * Setting all pointers to 0 disables the time alarm.
- *
- * \note In AM/PM mode, the hour value must have bit #7 set for PM, cleared for
- * AM (as expected in the time registers).
- *
- * \param time Pointer to structure time.
- *
- * \return 0 success, 1 fail to set
- */
-extern int rtc_set_time_alarm(struct _time *time)
+int rtc_set_time_alarm(struct _time *time)
 {
 	uint32_t alarm = 0;
 
@@ -407,12 +364,6 @@ extern int rtc_set_time_alarm(struct _time *time)
 	return (int) (RTC->RTC_VER & RTC_VER_NVTIMALR);
 }
 
-/**
- * \brief Retrieves the current year, month and day from the RTC.
- * Month, day and week values are numbered starting at 1.
- *
- * \param date	Pointer to structure Date.
- */
 void rtc_get_date(struct _date *date)
 {
 	uint32_t ldate;
@@ -430,19 +381,7 @@ void rtc_get_date(struct _date *date)
 	date->week = ((ldate >> 21) & 0x7);
 }
 
-/**
- * \brief Sets the current year, month and day in the RTC.
- * Month, day and week values must be numbered starting from 1.
- *
- * \note In successive update operations, the user must wait at least one second
- * after resetting the UPDTIM/UPDCAL bit in the RTC_CR before setting these
- * bits again. Please look at the RTC section of the datasheet for detail.
- *
- * \param date	Pointer to structure Date
- *
- * \return 0 success, 1 fail to set
- */
-extern int rtc_set_date(struct _date *date)
+int rtc_set_date(struct _date *date)
 {
 	uint32_t ldate;
 	uint8_t cent_bcd, year_bcd, month_bcd, day_bcd, week_bcd;
@@ -473,17 +412,7 @@ extern int rtc_set_date(struct _date *date)
 	return (int) (RTC->RTC_VER & RTC_VER_NVCAL);
 }
 
-/**
- * \brief Sets a date alarm in the RTC.
- * The alarm will match only the provided values;
- * Passing a null-pointer disables the corresponding field match.
- *
- * \param pucMonth If not null, the RTC alarm will month-match this value.
- * \param pucDay   If not null, the RTC alarm will day-match this value.
- *
- * \return 0 success, 1 fail to set
- */
-extern int rtc_set_date_alarm(struct _date *date)
+int rtc_set_date_alarm(struct _date *date)
 {
 	uint32_t alarm;
 
@@ -500,11 +429,6 @@ extern int rtc_set_date_alarm(struct _date *date)
 	return (int) (RTC->RTC_VER & RTC_VER_NVCALALR);
 }
 
-/**
- * \brief Clear flag bits of status clear command register in the RTC.
- *
- * \param dwMask Bits mask of cleared events
- */
 void rtc_clear_sccr(uint32_t mask)
 {
 	/* Clear all flag bits in status clear command register */
@@ -513,27 +437,11 @@ void rtc_clear_sccr(uint32_t mask)
 	RTC->RTC_SCCR = mask;
 }
 
-/**
- * \brief Get flag bits of status register in the RTC.
- *
- * \param dwMask Bits mask of Status Register
- *
- * \return Status register & mask
- */
-extern uint32_t rtc_get_sr(uint32_t mask)
+uint32_t rtc_get_sr(uint32_t mask)
 {
 	return (RTC->RTC_SR) & mask;
 }
 
-/**
- * \brief Get the RTC tamper time value.
- *
- * \note This function should be called before rtc_get_tamper_source()
- *       function call, Otherwise the tamper time will be cleared.
- *
- * \param time    	 Pointer to structure Time.
- * \param reg_num    Tamper register set number.
- */
 void rtc_get_tamper_time(struct _time *time,  uint8_t reg_num)
 {
 	uint32_t ltime, temp;
@@ -563,15 +471,6 @@ void rtc_get_tamper_time(struct _time *time,  uint8_t reg_num)
 	}
 }
 
-/**
- * \brief Get the RTC tamper date.
- *
- * \note This function should be called before rtc_get_tamper_source()
- *       function call, Otherwise the tamper date will be cleared.
- *
- * \param date     Pointer to structure Date
- * \param reg_num   Tamper register set number.
- */
 void rtc_get_tamper_date(struct _date *date, uint8_t reg_num)
 {
 	uint32_t ldate, cent, temp;
@@ -599,44 +498,17 @@ void rtc_get_tamper_date(struct _date *date, uint8_t reg_num)
 	date->week= ((ldate & RTC_TSDR_DAY_Msk) >> RTC_TSDR_DAY_Pos);
 }
 
-/**
- * \brief Get the RTC tamper source.
- *
- * \param ucRegNum  Current tamper register set number.
- *
- * \return Tamper source.
- */
-extern uint32_t rtc_get_tamper_source(uint8_t reg_num)
+uint32_t rtc_get_tamper_source(uint8_t reg_num)
 {
 	return RTC->RTC_TS[reg_num].RTC_TSSR;
 }
 
-/**
- * \brief Get the RTC tamper event counter.
- *
- * \note This function should be called before rtc_get_tamper_source()
- *       function call, Otherwise the tamper event counter will be cleared.
- *
- * \return Tamper event counter
- */
-extern uint32_t rtc_get_tamper_event_counter(void)
+uint32_t rtc_get_tamper_event_counter(void)
 {
 	return (RTC->RTC_TS[0].RTC_TSTR & RTC_TSTR_TEVCNT_Msk) >> RTC_TSTR_TEVCNT_Pos;
 }
 
-/**
- * \brief Check the system is in backup mode when RTC tamper event happen.
- *
- * \note This function should be called before rtc_get_tamper_source()
- *       function call, Otherwise the flag indicates tamper occur in backup
- *       mode will be cleared.
- *
- * \param ucRegNum  Current tamper register set number.
- *
- * \return 1 - The system is in backup mode when the tamper event occurs.
- *         0 - The system is different from backup mode.
- */
-extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num)
+uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num)
 {
 	if (RTC->RTC_TS[reg_num].RTC_TSTR & RTC_TSTR_BACKUP) {
 		return 1;
@@ -645,10 +517,6 @@ extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num)
 	}
 }
 
-/**
- * \brief Convert number of second (count) to HMS format.
- *
- */
 void rtc_convert_time_to_hms(struct _time *time, uint32_t count)
 {
 	count = count % 86400;
@@ -672,33 +540,22 @@ void rtc_calibration(int32_t current_tempr)
 	}
 }
 
-/**
- * \Set time event selection.
- * \param mask Bits TIMEVSEL of Control Register
- * \return Status register & mask
- */
-
-uint32_t rtc_set_time_event (uint32_t EventMask)
+uint32_t rtc_set_time_event (uint32_t mask)
 {
    uint32_t reg;
    reg = RTC->RTC_CR;
    reg &= ~RTC_CR_TIMEVSEL_Msk;
-   reg |= EventMask;
+   reg |= mask;
    RTC->RTC_CR = reg;
    return RTC->RTC_CR;
 }
 
-/**
- * \Set calendar event selection.
- * \param mask Bits CALEVSEL of Control Register
- * \return Status register & mask
- */
-uint32_t rtc_set_calendar_event (uint32_t EventMask)
+uint32_t rtc_set_calendar_event (uint32_t mask)
 {
    uint32_t reg;
    reg = RTC->RTC_CR;
    reg &= ~RTC_CR_CALEVSEL_Msk;
-   reg |= EventMask;
+   reg |= mask;
    RTC->RTC_CR = reg;
    return RTC->RTC_CR;
 }
