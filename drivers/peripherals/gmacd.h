@@ -135,9 +135,9 @@ typedef struct _GmacDriver {
 	uint8_t *pRxBuffer;
 
 	/** Pointer to Rx TDs (must be 8-byte aligned) */
-	sGmacRxDescriptor *pRxD;
+	struct _gmac_rx_descriptor *pRxD;
 	/** Pointer to Tx TDs (must be 8-byte aligned) */
-	sGmacTxDescriptor *pTxD;
+	struct _gmac_tx_descriptor *pTxD;
 
 	/** Optional callback to be invoked once a frame has been received */
 	fGmacdTransferCallback fRxCb;
@@ -181,10 +181,10 @@ extern void GMACD_Init(sGmacd * pGmacd,
 
 extern uint8_t GMACD_InitTransfer(sGmacd * pGmacd,
 				  uint8_t * pRxBuffer,
-				  sGmacRxDescriptor * pRxD,
+				  struct _gmac_rx_descriptor * pRxD,
 				  uint16_t wRxSize,
 				  uint8_t * pTxBuffer,
-				  sGmacTxDescriptor * pTxD,
+				  struct _gmac_tx_descriptor * pTxD,
 				  fGmacdTransferCallback * pTxCb,
 				  uint16_t wTxSize);
 

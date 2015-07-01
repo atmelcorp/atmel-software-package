@@ -89,7 +89,7 @@ static GMacb gGmacb;
 #elif defined (  __GNUC__  ) /* GCC CS3 */
 __attribute__((aligned(8), __section__(".region_dma_nocache")))
 #endif
-static sGmacTxDescriptor gGTxDs[TX_BUFFERS];
+static struct _gmac_tx_descriptor gGTxDs[TX_BUFFERS];
 
 /** TX callbacks list */
 static fGmacdTransferCallback gGTxCbs[TX_BUFFERS];
@@ -101,7 +101,7 @@ static fGmacdTransferCallback gGTxCbs[TX_BUFFERS];
 #elif defined (  __GNUC__  ) /* GCC CS3 */
 __attribute__((aligned(8), __section__(".region_dma_nocache")))
 #endif
-static sGmacRxDescriptor gGRxDs[RX_BUFFERS];
+static struct _gmac_rx_descriptor gGRxDs[RX_BUFFERS];
 
 /** Send Buffer */
 /* Section 3.6 of AMBA 2.0 spec states that burst should not cross 1K Boundaries.
@@ -155,7 +155,7 @@ static void glow_level_init(struct netif *netif)
     
     GMACD_Init(pGmacd, GMAC0, ID_GMAC0, 1, 0);
     GMACD_InitTransfer(pGmacd, pGRxBuffer, gGRxDs, RX_BUFFERS, pGTxBuffer, gGTxDs, gGTxCbs, TX_BUFFERS);
-    GMAC_SetAddress(gGmacd.pHw, 0, Gmacif_config.ethaddr.addr);
+    gmac_set_address(gGmacd.pHw, 0, Gmacif_config.ethaddr.addr);
     
     /* Setup GMAC buffers and interrupts */
     //IRQ_ConfigureIT(ID_GMAC0, (0x0 << 5), GMAC_IrqHandler);

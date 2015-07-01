@@ -156,12 +156,12 @@ GMACD_ResetTx(sGmacd * pDrv)
 {
 	Gmac *pHw = pDrv->pHw;
 	uint8_t *pTxBuffer = pDrv->pTxBuffer;
-	sGmacTxDescriptor *pTd = pDrv->pTxD;
+	struct _gmac_tx_descriptor *pTd = pDrv->pTxD;
 	uint32_t Index;
 	uint32_t Address;
 
 	/* Disable TX */
-	GMAC_TransmitEnable(pHw, 0);
+	gmac_transmit_enable(pHw, 0);
 	/* Setup the TX descriptors. */
 	GCIRC_CLEAR(pDrv->wTxHead, pDrv->wTxTail);
 	for (Index = 0; Index < pDrv->wTxListSize; Index++) {
@@ -172,7 +172,7 @@ GMACD_ResetTx(sGmacd * pDrv)
 	pTd[pDrv->wTxListSize - 1].status.val =
 	    GMAC_TX_USED_BIT | GMAC_TX_WRAP_BIT;
 	/* Transmit Buffer Queue Pointer Register */
-	GMAC_SetTxQueue(pHw, (uint32_t) pTd);
+	gmac_set_tx_queue(pHw, (uint32_t) pTd);
 }
 
 /**
@@ -184,13 +184,13 @@ GMACD_ResetRx(sGmacd * pDrv)
 {
 	Gmac *pHw = pDrv->pHw;
 	uint8_t *pRxBuffer = pDrv->pRxBuffer;
-	sGmacRxDescriptor *pRd = pDrv->pRxD;
+	struct _gmac_rx_descriptor *pRd = pDrv->pRxD;
 
 	uint32_t Index;
 	uint32_t Address;
 
 	/* Disable RX */
-	GMAC_ReceiveEnable(pHw, 0);
+	gmac_receive_enable(pHw, 0);
 
 	/* Setup the RX descriptors. */
 	pDrv->wRxI = 0;
@@ -203,7 +203,7 @@ GMACD_ResetRx(sGmacd * pDrv)
 	pRd[pDrv->wRxListSize - 1].addr.val |= GMAC_RX_WRAP_BIT;
 
 	/* Receive Buffer Queue Pointer Register */
-	GMAC_SetRxQueue(pHw, (uint32_t) pRd);
+	gmac_set_rx_queue(pHw, (uint32_t) pRd);
 }
 
 /**
@@ -214,13 +214,13 @@ static void
 GMACD_TxCompleteHandler(sGmacd * pGmacd)
 {
 	Gmac *pHw = pGmacd->pHw;
-	sGmacTxDescriptor *pTxTd;
+	struct _gmac_tx_descriptor *pTxTd;
 	fGmacdTransferCallback fTxCb;
 	uint32_t tsr;
 
 	/* Clear status */
-	tsr = GMAC_GetTxStatus(pHw);
-	GMAC_ClearTxStatus(pHw, tsr);
+	tsr = gmac_get_tx_status(pHw);
+	gmac_clear_tx_status(pHw, tsr);
 
 	while (!GCIRC_EMPTY(pGmacd->wTxHead, pGmacd->wTxTail)) {
 		pTxTd = &pGmacd->pTxD[pGmacd->wTxTail];
@@ -270,7 +270,7 @@ static void
 GMACD_TxErrorHandler(sGmacd * pGmacd)
 {
 	Gmac *pHw = pGmacd->pHw;
-	sGmacTxDescriptor *pTxTd;
+	struct _gmac_tx_descriptor *pTxTd;
 	fGmacdTransferCallback fTxCb;
 	uint32_t tsr;
 
@@ -279,7 +279,7 @@ GMACD_TxErrorHandler(sGmacd * pGmacd)
 	 * occur on sama5d4 gmac (r1p24f2) when using  scatter-gather.
 	 * This issue has never been seen on sama5d4 gmac (r1p31).
 	 */
-	GMAC_TransmitEnable(pHw, 0);
+	gmac_transmit_enable(pHw, 0);
 
 	/* The following step should be optional since this function is called
 	 * directly by the IRQ handler. Indeed, according to Cadence
@@ -293,8 +293,8 @@ GMACD_TxErrorHandler(sGmacd * pGmacd)
 	 * We should wait for bit 3, tx_go, of the Transmit Status Register to
 	 * be cleared at transmit completion if a frame is being transmitted.
 	 */
-	GMAC_TransmissionHalt(pHw);
-	while (GMAC_GetTxStatus(pHw) & GMAC_TSR_TXGO) ;
+	gmac_transmission_halt(pHw);
+	while (gmac_get_tx_status(pHw) & GMAC_TSR_TXGO) ;
 
 	/* Treat frames in TX queue including the ones that caused the error. */
 	while (!GCIRC_EMPTY(pGmacd->wTxHead, pGmacd->wTxTail)) {
@@ -330,11 +330,11 @@ GMACD_TxErrorHandler(sGmacd * pGmacd)
 	GMACD_ResetTx(pGmacd);
 
 	/* Clear status */
-	tsr = GMAC_GetTxStatus(pHw);
-	GMAC_ClearTxStatus(pHw, tsr);
+	tsr = gmac_get_tx_status(pHw);
+	gmac_clear_tx_status(pHw, tsr);
 
 	/* Now we are ready to start transmission again */
-	GMAC_TransmitEnable(pHw, 1);
+	gmac_transmit_enable(pHw, 1);
 	if (pGmacd->fWakupCb)
 		pGmacd->fWakupCb();
 }
@@ -355,12 +355,12 @@ GMACD_Handler(sGmacd * pGmacd)
 	uint32_t rsr;
 
 	/* Interrupt Status Register is cleared on read */
-	while ((isr = GMAC_GetItStatus(pHw)) != 0) {
+	while ((isr = gmac_get_it_status(pHw)) != 0) {
 		/* RX packet */
 		if (isr & GMAC_INT_RX_BITS) {
 			/* Clear status */
-			rsr = GMAC_GetRxStatus(pHw);
-			GMAC_ClearRxStatus(pHw, rsr);
+			rsr = gmac_get_rx_status(pHw);
+			gmac_clear_rx_status(pHw, rsr);
 
 			/* Invoke callback */
 			if (pGmacd->fRxCb)
@@ -410,22 +410,22 @@ GMACD_Init(sGmacd * pGmacd,
 	pmc_enable_peripheral(bID);
 
 	/* Disable TX & RX and more */
-	GMAC_NetworkControl(pHw, 0);
-	GMAC_DisableIt(pHw, ~0u);
+	gmac_network_control(pHw, 0);
+	gmac_disable_it(pHw, ~0u);
 
-	GMAC_ClearStatistics(pHw);
+	gmac_clear_statistics(pHw);
 	/* Clear all status bits in the receive status register. */
-	GMAC_ClearRxStatus(pHw,
+	gmac_clear_rx_status(pHw,
 			   GMAC_RSR_RXOVR | GMAC_RSR_REC | GMAC_RSR_BNA |
 			   GMAC_RSR_HNO);
 
 	/* Clear all status bits in the transmit status register */
-	GMAC_ClearTxStatus(pHw, GMAC_TSR_UBR | GMAC_TSR_COL | GMAC_TSR_RLE
+	gmac_clear_tx_status(pHw, GMAC_TSR_UBR | GMAC_TSR_COL | GMAC_TSR_RLE
 			   | GMAC_TSR_TXGO | GMAC_TSR_TFC | GMAC_TSR_TXCOMP
 			   | GMAC_TSR_UND | GMAC_TSR_HRESP);
 
 	/* Clear interrupts */
-	GMAC_GetItStatus(pHw);
+	gmac_get_it_status(pHw);
 
 	/* Enable the copy of data into the buffers
 	   ignore broadcasts, and don't copy FCS. */
@@ -437,7 +437,7 @@ GMACD_Init(sGmacd * pGmacd,
 		dwNcfgr |= GMAC_NCFGR_NBC;
 	}
 
-	GMAC_Configure(pHw, dwNcfgr);
+	gmac_configure(pHw, dwNcfgr);
 }
 
 /**
@@ -461,9 +461,9 @@ GMACD_Init(sGmacd * pGmacd,
  */
 uint8_t
 GMACD_InitTransfer(sGmacd * pGmacd,
-		   uint8_t * pRxBuffer, sGmacRxDescriptor * pRxD,
+		   uint8_t * pRxBuffer, struct _gmac_rx_descriptor * pRxD,
 		   uint16_t wRxSize,
-		   uint8_t * pTxBuffer, sGmacTxDescriptor * pTxD,
+		   uint8_t * pTxBuffer, struct _gmac_tx_descriptor * pTxD,
 		   fGmacdTransferCallback * pTxCb, uint16_t wTxSize)
 {
 	Gmac *pHw = pGmacd->pHw;
@@ -478,7 +478,7 @@ GMACD_InitTransfer(sGmacd * pGmacd,
 		trace_debug("RX list address adjusted\n\r");
 	}
 	pGmacd->pRxBuffer = (uint8_t *) ((uint32_t) pRxBuffer & 0xFFFFFFF8);
-	pGmacd->pRxD = (sGmacRxDescriptor *) ((uint32_t) pRxD & 0xFFFFFFF8);
+	pGmacd->pRxD = (struct _gmac_rx_descriptor *) ((uint32_t) pRxD & 0xFFFFFFF8);
 	pGmacd->wRxListSize = wRxSize;
 
 	/* Assign TX buffers */
@@ -488,7 +488,7 @@ GMACD_InitTransfer(sGmacd * pGmacd,
 		trace_debug("TX list address adjusted\n\r");
 	}
 	pGmacd->pTxBuffer = (uint8_t *) ((uint32_t) pTxBuffer & 0xFFFFFFF8);
-	pGmacd->pTxD = (sGmacTxDescriptor *) ((uint32_t) pTxD & 0xFFFFFFF8);
+	pGmacd->pTxD = (struct _gmac_tx_descriptor *) ((uint32_t) pTxD & 0xFFFFFFF8);
 	pGmacd->wTxListSize = wTxSize;
 	pGmacd->fTxCbList = pTxCb;
 
@@ -497,12 +497,12 @@ GMACD_InitTransfer(sGmacd * pGmacd,
 	GMACD_ResetTx(pGmacd);
 
 	/* Enable Rx and Tx, plus the stats register. */
-	GMAC_TransmitEnable(pHw, 1);
-	GMAC_ReceiveEnable(pHw, 1);
-	GMAC_StatisticsWriteEnable(pHw, 1);
+	gmac_transmit_enable(pHw, 1);
+	gmac_receive_enable(pHw, 1);
+	gmac_statistics_write_enable(pHw, 1);
 
 	/* Setup the interrupts for RX/TX completion (and errors) */
-	GMAC_EnableIt(pHw,
+	gmac_enable_it(pHw,
 		      GMAC_INT_RX_BITS | GMAC_INT_TX_BITS | GMAC_IER_HRESP);
 
 	return GMACD_OK;
@@ -520,7 +520,7 @@ GMACD_Reset(sGmacd * pGmacd)
 	GMACD_ResetRx(pGmacd);
 	GMACD_ResetTx(pGmacd);
 	//memset((void*)&GmacStatistics, 0x00, sizeof(GmacStats));
-	GMAC_NetworkControl(pHw, GMAC_NCR_TXEN | GMAC_NCR_RXEN
+	gmac_network_control(pHw, GMAC_NCR_TXEN | GMAC_NCR_RXEN
 			    | GMAC_NCR_WESTAT | GMAC_NCR_CLRSTAT);
 }
 
@@ -536,7 +536,7 @@ GMACD_SendSG(sGmacd * pGmacd,
 	     const sGmacSGList * sgl, fGmacdTransferCallback fTxCb)
 {
 	Gmac *pHw = pGmacd->pHw;
-	sGmacTxDescriptor *pTxTd;
+	struct _gmac_tx_descriptor *pTxTd;
 	uint16_t wTxPos, wTxHead;
 	int i;
 
@@ -619,7 +619,7 @@ GMACD_SendSG(sGmacd * pGmacd,
 	pGmacd->wTxHead = wTxHead;
 
 	/* Now start to transmit if it is not already done */
-	GMAC_TransmissionStart(pHw);
+	gmac_transmission_start(pHw);
 
 	return GMACD_OK;
 }
@@ -680,7 +680,7 @@ GMACD_Poll(sGmacd * pGmacd,
 	uint32_t tmpFrameSize = 0;
 	uint8_t *pTmpFrame = 0;
 	uint32_t tmpIdx = pGmacd->wRxI;
-	volatile sGmacRxDescriptor *pRxTd = &pGmacd->pRxD[pGmacd->wRxI];
+	volatile struct _gmac_rx_descriptor *pRxTd = &pGmacd->pRxD[pGmacd->wRxI];
 	uint8_t isFrame = 0;
 
 	if (pFrame == NULL)
@@ -748,7 +748,9 @@ GMACD_Poll(sGmacd * pGmacd,
 					return GMACD_SIZE_TOO_SMALL;
 				}
 				trace_debug("packet %d-%d (%d)\n\r",
-					    pGmacd->wRxI, tmpIdx, *pRcvSize);
+					    (unsigned short)pGmacd->wRxI,
+					    (unsigned int)tmpIdx,
+					    (unsigned int)*pRcvSize);
 				/* All data have been copied in the application frame buffer => release TD */
 				while (pGmacd->wRxI != tmpIdx) {
 					pRxTd = &pGmacd->pRxD[pGmacd->wRxI];
@@ -790,11 +792,11 @@ GMACD_SetRxCallback(sGmacd * pGmacd, fGmacdTransferCallback fRxCb)
 	Gmac *pHw = pGmacd->pHw;
 
 	if (fRxCb == NULL) {
-		GMAC_DisableIt(pHw, GMAC_IDR_RCOMP);
+		gmac_disable_it(pHw, GMAC_IDR_RCOMP);
 		pGmacd->fRxCb = NULL;
 	} else {
 		pGmacd->fRxCb = fRxCb;
-		GMAC_EnableIt(pHw, GMAC_IER_RCOMP);
+		gmac_enable_it(pHw, GMAC_IER_RCOMP);
 	}
 }
 
