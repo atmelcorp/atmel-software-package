@@ -184,7 +184,7 @@ static GMacb gGmacb;
 #elif defined (  __GNUC__  )	/* GCC CS3 */
 __attribute__ ((aligned(8), __section__(".region_dma_nocache")))
 #endif
-static sGmacTxDescriptor gTxDs[TX_BUFFERS];
+static struct _gmac_tx_descriptor gTxDs[TX_BUFFERS];
 
 /** TX callbacks list */
 static fGmacdTransferCallback gTxCbs[TX_BUFFERS];
@@ -196,7 +196,7 @@ static fGmacdTransferCallback gTxCbs[TX_BUFFERS];
 #elif defined (  __GNUC__  )	/* GCC CS3 */
 __attribute__ ((aligned(8), __section__(".region_dma_nocache")))
 #endif
-static sGmacRxDescriptor gRxDs[RX_BUFFERS];
+static struct _gmac_rx_descriptor gRxDs[RX_BUFFERS];
 
 /** Send Buffer */
 /* Section 3.6 of AMBA 2.0 spec states that burst should not cross 1K Boundaries.
@@ -233,8 +233,7 @@ static uint8_t gtotal_reply;
 /**
  * Gmac interrupt handler
  */
-void
-GMAC0_IrqHandler(void)
+void GMAC0_IrqHandler(void)
 {
 	printf("\r");
 	printf("\r");
@@ -639,7 +638,7 @@ main(void)
 	uint32_t delay;
 
 	/* Disable watchdog */
-	WDT_Disable(WDT);
+	wdt_disable();
 #if defined (ddram)
 	mmu_initialize((uint32_t *) 0x20C000);
 	cp15_enable_mmu();
@@ -668,7 +667,7 @@ main(void)
 			   pRxBuffer,
 			   gRxDs,
 			   RX_BUFFERS, pTxBuffer, gTxDs, gTxCbs, TX_BUFFERS);
-	GMAC_SetAddress(gGmacd.pHw, 0, GMacAddress);
+	gmac_set_address(gGmacd.pHw, 0, GMacAddress);
 
 	/* Setup interrupts */
 	aic_enable(ID_GMAC0);

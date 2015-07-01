@@ -26,23 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-MAKEFILEDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+# Makefile for compiling the gmac example
 
-# Flags
-LDPATH = -L$(LIBDIR)/lwip
-LINKS_SRAM = -Wl,--start-group -llwip-$(TARGET)_sram -Wl,--end-group
-LINKS_DDRAM = -Wl,--start-group -llwip-$(TARGET)_ddram -Wl,--end-group
-
-OBJECTS += mini_ip.o
+TOP := ../..
 
 BINNAME = gmac
 
-include $(MAKEFILEDIR)/../../Makefile.inc
-include $(MAKEFILEDIR)/../../Makefile.template
+obj-y += examples/gmac/main.o \
+	examples/gmac/mini_ip.o
 
-LIBS = $(LIBDIR)/lwip/*.a
-
-$(BUILDDIR_SRAM)/gmac.elf: $(LIBS)
-
-$(LIBS):
-	$(MAKE) -f $(@D)/Makefile
+include $(TOP)/scripts/Makefile.rules
