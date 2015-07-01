@@ -40,10 +40,6 @@ utils-y += utils/crc.o
 utils-y += utils/timer.o
 utils-y += utils/mutex.o
 utils-y += utils/mutex_gcc.o
-utils-y += utils/font_8x10.o
-utils-y += utils/font_8x12.o
-utils-y += utils/font_8x16.o
-utils-y += utils/font_8x16.o
 utils-y += utils/font.o
 utils-y += utils/widget.o
 
