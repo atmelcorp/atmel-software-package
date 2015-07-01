@@ -111,7 +111,6 @@
 /* Constants */
 #define BMP280_NULL             0
 #define	BMP280_INIT_VALUE		0
-#define BMP280_RET_STATUS       int8_t
 
 /************************************************/
 /**\name	ERROR CODES      */
@@ -382,7 +381,7 @@ FOR PRESSURE AND TEMPERATURE DATA REGISTERS */
 /**\name	STRUCTURE DEFINITIONS                         */
 /**************************************************************/
 // This structure holds all device specific calibration parameters
-struct bmp280_calib_par_t
+struct _bmp280_calib_par
 {
   uint16_t dig_T1;      /**<calibration T1 data*/
   int16_t dig_T2;       /**<calibration T2 data*/
@@ -399,72 +398,80 @@ struct bmp280_calib_par_t
   int32_t t_fine;       /**<calibration t_fine data*/
 };
 
-#define BMP280_MDELAY_TYPE uint16_t
-
-
 // This structure holds BMP280 initialization parameters
-struct param_bmp280
+struct _param_bmp280
 {
-  struct bmp280_calib_par_t calpar;             /**<calibration data*/
+  struct _bmp280_calib_par calpar;             /**<calibration data*/
   uint8_t chip_id;                              /**< chip id of the sensor*/
   uint8_t dev_addr;                             /**< device address of the sensor*/
   uint8_t overs_temp;                           /**< temperature over sampling*/
   uint8_t overs_pres;                           /**< pressure over sampling*/
-  void(*delay_msec)(BMP280_MDELAY_TYPE);        /**< delay function pointer*/
+  void(*delay_msec)(uint16_t);        /**< delay function pointer*/
 };
 
 /**************************************************************/
 /**\name	FUNCTION DECLARATIONS                         */
 /**************************************************************/
-BMP280_RET_STATUS bmp280_init(struct param_bmp280 *bmp280);
+uint8_t bmp280_init(struct _param_bmp280 *bmp280);
 
-BMP280_RET_STATUS bmp280_read_uncT(int32_t* uncT);
+uint8_t bmp280_read_uncT(int32_t* uncT);
 
 int32_t bmp280_compensate_temperatureC(int32_t uncT);
 
-BMP280_RET_STATUS bmp280_read_uncP(int32_t *uncP);
+uint8_t bmp280_read_uncP(int32_t *uncP);
 
 uint32_t bmp280_compensate_pressureP(int32_t uncP);
 
-BMP280_RET_STATUS bmp280_read_uncP_temperature(int32_t* uncP, int32_t* uncT);
+uint8_t bmp280_read_uncP_temperature(int32_t* uncP, int32_t* uncT);
 
-BMP280_RET_STATUS bmp280_read_pressure_temperature(uint32_t* pressure, int32_t* temperature);
+uint8_t bmp280_read_pressure_temperature(uint32_t* pressure, int32_t* temperature);
 
-BMP280_RET_STATUS bmp280_get_calpar(void);
+uint8_t bmp280_get_calpar(void);
 
-BMP280_RET_STATUS bmp280_get_overs_temp(uint8_t* value);
+uint8_t bmp280_get_overs_temp(uint8_t* value);
 
-BMP280_RET_STATUS bmp280_set_overs_temp(uint8_t value);
+uint8_t bmp280_set_overs_temp(uint8_t value);
 
-BMP280_RET_STATUS bmp280_get_overs_pres(uint8_t *value);
+uint8_t bmp280_get_overs_pres(uint8_t *value);
 
-BMP280_RET_STATUS bmp280_set_overs_pres(uint8_t value);
+uint8_t bmp280_set_overs_pres(uint8_t value);
 
-BMP280_RET_STATUS bmp280_get_power_mode(uint8_t *power_mode);
+uint8_t bmp280_get_power_mode(uint8_t *power_mode);
 
-BMP280_RET_STATUS bmp280_set_power_mode(uint8_t power_mode);
+uint8_t bmp280_set_power_mode(uint8_t power_mode);
 
-BMP280_RET_STATUS bmp280_set_soft_rst(void);
+uint8_t bmp280_set_soft_rst(void);
 
-BMP280_RET_STATUS bmp280_get_spi3(uint8_t* enable_disable);
+uint8_t bmp280_get_spi3(uint8_t* enable_disable);
 
-BMP280_RET_STATUS bmp280_set_spi3(uint8_t enable_disable);
+uint8_t bmp280_set_spi3(uint8_t enable_disable);
 
-BMP280_RET_STATUS bmp280_get_filter(uint8_t* value);
+uint8_t bmp280_get_filter(uint8_t* value);
 
-BMP280_RET_STATUS bmp280_set_filter(uint8_t value);
+uint8_t bmp280_set_filter(uint8_t value);
 
-BMP280_RET_STATUS bmp280_get_standby_durn(uint8_t* standby_durn);
+uint8_t bmp280_get_standby_durn(uint8_t* standby_durn);
 
-BMP280_RET_STATUS bmp280_set_standby_durn(uint8_t standby_durn);
+uint8_t bmp280_set_standby_durn(uint8_t standby_durn);
 
-BMP280_RET_STATUS bmp280_set_work_mode(uint8_t work_mode);
+uint8_t bmp280_set_work_mode(uint8_t work_mode);
 
-BMP280_RET_STATUS bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* uncT);
+uint8_t bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* uncT);
 
-BMP280_RET_STATUS bmp280_write_register(uint8_t addr, uint8_t* data, uint8_t len);
+uint8_t bmp280_write_register(uint8_t addr, uint8_t* data, uint8_t len);
 
-BMP280_RET_STATUS bmp280_read_register(uint8_t addr, uint8_t* data, uint8_t len);
+uint8_t bmp280_read_register(uint8_t addr, uint8_t* data, uint8_t len);
+
+uint8_t bmp280_read_uncompensed_temperature(int32_t* uncT);
+
+uint8_t bmp280_read_uncompensed_pressure(int32_t* uncP);
+
+uint8_t bmp280_read_uncompensed_pressure_temperature(int32_t* uncP,
+						     int32_t* uncT);
+
+uint8_t bmp280_begin(void);
+
+uint8_t bmp280_test(void);
 
 /**************************************************************/
 /**\name	FUNCTION FOR TRUE TEMPERATURE CALCULATION   */
@@ -483,7 +490,7 @@ BMP280_RET_STATUS bmp280_read_register(uint8_t addr, uint8_t* data, uint8_t len)
 /**\name	FUNCTION FOR DELAY CALCULATION DURING FORCEMODE  */
 /**************************************************************/
 
-BMP280_RET_STATUS bmp280_compute_wait_time(uint8_t* delaytimer);
+uint8_t bmp280_compute_wait_time(uint8_t* delaytimer);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

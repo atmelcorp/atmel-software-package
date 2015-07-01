@@ -83,12 +83,12 @@ static uint8_t BufTwi[32];
 static const struct _pin pins_twi_bmp280[] = PINS_TWI1_IOS2;
 #define BMP280_TWI_ID	ID_TWIHS1
 
-static struct param_bmp280 sBMP280;
-static struct param_bmp280* psBMP280; /** pointer to BMP280 */
+static struct _param_bmp280 sBMP280;
+static struct _param_bmp280* psBMP280; /** pointer to BMP280 */
 
 //=============================================================================
 
-BMP280_RET_STATUS _bmp280_twid_rd_wr (struct _handler_twi* phtwi_bmp280, enum TWI_CMD Cmd)
+static uint8_t _bmp280_twid_rd_wr(struct _handler_twi* phtwi_bmp280, enum TWI_CMD Cmd)
 {
 	if (Cmd == TWI_RD)
 		return (uint8_t)twid_read(&phtwi_bmp280->twid, phtwi_bmp280->PeriphAddr,
@@ -102,7 +102,7 @@ BMP280_RET_STATUS _bmp280_twid_rd_wr (struct _handler_twi* phtwi_bmp280, enum TW
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-uint8_t _bmp280_twi_handler_init (struct _handler_twi * phtwi_bmp280)
+static uint8_t _bmp280_twi_handler_init(struct _handler_twi * phtwi_bmp280)
 {
 	uint8_t Status = phtwi_bmp280->Status;
 	static struct _twid twid;
@@ -129,50 +129,40 @@ uint8_t _bmp280_twi_handler_init (struct _handler_twi * phtwi_bmp280)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-uint8_t _bmp280_is_twi_handler_ready (struct _handler_twi* phtwi_bmp280)
+static uint8_t _bmp280_is_twi_handler_ready (struct _handler_twi* phtwi_bmp280)
 {
 	return phtwi_bmp280->Status & TWI_STATUS_READY;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-void _bmp280_delay_ms (uint32_t delay)
-{
-	unsigned int count;
-	for(;delay>0;delay--)
-		for(count=0;count<(pmc_get_master_clock()/1000000);count++);
-}
-
 //=============================================================================
 
-BMP280_RET_STATUS bmp280_begin (void)
+uint8_t bmp280_begin (void)
 {
-  BMP280_RET_STATUS Status = SUCCESS;
+	uint8_t Status = SUCCESS;
 
-    if (!_bmp280_is_twi_handler_ready(&htwi_bmp280)) {
-        // Set TWI interface
-        memset ((uint8_t*)&htwi_bmp280, 0x00, sizeof(htwi_bmp280));
-        htwi_bmp280.IdTwi = ID_TWI1;
-        htwi_bmp280.Twck = TWCK_400K;
+	if (!_bmp280_is_twi_handler_ready(&htwi_bmp280)) {
+		// Set TWI interface
+		memset ((uint8_t*)&htwi_bmp280, 0x00, sizeof(htwi_bmp280));
+		htwi_bmp280.IdTwi = ID_TWI1;
+		htwi_bmp280.Twck = TWCK_400K;
 		htwi_bmp280.PeriphAddr = BMP280_I2C_ADDRESS1;
 		printf(" -I- bmp280 @0x%02X TWCK:%dKHz \n\r",
-			   (unsigned int)htwi_bmp280.PeriphAddr,
-			   (unsigned int)htwi_bmp280.Twck/1000);
+		       (unsigned int)htwi_bmp280.PeriphAddr,
+		       (unsigned int)htwi_bmp280.Twck/1000);
 		Status = _bmp280_twi_handler_init(&htwi_bmp280);
-        htwi_bmp280.AddSize = 1;
-        htwi_bmp280.pData = &BufTwi[0];
-        htwi_bmp280.LenData = 1;
+		htwi_bmp280.AddSize = 1;
+		htwi_bmp280.pData = &BufTwi[0];
+		htwi_bmp280.LenData = 1;
 
 		if( !(Status&TWI_STATUS_HANDLE))
 			return TWI_FAIL;
 		else {
-		   	memset ((void*)&sBMP280, 0x00, sizeof(sBMP280));
+			memset ((void*)&sBMP280, 0x00, sizeof(sBMP280));
 			psBMP280 = &sBMP280;
 			Status = bmp280_init(psBMP280);
 		}
-    }
-    return Status ;
+	}
+	return Status ;
 }
 
 //=============================================================================
@@ -188,32 +178,32 @@ BMP280_RET_STATUS bmp280_begin (void)
  *  value of the parameter
  *
  *  Return results of bus communication function
- * 	0 -> Success
- * 	-1 -> Error
+ *	0 -> Success
+ *	-1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_init (struct param_bmp280* bmp280)
+uint8_t bmp280_init (struct _param_bmp280* bmp280)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* read chip id */
+	/* read chip id */
 	htwi_bmp280.RegMemAddr = BMP280_CHIP_ID_REG;
 	htwi_bmp280.pData = &data;
 	htwi_bmp280.LenData = 1;
-    com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-    psBMP280->chip_id = data;
+	com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
+	psBMP280->chip_id = data;
 	if ( data != BMP280_CHIP_ID ) {
 		printf(" -E- Error Chip ID : 0x%x \n\r", data);
 		com_rslt = ERROR;
 	}
 	else {
 		printf(" -I- Chip ID: 0x%x \n\r", data);
-    	/* readout bmp280 calibration parameter structure */
-    	com_rslt += bmp280_get_calpar();
+		/* readout bmp280 calibration parameter structure */
+		com_rslt += bmp280_get_calpar();
 	}
-    return com_rslt;
+	return com_rslt;
 }
 
 //=============================================================================
@@ -231,30 +221,30 @@ BMP280_RET_STATUS bmp280_init (struct param_bmp280* bmp280)
  *	-1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_read_uncompensed_temperature (int32_t* uncT)
+uint8_t bmp280_read_uncompensed_temperature (int32_t* uncT)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    /* Array holding the MSB and LSb value
-    dt[0] - Temperature MSB
-    dt[1] - Temperature LSB
-    dt[2] - Temperature LSB
-    */
-    uint8_t dt[3] = {0};
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	/* Array holding the MSB and LSb value
+	   dt[0] - Temperature MSB
+	   dt[1] - Temperature LSB
+	   dt[2] - Temperature LSB
+	*/
+	uint8_t dt[3] = {0};
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
-    else {
-      	/* read temperature data */
+	else {
+		/* read temperature data */
 		htwi_bmp280.RegMemAddr = BMP280_TEMPERATURE_MSB_REG;
 		htwi_bmp280.pData = dt;
 		htwi_bmp280.LenData = 3;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	*uncT = (int32_t)((((uint32_t) (dt[0])) << 12) |
-              (((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
-    }
-    return com_rslt;
+		*uncT = (int32_t)((((uint32_t) (dt[0])) << 12) |
+				  (((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
+	}
+	return com_rslt;
 }
 
 //=============================================================================
@@ -269,20 +259,20 @@ BMP280_RET_STATUS bmp280_read_uncompensed_temperature (int32_t* uncT)
 //=============================================================================
 int32_t bmp280_compensate_temperatureC (int32_t uncT)
 {
-    int32_t x1 = 0;
-    int32_t x2 = 0;
-    int32_t temperature = 0;
+	int32_t x1 = 0;
+	int32_t x2 = 0;
+	int32_t temperature = 0;
 
-    /* calculate true temperature*/
-    x1  = ((((uncT >> 3) - ((int32_t)psBMP280->calpar.dig_T1
-            << 1))) * ((int32_t)psBMP280->calpar.dig_T2)) >> 11;
-    x2  = (((((uncT >> 4) - ((int32_t)psBMP280->calpar.dig_T1)) *
-            ((uncT >> 4) - ((int32_t)psBMP280->calpar.dig_T1)))
-              >> 12) * ((int32_t)psBMP280->calpar.dig_T3)) >> 14;
-    psBMP280->calpar.t_fine = x1 + x2;
-    temperature  = (psBMP280->calpar.t_fine * BMP280_DEC_TRUE_TEMP_5 +
-                    BMP280_DEC_TRUE_TEMP_128) >> 8;
-    return temperature;
+	/* calculate true temperature*/
+	x1  = ((((uncT >> 3) - ((int32_t)psBMP280->calpar.dig_T1
+				<< 1))) * ((int32_t)psBMP280->calpar.dig_T2)) >> 11;
+	x2  = (((((uncT >> 4) - ((int32_t)psBMP280->calpar.dig_T1)) *
+		 ((uncT >> 4) - ((int32_t)psBMP280->calpar.dig_T1)))
+		>> 12) * ((int32_t)psBMP280->calpar.dig_T3)) >> 14;
+	psBMP280->calpar.t_fine = x1 + x2;
+	temperature  = (psBMP280->calpar.t_fine * BMP280_DEC_TRUE_TEMP_5 +
+			BMP280_DEC_TRUE_TEMP_128) >> 8;
+	return temperature;
 }
 
 //=============================================================================
@@ -299,29 +289,29 @@ int32_t bmp280_compensate_temperatureC (int32_t uncT)
  *	-1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_read_uncompensed_pressure ( int32_t* uncP)
+uint8_t bmp280_read_uncompensed_pressure ( int32_t* uncP)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    /* Array holding the MSB and LSb value
-    dt[0] - Pressure MSB
-    dt[1] - Pressure LSB
-    dt[2] - Pressure LSB
-    */
-    uint8_t dt[3] = {0};
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	/* Array holding the MSB and LSb value
+	   dt[0] - Pressure MSB
+	   dt[1] - Pressure LSB
+	   dt[2] - Pressure LSB
+	*/
+	uint8_t dt[3] = {0};
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_PRESSURE_MSB_REG;
 		htwi_bmp280.pData = dt;
 		htwi_bmp280.LenData = 3;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	*uncP = (int32_t)((((uint32_t)(dt[0])) << 12) |
-						(((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
-    }
-    return com_rslt;
+		*uncP = (int32_t)((((uint32_t)(dt[0])) << 12) |
+				  (((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
+	}
+	return com_rslt;
 }
 
 //=============================================================================
@@ -338,39 +328,39 @@ BMP280_RET_STATUS bmp280_read_uncompensed_pressure ( int32_t* uncP)
 //=============================================================================
 uint32_t  bmp280_compensate_pressureP (int32_t uncP)
 {
-    int32_t x1 = 0;
-    int32_t x2 = 0;
-    uint32_t pressure = 0;
+	int32_t x1 = 0;
+	int32_t x2 = 0;
+	uint32_t pressure = 0;
 
-    /* calculate true pressure*/
-    x1 = (((int32_t)psBMP280->calpar.t_fine) >> 1) - (int32_t)BMP280_DEC_TRUE_PRES_64000;
-    x2 = (((x1 >> 2) * (x1 >> 2)) >> 11) * ((int32_t)psBMP280->calpar.dig_P6);
-    x2 = x2 + ((x1 * ((int32_t)psBMP280->calpar.dig_P5)) << 1);
-    x2 = (x2 >> 2) + (((int32_t)psBMP280->calpar.dig_P4) << 16);
-    x1 = (((psBMP280->calpar.dig_P3 * (((x1 >> 2) * (x1 >> 2)) >> 13)) >> 3) +
-          ((((int32_t)psBMP280->calpar.dig_P2) * x1) >> 1)) >> 18;
-    x1 = ((((BMP280_DEC_TRUE_PRES_32768 + x1)) * ((int32_t)psBMP280->calpar.dig_P1)) >> 15);
-    pressure = (((uint32_t)(((int32_t)BMP280_DEC_TRUE_PRES_1048576) - uncP) -
-                 (x2 >> 12))) * BMP280_DEC_TRUE_PRES_3125;
+	/* calculate true pressure*/
+	x1 = (((int32_t)psBMP280->calpar.t_fine) >> 1) - (int32_t)BMP280_DEC_TRUE_PRES_64000;
+	x2 = (((x1 >> 2) * (x1 >> 2)) >> 11) * ((int32_t)psBMP280->calpar.dig_P6);
+	x2 = x2 + ((x1 * ((int32_t)psBMP280->calpar.dig_P5)) << 1);
+	x2 = (x2 >> 2) + (((int32_t)psBMP280->calpar.dig_P4) << 16);
+	x1 = (((psBMP280->calpar.dig_P3 * (((x1 >> 2) * (x1 >> 2)) >> 13)) >> 3) +
+	      ((((int32_t)psBMP280->calpar.dig_P2) * x1) >> 1)) >> 18;
+	x1 = ((((BMP280_DEC_TRUE_PRES_32768 + x1)) * ((int32_t)psBMP280->calpar.dig_P1)) >> 15);
+	pressure = (((uint32_t)(((int32_t)BMP280_DEC_TRUE_PRES_1048576) - uncP) -
+		     (x2 >> 12))) * BMP280_DEC_TRUE_PRES_3125;
 
-    if (pressure < BMP280_HEX_TRUE_PRES_8M)
-      /* Avoid exception caused by division by zero */
-      if (x1 != 0)
-        pressure = (pressure << 1) / ((uint32_t)x1);
-      else
-        return 0;
-    else
-        /* Avoid exception caused by division by zero */
-        if (x1 != 0)
-          pressure = (pressure / (uint32_t)x1) * BMP280_DEC_TRUE_PRES_2;
-        else
-          return 0;
+	if (pressure < BMP280_HEX_TRUE_PRES_8M)
+		/* Avoid exception caused by division by zero */
+		if (x1 != 0)
+			pressure = (pressure << 1) / ((uint32_t)x1);
+		else
+			return 0;
+	else
+		/* Avoid exception caused by division by zero */
+		if (x1 != 0)
+			pressure = (pressure / (uint32_t)x1) * BMP280_DEC_TRUE_PRES_2;
+		else
+			return 0;
 
-        x1 = (((int32_t)psBMP280->calpar.dig_P9)* ((int32_t)(((pressure>>3)* (pressure>>3))>>13)))>>12 ;
-        x2 = (((int32_t)(pressure >> 2))*((int32_t)psBMP280->calpar.dig_P8))>>13;
-        pressure = (uint32_t)((int32_t)pressure + ((x1 + x2 + psBMP280->calpar.dig_P7)>>4));
+	x1 = (((int32_t)psBMP280->calpar.dig_P9)* ((int32_t)(((pressure>>3)* (pressure>>3))>>13)))>>12 ;
+	x2 = (((int32_t)(pressure >> 2))*((int32_t)psBMP280->calpar.dig_P8))>>13;
+	pressure = (uint32_t)((int32_t)pressure + ((x1 + x2 + psBMP280->calpar.dig_P7)>>4));
 
-    return pressure;
+	return pressure;
 }
 
 //=============================================================================
@@ -385,25 +375,25 @@ uint32_t  bmp280_compensate_pressureP (int32_t uncP)
  *	-1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_read_uncompensed_pressure_temperature (int32_t* uncP, int32_t* uncT)
+uint8_t bmp280_read_uncompensed_pressure_temperature (int32_t* uncP, int32_t* uncT)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
 
-    /* Array holding the temperature and pressure data
-    dt[0] - Pressure MSB
-    dt[1] - Pressure LSB
-    dt[2] - Pressure LSB
-    dt[3] - Temperature MSB
-    dt[4] - Temperature LSB
-    dt[5] - Temperature LSB
-    */
-    uint8_t dt[6] = {0};
+	/* Array holding the temperature and pressure data
+	   dt[0] - Pressure MSB
+	   dt[1] - Pressure LSB
+	   dt[2] - Pressure LSB
+	   dt[3] - Temperature MSB
+	   dt[4] - Temperature LSB
+	   dt[5] - Temperature LSB
+	*/
+	uint8_t dt[6] = {0};
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_PRESSURE_MSB_REG;
 		htwi_bmp280.pData = dt;
 		htwi_bmp280.LenData = 6;
@@ -412,8 +402,8 @@ BMP280_RET_STATUS bmp280_read_uncompensed_pressure_temperature (int32_t* uncP, i
 		*uncP = (int32_t)((((uint32_t)(dt[0]))<<12) | (((uint32_t)(dt[1]))<<4) | ((uint32_t)dt[2]>>4));
 		/* Temperature */
 		*uncT = (int32_t)((((uint32_t)(dt[3]))<<12) | (((uint32_t)(dt[4]))<<4) | ((uint32_t)dt[5]>>4));
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 
 //=============================================================================
@@ -428,24 +418,24 @@ BMP280_RET_STATUS bmp280_read_uncompensed_pressure_temperature (int32_t* uncP, i
  *	-1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_read_pressure_temperature (uint32_t* pressure, int32_t* temperature)
+uint8_t bmp280_read_pressure_temperature (uint32_t* pressure, int32_t* temperature)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    int32_t uncP = 0;
-    int32_t uncT = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	int32_t uncP = 0;
+	int32_t uncT = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      /* read uncompensated pressure and temperature*/
-      com_rslt = bmp280_read_uncompensed_pressure_temperature(&uncP, &uncT);
-      /* read true pressure and temperature*/
-      *temperature = bmp280_compensate_temperatureC(uncT);
-      *pressure = bmp280_compensate_pressureP(uncP);
-    }
-    return com_rslt;
+	else {
+		/* read uncompensated pressure and temperature*/
+		com_rslt = bmp280_read_uncompensed_pressure_temperature(&uncP, &uncT);
+		/* read true pressure and temperature*/
+		*temperature = bmp280_compensate_temperatureC(uncT);
+		*pressure = bmp280_compensate_pressureP(uncP);
+	}
+	return com_rslt;
 }
 //=============================================================================
 /*
@@ -469,18 +459,18 @@ BMP280_RET_STATUS bmp280_read_pressure_temperature (uint32_t* pressure, int32_t*
  * Return results of bus communication function
  *	0 -> Success
  *	-1 -> Error
-*/
+ */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_calpar (void)
+uint8_t bmp280_get_calpar (void)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t dt[26] = {0};
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t dt[26] = {0};
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_DIG_T1_LSB_REG;
 		htwi_bmp280.pData = dt;
 		htwi_bmp280.LenData = 24;
@@ -498,8 +488,8 @@ BMP280_RET_STATUS bmp280_get_calpar (void)
 		psBMP280->calpar.dig_P7 = (int16_t)((((int16_t)((int8_t)dt[19])) << 8) | dt[18]);
 		psBMP280->calpar.dig_P8 = (int16_t)((((int16_t)((int8_t)dt[21])) << 8) | dt[20]);
 		psBMP280->calpar.dig_P9 = (int16_t)((((int16_t)((int8_t)dt[23])) << 8) | dt[22]);
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Get the temperature oversampling setting in the register 0xF4
@@ -521,17 +511,17 @@ BMP280_RET_STATUS bmp280_get_calpar (void)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_overs_temp (uint8_t* value)
+uint8_t bmp280_get_overs_temp (uint8_t* value)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* read temperature over sampling*/
+	else {
+		/* read temperature over sampling*/
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
@@ -539,8 +529,8 @@ BMP280_RET_STATUS bmp280_get_overs_temp (uint8_t* value)
 		*value = BMP280_GET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_TEMP);
 		/* assign temperature oversampling*/
 		psBMP280->overs_temp = *value;
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Set the temperature oversampling setting in the register 0xF4
@@ -562,16 +552,16 @@ BMP280_RET_STATUS bmp280_get_overs_temp (uint8_t* value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_overs_temp (uint8_t value)
+uint8_t bmp280_set_overs_temp (uint8_t value)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
@@ -585,8 +575,8 @@ BMP280_RET_STATUS bmp280_set_overs_temp (uint8_t value)
 			com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
 			psBMP280->overs_temp = value;
 		}
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Get the pressure oversampling setting in the register 0xF4
@@ -608,25 +598,25 @@ BMP280_RET_STATUS bmp280_set_overs_temp (uint8_t value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_overs_pres (uint8_t* value)
+uint8_t bmp280_get_overs_pres (uint8_t* value)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* read pressure over sampling */
+	else {
+		/* read pressure over sampling */
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_OVRS_PRES__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	*value = BMP280_GET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_PRES);
-      	psBMP280->overs_pres = *value;
-    }
-    return com_rslt;
+		*value = BMP280_GET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_PRES);
+		psBMP280->overs_pres = *value;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Set the pressure oversampling setting in the register 0xF4
@@ -648,16 +638,16 @@ BMP280_RET_STATUS bmp280_get_overs_pres (uint8_t* value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_overs_pres (uint8_t value)
+uint8_t bmp280_set_overs_pres (uint8_t value)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_OVRS_PRES__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
@@ -671,8 +661,8 @@ BMP280_RET_STATUS bmp280_set_overs_pres (uint8_t value)
 			com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
 			psBMP280->overs_pres = value;
 		}
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Get the operational Mode from the sensor in the register 0xF4 bit 0 and 1
@@ -689,24 +679,24 @@ BMP280_RET_STATUS bmp280_set_overs_pres (uint8_t value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_power_mode(uint8_t* power_mode)
+uint8_t bmp280_get_power_mode(uint8_t* power_mode)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t mode = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t mode = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      /* read the power mode*/
+	else {
+		/* read the power mode*/
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_POWER_MODE__REG;
 		htwi_bmp280.pData = &mode;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	*power_mode = BMP280_GET_BITSLICE(mode, BMP280_CTRL_MEAS_REG_POWER_MODE);
-    }
-    return com_rslt;
+		*power_mode = BMP280_GET_BITSLICE(mode, BMP280_CTRL_MEAS_REG_POWER_MODE);
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Set the operational Mode from the sensor in the register 0xF4 bit 0 and 1
@@ -723,30 +713,30 @@ BMP280_RET_STATUS bmp280_get_power_mode(uint8_t* power_mode)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_power_mode (uint8_t power_mode)
+uint8_t bmp280_set_power_mode (uint8_t power_mode)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t mode = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t mode = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else
-    {
-      if (power_mode < 4) {
-        /* write the power mode*/
-        mode = (psBMP280->overs_temp << 5) + (psBMP280->overs_pres << 2) + power_mode;
-		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_POWER_MODE__REG;
-		htwi_bmp280.pData = &mode;
-		htwi_bmp280.LenData = 1;
-		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-      }
-	  else {
-        com_rslt = E_BMP280_OUT_OF_RANGE;
-      }
-    }
-    return com_rslt;
+	else
+	{
+		if (power_mode < 4) {
+			/* write the power mode*/
+			mode = (psBMP280->overs_temp << 5) + (psBMP280->overs_pres << 2) + power_mode;
+			htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG_POWER_MODE__REG;
+			htwi_bmp280.pData = &mode;
+			htwi_bmp280.LenData = 1;
+			com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
+		}
+		else {
+			com_rslt = E_BMP280_OUT_OF_RANGE;
+		}
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Reset the sensor
@@ -760,23 +750,23 @@ BMP280_RET_STATUS bmp280_set_power_mode (uint8_t power_mode)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_soft_rst (void)
+uint8_t bmp280_set_soft_rst (void)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = BMP280_SOFT_RESET_CODE;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = BMP280_SOFT_RESET_CODE;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* write soft reset */
+	else {
+		/* write soft reset */
 		htwi_bmp280.RegMemAddr = BMP280_RST_REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Get the sensor SPI mode(communication type) in the register 0xF5 bit 0
@@ -792,23 +782,23 @@ BMP280_RET_STATUS bmp280_set_soft_rst (void)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_spi3 (uint8_t* enable_disable)
+uint8_t bmp280_get_spi3 (uint8_t* enable_disable)
 {
-  /* variable used to return communication result*/
-  BMP280_RET_STATUS com_rslt = ERROR;
-  uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-  /* check the psBMP280 struct pointer as NULL*/
-  if (psBMP280 == BMP280_NULL)
-	  return  E_BMP280_NULL_PTR;
-  else {
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
+		return  E_BMP280_NULL_PTR;
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-    	*enable_disable = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE);
-  }
-  return com_rslt;
+		*enable_disable = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE);
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Set the sensor SPI mode(communication type) in the register 0xF5 bit 0
@@ -824,29 +814,29 @@ BMP280_RET_STATUS bmp280_get_spi3 (uint8_t* enable_disable)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_spi3 (uint8_t enable_disable)
+uint8_t bmp280_set_spi3 (uint8_t enable_disable)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      if (com_rslt == SUCCESS) {
-        data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE, enable_disable);
-		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
-		htwi_bmp280.pData = &data;
-		htwi_bmp280.LenData = 1;
-		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-      }
-    }
-    return com_rslt;
+		if (com_rslt == SUCCESS) {
+			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE, enable_disable);
+			htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
+			htwi_bmp280.pData = &data;
+			htwi_bmp280.LenData = 1;
+			com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
+		}
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Reads filter setting in the register 0xF5 bit 3 and 4
@@ -865,24 +855,24 @@ BMP280_RET_STATUS bmp280_set_spi3 (uint8_t enable_disable)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_filter (uint8_t *value)
+uint8_t bmp280_get_filter (uint8_t *value)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* read filter*/
+	else {
+		/* read filter*/
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_FILTER__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	*value = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_FILTER);
-    }
-    return com_rslt;
+		*value = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_FILTER);
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Write filter setting in the register 0xF5 bit 3 and 4
@@ -901,29 +891,29 @@ BMP280_RET_STATUS bmp280_get_filter (uint8_t *value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_filter (uint8_t value)
+uint8_t bmp280_set_filter (uint8_t value)
 {
-    BMP280_RET_STATUS com_rslt = SUCCESS;
-    uint8_t data = 0;
+	uint8_t com_rslt = SUCCESS;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* write filter*/
+	else {
+		/* write filter*/
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_FILTER__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-      	if (com_rslt == SUCCESS) {
+		if (com_rslt == SUCCESS) {
 			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_FILTER, value);
 			htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_FILTER__REG;
 			htwi_bmp280.pData = &data;
 			htwi_bmp280.LenData = 1;
 			com_rslt += _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-      	}
-    }
-    return com_rslt;
+		}
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Read the standby duration time from the sensor in the register 0xF5 bit 5 to 7
@@ -945,24 +935,24 @@ BMP280_RET_STATUS bmp280_set_filter (uint8_t value)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_standby_durn(uint8_t* standby_durn)
+uint8_t bmp280_get_standby_durn(uint8_t* standby_durn)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* read the standby duration*/
+	else {
+		/* read the standby duration*/
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
 		*standby_durn = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_STANDBY_DURN);
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Read the standby duration time from the sensor in the register 0xF5 bit 5 to 7
@@ -990,30 +980,30 @@ BMP280_RET_STATUS bmp280_get_standby_durn(uint8_t* standby_durn)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_standby_durn (uint8_t standby_durn)
+uint8_t bmp280_set_standby_durn (uint8_t standby_durn)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-    	/* write the standby duration*/
+	else {
+		/* write the standby duration*/
 		htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-        if (com_rslt == SUCCESS) {
+		if (com_rslt == SUCCESS) {
 			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_STANDBY_DURN, standby_durn);
 			htwi_bmp280.RegMemAddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
 			htwi_bmp280.pData = &data;
 			htwi_bmp280.LenData = 1;
 			com_rslt += _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-      	}
-    }
-    return com_rslt;
+		}
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Write the working mode of the sensor
@@ -1032,15 +1022,15 @@ BMP280_RET_STATUS bmp280_set_standby_durn (uint8_t standby_durn)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_set_work_mode (uint8_t work_mode)
+uint8_t bmp280_set_work_mode (uint8_t work_mode)
 {
-  /* variable used to return communication result*/
-  BMP280_RET_STATUS com_rslt = ERROR;
-  uint8_t data = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
 
 	/* check the psBMP280 struct pointer as NULL*/
 	if (psBMP280 == BMP280_NULL)
-	  return  E_BMP280_NULL_PTR;
+		return  E_BMP280_NULL_PTR;
 	else {
 		if (work_mode <= 4) {
 			htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG;
@@ -1050,24 +1040,24 @@ BMP280_RET_STATUS bmp280_set_work_mode (uint8_t work_mode)
 			if (com_rslt == SUCCESS)
 			{
 				switch (work_mode) {
-				  /* write work mode*/
-				  case BMP280_ULTRA_LOW_POWER_MODE:
+					/* write work mode*/
+				case BMP280_ULTRA_LOW_POWER_MODE:
 					psBMP280->overs_temp = BMP280_ULTRALOWPOWER_OVRS_TEMP;
 					psBMP280->overs_pres = BMP280_ULTRALOWPOWER_OVRS_PRES;
 					break;
-				  case BMP280_LOW_POWER_MODE:
+				case BMP280_LOW_POWER_MODE:
 					psBMP280->overs_temp = BMP280_LOWPOWER_OVRS_TEMP;
 					psBMP280->overs_pres = BMP280_LOWPOWER_OVRS_PRES;
 					break;
-				  case BMP280_STANDARD_RESOLUTION_MODE:
+				case BMP280_STANDARD_RESOLUTION_MODE:
 					psBMP280->overs_temp = BMP280_STANDARDRESOLUTION_OVRS_TEMP;
 					psBMP280->overs_pres = BMP280_STANDARDRESOLUTION_OVRS_PRES;
 					break;
-				  case BMP280_HIGH_RESOLUTION_MODE:
+				case BMP280_HIGH_RESOLUTION_MODE:
 					psBMP280->overs_temp = BMP280_HIGHRESOLUTION_OVRS_TEMP;
 					psBMP280->overs_pres = BMP280_HIGHRESOLUTION_OVRS_PRES;
 					break;
-				  case BMP280_ULTRA_HIGH_RESOLUTION_MODE:
+				case BMP280_ULTRA_HIGH_RESOLUTION_MODE:
 					psBMP280->overs_temp = BMP280_ULTRAHIGHRESOLUTION_OVRS_TEMP;
 					psBMP280->overs_pres = BMP280_ULTRAHIGHRESOLUTION_OVRS_PRES;
 					break;
@@ -1081,7 +1071,7 @@ BMP280_RET_STATUS bmp280_set_work_mode (uint8_t work_mode)
 			}
 		}
 		else {
-	 		com_rslt = E_BMP280_OUT_OF_RANGE;
+			com_rslt = E_BMP280_OUT_OF_RANGE;
 		}
 	}
 	return com_rslt;
@@ -1097,28 +1087,28 @@ BMP280_RET_STATUS bmp280_set_work_mode (uint8_t work_mode)
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* uncT)
+uint8_t bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* uncT)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
-    uint8_t data = 0;
-    uint8_t waittime = 0;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
+	uint8_t data = 0;
+	uint8_t waittime = 0;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
-    else {
-      	/* read pressure and temperature*/
-      	data = (psBMP280->overs_temp << 5) + (psBMP280->overs_pres << 2) + BMP280_FORCED_MODE;
+	else {
+		/* read pressure and temperature*/
+		data = (psBMP280->overs_temp << 5) + (psBMP280->overs_pres << 2) + BMP280_FORCED_MODE;
 		htwi_bmp280.RegMemAddr = BMP280_CTRL_MEAS_REG;
 		htwi_bmp280.pData = &data;
 		htwi_bmp280.LenData = 1;
 		com_rslt += _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
 		bmp280_compute_wait_time(&waittime);
-      	psBMP280->delay_msec(waittime);
-	  	com_rslt += bmp280_read_uncompensed_pressure_temperature( uncP, uncT);
-    }
-    return com_rslt;
+		psBMP280->delay_msec(waittime);
+		com_rslt += bmp280_read_uncompensed_pressure_temperature( uncP, uncT);
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Write the data to the given register
@@ -1132,21 +1122,21 @@ BMP280_RET_STATUS bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* unc
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_write_register(uint8_t addr, uint8_t* pdata, uint8_t len)
+uint8_t bmp280_write_register(uint8_t addr, uint8_t* pdata, uint8_t len)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = addr;
 		htwi_bmp280.pData = pdata;
 		htwi_bmp280.LenData = len;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_WR);
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 //=============================================================================
 /* Reads the data from the given register
@@ -1160,21 +1150,21 @@ BMP280_RET_STATUS bmp280_write_register(uint8_t addr, uint8_t* pdata, uint8_t le
  *	@retval -1 -> Error
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_read_register(uint8_t addr, uint8_t* pdata, uint8_t len)
+uint8_t bmp280_read_register(uint8_t addr, uint8_t* pdata, uint8_t len)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = ERROR;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = ERROR;
 
-    /* check the psBMP280 struct pointer as NULL*/
-    if (psBMP280 == BMP280_NULL)
+	/* check the psBMP280 struct pointer as NULL*/
+	if (psBMP280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
-    else {
+	else {
 		htwi_bmp280.RegMemAddr = addr;
 		htwi_bmp280.pData = pdata;
 		htwi_bmp280.LenData = len;
 		com_rslt = _bmp280_twid_rd_wr (&htwi_bmp280, TWI_RD);
-    }
-    return com_rslt;
+	}
+	return com_rslt;
 }
 
 //=============================================================================
@@ -1191,21 +1181,21 @@ BMP280_RET_STATUS bmp280_read_register(uint8_t addr, uint8_t* pdata, uint8_t len
 //=============================================================================
 double bmp280_compensate_T_double(int32_t uncT)
 {
-    double x1 = 0;
-    double x2 = 0;
-    double temperature = 0;
+	double x1 = 0;
+	double x2 = 0;
+	double temperature = 0;
 
-    x1 = (((double)uncT) / BMP280_FLOAT_TRUE_TEMP_16384 -
-           ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_1024) *
-           ((double)psBMP280->calpar.dig_T2);
-    x2 = ((((double)uncT) / BMP280_FLOAT_TRUE_TEMP_131072 -
-           ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_8192) *
-           (((double)uncT) / BMP280_FLOAT_TRUE_TEMP_131072 -
-           ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_8192)) *
-           ((double)psBMP280->calpar.dig_T3);
-    psBMP280->calpar.t_fine = (int32_t)(x1 + x2);
-    temperature  = (x1 + x2) / BMP280_FLOAT_TRUE_TEMP_5120;
-    return temperature;
+	x1 = (((double)uncT) / BMP280_FLOAT_TRUE_TEMP_16384 -
+	      ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_1024) *
+		((double)psBMP280->calpar.dig_T2);
+	x2 = ((((double)uncT) / BMP280_FLOAT_TRUE_TEMP_131072 -
+	       ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_8192) *
+	      (((double)uncT) / BMP280_FLOAT_TRUE_TEMP_131072 -
+	       ((double)psBMP280->calpar.dig_T1) / BMP280_FLOAT_TRUE_TEMP_8192)) *
+		((double)psBMP280->calpar.dig_T3);
+	psBMP280->calpar.t_fine = (int32_t)(x1 + x2);
+	temperature  = (x1 + x2) / BMP280_FLOAT_TRUE_TEMP_5120;
+	return temperature;
 }
 //=============================================================================
 /* Reads actual pressure from uncompensated pressure and returns pressure in
@@ -1220,37 +1210,37 @@ double bmp280_compensate_T_double(int32_t uncT)
 //=============================================================================
 double bmp280_compensate_P_double(int32_t uncP)
 {
-    double x1 = 0;
-    double x2 = 0;
-    double pressure = 0;
+	double x1 = 0;
+	double x2 = 0;
+	double pressure = 0;
 
-    x1 = ((double)psBMP280->calpar.t_fine / BMP280_FLOAT_TRUE_PRES_2) -
-                BMP280_FLOAT_TRUE_PRES_64000;
-    x2 = x1 * x1 * ((double)psBMP280->calpar.dig_P6) /
-                BMP280_FLOAT_TRUE_PRES_32768;
-    x2 = x2 + x1 * ((double)psBMP280->calpar.dig_P5)
-                * BMP280_FLOAT_TRUE_PRES_2;
-    x2 = (x2 / BMP280_FLOAT_TRUE_PRES_4) + ((double)psBMP280->calpar.dig_P4)
-                * BMP280_FLOAT_TRUE_PRES_65536;
-    x1 = (((double)psBMP280->calpar.dig_P3) * x1 * x1
-                / BMP280_FLOAT_TRUE_PRES_524288 + ((double)psBMP280->calpar.dig_P2) * x1)
-                / BMP280_FLOAT_TRUE_PRES_524288;
-    x1 = (BMP280_FLOAT_TRUE_PRES_1 + x1 / BMP280_FLOAT_TRUE_PRES_32768) *
-                ((double)psBMP280->calpar.dig_P1);
-    pressure = BMP280_FLOAT_TRUE_PRES_1048576 - (double)uncP;
-    /* Avoid exception caused by division by zero */
-    if (x1 != BMP280_FLOAT_TRUE_PRES_0)
-      pressure = (pressure - (x2 / BMP280_FLOAT_TRUE_PRES_4096)) *
-                  BMP280_FLOAT_TRUE_PRES_6250 / x1;
-    else
-      return 0;
-    x1 = ((double)psBMP280->calpar.dig_P9) * pressure * pressure /
-                BMP280_FLOAT_TRUE_PRES_2147483648;
-    x2 = pressure * ((double)psBMP280->calpar.dig_P8) / BMP280_FLOAT_TRUE_PRES_32768;
-    pressure = pressure + (x1 + x2 + ((double)psBMP280->calpar.dig_P7))
-               / BMP280_FLOAT_TRUE_PRES_1_6;
+	x1 = ((double)psBMP280->calpar.t_fine / BMP280_FLOAT_TRUE_PRES_2) -
+		BMP280_FLOAT_TRUE_PRES_64000;
+	x2 = x1 * x1 * ((double)psBMP280->calpar.dig_P6) /
+		BMP280_FLOAT_TRUE_PRES_32768;
+	x2 = x2 + x1 * ((double)psBMP280->calpar.dig_P5)
+		* BMP280_FLOAT_TRUE_PRES_2;
+	x2 = (x2 / BMP280_FLOAT_TRUE_PRES_4) + ((double)psBMP280->calpar.dig_P4)
+		* BMP280_FLOAT_TRUE_PRES_65536;
+	x1 = (((double)psBMP280->calpar.dig_P3) * x1 * x1
+	      / BMP280_FLOAT_TRUE_PRES_524288 + ((double)psBMP280->calpar.dig_P2) * x1)
+		/ BMP280_FLOAT_TRUE_PRES_524288;
+	x1 = (BMP280_FLOAT_TRUE_PRES_1 + x1 / BMP280_FLOAT_TRUE_PRES_32768) *
+		((double)psBMP280->calpar.dig_P1);
+	pressure = BMP280_FLOAT_TRUE_PRES_1048576 - (double)uncP;
+	/* Avoid exception caused by division by zero */
+	if (x1 != BMP280_FLOAT_TRUE_PRES_0)
+		pressure = (pressure - (x2 / BMP280_FLOAT_TRUE_PRES_4096)) *
+			BMP280_FLOAT_TRUE_PRES_6250 / x1;
+	else
+		return 0;
+	x1 = ((double)psBMP280->calpar.dig_P9) * pressure * pressure /
+		BMP280_FLOAT_TRUE_PRES_2147483648;
+	x2 = pressure * ((double)psBMP280->calpar.dig_P8) / BMP280_FLOAT_TRUE_PRES_32768;
+	pressure = pressure + (x1 + x2 + ((double)psBMP280->calpar.dig_P7))
+		/ BMP280_FLOAT_TRUE_PRES_1_6;
 
-    return pressure;
+	return pressure;
 }
 #endif
 //=============================================================================
@@ -1269,37 +1259,37 @@ double bmp280_compensate_P_double(int32_t uncP)
 //=============================================================================
 uint32_t bmp280_compensate_P_int64(int32_t uncP)
 {
-    int64_t x1_s64r = 0;
-    int64_t x2_s64r = 0;
-    int64_t pressure = 0;
+	int64_t x1_s64r = 0;
+	int64_t x2_s64r = 0;
+	int64_t pressure = 0;
 
-    x1_s64r = ((int64_t)psBMP280->calpar.t_fine) -
-    BMP280_TRUE_PRES_128000;
-    x2_s64r = x1_s64r * x1_s64r * (int64_t)psBMP280->calpar.dig_P6;
-    x2_s64r = x2_s64r + ((x1_s64r * (int64_t)psBMP280->calpar.dig_P5) << 17);
-    x2_s64r = x2_s64r + (((int64_t)psBMP280->calpar.dig_P4) << 35);
-    x1_s64r = ((x1_s64r * x1_s64r * (int64_t)psBMP280->calpar.dig_P3) >> 8) +
-                ((x1_s64r * (int64_t)psBMP280->calpar.dig_P2) << 12);
-    x1_s64r = (((((int64_t)BMP280_TRUE_PRES_1) << 47) + x1_s64r)) *
-                ((int64_t)psBMP280->calpar.dig_P1) >> 33;
-    pressure = BMP280_TRUE_PRES_1048576 - uncP;
-    if (x1_s64r != 0)
-      #if defined __KERNEL__
-        pressure = div64_s64((((pressure << 31) - x2_s64r)
-        * BMP280_TRUE_PRES_3125), x1_s64r);
-      #else
-        pressure = (((pressure << 31) - x2_s64r)
-        * BMP280_TRUE_PRES_3125) / x1_s64r;
-      #endif
-    else
-      return 0;
+	x1_s64r = ((int64_t)psBMP280->calpar.t_fine) -
+		BMP280_TRUE_PRES_128000;
+	x2_s64r = x1_s64r * x1_s64r * (int64_t)psBMP280->calpar.dig_P6;
+	x2_s64r = x2_s64r + ((x1_s64r * (int64_t)psBMP280->calpar.dig_P5) << 17);
+	x2_s64r = x2_s64r + (((int64_t)psBMP280->calpar.dig_P4) << 35);
+	x1_s64r = ((x1_s64r * x1_s64r * (int64_t)psBMP280->calpar.dig_P3) >> 8) +
+		((x1_s64r * (int64_t)psBMP280->calpar.dig_P2) << 12);
+	x1_s64r = (((((int64_t)BMP280_TRUE_PRES_1) << 47) + x1_s64r)) *
+		((int64_t)psBMP280->calpar.dig_P1) >> 33;
+	pressure = BMP280_TRUE_PRES_1048576 - uncP;
+	if (x1_s64r != 0)
+#if defined __KERNEL__
+		pressure = div64_s64((((pressure << 31) - x2_s64r)
+				      * BMP280_TRUE_PRES_3125), x1_s64r);
+#else
+	pressure = (((pressure << 31) - x2_s64r)
+		    * BMP280_TRUE_PRES_3125) / x1_s64r;
+#endif
+	else
+		return 0;
 
-    x1_s64r = (((int64_t)psBMP280->calpar.dig_P9) * (pressure >> 13) *
-                (pressure >> 13)) >> 25;
-    x2_s64r = (((int64_t)psBMP280->calpar.dig_P8) * pressure) >> 19;
-    pressure = ((pressure + x1_s64r + x2_s64r) 	>> 8) +
-               (((int64_t)psBMP280->calpar.dig_P7) << 4);
-    return (uint32_t)pressure;
+	x1_s64r = (((int64_t)psBMP280->calpar.dig_P9) * (pressure >> 13) *
+		   (pressure >> 13)) >> 25;
+	x2_s64r = (((int64_t)psBMP280->calpar.dig_P8) * pressure) >> 19;
+	pressure = ((pressure + x1_s64r + x2_s64r)	>> 8) +
+		(((int64_t)psBMP280->calpar.dig_P7) << 4);
+	return (uint32_t)pressure;
 }
 #endif
 //=============================================================================
@@ -1310,21 +1300,21 @@ uint32_t bmp280_compensate_P_int64(int32_t uncP)
  * Return 0
  */
 //=============================================================================
-BMP280_RET_STATUS bmp280_compute_wait_time (uint8_t* delaytimer)
+uint8_t bmp280_compute_wait_time (uint8_t* delaytimer)
 {
-    /* variable used to return communication result*/
-    BMP280_RET_STATUS com_rslt = SUCCESS;
+	/* variable used to return communication result*/
+	uint8_t com_rslt = SUCCESS;
 
-    *delaytimer = (T_INIT_MAX + T_MEASURE_PER_OSRS_MAX *
-                   (((1 << psBMP280->overs_temp) >> 1) +
-                    ((1 << psBMP280->overs_pres) >> 1)) +
-                     (psBMP280->overs_pres ? T_SETUP_PRESSURE_MAX : 0) + 15) / 16;
-    return com_rslt;
+	*delaytimer = (T_INIT_MAX + T_MEASURE_PER_OSRS_MAX *
+		       (((1 << psBMP280->overs_temp) >> 1) +
+			((1 << psBMP280->overs_pres) >> 1)) +
+		       (psBMP280->overs_pres ? T_SETUP_PRESSURE_MAX : 0) + 15) / 16;
+	return com_rslt;
 }
 
 //=============================================================================
 
-BMP280_RET_STATUS bmp280_test (void)
+uint8_t bmp280_test(void)
 {
 	/* The variable used to assign the standby time*/
 	uint8_t standby_time = BMP280_INIT_VALUE;
@@ -1338,7 +1328,7 @@ BMP280_RET_STATUS bmp280_test (void)
 	uint32_t actual_pressure_u32 = BMP280_INIT_VALUE;
 	int32_t actual_pressure_s32 = BMP280_INIT_VALUE;
 	/* result of communication results*/
-	BMP280_RET_STATUS com_rslt = SUCCESS;
+	uint8_t com_rslt = SUCCESS;
 
 	double Temp, Pres;
 
@@ -1349,7 +1339,7 @@ BMP280_RET_STATUS bmp280_test (void)
 	 *	the sensor as "NORMAL"
 	 *	data acquisition/read/write is possible in this mode
 	 *  Set the power mode as NORMAL
-	*/
+	 */
 	com_rslt += bmp280_set_power_mode(BMP280_NORMAL_MODE);
 
 	/*	For reading the pressure and temperature data it is required to
@@ -1373,15 +1363,15 @@ BMP280_RET_STATUS bmp280_test (void)
 	 *	The standby time is determined by the contents of the register t_sb.
 	 *	Standby time can be set using BMP280_STANDBYTIME_125_MS.
 	 *	Usage Hint : BMP280_set_standbydur(BMP280_STANDBYTIME_125_MS)
-	*/
+	 */
 	com_rslt += bmp280_set_standby_durn(BMP280_STANDBY_TIME_1_MS);
 
 	/* This API used to read back the written value of standby time*/
 	com_rslt += bmp280_get_standby_durn(&standby_time);
 
 	/*------------------------------------------------------------------*
-	************ START READ UNCOMPENSATED PRESSURE AND TEMPERATURE********
-	*---------------------------------------------------------------------*/
+************ START READ UNCOMPENSATED PRESSURE AND TEMPERATURE********
+*---------------------------------------------------------------------*/
 
 	/* API is used to read the uncompensated temperature*/
 	com_rslt += bmp280_read_uncompensed_temperature(&uncomp_temp_s32);
@@ -1390,11 +1380,12 @@ BMP280_RET_STATUS bmp280_test (void)
 	com_rslt += bmp280_read_uncompensed_pressure(&uncomp_pres_s32);
 
 	/* API is used to read the uncompensated temperature and pressure*/
-	com_rslt += bmp280_read_uncompensed_pressure_temperature(&actual_pressure_s32, &actual_temp_s32);
+	com_rslt += bmp280_read_uncompensed_pressure_temperature(&actual_pressure_s32,
+								 &actual_temp_s32);
 
 	/*------------------------------------------------------------------*
-	************ START READ TRUE PRESSURE AND TEMPERATURE********
-	*---------------------------------------------------------------------*/
+************ START READ TRUE PRESSURE AND TEMPERATURE********
+*---------------------------------------------------------------------*/
 
 	/* Read the true temperature*/
 	/* Input value as uncompensated temperature*/
@@ -1412,18 +1403,19 @@ BMP280_RET_STATUS bmp280_test (void)
 
 	/* Read the true temperature and pressure*/
 	/* Input value as uncompensated pressure and temperature*/
-	com_rslt += bmp280_read_pressure_temperature(&actual_pressure_u32, &actual_temp_s32);
+	com_rslt += bmp280_read_pressure_temperature(&actual_pressure_u32,
+						     &actual_temp_s32);
 
-	/*	For de-initialization it is required to set the mode of
-	 *	the sensor as "SLEEP"
-	 *	the device reaches the lowest power consumption only
-	 *	In SLEEP mode no measurements are performed
-	 *	All registers are accessible
-	 *	by using the below API able to set the power mode as SLEEP*/
-	 /* Set the power mode as SLEEP*/
+	/* For de-initialization it is required to set the mode of
+	 * the sensor as "SLEEP"
+	 * the device reaches the lowest power consumption only
+	 * In SLEEP mode no measurements are performed
+	 * All registers are accessible
+	 * by using the below API able to set the power mode as SLEEP*/
+	/* Set the power mode as SLEEP*/
 	com_rslt += bmp280_set_power_mode(BMP280_SLEEP_MODE);
 
-   return com_rslt;
+	return com_rslt;
 }
 
 //=============================================================================

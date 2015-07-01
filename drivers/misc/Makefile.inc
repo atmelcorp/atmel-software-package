@@ -28,3 +28,5 @@
 
 drivers-y += drivers/misc/console.o
 drivers-y += drivers/misc/led.o
+
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/misc/bmp280.o

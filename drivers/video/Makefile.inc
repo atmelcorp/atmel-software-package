@@ -42,3 +42,5 @@ drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_com.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_tsadc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/omnivision.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/aptina.o
+
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/video/ili9488.o

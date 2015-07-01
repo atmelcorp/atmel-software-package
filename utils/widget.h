@@ -34,23 +34,23 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
- 
-/*----------------------------------------------------------------------------
- *        Definitions
- *----------------------------------------------------------------------------*/
+#include <stdint.h>
 
-   
-/*----------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
+struct _point
+{
+	int32_t x;
+	int32_t y;
+	int32_t z;
+};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void point_on_circle (struct _point* org, uint16_t radius, uint16_t angle);
-extern void rotate_point (struct _point* org, struct _point* pt, uint16_t angle, uint8_t clockwise);
+extern void point_on_circle (struct _point* org, uint16_t radius,
+			     uint16_t angle);
+extern void rotate_point (struct _point* org, struct _point* pt,
+			  uint16_t angle, uint8_t clockwise);
 
 
 #endif /* #ifndef _WIDGET_H_ */

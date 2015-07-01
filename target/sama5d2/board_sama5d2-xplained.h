@@ -220,4 +220,27 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* =================== ILI9488 device definition =================== */
+/* Connected on board A5D2, XPRO EXT2 connector */
+
+/* ILI9488 ID code */
+#define ILI9488_DEVICE_CODE    0x2810
+
+#define ILI9488_PINS    PINS_SPI1_NPCS1_IOS3
+#define ILI9488_ADDR    SPI1
+#define ILI9488_CS      1
+#define ILI9488_ATTRS   (SPI_MR_MODFDIS | SPI_MR_MSTR) // | SPI_MR_WDRBT
+#define ILI9488_FREQ    40000 /* (value in KHz) */
+#define ILI9488_DLYBS   100
+#define ILI9488_DLYCT   100
+//#define ILI9488_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_9_BIT)
+#define ILI9488_SPI_MODE (SPI_CSR_CPOL | SPI_CSR_BITS_9_BIT)
+
+#define MXTX_RESET_PIN  {\
+		{PIO_GROUP_D, PIO_PD28, PIO_OUTPUT_1, PIO_DEFAULT}	\
+	}
+#define MXTX_BACKLIGHT_PIN  {\
+		{PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_DEFAULT} \
+	}
+
 #endif /* #ifndef _BOARD_D2_H */
