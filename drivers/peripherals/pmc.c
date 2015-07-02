@@ -390,14 +390,13 @@ void pmc_set_mck_plla_div(uint32_t divider)
 	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
 		if (divider == 0) {
 			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PLLADIV2);
-			while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 		}
 	} else {
 		if (divider == PMC_MCKR_PLLADIV2) {
 			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_PLLADIV2);
-			while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 		}
 	}
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
 void pmc_set_mck_divider(uint32_t divider)
