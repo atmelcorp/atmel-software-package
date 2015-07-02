@@ -8,11 +8,13 @@ CONFIG_HAVE_DBGU = y
 ifeq ("y",$(TARGET:%-xplained="y"))
 CONFIG_SOC_SAMA5D44 = y
 CONFIG_BOARD_SAMA5D4_XPLAINED = y
+CONFIG_HAVE_AT25DFX = y
 endif
 
 ifeq ("y",$(TARGET:%-ek="y"))
 CONFIG_SOC_SAMA5D44 = y
 CONFIG_BOARD_SAMA5D4_EK = y
+CONFIG_HAVE_AT25DFX = y
 endif
 
 CFLAGS_CPU += -mcpu=cortex-a5  -mfpu=vfpv4-d16
