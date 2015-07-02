@@ -28,10 +28,10 @@
  */
 
 /*------------------------------------------------------------------------------
- *      Linker script for running in internal SRAM on the SAMA5D2
+ *      Linker script for running in internal DDRAM on the SAMA5-MIURA
  *----------------------------------------------------------------------------*/
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(entry)
 SEARCH_DIR(.)
@@ -39,19 +39,25 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 128K */
-	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000 /* sram, 128K */
+	sram (W!RX) : ORIGIN = 0x200000, LENGTH = 0x20000 /* sram, 128K */
+	ddr_ebi1 (W!RX) : ORIGIN = 0x20000000, LENGTH = 0x3FF8000
+	ddr_stack (W!RX) : ORIGIN = 0x23FF8000, LENGTH = 0x8000 /* sram, 128K */
+	dma_ddr (RWX) : ORIGIN = 0x24000000, LENGTH = 16M
 }
+
+SRAM_C_STACK_SIZE = 0x1000;
+SRAM_SYS_STACK_SIZE = 0x500;
+SRAM_ABT_STACK_SIZE = 0x10;
+SRAM_UND_STACK_SIZE = 0x10;
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
 C_STACK_SIZE   = 0x3000;
-IRQ_STACK_SIZE = 0x60;
-FIQ_STACK_SIZE = 0x60;
-SYS_STACK_SIZE = 0x40;
-ABT_STACK_SIZE = 0x40;
-UND_STACK_SIZE = 0x40;
-HEAP_SIZE      = 0x200;
-
+IRQ_STACK_SIZE = 0x100;
+FIQ_STACK_SIZE = 0x100;
+SYS_STACK_SIZE = 0x500;
+ABT_STACK_SIZE = 0x10;
+UND_STACK_SIZE = 0x10;
+HEAP_SIZE      = 0x2000;
 /* Section Definitions */
 SECTIONS
 {
@@ -59,7 +65,6 @@ SECTIONS
 	{
 		. = ALIGN(4);
 		_sfixed = .;
-		KEEP(*(.vectors .vectors.*))
 		*(.textEntry)
 		*(.text .text.* .gnu.linkonce.t.*)
 		*(.glue_7t) *(.glue_7)
@@ -104,10 +109,16 @@ SECTIONS
 		*(.data .data.*);
 		. = ALIGN(4);
 		_efixed = .;            /* End of text section */
-	} > sram
+	} > ddr_ebi1
 
 	. = ALIGN(4);
 	_etext = .;
+
+	.region_dma_nocache (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_dma_nocache)
+	} >dma_ddr
 
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
@@ -120,7 +131,7 @@ SECTIONS
 		. = ALIGN(4);
 		_ebss = . ;
 		_ezero = .;
-	} > sram
+	} > ddr_ebi1
 
 	/* .ARM.exidx is sorted, so has to go in its own output section.  */
 	PROVIDE_HIDDEN (__exidx_start = .);
@@ -130,8 +141,7 @@ SECTIONS
 	} > sram
 	PROVIDE_HIDDEN (__exidx_end = .);
 
-	.stack :
-	{
+	.stack : {
 		__stack_start__ = . ;
 
 		. += IRQ_STACK_SIZE;
@@ -163,7 +173,7 @@ SECTIONS
 		_heap = . ;
 
 		__stack_end__ = .;
-	} >stack_ram
+	} >ddr_stack
 
 	_end = . ;
 	__end = . ;

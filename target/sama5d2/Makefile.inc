@@ -30,6 +30,8 @@ ifeq ($(CONFIG_SOC_SAMA5D2),y)
 
 CFLAGS_INC += -I$(TOP)/target/sama5d2
 
+gnu-debug-lib-y ?= $(TOP)/target/sama5d2/toolchain/gnu/common.gdb
+
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.gdb
@@ -37,6 +39,14 @@ gnu-cstartup-y ?= target/sama5d2/toolchain/gnu/cstartup.S
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
 iar-cstartup-y ?= target/sama5d2/toolchain/iar/cstartup.s
+endif
+
+ifeq ($(VARIANT),ddram)
+gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
+gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/$(TARGET)_ddram.gdb
+gnu-cstartup-y ?= target/sama5d2/toolchain/gnu/cstartup.S
+bootstrap-y ?= target/sama5d2/bootstrap.o
+bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 endif
 
 chip-serie-name-y = sama5d2

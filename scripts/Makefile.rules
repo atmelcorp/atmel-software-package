@@ -59,6 +59,16 @@ build: $(BUILDDIR)/$(BINNAME).elf \
 	$(BUILDDIR)/$(BINNAME).symbols \
 	$(BUILDDIR)/$(BINNAME).bin
 
+ifeq ($(VARIANT),ddram)
+$(BUILDDIR)/$(BINNAME).elf: $(BUILDDIR)/target/bootstrap.elf
+
+$(BUILDDIR)/target/bootstrap.elf: $(BOOTSTRAP_OBJS) $(LIBS)
+	@mkdir -p $(dir $@)
+	$(ECHO) LINK $@
+	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(bootstrap-linker-script-y) -Wl,-Map,$(BUILDDIR)/bootstrap.map -o $@ $(BOOTSTRAP_OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
+endif
+
+
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
@@ -83,6 +93,7 @@ $(BUILDDIR)/%.o: %.S
 	$(Q)$(CC) $(CFLAGS_ASM) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
 
 $(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(LIBS)
+	@cp $(gnu-debug-lib-y) $(BUILDDIR)/target/
 	$(ECHO) LINK $@
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
 
@@ -101,6 +112,6 @@ size: $(BUILDDIR)/$(BINNAME).elf
 	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
 
 debug: $(BUILDDIR)/$(BINNAME).elf
-	$(Q)$(GDB) -x "$(gnu-debug-script-y)" -ex "reset" -readnow -se $(BUILDDIR)/$(BINNAME).elf
+	$(Q)$(GDB) -cd $(BUILDDIR) -x "$(realpath $(gnu-debug-script-y))" -ex "reset" -readnow -se $(realpath $(BUILDDIR)/$(BINNAME).elf)
 
 include $(TOP)/scripts/Makefile.iar

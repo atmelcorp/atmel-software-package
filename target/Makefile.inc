@@ -41,3 +41,10 @@ $(BUILDDIR)/target/target.a: $(TARGET_OBJS)
 	@mkdir -p $(dir $@)
 	$(ECHO) AR $@
 	$(Q)$(AR) -cr $@ $^
+
+ifeq ($(VARIANT),ddram)
+BOOTSTRAP_OBJS := $(addprefix $(BUILDDIR)/,$(bootstrap-y))
+BOOTSTRAP_OBJS += $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y:.S=.o))
+
+-include $(BOOTSTRAP_OBJS:.o:.d)
+endif
