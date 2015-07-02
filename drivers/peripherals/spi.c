@@ -271,10 +271,9 @@ void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 	if (_spi_is_variable_ps(spi)) {
 		spi->SPI_TDR = data | SPI_PCS(cs);
 	} else {
-		writehw(&spi->SPI_TDR, (uint8_t)data);
+		writehw(&spi->SPI_TDR, data);
 	}
-	/* Consume write to not corrupt FIFO if present (dummy
-	 * function if CONFIG_HAV_SPI_FIFO not defined) */
+	/* Consume write to not corrupt FIFO if present */
 	_spi_consume_read(spi, cs);
 }
 
