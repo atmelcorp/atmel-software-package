@@ -57,7 +57,7 @@ static void matrix_configure_slave_ddr(void)
 	matrix_remove_write_protection(MATRIX0);
 
 	int i = 0;
-	for (i = 3; i < 9; ++i) {
+	for (i = 3; i < 10; ++i) {
 		matrix_configure_slave_sec(MATRIX0, i, 0xFF, 0xFF, 0xFF);
 		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xF);
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
