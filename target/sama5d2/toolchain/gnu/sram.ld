@@ -109,6 +109,14 @@ SECTIONS
 	. = ALIGN(4);
 	_etext = .;
 
+	/* .ARM.exidx is sorted, so has to go in its own output section.  */
+	PROVIDE_HIDDEN (__exidx_start = .);
+	.ARM.exidx :
+	{
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+	} > sram
+	PROVIDE_HIDDEN (__exidx_end = .);
+
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
 	{
@@ -122,15 +130,7 @@ SECTIONS
 		_ezero = .;
 	} > sram
 
-	/* .ARM.exidx is sorted, so has to go in its own output section.  */
-	PROVIDE_HIDDEN (__exidx_start = .);
-	.ARM.exidx :
-	{
-		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > sram
-	PROVIDE_HIDDEN (__exidx_end = .);
-
-	.stack :
+	.stack (NOLOAD) :
 	{
 		__stack_start__ = . ;
 
