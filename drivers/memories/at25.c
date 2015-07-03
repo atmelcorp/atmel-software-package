@@ -138,11 +138,11 @@ static uint32_t _at25_check_writable(struct _at25* at25)
 	status = at25_check_status(at25,
 				   AT25_STATUS_RDYBSY_BUSY | AT25_STATUS_SWP);
 	if (status & AT25_STATUS_RDYBSY_BUSY) {
-		trace_debug("Device %s is busy\r\n", at25->desc->name);
+		trace_debug("at25: Device %s is busy\r\n", at25->desc->name);
 		return AT25_ERROR_BUSY;
 	}
 	if (status & AT25_STATUS_SWP) {
-		trace_error("Device %s is write protected\r\n",
+		trace_error("at25: Device %s is write protected\r\n",
 			    at25->desc->name);
 		return AT25_ERROR_PROTECTED;
 	}
@@ -227,8 +227,10 @@ uint32_t at25_check_status(struct _at25* at25, uint32_t mask)
 
 void at25_wait(struct _at25* at25)
 {
-	trace_debug("Device in busy status, Waiting...\r\n");
+	if (at25_check_status(at25, AT25_STATUS_RDYBSY_BUSY))
+	    trace_debug("at25: Device in busy status, Waiting...\r\n");
 	while (at25_check_status(at25, AT25_STATUS_RDYBSY_BUSY));
+	trace_debug("at25: Device ready.\r\n");
 }
 
 uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
@@ -349,8 +351,7 @@ void at25_print_device_info(struct _at25* at25)
 	device_info = BIG_ENDIAN_TO_HOST(device_info);
 
 	printf("Device info:\r\n");
-	printf("\t- Manufacturer ID:\t\t0x%X "
-	       "(Should be equal to 0x1F)\r\n",
+	printf("\t- Manufacturer ID:\t\t0x%X\r\n",
 	       (unsigned int)(device_info & 0xFF000000) >> 24);
 	printf("\t- Device Family Code:\t\t0x%X\r\n",
 	       (unsigned int)(device_info & 0x00E00000) >> 21);
@@ -374,7 +375,7 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr,
 		return AT25_ADDR_OOB;
 	}
 
-	trace_debug("Start flash read at address: 0x%08X\r\n",
+	trace_debug("at25: Start flash read at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
 
 	assert(at25);
@@ -409,7 +410,7 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr,
 
 uint32_t at25_erase_chip(struct _at25* at25)
 {
-	trace_debug("Start flash reset all block will be erased\r\n");
+	trace_debug("at25: Start flash reset all block will be erased\r\n");
 
 	assert(at25);
 	assert(at25->spid);
@@ -440,7 +441,7 @@ uint32_t at25_erase_chip(struct _at25* at25)
 uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 			  uint32_t erase_type)
 {
-	trace_debug("Start flash erase at address: 0x%08X\r\n",
+	trace_debug("at25: Start flash erase at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
 
 	assert(at25);
@@ -469,8 +470,8 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	switch(erase_type) {
 	case AT25_BLOCK_ERASE_64K:
 		if (dev_max_erase != AT25_BLOCK_ERASE_64K) {
-			trace_debug("Device %s does not support 64k erase\r\n",
-				    at25->desc->name);
+			trace_debug("at25: Device %s does not support 64k "
+				    "erase\r\n", at25->desc->name);
 			trace_debug("Falling back to 32k erase\r\n");
 			applied_erase = AT25_BLOCK_ERASE_32K;
 			num_pass <<= 1;
@@ -478,8 +479,8 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	case AT25_BLOCK_ERASE_32K:
 		if (dev_max_erase != AT25_BLOCK_ERASE_32K ||
 			dev_max_erase != AT25_BLOCK_ERASE_64K) {
-			trace_debug("Device %s does not support 32k and 64k "
-				    "erase\r\n", at25->desc->name);
+			trace_debug("at25: Device %s does not support 32k and "
+				    "64k erase\r\n", at25->desc->name);
 			trace_debug("Falling back to 4k erase\r\n");
 			applied_erase = AT25_BLOCK_ERASE_4K;
 			num_pass <<= 3;
@@ -493,7 +494,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 
 	uint32_t i = 0;
 	for (i = 0; i < num_pass; ++i) {
-		trace_debug("\r\nClearing block at addr 0x%x\r\n",
+		trace_debug("at25: Clearing block at addr 0x%x\r\n",
 			    (unsigned int)((i*4*1024)+addr));
 
 		_at25_enable_write(at25);
@@ -519,7 +520,7 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 		return AT25_ADDR_OOB;
 	}
 
-	trace_debug("Start flash write at address: 0x%08X\r\n",
+	trace_debug("at25: Start flash write at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
 	assert(at25);
 	assert(at25->spid);

@@ -748,7 +748,7 @@ void mxtx_set_window ( struct _point* Coord, struct _size* Size )
 
 void mxtx_set_display_direction (enum _mxtx_direction direction, uint8_t BGR_mode)
 {
-	uint8_t mode;
+	uint8_t mode = 0;
 	switch (direction)
 	{
 	case DDD_NORMAL:
