@@ -35,13 +35,24 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "video/omnivision.h"
+#include "chip.h"
+#include "video/image_sensor_inf.h"
 
+/*------------------------------------------------------------------------------
+ *         Definitions
+ *------------------------------------------------------------------------------*/
+ 
+#define OV9740_SLAVE_ADDRESS   0x10
+#define OV9740_PIDH_ADDRESS    0x300A
+#define OV9740_PIDL_ADDRESS    0x300B
+#define OV9740_PIDH            0x97
+#define OV9740_PIDL            0x40
+#define OV9740_PID_VER_MASK    0xFFF0
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const struct ov_reg ov9740_yuv_vga[] = {
+const sensorReg_t ov9740_yuv_vga[] = {
 //@@ VGA 640x360 bin YUV DVP 60FPS (Full speed)
 	{0x0103, 0x01},
 	{0x3026, 0x00},
@@ -319,7 +330,7 @@ const struct ov_reg ov9740_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-const struct ov_reg ov9740_yuv_sxga[] = {
+const sensorReg_t ov9740_yuv_wxga[] = {
 //@@ WXGA 1280x720 YUV DVP 15FPS for card reader
 	{0x0103, 0x01},
 	{0x3026, 0x00},
@@ -596,4 +607,30 @@ const struct ov_reg ov9740_yuv_sxga[] = {
 	{0x3a1f, 0x40},
 	{0x0100, 0x01},
 	{0xFF, 0xFF}
+};
+
+
+const sensorOutput_t ov9740_output_vga =
+{0, VGA, YUV_422, BIT_8, 1, 640, 360, ov9740_yuv_vga};
+
+const sensorOutput_t ov9740_output_wxga =
+{0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov9740_yuv_wxga};
+
+const sensorProfile_t ov9740Profile =
+{
+	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
+	SENSOR_TWI_REG_2BYTE_DATA_BYTE,  /* TWI interface mode  */
+	OV9740_SLAVE_ADDRESS,            /* TWI slave address */
+	OV9740_PIDH_ADDRESS,             /* Register address for product ID high byte */
+	OV9740_PIDL_ADDRESS,             /* Register address for product ID low byte*/
+	OV9740_PIDH,                     /* product ID high byte */
+	OV9740_PIDL,                     /* product ID low byte */
+	OV9740_PID_VER_MASK,             /* version mask */
+    &ov9740_output_vga,
+	&ov9740_output_wxga,
+	0,
+	0,
+	0,
+	0,
+	0
 };

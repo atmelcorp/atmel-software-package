@@ -35,18 +35,24 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "video/omnivision.h"
+#include "chip.h"
+#include "video/image_sensor_inf.h"
 
-/*
- * ID
- */
-#define MANUFACTURER_ID    0x7FA2
+/*------------------------------------------------------------------------------
+ *         Definitions
+ *------------------------------------------------------------------------------*/
 
+#define OV2643_SLAVE_ADDRESS   0x21
+#define OV2643_PIDH_ADDRESS    0x0A
+#define OV2643_PIDL_ADDRESS    0x0B
+#define OV2643_PIDH            0x26
+#define OV2643_PIDL            0x43
+#define OV2643_PID_VER_MASK    0xFFF0
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const struct ov_reg ov2643_yuv_uxga[] = {
+const sensorReg_t ov2643_yuv_uvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -331,7 +337,7 @@ const struct ov_reg ov2643_yuv_uxga[] = {
 	{0xFF, 0xFF}
 };
 
-const struct ov_reg ov2643_yuv_swvga[] = {
+const sensorReg_t ov2643_yuv_svga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -506,7 +512,7 @@ const struct ov_reg ov2643_yuv_swvga[] = {
 	{0xFF, 0xFF}
 };
 
-const struct ov_reg ov2643_yuv_vga[] = {
+const sensorReg_t ov2643_yuv_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -677,4 +683,32 @@ const struct ov_reg ov2643_yuv_vga[] = {
 	{0x13, 0xff},
 	{0x15, 0x42},
 	{0xFF, 0xFF}
+};
+
+const sensorOutput_t ov2643_output_vga =
+{0 , VGA, YUV_422, BIT_8, 1, 640, 480, ov2643_yuv_vga };
+
+const sensorOutput_t ov2643_output_svga =
+{0, SVGA, YUV_422, BIT_8, 1, 800, 600, ov2643_yuv_svga };
+
+const sensorOutput_t ov2643_output_uvga =
+{0, UVGA, YUV_422, BIT_8, 1, 1600, 1200, ov2643_yuv_uvga };
+
+const sensorProfile_t ov2643Profile =
+{
+	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
+	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
+	OV2643_SLAVE_ADDRESS,            /* TWI slave address */
+	OV2643_PIDH_ADDRESS,             /* Register address for product ID high byte */
+	OV2643_PIDL_ADDRESS,             /* Register address for product ID low byte*/
+	OV2643_PIDH,                     /* product ID high byte */
+	OV2643_PIDL,                     /* product ID low byte */
+	OV2643_PID_VER_MASK,             /* version mask */
+	&ov2643_output_vga,
+    &ov2643_output_svga,
+    &ov2643_output_uvga,
+	0,
+    0,
+    0,
+	0
 };
