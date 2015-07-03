@@ -195,12 +195,9 @@
 
 /* =================== PIN ISC definition ======================= */
 
-#define PIN_ISC_RST	{\
-	{ PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT },\
-}
-#define PIN_ISC_PWD	{\
-	{ PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT  },\
-}
+#define PIN_ISC_RST { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
+
+#define PIN_ISC_PWD { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* =================== PIN HSDHC definition ===================== */
 
@@ -242,5 +239,40 @@
 #define MXTX_BACKLIGHT_PIN  {\
 		{PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_DEFAULT} \
 	}
+
+/* =================== LCD Touch board definition =================== */
+#define BOARD_LCD_WIDTH             480
+/** Display height in pixels. */
+#define BOARD_LCD_HEIGHT            272
+
+/** Display interface width in bits. */
+#define BOARD_LCD_IFWIDTH           24
+/** Frame size in words (height * width * bpp / 32) */
+#define BOARD_LCD_FRAMESIZE         (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * BOARD_LCD_IFWIDTH / 32)
+
+/** Vertical front porch in number of lines. */
+#define BOARD_LCD_TIMING_VFP        22
+/** Vertical back porch in number of lines. */
+#define BOARD_LCD_TIMING_VBP        21
+/** Vertical pulse width in number of lines. */
+#define BOARD_LCD_TIMING_VPW        2
+/** Horizontal front porch in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HFP        64
+/** Horizontal back porch in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HBP        64
+/** Horizontal pulse width in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HPW        128
+
+/** Frame rate in Hz. */
+#define BOARD_LCD_FRAMERATE         40
+
+#define EXAMPLE_LCD_SCALE   1
+
+/** Pixel clock rate in Hz (HS period * VS period * BOARD_LCD_FRAMERATE). */
+#define BOARD_LCD_PIXELCLOCK        ((BOARD_LCD_TIMING_HPW+BOARD_LCD_TIMING_HBP+BOARD_LCD_WIDTH+BOARD_LCD_TIMING_HFP)\
+	*(BOARD_LCD_TIMING_VPW+BOARD_LCD_TIMING_VBP+BOARD_LCD_HEIGHT+BOARD_LCD_TIMING_VFP)\
+                                    *BOARD_LCD_FRAMERATE)
+
+#define swap(a, b) { uint16_t t = a; a = b; b = t; }
 
 #endif /* #ifndef _BOARD_D2_H */
