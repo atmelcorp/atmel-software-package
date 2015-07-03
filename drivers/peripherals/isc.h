@@ -44,7 +44,7 @@
  *         Type
  *----------------------------------------------------------------------------*/
 /** color correction components structure */
-typedef struct _color_correction_components{
+typedef struct _color_correction_components {
 	uint16_t rOffset; /** Red Component Offset (signed 13 bits, 1:12:0) */
 	uint16_t gOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
 	uint16_t bOffset; /** Green Component Offset (signed 13 bits, 1:12:0)*/
@@ -57,10 +57,10 @@ typedef struct _color_correction_components{
 	uint16_t bgGain; /** Green Gain for Blue Component (signed 12 bits, 1:3:8) */
 	uint16_t brGain; /** Red Gain for Blue Component (signed 12 bits, 1:3:8) */
 	uint16_t bbGain; /** Blue Gain for Blue Component (signed 12 bits, 1:3:8)*/
-}sColorCorrectComponents;
+} sColorCorrectComponents;
 
 /** color space convertion components structure */
-typedef struct _color_space_components{
+typedef struct _color_space_components {
 	uint16_t YrGain;  /** Red Gain for Luminance (signed 12 bits 1:3:8) */
 	uint16_t YgGain;  /** Green Gain for Luminance (signed 12 bits 1:3:8)*/
 	uint16_t YbGain;  /** Blue Gain for Luminance Component (12 bits signed 1:3:8)*/
@@ -73,7 +73,7 @@ typedef struct _color_space_components{
 	uint16_t crgGain; /** Green Gain for Red Chrominance (signed 12 bits 1:3:8)*/
 	uint16_t crbGain;  /** Blue Gain for Red Chrominance (signed 12 bits 1:3:8)*/
 	uint16_t crOffset; /** Red Chrominance Offset (signed 11 bits 1:10:0)*/
-}sColorSpaceComponents;
+} sColorSpaceComponents;
 
 
 /** \brief Structure for ISC DMA descriptor view0 that can be
@@ -143,8 +143,17 @@ extern void isc_software_reset(void);
 /*------------------------------------------
  *      PFE(Parallel Front End) functions
  *----------------------------------------*/
+extern void isc_pfe_set_video_mode( uint32_t vmode);
+extern void isc_pfe_set_sync_polarity( uint32_t hpol, uint32_t vpol);
+extern void isc_pfe_set_pixel_polarity( uint32_t ppol);
+extern void isc_pfe_set_field_polarity( uint32_t fpol);
+extern void isc_pfe_set_gated_clock( uint8_t en);
+extern void isc_pfe_set_cropping_enabled( uint8_t enCol, uint8_t enRow );
+extern void isc_pfe_set_bps( uint32_t bps);
+extern void isc_pfe_set_single_shot( void);
+extern void isc_pfe_set_continuous_shot( void);
 extern void isc_pfe_set_cropping_area( 
-			uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
+			uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend);
 
 /*------------------------------------------
  *         Clock configuration functions
@@ -172,7 +181,7 @@ extern uint32_t isc_interrupt_status(void);
  *         White Balance functions
  *----------------------------------------*/
 extern void isc_wb_enabled(uint8_t enabled);
-extern void isc_wb_set_bayer_pattern(uint8_t pattern)
+extern void isc_wb_set_bayer_pattern(uint8_t pattern);
 extern void isc_wb_adjust_bayer_color(
 			uint32_t rOffset, uint32_t grOffset, uint32_t bOffset, uint32_t gbOffset,
 			uint32_t rGain, uint32_t grGain, uint32_t bGain, uint32_t gbGain );
@@ -201,7 +210,7 @@ extern void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
  *        Color Space Conversion functions
  *----------------------------------------*/
 extern void isc_csc_enabled(uint8_t enabled);
-extern void isc_cc_configure(sColorSpaceComponents* cs);
+extern void isc_csc_configure(sColorSpaceComponents* cs);
 
 /*------------------------------------------
  *       Contrast And Brightness functions
@@ -234,7 +243,9 @@ extern void isc_clear_histogram_table(void);
  *         DMA functions
  *----------------------------------------*/
 extern void isc_dma_configure_input_mode(uint32_t mode);
-extern void isc_dma_configure(uint32_t descEntry);
+extern void isc_dma_configure_desc_entry(uint32_t descEntry);
+extern void isc_dma_enable(uint32_t ctrl);
+extern void isc_dma_adderss(uint32_t address);
 
 #endif //#ifndef ISC_H
 

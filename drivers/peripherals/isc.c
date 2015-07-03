@@ -34,21 +34,21 @@
 
 #include "chip.h"
 #include "peripherals/isc.h"
-
+ 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
+ 
 
 /*----------------------------------------------------------------------------
  *        Export functions
  *----------------------------------------------------------------------------*/
-
+ 
 /*------------------------------------------
  *         ISC Control functions
  *----------------------------------------*/
 /**
- * \brief Send Capture Input Stream Command to start a single shot capture or a
+ * \brief Send Capture Input Stream Command to start a single shot capture or a 
  * multiple frame.
  */
 void isc_start_capture(void)
@@ -57,7 +57,7 @@ void isc_start_capture(void)
 }
 
 /**
- * \brief end the capture at the next Vertical Synchronization Detection.
+ * \brief end the capture at the next Vertical Synchronization Detection. 
  */
 void isc_stop_capture(void)
 {
@@ -78,6 +78,7 @@ uint32_t isc_get_ctrl_status(void)
 void isc_update_profile(void)
 {
 	ISC->ISC_CTRLEN = ISC_CTRLEN_UPPRO;
+	while((ISC->ISC_CTRLSR & ISC_CTRLSR_UPPRO) == ISC_CTRLSR_UPPRO);
 }
 
 /**
@@ -91,7 +92,100 @@ void isc_software_reset(void)
 /*------------------------------------------
  *      PFE(Parallel Front End) functions
  *----------------------------------------*/
+ 
+/**
+ * \brief configure PFE(Parallel Front End) video mode.
+ * \param vmode: Parallel Front End Mode
+ */
+void isc_pfe_set_video_mode( uint32_t vmode)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_MODE_Msk;
+	ISC->ISC_PFE_CFG0 |= vmode;
+}
 
+/**
+ * \brief set PFE(Parallel Front End) H/V synchronization polarity.
+ * \param hpol: Horizontal Synchronization Polarity
+ * \param vpol: Vertical Synchronization Polarity
+ */
+void isc_pfe_set_sync_polarity( uint32_t hpol, uint32_t vpol)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_HPOL;
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_VPOL;
+	ISC->ISC_PFE_CFG0 |= hpol | vpol;
+}
+
+/**
+ * \brief set PFE(Parallel Front End) pixel clock polarity.
+ * \param ppol: pixel clock Polarity, The pixel stream is sampled on the 
+ *  rising or falling edge of the pixel clock
+ */
+void isc_pfe_set_pixel_polarity( uint32_t ppol)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_PPOL;
+	ISC->ISC_PFE_CFG0 |= ppol ;
+}
+
+/**
+ * \brief set PFE(Parallel Front End) field polarity.
+ * \param fpol: Top/bottom field polarity configuration.
+ */
+void isc_pfe_set_field_polarity( uint32_t fpol)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_FPOL;
+	ISC->ISC_PFE_CFG0 |= fpol ;
+}
+
+
+/**
+ * \brief Enables/disable PFE(Parallel Front End) cropping
+ * \param enCol: Column Cropping enable/disable(1/0)
+ * \param enRow: Row Cropping enable/disable(1/0)
+ */
+void isc_pfe_set_cropping_enabled( uint8_t enCol, uint8_t enRow )
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_COLEN;
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_ROWEN;
+	if (enCol) ISC->ISC_PFE_CFG0 |=ISC_PFE_CFG0_COLEN;
+	if (enRow) ISC->ISC_PFE_CFG0 |=ISC_PFE_CFG0_ROWEN;
+}
+
+/**
+ * \brief set PFE(Parallel Front End) Bits Per Sample.
+ * \param bps: Bits Per Sample.
+ */
+void isc_pfe_set_bps( uint32_t bps)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_BPS_Msk;
+	ISC->ISC_PFE_CFG0 |= bps ;
+}
+
+/**
+ * \brief set PFE(Parallel Front End)in single shot mode
+ */
+void isc_pfe_set_single_shot( void)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_CONT;
+}
+
+/**
+ * \brief set PFE(Parallel Front End)in continuous mode
+ */
+void isc_pfe_set_continuous_shot( void)
+{
+	ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_CONT;
+}
+
+
+/**
+ * \brief set PFE(Parallel Front End) gated clock.
+ * \param en: enable/disable gated clock.
+ */
+void isc_pfe_set_gated_clock( uint8_t en)
+{
+	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_GATED;
+	if (en) ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_GATED ;
+}
 /**
  * \brief  configure PFE(Parallel Front End) cropping area.
  * \param Hstart: Horizontal starting position of the cropping area
@@ -99,23 +193,21 @@ void isc_software_reset(void)
  * \param Vstart: Vertical starting position of the cropping area
  * \param Hend: Vertical ending position of the cropping area
  */
-void isc_pfe_set_cropping_area(
+void isc_pfe_set_cropping_area( 
 					uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
 {
-	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(Hstart)
-					 | ISC_PFE_CFG1_COLMAX(Hend)
-					 | ISC_PFE_CFG2_ROWMIN(Vstart)
-					 | ISC_PFE_CFG2_ROWMAX(Vend);
+	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(Hstart) | ISC_PFE_CFG1_COLMAX(Hend);
+	ISC->ISC_PFE_CFG2 = ISC_PFE_CFG2_ROWMIN(Vstart) | ISC_PFE_CFG2_ROWMAX(Vend);
 }
 
 /*------------------------------------------
  *         Clock configuration functions
  *----------------------------------------*/
-
+ 
 /**
  * \brief Configure the ISP clock.
  * \param ispClockDiv ISP Clock Divider.
- * \param ispClockSelection ISP Clock Selection.
+ * \param ispClockSelection ISP Clock Selection. 
 			0: HCLOCK is selected.
 			1: GCK is selected.
  */
@@ -151,14 +243,14 @@ void isc_reset_isp_clock(void)
 /**
  * \brief Configure the Master clock.
  * \param masterClockDiv Master Clock Divider.
- * \param masterClockSelection Master Clock Selection.
+ * \param masterClockSelection Master Clock Selection. 
 			0: HCLOCK is selected.
 			1: GCK is selected.
 			2: 480-MHz system clock is selected.
  */
 void isc_configure_master_clock(uint32_t masterClockDiv, uint32_t masterClockSelection)
 {
-	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv)
+	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv) 
 					| ISC_CLKCFG_MCSEL(masterClockSelection);
 }
 
@@ -291,7 +383,7 @@ void isc_cfa_enabled(uint8_t enabled)
  */
 void isc_cfa_configure(uint8_t pattern, uint8_t edge)
 {
-	ISC->ISC_CFA_CFG = pattern | (edge << 4)
+	ISC->ISC_CFA_CFG = pattern | (edge << 4);
 }
 
 /*------------------------------------------
@@ -359,6 +451,7 @@ void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
 							| ISC_GAM_GENTRY_GSLOPE(bGamSlope[i]);
 		ISC->ISC_GAM_RENTRY[i]= ISC_GAM_RENTRY_RCONSTANT(bGamConstant[i])
 							| ISC_GAM_RENTRY_RSLOPE(bGamSlope[i]);
+	}
 }
 
 /*------------------------------------------
@@ -379,21 +472,19 @@ void isc_csc_enabled(uint8_t enabled)
  * \brief Color space convert with color space component.
  * \param cs Pointer to structure sColorCorrectComponents
  */
-void isc_cc_configure(sColorSpaceComponents* cs)
+void isc_csc_configure(sColorSpaceComponents* cs)
 {
-	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain)
+	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain) 
 						| ISC_CSC_YR_YG_YGGAIN(cs->YgGain);
-	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain)
+	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain) 
 						| ISC_CSC_YB_OY_YOFST(cs->Yoffset);
 	ISC->ISC_CSC_CBR_CBG = ISC_CSC_CBR_CBG_CBRGAIN(cs->cbrGain)
 						| ISC_CSC_CBR_CBG_CBGGAIN(cs->cbgGain);
-	ISC->ISC_CC_GB_OG = ISC_CC_GB_OG_GBGAIN(cs->gbGain)
-						| ISC_CC_GB_OG_ROFST(cs->gOffset);
-	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain)
+	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain) 
 						| ISC_CSC_CBB_OCB_CBOFST(cs->cbOffset);
-	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain)
+	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain) 
 						| ISC_CSC_CRR_CRG_CRGGAIN(cs->crgGain);
-	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain)
+	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain) 
 						| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
 }
 
@@ -447,7 +538,7 @@ void isc_sub422_enabled(uint8_t enabled)
 
 /**
  * \brief Configure Subsampling 4:4:4 to 4:2:2 with giving value.
- * \param ccir656 CCIR656 Stream Enable.
+ * \param ccir656 CCIR656 Stream Enable. 
 				0: Raw mode
 				1: CCIR mode
  * \param byteOrder CCIR656 Byte Ordering.
@@ -463,7 +554,7 @@ void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
 }
 
 /**
- * \brief Configure 4:2:2 to 4:2:0 Vertical Subsampling Filter Enable
+ * \brief Configure 4:2:2 to 4:2:0 Vertical Subsampling Filter Enable 
 		(Center Aligned) with giving value.
  * \param enabled Subsampler enabled.
 				0: disabled
@@ -550,7 +641,7 @@ void isc_clear_histogram_table(void)
  *----------------------------------------*/
 /**
  * \brief Configure ISC DMA input mode.
- * \param mode Histogram Operating Mode.
+ * \param mode Operating Mode.
  */
 void isc_dma_configure_input_mode(uint32_t mode)
 {
@@ -561,7 +652,34 @@ void isc_dma_configure_input_mode(uint32_t mode)
  * \brief Configure ISC DMA with giving entry.
  * \param descEntry entry of DMA descriptor VIEW.
  */
+void isc_dma_configure_desc_entry(uint32_t descEntry)
+{
+	ISC->ISC_DNDA = descEntry;
+}
+
+/**
+ * \brief Enable ISC DMA with giving view.
+ * \param ctrl setting for DMA descriptor VIEW.
+ */
+void isc_dma_enable(uint32_t ctrl)
+{
+	ISC->ISC_DCTRL = ctrl;
+}
+
+/**
+ * \brief Configure ISC DMA with giving entry.
+ * \param descEntry entry of DMA descriptor VIEW.
+ */
 void isc_dma_configure(uint32_t descEntry)
 {
-	ISC->ISC_DCTRL = descEntry;
+	ISC->ISC_DNDA = descEntry;
+}
+
+/**
+ * \brief Configure ISC DMA start address.
+ * \param address entry of DMA descriptor VIEW.
+ */
+void isc_dma_adderss(uint32_t address)
+{
+	ISC->ISC_SUB0[0].ISC_DAD = address;
 }
