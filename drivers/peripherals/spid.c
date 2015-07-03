@@ -43,7 +43,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR)
+#define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR | SPI_MR_WDRBT)
 #define SPID_DMA_THRESHOLD      16
 
 static uint32_t _garbage = 0;
@@ -81,7 +81,9 @@ static void spid_fifo_error(void)
 void spid_configure(struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
-	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_WDRBT | SPI_MR_MSTR);
+	/* Enable SPI early otherwise FIFO configuration won't be applied */
+	pmc_enable_peripheral(id);
+	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_MSTR);
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode, 0);
@@ -95,7 +97,7 @@ void spid_configure(struct _spi_desc* desc)
 	}
 #endif
 	(void)spi_get_status(desc->addr);
-	pmc_enable_peripheral(id);
+
 	spi_enable(desc->addr);
 }
 
