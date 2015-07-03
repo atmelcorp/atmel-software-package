@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -33,7 +33,11 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "board.h"
+#include "chip.h"
+
 #include "video/lcdd.h"
+#include "peripherals/pio.h"
 
 #include <math.h>
 #include <string.h>
@@ -79,7 +83,7 @@ typedef struct _HeoLayer {
 } sHeoLayer;
 
 /** Pins for LCDC */
-static const Pin pPinsLCD[] = { PINS_LCD };
+static const struct _pin pPinsLCD[] = PINS_LCD_IOS2 ;
 
 /** Current selected canvas information */
 static sLCDDLayer lcddCanvas;
@@ -131,8 +135,7 @@ static sLayer lcddHcc;
  * Return a pointer to layer.
  * \param bLayer Layer ID.
  */
-static sLayer *
-pLayer(uint8_t bLayer)
+static sLayer* pLayer(uint8_t bLayer)
 {
 	switch (bLayer) {
 	case LCDD_BASE:
@@ -153,8 +156,7 @@ pLayer(uint8_t bLayer)
  * Return true if Pixel stride supported.
  * \param bLayer Layer ID.
  */
-static uint8_t
-LCDD_IsPStrideSupported(uint8_t bLayer)
+static uint8_t _is_stride_supported(uint8_t bLayer)
 {
 	switch (bLayer) {
 	case LCDD_OVR1:
@@ -171,8 +173,7 @@ LCDD_IsPStrideSupported(uint8_t bLayer)
  * (Starts following register list: _ER, _DR, _SR, _IER, _IDR, _IMR, _ISR)
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pEnableReg(uint8_t bLayer)
+static volatile uint32_t *pEnableReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -194,8 +195,7 @@ pEnableReg(uint8_t bLayer)
  * Return a pointer to blender configuration register.
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pBlenderReg(uint8_t bLayer)
+static volatile uint32_t *pBlenderReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -216,8 +216,7 @@ pBlenderReg(uint8_t bLayer)
  * (Starts following register list: _HEAD, _ADDRESS, _CONTROL, _NEXT)
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pHeadReg(uint8_t bLayer)
+static volatile uint32_t *pHeadReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -238,8 +237,7 @@ pHeadReg(uint8_t bLayer)
  * (Including: _CFG0, _CFG1 (RGB mode ...))
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pCfgReg(uint8_t bLayer)
+static volatile uint32_t *pCfgReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -260,8 +258,7 @@ pCfgReg(uint8_t bLayer)
  * (Including: X Y register, W H register)
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pWinReg(uint8_t bLayer)
+static volatile uint32_t *pWinReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -279,8 +276,7 @@ pWinReg(uint8_t bLayer)
  * Return a pointer to striding regiters.
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pStrideReg(uint8_t bLayer)
+static volatile uint32_t *pStrideReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -302,8 +298,7 @@ pStrideReg(uint8_t bLayer)
  * Note that base layer only has one register (default).
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pColorReg(uint8_t bLayer)
+static volatile uint32_t *pColorReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -323,8 +318,7 @@ pColorReg(uint8_t bLayer)
  * Return a pointer to scaling register.
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pScaleReg(uint8_t bLayer)
+static volatile uint32_t *pScaleReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -338,8 +332,7 @@ pScaleReg(uint8_t bLayer)
  * Return bits per pixel from RGB mode settings.
  * (Note the bits is bits occupied in memory, including reserved)
  */
-static uint32_t
-LCDD_GetBitsPerPixel(uint32_t modeReg)
+static uint32_t _get_bits_per_pixel(uint32_t modeReg)
 {
 	switch (modeReg) {
 		/* RGB mode */
@@ -393,8 +386,7 @@ LCDD_GetBitsPerPixel(uint32_t modeReg)
 /**
  * Enable a LCDC DMA channel
  */
-static void
-LCDD_SetDMA(void *pBuffer, sLCDCDescriptor * pTD, uint32_t regAddr)
+static void _set_dma_desc(void *pBuffer, sLCDCDescriptor * pTD, uint32_t regAddr)
 {
 	volatile uint32_t *pDmaR = (volatile uint32_t *) regAddr;
 	/* Modify descriptor */
@@ -411,8 +403,7 @@ LCDD_SetDMA(void *pBuffer, sLCDCDescriptor * pTD, uint32_t regAddr)
 /**
  * Disable a LCDC DMA channel
  */
-static void
-LCDD_ClearDMA(sLCDCDescriptor * pTD, uint32_t regAddr)
+static void _clear_dma_desc(sLCDCDescriptor * pTD, uint32_t regAddr)
 {
 	uint32_t *pReg = (uint32_t *) regAddr;
 	volatile uint32_t *pRegCtrl = (volatile uint32_t *) &pReg[1];
@@ -431,8 +422,7 @@ LCDD_ClearDMA(sLCDCDescriptor * pTD, uint32_t regAddr)
 /**
  * Return scaling factor
  */
-static uint32_t
-LCDD_CalcScaleFactor(uint32_t targetW, uint32_t imgW)
+static uint32_t _calc_scale_factor(uint32_t targetW, uint32_t imgW)
 {
 	uint32_t factor;
 
@@ -448,8 +438,7 @@ LCDD_CalcScaleFactor(uint32_t targetW, uint32_t imgW)
  * Return a pointer to Color Palette lookup regiters.
  * \param bLayer Layer ID.
  */
-static volatile uint32_t *
-pCLUTReg(uint8_t bLayer)
+static volatile uint32_t *pCLUTReg(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	switch (bLayer) {
@@ -468,8 +457,7 @@ pCLUTReg(uint8_t bLayer)
 /**
  * Build 8-bit color palette (actually true color)
  */
-static void
-LCDD_BuildCLUT8(volatile uint32_t * pCLUT)
+static void _build_color_lut8(volatile uint32_t * pCLUT)
 {
 	uint32_t r, g, b;	/* 3:3:2 */
 	for (r = 0; r < 8; r++) {
@@ -486,8 +474,7 @@ LCDD_BuildCLUT8(volatile uint32_t * pCLUT)
 /**
  * Build 4-bit color palette (16 color)
  */
-static void
-LCDD_BuildCLUT4(volatile uint32_t * pCLUT)
+static void _build_color_lut4(volatile uint32_t * pCLUT)
 {
 	uint32_t r, g, b;
 	for (r = 0; r < 4; r++) {
@@ -504,8 +491,7 @@ LCDD_BuildCLUT4(volatile uint32_t * pCLUT)
 /**
  * Build 2-bit color palette (4 gray)
  */
-static void
-LCDD_BuildCLUT2(volatile uint32_t * pCLUT)
+static void _build_color_lut2(volatile uint32_t * pCLUT)
 {
 	pCLUT[0] = 0x000000;
 	pCLUT[1] = 0x505050;
@@ -516,8 +502,7 @@ LCDD_BuildCLUT2(volatile uint32_t * pCLUT)
 /**
  * Build 1-bit color palette (black & white)
  */
-static void
-LCDD_BuildCLUT1(volatile uint32_t * pCLUT)
+static void _build_color_lut1(volatile uint32_t * pCLUT)
 {
 	pCLUT[0] = 0x000000;
 	pCLUT[1] = 0xFFFFFF;
@@ -530,8 +515,7 @@ LCDD_BuildCLUT1(volatile uint32_t * pCLUT)
  * \brief Initializes the LCD controller.
  * Configure SMC to access LCD controller at 64MHz MCK.
  */
-void
-LCDD_Initialize(void)
+void lcdd_initialize(void)
 {
 	Lcdc *pHw = LCDC;
 	Pmc *pPmc = PMC;
@@ -539,7 +523,7 @@ LCDD_Initialize(void)
 	/* Configure PIO */
 	pio_configure(pPinsLCD, ARRAY_SIZE(pPinsLCD));
 
-	LCDD_Off();
+	lcdd_off();
 
 	/* Reset CLUT information */
 	lcddBase.clut.bpp = 0;
@@ -592,8 +576,15 @@ LCDD_Initialize(void)
 	    LCDC_HEOCFG0_ROTDIS;
 	pHw->LCDC_HEOCFG1 = LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED;
 	pHw->LCDC_HEOCFG12 = LCDC_HEOCFG12_GA(0xFF) | LCDC_HEOCFG12_GAEN;
-
-	LCDD_On();
+	
+	LCDC->LCDC_HEOCFG14 = LCDC_HEOCFG14_CSCRY(0x94)| LCDC_HEOCFG14_CSCRU(0xCC) 
+						| LCDC_HEOCFG14_CSCRV(0) | LCDC_HEOCFG14_CSCYOFF;
+	LCDC->LCDC_HEOCFG15 = LCDC_HEOCFG15_CSCGY(0x94) | LCDC_HEOCFG15_CSCGU(0x387)
+						| LCDC_HEOCFG15_CSCGV(0x3CD) | LCDC_HEOCFG15_CSCUOFF;
+	LCDC->LCDC_HEOCFG16 = LCDC_HEOCFG16_CSCBY(0x94)| LCDC_HEOCFG16_CSCBU(0) 
+						| LCDC_HEOCFG16_CSCBV(0x102) | LCDC_HEOCFG16_CSCVOFF;
+	
+	lcdd_on();
 }
 
 /**
@@ -601,8 +592,7 @@ LCDD_Initialize(void)
  * \param bLayer Layer ID.
  * \return 1 if layer is on.
  */
-uint8_t
-LCDD_IsLayerOn(uint8_t bLayer)
+uint8_t lcdd_is_layer_on(uint8_t bLayer)
 {
 	volatile uint32_t *pReg = pEnableReg(bLayer);
 	if (pReg)
@@ -615,8 +605,7 @@ LCDD_IsLayerOn(uint8_t bLayer)
  * \param bLayer Layer ID.
  * \param bEnDis Enable/Disable.
  */
-void
-LCDD_EnableLayer(uint8_t bLayer, uint8_t bEnDis)
+void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis)
 {
 	volatile uint32_t *pReg = pEnableReg(bLayer);
 	volatile uint32_t *pBlR = pBlenderReg(bLayer);
@@ -635,8 +624,7 @@ LCDD_EnableLayer(uint8_t bLayer, uint8_t bEnDis)
  * Refresh layer
  * \param bLayer Layer ID.
  */
-void
-LCDD_Refresh(uint8_t bLayer)
+void lcdd_refresh(uint8_t bLayer)
 {
 	volatile uint32_t *pBlR = pBlenderReg(bLayer);
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
@@ -654,8 +642,7 @@ LCDD_Refresh(uint8_t bLayer)
  * \param x X position.
  * \param y Y position.
  */
-void
-LCDD_SetPosition(uint8_t bLayer, uint32_t x, uint32_t y)
+void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y)
 {
 	volatile uint32_t *pChReg = pEnableReg(bLayer);
 	volatile uint32_t *pXyReg = pWinReg(bLayer);
@@ -681,8 +668,7 @@ LCDD_SetPosition(uint8_t bLayer, uint32_t x, uint32_t y)
  * \param bLayer Layer ID (HEO).
  * \param bPri   Prority value.
  */
-void
-LCDD_SetPrioty(uint8_t bLayer, uint8_t bPri)
+void lcdd_set_prioty(uint8_t bLayer, uint8_t bPri)
 {
 	Lcdc *pHw = LCDC;
 	if (bLayer != LCDD_HEO)
@@ -698,8 +684,7 @@ LCDD_SetPrioty(uint8_t bLayer, uint8_t bPri)
  * Return Prioty of layer (only for HEO now).
  * \param bLayer Layer ID (HEO).
  */
-uint8_t
-LCDD_GetPrioty(uint8_t bLayer)
+uint8_t lcdd_get_prioty(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	if (bLayer != LCDD_HEO)
@@ -713,8 +698,7 @@ LCDD_GetPrioty(uint8_t bLayer)
  * \param bEnDisLA Enable/Disable local  alpha.
  * \param bEnDisGA Enable/Disable global alpha.
  */
-void
-LCDD_EnableAlpha(uint8_t bLayer, uint8_t bEnDisLA, uint8_t bEnDisGA)
+void lcdd_enable_alpha(uint8_t bLayer, uint8_t bEnDisLA, uint8_t bEnDisGA)
 {
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
 	volatile uint32_t *pCfgR = pBlenderReg(bLayer);
@@ -737,8 +721,7 @@ LCDD_EnableAlpha(uint8_t bLayer, uint8_t bEnDisLA, uint8_t bEnDisGA)
  * \param bReverse Reverse alpha (alpha -> 1 - alpha).
  * \param bAlpha   Global alpha value.
  */
-void
-LCDD_SetAlpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha)
+void lcdd_set_alpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha)
 {
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
 	volatile uint32_t *pCfgR = pBlenderReg(bLayer);
@@ -759,8 +742,7 @@ LCDD_SetAlpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha)
  * Get alpha value
  * \param bLayer Layer ID (OVR1, HEO or CUR).
  */
-uint8_t
-LCDD_GetAlpha(uint8_t bLayer)
+uint8_t lcdd_get_alpha(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	volatile uint32_t *pCfg;
@@ -791,8 +773,7 @@ LCDD_GetAlpha(uint8_t bLayer)
  * \param dwColor Color to matching.
  * \param dwMask  Color bit mask.
  */
-void
-LCDD_SetColorKeying(uint8_t bLayer, uint8_t bDstSrc,
+void lcdd_set_color_keying(uint8_t bLayer, uint8_t bDstSrc,
 		    uint32_t dwColor, uint32_t dwMask)
 {
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
@@ -819,8 +800,7 @@ LCDD_SetColorKeying(uint8_t bLayer, uint8_t bDstSrc,
  * Disable Color Keying
  * \param bLayer  Layer ID (OVR1, HEO or CUR).
  */
-void
-LCDD_DisableColorKeying(uint8_t bLayer)
+void lcdd_disable_color_keying(uint8_t bLayer)
 {
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
 	volatile uint32_t *pBCfgR = pBlenderReg(bLayer);
@@ -840,8 +820,7 @@ LCDD_DisableColorKeying(uint8_t bLayer)
  * \param bpp      Bits Per Pixel (1, 2, 4, 8).
  * \param nbColors Number of colors indexed in table.
  */
-void
-LCDD_SetCLUT(uint8_t bLayer, uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors)
+void lcdd_set_color_lut(uint8_t bLayer, uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors)
 {
 	//Lcdc *pHw = LCDC;
 	volatile uint32_t *pCLUTR = pCLUTReg(bLayer);
@@ -865,16 +844,16 @@ LCDD_SetCLUT(uint8_t bLayer, uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors)
 		pInfo->nbColors = 1 << bpp;
 		switch (bpp) {
 		case 1:
-			LCDD_BuildCLUT1(pCLUTR);
+			_build_color_lut1(pCLUTR);
 			break;
 		case 2:
-			LCDD_BuildCLUT2(pCLUTR);
+			_build_color_lut2(pCLUTR);
 			break;
 		case 4:
-			LCDD_BuildCLUT4(pCLUTR);
+			_build_color_lut4(pCLUTR);
 			break;
 		case 8:
-			LCDD_BuildCLUT8(pCLUTR);
+			_build_color_lut8(pCLUTR);
 			break;
 		}
 	}
@@ -900,8 +879,7 @@ LCDD_SetCLUT(uint8_t bLayer, uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors)
  * \param imgH    Source image height.
  * \param wRotate Rotation (clockwise, 0, 90, 180, 270 accepted).
  */
-void *
-LCDD_ShowBMPRotated(uint8_t bLayer,
+void * lcdd_show_bmp_rotated(uint8_t bLayer,
 		    void *pBuffer, uint8_t bpp,
 		    uint32_t x, uint32_t y,
 		    int32_t w, int32_t h,
@@ -919,7 +897,7 @@ LCDD_ShowBMPRotated(uint8_t bLayer,
 	volatile uint32_t *pSclR = pScaleReg(bLayer);
 	volatile uint32_t *pBlR = pBlenderReg(bLayer);
 	volatile uint32_t *pCfgR = pCfgReg(bLayer);
-	uint8_t bPStride = LCDD_IsPStrideSupported(bLayer);
+	uint8_t bPStride = _is_stride_supported(bLayer);
 
 	uint8_t bBottomUp = (h < 0);
 	uint8_t bRightLeft = (w < 0);
@@ -1152,7 +1130,7 @@ LCDD_ShowBMPRotated(uint8_t bLayer,
 		   4. Write the DSCR.CHXNEXT register with the address location of the
 		   descriptor structure and set DFETCH field of the DSCR.CHXCTRL register
 		   to one. */
-		LCDD_SetDMA(pBuffer, pTD, (uint32_t) pDmaR);
+		_set_dma_desc(pBuffer, pTD, (uint32_t) pDmaR);
 	}
 	cp15_flush_dcache_for_dma((uint32_t) pTD,
 				  ((uint32_t) pTD) + sizeof (pTD));
@@ -1180,8 +1158,8 @@ LCDD_ShowBMPRotated(uint8_t bLayer,
 		/* Scaled */
 		if (w != srcW || h != srcH) {
 			uint16_t wYf, wXf;
-			wXf = LCDD_CalcScaleFactor(w, srcW);
-			wYf = LCDD_CalcScaleFactor(h, srcH);
+			wXf = _calc_scale_factor(w, srcW);
+			wYf = _calc_scale_factor(h, srcH);
 			//printf("- Scale(%d,%d)\n\r", wXf, wYf);
 			pSclR[0] = LCDC_HEOCFG13_YFACTOR(wYf)
 			    | LCDC_HEOCFG13_XFACTOR(wXf)
@@ -1224,13 +1202,12 @@ LCDD_ShowBMPRotated(uint8_t bLayer,
  * \param imgH    Source image height.
  * \return Pointer to old display image data.
  */
-void *
-LCDD_ShowBMPScaled(uint8_t bLayer,
+void * lcdd_show_bmp_scaled(uint8_t bLayer,
 		   void *pBuffer, uint8_t bpp,
 		   uint32_t x, uint32_t y,
 		   int32_t w, int32_t h, uint32_t imgW, uint32_t imgH)
 {
-	return LCDD_ShowBMPRotated(bLayer, pBuffer, bpp,
+	return lcdd_show_bmp_rotated(bLayer, pBuffer, bpp,
 				   x, y, w, h, imgW, imgH, 0);
 }
 
@@ -1249,12 +1226,11 @@ LCDD_ShowBMPScaled(uint8_t bLayer,
  * \param h       Height (<0 means Bottom -> Top data).
  * \return Pointer to old display image data.
  */
-void *
-LCDD_ShowBMP(uint8_t bLayer,
+void * lcdd_show_bmp(uint8_t bLayer,
 	     void *pBuffer, uint8_t bpp,
 	     uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
-	return LCDD_ShowBMPRotated(bLayer, pBuffer, bpp,
+	return lcdd_show_bmp_rotated(bLayer, pBuffer, bpp,
 				   x, y, w, h, w, (h < 0) ? (-h) : h, 0);
 }
 
@@ -1265,10 +1241,9 @@ LCDD_ShowBMP(uint8_t bLayer,
  * \param bBottomUp Scan from bottom to top.
  * \return Pointer to old display image data.
  */
-void *
-LCDD_ShowBase(void *pBuffer, uint8_t bpp, uint8_t bBottomUp)
+void * lcdd_show_base(void *pBuffer, uint8_t bpp, uint8_t bBottomUp)
 {
-	return LCDD_ShowBMP(LCDD_BASE, pBuffer, bpp,
+	return lcdd_show_bmp(LCDD_BASE, pBuffer, bpp,
 			    0, 0,
 			    BOARD_LCD_WIDTH,
 			    bBottomUp ? -BOARD_LCD_HEIGHT : BOARD_LCD_HEIGHT);
@@ -1277,8 +1252,7 @@ LCDD_ShowBase(void *pBuffer, uint8_t bpp, uint8_t bBottomUp)
 /**
  * Stop display on base layer
  */
-void
-LCDD_StopBase(void)
+void lcdd_stop_base(void)
 {
 	Lcdc *pHw = LCDC;
 
@@ -1289,7 +1263,7 @@ LCDD_StopBase(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	LCDD_ClearDMA(&lcddBase.dmaD, (uint32_t) & pHw->LCDC_BASEADDR);
+	_clear_dma_desc(&lcddBase.dmaD, (uint32_t) & pHw->LCDC_BASEADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1306,18 +1280,16 @@ LCDD_StopBase(void)
 /**
  * Start display on overlay 1 layer
  */
-void *
-LCDD_ShowOvr1(void *pBuffer, uint8_t bpp,
+void * lcdd_show_ovr1(void *pBuffer, uint8_t bpp,
 	      uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
-	return LCDD_ShowBMP(LCDD_OVR1, pBuffer, bpp, x, y, w, h);
+	return lcdd_show_bmp(LCDD_OVR1, pBuffer, bpp, x, y, w, h);
 }
 
 /**
  * Stop display on overlay 1 layer
  */
-void
-LCDD_StopOvr1(void)
+void lcdd_stop_ovr1(void)
 {
 	Lcdc *pHw = LCDC;
 
@@ -1328,7 +1300,7 @@ LCDD_StopOvr1(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	LCDD_ClearDMA(&lcddOvr1.dmaD, (uint32_t) & pHw->LCDC_OVR1ADDR);
+	_clear_dma_desc(&lcddOvr1.dmaD, (uint32_t) & pHw->LCDC_OVR1ADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1345,20 +1317,18 @@ LCDD_StopOvr1(void)
 /**
  * Start display on High End Overlay layer
  */
-void *
-LCDD_ShowHeo(void *pBuffer, uint8_t bpp,
+void * lcdd_show_heo(void *pBuffer, uint8_t bpp,
 	     uint32_t x, uint32_t y, int32_t w, int32_t h,
 	     uint32_t imgW, uint32_t imgH)
 {
-	return LCDD_ShowBMPRotated(LCDD_HEO,
+	return lcdd_show_bmp_rotated(LCDD_HEO,
 				   pBuffer, bpp, x, y, w, h, imgW, imgH, 0);
 }
 
 /**
  * Stop display on High End Overlay layer
  */
-void
-LCDD_StopHeo(void)
+void lcdd_stop_heo(void)
 {
 	Lcdc *pHw = LCDC;
 
@@ -1369,9 +1339,9 @@ LCDD_StopHeo(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	LCDD_ClearDMA(&lcddHeo.dmaD[0], (uint32_t) & pHw->LCDC_HEOADDR);
-	LCDD_ClearDMA(&lcddHeo.dmaD[1], (uint32_t) & pHw->LCDC_HEOUADDR);
-	LCDD_ClearDMA(&lcddHeo.dmaD[2], (uint32_t) & pHw->LCDC_HEOVADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[0], (uint32_t) & pHw->LCDC_HEOADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[1], (uint32_t) & pHw->LCDC_HEOUADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[2], (uint32_t) & pHw->LCDC_HEOVADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1389,8 +1359,7 @@ LCDD_StopHeo(void)
  * Start display on Hardware Cursor layer
  * (Default transparent color is set to #000000, black)
  */
-void *
-LCDD_ShowHcr(void *pBuffer, uint8_t bpp,
+void * lcdd_show_hcr(void *pBuffer, uint8_t bpp,
 	     uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
 	return 0;
@@ -1399,8 +1368,7 @@ LCDD_ShowHcr(void *pBuffer, uint8_t bpp,
 /**
  * Stop display on Hardware Cursor layer
  */
-void
-LCDD_StopHcr(void)
+void lcdd_stop_hcr(void)
 {
 
 }
@@ -1408,8 +1376,7 @@ LCDD_StopHcr(void)
 /**
  * \brief Turn on the LCD.
  */
-void
-LCDD_On(void)
+void lcdd_on(void)
 {
 	Pmc *pPmc = PMC;
 	Lcdc *pHw = LCDC;
@@ -1473,8 +1440,7 @@ LCDD_On(void)
 /**
  * \brief Turn off the LCD.
  */
-void
-LCDD_Off(void)
+void lcdd_off(void)
 {
 	Lcdc *pHw = LCDC;
 	Pmc *pPmc = PMC;
@@ -1486,12 +1452,12 @@ LCDD_Off(void)
 	   channel at the end of the frame. */
 
 	/* Disable all DMA channel descriptors */
-	LCDD_ClearDMA(&lcddBase.dmaD, (uint32_t) & pHw->LCDC_BASEADDR);
-	LCDD_ClearDMA(&lcddOvr1.dmaD, (uint32_t) & pHw->LCDC_OVR1ADDR);
-	LCDD_ClearDMA(&lcddOvr2.dmaD, (uint32_t) & pHw->LCDC_OVR2ADDR);
-	LCDD_ClearDMA(&lcddHeo.dmaD[0], (uint32_t) & pHw->LCDC_HEOADDR);
-	LCDD_ClearDMA(&lcddHeo.dmaD[1], (uint32_t) & pHw->LCDC_HEOUADDR);
-	LCDD_ClearDMA(&lcddHeo.dmaD[2], (uint32_t) & pHw->LCDC_HEOVADDR);
+	_clear_dma_desc(&lcddBase.dmaD, (uint32_t) & pHw->LCDC_BASEADDR);
+	_clear_dma_desc(&lcddOvr1.dmaD, (uint32_t) & pHw->LCDC_OVR1ADDR);
+	_clear_dma_desc(&lcddOvr2.dmaD, (uint32_t) & pHw->LCDC_OVR2ADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[0], (uint32_t) & pHw->LCDC_HEOADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[1], (uint32_t) & pHw->LCDC_HEOUADDR);
+	_clear_dma_desc(&lcddHeo.dmaD[2], (uint32_t) & pHw->LCDC_HEOVADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1551,8 +1517,7 @@ LCDD_Off(void)
  * \param level   Backlight brightness level [1..255],
  *                255 means maximum brightness.
  */
-void
-LCDD_SetBacklight(uint32_t level)
+void lcdd_set_backlight(uint32_t level)
 {
 	Lcdc *pHw = LCDC;
 	uint32_t cfg = pHw->LCDC_LCDCFG6 & ~LCDC_LCDCFG6_PWMCVAL_Msk;
@@ -1564,8 +1529,7 @@ LCDD_SetBacklight(uint32_t level)
  * Get canvas layer for LCDD_Draw*
  * \return Layer information pointer.
  */
-sLCDDLayer *
-LCDD_GetCanvas(void)
+sLCDDLayer * lcdd_get_canvas(void)
 {
 	return &lcddCanvas;
 }
@@ -1573,12 +1537,11 @@ LCDD_GetCanvas(void)
 /**
  * Flush the current canvas layer*
  */
-void
-LCDD_Flush_CurrentCanvas(void)
+void lcdd_flush_canvas(void)
 {
 	sLCDDLayer *pCurrentLayer;
 	uint32_t base, height, width;
-	pCurrentLayer = LCDD_GetCanvas();
+	pCurrentLayer = lcdd_get_canvas();
 	base = (uint32_t) pCurrentLayer->pBuffer;
 	height = pCurrentLayer->wImgH;
 	width = pCurrentLayer->wImgW;
@@ -1594,8 +1557,7 @@ LCDD_Flush_CurrentCanvas(void)
  *       selection fails.
  * \param bLayer    Layer ID.
  */
-uint8_t
-LCDD_SelectCanvas(uint8_t bLayer)
+uint8_t lcdd_select_canvas(uint8_t bLayer)
 {
 	sLayer *pLD = pLayer(bLayer);
 	volatile uint32_t *pXyR = pWinReg(bLayer);
@@ -1617,7 +1579,7 @@ LCDD_SelectCanvas(uint8_t bLayer)
 		lcddCanvas.wImgH = BOARD_LCD_HEIGHT;
 	}
 	lcddCanvas.bMode =
-	    LCDD_GetBitsPerPixel(pCfR[1] & LCDC_HEOCFG1_RGBMODE_Msk);
+	    _get_bits_per_pixel(pCfR[1] & LCDC_HEOCFG1_RGBMODE_Msk);
 	lcddCanvas.bLayer = bLayer;
 
 	return 1;
@@ -1634,8 +1596,7 @@ LCDD_SelectCanvas(uint8_t bLayer)
  * \param wH        Canvas height.
  * \note The content in buffer is destroied.
  */
-void *
-LCDD_CreateCanvas(uint8_t bLayer,
+void * lcdd_create_canvas(uint8_t bLayer,
 		  void *pBuffer, uint8_t bBPP,
 		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH)
 {
@@ -1673,7 +1634,7 @@ LCDD_CreateCanvas(uint8_t bLayer,
 	bitsPR = wW * bBPP;
 	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
 	memset(pBuffer, 0xFF, bytesPR * wH);
-	pOldBuffer = LCDD_ShowBMPRotated(bLayer, pBuffer, bBPP,
+	pOldBuffer = lcdd_show_bmp_rotated(bLayer, pBuffer, bBPP,
 					 wX, wY, wW, wH, wW, wH, 0);
 
 	lcddCanvas.bLayer = bLayer;
@@ -1683,6 +1644,17 @@ LCDD_CreateCanvas(uint8_t bLayer,
 	lcddCanvas.wImgH = wH;
 
 	return pOldBuffer;
+}
+
+/**
+ * \brief Change RGB Input Mode Selection for giving layer.
+ * \param bLayer    Layer ID.
+ * \param inputMode   RGB Input Mode Selection.
+ */
+void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode)
+{
+	volatile uint32_t *pCfgR = pCfgReg(bLayer);
+	pCfgR[1] = inputMode;
 }
 
 /**@}*/

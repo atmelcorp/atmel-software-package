@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2011, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -44,7 +44,7 @@
  * \section lcdd_base_usage Usage
  *
  * Uses following functions for LCD basic configuration and displaying:
- * -# Uses LCDD_Initialize() to initialize the controller and LCD.
+ * -# Uses lcdd_initialize() to initialize the controller and LCD.
  * -# LCDD_On() and LCDD_Off() is used to turn LCD ON/OFF.
  * -# LCDD_SetBacklight() is used to change LCD backlight level.
  * -# To display a image (BMP format) on LCD, LCDD_ShowBMPRotated()
@@ -132,64 +132,60 @@ typedef struct _LcddLayer {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void LCDD_Initialize(void);
-
-extern void LCDD_On(void);
-extern void LCDD_Off(void);
-extern void LCDD_SetBacklight(uint32_t step);
-
-extern void LCDD_EnableLayer(uint8_t bLayer, uint8_t bEnDis);
-extern uint8_t LCDD_IsLayerOn(uint8_t bLayer);
-extern void LCDD_SetPosition(uint8_t bLayer, uint32_t x, uint32_t y);
-extern void LCDD_SetPrioty(uint8_t bLayer, uint8_t bPri);
-extern uint8_t LCDD_GetPrioty(uint8_t bLayer);
-extern void LCDD_EnableAlpha(uint8_t bLayer, uint8_t bEnDisLA,
+extern void lcdd_initialize(void);
+extern uint8_t lcdd_is_layer_on(uint8_t bLayer);
+extern void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis);
+extern void lcdd_refresh(uint8_t bLayer);
+extern void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y);
+extern void lcdd_set_prioty(uint8_t bLayer, uint8_t bPri);
+extern uint8_t lcdd_get_prioty(uint8_t bLayer);
+extern void lcdd_enable_alpha(uint8_t bLayer, uint8_t bEnDisLA,
 			     uint8_t bEnDisGA);
-extern void LCDD_SetAlpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha);
-extern uint8_t LCDD_GetAlpha(uint8_t bLayer);
-extern void LCDD_SetColorKeying(uint8_t bLayer,
+extern void lcdd_set_alpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha);
+extern uint8_t lcdd_get_alpha(uint8_t bLayer);
+extern void lcdd_set_color_keying(uint8_t bLayer,
 				uint8_t bDstSrc,
 				uint32_t dwColor, uint32_t dwMask);
-extern void LCDD_DisableColorKeying(uint8_t bLayer);
-extern void LCDD_SetCLUT(uint8_t bLayer,
+extern void lcdd_disable_color_keying(uint8_t bLayer);
+extern void lcdd_set_color_lut(uint8_t bLayer,
 			 uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors);
-
-extern void LCDD_Refresh(uint8_t bLayer);
-
-extern void *LCDD_ShowBMPRotated(uint8_t bLayer,
+extern void *lcdd_show_bmp_rotated(uint8_t bLayer,
 				 void *pBuffer, uint8_t bpp,
 				 uint32_t x, uint32_t y, int32_t w, int32_t h,
 				 uint32_t imgW, uint32_t imgH, int16_t wRotate);
-extern void *LCDD_ShowBMPScaled(uint8_t bLayer,
+extern void *lcdd_show_bmp_scaled(uint8_t bLayer,
 				void *pBuffer, uint8_t bpp,
 				uint32_t x, uint32_t y, int32_t w, int32_t h,
 				uint32_t imgW, uint32_t imgH);
-extern void *LCDD_ShowBMP(uint8_t bLayer,
+extern void *lcdd_show_bmp(uint8_t bLayer,
 			  void *pBuffer, uint8_t bpp,
 			  uint32_t x, uint32_t y, int32_t w, int32_t h);
 
-extern void *LCDD_ShowBase(void *pBuffer, uint8_t bpp, uint8_t bScanBottomUp);
-extern void LCDD_StopBase(void);
+extern void *lcdd_show_base(void *pBuffer, uint8_t bpp, uint8_t bScanBottomUp);
+extern void lcdd_stop_base(void);
 
-extern void *LCDD_ShowOvr1(void *pBuffer, uint8_t bpp,
+extern void *lcdd_show_ovr1(void *pBuffer, uint8_t bpp,
 			   uint32_t x, uint32_t y, int32_t w, int32_t h);
-extern void LCDD_StopOvr1(void);
+extern void lcdd_stop_ovr1(void);
 
-extern void *LCDD_ShowHeo(void *pBuffer, uint8_t bpp,
+extern void *lcdd_show_heo(void *pBuffer, uint8_t bpp,
 			  uint32_t x, uint32_t y, int32_t w, int32_t h,
 			  uint32_t memW, uint32_t memH);
-extern void LCDD_StopHeo(void);
-
-extern void *LCDD_ShowHcr(void *pBuffer, uint8_t bpp,
+extern void lcdd_stop_heo(void);
+extern void lcdd_on(void);
+extern void lcdd_off(void);
+extern void lcdd_set_backlight(uint32_t step);
+extern void *lcdd_show_hcr(void *pBuffer, uint8_t bpp,
 			  uint32_t x, uint32_t y, int32_t w, int32_t h);
-extern void LCDD_StopHcr(void);
-
-extern sLCDDLayer *LCDD_GetCanvas(void);
-extern uint8_t LCDD_SelectCanvas(uint8_t bLayer);
-extern void *LCDD_CreateCanvas(uint8_t bLayer,
+extern void lcdd_stop_hcr(void);
+extern sLCDDLayer *lcdd_get_canvas(void);
+extern uint8_t lcdd_select_canvas(uint8_t bLayer);
+extern void *lcdd_create_canvas(uint8_t bLayer,
 			       void *pBuffer, uint8_t bBPP,
 			       uint16_t wX, uint16_t wY, uint16_t wW,
 			       uint16_t wH);
-extern void LCDD_Flush_CurrentCanvas(void);
+extern void lcdd_flush_canvas(void);
+extern void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode);
+
 /**  @}*/
 #endif				/* #ifndef LCDD_H */
