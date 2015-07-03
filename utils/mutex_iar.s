@@ -16,15 +16,15 @@ mutex_try_lock:
 	push    {r1,r2,r3}
 	mov     r1, #LOCKED
 	mov     r3, #SUCCESS
-1:
+
 	ldrex   r2, [r0]
 	cmp     r2, r1        /* Test if mutex is locked or unlocked */
 	moveq   r3, #FAILURE  /* If locked */
-	beq     2f            /* return failure */
+	beq     lbl1          /* return failure */
 	strexne r2, r1, [r0]  /* Not locked, attempt to lock it */
 	cmp     r2, #LOCKED   /* Check if Store-Exclusive failed */
 	movne   r3, #FAILURE  /* If failed - return failure */
-2:
+lbl1:
 	dmb                   /* Required before accessing protected resource */
 	mov     r0, r3
 	pop     {r1,r2,r3}
@@ -55,3 +55,5 @@ mutex_is_locked:
 	movne   r0, #FAILURE
 	pop     {r1, r2}
 	bx      lr
+
+	END
