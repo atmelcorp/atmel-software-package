@@ -26,10 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/video/mt.o
 drivers-y += drivers/video/mt9v022_config.o
-drivers-y += drivers/video/mtyuv.o
-drivers-y += drivers/video/ov.o
 drivers-y += drivers/video/ov2640_config.o
 drivers-y += drivers/video/ov2643_config.o
 drivers-y += drivers/video/ov5640_config.o
@@ -37,10 +34,13 @@ drivers-y += drivers/video/ov7740_config.o
 drivers-y += drivers/video/ov9740_config.o
 drivers-y += drivers/video/qt1070.o
 
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/lcdd.o
+drivers-y += drivers/video/image_sensor_inf.o
+
+drivers-y += drivers/video/lcdd.o
+drivers-y += drivers/video/lcd_draw.o
+drivers-y += drivers/video/lcd_font.o
+drivers-y += drivers/video/lcd_font10x14.o
+
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_com.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_tsadc.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/omnivision.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/aptina.o
 
-drivers-$(CONFIG_SOC_SAMA5D2) += drivers/video/ili9488.o
