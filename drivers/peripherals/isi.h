@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License
+ *         SAM Software Package License 
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2013, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -32,65 +32,169 @@
 /** \addtogroup isi_module
  * @{
  * \section gmac_usage Usage
- * - ISI_Init(): initialize ISI with default parameters
- * - ISI_EnableInterrupt(): enable one or more interrupts
- * - ISI_DisableInterrupt(): disable one or more interrupts
- * - ISI_Enable(): enable isi module
- * - ISI_Disable(): disable isi module
- * - ISI_CodecPathFull(): enable codec path
- * - ISI_SetFrame(): set frame rate
- * - ISI_BytesForOnePixel(): return number of byte for one pixel
- * - ISI_StatusRegister(): return ISI status register
- * - ISI_Reset(): make a software reset
+ * - ISI_Init: initialize ISI with default parameters
+ * - ISI_EnableInterrupt: enable one or more interrupts
+ * - ISI_DisableInterrupt: disable one or more interrupts
+ * - ISI_Enable: enable isi module
+ * - ISI_Disable: disable isi module
+ * - ISI_CodecPathFull: enable codec path
+ * - ISI_SetFrame: set frame rate
+ * - ISI_BytesForOnePixel: return number of byte for one pixel
+ * - ISI_StatusRegister: return ISI status register
+ * - ISI_Reset: make a software reset
  */
 /**@}*/
 
 #ifndef ISI_H
 #define ISI_H
 
-#include <stdint.h>
-#include "video/video.h"
+/*----------------------------------------------------------------------------
+ *        Definition
+ *----------------------------------------------------------------------------*/
+#define YUV_INPUT          0
+#define RGB_INPUT          1
+#define GRAYSCALE_INPUT    2
+ 
+#define ONE_BYTE_PER_PIXEL    1
+#define TWO_BYTE_PER_PIXEL    2
+#define THREE_BYTE_PER_PIXEL  3
+
+#define YUV_INPUT    0
+#define RGB_INPUT    1
 
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
 
-/** ISI descriptors */
-typedef struct {
-	/** Current LCD index, used with AT91C_ISI_MAX_PREV_BUFFER */
-	uint32_t CurrentLcdIndex;
-	/** set if Fifo Codec Empty is present */
-	volatile uint32_t DisplayCodec;
-	/** upgrade for each Fifo Codec Overflow (statistics use) */
-	uint32_t nb_codec_ovf;
-	/** upgrade for each Fifo Preview Overflow (statistics use) */
-	uint32_t nb_prev_ovf;
-} ISI_Descriptors;
-
 /** Frame Buffer Descriptors */
-typedef struct {
+typedef struct 
+{
 	/** Address of the Current FrameBuffer */
-	uint32_t Current;
+	uint32_t address;
 	/** Address of the Control */
-	uint32_t Control;
+	uint32_t control;
 	/** Address of the Next FrameBuffer */
-	uint32_t Next;
-} ISI_FrameBufferDescriptors;
+	uint32_t next;
+}isi_frame_buffer_desc_t;
+
+
+/** ISI Matrix Color Space Conversion YCrCb to RGB */
+typedef struct
+{
+	/** Color Space Conversion Matrix Coefficient C0*/
+	uint8_t c0;
+	/** Color Space Conversion Matrix Coefficient C1 */
+	uint8_t c1;
+	/** Color Space Conversion Matrix Coefficient C2 */
+	uint8_t c2;
+	/** Color Space Conversion Matrix Coefficient C3 */
+	uint8_t c3;
+   /** Color Space Conversion Red Chrominance Default Offset */
+	uint8_t croff;
+	/** Color Space Conversion Blue Chrominance Default Offset */
+	uint8_t cboff;
+	/** Color Space Conversion Luminance Default Offset */
+	uint8_t yoff;
+	 /** Color Space Conversion Matrix Coefficient C4 */
+	uint16_t c4;
+}isi_yuv2rgc_t;
+
+/** ISI Matrix Color Space Conversion RGB to YCrCb */
+typedef struct
+{
+	/** Color Space Conversion Matrix Coefficient C0*/
+	uint8_t c0;
+	/** Color Space Conversion Matrix Coefficient C1 */
+	uint8_t c1;
+	/** Color Space Conversion Matrix Coefficient C2 */
+	uint8_t c2;
+	/** Color Space Conversion Red Component Offset */
+	uint8_t roff;
+	/** Color Space Conversion Matrix Coefficient C3*/
+	uint8_t c3;
+	/** Color Space Conversion Matrix Coefficient C4 */
+	uint8_t c4;
+	/** Color Space Conversion Matrix Coefficient C5 */
+	uint8_t c5;
+	/** Color Space Conversion Green Component Offset */
+	uint8_t goff;
+	/** Color Space Conversion Matrix Coefficient C6*/
+	uint8_t c6;
+	/** Color Space Conversion Matrix Coefficient C7 */
+	uint8_t c7;
+	/** Color Space Conversion Matrix Coefficient C8 */
+	uint8_t c8;
+	/** Color Space Conversion Blue Component Offset */
+	uint8_t boff;
+}isi_rgc2yuv_t;
 
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-extern void ISI_Enable(void);
-extern void ISI_Disable(void);
-extern void ISI_DmaChannelEnable(uint32_t channel);
-extern void ISI_DmaChannelDisable(uint32_t channel);
-extern void ISI_EnableInterrupt(uint32_t flag);
-extern void ISI_DisableInterrupt(uint32_t flag);
-extern void ISI_CodecPathFull(void);
-extern void ISI_SetFrame(uint32_t frate);
-extern uint8_t ISI_BytesForOnePixel(uint8_t bmpRgb);
-extern void ISI_Reset(void);
-extern void ISI_Init(pIsi_Video pVideo);
-extern uint32_t ISI_StatusRegister(void);
+extern void isi_enable(void);
 
-#endif				//#ifndef ISI_H
+extern void isi_disable(void);
+
+extern void isi_dma_channel_enable(uint32_t channel);
+
+extern void isi_dma_channel_disable(uint32_t channel);
+
+extern void isi_dma_preview_channel_enabled(uint8_t enabled);
+
+extern void isi_dma_codec_channel_enabled(uint8_t enabled);
+
+extern void isi_enable_interrupt(uint32_t flag);
+
+extern void isi_disable_interrupt(uint32_t flag);
+
+extern void isi_codec_path_full(void);
+
+extern void isi_codec_request(void);
+
+extern void isi_codec_wait_dma_completed(void);
+
+extern void isi_preview_wait_dma_completed(void);
+
+extern void isi_set_framerate(uint32_t frame);
+
+extern uint8_t isi_bytes_one_pixel(uint8_t bmpRgb);
+
+extern void isi_reset(void);
+
+extern uint32_t isi_get_status(void);
+
+extern void isi_set_blank( uint8_t hBlank, uint8_t vBlank);
+
+extern void isi_set_sensor_size( uint32_t hSize, uint32_t vSize);
+
+extern void isi_rgb_pixel_mapping(uint32_t wRgbPixelMapping);
+
+extern void isi_rgb_swap_mode(uint32_t swapMode);
+
+extern void isi_ycrcb_format(uint32_t wYuvSwapMode);
+
+extern void isi_set_grayscale_mode(uint32_t wPixelFormat);
+
+extern void isi_set_input_stream(uint32_t wStreamMode);
+
+extern void isi_set_preview_size(
+	uint32_t hSize, 
+	uint32_t vSize);
+
+extern void isi_calc_scaler_factor( void );
+
+extern void isi_set_dma_preview_path(
+	uint32_t baseFrameBufDesc, 
+	uint32_t dmaCtrl, 
+	uint32_t frameBufferStartAddr);
+
+extern void isi_set_dma_codec_path(
+	uint32_t baseFrameBufDesc, 
+	uint32_t dmaCtrl, 
+	uint32_t frameBufferStartAddr);
+
+extern void isi_set_matrix_yuv2rgb (isi_yuv2rgc_t* yuv2rgb);
+extern void isi_set_matrix_rgb2yuv (isi_rgc2yuv_t* rgb2yuv);
+
+#endif //#ifndef ISI_H
+
