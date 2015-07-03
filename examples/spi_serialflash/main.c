@@ -49,8 +49,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef VARIANT_DDRAM
+#define CMD_BUFFER_SIZE   16*1024*1024
+#define READ_BUFFER_SIZE  16*1024*1024
+#else
 #define CMD_BUFFER_SIZE  256
 #define READ_BUFFER_SIZE  256
+#endif
 
 static const struct _pin at25_pins[] = AT25_PINS;
 
@@ -304,8 +309,6 @@ int main (void)
 	_cmd_parser = _flash_cmd_parser;
 
 	/* Clear console */
-	/* console_clear_screen(); */
-	/* console_reset_cursor(); */
 	xdmad_initialize(false);
 	printf("-- Spi flash Example " SOFTPACK_VERSION " --\n\r"
 	       "-- " BOARD_NAME " --\n\r"
