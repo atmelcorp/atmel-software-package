@@ -330,7 +330,9 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 		case PIO_PERIPH_E:
 			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_E;
 			break;
-
+		case PIO_PERIPH_F:
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_F;
+			break;
 		case PIO_GENERIC:
 		case PIO_INPUT:
 			cfg.bitfield.dir = 0;
@@ -347,7 +349,6 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 			break;
 
 		default:
-		case PIO_PERIPH_F:
 		case PIO_PERIPH_G:
 			return 0;
 		}
