@@ -82,6 +82,27 @@ typedef struct _HeoLayer {
 	uint16_t reserved;
 } sHeoLayer;
 
+#if defined ( __ICCARM__ )	/* IAR Ewarm */
+#pragma data_alignment=64
+#elif defined (  __GNUC__  )	/* GCC CS3 */
+__attribute__ ((aligned(64)))
+#endif
+static sLCDCDescriptor dmaHeader;
+
+#if defined ( __ICCARM__ )	/* IAR Ewarm */
+#pragma data_alignment=64
+#elif defined (  __GNUC__  )	/* GCC CS3 */
+__attribute__ ((aligned(64)))
+#endif
+static sLCDCDescriptor dmaHeaderUv;
+
+#if defined ( __ICCARM__ )	/* IAR Ewarm */
+#pragma data_alignment=64
+#elif defined (  __GNUC__  )	/* GCC CS3 */
+__attribute__ ((aligned(64)))
+#endif
+static sLCDCDescriptor dmaHeaderV;
+
 /** Pins for LCDC */
 static const struct _pin pPinsLCD[] = PINS_LCD_IOS2 ;
 
@@ -397,7 +418,6 @@ static void _set_dma_desc(void *pBuffer, sLCDCDescriptor * pTD, uint32_t regAddr
 	pDmaR[1] = (uint32_t) pBuffer;
 	pDmaR[2] = LCDC_BASECTRL_DFETCH;
 	pDmaR[3] = (uint32_t) pTD;
-
 }
 
 /**
@@ -609,6 +629,7 @@ void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis)
 {
 	volatile uint32_t *pReg = pEnableReg(bLayer);
 	volatile uint32_t *pBlR = pBlenderReg(bLayer);
+
 	if (pReg && bLayer > LCDD_CONTROLLER) {
 		if (bEnDis) {
 			pReg[0] = LCDC_BASECHER_CHEN | LCDC_BASECHER_UPDATEEN;
@@ -1644,6 +1665,104 @@ void * lcdd_create_canvas(uint8_t bLayer,
 	lcddCanvas.wImgH = wH;
 
 	return pOldBuffer;
+}
+
+/**
+ * Create a blank canvas on a display layer for further operations.
+ * \param bLayer    Layer ID.
+ * \param pBuffer   Pointer to canvas display buffer.
+ * \param bBPP      Bits Per Pixel.
+ * \param wX        Canvas X coordinate on base.
+ * \param wY        Canvas Y coordinate on base.
+ * \param wW        Canvas width.
+ * \param wH        Canvas height.
+ * \note The content in buffer is destroyed.
+ */
+void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
+		  void *pBuffer, void *pBufferUV, void *pBufferV, uint8_t bBPP,
+		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH)
+{
+	volatile uint32_t *pDmaR;
+	sLCDCDescriptor *pTD;
+	sHeoLayer *pLD = & lcddHeo;
+	
+	volatile uint32_t *pEnR = pEnableReg(bLayer);
+	volatile uint32_t *pWinR = pWinReg(bLayer);
+	volatile uint32_t *pBlR = pBlenderReg(bLayer);
+	volatile uint32_t *pCfgR = pCfgReg(bLayer);
+	uint8_t bPStride = _is_stride_supported(bLayer);
+	
+	uint32_t maxW = BOARD_LCD_WIDTH;
+	uint32_t maxH = BOARD_LCD_HEIGHT;
+
+	uint32_t bitsPR, bytesPR;
+
+	switch (bLayer) {
+	case LCDD_BASE:
+	case LCDD_OVR1:
+	case LCDD_OVR2:
+	case LCDD_CUR:
+		return 0;
+	case LCDD_HEO:
+		/* Size check */
+		if (wX + wW > BOARD_LCD_WIDTH || wY + wH > BOARD_LCD_HEIGHT)
+			return NULL;
+		break;
+	}
+	if (wW == 0)
+		wW = maxW - wX;
+	if (wH == 0)
+		wH = maxH - wY;
+
+	bitsPR = wW * bBPP;
+	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
+	memset(pBuffer, 0xFF, bytesPR * wH);
+	
+	if (pWinR) {
+		pWinR[0] = LCDC_HEOCFG2_XPOS(wX) | LCDC_HEOCFG2_YPOS(wY);
+		pWinR[1] =
+		    LCDC_HEOCFG3_XSIZE(wW - 1) | LCDC_HEOCFG3_YSIZE(wH - 1);
+		pWinR[2] =
+		    LCDC_HEOCFG4_XMEMSIZE(wW - 1) | LCDC_HEOCFG4_YMEMSIZE(wH - 1);
+	}
+	
+
+	pTD = &dmaHeader;
+	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOHEAD;
+	/* Modify descriptor */
+	pTD->addr = (uint32_t) pBuffer;
+	pTD->ctrl = LCDC_BASECTRL_DFETCH;
+	pTD->next = (uint32_t) pTD;
+	/* Modify registers */
+	pDmaR[0] = (uint32_t) pTD;
+	pDmaR[1] = (uint32_t) pBuffer;
+	pDmaR[2] = LCDC_BASECTRL_DFETCH;
+	pDmaR[3] = (uint32_t) pTD;
+
+	pTD= &dmaHeaderUv;
+	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOUHEAD;
+	/* Modify descriptor */
+	pTD->addr = (uint32_t) pBufferUV;
+	pTD->ctrl = LCDC_BASECTRL_DFETCH;
+	pTD->next = (uint32_t) pTD;
+	/* Modify registers */
+	pDmaR[0] = (uint32_t) pTD;
+	pDmaR[1] = (uint32_t) pBufferUV;
+	pDmaR[2] = LCDC_BASECTRL_DFETCH;
+	pDmaR[3] = (uint32_t) pTD;
+
+	pTD = &dmaHeaderV;
+	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOVHEAD;
+	/* Modify descriptor */
+	pTD->addr = (uint32_t) pBufferV;
+	pTD->ctrl = LCDC_BASECTRL_DFETCH;
+	pTD->next = (uint32_t) pTD;
+	/* Modify registers */
+	pDmaR[0] = (uint32_t) pTD;
+	pDmaR[1] = (uint32_t) pBufferV;
+	pDmaR[2] = LCDC_BASECTRL_DFETCH;
+	pDmaR[3] = (uint32_t) pTD;
+	return 0;
 }
 
 /**

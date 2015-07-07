@@ -186,6 +186,9 @@ extern void *lcdd_create_canvas(uint8_t bLayer,
 			       uint16_t wH);
 extern void lcdd_flush_canvas(void);
 extern void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode);
+extern void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
+		  void *pBuffer, void *pBufferUV, void *pBufferV, uint8_t bBPP,
+		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH);
 
 /**  @}*/
 #endif				/* #ifndef LCDD_H */
