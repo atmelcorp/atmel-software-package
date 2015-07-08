@@ -245,23 +245,23 @@ TSDCom_Calibrate(void)
 	LCDD_GetStringSize("P", &strW, &strH);
 	/* Calibration setup */
 	LCDD_Fill(COLOR_WHITE);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	LCDD_DrawString(strX - 2 * strW, strY + 3 * strH,
 			" Touch the dots to\ncalibrate the screen",
 			COLOR_DARKBLUE);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	/* Calibration points */
 	for (i = 0; i < 4; i++) {
 
 		DrawCalibrationPoint(&calibrationPoints[i]);
-		LCDD_Flush_CurrentCanvas();
+		lcdd_flush_canvas();
 		/* Wait for touch & end of conversion */
 		TSD_WaitPenPressed();
 		TSD_GetRawMeasurement(calibrationPoints[i].data);
 		ClearCalibrationPoint(&calibrationPoints[i]);
-		LCDD_Flush_CurrentCanvas();
+		lcdd_flush_canvas();
 		/* Wait for contact loss */
 		TSD_WaitPenReleased();
 		printf("P%d: (%d,%d)\n\r", (unsigned int) i,
@@ -326,9 +326,9 @@ TSDCom_Calibrate(void)
 	LCDD_DrawString(strX - 2 * strW, strY + 3 * strH,
 			" Touch the point to\nvalidate calibration",
 			COLOR_DARKBLUE);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	DrawCalibrationPoint(&testPoint);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	/* Wait for touch & end of conversion */
 	TSD_WaitPenPressed();
 
@@ -336,7 +336,7 @@ TSDCom_Calibrate(void)
 	TSDCom_InterpolateMeasurement(measuredPoint.data,
 				      (uint32_t *) & measuredPoint);
 	DrawCalibrationPoint(&measuredPoint);
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	/* Check resulting x and y */
 	xDiff = (int32_t) measuredPoint.x - (int32_t) testPoint.x;
 	yDiff = (int32_t) measuredPoint.y - (int32_t) testPoint.y;
@@ -359,7 +359,7 @@ TSDCom_Calibrate(void)
 		LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
 		LCDD_DrawString(strX + 3 * strW, strY + 2 * strH, "Success !",
 				COLOR_GREEN);
-		LCDD_Flush_CurrentCanvas();
+		lcdd_flush_canvas();
 	} else {
 
 		bCalibrationOk = 0;
@@ -367,7 +367,7 @@ TSDCom_Calibrate(void)
 		LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
 		LCDD_DrawString(strX + strW, strY + 2 * strH, "Error too big",
 				COLOR_RED);
-		LCDD_Flush_CurrentCanvas();
+		lcdd_flush_canvas();
 		trace_warning("X %u, Y %u; Diff %d, %d\n\r",
 			      (unsigned int) (measuredPoint.x),
 			      (unsigned int) (measuredPoint.y),
@@ -376,7 +376,7 @@ TSDCom_Calibrate(void)
 
 	/* Slight delay */
 	for (i = 0; i < DELAY_RESULT_DISPLAY; i++) ;
-	LCDD_Flush_CurrentCanvas();
+	lcdd_flush_canvas();
 	return (xOk && yOk);
 }
 

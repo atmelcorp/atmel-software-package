@@ -151,6 +151,8 @@ const struct _pin pins_twi[] = PINS_TWI0_IOS4;
 const struct _pin pin_rst = PIN_ISC_RST;
 const struct _pin pin_pwd = PIN_ISC_PWD;
 const struct _pin pins_isc[]= PINS_ISC_IOS3;
+/** Pins for LCDC */
+static const struct _pin pins_lcd[] = PINS_LCD_IOS2;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(64)
@@ -309,7 +311,7 @@ static void sensor_reset(void)
  */
 static void configure_lcd(void)
 {
-	lcdd_initialize();
+	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
 	if (sensorMode == YUV_422) {
 		lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV);
 		lcdd_create_canvas(LCDD_HEO,

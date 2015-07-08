@@ -85,71 +85,25 @@ typedef struct _HeoLayer {
 	uint16_t reserved;
 } sHeoLayer;
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLCDCDescriptor dmaHeader;
+ALIGNED(64) static sLCDCDescriptor dmaHeader;
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLCDCDescriptor dmaHeaderUv;
+ALIGNED(64) static sLCDCDescriptor dmaHeaderUv;
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLCDCDescriptor dmaHeaderV;
-
-/** Pins for LCDC */
-static const struct _pin pPinsLCD[] = PINS_LCD_IOS2 ;
+ALIGNED(64) static sLCDCDescriptor dmaHeaderV;
 
 /** Current selected canvas information */
 static sLCDDLayer lcddCanvas;
 /** Base Layer */
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLayer lcddBase;
+ALIGNED(64) static sLayer lcddBase;
 
-/** Overlay 1 Layer */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLayer lcddOvr1;
+ALIGNED(64) static sLayer lcddOvr1;
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLayer lcddOvr2;
+ALIGNED(64) static sLayer lcddOvr2;
 
-/** High End Overlay Layer */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sHeoLayer lcddHeo;
+ALIGNED(64) static sHeoLayer lcddHeo;
 
-/** Hardware cursor Layer */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static sLayer lcddHcc;
+ALIGNED(64) static sLayer lcddHcc;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -538,13 +492,13 @@ static void _build_color_lut1(volatile uint32_t * pCLUT)
  * \brief Initializes the LCD controller.
  * Configure SMC to access LCD controller at 64MHz MCK.
  */
-void lcdd_initialize(void)
+void lcdd_initialize(struct _pin* pins, uint32_t pin_len)
 {
 	Lcdc *pHw = LCDC;
 	Pmc *pPmc = PMC;
 
 	/* Configure PIO */
-	pio_configure(pPinsLCD, ARRAY_SIZE(pPinsLCD));
+	pio_configure(pins, pin_len);
 
 	lcdd_off();
 
