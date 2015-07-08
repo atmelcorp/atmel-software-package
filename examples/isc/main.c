@@ -101,9 +101,9 @@
 
 
 #include "video/lcdd.h"
-#include "video/lcd_draw.h"
 #include "video/image_sensor_inf.h"
 
+#include "lcd_draw.h"
 #include "trace.h"
 
 #include <stdbool.h>

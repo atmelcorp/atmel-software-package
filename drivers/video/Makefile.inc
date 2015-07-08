@@ -37,9 +37,6 @@ drivers-y += drivers/video/qt1070.o
 drivers-y += drivers/video/image_sensor_inf.o
 
 drivers-y += drivers/video/lcdd.o
-drivers-y += drivers/video/lcd_draw.o
-drivers-y += drivers/video/lcd_font.o
-drivers-y += drivers/video/lcd_font10x14.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_com.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/video/tsd_tsadc.o
