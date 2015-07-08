@@ -677,9 +677,12 @@ void isc_dma_configure(uint32_t descEntry)
 
 /**
  * \brief Configure ISC DMA start address.
- * \param address entry of DMA descriptor VIEW.
+ * \param channel channel number.
+ * \param address address for giving channel.
+ * \param stride stride for giving channel.
  */
-void isc_dma_adderss(uint32_t address)
+void isc_dma_adderss(uint8_t channel, uint32_t address, uint32_t stride)
 {
-	ISC->ISC_SUB0[0].ISC_DAD = address;
+	ISC->ISC_SUB0[channel].ISC_DAD = address;
+	ISC->ISC_SUB0[channel].ISC_DST = stride;
 }

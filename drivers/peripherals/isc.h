@@ -245,7 +245,7 @@ extern void isc_clear_histogram_table(void);
 extern void isc_dma_configure_input_mode(uint32_t mode);
 extern void isc_dma_configure_desc_entry(uint32_t descEntry);
 extern void isc_dma_enable(uint32_t ctrl);
-extern void isc_dma_adderss(uint32_t address);
+extern void isc_dma_adderss(uint8_t channel, uint32_t address, uint32_t stride);
 
 #endif //#ifndef ISC_H
 
