@@ -215,7 +215,7 @@ const uint32_t gGam[64] = {
  */
 static void isc_handler(void )
 {
-	uint32_t status;
+	uint32_t status, i;
 	status = isc_interrupt_status();
 	if((status & ISC_INTSR_HD) == ISC_INTSR_HD) {
 	}
@@ -226,6 +226,12 @@ static void isc_handler(void )
 		}
 	}
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
+	}
+	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
+		for (i = 0; i < 512; i+= 32) {
+			printf("<h: %x> ", ISC->ISC_HIS_ENTRY[i]);
+		}
+		isc_clear_histogram_table();
 	}
  	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
@@ -371,9 +377,9 @@ static void configure_isc(void)
 										ISC_DCFG_CMBSIZE_BEATS8);
 			isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist2[0]);
 			isc_dma_enable( ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE  );
-			ISC->ISC_SUB0[0].ISC_DAD = ISC_OUTPUT_BASE_ADDRESS;
-			ISC->ISC_SUB0[1].ISC_DAD = ISC_OUTPUT_BASE_ADDRESS2;
-			ISC->ISC_SUB0[2].ISC_DAD = ISC_OUTPUT_BASE_ADDRESS1;
+			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
+			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS2, 0);
+			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS1, 0);
 		}
 		if (lcdMode == LCD_MODE_RGB565) {
 			/* Configure RGB 565 output format before the DMA master module */
@@ -383,7 +389,7 @@ static void configure_isc(void)
 			isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED16);
 			isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist[0]);
 			isc_dma_enable( ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE  );
-			isc_dma_adderss(ISC_OUTPUT_BASE_ADDRESS);
+			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 		}
 	} 
 	if( sensorMode == YUV_422) {
@@ -394,14 +400,19 @@ static void configure_isc(void)
 		isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
 		isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist[0]);
 		isc_dma_enable( ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE  );
-		isc_dma_adderss(ISC_OUTPUT_BASE_ADDRESS);
+		isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 	}
-	
+	isc_histogram_enabled(1);
 	isc_update_profile();
 	
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
-	isc_enable_interrupt( 0xFFFFFFFF);
+	isc_enable_interrupt( ISC_INTEN_VD 
+						| ISC_INTEN_DDONE
+						| ISC_INTEN_LDONE
+						| ISC_INTEN_HISDONE
+						| ISC_INTEN_HDTO 
+						| ISC_INTEN_VDTO);
 	isc_interrupt_status();
 	aic_enable(ID_ISC);
 }
@@ -523,6 +534,13 @@ extern int main( void )
 	configure_dma_linklist();
 	configure_isc();
 	printf("Preview start...\n\r"); 
-	while(1);
+	//while(1);
+	for(;;) {
+		key = console_get_char();
+		if ((key >= '0') || (key <= '6')) {
+			isc_histogram_configure((key-'0'),ISC_HIS_CFG_BAYSEL_BGBG, 0 );
+			isc_update_profile();
+			isc_update_histogram_table();
+		}
+	}
 }
-
