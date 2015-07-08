@@ -492,7 +492,7 @@ static void _build_color_lut1(volatile uint32_t * pCLUT)
  * \brief Initializes the LCD controller.
  * Configure SMC to access LCD controller at 64MHz MCK.
  */
-void lcdd_initialize(struct _pin* pins, uint32_t pin_len)
+void lcdd_initialize(const struct _pin* pins, uint32_t pin_len)
 {
 	Lcdc *pHw = LCDC;
 	Pmc *pPmc = PMC;

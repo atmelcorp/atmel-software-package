@@ -134,7 +134,7 @@ typedef struct _LcddLayer {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void lcdd_initialize(struct _pin* pins, uint32_t pin_len);
+extern void lcdd_initialize(const struct _pin* pins, uint32_t pin_len);
 extern uint8_t lcdd_is_layer_on(uint8_t bLayer);
 extern void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis);
 extern void lcdd_refresh(uint8_t bLayer);
