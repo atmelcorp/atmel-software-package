@@ -94,8 +94,8 @@
 #include "cortex-a/mmu.h"
 
 #include "misc/console.h"
-#include "peripherals/twihs.h"
-#include "peripherals/twihsd.h"
+#include "peripherals/twi.h"
+#include "peripherals/twid.h"
 #include "peripherals/isc.h"
 
 
@@ -167,7 +167,7 @@ __attribute__ ((aligned(64)))
 static IscDmaDescView2 isc_dam_desc_linklist2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
-Twihsd twid;
+struct _twid twid;
 
 /** LCD buffer.*/
 static uint8_t *pHeoBuffer =  (uint8_t*)LCD_PREVIEW_BASE_ADDRESS;
@@ -276,8 +276,8 @@ static void configure_twi(void)
 	/* Enable TWI peripheral clock */
 	pmc_enable_peripheral(BOARD_ID_TWI_ISI);
 	/* Configure TWI */
-	twihs_configure_master(BOARD_BASE_TWI_ISI, TWCK);
-	twihsd_initialize(&twid, BOARD_BASE_TWI_ISI);
+	twi_configure_master(BOARD_BASE_TWI_ISI, TWCK);
+	twid_initialize(&twid, BOARD_BASE_TWI_ISI);
 	/* Configure TWI interrupts */
 }
 

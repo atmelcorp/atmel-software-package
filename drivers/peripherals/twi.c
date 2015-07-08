@@ -84,8 +84,17 @@
 #include "peripherals/pmc.h"
 #include "trace.h"
 
+#include "timer.h"
+
 #include <stddef.h>
 #include <assert.h>
+
+#define TWI_IT_MASK (TWI_IER_TXCOMP | TWI_IER_TXCOMP | TWI_IER_RXRDY          \
+		     | TWI_IER_TXRDY | TWI_IER_SVACC | TWI_IER_GACC           \
+		     | TWI_IER_OVRE | TWIHS_IER_UNRE | TWIHS_IER_NACK         \
+		     | TWIHS_IER_ARBLST | TWIHS_IER_SCL_WS | TWIHS_IER_EOSACC \
+		     | TWIHS_IER_MCACK | TWIHS_IER_TOUT | TWIHS_IER_PECERR    \
+		     | TWIHS_IER_SMBDAM | TWIHS_IER_SMBHHM)
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -140,7 +149,8 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
  */
 void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 {
-	uint32_t i;
+	/* Configure time to have microseconds resolution */
+	timer_configure(1000);
 
 	trace_debug("twi_configure_slave()\n\r");
 	assert(pTwi);
@@ -148,7 +158,7 @@ void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 	pTwi->TWI_CR = TWI_CR_SWRST;
 	pTwi->TWI_RHR;
 	/* Wait at least 10 ms */
-	for (i = 0; i < 1000000; i++) ;
+	timer_sleep(10000);
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled */
 	pTwi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
 	/* Configure slave address. */
@@ -157,7 +167,7 @@ void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Wait at least 10 ms */
-	for (i = 0; i < 1000000; i++) ;
+	timer_sleep(10000);
 	assert((pTwi->TWI_CR & TWI_CR_SVDIS) != TWI_CR_SVDIS);
 }
 
@@ -293,7 +303,7 @@ uint8_t twi_is_transfer_complete(Twi * pTwi)
 void twi_enable_it(Twi * pTwi, uint32_t sources)
 {
 	assert(pTwi != NULL);
-	assert((sources & 0xFFFFF088) == 0);
+	assert(sources & TWI_IT_MASK);
 	pTwi->TWI_IER = sources;
 }
 
@@ -305,7 +315,7 @@ void twi_enable_it(Twi * pTwi, uint32_t sources)
 void twi_disable_it(Twi * pTwi, uint32_t sources)
 {
 	assert(pTwi != NULL);
-	assert((sources & 0xFFFFF088) == 0);
+	assert(sources & TWI_IT_MASK);
 	pTwi->TWI_IDR = sources;
 }
 

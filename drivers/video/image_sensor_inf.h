@@ -31,8 +31,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/twihsd.h"
-
 #include <stdint.h>
 
 /*---------------------------------------------------------------------------
@@ -48,6 +46,8 @@
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
+
+struct _twid;
 
 /** Sensor type */
 typedef enum _sensorType {
@@ -132,13 +132,13 @@ typedef struct _sensor_profile {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern sensorStatus_t sensor_twi_write_regs(Twihsd* pTwid,
+extern sensorStatus_t sensor_twi_write_regs(struct _twid* pTwid,
 					    const sensorReg_t * pReglist);
 
-extern sensorStatus_t sensor_twi_read_regs(Twihsd* pTwid,
+extern sensorStatus_t sensor_twi_read_regs(struct _twid* pTwid,
 					   const sensorReg_t * pReglist);
 
-extern sensorStatus_t sensor_setup(Twihsd* pTwid,
+extern sensorStatus_t sensor_setup(struct _twid* pTwid,
 				   const sensorProfile_t *sensor_profile,
 				   sensorOutputResolution_t resolution,
 				   sensorOutputFormat_t format );
