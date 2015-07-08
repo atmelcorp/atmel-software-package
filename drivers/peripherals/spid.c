@@ -83,6 +83,9 @@ void spid_configure(struct _spi_desc* desc)
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 	/* Enable SPI early otherwise FIFO configuration won't be applied */
 	pmc_enable_peripheral(id);
+	if (desc->transfert_mode == SPID_MODE_FIFO) {
+		desc->attributes &= ~SPI_MR_WDRBT;
+	}
 	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_MSTR);
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
