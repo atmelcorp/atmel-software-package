@@ -109,11 +109,8 @@ void timer_sleep(volatile uint32_t count)
 
 	do {
 		current = _timer;
-		if (current - start > count) {
-			break;
-		}
 		asm("WFI");
-	} while (1);
+	} while (timer_get_interval(start, current) > count);
 }
 
 uint32_t timer_get_tick(void)
