@@ -52,6 +52,7 @@ drivers-y += drivers/peripherals/twid.o
 
 drivers-y += drivers/peripherals/uart.o
 drivers-y += drivers/peripherals/usart.o
+drivers-y += drivers/peripherals/usartd.o
 drivers-y += drivers/peripherals/wdt.o
 drivers-y += drivers/peripherals/xdmac.o
 drivers-y += drivers/peripherals/xdmad.o

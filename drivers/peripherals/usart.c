@@ -464,7 +464,6 @@ uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
 		/* Stop reception if a timeout or break occur */
 		if ((usart->US_CSR & (US_CSR_TIMEOUT | US_CSR_RXBRK)) != 0) {
 			*buffer = '\0';
-			--left;
 			break;
 		}
 
