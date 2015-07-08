@@ -32,6 +32,8 @@ TOP := ../..
 
 BINNAME = isc
 
+VARIANT = sram
+
 obj-y += examples/isc/main.o
 
 include $(TOP)/scripts/Makefile.rules
