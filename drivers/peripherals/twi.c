@@ -411,9 +411,9 @@ uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t 
 		}
 		while (buf_size >= sizeof(uint8_t)) {
 			twi->TWI_THR = *(uint8_t*)buffer;
-			buffer += sizeof(uint16_t);
-			left -= sizeof(uint16_t);
-			buf_size -= sizeof(uint32_t);
+			buffer += sizeof(uint8_t);
+			left -= sizeof(uint8_t);
+			buf_size -= sizeof(uint8_t);
 		}
 
 	}
