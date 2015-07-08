@@ -195,6 +195,7 @@ static sColorSpaceComponents cs = {
 0x70, 0x80, 0x70, 
 0xFA2, 0xFEE, 0x80};
 
+#if 0
 /* Gamma table with gamma 1/2.2 */
 const uint32_t gGam[64] = {
 0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
@@ -206,6 +207,34 @@ const uint32_t gGam[64] = {
 0x3820008,0x38B0008,0x3930008,0x39B0008,0x3A40008,0x3AC0008,0x3B40008,0x3BC0008,
 0x3C40008,0x3CB0008,0x3D30008,0x3DB0008,0x3E20007,0x3EA0007,0x3F10007,0x3F90007
  };
+#endif
+
+#if 0
+/* Gamma table with gamma 1/1.8 */
+const uint32_t gGam[64] = {
+0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
+0x1420016,0x1580014,0x16D0013,0x1810012,0x1940012,0x1A60012,0x1B80011,0x1C90010,
+0x1DA0010,0x1EA000F,0x1FA000F,0x209000F,0x218000F,0x227000E,0x235000E,0x243000E,
+0x251000E,0x25F000D,0x26C000D,0x279000D,0x286000D,0x293000C,0x2A0000C,0x2AC000C,
+0x2B8000C,0x2C4000C,0x2D0000B,0x2DC000B,0x2E7000B,0x2F3000B,0x2FE000B,0x309000B,
+0x314000B,0x31F000A,0x32A000A,0x334000B,0x33F000A,0x349000A,0x354000A,0x35E000A,
+0x368000A,0x372000A,0x37C000A,0x386000A,0x3900009,0x399000A,0x3A30009,0x3AD0009,
+0x3B60009,0x3BF000A,0x3C90009,0x3D20009,0x3DB0009,0x3E40009,0x3ED0009,0x3F60009
+};
+
+#endif
+/* Gamma table with gamma 1/2.8 */
+const uint32_t gGam[64] = {
+0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
+0x1E70014,0x1FC0013,0x20F0012,0x2210011,0x2330010,0x243000F,0x253000E,0x261000E,
+0x270000D,0x27D000D,0x28A000D,0x297000C,0x2A3000C,0x2AF000C,0x2BB000B,0x2C6000B,
+0x2D1000A,0x2DB000A,0x2E6000A,0x2F00009,0x2FA0009,0x3030009,0x30D0009,0x3160009,
+0x31F0008,0x3280008,0x3300009,0x3390008,0x3410008,0x3490008,0x3510008,0x3590008,
+0x3610008,0x3690007,0x3700008,0x3780007,0x37F0007,0x3860007,0x38D0007,0x3940007,
+0x39B0007,0x3A20007,0x3A90006,0x3AF0007,0x3B60006,0x3BC0007,0x3C30006,0x3C90006,
+0x3CF0007,0x3D60006,0x3DC0006,0x3E20006,0x3E80006,0x3EE0005,0x3F40005,0x3F90006
+};
+
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -228,8 +257,8 @@ static void isc_handler(void )
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
 	}
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
-		for (i = 0; i < 512; i+= 32) {
-			printf("<h: %x> ", ISC->ISC_HIS_ENTRY[i]);
+		for (i = 0; i < 512; i+= 16) {
+			printf("<%x %x> ", i, ISC->ISC_HIS_ENTRY[i]);
 		}
 		isc_clear_histogram_table();
 	}
@@ -348,17 +377,29 @@ static void configure_isc(void)
 		isc_cfa_enabled(1);
 		isc_cfa_configure( ISC_CFA_CFG_BAYCFG_BGBG, 1);
 		
+		/* The White Balance (WB) module captures the data bus from the PFE module,
+		each Bayer color component (R, Gr, B, Gb) can be manually adjusted using an
+		offset and a gain. */
+		isc_wb_enabled(1);
+		isc_wb_set_bayer_pattern(ISC_WB_CFG_BAYCFG_BGBG);
+		/* Test value for White balance setting */
+		isc_wb_adjust_bayer_color(0, 0, 0, 0, 0x208, 0x208, 0x220, 0x220);
+
 		/* Set up Gamma table with gamma 1/2.2 */
 		for (i = 0; i< 64; i++){
 			ISC->ISC_GAM_RENTRY[i] = gGam[i];
 			ISC->ISC_GAM_GENTRY[i] = gGam[i];
 			ISC->ISC_GAM_BENTRY[i] = gGam[i];
 		}
+		// Performs a 12-bit to 10-bit with simply 2 bit cut.
+		isc_gamma_enabled(1, 0);
 		
+#if 0
+		// Performs a 12-bit to 10-bit with power function.
 		isc_gamma_enabled(1, ISC_GAM_CTRL_BENABLE |
 							 ISC_GAM_CTRL_GENABLE | 
 							 ISC_GAM_CTRL_RENABLE );
-		
+#endif
 		if (lcdMode == LCD_MODE_YUV_PLANAR) {
 			/* By converting an image from RGB to YCbCr color space, it is possible 
 				to separate Y, Cb and Cr information. */
@@ -402,7 +443,9 @@ static void configure_isc(void)
 		isc_dma_enable( ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE  );
 		isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 	}
+	
 	isc_histogram_enabled(1);
+	isc_clear_histogram_table();
 	isc_update_profile();
 	
 	aic_set_source_vector(ID_ISC, isc_handler);
@@ -537,7 +580,27 @@ extern int main( void )
 	//while(1);
 	for(;;) {
 		key = console_get_char();
-		if ((key >= '0') || (key <= '6')) {
+		if ((key >= '0') || (key < '6')) {
+			switch (key){
+			case '0':
+				printf("\n\rHistogram Gr samplinng \n\r");
+				break;
+			case '1':
+				printf("\n\rHistogram R samplinng \n\r");
+				break;
+			case '2':
+				printf("\n\rHistogram Gb samplinng \n\r");
+				break;
+			case '3':
+				printf("\n\rHistogram B samplinng \n\r");
+				break;
+			case '4':
+				printf("\n\rHistogram Luminance samplinng \n\r");
+				break;
+			case '5':
+				printf("\n\rHistogram RAW samplinng \n\r");
+				break;
+			}
 			isc_histogram_configure((key-'0'),ISC_HIS_CFG_BAYSEL_BGBG, 0 );
 			isc_update_profile();
 			isc_update_histogram_table();
