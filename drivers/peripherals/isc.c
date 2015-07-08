@@ -625,6 +625,7 @@ void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset)
  */
 void isc_update_histogram_table(void)
 {
+	while((ISC->ISC_CTRLSR & ISC_CTRLSR_HISREQ) == ISC_CTRLSR_HISREQ);
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISREQ;
 }
 
