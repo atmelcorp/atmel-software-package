@@ -319,12 +319,15 @@ static uint32_t _spi_write_stream(Spi *spi, uint32_t chip_select,
 
 	uint8_t is_ps = _spi_is_variable_ps(spi);
 	uint32_t max_size = is_ps ? sizeof(uint8_t) : sizeof(uint16_t);
+	int32_t fifo_size = get_peripheral_fifo_depth(spi);
+	if (fifo_size < 0)
+		return 0;
 
 	while (left > 0) {
 		if ((spi->SPI_SR & SPI_SR_TDRE) == 0) continue;
 
 		/* Get FIFO free size (int octet) and clamp it */
-		uint32_t buf_size = SPI_FIFO_DEPTH - spi_fifo_tx_size(spi);
+		uint32_t buf_size = fifo_size - spi_fifo_tx_size(spi);
 		buf_size = (buf_size > left) ? left : buf_size;
 
 		/* Fill the FIFO as must as possible */

@@ -522,12 +522,15 @@ uint32_t usart_write_stream(Usart *usart, const void *stream,
 {
 	const uint8_t* buffer = stream;
 	uint32_t left = len;
+	int32_t fifo_size = get_peripheral_fifo_depth(usart);
+	if (fifo_size < 0)
+		return 0;
 
 	while (left > 0) {
 		if ((usart->US_CSR & US_CSR_TXRDY) == 0) continue;
 
 		/* Get FIFO free size (int octet) and clamp it */
-		uint32_t buf_size = USART_FIFO_DEPTH - usart_fifo_tx_size(usart);
+		uint32_t buf_size = fifo_size - usart_fifo_tx_size(usart);
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the FIFO as must as possible with four data writes */

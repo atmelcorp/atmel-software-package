@@ -163,8 +163,11 @@
 
 #include "chip_pins.h"
 
-/** USART FIFO depth */
-#define USART_FIFO_DEPTH (32u)
+/** FLEXCOM USART FIFO depth */
+#define FLEXCOM_USART_FIFO_DEPTH (32u)
+
+/** FLEXCOM SPI FIFO depth */
+#define FLEXCOM_SPI_FIFO_DEPTH (32u)
 
 /** SPI FIFO depth */
 #define SPI_FIFO_DEPTH (16u)
@@ -234,7 +237,8 @@ extern uint32_t get_peripheral_clock_divider(uint32_t id);
  * \param transmit a boolean, true for transmit, false for receive
  * \return the XDMAC interface number or 0xff if none
  */
-uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
+extern uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac,
+					   bool transmit);
 
 /** \brief Checks if a peripheral is usable with a XDMAC controller
  *
@@ -243,7 +247,15 @@ uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
  * \return true if the peripheral is usable on the given XDMAC controller,
  * false otherwise
  */
-bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
+extern bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
+
+/** \brief Retrive peripheral FIFO size from its base address
+ *
+ * \param addr the Peripheral base addr
+ * \return Size in number of data of the peripherals FIFO if
+ * available, negative value otherwise.
+ */
+extern int32_t get_peripheral_fifo_depth(void* addr);
 
 #ifdef __cplusplus
 }

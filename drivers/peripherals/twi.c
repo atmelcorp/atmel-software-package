@@ -387,6 +387,10 @@ uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t 
 	const uint8_t* buffer = stream;
 	uint32_t left = len;
 
+	int32_t fifo_size = get_peripheral_fifo_size(twi);
+	if (fifo_size < 0)
+		return 0;
+
 	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
 	twi->TWI_MMR = TWI_MMR_DADR(addr);
 	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
@@ -395,7 +399,7 @@ uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t 
 		if ((twi->TWI_SR & TWI_SR_TXRDY) == 0) continue;
 
 		/* Get FIFO free size (int octet) and clamp it */
-		uint32_t buf_size = TWI_FIFO_DEPTH - twi_fifo_tx_size(twi);
+		uint32_t buf_size = fifo_size - twi_fifo_tx_size(twi);
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the FIFO as must as possible */
