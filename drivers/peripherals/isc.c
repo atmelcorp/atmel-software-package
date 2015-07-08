@@ -34,21 +34,21 @@
 
 #include "chip.h"
 #include "peripherals/isc.h"
- 
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
- 
+
 
 /*----------------------------------------------------------------------------
  *        Export functions
  *----------------------------------------------------------------------------*/
- 
+
 /*------------------------------------------
  *         ISC Control functions
  *----------------------------------------*/
 /**
- * \brief Send Capture Input Stream Command to start a single shot capture or a 
+ * \brief Send Capture Input Stream Command to start a single shot capture or a
  * multiple frame.
  */
 void isc_start_capture(void)
@@ -57,7 +57,7 @@ void isc_start_capture(void)
 }
 
 /**
- * \brief end the capture at the next Vertical Synchronization Detection. 
+ * \brief end the capture at the next Vertical Synchronization Detection.
  */
 void isc_stop_capture(void)
 {
@@ -92,12 +92,12 @@ void isc_software_reset(void)
 /*------------------------------------------
  *      PFE(Parallel Front End) functions
  *----------------------------------------*/
- 
+
 /**
  * \brief configure PFE(Parallel Front End) video mode.
  * \param vmode: Parallel Front End Mode
  */
-void isc_pfe_set_video_mode( uint32_t vmode)
+void isc_pfe_set_video_mode(uint32_t vmode)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_MODE_Msk;
 	ISC->ISC_PFE_CFG0 |= vmode;
@@ -108,7 +108,7 @@ void isc_pfe_set_video_mode( uint32_t vmode)
  * \param hpol: Horizontal Synchronization Polarity
  * \param vpol: Vertical Synchronization Polarity
  */
-void isc_pfe_set_sync_polarity( uint32_t hpol, uint32_t vpol)
+void isc_pfe_set_sync_polarity(uint32_t hpol, uint32_t vpol)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_HPOL;
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_VPOL;
@@ -117,10 +117,10 @@ void isc_pfe_set_sync_polarity( uint32_t hpol, uint32_t vpol)
 
 /**
  * \brief set PFE(Parallel Front End) pixel clock polarity.
- * \param ppol: pixel clock Polarity, The pixel stream is sampled on the 
+ * \param ppol: pixel clock Polarity, The pixel stream is sampled on the
  *  rising or falling edge of the pixel clock
  */
-void isc_pfe_set_pixel_polarity( uint32_t ppol)
+void isc_pfe_set_pixel_polarity(uint32_t ppol)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_PPOL;
 	ISC->ISC_PFE_CFG0 |= ppol ;
@@ -130,7 +130,7 @@ void isc_pfe_set_pixel_polarity( uint32_t ppol)
  * \brief set PFE(Parallel Front End) field polarity.
  * \param fpol: Top/bottom field polarity configuration.
  */
-void isc_pfe_set_field_polarity( uint32_t fpol)
+void isc_pfe_set_field_polarity(uint32_t fpol)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_FPOL;
 	ISC->ISC_PFE_CFG0 |= fpol ;
@@ -142,7 +142,7 @@ void isc_pfe_set_field_polarity( uint32_t fpol)
  * \param enCol: Column Cropping enable/disable(1/0)
  * \param enRow: Row Cropping enable/disable(1/0)
  */
-void isc_pfe_set_cropping_enabled( uint8_t enCol, uint8_t enRow )
+void isc_pfe_set_cropping_enabled(uint8_t enCol, uint8_t enRow)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_COLEN;
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_ROWEN;
@@ -154,7 +154,7 @@ void isc_pfe_set_cropping_enabled( uint8_t enCol, uint8_t enRow )
  * \brief set PFE(Parallel Front End) Bits Per Sample.
  * \param bps: Bits Per Sample.
  */
-void isc_pfe_set_bps( uint32_t bps)
+void isc_pfe_set_bps(uint32_t bps)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_BPS_Msk;
 	ISC->ISC_PFE_CFG0 |= bps ;
@@ -163,7 +163,7 @@ void isc_pfe_set_bps( uint32_t bps)
 /**
  * \brief set PFE(Parallel Front End)in single shot mode
  */
-void isc_pfe_set_single_shot( void)
+void isc_pfe_set_single_shot(void)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_CONT;
 }
@@ -171,7 +171,7 @@ void isc_pfe_set_single_shot( void)
 /**
  * \brief set PFE(Parallel Front End)in continuous mode
  */
-void isc_pfe_set_continuous_shot( void)
+void isc_pfe_set_continuous_shot(void)
 {
 	ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_CONT;
 }
@@ -181,7 +181,7 @@ void isc_pfe_set_continuous_shot( void)
  * \brief set PFE(Parallel Front End) gated clock.
  * \param en: enable/disable gated clock.
  */
-void isc_pfe_set_gated_clock( uint8_t en)
+void isc_pfe_set_gated_clock(uint8_t en)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_GATED;
 	if (en) ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_GATED ;
@@ -193,7 +193,7 @@ void isc_pfe_set_gated_clock( uint8_t en)
  * \param Vstart: Vertical starting position of the cropping area
  * \param Hend: Vertical ending position of the cropping area
  */
-void isc_pfe_set_cropping_area( 
+void isc_pfe_set_cropping_area(
 					uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
 {
 	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(Hstart) | ISC_PFE_CFG1_COLMAX(Hend);
@@ -203,11 +203,11 @@ void isc_pfe_set_cropping_area(
 /*------------------------------------------
  *         Clock configuration functions
  *----------------------------------------*/
- 
+
 /**
  * \brief Configure the ISP clock.
  * \param ispClockDiv ISP Clock Divider.
- * \param ispClockSelection ISP Clock Selection. 
+ * \param ispClockSelection ISP Clock Selection.
 			0: HCLOCK is selected.
 			1: GCK is selected.
  */
@@ -243,14 +243,14 @@ void isc_reset_isp_clock(void)
 /**
  * \brief Configure the Master clock.
  * \param masterClockDiv Master Clock Divider.
- * \param masterClockSelection Master Clock Selection. 
+ * \param masterClockSelection Master Clock Selection.
 			0: HCLOCK is selected.
 			1: GCK is selected.
 			2: 480-MHz system clock is selected.
  */
 void isc_configure_master_clock(uint32_t masterClockDiv, uint32_t masterClockSelection)
 {
-	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv) 
+	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv)
 					| ISC_CLKCFG_MCSEL(masterClockSelection);
 }
 
@@ -350,14 +350,19 @@ void isc_wb_set_bayer_pattern(uint8_t pattern)
  * \param bGain Blue Component Gain (unsigned 13 bits, 0:4:9)
  * \param gbGain Green Component (Blue row) Gain (unsigned 13 bits, 0:4:9)
  */
-void isc_wb_adjust_bayer_color(
-				uint32_t rOffset, uint32_t grOffset, uint32_t bOffset, uint32_t gbOffset,
-				uint32_t rGain, uint32_t grGain, uint32_t bGain, uint32_t gbGain )
+void isc_wb_adjust_bayer_color(uint32_t rOffset, uint32_t grOffset,
+			       uint32_t bOffset, uint32_t gbOffset,
+			       uint32_t rGain, uint32_t grGain,
+			       uint32_t bGain, uint32_t gbGain)
 {
-	ISC->ISC_WB_O_RGR = ISC_WB_O_RGR_ROFST(rOffset) | ISC_WB_O_RGR_GROFST(grOffset);
-	ISC->ISC_WB_O_BGB = ISC_WB_O_BGB_BOFST(bOffset) | ISC_WB_O_BGB_GBOFST(gbOffset);
-	ISC->ISC_WB_G_RGR = ISC_WB_G_RGR_RGAIN(rGain) | ISC_WB_G_RGR_GRGAIN(grGain);
-	ISC->ISC_WB_G_BGB = ISC_WB_G_BGB_BGAIN(bGain) | ISC_WB_G_BGB_GBGAIN(gbGain);
+	ISC->ISC_WB_O_RGR =
+		ISC_WB_O_RGR_ROFST(rOffset) | ISC_WB_O_RGR_GROFST(grOffset);
+	ISC->ISC_WB_O_BGB =
+		ISC_WB_O_BGB_BOFST(bOffset) | ISC_WB_O_BGB_GBOFST(gbOffset);
+	ISC->ISC_WB_G_RGR =
+		ISC_WB_G_RGR_RGAIN(rGain) | ISC_WB_G_RGR_GRGAIN(grGain);
+	ISC->ISC_WB_G_BGB =
+		ISC_WB_G_BGB_BGAIN(bGain) | ISC_WB_G_BGB_GBGAIN(gbGain);
 }
 
 /*------------------------------------------
@@ -402,16 +407,22 @@ void isc_cc_enabled(uint8_t enabled)
 
 /**
  * \brief Color correction with color component.
- * \param cc Pointer to structure sColorCorrectComponents
+ * \param cc Pointer to structure _color_correct
  */
-void isc_cc_configure(sColorCorrectComponents* cc)
+void isc_cc_configure(struct _color_correct* cc)
 {
-	ISC->ISC_CC_RR_RG = ISC_CC_RR_RG_RRGAIN(cc->rrGain) | ISC_CC_RR_RG_RGGAIN(cc->rgGain);
-	ISC->ISC_CC_RB_OR = ISC_CC_RB_OR_RBGAIN(cc->rbGain) | ISC_CC_RB_OR_ROFST(cc->rOffset);
-	ISC->ISC_CC_GR_GG = ISC_CC_GR_GG_GRGAIN(cc->grGain) | ISC_CC_GR_GG_GGGAIN(cc->ggGain);
-	ISC->ISC_CC_GB_OG = ISC_CC_GB_OG_GBGAIN(cc->gbGain) | ISC_CC_GB_OG_ROFST(cc->gOffset);
-	ISC->ISC_CC_BR_BG = ISC_CC_BR_BG_BRGAIN(cc->brGain) | ISC_CC_BR_BG_BGGAIN(cc->bgGain);
-	ISC->ISC_CC_BB_OB = ISC_CC_BB_OB_BBGAIN(cc->bbGain) | ISC_CC_BB_OB_BOFST(cc->bOffset);
+	ISC->ISC_CC_RR_RG =
+		ISC_CC_RR_RG_RRGAIN(cc->rrGain) | ISC_CC_RR_RG_RGGAIN(cc->rgGain);
+	ISC->ISC_CC_RB_OR =
+		ISC_CC_RB_OR_RBGAIN(cc->rbGain) | ISC_CC_RB_OR_ROFST(cc->rOffset);
+	ISC->ISC_CC_GR_GG =
+		ISC_CC_GR_GG_GRGAIN(cc->grGain) | ISC_CC_GR_GG_GGGAIN(cc->ggGain);
+	ISC->ISC_CC_GB_OG =
+		ISC_CC_GB_OG_GBGAIN(cc->gbGain) | ISC_CC_GB_OG_ROFST(cc->gOffset);
+	ISC->ISC_CC_BR_BG =
+		ISC_CC_BR_BG_BRGAIN(cc->brGain) | ISC_CC_BR_BG_BGGAIN(cc->bgGain);
+	ISC->ISC_CC_BB_OB =
+		ISC_CC_BB_OB_BBGAIN(cc->bbGain) | ISC_CC_BB_OB_BOFST(cc->bOffset);
 }
 
 /*------------------------------------------
@@ -445,12 +456,15 @@ void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
 {
 	uint8_t i;
 	for (i = 0; i < 64 ; i++) {
-		ISC->ISC_GAM_BENTRY[i]= ISC_GAM_BENTRY_BCONSTANT(bGamConstant[i])
-							| ISC_GAM_BENTRY_BSLOPE(bGamSlope[i]);
-		ISC->ISC_GAM_GENTRY[i]= ISC_GAM_GENTRY_GCONSTANT(bGamConstant[i])
-							| ISC_GAM_GENTRY_GSLOPE(bGamSlope[i]);
-		ISC->ISC_GAM_RENTRY[i]= ISC_GAM_RENTRY_RCONSTANT(bGamConstant[i])
-							| ISC_GAM_RENTRY_RSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_BENTRY[i] =
+			ISC_GAM_BENTRY_BCONSTANT(bGamConstant[i])
+			| ISC_GAM_BENTRY_BSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_GENTRY[i] =
+			ISC_GAM_GENTRY_GCONSTANT(bGamConstant[i])
+			| ISC_GAM_GENTRY_GSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_RENTRY[i] =
+			ISC_GAM_RENTRY_RCONSTANT(bGamConstant[i])
+			| ISC_GAM_RENTRY_RSLOPE(bGamSlope[i]);
 	}
 }
 
@@ -470,22 +484,22 @@ void isc_csc_enabled(uint8_t enabled)
 
 /**
  * \brief Color space convert with color space component.
- * \param cs Pointer to structure sColorCorrectComponents
+ * \param cs Pointer to structure _color_space
  */
-void isc_csc_configure(sColorSpaceComponents* cs)
+void isc_csc_configure(struct _color_space* cs)
 {
-	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain) 
-						| ISC_CSC_YR_YG_YGGAIN(cs->YgGain);
-	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain) 
-						| ISC_CSC_YB_OY_YOFST(cs->Yoffset);
+	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain)
+		| ISC_CSC_YR_YG_YGGAIN(cs->YgGain);
+	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain)
+		| ISC_CSC_YB_OY_YOFST(cs->Yoffset);
 	ISC->ISC_CSC_CBR_CBG = ISC_CSC_CBR_CBG_CBRGAIN(cs->cbrGain)
-						| ISC_CSC_CBR_CBG_CBGGAIN(cs->cbgGain);
-	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain) 
-						| ISC_CSC_CBB_OCB_CBOFST(cs->cbOffset);
-	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain) 
-						| ISC_CSC_CRR_CRG_CRGGAIN(cs->crgGain);
-	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain) 
-						| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
+		| ISC_CSC_CBR_CBG_CBGGAIN(cs->cbgGain);
+	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain)
+		| ISC_CSC_CBB_OCB_CBOFST(cs->cbOffset);
+	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain)
+		| ISC_CSC_CRR_CRG_CRGGAIN(cs->crgGain);
+	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain)
+		| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
 }
 
 /*------------------------------------------
@@ -512,7 +526,7 @@ void isc_cbc_enabled(uint8_t enabled)
  * \param Contrast Contrast (signed 12 bits 1:3:8).
  */
 void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
-						uint16_t brightness, uint16_t contrast)
+		       uint16_t brightness, uint16_t contrast)
 {
    if (ccir656)
 		ISC->ISC_CBC_CFG = ISC_CBC_CFG_CCIR | byteOrder ;
@@ -538,7 +552,7 @@ void isc_sub422_enabled(uint8_t enabled)
 
 /**
  * \brief Configure Subsampling 4:4:4 to 4:2:2 with giving value.
- * \param ccir656 CCIR656 Stream Enable. 
+ * \param ccir656 CCIR656 Stream Enable.
 				0: Raw mode
 				1: CCIR mode
  * \param byteOrder CCIR656 Byte Ordering.
@@ -554,7 +568,7 @@ void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
 }
 
 /**
- * \brief Configure 4:2:2 to 4:2:0 Vertical Subsampling Filter Enable 
+ * \brief Configure 4:2:2 to 4:2:0 Vertical Subsampling Filter Enable
 		(Center Aligned) with giving value.
  * \param enabled Subsampler enabled.
 				0: disabled
@@ -653,9 +667,9 @@ void isc_dma_configure_input_mode(uint32_t mode)
  * \brief Configure ISC DMA with giving entry.
  * \param descEntry entry of DMA descriptor VIEW.
  */
-void isc_dma_configure_desc_entry(uint32_t descEntry)
+void isc_dma_configure_desc_entry(uint32_t desc_entry)
 {
-	ISC->ISC_DNDA = descEntry;
+	ISC->ISC_DNDA = desc_entry;
 }
 
 /**
@@ -665,15 +679,6 @@ void isc_dma_configure_desc_entry(uint32_t descEntry)
 void isc_dma_enable(uint32_t ctrl)
 {
 	ISC->ISC_DCTRL = ctrl;
-}
-
-/**
- * \brief Configure ISC DMA with giving entry.
- * \param descEntry entry of DMA descriptor VIEW.
- */
-void isc_dma_configure(uint32_t descEntry)
-{
-	ISC->ISC_DNDA = descEntry;
 }
 
 /**

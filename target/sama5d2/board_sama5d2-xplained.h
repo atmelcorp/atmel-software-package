@@ -269,9 +269,12 @@
 #define EXAMPLE_LCD_SCALE   1
 
 /** Pixel clock rate in Hz (HS period * VS period * BOARD_LCD_FRAMERATE). */
-#define BOARD_LCD_PIXELCLOCK        ((BOARD_LCD_TIMING_HPW+BOARD_LCD_TIMING_HBP+BOARD_LCD_WIDTH+BOARD_LCD_TIMING_HFP)\
-	*(BOARD_LCD_TIMING_VPW+BOARD_LCD_TIMING_VBP+BOARD_LCD_HEIGHT+BOARD_LCD_TIMING_VFP)\
-                                    *BOARD_LCD_FRAMERATE)
+#define BOARD_LCD_PIXELCLOCK \
+	((BOARD_LCD_TIMING_HPW+BOARD_LCD_TIMING_HBP                     \
+	  +BOARD_LCD_WIDTH+BOARD_LCD_TIMING_HFP)                        \
+	 *(BOARD_LCD_TIMING_VPW+BOARD_LCD_TIMING_VBP+                   \
+	   BOARD_LCD_HEIGHT+BOARD_LCD_TIMING_VFP)                       \
+	 *BOARD_LCD_FRAMERATE)
 
 #define swap(a, b) { uint16_t t = a; a = b; b = t; }
 

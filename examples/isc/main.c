@@ -32,7 +32,7 @@
  *
  * \section Purpose
  *
- * This example demonstrates the ISC (Image Sensor controller) of an SAMA5D2 
+ * This example demonstrates the ISC (Image Sensor controller) of an SAMA5D2
  * Xplained board.
  *
  * \section Requirements
@@ -41,12 +41,13 @@
  * On-board ISC interface and a external CMOS-type image sensor board.
  *
  * \section Description
- * The provided program uses the Image Sensor Controller (ISC) system,  it manages 
- * incoming data from a parallel CMOS sensor (ov7740) . It support sensor with a 
- * data width of 8 bits in YUV format and 10 bits raw Bayer format. This example 
- * show how to configure the internal image processor includes color filter array 
- * interpolation, gamma correction, 12 bits to 10 bits compression, and transfer 
- * data stream with DMA 8/16 package.
+ * The provided program uses the Image Sensor Controller (ISC) system,
+ * it manages incoming data from a parallel CMOS sensor (ov7740) . It
+ * support sensor with a data width of 8 bits in YUV format and 10
+ * bits raw Bayer format. This example show how to configure the
+ * internal image processor includes color filter array interpolation,
+ * gamma correction, 12 bits to 10 bits compression, and transfer data
+ * stream with DMA 8/16 package.
  *
  * \section Usage
  *  -# Build the program and download it inside the SAMA5D2-EK board.
@@ -65,7 +66,7 @@
  *      -- SAMxxxxx-xx
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *    \endcode
- * The user can then choose any of the available options to perform the 
+ * The user can then choose any of the available options to perform the
  * described action.
  *
  * \section References
@@ -103,7 +104,7 @@
 #include "video/lcd_draw.h"
 #include "video/image_sensor_inf.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -125,9 +126,10 @@
 #define ISC_MAX_NUM_FRAME_BUFFER    1
 
 /** Maximum image size (YUV)*/
-#define ISC_MAX_IMAGE_SIZE            (1600 * 1200 * 2)
+#define ISC_MAX_IMAGE_SIZE          (1600 * 1200 * 2)
 
-/** LCD buffer start address for preview mode (same address for ISI preview buffer) */
+/** LCD buffer start address for preview mode (same address for ISI
+ * preview buffer) */
 #define LCD_PREVIEW_BASE_ADDRESS      ISC_OUTPUT_BASE_ADDRESS
 
 /** TWI clock frequency in Hz. */
@@ -137,7 +139,7 @@
 #define BOARD_ID_TWI_ISI     ID_TWIHS0
 
 /** TWI base address for sensor TWI interface*/
-#define BOARD_BASE_TWI_ISI   TWIHS0
+#define BOARD_BASE_TWI_ISI   ((Twi*)(TWIHS0))
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -151,20 +153,12 @@ const struct _pin pin_pwd = PIN_ISC_PWD;
 const struct _pin pins_isc[]= PINS_ISC_IOS3;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static IscDmaDescView0 isc_dam_desc_linklist[ISC_MAX_NUM_FRAME_BUFFER + 1];
+ALIGNED(64)
+static struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** Descriptor view 2 is used for YCbCr planar pixel stream. */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__ ((aligned(64)))
-#endif
-static IscDmaDescView2 isc_dam_desc_linklist2[ISC_MAX_NUM_FRAME_BUFFER + 1];
+ALIGNED(64)
+static struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
 struct _twid twid;
@@ -189,50 +183,50 @@ static uint32_t lcdMode;
 volatile static uint32_t capture_started = 0;
 
 /* Color space matrix setting */
-static sColorSpaceComponents cs = {
-0x42, 0x81, 0x19 , 
-0x10, 0xFDA, 0xFB6, 
-0x70, 0x80, 0x70, 
-0xFA2, 0xFEE, 0x80};
+static struct _color_space cs = {
+	0x42, 0x81, 0x19 ,
+	0x10, 0xFDA, 0xFB6,
+	0x70, 0x80, 0x70,
+	0xFA2, 0xFEE, 0x80};
 
 #if 0
 /* Gamma table with gamma 1/2.2 */
 const uint32_t gGam[64] = {
-0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
-0x18E0016,0x1A40015,0x1B80014,0x1CC0013,0x1DE0012,0x1F00011,0x2010010,0x2110010,
-0x221000F,0x230000F,0x23F000E,0x24D000E,0x25B000D,0x269000D,0x276000D,0x283000D,
-0x28F000C,0x29C000C,0x2A8000C,0x2B4000C,0x2BF000B,0x2CA000B,0x2D6000B,0x2E0000B,
-0x2EB000A,0x2F6000A,0x300000A,0x30A000A,0x314000A,0x31E000A,0x328000A,0x3310009,
-0x33B0009,0x3440009,0x34D0009,0x3570009,0x3600009,0x3680009,0x3710009,0x37A0009,
-0x3820008,0x38B0008,0x3930008,0x39B0008,0x3A40008,0x3AC0008,0x3B40008,0x3BC0008,
-0x3C40008,0x3CB0008,0x3D30008,0x3DB0008,0x3E20007,0x3EA0007,0x3F10007,0x3F90007
- };
+	0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
+	0x18E0016,0x1A40015,0x1B80014,0x1CC0013,0x1DE0012,0x1F00011,0x2010010,0x2110010,
+	0x221000F,0x230000F,0x23F000E,0x24D000E,0x25B000D,0x269000D,0x276000D,0x283000D,
+	0x28F000C,0x29C000C,0x2A8000C,0x2B4000C,0x2BF000B,0x2CA000B,0x2D6000B,0x2E0000B,
+	0x2EB000A,0x2F6000A,0x300000A,0x30A000A,0x314000A,0x31E000A,0x328000A,0x3310009,
+	0x33B0009,0x3440009,0x34D0009,0x3570009,0x3600009,0x3680009,0x3710009,0x37A0009,
+	0x3820008,0x38B0008,0x3930008,0x39B0008,0x3A40008,0x3AC0008,0x3B40008,0x3BC0008,
+	0x3C40008,0x3CB0008,0x3D30008,0x3DB0008,0x3E20007,0x3EA0007,0x3F10007,0x3F90007
+};
 #endif
 
 #if 0
 /* Gamma table with gamma 1/1.8 */
 const uint32_t gGam[64] = {
-0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
-0x1420016,0x1580014,0x16D0013,0x1810012,0x1940012,0x1A60012,0x1B80011,0x1C90010,
-0x1DA0010,0x1EA000F,0x1FA000F,0x209000F,0x218000F,0x227000E,0x235000E,0x243000E,
-0x251000E,0x25F000D,0x26C000D,0x279000D,0x286000D,0x293000C,0x2A0000C,0x2AC000C,
-0x2B8000C,0x2C4000C,0x2D0000B,0x2DC000B,0x2E7000B,0x2F3000B,0x2FE000B,0x309000B,
-0x314000B,0x31F000A,0x32A000A,0x334000B,0x33F000A,0x349000A,0x354000A,0x35E000A,
-0x368000A,0x372000A,0x37C000A,0x386000A,0x3900009,0x399000A,0x3A30009,0x3AD0009,
-0x3B60009,0x3BF000A,0x3C90009,0x3D20009,0x3DB0009,0x3E40009,0x3ED0009,0x3F60009
+	0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
+	0x1420016,0x1580014,0x16D0013,0x1810012,0x1940012,0x1A60012,0x1B80011,0x1C90010,
+	0x1DA0010,0x1EA000F,0x1FA000F,0x209000F,0x218000F,0x227000E,0x235000E,0x243000E,
+	0x251000E,0x25F000D,0x26C000D,0x279000D,0x286000D,0x293000C,0x2A0000C,0x2AC000C,
+	0x2B8000C,0x2C4000C,0x2D0000B,0x2DC000B,0x2E7000B,0x2F3000B,0x2FE000B,0x309000B,
+	0x314000B,0x31F000A,0x32A000A,0x334000B,0x33F000A,0x349000A,0x354000A,0x35E000A,
+	0x368000A,0x372000A,0x37C000A,0x386000A,0x3900009,0x399000A,0x3A30009,0x3AD0009,
+	0x3B60009,0x3BF000A,0x3C90009,0x3D20009,0x3DB0009,0x3E40009,0x3ED0009,0x3F60009
 };
 
 #endif
 /* Gamma table with gamma 1/2.8 */
 const uint32_t gGam[64] = {
-0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
-0x1E70014,0x1FC0013,0x20F0012,0x2210011,0x2330010,0x243000F,0x253000E,0x261000E,
-0x270000D,0x27D000D,0x28A000D,0x297000C,0x2A3000C,0x2AF000C,0x2BB000B,0x2C6000B,
-0x2D1000A,0x2DB000A,0x2E6000A,0x2F00009,0x2FA0009,0x3030009,0x30D0009,0x3160009,
-0x31F0008,0x3280008,0x3300009,0x3390008,0x3410008,0x3490008,0x3510008,0x3590008,
-0x3610008,0x3690007,0x3700008,0x3780007,0x37F0007,0x3860007,0x38D0007,0x3940007,
-0x39B0007,0x3A20007,0x3A90006,0x3AF0007,0x3B60006,0x3BC0007,0x3C30006,0x3C90006,
-0x3CF0007,0x3D60006,0x3DC0006,0x3E20006,0x3E80006,0x3EE0005,0x3F40005,0x3F90006
+	0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
+	0x1E70014,0x1FC0013,0x20F0012,0x2210011,0x2330010,0x243000F,0x253000E,0x261000E,
+	0x270000D,0x27D000D,0x28A000D,0x297000C,0x2A3000C,0x2AF000C,0x2BB000B,0x2C6000B,
+	0x2D1000A,0x2DB000A,0x2E6000A,0x2F00009,0x2FA0009,0x3030009,0x30D0009,0x3160009,
+	0x31F0008,0x3280008,0x3300009,0x3390008,0x3410008,0x3490008,0x3510008,0x3590008,
+	0x3610008,0x3690007,0x3700008,0x3780007,0x37F0007,0x3860007,0x38D0007,0x3940007,
+	0x39B0007,0x3A20007,0x3A90006,0x3AF0007,0x3B60006,0x3BC0007,0x3C30006,0x3C90006,
+	0x3CF0007,0x3D60006,0x3DC0006,0x3E20006,0x3E80006,0x3EE0005,0x3F40005,0x3F90006
 };
 
 
@@ -240,15 +234,15 @@ const uint32_t gGam[64] = {
  *        Local functions
  *----------------------------------------------------------------------------*/
 /**
- * \brief ISC interrupt handler. 
+ * \brief ISC interrupt handler.
  */
-static void isc_handler(void )
+static void isc_handler(void)
 {
 	uint32_t status, i;
 	status = isc_interrupt_status();
-	if((status & ISC_INTSR_HD) == ISC_INTSR_HD) {
+	if ((status & ISC_INTSR_HD) == ISC_INTSR_HD) {
 	}
-	if((status & ISC_INTSR_VD) == ISC_INTSR_VD){
+	if ((status & ISC_INTSR_VD) == ISC_INTSR_VD){
 		if (!capture_started){
 			isc_start_capture();
 			capture_started = 1;
@@ -258,11 +252,13 @@ static void isc_handler(void )
 	}
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
 		for (i = 0; i < 512; i+= 16) {
-			printf("<%x %x> ", i, ISC->ISC_HIS_ENTRY[i]);
+			printf("<%x %x> ",
+			       (unsigned int)i,
+			       (unsigned int)ISC->ISC_HIS_ENTRY[i]);
 		}
 		isc_clear_histogram_table();
 	}
- 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
+	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
 }
 
@@ -287,7 +283,7 @@ static void configure_twi(void)
 static void configure_mck_clock(void)
 {
 	PMC->PMC_PCR = PMC_PCR_CMD|PMC_PCR_EN |ID_ISC;
-	PMC->PMC_SCER|= 1 << 18 ;
+	PMC->PMC_SCER|= 1 << 18;
 
 	isc_configure_master_clock(6 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
@@ -296,7 +292,7 @@ static void configure_mck_clock(void)
 	isc_configure_isp_clock(5 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_isp_clock();
-	
+
 }
 
 static void sensor_reset(void)
@@ -311,40 +307,40 @@ static void sensor_reset(void)
 /**
  * \brief Configure LCD controller.
  */
-static void configure_lcd(void) 
+static void configure_lcd(void)
 {
 	lcdd_initialize();
-	if( sensorMode == YUV_422) {
+	if (sensorMode == YUV_422) {
 		lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV);
-		lcdd_create_canvas(LCDD_HEO, 
-						pHeoBuffer, 
-						16, 
-						0,
-						0,
-						wImageWidth, 
-						wImageHeight);
+		lcdd_create_canvas(LCDD_HEO,
+				   pHeoBuffer,
+				   16,
+				   0,
+				   0,
+				   wImageWidth,
+				   wImageHeight);
 	} else {
 		if (lcdMode == LCD_MODE_YUV_PLANAR){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV_PLANAR);
-			lcdd_create_canvas_yuv_planar(LCDD_HEO, 
-						pHeoBuffer,
-						pHeoBuffer1,
-						pHeoBuffer2,
-						16, 
-						0,
-						0,
-						wImageWidth, 
-						wImageHeight);
+			lcdd_create_canvas_yuv_planar(LCDD_HEO,
+						      pHeoBuffer,
+						      pHeoBuffer1,
+						      pHeoBuffer2,
+						      16,
+						      0,
+						      0,
+						      wImageWidth,
+						      wImageHeight);
 		}
 		if (lcdMode == LCD_MODE_RGB565){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_RGB565);
-			lcdd_create_canvas(LCDD_HEO, 
-						pHeoBuffer, 
-						16, 
-						0,
-						0,
-						wImageWidth, 
-						wImageHeight);
+			lcdd_create_canvas(LCDD_HEO,
+					   pHeoBuffer,
+					   16,
+					   0,
+					   0,
+					   wImageWidth,
+					   wImageHeight);
 		}
 	}
 	lcdd_enable_layer(LCDD_HEO, 1);
@@ -356,34 +352,38 @@ static void configure_lcd(void)
 static void configure_isc(void)
 {
 	uint32_t i;
-	/* Configurer the Parallel Front End module performs data re-sampling across 
-	clock domain boundary. ISC_PFE_CFG0.BPS shows the number of bits per sample 
-	depends on the bit width of sensor output. 
-	The PFE module outputs a 12-bit data on the vp_data[11:0] bus */
+	/* Configurer the Parallel Front End module performs data
+	 * re-sampling across clock domain boundary. ISC_PFE_CFG0.BPS
+	 * shows the number of bits per sample depends on the bit
+	 * width of sensor output. The PFE module outputs a 12-bit
+	 * data on the vp_data[11:0] bus */
 
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(wSensorOutBitWidth));
 	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
-	
+
 	/* Set Continuous Acquisition mode */
 	isc_pfe_set_continuous_shot();
-	
-	if( sensorMode == RAW_BAYER) {
-		/* In a single-sensor system, each cell on the sensor has a specific 
-		color filter and microlens positioned above it. The raw data obtained 
-		from the sensor do not have the full R/G/B information at each cell 
-		position. Color interpolation is required to retrieve the missing 
-		components. */
+
+	if (sensorMode == RAW_BAYER) {
+		/* In a single-sensor system, each cell on the sensor
+		 * has a specific color filter and microlens
+		 * positioned above it. The raw data obtained from the
+		 * sensor do not have the full R/G/B information at
+		 * each cell position. Color interpolation is required
+		 * to retrieve the missing components. */
 		isc_cfa_enabled(1);
-		isc_cfa_configure( ISC_CFA_CFG_BAYCFG_BGBG, 1);
-		
-		/* The White Balance (WB) module captures the data bus from the PFE module,
-		each Bayer color component (R, Gr, B, Gb) can be manually adjusted using an
-		offset and a gain. */
+		isc_cfa_configure(ISC_CFA_CFG_BAYCFG_BGBG, 1);
+
+		/* The White Balance (WB) module captures the data bus
+		 * from the PFE module, each Bayer color component (R,
+		 * Gr, B, Gb) can be manually adjusted using an offset
+		 * and a gain. */
 		isc_wb_enabled(1);
 		isc_wb_set_bayer_pattern(ISC_WB_CFG_BAYCFG_BGBG);
 		/* Test value for White balance setting */
-		isc_wb_adjust_bayer_color(0, 0, 0, 0, 0x208, 0x208, 0x220, 0x220);
+		isc_wb_adjust_bayer_color(0, 0, 0, 0, 0x208,
+					  0x208, 0x220, 0x220);
 
 		/* Set up Gamma table with gamma 1/2.2 */
 		for (i = 0; i< 64; i++){
@@ -393,69 +393,76 @@ static void configure_isc(void)
 		}
 		// Performs a 12-bit to 10-bit with simply 2 bit cut.
 		isc_gamma_enabled(1, 0);
-		
+
 #if 0
 		// Performs a 12-bit to 10-bit with power function.
 		isc_gamma_enabled(1, ISC_GAM_CTRL_BENABLE |
-							 ISC_GAM_CTRL_GENABLE | 
-							 ISC_GAM_CTRL_RENABLE );
+				  ISC_GAM_CTRL_GENABLE |
+				  ISC_GAM_CTRL_RENABLE);
 #endif
 		if (lcdMode == LCD_MODE_YUV_PLANAR) {
-			/* By converting an image from RGB to YCbCr color space, it is possible 
-				to separate Y, Cb and Cr information. */
+			/* By converting an image from RGB to YCbCr
+			 * color space, it is possible to separate Y,
+			 * Cb and Cr information. */
 			isc_csc_enabled(1);
 			isc_csc_configure(&cs);
-			/* The color space conversion output stream is a full-bandwidth YCbCr 
-				4:4:4 signal. The chrominance subsampling divides the horizontal 
-				chrominance sampling rate by two */
+			/* The color space conversion output stream is
+			 * a full-bandwidth YCbCr 4:4:4 signal. The
+			 * chrominance subsampling divides the
+			 * horizontal chrominance sampling rate by
+			 * two */
 			isc_sub422_enabled(1);
-			/* Configure limited YCrcb output format before the DMA master module */
+			/* Configure limited YCrcb output format
+			 * before the DMA master module */
 			isc_rlp_configure(ISC_RLP_CFG_MODE_YYCC_LIMITED, 0);
-			/* Set DAM for 16-bit YC422P with stream descriptor view 2 for 
-				YCbCr planar pixel stream*/
-			isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC422P | 
-										ISC_DCFG_YMBSIZE_BEATS8 |
-										ISC_DCFG_CMBSIZE_BEATS8);
-			isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist2[0]);
-			isc_dma_enable( ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE  );
+			/* Set DAM for 16-bit YC422P with stream
+			 * descriptor view 2 for YCbCr planar pixel
+			 * stream */
+			isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC422P |
+						     ISC_DCFG_YMBSIZE_BEATS8 |
+						     ISC_DCFG_CMBSIZE_BEATS8);
+			isc_dma_configure_desc_entry((uint32_t)&dma_descs2[0]);
+			isc_dma_enable(ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS2, 0);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS1, 0);
 		}
 		if (lcdMode == LCD_MODE_RGB565) {
-			/* Configure RGB 565 output format before the DMA master module */
+			/* Configure RGB 565 output format before the
+			 * DMA master module */
 			isc_rlp_configure(ISC_RLP_CFG_MODE_RGB565, 0);
-			/* Set DAM for 16-bit packaged stream with descriptor view 0 used 
-				for the data stream is packed. */
+			/* Set DAM for 16-bit packaged stream with
+			 * descriptor view 0 used for the data stream
+			 * is packed. */
 			isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED16);
-			isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist[0]);
-			isc_dma_enable( ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE  );
+			isc_dma_configure_desc_entry((uint32_t)&dma_descs[0]);
+			isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 		}
-	} 
-	if( sensorMode == YUV_422) {
+	}
+	if (sensorMode == YUV_422) {
 		/* Configure DAT8 output format before the DMA master module */
 		isc_rlp_configure(ISC_RLP_CFG_MODE_DAT8, 0);
-		/* Set DAM for 8-bit packaged stream with descriptor view 0 used 
-				for the data stream is packed*/
+		/* Set DAM for 8-bit packaged stream with descriptor view 0 used
+		   for the data stream is packed*/
 		isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
-		isc_dma_configure_desc_entry((uint32_t)&isc_dam_desc_linklist[0]);
-		isc_dma_enable( ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE  );
+		isc_dma_configure_desc_entry((uint32_t)&dma_descs[0]);
+		isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
 		isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 	}
-	
+
 	isc_histogram_enabled(1);
 	isc_clear_histogram_table();
 	isc_update_profile();
-	
+
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
-	isc_enable_interrupt( ISC_INTEN_VD 
-						| ISC_INTEN_DDONE
-						| ISC_INTEN_LDONE
-						| ISC_INTEN_HISDONE
-						| ISC_INTEN_HDTO 
-						| ISC_INTEN_VDTO);
+	isc_enable_interrupt(ISC_INTEN_VD
+			      | ISC_INTEN_DDONE
+			      | ISC_INTEN_LDONE
+			      | ISC_INTEN_HISDONE
+			      | ISC_INTEN_HDTO
+			      | ISC_INTEN_VDTO);
 	isc_interrupt_status();
 	aic_enable(ID_ISC);
 }
@@ -468,24 +475,28 @@ static void configure_dma_linklist(void)
 	uint32_t i;
 	if (lcdMode == LCD_MODE_YUV_PLANAR){
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
-			isc_dam_desc_linklist2[i].isc_dma_ctrl = ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE ;
-			isc_dam_desc_linklist2[i].isc_dma_nda =(uint32_t)&isc_dam_desc_linklist2[i + 1 ];
-			isc_dam_desc_linklist2[i].isc_dma_addr0 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS ;
-			isc_dam_desc_linklist2[i].isc_dma_stride0 = 0;
-			isc_dam_desc_linklist2[i].isc_dma_addr1 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS2 ;
-			isc_dam_desc_linklist2[i].isc_dma_stride1 = 0;
-			isc_dam_desc_linklist2[i].isc_dma_addr2 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS1 ;
-			isc_dam_desc_linklist2[i].isc_dma_stride2 = 0;
+			dma_descs2[i].ctrl =
+				ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE;
+			dma_descs2[i].next_desc = (uint32_t)&dma_descs2[i + 1 ];
+			dma_descs2[i].addr0 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS;
+			dma_descs2[i].stride0 = 0;
+			dma_descs2[i].addr1 =
+				(uint32_t)ISC_OUTPUT_BASE_ADDRESS2;
+			dma_descs2[i].stride1 = 0;
+			dma_descs2[i].addr2 =
+				(uint32_t)ISC_OUTPUT_BASE_ADDRESS1;
+			dma_descs2[i].stride2 = 0;
 		}
-		isc_dam_desc_linklist2[i-1].isc_dma_nda = (uint32_t)&isc_dam_desc_linklist2[0];
+		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
 	} else {
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
-			isc_dam_desc_linklist[i].isc_dma_ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE ;
-			isc_dam_desc_linklist[i].isc_dma_nda =(uint32_t)&isc_dam_desc_linklist[i + 1];
-			isc_dam_desc_linklist[i].isc_dma_addr = (uint32_t)ISC_OUTPUT_BASE_ADDRESS ;
-			isc_dam_desc_linklist[i].isc_dma_stride = 0;
+			dma_descs[i].ctrl =
+				ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
+			dma_descs[i].next_desc =(uint32_t)&dma_descs[i + 1];
+			dma_descs[i].addr = (uint32_t)ISC_OUTPUT_BASE_ADDRESS;
+			dma_descs[i].stride = 0;
 		}
-		isc_dam_desc_linklist[i-1].isc_dma_nda = (uint32_t)&isc_dam_desc_linklist[0];
+		dma_descs[i-1].next_desc = (uint32_t)&dma_descs[0];
 	}
 }
 
@@ -497,32 +508,35 @@ static void configure_dma_linklist(void)
  *
  * \return Unused (ANSI-C compatibility).
  */
-extern int main( void )
+extern int main(void)
 {
-	volatile uint32_t i;
 	uint8_t key;
-	
-	wdt_disable() ;
-	
+
+	wdt_disable();
+
 	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
 
 	/* Output example information */
-	printf( "-- ISC Example %s --\n\r", SOFTPACK_VERSION ) ;
-	printf( "-- %s\n\r", BOARD_NAME ) ;
-	printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
+	printf("-- ISC Example %s --\n\r", SOFTPACK_VERSION);
+	printf("-- %s\n\r", BOARD_NAME);
+	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
 	board_cfg_ddram();
+	cp15_disable_mmu();
+	cp15_disable_icache();
+	cp15_disable_dcache();
+
 
 	/* TWI Initialize */
 	configure_twi();
-	
+
 	/* Configure all ISC pins */
 	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
 
 	/* ISI PCK clock Initialize */
 	configure_mck_clock();
-	
+
 	/* Reset Sensor board */
 	sensor_reset();
 	printf("-----------------------------------\n\r");
@@ -540,16 +554,17 @@ extern int main( void )
 			break;
 		}
 	}
-	
-	if(sensor_setup(&twid, &ov7740Profile, QVGA, sensorMode) 
-		!= SENSOR_OK){
+
+	if (sensor_setup(&twid, &ov7740Profile, QVGA, sensorMode)
+	   != SENSOR_OK){
 		printf("-E- Sensor setup failed \n\r");
 		while(1);
 	}
-	
+
 	/* Retrieve sensor output format and size */
-	sensor_get_output(QVGA, sensorMode, &wSensorOutBitWidth, &wImageWidth, &wImageHeight);
-	if (sensorMode == RAW_BAYER ){
+	sensor_get_output(QVGA, sensorMode, &wSensorOutBitWidth,
+			  &wImageWidth, &wImageHeight);
+	if (sensorMode == RAW_BAYER){
 		printf("-----------------------------------\n\r");
 		printf("- 'R' Test RGB565 output \n\r");
 		printf("- 'Y' Test YC422P output \n\r");
@@ -566,42 +581,45 @@ extern int main( void )
 			}
 		}
 	} else {
-		lcdMode = LCD_MODE_YUV ;
+		lcdMode = LCD_MODE_YUV;
 	}
-	
-	printf("Bit width = %d, Image Width = %d, Image Height=%d \n\r", 
-				(wSensorOutBitWidth + 8 ), wImageWidth, wImageHeight);
+
+	printf("Bit width = %d, Image Width = %d, Image Height=%d \n\r",
+	       (unsigned int)(wSensorOutBitWidth + 8),
+	       (unsigned int)wImageWidth,
+	       (unsigned int)wImageHeight);
 
 	/* Configure LCD */
-	configure_lcd(); 
+	configure_lcd();
 	configure_dma_linklist();
 	configure_isc();
-	printf("Preview start...\n\r"); 
+	printf("Preview start...\n\r");
 	//while(1);
 	for(;;) {
 		key = console_get_char();
 		if ((key >= '0') || (key < '6')) {
 			switch (key){
 			case '0':
-				printf("\n\rHistogram Gr samplinng \n\r");
+				printf("\n\rHistogram Gr samplinng\n\r");
 				break;
 			case '1':
-				printf("\n\rHistogram R samplinng \n\r");
+				printf("\n\rHistogram R samplinng\n\r");
 				break;
 			case '2':
-				printf("\n\rHistogram Gb samplinng \n\r");
+				printf("\n\rHistogram Gb samplinng\n\r");
 				break;
 			case '3':
-				printf("\n\rHistogram B samplinng \n\r");
+				printf("\n\rHistogram B samplinng\n\r");
 				break;
 			case '4':
-				printf("\n\rHistogram Luminance samplinng \n\r");
+				printf("\n\rHistogram Luminance samplinng\n\r");
 				break;
 			case '5':
-				printf("\n\rHistogram RAW samplinng \n\r");
+				printf("\n\rHistogram RAW samplinng\n\r");
 				break;
 			}
-			isc_histogram_configure((key-'0'),ISC_HIS_CFG_BAYSEL_BGBG, 0 );
+			isc_histogram_configure((key-'0'),
+						ISC_HIS_CFG_BAYSEL_BGBG, 0);
 			isc_update_profile();
 			isc_update_histogram_table();
 		}
