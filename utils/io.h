@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+struct _buffer
+{
+	uint8_t* data;
+	uint32_t size;
+};
+
 static inline void writeb(volatile void* reg, uint8_t value)
 {
 	*(volatile uint8_t*)reg = value;

@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include "mutex.h"
+#include "io.h"
 
 #define SPID_SUCCESS         (0)
 #define SPID_INVALID_ID      (1)
@@ -45,7 +46,7 @@ struct _spi_desc;
 
 typedef void (*spid_callback_t)(struct _spi_desc* spid, void* args);
 
-enum _trans_mode
+enum _spid_trans_mode
 {
 	SPID_MODE_POLLING,
 	SPID_MODE_FIFO,
@@ -67,12 +68,6 @@ struct _spi_desc
 	mutex_t         mutex;
 	uint32_t        region_start;
 	uint32_t        region_end;
-};
-
-struct _buffer
-{
-	uint8_t* data;
-	uint32_t size;
 };
 
 extern void spid_configure(struct _spi_desc* desc);
