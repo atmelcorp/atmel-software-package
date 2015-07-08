@@ -704,11 +704,13 @@ const sensorProfile_t ov2643Profile =
 	OV2643_PIDH,                     /* product ID high byte */
 	OV2643_PIDL,                     /* product ID low byte */
 	OV2643_PID_VER_MASK,             /* version mask */
-	&ov2643_output_vga,
-    &ov2643_output_svga,
-    &ov2643_output_uvga,
-	0,
-    0,
-    0,
-	0
+	{
+		&ov2643_output_vga,
+		&ov2643_output_svga,
+		&ov2643_output_uvga,
+		0,
+		0,
+		0,
+		0
+	}
 };

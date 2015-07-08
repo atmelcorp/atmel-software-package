@@ -626,11 +626,13 @@ const sensorProfile_t ov9740Profile =
 	OV9740_PIDH,                     /* product ID high byte */
 	OV9740_PIDL,                     /* product ID low byte */
 	OV9740_PID_VER_MASK,             /* version mask */
-    &ov9740_output_vga,
-	&ov9740_output_wxga,
-	0,
-	0,
-	0,
-	0,
-	0
+	{
+		&ov9740_output_vga,
+		&ov9740_output_wxga,
+		0,
+		0,
+		0,
+		0,
+		0
+	}
 };

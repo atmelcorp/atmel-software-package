@@ -38,6 +38,9 @@
 
 #include "video/lcdd.h"
 #include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+
+#include "cortex-a/cp15.h"
 
 #include <math.h>
 #include <string.h>
@@ -484,8 +487,8 @@ static void _build_color_lut8(volatile uint32_t * pCLUT)
 		for (g = 0; g < 8; g++) {
 			for (b = 0; b < 4; b++) {
 				*pCLUT++ = (r << (16 + 5))
-				    + (g << (8 + 5))
-				    + (b << (0 + 6));
+					+ (g << (8 + 5))
+					+ (b << (0 + 6));
 			}
 		}
 	}
@@ -501,8 +504,8 @@ static void _build_color_lut4(volatile uint32_t * pCLUT)
 		for (g = 0; g < 2; g++) {
 			for (b = 0; b < 2; b++) {
 				*pCLUT++ = (r << (16 + 6))
-				    + (g << (8 + 7))
-				    + (b << (0 + 7));
+					+ (g << (8 + 7))
+					+ (b << (0 + 7));
 			}
 		}
 	}
@@ -579,31 +582,33 @@ void lcdd_initialize(void)
 
 	/* Overlay 1, GA 0xFF */
 	pHw->LCDC_OVR1CFG0 =
-	    LCDC_OVR1CFG0_DLBO | LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR16 |
-	    LCDC_OVR1CFG0_ROTDIS;
+		LCDC_OVR1CFG0_DLBO | LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR16 |
+		LCDC_OVR1CFG0_ROTDIS;
 	pHw->LCDC_OVR1CFG1 = LCDC_OVR1CFG1_RGBMODE_24BPP_RGB_888_PACKED;
 	pHw->LCDC_OVR1CFG9 = LCDC_OVR1CFG9_GA(0xFF) | LCDC_OVR1CFG9_GAEN;
 
 	/* Overlay 2, GA 0xFF */
 	pHw->LCDC_OVR2CFG0 = LCDC_OVR2CFG0_DLBO | LCDC_OVR2CFG0_BLEN_AHB_INCR16
-	    | LCDC_OVR2CFG0_ROTDIS;
+		| LCDC_OVR2CFG0_ROTDIS;
 	pHw->LCDC_OVR2CFG1 = LCDC_OVR2CFG1_RGBMODE_24BPP_RGB_888_PACKED;
 	pHw->LCDC_OVR2CFG9 = LCDC_OVR2CFG9_GA(0xFF) | LCDC_OVR2CFG9_GAEN;
 
 	/* High End Overlay, GA 0xFF */
 	pHw->LCDC_HEOCFG0 =
-	    LCDC_HEOCFG0_DLBO | LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 |
-	    LCDC_HEOCFG0_ROTDIS;
+		LCDC_HEOCFG0_DLBO | LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 |
+		LCDC_HEOCFG0_ROTDIS;
 	pHw->LCDC_HEOCFG1 = LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED;
 	pHw->LCDC_HEOCFG12 = LCDC_HEOCFG12_GA(0xFF) | LCDC_HEOCFG12_GAEN;
-	
-	LCDC->LCDC_HEOCFG14 = LCDC_HEOCFG14_CSCRY(0x94)| LCDC_HEOCFG14_CSCRU(0xCC) 
-						| LCDC_HEOCFG14_CSCRV(0) | LCDC_HEOCFG14_CSCYOFF;
-	LCDC->LCDC_HEOCFG15 = LCDC_HEOCFG15_CSCGY(0x94) | LCDC_HEOCFG15_CSCGU(0x387)
-						| LCDC_HEOCFG15_CSCGV(0x3CD) | LCDC_HEOCFG15_CSCUOFF;
-	LCDC->LCDC_HEOCFG16 = LCDC_HEOCFG16_CSCBY(0x94)| LCDC_HEOCFG16_CSCBU(0) 
-						| LCDC_HEOCFG16_CSCBV(0x102) | LCDC_HEOCFG16_CSCVOFF;
-	
+
+	LCDC->LCDC_HEOCFG14 = LCDC_HEOCFG14_CSCRY(0x94)
+		| LCDC_HEOCFG14_CSCRU(0xCC) | LCDC_HEOCFG14_CSCRV(0)
+		| LCDC_HEOCFG14_CSCYOFF;
+	LCDC->LCDC_HEOCFG15 = LCDC_HEOCFG15_CSCGY(0x94)
+		| LCDC_HEOCFG15_CSCGU(0x387) | LCDC_HEOCFG15_CSCGV(0x3CD)
+		| LCDC_HEOCFG15_CSCUOFF;
+	LCDC->LCDC_HEOCFG16 = LCDC_HEOCFG16_CSCBY(0x94)| LCDC_HEOCFG16_CSCBU(0)
+		| LCDC_HEOCFG16_CSCBV(0x102) | LCDC_HEOCFG16_CSCVOFF;
+
 	lcdd_on();
 }
 
@@ -750,7 +755,7 @@ void lcdd_set_alpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha)
 
 	if (pCfgR) {
 		cfg =
-		    (*pCfgR) & ~(LCDC_OVR1CFG9_REVALPHA | LCDC_OVR1CFG9_GA_Msk);
+			(*pCfgR) & ~(LCDC_OVR1CFG9_REVALPHA | LCDC_OVR1CFG9_GA_Msk);
 		if (bReverse)
 			cfg |= LCDC_OVR1CFG9_REVALPHA;
 		(*pCfgR) = cfg | LCDC_OVR1CFG9_GA(bAlpha);
@@ -795,7 +800,7 @@ uint8_t lcdd_get_alpha(uint8_t bLayer)
  * \param dwMask  Color bit mask.
  */
 void lcdd_set_color_keying(uint8_t bLayer, uint8_t bDstSrc,
-		    uint32_t dwColor, uint32_t dwMask)
+			   uint32_t dwColor, uint32_t dwMask)
 {
 	volatile uint32_t *pEnR = pEnableReg(bLayer);
 	volatile uint32_t *pBCfgR = pBlenderReg(bLayer);
@@ -901,10 +906,10 @@ void lcdd_set_color_lut(uint8_t bLayer, uint32_t * pCLUT, uint8_t bpp, uint8_t n
  * \param wRotate Rotation (clockwise, 0, 90, 180, 270 accepted).
  */
 void * lcdd_show_bmp_rotated(uint8_t bLayer,
-		    void *pBuffer, uint8_t bpp,
-		    uint32_t x, uint32_t y,
-		    int32_t w, int32_t h,
-		    uint32_t imgW, uint32_t imgH, int16_t wRotate)
+			     void *pBuffer, uint8_t bpp,
+			     uint32_t x, uint32_t y,
+			     int32_t w, int32_t h,
+			     uint32_t imgW, uint32_t imgH, int16_t wRotate)
 {
 
 	//Lcdc *pHw = LCDC;
@@ -1028,8 +1033,8 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 			pStrR[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytesPPix);
 		/* Y0 ++ */
 		pStrR[0] =
-		    LCDC_HEOCFG5_XSTRIDE(bytesPRow * 2 + padding -
-					 2 * bytesPPix);
+			LCDC_HEOCFG5_XSTRIDE(bytesPRow * 2 + padding -
+					     2 * bytesPPix);
 		/* Pointer to Right,Top (x1,y0) */
 		pBuffer = (void *) ((uint32_t) pBuffer
 				    + bytesPPix * (imgW - 1));
@@ -1071,12 +1076,12 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 		/* Y -- as pixels in row */
 		if (bPStride)
 			pStrR[1] =
-			    LCDC_HEOCFG6_PSTRIDE(0 -
-						 (bytesPPix + bytesPRow +
-						  padding));
+				LCDC_HEOCFG6_PSTRIDE(0 -
+						     (bytesPPix + bytesPRow +
+						      padding));
 		/* X ++ as rows */
 		pStrR[0] =
-		    LCDC_HEOCFG5_XSTRIDE((bytesPRow + padding) * (imgH - 1));
+			LCDC_HEOCFG5_XSTRIDE((bytesPRow + padding) * (imgH - 1));
 		/* Pointer to Bottom,Left */
 		pBuffer = (void *) ((uint32_t) pBuffer
 				    + (bytesPRow + padding) * (imgH - 1));
@@ -1089,12 +1094,12 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 		/* Y ++ as pixels in row */
 		if (bPStride)
 			pStrR[1] =
-			    LCDC_HEOCFG6_PSTRIDE(bytesPRow + padding -
-						 bytesPPix);
+				LCDC_HEOCFG6_PSTRIDE(bytesPRow + padding -
+						     bytesPPix);
 		/* X -- as rows */
 		pStrR[0] =
-		    LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytesPPix -
-					 (bytesPRow + padding) * (imgH - 1));
+			LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytesPPix -
+					     (bytesPRow + padding) * (imgH - 1));
 		/* Pointer to top right */
 		pBuffer = (void *) ((uint32_t) pBuffer
 				    + bytesPPix * (imgW - 1));
@@ -1107,13 +1112,13 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 		/* Y -- as pixels in row */
 		if (bPStride)
 			pStrR[1] =
-			    LCDC_HEOCFG6_PSTRIDE(0 -
-						 (bytesPPix + bytesPRow +
-						  padding));
+				LCDC_HEOCFG6_PSTRIDE(0 -
+						     (bytesPPix + bytesPRow +
+						      padding));
 		/* X -- as rows */
 		pStrR[0] =
-		    LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytesPPix +
-					 (bytesPRow + padding) * (imgH - 1));
+			LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytesPPix +
+					     (bytesPRow + padding) * (imgH - 1));
 		/* Pointer to down right (x1,y1) */
 		pBuffer = (void *) ((uint32_t) pBuffer
 				    + (bytesPRow + padding) * (imgH - 1)
@@ -1127,12 +1132,12 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 		/* Y ++ as pixels in row */
 		if (bPStride)
 			pStrR[1] =
-			    LCDC_HEOCFG6_PSTRIDE(bytesPRow + padding -
-						 bytesPPix);
+				LCDC_HEOCFG6_PSTRIDE(bytesPRow + padding -
+						     bytesPPix);
 		/* X ++ as rows */
 		pStrR[0] =
-		    LCDC_HEOCFG5_XSTRIDE(0 -
-					 (bytesPRow + padding) * (imgH - 1));
+			LCDC_HEOCFG5_XSTRIDE(0 -
+					     (bytesPRow + padding) * (imgH - 1));
 		/* Pointer to top left (x0,y0) */
 	}
 	/** DMA is running, just add new descriptor to queue */
@@ -1159,7 +1164,7 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 	if (pWinR) {
 		pWinR[0] = LCDC_HEOCFG2_XPOS(x) | LCDC_HEOCFG2_YPOS(y);
 		pWinR[1] =
-		    LCDC_HEOCFG3_XSIZE(w - 1) | LCDC_HEOCFG3_YSIZE(h - 1);
+			LCDC_HEOCFG3_XSIZE(w - 1) | LCDC_HEOCFG3_YSIZE(h - 1);
 	}
 	/* Scaling setup */
 	if (pSclR) {
@@ -1174,8 +1179,8 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 			srcH = imgH;
 		}
 		pWinR[2] =
-		    LCDC_HEOCFG4_XMEMSIZE(srcW -
-					  1) | LCDC_HEOCFG4_YMEMSIZE(srcH - 1);
+			LCDC_HEOCFG4_XMEMSIZE(srcW -
+					      1) | LCDC_HEOCFG4_YMEMSIZE(srcH - 1);
 		/* Scaled */
 		if (w != srcW || h != srcH) {
 			uint16_t wYf, wXf;
@@ -1183,8 +1188,8 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
 			wYf = _calc_scale_factor(h, srcH);
 			//printf("- Scale(%d,%d)\n\r", wXf, wYf);
 			pSclR[0] = LCDC_HEOCFG13_YFACTOR(wYf)
-			    | LCDC_HEOCFG13_XFACTOR(wXf)
-			    | LCDC_HEOCFG13_SCALEN;
+				| LCDC_HEOCFG13_XFACTOR(wXf)
+				| LCDC_HEOCFG13_SCALEN;
 		}
 		/* Disable scaling */
 		else {
@@ -1224,12 +1229,12 @@ void * lcdd_show_bmp_rotated(uint8_t bLayer,
  * \return Pointer to old display image data.
  */
 void * lcdd_show_bmp_scaled(uint8_t bLayer,
-		   void *pBuffer, uint8_t bpp,
-		   uint32_t x, uint32_t y,
-		   int32_t w, int32_t h, uint32_t imgW, uint32_t imgH)
+			    void *pBuffer, uint8_t bpp,
+			    uint32_t x, uint32_t y,
+			    int32_t w, int32_t h, uint32_t imgW, uint32_t imgH)
 {
 	return lcdd_show_bmp_rotated(bLayer, pBuffer, bpp,
-				   x, y, w, h, imgW, imgH, 0);
+				     x, y, w, h, imgW, imgH, 0);
 }
 
 /**
@@ -1248,11 +1253,11 @@ void * lcdd_show_bmp_scaled(uint8_t bLayer,
  * \return Pointer to old display image data.
  */
 void * lcdd_show_bmp(uint8_t bLayer,
-	     void *pBuffer, uint8_t bpp,
-	     uint32_t x, uint32_t y, int32_t w, int32_t h)
+		     void *pBuffer, uint8_t bpp,
+		     uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
 	return lcdd_show_bmp_rotated(bLayer, pBuffer, bpp,
-				   x, y, w, h, w, (h < 0) ? (-h) : h, 0);
+				     x, y, w, h, w, (h < 0) ? (-h) : h, 0);
 }
 
 /**
@@ -1265,9 +1270,9 @@ void * lcdd_show_bmp(uint8_t bLayer,
 void * lcdd_show_base(void *pBuffer, uint8_t bpp, uint8_t bBottomUp)
 {
 	return lcdd_show_bmp(LCDD_BASE, pBuffer, bpp,
-			    0, 0,
-			    BOARD_LCD_WIDTH,
-			    bBottomUp ? -BOARD_LCD_HEIGHT : BOARD_LCD_HEIGHT);
+			     0, 0,
+			     BOARD_LCD_WIDTH,
+			     bBottomUp ? -BOARD_LCD_HEIGHT : BOARD_LCD_HEIGHT);
 }
 
 /**
@@ -1302,7 +1307,7 @@ void lcdd_stop_base(void)
  * Start display on overlay 1 layer
  */
 void * lcdd_show_ovr1(void *pBuffer, uint8_t bpp,
-	      uint32_t x, uint32_t y, int32_t w, int32_t h)
+		      uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
 	return lcdd_show_bmp(LCDD_OVR1, pBuffer, bpp, x, y, w, h);
 }
@@ -1339,11 +1344,11 @@ void lcdd_stop_ovr1(void)
  * Start display on High End Overlay layer
  */
 void * lcdd_show_heo(void *pBuffer, uint8_t bpp,
-	     uint32_t x, uint32_t y, int32_t w, int32_t h,
-	     uint32_t imgW, uint32_t imgH)
+		     uint32_t x, uint32_t y, int32_t w, int32_t h,
+		     uint32_t imgW, uint32_t imgH)
 {
 	return lcdd_show_bmp_rotated(LCDD_HEO,
-				   pBuffer, bpp, x, y, w, h, imgW, imgH, 0);
+				     pBuffer, bpp, x, y, w, h, imgW, imgH, 0);
 }
 
 /**
@@ -1381,7 +1386,7 @@ void lcdd_stop_heo(void)
  * (Default transparent color is set to #000000, black)
  */
 void * lcdd_show_hcr(void *pBuffer, uint8_t bpp,
-	     uint32_t x, uint32_t y, int32_t w, int32_t h)
+		     uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
 	return 0;
 }
@@ -1408,31 +1413,31 @@ void lcdd_on(void)
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
 	pHw->LCDC_LCDCFG0 =
-	    LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / BOARD_LCD_PIXELCLOCK - 2)
-	    | LCDC_LCDCFG0_CGDISHEO | LCDC_LCDCFG0_CGDISOVR1 |
-	    LCDC_LCDCFG0_CGDISOVR2 | LCDC_LCDCFG0_CGDISBASE |
-	    LCDC_LCDCFG0_CLKPWMSEL | LCDC_LCDCFG0_CLKSEL;
+		LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / BOARD_LCD_PIXELCLOCK - 2)
+		| LCDC_LCDCFG0_CGDISHEO | LCDC_LCDCFG0_CGDISOVR1 |
+		LCDC_LCDCFG0_CGDISOVR2 | LCDC_LCDCFG0_CGDISBASE |
+		LCDC_LCDCFG0_CLKPWMSEL | LCDC_LCDCFG0_CLKSEL;
 	//|LCDC_LCDCFG0_CLKPOL;
 
 	pHw->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(BOARD_LCD_TIMING_VPW - 1)
-	    | LCDC_LCDCFG1_HSPW(BOARD_LCD_TIMING_HPW - 1);
+		| LCDC_LCDCFG1_HSPW(BOARD_LCD_TIMING_HPW - 1);
 
 	pHw->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(BOARD_LCD_TIMING_VBP)
-	    | LCDC_LCDCFG2_VFPW(BOARD_LCD_TIMING_VFP - 1);
+		| LCDC_LCDCFG2_VFPW(BOARD_LCD_TIMING_VFP - 1);
 
 	pHw->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(BOARD_LCD_TIMING_HBP - 1)
-	    | LCDC_LCDCFG3_HFPW(BOARD_LCD_TIMING_HFP - 1);
+		| LCDC_LCDCFG3_HFPW(BOARD_LCD_TIMING_HFP - 1);
 
 	pHw->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(BOARD_LCD_HEIGHT - 1)
-	    | LCDC_LCDCFG4_PPL(BOARD_LCD_WIDTH - 1);
+		| LCDC_LCDCFG4_PPL(BOARD_LCD_WIDTH - 1);
 
 	pHw->LCDC_LCDCFG5 = LCDC_LCDCFG5_GUARDTIME(30)
-	    | LCDC_LCDCFG5_MODE_OUTPUT_24BPP
-	    | LCDC_LCDCFG5_DISPDLY
-	    | LCDC_LCDCFG5_VSPDLYS | LCDC_LCDCFG5_VSPOL | LCDC_LCDCFG5_HSPOL;
+		| LCDC_LCDCFG5_MODE_OUTPUT_24BPP
+		| LCDC_LCDCFG5_DISPDLY
+		| LCDC_LCDCFG5_VSPDLYS | LCDC_LCDCFG5_VSPOL | LCDC_LCDCFG5_HSPOL;
 
 	pHw->LCDC_LCDCFG6 = LCDC_LCDCFG6_PWMCVAL(0xF0)
-	    | LCDC_LCDCFG6_PWMPOL | LCDC_LCDCFG6_PWMPS(6);
+		| LCDC_LCDCFG6_PWMPOL | LCDC_LCDCFG6_PWMPS(6);
 
 	/* 2. Enable the Pixel Clock by writing one to the CLKEN field of the
 	   LCDC_LCDEN register. */
@@ -1590,17 +1595,17 @@ uint8_t lcdd_select_canvas(uint8_t bLayer)
 	lcddCanvas.pBuffer = (void *) pLD->pBuffer;
 	if (pXyR) {
 		lcddCanvas.wImgW =
-		    (pXyR[1] & LCDC_HEOCFG3_XSIZE_Msk) >>
-		    LCDC_HEOCFG3_XSIZE_Pos;
+			(pXyR[1] & LCDC_HEOCFG3_XSIZE_Msk) >>
+			LCDC_HEOCFG3_XSIZE_Pos;
 		lcddCanvas.wImgH =
-		    (pXyR[1] & LCDC_HEOCFG3_YSIZE_Msk) >>
-		    LCDC_HEOCFG3_YSIZE_Pos;
+			(pXyR[1] & LCDC_HEOCFG3_YSIZE_Msk) >>
+			LCDC_HEOCFG3_YSIZE_Pos;
 	} else {
 		lcddCanvas.wImgW = BOARD_LCD_WIDTH;
 		lcddCanvas.wImgH = BOARD_LCD_HEIGHT;
 	}
 	lcddCanvas.bMode =
-	    _get_bits_per_pixel(pCfR[1] & LCDC_HEOCFG1_RGBMODE_Msk);
+		_get_bits_per_pixel(pCfR[1] & LCDC_HEOCFG1_RGBMODE_Msk);
 	lcddCanvas.bLayer = bLayer;
 
 	return 1;
@@ -1618,8 +1623,8 @@ uint8_t lcdd_select_canvas(uint8_t bLayer)
  * \note The content in buffer is destroied.
  */
 void * lcdd_create_canvas(uint8_t bLayer,
-		  void *pBuffer, uint8_t bBPP,
-		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH)
+			  void *pBuffer, uint8_t bBPP,
+			  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH)
 {
 	void *pOldBuffer;
 	uint32_t maxW = BOARD_LCD_WIDTH;
@@ -1656,7 +1661,7 @@ void * lcdd_create_canvas(uint8_t bLayer,
 	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
 	memset(pBuffer, 0xFF, bytesPR * wH);
 	pOldBuffer = lcdd_show_bmp_rotated(bLayer, pBuffer, bBPP,
-					 wX, wY, wW, wH, wW, wH, 0);
+					   wX, wY, wW, wH, wW, wH, 0);
 
 	lcddCanvas.bLayer = bLayer;
 	lcddCanvas.bMode = bBPP;
@@ -1679,19 +1684,16 @@ void * lcdd_create_canvas(uint8_t bLayer,
  * \note The content in buffer is destroyed.
  */
 void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
-		  void *pBuffer, void *pBufferUV, void *pBufferV, uint8_t bBPP,
-		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH)
+				     void *pBuffer, void *pBufferUV,
+				     void *pBufferV, uint8_t bBPP,
+				     uint16_t wX, uint16_t wY, uint16_t wW,
+				     uint16_t wH)
 {
 	volatile uint32_t *pDmaR;
 	sLCDCDescriptor *pTD;
-	sHeoLayer *pLD = & lcddHeo;
-	
-	volatile uint32_t *pEnR = pEnableReg(bLayer);
+
 	volatile uint32_t *pWinR = pWinReg(bLayer);
-	volatile uint32_t *pBlR = pBlenderReg(bLayer);
-	volatile uint32_t *pCfgR = pCfgReg(bLayer);
-	uint8_t bPStride = _is_stride_supported(bLayer);
-	
+
 	uint32_t maxW = BOARD_LCD_WIDTH;
 	uint32_t maxH = BOARD_LCD_HEIGHT;
 
@@ -1717,15 +1719,15 @@ void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
 	bitsPR = wW * bBPP;
 	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
 	memset(pBuffer, 0xFF, bytesPR * wH);
-	
+
 	if (pWinR) {
 		pWinR[0] = LCDC_HEOCFG2_XPOS(wX) | LCDC_HEOCFG2_YPOS(wY);
 		pWinR[1] =
-		    LCDC_HEOCFG3_XSIZE(wW - 1) | LCDC_HEOCFG3_YSIZE(wH - 1);
+			LCDC_HEOCFG3_XSIZE(wW - 1) | LCDC_HEOCFG3_YSIZE(wH - 1);
 		pWinR[2] =
-		    LCDC_HEOCFG4_XMEMSIZE(wW - 1) | LCDC_HEOCFG4_YMEMSIZE(wH - 1);
+			LCDC_HEOCFG4_XMEMSIZE(wW - 1) | LCDC_HEOCFG4_YMEMSIZE(wH - 1);
 	}
-	
+
 
 	pTD = &dmaHeader;
 	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOHEAD;
@@ -1777,4 +1779,4 @@ void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode)
 }
 
 /**@}*/
-#endif				/* ifdef LCDC */
+#endif /* ifdef LCDC */

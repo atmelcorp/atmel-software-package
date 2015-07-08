@@ -48,15 +48,15 @@
 /*----------------------------------------------------------------------------
  *        Macros
  *----------------------------------------------------------------------------*/
-/* Returns 1 if the TXRDY bit (ready to transmit data) is set in the given 
+/* Returns 1 if the TXRDY bit (ready to transmit data) is set in the given
 	status register value.*/
 #define TWIHS_STATUS_TXRDY(status) ((status & TWIHS_SR_TXRDY) == TWIHS_SR_TXRDY)
 
-/* Returns 1 if the RXRDY bit (ready to receive data) is set in the given 
+/* Returns 1 if the RXRDY bit (ready to receive data) is set in the given
 	status register value.*/
 #define TWIHS_STATUS_RXRDY(status) ((status & TWIHS_SR_RXRDY) == TWIHS_SR_RXRDY)
 
-/* Returns 1 if the TXCOMP bit (transfer complete) is set in the given 
+/* Returns 1 if the TXCOMP bit (transfer complete) is set in the given
 	status register value.*/
 #define TWIHS_STATUS_TXCOMP(status) ((status & TWIHS_SR_TXCOMP) == TWIHS_SR_TXCOMP)
 

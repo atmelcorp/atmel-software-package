@@ -4825,11 +4825,13 @@ const sensorProfile_t ov5640Profile =
 	OV5640_PIDH,                     /* product ID high byte */
 	OV5640_PIDL,                     /* product ID low byte */
 	OV5640_PID_VER_MASK,             /* version mask */
-	&ov5640_output_vga,
-    &ov5640_output_wxga,
-	&ov5640_output_af,
-	0,
-    0,
-    0,
-    0,
+	{
+		&ov5640_output_vga,
+		&ov5640_output_wxga,
+		&ov5640_output_af,
+		0,
+		0,
+		0,
+		0
+	}
 };

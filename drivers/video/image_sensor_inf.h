@@ -32,12 +32,14 @@
  *----------------------------------------------------------------------------*/
 
 #include "peripherals/twihsd.h"
- 
+
+#include <stdint.h>
+
 /*---------------------------------------------------------------------------
  *         Definition
  *---------------------------------------------------------------------------*/
 #define SENDOR_SUPPORTED_OUTPUTS 7
- 
+
 /** terminating list entry for register in configuration file */
 #define SENSOR_REG_TERM         0xFF
 /** terminating list entry for value in configuration file */
@@ -130,19 +132,19 @@ typedef struct _sensor_profile {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern sensorStatus_t sensor_twi_write_regs(Twihsd* pTwid, 
-											const sensorReg_t * pReglist); 
+extern sensorStatus_t sensor_twi_write_regs(Twihsd* pTwid,
+					    const sensorReg_t * pReglist);
 
-extern sensorStatus_t sensor_twi_read_regs(Twihsd* pTwid, 
-											const sensorReg_t * pReglist);
+extern sensorStatus_t sensor_twi_read_regs(Twihsd* pTwid,
+					   const sensorReg_t * pReglist);
 
-extern sensorStatus_t sensor_setup(Twihsd* pTwid, 
-							const sensorProfile_t *sensor_profile, 
-							sensorOutputResolution_t resolution,
-							sensorOutputFormat_t format );
+extern sensorStatus_t sensor_setup(Twihsd* pTwid,
+				   const sensorProfile_t *sensor_profile,
+				   sensorOutputResolution_t resolution,
+				   sensorOutputFormat_t format );
 
 extern sensorStatus_t sensor_get_output(sensorOutputResolution_t resolution,
-								sensorOutputFormat_t format,
-								sensorOutputBit_t *bits, 
-								uint32_t *width, 
-								uint32_t* height);
+					sensorOutputFormat_t format,
+					sensorOutputBit_t *bits,
+					uint32_t *width,
+					uint32_t* height);

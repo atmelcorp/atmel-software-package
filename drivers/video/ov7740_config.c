@@ -529,11 +529,13 @@ const sensorProfile_t ov7740Profile =
 	OV7740_PIDH,                     /* product ID high byte */
 	OV7740_PIDL,                     /* product ID low byte */
 	OV7740_PID_VER_MASK,             /* version mask */
-	&ov7740_output_vga,
-	&ov7740_output_qvga,
-	&ov7740_output_qvga_raw,
-	0,
-	0,
-	0,
-	0
+	{
+		&ov7740_output_vga,
+		&ov7740_output_qvga,
+		&ov7740_output_qvga_raw,
+		0,
+		0,
+		0,
+		0
+	}
 };

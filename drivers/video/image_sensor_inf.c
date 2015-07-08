@@ -54,9 +54,9 @@ static const sensorProfile_t* pSensor;
  * \param pData Data read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensorStatus_t sensor_twi_read_reg(Twihsd* pTwid, 
-										uint16_t reg, 
-										uint8_t * pData)
+static sensorStatus_t sensor_twi_read_reg(Twihsd* pTwid,
+					  uint16_t reg,
+					  uint8_t * pData)
 {
 	uint8_t status;
 	uint8_t reg8[2];
@@ -67,7 +67,7 @@ static sensorStatus_t sensor_twi_read_reg(Twihsd* pTwid,
 		status = twihsd_write(pTwid, pSensor->twi_slave_addr, 0, 0, &reg8[1], 1, 0);
 		status |= twihsd_read(pTwid, pSensor->twi_slave_addr, 0, 0, pData, 1, 0);
 		break;
-		
+
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
 		status = twihsd_write(pTwid, pSensor->twi_slave_addr, 0, 0, reg8, 2, 0);
 		status |= twihsd_read(pTwid, pSensor->twi_slave_addr, 0, 0, pData, 1, 0);
@@ -78,7 +78,7 @@ static sensorStatus_t sensor_twi_read_reg(Twihsd* pTwid,
 		status |= twihsd_read(pTwid, pSensor->twi_slave_addr, 0, 0, pData, 2, 0);
 
 		break;
-	default: 
+	default:
 		return SENSOR_TWI_ERROR;
 	}
 	if (status) return SENSOR_TWI_ERROR;
@@ -92,9 +92,9 @@ static sensorStatus_t sensor_twi_read_reg(Twihsd* pTwid,
  * \param pData Data written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensorStatus_t sensor_twi_write_reg(Twihsd* pTwid, 
-									uint16_t reg, 
-									uint8_t *pData)
+static sensorStatus_t sensor_twi_write_reg(Twihsd* pTwid,
+					   uint16_t reg,
+					   uint8_t *pData)
 {
 	uint8_t status;
 	switch (pSensor->twi_inf_mode){
@@ -110,7 +110,7 @@ static sensorStatus_t sensor_twi_write_reg(Twihsd* pTwid,
 		status = twihsd_write(pTwid, pSensor->twi_slave_addr, reg, 1, pData, 2, 0);
 		break;
 
-	default: 
+	default:
 		return SENSOR_TWI_ERROR;
 	}
 	if (status) return SENSOR_TWI_ERROR;
@@ -126,21 +126,21 @@ static sensorStatus_t sensor_twi_write_reg(Twihsd* pTwid,
  * \param ver_mask version mask.
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensorStatus_t sensor_check_pid(Twihsd* pTwid, 
-									uint16_t reg_h, 
-									uint16_t reg_l, 
-									uint16_t pid, 
-									uint16_t ver_mask)
+static sensorStatus_t sensor_check_pid(Twihsd* pTwid,
+				       uint16_t reg_h,
+				       uint16_t reg_l,
+				       uint16_t pid,
+				       uint16_t ver_mask)
 {
 	uint8_t status;
 	uint16_t pid_high, pid_low;
 	status = sensor_twi_read_reg(pTwid, reg_h, (uint8_t*)&pid_high);
 	status |= sensor_twi_read_reg(pTwid, reg_l,(uint8_t*)&pid_low);
-    printf("PID = <%x, %x> \n\r", pid_high ,pid_low );
+	printf("PID = <%x, %x> \n\r", pid_high ,pid_low );
 	if (status) return SENSOR_TWI_ERROR;
-	if ((pid & ver_mask) == (((pid_high << 8 )| (pid_low)) & ver_mask)) 
+	if ((pid & ver_mask) == (((pid_high << 8 )| (pid_low)) & ver_mask))
 		return SENSOR_OK;
-	else 
+	else
 		return SENSOR_ID_ERROR;
 }
 
@@ -200,10 +200,10 @@ sensorStatus_t sensor_twi_read_regs(Twihsd* pTwid, const sensorReg_t * pReglist)
  * \param resolution resolution request
  * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
  */
-sensorStatus_t sensor_setup(Twihsd* pTwid, 
-					const sensorProfile_t *sensor_profile, 
-					sensorOutputResolution_t resolution,
-					sensorOutputFormat_t format )
+sensorStatus_t sensor_setup(Twihsd* pTwid,
+			    const sensorProfile_t *sensor_profile,
+			    sensorOutputResolution_t resolution,
+			    sensorOutputFormat_t format )
 {
 	uint8_t i;
 	uint8_t found = 0;
@@ -221,16 +221,16 @@ sensorStatus_t sensor_setup(Twihsd* pTwid,
 	if (found == 0)
 		return SENSOR_RESOLUTION_NOT_SUPPORTED;
 	pSensor = sensor_profile;
-	
+
 	status = sensor_check_pid(pTwid,
-							pSensor->pid_high_reg, 
-							pSensor->pid_low_reg,
-							(pSensor->pid_high) << 8 | pSensor->pid_low,
-							pSensor->version_mask);
-	
-	if (status) return SENSOR_ID_ERROR; 
+				  pSensor->pid_high_reg,
+				  pSensor->pid_low_reg,
+				  (pSensor->pid_high) << 8 | pSensor->pid_low,
+				  pSensor->version_mask);
+
+	if (status) return SENSOR_ID_ERROR;
 	return sensor_twi_write_regs(pTwid, pSensor->outputConf[i]->output_setting);
-}	
+}
 
 
 /**
@@ -243,10 +243,10 @@ sensorStatus_t sensor_setup(Twihsd* pTwid,
  * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
  */
 sensorStatus_t sensor_get_output(sensorOutputResolution_t resolution,
-								sensorOutputFormat_t format,
-								sensorOutputBit_t *bits, 
-								uint32_t *width, 
-								uint32_t* height)
+				 sensorOutputFormat_t format,
+				 sensorOutputBit_t *bits,
+				 uint32_t *width,
+				 uint32_t* height)
 {
 	uint8_t i;
 	for (i = 0; i< SENDOR_SUPPORTED_OUTPUTS; i++) {

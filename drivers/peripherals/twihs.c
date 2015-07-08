@@ -43,11 +43,11 @@
  * <li> Starts a write operation on the TWI to access the selected slave using
  * TWI_StartWrite(). A byte of data must be provided to start the write;
  * other bytes are written next.</li>
- * <li> Sends a byte of data to one of the TWI slaves on the bus using 
+ * <li> Sends a byte of data to one of the TWI slaves on the bus using
  * twihs_write_byte().
- * This function must be called once before TWI_StartWrite() with the first 
+ * This function must be called once before TWI_StartWrite() with the first
  * byte of data
- * to send, then it shall be called repeatedly after that to send the 
+ * to send, then it shall be called repeatedly after that to send the
  * remaining bytes.</li>
  * <li> Check if a byte has been received and can be read on the given TWI
  * peripheral using TWI_ByteReceived().<
@@ -100,7 +100,7 @@
 					  TWIHS_IER_ARBLST | TWIHS_IER_SCL_WS | TWIHS_IER_EOSACC | \
 					  TWIHS_IER_MCACK | TWIHS_IER_TOUT | TWIHS_IER_PECERR |\
 					  TWIHS_IER_SMBDAM | TWIHS_IER_SMBHHM)
-					  
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -121,7 +121,7 @@ void twihs_configure_master( Twihs *pTwi, uint32_t dwTwCk)
 	uint32_t id = ID_TWIHS0;
 	trace_debug( "TWI_ConfigureMaster()\n\r" ) ;
 	assert( pTwi ) ;
-	
+
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWIHS_CR = TWIHS_CR_SVEN ;
 	/* Reset the TWI */
@@ -135,7 +135,7 @@ void twihs_configure_master( Twihs *pTwi, uint32_t dwTwCk)
 	/* Set master mode */
 	pTwi->TWIHS_CR = TWIHS_CR_MSEN ;
 
-    dwMCk = pmc_get_peripheral_clock(id);
+	dwMCk = pmc_get_peripheral_clock(id);
 
 	/* Configure clock */
 	while ( !dwOk ) {
@@ -147,11 +147,13 @@ void twihs_configure_master( Twihs *pTwi, uint32_t dwTwCk)
 			dwCkDiv++ ;
 		}
 	}
-	assert( dwCkDiv < 8 ) ;
-	trace_debug( "Using CKDIV = %u and CLDIV/CHDIV = %u\n\r", dwCkDiv, dwClDiv ) ;
+	assert(dwCkDiv < 8);
+	trace_debug( "Using CKDIV = %u and CLDIV/CHDIV = %u\n\r",
+		     (unsigned int)dwCkDiv,
+		     (unsigned int)dwClDiv);
 
-	pTwi->TWIHS_CWGR = 0 ;
-	pTwi->TWIHS_CWGR = (dwCkDiv << 16) | (dwClDiv << 8) | dwClDiv ;
+	pTwi->TWIHS_CWGR = 0;
+	pTwi->TWIHS_CWGR = (dwCkDiv << 16) | (dwClDiv << 8) | dwClDiv;
 }
 
 /**
@@ -197,7 +199,7 @@ void twihs_stop( Twihs *pTwi )
 }
 
 /**
- * \brief Starts a read operation on the TWI bus with the specified slave, it 
+ * \brief Starts a read operation on the TWI bus with the specified slave, it
  * returns immediately. Data must then be read using TWI_ReadByte() whenever a
  * byte is available (poll using TWI_ByteReceived()).
  * \param pTwi  Pointer to an Twihs instance.
@@ -394,4 +396,3 @@ void twihs_send_stop_condition(Twihs *pTwi)
 
 	pTwi->TWIHS_CR |= TWIHS_CR_STOP;
 }
- 
