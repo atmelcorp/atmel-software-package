@@ -89,13 +89,6 @@
 #include <stddef.h>
 #include <assert.h>
 
-#define TWI_IT_MASK (TWI_IER_TXCOMP | TWI_IER_TXCOMP | TWI_IER_RXRDY          \
-		     | TWI_IER_TXRDY | TWI_IER_SVACC | TWI_IER_GACC           \
-		     | TWI_IER_OVRE | TWIHS_IER_UNRE | TWIHS_IER_NACK         \
-		     | TWIHS_IER_ARBLST | TWIHS_IER_SCL_WS | TWIHS_IER_EOSACC \
-		     | TWIHS_IER_MCACK | TWIHS_IER_TOUT | TWIHS_IER_PECERR    \
-		     | TWIHS_IER_SMBDAM | TWIHS_IER_SMBHHM)
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -303,7 +296,6 @@ uint8_t twi_is_transfer_complete(Twi * pTwi)
 void twi_enable_it(Twi * pTwi, uint32_t sources)
 {
 	assert(pTwi != NULL);
-	assert(sources & TWI_IT_MASK);
 	pTwi->TWI_IER = sources;
 }
 
@@ -315,7 +307,6 @@ void twi_enable_it(Twi * pTwi, uint32_t sources)
 void twi_disable_it(Twi * pTwi, uint32_t sources)
 {
 	assert(pTwi != NULL);
-	assert(sources & TWI_IT_MASK);
 	pTwi->TWI_IDR = sources;
 }
 
