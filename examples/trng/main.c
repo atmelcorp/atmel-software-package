@@ -86,32 +86,23 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include <board.h>
 
-#include "peripherals/wdt.h"
-#include "peripherals/pmc.h"
+#include "board.h"
+#include "chip.h"
+
 #include "peripherals/aic.h"
-
 #include "peripherals/trng.h"
+#include "peripherals/wdt.h"
 
-/*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------*/
+#include <stdio.h>
 
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-//static uint32_t uData;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-static void trng_handler(void)
+
+static void trng_callback(uint32_t random_value)
 {
-	if (TRNG_GetStatus() == TRNG_ISR_DATRDY) {
-		TRNG_DisableIt();
-		printf("0x%x \n\r", (unsigned int)TRNG_GetRandData());
-		TRNG_EnableIt();
-	}
+	printf("0x%08x\n\r", (unsigned int)random_value);
 }
 
 /*----------------------------------------------------------------------------
@@ -127,26 +118,15 @@ static void trng_handler(void)
 int main(void)
 {
 	/* Disable watchdog */
-	WDT_Disable(WDT);
-
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_icache();
-	cp15_enable_dcache();
-#endif
+	wdt_disable();
 
 	/* Output example information */
-	printf("-- TRNG Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	printf("-- TRNG Example " SOFTPACK_VERSION " --\n\r");
+	printf("-- " BOARD_NAME " --\n\r");
+	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
-	/* Enable TRNG peripheral clock */
-	pmc_enable_peripheral(ID_TRNG);
+	trng_enable();
+	trng_enable_it(&trng_callback);
 
-	aic_set_source_vector(ID_TRNG, trng_handler);
-	aic_enable(ID_TRNG);
-	TRNG_EnableIt();
-	TRNG_Enable(0x524e47);
 	while (1) ;
 }

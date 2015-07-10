@@ -29,19 +29,21 @@
 
 /** \addtogroup rtng_module Working with RTNG
  * \ingroup peripherals_module
- * The TRNG driver provides the interface to configure and use the TRNG peripheral.
+ * The TRNG driver provides the interface to configure and use the TRNG
+ * peripheral.
  * \n
  *
- * The True Random Number Generator (TRNG) passes the American NIST Special Publication
- * 800-22 and Diehard Random Tests Suites. As soon as the TRNG is enabled (TRNG_Enable()),
- * the generator provides one 32-bit value every 84 clock cycles.
- * Interrupt trng_int can be enabled through TRNG_EnableIt()(respectively disabled in TRNG_IDR).
- * This interrupt is set when a new random value is available and is cleared when the status
- * register is read (TRNG_SR register). The flag DATRDY of the status register (TRNG_ISR) is set
- * when the random data is ready to be read out on the 32-bit output data through TRNG_GetRandData().
+ * The True Random Number Generator (TRNG) passes the American NIST Special
+ * Publication 800-22 and Diehard Random Tests Suites. As soon as the TRNG is
+ * enabled (trng_enable()), the generator provides one 32-bit value every 84
+ * clock cycles.  TRNG Interrupt can be enabled through trng_enable_it()
+ * (respectively disabled with trng_disable_it()).  When new random data is
+ * ready, the interrupt will fire and the configured callback will be called.
+ * Alternatively, the TRNG can also be used in polling mode using
+ * trng_get_random_data().
  *
- * For more accurate information, please look at the SHA section of the
- * Datasheet.
+ * For more accurate information, please look at the TRNG section of the
+ * datasheet.
  *
  * Related files :\n
  * \ref trng.c\n
@@ -62,66 +64,62 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/aic.h"
+#include "peripherals/pmc.h"
 #include "peripherals/trng.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Local Data
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Enables the TRNG to provide Random Values.
- * \param key  This key is to be written when the ENABLE bit is set.
- */
-void
-TRNG_Enable(uint32_t key)
+static trng_callback_t _trng_callback;
+
+/*------------------------------------------------------------------------------
+ *         Local functions
+ *------------------------------------------------------------------------------*/
+
+static void _trng_handler(void)
 {
-	TRNG->TRNG_CR = TRNG_CR_ENABLE | TRNG_CR_KEY(key);
+	if (TRNG->TRNG_ISR & TRNG_ISR_DATRDY) {
+		if (_trng_callback) {
+			_trng_callback(TRNG->TRNG_ODATA);
+		}
+	}
 }
 
-/**
- * \brief Disables the TRNG to provide Random Values.
- * \param key  This key is to be written when the DISABLE bit is set.
- */
-void
-TRNG_Disable(uint32_t key)
+/*------------------------------------------------------------------------------
+ *         Exported functions
+ *------------------------------------------------------------------------------*/
+
+void trng_enable()
 {
-	TRNG->TRNG_CR = TRNG_CR_KEY(key);
+	pmc_enable_peripheral(ID_TRNG);
+	TRNG->TRNG_CR = TRNG_CR_ENABLE | TRNG_CR_KEY_PASSWD;
 }
 
-/**
- * \brief Data Ready Interrupt enable.
- */
-void
-TRNG_EnableIt(void)
+void trng_disable()
 {
+	TRNG->TRNG_CR = TRNG_CR_KEY_PASSWD;
+	pmc_disable_peripheral(ID_TRNG);
+}
+
+void trng_enable_it(trng_callback_t cb)
+{
+	_trng_callback = cb;
+	aic_set_source_vector(ID_TRNG, _trng_handler);
+	aic_enable(ID_TRNG);
 	TRNG->TRNG_IER = TRNG_IER_DATRDY;
 }
 
-/**
- * \brief Data Ready Interrupt Disable.
- */
-void
-TRNG_DisableIt(void)
+void trng_disable_it(void)
 {
 	TRNG->TRNG_IDR = TRNG_IDR_DATRDY;
+	aic_disable(ID_TRNG);
+	_trng_callback = NULL;
 }
 
-/**
- * \brief Get the current status register of the given TRNG peripheral.
- * \return  TRNG status register.
- */
-uint32_t
-TRNG_GetStatus(void)
+uint32_t trng_get_random_data(void)
 {
-	return TRNG->TRNG_ISR;
-}
-
-/**
- * \brief Get the  32-bit Output Data from TRNG peripheral.
- * \return  TRNG output data.
- */
-uint32_t
-TRNG_GetRandData(void)
-{
+	while (!(TRNG->TRNG_ISR & TRNG_ISR_DATRDY));
 	return TRNG->TRNG_ODATA;
 }
