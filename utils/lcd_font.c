@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2011, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -64,8 +64,7 @@ const Font gFont = { 10, 14 };
  * \param c  Character to output.
  * \param color  Character color.
  */
-void
-LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
+void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 {
 	uint32_t row, col;
 
@@ -75,14 +74,14 @@ LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 		for (row = 0; row < 8; row++) {
 			if ((pCharset10x14[((c - 0x20) * 20) + col * 2] >>
 			     (7 - row)) & 0x1) {
-				LCDD_DrawPixel(x + col, y + row, color);
+				lcdd_draw_pixel(x + col, y + row, color);
 			}
 		}
 
 		for (row = 0; row < 6; row++) {
 			if ((pCharset10x14[((c - 0x20) * 20) + col * 2 + 1] >>
 			     (7 - row)) & 0x1) {
-				LCDD_DrawPixel(x + col, y + row + 8, color);
+				lcdd_draw_pixel(x + col, y + row + 8, color);
 			}
 		}
 	}
@@ -97,8 +96,7 @@ LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
  * \param fontColor  Character color.
  * \param bgColor    Background color.
  */
-void
-LCDD_DrawCharWithBGColor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
+void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
 			 uint32_t bgColor)
 {
 	uint32_t row, col;
@@ -109,18 +107,18 @@ LCDD_DrawCharWithBGColor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
 		for (row = 0; row < 8; row++) {
 			if ((pCharset10x14[((c - 0x20) * 20) + col * 2] >>
 			     (7 - row)) & 0x1) {
-				LCDD_DrawPixel(x + col, y + row, fontColor);
+				lcdd_draw_pixel(x + col, y + row, fontColor);
 			} else {
-				LCDD_DrawPixel(x + col, y + row, bgColor);
+				lcdd_draw_pixel(x + col, y + row, bgColor);
 			}
 		}
 
 		for (row = 0; row < 6; row++) {
 			if ((pCharset10x14[((c - 0x20) * 20) + col * 2 + 1] >>
 			     (7 - row)) & 0x1) {
-				LCDD_DrawPixel(x + col, y + row + 8, fontColor);
+				lcdd_draw_pixel(x + col, y + row + 8, fontColor);
 			} else {
-				LCDD_DrawPixel(x + col, y + row + 8, bgColor);
+				lcdd_draw_pixel(x + col, y + row + 8, bgColor);
 			}
 		}
 	}

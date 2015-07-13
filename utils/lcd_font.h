@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2011, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -99,9 +99,9 @@ extern const Font gFont;
 /** \addtogroup lcdd_font_func Font Functions */
 /** @{*/
 
-extern void LCDD_DrawChar(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
+extern void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
 
-extern void LCDD_DrawCharWithBGColor(uint32_t x, uint32_t y, uint8_t c,
+extern void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c,
 				     uint32_t fontColor, uint32_t bgColor);
 /** @}*/
 /**@}*/
