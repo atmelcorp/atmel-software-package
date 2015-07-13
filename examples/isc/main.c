@@ -524,12 +524,14 @@ extern int main(void)
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
-	board_cfg_ddram();
+#ifdef CONFIG_RUN_OUT_OF_DDR
 	cp15_disable_mmu();
 	cp15_disable_icache();
 	cp15_disable_dcache();
-
-
+#else
+    board_cfg_ddram();
+#endif
+    
 	/* TWI Initialize */
 	configure_twi();
 
