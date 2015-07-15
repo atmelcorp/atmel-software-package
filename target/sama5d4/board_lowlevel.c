@@ -39,6 +39,7 @@
 
 #include "board.h"
 #include "compiler.h"
+#include "timer.h"
 #include "peripherals/pmc.h"
 #include "cortex-a/cpsr.h"
 #include "peripherals/aic.h"
@@ -75,4 +76,6 @@ void low_level_init(void)
 
 	/* Remap */
 	matrix_remap_ram();
+
+	timer_configure(BOARD_TIMER_RESOLUTION);
 }
