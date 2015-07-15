@@ -29,7 +29,6 @@
 drivers-y += drivers/peripherals/aes.o
 drivers-y += drivers/peripherals/aesb.o
 drivers-y += drivers/peripherals/aic.o
-#drivers-y += drivers/peripherals/ddram.o
 drivers-y += drivers/peripherals/icm.o
 drivers-y += drivers/peripherals/iso7816_4.o
 drivers-y += drivers/peripherals/l2cc.o
@@ -49,7 +48,6 @@ drivers-y += drivers/peripherals/tdes.o
 drivers-y += drivers/peripherals/trng.o
 drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/twid.o
-
 drivers-y += drivers/peripherals/uart.o
 drivers-y += drivers/peripherals/usart.o
 drivers-y += drivers/peripherals/usartd.o
@@ -59,9 +57,9 @@ drivers-y += drivers/peripherals/xdmad.o
 
 drivers-$(CONFIG_HAVE_DBGU) += drivers/peripherals/dbgu.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-
 drivers-$(CONFIG_HAVE_PIO3) += drivers/peripherals/pio3.o
 drivers-$(CONFIG_HAVE_PIO4) += drivers/peripherals/pio4.o
+drivers-$(CONFIG_HAVE_QSPI) += drivers/peripherals/qspi.o
 
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
