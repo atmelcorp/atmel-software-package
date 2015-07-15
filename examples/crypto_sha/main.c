@@ -359,10 +359,10 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 /**
  * \brief SHA interrupt handler.
  */
-void handle_sha_irq(void)
+static void handle_sha_irq(void)
 {
-	if ((SHA_GetStatus() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
-		SHA_DisableIt(SHA_IER_DATRDY);
+	if ((sha_get_status() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
+		sha_disable_it(SHA_IER_DATRDY);
 		desDone = 1;
 	}
 }
@@ -423,7 +423,7 @@ static void start_sha(void)
 	uint32_t *p = NULL;
 	uint32_t rc = 0, i, N, digest, ref;
 
-	SHA_GetStatus();
+	sha_get_status();
 	if (startMode == SHA_MR_SMOD_IDATAR0_START)
 		init_dma();
 	switch (operationMode) {
@@ -514,12 +514,12 @@ static void start_sha(void)
 			break;
 	}
 
-	SHA_Configure(startMode | (operationMode << SHA_MR_ALGO_Pos) |
+	sha_configure(startMode | (operationMode << SHA_MR_ALGO_Pos) |
 		      SHA_MR_PROCDLY_LONGEST);
 	/* For the first block of a message, the FIRST command must be set by
 	 * setting the corresponding bit of the Control Register (SHA_CR). For
 	 * the other blocks, there is nothing to write in this Control Register. */
-	SHA_FirstBlock();
+	sha_first_block();
 	if (startMode == SHA_MR_SMOD_IDATAR0_START) {
 		configure_dma_write(bufInput, N);
 		rc = xdmad_start_transfer(dma_chan);
@@ -533,13 +533,13 @@ static void start_sha(void)
 		     i++, p+= algo_desc[operationMode].blockSizeInWord) {
 			desDone = 0;
 			/* Write the block to be processed in the Input Data Registers */
-			SHA_SetInput(p, algo_desc[operationMode].blockSizeInWord);
+			sha_set_input(p, algo_desc[operationMode].blockSizeInWord);
 			if (startMode == SHA_MR_SMOD_MANUAL_START) {
 				/* Set the START bit in the SHA Control Register SHA_CR to begin the processing. */
-				SHA_Start();
+				sha_start();
 			}
 			/* Set the bit DATRDY (Data Ready) in the SHA Interrupt Enable Register (SHA_IER) */
-			SHA_EnableIt(SHA_IER_DATRDY);
+			sha_enable_it(SHA_IER_DATRDY);
 			/* When the processing completes, the bit DATRDY in the
 			 * SHA Interrupt Status Register (SHA_ISR) raises. If an
 			 * interrupt has been enabled by setting the bit DATRDY
@@ -552,16 +552,18 @@ static void start_sha(void)
 		}
 	}
 
-	SHA_GetOutput(bufOutput);
+	sha_get_output(bufOutput);
 	printf("-I- Dump and compare digest result...\n\r");
 	for (rc = 0, i = 0; i < algo_desc[operationMode].messageDigestSizeInWord; i++) {
 		digest = swap_uint32(bufOutput[i]);
 		switch (operationMode) {
-			case SHA_1: ref = sha1MsgDigest[blocks][i]; break;
-			case SHA_256: ref = sha256MsgDigest[blocks][i]; break;
-			case SHA_384: ref = sha384MsgDigest[blocks][i]; break;
-			case SHA_512: ref = sha512MsgDigest[blocks][i]; break;
-			case SHA_224: ref = sha224MsgDigest[blocks][i]; break;
+		case SHA_1: ref = sha1MsgDigest[blocks][i]; break;
+		case SHA_256: ref = sha256MsgDigest[blocks][i]; break;
+		case SHA_384: ref = sha384MsgDigest[blocks][i]; break;
+		case SHA_512: ref = sha512MsgDigest[blocks][i]; break;
+		case SHA_224: ref = sha224MsgDigest[blocks][i]; break;
+		default:
+			ref = 0;
 		}
 		if (digest != ref) {
 			printf(" [X]");
@@ -570,7 +572,8 @@ static void start_sha(void)
 		printf("   0x%08x  \n\r", (unsigned int)digest);
 	}
 	if (rc)
-		printf("-I- Failed to verify message digest (%d errors)\n\r", rc);
+		printf("-I- Failed to verify message digest (%du errors)\n\r",
+		       (unsigned int)rc);
 	else
 		printf("-I- Message digest result matched exactly with the result in FIPS example\n\r");
 }
@@ -627,11 +630,10 @@ int main(void)
 	printf("-- " BOARD_NAME "\r\n");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
-	board_cfg_ddram();
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);
 	/* Perform a software-triggered hardware reset of the SHA interface */
-	SHA_SoftReset();
+	sha_soft_reset();
 	aic_set_source_vector(ID_SHA, handle_sha_irq);
 	aic_enable(ID_SHA);
 
