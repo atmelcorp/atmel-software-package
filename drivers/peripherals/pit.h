@@ -48,7 +48,7 @@ extern "C" {
 * \brief Initialize the Periodic Interval Timer to generate a tick at the
 * specified period, given the current master clock frequency.
 *
-*  \param period Period in nano seconds.
+*  \param period Period in micro seconds.
 */
 extern void pit_init(uint32_t period);
 
