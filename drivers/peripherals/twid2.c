@@ -170,8 +170,11 @@ void twid_configure(struct _twi_desc* desc)
 	pmc_enable_peripheral(id);
 	twi_configure_master(desc->addr, desc->freq);
 
-#ifdef CONFIG_HAVE_USART_FIFO
+#ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->transfert_mode == TWID_MODE_FIFO) {
+		uint32_t fifo_depth = get_peripheral_fifo_depth(desc->addr);
+		twi_fifo_configure(desc->addr, fifo_depth/2, fifo_depth/2,
+				   TWI_FMR_RXRDYM_ONE_DATA | TWI_FMR_TXRDYM_ONE_DATA);
 	}
 #endif
 }
@@ -312,6 +315,25 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	case TWID_MODE_FIFO:
+		if (tx) {
+			status = twi_write_stream(desc->addr, desc->slave_addr,
+						  desc->iaddr, desc->isize,
+						  tx->data, tx->size);
+			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
+			if (status)
+				break;
+		}
+		if (rx) {
+			status = twi_read_stream(desc->addr, desc->slave_addr,
+						 desc->iaddr, desc->isize,
+						 rx->data, rx->size);
+			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
+			if (status)
+				break;
+		}
+		if (cb)
+			cb(desc, user_args);
+		mutex_free(&desc->mutex);
 		break;
 #endif
 	default:

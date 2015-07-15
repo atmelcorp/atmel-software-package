@@ -273,7 +273,7 @@ void spi_write(Spi * spi, uint32_t cs, uint16_t data)
 	} else {
 		writehw(&spi->SPI_TDR, data);
 	}
-	/* Consume write to not corrupt FIFO if present */
+	/* Consume write */
 	_spi_consume_read(spi, cs);
 }
 

@@ -88,7 +88,7 @@ extern void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 extern void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 				    uint8_t isize, uint8_t len);
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_TWI_FIFO
 extern void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
 			uint8_t rx_thres,
 			uint32_t ready_modes);
@@ -97,11 +97,16 @@ extern void twi_fifo_disable(Twi* twi);
 extern uint32_t twi_fifo_rx_size(Twi *twi);
 extern uint32_t twi_fifo_tx_size(Twi *twi);
 
-extern uint32_t twi_read_stream(Twi *twi, void *stream, uint32_t len);
-extern uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t len);
+
+extern uint32_t twi_read_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
+				 uint32_t isize, const void *stream,
+				 uint8_t len);
+extern uint32_t twi_write_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
+				 uint32_t isize, const void *stream,
+				 uint8_t len);
 #endif
 
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _TWI_H_ */
+#endif /* #ifndef _TWI_H_ */

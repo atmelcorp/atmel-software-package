@@ -85,6 +85,7 @@
 #include "trace.h"
 
 #include "timer.h"
+#include "io.h"
 
 #include <stddef.h>
 #include <assert.h>
@@ -387,7 +388,7 @@ void twi_send_stop_condition(Twi * pTwi)
 	pTwi->TWI_CR |= TWI_CR_STOP;
 }
 
-#ifdef FIFO_ENABLED
+#ifdef CONFIG_HAVE_TWI_FIFO
 void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
 			uint8_t rx_thres,
 			uint32_t ready_modes)
@@ -410,19 +411,63 @@ uint32_t twi_fifo_tx_size(Twi *twi)
 	return (twi->TWI_FLR & TWI_FLR_TXFL_Msk) >> TWI_FLR_TXFL_Pos;
 }
 
-uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t len)
+uint32_t twi_read_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
+			  uint32_t isize, const void *stream, uint8_t len)
 {
 	const uint8_t* buffer = stream;
 	uint32_t left = len;
 
-	int32_t fifo_size = get_peripheral_fifo_size(twi);
+	twi_init_read_transfert(twi, addr, iaddr, isize, len);
+	if (twi_get_status(twi) & TWI_SR_NACK) {
+		trace_error("twid2: command NACK!\r\n");
+		return 0;
+	}
+
+	while (left > 0) {
+		if ((twi->TWI_SR & TWI_SR_RXRDY) == 0) continue;
+
+		/* Get FIFO free size (int octet) and clamp it */
+		uint32_t buf_size = twi_fifo_rx_size(twi);
+		buf_size = buf_size > left ? left : buf_size;
+
+		/* Fill the FIFO as must as possible */
+		while (buf_size > sizeof(uint32_t)) {
+			*(uint32_t*)buffer = twi->TWI_RHR;
+			buffer += sizeof(uint32_t);
+			left -= sizeof(uint32_t);
+			buf_size -= sizeof(uint32_t);
+		}
+		while (buf_size >= sizeof(uint16_t)) {
+			readhw(&twi->TWI_RHR, (uint16_t*)buffer);
+			buffer += sizeof(uint16_t);
+			left -= sizeof(uint16_t);
+			buf_size -= sizeof(uint16_t);
+		}
+		while (buf_size >= sizeof(uint8_t)) {
+			readb(&twi->TWI_RHR, (uint8_t*)buffer);
+			buffer += sizeof(uint8_t);
+			left -= sizeof(uint8_t);
+			buf_size -= sizeof(uint8_t);
+		}
+	}
+	return len - left;
+}
+
+uint32_t twi_write_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
+			  uint32_t isize, const void *stream, uint8_t len)
+{
+	const uint8_t* buffer = stream;
+	uint32_t left = len;
+
+	int32_t fifo_size = get_peripheral_fifo_depth(twi);
 	if (fifo_size < 0)
 		return 0;
 
-	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
-	twi->TWI_MMR = TWI_MMR_DADR(addr);
-	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
-
+	twi_init_write_transfert(twi, addr, iaddr, isize, len);
+	if (twi_get_status(twi) & TWI_SR_NACK) {
+		trace_error("twid2: command NACK!\r\n");
+		return 0;
+	}
 	while (left > 0) {
 		if ((twi->TWI_SR & TWI_SR_TXRDY) == 0) continue;
 
@@ -437,13 +482,18 @@ uint32_t twi_write_stream(Twi *twi, uint32_t addr, const void *stream, uint32_t 
 			left -= sizeof(uint32_t);
 			buf_size -= sizeof(uint32_t);
 		}
+		while (buf_size >= sizeof(uint16_t)) {
+			writehw(&twi->TWI_THR,*(uint16_t*)buffer);
+			buffer += sizeof(uint16_t);
+			left -= sizeof(uint16_t);
+			buf_size -= sizeof(uint16_t);
+		}
 		while (buf_size >= sizeof(uint8_t)) {
-			twi->TWI_THR = *(uint8_t*)buffer;
+			writeb(&twi->TWI_THR,*buffer);
 			buffer += sizeof(uint8_t);
 			left -= sizeof(uint8_t);
 			buf_size -= sizeof(uint8_t);
 		}
-
 	}
 	return len - left;
 }
