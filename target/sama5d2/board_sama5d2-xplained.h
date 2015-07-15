@@ -220,6 +220,12 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* =================== AT25 device definition =================== */
+
+#define QSPIFLASH_PINS     PINS_QSPI0_IOS3
+#define QSPIFLASH_ADDR     QSPI0
+#define QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
+
 /* =================== ILI9488 device definition =================== */
 /* Connected on board A5D2, XPRO EXT2 connector */
 

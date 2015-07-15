@@ -31,3 +31,4 @@ drivers-y += drivers/memories/ddram.o
 drivers-$(CONFIG_HAVE_AT25DFX) += drivers/memories/at25.o
 drivers-$(CONFIG_HAVE_AT24MAC402) += drivers/memories/at24mac402.o
 drivers-$(CONFIG_HAVE_AT24MAC402) += drivers/memories/at24.o
+drivers-$(CONFIG_HAVE_QSPIFLASH) += drivers/memories/qspiflash.o
