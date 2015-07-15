@@ -199,6 +199,20 @@ extern uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 extern uint32_t at25_write(struct _at25* at25, uint32_t addr,
 			   const uint8_t* data, uint32_t length);
 
+/**
+ * \brief Exit 4-bytes address mode
+ *
+ * \param at25  Pointer to an AT25 driver instance.
+ */
+extern void at25_enter_4addr_mode(struct _at25* at25);
+
+/**
+ * \brief Exit 4-bytes address mode
+ *
+ * \param at25  Pointer to an AT25 driver instance.
+ */
+extern void at25_exit_4addr_mode(struct _at25* at25);
+
 #ifdef __cplusplus
 }
 #endif

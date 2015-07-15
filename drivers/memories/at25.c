@@ -218,9 +218,9 @@ static void _at25_set_addressing(struct _at25* at25)
 	assert(at25->desc);
 
 	if (at25->desc->size > MODE_3B_MAX_SIZE) {
-		at25->addressing = AT25_ADDRESS_4_BYTES;
+		at25_enter_4addr_mode(at25);
 	} else {
-		at25->addressing = AT25_ADDRESS_3_BYTES;
+		at25_exit_4addr_mode(at25);
 	}
 }
 
@@ -574,4 +574,28 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 	_at25_disable_write(at25);
 
 	return AT25_SUCCESS;
+}
+
+void at25_enter_4addr_mode(struct _at25* at25)
+{
+	spid_begin_transfert(at25->spid);
+	uint8_t opcode = AT25_ENTER_4ADDR_MODE;
+	struct _buffer out = {
+		.data = &opcode,
+		.size = 1
+	};
+	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	at25->addressing = AT25_ADDRESS_4_BYTES;
+}
+
+void at25_exit_4addr_mode(struct _at25* at25)
+{
+	spid_begin_transfert(at25->spid);
+	uint8_t opcode = AT25_EXIT_4ADDR_MODE;
+	struct _buffer out = {
+		.data = &opcode,
+		.size = 1
+	};
+	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	at25->addressing = AT25_ADDRESS_3_BYTES;
 }
