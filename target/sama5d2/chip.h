@@ -216,6 +216,18 @@ extern uint32_t get_usart_id_from_addr(const Usart* addr);
 
 extern uint32_t get_tc_id_from_addr(const Tc* addr);
 
+/**
+ * \brief retrieve QSPI ID from its base address
+ * \return QSPI ID on success, ID_PERIPH_COUNT otherwise
+ */
+uint32_t get_qspi_id_from_addr(const Qspi* addr);
+
+/**
+ * \brief retrieve QSPI memory start from its base address
+ * \return QSPI memory start on success, NULL otherwise
+ */
+void *get_qspi_mem_from_addr(const Qspi* addr);
+
 /** \brief Returns the matrix on which the given peripheral is connected
  *
  * \param id the Peripheral ID

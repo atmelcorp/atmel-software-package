@@ -282,6 +282,20 @@ uint32_t get_tc_id_from_addr(const Tc* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+uint32_t get_qspi_id_from_addr(const Qspi* addr)
+{
+	if (addr == (void*)QSPI0) return ID_QSPI0;
+	else if (addr == (void*)QSPI1) return ID_QSPI1;
+	else return ID_PERIPH_COUNT;
+}
+
+void *get_qspi_mem_from_addr(const Qspi* addr)
+{
+	if (addr == (void*)QSPI0) return (void*)QSPIMEM0_ADDR;
+	else if (addr == (void*)QSPI1) return (void*)QSPIMEM1_ADDR;
+	else return NULL;
+}
+
 Matrix* get_peripheral_matrix(uint32_t id)
 {
 	int i;
