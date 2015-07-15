@@ -255,12 +255,12 @@ send_normal()
 
 matrix_configure_slave_ddr()
 {
-	
+
 	/* matrix_remove_write_protection(MATRIX0);*/
 	__tempo_reg = 0xF00181E4;
 	__tempo_var = (0x4D4154u << 8);
 	__writeMemory32(__tempo_var, __tempo_reg,"Memory");
-	
+
 	for (__tempo_var = 3 ; __tempo_var < 10 ; __tempo_var = __tempo_var + 1)
 	{
 		__tempo_reg = 0xF0018200 + 4 * __tempo_var;
@@ -270,7 +270,7 @@ matrix_configure_slave_ddr()
 		/* matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xF);*/
 		__tempo_reg = 0xF0018240 + 4 * __tempo_var;
 		__writeMemory32(0xFFFF, __tempo_reg,"Memory");
-		
+
 		/* matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1); */
 		__tempo_reg = 0xF0018280 + 4 * __tempo_var;
 		__writeMemory32(0xF, __tempo_reg,"Memory");
@@ -281,13 +281,13 @@ initialize_ddr()
 {
 	REG_MPDDRC_RTR = 0xF000C004;
 	matrix_configure_slave_ddr();
-	
+
 	/* Enable DDR and MPDDRC clocks */
 	__writeMemory32((1<<2), 0xF0014000, "Memory");
-	
+
 	__writeMemory32(13, 0xF001410C, "Memory");
 	__writeMemory32((13 | (1<<28) | (1<<12)) , 0xF001410C, "Memory");
-	
+
 	/* Step 1: Program memory device type */
 	__writeMemory32(0x00000004, 0xF000C020, "Memory");
 
@@ -311,18 +311,18 @@ initialize_ddr()
 	__tempo_var = __readMemory32(0xF000C008,"Memory");
 	__ba_offset = (__tempo_var & 0x3) + 9;
 
-	if (!(__tempo_var & (1<<0x22))== (1<<0x22) ) 
+	if (!(__tempo_var & (1<<0x22))== (1<<0x22) )
 	{
 		__ba_offset += ((__tempo_var & (0x3<<2))>>2) + 11;
 	}
-	
+
 	__tempo_var = __readMemory32(0xF000C020,"Memory");
 
-	if (__tempo_var & 0x10) 
+	if (__tempo_var & 0x10)
 	{
 		__ba_offset += 1;
-	} 
-	else 
+	}
+	else
 	{
 		__ba_offset += 2;
 	}
@@ -403,7 +403,7 @@ initialize_ddr()
 	/* Refresh Timer is (64ms / (bank_size)) * master_clock */
 	__writeMemory32(0x510, REG_MPDDRC_RTR,"Memory");
 	__delay(10);
-	
+
 }
 
 initialize_clocks()
@@ -432,11 +432,6 @@ execUserReset()
 
 	/* Disable D-Cache, I-Cache and MMU */
 	__jtagCP15WriteReg(1, 0, 0, 0, 0x00C50078);
-
-	/* Disable DDR clock and MPDDRC controller to avoid */
-	/* corrupted RAM data on soft reset. */
-	/*__writeMemory32(0x00000004, 0xF0014004, "Memory");*/
-	/*__writeMemory32(0x00002000, 0xF0014014, "Memory");*/
 
 	/* Disable all interrupts and go to supervisor mode */
 	#CPSR = 0xD3;
@@ -496,5 +491,5 @@ execUserPreload()
 
 	initialize_clocks();
 
-	initialize_ddr(); 
+	initialize_ddr();
 }
