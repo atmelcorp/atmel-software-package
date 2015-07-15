@@ -27,6 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "board.h"
 #include "chip.h"
 
 #include "peripherals/mpddrc.h"
@@ -127,32 +128,32 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 * Step 4: A pause of at least 500us must be observed before a
 	 * single toggle.
 	 */
-	timer_wait(500);
+	timer_sleep(50);
 	/*
 	 * Step 5: Issue a NOP command to the memory controller using
 	 * its mode register (MPDDRC_MR). CKE is now driven high.
 	 */
 	_send_nop_cmd();
-	timer_wait(10);
+	timer_sleep(1);
 	/*
 	 * Step 6: Issue Extended Mode Register Set 2 (EMRS2) cycle to
 	 * choose between commercial or high temperature
 	 * operations.
 	 */
 	_send_ext_lmr_cmd(0x2, ba_offset);
-	timer_wait(10);
+	timer_sleep(1);
 	/*
 	 * Step 7: Issue Extended Mode Register Set 3 (EMRS3) cycle to set
 	 * the Extended Mode Register to 0.
 	 */
 	_send_ext_lmr_cmd(0x3, ba_offset);
-	timer_wait(10);
+	timer_sleep(1);
 	/*
 	 * Step 8: Issue Extended Mode Register Set 1 (EMRS1) cycle to
 	 * disable and to program O.D.S. (Output Driver Strength).
 	 */
 	_send_ext_lmr_cmd(0x1, ba_offset);
-	timer_wait(10);
+	timer_sleep(1);
 	/*
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
@@ -163,13 +164,13 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 * Step 10: Issue a Mode Register Set (MRS) cycle to reset DLL.
 	 */
 	_send_lmr_cmd();
-	timer_wait(50);
+	timer_sleep(5);
 	/*
 	 * Step 11: Issue a Calibration command (MRS) cycle to calibrate RTT and
 	 * RON values for the Process Voltage Temperature (PVT).
 	 */
 	_send_calib_cmd();
-	timer_wait(10);
+	timer_sleep(1);
 
 	/*
 	 * Step 12: A Normal Mode command is provided.
@@ -195,31 +196,31 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	 * the NOP command into the Mode Register and wait minimum 200
 	 * us */
 	_send_nop_cmd();
-	timer_wait(200);
+	timer_sleep(20);
 
 	/* Step 4:  Issue a NOP command. */
 	_send_nop_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 5: Issue all banks precharge command. */
 	_send_precharge_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 6: Issue an Extended Mode Register set (EMRS2) cycle
 	 * to chose between commercialor high  temperature
 	 * operations. */
 	_send_ext_lmr_cmd(0x2, ba_offset);
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 7: Issue an Extended Mode Register set (EMRS3) cycle
 	 * to set all registers to 0. */
 	_send_ext_lmr_cmd(0x3, ba_offset);
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 8:  Issue an Extended Mode Register set (EMRS1) cycle
 	 * to enable DLL. */
 	_send_ext_lmr_cmd(0x1, ba_offset);
-	timer_wait(5);
+	timer_sleep(1);
 
 	/* Step 9:  Program DLL field into the Configuration Register. */
 	MPDDRC->MPDDRC_CR |= MPDDRC_CR_DLL_RESET_ENABLED;
@@ -229,19 +230,19 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	/* Perform a write to a DDR memory access to acknoledge the command */
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 11: Issue all banks precharge command to the DDR2-SDRAM. */
 	_send_precharge_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 12: Two auto-refresh (CBR) cycles are
 	 * provided. Program the auto refresh command (CBR) into the
 	 * Mode Register. */
 	_send_refresh_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 	_send_refresh_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 13: Program DLL field into the Configuration Register
 	 * to low(Disable DLL reset). */
@@ -250,7 +251,7 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	/* Step 14: Issue a Mode Register set (MRS) cycle to program
 	 * the parameters of the DDR2-SDRAM devices. */
 	_send_lmr_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 15: Program OCD field into the Configuration Register
 	 * to high (OCD calibration default). */
@@ -259,18 +260,20 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	/* Step 16: An Extended Mode Register set (EMRS1) cycle is
 	 * issued to OCD default value. */
 	_send_ext_lmr_cmd(0x1, ba_offset);
-	timer_wait(1);
+	timer_sleep(1);
 
 	/* Step 19,20: A mode Normal command is provided. Program the
 	 * Normal mode into Mode Register. */
 	_send_normal_cmd();
-	timer_wait(1);
+	timer_sleep(1);
 }
 
 extern void mpddrc_configure(struct _mpddrc_desc* desc)
 {
-	/* Configure time to have microseconds resolution */
-	timer_configure(1000);
+	/* Retrieve the current resolution to put it back later */
+	uint32_t resolution = timer_get_resolution();
+	/* Configure time to have 10 microseconds resolution */
+	timer_configure(10);
 
 	/* controller and DDR clock */
 	pmc_enable_peripheral(ID_MPDDRC);
@@ -317,12 +320,8 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000*master_clock/desc->bank);
 
 	/* wait for end of calibration */
-<<<<<<< HEAD
-	timer_wait(1);
-=======
 	timer_sleep(1);
 
 	/* Restore resolution or put the default one if not already set */
 	timer_configure(resolution);
->>>>>>> cca016b... Update mpddrc
 }

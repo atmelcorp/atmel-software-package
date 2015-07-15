@@ -45,6 +45,8 @@
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
 
+#include "timer.h"
+
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------
@@ -76,9 +78,6 @@ void low_level_init(void)
 
 	/* Remap */
 	matrix_remap_ram();
-<<<<<<< HEAD
-=======
 
 	timer_configure(BOARD_TIMER_RESOLUTION);
->>>>>>> 18da654... Change TIMER_RESOLUTION define name
 }
