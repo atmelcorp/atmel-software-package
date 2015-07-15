@@ -49,6 +49,7 @@ drivers-y += drivers/peripherals/tdes.o
 drivers-y += drivers/peripherals/trng.o
 drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/twid.o
+drivers-y += drivers/peripherals/twid2.o
 
 drivers-y += drivers/peripherals/uart.o
 drivers-y += drivers/peripherals/usart.o
