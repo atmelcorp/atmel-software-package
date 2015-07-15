@@ -317,5 +317,12 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000*master_clock/desc->bank);
 
 	/* wait for end of calibration */
+<<<<<<< HEAD
 	timer_wait(1);
+=======
+	timer_sleep(1);
+
+	/* Restore resolution or put the default one if not already set */
+	timer_configure(resolution);
+>>>>>>> cca016b... Update mpddrc
 }

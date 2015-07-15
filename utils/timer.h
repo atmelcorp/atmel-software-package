@@ -55,6 +55,11 @@
 
 #include <stdint.h>
 
+struct _timeout
+{
+	uint32_t start;
+	uint32_t count;
+};
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
@@ -75,12 +80,29 @@ extern uint32_t timer_configure(uint32_t resolution);
 /**
  *  \brief Sync wait for count times resoltion
  */
-extern void timer_wait(volatile uint32_t count);
+extern void timer_wait(uint32_t count);
+
+/**
+ * \brief Retrieve current timer resolution.
+ *
+ * \return Current timer resolution (0 if not already set)
+ */
+extern uint32_t timer_get_resolution(void);
 
 /**
  *  \brief Sync sleep for count times resolution
  */
-extern void timer_sleep(volatile uint32_t count);
+extern void timer_sleep(uint32_t count);
+
+/**
+ *  \brief Initialize a timeout
+ */
+extern void timer_start_timeout(struct _timeout* timeout, uint32_t count);
+
+/**
+ *  \brief Tells if the timeout as been reached
+ */
+extern uint8_t timer_timeout_reached(struct _timeout* timeout);
 
 /**
  * \brief Compute elapsed number of ticks between start and end with

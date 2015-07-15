@@ -98,6 +98,9 @@
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    512*1024*1024
 
+/** \def Board PIT tick resolution */
+#define BOARD_TIMER_RESOLUTION    1000
+
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */

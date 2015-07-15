@@ -36,6 +36,7 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
+#include "board.h"
 #include "timer.h"
 #include "peripherals/tc.h"
 #include "peripherals/pit.h"
@@ -48,6 +49,7 @@
 
 /** Tick Counter */
 static volatile uint32_t _timer = 0;
+static uint32_t _resolution = 0;
 
 /*----------------------------------------------------------------------------
  *         Exported Functions
@@ -75,6 +77,8 @@ static void timer_increment(void)
 
 uint32_t timer_configure(uint32_t resolution)
 {
+	if (!resolution)
+		resolution = BOARD_TIMER_RESOLUTION;
 	_timer = 0;
 	pmc_enable_peripheral(ID_PIT);
 	pit_init(resolution);
@@ -82,7 +86,13 @@ uint32_t timer_configure(uint32_t resolution)
 	aic_enable(ID_PIT);
 	pit_enable_it();
 	pit_enable();
+	_resolution = resolution;
 	return 0;
+}
+
+uint32_t timer_get_resolution(void)
+{
+	return _resolution;
 }
 
 uint32_t timer_get_interval(uint32_t start, uint32_t end)
@@ -92,7 +102,18 @@ uint32_t timer_get_interval(uint32_t start, uint32_t end)
 	return (end + (0xFFFFFFFF - start) + 1);
 }
 
-void timer_wait(volatile uint32_t count)
+void timer_start_timeout(struct _timeout* timeout, uint32_t count)
+{
+	timeout->start = _timer;
+	timeout->count = count;
+}
+
+uint8_t timer_timeout_reached(struct _timeout* timeout)
+{
+	return timer_get_interval(timeout->start, _timer) >= timeout->count;
+}
+
+void timer_wait(uint32_t count)
 {
 	uint32_t start, current;
 	start = _timer;
@@ -101,16 +122,16 @@ void timer_wait(volatile uint32_t count)
 	} while (timer_get_interval(start, current) < count);
 }
 
-void timer_sleep(volatile uint32_t count)
+void timer_sleep(uint32_t count)
 {
 	uint32_t start, current;
 	asm("CPSIE   I");
 	start = _timer;
 
 	do {
-		current = _timer;
 		asm("WFI");
-	} while (timer_get_interval(start, current) > count);
+		current = _timer;
+	} while (timer_get_interval(start, current) < count);
 }
 
 uint32_t timer_get_tick(void)
