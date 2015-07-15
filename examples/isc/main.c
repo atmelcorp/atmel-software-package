@@ -92,6 +92,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
+#include "peripherals/xdmad.h"
 #include "cortex-a/mmu.h"
 
 #include "misc/console.h"
@@ -117,6 +118,7 @@
 #define ISC_OUTPUT_BASE_ADDRESS  (DDR_CS_ADDR + 16 * 1024 * 1024)
 #define ISC_OUTPUT_BASE_ADDRESS1  (ISC_OUTPUT_BASE_ADDRESS + 0x400000)
 #define ISC_OUTPUT_BASE_ADDRESS2  (ISC_OUTPUT_BASE_ADDRESS1 + 0x400000)
+#define ISC_HIS_BASE_ADDRESS  (0x22000000)
 
 #define LCD_MODE_YUV          (LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE2)
 #define LCD_MODE_RGB565       LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565
@@ -141,6 +143,28 @@
 /** TWI base address for sensor TWI interface*/
 #define BOARD_BASE_TWI_ISI   ((Twi*)(TWIHS0))
 
+#define GAMMA_ENTRIES   64
+
+#define HISTOGRAM_GR   0
+#define HISTOGRAM_R    1
+#define HISTOGRAM_GB   2
+#define HISTOGRAM_B    3
+
+#define HIST_ENTRIES   512
+#define HIST_RGGB_BAYER  4
+
+/*----------------------------------------------------------------------------
+ *        Local Type
+ *----------------------------------------------------------------------------*/
+
+/** Sensor status or return code */
+typedef enum _awb_status {
+	AWB_INIT = 0,
+	AWB_WAIT_HIS_READY,
+	AWB_WAIT_DMA_READY,
+	AWB_WAIT_ISC_PERFORMED,
+} awb_status_t;
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -164,6 +188,7 @@ static struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
 struct _twid twid;
+static awb_status_t awb_status_machine;
 
 /** LCD buffer.*/
 static uint8_t *pHeoBuffer =  (uint8_t*)LCD_PREVIEW_BASE_ADDRESS;
@@ -182,7 +207,17 @@ static sensorOutputFormat_t sensorMode;
 /* LCD mode */
 static uint32_t lcdMode;
 
+/** DMA channel */
+static struct _xdmad_channel *xdmad_channel;
+
 volatile static uint32_t capture_started = 0;
+
+static uint32_t histogram_count[HIST_RGGB_BAYER];
+
+static uint32_t histogram_idx_isc;
+
+volatile static bool histogram_done;
+volatile static bool histogram_read;
 
 /* Color space matrix setting */
 static struct _color_space cs = {
@@ -193,7 +228,7 @@ static struct _color_space cs = {
 
 #if 0
 /* Gamma table with gamma 1/2.2 */
-const uint32_t gGam[64] = {
+const uint32_t gGam[GAMMA_ENTRIES] = {
 	0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
 	0x18E0016,0x1A40015,0x1B80014,0x1CC0013,0x1DE0012,0x1F00011,0x2010010,0x2110010,
 	0x221000F,0x230000F,0x23F000E,0x24D000E,0x25B000D,0x269000D,0x276000D,0x283000D,
@@ -207,7 +242,7 @@ const uint32_t gGam[64] = {
 
 #if 0
 /* Gamma table with gamma 1/1.8 */
-const uint32_t gGam[64] = {
+const uint32_t gGam[GAMMA_ENTRIES] = {
 	0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
 	0x1420016,0x1580014,0x16D0013,0x1810012,0x1940012,0x1A60012,0x1B80011,0x1C90010,
 	0x1DA0010,0x1EA000F,0x1FA000F,0x209000F,0x218000F,0x227000E,0x235000E,0x243000E,
@@ -220,7 +255,7 @@ const uint32_t gGam[64] = {
 
 #endif
 /* Gamma table with gamma 1/2.8 */
-const uint32_t gGam[64] = {
+const uint32_t gGam[GAMMA_ENTRIES] = {
 	0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
 	0x1E70014,0x1FC0013,0x20F0012,0x2210011,0x2330010,0x243000F,0x253000E,0x261000E,
 	0x270000D,0x27D000D,0x28A000D,0x297000C,0x2A3000C,0x2AF000C,0x2BB000B,0x2C6000B,
@@ -232,6 +267,65 @@ const uint32_t gGam[64] = {
 };
 
 
+/**
+ * \brief Callback entry for histogram DMA transfer done.
+ */
+static void _dma_callback(struct _xdmad_channel *channel, void *arg)
+{
+	histogram_read = true;
+}
+
+/**
+ * \brief Configure xDMA to read Histogram entries.
+ */
+static void xdma_read_histogram(uint32_t buf)
+{
+	struct _xdmad_cfg xdmad_cfg;
+	xdmad_cfg.ublock_size = HIST_ENTRIES;
+	xdmad_cfg.src_addr = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
+	xdmad_cfg.dest_addr =  (uint32_t* )buf;
+	xdmad_cfg.cfg.uint32_value = 
+								XDMAC_CC_MBSIZE_SINGLE |
+								XDMAC_CC_TYPE_MEM_TRAN |
+								XDMAC_CC_CSIZE_CHK_1 |
+								XDMAC_CC_DWIDTH_WORD |
+								XDMAC_CC_SIF_AHB_IF0 |
+								XDMAC_CC_DIF_AHB_IF0 |
+								XDMAC_CC_SAM_INCREMENTED_AM |
+								XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmad_cfg.block_size = 0 ;
+	xdmad_cfg.data_stride = 0;
+	xdmad_cfg.src_ublock_stride = 0;
+	xdmad_cfg.dest_ublock_stride = 0;
+	xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, 0, 0);
+	xdmad_set_callback(xdmad_channel, _dma_callback, NULL);
+	xdmad_start_transfer(xdmad_channel);
+}
+
+/**
+ * \brief Convert float data to HEX with giving format.
+ * \param signBit length of sign in bit
+ * \param magnitudeBit length of magnitude in bit
+ * \param fractionalBit length of fractional in bit
+ * \param f float value to be converted
+ */
+uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit, uint8_t fractionalBit, float f)
+{
+	uint32_t hex;
+	if(!signBit){
+		if (f < 0.0) return 0;
+		hex = (uint32_t) (f * (1 << fractionalBit));
+	} else {
+		if (f < 0.0) {
+			hex = (uint32_t)((-f) * (1 << fractionalBit));
+			hex = ~(hex) - 1;
+		} else {
+			hex = (uint32_t)(f * (1 << fractionalBit));
+		}
+	}
+	return hex;
+}
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -240,7 +334,7 @@ const uint32_t gGam[64] = {
  */
 static void isc_handler(void)
 {
-	uint32_t status, i;
+	uint32_t status;
 	status = isc_interrupt_status();
 	if ((status & ISC_INTSR_HD) == ISC_INTSR_HD) {
 	}
@@ -252,14 +346,11 @@ static void isc_handler(void)
 	}
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
 	}
+	
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
-		for (i = 0; i < 512; i+= 16) {
-			printf("<%x %x> ",
-			       (unsigned int)i,
-			       (unsigned int)ISC->ISC_HIS_ENTRY[i]);
-		}
-		isc_clear_histogram_table();
+		histogram_done = true;
 	}
+	
 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
 }
@@ -297,6 +388,9 @@ static void configure_mck_clock(void)
 
 }
 
+/**
+ * \brief Hardware reset sensor.
+ */
 static void sensor_reset(void)
 {
 	pio_configure(&pin_rst,1);
@@ -384,11 +478,10 @@ static void configure_isc(void)
 		isc_wb_enabled(1);
 		isc_wb_set_bayer_pattern(ISC_WB_CFG_BAYCFG_BGBG);
 		/* Test value for White balance setting */
-		isc_wb_adjust_bayer_color(0, 0, 0, 0, 0x208,
-					  0x208, 0x220, 0x220);
+		isc_wb_adjust_bayer_color(0, 0, 0, 0, 0x200, 0x200, 0x200, 0x200);
 
 		/* Set up Gamma table with gamma 1/2.2 */
-		for (i = 0; i< 64; i++){
+		for (i = 0; i< GAMMA_ENTRIES; i++){
 			ISC->ISC_GAM_RENTRY[i] = gGam[i];
 			ISC->ISC_GAM_GENTRY[i] = gGam[i];
 			ISC->ISC_GAM_BENTRY[i] = gGam[i];
@@ -456,7 +549,7 @@ static void configure_isc(void)
 	isc_histogram_enabled(1);
 	isc_clear_histogram_table();
 	isc_update_profile();
-
+	
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD
@@ -502,6 +595,93 @@ static void configure_dma_linklist(void)
 	}
 }
 
+/**
+ * \brief Calculate gain for RGGB bayer and perform them with ISC WB module.
+ */
+static void awb_update(void)
+{
+	float gain[HIST_RGGB_BAYER];
+	uint32_t gain_049[HIST_RGGB_BAYER];
+	gain[HISTOGRAM_GB] = 1.0000000; 
+	gain[HISTOGRAM_GR] = (float)(histogram_count[HISTOGRAM_GB]) / \
+						(float)(histogram_count[HISTOGRAM_GR]);
+	gain[HISTOGRAM_R] = (float)(histogram_count[HISTOGRAM_GB]) / \
+						(float)(histogram_count[HISTOGRAM_R]);
+	gain[HISTOGRAM_B] = (float)(histogram_count[HISTOGRAM_GB]) / \
+						(float)(histogram_count[HISTOGRAM_B]);
+	
+	gain_049[HISTOGRAM_GB] = float2hex(0, 4, 9, gain[HISTOGRAM_GB]);
+	gain_049[HISTOGRAM_GR] = float2hex(0, 4, 9, gain[HISTOGRAM_GR]);
+	gain_049[HISTOGRAM_B] = float2hex(0, 4, 9, gain[HISTOGRAM_B]);
+	gain_049[HISTOGRAM_R] = float2hex(0, 4, 9, gain[HISTOGRAM_R]);
+		
+	isc_wb_adjust_bayer_color(0, 0, 0, 0, 
+					gain_049[HISTOGRAM_R], 
+					gain_049[HISTOGRAM_GR], 
+					gain_049[HISTOGRAM_B], 
+					gain_049[HISTOGRAM_GB]);
+	isc_update_profile();
+}
+
+/**
+ * \brief Count up 4 channel R/G/Gr/Gb histogram data.
+ */
+static void histogram_count_up(void)
+{
+	uint32_t *v;
+	uint32_t i;
+	v = (uint32_t *)ISC_HIS_BASE_ADDRESS;
+	for (i = 0; i < HIST_ENTRIES; i++){
+		histogram_count[histogram_idx_isc]+= (*v) * i;
+		v++;
+	}
+}
+
+
+/**
+ * \brief Status machine for auto white balance.
+ */
+static bool auto_white_balance(void)
+{
+	if (awb_status_machine == AWB_INIT){
+		isc_histogram_configure(histogram_idx_isc, ISC_HIS_CFG_BAYSEL_BGBG, 1);
+		isc_update_profile();
+		histogram_done = false;
+		histogram_read = false;
+		isc_update_histogram_table();
+		awb_status_machine = AWB_WAIT_HIS_READY;
+		return true;
+	}
+	if (awb_status_machine == AWB_WAIT_HIS_READY){
+		if(!histogram_done) 
+			return true;
+		histogram_done = false;
+		xdma_read_histogram(ISC_HIS_BASE_ADDRESS);
+		awb_status_machine = AWB_WAIT_DMA_READY;
+		return true;
+	}
+	if (awb_status_machine == AWB_WAIT_DMA_READY){
+		if(!histogram_read) 
+			return true;
+		histogram_read = false;
+		histogram_count_up();
+		histogram_idx_isc++;
+		if(histogram_idx_isc < HIST_RGGB_BAYER) {
+			awb_status_machine = AWB_INIT;
+		} else {
+			awb_status_machine = AWB_WAIT_ISC_PERFORMED;
+		}
+		return true;
+	}
+	if (awb_status_machine == AWB_WAIT_ISC_PERFORMED){
+		awb_update();
+		histogram_idx_isc = 0;
+		awb_status_machine = AWB_INIT;
+		return true;
+	}
+    return true;
+}
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -513,7 +693,7 @@ static void configure_dma_linklist(void)
 extern int main(void)
 {
 	uint8_t key;
-
+    
 	wdt_disable();
 
 	/* Initialize console */
@@ -524,13 +704,12 @@ extern int main(void)
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
-#ifdef CONFIG_RUN_OUT_OF_DDR
-	cp15_disable_mmu();
+#if !defined CONFIG_RUN_OUT_OF_DDR
+	board_cfg_ddram();
+#endif
+    cp15_disable_mmu();
 	cp15_disable_icache();
 	cp15_disable_dcache();
-#else
-    board_cfg_ddram();
-#endif
     
 	/* TWI Initialize */
 	configure_twi();
@@ -540,7 +719,19 @@ extern int main(void)
 
 	/* ISI PCK clock Initialize */
 	configure_mck_clock();
+	
+	/* Initialize XDMA driver instance in interrupt mode */
+	xdmad_initialize(false);
 
+	/* Allocate a XDMA channel. */
+	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
+
+	if (!xdmad_channel) {
+		printf("-E- Can't allocate XDMA channel\n\r");
+		return 0;
+	}
+	xdmad_prepare_channel(xdmad_channel);
+	
 	/* Reset Sensor board */
 	sensor_reset();
 	printf("-----------------------------------\n\r");
@@ -588,7 +779,7 @@ extern int main(void)
 		lcdMode = LCD_MODE_YUV;
 	}
 
-	printf("Bit width = %d, Image Width = %d, Image Height=%d \n\r",
+	printf("-I- Bit width = %d, Image Width = %d, Image Height=%d \n\r",
 	       (unsigned int)(wSensorOutBitWidth + 8),
 	       (unsigned int)wImageWidth,
 	       (unsigned int)wImageHeight);
@@ -597,35 +788,19 @@ extern int main(void)
 	configure_lcd();
 	configure_dma_linklist();
 	configure_isc();
-	printf("Preview start...\n\r");
-	//while(1);
-	for(;;) {
-		key = console_get_char();
-		if ((key >= '0') || (key < '6')) {
-			switch (key){
-			case '0':
-				printf("\n\rHistogram Gr samplinng\n\r");
-				break;
-			case '1':
-				printf("\n\rHistogram R samplinng\n\r");
-				break;
-			case '2':
-				printf("\n\rHistogram Gb samplinng\n\r");
-				break;
-			case '3':
-				printf("\n\rHistogram B samplinng\n\r");
-				break;
-			case '4':
-				printf("\n\rHistogram Luminance samplinng\n\r");
-				break;
-			case '5':
-				printf("\n\rHistogram RAW samplinng\n\r");
+	
+	if (sensorMode == RAW_BAYER) {
+		printf("-I- Preview start, press 'W' or 'w' to start auto white balance \n\r");
+		for(;;) {
+			key = console_get_char();
+			if ((key == 'W') || (key == 'w')) {
 				break;
 			}
-			isc_histogram_configure((key-'0'),
-						ISC_HIS_CFG_BAYSEL_BGBG, 0);
-			isc_update_profile();
-			isc_update_histogram_table();
 		}
+	printf("-I- Auto white balance start...\n\r");
+		awb_status_machine = AWB_INIT;
+		while(auto_white_balance());
+	} else {
+		while(1);
 	}
 }
