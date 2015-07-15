@@ -212,7 +212,9 @@ void twi_start_read(Twi * pTwi, uint8_t address,
 uint8_t twi_read_byte(Twi * twi)
 {
 	assert(twi != NULL);
-	return twi->TWI_RHR;
+	uint8_t value;
+	readb(&twi->TWI_RHR, &value);
+	return value;
 }
 
 /**
@@ -223,10 +225,10 @@ uint8_t twi_read_byte(Twi * twi)
  * \param twi  Pointer to an Twi instance.
  * \param byte  Byte to send.
  */
-void twi_write_byte(Twi * pTwi, uint8_t byte)
+void twi_write_byte(Twi * twi, uint8_t byte)
 {
-	assert(pTwi != NULL);
-	pTwi->TWI_THR = byte;
+	assert(twi != NULL);
+	writeb(&twi->TWI_THR, byte);
 }
 
 /**
@@ -255,39 +257,6 @@ void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
 	pTwi->TWI_IADR = iaddress;
 	/* Write first byte to send. */
 	twi_write_byte(pTwi, byte);
-}
-
-void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
-		     uint8_t isize, uint8_t len)
-{
-	twi->TWI_RHR;
-	twi->TWI_CR = TWI_CR_MSDIS;
-	twi->TWI_CR = TWI_CR_MSEN;
-	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
-	twi->TWI_ACR = 0;
-	twi->TWI_ACR = TWI_ACR_DATAL(len);
-	twi->TWI_MMR = 0;
-	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_IADRSZ(isize);
-	/* Set internal address bytes. */
-	twi->TWI_IADR = 0;
-	twi->TWI_IADR = iaddress;
-}
-
-void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
-		     uint8_t isize, uint8_t len)
-{
-	twi->TWI_RHR;
-	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
-	twi->TWI_ACR = 0;
-	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
-	twi->TWI_MMR = 0;
-	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD
-		| TWI_MMR_IADRSZ(isize);
-	/* Set internal address bytes. */
-	twi->TWI_IADR = 0;
-	twi->TWI_IADR = iaddress;
-	twi->TWI_CR = TWI_CR_START;
-	while(twi->TWI_SR & TWI_SR_TXCOMP);
 }
 
 /**
@@ -387,6 +356,41 @@ void twi_send_stop_condition(Twi * pTwi)
 	assert(pTwi != NULL);
 	pTwi->TWI_CR |= TWI_CR_STOP;
 }
+
+#ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
+void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+		     uint8_t isize, uint8_t len)
+{
+	twi->TWI_RHR;
+	twi->TWI_CR = TWI_CR_MSDIS;
+	twi->TWI_CR = TWI_CR_MSEN;
+	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
+	twi->TWI_ACR = 0;
+	twi->TWI_ACR = TWI_ACR_DATAL(len);
+	twi->TWI_MMR = 0;
+	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_IADRSZ(isize);
+	/* Set internal address bytes. */
+	twi->TWI_IADR = 0;
+	twi->TWI_IADR = iaddress;
+}
+
+void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+		     uint8_t isize, uint8_t len)
+{
+	twi->TWI_RHR;
+	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
+	twi->TWI_ACR = 0;
+	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
+	twi->TWI_MMR = 0;
+	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD
+		| TWI_MMR_IADRSZ(isize);
+	/* Set internal address bytes. */
+	twi->TWI_IADR = 0;
+	twi->TWI_IADR = iaddress;
+	twi->TWI_CR = TWI_CR_START;
+	while(twi->TWI_SR & TWI_SR_TXCOMP);
+}
+#endif
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 void twi_fifo_configure(Twi* twi, uint8_t tx_thres,

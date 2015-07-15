@@ -49,7 +49,6 @@ drivers-y += drivers/peripherals/tdes.o
 drivers-y += drivers/peripherals/trng.o
 drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/twid.o
-drivers-y += drivers/peripherals/twid2.o
 
 drivers-y += drivers/peripherals/uart.o
 drivers-y += drivers/peripherals/usart.o
@@ -66,6 +65,7 @@ drivers-$(CONFIG_HAVE_PIO4) += drivers/peripherals/pio4.o
 
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid2.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/adc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
