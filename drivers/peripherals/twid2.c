@@ -44,6 +44,19 @@
 #define TWID_DMA_THRESHOLD      16
 #define TWID_TIMEOUT            100
 
+static uint32_t _twid_wait_twi_transfer(const struct _twi_desc* desc)
+{
+	struct _timeout timeout;
+	timer_start_timeout(&timeout, TWID_TIMEOUT);
+	while(!twi_is_transfer_complete(desc->addr)){
+		if (timer_timeout_reached(&timeout)) {
+			trace_error("twid2: Unable to complete transfert!\r\n");
+			return TWID_ERROR_TRANSFER;
+		}
+	}
+	return TWID_SUCCESS;
+}
+
 static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 					   void* args)
 {
@@ -199,7 +212,8 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 			return TWID_ERROR_ACK;
 		}
 	}
-	return TWID_SUCCESS;
+	/* wait transfert to be finished */
+	return _twid_wait_twi_transfer(desc);
 }
 
 static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
@@ -230,8 +244,8 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 		return TWID_ERROR_ACK;
 		}
 	}
-
-	return TWID_SUCCESS;
+	/* wait transfert to be finished */
+	return _twid_wait_twi_transfer(desc);
 }
 
 uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
@@ -322,12 +336,18 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
 			if (status)
 				break;
+			status = _twid_wait_twi_transfer(desc);
+			if (status)
+				break;
 		}
 		if (rx) {
 			status = twi_read_stream(desc->addr, desc->slave_addr,
 						 desc->iaddr, desc->isize,
 						 rx->data, rx->size);
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
+			if (status)
+				break;
+			status = _twid_wait_twi_transfer(desc);
 			if (status)
 				break;
 		}

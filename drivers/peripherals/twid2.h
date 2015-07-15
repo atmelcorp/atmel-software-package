@@ -41,6 +41,7 @@
 #define TWID_ERROR_DUPLEX    (4)
 #define TWID_ERROR_ACK       (5)
 #define TWID_ERROR_TIMEOUT   (6)
+#define TWID_ERROR_TRANSFER  (7)
 
 struct _twi_desc;
 
