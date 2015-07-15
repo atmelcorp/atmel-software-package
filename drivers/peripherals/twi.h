@@ -83,6 +83,11 @@ extern uint32_t twi_get_status(Twi * pTwi);
 extern uint32_t twi_get_masked_status(Twi * pTwi);
 extern void twi_send_stop_condition(Twi * pTwi);
 
+extern void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+				     uint8_t isize, uint8_t len);
+extern void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+				    uint8_t isize, uint8_t len);
+
 #ifdef FIFO_ENABLED
 extern void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
 			uint8_t rx_thres,

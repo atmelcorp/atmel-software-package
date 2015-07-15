@@ -35,7 +35,7 @@
  * \section Usage
  * <ul>
  * <li> Configures a TWI peripheral to operate in master mode, at the given
- * frequency (in Hz) using TWI_Configure(). </li>
+ * frequency (in Hz) using twi_configure(). </li>
  * <li> Sends a STOP condition on the TWI using twi_stop().</li>
  * <li> Starts a read operation on the TWI bus with the specified slave using
  * twi_start_read(). Data must then be read using twi_read_byte() whenever
@@ -106,17 +106,17 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 
 	trace_debug("twi_configure_master()\n\r");
 	assert(pTwi);
-	assert(id != ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Reset the TWI */
 	pTwi->TWI_CR = TWI_CR_SWRST;
 	pTwi->TWI_RHR;
+	timer_sleep(10);
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled. */
+	pTwi->TWI_MMR = 0;
 	pTwi->TWI_CR = TWI_CR_SVDIS;
 	pTwi->TWI_CR = TWI_CR_MSDIS;
-	/* Set master mode */
-	pTwi->TWI_CR = TWI_CR_MSEN;
 	clock = pmc_get_peripheral_clock(id);
 	/* Configure clock */
 	ck_div = 0; ok = 0;
@@ -133,6 +133,11 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 	pTwi->TWI_CWGR = 0;
 	pTwi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div) | TWI_CWGR_CHDIV(cl_div) |
 		TWI_CWGR_CLDIV(cl_div);
+	/* Set master mode */
+	pTwi->TWI_CR = TWI_CR_MSEN;
+	timer_sleep(10);
+	assert((pTwi->TWI_CR & TWI_CR_SVDIS) != TWI_CR_MSDIS);
+
 }
 
 /**
@@ -142,16 +147,13 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
  */
 void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 {
-	/* Configure time to have microseconds resolution */
-	timer_configure(1000);
-
 	trace_debug("twi_configure_slave()\n\r");
 	assert(pTwi);
 	/* TWI software reset */
 	pTwi->TWI_CR = TWI_CR_SWRST;
 	pTwi->TWI_RHR;
 	/* Wait at least 10 ms */
-	timer_sleep(10000);
+	timer_sleep(10);
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled */
 	pTwi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
 	/* Configure slave address. */
@@ -160,7 +162,7 @@ void twi_configure_slave(Twi * pTwi, uint8_t slave_address)
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWI_CR = TWI_CR_SVEN;
 	/* Wait at least 10 ms */
-	timer_sleep(10000);
+	timer_sleep(10);
 	assert((pTwi->TWI_CR & TWI_CR_SVDIS) != TWI_CR_SVDIS);
 }
 
@@ -183,7 +185,8 @@ void twi_stop(Twi * pTwi)
  * \param iaddress  Optional internal address bytes.
  * \param isize  Number of internal address bytes.
  */
-void twi_start_read(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isize)
+void twi_start_read(Twi * pTwi, uint8_t address,
+		    uint32_t iaddress, uint8_t isize)
 {
 	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
@@ -205,10 +208,10 @@ void twi_start_read(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isiz
  * \param twi  Pointer to an Twi instance.
  * \return byte read.
  */
-uint8_t twi_read_byte(Twi * pTwi)
+uint8_t twi_read_byte(Twi * twi)
 {
-	assert(pTwi != NULL);
-	return pTwi->TWI_RHR;
+	assert(twi != NULL);
+	return twi->TWI_RHR;
 }
 
 /**
@@ -236,7 +239,8 @@ void twi_write_byte(Twi * pTwi, uint8_t byte)
  * \param isize  Number of internal address bytes.
  * \param byte  First byte to send.
  */
-void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isize, uint8_t byte)
+void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
+		     uint8_t isize, uint8_t byte)
 {
 	assert(pTwi != NULL);
 	assert((address & 0x80) == 0);
@@ -250,6 +254,39 @@ void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress, uint8_t isi
 	pTwi->TWI_IADR = iaddress;
 	/* Write first byte to send. */
 	twi_write_byte(pTwi, byte);
+}
+
+void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+		     uint8_t isize, uint8_t len)
+{
+	twi->TWI_RHR;
+	twi->TWI_CR = TWI_CR_MSDIS;
+	twi->TWI_CR = TWI_CR_MSEN;
+	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
+	twi->TWI_ACR = 0;
+	twi->TWI_ACR = TWI_ACR_DATAL(len);
+	twi->TWI_MMR = 0;
+	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_IADRSZ(isize);
+	/* Set internal address bytes. */
+	twi->TWI_IADR = 0;
+	twi->TWI_IADR = iaddress;
+}
+
+void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+		     uint8_t isize, uint8_t len)
+{
+	twi->TWI_RHR;
+	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
+	twi->TWI_ACR = 0;
+	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
+	twi->TWI_MMR = 0;
+	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD
+		| TWI_MMR_IADRSZ(isize);
+	/* Set internal address bytes. */
+	twi->TWI_IADR = 0;
+	twi->TWI_IADR = iaddress;
+	twi->TWI_CR = TWI_CR_START;
+	while(twi->TWI_SR & TWI_SR_TXCOMP);
 }
 
 /**
