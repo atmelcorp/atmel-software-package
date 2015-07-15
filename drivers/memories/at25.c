@@ -48,47 +48,55 @@
 
 #define MODE_3B_MAX_SIZE    16*1024*1024
 
+#define AT25_ERASE_4_32_64 (AT25_SUPPORT_ERASE_4K | AT25_SUPPORT_ERASE_32K \
+			    | AT25_SUPPORT_ERASE_64K)
+#define AT25_ERASE_4_32 (AT25_SUPPORT_ERASE_4K | AT25_SUPPORT_ERASE_32K)
+#define AT25_ERASE_4_64 (AT25_SUPPORT_ERASE_4K | AT25_SUPPORT_ERASE_64K)
+#define AT25_ERASE_4_ONLY (AT25_SUPPORT_ERASE_4K)
+#define AT25_ERASE_32_ONLY (AT25_SUPPORT_ERASE_32K)
+#define AT25_ERASE_64_ONLY (AT25_SUPPORT_ERASE_64K)
+
 /** Array of recognized serial firmware dataflash chips. */
 static const struct _at25_desc at25_devices[] = {
 	/* name,        Jedec ID,       size,  page size, block size, block erase command */
-	{"AT25DF041A" , 0x0001441F,      512 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT25DF161"  , 0x0002461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT26DF081A" , 0x0001451F, 1 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT26DF0161" , 0x0000461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT26DF161A" , 0x0001461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT25DF321"  , 0x0000471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_64K},
-	{"AT25DF321A" , 0x0001471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_64K},
-	{"AT25DF512B" , 0x0001651F,       64 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT25DF512B" , 0x0000651F,       64 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT25DF021"  , 0x0000431F,      256 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"AT26DF641"  , 0x0000481F, 8 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
+	{"AT25DF041A" , 0x0001441F,      512 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT25DF161"  , 0x0002461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT26DF081A" , 0x0001451F, 1 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT26DF0161" , 0x0000461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT26DF161A" , 0x0001461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT25DF321"  , 0x0000471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_32_64},
+	{"AT25DF321A" , 0x0001471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_32_64},
+	{"AT25DF512B" , 0x0001651F,       64 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT25DF512B" , 0x0000651F,       64 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT25DF021"  , 0x0000431F,      256 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"AT26DF641"  , 0x0000481F, 8 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
 	/* Manufacturer: ST */
-	{"M25P05"     , 0x00102020,       64 * 1024, 256, 32 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P10"     , 0x00112020,      128 * 1024, 256, 32 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P20"     , 0x00122020,      256 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P40"     , 0x00132020,      512 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P80"     , 0x00142020, 1 * 1024 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P16"     , 0x00152020, 2 * 1024 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P32"     , 0x00162020, 4 * 1024 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"M25P64"     , 0x00172020, 8 * 1024 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
+	{"M25P05"     , 0x00102020,       64 * 1024, 256, 32 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P10"     , 0x00112020,      128 * 1024, 256, 32 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P20"     , 0x00122020,      256 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P40"     , 0x00132020,      512 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P80"     , 0x00142020, 1 * 1024 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P16"     , 0x00152020, 2 * 1024 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P32"     , 0x00162020, 4 * 1024 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"M25P64"     , 0x00172020, 8 * 1024 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
 	/* Manufacturer: Windbond */
-	{"W25X10"     , 0x001130EF,      128 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"W25X20"     , 0x001230EF,      256 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"W25X40"     , 0x001330EF,      512 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"W25X80"     , 0x001430EF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"W25Q256"    , 0x001940EF, 32* 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
+	{"W25X10"     , 0x001130EF,      128 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"W25X20"     , 0x001230EF,      256 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"W25X40"     , 0x001330EF,      512 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"W25X80"     , 0x001430EF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"W25Q256"    , 0x001940EF, 32* 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
 	/* Manufacturer: Macronix */
-	{"MX25L512"   , 0x001020C2,       64 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"MX25L3205"  , 0x001620C2, 4 * 1024 * 1024, 256, 64 * 1024, AT25_BLOCK_ERASE_64K},
-	{"MX25L6405"  , 0x001720C2, 8 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"MX25L8005"  , 0x001420C2,     1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
+	{"MX25L512"   , 0x001020C2,       64 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"MX25L3205"  , 0x001620C2, 4 * 1024 * 1024, 256, 64 * 1024, AT25_ERASE_64_ONLY},
+	{"MX25L6405"  , 0x001720C2, 8 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"MX25L8005"  , 0x001420C2,     1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
 	/* Other */
-	{"SST25VF040" , 0x008D25BF,      512 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"SST25VF080" , 0x008E25BF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"SST25VF032" , 0x004A25BF, 4 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
-	{"SST25VF064" , 0x004B25BF, 8 * 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K},
+	{"SST25VF040" , 0x008D25BF,      512 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"SST25VF080" , 0x008E25BF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"SST25VF032" , 0x004A25BF, 4 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
+	{"SST25VF064" , 0x004B25BF, 8 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY},
 	/* Manufacturer: Micron */
-	{"N25Q256"    , 0x0019BA20, 32* 1024 * 1024, 256,  4 * 1024, AT25_BLOCK_ERASE_4K}
+	{"N25Q256"    , 0x0019BA20, 32* 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_ONLY}
 };
 
 static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
@@ -463,52 +471,49 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	};
 
 	uint32_t applied_erase = erase_type;
-	uint32_t dev_max_erase = at25->desc->block_erase_cmd;
-
-	uint32_t num_pass = 1;
+	uint32_t supported_erase = at25->desc->block_erase_cmd;
 
 	switch(erase_type) {
 	case AT25_BLOCK_ERASE_64K:
-		if (dev_max_erase != AT25_BLOCK_ERASE_64K) {
-			trace_debug("at25: Device %s does not support 64k "
-				    "erase\r\n", at25->desc->name);
-			trace_debug("Falling back to 32k erase\r\n");
-			applied_erase = AT25_BLOCK_ERASE_32K;
-			num_pass <<= 1;
+		if (supported_erase & AT25_SUPPORT_ERASE_64K) {
+			applied_erase = AT25_BLOCK_ERASE_64K;
+		} else {
+			trace_error("at25: 64K Erase not supported\r\n");
+			return AT25_ERROR_PROGRAM;
 		}
 	case AT25_BLOCK_ERASE_32K:
-		if (dev_max_erase != AT25_BLOCK_ERASE_32K ||
-			dev_max_erase != AT25_BLOCK_ERASE_64K) {
-			trace_debug("at25: Device %s does not support 32k and "
-				    "64k erase\r\n", at25->desc->name);
-			trace_debug("Falling back to 4k erase\r\n");
-			applied_erase = AT25_BLOCK_ERASE_4K;
-			num_pass <<= 3;
+		if (supported_erase & AT25_SUPPORT_ERASE_32K) {
+			applied_erase = AT25_BLOCK_ERASE_32K;
+		} else {
+			trace_error("at25: 32K Erase not supported\r\n");
+			return AT25_ERROR_PROGRAM;
 		}
 	case AT25_BLOCK_ERASE_4K:
+		if (supported_erase & AT25_SUPPORT_ERASE_4K) {
+			applied_erase = AT25_BLOCK_ERASE_4K;
+		} else {
+			trace_error("at25: 4K Erase not supported\r\n");
+			return AT25_ERROR_PROGRAM;
+		}
 		break;
 	default:
 		return AT25_ERROR_PROGRAM;
 	}
 	cmd[0] = applied_erase;
 
-	uint32_t i = 0;
-	for (i = 0; i < num_pass; ++i) {
-		trace_debug("at25: Clearing block at addr 0x%x\r\n",
-			    (unsigned int)((i*4*1024)+addr));
+	trace_debug("at25: Clearing block at addr 0x%x\r\n",
+		    (unsigned int)addr);
 
-		_at25_enable_write(at25);
-		out.size = 1 + _at25_compute_addr(at25, &cmd[1],
-						  (i*4*1024)+addr);
-		spid_begin_transfert(at25->spid);
-		spid_transfert(at25->spid, 0, &out,
-			       spid_finish_transfert_callback, 0);
-		spid_wait_transfert(at25->spid);
-		if (at25_check_status(at25, AT25_STATUS_EPE)) {
-			return AT25_ERROR_PROGRAM;
-		}
-		at25_wait(at25);
+	_at25_enable_write(at25);
+	out.size = 1 + _at25_compute_addr(at25, &cmd[1], addr);
+	spid_begin_transfert(at25->spid);
+	spid_transfert(at25->spid, 0, &out,
+		       spid_finish_transfert_callback, 0);
+	spid_wait_transfert(at25->spid);
+	if (at25_check_status(at25, AT25_STATUS_EPE)) {
+		return AT25_ERROR_PROGRAM;
 	}
+	at25_wait(at25);
 	_at25_disable_write(at25);
 	return AT25_SUCCESS;
 }
