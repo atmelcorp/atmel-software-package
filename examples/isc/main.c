@@ -149,9 +149,10 @@
 #define HISTOGRAM_R    1
 #define HISTOGRAM_GB   2
 #define HISTOGRAM_B    3
+#define HISTOGRAM_Y    4
 
 #define HIST_ENTRIES   512
-#define HIST_RGGB_BAYER  4
+#define HIST_RGGB_BAYER  5
 
 /*----------------------------------------------------------------------------
  *        Local Type
@@ -213,6 +214,8 @@ static struct _xdmad_channel *xdmad_channel;
 volatile static uint32_t capture_started = 0;
 
 static uint32_t histogram_count[HIST_RGGB_BAYER];
+
+static uint32_t histogram_y[HIST_ENTRIES];
 
 static uint32_t histogram_idx_isc;
 
@@ -317,8 +320,8 @@ static uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit,
 		hex = (uint32_t) (f * (1 << fractionalBit));
 	} else {
 		if (f < 0.0) {
-			hex = (uint32_t)((-f) * (1 << fractionalBit));
-			hex = ~(hex) - 1;
+			hex = (uint32_t)( (f) * (-1.0) * (1 << fractionalBit));
+			hex = ~hex - 1;
 		} else {
 			hex = (uint32_t)(f * (1 << fractionalBit));
 		}
@@ -624,6 +627,46 @@ static void awb_update(void)
 }
 
 /**
+ * \brief Calculate gain/offset for Y and perform them with ISC CBC module.
+ */
+static void ae_update(void)
+{
+	uint16_t i, j;
+	float ygain, offset;
+	uint32_t ycount;
+	uint16_t dart_threshold, bright_threshold;
+	uint32_t gain_110,offset_138;
+	
+	ycount = 0;
+	for(i = 0; i < HIST_ENTRIES; i++){
+		ycount += histogram_y[i];
+		if (ycount >= histogram_count[HISTOGRAM_Y] * 5 / 100){
+			dart_threshold = i;
+			break;
+		}
+	}
+
+	ycount = 0;
+	for(i = HIST_ENTRIES - 1; i > 1; i--){
+		ycount += histogram_y[i];
+		if (ycount >= histogram_count[HISTOGRAM_Y]){
+			bright_threshold = i;
+			break;
+		}
+	}
+	//printf("<%d, %d> ",bright_threshold,dart_threshold);
+    ygain = 512.0/ ((float)(bright_threshold - dart_threshold));
+	offset = (512.0 / ygain) - (float)bright_threshold;
+	//printf("<%f, %f> ",ygain,offset);
+	gain_110 = float2hex(1, 10, 0, ygain);
+	offset_138 = float2hex(1, 3, 8, offset);
+	
+	isc_cbc_configure(0, 0, gain_110, offset_138);
+	isc_update_profile();
+	//printf("<%x, %x> ",gain_110,offset_138);
+}
+
+/**
  * \brief Count up 4 channel R/G/Gr/Gb histogram data.
  */
 static void histogram_count_up(void)
@@ -631,12 +674,19 @@ static void histogram_count_up(void)
 	uint32_t *v;
 	uint32_t i;
 	v = (uint32_t *)ISC_HIS_BASE_ADDRESS;
+	histogram_count[histogram_idx_isc] = 0;
 	for (i = 0; i < HIST_ENTRIES; i++){
-		histogram_count[histogram_idx_isc]+= (*v) * i;
+		if (histogram_idx_isc < HISTOGRAM_Y){
+			histogram_count[histogram_idx_isc]+= (*v) * i;
+		} else {
+			histogram_count[histogram_idx_isc]+= *v ;
+		}
+		if(histogram_idx_isc == HISTOGRAM_Y){
+			histogram_y[i] = (*v);
+		}
 		v++;
 	}
 }
-
 
 /**
  * \brief Status machine for auto white balance.
@@ -666,7 +716,7 @@ static bool auto_white_balance(void)
 		histogram_read = false;
 		histogram_count_up();
 		histogram_idx_isc++;
-		if(histogram_idx_isc < HIST_RGGB_BAYER) {
+		if(histogram_idx_isc < HIST_RGGB_BAYER ) {
 			awb_status_machine = AWB_INIT;
 		} else {
 			awb_status_machine = AWB_WAIT_ISC_PERFORMED;
@@ -675,6 +725,7 @@ static bool auto_white_balance(void)
 	}
 	if (awb_status_machine == AWB_WAIT_ISC_PERFORMED){
 		awb_update();
+		ae_update();
 		histogram_idx_isc = 0;
 		awb_status_machine = AWB_INIT;
 		return true;
@@ -790,10 +841,10 @@ extern int main(void)
 	configure_isc();
 
 	if (sensorMode == RAW_BAYER) {
-		printf("-I- Preview start, press 'W' or 'w' to start auto white balance \n\r");
+		printf("-I- Preview start, press 'A' or 'a' to start auto white balance & AE \n\r");
 		for(;;) {
 			key = console_get_char();
-			if ((key == 'W') || (key == 'w')) {
+			if ((key == 'A') || (key == 'a')) {
 				break;
 			}
 		}
