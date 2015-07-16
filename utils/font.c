@@ -33,10 +33,9 @@
  *
  *----------------------------------------------------------------------------*/
 
-const G_FONT sGFont[NB_FONT] =
-{
+struct _font_parameters font_param[NB_FONT] = {
   {10, 14, 2, pCharset10x14},
-  {10, 8, 0, pCharset10x8},
+  {10, 8, 1, pCharset10x8},
   {8, 8, 1, pCharset8x8},
   {6, 8, 0, pCharset6x8},
 } ;
