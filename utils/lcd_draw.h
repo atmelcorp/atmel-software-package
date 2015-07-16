@@ -38,16 +38,16 @@
  *
  * Following functions can use:
  * - Simple drawing:
- *   - LCDD_Fill()
- *   - LCDD_DrawPixel()
- *   - LCDD_ReadPixel()
- *   - LCDD_DrawLine()
- *   - LCDD_DrawRectangle(), LCDD_DrawFilledRectangle()
+ *   - lcdd_fill()
+ *   - lcdd_draw_pixel()
+ *   - lcdd_read_pixel()
+ *   - lcdd_draw_line()
+ *   - LCDD_DrawRectangle(), lcdd_draw_filled_rectangle()
  *   - LCDD_DrawCircle(), LCDD_DrawFilledCircle()
  *   - LCDD_DrawImage()
  * - String related:
- *   - LCDD_DrawString()
- *   - LCDD_GetStringSize()
+ *   - lcdd_draw_string()
+ *   - lcdd_get_string_size()
  *
  * \sa \ref lcdd_module, \ref lcdd_font
  */
@@ -112,4 +112,4 @@ extern void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 								uint32_t dwHeight, uint32_t dwColor);
 /** @}*/
 /**@}*/
-#endif				/* #ifndef DRAW_H */
+#endif /* #ifndef DRAW_H */

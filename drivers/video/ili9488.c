@@ -942,7 +942,7 @@ void mxtx_draw_string(struct _point* Coord, const char* pString, uint32_t color)
 //=============================================================================
 /**
  * \brief Returns the width & height in pixels that a string will occupy on the screen
- * if drawn using LCDD_DrawString.
+ * if drawn using lcdd_draw_string.
  *
  * \param pString  String.
  * \param pSize    Pointer for storing the string width and height.

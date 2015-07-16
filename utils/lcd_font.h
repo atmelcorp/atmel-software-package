@@ -41,7 +41,7 @@
  *
  * The lcd_font.h files declares a font structure and a LCDD_DrawChar() function
  * that must be implemented by a font definition file to be used with the
- * LCDD_DrawString() method of draw.h.
+ * lcdd_draw_string() method of draw.h.
  *
  * The font10x14.c implements the necessary variable and function for a 10x14
  * font.
@@ -55,7 +55,7 @@
  * -# Implement an LCDD_DrawChar() function which displays the specified
  *    character on the LCD.
  * -# Select or create canvas via LCDD_SelectCanvas() or LCDD_CreateCanvas().
- * -# Use the LCDD_DrawString() method defined in draw.h to display a complete
+ * -# Use the lcdd_draw_string() method defined in draw.h to display a complete
  *    string.
  *
  * \sa \ref lcdd_module, \ref lcdd_draw.

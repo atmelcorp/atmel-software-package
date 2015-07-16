@@ -60,10 +60,10 @@
  *    -# LCDD_ShowHeo(), LCDD_StopHeo()
  *    -# LCDD_ShowHcr(), LCDD_StopHcr()
  * -# Drawing supporting functions, for drawing canvas:
- *    -# LCDD_CreateCanvas(): Create blank canvas on specified layer for
+ *    -# lcdd_create_canvas(): Create blank canvas on specified layer for
  *                            drawing on
- *    -# LCDD_SelectCanvas(): Select a displayer as canvas to drawing on
- *    -# LCDD_GetCanvas():    Get current selected canvas layer
+ *    -# lcdd_select_canvas(): Select a displayer as canvas to drawing on
+ *    -# lcdd_get_canvas():    Get current selected canvas layer
  *
  * For LCD drawing functions, refer to \ref lcdd_draw.
  *

@@ -67,10 +67,10 @@
 
 /** Clear Strings on LCD */
 #if 1
-#define CLEAR_STRING()  LCDD_Fill(COLOR_WHITE)
+#define CLEAR_STRING()  lcdd_fill(COLOR_WHITE)
 #else
 #define CLEAR_STRING()  \
-    LCDD_DrawFilledRectangle(strX -  3*strW, strY, \
+    lcdd_draw_filled_rectangle(strX -  3*strW, strY, \
                              strX + 20*strW, strY + 6*strH, COLOR_WHITE)
 #endif
 
@@ -158,7 +158,7 @@ static const CalibrationPoint testPoint = {
 static void
 DrawCalibrationPoint(const CalibrationPoint * pPoint)
 {
-	LCDD_DrawFilledRectangle(pPoint->x - POINTS_SIZE / 2,
+	lcdd_draw_filled_rectangle(pPoint->x - POINTS_SIZE / 2,
 				 pPoint->y - POINTS_SIZE / 2,
 				 pPoint->x + POINTS_SIZE,
 				 pPoint->y + POINTS_SIZE, COLOR_RED);
@@ -172,7 +172,7 @@ DrawCalibrationPoint(const CalibrationPoint * pPoint)
 static void
 ClearCalibrationPoint(const CalibrationPoint * pPoint)
 {
-	LCDD_DrawFilledRectangle(pPoint->x - POINTS_SIZE,
+	lcdd_draw_filled_rectangle(pPoint->x - POINTS_SIZE,
 				 pPoint->y - POINTS_SIZE,
 				 pPoint->x + POINTS_SIZE,
 				 pPoint->y + POINTS_SIZE, COLOR_WHITE);
@@ -242,13 +242,13 @@ TSDCom_Calibrate(void)
 	uint32_t strX = BOARD_LCD_WIDTH / 2 - 75, strY = 60;
 	uint32_t strW, strH;
 
-	LCDD_GetStringSize("P", &strW, &strH);
+	lcdd_get_string_size("P", &strW, &strH);
 	/* Calibration setup */
-	LCDD_Fill(COLOR_WHITE);
+	lcdd_fill(COLOR_WHITE);
 	lcdd_flush_canvas();
-	LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
+	lcdd_draw_string(strX, strY, strTitle, COLOR_BLACK);
 	lcdd_flush_canvas();
-	LCDD_DrawString(strX - 2 * strW, strY + 3 * strH,
+	lcdd_draw_string(strX - 2 * strW, strY + 3 * strH,
 			" Touch the dots to\ncalibrate the screen",
 			COLOR_DARKBLUE);
 	lcdd_flush_canvas();
@@ -322,8 +322,8 @@ TSDCom_Calibrate(void)
 
 	/* Test point */
 	CLEAR_STRING();
-	LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
-	LCDD_DrawString(strX - 2 * strW, strY + 3 * strH,
+	lcdd_draw_string(strX, strY, strTitle, COLOR_BLACK);
+	lcdd_draw_string(strX - 2 * strW, strY + 3 * strH,
 			" Touch the point to\nvalidate calibration",
 			COLOR_DARKBLUE);
 	lcdd_flush_canvas();
@@ -356,16 +356,16 @@ TSDCom_Calibrate(void)
 
 		bCalibrationOk = 1;
 		CLEAR_STRING();
-		LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
-		LCDD_DrawString(strX + 3 * strW, strY + 2 * strH, "Success !",
+		lcdd_draw_string(strX, strY, strTitle, COLOR_BLACK);
+		lcdd_draw_string(strX + 3 * strW, strY + 2 * strH, "Success !",
 				COLOR_GREEN);
 		lcdd_flush_canvas();
 	} else {
 
 		bCalibrationOk = 0;
 		CLEAR_STRING();
-		LCDD_DrawString(strX, strY, strTitle, COLOR_BLACK);
-		LCDD_DrawString(strX + strW, strY + 2 * strH, "Error too big",
+		lcdd_draw_string(strX, strY, strTitle, COLOR_BLACK);
+		lcdd_draw_string(strX + strW, strY + 2 * strH, "Error too big",
 				COLOR_RED);
 		lcdd_flush_canvas();
 		trace_warning("X %u, Y %u; Diff %d, %d\n\r",
