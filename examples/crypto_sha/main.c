@@ -281,9 +281,14 @@ static const uint32_t sha224MsgDigest[3][7] = {
 	  0x1948b2ee, 0x4ee7ad67 }
 };
 
+#ifndef VARIANT_DDRAM
 static uint32_t * const bufInput = (uint32_t*)(DDR_CS_ADDR + DDR_RESERVED_LEN);
+#else
+static uint32_t bufInput[MSG_MAX_LEN];
+#endif
 static uint32_t bufOutput[MAX_DIGEST_SIZE_INWORD];
-static uint32_t operationMode, startMode, blocks, desDone;
+static uint32_t operationMode, startMode, blocks;
+static volatile uint32_t desDone = 0;
 
 /* Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_cfg dma_cfg = { 0 };
