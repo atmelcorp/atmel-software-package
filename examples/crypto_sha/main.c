@@ -296,7 +296,7 @@ static struct _xdmad_channel *dma_chan = NULL;
 /* DMA linked list */
 #ifndef VARIANT_DDRAM
 static struct _xdmad_desc_view1 * const dma_dlist = (struct _xdmad_desc_view1*)
-	(DDR_CS_ADDR + DDR_RESERVED_LEN + MSG_MAX_LEN*2);
+	(DDR_CS_ADDR + DDR_RESERVED_LEN + MSG_MAX_LEN);
 #else
 static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
 #endif
