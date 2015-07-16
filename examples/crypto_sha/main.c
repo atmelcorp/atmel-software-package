@@ -111,8 +111,9 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#define DDR_RESERVED_LEN	0x01000000
-#define MSG_MAX_LEN		0x00100000
+#define DDR_RESERVED_LEN    0x01000000
+#define MSG_MAX_LEN         0x00100000
+#define DMA_DESC_MAX_COUNT  (LEN_MSG_LONG / 4 / 16 + 1)
 
 #define SHA_1    0
 #define SHA_256  1
@@ -120,8 +121,8 @@
 #define SHA_512  3
 #define SHA_224  4
 
-#define SHA_ONE_BLOCK   0
-#define SHA_MULTI_BLOCK 1
+#define SHA_ONE_BLOCK    0
+#define SHA_MULTI_BLOCK  1
 #define SHA_LONG_MESSAGE 2
 
 #define MAX_MESSAGE_SIZE_INWORD   (64)
@@ -288,8 +289,12 @@ static uint32_t operationMode, startMode, blocks, desDone;
 static struct _xdmad_cfg dma_cfg = { 0 };
 static struct _xdmad_channel *dma_chan = NULL;
 /* DMA linked list */
+#ifndef VARIANT_DDRAM
 static struct _xdmad_desc_view1 * const dma_dlist = (struct _xdmad_desc_view1*)
-	(DDR_CS_ADDR + DDR_RESERVED_LEN + MSG_MAX_LEN);
+	(DDR_CS_ADDR + DDR_RESERVED_LEN + MSG_MAX_LEN*2);
+#else
+static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -440,7 +445,7 @@ static void start_sha(void)
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX A.3 SHA-1 Example (Long Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				N = LEN_MSG_LONG / 4 / 16 + 1;
+				N = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
@@ -457,7 +462,7 @@ static void start_sha(void)
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX B.3 SHA-256 Example (Long Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				N = LEN_MSG_LONG / 4 / 16 + 1;
+				N = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
@@ -508,7 +513,7 @@ static void start_sha(void)
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX 2 SHA-224 Example (Long Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				N = LEN_MSG_LONG / 4 / 16 + 1;
+				N = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
@@ -563,7 +568,9 @@ static void start_sha(void)
 		case SHA_512: ref = sha512MsgDigest[blocks][i]; break;
 		case SHA_224: ref = sha224MsgDigest[blocks][i]; break;
 		default:
-			ref = 0;
+			trace_error("Unknown operation mode\r\n");
+			trace_error("Use SHA1 as fallback\r\n");
+			ref = sha1MsgDigest[blocks][i];
 		}
 		if (digest != ref) {
 			printf(" [X]");
@@ -629,6 +636,10 @@ int main(void)
 	printf("-- SHA Example " SOFTPACK_VERSION " --\r\n");
 	printf("-- " BOARD_NAME "\r\n");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+
+#ifndef VARIANT_DDRAM
+	board_cfg_ddram();
+#endif
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);
