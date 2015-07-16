@@ -77,6 +77,7 @@ static void timer_increment(void)
 
 uint32_t timer_configure(uint32_t resolution)
 {
+	pit_disable_it();
 	if (!resolution)
 		resolution = BOARD_TIMER_RESOLUTION;
 	_timer = 0;
