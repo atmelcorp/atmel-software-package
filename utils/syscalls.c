@@ -91,6 +91,7 @@ void _kill(int pid, int sig)
 	return;
 }
 
+extern void _exit(int status);
 void _exit(int status)
 {
 	printf("Program terminated with status %d.\n", status);
