@@ -63,6 +63,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
+
 #include "lcd_gimp_image.h"
 
 /*----------------------------------------------------------------------------
@@ -72,7 +73,8 @@
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-/** \addtogroup lcdd_draw_func LCD Drawing Functions */
+
+	 /** \addtogroup lcdd_draw_func LCD Drawing Functions */
 /** @{*/
 extern void lcdd_fill_white(void);
 
@@ -110,6 +112,14 @@ extern void lcdd_draw_image(uint32_t x, uint32_t y, const uint8_t * pImage,
 
 extern void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 								uint32_t dwHeight, uint32_t dwColor);
+
+
+
+extern void lcdd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
+
+extern void lcdd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
+
+
 /** @}*/
 /**@}*/
 #endif /* #ifndef DRAW_H */
