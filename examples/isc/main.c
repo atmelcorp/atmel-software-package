@@ -44,10 +44,11 @@
  * The provided program uses the Image Sensor Controller (ISC) system,
  * it manages incoming data from a parallel CMOS sensor (ov7740) . It
  * support sensor with a data width of 8 bits in YUV format and 10
- * bits raw Bayer format. This example show how to configure the
+ * bits raw Bayer format. This example shows how to configure the
  * internal image processor includes color filter array interpolation,
- * gamma correction, 12 bits to 10 bits compression, and transfer data
- * stream with DMA 8/16 package.
+ * gamma correction, 12 bits to 10 bits compression, color space conversion,
+ * luminance adjustment. It introduces how to samples data stream to expected
+ * data format and transfer with DMA master module. 
  *
  * \section Usage
  *  -# Build the program and download it inside the SAMA5D2-EK board.
@@ -62,7 +63,7 @@
  * -# Start the application.
  * -# In the terminal window, the following text should appear:
  *    \code
- *     -- ISI Example xxx --
+ *     -- ISC Example xxx --
  *      -- SAMxxxxx-xx
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *    \endcode
@@ -114,25 +115,21 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** Frame buffer base address in preview path */
+/** DMA memory address for DMA package 8/16 and DMA YC422P */
 #define ISC_OUTPUT_BASE_ADDRESS  (DDR_CS_ADDR + 16 * 1024 * 1024)
 #define ISC_OUTPUT_BASE_ADDRESS1  (ISC_OUTPUT_BASE_ADDRESS + 0x400000)
 #define ISC_OUTPUT_BASE_ADDRESS2  (ISC_OUTPUT_BASE_ADDRESS1 + 0x400000)
+ 
+/** DMA memory address for Histogram */
 #define ISC_HIS_BASE_ADDRESS  (0x22000000)
 
+/** Supported LCD mode in this example */
 #define LCD_MODE_YUV          (LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE2)
 #define LCD_MODE_RGB565       LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565
 #define LCD_MODE_YUV_PLANAR   (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_PLANAR)
 
-/** Maximum number of preview buffer */
+/** Maximum number of frame buffer */
 #define ISC_MAX_NUM_FRAME_BUFFER    1
-
-/** Maximum image size (YUV)*/
-#define ISC_MAX_IMAGE_SIZE          (1600 * 1200 * 2)
-
-/** LCD buffer start address for preview mode (same address for ISI
- * preview buffer) */
-#define LCD_PREVIEW_BASE_ADDRESS      ISC_OUTPUT_BASE_ADDRESS
 
 /** TWI clock frequency in Hz. */
 #define TWCK                  400000
@@ -143,6 +140,7 @@
 /** TWI base address for sensor TWI interface*/
 #define BOARD_BASE_TWI_ISI   ((Twi*)(TWIHS0))
 
+/* GAMMA and HISTOGRAM definitions */
 #define GAMMA_ENTRIES   64
 
 #define HISTOGRAM_GR   0
@@ -169,6 +167,7 @@ typedef enum _awb_status {
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+ /* Profile for omnivision 7740 */
 extern const sensorProfile_t ov7740Profile;
 
 /** PIO pins to configured. */
@@ -176,8 +175,7 @@ const struct _pin pins_twi[] = PINS_TWI0_IOS4;
 const struct _pin pin_rst = PIN_ISC_RST;
 const struct _pin pin_pwd = PIN_ISC_PWD;
 const struct _pin pins_isc[]= PINS_ISC_IOS3;
-/** Pins for LCDC */
-static const struct _pin pins_lcd[] = PINS_LCD_IOS2;
+const struct _pin pins_lcd[] = PINS_LCD_IOS2;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(64)
@@ -192,7 +190,7 @@ struct _twid twid;
 static awb_status_t awb_status_machine;
 
 /** LCD buffer.*/
-static uint8_t *pHeoBuffer =  (uint8_t*)LCD_PREVIEW_BASE_ADDRESS;
+static uint8_t *pHeoBuffer =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS;
 static uint8_t *pHeoBuffer1 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS1;
 static uint8_t *pHeoBuffer2 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS2;
 
