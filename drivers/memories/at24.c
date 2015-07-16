@@ -44,6 +44,7 @@
 
 #include "trace.h"
 #include "crc.h"
+#include "math.h"
 #include "timer.h"
 
 #include <stdio.h>
@@ -181,6 +182,7 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 {
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0xDE;
+	uint8_t page_size = at24->desc.page_size;
 
 	at24->twid->slave_addr = AT24_EEP_ADDR;
 	at24->twid->iaddr = addr;
@@ -192,105 +194,23 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 		return status;
 	}
 
-	do {
-		status |= _at24_write(at24, data++, 1);
-		at24->twid->iaddr++;
+	while (length) {
+		/* Compute number of bytes to program in page */
+		uint8_t write_size;
+		write_size = min(length, page_size - (addr % page_size));
+		at24->twid->iaddr = addr;
+
+		status |= _at24_write(at24, data, write_size);
+
+		length -= write_size;
+		addr += write_size;
+		data += write_size;
 		// Wait at least 10 ms
 		timer_sleep(10);
-	} while (--length);
+	};
 
 	return status;
 }
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-
-/* uint8_t at24mac402_get_info_board (struct _at24mac402_board_info* pInfo_board) */
-/* { */
-/* 	uint8_t Status = TWI_SUCCES; */
-/* 	uint8_t crc = 0; */
-
-/* 	Status = at24mac402_read_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board); */
-/* 	if(Status != TWI_SUCCES) return Status; */
-/* 	crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1); */
-/* 	return (crc==pInfo_board->crc) ? 0: 1; */
-/* } */
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-/* uint8_t at24mac402_set_info_board (struct _at24mac402_board_info* pInfo_board) */
-/* { */
-/* 	uint8_t Status = TWI_SUCCES; */
-
-/* 	pInfo_board->crc_sn = compute_crc8 ((uint8_t*)SerNumbr, AT24MAC402_SER_NUM_SIZE); */
-/* 	pInfo_board->crc = compute_crc8 ((uint8_t*)pInfo_board, AT24MAC402_INFO_SIZE-1); */
-/* 	Status = at24mac402_write_eep (AT24MAC402_INFO_ADD, AT24MAC402_INFO_SIZE, (uint8_t*)pInfo_board); */
-/* 	return Status; */
-/* } */
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-
-/* void _reset_buftwi (void) */
-/* { */
-/* 	memset(buf_twi, 0x00, sizeof(buf_twi)); */
-/* } */
-
-/* void at24mac402_display_info_board (struct _at24mac402_board_info* pInfo_board) */
-/* { */
-/* 	printf("\tInfo Size   : %02d\n\r", pInfo_board->page_size); */
-/* 	_reset_buftwi(); */
-/* 	memcpy(buf_twi, (char*)pInfo_board->manufacturer, SIZE_SUBC); */
-/* 	printf("\tManufacturer: %s\n\r", buf_twi); */
-/* 	_reset_buftwi(); */
-/* 	memcpy(buf_twi, (char*)pInfo_board->country, SIZE_MANUF_COUNTRY); */
-/* 	printf("\tMade in     : %s\n\r", buf_twi); */
-/* 	printf("\tManuf year  : %d\n\r", pInfo_board->manuf_year+2000); */
-/* 	printf("\tWeek        : %02d\n\r", pInfo_board->manuf_week); */
-/* 	_reset_buftwi(); */
-/* 	memcpy(buf_twi, (char*)pInfo_board->rev_code, SIZE_HW_REVISION); */
-/* 	printf("\tRevision    : %s\n\r", buf_twi); */
-/* 	printf("\tCrcSN       : Ox%02X\n\r", pInfo_board->crc_sn); */
-/* 	printf("\tExtended add: 0x%04X\n\r", pInfo_board->addr_ext_config); */
-/* 	_reset_buftwi(); */
-/* 	memcpy(buf_twi, (char*)pInfo_board->board_ident, SIZE_BOARD_IDENT); */
-/* 	printf("\tBoard       : %s\n\r", buf_twi); */
-/* 	printf("\tMapping     : %c\n\r", pInfo_board->rev_mapping); */
-/* 	printf("\tCrc         : 0x%02X\n\r", pInfo_board->crc); */
-/* } */
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-/* void at24mac402_display_register (void) */
-/* { */
-/* 	uint8_t Len, Status = TWI_SUCCES; */
-/* 	struct _at24mac402_board_info sInfo = {0}; */
-
-/* 	// Display Serial Number */
-/* 	printf(" -I- Serial Number: "); */
-/* 	for (Len=0; Len<AT24MAC402_SER_NUM_SIZE; Len++) { */
-/* 		printf("%02X", SerNumbr[Len]); */
-/* 	} */
-/* 	printf("\n\r"); */
-/* 	// Display Mac address */
-/* 	printf(" -I- Mac add EUI48 "); */
-/* 	for (Len=0; Len<AT24MAC402_EUI48_SIZE; Len++) { */
-/* 		printf(":%02X", MacAddr48[Len]); */
-/* 	} */
-/* 	printf("\n\r"); */
-/* 	// Check Info board */
-/* 	Status = at24mac402_get_info_board (&sInfo); */
-/* 	if (Status) { */
-/* 		memcpy (&buf_twi, &DEFAULT_BOARD_INFO, sizeof(struct _at24mac402_board_info)); */
-/* 		Status = at24mac402_set_info_board ((struct _at24mac402_board_info*)&buf_twi); */
-/* 		Status = at24mac402_get_info_board (&sInfo); */
-/* 	} */
-/* 	printf(" -I- Manufacturing info\n\r"); */
-/* 	at24mac402_display_info_board(&sInfo); */
-/* } */
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
 
 uint8_t at24_configure(struct _at24* at24, struct _twi_desc* twid)
 {
@@ -299,52 +219,5 @@ uint8_t at24_configure(struct _at24* at24, struct _twi_desc* twid)
 	at24->twid = twid;
 	twid_configure(twid);
 
-	// Read serial number
-	status |= at24_get_serial_number(at24);
-
-	twid_wait_transfert(at24->twid);
-	// Get EUI-48 mac address
-	status |= at24_get_mac_address(at24);
 	return status;
 }
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-
-/* uint8_t at24mac402_test (void) */
-/* { */
-/* 	uint8_t Len, Status = TWI_SUCCES; */
-/* 	uint8_t Pattern[2] = {0xA5, 0x5A}; */
-
-/* 	Status = at24mac402_begin(); */
-/* 	if (Status) return Status = TWI_FAIL; */
-
-/* 	//\** start test */
-/* 	// Erase */
-/* 	memset (buf_twi, 0x00, AT24MAC402_PAGE_SIZE); */
-/* 	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi); */
-/* 	// Write pattern */
-/* 	for(Len=0; Len<(AT24MAC402_BLOCK_SIZE); Len+=2) { */
-/* 		buf_twi[Len+0] = Pattern[0]; */
-/* 		buf_twi[Len+1] = Pattern[1]; */
-/* 	} */
-/* 	Status = at24mac402_write_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi); */
-/* 	// Read back */
-/* 	memset (buf_twi, 0x00, AT24MAC402_BLOCK_SIZE); */
-/* 	Status = at24mac402_read_eep (AT24MAC402_FIRST_MEM_ADD, AT24MAC402_BLOCK_SIZE, buf_twi); */
-/* 	// Compare */
-/* 	Status = TWI_SUCCES; */
-/* 	printf("-T- "); */
-/* 	for(Len=0; Len<AT24MAC402_BLOCK_SIZE; Len+=2) { */
-/* 		printf("%s", buf_twi[Len]!=Pattern[0] ? "!": "." ); */
-/* 		printf("%s", buf_twi[Len+1]!=Pattern[1] ? "!": "." ); */
-/* 		if( buf_twi[Len]!=Pattern[0] || buf_twi[Len+1]!=Pattern[1] ) {Status++;} */
-/* 	} */
-/* 	printf("\n\r"); */
-/* 	return Status; */
-/* } */
-
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-/* //------------------------------------------------------------------------------ */
-/* //End of file */
