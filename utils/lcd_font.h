@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -71,6 +71,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "utils/font.h"
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -91,13 +93,17 @@ typedef struct _Font {
  *        Variables
  *----------------------------------------------------------------------------*/
 
-extern const Font gFont;
+//extern const Font gFont;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 /** \addtogroup lcdd_font_func Font Functions */
 /** @{*/
+
+extern void lcdd_select_font (_FONT_enum font);
+
+extern uint8_t lcdd_get_selected_font (void);
 
 extern void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
 

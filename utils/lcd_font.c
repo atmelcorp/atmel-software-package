@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -42,7 +42,8 @@
 #include "utils/lcd_font10x14.h"
 #include "utils/lcd_draw.h"
 
-//#include <stdint.h>
+#include "utils/font.h"
+
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
@@ -50,41 +51,79 @@
  *----------------------------------------------------------------------------*/
 
 /** Global variable describing the font being instanced. */
-const Font gFont = { 10, 14 };
+//const Font gFont = { 10, 14 };
+
+uint8_t font_sel = FONT10x14;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Draws an ASCII character on LCD.
- *
- * \param x  X-coordinate of character upper-left corner.
- * \param y  Y-coordinate of character upper-left corner.
- * \param c  Character to output.
- * \param color  Character color.
- */
+void lcdd_select_font (_FONT_enum font)
+{
+	font_sel = font;
+}
+
+uint8_t lcdd_get_selected_font (void)
+{
+	return font_sel;
+}
+
 void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 {
 	uint32_t row, col;
+	uint8_t Ch;
+	uint8_t width = font_param[font_sel].width ;
+    uint8_t height = font_param[font_sel].height;
+	const uint8_t* pfont = font_param[font_sel].pfont;
 
 	assert((c >= 0x20) && (c <= 0x7F));
 
-	for (col = 0; col < 10; col++) {
-		for (row = 0; row < 8; row++) {
-			if ((pCharset10x14[((c - 0x20) * 20) + col * 2] >>
-			     (7 - row)) & 0x1) {
-				lcdd_draw_pixel(x + col, y + row, color);
-			}
-		}
+    switch (font_sel)
+    {
+      case FONT10x14:
+        for (col=0 ; col < width ; col++ ) {
+          for (row=0 ; row<8 ; row++ ) {
+            Ch = (pfont[((c - 0x20) * 20) + col * 2] >> (7 - row)) & 0x1;
+            if (Ch) lcdd_draw_pixel( x+col, y+row, color) ;
+          }
+          for (row=0; row<6; row++ ) {
+            Ch = (pfont[((c - 0x20) * 20) + col * 2 + 1] >> (7 - row)) & 0x1;
+            if (Ch) lcdd_draw_pixel( x+col, y+row+8, color) ;
+          }
+        }
+        break;
 
-		for (row = 0; row < 6; row++) {
-			if ((pCharset10x14[((c - 0x20) * 20) + col * 2 + 1] >>
-			     (7 - row)) & 0x1) {
-				lcdd_draw_pixel(x + col, y + row + 8, color);
-			}
-		}
-	}
+       case FONT10x8:
+        for (col=0 ; col < width ; col++ ) {
+          Ch = pfont[((c-0x20)*width)+ col];
+		  if (Ch) {
+            for (row=0 ; row < height; row++ ) {
+              if ((Ch>>row)&0x1) {
+                  lcdd_draw_pixel( x+(height-row), y+col, color) ;
+              }
+            }
+          }
+        }
+        break;
+
+      case FONT8x8:
+      case FONT6x8:
+        for (col=0 ; col < width ; col++ ) {
+          Ch = pfont[((c-0x20)*width)+ col];
+          if (Ch) {
+            for (row=0 ; row < height; row++ ) {
+              if ((Ch>>row)&0x1)  {
+                if (font_sel == FONT8x8)
+                  lcdd_draw_pixel( x+row, y+col, color) ;
+                else
+                  lcdd_draw_pixel( x+col, y+row, color) ;
+              }
+            }
+          }
+        }
+        break;
+    }
 }
 
 /**
@@ -100,26 +139,67 @@ void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fon
 			 uint32_t bgColor)
 {
 	uint32_t row, col;
+	uint8_t Ch;
+	uint8_t width = font_param[font_sel].width ;
+    uint8_t height = font_param[font_sel].height;
+	const uint8_t* pfont = font_param[font_sel].pfont;
 
 	assert((c >= 0x20) && (c <= 0x7F));
 
-	for (col = 0; col < 10; col++) {
-		for (row = 0; row < 8; row++) {
-			if ((pCharset10x14[((c - 0x20) * 20) + col * 2] >>
-			     (7 - row)) & 0x1) {
-				lcdd_draw_pixel(x + col, y + row, fontColor);
-			} else {
-				lcdd_draw_pixel(x + col, y + row, bgColor);
-			}
-		}
+    switch (font_sel)
+    {
+      case FONT10x14:
+        for (col=0 ; col < width ; col++ ) {
+          for (row=0 ; row<8 ; row++ ) {
+            Ch = (pfont[((c - 0x20) * 20) + col * 2] >> (7 - row)) & 0x1;
+            if (Ch) lcdd_draw_pixel( x+col, y+row, fontColor) ;
+			else lcdd_draw_pixel( x+col, y+row, bgColor) ;
+          }
+          for (row=0; row<6; row++ ) {
+            Ch = (pfont[((c - 0x20) * 20) + col * 2 + 1] >> (7 - row)) & 0x1;
+            if (Ch) lcdd_draw_pixel( x+col, y+row+8, fontColor) ;
+			else lcdd_draw_pixel( x+col, y+row+8, bgColor) ;
+          }
+        }
+        break;
 
-		for (row = 0; row < 6; row++) {
-			if ((pCharset10x14[((c - 0x20) * 20) + col * 2 + 1] >>
-			     (7 - row)) & 0x1) {
-				lcdd_draw_pixel(x + col, y + row + 8, fontColor);
-			} else {
-				lcdd_draw_pixel(x + col, y + row + 8, bgColor);
-			}
-		}
-	}
+       case FONT10x8:
+        for (col=0 ; col < width ; col++ ) {
+          Ch = pfont[((c-0x20)*width)+ col];
+		  if (Ch) {
+            for (row=0 ; row < height; row++ ) {
+              if ((Ch>>row)&0x1) {
+                  lcdd_draw_pixel( x+(height-row), y+col, fontColor) ;
+			  }
+			  else {
+				  lcdd_draw_pixel( x+(height-row), y+col, bgColor) ;
+			  }
+            }
+          }
+        }
+        break;
+
+      case FONT8x8:
+      case FONT6x8:
+        for (col=0 ; col < width ; col++ ) {
+          Ch = pfont[((c-0x20)*width)+ col];
+          if (Ch) {
+            for (row=0 ; row < height; row++ ) {
+              if ((Ch>>row)&0x1)  {
+                if (font_sel == FONT8x8)
+                  lcdd_draw_pixel( x+row, y+col, fontColor) ;
+                else
+                  lcdd_draw_pixel( x+col, y+row, fontColor) ;
+              }
+			  else {
+				  if (font_sel == FONT8x8)
+                  lcdd_draw_pixel( x+row, y+col, bgColor) ;
+                else
+                  lcdd_draw_pixel( x+col, y+row, bgColor) ;
+			  }
+            }
+          }
+        }
+        break;
+    }
 }
