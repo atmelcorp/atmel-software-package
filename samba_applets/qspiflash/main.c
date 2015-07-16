@@ -301,7 +301,7 @@ static uint32_t handle_cmd_buffer_erase(uint32_t cmd, uint32_t *args)
 	}
 
 	trace_info_wp("Erased %d bytes at 0x%lx\r\n", (int)flash.desc.block_size,
-			in->mem_offset & (flash.desc.block_size - 1));
+			in->mem_offset & ~(flash.desc.block_size - 1));
 	out->bytes_erased = flash.desc.block_size;
 	return APPLET_SUCCESS;
 }
