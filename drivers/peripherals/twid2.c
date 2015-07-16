@@ -44,13 +44,14 @@
 #define TWID_DMA_THRESHOLD      16
 #define TWID_TIMEOUT            100
 
-static uint32_t _twid_wait_twi_transfer(const struct _twi_desc* desc)
+static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 {
 	struct _timeout timeout;
 	timer_start_timeout(&timeout, TWID_TIMEOUT);
 	while(!twi_is_transfer_complete(desc->addr)){
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid2: Unable to complete transfert!\r\n");
+			twid_configure(desc);
 			return TWID_ERROR_TRANSFER;
 		}
 	}
@@ -195,6 +196,7 @@ void twid_configure(struct _twi_desc* desc)
 static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	int i = 0;
+	struct _timeout timeout;
 	twi_init_write_transfert(desc->addr,
 				 desc->slave_addr,
 				 desc->iaddr,
@@ -205,7 +207,14 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		return TWID_ERROR_ACK;
 	}
 	for (i = 0; i < buffer->size; ++i) {
-		trace_debug("pass: %i\r\n", i);
+		timer_start_timeout(&timeout, TWID_TIMEOUT);
+		while(!twi_byte_sent(desc->addr)) {
+			if (timer_timeout_reached(&timeout)) {
+				trace_error("twid2: Device doen't response, "
+					    "(TX TIMEOUT)\r\n");
+				break;
+			}
+		}
 		twi_write_byte(desc->addr, buffer->data[i]);
 		if(twi_get_status(desc->addr) & TWI_SR_NACK) {
 			trace_error("twid2: command NACK!\r\n");
