@@ -152,7 +152,8 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 
 	initialized = false;
 
-	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from softpack " SOFTPACK_VERSION ".\r\n");
+	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
+			"softpack " SOFTPACK_VERSION ".\r\n");
 
 	/* unused for now */
 	(void)in;
@@ -181,20 +182,17 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 		uint32_t block_size = at25drv.desc->block_size;
 
 		trace_info_wp("Found Device %s\r\n", at25drv.desc->name);
-		trace_info_wp("Size: 0x%lx\r\n", at25drv.desc->size);
-		trace_info_wp("Page Size: 0x%lx\r\n", page_size);
-		trace_info_wp("Block Size: 0x%lx\r\n", block_size);
-		switch (at25drv.desc->block_erase_cmd) {
-		case AT25_BLOCK_ERASE_4K:
-			trace_info_wp("Erase Block Size: 4K\r\n");
-			break;
-		case AT25_BLOCK_ERASE_32K:
-			trace_info_wp("Erase Block Size: 32K\r\n");
-			break;
-		case AT25_BLOCK_ERASE_64K:
-			trace_info_wp("Erase Block Size: 64K\r\n");
-			break;
-		}
+		trace_info_wp("Size: %u bytes\r\n",
+				(unsigned)at25drv.desc->size);
+		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+		trace_info_wp("Block Size: %u bytes\r\n",
+				(unsigned)block_size);
+		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_4K)
+			trace_info_wp("Supports 4K block erase\r\n");
+		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_32K)
+			trace_info_wp("Supports 32K block erase\r\n");
+		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_64K)
+			trace_info_wp("Supports 64K block erase\r\n");
 
 		if (at25_unprotect(&at25drv) != AT25_SUCCESS) {
 			return APPLET_UNPROTECT_FAIL;
@@ -211,7 +209,8 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 		/* round buffer size to a multiple of page_size */
 		buffer_size = buffer_size & ~(page_size - 1);
 		if (buffer_size < page_size || buffer_size > MAX_BUFFER_SIZE) {
-			trace_info_wp("Not enough memory for transfer buffer\r\n");
+			trace_info_wp("Not enough memory for transfer "
+					"buffer\r\n");
 			return APPLET_FAIL;
 		}
 
@@ -219,8 +218,10 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 		out->buf_size = buffer_size;
 		out->mem_size = at25drv.desc->size;
 
-		trace_info_wp("Buffer Address: 0x%lx\r\n", out->buf_addr);
-		trace_info_wp("Buffer Size: 0x%lx\r\n", out->buf_size);
+		trace_info_wp("Buffer Address: 0x%x\r\n",
+				(unsigned)out->buf_addr);
+		trace_info_wp("Buffer Size: %u bytes\r\n",
+				(unsigned)out->buf_size);
 
 		initialized = true;
 		return APPLET_SUCCESS;
@@ -242,7 +243,8 @@ static uint32_t handle_cmd_write(uint32_t cmd, uint32_t *args)
 
 	assert(cmd == APPLET_CMD_WRITE);
 
-	/* provision space for head and/or tail handling if we are not 4K-aligned */
+	/* provision space for head and/or tail handling if we are not
+	 * 4K-aligned */
 	tmp_buf = buf + size;
 
 	/* check that mailbox buffer is contained in our buffer zone */
@@ -290,7 +292,8 @@ static uint32_t handle_cmd_write(uint32_t cmd, uint32_t *args)
 		size -= count;
 	}
 
-	trace_info_wp("Wrote %lu bytes at 0x%lx\r\n", written, in->mem_offset);
+	trace_info_wp("Wrote %u bytes at 0x%x\r\n", (unsigned)written,
+			(unsigned)in->mem_offset);
 	out->bytes_written = written;
 	return APPLET_SUCCESS;
 }
@@ -317,8 +320,9 @@ static uint32_t handle_cmd_read(uint32_t cmd, uint32_t *args)
 	/* check that requested size does not overflow buffer */
 	if ((buf + size) > buffer_end) {
 		size = buffer_end - buf;
-		trace_warning("Buffer overflow: 0x%lx is too much, will use 0x%lx instead\r\n",
-				in->buf_size, size);
+		trace_warning("Buffer overflow: size %u is too much, "
+				"will use %u instead\r\n",
+				(unsigned)in->buf_size, (unsigned)size);
 	}
 
 	/* perform the read operation */
@@ -328,7 +332,8 @@ static uint32_t handle_cmd_read(uint32_t cmd, uint32_t *args)
 		return APPLET_READ_FAIL;
 	}
 
-	trace_info_wp("Read %lu bytes at 0x%lx\r\n", size, in->mem_offset);
+	trace_info_wp("Read %u bytes at 0x%x\r\n", (unsigned)size,
+			(unsigned)in->mem_offset);
 	out->bytes_read = size;
 	return APPLET_SUCCESS;
 }
@@ -354,45 +359,48 @@ static uint32_t handle_cmd_buffer_erase(uint32_t cmd, uint32_t *args)
 	struct input_buffer_erase *in = (struct input_buffer_erase *)args;
 	struct output_buffer_erase *out = (struct output_buffer_erase *)args;
 
-	uint32_t block_erase_cmd = at25drv.desc->block_erase_cmd;
+	uint32_t erase_type = 0;
 	uint32_t offset = in->mem_offset;
 	uint32_t count = 0, incr = 0, i;
 
 	assert(cmd == APPLET_CMD_BUFFER_ERASE);
 
 	if (offset & (64 * 1024 - 1)) {
-		trace_error("Unaligned Block Erase offset: 0x%lx\r\n", offset);
+		trace_error("Unaligned Block Erase offset: 0x%x\r\n",
+				(unsigned)offset);
 		return APPLET_FAIL;
 	}
 
-	switch (block_erase_cmd) {
-	case AT25_BLOCK_ERASE_4K:
-		count = 16;
-		incr = 4 * 1024;
-		break;
-	case AT25_BLOCK_ERASE_32K:
-		count = 2;
-		incr = 32 * 1024;
-		break;
-	case AT25_BLOCK_ERASE_64K:
+	if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_64K) {
+		erase_type = AT25_BLOCK_ERASE_64K;
 		count = 1;
 		incr = 64 * 1024;
-		break;
-	default:
-		trace_error("Unknown Block Erase Command: 0x%lx\r\n", block_erase_cmd);
+	} else if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_32K) {
+		erase_type = AT25_BLOCK_ERASE_32K;
+		count = 2;
+		incr = 32 * 1024;
+	} else if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_4K) {
+		erase_type = AT25_BLOCK_ERASE_4K;
+		count = 16;
+		incr = 4 * 1024;
+	} else {
+		trace_error("Memory supports neither 4K, 32K nor 64K erase\r\n");
 		return APPLET_FAIL;
 	}
 
 	for (i = 0; i < count; i++, offset += incr) {
-		if (at25_erase_block(&at25drv, offset, block_erase_cmd) != AT25_SUCCESS) {
-			trace_error("Block Erase failed at offset 0x%lx\r\n", offset);
+		if (at25_erase_block(&at25drv, offset,
+					erase_type) != AT25_SUCCESS) {
+			trace_error("Block Erase failed at offset 0x%x\r\n",
+					(unsigned)offset);
 			return APPLET_ERASE_FAIL;
 		}
 		at25_wait(&at25drv);
 	}
 
-	trace_info_wp("Erased 64K block at 0x%lx\r\n", in->mem_offset);
-	out->bytes_erased = 64 * 1024;
+	trace_info_wp("Erased %u bytes at 0x%x\r\n", (unsigned)(count * incr),
+			(unsigned)in->mem_offset);
+	out->bytes_erased = count * incr;
 	return APPLET_SUCCESS;
 }
 
