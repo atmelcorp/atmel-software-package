@@ -37,7 +37,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/flexcom.h"
-#include "peripherals/twid2.h"
+#include "peripherals/twid.h"
 #include "peripherals/xdmad.h"
 
 #include "memories/at24.h"

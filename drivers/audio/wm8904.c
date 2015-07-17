@@ -39,7 +39,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "audio/wm8904.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 #include "peripherals/pmc.h"
 
 #include <stdio.h>

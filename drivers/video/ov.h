@@ -31,7 +31,7 @@
 #define OV_H
 
 #include <stdint.h>
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 /*----------------------------------------------------------------------------
  *        Types

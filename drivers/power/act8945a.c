@@ -38,7 +38,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/flexcom.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 #include "peripherals/shdwc.h"
 
 #include "power/act8945a.h"

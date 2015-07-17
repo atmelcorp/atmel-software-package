@@ -38,7 +38,7 @@
 #include "peripherals/pmc.h"
 
 #include "peripherals/twi.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 #include "at24mac402.h"
 

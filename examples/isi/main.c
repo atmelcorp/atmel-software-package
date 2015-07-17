@@ -96,7 +96,7 @@
 
 #include "misc/console.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 #include "peripherals/isi.h"
 
 #include "video/lcdd.h"

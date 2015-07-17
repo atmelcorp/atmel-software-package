@@ -41,7 +41,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 #include "power/act8945a.h"
 

@@ -32,7 +32,7 @@
  *----------------------------------------------------------------------------*/
 #include "video/ov.h"
 #include "video/ovyuv.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 #include "trace.h"
 

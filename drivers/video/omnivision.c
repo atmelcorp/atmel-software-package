@@ -32,7 +32,7 @@
  *----------------------------------------------------------------------------*/
 #include "video/omnivision.h"
 #include "peripherals/pio.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 #include "trace.h"
 

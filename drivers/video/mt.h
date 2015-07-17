@@ -50,7 +50,7 @@
 #ifndef MT_H
 #define MT_H
 
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 /*----------------------------------------------------------------------------
  *        Types

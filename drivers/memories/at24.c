@@ -38,7 +38,7 @@
 #include "peripherals/pmc.h"
 
 #include "peripherals/twi.h"
-#include "peripherals/twid2.h"
+#include "peripherals/twid.h"
 
 #include "memories/at24.h"
 

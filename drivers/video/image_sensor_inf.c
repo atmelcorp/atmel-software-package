@@ -34,7 +34,7 @@
 
 #include "video/image_sensor_inf.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 #include <stdbool.h>
 #include <stdio.h>
 

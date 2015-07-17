@@ -45,7 +45,7 @@
 
 #include <stdint.h>
 
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 /** define a structure for ovxxxx register initialization values */
 struct mt_reg {

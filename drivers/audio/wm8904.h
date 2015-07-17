@@ -37,7 +37,7 @@
 #ifndef WM8904_H
 #define WM8904_H
 
-#include "peripherals/twid.h"
+#include "peripherals/twid_legacy.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions
