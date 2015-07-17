@@ -87,71 +87,37 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Starts Manual encryption/decryption process.
- */
-void
-aes_start(void)
+void aes_start(void)
 {
 	AES->AES_CR = AES_CR_START;
 }
 
-/**
- * \brief Resets the AES. A software triggered hardware reset of the AES interface is performed.
- */
-void
-aes_soft_reset(void)
+void aes_soft_reset(void)
 {
 	AES->AES_CR = AES_CR_SWRST;
 }
 
-/**
- * \brief Configures an AES peripheral with the specified parameters.
- *  \param mode  Desired value for the AES mode register (see the datasheet).
- */
-void
-aes_configure(uint32_t mode)
+void aes_configure(uint32_t mode)
 {
 	AES->AES_MR = mode;
 }
 
-/**
- * \brief Enables the selected interrupts sources on a AES peripheral.
- * \param sources  Bitwise OR of selected interrupt sources.
- */
-void
-aes_enable_it(uint32_t sources)
+void aes_enable_it(uint32_t sources)
 {
 	AES->AES_IER = sources;
 }
 
-/**
- * \brief Disables the selected interrupts sources on a AES peripheral.
- * \param sources  Bitwise OR of selected interrupt sources.
- */
-void
-aes_disable_it(uint32_t sources)
+void aes_disable_it(uint32_t sources)
 {
 	AES->AES_IDR = sources;
 }
 
-/**
- * \brief Get the current status register of the given AES peripheral.
- * \return  AES status register.
- */
-uint32_t
-aes_get_status(void)
+uint32_t aes_get_status(void)
 {
 	return AES->AES_ISR;
 }
 
-/**
- * \brief Set the 128-bit/192-bit/256-bit cryptographic key used for encryption/decryption.
- * \param key  Pointer to a 16/24/32 bytes cipher key.
- * \param len  Length of the key, in bytes.
- */
-void
-aes_write_key(const uint32_t * key, uint32_t len)
+void aes_write_key(const uint32_t * key, uint32_t len)
 {
 	AES->AES_KEYWR[0] = key[0];
 	AES->AES_KEYWR[1] = key[1];
@@ -168,37 +134,21 @@ aes_write_key(const uint32_t * key, uint32_t len)
 	}
 }
 
-/**
- * \brief Set the for 32-bit input Data allow to set the 128-bit data block used for encryption/decryption.
- * \param data Pointer to the 16-bytes data to cipher/decipher.
- */
-void
-aes_set_input(uint32_t * data)
+void aes_set_input(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		AES->AES_IDATAR[i] = data[i];
 }
 
-/**
- * \brief Get the four 32-bit data contain the 128-bit data block which has been encrypted/decrypted.
- * \param data pointer to the word that has been encrypted/decrypted..
- */
-void
-aes_get_output(uint32_t * data)
+void aes_get_output(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		data[i] = AES->AES_ODATAR[i];
 }
 
-/**
- * \brief Set four 64-bit initialization vector data block, which is used by some
- * modes of operation as an additional initial input.
- * \param vector  Pointer to the word of the initialization vector.
- */
-void
-aes_set_vector(const uint32_t * vector)
+void aes_set_vector(const uint32_t * vector)
 {
 	AES->AES_IVR[0] = vector[0];
 	AES->AES_IVR[1] = vector[1];
@@ -206,70 +156,36 @@ aes_set_vector(const uint32_t * vector)
 	AES->AES_IVR[3] = vector[3];
 }
 
-/**
- * \brief Set Length in bytes of the AAD data that is to be processed.
- * \param len Length.
- */
-void
-aes_set_aad_len(uint32_t len)
+void aes_set_aad_len(uint32_t len)
 {
 	AES->AES_AADLENR = len;
 }
 
-/**
- * \brief Set Length in bytes of the Length in bytes of the
- * plaintext/ciphertext (C) data that is to be processed..
- * \param len Length.
- */
-void
-aes_set_data_len(uint32_t len)
+void aes_set_data_len(uint32_t len)
 {
 	AES->AES_CLENR = len;
 }
 
-/**
- * \brief Set The four 32-bit Hash Word registers expose the intermediate GHASH value.
- * May be read to save the current GHASH value so processing can later be resumed,
- * presumably on a later message fragment. modes of operation as an additional initial input.
- * \param hash point to the word of the hash.
- */
-void
-aes_set_gcm_hash(uint32_t * hash)
+void aes_set_gcm_hash(uint32_t * hash)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		AES->AES_GHASHR[i] = hash[i];
 }
 
-/**
- * \brief Get The four 32-bit Tag which contain the final 128-bit GCM Authentication tag
- * ¡°T¡± when GCM processing is complete.
- * \param tag point to the word of the tag.
- */
-void
-aes_get_gcm_tag(uint32_t * tag)
+void aes_get_gcm_tag(uint32_t * tag)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		tag[i] = AES->AES_TAGR[i];
 }
 
-/**
- * \brief Reports the current value of the 32-bit GCM counter
- * \param counter Point to value of GCM counter.
- */
-void
-aes_get_gcm_counter(uint32_t * counter)
+void aes_get_gcm_counter(uint32_t * counter)
 {
 	*counter = AES->AES_CTRR;
 }
 
-/**
- * \brief Get the four 32-bit data contain the 128-bit H value computed from the KEYW value
- * \param h point to the word that has been encrypted/decrypted..
- */
-void
-aes_get_gcm_hash_subkey(uint32_t * h)
+void aes_get_gcm_hash_subkey(uint32_t * h)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
