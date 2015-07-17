@@ -265,6 +265,8 @@
 /** Frame size in words (height * width * bpp / 32) */
 #define BOARD_LCD_FRAMESIZE         (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * BOARD_LCD_IFWIDTH / 32)
 
+#define PINS_LCD PINS_LCD_IOS2
+
 /** Vertical front porch in number of lines. */
 #define BOARD_LCD_TIMING_VFP        22
 /** Vertical back porch in number of lines. */

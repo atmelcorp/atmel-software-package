@@ -42,6 +42,8 @@ utils-y += utils/mutex.o
 utils-y += utils/mutex_gcc.o
 utils-y += utils/font.o
 utils-y += utils/widget.o
+utils-y += utils/lcd_draw.o
+utils-y += utils/lcd_font.o
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
 

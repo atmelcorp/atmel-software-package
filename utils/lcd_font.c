@@ -37,12 +37,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "board.h"
-#include "utils/lcd_font.h"
-#include "utils/lcd_font10x14.h"
-#include "utils/lcd_draw.h"
+#include "lcd_font.h"
+#include "lcd_draw.h"
 
-#include "utils/font.h"
+#include "font.h"
 
 #include <assert.h>
 

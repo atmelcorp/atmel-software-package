@@ -99,7 +99,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
-#include "peripherals/pit.h"
 #include "cortex-a/mmu.h"
 
 #include "misc/console.h"
@@ -107,12 +106,13 @@
 #include "misc/led.h"
 
 #include "video/lcdd.h"
-#include "utils/lcd_draw.h"
-#include "utils/lcd_font.h"
-#include "utils/font.h"
-#include "video/lcd_color.h"
 
-#include "utils/trace.h"
+#include "lcd_draw.h"
+#include "lcd_font.h"
+#include "lcd_color.h"
+#include "font.h"
+#include "timer.h"
+#include "trace.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -123,9 +123,9 @@
  *----------------------------------------------------------------------------*/
 /** Get double word */
 #define _DW(pByte) ((uint32_t)((((uint8_t*)pByte)[0] << 0) \
-                              |(((uint8_t*)pByte)[1] << 8) \
-                              |(((uint8_t*)pByte)[2] <<16) \
-                              |(((uint8_t*)pByte)[3] <<24)))
+			      |(((uint8_t*)pByte)[1] << 8) \
+			      |(((uint8_t*)pByte)[2] <<16) \
+			      |(((uint8_t*)pByte)[3] <<24)))
 
 /** Screen X -> Display X */
 #define SCR_X(X)    \
@@ -267,22 +267,6 @@ uint8_t ncolor = 0;
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Handler for PIT interrupt.
- */
-static void pit_handler(void)
-{
-	uint32_t dwStatus;
-	/* Read the PIT status register */
-	dwStatus = pit_get_status() & PIT_SR_PITS;
-	if (dwStatus) {
-		/* 1 = The Periodic Interval timer has reached PIV since the last read of PIT_PIVR.
-			Read the PIVR to acknowledge interrupt and get number of ticks
-			Returns the number of occurrences of periodic intervals since the last read of PIT_PIVR. */
-		dwTimeStamp += (pit_get_pivr() >> 20);
-	}
-}
-
-/**
  * Fill buffer with test pattern
  */
 static void test_pattern_24RGB (uint8_t *lcd_base)
@@ -307,23 +291,6 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
 			*pix++ = (test_colors[ix]&0xFF0000) >>  16;
 		}
 	}
-}
-
-/**
- * Initialize PIT for system tick
- */
-static void configure_pit(void)
-{
-	/* Enable PIT controller */
-	pmc_enable_peripheral(ID_PIT);
-	/* Initialize the PIT to the desired frequency */
-	pit_init(1000);
-	/* Configure interrupt on PIT */
-	aic_enable(ID_PIT);
-	aic_set_source_vector(ID_PIT, pit_handler);
-	pit_enable_it();
-	/* Enable the pit */
-	pit_enable();
 }
 
 /**
@@ -531,8 +498,8 @@ static void _rotates(void)
 	}
 
 	printf("Show: %u,%u %d, %d %u\n\r",
-			(uint32_t)SCR_X(wHeoX), (uint32_t)SCR_Y(wHeoY),
-			(int)w, (int)h, (uint32_t)wRotate);
+			(unsigned int)SCR_X(wHeoX), (unsigned int)SCR_Y(wHeoY),
+			(int)w, (int)h, (unsigned int)wRotate);
 	lcdd_show_bmp_rotated(LCDD_HEO,
 						0, bHeoBpp,
 						SCR_X(wHeoX), SCR_Y(wHeoY),
@@ -575,7 +542,7 @@ static void _draws(void)
 		/* Remove last shape */
 		//lcdd_draw_rectangle(x - wLastW/2, y - wLastH/2, wLastW, wLastH, OVR1_BG);
 		lcdd_draw_rounded_rect(x - wLastW/2, y - wLastH/2, wLastW, wLastH, wLastH/3, OVR1_BG);
-        /* Draw new */
+	/* Draw new */
 		//lcdd_draw_rectangle(x - w/2, y - h/2, w, h, test_colors[ncolor]);
 		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
@@ -674,7 +641,7 @@ extern int main( void )
 	/* Disable watchdog */
 	wdt_disable() ;
 
-    /* Initialize console */
+	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
 
 	/* Output example information */
@@ -688,9 +655,6 @@ extern int main( void )
 	cp15_disable_icache();
 	cp15_disable_dcache();
 
-	/* Configure Periodic Interrupt Timer */
-	configure_pit();
-
 	/* Configure PMIC */
 	status = act8945a_begin();
 	if(status) {
@@ -700,21 +664,16 @@ extern int main( void )
 		status = act8945a_set_regulator_state_out4to7(V_OUT6, ACT8945A_SET_ON);
 	}
 
-	/* Configure Leds */
-	led_configure(LED_RED);
-	led_configure(LED_GREEN);
-	led_configure(LED_BLUE);
-
 	/* Configure LCD */
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
 	_LcdOn();
 
-	t1 = dwTimeStamp;
+	t1 = timer_get_tick();
 	printf("ADDR_LCD_BUFFER_HEO is %x, %x\n\r",
 			ADDR_LCD_BUFFER_HEO, ADDR_LCD_BUFFER_HEO+SIZE_LCD_BUFFER_HEO);
 	while(1){
 		_DbgEvents();
-		t2 = dwTimeStamp;
+		t2 = timer_get_tick();
 		/* Move layers */
 		if ((t2 - t1) >= 10){
 			t1 = t2;

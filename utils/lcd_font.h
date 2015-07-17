@@ -71,7 +71,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "utils/font.h"
+#include "font.h"
 
 #include <stdint.h>
 
