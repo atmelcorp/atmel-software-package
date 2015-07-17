@@ -23,8 +23,8 @@ Copyright (c) 2015, Atmel Corporation All rights reserved.
 
 
 # Atmel SAMA5D2x Software Package
-Release verson: 0.1
-Release date: 2015-06
+Release verson: 0.2
+Release date: 2015-07
 
 ## Overview
 
@@ -71,6 +71,20 @@ Notice: This softpack comes as an early delivery and all presented APIs are subj
 
 This release contains the following examples:
 
+crypto_sha: Example to compute sha hashes (hardware)
+
+lcd: Example ising lcd controller
+
+isc: Example using isc controller
+
+qspi_serialflash: Read/Write/Delete commands to an qspi serial flash
+
+trng: Example using True hardware generator
+
+twi_eeprom: Read/Write/Delete commands to an EEPROM (twi interface)
+
+wdt: Example using watchdog timer
+
 gettting-started: LED blink.
 
 fifo: Test Flexcom USART FIFO
@@ -80,6 +94,9 @@ rtc: Test RTC
 spi_serialflash: Read/Write/Delete commands to an spi serial flash
 
 xdma: Mem to mem DMA transfert
+
+xdma_usart: Usart to mem and mem to usart transfert
+
 
 ## Usage (GCC ARM Embedded)
 
