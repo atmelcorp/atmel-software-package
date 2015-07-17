@@ -45,21 +45,21 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void AES_Start(void);
-void AES_SoftReset(void);
-void AES_Configure(uint32_t mode);
-void AES_EnableIt(uint32_t sources);
-void AES_DisableIt(uint32_t sources);
-extern uint32_t AES_GetStatus(void);
-void AES_WriteKey(const uint32_t * pKey, uint32_t keyLength);
-void AES_SetInput(uint32_t * data);
-void AES_GetOutput(uint32_t * data);
-void AES_SetVector(const uint32_t * pVector);
-void AES_SetAadLen(uint32_t len);
-void AES_SetDataLen(uint32_t len);
-void AES_SetGcmHash(uint32_t * hash);
-void AES_GetGcmTag(uint32_t * tag);
-void AES_GetGcmCounter(uint32_t * counter);
-void AES_GetGcmH(uint32_t * h);
+void aes_start(void);
+void aes_soft_reset(void);
+void aes_configure(uint32_t mode);
+void aes_enable_it(uint32_t sources);
+void aes_disable_it(uint32_t sources);
+extern uint32_t aes_get_status(void);
+void aes_write_key(const uint32_t * key, uint32_t len);
+void aes_set_input(uint32_t * data);
+void aes_get_output(uint32_t * data);
+void aes_set_vector(const uint32_t * vector);
+void aes_set_aad_len(uint32_t len);
+void aes_set_data_len(uint32_t len);
+void aes_set_gcm_hash(uint32_t * hash);
+void aes_get_gcm_tag(uint32_t * tag);
+void aes_get_gcm_counter(uint32_t * counter);
+void aes_get_gcm_hash_subkey(uint32_t * h);
 
 #endif				/* #ifndef _AES_ */

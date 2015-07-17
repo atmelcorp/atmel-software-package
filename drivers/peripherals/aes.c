@@ -41,21 +41,21 @@
  * between the encryption and the decryption processes. The AES is capable of using cryptographic
  * keys of 128/192/256 bits to encrypt and decrypt data in blocks of 128 bits.
  * This 128-bit/192-bit/256-bit key is defined in the Key Registers (AES_KEYWRx) and set by
- * AES_WriteKey(). The input to the encryption processes of the CBC, CFB, and OFB modes includes,
+ * aes_write_key(). The input to the encryption processes of the CBC, CFB, and OFB modes includes,
  * in addition to the plaintext, a 128-bit data block called the initialization vector (IV),
- * which must be set with AES_SetVector().
+ * which must be set with aes_set_vector().
  * The initialization vector is used in an initial step in the encryption of a message and
  * in the corresponding decryption of the message. The Initialization Vector Registers are
  * also used by the CTR mode to set the counter value.
  *
   * To Enable a AES encryption and decryption,the user has to follow these few steps:
  * <ul>
- * <li> A software triggered hardware reset of the AES interface is performed by AES_SoftReset().</li>
- * <li> Configure AES algorithm mode, key mode, start mode and operation mode by AES_Configure(). </li>
- * <li> Input AES data for encryption and decryption with function AES_SetInput() </li>
- * <li> Set AES key with fucntion AES_WriteKey(). </li>
- * <li> To start the encryption or the decryption process with AES_Start()</li>
- * <li> To get the encryption or decryption reslut by AES_GetOutput() </li>
+ * <li> A software triggered hardware reset of the AES interface is performed by aes_soft_reset().</li>
+ * <li> Configure AES algorithm mode, key mode, start mode and operation mode by aes_configure(). </li>
+ * <li> Input AES data for encryption and decryption with function aes_set_input() </li>
+ * <li> Set AES key with fucntion aes_write_key(). </li>
+ * <li> To start the encryption or the decryption process with aes_start()</li>
+ * <li> To get the encryption or decryption reslut by aes_get_output() </li>
  * </ul>
  *
  *
@@ -91,7 +91,7 @@
  * \brief Starts Manual encryption/decryption process.
  */
 void
-AES_Start(void)
+aes_start(void)
 {
 	AES->AES_CR = AES_CR_START;
 }
@@ -100,7 +100,7 @@ AES_Start(void)
  * \brief Resets the AES. A software triggered hardware reset of the AES interface is performed.
  */
 void
-AES_SoftReset(void)
+aes_soft_reset(void)
 {
 	AES->AES_CR = AES_CR_SWRST;
 }
@@ -110,7 +110,7 @@ AES_SoftReset(void)
  *  \param mode  Desired value for the AES mode register (see the datasheet).
  */
 void
-AES_Configure(uint32_t mode)
+aes_configure(uint32_t mode)
 {
 	AES->AES_MR = mode;
 }
@@ -120,7 +120,7 @@ AES_Configure(uint32_t mode)
  * \param sources  Bitwise OR of selected interrupt sources.
  */
 void
-AES_EnableIt(uint32_t sources)
+aes_enable_it(uint32_t sources)
 {
 	AES->AES_IER = sources;
 }
@@ -130,7 +130,7 @@ AES_EnableIt(uint32_t sources)
  * \param sources  Bitwise OR of selected interrupt sources.
  */
 void
-AES_DisableIt(uint32_t sources)
+aes_disable_it(uint32_t sources)
 {
 	AES->AES_IDR = sources;
 }
@@ -140,31 +140,31 @@ AES_DisableIt(uint32_t sources)
  * \return  AES status register.
  */
 uint32_t
-AES_GetStatus(void)
+aes_get_status(void)
 {
 	return AES->AES_ISR;
 }
 
 /**
  * \brief Set the 128-bit/192-bit/256-bit cryptographic key used for encryption/decryption.
- * \param pKey Pointer to a 16/24/32 bytes cipher key.
- * \param keyLength length of key
+ * \param key  Pointer to a 16/24/32 bytes cipher key.
+ * \param len  Length of the key, in bytes.
  */
 void
-AES_WriteKey(const uint32_t * pKey, uint32_t keyLength)
+aes_write_key(const uint32_t * key, uint32_t len)
 {
-	AES->AES_KEYWR[0] = pKey[0];
-	AES->AES_KEYWR[1] = pKey[1];
-	AES->AES_KEYWR[2] = pKey[2];
-	AES->AES_KEYWR[3] = pKey[3];
+	AES->AES_KEYWR[0] = key[0];
+	AES->AES_KEYWR[1] = key[1];
+	AES->AES_KEYWR[2] = key[2];
+	AES->AES_KEYWR[3] = key[3];
 
-	if (keyLength >= 24) {
-		AES->AES_KEYWR[4] = pKey[4];
-		AES->AES_KEYWR[5] = pKey[5];
+	if (len >= 24) {
+		AES->AES_KEYWR[4] = key[4];
+		AES->AES_KEYWR[5] = key[5];
 	}
-	if (keyLength == 32) {
-		AES->AES_KEYWR[6] = pKey[6];
-		AES->AES_KEYWR[7] = pKey[7];
+	if (len == 32) {
+		AES->AES_KEYWR[6] = key[6];
+		AES->AES_KEYWR[7] = key[7];
 	}
 }
 
@@ -173,7 +173,7 @@ AES_WriteKey(const uint32_t * pKey, uint32_t keyLength)
  * \param data Pointer to the 16-bytes data to cipher/decipher.
  */
 void
-AES_SetInput(uint32_t * data)
+aes_set_input(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -185,7 +185,7 @@ AES_SetInput(uint32_t * data)
  * \param data pointer to the word that has been encrypted/decrypted..
  */
 void
-AES_GetOutput(uint32_t * data)
+aes_get_output(uint32_t * data)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -195,15 +195,15 @@ AES_GetOutput(uint32_t * data)
 /**
  * \brief Set four 64-bit initialization vector data block, which is used by some
  * modes of operation as an additional initial input.
- * \param pVector point to the word of the initialization vector.
+ * \param vector  Pointer to the word of the initialization vector.
  */
 void
-AES_SetVector(const uint32_t * pVector)
+aes_set_vector(const uint32_t * vector)
 {
-	AES->AES_IVR[0] = pVector[0];
-	AES->AES_IVR[1] = pVector[1];
-	AES->AES_IVR[2] = pVector[2];
-	AES->AES_IVR[3] = pVector[3];
+	AES->AES_IVR[0] = vector[0];
+	AES->AES_IVR[1] = vector[1];
+	AES->AES_IVR[2] = vector[2];
+	AES->AES_IVR[3] = vector[3];
 }
 
 /**
@@ -211,7 +211,7 @@ AES_SetVector(const uint32_t * pVector)
  * \param len Length.
  */
 void
-AES_SetAadLen(uint32_t len)
+aes_set_aad_len(uint32_t len)
 {
 	AES->AES_AADLENR = len;
 }
@@ -222,7 +222,7 @@ AES_SetAadLen(uint32_t len)
  * \param len Length.
  */
 void
-AES_SetDataLen(uint32_t len)
+aes_set_data_len(uint32_t len)
 {
 	AES->AES_CLENR = len;
 }
@@ -234,7 +234,7 @@ AES_SetDataLen(uint32_t len)
  * \param hash point to the word of the hash.
  */
 void
-AES_SetGcmHash(uint32_t * hash)
+aes_set_gcm_hash(uint32_t * hash)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -247,7 +247,7 @@ AES_SetGcmHash(uint32_t * hash)
  * \param tag point to the word of the tag.
  */
 void
-AES_GetGcmTag(uint32_t * tag)
+aes_get_gcm_tag(uint32_t * tag)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
@@ -259,7 +259,7 @@ AES_GetGcmTag(uint32_t * tag)
  * \param counter Point to value of GCM counter.
  */
 void
-AES_GetGcmCounter(uint32_t * counter)
+aes_get_gcm_counter(uint32_t * counter)
 {
 	*counter = AES->AES_CTRR;
 }
@@ -269,7 +269,7 @@ AES_GetGcmCounter(uint32_t * counter)
  * \param h point to the word that has been encrypted/decrypted..
  */
 void
-AES_GetGcmH(uint32_t * h)
+aes_get_gcm_hash_subkey(uint32_t * h)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
