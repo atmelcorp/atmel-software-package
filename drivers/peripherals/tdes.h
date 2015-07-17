@@ -47,18 +47,18 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void TDES_Start(void);
-void TDES_SoftReset(void);
-void TDES_Configure(uint32_t mode);
-void TDES_EnableIt(uint32_t sources);
-void TDES_DisableIt(uint32_t sources);
-extern uint32_t TDES_GetStatus(void);
-void TDES_WriteKey1(uint32_t keyword0, uint32_t keyword1);
-void TDES_WriteKey2(uint32_t keyword0, uint32_t keyword1);
-void TDES_WriteKey3(uint32_t keyword0, uint32_t keyword1);
-void TDES_SetInput(uint32_t data0, uint32_t data1);
-void TDES_GetOutput(uint32_t * data0, uint32_t * data1);
-void TDES_SetVector(uint32_t v0, uint32_t v1);
-void TDES_SetXteaRounds(uint32_t rounds);
+void tdes_start(void);
+void tdes_soft_reset(void);
+void tdes_configure(uint32_t mode);
+void tdes_enable_it(uint32_t sources);
+void tdes_disable_it(uint32_t sources);
+extern uint32_t tdes_get_status(void);
+void tdes_write_key1(uint32_t key_word0, uint32_t key_word1);
+void tdes_write_key2(uint32_t key_word0, uint32_t key_word1);
+void tdes_write_key3(uint32_t key_word0, uint32_t key_word1);
+void tdes_set_input(uint32_t data0, uint32_t data1);
+void tdes_get_output(uint32_t * data0, uint32_t * data1);
+void tdes_set_vector(uint32_t v0, uint32_t v1);
+void tdes_set_xtea_rounds(uint32_t rounds);
 
 #endif				/* #ifndef _TDES_ */
