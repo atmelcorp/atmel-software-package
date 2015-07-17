@@ -220,7 +220,13 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
-/* =================== AT25 device definition =================== */
+/* =================== AT24 device definition =================== */
+#define AT24_PINS       PINS_TWI1_IOS2;
+#define AT24_ADDR       ((Twi*)TWIHS1)
+#define AT24_FREQ       400000
+#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
+
+/* =================== QSPI serial flashdevice definition ======= */
 
 #define QSPIFLASH_PINS     PINS_QSPI0_IOS3
 #define QSPIFLASH_ADDR     QSPI0
