@@ -40,7 +40,9 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "board.h"
+#include "board.h"
+
+
 #include "video/lcdd.h"
 #include "utils/lcd_draw.h"
 #include "utils/lcd_font.h"
@@ -506,6 +508,7 @@ void lcdd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t col
     uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
 
+	/* Font 10*8 reverse height and width */
 	if (font_sel == FONT10x8) {
 		width = font_param[font_sel].height ;
     	height = font_param[font_sel].width;
