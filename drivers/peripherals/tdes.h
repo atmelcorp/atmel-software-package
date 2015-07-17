@@ -47,18 +47,78 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
+/**
+ * \brief Starts Manual encryption/decryption process.
+ */
 void tdes_start(void);
+
+/**
+ * \brief Resets the TDES.
+ * A software triggered hardware reset of the TDES interface is performed.
+ */
 void tdes_soft_reset(void);
+
+/**
+ * \brief Configures an TDES peripheral with the specified parameters.
+ * \param mode  Desired value for the TDES_MR mode register (see the datasheet).
+ */
 void tdes_configure(uint32_t mode);
+
+/**
+ * \brief Enables the selected interrupts sources on a TDES peripheral.
+ * \param sources  Bitwise OR of selected interrupt sources.
+ */
 void tdes_enable_it(uint32_t sources);
+
+/**
+ * \brief Disables the selected interrupts sources on a TDES peripheral.
+ * \param sources  Bitwise OR of selected interrupt sources.
+ */
 void tdes_disable_it(uint32_t sources);
+
+/**
+ * \brief Get the current status register of the given TDES peripheral.
+ * \return  TDES status register.
+ */
 extern uint32_t tdes_get_status(void);
+
+/**
+ * \brief Set KEY 1/2/3.
+ * \param key_word0  Key x, word 0
+ * \param key_word1  Key x, word 1
+ */
 void tdes_write_key1(uint32_t key_word0, uint32_t key_word1);
 void tdes_write_key2(uint32_t key_word0, uint32_t key_word1);
 void tdes_write_key3(uint32_t key_word0, uint32_t key_word1);
+
+/**
+ * \brief Set the two 32-bit input data registers. Allows to set the 64-bit data
+ * block used for encryption/decryption.
+ * \param data0  Corresponds to the first word of the data to be processed.
+ * \param data1  Corresponds to the last word of the data to be processed.
+ */
 void tdes_set_input(uint32_t data0, uint32_t data1);
-void tdes_get_output(uint32_t * data0, uint32_t * data1);
+
+/**
+ * \brief Read from the two 32-bit data registers containing the 64-bit data
+ * block which has been encrypted/decrypted.
+ * \param data0  Points to the first word.
+ * \param data1  Points to the second word.
+ */
+void tdes_get_output(uint32_t *data0, uint32_t *data1);
+
+/**
+ * \brief Set the 64-bit initialization vector data block, which is used by
+ * specific modes of operation as an additional initial input.
+ * \param v0  Corresponds to the first word of the initialization vector.
+ * \param v1  Corresponds to the second word of the initialization vector.
+ */
 void tdes_set_vector(uint32_t v0, uint32_t v1);
+
+/**
+ * \brief Set the 6-bit complete rounds.
+ * \param rounds  Corresponds to rounds+1 complete round.
+ */
 void tdes_set_xtea_rounds(uint32_t rounds);
 
 #endif				/* #ifndef _TDES_ */
