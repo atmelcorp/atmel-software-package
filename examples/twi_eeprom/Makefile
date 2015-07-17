@@ -30,10 +30,8 @@
 
 TOP := ../..
 
-BINNAME = xdma-twi
+BINNAME = twi_eeprom
 
-# VARIANT = ddram
-
-obj-y += examples/xdma_twi/main.o
+obj-y += examples/twi_eeprom/main.o
 
 include $(TOP)/scripts/Makefile.rules
