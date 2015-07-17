@@ -96,7 +96,7 @@ $(BUILDDIR)/%.o: %.S
 $(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(LIBS)
 	@cp $(gnu-debug-lib-y) $(BUILDDIR)/target/
 	$(ECHO) LINK $@
-	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
+	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group -Wl,--no-undefined
 
 $(BUILDDIR)/$(BINNAME).symbols: $(BUILDDIR)/$(BINNAME).elf
 	$(Q)$(NM) $< >$@
