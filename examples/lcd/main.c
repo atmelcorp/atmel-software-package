@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -28,54 +28,61 @@
  */
 
 /**
- * \page isi ISI Example
+ *  \page lcd LCD Example
  *
- * \section Purpose
+ *  \section Purpose
  *
- * This example demonstrates the ISI (Image Sensor Interface) of an SAM V71
- * Xplained Ultra.
+ *  This example demonstrates how to configure the LCD Controller (LCDC)
+ *  to use the LCD on the board.
  *
- * \section Requirements
+ *  \section Requirements
  *
- * This package can be used with SAMA5D4-EK  with
- * On-board ISI interface and a external CMOS-type image sensor board.
+ *  This package can be used with SAMA5D4x Xplained board.
  *
- * \section Description
- * The provided program uses the Image Sensor Interface to connects a CMOS-type
- * image sensor to the processor and displays in VGA format.
+ *  \section Description
+ *
+ *  The example configures the LCDC for LCD to display and then draw test
+ *  patterns on LCD.
+ *
+ *  4 layers are displayed:
+ *  - Base: The layer at bottom, show test pattern with color blocks.
+ *  - OVR1: The layer over base, used as canvas to draw shapes.
+ *  - HEO:  The next layer, showed scaled ('F') which flips or rotates once
+ *          for a while.
  *
  *  \section Note
  *
- *  Some pins conflict between LCD pins and JTAG pins, this example can not run 
- * in debugger mode.
+ *  \section Usage
  *
- * \section Usage
- *  -# Build the program and download it inside the SAMA5D4-EK board.
- *  Please refer to the Getting Started with SAM V71 Microcontrollers.pdf
- * -# On the computer, open and configure a terminal application
- *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
- *   - 115200 bauds
- *   - 8 bits of data
- *   - No parity
- *   - 1 stop bit
- *   - No flow control
- * -# Start the application.
- * -# In the terminal window, the following text should appear:
- *    \code
- *     -- ISI Example xxx --
+ *  -# Build the program and download it inside the evaluation board. Please
+ *     refer to the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *     SAM-BA User Guide</a>, the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *     GNU-Based Software Development</a>
+ *     application note or to the
+ *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *     IAR EWARM User Guide</a>,
+ *     depending on your chosen solution.
+ *  -# On the computer, open and configure a terminal application
+ *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *    - 115200 bauds
+ *    - 8 bits of data
+ *    - No parity
+ *    - 1 stop bit
+ *    - No flow control
+ *  -# Start the application.
+ *  -# In the terminal window, the
+ *     following text should appear (values depend on the board and chip used):
+ *     \code
+ *      -- LCD Example xxx --
  *      -- SAMxxxxx-xx
- *     -- Compiled: xxx xx xxxx xx:xx:xx --
- *    \endcode
- * The user can then choose any of the available options to perform the 
- * described action.
+ *      -- Compiled: xxx xx xxxx xx:xx:xx --
+ *     \endcode
+ *  -# Test pattern images should be displayed on the LCD.
  *
- * \section References
- * - lcdc.c
- * - twi.c
- * - twid.c
- * - isi.c
+ *  \section References
  */
-
 /**
  * \file
  *
@@ -92,26 +99,28 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
+#include "peripherals/pit.h"
 #include "cortex-a/mmu.h"
 
 #include "misc/console.h"
+#include "power/act8945a.h"
+#include "misc/led.h"
 
 #include "video/lcdd.h"
 #include "utils/lcd_draw.h"
+#include "utils/lcd_font.h"
+#include "utils/font.h"
+#include "video/lcd_color.h"
 
 #include "utils/trace.h"
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
-
-/* TWI  */
-#define TWI_CLOCK                 (100000)
-
-
 /** Get double word */
 #define _DW(pByte) ((uint32_t)((((uint8_t*)pByte)[0] << 0) \
                               |(((uint8_t*)pByte)[1] << 8) \
@@ -170,65 +179,6 @@
 /** Number of blocks in horizontal */
 #define N_BLK_HOR     6
 
-/*
- * No.   Number               R     G    B
- * 01.   dark skin           115    82   68
- * 02.   light skin          194   150  130
- * 03.   blue sky             98   122  157
- * 04.   foliage              87   108   67
- * 05.   blue flower         133   128  177
- * 06.   bluish green        103   189  170
- * 07.   orange              214   126   44
- * 08.   purplish blue        80    91  166
- * 09.   moderate red        193    90   99
- * 10.   purple               94    60  108
- * 11.   yellow green        157   188   64
- * 12.   orange yellow       224   163   46
- * 13.   blue                 56    61  150
- * 14.   green                70   148   73
- * 15.   red                 175    54   60
- * 16.   yellow              231   199   31
- * 17.   magenta             187    86  149
- * 18.   cyan                  8   133  161
- * 19.   white(.05*)         243   243  243
- * 20.   neutral 8 (.23*)    200   200  200
- * 21.   neutral 6.5 (.44*)  160   160  160
- * 22.   neutral 5 (.70*)    122   122  121
- * 23.   neutral 3.5 (.1.05*) 85    85   85
- * 24.   black (1.50*)        52    52   52
- */
-
-#define COLOR_1           0x735244
-#define COLOR_2           0xc29682
-#define COLOR_3           0x627a9d
-#define COLOR_4           0x576c43
-#define COLOR_5           0x8580b1
-#define COLOR_6           0x67bdaa
-#define COLOR_7           0xd67e2c
-#define COLOR_8           0x505ba6
-#define COLOR_9           0xc15a63
-#define COLOR_10          0x5e3c6c
-#define COLOR_11          0x9dbc40
-#define COLOR_12          0xe0a32e
-#define COLOR_13          0x383d96
-#define COLOR_14          0x469449
-#define COLOR_15          0xaf363c
-#define COLOR_16          0xe7c71f
-#define COLOR_17          0xbb5695
-#define COLOR_18          0x0885a1
-#define COLOR_19          0xf3f3f3
-#define COLOR_20          0xc8c8c8
-#define COLOR_21          0xa0a0a0
-#define COLOR_22          0x7a7a7a
-#define COLOR_23          0x555555
-#define COLOR_24          0x343434
-
-#define COLOR_BLACK          0x000000
-#define COLOR_WHITE          0xFFFFFF
-
-#define COLOR_BLUE           0x0000FF
-#define COLOR_GREEN          0x00FF00
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -253,10 +203,10 @@ static const struct _pin pins_lcd[] = PINS_LCD;
 
 /** Test pattern source */
 static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {
-    COLOR_1,  COLOR_2,  COLOR_3,  COLOR_4,  COLOR_5,  COLOR_6,
-    COLOR_7,  COLOR_8,  COLOR_9,  COLOR_10, COLOR_11, COLOR_12,
-    COLOR_13, COLOR_14, COLOR_15, COLOR_16, COLOR_17, COLOR_18,
-    COLOR_19, COLOR_20, COLOR_21, COLOR_22, COLOR_23, COLOR_24,
+    COLOR_BLACK,  COLOR_Aqua,  COLOR_BLUE,  COLOR_Fuchsia,  COLOR_GRAY,  COLOR_GREEN,
+    COLOR_Lime,  COLOR_Maroon,  COLOR_NAVY,  COLOR_OLIVE, COLOR_ORANGE, COLOR_Purple,
+    COLOR_RED, COLOR_SILVER, COLOR_Teal, COLOR_YELLOW, COLOR_YELLOWGREEN, COLOR_MistyRose,
+    COLOR_SKYBLUE, COLOR_VIOLET, COLOR_DARKGRAY, COLOR_DARKGREEN, COLOR_BEIGE, COLOR_BROWN,
 };
 
 /** Backlight value */
@@ -309,6 +259,13 @@ static uint8_t  bHeoBpp = 0;
 /** Global timestamp in milliseconds since start of application */
 volatile uint32_t dwTimeStamp = 0;
 
+#define NB_TAB_COLOR N_BLK_HOR*N_BLK_VERT
+uint8_t ncolor = 0;
+
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
+
 /**
  *  \brief Handler for PIT interrupt.
  */
@@ -359,16 +316,12 @@ static void configure_pit(void)
 {
 	/* Enable PIT controller */
 	pmc_enable_peripheral(ID_PIT);
-
 	/* Initialize the PIT to the desired frequency */
 	pit_init(1000);
-
 	/* Configure interrupt on PIT */
 	aic_enable(ID_PIT);
 	aic_set_source_vector(ID_PIT, pit_handler);
-
 	pit_enable_it();
-
 	/* Enable the pit */
 	pit_enable();
 }
@@ -386,43 +339,47 @@ static void _LcdOn(void)
 	lcdd_set_backlight(bBackLight);
 	/* Display base layer */
 	lcdd_show_base( pBaseBuffer, 24, 0 );
+
 	/* Show magnified 'F' for rotate test */
-	wHeoImgW = 16 * EXAMPLE_LCD_SCALE; wHeoImgH = 24 * EXAMPLE_LCD_SCALE;
-	wHeoW = wHeoImgW * 3; wHeoH = (uint16_t) (wHeoImgH * 5.5);
+	wHeoImgW = 20 * EXAMPLE_LCD_SCALE;
+	wHeoImgH = 24 * EXAMPLE_LCD_SCALE;
+	wHeoW = wHeoImgW * 3;
+	wHeoH = (uint16_t) (wHeoImgH * 5.5);
 	bHeoBpp = 24;
 	/* Mask out background color */
 	lcdd_set_color_keying(LCDD_HEO, 0, COLOR_WHITE, 0xFFFFFF);
 	lcdd_create_canvas(LCDD_HEO, pHeoBuffer, bHeoBpp, 0, 0, wHeoImgW, wHeoImgH);
-	
+
 	lcdd_fill(COLOR_WHITE);
-	lcdd_draw_filled_rectangle(  0,  0, wHeoImgW,  2 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
-	
-	lcdd_draw_filled_rectangle(  0,  2 * EXAMPLE_LCD_SCALE,  
-									EXAMPLE_LCD_SCALE, wHeoImgH, COLOR_BLACK);
-	lcdd_draw_filled_rectangle(  2 * EXAMPLE_LCD_SCALE, 10 * EXAMPLE_LCD_SCALE, 
-								13 * EXAMPLE_LCD_SCALE, 13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
+	lcdd_draw_filled_rectangle(0, 0, wHeoImgW, 2 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
+	lcdd_draw_filled_rectangle(0, 2 * EXAMPLE_LCD_SCALE, EXAMPLE_LCD_SCALE, wHeoImgH, COLOR_BLACK);
+	lcdd_draw_filled_rectangle(2*EXAMPLE_LCD_SCALE, 10 * EXAMPLE_LCD_SCALE, 13 * EXAMPLE_LCD_SCALE, 13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
+
 //	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_HEO, ((uint32_t)ADDR_LCD_BUFFER_HEO) + SIZE_LCD_BUFFER_HEO);
-	lcdd_show_bmp_rotated(LCDD_HEO, pHeoBuffer, bHeoBpp,
-							SCR_X(wHeoX), SCR_Y(wHeoY),
-							wHeoW, wHeoH, wHeoImgW, wHeoImgH,
-							0);
+	lcdd_show_bmp_rotated(LCDD_HEO, pHeoBuffer, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW, wHeoImgH, 0);
 	/* It's over overlay 1 */
 	lcdd_set_prioty(LCDD_HEO, 1);
 
 	/* Test LCD draw */
-	wOvr2X = IMG_X(BOARD_LCD_WIDTH/4); wOvr2Y = IMG_Y(BOARD_LCD_WIDTH/4);
-	wOvr2W = BOARD_LCD_WIDTH/5;      wOvr2H = BOARD_LCD_HEIGHT/4;
-	lcdd_create_canvas(LCDD_OVR2, pOvr2Buffer, 24,
-                      SCR_X(wOvr2X), SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
+	wOvr2X = IMG_X(BOARD_LCD_WIDTH/4);
+	wOvr2Y = IMG_Y(BOARD_LCD_WIDTH/4);
+	wOvr2W = BOARD_LCD_WIDTH/5;
+	wOvr2H = BOARD_LCD_HEIGHT/4;
+	lcdd_create_canvas(LCDD_OVR2, pOvr2Buffer, 24, SCR_X(wOvr2X), SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
 	lcdd_fill_white();
+
+	/* Display message font 8x8 */
+	lcdd_select_font(FONT8x8);
+	lcdd_draw_string(8, 56, "ATMEL RFO", COLOR_BLACK);
 //	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR2, ((uint32_t)ADDR_LCD_BUFFER_OVR2) + SIZE_LCD_BUFFER_OVR2);
-    
+
     /* Test LCD draw */
-	wOvr1X = IMG_X(0); wOvr1Y = IMG_Y(0);
-	wOvr1W = BOARD_LCD_WIDTH/2;      wOvr1H = BOARD_LCD_HEIGHT/2;
-	lcdd_create_canvas(LCDD_OVR1, pOvr1Buffer, 24,
-						SCR_X(wOvr1X), SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
-	lcdd_fill( OVR1_BG );
+	wOvr1X = IMG_X(0);
+	wOvr1Y = IMG_Y(0);
+	wOvr1W = BOARD_LCD_WIDTH/2;
+	wOvr1H = BOARD_LCD_HEIGHT/2;
+	lcdd_create_canvas(LCDD_OVR1, pOvr1Buffer, 24, SCR_X(wOvr1X), SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
+	lcdd_fill(OVR1_BG);
 //	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR1, ((uint32_t)ADDR_LCD_BUFFER_OVR1) + SIZE_LCD_BUFFER_OVR1);
 
 	printf("- LCD ON\n\r");
@@ -484,74 +441,108 @@ static void _rotates(void)
 	if (!lcdd_is_layer_on(LCDD_HEO)) return;
 
 	switch (bHeoDraw){
-	/* Origional size */
-	case 0: bHeoDraw = 1; w = wHeoImgW; h = wHeoImgH; break;
-	
-	/* Mirrow (scan direction) */
-	case 1: bHeoDraw = 2; break;
-	case 2: bHeoDraw = 3; h = -h; break;
-	case 3: bHeoDraw = 4; h = -h; w = -w; break;
-	case 4: bHeoDraw = 5; w = -w; break;
-
-	/* Goes Back */
-	case 5: bHeoDraw = 6; w = wHeoImgW; h = wHeoImgH; break;
-
-	/* Rotate (0?) */
-	case 6: bHeoDraw = 7; break;
-	/* Rotate (90?) */
-	case 7: bHeoDraw = 8;
-		w = wHeoH; h = wHeoW;
-		wHeoH = h; wHeoW = w;
-		wRotate = 90;
-		break;
-	/* X mirror & Rotate (90?) */
-	case 8: bHeoDraw = 9;
-		w = (0-wHeoW); h = wHeoH;
-		wRotate = 90;
-		break;
-	/* Rotate (180?) */
-	case 9: bHeoDraw = 10;
-		w = wHeoH; h = wHeoW;
-		wHeoH = h; wHeoW = w;
-		wRotate = 180;
-		break;
-	/* Rotate (270?) */
-	case 10: bHeoDraw = 11;
-		w = wHeoH; h = wHeoW;
-		wHeoH = h; wHeoW = w;
-		wRotate = 270;
-		break;
-	/* Y mirror & Rotate (270?) */
-	case 11: bHeoDraw = 12;
-		w = wHeoW; h = 0-wHeoH;
-		wRotate = 270;
-		break;
-	/* Rotate (0?) */
-	case 12: bHeoDraw = 0;
-		w = wHeoH; h = wHeoW;
-		wHeoH = h; wHeoW = w;
-		break;
+		/* Origional size */
+		case 0:
+			bHeoDraw = 1;
+			w = wHeoImgW;
+			h = wHeoImgH;
+			break;
+		/* Mirrow (scan direction) */
+		case 1:
+			bHeoDraw = 2;
+			break;
+		case 2:
+			bHeoDraw = 3;
+			h = -h;
+			break;
+		case 3:
+			bHeoDraw = 4;
+			h = -h; w = -w;
+			break;
+		case 4:
+			bHeoDraw = 5;
+			w = -w;
+			break;
+		/* Goes Back */
+		case 5:
+			bHeoDraw = 6;
+			w = wHeoImgW;
+			h = wHeoImgH;
+			break;
+		/* Rotate (0?) */
+		case 6:
+			bHeoDraw = 7;
+			break;
+		/* Rotate (90?) */
+		case 7:
+			bHeoDraw = 8;
+			w = wHeoH;
+			h = wHeoW;
+			wHeoH = h;
+			wHeoW = w;
+			wRotate = 90;
+			break;
+		/* X mirror & Rotate (90?) */
+		case 8:
+			bHeoDraw = 9;
+			w = (0-wHeoW);
+			h = wHeoH;
+			wRotate = 90;
+			break;
+		/* Rotate (180?) */
+		case 9:
+			bHeoDraw = 10;
+			w = wHeoH;
+			h = wHeoW;
+			wHeoH = h;
+			wHeoW = w;
+			wRotate = 180;
+			break;
+		/* Rotate (270?) */
+		case 10:
+			bHeoDraw = 11;
+			w = wHeoH;
+			h = wHeoW;
+			wHeoH = h;
+			wHeoW = w;
+			wRotate = 270;
+			break;
+		/* Y mirror & Rotate (270?) */
+		case 11:
+			bHeoDraw = 12;
+			w = wHeoW;
+			h = 0-wHeoH;
+			wRotate = 270;
+			break;
+		/* Rotate (0?) */
+		case 12:
+			bHeoDraw = 0;
+			w = wHeoH;
+			h = wHeoW;
+			wHeoH = h;
+			wHeoW = w;
+			break;
 	}
 	if (SCR_X(wHeoX) + abs(w) > BOARD_LCD_WIDTH){
 		wHeoX = IMG_X(BOARD_LCD_WIDTH - abs(w));
-		//printf("- x %d\n\r", wHeoX);
 	}
 	if (SCR_Y(wHeoY) + abs(h) > BOARD_LCD_HEIGHT){
 		wHeoY = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
-		//printf("- y %d\n\r", wHeoY);
 	}
 
 	printf("Show: %u,%u %d, %d %u\n\r",
-			(unsigned int)SCR_X(wHeoX), (unsigned int)SCR_Y(wHeoY), 
-			(int)w, (int)h, (unsigned int)wRotate);
+			(uint32_t)SCR_X(wHeoX), (uint32_t)SCR_Y(wHeoY),
+			(int)w, (int)h, (uint32_t)wRotate);
 	lcdd_show_bmp_rotated(LCDD_HEO,
 						0, bHeoBpp,
 						SCR_X(wHeoX), SCR_Y(wHeoY),
 						w, h, wHeoImgW, wHeoImgH, wRotate);
 
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_HEO, 
-								//((uint32_t)ADDR_LCD_BUFFER_HEO) + SIZE_LCD_BUFFER_HEO);
-	if (bHeoDraw == 0) printf("\n\r-----------------\n\r");
+	if (bHeoDraw == 0) {
+		printf("\n\r");
+		printf("---------------------------------------\n\r");
+		printf(" Use 'SPACE' to change the priority HE0\n\r");
+	}
 }
 
 /**
@@ -561,8 +552,10 @@ static void _draws(void)
 {
 	uint32_t x, y, w, h;
 
-	x = wOvr1W / 2; y = wOvr1H / 2;
+	x = wOvr1W / 2;
+	y = wOvr1H / 2;
 	if (!lcdd_is_layer_on(LCDD_OVR1)) return;
+
 	/* Drawing width, height */
 	if (bDrawSize == 0) w = h = 2;
 	else {
@@ -575,17 +568,22 @@ static void _draws(void)
 		/* Remove last shape */
 		lcdd_draw_circle(x, y, wLastW > wLastH ? wLastH/2 : wLastW/2, OVR1_BG);
 		/* Draw new */
-		lcdd_draw_circle(x, y, w > h ? h/2 : w/2, COLOR_BLUE);
+		lcdd_draw_circle(x, y, w > h ? h/2 : w/2, test_colors[ncolor]);
+		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	} else {
 	/* Draw rectangles */
 		/* Remove last shape */
-		lcdd_draw_rectangle(x - wLastW/2, y - wLastH/2, wLastW, wLastH, OVR1_BG);
+		//lcdd_draw_rectangle(x - wLastW/2, y - wLastH/2, wLastW, wLastH, OVR1_BG);
+		lcdd_draw_rounded_rect(x - wLastW/2, y - wLastH/2, wLastW, wLastH, wLastH/3, OVR1_BG);
         /* Draw new */
-		lcdd_draw_rectangle(x - w/2, y - h/2, w, h, COLOR_GREEN);
+		//lcdd_draw_rectangle(x - w/2, y - h/2, w, h, test_colors[ncolor]);
+		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
+		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	}
 //	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR1, ((uint32_t)ADDR_LCD_BUFFER_OVR1) + SIZE_LCD_BUFFER_OVR1);
 
-	wLastW = w; wLastH = h;
+	wLastW = w;
+	wLastH = h;
 
     /* Size -- */
 	if (bDrawChange){
@@ -598,12 +596,16 @@ static void _draws(void)
 	}
 	/* Size ++ */
 	else {
-		if (bDrawSize == 10){
+		if (bDrawSize == 8){
 			bDrawChange = 1;
 		} else {
 			bDrawSize ++;
 		}
 	}
+
+	/* Display message font 10x8 */
+	lcdd_select_font(FONT10x8);
+	lcdd_draw_string(1, 1, "This example shows the \n graphic functionnalities \n  on a SAMA5D27-XULT board", COLOR_BLACK);
 }
 
 /**
@@ -626,7 +628,7 @@ static void _moves(void)
 				wOvr2H, BOARD_LCD_HEIGHT - 1);
 		lcdd_set_position(LCDD_OVR2, SCR_X(wOvr2X), SCR_Y(wOvr2Y));
 	}
-    
+
 	if (lcdd_is_layer_on(LCDD_HEO)){
 		_move_calc(&wHeoX, &wHeoY, &bHeoDir,
 				2, 3,
@@ -645,9 +647,10 @@ static void _DbgEvents(void)
 	if (console_is_rx_ready()){
 		key = console_get_char();
 		switch(key){
-		case '`': /* HEO & OVR1 layout */
-			lcdd_set_prioty(LCDD_HEO, !lcdd_get_prioty(LCDD_HEO));
-		break;
+			case ' ': /* HEO & OVR1 layout */
+				lcdd_set_prioty(LCDD_HEO, !lcdd_get_prioty(LCDD_HEO));
+				printf("Change priority HE0 \n\r");
+				break;
 		}
 	}
 }
@@ -663,12 +666,14 @@ static void _DbgEvents(void)
  */
 extern int main( void )
 {
-	uint32_t t1, t2; 
+	uint8_t status;
+	uint32_t t1, t2;
 	uint32_t heoDly = 0;
 	uint32_t ovr1Dly = 0;
+
 	/* Disable watchdog */
 	wdt_disable() ;
-    
+
     /* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
 
@@ -677,15 +682,31 @@ extern int main( void )
 	printf( "-- %s\n\r", BOARD_NAME ) ;
 	printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
 
+	/* Configure DDR3 */
 	board_cfg_ddram();
-	
 	cp15_disable_mmu();
 	cp15_disable_icache();
 	cp15_disable_dcache();
-    
+
+	/* Configure Periodic Interrupt Timer */
 	configure_pit();
+
+	/* Configure PMIC */
+	status = act8945a_begin();
+	if(status) {
+		printf("--E-- Error init ACT8945A \n\r");
+	} else {
+		status = act8945a_set_regulator_voltage_out4to7(V_OUT6, 2800);
+		status = act8945a_set_regulator_state_out4to7(V_OUT6, ACT8945A_SET_ON);
+	}
+
+	/* Configure Leds */
+	led_configure(LED_RED);
+	led_configure(LED_GREEN);
+	led_configure(LED_BLUE);
+
+	/* Configure LCD */
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
-    
 	_LcdOn();
 
 	t1 = dwTimeStamp;
@@ -695,17 +716,18 @@ extern int main( void )
 		_DbgEvents();
 		t2 = dwTimeStamp;
 		/* Move layers */
-		if ((t2 - t1) >= 50){
+		if ((t2 - t1) >= 10){
 			t1 = t2;
 			_moves();
-			/* Change OVR1 each 0.5s */
+			/* Change OVR1  */
 			if (ovr1Dly >= 500 / 50){
 				ovr1Dly = 0;
 				_draws();
+				led_toggle(LED_BLUE);
 			} else ovr1Dly ++;
 
-			/* Change HEO display mode each 2s */
-			if (heoDly >= 2000 / 50) {
+			/* Change HEO display mode */
+			if (heoDly >= 4000 / 50) {
 				heoDly = 0;
 				_rotates();
 			} else heoDly ++;
