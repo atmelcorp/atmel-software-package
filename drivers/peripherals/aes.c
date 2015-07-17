@@ -29,33 +29,41 @@
 
 /** \addtogroup aes_module Working with AES
  * \ingroup peripherals_module
- * The AES driver provides the interface to configure and use the AES peripheral.
+ * The AES driver provides the interface to configure and use the AES
+ * peripheral.
  * \n
  *
- * The Advanced Encryption Standard (AES) specifies a FIPS-approved cryptographic algorithm
- * that can be used to protect electronic data. The AES algorithm is a symmetric block
- * cipher that can encrypt (encipher) and decrypt (decipher) information.
+ * The Advanced Encryption Standard (AES) specifies a FIPS-approved
+ * cryptographic algorithm that can be used to protect electronic data. The AES
+ * algorithm is a symmetric block cipher that can encrypt (encipher) and decrypt
+ * (decipher) information.
  * Encryption converts data to an unintelligible form called ciphertext.
  * Decrypting the ciphertext converts the data back into its original form,
- * called plaintext. The CIPHER bit in the AES Mode Register (AES_MR) allows selection
- * between the encryption and the decryption processes. The AES is capable of using cryptographic
- * keys of 128/192/256 bits to encrypt and decrypt data in blocks of 128 bits.
- * This 128-bit/192-bit/256-bit key is defined in the Key Registers (AES_KEYWRx) and set by
- * aes_write_key(). The input to the encryption processes of the CBC, CFB, and OFB modes includes,
- * in addition to the plaintext, a 128-bit data block called the initialization vector (IV),
- * which must be set with aes_set_vector().
- * The initialization vector is used in an initial step in the encryption of a message and
- * in the corresponding decryption of the message. The Initialization Vector Registers are
- * also used by the CTR mode to set the counter value.
+ * called plaintext. The CIPHER bit in the AES Mode Register (AES_MR) allows
+ * selection between the encryption and the decryption processes. The AES is
+ * capable of using cryptographic keys of 128/192/256 bits to encrypt and
+ * decrypt data in blocks of 128 bits.
+ * This 128-bit/192-bit/256-bit key is defined in the Key Registers (AES_KEYWRx)
+ * and set by aes_write_key(). The input to the encryption processes of the CBC,
+ * CFB, and OFB modes includes, in addition to the plaintext, a 128-bit data
+ * block called the initialization vector (IV), which must be set using
+ * aes_set_vector(). The initialization vector is used in an initial step in the
+ * encryption of a message and in the corresponding decryption of the message.
+ * The Initialization Vector Registers are also used by the CTR mode to set the
+ * counter value.
  *
-  * To Enable a AES encryption and decryption,the user has to follow these few steps:
+ * To enable AES encryption and decryption, the user has to follow these few
+ * steps:
  * <ul>
- * <li> A software triggered hardware reset of the AES interface is performed by aes_soft_reset().</li>
- * <li> Configure AES algorithm mode, key mode, start mode and operation mode by aes_configure(). </li>
- * <li> Input AES data for encryption and decryption with function aes_set_input() </li>
- * <li> Set AES key with fucntion aes_write_key(). </li>
- * <li> To start the encryption or the decryption process with aes_start()</li>
- * <li> To get the encryption or decryption reslut by aes_get_output() </li>
+ * <li> A software triggered hardware reset of the AES interface is performed by
+ * aes_soft_reset().</li>
+ * <li> Configure AES algorithm mode, key mode, start mode and operation mode
+ * with aes_configure().</li>
+ * <li> Input AES data for encryption and decryption with function
+ * aes_set_input().</li>
+ * <li> Set AES key with fucntion aes_write_key().</li>
+ * <li> To start the encryption or the decryption process with aes_start().</li>
+ * <li> To get the encryption or decryption result by aes_get_output().</li>
  * </ul>
  *
  *
