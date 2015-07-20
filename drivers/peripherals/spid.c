@@ -27,12 +27,16 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "peripherals/pmc.h"
-#include "peripherals/spi.h"
-#include "peripherals/spid.h"
+
 #include "peripherals/aic.h"
-#include "peripherals/xdmad.h"
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
+#include "peripherals/pmc.h"
+#include "peripherals/spid.h"
+#include "peripherals/spi.h"
 #include "peripherals/xdmac.h"
+#include "peripherals/xdmad.h"
 
 #include "cortex-a/cp15.h"
 
@@ -81,6 +85,13 @@ static void spid_fifo_error(void)
 void spid_configure(struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
+
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(id);
+	if (flexcom) {
+		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
+	}
+#endif
 	/* Enable SPI early otherwise FIFO configuration won't be applied */
 	pmc_enable_peripheral(id);
 	if (desc->transfert_mode == SPID_MODE_FIFO) {

@@ -27,10 +27,14 @@
  * ----------------------------------------------------------------------------
  */
 
+
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
+#include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/pmc.h"
 
 #include "cortex-a/cp15.h"
 
@@ -176,10 +180,18 @@ static void _twid_dma_write(struct _twi_desc* desc,
 
 	xdmad_start_transfer(channel);
 }
+
 void twid_configure(struct _twi_desc* desc)
 {
 	uint32_t id = get_twi_id_from_addr(desc->addr);
 	assert(id < ID_PERIPH_COUNT);
+
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(get_twi_id_from_addr(desc->addr));
+	if (flexcom) {
+		flexcom_select(flexcom, FLEX_MR_OPMODE_TWI);
+	}
+#endif
 
 	pmc_enable_peripheral(id);
 	twi_configure_master(desc->addr, desc->freq);

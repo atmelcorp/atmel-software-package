@@ -29,11 +29,14 @@
 
 #include "chip.h"
 
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
 #include "peripherals/pmc.h"
-#include "peripherals/usart.h"
 #include "peripherals/usartd.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/usart.h"
 #include "peripherals/xdmac.h"
+#include "peripherals/xdmad.h"
 
 #include "cortex-a/cp15.h"
 
@@ -169,6 +172,12 @@ void usartd_configure(struct _usart_desc* desc)
 	uint32_t id = get_usart_id_from_addr(desc->addr);
 	assert(id < ID_PERIPH_COUNT);
 
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(id);
+	if (flexcom) {
+		flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+	}
+#endif
 	pmc_enable_peripheral(id);
 	usart_configure(desc->addr, desc->mode, desc->baudrate);
 
