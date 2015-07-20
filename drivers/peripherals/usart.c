@@ -121,6 +121,7 @@ void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate)
 	    && ((mode & US_MR_OVER) == 0)) {
 		usart->US_BRGR = (clock / baudrate) / 16;
 	}
+#ifdef CONFIG_HAVE_USART_SPI_MODE
 	if (((mode & US_MR_USART_MODE_SPI_MASTER) ==
 	     US_MR_USART_MODE_SPI_MASTER) || ((mode & US_MR_SYNC) == US_MR_SYNC)) {
 		if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_MCK) {
@@ -131,6 +132,7 @@ void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate)
 			}
 		}
 	}
+#endif /* CONFIG_HAVE_USART_SPI_MODE */
 	/* TODO other modes */
 
 	/* Disable all interrupts */
