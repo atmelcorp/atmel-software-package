@@ -38,7 +38,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/flexcom.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid_legacy.h"
+#include "peripherals/twid.h"
 #include "peripherals/shdwc.h"
 
 #include "power/act8945a.h"
@@ -50,951 +50,811 @@
 #include <string.h>
 #include <assert.h>
 
-/*------------------------------------------------------------------------------
- *         Local variables
+/*----------------------------------------------------------------------------
+ *        Types
  *----------------------------------------------------------------------------*/
 
-static uint8_t init_interrupt_done = 0;
-
-struct _handler_twi htwi = {0};
-
-// ACT8945A hardware interface
-
-// Using Flexcom0 TWI
-#define ACT8945A_TWI_ID	ID_FLEXCOM4
-
-static const struct _pin pins_twi_act8945a[] = PINS_FLEXCOM4_TWI_IOS3;
-
-static const struct _pin pins_chglev_act8945a[] = PIN_ACT8945A_CHGLEV;
-
-static const struct _pin pins_irq_act8945a[] = PIN_ACT8945A_IRQ;
-
-static const struct _pin pins_lbo_act8945a[] = PIN_ACT8945A_LBO;
-
-struct save_bitfield {
-	uint8_t syst00;
-	uint8_t apch78;
-	uint8_t apch79;
-	uint8_t apch7A;
-	uint8_t count_lbo;
+// SYS @0x00
+union _sys0 {
+	struct {
+		uint8_t trst:       1,  // Reset time out 0->260 1->65ms
+			nsysmode:   1,  // response of SYSLEV voltage detector, 1->int 0>shutdown
+			nsyslevmsk: 1,  // 1->unmask int
+			nsysstat:   1,  // 1 if vsys < syslev voltage threshold
+			syslev:     4;  // defines SYSLEV voltage threshold
+	} bits;
+	uint8_t u8;
 };
 
-struct save_bitfield sbf;
-
-//------------------------------------------------------------------------------
-static const sActReg ActReg[] =
-{
-	{"SYSTEM0 ", 0x00},
-	{"SYSTEM1 ", 0x01},
-	{"REG1_20 ", 0x20},
-	{"REG1_21 ", 0x21},
-	{"REG1_22 ", 0x22},
-	{"REG2_30 ", 0x30},
-	{"REG2_31 ", 0x31},
-	{"REG2_32 ", 0x32},
-	{"REG3_40 ", 0x40},
-	{"REG3_41 ", 0x41},
-	{"REG3_42 ", 0x42},
-	{"REG4_50 ", 0x50},
-	{"REG4_51 ", 0x51},
-	{"REG5_54 ", 0x54},
-	{"REG5_55 ", 0x55},
-	{"REG6_60 ", 0x60},
-	{"REG6_61 ", 0x61},
-	{"REG7_64 ", 0x64},
-	{"REG7_65 ", 0x65},
+// SYS @0x01
+union _sys1 {
+	struct {
+		uint8_t scratch: 4, // user area to store system status information
+			ruf4:    1,
+			mstroff: 1, // Set bit to 1 to turn off all regulators
+			ruf67:   2;
+	} bits;
+	uint8_t u8;
 };
-#define NB_REG_ACT (sizeof(ActReg)/sizeof(ActReg[0]))
 
-static sActReg VoltReg[] =
-{
-	{"V_OUT1 ", V_OUT1},
-	{"V_OUT2 ", V_OUT2},
-	{"V_OUT3 ", V_OUT3},
-	{"V_OUT4 ", V_OUT4},
-	{"V_OUT5 ", V_OUT5},
-	{"V_OUT6 ", V_OUT6},
-	{"V_OUT7 ", V_OUT7},
+// REG1 @0x20, REG2 @0x30, REG3 @0x40
+union _vset1 {
+	struct {
+		uint8_t vset1:  6,
+			ruf_67: 2;
+	} bits;
+	uint8_t u8;
 };
-#define NB_REG_VOLT (sizeof(VoltReg)/sizeof(VoltReg[0]))
 
-static sActReg ActAcph[] =
-{
-	{"APCH_70 ", ADD_APCH_70},
-	{"APCH_71 ", ADD_APCH_71},
-	{"APCH_78 ", ADD_APCH_78},
-	{"APCH_79 ", ADD_APCH_79},
-	{"APCH_7A ", ADD_APCH_7A},
+// REG1 @0x21, REG2 @0x31, REG3 @0x41
+union _vset2 {
+	struct {
+		uint8_t vset2:  6,
+			ruf_67: 2;
+	} bits;
+	uint8_t u8;
 };
-#define NB_REG_APCH (sizeof(ActAcph)/sizeof(ActAcph[0]))
 
-static char OvpSet[4][8] =
-{
-	{"6.6V "},
-	{"7.0V "},
-	{"7.5V "},
-	{"8.0V "},
-} ;
+// REG1 @0x22, REG2 @0x32, REG3 @0x42
+union _ctrl1 {
+	struct {
+		uint8_t ok:      1,
+			nfltmsk: 1,
+			delay:   3,
+			mode:    1,
+			phase:   1,
+			on:      1;
+	} bits;
+	uint8_t u8;
+};
 
-static char ChargState[4][24] =
+// REG4 @0x51, REG5 @0x55, REG6 @0x61, REG7 @0x65
+union _ctrl2 {
+	struct {
+		uint8_t ok:      1,
+			nfltmsk: 1,
+			delay:   3,
+			lowiq:   1,
+			dis:     1,
+			on:      1;
+	} bits;
+	uint8_t u8;
+};
+
+union _apch_70 {
+	struct {
+		uint8_t ruf_0:  1,
+			ruf_1:  1,
+			ruf_2:  1,
+			ruf_3:  1,
+			ruf_45: 2,
+			ruf_67: 2;
+	} bits;
+	uint8_t u8;
+};
+
+union _apch_71 {
+	struct {
+		uint8_t ovpset:  2,
+			pretimo: 2,
+			tottimo: 2,
+			ruf6:    1,
+			suschg:  1;
+	} bits;
+	uint8_t u8;
+};
+
+union _apch_78 {
+	struct {
+		uint8_t chgdat:   1,
+			indat:    1,
+			tempdat:  1,
+			timrdat:  1,
+			chgstat:  1,
+			instat:   1,
+			tempstat: 1,
+			timrstat: 1;
+	} bits;
+	uint8_t u8;
+};
+
+union _apch_79 {
+	struct {
+		uint8_t chgeocout: 1,
+			indis:     1,
+			tempout:   1,
+			timrpre:   1,
+			chgeocin:  1,
+			incon:     1,
+			tempin:    1,
+			timrtot:   1;
+	} bits;
+	uint8_t u8;
+};
+
+union _apch_7a {
+	struct {
+		uint8_t ruf0:     1,
+			acinstat: 1,
+			ruf32:    2,
+			cstate:   2,
+			ruf76:    2;
+	} bits;
+	uint8_t u8;
+};
+
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
+
+/// Slave address
+#define ACT8945A_TWI_ADDRESS 0x5B
+
+#define NUM_REGULATORS 7
+
+#define IADDR_SYS0   0x00
+#define IADDR_SYS1   0x01
+#define IADDR_REG1      0x20
+#define IADDR_REG2      0x30
+#define IADDR_REG3      0x40
+#define IADDR_REG4      0x50
+#define IADDR_REG5      0x54
+#define IADDR_REG6      0x60
+#define IADDR_REG7      0x64
+#define IADDR_APCH_70   0x70
+#define IADDR_APCH_71   0x71
+#define IADDR_APCH_78   0x78
+#define IADDR_APCH_79   0x79
+#define IADDR_APCH_7A   0x7a
+
+static const uint8_t _iaddr_reg[] = {
+	IADDR_REG1, IADDR_REG2, IADDR_REG3, IADDR_REG4,
+	IADDR_REG5, IADDR_REG6, IADDR_REG7,
+};
+
+static const char* _charging_states[4] = {
+	"Suspend/Disable/Fault",
+	"End of charge",
+	"Fast charge/Top-off",
+	"Precondition",
+};
+
+struct _reg
 {
-	{"Suspend/Disable/Fault"},
-	{"End of charge        "},
-	{"Fast charge/Top-off  "},
-	{"Precondition         "},
+	const char* name;
+	uint8_t iaddr;
+};
+
+static const struct _reg _regs[] = {
+	{ "SYS0", IADDR_SYS0 },
+	{ "SYS1", IADDR_SYS1 },
+	{ "REG1_20", IADDR_REG1 },
+	{ "REG1_21", IADDR_REG1 + 1 },
+	{ "REG1_22", IADDR_REG1 + 2 },
+	{ "REG2_30", IADDR_REG2 },
+	{ "REG2_31", IADDR_REG2 + 1 },
+	{ "REG2_32", IADDR_REG2 + 2 },
+	{ "REG3_40", IADDR_REG3 },
+	{ "REG3_41", IADDR_REG3 + 1 },
+	{ "REG3_42", IADDR_REG3 + 2 },
+	{ "REG4_50", IADDR_REG4 },
+	{ "REG4_51", IADDR_REG4 + 1 },
+	{ "REG5_54", IADDR_REG5 },
+	{ "REG5_55", IADDR_REG5 + 1 },
+	{ "REG6_60", IADDR_REG6 },
+	{ "REG6_61", IADDR_REG6 + 1 },
+	{ "REG7_64", IADDR_REG7 },
+	{ "REG7_65", IADDR_REG7 + 1 },
+	{ "APCH_70", IADDR_APCH_70 },
+	{ "APCH_71", IADDR_APCH_71 },
+	{ "APCH_78", IADDR_APCH_78 },
+	{ "APCH_79", IADDR_APCH_79 },
+	{ "APCH_7A", IADDR_APCH_7A },
+};
+
+static const char *_ovp_setting[4] = {
+	"6.6V", "7.0V", "7.5V", "8.0V",
 } ;
 
 /*------------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static uint8_t _twi_handler_init (struct _handler_twi* phtwi)
+static bool _act8945a_read_reg(struct _act8945a* act8945a, uint32_t iaddr,
+		uint8_t* value)
 {
-	uint8_t status = phtwi->Status;
-	static struct _twid twid;
-	Twi* pTwi = NULL;
-	Flexcom* pflexc = NULL;
-
-	assert(phtwi->Twck != 0);
-	assert(phtwi->IdTwi != 0);
-
-	memset((void*)&twid, 0x00, sizeof(twid));
-
-	pmc_enable_peripheral(ACT8945A_TWI_ID);
-	pio_configure(pins_twi_act8945a, ARRAY_SIZE(pins_twi_act8945a));
-	pmc_enable_peripheral(ACT8945A_TWI_ID);
-
-	// Use a flexcom, then init flexcom operating mode TWI
-	pflexc = get_flexcom_addr_from_id(ACT8945A_TWI_ID);
-	flexcom_select(pflexc, FLEX_MR_OPMODE_TWI);
-	// Init twi
-	pTwi = &pflexc->twi;
-	twi_configure_master(pTwi, phtwi->Twck);
-	twid_initialize(&twid, pTwi);
-
-	phtwi->Status = status | TWI_STATUS_HANDLE;
-	memcpy ((void*)&phtwi->twid, (void*)&twid, sizeof(twid));
-	return phtwi->Status;
+	uint32_t status;
+	struct _buffer in = {
+		.data = value,
+		.size = 1
+	};
+	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
+	act8945a->twid->iaddr = iaddr;
+	act8945a->twid->isize = 1;
+	status = twid_transfert(act8945a->twid, &in, 0,
+			twid_finish_transfert_callback, 0);
+	if (status != TWID_SUCCESS)
+		return false;
+	twid_wait_transfert(act8945a->twid);
+	return true;
 }
 
-static uint8_t _is_twi_ready (struct _handler_twi* handler_twi)
+static bool _act8945a_write_reg(struct _act8945a* act8945a, uint32_t iaddr,
+		uint8_t value)
 {
-	return handler_twi->Status & TWI_STATUS_READY;
+	uint32_t status;
+	struct _buffer out = {
+		.data = (uint8_t*)&value,
+		.size = 1
+	};
+	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
+	act8945a->twid->iaddr = iaddr;
+	act8945a->twid->isize = 1;
+	status = twid_transfert(act8945a->twid, 0, &out,
+			twid_finish_transfert_callback, 0);
+	if (status != TWID_SUCCESS)
+		return false;
+	twid_wait_transfert(act8945a->twid);
+	return true;
 }
 
-static uint8_t _twid_rd_wr (struct _handler_twi* handler_twi, enum TWI_CMD Cmd)
+static bool _act8945a_update_cached_registers(struct _act8945a *act8945a)
 {
-	if (Cmd == TWI_RD)
-		return (uint8_t)twid_read(&handler_twi->twid, handler_twi->PeriphAddr,
-					  handler_twi->RegMemAddr, handler_twi->AddSize,
-					  (uint8_t*)handler_twi->pData, handler_twi->LenData, 0);
-	else
-		return (uint8_t)twid_write(&handler_twi->twid, handler_twi->PeriphAddr,
-					   handler_twi->RegMemAddr, handler_twi->AddSize,
-					   (uint8_t*)handler_twi->pData, handler_twi->LenData, 0);
+	return _act8945a_read_reg(act8945a, IADDR_SYS0, &act8945a->sys0) &&
+		_act8945a_read_reg(act8945a, IADDR_APCH_78, &act8945a->apch78) &&
+		_act8945a_read_reg(act8945a, IADDR_APCH_79, &act8945a->apch79) &&
+		_act8945a_read_reg(act8945a, IADDR_APCH_7A, &act8945a->apch7a);
 }
 
-static uint8_t _act8945a_rw_register(uint8_t addr,
-				     uint8_t* pdata,
-				     enum TWI_CMD Cmd)
+static void _act8945a_irq_handler(uint32_t group, uint32_t status, void* user_arg)
 {
-	htwi.RegMemAddr = addr;
-	htwi.LenData = 1;
-	htwi.pData = pdata;
-	return _twid_rd_wr(&htwi, Cmd);
-}
+	struct _act8945a *act8945a = (struct _act8945a*)user_arg;
 
-static void _act8945a_delay_ms (uint32_t delay)
-{
-	unsigned int count;
-	for(;delay>0;delay--)
-		for(count=0;count<(pmc_get_master_clock()/1000000);count++);
-}
+	if (status & act8945a->desc.pin_irq.mask) {
+		union _sys0 sys0;
+		union _apch_78 apch78;
+		union _apch_79 apch79;
+		union _apch_7a apch7a;
 
-static void _act8945a_twi_error (void)
-{
-	printf(" -E- Twi Error \n\r");
-}
+		// save previous values
+		sys0.u8 = act8945a->sys0;
+		apch78.u8 = act8945a->apch78;
+		apch79.u8 = act8945a->apch79;
+		apch7a.u8 = act8945a->apch7a;
 
-// Dump and display the registers
-static void _act8945a_registers_dump(void)
-{
-	uint8_t data, i = 0;
+		// update values
+		_act8945a_update_cached_registers(act8945a);
 
-	if (!_is_twi_ready(&htwi))
-		return;
-
-	printf("\n\r *** DUMP Registers ACT8945A\n\r");
-	for (i=0; i<NB_REG_ACT; i++) {
-		_act8945a_rw_register (ActReg[i].Address, &data, TWI_RD);
-		_act8945a_delay_ms(10);
-		printf(" %s: 0x%02x \n\r", ActReg[i].RegName, data);
-	}
-}
-
-// Dump and display the ACPH registers
-static void _act8945a_registers_dump_APCH (void)
-{
-	uint8_t data, i = 0;
-
-	if (!_is_twi_ready(&htwi))
-		return ;
-
-	printf("\n\r");
-	printf(" -I- DUMP Registers APCH ACT8945A\n\r");
-	for (i=0; i<NB_REG_APCH; i++) {
-		_act8945a_rw_register (ActAcph[i].Address, &data, TWI_RD);
-		_act8945a_delay_ms(10);
-		printf(" %s: 0x%02X \n\r", ActAcph[i].RegName, data);
-	}
-}
-
-
-/*------------------------------------------------------------------------------
- * Handler interrupt
- *----------------------------------------------------------------------------*/
-void act8945a_irq_handler (uint32_t group, uint32_t status, void* user_arg)
-{
-	struct _bitfield_sys0 syst0;
-	struct _bitfield_apch78 apch78;
-	struct _bitfield_apch79 apch79;
-	struct _bitfield_apch7a apch7a;
-
-	/* unused */
-	(void)user_arg;
-
-	if (status & pins_irq_act8945a[0].mask)	{
-
-		_act8945a_rw_register(ADD_SYSTEM0, (uint8_t*)&syst0, TWI_RD);
-		_act8945a_rw_register(ADD_APCH_7A, (uint8_t*)&apch7a, TWI_RD);
-		_act8945a_rw_register(ADD_APCH_78, (uint8_t*)&apch78, TWI_RD);
-		_act8945a_rw_register(ADD_APCH_79, (uint8_t*)&apch79, TWI_RD);
-
-		if (sbf.syst00 != *htwi.pData) {
-			printf("SYST00 \n\r");
-			sbf.syst00 = *htwi.pData;
-		} else if (sbf.apch7A != *htwi.pData) {
-			printf("\n\r %s \n\r", &ChargState[apch7a.cstate][0]);
-			sbf.apch7A = *htwi.pData;
-		} else if (sbf.apch78 != *htwi.pData) {
-			if (apch78.chgdat == 0x01)
-				printf("\n\r charger state machine: END-OF-CHARGE state \n\r");
-			sbf.apch78 = *htwi.pData;
-		} else if (sbf.apch79 != *htwi.pData) {
-			printf("APCH79 \n\r");
-			sbf.apch79 = *htwi.pData;
+		// show changes
+		if (sys0.u8 != act8945a->sys0) {
+			trace_debug("PMIC IRQ: SYST0 changed\r\n");
+		}
+		if (apch78.u8 != act8945a->apch78) {
+			if (apch78.bits.chgdat == 0x01)
+				trace_debug("PMIC IRQ: charger state machine, END-OF-CHARGE state\r\n");
+		}
+		if (apch79.u8 != act8945a->apch79) {
+			printf("PMIC IRQ: APCH79 changed\r\n");
+		}
+		if (apch7a.u8 != act8945a->apch7a) {
+			trace_debug("PMIC IRQ: %s\r\n", _charging_states[apch7a.bits.cstate]);
 		}
 	}
 }
 
-/*------------------------------------------------------------------------------
- * Handler interrupt
- *----------------------------------------------------------------------------*/
-void act8945a_lbo_handler (uint32_t group, uint32_t status, void* user_arg)
+static void _act8945a_lbo_handler(uint32_t group, uint32_t status, void* user_arg)
 {
-	/* unused */
-	(void)user_arg;
+	struct _act8945a *act8945a = (struct _act8945a*)user_arg;
 
-	if (status & pins_lbo_act8945a[0].mask) {
-		printf(" Int: Low Battery output \n\r");
-		pio_disable_it(&pins_lbo_act8945a[0]);
-		printf(" Launch Shutdown mode \n\r");
+	if (status & act8945a->desc.pin_lbo.mask) {
+		trace_debug("PMIC LBO: Low Battery Output\r\n");
+		pio_disable_it(&act8945a->desc.pin_lbo);
+#if 0
+		trace_warn("Starting Shutdown Mode\r\n");
 		_act8945a_delay_ms(2);
-		/* shdwc_configure_wakeup_mode (SHDW_MR_LPDBCEN0_ENABLE | */
-		/* 			     SHDW_MR_LPDBC_2_RTCOUT0 | */
-		/* 			     SHDW_MR_WKUPDBC_32_SLCK); */
-		/* shdwc_set_wakeup_input (SHDW_WUIR_WKUPEN0_ENABLE, */
-		/* 			SHDW_WUIR_WKUPT0_LOW); */
-		/* shdwc_do_shutdown(); */
+		shdwc_configure_wakeup_mode(SHDW_MR_LPDBCEN0_ENABLE |
+				SHDW_MR_LPDBC_2_RTCOUT0 |
+				SHDW_MR_WKUPDBC_32_SLCK);
+		shdwc_set_wakeup_input(SHDW_WUIR_WKUPEN0_ENABLE,
+				SHDW_WUIR_WKUPT0_LOW);
+		shdwc_do_shutdown();
+#endif
 	}
 }
 
-// Convert the voltage setting to display value
-static float _act8945a_Convert_voltage_setting (uint8_t Reg)
+// Enable interrupt on nIRQ pin to MPU
+static void _act8945a_enable_interrupt_handlers(struct _act8945a *act8945a)
 {
-	float result = 0;
+	/* Configure PMIC line interrupts. */
+	pio_configure_it(&act8945a->desc.pin_irq);
+	pio_add_handler_to_group(act8945a->desc.pin_irq.group,
+				 act8945a->desc.pin_irq.mask,
+				 &_act8945a_irq_handler,
+				 act8945a);
+	pio_enable_it(&act8945a->desc.pin_irq);
+
+	/* Configure LBO line interrupts. */
+	act8945a->lbo_count = 0;
+	pio_configure_it(&act8945a->desc.pin_lbo);
+	pio_add_handler_to_group(act8945a->desc.pin_lbo.group,
+				 act8945a->desc.pin_lbo.mask,
+				 &_act8945a_lbo_handler,
+				 act8945a);
+	pio_enable_it(&act8945a->desc.pin_lbo);
+}
+
+static uint16_t _act8945a_convert_voltage_setting(uint8_t setting)
+{
 	uint8_t mul20, mul53;
 
-	mul20 = (Reg & 0x07) >>0;
-	mul53 = (Reg & 0x38) >>3;
+	mul20 = (setting & 0x07) >> 0;
+	mul53 = (setting & 0x38) >> 3;
 
-	if (Reg <= 0x17)
-		result = 0.6 + (0.2*mul53) + (0.025*mul20);
-	else if (Reg <= 0x2F)
-		result = 1.2 + (0.4*(mul53-3)) + (0.050*mul20);
+	if (setting <= 0x17)
+		return (uint16_t)(1000 * (0.6 + (0.2 * mul53) + (0.025 * mul20)));
+	else if (setting <= 0x2F)
+		return (uint16_t)(1000 * (1.2 + (0.4 * (mul53 - 3)) + (0.050 * mul20)));
 	else
-		result = 2.4 + (0.8*(mul53-6)) + (0.1*mul20);
-	return result;
-}
-
-static void _act8945a_display_system_setting (void)
-{
-	uint8_t status;
-	float value;
-	struct _bitfield_sys0 syst0;
-	struct _bitfield_sys1 syst1;
-
-	status= _act8945a_rw_register(ADD_SYSTEM0,
-				      (uint8_t*)&syst0, TWI_RD);
-	if(status!=ACT8945A_RET_OK) return;
-
-	value = 2.3 + (syst0.syslev*0.1);
-
-	printf("\n\r");
-	printf(" -I- System Registers ACT8945A \n\r");
-	printf(" -I- SYST0 @0x00: 0x%02X \n\r", *htwi.pData);
-	printf(" Reset Timer Setting:           %s \n\r",
-	       (syst0.trst)? "65ms":"260ms");
-	printf(" SYSLEV Mode Select:            %s \n\r",
-	       (syst0.nsysmode)?"int":"shutdown");
-	printf(" System Voltage Level Int.Mask: %s \n\r",
-	       (syst0.nsyslevmsk)?"int":"no int");
-	printf(" System Voltage Status:         %s \n\r",
-	       (syst0.nsysstat)?"vsys<syslev":"vsys>syslev");
-	printf(" SYSLEV Failing Treshold value: %.2fv \n\r", value);
-
-	status =_act8945a_rw_register(ADD_SYSTEM1,
-				      (uint8_t*)&syst1, TWI_RD);
-	if(status!=ACT8945A_RET_OK) return;
-
-	printf("\n\r");
-	printf(" -I- SYST1 @0x01: 0x%02X \n\r", *htwi.pData);
-	printf(" Master Off Ctrl, All regul:    %s \n\r",
-	       (syst1.mstroff)?"OFF ":"ON ");
-	printf(" Scratchpad Bits, free user:    0x%02x \n\r",
-	       syst1.scratch);
-}
-
-// Display detailled infos of the register ACT8865 and ACT8945A
-void act8945a_display_voltage_setting(void)
-{
-	uint8_t data, x, status;
-	float x1;
-	struct _bitfield_ctrl1 ctrl1;
-	struct _bitfield_ctrl2 BitField_Ctrl2;
-
-	printf(" * Voltage Setting & State ACT8945A \n\r");
-
-	for (x=0; x<NB_REG_VOLT ; x++)
-	{
-		status = _act8945a_rw_register(VoltReg[x].Address,
-					       &data, TWI_RD);
-		if(status!=ACT8945A_RET_OK) return;
-		x1= _act8945a_Convert_voltage_setting(data);
-
-		status = _act8945a_rw_register(VoltReg[x].Address+1,
-					       &data, TWI_RD);
-		if(status!=ACT8945A_RET_OK) return;
-
-		printf(" -I- %s= %.2fv ", VoltReg[x].RegName, (float)x1);
-
-		if (VoltReg[x].Address >= V_OUT4) {
-			memcpy (&BitField_Ctrl2, &data, 1);
-			printf("0x%02X %s", data, (BitField_Ctrl2.on) ? "ON ":"OFF");
-			printf(" %s", (BitField_Ctrl2.dis)?"OFF":"ON ");
-			printf(" %s", (BitField_Ctrl2.lowiq)?"Normal":"LowPwr");
-			printf("\tDelay:0x%02X", BitField_Ctrl2.delay);
-			printf(" %s ", (BitField_Ctrl2.nfltmsk)?"En":"Dis");
-			printf(" %s", (BitField_Ctrl2.ok)?"OK":".<Tresh");
-		} else {
-			memcpy (&ctrl1, &data, 1);
-			printf("0x%02X %s", data, (ctrl1.on) ? "ON  ":"OFF");
-			printf(" %s", (ctrl1.phase)?"180":"Osc");
-			printf(" %s", (ctrl1.mode)?"PWM":"PowSav");
-			printf("\tDelay:0x%02X", ctrl1.delay);
-			printf(" %s ", (ctrl1.nfltmsk)?"En":"Dis");
-			printf(" %s", (ctrl1.ok)?"OK":".<Tresh");
-		}
-		printf("\n\r");
-	}
-}
-
-// Display detailled infos register APCH (ACT8945A)
-static uint8_t _act8945a_display_active_path_charger (void)
-{
-	struct _bitfield_apch71 BitField_APCH71;
-	struct _bitfield_apch78 apch78;
-	struct _bitfield_apch79 apch79;
-	struct _bitfield_apch7a apch7a;
-
-	uint8_t data, status = ACT8945A_RET_OK;
-
-	printf("\n\r");
-	printf(" -I- ACPH Registers ACT8945A \n\r");
-
-	status = _act8945a_rw_register (ADD_APCH_70, &data, TWI_RD);
-	if (status) _act8945a_twi_error();
-	else
-	{
-		printf(" -I- APCH @0x70: Reserved 0x%02X \n\r", data);
-		printf("\n\r");
-	}
-
-	status = _act8945a_rw_register(ADD_APCH_71,
-				       (uint8_t*)&BitField_APCH71, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		printf(" -I- APCH @0x71: 0x%02X \n\r", *htwi.pData);
-		printf(" Charge Suspend Control Input:         %X \n\r",
-		       BitField_APCH71.suschg);
-		printf(" Bit 6 reserved \n\r");
-		printf(" Total Charge Time-out Selection:      %02X \n\r",
-		       BitField_APCH71.tottimo);
-		printf(" Precondition Charge Time-out Sel:     %02X \n\r",
-		       BitField_APCH71.pretimo);
-		printf(" Input Over-Volt Prot.Threshold Sel:   %02X ",
-		       BitField_APCH71.ovpset);
-		printf(" equ %s \n\r", &OvpSet[BitField_APCH71.ovpset][0]);
-		printf("\n\r");
-	}
-
-	status = _act8945a_rw_register(ADD_APCH_78,
-				       (uint8_t*)&apch78, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		printf(" -I- APCH @0x78: 0x%02X \n\r", *htwi.pData);
-		printf(" Charge Time-out Interrupt Status:     %X \n\r",
-		       apch78.timrstat);
-		printf(" Battery Temperature Interrupt Status: %X \n\r",
-		       apch78.tempstat);
-		printf(" Input Voltage Interrupt Status:       %X \n\r",
-		       apch78.instat);
-		printf(" Charge State Interrupt Status:        %X \n\r",
-		       apch78.chgstat);
-		printf(" Charge Timer Status                   %X \n\r",
-		       apch78.timrdat);
-		printf(" Temperature Status                    %X \n\r",
-		       apch78.tempdat);
-		printf(" Input Voltage Status                  %X \n\r",
-		       apch78.indat);
-		printf(" Charge State Machine Status           %X \n\r",
-		       apch78.chgdat);
-		printf("\n\r");
-	}
-
-	status = _act8945a_rw_register(ADD_APCH_79,
-				       (uint8_t*)&apch79, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		printf(" -I- APCH @0x79: 0x%02X \n\r", *htwi.pData);
-		printf(" Total Charge Time-out Int Control:    %X \n\r",
-		       apch79.timrtot);
-		printf(" Batt.Temp.Int.Ctrl into valid range:  %X \n\r",
-		       apch79.tempin);
-		printf(" Inp.Voltage Int.Ctrl into valid range:%X \n\r",
-		       apch79.incon);
-		printf(" Charge State Int Ctrl into EOC state: %X \n\r",
-		       apch79.chgeocin);
-		printf(" Precharge Time-out Int Ctrl:          %X \n\r",
-		       apch79.timrpre);
-		printf(" Batt.Temp.Int.Ctrl. out valid range:  %X \n\r",
-		       apch79.tempout);
-		printf(" Inp.Voltage Int.Ctrl. out valid range:%X \n\r",
-		       apch79.indis);
-		printf(" Charge State Int.Ctrl. out EOC state: %X \n\r",
-		       apch79.chgeocout);
-		printf("\n\r");
-	}
-
-	status = _act8945a_rw_register(ADD_APCH_7A,
-				       (uint8_t*)&apch7a, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		printf(" -I- APCH @0x7A: 0x%02X \n\r", *htwi.pData);
-		printf(" Bit 7-6 reserved:                     %02X \n\r",
-		       apch7a.ruf76);
-		printf(" Charge State:                         %02X ",
-		       apch7a.cstate);
-		printf(" %s \n\r", &ChargState[apch7a.cstate][0]);
-		printf(" Bit 3-2 reserved:                     %02X \n\r",
-		       apch7a.ruf32);
-		printf(" ACIN Status:                          %X \n\r",
-		       apch7a.acinstat);
-		printf(" Bit 0 reserved:                       %X \n\r",
-		       apch7a.ruf0);
-		printf("\n\r");
-	}
-	return status;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-// Display the value of the register ACT8945A
-static uint8_t _act8945a_display_syslev_failing_threshold (void)
-{
-	struct _bitfield_sys0 BitField_SYS0;
-	uint8_t status = ACT8945A_RET_OK;
-	float value;
-
-	status = _act8945a_rw_register(ADD_SYSTEM0,
-				       (uint8_t*)&BitField_SYS0, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		value = 2.3 + (BitField_SYS0.syslev*0.1);
-		printf("\n\r");
-		printf(" -I- SYSLEV Failing Treshold value:0x%02X  %.2fv \n\r",
-		       BitField_SYS0.syslev, value);
-	}
-	return status;
+		return (uint16_t)(1000 * (2.4 + (0.8 * (mul53 - 6)) + (0.1 * mul20)));
 }
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-// Configure the state (ON/OFF) of the regulator OUT1 to OUT3
-// Set bit to 1 to enable the regulator, clear bit to 0 to disable the regulator.
-// Input: VOUT base register address
-uint8_t act8945a_set_regulator_state_out1to3 (uint8_t RegVout,
-					      uint8_t on_off)
+bool act8945a_configure(struct _act8945a *act8945a, struct _twi_desc *twid)
 {
-	uint8_t status = ACT8945A_RET_OK;
-	struct _bitfield_ctrl1 ctrl1;
+	uint8_t data = 0;
 
-	if (!_is_twi_ready(&htwi)) {
-		return ACT8945A_RET_NOK;
-	}
-	if (RegVout!=V_OUT1 && RegVout!=V_OUT2 && RegVout!=V_OUT3) {
-		return ACT8945A_RET_NOK;
-	}
+	act8945a->twid = twid;
+	twid_configure(twid);
 
-	//enable/disable output
-	status = _act8945a_rw_register(RegVout+1,
-				       (uint8_t*)&ctrl1, TWI_RD);
-	if (status) return status;
-	ctrl1.on = (on_off)? 1:0 ;
-	return status = _act8945a_rw_register(RegVout+1,
-					      (uint8_t*)&ctrl1,
-					      TWI_WR);
+	pio_configure(&act8945a->desc.pin_chglev, 1);
+	pio_configure(&act8945a->desc.pin_irq, 1);
+	pio_configure(&act8945a->desc.pin_lbo, 1);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &data))
+		return false;
+
+	/* Set Charge Level */
+	act8945a_set_charge_level(act8945a, ACT8945A_CHARGE_LEVEL_450MA);
+
+	/* Set level interrupt */
+	act8945a_disable_all_apch_interrupts(act8945a);
+	act8945a_enable_apch_interrupt(act8945a, CHARGE_STATE_INTO_EOC_STATE, true);
+	act8945a_enable_apch_interrupt(act8945a, CHARGE_STATE_OUT_EOC_STATE, true);
+	act8945a_enable_apch_interrupt(act8945a, PRECHARGE_TIME_OUT, true);
+	act8945a_enable_apch_interrupt(act8945a, TOTAL_CHARGE_TIME_OUT, true);
+	act8945a_enable_system_voltage_level_interrupt(act8945a, true);
+
+	/* Update cached register values */
+	if (!_act8945a_update_cached_registers(act8945a))
+		return false;
+	act8945a->lbo_count = 0;
+
+	/* Enable interrupts */
+	_act8945a_enable_interrupt_handlers(act8945a);
+
+	return true;
 }
 
-// Configure the state (ON/OFF) of the regulator OUT4 to OUT7
-// Input: VOUT base register address
-uint8_t act8945a_set_regulator_state_out4to7 (uint8_t RegVout, uint8_t on_off)
+// Charge Current Selection Input
+// In USB-Mode: CHGLEV = 1 -> I charge 450mA
+//              CHGLEV = 0 -> I charge 100mA
+void act8945a_set_charge_level(struct _act8945a *act8945a,
+		enum _act8945a_charge_level level)
 {
-	uint8_t status = ACT8945A_RET_OK;
-	struct _bitfield_ctrl2 BitField_Ctrl2;
-
-	if (!_is_twi_ready(&htwi)) {
-		return ACT8945A_RET_NOK;
-	}
-
-	if (RegVout!=V_OUT4 && RegVout!=V_OUT5
-	    && RegVout!=V_OUT6 && RegVout!=V_OUT7) {
-		return ACT8945A_RET_NOK;
-	}
-
-	//enable/disable output
-	status = _act8945a_rw_register(RegVout+1,
-				       (uint8_t*)&BitField_Ctrl2, TWI_RD);
-	if (status) return status;
-	BitField_Ctrl2.on = (on_off)? 1:0 ;
-	return status = _act8945a_rw_register(RegVout+1,
-					      (uint8_t*)&BitField_Ctrl2, TWI_WR);
-}
-
-// Set the ouptut value of the regulator OUT4 to OUT7
-// Input: Vout: Value in mv
-//      : RegVout base register address
-uint8_t act8945a_set_regulator_voltage_out4to7 (uint8_t RegVout, uint16_t VOut)
-{
-	uint8_t data, RegSet;
-
-	if (!_is_twi_ready(&htwi)) {
-		return ACT8945A_RET_NOK;
-	}
-	if (VOut>3900) {
-		return ACT8945A_RET_NOK;
-	}
-	if (RegVout!=V_OUT4 && RegVout!=V_OUT5
-	    && RegVout!=V_OUT6 && RegVout!=V_OUT7) {
-		return ACT8945A_RET_NOK;
-	}
-
-	if (VOut<600) {
-		VOut = 600; // Min 0.6v
-	}
-
-	if (VOut<1200) {
-		RegSet = (VOut-600)/25;
-	} else if (VOut>=1200 && VOut<2400) {
-		RegSet = 0x18+((VOut-1200)/50);
-	} else if (VOut>=2400 && VOut<=3900) {
-		RegSet = 0x30+((VOut-2400)/100);
-	} else {
-		return ACT8945A_RET_NOK;
-	}
-
-	//Set Output Voltage Selection
-	data = (RegSet&0x3F); // Bit[7:6] reserved
-	return _act8945a_rw_register (RegVout, &data, TWI_WR);
-}
-
-// System Voltage Level Interrupt Mask. SYSLEV interrupt is masked by default,
-// set to 1 to unmask this interrupt.
-uint8_t act8945a_set_system_voltage_level_interrupt (uint8_t on_off)
-{
-	struct _bitfield_sys0 BitField_SYS0;
-	uint8_t status = ACT8945A_RET_OK;
-
-	if (!_is_twi_ready(&htwi))
-		return ACT8945A_RET_NOK;
-
-	status = _act8945a_rw_register(ADD_SYSTEM0,
-				       (uint8_t*)&BitField_SYS0, TWI_RD);
-	if (status) {
-		_act8945a_twi_error();
-	} else {
-		BitField_SYS0.nsyslevmsk = on_off;
-		status = _act8945a_rw_register(ADD_SYSTEM0,
-					       (uint8_t*)&BitField_SYS0,
-					       TWI_WR);
-	}
-	return status;
-}
-
-// Regulator Fault Mask Control.
-// Set bit to 1 enable fault-interrupts, clear bit to 0 to disable fault-interrupts
-// Input: VOUT base register address
-uint8_t act8945a_set_regulator_fault_interrupt (uint8_t RegVout, uint8_t on_off)
-{
-	uint8_t status = ACT8945A_RET_OK;
-	struct _bitfield_ctrl1 ctrl1;
-	struct _bitfield_ctrl2 BitField_Ctrl2;
-
-	if (!_is_twi_ready(&htwi))
-		return ACT8945A_RET_NOK;
-
-	switch (RegVout)
-	{
-	case V_OUT1:
-	case V_OUT2:
-	case V_OUT3:
-		status = _act8945a_rw_register(RegVout+1,
-					       (uint8_t*)&ctrl1,
-					       TWI_RD);
-		if (status) return ACT8945A_RET_NOK;
-		ctrl1.nfltmsk = (on_off)? 1:0 ;
-		status = _act8945a_rw_register(RegVout+1,
-					       (uint8_t*)&ctrl1,
-					       TWI_WR);
+	switch (level) {
+	case ACT8945A_CHARGE_LEVEL_100MA:
+		pio_clear(&act8945a->desc.pin_chglev);
+		trace_debug("Charge Level: 100mA\r\n");
 		break;
-
-	case V_OUT4:
-	case V_OUT5:
-	case V_OUT6:
-	case V_OUT7:
-		status = _act8945a_rw_register(RegVout+1,
-					       (uint8_t*)&BitField_Ctrl2,
-					       TWI_RD);
-		if (status) return ACT8945A_RET_NOK;
-		BitField_Ctrl2.nfltmsk = (on_off)? 1:0 ;
-		status = _act8945a_rw_register(RegVout+1,
-					       (uint8_t*)&BitField_Ctrl2,
-					       TWI_WR);
+	case ACT8945A_CHARGE_LEVEL_450MA:
+		pio_set(&act8945a->desc.pin_chglev);
+		trace_debug("Charge Level: 450mA\r\n");
 		break;
-
 	default:
+		trace_warning("Invalid charge level requested: %d\r\n",
+				(int)level)
 		break;
 	}
-	return status;
 }
 
 // Set or Clear an APCH interrupt
 // Set bit to 1 enable interrupt,
 // Clear bit to 0 to disable interrupt
-uint8_t act8945a_set_apch_interrupt (enum _it_apch IntType, uint8_t on_off)
+bool act8945a_enable_apch_interrupt(struct _act8945a *act8945a,
+		enum _act8945a_interrupt interrupt, bool enable)
 {
-	uint8_t status = ACT8945A_RET_OK;
-	struct _bitfield_apch78 apch78;
-	struct _bitfield_apch79 apch79;
+	union _apch_78 apch78;
+	union _apch_79 apch79;
 
-	if (!_is_twi_ready(&htwi))
-		return ACT8945A_RET_NOK;
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_78, &apch78.u8) ||
+		!_act8945a_read_reg(act8945a, IADDR_APCH_79, &apch79.u8))
+		return false;
 
-	status = _act8945a_rw_register(ADD_APCH_78,
-				       (uint8_t*)&apch78, TWI_RD);
-	status = _act8945a_rw_register(ADD_APCH_79,
-				       (uint8_t*)&apch79, TWI_RD);
-
-	switch (IntType)
+	switch (interrupt)
 	{
 	// Interrupt generated any time the input supply is disconnected when
 	// INSTAT[] bit is set to 1 and the INDIS[] bit is set to 1.
-	case INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL: // Interrupt
-		apch78.instat = (on_off)? 1:0 ;
-		apch79.indis = (on_off)? 1:0 ;
+	case INPUT_VOLTAGE_OUT_VALID_RANGE: // Interrupt
+		apch78.bits.instat = enable ? 1 : 0;
+		apch79.bits.indis = enable ? 1 : 0;
 		break;
 
 	// Interrupt generated any time the input supply is connected when
 	// INSTAT[] bit is set to 1 and the INCON[] bit is set to 1.
-	case INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL:
-		apch78.instat = (on_off)? 1:0 ;
-		apch79.incon = (on_off)? 1:0 ;
+	case INPUT_VOLTAGE_INTO_VALID_RANGE:
+		apch78.bits.instat = enable ? 1 : 0;
+		apch79.bits.incon = enable ? 1 : 0;
 		break;
 
 	// Interrupts based upon the status of the battery temperature.
 	// Set the TEMPOUT[] bit to 1 and TEMPSTAT[] bit to 1 to generate
 	// an interrupt when battery temperature goes out of the valid
 	// temperature range.
-	case BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL:
-		apch78.tempstat = (on_off)? 1:0 ;
-		apch79.tempout = (on_off)? 1:0 ;
+	case BATTERY_TEMPERATURE_OUT_RANGE:
+		apch78.bits.tempstat = enable ? 1 : 0;
+		apch79.bits.tempout = enable ? 1 : 0;
 		break;
 
 	// Interrupts based upon the status of the battery temperature.
 	// Set the TEMPIN[] bit to 1 and TEMPSTAT[] bit to 1 to generate
 	// an interrupt when battery temperature returns to the valid range.
-	case BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL:
-		apch78.tempstat = (on_off)? 1:0 ;
-		apch79.tempin = (on_off)? 1:0 ;
+	case BATTERY_TEMPERATURE_INTO_RANGE:
+		apch78.bits.tempstat = enable ? 1 : 0;
+		apch79.bits.tempin = enable ? 1 : 0;
 		break;
 
 	// Interrupt when the charger state machine goes into the
 	// END-OF-CHARGE (EOC). Set CHGEOCIN[] bit to 1 and CHGSTAT[] bit
 	// to 1 to generate an interrupt when the charger state machine goes
 	// into the END-OF-CHARGE (EOC)state.
-	case CHARGE_STATE_INTO_EOC_STATE_INT_CTRL:
-		apch78.chgstat = (on_off)? 1:0 ;
-		apch79.chgeocin = (on_off)? 1:0 ;
+	case CHARGE_STATE_INTO_EOC_STATE:
+		apch78.bits.chgstat = enable ? 1 : 0;
+		apch79.bits.chgeocin = enable ? 1 : 0;
 		break;
 
 	// Interrupt when the charger state machine exit the
 	// END-OF-CHARGE (EOC). Set CHGEOCOUT[] bit to 1 and CHGSTAT[] bit
 	// to 1 to generate an interrupt when the charger state machine exits
 	// the EOC state.
-	case CHARGE_STATE_OUT_EOC_STATE_INT_CTRL:
-		apch78.chgstat = (on_off)? 1:0 ;
-		apch79.chgeocout = (on_off)? 1:0 ;
+	case CHARGE_STATE_OUT_EOC_STATE:
+		apch78.bits.chgstat = enable ? 1 : 0;
+		apch79.bits.chgeocout = enable ? 1 : 0;
 		break;
 
 	// Interrupts based upon the status of the charge timers.
 	// Set the TIMRPRE[] bit to 1 and TIMRSTAT[] bit to 1 to generate an
 	// interrupt when the Precondition Timer expires.
-	case PRECHARGE_TIME_OUT_INT_CTRL:
-		apch78.timrstat = (on_off)? 1:0 ;
-		apch79.timrpre = (on_off)? 1:0 ;
+	case PRECHARGE_TIME_OUT:
+		apch78.bits.timrstat = enable ? 1 : 0;
+		apch79.bits.timrpre = enable ? 1 : 0;
 		break;
 
 	// Set the TIMRTOT[] bit to 1 and TIMRSTAT[] bit to 1 to generate an
 	// interrupt when the Total-Charge Timer expires.
-	case TOTAL_CHARGE_TIME_OUT_INT_CTRL:
-		apch78.timrstat = (on_off)? 1:0 ;
-		apch79.timrtot = (on_off)? 1:0 ;
+	case TOTAL_CHARGE_TIME_OUT:
+		apch78.bits.timrstat = enable ? 1 : 0;
+		apch79.bits.timrtot = enable ? 1 : 0;
 		break;
 
 	default:
-		break;
+		trace_warning("Unknown interrupt %d\r\n", interrupt);
+		return false;
 	}
 
 	// Write configuration to registers
-	status = _act8945a_rw_register(ADD_APCH_78,
-				       (uint8_t*)&apch78, TWI_WR);
-	status |= _act8945a_rw_register(ADD_APCH_79,
-					(uint8_t*)&apch79, TWI_WR);
-	return status;
+	return _act8945a_write_reg(act8945a, IADDR_APCH_78, apch78.u8) &&
+		_act8945a_write_reg(act8945a, IADDR_APCH_79, apch79.u8);
 }
 
 // Disable all interrupt from APCH
-uint8_t act8945a_disable_all_APCH_interrupt (void)
+bool act8945a_disable_all_apch_interrupts(struct _act8945a *act8945a)
 {
-	uint8_t status = ACT8945A_RET_OK;
-
-	if (!_is_twi_ready(&htwi))
-		return ACT8945A_RET_NOK;
-
-	status |= act8945a_set_apch_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(INPUT_VOLTAGE_OUT_VALID_RANGE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(BATTERY_TEMPERATURE_OUT_RANGE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(INPUT_VOLTAGE_INTO_VALID_RANGE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(BATTERY_TEMPERATURE_INTO_RANGE_INT_CTRL, ACT8945A_SET_OFF);
-	status |= act8945a_set_apch_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_OFF);
-	return status;
+	return act8945a_enable_apch_interrupt(act8945a, CHARGE_STATE_OUT_EOC_STATE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, INPUT_VOLTAGE_OUT_VALID_RANGE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, BATTERY_TEMPERATURE_OUT_RANGE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, PRECHARGE_TIME_OUT, false) &&
+		act8945a_enable_apch_interrupt(act8945a, CHARGE_STATE_INTO_EOC_STATE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, INPUT_VOLTAGE_INTO_VALID_RANGE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, BATTERY_TEMPERATURE_INTO_RANGE, false) &&
+		act8945a_enable_apch_interrupt(act8945a, TOTAL_CHARGE_TIME_OUT, false);
 }
 
-// Set the Programmable System Voltage Monitor
-// Input: Value in mv from 2300mv to 3800mv
-uint8_t act8945a_set_system_voltage_level (uint16_t value)
+extern bool act8945a_set_system_voltage_detect_threshold(struct _act8945a *act8945a,
+		uint16_t threshold)
 {
-	struct _bitfield_sys0 BitField_SYS0;
-	uint8_t status = ACT8945A_RET_OK;
+	union _sys0 sys0;
 
-	if (value<2300 || value>3800)
-		return ACT8945A_RET_NOK;
+	if (threshold < 2300 || threshold > 3800)
+		return false;
 
-	status = _act8945a_rw_register(ADD_SYSTEM0,
-				       (uint8_t*)&BitField_SYS0, TWI_RD);
-	if (status) _act8945a_twi_error();
-	else
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
+		return false;
+
+	sys0.bits.syslev = (threshold - 2300) / 100;
+
+	return _act8945a_write_reg(act8945a, IADDR_SYS0, sys0.u8);
+}
+
+bool act8945a_enable_system_voltage_level_interrupt(struct _act8945a *act8945a,
+		bool enable)
+{
+	union _sys0 sys0;
+
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
+		return false;
+
+	sys0.bits.nsyslevmsk = enable ? 1 : 0;
+
+	return _act8945a_write_reg(act8945a, IADDR_SYS0, sys0.u8);
+}
+
+bool act8945a_set_regulator_voltage(struct _act8945a *act8945a,
+		uint8_t reg, uint16_t vout)
+{
+	// minimum is 600mV
+	if (vout < 600) {
+		trace_warning("Cannot set regulator %d voltage to %dmV, using 600mV instead\r\n", reg, vout);
+		vout = 600;
+	}
+
+	// maximum is 3900mV
+	if (vout > 3900) {
+		trace_warning("Cannot set regulator %d voltage to %dmV, using 3900mV instead\r\n", reg, vout);
+		vout = 3900;
+	}
+
+	// can only set voltage for regulators 4 to 7
+	if (reg < 4 || reg > 7) {
+		trace_error("Cannot change voltage of regulator %d\r\n", reg);
+		return false;
+	};
+
+	uint8_t value = 0;
+	if (vout < 1200) {
+		value = (vout - 600) / 25;
+	} else if (vout < 2400) {
+		value = 0x18 + (vout - 1200) / 50;
+	} else if (vout <= 3900) {
+		value = 0x30 + (vout - 2400) / 100;
+	}
+
+	uint32_t iaddr = _iaddr_reg[reg - 1];
+	return _act8945a_write_reg(act8945a, iaddr, value & 0x3f);
+}
+
+bool act8945a_enable_regulator(struct _act8945a *act8945a,
+		uint8_t reg, bool enable)
+{
+	if (reg >= 1 && reg <= 3) {
+		union _ctrl1 ctrl1;
+		uint32_t iaddr = _iaddr_reg[reg - 1] + 1;
+
+		if (!_act8945a_read_reg(act8945a, iaddr, &ctrl1.u8))
+			return false;
+
+		ctrl1.bits.on = enable ? 1 : 0;
+
+		if (!_act8945a_write_reg(act8945a, iaddr, ctrl1.u8))
+			return false;
+	} else if (reg >= 4 && reg <= 7) {
+		union _ctrl2 ctrl2;
+		uint32_t iaddr = _iaddr_reg[reg - 1] + 1;
+
+		if (!_act8945a_read_reg(act8945a, iaddr, &ctrl2.u8))
+			return false;
+
+		ctrl2.bits.on = enable ? 1 : 0;
+
+		if (!_act8945a_write_reg(act8945a, iaddr, ctrl2.u8))
+			return false;
+	} else {
+		trace_error("Invalid regulator number %d\r\n", reg);
+		return false;
+	}
+
+	return true;
+}
+
+bool act8945a_enable_regulator_fault_interrupt(struct _act8945a *act8945a,
+		uint8_t reg, bool enable)
+{
+	if (reg >= 1 && reg <= 3) {
+		union _ctrl1 ctrl1;
+		uint32_t iaddr = _iaddr_reg[reg - 1] + 1;
+
+		if (!_act8945a_read_reg(act8945a, iaddr, &ctrl1.u8))
+			return false;
+
+		ctrl1.bits.nfltmsk = enable ? 1 : 0;
+
+		if (!_act8945a_write_reg(act8945a, iaddr, ctrl1.u8))
+			return false;
+	} else if (reg >= 4 && reg <= 7) {
+		union _ctrl2 ctrl2;
+		uint32_t iaddr = _iaddr_reg[reg - 1] + 1;
+
+		if (!_act8945a_read_reg(act8945a, iaddr, &ctrl2.u8))
+			return false;
+
+		ctrl2.bits.nfltmsk = enable ? 1 : 0;
+
+		if (!_act8945a_write_reg(act8945a, iaddr, ctrl2.u8))
+			return false;
+	} else {
+		trace_error("Invalid regulator number %d\r\n", reg);
+		return false;
+	}
+
+	return true;
+}
+
+extern bool act8945a_get_lbo_pin_state(struct _act8945a *act8945a)
+{
+	return pio_get(&act8945a->desc.pin_lbo) ? true : false;
+}
+
+extern void act8945a_display_voltage_settings(struct _act8945a *act8945a)
+{
+	int reg;
+
+	trace_info_wp("-- ACT8945A - Voltage Settings & State --\r\n");
+
+	for (reg = 0; reg < NUM_REGULATORS; reg++)
 	{
-		BitField_SYS0.syslev = (value-2300)/100;
-		status =  _act8945a_rw_register(ADD_SYSTEM0,
-						(uint8_t*)&BitField_SYS0, TWI_WR);
+		uint8_t setting, ctrl;
+		uint16_t u;
 
-		_act8945a_display_syslev_failing_threshold();
-	}
-	return status;
-}
+		if (!_act8945a_read_reg(act8945a, _iaddr_reg[reg], &setting))
+			return;
 
-// Charge Current Selection Input
-// In USB-Mode: CHGLEV = 1 -> I charge 450mA
-//               CHGLEV = 0 -> I charge 1000mA
-uint8_t act8945a_set_state_chglev_pin(enum _pwr_usb_mode State)
-{
-	if (State == ACT8945A_USB_MODE_100mA) {
-		pio_clear(&pins_chglev_act8945a[0]);
-		printf(" Charge Level: 100mA \n\r");
-	}
-	else {
-		pio_set(&pins_chglev_act8945a[0]);
-		printf(" Charge Level: 450mA \n\r");
-	}
-	return 0;
-}
+		if (!_act8945a_read_reg(act8945a, _iaddr_reg[reg] + 1, &ctrl))
+			return;
 
-// Low Battery Indicator Output. nLBO is asserted low whenever the voltage
-// at LBI is lower than 1.2V,
-uint8_t act8945a_get_state_lbo_pin(void)
-{
-	return pio_get(&pins_lbo_act8945a[0]);
-}
-
-// Init TWI interface
-uint8_t act8945a_begin (void)
-{
-	uint8_t data = 0;
-	uint8_t status = ACT8945A_RET_OK;
-
-	if (!_is_twi_ready(&htwi))
-	{
-		memset ((void*)&htwi, 0x00, sizeof(htwi));
-		pio_configure(pins_chglev_act8945a,
-			      ARRAY_SIZE(pins_chglev_act8945a));
-		pio_configure(pins_irq_act8945a, ARRAY_SIZE(pins_irq_act8945a));
-		pio_configure(pins_lbo_act8945a, ARRAY_SIZE(pins_lbo_act8945a));
-
-		// Set TWI interface
-		memset ((uint8_t*)&htwi, 0x00, sizeof(htwi));
-		htwi.IdTwi = ACT8945A_TWI_ID;
-		htwi.Twck = TWCK_400K;
-		htwi.PeriphAddr = ACT8945A_ADDRESS;
-		printf("act8945A @0x%02X TWCK:%dKHz \n\r",
-		       (unsigned int)htwi.PeriphAddr,
-		       (unsigned int)htwi.Twck/1000);
-		status = _twi_handler_init (&htwi);
-		htwi.AddSize = 1;
-		htwi.pData = &data;
-		htwi.LenData = 1;
-		htwi.Status |= TWI_STATUS_READY;
-	}
-	_act8945a_rw_register (ADD_SYSTEM0, htwi.pData, TWI_RD);
-	if (!data) return status = ACT8945A_RET_NOK;
-	else {
-		/* Set Charge Level */
-		act8945a_set_state_chglev_pin(ACT8945A_USB_MODE_450mA);
-
-		/* Set level interrupt */
-		act8945a_disable_all_APCH_interrupt();
-		act8945a_set_apch_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_SET_ON);
-		act8945a_set_apch_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_SET_ON);
-		act8945a_set_apch_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_ON);
-		act8945a_set_apch_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_ON);
-		act8945a_set_system_voltage_level_interrupt(ACT8945A_SET_ON);
-
-		act8945a_set_system_voltage_level_interrupt(ACT8945A_SET_ON);
-
-		/* Update register status for interrupt state*/
-		_act8945a_rw_register (ADD_SYSTEM0, &sbf.syst00, TWI_RD);
-		_act8945a_rw_register (ADD_APCH_78, &sbf.apch78, TWI_RD);
-		_act8945a_rw_register (ADD_APCH_79, &sbf.apch79, TWI_RD);
-		_act8945a_rw_register (ADD_APCH_7A, &sbf.apch7A, TWI_RD);
-		sbf.count_lbo = 0;
-
-		/* Finally activ interrupt */
-		act8945a_active_interrupt_handler();
-		status = ACT8945A_RET_OK;
-	}
-	return status;
-}
-
-// Config interrupt on nIRQ pin to MPU
-void act8945a_active_interrupt_handler (void)
-{
-	if (!init_interrupt_done) {
-		/* Configure PMIC line interrupts. */
-		pio_configure_it(&pins_irq_act8945a[0]);
-		pio_add_handler_to_group(pins_irq_act8945a[0].group,
-					 pins_irq_act8945a[0].mask,
-					 act8945a_irq_handler,
-					 NULL);
-		pio_enable_it(&pins_irq_act8945a[0]);
-
-		/* Configure PMIC LBO line interrupts. */
-		sbf.count_lbo = 0;
-		pio_configure_it(&pins_lbo_act8945a[0]);
-		pio_add_handler_to_group(pins_lbo_act8945a[0].group,
-					 pins_lbo_act8945a[0].mask,
-					 act8945a_lbo_handler,
-					 NULL);
-		pio_enable_it(&pins_lbo_act8945a[0]);
-
-		init_interrupt_done = 1;
-	}
-}
-
-void test_out6 (void)
-{
-	uint16_t x;
-
-	// Change step by step (25mv) the output voltage OUT6 from 0.6v to max.
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
-	for (x=500; x<3300; x+=25)
-	{
-		act8945a_set_regulator_voltage_out4to7 (V_OUT6, x);
-		_act8945a_delay_ms(10);
-	}
-	act8945a_set_regulator_voltage_out4to7 (V_OUT6, 600);
-	act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_OFF);
-}
-
-uint8_t act8945a_test (void)
-{
-	uint8_t status = ACT8945A_RET_OK;
-
-	if (!_is_twi_ready(&htwi)) {
-		printf(" ACT8945A Reset State \n\r");
-		status = act8945a_begin();
-		if (status != ACT8945A_RET_OK)
-		{
-			_act8945a_twi_error();
-			return status;
+		u = _act8945a_convert_voltage_setting(setting);
+		trace_info_wp(" - VOUT_%d (0x%02x) = %dmV", reg + 1, ctrl, u);
+		if (reg <= 3) {
+			union _ctrl1 *ctrl1 = (union _ctrl1*)&ctrl;
+			trace_info_wp(" %s", ctrl1->bits.on ? "on" : "off");
+			trace_info_wp(" %s", ctrl1->bits.phase ? "180" : "osc");
+			trace_info_wp(" %s", ctrl1->bits.mode ? "pwm" : "pow-saving");
+			trace_info_wp(" delay:0x%02x", ctrl1->bits.delay);
+			trace_info_wp(" %s", ctrl1->bits.nfltmsk ? "en" : "dis");
+			trace_info_wp(" %s", ctrl1->bits.ok ? "OK" : "<tresh");
+		} else {
+			union _ctrl2 *ctrl2 = (union _ctrl2*)&ctrl;
+			trace_info_wp(" %s", ctrl2->bits.on ? "on": "off");
+			trace_info_wp(" %s", ctrl2->bits.dis ? "off" : "on");
+			trace_info_wp(" %s", ctrl2->bits.lowiq ? "normal" : "low-power");
+			trace_info_wp(" delay:0x%02x", ctrl2->bits.delay);
+			trace_info_wp(" %s", ctrl2->bits.nfltmsk ? "en" : "dis");
+			trace_info_wp(" %s", ctrl2->bits.ok ? "OK" : "<tresh");
 		}
+		trace_info_wp("\r\n");
 	}
-	// Dump registers and display
-	_act8945a_registers_dump();
-	_act8945a_registers_dump_APCH();
-	_act8945a_display_active_path_charger();
-	act8945a_display_voltage_setting();
-	act8945a_set_system_voltage_level(3100);
-	_act8945a_display_system_setting();
 
-	status = act8945a_set_system_voltage_level_interrupt(ACT8945A_SET_OFF);
-	status = act8945a_disable_all_APCH_interrupt();
+	union _sys0 sys0;
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
+		return;
+	trace_info_wp(" - SYSLEV Failing Treshold (0x%02x) = %dV\r\n", sys0.u8,
+			2300 + sys0.bits.syslev * 100);
+}
 
-	act8945a_set_apch_interrupt(CHARGE_STATE_INTO_EOC_STATE_INT_CTRL, ACT8945A_SET_ON);
-	act8945a_set_apch_interrupt(CHARGE_STATE_OUT_EOC_STATE_INT_CTRL, ACT8945A_SET_ON);
-	act8945a_set_apch_interrupt(PRECHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_ON);
-	act8945a_set_apch_interrupt(TOTAL_CHARGE_TIME_OUT_INT_CTRL, ACT8945A_SET_ON);
+void act8945a_dump_registers(struct _act8945a *act8945a)
+{
+	int reg;
+	trace_info_wp("-- ACT8945A - Registers Dump --\r\n");
+	for (reg = 0; reg < ARRAY_SIZE(_regs); reg++) {
+		uint8_t data;
+		if (!_act8945a_read_reg(act8945a, _regs[reg].iaddr, &data))
+			return;
+		trace_info_wp(" - %s: 0x%02x\r\n", _regs[reg].name, data);
+	}
+}
 
-	status = act8945a_set_system_voltage_level_interrupt(ACT8945A_SET_ON);
+void act8945a_display_apch_registers(struct _act8945a *act8945a)
+{
+	uint8_t data;
+	union _apch_71 apch71;
+	union _apch_78 apch78;
+	union _apch_79 apch79;
+	union _apch_7a apch7a;
 
-	act8945a_active_interrupt_handler();
-	return status;
+	trace_info_wp("-- ACT8945A - APCH Registers --\r\n");
+
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_70, &data))
+		return;
+	trace_info_wp(" - APCH @0x70: 0x%02x (reserved)\r\n", data);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_71, &apch71.u8))
+		return;
+	trace_info_wp(" - APCH @0x71: 0x%02x\r\n", apch71.u8);
+	trace_info_wp("     Charge Suspend Control Input:          %x\r\n",
+			apch71.bits.suschg);
+	trace_info_wp("     Total Charge Time-out Selection:       %x\r\n",
+			apch71.bits.tottimo);
+	trace_info_wp("     Precondition Charge Time-out Sel:      %x\r\n",
+			apch71.bits.pretimo);
+	trace_info_wp("     Input Over-Volt Prot.Threshold Sel:    %x (%s)\r\n",
+			apch71.bits.ovpset, _ovp_setting[apch71.bits.ovpset]);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_78, &apch78.u8))
+		return;
+	trace_info_wp(" - APCH @0x78: 0x%02x\r\n", apch78.u8);
+	trace_info_wp("     Charge Time-out Interrupt Status:      %x\r\n",
+			apch78.bits.timrstat);
+	trace_info_wp("     Battery Temperature Interrupt Status:  %x\r\n",
+			apch78.bits.tempstat);
+	trace_info_wp("     Input Voltage Interrupt Status:        %x\r\n",
+			apch78.bits.instat);
+	trace_info_wp("     Charge State Interrupt Status:         %x\r\n",
+			apch78.bits.chgstat);
+	trace_info_wp("     Charge Timer Status                    %x\r\n",
+			apch78.bits.timrdat);
+	trace_info_wp("     Temperature Status                     %x\r\n",
+			apch78.bits.tempdat);
+	trace_info_wp("     Input Voltage Status                   %x\r\n",
+			apch78.bits.indat);
+	trace_info_wp("     Charge State Machine Status            %x\r\n",
+			apch78.bits.chgdat);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_79, &apch79.u8))
+		return;
+	trace_info_wp(" - APCH @0x79: 0x%02x\r\n", apch79.u8);
+	trace_info_wp("     Total Charge Time-out Int Control:     %x\r\n",
+			apch79.bits.timrtot);
+	trace_info_wp("     Batt.Temp.Int.Ctrl into valid range:   %x\r\n",
+			apch79.bits.tempin);
+	trace_info_wp("     Inp.Voltage Int.Ctrl into valid range: %x\r\n",
+			apch79.bits.incon);
+	trace_info_wp("     Charge State Int Ctrl into EOC state:  %x\r\n",
+			apch79.bits.chgeocin);
+	trace_info_wp("     Precharge Time-out Int Ctrl:           %x\r\n",
+			apch79.bits.timrpre);
+	trace_info_wp("     Batt.Temp.Int.Ctrl. out valid range:   %x\r\n",
+			apch79.bits.tempout);
+	trace_info_wp("     Inp.Voltage Int.Ctrl. out valid range: %x\r\n",
+			apch79.bits.indis);
+	trace_info_wp("     Charge State Int.Ctrl. out EOC state:  %x\r\n",
+			apch79.bits.chgeocout);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_APCH_7A, &apch7a.u8))
+		return;
+	trace_info_wp(" - APCH @0x7a: 0x%02x\r\n", apch7a.u8);
+	trace_info_wp("     Charge State:                          %x (%s)\r\n",
+			apch7a.bits.cstate, _charging_states[apch7a.bits.cstate]);
+	trace_info_wp("     ACIN Status:                           %x\r\n",
+			apch7a.bits.acinstat);
+}
+
+void act8945a_display_system_registers(struct _act8945a *act8945a)
+{
+	union _sys0 sys0;
+	union _sys1 sys1;
+
+	trace_info_wp("-- ACT8945A - System Registers --\r\n");
+
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
+		return;
+	trace_info_wp(" - SYS0 @0x00: 0x%02x\r\n", sys0.u8);
+	trace_info_wp("     Reset Timer Setting:           %s\r\n",
+			sys0.bits.trst ? "65ms" : "260ms");
+	trace_info_wp("     SYSLEV Mode Select:            %s\r\n",
+			sys0.bits.nsysmode ?"int" : "shutdown");
+	trace_info_wp("     System Voltage Level Int.Mask: %s\r\n",
+			sys0.bits.nsyslevmsk ?"int" : "noint");
+	trace_info_wp("     System Voltage Status:         %s\r\n",
+			sys0.bits.nsysstat ? "vsys<syslev" : "vsys>syslev");
+	trace_info_wp("     SYSLEV Failing Treshold value: %dV\r\n",
+			2300 + sys0.bits.syslev * 100);
+
+	if (!_act8945a_read_reg(act8945a, IADDR_SYS1, &sys1.u8))
+		return;
+	trace_info_wp(" - SYS1 @0x01: 0x%02x\r\n", sys1.u8);
+	trace_info_wp("     Master Off Ctrl, All regul:    %s\r\n",
+			sys1.bits.mstroff ? "off" : "on");
+	trace_info_wp("     Scratchpad Bits, free user:    %x\r\n",
+			sys1.bits.scratch);
 }

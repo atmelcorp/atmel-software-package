@@ -100,26 +100,26 @@
 
 #include "board.h"
 #include "chip.h"
+#include "trace.h"
+#include "compiler.h"
 
-#include "peripherals/aic.h"
-#include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
-#include "peripherals/pio.h"
 #include "cortex-a/mmu.h"
 
-#include "misc/led.h"
-#include "power/act8945a.h"
+#include "peripherals/aic.h"
+#include "peripherals/pio.h"
+#include "peripherals/pit.h"
+#include "peripherals/pmc.h"
+#include "peripherals/tc.h"
+#include "peripherals/twid.h"
+#include "peripherals/wdt.h"
 
 #include "misc/console.h"
+#include "misc/led.h"
+
+#include "power/act8945a.h"
 
 #include <stdbool.h>
 #include <stdio.h>
-
-#include "peripherals/tc.h"
-#include "peripherals/pit.h"
-
-#include "trace.h"
-#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -137,6 +137,22 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+struct _pin act8945a_pins[] = ACT8945A_PINS;
+struct _twi_desc act8945a_twid = {
+	.addr = ACT8945A_ADDR,
+	.freq = ACT8945A_FREQ,
+	.transfert_mode = TWID_MODE_POLLING
+};
+struct _act8945a act8945a = {
+	.desc = {
+		.pin_chglev = ACT8945A_PIN_CHGLEV,
+		.pin_irq = ACT8945A_PIN_IRQ,
+		.pin_lbo = ACT8945A_PIN_LBO
+	}
+};
+#endif
 
 #ifdef PINS_PUSHBUTTONS
 /** Pushbutton \#1 pin instance. */
@@ -372,9 +388,6 @@ static void _Wait(unsigned long delay)
  */
 int main(void)
 {
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	uint8_t status;
-#endif
 	int i = 0;
 	led_status[0] = true;
 	for (i = 1; i < num_leds; ++i) {
@@ -396,12 +409,12 @@ int main(void)
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	status = act8945a_begin();
-	if(status) {
-		printf("--E-- Error init ACT8945A \n\r");
+	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
+	if (act8945a_configure(&act8945a, &act8945a_twid)) {
+		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
+		act8945a_enable_regulator(&act8945a, 6, true);
 	} else {
-		act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
-		act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
+		printf("--E-- Error initilizing ACT8945A PMIC\n\r");
 	}
 #endif
 
