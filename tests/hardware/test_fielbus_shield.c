@@ -134,8 +134,9 @@ static const struct _pin pinsCom30[] = PINS_COM3_RS485;
  *  \brief Handler for Buttons rising edge interrupt.
  *
  */
-static void external_pb1_handler(uint32_t mask, uint32_t status)
+static void external_pb1_handler(uint32_t mask, uint32_t status, void* user_arg)
 {
+	(void)user_arg;
 	if (status & ext_pb_pins[EXT_PB1].mask) {
 		if( pio_get_output_data_status(&ext_rl1_pins[0]))
 			pio_clear(&ext_rl1_pins[0]);
@@ -143,8 +144,9 @@ static void external_pb1_handler(uint32_t mask, uint32_t status)
 			pio_set(&ext_rl1_pins[0]);
 	}
 }
-static void external_pb2_handler(uint32_t mask, uint32_t status)
+static void external_pb2_handler(uint32_t mask, uint32_t status, void* user_arg)
 {
+	(void)user_arg;
 	if (status & ext_pb_pins[EXT_PB2].mask) {
 		if( pio_get_output_data_status(&ext_rl2_pins[0]))
 			pio_clear(&ext_rl2_pins[0]);
@@ -162,7 +164,8 @@ static void configure_external_buttons(void)
 	pio_configure_it(&ext_pb_pins[EXT_PB1]);
 	pio_add_handler_to_group(ext_pb_pins[EXT_PB1].group,
 				 ext_pb_pins[EXT_PB1].mask,
-				 external_pb1_handler);
+				 external_pb1_handler,
+				 NULL);
 	pio_enable_it(&ext_pb_pins[EXT_PB1]);
 
 	/* Configure pios as inputs. */
@@ -173,7 +176,8 @@ static void configure_external_buttons(void)
 	pio_configure_it(&ext_pb_pins[EXT_PB2]);
 	pio_add_handler_to_group(ext_pb_pins[EXT_PB2].group,
 				 ext_pb_pins[EXT_PB2].mask,
-				 external_pb2_handler);
+				 external_pb2_handler,
+				 NULL);
 	pio_enable_it(&ext_pb_pins[EXT_PB2]);
 
 }

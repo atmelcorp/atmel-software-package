@@ -253,12 +253,15 @@ static void _act8945a_registers_dump_APCH (void)
 /*------------------------------------------------------------------------------
  * Handler interrupt
  *----------------------------------------------------------------------------*/
-void act8945a_irq_handler (uint32_t group, uint32_t status)
+void act8945a_irq_handler (uint32_t group, uint32_t status, void* user_arg)
 {
 	struct _bitfield_sys0 syst0;
 	struct _bitfield_apch78 apch78;
 	struct _bitfield_apch79 apch79;
 	struct _bitfield_apch7a apch7a;
+
+	/* unused */
+	(void)user_arg;
 
 	if (status & pins_irq_act8945a[0].mask)	{
 
@@ -287,8 +290,11 @@ void act8945a_irq_handler (uint32_t group, uint32_t status)
 /*------------------------------------------------------------------------------
  * Handler interrupt
  *----------------------------------------------------------------------------*/
-void act8945a_lbo_handler (uint32_t group, uint32_t status)
+void act8945a_lbo_handler (uint32_t group, uint32_t status, void* user_arg)
 {
+	/* unused */
+	(void)user_arg;
+
 	if (status & pins_lbo_act8945a[0].mask) {
 		printf(" Int: Low Battery output \n\r");
 		pio_disable_it(&pins_lbo_act8945a[0]);
@@ -926,7 +932,8 @@ void act8945a_active_interrupt_handler (void)
 		pio_configure_it(&pins_irq_act8945a[0]);
 		pio_add_handler_to_group(pins_irq_act8945a[0].group,
 					 pins_irq_act8945a[0].mask,
-					 act8945a_irq_handler);
+					 act8945a_irq_handler,
+					 NULL);
 		pio_enable_it(&pins_irq_act8945a[0]);
 
 		/* Configure PMIC LBO line interrupts. */
@@ -934,7 +941,8 @@ void act8945a_active_interrupt_handler (void)
 		pio_configure_it(&pins_lbo_act8945a[0]);
 		pio_add_handler_to_group(pins_lbo_act8945a[0].group,
 					 pins_lbo_act8945a[0].mask,
-					 act8945a_lbo_handler);
+					 act8945a_lbo_handler,
+					 NULL);
 		pio_enable_it(&pins_lbo_act8945a[0]);
 
 		init_interrupt_done = 1;

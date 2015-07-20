@@ -104,6 +104,7 @@ static void _pioe_handler(void);
 struct _handler {
 	uint32_t mask;
 	pio_handler_t handler;
+	void *user_arg;
 };
 static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
@@ -129,11 +130,12 @@ static const aic_handler_t _generic_handlers[PIO_GROUP_LENGTH] = {
  *        Local functions definitions
  *----------------------------------------------------------------------------*/
 
-static void _handler_push(void (*handler)(uint32_t, uint32_t), uint32_t mask)
+static void _handler_push(void (*handler)(uint32_t, uint32_t, void*), uint32_t mask, void* user_arg)
 {
 	static int i = 0;
 	_handlers[i].mask = mask;
 	_handlers[i].handler = handler;
+	_handlers[i].user_arg = user_arg;
 	++i;
 	assert(i < ARRAY_SIZE(_handlers));
 }
@@ -145,7 +147,8 @@ static void _pioa_handler(void)
 	int i = 0;
 	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
 		if (_handlers[i].mask & status) {
-			_handlers[i].handler(PIO_GROUP_A, status);
+			_handlers[i].handler(PIO_GROUP_A, status,
+					_handlers[i].user_arg);
 		}
 	}
 }
@@ -157,7 +160,8 @@ static void _piob_handler(void)
 	int i = 0;
 	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
 		if (_handlers[i].mask & status) {
-			_handlers[i].handler(PIO_GROUP_B, status);
+			_handlers[i].handler(PIO_GROUP_B, status,
+					_handlers[i].user_arg);
 		}
 	}
 }
@@ -169,7 +173,8 @@ static void _pioc_handler(void)
 	int i = 0;
 	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
 		if (_handlers[i].mask & status) {
-			_handlers[i].handler(PIO_GROUP_C, status);
+			_handlers[i].handler(PIO_GROUP_C, status,
+					_handlers[i].user_arg);
 		}
 	}
 }
@@ -181,7 +186,8 @@ static void _piod_handler(void)
 	int i = 0;
 	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
 		if (_handlers[i].mask & status) {
-			_handlers[i].handler(PIO_GROUP_D, status);
+			_handlers[i].handler(PIO_GROUP_D, status,
+					_handlers[i].user_arg);
 		}
 	}
 }
@@ -193,7 +199,8 @@ static void _pioe_handler(void)
 	int i = 0;
 	for (i = 0; i < ARRAY_SIZE(_handlers); ++i) {
 		if (_handlers[i].mask & status) {
-			_handlers[i].handler(PIO_GROUP_E, status);
+			_handlers[i].handler(PIO_GROUP_E, status,
+					_handlers[i].user_arg);
 		}
 	}
 }
@@ -574,13 +581,13 @@ void pio_output_low(uint32_t group, uint32_t mask)
 }
 
 void pio_add_handler_to_group(uint32_t group, uint32_t mask,
-			      pio_handler_t handler)
+			      pio_handler_t handler, void* user_arg)
 {
 	assert(group < ID_PERIPH_COUNT);
 	uint32_t index = _pio_get_index(group);
 	assert(index <
 	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
-	_handler_push(handler, mask);
+	_handler_push(handler, mask, user_arg);
 	aic_set_source_vector(group,
 			      (aic_handler_t)_generic_handlers[index]);
 	aic_enable(group);

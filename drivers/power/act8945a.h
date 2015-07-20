@@ -259,8 +259,8 @@ extern void test_out6(void);
 
 extern void act8945a_active_interrupt_handler (void);
 
-extern void act8945a_lbo_handler(uint32_t group, uint32_t status);
-extern void act8945a_irq_handler(uint32_t group, uint32_t status);
+extern void act8945a_lbo_handler(uint32_t group, uint32_t status, void* user_arg);
+extern void act8945a_irq_handler(uint32_t group, uint32_t status, void* user_arg);
 
 extern void act8945a_display_voltage_setting(void);
 

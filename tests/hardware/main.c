@@ -109,9 +109,10 @@ static void process_button_evt(uint8_t bt)
  *  \brief Handler for Buttons rising edge interrupt.
  *
  */
-static void push_button_handler(uint32_t mask, uint32_t status)
+static void push_button_handler(uint32_t mask, uint32_t status, void* user_arg)
 {
 	int i = 0;
+	(void)user_arg;
 	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
@@ -136,7 +137,9 @@ static void configure_buttons(void)
 		/* Initialize pios interrupt with its handlers */
 		pio_configure_it(&button_pins[i]);
 		pio_add_handler_to_group(button_pins[i].group,
-					 button_pins[i].mask, push_button_handler);
+					 button_pins[i].mask,
+					 push_button_handler,
+					 NULL);
 		pio_enable_it(button_pins);
 	}
 }
@@ -181,9 +184,10 @@ static void configure_tc(void)
 /**
  *  Interrupt handler VBUS pin.
  */
-static void vbus_change_handler(uint32_t mask, uint32_t status)
+static void vbus_change_handler(uint32_t mask, uint32_t status, void* user_arg)
 {
 	uint8_t state = pio_get(&vbus_pin[0]);
+	(void)user_arg;
 	printf("Switching power USB mode:%1x \n\r", state);
 }
 
@@ -198,7 +202,8 @@ static void configure_pin_vbus_state(void)
 	pio_set_debounce_filter(&vbus_pin[0], 10);
 
 	pio_configure_it(&vbus_pin[0]);
-	pio_add_handler_to_group(vbus_pin[0].group, vbus_pin[0].mask, vbus_change_handler);
+	pio_add_handler_to_group(vbus_pin[0].group, vbus_pin[0].mask,
+			vbus_change_handler, NULL);
 	pio_enable_it(&vbus_pin[0]);
 }
 
