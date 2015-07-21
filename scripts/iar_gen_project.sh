@@ -5,6 +5,7 @@ TEMPLATE_FILE=$2
 LINKER_SCRIPT=$3
 BINARY_NAME=$3
 SERIENAME=$3
+VERSION=$3
 
 if [ -z $SECTION ]
 then
@@ -190,6 +191,10 @@ function _finalize() {
     sed -e "s/\(__REPLACE_DEP_LIST__\|__REPLACE_PROJECT_FILES__\)//g" < $TEMPLATE_FILE
 }
 
+function _version() {
+    sed -e "s/__REPLACE_VERSION__/$VERSION/g" < $TEMPLATE_FILE
+}
+
 case $SECTION in
     "drivers" | "target" | "utils")
 	_insert_deps $SECTION
@@ -211,5 +216,8 @@ case $SECTION in
 	;;
     "finalize")
 	_finalize
+	;;
+    "version")
+	_version
 	;;
 esac

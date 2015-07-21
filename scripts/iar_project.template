@@ -169,7 +169,7 @@
         <option>
           <name>CCDefines</name>
 	  __REPLACE_DEFINES__
-          <state>sram	</state>
+	  <state>SOFTPACK_VERSION="__REPLACE_VERSION__"</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
