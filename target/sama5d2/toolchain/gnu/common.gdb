@@ -13,6 +13,9 @@ define reset_peripherals
   # Reset peripherals (using RSTC_CR)
   set *0xF8048000 = 0xA5000004
 
+  # Reset L2 Cache controller
+  set *0x00A00100 = 0x0
+
   # Disable Watchdog (using WDT_MR)
   set *0xF8048044 = 0x00008000
 

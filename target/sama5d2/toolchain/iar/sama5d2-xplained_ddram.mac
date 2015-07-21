@@ -489,6 +489,10 @@ execUserPreload()
 	/* Disable D-Cache, I-Cache and MMU */
 	__jtagCP15WriteReg(1, 0, 0, 0, 0x00C50078);
 
+	/* Reset L2 Cache controller */
+	__writeMemory32(0x0, 0x00A00100, "Memory");
+
+
 	initialize_clocks();
 
 	initialize_ddr();

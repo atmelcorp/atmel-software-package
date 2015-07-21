@@ -14,6 +14,9 @@ execUserReset()
     /* Disable D-Cache, I-Cache and MMU */
     __jtagCP15WriteReg(1, 0, 0, 0, 0x00C50078);
 
+    /* Reset L2 Cache controller */
+    __writeMemory32(0x0, 0x00A00100, "Memory");
+
     /* Disable DDR clock and MPDDRC controller to avoid */
     /* corrupted RAM data on soft reset. */
     __writeMemory32(0x00000004, 0xF0014004, "Memory");
