@@ -37,6 +37,7 @@
 #include "peripherals/spi.h"
 #include "peripherals/xdmac.h"
 #include "peripherals/xdmad.h"
+#include "peripherals/l2cc.h"
 
 #include "cortex-a/cp15.h"
 
@@ -61,8 +62,7 @@ static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 	xdmad_free_channel(channel);
 
 	if (spid->region_start && spid->region_end) {
-		cp15_invalidate_dcache_for_dma(spid->region_start,
-					       spid->region_end);
+		l2cc_invalidate_region(spid->region_start, spid->region_end);
 	}
 
 	if (spid && spid->callback)
@@ -204,7 +204,7 @@ static void _spid_dma_write(const struct _spi_desc* desc,
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cp15_coherent_dcache_for_dma(desc->region_start, desc->region_end);
+	l2cc_cache_maintenance(L2CC_DCACHE_CLEAN);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -236,8 +236,6 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
-
-	cp15_invalidate_dcache_for_dma(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);

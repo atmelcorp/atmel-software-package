@@ -37,6 +37,7 @@
 #include "peripherals/usart.h"
 #include "peripherals/xdmac.h"
 #include "peripherals/xdmad.h"
+#include "peripherals/l2cc.h"
 
 #include "cortex-a/cp15.h"
 
@@ -59,8 +60,8 @@ static void _usartd_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 	xdmad_free_channel(channel);
 
 	if (usartd->region_start && usartd->region_end) {
-		cp15_invalidate_dcache_for_dma(usartd->region_start,
-					       usartd->region_end);
+		l2cc_invalidate_region(usartd->region_start,
+				       usartd->region_end);
 	}
 
 	if (usartd && usartd->callback)
@@ -112,8 +113,6 @@ static void _usartd_dma_read(const struct _usart_desc* desc,
 	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cp15_invalidate_dcache_for_dma(desc->region_start, desc->region_end);
-
 	xdmad_start_transfer(channel);
 }
 
@@ -162,7 +161,7 @@ static void _usartd_dma_write(const struct _usart_desc* desc,
 	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cp15_coherent_dcache_for_dma(desc->region_start, desc->region_end);
+	l2cc_cache_maintenance(L2CC_DCACHE_CLEAN);
 
 	xdmad_start_transfer(channel);
 }

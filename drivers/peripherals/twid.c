@@ -35,6 +35,7 @@
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
 #include "peripherals/xdmad.h"
+#include "peripherals/l2cc.h"
 
 #include "cortex-a/cp15.h"
 
@@ -71,8 +72,7 @@ static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 	xdmad_free_channel(channel);
 
 	if (twid->region_start && twid->region_end) {
-		cp15_invalidate_dcache_for_dma(twid->region_start,
-					       twid->region_end);
+		l2cc_invalidate_region(twid->region_start, twid->region_end);
 	}
 
 	if (twid && twid->callback)
@@ -126,8 +126,6 @@ static void _twid_dma_read(const struct _twi_desc* desc,
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cp15_invalidate_dcache_for_dma(desc->region_start, desc->region_end);
-
 	xdmad_start_transfer(channel);
 }
 
@@ -176,7 +174,7 @@ static void _twid_dma_write(struct _twi_desc* desc,
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cp15_coherent_dcache_for_dma(desc->region_start, desc->region_end);
+	l2cc_cache_maintenance(L2CC_DCACHE_CLEAN);
 
 	xdmad_start_transfer(channel);
 }
