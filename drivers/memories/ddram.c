@@ -40,15 +40,7 @@
 #include "cortex-a/cp15.h"
 
 /*------------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-/*------------------------------------------------------------------------------
- *		  Exported Functions
+ *        Exported Functions
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_DDR3
@@ -56,7 +48,8 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 {
 	desc->type = MPDDRC_TYPE_DDR3;
 
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60 |
+		MPDDRC_IO_CALIBR_TZQIO(100);
 
 	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM;
 
@@ -67,6 +60,7 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 		| MPDDRC_CR_CAS_DDR_CAS5
 		| MPDDRC_CR_DIS_DLL
 		| MPDDRC_CR_NB_8_BANKS
+		| MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH_DDR3_RZQ7
 		| MPDDRC_CR_DECOD_INTERLEAVED
 		| MPDDRC_CR_UNAL_SUPPORTED;
 
