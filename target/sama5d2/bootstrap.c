@@ -33,4 +33,6 @@ int main(void)
 {
 	board_cfg_ddram();
 	asm("BKPT");
+	/* never reached */
+	return 0;
 }
