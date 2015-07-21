@@ -477,20 +477,25 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	case AT25_BLOCK_ERASE_64K:
 		if (supported_erase & AT25_SUPPORT_ERASE_64K) {
 			applied_erase = AT25_BLOCK_ERASE_64K;
+			trace_debug("at25: Will aplly 64K erase\r\n");
 		} else {
 			trace_error("at25: 64K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
 		}
+		break;
 	case AT25_BLOCK_ERASE_32K:
 		if (supported_erase & AT25_SUPPORT_ERASE_32K) {
 			applied_erase = AT25_BLOCK_ERASE_32K;
+			trace_debug("at25: Will aplly 32K erase\r\n");
 		} else {
 			trace_error("at25: 32K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
 		}
+		break;
 	case AT25_BLOCK_ERASE_4K:
 		if (supported_erase & AT25_SUPPORT_ERASE_4K) {
 			applied_erase = AT25_BLOCK_ERASE_4K;
+			trace_debug("at25: Will aplly 4K erase\r\n");
 		} else {
 			trace_error("at25: 4K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
