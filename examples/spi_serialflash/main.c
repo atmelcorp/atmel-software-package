@@ -38,6 +38,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
 #include "peripherals/xdmad.h"
+#include "peripherals/l2cc.h"
 
 #include "misc/console.h"
 
@@ -81,6 +82,21 @@ static struct _spi_desc spi_at25_desc = {
 };
 
 static struct _at25 at25drv;
+
+const static struct _l2cc_control l2cc_cfg = {
+	.instruct_prefetch = true,	// Instruction prefetch enable
+	.data_prefetch = true,	// Data prefetch enable
+	.double_linefill = true,
+	.incr_double_linefill = true,
+	/* Disable Write back (enables write through, Use this setting
+	   if DDR2 mem is not write-back) */
+	//cfg.no_write_back = true,
+	.force_write_alloc = FWA_NO_ALLOCATE,
+	.offset = 31,
+	.prefetch_drop = true,
+	.standby_mode = true,
+	.dyn_clock_gating = true
+};
 
 static void console_handler(void)
 {
@@ -295,6 +311,9 @@ int main (void)
 {
 	/* Disable watchdog */
 	wdt_disable();
+
+	/* Initialize L2 cache */
+	l2cc_configure(&l2cc_cfg);
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
