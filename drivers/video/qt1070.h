@@ -41,7 +41,27 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/twid_legacy.h"
+
+#include <stdint.h>
+
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+struct _qt1070_desc {
+	const char* name;
+	uint8_t     size;
+	uint8_t     page_size;
+};
+
+struct _qt1070 {
+	struct _twi_desc* twid;
+	struct _qt1070_desc desc;
+
+	uint8_t chip_id;
+	uint8_t firmware_version;
+};
+
 
 /*----------------------------------------------------------------------------
  *         Exported functions
@@ -53,7 +73,7 @@
  * \param twid   Pointer to twi driver structure.
  * \return Chip Id
  */
-extern uint8_t qt1070_get_chip_id(struct _twid *twid);
+extern uint8_t qt1070_get_chip_id(struct _qt1070* qt1070);
 
 /**
  * \brief  Get firmware version number.
@@ -61,7 +81,7 @@ extern uint8_t qt1070_get_chip_id(struct _twid *twid);
  * \param twid   Pointer to twi driver structure.
  * \return Firmware version number.
  */
-extern uint8_t qt1070_get_firmware_version(struct _twid *twid);
+extern uint8_t qt1070_get_firmware_version(struct _qt1070* qt1070);
 
 /**
 * \brief  Get detection status.
@@ -69,7 +89,7 @@ extern uint8_t qt1070_get_firmware_version(struct _twid *twid);
 * \param twid   Pointer to twi driver structure.
 * \return Dectection status.
 */
-extern uint8_t qt1070_get_detection_status(struct _twid *twid);
+extern uint8_t qt1070_get_detection_status(struct _qt1070* qt1070);
 
 /**
  * \brief  Get Key status.
@@ -77,7 +97,7 @@ extern uint8_t qt1070_get_detection_status(struct _twid *twid);
  * \param twid   Pointer to twi driver structure.
  * \return Key status.
  */
-extern uint8_t qt1070_get_key_status(struct _twid *twid);
+extern uint8_t qt1070_get_key_status(struct _qt1070* qt1070);
 
 /**
  * \brief  Get key signal value in the given Key. These are the key's
@@ -87,7 +107,7 @@ extern uint8_t qt1070_get_key_status(struct _twid *twid);
  * \param key     Key index.
  * \return Key signal value.
  */
-extern uint16_t qt1070_get_key_signal(struct _twid *twid, uint8_t key);
+extern uint16_t qt1070_get_key_signal(struct _qt1070* qt1070, uint8_t key);
 
 /**
  * \brief  Get key reference data in the given Key. These are the key's
@@ -97,7 +117,7 @@ extern uint16_t qt1070_get_key_signal(struct _twid *twid, uint8_t key);
  * \param key     Key index.
  * \return Key reference data.
  */
-extern uint16_t qt1070_get_key_reference(struct _twid* twid, uint8_t key);
+extern uint16_t qt1070_get_key_reference(struct _qt1070* qt1070, uint8_t key);
 
 /**
  * \brief  Set the threshold value for the given Key.
@@ -106,7 +126,7 @@ extern uint16_t qt1070_get_key_reference(struct _twid* twid, uint8_t key);
  * \param key     Key index.
  * \param threshold Threshold value.
  */
-extern void qt1070_set_threshold(struct _twid *twid, uint8_t key, uint8_t threshold);
+extern void qt1070_set_threshold(struct _qt1070* qt1070, uint8_t key, uint8_t threshold);
 
 /**
  * \brief  Set Averaging factor and adjacent key suppression for the given Key.
@@ -116,7 +136,7 @@ extern void qt1070_set_threshold(struct _twid *twid, uint8_t key, uint8_t thresh
  * \param ave     Averaging factor.
  * \param aks     AKS group index.
  */
-extern void qt1070_set_ave_aks(struct _twid *twid, uint8_t key, uint8_t ave, uint8_t aks);
+extern void qt1070_set_ave_aks(struct _qt1070* qt1070, uint8_t key, uint8_t ave, uint8_t aks);
 
 /**
  * \brief Set DI level for the given Key. This 8-bit value controls the number
@@ -127,7 +147,7 @@ extern void qt1070_set_ave_aks(struct _twid *twid, uint8_t key, uint8_t ave, uin
  * \param key     Key index.
  * \param di      DI level.
  */
-extern void qt1070_set_detection_integrator(struct _twid *twid, uint8_t key, uint8_t di);
+extern void qt1070_set_detection_integrator(struct _qt1070* qt1070, uint8_t key, uint8_t di);
 
 /**
  * \brief Start a calibration cycle, the CALIBTATE flag in the detection status
@@ -136,13 +156,13 @@ extern void qt1070_set_detection_integrator(struct _twid *twid, uint8_t key, uin
  *
  * \param twid   Pointer to twi driver structure.
  */
-extern void qt1070_start_calibrate(struct _twid *twid);
+extern void qt1070_start_calibrate(struct _qt1070* qt1070);
 
 /**
  * \brief Reset the device.
  *
  * \param twid   Pointer to twi driver structure.
  */
-extern void qt1070_start_reset(struct _twid *twid);
+extern void qt1070_start_reset(struct _qt1070* qt1070);
 
 #endif /* _QT1070_H_ */
