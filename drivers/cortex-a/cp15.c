@@ -283,36 +283,38 @@ void cp15_disable_dcache(void)
 /**
  * \brief  Clean Data cache
  */
-void cp15_cache_clean(uint8_t CacheType)
+void cp15_dcache_clean(void)
 {
-	assert(!CacheType);
 	cp15_select_dcache();
 	cp15_clean_dcache_by_set_way();
 	asm("DSB");
 }
 
 /**
- * \brief  Invalidate D/Icache
+ * \brief  Invalidate Icache
  */
-void cp15_cache_invalidate(uint8_t CacheType)
+void cp15_icache_invalidate(void)
 {
-	if (CacheType) {
-		cp15_select_icache();
-		cp15_invalid_icache_inner_sharable();
-	} else {
-		cp15_select_dcache();
-		cp15_invalid_dcache_by_set_way();
-	}
-	asm ("DSB");
+	cp15_select_icache();
+	cp15_invalid_icache_inner_sharable();
 	asm ("ISB");
+}
+
+/**
+ * \brief  Invalidate Dcache
+ */
+void cp15_dcache_invalidate(void)
+{
+	cp15_select_dcache();
+	cp15_invalid_dcache_by_set_way();
+	asm ("DSB");
 }
 
 /**
  * \brief  Flush(Clean and invalidate) Data cache
  */
-void cp15_cache_flush(uint8_t CacheType)
+void cp15_dcache_flush(void)
 {
-	assert(!CacheType);
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
 	asm("DSB");

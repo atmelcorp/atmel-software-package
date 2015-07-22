@@ -322,28 +322,34 @@ void l2cc_instruction_lockdown(uint8_t way)
 
 static void l2cc_clean(void)
 {
-	cp15_cache_clean(CP15_DCache);	// Clean of L1; This is broadcast within the cluster
-	l2cc_clean_way(0xFF);	// forces the address out past level 2
-	l2cc_cache_sync();	// Ensures completion of the L2 clean
+	// Clean of L1; This is broadcast within the cluster
+	cp15_dcache_clean();
+	// forces the address out past level 2
+	l2cc_clean_way(0xFF);
+	// Ensures completion of the L2 clean
+	l2cc_cache_sync();
 }
 
 static void l2cc_invalidate(void)
 {
-	l2cc_invalidate_way(0xFF);	// forces the address out past level 2
-	l2cc_cache_sync();	// Ensures completion of the L2 inval
-	cp15_cache_invalidate(CP15_DCache);	// Inval of L1; This is broadcast within the cluster
+	// forces the address out past level 2
+	l2cc_invalidate_way(0xFF);
+	// Ensures completion of the L2 inval
+	l2cc_cache_sync();
+	// Inval of L1; This is broadcast within the cluster
+	cp15_dcache_invalidate();
 }
 
 static void l2cc_clean_invalidate(void)
 {
 	/* Clean of L1; This is broadcast within the cluster */
-	cp15_cache_clean(CP15_DCache);
+	cp15_dcache_clean();
 	/* forces the address out past level 2 */
 	l2cc_clean_invalidate_way(0xFF);
 	/* Ensures completion of the L2 inval */
 	l2cc_cache_sync();
 	/* Inval of L1; This is broadcast within the cluster */
-	cp15_cache_invalidate(CP15_DCache);
+	cp15_dcache_invalidate();
 }
 
 void l2cc_cache_maintenance(enum _maint_op maintenance)
@@ -376,22 +382,6 @@ void l2cc_invalidate_region(uint32_t start, uint32_t end)
 
 void l2cc_configure(const struct _l2cc_control* cfg)
 {
-	/* /\*****1. configure L2CC ************\/ */
-	/* cfg.instruct_prefetch = true;	// Instruction prefetch enable */
-	/* cfg.data_prefetch = true;	// Data prefetch enable */
-	/* cfg.double_linefill = true; */
-	/* cfg.incr_double_linefill = true; */
-
-	/* /\* Disable Write back (enables write through, Use this setting */
-	/*    if DDR2 mem is not write-back) *\/ */
-	/* //cfg.no_write_back = true; */
-
-	/* cfg.force_write_alloc = FWA_NO_ALLOCATE; */
-	/* cfg.OFFSET = 31; */
-	/* cfg.prefetch_drop = true; */
-	/* cfg.standby_mode = true; */
-	/* cfg.dyn_clock_gating = true; */
-
 	l2cc_event_config(0, L2CC_ECFGR0_ESRC_SRC_DRHIT,
 			  L2CC_ECFGR0_EIGEN_INT_DIS);
 	l2cc_event_config(1, L2CC_ECFGR0_ESRC_SRC_DWHIT,

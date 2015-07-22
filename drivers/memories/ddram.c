@@ -196,8 +196,8 @@ void ddram_configure(struct _mpddrc_desc* desc)
 	mpddrc_configure(desc);
 
 	mmu_initialize();
-	cp15_cache_invalidate(1);
-	cp15_cache_invalidate(0);
+	cp15_icache_invalidate();
+	cp15_dcache_invalidate();
 	cp15_enable_mmu();
 	cp15_enable_icache();
 	cp15_enable_dcache();

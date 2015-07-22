@@ -151,9 +151,10 @@ extern unsigned int cp15_is_dcache_enabled(void);
 extern void cp15_enable_dcache(void);
 extern void cp15_disable_dcache(void);
 
-extern void cp15_cache_clean(uint8_t CacheType);
-extern void cp15_cache_invalidate(uint8_t CacheType);
-extern void cp15_cache_flush(uint8_t CacheType);
+extern void cp15_dcache_clean(void);
+extern void cp15_dcache_invalidate(void);
+extern void cp15_icache_invalidate(void);
+extern void cp15_dcache_flush(void);
 extern void cp15_invalid_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
 extern void cp15_clean_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
 extern void cp15_flush_dcache_by_va(uint32_t S_Add, uint32_t E_Add);
