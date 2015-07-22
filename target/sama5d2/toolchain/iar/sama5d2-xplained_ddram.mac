@@ -297,16 +297,16 @@ initialize_ddr()
 
 	/* Step 2: Program features of the DDR3-SDRAM device in the
 	 * configuration register and timing parameter registers (TPR0
-	 * ans TPR1) */
+	 * TPR1 and TPR2) */
 	__writeMemory32(0x00d0025d, 0xF000C008, "Memory");
 
 	/* Timings */
 	/* tp0 */
-	__writeMemory32(0x32139336, 0xF000C00C, "Memory");
+	__writeMemory32(0x44439425, 0xF000C00C, "Memory"); //0x32139336
 	/* tp1 */
-	__writeMemory32(0x03001d1b, 0xF000C010, "Memory");
+	__writeMemory32(0x0f001d1b, 0xF000C010, "Memory"); //0x03001d1b
 	/* tp2 */
-	__writeMemory32(0x00072328, 0xF000C014, "Memory");
+	__writeMemory32(0x00072000, 0xF000C014, "Memory"); //0x00072328
 
 	__tempo_var = __readMemory32(0xF000C008,"Memory");
 	__ba_offset = (__tempo_var & 0x3) + 9;
@@ -401,7 +401,7 @@ initialize_ddr()
 
 	/* Last step: Write the refresh rate */
 	/* Refresh Timer is (64ms / (bank_size)) * master_clock */
-	__writeMemory32(0x510, REG_MPDDRC_RTR,"Memory");
+	__writeMemory32(0x511, REG_MPDDRC_RTR,"Memory");
 	__delay(10);
 
 }
