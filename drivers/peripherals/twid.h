@@ -30,9 +30,17 @@
 #ifndef TWID_HEADER__
 #define TWID_HEADER__
 
+/*------------------------------------------------------------------------------
+ *        Header
+ *----------------------------------------------------------------------------*/
+
 #include "peripherals/twi.h"
 #include "mutex.h"
 #include "io.h"
+
+/*------------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
 
 #define TWID_SUCCESS         (0)
 #define TWID_INVALID_ID      (1)
@@ -42,6 +50,13 @@
 #define TWID_ERROR_ACK       (5)
 #define TWID_ERROR_TIMEOUT   (6)
 #define TWID_ERROR_TRANSFER  (7)
+
+enum _twid_trans_mode
+{
+	TWID_MODE_POLLING,
+	TWID_MODE_FIFO,
+	TWID_MODE_DMA
+};
 
 struct _twi_desc;
 
@@ -63,12 +78,9 @@ struct _twi_desc
 	void*   cb_args;
 };
 
-enum _spid_trans_mode
-{
-	TWID_MODE_POLLING,
-	TWID_MODE_FIFO,
-	TWID_MODE_DMA
-};
+/*------------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
 extern void twid_configure(struct _twi_desc* desc);
 extern uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,

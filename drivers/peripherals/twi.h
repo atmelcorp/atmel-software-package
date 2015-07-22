@@ -99,13 +99,10 @@ extern void twi_fifo_disable(Twi* twi);
 extern uint32_t twi_fifo_rx_size(Twi *twi);
 extern uint32_t twi_fifo_tx_size(Twi *twi);
 
-
 extern uint32_t twi_read_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
-				 uint32_t isize, const void *stream,
-				 uint8_t len);
+				 uint32_t isize, const void *stream, uint8_t len);
 extern uint32_t twi_write_stream(Twi *twi, uint32_t addr, uint32_t iaddr,
-				 uint32_t isize, const void *stream,
-				 uint8_t len);
+				 uint32_t isize, const void *stream, uint8_t len);
 #endif
 
 #ifdef __cplusplus
