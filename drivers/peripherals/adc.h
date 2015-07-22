@@ -81,76 +81,251 @@ extern "C" {
  *         Macros function of register access
  *------------------------------------------------------------------------------*/
 
-#define adc_get_mode_reg( pAdc )                ((pAdc)->ADC_MR)
+#define adc_get_mode_reg()             (ADC->ADC_MR)
 
-#define adc_start_conversion( pAdc )           ((pAdc)->ADC_CR = ADC_CR_START)
+#define adc_start_conversion()         (ADC->ADC_CR = ADC_CR_START)
 
-#define adc_enable_channel( pAdc, dwChannel )    {\
-            (pAdc)->ADC_CHER = (1 << (dwChannel));\
-        }
+#define adc_enable_channel(channel)  {			\
+		ADC->ADC_CHER = (1 << (channel));	\
+	}
 
-#define adc_disable_channel(pAdc, dwChannel)  {\
-            (pAdc)->ADC_CHDR = (1 << (dwChannel));\
-        }
+#define adc_disable_channel(channel) {			\
+		ADC->ADC_CHDR = (1 << (channel));	\
+	}
 
-#define adc_enable_interrupt(pAdc, dwMode)            {\
-            (pAdc)->ADC_IER = (dwMode);\
-        }
+#define adc_enable_interrupt(mode)   {		\
+		ADC->ADC_IER = (mode);		\
+	}
 
-#define adc_disable_interrupt(pAdc, dwMode)           {\
-            (pAdc)->ADC_IDR = (dwMode);\
-        }
+#define adc_disable_interrupt(mode)  {		\
+		ADC->ADC_IDR = (mode);		\
+	}
 
-#define adc_set_channel_gain(pAdc,dwMode)       {\
-            (pAdc)->ADC_CGR = dwMode;\
-        }
+#define adc_set_channel_gain(mode)    {	\
+		ADC->ADC_CGR = mode;		\
+	}
 
-#define adc_enable_data_ready_it(pAdc)         ((pAdc)->ADC_IER = ADC_IER_DRDY)
+#define adc_enable_data_ready_it()     (ADC->ADC_IER = ADC_IER_DRDY)
 
-#define adc_get_status(pAdc)                 ((pAdc)->ADC_ISR)
+#define adc_get_status()               (ADC->ADC_ISR)
 
-#define adc_get_compare_mode(pAdc)            (((pAdc)->ADC_EMR)& (ADC_EMR_CMPMODE_Msk))
+#define adc_get_compare_mode()         ((ADC->ADC_EMR)& (ADC_EMR_CMPMODE_Msk))
 
-#define adc_get_channel_status(pAdc)          ((pAdc)->ADC_CHSR)
+#define adc_get_channel_status()       (ADC->ADC_CHSR)
 
-#define adc_interrupt_mask_status(pAdc)    ((pAdc)->ADC_IMR)
+#define adc_interrupt_mask_status()    (ADC->ADC_IMR)
 
-#define adc_get_last_converted_data(pAdc)      ((pAdc)->ADC_LCDR)
+#define adc_get_last_converted_data()  (ADC->ADC_LCDR)
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
-extern void adc_initialize(Adc * pAdc, uint32_t dwId);
-extern uint32_t adc_set_clock(Adc * pAdc, uint32_t dwPres, uint32_t dwMck);
-extern void adc_set_timing(Adc * pAdc, uint32_t dwStartup,
-			  uint32_t dwTracking, uint32_t dwSettling);
-extern void adc_set_trigger(Adc * pAdc, uint32_t dwTrgSel);
-extern void adc_set_trigger_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_low_resolution(Adc * pAdc, uint32_t bEnDis);
-extern void adc_set_sleep_mode(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_fast_wakeup(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_sequence_mode(Adc * pAdc, uint8_t bEnDis);
-extern void adc_set_sequence(Adc * pAdc, uint32_t dwSEQ1, uint32_t dwSEQ2);
-extern void adc_set_sequence_by_list(Adc * pAdc, uint8_t ucChList[],
-				  uint8_t ucNumCh);
-extern void adc_set_tag_enable(Adc * pAdc, uint8_t bEnDis);
-extern void adc_configure_ext_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_compare_channel(Adc * pAdc, uint32_t dwChannel);
-extern void adc_set_compare_mode(Adc * pAdc, uint32_t dwMode);
-extern void adc_set_comparison_window(Adc * pAdc, uint32_t dwHi_Lo);
-extern uint8_t adc_set_configuration(Adc * pAdc, uint32_t dwMcK);
-extern uint32_t adc_get_converted_data(Adc * pAdc, uint32_t dwChannel);
-extern void adc_set_ts_average(Adc * pADC, uint32_t dwAvg2Conv);
-extern uint32_t adc_get_ts_xposition(Adc * pADC);
-extern uint32_t adc_get_ts_yposition(Adc * pADC);
-extern uint32_t adc_get_ts_pressure(Adc * pADC);
-extern void adc_set_ts_debounce(Adc * pADC, uint32_t dwTime);
-extern void adc_set_ts_pen_detect(Adc * pADC, uint8_t bEnDis);
-extern void adc_set_startup_time(Adc * pAdc, uint32_t dwUs);
-extern void adc_set_tracking_time(Adc * pAdc, uint32_t dwNs);
-extern void adc_set_trigger_period(Adc * pAdc, uint32_t dwPeriod);
-extern void adc_set_ts_mode(Adc * pADC, uint32_t dwMode);
-extern void adc_ts_calibration(Adc * pAdc);
+
+/**
+ * \brief Initialize the ADC controller
+ */
+extern void adc_initialize(void);
+
+/**
+ * \brief Set ADC clock.
+ *
+ * \param clk Desired ADC clock frequency.
+ *
+ * \return ADC clock
+ */
+extern uint32_t adc_set_clock(uint32_t clk);
+
+extern void adc_enable_it(uint32_t mask);
+
+/**
+ * \brief Set ADC timing.
+ *
+ * \param startup startup value
+ * \param tracking tracking value
+ * \param settling settling value
+ */
+extern void adc_set_timing(uint32_t startup, uint32_t tracking,
+			   uint32_t settling);
+
+/**
+ * Sets the trigger mode to following:
+ * - \ref ADC_TRGR_TRGMOD_NO_TRIGGER
+ * - \ref ADC_TRGR_TRGMOD_EXT_TRIG_RISE
+ * - \ref ADC_TRGR_TRGMOD_EXT_TRIG_FALL
+ * - \ref ADC_TRGR_TRGMOD_EXT_TRIG_ANY
+ * - \ref ADC_TRGR_TRGMOD_PEN_TRIG
+ * - \ref ADC_TRGR_TRGMOD_PERIOD_TRIG
+ * - \ref ADC_TRGR_TRGMOD_CONTINUOUS
+ * \param mode Trigger mode.
+ */
+extern void adc_set_trigger_mode(uint32_t mode);
+
+/**
+ * \brief Enable/Disable sleep mode.
+ *
+ * \param enable Enable/Disable sleep mode.
+ */
+extern void adc_set_sleep_mode(uint8_t enable);
+
+extern void adc_set_fast_wakeup(uint8_t enable);
+
+/**
+ * \brief Enable/Disable seqnence mode.
+ *
+ * \param enable Enable/Disable seqnence mode.
+ */
+extern void adc_set_sequence_mode(uint8_t enable);
+
+/**
+ * \brief Set channel sequence.
+ *
+ * \param seq1 Sequence 1 ~ 8  channel number.
+ * \param seq2 Sequence 9 ~ 16 channel number.
+ */
+extern void adc_set_sequence(uint32_t seq1, uint32_t seq2);
+
+/**
+ * \brief Set channel sequence by given channel list.
+ *
+ * \param channel_list Channel list.
+ * \param len  Number of channels in list.
+ */
+extern void adc_set_sequence_by_list(uint8_t channel_list[],
+				     uint8_t len);
+
+/**
+ * \brief Set "TAG" mode, show channel number in last data or not.
+ *
+ * \param enable Enable/Disable TAG value.
+ */
+extern void adc_set_tag_enable(uint8_t enable);
+
+/**
+ * Configure extended mode register
+ * \param mode ADC extended mode.
+ */
+extern void adc_configure_ext_mode(uint32_t mode);
+
+/**
+ * \brief Set compare channel.
+ *
+ * \param channel channel number to be set,16 for all channels
+ */
+extern void adc_set_compare_channel(uint32_t channel);
+
+/**
+ * \brief Set compare mode.
+ *
+ * \param mode compare mode
+ */
+extern void adc_set_compare_mode(uint32_t mode);
+
+/**
+ * \brief Set comparsion window.
+ *
+ * \param window Comparison Window
+ */extern void adc_set_comparison_window(uint32_t window);
+
+/**
+ * \brief Check if ADC configuration is right.
+ *
+ * \return 0 if check ok, others if not ok.
+ */
+extern uint8_t adc_check_configuration(void);
+
+/**
+ * \brief Return the Channel Converted Data
+ *
+ * \param channel channel to get converted value
+ */
+extern uint32_t adc_get_converted_data(uint32_t channel);
+
+/**
+ * Sets the average of the touch screen ADC. The mode can be:
+ * - \ref ADC_TSMR_TSAV_NO_FILTER (No filtering)
+ * - \ref ADC_TSMR_TSAV_AVG2CONV (Average 2 conversions)
+ * - \ref ADC_TSMR_TSAV_AVG4CONV (Average 4 conversions)
+ * - \ref ADC_TSMR_TSAV_AVG8CONV (Average 8 conversions)
+ * \param avg_2_conv Average mode for touch screen
+ */
+extern void adc_set_ts_average(uint32_t avg_2_conv);
+
+/**
+ * Return X measurement position value.
+ */
+extern uint32_t adc_get_ts_xposition(void);
+
+/**
+ * Return Y measurement position value.
+ */
+extern uint32_t adc_get_ts_yposition(void);
+
+/**
+ * Return Z measurement position value.
+ */
+extern uint32_t adc_get_ts_pressure(void);
+
+/**
+ * Sets the touchscreen pan debounce time.
+ * \param time Debounce time in nS.
+ */
+extern void adc_set_ts_debounce(uint32_t time);
+
+/**
+ * Enable/Disable touch screen pen detection.
+ * \param enable If true, pen detection is enabled;
+ *               in normal mode otherwise.
+ */
+extern void adc_set_ts_pen_detect(uint8_t enable);
+
+/**
+ * Sets the ADC startup time.
+ * \param startup  Startup time in uS.
+ */
+extern void adc_set_startup_time(uint32_t startup);
+
+/**
+ * Set ADC tracking time
+ * \param dwNs  Tracking time in nS.
+ */
+extern void adc_set_tracking_time(uint32_t dwNs);
+
+/**
+ * Sets the trigger period.
+ * \param period Trigger period in nS.
+ */
+extern void adc_set_trigger_period(uint32_t period);
+
+/**
+ * Sets the operation mode of the touch screen ADC. The mode can be:
+ * - \ref ADC_TSMR_TSMODE_NONE (TSADC off)
+ * - \ref ADC_TSMR_TSMODE_4_WIRE_NO_PM
+ * - \ref ADC_TSMR_TSMODE_4_WIRE (CH 0~3 used)
+ * - \ref ADC_TSMR_TSMODE_5_WIRE (CH 0~4 used)
+ * \param mode Desired mode
+ */
+extern void adc_set_ts_mode(uint32_t mode);
+
+/**
+ * Start screen calibration (VDD/GND measurement)
+ */
+extern void adc_ts_calibration(void);
+
+/**
+ * \brief Set ADC trigger.
+ *
+ * \param trigger Trigger selection
+ */
+extern void adc_set_trigger(uint32_t trigger);
+
+#ifdef CONFIG_HAVE_ADC_LOW_RES
+/**
+ * \brief Enable/Disable low resolution.
+ *
+ * \param enable Enable/Disable low resolution.
+ */
+extern void adc_set_low_resolution(uint8_t enable);
+#endif
 
 #ifdef __cplusplus
 }

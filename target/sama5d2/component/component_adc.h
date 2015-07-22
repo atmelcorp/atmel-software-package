@@ -59,23 +59,7 @@ typedef struct {
   __IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
   __IO uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
   __IO uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
-  __I  uint32_t ADC_CDR0;     /**< \brief (Adc Offset: 0x50) Channel Data Register 0 */
-  __I  uint32_t ADC_CDR1;     /**< \brief (Adc Offset: 0x54) Channel Data Register 1 */
-  __I  uint32_t ADC_CDR2;     /**< \brief (Adc Offset: 0x58) Channel Data Register 2 */
-  __I  uint32_t ADC_CDR3;     /**< \brief (Adc Offset: 0x5C) Channel Data Register 3 */
-  __I  uint32_t ADC_CDR4;     /**< \brief (Adc Offset: 0x60) Channel Data Register 4 */
-  __I  uint32_t ADC_CDR5;     /**< \brief (Adc Offset: 0x64) Channel Data Register 5 */
-  __I  uint32_t ADC_CDR6;     /**< \brief (Adc Offset: 0x68) Channel Data Register 6 */
-  __I  uint32_t ADC_CDR7;     /**< \brief (Adc Offset: 0x6C) Channel Data Register 7 */
-  __I  uint32_t ADC_CDR8;     /**< \brief (Adc Offset: 0x70) Channel Data Register 8 */
-  __I  uint32_t ADC_CDR9;     /**< \brief (Adc Offset: 0x74) Channel Data Register 9 */
-  __I  uint32_t ADC_CDR10;    /**< \brief (Adc Offset: 0x78) Channel Data Register 10 */
-  __I  uint32_t ADC_CDR11;    /**< \brief (Adc Offset: 0x7C) Channel Data Register 11 */
-  __I  uint32_t ADC_CDR12;    /**< \brief (Adc Offset: 0x80) Channel Data Register 12 */
-  __I  uint32_t ADC_CDR13;    /**< \brief (Adc Offset: 0x84) Channel Data Register 13 */
-  __I  uint32_t ADC_CDR14;    /**< \brief (Adc Offset: 0x88) Channel Data Register 14 */
-  __I  uint32_t ADC_CDR15;    /**< \brief (Adc Offset: 0x8C) Channel Data Register 15 */
-  __I  uint32_t ADC_CDR16;    /**< \brief (Adc Offset: 0x90) Channel Data Register 16 */
+  __I  uint32_t ADC_CDR[17];     /**< \brief (Adc Offset: 0x50) Channel Data Registers */
   __IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
   __I  uint32_t Reserved2[6];
   __IO uint32_t ADC_TSMR;     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
@@ -100,6 +84,15 @@ typedef struct {
 #define ADC_CR_TSCALIB (0x1u << 2) /**< \brief (ADC_CR) Touchscreen Calibration */
 #define ADC_CR_CMPRST (0x1u << 4) /**< \brief (ADC_CR) Comparison Restart */
 /* -------- ADC_MR : (ADC Offset: 0x04) Mode Register -------- */
+#define ADC_MR_TRGSEL_Pos 1
+#define ADC_MR_TRGSEL_Msk (0x7u << ADC_MR_TRGSEL_Pos) /**< \brief (ADC_MR) Trigger Selection */
+#define ADC_MR_TRGSEL(value) ((ADC_MR_TRGSEL_Msk & ((value) << ADC_MR_TRGSEL_Pos)))
+#define   ADC_MR_TRGSEL_ADC_TRIG0 (0x0u << 1) /**< \brief (ADC_MR) ADTRG */
+#define   ADC_MR_TRGSEL_ADC_TRIG1 (0x1u << 1) /**< \brief (ADC_MR) TIOA0 */
+#define   ADC_MR_TRGSEL_ADC_TRIG2 (0x2u << 1) /**< \brief (ADC_MR) TIOA1 */
+#define   ADC_MR_TRGSEL_ADC_TRIG3 (0x3u << 1) /**< \brief (ADC_MR) TIOA2 */
+#define   ADC_MR_TRGSEL_ADC_TRIG4 (0x4u << 1) /**< \brief (ADC_MR) PWM event line 0 */
+#define   ADC_MR_TRGSEL_ADC_TRIG5 (0x5u << 1) /**< \brief (ADC_MR) PWM_even line 1 */
 #define ADC_MR_SLEEP (0x1u << 5) /**< \brief (ADC_MR) Sleep Mode */
 #define   ADC_MR_SLEEP_NORMAL (0x0u << 5) /**< \brief (ADC_MR) Normal Mode: The ADC core and reference voltage circuitry are kept ON between conversions. */
 #define   ADC_MR_SLEEP_SLEEP (0x1u << 5) /**< \brief (ADC_MR) Sleep Mode: The wake-up time can be modified by programming FWUP bit. */

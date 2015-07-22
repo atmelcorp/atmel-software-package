@@ -54,6 +54,7 @@ drivers-y += drivers/peripherals/usartd.o
 drivers-y += drivers/peripherals/wdt.o
 drivers-y += drivers/peripherals/xdmac.o
 drivers-y += drivers/peripherals/xdmad.o
+drivers-y += drivers/peripherals/adc.o
 
 drivers-$(CONFIG_HAVE_DBGU) += drivers/peripherals/dbgu.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
@@ -65,7 +66,6 @@ drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/adc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/gmac.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/gmacb.o
