@@ -57,20 +57,22 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 	/* timings */
 	desc->tpr0 = MPDDRC_TPR0_TRAS(6)
 		| MPDDRC_TPR0_TRCD(3)
-		| MPDDRC_TPR0_TWR(3)
+		| MPDDRC_TPR0_TWR(4) // 4 in mode DLL off
 		| MPDDRC_TPR0_TRC(9)
 		| MPDDRC_TPR0_TRP(3)
-		| MPDDRC_TPR0_TRRD(1)
-		| MPDDRC_TPR0_TWTR(2)
-		| MPDDRC_TPR0_TMRD(3);
+		| MPDDRC_TPR0_TRRD(4) // min 4 tCK
+		| MPDDRC_TPR0_TWTR(4) // min 4 tCK
+		| MPDDRC_TPR0_TMRD(4);
+
 	desc->tpr1 = MPDDRC_TPR1_TRFC(27)
 		| MPDDRC_TPR1_TXSNR(29)
 		| MPDDRC_TPR1_TXSRD(0)
-		| MPDDRC_TPR1_TXP(3);
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)
-		| MPDDRC_TPR2_TXARDS(2)
-		| MPDDRC_TPR2_TRPA(3)
-		| MPDDRC_TPR2_TRTP(2)
+		| MPDDRC_TPR1_TXP(15);
+
+	desc->tpr2 = MPDDRC_TPR2_TXARD(0)
+		| MPDDRC_TPR2_TXARDS(0)
+		| MPDDRC_TPR2_TRPA(0)
+		| MPDDRC_TPR2_TRTP(4)
 		| MPDDRC_TPR2_TFAW(7);
 
 	desc->bank = 8192;
