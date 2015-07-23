@@ -324,18 +324,22 @@ static void l2cc_clean(void)
 {
 	// Clean of L1; This is broadcast within the cluster
 	cp15_dcache_clean();
-	// forces the address out past level 2
-	l2cc_clean_way(0xFF);
-	// Ensures completion of the L2 clean
-	l2cc_cache_sync();
+	if (l2cc_is_enabled()) {
+		// forces the address out past level 2
+		l2cc_clean_way(0xFF);
+		// Ensures completion of the L2 clean
+		l2cc_cache_sync();
+	}
 }
 
 static void l2cc_invalidate(void)
 {
-	// forces the address out past level 2
-	l2cc_invalidate_way(0xFF);
-	// Ensures completion of the L2 inval
-	l2cc_cache_sync();
+	if (l2cc_is_enabled()) {
+		// forces the address out past level 2
+		l2cc_invalidate_way(0xFF);
+		// Ensures completion of the L2 inval
+		l2cc_cache_sync();
+	}
 	// Inval of L1; This is broadcast within the cluster
 	cp15_dcache_invalidate();
 }
@@ -344,10 +348,14 @@ static void l2cc_clean_invalidate(void)
 {
 	/* Clean of L1; This is broadcast within the cluster */
 	cp15_dcache_clean();
-	/* forces the address out past level 2 */
-	l2cc_clean_invalidate_way(0xFF);
-	/* Ensures completion of the L2 inval */
-	l2cc_cache_sync();
+
+	if (l2cc_is_enabled()) {
+		/* forces the address out past level 2 */
+		l2cc_clean_invalidate_way(0xFF);
+		/* Ensures completion of the L2 inval */
+		l2cc_cache_sync();
+	}
+
 	/* Inval of L1; This is broadcast within the cluster */
 	cp15_dcache_invalidate();
 }
@@ -369,15 +377,16 @@ void l2cc_cache_maintenance(enum _maint_op maintenance)
 
 void l2cc_invalidate_region(uint32_t start, uint32_t end)
 {
-	cp15_invalidate_dcache_for_dma(start, end);
+	assert(start < end);
+	uint32_t current = start & (~0x1f);
 	if (l2cc_is_enabled()) {
-		uint32_t nb_lines = 1 + ((end - start) / 32);
-		uint32_t i = 0;
-		for (i = 0; i < nb_lines; ++i) {
-			l2cc_invalidate_pal(start + (32*i));
+		while (current <= end) {
+			l2cc_invalidate_pal(current);
+			current += 32;
 		}
 		l2cc_invalidate_pal(end);
 	}
+	cp15_invalidate_dcache_for_dma(start, end);
 }
 
 void l2cc_configure(const struct _l2cc_control* cfg)
