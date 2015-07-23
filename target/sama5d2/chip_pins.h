@@ -44,7 +44,6 @@
 
 /* ========== Pio PIN definition for ADC peripheral ========== */
 
-/* Not useful, managed directly by the ADC controller
 #define PIN_AD0 { PIO_GROUP_D, PIO_PD19X1_AD0, PIO_PERIPH_F, PIO_DEFAULT }
 #define PIN_AD1 { PIO_GROUP_D, PIO_PD20X1_AD1, PIO_PERIPH_F, PIO_DEFAULT }
 #define PIN_AD2 { PIO_GROUP_D, PIO_PD21X1_AD2, PIO_PERIPH_F, PIO_DEFAULT }
@@ -57,7 +56,7 @@
 #define PIN_AD9 { PIO_GROUP_D, PIO_PD28X1_AD9, PIO_PERIPH_F, PIO_DEFAULT }
 #define PIN_AD10 { PIO_GROUP_D, PIO_PD29X1_AD10, PIO_PERIPH_F, PIO_DEFAULT }
 #define PIN_AD11 { PIO_GROUP_D, PIO_PD30X1_AD11, PIO_PERIPH_F, PIO_DEFAULT }
-*/
+
 #define PIN_ADTRG { PIO_GROUP_D, PIO_PD31A_ADTRG, PIO_PERIPH_A, PIO_DEFAULT }
 
 /* ========== Pio PIN definition for ARM JTAG peripheral ========== */
