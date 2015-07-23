@@ -171,7 +171,7 @@ cp15_select_icache:
 	.global   cp15_select_dcache
 cp15_select_dcache:
 	mrc     p15, 2, r0, c0, c0, 0           // Read CSSELR
-	and     r0,  r0, #0xFFFFFFFE            // Change 0th bit to ICache
+	and     r0,  r0, #0xFFFFFFFE            // Change 0th bit to DCache
 	mcr     p15, 2, r0, c0, c0, 0           // Write CSSELR
 	nop
 	bx      lr
@@ -313,25 +313,25 @@ cp15_invalid_btb_by_mva:
 	.section .text.cp15_invalid_dcache_by_set_way
 	.global   cp15_invalid_dcache_by_set_way
 cp15_invalid_dcache_by_set_way:
+	push 	{r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
 	mov     r2, r0, lsr #13         // Num of sets
 	and     r2, r2, #0xFF           // 8bit is specific to CortexA5 with 32 KB
 	mov     r0, #0                  // 0:SHL:5
-inv_way_loop:
+1:
 	lsl     r4, r1, #30
-	sub     r1, r1, #1              //
 	mov     r3, r2
-inv_line_loop:
+2:
 	orr     r0, r4, r3, lsl #5
 	mcr     p15, 0, r0, c7, c6, 2
-	sub     r3, r3, #1              // 1:SHL:30
-	cmp     r3, #0
-	bpl     inv_line_loop
-	cmp     r1, #-1
-	bne     inv_way_loop
-	nop
+	subs    r3, r3, #1              // 1:SHL:30
+	bpl     2b
+	subs    r1, r1, #1
+	bpl     1b
+	pop	{r1-r4}
+	dsb
 	bx      lr
 
 
@@ -341,25 +341,25 @@ inv_line_loop:
 	.section .text.cp15_clean_dcache_by_set_way
 	.global   cp15_clean_dcache_by_set_way
 cp15_clean_dcache_by_set_way:
+	push 	{r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
-	mov     r2, r0, lsr #13         // Num of stes
+	mov     r2, r0, lsr #13         // Num of sets
 	and     r2, r2, #0xFF           // 8bit is specific to CortexA5 with 32 KB
 	mov     r0, #0                  // 0:SHL:5
-clean_way_loop:
+1:
 	lsl     r4, r1, #30
-	sub     r1, r1, #1              //
 	mov     r3, r2
-clean_line_loop:
+2:
 	orr     r0, r4, r3, lsl #5
 	mcr     p15, 0, r0, c7, c10, 2
-	sub     r3, r3, #1              // 1:SHL:30
-	cmp     r3, #0
-	bpl     clean_line_loop
-	cmp     r1, #-1
-	bne     clean_way_loop
-	nop
+	subs    r3, r3, #1              // 1:SHL:30
+	bpl     2b
+	subs    r1, r1, #1
+	bpl     1b
+	pop	{r1-r4}
+	dsb
 	bx      lr
 
 /**
@@ -368,28 +368,26 @@ clean_line_loop:
 	.section .text.cp15_clean_invalid_dcache_by_set_way
 	.global   cp15_clean_invalid_dcache_by_set_way
 cp15_clean_invalid_dcache_by_set_way:
+	push 	{r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
-	mov     r2, r0, lsr #13         // Num of stes
+	mov     r2, r0, lsr #13         // Num of sets
 	and     r2, r2, #0xFF           // 8bit is specific to CortexA5 with 32 KB
 	mov     r0, #0                  // 0:SHL:5
-clinv_way_loop:
+1:
 	lsl     r4, r1, #30
-	sub     r1, r1, #1              //
 	mov     r3, r2
-clinv_line_loop:
+2:
 	orr     r0, r4, r3, lsl #5
-	mcr     p15, 0, r0, c7, c10, 2
-	sub     r3, r3, #1              // 1:SHL:30
-	cmp     r3, #0
-	bpl     clinv_line_loop
-	cmp     r1, #-1
-	bne     clinv_way_loop
-	nop
+	mcr     p15, 0, r0, c7, c14, 2
+	subs    r3, r3, #1              // 1:SHL:30
+	bpl     2b
+	subs    r1, r1, #1
+	bpl     1b
+	pop	{r1-r4}
+	dsb
 	bx      lr
-
-
 
 //      ===Data Cache maintenance by VA  ===
 
@@ -462,7 +460,7 @@ clinv_loop:
 	.section .text.cp15_coherent_dcache_for_dma
 	.global   cp15_coherent_dcache_for_dma
 cp15_coherent_dcache_for_dma:
-
+	push 	{r2-r4}
 	mrc     p15, 0, r3, c0, c0, 1
 	lsr     r3, r3, #16
 	and     r3, r3, #0xf
@@ -470,31 +468,26 @@ cp15_coherent_dcache_for_dma:
 	mov     r2, r2, lsl r3
 
 	sub     r3, r2, #1
-	bic     r12, r0, r3
+	bic     r4, r0, r3
 1:
-	mcr     p15, 0, r12, c7, c11, 1
-	add     r12, r12, r2
-	cmp     r12, r1
+	mcr     p15, 0, r4, c7, c11, 1
+	add     r4, r4, r2
+	cmp     r4, r1
 	blo     1b
 	dsb
 
-	mrc     p15, 0, r3, c0, c0, 1
-	and     r3, r3, #0xf
-	mov     r2, #4
-	mov     r2, r2, lsl r3
-
-	sub     r3, r2, #1
-	bic     r12, r0, r3
+	bic     r4, r0, r3
 2:
-	mcr     p15, 0, r12, c7, c5, 1
-	add     r12, r12, r2
-	cmp     r12, r1
+	mcr     p15, 0, r4, c7, c5, 1
+	add     r4, r4, r2
+	cmp     r4, r1
 	blo     2b
 	mov     r0, #0
 	mcr     p15, 0, r0, c7, c1, 6
-	mcr      p15, 0, r0, c7, c5, 6
+	mcr     p15, 0, r0, c7, c5, 6
 	dsb
 	isb
+	pop	{r2-r4}
 	bx      lr
 
 
@@ -508,7 +501,7 @@ cp15_coherent_dcache_for_dma:
 	.section .text.cp15_invalidate_dcache_for_dma
 	.global   cp15_invalidate_dcache_for_dma
 cp15_invalidate_dcache_for_dma:
-
+	push 	{r2-r3}
 	mrc     p15, 0, r3, c0, c0, 1
 	lsr     r3, r3, #16
 	and     r3, r3, #0xf
@@ -516,20 +509,14 @@ cp15_invalidate_dcache_for_dma:
 	mov     r2, r2, lsl r3
 
 	sub     r3, r2, #1
-	tst     r0, r3
 	bic     r0, r0, r3
-
-	mcrne   p15, 0, r0, c7, c14, 1
-
-	tst     r1, r3
-	bic     r1, r1, r3
-	mcrne   p15, 0, r1, c7, c14, 1
 3:
 	mcr     p15, 0, r0, c7, c6, 1
 	add     r0, r0, r2
 	cmp     r0, r1
 	blo     3b
 	dsb
+	pop 	{r2-r3}
 	bx      lr
 
 
@@ -571,6 +558,7 @@ cp15_flush_dcache_for_dma:
 	and     r3, r3, #0xf
 	mov     r2, #4
 	mov     r2, r2, lsl r3
+
 	sub     r3, r2, #1
 	bic     r0, r0, r3
 5:
