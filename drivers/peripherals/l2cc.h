@@ -327,6 +327,14 @@ extern void l2cc_cache_maintenance(enum _maint_op maintenance);
 extern void l2cc_invalidate_region(uint32_t start, uint32_t end);
 
 /**
+ *  \brief Clean cache lines corresponding to a memory region
+ *
+ *  \param start Beginning of the memory region
+ *  \param end End of the memory region
+ */
+extern void l2cc_clean_region(uint32_t start, uint32_t end);
+
+/**
  *  \brief Enable level two cache controller (L2CC)
  *
  *  \param cfg configuration to apply: \sa #_l2cc_control

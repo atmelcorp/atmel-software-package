@@ -378,7 +378,7 @@ void l2cc_cache_maintenance(enum _maint_op maintenance)
 void l2cc_invalidate_region(uint32_t start, uint32_t end)
 {
 	assert(start < end);
-	uint32_t current = start & (~0x1f);
+	uint32_t current = start & ~0x1f;
 	if (l2cc_is_enabled()) {
 		while (current <= end) {
 			l2cc_invalidate_pal(current);
@@ -388,6 +388,21 @@ void l2cc_invalidate_region(uint32_t start, uint32_t end)
 	}
 	cp15_invalidate_dcache_for_dma(start, end);
 }
+
+void l2cc_clean_region(uint32_t start, uint32_t end)
+{
+	assert(start < end);
+	uint32_t current = start & ~0x1f;
+	if (l2cc_is_enabled()) {
+		while (current <= end) {
+			l2cc_clean_pal(current);
+			current += 32;
+		}
+		l2cc_clean_pal(end);
+	}
+	cp15_clean_dcache_for_dma(start, end);
+}
+
 
 void l2cc_configure(const struct _l2cc_control* cfg)
 {
