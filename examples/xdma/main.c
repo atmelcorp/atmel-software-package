@@ -133,10 +133,10 @@ ALIGNED(8) static struct _xdmad_desc_view1 xdmad_desc[MAX_LL_SIZE];
 static struct _xdmad_channel *xdmad_channel;
 
 /** Source buffer */
-ALIGNED(8) static uint8_t src_buf[512];
+ALIGNED(32) static uint8_t src_buf[512];
 
 /** Destination buffer */
-ALIGNED(8) static uint8_t dest_buf[512];
+ALIGNED(32) static uint8_t dest_buf[512];
 
 /* Current Programming DMA mode for Multiple Buffer Transfers */
 static uint8_t dma_mode = 0;

@@ -48,6 +48,7 @@
 
 #include "mutex.h"
 #include "timer.h"
+#include "compiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,8 +61,8 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static const struct _pin at24_pins[] = AT24_PINS;
 
-static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-static uint8_t read_buffer[READ_BUFFER_SIZE];
+ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 static _parser _cmd_parser;
 static uint32_t cmd_index = 0;

@@ -61,9 +61,8 @@
 
 static const struct _pin usart_pins[] = PINS_FLEXCOM4_USART_IOS2;
 
-static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-
-static uint8_t read_buffer[READ_BUFFER_SIZE];
+ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
