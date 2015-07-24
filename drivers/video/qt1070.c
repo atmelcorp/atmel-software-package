@@ -158,7 +158,7 @@
 /**
  * \brief Read one byte of data from QT1070 Register.
  *
- * \param twid   Pointer to twi driver structure.
+ * \param qt1070 Pointer to the driver structure.
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
@@ -172,7 +172,8 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 	};
 	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
 	qt1070->twid->iaddr = reg_addr;
-	twid_transfert(qt1070->twid, 0, &out, twid_finish_transfert_callback, 0);
+	twid_transfert(qt1070->twid, 0, &out,
+		       twid_finish_transfert_callback, 0);
 
 	struct _buffer in = {
 		.data = &data,
@@ -185,11 +186,12 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 /**
  * \brief  Write one byte of data to QT1070 Register.
  *
- * \param twid   Pointer to twi driver structure.
+ * \param qt1070 Pointer to the driver structure.
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr, uint8_t data)
+static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
+			      uint8_t data)
 {
 	uint8_t ldata = data;
 
@@ -199,82 +201,46 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr, uint8_t
 	};
 	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
 	qt1070->twid->iaddr = reg_addr;
-	twid_transfert(qt1070->twid, 0, &out, twid_finish_transfert_callback, 0);
+	twid_transfert(qt1070->twid, 0, &out,
+		       twid_finish_transfert_callback, 0);
 }
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief  Get chip ID.
- *
- * \param twid   Pointer to twi driver structure.
- * \return Chip Id
- */
 uint8_t qt1070_get_chip_id(struct _qt1070* qt1070)
 {
 	return _qt1070_read_reg(qt1070, QT1070_CHIP_ID);
 }
 
-/**
- * \brief  Get firmware version number.
- *
- * \param twid   Pointer to twi driver structure.
- * \return Firmware version number.
- */
 uint8_t qt1070_get_firmware_version(struct _qt1070* qt1070)
 {
 	return _qt1070_read_reg(qt1070, QT1070_REG_FIRMWARE_VERSION);
 }
 
-/**
-* \brief  Get detection status.
-*
-* \param twid   Pointer to twi driver structure.
-* \return Dectection status.
-*/
 uint8_t qt1070_get_detection_status(struct _qt1070* qt1070)
 {
 	return _qt1070_read_reg(qt1070, QT1070_REG_DETECTION_STATUS);
 }
 
-/**
- * \brief  Get Key status.
- *
- * \param twid   Pointer to twi driver structure.
- * \return Key status.
- */
 uint8_t qt1070_get_key_status(struct _qt1070* qt1070)
 {
 	return _qt1070_read_reg(qt1070, QT1070_REG_KEY_STATUS);
 }
 
-/**
- * \brief  Get key signal value in the given Key. These are the key's
- * of 16-bit key signals which are accessed as two 8-bit bytes,stored MSB first
- *
- * \param twid   Pointer to twi driver structure.
- * \param key     Key index.
- * \return Key signal value.
- */
 uint16_t qt1070_get_key_signal(struct _qt1070* qt1070, uint8_t key)
 {
 	uint8_t data[2];
-	data[0] = _qt1070_read_reg(qt1070, QT1070_REG_KEY0_SIGNAL_MSB + key * 2);
-	data[1] = _qt1070_read_reg(qt1070, QT1070_REG_KEY0_SIGNAL_LSB + key * 2);
+	data[0] = _qt1070_read_reg(qt1070,
+				   QT1070_REG_KEY0_SIGNAL_MSB + key * 2);
+	data[1] = _qt1070_read_reg(qt1070,
+				   QT1070_REG_KEY0_SIGNAL_LSB + key * 2);
 	return (data[0] << 8) | data[1];
 }
 
-/**
- * \brief  Get key reference data in the given Key. These are the key's
- * of 16-bit key reference data which are accessed as two 8-bit bytes, stored MSB first
- *
- * \param twid   Pointer to twi driver structure.
- * \param key     Key index.
- * \return Key reference data.
- */
-uint16_t qt1070_get_key_reference(struct _qt1070* qt1070, uint8_t key)
+uint16_t qt1070_get_key_reference(struct _qt1070* qt1070,
+				  uint8_t key)
 {
 	uint8_t data[2];
 	data[0] = _qt1070_read_reg(qt1070, QT1070_REG_REFDATA0_MSB + key * 2);
@@ -282,14 +248,8 @@ uint16_t qt1070_get_key_reference(struct _qt1070* qt1070, uint8_t key)
 	return (data[0] << 8) | data[1];
 }
 
-/**
- * \brief  Set the threshold value for the given Key.
- *
- * \param twid   Pointer to twi driver structure.
- * \param key     Key index.
- * \param threshold Threshold value.
- */
-void qt1070_set_threshold(struct _qt1070* qt1070, uint8_t key, uint8_t threshold)
+void qt1070_set_threshold(struct _qt1070* qt1070, uint8_t key,
+			  uint8_t threshold)
 {
 	// Do not use a setting of 0 as this causes a key to go into detection
 	// when its signal is equal to its reference.
@@ -297,61 +257,28 @@ void qt1070_set_threshold(struct _qt1070* qt1070, uint8_t key, uint8_t threshold
 		_qt1070_write_reg(qt1070, QT1070_REG_NTHR_KEY0 + key, threshold);
 }
 
-/**
- * \brief  Set Averaging factor and adjacent key suppression for the given Key.
- *
- * \param twid   Pointer to twi driver structure.
- * \param key     Key index.
- * \param ave     Averaging factor.
- * \param aks     AKS group index.
- */
-void qt1070_set_ave_aks(struct _qt1070* qt1070, uint8_t key, uint8_t ave, uint8_t aks)
+void qt1070_set_ave_aks(struct _qt1070* qt1070, uint8_t key, uint8_t ave,
+			uint8_t aks)
 {
-	_qt1070_write_reg(qt1070, QT1070_REG_AVEAKS_KEY0 + key, (ave << 3) | aks);
+	_qt1070_write_reg(qt1070,
+			  QT1070_REG_AVEAKS_KEY0 + key, (ave << 3) | aks);
 }
 
-/**
- * \brief Set DI level for the given Key. This 8-bit value controls the number
- * of consecutive measurement that must be confirmed as having passed the key threshold
- * before that key is registered as being in detect.
- *
- * \param twid   Pointer to twi driver structure.
- * \param key     Key index.
- * \param di      DI level.
- */
-void qt1070_set_detection_integrator(struct _qt1070* qt1070, uint8_t key, uint8_t di)
+void qt1070_set_detection_integrator(struct _qt1070* qt1070, uint8_t key,
+				     uint8_t di)
 {
 	_qt1070_write_reg(qt1070, QT1070_REG_DI_KEY0 + key, di);
 }
 
-/**
- * \brief Start a calibration cycle, the CALIBTATE flag in the detection status
- * register is set when the calibration begins and clears when the calibration
- * has finished.
- *
- * \param twid   Pointer to twi driver structure.
- */
 void qt1070_start_calibrate(struct _qt1070* qt1070)
 {
 	_qt1070_write_reg(qt1070, QT1070_REG_CALIRATE, 1);
 }
-
-/**
- * \brief Reset the device.
- *
- * \param twid   Pointer to twi driver structure.
- */
 void qt1070_start_reset(struct _qt1070* qt1070)
 {
 	_qt1070_write_reg(qt1070, QT1070_REG_RESET, 1);
 }
 
-/**
- * \brief Configure the device.
- *
- * \param qt170  Pointer to qt1070 driver structure.
- * \param twid   Pointer to twi driver structure.
- */
 uint8_t qt1070_configure(struct _qt1070* qt1070, struct _twi_desc* twid)
 {
 	uint8_t status = TWID_SUCCESS;
