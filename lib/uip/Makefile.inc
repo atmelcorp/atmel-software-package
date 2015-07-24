@@ -26,8 +26,24 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+ifeq ($(CONFIG_LIB_UIP),y)
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+lib-y += lib/uip.a
+
+uip-y :=
+
+include $(TOP)/lib/uip/source/sama5-specific/Makefile.inc
+include $(TOP)/lib/uip/source/uip_1.0/uip/Makefile.inc
+include $(TOP)/lib/uip/source/uip_1.0/apps/Makefile.inc
+include $(TOP)/lib/uip/source/uip_1.0/lib/Makefile.inc
+
+UIP_OBJS := $(addprefix $(BUILDDIR)/,$(uip-y))
+
+-include $(UIP_OBJS:.o=.d)
+
+$(BUILDDIR)/lib/uip.a: $(UIP_OBJS)
+	@mkdir -p $(BUILDDIR)/lib
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^
+
+endif

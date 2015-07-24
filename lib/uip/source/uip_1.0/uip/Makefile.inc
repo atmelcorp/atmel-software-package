@@ -26,8 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/uip
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+uip-y += lib/uip/source/uip_1.0/uip/psock.o
+uip-y += lib/uip/source/uip_1.0/uip/timer.o
+uip-y += lib/uip/source/uip_1.0/uip/uip_arp.o
+uip-y += lib/uip/source/uip_1.0/uip/uip.o
+uip-y += lib/uip/source/uip_1.0/uip/uip-fw.o
+uip-y += lib/uip/source/uip_1.0/uip/uiplib.o
+uip-y += lib/uip/source/uip_1.0/uip/uip-neighbor.o

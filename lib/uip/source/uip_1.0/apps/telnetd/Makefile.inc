@@ -26,8 +26,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/apps/telnetd
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+UIP_NEEDS_MEMB = y
+
+uip-y += lib/uip/source/uip_1.0/apps/telnetd/shell.o
+uip-y += lib/uip/source/uip_1.0/apps/telnetd/telnetd.o

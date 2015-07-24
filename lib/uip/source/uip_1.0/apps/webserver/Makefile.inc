@@ -26,8 +26,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/apps/webserver
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+uip-y += lib/uip/source/uip_1.0/apps/webserver/httpd.o
+uip-y += lib/uip/source/uip_1.0/apps/webserver/http-strings.o
+uip-y += lib/uip/source/uip_1.0/apps/webserver/httpd-fs.o
+uip-y += lib/uip/source/uip_1.0/apps/webserver/httpd-cgi.o

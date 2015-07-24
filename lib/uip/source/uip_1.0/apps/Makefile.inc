@@ -26,8 +26,14 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+ifeq ($(CONFIG_LIB_UIP_HELLOWORLD),y)
+include $(TOP)/lib/uip/source/uip_1.0/apps/hello-world/Makefile.inc
+endif
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+ifeq ($(CONFIG_LIB_UIP_TELNETD),y)
+include $(TOP)/lib/uip/source/uip_1.0/apps/telnetd/Makefile.inc
+endif
+
+ifeq ($(CONFIG_LIB_UIP_WEBSERVER),y)
+include $(TOP)/lib/uip/source/uip_1.0/apps/webserver/Makefile.inc
+endif

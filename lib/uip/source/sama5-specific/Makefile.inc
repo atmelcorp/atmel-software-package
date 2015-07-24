@@ -26,8 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/uip/source/sama5-specific
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+uip-y += lib/uip/source/sama5-specific/clock-arch.o
+uip-y += lib/uip/source/sama5-specific/gmac_tapdev.o

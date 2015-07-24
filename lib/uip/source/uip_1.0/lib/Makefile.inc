@@ -26,8 +26,10 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+ifeq ($(UIP_NEEDS_MEMB),y)
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/lib
+
+uip-y += lib/uip/source/uip_1.0/lib/memb.o
+
+endif

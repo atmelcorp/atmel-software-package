@@ -26,8 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/apps/hello-world
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+uip-y += lib/uip/source/uip_1.0/apps/hello-world/hello-world.o
