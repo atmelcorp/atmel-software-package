@@ -126,6 +126,8 @@ static void _twid_dma_read(const struct _twi_desc* desc,
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper,
 			   (void*)desc);
 
+	l2cc_clean_region(desc->region_start, desc->region_end);
+
 	xdmad_start_transfer(channel);
 }
 
@@ -174,7 +176,7 @@ static void _twid_dma_write(struct _twi_desc* desc,
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	l2cc_cache_maintenance(L2CC_DCACHE_CLEAN);
+	l2cc_clean_region(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(channel);
 }

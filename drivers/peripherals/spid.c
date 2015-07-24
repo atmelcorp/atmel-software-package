@@ -204,7 +204,7 @@ static void _spid_dma_write(const struct _spi_desc* desc,
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	l2cc_cache_maintenance(L2CC_DCACHE_CLEAN);
+	l2cc_clean_region(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -236,6 +236,8 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
+
+	l2cc_clean_region(desc->region_start, desc->region_end);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
