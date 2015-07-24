@@ -51,18 +51,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef VARIANT_DDRAM
 #define CMD_BUFFER_SIZE   16*1024*1024
 #define READ_BUFFER_SIZE  16*1024*1024
-#else
-#define CMD_BUFFER_SIZE  256
-#define READ_BUFFER_SIZE  256
-#endif
 
 static const struct _pin at25_pins[] = AT25_PINS;
 
-ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
+SECTION(".region_ddr") ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+SECTION(".region_ddr") ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
@@ -317,6 +312,10 @@ int main (void)
 {
 	/* Disable watchdog */
 	wdt_disable();
+
+#ifndef VARIANT_DDRAM
+	board_cfg_ddram();
+#endif
 
 	/* Initialize L2 cache */
 	l2cc_configure(&l2cc_cfg);

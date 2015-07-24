@@ -99,6 +99,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
+#include "peripherals/l2cc.h"
 #include "cortex-a/mmu.h"
 
 #include "misc/console.h"
@@ -142,21 +143,12 @@
 /** Absolute */
 #define abs(x)  (((x) > 0)?(x):(-(x)))
 
-#define LCD_BASE (DDR_CS_ADDR + 16*1024*1024)
-/** LCD base image buffer */
-#define ADDR_LCD_BUFFER_BASE    (LCD_BASE)
 /** Size of base image buffer */
 #define SIZE_LCD_BUFFER_BASE    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
-/** LCD Overlay 1 (OVR1) buffer */
-#define ADDR_LCD_BUFFER_OVR1    (ADDR_LCD_BUFFER_BASE + SIZE_LCD_BUFFER_BASE)
 /** Size of Overlay 1 buffer */
 #define SIZE_LCD_BUFFER_OVR1    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
-/** LCD Overlay 2 (OVR2) buffer */
-#define ADDR_LCD_BUFFER_OVR2    (ADDR_LCD_BUFFER_OVR1 + SIZE_LCD_BUFFER_OVR1)
 /** Size of Overlay 2 buffer */
 #define SIZE_LCD_BUFFER_OVR2    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
-/** LCD High End Overlay (HEO) buffer */
-#define ADDR_LCD_BUFFER_HEO     (ADDR_LCD_BUFFER_OVR2 + SIZE_LCD_BUFFER_OVR2)
 /** Size of High End Overlay buffer */
 #define SIZE_LCD_BUFFER_HEO     (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 
@@ -185,19 +177,19 @@
 
 /** LCD BASE buffer */
 
-static uint8_t *pBaseBuffer = (uint8_t *)ADDR_LCD_BUFFER_BASE;
+SECTION(".region_ddr") static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
 /** Overlay 1 buffer */
 
-static uint8_t *pOvr1Buffer = (uint8_t*)ADDR_LCD_BUFFER_OVR1;
+SECTION(".region_ddr") static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
 
 /** Overlay 2 buffer */
 
-static uint8_t *pOvr2Buffer = (uint8_t*)ADDR_LCD_BUFFER_OVR2;
+SECTION(".region_ddr") static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 
 /** High End Overlay buffer */
 
-static uint8_t *pHeoBuffer = (uint8_t*)ADDR_LCD_BUFFER_HEO;
+SECTION(".region_ddr") static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
 /** Pins for LCDC */
 static const struct _pin pins_lcd[] = PINS_LCD;
 
@@ -230,9 +222,9 @@ static uint16_t wOvr2W = 0;
 static uint16_t wOvr2H = 0;
 
 /** HEO X and Width */
-static uint16_t wHeoX  = 0, wHeoW = 0;
+static uint16_t wHeoX = 0, wHeoW = 0;
 /** HEO Y and Height */
-static uint16_t wHeoY  = BOARD_LCD_HEIGHT-1, wHeoH = 0;
+static uint16_t wHeoY = BOARD_LCD_HEIGHT-1, wHeoH = 0;
 
 /** Drawing changing step */
 static uint8_t  bDrawChange = 0;
@@ -298,14 +290,15 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
  */
 static void _LcdOn(void)
 {
-	test_pattern_24RGB(pBaseBuffer);
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_BASE, ((uint32_t)ADDR_LCD_BUFFER_BASE) + SIZE_LCD_BUFFER_BASE);
+	test_pattern_24RGB(_base_buffer);
+	l2cc_clean_region((uint32_t)_base_buffer,
+			  (uint32_t)_base_buffer + sizeof(_base_buffer));
 
 	lcdd_on();
 
 	lcdd_set_backlight(bBackLight);
 	/* Display base layer */
-	lcdd_show_base( pBaseBuffer, 24, 0 );
+	lcdd_show_base(_base_buffer, 24, 0);
 
 	/* Show magnified 'F' for rotate test */
 	wHeoImgW = 20 * EXAMPLE_LCD_SCALE;
@@ -315,15 +308,24 @@ static void _LcdOn(void)
 	bHeoBpp = 24;
 	/* Mask out background color */
 	lcdd_set_color_keying(LCDD_HEO, 0, COLOR_WHITE, 0xFFFFFF);
-	lcdd_create_canvas(LCDD_HEO, pHeoBuffer, bHeoBpp, 0, 0, wHeoImgW, wHeoImgH);
+	lcdd_create_canvas(LCDD_HEO, _heo_buffer, bHeoBpp, 0, 0,
+			   wHeoImgW, wHeoImgH);
 
 	lcdd_fill(COLOR_WHITE);
-	lcdd_draw_filled_rectangle(0, 0, wHeoImgW, 2 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
-	lcdd_draw_filled_rectangle(0, 2 * EXAMPLE_LCD_SCALE, EXAMPLE_LCD_SCALE, wHeoImgH, COLOR_BLACK);
-	lcdd_draw_filled_rectangle(2*EXAMPLE_LCD_SCALE, 10 * EXAMPLE_LCD_SCALE, 13 * EXAMPLE_LCD_SCALE, 13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
+	lcdd_draw_filled_rectangle(0, 0, wHeoImgW, 2 * EXAMPLE_LCD_SCALE,
+				   COLOR_BLACK);
+	lcdd_draw_filled_rectangle(0, 2 * EXAMPLE_LCD_SCALE, EXAMPLE_LCD_SCALE,
+				   wHeoImgH, COLOR_BLACK);
+	lcdd_draw_filled_rectangle(2*EXAMPLE_LCD_SCALE,
+				   10 * EXAMPLE_LCD_SCALE,
+				   13 * EXAMPLE_LCD_SCALE,
+				   13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
 
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_HEO, ((uint32_t)ADDR_LCD_BUFFER_HEO) + SIZE_LCD_BUFFER_HEO);
-	lcdd_show_bmp_rotated(LCDD_HEO, pHeoBuffer, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW, wHeoImgH, 0);
+	l2cc_clean_region((uint32_t)_heo_buffer,
+			  (uint32_t)_heo_buffer + sizeof(_heo_buffer));
+	lcdd_show_bmp_rotated(LCDD_HEO, _heo_buffer, bHeoBpp, SCR_X(wHeoX),
+			      SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW,
+			      wHeoImgH, 0);
 	/* It's over overlay 1 */
 	lcdd_set_prioty(LCDD_HEO, 1);
 
@@ -332,22 +334,26 @@ static void _LcdOn(void)
 	wOvr2Y = IMG_Y(BOARD_LCD_WIDTH/4);
 	wOvr2W = BOARD_LCD_WIDTH/5;
 	wOvr2H = BOARD_LCD_HEIGHT/4;
-	lcdd_create_canvas(LCDD_OVR2, pOvr2Buffer, 24, SCR_X(wOvr2X), SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
+	lcdd_create_canvas(LCDD_OVR2, _ovr2_buffer, 24, SCR_X(wOvr2X),
+			   SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
 	lcdd_fill_white();
 
 	/* Display message font 8x8 */
 	lcdd_select_font(FONT8x8);
 	lcdd_draw_string(8, 56, "ATMEL RFO", COLOR_BLACK);
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR2, ((uint32_t)ADDR_LCD_BUFFER_OVR2) + SIZE_LCD_BUFFER_OVR2);
+	l2cc_clean_region((uint32_t)_ovr2_buffer,
+			  (uint32_t)_ovr2_buffer + sizeof(_ovr2_buffer));
 
     /* Test LCD draw */
 	wOvr1X = IMG_X(0);
 	wOvr1Y = IMG_Y(0);
 	wOvr1W = BOARD_LCD_WIDTH/2;
 	wOvr1H = BOARD_LCD_HEIGHT/2;
-	lcdd_create_canvas(LCDD_OVR1, pOvr1Buffer, 24, SCR_X(wOvr1X), SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
+	lcdd_create_canvas(LCDD_OVR1, _ovr1_buffer, 24, SCR_X(wOvr1X),
+			   SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
 	lcdd_fill(OVR1_BG);
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR1, ((uint32_t)ADDR_LCD_BUFFER_OVR1) + SIZE_LCD_BUFFER_OVR1);
+	l2cc_clean_region((uint32_t)_ovr1_buffer,
+			  (uint32_t)_ovr1_buffer + sizeof(_ovr1_buffer));
 
 	printf("- LCD ON\n\r");
 }
@@ -363,31 +369,31 @@ static void _move_calc(uint16_t *pwX, uint16_t *pwY, uint8_t *pDir,
 						uint16_t wXMin, uint16_t wXMax,
 						uint16_t wYMin, uint16_t wYMax)
 {
-	uint8_t bXDir = (0xF0 & *pDir);
-	uint8_t bYDir = (0x0F & *pDir);
-	if (bXDir == 0x10){
+	uint8_t x_dir = (0xF0 & *pDir);
+	uint8_t y_dir = (0x0F & *pDir);
+	if (x_dir == 0x10) {
 		if ((*pwX) <= wXMin + bXMov){
 			(*pwX)   = wXMin;
 			(*pDir) &= ~0x10;
 		} else {
 			(*pwX) -= bXMov;
 		}
-	} else if (bXDir == 0) {
+	} else if (x_dir == 0) {
 		if ((*pwX) >= wXMax - bXMov) {
 			(*pwX)   = wXMax;
 			(*pDir) |= 0x10;
-		} else{
+		} else {
 			(*pwX) += bXMov;
 		}
 	}
-	if (bYDir == 0x01){
+	if (y_dir == 0x01) {
 		if ((*pwY) <= wYMin + bYMov){
 			(*pwY)   =  wYMin;
 			(*pDir) &= ~0x01;
 		} else {
 			(*pwY) -= bYMov;
 		}
-	} else if (bYDir == 0){
+	} else if (y_dir == 0) {
 		if ((*pwY) >= wYMax - bYMov){
 			(*pwY)   = wYMax;
 			(*pDir) |= 0x01;
@@ -497,13 +503,11 @@ static void _rotates(void)
 		wHeoY = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
 	}
 
-	printf("Show: %u,%u %d, %d %u\n\r",
-			(unsigned int)SCR_X(wHeoX), (unsigned int)SCR_Y(wHeoY),
-			(int)w, (int)h, (unsigned int)wRotate);
-	lcdd_show_bmp_rotated(LCDD_HEO,
-						0, bHeoBpp,
-						SCR_X(wHeoX), SCR_Y(wHeoY),
-						w, h, wHeoImgW, wHeoImgH, wRotate);
+	printf("Show: %u,%u %d, %d %u\n\r", (unsigned int)SCR_X(wHeoX),
+	       (unsigned int)SCR_Y(wHeoY), (int)w, (int)h,
+	       (unsigned int)wRotate);
+	lcdd_show_bmp_rotated(LCDD_HEO, 0, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY),
+			      w, h, wHeoImgW, wHeoImgH, wRotate);
 
 	if (bHeoDraw == 0) {
 		printf("\n\r");
@@ -547,7 +551,8 @@ static void _draws(void)
 		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	}
-//	cp15_flush_dcache_for_dma ((uint32_t)ADDR_LCD_BUFFER_OVR1, ((uint32_t)ADDR_LCD_BUFFER_OVR1) + SIZE_LCD_BUFFER_OVR1);
+	l2cc_clean_region((uint32_t)_ovr1_buffer,
+			  (uint32_t)_ovr1_buffer + sizeof(_ovr1_buffer));
 
 	wLastW = w;
 	wLastH = h;
@@ -572,7 +577,9 @@ static void _draws(void)
 
 	/* Display message font 10x8 */
 	lcdd_select_font(FONT10x8);
-	lcdd_draw_string(1, 1, "This example shows the \n graphic functionnalities \n  on a SAMA5D27-XULT board", COLOR_BLACK);
+	lcdd_draw_string(1, 1, "This example shows the \n graphic "
+			 "functionnalities \n  on a SAMA5D27-XULT board",
+			 COLOR_BLACK);
 }
 
 /**
@@ -615,7 +622,8 @@ static void _DbgEvents(void)
 		key = console_get_char();
 		switch(key){
 			case ' ': /* HEO & OVR1 layout */
-				lcdd_set_prioty(LCDD_HEO, !lcdd_get_prioty(LCDD_HEO));
+				lcdd_set_prioty(LCDD_HEO,
+						!lcdd_get_prioty(LCDD_HEO));
 				printf("Change priority HE0 \n\r");
 				break;
 		}
@@ -631,38 +639,27 @@ static void _DbgEvents(void)
  *
  *  \return Unused (ANSI-C compatibility).
  */
-extern int main( void )
+extern int main(void)
 {
-	uint8_t status;
 	uint32_t t1, t2;
 	uint32_t heoDly = 0;
 	uint32_t ovr1Dly = 0;
 
 	/* Disable watchdog */
-	wdt_disable() ;
+	wdt_disable();
 
 	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
 
 	/* Output example information */
-	printf( "-- LCD Example %s --\n\r", SOFTPACK_VERSION ) ;
-	printf( "-- %s\n\r", BOARD_NAME ) ;
-	printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
+	printf("-- LCD Example %s --\n\r", SOFTPACK_VERSION);
+	printf("-- %s\n\r", BOARD_NAME);
+	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
+#ifndef VARIANT_DDRAM
 	/* Configure DDR3 */
 	board_cfg_ddram();
-	cp15_disable_mmu();
-	cp15_disable_icache();
-	cp15_disable_dcache();
-
-	/* Configure PMIC */
-	status = act8945a_begin();
-	if(status) {
-		printf("--E-- Error init ACT8945A \n\r");
-	} else {
-		status = act8945a_set_regulator_voltage_out4to7(V_OUT6, 2800);
-		status = act8945a_set_regulator_state_out4to7(V_OUT6, ACT8945A_SET_ON);
-	}
+#endif
 
 	/* Configure LCD */
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
@@ -670,8 +667,9 @@ extern int main( void )
 
 	t1 = timer_get_tick();
 	printf("ADDR_LCD_BUFFER_HEO is %x, %x\n\r",
-			ADDR_LCD_BUFFER_HEO, ADDR_LCD_BUFFER_HEO+SIZE_LCD_BUFFER_HEO);
-	while(1){
+	       (unsigned int)_heo_buffer,
+	       (unsigned int)_heo_buffer+sizeof(_heo_buffer));
+	while(1) {
 		_DbgEvents();
 		t2 = timer_get_tick();
 		/* Move layers */
@@ -693,4 +691,3 @@ extern int main( void )
 		}
 	}
 }
-/** \endcond */

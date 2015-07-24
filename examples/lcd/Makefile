@@ -32,8 +32,6 @@ TOP := ../..
 
 BINNAME = lcd
 
-VARIANT = sram
-
 obj-y += examples/lcd/main.o
 
 include $(TOP)/scripts/Makefile.rules
