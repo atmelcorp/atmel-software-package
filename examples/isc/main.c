@@ -284,15 +284,14 @@ static void xdma_read_histogram(uint32_t buf)
 	xdmad_cfg.ublock_size = HIST_ENTRIES;
 	xdmad_cfg.src_addr = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
 	xdmad_cfg.dest_addr =  (uint32_t* )buf;
-	xdmad_cfg.cfg.uint32_value = 
-								XDMAC_CC_MBSIZE_SINGLE |
-								XDMAC_CC_TYPE_MEM_TRAN |
-								XDMAC_CC_CSIZE_CHK_1 |
-								XDMAC_CC_DWIDTH_WORD |
-								XDMAC_CC_SIF_AHB_IF0 |
-								XDMAC_CC_DIF_AHB_IF0 |
-								XDMAC_CC_SAM_INCREMENTED_AM |
-								XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmad_cfg.cfg.uint32_value = XDMAC_CC_MBSIZE_SINGLE
+		| XDMAC_CC_TYPE_MEM_TRAN
+		| XDMAC_CC_CSIZE_CHK_1
+		| XDMAC_CC_DWIDTH_WORD
+		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_DIF_AHB_IF0
+		| XDMAC_CC_SAM_INCREMENTED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM;
 	xdmad_cfg.block_size = 0 ;
 	xdmad_cfg.data_stride = 0;
 	xdmad_cfg.src_ublock_stride = 0;
@@ -309,7 +308,8 @@ static void xdma_read_histogram(uint32_t buf)
  * \param fractionalBit length of fractional in bit
  * \param f float value to be converted
  */
-uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit, uint8_t fractionalBit, float f)
+static uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit,
+		   uint8_t fractionalBit, float f)
 {
 	uint32_t hex;
 	if(!signBit){
@@ -346,11 +346,11 @@ static void isc_handler(void)
 	}
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
 	}
-	
+
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
 		histogram_done = true;
 	}
-	
+
 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
 }
@@ -549,7 +549,7 @@ static void configure_isc(void)
 	isc_histogram_enabled(1);
 	isc_clear_histogram_table();
 	isc_update_profile();
-	
+
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD
@@ -602,23 +602,23 @@ static void awb_update(void)
 {
 	float gain[HIST_RGGB_BAYER];
 	uint32_t gain_049[HIST_RGGB_BAYER];
-	gain[HISTOGRAM_GB] = 1.0000000; 
+	gain[HISTOGRAM_GB] = 1.0000000;
 	gain[HISTOGRAM_GR] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_GR]);
 	gain[HISTOGRAM_R] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_R]);
 	gain[HISTOGRAM_B] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_B]);
-	
+
 	gain_049[HISTOGRAM_GB] = float2hex(0, 4, 9, gain[HISTOGRAM_GB]);
 	gain_049[HISTOGRAM_GR] = float2hex(0, 4, 9, gain[HISTOGRAM_GR]);
 	gain_049[HISTOGRAM_B] = float2hex(0, 4, 9, gain[HISTOGRAM_B]);
 	gain_049[HISTOGRAM_R] = float2hex(0, 4, 9, gain[HISTOGRAM_R]);
-		
-	isc_wb_adjust_bayer_color(0, 0, 0, 0, 
-					gain_049[HISTOGRAM_R], 
-					gain_049[HISTOGRAM_GR], 
-					gain_049[HISTOGRAM_B], 
+
+	isc_wb_adjust_bayer_color(0, 0, 0, 0,
+					gain_049[HISTOGRAM_R],
+					gain_049[HISTOGRAM_GR],
+					gain_049[HISTOGRAM_B],
 					gain_049[HISTOGRAM_GB]);
 	isc_update_profile();
 }
@@ -653,7 +653,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_HIS_READY){
-		if(!histogram_done) 
+		if(!histogram_done)
 			return true;
 		histogram_done = false;
 		xdma_read_histogram(ISC_HIS_BASE_ADDRESS);
@@ -661,7 +661,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_DMA_READY){
-		if(!histogram_read) 
+		if(!histogram_read)
 			return true;
 		histogram_read = false;
 		histogram_count_up();
@@ -693,7 +693,7 @@ static bool auto_white_balance(void)
 extern int main(void)
 {
 	uint8_t key;
-    
+
 	wdt_disable();
 
 	/* Initialize console */
@@ -710,7 +710,7 @@ extern int main(void)
     cp15_disable_mmu();
 	cp15_disable_icache();
 	cp15_disable_dcache();
-    
+
 	/* TWI Initialize */
 	configure_twi();
 
@@ -719,7 +719,7 @@ extern int main(void)
 
 	/* ISI PCK clock Initialize */
 	configure_mck_clock();
-	
+
 	/* Initialize XDMA driver instance in interrupt mode */
 	xdmad_initialize(false);
 
@@ -731,7 +731,7 @@ extern int main(void)
 		return 0;
 	}
 	xdmad_prepare_channel(xdmad_channel);
-	
+
 	/* Reset Sensor board */
 	sensor_reset();
 	printf("-----------------------------------\n\r");
@@ -788,7 +788,7 @@ extern int main(void)
 	configure_lcd();
 	configure_dma_linklist();
 	configure_isc();
-	
+
 	if (sensorMode == RAW_BAYER) {
 		printf("-I- Preview start, press 'W' or 'w' to start auto white balance \n\r");
 		for(;;) {
@@ -803,4 +803,5 @@ extern int main(void)
 	} else {
 		while(1);
 	}
+	return 0;
 }
