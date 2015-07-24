@@ -32,13 +32,13 @@ CFLAGS_INC += -I$(TOP)/target/sama5d4
 
 gnu-debug-lib-y ?= $(TOP)/target/sama5d4/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/sama5d4/toolchain/gnu/cstartup.S
+iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
 
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.gdb
 iar-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.mac
-iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
 endif
 
 ifeq ($(VARIANT),ddram)
