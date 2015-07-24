@@ -180,6 +180,11 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
+	if (1+end_addr - (char*)buffer > len) {
+		printf("No data given.\r\n");
+		return;
+	}
+
 	len -= (end_addr+1) - (char*)buffer;
 
 	at25_write(&at25drv, addr, (uint8_t*)end_addr+1, len);
