@@ -49,6 +49,10 @@
 #define I_BIT            0x80
 #define F_BIT            0x40
 
+#define FPU_NON_SECURE_ACCESS_OFFSET 10
+#define FPU_ACCESS_CONTROL_OFFSET    20
+#define FPU_FPEXC_EN_BIT             0x40000000
+
 //------------------------------------------------------------------------------
 //         Startup routine
 //------------------------------------------------------------------------------
@@ -248,6 +252,18 @@ resetHandler:
 	cmp     r0, r1
 	strcc   r2, [r0], #4
 	bcc     1b
+
+/* Enable fpu */
+	/* Grant non secure access for CP10 and CP11 */
+	mrc	p15, 0, r0, c1, c1, 2
+	orr     r0, r0, #3 << FPU_NON_SECURE_ACCESS_OFFSET
+	mcr	p15, 0, r0, c1, c1, 2
+	/* Set CP10 and CP11 access permission (Privileged and User mode) */
+	ldr	r0, =(0xF << FPU_ACCESS_CONTROL_OFFSET)
+	mcr	p15, 0, r0, c1, c0, 2
+	/* Set the FPEXC EN bit to enable the FPU (and NEON instructions) */
+	mov	r1, #FPU_FPEXC_EN_BIT
+	vmsr	FPEXC, r1
 
 /* Initialize the C library */
 
