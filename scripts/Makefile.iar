@@ -35,22 +35,24 @@ iar: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
 .PHONY: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
 $(BINNAME).ewp:
 	$(ECHO) GEN $@
-	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "target" $(iar-project-template-y) > $@.1
-	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "utils" $@.1 > $@.2
-	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "drivers" $@.2 > $@.3
-	@tr '[:space:]' '\n' <<< "$(IAR_FLAGS)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.3 > $@.4
-	@tr '[:space:]' '\n' <<< "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.4 > $@.5
-	@bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.5 $(iar-linker-script-y) > $@.6
-	@bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.6 $(chip-serie-name-y) > $@.7
-	@bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.7 $(BINNAME) > $@.8
-	@bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.8 > $@.9
-	@bash $(TOP)/scripts/iar_gen_project.sh "version" $@.9 "$(SOFTPACK_VERSION)" > $@
-	@rm -f $@.*
+	$(Q)echo "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $(iar-project-template-y) "target" > $@.1
+	$(Q)echo "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.1 "utils" > $@.2
+	$(Q)echo "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.2 "drivers"> $@.3
+	$(Q)echo "$(addprefix $(TOP)/,$(lwip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.3 "lwip" > $@.4
+	$(Q)echo "$(addprefix $(TOP)/,$(uip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.4  "uip"> $@.5
+	$(Q)echo "$(IAR_FLAGS)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.5 > $@.6
+	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.6 > $@.7
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.7 $(iar-linker-script-y) > $@.8
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.8 $(chip-serie-name-y) > $@.9
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.9 $(BINNAME) > $@.10
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.10 > $@.11
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "version" $@.11 "$(SOFTPACK_VERSION)" > $@
+	$(Q)rm -f $@.*
 
 $(BINNAME).eww:
 	$(ECHO) GEN $@
-	@bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
+	$(Q)bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
 
 $(BINNAME).ewd:
 	$(ECHO) GEN $@
-	@bash $(TOP)/scripts/iar_gen_debug.sh $(iar-debug-template-y) $(iar-debug-script-y) > $@
+	$(Q)bash $(TOP)/scripts/iar_gen_debug.sh $(iar-debug-template-y) $(iar-debug-script-y) > $@
