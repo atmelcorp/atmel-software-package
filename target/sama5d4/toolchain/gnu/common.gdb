@@ -13,6 +13,9 @@ define reset_peripherals
   # Reset peripherals (using RSTC_CR)
   set *0xFC068600 = 0xA5000004
 
+  # Reset L2 Cache controller
+  set *0x00A00100 = 0x0
+
   # Disable Watchdog (using WDT_MR)
   set *0xFC068644 = 0x00008000
 
@@ -23,8 +26,8 @@ end
 # Disable DDR clock and MPDDRC controller
 # to avoid corrupted RAM data on soft reset.
 define disable_ddr
-  #set *0xF0014004 = 0x4
-  #set *0xF0014014 = (1 << 13)  
+  set *0xF0018004 = 0x4
+  set *0xF0018014 = (1 << 16)
 end
 
 define reset_registers

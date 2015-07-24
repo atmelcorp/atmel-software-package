@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -28,7 +28,7 @@
  */
 
 /*------------------------------------------------------------------------------
- *      Linker script for running in internal SRAM on the SAMA5D4
+ *      Linker script for running in internal SRAM on the SAMA5D2
  *----------------------------------------------------------------------------*/
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
@@ -39,17 +39,19 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 128K */
-	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000 /* sram, 128K */
+	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 112K */
+	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000  /* sram, 16K */
+	ddr        (W!RX) : ORIGIN = 0x20000000, LENGTH = 64M   /* ddr, 64M */
+	dma_ddr    (RWX)  : ORIGIN = 0x24000000, LENGTH = 16M   /* ddr, 16M */
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
 C_STACK_SIZE   = 0x3000;
-IRQ_STACK_SIZE = 0x100;
-FIQ_STACK_SIZE = 0x100;
-SYS_STACK_SIZE = 0x500;
-ABT_STACK_SIZE = 0x10;
-UND_STACK_SIZE = 0x10;
+IRQ_STACK_SIZE = 0x60;
+FIQ_STACK_SIZE = 0x60;
+SYS_STACK_SIZE = 0x40;
+ABT_STACK_SIZE = 0x40;
+UND_STACK_SIZE = 0x40;
 HEAP_SIZE      = 0x200;
 
 /* Section Definitions */
@@ -63,7 +65,7 @@ SECTIONS
 		*(.textEntry)
 		*(.text .text.* .gnu.linkonce.t.*)
 		*(.glue_7t) *(.glue_7)
-		*(.CP15_*)
+		*(.cp15_*)
 		*(.rodata .rodata* .gnu.linkonce.r.*)
 		*(.ARM.extab* .gnu.linkonce.armextab.*)
 
@@ -116,6 +118,24 @@ SECTIONS
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
 	} > sram
 	PROVIDE_HIDDEN (__exidx_end = .);
+
+	.region_sram (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_sram)
+	} >sram
+
+	.region_ddr (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_ddr)
+	} >ddr
+
+	.region_ddr_nocache (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_ddr_nocache)
+	} >dma_ddr
 
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :

@@ -41,6 +41,20 @@ iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.mac
 iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
 endif
 
+ifeq ($(VARIANT),ddram)
+gnu-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/ddram.ld
+gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/ddram.gdb
+iar-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram.icf
+ifeq ("y",$(TARGET:%-xplained="y"))
+iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
+endif
+ifeq ("y",$(TARGET:%-ek="y"))
+iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
+endif
+bootstrap-y ?= target/sama5d4/bootstrap.o
+bootstrap-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
+endif
+
 chip-serie-name-y = sama5d4
 
 target-y += target/sama5d4/chip.o

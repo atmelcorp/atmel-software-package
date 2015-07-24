@@ -229,8 +229,8 @@ void mmu_initialize(void)
 		    (3 << 10) |	// Access in supervisor mode (AP)
 		    (0xF << 5) |	// Domain 0xF
 		    (1 << 4) |	// (XN)
-		    (1 << 3) |	// C bit : cachable => No
-		    (1 << 2) |	// B bit : write-back => No
+		    (0 << 3) |	// C bit : cachable => No
+		    (0 << 2) |	// B bit : write-back => No
 		    (2 << 0);	// Set as 1 Mbyte section
 
 	/* section DDRCS/AES */

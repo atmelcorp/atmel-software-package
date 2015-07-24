@@ -45,7 +45,9 @@ ifeq ($(VARIANT),ddram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sama5d2-xplained_ddram.mac
+ifeq ("y",$(TARGET:%-xplained="y"))
+iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
+endif
 bootstrap-y ?= target/sama5d2/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 endif

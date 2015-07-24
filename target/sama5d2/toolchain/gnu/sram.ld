@@ -39,8 +39,10 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 128K */
-	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000 /* sram, 128K */
+	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 112K */
+	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000  /* sram, 16K */
+	ddr        (W!RX) : ORIGIN = 0x20000000, LENGTH = 64M   /* ddr, 64M */
+	dma_ddr    (RWX)  : ORIGIN = 0x24000000, LENGTH = 16M   /* ddr, 16M */
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
@@ -116,6 +118,24 @@ SECTIONS
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
 	} > sram
 	PROVIDE_HIDDEN (__exidx_end = .);
+
+	.region_sram (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_sram)
+	} >sram
+
+	.region_ddr (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_ddr)
+	} >ddr
+
+	.region_ddr_nocache (NOLOAD) :
+	{
+		. = ALIGN(4);
+		*(.region_ddr_nocache)
+	} >dma_ddr
 
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
