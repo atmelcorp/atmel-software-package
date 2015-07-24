@@ -44,7 +44,7 @@
  *----------------------------------------------------------------------------*/
 
 /** clock tick count */
-static volatile uint32_t dwClockTick;
+static volatile uint32_t clock_tick;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -53,44 +53,37 @@ static volatile uint32_t dwClockTick;
 /**
  *  Interrupt handler for TC0 interrupt.
  */
-void TC0_IrqHandler( void )
+static void tc_handler(void)
 {
-    volatile uint32_t dwDummy ;
+	uint32_t dummy;
 
-    /* Clear status bit to acknowledge interrupt */
-    dwDummy = TC0->TC_CHANNEL[0].TC_SR ;
+	/* Clear status bit to acknowledge interrupt */
+	dummy = tc_get_status(TC0, 0);
+	(void) dummy;
 
-    /* Increase tick */
-    dwClockTick ++;
+	clock_tick++;
 }
-
 
 /**
  * Initialize for timing operation
  */
 void sys_init_timing(void)
 {
-    uint32_t div;
-    uint32_t tcclks;
+	/** Enable peripheral clock. */
+	pmc_enable_peripheral(ID_TC0);
 
-    /* Clear tick value */
-    dwClockTick = 0;
+	/* Put the source vector */
+	aic_set_source_vector(ID_TC0, tc_handler);
 
-    /* Enable peripheral clock. */
-    pmc_enable_peripheral( ID_TC0 ) ;
+	/** Configure TC for a CLOCK_CONF_SECOND frequency and trigger on RC compare. */
+	tc_trigger_on_freq(TC0, 0, CLOCK_CONF_SECOND);
 
-    /* Configure TC for a CLOCK_CONF_SECOND frequency. */
-    tc_find_mck_divisor( CLOCK_CONF_SECOND, &div, &tcclks);
-    tc_configure( TC0, 0, tcclks | TC_CMR_CPCTRG );
-    TC0->TC_CHANNEL[0].TC_RC = pmc_get_master_clock() / (CLOCK_CONF_SECOND * div);
+	/* Configure and enable interrupt on RC compare */
+	tc_enable_it(TC0, 0, TC_IER_CPCS);
+	aic_enable(ID_TC0);
 
-    /* Configure and enable interrupt on RC compare */
-    //IRQ_ConfigureIT(ID_TC0,(0x0 << 5), TC0_IrqHandler);
-    aic_enable(ID_TC0);
-    TC0->TC_CHANNEL[ 0 ].TC_IER = TC_IER_CPCS ;
-
-    /* Start timer */
-    tc_start( TC0, 0 );
+	/* Start the counter if LED1 is enabled. */
+	tc_start(TC0, 0);
 }
 
 /**
@@ -98,6 +91,6 @@ void sys_init_timing(void)
  */
 unsigned int sys_get_ms(void)
 {
-    return dwClockTick;
+	return clock_tick;
 }
 

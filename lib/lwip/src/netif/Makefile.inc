@@ -26,7 +26,20 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
-
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
+lwip-y += lib/lwip/src/netif/etharp.o
+lwip-y += lib/lwip/src/netif/ethernetif.o
+lwip-y += lib/lwip/src/netif/loopif.o
+lwip-y += lib/lwip/src/netif/slipif.o
+lwip-y += lib/lwip/src/netif/ppp/auth.o
+lwip-y += lib/lwip/src/netif/ppp/chap.o
+lwip-y += lib/lwip/src/netif/ppp/chpms.o
+lwip-y += lib/lwip/src/netif/ppp/fsm.o
+lwip-y += lib/lwip/src/netif/ppp/ipcp.o
+lwip-y += lib/lwip/src/netif/ppp/lcp.o
+lwip-y += lib/lwip/src/netif/ppp/magic.o
+lwip-y += lib/lwip/src/netif/ppp/md5.o
+lwip-y += lib/lwip/src/netif/ppp/pap.o
+lwip-y += lib/lwip/src/netif/ppp/ppp.o
+lwip-y += lib/lwip/src/netif/ppp/ppp_oe.o
+lwip-y += lib/lwip/src/netif/ppp/randm.o
+lwip-y += lib/lwip/src/netif/ppp/vj.o

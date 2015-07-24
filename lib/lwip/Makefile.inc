@@ -26,7 +26,24 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+ifeq ($(CONFIG_LIB_LWIP),y)
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
+CFLAGS_INC += -I$(TOP)/lib/lwip
+
+lib-y += lib/lwip.a
+
+lwip-y :=
+
+include $(TOP)/lib/lwip/sama5/Makefile.inc
+include $(TOP)/lib/lwip/src/Makefile.inc
+
+LWIP_OBJS := $(addprefix $(BUILDDIR)/,$(lwip-y))
+
+-include $(LWIP_OBJS:.o=.d)
+
+$(BUILDDIR)/lib/lwip.a: $(LWIP_OBJS)
+	@mkdir -p $(BUILDDIR)/lib
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^
+
+endif

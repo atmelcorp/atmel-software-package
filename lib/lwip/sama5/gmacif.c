@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -38,25 +38,25 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <board.h>
-
-#include "peripherals/pio.h"
-#include "peripherals/aic.h"
-#include "peripherals/pmc.h"
+#include "chip.h"
+#include "board.h"
 
 #include "peripherals/gmacd.h"
-#include "peripherals/gmacb.h"
+#include "peripherals/pio.h"
+#include "network/phy.h"
 
 #include "lwip/opt.h"
 #include "gmacif.h"
-
 #include "lwip/def.h"
 #include "lwip/mem.h"
 #include "lwip/pbuf.h"
 #include "lwip/sys.h"
 #include "lwip/stats.h"
 #include "netif/etharp.h"
-#include "string.h"
+
+#include <string.h>
+#include <stdio.h>
+
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
@@ -67,61 +67,45 @@
 
 /* Number of buffer for RX */
 #define RX_BUFFERS  16
+
 /* Number of buffer for TX */
 #define TX_BUFFERS  8
 
 static struct gmacif Gmacif_config;
 
-/** The PINs for GMAC */
-static const struct _pin gmacPins[] = {BOARD_GMAC_RUN_PINS0};
-//static const Pin gmacModePins[] = {BOARD_GMAC_MODE_PINS};
-
 /* The GMAC driver instance */
-static sGmacd gGmacd;
+static struct _gmacd _gmacd;
 
-/* The GMACB driver instance */
-static GMacb gGmacb;
+/* The PHY driver config */
+static const struct _phy_desc _phy_desc = {
+	.addr = GMAC0_ADDR,
+	.retries = GMAC0_PHY_RETRIES,
+	.phy_addr = GMAC0_PHY_ADDR
+};
+
+/* The PHY driver instance */
+static struct _phy _phy = {
+	.desc = &_phy_desc
+};
 
 /** TX descriptors list */
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static struct _gmac_tx_descriptor gGTxDs[TX_BUFFERS];
-
-/** TX callbacks list */
-static fGmacdTransferCallback gGTxCbs[TX_BUFFERS];
+ALIGNED(8) SECTION(".region_ddr_nocache")
+static struct _gmac_desc gGTxDs[TX_BUFFERS];
 
 /** RX descriptors list */
-#if defined ( __ICCARM__ ) /* IAR Ewarm */ 
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static struct _gmac_rx_descriptor gGRxDs[RX_BUFFERS];
+ALIGNED(8) SECTION(".region_ddr_nocache")
+static struct _gmac_desc gGRxDs[RX_BUFFERS];
 
-/** Send Buffer */
-/* Section 3.6 of AMBA 2.0 spec states that burst should not cross 1K Boundaries.
-   Receive buffer manager writes are burst of 2 words => 3 lsb bits of the address
-   shall be set to 0 */
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8), __section__(".region_dma_nocache")))
-#endif
+/** TX Buffers */
+ALIGNED(32) SECTION(".region_ddr")
 static uint8_t pGTxBuffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
 
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8), __section__(".region_dma_nocache")))
-#endif/** Receive Buffer */
+/** RX Buffers */
+ALIGNED(32) SECTION(".region_ddr")
 static uint8_t pGRxBuffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
+
+/** TX callbacks list */
+static gmacd_callback_t gGTxCbs[TX_BUFFERS];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -130,13 +114,10 @@ static uint8_t pGRxBuffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
 /* Forward declarations. */
 static void  gmacif_input(struct netif *netif);
 static err_t gmacif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr);
-void GMAC_IrqHandler(void);
 
 static void glow_level_init(struct netif *netif)
 {
     struct gmacif *gmacif = netif->state;
-    sGmacd *pGmacd = &gGmacd;
-    GMacb  *pGmacb = &gGmacb;
 
     /* set MAC hardware address length */
     netif->hwaddr_len = ETHARP_HWADDR_LEN;
@@ -149,39 +130,25 @@ static void glow_level_init(struct netif *netif)
     netif->hwaddr[5] = gmacif->ethaddr.addr[5];
     /* maximum transfer unit */
     netif->mtu = 1500;
-   
+
     /* device capabilities */
     netif->flags = NETIF_FLAG_BROADCAST;
-    
-    GMACD_Init(pGmacd, GMAC0, ID_GMAC0, 1, 0);
-    GMACD_InitTransfer(pGmacd, pGRxBuffer, gGRxDs, RX_BUFFERS, pGTxBuffer, gGTxDs, gGTxCbs, TX_BUFFERS);
-    gmac_set_address(gGmacd.pHw, 0, Gmacif_config.ethaddr.addr);
-    
-    /* Setup GMAC buffers and interrupts */
-    //IRQ_ConfigureIT(ID_GMAC0, (0x0 << 5), GMAC_IrqHandler);
-    aic_enable(ID_GMAC0);
 
-    /* Hard reset PHY*/
-    //pmc_enable_peripheral(ID_PIOB);
-    //pio_configure(gmacModePins, 1);
+	/* Init GMAC */
+	const struct _pin gmac_pins[] = GMAC0_PINS;
+	pio_configure(gmac_pins, ARRAY_SIZE(gmac_pins));
+	gmacd_configure(&_gmacd, GMAC0_ADDR, 1, 0);
+	gmacd_setup_queue(&_gmacd, 0, RX_BUFFERS, pGRxBuffer, gGRxDs, TX_BUFFERS, pGTxBuffer, gGTxDs, gGTxCbs);
+	gmac_set_mac_addr(_gmacd.gmac, 0, Gmacif_config.ethaddr.addr);
+	gmacd_start(&_gmacd);
 
-    /* Init GMACB driver */
-    GMACB_Init(pGmacb, pGmacd, BOARD_GMAC_PHY_ADDR);
-    
-    /* PHY initialize */
-    if (!GMACB_InitPhy(pGmacb, pmc_get_master_clock(),  0, 0,  gmacPins, ARRAY_SIZE(gmacPins)))
-    {
-        printf("P: PHY Initialize ERROR!\n\r");
-        return ;
-    }
-   
-    /* Auto Negotiate, work in RMII mode */
-    if (!GMACB_AutoNegotiate(pGmacb))
-    {
-        printf( "P: Auto Negotiate ERROR!\n\r" ) ;
-        return;
-    }
-    printf( "P: Link detected \n\r" ) ;
+	/* Init PHY */
+	phy_configure(&_phy);
+	if (phy_auto_negotiate(&_phy)) {
+		printf( "P: Link detected \n\r");
+	} else {
+		printf( "P: Auto Negotiate ERROR!\n\r");
+	}
 }
 
 /**
@@ -216,7 +183,7 @@ static err_t glow_level_output(struct netif *netif, struct pbuf *p)
     }
 
     /* signal that packet should be sent(); */
-    rc = GMACD_Send(&gGmacd, buf, p->tot_len, NULL);
+    rc = gmacd_send(&_gmacd, 0, buf, p->tot_len, NULL);
     if (rc != GMACD_OK) {
         return ERR_BUF;
     }
@@ -237,31 +204,31 @@ static err_t glow_level_output(struct netif *netif, struct pbuf *p)
  *         NULL on memory error
  */
 static struct pbuf *glow_level_input(struct netif *netif)
-{                    
+{
     struct pbuf *p, *q;
     u16_t len;
     uint8_t buf[1514];
     uint8_t *bufptr = &buf[0];
-    
+
     uint32_t frmlen;
     uint8_t rc;
-    
+
     /* Obtain the size of the packet and put it into the "len"
        variable. */
-    rc = GMACD_Poll(&gGmacd, buf, (uint32_t)sizeof(buf), (uint32_t*)&frmlen);
+    rc = gmacd_poll(&_gmacd, 0, buf, (uint32_t)sizeof(buf), (uint32_t*)&frmlen);
     if (rc != GMACD_OK)
-    { 
+    {
       return NULL;
     }
     len = frmlen;
-    
+
 #if ETH_PAD_SIZE
     len += ETH_PAD_SIZE;      /* allow room for Ethernet padding */
 #endif
 
     /* We allocate a pbuf chain of pbufs from the pool. */
     p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
-    
+
     if (p != NULL) {
 #if ETH_PAD_SIZE
         pbuf_header(p, -ETH_PAD_SIZE);          /* drop the padding word */
@@ -318,14 +285,14 @@ static void gmacif_input(struct netif *netif)
     struct eth_hdr *ethhdr;
     struct pbuf *p;
     gmacif = netif->state;
-    
+
     /* move received packet into a new pbuf */
     p = glow_level_input(netif);
     /* no packet could be read, silently ignore this */
     if (p == NULL) return;
     /* points to packet payload, which starts with an Ethernet header */
     ethhdr = p->payload;
-    
+
     switch (htons(ethhdr->type)) {
         /* IP packet? */
         case ETHTYPE_IP:
@@ -334,7 +301,7 @@ static void gmacif_input(struct netif *netif)
             /* pass to network layer */
             netif->input(p, netif);
             break;
-        
+
         case ETHTYPE_ARP:
             /* pass p to ARP module  */
             etharp_arp_input(netif, &gmacif->ethaddr, p);
@@ -349,14 +316,6 @@ static void gmacif_input(struct netif *netif)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-
-/**
- * Gmac interrupt handler
- */
-void GMAC0_IrqHandler(void)
-{
-    GMACD_Handler(&gGmacd);
-}
 
 /**
  * Set the MAC address of the system.

@@ -26,7 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+lwip-inc-$(CONFIG_LIB_LWIP_IPV6) = -I$(TOP)/lib/lwip/src/include/ipv6
+lwip-inc-$(CONFIG_LIB_LWIP_IPV4) = -I$(TOP)/lib/lwip/src/include/ipv4
 
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
+CFLAGS_INC += -I$(TOP)/lib/lwip/src/include
+CFLAGS_INC += $(lwip-inc-y)
+
+include $(TOP)/lib/lwip/src/api/Makefile.inc
+include $(TOP)/lib/lwip/src/core/Makefile.inc
+include $(TOP)/lib/lwip/src/netif/Makefile.inc

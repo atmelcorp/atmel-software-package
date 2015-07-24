@@ -26,7 +26,11 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
-
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
+lwip-y += lib/lwip/src/api/api_lib.o
+lwip-y += lib/lwip/src/api/api_msg.o
+lwip-y += lib/lwip/src/api/err.o
+lwip-y += lib/lwip/src/api/netbuf.o
+lwip-y += lib/lwip/src/api/netdb.o
+lwip-y += lib/lwip/src/api/netifapi.o
+lwip-y += lib/lwip/src/api/sockets.o
+lwip-y += lib/lwip/src/api/tcpip.o
