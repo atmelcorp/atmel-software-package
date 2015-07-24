@@ -296,6 +296,12 @@ void *get_qspi_mem_from_addr(const Qspi* addr)
 	else return NULL;
 }
 
+uint32_t get_gmac_id_from_addr(const Gmac* addr)
+{
+	if (addr == (void*)GMAC0) return ID_GMAC0;
+	else return ID_PERIPH_COUNT;
+}
+
 Matrix* get_peripheral_matrix(uint32_t id)
 {
 	int i;

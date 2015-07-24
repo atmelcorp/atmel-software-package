@@ -33,315 +33,489 @@
 
 #include "board.h"
 #include "chip.h"
-
+#include "trace.h"
 
 #include "peripherals/gmac.h"
-#include "trace.h"
+#include "peripherals/pmc.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
- *        Definitions
+ *        Local definitions
  *----------------------------------------------------------------------------*/
-/** The buffer addresses written into the descriptors must be aligned so the
-    last few bits are zero.  These bits have special meaning for the GMAC
-     peripheral and cannot be used as part of the address.*/
 
-#define GMAC_ADDRESS_MASK   ((uint32_t)0xFFFFFFFC)
-#define GMAC_LENGTH_FRAME   ((uint32_t)0x3FFF)	    /** Length of frame mask */
-/** receive buffer descriptor bits */
-#define GMAC_RX_OWNERSHIP_BIT   (1 <<  0)
-#define GMAC_RX_WRAP_BIT        (1 <<  1)
-#define GMAC_RX_SOF_BIT         (1 << 14)
-#define GMAC_RX_EOF_BIT         (1 << 15)
+/* some IP versions don't have this configuration flag and instead expect 0 */
+#ifndef GMAC_NCFGR_DBW_DBW32
+#define GMAC_NCFGR_DBW_DBW32 0
+#endif
 
-/** Transmit buffer descriptor bits */
-#define GMAC_TX_LAST_BUFFER_BIT (1 << 15)
-#define GMAC_TX_WRAP_BIT        (1 << 30)
-#define GMAC_TX_USED_BIT        (1 << 31)
-#define GMAC_TX_RLE_BIT         (1 << 29) /** Retry Limit Exceeded */
-#define GMAC_TX_UND_BIT         (1 << 28) /** Tx Buffer Underrun */
-#define GMAC_TX_ERR_BIT         (1 << 27) /** Exhausted in mid-frame */
-#define GMAC_TX_ERR_BITS  \
-    (GMAC_TX_RLE_BIT | GMAC_TX_UND_BIT | GMAC_TX_ERR_BIT)
+/* some IP versions don't have this error flag, set it to 0 to ignore it */
+#ifndef GMAC_TSR_UND
+#define GMAC_TSR_UND 0
+#endif
 
-#define GMAC_NCFGR_GBE (0x1u << 10)
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static bool _gmac_configure_mdc_clock(Gmac *gmac)
+{
+	uint32_t mck, clk;
+
+	mck = pmc_get_peripheral_clock(get_gmac_id_from_addr(gmac));
+
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Find divider */
+	if (mck <= 20000000) {
+		clk = GMAC_NCFGR_CLK_MCK_8; // MCK/8
+	} else if (mck <= 40000000) {
+		clk = GMAC_NCFGR_CLK_MCK_16; // MCK/16
+	} else if (mck <= 80000000) {
+		clk = GMAC_NCFGR_CLK_MCK_32; // MCK/32
+	} else if (mck <= 120000000) {
+		clk = GMAC_NCFGR_CLK_MCK_48; // MCK/48
+	} else if (mck <= 160000000) {
+		clk = GMAC_NCFGR_CLK_MCK_64; // MCK/64
+	} else if (mck <= 240000000) {
+		clk = GMAC_NCFGR_CLK_MCK_96; // MCK/96
+	} else {
+		trace_error("MCK too high, cannot configure MDC clock.\r\n");
+		return false;
+	}
+
+	/* configure MDC clock divider and enable RX/TX */
+	gmac->GMAC_NCFGR = (gmac->GMAC_NCFGR & ~GMAC_NCFGR_CLK_Msk) | clk;
+	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	return true;
+}
+
+static bool _gmac_phy_wait_idle(Gmac* gmac, uint32_t retries)
+{
+	uint32_t count = 0;
+	while ((gmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) {
+		if (retries > 0 && count > retries) {
+			trace_debug("Timeout reached while waiting for PHY management logic to become idle");
+			return false;
+		}
+		count++;
+	}
+	return true;
+}
+
+static void _gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+{
+	/* Configure duplex */
+	switch (duplex) {
+	case GMAC_DUPLEX_HALF:
+		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_FD;
+		break;
+	case GMAC_DUPLEX_FULL:
+		gmac->GMAC_NCFGR |= GMAC_NCFGR_FD;
+		break;
+	default:
+		trace_error("Invalid duplex value %d\r\n", duplex);
+		return;
+	}
+
+	/* Configure speed */
+	switch (speed) {
+	case GMAC_SPEED_10M:
+		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_SPD;
+		break;
+	case GMAC_SPEED_100M:
+		gmac->GMAC_NCFGR |= GMAC_NCFGR_SPD;
+		break;
+	default:
+		trace_error("Invalid speed value %d\r\n", speed);
+		return;
+	}
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-uint8_t gmac_is_idle(Gmac * gmac)
+bool gmac_configure(Gmac* gmac)
 {
-	return ((gmac->GMAC_NSR & GMAC_NSR_IDLE) > 0);
+	pmc_enable_peripheral(get_gmac_id_from_addr(gmac));
+
+	/* Disable TX & RX and more */
+	gmac_set_network_control_register(gmac, 0);
+	gmac_set_network_config_register(gmac, GMAC_NCFGR_DBW_DBW32);
+
+	/* Disable interrupts */
+	gmac_disable_it(gmac, 0, ~0u);
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	gmac_disable_it(gmac, 1, ~0u);
+	gmac_disable_it(gmac, 2, ~0u);
+#endif
+
+	/* Clear statistics */
+	gmac_clear_statistics(gmac);
+
+	/* Clear all status bits in the receive status register. */
+	gmac_clear_rx_status(gmac, GMAC_RSR_RXOVR | GMAC_RSR_REC |
+			GMAC_RSR_BNA | GMAC_RSR_HNO);
+
+	/* Clear all status bits in the transmit status register */
+	gmac_clear_tx_status(gmac, GMAC_TSR_UBR | GMAC_TSR_COL |
+			GMAC_TSR_RLE | GMAC_TSR_TXGO | GMAC_TSR_TFC |
+			GMAC_TSR_TXCOMP | GMAC_TSR_UND | GMAC_TSR_HRESP);
+
+	/* Clear interrupts */
+	gmac_get_it_status(gmac, 0);
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	gmac_get_it_status(gmac, 1);
+	gmac_get_it_status(gmac, 2);
+#endif
+
+	return _gmac_configure_mdc_clock(gmac);
 }
 
-void gmac_phy_maintain(Gmac * gmac, uint8_t bPhyAddr, uint8_t bRegAddr, uint8_t bRW, uint16_t wData)
+void gmac_set_network_control_register(Gmac* gmac, uint32_t ncr)
 {
-	/* Wait until bus idle */
-	while ((gmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) ;
-	/* Write maintain register */
-	gmac->GMAC_MAN = (~GMAC_MAN_WZO & GMAC_MAN_CLTTO)
-	    | (GMAC_MAN_OP(bRW ? 0x2 : 0x1))
-	    | GMAC_MAN_WTN(0x02)
-	    | GMAC_MAN_PHYA(bPhyAddr)
-	    | GMAC_MAN_REGA(bRegAddr)
-	    | GMAC_MAN_DATA(wData);
+	gmac->GMAC_NCR = ncr;
 }
 
-uint16_t gmac_phy_data(Gmac * gmac)
+uint32_t gmac_get_network_control_register(Gmac* gmac)
 {
-	/* Wait until bus idle */
-	while ((gmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) ;
-	/* Return data */
-	return (uint16_t) (gmac->GMAC_MAN & GMAC_MAN_DATA_Msk);
+	return gmac->GMAC_NCR;
 }
 
-uint8_t gmac_set_mdc_clock(Gmac * gmac, uint32_t mck)
+void gmac_set_network_config_register(Gmac* gmac, uint32_t ncfgr)
 {
-	uint32_t clock_dividor;
-
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	if (mck <= 20000000) {
-		clock_dividor = GMAC_NCFGR_CLK_MCK_8;	// MDC clock = MCK/8
-	} else if (mck <= 40000000) {
-		clock_dividor = GMAC_NCFGR_CLK_MCK_16;	// MDC clock = MCK/16
-	} else if (mck <= 80000000) {
-		clock_dividor = GMAC_NCFGR_CLK_MCK_32;	// MDC clock = MCK/32
-	} else if (mck <= 160000000) {
-		clock_dividor = GMAC_NCFGR_CLK_MCK_64;	// MDC clock = MCK/64
-	} else if (mck <= 240000000) {
-		clock_dividor = GMAC_NCFGR_CLK_MCK_96;	// MDC clock = MCK/96
-	} else {
-		trace_error("E: No valid MDC clock.\n\r");
-		return 0;
-	}
-	gmac->GMAC_NCFGR =
-	    (gmac->GMAC_NCFGR & (~GMAC_NCFGR_CLK_Msk)) | clock_dividor;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	return 1;
-}
-
-void gmac_enable_mdio(Gmac * gmac)
-{
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	gmac->GMAC_NCR |= GMAC_NCR_MPE;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-}
-
-void gmac_disable_mdio(Gmac * gmac)
-{
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	gmac->GMAC_NCR &= ~GMAC_NCR_MPE;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-}
-
-void gmac_enable_mii(Gmac * gmac)
-{
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	gmac->GMAC_UR &= ~GMAC_UR_RMII;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-}
-
-void gmac_enable_gmii(Gmac * gmac)
-{
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	/* RGMII disable */
-	gmac->GMAC_UR &= ~GMAC_UR_RMII;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-}
-
-void gmac_enable_rgmii(Gmac * gmac, uint32_t duplex, uint32_t speed)
-{
-	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	if (duplex == GMAC_DUPLEX_HALF) {
-		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_FD;
-	} else {
-		gmac->GMAC_NCFGR |= GMAC_NCFGR_FD;
-	}
-
-	if (speed == GMAC_SPEED_10M) {
-		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_SPD;
-	} else if (speed == GMAC_SPEED_100M) {
-		gmac->GMAC_NCFGR |= GMAC_NCFGR_SPD;
-	} else {
-		gmac->GMAC_NCFGR |= GMAC_NCFGR_SPD;
-	}
-
-	/* RGMII enable */
-	gmac->GMAC_UR |= GMAC_UR_RMII;
-	gmac->GMAC_NCFGR &= ~GMAC_NCFGR_GBE;
-	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
-	return;
-}
-
-void gmac_set_link_speed(Gmac * gmac, uint8_t speed, uint8_t fullduplex)
-{
-	uint32_t ncfgr;
-
-	ncfgr = gmac->GMAC_NCFGR;
-	ncfgr &= ~(GMAC_NCFGR_SPD | GMAC_NCFGR_FD);
-	if (speed) {
-		ncfgr |= GMAC_NCFGR_SPD;
-	}
-	if (fullduplex) {
-		ncfgr |= GMAC_NCFGR_FD;
-	}
 	gmac->GMAC_NCFGR = ncfgr;
+}
+
+uint32_t gmac_get_network_config_register(Gmac* gmac)
+{
+	return gmac->GMAC_NCFGR;
+}
+
+void gmac_enable_mdio(Gmac* gmac)
+{
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Enable MDIO */
+	gmac->GMAC_NCR |= GMAC_NCR_MPE;
+
+	/* Enable RX/TX */
 	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 }
 
-uint32_t gmac_set_local_loopback(Gmac * gmac)
+void gmac_disable_mdio(Gmac* gmac)
+{
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Disable MDIO */
+	gmac->GMAC_NCR &= ~GMAC_NCR_MPE;
+
+	/* Enable RX/TX */
+	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+}
+
+bool gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* data,
+		uint32_t retries)
+{
+	/* Wait until idle */
+	if (!_gmac_phy_wait_idle(gmac, retries))
+		return false;
+
+	/* Write maintenance register */
+	gmac->GMAC_MAN = GMAC_MAN_CLTTO |
+		GMAC_MAN_OP(2) |
+		GMAC_MAN_WTN(2) |
+		GMAC_MAN_PHYA(phy_addr) |
+		GMAC_MAN_REGA(reg_addr);
+
+	/* Wait until idle */
+	if (!_gmac_phy_wait_idle(gmac, retries))
+		return false;
+
+	*data = (gmac->GMAC_MAN & GMAC_MAN_DATA_Msk) >> GMAC_MAN_DATA_Pos;
+	return true;
+}
+
+bool gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t data,
+		uint32_t retries)
+{
+	/* Wait until idle */
+	if (!_gmac_phy_wait_idle(gmac, retries))
+		return false;
+
+	/* Write maintenance register */
+	gmac->GMAC_MAN = GMAC_MAN_CLTTO |
+		GMAC_MAN_OP(1) |
+		GMAC_MAN_WTN(2) |
+		GMAC_MAN_PHYA(phy_addr) |
+		GMAC_MAN_REGA(reg_addr) |
+		GMAC_MAN_DATA(data);
+
+	/* Wait until idle */
+	return _gmac_phy_wait_idle(gmac, retries);
+}
+
+void gmac_enable_mii(Gmac* gmac)
+{
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Disable RMII */
+	gmac->GMAC_UR &= ~GMAC_UR_RMII;
+
+	/* Enable RX/TX */
+	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+}
+
+void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+{
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Configure speed/duplex */
+	_gmac_set_link_speed(gmac, speed, duplex);
+
+	/* Enable RMII */
+	gmac->GMAC_UR |= GMAC_UR_RMII;
+
+	/* Enable RX/TX */
+	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+}
+
+void gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+{
+	/* Disable RX/TX */
+	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+
+	/* Configure speed/duplex */
+	_gmac_set_link_speed(gmac, speed, duplex);
+
+	/* Enable RX/TX */
+	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
+}
+
+void gmac_enable_local_loopback(Gmac* gmac)
 {
 	gmac->GMAC_NCR |= GMAC_NCR_LBL;
-	return 0;
 }
 
-uint32_t gmac_get_it_mask(Gmac * gmac)
+void gmac_disable_local_loopback(Gmac* gmac)
 {
-	return gmac->GMAC_IMR;
+	gmac->GMAC_NCR &= ~GMAC_NCR_LBL;
 }
 
-uint32_t gmac_get_tx_status(Gmac * gmac)
+uint32_t gmac_get_tx_status(Gmac* gmac)
 {
 	return gmac->GMAC_TSR;
 }
 
-void gmac_clear_tx_status(Gmac * gmac, uint32_t status)
+void gmac_clear_tx_status(Gmac* gmac, uint32_t mask)
 {
-	gmac->GMAC_TSR = status;
+	gmac->GMAC_TSR = mask;
 }
 
-uint32_t gmac_get_rx_status(Gmac * gmac)
+uint32_t gmac_get_rx_status(Gmac* gmac)
 {
 	return gmac->GMAC_RSR;
 }
 
-void gmac_clear_rx_status(Gmac * gmac, uint32_t status)
+void gmac_clear_rx_status(Gmac* gmac, uint32_t mask)
 {
-	gmac->GMAC_RSR = status;
+	gmac->GMAC_RSR = mask;
 }
 
-void gmac_receive_enable(Gmac * gmac, uint8_t on_off)
+void gmac_receive_enable(Gmac* gmac, bool enable)
 {
-	if (on_off)
+	if (enable)
 		gmac->GMAC_NCR |= GMAC_NCR_RXEN;
 	else
 		gmac->GMAC_NCR &= ~GMAC_NCR_RXEN;
 }
 
-void gmac_transmit_enable(Gmac * gmac, uint8_t on_off)
+void gmac_transmit_enable(Gmac* gmac, bool enable)
 {
-	if (on_off)
+	if (enable)
 		gmac->GMAC_NCR |= GMAC_NCR_TXEN;
 	else
 		gmac->GMAC_NCR &= ~GMAC_NCR_TXEN;
 }
 
-void gmac_set_rx_queue(Gmac * gmac, uint32_t addr)
+void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
 {
-	gmac->GMAC_RBQB = GMAC_RBQB_ADDR_Msk & addr;
+	if (queue == 0) {
+		gmac->GMAC_RBQB = ((uint32_t)desc) & GMAC_RBQB_ADDR_Msk;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		gmac->GMAC_RBQBAPQ[queue - 1] = ((uint32_t)desc) & GMAC_RBQBAPQ_RXBQBA_Msk;
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+	}
 }
 
-uint32_t gmac_get_rx_queue(Gmac * gmac)
+struct _gmac_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue)
 {
-	return gmac->GMAC_RBQB;
+	if (queue == 0) {
+		return (struct _gmac_desc*)(gmac->GMAC_RBQB & GMAC_RBQB_ADDR_Msk);
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		return (struct _gmac_desc*)(gmac->GMAC_RBQBAPQ[queue - 1] & GMAC_RBQBAPQ_RXBQBA_Msk);
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+		return NULL;
+	}
 }
 
-void gmac_set_tx_queue(Gmac * gmac, uint32_t addr)
+void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
 {
-	gmac->GMAC_TBQB = GMAC_TBQB_ADDR_Msk & addr;
+	if (queue == 0) {
+		gmac->GMAC_TBQB = ((uint32_t)desc) & GMAC_TBQB_ADDR_Msk;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		gmac->GMAC_TBQBAPQ[queue - 1] = ((uint32_t)desc) & GMAC_TBQBAPQ_TXBQBA_Msk;
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+	}
 }
 
-uint32_t gmac_get_tx_queue(Gmac * gmac)
+struct _gmac_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue)
 {
-	return gmac->GMAC_TBQB;
+	if (queue == 0) {
+		return (struct _gmac_desc*)(gmac->GMAC_TBQB & GMAC_TBQB_ADDR_Msk);
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		return (struct _gmac_desc*)(gmac->GMAC_TBQBAPQ[queue - 1] & GMAC_TBQBAPQ_TXBQBA_Msk);
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+		return NULL;
+	}
 }
 
-void gmac_network_control(Gmac * gmac, uint32_t ncr)
+uint32_t gmac_get_it_mask(Gmac* gmac, uint8_t queue)
 {
-	gmac->GMAC_NCR = ncr;
+	if (queue == 0) {
+		return gmac->GMAC_IMR;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		return gmac->GMAC_IMRPQ[queue - 1];
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+		return 0;
+	}
 }
 
-uint32_t gmac_get_network_control(Gmac * gmac)
+void gmac_enable_it(Gmac* gmac, uint8_t queue, uint32_t mask)
 {
-	return gmac->GMAC_NCR;
+	if (queue == 0) {
+		gmac->GMAC_IER = mask;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		gmac->GMAC_IERPQ[queue - 1] = mask;
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+	}
 }
 
-void gmac_enable_it(Gmac * gmac, uint32_t sources)
+void gmac_disable_it(Gmac * gmac, uint8_t queue, uint32_t mask)
 {
-	gmac->GMAC_IER = sources;
+	if (queue == 0) {
+		gmac->GMAC_IDR = mask;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		gmac->GMAC_IDRPQ[queue - 1] = mask;
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+	}
 }
 
-void gmac_disable_it(Gmac * gmac, uint32_t sources)
+uint32_t gmac_get_it_status(Gmac* gmac, uint8_t queue)
 {
-	gmac->GMAC_IDR = sources;
+	if (queue == 0) {
+		return gmac->GMAC_ISR;
+	}
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+	else if (queue <= GMAC_NUM_QUEUES) {
+		return gmac->GMAC_ISRPQ[queue - 1];
+	}
+#endif
+	else {
+		trace_debug("Invalid queue number %d\r\n", queue);
+		return 0;
+	}
 }
 
-uint32_t gmac_get_it_status(Gmac * gmac)
+void gmac_set_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac)
 {
-	return gmac->GMAC_ISR;
+	gmac->GMAC_SA[sa_idx].GMAC_SAB = (mac[3] << 24) |
+		(mac[2] << 16) | (mac[1] << 8) | mac[0];
+	gmac->GMAC_SA[sa_idx].GMAC_SAT = (mac[5] << 8) |
+		mac[4];
 }
 
-void gmac_set_address(Gmac * gmac, uint8_t index, uint8_t * mac_addr)
+void gmac_set_mac_addr32(Gmac* gmac, uint8_t sa_idx,
+			 uint32_t mac_top, uint32_t mac_bottom)
 {
-	gmac->GMAC_SA[index].GMAC_SAB = (mac_addr[3] << 24)
-	    | (mac_addr[2] << 16)
-	    | (mac_addr[1] << 8)
-	    | (mac_addr[0]);
-	gmac->GMAC_SA[index].GMAC_SAT = (mac_addr[5] << 8)
-	    | (mac_addr[4]);
+	gmac->GMAC_SA[sa_idx].GMAC_SAB = mac_bottom;
+	gmac->GMAC_SA[sa_idx].GMAC_SAT = mac_top;
 }
 
-void gmac_set_address_32(Gmac * gmac, uint8_t bIndex,
-			 uint32_t mac_t, uint32_t mac_b)
+void gmac_set_mac_addr64(Gmac* gmac, uint8_t sa_idx, uint64_t mac)
 {
-	gmac->GMAC_SA[bIndex].GMAC_SAB = mac_b;
-	gmac->GMAC_SA[bIndex].GMAC_SAT = mac_t;
+	gmac->GMAC_SA[sa_idx].GMAC_SAB = (uint32_t)(mac & 0xffffffff);
+	gmac->GMAC_SA[sa_idx].GMAC_SAT = (uint32_t)(mac >> 32);
 }
 
-void gmac_set_address_64(Gmac * gmac, uint8_t bIndex, uint64_t mac)
-{
-	gmac->GMAC_SA[bIndex].GMAC_SAB = (uint32_t) mac;
-	gmac->GMAC_SA[bIndex].GMAC_SAT = (uint32_t) (mac >> 32);
-}
-
-void gmac_clear_statistics(Gmac * gmac)
+void gmac_clear_statistics(Gmac* gmac)
 {
 	gmac->GMAC_NCR |= GMAC_NCR_CLRSTAT;
 }
 
-void gmac_increase_statistics(Gmac * gmac)
+void gmac_increase_statistics(Gmac* gmac)
 {
 	gmac->GMAC_NCR |= GMAC_NCR_INCSTAT;
 }
 
-void gmac_statistics_write_enable(Gmac * gmac, uint8_t on_off)
+void gmac_enable_statistics_write(Gmac* gmac, bool enable)
 {
-	if (on_off)
+	if (enable)
 		gmac->GMAC_NCR |= GMAC_NCR_WESTAT;
 	else
 		gmac->GMAC_NCR &= ~GMAC_NCR_WESTAT;
 }
 
-void gmac_configure(Gmac * gmac, uint32_t cfg)
-{
-	gmac->GMAC_NCFGR = cfg;
-}
-
-uint32_t gmac_get_configure(Gmac * gmac)
-{
-	return gmac->GMAC_NCFGR;
-}
-
-void gmac_transmission_start(Gmac * gmac)
+void gmac_start_transmission(Gmac * gmac)
 {
 	gmac->GMAC_NCR |= GMAC_NCR_TSTART;
 }
 
-void gmac_transmission_halt(Gmac * gmac)
+void gmac_halt_transmission(Gmac * gmac)
 {
 	gmac->GMAC_NCR |= GMAC_NCR_THALT;
 }

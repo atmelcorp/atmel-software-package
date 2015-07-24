@@ -252,6 +252,13 @@ uint32_t get_tc_id_from_addr(const Tc* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+uint32_t get_gmac_id_from_addr(const Gmac* addr)
+{
+	if (addr == GMAC0) return ID_GMAC0;
+	else if (addr == GMAC1) return ID_GMAC1;
+	else return ID_PERIPH_COUNT;
+}
+
 Matrix* get_peripheral_matrix(uint32_t id)
 {
 	int i;

@@ -49,7 +49,7 @@ typedef enum IRQn
 {
   PIT_IRQn             =  3, /**<  3 Periodic Interval Timer Interrupt (PIT) */
   WDT_IRQn             =  4, /**<  4 Watchdog timer Interrupt (WDT) */
-  GMAC_IRQn            =  5, /**<  5 Ethernet MAC (GMAC) */
+  GMAC0_IRQn           =  5, /**<  5 Ethernet MAC (GMAC0) */
   XDMAC0_IRQn          =  6, /**<  6 DMA Controller 0 (XDMAC0) */
   XDMAC1_IRQn          =  7, /**<  7 DMA Controller 1 (XDMAC1) */
   ICM_IRQn             =  8, /**<  8 Integritry Check Monitor (ICM) */

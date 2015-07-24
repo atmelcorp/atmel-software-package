@@ -79,204 +79,148 @@
  */
 /**@}*/
 
-#ifndef _GMAC_H
-#define _GMAC_H
+#ifndef _GMAC_H_
+#define _GMAC_H_
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "chip.h"
 
+#include <stdbool.h>
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*----------------------------------------------------------------------------
  *        Defines
  *----------------------------------------------------------------------------*/
+
 /** \addtogroup gmac_defines
 	@{*/
 
-/// Board GMAC base address
+#ifdef CONFIG_HAVE_GMAC_QUEUES
+#define GMAC_NUM_QUEUES 3
+#else
+#define GMAC_NUM_QUEUES 1
+#endif
 
-/// Number of buffer for RX, be careful: MUST be 2^n
-#define GRX_BUFFERS  16
-/// Number of buffer for TX, be careful: MUST be 2^n
-#define GTX_BUFFERS   8
+#define GMAC_MAX_FRAME_LENGTH       1536
+#define GMAC_MAX_JUMBO_FRAME_LENGTH 10240
 
-/// Buffer Size
-#define GMAC_RX_UNITSIZE            128	/// Fixed size for RX buffer
-#define GMAC_TX_UNITSIZE            1518	/// Size for ETH frame length
+enum _gmac_duplex {
+	GMAC_DUPLEX_HALF = 0,
+	GMAC_DUPLEX_FULL = 1,
+};
 
-// The MAC can support frame lengths up to 1536 bytes.
-#define GMAC_FRAME_LENTGH_MAX       1536
+enum _gmac_speed {
+	GMAC_SPEED_10M   = 0,
+	GMAC_SPEED_100M  = 1,
+};
 
-//
-#define GMAC_DUPLEX_HALF	0
-#define GMAC_DUPLEX_FULL	1
+/* Bits contained in struct _gmac_desc addr when used for RX*/
+#define GMAC_RX_ADDR_OWN  (1u << 0)
+#define GMAC_RX_ADDR_WRAP (1u << 1)
+#define GMAC_RX_ADDR_MASK 0xfffffffcu
 
-//
-#define GMAC_SPEED_10M      0
-#define GMAC_SPEED_100M     1
-#define GMAC_SPEED_1000M    2
+/* Bits contained in struct _gmac_desc status when used for RX */
+#define GMAC_RX_STATUS_LENGTH_MASK 0x3fffu
+#define GMAC_RX_STATUS_SOF         (1u << 14)
+#define GMAC_RX_STATUS_EOF         (1u << 15)
+
+/* Bits contained in struct _gmac_desc status when used for TX */
+#define GMAC_TX_STATUS_LASTBUF (1u << 15)
+#define GMAC_TX_STATUS_WRAP    (1u << 30)
+#define GMAC_TX_STATUS_USED    (1u << 31)
+
 /**@}*/
 
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
+
 /** \addtogroup gmac_structs
 	@{*/
-/** Receive buffer descriptor struct */
-struct _gmac_rx_descriptor {
-	union gmac_rx_addr {
-		uint32_t val;
-		struct gmac_rx_addr_bm {
-			/** User clear, GMAC set this to one once it
-			has successfully written a frame to memory */
-			uint32_t bOwnership:1,
-			/** Marks last descriptor in rx buffer */
-			bWrap:1,
-			/** Address in number of DW */
-			addrDW:30;
-		} bm;
-	} addr;         /**< Address, Wrap & Ownership */
-	union gmac_rx_status {
-		uint32_t val;
-		struct gmac_rx_status_bm {
-			/** Length of frame including FCS */
-			uint32_t len:12,
-			/** Receive buffer offset, bits 13:12 of frame
-			 * length for jumbo frame */
-				offset:2,
-			/** Start of frame */
-				bSof:1,
-			/** End of frame */
-				bEof:1,
-			/** Concatenation Format Indicator */
-				bCFI:1,
-			/** VLAN priority (if VLAN detected) */
-				vlanPriority:3,
-			/** Priority tag detected */
-				bPriorityDetected:1,
-			/** VLAN tag detected */
-				bVlanDetected:1,
-			/** Type ID match */
-				bTypeIDMatch:1,
-			/** Address register 4 match */
-				bAddr4Match:1,
-			/** Address register 3 match */
-				bAddr3Match:1,
-			/** Address register 2 match */
-				bAddr2Match:1,
-			/** Address register 1 match */
-				bAddr1Match:1,
-				reserved:1,
-			/** External address match */
-				bExtAddrMatch:1,
-			/** Unicast hash match */
-				bUniHashMatch:1,
-			/** Multicast hash match */
-				bMultiHashMatch:1,
-			/** Global all ones broadcast address detected */
-				bBroadcastDetected:1;
-		} bm;
-	} status;
-} ;
 
-/** Transmit buffer descriptor struct */
-struct _gmac_tx_descriptor {
+/** Transmit/Receive buffer descriptor struct */
+struct _gmac_desc {
 	uint32_t addr;
-	union gmac_tx_status {
-		uint32_t val;
-		struct gmac_tx_status_bm {
-			/** Length of buffer */
-			uint32_t len:11,
-				reserved:4,
-			/** Last buffer (in the current frame) */
-				bLastBuffer:1,
-			/** No CRC */
-				bNoCRC:1,
-				reserved1:10,
-			/** Buffer exhausted in mid frame */
-				bExhausted:1,
-			/** Transmit underrun */
-				bUnderrun:1,
-			/** Retry limit exceeded, error detected */
-				bError:1,
-			/** Marks last descriptor in TD list */
-				bWrap:1,
-			/** User clear, GMAC sets this once a frame
-			 * has been successfully transmitted */
-				bUsed:1;
-		} bm;
-	} status;
+	uint32_t status;
 };
 
 /**     @}*/
 
 /*----------------------------------------------------------------------------
- *        PHY Exported functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- *  \brief Return 1 if PHY is idle
- */
-extern uint8_t gmac_is_idle(Gmac * gmac);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
- *  \brief Execute PHY maintenance command
+ * TODO
  */
-extern void gmac_phy_maintain(Gmac * gmac, uint8_t phy_addr,
-			      uint8_t bRegAddr, uint8_t rw, uint16_t data);
+extern bool gmac_configure(Gmac *gmac);
 
 /**
- *  \brief Return PHY maintenance data returned
+ *  \brief Write NCR register value
  */
-extern uint16_t gmac_phy_data(Gmac * gmac);
+extern void gmac_set_network_control_register(Gmac * gmac, uint32_t ncr);
 
 /**
- *  \brief Set MDC clock according to current board clock. Per 802.3,
- *  MDC should be less then 2.5MHz.
- *
- *  \param gmac Pointer to an Gmac instance.
- *  \param mck Mdc clock
- *  \return 1 if successfully, 0 if MDC clock not found.
+ *  \brief Get NCR register value
  */
-extern uint8_t gmac_set_mdc_clock(Gmac * gmac, uint32_t mck);
+extern uint32_t gmac_get_network_control_register(Gmac * gmac);
+
+/**
+ *  \brief Set network configuration register
+ */
+extern void gmac_set_network_config_register(Gmac* gmac, uint32_t ncfgr);
+
+/**
+ *  \brief Get network configuration register
+ */
+
+extern uint32_t gmac_get_network_config_register(Gmac* gmac);
 
 /**
  *  \brief Enable MDI with PHY
  *  \param gmac Pointer to an Gmac instance.
  */
-extern void gmac_enable_mdio(Gmac * gmac);
+extern void gmac_enable_mdio(Gmac* gmac);
 
 /**
  *  \brief Disable MDI with PHY
  *  \param gmac Pointer to an Gmac instance.
  */
-extern void gmac_disable_mdio(Gmac * gmac);
+extern void gmac_disable_mdio(Gmac* gmac);
+
+/**
+ *  \brief Execute PHY read command
+ */
+extern bool gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t* data, uint32_t retries);
+
+/**
+ *  \brief Execute PHY write command
+ */
+extern bool gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t data, uint32_t retries);
 
 /**
  *  \brief Enable MII mode for GMAC, called once after autonegotiate
  *  \param gmac Pointer to an Gmac instance.
  */
-extern void gmac_enable_mii(Gmac * gmac);
+extern void gmac_enable_mii(Gmac* gmac);
 
 /**
- *  \brief Enable GMII mode for GMAC, called once after autonegotiate
- *  \param gmac Pointer to an Gmac instance.
- */
-extern void gmac_enable_gmii(Gmac * gmac);
-
-/**
- *  \brief Enable RGMII mode for GMAC, called once after autonegotiate
+ *  \brief Enable RMII mode for GMAC, called once after autonegotiate
  *  \param gmac Pointer to an Gmac instance.
  *  \param duplex: 1 full duplex 0 half duplex
  *  \param speed: 0 10M 1 100M
  */
-extern void gmac_enable_rgmii(Gmac * gmac, uint32_t duplex, uint32_t speed);
+extern void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed,
+		enum _gmac_duplex duplex);
 
 /**
  *  \brief Setup the GMAC for the link : speed 100M/10M and Full/Half duplex
@@ -284,148 +228,134 @@ extern void gmac_enable_rgmii(Gmac * gmac, uint32_t duplex, uint32_t speed);
  *  \param speed Link speed, 0 for 10M, 1 for 100M
  *  \param fullduplex 1 for Full Duplex mode
  */
-extern void gmac_set_link_speed(Gmac * gmac, uint8_t speed,
-				uint8_t fullduplex);
+extern void gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed,
+		enum _gmac_duplex duplex);
 
 /**
- *  \brief set local loop back
+ *  \brief Enable local loop back
  *  \param gmac Pointer to an Gmac instance.
  */
-extern uint32_t gmac_set_local_loopback(Gmac * gmac);
+extern void gmac_enable_local_loopback(Gmac* gmac);
 
 /**
- *  \brief Return interrupt mask.
+ *  \brief Disable local loop back
+ *  \param gmac Pointer to an Gmac instance.
  */
-extern uint32_t gmac_get_it_mask(Gmac * gmac);
+extern void gmac_disable_local_loopback(Gmac* gmac);
 
 /**
  *  \brief Return transmit status
  */
-extern uint32_t gmac_get_tx_status(Gmac * gmac);
+extern uint32_t gmac_get_tx_status(Gmac* gmac);
 
 /**
  *  \brief Clear transmit status
  */
-extern void gmac_clear_tx_status(Gmac * gmac, uint32_t status);
+extern void gmac_clear_tx_status(Gmac* gmac, uint32_t mask);
 
 /**
  *  \brief Return receive status
  */
-extern uint32_t gmac_get_rx_status(Gmac * gmac);
+extern uint32_t gmac_get_rx_status(Gmac* gmac);
 
 /**
  *  \brief Clear receive status
  */
-extern void gmac_clear_rx_status(Gmac * gmac, uint32_t status);
+extern void gmac_clear_rx_status(Gmac* gmac, uint32_t mask);
 
 /**
  *  \brief Enable/Disable GMAC receive.
  */
-extern void gmac_receive_enable(Gmac * gmac, uint8_t on_off);
+extern void gmac_receive_enable(Gmac* gmac, bool enable);
 
 /**
  *  \brief Enable/Disable GMAC transmit.
  */
-extern void gmac_transmit_enable(Gmac * gmac, uint8_t on_off);
+extern void gmac_transmit_enable(Gmac* gmac, bool enable);
 
 /**
- *  \brief Set Rx Queue
+ *  \brief Set RX descriptor address
  */
-extern void gmac_set_rx_queue(Gmac * gmac, uint32_t addr);
+void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc);
 
 /**
- *  \brief Get Rx Queue Address
+ *  \brief Get RX descriptor address
  */
-extern uint32_t gmac_get_rx_queue(Gmac * gmac);
+struct _gmac_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue);
 
 /**
- *  \brief Set Tx Queue
+ *  \brief Set TX descriptor address
  */
-extern void gmac_set_tx_queue(Gmac * gmac, uint32_t addr);
+void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc);
 
 /**
- *  \brief Get Tx Queue
+ *  \brief Get TX descriptor address
  */
-extern uint32_t gmac_get_tx_queue(Gmac * gmac);
+struct _gmac_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue);
 
 /**
- *  \brief Write control value
+ *  \brief Return interrupt mask.
  */
-extern void gmac_network_control(Gmac * gmac, uint32_t ncr);
-
-/**
- *  \brief Get control value
- */
-extern uint32_t gmac_get_network_control(Gmac * gmac);
+extern uint32_t gmac_get_it_mask(Gmac* gmac, uint8_t queue);
 
 /**
  *  \brief Enable interrupt(s).
  */
-extern void gmac_enable_it(Gmac * gmac, uint32_t sources);
+extern void gmac_enable_it(Gmac* gmac, uint8_t queue, uint32_t mask);
 
 /**
  *  \brief Disable interrupt(s).
  */
-extern void gmac_disable_it(Gmac * gmac, uint32_t sources);
+extern void gmac_disable_it(Gmac * gmac, uint8_t queue, uint32_t mask);
 
 /**
  *  \brief Return interrupt status mask.
  */
-extern uint32_t gmac_get_it_status(Gmac * gmac);
+extern uint32_t gmac_get_it_status(Gmac* gmac, uint8_t queue);
 
 /**
  *  \brief Set MAC Address
  */
-extern void gmac_set_address(Gmac * gmac, uint8_t index, uint8_t * mac_addr);
+extern void gmac_set_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac);
 
 /**
- *  \brief Set MAC Address via 2 int32
+ *  \brief Set MAC Address using two 32-bit integers
  */
-extern void gmac_set_address_32(Gmac * gmac, uint8_t index,
-				uint32_t mac_t, uint32_t mac_b);
+extern void gmac_set_mac_addr32(Gmac* gmac, uint8_t sa_idx,
+			 uint32_t mac_top, uint32_t mac_bottom);
 
 /**
- *  \brief Set MAC Address via int64
+ *  \brief Set MAC Address using a 64-bit integer
  */
-extern void gmac_set_address_64(Gmac * gmac, uint8_t index, uint64_t mac);
+extern void gmac_set_mac_addr64(Gmac* gmac, uint8_t sa_idx, uint64_t mac);
 
 /**
  *  \brief Clear all statistics registers
  */
-extern void gmac_clear_statistics(Gmac * gmac);
+extern void gmac_clear_statistics(Gmac* gmac);
 
 /**
  *  \brief Increase all statistics registers
  */
-extern void gmac_increase_statistics(Gmac * gmac);
+extern void gmac_increase_statistics(Gmac* gmac);
 
 /**
  *  \brief Enable/Disable statistics registers writing.
  */
-extern void gmac_statistics_write_enable(Gmac * gmac, uint8_t on_off);
-
-/**
- *  \brief Setup network configuration register
- */
-extern void gmac_configure(Gmac * gmac, uint32_t cfg);
-
-/**
- *  \brief Return network configuration.
- */
-extern uint32_t gmac_get_configure(Gmac * gmac);
+extern void gmac_enable_statistics_write(Gmac* gmac, bool enable);
 
 /**
  *  \brief Start transmission
  */
-extern void gmac_transmission_start(Gmac * gmac);
+extern void gmac_start_transmission(Gmac* gmac);
 
 /**
  *  \brief Halt transmission
  */
-extern void gmac_transmission_halt(Gmac * gmac);
+extern void gmac_halt_transmission(Gmac* gmac);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif				// #ifndef GMAC_H
+#endif /* _GMAC_H_ */

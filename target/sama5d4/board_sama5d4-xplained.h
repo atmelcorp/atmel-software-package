@@ -123,6 +123,14 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* =================== GMAC/PHY definition =================== */
+
+#define GMAC0_ADDR        GMAC0
+#define GMAC0_PINS        PINS_GMAC0_RMII
+#define GMAC0_PHY_ADDR    0
+#define GMAC0_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE1, PIO_INPUT, PIO_PULLUP }
+#define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
+
 /* =================== Display device definition =================== */
 
 /** Display width in pixels. */

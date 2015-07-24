@@ -125,7 +125,7 @@
 //#define PIN_USART4_SCK { PIO_GROUP_E, PIO_PE25B_SCK4, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** PIN used for reset the smartcard */
-#define PIN_ISO7816_RSTMC { PIO_GROUP_D, 1 << 10, PIO_OUTPUT_0, PIO_DEFAULT }
+#define PIN_ISO7816_RSTMC { PIO_GROUP_D, PIO_PD10, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /** Pins used for connect the smartcard */
 #define PINS_ISO7816 { PIN_USART1_TXD, PIN_USART1_SCK, PIN_ISO7816_RSTMC }
@@ -277,34 +277,46 @@
 #define PIN_SSC_RF0 { PIO_GROUP_B, PIO_PB30B_RF0, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin Transmitter Data (TD) */
-#define PIN_SSC_TD1 { 0x1 << 21, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_TD1 { PIO_GROUP_C, PIO_PC21, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin Transmitter Clock (TK) */
-#define PIN_SSC_TK1 { 0x1 << 19, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_TK1 { PIO_GROUP_C, PIO_PC19, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin Transmitter FrameSync (TF) */
-#define PIN_SSC_TF1 { 0x1 << 20, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_TF1 { PIO_GROUP_C, PIO_PC20, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin RD */
-#define PIN_SSC_RD1 { 0x1 << 23, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_RD1 { PIO_GROUP_C, PIO_PC23, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin RK */
-#define PIN_SSC_RK1 { 0x1 << 24, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_RK1 { PIO_GROUP_C, PIO_PC24, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pin RF */
-#define PIN_SSC_RF1 { 0x1 << 22, PIOC, ID_PIOC, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_SSC_RF1 { PIO_GROUP_C, PIO_PC22, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** SSC pins definition for codec. */
 #define PINS_SSC_CODEC { PIN_SSC_TD0,  PIN_SSC_TK0, PIN_SSC_TF0, PIN_SSC_RD0,  PIN_SSC_RK0, PIN_SSC_RF0 }
 
 /** LCD pin list. */
-#define PINS_LCD_PIOA { { 0x3FFEFEFE, PIOA, ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT } }
+#define PINS_LCD_PIOA { { PIO_GROUP_A, 0x3FFEFEFE, PIO_PERIPH_A, PIO_DEFAULT } }
 
 /** LCD pin list. */
 #define PINS_LCD PINS_LCD_PIOA
 
 /** ADC ADTRG pin (PD19). */
 #define PIN_ADTRG { PIO_GROUP_E, PIO_PE31A_ADTRG, PIO_PERIPH_A, PIO_PULLUP }
+
+/** GMAC0 MII pin list */
+#define PINS_GMAC0_MII  { { PIO_GROUP_B, 0x3FFFF, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/** GMAC0 RMII pin list */
+#define PINS_GMAC0_RMII { { PIO_GROUP_B, 0x333C5, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/** GMAC1 MII pin list */
+#define PINS_GMAC1_MII  { { PIO_GROUP_A, 0xFCFE7C, PIO_PERIPH_B, PIO_DEFAULT } }
+
+/** GMAC1 RMII pin list */
+#define PINS_GMAC1_RMII { { PIO_GROUP_A, 0xC0FC14, PIO_PERIPH_B, PIO_DEFAULT } }
 
 //=============================================================================
 

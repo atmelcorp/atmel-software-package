@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _MINIIP_H
-#define _MINIIP_H
+#ifndef _MINI_IP_H
+#define _MINI_IP_H
 
 /*---------------------------------------------------------------------------
  *         Include
@@ -112,14 +112,14 @@
 #pragma pack(1)
 
 /** Ethernet header structure */
-typedef struct _EthHdr {
+struct _eth_hdr {
 	uint8_t et_dest[6];   /**< Destination node */
 	uint8_t et_src[6];    /**< Source node */
 	uint16_t et_protlen;  /**< Protocol or length */
-} EthHeader, *PEthHeader;	/* GCC */
+};
 
 /** ARP header structure */
-typedef struct _ArpHdr {
+struct _arp_hdr {
 	uint16_t ar_hrd;      /**< Format of hardware address */
 	uint16_t ar_pro;      /**< Format of protocol address */
 	uint8_t ar_hln;	      /**< Length of hardware address */
@@ -129,10 +129,10 @@ typedef struct _ArpHdr {
 	uint8_t ar_spa[4];    /**< Sender protocol address */
 	uint8_t ar_tha[6];    /**< Target hardware address */
 	uint8_t ar_tpa[4];    /**< Target protocol address */
-} ArpHeader, *PArpHeader;	/* GCC */
+};
 
 /** IP Header structure */
-typedef struct _IPheader {
+struct _ip_hdr {
 	uint8_t ip_hl_v;      /**< header length and version */
 	uint8_t ip_tos;	      /**< type of service */
 	uint16_t ip_len;      /**< total length */
@@ -143,26 +143,46 @@ typedef struct _IPheader {
 	uint16_t ip_sum;      /**< checksum */
 	uint8_t ip_src[4];    /**< Source IP address */
 	uint8_t ip_dst[4];    /**< Destination IP address */
+};
+
+/** ICMP header structure */
+struct _icmp_hdr {
+	uint8_t type;	      /**< type of message */
+	uint8_t code;	      /**< type subcode */
+	uint16_t cksum;	      /**< ones complement cksum of struct */
+};
+
+/** ICMP ECHO header structure */
+struct _icmp_echo_hdr {
+	uint16_t id;	      /**< identifier */
+	uint16_t seq;	      /**< sequence number */
+};
+
+/** UDP Header structure */
+struct _udp_hdr {
 	uint16_t udp_src;     /**< UDP source port */
 	uint16_t udp_dst;     /**< UDP destination port */
 	uint16_t udp_len;     /**< Length of UDP packet */
 	uint16_t udp_xsum;    /**< Checksum */
-} IpHeader, *PIpHeader;		/* GCC */
-
-/** ICMP echo header structure */
-typedef struct _IcmpEchoHdr {
-	uint8_t type;	      /**< type of message */
-	uint8_t code;	      /**< type subcode */
-	uint16_t cksum;	      /**< ones complement cksum of struct */
-	uint16_t id;	      /**< identifier */
-	uint16_t seq;	      /**< sequence number */
-} IcmpEchoHeader, *PIcmpEchoHeader;	/* GCC */
+};
 
 /** Ethernet packet structure */
-typedef struct _EthPacket {
-	EthHeader EthHdr;
-	ArpHeader ArpHdr;
-} EthPacket, *PEthPacket;	/* GCC */
+struct _eth_packet {
+	struct _eth_hdr eth;
+	union {
+		struct _arp_hdr arp;
+		struct {
+			struct _ip_hdr ip;
+			union {
+				struct {
+					struct _icmp_hdr icmp;
+					struct _icmp_echo_hdr icmp_echo;
+				};
+				struct _udp_hdr udp;
+			};
+		};
+	};
+};
 
 #pragma pack()
 
@@ -170,6 +190,16 @@ typedef struct _EthPacket {
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-extern uint16_t IcmpChksum(uint16_t * p, uint32_t len);
+/**
+ * Process & return the ICMP checksum
+ * \param buffer Pointer to the buffer to process
+ * \param len The length of the bufferred data
+ */
+extern uint16_t icmp_chksum(const uint16_t* buffer, uint32_t len);
 
-#endif				/*  #ifndef _MINIIP_H */
+/**
+ * Display packet headers
+ */
+extern void display_packet_headers(const struct _eth_packet* pkt, uint32_t size);
+
+#endif /* _MINI_IP_H_ */

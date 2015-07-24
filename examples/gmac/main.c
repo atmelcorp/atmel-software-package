@@ -108,302 +108,107 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include <board.h>
-#include <string.h>
+#include "board.h"
+#include "timer.h"
+#include "trace.h"
 
-#include "peripherals/pio.h"
-#include "peripherals/wdt.h"
 #include "peripherals/aic.h"
-#include "peripherals/pmc.h"
-
 #include "peripherals/gmacd.h"
-#include "peripherals/gmacb.h"
+#include "peripherals/l2cc.h"
+#include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+#include "peripherals/wdt.h"
+
+#include "network/phy.h"
 
 #include "mini_ip.h"
 
 #include <stdio.h>
+#include <string.h>
 
 /*---------------------------------------------------------------------------
  *         Local Define
  *---------------------------------------------------------------------------*/
 
-/** Number of buffer for RX */
+/** Number of buffers for RX */
 #define RX_BUFFERS  16
-/** Number of buffer for TX */
-#define TX_BUFFERS  32
 
-/** GMAC packet processing offset */
-#define GMAC_RCV_OFFSET     0
+/** Number of buffers for TX */
+#define TX_BUFFERS  32
 
 #define GMAC_CAF_DISABLE  0
 #define GMAC_CAF_ENABLE   1
 #define GMAC_NBC_DISABLE  0
 #define GMAC_NBC_ENABLE   1
 
-/** SAMA5D4-EK or SAMA5D4-XULT board sends out MAX_ARP_REQUEST ARP request and wants to get at least MIN_ARP_REPLY reply */
-#define GMAX_ARP_REQUEST    100
-#define GMIN_ARP_REPLY      90
-
-/** Try to get link */
-#define GMAX_TRY_LINK   500
+#define MAX_ARP_REQUESTS 0
+#define ARP_INTERVAL 50
 
 /*---------------------------------------------------------------------------
  *         Local variables
  *---------------------------------------------------------------------------*/
 
-/** The PINs for GMAC */
-static const struct _pin gmacPins[] = { BOARD_GMAC_RUN_PINS0 };
-
 /** The MAC address used for demo */
-static uint8_t GMacAddress[6] = { 0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54 };
+static uint8_t _mac_addr[6] = { 0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54 };
 
 /** The IP address used for demo (ping ...) */
-static uint8_t GIpAddress[4] = { 192, 168, 1, 3 };
-static uint8_t GDesIpAddress[4] = { 192, 168, 1, 2 };
+static uint8_t _src_ip_initialized = 1;
+static uint8_t _src_ip[4] = { 192, 168, 1, 3 };
+static uint8_t _dest_ip[4] = { 192, 168, 1, 2 };
 
 /** The GMAC driver instance */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-//#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-//__attribute__((__section__(".region_dma_nocache")))
-#endif
-static sGmacd gGmacd;
-
-/** The MACB driver instance */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-//#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-//__attribute__((__section__(".region_dma_nocache")))
-#endif
-static GMacb gGmacb;
+static struct _gmacd _gmacd;
 
 /** TX descriptors list */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static struct _gmac_tx_descriptor gTxDs[TX_BUFFERS];
-
-/** TX callbacks list */
-static fGmacdTransferCallback gTxCbs[TX_BUFFERS];
+ALIGNED(8) SECTION(".region_ddr_nocache")
+static struct _gmac_desc _tx_desc[TX_BUFFERS];
 
 /** RX descriptors list */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static struct _gmac_rx_descriptor gRxDs[RX_BUFFERS];
+ALIGNED(8) SECTION(".region_ddr_nocache")
+static struct _gmac_desc _rx_desc[RX_BUFFERS];
 
-/** Send Buffer */
-/* Section 3.6 of AMBA 2.0 spec states that burst should not cross 1K Boundaries.
-   Receive buffer manager writes are burst of 2 words => 3 lsb bits of the address
-   shall be set to 0 */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static uint8_t pTxBuffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
+/** TX Buffers (must be aligned on a cache line) */
+ALIGNED(32) SECTION(".region_ddr")
+static uint8_t _tx_buffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
 
-/** Receive Buffer */
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma data_alignment=8
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((aligned(8), __section__(".region_dma_nocache")))
-#endif
-static uint8_t pRxBuffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
+/** RX Buffers (must be aligned on a cache line) */
+ALIGNED(32) SECTION(".region_ddr")
+static uint8_t _rx_buffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
 
 /** Buffer for Ethernet packets */
-static uint8_t GEthBuffer[GMAC_FRAME_LENTGH_MAX];
+static uint8_t _eth_buffer[GMAC_MAX_FRAME_LENGTH];
 
-static uint8_t gbIsIpAddrInit = 1;
-static uint8_t gtotal_request;
-static uint8_t gtotal_reply;
+static uint8_t _arp_request_count;
+static uint8_t _arp_reply_count;
 
 /*---------------------------------------------------------------------------
  *         Local functions
  *---------------------------------------------------------------------------*/
 
 /**
- * Gmac interrupt handler
- */
-void GMAC0_IrqHandler(void)
-{
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	printf("\r");
-	GMACD_Handler(&gGmacd);
-}
-
-/**
- * Display the protocol header
- */
-static void
-GDisplayEthernetHeader(PEthHeader pEth, uint32_t size)
-{
-	printf("======= Ethernet %4u bytes, HEADER ==========\n\r",
-	       (unsigned int) size);
-	printf(" @Mac dst = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
-	       pEth->et_dest[0], pEth->et_dest[1], pEth->et_dest[2],
-	       pEth->et_dest[3], pEth->et_dest[4], pEth->et_dest[5]);
-	printf(" @Mac src = %02x.%02x.%02x.%02x.%02x.%02x\n\r", pEth->et_src[0],
-	       pEth->et_src[1], pEth->et_src[2], pEth->et_src[3],
-	       pEth->et_src[4], pEth->et_src[5]);
-	printf(" Protocol = %d\n\r", pEth->et_protlen);
-}
-
-static void
-GDisplayArpHeader(PArpHeader pArp, uint32_t size)
-{
-	printf("======= ARP %4u bytes, HEADER ==========\n\r",
-	       (unsigned int) size);
-	printf(" Hardware type        = %d\n\r", SWAP16(pArp->ar_hrd));
-	printf(" protocol type        = 0x%04x\n\r", SWAP16(pArp->ar_pro));
-	printf(" Hardware addr lg     = %d\n\r", pArp->ar_hln);
-	printf(" Protocol addr lg     = %d\n\r", pArp->ar_pln);
-	printf(" Operation            = %d\n\r", SWAP16(pArp->ar_op));
-	printf(" Sender hardware addr = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
-	       pArp->ar_sha[0], pArp->ar_sha[1], pArp->ar_sha[2],
-	       pArp->ar_sha[3], pArp->ar_sha[4], pArp->ar_sha[5]);
-	printf(" Sender protocol addr = %d.%d.%d.%d\n\r", pArp->ar_spa[0],
-	       pArp->ar_spa[1], pArp->ar_spa[2], pArp->ar_spa[3]);
-	printf(" Target hardware addr = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
-	       pArp->ar_tha[0], pArp->ar_tha[1], pArp->ar_tha[2],
-	       pArp->ar_tha[3], pArp->ar_tha[4], pArp->ar_tha[5]);
-	printf(" Target protocol addr = %d.%d.%d.%d\n\r", pArp->ar_tpa[0],
-	       pArp->ar_tpa[1], pArp->ar_tpa[2], pArp->ar_tpa[3]);
-}
-
-static void
-GDisplayIpHeader(PIpHeader pIpHeader, uint32_t size)
-{
-	printf("======= IP %4u bytes, HEADER ==========\n\r",
-	       (unsigned int) size);
-	printf(" IP Version        = v.%d\n\r",
-	       (pIpHeader->ip_hl_v & 0xF0) >> 4);
-	printf(" Header Length     = %d\n\r", pIpHeader->ip_hl_v & 0x0F);
-	printf(" Type of service   = 0x%x\n\r", pIpHeader->ip_tos);
-	printf(" Total IP Length   = 0x%X\n\r",
-	       (((pIpHeader->ip_len) >> 8) & 0xff) +
-	       (((pIpHeader->ip_len) << 8) & 0xff00));
-	printf(" ID                = 0x%X\n\r",
-	       (((pIpHeader->ip_id) >> 8) & 0xff) +
-	       (((pIpHeader->ip_id) << 8) & 0xff00));
-	printf(" Header Checksum   = 0x%X\n\r",
-	       (((pIpHeader->ip_sum) >> 8) & 0xff) +
-	       (((pIpHeader->ip_sum) << 8) & 0xff00));
-	printf(" Protocol          = ");
-
-	switch (pIpHeader->ip_p) {
-
-	case IP_PROT_ICMP:
-		printf("ICMP\n\r");
-		break;
-
-	case IP_PROT_IP:
-		printf("IP\n\r");
-		break;
-
-	case IP_PROT_TCP:
-		printf("TCP\n\r");
-		break;
-
-	case IP_PROT_UDP:
-		printf("UDP\n\r");
-		break;
-
-	default:
-		printf("%d (0x%X)\n\r", pIpHeader->ip_p, pIpHeader->ip_p);
-		break;
-	}
-
-	printf(" IP Src Address    = %d:%d:%d:%d\n\r",
-	       pIpHeader->ip_src[0],
-	       pIpHeader->ip_src[1],
-	       pIpHeader->ip_src[2], pIpHeader->ip_src[3]);
-
-	printf(" IP Dest Address   = %d:%d:%d:%d\n\r",
-	       pIpHeader->ip_dst[0],
-	       pIpHeader->ip_dst[1],
-	       pIpHeader->ip_dst[2], pIpHeader->ip_dst[3]);
-	printf("----------------------------------------\n\r");
-
-}
-
-/**
  * initialize the Ip address of the board if not yet initialized
  */
-static void
-garp_init_ip_addr(uint8_t * pData)
+static void _arp_init_ip_addr(struct _eth_packet *pkt)
 {
 	uint32_t i;
-	PArpHeader pArp = (PArpHeader) (pData + 14 + GMAC_RCV_OFFSET);
 
-	if (SWAP16(pArp->ar_op) == ARP_REQUEST) {
+	if (SWAP16(pkt->arp.ar_op) == ARP_REQUEST) {
+		if (_src_ip_initialized == 0) {
+			printf("first arp request, Check @ip. src=%d.%d.%d.%d dst=%d.%d.%d.%d ",
+			     pkt->arp.ar_spa[0], pkt->arp.ar_spa[1], pkt->arp.ar_spa[2],
+			     pkt->arp.ar_spa[3], pkt->arp.ar_tpa[0], pkt->arp.ar_tpa[1],
+			     pkt->arp.ar_tpa[2], pkt->arp.ar_tpa[3]);
 
-		if (gbIsIpAddrInit == 0) {
-
-			printf
-			    ("first arp request, Check @ip. src=%d.%d.%d.%d dst=%d.%d.%d.%d ",
-			     pArp->ar_spa[0], pArp->ar_spa[1], pArp->ar_spa[2],
-			     pArp->ar_spa[3], pArp->ar_tpa[0], pArp->ar_tpa[1],
-			     pArp->ar_tpa[2], pArp->ar_tpa[3]);
-
-			if ((pArp->ar_tpa[0] == pArp->ar_spa[0]) &&
-			    (pArp->ar_tpa[1] == pArp->ar_spa[1]) &&
-			    (pArp->ar_tpa[2] == pArp->ar_spa[2]) &&
-			    (pArp->ar_tpa[3] >= 250) &&
-			    (pArp->ar_tpa[3] <= 254)) {
+			if (pkt->arp.ar_tpa[0] == pkt->arp.ar_spa[0] &&
+					pkt->arp.ar_tpa[1] == pkt->arp.ar_spa[1] &&
+					pkt->arp.ar_tpa[2] == pkt->arp.ar_spa[2] &&
+					pkt->arp.ar_tpa[3] >= 250 &&
+					pkt->arp.ar_tpa[3] <= 254) {
 				for (i = 0; i < 4; i++) {
-					GIpAddress[i] = pArp->ar_tpa[i];
+					_src_ip[i] = pkt->arp.ar_tpa[i];
 				}
-
 				printf("=> OK\n\r");
-				gbIsIpAddrInit = 1;
-
+				_src_ip_initialized = 1;
 			} else {
 				printf("=> KO!\n\r");
 			}
@@ -411,93 +216,95 @@ garp_init_ip_addr(uint8_t * pData)
 	}
 }
 
-static void
-garp_request(uint8_t * pData)
+static void _arp_create_and_send_request(uint8_t* src_mac, uint8_t* src_ip, uint8_t* dest_ip)
 {
+	struct _eth_packet pkt;
 	uint32_t i;
-	uint8_t gmac_rc = GMACD_OK;
+	uint8_t rc;
 
-	PEthHeader pEth = (PEthHeader) (pData + GMAC_RCV_OFFSET);
-	PArpHeader pArp = (PArpHeader) (pData + 14 + GMAC_RCV_OFFSET);
+	pkt.eth.et_protlen = SWAP16(ETH_PROT_ARP);
 
-	pEth->et_protlen = SWAP16(ETH_PROT_ARP);
 	// ARP REPLY operation
-	pArp->ar_hrd = SWAP16(0x0001);
-	pArp->ar_pro = SWAP16(ETH_PROT_IP);
-	pArp->ar_hln = 6;
-	pArp->ar_pln = 4;
-	pArp->ar_op = SWAP16(ARP_REQUEST);
+	pkt.arp.ar_hrd = SWAP16(0x0001);
+	pkt.arp.ar_pro = SWAP16(ETH_PROT_IP);
+	pkt.arp.ar_hln = 6;
+	pkt.arp.ar_pln = 4;
+	pkt.arp.ar_op = SWAP16(ARP_REQUEST);
 
-	/* Fill the dest address and src address */
+	/* Fill the dest and src MAC addresses */
 	for (i = 0; i < 6; i++) {
-		// swap ethernet dest address and ethernet src address
-		pEth->et_dest[i] = 0xff;
-		pEth->et_src[i] = GMacAddress[i];
-		pArp->ar_tha[i] = 0x00;
-		pArp->ar_sha[i] = GMacAddress[i];
+		pkt.eth.et_dest[i] = 0xff;
+		pkt.eth.et_src[i] = src_mac[i];
+		pkt.arp.ar_tha[i] = 0x00;
+		pkt.arp.ar_sha[i] = src_mac[i];
 	}
-	/* swap sender IP address and target IP address */
+
+	/* Fill the dest and src IP addresses */
 	for (i = 0; i < 4; i++) {
-		pArp->ar_tpa[i] = GDesIpAddress[i];
-		pArp->ar_spa[i] = GIpAddress[i];
+		pkt.arp.ar_tpa[i] = dest_ip[i];
+		pkt.arp.ar_spa[i] = src_ip[i];
 	}
-	gmac_rc = GMACD_Send(&gGmacd, (pData + GMAC_RCV_OFFSET), 42, NULL);
-	if (gmac_rc != GMACD_OK) {
-		printf("-E- ARP_REQUEST Send - 0x%x\n\r", gmac_rc);
+
+	rc = gmacd_send(&_gmacd, 0, &pkt, 42, NULL);
+	if (rc == GMACD_OK) {
+		_arp_request_count++;
+	} else {
+		trace_error("ARP_REQUEST Send - 0x%x\n\r", rc);
 	}
 }
 
 /**
- * Process the received ARP packet
+ * Process a received ARP packet
  */
-static void
-garp_process_packet(uint8_t * pData, uint32_t size)
+static void _arp_process_packet(struct _eth_packet *pkt,
+		uint8_t* src_mac, uint8_t* src_ip, uint8_t* dest_ip)
 {
-	uint32_t i, j;
-	uint8_t gmac_rc = GMACD_OK;
+	uint32_t i;
+	uint8_t rc;
+	bool match;
 
-	PEthHeader pEth = (PEthHeader) pData;
-	PArpHeader pArp = (PArpHeader) (pData + 14 + GMAC_RCV_OFFSET);
-
-	if (SWAP16(pArp->ar_op) == ARP_REQUEST) {
-
+	switch (SWAP16(pkt->arp.ar_op)) {
+	case ARP_REQUEST:
 		/* ARP REPLY operation */
-		pArp->ar_op = SWAP16(ARP_REPLY);
+		pkt->arp.ar_op = SWAP16(ARP_REPLY);
 
 		/* Fill the dest address and src address */
 		for (i = 0; i < 6; i++) {
 			/* swap ethernet dest address and ethernet src address */
-			pEth->et_dest[i] = pEth->et_src[i];
-			pEth->et_src[i] = GMacAddress[i];
-			pArp->ar_tha[i] = pArp->ar_sha[i];
-			pArp->ar_sha[i] = GMacAddress[i];
+			pkt->eth.et_dest[i] = pkt->eth.et_src[i];
+			pkt->eth.et_src[i] = src_mac[i];
+			pkt->arp.ar_tha[i] = pkt->arp.ar_sha[i];
+			pkt->arp.ar_sha[i] = src_mac[i];
 		}
+
 		/* swap sender IP address and target IP address */
 		for (i = 0; i < 4; i++) {
-			pArp->ar_tpa[i] = pArp->ar_spa[i];
-			pArp->ar_spa[i] = GIpAddress[i];
+			pkt->arp.ar_tpa[i] = pkt->arp.ar_spa[i];
+			pkt->arp.ar_spa[i] = src_ip[i];
 		}
-		gmac_rc = GMACD_Send(&gGmacd,
-				     (pData + GMAC_RCV_OFFSET), size, NULL);
-		if (gmac_rc != GMACD_OK) {
-			printf("-E- ARP Send - 0x%x\n\r", gmac_rc);
-		}
-	}
 
-	if (SWAP16(pArp->ar_op) == ARP_REPLY) {
+		rc = gmacd_send(&_gmacd, 0, pkt, 42, NULL);
+		if (rc != GMACD_OK) {
+			trace_error("ARP_REPLY Send - 0x%x\n\r", rc);
+		}
+
+		break;
+
+	case ARP_REPLY:
 		/* check sender IP address and target IP address */
-		for (i = 0, j = 0; i < 4; i++) {
-			if (pArp->ar_tpa[i] != GIpAddress[i]) {
-				j++;
+		match = true;
+		for (i = 0; i < 4; i++) {
+			if (pkt->arp.ar_tpa[i] != src_ip[i]) {
+				match = false;
 				break;
 			}
-			if (pArp->ar_spa[i] != GDesIpAddress[i]) {
-				j++;
+			if (pkt->arp.ar_spa[i] != dest_ip[i]) {
+				match = false;
 				break;
 			}
 		}
-		if (!j) {
-			gtotal_reply++;
+		if (match) {
+			_arp_reply_count++;
 		}
 	}
 }
@@ -505,60 +312,48 @@ garp_process_packet(uint8_t * pData, uint32_t size)
 /**
  * Process the received IP packet
  */
-static void
-gip_process_packet(uint8_t * pData)
+static void _ip_process_packet(struct _eth_packet* pkt)
 {
 	uint32_t i;
 	uint32_t icmp_len;
 	uint32_t gmac_rc = GMACD_OK;
 
-	PEthHeader pEth = (PEthHeader) pData;
-	PIpHeader pIpHeader = (PIpHeader) (pData + 14 + GMAC_RCV_OFFSET);
-
-	PIcmpEchoHeader pIcmpEcho = (PIcmpEchoHeader) ((char *) pIpHeader + 20);
-
-	switch (pIpHeader->ip_p) {
-
+	switch (pkt->ip.ip_p) {
 	case IP_PROT_ICMP:
-
-		/* if ICMP_ECHO_REQUEST ==> resp = ICMP_ECHO_REPLY */
-		if (pIcmpEcho->type == ICMP_ECHO_REQUEST) {
-			pIcmpEcho->type = ICMP_ECHO_REPLY;
-			pIcmpEcho->code = 0;
-			pIcmpEcho->cksum = 0;
+		if (pkt->icmp.type == ICMP_ECHO_REQUEST) {
+			pkt->icmp.type = ICMP_ECHO_REPLY;
+			pkt->icmp.code = 0;
+			pkt->icmp.cksum = 0;
 
 			/* Checksum of the ICMP Message */
-			icmp_len = (SWAP16(pIpHeader->ip_len) - 20);
+			icmp_len = (SWAP16(pkt->ip.ip_len) - 20);
 			if (icmp_len % 2) {
-				*((uint8_t *) pIcmpEcho + icmp_len) = 0;
+				*((uint8_t*)&pkt->icmp + icmp_len) = 0;
 				icmp_len++;
 			}
 			icmp_len = icmp_len / sizeof (unsigned short);
 
-			pIcmpEcho->cksum =
-			    SWAP16(IcmpChksum
-				   ((unsigned short *) pIcmpEcho, icmp_len));
+			pkt->icmp.cksum = SWAP16(icmp_chksum((uint16_t*)&pkt->icmp, icmp_len));
+
 			/* Swap IP Dest address and IP Source address */
 			for (i = 0; i < 4; i++) {
-				GIpAddress[i] = pIpHeader->ip_dst[i];
-				pIpHeader->ip_dst[i] = pIpHeader->ip_src[i];
-				pIpHeader->ip_src[i] = GIpAddress[i];
+				_src_ip[i] = pkt->ip.ip_dst[i];
+				pkt->ip.ip_dst[i] = pkt->ip.ip_src[i];
+				pkt->ip.ip_src[i] = _src_ip[i];
 			}
+
 			/* Swap Eth Dest address and Eth Source address */
 			for (i = 0; i < 6; i++) {
 
 				/* swap ethernet dest address and ethernet src addr */
-				pEth->et_dest[i] = pEth->et_src[i];
-				pEth->et_src[i] = GMacAddress[i];
+				pkt->eth.et_dest[i] = pkt->eth.et_src[i];
+				pkt->eth.et_src[i] = _mac_addr[i];
 			}
+
 			/* send the echo_reply */
-			gmac_rc = GMACD_Send(&gGmacd,
-					     (pData + GMAC_RCV_OFFSET),
-					     SWAP16(pIpHeader->ip_len) + 14 +
-					     GMAC_RCV_OFFSET, NULL);
+			gmac_rc = gmacd_send(&_gmacd, 0, pkt, SWAP16(pkt->ip.ip_len) + 14, NULL);
 			if (gmac_rc != GMACD_OK) {
-				printf("-E- ICMP Send - 0x%x\n\r",
-				       (unsigned int) gmac_rc);
+				printf("-E- ICMP Send - 0x%x\n\r", (unsigned int) gmac_rc);
 			}
 		}
 		break;
@@ -571,54 +366,40 @@ gip_process_packet(uint8_t * pData)
 /**
  * Process the received GMAC packet
  */
-static void
-geth_process_packet(uint8_t * pData, uint32_t size)
+static void _eth_process_packet(struct _eth_packet* pkt, uint32_t size)
 {
-	uint16_t pkt_format;
+	uint16_t prot;
 
-	PEthHeader pEth = (PEthHeader) (pData + GMAC_RCV_OFFSET);
-	PIpHeader pIpHeader = (PIpHeader) (pData + 14 + GMAC_RCV_OFFSET);
-	IpHeader ipHeader;
+	//display_packet_headers(pkt, size);
 
-	pkt_format = SWAP16(pEth->et_protlen);
-	switch (pkt_format) {
-
-		/* ARP Packet format */
+	prot = SWAP16(pkt->eth.et_protlen);
+	switch (prot) {
 	case ETH_PROT_ARP:
-
-		/* Dump the ARP header */
-		GDisplayEthernetHeader(pEth, size);
-		GDisplayArpHeader((PArpHeader) (pData + 14 + GMAC_RCV_OFFSET),
-				  size);
-
 		/* initialize the ip address if not yet initialized */
-		garp_init_ip_addr(pData);
+		_arp_init_ip_addr(pkt);
 
 		/* Process the ARP packet */
-		if (gbIsIpAddrInit == 0)
+		if (_src_ip_initialized == 0)
 			return;
-		garp_process_packet(pData, size);
 
-		/* Dump for ARP packet */
+		_arp_process_packet(pkt, _mac_addr, _src_ip, _dest_ip);
 		break;
-		/* IP protocol frame */
+
 	case ETH_PROT_IP:
-
-		if (gbIsIpAddrInit == 0)
+		if (_src_ip_initialized == 0)
 			return;
-
-		/* Backup the header */
-		memcpy(&ipHeader, pIpHeader, sizeof (IpHeader));
 
 		/* Process the IP packet */
-		gip_process_packet(pData);
-
-		/* Dump the IP header */
-		GDisplayIpHeader(&ipHeader, size);
+		_ip_process_packet(pkt);
 		break;
+
 	default:
 		break;
 	}
+}
+
+static void _gmac_rx_callback(uint8_t queue, uint32_t status)
+{
 }
 
 /*---------------------------------------------------------------------------
@@ -626,98 +407,85 @@ geth_process_packet(uint8_t * pData, uint32_t size)
  *---------------------------------------------------------------------------*/
 
 /**
- * Default main() function. Initializes the DBGU and writes a string on the
- * DBGU.
+ * Default main() function.
  */
-int
-main(void)
+int main(void)
 {
-	sGmacd *pGmacd = &gGmacd;
-	GMacb *pGmacb = &gGmacb;
-	uint32_t frmSize;
-	uint32_t delay;
+	uint32_t tick_start;
 
 	/* Disable watchdog */
 	wdt_disable();
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_icache();
-	cp15_enable_dcache();
+
+#ifndef VARIANT_DDRAM
+	/* Configure DDRAM */
+	board_cfg_ddram();
 #endif
+
+	/* Enable L2 cache */
+	l2cc_enable();
+
 	printf("-- GMAC Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
 	/* Display MAC & IP settings */
 	printf("-- MAC %x:%x:%x:%x:%x:%x\n\r",
-	       GMacAddress[0], GMacAddress[1], GMacAddress[2],
-	       GMacAddress[3], GMacAddress[4], GMacAddress[5]);
-	printf("-- %s`s IP  %d.%d.%d.%d\n\r",
-	       BOARD_NAME, GIpAddress[0], GIpAddress[1], GIpAddress[2],
-	       GIpAddress[3]);
-	printf("-- PC`s IP  %d.%d.%d.%d\n\r", GDesIpAddress[0],
-	       GDesIpAddress[1], GDesIpAddress[2], GDesIpAddress[3]);
+	       _mac_addr[0], _mac_addr[1], _mac_addr[2],
+	       _mac_addr[3], _mac_addr[4], _mac_addr[5]);
+	printf("-- %s IP  %d.%d.%d.%d\n\r", BOARD_NAME,
+	       _src_ip[0], _src_ip[1], _src_ip[2], _src_ip[3]);
+	printf("-- PC IP  %d.%d.%d.%d\n\r",
+		_dest_ip[0], _dest_ip[1], _dest_ip[2], _dest_ip[3]);
 
-	printf("Connect the board to a host PC via an ethernet cable\n\r");
+	/* Init GMAC */
+	const struct _pin gmac_pins[] = GMAC0_PINS;
+	pio_configure(gmac_pins, ARRAY_SIZE(gmac_pins));
+	gmacd_configure(&_gmacd, GMAC0_ADDR, GMAC_CAF_ENABLE, GMAC_NBC_DISABLE);
+	gmacd_setup_queue(&_gmacd, 0, RX_BUFFERS, _rx_buffer, _rx_desc, TX_BUFFERS, _tx_buffer, _tx_desc, NULL);
+	gmacd_set_rx_callback(&_gmacd, 0, _gmac_rx_callback);
+	gmac_set_mac_addr(_gmacd.gmac, 0, _mac_addr);
+	gmacd_start(&_gmacd);
 
-	/* Init GMAC driver structure */
-	GMACD_Init(pGmacd, GMAC0, ID_GMAC0, GMAC_CAF_ENABLE, GMAC_NBC_DISABLE);
-	GMACD_InitTransfer(pGmacd,
-			   pRxBuffer,
-			   gRxDs,
-			   RX_BUFFERS, pTxBuffer, gTxDs, gTxCbs, TX_BUFFERS);
-	gmac_set_address(gGmacd.pHw, 0, GMacAddress);
+	/* Init PHY */
+	struct _phy_desc phy_desc = {
+		.addr = GMAC0_ADDR,
+		.retries = GMAC0_PHY_RETRIES,
+		.phy_addr = GMAC0_PHY_ADDR
+	};
+	struct _phy phy = {
+		.desc = &phy_desc
+	};
+	phy_configure(&phy);
+	phy_auto_negotiate(&phy);
 
-	/* Setup interrupts */
-	aic_enable(ID_GMAC0);
-	GMACB_Init(pGmacb, pGmacd, BOARD_GMAC_PHY_ADDR);
-	GMACB_ResetPhy(pGmacb);
-	/* PHY initialize */
-	if (!GMACB_InitPhy
-	    (pGmacb, pmc_get_master_clock(), 0, 0, gmacPins, ARRAY_SIZE(gmacPins))) {
-		printf("PHY Initialize ERROR!\n\r");
-		return 0;
-	}
-	printf("GMACB_AutoNegotiate\n\r");
-	if (!GMACB_AutoNegotiate(pGmacb)) {
-		printf("Auto Negotiate ERROR!\n\r");
-		return 0;
-	}
-
-	for (delay = 0; delay < (pmc_get_master_clock() / 5); delay++)
-		asm("nop");
-	delay = 0;
-	gtotal_request = 0;
-	gtotal_reply = 0;
+	tick_start = timer_get_tick();
+	_arp_request_count = 0;
+	_arp_reply_count = 0;
 	while (1) {
+		if (_arp_request_count < MAX_ARP_REQUESTS) {
+			if ((timer_get_tick() - tick_start) >= ARP_INTERVAL) {
+				tick_start = timer_get_tick();
+				printf("arp...\r\n");
+				_arp_create_and_send_request(_mac_addr, _src_ip, _dest_ip);
+			}
+		} else {
+			/* wait 1s to get remaining replies */
+			//if ((timer_get_tick() - tick_start) >= 500)
+			//	break;
+		}
 
-		if (gtotal_request >= GMAX_ARP_REQUEST)
-			break;
-
-		if ((delay++) >= (pmc_get_master_clock() / 1000000)) {
-			delay = 0;
-			gtotal_request++;
-			printf("arp... \n\r");
-			garp_request(GEthBuffer);
-		} else
-			asm("nop");
+		struct _eth_packet* pkt = (struct _eth_packet*)_eth_buffer;
+		uint32_t pkt_max_size = sizeof(_eth_buffer);
 
 		/* Process packets */
-		if (GMACD_OK !=
-		    GMACD_Poll(pGmacd, GEthBuffer, sizeof (GEthBuffer),
-			       &frmSize)) {
-			continue;
-		}
-
-		if (frmSize > 0) {
-			/* Handle input frame */
-			printf("Process_packet ...\n\r");
-			geth_process_packet(GEthBuffer, frmSize);
+		uint32_t length = 0;
+		while (gmacd_poll(&_gmacd, 0, (uint8_t*)pkt, pkt_max_size, &length) == GMACD_OK) {
+			if (length > 0) {
+				_eth_process_packet(pkt, length);
+			}
 		}
 	}
 
-	printf("%s sends out %d ARP request and gets %d reply\n\r", BOARD_NAME,
-	       gtotal_request, gtotal_reply);
+	printf("%s sends out %d ARP request and gets %d reply\n\r", BOARD_NAME, _arp_request_count, _arp_reply_count);
 	return 1;
 }

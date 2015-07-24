@@ -172,13 +172,6 @@
 	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
-/* ================= PIN GMAC IRQ definition ==================== */
-
-#define PIO_CFG_GMAC_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
-#define PIN_GMAC_IRQ	{\
-	{ PIO_GROUP_C, PIO_PC9, PIO_INPUT, PIO_CFG_GMAC_IRQ },\
-}
-
 /* ================= PIN LCD IRQ definition ===================== */
 
 #define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
@@ -228,6 +221,14 @@
 #define QSPIFLASH_PINS     PINS_QSPI0_IOS3
 #define QSPIFLASH_ADDR     QSPI0
 #define QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
+
+/* =================== GMAC/PHY definition =================== */
+
+#define GMAC0_ADDR        GMAC0
+#define GMAC0_PINS        PINS_GMAC_RMII_IOS3
+#define GMAC0_PHY_ADDR    0
+#define GMAC0_PHY_IRQ_PIN PIN_GTSUCOM_IOS1
+#define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
 
 /* =================== ILI9488 device definition =================== */
 /* Connected on board A5D2, XPRO EXT2 connector */

@@ -151,13 +151,6 @@
 	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
-/* ================= PIN GMAC IRQ definition ==================== */
-
-#define PIO_CFG_GMAC_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
-#define PIN_GMAC_IRQ	{\
-	{ PIO_GROUP_C, PIO_PC9, PIO_INPUT, PIO_CFG_GMAC_IRQ },\
-}
-
 /* ================= PIN LCD IRQ definition ===================== */
 
 #define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)

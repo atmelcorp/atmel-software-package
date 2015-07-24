@@ -29,6 +29,8 @@
 drivers-y += drivers/peripherals/aes.o
 drivers-y += drivers/peripherals/aesb.o
 drivers-y += drivers/peripherals/aic.o
+drivers-y += drivers/peripherals/gmac.o
+drivers-y += drivers/peripherals/gmacd.o
 drivers-y += drivers/peripherals/icm.o
 drivers-y += drivers/peripherals/iso7816_4.o
 drivers-y += drivers/peripherals/l2cc.o
@@ -67,9 +69,6 @@ drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/gmac.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/gmacb.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/gmacd.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/hsmci.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/ssc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/isi.o

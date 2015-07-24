@@ -33,33 +33,27 @@
 //-----------------------------------------------------------------------------
 ///         Definitions
 //-----------------------------------------------------------------------------
-//IEEE defined Registers
-#define GMII_BMCR        0x0	// Basic Mode Control Register
-#define GMII_BMSR        0x1	// Basic Mode Status Register
-#define GMII_PHYID1R     0x2	// PHY Idendifier Register 1
-#define GMII_PHYID2R     0x3	// PHY Idendifier Register 2
-#define GMII_ANAR        0x4	// Auto_Negotiation Advertisement Register
-#define GMII_ANLPAR      0x5	// Auto_negotiation Link Partner Ability Register
-#define GMII_ANER        0x6	// Auto-negotiation Expansion Register
-#define GMII_ANNPR       0x7	// Auto-negotiation Next Page Register
-#define GMII_ANLPNPAR    0x8	// Auto_negotiation Link Partner Next Page Ability Register
-#define GMII_DRCR        0x10	// Digital Reserved Control Register
-#define GMII_AFEC1R      0x11	// AFE Control 1 Register
-#define GMII_RXERCR      0x15	// RXER Couter Register
-#define GMII_OMSOR       0x16	// Operation Mode Strap Override Register
-#define GMII_OMSSR       0x17	// Operation Mode Strap Status Register
-#define GMII_ECR         0x18	// Expanded Control Register
-#define GMII_ICSR        0x1B	// Interrupt Control/Status Register
-#define GMII_LCSR        0x1D	// LinkMD® Control/Status Register
-#define GMII_PC1R        0x1E	// PHY Control 1 Register
-#define GMII_PC2R        0x1F	// PHY Control 2 Register
 
-// PHY ID Identifier Register
-#define GMII_LSB_MASK           0xF
-// definitions: MII_PHYID1
-#define GMII_OUI_MSB            0x0022
-// definitions: MII_PHYID2
-#define GMII_OUI_LSB            0x1560
+//IEEE defined Registers
+#define GMII_BMCR        0x00 // Basic Mode Control Register
+#define GMII_BMSR        0x01 // Basic Mode Status Register
+#define GMII_PHYID1R     0x02 // PHY Idendifier Register 1
+#define GMII_PHYID2R     0x03 // PHY Idendifier Register 2
+#define GMII_ANAR        0x04 // Auto_Negotiation Advertisement Register
+#define GMII_ANLPAR      0x05 // Auto_negotiation Link Partner Ability Register
+#define GMII_ANER        0x06 // Auto-negotiation Expansion Register
+#define GMII_ANNPR       0x07 // Auto-negotiation Next Page Register
+#define GMII_ANLPNPAR    0x08 // Auto_negotiation Link Partner Next Page Ability Register
+#define GMII_DRCR        0x10 // Digital Reserved Control Register
+#define GMII_AFEC1R      0x11 // AFE Control 1 Register
+#define GMII_RXERCR      0x15 // RXER Couter Register
+#define GMII_OMSOR       0x16 // Operation Mode Strap Override Register
+#define GMII_OMSSR       0x17 // Operation Mode Strap Status Register
+#define GMII_ECR         0x18 // Expanded Control Register
+#define GMII_ICSR        0x1B // Interrupt Control/Status Register
+#define GMII_LCSR        0x1D // LinkMD(r) Control/Status Register
+#define GMII_PC1R        0x1E // PHY Control 1 Register
+#define GMII_PC2R        0x1F // PHY Control 2 Register
 
 // Basic Mode Control Register (BMCR)
 // Bit definitions: MII_BMCR
@@ -96,18 +90,18 @@
 // Auto-negotiation Advertisement Register (ANAR)
 // Auto-negotiation Link Partner Ability Register (ANLPAR)
 // Bit definitions: MII_ANAR, MII_ANLPAR
-#define GMII_NP               (1 << 15)	// Next page Indication
-//      Reserved               7
-#define GMII_RF               (1 << 13)	// Remote Fault
-//      Reserved               12       // Write as 0, ignore on read
-#define GMII_PAUSE_MASK       (3 << 11)	// 0,0 = No Pause 1,0 = Asymmetric Pause(link partner)
+#define GMII_NP               (1 << 15) // Next page Indication
+// Reserved (bit 14)
+#define GMII_RF               (1 << 13) // Remote Fault
+// Reserved (bit 12)
+#define GMII_PAUSE_MASK       (3 << 11) // 0,0 = No Pause 1,0 = Asymmetric Pause(link partner)
 // 0,1 = Symmetric Pause 1,1 = Symmetric&Asymmetric Pause(local device)
-#define GMII_T4               (1 << 9)	// 100BASE-T4 Support
-#define GMII_TX_FDX           (1 << 8)	// 100BASE-TX Full Duplex Support
-#define GMII_TX_HDX           (1 << 7)	// 100BASE-TX Support
-#define GMII_10_FDX           (1 << 6)	// 10BASE-T Full Duplex Support
-#define GMII_10_HDX           (1 << 5)	// 10BASE-T Support
-//      Selector                 4 to 0   // Protocol Selection Bits
-#define GMII_AN_IEEE_802_3      0x0001
+#define GMII_T4               (1 << 9) // 100BASE-T4 Support
+#define GMII_TX_FDX           (1 << 8) // 100BASE-TX Full Duplex Support
+#define GMII_TX_HDX           (1 << 7) // 100BASE-TX Support
+#define GMII_10_FDX           (1 << 6) // 10BASE-T Full Duplex Support
+#define GMII_10_HDX           (1 << 5) // 10BASE-T Support
+// Selector (bits 4 to 0)              // Protocol Selection Bits
+#define GMII_AN_IEEE_802_3    (1 << 0)
 
 #endif				// #ifndef _MII_DEFINE_H

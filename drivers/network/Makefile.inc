@@ -26,15 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the GMAC example
-
-TOP := ../..
-
-BINNAME = gmac
-
-VARIANT = ddram
-
-obj-y += examples/gmac/main.o
-obj-y += examples/gmac/mini_ip.o
-
-include $(TOP)/scripts/Makefile.rules
+drivers-y += drivers/network/phy.o

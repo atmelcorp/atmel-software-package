@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,35 +27,55 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _MATH_H_
-#define _MATH_H_
+#ifndef _RING_H_
+#define _RING_H_
+
+#include "math.h"
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-#include <stdint.h>
+/** Return count in buffer */
+#define RING_CNT(head,tail,size) fixed_mod((head) - (tail), (size))
 
-extern uint32_t min(uint32_t a, uint32_t b);
+/** Return space available, 0..size-1. always leave one free char as a
+ * completely full buffer has head == tail, which is the same as empty */
+#define RING_SPACE(head,tail,size) RING_CNT((tail),((head) + 1),(size))
 
-extern uint32_t absv(int32_t value);
+/** Return count up to the end of the buffer. Carefully avoid accessing head
+ * and tail more than once, so they can change underneath us without returning
+ * inconsistent results */
+#define RING_CNT_TO_END(head,tail,size) \
+     ({int end = (size) - (tail); \
+     int n = fixed_mod((head) + end, (size));   \
+     n < end ? n : end;})
 
-extern uint32_t power(uint32_t x, uint32_t y);
+/** Return space available up to the end of the buffer */
+#define RING_SPACE_TO_END(head,tail,size) \
+   ({int end = (size) - 1 - (head); \
+     int n = fixed_mod(end + (tail), (size)); \
+     n <= end ? n : end+1;})
 
-/** ISO/IEC 14882:2003(E) - 5.6 Multiplicative operators:
- * The binary / operator yields the quotient, and the binary % operator yields the remainder
- * from the division of the first expression by the second.
- * If the second operand of / or % is zero the behavior is undefined; otherwise (a/b)*b + a%b is equal to a.
- * If both operands are nonnegative then the remainder is nonnegative;
- * if not, the sign of the remainder is implementation-defined 74).
- */
-static inline int fixed_mod(int a, int b)
-{
-	int rem = a % b;
-	while (rem < 0)
-		rem += b;
+/** Increment head or tail */
+#define RING_INC(headortail,size) \
+        (headortail)++; \
+        if((headortail) >= (size)) { \
+            (headortail) = 0; \
+        }
 
-	return rem;
-}
+/** Decrement head or tail */
+#define RING_DEC(headortail,size) \
+        if((headortail) == 0) { \
+            (headortail) = (size) - 1; \
+        } else { \
+            (headortail)--; \
+        }
 
-#endif /* _MATH_H_ */
+/** Circular buffer is empty ? */
+#define RING_EMPTY(head, tail) ((head) == (tail))
+
+/** Clear circular buffer */
+#define RING_CLEAR(head, tail) ((head) = (tail) = 0)
+
+#endif /* _RING_H_ */

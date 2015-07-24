@@ -51,7 +51,7 @@
 #define ID_ARM_PMU      ( 2) /**< \brief Performance Monitor Unit (PMU) (ARM_PMU) */
 #define ID_PIT          ( 3) /**< \brief Periodic Interval Timer Interrupt (PIT) */
 #define ID_WDT          ( 4) /**< \brief Watchdog timer Interrupt (WDT) */
-#define ID_GMAC         ( 5) /**< \brief Ethernet MAC (GMAC) */
+#define ID_GMAC0        ( 5) /**< \brief Ethernet MAC (GMAC0) */
 #define ID_XDMAC0       ( 6) /**< \brief DMA Controller 0 (XDMAC0) */
 #define ID_XDMAC1       ( 7) /**< \brief DMA Controller 1 (XDMAC1) */
 #define ID_ICM          ( 8) /**< \brief Integritry Check Monitor (ICM) */
@@ -123,8 +123,8 @@
 #define ID_L2CC         (63) /**< \brief L2 Cache Controller (L2CC) */
 #define ID_CAN0_INT1    (64) /**< \brief MCAN 0 Interrupt1 (CAN0_INT1) */
 #define ID_CAN1_INT1    (65) /**< \brief MCAN 1 Interrupt1 (CAN1_INT1) */
-#define ID_GMAC_Q1      (66) /**< \brief GMAC Queue 1 Interrupt (GMAC_Q1) */
-#define ID_GMAC_Q2      (67) /**< \brief GMAC Queue 2 Interrupt (GMAC_Q2) */
+#define ID_GMAC0_Q1     (66) /**< \brief GMAC Queue 1 Interrupt (GMAC0_Q1) */
+#define ID_GMAC0_Q2     (67) /**< \brief GMAC Queue 2 Interrupt (GMAC0_Q2) */
 #define ID_PIOB         (68) /**< \brief  (PIOB) */
 #define ID_PIOC         (69) /**< \brief  (PIOC) */
 #define ID_PIOD         (70) /**< \brief  (PIOD) */
@@ -227,6 +227,12 @@ uint32_t get_qspi_id_from_addr(const Qspi* addr);
  * \return QSPI memory start on success, NULL otherwise
  */
 void *get_qspi_mem_from_addr(const Qspi* addr);
+
+/**
+ * \brief retrieve GMAC ID from its base address
+ * \return GMAC ID on success, ID_PERIPH_COUNT otherwise
+ */
+uint32_t get_gmac_id_from_addr(const Gmac* addr);
 
 /** \brief Returns the matrix on which the given peripheral is connected
  *

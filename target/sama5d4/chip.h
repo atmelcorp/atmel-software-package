@@ -163,6 +163,8 @@ extern uint32_t get_usart_id_from_addr(const Usart* addr);
 
 extern uint32_t get_tc_id_from_addr(const Tc* addr);
 
+extern uint32_t get_gmac_id_from_addr(const Gmac* addr);
+
 /** \brief Returns the matrix on which the given peripheral is connected
  *
  * \param id the Peripheral ID
