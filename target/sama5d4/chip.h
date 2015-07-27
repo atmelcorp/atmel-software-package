@@ -128,6 +128,10 @@
 /* TODO: convert ISI driver to use component instead and remove this include and header file */
 #include "instance/instance_isi.h"
 
+/** Size of Cortex-A5 L1 cache line */
+#define L1_CACHE_WORDS (8u)
+#define L1_CACHE_BYTES (32u)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 

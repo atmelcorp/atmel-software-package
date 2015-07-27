@@ -163,6 +163,10 @@
 
 #include "chip_pins.h"
 
+/** Size of Cortex-A5 L1 cache line */
+#define L1_CACHE_WORDS (8u)
+#define L1_CACHE_BYTES (32u)
+
 /** FLEXCOM USART FIFO depth */
 #define FLEXCOM_USART_FIFO_DEPTH (32u)
 

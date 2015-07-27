@@ -42,6 +42,8 @@
 	#define NULL ((void*)0)
 #endif
 
+#define ROUND_UP_MULT(x,m) (((x) + ((m)-1)) & ~((m)-1))
+
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
 
 #define _STRINGY_EXPAND(x) #x
