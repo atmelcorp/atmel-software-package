@@ -140,17 +140,15 @@ static const struct _gmacd_irq_handler _gmacd_irq_handlers[] = {
 #define DUMMY_UNITSIZE 128
 
 /** TX descriptors list */
-ALIGNED(8)
-SECTION(".region_dma_nocache")
+ALIGNED(8) SECTION(".region_ddr_nocache")
 static struct _gmac_desc dummy_tx_desc[DUMMY_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8)
-SECTION(".region_dma_nocache")
+ALIGNED(8) SECTION(".region_ddr_nocache")
 static struct _gmac_desc dummy_rx_desc[DUMMY_BUFFERS];
 
 /** Send Buffer */
-ALIGNED(8)
+ALIGNED(32)
 static uint8_t dummy_buffer[DUMMY_BUFFERS * DUMMY_UNITSIZE];
 
 /*---------------------------------------------------------------------------
