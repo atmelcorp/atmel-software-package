@@ -30,6 +30,5 @@ drivers-y += drivers/cortex-a/cortexa5_interrupts.o
 drivers-y += drivers/cortex-a/cp15.o
 drivers-y += drivers/cortex-a/cp15_asm_gcc.o
 drivers-y += drivers/cortex-a/cp15_pmu.o
-drivers-y += drivers/cortex-a/cpsr.o
 drivers-y += drivers/cortex-a/cpsr_gcc.o
 drivers-y += drivers/cortex-a/mmu.o

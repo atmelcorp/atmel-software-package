@@ -40,20 +40,4 @@ extern void v_arm_clr_cpsr_bits(uint32_t mask);
 
 extern void v_arm_set_cpsr_bits(uint32_t mask);
 
-extern uint32_t v_arm_read_control(void);
-
-extern void v_arm_write_control(uint32_t mask);
-
-extern uint32_t v_arm_get_status_Icache(void);
-
-/**
- * \brief Enable I Cache
- */
-extern void v_arm_enable_Icache(void);
-
-/**
- * \brief Disable I Cache
- */
-extern void v_arm_disable_Icache(void);
-
 #endif

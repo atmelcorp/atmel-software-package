@@ -29,24 +29,18 @@
 
 /** \file */
 
-        MODULE  ?cpsr
+	MODULE  ?cpsr
 
-        //// Forward declaration of sections.
-        SECTION IRQ_STACK:DATA:NOROOT(2)
-        SECTION CSTACK:DATA:NOROOT(3)
-
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-#define __ASSEMBLY__
-
+	/* Forward declaration of sections. */
+	SECTION IRQ_STACK:DATA:NOROOT(2)
+	SECTION CSTACK:DATA:NOROOT(3)
 
 /*----------------------------------------------------------------------------
- *        Functions to access CP15 coprocessor register
+ *        Functions to access CPSR
  *----------------------------------------------------------------------------*/
 
-        SECTION .v_arm_clr_cpsr_bits:CODE:NOROOT(2)
-        PUBLIC   v_arm_clr_cpsr_bits
+	SECTION .v_arm_clr_cpsr_bits:CODE:NOROOT(2)
+	PUBLIC v_arm_clr_cpsr_bits
 v_arm_clr_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -56,8 +50,8 @@ v_arm_clr_cpsr_bits:
 	pop	{r1}
 	bx	lr
 
-        SECTION .v_arm_set_cpsr_bits:CODE:NOROOT(2)
-        PUBLIC   v_arm_set_cpsr_bits
+	SECTION .v_arm_set_cpsr_bits:CODE:NOROOT(2)
+	PUBLIC v_arm_set_cpsr_bits
 v_arm_set_cpsr_bits:
 	push	{r1}
 	mrs	r1, cpsr
@@ -65,18 +59,3 @@ v_arm_set_cpsr_bits:
 	msr	cpsr_c, r1
 	pop	{r1}
 	bx	lr
-
-        SECTION .v_arm_read_control:CODE:NOROOT(2)
-        PUBLIC   v_arm_read_control
-v_arm_read_control:
-	mov	r0,#0
-	mrc	p15, 0, r0, c1, c0, 0
-	bx	lr
-
-        SECTION .v_arm_write_control:CODE:NOROOT(2)
-        PUBLIC   v_arm_write_control
-v_arm_write_control:
-	mcr	p15, 0, r0, c1, c0, 0
-	bx	lr
-
-	END
