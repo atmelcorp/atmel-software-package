@@ -32,7 +32,7 @@ TOP := ../..
 
 BINNAME = gmac_lwip
 
-VARIANT = ddram
+VARIANT = sram
 
 CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_IPV4 = y

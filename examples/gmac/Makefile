@@ -32,7 +32,7 @@ TOP := ../..
 
 BINNAME = gmac
 
-VARIANT = ddram
+VARIANT = sram
 
 obj-y += examples/gmac/main.o
 obj-y += examples/gmac/mini_ip.o
