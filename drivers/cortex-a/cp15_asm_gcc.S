@@ -19,54 +19,19 @@
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
  * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES// LOSS OF USE, DATA,
- * OR PROFITS// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
 
-
-
 /** \file */
 
 /*----------------------------------------------------------------------------
  *        Functions to access CP15 coprocessor register
  *----------------------------------------------------------------------------*/
-	.global  cp15_read_id
-	.global  cp15_exclusive_cache
-	.global  cp15_non_exclusive_cache
-	.global  cp15_isb
-	.global  cp15_dsb
-	.global  cp15_dmb
-	.global  cp15_select_icache
-	.global  cp15_select_dcache
-	.global  cp15_read_control
-	.global  cp15_write_control
-	.global  cp15_write_domain_access_control
-	.global  cp15_write_ttb
-	.global  cp15_invalid_icache_inner_sharable
-	.global  cp15_invalid_btb_inner_sharable
-	.global  cp15_invalid_icache
-	.global  cp15_invalid_icache_by_mva
-	.global  cp15_invalid_btb
-	.global  cp15_invalid_btb_by_mva
-
-	.global  cp15_invalid_dcache_by_set_way
-	.global  cp15_clean_dcache_by_set_way
-	.global  cp15_clean_invalid_dcache_by_set_way
-
-	.global  cp15_invalid_dcache_by_mva
-	.global  cp15_clean_dcache_by_mva
-	.global  cp15_clean_dcache_umva
-	.global  cp15_clean_invalid_dcache_by_mva
-
-	.global  cp15_coherent_dcache_for_dma
-	.global  cp15_invalidate_dcache_for_dma
-	.global  cp15_clean_dcache_for_dma
-	.global  cp15_flush_dcache_for_dma
-	.global  cp15_flush_kern_dcache_for_dma
 
 /**
  * \brief Register c0 accesses the ID Register, Cache Type Register, and TCM Status Registers.
@@ -79,7 +44,6 @@ cp15_read_id:
 	mov     r0, #0
 	mrc     p15, 0, r0, c0, c0, 0
 	bx      lr
-
 
 /**
  * \brief Register c7 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
@@ -120,8 +84,8 @@ cp15_dmb:
 	.section .text.cp15_invalidate_tlb
 	.global  cp15_invalidate_tlb
 cp15_invalidate_tlb:
-	mov     r0, #1
-	mcr     p15, 0, r0, c8, c3, 0
+	mov     r0, #0
+	mcr     p15, 0, r0, c8, c7, 0
 	dsb
 	bx      lr
 
@@ -137,7 +101,6 @@ cp15_exclusive_cache:
 	mcr     p15, 0, r0, c1, c0, 1 // Write ACTLR
 	nop
 	bx      lr
-
 
 /**
  * \brief Register c1 accesses the ACTLR Register, to indicate cpu that L2 is in exclusive mode
@@ -176,8 +139,6 @@ cp15_select_dcache:
 	nop
 	bx      lr
 
-
-
 /**
  * \brief Register c1 is the Control Register for the ARM926EJ-S processor.
  * This register specifies the configuration used to enable and disable the
@@ -205,8 +166,8 @@ cp15_write_control:
 	nop
 	bx      lr
 
-       .section .text.cp15_write_domain_access_control
-       .global   cp15_write_domain_access_control
+	.section .text.cp15_write_domain_access_control
+	.global   cp15_write_domain_access_control
 cp15_write_domain_access_control:
 	mcr     p15, 0, r0, c3, c0, 0
 	nop
@@ -228,16 +189,16 @@ cp15_write_domain_access_control:
 	.section .text.cp15_write_ttb
 	.global   cp15_write_ttb
 cp15_write_ttb:
-       mcr     p15, 0, r0, c2, c0, 0
-       nop
-       nop
-       nop
-       nop
-       nop
-       nop
-       nop
-       nop
-       bx     lr
+	mcr     p15, 0, r0, c2, c0, 0
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	bx     lr
 
 /**
  * \brief Invalidate I cache predictor array inner Sharable
@@ -299,13 +260,8 @@ cp15_invalid_btb_by_mva:
 	bx      lr
 
 /***********************************************************
-*
-*       ===Data Cache related maintenance functions===
-*
-**************************************************************/
-
-
-//      ===Data Cache maintenance by SetWay  ===
+ *        Data Cache related maintenance functions
+ ***********************************************************/
 
 /**
  * \brief Invalidate entire data cache by set/way
@@ -313,7 +269,7 @@ cp15_invalid_btb_by_mva:
 	.section .text.cp15_invalid_dcache_by_set_way
 	.global   cp15_invalid_dcache_by_set_way
 cp15_invalid_dcache_by_set_way:
-	push 	{r1-r4}
+	push    {r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
@@ -330,10 +286,9 @@ cp15_invalid_dcache_by_set_way:
 	bpl     2b
 	subs    r1, r1, #1
 	bpl     1b
-	pop	{r1-r4}
 	dsb
+	pop     {r1-r4}
 	bx      lr
-
 
 /**
  * \brief Clean entire data cache by set/way
@@ -341,7 +296,7 @@ cp15_invalid_dcache_by_set_way:
 	.section .text.cp15_clean_dcache_by_set_way
 	.global   cp15_clean_dcache_by_set_way
 cp15_clean_dcache_by_set_way:
-	push 	{r1-r4}
+	push    {r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
@@ -358,8 +313,8 @@ cp15_clean_dcache_by_set_way:
 	bpl     2b
 	subs    r1, r1, #1
 	bpl     1b
-	pop	{r1-r4}
 	dsb
+	pop     {r1-r4}
 	bx      lr
 
 /**
@@ -368,7 +323,7 @@ cp15_clean_dcache_by_set_way:
 	.section .text.cp15_clean_invalid_dcache_by_set_way
 	.global   cp15_clean_invalid_dcache_by_set_way
 cp15_clean_invalid_dcache_by_set_way:
-	push 	{r1-r4}
+	push    {r1-r4}
 	mrc     p15, 1, r0, c0, c0, 0
 	mov     r1, r0, lsr #3          // Num of ways
 	and     r1, r1, #3              // 3 is specific to CortexA5 with 32 KB
@@ -385,12 +340,9 @@ cp15_clean_invalid_dcache_by_set_way:
 	bpl     2b
 	subs    r1, r1, #1
 	bpl     1b
-	pop	{r1-r4}
 	dsb
+	pop     {r1-r4}
 	bx      lr
-
-//      ===Data Cache maintenance by VA  ===
-
 
 /**
  * \brief Invalidate data cache by VA to Poc
@@ -398,7 +350,7 @@ cp15_clean_invalid_dcache_by_set_way:
 	.section .text.cp15_invalid_dcache_by_mva
 	.global   cp15_invalid_dcache_by_mva
 cp15_invalid_dcache_by_mva:
-	mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
+	mov     r2, #0x20                          // Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
 	mov     r3, r0
 inv_loop:
 	mcr     p15, 0, r0, c7, c6, 1
@@ -407,14 +359,13 @@ inv_loop:
 	bls     inv_loop
 	bx      lr
 
-
 /**
  * \brief Clean data cache by MVA
  */
 	.section .text.cp15_clean_dcache_by_mva
 	.global   cp15_clean_dcache_by_mva
 cp15_clean_dcache_by_mva:
-	mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
+	mov     r2, #0x20                          // Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
 	mov     r3, r0
 clean_loop:
 	mcr     p15, 0, r0, c7, c10, 1
@@ -439,7 +390,7 @@ cp15_clean_dcache_umva:
 	.section .text.cp15_clean_invalid_dcache_by_mva
 	.global   cp15_clean_invalid_dcache_by_mva
 cp15_clean_invalid_dcache_by_mva:
-	mov     r2, #0x20                          //Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
+	mov     r2, #0x20                          // Eight words per line, Cortex-A5 L1 Line Size 32 Bytes
 	mov     r3, r0
 clinv_loop:
 	mcr     p15, 0, r0, c7, c14, 1
@@ -447,8 +398,6 @@ clinv_loop:
 	cmp     r3, r1
 	bls     clinv_loop
 	bx      lr
-
-
 
 /**
  * \brief Ensure that the I and D caches are coherent within specified
@@ -460,7 +409,7 @@ clinv_loop:
 	.section .text.cp15_coherent_dcache_for_dma
 	.global   cp15_coherent_dcache_for_dma
 cp15_coherent_dcache_for_dma:
-	push 	{r2-r4}
+	push    {r2-r4}
 	mrc     p15, 0, r3, c0, c0, 1
 	lsr     r3, r3, #16
 	and     r3, r3, #0xf
@@ -487,9 +436,8 @@ cp15_coherent_dcache_for_dma:
 	mcr     p15, 0, r0, c7, c5, 6
 	dsb
 	isb
-	pop	{r2-r4}
+	pop     {r2-r4}
 	bx      lr
-
 
 /**
  * \brief Invalidate the data cache within the specified region; we will
@@ -501,7 +449,7 @@ cp15_coherent_dcache_for_dma:
 	.section .text.cp15_invalidate_dcache_for_dma
 	.global   cp15_invalidate_dcache_for_dma
 cp15_invalidate_dcache_for_dma:
-	push 	{r2-r3}
+	push    {r2-r3}
 	mrc     p15, 0, r3, c0, c0, 1
 	lsr     r3, r3, #16
 	and     r3, r3, #0xf
@@ -516,9 +464,8 @@ cp15_invalidate_dcache_for_dma:
 	cmp     r0, r1
 	blo     3b
 	dsb
-	pop 	{r2-r3}
+	pop     {r2-r3}
 	bx      lr
-
 
 /**
  * \brief Clean the data cache within the specified region
@@ -544,7 +491,6 @@ cp15_clean_dcache_for_dma:
 	dsb
 	bx      lr
 
-
 /**
  * \brief Flush the data cache within the specified region
  * \param start virtual start address of region
@@ -568,7 +514,6 @@ cp15_flush_dcache_for_dma:
 	blo     5b
 	dsb
 	bx      lr
-
 
 /**
  * \brief cp15_flush_kern_dcache_for_dma
