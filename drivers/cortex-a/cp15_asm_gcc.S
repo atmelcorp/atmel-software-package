@@ -443,6 +443,9 @@ cp15_coherent_dcache_for_dma:
  * \brief Invalidate the data cache within the specified region; we will
  *      be performing a DMA operation in this region and we want to
  *      purge old data in the cache.
+ *      The specified region should be aligned on cache lines. Otherwise mind
+ *      the data loss that may occur in the collateral part of start/end lines,
+ *      since cache data won't be flushed.
  * \param start virtual start address of region
  * \param end virtual end address of region
  */
@@ -450,18 +453,18 @@ cp15_coherent_dcache_for_dma:
 	.global   cp15_invalidate_dcache_for_dma
 cp15_invalidate_dcache_for_dma:
 	push    {r2-r3}
-	mrc     p15, 0, r3, c0, c0, 1
+	mrc     p15, 0, r3, c0, c0, 1   // read CP15 Cache Type Register
 	lsr     r3, r3, #16
-	and     r3, r3, #0xf
+	and     r3, r3, #0xf            // DminLine
 	mov     r2, #4
-	mov     r2, r2, lsl r3
+	mov     r2, r2, lsl r3          // cache line size, in bytes (4*2^DminLine)
 
-	sub     r3, r2, #1
-	bic     r0, r0, r3
+	sub     r3, r2, #1              // cache line mask
+	bic     r0, r0, r3              // address of the first cache line
 3:
-	mcr     p15, 0, r0, c7, c6, 1
+	mcr     p15, 0, r0, c7, c6, 1   // CP15:DCIMVAC(r0)
 	add     r0, r0, r2
-	cmp     r0, r1
+	cmp     r0, r1                  // while ('cache line address' < 'end')
 	blo     3b
 	dsb
 	pop     {r2-r3}
