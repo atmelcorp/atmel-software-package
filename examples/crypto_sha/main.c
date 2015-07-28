@@ -328,13 +328,9 @@ static void init_dma(void)
 static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	uint32_t i, addr, n = 1;
-	uint8_t periph_chan;
 
 	if (operationMode == SHA_384 || operationMode == SHA_512)
 		n = 2;
-	periph_chan = get_peripheral_xdma_channel(ID_SHA, XDMAC0, true);
-	if (periph_chan == 0xff)
-		return;
 	dma_cfg.cfg.uint32_value =
 		XDMAC_CC_TYPE_PER_TRAN |
 		XDMAC_CC_MBSIZE_SINGLE |
@@ -344,8 +340,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		XDMAC_CC_SIF_AHB_IF0 |
 		XDMAC_CC_DIF_AHB_IF1 |
 		XDMAC_CC_SAM_INCREMENTED_AM |
-		XDMAC_CC_DAM_FIXED_AM |
-		XDMAC_CC_PERID(periph_chan);
+		XDMAC_CC_DAM_FIXED_AM;
 	for (i = 0; i < len; i++) {
 		addr = (uint32_t)&buf[i * 16 * n];
 		cp15_coherent_dcache_for_dma(addr, addr + 16 * n * 4);
