@@ -91,45 +91,202 @@
 /*------------------------------------------------------------------------------ */
 /*         Exported functions */
 /*------------------------------------------------------------------------------ */
+
+/**
+ * \brief Read the Main ID Register (MIDR).
+ * \return register contents
+ */
 extern unsigned int cp15_read_id(void);
+
+/**
+ * \brief Read the System Control Register (SCTLR).
+ * \return register contents
+ */
 extern unsigned int cp15_read_control(void);
 
+/**
+ * \brief Indicate CPU that L2 is in exclusive caching mode.
+ */
 extern void cp15_exclusive_cache(void);
+
+/**
+ * \brief Allow data to reside in the L1 and L2 caches at the same time.
+ */
 extern void cp15_non_exclusive_cache(void);
+
+/**
+ * \brief Instruction Synchronization Barrier operation.
+ */
 extern void cp15_isb(void);
+
+/**
+ * \brief Data Synchronization Barrier operation.
+ */
 extern void cp15_dsb(void);
+
+/**
+ * \brief Data Memory Barrier operation.
+ */
 extern void cp15_dmb(void);
+
+/**
+ * \brief Invalidate unified Translation Lookaside Buffer.
+ */
 extern void cp15_invalidate_tlb(void);
+
+/**
+ * \brief Select the data cache as the one to later retrieve architecture
+ *      information about.
+ */
 extern void cp15_select_dcache(void);
+
+/**
+ * \brief Select the instruction cache as the one to later retrieve architecture
+ *      information about.
+ */
 extern void cp15_select_icache(void);
+
+/**
+ * \brief Modify the System Control Register (SCTLR).
+ *      This register specifies the configuration used to enable and disable the
+ *      caches and MMU.
+ *      It is recommended that you access this register using a read-modify-
+ *      write sequence.
+ * \param value new value for SCTLR
+ */
 extern void cp15_write_control(unsigned int value);
+
+/**
+ * \brief ARMv7A architecture supports two translation tables.
+ *      Configure translation table base (TTB) control register 0.
+ * \param value address of our page table base
+ */
 extern void cp15_write_ttb(unsigned int value);
+
+/**
+ * \brief Modify the Domain Access Control Register (DACR).
+ * \param value new value for DACR
+ */
 extern void cp15_write_domain_access_control(unsigned int value);
 
+/**
+ * \brief Invalidate I cache predictor array to point of unification Inner
+ *      Shareable.
+ */
 extern void cp15_invalid_icache_inner_sharable(void);
-extern void cp15_invalid_btb_inner_sharable(void);
-extern void cp15_invalid_icache(void);
-extern void cp15_invalid_icache_by_mva(void);
-extern void cp15_invalid_btb(void);
-extern void cp15_invalid_btb_by_mva(uint32_t VA_Addr);
 
+/**
+ * \brief Invalidate entire branch predictor array Inner Shareable
+ */
+extern void cp15_invalid_btb_inner_sharable(void);
+
+/**
+ * \brief Invalidate all instruction caches to point of unification.
+ *      Also flush branch target cache.
+ */
+extern void cp15_invalid_icache(void);
+
+/**
+ * \brief Invalidate instruction caches by virtual address to point of
+ *      unification.
+ */
+extern void cp15_invalid_icache_by_mva(void);
+
+/**
+ * \brief Invalidate entire branch predictor array.
+ */
+extern void cp15_invalid_btb(void);
+
+/**
+ * \brief Invalidate branch predictor array entry by modified virtual address.
+ * \param addr virtual address
+ */
+extern void cp15_invalid_btb_by_mva(uint32_t addr);
+
+/**
+ * \brief Invalidate entire data cache by set/way.
+ *      Should be called further to cp15_select_dcache(), not
+ *      cp15_select_icache().
+ */
 extern void cp15_invalid_dcache_by_set_way(void);
+
+/**
+ * \brief Clean entire data cache by set/way.
+ *      Should be called further to cp15_select_dcache(), not
+ *      cp15_select_icache().
+ */
 extern void cp15_clean_dcache_by_set_way(void);
+
+/**
+ * \brief Clean and invalidate entire data cache by set/way
+ *      Should be called further to cp15_select_dcache(), not
+ *      cp15_select_icache().
+ */
 extern void cp15_clean_invalid_dcache_by_set_way(void);
 
-extern void cp15_invalid_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
-extern void cp15_clean_dcache_by_mva(uint32_t startAddr, uint32_t endAddr);
-extern void cp15_clean_invalid_dcache_by_mva(uint32_t startAddr,
-					     uint32_t endAddr);
+/**
+ * \brief Invalidate data cache by virtual address to point of coherency.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_invalid_dcache_by_mva(uint32_t start, uint32_t end);
 
+/**
+ * \brief Clean data cache by modified virtual address to point of coherency.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_clean_dcache_by_mva(uint32_t start, uint32_t end);
+
+/**
+ * \brief Clean and invalidate data cache by virtual address to point of
+ *      coherency.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_clean_invalid_dcache_by_mva(uint32_t start, uint32_t end);
+
+/**
+ * \brief Clean unified cache by modified virtual address to point of
+ *      unification.
+ */
 extern void cp15_clean_dcache_umva(void);
-extern void cp15_invalid_translation_table(void);
 
-extern void cp15_coherent_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void cp15_invalidate_dcache_for_dma(uint32_t startAddr,
-					   uint32_t endAddr);
-extern void cp15_clean_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void cp15_flush_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
+/**
+ * \brief Ensure that the I and D caches are coherent within the specified
+ *      region. This is typically used when code has been written to
+ *      a memory region, and will be executed.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_coherent_dcache_for_dma(uint32_t start, uint32_t end);
+
+/**
+ * \brief Invalidate the data cache within the specified region; we will
+ *      be performing a DMA operation in this region and we want to purge the
+ *      cache of old data. Cache data will be discarded, not flushed.
+ *      The specified region should be aligned on cache lines. Otherwise mind
+ *      the data loss that may occur in the collateral part of start/end lines,
+ *      since cache data won't be flushed.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_invalidate_dcache_for_dma(uint32_t start, uint32_t end);
+
+/**
+ * \brief Clean the data cache within the specified region.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_clean_dcache_for_dma(uint32_t start, uint32_t end);
+
+/**
+ * \brief Flush, i.e. clean and invalidate, the data cache within the specified
+ *      region.
+ * \param start virtual start address of region
+ * \param end virtual end address of region
+ */
+extern void cp15_flush_dcache_for_dma(uint32_t start, uint32_t end);
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions  from CP15.c                                       */
