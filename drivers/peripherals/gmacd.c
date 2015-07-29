@@ -527,26 +527,6 @@ void gmacd_reset(struct _gmacd* gmacd)
 			GMAC_NCR_WESTAT | GMAC_NCR_CLRSTAT);
 }
 
-static void _display_tx_queue(struct _gmacd_queue* q, const char* prefix)
-{
-	int i;
-	printf("%s", prefix);
-	for (i = 0; i < q->tx_size; i++) {
-		if (i == q->tx_head)
-			printf("\033[31m");
-		if (i == q->tx_tail)
-			printf("\033[43m");
-		if (q->tx_desc[i].status & GMAC_TX_STATUS_USED)
-			printf("*");
-		else
-			printf("_");
-		if (q->tx_desc[i].status & GMAC_TX_STATUS_WRAP)
-			printf("^");
-		printf("\033[0m");
-	}
-	printf("\r\n");
-}
-
 /**
  * \brief Send a frame splitted into buffers. If the frame size is larger than transfer buffer size
  * error returned. If frame transfer status is monitored, specify callback for each frame.
@@ -583,8 +563,6 @@ uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
 		trace_error("gmacd_send_sg: not enough free buffers in TX queue.\r\n");
 		return GMACD_TX_BUSY;
 	}
-
-//_display_tx_queue(q, "B:");
 
 	/* Tag end of TX queue */
 	tx_head = fixed_mod(q->tx_head + sgl->size, q->tx_size);
@@ -638,8 +616,6 @@ uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
 
 	/* Update TX ring buffer pointers */
 	q->tx_head = tx_head;
-
-//_display_tx_queue(q, "A:");
 
 	/* Now start to transmit if it is not already done */
 	gmac_start_transmission(gmac);
