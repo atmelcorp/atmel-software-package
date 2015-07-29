@@ -130,7 +130,6 @@ extern void cp15_invalidate_dcache_for_dma(uint32_t startAddr,
 					   uint32_t endAddr);
 extern void cp15_clean_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
 extern void cp15_flush_dcache_for_dma(uint32_t startAddr, uint32_t endAddr);
-extern void cp15_flush_kern_dcache_for_dma(uint32_t startAddr, uint32_t size);
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions  from CP15.c                                       */

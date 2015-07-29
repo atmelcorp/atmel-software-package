@@ -533,30 +533,4 @@ loop5:
 	dsb
 	bx      lr
 
-/**
- * \brief cp15_flush_kern_dcache_for_dma
- * Ensure that the data held in the page kaddr is written back to the page in question.
- * \param start virtual start address of region
- * \param end virtual end address of region
- */
-	SECTION .cp15_flush_kern_dcache_for_dma:CODE:NOROOT(2)
-	PUBLIC cp15_flush_kern_dcache_for_dma
-cp15_flush_kern_dcache_for_dma:
-	mrc     p15, 0, r3, c0, c0, 1
-	lsr     r3, r3, #16
-	and     r3, r3, #0xf
-	mov     r2, #4
-	mov     r2, r2, lsl r3
-
-	add     r1, r0, r1
-	sub     r3, r2, #1
-	bic     r0, r0, r3
-
-	mcr     p15, 0, r0, c7, c14, 1
-	add     r0, r0, r2
-	cmp     r0, r1
-	blo     1b
-	dsb
-	bx      lr
-
 	END
