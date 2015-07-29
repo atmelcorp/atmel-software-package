@@ -34,6 +34,7 @@
 #include "board.h"
 #include "chip.h"
 
+#include "peripherals/pio.h"
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 #include "memories/at24.h"
@@ -52,6 +53,30 @@
 static struct _board_info DEFAULT_BOARD_INFO =
 {16*2, "ATMEL ", "RFO", 15, 01, "AAA", 0x00, 0x0000, "SAMA5D2-XULT", 'C', 0x00};
 
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+typedef void (*_parser)(const uint8_t*, uint32_t);
+
+#define CMD_BUFFER_SIZE  256
+#define READ_BUFFER_SIZE  256
+
+static const struct _pin at24_pins[] = AT24_PINS;
+
+//static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+//static uint8_t read_buffer[READ_BUFFER_SIZE];
+//static _parser _cmd_parser;
+//static uint32_t cmd_index = 0;
+
+struct _at24 at24_drv = {
+	.desc = AT24_DESC
+};
+struct _twi_desc at24_twid = {
+	.addr = AT24_ADDR,
+	.freq = AT24_FREQ,
+	.transfert_mode = TWID_MODE_FIFO
+};
 
 /*------------------------------------------------------------------------------
  *
@@ -145,4 +170,17 @@ uint8_t at24mac402_display_info_board (struct _at24* pAt24)
 	printf("\tMapping     : %c\n\r", pInfo->rev_mapping);
 	printf("\tCrc         : 0x%02X\n\r", pInfo->crc);
 	return status;
+}
+
+uint8_t test_at24mac402 (void)
+{
+	uint8_t status;
+
+	/* configure twi serial E2prom */
+	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
+	/* configure handler twi serial E2prom */
+	status = at24_configure(&at24_drv, &at24_twid);
+	status = at24mac402_display_info_board (&at24_drv);
+	return status;
+
 }

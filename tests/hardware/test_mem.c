@@ -133,7 +133,7 @@ uint32_t* _mem_test_addr_bus(volatile uint32_t* baseAddress, uint64_t nBytes)
       baseAddress[offset] = pattern;
 
     // Check for address bits stuck high.
-    printf(" Test1: Check for address bits stuck high\n\r");
+    printf(" Test1: Check for add bits stuck high\n\r");
     testOffset = 0;
     baseAddress[testOffset] = antipattern;
     for (offset = 1; (offset & addressMask) != 0; offset <<= 1)
@@ -143,7 +143,7 @@ uint32_t* _mem_test_addr_bus(volatile uint32_t* baseAddress, uint64_t nBytes)
     baseAddress[testOffset] = pattern;
 
     // Check for address bits stuck low or shorted.
-    printf(" Test2: Check for address bits stuck low or shorted ");
+    printf(" Test2: Check for add bits stuck low or shorted ");
     for (testOffset = 1; (testOffset & addressMask) != 0; testOffset <<= 1)
     {
         baseAddress[testOffset] = antipattern;
@@ -210,6 +210,7 @@ uint32_t* _mem_test_device (volatile uint32_t* baseAddress, uint64_t nBytes)
         antipattern = ~pattern;
         if (baseAddress[offset] != antipattern) return ((uint32_t*) &baseAddress[offset]);
     }
+	printf("\n\r");
     return (NULL);
 }
 

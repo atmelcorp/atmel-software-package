@@ -414,7 +414,7 @@ int main(void)
 		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
 		act8945a_enable_regulator(&act8945a, 6, true);
 	} else {
-		printf("--E-- Error initilizing ACT8945A PMIC\n\r");
+		printf("--E-- Error initializing ACT8945A PMIC\n\r");
 	}
 #endif
 

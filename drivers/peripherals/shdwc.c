@@ -44,7 +44,7 @@
 
 struct _bitfield_shdwc_cfgr {
 	uint32_t
-	lpdbcen0: 1,
+		lpdbcen0: 1,
 		lpdbcen1: 1,
 		rfu2_7:   6,
 		lpdbc:    3,

@@ -33,28 +33,30 @@
 
 #include "board.h"
 #include "chip.h"
+#include "trace.h"
+#include "compiler.h"
+
+#include "cortex-a/mmu.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/tc.h"
+#include "peripherals/pit.h"
+#include "peripherals/twid.h"
 #include "peripherals/rtc.h"
 
-#include "cortex-a/mmu.h"
 #include "misc/led.h"
 #include "misc/console.h"
+#include "utils/timer.h"
 
 #include "power/act8945a.h"
 #include "test_rtc.h"
 #include "test_fielbus_shield.h"
 #include "board_info.h"
 
-
-#include "timer.h"
-
-#include "trace.h"
-#include "compiler.h"
+#include "video/lcdd.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -63,6 +65,22 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+	struct _pin act8945a_pins[] = ACT8945A_PINS;
+	struct _twi_desc act8945a_twid = {
+		.addr = ACT8945A_ADDR,
+		.freq = ACT8945A_FREQ,
+		.transfert_mode = TWID_MODE_POLLING
+	};
+	struct _act8945a act8945a = {
+		.desc = {
+			.pin_chglev = ACT8945A_PIN_CHGLEV,
+			.pin_irq = ACT8945A_PIN_IRQ,
+			.pin_lbo = ACT8945A_PIN_LBO
+		}
+	};
+#endif
 
 /** LED0 blink time, LED1 blink half this time, in ms */
 #define BLINK_PERIOD        1000
@@ -83,9 +101,6 @@ static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 #endif
 
 volatile bool led_status[MAX_LEDS] = {0};
-
-/** Global timestamp in milliseconds since start of application */
-volatile uint32_t dwTimeStamp = 0;
 
 static const struct _pin vbus_pin[] = PIN_USB_VBUS;
 
@@ -232,34 +247,23 @@ int main(void)
 	console_clear_screen();
 	console_reset_cursor();
 
-	/* Initialize pin Enable power USBB */
-	pio_configure(&en5v_usbb_pin[0], 1);
-
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
-
 	/* Configure PIT. */
 	printf("Configure PIT \n\r");
 	//configure_pit();
 	timer_configure(BLINK_PERIOD);
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	status = act8945a_begin();
-	if(status) {
-		printf("--E-- Error init ACT8945A \n\r");
+	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
+	if (act8945a_configure(&act8945a, &act8945a_twid)) {
+		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
+		act8945a_enable_regulator(&act8945a, 6, true);
+		act8945a_set_regulator_voltage(&act8945a, 7, 1800);
+		act8945a_enable_regulator(&act8945a, 7, true);
+
 	} else {
-		act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2500);
-		act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
-		act8945a_set_regulator_voltage_out4to7 (V_OUT7, 1800);
-		act8945a_set_regulator_state_out4to7 (V_OUT7, ACT8945A_SET_ON);
+		printf("--E-- Error initializing ACT8945A PMIC\n\r");
 	}
 #endif
-
-	test_flexcom_usart();
 
 
 	/* PIO configuration for LEDs */
@@ -287,9 +291,12 @@ int main(void)
 	/* Configure interrupt on VBUS state change */
 	configure_pin_vbus_state();
 
+	/* Binary clock widget */
+	init_binary_clock (LCDD_OVR1, 10, 10, 0, 0);
+
+
 	/* Configure RTC */
 	_configure_rtc();
-
 	uint8_t frtc;
 	struct _time LMTU;
 	do {
@@ -297,9 +304,10 @@ int main(void)
 		if(frtc&RTC_SR_SEC) {
 			frtc &= ~RTC_SR_SEC;
 			set_flag_rtc(frtc);
-			memset (&LMTU, 0xFF, sizeof(LMTU));
 			rtc_get_time(&LMTU);
-			printf("%02dh %02dm %02ds \n\r", LMTU.hour, LMTU.min, LMTU.sec);
+			display_hms(&LMTU);
+			draw_binary_clock(&LMTU);
 		}
+		lcd_app_qtouch();
 	} while(1);
 }

@@ -177,13 +177,13 @@
 #define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 
 #define PIN_QT1070_IRQ {\
-	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 #define PIN_MXT336S_IRQ {\
-	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 #define PIN_MXT768E_IRQ	{\
-	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
+	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
 }
 
 /* =================== PIN ISC definition ======================= */
@@ -290,6 +290,15 @@
 	 *(BOARD_LCD_TIMING_VPW+BOARD_LCD_TIMING_VBP+                   \
 	   BOARD_LCD_HEIGHT+BOARD_LCD_TIMING_VFP)                       \
 	 *BOARD_LCD_FRAMERATE)
+
+/* =================== QT1070 device definition =================== */
+#define QT1070_PINS       PINS_TWI1_IOS2;
+#define QT1070_ADDR       ((Twi*)TWIHS1)
+#define QT1070_FREQ       400000
+#define QT1070_DESC       {"QT1070", 0x00, 00}
+
+
+
 
 #define swap(a, b) { uint16_t t = a; a = b; b = t; }
 

@@ -45,29 +45,19 @@
 //         Definitions
 //------------------------------------------------------------------------------
 
-#define NOERROR 0
-#define ERROR   1
-
-#define CKGR_PLLAR_DIVA_Msk (0xffu << CKGR_PLLAR_DIVA_Pos) /**< \brief (CKGR_PLLAR) Divider A */
-#define CKGR_PLLAR_DIVA_Pos 0
-
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-
 #define ACT8945A
 #define AT24MAC402
 // #define ONE-WIRE
 // #define NAND_FLASH
 //#define EMMC
 // #define SDRAM_DDR2
-// #define SDRAM_DDR3
+#define SDRAM_DDR3
 //#define	EEPROM
 #define SPI_FLASH
-//#define QSPI_FLASH
+#define QSPI_FLASH
 //#define SDCARD
 //#define GETH
-//#define LCD
+#define LCD
 
 //------------------------------------------------------------------------------
 
@@ -228,9 +218,9 @@ typedef struct ParameterPageDataStructureDefinition
 	#define	DDR3_COMMENT 	"Mode DLL OFF"
 
 	#define BOARD_DDRAM_SIZE            (256*1024*1024)  // 256 MB
- 	#define OFFSET_MEMORY               0x00000000
+ 	#define OFFSET_MEMORY               0x01000000
 	#define ADDR_DDR3_START				DDR_CS_ADDR	+ OFFSET_MEMORY
-	#define ADDR_DDR3_END				ADDR_DDR3_START + BOARD_DDRAM_SIZE
+	#define ADDR_DDR3_END				DDR_CS_ADDR + BOARD_DDRAM_SIZE
 
 #endif
 
@@ -247,7 +237,7 @@ typedef struct ParameterPageDataStructureDefinition
 #ifdef QSPI_FLASH
 	#define QSPIF_DEVICE	"N25Q128A13ESE40F"
 	#define QSPIF_INTERFACE	"QSPI0, I0S3 "
-	#define	QSPIF_COMMENT 	" "
+	#define	QSPIF_COMMENT 	"Optionnal"
 #endif
 
 //------------------------------------------------------------------------------

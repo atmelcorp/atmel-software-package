@@ -33,6 +33,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "widget.h"
+#include "video/lcdd.h"
+#include "lcd_draw.h"
+#include "lcd_color.h"
 
 #include <stdlib.h>
 
@@ -40,12 +43,11 @@
  *        Local constante
  *----------------------------------------------------------------------------*/
 
-
 #define NBDEGRE 90+1
 #define ISIN    1
 #define ICOS    2
 
-// angle degré, Sinus, Cosinus
+// angle degre Sinus, Cosinus
 const double SinCos[NBDEGRE][3] =
 {
 	{0,	0.000,	1.000},
@@ -141,7 +143,6 @@ const double SinCos[NBDEGRE][3] =
 	{90,	1.000,	0.000},
 };
 
-
 const int8_t SinCosSel[4][2] =
 {
 	{ISIN, ICOS},
@@ -165,8 +166,8 @@ const int8_t SinCosMul[4][2] =
 /**
  * \brief Return the coordinates of a point on a circle.
  * \param org       x and y coordinate (org)
- * \param radius    raduis of the circle
- * \param angle     value of the angle (0-360°)
+ * \param radius    raduis of the point on circle
+ * \param angle     value of the angle (0-360 degre)
  *
  * \output  struct point updated with coord of the point.
  */
@@ -197,7 +198,7 @@ void point_on_circle (struct _point* org, uint16_t radius, uint16_t angle)
  * \brief Return the coordinates of a point on a circle.
  * \param org       x and y coordinate (org)
  * \param pt        x and y coordinate (dest)
- * \param angle     value of the angle (0-360°)
+ * \param angle     increment of the angle (degre)
  * \param clockwise 0= clockwise, 1 = counterclockwise
  *
  * \output  struct point pt updated with coord of the point.
@@ -236,4 +237,69 @@ void rotate_point (struct _point* org, struct _point* pt, uint16_t angle, uint8_
 	// translate point back:
 	pt->x = (int32_t)(new_x + org->x);
 	pt->y = (int32_t)(new_y + org->y) ;
+}
+
+
+
+void compute_vector_position (uint32_t* pX, uint32_t* pY, uint32_t radius, uint16_t degre)
+{
+  uint16_t  dx1, dy1;
+  uint8_t   quadrant = degre/90;
+  uint8_t   i = degre%90;
+
+  switch (quadrant)
+  {
+    case 0:
+      dx1 =  (uint16_t)(radius * SinCos[i][ISIN]);
+      dy1 =  (uint16_t)(radius * SinCos[i][ICOS]);
+      *pX += dx1;
+      *pY -= dy1;
+      break;
+    case 1:
+      dx1 =  (uint16_t)(radius * SinCos[i][ICOS]);
+      dy1 =  (uint16_t)(radius * SinCos[i][ISIN]);
+      *pX += dx1;
+      *pY += dy1;
+      break;
+    case 2:
+      dx1 =  (uint16_t)(radius * SinCos[i][ISIN]);
+      dy1 =  (uint16_t)(radius * SinCos[i][ICOS]);
+      *pX -= dx1;
+      *pY += dy1;
+      break;
+    case 3:
+      dx1 =  (uint16_t)(radius * SinCos[i][ICOS]);
+      dy1 =  (uint16_t)(radius * SinCos[i][ISIN]);
+      *pX -= dx1;
+      *pY -= dy1;
+      break;
+    default: break;
+  }
+}
+
+// Draws a part of a vector in a circle
+// X = org X
+// Y = org Y
+// radius = size of the radius
+// segment = part size of the radius
+// degre = angle of the radius
+// color = color of the radius
+
+void widget_draw_vector (uint32_t X, uint32_t Y, uint32_t radius, uint8_t segment, uint16_t degre, uint32_t color)
+{
+  uint32_t  dx0, dy0;
+  uint32_t  dx1, dy1;
+  uint32_t color1;
+
+  if (color==COLOR_WHITE) { color1 = COLOR_LIGHTGREY; }
+  else { color1 = color; }
+
+	dx0 = X; dy0 = Y;
+	dx1 = X; dy1 = Y;
+
+	compute_vector_position (&dx0, &dy0, radius-segment, degre);
+	compute_vector_position (&dx1, &dy1, radius, degre);
+	lcdd_draw_line(dx0+1, dy0, dx1+1, dy1, color1);
+	lcdd_draw_line(dx0-1, dy0, dx1-1, dy1, color1);
+	lcdd_draw_line(dx0, dy0, dx1, dy1, color);
 }

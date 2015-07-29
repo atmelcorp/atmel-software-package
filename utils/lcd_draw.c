@@ -349,6 +349,14 @@ void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 		    uint32_t color)
 {
 	_set_front_color(color);
+
+	if ((x1 == x2) && (y1 > y2)) {
+		swap(y1, y2);
+	}
+	if ((x1 > x2) & (y1 == y2)) {
+		swap(x1, x2);
+	}
+
 	if ((x1 == x2) || (y1 == y2)) {
 		lcdd_draw_filled_rectangle(x1, y1, x2, y2, color);
 	} else {
@@ -596,8 +604,8 @@ void lcdd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p
  * \param dwX       X-coordinate of image start.
  * \param dwY       Y-coordinate of image start.
  * \param pImage    Image buffer.
- * \param width   Image width.
- * \param height  Image height.
+ * \param width   	Image width.
+ * \param height  	Image height.
  */
 void lcdd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
 		     uint32_t width, uint32_t height)

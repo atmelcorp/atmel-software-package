@@ -48,10 +48,6 @@
 
 static uint8_t flgrtc;
 
-struct _time MTU = {6, 1, 59};
-struct _time MTA = {18, 30, 00};
-struct _date MDT = {2015, 06, 01, 1};
-
 /*------------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
@@ -96,7 +92,6 @@ uint8_t get_flag_rtc (void)
 void set_flag_rtc (uint8_t frtc)
 {
 	flgrtc = frtc;
-	return ;
 }
 
 /**
@@ -105,15 +100,19 @@ void set_flag_rtc (uint8_t frtc)
 */
 void _configure_rtc (void)
 {
-  uint32_t status;
+  	uint32_t status;
+	struct _time MTU = {00, 00, 00};
+	struct _time MTA = {18, 30, 00};
+	struct _date MDT = {2015, 06, 01, 1};
 
-  rtc_set_hour_mode(0); // mode 24h
-  status = rtc_set_time (&MTU);
-  status = rtc_set_date(&MDT);
-  status |= rtc_set_time_event (RTC_CR_TIMEVSEL_MINUTE);
-  rtc_disable_it (RTC_IER_ACKEN | RTC_IER_ALREN | RTC_IER_SECEN | RTC_IER_TIMEN | RTC_IER_CALEN);
-  rtc_enable_it (RTC_IER_SECEN);
+	rtc_set_hour_mode(0); // mode 24h
+	status = rtc_set_time(&MTU);
+	status |= rtc_set_date(&MDT);
+	status |= rtc_set_time_alarm(&MTA);
+	status |= rtc_set_time_event (RTC_CR_TIMEVSEL_MINUTE);
+	rtc_disable_it (RTC_IER_ACKEN | RTC_IER_ALREN | RTC_IER_SECEN | RTC_IER_TIMEN | RTC_IER_CALEN);
+	rtc_enable_it (RTC_IER_SECEN);
 
-  aic_set_source_vector(ID_SYSC, rtc_irq_handler);
-  aic_enable(ID_SYSC);
+	aic_set_source_vector(ID_SYSC, rtc_irq_handler);
+	aic_enable(ID_SYSC);
 }

@@ -287,7 +287,7 @@ void rtc_disable_it(uint32_t sources)
 	RTC->RTC_IDR = sources;
 }
 
-int rtc_set_time(struct _time *time)
+uint32_t rtc_set_time(struct _time *time)
 {
 	uint32_t ltime = 0;
 	uint8_t hour_bcd , min_bcd, sec_bcd;
@@ -315,7 +315,7 @@ int rtc_set_time(struct _time *time)
 	RTC->RTC_TIMR = ltime;
 	RTC->RTC_CR &= (uint32_t) (~RTC_CR_UPDTIM);
 	RTC->RTC_SCCR |= RTC_SCCR_SECCLR;
-	return (int) (RTC->RTC_VER & RTC_VER_NVTIM);
+	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVTIM);
 }
 
 void rtc_get_time(struct _time *time)
@@ -328,23 +328,17 @@ void rtc_get_time(struct _time *time)
 		ltime = RTC->RTC_TIMR;
 	}
 	/* Hour */
-	if (time->hour) {
-		time->hour = ((ltime & 0x00300000) >> 20) * 10 + ((ltime & 0x000F0000) >> 16);
-		if ((ltime & RTC_TIMR_AMPM) == RTC_TIMR_AMPM) {
-			time->hour += 12;
-		}
+	time->hour = ((ltime & 0x00300000) >> 20) * 10 + ((ltime & 0x000F0000) >> 16);
+	if ((ltime & RTC_TIMR_AMPM) == RTC_TIMR_AMPM) {
+		time->hour += 12;
 	}
 	/* Minute */
-	if (time->min) {
-		time->min = ((ltime & 0x00007000) >> 12) * 10 + ((ltime & 0x00000F00) >> 8);
-	}
+	time->min = ((ltime & 0x00007000) >> 12) * 10 + ((ltime & 0x00000F00) >> 8);
 	/* Second */
-	if (time->sec) {
-		time->sec = ((ltime & 0x00000070) >> 4) * 10 + (ltime & 0x0000000F);
-	}
+	time->sec = ((ltime & 0x00000070) >> 4) * 10 + (ltime & 0x0000000F);
 }
 
-int rtc_set_time_alarm(struct _time *time)
+uint32_t rtc_set_time_alarm(struct _time *time)
 {
 	uint32_t alarm = 0;
 
@@ -361,7 +355,7 @@ int rtc_set_time_alarm(struct _time *time)
 		alarm |= RTC_TIMALR_SECEN | ((time->sec / 10) << 4) | (time->sec % 10);
 	}
 	RTC->RTC_TIMALR = alarm;
-	return (int) (RTC->RTC_VER & RTC_VER_NVTIMALR);
+	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVTIMALR);
 }
 
 void rtc_get_date(struct _date *date)
@@ -381,7 +375,7 @@ void rtc_get_date(struct _date *date)
 	date->week = ((ldate >> 21) & 0x7);
 }
 
-int rtc_set_date(struct _date *date)
+uint32_t rtc_set_date(struct _date *date)
 {
 	uint32_t ldate;
 	uint8_t cent_bcd, year_bcd, month_bcd, day_bcd, week_bcd;
@@ -409,10 +403,10 @@ int rtc_set_date(struct _date *date)
 	RTC->RTC_CALR = ldate;
 	RTC->RTC_CR &= (uint32_t) (~RTC_CR_UPDCAL);
 	RTC->RTC_SCCR |= RTC_SCCR_SECCLR;	/* clear SECENV in SCCR */
-	return (int) (RTC->RTC_VER & RTC_VER_NVCAL);
+	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVCAL);
 }
 
-int rtc_set_date_alarm(struct _date *date)
+uint32_t rtc_set_date_alarm(struct _date *date)
 {
 	uint32_t alarm;
 
@@ -426,7 +420,7 @@ int rtc_set_date_alarm(struct _date *date)
 	}
 	/* Set alarm */
 	RTC->RTC_CALALR = alarm;
-	return (int) (RTC->RTC_VER & RTC_VER_NVCALALR);
+	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVCALALR);
 }
 
 void rtc_clear_sccr(uint32_t mask)

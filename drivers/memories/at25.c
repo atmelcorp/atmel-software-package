@@ -359,15 +359,15 @@ void at25_print_device_info(struct _at25* at25)
 	device_info = BIG_ENDIAN_TO_HOST(device_info);
 
 	printf("Device info:\r\n");
-	printf("\t- Manufacturer ID:\t\t0x%X\r\n",
+	printf("\t- Manufacturer ID\t\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0xFF000000) >> 24);
-	printf("\t- Device Family Code:\t\t0x%X\r\n",
+	printf("\t- Device Family Code\t\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0x00E00000) >> 21);
-	printf("\t- Device Density Code:\t\t0x%X\r\n",
+	printf("\t- Device Density Code\t\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0x001F0000) >> 16);
-	printf("\t- Device Sub Code:\t\t0x%X\r\n",
+	printf("\t- Device Sub Code\t\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0xE000) >> 13);
-	printf("\t- Device Product Version:\t0x%X\r\n",
+	printf("\t- Device Product Version\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0x1F00) >> 8);
 }
 

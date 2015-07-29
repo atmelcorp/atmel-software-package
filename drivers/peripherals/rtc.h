@@ -144,7 +144,7 @@ extern void rtc_disable_it(uint32_t sources);
  *
  * \return 0 sucess, 1 fail to set
  */
-extern int rtc_set_time(struct _time *time);
+extern uint32_t rtc_set_time(struct _time *time);
 
 /**
  * \brief Retrieves the current time as stored in the RTC in several variables.
@@ -165,7 +165,7 @@ extern void rtc_get_time(struct _time *time);
  *
  * \return 0 success, 1 fail to set
  */
-extern int rtc_set_time_alarm(struct _time *time);
+extern uint32_t rtc_set_time_alarm(struct _time *time);
 
 /**
  * \brief Retrieves the current year, month and day from the RTC.
@@ -187,7 +187,7 @@ extern void rtc_get_date(struct _date *date);
  *
  * \return 0 success, 1 fail to set
  */
-extern int rtc_set_date(struct _date *date);
+extern uint32_t rtc_set_date(struct _date *date);
 
 /**
  * \brief Sets a date alarm in the RTC.
@@ -199,7 +199,7 @@ extern int rtc_set_date(struct _date *date);
  *
  * \return 0 success, 1 fail to set
  */
-extern int rtc_set_date_alarm(struct _date *date);
+extern uint32_t rtc_set_date_alarm(struct _date *date);
 
 /**
  * \brief Clear flag bits of status clear command register in the RTC.

@@ -46,110 +46,10 @@
 #include "video/qt1070.h"
 
 /*----------------------------------------------------------------------------
- *         Local Definitions
+ *
  *----------------------------------------------------------------------------*/
 
-/** Slave address */
-#define QT1070_SLAVE_ADDRESS    0x1B
 
-/** Internal Register Address Allocation */
-
-/** Chip ID register*/
-#define QT1070_CHIP_ID              0
-
-/** Firmware version register*/
-#define QT1070_REG_FIRMWARE_VERSION 1
-
-/** Detection status*/
-#define QT1070_REG_DETECTION_STATUS 2
-
-/** Key status*/
-#define QT1070_REG_KEY_STATUS       3
-
-/** Key signal */
-#define QT1070_REG_KEY0_SIGNAL_MSB  4
-#define QT1070_REG_KEY0_SIGNAL_LSB  5
-#define QT1070_REG_KEY1_SIGNAL_MSB  6
-#define QT1070_REG_KEY1_SIGNAL_LSB  7
-#define QT1070_REG_KEY2_SIGNAL_MSB  8
-#define QT1070_REG_KEY2_SIGNAL_LSB  9
-#define QT1070_REG_KEY3_SIGNAL_MSB  10
-#define QT1070_REG_KEY3_SIGNAL_LSB  11
-#define QT1070_REG_KEY4_SIGNAL_MSB  12
-#define QT1070_REG_KEY4_SIGNAL_LSB  13
-#define QT1070_REG_KEY5_SIGNAL_MSB  14
-#define QT1070_REG_KEY5_SIGNAL_LSB  15
-#define QT1070_REG_KEY6_SIGNAL_MSB  16
-#define QT1070_REG_KEY6_SIGNAL_LSB  17
-
-/** Reference date */
-#define QT1070_REG_REFDATA0_MSB     18
-#define QT1070_REG_REFDATA0_LSB     19
-#define QT1070_REG_REFDATA1_MSB     20
-#define QT1070_REG_REFDATA1_LSB     21
-#define QT1070_REG_REFDATA2_MSB     22
-#define QT1070_REG_REG_REFDATA2_LSB 23
-#define QT1070_REG_REFDATA3_MSB     24
-#define QT1070_REG_REG_REFDATA3_LSB 25
-#define QT1070_REG_REFDATA4_MSB     26
-#define QT1070_REG_REFDATA4_LSB     27
-#define QT1070_REG_REFDATA5_MSB     28
-#define QT1070_REG_REFDATA5_LSB     29
-#define QT1070_REG_REFDATA6_MSB     30
-#define QT1070_REG_REFDATA6_LSB     31
-
-/** Negative threshold level */
-#define QT1070_REG_NTHR_KEY0        32
-#define QT1070_REG_NTHR_KEY1        33
-#define QT1070_REG_NTHR_KEY2        34
-#define QT1070_REG_NTHR_KEY3        35
-#define QT1070_REG_NTHR_KEY4        36
-#define QT1070_REG_NTHR_KEY5        37
-#define QT1070_REG_NTHR_KEY6        38
-
-/** Adjacent key suppression level */
-#define QT1070_REG_AVEAKS_KEY0      39
-#define QT1070_REG_AVEAKS_KEY1      40
-#define QT1070_REG_AVEAKS_KEY2      41
-#define QT1070_REG_AVEAKS_KEY3      42
-#define QT1070_REG_AVEAKS_KEY4      43
-#define QT1070_REG_AVEAKS_KEY5      44
-#define QT1070_REG_AVEAKS_KEY6      45
-
-/** Detection interator conter for key*/
-#define QT1070_REG_DI_KEY0          46
-#define QT1070_REG_DI_KEY1          47
-#define QT1070_REG_DI_KEY2          48
-#define QT1070_REG_DI_KEY3          49
-#define QT1070_REG_DI_KEY4          50
-#define QT1070_REG_DI_KEY5          51
-#define QT1070_REG_DI_KEY6          52
-
-/** Low power mode */
-#define QT1070_REG_LOWPOWER_MODE    54
-
-/** Maximum on duration */
-#define QT1070_REG_MAX_DURATION     55
-
-/** Calibrate */
-#define QT1070_REG_CALIRATE         56
-
-/** Reset */
-#define QT1070_REG_RESET            57
-
-/** Detection Status. */
-
-/** This bit is set during a calibration sequence.*/
-#define QT1070_CALIBRATE_BIT        7
-
-/** This bit is set if the time to acquire all key signals exceeds 8 ms*/
-#define QT1070_OVERFLOW_BIT         6
-
-/** This bit is set if Comms mode is enabled. */
-#define QT1070_COMMSENABLED_BIT     5
-
-/** This bit is set if any keys are in detect. */
-#define QT1070_TOUCH_BIT            0
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -166,15 +66,9 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 {
 	uint8_t data;
 
-	struct _buffer out = {
-		.data = &data,
-		.size = 0
-	};
 	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
 	qt1070->twid->iaddr = reg_addr;
-	twid_transfert(qt1070->twid, 0, &out,
-		       twid_finish_transfert_callback, 0);
-
+	qt1070->twid->isize = 1;
 	struct _buffer in = {
 		.data = &data,
 		.size = 1
@@ -201,8 +95,8 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 	};
 	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
 	qt1070->twid->iaddr = reg_addr;
-	twid_transfert(qt1070->twid, 0, &out,
-		       twid_finish_transfert_callback, 0);
+	qt1070->twid->isize = 1;
+	twid_transfert(qt1070->twid, 0, &out, twid_finish_transfert_callback, 0);
 }
 
 /*----------------------------------------------------------------------------
@@ -285,6 +179,13 @@ uint8_t qt1070_configure(struct _qt1070* qt1070, struct _twi_desc* twid)
 
 	qt1070->twid = twid;
 	twid_configure(twid);
+
+	/*
+	qt1070_start_calibrate(qt1070);
+	do {
+		status = qt1070_get_key_status(qt1070)
+	} while ( status & QT1070_CALIBRATE_BIT) ;
+	*/
 
 	qt1070->chip_id = qt1070_get_chip_id(qt1070);
 	qt1070->firmware_version = qt1070_get_firmware_version(qt1070);
