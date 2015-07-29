@@ -59,3 +59,5 @@ v_arm_set_cpsr_bits:
 	msr	cpsr_c, r1
 	pop	{r1}
 	bx	lr
+
+	END

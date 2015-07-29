@@ -555,3 +555,5 @@ cp15_flush_kern_dcache_for_dma:
 	blo     1b
 	dsb
 	bx      lr
+
+	END
