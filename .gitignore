@@ -12,4 +12,7 @@ GTAGS
 *.dep
 *.ewt
 examples/*/settings/
+tests/*/settings/
+examples/*/Debug/
+tests/*/Debug/
 *~
