@@ -52,7 +52,7 @@
  */
 
 /** Name of the board */
-#define BOARD_NAME "sama5d4-ek"
+#define BOARD_NAME "sama5d4-xult"
 
 /*----------------------------------------------------------------------------*/
 /**
