@@ -297,9 +297,4 @@
 #define QT1070_FREQ       400000
 #define QT1070_DESC       {"QT1070", 0x00, 00}
 
-
-
-
-#define swap(a, b) { uint16_t t = a; a = b; b = t; }
-
 #endif /* #ifndef _BOARD_D2_H */

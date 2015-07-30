@@ -71,8 +71,6 @@
 
 #define BOARD_LCD_ILI9488
 
-#define swap(a, b) { int16_t t = a; a = b; b = t; }
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -1435,18 +1433,18 @@ void mxtx_draw_filled_triangle(struct _point* Coord0, struct _point* Coord1, str
 	// Sort coordinates by Y order (y2 >= y1 >= y0)
 	if (Coord0->y > Coord1->y)
 	{
-		swap(Coord0->y, Coord1->y);
-		swap(Coord0->y, Coord1->x);
+		SWAP(Coord0->y, Coord1->y);
+		SWAP(Coord0->y, Coord1->x);
 	}
 	if (Coord1->y > Coord2->y)
 	{
-		swap(Coord2->y, Coord1->y);
-		swap(Coord2->x, Coord1->x);
+		SWAP(Coord2->y, Coord1->y);
+		SWAP(Coord2->x, Coord1->x);
 	}
 	if (Coord0->y > Coord1->y)
 	{
-		swap(Coord0->y, Coord1->y);
-		swap(Coord0->x, Coord1->x);
+		SWAP(Coord0->y, Coord1->y);
+		SWAP(Coord0->x, Coord1->x);
 	}
 
 	if(Coord0->y == Coord2->y)
@@ -1492,7 +1490,7 @@ void mxtx_draw_filled_triangle(struct _point* Coord0, struct _point* Coord1, str
 		b   = Coord0->x + sb / dy02;
 		sa += dx01;
 		sb += dx02;
-		if(a > b) swap(a,b);
+		if(a > b) SWAP(a,b);
 		Pt1.x = a;
 		Pt1.y = y;
 		mxtx_draw_fast_horizontal_line(&Pt1, b-a+1);
@@ -1508,7 +1506,7 @@ void mxtx_draw_filled_triangle(struct _point* Coord0, struct _point* Coord1, str
 		b   = Coord0->x + sb / dy02;
 		sa += dx12;
 		sb += dx02;
-		if(a > b) swap(a,b);
+		if(a > b) SWAP(a,b);
 		Pt1.x = a;
 		Pt1.y = y;
 		mxtx_draw_fast_horizontal_line(&Pt1, b-a+1);

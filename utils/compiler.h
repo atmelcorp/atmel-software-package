@@ -49,6 +49,20 @@
 #define _STRINGY_EXPAND(x) #x
 #define STRINGIFY(x) _STRINGY_EXPAND(x)
 
+#if defined(__GNUC__)
+	#define SWAP(a, b) do {		\
+		__auto_type _swp = (a);	\
+		(a) = (b);		\
+		(b) = _swp; } while (0)
+#else
+	/* The compiler will replace memcpy calls with direct assignations */
+	#define SWAP(a, b) do {                                                \
+		uint8_t _swp[sizeof(a) == sizeof(b) ? (signed)sizeof(a) : -1]; \
+		memcpy(_swp, &(a), sizeof(a));                                 \
+		memcpy(&(a), &(b), sizeof(a));                                 \
+		memcpy(&(b), _swp, sizeof(a)); } while(0)
+#endif
+
 #define BIG_ENDIAN_TO_HOST(x) (((x) & 0xFF) << 24) | (((x) & 0xFF00) << 8) \
 		| (((x) & 0xFF0000) >> 8) | (((x) & 0xFF000000) >> 24)
 

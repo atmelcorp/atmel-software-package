@@ -351,10 +351,10 @@ void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 	_set_front_color(color);
 
 	if ((x1 == x2) && (y1 > y2)) {
-		swap(y1, y2);
+		SWAP(y1, y2);
 	}
 	if ((x1 > x2) & (y1 == y2)) {
-		swap(x1, x2);
+		SWAP(x1, x2);
 	}
 
 	if ((x1 == x2) || (y1 == y2)) {
