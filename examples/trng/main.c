@@ -100,7 +100,7 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void trng_callback(uint32_t random_value)
+static void trng_callback(uint32_t random_value, void* user_arg)
 {
 	printf("0x%08x\n\r", (unsigned int)random_value);
 }
@@ -126,7 +126,7 @@ int main(void)
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
 	trng_enable();
-	trng_enable_it(&trng_callback);
+	trng_enable_it(&trng_callback, NULL);
 
 	while (1) ;
 }

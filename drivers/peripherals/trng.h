@@ -41,7 +41,7 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-typedef void (*trng_callback_t)(uint32_t random_value);
+typedef void (*trng_callback_t)(uint32_t random_value, void* user_arg);
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -62,8 +62,9 @@ extern void trng_disable(void);
  * generated random value.
  *
  * \param cb user callback
+ * \param user_arg user argument passed as-is to the callback
  */
-extern void trng_enable_it(trng_callback_t cb);
+extern void trng_enable_it(trng_callback_t cb, void* user_arg);
 
 /**
  * \brief Disable the TRNG interrupt.
