@@ -1,61 +1,33 @@
-/** \mainpage
-*
-****************************************************************************
-* Copyright (C) 2012 - 2014 Bosch Sensortec GmbH
-*
-* File : bmp280.h
-*
-* Date : 2014/12/12
-*
-* Revision : 2.0.3(Pressure and Temperature compensation code revision is 1.1)
-*
-* Usage: Sensor Driver for BMP280 sensor
-*
-****************************************************************************
-*
-* \section License
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*   Redistributions of source code must retain the above copyright
-*   notice, this list of conditions and the following disclaimer.
-*
-*   Redistributions in binary form must reproduce the above copyright
-*   notice, this list of conditions and the following disclaimer in the
-*   documentation and/or other materials provided with the distribution.
-*
-*   Neither the name of the copyright holder nor the names of the
-*   contributors may be used to endorse or promote products derived from
-*   this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-* IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER
-* OR CONTRIBUTORS BE LIABLE FOR ANY
-* DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-* OR CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO,
-* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-* WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-* ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
-*
-* The information provided is believed to be accurate and reliable.
-* The copyright holder assumes no responsibility
-* for the consequences of use
-* of such information nor for any infringement of patents or
-* other rights of third parties which may result from its use.
-* No license is granted by implication or otherwise under any patent or
-* patent rights of the copyright holder.
-**************************************************************************/
+/* ----------------------------------------------------------------------------
+ *         SAM Software Package License
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2015, Atmel Corporation
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
+ */
 /*! \file bmp280.h
     \brief BMP280 Sensor Driver Support Header File */
-
 
 #ifndef __BMP280_H__
 #define __BMP280_H__
@@ -116,10 +88,11 @@
 /**\name	ERROR CODES      */
 /************************************************/
 #define	SUCCESS			  		((uint8_t)0)
-#define E_BMP280_NULL_PTR       ((int8_t)-127)
-#define E_BMP280_COMM_RES       ((int8_t)-1)
-#define E_BMP280_OUT_OF_RANGE   ((int8_t)-2)
-#define ERROR                   ((int8_t)-1)
+#define ERROR       			((uint8_t)0xFF)
+#define E_BMP280_NULL_PTR       ((uint8_t)ERROR-1)
+#define E_BMP280_COMM_RES       ((uint8_t)ERROR-2)
+#define E_BMP280_OUT_OF_RANGE   ((uint8_t)ERROR-3)
+
 /************************************************/
 /**\name	I2C ADDRESS DEFINITION       */
 /***********************************************/
@@ -399,98 +372,71 @@ struct _bmp280_calib_par
 };
 
 // This structure holds BMP280 initialization parameters
-struct _param_bmp280
+struct _bmp280
 {
-  struct _bmp280_calib_par calpar;             /**<calibration data*/
-  uint8_t chip_id;                              /**< chip id of the sensor*/
-  uint8_t dev_addr;                             /**< device address of the sensor*/
-  uint8_t overs_temp;                           /**< temperature over sampling*/
-  uint8_t overs_pres;                           /**< pressure over sampling*/
-  void(*delay_msec)(uint16_t);        /**< delay function pointer*/
+	struct _twi_desc* twid;
+
+	struct _bmp280_calib_par calpar;	/**<calibration data*/
+	uint8_t chip_id;                    /**< chip id of the sensor*/
+	uint8_t dev_addr;                   /**< device address of the sensor*/
+	uint8_t overs_temp;                 /**< temperature over sampling*/
+	uint8_t overs_pres;                 /**< pressure over sampling*/
+	void(*delay_msec)(uint16_t);        /**< delay function pointer*/
 };
 
 /**************************************************************/
 /**\name	FUNCTION DECLARATIONS                         */
 /**************************************************************/
-uint8_t bmp280_init(struct _param_bmp280 *bmp280);
 
-uint8_t bmp280_read_uncT(int32_t* uncT);
+static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t* buffer, uint32_t len);
+static uint8_t _bmp280_write(struct _bmp280* bmp280, const uint8_t* buffer, uint32_t len);
 
-int32_t bmp280_compensate_temperatureC(int32_t uncT);
+uint8_t bmp280_write_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdata, uint8_t len);
+uint8_t bmp280_read_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdata, uint8_t len);
 
-uint8_t bmp280_read_uncP(int32_t *uncP);
+uint8_t bmp280_read_uncompensed_temperature (struct _bmp280* bmp280, int32_t* uncT);
+int32_t bmp280_compensate_temperatureC (struct _bmp280* bmp280, int32_t uncT);
+uint8_t bmp280_read_uncompensed_pressure (struct _bmp280* bmp280, int32_t* uncP);
+uint32_t  bmp280_compensate_pressureP (struct _bmp280* bmp280, int32_t uncP);
+uint8_t bmp280_read_uncompensed_pressure_temperature (struct _bmp280* bmp280, int32_t* uncP, int32_t* uncT);
+uint8_t bmp280_read_pressure_temperature (struct _bmp280* bmp280, uint32_t* pressure, int32_t* temperature);
+uint8_t bmp280_get_calpar (struct _bmp280* bmp280);
+uint8_t bmp280_get_overs_temp (struct _bmp280* bmp280, uint8_t* value);
+uint8_t bmp280_set_overs_temp (struct _bmp280* bmp280, uint8_t value);
+uint8_t bmp280_get_overs_pres (struct _bmp280* bmp280, uint8_t* value);
+uint8_t bmp280_set_overs_pres (struct _bmp280* bmp280, uint8_t value);
+uint8_t bmp280_get_power_mode(struct _bmp280* bmp280, uint8_t* power_mode);
+uint8_t bmp280_set_power_mode (struct _bmp280* bmp280, uint8_t power_mode);
+uint8_t bmp280_set_soft_rst (struct _bmp280* bmp280);
+uint8_t bmp280_get_spi3 (struct _bmp280* bmp280, uint8_t* enable_disable);
+uint8_t bmp280_set_spi3 (struct _bmp280* bmp280, uint8_t enable_disable);
+uint8_t bmp280_get_filter (struct _bmp280* bmp280, uint8_t *value);
+uint8_t bmp280_set_filter (struct _bmp280* bmp280, uint8_t value);
+uint8_t bmp280_get_standby_durn(struct _bmp280* bmp280, uint8_t* standby_durn);
+uint8_t bmp280_set_standby_durn (struct _bmp280* bmp280, uint8_t standby_durn);
+uint8_t bmp280_set_work_mode (struct _bmp280* bmp280, uint8_t work_mode);
+uint8_t bmp280_get_forced_uncP_temperature(struct _bmp280* bmp280, int32_t* uncP, int32_t* uncT);
 
-uint32_t bmp280_compensate_pressureP(int32_t uncP);
-
-uint8_t bmp280_read_uncP_temperature(int32_t* uncP, int32_t* uncT);
-
-uint8_t bmp280_read_pressure_temperature(uint32_t* pressure, int32_t* temperature);
-
-uint8_t bmp280_get_calpar(void);
-
-uint8_t bmp280_get_overs_temp(uint8_t* value);
-
-uint8_t bmp280_set_overs_temp(uint8_t value);
-
-uint8_t bmp280_get_overs_pres(uint8_t *value);
-
-uint8_t bmp280_set_overs_pres(uint8_t value);
-
-uint8_t bmp280_get_power_mode(uint8_t *power_mode);
-
-uint8_t bmp280_set_power_mode(uint8_t power_mode);
-
-uint8_t bmp280_set_soft_rst(void);
-
-uint8_t bmp280_get_spi3(uint8_t* enable_disable);
-
-uint8_t bmp280_set_spi3(uint8_t enable_disable);
-
-uint8_t bmp280_get_filter(uint8_t* value);
-
-uint8_t bmp280_set_filter(uint8_t value);
-
-uint8_t bmp280_get_standby_durn(uint8_t* standby_durn);
-
-uint8_t bmp280_set_standby_durn(uint8_t standby_durn);
-
-uint8_t bmp280_set_work_mode(uint8_t work_mode);
-
-uint8_t bmp280_get_forced_uncP_temperature(int32_t* uncP, int32_t* uncT);
-
-uint8_t bmp280_write_register(uint8_t addr, uint8_t* data, uint8_t len);
-
-uint8_t bmp280_read_register(uint8_t addr, uint8_t* data, uint8_t len);
-
-uint8_t bmp280_read_uncompensed_temperature(int32_t* uncT);
-
-uint8_t bmp280_read_uncompensed_pressure(int32_t* uncP);
-
-uint8_t bmp280_read_uncompensed_pressure_temperature(int32_t* uncP,
-						     int32_t* uncT);
-
-uint8_t bmp280_begin(void);
-
-uint8_t bmp280_test(void);
+uint8_t bmp280_read_id_get_calib_param (struct _bmp280* bmp280);
 
 /**************************************************************/
 /**\name	FUNCTION FOR TRUE TEMPERATURE CALCULATION   */
 /**************************************************************/
 
 #ifdef BMP280_ENABLE_FLOAT
-  double bmp280_compensate_T_double(int32_t uncT);
-  double bmp280_compensate_P_double(int32_t uncP);
+	double bmp280_compensate_T_double(struct _bmp280* bmp280, int32_t uncT);
+	double bmp280_compensate_P_double(struct _bmp280* bmp280, int32_t uncP);
 #endif
 
 #if defined(BMP280_ENABLE_INT64) && defined(BMP280_64BITSUPPORT_PRESENT)
-  uint32_t bmp280_compensate_P_int64(int32_t uncP);
+  uint32_t bmp280_compensate_P_int64(struct _bmp280* bmp280, int32_t uncP);
 #endif
 
 /**************************************************************/
 /**\name	FUNCTION FOR DELAY CALCULATION DURING FORCEMODE  */
 /**************************************************************/
 
-uint8_t bmp280_compute_wait_time(uint8_t* delaytimer);
+uint8_t bmp280_compute_wait_time (struct _bmp280* bmp280, uint8_t* delaytimer);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
