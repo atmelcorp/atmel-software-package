@@ -136,13 +136,11 @@
 /** Number of buffers for TX */
 #define TX_BUFFERS  32
 
-#define GMAC_CAF_DISABLE  0
-#define GMAC_CAF_ENABLE   1
-#define GMAC_NBC_DISABLE  0
-#define GMAC_NBC_ENABLE   1
+/** Number of ARP requests sent by the example */
+#define MAX_ARP_REQUESTS 20
 
-#define MAX_ARP_REQUESTS 0
-#define ARP_INTERVAL 50
+/** Interval between ARP requests (in milliseconds) */
+#define ARP_INTERVAL     250
 
 /*---------------------------------------------------------------------------
  *         Local variables
@@ -440,7 +438,7 @@ int main(void)
 	/* Init GMAC */
 	const struct _pin gmac_pins[] = GMAC0_PINS;
 	pio_configure(gmac_pins, ARRAY_SIZE(gmac_pins));
-	gmacd_configure(&_gmacd, GMAC0_ADDR, GMAC_CAF_ENABLE, GMAC_NBC_DISABLE);
+	gmacd_configure(&_gmacd, GMAC0_ADDR, 1, 0);
 	gmacd_setup_queue(&_gmacd, 0, RX_BUFFERS, _rx_buffer, _rx_desc, TX_BUFFERS, _tx_buffer, _tx_desc, NULL);
 	gmacd_set_rx_callback(&_gmacd, 0, _gmac_rx_callback);
 	gmac_set_mac_addr(_gmacd.gmac, 0, _mac_addr);
@@ -470,8 +468,8 @@ int main(void)
 			}
 		} else {
 			/* wait 1s to get remaining replies */
-			//if ((timer_get_tick() - tick_start) >= 500)
-			//	break;
+			if ((timer_get_tick() - tick_start) >= 500)
+				break;
 		}
 
 		struct _eth_packet* pkt = (struct _eth_packet*)_eth_buffer;
