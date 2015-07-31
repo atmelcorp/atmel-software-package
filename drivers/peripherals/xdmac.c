@@ -123,7 +123,9 @@ uint32_t xdmac_get_masked_global_isr(Xdmac *xdmac)
 {
 	assert(xdmac == XDMAC0 || xdmac == XDMAC1);
 
-	return xdmac->XDMAC_GIS & xdmac->XDMAC_GIM;
+	uint32_t mask = xdmac->XDMAC_GIM;
+
+	return xdmac->XDMAC_GIS & mask;
 }
 
 void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel)
@@ -255,8 +257,9 @@ uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel)
 	assert(xdmac == XDMAC0 || xdmac == XDMAC1);
 	assert(channel < XDMAC_CHANNELS);
 
-	return xdmac->XDMAC_CHID[channel].XDMAC_CIS &
-	       xdmac->XDMAC_CHID[channel].XDMAC_CIM;
+	uint32_t mask = xdmac->XDMAC_CHID[channel].XDMAC_CIM;
+
+	return xdmac->XDMAC_CHID[channel].XDMAC_CIS & mask;
 }
 
 void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, void *addr)
