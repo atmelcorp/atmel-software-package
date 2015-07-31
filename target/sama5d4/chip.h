@@ -134,6 +134,9 @@
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
+/** AIC redirection unlock key */
+#define AICREDIR_KEY 0x5F67B102
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -236,7 +236,7 @@ void aic_initialize(void)
 	_aic_initialize(SAIC);
 
 	/* Redirect all interrupts to Non-secure AIC */
-	SFR->SFR_AICREDIR = (SFR_AICREDIR_AICREDIRKEY(0x5F67B102) ^ SFR->SFR_SN1) |
+	SFR->SFR_AICREDIR = (SFR_AICREDIR_AICREDIRKEY(AICREDIR_KEY) ^ SFR->SFR_SN1) |
 	                    SFR_AICREDIR_NSAIC;
 
 	/* Enable IRQ and FIQ at core level */
