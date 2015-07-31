@@ -82,10 +82,9 @@ static const struct peripheral_xdma _xdmac0_peripherals[] = {
 	{ ID_DBGU,     30, 31 },
 	{ ID_ADC,    0xff, 32 },
 	{ ID_SMD,      33, 34 },
-	{ ID_SMD,       1, 34 },
 	{ ID_USART0,   36, 37 },
 	{ ID_USART1,   38, 39 },
-	{ ID_AES,      40, 41 },
+	{ ID_AES,      41, 40 },
 	{ ID_TDES,     42, 43 },
 	{ ID_SHA,      44, 0xff },
 };
