@@ -282,12 +282,71 @@ static void handle_aes_irq(void)
 }
 
 /**
+ * \brief Encrypt or decrypt the specified data buffer.
+ * In this sample code, the size of data buffers is hardcoded.
+ * \param encrypt  True to encrypt, false to decrypt
+ * \param in  Input buffer
+ * \param out  Target buffer receiving processed data
+ */
+static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
+{
+	const bool use_dma = start_mode == AES_MR_SMOD_IDATAR0_START;
+	uint32_t rc = 0, i;
+
+	aes_configure((encrypt ? AES_MR_CIPHER_ENCRYPT : AES_MR_CIPHER_DECRYPT)
+		| start_mode | key_id | op_mode);
+	/* Write the 128-bit/192-bit/256-bit key in the Key Word Registers */
+	aes_write_key(aes_keys, key_byte_len);
+	/* The Initialization Vector Registers apply to all modes except
+	 * ECB. */
+	if (op_mode != AES_MR_OPMOD_ECB)
+		aes_set_vector(aes_vectors);
+	if (use_dma) {
+		init_dma();
+		aes_set_data_len(DATA_LEN_INBYTE);
+		if (encrypt)
+			cp15_coherent_dcache_for_dma((uint32_t)in,
+				(uint32_t)in + DATA_LEN_INBYTE);
+		configure_dma_write(in, DATA_LEN_INWORD / 4);
+		configure_dma_read(out, DATA_LEN_INWORD / 4);
+		printf("-I- AES %scryption, starting dual DMA transfer"
+			   "\n\r", encrypt ? "en" : "de");
+		rc = xdmad_start_transfer(dma_wr_chan);
+		if (rc == XDMAD_OK)
+			rc = xdmad_start_transfer(dma_rd_chan);
+		if (rc == XDMAD_OK) {
+			while (!xdmad_is_transfer_done(dma_rd_chan))
+				xdmad_poll();
+			xdmad_stop_transfer(dma_rd_chan);
+			xdmad_stop_transfer(dma_wr_chan);
+		}
+		xdmad_free_channel(dma_rd_chan); dma_rd_chan = NULL;
+		xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
+		cp15_invalidate_dcache_for_dma((uint32_t)out,
+			(uint32_t)out + DATA_LEN_INBYTE);
+	} else
+		/* Iterate per 128-bit data block */
+		for (i = 0; i < DATA_LEN_INWORD; i += 4) {
+			data_ready = 0;
+			aes_enable_it(AES_IER_DATRDY);
+			/* Write one 128-bit input data block in the authorized
+			 * Input Data Registers */
+			aes_set_input(&in[i]);
+			if (start_mode == AES_MR_SMOD_MANUAL_START)
+				/* Set the START bit in the AES Control register
+				 * to begin the encrypt. or decrypt. process. */
+				aes_start();
+			while (!data_ready) ;
+			aes_get_output(&out[i]);
+		}
+}
+
+/**
  * \brief Start AES process.
  */
 static void start_aes(void)
 {
-	const bool use_dma = start_mode == AES_MR_SMOD_IDATAR0_START;
-	uint32_t rc = 0, i, addr;
+	uint32_t i;
 	uint8_t c;
 
 	/* Perform a software-triggered hardware reset of the AES interface */
@@ -297,105 +356,7 @@ static void start_aes(void)
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
 	memset(msg_out_decrypted, 0xff, DATA_LEN_INBYTE);
 
-	/* Iterate per 128-bit data blocks */
-	for (i = 0; use_dma ? i == 0 : i < DATA_LEN_INWORD; i += 4) {
-		/* Encrypt data... */
-		data_ready = 0;
-		aes_enable_it(AES_IER_DATRDY);
-		aes_configure(AES_MR_CIPHER_ENCRYPT | key_id | start_mode |
-			op_mode);
-		/* Write the 128-bit/192-bit/256-bit key(s) in the Key Registers
-		 * (AES_KEYxWRx) */
-		aes_write_key(aes_keys, key_byte_len);
-
-		/* The Initialization Vector Registers apply to all modes except
-		 * ECB. */
-		if (op_mode != AES_MR_OPMOD_ECB)
-			aes_set_vector(aes_vectors);
-		if (use_dma) {
-			init_dma();
-			aes_set_data_len(DATA_LEN_INBYTE);
-			addr = (uint32_t)msg_in_clear;
-			cp15_coherent_dcache_for_dma(addr,
-						     addr + DATA_LEN_INBYTE);
-			configure_dma_write(msg_in_clear, DATA_LEN_INWORD / 4);
-			configure_dma_read(msg_encrypted, DATA_LEN_INWORD / 4);
-			printf("-I- AES encryption, starting dual DMA transfer"
-			       "\n\r");
-			rc = xdmad_start_transfer(dma_wr_chan);
-			if (rc == XDMAD_OK)
-				rc = xdmad_start_transfer(dma_rd_chan);
-			if (rc == XDMAD_OK) {
-				while (!xdmad_is_transfer_done(dma_rd_chan))
-					xdmad_poll();
-				xdmad_stop_transfer(dma_rd_chan);
-				xdmad_stop_transfer(dma_wr_chan);
-			}
-			xdmad_free_channel(dma_rd_chan); dma_rd_chan = NULL;
-			xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
-			addr = (uint32_t)msg_encrypted;
-			cp15_invalidate_dcache_for_dma(addr,
-						       addr + DATA_LEN_INBYTE);
-		} else {
-			/* Write one 128-bit input data block in the authorized
-			 * Input Data Registers */
-			aes_set_input(&msg_in_clear[i]);
-			if (start_mode == AES_MR_SMOD_MANUAL_START)
-				/* Set the START bit in the AES Control register
-				 * AES_CR to begin the encryption process. */
-				aes_start();
-			while (!data_ready) ;
-			aes_get_output(&msg_encrypted[i]);
-		}
-
-		/* Now decrypt data... */
-		data_ready = 0;
-		aes_enable_it(AES_IER_DATRDY);
-		aes_configure(AES_MR_CIPHER_DECRYPT | key_id | start_mode |
-			op_mode);
-		/* Write the 128-bit/192-bit/256-bit key(s) in the Key Registers
-		 * (AES_KEYxWRx) */
-		aes_write_key(aes_keys, key_byte_len);
-
-		/* The Initialization Vector Registers apply to all modes except
-		 * ECB. */
-		if (op_mode != AES_MR_OPMOD_ECB)
-			aes_set_vector(aes_vectors);
-		if (use_dma) {
-			init_dma();
-			aes_set_data_len(DATA_LEN_INBYTE);
-			configure_dma_write(msg_encrypted, DATA_LEN_INWORD / 4);
-			configure_dma_read(msg_out_decrypted,
-					   DATA_LEN_INWORD / 4);
-			printf("-I- AES decryption, starting dual DMA transfer"
-			       "\n\r");
-			rc = xdmad_start_transfer(dma_wr_chan);
-			if (rc == XDMAD_OK)
-				rc = xdmad_start_transfer(dma_rd_chan);
-			if (rc == XDMAD_OK) {
-				while (!xdmad_is_transfer_done(dma_rd_chan))
-					xdmad_poll();
-				xdmad_stop_transfer(dma_rd_chan);
-				xdmad_stop_transfer(dma_wr_chan);
-			}
-			xdmad_free_channel(dma_rd_chan); dma_rd_chan = NULL;
-			xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
-			addr = (uint32_t)msg_out_decrypted;
-			cp15_invalidate_dcache_for_dma(addr,
-						       addr + DATA_LEN_INBYTE);
-		} else {
-			/* Write the data to be decrypted in the authorized
-			 * Input Data Registers */
-			aes_set_input(&msg_encrypted[i]);
-			if (start_mode == AES_MR_SMOD_MANUAL_START)
-				/* Set the START bit in the AES Control register
-				 * AES_CR to begin the decryption process. */
-				aes_start();
-			while (!data_ready) ;
-			aes_get_output(&msg_out_decrypted[i]);
-		}
-	}
-
+	process_buffer(true, msg_in_clear, msg_encrypted);
 	printf("-I- Dumping the encrypted message...");
 	for (i = 0; i < DATA_LEN_INWORD; i++) {
 		if (i % 8 == 0)
@@ -403,6 +364,8 @@ static void start_aes(void)
 		printf(" %08lx", msg_encrypted[i]);
 	}
 	printf("\n\r");
+
+	process_buffer(false, msg_encrypted, msg_out_decrypted);
 	printf("-I- Dumping plain text after AES decryption...\n\r");
 	/* Print the entire buffer, even past the nul characters if any */
 	for (i = 0; i < DATA_LEN_INBYTE; i++) {
