@@ -251,7 +251,7 @@ static volatile uint32_t *pWinReg(uint8_t bLayer)
 }
 
 /**
- * Return a pointer to striding regiters.
+ * Return a pointer to striding registers.
  * \param bLayer Layer ID.
  */
 static volatile uint32_t *pStrideReg(uint8_t bLayer)
@@ -271,7 +271,7 @@ static volatile uint32_t *pStrideReg(uint8_t bLayer)
 }
 
 /**
- * Return a pointer to Color configure regiters.
+ * Return a pointer to Color configure registers.
  * (Including: RGB Default, RGB Key, RGB Mask)
  * Note that base layer only has one register (default).
  * \param bLayer Layer ID.
@@ -412,7 +412,7 @@ static uint32_t _calc_scale_factor(uint32_t targetW, uint32_t imgW)
 }
 
 /**
- * Return a pointer to Color Palette lookup regiters.
+ * Return a pointer to Color Palette lookup registers.
  * \param bLayer Layer ID.
  */
 static volatile uint32_t *pCLUTReg(uint8_t bLayer)
@@ -648,7 +648,7 @@ void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y)
  * \param bLayer Layer ID (HEO).
  * \param bPri   Prority value.
  */
-void lcdd_set_prioty(uint8_t bLayer, uint8_t bPri)
+void lcdd_set_priority(uint8_t bLayer, uint8_t bPri)
 {
 	Lcdc *pHw = LCDC;
 	if (bLayer != LCDD_HEO)
@@ -664,7 +664,7 @@ void lcdd_set_prioty(uint8_t bLayer, uint8_t bPri)
  * Return Prioty of layer (only for HEO now).
  * \param bLayer Layer ID (HEO).
  */
-uint8_t lcdd_get_prioty(uint8_t bLayer)
+uint8_t lcdd_get_priority(uint8_t bLayer)
 {
 	Lcdc *pHw = LCDC;
 	if (bLayer != LCDD_HEO)

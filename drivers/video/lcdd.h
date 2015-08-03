@@ -139,8 +139,8 @@ extern uint8_t lcdd_is_layer_on(uint8_t bLayer);
 extern void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis);
 extern void lcdd_refresh(uint8_t bLayer);
 extern void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y);
-extern void lcdd_set_prioty(uint8_t bLayer, uint8_t bPri);
-extern uint8_t lcdd_get_prioty(uint8_t bLayer);
+extern void lcdd_set_priority(uint8_t bLayer, uint8_t bPri);
+extern uint8_t lcdd_get_priority(uint8_t bLayer);
 extern void lcdd_enable_alpha(uint8_t bLayer, uint8_t bEnDisLA,
 			     uint8_t bEnDisGA);
 extern void lcdd_set_alpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha);
