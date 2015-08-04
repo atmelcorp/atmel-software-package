@@ -144,7 +144,7 @@ struct _sha_algo
  *----------------------------------------------------------------------------*/
 
 /*
- * Algorithm | Block Size | Word Size | Message Digest Size
+ * Algorithm | Block Size | Word Size | Message Digest Size (all in bits)
  * SHA-1     | 512        | 32        | 160
  * SHA-256   | 512        | 32        | 256
  * SHA-384   | 1024       | 64        | 384
@@ -322,15 +322,14 @@ static void init_dma(void)
 
 /**
  * \brief Configure XDMA channel for SHA transfer.
- * \param buf pointer to data buf.
- * \param len block length.
+ * \param buf  Pointer to data buffer.
+ * \param len  Count of data blocks.
  */
 static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
-	uint32_t i, addr, n = 1;
+	const uint32_t words = algo_desc[operationMode].blockSizeInWord;
+	uint32_t i, addr;
 
-	if (operationMode == SHA_384 || operationMode == SHA_512)
-		n = 2;
 	dma_cfg.cfg.uint32_value =
 		XDMAC_CC_TYPE_PER_TRAN |
 		XDMAC_CC_MBSIZE_SINGLE |
@@ -342,12 +341,12 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		XDMAC_CC_SAM_INCREMENTED_AM |
 		XDMAC_CC_DAM_FIXED_AM;
 	for (i = 0; i < len; i++) {
-		addr = (uint32_t)&buf[i * 16 * n];
-		cp15_coherent_dcache_for_dma(addr, addr + 16 * n * 4);
+		addr = (uint32_t)&buf[i * words];
+		cp15_coherent_dcache_for_dma(addr, addr + words * 4);
 		dma_dlist[i].ublock_size = XDMA_UBC_NVIEW_NDV1 |
 			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
-			XDMA_UBC_NDEN_UPDATED | 16 * n;
-		dma_dlist[i].src_addr = &buf[i * 16 * n];
+			XDMA_UBC_NSEN_UPDATED | words;
+		dma_dlist[i].src_addr = &buf[i * words];
 		dma_dlist[i].dest_addr = (void*)&SHA->SHA_IDATAR[0];
 		dma_dlist[i].next_desc = i == len - 1 ? NULL : &dma_dlist[i + 1];
 	}
@@ -426,7 +425,7 @@ static uint32_t swap_uint32(uint32_t val)
 static void start_sha(void)
 {
 	uint32_t *p = NULL;
-	uint32_t rc = 0, i, N, digest, ref;
+	uint32_t rc = 0, i, blk_cnt = 0, digest, ref;
 
 	sha_get_status();
 	if (startMode == SHA_MR_SMOD_IDATAR0_START)
@@ -435,85 +434,85 @@ static void start_sha(void)
 		case SHA_1:
 			if (blocks == SHA_ONE_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX A.1 SHA-1 Example (One-Block Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				N = 1;
+				blk_cnt = 1;
 				build_message(msg0, LEN_MSG_0, false);
 			}
 			if (blocks == SHA_MULTI_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX A.2 SHA-1 Example (Multi-Block Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				N = 2;
+				blk_cnt = 2;
 				build_message(msg1, LEN_MSG_1, false);
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX A.3 SHA-1 Example (Long Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				N = DMA_DESC_MAX_COUNT;
+				blk_cnt = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
 		case SHA_256:
 			if (blocks == SHA_ONE_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX B.1 SHA-256 Example (One-Block Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				N = 1;
+				blk_cnt = 1;
 				build_message(msg0, LEN_MSG_0, false);
 			}
 			if (blocks == SHA_MULTI_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX B.2 SHA-256 Example (Multi-Block Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				N = 2;
+				blk_cnt = 2;
 				build_message(msg1, LEN_MSG_1, false);
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX B.3 SHA-256 Example (Long Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				N = DMA_DESC_MAX_COUNT;
+				blk_cnt = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
 		case SHA_384:
 			if (blocks == SHA_ONE_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX D.1 SHA-384 Example (One-Block Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				N = 1;
+				blk_cnt = 1;
 				build_message(msg0, LEN_MSG_0, false);
 			}
 			if (blocks == SHA_MULTI_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX D.2 SHA-384 Example (Multi-Block Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				N = 2;
+				blk_cnt = 2;
 				build_message(msg2, LEN_MSG_2, false);
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX D.3 SHA-384 Example (Long Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				N = LEN_MSG_LONG / 4 / 32 + 1;
+				blk_cnt = LEN_MSG_LONG / 4 / 32 + 1;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
 		case SHA_512:
 			if (blocks == SHA_ONE_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX C.1 SHA-512 Example (One-Block Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				N = 1;
+				blk_cnt = 1;
 				build_message(msg0, LEN_MSG_0 , false);
 			}
 			if (blocks == SHA_MULTI_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX C.2 SHA-512 Example (Multi-Block Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				N = 2;
+				blk_cnt = 2;
 				build_message(msg2, LEN_MSG_2, false);
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX C.3 SHA-512 Example (Long Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				N = LEN_MSG_LONG / 4 / 32 + 1;
+				blk_cnt = LEN_MSG_LONG / 4 / 32 + 1;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
 		case SHA_224:
 			if (blocks == SHA_ONE_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX 1 SHA-224 Example (One-Block Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				N = 1;
+				blk_cnt = 1;
 				build_message(msg0, LEN_MSG_0, false);
 			}
 			if (blocks == SHA_MULTI_BLOCK) {
 				printf("-I- Testing FIPS APPENDIX 2 SHA-224 Example (Multi-Block Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				N = 2;
+				blk_cnt = 2;
 				build_message(msg1, LEN_MSG_1, false);
 			}
 			if (blocks == SHA_LONG_MESSAGE) {
 				printf("-I- Testing FIPS APPENDIX 2 SHA-224 Example (Long Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				N = DMA_DESC_MAX_COUNT;
+				blk_cnt = DMA_DESC_MAX_COUNT;
 				build_message(&msgLong, LEN_MSG_LONG, true);
 			}
 			break;
@@ -526,7 +525,7 @@ static void start_sha(void)
 	 * the other blocks, there is nothing to write in this Control Register. */
 	sha_first_block();
 	if (startMode == SHA_MR_SMOD_IDATAR0_START) {
-		configure_dma_write(bufInput, N);
+		configure_dma_write(bufInput, blk_cnt);
 		rc = xdmad_start_transfer(dma_chan);
 		if (rc == XDMAD_OK) {
 			while (!xdmad_is_transfer_done(dma_chan))
@@ -534,7 +533,7 @@ static void start_sha(void)
 			xdmad_stop_transfer(dma_chan);
 		}
 	} else {
-		for (p = bufInput, i = 0; i < N;
+		for (p = bufInput, i = 0; i < blk_cnt;
 		     i++, p+= algo_desc[operationMode].blockSizeInWord) {
 			desDone = 0;
 			/* Write the block to be processed in the Input Data Registers */
