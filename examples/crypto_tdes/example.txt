@@ -1,0 +1,10 @@
+***************************************************************
+* The Triple Data Encryption Standard (TDES) is compliant with the American 
+* FIPS Publication 46-3 specification. The TDES supports the four different 
+* confidentiality modes of operation (ECB, CBC, OFB and CFB), specified in  
+* the FIPS and is compatible with the Peripheral Data Controller channels   
+* for all of these modes, minimizing processor intervention for large buffer
+* transfers.                                                                
+                                        
+***************************************************************
+
