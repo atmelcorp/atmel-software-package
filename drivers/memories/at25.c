@@ -27,22 +27,16 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
 #include "chip.h"
-
-#include "peripherals/pio.h"
-#include "peripherals/pmc.h"
-#include "peripherals/aic.h"
-
-#include "peripherals/spid.h"
-#include "peripherals/spi.h"
-
-#include "memories/at25.h"
-
 #include "trace.h"
 #include "compiler.h"
 #include "math.h"
-
+#include "memories/at25.h"
+#include "peripherals/aic.h"
+#include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+#include "peripherals/spid.h"
+#include "peripherals/spi.h"
 #include <stdio.h>
 #include <assert.h>
 

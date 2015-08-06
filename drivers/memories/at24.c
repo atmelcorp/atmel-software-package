@@ -31,22 +31,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
-
-#include "peripherals/pio.h"
-#include "peripherals/pmc.h"
-
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
-
-#include "memories/at24.h"
-
-#include "trace.h"
 #include "crc.h"
 #include "math.h"
 #include "timer.h"
-
+#include "trace.h"
+#include "memories/at24.h"
+#include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+#include "peripherals/twid.h"
+#include "peripherals/twi.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

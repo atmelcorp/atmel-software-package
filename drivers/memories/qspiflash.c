@@ -31,17 +31,13 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
-#include "trace.h"
 #include "compiler.h"
 #include "math.h"
 #include "timer.h"
-
-#include "peripherals/qspi.h"
-
+#include "trace.h"
 #include "memories/qspiflash.h"
-
+#include "peripherals/qspi.h"
 #include <stdio.h>
 #include <string.h>
 

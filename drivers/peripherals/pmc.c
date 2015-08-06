@@ -71,7 +71,6 @@
 #include "board.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
-
 #include <assert.h>
 
 /*----------------------------------------------------------------------------

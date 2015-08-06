@@ -34,8 +34,8 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "xdmac.h"
+#include "chip.h"
+#include "peripherals/xdmac.h"
 
 #include <stdbool.h>
 

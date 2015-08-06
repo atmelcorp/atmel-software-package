@@ -40,13 +40,10 @@
 
 #include "board.h"
 #include "chip.h"
-
+#include "misc/console.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-
-#include "misc/console.h"
 #include "peripherals/uart.h"
-
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------

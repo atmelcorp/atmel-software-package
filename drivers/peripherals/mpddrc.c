@@ -27,16 +27,12 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
 #include "chip.h"
-
 #include "peripherals/mpddrc.h"
 #include "peripherals/pmc.h"
-
 #include "trace.h"
 #include "timer.h"
 #include "compiler.h"
-
 #include <stdlib.h>
 
 static void _set_ddr_timings(struct _mpddrc_desc* desc)

@@ -38,11 +38,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h"
 #include "compiler.h"
 #include "peripherals/aic.h"
 #include "cortexa5_interrupts.h"
-
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------

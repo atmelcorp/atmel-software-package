@@ -64,9 +64,8 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-//#include <board.h>
+#include "peripherals/gmac.h"
 #include <stdint.h>
-#include <peripherals/gmac.h>
 
 /*---------------------------------------------------------------------------
  *         Definitions

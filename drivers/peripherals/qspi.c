@@ -31,16 +31,13 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <stdint.h>
 
 #include "chip.h"
-#include "board.h"
 #include "timer.h"
 #include "trace.h"
-
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
-
+#include <stdint.h>
 #include <string.h>
 
 /*----------------------------------------------------------------------------

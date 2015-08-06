@@ -38,12 +38,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-
+#include "chip.h"
+#include "peripherals/dbgu.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-
-#include "peripherals/dbgu.h"
 #include <stdio.h>
 #include <stdint.h>
 

@@ -63,7 +63,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
@@ -472,7 +471,7 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 	else {
 		/* the lowest 14 bits work */
 		PIOA->S_PIO_SCDR =
-			((BOARD_SLOW_CLOCK_EXT_OSC/(2*(cuttoff))) - 1) & 0x3FFF;
+			((pmc_get_slow_clock()/(2*(cuttoff))) - 1) & 0x3FFF;
 	}
 }
 

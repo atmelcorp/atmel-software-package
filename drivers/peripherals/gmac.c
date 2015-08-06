@@ -31,13 +31,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 #include "trace.h"
-
 #include "peripherals/gmac.h"
 #include "peripherals/pmc.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>

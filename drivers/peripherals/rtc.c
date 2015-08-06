@@ -87,7 +87,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 #include "peripherals/rtc.h"
 #include "trace.h"

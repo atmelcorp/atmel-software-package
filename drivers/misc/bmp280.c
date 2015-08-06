@@ -41,13 +41,10 @@
 #include "board.h"
 #include "chip.h"
 #include "math.h"
-
+#include "misc/bmp280.h"
 #include "peripherals/pio.h"
-#include "peripherals/twi.h"
 #include "peripherals/twid.h"
-
-#include "bmp280.h"
-
+#include "peripherals/twi.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
