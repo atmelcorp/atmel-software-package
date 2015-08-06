@@ -129,6 +129,26 @@
 /** List of all LEDs definitions. */
 #define PINS_LEDS { PIN_LED_0, PIN_LED_1, PIN_LED_2 }
 
+/* =================== LWM LED definition ====================== */
+
+/** LED #1 PWM Channel */
+#define PWM_LED_CH_0 2
+
+/** LED #2 PWM Channel */
+#define PWM_LED_CH_1 1
+
+/** LED #1 pin definition (Green). */
+#define PIN_PWM_LED_0 { PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_PULLUP }
+
+/** LED #2 pin definition (Blue). */
+#define PIN_PWM_LED_1 { PIO_GROUP_B, PIO_PB0D_PWMH1, PIO_PERIPH_D, PIO_PULLUP }
+
+/** List of all PWM LED channels */
+#define PWM_LEDS_CH { PWM_LED_CH_0, PWM_LED_CH_1 }
+
+/** List of all LEDs definitions in PWM mode (red LED is not on a PWM pin) */
+#define PINS_PWM_LEDS { PIN_PWM_LED_0, PIN_PWM_LED_1 }
+
 /* =================== PIN PUSH BUTTON definition ============== */
 
 #define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)
