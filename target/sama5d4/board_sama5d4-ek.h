@@ -170,6 +170,8 @@
 /** Frame rate in Hz. */
 #define BOARD_LCD_FRAMERATE         40
 
+#define EXAMPLE_LCD_SCALE   1
+
 /** Pixel clock rate in Hz (HS period * VS period * BOARD_LCD_FRAMERATE). */
 #define BOARD_LCD_PIXELCLOCK \
 	((BOARD_LCD_TIMING_HPW+BOARD_LCD_TIMING_HBP                     \
