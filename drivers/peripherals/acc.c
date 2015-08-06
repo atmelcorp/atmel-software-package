@@ -34,22 +34,17 @@
 #include "board.h"
 #include "chip.h"
 
-
-#include <stdio.h>
-//#include <stdint.h>
-//#include <string.h>
-
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
 
-#define ACC_MR_INV_Pos			12		/* ACC invert output (register offset) */
+#define ACC_MR_INV_Pos		12	/* ACC invert output (reg offset) */
 
 #define ACC_ACR_HYST_0mv_max	0x00	/* Hysteresis levels  */
 #define ACC_ACR_HYST_50mv_max	0x01
 #define ACC_ACR_HYST_90mv_max	0x11
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -69,7 +64,7 @@ void acc_init(Acc *p_acc, uint32_t select_plus, uint32_t select_minus,
 	p_acc->ACC_ACR = (ACC_ACR_ISEL_HISP | ACC_ACR_HYST(ACC_ACR_HYST_50mv_max));
 
 	/* Automatic Output Masking Period */
-	while (p_acc->ACC_ISR & (uint32_t) ACC_ISR_MASK);
+	while (p_acc->ACC_ISR & (uint32_t)ACC_ISR_MASK) ;
 }
 
 void acc_enable(Acc *p_acc)
@@ -97,7 +92,6 @@ void acc_set_output(Acc *p_acc, uint32_t invert, uint32_t fault_enable,
                     uint32_t fault_source)
 {
 	p_acc->ACC_MR &= ~(ACC_MR_INV_EN & ACC_MR_FE_EN & ACC_MR_SELFS_OUTPUT);
-
 	p_acc->ACC_MR |= invert | fault_source | fault_enable;
 }
 
@@ -106,19 +100,10 @@ uint32_t acc_get_comparison_result(Acc *p_acc)
 	uint32_t temp = p_acc->ACC_MR;
 	uint32_t status = p_acc->ACC_ISR;
 
-	if ((temp & ACC_MR_INV_EN) == ACC_MR_INV_EN) {
-		if (status & ACC_ISR_SCO) {
-			return 0;	/* inn>inp */
-		} else {
-			return 1;	/* inp>inn */
-		}
-	} else {
-		if (status & ACC_ISR_SCO) {
-			return 1;	/* inp>inn */
-		} else {
-			return 0;	/* inn>inp */
-		}
-	}
+	if ((temp & ACC_MR_INV_EN) == ACC_MR_INV_EN)
+		return status & ACC_ISR_SCO ? 0 : 1;
+	else
+		return status & ACC_ISR_SCO ? 1 : 0;
 }
 
 void acc_enable_interrupt(Acc *p_acc)

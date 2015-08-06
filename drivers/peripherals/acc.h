@@ -34,9 +34,8 @@
 *
 */
 
-
-#ifndef ACC_H
-#define ACC_H
+#ifndef _ACC_H
+#define _ACC_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -46,9 +45,9 @@
 
 #include <stdint.h>
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Global functions
- *------------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 /**
  * \brief Initialize the Analog Comparator Controller.
@@ -141,5 +140,4 @@ extern void acc_set_write_protect(Acc *p_acc, uint32_t enable);
  */
 extern uint32_t acc_get_write_protect_status(Acc *p_acc);
 
-
-#endif /* ACC_H */
+#endif /* _ACC_H */
