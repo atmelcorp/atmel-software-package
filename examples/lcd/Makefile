@@ -26,11 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Secure Hash Algorithm example
+# Makefile for compiling the LCD example
 
 TOP := ../..
 
 BINNAME = lcd
+
+VARIANT = sram
 
 obj-y += examples/lcd/main.o
 
