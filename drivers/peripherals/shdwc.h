@@ -30,32 +30,33 @@
 #ifndef _SHDWC_H
 #define _SHDWC_H
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Headers
- *------------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 #include "chip.h"
 
 #include <stdint.h>
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Global functions
- *------------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Configure the Shutdown mode register
+ * \brief Configure the Shutdown Mode Register
  */
-extern void shdwc_configure_wakeup_mode (uint32_t config);
+extern void shdwc_configure_wakeup_mode(uint32_t config);
 
 /**
- *  \brief Configure the Shutdown Wake-up Inputs Register
+ * \brief Configure the Shutdown Wake-up Input Register
  *
- *  \param input_enable, WKUPEN0–WKUPEN15: define the corresponding
- *  wake_up input.
- *  \param input_type, WKUPT0–WKUPT15: define falling or rising edge
- *  on wake-up input.
+ * \param input_enable, WKUPEN0-WKUPEN15: define the corresponding
+ * wake-up input.
+ * \param input_type, WKUPT0-WKUPT15: define falling or rising edge
+ * on wake-up input.
  */
-extern void shdwc_set_wakeup_input (uint32_t input_enable, uint32_t input_type);
+extern void shdwc_set_wakeup_input(uint32_t input_enable,
+                                   uint32_t input_type);
 
 /**
  * \brief Launch the ShutDown
@@ -64,6 +65,7 @@ extern void shdwc_do_shutdown(void);
 
 /**
  * \brief Get Status
+ * \return Contents of the Shutdown Status Register
  */
 extern uint32_t shdwc_get_status(void);
 
