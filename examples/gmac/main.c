@@ -112,6 +112,7 @@
 #include "timer.h"
 #include "trace.h"
 
+#include "memories/at24.h"
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
 #include "peripherals/l2cc.h"
@@ -145,6 +146,21 @@
 /*---------------------------------------------------------------------------
  *         Local variables
  *---------------------------------------------------------------------------*/
+
+/** if AT24 is available on the board, it will be used to setup the MAC addr */ 
+#ifdef AT24_PINS
+static const struct _pin at24_pins[] = AT24_PINS;
+
+struct _at24 at24_drv = {
+        .desc = AT24_DESC
+};
+
+struct _twi_desc at24_twid = {
+        .addr = AT24_ADDR,
+        .freq = AT24_FREQ,
+        .transfert_mode = TWID_MODE_DMA
+};
+#endif
 
 /** The MAC address used for demo */
 static uint8_t _mac_addr[6] = { 0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54 };
@@ -426,8 +442,18 @@ int main(void)
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
+#ifdef AT24_PINS
+	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
+	at24_configure(&at24_drv, &at24_twid);
+	if (at24_get_mac_address(&at24_drv)) {
+		printf("Failed reading MAC address from AT24 EEPROM");
+	} else {
+		memcpy(_mac_addr, at24_drv.mac_addr_48, 6);
+	}
+#endif
+
 	/* Display MAC & IP settings */
-	printf("-- MAC %x:%x:%x:%x:%x:%x\n\r",
+	printf("-- MAC %02x:%02x:%02x:%02x:%02x:%02x\n\r",
 	       _mac_addr[0], _mac_addr[1], _mac_addr[2],
 	       _mac_addr[3], _mac_addr[4], _mac_addr[5]);
 	printf("-- %s IP  %d.%d.%d.%d\n\r", BOARD_NAME,
