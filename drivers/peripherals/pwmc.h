@@ -64,14 +64,92 @@ extern "C" {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void pwmc_configure_clocks(Pwm * pPwm, uint32_t mode);
-extern void pwmc_enable_channel(Pwm * pPwm, uint8_t channel);
-extern void pwmc_disable_channel(Pwm * pPwm, uint8_t channel);
-extern void pwmc_enable_channel_it(Pwm * pPwm, uint8_t channel);
-extern void pwmc_disable_channel_it(Pwm * pPwm, uint8_t channel);
-extern void pwmc_configure_channel(Pwm * pPwm, uint8_t channel, uint32_t mode);
-extern void pwmc_set_period(Pwm * pPwm, uint8_t channel,  uint16_t period);
-extern void pwmc_set_duty_cycle(Pwm * pPwm, uint8_t channel, uint16_t duty);
+
+/**
+ * \brief Configures PWM clocks
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param mode  PWM clock source selection and divide factor.
+ */
+extern void pwmc_configure_clocks(Pwm * p_pwm, uint32_t mode);
+
+/**
+ * \brief Enables the given PWM channel.
+ *
+ * This does NOT enable the corresponding pin; this must be done in the user
+ * code.
+ *
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ */
+extern void pwmc_enable_channel(Pwm * p_pwm, uint8_t channel);
+
+/**
+ * \brief Disables the given PWM channel.
+ *
+ * Beware, the channel will be effectively disabled at the end of the current
+ * period.
+ * Applications may check whether the channel is disabled using the following
+ * wait loop:
+ * 	while ((PWM->PWM_SR & (1 << channel)) != 0) {};
+ *
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ */
+extern void pwmc_disable_channel(Pwm * p_pwm, uint8_t channel);
+
+/**
+ * \brief Enables the selected interrupts sources on a PWMC peripheral.
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ */
+extern void pwmc_enable_channel_it(Pwm * p_pwm, uint8_t channel);
+
+/**
+ * \brief Disables the selected interrupts sources on a PWMC peripheral.
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ */
+extern void pwmc_disable_channel_it(Pwm * p_pwm, uint8_t channel);
+
+/**
+ * \brief Configures a PWM channel with the given parameters, basic configure
+ * function.
+ *
+ * The PWM controller must have been clocked in the PMC prior to calling this
+ * function.
+ * Beware: this function disables the channel. It will wait until the channel is
+ * effectively disabled.
+ *
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ * \param mode  Channel mode.
+ */
+extern void pwmc_configure_channel(Pwm * p_pwm, uint8_t channel, uint32_t mode);
+
+/**
+ * \brief Sets the period value used by a PWM channel.
+ *
+ * This function writes directly to the CPRD register if the channel is
+ * disabled. Otherwise it sets the update register CPRDUPD.
+ *
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ * \param period  Period value.
+ */
+extern void pwmc_set_period(Pwm * p_pwm, uint8_t channel, uint16_t period);
+
+/**
+ * \brief Sets the duty cycle used by a PWM channel.
+ * This function writes directly to the CDTY register if the channel is
+ * disabled. Otherwise it sets the update register CDTYUPD.
+ * Note that the duty cycle must always be inferior or equal to the channel
+ * period.
+ *
+ * \param p_pwm  Pointer to a Pwm instance
+ * \param channel  Channel number.
+ * \param duty  Duty cycle value.
+ */
+extern void pwmc_set_duty_cycle(Pwm * p_pwm, uint8_t channel, uint16_t duty);
 
 #ifdef __cplusplus
 }

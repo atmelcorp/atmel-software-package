@@ -90,90 +90,36 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Configures PWM clocks
- * \param pPwm  Pointer to a Pwm instance
- * \param mode  PWM clock source selection and divide factor.
- */
 void pwmc_configure_clocks(Pwm * pPwm, uint32_t mode)
 {
 	pPwm->PWM_CLK = mode;
 }
 
-/**
- * \brief Enables the given PWM channel.
- *
- * This does NOT enable the corresponding pin;this must be done in the user code.
- *
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- */
 void pwmc_enable_channel(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_ENA = 0x1ul << channel;
 }
 
-/**
- * \brief Disables the given PWM channel.
- *
- * Beware, channel will be effectively disabled at the end of the current period.
- * Application can check channel is disabled using the following wait loop:
- * while ((PWM->PWM_SR & (1 << channel)) != 0);
- *
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- */
 void pwmc_disable_channel(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_DIS = 0x1ul << channel;
 }
 
-/**
- * \brief Enables the selected interrupts sources on a PWMC peripheral.
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- */
 void pwmc_enable_channel_it(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_IER1 = 0x1ul << channel;
 }
 
-/**
- * \brief Disables the selected interrupts sources on a PWMC peripheral.
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- */
 void pwmc_disable_channel_it(Pwm * pPwm, uint8_t channel)
 {
 	pPwm->PWM_IDR1 = 0x1ul << channel;
 }
 
-/**
- * \brief Configures PWM a channel with the given parameters, basic configure function.
- *
- * The PWM controller must have been clocked in the PMC prior to calling this
- * function.
- * Beware: this function disables the channel. It waits until disable is effective.
- *
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- * \param mode  Channel mode.
- */
 void pwmc_configure_channel(Pwm * pPwm, uint8_t channel, uint32_t mode)
 {
 	pPwm->PWM_CH_NUM[channel].PWM_CMR = mode;
 }
 
-/**
- * \brief Sets the period value used by a PWM channel.
- *
- * This function writes directly to the CPRD register if the channel is disabled;
- * otherwise, it uses the update register CPRDUPD.
- *
- * \param pPwm  Pointer to a Pwm instance
- * \param channel Channel number.
- * \param period  Period value.
- */
 void pwmc_set_period(Pwm * pPwm, uint8_t channel, uint16_t period)
 {
 	/* If channel is disabled, write to CPRD */
@@ -186,17 +132,6 @@ void pwmc_set_period(Pwm * pPwm, uint8_t channel, uint16_t period)
 	}
 }
 
-/**
- * \brief Sets the duty cycle used by a PWM channel.
- * This function writes directly to the CDTY register if the channel is disabled;
- * otherwise it uses the update register CDTYUPD.
- * Note that the duty cycle must always be inferior or equal to the channel
- * period.
- *
- * \param pPwm  Pointer to a Pwm instance
- * \param channel  Channel number.
- * \param duty     Duty cycle value.
- */
 void pwmc_set_duty_cycle(Pwm * pPwm, uint8_t channel, uint16_t duty)
 {
 	assert(duty <= pPwm->PWM_CH_NUM[channel].PWM_CPRD);
