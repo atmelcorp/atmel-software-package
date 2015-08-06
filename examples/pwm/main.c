@@ -32,8 +32,8 @@
  *
  * \section Purpose
  *
- * This example demonstrates a simple configuration of two PWM channels to
- * generate variable duty cycle and frequence signals.
+ * This example demonstrates a simple configuration of a single PWM channel to
+ * generate variable duty cycle signals.
 
  * \section Usage
  *
@@ -68,7 +68,7 @@
 /**
  * \file
  *
- * This file contains all the specific code for the pwm example.
+ * This file contains all the specific code for the PWM example.
  */
 
 /*----------------------------------------------------------------------------
@@ -87,7 +87,6 @@
 #include "peripherals/wdt.h"
 
 #include "cortex-a/mmu.h"
-#include "misc/led.h"
 #include "misc/console.h"
 
 #include "power/act8945a.h"
@@ -110,71 +109,70 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+struct _pin act8945a_pins[] = ACT8945A_PINS;
+struct _twi_desc act8945a_twid = {
+	.addr = ACT8945A_ADDR,
+	.freq = ACT8945A_FREQ,
+	.transfert_mode = TWID_MODE_POLLING
+};
+struct _act8945a act8945a = {
+	.desc = {
+		.pin_chglev = ACT8945A_PIN_CHGLEV,
+		.pin_irq = ACT8945A_PIN_IRQ,
+		.pin_lbo = ACT8945A_PIN_LBO
+	}
+};
+#endif
+
 /** Global timestamp in milliseconds since start of application */
 volatile uint32_t dwTimeStamp = 0;
 
 /** Pio pins to configure. */
-static const struct _pin pin_pwm_led_red[] = PWM_LED_0;
-static const struct _pin pin_pwm_led_green[] = PWM_LED_1;
-static const struct _pin pin_pwm_led_blue[] = PWM_LED_2;
 static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
-
-static const struct _pin pins_led[] = PINS_LEDS;
 
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
 
-void _led_pulse (uint8_t nled, uint32_t pulse)
-{
-	led_set(nled);
-	timer_wait(pulse);
-	led_clear(nled);
-}
-
-
 /**
  * \brief Application entry point for PWM example.
  *
- * Outputs a PWM on LED0 & LED1.
+ * Outputs a PWM on LED0.
  * \return Unused (ANSI-C compatibility).
  */
 int main(void)
 {
-	uint8_t status;
-    uint32_t mode, cprd;
-	double clock;
+	uint32_t mode, cprd;
+	uint32_t clock;
+	uint32_t duty_cycle;
+	bool duty_cycle_inc;
 
-    /* Disable watchdog */
-    wdt_disable();
+	/* Disable watchdog */
+	wdt_disable();
+
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
 	/* Initialize console */
 	console_configure(CONSOLE_BAUDRATE);
+
 	/* Clear console */
 	console_clear_screen();
 	console_reset_cursor();
 
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
-
-    /* Output example information */
-    printf("-- PWM Example %s --\n\r", SOFTPACK_VERSION);
-    printf("-- %s\n\r", BOARD_NAME);
-    printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	/* Output example information */
+	printf("-- PWM Example %s --\n\r", SOFTPACK_VERSION);
+	printf("-- %s\n\r", BOARD_NAME);
+	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	status = act8945a_begin();
-	if(status) {
-		printf("--E-- Error init ACT8945A \n\r");
+	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
+	if (act8945a_configure(&act8945a, &act8945a_twid)) {
+		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
+		act8945a_enable_regulator(&act8945a, 6, true);
 	} else {
-		act8945a_set_regulator_voltage_out4to7 (V_OUT6, 2800);
-		act8945a_set_regulator_state_out4to7 (V_OUT6, ACT8945A_SET_ON);
+		printf("--E-- Error initializing ACT8945A PMIC\n\r");
 	}
 #endif
 
@@ -182,74 +180,53 @@ int main(void)
 	printf("Configure PIT \n\r");
 	timer_configure(1000);
 
-	/* Configuration PIOs Led as output */
-	pio_configure(pins_led, ARRAY_SIZE(pins_led));
-	_led_pulse(LED_RED, 500);
-	_led_pulse(LED_GREEN, 500);
-	_led_pulse(LED_BLUE, 500);
+	/* PIO configuration (only first LED) */
+	pio_configure(pins_pwm_led, 1);
 
-    /* Enable PWM peripheral clock */
-    pmc_enable_peripheral(ID_PWM);
-    /* Set clock A and clock B */
+	/* Enable PWM peripheral clock */
+	pmc_enable_peripheral(ID_PWM);
+
+	/* Set clock A and clock B */
 	/* CLKA clock is clock selected by PREA : 0x0A Peripheral clock/1024 */
 	/* divided by DIVB factor : 32 */
-	mode = 	PWM_CLK_PREB_CLK_DIV1024 | (PWM_CLK_DIVB(32)) |
+	mode = PWM_CLK_PREB_CLK_DIV1024 | (PWM_CLK_DIVB(32)) |
 			PWM_CLK_PREA_CLK_DIV1024 | (PWM_CLK_DIVA(32));
-    pwmc_configure_clocks(PWM, mode);
+	pwmc_configure_clocks(PWM, mode);
 	clock = pmc_get_peripheral_clock(ID_PWM);
-	printf("-- PWM Peripheral Clock: %3.2f MHz --\n\r", clock/1000000);
+	printf("-- PWM Peripheral Clock: %u MHz --\n\r",
+			(unsigned)(clock/1000000));
 
-	/* Configure PWM channel 1 for LED2 (BLUE)*/
-	pwmc_disable_channel(PWM, PWM1_CH);
-	mode =  PWM_CMR_CPRE_CLKB;
-	pwmc_configure_channel(PWM, PWM1_CH, mode);
-	cprd = 512;
-	pwmc_set_period(PWM, PWM1_CH, cprd);
-	pwmc_set_duty_cycle(PWM, PWM1_CH, cprd/3);
-	pwmc_enable_channel(PWM, PWM1_CH);
+	/* Configure PWM channel 0 */
+	pwmc_disable_channel(PWM, PWM_LED_CH_0);
+	mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ;
+	pwmc_configure_channel(PWM, PWM_LED_CH_0, mode);
+	cprd = 26;
+	pwmc_set_period(PWM, PWM_LED_CH_0, cprd);
+	pwmc_set_duty_cycle(PWM, PWM_LED_CH_0, 0);
+	pwmc_enable_channel(PWM, PWM_LED_CH_0);
 
-	/* cprd / f(peripheral clock) */
-	printf("-- Led2  ClockB Duty cycle: 1/3 Signal Period: %4.3f ms  --\n\r", ((cprd*1024*32))/(clock/1000));
-
+	duty_cycle = 0;
+	duty_cycle_inc = true;
 	do {
-		printf("** Led Red and Led Blue blinking **\n\r");
-    	/* PIO configuration */
-		printf("-- Led1 Green off --\n\r");
-		led_configure(LED_GREEN);
-    	pio_configure(pin_pwm_led_red, ARRAY_SIZE(pin_pwm_led_red));
-		pio_configure(pin_pwm_led_blue, ARRAY_SIZE(pin_pwm_led_blue));
 
-		/* Configure PWM channel 2 for LED0 (RED)  */
-		pwmc_disable_channel(PWM, PWM2_CH);
-		mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ; //| PWM_CMR_DPOLI;
-		pwmc_configure_channel(PWM, PWM2_CH, mode);
-		cprd = 1267;
-		pwmc_set_period(PWM, PWM2_CH, cprd);
-		pwmc_set_duty_cycle(PWM, PWM2_CH, cprd/2); // Duty cycle 50%
-		pwmc_enable_channel(PWM, PWM2_CH);
+		printf("-- PWM Channel 1 ClockA Duty cycle: %lu%% Signal Period: %lu ms  --\n\r",
+				(unsigned)(duty_cycle*100)/cprd,
+				(unsigned)((2*cprd*1024*32))/(clock/1000));
 
-		printf("-- Led0  ClockA Duty cycle: 50%% Signal Period: %4.3f ms  --\n\r", ((2*cprd*1024*32))/(clock/1000));
+		pwmc_set_duty_cycle(PWM, PWM_LED_CH_0, duty_cycle);
+		timer_wait(50);
 
-		timer_wait(5000);
-
-		printf("-- Led0 Red off --\n\r");
-		led_configure(LED_RED);
-		printf("** Led Green and Led Blue blinking **\n\r");
-		pio_configure(pin_pwm_led_green, ARRAY_SIZE(pin_pwm_led_green));
-
-		/* Configure PWM channel 2 for LED1 (GREEN)  */
-		pwmc_disable_channel(PWM, PWM2_CH);
-		mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ; //| PWM_CMR_DPOLI;
-		pwmc_configure_channel(PWM, PWM2_CH, mode);
-		cprd = 1267*2;
-		pwmc_set_period(PWM, PWM2_CH, cprd);
-		pwmc_set_duty_cycle(PWM, PWM2_CH, cprd/2); // Duty cycle 50%
-		pwmc_enable_channel(PWM, PWM2_CH);
-
-		printf("-- Led1  ClockA Duty cycle: 50%% Signal Period: %4.3f ms  --\n\r", ((2*cprd*1024*32))/(clock/1000));
-
-		timer_wait(10000);
-
+		if (duty_cycle_inc) {
+			if (duty_cycle < (cprd - 1))
+				duty_cycle++;
+			else
+				duty_cycle_inc = false;;
+		} else {
+			if (duty_cycle > 0)
+				duty_cycle--;
+			else
+				duty_cycle_inc = true;
+		}
 	} while(1);
 }
 
