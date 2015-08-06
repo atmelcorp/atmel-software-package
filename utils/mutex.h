@@ -32,7 +32,8 @@
 
 #include "compiler.h"
 
-ALIGNED(4) typedef volatile int mutex_t;
+/* Instances of mutex_t should be word-aligned (ALIGNED(4)) */
+typedef volatile int mutex_t;
 
 int mutex_try_lock(mutex_t* mutex);
 void mutex_free(mutex_t* mutex);
