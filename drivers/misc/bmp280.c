@@ -40,6 +40,7 @@
 
 #include "board.h"
 #include "chip.h"
+#include "math.h"
 
 #include "peripherals/pio.h"
 #include "peripherals/twi.h"
@@ -53,8 +54,10 @@
 #include <assert.h>
 
 /*------------------------------------------------------------------------------
- *         Local variables
+ *         Local definitions
  *----------------------------------------------------------------------------*/
+
+#define EPSILON (1e-10)
 
 /*------------------------------------------------------------------------------
  *         Local functions
@@ -1048,11 +1051,11 @@ double bmp280_compensate_P_double(struct _bmp280* bmp280, int32_t uncP)
 		((double)bmp280->calpar.dig_P1);
 	pressure = BMP280_FLOAT_TRUE_PRES_1048576 - (double)uncP;
 	/* Avoid exception caused by division by zero */
-	if (x1 != BMP280_FLOAT_TRUE_PRES_0)
+	if (fabsv(x1) >= EPSILON)
 		pressure = (pressure - (x2 / BMP280_FLOAT_TRUE_PRES_4096)) *
 			BMP280_FLOAT_TRUE_PRES_6250 / x1;
 	else
-		return 0;
+		return BMP280_FLOAT_TRUE_PRES_0;
 	x1 = ((double)bmp280->calpar.dig_P9) * pressure * pressure /
 		BMP280_FLOAT_TRUE_PRES_2147483648;
 	x2 = pressure * ((double)bmp280->calpar.dig_P8) / BMP280_FLOAT_TRUE_PRES_32768;
