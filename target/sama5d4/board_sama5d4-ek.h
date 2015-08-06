@@ -191,6 +191,9 @@
 /** Image Sensor Interface data clock. */
 #define BOARD_ISI_PCK { PIO_GROUP_B, PIO_PB1C_ISI_PCK, PIO_PERIPH_C, PIO_DEFAULT }
 
+/** Image Sensor Interface MCK. */
+#define BOARD_ISI_MCK { PIO_GROUP_C, PIO_PC4C_PCK1, PIO_PERIPH_C, PIO_DEFAULT }
+
 /** Image Sensor Interface data pins. */
 #define BOARD_ISI_PINS_DATA { PIO_GROUP_C, 0x07F80000, PIO_PERIPH_A, PIO_DEFAULT } // pc19-26
 //#define BOARD_ISI_PINS_DATA2 { PIO_GROUP_C, 0x0000000F, PIO_PERIPH_C, PIO_DEFAULT }
