@@ -23,8 +23,8 @@ Copyright (c) 2015, Atmel Corporation All rights reserved.
 
 
 # Atmel SAMA5D2x Software Package
-Release verson: 0.2
-Release date: 2015-07
+Release verson: 0.3
+Release date: 2015-08
 
 ## Overview
 
@@ -71,32 +71,47 @@ Notice: This softpack comes as an early delivery and all presented APIs are subj
 
 This release contains the following examples:
 
-crypto_sha: Example to compute sha hashes (hardware)
+adc: Example using ADC
 
-lcd: Example ising lcd controller
+crypto_aes: AES hardware computation (with and without DMA)
 
-isc: Example using isc controller
+crypto_sha: SHA hardware computation (with and without DMA)
 
-qspi_serialflash: Read/Write/Delete commands to an qspi serial flash
-
-trng: Example using True hardware generator
-
-twi_eeprom: Read/Write/Delete commands to an EEPROM (twi interface)
-
-wdt: Example using watchdog timer
-
-gettting-started: LED blink.
+crypto_tdes: Triple-DES hardware computation (with and without DMA)
 
 fifo: Test Flexcom USART FIFO
 
-rtc: Test RTC
+gettting-started: LED blink (uses PIT and PIO)
 
-spi_serialflash: Read/Write/Delete commands to an spi serial flash
+gmac: GMAC example using a simple IP stack
 
-xdma: Mem to mem DMA transfert
+gmac_lwip: GMAC example using LWIP stack
 
-xdma_usart: Usart to mem and mem to usart transfert
+gmac_uip_helloworld: GMAC example using UIP stack (UIP helloworld example)
 
+gmac_uip_telnetd: GMAC example using UIP stack (UIP telnetd example)
+
+gmac_uip_webserver: GMAC example using UIP stack (UIP webserver example)
+
+isc: Example using ISC controller (OV7740 sensor)
+
+lcd: Example using LCD controller
+
+qspi_flash: Read/Write/Delete commands to a QSPI serial flash
+
+rtc: RTC Example
+
+spi_serialflash: Read/Write/Delete commands to an SPI serial flash
+
+trng: Example using hardware RNG (interrupt mode)
+
+twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
+
+wdt: Example using watchdog timer
+
+xdma: Memory-to-memory DMA transfert example
+
+xdma_usart: Bidirectionnal Usart-memory DMA transfert example
 
 ## Usage (GCC ARM Embedded)
 
