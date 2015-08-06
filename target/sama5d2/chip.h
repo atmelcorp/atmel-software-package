@@ -186,7 +186,7 @@
 #define MAIN_CLOCK_INT_OSC 12000000
 
 /** AIC redirection unlock key */
-#define AICREDIR_KEY 0xB6D81C4D
+#define AICREDIR_KEY 0x5B6C0E26u
 
 #ifdef __cplusplus
 extern "C" {
