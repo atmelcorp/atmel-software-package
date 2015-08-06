@@ -239,9 +239,7 @@ void rotate_point (struct _point* org, struct _point* pt, uint16_t angle, uint8_
 	pt->y = (int32_t)(new_y + org->y) ;
 }
 
-
-
-void compute_vector_position (uint32_t* pX, uint32_t* pY, uint32_t radius, uint16_t degre)
+static void compute_vector_position (uint32_t* pX, uint32_t* pY, uint32_t radius, uint16_t degre)
 {
   uint16_t  dx1, dy1;
   uint8_t   quadrant = degre/90;

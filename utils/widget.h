@@ -55,6 +55,7 @@ extern void point_on_circle (struct _point* org, uint16_t radius,
 			     uint16_t angle);
 extern void rotate_point (struct _point* org, struct _point* pt,
 			  uint16_t angle, uint8_t clockwise);
-
+extern void widget_draw_vector (uint32_t X, uint32_t Y, uint32_t radius,
+		uint8_t segment, uint16_t degre, uint32_t color);
 
 #endif /* #ifndef _WIDGET_H_ */
