@@ -102,7 +102,7 @@
 #include "video/lcdd.h"
 #include "video/image_sensor_inf.h"
 
-#include "utils/trace.h"
+#include "trace.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -172,7 +172,7 @@ static const sensorProfile_t *sensorsProfile[5] = {&ov2640Profile,
 static const struct _pin pins_twi[] = BOARD_PINS_TWI_ISI;
 static const struct _pin pin_rstn = PIN_ISI_RSTN;
 static const struct _pin pins_isi[]= {PINS_ISI};
-static const struct _pin pin_mck = PIN_ISI_MCK;
+static const struct _pin pin_mck = BOARD_ISI_MCK;
 /** Pins for LCDC */
 static const struct _pin pins_lcd[] = PINS_LCD;
 
@@ -391,7 +391,8 @@ extern int main( void )
 	/* Retrieve sensor output format and size */
 	sensor_get_output(VGA, YUV_422, &wSensorOutBitWidth, &wImageWidth, &wImageHeight);
 	wImageFormat = (sensorOutputFormat_t)YUV_INPUT;
-	printf("Image attributes : <%x, %d, %d> \n\r", wImageFormat, wImageWidth,wImageHeight);
+	printf("Image attributes : <%x, %u, %u>\n\r", wImageFormat,
+			(unsigned)wImageWidth, (unsigned)wImageHeight);
 	printf("preview in RGB 565 mode\n\r");
 	
 	/* ISI Initialize */
