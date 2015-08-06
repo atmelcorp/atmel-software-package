@@ -327,7 +327,7 @@ static void _LcdOn(void)
 			      SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW,
 			      wHeoImgH, 0);
 	/* It's over overlay 1 */
-	lcdd_set_prioty(LCDD_HEO, 1);
+	lcdd_set_priority(LCDD_HEO, 1);
 
 	/* Test LCD draw */
 	wOvr2X = IMG_X(BOARD_LCD_WIDTH/4);
@@ -622,8 +622,8 @@ static void _DbgEvents(void)
 		key = console_get_char();
 		switch(key){
 			case ' ': /* HEO & OVR1 layout */
-				lcdd_set_prioty(LCDD_HEO,
-						!lcdd_get_prioty(LCDD_HEO));
+				lcdd_set_priority(LCDD_HEO,
+						!lcdd_get_priority(LCDD_HEO));
 				printf("Change priority HE0 \n\r");
 				break;
 		}
