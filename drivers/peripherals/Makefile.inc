@@ -26,11 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/peripherals/aes.o
+drivers-y += drivers/peripherals/adc.o
 drivers-y += drivers/peripherals/aesb.o
+drivers-y += drivers/peripherals/aes.o
 drivers-y += drivers/peripherals/aic.o
-drivers-y += drivers/peripherals/gmac.o
 drivers-y += drivers/peripherals/gmacd.o
+drivers-y += drivers/peripherals/gmac.o
 drivers-y += drivers/peripherals/icm.o
 drivers-y += drivers/peripherals/iso7816_4.o
 drivers-y += drivers/peripherals/l2cc.o
@@ -43,20 +44,19 @@ drivers-y += drivers/peripherals/rstc.o
 drivers-y += drivers/peripherals/rtc.o
 drivers-y += drivers/peripherals/sha.o
 drivers-y += drivers/peripherals/smc_nfc.o
-drivers-y += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/spid.o
+drivers-y += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/tc.o
 drivers-y += drivers/peripherals/tdes.o
 drivers-y += drivers/peripherals/trng.o
-drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/twid_legacy.o
+drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/uart.o
-drivers-y += drivers/peripherals/usart.o
 drivers-y += drivers/peripherals/usartd.o
+drivers-y += drivers/peripherals/usart.o
 drivers-y += drivers/peripherals/wdt.o
 drivers-y += drivers/peripherals/xdmac.o
 drivers-y += drivers/peripherals/xdmad.o
-drivers-y += drivers/peripherals/adc.o
 
 drivers-$(CONFIG_HAVE_DBGU) += drivers/peripherals/dbgu.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
@@ -71,5 +71,5 @@ drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/hsmci.o
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/ssc.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/isi.o
+drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/ssc.o
