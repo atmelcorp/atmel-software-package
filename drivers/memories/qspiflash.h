@@ -36,6 +36,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "peripherals/qspi.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
