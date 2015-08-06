@@ -73,6 +73,22 @@ uint32_t absv(int32_t lValue)
 }
 
 /*------------------------------------------------------------------------------
+ *  Returns the absolute value of a float.
+ *
+ *  \param fValue  Float value.
+ *
+ *  \note Do not call this function "abs", problem with gcc !
+ */
+float fabsv(float fValue)
+{
+	if (fValue < 0) {
+		return -fValue;
+	} else {
+		return fValue;
+	}
+}
+
+/*------------------------------------------------------------------------------
  *  Computes and returns x power of y.
  *
  *  \param dwX  Value.

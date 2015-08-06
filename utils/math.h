@@ -40,6 +40,8 @@ extern uint32_t min(uint32_t a, uint32_t b);
 
 extern uint32_t absv(int32_t value);
 
+extern float fabsv(float value);
+
 extern uint32_t power(uint32_t x, uint32_t y);
 
 /** ISO/IEC 14882:2003(E) - 5.6 Multiplicative operators:
