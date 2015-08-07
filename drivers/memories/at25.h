@@ -171,7 +171,7 @@ struct _at25_desc {
 
 struct _at25 {
 	struct _spi_desc* spid;
-	struct _at25_desc* desc;
+	const struct _at25_desc* desc;
 	uint32_t addressing;
 };
 

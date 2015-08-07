@@ -235,7 +235,7 @@ uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
 	at25->spid = spid;
 	spid_configure(spid);
 	uint32_t jedec_id = at25_read_jedec_id(at25);
-	at25_find_device(at25, jedec_id);
+	at25->desc = at25_find_device(at25, jedec_id);
 	if (!at25->desc) {
 		return AT25_DEVICE_NOT_SUPPORTED;
 	}
@@ -245,17 +245,17 @@ uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
 
 const struct _at25_desc* at25_find_device(struct _at25* at25, uint32_t jedec_id)
 {
+	struct _at25_desc* match = NULL;
 	uint32_t i = 0;
 	assert(at25);
 
 	/* Search if device is recognized */
-	at25->desc = 0;
-	for (i = 0; i < ARRAY_SIZE(at25_devices) && !(at25->desc); ++i) {
+	for (i = 0; i < ARRAY_SIZE(at25_devices) && !match; ++i) {
 		if ((jedec_id) == (at25_devices[i].jedec_id)) {
-			at25->desc = (struct _at25_desc*)&(at25_devices[i]);
+			match = (struct _at25_desc*)&(at25_devices[i]);
 		}
 	}
-	return at25->desc;
+	return match;
 }
 
 uint32_t at25_read_jedec_id(struct _at25* at25)
