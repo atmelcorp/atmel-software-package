@@ -343,7 +343,10 @@ void at25_print_device_info(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 
+	const struct _at25_desc* desc = NULL;
 	uint32_t device_info = at25_read_jedec_id(at25);
+
+	desc = at25_find_device(at25, device_info);
 
 	device_info = BIG_ENDIAN_TO_HOST(device_info);
 
@@ -358,6 +361,12 @@ void at25_print_device_info(struct _at25* at25)
 	       (unsigned int)(device_info & 0xE000) >> 13);
 	printf("\t- Device Product Version\t:0x%X\r\n",
 	       (unsigned int)(device_info & 0x1F00) >> 8);
+	if (!desc)
+		return;
+	printf("\t- Device Name\t\t\t:%s\r\n", desc->name);
+	printf("\t- Device Size\t\t\t:%lu bytes\r\n", desc->size);
+	printf("\t- Device Page Size\t\t:%lu bytes\r\n", desc->page_size);
+	printf("\t- Device Block Erase Size\t:%lu bytes\r\n", desc->block_size);
 }
 
 uint32_t at25_is_busy(struct _at25* at25)
@@ -467,7 +476,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	case AT25_BLOCK_ERASE_64K:
 		if (supported_erase & AT25_SUPPORT_ERASE_64K) {
 			applied_erase = AT25_BLOCK_ERASE_64K;
-			trace_debug("at25: Will aplly 64K erase\r\n");
+			trace_debug("at25: Will apply 64K erase\r\n");
 		} else {
 			trace_error("at25: 64K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
@@ -476,7 +485,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	case AT25_BLOCK_ERASE_32K:
 		if (supported_erase & AT25_SUPPORT_ERASE_32K) {
 			applied_erase = AT25_BLOCK_ERASE_32K;
-			trace_debug("at25: Will aplly 32K erase\r\n");
+			trace_debug("at25: Will apply 32K erase\r\n");
 		} else {
 			trace_error("at25: 32K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
@@ -485,7 +494,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	case AT25_BLOCK_ERASE_4K:
 		if (supported_erase & AT25_SUPPORT_ERASE_4K) {
 			applied_erase = AT25_BLOCK_ERASE_4K;
-			trace_debug("at25: Will aplly 4K erase\r\n");
+			trace_debug("at25: Will apply 4K erase\r\n");
 		} else {
 			trace_error("at25: 4K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
