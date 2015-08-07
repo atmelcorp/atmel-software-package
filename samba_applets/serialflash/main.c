@@ -34,11 +34,10 @@
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
-#include "peripherals/pio.h"
-#include "peripherals/spid.h"
-#include "peripherals/xdmad.h"
 #include "memories/at25.h"
 #include "misc/console.h"
+#include "peripherals/pio.h"
+#include "peripherals/spid.h"
 #include "trace.h"
 #include <assert.h>
 #include <stdio.h>
@@ -157,9 +156,6 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 
 	/* unused for now */
 	(void)in;
-
-	/* Initialize DMA driver with polling mode */
-	//xdmad_initialize(true);
 
 	/* configure spi serial flash pins */
         pio_configure(at25_pins, ARRAY_SIZE(at25_pins));
