@@ -712,7 +712,7 @@ void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 /**
  * Fill rectangle with color
  */
-void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+static void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
 	uint32_t i;
 	for (i=x; i<x+w; i++) lcdd_draw_fast_Vline(i, y, h, color);
@@ -720,7 +720,7 @@ void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint3
 /**
  * Draw a circle
  */
-void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
+static void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
@@ -759,7 +759,7 @@ void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, ui
 /**
  * Fill a circle
  */
-void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
+static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
