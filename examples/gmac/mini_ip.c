@@ -42,10 +42,10 @@
 static void _display_ethernet_header(const struct _eth_hdr* eth, uint32_t size)
 {
 	printf("======= Ethernet %u bytes =======\n\r", (unsigned)size);
-	printf(" @MAC dst = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
+	printf(" @MAC dst = %02x:%02x:%02x:%02x:%02x:%02x\n\r",
 			eth->et_dest[0], eth->et_dest[1], eth->et_dest[2],
 			eth->et_dest[3], eth->et_dest[4], eth->et_dest[5]);
-	printf(" @MAC src = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
+	printf(" @MAC src = %02x:%02x:%02x:%02x:%02x:%02x\n\r",
 			eth->et_src[0], eth->et_src[1], eth->et_src[2],
 			eth->et_src[3], eth->et_src[4], eth->et_src[5]);
 	printf(" Protocol = %04x\n\r", SWAP16(eth->et_protlen));
@@ -59,13 +59,13 @@ static void _display_arp_header(const struct _arp_hdr* arp)
 	printf(" Hardware addr lg     = %d\n\r", arp->ar_hln);
 	printf(" Protocol addr lg     = %d\n\r", arp->ar_pln);
 	printf(" Operation            = %d\n\r", SWAP16(arp->ar_op));
-	printf(" Sender hardware addr = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
+	printf(" Sender hardware addr = %02x:%02x:%02x:%02x:%02x:%02x\n\r",
 			arp->ar_sha[0], arp->ar_sha[1], arp->ar_sha[2],
 			arp->ar_sha[3], arp->ar_sha[4], arp->ar_sha[5]);
 	printf(" Sender protocol addr = %d.%d.%d.%d\n\r",
 			arp->ar_spa[0], arp->ar_spa[1],
 			arp->ar_spa[2], arp->ar_spa[3]);
-	printf(" Target hardware addr = %02x.%02x.%02x.%02x.%02x.%02x\n\r",
+	printf(" Target hardware addr = %02x:%02x:%02x:%02x:%02x:%02x\n\r",
 			arp->ar_tha[0], arp->ar_tha[1], arp->ar_tha[2],
 			arp->ar_tha[3], arp->ar_tha[4], arp->ar_tha[5]);
 	printf(" Target protocol addr = %d.%d.%d.%d\n\r",
@@ -103,10 +103,10 @@ static void _display_ip_header(const struct _ip_hdr* ip)
 		printf("%d (0x%X)\n\r", ip->ip_p, ip->ip_p);
 		break;
 	}
-	printf(" IP Src Address    = %d:%d:%d:%d\n\r",
+	printf(" IP Src Address    = %d.%d.%d.%d\n\r",
 			ip->ip_src[0], ip->ip_src[1],
 			ip->ip_src[2], ip->ip_src[3]);
-	printf(" IP Dest Address   = %d:%d:%d:%d\n\r",
+	printf(" IP Dest Address   = %d.%d.%d.%d\n\r",
 			ip->ip_dst[0], ip->ip_dst[1],
 			ip->ip_dst[2], ip->ip_dst[3]);
 }
