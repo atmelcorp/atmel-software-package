@@ -148,11 +148,9 @@
 #define AT25_DEVICE_NOT_SUPPORTED   0xF
 #define AT25_ADDR_OOB               0xB
 
-enum _at25_erase_cmd {
-	AT25_SUPPORT_ERASE_4K = 0x1,
-	AT25_SUPPORT_ERASE_32K = 0x2,
-	AT25_SUPPORT_ERASE_64K = 0x4
-};
+#define AT25_SUPPORT_ERASE_4K       0x1u
+#define AT25_SUPPORT_ERASE_32K      0x2u
+#define AT25_SUPPORT_ERASE_64K      0x4u
 
 /** Describes a serial firmware flash device parameters. */
 struct _at25_desc {
@@ -168,7 +166,7 @@ struct _at25_desc {
 	/** Block erase size in bytes. */
 	uint32_t block_size;
 	/** Block erase command. */
-	enum _at25_erase_cmd block_erase_cmd;
+	uint8_t block_erase_cmd;
 };
 
 struct _at25 {
