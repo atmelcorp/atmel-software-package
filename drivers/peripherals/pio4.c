@@ -134,16 +134,16 @@ static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
 static const aic_handler_t _generic_handlers[PIO_GROUP_LENGTH] = {
 #ifdef ID_PIOA
-	(const aic_handler_t)_pioa_handler,
+	_pioa_handler,
 #endif
 #ifdef ID_PIOB
-	(const aic_handler_t)_piob_handler,
+	_piob_handler,
 #endif
 #ifdef ID_PIOC
-	(const aic_handler_t)_pioc_handler,
+	_pioc_handler,
 #endif
 #ifdef ID_PIOD
-	(const aic_handler_t)_piod_handler,
+	_piod_handler,
 #endif
 };
 
