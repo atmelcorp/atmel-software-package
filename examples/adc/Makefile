@@ -30,8 +30,6 @@
 
 TOP := ../..
 
-CFLAGS_OPT = -O0 -ggdb3
-
 BINNAME = adc
 
 obj-y += examples/adc/main.o

@@ -34,6 +34,4 @@ BINNAME = qspi-flash
 
 obj-y += examples/qspi_flash/main.o
 
-CFLAGS_OPT = -O0
-
 include $(TOP)/scripts/Makefile.rules
