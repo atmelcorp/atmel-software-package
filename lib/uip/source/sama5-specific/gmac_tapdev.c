@@ -131,7 +131,7 @@ void gmac_tapdev_init(void)
 
 	/* Init PHY */
 	phy_configure(&_phy);
-	if (phy_auto_negotiate(&_phy)) {
+	if (phy_auto_negotiate(&_phy, 5000)) {
 		printf( "P: Link detected \n\r");
 	} else {
 		printf( "P: Auto Negotiate ERROR!\n\r");

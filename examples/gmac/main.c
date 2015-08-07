@@ -137,6 +137,9 @@
 /** Number of buffers for TX */
 #define TX_BUFFERS  32
 
+/** Timeout for PHY auto-negotiation */
+#define PHY_AUTONEG_TIMEOUT 5000
+
 /** Number of ARP requests sent by the example */
 #define MAX_ARP_REQUESTS 20
 
@@ -480,7 +483,7 @@ int main(void)
 		.desc = &phy_desc
 	};
 	phy_configure(&phy);
-	phy_auto_negotiate(&phy);
+	phy_auto_negotiate(&phy, PHY_AUTONEG_TIMEOUT);
 
 	tick_start = timer_get_tick();
 	_arp_request_count = 0;

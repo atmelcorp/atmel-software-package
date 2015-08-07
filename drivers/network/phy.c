@@ -35,6 +35,7 @@
 
 #include "chip.h"
 #include "trace.h"
+#include "timer.h"
 
 #include "peripherals/gmac.h"
 #include "network/phy.h"
@@ -101,13 +102,11 @@ static bool _phy_find_addr(struct _phy* phy)
 			if (dev)
 				break;
 		}
-		printf("addr=0x%02x id1=0x%04x id2=0x%04x\r\n",
-				phy_addr, id1, id2);
 		phy_addr = (phy_addr + 1) & 0x1F;
 	}
 
 	if (dev) {
-		trace_info("Found %s PHY at address 0x%02x\r\n",
+		trace_info("Found PHY %s at 0x%02x\r\n",
 				dev->name,phy_addr);
 		phy->phy_addr = phy_addr;
 	} else {
@@ -204,10 +203,11 @@ void phy_dump_registers(const struct _phy* phy)
 	gmac_disable_mdio(phy->desc->addr);
 }
 
-bool phy_auto_negotiate(const struct _phy* phy)
+bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 {
 	bool rc = false;
 	uint16_t value;
+	uint32_t tick_start;
 
 	gmac_enable_mdio(phy->desc->addr);
 
@@ -244,7 +244,9 @@ bool phy_auto_negotiate(const struct _phy* phy)
 		goto exit;
 	}
 
+
 	/* Wait for auto-negotiation completion */
+	tick_start = timer_get_tick();
 	while (1) {
 		if (!gmac_phy_read(phy->desc->addr, phy->desc->phy_addr,
 					GMII_BMSR, &value, phy->desc->retries)) {
@@ -256,7 +258,11 @@ bool phy_auto_negotiate(const struct _phy* phy)
 		if (value & GMII_AUTONEG_COMP)
 			break;
 
-		// TODO timeout
+		/* Time out check */
+		if (time_out && (timer_get_tick() - tick_start) >= time_out) {
+			trace_error("Time out auto-negotiation \r\n");
+			goto exit;
+		}
 	}
 
 	/* Set local link mode */
@@ -290,7 +296,11 @@ bool phy_auto_negotiate(const struct _phy* phy)
 			break;
 		}
 
-		// TODO timeout
+		/* Time out check */
+		if (time_out && (timer_get_tick() - tick_start) >= time_out) {
+			trace_error("Time out setup GMAC link speed\r\n");
+			goto exit;
+		}
 	}
 
 exit:

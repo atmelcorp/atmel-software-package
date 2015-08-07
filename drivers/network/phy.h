@@ -95,7 +95,7 @@ extern bool phy_get_id(const struct _phy* phy, uint16_t* id1, uint16_t* id2);
 
 extern bool phy_reset(const struct _phy* phy);
 
-extern bool phy_auto_negotiate(const struct _phy* phy);
+extern bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out);
 
 extern void phy_dump_registers(const struct _phy* phy);
 
