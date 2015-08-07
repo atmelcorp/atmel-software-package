@@ -49,6 +49,7 @@
 #include "font.h"
 
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
@@ -56,7 +57,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Front color cache */
-static uint32_t dwFrontColor;
+static uint32_t front_color;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -84,7 +85,7 @@ static void _show_canvas(void)
  */
 static void _set_front_color(uint32_t color)
 {
-	dwFrontColor = color;
+	front_color = color;
 }
 
 /**
@@ -113,19 +114,19 @@ static void _draw_pixel(uint32_t dwX, uint32_t dwY)
 
 	switch (pDisp->bMode) {
 	case 16:		/* TRGB 1555 */
-		pPix[0] = (dwFrontColor) & 0xFF;
-		pPix[1] = (dwFrontColor >> 8) & 0xFF;
+		pPix[0] = (front_color) & 0xFF;
+		pPix[1] = (front_color >> 8) & 0xFF;
 		break;
 	case 24:		/*  RGB  888 */
-		pPix[0] = (dwFrontColor) & 0xFF;
-		pPix[1] = (dwFrontColor >> 8) & 0xFF;
-		pPix[2] = (dwFrontColor >> 16) & 0xFF;
+		pPix[0] = (front_color) & 0xFF;
+		pPix[1] = (front_color >> 8) & 0xFF;
+		pPix[2] = (front_color >> 16) & 0xFF;
 		break;
 	case 32:		/* ARGB 8888 */
-		pPix[0] = (dwFrontColor) & 0xFF;
-		pPix[1] = (dwFrontColor >> 8) & 0xFF;
-		pPix[2] = (dwFrontColor >> 16) & 0xFF;
-		pPix[3] = (dwFrontColor >> 24) & 0xFF;
+		pPix[0] = (front_color) & 0xFF;
+		pPix[1] = (front_color >> 8) & 0xFF;
+		pPix[2] = (front_color >> 16) & 0xFF;
+		pPix[3] = (front_color >> 24) & 0xFF;
 		break;
 	}
 }
@@ -163,7 +164,7 @@ static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
 	buffer = base;
 	for (; dwY1 <= dwY2; dwY1++) {
 		for (i = fillStart; i <= fillEnd; i += cw) {
-			memcpy(&buffer[i], &dwFrontColor, cw);
+			memcpy(&buffer[i], &front_color, cw);
 		}
 		buffer = &buffer[rw];
 	}
@@ -180,7 +181,7 @@ static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
 #if 0				/* Optimized */
 	/* First row */
 	for (i = fillStart; i <= fillEnd; i += cw) {
-		memcpy(&base[i], &dwFrontColor, cw);
+		memcpy(&base[i], &front_color, cw);
 	}
 	/* Next rows, copy first */
 	buffer = &base[rw + fillStart];
@@ -199,7 +200,9 @@ static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
  * \param dwX2       X-coordinate of line end.
  * \param dwY2       Y-coordinate of line end.
  */
-static uint32_t _draw_line_bresenham(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
+
+/*
+static uint32_t _draw_line_bresenham (uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
 {
 	int dx, dy;
 	int i;
@@ -245,6 +248,31 @@ static uint32_t _draw_line_bresenham(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2
 		}
 	}
 
+	return 0;
+}
+*/
+
+static uint32_t _draw_line_bresenham (uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
+{
+    int dx = abs(dwX2 - dwX1);
+    int dy = abs(dwY2 - dwY1);
+    int sx = (dwX1 < dwX2) ? 1 : -1;
+    int sy = (dwY1 < dwY2) ? 1 : -1;
+    int err = dx - dy;
+    int e2 ;
+
+    while (1) {
+      _draw_pixel(dwX1, dwY1);
+      if ((dwX1 == dwX2) && (dwY1 == dwY2))
+        break;
+      e2 = 2 * err;
+	  if (e2 > -dy) {
+		  err -= dy; dwX1 += sx;
+	  }
+      if (e2 < dx) {
+		  err += dx; dwY1 += sy;
+	  }
+    }
 	return 0;
 }
 
@@ -544,14 +572,22 @@ void lcdd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t col
  * \param fontColor String color.
  * \param bgColor   Background color.
  */
-void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y, const char *p_string,
-				   uint32_t fontColor, uint32_t bgColor)
+void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
+								   const char *p_string,
+								   uint32_t fontColor,
+								   uint32_t bgColor)
 {
 	uint32_t xorg = x;
 	uint8_t font_sel = lcdd_get_selected_font();
 	uint8_t width = font_param[font_sel].width ;
 	uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
+
+	/* Font 10*8 reverse height and width */
+	if (font_sel == FONT10x8) {
+		width = font_param[font_sel].height ;
+		height = font_param[font_sel].width;
+	}
 
 	while (*p_string) {
 		if (*p_string == '\n') {
@@ -578,22 +614,29 @@ void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y, const char *p_string,
 void lcdd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p_height)
 {
 	uint8_t font_sel = lcdd_get_selected_font();
-	uint8_t width = 0 ;
+	uint8_t width = font_param[font_sel].width;
 	uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
+	uint32_t str_width = 0;
+
+	/* Font 10*8 reverse height and width */
+	if (font_sel == FONT10x8) {
+		width = font_param[font_sel].height ;
+		height = font_param[font_sel].width;
+	}
 
 	while (*p_string) {
 		if (*p_string == '\n')
 			height += height + char_space;
 		else
-			width += height + char_space;
+			str_width += width + char_space;
 		p_string++;
 	}
 	if (width > 0)
-		width -= char_space;
+		str_width -= char_space;
 
 	if (p_width != NULL)
-		*p_width = width;
+		*p_width = str_width;
 	if (p_height != NULL)
 		*p_height = height;
 }
@@ -655,21 +698,21 @@ void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t width,
 /**
  * Draw fast vertical line
  */
-static void lcdd_draw_fast_Vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
+void lcdd_draw_fast_Vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
 {
 	lcdd_draw_line(x, y, x, y+h-1, color);
 }
 /**
  * Draw fast horizontal line
  */
-static void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
+void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 {
 	lcdd_draw_line(x, y, x+w-1, y, color);
 }
 /**
  * Fill rectangle with color
  */
-static void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
 	uint32_t i;
 	for (i=x; i<x+w; i++) lcdd_draw_fast_Vline(i, y, h, color);
@@ -677,7 +720,7 @@ static void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h
 /**
  * Draw a circle
  */
-static void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
+void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
@@ -716,7 +759,7 @@ static void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t cor
 /**
  * Fill a circle
  */
-static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
+void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
