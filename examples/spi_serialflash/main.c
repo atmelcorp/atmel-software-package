@@ -27,6 +27,12 @@
  * ----------------------------------------------------------------------------
  */
 
+/*
+ * Tip: on evaluation boards such as SAMA5D2-XULT mind the Boot_Disable jumper,
+ * as proper execution of this example requires the chip select signal from SoC
+ * to memory to be effectively connected (Boot_Disable jumper removed).
+ */
+
 #include <stdint.h>
 
 #include "board.h"
@@ -200,7 +206,7 @@ static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 		       "\t- Software protection: %s\r\n"
 		       "\t- Write protect pin: %s\r\n"
 		       "\t- Erase/Program error: %s\r\n"
-		       "\t- Sector Protection Resgister: %s\r\n"
+		       "\t- Sector Protection Register: %s\r\n"
 		       "\t- Raw register value: 0x%X\r\n",
 		       status & AT25_STATUS_RDYBSY_BUSY ? "yes":"no",
 		       status & AT25_STATUS_WEL ? "yes":"no",
@@ -310,6 +316,8 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 
 int main (void)
 {
+	uint32_t rc = 0;
+
 	/* Disable watchdog */
 	wdt_disable();
 
@@ -342,7 +350,11 @@ int main (void)
 	pio_configure(at25_pins, ARRAY_SIZE(at25_pins));
 
 	/* Open serial flash device */
-	at25_configure(&at25drv, &spi_at25_desc);
+	rc = at25_configure(&at25drv, &spi_at25_desc);
+	if (rc == AT25_DEVICE_NOT_SUPPORTED)
+		printf("Device NOT supported!\r\n");
+	else if (rc != AT25_SUCCESS)
+		printf("Initialization error!\r\n");
 	if(at25_unprotect(&at25drv))
 		printf("Protection desactivation FAILED!\r\n");
 
