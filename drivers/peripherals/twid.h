@@ -70,7 +70,7 @@ struct _twi_desc
 	uint32_t iaddr;
 	uint32_t isize;
 	uint8_t transfert_mode;
-
+	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
 	uint32_t region_start;
 	uint32_t region_end;

@@ -49,7 +49,7 @@ struct _usart_desc
 	uint32_t mode;
 	uint32_t baudrate;
 	uint8_t transfert_mode;
-
+	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
 	uint32_t region_start;
 	uint32_t region_end;

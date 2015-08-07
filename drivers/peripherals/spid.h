@@ -71,6 +71,7 @@ struct _spi_desc
 	uint8_t         chip_select;
 	uint8_t         spi_mode;
 	uint8_t         transfert_mode;
+	/* implicit internal padding is mandatory here */
 	spid_callback_t callback;
 	void*           cb_args;
 	mutex_t         mutex;
