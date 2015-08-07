@@ -82,18 +82,16 @@
 /** \brief Describes the font (width, height, supported characters, etc.) used by
  * the LCD driver draw API.
  */
-typedef struct _Font {
-	/* Font width in pixels. */
-	uint8_t width;
-	/* Font height in pixels. */
-	uint8_t height;
-} Font;
+struct _font {
+	uint8_t width;	/* Font width in pixels. */
+	uint8_t height;	/* Font height in pixels. */
+};
 
 /*----------------------------------------------------------------------------
  *        Variables
  *----------------------------------------------------------------------------*/
 
-//extern const Font gFont;
+
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -101,7 +99,7 @@ typedef struct _Font {
 /** \addtogroup lcdd_font_func Font Functions */
 /** @{*/
 
-extern void lcdd_select_font (_FONT_enum font);
+extern struct _font_parameters* lcdd_select_font (_FONT_enum font);
 
 extern uint8_t lcdd_get_selected_font (void);
 

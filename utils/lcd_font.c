@@ -51,15 +51,16 @@
 /** Global variable describing the font being instanced. */
 //const Font gFont = { 10, 14 };
 
-uint8_t font_sel = FONT10x14;
+static uint8_t font_sel = FONT10x14;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void lcdd_select_font (_FONT_enum font)
+struct _font_parameters* lcdd_select_font (_FONT_enum font)
 {
 	font_sel = font;
+	return &font_param[font];
 }
 
 uint8_t lcdd_get_selected_font (void)
