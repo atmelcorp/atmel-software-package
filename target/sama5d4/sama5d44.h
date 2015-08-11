@@ -47,69 +47,6 @@ extern "C" {
 
 #include <stdint.h>
 
-typedef enum IRQn {
-	ARM_IRQn = 2,	   /**<  2 SAMA5D44 Performance Monitor Unit (ARM) */
-	PIT_IRQn = 3,	   /**<  3 SAMA5D44 Periodic Interval Timer Interrupt (PIT) */
-	WDT_IRQn = 4,	   /**<  4 SAMA5D44 Watchdog timer Interrupt (WDT) */
-	PIOD_IRQn = 5,	   /**<  5 SAMA5D44 Parallel I/O Controller D (PIOD) */
-	USART0_IRQn = 6,   /**<  6 SAMA5D44 USART 0 (USART0) */
-	USART1_IRQn = 7,   /**<  7 SAMA5D44 USART 1 (USART1) */
-	XDMAC0_IRQn = 8,   /**<  8 SAMA5D44 DMA Controller 0 (XDMAC0) */
-	ICM_IRQn = 9,	   /**<  9 SAMA5D44 Integritry Check Monitor (ICM) */
-	AES_IRQn = 12,	   /**< 12 SAMA5D44 Advanced Encryption Standard (AES) */
-	AESB_IRQn = 13,	   /**< 13 SAMA5D44 AES bridge (AESB) */
-	TDES_IRQn = 14,	   /**< 14 SAMA5D44 Triple Data Encryption Standard (TDES) */
-	SHA_IRQn = 15,	   /**< 15 SAMA5D44 SHA Signature (SHA) */
-	MPDDRC_IRQn = 16,  /**< 16 SAMA5D44 MPDDR controller (MPDDRC) */
-	MATRIX1_IRQn = 17, /**< 17 SAMA5D44 H32MX, 32-bit AHB Matrix (MATRIX1) */
-	MATRIX0_IRQn = 18, /**< 18 SAMA5D44 H64MX, 64-bit AHB Matrix (MATRIX0) */
-	VDEC_IRQn = 19,	   /**< 19 SAMA5D44 Video Decoder (VDEC) */
-	HSMC_IRQn = 22,	   /**< 22 SAMA5D44 Multi-bit ECC Interrupt (HSMC) */
-	PIOA_IRQn = 23,	   /**< 23 SAMA5D44 Parallel I/O Controller A (PIOA) */
-	PIOB_IRQn = 24,	   /**< 24 SAMA5D44 Parallel I/O Controller B (PIOB) */
-	PIOC_IRQn = 25,	   /**< 25 SAMA5D44 Parallel I/O Controller C (PIOC) */
-	PIOE_IRQn = 26,	   /**< 26 SAMA5D44 Parallel I/O Controller E (PIOE) */
-	UART0_IRQn = 27,   /**< 27 SAMA5D44 UART 0 (UART0) */
-	UART1_IRQn = 28,   /**< 28 SAMA5D44 UART 1 (UART1) */
-	USART2_IRQn = 29,  /**< 29 SAMA5D44 USART 2 (USART2) */
-	USART3_IRQn = 30,  /**< 30 SAMA5D44 USART 3 (USART3) */
-	USART4_IRQn = 31,  /**< 31 SAMA5D44 USART 4 (USART4) */
-	TWI0_IRQn = 32,	   /**< 32 SAMA5D44 Two-Wire Interface 0 (TWI0) */
-	TWI1_IRQn = 33,	   /**< 33 SAMA5D44 Two-Wire Interface 1 (TWI1) */
-	TWI2_IRQn = 34,	   /**< 34 SAMA5D44 Two-Wire Interface 2 (TWI2) */
-	HSMCI0_IRQn = 35,  /**< 35 SAMA5D44 High Speed Multimedia Card Interface 0 (HSMCI0) */
-	HSMCI1_IRQn = 36,  /**< 36 SAMA5D44 High Speed Multimedia Card Interface 1 (HSMCI1) */
-	SPI0_IRQn = 37,	   /**< 37 SAMA5D44 Serial Peripheral Interface 0 (SPI0) */
-	SPI1_IRQn = 38,	   /**< 38 SAMA5D44 Serial Peripheral Interface 1 (SPI1) */
-	SPI2_IRQn = 39,	   /**< 39 SAMA5D44 Serial Peripheral Interface 2 (SPI2) */
-	TC0_IRQn = 40,	   /**< 40 SAMA5D44 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
-	TC1_IRQn = 41,	   /**< 41 SAMA5D44 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-	TC2_IRQn = 42,	   /**< 42 SAMA5D44 Timer Counter 2 (ch. 6, 7, 8) (TC2) */
-	PWM_IRQn = 43,	   /**< 43 SAMA5D44 Pulse Width Modulation Controller (PWM) */
-	ADC_IRQn = 44,	   /**< 44 SAMA5D44 Touch Screen ADC Controller (ADC) */
-	DBGU_IRQn = 45,	   /**< 45 SAMA5D44 Debug Unit Interrupt (DBGU) */
-	UHPHS_IRQn = 46,   /**< 46 SAMA5D44 USB Host High Speed (UHPHS) */
-	UDPHS_IRQn = 47,   /**< 47 SAMA5D44 USB Device High Speed (UDPHS) */
-	SSC0_IRQn = 48,	   /**< 48 SAMA5D44 Synchronous Serial Controller 0 (SSC0) */
-	SSC1_IRQn = 49,	   /**< 49 SAMA5D44 Synchronous Serial Controller 1 (SSC1) */
-	XDMAC1_IRQn = 50,  /**< 50 SAMA5D44 DMA Controller 1 (XDMAC1) */
-	LCDC_IRQn = 51,	   /**< 51 SAMA5D44 LCD Controller (LCDC) */
-	ISI_IRQn = 52,	   /**< 52 SAMA5D44 Camera Interface (ISI) */
-	TRNG_IRQn = 53,	   /**< 53 SAMA5D44 True Random Number Generator (TRNG) */
-	GMAC0_IRQn = 54,   /**< 54 SAMA5D44 Ethernet MAC 0 (GMAC0) */
-	GMAC1_IRQn = 55,   /**< 55 SAMA5D44 Ethernet MAC 1 (GMAC1) */
-	SFC_IRQn = 57,	   /**< 57 SAMA5D44 Fuse Controller (SFC) */
-	SMD_IRQn = 61,	   /**< 61 SAMA5D44 SMD Soft Modem (SMD) */
-	TWI3_IRQn = 62,	   /**< 62 SAMA5D44 Two-Wire Interface 3 (TWI3) */
-	SFR_IRQn = 64,	   /**< 64 SAMA5D44 Special Function Register  (SFR) */
-	AIC_IRQn = 65,	   /**< 65 SAMA5D44 Advanced Interrupt Controller  (AIC) */
-	SAIC_IRQn = 66,	   /**< 66 SAMA5D44 Secured Advanced Interrupt Controller  (SAIC) */
-	L2CC_IRQn = 67,	   /**< 67 SAMA5D44 L2 Cache Controller  (L2CC) */
-
-	PERIPH_COUNT_IRQn = 68
-	/**< Number of peripheral IDs */
-} IRQn_Type;
-
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D44 */
 /* ************************************************************************** */

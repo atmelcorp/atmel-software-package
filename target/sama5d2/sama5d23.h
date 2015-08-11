@@ -45,68 +45,6 @@
 
 #include <stdint.h>
 
-typedef enum IRQn
-{
-  PIT_IRQn             =  3, /**<  3 Periodic Interval Timer Interrupt (PIT) */
-  WDT_IRQn             =  4, /**<  4 Watchdog timer Interrupt (WDT) */
-  GMAC0_IRQn           =  5, /**<  5 Ethernet MAC (GMAC0) */
-  XDMAC0_IRQn          =  6, /**<  6 DMA Controller 0 (XDMAC0) */
-  XDMAC1_IRQn          =  7, /**<  7 DMA Controller 1 (XDMAC1) */
-  ICM_IRQn             =  8, /**<  8 Integritry Check Monitor (ICM) */
-  AES_IRQn             =  9, /**<  9 Advanced Enion Standard (AES) */
-  AESB_IRQn            = 10, /**< 10 AES bridge (AESB) */
-  TDES_IRQn            = 11, /**< 11 Triple Data Enion Standard (TDES) */
-  SHA_IRQn             = 12, /**< 12 SHA Signature (SHA) */
-  MPDDRC_IRQn          = 13, /**< 13 MPDDR controller (MPDDRC) */
-  MATRIX1_IRQn         = 14, /**< 14 H32MX, 32-bit AHB Matrix (MATRIX1) */
-  MATRIX0_IRQn         = 15, /**< 15 H64MX, 64-bit AHB Matrix (MATRIX0) */
-  HSMC_IRQn            = 17, /**< 17 Multi-bit ECC Interrupt (HSMC) */
-  PIOA_IRQn            = 18, /**< 18 Parallel I/O Controller (PIOA) */
-  FLEXCOM0_IRQn        = 19, /**< 19 FLEXCOM 0 (FLEXCOM0) */
-  FLEXCOM1_IRQn        = 20, /**< 20 FLEXCOM 1 (FLEXCOM1) */
-  FLEXCOM3_IRQn        = 22, /**< 22 FLEXCOM 3 (FLEXCOM3) */
-  FLEXCOM4_IRQn        = 23, /**< 23 FLEXCOM 4 (FLEXCOM4) */
-  UART0_IRQn           = 24, /**< 24 UART 0 (UART0) */
-  UART1_IRQn           = 25, /**< 25 UART 1 (UART1) */
-  UART2_IRQn           = 26, /**< 26 UART 2 (UART2) */
-  UART3_IRQn           = 27, /**< 27 UART 3 (UART3) */
-  UART4_IRQn           = 28, /**< 28 UART 4 (UART4) */
-  TWIHS0_IRQn          = 29, /**< 29 Two-Wire Interface 0 (TWIHS0) */
-  TWIHS1_IRQn          = 30, /**< 30 Two-Wire Interface 1 (TWIHS1) */
-  SPI0_IRQn            = 33, /**< 33 Serial Peripheral Interface 0 (SPI0) */
-  SPI1_IRQn            = 34, /**< 34 Serial Peripheral Interface 1 (SPI1) */
-  TC0_IRQn             = 35, /**< 35 Timer Counter 0 (ch. 0, 1, 2) (TC0) */
-  TC1_IRQn             = 36, /**< 36 Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-  PWM_IRQn             = 38, /**< 38 Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
-  ADC_IRQn             = 40, /**< 40 Touch Screen ADC Controller (ADC) */
-  UHPHS_IRQn           = 41, /**< 41 USB Host High Speed (UHPHS) */
-  UDPHS_IRQn           = 42, /**< 42 USB Device High Speed (UDPHS) */
-  SSC0_IRQn            = 43, /**< 43 Synchronous Serial Controller 0 (SSC0) */
-  SSC1_IRQn            = 44, /**< 44 Synchronous Serial Controller 1 (SSC1) */
-  LCDC_IRQn            = 45, /**< 45 LCD Controller (LCDC) */
-  ISC_IRQn             = 46, /**< 46 Camera Interface (ISC) */
-  TRNG_IRQn            = 47, /**< 47 True Random Number Generator (TRNG) */
-  PDMIC_IRQn           = 48, /**< 48 Pulse Density Modulation Interface Controller (PDMIC) */
-  SFC_IRQn             = 50, /**< 50 Fuse Controller (SFC) */
-  QSPI0_IRQn           = 52, /**< 52 QSPI 0 (QSPI0) */
-  QSPI1_IRQn           = 53, /**< 53 QSPI 1 (QSPI1) */
-  I2SC0_IRQn           = 54, /**< 54 Inter-IC Sound Controller 0 (I2SC0) */
-  I2SC1_IRQn           = 55, /**< 55 Inter-IC Sound Controller 1 (I2SC1) */
-  CLASSD_IRQn          = 59, /**< 59 Audio Class D amplifier (CLASSD) */
-  SFR_IRQn             = 60, /**< 60 Special Function Register  (SFR) */
-  SAIC_IRQn            = 61, /**< 61 Secured Advanced Interrupt Controller  (SAIC) */
-  AIC_IRQn             = 62, /**< 62 Advanced Interrupt Controller  (AIC) */
-  L2CC_IRQn            = 63, /**< 63 L2 Cache Controller (L2CC) */
-  PIOB_IRQn            = 68, /**< 68  (PIOB) */
-  PIOC_IRQn            = 69, /**< 69  (PIOC) */
-  PIOD_IRQn            = 70, /**< 70  (PIOD) */
-  ACC_IRQn             = 75, /**< 75 Analog Comparator (ACC) */
-  RXLP_IRQn            = 76, /**< 76 Uart Low Power (RXLP) */
-  CHIPID_IRQn          = 78, /**< 78 Chip ID (CHIPID) */
-
-  PERIPH_COUNT_IRQn    = 79  /**< Number of peripheral IDs */
-} IRQn_Type;
-
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D23 */
 /* ************************************************************************** */
