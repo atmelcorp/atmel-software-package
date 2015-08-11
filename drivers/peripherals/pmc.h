@@ -126,9 +126,19 @@ extern void pmc_select_internal_crystal(void);
 extern void pmc_select_external_osc(void);
 
 /**
+ * \brief Disable external 12M OSC.
+ */
+extern void pmc_disable_external_osc(void);
+
+/**
  * \brief Select internal 12M OSC.
  */
 extern void pmc_select_internal_osc(void);
+
+/**
+ * \brief Disable internal 12M OSC.
+ */
+extern void pmc_disable_internal_osc(void);
 
 /**
  * \brief Switch PMC from MCK to PLL clock.

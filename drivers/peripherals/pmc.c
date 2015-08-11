@@ -408,6 +408,12 @@ void pmc_select_external_osc(void)
 
 }
 
+void pmc_disable_external_osc(void)
+{
+	/* disable external OSC 12 MHz   */
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
+}
+
 void pmc_select_internal_osc(void)
 {
 	/* switch from external OSC 12 MHz to internal RC 12 MHz */
@@ -423,6 +429,12 @@ void pmc_select_internal_osc(void)
 	/* disable external OSC 12 MHz   */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+}
+
+void pmc_disable_internal_osc(void)
+{
+	/* disable internal RC 12 MHz   */
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN) | CKGR_MOR_KEY_PASSWD;
 }
 
 void pmc_switch_mck_to_pll(void)
