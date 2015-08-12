@@ -434,6 +434,15 @@ void pmc_switch_mck_to_pll(void)
 	_pmc_mck = 0;
 }
 
+void pmc_switch_mck_to_upll(void)
+{
+	/* Select UPLL as input clock for PCK and MCK */
+	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_UPLL_CLK;
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+
+	_pmc_mck = 0;
+}
+
 void pmc_switch_mck_to_main(void)
 {
 	/* Select Main Oscillator as input clock for PCK and MCK */

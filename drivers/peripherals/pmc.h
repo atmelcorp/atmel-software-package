@@ -136,6 +136,11 @@ extern void pmc_select_internal_osc(void);
 extern void pmc_switch_mck_to_pll(void);
 
 /**
+ * \brief Switch PMC from MCK to UPLL clock.
+ */
+extern void pmc_switch_mck_to_upll(void);
+
+/**
  * \brief Switch PMC from MCK to main clock.
  */
 extern void pmc_switch_mck_to_main(void);
