@@ -69,7 +69,6 @@ drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/can.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/hsmci.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/isi.o
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/ssc.o

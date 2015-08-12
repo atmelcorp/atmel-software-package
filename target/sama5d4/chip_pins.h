@@ -168,26 +168,6 @@
 /** TWI3 pins */
 #define PINS_TWI3 { PIN_TWI_TWD3, PIN_TWI_TWCK3 }
 
-/** List of all CAN pin definitions. */
-
-/** CAN0 pin TX */
-#define PIN_CAN0_TX { PIO_GROUP_D, PIO_PD15C_CANTX0, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** CAN0 pin RX */
-#define PIN_CAN0_RX { PIO_GROUP_D, PIO_PD14C_CANRX0, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** CAN0 pins */
-#define PINS_CAN0 { PIN_CAN0_TX, PIN_CAN0_RX }
-
-/** CAN1 pin TX */
-#define PIN_CAN1_TX { PIO_GROUP_B, PIO_PB15B_CANTX1, PIO_PERIPH_B, PIO_DEFAULT }
-
-/** CAN1 pin RX */
-#define PIN_CAN1_RX { PIO_GROUP_B, PIO_PB14B_CANRX1, PIO_PERIPH_B, PIO_DEFAULT }
-
-/** CAN0 pins */
-#define PINS_CAN1 { PIN_CAN1_TX, PIN_CAN1_RX }
-
 /** List of all SPI pin definitions. */
 
 /** SPI0 MISO pin definition. */
