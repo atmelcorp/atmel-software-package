@@ -69,6 +69,7 @@
 #include "component/component_l2cc.h"
 #include "component/component_lcdc.h"
 #include "component/component_matrix.h"
+#include "component/component_mcan.h"
 #include "component/component_mpddrc.h"
 #include "component/component_pdmic.h"
 #include "component/component_pio.h"
@@ -149,6 +150,7 @@
 #define ACC      ((Acc      *)0xF804A000U) /**< \brief (ACC     ) Base Address */
 #define SFC      ((Sfc      *)0xF804C000U) /**< \brief (SFC     ) Base Address */
 #define I2SC0    ((I2sc     *)0xF8050000U) /**< \brief (I2SC0   ) Base Address */
+#define MCAN0    ((Mcan     *)0xF8054000U) /**< \brief (MCAN0   ) Base Address */
 #define SPI1     ((Spi      *)0xFC000000U) /**< \brief (SPI1    ) Base Address */
 #define SSC1     ((Ssc      *)0xFC004000U) /**< \brief (SSC1    ) Base Address */
 #define UART3    ((Uart     *)0xFC008000U) /**< \brief (UART3   ) Base Address */
@@ -175,6 +177,7 @@
 #define TDES     ((Tdes     *)0xFC044000U) /**< \brief (TDES    ) Base Address */
 #define CLASSD   ((Classd   *)0xFC048000U) /**< \brief (CLASSD  ) Base Address */
 #define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
+#define MCAN1    ((Mcan     *)0xFC050000U) /**< \brief (MCAN1   ) Base Address */
 #define CHIPID   ((Chipid   *)0xFC069000U) /**< \brief (CHIPID  ) Base Address */
 
 /*@}*/

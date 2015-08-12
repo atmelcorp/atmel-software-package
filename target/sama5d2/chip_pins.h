@@ -84,12 +84,23 @@
 
 /* ========== Pio PIN definition for CAN0 peripheral ========== */
 
-#define PINS_CAN0_IOS0 { PIO_GROUP_C, PIO_PC1C_CANTX0 | PIO_PC2C_CANRX0, PIO_PERIPH_C, PIO_DEFAULT }
-#define PINS_CAN0_IOS1 { PIO_GROUP_C, PIO_PC10E_CANTX0 | PIO_PC11E_CANRX0, PIO_PERIPH_E, PIO_DEFAULT }
+#define PINS_CAN0_IOS0 {\
+	{ PIO_GROUP_C, PIO_PC1C_CANTX0 | PIO_PC2C_CANRX0, PIO_PERIPH_C, PIO_DEFAULT },\
+}
+
+#ifdef PIO_PC10E_CANTX0
+#define PINS_CAN0_IOS1 {\
+	{ PIO_GROUP_C, PIO_PC10E_CANTX0 | PIO_PC11E_CANRX0, PIO_PERIPH_E, PIO_DEFAULT },\
+}
+#endif
 
 /* ========== Pio PIN definition for CAN1 peripheral ========== */
 
-#define PINS_CAN1_IOS0 { PIO_GROUP_C, PIO_PC26D_CANTX1 | PIO_PC27D_CANRX1, PIO_PERIPH_D, PIO_DEFAULT }
+#ifdef MCAN1
+#define PINS_CAN1_IOS0 {\
+	{ PIO_GROUP_C, PIO_PC26D_CANTX1 | PIO_PC27D_CANRX1, PIO_PERIPH_D, PIO_DEFAULT },\
+}
+#endif
 
 /* ========== Pio PIN definition for CLASSD peripheral ========== */
 

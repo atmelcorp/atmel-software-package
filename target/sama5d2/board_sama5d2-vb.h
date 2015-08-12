@@ -180,6 +180,14 @@
 	{ PIO_GROUP_A, PIO_PA30, PIO_INPUT, PIO_PULLUP },\
 }
 
+/* =================== PIN CAN definition ======================= */
+/* CAN0 {PC1; PC2} is wired to the J18 connector via an AT6561 transceiver.
+ * Plus, to be found only on the SAMA5D2-VB-BGA289 version:
+ * CAN1 {PC26; PC27} is wired to the J19 connector via an AT6561 transceiver. */
+
+#define CAN0_PINS          PINS_CAN0_IOS0
+#define CAN1_PINS          PINS_CAN1_IOS0
+
 /*----------------------------------------------------------------------------
  *        Headers for board
  *----------------------------------------------------------------------------*/

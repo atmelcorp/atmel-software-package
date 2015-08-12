@@ -242,6 +242,16 @@
 #define QSPIFLASH_ADDR     QSPI0
 #define QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
 
+/* =================== CAN device definition ==================== */
+/* Both ports are wired to the J9 connector:
+ * CANTX0 = PC10 = J9:8
+ * CANRX0 = PC11 = J9:7
+ * CANTX1 = PC26 = J9:6
+ * CANRX1 = PC27 = J9:5 */
+
+#define CAN0_PINS          PINS_CAN0_IOS1
+#define CAN1_PINS          PINS_CAN1_IOS0
+
 /* =================== GMAC/PHY definition =================== */
 
 #define GMAC0_ADDR        GMAC0

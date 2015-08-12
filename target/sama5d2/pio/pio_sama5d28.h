@@ -582,6 +582,14 @@
 #define PIO_PC28A_LCDPWM       (1u << 28) /**< \brief Lcdc signal: LCDPWM */
 #define PIO_PC5A_LCDVSYNC      (1u << 5)  /**< \brief Lcdc signal: LCDVSYNC */
 #define PIO_PC30A_LCDVSYNC     (1u << 30) /**< \brief Lcdc signal: LCDVSYNC */
+/* ========== Pio definition for MCAN0 peripheral ========== */
+#define PIO_PC2C_CANRX0        (1u << 2)  /**< \brief Mcan0 signal: CANRX0 */
+#define PIO_PC11E_CANRX0       (1u << 11) /**< \brief Mcan0 signal: CANRX0 */
+#define PIO_PC1C_CANTX0        (1u << 1)  /**< \brief Mcan0 signal: CANTX0 */
+#define PIO_PC10E_CANTX0       (1u << 10) /**< \brief Mcan0 signal: CANTX0 */
+/* ========== Pio definition for MCAN1 peripheral ========== */
+#define PIO_PC27D_CANRX1       (1u << 27) /**< \brief Mcan1 signal: CANRX1 */
+#define PIO_PC26D_CANTX1       (1u << 26) /**< \brief Mcan1 signal: CANTX1 */
 /* ========== Pio definition for PDMIC peripheral ========== */
 #define PIO_PB12D_PDMIC_CLK    (1u << 12) /**< \brief Pdmic signal: PDMIC_CLK */
 #define PIO_PB27D_PDMIC_CLK    (1u << 27) /**< \brief Pdmic signal: PDMIC_CLK */
