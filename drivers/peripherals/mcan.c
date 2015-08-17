@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -28,8 +28,8 @@
  */
 
 /** \file
- *  Implements functions for Controller Area Network (CAN)
- *  peripheral operations.
+ *  Implements functions for Controller Area Network with Flexible Data-rate,
+ *  relying on the MCAN peripheral.
  */
 /** \addtogroup can_module
  *@{*/

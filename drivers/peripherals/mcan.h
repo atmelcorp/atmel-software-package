@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -28,21 +28,16 @@
  */
 
 /**
- *  \file
+ * \file
  *
- *  \section Purpose
+ * \section Purpose
  *
- *  Interface for configuring and using Timer Counter (TC) peripherals.
- *
- *  \section Usage
- *  -# Optionally, use TC_FindMckDivisor() to let the program find the best
- *     TCCLKS field value automatically.
- *  -# Configure a Timer Counter in the desired mode using TC_Configure().
- *  -# Start or stop the timer clock using TC_Start() and TC_Stop().
+ * Controller Area Network with Flexible Data-rate.
+ * Interface for configuring and using the MCAN peripheral.
  */
 
-#ifndef _MCAN_
-#define _MCAN_
+#ifndef _MCAN_H_
+#define _MCAN_H_
 
 /*------------------------------------------------------------------------------
  *         Headers
@@ -300,4 +295,4 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 }
 #endif
 
-#endif /* #ifndef _MCAN_ */
+#endif /* #ifndef _MCAN_H_ */
