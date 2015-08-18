@@ -239,55 +239,190 @@ __STATIC_INLINE void MCAN_ClearMessageStoredToRxFifo1(
 	mcan->MCAN_IR = MCAN_IR_RF1N;
 }
 
+/**
+ * \brief Initialize the MCAN hardware for the given peripheral.
+ * Default: Mixed mode TX Buffer + FIFO.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_Init(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Enable a FUTURE switch to FD mode (TX & RX payloads up to 64 bytes)
+ * but transmit WITHOUT switching bit rate.
+ * INIT must be set - so this should be called between MCAN_Init() and
+ * MCAN_Enable().
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_InitFdEnable(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Enable a FUTURE switch to FD mode (TX & RX payloads up to 64 bytes),
+ * along with data transmitted at higher speed.
+ * INIT must be set - so this should be called between MCAN_Init() and
+ * MCAN_Enable().
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_InitFdBitRateSwitchEnable(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Initialize the MCAN queue for TX.
+ * INIT must be set - so this should be called between MCAN_Init() and
+ * MCAN_Enable().
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_InitTxQueue(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Initialize the MCAN in loop back mode.
+ * INIT must be set - so this should be called between MCAN_Init() and
+ * MCAN_Enable().
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_InitLoopback(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Enable the peripheral.
+ * INIT must be set - so this should be called after MCAN_Init().
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_Enable(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Request switching to ISO 11898-1 i.e. to the standard, non-FD CAN mode
+ * (TX & RX payloads up to 8 bytes).
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_RequestIso11898_1(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Request switching to FD mode (TX & RX payloads up to 64 bytes) but
+ * transmit WITHOUT switching bit rate. This mode should have been enabled upon
+ * initialization.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_RequestFd(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Request switching to FD mode (TX & RX payloads up to 64 bytes), along
+ * with data transmitted at higher speed. This mode should have been enabled
+ * upon initialization.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_RequestFdBitRateSwitch(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Turn the loop-back mode ON.
+ * \note TEST must be set in MCAN_CCCR. This mode should have been enabled upon
+ * initialization.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_LoopbackOn(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Turn the loop-back mode OFF.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ */
 void MCAN_LoopbackOff(const MCan_ConfigType *mcanConfig);
 
+/**
+ * \brief Enable message line and message stored to Dedicated Receive Buffer
+ * Interrupt Line.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param line  Message line.
+ */
 void MCAN_IEnableMessageStoredToRxDedBuffer(
     const MCan_ConfigType *mcanConfig, MCan_IntrLineType line);
 
+/**
+ * \brief Configure a Dedicated TX Buffer.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the transmit buffer to be used.
+ * \param id  Message ID.
+ * \param idType  Type of ID.
+ * \param dlc  Type of DLC.
+ */
 uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
     uint8_t buffer, uint32_t id, MCan_IdType idType, MCan_DlcType dlc);
 
+/**
+ * \brief Send TX buffer.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the transmit buffer to be used.
+ */
 void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig,
     uint8_t buffer);
 
+/**
+ * \brief Add message to TX FIFO / queue.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param id  Message ID.
+ * \param idType  Type of ID.
+ * \param dlc  Type of DLC.
+ * \param data  Pointer to data.
+ */
 uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
     uint32_t id, MCan_IdType idType, MCan_DlcType dlc, uint8_t *data);
 
+/**
+ * \brief Check if data transmitted from buffer/FIFO/queue.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the transmit buffer to be queried.
+ */
 uint8_t MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buffer);
 
+/**
+ * \brief Configure RX buffer filter.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the receive buffer to be used.
+ * \param filter  Data of filter.
+ * \param id  Message ID, must match exactly a RX buffer filter.
+ * \param idType  Type of ID.
+ */
 void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
     uint32_t buffer, uint32_t filter, uint32_t id, MCan_IdType idType);
 
+/**
+ * \brief Configure classic filter.
+ * The classic filters direct the accepted messages to a FIFO, and include both
+ * an ID and an ID mask.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param fifo  FIFO number.
+ * \param filter  Data of filter.
+ * \param id  Message ID.
+ * \param idType  Type of ID.
+ * \param mask  Mask to be matched.
+ */
 void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
     MCan_FifoType fifo, uint8_t filter, uint32_t id, MCan_IdType idType,
     uint32_t mask);
 
+/**
+ * \brief Check whether some data has been received into the buffer.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the receive buffer to be queried.
+ */
 uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
     uint8_t buffer);
 
+/**
+ * \brief Get RX buffer.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param buffer  Index of the receive buffer to be read.
+ * \param pRxMailbox  Pointer to RX mailbox.
+ */
 void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buffer,
     Mailbox64Type *pRxMailbox);
 
+/**
+ * \brief Get from the receive FIFO, to a mailbox owned by the application.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \param fifo  FIFO Number
+ * \param pRxMailbox  Pointer to RX mailbox.
+ * \return: # of FIFO entries at the time the function was entered:
+ *         0 -> The FIFO was initially empty.
+ *         1 -> The FIFO had 1 entry upon entry, but is empty upon exit.
+ *         2 -> The FIFO had 2 entries upon entry, has 1 entry upon exit.
+ */
 uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
     MCan_FifoType fifo, Mailbox64Type *pRxMailbox);
 
