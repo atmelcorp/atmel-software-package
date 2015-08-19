@@ -598,7 +598,7 @@ typedef struct {
 #define   MCAN_TXESC_TBDS_20_BYTE (0x3u << 0) /**< \brief (MCAN_TXESC) 20-byte data field */
 #define   MCAN_TXESC_TBDS_24_BYTE (0x4u << 0) /**< \brief (MCAN_TXESC) 24-byte data field */
 #define   MCAN_TXESC_TBDS_32_BYTE (0x5u << 0) /**< \brief (MCAN_TXESC) 32-byte data field */
-#define   MCAN_TXESC_TBDS_48_BYTE (0x6u << 0) /**< \brief (MCAN_TXESC) 4- byte data field */
+#define   MCAN_TXESC_TBDS_48_BYTE (0x6u << 0) /**< \brief (MCAN_TXESC) 48-byte data field */
 #define   MCAN_TXESC_TBDS_64_BYTE (0x7u << 0) /**< \brief (MCAN_TXESC) 64-byte data field */
 /* -------- MCAN_TXBRP : (MCAN Offset: 0xCC) Transmit Buffer Request Pending Register -------- */
 #define MCAN_TXBRP_TRP0 (0x1u << 0) /**< \brief (MCAN_TXBRP) Transmission Request Pending for Buffer 0 */
