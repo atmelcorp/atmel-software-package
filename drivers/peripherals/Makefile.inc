@@ -66,6 +66,7 @@ drivers-$(CONFIG_HAVE_QSPI) += drivers/peripherals/qspi.o
 
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/acc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/mcan.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
