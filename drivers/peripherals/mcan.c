@@ -918,7 +918,7 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 			    (uint32_t) STD_FILT_SFT_CLASSIC | (id << 16) | mask;
 			if (fifo == CAN_FIFO_0)
 				*pThisRxFilt = STD_FILT_SFEC_FIFO0 | filterTemp;
-			else if (fifo == CAN_FIFO_1) {
+			else if (fifo == CAN_FIFO_1)
 				*pThisRxFilt = STD_FILT_SFEC_FIFO1 | filterTemp;
 		} else {
 			/* extended ID */
