@@ -952,7 +952,7 @@ uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
 	if (buffer < 32)
 		return (mcan->MCAN_NDAT1 & (1 << buffer));
 	else if (buffer < 64)
-		return (mcan->MCAN_NDAT1 & (1 << (buffer - 32)));
+		return (mcan->MCAN_NDAT2 & (1 << (buffer - 32)));
 	else
 		return 0;
 }
@@ -990,7 +990,7 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 		if (buffer < 32)
 			mcan->MCAN_NDAT1 = (1 << buffer);
 		else
-			mcan->MCAN_NDAT1 = (1 << (buffer - 32));
+			mcan->MCAN_NDAT2 = (1 << (buffer - 32));
 	}
 }
 
