@@ -41,6 +41,11 @@
 #include "board.h"
 #include "chip.h"
 #include "mcan_config.h"
+#include "mcan.h"
+#include "pio.h"
+#include "pmc.h"
+#include "cortex-a/cp15.h"
+
 #include <assert.h>
 
 /*---------------------------------------------------------------------------
@@ -437,9 +442,6 @@
  *      Internal variables
  *---------------------------------------------------------------------------*/
 
-static const Pin pinsMcan0[] = { PIN_MCAN0_TXD, PIN_MCAN0_RXD };
-static const Pin pinsMcan1[] = { PIN_MCAN1_TXD, PIN_MCAN1_RXD };
-
 static uint32_t can0MsgRam[MCAN0_STD_FLTS_WRDS +
 			   MCAN0_EXT_FLTS_WRDS +
 			   MCAN0_RX_FIFO0_WRDS +
@@ -550,36 +552,42 @@ const MCan_ConfigType mcan1Config = {
 
 void MCAN_Init(const MCan_ConfigType *mcanConfig)
 {
+	const struct _pin can0_pins[] = CAN0_PINS;
+#ifdef MCAN1
+	const struct _pin can1_pins[] = CAN1_PINS;
+#endif
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t regVal32;
 	uint32_t *pMsgRam;
 	uint32_t cntr;
 	IRQn_Type mCanLine0Irq;
 
-	/* Both MCAN controllers use programmable clock 5 to derive bit rate
-	 * Select MCK divided by 1 as programmable clock 5 output */
-	PMC->PMC_PCK[5] =
-	    PMC_PCK_PRES(MCAN_PROG_CLK_PRESCALER - 1) | MCAN_PROG_CLK_SELECT;
-	PMC->PMC_SCER = PMC_SCER_PCK5;
+	/* Programmable Clock 5 (PCK5) is not output on any external pin (PCKx)
+	 * and is dedicated to MCAN controllers. CAN bit rate derive from this
+	 * input clock. */
+	pmc_configure_pck5(MCAN_PROG_CLK_SELECT, MCAN_PROG_CLK_PRESCALER - 1);
+	pmc_enable_pck5();
 
 	if (MCAN0 == mcan) {
-		PIO_Configure(pinsMcan0, PIO_LISTSIZE(pinsMcan0));
+		pio_configure(can0_pins, ARRAY_SIZE(can0_pins));
 		/* Enable MCAN peripheral clock */
-		PMC_EnablePeripheral(ID_MCAN0);
+		pmc_enable_peripheral(ID_CAN0_INT0);
 		/* Configure Message RAM Base Address */
 		regVal32 = MATRIX->CCFG_CAN0 & 0x000001FF;
 		MATRIX->CCFG_CAN0 = regVal32
 		    | ((uint32_t) mcanConfig->msgRam.pStdFilts & 0xFFFF0000);
 		mCanLine0Irq = MCAN0_IRQn;
+#ifdef MCAN1
 	} else if (MCAN1 == mcan) {
-		PIO_Configure(pinsMcan1, PIO_LISTSIZE(pinsMcan1));
+		pio_configure(can1_pins, ARRAY_SIZE(can1_pins));
 		/* Enable MCAN peripheral clock */
-		PMC_EnablePeripheral(ID_MCAN1);
+		pmc_enable_peripheral(ID_CAN1_INT0);
 		/* Configure Message RAM Base Address */
 		regVal32 = MATRIX->CCFG_SYSIO & 0x0000FFFF;
 		MATRIX->CCFG_SYSIO = regVal32
 		    | ((uint32_t) mcanConfig->msgRam.pStdFilts & 0xFFFF0000);
 		mCanLine0Irq = MCAN1_IRQn;
+#endif
 	} else
 		return;
 
@@ -681,8 +689,8 @@ void MCAN_Init(const MCan_ConfigType *mcanConfig)
 	mcan->MCAN_CCCR =
 	    regVal32 | (MCAN_CCCR_CMR_ISO11898_1 | MCAN_CCCR_CME_ISO11898_1);
 
-	__DSB();
-	__ISB();
+	DSB();
+	ISB();
 }
 
 void MCAN_InitFdEnable(const MCan_ConfigType *mcanConfig)
@@ -811,7 +819,8 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 		 */
 		mcan->MCAN_TXBTIE = (1 << buffer);
 	}
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 	return (uint8_t *)pThisTxBuf;   /* now it points to the data field */
 }
 
@@ -857,7 +866,8 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 		/* request to send */
 		mcan->MCAN_TXBAR = (1 << putIdx);
 	}
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 	return putIdx;   /* now it points to the data field */
 }
 
@@ -898,7 +908,8 @@ void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
 			}
 		}
 	}
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 }
 
 void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
@@ -939,7 +950,8 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 			    (uint32_t) EXT_FILT_EFT_CLASSIC | mask;
 		}
 	}
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 }
 
 uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
@@ -947,7 +959,8 @@ uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
 {
 	Mcan *mcan = mcanConfig->pMCan;
 
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 
 	if (buffer < 32)
 		return (mcan->MCAN_NDAT1 & (1 << buffer));
@@ -966,7 +979,8 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 	uint8_t *pRxData;
 	uint8_t idx;
 
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 
 	if (buffer < mcanConfig->nmbrRxDedBufElmts) {
 		pThisRxBuf = mcanConfig->msgRam.pRxDedBuf
@@ -1007,7 +1021,8 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 	uint32_t fill_level;
 	uint32_t element_size;
 
-	SCB_CleanInvalidateDCache();
+	cp15_select_dcache();
+	cp15_clean_invalid_dcache_by_set_way();
 
 	/* default: fifo empty */
 	fill_level = 0;

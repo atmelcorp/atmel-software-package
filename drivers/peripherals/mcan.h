@@ -39,21 +39,19 @@
 #ifndef _MCAN_H_
 #define _MCAN_H_
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Headers
- *------------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-
-#include <stdint.h>
-
-/*------------------------------------------------------------------------------
- *         Global functions
- *------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*----------------------------------------------------------------------------
+ *         Definitions
+ *----------------------------------------------------------------------------*/
 
 typedef enum
 {
@@ -182,57 +180,61 @@ typedef struct MCan_ConfigTag
 	MCan_MsgRamPntrs msgRam;
 } MCan_ConfigType;
 
+/*----------------------------------------------------------------------------
+ *         Exported symbols
+ *----------------------------------------------------------------------------*/
+
 extern const MCan_ConfigType mcan0Config;
 extern const MCan_ConfigType mcan1Config;
 
-__STATIC_INLINE uint32_t MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
+static inline uint32_t MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	return (mcan->MCAN_IR & MCAN_IR_TC);
 }
 
-__STATIC_INLINE void MCAN_ClearTxComplete(const MCan_ConfigType *mcanConfig)
+static inline void MCAN_ClearTxComplete(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	mcan->MCAN_IR = MCAN_IR_TC;
 }
 
-__STATIC_INLINE uint32_t MCAN_IsMessageStoredToRxDedBuffer(
+static inline uint32_t MCAN_IsMessageStoredToRxDedBuffer(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	return (mcan->MCAN_IR & MCAN_IR_DRX);
 }
 
-__STATIC_INLINE void MCAN_ClearMessageStoredToRxBuffer(
+static inline void MCAN_ClearMessageStoredToRxBuffer(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	mcan->MCAN_IR = MCAN_IR_DRX;
 }
 
-__STATIC_INLINE uint32_t MCAN_IsMessageStoredToRxFifo0(
+static inline uint32_t MCAN_IsMessageStoredToRxFifo0(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	return (mcan->MCAN_IR & MCAN_IR_RF0N);
 }
 
-__STATIC_INLINE void MCAN_ClearMessageStoredToRxFifo0(
+static inline void MCAN_ClearMessageStoredToRxFifo0(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	mcan->MCAN_IR = MCAN_IR_RF0N;
 }
 
-__STATIC_INLINE uint32_t MCAN_IsMessageStoredToRxFifo1(
+static inline uint32_t MCAN_IsMessageStoredToRxFifo1(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	return (mcan->MCAN_IR & MCAN_IR_RF1N);
 }
 
-__STATIC_INLINE void MCAN_ClearMessageStoredToRxFifo1(
+static inline void MCAN_ClearMessageStoredToRxFifo1(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
