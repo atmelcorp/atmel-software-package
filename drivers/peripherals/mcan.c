@@ -920,23 +920,23 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 				*pThisRxFilt = STD_FILT_SFEC_FIFO0 | filterTemp;
 			else if (fifo == CAN_FIFO_1)
 				*pThisRxFilt = STD_FILT_SFEC_FIFO1 | filterTemp;
-		} else {
-			/* extended ID */
-			if ((filter < mcanConfig->nmbrExtFilts)
-			    && (id <= CAN_29_BIT_ID_MASK)
-			    && (mask <= CAN_29_BIT_ID_MASK)) {
-				pThisRxFilt =
-				    mcanConfig->msgRam.pExtFilts + (2 * filter);
-				/* 2 words per filter */
-				if (fifo == CAN_FIFO_0)
-					*pThisRxFilt++ =
-					    EXT_FILT_EFEC_FIFO0 | id;
-				else if (fifo == CAN_FIFO_0)
-					*pThisRxFilt++ =
-					    EXT_FILT_EFEC_FIFO1 | id;
-				*pThisRxFilt =
-				    (uint32_t) EXT_FILT_EFT_CLASSIC | mask;
-			}
+		}
+	} else {
+		/* extended ID */
+		if ((filter < mcanConfig->nmbrExtFilts)
+		    && (id <= CAN_29_BIT_ID_MASK)
+		    && (mask <= CAN_29_BIT_ID_MASK)) {
+			pThisRxFilt =
+			    mcanConfig->msgRam.pExtFilts + (2 * filter);
+			/* 2 words per filter */
+			if (fifo == CAN_FIFO_0)
+				*pThisRxFilt++ =
+				    EXT_FILT_EFEC_FIFO0 | id;
+			else if (fifo == CAN_FIFO_0)
+				*pThisRxFilt++ =
+				    EXT_FILT_EFEC_FIFO1 | id;
+			*pThisRxFilt =
+			    (uint32_t) EXT_FILT_EFT_CLASSIC | mask;
 		}
 	}
 	SCB_CleanInvalidateDCache();
