@@ -53,15 +53,15 @@
 
 #define MCAN0_TSEG1                   (MCAN0_PROP_SEG + MCAN0_PHASE_SEG1)
 #define MCAN0_TSEG2                   (MCAN0_PHASE_SEG2)
-#define MCAN0_BRP                     ((uint32_t) (( (float)CAN_CLK_FREQ_HZ / \
-                                       ((float)(MCAN0_TSEG1 + MCAN0_TSEG2 + 3) * \
-                                       (float)MCAN0_BIT_RATE_BPS )) - 1 ))
+#define MCAN0_BRP                     (ROUND_INT_DIV(CAN_CLK_FREQ_HZ, \
+                                          (MCAN0_TSEG1 + MCAN0_TSEG2 + 3) * \
+                                          MCAN0_BIT_RATE_BPS) - 1)
 #define MCAN0_SJW                     (MCAN0_SYNC_JUMP - 1)
 #define MCAN0_FTSEG1                  (MCAN0_FAST_PROP_SEG + MCAN0_FAST_PHASE_SEG1)
 #define MCAN0_FTSEG2                  (MCAN0_FAST_PHASE_SEG2)
-#define MCAN0_FBRP                    ((uint32_t) (( (float)CAN_CLK_FREQ_HZ / \
-                                       ((float)(MCAN0_FTSEG1 + MCAN0_FTSEG2 + 3) * \
-                                       (float)MCAN0_FAST_BIT_RATE_BPS )) - 1 ))
+#define MCAN0_FBRP                    (ROUND_INT_DIV(CAN_CLK_FREQ_HZ, \
+                                          (MCAN0_FTSEG1 + MCAN0_FTSEG2 + 3) * \
+                                          MCAN0_FAST_BIT_RATE_BPS) - 1)
 #define MCAN0_FSJW                    (MCAN0_FAST_SYNC_JUMP - 1)
 
 #define MCAN0_STD_FLTS_WRDS           (MCAN0_NMBR_STD_FLTS)
@@ -95,15 +95,15 @@
 
 #define MCAN1_TSEG1                   (MCAN1_PROP_SEG + MCAN1_PHASE_SEG1)
 #define MCAN1_TSEG2                   (MCAN1_PHASE_SEG2)
-#define MCAN1_BRP                     ((uint32_t) (( (float)CAN_CLK_FREQ_HZ / \
-                                       ((float)(MCAN1_TSEG1 + MCAN1_TSEG2 + 3) * \
-                                       (float)MCAN1_BIT_RATE_BPS )) - 1 ))
+#define MCAN1_BRP                     (ROUND_INT_DIV(CAN_CLK_FREQ_HZ, \
+                                          (MCAN1_TSEG1 + MCAN1_TSEG2 + 3) * \
+                                          MCAN1_BIT_RATE_BPS) - 1)
 #define MCAN1_SJW                     (MCAN1_SYNC_JUMP - 1)
 #define MCAN1_FTSEG1                  (MCAN1_FAST_PROP_SEG + MCAN1_FAST_PHASE_SEG1)
 #define MCAN1_FTSEG2                  (MCAN1_FAST_PHASE_SEG2)
-#define MCAN1_FBRP                    ((uint32_t) (( (float)CAN_CLK_FREQ_HZ / \
-                                       ((float)(MCAN1_FTSEG1 + MCAN1_FTSEG2 + 3) * \
-                                       (float)MCAN1_FAST_BIT_RATE_BPS )) - 1 ))
+#define MCAN1_FBRP                    (ROUND_INT_DIV(CAN_CLK_FREQ_HZ, \
+                                          (MCAN1_FTSEG1 + MCAN1_FTSEG2 + 3) * \
+                                          MCAN1_FAST_BIT_RATE_BPS) - 1)
 #define MCAN1_FSJW                    (MCAN1_FAST_SYNC_JUMP - 1)
 
 #define MCAN1_STD_FLTS_WRDS           (MCAN1_NMBR_STD_FLTS)

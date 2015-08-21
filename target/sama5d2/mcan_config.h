@@ -54,8 +54,8 @@ extern "C" {
  * Select one of them here. */
 #define MCAN_PROG_CLK_SELECT          PMC_PCK_CSS_MCK
 #define MCAN_PROG_CLK_PRESCALER       1   /* Clock divider, range 1..256 */
-#define MCAN_PROG_CLK_FREQ_HZ         (150000000.0f \
-                                       / (float)MCAN_PROG_CLK_PRESCALER)
+#define MCAN_PROG_CLK_FREQ_HZ         ROUND_INT_DIV(150000000, \
+                                          MCAN_PROG_CLK_PRESCALER)
 
 #define MCAN0_BIT_RATE_BPS            500000
 #define MCAN0_PROP_SEG                2
