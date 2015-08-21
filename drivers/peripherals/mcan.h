@@ -53,6 +53,26 @@ extern "C" {
  *         Definitions
  *----------------------------------------------------------------------------*/
 
+enum mcan_can_mode
+{
+	/* ISO 11898-1 CAN mode */
+	MCAN_MODE_CAN,
+
+	/* Long CAN FD frame.
+	 * - TX and RX payloads up to 64 bytes.
+	 * - Slow transmitter: TX frames are sent at constant bit rate.
+	 * - Fast receiver: both constant-rate (slow) and dual-rate (fast)
+	 *   RX frames are supported and received. */
+	MCAN_MODE_EXT_LEN_CONST_RATE,
+
+	/* Long and fast CAN FD frame.
+	 * - TX and RX payloads up to 64 bytes.
+	 * - Fast transmitter: control, data and CRC fields are transmitted at a
+	 *   higher bit rate.
+	 * - Fast receiver. */
+	MCAN_MODE_EXT_LEN_DUAL_RATE,
+};
+
 typedef enum
 {
 	CAN_STD_ID = 0,
@@ -185,7 +205,9 @@ typedef struct MCan_ConfigTag
  *----------------------------------------------------------------------------*/
 
 extern const MCan_ConfigType mcan0Config;
+#ifdef MCAN1
 extern const MCan_ConfigType mcan1Config;
+#endif
 
 static inline uint32_t MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
 {
@@ -243,28 +265,28 @@ static inline void MCAN_ClearMessageStoredToRxFifo1(
 
 /**
  * \brief Initialize the MCAN hardware for the given peripheral.
- * Default: Mixed mode TX Buffer + FIFO.
+ * Default: Non-FD, ISO 11898-1 CAN mode; mixed mode TX Buffer + FIFO.
  * \param mcanConfig  Pointer to a MCAN instance.
  */
 void MCAN_Init(const MCan_ConfigType *mcanConfig);
 
 /**
- * \brief Enable a FUTURE switch to FD mode (TX & RX payloads up to 64 bytes)
- * but transmit WITHOUT switching bit rate.
- * INIT must be set - so this should be called between MCAN_Init() and
- * MCAN_Enable().
+ * \brief Unlock the peripheral configuration so it can be altered.
+ * Prerequisite: the peripheral shall be disabled. In case the device has been
+ * enabled, call MCAN_Disable.
  * \param mcanConfig  Pointer to a MCAN instance.
  */
-void MCAN_InitFdEnable(const MCan_ConfigType *mcanConfig);
+void MCAN_Reconfigure(const MCan_ConfigType *mcanConfig);
 
 /**
- * \brief Enable a FUTURE switch to FD mode (TX & RX payloads up to 64 bytes),
- * along with data transmitted at higher speed.
- * INIT must be set - so this should be called between MCAN_Init() and
+ * \brief Select either the legacy ISO 11898-1 CAN mode or the CAN-FD mode,
+ * along with the FD variant in the latter case.
+ * Should be called further to MCAN_Init() or MCAN_Reconfigure(), before
  * MCAN_Enable().
  * \param mcanConfig  Pointer to a MCAN instance.
+ * \param mode  CAN mode, and FD variant in case of FD mode.
  */
-void MCAN_InitFdBitRateSwitchEnable(const MCan_ConfigType *mcanConfig);
+void MCAN_SetMode(const MCan_ConfigType *mcanConfig, enum mcan_can_mode mode);
 
 /**
  * \brief Initialize the MCAN queue for TX.
@@ -283,34 +305,19 @@ void MCAN_InitTxQueue(const MCan_ConfigType *mcanConfig);
 void MCAN_InitLoopback(const MCan_ConfigType *mcanConfig);
 
 /**
- * \brief Enable the peripheral.
+ * \brief Enable the peripheral I/O stage. Synchronize with the bus.
  * INIT must be set - so this should be called after MCAN_Init().
  * \param mcanConfig  Pointer to a MCAN instance.
  */
 void MCAN_Enable(const MCan_ConfigType *mcanConfig);
 
 /**
- * \brief Request switching to ISO 11898-1 i.e. to the standard, non-FD CAN mode
- * (TX & RX payloads up to 8 bytes).
+ * \brief Disable the peripheral I/O stage. Go Bus_Off.
+ * \note Subsequent operations may include reconfiguring the peripheral
+ * (MCAN_Reconfigure) and/or re-enabling it (MCAN_Enable).
  * \param mcanConfig  Pointer to a MCAN instance.
  */
-void MCAN_RequestIso11898_1(const MCan_ConfigType *mcanConfig);
-
-/**
- * \brief Request switching to FD mode (TX & RX payloads up to 64 bytes) but
- * transmit WITHOUT switching bit rate. This mode should have been enabled upon
- * initialization.
- * \param mcanConfig  Pointer to a MCAN instance.
- */
-void MCAN_RequestFd(const MCan_ConfigType *mcanConfig);
-
-/**
- * \brief Request switching to FD mode (TX & RX payloads up to 64 bytes), along
- * with data transmitted at higher speed. This mode should have been enabled
- * upon initialization.
- * \param mcanConfig  Pointer to a MCAN instance.
- */
-void MCAN_RequestFdBitRateSwitch(const MCan_ConfigType *mcanConfig);
+void MCAN_Disable(const MCan_ConfigType *mcanConfig);
 
 /**
  * \brief Turn the loop-back mode ON.

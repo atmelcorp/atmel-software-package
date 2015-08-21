@@ -45,14 +45,9 @@ extern "C" {
 #endif
 
 /* Programmable Clock Source for baud rate. Common to both MCAN instances.
- * The eligible clock sources are:
- * - PMC_PCK_CSS_SLOW_CLK
- * - PMC_PCK_CSS_MAIN_CLK
- * - PMC_PCK_CSS_MCK
- * - PMC_PCK_CSS_PLLA_CLK
- * - PMC_PCK_CSS_UPLL_CLK
- * Select one of them here. */
-#define MCAN_PROG_CLK_SELECT          PMC_PCK_CSS_MCK
+ * Select one of the PMC_PCR_GCKCSS_xxx_CLK clock sources here. */
+/* FIXME follow datasheet recommendation: UPLL clock divided by 24, 12 or 6 */
+#define MCAN_PROG_CLK_SELECT          PMC_PCR_GCKCSS_MCK_CLK  /* Master clock */
 #define MCAN_PROG_CLK_PRESCALER       1   /* Clock divider, range 1..256 */
 #define MCAN_PROG_CLK_FREQ_HZ         ROUND_INT_DIV(150000000, \
                                           MCAN_PROG_CLK_PRESCALER)

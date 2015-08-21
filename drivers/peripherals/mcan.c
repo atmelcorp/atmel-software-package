@@ -141,22 +141,28 @@
                                       /* 32 elements max */
 
 /* validate CAN0 entries */
-#if ( MCAN0_TSEG1 > 63 )
+#if ( MCAN0_TSEG1 > 255 )
 #error "Invalid CAN0 TSEG1"
 #endif
-#if (  MCAN0_TSEG2 > 15 )
+#if ( MCAN0_TSEG2 > 127 )
 #error "Invalid CAN0 TSEG2"
 #endif
-#if ( MCAN0_SJW > 15 )
+#if ( MCAN0_BRP < 0 || MCAN0_BRP > 511 )
+#error "Invalid CAN0 bit timing configuration"
+#endif
+#if ( MCAN0_SJW > 127 )
 #error "Invalid CAN0 SJW"
 #endif
-#if ( MCAN0_FTSEG1 > 15 )
+#if ( MCAN0_FTSEG1 > 31 )
 #error "Invalid CAN0 FTSEG1"
 #endif
-#if ( MCAN0_FTSEG2 > 7 )
+#if ( MCAN0_FTSEG2 > 15 )
 #error "Invalid CAN0 FTSEG2"
 #endif
-#if ( MCAN0_FSJW > 3 )
+#if ( MCAN0_FBRP < 0 || MCAN0_FBRP > 31 )
+#error "Invalid CAN0 fast bit timing configuration"
+#endif
+#if ( MCAN0_FSJW > 7 )
 #error "Invalid CAN0 FSJW"
 #endif
 
@@ -263,22 +269,28 @@
 #endif
 
 /* validate CAN1 entries */
-#if ( MCAN1_TSEG1 > 63 )
+#if ( MCAN1_TSEG1 > 255 )
 #error "Invalid CAN1 TSEG1"
 #endif
-#if ( MCAN1_TSEG2 > 15 )
+#if ( MCAN1_TSEG2 > 127 )
 #error "Invalid CAN1 TSEG2"
 #endif
-#if ( MCAN1_SJW > 15 )
+#if ( MCAN1_BRP < 0 || MCAN1_BRP > 511 )
+#error "Invalid CAN1 bit timing configuration"
+#endif
+#if ( MCAN1_SJW > 127 )
 #error "Invalid CAN1 SJW"
 #endif
-#if ( MCAN1_FTSEG1 > 15 )
+#if ( MCAN1_FTSEG1 > 31 )
 #error "Invalid CAN1 FTSEG1"
 #endif
-#if ( MCAN1_FTSEG2 > 7 )
+#if ( MCAN1_FTSEG2 > 15 )
 #error "Invalid CAN1 FTSEG2"
 #endif
-#if ( MCAN1_FSJW > 3 )
+#if ( MCAN1_FBRP < 0 || MCAN1_FBRP > 31 )
+#error "Invalid CAN1 fast bit timing configuration"
+#endif
+#if ( MCAN1_FSJW > 7 )
 #error "Invalid CAN1 FSJW"
 #endif
 
@@ -451,6 +463,7 @@ static uint32_t can0MsgRam[MCAN0_STD_FLTS_WRDS +
 			   MCAN0_TX_DED_BUF_WRDS +
 			   MCAN0_TX_FIFO_Q_WRDS];
 
+#ifdef MCAN1
 static uint32_t can1MsgRam[MCAN1_STD_FLTS_WRDS +
 			   MCAN1_EXT_FLTS_WRDS +
 			   MCAN1_RX_FIFO0_WRDS +
@@ -459,13 +472,14 @@ static uint32_t can1MsgRam[MCAN1_STD_FLTS_WRDS +
 			   MCAN1_TX_EVT_FIFO_WRDS +
 			   MCAN1_TX_DED_BUF_WRDS +
 			   MCAN1_TX_FIFO_Q_WRDS];
+#endif
 
 const MCan_ConfigType mcan0Config = {
 	MCAN0,
-	MCAN_BTP_BRP(MCAN0_BRP) | MCAN_BTP_TSEG1(MCAN0_TSEG1) |
-	    MCAN_BTP_TSEG2(MCAN0_TSEG2) | MCAN_BTP_SJW(MCAN0_SJW),
-	MCAN_FBTP_FBRP(MCAN0_FBRP) | MCAN_FBTP_FTSEG1(MCAN0_FTSEG1) |
-	    MCAN_FBTP_FTSEG2(MCAN0_FTSEG2) | MCAN_FBTP_FSJW(MCAN0_FSJW),
+	MCAN_NBTP_NBRP(MCAN0_BRP) | MCAN_NBTP_NTSEG1(MCAN0_TSEG1) |
+	    MCAN_NBTP_NTSEG2(MCAN0_TSEG2) | MCAN_NBTP_NSJW(MCAN0_SJW),
+	MCAN_DBTP_FBRP(MCAN0_FBRP) | MCAN_DBTP_DTSEG1(MCAN0_FTSEG1) |
+	    MCAN_DBTP_DTSEG2(MCAN0_FTSEG2) | MCAN_DBTP_DSJW(MCAN0_FSJW),
 	MCAN0_NMBR_STD_FLTS,
 	MCAN0_NMBR_EXT_FLTS,
 	MCAN0_NMBR_RX_FIFO0_ELMTS,
@@ -503,12 +517,13 @@ const MCan_ConfigType mcan0Config = {
 	},
 };
 
+#ifdef MCAN1
 const MCan_ConfigType mcan1Config = {
 	MCAN1,
-	MCAN_BTP_BRP(MCAN1_BRP) | MCAN_BTP_TSEG1(MCAN1_TSEG1) |
-	    MCAN_BTP_TSEG2(MCAN1_TSEG2) | MCAN_BTP_SJW(MCAN1_SJW),
-	MCAN_FBTP_FBRP(MCAN1_FBRP) | MCAN_FBTP_FTSEG1(MCAN1_FTSEG1) |
-	    MCAN_FBTP_FTSEG2(MCAN1_FTSEG2) | MCAN_FBTP_FSJW(MCAN1_FSJW),
+	MCAN_NBTP_NBRP(MCAN1_BRP) | MCAN_NBTP_NTSEG1(MCAN1_TSEG1) |
+	    MCAN_NBTP_NTSEG2(MCAN1_TSEG2) | MCAN_NBTP_NSJW(MCAN1_SJW),
+	MCAN_DBTP_FBRP(MCAN1_FBRP) | MCAN_DBTP_DTSEG1(MCAN1_FTSEG1) |
+	    MCAN_DBTP_DTSEG2(MCAN1_FTSEG2) | MCAN_DBTP_DSJW(MCAN1_FSJW),
 	MCAN1_NMBR_STD_FLTS,
 	MCAN1_NMBR_EXT_FLTS,
 	MCAN1_NMBR_RX_FIFO0_ELMTS,
@@ -545,6 +560,7 @@ const MCan_ConfigType mcan1Config = {
 			    MCAN1_TX_DED_BUF_WRDS]
 	},
 };
+#endif
 
 /*---------------------------------------------------------------------------
  *      Exported Functions
@@ -560,45 +576,38 @@ void MCAN_Init(const MCan_ConfigType *mcanConfig)
 	uint32_t regVal32;
 	uint32_t *pMsgRam;
 	uint32_t cntr;
-	IRQn_Type mCanLine0Irq;
-
-	/* Programmable Clock 5 (PCK5) is not output on any external pin (PCKx)
-	 * and is dedicated to MCAN controllers. CAN bit rate derive from this
-	 * input clock. */
-	pmc_configure_pck5(MCAN_PROG_CLK_SELECT, MCAN_PROG_CLK_PRESCALER - 1);
-	pmc_enable_pck5();
 
 	if (MCAN0 == mcan) {
-		pio_configure(can0_pins, ARRAY_SIZE(can0_pins));
-		/* Enable MCAN peripheral clock */
+		/* The MCAN peripheral is clocked by both its Peripheral Clock
+		 * and Generated Clock 3 (at least on SAMA5D2x). */
+		pmc_configure_gck(ID_CAN0_INT0, MCAN_PROG_CLK_SELECT,
+		    MCAN_PROG_CLK_PRESCALER - 1);
+		pmc_enable_gck(ID_CAN0_INT0);
 		pmc_enable_peripheral(ID_CAN0_INT0);
-		/* Configure Message RAM Base Address */
-		regVal32 = MATRIX->CCFG_CAN0 & 0x000001FF;
-		MATRIX->CCFG_CAN0 = regVal32
-		    | ((uint32_t) mcanConfig->msgRam.pStdFilts & 0xFFFF0000);
-		mCanLine0Irq = MCAN0_IRQn;
+		pio_configure(can0_pins, ARRAY_SIZE(can0_pins));
+		/* Configure the MSB of the Message RAM Base Address */
+		regVal32 = SFR->SFR_CAN & ~SFR_CAN_EXT_MEM_CAN0_ADDR_Msk;
+		SFR->SFR_CAN = regVal32 | SFR_CAN_EXT_MEM_CAN0_ADDR(
+		    (uint32_t)mcanConfig->msgRam.pStdFilts >> 16);
 #ifdef MCAN1
 	} else if (MCAN1 == mcan) {
-		pio_configure(can1_pins, ARRAY_SIZE(can1_pins));
-		/* Enable MCAN peripheral clock */
+		pmc_configure_gck(ID_CAN1_INT0, MCAN_PROG_CLK_SELECT,
+		    MCAN_PROG_CLK_PRESCALER - 1);
+		pmc_enable_gck(ID_CAN1_INT0);
 		pmc_enable_peripheral(ID_CAN1_INT0);
-		/* Configure Message RAM Base Address */
-		regVal32 = MATRIX->CCFG_SYSIO & 0x0000FFFF;
-		MATRIX->CCFG_SYSIO = regVal32
-		    | ((uint32_t) mcanConfig->msgRam.pStdFilts & 0xFFFF0000);
-		mCanLine0Irq = MCAN1_IRQn;
+		pio_configure(can1_pins, ARRAY_SIZE(can1_pins));
+		regVal32 = SFR->SFR_CAN & ~SFR_CAN_EXT_MEM_CAN1_ADDR_Msk;
+		SFR->SFR_CAN = regVal32 | SFR_CAN_EXT_MEM_CAN1_ADDR(
+		    (uint32_t)mcanConfig->msgRam.pStdFilts >> 16);
 #endif
 	} else
 		return;
 
-	/* Indicates Initialization state */
-	mcan->MCAN_CCCR = MCAN_CCCR_INIT_ENABLED;
-	do
-		regVal32 = mcan->MCAN_CCCR;
-	while (0u == (regVal32 & MCAN_CCCR_INIT_ENABLED));
+	/* Reset the CC Control Register */
+	mcan->MCAN_CCCR = 0 | MCAN_CCCR_INIT_ENABLED;
 
-	/* Enable writing to configuration registers */
-	mcan->MCAN_CCCR = MCAN_CCCR_INIT_ENABLED | MCAN_CCCR_CCE_CONFIGURABLE;
+	MCAN_Disable(mcanConfig);
+	MCAN_Reconfigure(mcanConfig);
 
 	/* Global Filter Configuration: Reject remote frames, reject non-matching frames */
 	mcan->MCAN_GFC = MCAN_GFC_RRFE_REJECT | MCAN_GFC_RRFS_REJECT
@@ -617,16 +626,10 @@ void MCAN_Init(const MCan_ConfigType *mcanConfig)
 	mcan->MCAN_ILE = 0x00;
 	/* Clear all interrupt flags */
 	mcan->MCAN_IR = 0xFFCFFFFF;
-	/* Enable NVIC - but no interrupts will happen since all sources are
-	 * disabled in MCAN_IE */
-	NVIC_ClearPendingIRQ(mCanLine0Irq);
-	NVIC_EnableIRQ(mCanLine0Irq);
-	NVIC_ClearPendingIRQ((IRQn_Type) (mCanLine0Irq + 1));
-	NVIC_EnableIRQ((IRQn_Type) (mCanLine0Irq + 1));
 
 	/* Configure CAN bit timing */
-	mcan->MCAN_BTP = mcanConfig->bitTiming;
-	mcan->MCAN_FBTP = mcanConfig->fastBitTiming;
+	mcan->MCAN_NBTP = mcanConfig->bitTiming;
+	mcan->MCAN_DBTP = mcanConfig->fastBitTiming;
 
 	/* Configure message RAM starting addresses & sizes */
 	mcan->MCAN_SIDFC =
@@ -684,31 +687,45 @@ void MCAN_Init(const MCan_ConfigType *mcanConfig)
 	mcan->MCAN_NDAT1 = 0xFFFFFFFF;   /* clear new (rx) data flags */
 	mcan->MCAN_NDAT2 = 0xFFFFFFFF;   /* clear new (rx) data flags */
 
-	regVal32 = mcan->MCAN_CCCR & ~(MCAN_CCCR_CME_Msk | MCAN_CCCR_CMR_Msk);
-	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CME_ISO11898_1;
-	mcan->MCAN_CCCR =
-	    regVal32 | (MCAN_CCCR_CMR_ISO11898_1 | MCAN_CCCR_CME_ISO11898_1);
+	regVal32 = mcan->MCAN_CCCR & ~(MCAN_CCCR_BRSE | MCAN_CCCR_FDOE);
+	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_PXHD | MCAN_CCCR_BRSE_DISABLED
+	    | MCAN_CCCR_FDOE_DISABLED;
 
 	DSB();
 	ISB();
 }
 
-void MCAN_InitFdEnable(const MCan_ConfigType *mcanConfig)
+void MCAN_Reconfigure(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t regVal32;
 
-	regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CME_Msk;
-	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CME(1);
+	regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CCE;
+	assert((regVal32 & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_ENABLED);
+	/* Enable writing to configuration registers */
+	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CCE_CONFIGURABLE;
 }
 
-void MCAN_InitFdBitRateSwitchEnable(const MCan_ConfigType *mcanConfig)
+void MCAN_SetMode(const MCan_ConfigType *mcanConfig, enum mcan_can_mode mode)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t regVal32;
 
-	regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CME_Msk;
-	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CME(2);
+	regVal32 = mcan->MCAN_CCCR & ~(MCAN_CCCR_BRSE | MCAN_CCCR_FDOE);
+	switch (mode) {
+	case MCAN_MODE_CAN:
+		regVal32 |= MCAN_CCCR_BRSE_DISABLED | MCAN_CCCR_FDOE_DISABLED;
+		break;
+	case MCAN_MODE_EXT_LEN_CONST_RATE:
+		regVal32 |= MCAN_CCCR_BRSE_DISABLED | MCAN_CCCR_FDOE_ENABLED;
+		break;
+	case MCAN_MODE_EXT_LEN_DUAL_RATE:
+		regVal32 |= MCAN_CCCR_BRSE_ENABLED | MCAN_CCCR_FDOE_ENABLED;
+		break;
+	default:
+		return;
+	}
+	mcan->MCAN_CCCR = regVal32;
 }
 
 void MCAN_InitLoopback(const MCan_ConfigType *mcanConfig)
@@ -728,44 +745,35 @@ void MCAN_InitTxQueue(const MCan_ConfigType *mcanConfig)
 	mcan->MCAN_TXBC |= MCAN_TXBC_TFQM;
 }
 
-void MCAN_Enable(const MCan_ConfigType *mcanConfig)
+void MCAN_Enable(const MCan_ConfigType *cfg)
 {
-	Mcan *mcan = mcanConfig->pMCan;
-	mcan->MCAN_CCCR &= ~MCAN_CCCR_INIT_ENABLED;
-}
+	uint32_t index, val;
 
-void MCAN_RequestIso11898_1(const MCan_ConfigType *mcanConfig)
-{
-	Mcan *mcan = mcanConfig->pMCan;
-	uint32_t regVal32;
-
-	regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CMR_Msk;
-	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CMR_ISO11898_1;
-	while ((mcan->MCAN_CCCR & (MCAN_CCCR_FDBS | MCAN_CCCR_FDO)) != 0) ;
-}
-
-void MCAN_RequestFd(const MCan_ConfigType *mcanConfig)
-{
-	Mcan *mcan = mcanConfig->pMCan;
-	uint32_t regVal32;
-
-	if ((mcan->MCAN_CCCR & MCAN_CCCR_CME_Msk) == MCAN_CCCR_CME(1)) {
-		regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CMR_Msk;
-		mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CMR_FD;
-		while ((mcan->MCAN_CCCR & MCAN_CCCR_FDO) == 0) ;
+	/* Depending on bus condition, the HW may switch back to the
+	 * Initialization state, by itself. Therefore, upon timeout, return.
+	 * [Using an arbitrary timeout criterion.] */
+	for (index = 0; index < 1024; index++) {
+		val = cfg->pMCan->MCAN_CCCR;
+		if ((val & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_DISABLED)
+			break;
+		if (index == 0)
+			cfg->pMCan->MCAN_CCCR = (val & ~MCAN_CCCR_INIT)
+			    | MCAN_CCCR_INIT_DISABLED;
 	}
 }
 
-void MCAN_RequestFdBitRateSwitch(const MCan_ConfigType *mcanConfig)
+void MCAN_Disable(const MCan_ConfigType *cfg)
 {
-	Mcan *mcan = mcanConfig->pMCan;
-	uint32_t regVal32;
+	uint32_t val;
+	bool initial;
 
-	if ((mcan->MCAN_CCCR & MCAN_CCCR_CME_Msk) == MCAN_CCCR_CME(2)) {
-		regVal32 = mcan->MCAN_CCCR & ~MCAN_CCCR_CMR_Msk;
-		mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CMR_FD_BITRATE_SWITCH;
-		while ((mcan->MCAN_CCCR & (MCAN_CCCR_FDBS | MCAN_CCCR_FDO))
-		       != (MCAN_CCCR_FDBS | MCAN_CCCR_FDO)) ;
+	for (initial = true; true; initial = false) {
+		val = cfg->pMCan->MCAN_CCCR;
+		if ((val & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_ENABLED)
+			break;
+		if (initial)
+			cfg->pMCan->MCAN_CCCR = (val & ~MCAN_CCCR_INIT)
+			    | MCAN_CCCR_INIT_ENABLED;
 	}
 }
 
