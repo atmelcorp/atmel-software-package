@@ -259,6 +259,38 @@ extern void pmc_enable_ddr_clock(void);
  */
 extern void pmc_disable_ddr_clock(void);
 
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+/**
+ * \brief Configure the generated clock (GCK) for the given peripheral with the
+ * given master clock source and clock prescaler
+ * \param id Peripheral ID (ID_xxx)
+ * \param clock_source Clock source selection (one of the
+ * PMC_PCR_GCKCSS_xxx_CLK constants)
+ * \param prescaler Prescaler value
+ */
+extern void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div);
+
+/**
+ * \brief Enable generated clock for the given peripheral
+ * \param id Peripheral ID (ID_xxx)
+ */
+extern void pmc_enable_gck(uint32_t id);
+
+/**
+ * \brief Disable generated clock for the given peripheral
+ * \param id Peripheral ID (ID_xxx)
+ */
+extern void pmc_disable_gck(uint32_t id);
+
+/**
+ * \brief Get the frequency of the generated clock (GCK) for the given
+ * peripheral
+ * \param id Peripheral ID (ID_xxx)
+ * \return GCK Frequency in Hz
+ */
+extern uint32_t pmc_get_gck_clock(uint32_t id);
+#endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
+
 #ifdef __cplusplus
 }
 #endif

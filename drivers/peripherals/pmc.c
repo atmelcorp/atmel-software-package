@@ -545,3 +545,76 @@ void pmc_disable_ddr_clock(void)
 	PMC->PMC_SCDR |= PMC_SCER_DDRCK;
 	while (PMC->PMC_SCSR & PMC_SCSR_DDRCK);
 }
+
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
+{
+	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(!(clock_source & ~PMC_PCR_GCKCSS_Msk));
+	assert(!(div << PMC_PCR_GCKDIV_Pos & ~PMC_PCR_GCKDIV_Msk));
+
+	pmc_disable_gck(id);
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+	PMC->PMC_PCR = pcr | (clock_source & PMC_PCR_GCKCSS_Msk) | PMC_PCR_CMD
+	    | PMC_PCR_GCKDIV(div);
+}
+
+void pmc_enable_gck(uint32_t id)
+{
+	assert(id > 1 && id < ID_PERIPH_COUNT);
+
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_GCKEN;
+	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
+}
+
+void pmc_disable_gck(uint32_t id)
+{
+	assert(id > 1 && id < ID_PERIPH_COUNT);
+
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+	PMC->PMC_PCR = PMC_PCR_CMD | (pcr & ~PMC_PCR_GCKEN);
+	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
+}
+
+uint32_t pmc_get_gck_clock(uint32_t id)
+{
+	uint32_t clk = 0;
+	assert(id > 1 && id < ID_PERIPH_COUNT);
+
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+
+	switch (pcr & PMC_PCR_GCKCSS_Msk) {
+	case PMC_PCR_GCKCSS_SLOW_CLK:
+		clk = pmc_get_slow_clock();
+		break;
+	case PMC_PCR_GCKCSS_MAIN_CLK:
+		clk = pmc_get_main_clock();
+		break;
+	case PMC_PCR_GCKCSS_PLLA_CLK:
+		clk = pmc_get_plla_clock();
+		break;
+	case PMC_PCR_GCKCSS_UPLL_CLK:
+		//TODO: clk = pmc_get_upll_clock();
+		clk = 0;
+		break;
+	case PMC_PCR_GCKCSS_MCK_CLK:
+		clk = pmc_get_master_clock();
+		break;
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+	case PMC_PCR_GCKCSS_AUDIO_CLK:
+		//TODO: clk = pmc_get_audio_clock();
+		clk = 0;
+		break;
+#endif
+	}
+
+	uint32_t div = (pcr & PMC_PCR_GCKDIV_Msk) >> PMC_PCR_GCKDIV_Pos;
+	return ROUND_INT_DIV(clk, div + 1);
+}
+#endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
+
