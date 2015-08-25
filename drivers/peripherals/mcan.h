@@ -209,6 +209,12 @@ extern const MCan_ConfigType mcan0Config;
 extern const MCan_ConfigType mcan1Config;
 #endif
 
+static inline bool MCAN_IsEnabled(const MCan_ConfigType *mcanConfig)
+{
+	Mcan *mcan = mcanConfig->pMCan;
+	return ((mcan->MCAN_CCCR & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_DISABLED);
+}
+
 static inline uint32_t MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
