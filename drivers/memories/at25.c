@@ -124,6 +124,7 @@ static const struct _at25_desc at25_devices[] = {
 	{ "M25P16",      0x00152020,  2 * 1024 * 1024, 256, AT25_ERASE_64K },
 	{ "M25P32",      0x00162020,  4 * 1024 * 1024, 256, AT25_ERASE_64K },
 	{ "M25P64",      0x00172020,  8 * 1024 * 1024, 256, AT25_ERASE_64K },
+	{ "N25Q032",     0x0016BA20,  4 * 1024 * 1024, 256, AT25_ERASE_4K_64K },
 	{ "N25Q256",     0x0019BA20, 32 * 1024 * 1024, 256, AT25_ERASE_4K_64K },
 	/* Manufacturer: Windbond */
 	{ "W25X10",      0x001130EF,       128 * 1024, 256, AT25_ERASE_4K_64K },
