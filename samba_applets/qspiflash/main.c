@@ -57,6 +57,9 @@ struct input_init
 {
 	uint32_t comm_type;   /* Type of communication link used */
 	uint32_t trace_level; /* Trace level */
+	uint32_t instance;    /* QSPI instance (0, 1) */
+	uint32_t ioset;       /* QSPI IOSet (1, 2, 3) */
+	uint32_t freq;        /* QSPI Frequency */
 };
 
 /* Output arguments for the Init command. */
@@ -107,11 +110,35 @@ struct output_buffer_erase
 	uint32_t bytes_erased; /* Bytes erased */
 };
 
+/* Instance/IOSet PIO configuration */
+struct pio_definition
+{
+	uint32_t           instance;
+	uint32_t           ioset;
+	Qspi*              addr;
+	uint32_t           num_pins;
+	const struct _pin *pins;
+};
+
 /*----------------------------------------------------------------------------
  *         Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin qspiflash_pins[] = QSPIFLASH_PINS;
+static const struct _pin qspi0_ioset1[] = PINS_QSPI0_IOS1;
+static const struct _pin qspi0_ioset2[] = PINS_QSPI0_IOS2;
+static const struct _pin qspi0_ioset3[] = PINS_QSPI0_IOS3;
+static const struct _pin qspi1_ioset1[] = PINS_QSPI1_IOS1;
+static const struct _pin qspi1_ioset2[] = PINS_QSPI1_IOS2;
+static const struct _pin qspi1_ioset3[] = PINS_QSPI1_IOS3;
+
+static const struct pio_definition pio_definitions[] = {
+	{ 0, 1, QSPI0, ARRAY_SIZE(qspi0_ioset1), qspi0_ioset1 },
+	{ 0, 2, QSPI0, ARRAY_SIZE(qspi0_ioset2), qspi0_ioset2 },
+	{ 0, 3, QSPI0, ARRAY_SIZE(qspi0_ioset3), qspi0_ioset3 },
+	{ 1, 1, QSPI1, ARRAY_SIZE(qspi1_ioset1), qspi1_ioset1 },
+	{ 1, 2, QSPI1, ARRAY_SIZE(qspi1_ioset2), qspi1_ioset2 },
+	{ 1, 3, QSPI1, ARRAY_SIZE(qspi1_ioset3), qspi1_ioset3 },
+};
 
 /*----------------------------------------------------------------------------
  *         Local variables
@@ -127,6 +154,23 @@ static uint32_t buffer_size;
  *         Local functions
  *----------------------------------------------------------------------------*/
 
+static bool configure_instance_pio(uint32_t instance, uint32_t ioset, Qspi** addr)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(pio_definitions); i++) {
+		const struct pio_definition* def = &pio_definitions[i];
+		if (def->instance == instance && def->ioset == ioset) {
+			*addr = def->addr;
+			pio_configure(def->pins, def->num_pins);
+			return true;
+		}
+	}
+
+	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
+		(unsigned)instance, (unsigned)ioset);
+	return false;
+}
+
 static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 {
 	struct input_init *in = (struct input_init *)args;
@@ -140,26 +184,29 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 
 	trace_info_wp("\r\nApplet 'QSPI Flash' from softpack " SOFTPACK_VERSION ".\r\n");
 
-	/* unused for now */
-	(void)in;
+	Qspi* addr;
+	uint32_t baudrate = in->freq;
+	if (!configure_instance_pio(in->instance, in->ioset, &addr))
+		return APPLET_FAIL;
 
-	/* configure qspi flash pins */
-	pio_configure(qspiflash_pins, ARRAY_SIZE(qspiflash_pins));
+	trace_info_wp("Initializing QSPI%u IOSet%u at %uKHz\r\n",
+			(unsigned)in->instance, (unsigned)in->ioset,
+			(unsigned)ROUND_INT_DIV(in->freq, 1000));
 
 	/* initialize the QSPI */
-	qspi_initialize(QSPIFLASH_ADDR);
-	qspi_set_baudrate(QSPIFLASH_ADDR, QSPIFLASH_BAUDRATE);
+	qspi_initialize(addr);
+	qspi_set_baudrate(addr, baudrate);
 
 	/* initialize the QSPI flash */
-	if (!qspiflash_configure(&flash, QSPIFLASH_ADDR)) {
-		trace_info_wp("Error while detecting QSPI flash chip\r\n");
+	if (!qspiflash_configure(&flash, addr)) {
+		trace_error_wp("Error while detecting QSPI flash chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 
 	trace_info_wp("QSPI flash drivers initialized\r\n");
 
 	if (!flash.desc.jedec_id) {
-		trace_info_wp("Device Unknown\r\n");
+		trace_error_wp("Device Unknown\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 	else {
@@ -176,7 +223,7 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 		/* round buffer size to a multiple of page_size */
 		buffer_size = buffer_size & ~(page_size - 1);
 		if (buffer_size < page_size || buffer_size > MAX_BUFFER_SIZE) {
-			trace_info_wp("Not enough memory for transfer buffer\r\n");
+			trace_error_wp("Not enough memory for transfer buffer\r\n");
 			return APPLET_FAIL;
 		}
 

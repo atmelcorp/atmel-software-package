@@ -57,7 +57,9 @@ struct input_init
 {
 	uint32_t comm_type;   /* Type of communication link used */
 	uint32_t trace_level; /* Trace level */
-	uint32_t at25_idx;    /* Serial flash index */
+	uint32_t instance;    /* SPI instance (0, 1) */
+	uint32_t ioset;       /* SPI IOSet (1, 2, 3) */
+	uint32_t freq;        /* SPI Frequency */
 };
 
 /* Output arguments for the Init command. */
@@ -108,11 +110,45 @@ struct output_buffer_erase
 	uint32_t bytes_erased; /* Bytes erased */
 };
 
+/* Instance/IOSet PIO configuration */
+struct pio_definition
+{
+	uint32_t           instance;
+	uint32_t           ioset;
+	Spi*               addr;
+	uint32_t           num_pins;
+	const struct _pin *pins;
+};
+
 /*----------------------------------------------------------------------------
  *         Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin at25_pins[] = AT25_PINS;
+#if defined(CONFIG_SOC_SAMA5D2)
+static const struct _pin spi0_ioset1[] = PINS_SPI0_NPCS0_IOS1;
+static const struct _pin spi0_ioset2[] = PINS_SPI0_NPCS0_IOS2;
+static const struct _pin spi1_ioset1[] = PINS_SPI1_NPCS0_IOS1;
+static const struct _pin spi1_ioset2[] = PINS_SPI1_NPCS0_IOS2;
+static const struct _pin spi1_ioset3[] = PINS_SPI1_NPCS0_IOS3;
+
+static const struct pio_definition pio_definitions[] = {
+	{ 0, 1, SPI0, ARRAY_SIZE(spi0_ioset1), spi0_ioset1 },
+	{ 0, 2, SPI0, ARRAY_SIZE(spi0_ioset2), spi0_ioset2 },
+	{ 1, 1, SPI1, ARRAY_SIZE(spi1_ioset1), spi1_ioset1 },
+	{ 1, 2, SPI1, ARRAY_SIZE(spi1_ioset2), spi1_ioset2 },
+	{ 1, 3, SPI1, ARRAY_SIZE(spi1_ioset3), spi1_ioset3 },
+};
+#elif defined(CONFIG_SOC_SAMA5D4)
+static const struct _pin spi0_ioset1[] = PINS_SPI0_NPCS0;
+static const struct _pin spi1_ioset1[] = PINS_SPI1_NPCS0;
+
+static const struct pio_definition pio_definitions[] = {
+	{ 0, 1, SPI0, ARRAY_SIZE(spi0_ioset1), spi0_ioset1 },
+	{ 1, 1, SPI1, ARRAY_SIZE(spi1_ioset1), spi1_ioset1 },
+};
+#else
+#error Unsupported SOC!
+#endif
 
 /*----------------------------------------------------------------------------
  *         Local variables
@@ -121,14 +157,12 @@ static const struct _pin at25_pins[] = AT25_PINS;
 static struct _at25 at25drv;
 
 static struct _spi_desc spi_at25_desc = {
-	.addr           = AT25_ADDR,
-	.bitrate        = AT25_FREQ,
-	.attributes     = AT25_ATTRS,
-	.dlybs          = AT25_DLYBS,
-	.dlybct         = AT25_DLYCT,
+	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
+	.dlybs          = 0,
+	.dlybct         = 0,
 	.mutex          = 1,
-	.chip_select    = AT25_CS,
-	.spi_mode       = AT25_SPI_MODE,
+	.chip_select    = 0,
+	.spi_mode       = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT,
 	.transfert_mode = SPID_MODE_FIFO,
 };
 
@@ -139,6 +173,23 @@ static uint32_t buffer_size;
 /*----------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
+
+static bool configure_instance_pio(uint32_t instance, uint32_t ioset, Spi** addr)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(pio_definitions); i++) {
+		const struct pio_definition* def = &pio_definitions[i];
+		if (def->instance == instance && def->ioset == ioset) {
+			*addr = def->addr;
+			pio_configure(def->pins, def->num_pins);
+			return true;
+		}
+	}
+
+	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
+		(unsigned)instance, (unsigned)ioset);
+	return false;
+}
 
 static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 {
@@ -154,11 +205,13 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
-	/* unused for now */
-	(void)in;
+	spi_at25_desc.bitrate = ROUND_INT_DIV(in->freq, 1000);
+	if (!configure_instance_pio(in->instance, in->ioset, &spi_at25_desc.addr))
+		return APPLET_FAIL;
 
-	/* configure spi serial flash pins */
-        pio_configure(at25_pins, ARRAY_SIZE(at25_pins));
+	trace_info_wp("Initializing SPI%u IOSet%u at %uKHz\r\n",
+			(unsigned)in->instance, (unsigned)in->ioset,
+			(unsigned)spi_at25_desc.bitrate);
 
 	/* initialize the SPI and serial flash */
 	if (at25_configure(&at25drv, &spi_at25_desc) != AT25_SUCCESS) {
