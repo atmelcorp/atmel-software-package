@@ -81,26 +81,6 @@ typedef enum
 
 typedef enum
 {
-	CAN_DLC_0 = 0,
-	CAN_DLC_1 = 1,
-	CAN_DLC_2 = 2,
-	CAN_DLC_3 = 3,
-	CAN_DLC_4 = 4,
-	CAN_DLC_5 = 5,
-	CAN_DLC_6 = 6,
-	CAN_DLC_7 = 7,
-	CAN_DLC_8 = 8,
-	CAN_DLC_12 = 9,
-	CAN_DLC_16 = 10,
-	CAN_DLC_20 = 11,
-	CAN_DLC_24 = 12,
-	CAN_DLC_32 = 13,
-	CAN_DLC_48 = 14,
-	CAN_DLC_64 = 15
-} MCan_DlcType;
-
-typedef enum
-{
 	CAN_FIFO_0 = 0,
 	CAN_FIFO_1 = 1
 } MCan_FifoType;
@@ -361,10 +341,11 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(
  * \param buffer  Index of the transmit buffer to be used.
  * \param id  Message ID.
  * \param idType  Type of ID.
- * \param dlc  Type of DLC.
+ * \param len  Data length, in bytes.
+ * \return Address of data byte 0, part of the transmit buffer.
  */
 uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
-    uint8_t buffer, uint32_t id, MCan_IdType idType, MCan_DlcType dlc);
+    uint8_t buffer, uint32_t id, MCan_IdType idType, uint8_t len);
 
 /**
  * \brief Send TX buffer.
@@ -379,11 +360,11 @@ void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig,
  * \param mcanConfig  Pointer to a MCAN instance.
  * \param id  Message ID.
  * \param idType  Type of ID.
- * \param dlc  Type of DLC.
+ * \param len  Data length, in bytes.
  * \param data  Pointer to data.
  */
 uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
-    uint32_t id, MCan_IdType idType, MCan_DlcType dlc, uint8_t *data);
+    uint32_t id, MCan_IdType idType, uint8_t len, const uint8_t *data);
 
 /**
  * \brief Check if data transmitted from buffer/FIFO/queue.

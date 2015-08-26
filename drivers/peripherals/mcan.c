@@ -53,6 +53,26 @@
  *      Definitions
  *---------------------------------------------------------------------------*/
 
+enum mcan_dlc
+{
+	CAN_DLC_0 = 0,
+	CAN_DLC_1 = 1,
+	CAN_DLC_2 = 2,
+	CAN_DLC_3 = 3,
+	CAN_DLC_4 = 4,
+	CAN_DLC_5 = 5,
+	CAN_DLC_6 = 6,
+	CAN_DLC_7 = 7,
+	CAN_DLC_8 = 8,
+	CAN_DLC_12 = 9,
+	CAN_DLC_16 = 10,
+	CAN_DLC_20 = 11,
+	CAN_DLC_24 = 12,
+	CAN_DLC_32 = 13,
+	CAN_DLC_48 = 14,
+	CAN_DLC_64 = 15
+};
+
 #define MAILBOX_ADDRESS(address)      (0xFFFC & (address))
 
 #define CAN_CLK_FREQ_HZ               MCAN_PROG_CLK_FREQ_HZ
@@ -570,13 +590,35 @@ const MCan_ConfigType mcan1Config = {
  *---------------------------------------------------------------------------*/
 
 /**
+ * \brief Convert data length to Data Length Code.
+ * \param len  length, in bytes
+ * \return The matching CAN_DLC_xx enum value.
+ */
+static enum mcan_dlc get_length_code(uint8_t len)
+{
+	if (len <= 8)
+		return (enum mcan_dlc)len;
+	if (len % 4)
+		return CAN_DLC_0;
+	len /= 4;
+	if (len <= 6)
+		return (enum mcan_dlc)(len + 6);
+	if (len % 4)
+		return CAN_DLC_0;
+	len /= 4;
+	if (len <= 4)
+		return (enum mcan_dlc)(len + 11);
+	return CAN_DLC_0;
+}
+
+/**
  * \brief Convert Data Length Code to actual data length.
  * \param dlc  CAN_DLC_xx enum value
  * \return Data length, expressed in bytes.
  */
-static uint8_t get_data_length(MCan_DlcType dlc)
+static uint8_t get_data_length(enum mcan_dlc dlc)
 {
-	assert(dlc >= CAN_DLC_0 && dlc <= CAN_DLC_64);
+	assert((dlc == CAN_DLC_0 || dlc > CAN_DLC_0) && dlc <= CAN_DLC_64);
 
 	if (dlc <= CAN_DLC_8)
 		return (uint8_t)dlc;
@@ -841,12 +883,16 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(const MCan_ConfigType *mcanConfig,
 
 uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 				 uint8_t buffer, uint32_t id,
-				 MCan_IdType idType, MCan_DlcType dlc)
+				 MCan_IdType idType, uint8_t len)
 {
+	assert(len <= (uint8_t)
+	    ((mcanConfig->txBufElmtSize & ELMT_SIZE_MASK) - 2) * 4);
+
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t *pThisTxBuf = 0;
 	uint32_t val;
 	const enum mcan_can_mode mode = MCAN_GetMode(mcanConfig);
+	const enum mcan_dlc dlc = get_length_code(len);
 
 	if (buffer < mcanConfig->nmbrTxDedBufElmts) {
 		pThisTxBuf = mcanConfig->msgRam.pTxDedBuf +
@@ -882,13 +928,17 @@ void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buffer)
 }
 
 uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
-			   uint32_t id, MCan_IdType idType, MCan_DlcType dlc,
-			   uint8_t *data)
+			   uint32_t id, MCan_IdType idType, uint8_t len,
+			   const uint8_t *data)
 {
+	assert(len <= (uint8_t)
+	    ((mcanConfig->txBufElmtSize & ELMT_SIZE_MASK) - 2) * 4);
+
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t putIdx = 255, val;
 	uint32_t *pThisTxBuf = 0;
 	const enum mcan_can_mode mode = MCAN_GetMode(mcanConfig);
+	const enum mcan_dlc dlc = get_length_code(len);
 
 	/* Configured for FifoQ and FifoQ not full? */
 	if ((mcanConfig->nmbrTxFifoQElmts > 0) &&
@@ -909,7 +959,7 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 		else if (mode == MCAN_MODE_EXT_LEN_DUAL_RATE)
 			val |= BUFFER_ELEM_FDF | BUFFER_ELEM_BRS;
 		*pThisTxBuf++ = val;
-		memcpy(pThisTxBuf, data, get_data_length(dlc));
+		memcpy(pThisTxBuf, data, len);
 		/* enable transmit from buffer to set TC interrupt bit in IR,
 		 * but interrupt will not happen unless TC interrupt is enabled
 		 */
@@ -919,7 +969,7 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 	}
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
-	return putIdx;   /* now it points to the data field */
+	return putIdx;
 }
 
 uint8_t MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buffer)
