@@ -101,6 +101,7 @@
 #define AT25_MANUF_WINBOND        0xEFu
 #define AT25_MANUF_MACRONIX       0xC2u
 #define AT25_MANUF_SST            0xBFu
+#define AT25_MANUF_SPANSION       0x01u
 
 #define AT25_ADDRESS_4_BYTES      0x4Bu
 #define AT25_ADDRESS_3_BYTES      0x3Bu
@@ -112,6 +113,7 @@
 #define AT25_ERASE_4K             0x1u
 #define AT25_ERASE_32K            0x2u
 #define AT25_ERASE_64K            0x4u
+#define AT25_ERASE_256K           0x8u
 
 /** Describes a serial firmware flash device parameters. */
 struct _at25_desc {
