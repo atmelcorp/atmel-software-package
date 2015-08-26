@@ -47,6 +47,7 @@
 #include "cortex-a/cp15.h"
 
 #include <assert.h>
+#include <string.h>
 
 /*---------------------------------------------------------------------------
  *      Definitions
@@ -404,6 +405,8 @@
 #define BUFFER_XTD_MASK               (0x40000000)
 #define BUFFER_EXT_ID_MASK            (0x1FFFFFFF)
 #define BUFFER_STD_ID_MASK            (0x1FFC0000)
+#define BUFFER_ELEM_FDF               (0x1u << 21)
+#define BUFFER_ELEM_BRS               (0x1u << 20)
 #define BUFFER_DLC_MASK               (0x000F0000)
 #define BUFFER_RXTS_MASK              (0x0000FFFF)
 
@@ -561,6 +564,26 @@ const MCan_ConfigType mcan1Config = {
 	},
 };
 #endif
+
+/*---------------------------------------------------------------------------
+ *        Local functions
+ *---------------------------------------------------------------------------*/
+
+/**
+ * \brief Convert Data Length Code to actual data length.
+ * \param dlc  CAN_DLC_xx enum value
+ * \return Data length, expressed in bytes.
+ */
+static uint8_t get_data_length(MCan_DlcType dlc)
+{
+	assert(dlc >= CAN_DLC_0 && dlc <= CAN_DLC_64);
+
+	if (dlc <= CAN_DLC_8)
+		return (uint8_t)dlc;
+	if (dlc <= CAN_DLC_24)
+		return ((uint8_t)dlc - 6) * 4;
+	return ((uint8_t)dlc - 11) * 16;
+}
 
 /*---------------------------------------------------------------------------
  *      Exported Functions
@@ -822,6 +845,8 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t *pThisTxBuf = 0;
+	uint32_t val;
+	const enum mcan_can_mode mode = MCAN_GetMode(mcanConfig);
 
 	if (buffer < mcanConfig->nmbrTxDedBufElmts) {
 		pThisTxBuf = mcanConfig->msgRam.pTxDedBuf +
@@ -832,7 +857,12 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 		else
 			*pThisTxBuf++ =
 			    BUFFER_XTD_MASK | (id & CAN_29_BIT_ID_MASK);
-		*pThisTxBuf++ = (uint32_t) dlc << 16;
+		val = (uint32_t)dlc << 16;
+		if (mode == MCAN_MODE_EXT_LEN_CONST_RATE)
+			val |= BUFFER_ELEM_FDF;
+		else if (mode == MCAN_MODE_EXT_LEN_DUAL_RATE)
+			val |= BUFFER_ELEM_FDF | BUFFER_ELEM_BRS;
+		*pThisTxBuf++ = val;
 		/* enable transmit from buffer to set TC interrupt bit in IR,
 		 * but interrupt will not happen unless TC interrupt is enabled
 		 */
@@ -856,10 +886,9 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 			   uint8_t *data)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	uint32_t putIdx = 255;
+	uint32_t putIdx = 255, val;
 	uint32_t *pThisTxBuf = 0;
-	uint8_t *pTxData;
-	uint8_t cnt;
+	const enum mcan_can_mode mode = MCAN_GetMode(mcanConfig);
 
 	/* Configured for FifoQ and FifoQ not full? */
 	if ((mcanConfig->nmbrTxFifoQElmts > 0) &&
@@ -874,10 +903,13 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 		else
 			*pThisTxBuf++ =
 			    BUFFER_XTD_MASK | (id & CAN_29_BIT_ID_MASK);
-		*pThisTxBuf++ = (uint32_t) dlc << 16;
-		pTxData = (uint8_t *)pThisTxBuf;
-		for (cnt = 0; cnt < dlc; cnt++)
-			*pTxData++ = *data++;
+		val = (uint32_t)dlc << 16;
+		if (mode == MCAN_MODE_EXT_LEN_CONST_RATE)
+			val |= BUFFER_ELEM_FDF;
+		else if (mode == MCAN_MODE_EXT_LEN_DUAL_RATE)
+			val |= BUFFER_ELEM_FDF | BUFFER_ELEM_BRS;
+		*pThisTxBuf++ = val;
+		memcpy(pThisTxBuf, data, get_data_length(dlc));
 		/* enable transmit from buffer to set TC interrupt bit in IR,
 		 * but interrupt will not happen unless TC interrupt is enabled
 		 */
@@ -993,10 +1025,10 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 			 uint8_t buffer, Mailbox64Type *pRxMailbox)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	uint32_t *pThisRxBuf = 0;
+	const uint32_t *pThisRxBuf = 0;
 	uint32_t tempRy;   /* temp copy of RX buffer word */
-	uint8_t *pRxData;
-	uint8_t idx;
+	const uint8_t buf_elem_data_size = (uint8_t)((mcanConfig->rxBufElmtSize
+	    & ELMT_SIZE_MASK) - 2) * 4;
 
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
@@ -1013,12 +1045,13 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 			pRxMailbox->info.id =
 			    (tempRy & BUFFER_STD_ID_MASK) >> 18;
 		tempRy = *pThisRxBuf++;   /* word R1 contains DLC & time stamp */
-		pRxMailbox->info.length = (tempRy & BUFFER_DLC_MASK) >> 16;
+		pRxMailbox->info.length =
+		    get_data_length((tempRy & BUFFER_DLC_MASK) >> 16);
+		if (pRxMailbox->info.length > buf_elem_data_size)
+			pRxMailbox->info.length = buf_elem_data_size;
 		pRxMailbox->info.timestamp = tempRy & BUFFER_RXTS_MASK;
 		/* copy the data from the buffer to the mailbox */
-		pRxData = (uint8_t *) pThisRxBuf;
-		for (idx = 0; idx < pRxMailbox->info.length; idx++)
-			pRxMailbox->data[idx] = *pRxData++;
+		memcpy(pRxMailbox->data, pThisRxBuf, pRxMailbox->info.length);
 		/* clear the new data flag for the buffer */
 		if (buffer < 32)
 			mcan->MCAN_NDAT1 = (1 << buffer);
@@ -1033,8 +1066,7 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t *pThisRxBuf = 0;
 	uint32_t tempRy;   /* temp copy of RX buffer word */
-	uint8_t *pRxData;
-	uint8_t idx;
+	uint8_t buf_elem_data_size;
 	uint32_t *fifo_ack_reg;
 	uint32_t get_index;
 	uint32_t fill_level;
@@ -1063,6 +1095,7 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 		element_size = mcanConfig->rxFifo1ElmtSize & ELMT_SIZE_MASK;
 		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF1A;
 	}
+	buf_elem_data_size = (uint8_t)(element_size - 2) * 4;
 
 	if (fill_level > 0) {
 		pThisRxBuf = pThisRxBuf + (get_index * element_size);
@@ -1075,12 +1108,13 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 			pRxMailbox->info.id =
 			    (tempRy & BUFFER_STD_ID_MASK) >> 18;
 		tempRy = *pThisRxBuf++;   /* word R1 contains DLC & timestamps */
-		pRxMailbox->info.length = (tempRy & BUFFER_DLC_MASK) >> 16;
+		pRxMailbox->info.length =
+		    get_data_length((tempRy & BUFFER_DLC_MASK) >> 16);
+		if (pRxMailbox->info.length > buf_elem_data_size)
+			pRxMailbox->info.length = buf_elem_data_size;
 		pRxMailbox->info.timestamp = tempRy & BUFFER_RXTS_MASK;
 		/* copy the data from the buffer to the mailbox */
-		pRxData = (uint8_t *) pThisRxBuf;
-		for (idx = 0; idx < pRxMailbox->info.length; idx++)
-			pRxMailbox->data[idx] = *pRxData++;
+		memcpy(pRxMailbox->data, pThisRxBuf, pRxMailbox->info.length);
 		/* acknowledge reading the fifo entry */
 		*fifo_ack_reg = get_index;
 		/* return entries remaining in FIFO */
