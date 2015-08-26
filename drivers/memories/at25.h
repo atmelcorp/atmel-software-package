@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _AT25DFX_HEADER_
-#define _AT25DFX_HEADER_
+#ifndef _AT25_H
+#define _AT25_H
 
 //------------------------------------------------------------------------------
 //         Headers
@@ -89,68 +89,29 @@
 /** Sector protection registers are locked. */
 #define AT25_STATUS_SPRL_LOCKED     (1 << 7)
 
-/** Read array command code. */
-#define AT25_READ_ARRAY             0x0B
-/** Read array (low frequency) command code. */
-#define AT25_READ_ARRAY_LF          0x03
-/** Block erase command code (4K block). */
-#define AT25_BLOCK_ERASE_4K         0x20
-/** Block erase command code (32K block). */
-#define AT25_BLOCK_ERASE_32K        0x52
-/** Block erase command code (64K block). */
-#define AT25_BLOCK_ERASE_64K        0xD8
-/** Chip erase command code 1. */
-#define AT25_CHIP_ERASE_1           0x60
-/** Chip erase command code 2. */
-#define AT25_CHIP_ERASE_2           0xC7
-/** Byte/page program command code. */
-#define AT25_BYTE_PAGE_PROGRAM      0x02
-/** Sequential program mode command code 1. */
-#define AT25_SEQUENTIAL_PROGRAM_1   0xAD
-/** Sequential program mode command code 2. */
-#define AT25_SEQUENTIAL_PROGRAM_2   0xAF
-/** Write enable command code. */
-#define AT25_WRITE_ENABLE           0x06
-/** Write disable command code. */
-#define AT25_WRITE_DISABLE          0x04
-/** Protect sector command code. */
-#define AT25_PROTECT_SECTOR         0x36
-/** Unprotect sector command code. */
-#define AT25_UNPROTECT_SECTOR       0x39
-/** Read sector protection registers command code. */
-#define AT25_READ_SECTOR_PROT       0x3C
-/** Read status register command code. */
-#define AT25_READ_STATUS            0x05
-/** Write status register command code. */
-#define AT25_WRITE_STATUS           0x01
-/** Read manufacturer and device ID command code. */
-#define AT25_READ_JEDEC_ID          0x9F
-/** Deep power-down command code. */
-#define AT25_DEEP_PDOWN             0xB9
-/** Resume from deep power-down command code. */
-#define AT25_RES_DEEP_PDOWN         0xAB
+/* SPI Flash JEDEC ID */
+#define AT25_JEDEC_MANUF(jedec_id)   (((jedec_id) & 0x0000FFu) >> 0)
+#define AT25_JEDEC_DENSITY(jedec_id) (((jedec_id) & 0x001F00u) >> 8)
+#define AT25_JEDEC_FAMILY(jedec_id)  (((jedec_id) & 0x00E000u) >> 13)
+#define AT25_JEDEC_VERSION(jedec_id) (((jedec_id) & 0x1F0000u) >> 16)
+#define AT25_JEDEC_SUBCODE(jedec_id) (((jedec_id) & 0xE00000u) >> 21)
 
-/* Enter 4-BYTE ADDRESS mode  */
-#define AT25_ENTER_4ADDR_MODE       0xB7
-/* Exit 4-BYTE ADDRESS mode  */
-#define AT25_EXIT_4ADDR_MODE        0xE9
+#define AT25_MANUF_ATMEL          0x1Fu
+#define AT25_MANUF_ST             0x20u
+#define AT25_MANUF_WINBOND        0xEFu
+#define AT25_MANUF_MACRONIX       0xC2u
+#define AT25_MANUF_SST            0xBFu
 
-/** SPI Flash Manufacturer JEDEC ID */
-#define AT25_MANUF_ATMEL            0x1F
-#define AT25_MANUF_ST               0x20
-#define AT25_MANUF_WINBOND          0xEF
-#define AT25_MANUF_MACRONIX         0xC2
-#define AT25_MANUF_SST              0xBF
+#define AT25_ADDRESS_4_BYTES      0x4Bu
+#define AT25_ADDRESS_3_BYTES      0x3Bu
 
-#define AT25_ADDRESS_4_BYTES        0x4B
-#define AT25_ADDRESS_3_BYTES        0x3B
-#define AT25_SUCCESS                0x0
-#define AT25_DEVICE_NOT_SUPPORTED   0xF
-#define AT25_ADDR_OOB               0xB
+#define AT25_SUCCESS              0x0u
+#define AT25_DEVICE_NOT_SUPPORTED 0xFu
+#define AT25_ADDR_OOB             0xBu
 
-#define AT25_SUPPORT_ERASE_4K       0x1u
-#define AT25_SUPPORT_ERASE_32K      0x2u
-#define AT25_SUPPORT_ERASE_64K      0x4u
+#define AT25_ERASE_4K             0x1u
+#define AT25_ERASE_32K            0x2u
+#define AT25_ERASE_64K            0x4u
 
 /** Describes a serial firmware flash device parameters. */
 struct _at25_desc {
@@ -163,10 +124,8 @@ struct _at25_desc {
 	uint32_t size;
 	/** Size of one page in bytes. */
 	uint32_t page_size;
-	/** Block erase size in bytes. */
-	uint32_t block_size;
-	/** Block erase command. */
-	uint8_t block_erase_cmd;
+	/** Block erase supported (bitfield). */
+	uint8_t erase_support;
 };
 
 struct _at25 {
@@ -198,22 +157,8 @@ extern uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 extern uint32_t at25_write(struct _at25* at25, uint32_t addr,
 			   const uint8_t* data, uint32_t length);
 
-/**
- * \brief Exit 4-bytes address mode
- *
- * \param at25  Pointer to an AT25 driver instance.
- */
-extern void at25_enter_4addr_mode(struct _at25* at25);
-
-/**
- * \brief Exit 4-bytes address mode
- *
- * \param at25  Pointer to an AT25 driver instance.
- */
-extern void at25_exit_4addr_mode(struct _at25* at25);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AT25DFX_HEADER_ */
+#endif /* _AT25_H */

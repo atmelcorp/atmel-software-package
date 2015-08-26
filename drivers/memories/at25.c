@@ -27,6 +27,10 @@
  * ----------------------------------------------------------------------------
  */
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
@@ -40,53 +44,106 @@
 #include <stdio.h>
 #include <assert.h>
 
+/*----------------------------------------------------------------------------
+ *        Local Constants
+ *----------------------------------------------------------------------------*/
+
+/** Read array command code. */
+#define CMD_READ_ARRAY             0x0B
+/** Read array (low frequency) command code. */
+#define CMD_READ_ARRAY_LF          0x03
+/** Block erase command code (4K block). */
+#define CMD_BLOCK_ERASE_4K         0x20
+/** Block erase command code (32K block). */
+#define CMD_BLOCK_ERASE_32K        0x52
+/** Block erase command code (64K block). */
+#define CMD_BLOCK_ERASE_64K        0xD8
+/** Chip erase command code 1. */
+#define CMD_CHIP_ERASE_1           0x60
+/** Chip erase command code 2. */
+#define CMD_CHIP_ERASE_2           0xC7
+/** Byte/page program command code. */
+#define CMD_BYTE_PAGE_PROGRAM      0x02
+/** Sequential program mode command code 1. */
+#define CMD_SEQUENTIAL_PROGRAM_1   0xAD
+/** Sequential program mode command code 2. */
+#define CMD_SEQUENTIAL_PROGRAM_2   0xAF
+/** Write enable command code. */
+#define CMD_WRITE_ENABLE           0x06
+/** Write disable command code. */
+#define CMD_WRITE_DISABLE          0x04
+/** Protect sector command code. */
+#define CMD_PROTECT_SECTOR         0x36
+/** Unprotect sector command code. */
+#define CMD_UNPROTECT_SECTOR       0x39
+/** Read sector protection registers command code. */
+#define CMD_READ_SECTOR_PROT       0x3C
+/** Read status register command code. */
+#define CMD_READ_STATUS            0x05
+/** Write status register command code. */
+#define CMD_WRITE_STATUS           0x01
+/** Read manufacturer and device ID command code. */
+#define CMD_READ_JEDEC_ID          0x9F
+/** Deep power-down command code. */
+#define CMD_DEEP_PDOWN             0xB9
+/** Resume from deep power-down command code. */
+#define CMD_RES_DEEP_PDOWN         0xAB
+
+/* Enter 4-BYTE ADDRESS mode  */
+#define CMD_ENTER_4ADDR_MODE       0xB7
+/* Exit 4-BYTE ADDRESS mode  */
+#define CMD_EXIT_4ADDR_MODE        0xE9
+
 #define MODE_3B_MAX_SIZE    16*1024*1024
 
-#define AT25_ERASE_4_32_64 (AT25_SUPPORT_ERASE_4K | AT25_SUPPORT_ERASE_32K \
-			    | AT25_SUPPORT_ERASE_64K)
+#define AT25_ERASE_4K_32K_64K (AT25_ERASE_4K | AT25_ERASE_32K | AT25_ERASE_64K)
 
 /** Array of recognized serial firmware dataflash chips. */
 static const struct _at25_desc at25_devices[] = {
-	/* name,        Jedec ID,       size,  page size, block size, block erase command */
-	{"AT25DF041A" , 0x0001441F,      512 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT25DF161"  , 0x0002461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT26DF081A" , 0x0001451F, 1 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT26DF0161" , 0x0000461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT26DF161A" , 0x0001461F, 2 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT25DF321"  , 0x0000471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_32_64},
-	{"AT25DF321A" , 0x0001471F, 4 * 1024 * 1024, 256,  4 * 1024, AT25_ERASE_4_32_64},
-	{"AT25DF512B" , 0x0001651F,       64 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT25DF512B" , 0x0000651F,       64 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT25DF021"  , 0x0000431F,      256 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"AT26DF641"  , 0x0000481F, 8 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
+	/* name,        Jedec ID,       size,  page size, erase support */
+	{"AT25DF041A" , 0x0001441F,      512 * 1024, 256, AT25_ERASE_4K},
+	{"AT25DF161"  , 0x0002461F, 2 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"AT26DF081A" , 0x0001451F, 1 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"AT26DF0161" , 0x0000461F, 2 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"AT26DF161A" , 0x0001461F, 2 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"AT25DF321"  , 0x0000471F, 4 * 1024 * 1024, 256, AT25_ERASE_4K_32K_64K},
+	{"AT25DF321A" , 0x0001471F, 4 * 1024 * 1024, 256, AT25_ERASE_4K_32K_64K},
+	{"AT25DF512B" , 0x0001651F,       64 * 1024, 256, AT25_ERASE_4K},
+	{"AT25DF512B" , 0x0000651F,       64 * 1024, 256, AT25_ERASE_4K},
+	{"AT25DF021"  , 0x0000431F,      256 * 1024, 256, AT25_ERASE_4K},
+	{"AT26DF641"  , 0x0000481F, 8 * 1024 * 1024, 256, AT25_ERASE_4K},
 	/* Manufacturer: ST */
-	{"M25P05"     , 0x00102020,       64 * 1024, 256, 32 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P10"     , 0x00112020,      128 * 1024, 256, 32 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P20"     , 0x00122020,      256 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P40"     , 0x00132020,      512 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P80"     , 0x00142020, 1 * 1024 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P16"     , 0x00152020, 2 * 1024 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P32"     , 0x00162020, 4 * 1024 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"M25P64"     , 0x00172020, 8 * 1024 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
+	{"M25P05"     , 0x00102020,       64 * 1024, 256, AT25_ERASE_64K},
+	{"M25P10"     , 0x00112020,      128 * 1024, 256, AT25_ERASE_64K},
+	{"M25P20"     , 0x00122020,      256 * 1024, 256, AT25_ERASE_64K},
+	{"M25P40"     , 0x00132020,      512 * 1024, 256, AT25_ERASE_64K},
+	{"M25P80"     , 0x00142020, 1 * 1024 * 1024, 256, AT25_ERASE_64K},
+	{"M25P16"     , 0x00152020, 2 * 1024 * 1024, 256, AT25_ERASE_64K},
+	{"M25P32"     , 0x00162020, 4 * 1024 * 1024, 256, AT25_ERASE_64K},
+	{"M25P64"     , 0x00172020, 8 * 1024 * 1024, 256, AT25_ERASE_64K},
 	/* Manufacturer: Windbond */
-	{"W25X10"     , 0x001130EF,      128 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"W25X20"     , 0x001230EF,      256 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"W25X40"     , 0x001330EF,      512 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"W25X80"     , 0x001430EF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"W25Q256"    , 0x001940EF, 32* 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
+	{"W25X10"     , 0x001130EF,      128 * 1024, 256, AT25_ERASE_4K},
+	{"W25X20"     , 0x001230EF,      256 * 1024, 256, AT25_ERASE_4K},
+	{"W25X40"     , 0x001330EF,      512 * 1024, 256, AT25_ERASE_4K},
+	{"W25X80"     , 0x001430EF, 1 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"W25Q256"    , 0x001940EF, 32* 1024 * 1024, 256, AT25_ERASE_4K},
 	/* Manufacturer: Macronix */
-	{"MX25L512"   , 0x001020C2,       64 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"MX25L3205"  , 0x001620C2, 4 * 1024 * 1024, 256, 64 * 1024, AT25_SUPPORT_ERASE_64K},
-	{"MX25L6405"  , 0x001720C2, 8 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"MX25L8005"  , 0x001420C2,     1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
+	{"MX25L512"   , 0x001020C2,       64 * 1024, 256, AT25_ERASE_4K},
+	{"MX25L3205"  , 0x001620C2, 4 * 1024 * 1024, 256, AT25_ERASE_64K},
+	{"MX25L6405"  , 0x001720C2, 8 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"MX25L8005"  , 0x001420C2,     1024 * 1024, 256, AT25_ERASE_4K},
 	/* Other */
-	{"SST25VF040" , 0x008D25BF,      512 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"SST25VF080" , 0x008E25BF, 1 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"SST25VF032" , 0x004A25BF, 4 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
-	{"SST25VF064" , 0x004B25BF, 8 * 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K},
+	{"SST25VF040" , 0x008D25BF,      512 * 1024, 256, AT25_ERASE_4K},
+	{"SST25VF080" , 0x008E25BF, 1 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"SST25VF032" , 0x004A25BF, 4 * 1024 * 1024, 256, AT25_ERASE_4K},
+	{"SST25VF064" , 0x004B25BF, 8 * 1024 * 1024, 256, AT25_ERASE_4K},
 	/* Manufacturer: Micron */
-	{"N25Q256"    , 0x0019BA20, 32* 1024 * 1024, 256,  4 * 1024, AT25_SUPPORT_ERASE_4K}
+	{"N25Q256"    , 0x0019BA20, 32* 1024 * 1024, 256, AT25_ERASE_4K}
 };
+
+/*----------------------------------------------------------------------------
+ *        Local Functions
+ *----------------------------------------------------------------------------*/
 
 static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
 				   uint32_t addr)
@@ -117,12 +174,12 @@ static void _at25_send_write_cmd(struct _at25* at25, uint32_t addr)
 		.size = 1
 	};
 
-	if (at25->desc->jedec_id == AT25_MANUF_SST)
+	if (AT25_JEDEC_MANUF(at25->desc->jedec_id) == AT25_MANUF_SST)
 	{
-		cmd[0] = AT25_SEQUENTIAL_PROGRAM_1;
+		cmd[0] = CMD_SEQUENTIAL_PROGRAM_1;
 		dummy_byte = 1;
 	} else {
-		cmd[0] = AT25_BYTE_PAGE_PROGRAM;
+		cmd[0] = CMD_BYTE_PAGE_PROGRAM;
 	}
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 	out.size += dummy_byte ? 1 : 0;
@@ -149,7 +206,7 @@ static uint32_t _at25_check_writable(struct _at25* at25)
 static void _at25_enable_write(struct _at25* at25)
 {
 	spid_begin_transfert(at25->spid);
-	uint8_t opcode = AT25_WRITE_ENABLE;
+	uint8_t opcode = CMD_WRITE_ENABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
@@ -160,7 +217,7 @@ static void _at25_enable_write(struct _at25* at25)
 static void _at25_disable_write(struct _at25* at25)
 {
 	spid_begin_transfert(at25->spid);
-	uint8_t opcode = AT25_WRITE_DISABLE;
+	uint8_t opcode = CMD_WRITE_DISABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
@@ -171,7 +228,7 @@ static void _at25_disable_write(struct _at25* at25)
 static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 {
 	uint32_t status = 0;
-	uint8_t cmd[2] ={AT25_WRITE_STATUS, value};
+	uint8_t cmd[2] = { CMD_WRITE_STATUS, value };
 	struct _buffer out = {
 		.data = cmd,
 		.size = 2
@@ -196,10 +253,34 @@ static uint32_t _at25_compute_read_cmd(struct _at25* at25, uint8_t* cmd,
 		.data = cmd,
 		.size = 1
 	};
-	cmd[0] = AT25_READ_ARRAY;
+	cmd[0] = CMD_READ_ARRAY;
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 	out.size += 1;
 	return out.size;
+}
+
+static void _at25_enter_4addr_mode(struct _at25* at25)
+{
+	spid_begin_transfert(at25->spid);
+	uint8_t opcode = CMD_ENTER_4ADDR_MODE;
+	struct _buffer out = {
+		.data = &opcode,
+		.size = 1
+	};
+	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	at25->addressing = AT25_ADDRESS_4_BYTES;
+}
+
+static void _at25_exit_4addr_mode(struct _at25* at25)
+{
+	spid_begin_transfert(at25->spid);
+	uint8_t opcode = CMD_EXIT_4ADDR_MODE;
+	struct _buffer out = {
+		.data = &opcode,
+		.size = 1
+	};
+	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	at25->addressing = AT25_ADDRESS_3_BYTES;
 }
 
 static void _at25_set_addressing(struct _at25* at25)
@@ -207,11 +288,15 @@ static void _at25_set_addressing(struct _at25* at25)
 	assert(at25->desc);
 
 	if (at25->desc->size > MODE_3B_MAX_SIZE) {
-		at25_enter_4addr_mode(at25);
+		_at25_enter_4addr_mode(at25);
 	} else {
-		at25_exit_4addr_mode(at25);
+		_at25_exit_4addr_mode(at25);
 	}
 }
+
+/*----------------------------------------------------------------------------
+ *        Public Functions
+ *----------------------------------------------------------------------------*/
 
 uint32_t at25_check_status(struct _at25* at25, uint32_t mask)
 {
@@ -263,11 +348,11 @@ uint32_t at25_read_jedec_id(struct _at25* at25)
 {
 	assert(at25);
 	assert(at25->spid);
-	uint32_t jedec;
-	uint8_t opcode = AT25_READ_JEDEC_ID;
+	uint8_t jedec[3];
+	uint8_t opcode = CMD_READ_JEDEC_ID;
 	struct _buffer in = {
-		.data = (uint8_t*)&jedec,
-		.size = sizeof(jedec)
+		.data = jedec,
+		.size = 3
 	};
 	struct _buffer out = {
 		.data = &opcode,
@@ -279,7 +364,7 @@ uint32_t at25_read_jedec_id(struct _at25* at25)
 		       spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
 
-	return jedec;
+	return (jedec[2] << 16) | (jedec[1] << 8) | jedec[0];
 }
 
 uint32_t at25_read_status(struct _at25* at25)
@@ -287,7 +372,7 @@ uint32_t at25_read_status(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 	uint8_t status;
-	uint8_t opcode = AT25_READ_STATUS;
+	uint8_t opcode = CMD_READ_STATUS;
 		struct _buffer in = {
 		.data = &status,
 		.size = sizeof(status)
@@ -344,30 +429,33 @@ void at25_print_device_info(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 
-	const struct _at25_desc* desc = NULL;
-	uint32_t device_info = at25_read_jedec_id(at25);
-
-	desc = at25_find_device(at25, device_info);
-
-	device_info = BIG_ENDIAN_TO_HOST(device_info);
+	if (!at25->desc)
+		return;
 
 	printf("Device info:\r\n");
-	printf("\t- Manufacturer ID\t\t:0x%X\r\n",
-	       (unsigned int)(device_info & 0xFF000000) >> 24);
-	printf("\t- Device Family Code\t\t:0x%X\r\n",
-	       (unsigned int)(device_info & 0x00E00000) >> 21);
-	printf("\t- Device Density Code\t\t:0x%X\r\n",
-	       (unsigned int)(device_info & 0x001F0000) >> 16);
-	printf("\t- Device Sub Code\t\t:0x%X\r\n",
-	       (unsigned int)(device_info & 0xE000) >> 13);
-	printf("\t- Device Product Version\t:0x%X\r\n",
-	       (unsigned int)(device_info & 0x1F00) >> 8);
-	if (!desc)
-		return;
-	printf("\t- Device Name\t\t\t:%s\r\n", desc->name);
-	printf("\t- Device Size\t\t\t:%lu bytes\r\n", desc->size);
-	printf("\t- Device Page Size\t\t:%lu bytes\r\n", desc->page_size);
-	printf("\t- Device Block Erase Size\t:%lu bytes\r\n", desc->block_size);
+	printf("\t- JEDEC ID:\t\t\t0x%X\r\n",
+	       (unsigned)at25->desc->jedec_id);
+	printf("\t- Manufacturer ID:\t\t0x%X\r\n",
+	       (unsigned)AT25_JEDEC_MANUF(at25->desc->jedec_id));
+	printf("\t- Device Family Code:\t\t0x%X\r\n",
+	       (unsigned)AT25_JEDEC_FAMILY(at25->desc->jedec_id));
+	printf("\t- Device Density Code:\t\t0x%X\r\n",
+	       (unsigned)AT25_JEDEC_DENSITY(at25->desc->jedec_id));
+	printf("\t- Device Sub Code:\t\t0x%X\r\n",
+	       (unsigned)AT25_JEDEC_SUBCODE(at25->desc->jedec_id));
+	printf("\t- Device Product Version:\t0x%X\r\n",
+	       (unsigned)AT25_JEDEC_VERSION(at25->desc->jedec_id));
+	printf("\t- Device Name:\t\t\t%s\r\n", at25->desc->name);
+	printf("\t- Device Size:\t\t\t%lu bytes\r\n", at25->desc->size);
+	printf("\t- Device Page Size:\t\t%lu bytes\r\n", at25->desc->page_size);
+	printf("\t- Block Erase Supported:\t");
+	if (at25->desc->erase_support & AT25_ERASE_4K)
+		printf("4KB ");
+	if (at25->desc->erase_support & AT25_ERASE_32K)
+		printf("32KB ");
+	if (at25->desc->erase_support & AT25_ERASE_64K)
+		printf("64KB ");
+	printf("\r\n");
 }
 
 uint32_t at25_is_busy(struct _at25* at25)
@@ -427,7 +515,7 @@ uint32_t at25_erase_chip(struct _at25* at25)
 		return status;
 	}
 
-	uint8_t cmd = AT25_CHIP_ERASE_1;
+	uint8_t cmd = CMD_CHIP_ERASE_1;
 	struct _buffer out = {
 		.data = &cmd,
 		.size = 1
@@ -471,30 +559,30 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	};
 
 	uint8_t applied_erase = (uint8_t)erase_type;
-	uint8_t supported_erase = at25->desc->block_erase_cmd;
+	uint8_t supported_erase = at25->desc->erase_support;
 
 	switch(erase_type) {
-	case AT25_BLOCK_ERASE_64K:
-		if (supported_erase & AT25_SUPPORT_ERASE_64K) {
-			applied_erase = AT25_BLOCK_ERASE_64K;
+	case AT25_ERASE_64K:
+		if (supported_erase & AT25_ERASE_64K) {
+			applied_erase = CMD_BLOCK_ERASE_64K;
 			trace_debug("at25: Will apply 64K erase\r\n");
 		} else {
 			trace_error("at25: 64K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
 		}
 		break;
-	case AT25_BLOCK_ERASE_32K:
-		if (supported_erase & AT25_SUPPORT_ERASE_32K) {
-			applied_erase = AT25_BLOCK_ERASE_32K;
+	case AT25_ERASE_32K:
+		if (supported_erase & AT25_ERASE_32K) {
+			applied_erase = CMD_BLOCK_ERASE_32K;
 			trace_debug("at25: Will apply 32K erase\r\n");
 		} else {
 			trace_error("at25: 32K Erase not supported\r\n");
 			return AT25_ERROR_PROGRAM;
 		}
 		break;
-	case AT25_BLOCK_ERASE_4K:
-		if (supported_erase & AT25_SUPPORT_ERASE_4K) {
-			applied_erase = AT25_BLOCK_ERASE_4K;
+	case AT25_ERASE_4K:
+		if (supported_erase & AT25_ERASE_4K) {
+			applied_erase = CMD_BLOCK_ERASE_4K;
 			trace_debug("at25: Will apply 4K erase\r\n");
 		} else {
 			trace_error("at25: 4K Erase not supported\r\n");
@@ -579,28 +667,4 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 	_at25_disable_write(at25);
 
 	return AT25_SUCCESS;
-}
-
-void at25_enter_4addr_mode(struct _at25* at25)
-{
-	spid_begin_transfert(at25->spid);
-	uint8_t opcode = AT25_ENTER_4ADDR_MODE;
-	struct _buffer out = {
-		.data = &opcode,
-		.size = 1
-	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
-	at25->addressing = AT25_ADDRESS_4_BYTES;
-}
-
-void at25_exit_4addr_mode(struct _at25* at25)
-{
-	spid_begin_transfert(at25->spid);
-	uint8_t opcode = AT25_EXIT_4ADDR_MODE;
-	struct _buffer out = {
-		.data = &opcode,
-		.size = 1
-	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
-	at25->addressing = AT25_ADDRESS_3_BYTES;
 }

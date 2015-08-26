@@ -228,31 +228,28 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 	else {
 		/* Get device parameters */
 		uint32_t page_size = at25drv.desc->page_size;
-		uint32_t block_size = at25drv.desc->block_size;
 
 		trace_info_wp("Found Device %s\r\n", at25drv.desc->name);
 		trace_info_wp("Size: %u bytes\r\n",
 				(unsigned)at25drv.desc->size);
 		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
-		trace_info_wp("Block Size: %u bytes\r\n",
-				(unsigned)block_size);
-		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_4K)
+		if (at25drv.desc->erase_support & AT25_ERASE_4K)
 			trace_info_wp("Supports 4K block erase\r\n");
-		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_32K)
+		if (at25drv.desc->erase_support & AT25_ERASE_32K)
 			trace_info_wp("Supports 32K block erase\r\n");
-		if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_64K)
+		if (at25drv.desc->erase_support & AT25_ERASE_64K)
 			trace_info_wp("Supports 64K block erase\r\n");
 
 		if (at25_unprotect(&at25drv) != AT25_SUCCESS) {
 			return APPLET_UNPROTECT_FAIL;
 		}
 
-		if (at25drv.desc->jedec_id == AT25_MANUF_SST) {
+		if (AT25_JEDEC_MANUF(at25drv.desc->jedec_id) == AT25_MANUF_SST) {
 			/* SST Flash write is slow, reduce buffer size to avoid
 			 * application timeouts */
 			buffer_size = 10 * page_size;
 		} else {
-			buffer_size = 4 * block_size;
+			buffer_size = MAX_BUFFER_SIZE;
 		}
 
 		/* round buffer size to a multiple of page_size */
@@ -282,7 +279,7 @@ static uint32_t handle_cmd_write(uint32_t cmd, uint32_t *args)
 	struct input_write *in = (struct input_write *)args;
 	struct output_write *out = (struct output_write *)args;
 
-	uint8_t *buffer_end = buffer + sizeof(buffer);
+	uint8_t *buffer_end = buffer + buffer_size;
 
 	uint8_t *buf = (uint8_t*)in->buf_addr;
 	uint32_t size = in->buf_size;
@@ -327,7 +324,7 @@ static uint32_t handle_cmd_write(uint32_t cmd, uint32_t *args)
 		}
 
 		/* erase block */
-		at25_erase_block(&at25drv, offset, AT25_BLOCK_ERASE_4K);
+		at25_erase_block(&at25drv, offset, AT25_ERASE_4K);
 		at25_wait(&at25drv);
 
 		/* write block */
@@ -352,7 +349,7 @@ static uint32_t handle_cmd_read(uint32_t cmd, uint32_t *args)
 	struct input_read *in = (struct input_read *)args;
 	struct output_read *out = (struct output_read *)args;
 
-	uint8_t *buffer_end = buffer + sizeof(buffer);
+	uint8_t *buffer_end = buffer + buffer_size;
 
 	uint8_t *buf = (uint8_t*)in->buf_addr;
 	uint32_t size = in->buf_size;
@@ -420,16 +417,16 @@ static uint32_t handle_cmd_buffer_erase(uint32_t cmd, uint32_t *args)
 		return APPLET_FAIL;
 	}
 
-	if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_64K) {
-		erase_type = AT25_BLOCK_ERASE_64K;
+	if (at25drv.desc->erase_support & AT25_ERASE_64K) {
+		erase_type = AT25_ERASE_64K;
 		count = 1;
 		incr = 64 * 1024;
-	} else if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_32K) {
-		erase_type = AT25_BLOCK_ERASE_32K;
+	} else if (at25drv.desc->erase_support & AT25_ERASE_32K) {
+		erase_type = AT25_ERASE_32K;
 		count = 2;
 		incr = 32 * 1024;
-	} else if (at25drv.desc->block_erase_cmd & AT25_SUPPORT_ERASE_4K) {
-		erase_type = AT25_BLOCK_ERASE_4K;
+	} else if (at25drv.desc->erase_support & AT25_ERASE_4K) {
+		erase_type = AT25_ERASE_4K;
 		count = 16;
 		incr = 4 * 1024;
 	} else {

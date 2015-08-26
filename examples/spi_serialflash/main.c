@@ -234,25 +234,25 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
-	uint32_t erase_type = AT25_BLOCK_ERASE_4K;
+	uint32_t erase_type = AT25_ERASE_4K;
 
 	erase_type_str = end_addr + 1;
 	switch(*erase_type_str) {
 	case '4':
 		if (*(erase_type_str+1) == 'k' || *(erase_type_str+1) == 'K') {
-			erase_type = AT25_BLOCK_ERASE_4K;
+			erase_type = AT25_ERASE_4K;
 		}
 		break;
 	case '3':
 		if (*(erase_type_str+1) == '2' &&
 		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
-			erase_type = AT25_BLOCK_ERASE_32K;
+			erase_type = AT25_ERASE_32K;
 		}
 		break;
 	case '6':
 		if (*(erase_type_str+1) == '4' &&
 		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
-			erase_type = AT25_BLOCK_ERASE_64K;
+			erase_type = AT25_ERASE_64K;
 		}
 		break;
 	default:
