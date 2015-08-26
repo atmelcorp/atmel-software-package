@@ -195,10 +195,10 @@ static inline bool MCAN_IsEnabled(const MCan_ConfigType *mcanConfig)
 	return ((mcan->MCAN_CCCR & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_DISABLED);
 }
 
-static inline uint32_t MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
+static inline bool MCAN_IsTxComplete(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	return (mcan->MCAN_IR & MCAN_IR_TC);
+	return mcan->MCAN_IR & MCAN_IR_TC ? true : false;
 }
 
 static inline void MCAN_ClearTxComplete(const MCan_ConfigType *mcanConfig)
@@ -207,11 +207,11 @@ static inline void MCAN_ClearTxComplete(const MCan_ConfigType *mcanConfig)
 	mcan->MCAN_IR = MCAN_IR_TC;
 }
 
-static inline uint32_t MCAN_IsMessageStoredToRxDedBuffer(
+static inline bool MCAN_IsMessageStoredToRxDedBuffer(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	return (mcan->MCAN_IR & MCAN_IR_DRX);
+	return mcan->MCAN_IR & MCAN_IR_DRX ? true : false;
 }
 
 static inline void MCAN_ClearMessageStoredToRxBuffer(
@@ -221,11 +221,11 @@ static inline void MCAN_ClearMessageStoredToRxBuffer(
 	mcan->MCAN_IR = MCAN_IR_DRX;
 }
 
-static inline uint32_t MCAN_IsMessageStoredToRxFifo0(
+static inline bool MCAN_IsMessageStoredToRxFifo0(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	return (mcan->MCAN_IR & MCAN_IR_RF0N);
+	return mcan->MCAN_IR & MCAN_IR_RF0N ? true : false;
 }
 
 static inline void MCAN_ClearMessageStoredToRxFifo0(
@@ -235,11 +235,11 @@ static inline void MCAN_ClearMessageStoredToRxFifo0(
 	mcan->MCAN_IR = MCAN_IR_RF0N;
 }
 
-static inline uint32_t MCAN_IsMessageStoredToRxFifo1(
+static inline bool MCAN_IsMessageStoredToRxFifo1(
     const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	return (mcan->MCAN_IR & MCAN_IR_RF1N);
+	return mcan->MCAN_IR & MCAN_IR_RF1N ? true : false;
 }
 
 static inline void MCAN_ClearMessageStoredToRxFifo1(
@@ -338,22 +338,22 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(
 /**
  * \brief Configure a Dedicated TX Buffer.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the transmit buffer to be used.
+ * \param buf_idx  Index of the transmit buffer to be used.
  * \param id  Message ID.
  * \param idType  Type of ID.
  * \param len  Data length, in bytes.
  * \return Address of data byte 0, part of the transmit buffer.
  */
 uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
-    uint8_t buffer, uint32_t id, MCan_IdType idType, uint8_t len);
+    uint8_t buf_idx, uint32_t id, MCan_IdType idType, uint8_t len);
 
 /**
  * \brief Send TX buffer.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the transmit buffer to be used.
+ * \param buf_idx  Index of the transmit buffer to be used.
  */
 void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig,
-    uint8_t buffer);
+    uint8_t buf_idx);
 
 /**
  * \brief Add message to TX FIFO / queue.
@@ -362,6 +362,7 @@ void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig,
  * \param idType  Type of ID.
  * \param len  Data length, in bytes.
  * \param data  Pointer to data.
+ * \return Index of the assigned transmit buffer, part of the FIFO / queue.
  */
 uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
     uint32_t id, MCan_IdType idType, uint8_t len, const uint8_t *data);
@@ -369,20 +370,22 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 /**
  * \brief Check if data transmitted from buffer/FIFO/queue.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the transmit buffer to be queried.
+ * \param buf_idx  Index of the transmit buffer to be queried.
+ * \return true if the message has been successfully transmitted, false
+ * otherwise.
  */
-uint8_t MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buffer);
+bool MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buf_idx);
 
 /**
  * \brief Configure RX buffer filter.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the receive buffer to be used.
+ * \param buf_idx  Index of the receive buffer to be used.
  * \param filter  Data of filter.
  * \param id  Message ID, must match exactly a RX buffer filter.
  * \param idType  Type of ID.
  */
 void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
-    uint32_t buffer, uint32_t filter, uint32_t id, MCan_IdType idType);
+    uint32_t buf_idx, uint32_t filter, uint32_t id, MCan_IdType idType);
 
 /**
  * \brief Configure classic filter.
@@ -402,18 +405,20 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 /**
  * \brief Check whether some data has been received into the buffer.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the receive buffer to be queried.
+ * \param buf_idx  Index of the receive buffer to be queried.
+ * \return true if the receive buffer is flagged as containing an unfetched
+ * frame, and false otherwise.
  */
-uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
-    uint8_t buffer);
+bool MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
+    uint8_t buf_idx);
 
 /**
  * \brief Get RX buffer.
  * \param mcanConfig  Pointer to a MCAN instance.
- * \param buffer  Index of the receive buffer to be read.
+ * \param buf_idx  Index of the receive buffer to be read.
  * \param pRxMailbox  Pointer to RX mailbox.
  */
-void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buffer,
+void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buf_idx,
     Mailbox64Type *pRxMailbox);
 
 /**
@@ -422,11 +427,12 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buffer,
  * \param fifo  FIFO Number
  * \param pRxMailbox  Pointer to RX mailbox.
  * \return: # of FIFO entries at the time the function was entered:
- *         0 -> The FIFO was initially empty.
- *         1 -> The FIFO had 1 entry upon entry, but is empty upon exit.
- *         2 -> The FIFO had 2 entries upon entry, has 1 entry upon exit.
+ *    0       -> The FIFO was initially empty.
+ *    1       -> The FIFO had 1 entry upon entry, but is empty upon exit.
+ *    2 to 64 -> The FIFO had several entries upon entry, and still holds one
+ *               or more entries upon exit.
  */
-uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
+uint8_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
     MCan_FifoType fifo, Mailbox64Type *pRxMailbox);
 
 #ifdef __cplusplus

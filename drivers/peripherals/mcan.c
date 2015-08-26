@@ -882,7 +882,7 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(const MCan_ConfigType *mcanConfig,
 }
 
 uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
-				 uint8_t buffer, uint32_t id,
+				 uint8_t buf_idx, uint32_t id,
 				 MCan_IdType idType, uint8_t len)
 {
 	assert(len <= (uint8_t)
@@ -894,9 +894,9 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 	const enum mcan_can_mode mode = MCAN_GetMode(mcanConfig);
 	const enum mcan_dlc dlc = get_length_code(len);
 
-	if (buffer < mcanConfig->nmbrTxDedBufElmts) {
+	if (buf_idx < mcanConfig->nmbrTxDedBufElmts) {
 		pThisTxBuf = mcanConfig->msgRam.pTxDedBuf +
-			(buffer * (mcanConfig->txBufElmtSize & ELMT_SIZE_MASK));
+			(buf_idx * (mcanConfig->txBufElmtSize & ELMT_SIZE_MASK));
 		if (idType == CAN_STD_ID)
 			*pThisTxBuf++ =
 			    ((id << 18) & (CAN_11_BIT_ID_MASK << 18));
@@ -912,19 +912,19 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 		/* enable transmit from buffer to set TC interrupt bit in IR,
 		 * but interrupt will not happen unless TC interrupt is enabled
 		 */
-		mcan->MCAN_TXBTIE = (1 << buffer);
+		mcan->MCAN_TXBTIE = (1 << buf_idx);
 	}
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
 	return (uint8_t *)pThisTxBuf;   /* now it points to the data field */
 }
 
-void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buffer)
+void MCAN_SendTxDedBuffer(const MCan_ConfigType *mcanConfig, uint8_t buf_idx)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 
-	if (buffer < mcanConfig->nmbrTxDedBufElmts)
-		mcan->MCAN_TXBAR = (1 << buffer);
+	if (buf_idx < mcanConfig->nmbrTxDedBufElmts)
+		mcan->MCAN_TXBAR = (1 << buf_idx);
 }
 
 uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
@@ -972,19 +972,19 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 	return putIdx;
 }
 
-uint8_t MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buffer)
+bool MCAN_IsBufferTxd(const MCan_ConfigType *mcanConfig, uint8_t buf_idx)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-	return (mcan->MCAN_TXBTO & (1 << buffer));
+	return mcan->MCAN_TXBTO & (1 << buf_idx) ? true : false;
 }
 
 void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
-			       uint32_t buffer, uint32_t filter, uint32_t id,
+			       uint32_t buf_idx, uint32_t filter, uint32_t id,
 			       MCan_IdType idType)
 {
 	uint32_t *pThisRxFilt = 0;
 
-	if (buffer < mcanConfig->nmbrRxDedBufElmts) {
+	if (buf_idx < mcanConfig->nmbrRxDedBufElmts) {
 		if (idType == CAN_STD_ID) {
 			if ((filter < mcanConfig->nmbrStdFilts)
 			    && (id <= CAN_11_BIT_ID_MASK)) {
@@ -993,7 +993,7 @@ void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
 				/* 1 word per filter */
 				*pThisRxFilt =
 				    STD_FILT_SFEC_BUFFER | (id << 16) |
-				    STD_FILT_SFID2_RX_BUFFER | buffer;
+				    STD_FILT_SFID2_RX_BUFFER | buf_idx;
 			}
 		} else {
 			/* extended ID */
@@ -1005,7 +1005,7 @@ void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
 				*pThisRxFilt++ =
 				    (uint32_t) EXT_FILT_EFEC_BUFFER | id;
 				*pThisRxFilt =
-				    EXT_FILT_EFID2_RX_BUFFER | buffer;
+				    EXT_FILT_EFID2_RX_BUFFER | buf_idx;
 			}
 		}
 	}
@@ -1055,24 +1055,24 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 	cp15_clean_invalid_dcache_by_set_way();
 }
 
-uint8_t MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
-				    uint8_t buffer)
+bool MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
+                                 uint8_t buf_idx)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
 
-	if (buffer < 32)
-		return (mcan->MCAN_NDAT1 & (1 << buffer));
-	else if (buffer < 64)
-		return (mcan->MCAN_NDAT2 & (1 << (buffer - 32)));
+	if (buf_idx < 32)
+		return mcan->MCAN_NDAT1 & (1 << buf_idx) ? true : false;
+	else if (buf_idx < 64)
+		return mcan->MCAN_NDAT2 & (1 << (buf_idx - 32)) ? true : false;
 	else
-		return 0;
+		return false;
 }
 
 void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
-			 uint8_t buffer, Mailbox64Type *pRxMailbox)
+			 uint8_t buf_idx, Mailbox64Type *pRxMailbox)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	const uint32_t *pThisRxBuf = 0;
@@ -1083,9 +1083,9 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
 
-	if (buffer < mcanConfig->nmbrRxDedBufElmts) {
+	if (buf_idx < mcanConfig->nmbrRxDedBufElmts) {
 		pThisRxBuf = mcanConfig->msgRam.pRxDedBuf
-		    + (buffer * (mcanConfig->rxBufElmtSize & ELMT_SIZE_MASK));
+		    + (buf_idx * (mcanConfig->rxBufElmtSize & ELMT_SIZE_MASK));
 		tempRy = *pThisRxBuf++;   /* word R0 contains ID */
 		if (tempRy & BUFFER_XTD_MASK)
 			/* extended ID? */
@@ -1103,15 +1103,15 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 		/* copy the data from the buffer to the mailbox */
 		memcpy(pRxMailbox->data, pThisRxBuf, pRxMailbox->info.length);
 		/* clear the new data flag for the buffer */
-		if (buffer < 32)
-			mcan->MCAN_NDAT1 = (1 << buffer);
+		if (buf_idx < 32)
+			mcan->MCAN_NDAT1 = (1 << buf_idx);
 		else
-			mcan->MCAN_NDAT2 = (1 << (buffer - 32));
+			mcan->MCAN_NDAT2 = (1 << (buf_idx - 32));
 	}
 }
 
-uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
-			      MCan_FifoType fifo, Mailbox64Type *pRxMailbox)
+uint8_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
+                             MCan_FifoType fifo, Mailbox64Type *pRxMailbox)
 {
 	Mcan *mcan = mcanConfig->pMCan;
 	uint32_t *pThisRxBuf = 0;
@@ -1119,28 +1119,25 @@ uint32_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 	uint8_t buf_elem_data_size;
 	uint32_t *fifo_ack_reg;
 	uint32_t get_index;
-	uint32_t fill_level;
+	uint8_t fill_level = 0;   /* default: fifo empty */
 	uint32_t element_size;
 
 	cp15_select_dcache();
 	cp15_clean_invalid_dcache_by_set_way();
 
-	/* default: fifo empty */
-	fill_level = 0;
-
 	if (fifo == CAN_FIFO_0) {
 		get_index = (mcan->MCAN_RXF0S & MCAN_RXF0S_F0GI_Msk) >>
 		    MCAN_RXF0S_F0GI_Pos;
-		fill_level = (mcan->MCAN_RXF0S & MCAN_RXF0S_F0FL_Msk) >>
-		    MCAN_RXF0S_F0FL_Pos;
+		fill_level = (uint8_t)((mcan->MCAN_RXF0S & MCAN_RXF0S_F0FL_Msk)
+		    >> MCAN_RXF0S_F0FL_Pos);
 		pThisRxBuf = mcanConfig->msgRam.pRxFifo0;
 		element_size = mcanConfig->rxFifo0ElmtSize & ELMT_SIZE_MASK;
 		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF0A;
 	} else if (fifo == CAN_FIFO_1) {
 		get_index = (mcan->MCAN_RXF1S & MCAN_RXF1S_F1GI_Msk) >>
 		    MCAN_RXF1S_F1GI_Pos;
-		fill_level = (mcan->MCAN_RXF1S & MCAN_RXF1S_F1FL_Msk) >>
-		    MCAN_RXF1S_F1FL_Pos;
+		fill_level = (uint8_t)((mcan->MCAN_RXF1S & MCAN_RXF1S_F1FL_Msk)
+		    >> MCAN_RXF1S_F1FL_Pos);
 		pThisRxBuf = mcanConfig->msgRam.pRxFifo1;
 		element_size = mcanConfig->rxFifo1ElmtSize & ELMT_SIZE_MASK;
 		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF1A;
