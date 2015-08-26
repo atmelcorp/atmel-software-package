@@ -295,6 +295,13 @@ void MCAN_Reconfigure(const MCan_ConfigType *mcanConfig);
 void MCAN_SetMode(const MCan_ConfigType *mcanConfig, enum mcan_can_mode mode);
 
 /**
+ * \brief Query the current CAN mode.
+ * \param mcanConfig  Pointer to a MCAN instance.
+ * \return Currently selected CAN mode, and FD variant in case of CAN FD mode.
+ */
+enum mcan_can_mode MCAN_GetMode(const MCan_ConfigType *mcanConfig);
+
+/**
  * \brief Initialize the MCAN queue for TX.
  * INIT must be set - so this should be called between MCAN_Init() and
  * MCAN_Enable().

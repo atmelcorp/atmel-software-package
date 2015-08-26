@@ -728,6 +728,17 @@ void MCAN_SetMode(const MCan_ConfigType *mcanConfig, enum mcan_can_mode mode)
 	mcan->MCAN_CCCR = regVal32;
 }
 
+enum mcan_can_mode MCAN_GetMode(const MCan_ConfigType *mcanConfig)
+{
+	const uint32_t cccr = mcanConfig->pMCan->MCAN_CCCR;
+
+	if ((cccr & MCAN_CCCR_FDOE) == MCAN_CCCR_FDOE_DISABLED)
+		return MCAN_MODE_CAN;
+	if ((cccr & MCAN_CCCR_BRSE) == MCAN_CCCR_BRSE_DISABLED)
+		return MCAN_MODE_EXT_LEN_CONST_RATE;
+	return MCAN_MODE_EXT_LEN_DUAL_RATE;
+}
+
 void MCAN_InitLoopback(const MCan_ConfigType *mcanConfig)
 {
 	Mcan *mcan = mcanConfig->pMCan;
