@@ -235,6 +235,7 @@ uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
 	at25->spid = spid;
 	spid_configure(spid);
 	uint32_t jedec_id = at25_read_jedec_id(at25);
+	trace_debug("at25: read JEDEC ID 0x%08x.\r\n", (unsigned)jedec_id);
 	at25->desc = at25_find_device(at25, jedec_id);
 	if (!at25->desc) {
 		return AT25_DEVICE_NOT_SUPPORTED;
