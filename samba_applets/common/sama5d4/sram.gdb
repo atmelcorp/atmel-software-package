@@ -114,6 +114,16 @@ define runapplet
   else
     set *0x20001C=0
   end
+  if $argc >= 5
+    set *0x200020=$arg4
+  else
+    set *0x200020=0
+  end
+  if $argc >= 6
+    set *0x200024=$arg5
+  else
+    set *0x200024=0
+  end
   set $pc=0x200000
   continue
 end
