@@ -199,14 +199,44 @@
 /** SPI0 SPCK pin definition. */
 #define PIN_SPI0_SPCK { PIO_GROUP_C, PIO_PC2A_SPI0_SPCK, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** SPI0 chip select pin definition. */
+/** SPI0 chip select 0 pin definition. */
 #define PIN_SPI0_NPCS0 { PIO_GROUP_C, PIO_PC3A_SPI0_NPCS0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SPI0 chip select 1 pin definition. */
+#define PIN_SPI0_NPCS1 { PIO_GROUP_C, PIO_PC4A_SPI0_NPCS1, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SPI0 chip select 1 pin definition (alternate). */
+#define PIN_SPI0_NPCS1_ALT { PIO_GROUP_C, PIO_PC27B_SPI0_NPCS1, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SPI0 chip select 2 pin definition. */
+#define PIN_SPI0_NPCS2 { PIO_GROUP_C, PIO_PC28B_SPI0_NPCS2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SPI0 chip select 2 pin definition (alternate). */
+#define PIN_SPI0_NPCS2_ALT { PIO_GROUP_D, PIO_PD31A_SPI0_NPCS2, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SPI0 chip select 3 pin definition. */
+#define PIN_SPI0_NPCS3 { PIO_GROUP_C, PIO_PC29B_SPI0_NPCS3, PIO_PERIPH_C, PIO_DEFAULT }
 
 /** List of SPI0 pin definitions (MISO, MOSI & SPCK). */
 #define PINS_SPI0 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK }
 
 /** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS0). */
 #define PINS_SPI0_NPCS0 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS0 }
+
+/** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS1). */
+#define PINS_SPI0_NPCS1 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS1 }
+
+/** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS1 alternate). */
+#define PINS_SPI0_NPCS1_ALT { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS1_ALT }
+
+/** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS2). */
+#define PINS_SPI0_NPCS2 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS2 }
+
+/** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS2 alternate). */
+#define PINS_SPI0_NPCS2_ALT { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS2_ALT }
+
+/** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS3). */
+#define PINS_SPI0_NPCS3 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS3 }
 
 /** SPI1 MISO pin definition. */
 #define PIN_SPI1_MISO { PIO_GROUP_B, PIO_PB18A_SPI1_MISO, PIO_PERIPH_A, PIO_DEFAULT }
@@ -217,11 +247,26 @@
 /** SPI1 SPCK pin definition. */
 #define PIN_SPI1_SPCK { PIO_GROUP_B, PIO_PB20A_SPI1_SPCK, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** SPI1 chip select pin definition. */
+/** SPI1 chip select 0 pin definition. */
 #define PIN_SPI1_NPCS0 { PIO_GROUP_B, PIO_PB21A_SPI1_NPCS0, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** SPI1 chip select pin definition. */
-#define PIN_SPI1_NPCS2 { PIO_GROUP_B, PIO_PB23A_SPI1_NPCS2, PIO_PERIPH_A, PIO_DEFAULT }
+/** SPI1 chip select 1 pin definition. */
+#define PIN_SPI1_NPCS1 { PIO_GROUP_A, PIO_PA26C_SPI1_NPCS1, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** SPI1 chip select 1 pin definition (alternate). */
+#define PIN_SPI1_NPCS1_ALT { PIO_GROUP_B, PIO_PB22A_SPI1_NPCS1, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SPI1 chip select 2 pin definition. */
+#define PIN_SPI1_NPCS2 { PIO_GROUP_A, PIO_PA27C_SPI1_NPCS2, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** SPI1 chip select 2 pin definition (alternate). */
+#define PIN_SPI1_NPCS2_ALT { PIO_GROUP_B, PIO_PB23A_SPI1_NPCS2, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SPI1 chip select 3 pin definition. */
+#define PIN_SPI1_NPCS3 { PIO_GROUP_A, PIO_PA28C_SPI1_NPCS3, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** SPI1 chip select 3 pin definition (alternate). */
+#define PIN_SPI1_NPCS3_ALT { PIO_GROUP_B, PIO_PB27A_SPI1_NPCS3, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** List of SPI1 pin definitions (MISO, MOSI & SPCK). */
 #define PINS_SPI1 { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK }
@@ -229,8 +274,23 @@
 /** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS0). */
 #define PINS_SPI1_NPCS0 { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS0 }
 
+/** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS1). */
+#define PINS_SPI1_NPCS1 { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS1 }
+
+/** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS1 alternate). */
+#define PINS_SPI1_NPCS1_ALT { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS1_ALT }
+
 /** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS2). */
 #define PINS_SPI1_NPCS2 { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS2 }
+
+/** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS2 alternate). */
+#define PINS_SPI1_NPCS2_ALT { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS2_ALT }
+
+/** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS2). */
+#define PINS_SPI1_NPCS3 { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS3 }
+
+/** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS2 alternate). */
+#define PINS_SPI1_NPCS3_ALT { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS3_ALT }
 
 /** SPI2 MISO pin definition. */
 #define PIN_SPI2_MISO { PIO_GROUP_D, PIO_PD11B_SPI2_MISO, PIO_PERIPH_B, PIO_DEFAULT }
@@ -247,6 +307,12 @@
 /** SPI2 chip select 1 pin definition. */
 #define PIN_SPI2_NPCS1 { PIO_GROUP_B, PIO_PB14B_SPI2_NPCS1, PIO_PERIPH_B, PIO_DEFAULT }
 
+/** SPI2 chip select 2 pin definition. */
+#define PIN_SPI2_NPCS2 { PIO_GROUP_B, PIO_PB15B_SPI2_NPCS2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SPI2 chip select 3 pin definition. */
+#define PIN_SPI2_NPCS3 { PIO_GROUP_B, PIO_PB28A_SPI2_NPCS3, PIO_PERIPH_A, PIO_DEFAULT }
+
 /** List of SPI2 pin definitions (MISO, MOSI & SPCK). */
 #define PINS_SPI2 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK }
 
@@ -255,6 +321,12 @@
 
 /** List of SPI2 pin definitions (MISO, MOSI, SPCK & NPCS1). */
 #define PINS_SPI2_NPCS1 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK, PIN_SPI2_NPCS1 }
+
+/** List of SPI2 pin definitions (MISO, MOSI, SPCK & NPCS2). */
+#define PINS_SPI2_NPCS2 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK, PIN_SPI2_NPCS2 }
+
+/** List of SPI2 pin definitions (MISO, MOSI, SPCK & NPCS3). */
+#define PINS_SPI2_NPCS3 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK, PIN_SPI2_NPCS3 }
 
 /** List of all SSC pin definitions. */
 
