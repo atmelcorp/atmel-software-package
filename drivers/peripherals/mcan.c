@@ -44,7 +44,6 @@
 #include "mcan.h"
 #include "pio.h"
 #include "pmc.h"
-#include "cortex-a/cp15.h"
 
 #include <assert.h>
 #include <string.h>
@@ -477,6 +476,18 @@ enum mcan_dlc
  *      Internal variables
  *---------------------------------------------------------------------------*/
 
+/* Allocate the Message RAM from non-cached memory.
+ * The Buffer Elements in the Message RAM are contiguous and not aligned on
+ * cache lines. If caching was turned on, it would be necessary to explicitly
+ * clean the data cache lines matching transmit buffers, and then invalidate the
+ * data cache lines matching receive buffers. Since these sections overlap in
+ * the cache, strong constraints would apply as soon as several transmit and
+ * receive buffers were used concurrently.
+ * An alternative solution: if spare Buffers Elements are available, they may be
+ * used to separate otherwise conflicting, active Buffer Elements, and then
+ * benefit from memory caching.
+ */
+SECTION(".region_ddr_nocache")
 static uint32_t can0MsgRam[MCAN0_STD_FLTS_WRDS +
 			   MCAN0_EXT_FLTS_WRDS +
 			   MCAN0_RX_FIFO0_WRDS +
@@ -487,6 +498,7 @@ static uint32_t can0MsgRam[MCAN0_STD_FLTS_WRDS +
 			   MCAN0_TX_FIFO_Q_WRDS];
 
 #ifdef MCAN1
+SECTION(".region_ddr_nocache")
 static uint32_t can1MsgRam[MCAN1_STD_FLTS_WRDS +
 			   MCAN1_EXT_FLTS_WRDS +
 			   MCAN1_RX_FIFO0_WRDS +
@@ -914,8 +926,6 @@ uint8_t * MCAN_ConfigTxDedBuffer(const MCan_ConfigType *mcanConfig,
 		 */
 		mcan->MCAN_TXBTIE = (1 << buf_idx);
 	}
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 	return (uint8_t *)pThisTxBuf;   /* now it points to the data field */
 }
 
@@ -967,8 +977,6 @@ uint32_t MCAN_AddToTxFifoQ(const MCan_ConfigType *mcanConfig,
 		/* request to send */
 		mcan->MCAN_TXBAR = (1 << putIdx);
 	}
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 	return putIdx;
 }
 
@@ -1009,8 +1017,6 @@ void MCAN_ConfigRxBufferFilter(const MCan_ConfigType *mcanConfig,
 			}
 		}
 	}
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 }
 
 void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
@@ -1051,17 +1057,12 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 			    (uint32_t) EXT_FILT_EFT_CLASSIC | mask;
 		}
 	}
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 }
 
 bool MCAN_IsNewDataInRxDedBuffer(const MCan_ConfigType *mcanConfig,
                                  uint8_t buf_idx)
 {
 	Mcan *mcan = mcanConfig->pMCan;
-
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 
 	if (buf_idx < 32)
 		return mcan->MCAN_NDAT1 & (1 << buf_idx) ? true : false;
@@ -1079,9 +1080,6 @@ void MCAN_GetRxDedBuffer(const MCan_ConfigType *mcanConfig,
 	uint32_t tempRy;   /* temp copy of RX buffer word */
 	const uint8_t buf_elem_data_size = (uint8_t)((mcanConfig->rxBufElmtSize
 	    & ELMT_SIZE_MASK) - 2) * 4;
-
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 
 	if (buf_idx < mcanConfig->nmbrRxDedBufElmts) {
 		pThisRxBuf = mcanConfig->msgRam.pRxDedBuf
@@ -1121,9 +1119,6 @@ uint8_t MCAN_GetRxFifoBuffer(const MCan_ConfigType *mcanConfig,
 	uint32_t get_index;
 	uint8_t fill_level = 0;   /* default: fifo empty */
 	uint32_t element_size;
-
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
 
 	if (fifo == CAN_FIFO_0) {
 		get_index = (mcan->MCAN_RXF0S & MCAN_RXF0S_F0GI_Msk) >>
