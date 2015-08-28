@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -39,6 +39,7 @@
 #include "peripherals/qspi.h"
 #include "memories/qspiflash.h"
 #include "misc/console.h"
+#include "pin_defs.h"
 #include "trace.h"
 #include <assert.h>
 #include <stdio.h>
@@ -48,6 +49,10 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
+#if !defined(CONFIG_SOC_SAMA5D2)
+#error Unsupported SOC!
+#endif
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
@@ -111,36 +116,6 @@ struct output_buffer_erase
 	uint32_t bytes_erased; /* Bytes erased */
 };
 
-/* Instance/IOSet PIO configuration */
-struct pio_definition
-{
-	uint32_t           instance;
-	uint32_t           ioset;
-	Qspi*              addr;
-	uint32_t           num_pins;
-	const struct _pin *pins;
-};
-
-/*----------------------------------------------------------------------------
- *         Local constants
- *----------------------------------------------------------------------------*/
-
-static const struct _pin qspi0_ioset1[] = PINS_QSPI0_IOS1;
-static const struct _pin qspi0_ioset2[] = PINS_QSPI0_IOS2;
-static const struct _pin qspi0_ioset3[] = PINS_QSPI0_IOS3;
-static const struct _pin qspi1_ioset1[] = PINS_QSPI1_IOS1;
-static const struct _pin qspi1_ioset2[] = PINS_QSPI1_IOS2;
-static const struct _pin qspi1_ioset3[] = PINS_QSPI1_IOS3;
-
-static const struct pio_definition pio_definitions[] = {
-	{ 0, 1, QSPI0, ARRAY_SIZE(qspi0_ioset1), qspi0_ioset1 },
-	{ 0, 2, QSPI0, ARRAY_SIZE(qspi0_ioset2), qspi0_ioset2 },
-	{ 0, 3, QSPI0, ARRAY_SIZE(qspi0_ioset3), qspi0_ioset3 },
-	{ 1, 1, QSPI1, ARRAY_SIZE(qspi1_ioset1), qspi1_ioset1 },
-	{ 1, 2, QSPI1, ARRAY_SIZE(qspi1_ioset2), qspi1_ioset2 },
-	{ 1, 3, QSPI1, ARRAY_SIZE(qspi1_ioset3), qspi1_ioset3 },
-};
-
 /*----------------------------------------------------------------------------
  *         Local variables
  *----------------------------------------------------------------------------*/
@@ -158,8 +133,9 @@ static uint32_t buffer_size;
 static bool configure_instance_pio(uint32_t instance, uint32_t ioset, Qspi** addr)
 {
 	int i;
-	for (i = 0; i < ARRAY_SIZE(pio_definitions); i++) {
-		const struct pio_definition* def = &pio_definitions[i];
+	for (i = 0; i < num_qspiflash_pin_defs; i++) {
+		const struct qspiflash_pin_definition* def =
+			&qspiflash_pin_defs[i];
 		if (def->instance == instance && def->ioset == ioset) {
 			*addr = def->addr;
 			pio_configure(def->pins, def->num_pins);

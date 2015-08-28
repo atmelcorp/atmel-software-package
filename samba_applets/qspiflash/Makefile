@@ -36,5 +36,6 @@ VARIANT = sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/qspiflash/main.o
+obj-y += samba_applets/qspiflash/pin_defs_$(chip-serie-name-y).o
 
 include $(TOP)/scripts/Makefile.rules
