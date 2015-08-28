@@ -364,46 +364,43 @@ static uint32_t handle_cmd_buffer_erase(uint32_t cmd, uint32_t *args)
 
 	uint32_t erase_type = 0;
 	uint32_t offset = in->mem_offset;
-	uint32_t count = 0, incr = 0, i;
+	uint32_t size;
 
 	assert(cmd == APPLET_CMD_BUFFER_ERASE);
 
-	if (offset & (64 * 1024 - 1)) {
-		trace_error("Unaligned Block Erase offset: 0x%x\r\n",
-				(unsigned)offset);
-		return APPLET_FAIL;
-	}
-
-	if (at25drv.desc->erase_support & AT25_ERASE_64K) {
-		erase_type = AT25_ERASE_64K;
-		count = 1;
-		incr = 64 * 1024;
+	if (at25drv.desc->erase_support & AT25_ERASE_4K) {
+		erase_type = AT25_ERASE_4K;
+		size = 4;
 	} else if (at25drv.desc->erase_support & AT25_ERASE_32K) {
 		erase_type = AT25_ERASE_32K;
-		count = 2;
-		incr = 32 * 1024;
-	} else if (at25drv.desc->erase_support & AT25_ERASE_4K) {
-		erase_type = AT25_ERASE_4K;
-		count = 16;
-		incr = 4 * 1024;
+		size = 32;
+	} else if (at25drv.desc->erase_support & AT25_ERASE_64K) {
+		erase_type = AT25_ERASE_64K;
+		size = 64;
+	} else if (at25drv.desc->erase_support & AT25_ERASE_256K) {
+		erase_type = AT25_ERASE_256K;
+		size = 256;
 	} else {
-		trace_error("Memory supports neither 4K, 32K nor 64K erase\r\n");
+		trace_error("Memory supports neither 4KB, 32KB, 64KB nor 256KB erase\r\n");
 		return APPLET_FAIL;
 	}
 
-	for (i = 0; i < count; i++, offset += incr) {
-		if (at25_erase_block(&at25drv, offset,
-					erase_type) != AT25_SUCCESS) {
-			trace_error("Block Erase failed at offset 0x%x\r\n",
-					(unsigned)offset);
-			return APPLET_ERASE_FAIL;
-		}
-		at25_wait(&at25drv);
+	if (offset & ((size * 1024) - 1)) {
+		trace_error("Unaligned Block Erase offset: 0x%x (erase size %uKB)\r\n",
+				(unsigned)offset, (unsigned)size);
+		return APPLET_FAIL;
 	}
 
-	trace_info_wp("Erased %u bytes at 0x%x\r\n", (unsigned)(count * incr),
-			(unsigned)in->mem_offset);
-	out->bytes_erased = count * incr;
+	if (at25_erase_block(&at25drv, offset, erase_type) != AT25_SUCCESS) {
+		trace_error("Block Erase failed at offset 0x%x\r\n",
+				(unsigned)offset);
+		return APPLET_ERASE_FAIL;
+	}
+	at25_wait(&at25drv);
+
+	trace_info_wp("Erased %uKB at 0x%x\r\n", (unsigned)size,
+			(unsigned)offset);
+	out->bytes_erased = size * 1024;
 	return APPLET_SUCCESS;
 }
 
