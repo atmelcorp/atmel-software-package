@@ -35,6 +35,7 @@
 #include "board.h"
 #include "chip.h"
 #include "peripherals/pio.h"
+#include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include "memories/qspiflash.h"
 #include "misc/console.h"
@@ -184,18 +185,25 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 
 	trace_info_wp("\r\nApplet 'QSPI Flash' from softpack " SOFTPACK_VERSION ".\r\n");
 
+	uint32_t max_freq = pmc_get_peripheral_clock(ID_QSPI0);
+	if (in->freq == 0 || in->freq > max_freq) {
+		trace_error_wp("Invalid configuration: frequency must be " \
+				"between 1 and %uHz (requested %uHz)\r\n",
+				(unsigned)max_freq, (unsigned)in->freq);
+		return APPLET_FAIL;
+	}
+
 	Qspi* addr;
-	uint32_t baudrate = in->freq;
 	if (!configure_instance_pio(in->instance, in->ioset, &addr))
 		return APPLET_FAIL;
 
-	trace_info_wp("Initializing QSPI%u IOSet%u at %uKHz\r\n",
+	trace_info_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
 			(unsigned)in->instance, (unsigned)in->ioset,
-			(unsigned)ROUND_INT_DIV(in->freq, 1000));
+			(unsigned)in->freq);
 
 	/* initialize the QSPI */
 	qspi_initialize(addr);
-	qspi_set_baudrate(addr, baudrate);
+	qspi_set_baudrate(addr, in->freq);
 
 	/* initialize the QSPI flash */
 	if (!qspiflash_configure(&flash, addr)) {

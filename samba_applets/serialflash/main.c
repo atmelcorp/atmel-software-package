@@ -37,6 +37,7 @@
 #include "memories/at25.h"
 #include "misc/console.h"
 #include "peripherals/pio.h"
+#include "peripherals/pmc.h"
 #include "peripherals/spid.h"
 #include "trace.h"
 #include <assert.h>
@@ -253,8 +254,6 @@ static bool configure_instance_pio(uint32_t instance, uint32_t ioset,
 		}
 	}
 
-	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
-		(unsigned)instance, (unsigned)ioset);
 	return false;
 }
 
@@ -272,15 +271,28 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
 	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
-	if (!configure_instance_pio(in->instance, in->ioset, in->cs,
-				&spi_at25_desc.addr))
+	uint32_t max_freq = pmc_get_peripheral_clock(ID_SPI0);
+	if (in->freq == 0 || in->freq > max_freq) {
+		trace_error_wp("Invalid configuration: frequency must be " \
+				"between 1 and %uHz (requested %uHz)\r\n",
+				(unsigned)max_freq, (unsigned)in->freq);
 		return APPLET_FAIL;
+	}
+
+	if (!configure_instance_pio(in->instance, in->ioset, in->cs,
+				&spi_at25_desc.addr)) {
+		trace_error_wp("Invalid configuration: QSPI%u IOSet%u NPCS%u\r\n",
+			(unsigned)in->instance, (unsigned)in->ioset,
+			(unsigned)in->cs);
+		return APPLET_FAIL;
+	}
+
 	spi_at25_desc.bitrate = ROUND_INT_DIV(in->freq, 1000);
 	spi_at25_desc.chip_select = in->cs;
 
-	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uKHz\r\n",
+	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)in->instance, (unsigned)in->ioset,
-			(unsigned)in->cs, (unsigned)spi_at25_desc.bitrate);
+			(unsigned)in->cs, (unsigned)in->freq);
 
 	/* initialize the SPI and serial flash */
 	if (at25_configure(&at25drv, &spi_at25_desc) != AT25_SUCCESS) {
