@@ -163,8 +163,8 @@ const struct serialflash_pin_definition serialflash_pin_defs[] = {
 		.num_pins = ARRAY_SIZE(spi1_ioset3),
 		.pins = spi1_ioset3,
 		.npcs_pins = {
-			&spi1_ioset2_npcs0, &spi1_ioset2_npcs1,
-			&spi1_ioset2_npcs2, NULL
+			&spi1_ioset3_npcs0, &spi1_ioset3_npcs1,
+			&spi1_ioset3_npcs2, NULL
 		}
 	},
 	{
