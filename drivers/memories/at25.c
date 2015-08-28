@@ -94,7 +94,8 @@
 /* Exit 4-BYTE ADDRESS mode  */
 #define CMD_EXIT_4ADDR_MODE        0xE9
 
-#define MODE_3B_MAX_SIZE    16*1024*1024
+/** Maximum size in 3-byte addressing mode */
+#define MODE_3B_MAX_SIZE           (1 << 24)
 
 #define AT25_ERASE_4K_32K      (AT25_ERASE_4K | AT25_ERASE_32K)
 #define AT25_ERASE_4K_64K      (AT25_ERASE_4K | AT25_ERASE_64K)
@@ -251,19 +252,6 @@ static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 		return AT25_ERROR_SPI;
 	}
 	return AT25_SUCCESS;
-}
-
-static uint32_t _at25_compute_read_cmd(struct _at25* at25, uint8_t* cmd,
-				   uint32_t addr)
-{
-	struct _buffer out = {
-		.data = cmd,
-		.size = 1
-	};
-	cmd[0] = CMD_READ_ARRAY;
-	out.size += _at25_compute_addr(at25, &cmd[1], addr);
-	out.size += 1;
-	return out.size;
 }
 
 static void _at25_enter_4addr_mode(struct _at25* at25)
@@ -491,16 +479,19 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr,
 		return AT25_ERROR_BUSY;
 	}
 
-	uint8_t cmd[5];
-	uint32_t cmd_size = _at25_compute_read_cmd(at25, cmd, addr);
+	uint8_t cmd[6];
 	struct _buffer out = {
-		.data = (uint8_t*)&cmd,
-		.size = cmd_size
+		.data = cmd,
+		.size = 1
 	};
 	struct _buffer in = {
 		.data = data,
 		.size = length
 	};
+
+	cmd[0] = CMD_READ_ARRAY;
+	out.size += _at25_compute_addr(at25, &cmd[1], addr);
+	out.size += 1; /* one dummy byte */
 
 	spid_begin_transfert(at25->spid);
 	status = spid_transfert(at25->spid, &in, &out,
@@ -610,13 +601,14 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	default:
 		return AT25_ERROR_PROGRAM;
 	}
+
 	cmd[0] = applied_erase;
+	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 
 	trace_debug("at25: Clearing block at addr 0x%x\r\n",
 		    (unsigned int)addr);
 
 	_at25_enable_write(at25);
-	out.size = 1 + _at25_compute_addr(at25, &cmd[1], addr);
 	spid_begin_transfert(at25->spid);
 	spid_transfert(at25->spid, 0, &out,
 		       spid_finish_transfert_callback, 0);
