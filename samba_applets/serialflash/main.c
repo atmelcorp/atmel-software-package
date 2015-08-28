@@ -316,7 +316,7 @@ static uint32_t handle_cmd_read(uint32_t cmd, uint32_t *args)
 
 	assert(cmd == APPLET_CMD_READ);
 
-	/* check that mailbox buffer is contained in our buffer zone */
+	/* check that start of buffer is contained in our buffer zone */
 	if (buf < buffer || buf >= buffer_end) {
 		trace_error("Invalid buffer address\r\n");
 		return APPLET_FAIL;
@@ -324,10 +324,8 @@ static uint32_t handle_cmd_read(uint32_t cmd, uint32_t *args)
 
 	/* check that requested size does not overflow buffer */
 	if ((buf + size) > buffer_end) {
-		size = buffer_end - buf;
-		trace_warning("Buffer overflow: size %u is too much, "
-				"will use %u instead\r\n",
-				(unsigned)in->buf_size, (unsigned)size);
+		trace_error("Buffer overflow\r\n");
+		return APPLET_FAIL;
 	}
 
 	/* perform the read operation */
