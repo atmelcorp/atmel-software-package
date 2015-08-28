@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -39,6 +39,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
+#include "pin_defs.h"
 #include "trace.h"
 #include <assert.h>
 #include <stdio.h>
@@ -120,103 +121,6 @@ struct output_buffer_erase
 	uint32_t bytes_erased; /* Bytes erased */
 };
 
-/* Instance/IOSet PIO configuration */
-struct pio_definition
-{
-	uint32_t           instance;
-	uint32_t           ioset;
-	uint32_t           cs;
-	Spi*               addr;
-	uint32_t           num_pins;
-	const struct _pin *pins;
-};
-
-/*----------------------------------------------------------------------------
- *         Local constants
- *----------------------------------------------------------------------------*/
-
-#if defined(CONFIG_SOC_SAMA5D2)
-static const struct _pin spi0_npcs0_ioset1[] = PINS_SPI0_NPCS0_IOS1;
-static const struct _pin spi0_npcs1_ioset1[] = PINS_SPI0_NPCS1_IOS1;
-static const struct _pin spi0_npcs2_ioset1[] = PINS_SPI0_NPCS2_IOS1;
-static const struct _pin spi0_npcs3_ioset1[] = PINS_SPI0_NPCS3_IOS1;
-static const struct _pin spi0_npcs0_ioset2[] = PINS_SPI0_NPCS0_IOS2;
-static const struct _pin spi0_npcs1_ioset2[] = PINS_SPI0_NPCS1_IOS2;
-static const struct _pin spi0_npcs2_ioset2[] = PINS_SPI0_NPCS2_IOS2;
-static const struct _pin spi0_npcs3_ioset2[] = PINS_SPI0_NPCS3_IOS2;
-static const struct _pin spi1_npcs0_ioset1[] = PINS_SPI1_NPCS0_IOS1;
-static const struct _pin spi1_npcs1_ioset1[] = PINS_SPI1_NPCS1_IOS1;
-static const struct _pin spi1_npcs2_ioset1[] = PINS_SPI1_NPCS2_IOS1;
-static const struct _pin spi1_npcs3_ioset1[] = PINS_SPI1_NPCS3_IOS1;
-static const struct _pin spi1_npcs0_ioset2[] = PINS_SPI1_NPCS0_IOS2;
-static const struct _pin spi1_npcs1_ioset2[] = PINS_SPI1_NPCS1_IOS2;
-static const struct _pin spi1_npcs2_ioset2[] = PINS_SPI1_NPCS2_IOS2;
-static const struct _pin spi1_npcs3_ioset2[] = PINS_SPI1_NPCS3_IOS2;
-static const struct _pin spi1_npcs0_ioset3[] = PINS_SPI1_NPCS0_IOS3;
-static const struct _pin spi1_npcs1_ioset3[] = PINS_SPI1_NPCS1_IOS3;
-static const struct _pin spi1_npcs2_ioset3[] = PINS_SPI1_NPCS2_IOS3;
-
-static const struct pio_definition pio_definitions[] = {
-	{ 0, 1, 0, SPI0, ARRAY_SIZE(spi0_npcs0_ioset1), spi0_npcs0_ioset1 },
-	{ 0, 1, 1, SPI0, ARRAY_SIZE(spi0_npcs1_ioset1), spi0_npcs1_ioset1 },
-	{ 0, 1, 2, SPI0, ARRAY_SIZE(spi0_npcs2_ioset1), spi0_npcs2_ioset1 },
-	{ 0, 1, 3, SPI0, ARRAY_SIZE(spi0_npcs3_ioset1), spi0_npcs3_ioset1 },
-	{ 0, 2, 0, SPI0, ARRAY_SIZE(spi0_npcs0_ioset2), spi0_npcs0_ioset2 },
-	{ 0, 2, 1, SPI0, ARRAY_SIZE(spi0_npcs1_ioset2), spi0_npcs1_ioset2 },
-	{ 0, 2, 2, SPI0, ARRAY_SIZE(spi0_npcs2_ioset2), spi0_npcs2_ioset2 },
-	{ 0, 2, 3, SPI0, ARRAY_SIZE(spi0_npcs3_ioset2), spi0_npcs3_ioset2 },
-	{ 1, 1, 0, SPI1, ARRAY_SIZE(spi1_npcs0_ioset1), spi1_npcs0_ioset1 },
-	{ 1, 1, 1, SPI1, ARRAY_SIZE(spi1_npcs1_ioset1), spi1_npcs1_ioset1 },
-	{ 1, 1, 2, SPI1, ARRAY_SIZE(spi1_npcs2_ioset1), spi1_npcs2_ioset1 },
-	{ 1, 1, 3, SPI1, ARRAY_SIZE(spi1_npcs3_ioset1), spi1_npcs3_ioset1 },
-	{ 1, 2, 0, SPI1, ARRAY_SIZE(spi1_npcs0_ioset2), spi1_npcs0_ioset2 },
-	{ 1, 2, 1, SPI1, ARRAY_SIZE(spi1_npcs1_ioset2), spi1_npcs1_ioset2 },
-	{ 1, 2, 2, SPI1, ARRAY_SIZE(spi1_npcs2_ioset2), spi1_npcs2_ioset2 },
-	{ 1, 2, 3, SPI1, ARRAY_SIZE(spi1_npcs3_ioset2), spi1_npcs3_ioset2 },
-	{ 1, 3, 0, SPI1, ARRAY_SIZE(spi1_npcs0_ioset3), spi1_npcs0_ioset3 },
-	{ 1, 3, 1, SPI1, ARRAY_SIZE(spi1_npcs1_ioset3), spi1_npcs1_ioset3 },
-	{ 1, 3, 2, SPI1, ARRAY_SIZE(spi1_npcs2_ioset3), spi1_npcs2_ioset3 },
-};
-#elif defined(CONFIG_SOC_SAMA5D4)
-static const struct _pin spi0_npcs0[] = PINS_SPI0_NPCS0;
-static const struct _pin spi0_npcs1[] = PINS_SPI0_NPCS1;
-static const struct _pin spi0_npcs1_alt[] = PINS_SPI0_NPCS1_ALT;
-static const struct _pin spi0_npcs2[] = PINS_SPI0_NPCS2;
-static const struct _pin spi0_npcs2_alt[] = PINS_SPI0_NPCS2_ALT;
-static const struct _pin spi0_npcs3[] = PINS_SPI0_NPCS3;
-static const struct _pin spi1_npcs0[] = PINS_SPI1_NPCS0;
-static const struct _pin spi1_npcs1[] = PINS_SPI1_NPCS1;
-static const struct _pin spi1_npcs1_alt[] = PINS_SPI1_NPCS1_ALT;
-static const struct _pin spi1_npcs2[] = PINS_SPI1_NPCS2;
-static const struct _pin spi1_npcs2_alt[] = PINS_SPI1_NPCS2_ALT;
-static const struct _pin spi1_npcs3[] = PINS_SPI1_NPCS3;
-static const struct _pin spi1_npcs3_alt[] = PINS_SPI1_NPCS3_ALT;
-static const struct _pin spi2_npcs0[] = PINS_SPI2_NPCS0;
-static const struct _pin spi2_npcs1[] = PINS_SPI2_NPCS1;
-static const struct _pin spi2_npcs2[] = PINS_SPI2_NPCS2;
-static const struct _pin spi2_npcs3[] = PINS_SPI2_NPCS3;
-
-static const struct pio_definition pio_definitions[] = {
-	{ 0, 1, 0, SPI0, ARRAY_SIZE(spi0_npcs0),     spi0_npcs0 },
-	{ 0, 1, 1, SPI0, ARRAY_SIZE(spi0_npcs1),     spi0_npcs1 },
-	{ 0, 1, 2, SPI0, ARRAY_SIZE(spi0_npcs2),     spi0_npcs2 },
-	{ 0, 1, 3, SPI0, ARRAY_SIZE(spi0_npcs3),     spi0_npcs3 },
-	{ 0, 2, 1, SPI0, ARRAY_SIZE(spi0_npcs1_alt), spi0_npcs1_alt },
-	{ 0, 2, 2, SPI0, ARRAY_SIZE(spi0_npcs2_alt), spi0_npcs2_alt },
-	{ 1, 1, 0, SPI1, ARRAY_SIZE(spi1_npcs0),     spi1_npcs0 },
-	{ 1, 1, 1, SPI1, ARRAY_SIZE(spi1_npcs1),     spi1_npcs1 },
-	{ 1, 1, 2, SPI1, ARRAY_SIZE(spi1_npcs2),     spi1_npcs2 },
-	{ 1, 1, 3, SPI1, ARRAY_SIZE(spi1_npcs3),     spi1_npcs3 },
-	{ 1, 2, 1, SPI1, ARRAY_SIZE(spi1_npcs1_alt), spi1_npcs1_alt },
-	{ 1, 2, 2, SPI1, ARRAY_SIZE(spi1_npcs2_alt), spi1_npcs2_alt },
-	{ 1, 2, 3, SPI1, ARRAY_SIZE(spi1_npcs3_alt), spi1_npcs3_alt },
-	{ 2, 1, 0, SPI2, ARRAY_SIZE(spi2_npcs0),     spi2_npcs0 },
-	{ 2, 1, 1, SPI2, ARRAY_SIZE(spi2_npcs1),     spi2_npcs1 },
-	{ 2, 1, 2, SPI2, ARRAY_SIZE(spi2_npcs2),     spi2_npcs2 },
-	{ 2, 1, 3, SPI2, ARRAY_SIZE(spi2_npcs3),     spi2_npcs3 },
-};
-#endif
-
 /*----------------------------------------------------------------------------
  *         Local variables
  *----------------------------------------------------------------------------*/
@@ -243,13 +147,18 @@ static uint32_t buffer_size;
 static bool configure_instance_pio(uint32_t instance, uint32_t ioset,
 		uint32_t cs, Spi** addr)
 {
+	if (cs >= 4)
+		return false;
+
 	int i;
-	for (i = 0; i < ARRAY_SIZE(pio_definitions); i++) {
-		const struct pio_definition* def = &pio_definitions[i];
+	for (i = 0; i < num_serialflash_pin_defs; i++) {
+		const struct serialflash_pin_definition* def =
+			&serialflash_pin_defs[i];
 		if (def->instance == instance && def->ioset == ioset &&
-				def->cs == cs) {
+				def->npcs_pins[cs]) {
 			*addr = def->addr;
 			pio_configure(def->pins, def->num_pins);
+			pio_configure(def->npcs_pins[cs], 1);
 			return true;
 		}
 	}
