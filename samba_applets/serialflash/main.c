@@ -273,64 +273,33 @@ static uint32_t handle_cmd_write(uint32_t cmd, uint32_t *args)
 
 	uint8_t *buf = (uint8_t*)in->buf_addr;
 	uint32_t size = in->buf_size;
-	uint32_t written = 0;
 	uint32_t offset = in->mem_offset;
-	uint8_t *tmp_buf;
 
 	assert(cmd == APPLET_CMD_WRITE);
 
-	/* provision space for head and/or tail handling if we are not
-	 * 4K-aligned */
-	tmp_buf = buf + size;
-
-	/* check that mailbox buffer is contained in our buffer zone */
+	/* check that start of buffer is contained in our buffer zone */
 	if (buf < buffer || buf >= buffer_end) {
 		trace_error("Invalid buffer address\r\n");
 		return APPLET_FAIL;
 	}
 
 	/* check that requested size does not overflow buffer */
-	if ((tmp_buf + 4096) > buffer_end) {
+	if ((buf + size) > buffer_end) {
 		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 
-	while (size > 0) {
-		uint8_t *data = buf;
-		uint32_t head = offset & 4095;
-		uint32_t count = MIN(size, 4096 - head);
-		uint32_t tail = (offset + count) & 4095;
-
-		/* handle read/update if partial block update */
-		if (head || tail) {
-			data = tmp_buf;
-			offset &= ~4095;
-
-			/* read data to be updated */
-			at25_read(&at25drv, offset, data, 4096);
-
-			/* copy data to be overwritten */
-			memcpy(data + head, buf, count);
-		}
-
-		/* erase block */
-		at25_erase_block(&at25drv, offset, AT25_ERASE_4K);
-		at25_wait(&at25drv);
-
-		/* write block */
-		at25_write(&at25drv, offset, data, 4096);
-		at25_wait(&at25drv);
-
-		/* update position */
-		offset += 4096;
-		written += count;
-		buf += count;
-		size -= count;
+	/* perform the write operation */
+	if (at25_write(&at25drv, offset, buf, size) != AT25_SUCCESS) {
+		trace_error("Write error\r\n");
+		out->bytes_written = 0;
+		return APPLET_WRITE_FAIL;
 	}
+	at25_wait(&at25drv);
 
-	trace_info_wp("Wrote %u bytes at 0x%x\r\n", (unsigned)written,
-			(unsigned)in->mem_offset);
-	out->bytes_written = written;
+	trace_info_wp("Wrote %u bytes at 0x%x\r\n", (unsigned)size,
+			(unsigned)offset);
+	out->bytes_written = size;
 	return APPLET_SUCCESS;
 }
 
