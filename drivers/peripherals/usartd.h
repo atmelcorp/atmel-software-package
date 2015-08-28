@@ -57,7 +57,7 @@ struct _usart_desc
 	void*   cb_args;
 };
 
-enum _spid_trans_mode
+enum _usartd_trans_mode
 {
 	USARTD_MODE_POLLING,
 	USARTD_MODE_FIFO,
