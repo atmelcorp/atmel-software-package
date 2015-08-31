@@ -1050,7 +1050,7 @@ void MCAN_ConfigRxClassicFilter(const MCan_ConfigType *mcanConfig,
 			if (fifo == CAN_FIFO_0)
 				*pThisRxFilt++ =
 				    EXT_FILT_EFEC_FIFO0 | id;
-			else if (fifo == CAN_FIFO_0)
+			else if (fifo == CAN_FIFO_1)
 				*pThisRxFilt++ =
 				    EXT_FILT_EFEC_FIFO1 | id;
 			*pThisRxFilt =
