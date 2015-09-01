@@ -73,11 +73,10 @@ enum mcan_can_mode
 	MCAN_MODE_EXT_LEN_DUAL_RATE,
 };
 
-typedef enum
-{
-	CAN_STD_ID = 0,
-	CAN_EXT_ID = 1
-} MCan_IdType;
+/* Flag signalling a standard (11-bit) message identifiers */
+#define CAN_STD_MSG_ID (0x0u << 30)
+/* Flag to be bitwise or'ed to extended (29-bit) message identifiers */
+#define CAN_EXT_MSG_ID (0x1u << 30)
 
 typedef enum
 {
@@ -226,6 +225,16 @@ static inline bool MCAN_IsEnabled(const struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 	return ((mcan->MCAN_CCCR & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_DISABLED);
+}
+
+static inline bool MCAN_IsExtendedID(uint32_t msg_id)
+{
+	return msg_id & CAN_EXT_MSG_ID ? true : false;
+}
+
+static inline uint32_t MCAN_GetID(uint32_t msg_id)
+{
+	return msg_id & CAN_EXT_MSG_ID ? msg_id & 0x1fffffff : msg_id & 0x7ff;
 }
 
 static inline bool MCAN_IsTxComplete(const struct mcan_set *set)
@@ -387,12 +396,11 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(
  * \param set  Pointer to driver instance data.
  * \param buf_idx  Index of the transmit buffer to be used.
  * \param id  Message ID.
- * \param idType  Type of ID.
  * \param len  Data length, in bytes.
  * \return Address of data byte 0, part of the transmit buffer.
  */
 uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
-    uint8_t buf_idx, uint32_t id, MCan_IdType idType, uint8_t len);
+    uint8_t buf_idx, uint32_t id, uint8_t len);
 
 /**
  * \brief Send TX buffer.
@@ -405,14 +413,13 @@ void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx);
  * \brief Add message to TX FIFO / queue.
  * \param set  Pointer to driver instance data.
  * \param id  Message ID.
- * \param idType  Type of ID.
  * \param len  Data length, in bytes.
  * \param data  Pointer to data.
  * \return Index of the assigned transmit buffer, part of the FIFO / queue.
  * Or 0xff if the TX FIFO was full, or an error occurred.
  */
 uint32_t MCAN_AddToTxFifoQ(struct mcan_set *set,
-    uint32_t id, MCan_IdType idType, uint8_t len, const uint8_t *data);
+    uint32_t id, uint8_t len, const uint8_t *data);
 
 /**
  * \brief Check if data transmitted from buffer/FIFO/queue.
@@ -429,10 +436,9 @@ bool MCAN_IsBufferTxd(const struct mcan_set *set, uint8_t buf_idx);
  * \param buf_idx  Index of the receive buffer to be used.
  * \param filter  Data of filter.
  * \param id  Message ID, must match exactly a RX buffer filter.
- * \param idType  Type of ID.
  */
 void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
-    uint32_t buf_idx, uint32_t filter, uint32_t id, MCan_IdType idType);
+    uint32_t buf_idx, uint32_t filter, uint32_t id);
 
 /**
  * \brief Configure classic filter.
@@ -442,12 +448,10 @@ void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
  * \param fifo  FIFO number.
  * \param filter  Data of filter.
  * \param id  Message ID.
- * \param idType  Type of ID.
  * \param mask  Mask to be matched.
  */
 void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
-    MCan_FifoType fifo, uint8_t filter, uint32_t id, MCan_IdType idType,
-    uint32_t mask);
+    MCan_FifoType fifo, uint8_t filter, uint32_t id, uint32_t mask);
 
 /**
  * \brief Check whether some data has been received into the buffer.

@@ -469,8 +469,7 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(struct mcan_set *set,
 }
 
 uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
-				 uint8_t buf_idx, uint32_t id,
-				 MCan_IdType idType, uint8_t len)
+				 uint8_t buf_idx, uint32_t id, uint8_t len)
 {
 	assert(buf_idx < set->cfg.array_size_tx);
 	assert(len <= set->cfg.buf_size_tx);
@@ -487,10 +486,10 @@ uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + buf_idx
 	    * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (idType == CAN_STD_ID)
-		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
-	else
+	if (MCAN_IsExtendedID(id))
 		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
+	else
+		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
 	val = MCAN_RAM_BUF_MM(0) | MCAN_RAM_BUF_DLC((uint32_t)dlc);
 	if (mode == MCAN_MODE_EXT_LEN_CONST_RATE)
 		val |= MCAN_RAM_BUF_FDF;
@@ -512,8 +511,7 @@ void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx)
 }
 
 uint32_t MCAN_AddToTxFifoQ(struct mcan_set *set,
-			   uint32_t id, MCan_IdType idType, uint8_t len,
-			   const uint8_t *data)
+			   uint32_t id, uint8_t len, const uint8_t *data)
 {
 	assert(len <= set->cfg.buf_size_tx);
 
@@ -532,10 +530,10 @@ uint32_t MCAN_AddToTxFifoQ(struct mcan_set *set,
 	    >> MCAN_TXFQS_TFQPI_Pos;
 	pThisTxBuf = set->ram_array_tx +
 	    putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (idType == CAN_STD_ID)
-		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
-	else
+	if (MCAN_IsExtendedID(id))
 		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
+	else
+		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
 	val = MCAN_RAM_BUF_MM(0) | MCAN_RAM_BUF_DLC((uint32_t)dlc);
 	if (mode == MCAN_MODE_EXT_LEN_CONST_RATE)
 		val |= MCAN_RAM_BUF_FDF;
@@ -559,60 +557,49 @@ bool MCAN_IsBufferTxd(const struct mcan_set *set, uint8_t buf_idx)
 }
 
 void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
-			       uint32_t buf_idx, uint32_t filter, uint32_t id,
-			       MCan_IdType idType)
+			       uint32_t buf_idx, uint32_t filter, uint32_t id)
 {
 	assert(buf_idx < set->cfg.array_size_rx);
-	assert(idType == CAN_EXT_ID ? filter < set->cfg.array_size_filt_ext
+	assert(id & CAN_EXT_MSG_ID ? filter < set->cfg.array_size_filt_ext
 	    : filter < set->cfg.array_size_filt_std);
-	assert(idType == CAN_EXT_ID ? id <= 0x1fffffff : id <= 0x7ff);
+	assert(id & CAN_EXT_MSG_ID ? (id & ~CAN_EXT_MSG_ID) <= 0x1fffffff :
+	    id <= 0x7ff);
 
 	uint32_t *pThisRxFilt = 0;
 
 	if (buf_idx >= set->cfg.array_size_rx)
 		return;
-	if (idType == CAN_STD_ID) {
-		pThisRxFilt = set->ram_filt_std + filter
-		    * MCAN_RAM_FILT_STD_SIZE;
-		*pThisRxFilt = MCAN_RAM_FILT_SFEC_BUF
-		    | MCAN_RAM_FILT_SFID1(id)
-		    | MCAN_RAM_FILT_SFID2_BUF
-		    | MCAN_RAM_FILT_SFID2_BUF_IDX(buf_idx);
-	} else {
-		/* extended ID */
+	if (MCAN_IsExtendedID(id)) {
 		pThisRxFilt = set->ram_filt_ext + filter
 		    * MCAN_RAM_FILT_EXT_SIZE;
 		*pThisRxFilt++ = MCAN_RAM_FILT_EFEC_BUF
 		    | MCAN_RAM_FILT_EFID1(id);
 		*pThisRxFilt = MCAN_RAM_FILT_EFID2_BUF
 		    | MCAN_RAM_FILT_EFID2_BUF_IDX(buf_idx);
+	} else {
+		pThisRxFilt = set->ram_filt_std + filter
+		    * MCAN_RAM_FILT_STD_SIZE;
+		*pThisRxFilt = MCAN_RAM_FILT_SFEC_BUF
+		    | MCAN_RAM_FILT_SFID1(id)
+		    | MCAN_RAM_FILT_SFID2_BUF
+		    | MCAN_RAM_FILT_SFID2_BUF_IDX(buf_idx);
 	}
 }
 
 void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
 				MCan_FifoType fifo, uint8_t filter, uint32_t id,
-				MCan_IdType idType, uint32_t mask)
+				uint32_t mask)
 {
-	assert(idType == CAN_EXT_ID ? filter < set->cfg.array_size_filt_ext
+	assert(id & CAN_EXT_MSG_ID ? filter < set->cfg.array_size_filt_ext
 	    : filter < set->cfg.array_size_filt_std);
-	assert(idType == CAN_EXT_ID ? id <= 0x1fffffff : id <= 0x7ff);
-	assert(idType == CAN_EXT_ID ? mask <= 0x1fffffff : mask <= 0x7ff);
+	assert(id & CAN_EXT_MSG_ID ? (id & ~CAN_EXT_MSG_ID) <= 0x1fffffff :
+	    id <= 0x7ff);
+	assert(id & CAN_EXT_MSG_ID ? mask <= 0x1fffffff : mask <= 0x7ff);
 
 	uint32_t *pThisRxFilt = 0;
 	uint32_t val;
 
-	if (idType == CAN_STD_ID) {
-		pThisRxFilt = set->ram_filt_std + filter
-		    * MCAN_RAM_FILT_STD_SIZE;
-		val = MCAN_RAM_FILT_SFT_CLASSIC
-		    | MCAN_RAM_FILT_SFID1(id)
-		    | MCAN_RAM_FILT_SFID2(mask);
-		if (fifo == CAN_FIFO_0)
-			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO0 | val;
-		else if (fifo == CAN_FIFO_1)
-			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO1 | val;
-	} else {
-		/* extended ID */
+	if (MCAN_IsExtendedID(id)) {
 		pThisRxFilt = set->ram_filt_ext + filter
 		    * MCAN_RAM_FILT_EXT_SIZE;
 		if (fifo == CAN_FIFO_0)
@@ -623,6 +610,16 @@ void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
 			    | MCAN_RAM_FILT_EFID1(id);
 		*pThisRxFilt = MCAN_RAM_FILT_EFT_CLASSIC
 		    | MCAN_RAM_FILT_EFID2(mask);
+	} else {
+		pThisRxFilt = set->ram_filt_std + filter
+		    * MCAN_RAM_FILT_STD_SIZE;
+		val = MCAN_RAM_FILT_SFT_CLASSIC
+		    | MCAN_RAM_FILT_SFID1(id)
+		    | MCAN_RAM_FILT_SFID2(mask);
+		if (fifo == CAN_FIFO_0)
+			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO0 | val;
+		else if (fifo == CAN_FIFO_1)
+			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO1 | val;
 	}
 }
 
@@ -654,8 +651,8 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set,
 	    * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_rx / 4));
 	tempRy = *pThisRxBuf++;   /* word R0 contains ID */
 	if (tempRy & MCAN_RAM_BUF_XTD)
-		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_XTD_Msk)
-		    >> MCAN_RAM_BUF_ID_XTD_Pos;
+		pRxMailbox->info.id = CAN_EXT_MSG_ID | (tempRy
+		    & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
 	else
 		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
 		    >> MCAN_RAM_BUF_ID_STD_Pos;
@@ -711,8 +708,8 @@ uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set,
 	    / 4);
 	tempRy = *pThisRxBuf++;	  /* word R0 contains ID */
 	if (tempRy & MCAN_RAM_BUF_XTD)
-		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_XTD_Msk)
-		    >> MCAN_RAM_BUF_ID_XTD_Pos;
+		pRxMailbox->info.id = CAN_EXT_MSG_ID | (tempRy
+		    & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
 	else
 		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
 		    >> MCAN_RAM_BUF_ID_STD_Pos;
