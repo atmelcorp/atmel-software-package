@@ -78,6 +78,15 @@ enum mcan_can_mode
 /* Flag to be bitwise or'ed to extended (29-bit) message identifiers */
 #define CAN_EXT_MSG_ID (0x1u << 30)
 
+struct mcan_msg_info
+{
+	uint32_t id;
+	uint32_t timestamp;
+	uint8_t *data;
+	uint8_t full_len;
+	uint8_t data_len;
+};
+
 typedef enum
 {
 	CAN_FIFO_0 = 0,
@@ -89,61 +98,6 @@ typedef enum
 	CAN_INTR_LINE_0 = 0,
 	CAN_INTR_LINE_1 = 1
 } MCan_IntrLineType;
-
-typedef struct MailboxInfoTag
-{
-	uint32_t id;
-	uint32_t length;
-	uint32_t timestamp;
-} MailboxInfoType;
-
-typedef struct MailBox8Tag
-{
-	MailboxInfoType info;
-	uint8_t data[8];
-} Mailbox8Type;
-
-typedef struct MailBox12Tag
-{
-	MailboxInfoType info;
-	uint8_t data[12];
-} Mailbox12Type;
-
-typedef struct MailBox16Tag
-{
-	MailboxInfoType info;
-	uint8_t data[16];
-} Mailbox16Type;
-
-typedef struct MailBox20Tag
-{
-	MailboxInfoType info;
-	uint8_t data[20];
-} Mailbox20Type;
-
-typedef struct MailBox24Tag
-{
-	MailboxInfoType info;
-	uint8_t data[24];
-} Mailbox24Type;
-
-typedef struct MailBox32Tag
-{
-	MailboxInfoType info;
-	uint8_t data[32];
-} Mailbox32ype;
-
-typedef struct MailBox48Tag
-{
-	MailboxInfoType info;
-	uint8_t data[48];
-} Mailbox48Type;
-
-typedef struct MailBox64Tag
-{
-	MailboxInfoType info;
-	uint8_t data[64];
-} Mailbox64Type;
 
 struct mcan_config
 {
@@ -467,16 +421,22 @@ bool MCAN_IsNewDataInRxDedBuffer(const struct mcan_set *set,
  * \brief Get RX buffer.
  * \param set  Pointer to driver instance data.
  * \param buf_idx  Index of the receive buffer to be read.
- * \param pRxMailbox  Pointer to RX mailbox.
+ * \param msg  Address where the CAN message properties will be written.
+ * The msg->data and msg->data_len parameters shall be initialized prior to
+ * calling this function. Message contents will be copied to msg->data if
+ * msg->data is not null and if msg->data_len is large enough.
  */
 void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
-    Mailbox64Type *pRxMailbox);
+    struct mcan_msg_info *msg);
 
 /**
  * \brief Get from the receive FIFO, to a mailbox owned by the application.
  * \param set  Pointer to driver instance data.
  * \param fifo  FIFO Number
- * \param pRxMailbox  Pointer to RX mailbox.
+ * \param msg  Address where the CAN message properties will be written.
+ * The msg->data and msg->data_len parameters shall be initialized prior to
+ * calling this function. Message contents will be copied to msg->data if
+ * msg->data is not null and if msg->data_len is large enough.
  * \return: # of FIFO entries at the time the function was entered:
  *    0       -> The FIFO was initially empty.
  *    1       -> The FIFO had 1 entry upon entry, but is empty upon exit.
@@ -484,7 +444,7 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
  *               or more entries upon exit.
  */
 uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set,
-    MCan_FifoType fifo, Mailbox64Type *pRxMailbox);
+    MCan_FifoType fifo, struct mcan_msg_info *msg);
 
 #ifdef __cplusplus
 }

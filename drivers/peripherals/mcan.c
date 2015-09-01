@@ -636,35 +636,49 @@ bool MCAN_IsNewDataInRxDedBuffer(const struct mcan_set *set,
 		return false;
 }
 
-void MCAN_GetRxDedBuffer(struct mcan_set *set,
-			 uint8_t buf_idx, Mailbox64Type *pRxMailbox)
+void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
+			 struct mcan_msg_info *msg)
 {
 	assert(buf_idx < set->cfg.array_size_rx);
 
 	Mcan *mcan = set->cfg.regs;
 	const uint32_t *pThisRxBuf = 0;
 	uint32_t tempRy;   /* temp copy of RX buffer word */
+	uint8_t len;
 
-	if (buf_idx >= set->cfg.array_size_rx)
+	if (buf_idx >= set->cfg.array_size_rx) {
+		msg->id = 0;
+		msg->timestamp = 0;
+		msg->full_len = 0;
+		msg->data_len = 0;
 		return;
+	}
 	pThisRxBuf = set->ram_array_rx + (buf_idx
 	    * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_rx / 4));
 	tempRy = *pThisRxBuf++;   /* word R0 contains ID */
 	if (tempRy & MCAN_RAM_BUF_XTD)
-		pRxMailbox->info.id = CAN_EXT_MSG_ID | (tempRy
-		    & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
+		msg->id = CAN_EXT_MSG_ID | (tempRy & MCAN_RAM_BUF_ID_XTD_Msk)
+		    >> MCAN_RAM_BUF_ID_XTD_Pos;
 	else
-		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
+		msg->id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
 		    >> MCAN_RAM_BUF_ID_STD_Pos;
 	tempRy = *pThisRxBuf++;   /* word R1 contains DLC & time stamp */
-	pRxMailbox->info.length = get_data_length((tempRy
-	    & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos);
-	if (pRxMailbox->info.length > set->cfg.buf_size_rx)
-		pRxMailbox->info.length = set->cfg.buf_size_rx;
-	pRxMailbox->info.timestamp = (tempRy & MCAN_RAM_BUF_RXTS_Msk)
+	msg->full_len = len = get_data_length((enum mcan_dlc)
+	    ((tempRy & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos));
+	msg->timestamp = (tempRy & MCAN_RAM_BUF_RXTS_Msk)
 	    >> MCAN_RAM_BUF_RXTS_Pos;
-	/* copy the data from the buffer to the mailbox */
-	memcpy(pRxMailbox->data, pThisRxBuf, pRxMailbox->info.length);
+	if (msg->data) {
+		/* copy the data from the Rx Buffer Element to the
+		 * application-owned buffer */
+		if (len > set->cfg.buf_size_rx)
+			len = set->cfg.buf_size_rx;
+		if (len > msg->data_len)
+			len = msg->data_len;
+		memcpy(msg->data, pThisRxBuf, len);
+		msg->data_len = len;
+	}
+	else
+		msg->data_len = 0;
 	/* clear the new data flag for the buffer */
 	if (buf_idx < 32)
 		mcan->MCAN_NDAT1 = (1 << buf_idx);
@@ -672,13 +686,13 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set,
 		mcan->MCAN_NDAT2 = (1 << (buf_idx - 32));
 }
 
-uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set,
-                             MCan_FifoType fifo, Mailbox64Type *pRxMailbox)
+uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, MCan_FifoType fifo,
+                             struct mcan_msg_info *msg)
 {
 	Mcan *mcan = set->cfg.regs;
 	uint32_t *pThisRxBuf = 0;
 	uint32_t tempRy;   /* temp copy of RX buffer word */
-	uint8_t buf_elem_data_size;
+	uint8_t buf_elem_data_size, len;
 	uint32_t *fifo_ack_reg;
 	uint32_t get_index;
 	uint8_t fill_level = 0;   /* default: fifo empty */
@@ -708,20 +722,28 @@ uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set,
 	    / 4);
 	tempRy = *pThisRxBuf++;	  /* word R0 contains ID */
 	if (tempRy & MCAN_RAM_BUF_XTD)
-		pRxMailbox->info.id = CAN_EXT_MSG_ID | (tempRy
-		    & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
+		msg->id = CAN_EXT_MSG_ID | (tempRy & MCAN_RAM_BUF_ID_XTD_Msk)
+		    >> MCAN_RAM_BUF_ID_XTD_Pos;
 	else
-		pRxMailbox->info.id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
+		msg->id = (tempRy & MCAN_RAM_BUF_ID_STD_Msk)
 		    >> MCAN_RAM_BUF_ID_STD_Pos;
 	tempRy = *pThisRxBuf++;   /* word R1 contains DLC & timestamps */
-	pRxMailbox->info.length = get_data_length((tempRy
-	    & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos);
-	if (pRxMailbox->info.length > buf_elem_data_size)
-		pRxMailbox->info.length = buf_elem_data_size;
-	pRxMailbox->info.timestamp = (tempRy & MCAN_RAM_BUF_RXTS_Msk)
+	msg->full_len = len = get_data_length((enum mcan_dlc)
+	    ((tempRy & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos));
+	msg->timestamp = (tempRy & MCAN_RAM_BUF_RXTS_Msk)
 	    >> MCAN_RAM_BUF_RXTS_Pos;
-	/* copy the data from the buffer to the mailbox */
-	memcpy(pRxMailbox->data, pThisRxBuf, pRxMailbox->info.length);
+	if (msg->data) {
+		/* copy the data from the Rx Buffer Element to the
+		 * application-owned buffer */
+		if (len > buf_elem_data_size)
+			len = buf_elem_data_size;
+		if (len > msg->data_len)
+			len = msg->data_len;
+		memcpy(msg->data, pThisRxBuf, len);
+		msg->data_len = len;
+	}
+	else
+		msg->data_len = 0;
 	/* acknowledge reading the fifo entry */
 	*fifo_ack_reg = get_index;
 	/* return entries remaining in FIFO */
