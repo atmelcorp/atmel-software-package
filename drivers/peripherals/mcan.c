@@ -452,17 +452,17 @@ void MCAN_LoopbackOff(struct mcan_set *set)
 	mcan->MCAN_TEST &= ~MCAN_TEST_LBCK_ENABLED;
 }
 
-void MCAN_IEnableMessageStoredToRxDedBuffer(struct mcan_set *set,
-					    MCan_IntrLineType line)
+void MCAN_IEnableMessageStoredToRxDedBuffer(struct mcan_set *set, uint8_t line)
 {
+	assert(line == 0 || line == 1);
+
 	Mcan *mcan = set->cfg.regs;
-	if (line == CAN_INTR_LINE_0) {
-		mcan->MCAN_ILS &= ~MCAN_ILS_DRXL;
-		mcan->MCAN_ILE |= MCAN_ILE_EINT0;
-	} else {
-		/* Interrupt Line 1 */
+	if (line) {
 		mcan->MCAN_ILS |= MCAN_ILS_DRXL;
 		mcan->MCAN_ILE |= MCAN_ILE_EINT1;
+	} else {
+		mcan->MCAN_ILS &= ~MCAN_ILS_DRXL;
+		mcan->MCAN_ILE |= MCAN_ILE_EINT0;
 	}
 	mcan->MCAN_IR = MCAN_IR_DRX;   /* clear previous flag */
 	mcan->MCAN_IE |= MCAN_IE_DRXE;   /* enable it */
@@ -586,10 +586,10 @@ void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
 	}
 }
 
-void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
-				MCan_FifoType fifo, uint8_t filter, uint32_t id,
-				uint32_t mask)
+void MCAN_ConfigRxClassicFilter(struct mcan_set *set, uint8_t fifo,
+				uint8_t filter, uint32_t id, uint32_t mask)
 {
+	assert(fifo == 0 || fifo == 1);
 	assert(id & CAN_EXT_MSG_ID ? filter < set->cfg.array_size_filt_ext
 	    : filter < set->cfg.array_size_filt_std);
 	assert(id & CAN_EXT_MSG_ID ? (id & ~CAN_EXT_MSG_ID) <= 0x1fffffff :
@@ -602,12 +602,8 @@ void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
 	if (MCAN_IsExtendedID(id)) {
 		pThisRxFilt = set->ram_filt_ext + filter
 		    * MCAN_RAM_FILT_EXT_SIZE;
-		if (fifo == CAN_FIFO_0)
-			*pThisRxFilt++ = MCAN_RAM_FILT_EFEC_FIFO0
-			    | MCAN_RAM_FILT_EFID1(id);
-		else if (fifo == CAN_FIFO_1)
-			*pThisRxFilt++ = MCAN_RAM_FILT_EFEC_FIFO1
-			    | MCAN_RAM_FILT_EFID1(id);
+		*pThisRxFilt++ = (fifo ? MCAN_RAM_FILT_EFEC_FIFO1
+		    : MCAN_RAM_FILT_EFEC_FIFO0) | MCAN_RAM_FILT_EFID1(id);
 		*pThisRxFilt = MCAN_RAM_FILT_EFT_CLASSIC
 		    | MCAN_RAM_FILT_EFID2(mask);
 	} else {
@@ -616,10 +612,8 @@ void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
 		val = MCAN_RAM_FILT_SFT_CLASSIC
 		    | MCAN_RAM_FILT_SFID1(id)
 		    | MCAN_RAM_FILT_SFID2(mask);
-		if (fifo == CAN_FIFO_0)
-			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO0 | val;
-		else if (fifo == CAN_FIFO_1)
-			*pThisRxFilt = MCAN_RAM_FILT_SFEC_FIFO1 | val;
+		*pThisRxFilt = (fifo ? MCAN_RAM_FILT_SFEC_FIFO1
+		    : MCAN_RAM_FILT_SFEC_FIFO0) | val;
 	}
 }
 
@@ -686,9 +680,11 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
 		mcan->MCAN_NDAT2 = (1 << (buf_idx - 32));
 }
 
-uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, MCan_FifoType fifo,
+uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, uint8_t fifo,
                              struct mcan_msg_info *msg)
 {
+	assert(fifo == 0 || fifo == 1);
+
 	Mcan *mcan = set->cfg.regs;
 	uint32_t *pThisRxBuf = 0;
 	uint32_t tempRy;   /* temp copy of RX buffer word */
@@ -697,15 +693,7 @@ uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, MCan_FifoType fifo,
 	uint32_t get_index;
 	uint8_t fill_level = 0;   /* default: fifo empty */
 
-	if (fifo == CAN_FIFO_0) {
-		get_index = (mcan->MCAN_RXF0S & MCAN_RXF0S_F0GI_Msk)
-		    >> MCAN_RXF0S_F0GI_Pos;
-		fill_level = (uint8_t)((mcan->MCAN_RXF0S & MCAN_RXF0S_F0FL_Msk)
-		    >> MCAN_RXF0S_F0FL_Pos);
-		pThisRxBuf = set->ram_fifo_rx0;
-		buf_elem_data_size = set->cfg.buf_size_rx_fifo0;
-		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF0A;
-	} else if (fifo == CAN_FIFO_1) {
+	if (fifo) {
 		get_index = (mcan->MCAN_RXF1S & MCAN_RXF1S_F1GI_Msk) >>
 		    MCAN_RXF1S_F1GI_Pos;
 		fill_level = (uint8_t)((mcan->MCAN_RXF1S & MCAN_RXF1S_F1FL_Msk)
@@ -713,6 +701,14 @@ uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, MCan_FifoType fifo,
 		pThisRxBuf = set->ram_fifo_rx1;
 		buf_elem_data_size = set->cfg.buf_size_rx_fifo1;
 		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF1A;
+	} else {
+		get_index = (mcan->MCAN_RXF0S & MCAN_RXF0S_F0GI_Msk)
+		    >> MCAN_RXF0S_F0GI_Pos;
+		fill_level = (uint8_t)((mcan->MCAN_RXF0S & MCAN_RXF0S_F0FL_Msk)
+		    >> MCAN_RXF0S_F0FL_Pos);
+		pThisRxBuf = set->ram_fifo_rx0;
+		buf_elem_data_size = set->cfg.buf_size_rx_fifo0;
+		fifo_ack_reg = (uint32_t *) & mcan->MCAN_RXF0A;
 	}
 
 	if (fill_level == 0)

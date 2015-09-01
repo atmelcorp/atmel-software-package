@@ -87,18 +87,6 @@ struct mcan_msg_info
 	uint8_t data_len;
 };
 
-typedef enum
-{
-	CAN_FIFO_0 = 0,
-	CAN_FIFO_1 = 1
-} MCan_FifoType;
-
-typedef enum
-{
-	CAN_INTR_LINE_0 = 0,
-	CAN_INTR_LINE_1 = 1
-} MCan_IntrLineType;
-
 struct mcan_config
 {
 	uint32_t id;                  /* peripheral ID (ID_xxx) */
@@ -340,10 +328,10 @@ void MCAN_LoopbackOff(struct mcan_set *set);
  * \brief Enable message line and message stored to Dedicated Receive Buffer
  * Interrupt Line.
  * \param set  Pointer to driver instance data.
- * \param line  Message line.
+ * \param int_line  Message line.
  */
 void MCAN_IEnableMessageStoredToRxDedBuffer(
-    struct mcan_set *set, MCan_IntrLineType line);
+    struct mcan_set *set, uint8_t int_line);
 
 /**
  * \brief Configure a Dedicated TX Buffer.
@@ -399,13 +387,13 @@ void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
  * The classic filters direct the accepted messages to a FIFO, and include both
  * an ID and an ID mask.
  * \param set  Pointer to driver instance data.
- * \param fifo  FIFO number.
+ * \param fifo  Index of RX FIFO.
  * \param filter  Data of filter.
  * \param id  Message ID.
  * \param mask  Mask to be matched.
  */
-void MCAN_ConfigRxClassicFilter(struct mcan_set *set,
-    MCan_FifoType fifo, uint8_t filter, uint32_t id, uint32_t mask);
+void MCAN_ConfigRxClassicFilter(struct mcan_set *set, uint8_t fifo,
+    uint8_t filter, uint32_t id, uint32_t mask);
 
 /**
  * \brief Check whether some data has been received into the buffer.
@@ -432,7 +420,7 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
 /**
  * \brief Get from the receive FIFO, to a mailbox owned by the application.
  * \param set  Pointer to driver instance data.
- * \param fifo  FIFO Number
+ * \param fifo  Index of RX FIFO.
  * \param msg  Address where the CAN message properties will be written.
  * The msg->data and msg->data_len parameters shall be initialized prior to
  * calling this function. Message contents will be copied to msg->data if
@@ -443,8 +431,8 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
  *    2 to 64 -> The FIFO had several entries upon entry, and still holds one
  *               or more entries upon exit.
  */
-uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set,
-    MCan_FifoType fifo, struct mcan_msg_info *msg);
+uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, uint8_t fifo,
+    struct mcan_msg_info *msg);
 
 #ifdef __cplusplus
 }
