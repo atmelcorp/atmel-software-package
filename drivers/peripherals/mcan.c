@@ -170,7 +170,7 @@ static bool configure_ram(struct mcan_set *set,
  *      Exported Functions
  *---------------------------------------------------------------------------*/
 
-bool MCAN_Configure_Msg_RAM(const struct mcan_config *cfg, uint32_t *size)
+bool mcan_configure_msg_ram(const struct mcan_config *cfg, uint32_t *size)
 {
 	assert(cfg);
 	assert(size);
@@ -180,7 +180,7 @@ bool MCAN_Configure_Msg_RAM(const struct mcan_config *cfg, uint32_t *size)
 	return configure_ram(&tmp_set, cfg, size);
 }
 
-bool MCAN_Init(struct mcan_set *set, const struct mcan_config *cfg)
+bool mcan_initialize(struct mcan_set *set, const struct mcan_config *cfg)
 {
 	assert(set);
 	assert(cfg);
@@ -210,8 +210,8 @@ bool MCAN_Init(struct mcan_set *set, const struct mcan_config *cfg)
 	/* Reset the CC Control Register */
 	mcan->MCAN_CCCR = 0 | MCAN_CCCR_INIT_ENABLED;
 
-	MCAN_Disable(set);
-	MCAN_Reconfigure(set);
+	mcan_disable(set);
+	mcan_reconfigure(set);
 
 	/* Global Filter Configuration: Reject remote frames, reject non-matching frames */
 	mcan->MCAN_GFC = MCAN_GFC_RRFE_REJECT | MCAN_GFC_RRFS_REJECT
@@ -347,7 +347,7 @@ bool MCAN_Init(struct mcan_set *set, const struct mcan_config *cfg)
 	return true;
 }
 
-void MCAN_Reconfigure(struct mcan_set *set)
+void mcan_reconfigure(struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 	uint32_t regVal32;
@@ -358,7 +358,7 @@ void MCAN_Reconfigure(struct mcan_set *set)
 	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_CCE_CONFIGURABLE;
 }
 
-void MCAN_SetMode(struct mcan_set *set, enum mcan_can_mode mode)
+void mcan_set_mode(struct mcan_set *set, enum mcan_can_mode mode)
 {
 	Mcan *mcan = set->cfg.regs;
 	uint32_t regVal32;
@@ -380,7 +380,7 @@ void MCAN_SetMode(struct mcan_set *set, enum mcan_can_mode mode)
 	mcan->MCAN_CCCR = regVal32;
 }
 
-enum mcan_can_mode MCAN_GetMode(const struct mcan_set *set)
+enum mcan_can_mode mcan_get_mode(const struct mcan_set *set)
 {
 	const uint32_t cccr = set->cfg.regs->MCAN_CCCR;
 
@@ -391,7 +391,7 @@ enum mcan_can_mode MCAN_GetMode(const struct mcan_set *set)
 	return MCAN_MODE_EXT_LEN_DUAL_RATE;
 }
 
-void MCAN_InitLoopback(struct mcan_set *set)
+void mcan_init_loopback(struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 
@@ -402,13 +402,13 @@ void MCAN_InitLoopback(struct mcan_set *set)
 	mcan->MCAN_TEST |= MCAN_TEST_LBCK_ENABLED;
 }
 
-void MCAN_InitTxQueue(struct mcan_set *set)
+void mcan_set_tx_queue_mode(struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 	mcan->MCAN_TXBC |= MCAN_TXBC_TFQM;
 }
 
-void MCAN_Enable(struct mcan_set *set)
+void mcan_enable(struct mcan_set *set)
 {
 	uint32_t index, val;
 
@@ -425,7 +425,7 @@ void MCAN_Enable(struct mcan_set *set)
 	}
 }
 
-void MCAN_Disable(struct mcan_set *set)
+void mcan_disable(struct mcan_set *set)
 {
 	uint32_t val;
 	bool initial;
@@ -440,19 +440,19 @@ void MCAN_Disable(struct mcan_set *set)
 	}
 }
 
-void MCAN_LoopbackOn(struct mcan_set *set)
+void mcan_loopback_on(struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 	mcan->MCAN_TEST |= MCAN_TEST_LBCK_ENABLED;
 }
 
-void MCAN_LoopbackOff(struct mcan_set *set)
+void mcan_loopback_off(struct mcan_set *set)
 {
 	Mcan *mcan = set->cfg.regs;
 	mcan->MCAN_TEST &= ~MCAN_TEST_LBCK_ENABLED;
 }
 
-void MCAN_IEnableMessageStoredToRxDedBuffer(struct mcan_set *set, uint8_t line)
+void mcan_enable_rx_array_flag(struct mcan_set *set, uint8_t line)
 {
 	assert(line == 0 || line == 1);
 
@@ -468,8 +468,8 @@ void MCAN_IEnableMessageStoredToRxDedBuffer(struct mcan_set *set, uint8_t line)
 	mcan->MCAN_IE |= MCAN_IE_DRXE;   /* enable it */
 }
 
-uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
-				 uint8_t buf_idx, uint32_t id, uint8_t len)
+uint8_t * mcan_prepare_tx_buffer(struct mcan_set *set, uint8_t buf_idx,
+				 uint32_t id, uint8_t len)
 {
 	assert(buf_idx < set->cfg.array_size_tx);
 	assert(len <= set->cfg.buf_size_tx);
@@ -477,7 +477,7 @@ uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
 	Mcan *mcan = set->cfg.regs;
 	uint32_t *pThisTxBuf = 0;
 	uint32_t val;
-	const enum mcan_can_mode mode = MCAN_GetMode(set);
+	const enum mcan_can_mode mode = mcan_get_mode(set);
 	enum mcan_dlc dlc;
 
 	if (buf_idx >= set->cfg.array_size_tx)
@@ -486,7 +486,7 @@ uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + buf_idx
 	    * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (MCAN_IsExtendedID(id))
+	if (mcan_is_extended_id(id))
 		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
 	else
 		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
@@ -502,7 +502,7 @@ uint8_t * MCAN_ConfigTxDedBuffer(struct mcan_set *set,
 	return (uint8_t *)pThisTxBuf;   /* now it points to the data field */
 }
 
-void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx)
+void mcan_send_tx_buffer(struct mcan_set *set, uint8_t buf_idx)
 {
 	Mcan *mcan = set->cfg.regs;
 
@@ -510,15 +510,15 @@ void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx)
 		mcan->MCAN_TXBAR = (1 << buf_idx);
 }
 
-uint8_t MCAN_AddToTxFifoQ(struct mcan_set *set,
-			   uint32_t id, uint8_t len, const uint8_t *data)
+uint8_t mcan_enqueue_outgoing_msg(struct mcan_set *set, uint32_t id,
+			          uint8_t len, const uint8_t *data)
 {
 	assert(len <= set->cfg.buf_size_tx);
 
 	Mcan *mcan = set->cfg.regs;
 	uint32_t val;
 	uint32_t *pThisTxBuf = 0;
-	const enum mcan_can_mode mode = MCAN_GetMode(set);
+	const enum mcan_can_mode mode = mcan_get_mode(set);
 	enum mcan_dlc dlc;
 	uint8_t putIdx = 255;
 
@@ -531,7 +531,7 @@ uint8_t MCAN_AddToTxFifoQ(struct mcan_set *set,
 	    >> MCAN_TXFQS_TFQPI_Pos);
 	pThisTxBuf = set->ram_array_tx + (uint32_t)
 	    putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (MCAN_IsExtendedID(id))
+	if (mcan_is_extended_id(id))
 		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
 	else
 		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
@@ -551,13 +551,13 @@ uint8_t MCAN_AddToTxFifoQ(struct mcan_set *set,
 	return putIdx;
 }
 
-bool MCAN_IsBufferTxd(const struct mcan_set *set, uint8_t buf_idx)
+bool mcan_is_buffer_sent(const struct mcan_set *set, uint8_t buf_idx)
 {
 	Mcan *mcan = set->cfg.regs;
 	return mcan->MCAN_TXBTO & (1 << buf_idx) ? true : false;
 }
 
-void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
+void mcan_filter_single_id(struct mcan_set *set,
 			       uint8_t buf_idx, uint8_t filter, uint32_t id)
 {
 	assert(buf_idx < set->cfg.array_size_rx);
@@ -570,7 +570,7 @@ void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
 
 	if (buf_idx >= set->cfg.array_size_rx)
 		return;
-	if (MCAN_IsExtendedID(id)) {
+	if (mcan_is_extended_id(id)) {
 		pThisRxFilt = set->ram_filt_ext + filter
 		    * MCAN_RAM_FILT_EXT_SIZE;
 		*pThisRxFilt++ = MCAN_RAM_FILT_EFEC_BUF
@@ -587,8 +587,8 @@ void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
 	}
 }
 
-void MCAN_ConfigRxClassicFilter(struct mcan_set *set, uint8_t fifo,
-				uint8_t filter, uint32_t id, uint32_t mask)
+void mcan_filter_id_mask(struct mcan_set *set, uint8_t fifo, uint8_t filter,
+                         uint32_t id, uint32_t mask)
 {
 	assert(fifo == 0 || fifo == 1);
 	assert(id & CAN_EXT_MSG_ID ? filter < set->cfg.array_size_filt_ext
@@ -600,7 +600,7 @@ void MCAN_ConfigRxClassicFilter(struct mcan_set *set, uint8_t fifo,
 	uint32_t *pThisRxFilt = 0;
 	uint32_t val;
 
-	if (MCAN_IsExtendedID(id)) {
+	if (mcan_is_extended_id(id)) {
 		pThisRxFilt = set->ram_filt_ext + filter
 		    * MCAN_RAM_FILT_EXT_SIZE;
 		*pThisRxFilt++ = (fifo ? MCAN_RAM_FILT_EFEC_FIFO1
@@ -618,8 +618,7 @@ void MCAN_ConfigRxClassicFilter(struct mcan_set *set, uint8_t fifo,
 	}
 }
 
-bool MCAN_IsNewDataInRxDedBuffer(const struct mcan_set *set,
-                                 uint8_t buf_idx)
+bool mcan_rx_buffer_data(const struct mcan_set *set, uint8_t buf_idx)
 {
 	Mcan *mcan = set->cfg.regs;
 
@@ -631,8 +630,8 @@ bool MCAN_IsNewDataInRxDedBuffer(const struct mcan_set *set,
 		return false;
 }
 
-void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
-			 struct mcan_msg_info *msg)
+void mcan_read_rx_buffer(struct mcan_set *set, uint8_t buf_idx,
+                         struct mcan_msg_info *msg)
 {
 	assert(buf_idx < set->cfg.array_size_rx);
 
@@ -681,8 +680,8 @@ void MCAN_GetRxDedBuffer(struct mcan_set *set, uint8_t buf_idx,
 		mcan->MCAN_NDAT2 = (1 << (buf_idx - 32));
 }
 
-uint8_t MCAN_GetRxFifoBuffer(struct mcan_set *set, uint8_t fifo,
-                             struct mcan_msg_info *msg)
+uint8_t mcan_dequeue_received_msg(struct mcan_set *set, uint8_t fifo,
+                                 struct mcan_msg_info *msg)
 {
 	assert(fifo == 0 || fifo == 1);
 
