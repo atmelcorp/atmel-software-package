@@ -360,7 +360,7 @@ void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx);
  * \return Index of the assigned transmit buffer, part of the FIFO / queue.
  * Or 0xff if the TX FIFO was full, or an error occurred.
  */
-uint32_t MCAN_AddToTxFifoQ(struct mcan_set *set,
+uint8_t MCAN_AddToTxFifoQ(struct mcan_set *set,
     uint32_t id, uint8_t len, const uint8_t *data);
 
 /**
@@ -379,8 +379,8 @@ bool MCAN_IsBufferTxd(const struct mcan_set *set, uint8_t buf_idx);
  * \param filter  Data of filter.
  * \param id  Message ID, must match exactly a RX buffer filter.
  */
-void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
-    uint32_t buf_idx, uint32_t filter, uint32_t id);
+void MCAN_ConfigRxBufferFilter(struct mcan_set *set, uint8_t buf_idx,
+    uint8_t filter, uint32_t id);
 
 /**
  * \brief Configure classic filter.

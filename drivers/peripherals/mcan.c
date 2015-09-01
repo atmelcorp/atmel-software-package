@@ -510,25 +510,26 @@ void MCAN_SendTxDedBuffer(struct mcan_set *set, uint8_t buf_idx)
 		mcan->MCAN_TXBAR = (1 << buf_idx);
 }
 
-uint32_t MCAN_AddToTxFifoQ(struct mcan_set *set,
+uint8_t MCAN_AddToTxFifoQ(struct mcan_set *set,
 			   uint32_t id, uint8_t len, const uint8_t *data)
 {
 	assert(len <= set->cfg.buf_size_tx);
 
 	Mcan *mcan = set->cfg.regs;
-	uint32_t putIdx = 255, val;
+	uint32_t val;
 	uint32_t *pThisTxBuf = 0;
 	const enum mcan_can_mode mode = MCAN_GetMode(set);
 	enum mcan_dlc dlc;
+	uint8_t putIdx = 255;
 
 	if (!get_length_code(len, &dlc))
 		dlc = CAN_DLC_0;
 	/* Configured for FifoQ and FifoQ not full? */
 	if (set->cfg.fifo_size_tx == 0 || (mcan->MCAN_TXFQS & MCAN_TXFQS_TFQF))
 		return putIdx;
-	putIdx = (mcan->MCAN_TXFQS & MCAN_TXFQS_TFQPI_Msk)
-	    >> MCAN_TXFQS_TFQPI_Pos;
-	pThisTxBuf = set->ram_array_tx +
+	putIdx = (uint8_t)((mcan->MCAN_TXFQS & MCAN_TXFQS_TFQPI_Msk)
+	    >> MCAN_TXFQS_TFQPI_Pos);
+	pThisTxBuf = set->ram_array_tx + (uint32_t)
 	    putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
 	if (MCAN_IsExtendedID(id))
 		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
@@ -557,7 +558,7 @@ bool MCAN_IsBufferTxd(const struct mcan_set *set, uint8_t buf_idx)
 }
 
 void MCAN_ConfigRxBufferFilter(struct mcan_set *set,
-			       uint32_t buf_idx, uint32_t filter, uint32_t id)
+			       uint8_t buf_idx, uint8_t filter, uint32_t id)
 {
 	assert(buf_idx < set->cfg.array_size_rx);
 	assert(id & CAN_EXT_MSG_ID ? filter < set->cfg.array_size_filt_ext
