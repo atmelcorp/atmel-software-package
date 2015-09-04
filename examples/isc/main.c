@@ -134,12 +134,6 @@
 /** TWI clock frequency in Hz. */
 #define TWCK                  400000
 
-/** TWI peripheral ID for sensor TWI interface */
-#define BOARD_ID_TWI_ISI     ID_TWIHS0
-
-/** TWI base address for sensor TWI interface*/
-#define BOARD_BASE_TWI_ISI   ((Twi*)(TWIHS0))
-
 /* GAMMA and HISTOGRAM definitions */
 #define GAMMA_ENTRIES   64
 
@@ -171,11 +165,11 @@ typedef enum _awb_status {
 extern const sensorProfile_t ov7740Profile;
 
 /** PIO pins to configured. */
-const struct _pin pins_twi[] = PINS_TWI0_IOS4;
-const struct _pin pin_rst = PIN_ISC_RST;
-const struct _pin pin_pwd = PIN_ISC_PWD;
-const struct _pin pins_isc[]= PINS_ISC_IOS3;
-const struct _pin pins_lcd[] = PINS_LCD_IOS2;
+const struct _pin pins_twi[] = ISC_TWI_PINS;
+const struct _pin pin_rst = ISC_PIN_RST;
+const struct _pin pin_pwd = ISC_PIN_PWD;
+const struct _pin pins_isc[]= ISC_PINS;
+const struct _pin pins_lcd[] = PINS_LCD;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(64)
@@ -364,10 +358,10 @@ static void configure_twi(void)
 	/* Configure TWI pins. */
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
 	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(BOARD_ID_TWI_ISI);
+	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
 	/* Configure TWI */
-	twi_configure_master(BOARD_BASE_TWI_ISI, TWCK);
-	twid_initialize(&twid, BOARD_BASE_TWI_ISI);
+	twi_configure_master(ISC_TWI_ADDR, TWCK);
+	twid_initialize(&twid, ISC_TWI_ADDR);
 	/* Configure TWI interrupts */
 }
 

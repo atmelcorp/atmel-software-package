@@ -208,9 +208,11 @@
 
 /* =================== PIN ISC definition ======================= */
 
-#define PIN_ISC_RST { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
-
-#define PIN_ISC_PWD { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
+#define ISC_TWI_ADDR ((Twi*)TWIHS0)
+#define ISC_TWI_PINS PINS_TWI0_IOS4
+#define ISC_PINS     PINS_ISC_IOS3
+#define ISC_PIN_RST  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
+#define ISC_PIN_PWD  { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* =================== PIN HSDHC definition ===================== */
 
