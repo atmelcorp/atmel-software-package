@@ -64,7 +64,7 @@
  */
 
 /** Name of the board */
-#define BOARD_NAME "sama5d2-xult"
+#define BOARD_NAME "sama5d2-xult-proto"
 
 /** Family definition */
 #if !defined sama5d2
@@ -113,12 +113,12 @@
 /* =================== PIN LED definition ====================== */
 
 /* RGB LED index */
-#define LED_RED   0
+#define LED_RED   0    /* led red shared with SDHC0 (eMMC) card detect used only by RomBoot */
 #define LED_GREEN 1
 #define LED_BLUE  2
 
 /** LED #0 pin definition (Red). */
-#define PIN_LED_0 { PIO_GROUP_B, PIO_PB6, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#define PIN_LED_0 { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_0, PIO_OPENDRAIN }
 
 /** LED #1 pin definition (Green). */
 #define PIN_LED_1 { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_OPENDRAIN }
@@ -153,7 +153,7 @@
 
 #define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)
 
-#define PIN_PUSHBUTTON_1 { PIO_GROUP_B, PIO_PB9, PIO_INPUT, PIO_CFG_PB }
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_B, PIO_PB6, PIO_INPUT, PIO_CFG_PB }
 
 /** List of all push button definitions. */
 #define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1 }
@@ -179,12 +179,14 @@
 #define PIN_USB_VBUS      {\
 	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEBOUNCE | PIO_IT_BOTH_EDGE },\
 }
-
 /** USB OverCurrent detection*/
 #define PIN_USB_OVCUR     {\
 	{ PIO_GROUP_A, PIO_PA29, PIO_INPUT, PIO_DEFAULT },\
 }
-
+/** USB Power Enable A, Active high */
+#define PIN_USB_POWER_ENA {\
+	{ PIO_GROUP_B, PIO_PB9, PIO_OUTPUT_0, PIO_DEFAULT },\
+}
 /** USB Power Enable B, Active high  */
 #define PIN_USB_POWER_ENB {\
 	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT },\
@@ -206,8 +208,8 @@
 
 /* =================== PIN ISC definition ======================= */
 
-#define ISC_TWI_ADDR ((Twi*)TWIHS1)
-#define ISC_TWI_PINS PINS_TWI1_IOS2
+#define ISC_TWI_ADDR ((Twi*)TWIHS0)
+#define ISC_TWI_PINS PINS_TWI0_IOS4
 #define ISC_PINS     PINS_ISC_IOS3
 #define ISC_PIN_RST  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
 #define ISC_PIN_PWD  { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -215,7 +217,7 @@
 /* =================== PIN HSDHC definition ===================== */
 
 #define PIN_HSDHC1_CD	{\
-	{ PIO_GROUP_A, PIO_PA13, PIO_INPUT, PIO_PULLUP },\
+	{ PIO_GROUP_A, PIO_PA30, PIO_INPUT, PIO_PULLUP },\
 }
 
 /* =================== AT25 device definition =================== */

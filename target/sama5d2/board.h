@@ -32,12 +32,12 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
   #include "board_sama5d2-xplained.h"
-
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO)
+  #include "board_sama5d2-xplained-proto.h"
 #elif defined(CONFIG_BOARD_SAMA5D2_VB)
   #include "board_sama5d2-vb.h"
-
 #else
   #error "No board defined"
 #endif
 
-#endif				/* #ifndef _BOARD_HEADER_ */
+#endif /* _BOARD_HEADER_ */
