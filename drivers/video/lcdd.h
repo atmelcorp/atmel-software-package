@@ -52,7 +52,7 @@
  * -# To change configuration for an overlay layer, the following functions
  *    can use:
  *    -# LCDD_EnableLayer(), LCDD_IsLayerOn(): Turn ON/OFF layer, check status.
- *    -# LCDD_SetPosition(), LCDD_SetPrioty(), LCDD_EnableAlpha(),
+ *    -# LCDD_SetPosition(), LCDD_SetPriority(), LCDD_EnableAlpha(),
  *       LCDD_SetAlpha(), LCDD_SetColorKeying(): Change display options.
  * -# Shortcuts for layer display are as following:
  *    -# LCDD_ShowBase(), LCDD_StopBase()
@@ -60,10 +60,10 @@
  *    -# LCDD_ShowHeo(), LCDD_StopHeo()
  *    -# LCDD_ShowHcr(), LCDD_StopHcr()
  * -# Drawing supporting functions, for drawing canvas:
- *    -# lcdd_create_canvas(): Create blank canvas on specified layer for
+ *    -# LCDD_CreateCanvas(): Create blank canvas on specified layer for
  *                            drawing on
- *    -# lcdd_select_canvas(): Select a displayer as canvas to drawing on
- *    -# lcdd_get_canvas():    Get current selected canvas layer
+ *    -# LCDD_SelectCanvas(): Select a displayer as canvas to drawing on
+ *    -# LCDD_GetCanvas():    Get current selected canvas layer
  *
  * For LCD drawing functions, refer to \ref lcdd_draw.
  *
@@ -191,6 +191,10 @@ extern void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode);
 extern void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
 		  void *pBuffer, void *pBufferUV, void *pBufferV, uint8_t bBPP,
 		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH);
-
+extern void *lcdd_create_canvas_yuv_semiplanar(uint8_t bLayer,
+				     void *pBuffer, void *pBufferUV,
+				     uint8_t bBPP,
+				     uint16_t wX, uint16_t wY, uint16_t wW,
+				     uint16_t wH);
 /**  @}*/
 #endif				/* #ifndef LCDD_H */

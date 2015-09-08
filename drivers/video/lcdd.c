@@ -643,7 +643,7 @@ void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y)
 }
 
 /**
- * Set Prioty of layer (only for HEO now).
+ * Set Priority of layer (only for HEO now).
  * \param bLayer Layer ID (HEO).
  * \param bPri   Prority value.
  */
@@ -660,7 +660,7 @@ void lcdd_set_priority(uint8_t bLayer, uint8_t bPri)
 }
 
 /**
- * Return Prioty of layer (only for HEO now).
+ * Return Priority of layer (only for HEO now).
  * \param bLayer Layer ID (HEO).
  */
 uint8_t lcdd_get_priority(uint8_t bLayer)
@@ -1624,15 +1624,16 @@ void * lcdd_create_canvas(uint8_t bLayer,
 }
 
 /**
- * Create a blank canvas on a display layer for further operations.
+ * Create a blank canvas on a display layer for YUV422/420 planar.
  * \param bLayer    Layer ID.
- * \param pBuffer   Pointer to canvas display buffer.
+ * \param pBuffer   Pointer to buffer of Y.
+ * \param pBufferUV   Pointer to buffer of U.
+ * \param pBufferV   Pointer to buffer of V.
  * \param bBPP      Bits Per Pixel.
  * \param wX        Canvas X coordinate on base.
  * \param wY        Canvas Y coordinate on base.
  * \param wW        Canvas width.
  * \param wH        Canvas height.
- * \note The content in buffer is destroyed.
  */
 void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
 				     void *pBuffer, void *pBufferUV,
@@ -1678,8 +1679,6 @@ void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
 		pWinR[2] =
 			LCDC_HEOCFG4_XMEMSIZE(wW - 1) | LCDC_HEOCFG4_YMEMSIZE(wH - 1);
 	}
-
-
 	pTD = &dmaHeader;
 	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOHEAD;
 	/* Modify descriptor */
@@ -1713,6 +1712,87 @@ void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
 	/* Modify registers */
 	pDmaR[0] = (uint32_t) pTD;
 	pDmaR[1] = (uint32_t) pBufferV;
+	pDmaR[2] = LCDC_BASECTRL_DFETCH;
+	pDmaR[3] = (uint32_t) pTD;
+	return 0;
+}
+
+/**
+ * Create a blank canvas on a display layer for YUV422/420 semiplanar.
+ * \param bLayer    Layer ID.
+ * \param pBuffer   Pointer to buffer of Y.
+ * \param pBufferUV   Pointer to buffer of UV.
+ * \param bBPP      Bits Per Pixel.
+ * \param wX        Canvas X coordinate on base.
+ * \param wY        Canvas Y coordinate on base.
+ * \param wW        Canvas width.
+ * \param wH        Canvas height.
+ */
+void *lcdd_create_canvas_yuv_semiplanar(uint8_t bLayer,
+				     void *pBuffer, void *pBufferUV,
+				     uint8_t bBPP,
+				     uint16_t wX, uint16_t wY, uint16_t wW,
+				     uint16_t wH)
+{
+	volatile uint32_t *pDmaR;
+	sLCDCDescriptor *pTD;
+
+	volatile uint32_t *pWinR = pWinReg(bLayer);
+
+	uint32_t maxW = BOARD_LCD_WIDTH;
+	uint32_t maxH = BOARD_LCD_HEIGHT;
+
+	uint32_t bitsPR, bytesPR;
+
+	switch (bLayer) {
+	case LCDD_BASE:
+	case LCDD_OVR1:
+	case LCDD_OVR2:
+	case LCDD_CUR:
+		return 0;
+	case LCDD_HEO:
+		/* Size check */
+		if (wX + wW > BOARD_LCD_WIDTH || wY + wH > BOARD_LCD_HEIGHT)
+			return NULL;
+		break;
+	}
+	if (wW == 0)
+		wW = maxW - wX;
+	if (wH == 0)
+		wH = maxH - wY;
+
+	bitsPR = wW * bBPP;
+	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
+	memset(pBuffer, 0xFF, bytesPR * wH);
+
+	if (pWinR) {
+		pWinR[0] = LCDC_HEOCFG2_XPOS(wX) | LCDC_HEOCFG2_YPOS(wY);
+		pWinR[1] =
+			LCDC_HEOCFG3_XSIZE(wW - 1) | LCDC_HEOCFG3_YSIZE(wH - 1);
+		pWinR[2] =
+			LCDC_HEOCFG4_XMEMSIZE(wW - 1) | LCDC_HEOCFG4_YMEMSIZE(wH - 1);
+	}
+	pTD = &dmaHeader;
+	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOHEAD;
+	/* Modify descriptor */
+	pTD->addr = (uint32_t) pBuffer;
+	pTD->ctrl = LCDC_BASECTRL_DFETCH;
+	pTD->next = (uint32_t) pTD;
+	/* Modify registers */
+	pDmaR[0] = (uint32_t) pTD;
+	pDmaR[1] = (uint32_t) pBuffer;
+	pDmaR[2] = LCDC_BASECTRL_DFETCH;
+	pDmaR[3] = (uint32_t) pTD;
+
+	pTD= &dmaHeaderUv;
+	pDmaR = (volatile uint32_t *)&LCDC->LCDC_HEOUHEAD;
+	/* Modify descriptor */
+	pTD->addr = (uint32_t) pBufferUV;
+	pTD->ctrl = LCDC_BASECTRL_DFETCH;
+	pTD->next = (uint32_t) pTD;
+	/* Modify registers */
+	pDmaR[0] = (uint32_t) pTD;
+	pDmaR[1] = (uint32_t) pBufferUV;
 	pDmaR[2] = LCDC_BASECTRL_DFETCH;
 	pDmaR[3] = (uint32_t) pTD;
 	return 0;
