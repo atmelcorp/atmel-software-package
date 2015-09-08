@@ -112,7 +112,11 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-
+ 
+#define OV7740
+//#define OV9740
+//#define OV5640
+//#define OV2643 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -128,7 +132,10 @@
 /** Supported LCD mode in this example */
 #define LCD_MODE_YUV          (LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE2)
 #define LCD_MODE_RGB565       LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565
-#define LCD_MODE_YUV_PLANAR   (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_PLANAR)
+#define LCD_MODE_YUV422_PLANAR   (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_PLANAR)
+#define LCD_MODE_YUV422_SEMIPLANAR (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_SEMIPLANAR)
+#define LCD_MODE_YUV420_PLANAR   (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_PLANAR)
+#define LCD_MODE_YUV420_SEMIPLANAR   (LCDC_HEOCFG1_YUVEN |LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_SEMIPLANAR)
 
 /** Maximum number of frame buffer */
 #define ISC_MAX_NUM_FRAME_BUFFER    1
@@ -164,7 +171,20 @@ typedef enum _awb_status {
  *        Local variables
  *----------------------------------------------------------------------------*/
  /* Profile for omnivision 7740 */
+#if defined OV2643
+extern const sensorProfile_t ov2643Profile;
+#endif 
+#if defined OV5640
+extern const sensorProfile_t ov5640Profile;
+#endif 
+
+#if defined OV7740
 extern const sensorProfile_t ov7740Profile;
+#endif 
+
+#if defined OV9740
+extern const sensorProfile_t ov9740Profile;
+#endif 
 
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
@@ -281,14 +301,15 @@ static void xdma_read_histogram(uint32_t buf)
 	xdmad_cfg.ublock_size = HIST_ENTRIES;
 	xdmad_cfg.src_addr = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
 	xdmad_cfg.dest_addr =  (uint32_t* )buf;
-	xdmad_cfg.cfg.uint32_value = XDMAC_CC_MBSIZE_SINGLE
-		| XDMAC_CC_TYPE_MEM_TRAN
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_WORD
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmad_cfg.cfg.uint32_value = 
+								XDMAC_CC_MBSIZE_SINGLE |
+								XDMAC_CC_TYPE_MEM_TRAN |
+								XDMAC_CC_CSIZE_CHK_1 |
+								XDMAC_CC_DWIDTH_WORD |
+								XDMAC_CC_SIF_AHB_IF0 |
+								XDMAC_CC_DIF_AHB_IF0 |
+								XDMAC_CC_SAM_INCREMENTED_AM |
+								XDMAC_CC_DAM_INCREMENTED_AM;
 	xdmad_cfg.block_size = 0 ;
 	xdmad_cfg.data_stride = 0;
 	xdmad_cfg.src_ublock_stride = 0;
@@ -305,8 +326,7 @@ static void xdma_read_histogram(uint32_t buf)
  * \param fractionalBit length of fractional in bit
  * \param f float value to be converted
  */
-static uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit,
-		   uint8_t fractionalBit, float f)
+uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit, uint8_t fractionalBit, float f)
 {
 	uint32_t hex;
 	if(!signBit){
@@ -343,11 +363,11 @@ static void isc_handler(void)
 	}
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
 	}
-
+	
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
 		histogram_done = true;
 	}
-
+	
 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
 }
@@ -374,15 +394,12 @@ static void configure_mck_clock(void)
 {
 	pmc_enable_peripheral(ID_ISC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-
-	isc_configure_master_clock(6 ,0);
+	isc_configure_master_clock(10 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_master_clock();
-
-	isc_configure_isp_clock(5 ,0);
+	isc_configure_isp_clock(4 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_isp_clock();
-
 }
 
 /**
@@ -413,19 +430,53 @@ static void configure_lcd(void)
 				   wImageWidth,
 				   wImageHeight);
 	} else {
-		if (lcdMode == LCD_MODE_YUV_PLANAR){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV_PLANAR);
-			lcdd_create_canvas_yuv_planar(LCDD_HEO,
-						      pHeoBuffer,
-						      pHeoBuffer1,
-						      pHeoBuffer2,
-						      16,
-						      0,
-						      0,
-						      wImageWidth,
-						      wImageHeight);
-		}
-		if (lcdMode == LCD_MODE_RGB565){
+		if (lcdMode == LCD_MODE_YUV422_PLANAR){
+			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_PLANAR);
+			lcdd_create_canvas_yuv_planar(
+										LCDD_HEO,
+										pHeoBuffer,
+										pHeoBuffer1,
+										pHeoBuffer2,
+										16,
+										0,
+										0,
+										wImageWidth,
+										wImageHeight);
+		} else if (lcdMode == LCD_MODE_YUV422_SEMIPLANAR){
+			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_SEMIPLANAR);
+			lcdd_create_canvas_yuv_semiplanar(
+										LCDD_HEO,
+										pHeoBuffer,
+										pHeoBuffer1,
+										16,
+										0,
+										0,
+										wImageWidth,
+										wImageHeight);
+		} else if (lcdMode == LCD_MODE_YUV420_PLANAR){
+			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_PLANAR);
+			lcdd_create_canvas_yuv_planar(
+										LCDD_HEO,
+										pHeoBuffer,
+										pHeoBuffer1,
+										pHeoBuffer2,
+										12,
+										0,
+										0,
+										wImageWidth,
+										wImageHeight);
+		} else if (lcdMode == LCD_MODE_YUV420_SEMIPLANAR){
+			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_SEMIPLANAR);
+			lcdd_create_canvas_yuv_semiplanar(
+										LCDD_HEO,
+										pHeoBuffer,
+										pHeoBuffer1,
+										12,
+										0,
+										0,
+										wImageWidth,
+										wImageHeight);
+		} else if (lcdMode == LCD_MODE_RGB565){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_RGB565);
 			lcdd_create_canvas(LCDD_HEO,
 					   pHeoBuffer,
@@ -454,7 +505,7 @@ static void configure_isc(void)
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(wSensorOutBitWidth));
 	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
-
+    //isc_pfe_set_cropping_enabled(320, 240);
 	/* Set Continuous Acquisition mode */
 	isc_pfe_set_continuous_shot();
 
@@ -492,7 +543,11 @@ static void configure_isc(void)
 				  ISC_GAM_CTRL_GENABLE |
 				  ISC_GAM_CTRL_RENABLE);
 #endif
-		if (lcdMode == LCD_MODE_YUV_PLANAR) {
+		if ((lcdMode == LCD_MODE_YUV422_PLANAR) \
+			|| (lcdMode == LCD_MODE_YUV420_PLANAR )\
+			|| (lcdMode == LCD_MODE_YUV422_SEMIPLANAR) \
+			|| (lcdMode == LCD_MODE_YUV420_SEMIPLANAR )\
+			) {
 			/* By converting an image from RGB to YCbCr
 			 * color space, it is possible to separate Y,
 			 * Cb and Cr information. */
@@ -504,17 +559,41 @@ static void configure_isc(void)
 			 * horizontal chrominance sampling rate by
 			 * two */
 			isc_sub422_enabled(1);
+			if ((lcdMode == LCD_MODE_YUV420_PLANAR) || (lcdMode == LCD_MODE_YUV420_SEMIPLANAR)){
+				isc_sub420_configure(1, 0);
+			}
 			/* Configure limited YCrcb output format
 			 * before the DMA master module */
 			isc_rlp_configure(ISC_RLP_CFG_MODE_YYCC_LIMITED, 0);
 			/* Set DAM for 16-bit YC422P with stream
 			 * descriptor view 2 for YCbCr planar pixel
 			 * stream */
-			isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC422P |
-						     ISC_DCFG_YMBSIZE_BEATS8 |
-						     ISC_DCFG_CMBSIZE_BEATS8);
+			if (lcdMode == LCD_MODE_YUV422_PLANAR){
+				isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC422P |
+											ISC_DCFG_YMBSIZE_BEATS8 |
+											ISC_DCFG_CMBSIZE_BEATS8);
+			} else if (lcdMode == LCD_MODE_YUV422_SEMIPLANAR){
+				isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC422SP |
+											ISC_DCFG_YMBSIZE_BEATS8 |
+											ISC_DCFG_CMBSIZE_BEATS8);
+			} else if (lcdMode == LCD_MODE_YUV420_PLANAR){
+				isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC420P |
+											ISC_DCFG_YMBSIZE_BEATS8 |
+											ISC_DCFG_CMBSIZE_BEATS8);
+			} else if (lcdMode == LCD_MODE_YUV420_SEMIPLANAR){
+				isc_dma_configure_input_mode(ISC_DCFG_IMODE_YC420SP |
+											ISC_DCFG_YMBSIZE_BEATS8 |
+											ISC_DCFG_CMBSIZE_BEATS8);
+			}
 			isc_dma_configure_desc_entry((uint32_t)&dma_descs2[0]);
-			isc_dma_enable(ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE);
+			if ((lcdMode == LCD_MODE_YUV422_PLANAR) \
+				|| (lcdMode == LCD_MODE_YUV420_PLANAR)){
+				isc_dma_enable(ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE);
+			} 
+			if ((lcdMode == LCD_MODE_YUV422_SEMIPLANAR)\
+				|| (lcdMode == LCD_MODE_YUV420_SEMIPLANAR )){
+				isc_dma_enable(ISC_DCTRL_DVIEW_SEMIPLANAR | ISC_DCTRL_DE);
+			}
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS2, 0);
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS1, 0);
@@ -546,7 +625,7 @@ static void configure_isc(void)
 	isc_histogram_enabled(1);
 	isc_clear_histogram_table();
 	isc_update_profile();
-
+	
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD
@@ -557,7 +636,7 @@ static void configure_isc(void)
 			      | ISC_INTEN_VDTO);
 	isc_interrupt_status();
 	aic_enable(ID_ISC);
-}
+} 
 
 /**
  * \brief Set up DMA Descriptors.
@@ -565,18 +644,31 @@ static void configure_isc(void)
 static void configure_dma_linklist(void)
 {
 	uint32_t i;
-	if (lcdMode == LCD_MODE_YUV_PLANAR){
+	if ((lcdMode == LCD_MODE_YUV422_PLANAR) \
+		|| (lcdMode == LCD_MODE_YUV420_PLANAR)){
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
 			dma_descs2[i].ctrl =
 				ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE;
 			dma_descs2[i].next_desc = (uint32_t)&dma_descs2[i + 1 ];
 			dma_descs2[i].addr0 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS;
 			dma_descs2[i].stride0 = 0;
-			dma_descs2[i].addr1 =
-				(uint32_t)ISC_OUTPUT_BASE_ADDRESS2;
+			dma_descs2[i].addr1 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS2;
 			dma_descs2[i].stride1 = 0;
-			dma_descs2[i].addr2 =
-				(uint32_t)ISC_OUTPUT_BASE_ADDRESS1;
+			dma_descs2[i].addr2 =  (uint32_t)ISC_OUTPUT_BASE_ADDRESS1;
+			dma_descs2[i].stride2 = 0;
+		}
+		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
+	} else if ((lcdMode == LCD_MODE_YUV422_SEMIPLANAR) \
+				|| (lcdMode == LCD_MODE_YUV420_SEMIPLANAR)){
+		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
+			dma_descs2[i].ctrl =
+				ISC_DCTRL_DVIEW_SEMIPLANAR | ISC_DCTRL_DE;
+			dma_descs2[i].next_desc = (uint32_t)&dma_descs2[i + 1 ];
+			dma_descs2[i].addr0 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS;
+			dma_descs2[i].stride0 = 0;
+			dma_descs2[i].addr1 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS1;
+			dma_descs2[i].stride1 = 0;
+			dma_descs2[i].addr2 = 0;
 			dma_descs2[i].stride2 = 0;
 		}
 		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
@@ -599,23 +691,23 @@ static void awb_update(void)
 {
 	float gain[HIST_RGGB_BAYER];
 	uint32_t gain_049[HIST_RGGB_BAYER];
-	gain[HISTOGRAM_GB] = 1.0000000;
+	gain[HISTOGRAM_GB] = 1.0000000; 
 	gain[HISTOGRAM_GR] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_GR]);
 	gain[HISTOGRAM_R] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_R]);
 	gain[HISTOGRAM_B] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_B]);
-
+	
 	gain_049[HISTOGRAM_GB] = float2hex(0, 4, 9, gain[HISTOGRAM_GB]);
 	gain_049[HISTOGRAM_GR] = float2hex(0, 4, 9, gain[HISTOGRAM_GR]);
 	gain_049[HISTOGRAM_B] = float2hex(0, 4, 9, gain[HISTOGRAM_B]);
 	gain_049[HISTOGRAM_R] = float2hex(0, 4, 9, gain[HISTOGRAM_R]);
-
-	isc_wb_adjust_bayer_color(0, 0, 0, 0,
-					gain_049[HISTOGRAM_R],
-					gain_049[HISTOGRAM_GR],
-					gain_049[HISTOGRAM_B],
+		
+	isc_wb_adjust_bayer_color(0, 0, 0, 0, 
+					gain_049[HISTOGRAM_R], 
+					gain_049[HISTOGRAM_GR], 
+					gain_049[HISTOGRAM_B], 
 					gain_049[HISTOGRAM_GB]);
 	isc_update_profile();
 }
@@ -625,7 +717,7 @@ static void awb_update(void)
  */
 static void ae_update(void)
 {
-	uint16_t i, j;
+	uint16_t i;
 	float ygain, offset;
 	uint32_t ycount;
 	uint16_t dart_threshold, bright_threshold;
@@ -697,7 +789,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_HIS_READY){
-		if(!histogram_done)
+		if(!histogram_done) 
 			return true;
 		histogram_done = false;
 		xdma_read_histogram(ISC_HIS_BASE_ADDRESS);
@@ -705,7 +797,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_DMA_READY){
-		if(!histogram_read)
+		if(!histogram_read) 
 			return true;
 		histogram_read = false;
 		histogram_count_up();
@@ -719,7 +811,7 @@ static bool auto_white_balance(void)
 	}
 	if (awb_status_machine == AWB_WAIT_ISC_PERFORMED){
 		awb_update();
-		ae_update();
+		//ae_update();
 		histogram_idx_isc = 0;
 		awb_status_machine = AWB_INIT;
 		return true;
@@ -738,7 +830,7 @@ static bool auto_white_balance(void)
 extern int main(void)
 {
 	uint8_t key;
-
+    
 	wdt_disable();
 
 	/* Initialize console */
@@ -755,7 +847,7 @@ extern int main(void)
     cp15_disable_mmu();
 	cp15_disable_icache();
 	cp15_disable_dcache();
-
+    
 	/* TWI Initialize */
 	configure_twi();
 
@@ -764,7 +856,7 @@ extern int main(void)
 
 	/* ISI PCK clock Initialize */
 	configure_mck_clock();
-
+	
 	/* Initialize XDMA driver instance in interrupt mode */
 	xdmad_initialize(false);
 
@@ -776,7 +868,7 @@ extern int main(void)
 		return 0;
 	}
 	xdmad_prepare_channel(xdmad_channel);
-
+	
 	/* Reset Sensor board */
 	sensor_reset();
 	printf("-----------------------------------\n\r");
@@ -794,9 +886,24 @@ extern int main(void)
 			break;
 		}
 	}
+#if defined OV2643
+	if (sensor_setup(&twid, &ov2643Profile, QVGA, sensorMode)
+	   != SENSOR_OK){
+#endif 
+#if defined OV5640
+	if (sensor_setup(&twid, &ov5640Profile, QVGA, sensorMode)
+	   != SENSOR_OK){
+#endif 
 
+#if defined OV7740
 	if (sensor_setup(&twid, &ov7740Profile, QVGA, sensorMode)
 	   != SENSOR_OK){
+#endif 
+
+#if defined OV9740
+	if (sensor_setup(&twid, &ov9740Profile, QVGA, sensorMode)
+	   != SENSOR_OK){
+#endif 
 		printf("-E- Sensor setup failed \n\r");
 		while(1);
 	}
@@ -806,17 +913,28 @@ extern int main(void)
 			  &wImageWidth, &wImageHeight);
 	if (sensorMode == RAW_BAYER){
 		printf("-----------------------------------\n\r");
-		printf("- 'R' Test RGB565 output \n\r");
-		printf("- 'Y' Test YC422P output \n\r");
+		printf("- '0' Test RGB565 output \n\r");
+		printf("- '1' Test YC422P output \n\r");
+		printf("- '2' Test YC422SP output \n\r");
+		printf("- '3' Test YC420P output \n\r");
+		printf("- '4' Test YC420SP output \n\r");
 		printf("-----------------------------------\n\r");
 		for(;;) {
 			key = console_get_char();
-			if ((key == 'R') || (key == 'r')) {
-				lcdMode = LCD_MODE_YUV_PLANAR;
-				break;
-			}
-			if ((key == 'Y') || (key == 'y')) {
+			if (key == '0') {
 				lcdMode = LCD_MODE_RGB565;
+				break;
+			}else if (key == '1') {
+				lcdMode = LCD_MODE_YUV422_PLANAR;
+				break;
+			} else if (key == '2') {
+				lcdMode = LCD_MODE_YUV422_SEMIPLANAR;
+				break;
+			} else if (key == '3') {
+				lcdMode = LCD_MODE_YUV420_PLANAR;
+				break;
+			} else if (key == '4') {
+				lcdMode = LCD_MODE_YUV420_SEMIPLANAR;
 				break;
 			}
 		}
@@ -833,7 +951,7 @@ extern int main(void)
 	configure_lcd();
 	configure_dma_linklist();
 	configure_isc();
-
+	
 	if (sensorMode == RAW_BAYER) {
 		printf("-I- Preview start, press 'A' or 'a' to start auto white balance & AE \n\r");
 		for(;;) {
@@ -848,5 +966,4 @@ extern int main(void)
 	} else {
 		while(1);
 	}
-	return 0;
 }
