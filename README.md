@@ -23,8 +23,6 @@ Copyright (c) 2015, Atmel Corporation All rights reserved.
 
 
 # Atmel SAMA5D2x Software Package
-Release verson: 0.3
-Release date: 2015-08
 
 ## Overview
 
@@ -41,7 +39,7 @@ Dependencies:
 
 Windows with IAR Embedded Workbench.
 Dependencies:
-- IAR Embedded Workbench (Tested on version 7.20)
+- IAR Embedded Workbench (Tested on version 7.40)
 - bash (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - GNU make (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for IAR project generation
@@ -72,6 +70,8 @@ Notice: This softpack comes as an early delivery and all presented APIs are subj
 This release contains the following examples:
 
 adc: Example using ADC
+
+can: Example using CAN
 
 crypto_aes: AES hardware computation (with and without DMA)
 
@@ -147,7 +147,7 @@ make TARGET=wanted_target debug # if TARGET is not set
 
 ## Usage (IAR)
 
-The Win version of this softpack release comes with pregenerated IAR projects compatible with IAR Systems Embedded Workbench for ARM version 7.20.
+The Win version of this softpack release comes with pregenerated IAR projects compatible with IAR Systems Embedded Workbench for ARM version 7.40.
 
 The C-SPY device description files and device selections files are not included and must be installed manually.
 
