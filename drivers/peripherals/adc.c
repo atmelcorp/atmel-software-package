@@ -34,7 +34,7 @@
  * \n
  *
  * It converts the analog input to digital format. The converted result could be
- * 10bit. The ADC supports up to 16 analog lines.
+ * 10bit.
  *
  * To Enable a ADC conversion,the user has to follow these few steps:
  * <ul>
@@ -101,6 +101,11 @@ static uint32_t _adc_clock = 0;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+uint32_t adc_num_channels(void)
+{
+	return ARRAY_SIZE(ADC->ADC_CDR);
+}
 
 void adc_initialize(void)
 {
@@ -236,9 +241,9 @@ void adc_set_tag_enable(uint8_t enable)
 
 void adc_set_compare_channel(uint32_t channel)
 {
-	assert(channel <= 16);
+	assert(channel <= adc_num_channels());
 
-	if (channel < 16) {
+	if (channel < adc_num_channels()) {
 		ADC->ADC_EMR &= ~(ADC_EMR_CMPALL);
 		ADC->ADC_EMR &= ~(ADC_EMR_CMPSEL_Msk);
 		ADC->ADC_EMR |= (channel << ADC_EMR_CMPSEL_Pos);
@@ -282,13 +287,13 @@ uint8_t adc_check_configuration(void)
 
 uint32_t adc_get_converted_data(uint32_t channel)
 {
-	uint32_t dwData = 0;
+	assert(channel < adc_num_channels());
 
-	assert(channel < 16);
-
-	dwData = ADC->ADC_CDR[channel];
-
-	return dwData;
+	if (channel < adc_num_channels()) {
+		return ADC->ADC_CDR[channel];
+	} else {
+		return 0;
+	}
 }
 
 void adc_set_startup_time(uint32_t startup)

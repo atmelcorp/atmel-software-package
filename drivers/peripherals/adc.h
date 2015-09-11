@@ -122,6 +122,11 @@ extern "C" {
  *------------------------------------------------------------------------------*/
 
 /**
+ * \brief Returns the number of ADC channels
+ */
+extern uint32_t adc_num_channels(void);
+
+/**
  * \brief Initialize the ADC controller
  */
 extern void adc_initialize(void);
