@@ -59,22 +59,23 @@ typedef struct {
   __IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
   __IO uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
   __IO uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
-  __I  uint32_t ADC_CDR[17];     /**< \brief (Adc Offset: 0x50) Channel Data Registers */
+  __I  uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Registers */
+  __I  uint32_t Reserved2[5];
   __IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
-  __I  uint32_t Reserved2[6];
+  __I  uint32_t Reserved3[6];
   __IO uint32_t ADC_TSMR;     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
   __I  uint32_t ADC_XPOSR;    /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
   __I  uint32_t ADC_YPOSR;    /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
   __I  uint32_t ADC_PRESSR;   /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
   __IO uint32_t ADC_TRGR;     /**< \brief (Adc Offset: 0xC0) Trigger Register */
-  __I  uint32_t Reserved3[3];
+  __I  uint32_t Reserved4[3];
   __IO uint32_t ADC_COSR;     /**< \brief (Adc Offset: 0xD0) Correction Select Register */
   __IO uint32_t ADC_CVR;      /**< \brief (Adc Offset: 0xD4) Correction Values Register */
   __IO uint32_t ADC_CECR;     /**< \brief (Adc Offset: 0xD8) Channel Error Correction Register */
-  __I  uint32_t Reserved4[2];
+  __I  uint32_t Reserved5[2];
   __IO uint32_t ADC_WPMR;     /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved5[4];
+  __I  uint32_t Reserved6[4];
   __I  uint32_t ADC_VERSION;  /**< \brief (Adc Offset: 0xFC) Version Register */
 } Adc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
