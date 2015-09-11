@@ -138,7 +138,7 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 		    (unsigned)ck_div, (unsigned)cl_div, (unsigned)twi_clock);
 
 	/* Compute holding time (I2C spec requires 300ns) */
-	hold = ROUND_INT_DIV(0.3 * clock, 1000000) - 3;
+	hold = ROUND_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3;
 	trace_debug("twi: HOLD=%u -> Holding Time %uns\n\r",
 		    (unsigned)hold, (unsigned)((1000000 * (hold + 3)) / (clock / 1000)));
 
