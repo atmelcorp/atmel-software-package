@@ -92,13 +92,16 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+/** \def Board PIT tick resolution */
+#define BOARD_TIMER_RESOLUTION   1000
+
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */
 #define PINS_CONSOLE            PINS_UART0_IOS1
 #define CONSOLE_PER_ADD         UART0
 #define CONSOLE_ID              ID_UART0
-#define CONSOLE_BAUDRATE        115200
+#define CONSOLE_BAUDRATE        57600
 #define CONSOLE_DRIVER          DRV_UART
 
 /* =================== PIN LED definition ====================== */
