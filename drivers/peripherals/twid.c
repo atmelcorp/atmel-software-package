@@ -55,7 +55,7 @@ static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 	timer_start_timeout(&timeout, TWID_TIMEOUT);
 	while(!twi_is_transfer_complete(desc->addr)){
 		if (timer_timeout_reached(&timeout)) {
-			trace_error("twid2: Unable to complete transfert!\r\n");
+			trace_error("twid: Unable to complete transfert!\r\n");
 			twid_configure(desc);
 			return TWID_ERROR_TRANSFER;
 		}
@@ -215,21 +215,21 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 				 desc->isize,
 				 buffer->size);
 	if (twi_get_status(desc->addr) & TWI_SR_NACK) {
-		trace_error("twid2: command NACK!\r\n");
+		trace_error("twid: command NACK!\r\n");
 		return TWID_ERROR_ACK;
 	}
 	for (i = 0; i < buffer->size; ++i) {
 		timer_start_timeout(&timeout, TWID_TIMEOUT);
 		while(!twi_byte_sent(desc->addr)) {
 			if (timer_timeout_reached(&timeout)) {
-				trace_error("twid2: Device doen't response, "
+				trace_error("twid: Device doen't response, "
 					    "(TX TIMEOUT)\r\n");
 				break;
 			}
 		}
 		twi_write_byte(desc->addr, buffer->data[i]);
 		if(twi_get_status(desc->addr) & TWI_SR_NACK) {
-			trace_error("twid2: command NACK!\r\n");
+			trace_error("twid: command NACK!\r\n");
 			return TWID_ERROR_ACK;
 		}
 	}
@@ -247,21 +247,21 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 				desc->isize,
 				buffer->size);
 	if (twi_get_status(desc->addr) & TWI_SR_NACK) {
-		trace_error("twid2: command NACK!\r\n");
+		trace_error("twid: command NACK!\r\n");
 		return TWID_ERROR_ACK;
 	}
 	for (i = 0; i < buffer->size; ++i) {
 		timer_start_timeout(&timeout, TWID_TIMEOUT);
 		while(!twi_is_byte_received(desc->addr)) {
 			if (timer_timeout_reached(&timeout)) {
-				trace_error("twid2: Device doen't response, "
+				trace_error("twid: Device doen't response, "
 					    "(RX TIMEOUT)\r\n");
 				break;
 			}
 		}
 		buffer->data[i] = twi_read_byte(desc->addr);
 		if(twi_get_status(desc->addr) & TWI_SR_NACK) {
-			trace_error("twid2: command NACK\r\n");
+			trace_error("twid: command NACK\r\n");
 		return TWID_ERROR_ACK;
 		}
 	}
@@ -338,7 +338,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
 				desc->region_end = desc->region_start
 					+ rx->size;
 				if(twi_get_status(desc->addr) & TWI_SR_NACK) {
-					trace_error("twid2: Acknolegment "
+					trace_error("twid: Acknolegment "
 						    "Error\r\n");
 					status = TWID_ERROR_ACK;
 					break;
