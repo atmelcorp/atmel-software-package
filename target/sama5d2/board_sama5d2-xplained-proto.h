@@ -218,11 +218,13 @@
 
 #define CLASSD_PINS PINS_CLASSD_IOS1
 
-/* =================== PIN HSDHC definition ===================== */
+/* =================== PIN SDMMC definition ===================== */
 
-#define PIN_HSDHC1_CD	{\
-	{ PIO_GROUP_A, PIO_PA30, PIO_INPUT, PIO_PULLUP },\
-}
+#define SDMMC0_PINS  { PINS_SDMMC0_8B_IOS1, PIN_SDMMC0_CK_IOS1,\
+                       PIN_SDMMC0_VDDSEL_IOS1, PIN_SDMMC0_RSTN_IOS1 }
+
+#define SDMMC1_PINS  { PINS_SDMMC1_4B_IOS1, PIN_SDMMC1_CK_IOS1,\
+                       PIN_SDMMC1_CD_IOS1 }
 
 /* =================== AT25 device definition =================== */
 

@@ -78,6 +78,7 @@
 #include "component/component_rtc.h"
 #include "component/component_rxlp.h"
 #include "component/component_sckc.h"
+#include "component/component_sdmmc.h"
 #include "component/component_sfc.h"
 #include "component/component_sfr.h"
 #include "component/component_sfrbu.h"
@@ -103,6 +104,8 @@
 
 #define AXIMX    ((Aximx    *)0x00600000U) /**< \brief (AXIMX   ) Base Address */
 #define L2CC     ((L2cc     *)0x00A00000U) /**< \brief (L2CC    ) Base Address */
+#define SDMMC0   ((Sdmmc    *)0xA0000000U) /**< \brief (SDMMC0  ) Base Address */
+#define SDMMC1   ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC1  ) Base Address */
 #define LCDC     ((Lcdc     *)0xF0000000U) /**< \brief (LCDC    ) Base Address */
 #define XDMAC1   ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1  ) Base Address */
 #define ISC      ((Isc      *)0xF0008000U) /**< \brief (ISC     ) Base Address */

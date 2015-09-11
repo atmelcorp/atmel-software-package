@@ -582,6 +582,16 @@
 #define PIO_PA6B_QSPI1_SCK     (1u << 6)  /**< \brief Qspi1 signal: QSPI1_SCK */
 #define PIO_PB5D_QSPI1_SCK     (1u << 5)  /**< \brief Qspi1 signal: QSPI1_SCK */
 #define PIO_PB14E_QSPI1_SCK    (1u << 14) /**< \brief Qspi1 signal: QSPI1_SCK */
+/* ========== Pio definition for SDMMC0 peripheral ========== */
+#define PIO_PA30E_SDMMC0_CD    (1u << 30) /**< \brief Sdmmc0 signal: SDMMC0_CD */
+#define PIO_PA27E_SDMMC0_RSTN  (1u << 27) /**< \brief Sdmmc0 signal: SDMMC0_RSTN */
+#define PIO_PA22E_SDMMC0_CK    (1u << 22) /**< \brief Sdmmc0 signal: SDMMC0_CK */
+#define PIO_PA28E_SDMMC0_CMD   (1u << 28) /**< \brief Sdmmc0 signal: SDMMC0_CMD */
+#define PIO_PA29E_SDMMC0_WP    (1u << 29) /**< \brief Sdmmc0 signal: SDMMC0_WP */
+#define PIO_PA18E_SDMMC0_DAT0  (1u << 18) /**< \brief Sdmmc0 signal: SDMMC0_DAT0 */
+#define PIO_PA19E_SDMMC0_DAT1  (1u << 19) /**< \brief Sdmmc0 signal: SDMMC0_DAT1 */
+#define PIO_PA20E_SDMMC0_DAT2  (1u << 20) /**< \brief Sdmmc0 signal: SDMMC0_DAT2 */
+#define PIO_PA21E_SDMMC0_DAT3  (1u << 21) /**< \brief Sdmmc0 signal: SDMMC0_DAT3 */
 /* ========== Pio definition for SPI0 peripheral ========== */
 #define PIO_PA16A_SPI0_MISO    (1u << 16) /**< \brief Spi0 signal: SPI0_MISO */
 #define PIO_PA31C_SPI0_MISO    (1u << 31) /**< \brief Spi0 signal: SPI0_MISO */

@@ -164,18 +164,25 @@
 	{ PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT  },\
 }
 
-/* =================== PIN HSDHC definition ======================= */
+/* =================== PIN SDMMC definition ===================== */
 
-#define PIN_HSDHC1_CD	{\
-	{ PIO_GROUP_A, PIO_PA30, PIO_INPUT, PIO_PULLUP },\
-}
+#define SDMMC0_PINS  { PINS_SDMMC0_8B_IOS1, PIN_SDMMC0_CK_IOS1,\
+                       PIN_SDMMC0_CD_IOS1, PIN_SDMMC0_VDDSEL_IOS1,\
+                       PIN_SDMMC0_RSTN_IOS1, PIN_SDMMC0_WP_IOS1 }
+
+#define SDMMC1_PINS  { PINS_SDMMC1_4B_IOS1, PIN_SDMMC1_CK_IOS1,\
+                       PIN_SDMMC1_CD_IOS1, PIN_SDMMC1_RSTN_IOS1,\
+                       PIN_SDMMC1_WP_IOS1 }
 
 /* =================== PIN CAN definition ======================= */
 /* CAN0 {PC1; PC2} is wired to the J18 connector via an AT6561 transceiver. */
 /* CAN1 {PC26; PC27} is wired to the J19 connector via an AT6561 transceiver. */
 
 #define CAN0_PINS          PINS_CAN0_IOS0
+
+#ifdef MCAN1
 #define CAN1_PINS          PINS_CAN1_IOS0
+#endif
 
 /* =================== NANDFLASH device definition =================== */
 
