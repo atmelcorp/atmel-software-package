@@ -1,13 +1,18 @@
 # Atmel SAMA5D2x Software Package
 
-## Version 0.x -- ?
+## Version 1.0 - 2015-09
 
 ### New drivers
 
 - MCAN driver + example
 
+### Changes
+
+- sama5d2-xplained target adapted for final revA board
+
 ### Enhancements
 
+- Clock initialization changed to be more reliable
 - PMC driver now supports setting generated clocks on sama5d2
 - Add support for new memory models to at25 driver (MX25L12835F, MX25L4005,
   N25Q032, S25FL127S)
