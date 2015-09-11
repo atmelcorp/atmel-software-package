@@ -102,24 +102,28 @@
  */
 void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 {
-	uint32_t ck_div, cl_div, ok, clock;
+	uint32_t ck_div, cl_div, hold, ok, clock;
 	uint32_t id = get_twi_id_from_addr(pTwi);
 
-	trace_debug("twi_configure_master()\n\r");
+	trace_debug("twi_configure_master(%u)\n\r", (unsigned)twi_clock);
 	assert(pTwi);
 	assert(id < ID_PERIPH_COUNT);
+
 	/* SVEN: TWI Slave Mode Enabled */
 	pTwi->TWI_CR = TWI_CR_SVEN;
+
 	/* Reset the TWI */
 	pTwi->TWI_CR = TWI_CR_SWRST;
 	pTwi->TWI_RHR;
 	timer_sleep(10);
+
 	/* TWI Slave Mode Disabled, TWI Master Mode Disabled. */
 	pTwi->TWI_MMR = 0;
 	pTwi->TWI_CR = TWI_CR_SVDIS;
 	pTwi->TWI_CR = TWI_CR_MSDIS;
 	clock = pmc_get_peripheral_clock(id);
-	/* Configure clock */
+
+	/* Compute clock */
 	ck_div = 0; ok = 0;
 	while (!ok) {
 		cl_div = ((clock / (2 * twi_clock)) - 3) >> ck_div;
@@ -128,12 +132,21 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 		else
 			ck_div++;
 	}
+	twi_clock = ROUND_INT_DIV(clock, (((cl_div * 2) << ck_div) + 3));
 	assert(ck_div < 8);
-	trace_debug("Using CKDIV = %u and CLDIV/CHDIV = %u\n\r",
-		    (unsigned int)ck_div, (unsigned int)cl_div);
+	trace_debug("twi: CKDIV=%u CLDIV=CHDIV=%u -> TWI Clock %uHz\n\r",
+		    (unsigned)ck_div, (unsigned)cl_div, (unsigned)twi_clock);
+
+	/* Compute holding time (I2C spec requires 300ns) */
+	hold = ROUND_INT_DIV(0.3 * clock, 1000000) - 3;
+	trace_debug("twi: HOLD=%u -> Holding Time %uns\n\r",
+		    (unsigned)hold, (unsigned)((1000000 * (hold + 3)) / (clock / 1000)));
+
+	/* Configure clock */
 	pTwi->TWI_CWGR = 0;
 	pTwi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div) | TWI_CWGR_CHDIV(cl_div) |
-		TWI_CWGR_CLDIV(cl_div);
+		TWI_CWGR_CLDIV(cl_div) | TWI_CWGR_HOLD(hold);
+
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;
 	timer_sleep(10);
