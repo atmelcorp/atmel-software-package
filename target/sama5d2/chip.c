@@ -57,8 +57,8 @@ static uint8_t _h64_peripherals[] = {
 	ID_SHA,     /* 12: SHA Signature (SHA) */
 	ID_MPDDRC,  /* 13: MPDDR controller (MPDDRC) */
 	ID_MATRIX0, /* 15: H64MX, 64-bit AHB Matrix (MATRIX0) */
-	ID_SDHC0,   /* 31: Ultra High Speed SD Host Controller 0 (SDHC0) */
-	ID_SDHC1,   /* 32: Ultra High Speed SD Host Controller 1 (SDHC1) */
+	ID_SDMMC0,  /* 31: Secure Digital Multimedia Card Controller 0 (SDMMC0) */
+	ID_SDMMC1,  /* 32: Secure Digital Multimedia Card Controller 1 (SDMMC1) */
 	ID_LCDC,    /* 45: LCD Controller (LCDC) */
 	ID_ISC,     /* 46: Camera Interface (ISC) */
 	ID_QSPI0,   /* 52: QSPI 0 (QSPI0) */

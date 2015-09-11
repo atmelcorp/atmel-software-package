@@ -94,7 +94,7 @@
 /* =================== PIN LED definition ====================== */
 
 /* RGB LED index */
-#define LED_RED   0    /* led red shared with SDHC0 (eMMC) card detect used only by RomBoot */
+#define LED_RED   0    /* led red shared with SDMMC0 (eMMC) card detect used only by RomBoot */
 #define LED_GREEN 1
 #define LED_BLUE  2
 

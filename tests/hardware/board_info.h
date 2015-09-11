@@ -82,9 +82,9 @@
 //------------------------------------------------------------------------------
 
 #ifdef  EMMC
-	#define EMMC_DEVICE		"MTFC4GLDEA-DM WT "
-	#define EMMC_INTERFACE	"SDHC0 8bits data"
-	#define	EMMC_COMMENT 	"4Gb"
+	#define EMMC_DEVICE		"MTFC4GLDEA-0M WT "
+	#define EMMC_INTERFACE	"SDMMC0 8-bit data"
+	#define	EMMC_COMMENT 	"32Gb/4GB"
 #endif
 
 //------------------------------------------------------------------------------
@@ -136,8 +136,8 @@
 //------------------------------------------------------------------------------
 
 #ifdef SDCARD
-	#define SDCARD_DEVICE		"SDHC1"
-	#define SDCARD_INTERFACE	"8 bits data "
+	#define SDCARD_DEVICE		"SDMMC1"
+	#define SDCARD_INTERFACE	"8-bit data "
 	#define	SDCARD_COMMENT 	"standard "
 #endif
 

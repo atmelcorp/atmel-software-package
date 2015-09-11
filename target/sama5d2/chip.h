@@ -91,8 +91,8 @@
 #define ID_UART4        (28) /**< \brief UART 4 (UART4) */
 #define ID_TWIHS0       (29) /**< \brief Two-Wire Interface 0 (TWIHS0) */
 #define ID_TWIHS1       (30) /**< \brief Two-Wire Interface 1 (TWIHS1) */
-#define ID_SDHC0        (31) /**< \brief Ultra High Speed SD Host Controller 0 (SDHC0) */
-#define ID_SDHC1        (32) /**< \brief Ultra High Speed SD Host Controller 1 (SDHC1) */
+#define ID_SDMMC0       (31) /**< \brief Secure Digital Multimedia Card Controller 0 (SDMMC0) */
+#define ID_SDMMC1       (32) /**< \brief Secure Digital Multimedia Card Controller 1 (SDMMC1) */
 #define ID_SPI0         (33) /**< \brief Serial Peripheral Interface 0 (SPI0) */
 #define ID_SPI1         (34) /**< \brief Serial Peripheral Interface 1 (SPI1) */
 #define ID_TC0          (35) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
@@ -128,8 +128,8 @@
 #define ID_PIOB         (68) /**< \brief  (PIOB) */
 #define ID_PIOC         (69) /**< \brief  (PIOC) */
 #define ID_PIOD         (70) /**< \brief  (PIOD) */
-#define ID_SDHC0_TIMER  (71) /**< \brief  (SDHC0_TIMER) */
-#define ID_SDHC1_TIMER  (72) /**< \brief  (SDHC1_TIMER) */
+#define ID_SDMMC0_TIMER (71) /**< \brief  (SDMMC0_TIMER) */
+#define ID_SDMMC1_TIMER (72) /**< \brief  (SDMMC1_TIMER) */
 #define ID_SYSC         (74) /**< \brief System Controller Interrupt, RTC, RSTC, PMC (SYSC) */
 #define ID_ACC          (75) /**< \brief Analog Comparator (ACC) */
 #define ID_RXLP         (76) /**< \brief Uart Low Power (RXLP) */
