@@ -113,8 +113,8 @@
 #include <stdbool.h>
 #include <stdio.h>
  
-#define OV7740
-//#define OV9740
+//#define OV7740
+#define OV9740
 //#define OV5640
 //#define OV2643 
 /*----------------------------------------------------------------------------
@@ -283,7 +283,6 @@ const uint32_t gGam[GAMMA_ENTRIES] = {
 	0x3CF0007,0x3D60006,0x3DC0006,0x3E20006,0x3E80006,0x3EE0005,0x3F40005,0x3F90006
 };
 
-
 /**
  * \brief Callback entry for histogram DMA transfer done.
  */
@@ -394,7 +393,7 @@ static void configure_mck_clock(void)
 {
 	pmc_enable_peripheral(ID_ISC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(10 ,0);
+	isc_configure_master_clock(11 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_master_clock();
 	isc_configure_isp_clock(4 ,0);
@@ -419,6 +418,7 @@ static void sensor_reset(void)
  */
 static void configure_lcd(void)
 {
+	lcdd_enable_layer(LCDD_HEO, 0);
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
 	if (sensorMode == YUV_422) {
 		lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV);
@@ -501,14 +501,21 @@ static void configure_isc(void)
 	 * shows the number of bits per sample depends on the bit
 	 * width of sensor output. The PFE module outputs a 12-bit
 	 * data on the vp_data[11:0] bus */
-
+	aic_disable(ID_ISC);
+	isc_software_reset();
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(wSensorOutBitWidth));
 	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
-    //isc_pfe_set_cropping_enabled(320, 240);
+	
 	/* Set Continuous Acquisition mode */
 	isc_pfe_set_continuous_shot();
-
+	isc_cfa_enabled(0);
+	isc_wb_enabled(0);
+	isc_gamma_enabled(0, 0);
+	isc_csc_enabled(0);
+	isc_sub422_enabled(0);
+	isc_sub420_configure(0,0);
+	isc_update_profile();
 	if (sensorMode == RAW_BAYER) {
 		/* In a single-sensor system, each cell on the sensor
 		 * has a specific color filter and microlens
@@ -612,6 +619,12 @@ static void configure_isc(void)
 		}
 	}
 	if (sensorMode == YUV_422) {
+		isc_cfa_enabled(0);
+		isc_wb_enabled(0);
+		isc_gamma_enabled(0, 0);
+		isc_csc_enabled(0);
+		isc_sub422_enabled(0);
+		isc_sub420_configure(0,0);
 		/* Configure DAT8 output format before the DMA master module */
 		isc_rlp_configure(ISC_RLP_CFG_MODE_DAT8, 0);
 		/* Set DAM for 8-bit packaged stream with descriptor view 0 used
@@ -635,7 +648,9 @@ static void configure_isc(void)
 			      | ISC_INTEN_HDTO
 			      | ISC_INTEN_VDTO);
 	isc_interrupt_status();
+	capture_started = 0;
 	aic_enable(ID_ISC);
+	
 } 
 
 /**
@@ -644,6 +659,7 @@ static void configure_isc(void)
 static void configure_dma_linklist(void)
 {
 	uint32_t i;
+	isc_software_reset();
 	if ((lcdMode == LCD_MODE_YUV422_PLANAR) \
 		|| (lcdMode == LCD_MODE_YUV420_PLANAR)){
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
@@ -666,7 +682,7 @@ static void configure_dma_linklist(void)
 			dma_descs2[i].next_desc = (uint32_t)&dma_descs2[i + 1 ];
 			dma_descs2[i].addr0 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS;
 			dma_descs2[i].stride0 = 0;
-			dma_descs2[i].addr1 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS1;
+			dma_descs2[i].addr1 = (uint32_t)ISC_OUTPUT_BASE_ADDRESS1 + 1;
 			dma_descs2[i].stride1 = 0;
 			dma_descs2[i].addr2 = 0;
 			dma_descs2[i].stride2 = 0;
@@ -869,6 +885,7 @@ extern int main(void)
 	}
 	xdmad_prepare_channel(xdmad_channel);
 	
+reSensor:
 	/* Reset Sensor board */
 	sensor_reset();
 	printf("-----------------------------------\n\r");
@@ -911,6 +928,7 @@ extern int main(void)
 	/* Retrieve sensor output format and size */
 	sensor_get_output(QVGA, sensorMode, &wSensorOutBitWidth,
 			  &wImageWidth, &wImageHeight);
+
 	if (sensorMode == RAW_BAYER){
 		printf("-----------------------------------\n\r");
 		printf("- '0' Test RGB565 output \n\r");
@@ -951,19 +969,23 @@ extern int main(void)
 	configure_lcd();
 	configure_dma_linklist();
 	configure_isc();
-	
+	awb_status_machine = AWB_INIT;
+	printf("-I- Preview start. \n\r");
+	printf("-I- press 'S' or 's' to switch ISC mode. \n\r");
 	if (sensorMode == RAW_BAYER) {
-		printf("-I- Preview start, press 'A' or 'a' to start auto white balance & AE \n\r");
-		for(;;) {
-			key = console_get_char();
+		printf("-I- press 'A' or 'a' to start auto white balance & AE. \n\r");
+	}
+	for(;;) {
+		key = console_get_char();
+		if ((key == 'S') || (key == 's')) {
+			isc_stop_capture();
+			break;
+		}
+		if (sensorMode == RAW_BAYER) {
 			if ((key == 'A') || (key == 'a')) {
-				break;
+				auto_white_balance();
 			}
 		}
-	printf("-I- Auto white balance start...\n\r");
-		awb_status_machine = AWB_INIT;
-		while(auto_white_balance());
-	} else {
-		while(1);
 	}
+	goto reSensor;
 }
