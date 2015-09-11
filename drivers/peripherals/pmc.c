@@ -318,19 +318,20 @@ void pmc_select_external_osc(void)
 		return;
 
 	/* enable external OSC 12 MHz */
-	PMC->CKGR_MOR |= CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR |= (1 << 5) | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
 
-	/* wait Main CLK Ready */
-	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY));
+	/* Wait Main Oscillator ready */
+	while (!(PMC->PMC_SR & PMC_SR_MOSCXTS));
 
 	/* switch MAIN clock to external OSC 12 MHz */
 	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
 
+	/* wait for the command to be taken into account */
+	while ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) != CKGR_MOR_MOSCSEL);
+
 	/* wait MAIN clock status change for external OSC 12 MHz selection */
 	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS));
 
-	/* in case where MCK is running on MAIN CLK */
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
 void pmc_select_internal_osc(void)
@@ -398,6 +399,20 @@ void pmc_set_mck_plla_div(uint32_t divider)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
+void pmc_set_mck_h32mxdiv(uint32_t divider)
+{
+	if ((PMC->PMC_MCKR & PMC_MCKR_H32MXDIV) == PMC_MCKR_H32MXDIV_H32MXDIV2) {
+		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV1) {
+			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_H32MXDIV);
+		}
+	} else {
+		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV2) {
+			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_H32MXDIV_H32MXDIV2);
+		}
+	}
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+}
+
 void pmc_set_mck_divider(uint32_t divider)
 {
 	/* change MCK Prescaler divider in PMC_MCKR register */
@@ -409,7 +424,10 @@ void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 {
 	PMC->CKGR_PLLAR = pll;
 	PMC->PMC_PLLICPR = cpcr;
-	while (!(PMC->PMC_SR & PMC_SR_LOCKA));
+
+	if ((pll & CKGR_PLLAR_DIVA_Msk) != CKGR_PLLAR_DIVA_0) {
+		while (!(PMC->PMC_SR & PMC_SR_LOCKA));
+	}
 }
 
 void pmc_disable_plla(void)

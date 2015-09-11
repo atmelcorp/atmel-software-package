@@ -129,6 +129,12 @@ extern void pmc_set_mck_prescaler(uint32_t prescaler);
 extern void pmc_set_mck_divider(uint32_t divider);
 
 /**
+ * \brief Configure MCK H32MXDIV.
+ * \param divider divider value.
+ */
+extern void pmc_set_mck_h32mxdiv(uint32_t divider);
+
+/**
  * \brief Configure MCK PLLA divider.
  * \param divider PLL divider value.
  */
