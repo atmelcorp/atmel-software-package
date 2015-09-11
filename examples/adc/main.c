@@ -141,6 +141,9 @@
 /** ADC clock */
 #define BOARD_ADC_FREQ (300000)
 
+/** ADC VREF */
+#define BOARD_ADC_VREF (3300)
+
 /*----------------------------------------------------------------------------
  *        Local types
  *----------------------------------------------------------------------------*/
@@ -612,9 +615,9 @@ int main(void)
 		{
 			for (i = 0; i < NUM_CHANNELS; ++i)
 			{
-				printf(" CH%02d: %04d mv ",
+				printf(" CH%02d: %04d mV",
 					(int)_data.channel[i],
-					(int)(_data.value[i]));
+					(int)(_data.value[i] * BOARD_ADC_VREF / 4096));
 			}
 			printf("\r");
 			_data.done = 0;
