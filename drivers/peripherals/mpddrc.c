@@ -29,6 +29,7 @@
 
 #include "chip.h"
 #include "peripherals/mpddrc.h"
+#include "peripherals/sfrbu.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
 #include "timer.h"
@@ -296,9 +297,37 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	/* Configurations */
 	MPDDRC->MPDDRC_CR = desc->control;
 
+#ifdef CONFIG_HAVE_DDR3_SELFREFRESH
+	if (sfrbu_is_ddr_backup_enabled())
+		/* DDR memory had been initilized and in backup mode */
+		MPDDRC->MPDDRC_LPR =
+			MPDDRC_LPR_LPCB_SELFREFRESH |
+			MPDDRC_LPR_CLK_FR_ENABLED |
+			MPDDRC_LPR_PASR(0) |
+			MPDDRC_LPR_DS(2) |
+			MPDDRC_LPR_TIMEOUT_NONE |
+			MPDDRC_LPR_APDE_DDR2_FAST_EXIT |
+			MPDDRC_LPR_UPD_MR(0);
+	else
+		/* DDR memory is not in backup mode */
+		MPDDRC->MPDDRC_LPR =
+			MPDDRC_LPR_LPCB_SELFREFRESH |
+			MPDDRC_LPR_CLK_FR_ENABLED |
+			MPDDRC_LPR_PASR(0) |
+			MPDDRC_LPR_DS(2) |
+			MPDDRC_LPR_TIMEOUT_DELAY_128_CLK |
+			MPDDRC_LPR_APDE_DDR2_SLOW_EXIT |
+			MPDDRC_LPR_UPD_MR(0);
+#endif
+
 	switch(desc->type) {
 #ifdef CONFIG_HAVE_DDR3
 	case MPDDRC_TYPE_DDR3:
+#ifdef CONFIG_HAVE_DDR3_SELFREFRESH
+		_set_ddr_timings(desc);
+		/* Initialize DDR chip when needed */
+		if (!sfrbu_is_ddr_backup_enabled())
+#endif
 		_configure_ddr3(desc);
 		break;
 #endif
@@ -320,4 +349,11 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 
 	/* Restore resolution or put the default one if not already set */
 	timer_configure(resolution);
+
+#ifdef CONFIG_HAVE_DDR3_SELFREFRESH
+	if (sfrbu_is_ddr_backup_enabled()) {
+		MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_NORMAL_CMD;
+		sfrbu_disable_ddr_backup();
+	}
+#endif
 }
