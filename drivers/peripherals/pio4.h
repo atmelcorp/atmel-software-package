@@ -136,11 +136,11 @@
 #define PIO_TRIGGER_DIS             (0x1u << 5)
 
 /*  Drive Strength. */
-#define PIO_DRVSTR_Pos              12
+#define PIO_DRVSTR_Pos              10
 #define PIO_DRVSTR_Msk              (0x3u << 10)
-#define PIO_DRVSTR_HI               (0x0u << 10) /* High drive */
+#define PIO_DRVSTR_HI               (0x2u << 10) /* High drive */
 #define PIO_DRVSTR_ME               (0x1u << 10) /* Medium drive */
-#define PIO_DRVSTR_LO               (0x2u << 10) /* Low drive */
+#define PIO_DRVSTR_LO               (0x0u << 10) /* Low drive */
 
 #define PIO_EVTSEL_Pos              12
 #define PIO_EVTSEL_Msk              (0x7u << 12)
@@ -154,14 +154,6 @@
 #define PIO_IT_LOW_LEVEL            (0x3u << 12)
 /*Event detection on high level input. */
 #define PIO_IT_HIGH_LEVEL           (0x4u << 12)
-
-/* The fields are freeze and can not be written for this I/O line. Only an hardware reset can release thess fields. */
-#define PIO_PCFS_FREEZE             (0x1u << 19)
-/* \brief (PIO_CFGR) The fileds are not freezed and can be written for this I/O line. */
-#define PIO_ICFS_FREEZE             (0x1u << 20)
-/* The selected I/O lines are automatically set in GPIO input with pull-up in case of a tamper event detection. */
-#define PIO_TAMPEN_FREEZE           (0x1u << 21)
-
 
 #define PIO_WPMR_WPEN_EN            ( 0x01 << 0 )
 

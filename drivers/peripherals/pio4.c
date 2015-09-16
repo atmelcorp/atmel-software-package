@@ -310,34 +310,59 @@ uint8_t pio_configure(const struct _pin *pin_list, uint32_t size)
 			cfg.bitfield.ifscen = (pin_list->attribute & PIO_DEBOUNCE)? 1:0;
 			cfg.bitfield.opd = (pin_list->attribute & PIO_OPENDRAIN)? 1:0;
 			cfg.bitfield.schmitt =(pin_list->attribute & PIO_TRIGGER_DIS)? 1:0;
-			cfg.bitfield.drvstr =
-				(pin_list->attribute & PIO_DRVSTR_Msk) >> PIO_EVTSEL_Pos;
-			cfg.bitfield.evtsel =
-				(pin_list->attribute & PIO_EVTSEL_Msk) >> PIO_EVTSEL_Pos;
-			cfg.bitfield.pcfs = (pin_list->attribute & PIO_PCFS_FREEZE)? 1:0 ;
-			cfg.bitfield.icfs = (pin_list->attribute & PIO_ICFS_FREEZE)? 1:0 ;
-			/* cfg.bitfield.tampen = (pin_list->attribute & PIO_TAMPEN_FREEZE)? 1:0 ; */
+
+			switch (pin_list->attribute & PIO_DRVSTR_Msk) {
+			case PIO_DRVSTR_HI:
+				cfg.bitfield.drvstr = PIO_CFGR_DRVSTR_HI >> PIO_CFGR_DRVSTR_Pos;
+				break;
+			case PIO_DRVSTR_ME:
+				cfg.bitfield.drvstr = PIO_CFGR_DRVSTR_ME >> PIO_CFGR_DRVSTR_Pos;
+				break;
+			case PIO_DRVSTR_LO:
+			default:
+				cfg.bitfield.drvstr = PIO_CFGR_DRVSTR_LO >> PIO_CFGR_DRVSTR_Pos;
+				break;
+			}
+
+			switch (pin_list->attribute & PIO_EVTSEL_Msk) {
+			case PIO_IT_HIGH_LEVEL:
+				cfg.bitfield.evtsel = PIO_CFGR_EVTSEL_HIGH >> PIO_CFGR_EVTSEL_Pos;
+				break;
+			case PIO_IT_LOW_LEVEL:
+				cfg.bitfield.evtsel = PIO_CFGR_EVTSEL_LOW >> PIO_CFGR_EVTSEL_Pos;
+				break;
+			case PIO_IT_BOTH_EDGE:
+				cfg.bitfield.evtsel = PIO_CFGR_EVTSEL_BOTH >> PIO_CFGR_EVTSEL_Pos;
+				break;
+			case PIO_IT_RISE_EDGE:
+				cfg.bitfield.evtsel = PIO_CFGR_EVTSEL_RISING >> PIO_CFGR_EVTSEL_Pos;
+				break;
+			case PIO_IT_FALL_EDGE:
+			default:
+				cfg.bitfield.evtsel = PIO_CFGR_EVTSEL_FALLING >> PIO_CFGR_EVTSEL_Pos;
+				break;
+			}
 		}
 
 		switch (pin_list->type){
 
 		case PIO_PERIPH_A:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_A;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_A >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_PERIPH_B:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_B;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_B >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_PERIPH_C:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_C;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_C >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_PERIPH_D:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_D;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_D >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_PERIPH_E:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_E;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_E >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_PERIPH_F:
-			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_F;
+			cfg.bitfield.func = PIO_CFGR_FUNC_PERIPH_F >> PIO_CFGR_FUNC_Pos;
 			break;
 		case PIO_GENERIC:
 		case PIO_INPUT:
