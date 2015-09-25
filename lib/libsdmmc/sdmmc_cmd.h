@@ -242,7 +242,7 @@ typedef enum {
 #define SDMMC_CMD_STOPXFR        0x3	    /**< data stop */
 #define SDMMC_CMD_bmSTOPXFR     (0x3 <<  2) /**< Bits for transfer stop */
 #define SDMMC_CMD_bmRESPMASK    (0x7 <<  4) /**< Bits masks response option */
-#define SDMMC_CMD_bmRESP(R)     (((R)&0x7) << 4)    /**< Bits setup response */
+#define SDMMC_CMD_bmRESP(R)     (((R)&0x7) << 4)    /**< Bits setup response type: 1 for R1, 2 for R2, ... 7 for R7 */
 
 #define SDMMC_CMD_bmCRC         (0x1 <<  7) /**< CRC is enabled (SPI only) */
 #define SDMMC_CMD_bmOD          (0x1 <<  8) /**< Open-Drain is enabled (MMC) */
