@@ -2161,7 +2161,7 @@ SdMmcIdentify(sSdCard * pSd)
 	if (!error && ((status1 & STATUS_SDIO_R5) == 0)) {
 	} else if (error == SDMMC_ERROR_NORESPONSE) {
 	} else {
-		trace_debug("SdMmcIdentify.Cmd52 fail: %u, %x\n\r", error,
+		trace_debug("SdMmcIdentify.Cmd52 fail: %u, %lx\n\r", error,
 			    status1);
 	}
 	/* Reset MEM: CMD0 */
@@ -2434,7 +2434,7 @@ SD_Read(sSdCard * pSd,
 	//printf("MMCT_ReadFun(pSd,0x%x,%d,pBuffer); \n\r",address,length);
 //    printf("R %x,%x ",address,length);
 	MoveToTransferState(pSd, address, length, (uint8_t *) pData, 1);
-	trace_debug("SDrd(%u,%u)\n\r", address, length);
+	trace_debug("SDrd(%lu,%lu)\n\r", address, length);
 	return 0;
 }
 
@@ -2462,7 +2462,7 @@ SD_Write(sSdCard * pSd,
 	pSd->bState = SDMMC_STATE_DATA_WR;
 	//printf("W %x,%x ",address,length);
 	MoveToTransferState(pSd, address, length, (uint8_t *) pData, 0);
-	trace_debug("SDwr(%u,%u)\n\r", address, length);
+	trace_debug("SDwr(%lu,%lu)\n\r", address, length);
 	return 0;
 }
 
@@ -2487,7 +2487,7 @@ SD_ReadBlocks(sSdCard * pSd, uint32_t address, void *pData, uint32_t nbBlocks)
 	assert(pData != NULL);
 	assert(nbBlocks != 0);
 
-	trace_debug("RdBlks(%d,%d)\n\r", address, nbBlocks);
+	trace_debug("RdBlks(%lu,%lu)\n\r", address, nbBlocks);
 	while (nbBlocks--) {
 		error = PerformSingleTransfer(pSd, address, pBytes, 1);
 		if (error)
@@ -2520,7 +2520,7 @@ SD_WriteBlocks(sSdCard * pSd,
 	assert(pData != NULL);
 	assert(nbBlocks != 0);
 
-	trace_debug("WrBlks(%d,%d)\n\r", address, nbBlocks);
+	trace_debug("WrBlks(%lu,%lu)\n\r", address, nbBlocks);
 
 	while (nbBlocks--) {
 		error = PerformSingleTransfer(pSd, address, pB, 0);
