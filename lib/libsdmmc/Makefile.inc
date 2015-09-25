@@ -26,4 +26,22 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-obj-$(CONFIG_LIBSDMMC) += sdmmc.o
+ifeq ($(CONFIG_LIB_SDMMC),y)
+
+CFLAGS_INC += -I$(TOP)/lib/libsdmmc
+
+lib-y += libsdmmc.a
+
+libsdmmc-y := lib/libsdmmc/sdmmc.o
+
+SDMMC_OBJS := $(addprefix $(BUILDDIR)/,$(libsdmmc-y))
+
+-include $(SDMMC_OBJS:.o=.d)
+
+$(BUILDDIR)/libsdmmc.a: $(SDMMC_OBJS)
+	@mkdir -p $(BUILDDIR)
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^
+
+endif
+
