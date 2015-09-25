@@ -966,7 +966,7 @@ Cmd14(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd17()\n\r");
+	trace_debug("Cmd14()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -995,7 +995,7 @@ Cmd19(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd17()\n\r");
+	trace_debug("Cmd19()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
