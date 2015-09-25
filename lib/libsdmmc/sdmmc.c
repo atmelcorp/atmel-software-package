@@ -1230,6 +1230,8 @@ Cmd53(sSdCard * pSd,
 	pArg53->regAddress = addr;
 	pArg53->count = len;
 
+	trace_debug("Cmd53()\n\r");
+
 	/* Fill command */
 	pCmd->bCmd = 53;
 	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(5)
