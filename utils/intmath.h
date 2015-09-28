@@ -30,6 +30,14 @@
 #ifndef _INTMATH_H_
 #define _INTMATH_H_
 
+/**
+ * \brief Compute the absolute value of the difference between two integers.
+ * \param a  The first integer.
+ * \param b  The second integer.
+ * \return  The absolute difference.
+ */
+#define ABS_DIFF(a,b) ((a) < (b) ? (b) - (a) : (a) - (b))
+
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
