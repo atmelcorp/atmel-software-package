@@ -222,7 +222,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		timer_start_timeout(&timeout, TWID_TIMEOUT);
 		while(!twi_byte_sent(desc->addr)) {
 			if (timer_timeout_reached(&timeout)) {
-				trace_error("twid: Device doen't response, "
+				trace_error("twid: Device doesn't answer, "
 					    "(TX TIMEOUT)\r\n");
 				break;
 			}
@@ -254,7 +254,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 		timer_start_timeout(&timeout, TWID_TIMEOUT);
 		while(!twi_is_byte_received(desc->addr)) {
 			if (timer_timeout_reached(&timeout)) {
-				trace_error("twid: Device doen't response, "
+				trace_error("twid: Device doesn't answer, "
 					    "(RX TIMEOUT)\r\n");
 				break;
 			}
