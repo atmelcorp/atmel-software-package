@@ -194,15 +194,11 @@
 
 #define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
 
-#define PIN_QT1070_IRQ {\
-	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
-#define PIN_MXT336S_IRQ {\
-	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
-#define PIN_MXT768E_IRQ	{\
-	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
+#define PIN_QT1070_IRQ { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ }
+
+#define PIN_MXT_IRQ { PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_PULLUP | PIO_IT_LOW_LEVEL }
+
+//#define PIN_MXT_IRQ { PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_PULLUP }
 
 /* =================== PIN ISC definition ======================= */
 
@@ -326,5 +322,12 @@
 #define QT1070_ADDR       ((Twi*)TWIHS1)
 #define QT1070_FREQ       400000
 #define QT1070_DESC       {"QT1070", 0x00, 00}
+
+/* =================== MXTxxx device definition =================== */
+#define MXT_PINS       	PINS_TWI1_IOS2;
+#define MXT_ADDR       	((Twi*)TWIHS1)
+#define MXT_FREQ       	400000
+#define MXT_DESC       	{"MXT", 0x00, 00}
+
 
 #endif /* #ifndef _BOARD_D2_H */

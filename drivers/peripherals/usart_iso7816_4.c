@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -44,9 +44,15 @@
  *------------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "chip.h"
+
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
 #include "peripherals/pmc.h"
-#include "peripherals/iso7816_4.h"
+#include "peripherals/usart_iso7816_4.h"
 #include "peripherals/usart.h"
+
 #include "trace.h"
 
 /*------------------------------------------------------------------------------
@@ -61,126 +67,91 @@
 #define USART_SEND 0
 #define USART_RCV  1
 
-#if !defined(BOARD_ISO7816_BASE_USART)
-#define BOARD_ISO7816_BASE_USART USART1
-#define BOARD_ISO7816_ID_USART   ID_USART1
-#endif
-
 /*-----------------------------------------------------------------------------
  *          Internal variables
  *-----------------------------------------------------------------------------*/
 /** Variable for state of send and receive froom USART */
-static uint8_t StateUsartGlobal = USART_RCV;
-/** struct _pin reset master card */
-static struct _pin st_pinIso7816RstMC;
-static uint32_t maxMck;
+static uint8_t state_usart_global = USART_RCV;
+
 /*----------------------------------------------------------------------------
  *          Internal functions
  *----------------------------------------------------------------------------*/
 
 /**
- * Get a character from ISO7816
- * \param pCharToReceive Pointer for store the received char
+ * Get a character from iso7816
+ * \param pchar_to_receive Pointer for store the received char
  * \return 0: if timeout else status of US_CSR
  */
-static uint32_t
-ISO7816_GetChar(uint8_t * pCharToReceive)
+static uint32_t iso7816_get_char(Usart* usart, uint8_t * pchar_to_receive)
 {
 	uint32_t status;
 	uint32_t timeout = 0;
 
-	if (StateUsartGlobal == USART_SEND) {
-		while ((BOARD_ISO7816_BASE_USART->US_CSR & US_CSR_TXEMPTY) == 0) {
+	if (state_usart_global == USART_SEND) {
+		while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) {
 		}
-		BOARD_ISO7816_BASE_USART->US_CR =
-		    US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
-		StateUsartGlobal = USART_RCV;
+		usart->US_CR = US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
+		state_usart_global = USART_RCV;
 	}
 
 	/* Wait USART ready for reception */
-	while (((BOARD_ISO7816_BASE_USART->US_CSR & US_CSR_RXRDY) == 0)) {
+	while (((usart->US_CSR & US_CSR_RXRDY) == 0)) {
 		if (timeout++ > 12000 * (pmc_get_master_clock() / 1000000)) {
 			trace_debug("TimeOut\n\r");
 			return (0);
 		}
 	}
-
-	trace_debug("T: %u\n\r",
-		    (unsigned int)timeout);
+	trace_debug("T: %u\n\r", (unsigned)timeout);
 
 	/* At least one complete character has been received and US_RHR has not yet been read. */
-
 	/* Get a char */
-	*pCharToReceive = ((BOARD_ISO7816_BASE_USART->US_RHR) & 0xFF);
+	*pchar_to_receive = ((usart->US_RHR) & 0xFF);
 
-	status =
-	    (BOARD_ISO7816_BASE_USART->
-	     US_CSR & (US_CSR_OVRE | US_CSR_FRAME | US_CSR_PARE | US_CSR_TIMEOUT
-		       | US_CSR_NACK | (1 << 10)));
+	status = (usart-> US_CSR & (US_CSR_OVRE | US_CSR_FRAME | US_CSR_PARE | US_CSR_TIMEOUT | US_CSR_NACK | (1 << 10)));
 
 	if (status != 0) {
 		/* trace_debug("R:0x%X\n\r", status); */
-		trace_debug("R:0x%X\n\r",
-			    (unsigned int)BOARD_ISO7816_BASE_USART->US_CSR);
-		trace_debug("Nb:0x%X\n\r",
-			    (unsigned int)BOARD_ISO7816_BASE_USART->US_NER);
-		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
+		trace_debug("R:0x%X\n\r", (unsigned)usart->US_CSR);
+		trace_debug("Nb:0x%X\n\r", (unsigned)usart->US_NER);
+		usart->US_CR = US_CR_RSTSTA;
 	}
-
 	/* Return status */
 	return (status);
 }
 
 /**
- * Send a char to ISO7816
- * \param CharToSend char to be send
+ * Send a char to iso7816
+ * \param char_to_send char to be send
  * \return status of US_CSR
  */
-static uint32_t
-ISO7816_SendChar(uint8_t CharToSend)
+static uint32_t iso7816_send_char(Usart* usart, uint8_t char_to_send)
 {
 	uint32_t status;
 
-	if (StateUsartGlobal == USART_RCV) {
-		BOARD_ISO7816_BASE_USART->US_CR =
-		    US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
-		StateUsartGlobal = USART_SEND;
+	if (state_usart_global == USART_RCV) {
+		usart->US_CR = US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
+		state_usart_global = USART_SEND;
 	}
 
 	/* Wait USART ready for transmit */
-	while ((BOARD_ISO7816_BASE_USART->US_CSR & US_CSR_TXRDY) == 0) {
+	while ((usart->US_CSR & US_CSR_TXRDY) == 0) {
 	}
 	/* There is no character in the US_THR */
-
 	/* Transmit a char */
-	BOARD_ISO7816_BASE_USART->US_THR = CharToSend;
+	usart->US_THR = char_to_send;
 
-	status =
-	    (BOARD_ISO7816_BASE_USART->
-	     US_CSR & (US_CSR_OVRE | US_CSR_FRAME | US_CSR_PARE | US_CSR_TIMEOUT
-		       | US_CSR_NACK | (1 << 10)));
+	status = (usart-> US_CSR & (US_CSR_OVRE | US_CSR_FRAME | US_CSR_PARE | US_CSR_TIMEOUT | US_CSR_NACK | (1 << 10)));
 
 	if (status != 0) {
-		trace_debug("E:0x%X\n\r",
-			    (unsigned int)BOARD_ISO7816_BASE_USART->US_CSR);
-		trace_debug("Nb:0x%X\n\r",
-			    (unsigned int)BOARD_ISO7816_BASE_USART->US_NER);
-		BOARD_ISO7816_BASE_USART->US_CR = US_CR_RSTSTA;
+		trace_debug("E:0x%X\n\r", (unsigned)usart->US_CSR);
+		trace_debug("Nb:0x%X\n\r", (unsigned)usart->US_NER);
+		usart->US_CR = US_CR_RSTSTA;
 	}
-
 	/* Return status */
 	return (status);
 }
 
-/**
- *  Iso 7816 ICC power on
- */
-static void
-ISO7816_IccPowerOn(void)
-{
-	/* Set RESET Master Card */
-	pio_set(&st_pinIso7816RstMC);
-}
+
 
 /*----------------------------------------------------------------------------
  *          Exported functions
@@ -189,31 +160,35 @@ ISO7816_IccPowerOn(void)
 /**
  *  Iso 7816 ICC power off
  */
-void
-ISO7816_IccPowerOff(void)
+void iso7816_icc_power_off(const struct _pin* pinrst)
 {
 	/* Clear RESET Master Card */
-	pio_clear(&st_pinIso7816RstMC);
+	pio_clear(pinrst);
 }
+
+/**
+ *  Iso 7816 ICC power on
+ */
+static void iso7816_icc_power_on(const struct _pin* pinrst)
+{
+	/* Set RESET Master Card */
+	pio_set(pinrst);
+}
+
 
 /**
  * Transfert Block TPDU T=0
  * \param pAPDU    APDU buffer
  * \param pMessage Message buffer
- * \param wLength  Block length
+ * \param length  Block length
  * \return         Message index
  */
-uint16_t
-ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
-			uint8_t * pMessage, uint16_t wLength)
+uint16_t iso7816_xfr_block_TPDU_T0(const struct _iso7816_desc* iso7816, const uint8_t * pAPDU,
+								   uint8_t * pMessage, uint16_t length)
 {
-	uint16_t NeNc;
-	uint16_t indexApdu = 4;
-	uint16_t indexMessage = 0;
-	uint8_t SW1 = 0;
-	uint8_t procByte;
-	uint8_t cmdCase;
-	uint8_t ins;
+	uint16_t NeNc, indexApdu = 4, indexMessage = 0;
+	uint8_t SW1 = 0, procByte, cmdCase, ins;
+	Usart* usart = iso7816->addr;
 
 	trace_debug("pAPDU[0]=0x%X\n\r", pAPDU[0]);
 	trace_debug("pAPDU[1]=0x%X\n\r", pAPDU[1]);
@@ -221,30 +196,30 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 	trace_debug("pAPDU[3]=0x%X\n\r", pAPDU[3]);
 	trace_debug("pAPDU[4]=0x%X\n\r", pAPDU[4]);
 	trace_debug("pAPDU[5]=0x%X\n\r", pAPDU[5]);
-	trace_debug("wlength=%d\n\r", wLength);
+	trace_debug("wlength=%d\n\r", length);
 
-	ISO7816_SendChar(pAPDU[0]);	/* CLA */
-	ISO7816_SendChar(pAPDU[1]);	/* INS */
-	ISO7816_SendChar(pAPDU[2]);	/* P1 */
-	ISO7816_SendChar(pAPDU[3]);	/* P2 */
-	ISO7816_SendChar(pAPDU[4]);	/* P3 */
+	iso7816_send_char(usart, pAPDU[0]);	/* CLA */
+	iso7816_send_char(usart, pAPDU[1]);	/* INS */
+	iso7816_send_char(usart, pAPDU[2]);	/* P1 */
+	iso7816_send_char(usart, pAPDU[3]);	/* P2 */
+	iso7816_send_char(usart, pAPDU[4]);	/* P3 */
 
 	/* Handle the four structures of command APDU */
 	indexApdu = 4;
 
-	if (wLength == 4) {
+	if (length == 4) {
 		cmdCase = CASE1;
 		NeNc = 0;
-	} else if (wLength == 5) {
+	} else if (length == 5) {
 		cmdCase = CASE2;
 		NeNc = pAPDU[4];	/* C5 */
 		if (NeNc == 0) {
 			NeNc = 256;
 		}
-	} else if (wLength == 6) {
+	} else if (length == 6) {
 		NeNc = pAPDU[4];	/* C5 */
 		cmdCase = CASE3;
-	} else if (wLength == 7) {
+	} else if (length == 7) {
 		NeNc = pAPDU[4];	/* C5 */
 		if (NeNc == 0) {
 			cmdCase = CASE2;
@@ -266,7 +241,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 
 	/* Handle Procedure Bytes */
 	do {
-		ISO7816_GetChar(&procByte);
+		iso7816_get_char(usart, &procByte);
 		ins = procByte ^ 0xff;
 		/* Handle NULL */
 		if (procByte == ISO_NULL_VAL) {
@@ -274,8 +249,7 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 			continue;
 		}
 		/* Handle SW1 */
-		else if (((procByte & 0xF0) == 0x60)
-			 || ((procByte & 0xF0) == 0x90)) {
+		else if (((procByte & 0xF0) == 0x60) || ((procByte & 0xF0) == 0x90)) {
 			trace_debug("SW1\n\r");
 			SW1 = 1;
 		}
@@ -285,13 +259,12 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 			if (cmdCase == CASE2) {
 				/* receive data from card */
 				do {
-					ISO7816_GetChar(&pMessage
-							[indexMessage++]);
+					iso7816_get_char(usart, &pMessage[indexMessage++]);
 				} while (0 != --NeNc);
 			} else {
 				/* Send data */
 				do {
-					ISO7816_SendChar(pAPDU[indexApdu++]);
+					iso7816_send_char(usart, pAPDU[indexApdu++]);
 				} while (0 != --NeNc);
 			}
 		}
@@ -300,9 +273,9 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 			trace_debug("HdlINS+\n\r");
 			if (cmdCase == CASE2) {
 				/* receive data from card */
-				ISO7816_GetChar(&pMessage[indexMessage++]);
+				iso7816_get_char(usart, &pMessage[indexMessage++]);
 			} else {
-				ISO7816_SendChar(pAPDU[indexApdu++]);
+				iso7816_send_char(usart, pAPDU[indexApdu++]);
 			}
 			NeNc--;
 		} else {
@@ -314,207 +287,182 @@ ISO7816_XfrBlockTPDU_T0(const uint8_t * pAPDU,
 
 	/* Status Bytes */
 	if (SW1 == 0) {
-		ISO7816_GetChar(&pMessage[indexMessage++]);	/* SW1 */
+		iso7816_get_char(usart, &pMessage[indexMessage++]);	/* SW1 */
 	} else {
 		pMessage[indexMessage++] = procByte;
 	}
-	ISO7816_GetChar(&pMessage[indexMessage++]);	/* SW2 */
+	iso7816_get_char(usart, &pMessage[indexMessage++]);	/* SW2 */
 
 	return (indexMessage);
-
 }
 
 /**
- *  Escape ISO7816
+ *  Escape iso7816
  */
-void
-ISO7816_Escape(void)
+void iso7816_escape(void)
 {
 	trace_debug("For user, if needed\n\r");
 }
 
 /**
- *  Restart clock ISO7816
+ *  Restart clock iso7816
  */
-void
-ISO7816_RestartClock(void)
+void iso7816_restart_clock(struct _iso7816_desc* iso7816)
 {
-	trace_debug("ISO7816_RestartClock\n\r");
-	BOARD_ISO7816_BASE_USART->US_BRGR = 13;
+	Usart* usart = iso7816->addr;
+	trace_debug("iso7816_restart_clock\n\r");
+	usart->US_BRGR = 13;
 }
 
 /**
- *  Stop clock ISO7816
+ *  Stop clock iso7816
  */
-void
-ISO7816_StopClock(void)
+void iso7816_stop_clock(struct _iso7816_desc* iso7816)
 {
-	trace_debug("ISO7816_StopClock\n\r");
-	BOARD_ISO7816_BASE_USART->US_BRGR = 0;
+	Usart* usart = iso7816->addr;
+	trace_debug("iso7816_stop_clock\n\r");
+	usart->US_BRGR = 0;
 }
 
 /**
  *  T0 APDU
  */
-void
-ISO7816_toAPDU(void)
+void iso7816_to_APDU(void)
 {
-	trace_debug("ISO7816_toAPDU\n\r");
+	trace_debug("iso7816_toAPDU\n\r");
 	trace_debug("Not supported at this time\n\r");
 }
 
 /**
  * Answer To Reset (ATR)
  * \param pAtr    ATR buffer
- * \param pLength Pointer for store the ATR length
+ * \param plength Pointer for store the ATR length
  */
-void
-ISO7816_Datablock_ATR(uint8_t * pAtr, uint8_t * pLength)
+void iso7816_get_data_block_ATR(struct _iso7816_desc* iso7816, uint8_t * pAtr, uint8_t * plength)
 {
-	uint32_t i;
-	uint32_t j;
-	uint32_t y;
+	uint32_t i, j, y;
+	Usart* usart = iso7816->addr;
 
-	*pLength = 0;
+	*plength = 0;
 
 	/* Read ATR TS */
-	ISO7816_GetChar(&pAtr[0]);
+	iso7816_get_char(usart, &pAtr[0]);
 	/* Read ATR T0 */
-	ISO7816_GetChar(&pAtr[1]);
+	iso7816_get_char(usart, &pAtr[1]);
 	y = pAtr[1] & 0xF0;
 	i = 2;
 
 	/* Read ATR Ti */
 	while (y) {
-
 		if (y & 0x10) {	/* TA[i] */
-			ISO7816_GetChar(&pAtr[i++]);
+			iso7816_get_char(usart, &pAtr[i++]);
 		}
 		if (y & 0x20) {	/* TB[i] */
-			ISO7816_GetChar(&pAtr[i++]);
+			iso7816_get_char(usart, &pAtr[i++]);
 		}
 		if (y & 0x40) {	/* TC[i] */
-			ISO7816_GetChar(&pAtr[i++]);
+			iso7816_get_char(usart, &pAtr[i++]);
 		}
 		if (y & 0x80) {	/* TD[i] */
-			ISO7816_GetChar(&pAtr[i]);
+			iso7816_get_char(usart, &pAtr[i]);
 			y = pAtr[i++] & 0xF0;
 		} else {
 			y = 0;
 		}
 	}
-
 	/* Historical Bytes */
 	y = pAtr[1] & 0x0F;
 	for (j = 0; j < y; j++) {
-		ISO7816_GetChar(&pAtr[i++]);
+		iso7816_get_char(usart, &pAtr[i++]);
 	}
-
-	*pLength = i;
-
+	*plength = i;
 }
 
 /**
  * Set data rate and clock frequency
- * \param dwClockFrequency ICC clock frequency in KHz.
- * \param dwDataRate       ICC data rate in bpd
+ * \param clock_frequency ICC clock frequency in KHz.
+ * \param data_rate       ICC data rate in bpd
  */
-void
-ISO7816_SetDataRateandClockFrequency(uint32_t dwClockFrequency,
-				     uint32_t dwDataRate)
+void iso7816_set_data_rate_and_clock_frequency(struct _iso7816_desc* iso7816, uint32_t clock_frequency, uint32_t data_rate)
 {
-	uint8_t ClockFrequency;
+	uint8_t clk_frequency;
+	uint32_t per_mck;
+	Usart* usart = iso7816->addr;
 
 	/* Define the baud rate divisor register */
-	/* CD  = MCK / SCK */
-	/* SCK = FIDI x BAUD = 372 x 9600 */
-	/* BOARD_MCK */
-	/* CD = MCK/(FIDI x BAUD) = 48000000 / (372x9600) = 13 */
-	BOARD_ISO7816_BASE_USART->US_BRGR = maxMck / (dwClockFrequency * 1000);
-
-	ClockFrequency = maxMck / BOARD_ISO7816_BASE_USART->US_BRGR;
-
-	BOARD_ISO7816_BASE_USART->US_FIDI = (ClockFrequency) / dwDataRate;
-
+	per_mck = pmc_get_peripheral_clock(iso7816->id);
+	usart->US_BRGR = per_mck / (clock_frequency * 1000);
+	clk_frequency = per_mck / usart->US_BRGR;
+	usart->US_FIDI = (clk_frequency) / data_rate;
 }
 
 /**
- * Pin status for ISO7816 RESET
+ * Pin status for iso7816 RESET
  * \return 1 if the Pin RstMC is high; otherwise 0.
  */
-uint8_t
-ISO7816_StatusReset(void)
+uint8_t iso7816_get_status_pin_reset(const struct _pin* pinrst)
 {
-	return pio_get(&st_pinIso7816RstMC);
+	return pio_get(pinrst);
 }
 
 /**
  *  cold reset
  */
-void
-ISO7816_cold_reset(void)
+void iso7816_cold_reset(struct _iso7816_desc* iso7816)
 {
 	volatile uint32_t i;
+	Usart* usart = iso7816->addr;
 
 	/* tb: wait 400 cycles */
 	for (i = 0; i < (120 * (pmc_get_master_clock() / 1000000)); i++) {
 	}
-
-	BOARD_ISO7816_BASE_USART->US_RHR;
-	BOARD_ISO7816_BASE_USART->US_CR =
-	    US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
-
-	ISO7816_IccPowerOn();
+	usart->US_RHR;
+	usart->US_CR = US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
+	iso7816_icc_power_on(&iso7816->pin_rst);
 }
 
 /**
  *  Warm reset
  */
-void
-ISO7816_warm_reset(void)
+void iso7816_warm_reset(struct _iso7816_desc* iso7816)
 {
 	volatile uint32_t i;
+	Usart* usart = iso7816->addr;
 
-	ISO7816_IccPowerOff();
-
-	/* tb: wait 400 cycles */
-	for (i = 0; i < (120 * (pmc_get_master_clock() / 1000000)); i++) {
+	iso7816_icc_power_off(&iso7816->pin_rst);
+	/* tb: wait 400 cycles, 40000cycles/t(277ns)=11ms  */
+	for (i = 0; i < (30 * (pmc_get_master_clock() / 1000000)); i++) {
 	}
-
-	BOARD_ISO7816_BASE_USART->US_RHR;
-	BOARD_ISO7816_BASE_USART->US_CR =
-	    US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
-
-	ISO7816_IccPowerOn();
+	usart->US_RHR;
+	usart->US_CR = US_CR_RSTSTA | US_CR_RSTIT | US_CR_RSTNACK;
+	iso7816_icc_power_on(&iso7816->pin_rst);
 }
 
 /**
  * Decode ATR trace
  * \param pAtr pointer on ATR buffer
  */
-void
-ISO7816_Decode_ATR(uint8_t * pAtr)
+void iso7816_decode_ATR(uint8_t * pAtr)
 {
-	uint32_t i;
-	uint32_t j;
-	uint32_t y;
+	uint32_t i, j, y;
 	uint8_t offset;
 
 	printf("\n\r");
 	printf("ATR: Answer To Reset:\n\r");
 	printf("TS = 0x%X Initial character ", pAtr[0]);
-	if (pAtr[0] == 0x3B) {
 
-		printf("Direct Convention\n\r");
-	} else {
-		if (pAtr[0] == 0x3F) {
-
+	switch (pAtr[0])
+	{
+		case 0x3B:
+			printf("Direct Convention\n\r");
+			break;
+		case 0x3F:
 			printf("Inverse Convention\n\r");
-		} else {
+			break;
+		default:
 			printf("BAD Convention\n\r");
-		}
+			break;
 	}
-
 	printf("T0 = 0x%X Format caracter\n\r", pAtr[1]);
 	printf("    Number of historical bytes: K = %d\n\r", pAtr[1] & 0x0F);
 	printf("    Presence further interface byte:\n\r");
@@ -586,38 +534,87 @@ ISO7816_Decode_ATR(uint8_t * pAtr)
 
 }
 
-/** Initializes a ISO driver
- *  \param pPinIso7816RstMC Pin ISO 7816 Rst MC
+/** Initializes a usart ISO7816
+ *  \param
  */
-void
-ISO7816_Init(const struct _pin pPinIso7816RstMC)
+static void _usart_iso7816_configure(Usart* usart, const struct _iso7816_opt* opt, uint32_t mode)
 {
+	/* Reset and disable receiver & transmitter */
+	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+	/* Configure mode */
+	usart->US_MR = mode;
+
+	/* Disable all interrupts */
+	usart->US_IDR = 0xFFFFFFFF;
+	usart->US_FIDI = opt->fidi_ratio;
+	/* Define the baud rate divisor register  */
+	/* CD = MCK /(FIDI x BAUD) = periph_mck / (372x9600) */
+	uint32_t per_mck = pmc_get_peripheral_clock(get_usart_id_from_addr(usart));
+	usart->US_BRGR = per_mck / opt->iso7816_hz;
+	/* Write the Timeguard Register */
+	usart->US_TTGR = opt->time_guard;
+	/* Enable receiver and transmitter */
+	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+}
+
+/** Initializes a ISO driver
+ *  \param
+ */
+uint8_t iso7816_init(struct _iso7816_desc* iso7816, const struct _iso7816_opt* opt)
+{
+	uint32_t mode = 0;
+	Usart* usart = iso7816->addr;
+
 	trace_debug("ISO_Init\n\r");
 
-	/* Pin ISO7816 initialize */
-	st_pinIso7816RstMC = pPinIso7816RstMC;
+	/* Configure control Pios */
+	pio_configure(&iso7816->pin_stop, 1);
+	pio_configure(&iso7816->pin_mod_vcc, 1);
+	pio_configure(&iso7816->pin_rst, 1);
 
-	usart_configure(BOARD_ISO7816_BASE_USART, US_MR_USART_MODE_IS07816_T_0 | US_MR_USCLKS_MCK | US_MR_NBSTOP_1_BIT | US_MR_PAR_EVEN | US_MR_CHRL_8_BIT | US_MR_CLKO | (3 << 24),	/* MAX_ITERATION */
-			1);
+	/* STOP = 1, normal operation */
+	pio_set(&iso7816->pin_stop);
+	/* MOD = 1, 3V3 */
+	pio_set(&iso7816->pin_mod_vcc);
 
-	/* Configure USART */
-	//pmc_enable_peripheral(BOARD_ISO7816_ID_USART);
-	maxMck = pmc_get_peripheral_clock(BOARD_ISO7816_ID_USART);
-	/* Disable interrupts */
-	BOARD_ISO7816_BASE_USART->US_IDR = (uint32_t) - 1;
+	pmc_enable_peripheral(iso7816->id);
 
-	BOARD_ISO7816_BASE_USART->US_FIDI = 372;	/* by default */
-	/* Define the baud rate divisor register */
-	/* CD  = MCK / SCK */
-	/* SCK = FIDI x BAUD = 372 x 9600 */
-	/* BOARD_MCK */
-	/* CD = MCK/(FIDI x BAUD) = 48000000 / (372x9600) = 13 */
-	BOARD_ISO7816_BASE_USART->US_BRGR = maxMck / (372 * 9600);
+#ifdef CONFIG_HAVE_FLEXCOM
+	/* switch Flexcom to Usart mode */
+	Flexcom* flexcom = get_flexcom_addr_from_id(iso7816->id);
+	if (flexcom) {
+		flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+	}
+#endif
 
-	/* Write the Timeguard Register */
-	BOARD_ISO7816_BASE_USART->US_TTGR = 5;
+	/* Initialize driver to use */
+	mode  = opt->clock_sel | opt->char_length | opt->sync | opt->parity_type ;
+	mode |= opt->inhibit_nack | opt->dis_suc_nack ;
+	mode |= US_MR_CLKO ; /* The USART drives the SCK pin */
 
-	usart_set_transmitter_enabled(BOARD_ISO7816_BASE_USART, 1);
-	usart_set_receiver_enabled(BOARD_ISO7816_BASE_USART, 1);
+	/* Check whether the input values are legal. */
+	if ( (opt->parity_type != US_MR_PAR_EVEN) && (opt->parity_type != US_MR_PAR_ODD) ) {
+		return 1;
+	}
+	if (opt->protocol_type == US_MR_USART_MODE_IS07816_T_0) {
+		mode |= US_MR_USART_MODE_IS07816_T_0 | US_MR_NBSTOP_2_BIT | US_MR_MAX_ITERATION(opt->max_iterations);
+		if (opt->bit_order) {
+			mode |= US_MR_MSBF;
+		}
+	} else if (opt->protocol_type == US_MR_USART_MODE_IS07816_T_1) {
+		/*
+		 * Only LSBF is used in the T=1 protocol, and max_iterations field
+		 * is only used in T=0 mode.
+		 */
+		if (opt->bit_order || opt->max_iterations) {
+			return 1;
+		}
+		/* Set USART mode to ISO7816, T=1, and always uses 1 stop bit. */
+		mode |= US_MR_USART_MODE_IS07816_T_1 | US_MR_NBSTOP_1_BIT;
+	} else {
+		return 1;
+	}
 
+	_usart_iso7816_configure (usart, opt, mode);
+	return 0;
 }
