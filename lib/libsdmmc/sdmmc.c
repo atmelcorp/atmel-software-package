@@ -40,8 +40,19 @@
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
+#include "compiler.h"
 #include "libsdmmc.h"
 #include "sdmmc_trace.h"
+
+/*----------------------------------------------------------------------------
+ *         Local definitions
+ *----------------------------------------------------------------------------*/
+
+struct stringEntry_s
+{
+	const uint8_t key;
+	const char *name;
+};
 
 /*----------------------------------------------------------------------------
  *         Global variables
@@ -227,6 +238,43 @@ static const uint32_t sdTransMultipliers[16] = {
 static const uint32_t mmcTransMultipliers[16] = {
 	0, 10, 12, 13, 15, 20, 26, 30, 35, 40, 45, 52, 55, 60, 70, 80
 };
+
+#ifdef NOTRACE
+static const char sdmmcEmptyString[] = "";
+#else
+static const char sdmmcInvalidIOCtrl[] = "!Invalid IO Control!";
+static const struct stringEntry_s sdmmcIOCtrlNames[] = {
+	{ SDMMC_IOCTL_BUSY_CHECK,	"SDMMC_IOCTL_BUSY_CHECK",	},
+	{ SDMMC_IOCTL_POWER,		"SDMMC_IOCTL_POWER",		},
+	{ SDMMC_IOCTL_CANCEL_CMD,	"SDMMC_IOCTL_CANCEL_CMD",	},
+	{ SDMMC_IOCTL_RESET,		"SDMMC_IOCTL_RESET",		},
+	{ SDMMC_IOCTL_SET_CLOCK,	"SDMMC_IOCTL_SET_CLOCK",	},
+	{ SDMMC_IOCTL_SET_BUSMODE,	"SDMMC_IOCTL_SET_BUSMODE",	},
+	{ SDMMC_IOCTL_SET_HSMODE,	"SDMMC_IOCTL_SET_HSMODE",	},
+	{ SDMMC_IOCTL_SET_BOOTMODE,	"SDMMC_IOCTL_SET_BOOTMODE",	},
+	{ SDMMC_IOCTL_GET_CLOCK,	"SDMMC_IOCTL_GET_CLOCK",	},
+	{ SDMMC_IOCTL_GET_BUSMODE,	"SDMMC_IOCTL_GET_BUSMODE",	},
+	{ SDMMC_IOCTL_GET_HSMODE,	"SDMMC_IOCTL_GET_HSMODE",	},
+	{ SDMMC_IOCTL_GET_BOOTMODE,	"SDMMC_IOCTL_GET_BOOTMODE",	},
+};
+
+static const char sdmmcInvalidRCode[] = "!Invalid return code!";
+static const struct stringEntry_s sdmmcRCodeNames[] = {
+	{ SDMMC_SUCCESS,		"SDMMC_OK",			},
+	{ SDMMC_ERROR_LOCKED,		"SDMMC_ERROR_LOCKED",		},
+	{ SDMMC_ERROR_BUSY,		"SDMMC_ERROR_BUSY",		},
+	{ SDMMC_ERROR_NORESPONSE,	"SDMMC_ERROR_NO_RESPONSE",	},
+	{ SDMMC_CHANGED,		"SDMMC_OK_CHANGED",		},
+	{ SDMMC_ERROR,			"SDMMC_ERROR",			},
+	{ SDMMC_ERR_IO,			"SDMMC_ERROR_IO",		},
+	{ SDMMC_ERR_RESP,		"SDMMC_ERROR_RESP",		},
+	{ SDMMC_ERROR_NOT_INITIALIZED,	"SDMMC_ERROR_NOT_INITIALIZED",	},
+	{ SDMMC_ERROR_PARAM,		"SDMMC_ERROR_PARAM",		},
+	{ SDMMC_ERROR_STATE,		"SDMMC_ERROR_STATE",		},
+	{ SDMMC_ERROR_USER_CANCEL,	"SDMMC_ERROR_USER_CANCEL",	},
+	{ SDMMC_ERROR_NOT_SUPPORT,	"SDMMC_ERROR_NO_SUPPORT",	},
+};
+#endif
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -3302,6 +3350,52 @@ SD_DumpSdStatus(void *pSdST)
 		   (unsigned int) SD_ST_ERASE_TIMEOUT(pSdST));
 	trace_info(" .ERASE_OFFSET           :0x%X\n\r",
 		   (unsigned int) SD_ST_ERASE_OFFSET(pSdST));
+}
+
+/**
+ * Provide a textual name matching the specified IO Control
+ * \param dwCtrl  IO Control code (SDMMC_IOCTL_xxx).
+ */
+const char *
+SD_StringifyIOCtrl(uint32_t dwCtrl)
+{
+#ifdef NOTRACE
+	(void) dwCtrl;
+	return sdmmcEmptyString;
+#else
+	const uint8_t bound = ARRAY_SIZE(sdmmcIOCtrlNames);
+	uint8_t ix;
+
+	for (ix = 0; ix < bound; ix++) {
+		if (dwCtrl == (uint32_t)sdmmcIOCtrlNames[ix].key)
+			return sdmmcIOCtrlNames[ix].name;
+	}
+
+	return sdmmcInvalidIOCtrl;
+#endif
+}
+
+/**
+ * Provide a textual name matching the specified return code
+ * \param dwRCode  Return code, from the eSDMMC_RC enumeration.
+ */
+const char *
+SD_StringifyRetCode(uint32_t dwRCode)
+{
+#ifdef NOTRACE
+	(void) dwRCode;
+	return sdmmcEmptyString;
+#else
+	const uint8_t bound = ARRAY_SIZE(sdmmcRCodeNames);
+	uint8_t ix;
+
+	for (ix = 0; ix < bound; ix++) {
+		if (dwRCode == (uint32_t)sdmmcRCodeNames[ix].key)
+			return sdmmcRCodeNames[ix].name;
+	}
+
+	return sdmmcInvalidRCode;
+#endif
 }
 
 /**@}*/

@@ -591,6 +591,10 @@ void SD_DumpSCR(void *pSCR);
 
 void SD_DumpSdStatus(void *pSdST);
 
+const char * SD_StringifyIOCtrl(uint32_t dwCtrl);
+
+const char * SD_StringifyRetCode(uint32_t dwRCode);
+
 /**     @}*/
 /** @}*/
 /**@}*/
