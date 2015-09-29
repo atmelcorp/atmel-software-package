@@ -98,7 +98,6 @@ void uart_set_int (Uart* pUart, uint32_t int_mask)
  * Outputs a character on the UART line.
  * \note This function is synchronous (i.e. uses polling).
  * \param c  Character to send.
- * \param wait = 1 if wait transfer complete
  */
 void uart_put_char(Uart* pUart, uint8_t c)
 {
