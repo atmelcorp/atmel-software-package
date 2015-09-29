@@ -72,6 +72,13 @@
 #define ADC_CHANNEL_2  2
 #define ADC_CHANNEL_3  3
 #define ADC_CHANNEL_4  4
+#define ADC_CHANNEL_5  5
+#define ADC_CHANNEL_6  6
+#define ADC_CHANNEL_7  7
+#define ADC_CHANNEL_8  8
+#define ADC_CHANNEL_9  9
+#define ADC_CHANNEL_10 10
+#define ADC_CHANNEL_11 11
 
 #ifdef __cplusplus
 extern "C" {
@@ -116,6 +123,8 @@ extern "C" {
 #define adc_interrupt_mask_status()    (ADC->ADC_IMR)
 
 #define adc_get_last_converted_data()  (ADC->ADC_LCDR)
+
+#define adc_get_overrun_status()  		(ADC->ADC_OVER)
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -244,6 +253,43 @@ extern uint8_t adc_check_configuration(void);
  * \param channel channel to get converted value
  */
 extern uint32_t adc_get_converted_data(uint32_t channel);
+
+
+/**
+ * \brief Enable differential input for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+extern void adc_enable_channel_differential_input (uint32_t channel);
+
+/**
+ * \brief Disable differential input for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+extern void adc_disable_channel_differential_input(uint32_t channel);
+
+/**
+ * \brief Enable analog signal offset for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+extern void adc_enable_channel_input_offset (uint32_t channel);
+
+/**
+ * \brief Disable analog signal offset for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+extern void adc_disable_channel_input_offset (uint32_t channel);
+
+/**
+ * \brief Configure input gain for the specified channel.
+ *
+ * \param channel ADC channel number.
+ * \param gain Gain value for the input.
+ */
+extern void adc_set_channel_input_gain (uint32_t channel, uint32_t gain);
 
 /**
  * Sets the average of the touch screen ADC. The mode can be:

@@ -34,7 +34,7 @@
  * \n
  *
  * It converts the analog input to digital format. The converted result could be
- * 10bit.
+ * 12bit.
  *
  * To Enable a ADC conversion,the user has to follow these few steps:
  * <ul>
@@ -107,6 +107,10 @@ uint32_t adc_num_channels(void)
 	return ARRAY_SIZE(ADC->ADC_CDR);
 }
 
+/**
+ * \brief Initialize the ADC controller
+ *
+ */
 void adc_initialize(void)
 {
 	/* Enable peripheral clock */
@@ -120,6 +124,13 @@ void adc_initialize(void)
 
 }
 
+/**
+ * \brief Set ADC clock.
+ *
+ * \param clk adc clock frequency
+ *
+ * \return ADC clock
+ */
 uint32_t adc_set_clock(uint32_t clk)
 {
 	uint32_t prescale, mode_reg;
@@ -156,8 +167,14 @@ void adc_enable_it(uint32_t mask)
 	ADC->ADC_IER = mask;
 }
 
-void adc_set_timing(uint32_t startup, uint32_t tracking,
-		    uint32_t settling)
+/**
+ * \brief Set ADC timing.
+ *
+ * \param startup startup value
+ * \param tracking tracking value
+ * \param settling settling value
+ */
+void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 {
 	uint32_t mode_reg;
 
@@ -177,7 +194,7 @@ void adc_set_timing(uint32_t startup, uint32_t tracking,
 	 *     Tracking Time = (TRACKTIM + 1) / ADCClock
 	 *     Settling Time = settling value / ADCClock
 	 */
-	mode_reg |= ADC_MR_STARTUP(startup) | ADC_MR_TRACKTIM(tracking);
+	mode_reg |= ADC_MR_STARTUP(startup) | ADC_MR_TRACKTIM(tracking) | ADC_MR_TRANSFER(2);
 #ifdef CONFIG_HAVE_ADC_SETTLING_TIME
 	mode_reg |=  ADC_MR_SETTLING(settling);
 #endif
@@ -199,6 +216,11 @@ void adc_set_sleep_mode(uint8_t enable)
 	}
 }
 
+/**
+ * \brief Enable/Disable seqnence mode.
+ *
+ * \param enable Enable/Disable seqnence mode.
+ */
 void adc_set_sequence_mode(uint8_t enable)
 {
 	if (enable) {
@@ -211,22 +233,49 @@ void adc_set_sequence_mode(uint8_t enable)
 	}
 }
 
+/**
+ * \brief Set channel sequence.
+ *
+ * \param seq1 Sequence 1 ~ 8  channel number.
+ * \param seq2 Sequence 9 ~ 16 channel number.
+ */
+
 void adc_set_sequence(uint32_t seq1, uint32_t seq2)
 {
 	ADC->ADC_SEQR1 = seq1;
+	ADC->ADC_SEQR2 = seq2;
 }
+
+/**
+ * \brief Set channel sequence by given channel list.
+ *
+ * \param channel_list Channel list.
+ * \param len  Number of channels in list.
+ */
 
 void adc_set_sequence_by_list(uint8_t channel_list[], uint8_t len)
 {
 	uint8_t i;
 	uint8_t shift;
 
-	ADC->ADC_SEQR1 = 0;
-	for (i = 0, shift = 0; i < 8; i++, shift += 4) {
-		if (i >= len)
-			return;
-		ADC->ADC_SEQR1 |= channel_list[i] << shift;
-
+	if (len <= 8) {
+		ADC->ADC_SEQR1 = 0;
+		for (i = 0, shift = 0; i < len; i++, shift += 4) {
+			if (i >= len) return;
+			ADC->ADC_SEQR1 |= channel_list[i] << shift;
+		}
+	}
+	else {
+		ADC->ADC_SEQR1 = 0;
+		for (i = 0, shift = 0; i < 8; i++, shift += 4) {
+			if (i >= len) return;
+			ADC->ADC_SEQR1 |= channel_list[i] << shift;
+		}
+		ADC->ADC_SEQR2 = 0;
+		for (i = 0, shift = 0; i < (len-8); i++, shift += 4) {
+			if (i >= len) return;
+			ADC->ADC_SEQR2 |= channel_list[8+i] << shift;
+		}
 	}
 }
 
@@ -239,6 +288,11 @@ void adc_set_tag_enable(uint8_t enable)
 	}
 }
 
+/**
+ * \brief Set compare channel.
+ *
+ * \param channel channel number to be set, xx for all channels
+ */
 void adc_set_compare_channel(uint32_t channel)
 {
 	assert(channel <= adc_num_channels());
@@ -252,6 +306,11 @@ void adc_set_compare_channel(uint32_t channel)
 	}
 }
 
+/**
+ * \brief Set compare mode.
+ *
+ * \param mode compare mode
+ */
 void adc_set_compare_mode(uint32_t mode)
 {
 	ADC->ADC_EMR &= ~(ADC_EMR_CMPMODE_Msk);
@@ -276,8 +335,7 @@ uint8_t adc_check_configuration(void)
 	/* Formula: ADCClock = MCK / ( (PRESCAL+1) * 2 ) */
 	clock = mck / ((prescale + 1) * 2);
 	if (clock > ADC_CLOCK_MAX) {
-		printf
-		    ("ADC clock is too high (out of specification: %d Hz)\r\n",
+		printf ("ADC clock is too high (out of specification: %d Hz)\r\n",
 		     (int) ADC_CLOCK_MAX);
 		return 1;
 	}
@@ -350,6 +408,68 @@ void adc_set_startup_time(uint32_t startup)
 
 	mode_reg |= ADC->ADC_MR & ~ADC_MR_STARTUP_Msk;
 	ADC->ADC_MR = mode_reg;
+}
+
+/**
+ * \brief Enable differential input for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+void adc_enable_channel_differential_input (uint32_t channel)
+{
+	/* (ADC_COR) Differential Inputs for Channel n */
+	ADC->ADC_COR |= 0x01u << (16 + channel);
+}
+
+/**
+ * \brief Disable differential input for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+void adc_disable_channel_differential_input(uint32_t channel)
+{
+	uint32_t temp;
+	temp = ADC->ADC_COR;
+	ADC->ADC_COR &= 0xFFFEFFFFu << channel;
+	ADC->ADC_COR |= temp;
+}
+
+/**
+ * \brief Enable analog signal offset for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+void adc_enable_channel_input_offset (uint32_t channel)
+{
+	ADC->ADC_COR |= 0x01u << channel;
+}
+
+/**
+ * \brief Disable analog signal offset for the specified channel.
+ *
+ * \param channel ADC channel number.
+ */
+void adc_disable_channel_input_offset (uint32_t channel)
+{
+	uint32_t temp;
+	temp = ADC->ADC_COR;
+	ADC->ADC_COR &= (0xFFFFFFFEu << channel);
+	ADC->ADC_COR |= temp;
+}
+
+/**
+ * \brief Configure input gain for the specified channel.
+ *
+ * \param channel ADC channel number.
+ * \param gain Gain value for the input.
+ */
+void adc_set_channel_input_gain (uint32_t channel, uint32_t gain)
+{
+	assert(gain < 3);
+	uint32_t temp;
+	temp = ADC->ADC_CGR;
+	temp |= gain << (2 * channel);
+	ADC->ADC_CGR = temp;
 }
 
 void adc_set_tracking_time(uint32_t dwNs)
