@@ -374,6 +374,19 @@ _HwSetHsMode(sSdCard * pSd, uint8_t newHsMode)
 /**
  */
 static uint8_t
+_HwPowerDevice(sSdCard * pSd, uint8_t nowSwitchOn)
+{
+	sSdHalFunctions *pHal = pSd->pHalf;
+	void *pDrv = pSd->pDrv;
+	uint32_t switchOn = nowSwitchOn;
+	uint32_t rc;
+	rc = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_POWER, (uint32_t) & switchOn);
+	return rc;
+}
+
+/**
+ */
+static uint8_t
 _HwSetClock(sSdCard * pSd, uint32_t * pIoValClk)
 {
 	sSdHalFunctions *pHal = pSd->pHalf;
@@ -2646,6 +2659,9 @@ SD_Init(sSdCard * pSd)
 	uint32_t clock;
 
 	_SdParamReset(pSd);
+
+	/* Power the device and the bus on */
+	_HwPowerDevice(pSd, 1);
 
 	/* Set low speed for device identification (LS device max speed) */
 	clock = 400000;
