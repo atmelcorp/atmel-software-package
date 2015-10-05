@@ -2382,6 +2382,8 @@ SdMmcEnum(sSdCard * pSd)
 		trace_error("SdMmcInit.cmd3(%d)\n\r", error);
 		return error;
 	}
+	else
+		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
 
 	/* For MEMORY cards:
 	 * SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
