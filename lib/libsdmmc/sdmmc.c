@@ -627,8 +627,6 @@ Cmd3(sSdCard * pSd)
 	_ResetCmd(pCmd);
 
 	/* Fill command */
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(6)
-	    | SDMMC_CMD_bmOD;
 	pCmd->bCmd = 3;
 	pCmd->pResp = &dwResp;
 
@@ -638,11 +636,13 @@ Cmd3(sSdCard * pSd)
 			wNewAddr++;
 		pCmd->dwArg = wNewAddr << 16;
 
+		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1) | SDMMC_CMD_bmOD;
 		bRc = _SendCmd(pSd, NULL, NULL);
 		if (bRc == SDMMC_OK) {
 			CARD_ADDR(pSd) = wNewAddr;
 		}
 	} else {
+		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(6) | SDMMC_CMD_bmOD;
 		bRc = _SendCmd(pSd, NULL, NULL);
 		if (bRc == SDMMC_OK) {
 			CARD_ADDR(pSd) = dwResp >> 16;
