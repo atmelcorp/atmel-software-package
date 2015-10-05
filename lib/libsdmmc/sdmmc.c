@@ -749,7 +749,7 @@ MmcCmd6(sSdCard * pSd, const void *pSwitchArg, uint32_t * pResp)
 
 	pMmcSwitch = (MmcCmd6Arg *) pSwitchArg;
 	pCmd->bCmd = 6;
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1);
+	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1) | SDMMC_CMD_bmBUSY;
 	pCmd->dwArg = (pMmcSwitch->access << 24)
 	    | (pMmcSwitch->index << 16)
 	    | (pMmcSwitch->value << 8)
@@ -778,7 +778,12 @@ Cmd7(sSdCard * pSd, uint16_t address)
 	_ResetCmd(pCmd);
 
 	/* Fill command */
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(address ? 1 : 0);
+	/* If this function is used to transition the MMC device from the
+	 * Disconnected to Programming state, then busy checking is required */
+	if (address)
+		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1) | SDMMC_CMD_bmBUSY;
+	else
+		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(0);
 	pCmd->bCmd = 7;
 	pCmd->dwArg = address << 16;
 
