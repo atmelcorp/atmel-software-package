@@ -1963,7 +1963,7 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 	/* Check MMC */
 	if (mmc) {
 		/* MMC card type 3 (HS) */
-		//if (SD_CSD_STRUCTURE(pSd) >= 2 && (MMC_EXT_CARD_TYPE(pSd) & 0x2)) {
+		//if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && (MMC_EXT_CARD_TYPE(pSd) & 0x2)) {
 		if (MMC_IsHsModeSupported(pSd)) {
 			/* Try switch to HS mode */
 			MmcCmd6Arg cmd6Arg = {
@@ -2408,7 +2408,7 @@ SdMmcEnum(sSdCard * pSd)
 	/* If the card support EXT_CSD, read it! */
 	trace_info("Card Type %d, CSD_STRUCTURE %u\n\r",
 		   (unsigned int) pSd->bCardType,
-		   (unsigned int) SD_CSD_STRUCTURE(pSd));
+		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
 
 	/* Get extended information of the card */
 	SdMmcUpdateInformation(pSd, 1, 1);
