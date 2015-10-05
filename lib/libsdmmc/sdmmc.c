@@ -3101,9 +3101,7 @@ SDIO_DumpCardInformation(sSdCard * pSd)
 void
 SD_DumpCID(void *pCID)
 {
-	trace_info("======= CID =======");
-	//_DumpREG(pCID, 128/8);
-	trace_info("===================\n\r");
+	trace_info("======= Card IDentification =======\n\r");
 	trace_info(" .MID Manufacturer ID             %02X\n\r",
 		   (unsigned int) SD_CID_MID(pCID));
 
@@ -3161,9 +3159,7 @@ SD_DumpCID(void *pCID)
 void
 SD_DumpCSD(void *pCSD)
 {
-	trace_info("======== CSD ========");
-	//_DumpREG(pCSD, 128/8);
-	trace_info("===================\n\r");
+	trace_info("======= Card-Specific Data =======\n\r");
 	trace_info(" .CSD_STRUCTURE      0x%x\r\n",
 		   (unsigned int) SD_CSD_STRUCTURE(pCSD));
 	trace_info(" .SPEC_VERS (eMMC)   0x%x\r\n",
@@ -3249,8 +3245,7 @@ SD_DumpCSD(void *pCSD)
 void
 SD_DumpExtCSD(void *pExtCSD)
 {
-	trace_info("======= EXT_CSD =======");
-	trace_info_wp("\n\r");
+	trace_info("======= Extended Device Specific Data =======\n\r");
 	trace_info(" .S_CMD_SET            : 0x%X\n\r",
 		   MMC_EXT_S_CMD_SET(pExtCSD));
 	trace_info(" .BOOT_INFO            : 0x%X\n\r",
