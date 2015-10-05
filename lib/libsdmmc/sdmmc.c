@@ -2788,7 +2788,7 @@ SD_GetCardType(sSdCard * pSd)
 }
 
 /**
- * Return size of the SD/MMC card, in KB.
+ * Return size of the SD/MMC card, in KiB.
  * \param pSd Pointer to \ref sSdCard instance.
  */
 uint32_t

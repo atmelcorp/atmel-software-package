@@ -53,7 +53,7 @@
  *                    (Optimized write, see \ref sdmmc_write_op).
  *    -# SD_GetNumberBlocks() : Return SD/MMC card reported number of blocks.
  *    -# SD_GetBlockSize() : Return SD/MMC card reported block size.
- *    -# SD_GetTotalSizeKB() : Return size of SD/MMC card in KBytes.
+ *    -# SD_GetTotalSizeKB() : Return size of SD/MMC card in Kibibytes (KiB).
  *  - SDIO Card Operations: SD_Init() also detects SDIO card and then SDIO
  *    read/write functions can be used.
  *    -# SDIO_ReadDirect() : Read bytes from registers.
