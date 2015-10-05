@@ -669,7 +669,7 @@ Cmd5(sSdCard * pSd, uint32_t * pIo)
 	_ResetCmd(pCmd);
 
 	/* Fill command */
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(4)
+	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(4) | SDMMC_CMD_bmIO
 	    | SDMMC_CMD_bmOD;
 	pCmd->bCmd = 5;
 	pCmd->dwArg = *pIo;
@@ -1251,7 +1251,7 @@ Cmd52(sSdCard * pSd,
 	_ResetCmd(pCmd);
 
 	/* Fill command */
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(5);
+	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(5) | SDMMC_CMD_bmIO;
 	pCmd->bCmd = 52;
 	pCmd->dwArg = *pIoData;
 	pCmd->pResp = pIoData;
