@@ -26,11 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+CFLAGS_INC += -I$(TOP)/lib/fatfs/src
 
-include $(TOP)/lib/fatfs/Makefile.inc
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/libstoragemedia/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
-include $(TOP)/lib/usb/Makefile.inc
+libfatfs-y += lib/fatfs/src/ff.o
+
+$(BUILDDIR)/lib/fatfs/src/ff.o: lib/fatfs/src/ff.c
+	@mkdir -p $(dir $@)
+	$(ECHO) CC $<
+	$(Q)$(CC) $(filter-out -Wmissing-prototypes -Wmissing-declarations,$(CFLAGS)) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
+
+include $(TOP)/lib/fatfs/src/option/Makefile.inc

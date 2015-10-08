@@ -42,13 +42,14 @@ $(BINNAME).ewp:
 	$(Q)echo "$(addprefix $(TOP)/,$(uip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.4  "uip"> $@.5
 	$(Q)echo "$(addprefix $(TOP)/,$(usb-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.5  "usb"> $@.6
 	$(Q)echo "$(addprefix $(TOP)/,$(libsdmmc-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.6 "libsdmmc" > $@.7
-	$(Q)echo $(CFLAGS_DEFS) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.7 > $@.8
-	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $@.8 > $@.9
-	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.9 > $@.10
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.10 $(iar-linker-script-y) > $@.11
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.11 $(chip-serie-name-y) > $@.12
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.12 $(BINNAME) > $@.13
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.13 > $@
+	$(Q)echo "$(addprefix $(TOP)/,$(libfatfs-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.7 "libfatfs" > $@.8
+	$(Q)echo $(CFLAGS_DEFS) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.8 > $@.9
+	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $@.9 > $@.10
+	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.10 > $@.11
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.11 $(iar-linker-script-y) > $@.12
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.12 $(chip-serie-name-y) > $@.13
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.13 $(BINNAME) > $@.14
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.14 > $@
 	$(Q)rm -f $@.*
 
 $(BINNAME).eww:

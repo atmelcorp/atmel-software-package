@@ -26,11 +26,21 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
+ifeq ($(CONFIG_LIB_FATFS),y)
 
-include $(TOP)/lib/fatfs/Makefile.inc
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/libstoragemedia/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
-include $(TOP)/lib/usb/Makefile.inc
+lib-y += libfatfs.a
+
+libfatfs-y :=
+
+include $(TOP)/lib/fatfs/src/Makefile.inc
+
+FATFS_OBJS := $(addprefix $(BUILDDIR)/,$(libfatfs-y))
+
+-include $(FATFS_OBJS:.o=.d)
+
+$(BUILDDIR)/libfatfs.a: $(FATFS_OBJS)
+	@mkdir -p $(BUILDDIR)
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^
+
+endif

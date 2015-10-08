@@ -26,11 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
-
-include $(TOP)/lib/fatfs/Makefile.inc
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/libstoragemedia/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
-include $(TOP)/lib/usb/Makefile.inc
+libfatfs-y += lib/fatfs/src/option/ccsbcs.o
