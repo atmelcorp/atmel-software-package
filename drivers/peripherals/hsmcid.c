@@ -427,7 +427,8 @@ static uint32_t hsmci_dma(struct hsmci_set *set, uint32_t bFByte, uint8_t bRd)
 			set->region_start = memAddress;
 			set->region_size = xdma_cfg.ubc;
 		} else {
-			xdma_cfg.ubc = toWCOUNT(set->dwXSize);
+			xdma_cfg.ubc = bFByte
+				? set->dwXSize : toWCOUNT(set->dwXSize);
 			xdma_cfg.sa = (void *)memAddress;
 			xdma_cfg.da = (uint32_t*)&regs->HSMCI_TDR;
 			xdma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
