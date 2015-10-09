@@ -34,6 +34,8 @@ lib-y += libsdmmc.a
 
 libsdmmc-y := lib/libsdmmc/sdmmc.o
 
+libsdmmc-$(CONFIG_LIB_FATFS) += lib/libsdmmc/sdmmc_ff.o
+
 SDMMC_OBJS := $(addprefix $(BUILDDIR)/,$(libsdmmc-y))
 
 -include $(SDMMC_OBJS:.o=.d)
