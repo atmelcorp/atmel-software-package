@@ -98,7 +98,7 @@ void set_flag_rtc (uint8_t frtc)
 * \brief Configure RTC for test
 * \Set alarm ewery second
 */
-void _configure_rtc (void)
+void configure_rtc (void)
 {
   	uint32_t status;
 	struct _time MTU = {00, 00, 00};

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,54 +27,45 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for Real Time Clock (RTC) controller.
- *
- */
-
-#ifndef _TEST_RTC_H_
-#define _TEST_RTC_H_
+#ifndef TEST_LCD_H
+#define TEST_LCD_H
 
 /*----------------------------------------------------------------------------
- *        Headers
+ *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+#include "utils/widget.h"
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Definitions
+ *         Global definitions
  *----------------------------------------------------------------------------*/
 
-struct _flag_rtc
-{
- uint8_t
-    ackupd : 1,
-	alarm : 1,
-	sec : 1,
-	timev : 1,
-	calev : 1,
-	tderr : 1,
-	rfu0 : 2;
+struct _lcdd_layer_desc {
+	bool state;
+	uint8_t layer;
+	uint8_t *pbuffer;
+	uint8_t bit_per_pixel;
+	struct _point org;
+	struct _point dest;
+	struct _size size;
+	uint32_t bg_color;
+	uint32_t brd_color;
+	uint32_t txt_color;
 };
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*----------------------------------------------------------------------------
- *        Exported functions
+ /*----------------------------------------------------------------------------
+ *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint8_t get_flag_rtc (void);
-extern void set_flag_rtc (uint8_t frtc);
-extern void configure_rtc (void);
+extern void test_pattern_24RGB (uint8_t *lcd_base);
+extern void _LcdOn(void);
 
-#ifdef __cplusplus
-}
-#endif
+extern struct _lcdd_layer_desc* get_layer_desc (uint8_t layer);
+extern void display_widget_string_on_layer (uint8_t layer, struct _text* txt, char* str);
 
-#endif /* _TEST_RTC_H_ */
+extern uint8_t test_lcd (void);
+extern void lcd_app_qtouch (void);
+
+#endif //#ifndef TEST_LCD_H

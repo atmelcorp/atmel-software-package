@@ -35,30 +35,18 @@
 #include "chip.h"
 
 #include "peripherals/pio.h"
-
-#include "video/lcdd.h"
-#include "lcd_draw.h"
-#include "lcd_font.h"
-#include "lcd_color.h"
-#include "font.h"
-
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
-
-#include "video/qt1070.h"
-
 #include "peripherals/rtc.h"
+#include "peripherals/l2cc.h"
+
+#include "test_lcd.h"
+#include "video/qt1070.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "hardware/icone_clim.h"
-
-//#include "hardware/newlogoMF02.h"
-#include "hardware/monkey_480-272.h"
-
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -103,44 +91,32 @@
 /** Size of High End Overlay buffer */
 #define SIZE_LCD_BUFFER_HEO     (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 
-/** Width for OVR1 */
-#define OVR1_W      (BOARD_LCD_WIDTH*5/6)
-/** Height for OVR1 */
-#define OVR1_H      (BOARD_LCD_HEIGHT*5/6)
-
-#define BASE_COLOR_BG	COLOR_WHITE
-#define OVR1_COLOR_BG   COLOR_WhiteSmoke
-#define OVR2_COLOR_BG	COLOR_SNOW
-#define HEO_COLOR_BG	COLOR_WHITE
-
-/** OVR1 draw step */
-#define OVR1_STEP    15
-
-/** Width for HEO */
-#define HEO_W       (BOARD_LCD_WIDTH*2/3)
-/** Height for HEO */
-#define HEO_H       (BOARD_LCD_HEIGHT*2/3)
-
 /** Number of blocks in vertical */
 #define N_BLK_VERT    4
 /** Number of blocks in horizontal */
 #define N_BLK_HOR     6
+
+#define HEADER_SIZE	54
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
 /** LCD BASE buffer */
-static uint8_t *pBaseBuffer = (uint8_t *)ADDR_LCD_BUFFER_BASE;
+
+SECTION(".region_ddr") static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
 /** Overlay 1 buffer */
-static uint8_t *pOvr1Buffer = (uint8_t*)ADDR_LCD_BUFFER_OVR1;
+
+SECTION(".region_ddr") static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
 
 /** Overlay 2 buffer */
-static uint8_t *pOvr2Buffer = (uint8_t*)ADDR_LCD_BUFFER_OVR2;
+
+SECTION(".region_ddr") static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 
 /** High End Overlay buffer */
-static uint8_t *pHeoBuffer = (uint8_t*)ADDR_LCD_BUFFER_HEO;
+
+SECTION(".region_ddr") static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
 
 /** Pins for LCDC */
 static const struct _pin pins_lcd[] = PINS_LCD;
@@ -156,25 +132,78 @@ static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {
 /** Backlight value */
 static uint8_t bBackLight = 0xF0;
 
-static uint16_t wOvr1X = 0;
-static uint16_t wOvr1Y = BOARD_LCD_HEIGHT-1;
-static uint16_t wOvr1W = 0;
-static uint16_t wOvr1H = 0;
-
-static uint16_t wOvr2X = 0;
-static uint16_t wOvr2Y = 0;
-static uint16_t wOvr2W = 0;
-static uint16_t wOvr2H = 0;
-
-static uint16_t wHeoX = 0;
-static uint16_t wHeoY = 0;
-static uint16_t wHeoW = 0;
-static uint16_t wHeoH = 0;
-
 #define NB_TAB_COLOR N_BLK_HOR*N_BLK_VERT
 uint8_t ncolor = 0;
 
 uint8_t qt1070_key = 0;
+
+/** Layer descriptor */
+
+static struct _lcdd_layer_desc base_desc = {
+	.state = 1,
+	.layer = LCDD_BASE,
+	.pbuffer = _base_buffer,
+	.bit_per_pixel = 24,
+	.org.x = 0,
+	.org.y = 0,
+	.dest.x = 0,
+	.dest.y = 0,
+	.size.w = BOARD_LCD_WIDTH,
+	.size.h = BOARD_LCD_HEIGHT,
+	.bg_color = COLOR_WHITE,
+	.brd_color = COLOR_BLACK,
+	.txt_color = COLOR_BLACK,
+};
+
+static struct _lcdd_layer_desc ovr1_desc = {
+	.state = 1,
+	.layer = LCDD_OVR1,
+	.pbuffer = _ovr1_buffer,
+	.bit_per_pixel = 24,
+	.org.x = SCR_X(IMG_X(0)),
+	.org.y = SCR_Y(IMG_Y(0)),
+	.dest.x = 0,
+	.dest.y = 0,
+	.size.w = BOARD_LCD_WIDTH/2,
+	.size.h = BOARD_LCD_HEIGHT,
+	.bg_color = COLOR_WhiteSmoke,
+	.brd_color = COLOR_BLACK,
+	.txt_color = COLOR_BLACK,
+};
+
+static struct _lcdd_layer_desc ovr2_desc = {
+	.state = 1,
+	.layer = LCDD_OVR2,
+	.pbuffer =  _ovr2_buffer,
+	.bit_per_pixel = 24,
+	.org.x = SCR_X(IMG_X(BOARD_LCD_WIDTH/2)),
+	.org.y = SCR_Y(IMG_Y(0)),
+	.dest.x = 0,
+	.dest.y = 0,
+	.size.w = BOARD_LCD_WIDTH/2,
+	.size.h = BOARD_LCD_HEIGHT,
+	.bg_color = COLOR_SNOW,
+	.brd_color = COLOR_BLACK,
+	.txt_color = COLOR_BLACK,
+};
+
+static struct _lcdd_layer_desc heo_desc = {
+	.state = 1,
+	.layer = LCDD_HEO,
+	.pbuffer = _heo_buffer,
+	.bit_per_pixel = 24,
+	.org.x = 10,
+	.org.y = BOARD_LCD_HEIGHT-30,
+	.dest.x = 0,
+	.dest.y = 0,
+	.size.w = BOARD_LCD_WIDTH-(10*2),
+	.size.h = 30,
+	.bg_color = COLOR_WHITE,
+	.brd_color = COLOR_BLACK,
+	.txt_color = COLOR_BLACK,
+};
+
+/** Widget descriptor */
 
 /*------------------------------------------------------------------------------
  *
@@ -190,7 +219,7 @@ struct _qt1070 qt1070_drv = {
 struct _twi_desc qt1070_twid = {
 	.addr = QT1070_ADDR,
 	.freq = QT1070_FREQ,
-	.transfert_mode = TWID_MODE_FIFO
+	.transfert_mode = TWID_MODE_POLLING
 };
 
 /*------------------------------------------------------------------------------
@@ -255,6 +284,23 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
 	}
 }
 
+struct _lcdd_layer_desc* get_layer_desc (uint8_t layer)
+{
+	switch (layer) {
+		case LCDD_BASE: return &base_desc; break;
+		case LCDD_OVR1: return &ovr1_desc; break;
+		case LCDD_OVR2: return &ovr2_desc; break;
+		case LCDD_HEO: return &heo_desc; break;
+	}
+	return NULL;
+}
+
+void* create_canvas (struct _lcdd_layer_desc* ld)
+{
+	return lcdd_create_canvas(ld->layer, ld->pbuffer, ld->bit_per_pixel,
+							  ld->org.x, ld->org.y, ld->size.w, ld->size.h);
+}
+
 /**
  * Turn ON LCD, show base .
  */
@@ -262,92 +308,85 @@ static void _LcdOn(void)
 {
 	void *pBuffer = NULL;
 
-	lcdd_on();
-	lcdd_set_backlight(bBackLight);
-	pBuffer = lcdd_create_canvas(LCDD_BASE, pBaseBuffer, 24, 0, 0, BOARD_LCD_WIDTH, BOARD_LCD_HEIGHT);
-	test_pattern_24RGB(pBaseBuffer);
-	//timer_wait(1000);
+	test_pattern_24RGB (base_desc.pbuffer);
+	l2cc_clean_region((uint32_t)_base_buffer, (uint32_t)_base_buffer + sizeof(_base_buffer));
 
 	/* OVR1 */
-	wOvr1X = IMG_X(30);
-	wOvr1Y = IMG_Y(135);
-	wOvr1W = BOARD_LCD_WIDTH/2;
-	wOvr1H = BOARD_LCD_HEIGHT/2;
-	pBuffer = lcdd_create_canvas(LCDD_OVR1, pOvr1Buffer, 24, SCR_X(wOvr1X), SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
-	lcdd_set_color_keying(LCDD_OVR1, 0, OVR1_COLOR_BG, 0xFFFFFF);
-	lcdd_fill(OVR1_COLOR_BG);
+	pBuffer = create_canvas(&ovr1_desc);
+	lcdd_set_color_keying(ovr1_desc.layer, 0, ovr1_desc.bg_color, 0xFFFFFF);
+	lcdd_fill(ovr1_desc.bg_color);
 
 	/* OVR2 */
-	wOvr2X = IMG_X(BOARD_LCD_WIDTH/2);
-	wOvr2Y = IMG_Y(0);
-	wOvr2W = BOARD_LCD_WIDTH/2;
-	wOvr2H = BOARD_LCD_HEIGHT;
-	pBuffer = lcdd_create_canvas(LCDD_OVR2, pOvr2Buffer, 24, SCR_X(wOvr2X), SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
-	lcdd_set_color_keying(LCDD_OVR2, 0, OVR2_COLOR_BG, 0xFFFFFF);
-	lcdd_fill(OVR2_COLOR_BG);
+	pBuffer = create_canvas(&ovr2_desc);
+	lcdd_set_color_keying(ovr2_desc.layer, 0, ovr2_desc.bg_color, 0xFFFFFF);
+	lcdd_fill(ovr2_desc.bg_color);
 
 	/* HE0 */
-	wHeoX = 10;
-	wHeoY = BOARD_LCD_HEIGHT-35;
-	wHeoW = 270;
-	wHeoH = 30;
-	pBuffer = lcdd_create_canvas(LCDD_HEO, pHeoBuffer, 24, wHeoX, wHeoY, wHeoW, wHeoH);
-	lcdd_set_color_keying(LCDD_HEO, 0, HEO_COLOR_BG, 0xFFFFFF);
-	lcdd_fill(HEO_COLOR_BG);
-	lcdd_fill_rounded_rect (0, 0, wHeoW, wHeoH, 12, COLOR_BLUE);
-	lcdd_draw_rounded_rect (0, 0, wHeoW, wHeoH, 12, COLOR_BLACK);
-	lcdd_draw_string(5, 8, " Powered by ATMEL-RF0 ", COLOR_WHITE);
+	pBuffer = create_canvas(&heo_desc);
+	lcdd_set_color_keying(heo_desc.layer, 0, heo_desc.bg_color, 0xFFFFFF);
+	lcdd_fill(heo_desc.bg_color);
+	lcdd_set_alpha(heo_desc.layer, 1, 128);
+	lcdd_set_priority(heo_desc.layer, 0);
 
+	lcdd_on();
+	lcdd_set_backlight(bBackLight);
+	lcdd_show_base(_base_buffer, 24, 0);
+
+	/* BASE */
 	lcdd_select_canvas(LCDD_BASE);
-	lcdd_fill(BASE_COLOR_BG);
+	//lcdd_fill(base_desc.bg_color);
 
-	//lcdd_draw_image(0, 0, &rawMonkeyData[HEADER_SIZE], 480, 272);
-	//circle_moving_around_circle();
-
-	widget_thermostat(LCDD_OVR2, wOvr2W, wOvr2H);
 }
 
-void display_icone (void)
+/**
+ * Display a string on layer.
+ */
+void display_widget_string_on_layer (uint8_t layer, struct _text* txt, char* str)
 {
-	lcdd_draw_image(10, 10, &icone_clim[54], 50, 50);
-}
+	uint8_t radius, save_font;
+	uint16_t offset;
+	sLCDDLayer* psLAYR ;
 
-#define HMS_POS_X BOARD_LCD_WIDTH-120
-#define HMS_POS_Y 15
+	/* save activ layer */
+	psLAYR = lcdd_get_canvas();
+	lcdd_select_canvas(layer);
+	/* save activ font */
+	save_font = lcdd_get_selected_font();
+	lcdd_select_font ((_FONT_enum)txt->font_sel);
 
-void display_hms(struct _time* mtu)
-{
-	char buf[16] = {0};
-	uint32_t x = HMS_POS_X, y = HMS_POS_Y;
+	if(txt->size.w == 0 || txt->size.h == 0) {
+		lcdd_get_string_size(str, &txt->size.w, &txt->size.h);
+	}
+	radius = txt->size.h/4*3;
+	offset = 8;
+	lcdd_fill_rounded_rect (txt->org.x, txt->org.y, txt->size.w, txt->size.h+offset, radius, txt->bg_color);
+	lcdd_draw_rounded_rect (txt->org.x, txt->org.y, txt->size.w, txt->size.h+offset, radius, COLOR_BLACK);
+	lcdd_draw_string(txt->org.x, txt->org.y+(offset/2), str, txt->txt_color);
 
-	sLCDDLayer* psLAYR = lcdd_get_canvas();
-	lcdd_select_canvas(LCDD_BASE);
-
-	uint8_t prev_font = lcdd_get_selected_font();
-	lcdd_select_font(FONT10x8);
-	uint8_t font = lcdd_get_selected_font();
-	uint8_t width = font_param[font].width ;
-	uint8_t height = font_param[font].height;
-	uint8_t cspace = font_param[font].char_space;
-
-	lcdd_draw_filled_rectangle(x, y, x+(9*(width+cspace)), y+height+1, BASE_COLOR_BG);
-	sprintf(buf, "%02dh%02dm%02ds", mtu->hour, mtu->min, mtu->sec);
-	lcdd_draw_string(x, y, buf, COLOR_BLACK);
-
-	lcdd_select_font(prev_font);
+	/* restore previous font */
+	lcdd_select_font((_FONT_enum)save_font);
+	/* restore activ layer */
 	lcdd_select_canvas(psLAYR->bLayer);
 }
 
+/**
+ * Init layer and test LCD.
+ */
 uint8_t test_lcd (void)
 {
 	uint8_t status = 0;
 
 	/* Check if find QT1070 on LCD PDA4300 */
+	printf("-I- Check QTouch interface \n\r");
 	/* configure twi QT1070 */
 	pio_configure(qt1070_pins, ARRAY_SIZE(qt1070_pins));
 	/* configure handler twi QT1070 */
 	qt1070_configure(&qt1070_drv, &qt1070_twid);
-	if (qt1070_drv.chip_id == 0x2E) {
+	if (qt1070_drv.chip_id != 0x2E) {
+		printf("-E- QT1070 not detected \n\r");
+		status = 1;
+	}
+	else {
 		printf("-I- QT1070 detected \n\r");
 		printf("-I- Chip ID : 0x%2X \n\r", qt1070_drv.chip_id );
 		printf("-I- Firm.V. : 0x%2X \n\r", qt1070_drv.firmware_version );
@@ -355,36 +394,48 @@ uint8_t test_lcd (void)
 		/* configure irq qt1070 */
 		configure_pin_qt1070();
 
-		/* Configure LCD */
+		/* Configure LCD 4.3" */
 		lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
 		_LcdOn();
+
+		/* Display powered by ..*/
+		struct _text txt = {
+			.org.x = 10,	// relative on layer HEO
+			.org.y = 5,		// relative on layer HEO
+			.size.w = 0,
+			.size.h = 0,
+			.font_sel = FONT10x14,
+			.bg_color = COLOR_BLUE,
+			.txt_color = COLOR_WHITE
+		};
+		display_widget_string_on_layer(LCDD_HEO, &txt, " Powered by ATMEL-RFO ");
 	}
 	return status;
 }
-
-uint8_t state_base = 1;
-uint8_t state_ovr1 = 1;
-uint8_t state_ovr2 = 1;
-uint8_t state_heo = 1;
-
+/**
+ * Check Qtouch and Enable, disable layer.
+ */
 void lcd_app_qtouch (void)
 {
 	switch (qt1070_key) {
 		case 0x01:
-			state_base = (~state_base)&0x01;
-			lcdd_enable_layer(LCDD_BASE, state_base);
+			//base_desc.state = (~base_desc.state)&0x01;
+			//lcdd_enable_layer(LCDD_BASE, base_desc.state);
+			lcdd_select_canvas(LCDD_BASE);
+			lcdd_fill(base_desc.bg_color);
+
 			break;
 		case 0x02:
-			state_ovr1 = (~state_ovr1)&0x01;
-			lcdd_enable_layer(LCDD_OVR1, state_ovr1);
+			ovr1_desc.state = (~ovr1_desc.state)&0x01;
+			lcdd_enable_layer(LCDD_OVR1, ovr1_desc.state);
 			break;
 		case 0x04:
-			state_ovr2 = (~state_ovr2)&0x01;
-			lcdd_enable_layer(LCDD_OVR2, state_ovr2);
+			ovr2_desc.state = (~ovr1_desc.state)&0x01;
+			lcdd_enable_layer(LCDD_OVR2, ovr2_desc.state);
 			break;
 		case 0x08:
-			state_heo = (~state_heo)&0x01;
-			lcdd_enable_layer(LCDD_HEO, state_heo);
+			heo_desc.state = (~heo_desc.state)&0x01;
+			lcdd_enable_layer(LCDD_HEO, heo_desc.state);
 			break;
 		default:
 			break;

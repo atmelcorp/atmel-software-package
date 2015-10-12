@@ -63,11 +63,16 @@ struct _board_info {
  *        Functions
  *----------------------------------------------------------------------------*/
 
+extern struct _at24* at24mac402_get_descriptor (void);
+
 extern uint8_t at24mac402_display_serial_number (struct _at24* pAt24);
 extern uint8_t at24mac402_display_mac_adress (struct _at24* pAt24);
 extern uint8_t at24mac402_get_info_board (struct _at24* pAt24, struct _board_info* pInfo);
 extern uint8_t at24mac402_set_info_board (struct _at24* pAt24, struct _board_info* pInfo);
 extern uint8_t at24mac402_display_info_board (struct _at24* pAt24);
+
+extern uint8_t test_at24mac402 (void);
+extern uint8_t update_at24mac402 (void);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

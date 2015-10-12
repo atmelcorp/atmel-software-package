@@ -102,14 +102,14 @@ static const struct _pin pinsCom1[] = PINS_COM1_USART;
 
 #define PINS_COM2_RS485         PINS_FLEXCOM0_USART_IOS1_RS485
 #define COM2_MODE_RS485         (US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
-				 US_MR_CHMODE_NORMAL | US_MR_PAR_NO |	\
-				 US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
+				 				US_MR_CHMODE_NORMAL | US_MR_PAR_NO | \
+				 				US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
 
 /** Pins for COM2 */
 static const struct _pin pinsCom2[] = PINS_COM2_USART;
 static const struct _pin pinsCom20[] = PINS_COM2_RS485;
 
-/** COM2 RS232 definition **/
+/** COM3 RS232 definition **/
 #define PINS_COM3_USART         PINS_FLEXCOM1_USART_IOS1
 #define COM3_PER_ADD            FLEXCOM1
 #define COM3_ID                 ID_FLEXCOM1
@@ -118,8 +118,8 @@ static const struct _pin pinsCom20[] = PINS_COM2_RS485;
 
 #define PINS_COM3_RS485         PINS_FLEXCOM1_USART_IOS1_RS485
 #define COM3_MODE_RS485         (US_MR_USART_MODE_RS485 | US_MR_USCLKS_MCK | \
-				 US_MR_CHMODE_NORMAL | US_MR_PAR_NO |	\
-				 US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
+				 				US_MR_CHMODE_NORMAL | US_MR_PAR_NO | \
+				 				US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT)
 
 /** Pins for COM3 */
 static const struct _pin pinsCom3[] = PINS_COM3_USART;
@@ -128,7 +128,6 @@ static const struct _pin pinsCom30[] = PINS_COM3_RS485;
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-
 
 /**
  *  \brief Handler for Buttons rising edge interrupt.
@@ -188,8 +187,6 @@ static void configure_command_relays (void)
 	pio_configure(&ext_rl2_pins[0], 1);
 }
 
-
-
 /* Init Com port
  * Mode FIFO ON
  *
@@ -204,10 +201,7 @@ void com0_configure(const struct _pin * pin, uint32_t size, uint32_t mode)
 	flexcom_select(COM0_PER_ADD, FLEX_MR_OPMODE_USART);
 	/* Initialize driver to use */
 	usart_configure (&COM0_PER_ADD->usart, mode, COM0_BAUDRATE);
-
-	usart_fifo_configure(&COM0_PER_ADD->usart,
-			     16, 16, 16,
-			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM0_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 
 	//usart_set_transmitter_enabled(&COM0_PER_ADD->usart, 1);
 	//usart_set_receiver_enabled(&COM0_PER_ADD->usart, 1);
@@ -223,10 +217,7 @@ void com1_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	flexcom_select(COM1_PER_ADD, FLEX_MR_OPMODE_USART);
 	/* Initialize driver to use */
 	usart_configure (&COM1_PER_ADD->usart, mode, COM1_BAUDRATE);
-
-	usart_fifo_configure(&COM1_PER_ADD->usart,
-			     16, 16, 16,
-			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM1_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 void com2_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
@@ -238,10 +229,7 @@ void com2_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	flexcom_select(COM2_PER_ADD, FLEX_MR_OPMODE_USART);
 	/* Initialize driver to use */
 	usart_configure (&COM2_PER_ADD->usart, mode, COM2_BAUDRATE);
-
-	usart_fifo_configure(&COM2_PER_ADD->usart,
-			     16, 16, 16,
-			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM2_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 void com3_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
@@ -253,10 +241,7 @@ void com3_configure(const struct _pin* pin, uint32_t size, uint32_t mode)
 	flexcom_select(COM3_PER_ADD, FLEX_MR_OPMODE_USART);
 	/* Initialize driver to use */
 	usart_configure (&COM3_PER_ADD->usart, mode, COM3_BAUDRATE);
-
-	usart_fifo_configure(&COM3_PER_ADD->usart,
-			     16, 16, 16,
-			     US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(&COM3_PER_ADD->usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA|US_FMR_RXRDYM_ONE_DATA);
 }
 
 
@@ -269,36 +254,29 @@ void test_flexcom_usart(void)
 	configure_command_relays();
 	configure_external_buttons();
 
-	/* str tx, rx len max 32 */
-
-	/* Loop com0 to Com1 */
+	/* test RS232 mode */
+	/* Loop com0 to Com1: TX0->RX1->TX1->RX0*/
 	com0_configure(&pinsCom0[0], ARRAY_SIZE(pinsCom0), COM0_MODE_RS232);
 	com1_configure(&pinsCom1[0], ARRAY_SIZE(pinsCom1), COM1_MODE_RS232);
-
 	len = usart_write_stream(&COM0_PER_ADD->usart, str, strlen(str));
 	len = usart_read_stream(&COM1_PER_ADD->usart, str1, len);
 	len = usart_write_stream(&COM1_PER_ADD->usart, str1, len);
 	len = usart_read_stream(&COM0_PER_ADD->usart, str1, len);
-	printf("rx_len: %d str: %s \n\r",
-	       (unsigned int)len, str1);
+	printf("rx_len: %d str: %s \n\r", (uint32_t)len, str1);
 
-	/* Loop com2 to Com3 */
-	//com2_configure(&pinsCom2[0], COM2_MODE_RS232);
-	//com3_configure(&pinsCom3[0], COM3_MODE_RS232);
-	/* str tx len max 32 */
-	//len = usart_write_stream(&COM2_PER_ADD->usart, str1, len);
-	//len = usart_read_stream(&COM3_PER_ADD->usart, str1, len);
-	//printf("rx_len: %d str: %s \n\r", len, str1);
+	/* test RS232 mode */
+	/* Loop com2 to Com3: TX com2/RX com3 */
+	com2_configure(&pinsCom2[0], ARRAY_SIZE(pinsCom2), COM2_MODE_RS232);
+	com3_configure(&pinsCom3[0], ARRAY_SIZE(pinsCom3), COM3_MODE_RS232);
+	len = usart_write_stream(&COM2_PER_ADD->usart, str1, len);
+	len = usart_read_stream(&COM3_PER_ADD->usart, str1, len);
+	printf("rx_len: %d str: %s \n\r", (uint32_t)len, str1);
 
 	/* test RS485 mode */
+	/* Loop com2 to Com3 */
 	com2_configure(&pinsCom20[0], ARRAY_SIZE(pinsCom20), COM2_MODE_RS485);
 	com3_configure(&pinsCom30[0], ARRAY_SIZE(pinsCom30), COM3_MODE_RS485);
-
-	/* Loop com2 to Com3 */
 	len = usart_write_stream(&COM2_PER_ADD->usart, str, len);
 	len = usart_read_stream(&COM3_PER_ADD->usart, str1, len);
-	printf("rx_len: %d str: %s \n\r",
-	       (unsigned int)len, str1);
-
-
+	printf("rx_len: %d str: %s \n\r", (uint32_t)len, str1);
 }

@@ -75,13 +75,17 @@ struct _at24 at24_drv = {
 struct _twi_desc at24_twid = {
 	.addr = AT24_ADDR,
 	.freq = AT24_FREQ,
-	.transfert_mode = TWID_MODE_FIFO
+	.transfert_mode = TWID_MODE_POLLING
 };
 
 /*------------------------------------------------------------------------------
  *
  *----------------------------------------------------------------------------*/
 
+struct _at24* at24mac402_get_descriptor (void)
+{
+	return &at24_drv;
+}
 
 uint8_t at24mac402_display_serial_number (struct _at24* pAt24)
 {
@@ -91,7 +95,7 @@ uint8_t at24mac402_display_serial_number (struct _at24* pAt24)
 	status = at24_get_serial_number(pAt24);
 	if(status != TWID_SUCCESS) return status;
 	for (Len=0; Len<AT24_SN_SIZE; Len++) {
-		printf("%02X.", pAt24->serial_number[Len]);
+		printf("%02X", pAt24->serial_number[Len]);
 	}
 	printf("\n\r");
 	return status;
@@ -134,8 +138,6 @@ uint8_t at24mac402_display_info_board (struct _at24* pAt24)
 	struct _board_info* pInfo = &sInfo;
 	uint8_t buf[32] = {0};
 
-	status = at24mac402_display_serial_number(pAt24);
-	status |= at24mac402_display_mac_adress(pAt24);
 	status |= at24mac402_get_info_board (pAt24, pInfo);
 	if(status != TWID_SUCCESS) return status;
 
@@ -172,15 +174,36 @@ uint8_t at24mac402_display_info_board (struct _at24* pAt24)
 	return status;
 }
 
+uint8_t at24mac402_memory_test (struct _at24* pAt24)
+{
+	uint8_t i, status = TWID_SUCCESS;
+	uint8_t buf[AT24_BLOCK_SIZE*2] = {0};
+
+	status = at24mac402_display_serial_number(pAt24);
+	status |= at24mac402_display_mac_adress(pAt24);
+
+	printf(" -I- Test 2 blocks : 32 data \n\r");
+	status = at24_write_eep(pAt24, AT24_FIRST_MEM_ADDR, buf, AT24_BLOCK_SIZE*2);
+	if (status != TWID_SUCCESS) return status;
+	status = at24_read_eep(pAt24, 0x00, buf, AT24_BLOCK_SIZE*2);
+	if (status != TWID_SUCCESS) return status;
+	i = compute_crc8(buf, 32);
+	memset (buf, 0xFF, sizeof(buf));
+	status = at24_write_eep(pAt24, AT24_FIRST_MEM_ADDR, buf, AT24_BLOCK_SIZE*2);
+	return (i!=0x00) ? 1 : 0;
+}
+
 uint8_t test_at24mac402 (void)
 {
-	uint8_t status;
-
 	/* configure twi serial E2prom */
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
 	/* configure handler twi serial E2prom */
-	status = at24_configure(&at24_drv, &at24_twid);
-	status = at24mac402_display_info_board (&at24_drv);
-	return status;
+	at24_configure(&at24_drv, &at24_twid);
+	if (at24_configure(&at24_drv, &at24_twid)) return true;
+	return at24mac402_memory_test(&at24_drv);
+}
 
+uint8_t update_at24mac402 (void)
+{
+	return at24mac402_display_info_board (&at24_drv);
 }
