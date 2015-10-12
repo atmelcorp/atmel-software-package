@@ -60,6 +60,7 @@ drivers-y += drivers/peripherals/xdmad.o
 
 drivers-$(CONFIG_HAVE_DBGU) += drivers/peripherals/dbgu.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
+drivers-$(CONFIG_HAVE_USART_LIN) += drivers/peripherals/usart_lin.o
 drivers-$(CONFIG_HAVE_PIO3) += drivers/peripherals/pio3.o
 drivers-$(CONFIG_HAVE_PIO4) += drivers/peripherals/pio4.o
 drivers-$(CONFIG_HAVE_QSPI) += drivers/peripherals/qspi.o
