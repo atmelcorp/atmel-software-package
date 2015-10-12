@@ -32,6 +32,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "peripherals/twid.h"
 
 /*------------------------------------------------------------------------------
@@ -83,7 +84,7 @@ extern bool act8945a_configure(struct _act8945a *act8945a,
 extern void act8945a_set_charge_level(struct _act8945a *act8945a,
 		enum _act8945a_charge_level level);
 
-extern bool act8945a_enable_apch_interrupt(struct _act8945a *act8945a,
+extern bool act8945a_configure_apch_interrupt(struct _act8945a *act8945a,
 		enum _act8945a_interrupt interrupt, bool enable);
 
 extern bool act8945a_disable_all_apch_interrupts(struct _act8945a *act8945a);
@@ -119,5 +120,7 @@ extern void act8945a_dump_registers(struct _act8945a *act8945a);
 extern void act8945a_display_apch_registers(struct _act8945a *act8945a);
 
 extern void act8945a_display_system_registers(struct _act8945a *act8945a);
+
+extern void act8945a_display_charge_state(struct _act8945a *act8945a);
 
 #endif /* _ACT_8945A_H_ */
