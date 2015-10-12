@@ -78,6 +78,7 @@ extern "C" {
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
+extern void usart_reset_status(Usart *usart);
 extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
 extern uint32_t usart_get_status(Usart * usart);
 extern void usart_enable_it(Usart *usart, uint32_t mode);
@@ -86,13 +87,34 @@ extern uint32_t usart_get_it_mask(Usart *usart);
 extern void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
 extern void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
 extern void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
-extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeOut);
-extern uint16_t usart_read(Usart *usart, volatile uint32_t timeOut);
+
+extern void usart_reset_tx(Usart *usart);
+extern void usart_set_tx_timeguard(Usart *usart, uint32_t timeguard);
+extern void usart_reset_rx(Usart *usart);
+extern void usart_set_rx_timeout(Usart *usart, uint32_t timeout);
+extern void usart_start_tx_break(Usart *usart);
+extern void usart_stop_tx_break(Usart *usart);
+extern void usart_start_rx_timeout(Usart *usart);
+extern void usart_reset_iterations(Usart *usart);
+extern void usart_reset_nack(Usart *usart);
+extern void usart_restart_rx_timeout(Usart *usart);
+
+extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeout);
+extern uint16_t usart_read(Usart *usart, volatile uint32_t timeout);
 extern uint8_t usart_is_data_available(Usart *usart);
 extern uint32_t usart_is_rx_ready(Usart *usart);
+extern uint32_t usart_is_tx_ready(Usart *usart);
+
 extern void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
+
 extern void usart_set_irda_filter(Usart *usart, uint8_t filter);
+
+extern void usart_set_sync_slave_baudrate(Usart *usart);
+extern uint32_t usart_set_spi_master_baudrate(Usart *usart, uint32_t baudrate);
+extern void usart_set_spi_slave_baudrate(Usart *usart);
+extern uint32_t usart_init_hw_handshaking(Usart *usart);
+extern uint32_t usart_set_async_baudrate(Usart *usart, uint32_t baudrate);
 
 #ifdef CONFIG_HAVE_USART_FIFO
 extern void usart_fifo_configure(Usart *usart, uint8_t tx_thres,
