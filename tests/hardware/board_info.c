@@ -67,9 +67,58 @@ struct _stResult
 	char	string[48];
 } ;
 
+/* VBUS pin */
+static const struct _pin vbus_pin[] = PIN_USB_VBUS;
+static const struct _pin en5v_usbb_pin[] = PIN_USB_POWER_ENB;
+
+
+/*------------------------------------------------------------------------------
+ *        External Functions used for tests
+ *----------------------------------------------------------------------------*/
+
+extern uint8_t display_info_mpu (void);
+extern void display_boot_register (void);
+extern uint8_t test_at24mac402 (void);
+extern uint8_t test_ddr_sdram(uint32_t* addr_start, uint32_t* addr_end, uint64_t nBytes);
+extern uint8_t test_spi_flash (void);
+extern uint8_t test_qspi_flash (void);
+extern uint8_t test_lcd (void);
+extern uint8_t test_geth (uint8_t bypass_exchange);
+
 /*------------------------------------------------------------------------------
  *        Functions
  *----------------------------------------------------------------------------*/
+
+/**
+ *  Interrupt handler VBUS pin.
+ */
+static void vbus_change_handler(uint32_t mask, uint32_t status, void* user_arg)
+{
+	uint8_t state = pio_get(&vbus_pin[0]);
+	(void)user_arg;
+	printf("\n\r--I-- Switching power mode USB:%1x %s\n\r", state, (state)?"connected" : "disconnected");
+}
+
+/**
+ *  Configure pin VBus change state
+ */
+static void configure_pin_vbus_state(void)
+{
+	/* Configure Pio and interrupt (both edge)*/
+	pio_configure(&vbus_pin[0], 1);
+	pio_set_debounce_filter(&vbus_pin[0], 10);
+	pio_configure_it(&vbus_pin[0]);
+	pio_add_handler_to_group(vbus_pin[0].group, vbus_pin[0].mask,
+		vbus_change_handler, NULL);
+	pio_enable_it(&vbus_pin[0]);
+
+}
+
+static uint8_t get_vbus_pin_state (void)
+{
+	return pio_get(&vbus_pin[0]);
+}
+
 
 static void _display_driver_info (const char* str1,
 				  const char* str2,
@@ -83,17 +132,19 @@ static void _display_driver_info (const char* str1,
 uint8_t check_hw_on_board (void)
 {
 	uint32_t size, board_pll, board_mck, proc_clk;
-	uint8_t i, index, status, sum;
+	uint8_t i, index, sum;
 	struct _stResult sresult[16];
 
 	index = 0;
 
 	/* Output information */
+	printf("\n\r");
+	printf("  ======================================\n\r");
 	printf("-- Hardware test %s --\n\r", SOFTPACK_VERSION);
-	printf("\n\r ======================================== \n\r");
 	printf("-- Board name: %s -- \n\r",BOARD_NAME);
 	printf("-- Compiled: %s %s -- \n\r", __DATE__, __TIME__);
-	printf("\n\r");
+	printf("-- Using SDRAM DDR3L \n\r");
+	printf("  ======================================\n\r");
 
 	printf("--CONSOLE\n\r");
 	printf(" UART1, Bdr=57600\n\r");
@@ -119,13 +170,27 @@ uint8_t check_hw_on_board (void)
 	printf(" -BOOT MODE\n\r");
 	display_boot_register();
 
+	/* Configure VBUS pin */
+	printf("--VBUS Pin\n\r");
+	configure_pin_vbus_state();
+	/* Configure ENABLE 5V USB pin output to 0*/
+	pio_configure(en5v_usbb_pin, ARRAY_SIZE(en5v_usbb_pin));
+	pio_clear(en5v_usbb_pin);
+
 #ifdef ACT8945A
 	//printf("\n\r");
 	printf("--PMIC \n\r");
 	_display_driver_info(PMIC_DEVICE, PMIC_INTERFACE, PMIC_COMMENT);
-	act8945a_display_voltage_settings(&act8945a);
-	sresult[index].result = 0;
+	if (act8945a.sys0) {
+		act8945a_display_voltage_settings(&act8945a);
+		sresult[index].result = 0;
+	}
+	else {
+		printf("--E-- ByPass display config\n\r");
+		sresult[index].result = 1;
+	}
 	strcpy (sresult[index++].string, "PMIC\t\t");
+
 #endif
 
 #ifdef AT24MAC402
@@ -134,31 +199,6 @@ uint8_t check_hw_on_board (void)
 	_display_driver_info (EEP_DEVICE, EEP_INTERFACE, EEP_COMMENT);
 	sresult[index].result = test_at24mac402();
 	strcpy (sresult[index++].string, "EEP\t\t");
-#endif
-
-#ifdef NAND_FLASH
-	uint8_t Index = 0;
-	sPPDSD* OnfiPPDSD = GetPntPPDSD();
-
-	//printf("\n\r");
-	printf("--NAND FLASH \n\r");
-	GetInfoNandFlash();
-	OnfiPPDSD->ONFI_MIB.DeviceManufacturer[8]= 0;
-	OnfiPPDSD->ONFI_MIB.DeviceModel[18]=0;
-	printf (" DeviceManufacturer       : %s \n\r", &OnfiPPDSD->ONFI_MIB.DeviceManufacturer[0] ) ;
-	printf (" JedecManufacturer        : 0x%02X \n\r", &OnfiPPDSD->ONFI_MIB.JedecManufacturer[0] ) ;
-	printf (" DeviceModel              : %s \n\r", &OnfiPPDSD->ONFI_MIB.DeviceModel[0] ) ;
-	printf (" NumberOfDataBytesPerPage : %d Bytes \n\r", (int)Tab8To32(&OnfiPPDSD->ONFI_MOB.NumberOfDataBytesPerPage[0])/2) ;
-	if(OnfiPPDSD->ONFI_MOB.NumberOfSpareBytesPerPage[0]==0xE0)
-		printf (" NumberOfSpareBytesPerPage: 64 Bytes \n\r") ;
-	else
-		printf (" NumberOfSpareBytesPerPage: 32 Words \n\r") ;
-	printf (" NumberOfPagesPerBlock    : %d Pages \n\r", OnfiPPDSD->ONFI_MOB.NumberOfPagesPerBlock[0]) ;
-	printf (" NumOfBlocksPerLogicalUnit: %d Blocks \n\r", (int)Tab8To32(&OnfiPPDSD->ONFI_MOB.NumberOfBlocksPerLogicalUnit[0]) ) ;
-	printf (" NumberOfLogicalUnits     : %d Unit \n\r", OnfiPPDSD->ONFI_MOB.NumberOfLogicalUnits[0] ) ;
-
-	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "NAND FLASH\t");
 #endif
 
 #ifdef EMMC
@@ -176,7 +216,6 @@ uint8_t check_hw_on_board (void)
 	printf(" Add Start/End : 0x%08x - 0x%08x  \n\r", ADDR_DDR2_START, ADDR_DDR2_END) ;
 	Result = BOARD_DDRAM_SIZE/1024/1024;
 	printf(" Total Size    : %dMb .. %dGB \n\r", (int)Result, (int)Result/128);
-
 	sresult[index].result = 0;
 	strcpy (sresult[index++].string, "SDRAM DDR2\t");
 #endif
@@ -185,19 +224,21 @@ uint8_t check_hw_on_board (void)
 	//printf("\n\r");
 	printf("--SDRAM DDR3\n\r");
 	_display_driver_info (DDR3_DEVICE, DDR3_INTERFACE, DDR3_COMMENT);
-	printf(" Add Start/End : 0x%08x - 0x%08x  \n\r", ADDR_DDR3_START, ADDR_DDR3_END) ;
 	size = BOARD_DDRAM_SIZE/1024/1024;
 	printf(" Total Size    : %dMb .. %dGB \n\r", (int)size, (int)size/128);
+	sresult[index].result = test_ddr_sdram ((uint32_t*)ADDR_DDR3_START,
+											(uint32_t*)ADDR_DDR3_END,
+											(uint64_t)(ADDR_DDR3_END-ADDR_DDR3_START)/512);
+	strcpy (sresult[index++].string, "SDRAM DDR3\t");
 
+/*
 	#ifndef VARIANT_DDRAM
 		board_cfg_ddram();
 		cp15_disable_mmu();
 		cp15_disable_icache();
 		cp15_disable_dcache();
 	#endif
-
-	sresult[index].result = test_ddr_sdram (ADDR_DDR3_START, ADDR_DDR3_END, (uint64_t)(ADDR_DDR3_END-ADDR_DDR3_START)/512);
-	strcpy (sresult[index++].string, "SDRAM DDR3\t");
+*/
 #endif
 
 #ifdef SPI_FLASH
@@ -205,6 +246,7 @@ uint8_t check_hw_on_board (void)
 	printf("--SPI FLASH\n\r");
 	_display_driver_info (SPIF_DEVICE, SPIF_INTERFACE, SPIF_COMMENT);
 	sresult[index].result = test_spi_flash();
+	if(sresult[index].result) printf(" -E- Check jumper JP9 Boot Disable\n\r");
 	strcpy (sresult[index++].string, "SPI FLASH\t");
 #endif
 
@@ -213,6 +255,7 @@ uint8_t check_hw_on_board (void)
 	printf("--QSPI FLASH\n\r");
 	_display_driver_info (QSPIF_DEVICE, QSPIF_INTERFACE, QSPIF_COMMENT);
 	sresult[index].result = test_qspi_flash();
+	if(sresult[index].result) printf(" -E- Check jumper JP9 Boot Disable\n\r");
 	strcpy (sresult[index++].string, "QSPI FLASH\t");
 #endif
 
@@ -224,14 +267,6 @@ uint8_t check_hw_on_board (void)
 	strcpy (sresult[index++].string, "SDCARD\t\t");
 #endif
 
-#ifdef GETH
-	//printf("\n\r");
-	printf("--GETH\n\r");
-	_display_driver_info (GETH_DEVICE, GETH_INTERFACE, GETH_COMMENT);
-	sresult[index].result = 0;
-	strcpy (sresult[index++].string, "GETH\t\t");
-#endif
-
 #ifdef LCD
 	//printf("\n\r");
 	printf("--LCD\n\r");
@@ -240,6 +275,15 @@ uint8_t check_hw_on_board (void)
 	strcpy (sresult[index++].string, "LCD\t\t");
 #endif
 
+#ifdef GETH
+	//printf("\n\r");
+	printf("--GETH\n\r");
+	_display_driver_info (GETH_DEVICE, GETH_INTERFACE, GETH_COMMENT);
+	sresult[index].result = test_geth(1);
+	strcpy (sresult[index++].string, "GETH\t\t");
+#endif
+
+
 	printf("\n\r ------------- RESULTS ------------------- \n\r");
 	sum = 0;
 	for (i=0 ; i!=index; i++) {
@@ -247,8 +291,17 @@ uint8_t check_hw_on_board (void)
 		sum += sresult[i].result;
 	}
 	printf("\n\r");
-	return sum;
+	if(!sum) {
+		/* Test result OK, program board info */
+		printf("--BOARD INFO UPDATE\n\r");
+ 		update_at24mac402();
+	}
 
+	act8945a_dump_registers(&act8945a);
+	act8945a_display_apch_registers(&act8945a);
+	act8945a_display_system_registers(&act8945a);
+
+	return sum;
 }
 
 //------------------------------------------------------------------------------
