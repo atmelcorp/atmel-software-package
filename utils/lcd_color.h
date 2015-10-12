@@ -37,6 +37,8 @@
  *
  */
 
+#define color_t uint32_t
+
 /*
  * RGB 24 Bpp
  */
