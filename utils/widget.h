@@ -34,28 +34,98 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "video/lcdd.h"
+#include "lcd_draw.h"
+#include "lcd_font.h"
+#include "lcd_color.h"
+#include "font.h"
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
  *        Define
  *----------------------------------------------------------------------------*/
 
-struct _point
-{
+struct _point {
 	int32_t x;
 	int32_t y;
 	int32_t z;
+};
+
+struct _size {
+	uint32_t w;
+	uint32_t h;
+};
+
+struct _circle {
+	struct _point org;
+	struct _point old;
+	uint32_t bg_color;
+	uint32_t border_color;
+	uint8_t radius;
+};
+
+struct _rect {
+	struct _point org;
+	struct _point dest;
+	struct _size size;
+	uint32_t bg_color;
+	uint32_t border_color;
+	uint8_t radius;
+};
+
+struct _triangle {
+	struct _point pt1;
+	struct _point pt2;
+	struct _point pt3;
+	uint16_t segment;
+};
+
+struct _text {
+	struct _point org;
+	struct _size size;
+	uint8_t font_sel;
+	uint32_t bg_color;
+	uint32_t txt_color;
+};
+
+struct _3color {
+	uint32_t color1;
+	uint32_t color2;
+	uint32_t color3;
+};
+
+struct _widget_desc {
+	uint8_t layer;
+	struct _point org;
+	struct _point dest;
+	struct _size size;
+	uint32_t bg_color;
+	uint32_t bord_color;
+	uint16_t radius;
+	struct _text txt;
 };
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+extern uint16_t bcd_to_hex (uint16_t x);
+
+extern uint8_t bcd_decimal(uint8_t hex);
+
 extern void point_on_circle (struct _point* org, uint16_t radius,
 			     uint16_t angle);
+
 extern void rotate_point (struct _point* org, struct _point* pt,
 			  uint16_t angle, uint8_t clockwise);
+
 extern void widget_draw_vector (uint32_t X, uint32_t Y, uint32_t radius,
-		uint8_t segment, uint16_t degre, uint32_t color);
+			uint8_t segment, uint16_t degre, uint32_t color);
+
+extern void draw_filled_triangle (struct _point* pt0,
+								  struct _point* pt1,
+								  struct _point* pt2,
+								  uint32_t color);
 
 #endif /* #ifndef _WIDGET_H_ */

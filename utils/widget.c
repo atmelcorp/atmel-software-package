@@ -38,6 +38,7 @@
 #include "lcd_color.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local constante
@@ -162,6 +163,22 @@ const int8_t SinCosMul[4][2] =
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
+
+uint16_t bcd_to_hex (uint16_t x)
+{
+  uint16_t val ;
+  val = (x / 10) << 4;
+  val = val | (x % 10);
+  return val;
+}
+
+uint8_t bcd_decimal(uint8_t hex)
+{
+    //assert(((hex & 0xF0) >> 4) < 10);  // More significant nybble is valid
+    //assert((hex & 0x0F) < 10);         // Less significant nybble is valid
+    uint8_t dec = ((hex & 0xF0) >> 4) * 10 + (hex & 0x0F);
+    return dec;
+}
 
 /**
  * \brief Return the coordinates of a point on a circle.
