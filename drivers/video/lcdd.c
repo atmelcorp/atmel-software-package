@@ -1613,7 +1613,7 @@ void * lcdd_create_canvas(uint8_t bLayer,
 
 	bitsPR = wW * bBPP;
 	bytesPR = (bitsPR & 0x7) ? (bitsPR / 8 + 1) : (bitsPR / 8);
-	memset(pBuffer, 0xFF, bytesPR * wH);
+	memset(pBuffer, 0x00, bytesPR * wH);
 	pOldBuffer = lcdd_show_bmp_rotated(bLayer, pBuffer, bBPP,
 					   wX, wY, wW, wH, wW, wH, 0);
 
