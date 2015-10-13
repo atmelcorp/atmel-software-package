@@ -38,6 +38,8 @@
   #include "board_sama5d2-vb-bga196.h"
 #elif defined(CONFIG_BOARD_SAMA5D2_VB_BGA289)
   #include "board_sama5d2-vb-bga289.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_PTC_ENGI)
+  #include "board_sama5d2-ptc-engi.h"
 #else
   #error "No board defined"
 #endif
