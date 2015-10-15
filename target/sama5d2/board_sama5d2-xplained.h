@@ -171,7 +171,7 @@
 #define ACT8945A_PIN_IRQ \
 	{ PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 #define ACT8945A_PIN_LBO \
-	{ PIO_GROUP_A, PIO_PB13, PIO_INPUT, PIO_PULLUP }
+	{ PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 
 /* ================== PIN USB definition ======================= */
 
