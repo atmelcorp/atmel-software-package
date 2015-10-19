@@ -135,19 +135,17 @@
 /** Maximum number of handled led */
 #define MAX_LEDS            3
 
-#define NUMBER_OF_ADC_CHANNELS	12
-
 /** ADC clock */
 #define BOARD_ADC_FREQ (300000)
 
 /** ADC slected channels */
 static uint8_t adc_channel_used[] =
 {
-	ADC_CHANNEL_5,
+	ADC_CHANNEL_3,
 	ADC_CHANNEL_4,
 	ADC_CHANNEL_0,
 	ADC_CHANNEL_1,
-	ADC_CHANNEL_11,
+	ADC_CHANNEL_2,
 };
 
 /** Total number of ADC channels in use */
@@ -273,7 +271,7 @@ static void adc_irq_handler(void)
 
 	/* check at least one EOCn flag set */
 	if( status & 0x00000FFF ) {
-		for (i=0; i < NUMBER_OF_ADC_CHANNELS; i++) {
+		for (i=0; i < adc_num_channels(); i++) {
 			value = adc_get_converted_data(i);
 			/* Check ISR "End of Conversion" corresponding bit */
 			if ((status & (1u<<i))) {
@@ -395,7 +393,7 @@ static void tc_handler(void)
 	/* Clear status bit to acknowledge interrupt */
 	tc_get_status(TC0, 0);
 
-	led_toggle(LED_GREEN);
+	led_toggle(LED_BLUE);
 }
 
 /**
@@ -453,7 +451,7 @@ static void _configure_adc(void)
 	uint8_t i = 0;
 
 	led_clear(LED_RED);
-	led_clear(LED_GREEN);
+	led_clear(LED_BLUE);
 
 	/* Init channel number and reset value */
 	for (i = 0; i < NUM_CHANNELS; i++) {
@@ -477,7 +475,9 @@ static void _configure_adc(void)
 	/* Enable channels, gain, single mode */
 	for (i = 0; i < NUM_CHANNELS; i++) {
 		adc_enable_channel(_data.channel[i]);
+#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
 		adc_disable_channel_differential_input(_data.channel[i]);
+#endif
 	}
 
 	/* Set power save */
@@ -595,7 +595,6 @@ int main(void)
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
 	led_configure(LED_RED);
-	led_configure(LED_GREEN);
 	led_configure(LED_BLUE);
 
 	pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));

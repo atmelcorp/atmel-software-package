@@ -254,7 +254,7 @@ extern uint8_t adc_check_configuration(void);
  */
 extern uint32_t adc_get_converted_data(uint32_t channel);
 
-
+#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
 /**
  * \brief Enable differential input for the specified channel.
  *
@@ -282,7 +282,9 @@ extern void adc_enable_channel_input_offset (uint32_t channel);
  * \param channel ADC channel number.
  */
 extern void adc_disable_channel_input_offset (uint32_t channel);
+#endif /* CONFIG_HAVE_ADC_INPUT_OFFSET */
 
+#ifdef CONFIG_HAVE_ADC_INPUT_GAIN
 /**
  * \brief Configure input gain for the specified channel.
  *
@@ -290,6 +292,7 @@ extern void adc_disable_channel_input_offset (uint32_t channel);
  * \param gain Gain value for the input.
  */
 extern void adc_set_channel_input_gain (uint32_t channel, uint32_t gain);
+#endif /* CONFIG_HAVE_ADC_INPUT_GAIN */
 
 /**
  * Sets the average of the touch screen ADC. The mode can be:
@@ -376,9 +379,9 @@ extern void adc_set_trigger(uint32_t trigger);
  * \param enable Enable/Disable low resolution.
  */
 extern void adc_set_low_resolution(uint8_t enable);
-#endif
+#endif /* CONFIG_HAVE_ADC_LOW_RES */
 
 #ifdef __cplusplus
 }
 #endif
-#endif				/* #ifndef _ADC_ */
+#endif /* _ADC_ */

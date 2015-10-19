@@ -91,6 +91,16 @@
 #include "trace.h"
 
 #include <stdio.h>
+
+/*----------------------------------------------------------------------------
+ *        Local definitions
+ *----------------------------------------------------------------------------*/
+
+#ifndef ADC_MR_TRANSFER
+/* for compatibility with older peripheral versions */
+#define ADC_MR_TRANSFER(x) 0
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -194,7 +204,9 @@ void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 	 *     Tracking Time = (TRACKTIM + 1) / ADCClock
 	 *     Settling Time = settling value / ADCClock
 	 */
-	mode_reg |= ADC_MR_STARTUP(startup) | ADC_MR_TRACKTIM(tracking) | ADC_MR_TRANSFER(2);
+	mode_reg |= ADC_MR_STARTUP(startup);
+	mode_reg |= ADC_MR_TRACKTIM(tracking);
+	mode_reg |= ADC_MR_TRANSFER(2);
 #ifdef CONFIG_HAVE_ADC_SETTLING_TIME
 	mode_reg |=  ADC_MR_SETTLING(settling);
 #endif
@@ -243,7 +255,9 @@ void adc_set_sequence_mode(uint8_t enable)
 void adc_set_sequence(uint32_t seq1, uint32_t seq2)
 {
 	ADC->ADC_SEQR1 = seq1;
+#ifdef CONFIG_HAVE_ADC_SEQ_REG2
 	ADC->ADC_SEQR2 = seq2;
+#endif
 }
 
 /**
@@ -271,11 +285,13 @@ void adc_set_sequence_by_list(uint8_t channel_list[], uint8_t len)
 			if (i >= len) return;
 			ADC->ADC_SEQR1 |= channel_list[i] << shift;
 		}
+#ifdef CONFIG_HAVE_ADC_SEQ_REG2
 		ADC->ADC_SEQR2 = 0;
 		for (i = 0, shift = 0; i < (len-8); i++, shift += 4) {
 			if (i >= len) return;
 			ADC->ADC_SEQR2 |= channel_list[8+i] << shift;
 		}
+#endif
 	}
 }
 
@@ -410,6 +426,7 @@ void adc_set_startup_time(uint32_t startup)
 	ADC->ADC_MR = mode_reg;
 }
 
+#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
 /**
  * \brief Enable differential input for the specified channel.
  *
@@ -456,7 +473,9 @@ void adc_disable_channel_input_offset (uint32_t channel)
 	ADC->ADC_COR &= (0xFFFFFFFEu << channel);
 	ADC->ADC_COR |= temp;
 }
+#endif /* CONFIG_HAVE_ADC_INPUT_OFFSET */
 
+#ifdef CONFIG_HAVE_ADC_INPUT_GAIN
 /**
  * \brief Configure input gain for the specified channel.
  *
@@ -471,6 +490,7 @@ void adc_set_channel_input_gain (uint32_t channel, uint32_t gain)
 	temp |= gain << (2 * channel);
 	ADC->ADC_CGR = temp;
 }
+#endif /* CONFIG_HAVE_ADC_INPUT_GAIN */
 
 void adc_set_tracking_time(uint32_t dwNs)
 {
