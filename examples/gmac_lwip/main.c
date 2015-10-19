@@ -110,7 +110,6 @@
 #include "board.h"
 
 #include "memories/at24.h"
-#include "peripherals/l2cc.h"
 #include "peripherals/pio.h"
 #include "peripherals/wdt.h"
 
@@ -244,8 +243,6 @@ int main(void)
 	/* Configure DDRAM */
 	board_cfg_ddram();
 #endif
-
-	l2cc_enable();
 
 	printf("-- GMAC lwIP Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

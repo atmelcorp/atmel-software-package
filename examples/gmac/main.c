@@ -115,7 +115,6 @@
 #include "memories/at24.h"
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
-#include "peripherals/l2cc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
@@ -437,9 +436,6 @@ int main(void)
 	/* Configure DDRAM */
 	board_cfg_ddram();
 #endif
-
-	/* Enable L2 cache */
-	l2cc_enable();
 
 	printf("-- GMAC Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
