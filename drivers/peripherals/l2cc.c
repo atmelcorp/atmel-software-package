@@ -54,30 +54,36 @@ uint32_t l2cc_is_enabled(void)
 void l2cc_enable(void)
 {
 	L2CC->L2CC_CR |= L2CC_CR_L2CEN;
-	trace_info("L2 cache is enabled");
+	asm volatile("": : :"memory");
+	asm("dsb");
+	asm("isb");
+	trace_info("L2 cache is enabled\r\n");
 }
 
 void l2cc_disable(void)
 {
 	L2CC->L2CC_CR &= ~L2CC_CR_L2CEN;
-	trace_info("L2 cache is Disabled");
+	asm volatile("": : :"memory");
+	asm("dsb");
+	asm("isb");
+	trace_info("L2 cache is disabled\r\n");
 }
 
 void l2cc_exclusive_cache(uint8_t enable)
 {
 	uint32_t cfg;
 	if (l2cc_is_enabled()) {
-		L2CC->L2CC_CR = false;
+		l2cc_disable();
 	}
 	cfg = L2CC->L2CC_ACR;
 	if (enable) {
 		cp15_exclusive_cache();
 		cfg |= L2CC_ACR_EXCC;
-		trace_info("L2 Exclusive mode Enabled\n\r");
+		trace_info("L2 Exclusive mode enabled\n\r");
 	} else {
 		cp15_non_exclusive_cache();
 		cfg &= ~L2CC_ACR_EXCC;
-		trace_info("L2 Exclusive mode Disabled\n\r");
+		trace_info("L2 Exclusive mode disabled\n\r");
 	}
 	L2CC->L2CC_ACR |= cfg;
 }
@@ -403,7 +409,6 @@ void l2cc_clean_region(uint32_t start, uint32_t end)
 	cp15_clean_dcache_for_dma(start, end);
 }
 
-
 void l2cc_configure(const struct _l2cc_control* cfg)
 {
 	l2cc_event_config(0, L2CC_ECFGR0_ESRC_SRC_DRHIT,
@@ -416,11 +421,11 @@ void l2cc_configure(const struct _l2cc_control* cfg)
 	/* Enable Prefetch */
 	l2cc_inst_prefetch_enable();
 	l2cc_data_prefetch_enable();
-	/*2. Invalidate whole L2CC     ********** */
+	/* Invalidate whole L2CC */
 	l2cc_invalidate_way(0xFF);
-	/*3. Disable all L2CC Interrupt ********** */
+	/* Disable all L2CC Interrupt */
 	l2cc_disable_it(0x1FF);
-	/*4. Clear all L2CC Interrupt ********** */
+	/* Clear all L2CC Interrupt */
 	l2cc_it_clear(0xFF);
 	l2cc_exclusive_cache(true);
 	l2cc_enable();
