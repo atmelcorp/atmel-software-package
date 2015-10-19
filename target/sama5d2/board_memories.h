@@ -44,17 +44,22 @@
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Define
- *----------------------------------------------------------------------------*/
-
-#define CONFIG_BUS_SPEED_166MHZ
-
-/*----------------------------------------------------------------------------
  *        Functions
  *----------------------------------------------------------------------------*/
 
-void board_remap_rom(void);
-void board_remap_ram(void);
-void board_cfg_ddram(void);
+/**
+ * \brief Setup TLB for the board
+ */
+extern void board_setup_tlb(uint32_t *tlb);
+
+/**
+ * \brief Configures L2CC for the board
+ */
+extern void board_cfg_l2cc(void);
+
+/**
+ * \brief Configures DDR for the board
+ */
+extern void board_cfg_ddram(void);
 
 #endif  /* BOARD_MEMORIES_H */

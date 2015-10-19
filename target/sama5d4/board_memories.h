@@ -43,11 +43,40 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+/**
+ * \brief Setup TLB for the board
+ */
+extern void board_setup_tlb(uint32_t *tlb);
+
+/**
+ * \brief Configures L2CC for the board
+ */
+extern void board_cfg_l2cc(void);
+
+/**
+ * \brief Initialize Vdd EBI drive
+ * \param VddMemSel 0: 1.8V 1: 3.3V
+ */
 extern void board_cfg_vdd_mem_sel(uint8_t VddMemSel);
+
+/**
+ * \brief Configures DDR
+ */
 extern void board_cfg_ddram(void);
+
+/**
+ * \brief Configures the EBI for Sdram (LPSDR Micron MT48H8M16) access.
+ */
 extern void board_cfg_sdram(void);
+
+/**
+ * \brief Configures the EBI for NandFlash access at 133Mhz.
+ */
 extern void board_cfg_nand_flash(uint8_t busWidth);
+
+/**
+ * \brief Configure SMC, NCS0 is assigned to a norflash.
+ */
 extern void board_cfg_nor_flash(uint8_t busWidth);
-extern void board_cfg_low_power_ddram(void);
 
 #endif /* #ifndef BOARD_MEMORIES_H */

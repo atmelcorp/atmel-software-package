@@ -108,11 +108,13 @@
 #include "board.h"
 #include "board_memories.h"
 
+#include "cortex-a/mmu.h"
+
+#include "peripherals/l2cc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/matrix.h"
 
 #include "memories/ddram.h"
-
 
 #include <stdint.h>
 
@@ -126,16 +128,27 @@
 #define H64MX_DDR_SLAVE_PORT0   3
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Local constants
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Initialize Vdd EBI drive
- * \param VddMemSel 0: 1.8V 1: 3.3V
- */
-void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
-{
-}
+const static struct _l2cc_control l2cc_cfg = {
+	.instruct_prefetch = true,	// Instruction prefetch enable
+	.data_prefetch = true,	// Data prefetch enable
+	.double_linefill = true,
+	.incr_double_linefill = true,
+	/* Disable Write back (enables write through, Use this setting
+	   if DDR2 mem is not write-back) */
+	//cfg.no_write_back = true,
+	.force_write_alloc = FWA_NO_ALLOCATE,
+	.offset = 31,
+	.prefetch_drop = true,
+	.standby_mode = true,
+	.dyn_clock_gating = true
+};
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
 
 static void matrix_configure_slave_ddr(void)
 {
@@ -187,14 +200,216 @@ static void matrix_configure_slave_nand(void)
 	MATRIX1->MATRIX_MEIER = 0x3FF;
 }
 
-/**
- * \brief Configures DDR2 (DDRAM_MT47H128M8CF / DDRAM_MT47H128M16)
- MT47H64M16HR : 8 Meg x 16 x 8 banks
- Refresh count: 8K
- Row address: A[12:0] (8K)
- Column address A[9:0] (1K)
- Bank address BA[2:0] a(24,25) (8)
- */
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
+
+void board_setup_tlb(uint32_t *tlb)
+{
+	uint32_t addr;
+
+	/* TODO: some peripherals are configured TTB_SECT_STRONGLY_ORDERED
+	   instead of TTB_SECT_SHAREABLE_DEVICE because their drivers have to
+	   be verified for correct operation when write-back is enabled */
+
+	/* Reset table entries */
+	for (addr = 0; addr < 4096; addr++)
+		tlb[addr] = 0;
+
+	/* 0x00000000: ROM */
+	tlb[0x000] = TTB_SECT_ADDR(0x00000000)
+	           | TTB_SECT_AP_READ_ONLY
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_CACHEABLE_WB
+	           | TTB_TYPE_SECT;
+
+	/* 0x00100000: NFC SRAM */
+	tlb[0x001] = TTB_SECT_ADDR(0x00100000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00200000: SRAM */
+	tlb[0x002] = TTB_SECT_ADDR(0x00200000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_CACHEABLE_WB
+	           | TTB_TYPE_SECT;
+
+	/* 0x00300000: VDEC */
+	tlb[0x003] = TTB_SECT_ADDR(0x00300000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00400000: UDPHS (RAM) */
+	tlb[0x004] = TTB_SECT_ADDR(0x00400000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00500000: UHP (OHCI) */
+	tlb[0x005] = TTB_SECT_ADDR(0x00500000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00600000: UHP (EHCI) */
+	tlb[0x006] = TTB_SECT_ADDR(0x00600000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00700000: AXI Matrix */
+	tlb[0x007] = TTB_SECT_ADDR(0x00700000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00800000: DAP */
+	tlb[0x008] = TTB_SECT_ADDR(0x00800000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00900000: SMD */
+	tlb[0x009] = TTB_SECT_ADDR(0x00900000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x00a00000: L2CC */
+	tlb[0x00a] = TTB_SECT_ADDR(0x00a00000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+
+	/* 0x10000000: EBI Chip Select 0 */
+	for (addr = 0x100; addr < 0x200; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC_NEVER
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0x20000000: DDR CS */
+	/* (64MB cacheable, 448MB strongly ordered) */
+	for (addr = 0x200; addr < 0x240; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC
+	                  | TTB_SECT_CACHEABLE_WB
+	                  | TTB_TYPE_SECT;
+	for (addr = 0x240; addr < 0x400; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0x40000000: DDR CS/AES */
+	for (addr = 0x400; addr < 0x600; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC
+	                  | TTB_SECT_CACHEABLE_WB
+	                  | TTB_TYPE_SECT;
+
+	/* 0x60000000: EBI Chip Select 1 */
+	for (addr = 0x600; addr < 0x700; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC_NEVER
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0x70000000: EBI Chip Select 2 */
+	for (addr = 0x700; addr < 0x800; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC_NEVER
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0x80000000: EBI Chip Select 3 */
+	for (addr = 0x800; addr < 0x880; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC_NEVER
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0x90000000: NFC Command Registers */
+	for (addr = 0x900; addr < 0xa00; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_EXEC
+	                  //| TTB_SECT_SHAREABLE_DEVICE
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
+	/* 0xf0000000: Internal Peripherals */
+	tlb[0xf00] = TTB_SECT_ADDR(0xf0000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_TYPE_SECT;
+
+	/* 0xf8000000: Internal Peripherals */
+	tlb[0xf80] = TTB_SECT_ADDR(0xf8000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_TYPE_SECT;
+
+	/* 0xfc000000: Internal Peripherals */
+	tlb[0xfc0] = TTB_SECT_ADDR(0xfc000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_TYPE_SECT;
+}
+
+void board_cfg_l2cc(void)
+{
+	l2cc_configure(&l2cc_cfg);
+}
+
+void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
+{
+}
+
 void board_cfg_ddram(void)
 {
 	matrix_configure_slave_ddr();
@@ -203,15 +418,10 @@ void board_cfg_ddram(void)
 	ddram_configure(&desc);
 }
 
-/**
- * \brief Configures the EBI for Sdram (LPSDR Micron MT48H8M16) access.
- */
 void board_cfg_sdram(void)
 {
 }
 
-/** \brief Configures the EBI for NandFlash access at 133Mhz.
- */
 void board_cfg_nand_flash(uint8_t busWidth)
 {
 	pmc_enable_peripheral(ID_HSMC);
@@ -241,8 +451,6 @@ void board_cfg_nand_flash(uint8_t busWidth)
 		HSMC_MODE_TDF_CYCLES(1);
 }
 
-/** \brief Configure SMC, NCS0 is assigned to a norflash.
- */
 void board_cfg_nor_flash(uint8_t busWidth)
 {
 	pmc_enable_peripheral(ID_HSMC);
