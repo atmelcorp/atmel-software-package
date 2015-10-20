@@ -52,7 +52,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensorReg_t mt9v022_mono[] = {
+const sensor_reg_t mt9v022_mono[] = {
 	{0x01, 0x0100 },    // COL_WINDOW_START_CONTEXTA_REG
 	{0x02, 0x0400 },    // ROW_WINDOW_START_CONTEXTA_REG
 	{0x03, 0xE001 },    // ROW_WINDOW_SIZE_CONTEXTA_REG
@@ -214,7 +214,7 @@ const sensorReg_t mt9v022_mono[] = {
 	{0xFF, 0xFF},       // END use
 };
 
-const sensorOutput_t mt9v022_output_mono = {
+const sensor_output_t mt9v022_output_mono = {
 	.type = 0,
 	.output_resolution = VGA,
 	.output_format = MONO,
@@ -223,7 +223,7 @@ const sensorOutput_t mt9v022_output_mono = {
 	.output_height = 480,
 	.output_setting = mt9v022_mono};
 
-const sensorProfile_t mt9v022Profile = {
+const sensor_profile_t mt9v022_profile = {
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_2BYTE,  /* TWI interface mode  */
 	MT9V022_SLAVE_ADDRESS,           /* TWI slave address */

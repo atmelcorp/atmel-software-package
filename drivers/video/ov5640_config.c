@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -53,7 +53,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensorReg_t ov5640_raw_qvga[] = {
+const sensor_reg_t ov5640_raw_qvga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -184,7 +184,7 @@ const sensorReg_t ov5640_raw_qvga[] = {
 };
 
 
-const sensorReg_t ov5640_yuv_qvga[] = {
+const sensor_reg_t ov5640_yuv_qvga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -487,7 +487,7 @@ const sensorReg_t ov5640_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov5640_yuv_vga[] = {
+const sensor_reg_t ov5640_yuv_vga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -746,7 +746,7 @@ const sensorReg_t ov5640_yuv_vga[] = {
 	{0x3a11, 0x60},
 	{0x3a1f, 0x14},
 	{0x3008, 0x02},
-#if 1
+
 	{0x3503, 0x00},
 	{0x3c07, 0x08},
 	{0x3820, 0x41},
@@ -783,11 +783,11 @@ const sensorReg_t ov5640_yuv_vga[] = {
 	{0x3824, 0x02},
 	{0x5001, 0xa3},
 
-#endif
+
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov5640_yuv_wxga[] = {
+const sensor_reg_t ov5640_yuv_wxga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -1047,7 +1047,7 @@ const sensorReg_t ov5640_yuv_wxga[] = {
 	{0x3a1f, 0x14},
 	{0x3008, 0x02},
 
-#if 1
+
 	{0x3503, 0x00},
 	{0x3c07, 0x08},
 	{0x3820, 0x41},
@@ -1083,7 +1083,7 @@ const sensorReg_t ov5640_yuv_wxga[] = {
 	{0x460c, 0x22},
 	{0x3824, 0x02},
 	{0x5001, 0xa3},
-#endif
+
 	{0x3c07, 0x08},
 	{0x3820, 0x41},
 	{0x3821, 0x07},
@@ -1135,7 +1135,7 @@ const sensorReg_t ov5640_yuv_wxga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov5640_afc[] = {
+const sensor_reg_t ov5640_afc[] = {
 	{0x3000, 0x20},
 	{0x8000, 0x02},
 	{0x8001, 0x0f},
@@ -5240,22 +5240,22 @@ const sensorReg_t ov5640_afc[] = {
 };
 
 
-const sensorOutput_t ov5640_output_yuv_qvga =
+const sensor_output_t ov5640_output_yuv_qvga =
 {0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov5640_yuv_qvga};
 
-const sensorOutput_t ov5640_output_raw_qvga =
+const sensor_output_t ov5640_output_raw_qvga =
 {0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov5640_raw_qvga};
 
-const sensorOutput_t ov5640_output_vga =
+const sensor_output_t ov5640_output_vga =
 {0, VGA, YUV_422, BIT_8, 1, 640, 480, ov5640_yuv_vga};
 
-const sensorOutput_t ov5640_output_wxga =
+const sensor_output_t ov5640_output_wxga =
 {0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov5640_yuv_wxga};
 
-const sensorOutput_t ov5640_output_af =
-{1, (sensorOutputResolution_t)0, 0, (sensorOutputFormat_t)0, 1, 0, 0, ov5640_afc};
+const sensor_output_t ov5640_output_af =
+{1, (sensor_output_resolution_t)0, 0, (sensor_output_format_t)0, 1, 0, 0, ov5640_afc};
 
-const sensorProfile_t ov5640Profile =
+const sensor_profile_t ov5640_profile =
 {
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_2BYTE_DATA_BYTE,  /* TWI interface mode  */

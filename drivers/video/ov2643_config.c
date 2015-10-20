@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -52,7 +52,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensorReg_t ov2643_yuv_uvga[] = {
+const sensor_reg_t ov2643_yuv_uvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -337,7 +337,7 @@ const sensorReg_t ov2643_yuv_uvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov2643_yuv_svga[] = {
+const sensor_reg_t ov2643_yuv_svga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -512,7 +512,7 @@ const sensorReg_t ov2643_yuv_svga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov2643_yuv_vga[] = {
+const sensor_reg_t ov2643_yuv_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -686,7 +686,7 @@ const sensorReg_t ov2643_yuv_vga[] = {
 };
 
 
-const sensorReg_t ov2643_raw_vga[] = {
+const sensor_reg_t ov2643_raw_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -855,7 +855,7 @@ const sensorReg_t ov2643_raw_vga[] = {
 	{0xFF, 0xFF},
 };
 
-const sensorReg_t ov2643_yuv_qvga[] = {
+const sensor_reg_t ov2643_yuv_qvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -1031,7 +1031,7 @@ const sensorReg_t ov2643_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensorReg_t ov2643_raw_qvga[] = {
+const sensor_reg_t ov2643_raw_qvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -1178,11 +1178,6 @@ const sensorReg_t ov2643_raw_qvga[] = {
 	{0x3d, 0x48},
 	{0x0e, 0xb8},
 	
-	//{0x20, 0x02},
-	//{0x21, 0x00},//18
-	//{0x22, 0x00},
-	//{0x23, 0x42},
-	
 	{0x20, 0x02},
 	{0x21, 0x80},//18
 	{0x22, 0x00},
@@ -1214,25 +1209,25 @@ const sensorReg_t ov2643_raw_qvga[] = {
 };
 
 
-const sensorOutput_t ov2643_output_qvga =
+const sensor_output_t ov2643_output_qvga =
 {0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov2643_yuv_qvga};
 
-const sensorOutput_t ov2643_output_qvga_raw =
+const sensor_output_t ov2643_output_qvga_raw =
 {0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov2643_raw_qvga};
 
-const sensorOutput_t ov2643_output_vga =
+const sensor_output_t ov2643_output_vga =
 {0 , VGA, YUV_422, BIT_8, 1, 640, 480, ov2643_yuv_vga };
 
-const sensorOutput_t ov2643_output_raw_vga =
+const sensor_output_t ov2643_output_raw_vga =
 {0 , VGA, RAW_BAYER, BIT_8, 1, 640, 480, ov2643_raw_vga };
 
-const sensorOutput_t ov2643_output_svga =
+const sensor_output_t ov2643_output_svga =
 {0, SVGA, YUV_422, BIT_8, 1, 800, 600, ov2643_yuv_svga };
 
-const sensorOutput_t ov2643_output_uvga =
+const sensor_output_t ov2643_output_uvga =
 {0, UVGA, YUV_422, BIT_8, 1, 1600, 1200, ov2643_yuv_uvga };
 
-const sensorProfile_t ov2643Profile =
+const sensor_profile_t ov2643_profile =
 {
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */

@@ -50,101 +50,101 @@
 struct _twid;
 
 /** Sensor type */
-typedef enum _sensorType {
+typedef enum _sensor_type {
 	SENSOR_COMS = 0,
 	SENSOR_CCD
-}sensorType_t;
+}sensor_type_t;
 
 /** Sensor status or return code */
-typedef enum _sensorStatus {
+typedef enum _sensor_status {
 	SENSOR_OK = 0,        /**< Operation is successful */
 	SENSOR_TWI_ERROR,
 	SENSOR_ID_ERROR,
 	SENSOR_RESOLUTION_NOT_SUPPORTED
-} sensorStatus_t;
+} sensor_status_t;
 
 /** Sensor TWI mode */
-typedef enum _sensorTwiMode {
+typedef enum _sensor_twi_mode {
 	SENSOR_TWI_REG_BYTE_DATA_BYTE = 0,
 	SENSOR_TWI_REG_2BYTE_DATA_BYTE,
 	SENSOR_TWI_REG_BYTE_DATA_2BYTE
-} sensorTwiMode_t;
+} sensor_twi_mode_t;
 
 /** Sensor resolution */
-typedef enum _sensorResolution {
+typedef enum _sensor_resolution {
 	QVGA = 0,
 	VGA,
 	SVGA,
 	XGA,
 	WXGA,
 	UVGA
-} sensorOutputResolution_t;
+} sensor_output_resolution_t;
 
 /** Sensor output format */
-typedef enum _sensorOutputFormat {
+typedef enum _sensor_output_format {
 	RAW_BAYER = 0,
 	YUV_422,
 	RGB,
 	CCIR656,
 	MONO
-} sensorOutputFormat_t;
+} sensor_output_format_t;
 
 /** Sensor output bit width */
-typedef enum _sensorOutputBit {
+typedef enum _sensor_output_bit {
 	BIT_8 = 0,
 	BIT_9,
 	BIT_10,
 	BIT_11,
 	BIT_12
-} sensorOutputBit_t;
+} sensor_output_bit_t;
 
 
 /** define a structure for sensor register initialization values */
 typedef struct _sensor_reg {
 	uint16_t reg; /* Register to be written */
 	uint16_t val; /* value to be written */
-}sensorReg_t;
+}sensor_reg_t;
 
 typedef struct _sensor_output {
 	uint8_t type ;                              /** Index 0: normal, 1: AF setting*/
-	sensorOutputResolution_t output_resolution; /** sensor output resolution */
-	sensorOutputFormat_t output_format;         /** sensor output format */
-	sensorOutputBit_t output_bit;               /** sensor output bit width */
+	sensor_output_resolution_t output_resolution; /** sensor output resolution */
+	sensor_output_format_t output_format;         /** sensor output format */
+	sensor_output_bit_t output_bit;               /** sensor output bit width */
 	uint8_t supported;                          /** supported for current output_resolution*/
 	uint32_t output_width;                      /** output width */
 	uint32_t output_height;                     /** output height */
-	const sensorReg_t *output_setting;          /** sensor registers setting */
-}sensorOutput_t;
+	const sensor_reg_t *output_setting;          /** sensor registers setting */
+}sensor_output_t;
 
 /** define a structure for sensor profile */
 typedef struct _sensor_profile {
-	sensorType_t cmos_ccd;        /** Sensor type for CMOS sensor or CCD */
-	sensorTwiMode_t twi_inf_mode; /** TWI interface mode  */
+	sensor_type_t cmos_ccd;        /** Sensor type for CMOS sensor or CCD */
+	sensor_twi_mode_t twi_inf_mode; /** TWI interface mode  */
 	uint32_t twi_slave_addr;      /** TWI slave address */
 	uint16_t pid_high_reg;        /** Register address for product ID high byte */
 	uint16_t pid_low_reg;         /** Register address for product ID low byte*/
 	uint16_t pid_high;            /** product ID high byte */
 	uint16_t pid_low;             /** product ID low byte */
 	uint16_t version_mask;        /** version mask */
-	const sensorOutput_t *outputConf[SENDOR_SUPPORTED_OUTPUTS]; /** sensor settings */
-}sensorProfile_t;
+	const sensor_output_t *output_conf[SENDOR_SUPPORTED_OUTPUTS]; /** sensor settings */
+}sensor_profile_t;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern sensorStatus_t sensor_twi_write_regs(struct _twid* pTwid,
-					    const sensorReg_t * pReglist);
+extern sensor_status_t sensor_twi_write_regs(struct _twid *p_twid,
+						const sensor_reg_t *p_reglist);
 
-extern sensorStatus_t sensor_twi_read_regs(struct _twid* pTwid,
-					   const sensorReg_t * pReglist);
+extern sensor_status_t sensor_twi_read_regs(struct _twid *p_twid,
+						const sensor_reg_t *p_reglist);
 
-extern sensorStatus_t sensor_setup(struct _twid* pTwid,
-				   const sensorProfile_t *sensor_profile,
-				   sensorOutputResolution_t resolution,
-				   sensorOutputFormat_t format );
+extern sensor_status_t sensor_setup(struct _twid *p_twid,
+						const sensor_profile_t *sensor_profile,
+						sensor_output_resolution_t resolution,
+						sensor_output_format_t format);
 
-extern sensorStatus_t sensor_get_output(sensorOutputResolution_t resolution,
-					sensorOutputFormat_t format,
-					sensorOutputBit_t *bits,
-					uint32_t *width,
-					uint32_t* height);
+extern sensor_status_t sensor_get_output(sensor_output_resolution_t resolution,
+						sensor_output_format_t format,
+						sensor_output_bit_t *bits,
+						uint32_t *width,
+						uint32_t *height);

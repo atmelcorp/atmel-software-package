@@ -172,18 +172,18 @@ typedef enum _awb_status {
  *----------------------------------------------------------------------------*/
  /* Profile for omnivision 7740 */
 #if defined OV2643
-extern const sensorProfile_t ov2643Profile;
+extern const sensor_profile_t ov2643_profile;
 #endif 
 #if defined OV5640
-extern const sensorProfile_t ov5640Profile;
+extern const sensor_profile_t ov5640_profile;
 #endif 
 
 #if defined OV7740
-extern const sensorProfile_t ov7740Profile;
+extern const sensor_profile_t ov7740_profile;
 #endif 
 
 #if defined OV9740
-extern const sensorProfile_t ov9740Profile;
+extern const sensor_profile_t ov9740_profile;
 #endif 
 
 /** PIO pins to configured. */
@@ -214,10 +214,10 @@ static uint8_t *pHeoBuffer2 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS2;
 static uint32_t wImageWidth, wImageHeight;
 
 /* Image output bit width */
-static sensorOutputBit_t wSensorOutBitWidth;
+static sensor_output_bit_t wSensorOutBitWidth;
 
 /* Sensor mode for YUV or RAW BAYER */
-static sensorOutputFormat_t sensorMode;
+static sensor_output_format_t sensorMode;
 
 /* LCD mode */
 static uint32_t lcdMode;
@@ -904,21 +904,21 @@ reSensor:
 		}
 	}
 #if defined OV2643
-	if (sensor_setup(&twid, &ov2643Profile, QVGA, sensorMode)
+if (sensor_setup(&twid, &ov2643_profile, QVGA, sensorMode)
 	   != SENSOR_OK){
 #endif 
 #if defined OV5640
-	if (sensor_setup(&twid, &ov5640Profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov5640_profile, QVGA, sensorMode)
 	   != SENSOR_OK){
 #endif 
 
 #if defined OV7740
-	if (sensor_setup(&twid, &ov7740Profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov7740_profile, QVGA, sensorMode)
 	   != SENSOR_OK){
 #endif 
 
 #if defined OV9740
-	if (sensor_setup(&twid, &ov9740Profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov9740_profile, QVGA, sensorMode)
 	   != SENSOR_OK){
 #endif 
 		printf("-E- Sensor setup failed \n\r");

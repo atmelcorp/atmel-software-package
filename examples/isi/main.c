@@ -154,18 +154,18 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-extern const sensorProfile_t ov2640Profile;
-extern const sensorProfile_t ov2643Profile;
-extern const sensorProfile_t ov5640Profile;
-extern const sensorProfile_t ov7740Profile;
-extern const sensorProfile_t ov9740Profile;
+extern const sensor_profile_t ov2640_profile;
+extern const sensor_profile_t ov2643_profile;
+extern const sensor_profile_t ov5640_profile;
+extern const sensor_profile_t ov7740_profile;
+extern const sensor_profile_t ov9740_profile;
 
 /** Supported sensor profiles */ 
-static const sensorProfile_t *sensorsProfile[5] = {&ov2640Profile, 
-                                                  &ov2643Profile,
-                                                  &ov5640Profile,
-                                                  &ov7740Profile,
-                                                  &ov9740Profile
+static const sensor_profile_t *sensor_profiles[5] = {&ov2640_profile, 
+                                                  &ov2643_profile,
+                                                  &ov5640_profile,
+                                                  &ov7740_profile,
+                                                  &ov9740_profile
 };
 
 /** Pio pins to configure. */
@@ -203,10 +203,10 @@ static uint8_t *pHeoBuffer =  (uint8_t*)LCD_CAPTURED_BASE_ADDRESS;
 static uint32_t wImageWidth, wImageHeight;
 
 /* Image output format */
-static sensorOutputFormat_t wImageFormat;
+static sensor_output_format_t wImageFormat;
 
 /* Image output bit width */
-static sensorOutputBit_t wSensorOutBitWidth;
+static sensor_output_bit_t wSensorOutBitWidth;
 
 static isi_yuv2rgc_t y2r = {0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC,};
 /*----------------------------------------------------------------------------
@@ -380,7 +380,7 @@ extern int main( void )
 	for(;;) {
 		key = console_get_char();
 		if ((key >= '0') && (key <='5')) {
-			if (sensor_setup(&twid, sensorsProfile[key- '0'], VGA, YUV_422) != SENSOR_OK){
+			if (sensor_setup(&twid, sensor_profiles[key- '0'], VGA, YUV_422) != SENSOR_OK){
 				printf("-E- Sensor setup failed.");
 				while (1);
 			} else {
@@ -390,7 +390,7 @@ extern int main( void )
 	}
 	/* Retrieve sensor output format and size */
 	sensor_get_output(VGA, YUV_422, &wSensorOutBitWidth, &wImageWidth, &wImageHeight);
-	wImageFormat = (sensorOutputFormat_t)YUV_INPUT;
+	wImageFormat = (sensor_output_format_t)YUV_INPUT;
 	printf("Image attributes : <%x, %u, %u>\n\r", wImageFormat,
 			(unsigned)wImageWidth, (unsigned)wImageHeight);
 	printf("preview in RGB 565 mode\n\r");
