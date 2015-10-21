@@ -178,8 +178,7 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 		break;
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	case PMC_PCK_CSS_AUDIO_CLK:
-		//TODO: clk = pmc_get_audio_clock();
-		clk = 0;
+		clk = pmc_get_audio_pmc_clock();
 		break;
 #endif
 	}
@@ -765,8 +764,7 @@ uint32_t pmc_get_gck_clock(uint32_t id)
 		break;
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	case PMC_PCR_GCKCSS_AUDIO_CLK:
-		//TODO: clk = pmc_get_audio_clock();
-		clk = 0;
+		clk = pmc_get_audio_pmc_clock();
 		break;
 #endif
 	}
@@ -775,4 +773,90 @@ uint32_t pmc_get_gck_clock(uint32_t id)
 	return ROUND_INT_DIV(clk, div + 1);
 }
 #endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
+
+/*----------------------------------------------------------------------------
+ *        Exported functions (Audio PLL)
+ *----------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+void pmc_configure_audio(struct _pmc_audio_cfg *cfg)
+{
+	/* reset audio clock */
+	PMC->PMC_AUDIO_PLL0 &= ~PMC_AUDIO_PLL0_RESETN;
+	PMC->PMC_AUDIO_PLL0 |= PMC_AUDIO_PLL0_RESETN;
+
+	/* configure values */
+	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
+	pll0 &= ~PMC_AUDIO_PLL0_ND_Msk;
+	pll0 |= cfg->nd << PMC_AUDIO_PLL0_ND_Pos;
+	pll0 &= ~PMC_AUDIO_PLL0_QDPMC_Msk;
+	pll0 |= cfg->qdpmc << PMC_AUDIO_PLL0_QDPMC_Pos;
+	PMC->PMC_AUDIO_PLL0 = pll0;
+	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
+	pll1 &= ~PMC_AUDIO_PLL1_DIV_Msk;
+	pll1 |= cfg->div << PMC_AUDIO_PLL1_DIV_Pos;
+	pll1 &= ~PMC_AUDIO_PLL1_FRACR_Msk;
+	pll1 |= cfg->fracr << PMC_AUDIO_PLL1_FRACR_Pos;
+	pll1 &= ~PMC_AUDIO_PLL1_QDAUDIO_Msk;
+	pll1 |= cfg->qdaudio << PMC_AUDIO_PLL1_QDAUDIO_Pos;
+	PMC->PMC_AUDIO_PLL1 = pll1;
+}
+
+void pmc_enable_audio(bool pmc_clock, bool pad_clock)
+{
+	uint32_t enable_bits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN;
+
+	if (pad_clock)
+		enable_bits |= PMC_AUDIO_PLL0_PADEN;
+	if (pmc_clock)
+		enable_bits |= PMC_AUDIO_PLL0_PMCEN;
+
+	PMC->PMC_AUDIO_PLL0 |= enable_bits;
+}
+
+void pmc_disable_audio()
+{
+	PMC->PMC_AUDIO_PLL0 &= ~(PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN);
+}
+
+uint32_t pmc_get_audio_pmc_clock(void)
+{
+	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
+	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
+
+	uint32_t nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
+	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
+	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
+
+	unsigned long long clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	clk *= ((nd + 1) << 22) + fracr;
+	clk >>= 22;
+	clk /= qdpmc + 1;
+
+	return (uint32_t)clk;
+}
+
+uint32_t pmc_get_audio_pad_clock(void)
+{
+	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
+	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
+
+	uint32_t nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
+	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
+	uint32_t qdaudio = (pll1 & PMC_AUDIO_PLL1_QDAUDIO_Msk) >> PMC_AUDIO_PLL1_QDAUDIO_Pos;
+	if (qdaudio == 0)
+		return 0;
+
+	uint32_t div = (pll1 & PMC_AUDIO_PLL1_DIV_Msk) >> PMC_AUDIO_PLL1_DIV_Pos;
+	if (div != 2 && div != 3)
+		return 0;
+
+	unsigned long long clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	clk *= ((nd + 1) << 22) + fracr;
+	clk >>= 22;
+	clk /= div * qdaudio;
+
+	return (uint32_t)clk;
+}
+#endif /* CONFIG_HAVE_PMC_AUDIO_CLOCK */
 

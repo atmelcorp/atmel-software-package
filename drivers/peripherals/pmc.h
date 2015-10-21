@@ -56,6 +56,22 @@ enum _pmc_system_clock {
 	PMC_SYSTEM_CLOCK_ISC,
 };
 
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+/**
+ * \brief Configuration data for Audio clock
+ *
+ * AUDIOPLLCK = BOARD_EXT_OSC * (nd + 1 + (fracr / 2^22)) / (qdpmc + 1)
+ * AUDIOPINCLK = BOARD_EXT_OSC * (nc + 1 + (fracr / 2^22)) / (div * qdaudio)
+ */
+struct _pmc_audio_cfg {
+	uint32_t nd;
+	uint32_t fracr;
+	uint32_t qdpmc;
+	uint32_t div;
+	uint32_t qdaudio;
+};
+#endif /* CONFIG_HAVE_PMC_AUDIO_CLOCK */
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -344,6 +360,38 @@ extern void pmc_disable_gck(uint32_t id);
  */
 extern uint32_t pmc_get_gck_clock(uint32_t id);
 #endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
+
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+/**
+ * \brief Configure the audio clock
+ */
+extern void pmc_configure_audio(struct _pmc_audio_cfg *cfg);
+
+/**
+ * \brief Enable audio clock
+ * \param pmc_clock if true AUDIOPLLCK is sent to the PMC
+ * \param pad_clock if true the external audio pin is driven by AUDIOPINCLK, if
+ * false the audio pin is driven low
+ */
+extern void pmc_enable_audio(bool pmc_clock, bool pad_clock);
+
+/**
+ * \brief Disable audio clock
+ */
+extern void pmc_disable_audio(void);
+
+/**
+ * \brief Get the frequency of the audio PMC clock
+ * \return Audio PMC Frequency in Hz
+ */
+extern uint32_t pmc_get_audio_pmc_clock(void);
+
+/**
+ * \brief Get the frequency of the audio pad clock
+ * \return Audio pad Frequency in Hz
+ */
+extern uint32_t pmc_get_audio_pad_clock(void);
+#endif /* CONFIG_HAVE_PMC_AUDIO_CLOCK */
 
 #ifdef __cplusplus
 }
