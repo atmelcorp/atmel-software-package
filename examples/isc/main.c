@@ -113,13 +113,6 @@
 #include <stdbool.h>
 #include <stdio.h>
  
-//#define OV7740
-#define OV9740
-//#define OV5640
-//#define OV2643
- 
-#define GAMMA_28
-
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -146,7 +139,16 @@
 /** TWI clock frequency in Hz. */
 #define TWCK                  400000
 
+
+
+#define OV9740
+//#define OV7740
+//#define OV5640
+//#define OV2643
+ 
+
 /* GAMMA and HISTOGRAM definitions */
+#define GAMMA_28
 #define GAMMA_ENTRIES   64
 
 #define HISTOGRAM_GR   0
@@ -331,7 +333,7 @@ static void xdma_read_histogram(uint32_t buf)
  * \param fractional_bit length of fractional in bit
  * \param f float value to be converted
  */
-uint32_t float2hex(uint8_t sign_bit, uint8_t magnitude_bit, uint8_t fractional_bit, float f)
+static uint32_t float2hex(uint8_t sign_bit, uint8_t magnitude_bit, uint8_t fractional_bit, float f)
 {
 	uint32_t hex;
 	if(!sign_bit){
@@ -734,6 +736,7 @@ static void awb_update(void)
 	isc_update_profile();
 }
 
+#if defined AE_TUNING
 /**
  * \brief Calculate gain/offset for Y and perform them with ISC CBC module.
  */
@@ -773,6 +776,7 @@ static void ae_update(void)
 	isc_update_profile();
 	//printf("<%x, %x> ",gain_110,offset_138);
 }
+#endif
 
 /**
  * \brief Count up 4 channel R/G/Gr/Gb histogram data.
@@ -833,7 +837,9 @@ static bool auto_white_balance(void)
 	}
 	if (awb_status_machine == AWB_WAIT_ISC_PERFORMED){
 		awb_update();
-		//ae_update();
+#if defined AE_TUNING
+		ae_update();
+#endif
 		histogram_idx_isc = 0;
 		awb_status_machine = AWB_INIT;
 		return true;
