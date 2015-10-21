@@ -276,8 +276,8 @@ static void configure_lcd(void)
 {
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
     
-	lcdc_configure_inputMode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
-	lcdc_configure_inputMode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
+	lcdd_configure_input_mode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
+	lcdd_configure_input_mode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
 							LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE3);
 	printf("- LCD display on\n\r");
 }
@@ -413,7 +413,7 @@ extern int main( void )
 			isi_codec_wait_dma_completed();
 			printf("-I- Capture done \r\n");
 			for (delay = 0; delay < 0x5ffff; delay++);
-			lcdd_show_bmp_rotated(LCD_CAPTURE_LAYER, 
+			lcdd_put_image_rotated(LCD_CAPTURE_LAYER, 
 								NULL, 
 								16, 
 								(BOARD_LCD_WIDTH - wImageWidth)/2, 

@@ -123,9 +123,4 @@ extern void rotate_point (struct _point* org, struct _point* pt,
 extern void widget_draw_vector (uint32_t X, uint32_t Y, uint32_t radius,
 			uint8_t segment, uint16_t degre, uint32_t color);
 
-extern void draw_filled_triangle (struct _point* pt0,
-								  struct _point* pt1,
-								  struct _point* pt2,
-								  uint32_t color);
-
 #endif /* #ifndef _WIDGET_H_ */

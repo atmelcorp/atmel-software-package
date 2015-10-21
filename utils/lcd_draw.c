@@ -68,7 +68,7 @@ static uint32_t front_color;
  */
 static void _hide_canvas(void)
 {
-	//LCDD_EnableLayer(lcdd_get_canvas()->bLayer, 0);
+	//lcdd_enable_layer(lcdd_get_canvas()->bLayer, 0);
 }
 
 /**
@@ -76,7 +76,7 @@ static void _hide_canvas(void)
  */
 static void _show_canvas(void)
 {
-	//LCDD_EnableLayer(lcdd_get_canvas()->bLayer, 1);
+	//lcdd_enable_layer(lcdd_get_canvas()->bLayer, 1);
 }
 
 /**
@@ -96,11 +96,11 @@ static void _set_front_color(uint32_t color)
  */
 static void _draw_pixel(uint32_t dwX, uint32_t dwY)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
-	uint8_t *buffer = pDisp->pBuffer;
-	uint16_t w = pDisp->wImgW;
-	//uint16_t h = pDisp->wImgH;
-	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	uint8_t *buffer = pDisp->buffer;
+	uint16_t w = pDisp->width;
+	//uint16_t h = pDisp->height;
+	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = w * cw;	/* row width in bytes */
 	//uint8_t  r, g, b;
 	uint8_t *pPix;
@@ -112,7 +112,7 @@ static void _draw_pixel(uint32_t dwX, uint32_t dwY)
 		rw = (rw | 0x3) + 1;	/* 4-byte aligned rows */
 	pPix = &buffer[dwY * rw + cw * dwX];
 
-	switch (pDisp->bMode) {
+	switch (pDisp->bpp) {
 	case 16:		/* TRGB 1555 */
 		pPix[0] = (front_color) & 0xFF;
 		pPix[1] = (front_color >> 8) & 0xFF;
@@ -140,12 +140,12 @@ static void _draw_pixel(uint32_t dwX, uint32_t dwY)
  */
 static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
-	uint16_t w = pDisp->wImgW;
-	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	uint16_t w = pDisp->width;
+	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = w * cw;	/* row width in bytes */
-	uint8_t *base = pDisp->pBuffer;
-	uint8_t *buffer = pDisp->pBuffer;
+	uint8_t *base = pDisp->buffer;
+	uint8_t *buffer = pDisp->buffer;
 	uint32_t fillStart, fillEnd;
 	uint32_t i;
 	if (buffer == NULL)
@@ -287,23 +287,23 @@ static uint32_t _draw_line_bresenham (uint32_t dwX1, uint32_t dwY1, uint32_t dwX
  */
 void lcdd_fill(uint32_t color)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
 	_set_front_color(color);
 	_hide_canvas();
-	_fill_rect(0, 0, pDisp->wImgW, pDisp->wImgH);
+	_fill_rect(0, 0, pDisp->width, pDisp->height);
 	_show_canvas();
 }
 
 void lcdd_fill_white(void)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
 	_hide_canvas();
 	_set_front_color(0x0000FF);
-	_fill_rect(0, 0, pDisp->wImgW / 3, pDisp->wImgH);
+	_fill_rect(0, 0, pDisp->width / 3, pDisp->height);
 	_set_front_color(0xFFFFFF);
-	_fill_rect(pDisp->wImgW/3, 0, pDisp->wImgW/3+pDisp->wImgW/3, pDisp->wImgH);
+	_fill_rect(pDisp->width/3, 0, pDisp->width/3+pDisp->width/3, pDisp->height);
 	_set_front_color(0xFF0000);
-	_fill_rect(pDisp->wImgW/3+pDisp->wImgW/3, 0, pDisp->wImgW-1, pDisp->wImgH);
+	_fill_rect(pDisp->width/3+pDisp->width/3, 0, pDisp->width-1, pDisp->height);
 	_show_canvas();
 }
 
@@ -332,11 +332,11 @@ void lcdd_draw_pixel(uint32_t x, uint32_t y, uint32_t color)
  */
 extern uint32_t lcdd_read_pixel(uint32_t x, uint32_t y)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
-	uint8_t *buffer = pDisp->pBuffer;
-	uint16_t w = pDisp->wImgW;
-	//uint16_t h = pDisp->wImgH;
-	uint16_t cw = pDisp->bMode / 8;	/* color width */
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	uint8_t *buffer = pDisp->buffer;
+	uint16_t w = pDisp->width;
+	//uint16_t h = pDisp->height;
+	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = w * cw;	/* row width in bytes */
 	uint8_t *pPix;
 	uint32_t color = 0;
@@ -348,7 +348,7 @@ extern uint32_t lcdd_read_pixel(uint32_t x, uint32_t y)
 		rw = (rw | 0x3) + 1;	/* 4-byte aligned rows */
 	pPix = &buffer[x * rw + cw * y];
 
-	switch (pDisp->bMode) {
+	switch (pDisp->bpp) {
 	case 16:		/* TRGB 1555 */
 		color = pPix[0] | (pPix[1] << 8);
 		break;
@@ -647,15 +647,15 @@ void lcdd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p
  * \param dwX       X-coordinate of image start.
  * \param dwY       Y-coordinate of image start.
  * \param pImage    Image buffer.
- * \param width   	Image width.
- * \param height  	Image height.
+ * \param width     Image width.
+ * \param height    Image height.
  */
 void lcdd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
 		     uint32_t width, uint32_t height)
 {
-	sLCDDLayer *pDisp = lcdd_get_canvas();
-	uint16_t cw = pDisp->bMode / 8;	/* color width */
-	uint32_t rw = pDisp->wImgW * cw;	/* Row width in bytes */
+	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	uint16_t cw = pDisp->bpp / 8;	/* color width */
+	uint32_t rw = pDisp->width * cw;	/* Row width in bytes */
 	uint32_t rws = width * cw;	/* Source Row Width */
 	uint32_t rl = (rw & 0x3) ? ((rw | 0x3) + 1) : rw;	/* Aligned length */
 	uint32_t rls = (rws & 0x3) ? ((rws | 0x3) + 1) : rws;	/* Aligned length */
@@ -663,7 +663,7 @@ void lcdd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
 	uint32_t i;
 
 	pSrc = (uint8_t *) pImage;
-	pDst = pDisp->pBuffer;
+	pDst = pDisp->buffer;
 	pDst = &pDst[dwX * cw + dwY * rl];
 
 	for (i = 0; i < height; i++) {
@@ -698,14 +698,14 @@ void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t width,
 /**
  * Draw fast vertical line
  */
-void lcdd_draw_fast_Vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
+void lcdd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
 {
 	lcdd_draw_line(x, y, x, y+h-1, color);
 }
 /**
  * Draw fast horizontal line
  */
-void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
+void lcdd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 {
 	lcdd_draw_line(x, y, x+w-1, y, color);
 }
@@ -715,7 +715,7 @@ void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 static void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
 	uint32_t i;
-	for (i=x; i<x+w; i++) lcdd_draw_fast_Vline(i, y, h, color);
+	for (i=x; i<x+w; i++) lcdd_draw_fast_vline(i, y, h, color);
 }
 /**
  * Draw a circle
@@ -778,12 +778,12 @@ static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t cor
 		f += ddF_x;
 
 		if (corner & 0x1) {
-			lcdd_draw_fast_Vline(x0+x, y0-y, 2*y+1+delta, color);
-			lcdd_draw_fast_Vline(x0+y, y0-x, 2*x+1+delta, color);
+			lcdd_draw_fast_vline(x0+x, y0-y, 2*y+1+delta, color);
+			lcdd_draw_fast_vline(x0+y, y0-x, 2*x+1+delta, color);
 		}
 		if (corner & 0x2) {
-			lcdd_draw_fast_Vline(x0-x, y0-y, 2*y+1+delta, color);
-			lcdd_draw_fast_Vline(x0-y, y0-x, 2*x+1+delta, color);
+			lcdd_draw_fast_vline(x0-x, y0-y, 2*y+1+delta, color);
+			lcdd_draw_fast_vline(x0-y, y0-x, 2*x+1+delta, color);
 		}
 	}
 }
@@ -800,10 +800,10 @@ void lcdd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uin
 	_set_front_color(color);
 	_hide_canvas();
 	// smarter version
-	lcdd_draw_fast_Hline(x+r, y, w-2*r, color); // Top
-	lcdd_draw_fast_Hline(x+r, y+h-1, w-2*r, color); // Bottom
-	lcdd_draw_fast_Vline(x, y+r, h-2*r, color); // Left
-	lcdd_draw_fast_Vline(x+w-1, y+r, h-2*r, color); // Right
+	lcdd_draw_fast_hline(x+r, y, w-2*r, color); // Top
+	lcdd_draw_fast_hline(x+r, y+h-1, w-2*r, color); // Bottom
+	lcdd_draw_fast_vline(x, y+r, h-2*r, color); // Left
+	lcdd_draw_fast_vline(x+w-1, y+r, h-2*r, color); // Right
 	// draw four corners
 	_lcdd_draw_circle(x+r, y+r, r, 1, color);
 	_lcdd_draw_circle(x+w-r-1, y+r, r, 2, color);

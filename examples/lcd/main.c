@@ -323,7 +323,7 @@ static void _LcdOn(void)
 
 	l2cc_clean_region((uint32_t)_heo_buffer,
 			  (uint32_t)_heo_buffer + sizeof(_heo_buffer));
-	lcdd_show_bmp_rotated(LCDD_HEO, _heo_buffer, bHeoBpp, SCR_X(wHeoX),
+	lcdd_put_image_rotated(LCDD_HEO, _heo_buffer, bHeoBpp, SCR_X(wHeoX),
 			      SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW,
 			      wHeoImgH, 0);
 	/* It's over overlay 1 */
@@ -506,7 +506,7 @@ static void _rotates(void)
 	printf("Show: %u,%u %d, %d %u\n\r", (unsigned int)SCR_X(wHeoX),
 	       (unsigned int)SCR_Y(wHeoY), (int)w, (int)h,
 	       (unsigned int)wRotate);
-	lcdd_show_bmp_rotated(LCDD_HEO, 0, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY),
+	lcdd_put_image_rotated(LCDD_HEO, 0, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY),
 			      w, h, wHeoImgW, wHeoImgH, wRotate);
 
 	if (bHeoDraw == 0) {

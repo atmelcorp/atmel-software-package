@@ -45,25 +45,25 @@
  *
  * Uses following functions for LCD basic configuration and displaying:
  * -# Uses lcdd_initialize() to initialize the controller and LCD.
- * -# LCDD_On() and LCDD_Off() is used to turn LCD ON/OFF.
- * -# LCDD_SetBacklight() is used to change LCD backlight level.
- * -# To display a image (BMP format) on LCD, LCDD_ShowBMPRotated()
- *    LCDD_ShowBMPScaled() and LCDD_ShowBMP() can be used.
+ * -# lcdd_on() and lcdd_off() is used to turn LCD ON/OFF.
+ * -# lcdd_set_backlight() is used to change LCD backlight level.
+ * -# To display a image (BMP format) on LCD, lcdd_put_image_rotated()
+ *    lcdd_put_image_scaled() and lcdd_put_image() can be used.
  * -# To change configuration for an overlay layer, the following functions
  *    can use:
- *    -# LCDD_EnableLayer(), LCDD_IsLayerOn(): Turn ON/OFF layer, check status.
- *    -# LCDD_SetPosition(), LCDD_SetPriority(), LCDD_EnableAlpha(),
- *       LCDD_SetAlpha(), LCDD_SetColorKeying(): Change display options.
+ *    -# lcdd_enable_layer(), lcdd_is_layer_on(): Turn ON/OFF layer, check status.
+ *    -# lcdd_set_position(), lcdd_set_priority(), lcdd_enable_alpha(),
+ *       lcdd_set_alpha(), lcdd_set_color_keying(): Change display options.
  * -# Shortcuts for layer display are as following:
- *    -# LCDD_ShowBase(), LCDD_StopBase()
- *    -# LCDD_ShowOvr1(), LCDD_StopOvr1()
- *    -# LCDD_ShowHeo(), LCDD_StopHeo()
- *    -# LCDD_ShowHcr(), LCDD_StopHcr()
+ *    -# lcdd_show_base(), lcdd_stop_base()
+ *    -# lcdd_show_ovr1(), lcdd_stop_ovr1()
+ *    -# lcdd_show_heo(), lcdd_stop_heo()
+ *    -# lcdd_show_hcr(), lcdd_stop_hcr()
  * -# Drawing supporting functions, for drawing canvas:
- *    -# LCDD_CreateCanvas(): Create blank canvas on specified layer for
+ *    -# lcdd_create_canvas(): Create blank canvas on specified layer for
  *                            drawing on
- *    -# LCDD_SelectCanvas(): Select a displayer as canvas to drawing on
- *    -# LCDD_GetCanvas():    Get current selected canvas layer
+ *    -# lcdd_select_canvas(): Select a displayer as canvas to drawing on
+ *    -# lcdd_get_canvas():    Get current selected canvas layer
  *
  * For LCD drawing functions, refer to \ref lcdd_draw.
  *
@@ -114,6 +114,7 @@
 /**     @}*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -122,79 +123,102 @@
 struct _pin;
 
 /** LCD display layer information */
-typedef struct _LcddLayer {
-	void *pBuffer;	    /**< Display image buffer */
-	uint16_t wImgW;	    /**< Display image width */
-	uint16_t wImgH;	    /**< Display image height */
-	uint8_t bMode;	    /**< Image bpp (16,24,32) for RGB mode */
-	uint8_t bLayer;	    /**< Layer ID */
-} sLCDDLayer;
+struct _lcdd_layer {
+	void    *buffer;   /**< Display image buffer */
+	uint16_t width;    /**< Display image width */
+	uint16_t height;   /**< Display image height */
+	uint8_t  bpp;      /**< Image BPP (16,24,32) for RGB mode */
+	uint8_t  layer_id; /**< Layer ID */
+};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
 extern void lcdd_initialize(const struct _pin* pins, uint32_t pin_len);
-extern uint8_t lcdd_is_layer_on(uint8_t bLayer);
-extern void lcdd_enable_layer(uint8_t bLayer, uint8_t bEnDis);
-extern void lcdd_refresh(uint8_t bLayer);
-extern void lcdd_set_position(uint8_t bLayer, uint32_t x, uint32_t y);
-extern void lcdd_set_priority(uint8_t bLayer, uint8_t bPri);
-extern uint8_t lcdd_get_priority(uint8_t bLayer);
-extern void lcdd_enable_alpha(uint8_t bLayer, uint8_t bEnDisLA,
-			     uint8_t bEnDisGA);
-extern void lcdd_set_alpha(uint8_t bLayer, uint8_t bReverse, uint8_t bAlpha);
-extern uint8_t lcdd_get_alpha(uint8_t bLayer);
-extern void lcdd_set_color_keying(uint8_t bLayer,
-				uint8_t bDstSrc,
-				uint32_t dwColor, uint32_t dwMask);
-extern void lcdd_disable_color_keying(uint8_t bLayer);
-extern void lcdd_set_color_lut(uint8_t bLayer,
-			 uint32_t * pCLUT, uint8_t bpp, uint8_t nbColors);
-extern void *lcdd_show_bmp_rotated(uint8_t bLayer,
-				 void *pBuffer, uint8_t bpp,
-				 uint32_t x, uint32_t y, int32_t w, int32_t h,
-				 uint32_t imgW, uint32_t imgH, int16_t wRotate);
-extern void *lcdd_show_bmp_scaled(uint8_t bLayer,
-				void *pBuffer, uint8_t bpp,
-				uint32_t x, uint32_t y, int32_t w, int32_t h,
-				uint32_t imgW, uint32_t imgH);
-extern void *lcdd_show_bmp(uint8_t bLayer,
-			  void *pBuffer, uint8_t bpp,
-			  uint32_t x, uint32_t y, int32_t w, int32_t h);
 
-extern void *lcdd_show_base(void *pBuffer, uint8_t bpp, uint8_t bScanBottomUp);
+extern uint8_t lcdd_is_layer_on(uint8_t layer);
+
+extern void lcdd_enable_layer(uint8_t layer, bool enable);
+
+extern void lcdd_refresh(uint8_t layer);
+
+extern void lcdd_set_position(uint8_t layer, uint32_t x, uint32_t y);
+
+extern void lcdd_set_priority(uint8_t layer, uint8_t priority);
+
+extern uint8_t lcdd_get_priority(uint8_t layer);
+
+extern void lcdd_enable_alpha(uint8_t layer, bool enable_local,
+		bool enable_global);
+
+extern void lcdd_set_alpha(uint8_t layer, bool reverse, uint8_t alpha);
+
+extern uint8_t lcdd_get_alpha(uint8_t layer);
+
+extern void lcdd_set_color_keying(uint8_t layer, bool dest_keying,
+				uint32_t color, uint32_t mask);
+
+extern void lcdd_disable_color_keying(uint8_t layer);
+
+extern void lcdd_set_color_lut(uint8_t layer, uint32_t *clut, uint8_t bpp,
+		uint8_t num_colors);
+
+extern void *lcdd_put_image_rotated(uint8_t layer, void *buffer, uint8_t bpp,
+		uint32_t x, uint32_t y, int32_t w, int32_t h,
+		uint32_t img_w, uint32_t img_h, int16_t rotation);
+
+extern void *lcdd_put_image_scaled(uint8_t layer, void *buffer, uint8_t bpp,
+		uint32_t x, uint32_t y, int32_t w, int32_t h,
+		uint32_t img_w, uint32_t img_h);
+
+extern void *lcdd_put_image(uint8_t layer, void *buffer, uint8_t bpp,
+		uint32_t x, uint32_t y, int32_t w, int32_t h);
+
+extern void *lcdd_show_base(void *buffer, uint8_t bpp, bool bottom_up);
+
 extern void lcdd_stop_base(void);
 
-extern void *lcdd_show_ovr1(void *pBuffer, uint8_t bpp,
+extern void *lcdd_show_ovr1(void *buffer, uint8_t bpp,
 			   uint32_t x, uint32_t y, int32_t w, int32_t h);
+
 extern void lcdd_stop_ovr1(void);
 
-extern void *lcdd_show_heo(void *pBuffer, uint8_t bpp,
+extern void *lcdd_show_heo(void *buffer, uint8_t bpp,
 			  uint32_t x, uint32_t y, int32_t w, int32_t h,
 			  uint32_t memW, uint32_t memH);
+
 extern void lcdd_stop_heo(void);
+
 extern void lcdd_on(void);
+
 extern void lcdd_off(void);
+
 extern void lcdd_set_backlight(uint32_t step);
-extern void *lcdd_show_hcr(void *pBuffer, uint8_t bpp,
-			  uint32_t x, uint32_t y, int32_t w, int32_t h);
+
+extern void *lcdd_show_hcr(void *buffer, uint8_t bpp,
+		uint32_t x, uint32_t y, int32_t w, int32_t h);
+
 extern void lcdd_stop_hcr(void);
-extern sLCDDLayer *lcdd_get_canvas(void);
-extern uint8_t lcdd_select_canvas(uint8_t bLayer);
-extern void *lcdd_create_canvas(uint8_t bLayer,
-			       void *pBuffer, uint8_t bBPP,
-			       uint16_t wX, uint16_t wY, uint16_t wW,
-			       uint16_t wH);
+
+extern struct _lcdd_layer *lcdd_get_canvas(void);
+
+extern uint8_t lcdd_select_canvas(uint8_t layer);
+
+extern void *lcdd_create_canvas(uint8_t layer, void *buffer, uint8_t bpp,
+		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+
 extern void lcdd_flush_canvas(void);
-extern void lcdc_configure_inputMode(uint8_t bLayer, uint32_t inputMode);
-extern void * lcdd_create_canvas_yuv_planar(uint8_t bLayer,
-		  void *pBuffer, void *pBufferUV, void *pBufferV, uint8_t bBPP,
-		  uint16_t wX, uint16_t wY, uint16_t wW, uint16_t wH);
-extern void *lcdd_create_canvas_yuv_semiplanar(uint8_t bLayer,
-				     void *pBuffer, void *pBufferUV,
-				     uint8_t bBPP,
-				     uint16_t wX, uint16_t wY, uint16_t wW,
-				     uint16_t wH);
+
+extern void lcdd_configure_input_mode(uint8_t layer, uint32_t input_mode);
+
+extern void *lcdd_create_canvas_yuv_planar(uint8_t layer,
+		void *buffer_y, void *buffer_u, void *buffer_v, uint8_t bpp,
+		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+
+extern void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer,
+		void *buffer_y, void *buffer_uv, uint8_t bpp,
+		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+
 /**  @}*/
-#endif				/* #ifndef LCDD_H */
+#endif /* #ifndef LCDD_H */

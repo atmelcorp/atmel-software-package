@@ -429,7 +429,7 @@ static void configure_lcd(void)
 	lcdd_enable_layer(LCDD_HEO, 0);
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
 	if (sensor_mode == YUV_422) {
-		lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV);
+		lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV);
 		lcdd_create_canvas(LCDD_HEO,
 				   pHeoBuffer,
 				   16,
@@ -439,7 +439,7 @@ static void configure_lcd(void)
 				   image_height);
 	} else {
 		if (lcd_mode == LCD_MODE_YUV422_PLANAR){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_PLANAR);
+			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV422_PLANAR);
 			lcdd_create_canvas_yuv_planar(
 										LCDD_HEO,
 										pHeoBuffer,
@@ -451,7 +451,7 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV422_SEMIPLANAR){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_SEMIPLANAR);
+			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV422_SEMIPLANAR);
 			lcdd_create_canvas_yuv_semiplanar(
 										LCDD_HEO,
 										pHeoBuffer,
@@ -462,7 +462,7 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_PLANAR){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_PLANAR);
+			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV420_PLANAR);
 			lcdd_create_canvas_yuv_planar(
 										LCDD_HEO,
 										pHeoBuffer,
@@ -474,7 +474,7 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_SEMIPLANAR);
+			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV420_SEMIPLANAR);
 			lcdd_create_canvas_yuv_semiplanar(
 										LCDD_HEO,
 										pHeoBuffer,
@@ -485,7 +485,7 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_RGB565){
-			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_RGB565);
+			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_RGB565);
 			lcdd_create_canvas(LCDD_HEO,
 					   pHeoBuffer,
 					   16,

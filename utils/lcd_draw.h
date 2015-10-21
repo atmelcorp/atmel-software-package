@@ -34,7 +34,7 @@
  * Interface for drawing function on LCD.
  *
  * \note Before drawing, <b>canvas</b> should be selected via
- *       LCDD_SelectCanvas(), or created by LCDD_CreateCanvas().
+ *       lcdd_select_canvas(), or created by lcdd_create_canvas().
  *
  * Following functions can use:
  * - Simple drawing:
@@ -42,9 +42,9 @@
  *   - lcdd_draw_pixel()
  *   - lcdd_read_pixel()
  *   - lcdd_draw_line()
- *   - LCDD_DrawRectangle(), lcdd_draw_filled_rectangle()
- *   - LCDD_DrawCircle(), LCDD_DrawFilledCircle()
- *   - LCDD_DrawImage()
+ *   - lcdd_draw_rectangle(), lcdd_draw_filled_rectangle()
+ *   - lcdd_draw_circle(), lcdd_draw_filled_circle()
+ *   - lcdd_draw_image()
  * - String related:
  *   - lcdd_draw_string()
  *   - lcdd_get_string_size()
@@ -117,8 +117,8 @@ extern void lcdd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t
 extern void lcdd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
 
 
-extern void lcdd_draw_fast_Vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color);
-extern void lcdd_draw_fast_Hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color);
+extern void lcdd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color);
+extern void lcdd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color);
 
 /** @}*/
 /**@}*/
