@@ -89,6 +89,8 @@
 #include "board.h"
 #include "chip.h"
 
+#include "cortex-a/cp15.h"
+ 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
