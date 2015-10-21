@@ -287,6 +287,32 @@ extern void pmc_disable_pck2(void);
  */
 extern uint32_t pmc_get_pck2_clock(void);
 
+/**
+ * \brief Enable the UPLL clock
+ */
+extern void pmc_enable_upll_clock(void);
+
+/**
+ * \brief Disable the UPLL clock
+ */
+extern void pmc_disable_upll_clock(void);
+
+/**
+ * \brief Get the frequency of the UPLL clock
+ * \return UPLL clock frequency in Hz
+ */
+extern uint32_t pmc_get_upll_clock(void);
+
+/**
+ * \brief Enable the UPLL clock bias
+ */
+extern void pmc_enable_upll_bias(void);
+
+/**
+ * \brief Disable the UPLL clock bias
+ */
+extern void pmc_disable_upll_bias(void);
+
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 /**
  * \brief Configure the generated clock (GCK) for the given peripheral with the

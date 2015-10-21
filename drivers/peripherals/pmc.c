@@ -100,7 +100,7 @@ static void _pmc_compute_mck(void)
 		clk = pmc_get_plla_clock();
 		break;
 	case PMC_MCKR_CSS_UPLL_CLK:
-		clk = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		clk = pmc_get_upll_clock();
 		break;
 	default:
 		/* should never get here... */
@@ -171,8 +171,7 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 		clk = pmc_get_plla_clock();
 		break;
 	case PMC_PCK_CSS_UPLL_CLK:
-		//TODO: clk = pmc_get_upll_clock();
-		clk = 0;
+		clk = pmc_get_upll_clock();
 		break;
 	case PMC_PCK_CSS_MCK_CLK:
 		clk = pmc_get_master_clock();
@@ -657,6 +656,52 @@ uint32_t pmc_get_pck2_clock(void)
 }
 
 /*----------------------------------------------------------------------------
+ *        Exported functions (UPLL)
+ *----------------------------------------------------------------------------*/
+
+void pmc_enable_upll_clock(void)
+{
+	/* enable 480Mhz UPLL */
+	PMC->CKGR_UCKR = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3)
+		| CKGR_UCKR_BIASCOUNT(0x1);
+
+	/* wait until UPLL is locked */
+	while (!(PMC->PMC_SR & PMC_SR_LOCKU));
+}
+
+void pmc_disable_upll_clock(void)
+{
+	PMC->CKGR_UCKR &= ~CKGR_UCKR_UPLLEN;
+}
+
+uint32_t pmc_get_upll_clock(void)
+{
+#ifdef SFR_UTMICKTRIM_FREQ_Msk
+	uint32_t clktrim = SFR->SFR_UTMICKTRIM & SFR_UTMICKTRIM_FREQ_Msk;
+	switch (clktrim) {
+		case SFR_UTMICKTRIM_FREQ_16:
+			return 30 * BOARD_MAIN_CLOCK_EXT_OSC;
+		case SFR_UTMICKTRIM_FREQ_24:
+			return 20 * BOARD_MAIN_CLOCK_EXT_OSC;
+		default:
+			return 40 * BOARD_MAIN_CLOCK_EXT_OSC;
+	}
+#else
+	return 40 * BOARD_MAIN_CLOCK_EXT_OSC;
+#endif
+}
+
+void pmc_enable_upll_bias(void)
+{
+	PMC->CKGR_UCKR |= CKGR_UCKR_BIASEN;
+}
+
+void pmc_disable_upll_bias(void)
+{
+	PMC->CKGR_UCKR &= ~CKGR_UCKR_BIASEN;
+}
+
+/*----------------------------------------------------------------------------
  *        Exported functions (Generated clocks)
  *----------------------------------------------------------------------------*/
 
@@ -713,8 +758,7 @@ uint32_t pmc_get_gck_clock(uint32_t id)
 		clk = pmc_get_plla_clock();
 		break;
 	case PMC_PCR_GCKCSS_UPLL_CLK:
-		//TODO: clk = pmc_get_upll_clock();
-		clk = 0;
+		clk = pmc_get_upll_clock();
 		break;
 	case PMC_PCR_GCKCSS_MCK_CLK:
 		clk = pmc_get_master_clock();
