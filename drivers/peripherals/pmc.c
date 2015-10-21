@@ -190,7 +190,7 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 }
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Exported functions (General)
  *----------------------------------------------------------------------------*/
 
 uint32_t pmc_get_master_clock(void)
@@ -435,6 +435,10 @@ void pmc_disable_plla(void)
 	PMC->CKGR_PLLAR = (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
 }
 
+/*----------------------------------------------------------------------------
+ *        Exported functions (Peripherals)
+ *----------------------------------------------------------------------------*/
+
 void pmc_enable_peripheral(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
@@ -482,6 +486,10 @@ void pmc_disable_all_peripherals(void)
 	for (i = 2; i < ID_PERIPH_COUNT; i++)
 		pmc_disable_peripheral(i);
 }
+
+/*----------------------------------------------------------------------------
+ *        Exported functions (PCK0-2)
+ *----------------------------------------------------------------------------*/
 
 void pmc_configure_pck0(uint32_t clock_source, uint32_t prescaler)
 {
@@ -552,6 +560,10 @@ uint32_t pmc_get_pck2_clock(void)
 	return _pmc_get_pck_clock(2);
 }
 
+/*----------------------------------------------------------------------------
+ *        Exported functions (DDR)
+ *----------------------------------------------------------------------------*/
+
 void pmc_enable_ddr_clock(void)
 {
 	PMC->PMC_SCER |= PMC_SCER_DDRCK;
@@ -563,6 +575,10 @@ void pmc_disable_ddr_clock(void)
 	PMC->PMC_SCDR |= PMC_SCER_DDRCK;
 	while (PMC->PMC_SCSR & PMC_SCSR_DDRCK);
 }
+
+/*----------------------------------------------------------------------------
+ *        Exported functions (Generated clocks)
+ *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
