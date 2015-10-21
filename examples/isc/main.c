@@ -370,8 +370,8 @@ static void configure_twi(void)
  */
 static void configure_mck_clock(void)
 {
-	PMC->PMC_PCR = PMC_PCR_CMD|PMC_PCR_EN |ID_ISC;
-	PMC->PMC_SCER|= 1 << 18;
+	pmc_enable_peripheral(ID_ISC);
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
 
 	isc_configure_master_clock(6 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
