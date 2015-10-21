@@ -657,22 +657,6 @@ uint32_t pmc_get_pck2_clock(void)
 }
 
 /*----------------------------------------------------------------------------
- *        Exported functions (DDR)
- *----------------------------------------------------------------------------*/
-
-void pmc_enable_ddr_clock(void)
-{
-	PMC->PMC_SCER |= PMC_SCER_DDRCK;
-	while (!(PMC->PMC_SCSR & PMC_SCSR_DDRCK));
-}
-
-void pmc_disable_ddr_clock(void)
-{
-	PMC->PMC_SCDR |= PMC_SCER_DDRCK;
-	while (PMC->PMC_SCSR & PMC_SCSR_DDRCK);
-}
-
-/*----------------------------------------------------------------------------
  *        Exported functions (Generated clocks)
  *----------------------------------------------------------------------------*/
 

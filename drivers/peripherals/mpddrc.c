@@ -273,7 +273,7 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 
 	/* controller and DDR clock */
 	pmc_enable_peripheral(ID_MPDDRC);
-	pmc_enable_ddr_clock();
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 
 	/* Step1: Program memory device type */
 	MPDDRC->MPDDRC_MD = desc->mode;
