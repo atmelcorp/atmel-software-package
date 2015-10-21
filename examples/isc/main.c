@@ -116,7 +116,10 @@
 //#define OV7740
 #define OV9740
 //#define OV5640
-//#define OV2643 
+//#define OV2643
+ 
+#define GAMMA_28
+
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -243,7 +246,7 @@ static struct _color_space cs = {
 	0x70, 0x80, 0x70,
 	0xFA2, 0xFEE, 0x80};
 
-#if 0
+#if defined GAMMA_22
 /* Gamma table with gamma 1/2.2 */
 const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
@@ -257,7 +260,7 @@ const uint32_t gamma_table[GAMMA_ENTRIES] = {
 };
 #endif
 
-#if 0
+#if defined GAMMA_18
 /* Gamma table with gamma 1/1.8 */
 const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
@@ -271,6 +274,8 @@ const uint32_t gamma_table[GAMMA_ENTRIES] = {
 };
 
 #endif
+
+#if defined GAMMA_28
 /* Gamma table with gamma 1/2.8 */
 const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
@@ -282,6 +287,7 @@ const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0x39B0007,0x3A20007,0x3A90006,0x3AF0007,0x3B60006,0x3BC0007,0x3C30006,0x3C90006,
 	0x3CF0007,0x3D60006,0x3DC0006,0x3E20006,0x3E80006,0x3EE0005,0x3F40005,0x3F90006
 };
+#endif
 
 /**
  * \brief Callback entry for histogram DMA transfer done.
@@ -544,7 +550,7 @@ static void configure_isc(void)
 		// Performs a 12-bit to 10-bit with simply 2 bit cut.
 		isc_gamma_enabled(1, 0);
 
-#if 0
+#if defined GAMMA_TUNING
 		// Performs a 12-bit to 10-bit with power function.
 		isc_gamma_enabled(1, ISC_GAM_CTRL_BENABLE |
 				  ISC_GAM_CTRL_GENABLE |
