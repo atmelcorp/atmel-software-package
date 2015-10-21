@@ -189,6 +189,82 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 	return clk / (prescaler + 1);
 }
 
+static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
+	uint32_t *scer, uint32_t* scdr, uint32_t *scsr)
+{
+	uint32_t e, d, s;
+
+	switch (clock)
+	{
+#ifdef PMC_SCER_PCK
+	case PMC_SYSTEM_CLOCK_PCK:
+		e = PMC_SCER_PCK;
+		d = PMC_SCDR_PCK;
+		s = PMC_SCSR_PCK;
+		break;
+#endif
+	case PMC_SYSTEM_CLOCK_DDR:
+		e = PMC_SCER_DDRCK;
+		d = PMC_SCDR_DDRCK;
+		s = PMC_SCSR_DDRCK;
+		break;
+	case PMC_SYSTEM_CLOCK_LCD:
+		e = PMC_SCER_LCDCK;
+		d = PMC_SCDR_LCDCK;
+		s = PMC_SCSR_LCDCK;
+		break;
+#ifdef PMC_SCER_SMDCK
+	case PMC_SYSTEM_CLOCK_SMD:
+		e = PMC_SCER_SMDCK;
+		d = PMC_SCDR_SMDCK;
+		s = PMC_SCSR_SMDCK;
+		break;
+#endif
+	case PMC_SYSTEM_CLOCK_UHP:
+		e = PMC_SCER_UHP;
+		d = PMC_SCDR_UHP;
+		s = PMC_SCSR_UHP;
+		break;
+	case PMC_SYSTEM_CLOCK_UDP:
+		e = PMC_SCER_UDP;
+		d = PMC_SCDR_UDP;
+		s = PMC_SCSR_UDP;
+		break;
+	case PMC_SYSTEM_CLOCK_PCK0:
+		e = PMC_SCER_PCK0;
+		d = PMC_SCDR_PCK0;
+		s = PMC_SCSR_PCK0;
+		break;
+	case PMC_SYSTEM_CLOCK_PCK1:
+		e = PMC_SCER_PCK1;
+		d = PMC_SCDR_PCK1;
+		s = PMC_SCSR_PCK1;
+		break;
+	case PMC_SYSTEM_CLOCK_PCK2:
+		e = PMC_SCER_PCK2;
+		d = PMC_SCDR_PCK2;
+		s = PMC_SCSR_PCK2;
+		break;
+#ifdef PMC_SCER_ISCCK
+	case PMC_SYSTEM_CLOCK_ISC:
+		e = PMC_SCER_ISCCK;
+		d = PMC_SCDR_ISCCK;
+		s = PMC_SCSR_ISCCK;
+		break;
+#endif
+	default:
+		return false;
+	}
+
+	if (scer)
+		*scer = e;
+	if (scdr)
+		*scdr = d;
+	if (scsr)
+		*scsr = s;
+	return true;
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
@@ -433,6 +509,26 @@ void pmc_set_plla(uint32_t pll, uint32_t cpcr)
 void pmc_disable_plla(void)
 {
 	PMC->CKGR_PLLAR = (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
+}
+
+void pmc_enable_system_clock(enum _pmc_system_clock clock)
+{
+	uint32_t scer, scsr;
+	if (!_pmc_get_system_clock_bits(clock, &scer, NULL, &scsr))
+		return;
+
+	PMC->PMC_SCER |= scer;
+	while (!(PMC->PMC_SCSR & scsr));
+}
+
+void pmc_disable_system_clock(enum _pmc_system_clock clock)
+{
+	uint32_t scdr, scsr;
+	if (!_pmc_get_system_clock_bits(clock, NULL, &scdr, &scsr))
+		return;
+
+	PMC->PMC_SCDR |= scdr;
+	while (PMC->PMC_SCSR & scsr);
 }
 
 /*----------------------------------------------------------------------------

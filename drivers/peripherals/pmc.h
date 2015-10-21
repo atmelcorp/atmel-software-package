@@ -37,6 +37,26 @@
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief System clock identifiers, used for pmc_{enable,disable}_system_clock
+ */
+enum _pmc_system_clock {
+	PMC_SYSTEM_CLOCK_PCK,
+	PMC_SYSTEM_CLOCK_DDR,
+	PMC_SYSTEM_CLOCK_LCD,
+	PMC_SYSTEM_CLOCK_SMD,
+	PMC_SYSTEM_CLOCK_UHP,
+	PMC_SYSTEM_CLOCK_UDP,
+	PMC_SYSTEM_CLOCK_PCK0,
+	PMC_SYSTEM_CLOCK_PCK1,
+	PMC_SYSTEM_CLOCK_PCK2,
+	PMC_SYSTEM_CLOCK_ISC,
+};
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -144,6 +164,18 @@ extern void pmc_set_mck_plla_div(uint32_t divider);
  * \brief Disable PLLA Register.
  */
 extern void pmc_disable_plla(void);
+
+/**
+ * \brief Enables a system clock
+ * \param clock system clock to enable
+ */
+extern void pmc_enable_system_clock(enum _pmc_system_clock clock);
+
+/**
+ * \brief Disables a system clock
+ * \param clock system clock to disable
+ */
+extern void pmc_disable_system_clock(enum _pmc_system_clock clock);
 
 /**
  * \brief Enables the clock of a peripheral. The peripheral ID is used
