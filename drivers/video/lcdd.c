@@ -495,7 +495,6 @@ static void _build_color_lut1(volatile uint32_t * pCLUT)
 void lcdd_initialize(const struct _pin* pins, uint32_t pin_len)
 {
 	Lcdc *pHw = LCDC;
-	Pmc *pPmc = PMC;
 
 	/* Configure PIO */
 	pio_configure(pins, pin_len);
@@ -521,7 +520,7 @@ void lcdd_initialize(const struct _pin* pins, uint32_t pin_len)
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_LCDC);
-	pPmc->PMC_SCER = (0x1u << 3);
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* Timing Engine Configuration */
 
@@ -1358,12 +1357,11 @@ void lcdd_stop_hcr(void)
  */
 void lcdd_on(void)
 {
-	Pmc *pPmc = PMC;
 	Lcdc *pHw = LCDC;
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_LCDC);
-	pPmc->PMC_SCER = (0x1u << 3);
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
 	pHw->LCDC_LCDCFG0 =
@@ -1423,7 +1421,6 @@ void lcdd_on(void)
 void lcdd_off(void)
 {
 	Lcdc *pHw = LCDC;
-	Pmc *pPmc = PMC;
 
 	/* 1. Clear the DFETCH bit in the DSCR.CHXCTRL field of the DSCR structure
 	   will disable the channel at the end of the frame. */
@@ -1487,7 +1484,7 @@ void lcdd_off(void)
 	/* Disable peripheral clock */
 	pmc_disable_peripheral(ID_LCDC);
 	/* LCD Clock Disable */
-	pPmc->PMC_SCDR = (0x1u << 3);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 }
 
