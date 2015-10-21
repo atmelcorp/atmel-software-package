@@ -244,6 +244,25 @@ static Pio *_pio_get_instance(int group)
 	};
 }
 
+static uint32_t _pio_get_periph_id(int group)
+{
+	switch(group) {
+	case PIO_GROUP_A:
+		return ID_PIOA;
+	case PIO_GROUP_B:
+		return ID_PIOB;
+	case PIO_GROUP_C:
+		return ID_PIOC;
+	case PIO_GROUP_D:
+		return ID_PIOD;
+	case PIO_GROUP_E:
+		return ID_PIOE;
+	default:
+		trace_fatal("Invalid PIO group!");
+		return 0;
+	};
+}
+
 /**
  * \brief Configures one or more pin(s) of a PIO controller as being
  * controlled by peripheral A. Optionally, the corresponding internal
@@ -572,7 +591,7 @@ uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 void pio_output_low(uint32_t group, uint32_t mask)
 {
 	Pio* pio = _pio_get_instance(group);
-	PMC->PMC_PCER0 = 1 << group;
+	pmc_enable_peripheral(_pio_get_periph_id(group));
 	pio->PIO_PUDR = mask;	// all Pull-up Disable
 	pio->PIO_PPDDR = mask;	// all Pull-down Disable
 	pio->PIO_PER = mask;	// all PIO enable
