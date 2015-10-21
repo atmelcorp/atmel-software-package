@@ -564,8 +564,11 @@ typedef struct {
 #define PMC_AUDIO_PLL1_FRACR_Pos 0
 #define PMC_AUDIO_PLL1_FRACR_Msk (0x3fffffu << PMC_AUDIO_PLL1_FRACR_Pos) /**< \brief (PMC_AUDIO_PLL1) Fractional Loop Divider Setting */
 #define PMC_AUDIO_PLL1_FRACR(value) ((PMC_AUDIO_PLL1_FRACR_Msk & ((value) << PMC_AUDIO_PLL1_FRACR_Pos)))
-#define PMC_AUDIO_PLL1_QDAUDIO_Pos 24
-#define PMC_AUDIO_PLL1_QDAUDIO_Msk (0x7fu << PMC_AUDIO_PLL1_QDAUDIO_Pos) /**< \brief (PMC_AUDIO_PLL1) Output Divider Ratio for Pad Clock */
+#define PMC_AUDIO_PLL1_DIV_Pos 24
+#define PMC_AUDIO_PLL1_DIV_Msk (0x3u << PMC_AUDIO_PLL1_DIV_Pos) /**< \brief (PMC_AUDIO_PLL1) Divider Value */
+#define PMC_AUDIO_PLL1_DIV(value) ((PMC_AUDIO_PLL1_DIV_Msk & ((value) << PMC_AUDIO_PLL1_DIV_Pos)))
+#define PMC_AUDIO_PLL1_QDAUDIO_Pos 26
+#define PMC_AUDIO_PLL1_QDAUDIO_Msk (0x1fu << PMC_AUDIO_PLL1_QDAUDIO_Pos) /**< \brief (PMC_AUDIO_PLL1) Output Divider Ratio for Pad Clock */
 #define PMC_AUDIO_PLL1_QDAUDIO(value) ((PMC_AUDIO_PLL1_QDAUDIO_Msk & ((value) << PMC_AUDIO_PLL1_QDAUDIO_Pos)))
 
 /*@}*/
