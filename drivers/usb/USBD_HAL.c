@@ -268,12 +268,7 @@ UDPHS_DisablePeripheralClock(void)
 static inline void
 UDPHS_EnableUsbClock(void)
 {
-	Pmc *pPmc = PMC;
-	/* Enable 480Mhz UPLL */
-	pPmc->CKGR_UCKR |= CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3)
-	    | CKGR_UCKR_BIASCOUNT(0x1);
-	/* Wait until UPLL is locked */
-	while ((pPmc->PMC_SR & PMC_SR_LOCKU) == 0) ;
+	pmc_enable_upll_clock();
 }
 
 /**
@@ -282,10 +277,7 @@ UDPHS_EnableUsbClock(void)
 static inline void
 UDPHS_DisableUsbClock(void)
 {
-	Pmc *pPmc = PMC;
-	/* Disable System Clock */
-	//pPmc->PMC_SCDR = PMC_SCDR_UDP;
-	pPmc->CKGR_UCKR &= ~(uint32_t) CKGR_UCKR_UPLLEN;
+	pmc_disable_upll_clock();
 }
 
 /**
@@ -294,8 +286,7 @@ UDPHS_DisableUsbClock(void)
 static inline void
 UDPHS_EnableBIAS(void)
 {
-	Pmc *pPmc = PMC;
-	pPmc->CKGR_UCKR |= CKGR_UCKR_BIASEN;
+	pmc_enable_upll_bias();
 }
 
 /**
@@ -304,8 +295,7 @@ UDPHS_EnableBIAS(void)
 static inline void
 UDPHS_DisableBIAS(void)
 {
-	Pmc *pPmc = PMC;
-	pPmc->CKGR_UCKR &= ~(uint32_t) CKGR_UCKR_BIASEN;
+	pmc_disable_upll_bias();
 }
 
 /**
