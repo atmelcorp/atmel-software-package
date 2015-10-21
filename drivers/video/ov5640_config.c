@@ -5239,7 +5239,6 @@ const sensor_reg_t ov5640_afc[] = {
 	{0xFF, 0xFF}
 };
 
-
 const sensor_output_t ov5640_output_yuv_qvga =
 {0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov5640_yuv_qvga};
 

@@ -48,6 +48,7 @@
 #define MT9V022_PIDH            0x13
 #define MT9V022_PIDL            0x13
 #define MT9V022_PID_VER_MASK    0xFFF0
+
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
@@ -68,7 +69,7 @@ const sensor_reg_t mt9v022_mono[] = {
 	{0x0D, 0x0003 },    // READ_MODE_REG
 	{0x0E, 0x0 },       // READ_MODE2_REG
 	{0x0F, 0x1100 },    // PIXEL_OPERATION_MODE 0x0100
-//                  {0x0F, 0x1500 },    // PIXEL_OPERATION_MODE 0x0100
+//	{0x0F, 0x1500 },    // PIXEL_OPERATION_MODE 0x0100
 	{0x10, 0x4000 },    // RESERVED_CORE_10
 	{0x11, 0x4280 },    // RESERVED_CORE_11
 	{0x12, 0x2200 },    // RESERVED_CORE_12
@@ -146,7 +147,7 @@ const sensor_reg_t mt9v022_mono[] = {
 	{0x73, 0xF702 },
 	{0x74, 0x0 },
 	{0x7F, 0x0 },       // TEST_DATA
-	//{0x7F, 0x0028 },    // TEST_DATA
+//	{0x7F, 0x0028 },    // TEST_DATA
 	{0x80, 0xF400 },    // TILE_X0_Y0
 	{0x81, 0xF400 },    // TILE_X1_Y0
 	{0x82, 0xF400 },    // TILE_X2_Y0
