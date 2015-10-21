@@ -211,13 +211,13 @@ static uint8_t *pHeoBuffer1 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS1;
 static uint8_t *pHeoBuffer2 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS2;
 
 /* Image size in preview mode */
-static uint32_t wImageWidth, wImageHeight;
+static uint32_t image_width, image_height;
 
 /* Image output bit width */
-static sensor_output_bit_t wSensorOutBitWidth;
+static sensor_output_bit_t sensor_output_bit_width;
 
 /* Sensor mode for YUV or RAW BAYER */
-static sensor_output_format_t sensorMode;
+static sensor_output_format_t sensor_mode;
 
 /* LCD mode */
 static uint32_t lcd_mode;
@@ -245,7 +245,7 @@ static struct _color_space cs = {
 
 #if 0
 /* Gamma table with gamma 1/2.2 */
-const uint32_t gGam[GAMMA_ENTRIES] = {
+const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0x2B0079 ,0x9C0039 ,0xD4002B ,0xFF0024 ,0x122001F,0x141001C,0x15D0019,0x1760018,
 	0x18E0016,0x1A40015,0x1B80014,0x1CC0013,0x1DE0012,0x1F00011,0x2010010,0x2110010,
 	0x221000F,0x230000F,0x23F000E,0x24D000E,0x25B000D,0x269000D,0x276000D,0x283000D,
@@ -259,7 +259,7 @@ const uint32_t gGam[GAMMA_ENTRIES] = {
 
 #if 0
 /* Gamma table with gamma 1/1.8 */
-const uint32_t gGam[GAMMA_ENTRIES] = {
+const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0x65, 0x66002F, 0x950025,0xBB0020, 0xDB001D, 0xF8001A, 0x1130018, 0x12B0017,
 	0x1420016,0x1580014,0x16D0013,0x1810012,0x1940012,0x1A60012,0x1B80011,0x1C90010,
 	0x1DA0010,0x1EA000F,0x1FA000F,0x209000F,0x218000F,0x227000E,0x235000E,0x243000E,
@@ -272,7 +272,7 @@ const uint32_t gGam[GAMMA_ENTRIES] = {
 
 #endif
 /* Gamma table with gamma 1/2.8 */
-const uint32_t gGam[GAMMA_ENTRIES] = {
+const uint32_t gamma_table[GAMMA_ENTRIES] = {
 	0xE6,0xE80040,0x129002D,0x1570025,0x17C001F,0x19C001B,0x1B70019,0x1D00016,
 	0x1E70014,0x1FC0013,0x20F0012,0x2210011,0x2330010,0x243000F,0x253000E,0x261000E,
 	0x270000D,0x27D000D,0x28A000D,0x297000C,0x2A3000C,0x2AF000C,0x2BB000B,0x2C6000B,
@@ -320,23 +320,23 @@ static void xdma_read_histogram(uint32_t buf)
 
 /**
  * \brief Convert float data to HEX with giving format.
- * \param signBit length of sign in bit
- * \param magnitudeBit length of magnitude in bit
- * \param fractionalBit length of fractional in bit
+ * \param sign_bit length of sign in bit
+ * \param magnitude_bit length of magnitude in bit
+ * \param fractional_bit length of fractional in bit
  * \param f float value to be converted
  */
-uint32_t float2hex(uint8_t signBit, uint8_t magnitudeBit, uint8_t fractionalBit, float f)
+uint32_t float2hex(uint8_t sign_bit, uint8_t magnitude_bit, uint8_t fractional_bit, float f)
 {
 	uint32_t hex;
-	if(!signBit){
+	if(!sign_bit){
 		if (f < 0.0) return 0;
-		hex = (uint32_t) (f * (1 << fractionalBit));
+		hex = (uint32_t) (f * (1 << fractional_bit));
 	} else {
 		if (f < 0.0) {
-			hex = (uint32_t)( (f) * (-1.0) * (1 << fractionalBit));
+			hex = (uint32_t)( (f) * (-1.0) * (1 << fractional_bit));
 			hex = ~hex - 1;
 		} else {
-			hex = (uint32_t)(f * (1 << fractionalBit));
+			hex = (uint32_t)(f * (1 << fractional_bit));
 		}
 	}
 	return hex;
@@ -420,15 +420,15 @@ static void configure_lcd(void)
 {
 	lcdd_enable_layer(LCDD_HEO, 0);
 	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
-	if (sensorMode == YUV_422) {
+	if (sensor_mode == YUV_422) {
 		lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV);
 		lcdd_create_canvas(LCDD_HEO,
 				   pHeoBuffer,
 				   16,
 				   0,
 				   0,
-				   wImageWidth,
-				   wImageHeight);
+				   image_width,
+				   image_height);
 	} else {
 		if (lcd_mode == LCD_MODE_YUV422_PLANAR){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_PLANAR);
@@ -440,8 +440,8 @@ static void configure_lcd(void)
 										16,
 										0,
 										0,
-										wImageWidth,
-										wImageHeight);
+										image_width,
+										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV422_SEMIPLANAR){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV422_SEMIPLANAR);
 			lcdd_create_canvas_yuv_semiplanar(
@@ -451,8 +451,8 @@ static void configure_lcd(void)
 										16,
 										0,
 										0,
-										wImageWidth,
-										wImageHeight);
+										image_width,
+										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_PLANAR){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_PLANAR);
 			lcdd_create_canvas_yuv_planar(
@@ -463,8 +463,8 @@ static void configure_lcd(void)
 										12,
 										0,
 										0,
-										wImageWidth,
-										wImageHeight);
+										image_width,
+										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_YUV420_SEMIPLANAR);
 			lcdd_create_canvas_yuv_semiplanar(
@@ -474,8 +474,8 @@ static void configure_lcd(void)
 										12,
 										0,
 										0,
-										wImageWidth,
-										wImageHeight);
+										image_width,
+										image_height);
 		} else if (lcd_mode == LCD_MODE_RGB565){
 			lcdc_configure_inputMode(LCDD_HEO, LCD_MODE_RGB565);
 			lcdd_create_canvas(LCDD_HEO,
@@ -483,8 +483,8 @@ static void configure_lcd(void)
 					   16,
 					   0,
 					   0,
-					   wImageWidth,
-					   wImageHeight);
+					   image_width,
+					   image_height);
 		}
 	}
 	lcdd_enable_layer(LCDD_HEO, 1);
@@ -504,7 +504,7 @@ static void configure_isc(void)
 	aic_disable(ID_ISC);
 	isc_software_reset();
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
-	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(wSensorOutBitWidth));
+	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(sensor_output_bit_width));
 	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
 	
 	/* Set Continuous Acquisition mode */
@@ -516,7 +516,7 @@ static void configure_isc(void)
 	isc_sub422_enabled(0);
 	isc_sub420_configure(0,0);
 	isc_update_profile();
-	if (sensorMode == RAW_BAYER) {
+	if (sensor_mode == RAW_BAYER) {
 		/* In a single-sensor system, each cell on the sensor
 		 * has a specific color filter and microlens
 		 * positioned above it. The raw data obtained from the
@@ -537,9 +537,9 @@ static void configure_isc(void)
 
 		/* Set up Gamma table with gamma 1/2.2 */
 		for (i = 0; i< GAMMA_ENTRIES; i++){
-			ISC->ISC_GAM_RENTRY[i] = gGam[i];
-			ISC->ISC_GAM_GENTRY[i] = gGam[i];
-			ISC->ISC_GAM_BENTRY[i] = gGam[i];
+			ISC->ISC_GAM_RENTRY[i] = gamma_table[i];
+			ISC->ISC_GAM_GENTRY[i] = gamma_table[i];
+			ISC->ISC_GAM_BENTRY[i] = gamma_table[i];
 		}
 		// Performs a 12-bit to 10-bit with simply 2 bit cut.
 		isc_gamma_enabled(1, 0);
@@ -618,7 +618,7 @@ static void configure_isc(void)
 			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 		}
 	}
-	if (sensorMode == YUV_422) {
+	if (sensor_mode == YUV_422) {
 		isc_cfa_enabled(0);
 		isc_wb_enabled(0);
 		isc_gamma_enabled(0, 0);
@@ -895,29 +895,29 @@ reSensor:
 	for(;;) {
 		key = console_get_char();
 		if ((key == 'Y') || (key == 'y')) {
-			sensorMode = YUV_422;
+			sensor_mode = YUV_422;
 			break;
 		}
 		if ((key == 'B') || (key == 'b')) {
-			sensorMode = RAW_BAYER;
+			sensor_mode = RAW_BAYER;
 			break;
 		}
 	}
 
 #if defined OV2643
-	if (sensor_setup(&twid, &ov2643_profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov2643_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
 #endif
 #if defined OV5640
-	if (sensor_setup(&twid, &ov5640_profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov5640_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
 #endif
 #if defined OV7740
-	if (sensor_setup(&twid, &ov7740_profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov7740_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
 #endif
 #if defined OV9740
-	if (sensor_setup(&twid, &ov9740_profile, QVGA, sensorMode)
+	if (sensor_setup(&twid, &ov9740_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
 #endif
 		printf("-E- Sensor setup failed \n\r");
@@ -925,10 +925,10 @@ reSensor:
 	}
 
 	/* Retrieve sensor output format and size */
-	sensor_get_output(QVGA, sensorMode, &wSensorOutBitWidth,
-			  &wImageWidth, &wImageHeight);
+	sensor_get_output(QVGA, sensor_mode, &sensor_output_bit_width,
+			  &image_width, &image_height);
 
-	if (sensorMode == RAW_BAYER){
+	if (sensor_mode == RAW_BAYER){
 		printf("-----------------------------------\n\r");
 		printf("- '0' Test RGB565 output \n\r");
 		printf("- '1' Test YC422P output \n\r");
@@ -960,9 +960,9 @@ reSensor:
 	}
 
 	printf("-I- Bit width = %d, Image Width = %d, Image Height=%d \n\r",
-	       (unsigned int)(wSensorOutBitWidth + 8),
-	       (unsigned int)wImageWidth,
-	       (unsigned int)wImageHeight);
+	       (unsigned int)(sensor_output_bit_width + 8),
+	       (unsigned int)image_width,
+	       (unsigned int)image_height);
 
 	/* Configure LCD */
 	configure_lcd();
@@ -971,7 +971,7 @@ reSensor:
 	awb_status_machine = AWB_INIT;
 	printf("-I- Preview start. \n\r");
 	printf("-I- press 'S' or 's' to switch ISC mode. \n\r");
-	if (sensorMode == RAW_BAYER) {
+	if (sensor_mode == RAW_BAYER) {
 		printf("-I- press 'A' or 'a' to start auto white balance & AE. \n\r");
 	}
 	for(;;) {
@@ -980,7 +980,7 @@ reSensor:
 			isc_stop_capture();
 			break;
 		}
-		if (sensorMode == RAW_BAYER) {
+		if (sensor_mode == RAW_BAYER) {
 			if ((key == 'A') || (key == 'a')) {
 				auto_white_balance();
 			}
