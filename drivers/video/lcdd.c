@@ -50,6 +50,7 @@
  * Implementation of LCD driver, Include LCD initialization,
  * LCD on/off and LCD backlight control.
  */
+
 /**@{*/
 
 /*----------------------------------------------------------------------------
@@ -60,21 +61,21 @@
 struct _layer_info {
 	struct _layer_data* data;
 	bool                stride_supported;
-	volatile uint32_t  *reg_enable;     /* (Starts following register list: _ER, _DR, _SR, _IER, _IDR, _IMR, _ISR) */
-	volatile uint32_t  *reg_blender;
-	volatile uint32_t  *reg_dma_head;   /* (Starts following register list: _HEAD, _ADDRESS, _CONTROL, _NEXT) */
-	volatile uint32_t  *reg_dma_u_head; /* (Starts following register list: _HEAD, _ADDRESS, _CONTROL, _NEXT) */
-	volatile uint32_t  *reg_dma_v_head; /* (Starts following register list: _HEAD, _ADDRESS, _CONTROL, _NEXT) */
-	volatile uint32_t  *reg_cfg;        /* (Starts following register list: _CFG0, _CFG1 (RGB mode ...) */
-	volatile uint32_t  *reg_win;        /* (Starts following register list: X Y register, W H register) */
-	volatile uint32_t  *reg_stride;
-	volatile uint32_t  *reg_color;      /* (Starts following register list: RGB Default, RGB Key, RGB Mask) */
-	volatile uint32_t  *reg_scale;
-	volatile uint32_t  *reg_clut;
+	volatile uint32_t  *reg_enable;     /**< regs: _ER, _DR, _SR, _IER, _IDR, _IMR, _ISR */
+	volatile uint32_t  *reg_blender;    /**< regs: blender */
+	volatile uint32_t  *reg_dma_head;   /**< regs: _HEAD, _ADDRESS, _CONTROL, _NEXT */
+	volatile uint32_t  *reg_dma_u_head; /**< regs: _HEAD, _ADDRESS, _CONTROL, _NEXT */
+	volatile uint32_t  *reg_dma_v_head; /**< regs: _HEAD, _ADDRESS, _CONTROL, _NEXT */
+	volatile uint32_t  *reg_cfg;        /**< regs: _CFG0, _CFG1 (RGB mode ...) */
+	volatile uint32_t  *reg_win;        /**< regs: X Y register, W H register */
+	volatile uint32_t  *reg_stride;     /**< regs: stride */
+	volatile uint32_t  *reg_color;      /**< regs: RGB Default, RGB Key, RGB Mask */
+	volatile uint32_t  *reg_scale;      /**< regs: scale */
+	volatile uint32_t  *reg_clut;       /**< regs: CLUT */
 };
 
 /** DMA descriptor for LCDC */
-struct _lcdc_descriptor {
+struct _lcdc_dma_desc {
 	uint32_t addr;
 	uint32_t ctrl;
 	uint32_t next;
@@ -82,12 +83,12 @@ struct _lcdc_descriptor {
 
 /** Variable layer data */
 struct _layer_data {
-	struct _lcdc_descriptor *dma_desc;
-	struct _lcdc_descriptor *dma_u_desc;
-	struct _lcdc_descriptor *dma_v_desc;
-	void                    *buffer;
-	uint8_t                  bpp;
-	uint8_t                  num_colors;
+	struct _lcdc_dma_desc *dma_desc;
+	struct _lcdc_dma_desc *dma_u_desc;
+	struct _lcdc_dma_desc *dma_v_desc;
+	void                  *buffer;
+	uint8_t                bpp;
+	uint8_t                num_colors;
 };
 
 static struct _lcdd_layer lcdd_canvas; /**< Current selected canvas */
@@ -97,35 +98,35 @@ static struct _lcdd_layer lcdd_canvas; /**< Current selected canvas */
  *----------------------------------------------------------------------------*/
 
 ALIGNED(64)
-static struct _lcdc_descriptor base_dma_desc;
+static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
 
-static struct _layer_data lcdd_base; /**< Base Layer */
-
-ALIGNED(64)
-static struct _lcdc_descriptor ovr1_dma_desc;
-
-static struct _layer_data lcdd_ovr1; /**< OVR1 Layer */
+static struct _layer_data lcdd_base;         /**< Base Layer */
 
 ALIGNED(64)
-static struct _lcdc_descriptor ovr2_dma_desc;
+static struct _lcdc_dma_desc ovr1_dma_desc;  /**< DMA desc. for OVR1 Layer */
 
-static struct _layer_data lcdd_ovr2; /**< OVR2 Layer */
-
-ALIGNED(64)
-static struct _lcdc_descriptor heo_dma_desc;
+static struct _layer_data lcdd_ovr1;         /**< OVR1 Layer */
 
 ALIGNED(64)
-static struct _lcdc_descriptor heo_dma_u_desc;
+static struct _lcdc_dma_desc ovr2_dma_desc;  /**< DMA desc. for OVR2 Layer */
+
+static struct _layer_data lcdd_ovr2;         /**< OVR2 Layer */
 
 ALIGNED(64)
-static struct _lcdc_descriptor heo_dma_v_desc;
-
-static struct _layer_data lcdd_heo; /**< HEO Layer */
+static struct _lcdc_dma_desc heo_dma_desc;   /**< DMA desc. for HEO Layer */
 
 ALIGNED(64)
-static struct _lcdc_descriptor hcc_dma_desc;
+static struct _lcdc_dma_desc heo_dma_u_desc; /**< DMA desc. for HEO U-UV Layer */
 
-static struct _layer_data lcdd_hcc; /**< HCC Layer */
+ALIGNED(64)
+static struct _lcdc_dma_desc heo_dma_v_desc; /**< DMA desc. for HEO V Layer */
+
+static struct _layer_data lcdd_heo;          /**< HEO Layer */
+
+ALIGNED(64)
+static struct _lcdc_dma_desc hcc_dma_desc;   /**< DMA desc. for HCC Layer */
+
+static struct _layer_data lcdd_hcc;          /**< HCC Layer */
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -194,7 +195,9 @@ static const struct _layer_info lcdd_layers[] = {
 		.reg_clut = &LCDC->LCDC_OVR2CLUT[0],
 	},
 	/* 5: N/A */
-	{ },
+	{
+		.data = NULL,
+	},
 	/* 6: LCDD_CUR */
 	{
 		.data = &lcdd_hcc,
@@ -267,7 +270,7 @@ static uint32_t _get_bits_per_pixel(uint32_t mode_reg)
 /**
  * Enable a LCDC DMA channel
  */
-static void _set_dma_desc(void *buffer, struct _lcdc_descriptor *desc,
+static void _set_dma_desc(void *buffer, struct _lcdc_dma_desc *desc,
 		volatile uint32_t *dma_head_reg)
 {
 	/* Modify descriptor */
@@ -284,7 +287,7 @@ static void _set_dma_desc(void *buffer, struct _lcdc_descriptor *desc,
 /**
  * Disable a LCDC DMA channel
  */
-static void _clear_dma_desc(struct _lcdc_descriptor *desc,
+static void _clear_dma_desc(struct _lcdc_dma_desc *desc,
 		volatile uint32_t *dma_head_reg)
 {
 	/* Modify descriptor */
@@ -947,7 +950,7 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 		_set_dma_desc(buffer, data->dma_desc, layer->reg_dma_head);
 	}
 	cp15_flush_dcache_for_dma((uint32_t)data->dma_desc,
-			((uint32_t)data->dma_desc) + sizeof(struct _lcdc_descriptor));
+			((uint32_t)data->dma_desc) + sizeof(struct _lcdc_dma_desc));
 
 	/* Set window & position */
 	if (layer->reg_win) {
