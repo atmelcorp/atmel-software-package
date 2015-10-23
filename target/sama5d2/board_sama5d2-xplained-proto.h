@@ -214,6 +214,10 @@
 #define ISC_PIN_RST  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
 #define ISC_PIN_PWD  { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
 
+/* =================== PIN ClassD definition ==================== */
+
+#define CLASSD_PINS PINS_CLASSD_IOS1
+
 /* =================== PIN HSDHC definition ===================== */
 
 #define PIN_HSDHC1_CD	{\
