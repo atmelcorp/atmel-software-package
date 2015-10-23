@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -34,43 +34,49 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-/* Standard WAV file header information. */
-typedef struct _WavHeader {
-	/* Contains the letters "RIFF" in ASCII form. */
-	unsigned int chunkID;
-	/* Size of the rest of the chunk following this number. */
-	unsigned int chunkSize;
-	/* Contains the letters "WAVE". */
-	unsigned int format;
-	/* Contains the letters "fmt ". */
-	unsigned int subchunk1ID;
-	/* 16 for PCM.  This is the size of the rest of the Subchunk which follows this number. */
-	unsigned int subchunk1Size;
-	/* PCM = 1 (i.e. Linear quantization). Values other than 1 indicate some form of compression. */
-	unsigned short audioFormat;
-	/* Mono = 1, Stereo = 2, etc. */
-	unsigned short numChannels;
-	/* 8000, 44100, etc. */
-	unsigned int sampleRate;
-	/* SampleRate * NumChannels * BitsPerSample/8 */
-	unsigned int byteRate;
-	/* NumChannels * BitsPerSample/8 */
-	unsigned short blockAlign;
-	/* 8 bits = 8, 16 bits = 16, etc. */
-	unsigned short bitsPerSample;
-	/* Contains the letters "data". */
-	unsigned int subchunk2ID;
-	/* Number of bytes in the data. */
-	unsigned int subchunk2Size;
+#include <stdbool.h>
+#include <stdint.h>
 
-} WavHeader;
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+/** Standard WAV file header information. */
+struct _wav_header {
+	/** Contains the letters "RIFF" in ASCII form. */
+	uint32_t chunk_id;
+	/** Size of the rest of the chunk following this number. */
+	uint32_t chunk_size;
+	/** Contains the letters "WAVE". */
+	uint32_t format;
+	/** Contains the letters "fmt ". */
+	uint32_t subchunk1_id;
+	/** 16 for PCM.  This is the size of the rest of the Subchunk which follows this number. */
+	uint32_t subchunk1_size;
+	/** PCM = 1 (i.e. Linear quantization). Values other than 1 indicate some form of compression. */
+	uint16_t audio_format;
+	/** Mono = 1, Stereo = 2, etc. */
+	uint16_t num_channels;
+	/** 8000, 44100, etc. */
+	uint32_t sample_rate;
+	/** SampleRate * NumChannels * BitsPerSample/8 */
+	uint32_t byte_rate;
+	/** NumChannels * BitsPerSample/8 */
+	uint16_t block_align;
+	/** 8 bits = 8, 16 bits = 16, etc. */
+	uint16_t bits_per_sample;
+	/** Contains the letters "data". */
+	uint32_t subchunk2_id;
+	/** Number of bytes in the data. */
+	uint32_t subchunk2_size;
+};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern unsigned char WAV_IsValid(const WavHeader * header);
+extern bool wav_is_valid(const struct _wav_header *header);
 
-void WAV_DisplayInfo(const WavHeader * header);
+extern void wav_display_info(const struct _wav_header *header);
 
-#endif				//#ifndef WAV_H
+#endif /* #ifndef WAV_H */

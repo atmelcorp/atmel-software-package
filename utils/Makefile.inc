@@ -44,6 +44,7 @@ utils-y += utils/font.o
 utils-y += utils/widget.o
 utils-y += utils/lcd_draw.o
 utils-y += utils/lcd_font.o
+utils-y += utils/wav.o
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
 
