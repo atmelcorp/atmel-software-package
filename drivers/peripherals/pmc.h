@@ -336,7 +336,8 @@ extern void pmc_disable_upll_bias(void);
  * \param id Peripheral ID (ID_xxx)
  * \param clock_source Clock source selection (one of the
  * PMC_PCR_GCKCSS_xxx_CLK constants)
- * \param prescaler Prescaler value
+ * \param div Generated Clock Division Ratio (selected clock is divided by
+ * div + 1)
  */
 extern void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div);
 
@@ -368,7 +369,7 @@ extern uint32_t pmc_get_gck_clock(uint32_t id);
 extern void pmc_configure_audio(struct _pmc_audio_cfg *cfg);
 
 /**
- * \brief Enable audio clock
+ * \brief Enable audio clocks
  * \param pmc_clock if true AUDIOPLLCK is sent to the PMC
  * \param pad_clock if true the external audio pin is driven by AUDIOPINCLK, if
  * false the audio pin is driven low
@@ -376,7 +377,7 @@ extern void pmc_configure_audio(struct _pmc_audio_cfg *cfg);
 extern void pmc_enable_audio(bool pmc_clock, bool pad_clock);
 
 /**
- * \brief Disable audio clock
+ * \brief Disable audio clocks
  */
 extern void pmc_disable_audio(void);
 

@@ -735,7 +735,6 @@ void pmc_disable_gck(uint32_t id)
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
 	PMC->PMC_PCR = PMC_PCR_CMD | (pcr & ~PMC_PCR_GCKEN);
-	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
 }
 
 uint32_t pmc_get_gck_clock(uint32_t id)
@@ -804,19 +803,27 @@ void pmc_configure_audio(struct _pmc_audio_cfg *cfg)
 
 void pmc_enable_audio(bool pmc_clock, bool pad_clock)
 {
-	uint32_t enable_bits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN;
+	uint32_t bits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN;
+	uint32_t nbits = 0;
 
 	if (pad_clock)
-		enable_bits |= PMC_AUDIO_PLL0_PADEN;
-	if (pmc_clock)
-		enable_bits |= PMC_AUDIO_PLL0_PMCEN;
+		bits |= PMC_AUDIO_PLL0_PADEN;
+	else
+		nbits |= PMC_AUDIO_PLL0_PADEN;
 
-	PMC->PMC_AUDIO_PLL0 |= enable_bits;
+	if (pmc_clock)
+		bits |= PMC_AUDIO_PLL0_PMCEN;
+	else
+		nbits |= PMC_AUDIO_PLL0_PADEN;
+
+	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~nbits) | bits;
 }
 
 void pmc_disable_audio()
 {
-	PMC->PMC_AUDIO_PLL0 &= ~(PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN);
+	uint32_t nbits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN |
+		PMC_AUDIO_PLL0_PADEN | PMC_AUDIO_PLL0_PMCEN;
+	PMC->PMC_AUDIO_PLL0 &= ~nbits;
 }
 
 uint32_t pmc_get_audio_pmc_clock(void)
@@ -828,11 +835,18 @@ uint32_t pmc_get_audio_pmc_clock(void)
 	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
 	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
 
-	unsigned long long clk = BOARD_MAIN_CLOCK_EXT_OSC;
+#if 0
+	// TODO: this code should work but fails at runtime (using GCC)
+	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
 	clk *= ((nd + 1) << 22) + fracr;
-	clk >>= 22;
+	clk /= 1 << 22;
 	clk /= qdpmc + 1;
-
+	return (uint32_t)(clk & 0xffffffff);
+#endif
+	double clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	clk *= ((nd + 1) << 22) + fracr;
+	clk /= 1 << 22;
+	clk /= qdpmc + 1;
 	return (uint32_t)clk;
 }
 
@@ -851,11 +865,18 @@ uint32_t pmc_get_audio_pad_clock(void)
 	if (div != 2 && div != 3)
 		return 0;
 
-	unsigned long long clk = BOARD_MAIN_CLOCK_EXT_OSC;
+#if 0
+	// TODO: this code should work but fails at runtime (using GCC)
+	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk >>= 22;
 	clk /= div * qdaudio;
-
+	return (uint32_t)(clk & 0xffffffff);
+#endif
+	double clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	clk *= ((nd + 1) << 22) + fracr;
+	clk /= 1 << 22;
+	clk /= div * qdaudio;
 	return (uint32_t)clk;
 }
 #endif /* CONFIG_HAVE_PMC_AUDIO_CLOCK */
