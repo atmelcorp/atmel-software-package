@@ -34,17 +34,17 @@
  *
  */
 
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "board_memories.h"
 #include "trace.h"
 
-#include "cortex-a/cp15.h"
 #include "cortex-a/mmu.h"
 
+#include "peripherals/hsmc.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pmc.h"
@@ -79,12 +79,40 @@ static void matrix_configure_slave_ddr(void)
 {
 	int i;
 
+	/* Disable write protection */
 	matrix_remove_write_protection(MATRIX0);
+
+	/* External DDR */
+	/* DDR port 0 not used */
 	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++) {
-		matrix_configure_slave_sec(MATRIX0, i, 0xFF, 0xFF, 0xFF);
-		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xF);
+		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
+		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xf);
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
 	}
+}
+#endif
+
+#ifdef CONFIG_HAVE_NANDFLASH
+static void matrix_configure_slave_nand(void)
+{
+	/* Disable write protection */
+	matrix_remove_write_protection(MATRIX1);
+
+	/* NFC Command Register */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, 0xc0, 0xc0, 0xc0);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_128M, 0xc0);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_128M, 0xc0);
+
+	/* NFC SRAM */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, 0x1, 0x1, 0x1);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
 }
 #endif
 
@@ -333,3 +361,11 @@ void board_cfg_ddram (void)
 	trace_fatal("Cannot configure DDRAM: target board have no DDRAM type definition!");
 #endif
 }
+
+#ifdef CONFIG_HAVE_NANDFLASH
+void board_cfg_nand_flash(void)
+{
+	matrix_configure_slave_nand();
+	hsmc_nand_configure(BOARD_NANDFLASH_CS, BOARD_NANDFLASH_BUS_WIDTH);
+}
+#endif
