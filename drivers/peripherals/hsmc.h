@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -33,43 +33,54 @@
 *  Definitions and function prototype for smc module
 */
 
-#ifndef _SMC_
-#define _SMC_
+#ifndef _HSMC_
+#define _HSMC_
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "chip.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Types
+ *         Macros
  *----------------------------------------------------------------------------*/
-typedef union _SmcStatus {
-	uint8_t BStatus;
-	struct _SmcStatusBits {
-		uint8_t smcSts:1,    /**< NAND Flash Controller Status */
-		 xfrDone:1,	     /**< NFC Data Transfer Terminated */
-		 cmdDone:1,	     /**< Command Done */
-		 rbEdge:1,	     /**< Ready/Busy Line 3 Edge Detected*/
-		 hammingReady:1;	  /**< Hamming ecc ready */
-	} bStatus;
-} SmcStatus;
+
+#define hsmc_nfc_configure(mode)       {HSMC->HSMC_CFG = mode ;}
+#define hsmc_nfc_enable()              {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCEN;}
+#define hsmc_nfc_disable()             {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCDIS;}
+#define hsmc_nfc_get_status()          {HSMC->HSMC_SR;}
+
+#define hsmc_nfc_enable_spare_read()   {HSMC->HSMC_CFG |= HSMC_CFG_RSPARE;}
+#define hsmc_nfc_disable_spare_read()  {HSMC->HSMC_CFG &= (~HSMC_CFG_RSPARE);}
+#define hsmc_nfc_enable_spare_write()  {HSMC->HSMC_CFG |= HSMC_CFG_WSPARE;}
+#define hsmc_nfc_disable_spare_write() {HSMC->HSMC_CFG &= (~HSMC_CFG_WSPARE);}
+
+#define hsmc_pmecc_reset()             {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_RST; }
+#define hsmc_pmecc_or_reset()          {HSMC->HSMC_PMECCTRL |= HSMC_PMECCTRL_RST; }
+#define hsmc_pmecc_data_phase()        {HSMC->HSMC_PMECCTRL |= HSMC_PMECCTRL_DATA; }
+#define hsmc_pmecc_enable_write()      {HSMC->HSMC_PMECCFG |= HSMC_PMECCFG_NANDWR;}
+#define hsmc_pmecc_enable_read()       {HSMC->HSMC_PMECCFG &= (~HSMC_PMECCFG_NANDWR);}
+ 
+#define hsmc_pmecc_error_status()      (HSMC->HSMC_PMECCISR )
+#define hsmc_pmecc_enable()            {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_ENABLE;}
+#define hsmc_pmecc_disable()           {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_DISABLE;}
+#define hsmc_pmecc_auto_enable()       {HSMC->HSMC_PMECCFG |= HSMC_PMECCFG_AUTO;}
+#define hsmc_pmecc_auto_disable()      {HSMC->HSMC_PMECCFG &= (~HSMC_PMECCFG_AUTO);}
+#define hsmc_pmecc_auto_apare_en()     ((HSMC->HSMC_PMECCFG & HSMC_PMECCFG_SPAREEN) == HSMC_PMECCFG_SPAREEN) 
+#define hsmc_pmecc(i)                  (HSMC->SMC_PMECC[i])
 
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
-/*
- * NFC definitions
- */
 
-/** Base address of NFC SRAM */
-#define NFC_SRAM_BASE_ADDRESS 0x100000
-/** Base address for NFC Address Command */
-#define NFC_CMD_BASE_ADDR     0x90000000
+#define HSMC_SR_RB_EDGE0     (0x1u << 24)
 
 /* -------- NFCADDR_CMD : NFC Address Command -------- */
+
 #define NFCADDR_CMD_CMD1      (0xFFu <<  2)	/* Command Register Value for Cycle 1 */
 #define NFCADDR_CMD_CMD2      (0xFFu << 10)	/* Command Register Value for Cycle 2 */
 #define NFCADDR_CMD_VCMD2     (0x1u << 18)	/* Valid Cycle 2 Command */
@@ -95,59 +106,34 @@ typedef union _SmcStatus {
 #define NFCADDR_CMD_NFCWR    (0x1u << 26)	/* NFC Write Enable */
 #define NFCADDR_CMD_NFCCMD   (0x1u << 27)	/* NFC Command Enable */
 
-/*
- * ECC definitions (Hsiao Code Errors)
- */
-
-/** A single bit was incorrect but has been recovered. */
-#define Hsiao_ERROR_SINGLEBIT         1
-
-/** The original code has been corrupted. */
-#define Hsiao_ERROR_ECC               2
-
-/** Multiple bits are incorrect in the data and they cannot be corrected. */
-#define Hsiao_ERROR_MULTIPLEBITS      3
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/*
- * NFC functions
- */
+extern void hsmc_nand_configure(uint8_t cs, uint8_t bus_width);
 
-extern void SMC_NFC_Configure(uint32_t mode);
-extern void SMC_NFC_Reset(void);
-extern void SMC_NFC_EnableNfc(void);
-extern void SMC_NFC_EnableSpareRead(void);
-extern void SMC_NFC_DisableSpareRead(void);
-extern void SMC_NFC_EnableSpareWrite(void);
-extern void SMC_NFC_DisableSpareWrite(void);
-extern uint8_t SMC_NFC_isSpareRead(void);
-extern uint8_t SMC_NFC_isSpareWrite(void);
-extern uint8_t SMC_NFC_isTransferComplete(void);
-extern uint8_t SMC_NFC_isReadyBusy(void);
-extern uint8_t SMC_NFC_isNfcBusy(void);
-extern uint32_t SMC_NFC_GetStatus(void);
+extern void hsmc_nor_configure(uint8_t cs, uint8_t bus_width);
 
-extern void SMC_NFC_SendCommand(uint32_t cmd, uint32_t addressCycle,
-				uint32_t cycle0);
-extern void SMC_NFC_Wait_CommandDone(void);
-extern void SMC_NFC_Wait_XfrDone(void);
-extern void SMC_NFC_Wait_RBbusy(void);
-extern void SMC_NFC_Wait_HammingReady(void);
+extern void hsmc_nfc_reset(void);
 
-#ifdef _SMC_ECC_PRESENT
-extern void SMC_ECC_Configure(uint32_t type, uint32_t pageSize);
-extern uint32_t SMC_ECC_GetCorrectoinType(void);
-extern uint8_t SMC_ECC_GetStatus(uint8_t eccNumber);
+extern bool hsmc_nfc_is_spare_read_enabled(void);
 
-extern void SMC_ECC_GetValue(uint32_t * ecc);
-extern void SMC_ECC_GetEccParity(uint32_t pageDataSize, uint8_t * code,
-				 uint8_t busWidth);
-extern uint8_t SMC_ECC_VerifyHsiao(uint8_t * data, uint32_t size,
-				   const uint8_t * originalCode,
-				   const uint8_t * verifyCode,
-				   uint8_t busWidth);
-#endif
-#endif				/* #ifndef _SMC_ */
+extern bool hsmc_nfc_is_spare_write_enabled(void);
+
+extern bool hsmc_nfc_is_nfc_busy(void);
+
+extern void hsmc_wait_rb(void);
+
+extern void hsmc_nfc_send_cmd(uint32_t cmd, uint32_t address_cycle, uint32_t cycle0);
+
+extern void hsmc_nfc_wait_cmd_done(void);
+
+extern void hsmc_nfc_wait_xfr_done(void);
+
+extern void hsmc_nfc_wait_rb_busy(void);
+
+extern void hsmc_nfc_wait_hamming_ready(void);
+
+extern void hsmc_pmecc_wait_ready(void);
+
+#endif /* _HSMC_ */
