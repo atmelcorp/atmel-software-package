@@ -152,31 +152,26 @@ const static struct _l2cc_control l2cc_cfg = {
 
 static void matrix_configure_slave_ddr(void)
 {
-	int port;
+	int i;
 
 	/* Disable write protection */
 	matrix_remove_write_protection(MATRIX0);
 
-	/* Partition internal SRAM */
-	matrix_configure_slave_sec(MATRIX0, 11, 0, 0, 0);
-	matrix_set_slave_region_size(MATRIX0, 11, MATRIX_AREA_128K, 0x1);
-	matrix_set_slave_split_addr(MATRIX0, 11, MATRIX_AREA_64K, 0x1);
+	/* Internal SRAM */
+	matrix_configure_slave_sec(MATRIX0,
+			H64MX_SLAVE_SRAM,0, 0, 0);
+	matrix_set_slave_region_size(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_split_addr(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_64K, 0x1);
 
-	/* Partition external DDR */
+	/* External DDR */
 	/* DDR port 0 not used from NWd */
-	for (port = 1; port < 8; port++)
+	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++)
 	{
-		matrix_configure_slave_sec(MATRIX0,
-					   H64MX_DDR_SLAVE_PORT0 + port,
-					   0xff, 0xff, 0xff);
-		matrix_set_slave_region_size(MATRIX0,
-					     H64MX_DDR_SLAVE_PORT0 + port,
-					     MATRIX_AREA_128M,
-					     0x1);
-		matrix_set_slave_split_addr(MATRIX0,
-					     H64MX_DDR_SLAVE_PORT0 + port,
-					     MATRIX_AREA_128M,
-					     0xF);
+		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
+		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
+		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xF);
 	}
 }
 
@@ -185,18 +180,30 @@ static void matrix_configure_slave_nand(void)
 	/* Disable write protection */
 	matrix_remove_write_protection(MATRIX0);
 
-	/* Partition internal SRAM */
-	matrix_configure_slave_sec(MATRIX0, 11, 0x1, 0x1, 0x1);
-	matrix_set_slave_region_size(MATRIX0, 11, MATRIX_AREA_128K, 0x1);
-	matrix_set_slave_split_addr(MATRIX0, 11, MATRIX_AREA_128K, 0x1);
+	/* Internal SRAM */
+	matrix_configure_slave_sec(MATRIX0,
+			H64MX_SLAVE_SRAM, 0x1, 0x1, 0x1);
+	matrix_set_slave_region_size(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_split_addr(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
 
-	matrix_configure_slave_sec(MATRIX1, 3, 0xFF, 0xFF, 0xFF);
-	matrix_set_slave_region_size(MATRIX1, 3, MATRIX_AREA_8M, 0xFF);
-	matrix_set_slave_split_addr(MATRIX1, 3, MATRIX_AREA_8M, 0xFF);
+	/* NFC Command Register */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, 0xFF, 0xFF, 0xFF);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xFF);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xFF);
 
-	matrix_configure_slave_sec(MATRIX1, 4, 0xFF,0xFF,0xFF);
-	matrix_set_slave_region_size(MATRIX1, 4, MATRIX_AREA_8K, 0x1);
-	matrix_set_slave_split_addr(MATRIX1, 4, MATRIX_AREA_128M, 0x4F);
+	/* NFC SRAM */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, 0xFF,0xFF,0xFF);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_128M, 0x4F);
+
 	MATRIX1->MATRIX_MEIER = 0x3FF;
 }
 

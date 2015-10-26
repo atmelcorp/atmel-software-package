@@ -140,6 +140,39 @@
 /*@}*/
 
 /* ************************************************************************** */
+/*   SLAVE MATRIX ID DEFINITIONS FOR SAMA5D2x */
+/* ************************************************************************** */
+/** \addtogroup SAMA5D2x_matrix Matrix Ids Definitions */
+/*@{*/
+
+#define H64MX_SLAVE_BRIDGE_H32MX    0    /**< Bridge from H64MX to H32MX */
+#define H64MX_SLAVE_APB             1    /**< H64MX APB - User interfaces */
+#define H64MX_SLAVE_SDMMC           1    /**< SDMMC0 - SDMMC1 */
+#define H64MX_SLAVE_DDR_PORT0       2    /**< DDR Port 0 */
+#define H64MX_SLAVE_DDR_PORT1       3    /**< DDR Port 1 */
+#define H64MX_SLAVE_DDR_PORT2       4    /**< DDR Port 2 */
+#define H64MX_SLAVE_DDR_PORT3       5    /**< DDR Port 3 */
+#define H64MX_SLAVE_DDR_PORT4       6    /**< DDR Port 4 */
+#define H64MX_SLAVE_DDR_PORT5       7    /**< DDR Port 5 */
+#define H64MX_SLAVE_DDR_PORT6       8    /**< DDR Port 6 */
+#define H64MX_SLAVE_DDR_PORT7       9    /**< DDR Port 7 */
+#define H64MX_SLAVE_SRAM           10    /**< Internal SRAM 128K */
+#define H64MX_SLAVE_L2C_SRAM       11    /**< Internal SRAM 128K (L2) */
+#define H64MX_SLAVE_QSPI0          12    /**< QSPI0 */
+#define H64MX_SLAVE_QSPI1          13    /**< QSPI1 */
+#define H64MX_SLAVE_AESB           14    /**< AESB */
+
+#define H32MX_SLAVE_BRIDGE_H64MX    0    /**< Bridge from H32MX to H64MX */
+#define H32MX_SLAVE_APB0            1    /**< H32MX APB0 - User interfaces */
+#define H32MX_SLAVE_APB1            2    /**< H32MX APB1 - User interfaces */
+#define H32MX_SLAVE_EBI             3    /**< External Bus Interface CS0..CS3 */
+#define H32MX_SLAVE_NFC_CMD         3    /**< NFC Command Register */
+#define H32MX_SLAVE_NFC_SRAM        4    /**< NFC SRAM */
+#define H32MX_SLAVE_USB             5    /**< USB */
+
+/*@}*/
+
+/* ************************************************************************** */
 /* INCLUDE FOR SAMA5D2x */
 /* ************************************************************************** */
 
