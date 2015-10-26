@@ -44,7 +44,7 @@ void matrix_set_slave_split_addr(Matrix* mtx, uint8_t slave_id,
 {
 	uint8_t i = mask, j = 0;
 	uint32_t value = 0;
-	for (i = 1; i <= mask; i <<= 1, j += 4) {
+	for (i = 1; (i <= mask) && (j < 32); i <<= 1, j += 4) {
 		if (i & mask)
 			value |= area_size << j;
 	}
@@ -57,7 +57,7 @@ void matrix_set_slave_region_size(Matrix* mtx, uint8_t slave_id,
 	assert(slave_id != 0);
 	uint8_t i = mask, j = 0;
 	uint32_t value = 0;
-	for (i = 1; i <= mask; i <<= 1, j += 4) {
+	for (i = 1; (i <= mask) && (j < 32 ); i <<= 1, j += 4) {
 		if (i & mask)
 			value |= area_size << j;
 	}
