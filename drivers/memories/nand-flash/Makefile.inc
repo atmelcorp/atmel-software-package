@@ -26,12 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/memories/ddram.o
-
-drivers-$(CONFIG_HAVE_AT25DFX) += drivers/memories/at25.o
-drivers-$(CONFIG_HAVE_AT24MAC402) += drivers/memories/at24.o
-drivers-$(CONFIG_HAVE_QSPIFLASH) += drivers/memories/qspiflash.o
-
-ifeq ($(CONFIG_HAVE_NANDFLASH),y)
-include $(TOP)/drivers/memories/nand-flash/Makefile.inc
-endif
+drivers-y += drivers/memories/nand-flash/nand_flash_api.o
+drivers-y += drivers/memories/nand-flash/nand_flash_raw.o
+drivers-y += drivers/memories/nand-flash/nand_flash_ecc.o
+drivers-y += drivers/memories/nand-flash/nand_flash_skip_block.o
+drivers-y += drivers/memories/nand-flash/nand_flash_onfi.o
+drivers-y += drivers/memories/nand-flash/nand_flash_model.o
+drivers-y += drivers/memories/nand-flash/nand_flash_model_list.o
+drivers-y += drivers/memories/nand-flash/nand_flash_spare_scheme.o
+drivers-y += drivers/memories/nand-flash/nand_flash_dma.o

@@ -1,0 +1,202 @@
+/* ----------------------------------------------------------------------------
+ *         SAM Software Package License
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2013, Atmel Corporation
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
+ */
+
+/**
+ * \page raw_nand_page RawNandflash
+ *
+ * \section Purpose
+ *
+ * RawNandflash is a bl NANDFLASH driver, it directly interacts with hardware's register to
+ * operate NANDFLASH interface, and it is called by upper layer drivers, such as EccNandFlash
+ *
+ * \section Usage
+ *
+ * -# nand_raw_initialize() is used to initializes a RawNandFlash instance based on the given
+ *      model and physical interface. If no model is provided, then the function tries to auto-detect
+ *      it.
+ * -# nand_raw_reset() is used to reset a NANDFLASH device.
+ * -# nand_raw_read_id() is used to read a NANDFLASH's id.
+ * -# nand_raw_erase_block() is used to erase a certain NANDFLASH device's block.
+ * -# nand_raw_read_page() and nand_raw_write_page is used to do read/write operation.
+ * -# nand_raw_copy_page() is used to issue copy-page command to NANDFLASH device.
+ * -# nand_raw_copy_block() calls nand_raw_copy_page to do a NANDFLASH block copy.
+*/
+
+
+#ifndef NAND_FLASH_RAW_H
+#define NAND_FLASH_RAW_H
+
+/*------------------------------------------------------------------------------ */
+/*         Headers                                                               */
+/*------------------------------------------------------------------------------ */
+
+#include <stdint.h>
+
+#include "peripherals/pio.h"
+#include "nand_flash_model.h"
+
+/*------------------------------------------------------------------------------ */
+/*         Types                                                                 */
+/*------------------------------------------------------------------------------ */
+
+/** Describes a physical NandFlash chip connected to the SAM micro-controller. */
+struct _raw_nand_flash {
+	/** Model describing this NandFlash characteristics. */
+	struct _nand_flash_model model;
+
+	/** Address for sending commands to the NandFlash. */
+	uint32_t command_addr;
+
+	/** Address for sending addresses to the NandFlash */
+	uint32_t address_addr;
+
+	/** Address for sending data to the NandFlash. */
+	uint32_t data_addr;
+
+	/** Pin used to enable the NandFlash chip. */
+	struct _pin pin_chip_enable;
+
+	/** Pin used to monitor the ready/busy signal from the NandFlash. */
+	struct _pin pin_ready_busy;
+};
+
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
+/** NANDFLASH commands */
+
+#define COMMAND_READ_1                  0x00
+#define COMMAND_READ_2                  0x30
+#define COMMAND_COPYBACK_READ_1         0x00
+#define COMMAND_COPYBACK_READ_2         0x35
+#define COMMAND_COPYBACK_PROGRAM_1      0x85
+#define COMMAND_COPYBACK_PROGRAM_2      0x10
+#define COMMAND_RANDOM_OUT              0x05
+#define COMMAND_RANDOM_OUT_2            0xE0
+#define COMMAND_RANDOM_IN               0x85
+#define COMMAND_READID                  0x90
+#define COMMAND_WRITE_1                 0x80
+#define COMMAND_WRITE_2                 0x10
+#define COMMAND_ERASE_1                 0x60
+#define COMMAND_ERASE_2                 0xD0
+#define COMMAND_STATUS                  0x70
+#define COMMAND_RESET                   0xFF
+
+/** NANDFLASH commands (small blocks) */
+#define COMMAND_READ_A                  0x00
+#define COMMAND_READ_C                  0x50
+
+#define ENABLE_CE(raw)
+#define DISABLE_CE(raw)
+
+/** Internal cast macros */
+#define MODEL(raw)  ((struct _nand_flash_model *) raw)
+
+/** Number of tries for erasing a block */
+#define NUMERASETRIES 2
+
+/** Number of tries for writing a block */
+#define NUMWRITETRIES 2
+
+/** Number of tries for copying a block */
+#define NUMCOPYTRIES  2
+
+/** NANDFLASH status bit mask */
+#define STATUS_BIT_0 0x01
+#define STATUS_BIT_1 0x02
+#define STATUS_BIT_5 0x20
+#define STATUS_BIT_6 0x40
+
+#define READ_STATUS_TIMEOUT 0xFFFF
+
+/*
+ * NFC Transfer parameter
+ */
+#define SMC_TRANS_WITH_DMA (1 << 0)
+#define SMC_TRANS_HOST_EN  (1 << 1)
+
+/*
+ * NFC ALE CLE command parameter
+ */
+#define ALE_COL_EN   (1 << 0)
+#define ALE_ROW_EN   (1 << 1)
+#define CLE_WRITE_EN (1 << 2)
+#define CLE_DATA_EN  (1 << 3)
+#define CLE_VCMD2_EN (1 << 4)
+
+/*------------------------------------------------------------------------------ */
+/*         Exported functions                                                    */
+/*------------------------------------------------------------------------------ */
+
+extern uint8_t nand_raw_initialize(
+		struct _raw_nand_flash *raw,
+		const struct _nand_flash_model *model,
+		uint32_t command_addr,
+		uint32_t address_addr,
+		uint32_t data_addr,
+		const struct _pin *pin_chip_enable,
+		const struct _pin *pin_ready_busy);
+
+extern void nand_raw_reset(const struct _raw_nand_flash *raw);
+
+extern uint32_t nand_raw_read_id(const struct _raw_nand_flash *raw);
+
+extern uint8_t nand_raw_erase_block(
+		const struct _raw_nand_flash *raw,
+		uint16_t block);
+
+extern uint8_t nand_raw_read_page(
+		const struct _raw_nand_flash *raw,
+		uint16_t block,
+		uint16_t page,
+		void *data,
+		void *spare);
+
+extern uint8_t nand_raw_write_page(
+		const struct _raw_nand_flash *raw,
+		uint16_t block,
+		uint16_t page,
+		void *data,
+		void *spare);
+
+extern uint8_t nand_raw_copy_page(
+		const struct _raw_nand_flash *raw,
+		uint16_t source_block,
+		uint16_t source_page,
+		uint16_t dest_block,
+		uint16_t destPage);
+
+extern uint8_t nand_raw_copy_block(
+		const struct _raw_nand_flash *raw,
+		uint16_t source_block,
+		uint16_t dest_block);
+
+
+#endif /* NAND_FLASH_RAW_H */
