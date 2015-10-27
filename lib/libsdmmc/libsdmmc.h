@@ -38,7 +38,7 @@
 
 #include <stdint.h>
 #include "libsdmmc/sdmmc_cmd.h"
-#include "libsdmmc/sdmmc.h"
+#include "libsdmmc/sdmmc_api.h"
 #include "libsdmmc/sdio.h"
 #include "libsdmmc/sdmmc_hal.h"
 //#include "include\sdmmc_dbg.h"

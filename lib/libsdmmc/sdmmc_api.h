@@ -68,11 +68,11 @@
  *  For more details, see \ref sdmmc_drv.
  *
  *  Related Files:\n
- *  sdmmc.h,\n
+ *  sdmmc_api.h,\n
  *  sdio.h,\n
  *  sdmmc_cmd.h,\n
  *  sdmmc_hal.h,\n
- *  sdmmc.c.\n
+ *  sdmmc_api.c.\n
  *
  * \sa \ref sdmmc_lib
  *
@@ -86,8 +86,8 @@
  *  @}
  */
 
-#ifndef _SDMMC_H
-#define _SDMMC_H
+#ifndef _SDMMC_API_H
+#define _SDMMC_API_H
 
 /*------------------------------------------------------------------------------
  *      Includes
@@ -598,4 +598,4 @@ const char * SD_StringifyRetCode(uint32_t dwRCode);
 /**     @}*/
 /** @}*/
 /**@}*/
-#endif				/* #define _SDMMC_H */
+#endif				/* #define _SDMMC_API_H */

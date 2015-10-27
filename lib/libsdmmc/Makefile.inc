@@ -32,7 +32,7 @@ CFLAGS_INC += -I$(TOP)/lib/libsdmmc
 
 lib-y += libsdmmc.a
 
-libsdmmc-y := lib/libsdmmc/sdmmc.o
+libsdmmc-y := lib/libsdmmc/sdmmc_api.o
 
 libsdmmc-$(CONFIG_LIB_FATFS) += lib/libsdmmc/sdmmc_ff.o
 
