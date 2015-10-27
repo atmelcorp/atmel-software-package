@@ -106,8 +106,8 @@ $(BUILDDIR)/$(BINNAME).bin: $(BUILDDIR)/$(BINNAME).elf
 	$(Q)$(OBJCOPY) -O binary $< $@
 
 clean:
-	@rm -rf $(BUILDDIR)
-	@rm -f $(BINNAME).eww $(BINNAME).ewp $(BINNAME).ewd
+	@rm -rf $(BUILDDIR) settings
+	@rm -f $(BINNAME).eww $(BINNAME).ewp $(BINNAME).ewd $(BINNAME).ewt $(BINNAME).dep
 
 size: $(BUILDDIR)/$(BINNAME).elf
 	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
