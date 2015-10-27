@@ -34,6 +34,7 @@ function _to_win_path() {
 function _insert_deps() {
     local section=$1
     local input=()
+    local empty_group=true
     local tmpxml=$(mktemp)
 
     while read -r line
@@ -42,8 +43,6 @@ function _insert_deps() {
     done
 
     (
-        echo -e "    <group>\n      <name>$section</name>"
-
         for path in ${input[@]}
         do
             path=${path//.o/.c}
@@ -56,10 +55,20 @@ function _insert_deps() {
                 exit 3
             fi
 
+            if [ "$empty_group" = true ]
+            then
+                empty_group=false
+                echo -e "  <group>\n    <name>$section</name>"
+            fi
+
             local win_path=$(_to_win_path $path)
-            echo -e "      <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
+            echo -e "    <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
         done
-        echo -e "    </group>\n"
+
+        if [ "$empty_group" = false ]
+        then
+            echo -e "  </group>"
+        fi
     ) > $tmpxml
 
     sed -e "/__REPLACE_DEP_LIST__/r $tmpxml" < $TEMPLATE_FILE
@@ -162,7 +171,7 @@ function _insert_project_files() {
             fi
 
             local win_path=$(_to_win_path $path)
-            echo -e "    <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
+            echo -e "  <file><name>\$PROJ_DIR\$\\$win_path</name></file>"
         done
     ) > $tmpxml
 
