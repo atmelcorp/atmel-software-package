@@ -51,7 +51,8 @@
 #define _STRINGY_EXPAND(x) #x
 #define STRINGIFY(x) _STRINGY_EXPAND(x)
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8)
+#if defined(__GNUC__) && \
+		(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8))
 	#define SWAP(a, b) do {		\
 		__auto_type _swp = (a);	\
 		(a) = (b);		\
