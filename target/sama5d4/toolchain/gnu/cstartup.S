@@ -190,6 +190,16 @@ resetHandler:
 	ldr     pc, =1f
 1:
 
+/* Relocate */
+	ldr     r0, =_etext
+	ldr     r1, =_srelocate
+	ldr     r2, =_erelocate
+1:
+	cmp     r1, r2
+	ldrcc   r3, [r0], #4
+	strcc   r3, [r1], #4
+	bcc     1b
+
 /* Set up the fast interrupt stack pointer */
 
 	mrs     r0, CPSR

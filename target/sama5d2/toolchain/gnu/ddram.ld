@@ -39,10 +39,9 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram        (W!RX) : ORIGIN = 0x200000, LENGTH = 0x20000     /* sram, 128K */
-	ddr         (W!RX) : ORIGIN = 0x20000000, LENGTH = 0x3FF8000 /* ddr, 64M-16K */
-	ddr_stack   (W!RX) : ORIGIN = 0x23FF8000, LENGTH = 0x4000    /* ddr, 16K */
-	ddr_nocache  (RWX) : ORIGIN = 0x24000000, LENGTH = 16M       /* ddr, 16M */
+	sram        (W!RX) : ORIGIN = 0x200000,   LENGTH = 128K /* sram */
+	ddr         (W!RX) : ORIGIN = 0x20000000, LENGTH = 64M  /* ddr */
+	ddr_nocache  (RWX) : ORIGIN = 0x24000000, LENGTH = 16M  /* ddr (non-cached) */
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
@@ -105,10 +104,29 @@ SECTIONS
 		*(.data .data.*);
 		. = ALIGN(4);
 		_efixed = .;            /* End of text section */
-	} > ddr
+	} >ddr
 
+	/* .ARM.exidx is sorted, so has to go in its own output section.  */
+	PROVIDE_HIDDEN (__exidx_start = .);
+	.ARM.exidx :
+	{
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+	} >ddr
+	PROVIDE_HIDDEN (__exidx_end = .);
+
+	/* _etext must be just before .relocate section */
 	. = ALIGN(4);
 	_etext = .;
+
+	.relocate :
+	{
+		. = ALIGN(4);
+		_srelocate = .;
+		*(.vectors);
+		*(.ramfunc)
+		. = ALIGN(4);
+		_erelocate = .;
+	} >sram AT>ddr
 
 	.region_sram (NOLOAD) :
 	{
@@ -139,17 +157,10 @@ SECTIONS
 		. = ALIGN(4);
 		_ebss = . ;
 		_ezero = .;
-	} > ddr
+	} >ddr
 
-	/* .ARM.exidx is sorted, so has to go in its own output section.  */
-	PROVIDE_HIDDEN (__exidx_start = .);
-	.ARM.exidx :
+	.stack (NOLOAD) :
 	{
-		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > sram
-	PROVIDE_HIDDEN (__exidx_end = .);
-
-	.stack : {
 		__stack_start__ = . ;
 
 		. += IRQ_STACK_SIZE;
@@ -181,9 +192,5 @@ SECTIONS
 		_heap = . ;
 
 		__stack_end__ = .;
-	} >ddr_stack
-
-	_end = . ;
-	__end = . ;
-	PROVIDE(end = .);
+	} >ddr
 }

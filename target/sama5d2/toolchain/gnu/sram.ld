@@ -31,7 +31,7 @@
  *      Linker script for running in internal SRAM on the SAMA5D2
  *----------------------------------------------------------------------------*/
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(entry)
 SEARCH_DIR(.)
@@ -39,10 +39,9 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram       (W!RX) : ORIGIN = 0x200000, LENGTH = 0x1C000 /* sram, 112K */
-	stack_ram  (W!RX) : ORIGIN = 0x21C000, LENGTH = 0x4000  /* sram, 16K */
-	ddr        (W!RX) : ORIGIN = 0x20000000, LENGTH = 64M   /* ddr, 64M */
-	dma_ddr    (RWX)  : ORIGIN = 0x24000000, LENGTH = 16M   /* ddr, 16M */
+	sram        (W!RX) : ORIGIN = 0x200000,   LENGTH = 128K /* sram */
+	ddr         (W!RX) : ORIGIN = 0x20000000, LENGTH = 64M  /* ddr */
+	ddr_nocache  (RWX) : ORIGIN = 0x24000000, LENGTH = 16M  /* ddr (non-cached) */
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
@@ -106,18 +105,22 @@ SECTIONS
 		*(.data .data.*);
 		. = ALIGN(4);
 		_efixed = .;            /* End of text section */
-	} > sram
 
-	. = ALIGN(4);
-	_etext = .;
+		/* no relocation when running from sram */
+		_srelocate = .;
+		_erelocate = .;
+	} >sram
 
 	/* .ARM.exidx is sorted, so has to go in its own output section.  */
 	PROVIDE_HIDDEN (__exidx_start = .);
 	.ARM.exidx :
 	{
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > sram
+	} >sram
 	PROVIDE_HIDDEN (__exidx_end = .);
+
+	. = ALIGN(4);
+	_etext = .;
 
 	.region_sram (NOLOAD) :
 	{
@@ -135,7 +138,7 @@ SECTIONS
 	{
 		. = ALIGN(4);
 		*(.region_ddr_nocache)
-	} >dma_ddr
+	} >ddr_nocache
 
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
@@ -148,7 +151,7 @@ SECTIONS
 		. = ALIGN(4);
 		_ebss = . ;
 		_ezero = .;
-	} > sram
+	} >sram
 
 	.stack (NOLOAD) :
 	{
@@ -183,7 +186,7 @@ SECTIONS
 		_heap = . ;
 
 		__stack_end__ = .;
-	} >stack_ram
+	} >sram
 
 	_end = . ;
 	__end = . ;
