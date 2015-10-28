@@ -210,7 +210,11 @@
 
 /* =================== PIN ClassD definition ==================== */
 
-#define CLASSD_PINS PINS_CLASSD_IOS1
+#define BOARD_CLASSD_PINS      { PIN_CLASSD_R0_IOS1, PIN_CLASSD_R1_IOS1,\
+                                 PIN_CLASSD_R2_IOS1, PIN_CLASSD_R3_IOS1 }
+#define BOARD_CLASSD_MODE      CLASSD_OUTPUT_FULL_BRIDGE
+#define BOARD_CLASSD_MONO      true
+#define BOARD_CLASSD_MONO_MODE CLASSD_MONO_MIXED
 
 /* =================== PIN HSDHC definition ===================== */
 

@@ -123,7 +123,7 @@
 
 #define INITIAL_ATTENUATION 30
 
-static const struct _pin classd_pins[] = CLASSD_PINS;
+static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -135,11 +135,11 @@ static struct _xdmad_channel*  dma_channel;
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
 	.sample_rate = 48000,
-	.mode = CLASSD_OUTPUT_FULL_BRIDGE,
+	.mode = BOARD_CLASSD_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,
 	.swap_channels = false,
-	.mono = true,
-	.mono_mode = CLASSD_MONO_MIXED,
+	.mono = BOARD_CLASSD_MONO,
+	.mono_mode = BOARD_CLASSD_MONO_MODE,
 	.left_enable = true,
 	.right_enable = true,
 };
