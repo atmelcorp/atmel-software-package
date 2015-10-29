@@ -2056,18 +2056,18 @@ mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth)
 {
 	uint8_t error;
 	uint32_t status;
-	MmcCmd6Arg cmd6Arg =
-	    { 0x1, MMC_EXT_BUS_WIDTH_I, MMC_EXT_BUS_WIDTH_1BIT, 0 };
-	switch (busWidth) {
-	case 4:
-		cmd6Arg.value = MMC_EXT_BUS_WIDTH_4BITS;
-		break;
-	case 8:
+	MmcCmd6Arg cmd6Arg = {
+		.access = 0x3,   /* Write byte in the EXT_CSD register */
+		.index = MMC_EXT_BUS_WIDTH_I,   /* Target byte in EXT_CSD */
+		.value = MMC_EXT_BUS_WIDTH_1BIT,   /* Byte value */
+	};
+
+	if (busWidth == 8)
 		cmd6Arg.value = MMC_EXT_BUS_WIDTH_8BUTS;
-		break;
-	case 1:
-		return SDMMC_ERROR_NOT_SUPPORT;
-	}
+	else if (busWidth == 4)
+		cmd6Arg.value = MMC_EXT_BUS_WIDTH_4BITS;
+	else if (busWidth != 1)
+		return SDMMC_ERROR_PARAM;
 	error = MmcCmd6(pSd, &cmd6Arg, &status);
 	if (error) {
 		trace_error("SdMmcSetBuswidth.Cmd6: %d\n\r", error);
@@ -2088,14 +2088,7 @@ mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth)
 #elif defined (  __GNUC__  )	/* GCC CS3 */
 __attribute__ ((__section__(".region_dma_nocache")))
 #endif
-uint8_t data_8bits[8];
-
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((__section__(".region_dma_nocache")))
-#endif
-uint8_t data_4bits[4];
+uint8_t bustest_data[8] = { 0 };
 
 #if defined ( __ICCARM__ )	/* IAR Ewarm */
 #pragma location = "region_dma_nocache"
@@ -2107,41 +2100,53 @@ uint8_t read_data[8];
 static uint8_t
 mmcDetectBuswidth(sSdCard * pSd)
 {
-	uint8_t *pData;
-	uint8_t busWidth;
-	uint32_t len;
-	uint32_t i;
-	uint8_t error;
-	data_8bits[0] = 0xaa;
-	data_8bits[1] = 0x55;
-	data_8bits[2] = 0x0;
-	data_8bits[3] = 0x0;
-	data_8bits[4] = 0x0;
-	data_8bits[5] = 0x0;
-	data_8bits[6] = 0x0;
-	data_8bits[7] = 0x0;
-	for (busWidth = 8, len = 2; busWidth != 0; busWidth -= 4, len--) {
-		error = mmcSelectBuswidth(pSd, busWidth);
-		if (error) {
-			trace_error("mmcDetectBuswidth %d\n\r", error);
-			return 0;
+	uint8_t error, busWidth, mask = 0xff, i, len;
+
+	for (busWidth = 8; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) {
+		error = _HwSetBusWidth(pSd, busWidth);
+		if (error)
+			continue;
+		switch (busWidth) {
+		case 8:
+			bustest_data[0] = 0x55;
+			bustest_data[1] = 0xaa;
+			break;
+		case 4:
+			bustest_data[0] = 0x5a;
+			bustest_data[1] = 0;
+			break;
+		case 1:
+			bustest_data[0] = 0x80;
+			bustest_data[1] = 0;
+			break;
 		}
-		pSd->bBusMode = busWidth;
-		_HwSetBusWidth(pSd, busWidth);
-		pData = (busWidth == 8) ? data_8bits : data_4bits;
-		error = Cmd19(pSd, pData, busWidth, &status1);
+		len = busWidth >= 2 ? busWidth : 2;
+		error = Cmd19(pSd, bustest_data, len, &status1);
 		if (error) {
-			trace_error("Cmd19 %d, %x\n\r", (unsigned int) error,
-				    (unsigned int) status1);
-			return 0;
+			trace_error("Cmd19 %u, %lx\n\r", error, status1);
+			/* Devices which do not respond to CMD19 - which results
+			 * in the driver returning SDMMC_ERROR_NORESPONSE -
+			 * simply do not support the bus test procedure.
+			 * When the device responds to CMD19, mind the
+			 * difference with other data write commands: further
+			 * to host data, the device does not emit the CRC status
+			 * token. Typically the peripheral reports the anomaly,
+			 * and the driver is likely to return SDMMC_ERR_IO. */
+			if (error != SDMMC_ERR_IO)
+				return 0;
 		}
 		error = Cmd14(pSd, read_data, busWidth, &status1);
 		if (error) {
-			trace_error("Cmd14 %d\n\r", error);
-			return 0;
+			trace_error("Cmd14 %u, %lx\n\r", error, status1);
+			continue;
 		}
+		if (busWidth == 1) {
+			mask = 0xc0;
+			read_data[0] &= mask;
+		}
+		len = busWidth == 8 ? 2 : 1;
 		for (i = 0; i < len; i++) {
-			if ((pData[i] ^ read_data[i]) != 0xff)
+			if ((bustest_data[i] ^ read_data[i]) != mask)
 				break;
 		}
 		if (i == len) {
@@ -2158,50 +2163,45 @@ mmcDetectBuswidth(sSdCard * pSd)
 static uint8_t
 SdMmcDesideBuswidth(sSdCard * pSd)
 {
-	uint8_t error, busWidth;
-	uint8_t mmc;
+	uint8_t error, busWidth = 1;
+	const uint8_t mmc = (pSd->bCardType & CARD_TYPE_bmSDMMC)
+	    == CARD_TYPE_bmMMC;
+	const uint8_t sd = (pSd->bCardType & CARD_TYPE_bmSDMMC)
+	    == CARD_TYPE_bmSD;
+	const uint8_t io = (pSd->bCardType & CARD_TYPE_bmSDIO) != 0;
 
-	/* Best width that the card support */
-	busWidth = 4;
-	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
-	if (mmc) {
+	if (io)
+		busWidth = 1;   /* SDIO => 1 bit only */
+	else if (mmc) {
 		/* Check MMC revision 4 or later (1/4/8 bit mode) */
-		if (MMC_CSD_SPEC_VERS(pSd->CSD) >= 4) {
+		if (MMC_CSD_SPEC_VERS(pSd->CSD) >= 4)
 			busWidth = mmcDetectBuswidth(pSd);
-		} else {
+		else
 			trace_warning("MMC 1-bit only\n\r");
-			return SDMMC_ERROR_NOT_SUPPORT;
-		}
-	} else {
-		/* SD(IO): switch to 4-bit mode ? */
-		uint8_t io = ((pSd->bCardType & CARD_TYPE_bmSDIO) > 0);
-		uint8_t sd =
-		    ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
-		if (busWidth == 1)
-			return SDMMC_ERROR_NOT_SUPPORT;
-		/* No 8-bit mode, default to 4-bit mode */
-		busWidth = 4;
-
-		/* SDIO */
-		if (io) {
-			/* SDIO 1 bit only */
+	} else if (sd) {
+		busWidth = 4;   /* default to 4-bit mode */
+		error = _HwSetBusWidth(pSd, busWidth);
+		if (error)
 			busWidth = 1;
-		}
-
-		/* SD */
-		if (sd) {
-			error = Acmd6(pSd, busWidth);
-			if (error) {
-				trace_error("SdMmcSetBusWidth.Acmd6: %d\n\r",
-					    error);
-				return SDMMC_ERROR;
-			}
-			trace_warning("SD 4-bit mode\n\r");
-		}
-		/* Switch to selected bus mode */
-		pSd->bBusMode = busWidth;
-		_HwSetBusWidth(pSd, busWidth);
 	}
+	if (busWidth == 0)
+		busWidth = 1;
+	/* Switch to selected bus mode */
+	if (mmc && busWidth > 1) {
+		error = mmcSelectBuswidth(pSd, busWidth);
+		if (error)
+			return error;
+	}
+	else if (sd && busWidth > 1) {
+		error = Acmd6(pSd, busWidth);
+		if (error)
+			return error;
+	}
+	error = _HwSetBusWidth(pSd, busWidth);
+	if (error)
+		return error;
+	pSd->bBusMode = busWidth;
+	trace_info("%u-bit data bus\n\r", busWidth);
 	return 0;
 }
 
@@ -2349,7 +2349,7 @@ SdMmcEnum(sSdCard * pSd)
 	uint8_t mem, io;
 	uint8_t error;
 	uint32_t ioSpeed = 0, memSpeed = 0;
-	uint8_t hsExec = 0, bwExec = 0;
+	uint8_t hsExec = 0;
 
 	/* - has Memory/IO/High-Capacigy - */
 	mem = ((pSd->bCardType & CARD_TYPE_bmSDMMC) > 0);
@@ -2435,10 +2435,8 @@ SdMmcEnum(sSdCard * pSd)
 
 	/* Enable more bus width Mode */
 	error = SdMmcDesideBuswidth(pSd);
-	if (!error)
-		bwExec = 1;
-	else if (error != SDMMC_ERROR_NOT_SUPPORT) {
-		trace_error("SdmmcEnum.DesideBusWidth: %d\n\r", error);
+	if (error) {
+		trace_error("SdmmcEnum.DesideBusWidth: %u\n\r", error);
 		return SDMMC_ERROR;
 	}
 
@@ -2455,7 +2453,7 @@ SdMmcEnum(sSdCard * pSd)
 		pSd->dwTranSpeed *= 2;
 
 	/* Update card information since status changed */
-	if (bwExec || hsExec)
+	if (hsExec || pSd->bBusMode > 1)
 		SdMmcUpdateInformation(pSd, hsExec, 1);
 
 	return 0;
