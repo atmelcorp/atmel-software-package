@@ -856,15 +856,7 @@ uint32_t pmc_get_audio_pmc_clock(void)
 	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
 	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
 
-#if 0
-	// TODO: this code should work but fails at runtime (using GCC)
 	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
-	clk *= ((nd + 1) << 22) + fracr;
-	clk /= 1 << 22;
-	clk /= qdpmc + 1;
-	return (uint32_t)(clk & 0xffffffff);
-#endif
-	double clk = BOARD_MAIN_CLOCK_EXT_OSC;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= qdpmc + 1;
@@ -886,15 +878,7 @@ uint32_t pmc_get_audio_pad_clock(void)
 	if (div != 2 && div != 3)
 		return 0;
 
-#if 0
-	// TODO: this code should work but fails at runtime (using GCC)
 	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
-	clk *= ((nd + 1) << 22) + fracr;
-	clk >>= 22;
-	clk /= div * qdaudio;
-	return (uint32_t)(clk & 0xffffffff);
-#endif
-	double clk = BOARD_MAIN_CLOCK_EXT_OSC;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= div * qdaudio;
