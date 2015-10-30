@@ -174,7 +174,12 @@ uint32_t adc_set_clock(uint32_t clk)
 
 void adc_enable_it(uint32_t mask)
 {
-	ADC->ADC_IER = mask;
+	ADC->ADC_IER |= mask;
+}
+
+void adc_disable_it(uint32_t mask)
+{
+	ADC->ADC_IER &= ~mask;
 }
 
 /**

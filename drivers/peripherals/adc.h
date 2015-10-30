@@ -149,7 +149,19 @@ extern void adc_initialize(void);
  */
 extern uint32_t adc_set_clock(uint32_t clk);
 
+/**
+ * \brief Enable ADC interrupt sources
+ *
+ * \param mask bitmask of the sources to enable
+ */
 extern void adc_enable_it(uint32_t mask);
+
+/**
+ * \brief Disable ADC interrupt sources
+ *
+ * \param mask bitmask of the sources to disable
+ */
+extern void adc_disable_it(uint32_t mask);
 
 /**
  * \brief Set ADC timing.
