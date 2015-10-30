@@ -68,7 +68,7 @@ static uint32_t front_color;
  */
 static void _hide_canvas(void)
 {
-	//lcdd_enable_layer(lcdd_get_canvas()->bLayer, 0);
+	//lcdd_enable_layer(lcdd_get_canvas()->layer_id, false);
 }
 
 /**
@@ -76,7 +76,7 @@ static void _hide_canvas(void)
  */
 static void _show_canvas(void)
 {
-	//lcdd_enable_layer(lcdd_get_canvas()->bLayer, 1);
+	//lcdd_enable_layer(lcdd_get_canvas()->layer_id, true);
 }
 
 /**
