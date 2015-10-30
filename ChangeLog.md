@@ -1,5 +1,25 @@
 # Atmel SAMA5D2x Software Package
 
+
+## Version 1.1 - 2015-10
+
+### New drivers
+
+- Class-D audio driver + example
+
+### Enhancements
+
+- Support for ISO7816 and LIN modes to UART driver + example
+- Several functions added to PMC driver, mostly UPLL and AudioPLL support
+- ISC/sensors: support for new capture modes / resolutions
+
+### Fixes
+
+- Several fixes to ADC driver and example
+- Fixed MMU setup (some memory regions where not defined)
+
+
+
 ## Version 1.0 - 2015-09
 
 ### New drivers
@@ -16,6 +36,8 @@
 - PMC driver now supports setting generated clocks on sama5d2
 - Add support for new memory models to at25 driver (MX25L12835F, MX25L4005,
   N25Q032, S25FL127S)
+
+
 
 ## Version 0.3 -- 2015-08
 
