@@ -502,6 +502,10 @@
 #define MMC_EXT_BOOT_BUS_WIDTH(p)       MMC_EXT8(p, MMC_EXT_BOOT_BUS_WIDTH_I)
 #define MMC_EXT_ERASE_GROUP_DEF_I       175 /**< High-density erase group definition */
 #define MMC_EXT_ERASE_GROUP_DEF(p)      MMC_EXT8(p, MMC_EXT_ERASE_GROUP_DEF_I)
+#define MMC_EXT_DATA_SECTOR_SIZE_I      61  /**< Current sector size */
+#define MMC_EXT_DATA_SECTOR_SIZE(p)     MMC_EXT8(p, MMC_EXT_DATA_SECTOR_SIZE_I)
+#define     MMC_EXT_DATA_SECT_512B      0
+#define     MMC_EXT_DATA_SECT_4KIB      1
 /**     @}*/
 
 /** \addtogroup sd_cmd8 SD CMD8 arguments
