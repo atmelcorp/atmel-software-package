@@ -1,20 +1,16 @@
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
-#if defined(__ICCARM__)
-#define _IAR_PRAGMA(x) _Pragma(#x)
-#endif
+#define _CC_PRAGMA(x) _Pragma(#x)
 
-#if defined(__CC_ARM)
-	#define WEAK __attribute__((weak))
-	#define CONSTRUCTOR __attribute__((constructor))
-	#define SECTION(a) __attribute__((__section__(a)))
-	#define ALIGNED(a) __attribute__((__aligned__(a)))
-#elif defined(__ICCARM__)
+#define PACK_SET(alignment) _CC_PRAGMA(pack(alignment))
+#define PACK_RESET()        _CC_PRAGMA(pack())
+
+#if defined(__ICCARM__)
 	#define WEAK __weak
 	#define CONSTRUCTOR
-	#define SECTION(a) _IAR_PRAGMA(location = a)
-	#define ALIGNED(a) _IAR_PRAGMA(data_alignment = a)
+	#define SECTION(a) _CC_PRAGMA(location = a)
+	#define ALIGNED(a) _CC_PRAGMA(data_alignment = a)
 #elif defined(__GNUC__)
 	#define WEAK __attribute__((weak))
 	#define CONSTRUCTOR __attribute__((constructor))
@@ -29,7 +25,7 @@
 	#define DSB()  asm("dsb")
 	#define ISB()  asm("isb")
 	#define COMPILER_BARRIER()
-#elif defined(__GNUC__) || defined(__CC_ARM)
+#elif defined(__GNUC__)
 	#define DMB()  asm("dmb":::"memory")
 	#define DSB()  asm volatile ("dsb":::"memory")
 	#define ISB()  asm volatile ("isb":::"memory")
