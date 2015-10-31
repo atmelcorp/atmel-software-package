@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2008, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -31,6 +31,7 @@
 #define _HAMMING_
 
 #include <stdint.h>
+
 /*------------------------------------------------------------------------------
  *         Defines
  *------------------------------------------------------------------------------*/
@@ -40,28 +41,27 @@
  *  using a Hamming code:
  *
  *  \section Errors
- *   - Hamming_ERROR_SINGLEBIT
- *   - Hamming_ERROR_ECC
- *   - Hamming_ERROR_MULTIPLEBITS
+ *   - HAMMING_ERROR_SINGLEBIT
+ *   - HAMMING_ERROR_ECC
+ *   - HAMMING_ERROR_MULTIPLEBITS
  */
 
 /**  A single bit was incorrect but has been recovered. */
-#define Hamming_ERROR_SINGLEBIT         1
+#define HAMMING_ERROR_SINGLEBIT         1
 
 /** The original code has been corrupted. */
-#define Hamming_ERROR_ECC               2
+#define HAMMING_ERROR_ECC               2
 
 /** Multiple bits are incorrect in the data and they cannot be corrected. */
-#define Hamming_ERROR_MULTIPLEBITS      3
+#define HAMMING_ERROR_MULTIPLEBITS      3
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-void Hamming_Compute256x(const uint8_t * pucData, uint32_t dwSize,
-				uint8_t * pucCode);
+void hamming_compute_256x(const uint8_t *data, uint32_t size, uint8_t *code);
 
-extern uint8_t Hamming_Verify256x(uint8_t * pucData, uint32_t dwSize,
-				  const uint8_t * pucCode);
+extern uint8_t hamming_verify_256x(uint8_t *data, uint32_t size,
+		const uint8_t *code);
 
-#endif				/* _HAMMING_ */
+#endif /* _HAMMING_ */

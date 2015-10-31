@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2011, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -33,7 +33,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-//#include "board.h"
 #include "hamming.h"
 #include "trace.h"
 
@@ -45,8 +44,7 @@
  *  Counts and return the number of bits set to '1' in the given byte.
  *  \param byte  Byte to count.
  */
-static uint8_t
-CountBitsInByte(uint8_t byte)
+static uint8_t count_bits_in_byte(uint8_t byte)
 {
 	uint8_t count = 0;
 
@@ -62,38 +60,37 @@ CountBitsInByte(uint8_t byte)
 
 /**
  *  Counts and return the number of bits set to '1' in the given hamming code.
- *  \param code  Hamming code.
+ *  \param code Hamming code.
  */
-static uint8_t
-CountBitsInCode256(uint8_t * code)
+static uint8_t count_bits_in_code256(uint8_t *code)
 {
-	return CountBitsInByte(code[0]) + CountBitsInByte(code[1]) +
-	    CountBitsInByte(code[2]);
+	return count_bits_in_byte(code[0]) +
+		count_bits_in_byte(code[1]) +
+		count_bits_in_byte(code[2]);
 }
 
 /**
  *  Calculates the 22-bit hamming code for a 256-bytes block of data.
- *  \param data  Data buffer to calculate code for.
- *  \param code  Pointer to a buffer where the code should be stored.
+ *  \param data Data buffer to calculate code for.
+ *  \param code Pointer to a buffer where the code should be stored.
  */
-static void
-Compute256(const uint8_t * data, uint8_t * code)
+static void compute256(const uint8_t *data, uint8_t *code)
 {
 	uint32_t i;
-	uint8_t columnSum = 0;
-	uint8_t evenLineCode = 0;
-	uint8_t oddLineCode = 0;
-	uint8_t evenColumnCode = 0;
-	uint8_t oddColumnCode = 0;
+	uint8_t column_sum = 0;
+	uint8_t even_line_code = 0;
+	uint8_t odd_line_code = 0;
+	uint8_t even_column_code = 0;
+	uint8_t odd_column_code = 0;
 
 	// Xor all bytes together to get the column sum;
 	// At the same time, calculate the even and odd line codes
 	for (i = 0; i < 256; i++) {
-		columnSum ^= data[i];
+		column_sum ^= data[i];
 
 		// If the xor sum of the byte is 0, then this byte has no incidence on
 		// the computed code; so check if the sum is 1.
-		if ((CountBitsInByte(data[i]) & 1) == 1) {
+		if ((count_bits_in_byte(data[i]) & 1) == 1) {
 			// Parity groups are formed by forcing a particular index bit to 0
 			// (even) or 1 (odd).
 			// Example on one byte:
@@ -118,23 +115,23 @@ Compute256(const uint8_t * data, uint8_t * code)
 			//     ex: log2(2) = 1, bit1 of the index must be 1 (-> 0 1 4 5)
 			//
 			// As such, we calculate all the possible Px and Px' values at the
-			// same time in two variables, evenLineCode and oddLineCode, such as
-			//     evenLineCode bits: P128  P64  P32  P16  P8  P4  P2  P1
-			//     oddLineCode  bits: P128' P64' P32' P16' P8' P4' P2' P1'
+			// same time in two variables, even_line_code and odd_line_code, such as
+			//     even_line_code bits: P128  P64  P32  P16  P8  P4  P2  P1
+			//     odd_line_code  bits: P128' P64' P32' P16' P8' P4' P2' P1'
 			//
-			evenLineCode ^= (255 - i);
-			oddLineCode ^= i;
+			even_line_code ^= (255 - i);
+			odd_line_code ^= i;
 		}
 	}
 
 	// At this point, we have the line parities, and the column sum. First, We
 	// must caculate the parity group values on the column sum.
 	for (i = 0; i < 8; i++) {
-		if (columnSum & 1) {
-			evenColumnCode ^= (7 - i);
-			oddColumnCode ^= i;
+		if (column_sum & 1) {
+			even_column_code ^= (7 - i);
+			odd_column_code ^= i;
 		}
-		columnSum >>= 1;
+		column_sum >>= 1;
 	}
 
 	// Now, we must interleave the parity values, to obtain the following layout:
@@ -153,108 +150,110 @@ Compute256(const uint8_t * data, uint8_t * code)
 		code[2] <<= 2;
 
 		// Line 1
-		if ((oddLineCode & 0x80) != 0) {
+		if ((odd_line_code & 0x80) != 0) {
 			code[0] |= 2;
 		}
 
-		if ((evenLineCode & 0x80) != 0) {
+		if ((even_line_code & 0x80) != 0) {
 			code[0] |= 1;
 		}
 		// Line 2
-		if ((oddLineCode & 0x08) != 0) {
+		if ((odd_line_code & 0x08) != 0) {
 			code[1] |= 2;
 		}
 
-		if ((evenLineCode & 0x08) != 0) {
+		if ((even_line_code & 0x08) != 0) {
 			code[1] |= 1;
 		}
 		// Column
-		if ((oddColumnCode & 0x04) != 0) {
+		if ((odd_column_code & 0x04) != 0) {
 			code[2] |= 2;
 		}
 
-		if ((evenColumnCode & 0x04) != 0) {
+		if ((even_column_code & 0x04) != 0) {
 			code[2] |= 1;
 		}
 
-		oddLineCode <<= 1;
-		evenLineCode <<= 1;
-		oddColumnCode <<= 1;
-		evenColumnCode <<= 1;
+		odd_line_code <<= 1;
+		even_line_code <<= 1;
+		odd_column_code <<= 1;
+		even_column_code <<= 1;
 	}
 
 	// Invert codes (linux compatibility)
-	code[0] = (~(uint32_t) code[0]);
-	code[1] = (~(uint32_t) code[1]);
-	code[2] = (~(uint32_t) code[2]);
+	code[0] = ~code[0];
+	code[1] = ~code[1];
+	code[2] = ~code[2];
 
-	trace_debug("Computed code = %02X %02X %02X\n\r",
-		    code[0], code[1], code[2]);
+	trace_debug("Computed code = %02x %02x %02x\n\r",
+			(unsigned)code[0],
+			(unsigned)code[1],
+			(unsigned)code[2]);
 }
 
 /**
  *  Verifies and corrects a 256-bytes block of data using the given 22-bits
  *  hamming code.
  *
- *  \param data  Data buffer to check.
- *  \param originalCode  Hamming code to use for verifying the data.
+ *  \param data Data buffer to check.
+ *  \param code Hamming code to use for verifying the data.
  *
  *  \return 0 if there is no error, otherwise returns a HAMMING_ERROR code.
  */
-static uint8_t
-Verify256(uint8_t * pucData, const uint8_t * pucOriginalCode)
+static uint8_t verify256(uint8_t *data, const uint8_t *code)
 {
 	/* Calculate new code */
-	uint8_t computedCode[3];
-	uint8_t correctionCode[3];
+	uint8_t computed_code[3];
+	uint8_t correction_code[3];
 
-	Compute256(pucData, computedCode);
+	compute256(data, computed_code);
 
 	/* Xor both codes together */
-	correctionCode[0] = computedCode[0] ^ pucOriginalCode[0];
-	correctionCode[1] = computedCode[1] ^ pucOriginalCode[1];
-	correctionCode[2] = computedCode[2] ^ pucOriginalCode[2];
+	correction_code[0] = computed_code[0] ^ code[0];
+	correction_code[1] = computed_code[1] ^ code[1];
+	correction_code[2] = computed_code[2] ^ code[2];
 
-	trace_debug("Correction code = %02X %02X %02X\n\r", correctionCode[0],
-		    correctionCode[1], correctionCode[2]);
+	trace_debug("Correction code = %02x %02x %02x\n\r",
+			(unsigned)correction_code[0],
+			(unsigned)correction_code[1],
+			(unsigned)correction_code[2]);
 
 	// If all bytes are 0, there is no error
-	if ((correctionCode[0] == 0) && (correctionCode[1] == 0)
-	    && (correctionCode[2] == 0)) {
+	if (correction_code[0] == 0 && correction_code[1] == 0 &&
+			correction_code[2] == 0) {
 		return 0;
 	}
 
 	/* If there is a single bit error, there are 11 bits set to 1 */
-	if (CountBitsInCode256(correctionCode) == 11) {
+	if (count_bits_in_code256(correction_code) == 11) {
 		// Get byte and bit indexes
-		uint8_t byte = correctionCode[0] & 0x80;
-		byte |= (correctionCode[0] << 1) & 0x40;
-		byte |= (correctionCode[0] << 2) & 0x20;
-		byte |= (correctionCode[0] << 3) & 0x10;
+		uint8_t byte = correction_code[0] & 0x80;
+		byte |= (correction_code[0] << 1) & 0x40;
+		byte |= (correction_code[0] << 2) & 0x20;
+		byte |= (correction_code[0] << 3) & 0x10;
 
-		byte |= (correctionCode[1] >> 4) & 0x08;
-		byte |= (correctionCode[1] >> 3) & 0x04;
-		byte |= (correctionCode[1] >> 2) & 0x02;
-		byte |= (correctionCode[1] >> 1) & 0x01;
+		byte |= (correction_code[1] >> 4) & 0x08;
+		byte |= (correction_code[1] >> 3) & 0x04;
+		byte |= (correction_code[1] >> 2) & 0x02;
+		byte |= (correction_code[1] >> 1) & 0x01;
 
-		uint8_t bit = (correctionCode[2] >> 5) & 0x04;
-		bit |= (correctionCode[2] >> 4) & 0x02;
-		bit |= (correctionCode[2] >> 3) & 0x01;
+		uint8_t bit = (correction_code[2] >> 5) & 0x04;
+		bit |= (correction_code[2] >> 4) & 0x02;
+		bit |= (correction_code[2] >> 3) & 0x01;
 
 		/* Correct bit */
 		printf("Correcting byte #%d at bit %d\n\r", byte, bit);
-		pucData[byte] ^= (1 << bit);
+		data[byte] ^= (1 << bit);
 
-		return Hamming_ERROR_SINGLEBIT;
+		return HAMMING_ERROR_SINGLEBIT;
 	}
 
 	/* Check if ECC has been corrupted */
-	if (CountBitsInCode256(correctionCode) == 1) {
-		return Hamming_ERROR_ECC;
-	}
-	/* Otherwise, this is a multi-bit error */
-	else {
-		return Hamming_ERROR_MULTIPLEBITS;
+	if (count_bits_in_code256(correction_code) == 1) {
+		return HAMMING_ERROR_ECC;
+	} else {
+		/* Otherwise, this is a multi-bit error */
+		return HAMMING_ERROR_MULTIPLEBITS;
 	}
 }
 
@@ -265,21 +264,20 @@ Verify256(uint8_t * pucData, const uint8_t * pucOriginalCode)
 /**
  *  Computes 3-bytes hamming codes for a data block whose size is multiple of
  *  256 bytes. Each 256 bytes block gets its own code.
- *  \param pucData Data to compute code for.
- *  \param dwSize  Data size in bytes.
- *  \param puCode  Codes buffer.
+ *  \param data Data to compute code for.
+ *  \param size Data size in bytes.
+ *  \param code Codes buffer.
  */
-void
-Hamming_Compute256x(const uint8_t * pucData, uint32_t dwSize, uint8_t * puCode)
+void hamming_compute_256x(const uint8_t *data, uint32_t size, uint8_t *code)
 {
-	trace_debug("Hamming_Compute256x()\n\r");
+	trace_debug("hamming_compute_256x()\n\r");
 
-	while (dwSize > 0) {
-		Compute256(pucData, puCode);
+	while (size > 0) {
+		compute256(data, code);
 
-		pucData += 256;
-		puCode += 3;
-		dwSize -= 256;
+		data += 256;
+		code += 3;
+		size -= 256;
 	}
 }
 
@@ -287,36 +285,35 @@ Hamming_Compute256x(const uint8_t * pucData, uint32_t dwSize, uint8_t * puCode)
  *  Verifies 3-bytes hamming codes for a data block whose size is multiple of
  *  256 bytes. Each 256-bytes block is verified with its own code.
  *
- *  \return 0 if the data is correct, Hamming_ERROR_SINGLEBIT if one or more
- *  block(s) have had a single bit corrected, or either Hamming_ERROR_ECC
- *  or Hamming_ERROR_MULTIPLEBITS.
+ *  \return 0 if the data is correct, HAMMING_ERROR_SINGLEBIT if one or more
+ *  block(s) have had a single bit corrected, or either HAMMING_ERROR_ECC
+ *  or HAMMING_ERROR_MULTIPLEBITS.
  *
- *  \param pucData Data buffer to verify.
- *  \param dwSize  Size of the data in bytes.
- *  \param pucCode Original codes.
+ *  \param data Data buffer to verify.
+ *  \param size Size of the data in bytes.
+ *  \param code Original codes.
  */
-uint8_t
-Hamming_Verify256x(uint8_t * pucData, uint32_t dwSize, const uint8_t * pucCode)
+uint8_t hamming_verify_256x(uint8_t *data, uint32_t size, const uint8_t *code)
 {
 	uint8_t error;
 	uint8_t result = 0;
 
-	trace_debug("Hamming_Verify256x()\n\r");
+	trace_debug("hamming_verify_256x()\n\r");
 
-	while (dwSize > 0) {
-		error = Verify256(pucData, pucCode);
+	while (size > 0) {
+		error = verify256(data, code);
 
-		if (error == Hamming_ERROR_SINGLEBIT) {
-			result = Hamming_ERROR_SINGLEBIT;
+		if (error == HAMMING_ERROR_SINGLEBIT) {
+			result = HAMMING_ERROR_SINGLEBIT;
 		} else {
 			if (error) {
 				return error;
 			}
 		}
 
-		pucData += 256;
-		pucCode += 3;
-		dwSize -= 256;
+		data += 256;
+		code += 3;
+		size -= 256;
 	}
 
 	return result;
