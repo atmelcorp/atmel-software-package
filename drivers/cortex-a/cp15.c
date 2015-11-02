@@ -151,7 +151,7 @@ void cp15_enable_icache(void)
 	control = cp15_read_control();
 	// Check if cache is disabled
 	if ((control & (1 << CP15_I_BIT)) == 0) {
-
+		cp15_icache_invalidate();
 		control |= (1 << CP15_I_BIT);
 		cp15_write_control(control);
 		trace_info("I cache enabled.\n\r");
@@ -251,7 +251,7 @@ void cp15_enable_dcache(void)
 	} else {
 		// Check if cache is disabled
 		if ((control & (1 << CP15_C_BIT)) == 0) {
-
+			cp15_dcache_invalidate();
 			control |= (1 << CP15_C_BIT);
 			cp15_write_control(control);
 			trace_info("D cache enabled.\n\r");
