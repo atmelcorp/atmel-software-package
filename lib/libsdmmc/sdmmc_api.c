@@ -2562,14 +2562,21 @@ SD_Read(sSdCard * pSd,
 	uint32_t address,
 	void *pData, uint32_t length, fSdmmcCallback pCallback, void *pArgs)
 {
+	uint8_t error;
+
 	assert(pSd != NULL);
 	assert(pData != NULL);
+
+	if (length == 0)
+		/* Avoid starting an open-ended multiple block read */
+		return 0;
 	pSd->bState = SDMMC_STATE_DATA_RD;
 	//printf("MMCT_ReadFun(pSd,0x%x,%d,pBuffer); \n\r",address,length);
 //    printf("R %x,%x ",address,length);
-	MoveToTransferState(pSd, address, length, (uint8_t *) pData, 1);
-	trace_debug("SDrd(%lu,%lu)\n\r", address, length);
-	return 0;
+	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 1);
+	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length, error ?
+	    SD_StringifyRetCode(error) : "");
+	return error;
 }
 
 /**
@@ -2592,12 +2599,19 @@ SD_Write(sSdCard * pSd,
 	 const void *pData,
 	 uint32_t length, fSdmmcCallback pCallback, void *pArgs)
 {
+	uint8_t error;
+
 	assert(pSd != NULL);
+	assert(pData != NULL);
+
+	if (length == 0)
+		return 0;
 	pSd->bState = SDMMC_STATE_DATA_WR;
 	//printf("W %x,%x ",address,length);
-	MoveToTransferState(pSd, address, length, (uint8_t *) pData, 0);
-	trace_debug("SDwr(%lu,%lu)\n\r", address, length);
-	return 0;
+	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 0);
+	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length, error ?
+	    SD_StringifyRetCode(error) : "");
+	return error;
 }
 
 /**
