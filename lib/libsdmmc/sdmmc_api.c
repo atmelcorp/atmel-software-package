@@ -252,6 +252,7 @@ static const struct stringEntry_s sdmmcIOCtrlNames[] = {
 	{ SDMMC_IOCTL_SET_BUSMODE,	"SDMMC_IOCTL_SET_BUSMODE",	},
 	{ SDMMC_IOCTL_SET_HSMODE,	"SDMMC_IOCTL_SET_HSMODE",	},
 	{ SDMMC_IOCTL_SET_BOOTMODE,	"SDMMC_IOCTL_SET_BOOTMODE",	},
+	{ SDMMC_IOCTL_SET_LENPREFIX,	"SDMMC_IOCTL_SET_LENPREFIX",	},
 	{ SDMMC_IOCTL_GET_CLOCK,	"SDMMC_IOCTL_GET_CLOCK",	},
 	{ SDMMC_IOCTL_GET_BUSMODE,	"SDMMC_IOCTL_GET_BUSMODE",	},
 	{ SDMMC_IOCTL_GET_HSMODE,	"SDMMC_IOCTL_GET_HSMODE",	},
@@ -1759,10 +1760,14 @@ MoveToTransferState(sSdCard * pSd,
 				return error;
 		}
 	}
+	if (pSd->bSetBlkCnt) {
+		error = Cmd23(pSd, 0, nbBlocks, &status1);
+		if (error) {
+			trace_error("MoveToTransferState.Cmd23: %u\n\r", error);
+			return error;
+		}
+	}
 	if (isRead) {
-		/* Defines the number of blocks read for a block read command */
-		if (mmc)
-			error = Cmd23(pSd, 0, nbBlocks, &status1);
 		/* Move to Receiving data state */
 		error =
 		    Cmd18(pSd, nbBlocks, pData, sdmmc_address, &status1, NULL);
@@ -1777,9 +1782,6 @@ MoveToTransferState(sSdCard * pSd,
 			return SDMMC_ERROR;
 		}
 	} else {
-		/* Defines the number of blocks write for a block write command */
-		if (mmc)
-			error = Cmd23(pSd, 0, nbBlocks, &status1);
 		/* Move to Sending data state */
 		error = Cmd25(pSd,
 			      nbBlocks, pData, sdmmc_address, &status1, NULL);
@@ -2700,6 +2702,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->bCardType = 0;
 	pSd->bStatus = 0;
 	pSd->bState = SDMMC_STATE_IDENT;
+	pSd->bSetBlkCnt = 0;
 
 	/* Clear our device register cache */
 	for (i = 0; i < 128 / 8 / 4; i++)
@@ -2741,7 +2744,7 @@ uint8_t
 SD_Init(sSdCard * pSd)
 {
 	uint8_t error;
-	uint32_t clock;
+	uint32_t clock, drv_param, drv_err;
 
 	_SdParamReset(pSd);
 
@@ -2778,6 +2781,29 @@ SD_Init(sSdCard * pSd)
 		trace_error("SD_Init.Enum: %d\n\r", error);
 		return error;
 	}
+
+	/* Find out if the device supports the SET_BLOCK_COUNT command.
+	 * MMC devices have it part of both the block-oriented read and the
+	 * block-oriented write commands, i.e. class 2 and class 4 commands.
+	 * FIXME we should normally check CSD.CCC before issuing any MMC block-
+	 * oriented read/write command.
+	 * SD devices advertise in SCR.CMD_SUPPORT whether or not they handle
+	 * the SET_BLOCK_COUNT command. */
+	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC)
+		pSd->bSetBlkCnt = 1;
+	else if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD)
+		pSd->bSetBlkCnt = SD_SCR_CMD23_SUPPORT(pSd->SCR);
+	/* Ask the driver to implicitly send the SET_BLOCK_COUNT command,
+	 * immediately before every READ_MULTIPLE_BLOCK and WRITE_MULTIPLE_BLOCK
+	 * command. Or, if the current device does not support SET_BLOCK_COUNT,
+	 * instruct the driver to stop using this command. */
+	drv_param = pSd->bSetBlkCnt;
+	drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_SET_LENPREFIX,
+	    (uint32_t)&drv_param);
+	/* In case the driver does not support this function, we'll take it in
+	 * charge. */
+	if (pSd->bSetBlkCnt && drv_err == SDMMC_OK && drv_param)
+		pSd->bSetBlkCnt = 0;
 
 	/* In the case of a Standard Capacity SD Memory Card, this command sets the
 	 * block length (in bytes) for all following block commands

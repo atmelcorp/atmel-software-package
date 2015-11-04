@@ -217,6 +217,11 @@ typedef enum {
 #define SDMMC_IOCTL_SET_HSMODE    0x13
 /** SD/MMC Low Level IO Control: Set Boot mode */
 #define SDMMC_IOCTL_SET_BOOTMODE  0x14
+/** SD/MMC Low Level IO Control: Enable or disable implicit SET_BLOCK_COUNT
+    command, return applied mode.
+    Recommended with devices that support the SET_BLOCK_COUNT command.
+    IOCtrl(pSd, SDMMC_IOCTL_SET_LENPREFIX, (uint32_t*)pIoLenPrefix) */
+#define SDMMC_IOCTL_SET_LENPREFIX 0x15
 /** SD/MMC Low Level IO Control: Get clock frequency */
 #define SDMMC_IOCTL_GET_CLOCK     0x21
 /** SD/MMC Low Level IO Control: Bus mode */
@@ -396,7 +401,7 @@ typedef struct _SdCard {
 	uint8_t bSlot;		/**< Card access slot */
 	uint8_t bState;		/**< Card state */
 	uint8_t bStatus;	/**< Card status */
-	uint8_t reserve;
+	uint8_t bSetBlkCnt;	/**< Explicit SET_BLOCK_COUNT command used */
 } sSdCard;
 
 /** \addtogroup sdmmc_struct_cmdarg SD/MMC command arguments
