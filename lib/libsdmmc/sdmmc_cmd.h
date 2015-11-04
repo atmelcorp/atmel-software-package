@@ -378,6 +378,8 @@ typedef struct _SdCard {
 	uint32_t CSD[128 / 8 / 4];
 				/**< Card-specific data (CSD register) */
 	uint32_t EXT[512 / 4];	/**< Extended information */
+	uint8_t SCR[64 / 8];
+				/**< SD CARD Configuration Register (SCR) */
 
 	uint32_t dwTranSpeed;	/**< Max supported transfer speed */
 	uint32_t dwTotalSize;	/**< Card total size

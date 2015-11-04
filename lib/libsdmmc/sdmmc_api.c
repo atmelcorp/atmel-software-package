@@ -1465,6 +1465,46 @@ Acmd41(sSdCard * pSd, uint8_t hcs, uint8_t * pCCS)
 	return 0;
 }
 
+/**
+ * From the selected card get its SD CARD Configuration Register (SCR).
+ * ACMD51 is valid under the Transfer state.
+ * \param pSd  Pointer to a SD card driver instance.
+ * \param pCCS  Pointer to an 8-byte buffer receiving the contents of the SCR.
+ * \param pResp  Pointer to where the response is returned.
+ * \return The command transfer result (see SendCommand).
+ */
+static uint8_t
+Acmd51(sSdCard * pSd, uint8_t * pSCR, uint32_t * pResp)
+{
+	sSdmmcCommand *pCmd = &pSd->sdCmd;
+	uint8_t error;
+
+	assert(pSd);
+
+	error = Cmd55(pSd, CARD_ADDR(pSd));
+	if (error) {
+		trace_error("Acmd51.cmd55:%u\n\r", error);
+		return error;
+	}
+
+	trace_debug("Acmd51()\n\r");
+	_ResetCmd(pCmd);
+	pCmd->bCmd = 51;
+	pCmd->cmdOp.wVal = SDMMC_CMD_CDATARX(1);
+	if (pSCR) {
+		pCmd->wBlockSize = 64 / 8;
+		pCmd->wNbBlocks = 1;
+		pCmd->pData = pSCR;
+	}
+	pCmd->pResp = pResp;
+	error = _SendCmd(pSd, NULL, NULL);
+	if (error) {
+		trace_error("Acmd51.cmd51:%u\n\r", error);
+		return error;
+	}
+	return 0;
+}
+
 #if 0
 /**
  * Continue to transfer datablocks from card to host until interrupted by a
@@ -1896,6 +1936,32 @@ SdioGetMaxSpeed(sSdCard * pSd)
 static void
 SdGetExtInformation(sSdCard * pSd)
 {
+	uint32_t card_status;
+	uint8_t error;
+
+	error = Acmd51(pSd, pSd->SCR, &status1);
+	if (error)
+		return;
+	card_status = status1 & ~STATUS_READY_FOR_DATA;
+	if (card_status != (STATUS_APP_CMD | STATUS_TRAN)) {
+		trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
+		return;
+	}
+	if (SD_SCR_STRUCTURE(pSd->SCR) != SD_SCR_STRUCTURE_1_0)
+		trace_warning("Unknown SCR structure version\n\r");
+	trace_info("SD Physical Layer Specification Version ");
+	if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
+		trace_info_wp("1.0X\n\r")
+	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
+		trace_info_wp("1.10\n\r")
+	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
+		if (SD_SCR_SD_SPEC3(pSd->SCR) == SD_SCR_SD_SPEC_3_0)
+			trace_info_wp("3.0X\n\r")
+		else
+			trace_info_wp("2.00\n\r");
+	}
+	else
+		trace_info_wp("unknown\n\r");
 }
 
 /**
@@ -2621,14 +2687,14 @@ _SdParamReset(sSdCard * pSd)
 	pSd->bStatus = 0;
 	pSd->bState = SDMMC_STATE_IDENT;
 
-	/* Clear CID, CSD, EXT_CSD data */
+	/* Clear our device register cache */
 	for (i = 0; i < 128 / 8 / 4; i++)
 		pSd->CID[i] = 0;
 	for (i = 0; i < 128 / 8 / 4; i++)
 		pSd->CSD[i] = 0;
 	for (i = 0; i < 512 / 4; i++)
 		pSd->EXT[i] = 0;
-
+	memset(pSd->SCR, 0, sizeof(pSd->SCR));
 }
 
 /**

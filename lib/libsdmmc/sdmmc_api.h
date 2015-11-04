@@ -289,9 +289,9 @@
  *      @{
  */
 /** SCR (Configuration register) access macros (64 bits, 2 * 32 bits, 8 * 8 bits). */
-#define SD_SCR(pScr, field, bits)    SD_BITS32(pScr, 64, field, bits)
+#define SD_SCR(pScr, field, bits)    SD_BITS8(pScr, 64, field, bits)
 #define SD_SCR_STRUCTURE(pScr)              SD_SCR(pScr, 60, 4)
-#define     SD_SCR_STRUCTURE_1_0            0 /**< SD v1.01~2.00 */
+#define     SD_SCR_STRUCTURE_1_0            0 /**< SD v1.01~3.01 */
 #define SD_SCR_SD_SPEC(pScr)                SD_SCR(pScr, 56, 4)
 #define     SD_SCR_SD_SPEC_1_0              0 /**< SD v1.0~1.01 */
 #define     SD_SCR_SD_SPEC_1_10             1 /**< SD v1.10 */
@@ -305,6 +305,12 @@
 #define SD_SCR_SD_BUS_WIDTHS(pScr)          SD_SCR(pScr, 48, 4)
 #define     SD_SCR_SD_BUS_WIDTH_1BITS       (1 << 0) /**< 1 bit (DAT0) */
 #define     SD_SCR_SD_BUS_WIDTH_4BITS       (1 << 2) /**< 4 bit (DAT0~3) */
+#define SD_SCR_SD_SPEC3(pScr)               SD_SCR(pScr, 47, 1)
+#define     SD_SCR_SD_SPEC_3_0              1 /**< SD v3.0X */
+#define SD_SCR_EX_SECURITY(pScr)            SD_SCR(pScr, 43, 4)
+#define     SD_SCR_EX_SECURITY_NO           0 /**< No extended security */
+#define SD_SCR_CMD23_SUPPORT(pScr)          SD_SCR(pScr, 33, 1)
+#define SD_SCR_CMD20_SUPPORT(pScr)          SD_SCR(pScr, 32, 1)
 /**     @}*/
 
 /** \addtogroup sd_card_status_acc SD Card Status fields
