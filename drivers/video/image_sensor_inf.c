@@ -208,7 +208,7 @@ sensor_status_t sensor_setup(struct _twid* p_twid,
 	uint8_t i;
 	uint8_t found = 0;
 	sensor_status_t status = SENSOR_OK;
-	for (i = 0; i< SENDOR_SUPPORTED_OUTPUTS; i++) {
+	for (i = 0; i < SENSOR_SUPPORTED_OUTPUTS; i++) {
 		if (sensor_profile->output_conf[i]->supported){
 			if (sensor_profile->output_conf[i]->output_resolution == resolution) {
 				if (sensor_profile->output_conf[i]->output_format == format) {
@@ -249,7 +249,7 @@ sensor_status_t sensor_get_output(sensor_output_resolution_t resolution,
 					uint32_t* height)
 {
 	uint8_t i;
-	for (i = 0; i< SENDOR_SUPPORTED_OUTPUTS; i++) {
+	for (i = 0; i < SENSOR_SUPPORTED_OUTPUTS; i++) {
 		if (p_sensor->output_conf[i]->supported){
 			if (p_sensor->output_conf[i]->output_resolution == resolution) {
 				if (p_sensor->output_conf[i]->output_format == format) {

@@ -36,7 +36,7 @@
 /*---------------------------------------------------------------------------
  *         Definition
  *---------------------------------------------------------------------------*/
-#define SENDOR_SUPPORTED_OUTPUTS 7
+#define SENSOR_SUPPORTED_OUTPUTS 7
 
 /** terminating list entry for register in configuration file */
 #define SENSOR_REG_TERM         0xFF
@@ -126,7 +126,7 @@ typedef struct _sensor_profile {
 	uint16_t pid_high;            /** product ID high byte */
 	uint16_t pid_low;             /** product ID low byte */
 	uint16_t version_mask;        /** version mask */
-	const sensor_output_t *output_conf[SENDOR_SUPPORTED_OUTPUTS]; /** sensor settings */
+	const sensor_output_t *output_conf[SENSOR_SUPPORTED_OUTPUTS]; /** sensor settings */
 }sensor_profile_t;
 
 /*----------------------------------------------------------------------------
