@@ -2931,6 +2931,27 @@ SD_DeInit(sSdCard * pSd)
 }
 
 /**
+ * Query whether the device is present, and ready for data transfer.
+ * \param pSd Pointer to \ref sSdCard instance.
+ * \return an \ref sdmmc_rc "error code", as follows:
+ * - SDMMC_NOT_SUPPORTED if the device has been removed,
+ * - SDMMC_OK if the device is present and ready,
+ * - an error code if the device is present but is in an unexpected and
+ *   presumably unrecoverable condition. In this event the application may
+ *   recover by calling SD_DeInit() and SD_Init().
+ */
+uint8_t
+SD_GetStatus(sSdCard * pSd)
+{
+	assert(pSd != NULL);
+
+	/* TODO develop an extra SDMMC_IOCTL control to query whether the device
+	 * is present. Return SDMMC_NOT_SUPPORTED if removed. */
+
+	return pSd->bStatus == SDMMC_NOT_SUPPORTED ? SDMMC_ERR : pSd->bStatus;
+}
+
+/**
  * Return type of the card.
  * \param pSd Pointer to \ref sSdCard instance.
  * \sa sdmmc_cardtype

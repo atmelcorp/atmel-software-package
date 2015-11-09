@@ -540,6 +540,7 @@ void SD_DeInit(sSdCard * pSd);
 extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
 extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
 
+extern uint8_t SD_GetStatus(sSdCard * pSd);
 extern uint8_t SD_GetCardType(sSdCard * pSd);
 extern uint32_t SD_GetNumberBlocks(sSdCard * pSd);
 extern uint32_t SD_GetBlockSize(sSdCard * pSd);
