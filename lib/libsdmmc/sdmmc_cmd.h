@@ -230,6 +230,11 @@ typedef enum {
 #define SDMMC_IOCTL_GET_HSMODE    0x23
 /** SD/MMC Low Level IO Control: Boot mode */
 #define SDMMC_IOCTL_GET_BOOTMODE  0x24
+/** SD/MMC Low Level IO Control: Query driver capability, whether the driver
+    implicitly sends the STOP_TRANSMISSION command when multiple-block data
+    transfers complete successfully.
+    IOCtrl(pSd, SDMMC_IOCTL_GET_XFERCOMPL, (uint32_t*)pOAutoXferCompletion) */
+#define SDMMC_IOCTL_GET_XFERCOMPL 0x25
 /**     @}*/
 
 /** \ingroup sdmmc_hal_def
@@ -402,6 +407,7 @@ typedef struct _SdCard {
 	uint8_t bState;		/**< Card state */
 	uint8_t bStatus;	/**< Card status */
 	uint8_t bSetBlkCnt;	/**< Explicit SET_BLOCK_COUNT command used */
+	uint8_t bStopMultXfer;	/**< Explicit STOP_TRANSMISSION command used */
 } sSdCard;
 
 /** \addtogroup sdmmc_struct_cmdarg SD/MMC command arguments

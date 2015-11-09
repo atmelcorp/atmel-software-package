@@ -257,6 +257,7 @@ static const struct stringEntry_s sdmmcIOCtrlNames[] = {
 	{ SDMMC_IOCTL_GET_BUSMODE,	"SDMMC_IOCTL_GET_BUSMODE",	},
 	{ SDMMC_IOCTL_GET_HSMODE,	"SDMMC_IOCTL_GET_HSMODE",	},
 	{ SDMMC_IOCTL_GET_BOOTMODE,	"SDMMC_IOCTL_GET_BOOTMODE",	},
+	{ SDMMC_IOCTL_GET_XFERCOMPL,	"SDMMC_IOCTL_GET_XFERCOMPL",	},
 };
 
 static const char sdmmcInvalidRCode[] = "!Invalid return code!";
@@ -2703,6 +2704,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->bStatus = 0;
 	pSd->bState = SDMMC_STATE_IDENT;
 	pSd->bSetBlkCnt = 0;
+	pSd->bStopMultXfer = 0;
 
 	/* Clear our device register cache */
 	for (i = 0; i < 128 / 8 / 4; i++)
@@ -2793,6 +2795,18 @@ SD_Init(sSdCard * pSd)
 		pSd->bSetBlkCnt = 1;
 	else if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD)
 		pSd->bSetBlkCnt = SD_SCR_CMD23_SUPPORT(pSd->SCR);
+	/* Now, if the device does not support the SET_BLOCK_COUNT command, then
+	 * the legacy STOP_TRANSMISSION command shall be issued, though not at
+	 * the same timing. */
+	if (!pSd->bSetBlkCnt) {
+		/* In case the driver does not automatically issue the
+		 * STOP_TRANSMISSION command, we'll have to do it ourselves. */
+		drv_param = 0;
+		drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv,
+		    SDMMC_IOCTL_GET_XFERCOMPL, (uint32_t)&drv_param);
+		if (drv_err != SDMMC_OK || !drv_param)
+			pSd->bStopMultXfer = 1;
+	}
 	/* Ask the driver to implicitly send the SET_BLOCK_COUNT command,
 	 * immediately before every READ_MULTIPLE_BLOCK and WRITE_MULTIPLE_BLOCK
 	 * command. Or, if the current device does not support SET_BLOCK_COUNT,
