@@ -41,6 +41,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "compiler.h"
+#include "timer.h"
 #include "libsdmmc.h"
 #include "sdmmc_trace.h"
 
@@ -76,6 +77,8 @@ struct stringEntry_s
 #define STATUS_RCV              (6UL << 9)
 #define STATUS_PRG              (7UL << 9)
 #define STATUS_DIS              (8UL << 9)
+#define STATUS_BTST             (9UL << 9)
+#define STATUS_SLEEP            (10UL << 9)
 #define STATUS_STATE            (0xFUL << 9)
 #define STATUS_ERASE_RESET       (1UL << 13)
 #define STATUS_WP_ERASE_SKIP     (1UL << 15)
@@ -899,7 +902,6 @@ Cmd9(sSdCard * pSd)
 	return bRc;
 }
 
-#if 1
 /**
  * Forces the card to stop transmission
  * \param pSd      Pointer to a SD card driver instance.
@@ -923,7 +925,7 @@ Cmd12(sSdCard * pSd, uint32_t * pStatus)
 	bRc = _SendCmd(pSd, NULL, NULL);
 	return bRc;
 }
-#endif
+
 /**
  * Addressed card sends its status register.
  * Returns the command transfer result (see SendMciCommand).
@@ -1621,8 +1623,7 @@ _StopCmd(sSdCard * pSd)
 		error = Cmd12(pSd, &status1);
 
 		if (error) {
-			trace_error("_StopC.Cmd12: st%x, er%d\n\r", pSd->bState,
-				    error);
+			trace_error("_StopC.Cmd12: %u\n\r", error);
 			return error;
 		}
 		/* Check status for 299 times */
@@ -1631,8 +1632,7 @@ _StopCmd(sSdCard * pSd)
 			// Wait
 			for (i = 0; i < 0x1600; i++) ;
 			if (error) {
-				trace_error("_StopC.Cmd13: st%x, er%d\n\r",
-					    pSd->bState, error);
+				trace_error("_StopC.Cmd13: %u\n\r", error);
 				return error;
 			}
 			state = status1 & STATUS_STATE;
@@ -1659,72 +1659,85 @@ _StopCmd(sSdCard * pSd)
 	return SDMMC_ERROR_STATE;
 }
 
+static uint8_t
+_WaitUntilReady(sSdCard * pSd)
+{
+	uint32_t timer_res_prv, state;
+	uint8_t err, count;
+
+	for (count = 0; count < 51; count++) {
+		state = status1 & STATUS_STATE;
+		if (state == STATUS_TRAN && status1 & STATUS_READY_FOR_DATA)
+			return SDMMC_SUCCESS;
+		/* Sending-data and Receive-data states may be encountered
+		 * temporarily further to single-block data transfers. */
+		/* FIXME state 15 "reserved for I/O mode" may be allowed */
+		if (state != STATUS_TRAN && state != STATUS_PRG
+		    && state != STATUS_DATA && state != STATUS_RCV)
+			return SDMMC_ERROR_NOT_INITIALIZED;
+		/* Wait for about 10 ms */
+		timer_res_prv = timer_get_resolution();
+		timer_configure(10000);
+		timer_sleep(1);
+		timer_configure(timer_res_prv);
+
+		err = Cmd13(pSd, &status1);
+		if (err)
+			return err;
+	}
+	return SDMMC_ERROR_BUSY;
+}
+
 /**
- * Perform sligle block transfer
+ * Perform single block transfer
  */
 static uint8_t
 PerformSingleTransfer(sSdCard * pSd,
 		      uint32_t address, uint8_t * pData, uint8_t isRead)
 {
-	//uint32_t status;
-	uint8_t error = 0;
+	uint8_t result = SDMMC_OK, error;
 	uint8_t sd, mmc;
-	uint32_t sdmmc_address;
-	sdmmc_address = 0;
+	uint32_t sdmmc_address, status;
+
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
 	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
 	if (mmc)
 		sdmmc_address = MMC_ADDRESS(pSd, address);
-	if (sd) {
+	else if (sd)
 		sdmmc_address = SD_ADDRESS(pSd, address);
-		if ((pSd->bState == SDMMC_STATE_DATA_RD)
-		    || (pSd->bState == SDMMC_STATE_DATA_WR)) {
-			/* Stop transfer */
-			error = _StopCmd(pSd);
-			if (error)
-				return error;
-			pSd->bState = SDMMC_STATE_TRAN;
-			//pSd->dwPrevBlk = 0xFFFFFFFF;
-		}
-	}
-	if (isRead) {
-		/* Read single block */
+	else
+		return SDMMC_PARAM;
+	if (isRead)
+		/* Read a single data block */
 		error = Cmd17(pSd, pData, sdmmc_address, &status1, NULL);
-		if (error) {
-			trace_error("SingleTx.Cmd17: %d\n\r", error);
-			return error;
-		}
-
-		if (status1 & ~(STATUS_READY_FOR_DATA | STATUS_STATE)) {
-			trace_error("CMD17.stat: %lx\n\r",
-				    status1 & ~(STATUS_READY_FOR_DATA |
-						STATUS_STATE));
-			return SDMMC_ERROR;
-		}
-		return error;
-	}
-	/* Write */
-	{
-		/* Move to Sending data state */
+	else
+		/* Write a single data block */
 		error = Cmd24(pSd, pData, sdmmc_address, &status1, NULL);
-		if (error) {
-			trace_debug("SingleTx.Cmd24: %d\n\r", error);
-			return error;
-		}
-
-		if (status1 &
-		    (STATUS_WRITE & ~(STATUS_READY_FOR_DATA | STATUS_STATE))) {
-			trace_error("CMD24(0x%x).stat: %x\n\r",
-				    (unsigned int) sdmmc_address,
-				    (unsigned int) (status1 &
-						    (STATUS_WRITE &
-						     ~(STATUS_READY_FOR_DATA |
-						       STATUS_STATE))));
-			return SDMMC_ERROR;
+	if (!error) {
+		status = status1 & (isRead ? 0xffffffff : STATUS_WRITE);
+		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
+		if (status) {
+			trace_error("CMD%u(0x%lx).stat: %lx\n\r", isRead
+			    ? 17 : 24, sdmmc_address, status);
+			error = SDMMC_ERROR;
 		}
 	}
-
-	return error;
+	if (error) {
+		trace_error("SingleTx.Cmd%u: %u\n\r", isRead ? 17 : 24, error);
+		result = error;
+		error = Cmd13(pSd, &status1);
+		if (error) {
+			trace_error("SingleTx.Cmd13: %u\n\r", error);
+			pSd->bStatus = error;
+			return result;
+		}
+		error = _WaitUntilReady(pSd);
+		if (error) {
+			pSd->bStatus = error;
+			return result;
+		}
+	}
+	return result;
 }
 
 /**
@@ -1743,24 +1756,18 @@ MoveToTransferState(sSdCard * pSd,
 		    uint32_t address,
 		    uint16_t nbBlocks, uint8_t * pData, uint8_t isRead)
 {
-	//uint32_t status;
-	uint8_t error;
+	uint8_t result = SDMMC_OK, error;
 	uint8_t sd, mmc;
-	uint32_t sdmmc_address;
+	uint32_t sdmmc_address, state, status;
+
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
 	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
-	sdmmc_address = 0;
 	if (mmc)
 		sdmmc_address = MMC_ADDRESS(pSd, address);
-	if (sd) {
+	else if (sd)
 		sdmmc_address = SD_ADDRESS(pSd, address);
-		if ((pSd->bState == SDMMC_STATE_DATA_RD)
-		    || (pSd->bState == SDMMC_STATE_DATA_WR)) {
-			error = _StopCmd(pSd);
-			if (error)
-				return error;
-		}
-	}
+	else
+		return SDMMC_PARAM;
 	if (pSd->bSetBlkCnt) {
 		error = Cmd23(pSd, 0, nbBlocks, &status1);
 		if (error) {
@@ -1768,41 +1775,75 @@ MoveToTransferState(sSdCard * pSd,
 			return error;
 		}
 	}
-	if (isRead) {
+	if (isRead)
 		/* Move to Receiving data state */
-		error =
-		    Cmd18(pSd, nbBlocks, pData, sdmmc_address, &status1, NULL);
-		if (error) {
-			trace_error("MTranState.Cmd18: %d\n\r", error);
-			return error;
-		}
-		if (status1 & ~(STATUS_READY_FOR_DATA | STATUS_STATE)) {
-			trace_error("CMD18.stat: %lx\n\r",
-				    status1 & ~(STATUS_READY_FOR_DATA |
-						STATUS_STATE));
-			return SDMMC_ERROR;
-		}
-	} else {
+		error = Cmd18(pSd, nbBlocks, pData, sdmmc_address, &status1,
+		    NULL);
+	else
 		/* Move to Sending data state */
-		error = Cmd25(pSd,
-			      nbBlocks, pData, sdmmc_address, &status1, NULL);
-		if (error) {
-			trace_debug("MoveToTransferState.Cmd25: %d\n\r", error);
-			return error;
-		}
-		if (status1 &
-		    (STATUS_WRITE & ~(STATUS_READY_FOR_DATA | STATUS_STATE))) {
-			trace_error("CMD25(0x%x, %d).stat: %x\n\r",
-				    (unsigned int) sdmmc_address,
-				    (unsigned int) nbBlocks,
-				    (unsigned int) (status1 &
-						    (STATUS_WRITE &
-						     ~(STATUS_READY_FOR_DATA |
-						       STATUS_STATE))));
-			return SDMMC_ERROR;
+		error = Cmd25(pSd, nbBlocks, pData, sdmmc_address, &status1,
+		    NULL);
+	if (!error) {
+		status = status1 & (isRead ? 0xffffffff : STATUS_WRITE);
+		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
+
+		if (pSd->bStopMultXfer)
+			error = _StopCmd(pSd);
+
+		if (status) {
+			trace_error("CMD%u(0x%lx, %u).stat: %lx\n\r", isRead
+			    ? 18 : 25, sdmmc_address, nbBlocks, status);
+			error = SDMMC_ERROR;
 		}
 	}
-	return error;
+	if (error) {
+		trace_error("MoveToTransferState.Cmd%u: %u\n\r", isRead
+		    ? 18 : 25, error);
+		result = error;
+		error = Cmd13(pSd, &status1);
+		if (error) {
+			trace_error("MoveToTransferState.Cmd13: %u\n\r", error);
+			pSd->bStatus = error;
+			return result;
+		}
+		state = status1 & STATUS_STATE;
+		if (state == STATUS_DATA || state == STATUS_RCV) {
+			error = Cmd12(pSd, &status1);
+			if (error == SDMMC_OK) {
+				trace_debug("MoveToTransferState.stat: %lx\n\r",
+				    status1);
+				if (status1 & (STATUS_ERASE_SEQ_ERROR
+				    | STATUS_ERASE_PARAM | STATUS_UN_LOCK_FAILED
+				    | STATUS_ILLEGAL_COMMAND
+				    | STATUS_CIDCSD_OVERWRITE
+				    | STATUS_ERASE_RESET | STATUS_SWITCH_ERROR))
+					result = SDMMC_STATE;
+				else if (status1 & (STATUS_COM_CRC_ERROR
+				    | STATUS_CARD_ECC_FAILED | STATUS_ERROR))
+					result = SDMMC_ERR_IO;
+				else if (status1 & (STATUS_ADDR_OUT_OR_RANGE
+				    | STATUS_ADDRESS_MISALIGN
+				    | STATUS_BLOCK_LEN_ERROR
+				    | STATUS_WP_VIOLATION
+				    | STATUS_WP_ERASE_SKIP))
+					result = SDMMC_PARAM;
+				else if (status1 & STATUS_CC_ERROR)
+					result = SDMMC_ERR;
+			}
+			else if (error == SDMMC_ERROR_NORESPONSE)
+				error = Cmd13(pSd, &status1);
+			if (error) {
+				pSd->bStatus = error;
+				return result;
+			}
+		}
+		error = _WaitUntilReady(pSd);
+		if (error) {
+			pSd->bStatus = error;
+			return result;
+		}
+	}
+	return result;
 }
 
 /**
@@ -2573,9 +2614,6 @@ SD_Read(sSdCard * pSd,
 	if (length == 0)
 		/* Avoid starting an open-ended multiple block read */
 		return 0;
-	pSd->bState = SDMMC_STATE_DATA_RD;
-	//printf("MMCT_ReadFun(pSd,0x%x,%d,pBuffer); \n\r",address,length);
-//    printf("R %x,%x ",address,length);
 	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 1);
 	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length, error ?
 	    SD_StringifyRetCode(error) : "");
@@ -2609,8 +2647,6 @@ SD_Write(sSdCard * pSd,
 
 	if (length == 0)
 		return 0;
-	pSd->bState = SDMMC_STATE_DATA_WR;
-	//printf("W %x,%x ",address,length);
 	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 0);
 	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length, error ?
 	    SD_StringifyRetCode(error) : "");
@@ -2702,7 +2738,6 @@ _SdParamReset(sSdCard * pSd)
 
 	pSd->bCardType = 0;
 	pSd->bStatus = 0;
-	pSd->bState = SDMMC_STATE_IDENT;
 	pSd->bSetBlkCnt = 0;
 	pSd->bStopMultXfer = 0;
 
@@ -2839,9 +2874,6 @@ SD_Init(sSdCard * pSd)
 		}
 	}
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
-
-	/* Reset status for R/W */
-	pSd->bState = SDMMC_STATE_TRAN;
 
 	/* If MMC Card & get size from EXT_CSD */
 	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC

@@ -404,8 +404,7 @@ typedef struct _SdCard {
 	uint8_t bCardType;	/**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
 	uint8_t bBusMode;	/**< 1/4/8 bit bus mode */
 	uint8_t bSlot;		/**< Card access slot */
-	uint8_t bState;		/**< Card state */
-	uint8_t bStatus;	/**< Card status */
+	uint8_t bStatus;	/**< Unrecovered error */
 	uint8_t bSetBlkCnt;	/**< Explicit SET_BLOCK_COUNT command used */
 	uint8_t bStopMultXfer;	/**< Explicit STOP_TRANSMISSION command used */
 } sSdCard;
