@@ -125,7 +125,10 @@ DRESULT disk_read(BYTE slot, BYTE* buff, DWORD sector, UINT count)
 		addr = sector * (_MIN_SS / blk_size);
 		len  = count * (_MIN_SS / blk_size);
 	}
-	rc = SD_ReadBlocks(lib, addr, buff, len);
+	if (count <= 1)
+		rc = SD_ReadBlocks(lib, addr, buff, len);
+	else
+		rc = SD_Read(lib, addr, buff, len, NULL, NULL);
 	if (rc == SDMMC_OK || rc == SDMMC_CHANGED)
 		res = RES_OK;
 	else if (rc == SDMMC_ERR_IO || rc == SDMMC_ERR_RESP || rc == SDMMC_ERR)
@@ -138,6 +141,7 @@ DRESULT disk_read(BYTE slot, BYTE* buff, DWORD sector, UINT count)
 		res = RES_PARERR;
 	else
 		res = RES_ERROR;
+	/* TODO upon error update disk_status() result */
 	return res;
 }
 
@@ -174,7 +178,10 @@ DRESULT disk_write(BYTE slot, const BYTE* buff, DWORD sector, UINT count)
 		addr = sector * (_MIN_SS / blk_size);
 		len  = count * (_MIN_SS / blk_size);
 	}
-	rc = SD_WriteBlocks(lib, addr, buff, len);
+	if (count <= 1)
+		rc = SD_WriteBlocks(lib, addr, buff, len);
+	else
+		rc = SD_Write(lib, addr, buff, len, NULL, NULL);
 	if (rc == SDMMC_OK || rc == SDMMC_CHANGED)
 		res = RES_OK;
 	else if (rc == SDMMC_ERR_IO || rc == SDMMC_ERR_RESP || rc == SDMMC_ERR)
@@ -187,6 +194,7 @@ DRESULT disk_write(BYTE slot, const BYTE* buff, DWORD sector, UINT count)
 		res = RES_PARERR;
 	else
 		res = RES_ERROR;
+	/* TODO upon error update disk_status() result */
 	return res;
 }
 #endif /* _FS_READONLY */
