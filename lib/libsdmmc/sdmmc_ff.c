@@ -73,11 +73,18 @@ extern bool SD_GetInstance(uint8_t index, sSdCard **holder);
 DSTATUS disk_initialize(BYTE slot)
 {
 	sSdCard *lib = NULL;
+	uint8_t rc;
 
 	if (!SD_GetInstance(slot, &lib))
 		return STA_NOINIT;
-	/* The application has initialized the instance already */
-	return RES_OK;
+	assert(lib);
+	rc = SD_GetStatus(lib);
+	if (rc == SDMMC_NOT_SUPPORTED)
+		return STA_NODISK | STA_NOINIT;
+	SD_DeInit(lib);
+	/* FIXME a delay with the bus held off may be required by the device */
+	rc = SD_Init(lib);
+	return rc == SDMMC_OK ? 0 : STA_NOINIT;
 }
 
 /**
@@ -89,11 +96,16 @@ DSTATUS disk_initialize(BYTE slot)
 DSTATUS disk_status(BYTE slot)
 {
 	sSdCard *lib = NULL;
+	uint8_t rc;
 
 	if (!SD_GetInstance(slot, &lib))
+		return STA_NODISK | STA_NOINIT;
+	assert(lib);
+	rc = SD_GetStatus(lib);
+	if (rc == SDMMC_NOT_SUPPORTED)
+		return STA_NODISK | STA_NOINIT;
+	else if (rc != SDMMC_OK)
 		return STA_NOINIT;
-	/* TODO implement STA_NODISK case */
-
 	/* Well, no restriction on this drive */
 	return 0;
 }
@@ -141,7 +153,6 @@ DRESULT disk_read(BYTE slot, BYTE* buff, DWORD sector, UINT count)
 		res = RES_PARERR;
 	else
 		res = RES_ERROR;
-	/* TODO upon error update disk_status() result */
 	return res;
 }
 
@@ -194,7 +205,6 @@ DRESULT disk_write(BYTE slot, const BYTE* buff, DWORD sector, UINT count)
 		res = RES_PARERR;
 	else
 		res = RES_ERROR;
-	/* TODO upon error update disk_status() result */
 	return res;
 }
 #endif /* _FS_READONLY */

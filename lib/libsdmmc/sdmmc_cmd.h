@@ -235,6 +235,9 @@ typedef enum {
     transfers complete successfully.
     IOCtrl(pSd, SDMMC_IOCTL_GET_XFERCOMPL, (uint32_t*)pOAutoXferCompletion) */
 #define SDMMC_IOCTL_GET_XFERCOMPL 0x25
+/** SD/MMC Low Level IO Control: Query whether a device is detected in this slot
+    IOCtrl(pSd, SDMMC_IOCTL_GET_DEVICE, (uint32_t*)pODetected) */
+#define SDMMC_IOCTL_GET_DEVICE    0x26
 /**     @}*/
 
 /** \ingroup sdmmc_hal_def

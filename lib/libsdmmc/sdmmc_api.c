@@ -261,6 +261,7 @@ static const struct stringEntry_s sdmmcIOCtrlNames[] = {
 	{ SDMMC_IOCTL_GET_HSMODE,	"SDMMC_IOCTL_GET_HSMODE",	},
 	{ SDMMC_IOCTL_GET_BOOTMODE,	"SDMMC_IOCTL_GET_BOOTMODE",	},
 	{ SDMMC_IOCTL_GET_XFERCOMPL,	"SDMMC_IOCTL_GET_XFERCOMPL",	},
+	{ SDMMC_IOCTL_GET_DEVICE,	"SDMMC_IOCTL_GET_DEVICE",	},
 };
 
 static const char sdmmcInvalidRCode[] = "!Invalid return code!";
@@ -2737,7 +2738,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->wAddress = 0;
 
 	pSd->bCardType = 0;
-	pSd->bStatus = 0;
+	pSd->bStatus = SDMMC_NOT_INITIALIZED;
 	pSd->bSetBlkCnt = 0;
 	pSd->bStopMultXfer = 0;
 
@@ -2906,6 +2907,7 @@ SD_Init(sSdCard * pSd)
 	}
 
 	if (pSd->bCardType == CARD_UNKNOWN) {
+		trace_error("SD_Init.Identify: failed\n\r");
 		return SDMMC_ERROR_NOT_INITIALIZED;
 	}
 	/* Automatically select the max clock */
@@ -2914,6 +2916,7 @@ SD_Init(sSdCard * pSd)
 	trace_warning_wp("-I- Set SD/MMC clock to %uK\n\r",
 			 (unsigned int) clock / 1000);
 	pSd->dwCurrSpeed = clock;
+	pSd->bStatus = SDMMC_OK;
 	return 0;
 }
 
@@ -2943,10 +2946,14 @@ SD_DeInit(sSdCard * pSd)
 uint8_t
 SD_GetStatus(sSdCard * pSd)
 {
+	uint32_t rc, drv_param = 0;
+
 	assert(pSd != NULL);
 
-	/* TODO develop an extra SDMMC_IOCTL control to query whether the device
-	 * is present. Return SDMMC_NOT_SUPPORTED if removed. */
+	rc = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_GET_DEVICE,
+	    (uint32_t)&drv_param);
+	if (rc != SDMMC_OK || !drv_param)
+		return SDMMC_NOT_SUPPORTED;
 
 	return pSd->bStatus == SDMMC_NOT_SUPPORTED ? SDMMC_ERR : pSd->bStatus;
 }
