@@ -297,8 +297,8 @@ static void _clear_dma_desc(struct _lcdc_dma_desc *desc,
 	}
 
 	/* Modify registers */
-	dma_head_reg[1] &= ~LCDC_BASECTRL_DFETCH;
-	dma_head_reg[2] = (uint32_t)desc;
+	dma_head_reg[2] &= ~LCDC_BASECTRL_DFETCH;
+	dma_head_reg[3] = (uint32_t)desc;
 }
 
 /**
