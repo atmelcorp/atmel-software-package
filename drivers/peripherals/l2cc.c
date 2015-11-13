@@ -150,8 +150,8 @@ void l2cc_set_config(const struct _l2cc_control* cfg)
 			    (cfg->instruct_prefetch << 29) |
 			    (cfg->double_linefill << 30));
 
-	power_control = ((cfg->no_cache_linefill << 0) |
-			 (cfg->no_write_back << 1));
+	power_control = ((cfg->standby_mode << 0) |
+			 (cfg->dyn_clock_gating << 1));
 
 	L2CC->L2CC_ACR = aux_control;
 	L2CC->L2CC_DCR = debug_control;
