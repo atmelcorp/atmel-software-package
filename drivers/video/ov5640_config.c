@@ -5252,7 +5252,7 @@ const sensor_output_t ov5640_output_wxga =
 {0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov5640_yuv_wxga};
 
 const sensor_output_t ov5640_output_af =
-{1, (sensor_output_resolution_t)0, 0, (sensor_output_format_t)0, 1, 0, 0, ov5640_afc};
+{1, (sensor_output_resolution_t)0, (sensor_output_format_t)0, (sensor_output_bit_t)0, 1, 0, 0, ov5640_afc};
 
 const sensor_profile_t ov5640_profile =
 {
