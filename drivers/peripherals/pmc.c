@@ -194,9 +194,9 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 
 	switch (clock)
 	{
-#ifdef PMC_SCER_PCK
+#ifdef PMC_SCDR_PCK
 	case PMC_SYSTEM_CLOCK_PCK:
-		e = PMC_SCER_PCK;
+		e = 0;
 		d = PMC_SCDR_PCK;
 		s = PMC_SCSR_PCK;
 		break;
@@ -254,12 +254,27 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		return false;
 	}
 
-	if (scer)
-		*scer = e;
-	if (scdr)
-		*scdr = d;
-	if (scsr)
-		*scsr = s;
+	if (scer) {
+		if (e)
+			*scer = e;
+		else
+			return false;
+	}
+
+	if (scdr) {
+		if (d)
+			*scdr = d;
+		else
+			return false;
+	}
+
+	if (scsr) {
+		if (s)
+			*scsr = s;
+		else
+			return false;
+	}
+
 	return true;
 }
 
@@ -303,7 +318,7 @@ uint32_t pmc_get_plla_clock(void)
 	pllar = PMC->CKGR_PLLAR;
 	pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
 	plldiva = (pllar & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
-	if (plldiva == 0) {
+	if (plldiva == 0 || pllmula == 0) {
 		pllaclk = 0;
 	} else {
 		pllaclk = pllaclk * (pllmula + 1) / plldiva;
@@ -386,16 +401,16 @@ void pmc_select_internal_crystal(void)
 
 void pmc_select_external_osc(void)
 {
-	/* switch from internal RC 12 MHz to external OSC 12 MHz */
-	/* wait Main XTAL Oscillator stabilization */
+	/* Enable external osc 12 MHz when needed */
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
+		PMC->CKGR_MOR |= CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+		/* Wait Main Oscillator ready */
+		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
+	}
+
+	/* Return if external osc had been selected */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
 		return;
-
-	/* enable external OSC 12 MHz */
-	PMC->CKGR_MOR |= (1 << 5) | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
-
-	/* Wait Main Oscillator ready */
-	while (!(PMC->PMC_SR & PMC_SR_MOSCXTS));
 
 	/* switch MAIN clock to external OSC 12 MHz */
 	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
@@ -406,6 +421,8 @@ void pmc_select_external_osc(void)
 	/* wait MAIN clock status change for external OSC 12 MHz selection */
 	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS));
 
+	/* disable internal RC 12 MHz to save power */
+	pmc_disable_internal_osc();
 }
 
 void pmc_disable_external_osc(void)
@@ -416,9 +433,12 @@ void pmc_disable_external_osc(void)
 
 void pmc_select_internal_osc(void)
 {
-	/* switch from external OSC 12 MHz to internal RC 12 MHz */
-	/* Wait internal 12 MHz RC Startup Time for clock stabilization (software loop) */
-	while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
+	/* Enable internal RC 12 MHz when needed */
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
+		PMC->CKGR_MOR |= CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
+		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
+		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
+	}
 
 	/* switch MAIN clock to internal RC 12 MHz */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
@@ -426,9 +446,8 @@ void pmc_select_internal_osc(void)
 	/* in case where MCK is running on MAIN CLK */
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
-	/* disable external OSC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	/* disable external OSC 12 MHz to save power*/
+	pmc_disable_external_osc();
 }
 
 void pmc_disable_internal_osc(void)
@@ -550,6 +569,71 @@ void pmc_disable_system_clock(enum _pmc_system_clock clock)
 
 	PMC->PMC_SCDR |= scdr;
 	while (PMC->PMC_SCSR & scsr);
+}
+
+void pmc_set_fast_startup_mode(uint32_t startup_mode)
+{
+	PMC->PMC_FSMR = startup_mode;
+}
+
+void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
+{
+	PMC->PMC_FSPR &= ~low_level;
+	PMC->PMC_FSPR |= high_level;
+}
+
+void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
+{
+	pmc_switch_mck_to_slck();
+
+	if (cfg->ext12m)
+		pmc_select_external_osc();
+	else
+		pmc_select_internal_osc();
+
+	pmc_switch_mck_to_main();
+
+	if (cfg->ext32k)
+		pmc_select_external_crystal();
+	else
+		pmc_select_internal_crystal();
+
+	pmc_set_mck_prescaler(cfg->pck_pres);
+	pmc_set_mck_divider(cfg->mck_div);
+
+	pmc_set_mck_plla_div(cfg->plla_div2 ? PMC_MCKR_PLLADIV2 : 0);
+	if (cfg->plla_mul > 0) {
+		pmc_disable_plla();
+		uint32_t tmp = CKGR_PLLAR_ONE |
+			CKGR_PLLAR_PLLACOUNT(0x3F) |
+			CKGR_PLLAR_OUTA(0x0) |
+			CKGR_PLLAR_MULA(cfg->plla_mul) |
+			CKGR_PLLAR_DIVA(cfg->plla_div);
+		pmc_set_plla(tmp, PMC_PLLICPR_IPLL_PLLA(0x3));
+	} else {
+		pmc_disable_plla();
+	}
+
+	if (cfg->h32mxdiv2)
+		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
+	else
+		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV1);
+
+	switch (cfg->pck_input) {
+	case PMC_MCKR_CSS_PLLA_CLK:
+		pmc_switch_mck_to_pll();
+		break;
+
+	case PMC_MCKR_CSS_UPLL_CLK:
+		pmc_switch_mck_to_upll();
+		break;
+
+	case PMC_MCKR_CSS_SLOW_CLK:
+		pmc_switch_mck_to_slck();
+		pmc_disable_internal_osc();
+		pmc_disable_external_osc();
+		break;
+	}
 }
 
 /*----------------------------------------------------------------------------

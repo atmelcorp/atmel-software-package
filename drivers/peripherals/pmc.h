@@ -40,6 +40,35 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
+struct pck_mck_cfg {
+	/** PLL A, SLCK, MAIN, UPLL */
+	uint32_t pck_input;
+
+	/** RC12M (false) or EXT12M (true) */
+	bool ext12m;
+
+	/** RC32K (false) or EXT32K (true) */
+	bool ext32k;
+
+	/** PLLA MUL value in PMC PLL register */
+	uint32_t plla_mul;
+
+	/** PLLA DIV value in PMC PLL register */
+	uint32_t plla_div;
+
+	/** PLLA DIV value by 2 */
+	bool plla_div2;
+
+	/** Master/Processor Clock Prescaler */
+	uint32_t pck_pres;
+
+	/** Master Clock Division after Prescaler divider */
+	uint32_t mck_div;
+
+	/** true if the AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2 */
+	bool h32mxdiv2;
+};
+
 /**
  * \brief System clock identifiers, used for pmc_{enable,disable}_system_clock
  */
@@ -79,6 +108,11 @@ struct _pmc_audio_cfg {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \brief Configure PCK and MCK with custom setting
+ */
+extern void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg);
 
 /**
  * \brief Get the configured frequency of the master clock
@@ -207,6 +241,19 @@ extern void pmc_enable_system_clock(enum _pmc_system_clock clock);
  * \param clock system clock to disable
  */
 extern void pmc_disable_system_clock(enum _pmc_system_clock clock);
+
+/**
+ * \brief Set up fast startup mode
+ * \param source and low power mode
+ */
+extern void pmc_set_fast_startup_mode(uint32_t startup_mode);
+
+/**
+ * \brief Set up fast startup polarity
+ * \param level
+ */
+extern void pmc_set_fast_startup_polarity(uint32_t high_level,
+	uint32_t low_level);
 
 /**
  * \brief Enables the clock of a peripheral. The peripheral ID is used
