@@ -835,7 +835,7 @@ void pmc_enable_audio(bool pmc_clock, bool pad_clock)
 	if (pmc_clock)
 		bits |= PMC_AUDIO_PLL0_PMCEN;
 	else
-		nbits |= PMC_AUDIO_PLL0_PADEN;
+		nbits |= PMC_AUDIO_PLL0_PMCEN;
 
 	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~nbits) | bits;
 }
