@@ -260,7 +260,7 @@ static void _dma_callback(struct _xdmad_channel *channel, void* arg)
  */
 static void _playback_with_dma(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)music_data + sizeof(struct _wav_header);
+	uint32_t* audio = (uint32_t*)(music_data + sizeof(struct _wav_header));
 	uint32_t  audio_length = ((struct _wav_header*)music_data)->subchunk2_size;
 	bool done = false;
 
@@ -278,7 +278,7 @@ static void _playback_with_dma(uint8_t attn)
  */
 static void _playback_without_dma(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)music_data + sizeof(struct _wav_header);
+	uint32_t* audio = (uint32_t*)(music_data + sizeof(struct _wav_header));
 	uint32_t  audio_length = ((struct _wav_header*)music_data)->subchunk2_size;
 	uint32_t* audio_end = audio + audio_length / 4;
 
