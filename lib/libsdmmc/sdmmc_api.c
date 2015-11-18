@@ -1097,7 +1097,7 @@ Cmd19(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
  */
 static uint8_t
 Cmd18(sSdCard * pSd,
-      uint16_t nbBlock,
+      uint16_t * nbBlock,
       uint8_t * pData,
       uint32_t address, uint32_t * pStatus, fSdmmcCallback callback)
 {
@@ -1113,11 +1113,13 @@ Cmd18(sSdCard * pSd,
 	pCmd->dwArg = address;
 	pCmd->pResp = pStatus;
 	pCmd->wBlockSize = BLOCK_SIZE(pSd);
-	pCmd->wNbBlocks = nbBlock;
+	pCmd->wNbBlocks = *nbBlock;
 	pCmd->pData = pData;
 	pCmd->fCallback = callback;
 	/* Send command */
 	bRc = _SendCmd(pSd, NULL, NULL);
+	if (bRc == SDMMC_CHANGED)
+		*nbBlock = pCmd->wNbBlocks;
 	return bRc;
 }
 
@@ -1203,7 +1205,7 @@ Cmd24(sSdCard * pSd,
  */
 static uint8_t
 Cmd25(sSdCard * pSd,
-      uint16_t nbBlock,
+      uint16_t * nbBlock,
       uint8_t * pData,
       uint32_t address, uint32_t * pStatus, fSdmmcCallback callback)
 {
@@ -1219,11 +1221,13 @@ Cmd25(sSdCard * pSd,
 	pCmd->dwArg = address;
 	pCmd->pResp = pStatus;
 	pCmd->wBlockSize = BLOCK_SIZE(pSd);
-	pCmd->wNbBlocks = nbBlock;
+	pCmd->wNbBlocks = *nbBlock;
 	pCmd->pData = pData;
 	pCmd->fCallback = callback;
 	/* Send command */
 	bRc = _SendCmd(pSd, NULL, NULL);
+	if (bRc == SDMMC_CHANGED)
+		*nbBlock = pCmd->wNbBlocks;
 	return bRc;
 }
 
@@ -1627,6 +1631,9 @@ _StopCmd(sSdCard * pSd)
 			trace_error("_StopC.Cmd12: %u\n\r", error);
 			return error;
 		}
+		/* TODO handle any exception, raised in status1; report that
+		 * the data transfer has failed. */
+
 		/* Check status for 299 times */
 		for (j = 0; j < 299; j++) {
 			error = Cmd13(pSd, &status1);
@@ -1748,18 +1755,23 @@ PerformSingleTransfer(sSdCard * pSd,
  * Returns 0 if successful; otherwise returns an code describing the error.
  * \param pSd      Pointer to a SD card driver instance.
  * \param address  Address of the block to transfer.
- * \param nbBlocks Number of blocks to be transfer, 0 for infinite transfer.
+ * \param nbBlocks Pointer to count of blocks to transfer. Pointer to 0
+ * for infinite transfer. Upon return, points to the count of blocks actually
+ * transferred.
  * \param pData    Data buffer whose size is at least the block size.
  * \param isRead   1 for read data and 0 for write data.
  */
 static uint8_t
 MoveToTransferState(sSdCard * pSd,
 		    uint32_t address,
-		    uint16_t nbBlocks, uint8_t * pData, uint8_t isRead)
+		    uint16_t * nbBlocks, uint8_t * pData, uint8_t isRead)
 {
 	uint8_t result = SDMMC_OK, error;
 	uint8_t sd, mmc;
 	uint32_t sdmmc_address, state, status;
+
+	assert(pSd != NULL);
+	assert(nbBlocks != NULL);
 
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
 	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
@@ -1770,7 +1782,7 @@ MoveToTransferState(sSdCard * pSd,
 	else
 		return SDMMC_PARAM;
 	if (pSd->bSetBlkCnt) {
-		error = Cmd23(pSd, 0, nbBlocks, &status1);
+		error = Cmd23(pSd, 0, *nbBlocks, &status1);
 		if (error) {
 			trace_error("MoveToTransferState.Cmd23: %u\n\r", error);
 			return error;
@@ -1784,6 +1796,8 @@ MoveToTransferState(sSdCard * pSd,
 		/* Move to Sending data state */
 		error = Cmd25(pSd, nbBlocks, pData, sdmmc_address, &status1,
 		    NULL);
+	if (error == SDMMC_CHANGED)
+		error = SDMMC_OK;
 	if (!error) {
 		status = status1 & (isRead ? 0xffffffff : STATUS_WRITE);
 		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
@@ -1793,9 +1807,15 @@ MoveToTransferState(sSdCard * pSd,
 
 		if (status) {
 			trace_error("CMD%u(0x%lx, %u).stat: %lx\n\r", isRead
-			    ? 18 : 25, sdmmc_address, nbBlocks, status);
+			    ? 18 : 25, sdmmc_address, *nbBlocks, status);
+			/* TODO ignore STATUS_ADDR_OUT_OR_RANGE if the read
+			 * operation is for the last block of memory area. */
 			error = SDMMC_ERROR;
 		}
+		/* FIXME when not using the STOP_TRANSMISSION command (using the
+		 * SET_BLOCK_COUNT command instead), we should issue the
+		 * SEND_STATUS command, and handle any Execution Mode exception.
+		 */
 	}
 	if (error) {
 		trace_error("MoveToTransferState.Cmd%u: %u\n\r", isRead
@@ -2607,15 +2627,21 @@ SD_Read(sSdCard * pSd,
 	uint32_t address,
 	void *pData, uint32_t length, fSdmmcCallback pCallback, void *pArgs)
 {
-	uint8_t error;
+	uint8_t *out = NULL;
+	uint32_t remaining, blk_no;
+	uint16_t limited;
+	uint8_t error = SDMMC_OK;
 
 	assert(pSd != NULL);
 	assert(pData != NULL);
 
-	if (length == 0)
-		/* Avoid starting an open-ended multiple block read */
-		return 0;
-	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 1);
+	for (blk_no = address, remaining = length, out = (uint8_t *)pData;
+	    remaining != 0 && error == SDMMC_OK;
+	    blk_no += limited, remaining -= limited,
+	    out += (uint32_t)limited * (uint32_t)BLOCK_SIZE(pSd)) {
+		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
+		error = MoveToTransferState(pSd, blk_no, &limited, out, 1);
+	}
 	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length, error ?
 	    SD_StringifyRetCode(error) : "");
 	return error;
@@ -2641,14 +2667,21 @@ SD_Write(sSdCard * pSd,
 	 const void *pData,
 	 uint32_t length, fSdmmcCallback pCallback, void *pArgs)
 {
-	uint8_t error;
+	uint8_t *in = NULL;
+	uint32_t remaining, blk_no;
+	uint16_t limited;
+	uint8_t error = SDMMC_OK;
 
 	assert(pSd != NULL);
 	assert(pData != NULL);
 
-	if (length == 0)
-		return 0;
-	error = MoveToTransferState(pSd, address, length, (uint8_t *) pData, 0);
+	for (blk_no = address, remaining = length, in = (uint8_t *)pData;
+	    remaining != 0 && error == SDMMC_OK;
+	    blk_no += limited, remaining -= limited,
+	    in += (uint32_t)limited * (uint32_t)BLOCK_SIZE(pSd)) {
+		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
+		error = MoveToTransferState(pSd, blk_no, &limited, in, 0);
+	}
 	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length, error ?
 	    SD_StringifyRetCode(error) : "");
 	return error;
