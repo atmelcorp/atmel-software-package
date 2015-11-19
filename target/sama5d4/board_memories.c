@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 20143, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,74 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup ddrd_module
- *
- * The DDR/SDR SDRAM Controller (DDRSDRC) is a multiport memory controller. It comprises
- * four slave AHB interfaces. All simultaneous accesses (four independent AHB ports) are interleaved
- * to maximize memory bandwidth and minimize transaction latency due to SDRAM protocol.
- *
- * \section ddr2 Configures DDR2
- *
- * The DDR2-SDRAM devices are initialized by the following sequence:
- * <ul>
- * <li> EBI Chip Select 1 is assigned to the DDR2SDR Controller, Enable DDR2 clock x2 in PMC.</li>
- * <li> Step 1: Program the memory device type</li>
- * <li> Step 2:
- *  -# Program the features of DDR2-SDRAM device into the Configuration Register.
- *  -# Program the features of DDR2-SDRAM device into the Timing Register HDDRSDRC2_T0PR.
- *  -# Program the features of DDR2-SDRAM device into the Timing Register HDDRSDRC2_T1PR.
- *  -# Program the features of DDR2-SDRAM device into the Timing Register HDDRSDRC2_T2PR. </li>
- * <li> Step 3: An NOP command is issued to the DDR2-SDRAM to enable clock. </li>
- * <li> Step 4:  An NOP command is issued to the DDR2-SDRAM </li>
- * <li> Step 5: An all banks precharge command is issued to the DDR2-SDRAM. </li>
- * <li> Step 6: An Extended Mode Register set (EMRS2) cycle is  issued to chose between commercialor high  temperature operations.</li>
- * <li> Step 7: An Extended Mode Register set (EMRS3) cycle is issued to set all registers to 0. </li>
- * <li> Step 8:  An Extended Mode Register set (EMRS1) cycle is issued to enable DLL.</li>
- * <li> Step 9:  Program DLL field into the Configuration Register.</li>
- * <li> Step 10: A Mode Register set (MRS) cycle is issued to reset DLL.</li>
- * <li> Step 11: An all banks precharge command is issued to the DDR2-SDRAM.</li>
- * <li> Step 12: Two auto-refresh (CBR) cycles are provided. Program the auto refresh command (CBR) into the Mode Register.</li>
- * <li> Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset).</li>
- * <li> Step 14: A Mode Register set (MRS) cycle is issued to program the parameters of the DDR2-SDRAM devices.</li>
- * <li> Step 15: Program OCD field into the Configuration Register to high (OCD calibration default). </li>
- * <li> Step 16: An Extended Mode Register set (EMRS1) cycle is issued to OCD default value.</li>
- * <li> Step 17: Program OCD field into the Configuration Register to low (OCD calibration mode exit).</li>
- * <li> Step 18: An Extended Mode Register set (EMRS1) cycle is issued to enable OCD exit.</li>
- * <li> Step 19,20: A mode Normal command is provided. Program the Normal mode into Mode Register.</li>
- * <li> Step 21: Write the refresh rate into the count field in the Refresh Timer register. The DDR2-SDRAM device requires a refresh every 15.625 or 7.81. </li>
- * </ul>
-*/
-/*@{*/
-/*@}*/
-
-/** \addtogroup sdram_module
- *
- * \section sdram Configures SDRAM
- *
- * The SDR-SDRAM devices are initialized by the following sequence:
- * <ul>
- * <li> EBI Chip Select 1 is assigned to the DDR2SDR Controller, Enable DDR2 clock x2 in PMC.</li>
- * <li> Step 1. Program the memory device type into the Memory Device Register</li>
- * <li> Step 2. Program the features of the SDR-SDRAM device into the Timing Register and into the Configuration Register.</li>
- * <li> Step 3. For low-power SDRAM, temperature-compensated self refresh (TCSR), drive strength (DS) and partial array self refresh (PASR) must be set in the Low-power Register.</li>
- * <li> Step 4. A NOP command is issued to the SDR-SDRAM. Program NOP command into Mode Register, the application must
- * set Mode to 1 in the Mode Register. Perform a write access to any SDR-SDRAM address to acknowledge this command.
- * Now the clock which drives SDR-SDRAM device is enabled.</li>
- * <li> Step 5. An all banks precharge command is issued to the SDR-SDRAM. Program all banks precharge command into Mode Register, the application must set Mode to 2 in the
- * Mode Register . Perform a write access to any SDRSDRAM address to acknowledge this command.</li>
- * <li> Step 6. Eight auto-refresh (CBR) cycles are provided. Program the auto refresh command (CBR) into Mode Register, the application must set Mode to 4 in the Mode Register.
- * Once in the idle state, two AUTO REFRESH cycles must be performed.</li>
- * <li> Step 7. A Mode Register set (MRS) cycle is issued to program the parameters of the SDRSDRAM
- * devices, in particular CAS latency and burst length. </li>
- * <li> Step 8. For low-power SDR-SDRAM initialization, an Extended Mode Register set (EMRS) cycle is issued to program the SDR-SDRAM parameters (TCSR, PASR, DS). The write
- * address must be chosen so that BA[1] is set to 1 and BA[0] is set to 0 </li>
- * <li> Step 9. The application must go into Normal Mode, setting Mode to 0 in the Mode Register and perform a write access at any location in the SDRAM to acknowledge this command.</li>
- * <li> Step 10. Write the refresh rate into the count field in the DDRSDRC Refresh Timer register </li>
-* </ul>
-*/
-/*@{*/
-/*@}*/
-
 /**
  * \file
  *
@@ -105,27 +37,19 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "board.h"
 #include "board_memories.h"
+#include "trace.h"
 
 #include "cortex-a/mmu.h"
 
+#include "peripherals/hsmc.h"
 #include "peripherals/l2cc.h"
-#include "peripherals/pmc.h"
 #include "peripherals/matrix.h"
+#include "peripherals/pmc.h"
 
 #include "memories/ddram.h"
-
-#include <stdint.h>
-
-/*----------------------------------------------------------------------------
- *        Definitions
- *----------------------------------------------------------------------------*/
-
-#define DDR2_BA0(r) (1 << (26 + r))
-#define DDR2_BA1(r) (1 << (27 + r))
-
-#define H64MX_DDR_SLAVE_PORT0   3
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -159,53 +83,55 @@ static void matrix_configure_slave_ddr(void)
 
 	/* Internal SRAM */
 	matrix_configure_slave_sec(MATRIX0,
-			H64MX_SLAVE_SRAM,0, 0, 0);
+			H64MX_SLAVE_SRAM, 0, 0, 0);
 	matrix_set_slave_region_size(MATRIX0,
 			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
 	matrix_set_slave_split_addr(MATRIX0,
 			H64MX_SLAVE_SRAM, MATRIX_AREA_64K, 0x1);
 
 	/* External DDR */
-	/* DDR port 0 not used from NWd */
-	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++)
-	{
+	/* DDR port 0 not used */
+	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++) {
 		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
+		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xf);
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
-		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xF);
 	}
 }
 
+#ifdef CONFIG_HAVE_NANDFLASH
 static void matrix_configure_slave_nand(void)
 {
 	/* Disable write protection */
 	matrix_remove_write_protection(MATRIX0);
+	matrix_remove_write_protection(MATRIX1);
 
 	/* Internal SRAM */
 	matrix_configure_slave_sec(MATRIX0,
 			H64MX_SLAVE_SRAM, 0x1, 0x1, 0x1);
-	matrix_set_slave_region_size(MATRIX0,
-			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
 	matrix_set_slave_split_addr(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_region_size(MATRIX0,
 			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
 
 	/* NFC Command Register */
 	matrix_configure_slave_sec(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, 0xFF, 0xFF, 0xFF);
-	matrix_set_slave_region_size(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xFF);
+			H32MX_SLAVE_NFC_CMD, 0xff, 0xff, 0xff);
 	matrix_set_slave_split_addr(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xFF);
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
 
 	/* NFC SRAM */
 	matrix_configure_slave_sec(MATRIX1,
-			H32MX_SLAVE_NFC_SRAM, 0xFF,0xFF,0xFF);
+			H32MX_SLAVE_NFC_SRAM, 0xff,0xff,0xff);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_128M, 0x4f);
 	matrix_set_slave_region_size(MATRIX1,
 			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
-	matrix_set_slave_split_addr(MATRIX1,
-			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_128M, 0x4F);
 
-	MATRIX1->MATRIX_MEIER = 0x3FF;
+	MATRIX1->MATRIX_MEIER = 0x3ff;
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -413,10 +339,6 @@ void board_cfg_l2cc(void)
 	l2cc_configure(&l2cc_cfg);
 }
 
-void board_cfg_vdd_mem_sel(uint8_t VddMemSel)
-{
-}
-
 void board_cfg_ddram(void)
 {
 	matrix_configure_slave_ddr();
@@ -425,57 +347,17 @@ void board_cfg_ddram(void)
 	ddram_configure(&desc);
 }
 
-void board_cfg_sdram(void)
+#ifdef CONFIG_HAVE_NANDFLASH
+void board_cfg_nand_flash(void)
 {
-}
-
-void board_cfg_nand_flash(uint8_t busWidth)
-{
-	pmc_enable_peripheral(ID_HSMC);
-
 	matrix_configure_slave_nand();
-
-	HSMC->SMC_CS_NUMBER[3].HSMC_SETUP = HSMC_SETUP_NWE_SETUP(2) |
-		HSMC_SETUP_NCS_WR_SETUP(2) |
-		HSMC_SETUP_NRD_SETUP(2) |
-		HSMC_SETUP_NCS_RD_SETUP(2);
-	HSMC->SMC_CS_NUMBER[3].HSMC_PULSE = HSMC_PULSE_NWE_PULSE(7) |
-		HSMC_PULSE_NCS_WR_PULSE(7) |
-		HSMC_PULSE_NRD_PULSE(7) |
-		HSMC_PULSE_NCS_RD_PULSE(7);
-	HSMC->SMC_CS_NUMBER[3].HSMC_CYCLE = HSMC_CYCLE_NWE_CYCLE(13) |
-		HSMC_CYCLE_NRD_CYCLE(13);
-	HSMC->SMC_CS_NUMBER[3].HSMC_TIMINGS = HSMC_TIMINGS_TCLR(3) |
-		HSMC_TIMINGS_TADL(27) |
-		HSMC_TIMINGS_TAR(3) |
-		HSMC_TIMINGS_TRR(6) |
-		HSMC_TIMINGS_TWB(5) |
-		HSMC_TIMINGS_RBNSEL(3) |
-		HSMC_TIMINGS_NFSEL;
-	HSMC->SMC_CS_NUMBER[3].HSMC_MODE = HSMC_MODE_READ_MODE |
-		HSMC_MODE_WRITE_MODE |
-		(busWidth == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
-		HSMC_MODE_TDF_CYCLES(1);
+	hsmc_nand_configure(BOARD_NANDFLASH_CS, BOARD_NANDFLASH_BUS_WIDTH);
 }
+#endif
 
-void board_cfg_nor_flash(uint8_t busWidth)
+#ifdef CONFIG_HAVE_NORFLASH
+void board_cfg_nor_flash(void)
 {
-	pmc_enable_peripheral(ID_HSMC);
-
-	HSMC->SMC_CS_NUMBER[0].HSMC_SETUP = HSMC_SETUP_NWE_SETUP(1) |
-		HSMC_SETUP_NCS_WR_SETUP(0) |
-		HSMC_SETUP_NRD_SETUP(2) |
-		HSMC_SETUP_NCS_RD_SETUP(0);
-	HSMC->SMC_CS_NUMBER[0].HSMC_PULSE = HSMC_PULSE_NWE_PULSE(10) |
-		HSMC_PULSE_NCS_WR_PULSE(10) |
-		HSMC_PULSE_NRD_PULSE(11) |
-		HSMC_PULSE_NCS_RD_PULSE(11);
-	HSMC->SMC_CS_NUMBER[0].HSMC_CYCLE = HSMC_CYCLE_NWE_CYCLE(11) |
-		HSMC_CYCLE_NRD_CYCLE(14);
-	HSMC->SMC_CS_NUMBER[0].HSMC_TIMINGS = 0;
-	HSMC->SMC_CS_NUMBER[0].HSMC_MODE = HSMC_MODE_READ_MODE |
-		HSMC_MODE_WRITE_MODE |
-		(busWidth == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
-		HSMC_MODE_EXNW_MODE_DISABLED |
-		HSMC_MODE_TDF_CYCLES(1);
+	hsmc_nor_configure(BOARD_NORFLASH_CS, BOARD_NORFLASH_BUS_WIDTH);
 }
+#endif
