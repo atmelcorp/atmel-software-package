@@ -119,7 +119,30 @@ typedef struct {
 	__IO uint32_t HSMC_SIGMA22;			      /**< \brief (Smc Offset: 0x580) PMECC Error Location SIGMA 22 Register */
 	__IO uint32_t HSMC_SIGMA23;			      /**< \brief (Smc Offset: 0x584) PMECC Error Location SIGMA 23 Register */
 	__IO uint32_t HSMC_SIGMA24;			      /**< \brief (Smc Offset: 0x588) PMECC Error Location SIGMA 24 Register */
-	__I uint32_t HSMC_ERRLOC[24];			      /**< \brief (Smc Offset: 0x58C) PMECC Error Location 0 Register */
+	__I uint32_t HSMC_ERRLOC0;			      /**< \brief (Smc Offset: 0x58C) PMECC Error Location 0 Register */
+	__I uint32_t HSMC_ERRLOC1;			      /**< \brief (Smc Offset: 0x590) PMECC Error Location 1 Register */
+	__I uint32_t HSMC_ERRLOC2;			      /**< \brief (Smc Offset: 0x594) PMECC Error Location 2 Register */
+	__I uint32_t HSMC_ERRLOC3;			      /**< \brief (Smc Offset: 0x598) PMECC Error Location 3 Register */
+	__I uint32_t HSMC_ERRLOC4;			      /**< \brief (Smc Offset: 0x59C) PMECC Error Location 4 Register */
+	__I uint32_t HSMC_ERRLOC5;			      /**< \brief (Smc Offset: 0x5A0) PMECC Error Location 5 Register */
+	__I uint32_t HSMC_ERRLOC6;			      /**< \brief (Smc Offset: 0x5A4) PMECC Error Location 6 Register */
+	__I uint32_t HSMC_ERRLOC7;			      /**< \brief (Smc Offset: 0x5A8) PMECC Error Location 7 Register */
+	__I uint32_t HSMC_ERRLOC8;			      /**< \brief (Smc Offset: 0x5AC) PMECC Error Location 8 Register */
+	__I uint32_t HSMC_ERRLOC9;			      /**< \brief (Smc Offset: 0x5B0) PMECC Error Location 9 Register */
+	__I uint32_t HSMC_ERRLOC10;			      /**< \brief (Smc Offset: 0x5B4) PMECC Error Location 10 Register */
+	__I uint32_t HSMC_ERRLOC11;			      /**< \brief (Smc Offset: 0x5B8) PMECC Error Location 11 Register */
+	__I uint32_t HSMC_ERRLOC12;			      /**< \brief (Smc Offset: 0x5BC) PMECC Error Location 12 Register */
+	__I uint32_t HSMC_ERRLOC13;			      /**< \brief (Smc Offset: 0x5C0) PMECC Error Location 13 Register */
+	__I uint32_t HSMC_ERRLOC14;			      /**< \brief (Smc Offset: 0x5C4) PMECC Error Location 14 Register */
+	__I uint32_t HSMC_ERRLOC15;			      /**< \brief (Smc Offset: 0x5C8) PMECC Error Location 15 Register */
+	__I uint32_t HSMC_ERRLOC16;			      /**< \brief (Smc Offset: 0x5CC) PMECC Error Location 16 Register */
+	__I uint32_t HSMC_ERRLOC17;			      /**< \brief (Smc Offset: 0x5D0) PMECC Error Location 17 Register */
+	__I uint32_t HSMC_ERRLOC18;			      /**< \brief (Smc Offset: 0x5D4) PMECC Error Location 18 Register */
+	__I uint32_t HSMC_ERRLOC19;			      /**< \brief (Smc Offset: 0x5D8) PMECC Error Location 19 Register */
+	__I uint32_t HSMC_ERRLOC20;			      /**< \brief (Smc Offset: 0x5DC) PMECC Error Location 20 Register */
+	__I uint32_t HSMC_ERRLOC21;			      /**< \brief (Smc Offset: 0x5E0) PMECC Error Location 21 Register */
+	__I uint32_t HSMC_ERRLOC22;			      /**< \brief (Smc Offset: 0x5E4) PMECC Error Location 22 Register */
+	__I uint32_t HSMC_ERRLOC23;			      /**< \brief (Smc Offset: 0x5E8) PMECC Error Location 23 Register */
 	__I uint32_t Reserved6[5];
 	SmcCs_number SMC_CS_NUMBER[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x600) CS_number = 0 .. 3 */
 	__I uint32_t Reserved7[20];
