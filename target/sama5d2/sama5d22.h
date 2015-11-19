@@ -81,6 +81,7 @@
 #include "component/component_sckc.h"
 #include "component/component_sfc.h"
 #include "component/component_sfr.h"
+#include "component/component_sfrbu.h"
 #include "component/component_sha.h"
 #include "component/component_shdwc.h"
 #include "component/component_smc.h"
@@ -159,6 +160,7 @@
 #define TDES     ((Tdes     *)0xFC044000U) /**< \brief (TDES    ) Base Address */
 #define CLASSD   ((Classd   *)0xFC048000U) /**< \brief (CLASSD  ) Base Address */
 #define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
+#define SFRBU    ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU   ) Base Address */
 #define CHIPID   ((Chipid   *)0xFC069000U) /**< \brief (CHIPID  ) Base Address */
 
 /*@}*/
