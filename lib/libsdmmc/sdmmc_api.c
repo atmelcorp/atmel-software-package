@@ -1722,7 +1722,7 @@ PerformSingleTransfer(sSdCard * pSd,
 		/* Write a single data block */
 		error = Cmd24(pSd, pData, sdmmc_address, &status1, NULL);
 	if (!error) {
-		status = status1 & (isRead ? 0xffffffff : STATUS_WRITE);
+		status = status1 & (isRead ? STATUS_READ : STATUS_WRITE);
 		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
 		if (status) {
 			trace_error("CMD%u(0x%lx).stat: %lx\n\r", isRead
@@ -1799,7 +1799,7 @@ MoveToTransferState(sSdCard * pSd,
 	if (error == SDMMC_CHANGED)
 		error = SDMMC_OK;
 	if (!error) {
-		status = status1 & (isRead ? 0xffffffff : STATUS_WRITE);
+		status = status1 & (isRead ? STATUS_READ : STATUS_WRITE);
 		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
 
 		if (pSd->bStopMultXfer)
@@ -1814,8 +1814,8 @@ MoveToTransferState(sSdCard * pSd,
 		}
 		/* FIXME when not using the STOP_TRANSMISSION command (using the
 		 * SET_BLOCK_COUNT command instead), we should issue the
-		 * SEND_STATUS command, and handle any Execution Mode exception.
-		 */
+		 * SEND_STATUS command, eat and handle any Execution Mode
+		 * exception. */
 	}
 	if (error) {
 		trace_error("MoveToTransferState.Cmd%u: %u\n\r", isRead
@@ -2815,7 +2815,7 @@ uint8_t
 SD_Init(sSdCard * pSd)
 {
 	uint8_t error;
-	uint32_t clock, drv_param, drv_err;
+	uint32_t clock, drv_param, drv_err, status;
 
 	_SdParamReset(pSd);
 
@@ -2949,6 +2949,20 @@ SD_Init(sSdCard * pSd)
 	trace_warning_wp("-I- Set SD/MMC clock to %uK\n\r",
 			 (unsigned int) clock / 1000);
 	pSd->dwCurrSpeed = clock;
+
+	/* Check device status and eat past exceptions, which would otherwise
+	 * prevent upcoming data transaction routines from reliably checking
+	 * fresh exceptions. */
+	error = Cmd13(pSd, &status1);
+	if (error) {
+		trace_error("SD_Init.Cmd13: %u\n\r", error);
+		return error;
+	}
+	status = status1 & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
+	    & ~STATUS_APP_CMD;
+	if (status)
+		trace_warning("SD_Init.Cmd13.stat: %lx\n\r", status);
+
 	pSd->bStatus = SDMMC_OK;
 	return 0;
 }
