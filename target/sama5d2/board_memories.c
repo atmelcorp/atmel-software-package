@@ -40,14 +40,16 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "trace.h"
+
+#include "cortex-a/cp15.h"
+#include "cortex-a/mmu.h"
+
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pmc.h"
 
 #include "memories/ddram.h"
-
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -72,6 +74,7 @@ const static struct _l2cc_control l2cc_cfg = {
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef BOARD_DDRAM_TYPE
 static void matrix_configure_slave_ddr(void)
 {
 	int i;
@@ -83,6 +86,7 @@ static void matrix_configure_slave_ddr(void)
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
 	}
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -320,8 +324,12 @@ void board_cfg_l2cc(void)
 
 void board_cfg_ddram (void)
 {
+#ifdef BOARD_DDRAM_TYPE
 	matrix_configure_slave_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
+#else
+	trace_fatal("Cannot configure DDRAM: target board have no DDRAM type definition!");
+#endif
 }
