@@ -173,8 +173,21 @@ typedef enum _awb_status {
 } awb_status_t;
 
 /*----------------------------------------------------------------------------
- *        Local variables
+ *        Local variables/constants
  *----------------------------------------------------------------------------*/
+
+static const struct _lcdd_desc lcd_desc = {
+	.width = BOARD_LCD_WIDTH,
+	.height = BOARD_LCD_HEIGHT,
+	.framerate = BOARD_LCD_FRAMERATE,
+	.timing_vfp = BOARD_LCD_TIMING_VFP,
+	.timing_vbp = BOARD_LCD_TIMING_VBP,
+	.timing_vpw = BOARD_LCD_TIMING_VPW,
+	.timing_hfp = BOARD_LCD_TIMING_HFP,
+	.timing_hbp = BOARD_LCD_TIMING_HBP,
+	.timing_hpw = BOARD_LCD_TIMING_HPW,
+};
+
  /* Profile for omnivision 7740 */
 #if defined OV2643
 extern const sensor_profile_t ov2643_profile;
@@ -196,7 +209,7 @@ const struct _pin pins_twi[] = ISC_TWI_PINS;
 const struct _pin pin_rst = ISC_PIN_RST;
 const struct _pin pin_pwd = ISC_PIN_PWD;
 const struct _pin pins_isc[]= ISC_PINS;
-const struct _pin pins_lcd[] = PINS_LCD;
+const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(64)
@@ -427,7 +440,8 @@ static void sensor_reset(void)
 static void configure_lcd(void)
 {
 	lcdd_enable_layer(LCDD_HEO, 0);
-	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
+	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
+	lcdd_configure(&lcd_desc);
 	if (sensor_mode == YUV_422) {
 		lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV);
 		lcdd_create_canvas(LCDD_HEO,

@@ -122,6 +122,9 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
+#define EXAMPLE_LCD_SCALE 1
+
 /** Get double word */
 #define _DW(pByte) ((uint32_t)((((uint8_t*)pByte)[0] << 0) \
 			      |(((uint8_t*)pByte)[1] << 8) \
@@ -172,6 +175,22 @@
 #define N_BLK_HOR     6
 
 /*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+static const struct _lcdd_desc lcd_desc = {
+	.width = BOARD_LCD_WIDTH,
+	.height = BOARD_LCD_HEIGHT,
+	.framerate = BOARD_LCD_FRAMERATE,
+	.timing_vfp = BOARD_LCD_TIMING_VFP,
+	.timing_vbp = BOARD_LCD_TIMING_VBP,
+	.timing_vpw = BOARD_LCD_TIMING_VPW,
+	.timing_hfp = BOARD_LCD_TIMING_HFP,
+	.timing_hbp = BOARD_LCD_TIMING_HBP,
+	.timing_hpw = BOARD_LCD_TIMING_HPW,
+};
+
+/*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
@@ -190,8 +209,9 @@ SECTION(".region_ddr") static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 /** High End Overlay buffer */
 
 SECTION(".region_ddr") static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
+
 /** Pins for LCDC */
-static const struct _pin pins_lcd[] = PINS_LCD;
+static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** Test pattern source */
 static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {
@@ -662,7 +682,8 @@ extern int main(void)
 #endif
 
 	/* Configure LCD */
-	lcdd_initialize(pins_lcd, ARRAY_SIZE(pins_lcd));
+	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
+	lcdd_configure(&lcd_desc);
 	_LcdOn();
 
 	t1 = timer_get_tick();

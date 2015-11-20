@@ -131,11 +131,25 @@ struct _lcdd_layer {
 	uint8_t  layer_id; /**< Layer ID */
 };
 
+/** LCD configuration information */
+struct _lcdd_desc {
+	uint16_t width;    /**< Display image width */
+	uint16_t height;   /**< Display image height */
+	uint8_t  framerate; /**< Frame rate in Hz */
+
+	uint8_t timing_vfp; /**< Vertical front porch in number of lines */
+	uint8_t timing_vbp; /**< Vertical back porch in number of lines */
+	uint8_t timing_vpw; /**< Vertical pulse width in number of lines */
+	uint8_t timing_hfp; /**< Horizontal front porch in LCDDOTCLK cycles */
+	uint8_t timing_hbp; /**< Horizontal back porch in LCDDOTCLK cycles */
+	uint8_t timing_hpw; /**< Horizontal pulse width in LCDDOTCLK cycles */
+};
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void lcdd_initialize(const struct _pin* pins, uint32_t pin_len);
+extern void lcdd_configure(const struct _lcdd_desc *desc);
 
 extern uint8_t lcdd_is_layer_on(uint8_t layer);
 

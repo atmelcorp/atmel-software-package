@@ -287,17 +287,17 @@
 		{PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_DEFAULT} \
 	}
 
-/* =================== LCD Touch board definition =================== */
+/* ======================== LCD definition ======================== */
+
+/** PIO pins for LCD */
+#define BOARD_LCD_PINS              PINS_LCD_IOS2
+
+/** Display width in pixels. */
 #define BOARD_LCD_WIDTH             480
 /** Display height in pixels. */
 #define BOARD_LCD_HEIGHT            272
-
-/** Display interface width in bits. */
-#define BOARD_LCD_IFWIDTH           24
-/** Frame size in words (height * width * bpp / 32) */
-#define BOARD_LCD_FRAMESIZE         (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * BOARD_LCD_IFWIDTH / 32)
-
-#define PINS_LCD PINS_LCD_IOS2
+/** Frame rate in Hz. */
+#define BOARD_LCD_FRAMERATE         40
 
 /** Vertical front porch in number of lines. */
 #define BOARD_LCD_TIMING_VFP        22
@@ -311,19 +311,6 @@
 #define BOARD_LCD_TIMING_HBP        64
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
-
-/** Frame rate in Hz. */
-#define BOARD_LCD_FRAMERATE         40
-
-#define EXAMPLE_LCD_SCALE   1
-
-/** Pixel clock rate in Hz (HS period * VS period * BOARD_LCD_FRAMERATE). */
-#define BOARD_LCD_PIXELCLOCK \
-	((BOARD_LCD_TIMING_HPW+BOARD_LCD_TIMING_HBP                     \
-	  +BOARD_LCD_WIDTH+BOARD_LCD_TIMING_HFP)                        \
-	 *(BOARD_LCD_TIMING_VPW+BOARD_LCD_TIMING_VBP+                   \
-	   BOARD_LCD_HEIGHT+BOARD_LCD_TIMING_VFP)                       \
-	 *BOARD_LCD_FRAMERATE)
 
 /* =================== QT1070 device definition =================== */
 #define QT1070_PINS       PINS_TWI1_IOS2;

@@ -91,11 +91,13 @@ struct _layer_data {
 	uint8_t                num_colors;
 };
 
-static struct _lcdd_layer lcdd_canvas; /**< Current selected canvas */
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+static struct _lcdd_desc lcdd_config;         /**< Current LCD configuration */
+
+static struct _lcdd_layer lcdd_canvas;        /**< Current selected canvas */
 
 ALIGNED(64)
 static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
@@ -371,11 +373,9 @@ static void _build_color_lut1(volatile uint32_t *clut)
  * \brief Initializes the LCD controller.
  * Configure SMC to access LCD controller at 64MHz MCK.
  */
-void lcdd_initialize(const struct _pin* pins, uint32_t pin_len)
+void lcdd_configure(const struct _lcdd_desc *desc)
 {
-	/* Configure PIO */
-	pio_configure(pins, pin_len);
-
+	lcdd_config = *desc;
 	lcdd_off();
 
 	/* Reset layer information */
@@ -517,10 +517,10 @@ void lcdd_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
 	w = (layer->reg_win[1] & LCDC_OVR1CFG3_XSIZE_Msk) >> LCDC_OVR1CFG3_XSIZE_Pos;
 	h = (layer->reg_win[1] & LCDC_OVR1CFG3_YSIZE_Msk) >> LCDC_OVR1CFG3_YSIZE_Pos;
 
-	if (x + w >= BOARD_LCD_WIDTH)
-		x = BOARD_LCD_WIDTH - w;
-	if (y + h >= BOARD_LCD_HEIGHT)
-		y = BOARD_LCD_HEIGHT - h;
+	if (x + w >= lcdd_config.width)
+		x = lcdd_config.width - w;
+	if (y + h >= lcdd_config.height)
+		y = lcdd_config.height - h;
 
 	layer->reg_win[0] = LCDC_OVR1CFG2_XPOS(x) | LCDC_OVR1CFG2_YPOS(y);
 	if (layer->reg_enable[2] & LCDC_OVR1CHSR_CHSR)
@@ -776,13 +776,13 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 		h = -h;
 	if (w < 0)
 		w = -w;
-	if (x + w > BOARD_LCD_WIDTH) {
-		//printf("! w %d -> %d\n\r", w, BOARD_LCD_WIDTH-x);
-		w = BOARD_LCD_WIDTH - x;
+	if (x + w > lcdd_config.width) {
+		//printf("! w %d -> %d\n\r", w, lcdd_config.width-x);
+		w = lcdd_config.width - x;
 	}
-	if (y + h > BOARD_LCD_HEIGHT) {
-		//printf("! h %d -> %d\n\r", h, BOARD_LCD_HEIGHT-y);
-		h = BOARD_LCD_HEIGHT - y;
+	if (y + h > lcdd_config.height) {
+		//printf("! h %d -> %d\n\r", h, lcdd_config.height-y);
+		h = lcdd_config.height - y;
 	}
 	if (w == 0)
 		w++;
@@ -1057,8 +1057,8 @@ void * lcdd_put_image(uint8_t layer_id, void *buffer, uint8_t bpp,
  */
 void * lcdd_show_base(void *buffer, uint8_t bpp, bool bottom_up)
 {
-	return lcdd_put_image(LCDD_BASE, buffer, bpp, 0, 0, BOARD_LCD_WIDTH,
-			bottom_up ? -BOARD_LCD_HEIGHT : BOARD_LCD_HEIGHT);
+	return lcdd_put_image(LCDD_BASE, buffer, bpp, 0, 0, lcdd_config.width,
+			bottom_up ? -lcdd_config.height : lcdd_config.height);
 }
 
 /**
@@ -1184,28 +1184,34 @@ void lcdd_stop_hcr(void)
  */
 void lcdd_on(void)
 {
+	uint32_t pixel_clock = lcdd_config.framerate;
+	pixel_clock *= lcdd_config.timing_hpw + lcdd_config.timing_hbp +
+		lcdd_config.width + lcdd_config.timing_hfp;
+	pixel_clock *= lcdd_config.timing_vpw + lcdd_config.timing_vbp +
+		lcdd_config.height + lcdd_config.timing_vfp;
+
 	/* Enable peripheral clock and ISC system clock */
 	pmc_enable_peripheral(ID_LCDC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
 	LCDC->LCDC_LCDCFG0 =
-		LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / BOARD_LCD_PIXELCLOCK - 2)
+		LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / pixel_clock - 2)
 		| LCDC_LCDCFG0_CGDISHEO | LCDC_LCDCFG0_CGDISOVR1
 		| LCDC_LCDCFG0_CGDISOVR2 | LCDC_LCDCFG0_CGDISBASE
 		| LCDC_LCDCFG0_CLKPWMSEL | LCDC_LCDCFG0_CLKSEL;
 
-	LCDC->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(BOARD_LCD_TIMING_VPW - 1)
-		| LCDC_LCDCFG1_HSPW(BOARD_LCD_TIMING_HPW - 1);
+	LCDC->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(lcdd_config.timing_vpw - 1)
+		| LCDC_LCDCFG1_HSPW(lcdd_config.timing_hpw - 1);
 
-	LCDC->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(BOARD_LCD_TIMING_VBP)
-		| LCDC_LCDCFG2_VFPW(BOARD_LCD_TIMING_VFP - 1);
+	LCDC->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(lcdd_config.timing_vbp)
+		| LCDC_LCDCFG2_VFPW(lcdd_config.timing_vfp - 1);
 
-	LCDC->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(BOARD_LCD_TIMING_HBP - 1)
-		| LCDC_LCDCFG3_HFPW(BOARD_LCD_TIMING_HFP - 1);
+	LCDC->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(lcdd_config.timing_hbp - 1)
+		| LCDC_LCDCFG3_HFPW(lcdd_config.timing_hfp - 1);
 
-	LCDC->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(BOARD_LCD_HEIGHT - 1)
-		| LCDC_LCDCFG4_PPL(BOARD_LCD_WIDTH - 1);
+	LCDC->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(lcdd_config.height - 1)
+		| LCDC_LCDCFG4_PPL(lcdd_config.width - 1);
 
 	LCDC->LCDC_LCDCFG5 = LCDC_LCDCFG5_GUARDTIME(30)
 		| LCDC_LCDCFG5_MODE_OUTPUT_24BPP
@@ -1372,8 +1378,8 @@ uint8_t lcdd_select_canvas(uint8_t layer_id)
 		lcdd_canvas.width = (layer->reg_win[1] & LCDC_HEOCFG3_XSIZE_Msk) >> LCDC_HEOCFG3_XSIZE_Pos;
 		lcdd_canvas.height = (layer->reg_win[1] & LCDC_HEOCFG3_YSIZE_Msk) >> LCDC_HEOCFG3_YSIZE_Pos;
 	} else {
-		lcdd_canvas.width = BOARD_LCD_WIDTH;
-		lcdd_canvas.height = BOARD_LCD_HEIGHT;
+		lcdd_canvas.width = lcdd_config.width;
+		lcdd_canvas.height = lcdd_config.height;
 	}
 	lcdd_canvas.bpp = _get_bits_per_pixel(layer->reg_cfg[1] & LCDC_HEOCFG1_RGBMODE_Msk);
 	lcdd_canvas.layer_id = layer_id;
@@ -1395,8 +1401,8 @@ uint8_t lcdd_select_canvas(uint8_t layer_id)
 void * lcdd_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
 			  uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	uint32_t max_w = BOARD_LCD_WIDTH;
-	uint32_t max_h = BOARD_LCD_HEIGHT;
+	uint32_t max_w = lcdd_config.width;
+	uint32_t max_h = lcdd_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 	void *old_buffer;
 
@@ -1414,7 +1420,7 @@ void * lcdd_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
 	case LCDD_OVR2:
 	case LCDD_HEO:
 		/* Size check */
-		if (x + w > BOARD_LCD_WIDTH || y + h > BOARD_LCD_HEIGHT)
+		if (x + w > lcdd_config.width || y + h > lcdd_config.height)
 			return NULL;
 		break;
 	}
@@ -1458,15 +1464,15 @@ void *lcdd_create_canvas_yuv_planar(uint8_t layer_id,
 {
 	const struct _layer_info *layer = &lcdd_layers[layer_id];
 
-	uint32_t max_w = BOARD_LCD_WIDTH;
-	uint32_t max_h = BOARD_LCD_HEIGHT;
+	uint32_t max_w = lcdd_config.width;
+	uint32_t max_h = lcdd_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 
 	if (!layer->reg_dma_u_head || !layer->reg_dma_v_head)
 		return NULL;
 
 	/* Size check */
-	if (x + w > BOARD_LCD_WIDTH || y + h > BOARD_LCD_HEIGHT)
+	if (x + w > lcdd_config.width || y + h > lcdd_config.height)
 		return NULL;
 	if (w == 0)
 		w = max_w - x;
@@ -1509,15 +1515,15 @@ void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer_id,
 {
 	const struct _layer_info *layer = &lcdd_layers[layer_id];
 
-	uint32_t max_w = BOARD_LCD_WIDTH;
-	uint32_t max_h = BOARD_LCD_HEIGHT;
+	uint32_t max_w = lcdd_config.width;
+	uint32_t max_h = lcdd_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 
 	if (!layer->reg_dma_u_head || !layer->reg_dma_v_head)
 		return NULL;
 
 	/* Size check */
-	if (x + w > BOARD_LCD_WIDTH || y + h > BOARD_LCD_HEIGHT)
+	if (x + w > lcdd_config.width || y + h > lcdd_config.height)
 		return NULL;
 	if (w == 0)
 		w = max_w - x;
