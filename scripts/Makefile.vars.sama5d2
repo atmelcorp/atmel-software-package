@@ -45,11 +45,13 @@ endif
 ifeq ("y",$(TARGET:%-vb-bga196="y"))
 CONFIG_SOC_SAMA5D21 = y
 CONFIG_BOARD_SAMA5D2_VB_BGA196 = y
+CONFIG_HAVE_NANDFLASH = y
 endif
 
 ifeq ("y",$(TARGET:%-vb-bga289="y"))
 CONFIG_SOC_SAMA5D27 = y
 CONFIG_BOARD_SAMA5D2_VB_BGA289 = y
+CONFIG_HAVE_NANDFLASH = y
 endif
 
 ifeq ("y",$(TARGET:%-ptc-engi="y"))
@@ -59,6 +61,7 @@ CONFIG_HAVE_PMIC_ACT8945A = y
 CONFIG_HAVE_AT25DFX = y
 CONFIG_HAVE_AT24MAC402 = y
 CONFIG_HAVE_DDR3 = y
+CONFIG_HAVE_NANDFLASH = y
 endif
 
 CFLAGS_CPU += -mcpu=cortex-a5  -mfpu=vfpv4-d16

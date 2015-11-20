@@ -177,10 +177,11 @@
 #define CAN0_PINS          PINS_CAN0_IOS0
 #define CAN1_PINS          PINS_CAN1_IOS0
 
-/*----------------------------------------------------------------------------
- *        Headers for board
- *----------------------------------------------------------------------------*/
+/* =================== NANDFLASH device definition =================== */
 
-
+#define BOARD_NANDFLASH_PINS      PINS_NFC_IOS1
+#define BOARD_NANDFLASH_ADDR      EBI_CS3_ADDR
+#define BOARD_NANDFLASH_CS        3
+#define BOARD_NANDFLASH_BUS_WIDTH 8
 
 #endif /* #ifndef _BOARD_D2_H */
