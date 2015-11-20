@@ -34,6 +34,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "board.h"
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -242,6 +244,7 @@ extern void pmc_enable_system_clock(enum _pmc_system_clock clock);
  */
 extern void pmc_disable_system_clock(enum _pmc_system_clock clock);
 
+#ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 /**
  * \brief Set up fast startup mode
  * \param source and low power mode
@@ -254,6 +257,7 @@ extern void pmc_set_fast_startup_mode(uint32_t startup_mode);
  */
 extern void pmc_set_fast_startup_polarity(uint32_t high_level,
 	uint32_t low_level);
+#endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
 /**
  * \brief Enables the clock of a peripheral. The peripheral ID is used

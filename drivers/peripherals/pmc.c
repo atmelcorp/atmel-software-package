@@ -433,12 +433,14 @@ void pmc_disable_external_osc(void)
 
 void pmc_select_internal_osc(void)
 {
+#ifdef CKGR_MOR_MOSCRCEN
 	/* Enable internal RC 12 MHz when needed */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
 		PMC->CKGR_MOR |= CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
 		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
 		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
 	}
+#endif
 
 	/* switch MAIN clock to internal RC 12 MHz */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
@@ -571,6 +573,7 @@ void pmc_disable_system_clock(enum _pmc_system_clock clock)
 	while (PMC->PMC_SCSR & scsr);
 }
 
+#ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 void pmc_set_fast_startup_mode(uint32_t startup_mode)
 {
 	PMC->PMC_FSMR = startup_mode;
@@ -581,6 +584,7 @@ void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
 	PMC->PMC_FSPR &= ~low_level;
 	PMC->PMC_FSPR |= high_level;
 }
+#endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
 void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 {
