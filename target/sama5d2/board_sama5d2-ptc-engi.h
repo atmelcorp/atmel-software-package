@@ -91,9 +91,9 @@
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition, Use only UART */
-#define PINS_CONSOLE            PINS_UART1_IOS1
-#define CONSOLE_PER_ADD         UART1
-#define CONSOLE_ID              ID_UART1
+#define PINS_CONSOLE            PINS_UART0_IOS1
+#define CONSOLE_PER_ADD         UART0
+#define CONSOLE_ID              ID_UART0
 #define CONSOLE_BAUDRATE        57600
 #define CONSOLE_DRIVER          DRV_UART
 
