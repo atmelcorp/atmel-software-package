@@ -34,8 +34,10 @@
   #include "board_sama5d2-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO)
   #include "board_sama5d2-xplained-proto.h"
-#elif defined(CONFIG_BOARD_SAMA5D2_VB)
-  #include "board_sama5d2-vb.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_VB_BGA196)
+  #include "board_sama5d2-vb-bga196.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_VB_BGA289)
+  #include "board_sama5d2-vb-bga289.h"
 #else
   #error "No board defined"
 #endif

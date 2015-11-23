@@ -64,20 +64,7 @@
  */
 
 /** Name of the board */
-#define BOARD_NAME "sama5d2-vb"
-
-/** Family definition */
-#if !defined sama5d2
-  #define sama5d2
-#endif
-
-/** Board definition */
-#define sama5d2vb
-
-/** Core definition */
-#define cortexa5
-
-#define BOARD_REV_A_XULT
+#define BOARD_NAME "sama5d2-vb-bga289"
 
 /*----------------------------------------------------------------------------*/
 /**
@@ -122,11 +109,11 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-#define PIO_CFG_PB  (PIO_PULLUP)
+#define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)
 
-#define PIN_PUSHBUTTON_1 { PIO_GROUP_D, PIO_PD19, PIO_INPUT, PIO_CFG_PB }
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_D, PIO_PD23, PIO_INPUT, PIO_CFG_PB }
 
-#define PIN_PUSHBUTTON_2 { PIO_GROUP_D, PIO_PD20, PIO_INPUT, PIO_CFG_PB }
+#define PIN_PUSHBUTTON_2 { PIO_GROUP_D, PIO_PD24, PIO_INPUT, PIO_CFG_PB }
 
 /** List of all push button definitions. */
 #define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1, PIN_PUSHBUTTON_2 }
@@ -139,19 +126,19 @@
 
 /** USB VBus pin */
 #define PIN_USB_VBUS      {\
-	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEFAULT },\
+	{ PIO_GROUP_C, PIO_PC29, PIO_INPUT, PIO_DEFAULT },\
 }
 /** USB OverCurrent detection*/
 #define PIN_USB_OVCUR     {\
-	{ PIO_GROUP_A, PIO_PA29, PIO_INPUT, PIO_DEFAULT },\
+	{ PIO_GROUP_C, PIO_PC31, PIO_INPUT, PIO_DEFAULT },\
 }
 /** USB Power Enable A, Active high */
 #define PIN_USB_POWER_ENA {\
-	{ PIO_GROUP_B, PIO_PB9, PIO_OUTPUT_0, PIO_DEFAULT },\
+	{ PIO_GROUP_C, PIO_PC30, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 /** USB Power Enable B, Active high  */
 #define PIN_USB_POWER_ENB {\
-	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT },\
+	{ PIO_GROUP_D, PIO_PD0, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
 /* ================= PIN LCD IRQ definition ===================== */
@@ -184,9 +171,8 @@
 }
 
 /* =================== PIN CAN definition ======================= */
-/* CAN0 {PC1; PC2} is wired to the J18 connector via an AT6561 transceiver.
- * Plus, to be found only on the SAMA5D2-VB-BGA289 version:
- * CAN1 {PC26; PC27} is wired to the J19 connector via an AT6561 transceiver. */
+/* CAN0 {PC1; PC2} is wired to the J18 connector via an AT6561 transceiver. */
+/* CAN1 {PC26; PC27} is wired to the J19 connector via an AT6561 transceiver. */
 
 #define CAN0_PINS          PINS_CAN0_IOS0
 #define CAN1_PINS          PINS_CAN1_IOS0
