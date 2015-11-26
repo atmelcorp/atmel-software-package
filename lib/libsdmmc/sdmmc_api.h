@@ -117,21 +117,19 @@
 /** Get bits from a 32-b pointed data (total n bits) */
 #define SD_BITS32(pDw, nbits, ibit, bits)    \
     ( (((uint32_t*)(pDw))[(nbits)/32-(ibit)/32-1] >> ((ibit)%32)) & ((uint32_t)(1ul << (bits)) - 1 ) )
-/** Get bits from a 8-b pointed data (total n bits) */
-#define SD_BITS8(pB, nbits, ibit, bits)      \
-    ( (((uint8_t*)(pB))[(nbits)/8-(ibit)/8-1] >> ((ibit)%8)) & ((1 << (bits)) - 1) )
+
 /** Get u8 from byte pointed data area */
 #define SD_U8(pD, nBytes, iByte)    ( ((uint8_t*)(pD))[(iByte)] )
 /** Get u16 from data area */
 #define SD_U16(pD, nBytes, iByte)  \
-    ( (((uint8_t*)(pD))[(iByte)] << 0) +\
-      (((uint8_t*)(pD))[(iByte) + 1] << 8) )
+    ( (uint16_t)((uint8_t*)(pD))[(iByte)] |\
+      (uint16_t)((uint8_t*)(pD))[(iByte) + 1] << 8 )
 /**Get u32 from data area */
 #define SD_U32(pD, nBytes, iByte)  \
-    ( (((uint8_t*)(pD))[(iByte) ] <<  0) +\
-      (((uint8_t*)(pD))[(iByte) + 1] <<  8) +\
-      (((uint8_t*)(pD))[(iByte) + 2] << 16) +\
-      (((uint8_t*)(pD))[(iByte) + 3] << 24) )
+    ( (uint32_t)((uint8_t*)(pD))[(iByte)] |\
+      (uint32_t)((uint8_t*)(pD))[(iByte) + 1] << 8 |\
+      (uint32_t)((uint8_t*)(pD))[(iByte) + 2] << 16 |\
+      (uint32_t)((uint8_t*)(pD))[(iByte) + 3] << 24 )
 /**     @} */
 
 /** \addtogroup sdmmc_ocr_acc SD/MMC OCR register fields (SD 2.0 & MMC 4.3)
@@ -220,7 +218,7 @@
 /** \addtogroup sdmmc_csd_acc SD/MMC CSD register fields
  *      @{
  */
-/** CSD register access macroes (128 bits, 16 * 8 bits, 4 * 32  bits */
+/** CSD register access macros (128 bits, 16 * 8 bits, 4 * 32  bits */
 #define SD_CSD(pCsd, field, bits)    SD_BITS32(pCsd, 128, field, bits)
 #define SD_CSD_STRUCTURE(pCsd)          SD_CSD(pCsd, 126, 2) /**< CSD structure */
 #define SD_CSD_STRUCTURE_1_0            0 /**< SD v1.01~1.10, v2.0/Std Capacity */
@@ -289,28 +287,28 @@
  *      @{
  */
 /** SCR (Configuration register) access macros (64 bits, 2 * 32 bits, 8 * 8 bits). */
-#define SD_SCR(pScr, field, bits)    SD_BITS8(pScr, 64, field, bits)
-#define SD_SCR_STRUCTURE(pScr)              SD_SCR(pScr, 60, 4)
+#define SD_SCR(pScr, field, bits)           SD_GetField(pScr, 64, field, bits)
+#define SD_SCR_STRUCTURE(pScr)              (uint8_t)SD_SCR(pScr, 60, 4)
 #define     SD_SCR_STRUCTURE_1_0            0 /**< SD v1.01~3.01 */
-#define SD_SCR_SD_SPEC(pScr)                SD_SCR(pScr, 56, 4)
+#define SD_SCR_SD_SPEC(pScr)                (uint8_t)SD_SCR(pScr, 56, 4)
 #define     SD_SCR_SD_SPEC_1_0              0 /**< SD v1.0~1.01 */
 #define     SD_SCR_SD_SPEC_1_10             1 /**< SD v1.10 */
 #define     SD_SCR_SD_SPEC_2_00             2 /**< SD v2.00 */
-#define SD_SCR_DATA_STAT_AFTER_ERASE(pScr)  SD_SCR(pScr, 55, 1)
-#define SD_SCR_SD_SECURITY(pScr)            SD_SCR(pScr, 52, 3)
+#define SD_SCR_DATA_STAT_AFTER_ERASE(pScr)  (uint8_t)SD_SCR(pScr, 55, 1)
+#define SD_SCR_SD_SECURITY(pScr)            (uint8_t)SD_SCR(pScr, 52, 3)
 #define     SD_SCR_SD_SECURITY_NO           0 /**< No security */
 #define     SD_SCR_SD_SECURITY_NOTUSED      1 /**< Not used */
 #define     SD_SCR_SD_SECURITY_1_01         2 /**< Version 1.01 */
 #define     SD_SCR_SD_SECURITY_2_00         3 /**< Version 2.00 */
-#define SD_SCR_SD_BUS_WIDTHS(pScr)          SD_SCR(pScr, 48, 4)
+#define SD_SCR_SD_BUS_WIDTHS(pScr)          (uint8_t)SD_SCR(pScr, 48, 4)
 #define     SD_SCR_SD_BUS_WIDTH_1BITS       (1 << 0) /**< 1 bit (DAT0) */
 #define     SD_SCR_SD_BUS_WIDTH_4BITS       (1 << 2) /**< 4 bit (DAT0~3) */
-#define SD_SCR_SD_SPEC3(pScr)               SD_SCR(pScr, 47, 1)
+#define SD_SCR_SD_SPEC3(pScr)               (uint8_t)SD_SCR(pScr, 47, 1)
 #define     SD_SCR_SD_SPEC_3_0              1 /**< SD v3.0X */
-#define SD_SCR_EX_SECURITY(pScr)            SD_SCR(pScr, 43, 4)
+#define SD_SCR_EX_SECURITY(pScr)            (uint8_t)SD_SCR(pScr, 43, 4)
 #define     SD_SCR_EX_SECURITY_NO           0 /**< No extended security */
-#define SD_SCR_CMD23_SUPPORT(pScr)          SD_SCR(pScr, 33, 1)
-#define SD_SCR_CMD20_SUPPORT(pScr)          SD_SCR(pScr, 32, 1)
+#define SD_SCR_CMD23_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 33, 1)
+#define SD_SCR_CMD20_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 32, 1)
 /**     @}*/
 
 /** \addtogroup sd_card_status_acc SD Card Status fields
@@ -369,22 +367,22 @@
  *      @{
  */
 /** SD Status access macros (512 bits, 16 * 32 bits, 64 * 8 bits). */
-#define SD_ST(pSt, field, bits)  SD_BITS32(pSt, 512, field, bits)
-#define SD_ST_DAT_BUS_WIDTH(pSt)           SD_ST(pSt, 510, 2) /**< Bus width, 00: default, 10:4-bit */
+#define SD_ST(pSt, field, bits)            SD_GetField(pSt, 512, field, bits)
+#define SD_ST_DAT_BUS_WIDTH(pSt)           (uint8_t)SD_ST(pSt, 510, 2) /**< Bus width, 00: default, 10:4-bit */
 #define     SD_ST_DATA_BUS_WIDTH_1BIT      0x0 /**< 1-bit bus width */
 #define     SD_ST_DATA_BUS_WIDTH_4BIT      0x2 /**< 4-bit bus width */
-#define SD_ST_SECURED_MODE(pSt)            SD_ST(pSt, 509, 1)  /**< Secured Mode */
-#define SD_ST_CARD_TYPE(pSt)            SD_ST(pSt, 480, 16)
+#define SD_ST_SECURED_MODE(pSt)            (uint8_t)SD_ST(pSt, 509, 1)  /**< Secured Mode */
+#define SD_ST_CARD_TYPE(pSt)               (uint16_t)SD_ST(pSt, 480, 16)
 #define     SD_ST_CARD_TYPE_RW             0x0000 /**< Regular SD R/W Card */
 #define     SD_ST_CARD_TYPE_ROM            0x0001 /**< SD ROM Card */
 #define SD_ST_SIZE_OF_PROTECTED_AREA(pSt)  SD_ST(pSt, 448, 32) /**< STD: ThisSize*Multi*BlockLen, HC: Size in bytes */
-#define SD_ST_SPEED_CLASS(pSt)             SD_ST(pSt, 440, 8) /** Speed Class, value can be calculated by Pw/2 */
+#define SD_ST_SPEED_CLASS(pSt)             (uint8_t)SD_ST(pSt, 440, 8) /** Speed Class, value can be calculated by Pw/2 */
 #define     SD_ST_SPEED_CLASS_0            0
 #define     SD_ST_SPEED_CLASS_2            1	// >= 2MB/s
 #define     SD_ST_SPEED_CLASS_4            2	// >= 4MB/s
 #define     SD_ST_SPEED_CLASS_6            3	// >= 6MB/s
-#define SD_ST_PERFORMANCE_MOVE(pSt)        SD_ST(pSt, 432, 8) /**< 8-bit, by 1MB/s step. */
-#define SD_ST_AU_SIZE(pSt)                 SD_ST(pSt, 428, 4) /**< AU Size, in power of 2 from 16KB */
+#define SD_ST_PERFORMANCE_MOVE(pSt)        (uint8_t)SD_ST(pSt, 432, 8) /**< 8-bit, by 1MB/s step. */
+#define SD_ST_AU_SIZE(pSt)                 (uint8_t)SD_ST(pSt, 428, 4) /**< AU Size, in power of 2 from 16KB */
 #define     SD_ST_AU_SIZE_16K              1
 #define     SD_ST_AU_SIZE_32K              2
 #define     SD_ST_AU_SIZE_64K              3
@@ -394,38 +392,38 @@
 #define     SD_ST_AU_SIZE_1M               7
 #define     SD_ST_AU_SIZE_2M               8
 #define     SD_ST_AU_SIZE_4M               9
-#define SD_ST_ERASE_SIZE(pSt)              SD_ST(pSt, 408, 16) /**< 16-bit, number of AUs erased. */
-#define SD_ST_ERASE_TIMEOUT(pSt)           SD_ST(pSt, 402, 6) /**< Timeout value for erasing areas */
-#define SD_ST_ERASE_OFFSET(pSt)            SD_ST(pSt, 400, 2) /**< Fixed offset value added to erase time */
+#define SD_ST_ERASE_SIZE(pSt)              (uint16_t)SD_ST(pSt, 408, 16) /**< 16-bit, number of AUs erased. */
+#define SD_ST_ERASE_TIMEOUT(pSt)           (uint8_t)SD_ST(pSt, 402, 6) /**< Timeout value for erasing areas */
+#define SD_ST_ERASE_OFFSET(pSt)            (uint8_t)SD_ST(pSt, 400, 2) /**< Fixed offset value added to erase time */
 /**     @}*/
 
 /** \addtogroup sd_switch_status SD Switch Status fields
  *      @{
  */
 /** SD Switch Status access macros (512 bits, 16 * 32 bits, 64 * 8 bits). */
-#define SD_SWITCH_ST(p, field, bits)       SD_BITS32(p, 512, field, bits)
-#define SD_SWITCH_ST_MAX_CURRENT_CONSUMPTION(p)   SD_SWITCH_ST(p, 496, 16)
-#define SD_SWITCH_ST_FUN_GRP6_INFO(p)             SD_SWITCH_ST(p, 480, 16)
-#define SD_SWITCH_ST_FUN_GRP5_INFO(p)             SD_SWITCH_ST(p, 464, 16)
-#define SD_SWITCH_ST_FUN_GRP4_INFO(p)             SD_SWITCH_ST(p, 448, 16)
-#define SD_SWITCH_ST_FUN_GRP3_INFO(p)             SD_SWITCH_ST(p, 432, 16)
-#define SD_SWITCH_ST_FUN_GRP2_INFO(p)             SD_SWITCH_ST(p, 416, 16)
-#define SD_SWITCH_ST_FUN_GRP1_INFO(p)             SD_SWITCH_ST(p, 400, 16)
-#define SD_SWITCH_ST_FUN_GRP6_RC(p)               SD_SWITCH_ST(p, 396, 4)
-#define SD_SWITCH_ST_FUN_GRP5_RC(p)               SD_SWITCH_ST(p, 392, 4)
-#define SD_SWITCH_ST_FUN_GRP4_RC(p)               SD_SWITCH_ST(p, 388, 4)
-#define SD_SWITCH_ST_FUN_GRP3_RC(p)               SD_SWITCH_ST(p, 384, 4)
-#define SD_SWITCH_ST_FUN_GRP2_RC(p)               SD_SWITCH_ST(p, 380, 4)
-#define SD_SWITCH_ST_FUN_GRP1_RC(p)               SD_SWITCH_ST(p, 376, 4)
-#define     SD_SWITCH_ST_FUN_GRP_RC_ERROR         0xF
-#define SD_SWITCH_ST_DATA_STRUCT_VER(p)           SD_SWITCH_ST(p, 368, 8)
-#define SD_SWITCH_ST_FUN_GRP6_BUSY(p)             SD_SWITCH_ST(p, 352, 16)
-#define SD_SWITCH_ST_FUN_GRP5_BUSY(p)             SD_SWITCH_ST(p, 336, 16)
-#define SD_SWITCH_ST_FUN_GRP4_BUSY(p)             SD_SWITCH_ST(p, 320, 16)
-#define SD_SWITCH_ST_FUN_GRP3_BUSY(p)             SD_SWITCH_ST(p, 304, 16)
-#define SD_SWITCH_ST_FUN_GRP2_BUSY(p)             SD_SWITCH_ST(p, 288, 16)
-#define SD_SWITCH_ST_FUN_GRP1_BUSY(p)             SD_SWITCH_ST(p, 272, 16)
-#define SD_SWITCH_ST_FUN_GRP_FUN_BUSY(funNdx)     (1 << (funNdx))
+#define SD_SWITCH_ST(p, field, bits)          SD_GetField(p, 512, field, bits)
+#define SD_SWITCH_ST_MAX_CURR_CONSUMPTION(p)  (uint16_t)SD_SWITCH_ST(p, 496, 16)
+#define SD_SWITCH_ST_FUN_GRP6_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 480, 16)
+#define SD_SWITCH_ST_FUN_GRP5_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 464, 16)
+#define SD_SWITCH_ST_FUN_GRP4_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 448, 16)
+#define SD_SWITCH_ST_FUN_GRP3_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 432, 16)
+#define SD_SWITCH_ST_FUN_GRP2_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 416, 16)
+#define SD_SWITCH_ST_FUN_GRP1_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 400, 16)
+#define SD_SWITCH_ST_FUN_GRP6_RC(p)           (uint8_t) SD_SWITCH_ST(p, 396, 4)
+#define SD_SWITCH_ST_FUN_GRP5_RC(p)           (uint8_t) SD_SWITCH_ST(p, 392, 4)
+#define SD_SWITCH_ST_FUN_GRP4_RC(p)           (uint8_t) SD_SWITCH_ST(p, 388, 4)
+#define SD_SWITCH_ST_FUN_GRP3_RC(p)           (uint8_t) SD_SWITCH_ST(p, 384, 4)
+#define SD_SWITCH_ST_FUN_GRP2_RC(p)           (uint8_t) SD_SWITCH_ST(p, 380, 4)
+#define SD_SWITCH_ST_FUN_GRP1_RC(p)           (uint8_t) SD_SWITCH_ST(p, 376, 4)
+#define     SD_SWITCH_ST_FUN_GRP_RC_ERROR     0xF
+#define SD_SWITCH_ST_DATA_STRUCT_VER(p)       (uint8_t) SD_SWITCH_ST(p, 368, 8)
+#define SD_SWITCH_ST_FUN_GRP6_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 352, 16)
+#define SD_SWITCH_ST_FUN_GRP5_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 336, 16)
+#define SD_SWITCH_ST_FUN_GRP4_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 320, 16)
+#define SD_SWITCH_ST_FUN_GRP3_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 304, 16)
+#define SD_SWITCH_ST_FUN_GRP2_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 288, 16)
+#define SD_SWITCH_ST_FUN_GRP1_BUSY(p)         (uint16_t)SD_SWITCH_ST(p, 272, 16)
+#define SD_SWITCH_ST_FUN_GRP_FUN_BUSY(funNdx) (1 << (funNdx))
 /**     @}*/
 
 /** \addtogroup mmc_ext_csd MMC Extended CSD byte fields
@@ -537,6 +535,11 @@
 extern uint8_t SD_Init(sSdCard * pSd);
 void SD_DeInit(sSdCard * pSd);
 
+extern uint32_t SD_GetField(const uint8_t *reg,
+			    uint16_t reg_len,
+			    uint16_t field_start,
+			    uint8_t field_len);
+
 extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
 extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
 
@@ -592,15 +595,15 @@ void _DumpREG(void *pREG, uint32_t dwSize);
 
 void SDIO_DumpCardInformation(sSdCard * pSd);
 
-void SD_DumpCID(void *pCID);
+void SD_DumpCID(const uint32_t *pCID);
 
-void SD_DumpCSD(void *pCSD);
+void SD_DumpCSD(const uint32_t *pCSD);
 
-void SD_DumpExtCSD(void *pExtCSD);
+void SD_DumpExtCSD(const uint8_t *pExtCSD);
 
-void SD_DumpSCR(void *pSCR);
+void SD_DumpSCR(const uint8_t *pSCR);
 
-void SD_DumpSdStatus(void *pSdST);
+void SD_DumpSdStatus(const uint8_t *pSdST);
 
 const char * SD_StringifyIOCtrl(uint32_t dwCtrl);
 

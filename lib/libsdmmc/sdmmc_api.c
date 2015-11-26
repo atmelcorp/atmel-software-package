@@ -697,7 +697,7 @@ Cmd5(sSdCard * pSd, uint32_t * pIo)
  */
 static uint8_t
 SdCmd6(sSdCard * pSd,
-       const void *pSwitchArg, uint32_t * pStatus, uint32_t * pResp)
+       const void * pSwitchArg, uint8_t * pStatus, uint32_t * pResp)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
@@ -723,7 +723,7 @@ SdCmd6(sSdCard * pSd,
 	if (pStatus) {
 		pCmd->wBlockSize = 512 / 8;
 		pCmd->wNbBlocks = 1;
-		pCmd->pData = (uint8_t *) pStatus;
+		pCmd->pData = pStatus;
 	}
 	pCmd->pResp = pResp;
 
@@ -1478,7 +1478,7 @@ Acmd41(sSdCard * pSd, uint8_t hcs, uint8_t * pCCS)
  * From the selected card get its SD CARD Configuration Register (SCR).
  * ACMD51 is valid under the Transfer state.
  * \param pSd  Pointer to a SD card driver instance.
- * \param pCCS  Pointer to an 8-byte buffer receiving the contents of the SCR.
+ * \param pSCR  Pointer to an 8-byte buffer receiving the contents of the SCR.
  * \param pResp  Pointer to where the response is returned.
  * \return The command transfer result (see SendCommand).
  */
@@ -1924,7 +1924,7 @@ MmcGetExtInformation(sSdCard * pSd)
 	/* MMC 4.0 Higher version */
 	if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && MMC_IsVer4(pSd)) {
 
-		error = MmcCmd8(pSd, (uint8_t *) pSd->EXT);
+		error = MmcCmd8(pSd, pSd->EXT);
 		if (error) {
 			trace_error("MmcGetExt.Cmd8: %d\n\r", error);
 		}
@@ -2071,7 +2071,7 @@ SdMmcUpdateInformation(sSdCard * pSd, uint8_t csd, uint8_t extData)
 #elif defined (  __GNUC__  )	/* GCC CS3 */
 __attribute__ ((__section__(".region_dma_nocache")))
 #endif
-uint32_t switchStatus[512 / 32];
+uint8_t switchStatus[512 / 8];
 
 /**
  * \brief Check HS capability and enable it
@@ -2159,7 +2159,7 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 			SdCmd6Arg cmd6Arg = {
 				1, 0, 0xF, 0xF, 0xF, 0xF, 0, 1
 			};
-			//uint32_t switchStatus[512/32];
+
 			error = SdCmd6(pSd, &cmd6Arg, switchStatus, &status1);
 			if (error || (status1 & STATUS_SWITCH_ERROR)) {
 				trace_info("SD HS Fail\n\r");
@@ -2609,6 +2609,49 @@ _DumpREG(void *pREG, uint32_t dwSize)
 }
 
 /**
+ * From a wide-width device register extract the requested field.
+ * \param reg  Contents of the register
+ * \param reg_len  Length of the register, in bits
+ * \param field_start  Offset (address of the least significant bit) of the
+ * requested field, in bits
+ * \param field_len  Length of the requested field, in bits
+ * \return The value of the field.
+ */
+uint32_t
+SD_GetField(const uint8_t *reg, uint16_t reg_len, uint16_t field_start,
+            uint8_t field_len)
+{
+	uint32_t val = 0;
+	uint8_t byte, expected_bits = field_len, new_bits;
+
+	assert(reg);
+	assert(reg_len % 8 == 0);
+	assert(field_len != 0 && field_len <= 32 && field_len <= reg_len);
+	assert(field_start <= reg_len - field_len);
+
+	reg += (reg_len - field_start - field_len) / 8;
+	while (expected_bits) {
+		byte = *reg;
+		new_bits = (field_start + expected_bits) % 8;
+		if (new_bits)
+			byte &= (1 << new_bits) - 1;
+		else
+			new_bits = 8;
+		if (new_bits <= expected_bits)
+			val |= (uint32_t)byte << (expected_bits - new_bits);
+		else {
+			byte >>= new_bits - expected_bits;
+			val |= byte;
+			new_bits = expected_bits;
+		}
+		expected_bits -= new_bits;
+		reg++;
+	}
+	assert((val & ~0 << field_len) == 0);
+	return val;
+}
+
+/**
  * Read Blocks of data in a buffer pointed by pData. The buffer size must be at
  * least 512 byte long. This function checks the SD card status register and
  * address the card if required before sending the read command.
@@ -2780,8 +2823,7 @@ _SdParamReset(sSdCard * pSd)
 		pSd->CID[i] = 0;
 	for (i = 0; i < 128 / 8 / 4; i++)
 		pSd->CSD[i] = 0;
-	for (i = 0; i < 512 / 4; i++)
-		pSd->EXT[i] = 0;
+	memset(pSd->EXT, 0, sizeof(pSd->EXT));
 	memset(pSd->SCR, 0, sizeof(pSd->SCR));
 }
 
@@ -3328,7 +3370,7 @@ SDIO_DumpCardInformation(sSdCard * pSd)
  * \param pCID Pointer to CID data.
  */
 void
-SD_DumpCID(void *pCID)
+SD_DumpCID(const uint32_t *pCID)
 {
 	trace_info("======= Card IDentification =======\n\r");
 	trace_info(" .MID Manufacturer ID             %02X\n\r",
@@ -3386,7 +3428,7 @@ SD_DumpCID(void *pCID)
  * \param pCSD Pointer to \ref sSdCard instance.
  */
 void
-SD_DumpCSD(void *pCSD)
+SD_DumpCSD(const uint32_t *pCSD)
 {
 	trace_info("======= Card-Specific Data =======\n\r");
 	trace_info(" .CSD_STRUCTURE      0x%x\r\n",
@@ -3472,7 +3514,7 @@ SD_DumpCSD(void *pCSD)
  * \param pExtCSD Pointer to extended CSD data.
  */
 void
-SD_DumpExtCSD(void *pExtCSD)
+SD_DumpExtCSD(const uint8_t *pExtCSD)
 {
 	trace_info("======= Extended Device Specific Data =======\n\r");
 	trace_info(" .S_CMD_SET            : 0x%X\n\r",
@@ -3497,7 +3539,7 @@ SD_DumpExtCSD(void *pExtCSD)
 		   MMC_EXT_S_C_VCCQ(pExtCSD));
 	trace_info(" .S_A_TIMEOUT          : 0x%X\n\r",
 		   MMC_EXT_S_A_TIMEOUT(pExtCSD));
-	trace_info(" .SEC_COUNT            : 0x%X\n\r",
+	trace_info(" .SEC_COUNT            : 0x%lX\n\r",
 		   MMC_EXT_SEC_COUNT(pExtCSD));
 	trace_info(" .MIN_PERF_W_8_52      : 0x%X\n\r",
 		   MMC_EXT_MIN_PERF_W_8_52(pExtCSD));
@@ -3550,21 +3592,26 @@ SD_DumpExtCSD(void *pExtCSD)
  * \param pSCR  Pointer to SCR data.
  */
 void
-SD_DumpSCR(void *pSCR)
+SD_DumpSCR(const uint8_t *pSCR)
 {
 	trace_info("========== SCR ==========");
 	trace_info_wp("\n\r");
 
-	trace_info(" .SCR_STRUCTURE         :0x%X\n\r",
-		   (unsigned int) SD_SCR_STRUCTURE(pSCR));
-	trace_info(" .SD_SPEC               :0x%X\n\r",
-		   (unsigned int) SD_SCR_SD_SPEC(pSCR));
+	trace_info(" .SCR_STRUCTURE         :0x%X\n\r", SD_SCR_STRUCTURE(pSCR));
+	trace_info(" .SD_SPEC               :0x%X\n\r", SD_SCR_SD_SPEC(pSCR));
+	trace_info(" .SD_SPEC3              :0x%X\n\r", SD_SCR_SD_SPEC3(pSCR));
 	trace_info(" .DATA_STAT_AFTER_ERASE :0x%X\n\r",
-		   (unsigned int) SD_SCR_DATA_STAT_AFTER_ERASE(pSCR));
+	    SD_SCR_DATA_STAT_AFTER_ERASE(pSCR));
 	trace_info(" .SD_SECURITY           :0x%X\n\r",
-		   (unsigned int) SD_SCR_SD_SECURITY(pSCR));
+	    SD_SCR_SD_SECURITY(pSCR));
+	trace_info(" .EX_SECURITY           :0x%X\n\r",
+	    SD_SCR_EX_SECURITY(pSCR));
 	trace_info(" .SD_BUS_WIDTHS         :0x%X\n\r",
-		   (unsigned int) SD_SCR_SD_BUS_WIDTHS(pSCR));
+	    SD_SCR_SD_BUS_WIDTHS(pSCR));
+	trace_info(" .CMD20_SUPPORT         :0x%X\n\r",
+	    SD_SCR_CMD20_SUPPORT(pSCR));
+	trace_info(" .CMD23_SUPPORT         :0x%X\n\r",
+	    SD_SCR_CMD23_SUPPORT(pSCR));
 }
 
 /**
@@ -3572,31 +3619,31 @@ SD_DumpSCR(void *pSCR)
  * \param pSdST  Pointer to SD card status data.
  */
 void
-SD_DumpSdStatus(void *pSdST)
+SD_DumpSdStatus(const uint8_t *pSdST)
 {
 	trace_info("=========== STAT ============");
 	trace_info_wp("\n\r");
 
 	trace_info(" .DAT_BUS_WIDTH          :0x%X\n\r",
-		   (unsigned int) SD_ST_DAT_BUS_WIDTH(pSdST));
+	    SD_ST_DAT_BUS_WIDTH(pSdST));
 	trace_info(" .SECURED_MODE           :0x%X\n\r",
-		   (unsigned int) SD_ST_SECURED_MODE(pSdST));
+	    SD_ST_SECURED_MODE(pSdST));
 	trace_info(" .SD_CARD_TYPE           :0x%X\n\r",
-		   (unsigned int) SD_ST_CARD_TYPE(pSdST));
-	// trace_info(" .SIZE_OF_PROTECTED_AREA :0x%X\n\r",
-	//   (unsigned int)SD_ST_SIZE_OF_PROTECTED_AREA(pSdST));
+	    SD_ST_CARD_TYPE(pSdST));
+	trace_info(" .SIZE_OF_PROTECTED_AREA :0x%lX\n\r",
+	    SD_ST_SIZE_OF_PROTECTED_AREA(pSdST));
 	trace_info(" .SPEED_CLASS            :0x%X\n\r",
-		   (unsigned int) SD_ST_SPEED_CLASS(pSdST));
+	    SD_ST_SPEED_CLASS(pSdST));
 	trace_info(" .PERFORMANCE_MOVE       :0x%X\n\r",
-		   (unsigned int) SD_ST_PERFORMANCE_MOVE(pSdST));
+	    SD_ST_PERFORMANCE_MOVE(pSdST));
 	trace_info(" .AU_SIZE                :0x%X\n\r",
-		   (unsigned int) SD_ST_AU_SIZE(pSdST));
+	    SD_ST_AU_SIZE(pSdST));
 	trace_info(" .ERASE_SIZE             :0x%X\n\r",
-		   (unsigned int) SD_ST_ERASE_SIZE(pSdST));
+	    SD_ST_ERASE_SIZE(pSdST));
 	trace_info(" .ERASE_TIMEOUT          :0x%X\n\r",
-		   (unsigned int) SD_ST_ERASE_TIMEOUT(pSdST));
+	    SD_ST_ERASE_TIMEOUT(pSdST));
 	trace_info(" .ERASE_OFFSET           :0x%X\n\r",
-		   (unsigned int) SD_ST_ERASE_OFFSET(pSdST));
+	    SD_ST_ERASE_OFFSET(pSdST));
 }
 
 /**
