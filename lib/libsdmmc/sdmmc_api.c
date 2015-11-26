@@ -40,7 +40,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
-#include "compiler.h"
+#include "chip.h"
 #include "timer.h"
 #include "libsdmmc.h"
 #include "sdmmc_trace.h"
@@ -693,6 +693,7 @@ Cmd5(sSdCard * pSd, uint32_t * pIo)
  * \param  pSd         Pointer to a SD/MMC card driver instance.
  * \param  pSwitchArg  Pointer to a MmcCmd6Arg instance.
  * \param  pStatus     Pointer to where the 512bit status is returned.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param  pResp       Pointer to where the response is returned.
  */
 static uint8_t
@@ -850,6 +851,7 @@ SdCmd8(sSdCard * pSd, uint8_t supplyVoltage)
  * Valid under "trans" state.
  * \param pSd   Pointer to a SD card driver instance.
  * \param pEXT  512 byte buffer pointer for EXT_CSD data.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \return 0 if successful;
  *         otherwise returns SD_ERROR_NORESPONSE if the card did not answer
  *         the command, or SDMMC_ERROR.
@@ -990,7 +992,8 @@ Cmd16(sSdCard * pSd, uint16_t blkLen)
 /**
  * Read single block command
  * \param pSd  Pointer to a SD card driver instance.
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param address   Data Address on SD/MMC card.
  * \param pStatus   Pointer response buffer as status return.
  * \param fCallback Pointer to optional callback invoked on command end.
@@ -1027,7 +1030,8 @@ Cmd17(sSdCard * pSd,
 /**
  * A host reads the reversed bus testing data pattern from a card
  * \param pSd  Pointer to a SD card driver instance.
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param len       Length of data in byte
  * \param pStatus   Pointer response buffer as status return.
  */
@@ -1056,7 +1060,8 @@ Cmd14(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
 /**
  * A host sends the bus test data pattern to a card.
  * \param pSd  Pointer to a SD card driver instance.
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param len       Length of data in byte
  * \param pStatus   Pointer response buffer as status return.
 */
@@ -1087,7 +1092,8 @@ Cmd19(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
  * STOP_TRANSMISSION command.
  * \param pSd       Pointer to a SD card driver instance.
  * \param nbBlocks  Number of blocks to send.
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param address   Data Address on SD/MMC card.
  * \param pStatus   Pointer to the response status.
  * \param fCallback Pointer to optional callback invoked on command end.
@@ -1157,7 +1163,8 @@ Cmd23(sSdCard * pSd, uint8_t write, uint32_t blocks, uint32_t * pStatus)
  * Write single block command
  * \param pSd  Pointer to a SD card driver instance.
  * \param blockSize Block size (shall be set to 512 in case of high capacity).
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param address   Data Address on SD/MMC card.
  * \param pStatus   Pointer to response buffer as status.
  * \param fCallback Pointer to optional callback invoked on command end.
@@ -1195,7 +1202,8 @@ Cmd24(sSdCard * pSd,
  * \param pSd  Pointer to a SD card driver instance.
  * \param blockSize Block size (shall be set to 512 in case of high capacity).
  * \param nbBlock   Number of blocks to send.
- * \param pData     Pointer to the DW aligned buffer to be filled.
+ * \param pData     Pointer to the buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param address   Data Address on SD/MMC card.
  * \param pStatus   Pointer to the response buffer as status.
  * \param fCallback Pointer to optional callback invoked on command end.
@@ -1276,6 +1284,7 @@ Cmd52(sSdCard * pSd,
  * \param pArgResp  Pointer to input argument (\ref SdioRwExtArg)
  *                  and response (\ref SdmmcR5) buffer.
  * \param pData     Pointer to data buffer to transfer.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param size      Transfer data size.
  * \param fCallback Pointer to optional callback invoked on command end.
  *                  NULL:    Function return until command finished.
@@ -1479,6 +1488,7 @@ Acmd41(sSdCard * pSd, uint8_t hcs, uint8_t * pCCS)
  * ACMD51 is valid under the Transfer state.
  * \param pSd  Pointer to a SD card driver instance.
  * \param pSCR  Pointer to an 8-byte buffer receiving the contents of the SCR.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param pResp  Pointer to where the response is returned.
  * \return The command transfer result (see SendCommand).
  */
@@ -1522,6 +1532,7 @@ Acmd51(sSdCard * pSd, uint8_t * pSCR, uint32_t * pResp)
  * \param blockSize Block size (shall be set to 512 in case of high capacity).
  * \param nbBlock   Number of blocks to send.
  * \param pData     Pointer to the application buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param fCallback Pointer to optional callback invoked on command end.
  *                  NULL:    Function return until command finished.
  *                  Pointer: Return immediately and invoke callback at end.
@@ -1557,6 +1568,7 @@ SdmmcRead(sSdCard * pSd,
  * \param blockSize Block size (shall be set to 512 in case of high capacity).
  * \param nbBlock   Number of blocks to send.
  * \param pData  Pointer to the application buffer to be filled.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param fCallback Pointer to optional callback invoked on command end.
  *                  NULL:    Function return until command finished.
  *                  Pointer: Return immediately and invoke callback at end.
@@ -2066,13 +2078,6 @@ SdMmcUpdateInformation(sSdCard * pSd, uint8_t csd, uint8_t extData)
 	}
 }
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((__section__(".region_dma_nocache")))
-#endif
-uint8_t switchStatus[512 / 8];
-
 /**
  * \brief Check HS capability and enable it
  * \param pSd Pointer to sSdCard instance.
@@ -2082,6 +2087,8 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 {
 	uint8_t error;
 	uint8_t io, sd, mmc;
+
+	assert(sizeof(pSd->sandbox1) >= 512 / 8);
 
 	io = ((pSd->bCardType & CARD_TYPE_bmSDIO) > 0);
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
@@ -2160,15 +2167,15 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 				1, 0, 0xF, 0xF, 0xF, 0xF, 0, 1
 			};
 
-			error = SdCmd6(pSd, &cmd6Arg, switchStatus, &status1);
+			error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status1);
 			if (error || (status1 & STATUS_SWITCH_ERROR)) {
 				trace_info("SD HS Fail\n\r");
 				return SDMMC_ERROR;
-			} else if (SD_SWITCH_ST_FUN_GRP1_RC(switchStatus)
+			} else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
 				   == SD_SWITCH_ST_FUN_GRP_RC_ERROR) {
 				trace_info("SD HS Not Supported\n\r");
 				return SDMMC_ERROR_NOT_SUPPORT;
-			} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(switchStatus)) {
+			} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1)) {
 				trace_info("SD HS Locked\n\r");
 				return SDMMC_ERROR_BUSY;
 			} else {
@@ -2214,45 +2221,35 @@ mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth)
 	return SDMMC_OK;
 }
 
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((__section__(".region_dma_nocache")))
-#endif
-uint8_t bustest_data[8] = { 0 };
-
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((__section__(".region_dma_nocache")))
-#endif
-uint8_t read_data[8];
-
 static uint8_t
 mmcDetectBuswidth(sSdCard * pSd)
 {
 	uint8_t error, busWidth, mask = 0xff, i, len;
 
+	assert(sizeof(pSd->sandbox1) >= 8);
+	assert(sizeof(pSd->sandbox2) >= 8);
+
+	memset(pSd->sandbox1, 0, 8);
 	for (busWidth = 8; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) {
 		error = _HwSetBusWidth(pSd, busWidth);
 		if (error)
 			continue;
 		switch (busWidth) {
 		case 8:
-			bustest_data[0] = 0x55;
-			bustest_data[1] = 0xaa;
+			pSd->sandbox1[0] = 0x55;
+			pSd->sandbox1[1] = 0xaa;
 			break;
 		case 4:
-			bustest_data[0] = 0x5a;
-			bustest_data[1] = 0;
+			pSd->sandbox1[0] = 0x5a;
+			pSd->sandbox1[1] = 0;
 			break;
 		case 1:
-			bustest_data[0] = 0x80;
-			bustest_data[1] = 0;
+			pSd->sandbox1[0] = 0x80;
+			pSd->sandbox1[1] = 0;
 			break;
 		}
 		len = busWidth >= 2 ? busWidth : 2;
-		error = Cmd19(pSd, bustest_data, len, &status1);
+		error = Cmd19(pSd, pSd->sandbox1, len, &status1);
 		if (error) {
 			trace_error("Cmd19 %u, %lx\n\r", error, status1);
 			/* Devices which do not respond to CMD19 - which results
@@ -2266,18 +2263,18 @@ mmcDetectBuswidth(sSdCard * pSd)
 			if (error != SDMMC_ERR_IO)
 				return 0;
 		}
-		error = Cmd14(pSd, read_data, busWidth, &status1);
+		error = Cmd14(pSd, pSd->sandbox2, busWidth, &status1);
 		if (error) {
 			trace_error("Cmd14 %u, %lx\n\r", error, status1);
 			continue;
 		}
 		if (busWidth == 1) {
 			mask = 0xc0;
-			read_data[0] &= mask;
+			pSd->sandbox2[0] &= mask;
 		}
 		len = busWidth == 8 ? 2 : 1;
 		for (i = 0; i < len; i++) {
-			if ((bustest_data[i] ^ read_data[i]) != mask)
+			if ((pSd->sandbox1[i] ^ pSd->sandbox2[i]) != mask)
 				break;
 		}
 		if (i == len) {
@@ -2658,8 +2655,8 @@ SD_GetField(const uint8_t *reg, uint16_t reg_len, uint16_t field_start,
  * \return 0 if successful; otherwise returns an \ref sdmmc_rc "error code".
  * \param pSd      Pointer to a SD card driver instance.
  * \param address  Address of the block to read.
- * \param pData    Data buffer whose size is at least the block size, it can
- *            be 1,2 or 4-bytes aligned when used with DMA.
+ * \param pData    Data buffer whose size is at least the block size. It shall
+ * follow the peripheral and DMA alignment requirements.
  * \param length   Number of blocks to be read.
  * \param pCallback Pointer to callback function that invoked when read done.
  *                  0 to start a blocked read.
@@ -2697,8 +2694,8 @@ SD_Read(sSdCard * pSd,
  * \return 0 if successful; otherwise returns an \ref sdmmc_rc "error code".
  * \param pSd      Pointer to a SD card driver instance.
  * \param address  Address of the block to write.
- * \param pData    Data buffer whose size is at least the block size, it can
- *            be 1,2 or 4-bytes aligned when used with DMA.
+ * \param pData    Data buffer whose size is at least the block size. It shall
+ * follow the peripheral and DMA alignment requirements.
  * \param length   Number of blocks to be write.
  * \param pCallback Pointer to callback function that invoked when write done.
  *                  0 to start a blocked write.
@@ -2738,8 +2735,8 @@ SD_Write(sSdCard * pSd,
  * \param pSd  Pointer to a SD card driver instance.
  * \param address  Address of the block to read.
  * \param nbBlocks Number of blocks to be read.
- * \param pData    Data buffer whose size is at least the block size, it can
- *            be 1,2 or 4-bytes aligned when used with DMA.
+ * \param pData    Data buffer whose size is at least the block size. It shall
+ * follow the peripheral and DMA alignment requirements.
  */
 uint8_t
 SD_ReadBlocks(sSdCard * pSd, uint32_t address, void *pData, uint32_t nbBlocks)
@@ -2770,8 +2767,8 @@ SD_ReadBlocks(sSdCard * pSd, uint32_t address, void *pData, uint32_t nbBlocks)
  * \param pSd  Pointer to a SD card driver instance.
  * \param address  Address of block to write.
  * \param nbBlocks Number of blocks to be read
- * \param pData    Data buffer whose size is at least the block size, it can
- *            be 1,2 or 4-bytes aligned when used with DMA.
+ * \param pData    Data buffer whose size is at least the block size. It shall
+ * follow the peripheral and DMA alignment requirements.
  */
 uint8_t
 SD_WriteBlocks(sSdCard * pSd,
@@ -2802,8 +2799,6 @@ SD_WriteBlocks(sSdCard * pSd,
 static void
 _SdParamReset(sSdCard * pSd)
 {
-	uint32_t i;
-
 	pSd->dwTranSpeed = 0;
 	pSd->dwTotalSize = 0;
 	pSd->dwNbBlocks = 0;
@@ -2819,12 +2814,10 @@ _SdParamReset(sSdCard * pSd)
 	pSd->bStopMultXfer = 0;
 
 	/* Clear our device register cache */
-	for (i = 0; i < 128 / 8 / 4; i++)
-		pSd->CID[i] = 0;
-	for (i = 0; i < 128 / 8 / 4; i++)
-		pSd->CSD[i] = 0;
-	memset(pSd->EXT, 0, sizeof(pSd->EXT));
-	memset(pSd->SCR, 0, sizeof(pSd->SCR));
+	memset(pSd->CID, 0, 16);
+	memset(pSd->CSD, 0, 16);
+	memset(pSd->EXT, 0, 512);
+	memset(pSd->SCR, 0, 8);
 }
 
 /**
@@ -3187,6 +3180,7 @@ SDIO_WriteDirect(sSdCard * pSd,
  * \param address        First byte address of data in SDIO card.
  * \param isFixedAddress During transfer the data address is never increased.
  * \param pData          Pointer to data buffer.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param size           Size of data to read (1 ~ 512).
  * \param fCallback      Callback function invoked when transfer finished.
  * \param pArg           Pointer to callback argument.
@@ -3231,6 +3225,7 @@ SDIO_ReadBytes(sSdCard * pSd,
  * \param address        First byte address of data in SDIO card.
  * \param isFixedAddress During transfer the data address is never increased.
  * \param pData          Pointer to data buffer.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
  * \param size           Size of data to write (1 ~ 512).
  * \param fCallback      Callback function invoked when transfer finished.
  * \param pArg           Pointer to callback argument.

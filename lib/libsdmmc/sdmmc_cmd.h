@@ -62,6 +62,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include "chip.h"
 
 /*------------------------------------------------------------------------------
  *      Definitions
@@ -325,9 +326,8 @@ typedef struct _SdmmcCommand {
 	/** Optional argument to the callback function. */
 	void *pArg;
 
-	/** Data buffer, with MCI_DMA_ENABLE defined 1, the buffer can be
-         * 1, 2 or 4 bytes aligned. It has to be 4 byte aligned if no DMA.
-         */
+	/** Data buffer. It shall follow the peripheral and DMA alignment
+	 * requirements, which are peripheral and driver dependent. */
 	uint8_t *pData;
 	/** Size of data block in bytes. */
 	uint16_t wBlockSize;
@@ -378,21 +378,38 @@ typedef struct _SdHalFunctions {
 /**
  * \brief SD/MMC card driver structure.
  * It holds the current command being processed and the SD/MMC card address.
+ *
+ * The first members of this structure may have to follow the DMA alignment
+ * requirements.
  */
 typedef struct _SdCard {
-	void *pDrv;		/**< Pointer to unnderlying driver */
-	sSdHalFunctions *pHalf;	/**< Pointer to underlying functions */
-	void *pExt;		/**< Pointer to extension data for SD/MMC/SDIO */
-
-	sSdmmcCommand sdCmd;	/**< Command instance for underlying driver */
+	uint8_t EXT[ROUND_UP_MULT(512, L1_CACHE_BYTES)];
+				/**< MMC Extended Device-Specific Data Register
+				 * (EXT_CSD). This member may have to follow
+				 * the DMA alignment requirements. */
+	uint8_t SCR[ROUND_UP_MULT(8, L1_CACHE_BYTES)];
+				/**< SD CARD Configuration Register (SCR).
+				 * This member may have to follow the DMA
+				 * alignment requirements. */
+	uint8_t sandbox1[ROUND_UP_MULT(64, L1_CACHE_BYTES)];
+				/**< Multi-purpose temporary buffer.
+				 * This member may have to follow the DMA
+				 * alignment requirements. */
+	uint8_t sandbox2[ROUND_UP_MULT(8, L1_CACHE_BYTES)];
+				/**< Multi-purpose temporary buffer.
+				 * This member may have to follow the DMA
+				 * alignment requirements. */
 
 	uint32_t CID[128 / 8 / 4];
 				/**< Card Identification (CID register) */
 	uint32_t CSD[128 / 8 / 4];
 				/**< Card-specific data (CSD register) */
-	uint8_t EXT[512];	/**< Extended information */
-	uint8_t SCR[64 / 8];
-				/**< SD CARD Configuration Register (SCR) */
+
+	void *pDrv;		/**< Pointer to underlying driver */
+	sSdHalFunctions *pHalf;	/**< Pointer to underlying functions */
+	void *pExt;		/**< Pointer to extension data for SD/MMC/SDIO */
+
+	sSdmmcCommand sdCmd;	/**< Command instance for underlying driver */
 
 	uint32_t dwTranSpeed;	/**< Max supported transfer speed */
 	uint32_t dwTotalSize;	/**< Card total size
