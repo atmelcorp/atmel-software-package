@@ -51,16 +51,20 @@
 #define TWID_ERROR_TIMEOUT   (6)
 #define TWID_ERROR_TRANSFER  (7)
 
+#define TWID_TRANSFER_IN_PROGRESS  (0x80)
+
+
 enum _twid_trans_mode
 {
 	TWID_MODE_POLLING,
 	TWID_MODE_FIFO,
-	TWID_MODE_DMA
+	TWID_MODE_DMA,
+	TWID_MODE_ASYNC
 };
 
 struct _twi_desc;
 
-typedef void (*twid_callback_t)(struct _twi_desc* spid, void* args);
+typedef void (*twid_callback_t)(struct _twi_desc* twi, void* args);
 
 struct _twi_desc
 {
@@ -78,16 +82,30 @@ struct _twi_desc
 	void*   cb_args;
 };
 
+
+/** \brief twi asynchronous transfer descriptor.*/
+struct _async_desc
+{
+	struct _twi_desc twi_desc;
+	uint32_t twi_id;
+    uint8_t *pdata;				/** Pointer to the data buffer.*/
+    uint32_t size;	 			/** Total number of bytes to transfer.*/
+    uint32_t transferred;		/** Number of already transferred bytes.*/
+};
+
+
 /*------------------------------------------------------------------------------
  *        Functions
  *----------------------------------------------------------------------------*/
 
 extern void twid_configure(struct _twi_desc* desc);
+
 extern uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
-			  struct _buffer* tx, twid_callback_t cb,
-			  void* user_args);
+			  struct _buffer* tx, twid_callback_t cb, void* user_args);
+
 extern void twid_finish_transfert_callback(struct _twi_desc* desc,
 				      void* user_args);
+
 extern void twid_finish_transfert(struct _twi_desc* desc);
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 extern void twid_wait_transfert(const struct _twi_desc* desc);
