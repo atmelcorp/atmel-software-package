@@ -236,8 +236,14 @@ void aic_initialize(void)
 	_aic_initialize(SAIC);
 
 	/* Redirect all interrupts to Non-secure AIC */
-	SFR->SFR_AICREDIR = (SFR_AICREDIR_AICREDIRKEY(AICREDIR_KEY) ^ SFR->SFR_SN1) |
-	                    SFR_AICREDIR_NSAIC;
+	uint32_t aicredir = SFR_AICREDIR_AICREDIRKEY((uint32_t)(AICREDIR_KEY));
+
+#ifdef CONFIG_SOC_SAMA5D4
+	aicredir |= SFR->SFR_SN1;
+#else
+	aicredir ^= SFR->SFR_SN1;
+#endif
+	SFR->SFR_AICREDIR = aicredir | SFR_AICREDIR_NSAIC;
 
 	/* Enable IRQ and FIQ at core level */
 	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
@@ -427,3 +433,15 @@ uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource)
 	}
 	return 0;
 }
+
+/**
+ * \brief Get AIC Current Interrupt Identifier.
+ *
+ * \retval      IRQID: Current Interrupt Identifier
+ */
+uint32_t aic_get_current_interrupt_identifier(void)
+{
+	Aic* aic = AIC;
+	return aic->AIC_ISR ;
+}
+

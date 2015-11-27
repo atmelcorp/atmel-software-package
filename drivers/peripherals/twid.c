@@ -234,10 +234,10 @@ void _twid_handler(void)
 	uint8_t i;
 	uint32_t status = 0;
 	Twi* addr;
-	//uint32_t id = aic_get_current_interrupt_identifier();
+	uint32_t id = aic_get_current_interrupt_identifier();
 
 	/* use to simulate */
-	uint32_t id = 32;
+	//uint32_t id = 32;
 
 
 	for (i=0; i!=MAX_ADESC; i++) {

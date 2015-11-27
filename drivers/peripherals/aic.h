@@ -71,6 +71,7 @@ extern void aic_end_interrupt(Aic * aic);
 extern uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask);
 extern void aic_write_protection(Aic * aic, uint32_t enable);
 extern uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource);
+extern uint32_t aic_get_current_interrupt_identifier(void);
 
 #ifdef __cplusplus
 }
