@@ -75,7 +75,7 @@ extern void twi_write_byte(Twi * pTwi, uint8_t byte);
 extern void twi_start_write(Twi * pTwi, uint8_t address, uint32_t iaddress,
 							uint8_t isize, uint8_t byte);
 extern uint8_t twi_is_byte_received(Twi * pTwi);
-extern uint8_t twi_byte_sent(Twi * pTwi);
+extern uint8_t twi_is_byte_sent(Twi * pTwi);
 extern uint8_t twi_is_transfer_complete(Twi * pTwi);
 extern void twi_enable_it(Twi * pTwi, uint32_t sources);
 extern void twi_disable_it(Twi * pTwi, uint32_t sources);

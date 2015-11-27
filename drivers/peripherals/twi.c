@@ -290,7 +290,7 @@ uint8_t twi_is_byte_received(Twi * pTwi)
  * \return 1 if a byte has been sent  so another one can be stored for
  * transmission; otherwise returns 0. This function clears the status register.
  */
-uint8_t twi_byte_sent(Twi * pTwi)
+uint8_t twi_is_byte_sent(Twi * pTwi)
 {
 	assert(pTwi != NULL);
 	return ((pTwi->TWI_SR & TWI_SR_TXRDY) == TWI_SR_TXRDY);
@@ -371,6 +371,7 @@ void twi_send_stop_condition(Twi * pTwi)
 }
 
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
+
 void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 		     uint8_t isize, uint8_t len)
 {
@@ -395,8 +396,7 @@ void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 	twi->TWI_ACR = 0;
 	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
 	twi->TWI_MMR = 0;
-	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD
-		| TWI_MMR_IADRSZ(isize);
+	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD | TWI_MMR_IADRSZ(isize);
 	/* Set internal address bytes. */
 	twi->TWI_IADR = 0;
 	twi->TWI_IADR = iaddress;
@@ -406,6 +406,7 @@ void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 #endif
 
 #ifdef CONFIG_HAVE_TWI_FIFO
+
 void twi_fifo_configure(Twi* twi, uint8_t tx_thres,
 			uint8_t rx_thres,
 			uint32_t ready_modes)
