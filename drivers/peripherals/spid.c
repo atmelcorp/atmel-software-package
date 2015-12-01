@@ -97,7 +97,7 @@ void spid_configure(struct _spi_desc* desc)
 	if (desc->transfert_mode == SPID_MODE_FIFO) {
 		desc->attributes &= ~SPI_MR_WDRBT;
 	}
-	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK) | SPI_MR_MSTR);
+	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK));
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode, 0);
