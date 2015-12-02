@@ -126,7 +126,8 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
 }
 
 /**
- * \brief  Applet main entry. This function decodes received command and executes it.
+ * \brief  Applet main entry. This function decodes received command and
+ * executes it.
  * \param mailbox  Applet mailbox
  */
 void applet_main(struct applet_mailbox *mailbox)
@@ -145,9 +146,14 @@ void applet_main(struct applet_mailbox *mailbox)
 	for (i = 0; applet_commands[i].handler; i++) {
 		if (applet_commands[i].command == mailbox->command)
 		{
-			mailbox->status = applet_commands[i].handler(mailbox->command, mailbox->args);
+			mailbox->status = applet_commands[i].handler(
+					mailbox->command, mailbox->args);
 			break;
 		}
+	}
+	if (!applet_commands[i].handler) {
+		trace_error_wp("Unsupported applet command 0x%08x\r\n",
+				(unsigned)mailbox->command);
 	}
 
 	/* notify the host application of the end of the command processing */
