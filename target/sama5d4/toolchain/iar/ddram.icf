@@ -51,6 +51,10 @@ define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 initialize by copy with packing=none { readwrite };
 do not initialize  { readonly section .noinit };
+/* Warning: ICC still considers the sections below as zero-initialized, by default. */
+do not initialize  { section .region_sram };
+do not initialize  { section .region_ddr };
+do not initialize  { section .region_ddr_nocache };
 
 place in VEC_region { section .vectors };
 place in RAM_region { section .region_sram };
