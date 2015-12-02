@@ -118,6 +118,19 @@ void console_configure(uint32_t baudrate)
 	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
 #endif
 
+#if CONSOLE_DRIVER == DRV_UART
+	uint32_t mr;
+	mr = mode & US_MR_FILTER ? UART_MR_FILTER_ENABLED
+	    : UART_MR_FILTER_DISABLED;
+	mr |= UART_MR_PAR((mode & US_MR_PAR_Msk) >> US_MR_PAR_Pos);
+	if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_PMC_PCK)
+		mr |= UART_MR_BRSRCCK_PMC_PCK;
+	else
+		mr |= UART_MR_BRSRCCK_PERIPH_CLK;
+	mr |= UART_MR_CHMODE((mode & US_MR_CHMODE_Msk) >> US_MR_CHMODE_Pos);
+	mode = mr;
+#endif
+
 	/* Initialize driver to use */
 	console.init(console.addr, mode, baudrate);
 
