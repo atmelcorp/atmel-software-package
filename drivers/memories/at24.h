@@ -42,15 +42,10 @@
  *----------------------------------------------------------------------------*/
 
 
-/** Device address */
-#define AT24_EEP_ADDR           (0x50 | 0x4)
-#define AT24_SN_ADDR            (0x58 | 0x4)
 
 /** Internal Register Address Allocation */
 #define AT24_FIRST_MEM_ADDR     0x00
 #define AT24_SECOND_MEM_ADDR    0x80
-#define AT24_SN_INT_ADDR        0x80        // 0x80-0x8F
-#define AT24_EUI48_VALUE_ADDR   0x9A        // 0x9A-0x9F
 #define AT24_EUI64_VALUE_ADDR   0x98        // 0x98-0x9F
 #define AT24_DUMMY_ADDR         0x00
 
@@ -77,6 +72,11 @@ struct _at24_desc {
 struct _at24 {
 	struct _twi_desc* twid;
 	struct _at24_desc desc;
+
+	uint8_t addr;
+	uint8_t sn_addr;
+	uint8_t sn_offset;
+	uint8_t eui_offset;
 
 	uint8_t serial_number[AT24_SN_SIZE];
 	uint8_t mac_addr_48[AT24_EUI48_SIZE];

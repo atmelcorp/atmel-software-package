@@ -87,8 +87,8 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0x0;
 
-	at24->twid->slave_addr = AT24_SN_ADDR;
-	at24->twid->iaddr = AT24_SN_INT_ADDR;
+	at24->twid->slave_addr = at24->sn_addr;
+	at24->twid->iaddr = at24->sn_offset;
 	at24->twid->isize = 1;
 
 	// Tell the EEPROM where we would like to read from
@@ -117,8 +117,8 @@ uint8_t at24_get_mac_address(struct _at24* at24)
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0x0;
 
-	at24->twid->slave_addr = AT24_SN_ADDR;
-	at24->twid->iaddr = AT24_EUI48_VALUE_ADDR;
+	at24->twid->slave_addr = at24->sn_addr;
+	at24->twid->iaddr = at24->eui_offset;
 	at24->twid->isize = 1;
 
 	// Tell the EEPROM where we would like to read from
@@ -149,7 +149,7 @@ uint8_t at24_read_eep(struct _at24* at24, uint8_t addr,
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0xDE;
 
-	at24->twid->slave_addr = AT24_EEP_ADDR;
+	at24->twid->slave_addr = at24->addr;
 	at24->twid->iaddr = addr;
 	at24->twid->isize = 1;
 
@@ -178,7 +178,7 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 	uint8_t dummy = 0xDE;
 	uint8_t page_size = at24->desc.page_size;
 
-	at24->twid->slave_addr = AT24_EEP_ADDR;
+	at24->twid->slave_addr = at24->addr;
 	at24->twid->iaddr = addr;
 	at24->twid->isize = 1;
 
