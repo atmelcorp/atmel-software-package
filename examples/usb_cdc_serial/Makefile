@@ -26,7 +26,18 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/cdc/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
-include $(TOP)/lib/usb/common/hid/Makefile.inc
+# Makefile for compiling the USB CDC Serial example
+
+TOP := ../..
+
+BINNAME = usb_cdc_serial
+
+CFLAGS_OPT = -O0
+
+CONFIG_LIB_USB = y
+CONFIG_LIB_USB_CDC = y
+
+obj-y += examples/usb_cdc_serial/main.o
+obj-y += examples/usb_cdc_serial/usb_descriptors.o
+
+include $(TOP)/scripts/Makefile.rules

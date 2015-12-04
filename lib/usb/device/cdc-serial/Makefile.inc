@@ -26,7 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/cdc/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
-include $(TOP)/lib/usb/common/hid/Makefile.inc
+ifeq ($(CONFIG_LIB_USB_CDC),y)
+
+usb-y += lib/usb/device/cdc-serial/cdcd_serial_port.o
+usb-y += lib/usb/device/cdc-serial/cdcd_serial_driver_callbacks.o
+usb-y += lib/usb/device/cdc-serial/cdcd_serial_driver.o
+usb-y += lib/usb/device/cdc-serial/cdcd_serial_callbacks.o
+usb-y += lib/usb/device/cdc-serial/cdcd_serial.o
+
+endif

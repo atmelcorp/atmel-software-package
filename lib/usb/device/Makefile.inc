@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 include $(TOP)/lib/usb/device/audio/Makefile.inc
+include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
 include $(TOP)/lib/usb/device/core/Makefile.inc
 include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
 include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc

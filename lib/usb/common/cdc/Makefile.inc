@@ -26,7 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/cdc/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
-include $(TOP)/lib/usb/common/hid/Makefile.inc
+usb-y += lib/usb/common/cdc/cdc_set_control_line_state_request.o
+usb-y += lib/usb/common/cdc/cdc_line_coding.o
