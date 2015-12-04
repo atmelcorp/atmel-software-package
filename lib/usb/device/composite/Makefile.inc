@@ -26,11 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
-include $(TOP)/lib/usb/device/composite/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
-include $(TOP)/lib/usb/device/mass-storage/Makefile.inc
+ifeq ($(CONFIG_LIB_USB_COMPOSITE),y)
+
+usb-y += lib/usb/device/composite/cdc_audd_driver.o
+usb-y += lib/usb/device/composite/cdc_hidd_driver.o
+usb-y += lib/usb/device/composite/cdc_msd_driver.o
+usb-y += lib/usb/device/composite/dual_cdcd_driver.o
+usb-y += lib/usb/device/composite/hid_audd_driver.o
+usb-y += lib/usb/device/composite/hid_msd_driver.o
+
+endif

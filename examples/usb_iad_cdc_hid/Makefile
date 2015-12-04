@@ -26,11 +26,18 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
-include $(TOP)/lib/usb/device/composite/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
-include $(TOP)/lib/usb/device/mass-storage/Makefile.inc
+# Makefile for compiling the USB IAD CDC HID Keyboard example
+
+TOP := ../..
+
+BINNAME = usb_iad_cdc_hid
+
+CONFIG_LIB_USB = y
+CONFIG_LIB_USB_HID = y
+CONFIG_LIB_USB_CDC = y
+CONFIG_LIB_USB_COMPOSITE = y
+
+obj-y += examples/usb_iad_cdc_hid/main.o
+obj-y += examples/usb_iad_cdc_hid/usb_descriptors.o
+
+include $(TOP)/scripts/Makefile.rules

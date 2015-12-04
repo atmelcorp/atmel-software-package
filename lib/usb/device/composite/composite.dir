@@ -1,0 +1,820 @@
+/* ----------------------------------------------------------------------------
+ *         ATMEL Microcontroller Software Support
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2008, Atmel Corporation
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
+ */
+
+/** \dir usb/device/composite
+
+  \section Purpose
+
+  This directory provides definitions, structs and functions for a USB
+  Composite device demos, to implement Multi-Function USB devices.
+
+  \section Contents
+  There are three things for the implement of the composite device driver:
+  - Implement the function driver structs and functions for the device
+    function, to initialize, to handle function specific requests and
+    dispach standard requests in USBD callbacks, to read/write through
+    assigned USB endpoints.
+  - Implement the composite driver structs for the device,
+    to initialize, to handle device specific requests and dispach
+    standard requests in USBD callbacks, to read/write through assigned USB
+    endpoints,
+  - Create the composite device's descriptors that should be passed to
+    the USBDDriver instance on initialization, so that the host can
+    recognize the device as a "composite" device.
+
+  For more information, please refer to \ref usbd_composite_drv.
+*/
+
+/** \page usbd_composite_drv USB Composite Devices Drivers
+
+ This page describes how to use the \ref usbd_framework to produce a USB
+ Composite Device Driver, which appears as two USB Functions on host.
+
+ Details about the USB can be found in the <i>USB specification 2.0</i>,
+ respectively.
+
+ \section References
+ - <a href="http://www.usb.org/developers/docs/usb_20_122909-2.zip">
+   Universal Serial Bus Revision 2.0 specification
+   </a> (.zip file format, size 10.9 MB)
+ - <a href="http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf">
+   Interface Association Descriptor
+   </a>
+ - \ref usbd_framework "AT91 USB device framework"
+ - \ref usbd_enum "USB Device Enumeration"
+ - \ref usbd_cdc_serial_drv "USB CDC(Serial) Device Driver"
+ - \ref usbd_msd_drv "USB MSD Device Driver"
+ - \ref usbd_hid_kbd_drv "USB HID(Keyboard) Device Driver"
+ - \ref usbd_audio_speaker_drv "USB Audio(Speaker) Device Driver"
+
+ \section composite_basic Composite Basics
+ See \subpage usb_composite_basic
+
+ \section Architecture
+ The Composite driver is based on
+ \ref usbd_framework_arch "USB Device Framework Architecture".
+
+ \image html UsbCompositeSWArch.png "Software Architecture Using the AT91 USB Framework"
+
+ \section Descriptors
+
+ \subsection usb_composite_devdesc Device Descriptor
+ The Device descriptor of a composite device is very basic according to the
+ definition in section 9.6.1, <i>Universal Serial Bus Specification, Revision
+ 2.0</i>, but some of the fields may have different values based on if there
+ is multi-interface function in the device: <i>bDeviceClass</i>,
+ <i>bDeviceSubClass</i>, <i>bDeviceProtocol</i> set to zero for a device
+ without multi-interface function inside; <i>bDeviceClass</i>,
+ <i>bDeviceSubClass</i>, <i>bDeviceProtocol</i> set to EFH, 02H, 01H for a
+ device with multi-interface function inside, such as CDC or Audio class
+ function, as shown below:
+
+ \code
+        // Composite Device Descriptor
+        const USBDeviceDescriptor deviceDescriptor = {
+                sizeof(USBDeviceDescriptor),
+                USBGenericDescriptor_DEVICE,
+                USBDeviceDescriptor_USB2_00,
+              #if defined(usb_HIDMSD)
+                0x00,
+                0x00,
+                0x00,
+              #else
+                0xEF,// MI
+                0x02,//
+                0x01,//
+              #endif
+                BOARD_USB_ENDPOINTS_MAXPACKETSIZE(0),
+                COMPOSITEDDriverDescriptors_VENDORID,
+                COMPOSITEDDriverDescriptors_PRODUCTID,
+                COMPOSITEDDriverDescriptors_RELEASE,
+                0, // No string descriptor for manufacturer
+                1, // Index of product string descriptor is #1
+                0, // No string descriptor for serial number
+                1 // Device has 1 possible configuration
+        };
+ \endcode
+
+ Note that the Vendor ID is a special value attributed by the USB-IF
+ organization. The product ID can be chosen freely by the vendor.
+ The HID and MSD class functions are all single-interface functions,
+ so the corresponding fields are set to zeros.
+
+ \subsection usb_composite_cfgdesc Configuration Descriptor
+
+ It's just standard one as defined in section 9.6.3, <i>Universal Serial Bus
+ Specification, Revision 2.0</i>, with <i>wTotalLength</i> set to the total
+ length of all standard and function specific descriptors followed,
+ <i>bNumInterface</i> set to the summary number of interfaces of all functions
+ used.
+
+ \code
+        // Composite Configuration Descriptor
+        {
+                sizeof(USBConfigurationDescriptor),
+                USBGenericDescriptor_CONFIGURATION,
+                sizeof(CompositeDriverConfigurationDescriptors),
+                COMPOSITEDDriverDescriptors_NUMINTERFACE,
+                1, // This is configuration #1
+                0, // No string descriptor for this configuration
+                BOARD_USB_BMATTRIBUTES,
+                USBConfigurationDescriptor_POWER(100)
+        },
+ \endcode
+
+ When the Configuration descriptor is requested by the host
+ (by using the GET_DESCRIPTOR command), the device must also send all the
+ related descriptors, i.e. IAD, Interface, Endpoint and Class-specific
+ descriptors. It is convenient to create a single structure to hold all this
+ data, for sending everything in one trunk.
+
+ \subsection IAD
+ See \ref usb_composite_iad.
+
+ \subsection usb_composite_ifepdesc Interface, Class-Specific & Endpoint Descriptors
+
+ All these descriptors are almost the same as their definitions in a single USB
+ device, except the interface index related or endpoint addresses related
+ settings. Please refer to the following projects:
+ - MSD: \ref usbd_msd_drv, \ref usb_massstorage
+ - CDC: \ref usbd_cdc_serial_drv, \ref usb_cdc_serial
+ - HID: \ref usbd_hid_kbd_drv, \ref usb_hid_keyboard
+ - Audio: \ref usbd_audio_speaker_drv, \ref usb_audio_speaker
+
+ \subsection usb_composite_strdesc String Descriptors
+
+ Several descriptors can be commented with a String Descriptor. The latter is
+ completely optional and does not have any effect on the detection of the
+ device by the operating system. Whether or not to include them is entirely up
+ to the programmer.
+
+ There is one exception to this rule when using the MSD class. According to the
+ specification, there must be a <b>Serial Number</b> string. It must contains at
+ least 12 characters, and these character must only be either letters (a-z, A-Z)
+ or numbers (0-9). This cause no problem for the driver in practice, but this is
+ a strict requirement for certification. Also please remember that string
+ descriptors use the <b>Unicode</b> format.
+
+ \section Requests
+
+ The composite itself does not define any special requests, but the device
+ functions do.
+
+ Each function in the device has its own requests handler. The device invokes
+ one of the function requests handler first, when the return value of the
+ handler indicates the request is handled by the device function, then the
+ device request handler return directly, but if it is not handled, the device
+ request handler calls next function request handler to check it. It will be
+ forwarded to the standard request handler if there is no valid handler for
+ this request.
+
+ In the device function request handlers, <i>wIndex</i> of the request is
+ checked first to confirm that the request is accepted by the function
+ (interface). Then check if it is a standard request and handle it in two
+ different way.
+
+ \image html UsbCompositeRequestHandler.png "General Request Handler for Composite Device"
+
+ For class-specific request, refer to their related documents:
+ - MSD: \ref usbd_msd_drv, \ref usb_massstorage
+ - CDC: \ref usbd_cdc_serial_drv, \ref usb_cdc_serial
+ - HID: \ref usbd_hid_kbd_drv, \ref usb_hid_keyboard
+ - Audio: \ref usbd_audio_speaker_drv, \ref usb_audio_speaker
+
+ \section Notifications
+
+ Notifications are supported only if CDC serial port device function is
+ included, please refer to \ref usbd_cdc_serial_drv.
+
+ \section Callbacks
+
+ The function in the device may need some callbacks to handle the USB events,
+ such as configured or changed interface.
+
+ \subsection composite_hid_kbd_cb HID Keybard Function Callbacks
+ For a HID Keyboard, the device function should start reporting to host through
+ interrupt endpoint as soon as the device is configured, so
+ USBDDriverCallbacks_ConfigurationChanged() should be re-implement to monitor
+ the configured status of the device, and then forward the event to the
+ device function to handle it. For more details, see \ref usbd_hid_kbd_drv.
+
+ \subsection composite_aud_cb Audio Speaker Function Callbacks
+ The USB Audio Speaker defines alternative interfaces to control the USB
+ bandwidth, so there is a callback defined to handle the event of AT91 USB
+ Device Framework. The function is
+ USBDDriverCallbacks_InterfaceSettingChanged(), which should be
+ re-implemented to replace the original one.
+ AUDDFunctionCallbacks_InterfaceSettingChanged() is invoked and then let the
+ Audio Device Function to handle the event. For more details,
+ see \ref usbd_audio_speaker_drv.
+
+ \section composite_driver_demo Composite Device Examples
+
+ \subsection HID+MSD
+
+ \image html UsbCompositeHidMsdArch.png "HID MSD Composite Driver Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- HID
+                USBInterfaceDescriptor hidInterface;
+                HIDDescriptor hid;
+                USBEndpointDescriptor hidInterruptIn;
+                USBEndpointDescriptor hidInterruptOut;
+                // --- MSD
+                // Mass storage interface descriptor.
+                USBInterfaceDescriptor msdInterface;
+                // Bulk-out endpoint descriptor.
+                USBEndpointDescriptor msdBulkOut;
+                // Bulk-in endpoint descriptor.
+                USBEndpointDescriptor msdBulkIn;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \subsection HID+Audio
+
+ \image html UsbCompositeHidAudioArch.png "HID Audio Composite Device Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- HID
+                USBInterfaceDescriptor hidInterface;
+                HIDDescriptor hid;
+                USBEndpointDescriptor hidInterruptIn;
+                USBEndpointDescriptor hidInterruptOut;
+                // --- AUDIO
+                // IAD 1
+                USBInterfaceAssociationDescriptor audIAD;
+                // Audio control interface.
+                USBInterfaceDescriptor audInterface;
+                // Descriptors for the audio control interface.
+                AUDDSpeakerDriverAudioControlDescriptors audControl;
+                // -- AUDIO out
+                // Streaming out interface descriptor (with no endpoint, required).
+                USBInterfaceDescriptor audStreamingOutNoIsochronous;
+                // Streaming out interface descriptor.
+                USBInterfaceDescriptor audStreamingOut;
+                // Audio class descriptor for the streaming out interface.
+                AUDStreamingInterfaceDescriptor audStreamingOutClass;
+                // Stream format descriptor.
+                AUDFormatTypeOneDescriptor1 audStreamingOutFormatType;
+                // Streaming out endpoint descriptor.
+                AUDEndpointDescriptor audStreamingOutEndpoint;
+                // Audio class descriptor for the streaming out endpoint.
+                AUDDataEndpointDescriptor audStreamingOutDataEndpoint;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \subsection CDC+HID
+
+ \image html UsbCompositeCdcHidArch.png "CDC HID Composite Device Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- CDC 0
+                // IAD 0
+                USBInterfaceAssociationDescriptor cdcIAD0;
+                // Communication interface descriptor
+                USBInterfaceDescriptor cdcCommunication0;
+                // CDC header functional descriptor.
+                CDCHeaderDescriptor cdcHeader0;
+                // CDC call management functional descriptor.
+                CDCCallManagementDescriptor cdcCallManagement0;
+                // CDC abstract control management functional descriptor.
+                CDCAbstractControlManagementDescriptor cdcAbstractControlManagement0;
+                // CDC union functional descriptor (with one slave interface).
+                CDCUnionDescriptor cdcUnion0;
+                // Notification endpoint descriptor.
+                USBEndpointDescriptor cdcNotification0;
+                // Data interface descriptor.
+                USBInterfaceDescriptor cdcData0;
+                // Data OUT endpoint descriptor.
+                USBEndpointDescriptor cdcDataOut0;
+                // Data IN endpoint descriptor.
+                USBEndpointDescriptor cdcDataIn0;
+                // --- HID
+                USBInterfaceDescriptor hidInterface;
+                HIDDescriptor hid;
+                USBEndpointDescriptor hidInterruptIn;
+                USBEndpointDescriptor hidInterruptOut;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \subsection CDC+MSD
+
+ \image html UsbCompositeCdcMsdArch.png "CDC MSD Composite Device Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- CDC 0
+                // IAD 0
+                USBInterfaceAssociationDescriptor cdcIAD0;
+                // Communication interface descriptor
+                USBInterfaceDescriptor cdcCommunication0;
+                // CDC header functional descriptor.
+                CDCHeaderDescriptor cdcHeader0;
+                // CDC call management functional descriptor.
+                CDCCallManagementDescriptor cdcCallManagement0;
+                // CDC abstract control management functional descriptor.
+                CDCAbstractControlManagementDescriptor cdcAbstractControlManag
+                // CDC union functional descriptor (with one slave interface).
+                CDCUnionDescriptor cdcUnion0;
+                // Notification endpoint descriptor.
+                USBEndpointDescriptor cdcNotification0;
+                // Data interface descriptor.
+                USBInterfaceDescriptor cdcData0;
+                // Data OUT endpoint descriptor.
+                USBEndpointDescriptor cdcDataOut0;
+                // Data IN endpoint descriptor.
+                USBEndpointDescriptor cdcDataIn0;
+                // --- MSD
+                // Mass storage interface descriptor.
+                USBInterfaceDescriptor msdInterface;
+                // Bulk-out endpoint descriptor.
+                USBEndpointDescriptor msdBulkOut;
+                // Bulk-in endpoint descriptor.
+                USBEndpointDescriptor msdBulkIn;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \subsection CDC+Audio
+
+ \image html UsbCompositeCdcAudioArch.png "CDC Audio Composite Device Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- CDC 0
+                // IAD 0
+                USBInterfaceAssociationDescriptor cdcIAD0;
+                // Communication interface descriptor
+                USBInterfaceDescriptor cdcCommunication0;
+                // CDC header functional descriptor.
+                CDCHeaderDescriptor cdcHeader0;
+                // CDC call management functional descriptor.
+                CDCCallManagementDescriptor cdcCallManagement0;
+                // CDC abstract control management functional descriptor.
+                CDCAbstractControlManagementDescriptor cdcAbstractControlManagement0;
+                // CDC union functional descriptor (with one slave interface).
+                CDCUnionDescriptor cdcUnion0;
+                // Notification endpoint descriptor.
+                USBEndpointDescriptor cdcNotification0;
+                // Data interface descriptor.
+                USBInterfaceDescriptor cdcData0;
+                // Data OUT endpoint descriptor.
+                USBEndpointDescriptor cdcDataOut0;
+                // Data IN endpoint descriptor.
+                USBEndpointDescriptor cdcDataIn0;
+                // --- AUDIO
+                // IAD 1
+                USBInterfaceAssociationDescriptor audIAD;
+                // Audio control interface.
+                USBInterfaceDescriptor audInterface;
+                // Descriptors for the audio control interface.
+                AUDDSpeakerDriverAudioControlDescriptors audControl;
+                // -- AUDIO out
+                // Streaming out interface descriptor (with no endpoint, required).
+                USBInterfaceDescriptor audStreamingOutNoIsochronous;
+                // Streaming out interface descriptor.
+                USBInterfaceDescriptor audStreamingOut;
+                // Audio class descriptor for the streaming out interface.
+                AUDStreamingInterfaceDescriptor audStreamingOutClass;
+                // Stream format descriptor.
+                AUDFormatTypeOneDescriptor1 audStreamingOutFormatType;
+                // Streaming out endpoint descriptor.
+                AUDEndpointDescriptor audStreamingOutEndpoint;
+                // Audio class descriptor for the streaming out endpoint.
+                AUDDataEndpointDescriptor audStreamingOutDataEndpoint;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \subsection CDC+CDC(Dual CDC)
+
+ \image html UsbCompositeCdcCdcArch.png "Dual CDC Composite Device Architecture"
+
+ Device descriptors:
+ \code
+        typedef struct {
+                // Standard configuration descriptor.
+                USBConfigurationDescriptor configuration;
+                // --- CDC 0
+                // IAD 0
+                USBInterfaceAssociationDescriptor cdcIAD0;
+                // Communication interface descriptor
+                USBInterfaceDescriptor cdcCommunication0;
+                // CDC header functional descriptor.
+                CDCHeaderDescriptor cdcHeader0;
+                // CDC call management functional descriptor.
+                CDCCallManagementDescriptor cdcCallManagement0;
+                // CDC abstract control management functional descriptor.
+                CDCAbstractControlManagementDescriptor cdcAbstractControlManagement0;
+                // CDC union functional descriptor (with one slave interface).
+                CDCUnionDescriptor cdcUnion0;
+                // Notification endpoint descriptor.
+                USBEndpointDescriptor cdcNotification0;
+                // Data interface descriptor.
+                USBInterfaceDescriptor cdcData0;
+                // Data OUT endpoint descriptor.
+                USBEndpointDescriptor cdcDataOut0;
+                // Data IN endpoint descriptor.
+                USBEndpointDescriptor cdcDataIn0;
+                // --- CDC 1
+                // IAD 1
+                USBInterfaceAssociationDescriptor cdcIAD1;
+                // Communication interface descriptor
+                USBInterfaceDescriptor cdcCommunication1;
+                // CDC header functional descriptor.
+                CDCHeaderDescriptor cdcHeader1;
+                // CDC call management functional descriptor.
+                CDCCallManagementDescriptor cdcCallManagement1;
+                // CDC abstract control management functional descriptor.
+                CDCAbstractControlManagementDescriptor cdcAbstractControlManagement1;
+                // CDC union functional descriptor (with one slave interface).
+                CDCUnionDescriptor cdcUnion1;
+                // Notification endpoint descriptor.
+                USBEndpointDescriptor cdcNotification1;
+                // Data interface descriptor.
+                USBInterfaceDescriptor cdcData1;
+                // Data OUT endpoint descriptor.
+                USBEndpointDescriptor cdcDataOut1;
+                // Data IN endpoint descriptor.
+                USBEndpointDescriptor cdcDataIn1;
+        } __attribute__ ((packed)) CompositeDriverConfigurationDescriptors;
+ \endcode
+
+ \section composite_main Main Application
+
+ Normally the main application code can be divided into four parts:
+ - initialization
+ - interrupt handlers
+ - callback handlers
+ - main loop
+ See the source code and the device related application notes for more details.
+
+ \subsection Initialization
+
+ This part initializes all peripherals and drivers, depending on the functions
+ which are included. Normally there are following general initializations:
+ - debug initialization
+ - USB Vbus detect (PIO) initialization
+ - composite device driver initialization
+ - initializations are based on the working functions:
+   - clock PIO and clock settings for USB Audio device
+   - HID keyboard PIO initialization
+   - AC97 or SPI & SSC or DAC for Audio playback initialization
+   - MSD Media and LUN initialization
+   - extra initializations may be needed for timers.
+
+ \subsection usb_composite_irq_handler Interrupt Handlers
+
+ This part includes the necessary handler for Vbus detect, the media handler for
+ MSD device function, USART handler for CDC serial port, and the SSC handler for
+ Audio device function if needed. One extra handler may be needed for the
+ timer or PIT or SYSTICK.
+
+ \subsection Callbacks
+
+ Some of the device function requires callback handler to execute the request
+ from host, such as the mute state changed by the host, or data received or
+ sent, so that another transfer can be started.
+
+ \subsection usb_composite_main_loop Main Loop
+
+ All driver function is non-blocked function, and many of them is called in the
+ main loop, to receive data from the host, to scan the input keys and send
+ report to host (for HID), to run the state machine (for MSD).
+
+ \section composite_host_driver Using a Generic Host Driver
+
+ The device functions are generally supported by Microsoft Windows, but for
+ composite device, some patches are needed. All the composite devices above are
+ tested under windows XP (SP3) and works fine. For CDC serial port, additional
+ windows driver file (.inf) is required.
+
+ \subsection usb_composite_win_patch Windows Patches
+ See \ref usb_composite_win_driver_up.
+
+ \subsection usb_composite_win_cdc_inf Windows Driver Files for CDC Serial Function
+
+ In order to make windows recognize the CDC serial device correctly, it is
+ necessary to write a .inf file. Please refer to \ref usbd_cdc_serial_drv for
+ detailed information. Only one thing should be modified to match the composite
+ device function installation.
+
+ For composite devices, the hardware ID is made up of the Vender ID, the Product
+ ID and (optionally) the Device Release Number and the start interface number of
+ the function. Those values are extracted from the device descriptors provided
+ during the enumeration phase, the following is the example of the modification
+ for the dual-port CDC serial:
+
+ \code
+[AtmelMfg]
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6119&MI_00 ; 1st
+COM device
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6119&MI_02 ; 2nd COM device
+ \endcode
+
+ When a new device is plugged in for the first time, Windows looks for an
+ appropriate specific or generic driver to use it. The composite device will be
+ recognized as ¡°USB Composite Device¡±. Then Windows search the driver for the
+ functions inside the composite device.
+
+ Please refer to the driver function related application notes for more details.
+ The final installation file is as following:
+
+ \code
+[Version]
+Signature="$Chicago$"
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider=%ATMEL%
+DriverVer=09/12/2006,1.1.1.5
+[DestinationDirs]
+DefaultDestDir=12
+[Manufacturer]
+%ATMEL%=AtmelMfg
+[AtmelMfg]
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6127&MI_00
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6128&MI_00
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6129&MI_00
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6119&MI_00
+%USBtoSerialConverter%=USBtoSer.Install,USB\VID_03EB&PID_6119&MI_02
+[USBtoSer.Install]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=USBtoSer.AddReg
+[USBtoSer.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,usbser.sys
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+[USBtoSer.Install.Services]
+AddService=usbser,0x00000002,USBtoSer.AddService
+[USBtoSer.AddService]
+DisplayName=%USBSer%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+[Strings]
+ATMEL="ATMEL Corp."
+USBtoSerialConverter="AT91 USB to Serial Converter"
+USBSer="USB Serial Driver"
+ \endcode
+
+ */
+
+/** \page usb_composite_basic USB Composite Basics
+
+ This page gives generic details on the USB Composite Devices.
+
+ \section Purpose
+
+ The Universal Serial Bus (USB) offers an easy way to connect PC with portable
+ devices and to expand external peripherals. Usually a USB device provides a
+ single function to the host, such as a storage disk, serial RS-232 port,
+ digital microphone, or speakers, so one function occupies one USB port.
+ Nevertheless, to allow several functions through a single physical port, the
+ USB specification mentions two kinds of devices:
+ - Composite device: a device has multiple logical interfaces controlled
+   independently of each other. A single physical logical address is used
+   for the device.
+ - Compound device: a separate hub with multiple functions attached.
+
+ Composite devices are an efficient solution to reduce the number of hub and USB
+ cables. To set an example a device being in the same time modem and audio
+ speaker requires only a single USB cable.
+
+ \section Architecture
+
+ \subsection usb_composite_layers USB Composite Composition
+ Shows different communication flows between composite clients
+ (host side) and functions (device side).
+
+ \image html UsbCompositeComposition.png "USB composite composition"
+
+ \subsection usb_composite_if USB Composite Interfaces
+ Interfaces descriptors for composite devices includes all functions' interfaces.
+ - <i>bInterfaceNumber</i> should start from 0 and then increased by one;
+ - the interfaces that used in the same function should be placed together, that is,
+   the value of <i>bInterfaceNumber</i> should be contiguous;
+ - if two or more interfaces are associated to one device function (such as CDC), the
+   Interface Association Descriptor (IAD, \ref usb_composite_iad) is used.
+
+ Following is architecture of interface for single/multi interface functions.
+
+ \image html UsbCompositeSingleIF.png "USB Composite Device with SINGLE-interface-functions"
+
+ \image html UsbCompositeMultiIF.png "USB Composite Device with MULTI-interface-functions"
+
+ \subsection usb_composite_iad Interface Association Descriptor
+
+ The Interface Association Descriptor (IAD) is a new standard descriptor defined
+ in USB Engineering Change Notice, to allow a device to describe which interfaces
+ are associated with the same device function. This allows the Operation System
+ to bind all of the appropriate interfaces to the same driver instance for the
+ function. Please see USB ENGINEERING CHANGE NOTICE (Title:
+ <a href="http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf">
+ Interface Association Descriptor</a>) for detailed information.
+
+ The IAD is used to describe that two or more interfaces are associated to the
+ same function. The 'association' includes two or more interfaces and all of
+ their alternative setting interfaces. A device must use an IAD for each multi-
+ interfaced device function. An IAD is always returned as part of the
+ configuration information returned by a GetConfigurationDescriptor request. It
+ must be located before the interface descriptors (including all alternate
+ settings) for the interfaces it associates with. All of the interface numbers
+ in a particular set of associated interfaces must be contiguous. Following
+ shows the standard interface association descriptor includes function class,
+ subclass and protocol fields. The values in these fields can be the same as the
+ values from interface class, subclass and protocol from any one of the
+ associated interfaces.
+
+<table>
+<tr><td><b>Offset</b></td>
+    <td><b>Field</b></td>
+    <td><b>Size</b></td>
+    <td><b>Value</b></td>
+    <td><b>Description</b></td></tr>
+<tr><td>0</td>
+    <td>bLength</td>
+    <td>1</td>
+    <td>Number</td>
+    <td>Size of descriptor in bytes</td></tr>
+<tr><td>1</td>
+    <td>bDescriptorType</td>
+    <td>1</td>
+    <td>Constant</td>
+    <td>INTERFACE ASSOCIATION Descriptor</td></tr>
+<tr><td>2</td>
+    <td>bFirstInterface</td>
+    <td>1</td>
+    <td>Number</td>
+    <td>Interface Number of the first interface that is associated with this function.</td></tr>
+<tr><td>3</td>
+    <td>bInterfaceCount</td>
+    <td>1</td>
+    <td>Number</td>
+    <td>Number of contiguous interfaces that are associated with this function.</td></tr>
+<tr><td>4</td>
+    <td>bFunctionClass</td>
+    <td>1</td>
+    <td>Class</td>
+    <td>Class code (assigned by USB-IF).<br>
+        A value of zero is not allowed in this descriptor.
+        If this field is FFH, the function class is vendor-
+        specific.<br>
+        All Other values are reserved for assignment
+        by the USB-IF.</td></tr>
+<tr><td>5</td>
+    <td>bFunctionSubClass</td>
+    <td>1</td>
+    <td>SubClass</td>
+    <td>Subclass code (assigned by USB-IF).<br>
+        If the bFunctionClass field is not set to FFH all
+        values are reserved for assignment by the
+        USB-IF.</td></tr>
+<tr><td>6</td>
+    <td>bFunctionProtocol</td>
+    <td>1</td>
+    <td>Protocol</td>
+    <td>Protocol code (assigned by USB-IF).<br>
+        These codes are qualified by the values of the
+        bFunctionClass and bFunctionSubClass fields.</td></tr>
+<tr><td>7</td>
+    <td>iFunction</td>
+    <td>1</td>
+    <td>Index</td>
+    <td>Index of string descriptor which describes this
+        function.</td></tr>
+</table>
+
+ Since this particular feature was not included in earlier versions of the
+ USB specification, there is issue about how existing USB OS implementations
+ will support devices that use this descriptor. It is strongly recommended
+ that the device implementation utilizing the interface association descriptor
+ use the Multi-interface Function Class code in the device descriptor. The
+ Multi-Interface Function Class code is documented on the
+ http://www.usb.org/developers/docs web site.
+
+ \subsection Requests
+
+ No special request is used for a composite device, all requests are defined by
+ the device function that is integrated.
+
+ \section usb_composite_basic_driver Host Drivers
+ See \subpage usb_composite_host_driver "Composite Host Drivers"
+ */
+
+/** \page usb_composite_host_driver Composite Host Drivers
+ This page describes host support drivers for USB Composite Devices.
+
+ Usually the Operating System supports the composite device via two part of
+ drivers - composite driver and the function drivers depending on the functions
+ that are integrated. The OS will recognize the USB device as a composite
+ device first then distinguish the included functions and install their driver
+ modules one by one. Then the functions will appear as normal separated
+ devices for OS to access.
+
+ Most OSs now include generic drivers for a wide variety of USB classes. This
+ makes developing a function device simpler, since the host complexity is now
+ handled by the OS. Manufacturers can thus concentrate on the device itself,
+ not on developing specific host drivers.
+
+ As described before in \ref usb_composite_basic, the IAD of multi-interface
+ USB devices is a new feature introduced for composite device, there may be
+ issues about how existing USB OS implementations will support devices with
+ IAD. For Linux, it is supported now. For Windows you can refer to
+ <a href="http://www.microsoft.com/whdc/archive/IAD.mspx">
+ Support for USB Interface Association Descriptor in Windows</a>,
+ but patches may needed, only Windows XP with some hot fix or service pack 3
+ or later updates fully support this feature now (See
+ \subpage usb_composite_win_driver_up).
+
+ Here is a brief list of the various function implementations supported by
+ several OSs (for CDC maybe additional .inf file is required to install
+ the device but the driver files themselves are from windows source disk):
+ - Windows (see
+   <a href="http://msdn.microsoft.com/en-us/library/ms794253.aspx">
+   Windows Supported USB Classes</a> for more)
+   - MSD: USB Storage disks
+   - HID: USB Keyboard, Mouse, etc.
+   - Audio: USB Desktop speaker, recorder.
+   - CDC: Abstract Control Model, Remote NDIS ...
+ - Linux (see <a href="http://www.linux-usb.org/devices.html">
+   Linux Device Driver Support</a> for more)
+   - MSD: USB Storage disks
+   - HID: USB Keyboard, Mouse, etc.
+   - CDC: Abstract Control Model
+   - CDC: Ethernet Model
+
+ Please refer to the sections about the functions or the class implement
+ application notes for details about the OS compatibility on the device
+ driver.
+
+ */
+
+/** \page usb_composite_win_driver_up Windows Driver Update For Composite
+
+  The composite device is generally supported by Microsoft windows, but some
+  patches are needed for muti-interface functions such as CDC & Audio. The
+  example composite devices are tested under windows XP (SP3). For CDC
+  serial port, additional windows driver file (CompositeCDCSerial.inf) can
+  be found at at91lib\\usb\\device\\composite\\drv\\CompositeCDCSerial.inf.
+
+  The following is alternate update to fix the composite device support
+  on windows XP:
+
+  \section install_win_sp3 Install Windows Service Pack 3 (SP3)
+
+  All the fixes for USB generic driver are included in window XP service pack
+  3. It can be found at
+  <a href="http://technet.microsoft.com/zh-cn/windows/bb794714(en-us).aspx">
+  http://technet.microsoft.com/zh-cn/windows/bb794714(en-us).aspx</a>.
+
+  \section install_win_hotfix Install Windows Hot Fixes
+
+  Two hot fixes are necessary for window to recognize the composite device
+  correctly:
+  -# http://support.microsoft.com/kb/814560
+  -# http://support.microsoft.com/kb/918365
+ */
