@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,27 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/drivers
-
-lib-y += drivers/drivers.a
-
-drivers-y :=
-
-include $(TOP)/drivers/audio/Makefile.inc
-include $(TOP)/drivers/cortex-a/Makefile.inc
-include $(TOP)/drivers/memories/Makefile.inc
-include $(TOP)/drivers/misc/Makefile.inc
-include $(TOP)/drivers/network/Makefile.inc
-include $(TOP)/drivers/peripherals/Makefile.inc
-include $(TOP)/drivers/power/Makefile.inc
-include $(TOP)/drivers/video/Makefile.inc
-include $(TOP)/drivers/usb/Makefile.inc
-
-DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
-
--include $(DRIVERS_OBJS:.o=.d)
-
-$(BUILDDIR)/drivers/drivers.a: $(DRIVERS_OBJS)
-	@mkdir -p $(BUILDDIR)/drivers
-	$(ECHO) AR $@
-	$(Q)$(AR) -cr $@ $^
+drivers-$(CONFIG_LIB_USB) += drivers/usb/usbd_hal.o

@@ -111,6 +111,29 @@
 /** Push button index. */
 #define PUSHBUTTON_BP1 0
 
+/* =================== USB device definition =================== */
+
+/** USB VBus pin */
+#define PIN_USB_VBUS \
+	{ PIO_GROUP_E, PIO_PE31, PIO_INPUT, PIO_DEFAULT }
+
+/** USB OverCurrent detection*/
+#define PIN_USB_OVCUR \
+	{ PIO_GROUP_E, PIO_PE0, PIO_INPUT, PIO_PULLUP }
+
+/** USB Power Enable B:A:Active High  */
+#define PIN_USB_POWER_ENB \
+	{ PIO_GROUP_E, PIO_PE11, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** USB Power Enable C:A:Active High  */
+#define PIN_USB_POWER_ENC \
+	{ PIO_GROUP_E, PIO_PE14, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup) */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
+
 /* =================== AT25 device definition =================== */
 
 #define AT25_PINS     PINS_SPI0_NPCS0

@@ -176,19 +176,20 @@
 /* ================== PIN USB definition ======================= */
 
 /** USB VBus pin */
-#define PIN_USB_VBUS      {\
-	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEBOUNCE | PIO_IT_BOTH_EDGE },\
-}
+#define PIN_USB_VBUS \
+	{ PIO_GROUP_A, PIO_PA31, PIO_INPUT, PIO_DEBOUNCE | PIO_IT_BOTH_EDGE }
 
 /** USB OverCurrent detection*/
-#define PIN_USB_OVCUR     {\
-	{ PIO_GROUP_A, PIO_PA29, PIO_INPUT, PIO_DEFAULT },\
-}
+#define PIN_USB_OVCUR \
+	{ PIO_GROUP_A, PIO_PA29, PIO_INPUT, PIO_DEFAULT }
+
+/** USB Power Enable A, Active high */
+#define PIN_USB_POWER_ENA \
+	{ PIO_GROUP_B, PIO_PB9, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /** USB Power Enable B, Active high  */
-#define PIN_USB_POWER_ENB {\
-	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT },\
-}
+#define PIN_USB_POWER_ENB \
+	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /* ================= PIN LCD IRQ definition ===================== */
 
@@ -324,5 +325,11 @@
 #define MXT_FREQ       	400000
 #define MXT_DESC       	{"MXT", 0x00, 00}
 
+/**
+ * USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup)
+ */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
 #endif /* #ifndef _BOARD_D2_H */

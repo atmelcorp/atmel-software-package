@@ -26,27 +26,25 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/drivers
+ifeq ($(CONFIG_LIB_USB),y)
 
-lib-y += drivers/drivers.a
+CFLAGS_INC += -I$(TOP)/lib/usb/include
 
-drivers-y :=
+lib-y += lib/usb.a
 
-include $(TOP)/drivers/audio/Makefile.inc
-include $(TOP)/drivers/cortex-a/Makefile.inc
-include $(TOP)/drivers/memories/Makefile.inc
-include $(TOP)/drivers/misc/Makefile.inc
-include $(TOP)/drivers/network/Makefile.inc
-include $(TOP)/drivers/peripherals/Makefile.inc
-include $(TOP)/drivers/power/Makefile.inc
-include $(TOP)/drivers/video/Makefile.inc
-include $(TOP)/drivers/usb/Makefile.inc
+usb-y :=
 
-DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
+include $(TOP)/lib/usb/common/Makefile.inc
+include $(TOP)/lib/usb/device/Makefile.inc
 
--include $(DRIVERS_OBJS:.o=.d)
 
-$(BUILDDIR)/drivers/drivers.a: $(DRIVERS_OBJS)
-	@mkdir -p $(BUILDDIR)/drivers
+USB_OBJS := $(addprefix $(BUILDDIR)/,$(usb-y))
+
+-include $(USB_OBJS:.o=.d)
+
+$(BUILDDIR)/lib/usb.a: $(USB_OBJS)
+	@mkdir -p $(BUILDDIR)/lib
 	$(ECHO) AR $@
 	$(Q)$(AR) -cr $@ $^
+
+endif

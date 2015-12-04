@@ -32,3 +32,4 @@ include $(TOP)/lib/libsdmmc/Makefile.inc
 include $(TOP)/lib/libstoragemedia/Makefile.inc
 include $(TOP)/lib/lwip/Makefile.inc
 include $(TOP)/lib/uip/Makefile.inc
+include $(TOP)/lib/usb/Makefile.inc
