@@ -26,9 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib
-
-include $(TOP)/lib/libsdmmc/Makefile.inc
-include $(TOP)/lib/libstoragemedia/Makefile.inc
-include $(TOP)/lib/lwip/Makefile.inc
-include $(TOP)/lib/uip/Makefile.inc
+obj-$(CONFIG_LIB_STORAGEMEDIA) += lib/libstoragemedia/media.o
+obj-$(CONFIG_LIB_STORAGEMEDIA) += lib/libstoragemedia/media_ramdisk.o
