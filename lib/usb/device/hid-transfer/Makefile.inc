@@ -26,8 +26,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
+ifeq ($(CONFIG_LIB_USB_HID),y)
+
+usb-y += lib/usb/device/hid-transfer/hidd_function.o
+usb-y += lib/usb/device/hid-transfer/hidd_transfer_driver.o
+
+endif

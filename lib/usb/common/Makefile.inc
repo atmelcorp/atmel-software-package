@@ -28,3 +28,4 @@
 
 include $(TOP)/lib/usb/common/audio/Makefile.inc
 include $(TOP)/lib/usb/common/core/Makefile.inc
+include $(TOP)/lib/usb/common/hid/Makefile.inc

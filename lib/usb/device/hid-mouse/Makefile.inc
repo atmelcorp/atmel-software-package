@@ -25,9 +25,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
+ifeq ($(CONFIG_LIB_USB_HID),y)
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
+usb-y += lib/usb/device/hid-mouse/hidd_mouse_driver.o
+
+endif
