@@ -26,5 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
+usb-y += lib/usb/common/audio/aud_generic_request.o
+usb-y += lib/usb/common/audio/aud_feature_unit_request.o

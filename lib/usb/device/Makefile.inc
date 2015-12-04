@@ -26,4 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+include $(TOP)/lib/usb/device/audio/Makefile.inc
 include $(TOP)/lib/usb/device/core/Makefile.inc

@@ -26,5 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
+ifeq ($(CONFIG_LIB_USB_AUDIO),y)
+
+usb-y += lib/usb/device/audio/audd_speaker_driver_callbacks.o
+usb-y += lib/usb/device/audio/audd_speaker_driver.o
+usb-y += lib/usb/device/audio/audd_speaker_phone_driver_callbacks.o
+usb-y += lib/usb/device/audio/audd_speaker_phone_driver.o
+usb-y += lib/usb/device/audio/audd_stream.o
+usb-y += lib/usb/device/audio/audd_function.o
+
+endif

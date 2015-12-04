@@ -26,5 +26,16 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/common/audio/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
+# Makefile for compiling the USB AUDIO Loop Record example
+
+TOP := ../..
+
+BINNAME = usb_audio_looprec
+
+CONFIG_LIB_USB = y
+CONFIG_LIB_USB_AUDIO = y
+
+obj-y += examples/usb_audio_looprec/main.o
+obj-y += examples/usb_audio_looprec/usb_descriptors.o
+
+include $(TOP)/scripts/Makefile.rules
