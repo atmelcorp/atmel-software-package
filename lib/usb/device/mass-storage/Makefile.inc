@@ -26,10 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
-include $(TOP)/lib/usb/device/mass-storage/Makefile.inc
+ifeq ($(CONFIG_LIB_USB_MSD),y)
+
+usb-y += lib/usb/device/mass-storage/msd_driver.o
+usb-y += lib/usb/device/mass-storage/msdd_state_machine.o
+usb-y += lib/usb/device/mass-storage/msd_function.o
+usb-y += lib/usb/device/mass-storage/msd_io_fifo.o
+usb-y += lib/usb/device/mass-storage/msd_lun.o
+usb-y += lib/usb/device/mass-storage/sbc_methods.o
+
+endif

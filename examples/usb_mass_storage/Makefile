@@ -26,10 +26,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
-include $(TOP)/lib/usb/device/mass-storage/Makefile.inc
+# Makefile for compiling the USB Mass Storage example
+
+TOP := ../..
+
+BINNAME = usb_mass_storage
+
+CONFIG_LIB_USB = y
+CONFIG_LIB_USB_MSD = y
+CONFIG_LIB_STORAGEMEDIA = y
+
+obj-y += examples/usb_mass_storage/main.o
+obj-y += examples/usb_mass_storage/usb_descriptors.o
+
+include $(TOP)/scripts/Makefile.rules
