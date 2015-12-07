@@ -40,13 +40,14 @@ $(BINNAME).ewp:
 	$(Q)echo "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.2 "drivers"> $@.3
 	$(Q)echo "$(addprefix $(TOP)/,$(lwip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.3 "lwip" > $@.4
 	$(Q)echo "$(addprefix $(TOP)/,$(uip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.4  "uip"> $@.5
-	$(Q)echo "$(IAR_FLAGS)" | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.5 > $@.6
-	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.6 > $@.7
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.7 $(iar-linker-script-y) > $@.8
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.8 $(chip-serie-name-y) > $@.9
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.9 $(BINNAME) > $@.10
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.10 > $@.11
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "version" $@.11 "$(SOFTPACK_VERSION)" > $@
+	$(Q)echo "$(addprefix $(TOP)/,$(usb-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.5  "usb"> $@.6
+	$(Q)echo $(CFLAGS_DEFS) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.6 > $@.7
+	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $@.7 > $@.8
+	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.8 > $@.9
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.9 $(iar-linker-script-y) > $@.10
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.10 $(chip-serie-name-y) > $@.11
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.11 $(BINNAME) > $@.12
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.12 > $@
 	$(Q)rm -f $@.*
 
 $(BINNAME).eww:

@@ -168,8 +168,7 @@
         <debug>1</debug>
         <option>
           <name>CCDefines</name>
-	  __REPLACE_DEFINES__
-	  <state>SOFTPACK_VERSION="__REPLACE_VERSION__"</state>
+__REPLACE_DEFINES__
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -298,13 +297,7 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$\..\..\</state>
-          <state>$PROJ_DIR$\..\..\utils</state>
-          <state>$PROJ_DIR$\..\..\drivers</state>
-          <state>$PROJ_DIR$\..\..\examples</state>
-          <state>$PROJ_DIR$\..\..\lib</state>
-          <state>$PROJ_DIR$\..\..\target</state>
-          <state>$PROJ_DIR$\..\..\target/__REPLACE_CHIP_SERIE__</state>
+__REPLACE_INCLUDES__
         </option>
         <option>
           <name>CCStdIncCheck</name>

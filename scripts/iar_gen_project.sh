@@ -71,21 +71,32 @@ function _insert_defines() {
     local input=()
     local tmpxml=$(mktemp)
 
-    while read -r line
+    sed -e 's/-D/:/g' -e 's/$/:/' | while read -d: -r line
     do
-        input+=($line)
-    done
-
-    (
-        for define in ${input[@]}
-        do
-            echo -e "          <state>$define</state>"
-        done
-
-    ) > $tmpxml
+        if test -n "$line" ; then
+            echo -e "          <state>$line</state>"
+        fi
+    done > $tmpxml
 
     sed -e "/__REPLACE_DEFINES__/r $tmpxml" < $TEMPLATE_FILE |
         sed -e "s/__REPLACE_DEFINES__//g"
+
+    rm -f $tmpxml 2>&1 > /dev/null
+}
+
+function _insert_includes() {
+    local input=()
+    local tmpxml=$(mktemp)
+
+    sed -e 's/-I/:/g' -e 's,/,\\,g' -e 's/$/:/' | while read -d: -r line
+    do
+        if test -n "$line" ; then
+            echo "          <state>\$PROJ_DIR\$\\$line</state>"
+        fi
+    done > $tmpxml
+
+    sed -e "/__REPLACE_INCLUDES__/r $tmpxml" < $TEMPLATE_FILE |
+        sed -e "s/__REPLACE_INCLUDES__//g"
 
     rm -f $tmpxml 2>&1 > /dev/null
 }
@@ -174,6 +185,9 @@ case $SECTION in
         ;;
     "definitions")
         _insert_defines
+        ;;
+    "includes")
+        _insert_includes
         ;;
     "binary")
         _insert_bin_name $BINARY_NAME
