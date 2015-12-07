@@ -314,7 +314,7 @@ void classd_enable_mono(enum _classd_mono mono_mode)
 
 void classd_disable_mono(void)
 {
-	_set_mono_bits(false, 0, &CLASSD->CLASSD_INTPMR);
+	_set_mono_bits(false, CLASSD_MONO_MIXED, &CLASSD->CLASSD_INTPMR);
 }
 
 void classd_set_equalizer(enum _classd_eqcfg eqcfg)
