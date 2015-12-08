@@ -1020,7 +1020,8 @@ static void udphs_irq_handler(void)
 {
 	uint32_t status;
 
-	status = UDPHS->UDPHS_INTSTA & UDPHS->UDPHS_IEN;
+	status = UDPHS->UDPHS_INTSTA;
+	status &= UDPHS->UDPHS_IEN;
 
 	/* Handle all UDPHS interrupts */
 	while (status) {
@@ -1100,7 +1101,8 @@ static void udphs_irq_handler(void)
 		}
 
 		/* Update interrupt status */
-		status = UDPHS->UDPHS_INTSTA & UDPHS->UDPHS_IEN;
+		status = UDPHS->UDPHS_INTSTA;
+		status &= UDPHS->UDPHS_IEN;
 
 		USB_HAL_TRACE("\n\r");
 		if (status) {
