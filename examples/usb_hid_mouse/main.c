@@ -129,9 +129,9 @@
 
 #include "misc/console.h"
 
-#include "usbd.h"
-#include "usbd_hal.h"
-#include "hidd_mouse_driver.h"
+#include "usb/device/hid/hidd_mouse_driver.h"
+#include "usb/device/usbd.h"
+#include "usb/device/usbd_hal.h"
 
 #include <string.h>
 #include <stdbool.h>

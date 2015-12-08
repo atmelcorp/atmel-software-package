@@ -36,9 +36,9 @@
 
 #include "trace.h"
 
-#include "cdc_hidd_driver.h"
-#include "cdcd_serial.h"
-#include "hidd_keyboard.h"
+#include "usb/device/cdc/cdcd_serial.h"
+#include "usb/device/composite/cdc_hidd_driver.h"
+#include "usb/device/hid/hidd_keyboard.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

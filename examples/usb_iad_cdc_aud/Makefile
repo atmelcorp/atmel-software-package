@@ -38,6 +38,6 @@ CONFIG_LIB_USB_CDC = y
 CONFIG_LIB_USB_AUDIO = y
 
 obj-y += examples/usb_iad_cdc_aud/main.o
-obj-y += examples/usb_iad_cdc_aud/usb_descriptors.o
+obj-y += examples/usb_iad_cdc_aud/main_descriptors.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -38,9 +38,9 @@
 
 #include "trace.h"
 
-#include "cdc_msd_driver.h"
-#include "cdcd_serial.h"
-#include "msd_function.h"
+#include "usb/device/cdc/cdcd_serial.h"
+#include "usb/device/composite/cdc_msd_driver.h"
+#include "usb/device/msd/msd_function.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

@@ -120,9 +120,9 @@
 #include "peripherals/xdmad.h"
 #include "peripherals/classd.h"
 
-#include "usb_descriptors.h"
+#include "usb/device/audio/audd_speaker_phone_driver.h"
 
-#include "audd_speaker_phone_driver.h"
+#include "main_descriptors.h"
 
 #include <stdio.h>
 #include <stdbool.h>

@@ -38,9 +38,9 @@
 
 #include "trace.h"
 
-#include "audd_speaker_phone_driver.h"
-#include "aud_requests.h"
-#include "usbd_hal.h"
+#include "usb/common/audio/aud_requests.h"
+#include "usb/device/audio/audd_speaker_phone_driver.h"
+#include "usb/device/usbd_hal.h"
 
 /*------------------------------------------------------------------------------
  *         Internal types

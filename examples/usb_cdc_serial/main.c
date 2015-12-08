@@ -130,9 +130,9 @@
 #include "peripherals/xdmad.h"
 #include "peripherals/usart.h"
 
-#include "usbd.h"
-#include "usbd_hal.h"
-#include "cdcd_serial_driver.h"
+#include "usb/device/cdc/cdcd_serial_driver.h"
+#include "usb/device/usbd.h"
+#include "usb/device/usbd_hal.h"
 
 #include <string.h>
 #include <stdbool.h>

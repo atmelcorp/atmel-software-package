@@ -28,8 +28,6 @@
 
 ifeq ($(CONFIG_LIB_USB),y)
 
-CFLAGS_INC += -I$(TOP)/lib/usb/include
-
 lib-y += lib/usb.a
 
 usb-y :=

@@ -36,6 +36,6 @@ CONFIG_LIB_USB = y
 CONFIG_LIB_USB_AUDIO = y
 
 obj-y += examples/usb_audio_speaker/main.o
-obj-y += examples/usb_audio_speaker/usb_descriptors.o
+obj-y += examples/usb_audio_speaker/main_descriptors.o
 
 include $(TOP)/scripts/Makefile.rules

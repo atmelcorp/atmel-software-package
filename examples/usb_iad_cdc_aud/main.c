@@ -156,12 +156,12 @@
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
-#include "cdc_audd_driver.h"
-#include "cdcd_serial.h"
-#include "audd_function.h"
+#include "usb/device/audio/audd_function.h"
+#include "usb/device/cdc/cdcd_serial.h"
+#include "usb/device/composite/cdc_audd_driver.h"
+#include "usb/device/usbd_hal.h"
 
-#include "usbd_hal.h"
-#include "usb_descriptors.h"
+#include "main_descriptors.h"
 
 #include <stdio.h>
 #include <stdbool.h>

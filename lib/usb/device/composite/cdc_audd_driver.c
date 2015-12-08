@@ -36,9 +36,9 @@
 
 #include "trace.h"
 
-#include "cdc_audd_driver.h"
-#include "cdcd_serial.h"
-#include "audd_function.h"
+#include "usb/device/audio/audd_function.h"
+#include "usb/device/cdc/cdcd_serial.h"
+#include "usb/device/composite/cdc_audd_driver.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

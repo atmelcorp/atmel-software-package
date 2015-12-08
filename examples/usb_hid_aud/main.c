@@ -157,12 +157,11 @@
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
-#include "hid_audd_driver.h"
-#include "hidd_keyboard.h"
-#include "audd_function.h"
+#include "usb/device/audio/audd_function.h"
+#include "usb/device/composite/hid_audd_driver.h"
+#include "usb/device/hid/hidd_keyboard.h"
 
-#include "usbd_hal.h"
-#include "usb_descriptors.h"
+#include "main_descriptors.h"
 
 #include <stdio.h>
 #include <stdbool.h>

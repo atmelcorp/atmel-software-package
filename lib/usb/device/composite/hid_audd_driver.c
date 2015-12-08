@@ -36,9 +36,9 @@
 
 #include "trace.h"
 
-#include "hid_audd_driver.h"
-#include "hidd_keyboard.h"
-#include "audd_function.h"
+#include "usb/device/audio/audd_function.h"
+#include "usb/device/composite/hid_audd_driver.h"
+#include "usb/device/hid/hidd_keyboard.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

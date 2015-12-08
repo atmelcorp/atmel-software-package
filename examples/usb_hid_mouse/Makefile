@@ -36,6 +36,6 @@ CONFIG_LIB_USB = y
 CONFIG_LIB_USB_HID = y
 
 obj-y += examples/usb_hid_mouse/main.o
-obj-y += examples/usb_hid_mouse/usb_descriptors.o
+obj-y += examples/usb_hid_mouse/main_descriptors.o
 
 include $(TOP)/scripts/Makefile.rules

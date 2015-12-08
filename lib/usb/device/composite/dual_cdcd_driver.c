@@ -37,10 +37,9 @@
 
 #include "trace.h"
 
-#include "usbd.h"
-#include "usbd_driver.h"
-
-#include "dual_cdcd_driver.h"
+#include "usb/device/composite/dual_cdcd_driver.h"
+#include "usb/device/usbd_driver.h"
+#include "usb/device/usbd.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

@@ -40,9 +40,9 @@
 
 #include "trace.h"
 
-#include "hid_msd_driver.h"
-#include "hidd_keyboard.h"
-#include "msd_function.h"
+#include "usb/device/composite/hid_msd_driver.h"
+#include "usb/device/hid/hidd_keyboard.h"
+#include "usb/device/msd/msd_function.h"
 
 /*---------------------------------------------------------------------------
  *         Defines

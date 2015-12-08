@@ -39,7 +39,7 @@
  *      Headers
  *---------------------------------------------------------------------------*/
 
-#include "audd_speaker_phone_driver.h"
+#include "usb/device/audio/audd_speaker_phone_driver.h"
 
 #include <stdint.h>
 

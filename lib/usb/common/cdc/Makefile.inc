@@ -26,5 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-usb-y += lib/usb/common/cdc/cdc_set_control_line_state_request.o
-usb-y += lib/usb/common/cdc/cdc_line_coding.o
+usb-y += lib/usb/common/cdc/cdc_requests.o

@@ -38,6 +38,6 @@ CONFIG_LIB_USB_CDC = y
 CONFIG_LIB_USB_COMPOSITE = y
 
 obj-y += examples/usb_iad_cdc_hid/main.o
-obj-y += examples/usb_iad_cdc_hid/usb_descriptors.o
+obj-y += examples/usb_iad_cdc_hid/main_descriptors.o
 
 include $(TOP)/scripts/Makefile.rules

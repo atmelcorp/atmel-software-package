@@ -50,7 +50,7 @@
 #include "peripherals/l2cc.h"
 #include "peripherals/pmc.h"
 
-#include "usbd_hal.h"
+#include "usb/device/usbd_hal.h"
 
 #include <stdbool.h>
 #include <stdint.h>

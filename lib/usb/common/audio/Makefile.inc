@@ -26,5 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-usb-y += lib/usb/common/audio/aud_generic_request.o
-usb-y += lib/usb/common/audio/aud_feature_unit_request.o
+usb-y += lib/usb/common/audio/aud_requests.o

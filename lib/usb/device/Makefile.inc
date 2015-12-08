@@ -27,10 +27,12 @@
 # ----------------------------------------------------------------------------
 
 include $(TOP)/lib/usb/device/audio/Makefile.inc
-include $(TOP)/lib/usb/device/cdc-serial/Makefile.inc
+include $(TOP)/lib/usb/device/cdc/Makefile.inc
 include $(TOP)/lib/usb/device/composite/Makefile.inc
-include $(TOP)/lib/usb/device/core/Makefile.inc
-include $(TOP)/lib/usb/device/hid-keyboard/Makefile.inc
-include $(TOP)/lib/usb/device/hid-mouse/Makefile.inc
-include $(TOP)/lib/usb/device/hid-transfer/Makefile.inc
-include $(TOP)/lib/usb/device/mass-storage/Makefile.inc
+include $(TOP)/lib/usb/device/hid/Makefile.inc
+include $(TOP)/lib/usb/device/msd/Makefile.inc
+
+usb-y += lib/usb/device/usbd.o
+usb-y += lib/usb/device/usbd_callbacks.o
+usb-y += lib/usb/device/usbd_driver.o
+usb-y += lib/usb/device/usbd_driver_callbacks.o

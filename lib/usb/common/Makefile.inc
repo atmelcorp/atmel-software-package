@@ -28,5 +28,8 @@
 
 include $(TOP)/lib/usb/common/audio/Makefile.inc
 include $(TOP)/lib/usb/common/cdc/Makefile.inc
-include $(TOP)/lib/usb/common/core/Makefile.inc
 include $(TOP)/lib/usb/common/hid/Makefile.inc
+include $(TOP)/lib/usb/common/msd/Makefile.inc
+
+usb-y += lib/usb/common/usb_requests.o
+usb-y += lib/usb/common/usb_descriptors.o

@@ -37,6 +37,6 @@ CONFIG_LIB_USB_MSD = y
 CONFIG_LIB_STORAGEMEDIA = y
 
 obj-y += examples/usb_mass_storage/main.o
-obj-y += examples/usb_mass_storage/usb_descriptors.o
+obj-y += examples/usb_mass_storage/main_descriptors.o
 
 include $(TOP)/scripts/Makefile.rules

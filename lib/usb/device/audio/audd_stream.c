@@ -42,12 +42,12 @@
 
 #include "trace.h"
 
-#include "audd_speaker_phone.h"
-#include "usb_descriptors.h"
-#include "usb_requests.h"
-#include "aud_descriptors.h"
-#include "aud_requests.h"
-#include "usbd_hal.h"
+#include "usb/common/audio/aud_descriptors.h"
+#include "usb/common/audio/aud_requests.h"
+#include "usb/common/usb_descriptors.h"
+#include "usb/common/usb_requests.h"
+#include "usb/device/audio/audd_speaker_phone.h"
+#include "usb/device/usbd_hal.h"
 
 /*------------------------------------------------------------------------------
  *         Types

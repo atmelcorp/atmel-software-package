@@ -111,8 +111,8 @@
 #include "libstoragemedia/media_private.h"
 #include "libstoragemedia/media_ramdisk.h"
 
-#include "msd_driver.h"
-#include "msd_lun.h"
+#include "usb/device/msd/msd_driver.h"
+#include "usb/device/msd/msd_lun.h"
 
 #include <stdbool.h>
 #include <stdint.h>

@@ -26,6 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-usb-y += lib/usb/common/hid/hid_report_request.o
-usb-y += lib/usb/common/hid/hid_keypad.o
-usb-y += lib/usb/common/hid/hid_idle_request.o
+usb-y += lib/usb/common/hid/hid_requests.o
+usb-y += lib/usb/common/hid/hid_usages.o
