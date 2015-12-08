@@ -143,6 +143,8 @@
 #include "usb/device/usbd.h"
 #include "usb/device/usbd_hal.h"
 
+#include "../usb_common/main_usb_common.h"
+
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -190,100 +192,6 @@ static uint8_t key_codes[NUM_KEYS] = {
 
 /** Current status (pressed or not) for each key. */
 static uint8_t key_status[NUM_KEYS];
-
-/*---------------------------------------------------------------------------
- *       VBus monitoring (optional)
- *---------------------------------------------------------------------------*/
-
-/** VBus pin instance. */
-static const struct _pin pin_vbus = PIN_USB_VBUS;
-
-
-/**
- * Handles interrupts coming from PIO controllers.
- */
-
-/**
- * \brief Handler for Buttons rising edge interrupt.
- *
- * Handle process led1 status change.
- */
-static void pio_handler(uint32_t mask, uint32_t status, void* user_arg)
-{
-
-	if (status & pin_vbus.mask){
-		usbd_connect();
-	} else {
-		usbd_disconnect();
-	}
-}
-
-/**
- * Configures the VBus pin to trigger an interrupt when the level on that pin
- * changes.
- */
-static void vbus_configure( void )
-{
-	printf("vbus configuration\n\r");
-
-	/* Configure PIO */
-	pio_configure(&pin_vbus, 1);
-
-	/*
-	 * Initialize pios interrupt with its handlers, see
-	 * PIO definition in board.h.
-	 */
-	pio_configure_it(&pin_vbus);
-	pio_add_handler_to_group(pin_vbus.group,
-				pin_vbus.mask, pio_handler, NULL);
-
-	/* Enable PIO line interrupts. */
-	pio_enable_it(&pin_vbus);
-
-	/* Check current level on VBus */
-	if (pio_get(&pin_vbus)) {
-
-		/* if VBUS present, force the connect */
-		printf("conn\n\r");
-		usbd_connect();
-	}
-	else {
-		printf("disconn\n\r");
-		usbd_disconnect();
-	}
-}
-
-/*----------------------------------------------------------------------------
- *       USB Power Control
- *----------------------------------------------------------------------------*/
-
-#ifdef PIN_USB_POWER_ENA
-/** Power Enable A (MicroAB Socket) pin instance. */
-static const struct _pin pin_pon_a = PIN_USB_POWER_ENA;
-#endif
-#ifdef PIN_USB_POWER_ENB
-/** Power Enable B (A Socket) pin instance. */
-static const struct _pin pin_pon_b = PIN_USB_POWER_ENB;
-#endif
-#ifdef PIN_USB_OVCUR
-/** Power Enable C (A Socket) pin instance. */
-static const struct _pin pin_pon_c = PIN_USB_OVCUR;
-#endif
-/**
- * Configures the Power Enable pin to disable self power.
- */
-static void usb_power_configure( void )
-{
-#ifdef PIN_USB_POWER_ENA
-	pio_configure(&pin_pon_a, 1);
-#endif
-#ifdef PIN_USB_POWER_ENB
-	pio_configure(&pin_pon_b, 1);
-#endif
-#ifdef PIN_USB_OVCUR
-	pio_configure(&pin_pon_c, 1);
-#endif
-}
 
 /*---------------------------------------------------------------------------
  *    Callbacks re-implementation
@@ -394,7 +302,7 @@ int main(void)
 	hidd_keyboard_driver_initialize(&hidd_keyboard_driver_descriptors);
 
 	/* connect if needed */
-	vbus_configure();
+	usb_vbus_configure();
 
 	/* Infinite loop */
 	while (1) {

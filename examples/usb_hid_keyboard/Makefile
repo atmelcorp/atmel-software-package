@@ -37,5 +37,6 @@ CONFIG_LIB_USB_HID = y
 
 obj-y += examples/usb_hid_keyboard/main.o
 obj-y += examples/usb_hid_keyboard/main_descriptors.o
+obj-y += examples/usb_common/main_usb_common.o
 
 include $(TOP)/scripts/Makefile.rules

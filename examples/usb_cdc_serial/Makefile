@@ -39,5 +39,6 @@ CONFIG_LIB_USB_CDC = y
 
 obj-y += examples/usb_cdc_serial/main.o
 obj-y += examples/usb_cdc_serial/main_descriptors.o
+obj-y += examples/usb_common/main_usb_common.o
 
 include $(TOP)/scripts/Makefile.rules

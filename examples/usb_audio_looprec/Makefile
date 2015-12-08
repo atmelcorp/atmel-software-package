@@ -37,5 +37,6 @@ CONFIG_LIB_USB_AUDIO = y
 
 obj-y += examples/usb_audio_looprec/main.o
 obj-y += examples/usb_audio_looprec/main_descriptors.o
+obj-y += examples/usb_common/main_usb_common.o
 
 include $(TOP)/scripts/Makefile.rules
