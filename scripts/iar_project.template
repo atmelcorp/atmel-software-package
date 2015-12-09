@@ -229,7 +229,7 @@ __REPLACE_DEFINES__
         <option>
           <name>CCAllowList</name>
           <version>1</version>
-          <state>00000000</state>
+          <state>11111110</state>
         </option>
         <option>
           <name>CCDebugInfo</name>
@@ -317,7 +317,7 @@ __REPLACE_INCLUDES__
         </option>
         <option>
           <name>CCOptLevel</name>
-          <state>0</state>
+          <state>3</state>
         </option>
         <option>
           <name>CCOptStrategy</name>
@@ -326,7 +326,7 @@ __REPLACE_INCLUDES__
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>0</state>
+          <state>3</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
