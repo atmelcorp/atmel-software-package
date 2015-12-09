@@ -138,8 +138,8 @@
 #define BUFFER_NUMBER 8
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE (AUDDSpeakerPhoneDriver_BYTESPERFRAME + \
-		AUDDSpeakerPhoneDriver_BYTESPERSUBFRAME)
+#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerPhoneDriver_BYTESPERFRAME + \
+                AUDDSpeakerPhoneDriver_BYTESPERSUBFRAME, L1_CACHE_BYTES)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -153,6 +153,7 @@ extern const USBDDriverDescriptors audd_speaker_phone_driver_descriptors;
  *----------------------------------------------------------------------------*/
 
 /**  Data buffers for receiving audio frames from the USB host. */
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 
 /**  Next buffer in which USB data can be stored. */
