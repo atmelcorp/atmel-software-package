@@ -58,10 +58,10 @@
  *---------------------------------------------------------------------------*/
 
 /** Device current state. */
-static uint8_t device_state;
+static volatile uint8_t device_state;
 
 /** Indicates the previous device state */
-static uint8_t previous_device_state;
+static volatile uint8_t previous_device_state;
 
 /*---------------------------------------------------------------------------
  *      Internal Functions
