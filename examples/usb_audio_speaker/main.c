@@ -139,18 +139,15 @@
  *----------------------------------------------------------------------------*/
 
 /**  Number of available audio buffers. */
-#define BUFFER_NUMBER    (100)
+#define BUFFER_NUMBER (128)
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE      ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME + \
-                AUDDSpeakerDriver_BYTESPERSUBFRAME, L1_CACHE_BYTES)
+#define BUFFER_SIZE   ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME + \
+		AUDDSpeakerDriver_BYTESPERSUBFRAME, L1_CACHE_BYTES)
 
-/**  Delay in ms for starting the DAC transmission
-     after a frame has been received. */
-#define DAC_DELAY               (2)
-
-/** Audio sample rate */
-#define SAMPLE_RATE             (48000)
+/**  Delay (in number of buffers) before starting the DAC transmission
+     after data has been received. */
+#define DAC_DELAY     (2)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -160,7 +157,7 @@
 extern const USBDDriverDescriptors audd_speaker_driver_descriptors;
 
 /*----------------------------------------------------------------------------
-
+ *         Internal variables
  *----------------------------------------------------------------------------*/
 
 /** ClassD pin instance */
@@ -182,77 +179,42 @@ static volatile uint32_t out_buffer_index = 0;
 /**  Number of buffers that can be sent to the DAC. */
 static volatile uint32_t num_buffers_to_send = 0;
 
-/**  Current state of the DAC transmission. */
-static volatile uint32_t is_dac_active = 0;
-
-/**  Number of buffers to wait for before the DAC starts to transmit data. */
-static volatile uint32_t dac_delay;
-
 /** DMA channel for TX */
-static struct _xdmad_channel *classd_dma_tx_channel;
+static struct _xdmad_channel *classd_dma_tx_channel = NULL;
 
 /** First USB frame flag */
-static volatile uint32_t is_first_frame = 1;
+static volatile bool is_first_frame = true;
+
+/** Class D audio playing flag */
+static volatile bool is_audio_playing = false;
 
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Start DMA sending/waiting data.
+ * Configure the CLASSD for audio output.
  */
-static void _classd_dma_tx(void* buffer, uint16_t wsize)
+static void _configure_classd(void)
 {
-	static struct _xdmad_cfg xdmad_cfg;
+	/* Configure Class D */
+	struct _classd_desc classd_desc = {
+		.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
+		.mode = BOARD_CLASSD_MODE,
+		.non_ovr = CLASSD_NONOVR_10NS,
+		.swap_channels = false,
+		.mono = BOARD_CLASSD_MONO,
+		.mono_mode = BOARD_CLASSD_MONO_MODE,
+		.left_enable = true,
+		.right_enable = true,
+	};
+	classd_configure(&classd_desc);
+	classd_set_left_attenuation(30);
+	classd_set_right_attenuation(30);
+	classd_volume_unmute(true, true);
+	classd_enable_channels(true, true);
 
-	l2cc_clean_region((uint32_t)buffer, (uint32_t)((uint32_t*)buffer + (wsize/2)));
-
-	xdmad_cfg.ublock_size = wsize / 2;
-	xdmad_cfg.src_addr = (uint32_t*)buffer;
-	xdmad_cfg.dest_addr = (uint32_t*)&CLASSD->CLASSD_THR;
-	xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
-		XDMAC_CC_MBSIZE_SINGLE |
-		XDMAC_CC_DSYNC_MEM2PER |
-		XDMAC_CC_CSIZE_CHK_1 |
-		XDMAC_CC_DWIDTH_WORD |
-		XDMAC_CC_SIF_AHB_IF0 |
-		XDMAC_CC_DIF_AHB_IF1 |
-		XDMAC_CC_SAM_INCREMENTED_AM |
-		XDMAC_CC_DAM_FIXED_AM;
-	xdmad_cfg.block_size = 0;
-	xdmad_configure_transfer(classd_dma_tx_channel, &xdmad_cfg, 0, 0);
-	xdmad_start_transfer(classd_dma_tx_channel);
-}
-
-/**
- *  \brief DMA TX callback
- */
-static void _classd_tx_callback(struct _xdmad_channel *channel, void* p_arg)
-{
-	if (!xdmad_is_transfer_done(channel))
-		return;
-
-	p_arg = p_arg; /*dummy */
-
-	if (num_buffers_to_send == 0) {
-		/* End of transmission */
-		is_dac_active = 0;
-		return;
-	}
-
-	/* Load next buffer */
-	_classd_dma_tx(buffers[out_buffer_index], buffer_sizes[out_buffer_index]);
-	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
-	num_buffers_to_send--;
-}
-
-
-/**
- * \brief DMA driver configuration
- */
-static void _configure_classd_dma( void )
-{
-	/* Driver initialize */
+	/* DMA Driver initialize */
 	xdmad_initialize(false);
 
 	/* Allocate DMA TX channels for CLASSD */
@@ -260,7 +222,6 @@ static void _configure_classd_dma( void )
 	if (!classd_dma_tx_channel) {
 		printf("xDMA channel allocation error\n\r");
 	} else {
-		xdmad_set_callback(classd_dma_tx_channel, _classd_tx_callback, 0);
 		xdmad_prepare_channel(classd_dma_tx_channel);
 	}
 }
@@ -289,26 +250,66 @@ static void audio_play_mute(bool mute)
 	}
 }
 
+/* forward declaration */
+static void _classd_tx_callback(struct _xdmad_channel *channel, void* p_arg);
+
 /**
- * Configure the CLASSD for audio output.
- * \param sampleRate Audio sample rate.
+ *  \brief Start sending next buffer to Class D using DMA.
  */
-static void _configure_audio_play(uint32_t sample_rate)
+static void _classd_dma_start_transfer(void)
 {
-	struct _classd_desc classd_desc = {
-		.sample_rate = sample_rate,
-		.mode = BOARD_CLASSD_MODE,
-		.non_ovr = CLASSD_NONOVR_10NS,
-		.swap_channels = false,
-		.mono = BOARD_CLASSD_MONO,
-		.mono_mode = BOARD_CLASSD_MONO_MODE,
-		.left_enable = true,
-		.right_enable = true,
-	};
-	classd_configure(&classd_desc);
-	classd_set_left_attenuation(30);
-	classd_set_right_attenuation(30);
-	classd_volume_unmute(true, true);
+	void *buffer;
+	uint16_t wsize;
+	struct _xdmad_cfg xdmad_cfg;
+
+	is_audio_playing = true;
+
+	buffer = buffers[out_buffer_index];
+	wsize = buffer_sizes[out_buffer_index];
+
+	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
+	num_buffers_to_send--;
+
+	l2cc_clean_region((uint32_t)buffer, (uint32_t)buffer + wsize);
+
+	xdmad_cfg.ublock_size = wsize / AUDDSpeakerDriver_BYTESPERSUBFRAME;
+	xdmad_cfg.src_addr = (uint32_t*)buffer;
+	xdmad_cfg.dest_addr = (uint32_t*)&CLASSD->CLASSD_THR;
+	xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
+		XDMAC_CC_MBSIZE_SINGLE |
+		XDMAC_CC_DSYNC_MEM2PER |
+		XDMAC_CC_CSIZE_CHK_1 |
+		XDMAC_CC_DWIDTH_WORD |
+		XDMAC_CC_SIF_AHB_IF0 |
+		XDMAC_CC_DIF_AHB_IF1 |
+		XDMAC_CC_SAM_INCREMENTED_AM |
+		XDMAC_CC_DAM_FIXED_AM;
+	xdmad_cfg.block_size = 0;
+	xdmad_set_callback(classd_dma_tx_channel, _classd_tx_callback, 0);
+	xdmad_configure_transfer(classd_dma_tx_channel, &xdmad_cfg, 0, 0);
+	xdmad_start_transfer(classd_dma_tx_channel);
+}
+
+/**
+ *  \brief DMA TX callback
+ */
+static void _classd_tx_callback(struct _xdmad_channel *channel, void* p_arg)
+{
+	p_arg = p_arg; /* dummy */
+
+	if (!xdmad_is_transfer_done(channel))
+		return;
+
+	if (num_buffers_to_send == 0) {
+		/* End of transmission */
+		is_audio_playing = false;
+		is_first_frame = true;
+		audio_play_enable(false);
+		return;
+	}
+
+	/* Load next buffer */
+	_classd_dma_start_transfer();
 }
 
 /*----------------------------------------------------------------------------
@@ -325,23 +326,16 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 	(void)remaining;
 
 	if (status == USBD_STATUS_SUCCESS) {
-		buffer_sizes[in_buffer_index] = transferred / AUDDSpeakerDriver_BYTESPERSAMPLE;
+		assert(transferred <= BUFFER_SIZE);
+		buffer_sizes[in_buffer_index] = transferred;
 		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
 		num_buffers_to_send++;
+
 		/* Start DAC transmission if necessary */
-		if (!is_dac_active) {
-			dac_delay = DAC_DELAY;
-			is_dac_active = 1;
-		} else if (dac_delay > 0) {
-			/* Wait until a few buffers have been received */
-			dac_delay--;
-		} else if (is_first_frame) {
-			/* Start sending buffers */
-			is_first_frame = 0;
+		if (is_first_frame && num_buffers_to_send > DAC_DELAY) {
+			is_first_frame = false;
 			audio_play_enable(true);
-			_classd_dma_tx(buffers[out_buffer_index], buffer_sizes[out_buffer_index]);
-			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
-			num_buffers_to_send--;
+			_classd_dma_start_transfer();
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
@@ -418,7 +412,8 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
 {
 	if (new_setting) {
-		xdmad_stop_transfer(classd_dma_tx_channel);
+		if (classd_dma_tx_channel)
+			xdmad_stop_transfer(classd_dma_tx_channel);
 		num_buffers_to_send = 0;
 	}
 }
@@ -434,11 +429,8 @@ void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
  */
 int main(void)
 {
-	volatile uint8_t usb_conn = 0;
-	volatile uint8_t audio_on = 0;
-	uint32_t num = 0;
-	int32_t  num_diff = 0, prev_diff = 0;
-	int8_t   clock_adjust = 0;
+	bool usb_conn = false;
+	bool audio_on = false;
 
 	/* Disable watchdog */
 	wdt_disable();
@@ -462,10 +454,7 @@ int main(void)
 	usb_power_configure();
 
 	/* Configure Audio */
-	_configure_audio_play(AUDDSpeakerDriver_SAMPLERATE);
-
-	/* Configure DMA */
-	_configure_classd_dma();
+	_configure_classd();
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
@@ -476,50 +465,29 @@ int main(void)
 	/* Infinite loop */
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
-			usb_conn = 0;
+			usb_conn = false;
 			continue;
-		}
+		} else if (!usb_conn) {
+			trace_info("USB connected\r\n");
 
-		if (audio_on) {
-			if (is_dac_active == 0) {
-				audio_play_enable(false);
-				printf("<stop_playing> ");
-				is_first_frame = 1;
-				audio_on = 0;
-			} else {
-				if (num != num_buffers_to_send) {
-					num = num_buffers_to_send;
-				}
-				num_diff = num_buffers_to_send - DAC_DELAY;
-				if (prev_diff != num_diff) {
-					prev_diff = num_diff;
-					if (num_diff > 0 && clock_adjust != 1) {
-						printf("+");
-						/* USB too fast or CLASSD too slow: faster clock */
-						clock_adjust = 1;
-					}
-					if (num_diff < 0 && clock_adjust != -1) {
-						printf("-");
-						/* USB too slow or CLASSD too fast: slower clock */
-						clock_adjust = -1;
-					}
-					if (num_diff == 0 && clock_adjust != 0) {
-						clock_adjust = 0;
-					}
-				}
-			}
-		} else if (is_dac_active) {
-			printf("<start_playing> ");
-			audio_on = 1;
-		}
-
-		if (usb_conn == 0) {
 			/* Start Reading the incoming audio stream */
 			audd_speaker_driver_read(buffers[in_buffer_index],
 					AUDDSpeakerDriver_BYTESPERFRAME,
 					frame_received, 0);
-			usb_conn = 1;
+
+			usb_conn = true;
+		}
+
+		if (audio_on) {
+			if (!is_audio_playing) {
+				printf("<stop_playing> ");
+				audio_on = false;
+			}
+		} else {
+			if (is_audio_playing) {
+				printf("<start_playing> ");
+				audio_on = true;
+			}
 		}
 	}
 }
-/** \endcond */
