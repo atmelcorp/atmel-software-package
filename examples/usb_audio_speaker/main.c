@@ -142,7 +142,8 @@
 #define BUFFER_NUMBER    (100)
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE     (AUDDSpeakerDriver_BYTESPERFRAME + AUDDSpeakerDriver_BYTESPERSUBFRAME)
+#define BUFFER_SIZE      ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME + \
+                AUDDSpeakerDriver_BYTESPERSUBFRAME, L1_CACHE_BYTES)
 
 /**  Delay in ms for starting the DAC transmission
      after a frame has been received. */
@@ -166,6 +167,7 @@ extern const USBDDriverDescriptors audd_speaker_driver_descriptors;
 static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
 
 /**  Data buffers for receiving audio frames from the USB host. */
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 
 /**  Number of samples stored in each data buffer. */
