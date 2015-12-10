@@ -251,6 +251,18 @@ uint32_t get_tc_id_from_addr(const Tc* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+Tc* get_tc_addr_from_id(const uint32_t id)
+{
+	if (id == ID_TC0) return TC0; /**< \brief Timer/Counter 0 (TC0) */
+#ifdef TC1
+	else if (id == ID_TC1) return TC1; /**< \brief Timer/Counter 1 (TC1) */
+#endif
+#ifdef TC2
+	else if (id == ID_TC2) return TC2; /**< \brief Timer/Counter 2 (TC2) */
+#endif
+	else return (void*)0;
+}
+
 uint32_t get_gmac_id_from_addr(const Gmac* addr)
 {
 	if (addr == GMAC0) return ID_GMAC0;

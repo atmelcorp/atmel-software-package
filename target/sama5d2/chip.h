@@ -292,7 +292,17 @@ extern uint32_t get_uart_id_from_addr(const Uart* addr);
 
 extern uint32_t get_usart_id_from_addr(const Usart* addr);
 
+/**
+ * \brief retrieve Timer/Counter ID from its base address
+ * \return TC ID on success, ID_PERIPH_COUNT otherwise
+ */
 extern uint32_t get_tc_id_from_addr(const Tc* addr);
+
+/**
+ * \brief retrieve Timer/Counter base address from its ID
+ * \return TC base address on success, 0 otherwise
+ */
+extern Tc* get_tc_addr_from_id(const uint32_t id);
 
 /**
  * \brief retrieve QSPI ID from its base address

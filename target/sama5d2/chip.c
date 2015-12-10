@@ -282,6 +282,15 @@ uint32_t get_tc_id_from_addr(const Tc* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+Tc* get_tc_addr_from_id(const uint32_t id)
+{
+	if (id == ID_TC0) return TC0; /**< \brief Timer/Counter 0 (TC0) */
+#ifdef TC1
+	else if (id == ID_TC1) return TC1; /**< \brief Timer/Counter 1 (TC1) */
+#endif
+	else return (void*)0;
+}
+
 uint32_t get_qspi_id_from_addr(const Qspi* addr)
 {
 	if (addr == (void*)QSPI0) return ID_QSPI0;
