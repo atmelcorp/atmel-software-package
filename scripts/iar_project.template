@@ -296,8 +296,7 @@ __REPLACE_DEFINES__
           <state>0</state>
         </option>
         <option>
-          <name>CCIncludePath2</name>
-__REPLACE_INCLUDES__
+          <name>CCIncludePath2</name>__REPLACE_INCLUDES__
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -558,13 +557,7 @@ __REPLACE_INCLUDES__
           <state>1</state>
         </option>
         <option>
-          <name>AUserIncludes</name>
-          <state>$PROJ_DIR$\..\..\drivers</state>
-          <state>$PROJ_DIR$\..\..\examples</state>
-          <state>$PROJ_DIR$\..\..\lib</state>
-          <state>$PROJ_DIR$\..\..\target</state>
-          <state>$PROJ_DIR$\..\..\utils</state>
-          <state>$PROJ_DIR$\..\..\target\__REPLACE_CHIP_SERIE__</state>
+          <name>AUserIncludes</name>__REPLACE_INCLUDES__
         </option>
         <option>
           <name>AExtraOptionsCheckV2</name>
