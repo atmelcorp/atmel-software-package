@@ -141,8 +141,8 @@
 
 
 
-#define OV9740
-//#define OV7740
+//#define OV9740
+#define OV7740
 //#define OV5640
 //#define OV2643
  
@@ -191,17 +191,14 @@ static const struct _lcdd_desc lcd_desc = {
  /* Profile for omnivision 7740 */
 #if defined OV2643
 extern const sensor_profile_t ov2643_profile;
-#endif 
-#if defined OV5640
+#elif defined OV5640
 extern const sensor_profile_t ov5640_profile;
-#endif 
-
-#if defined OV7740
+#elif defined OV7740
 extern const sensor_profile_t ov7740_profile;
-#endif 
-
-#if defined OV9740
+#elif defined OV9740
 extern const sensor_profile_t ov9740_profile;
+#else
+#error No image sensor defined!
 #endif 
 
 /** PIO pins to configured. */
@@ -883,7 +880,7 @@ extern int main(void)
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
-#if !defined CONFIG_RUN_OUT_OF_DDR
+#ifndef VARIANT_DDRAM
 	board_cfg_ddram();
 #endif
 	cp15_disable_mmu();
@@ -914,10 +911,18 @@ extern int main(void)
 reSensor:
 	/* Reset Sensor board */
 	sensor_reset();
-	printf("-----------------------------------\n\r");
-	printf("- 'Y' Test OV7740 YUV mode input \n\r");
-	printf("- 'B' Test OV7740 RAW BAYER mode input \n\r");
-	printf("-----------------------------------\n\r");
+#if defined OV2643
+	printf("------------ OV2643 -------------\n\r");
+#elif defined OV5640
+	printf("------------ OV5640 -------------\n\r");
+#elif defined OV7740
+	printf("------------ OV7740 -------------\n\r");
+#elif defined OV9740
+	printf("------------ OV9740 -------------\n\r");
+#endif
+	printf("- 'Y' Test YUV mode input       -\n\r");
+	printf("- 'B' Test RAW BAYER mode input -\n\r");
+	printf("---------------------------------\n\r");
 	for(;;) {
 		key = console_get_char();
 		if ((key == 'Y') || (key == 'y')) {
@@ -933,16 +938,13 @@ reSensor:
 #if defined OV2643
 	if (sensor_setup(&twid, &ov2643_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
-#endif
-#if defined OV5640
+#elif defined OV5640
 	if (sensor_setup(&twid, &ov5640_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
-#endif
-#if defined OV7740
+#elif defined OV7740
 	if (sensor_setup(&twid, &ov7740_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
-#endif
-#if defined OV9740
+#elif defined OV9740
 	if (sensor_setup(&twid, &ov9740_profile, QVGA, sensor_mode)
 	   != SENSOR_OK){
 #endif
