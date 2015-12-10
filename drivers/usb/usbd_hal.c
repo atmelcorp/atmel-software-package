@@ -1193,7 +1193,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 			dev_desc->bMaxPacketSize0 : CHIP_USB_ENDPOINT_MAXPACKETSIZE(0);
 	}
 	/* Endpoint descriptor */
-	else {
+	else if (descriptor->bDescriptorType == USBGenericDescriptor_ENDPOINT) {
 		/* The endpoint number */
 		ep = usb_endpoint_descriptor_get_number(descriptor);
 		endpoint = &endpoints[ep];
@@ -1218,7 +1218,11 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 			/* Mask, bit 10..0 is the size */
 			endpoint->size &= 0x7ff;
 		}
+	} else {
+		trace_error("usbd_hal_configure: invalid descriptor\r\n");
+		return 0xff;
 	}
+
 	ept = &UDPHS->UDPHS_EPT[ep];
 	endpoint->bank = CHIP_USB_ENDPOINT_BANKS(ep);
 
