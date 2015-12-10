@@ -1594,6 +1594,23 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 }
 
 /**
+ * Wait until data is available for read
+ * \param ep Endpoint number
+ */
+void usbd_hal_wait_read_data(uint8_t ep)
+{
+	UdphsEpt *ept = &UDPHS->UDPHS_EPT[ep];
+	uint32_t status;
+	uint16_t size;
+
+	do {
+		status = ept->UDPHS_EPTSTA;
+		size = (uint16_t)((status & UDPHS_EPTSTA_BYTE_COUNT_Msk)
+				>> UDPHS_EPTSTA_BYTE_COUNT_Pos);
+	} while (size == 0);
+}
+
+/**
  * Reads incoming data on an USB endpoint This methods sets the transfer
  * descriptor and activate the endpoint interrupt. The actual transfer is
  * then carried out by the endpoint interrupt handler. The Read operation

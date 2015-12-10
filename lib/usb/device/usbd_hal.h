@@ -110,6 +110,8 @@ extern uint8_t usbd_hal_write_with_header(uint8_t endpoint,
 		const void *header, uint32_t header_length,
 		const void *data, uint32_t data_length);
 
+extern void usbd_hal_wait_read_data(uint8_t endpoint);
+
 extern uint8_t usbd_hal_read(uint8_t endpoint,
 		void *data, uint32_t length);
 

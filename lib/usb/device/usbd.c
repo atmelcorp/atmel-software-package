@@ -194,6 +194,15 @@ uint8_t usbd_write(uint8_t endpoint, const void *data, uint32_t length,
 }
 
 /**
+ * Wait until data is available for read
+ * \param ep Endpoint number
+ */
+void usbd_wait_read_data(uint8_t endpoint)
+{
+	usbd_hal_wait_read_data(endpoint);
+}
+
+/**
  * Reads incoming data on an USB endpoint This methods sets the transfer
  * descriptor and activate the endpoint interrupt. The actual transfer is
  * then carried out by the endpoint interrupt handler. The Read operation

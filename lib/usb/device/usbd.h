@@ -148,6 +148,8 @@ extern void usbd_disconnect(void);
 extern uint8_t usbd_write(uint8_t endpoint, const void *data, uint32_t length,
 		usbd_xfer_cb_t callback, void *callback_arg);
 
+extern void usbd_wait_read_data(uint8_t endpoint);
+
 extern uint8_t usbd_read(uint8_t endpoint, void *data, uint32_t length,
 		usbd_xfer_cb_t callback, void *callback_arg);
 

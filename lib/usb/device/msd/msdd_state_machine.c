@@ -382,6 +382,7 @@ void msdd_state_machine(MSDDriver * driver)
 
 		/* Start the CBW read operation */
 		transfer->semaphore = 0;
+		usbd_wait_read_data(command_state->pipeOUT);
 		status = usbd_read(command_state->pipeOUT, cbw, MSD_CBW_SIZE,
 				msd_driver_callback, transfer);
 
