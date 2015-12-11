@@ -8,6 +8,7 @@
 - USB Device examples and stack: CDC Serial, HID Keyboard, HID Mouse, Audio,
   Mass Storage and some composite examples.
 - NAND flash driver and examples: supports MLC/SLC, up to 32-bit ECC.
+- SDMMC/eMMC driver and example
 - Low Power examples: power_consumption_pll, pmc_clock_switching,
   low_power_mode
 - New storagemedia library to abstract storage devices (only supports RAM disk
