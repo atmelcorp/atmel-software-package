@@ -1,6 +1,33 @@
 # Atmel SAMA5D2x Software Package
 
 
+## Version 1.2 - 2015-12
+
+### New drivers/examples
+
+- USB Device examples and stack: CDC Serial, HID Keyboard, HID Mouse, Audio,
+  Mass Storage and some composite examples.
+- NAND flash driver and examples: supports MLC/SLC, up to 32-bit ECC.
+- Low Power examples: power_consumption_pll, pmc_clock_switching,
+  low_power_mode
+- New storagemedia library to abstract storage devices (only supports RAM disk
+  for now, but will support SDMMC/eMMC and NAND flash in later releases)
+
+### Enhancements
+
+- Several new functions in PMC driver, notably 'pmc_set_custom_pck_mck' that
+  allow changing easily the main clock settings.
+- IAR project generator now uses defines and include directories from
+  CFLAGS_DEFS and CFLAGS_INC mkefile variables. It also generates projects with
+  CMSIS-DAP debugger selected and proper optimization level.
+
+### Fixes
+
+- Fix CP15 driver to invalidate caches before enable. This fixes some lock-ups
+  when caches were previously enabled and still contain stale data.
+
+
+
 ## Version 1.1 - 2015-10
 
 ### New drivers
