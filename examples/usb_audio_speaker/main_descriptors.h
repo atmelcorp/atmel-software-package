@@ -106,7 +106,7 @@
 /** Data out endpoint number. */
 #define AUDDSpeakerDriverDescriptors_DATAOUT            0x02
 /** Endpoint polling interval 2^(x-1) * 125us */
-#define AUDDSpeakerDriverDescriptors_HS_INTERVAL        0x02
+#define AUDDSpeakerDriverDescriptors_HS_INTERVAL        0x04
 /** Endpoint polling interval 2^(x-1) * ms */
 #define AUDDSpeakerDriverDescriptors_FS_INTERVAL        0x01
 /**     @}*/

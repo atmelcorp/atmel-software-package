@@ -228,7 +228,7 @@ static AUDDStream *audd_get_ctl_stream(AUDDSpeakerPhone *p_audf,
 		p_auds = p_audf->pMicrophone;
 
 	if (p_auds && p_auds->bAcInterface == b_ac_interface &&
-			p_auds->bNumChannels == channel) {
+			p_auds->bNumChannels >= channel) {
 		return p_auds;
 	}
 
