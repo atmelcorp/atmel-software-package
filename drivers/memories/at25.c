@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "math.h"
+#include "intmath.h"
 #include "memories/at25.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
@@ -650,7 +650,7 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 	while(length > 0) {
 		/* Compute number of bytes to program in page */
 		uint32_t write_size;
-		write_size = min(length, page_size - (addr % page_size));
+		write_size = min_u32(length, page_size - (addr % page_size));
 
 		at25_wait(at25);
 

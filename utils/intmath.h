@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2011, Atmel Corporation
  *
@@ -27,81 +27,63 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
-/*------------------------------------------------------------------------------
- *         Headers
- *------------------------------------------------------------------------------*/
-
-#include "board.h"
-
-#include "math.h"
+#ifndef _INTMATH_H_
+#define _INTMATH_H_
 
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
+#include <stdint.h>
+
 /**
  *  Returns the minimum value between two integers.
- *
- *  \param dwA  First integer to compare.
- *  \param dwB  Second integer to compare.
+ *  \param a First integer to compare
+ *  \param b Second integer to compare
  */
-uint32_t min(uint32_t dwA, uint32_t dwB)
+static inline int32_t min_u32(uint32_t a, uint32_t b)
 {
-	if (dwA < dwB) {
-		return dwA;
-	} else {
-		return dwB;
-	}
+	return a < b ? a : b;
 }
 
-/*------------------------------------------------------------------------------
+/**
  *  Returns the absolute value of an integer.
- *
- *  \param lValue  Integer value.
- *
- *  \note Do not call this function "abs", problem with gcc !
+ *  \param value Integer value
  */
-uint32_t absv(int32_t lValue)
+static inline uint32_t abs_u32(int32_t value)
 {
-	if (lValue < 0) {
-		return -lValue;
-	} else {
-		return lValue;
-	}
+	return value > 0 ? value : -value;
 }
 
-/*------------------------------------------------------------------------------
- *  Returns the absolute value of a float.
- *
- *  \param fValue  Float value.
- *
- *  \note Do not call this function "abs", problem with gcc !
+/**
+ *  Computes and returns x to the power of y.
+ *  \param x Value
+ *  \param y Power
  */
-float fabsv(float fValue)
+static inline uint32_t power_u32(uint32_t x, uint32_t y)
 {
-	if (fValue < 0) {
-		return -fValue;
-	} else {
-		return fValue;
-	}
+        uint32_t result = 1;
+        while (y > 0) {
+                result *= x;
+                y--;
+        }
+        return result;
 }
 
-/*------------------------------------------------------------------------------
- *  Computes and returns x power of y.
- *
- *  \param dwX  Value.
- *  \param dwY  Power.
+/** ISO/IEC 14882:2003(E) - 5.6 Multiplicative operators:
+ * The binary / operator yields the quotient, and the binary % operator yields the remainder
+ * from the division of the first expression by the second.
+ * If the second operand of / or % is zero the behavior is undefined; otherwise (a/b)*b + a%b is equal to a.
+ * If both operands are nonnegative then the remainder is nonnegative;
+ * if not, the sign of the remainder is implementation-defined 74).
  */
-uint32_t power(uint32_t dwX, uint32_t dwY)
+static inline int fixed_mod(int a, int b)
 {
-	uint32_t dwResult = 1;
+	int rem = a % b;
+	while (rem < 0)
+		rem += b;
 
-	while (dwY > 0) {
-		dwResult *= dwX;
-		dwY--;
-	}
-
-	return dwResult;
+	return rem;
 }
+
+#endif /* _INTMATH_H_ */

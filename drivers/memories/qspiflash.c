@@ -33,7 +33,7 @@
 
 #include "chip.h"
 #include "compiler.h"
-#include "math.h"
+#include "intmath.h"
 #include "timer.h"
 #include "trace.h"
 #include "memories/qspiflash.h"
@@ -532,7 +532,7 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		uint32_t remaining = flash->desc.page_size
 			- (addr % flash->desc.page_size);
 		/* number of bytes to write this round */
-		uint32_t count = min(length - written, remaining);
+		uint32_t count = min_u32(length - written, remaining);
 
 		if (!_qspiflash_write_enable(flash))
 			return false;

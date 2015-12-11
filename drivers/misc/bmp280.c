@@ -1048,7 +1048,7 @@ double bmp280_compensate_P_double(struct _bmp280* bmp280, int32_t uncP)
 		((double)bmp280->calpar.dig_P1);
 	pressure = BMP280_FLOAT_TRUE_PRES_1048576 - (double)uncP;
 	/* Avoid exception caused by division by zero */
-	if (fabsv(x1) >= EPSILON)
+	if (fabs(x1) >= EPSILON)
 		pressure = (pressure - (x2 / BMP280_FLOAT_TRUE_PRES_4096)) *
 			BMP280_FLOAT_TRUE_PRES_6250 / x1;
 	else

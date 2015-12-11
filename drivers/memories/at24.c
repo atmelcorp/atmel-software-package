@@ -33,7 +33,7 @@
 
 #include "chip.h"
 #include "crc.h"
-#include "math.h"
+#include "intmath.h"
 #include "timer.h"
 #include "trace.h"
 #include "memories/at24.h"
@@ -191,7 +191,7 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 	while (length) {
 		/* Compute number of bytes to program in page */
 		uint8_t write_size;
-		write_size = min(length, page_size - (addr % page_size));
+		write_size = min_u32(length, page_size - (addr % page_size));
 		at24->twid->iaddr = addr;
 
 		status |= _at24_write(at24, data, write_size);

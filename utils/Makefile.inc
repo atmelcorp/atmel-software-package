@@ -32,7 +32,6 @@ lib-y += utils/utils.a
 
 utils-y := utils/dbg_util.o
 utils-y += utils/hamming.o
-utils-y += utils/math.o
 utils-y += utils/rand.o
 utils-y += utils/trace.o
 utils-y += utils/syscalls.o

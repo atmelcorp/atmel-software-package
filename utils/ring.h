@@ -30,7 +30,7 @@
 #ifndef _RING_H_
 #define _RING_H_
 
-#include "math.h"
+#include "intmath.h"
 
 /*------------------------------------------------------------------------------
  *         Exported functions
