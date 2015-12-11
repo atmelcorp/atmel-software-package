@@ -138,8 +138,8 @@
 #define BUFFER_NUMBER 8
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerPhoneDriver_BYTESPERFRAME + \
-                AUDDSpeakerPhoneDriver_BYTESPERSUBFRAME, L1_CACHE_BYTES)
+#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerPhoneDriver_BYTESPERFRAME, \
+                L1_CACHE_BYTES)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -180,7 +180,7 @@ static void frame_received(void *arg, uint8_t status,
 		/* Loopback! add this buffer to write list */
 		if (is_rec_active) {
 			audd_speaker_phone_driver_write(buffers[in_buffer_index],
-					AUDDSpeakerPhoneDriver_BYTESPERFRAME);
+					transferred);
 		}
 
 		/* Update input status data */
