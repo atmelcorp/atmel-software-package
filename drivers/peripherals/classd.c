@@ -67,7 +67,6 @@ static const struct {
 static bool _dspclk_configure(uint32_t dsp_clk)
 {
 	struct _pmc_audio_cfg cfg;
-	uint32_t clk;
 
 	/* Pad Clock: not used */
 	cfg.div = 0;
@@ -95,9 +94,14 @@ static bool _dspclk_configure(uint32_t dsp_clk)
 	pmc_configure_audio(&cfg);
 	pmc_enable_audio(true, false);
 
-	clk = pmc_get_audio_pmc_clock();
-	trace_debug("Configured Audio PLL PMC Clock: %u (= 8 * %u)\r\n",
-		(unsigned)clk, (unsigned)(clk >> 3));
+#ifndef NDEBUG
+	{
+		uint32_t clk;
+		clk = pmc_get_audio_pmc_clock();
+		trace_debug("Configured Audio PLL PMC Clock: %u (= 8 * %u)\r\n",
+				(unsigned)clk, (unsigned)(clk >> 3));
+	}
+#endif
 
 	return true;
 }
