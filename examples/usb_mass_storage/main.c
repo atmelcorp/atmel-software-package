@@ -267,7 +267,7 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
-#ifndef CONFIG_DDRAM
+#ifndef VARIANT_DDRAM
 	/* Initialize DDR */
 	board_cfg_ddram();
 #endif
