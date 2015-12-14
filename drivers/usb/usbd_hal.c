@@ -592,7 +592,6 @@ static void udphs_endpoint_handler(uint8_t ep)
 	/* OUT packet received */
 	if (status & UDPHS_EPTSTA_RXRDY_TXKL) {
 		USB_HAL_TRACE("Rd ");
-		ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_RXRDY_TXKL;
 
 		/* NOT in receiving state */
 		if (endpoint->state != UDPHS_ENDPOINT_RECEIVING) {
@@ -601,15 +600,18 @@ static void udphs_endpoint_handler(uint8_t ep)
 					!(status & UDPHS_EPTSTA_BYTE_COUNT_Msk))
 			{
 				USB_HAL_TRACE("Ack ");
+				ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_RXRDY_TXKL;
 				udphs_end_of_transfer(ep, USBD_STATUS_SUCCESS);
 			}
 			/* data has been STALLed */
 			else if (UDPHS_EPTSTA_FRCESTALL & status) {
 				USB_HAL_TRACE("Discard ");
+				ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_RXRDY_TXKL;
 			}
 			/* NAK the data */
 			else {
 				USB_HAL_TRACE("Nak ");
+				ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_RXRDY_TXKL;
 			}
 		}
 		/* In read state */
@@ -617,6 +619,7 @@ static void udphs_endpoint_handler(uint8_t ep)
 			pkt_size = (uint16_t)((status & UDPHS_EPTSTA_BYTE_COUNT_Msk)
 					>> UDPHS_EPTSTA_BYTE_COUNT_Pos);
 			udphs_read_fifo_single(ep, pkt_size);
+			ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_RXRDY_TXKL;
 
 			/* Check if transfer is finished */
 			if (xfer->remaining == 0 ||
