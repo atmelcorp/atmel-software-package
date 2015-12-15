@@ -1621,42 +1621,33 @@ SwReset(sSdCard * pSd, uint32_t retry)
 /**
  * Stop TX/RX
  */
-
-#if defined ( __ICCARM__ )	/* IAR Ewarm */
-#pragma location = "region_dma_nocache"
-#elif defined (  __GNUC__  )	/* GCC CS3 */
-__attribute__ ((__section__(".region_dma_nocache")))
-#endif
-uint32_t status1;
-
 static uint8_t
 _StopCmd(sSdCard * pSd)
 {
-	//uint32_t status, state;
-	uint32_t state;
+	uint32_t status, state;
 	volatile uint32_t i, j;
 	uint8_t error = 0;
 	/* Retry stop for 9 times */
 	for (i = 0; i < 9; i++) {
-		error = Cmd12(pSd, &status1);
+		error = Cmd12(pSd, &status);
 
 		if (error) {
 			trace_error("_StopC.Cmd12: %u\n\r", error);
 			return error;
 		}
-		/* TODO handle any exception, raised in status1; report that
+		/* TODO handle any exception, raised in status; report that
 		 * the data transfer has failed. */
 
 		/* Check status for 299 times */
 		for (j = 0; j < 299; j++) {
-			error = Cmd13(pSd, &status1);
+			error = Cmd13(pSd, &status);
 			// Wait
 			for (i = 0; i < 0x1600; i++) ;
 			if (error) {
 				trace_error("_StopC.Cmd13: %u\n\r", error);
 				return error;
 			}
-			state = status1 & STATUS_STATE;
+			state = status & STATUS_STATE;
 
 			/* Invalid state */
 			if (state == STATUS_IDLE
@@ -1668,7 +1659,7 @@ _StopCmd(sSdCard * pSd)
 			}
 
 			/* Ready? */
-			if ((status1 & STATUS_READY_FOR_DATA) ==
+			if ((status & STATUS_READY_FOR_DATA) ==
 			    STATUS_READY_FOR_DATA && state == STATUS_TRAN)
 				return SDMMC_SUCCESS;
 
@@ -1681,14 +1672,14 @@ _StopCmd(sSdCard * pSd)
 }
 
 static uint8_t
-_WaitUntilReady(sSdCard * pSd)
+_WaitUntilReady(sSdCard * pSd, uint32_t last_dev_status)
 {
-	uint32_t timer_res_prv, state;
+	uint32_t timer_res_prv, state, status = last_dev_status;
 	uint8_t err, count;
 
 	for (count = 0; count < 51; count++) {
-		state = status1 & STATUS_STATE;
-		if (state == STATUS_TRAN && status1 & STATUS_READY_FOR_DATA)
+		state = status & STATUS_STATE;
+		if (state == STATUS_TRAN && status & STATUS_READY_FOR_DATA)
 			return SDMMC_SUCCESS;
 		/* Sending-data and Receive-data states may be encountered
 		 * temporarily further to single-block data transfers. */
@@ -1702,7 +1693,7 @@ _WaitUntilReady(sSdCard * pSd)
 		timer_sleep(1);
 		timer_configure(timer_res_prv);
 
-		err = Cmd13(pSd, &status1);
+		err = Cmd13(pSd, &status);
 		if (err)
 			return err;
 	}
@@ -1730,13 +1721,13 @@ PerformSingleTransfer(sSdCard * pSd,
 		return SDMMC_PARAM;
 	if (isRead)
 		/* Read a single data block */
-		error = Cmd17(pSd, pData, sdmmc_address, &status1, NULL);
+		error = Cmd17(pSd, pData, sdmmc_address, &status, NULL);
 	else
 		/* Write a single data block */
-		error = Cmd24(pSd, pData, sdmmc_address, &status1, NULL);
+		error = Cmd24(pSd, pData, sdmmc_address, &status, NULL);
 	if (!error) {
-		status = status1 & (isRead ? STATUS_READ : STATUS_WRITE);
-		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
+		status = status & (isRead ? STATUS_READ : STATUS_WRITE)
+		    & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
 		if (status) {
 			trace_error("CMD%u(0x%lx).stat: %lx\n\r", isRead
 			    ? 17 : 24, sdmmc_address, status);
@@ -1746,13 +1737,13 @@ PerformSingleTransfer(sSdCard * pSd,
 	if (error) {
 		trace_error("SingleTx.Cmd%u: %u\n\r", isRead ? 17 : 24, error);
 		result = error;
-		error = Cmd13(pSd, &status1);
+		error = Cmd13(pSd, &status);
 		if (error) {
 			trace_error("SingleTx.Cmd13: %u\n\r", error);
 			pSd->bStatus = error;
 			return result;
 		}
-		error = _WaitUntilReady(pSd);
+		error = _WaitUntilReady(pSd, status);
 		if (error) {
 			pSd->bStatus = error;
 			return result;
@@ -1795,7 +1786,7 @@ MoveToTransferState(sSdCard * pSd,
 	else
 		return SDMMC_PARAM;
 	if (pSd->bSetBlkCnt) {
-		error = Cmd23(pSd, 0, *nbBlocks, &status1);
+		error = Cmd23(pSd, 0, *nbBlocks, &status);
 		if (error) {
 			trace_error("MoveToTransferState.Cmd23: %u\n\r", error);
 			return error;
@@ -1803,17 +1794,17 @@ MoveToTransferState(sSdCard * pSd,
 	}
 	if (isRead)
 		/* Move to Receiving data state */
-		error = Cmd18(pSd, nbBlocks, pData, sdmmc_address, &status1,
+		error = Cmd18(pSd, nbBlocks, pData, sdmmc_address, &status,
 		    NULL);
 	else
 		/* Move to Sending data state */
-		error = Cmd25(pSd, nbBlocks, pData, sdmmc_address, &status1,
+		error = Cmd25(pSd, nbBlocks, pData, sdmmc_address, &status,
 		    NULL);
 	if (error == SDMMC_CHANGED)
 		error = SDMMC_OK;
 	if (!error) {
-		status = status1 & (isRead ? STATUS_READ : STATUS_WRITE);
-		status = status & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
+		status = status & (isRead ? STATUS_READ : STATUS_WRITE)
+		    & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
 
 		if (pSd->bStopMultXfer)
 			error = _StopCmd(pSd);
@@ -1834,44 +1825,44 @@ MoveToTransferState(sSdCard * pSd,
 		trace_error("MoveToTransferState.Cmd%u: %u\n\r", isRead
 		    ? 18 : 25, error);
 		result = error;
-		error = Cmd13(pSd, &status1);
+		error = Cmd13(pSd, &status);
 		if (error) {
 			trace_error("MoveToTransferState.Cmd13: %u\n\r", error);
 			pSd->bStatus = error;
 			return result;
 		}
-		state = status1 & STATUS_STATE;
+		state = status & STATUS_STATE;
 		if (state == STATUS_DATA || state == STATUS_RCV) {
-			error = Cmd12(pSd, &status1);
+			error = Cmd12(pSd, &status);
 			if (error == SDMMC_OK) {
 				trace_debug("MoveToTransferState.stat: %lx\n\r",
-				    status1);
-				if (status1 & (STATUS_ERASE_SEQ_ERROR
+				    status);
+				if (status & (STATUS_ERASE_SEQ_ERROR
 				    | STATUS_ERASE_PARAM | STATUS_UN_LOCK_FAILED
 				    | STATUS_ILLEGAL_COMMAND
 				    | STATUS_CIDCSD_OVERWRITE
 				    | STATUS_ERASE_RESET | STATUS_SWITCH_ERROR))
 					result = SDMMC_STATE;
-				else if (status1 & (STATUS_COM_CRC_ERROR
+				else if (status & (STATUS_COM_CRC_ERROR
 				    | STATUS_CARD_ECC_FAILED | STATUS_ERROR))
 					result = SDMMC_ERR_IO;
-				else if (status1 & (STATUS_ADDR_OUT_OR_RANGE
+				else if (status & (STATUS_ADDR_OUT_OR_RANGE
 				    | STATUS_ADDRESS_MISALIGN
 				    | STATUS_BLOCK_LEN_ERROR
 				    | STATUS_WP_VIOLATION
 				    | STATUS_WP_ERASE_SKIP))
 					result = SDMMC_PARAM;
-				else if (status1 & STATUS_CC_ERROR)
+				else if (status & STATUS_CC_ERROR)
 					result = SDMMC_ERR;
 			}
 			else if (error == SDMMC_ERROR_NORESPONSE)
-				error = Cmd13(pSd, &status1);
+				error = Cmd13(pSd, &status);
 			if (error) {
 				pSd->bStatus = error;
 				return result;
 			}
 		}
-		error = _WaitUntilReady(pSd);
+		error = _WaitUntilReady(pSd, status);
 		if (error) {
 			pSd->bStatus = error;
 			return result;
@@ -1890,20 +1881,20 @@ static uint8_t
 MmcSelectCard(sSdCard * pSd, uint16_t address, uint8_t statCheck)
 {
 	uint8_t error;
-	//uint32_t  status;
+	uint32_t status, currState;
 	uint32_t targetState = address ? STATUS_TRAN : STATUS_STBY;
 	uint32_t srcState = address ? STATUS_STBY : STATUS_TRAN;
 
 	/* At this stage the Initialization and identification process is achieved
 	 * The SD card is supposed to be in Stand-by State */
 	while (statCheck) {
-		error = Cmd13(pSd, &status1);
+		error = Cmd13(pSd, &status);
 		if (error) {
 			trace_error("MmcSelectCard.Cmd13 (%d)\n\r", error);
 			return error;
 		}
-		if ((status1 & STATUS_READY_FOR_DATA)) {
-			uint32_t currState = status1 & STATUS_STATE;
+		if (status & STATUS_READY_FOR_DATA) {
+			currState = status & STATUS_STATE;
 			if (currState == targetState)
 				return 0;
 			if (currState != srcState) {
@@ -2014,10 +2005,10 @@ SdGetExtInformation(sSdCard * pSd)
 	uint32_t card_status;
 	uint8_t error;
 
-	error = Acmd51(pSd, pSd->SCR, &status1);
+	error = Acmd51(pSd, pSd->SCR, &card_status);
 	if (error)
 		return;
-	card_status = status1 & ~STATUS_READY_FOR_DATA;
+	card_status &= ~STATUS_READY_FOR_DATA;
 	if (card_status != (STATUS_APP_CMD | STATUS_TRAN)) {
 		trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
 		return;
@@ -2083,6 +2074,7 @@ SdMmcUpdateInformation(sSdCard * pSd, uint8_t csd, uint8_t extData)
 static uint8_t
 SdMmcEnableHighSpeed(sSdCard * pSd)
 {
+	uint32_t status;
 	uint8_t error;
 	uint8_t io, sd, mmc;
 
@@ -2108,14 +2100,13 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 				MMC_EXT_HS_TIMING_EN,
 				0
 			};
-			error = MmcCmd6(pSd, &cmd6Arg, &status1);
+			error = MmcCmd6(pSd, &cmd6Arg, &status);
 			if (error) {
 				trace_error("SdMmcEnableHS.Cmd6: %d\n\r",
 					    error);
 				return SDMMC_ERROR;
-			} else if (status1 & STATUS_MMC_SWITCH) {
-				trace_error("Mmc Switch HS: %x\n\r",
-					    (unsigned int) status1);
+			} else if (status & STATUS_MMC_SWITCH) {
+				trace_error("Mmc Switch HS: %lx\n\r", status);
 				return SDMMC_ERROR_NOT_SUPPORT;
 			}
 		} else {
@@ -2128,31 +2119,30 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 	else {
 		if (io) {
 			/* Check CIA.HS */
-			status1 = 0;
-			error =
-			    Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG, &status1);
+			status = 0;
+			error = Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG,
+			    &status);
 			if (error) {
 				trace_error("SdMmcEnableHS.Cmd52: %d\n\r",
 					    error);
 				return SDMMC_ERROR;
 			}
-			if ((status1 & SDIO_SHS) == 0) {
+			if ((status & SDIO_SHS) == 0) {
 				trace_info("HS Mode not supported by SDIO\n\r");
 				return SDMMC_ERROR_NOT_SUPPORT;
 			}
 			/* Enable HS mode */
 			else {
-				status1 = SDIO_EHS;
-				error =
-				    Cmd52(pSd, 1, SDIO_CIA, 1, SDIO_HS_REG,
-					  &status1);
+				status = SDIO_EHS;
+				error = Cmd52(pSd, 1, SDIO_CIA, 1, SDIO_HS_REG,
+				    &status);
 				if (error) {
 					trace_error
 					    ("SdMmcEnableHS.Cmd52 H: %d\n\r",
 					     error);
 					return SDMMC_ERROR;
 				}
-				if (status1 & SDIO_EHS)
+				if (status & SDIO_EHS)
 					trace_warning("SDIO HS Enabled\n\r");
 			}
 		}
@@ -2164,8 +2154,8 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 				1, 0, 0xF, 0xF, 0xF, 0xF, 0, 1
 			};
 
-			error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status1);
-			if (error || (status1 & STATUS_SWITCH_ERROR)) {
+			error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status);
+			if (error || (status & STATUS_SWITCH_ERROR)) {
 				trace_info("SD HS Fail\n\r");
 				return SDMMC_ERROR;
 			} else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
@@ -2245,9 +2235,9 @@ mmcDetectBuswidth(sSdCard * pSd)
 			break;
 		}
 		len = busWidth >= 2 ? busWidth : 2;
-		error = Cmd19(pSd, pSd->sandbox1, len, &status1);
+		error = Cmd19(pSd, pSd->sandbox1, len, NULL);
 		if (error) {
-			trace_error("Cmd19 %u, %lx\n\r", error, status1);
+			trace_error("Cmd19 %u\n\r", error);
 			/* Devices which do not respond to CMD19 - which results
 			 * in the driver returning SDMMC_ERROR_NORESPONSE -
 			 * simply do not support the bus test procedure.
@@ -2259,9 +2249,9 @@ mmcDetectBuswidth(sSdCard * pSd)
 			if (error != SDMMC_ERR_IO)
 				return 0;
 		}
-		error = Cmd14(pSd, pSd->sandbox2, busWidth, &status1);
+		error = Cmd14(pSd, pSd->sandbox2, busWidth, NULL);
 		if (error) {
-			trace_error("Cmd14 %u, %lx\n\r", error, status1);
+			trace_error("Cmd14 %u\n\r", error);
 			continue;
 		}
 		if (busWidth == 1) {
@@ -2341,21 +2331,22 @@ SdMmcDesideBuswidth(sSdCard * pSd)
 static uint8_t
 SdMmcIdentify(sSdCard * pSd)
 {
-	uint8_t mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
-	//uint32_t status;
-	uint8_t error;
+	uint32_t status;
+	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
+
 	/* Reset HC to default HS and BusMode */
 	_HwSetHsMode(pSd, 0);
 	_HwSetBusWidth(pSd, 1);
 	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR (bit 3 of register 6) */
-	status1 = SDIO_RES;
-	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status1);
-	if (!error && ((status1 & STATUS_SDIO_R5) == 0)) {
-	} else if (error == SDMMC_ERROR_NORESPONSE) {
+	status = SDIO_RES;
+	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status);
+	if (!error && !(status & STATUS_SDIO_R5)) {
+	}
+	else if (error == SDMMC_ERROR_NORESPONSE) {
 	}
 	else
 		trace_debug("SdMmcIdentify.Cmd52 fail: %u, %lx\n\r", error,
-			    status1);
+			    status);
 	/* Reset MEM: CMD0 */
 	error = SwReset(pSd, 1);
 	if (error)
@@ -2378,19 +2369,20 @@ SdMmcIdentify(sSdCard * pSd)
 		Delay(8000);
 
 	/* CMD5 is newly added for SDIO initialize & power on */
-	status1 = 0;
-	error = Cmd5(pSd, &status1);
+	status = 0;
+	error = Cmd5(pSd, &status);
 	if (error)
 		trace_info("SdMmcIdentify.Cmd5: %d\n\r", error);
 	/* Card has SDIO function */
-	else if ((status1 & SDIO_OCR_NF) > 0) {
+	else if ((status & SDIO_OCR_NF) > 0) {
 		unsigned int cmd5Retries = 10000;
 		do {
-			status1 &= SD_HOST_VOLTAGE_RANGE;
-			error = Cmd5(pSd, &status1);
-			if (status1 & SD_OCR_BUSY)
+			status &= SD_HOST_VOLTAGE_RANGE;
+			error = Cmd5(pSd, &status);
+			if (status & SD_OCR_BUSY)
 				break;
-		} while (!error && cmd5Retries--);
+		}
+		while (!error && cmd5Retries--);
 		if (error) {
 			trace_error("SdMmcIdentify.Cmd5 V: %d\n\r", error);
 			return SDMMC_ERROR;
@@ -2398,7 +2390,7 @@ SdMmcIdentify(sSdCard * pSd)
 		io = 1;
 		trace_info("SDIO\n\r");
 		/* IO only ? */
-		mp = ((status1 & SDIO_OCR_MP) > 0);
+		mp = ((status & SDIO_OCR_MP) > 0);
 	}
 	/* Has memory: SD/MMC/COMBO */
 	if (mp) {
@@ -2982,12 +2974,12 @@ SD_Init(sSdCard * pSd)
 	/* Check device status and eat past exceptions, which would otherwise
 	 * prevent upcoming data transaction routines from reliably checking
 	 * fresh exceptions. */
-	error = Cmd13(pSd, &status1);
+	error = Cmd13(pSd, &status);
 	if (error) {
 		trace_error("SD_Init.Cmd13: %u\n\r", error);
 		return error;
 	}
-	status = status1 & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
+	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
 	    & ~STATUS_APP_CMD;
 	if (status)
 		trace_warning("SD_Init.Cmd13.stat: %lx\n\r", status);
