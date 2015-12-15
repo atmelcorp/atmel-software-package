@@ -72,6 +72,8 @@ struct sdmmc_set
 	uint8_t resp_len;             /* size of the response, once retrieved,
 				       * in the context of the command being
 				       * executed, expressed in 32-bit words */
+	bool cmd_line_released;       /* handled the Command Complete event */
+	bool dat_lines_released;      /* handled the Transfer Complete event */
 	bool expect_auto_end;         /* waiting for completion of Auto CMD12 */
 };
 

@@ -458,7 +458,6 @@ static uint8_t sdmmc_build_dma_table(struct sdmmc_set *set, sSdmmcCommand *cmd)
 
 /**
  * \brief Retrieve command response from the SDMMC peripheral.
- * The response may be retrieved once per command.
  */
 static void sdmmc_get_response(struct sdmmc_set *set, sSdmmcCommand *cmd,
     bool complete, uint32_t *out)
@@ -606,10 +605,14 @@ Fetch:
 				cmd->bStatus = SDMMC_ERR;
 		}
 		else if (errors & SDMMC_EISTR_ADMA) {
-			cmd->bStatus = SDMMC_PARAM;
+#if TRACE_LEVEL >= TRACE_LEVEL_ERROR
+			const uint32_t desc_ix = (regs->SDMMC_ASA0R -
+			    (uint32_t)set->table) / (SDMMC_DMADL_SIZE * 4UL);
+
 			trace_error("ADMA error 0x%x at desc. line[%lu]\n\r",
-			    regs->SDMMC_AESR, (regs->SDMMC_ASA0R -
-			    (uint32_t)set->table) / (SDMMC_DMADL_SIZE * 4UL));
+			    regs->SDMMC_AESR, desc_ix);
+#endif
+			cmd->bStatus = SDMMC_PARAM;
 		}
 		else if (errors & SDMMC_EISTR_BOOTAE)
 			cmd->bStatus = SDMMC_STATE;
@@ -633,7 +636,7 @@ Fetch:
 	if (events & SDMMC_NISTR_CUSTOM_EVT) {
 #ifndef NDEBUG
 		if (!(set->regs->SDMMC_PSR & SDMMC_PSR_CMDLL))
-			trace_warning("Command still ongoing\n\r");
+			trace_warning("Auto command still ongoing\n\r");
 #endif
 		if (cmd->pResp)
 			sdmmc_get_response(set, cmd, true, cmd->pResp);
@@ -642,9 +645,6 @@ Fetch:
 
 	/* First, expect completion of the command */
 	if (events & SDMMC_NISTR_CMDC) {
-		/* Clear this normal interrupt */
-		regs->SDMMC_NISTR = SDMMC_NISTR_CMDC;
-		events &= ~SDMMC_NISTR_CMDC;
 #ifndef NDEBUG
 		if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
 		    && !set->table && set->blk_index != cmd->wNbBlocks
@@ -655,10 +655,16 @@ Fetch:
 		    && !(regs->SDMMC_PSR & SDMMC_PSR_RTACT))
 			trace_warning("Read transfer not started\n\r");
 #endif
+		/* Clear this normal interrupt */
+		regs->SDMMC_NISTR = SDMMC_NISTR_CMDC;
+		events &= ~SDMMC_NISTR_CMDC;
+		set->cmd_line_released = true;
 		/* Retrieve command response */
 		if (cmd->pResp)
-			sdmmc_get_response(set, cmd, false, cmd->pResp);
-		if (!has_data && !cmd->cmdOp.bmBits.checkBsy)
+			sdmmc_get_response(set, cmd, set->dat_lines_released,
+			    cmd->pResp);
+		if ((!has_data && !cmd->cmdOp.bmBits.checkBsy)
+		    || set->dat_lines_released)
 			goto Succeed;
 	}
 
@@ -781,22 +787,29 @@ Fetch:
 		    && !set->use_set_blk_cnt) {
 			set->timer->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 			set->expect_auto_end = true;
+#ifndef NDEBUG
+			if (!set->cmd_line_released)
+				trace_warning("Command still ongoing\n\r");
+#endif
 		}
-		/* Clear this normal interrupt */
-		regs->SDMMC_NISTR = SDMMC_NISTR_TRFC;
-		events &= ~SDMMC_NISTR_TRFC;
-		/* Deviation from the SD Host Controller Specification:
-		 * there are cases, notably CMD7 with address and R1b, where the
-		 * Command Complete interrupt does not occur. In such cases,
-		 * the command response has not been retrieved yet. */
-		if (!set->expect_auto_end && cmd->pResp)
-			sdmmc_get_response(set, cmd, true, cmd->pResp);
 #ifndef NDEBUG
 		if (regs->SDMMC_PSR & SDMMC_PSR_WTACT)
 			trace_error("Write transfer still active\n\r");
 		if (regs->SDMMC_PSR & SDMMC_PSR_RTACT)
 			trace_error("Read transfer still active\n\r");
 #endif
+		/* Clear this normal interrupt */
+		regs->SDMMC_NISTR = SDMMC_NISTR_TRFC;
+		events &= ~SDMMC_NISTR_TRFC;
+		set->dat_lines_released = true;
+		/* Deviation from the SD Host Controller Specification:
+		 * there are cases, notably CMD7 with address and R1b, where the
+		 * Transfer Complete interrupt precedes Command Complete. In
+		 * such cases, the command/response is still in progress, we
+		 * shall wait for Command Complete. */
+		if (set->cmd_line_released && !set->expect_auto_end
+		    && cmd->pResp)
+			sdmmc_get_response(set, cmd, true, cmd->pResp);
 		if (has_data && !set->table
 		    && set->blk_index != cmd->wNbBlocks) {
 			trace_error("Incomplete data transfer\n\r");
@@ -809,7 +822,7 @@ Fetch:
 			l2cc_invalidate_region((uint32_t)cmd->pData,
 			    (uint32_t)cmd->pData + (uint32_t)cmd->wNbBlocks
 			    * (uint32_t)cmd->wBlockSize);
-		if (!set->expect_auto_end)
+		if (set->cmd_line_released && !set->expect_auto_end)
 			goto Succeed;
 	}
 
@@ -840,6 +853,8 @@ End:
 	set->cmd = NULL;
 	set->resp_len = 0;
 	set->blk_index = 0;
+	set->cmd_line_released = false;
+	set->dat_lines_released = false;
 	set->expect_auto_end = false;
 	/* Invoke the end-of-command fSdmmcCallback function, if provided */
 	if (cmd->fCallback)
@@ -896,6 +911,8 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 		set->cmd = NULL;
 		set->resp_len = 0;
 		set->blk_index = 0;
+		set->cmd_line_released = false;
+		set->dat_lines_released = false;
 		set->expect_auto_end = false;
 		rc = sdmmc_send_command(set, &stop_cmd);
 		if (rc == SDMMC_OK) {
@@ -917,6 +934,8 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 	set->cmd = NULL;
 	set->resp_len = 0;
 	set->blk_index = 0;
+	set->cmd_line_released = false;
+	set->dat_lines_released = false;
 	set->expect_auto_end = false;
 	/* Invoke the end-of-command fSdmmcCallback function, if provided */
 	if (cmd->fCallback)
@@ -1174,6 +1193,8 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	set->cmd = cmd;
 	set->resp_len = 0;
 	set->blk_index = 0;
+	set->cmd_line_released = false;
+	set->dat_lines_released = false;
 	set->expect_auto_end = false;
 	cmd->bStatus = rc;
 
@@ -1244,6 +1265,13 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 			tmr |= SDMMC_TMR_DMAEN;
 	}
 
+	/* Wait for the CMD and DATn lines to be ready. If a previous command
+	 * is still being processed, mind the status flags it may raise. */
+	mask = SDMMC_PSR_CMDINHC;
+	if (has_data || (cmd->cmdOp.bmBits.checkBsy && !stop_xfer))
+		mask |= SDMMC_PSR_CMDINHD;
+	while (regs->SDMMC_PSR & mask) ;
+
 	/* Enable normal interrupts */
 	regs->SDMMC_NISTER |= SDMMC_NISTER_BRDRDY | SDMMC_NISTER_BWRRDY
 	    | SDMMC_NISTER_TRFC | SDMMC_NISTER_CMDC;
@@ -1259,12 +1287,6 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    | SDMMC_EISTR_ACMD | SDMMC_EISTR_CURLIM | SDMMC_EISTR_DATEND
 	    | SDMMC_EISTR_DATCRC | SDMMC_EISTR_DATTEO | SDMMC_EISTR_CMDIDX
 	    | SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDCRC | SDMMC_EISTR_CMDTEO;
-
-	/* Wait for the CMD and DATn lines to be ready */
-	mask = SDMMC_PSR_CMDINHC;
-	if (has_data || (cmd->cmdOp.bmBits.checkBsy && !stop_xfer))
-		mask |= SDMMC_PSR_CMDINHD;
-	while (regs->SDMMC_PSR & mask) ;
 
 	/* Issue the command */
 	if (has_data) {
