@@ -1940,7 +1940,7 @@ static uint32_t
 SdmmcGetMaxSpeed(sSdCard * pSd)
 {
 	uint32_t speed = 0;
-	trace_info(" .TRAN_SPEED         0x%X\r\n",
+	trace_debug("CSD.TRAN_SPEED = 0x%X\r\n",
 		   (unsigned int) SD_CSD_TRAN_SPEED(pSd->CSD));
 	if (pSd->bCardType & CARD_TYPE_bmSDMMC) {
 		speed = SdmmcDecodeTransSpeed(SD_CSD_TRAN_SPEED(pSd->CSD),
@@ -2264,7 +2264,8 @@ mmcDetectBuswidth(sSdCard * pSd)
 				break;
 		}
 		if (i == len) {
-			printf("MMC: %d-bit bus width detected\n\r", busWidth);
+			trace_info("MMC: %d-bit bus width detected\n\r",
+			    busWidth);
 			break;
 		}
 	}
@@ -2372,7 +2373,7 @@ SdMmcIdentify(sSdCard * pSd)
 	status = 0;
 	error = Cmd5(pSd, &status);
 	if (error)
-		trace_info("SdMmcIdentify.Cmd5: %d\n\r", error);
+		trace_debug("SdMmcIdentify.Cmd5: %d\n\r", error);
 	/* Card has SDIO function */
 	else if ((status & SDIO_OCR_NF) > 0) {
 		unsigned int cmd5Retries = 10000;
@@ -2520,7 +2521,7 @@ SdMmcEnum(sSdCard * pSd)
 	/* - Now in TRAN, obtain extended setup information - */
 
 	/* If the card support EXT_CSD, read it! */
-	trace_info("Card Type %d, CSD_STRUCTURE %u\n\r",
+	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
 		   (unsigned int) pSd->bCardType,
 		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
 
@@ -3261,147 +3262,176 @@ SDIO_DumpCardInformation(sSdCard * pSd)
 	uint32_t tmp = 0, addrCIS = 0, addrManfID = 0, addrFunc0 = 0;
 	uint8_t *p = (uint8_t *) & tmp;
 	uint8_t buf[8];
-	//printf("** trace : %d %x %X\n\r", DYN_TRACES, TRACE_LEVEL, dwTraceLevel);
+
 	switch (pSd->bCardType) {
 	case CARD_SDIO:
-		trace_info("** SDIO ONLY card\n\r");
+		printf("** SDIO ONLY card\n\r");
 		break;
 	case CARD_SDCOMBO:
 	case CARD_SDHCCOMBO:
-		trace_info("** SDIO Combo card\n\r");
+		printf("** SDIO Combo card\n\r");
 		break;
 	default:
-		trace_info("** NO SDIO\n\r");
+		printf("** NO SDIO\n\r");
 		return;
 	}
 	/* CCCR */
-	trace_info("====== CCCR ======\n\r");
+	printf("====== CCCR ======\n\r");
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CCCR_REG, p, 1);
-	trace_info(".SDIO       %02lX\n\r", (tmp & SDIO_SDIO) >> 4);
-	trace_info(".CCCR       %02lX\n\r", (tmp & SDIO_CCCR) >> 0);
+	printf(" .SDIO                       0x%02lX\n\r",
+	    (tmp & SDIO_SDIO) >> 4);
+	printf(" .CCCR                       0x%02lX\n\r",
+	    (tmp & SDIO_CCCR) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_SD_REV_REG, p, 1);
-	trace_info(".SD         %02lX\n\r", (tmp & SDIO_SD) >> 0);
+	printf(" .SD                         0x%02lX\n\r",
+	    (tmp & SDIO_SD) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IOE_REG, p, 1);
-	trace_info(".IOE        %02lX\n\r", (tmp & SDIO_IOE) >> 0);
+	printf(" .IOE                        0x%02lX\n\r",
+	    (tmp & SDIO_IOE) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IOR_REG, p, 1);
-	trace_info(".IOR        %02lX\n\r", (tmp & SDIO_IOR) >> 0);
+	printf(" .IOR                        0x%02lX\n\r",
+	    (tmp & SDIO_IOR) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IEN_REG, p, 1);
-	trace_info(".IEN        %02lX\n\r", (tmp & SDIO_IEN) >> 0);
+	printf(" .IEN                        0x%02lX\n\r",
+	    (tmp & SDIO_IEN) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_INT_REG, p, 1);
-	trace_info(".INT        %u\n\r", (unsigned int) (tmp & SDIO_INT));
+	printf(" .INT                        %u\n\r",
+	    (unsigned int) (tmp & SDIO_INT));
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_BUS_CTRL_REG, p, 1);
-	trace_info(".CD         %lx\n\r", (tmp & SDIO_CD) >> 7);
-	trace_info(".SCSI       %lx\n\r", (tmp & SDIO_SCSI) >> 6);
-	trace_info(".ECSI       %lx\n\r", (tmp & SDIO_ECSI) >> 5);
-	trace_info(".BUS_WIDTH  %lx\n\r", (tmp & SDIO_BUSWIDTH) >> 0);
+	printf(" .CD                         0x%lX\n\r", (tmp & SDIO_CD) >> 7);
+	printf(" .SCSI                       0x%lX\n\r",
+	    (tmp & SDIO_SCSI) >> 6);
+	printf(" .ECSI                       0x%lX\n\r",
+	    (tmp & SDIO_ECSI) >> 5);
+	printf(" .BUS_WIDTH                  0x%lX\n\r",
+	    (tmp & SDIO_BUSWIDTH) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CAP_REG, p, 1);
-	trace_info(".4BLS       %lx\n\r", (tmp & SDIO_4BLS) >> 7);
-	trace_info(".LSC        %lx\n\r", (tmp & SDIO_LSC) >> 6);
-	trace_info(".E4MI       %lx\n\r", (tmp & SDIO_E4MI) >> 5);
-	trace_info(".S4MI       %lx\n\r", (tmp & SDIO_S4MI) >> 4);
-	trace_info(".SBS        %lx\n\r", (tmp & SDIO_SBS) >> 3);
-	trace_info(".SRW        %lx\n\r", (tmp & SDIO_SRW) >> 2);
-	trace_info(".SMB        %lx\n\r", (tmp & SDIO_SMB) >> 1);
-	trace_info(".SDC        %lx\n\r", (tmp & SDIO_SDC) >> 0);
+	printf(" .4BLS                       0x%lX\n\r",
+	    (tmp & SDIO_4BLS) >> 7);
+	printf(" .LSC                        0x%lX\n\r", (tmp & SDIO_LSC) >> 6);
+	printf(" .E4MI                       0x%lX\n\r",
+	    (tmp & SDIO_E4MI) >> 5);
+	printf(" .S4MI                       0x%lX\n\r",
+	    (tmp & SDIO_S4MI) >> 4);
+	printf(" .SBS                        0x%lX\n\r", (tmp & SDIO_SBS) >> 3);
+	printf(" .SRW                        0x%lX\n\r", (tmp & SDIO_SRW) >> 2);
+	printf(" .SMB                        0x%lX\n\r", (tmp & SDIO_SMB) >> 1);
+	printf(" .SDC                        0x%lX\n\r", (tmp & SDIO_SDC) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CIS_PTR_REG, p, 3);
-	trace_info(".CIS_PTR    %06X\n\r", (unsigned int) tmp);
+	printf(" .CIS_PTR                    0x%06X\n\r", (unsigned int) tmp);
 	addrCIS = tmp;
 	tmp = 0;
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_BUS_SUSP_REG, p, 1);
-	trace_info(".BR         %lx\n\r", (tmp & SDIO_BR) >> 1);
-	trace_info(".BS         %lx\n\r", (tmp & SDIO_BS) >> 0);
+	printf(" .BR                         0x%lX\n\r", (tmp & SDIO_BR) >> 1);
+	printf(" .BS                         0x%lX\n\r", (tmp & SDIO_BS) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_FUN_SEL_REG, p, 1);
-	trace_info(".DF         %lx\n\r", (tmp & SDIO_DF) >> 7);
-	trace_info(".FS         %lx\n\r", (tmp & SDIO_FS) >> 0);
+	printf(" .DF                         0x%lX\n\r", (tmp & SDIO_DF) >> 7);
+	printf(" .FS                         0x%lX\n\r", (tmp & SDIO_FS) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_EXEC_REG, p, 1);
-	trace_info(".EX         %lx\n\r", (tmp & SDIO_EX));
-	trace_info(".EXM        %lx\n\r", (tmp & SDIO_EXM) >> 0);
+	printf(" .EX                         0x%lX\n\r", (tmp & SDIO_EX));
+	printf(" .EXM                        0x%lX\n\r", (tmp & SDIO_EXM) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_READY_REG, p, 1);
-	trace_info(".RF         %lx\n\r", (tmp & SDIO_RF));
-	trace_info(".RFM        %lx\n\r", (tmp & SDIO_RFM) >> 0);
+	printf(" .RF                         0x%lX\n\r", (tmp & SDIO_RF));
+	printf(" .RFM                        0x%lX\n\r", (tmp & SDIO_RFM) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_FN0_BLKSIZ_REG, p, 2);
-	trace_info(".FN0_SIZE   %u(%04X)\n\r", (unsigned int) tmp,
-		   (unsigned int) tmp);
+	printf(" .FN0_SIZE                   %u(%04X)\n\r",
+	    (unsigned int) tmp, (unsigned int) tmp);
 	tmp = 0;
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_POWER_REG, p, 1);
-	trace_info(".EMPC       %lx\n\r", (tmp & SDIO_EMPC) >> 1);
-	trace_info(".SMPC       %lx\n\r", (tmp & SDIO_SMPC) >> 0);
+	printf(" .EMPC                       0x%lX\n\r",
+	    (tmp & SDIO_EMPC) >> 1);
+	printf(" .SMPC                       0x%lX\n\r",
+	    (tmp & SDIO_SMPC) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_HS_REG, p, 1);
-	trace_info(".EHS        %lx\n\r", (tmp & SDIO_EHS) >> 1);
-	trace_info(".SHS        %lx\n\r", (tmp & SDIO_SHS) >> 0);
+	printf(" .EHS                        0x%lX\n\r", (tmp & SDIO_EHS) >> 1);
+	printf(" .SHS                        0x%lX\n\r", (tmp & SDIO_SHS) >> 0);
 	/* Metaformat */
 	SdioFindTuples(pSd, addrCIS, 128, &addrManfID, &addrFunc0);
 	if (addrManfID != 0) {
 		SDIO_ReadDirect(pSd, SDIO_CIA, addrManfID, buf, 6);
-		trace_info("==== CISTPL_MANFID ====\n\r");
-		trace_info("._MANF %04X\n\r", buf[2] + (buf[3] << 8));
-		trace_info("._CARD %04X\n\r", buf[4] + (buf[5] << 8));
+		printf("==== CISTPL_MANFID ====\n\r");
+		printf(" ._MANF                      0x%04X\n\r",
+		    buf[2] + (buf[3] << 8));
+		printf(" ._CARD                      0x%04X\n\r",
+		    buf[4] + (buf[5] << 8));
 	}
 	if (addrFunc0 != 0) {
 		SDIO_ReadDirect(pSd, SDIO_CIA, addrFunc0, buf, 6);
-		trace_info("== CISTPL_FUNCE Fun0 ==\n\r");
-		trace_info("._FN0_BLK_SIZE   %d(0x%04X)\n\r",
-			   buf[3] + (buf[4] << 8), buf[3] + (buf[4] << 8));
-		trace_info("._MAX_TRAN_SPEED %02X\n\r", buf[5]);
+		printf("== CISTPL_FUNCE Fun0 ==\n\r");
+		printf(" ._FN0_BLK_SIZE              %d(0x%04X)\n\r",
+		    buf[3] + (buf[4] << 8), buf[3] + (buf[4] << 8));
+		printf(" ._MAX_TRAN_SPEED            0x%02X\n\r", buf[5]);
 	}
 }
 
 /**
  * Display the content of the CID register
  * \param pCID Pointer to CID data.
+ * \param sd_device False for MMC CID format, true for SD CID format.
  */
 void
-SD_DumpCID(const uint32_t *pCID)
+SD_DumpCID(const uint32_t *pCID, bool sd_device)
 {
-	trace_info("======= Card IDentification =======\n\r");
-	trace_info(" .MID Manufacturer ID             %02X\n\r",
-		   (unsigned int) SD_CID_MID(pCID));
+	printf("======= Card IDentification =======\n\r");
+	printf(" .MID Manufacturer ID        %02X\n\r",
+	    (unsigned int) SD_CID_MID(pCID));
 
-	trace_info(" .CBX Card/BGA (eMMC)             %X\n\r",
-		   (unsigned int) eMMC_CID_CBX(pCID));
+	if (!sd_device)
+		printf(" .CBX Card/BGA               %X\n\r",
+		    (unsigned int) eMMC_CID_CBX(pCID));
 
-	trace_info(" .OID OEM/Application ID (SD)     %c%c\n\r",
-		   (char) SD_CID_OID1(pCID), (char) SD_CID_OID0(pCID));
-	trace_info(" .OID OEM/Application ID (MMC)    %x\n\r",
-		   (unsigned int) eMMC_CID_OID(pCID));
+	if (sd_device)
+		printf(" .OID OEM/Application ID     %c%c\n\r",
+		    (char) SD_CID_OID1(pCID), (char) SD_CID_OID0(pCID));
+	else
+		printf(" .OID OEM/Application ID     %X\n\r",
+		    (unsigned int) eMMC_CID_OID(pCID));
 
-	trace_info(" .PNM Product name (SD)           %c%c%c%c%c\n\r",
-		   (char) SD_CID_PNM4(pCID),
-		   (char) SD_CID_PNM3(pCID),
-		   (char) SD_CID_PNM2(pCID),
-		   (char) SD_CID_PNM1(pCID), (char) SD_CID_PNM0(pCID));
-	trace_info(" .PNM Product name (MMC)          %c%c%c%c%c%c\n\r",
-		   (char) MMC_CID_PNM5(pCID),
-		   (char) MMC_CID_PNM4(pCID),
-		   (char) MMC_CID_PNM3(pCID),
-		   (char) MMC_CID_PNM2(pCID),
-		   (char) MMC_CID_PNM1(pCID), (char) MMC_CID_PNM0(pCID));
+	if (sd_device)
+		printf(" .PNM Product name           %c%c%c%c%c\n\r",
+		    (char) SD_CID_PNM4(pCID),
+		    (char) SD_CID_PNM3(pCID),
+		    (char) SD_CID_PNM2(pCID),
+		    (char) SD_CID_PNM1(pCID), (char) SD_CID_PNM0(pCID));
+	else
+		printf(" .PNM Product name           %c%c%c%c%c%c\n\r",
+		    (char) MMC_CID_PNM5(pCID),
+		    (char) MMC_CID_PNM4(pCID),
+		    (char) MMC_CID_PNM3(pCID),
+		    (char) MMC_CID_PNM2(pCID),
+		    (char) MMC_CID_PNM1(pCID), (char) MMC_CID_PNM0(pCID));
 
-	trace_info(" .PRV Product revision (SD)       %x\n\r",
-		   (unsigned int) SD_CID_PRV(pCID));
-	trace_info(" .PRV Product revision (MMC)      %x\n\r",
-		   (unsigned int) MMC_CID_PRV(pCID));
+	if (sd_device)
+		printf(" .PRV Product revision       %X\n\r",
+		    (unsigned int) SD_CID_PRV(pCID));
+	else
+		printf(" .PRV Product revision       %X\n\r",
+		    (unsigned int) MMC_CID_PRV(pCID));
 
-	trace_info(" .PSN Product serial number (SD)  %02X%02X%02X%02X\n\r",
-		   (unsigned int) SD_CID_PSN3(pCID),
-		   (unsigned int) SD_CID_PSN2(pCID),
-		   (unsigned int) SD_CID_PSN1(pCID),
-		   (unsigned int) SD_CID_PSN0(pCID));
-	trace_info(" .PSN Product serial number (MMC) %02X%02X%02X%02X\n\r",
-		   (unsigned int) MMC_CID_PSN3(pCID),
-		   (unsigned int) MMC_CID_PSN2(pCID),
-		   (unsigned int) MMC_CID_PSN1(pCID),
-		   (unsigned int) MMC_CID_PSN0(pCID));
+	if (sd_device)
+		printf(" .PSN Product serial number  %02X%02X%02X%02X\n\r",
+		    (unsigned int) SD_CID_PSN3(pCID),
+		    (unsigned int) SD_CID_PSN2(pCID),
+		    (unsigned int) SD_CID_PSN1(pCID),
+		    (unsigned int) SD_CID_PSN0(pCID));
+	else
+		printf(" .PSN Product serial number  %02X%02X%02X%02X\n\r",
+		    (unsigned int) MMC_CID_PSN3(pCID),
+		    (unsigned int) MMC_CID_PSN2(pCID),
+		    (unsigned int) MMC_CID_PSN1(pCID),
+		    (unsigned int) MMC_CID_PSN0(pCID));
 
-	trace_info(" .MDT Manufacturing date (SD)     %04d/%02d\n\r",
-		   (uint16_t) (SD_CID_MDT_Y(pCID) + 2000),
-		   (uint8_t) SD_CID_MDT_M(pCID));
-	trace_info(" .MDT Manufacturing date (MMC)    %04d/%02d\n\r",
-		   (uint16_t) (MMC_CID_MDT_Y(pCID) + 1997),
-		   (uint8_t) SD_CID_MDT_M(pCID));
+	if (sd_device)
+		printf(" .MDT Manufacturing date     %04d/%02d\n\r",
+		    (uint16_t) (SD_CID_MDT_Y(pCID) + 2000),
+		    (uint8_t) SD_CID_MDT_M(pCID));
+	else
+		printf(" .MDT Manufacturing date     %04d/%02d\n\r",
+		    (uint16_t) (MMC_CID_MDT_Y(pCID) + 1997),
+		    (uint8_t) SD_CID_MDT_M(pCID));
 
-	trace_info(" .CRC checksum              %02X\n\r",
-		   (unsigned int) SD_CID_CRC(pCID));
+	printf(" .CRC checksum               %02X\n\r",
+	    (unsigned int) SD_CID_CRC(pCID));
 }
 
 /**
@@ -3411,83 +3441,83 @@ SD_DumpCID(const uint32_t *pCID)
 void
 SD_DumpCSD(const uint32_t *pCSD)
 {
-	trace_info("======= Card-Specific Data =======\n\r");
-	trace_info(" .CSD_STRUCTURE      0x%x\r\n",
-		   (unsigned int) SD_CSD_STRUCTURE(pCSD));
-	trace_info(" .SPEC_VERS (eMMC)   0x%x\r\n",
-		   (unsigned int) MMC_CSD_SPEC_VERS(pCSD));
-	trace_info(" .TAAC               0x%X\r\n",
-		   (unsigned int) SD_CSD_TAAC(pCSD));
-	trace_info(" .NSAC               0x%X\r\n",
-		   (unsigned int) SD_CSD_NSAC(pCSD));
-	trace_info(" .TRAN_SPEED         0x%X\r\n",
-		   (unsigned int) SD_CSD_TRAN_SPEED(pCSD));
-	trace_info(" .CCC                0x%X\r\n",
-		   (unsigned int) SD_CSD_CCC(pCSD));
-	trace_info(" .READ_BL_LEN        0x%X\r\n",
-		   (unsigned int) SD_CSD_READ_BL_LEN(pCSD));
-	trace_info(" .READ_BL_PARTIAL    0x%X\r\n",
-		   (unsigned int) SD_CSD_READ_BL_PARTIAL(pCSD));
-	trace_info(" .WRITE_BLK_MISALIGN 0x%X\r\n",
-		   (unsigned int) SD_CSD_WRITE_BLK_MISALIGN(pCSD));
-	trace_info(" .READ_BLK_MISALIGN  0x%X\r\n",
-		   (unsigned int) SD_CSD_READ_BLK_MISALIGN(pCSD));
-	trace_info(" .DSR_IMP            0x%X\r\n",
-		   (unsigned int) SD_CSD_DSR_IMP(pCSD));
-	trace_info(" .C_SIZE             0x%X\r\n",
-		   (unsigned int) SD_CSD_C_SIZE(pCSD));
-	trace_info(" .C_SIZE_HC          0x%X\r\n",
-		   (unsigned int) SD2_CSD_C_SIZE(pCSD));
-	trace_info(" .VDD_R_CURR_MIN     0x%X\r\n",
-		   (unsigned int) SD_CSD_VDD_R_CURR_MIN(pCSD));
-	trace_info(" .VDD_R_CURR_MAX     0x%X\r\n",
-		   (unsigned int) SD_CSD_VDD_R_CURR_MAX(pCSD));
-	trace_info(" .VDD_W_CURR_MIN     0x%X\r\n",
-		   (unsigned int) SD_CSD_VDD_W_CURR_MIN(pCSD));
-	trace_info(" .VDD_W_CURR_MAX     0x%X\r\n",
-		   (unsigned int) SD_CSD_VDD_W_CURR_MAX(pCSD));
-	trace_info(" .C_SIZE_MULT        0x%X\r\n",
-		   (unsigned int) SD_CSD_C_SIZE_MULT(pCSD));
-	trace_info(" .ERASE_BLK_EN       0x%X\r\n",
-		   (unsigned int) SD_CSD_ERASE_BLK_EN(pCSD));
-	trace_info(" .SECTOR_SIZE        0x%X\r\n",
-		   (unsigned int) SD_CSD_SECTOR_SIZE(pCSD));
-	trace_info(" .WP_GRP_SIZE        0x%X\r\n",
-		   (unsigned int) SD_CSD_WP_GRP_SIZE(pCSD));
-	trace_info(" .WP_GRP_ENABLE      0x%X\r\n",
-		   (unsigned int) SD_CSD_WP_GRP_ENABLE(pCSD));
-	trace_info(" .R2W_FACTOR         0x%X\r\n",
-		   (unsigned int) SD_CSD_R2W_FACTOR(pCSD));
-	trace_info(" .WRITE_BL_LEN       0x%X\r\n",
-		   (unsigned int) SD_CSD_WRITE_BL_LEN(pCSD));
-	trace_info(" .WRITE_BL_PARTIAL   0x%X\r\n",
-		   (unsigned int) SD_CSD_WRITE_BL_PARTIAL(pCSD));
-	trace_info(" .FILE_FORMAT_GRP    0x%X\r\n",
-		   (unsigned int) SD_CSD_FILE_FORMAT_GRP(pCSD));
-	trace_info(" .COPY               0x%X\r\n",
-		   (unsigned int) SD_CSD_COPY(pCSD));
-	trace_info(" .PERM_WRITE_PROTECT 0x%X\r\n",
-		   (unsigned int) SD_CSD_PERM_WRITE_PROTECT(pCSD));
-	trace_info(" .TMP_WRITE_PROTECT  0x%X\r\n",
-		   (unsigned int) SD_CSD_TMP_WRITE_PROTECT(pCSD));
-	trace_info(" .FILE_FORMAT        0x%X\r\n",
-		   (unsigned int) SD_CSD_FILE_FORMAT(pCSD));
-	trace_info(" .ECC (MMC)          0x%X\r\n",
-		   (unsigned int) MMC_CSD_ECC(pCSD));
-	trace_info(" .CRC                0x%X\r\n",
-		   (unsigned int) SD_CSD_CRC(pCSD));
-	trace_info(" .MULT               0x%X\r\n",
-		   (unsigned int) SD_CSD_MULT(pCSD));
-	trace_info(" .BLOCKNR            0x%X\r\n",
-		   (unsigned int) SD_CSD_BLOCKNR(pCSD));
-	trace_info(" .BLOCKNR_HC         0x%X\r\n",
-		   (unsigned int) SD_CSD_BLOCKNR_HC(pCSD));
-	trace_info(" .BLOCK_LEN          0x%X\r\n",
-		   (unsigned int) SD_CSD_BLOCK_LEN(pCSD));
-	trace_info(" -TOTAL_SIZE         0x%X\r\n",
-		   (unsigned int) SD_CSD_TOTAL_SIZE(pCSD));
-	trace_info(" -TOTAL_SIZE_HC      0x%X\r\n",
-		   (unsigned int) SD_CSD_TOTAL_SIZE_HC(pCSD));
+	printf("======= Card-Specific Data =======\n\r");
+	printf(" .CSD_STRUCTURE              0x%X\r\n",
+	    (unsigned int) SD_CSD_STRUCTURE(pCSD));
+	printf(" .SPEC_VERS (eMMC)           0x%X\r\n",
+	    (unsigned int) MMC_CSD_SPEC_VERS(pCSD));
+	printf(" .TAAC                       0x%X\r\n",
+	    (unsigned int) SD_CSD_TAAC(pCSD));
+	printf(" .NSAC                       0x%X\r\n",
+	    (unsigned int) SD_CSD_NSAC(pCSD));
+	printf(" .TRAN_SPEED                 0x%X\r\n",
+	    (unsigned int) SD_CSD_TRAN_SPEED(pCSD));
+	printf(" .CCC                        0x%X\r\n",
+	    (unsigned int) SD_CSD_CCC(pCSD));
+	printf(" .READ_BL_LEN                0x%X\r\n",
+	    (unsigned int) SD_CSD_READ_BL_LEN(pCSD));
+	printf(" .READ_BL_PARTIAL            0x%X\r\n",
+	    (unsigned int) SD_CSD_READ_BL_PARTIAL(pCSD));
+	printf(" .WRITE_BLK_MISALIGN         0x%X\r\n",
+	    (unsigned int) SD_CSD_WRITE_BLK_MISALIGN(pCSD));
+	printf(" .READ_BLK_MISALIGN          0x%X\r\n",
+	    (unsigned int) SD_CSD_READ_BLK_MISALIGN(pCSD));
+	printf(" .DSR_IMP                    0x%X\r\n",
+	    (unsigned int) SD_CSD_DSR_IMP(pCSD));
+	printf(" .C_SIZE                     0x%X\r\n",
+	    (unsigned int) SD_CSD_C_SIZE(pCSD));
+	printf(" .C_SIZE_HC                  0x%X\r\n",
+	    (unsigned int) SD2_CSD_C_SIZE(pCSD));
+	printf(" .VDD_R_CURR_MIN             0x%X\r\n",
+	    (unsigned int) SD_CSD_VDD_R_CURR_MIN(pCSD));
+	printf(" .VDD_R_CURR_MAX             0x%X\r\n",
+	    (unsigned int) SD_CSD_VDD_R_CURR_MAX(pCSD));
+	printf(" .VDD_W_CURR_MIN             0x%X\r\n",
+	    (unsigned int) SD_CSD_VDD_W_CURR_MIN(pCSD));
+	printf(" .VDD_W_CURR_MAX             0x%X\r\n",
+	    (unsigned int) SD_CSD_VDD_W_CURR_MAX(pCSD));
+	printf(" .C_SIZE_MULT                0x%X\r\n",
+	    (unsigned int) SD_CSD_C_SIZE_MULT(pCSD));
+	printf(" .ERASE_BLK_EN               0x%X\r\n",
+	    (unsigned int) SD_CSD_ERASE_BLK_EN(pCSD));
+	printf(" .SECTOR_SIZE                0x%X\r\n",
+	    (unsigned int) SD_CSD_SECTOR_SIZE(pCSD));
+	printf(" .WP_GRP_SIZE                0x%X\r\n",
+	    (unsigned int) SD_CSD_WP_GRP_SIZE(pCSD));
+	printf(" .WP_GRP_ENABLE              0x%X\r\n",
+	    (unsigned int) SD_CSD_WP_GRP_ENABLE(pCSD));
+	printf(" .R2W_FACTOR                 0x%X\r\n",
+	    (unsigned int) SD_CSD_R2W_FACTOR(pCSD));
+	printf(" .WRITE_BL_LEN               0x%X\r\n",
+	    (unsigned int) SD_CSD_WRITE_BL_LEN(pCSD));
+	printf(" .WRITE_BL_PARTIAL           0x%X\r\n",
+	    (unsigned int) SD_CSD_WRITE_BL_PARTIAL(pCSD));
+	printf(" .FILE_FORMAT_GRP            0x%X\r\n",
+	    (unsigned int) SD_CSD_FILE_FORMAT_GRP(pCSD));
+	printf(" .COPY                       0x%X\r\n",
+	    (unsigned int) SD_CSD_COPY(pCSD));
+	printf(" .PERM_WRITE_PROTECT         0x%X\r\n",
+	    (unsigned int) SD_CSD_PERM_WRITE_PROTECT(pCSD));
+	printf(" .TMP_WRITE_PROTECT          0x%X\r\n",
+	    (unsigned int) SD_CSD_TMP_WRITE_PROTECT(pCSD));
+	printf(" .FILE_FORMAT                0x%X\r\n",
+	    (unsigned int) SD_CSD_FILE_FORMAT(pCSD));
+	printf(" .ECC (MMC)                  0x%X\r\n",
+	    (unsigned int) MMC_CSD_ECC(pCSD));
+	printf(" .CRC                        0x%X\r\n",
+	    (unsigned int) SD_CSD_CRC(pCSD));
+	printf(" .MULT                       0x%X\r\n",
+	    (unsigned int) SD_CSD_MULT(pCSD));
+	printf(" .BLOCKNR                    0x%X\r\n",
+	    (unsigned int) SD_CSD_BLOCKNR(pCSD));
+	printf(" .BLOCKNR_HC                 0x%X\r\n",
+	    (unsigned int) SD_CSD_BLOCKNR_HC(pCSD));
+	printf(" .BLOCK_LEN                  0x%X\r\n",
+	    (unsigned int) SD_CSD_BLOCK_LEN(pCSD));
+	printf(" -TOTAL_SIZE                 0x%X\r\n",
+	    (unsigned int) SD_CSD_TOTAL_SIZE(pCSD));
+	printf(" -TOTAL_SIZE_HC              0x%X\r\n",
+	    (unsigned int) SD_CSD_TOTAL_SIZE_HC(pCSD));
 }
 
 /**
@@ -3497,75 +3527,75 @@ SD_DumpCSD(const uint32_t *pCSD)
 void
 SD_DumpExtCSD(const uint8_t *pExtCSD)
 {
-	trace_info("======= Extended Device Specific Data =======\n\r");
-	trace_info(" .S_CMD_SET            : 0x%X\n\r",
-		   MMC_EXT_S_CMD_SET(pExtCSD));
-	trace_info(" .BOOT_INFO            : 0x%X\n\r",
-		   MMC_EXT_BOOT_INFO(pExtCSD));
-	trace_info(" .BOOT_SIZE_MULTI      : 0x%X\n\r",
-		   MMC_EXT_BOOT_SIZE_MULTI(pExtCSD));
-	trace_info(" .ACC_SIZE             : 0x%X\n\r",
-		   MMC_EXT_ACC_SIZE(pExtCSD));
-	trace_info(" .HC_ERASE_GRP_SIZE    : 0x%X\n\r",
-		   MMC_EXT_HC_ERASE_GRP_SIZE(pExtCSD));
-	trace_info(" .ERASE_TIMEOUT_MULT   : 0x%X\n\r",
-		   MMC_EXT_ERASE_TIMEOUT_MULT(pExtCSD));
-	trace_info(" .REL_WR_SEC_C         : 0x%X\n\r",
-		   MMC_EXT_REL_WR_SEC_C(pExtCSD));
-	trace_info(" .HC_WP_GRP_SIZE       : 0x%X\n\r",
-		   MMC_EXT_HC_WP_GRP_SIZE(pExtCSD));
-	trace_info(" .S_C_VCC              : 0x%X\n\r",
-		   MMC_EXT_S_C_VCC(pExtCSD));
-	trace_info(" .S_C_VCCQ             : 0x%X\n\r",
-		   MMC_EXT_S_C_VCCQ(pExtCSD));
-	trace_info(" .S_A_TIMEOUT          : 0x%X\n\r",
-		   MMC_EXT_S_A_TIMEOUT(pExtCSD));
-	trace_info(" .SEC_COUNT            : 0x%lX\n\r",
-		   MMC_EXT_SEC_COUNT(pExtCSD));
-	trace_info(" .MIN_PERF_W_8_52      : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_W_8_52(pExtCSD));
-	trace_info(" .MIN_PERF_R_8_52      : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_R_8_52(pExtCSD));
-	trace_info(" .MIN_PERF_W_8_26_4_52 : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_W_8_26_4_52(pExtCSD));
-	trace_info(" .MIN_PERF_R_8_26_4_52 : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_R_8_26_4_52(pExtCSD));
-	trace_info(" .MIN_PERF_W_4_26      : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_W_4_26(pExtCSD));
-	trace_info(" .MIN_PERF_R_4_26      : 0x%X\n\r",
-		   MMC_EXT_MIN_PERF_R_4_26(pExtCSD));
-	trace_info(" .PWR_CL_26_360        : 0x%X\n\r",
-		   MMC_EXT_PWR_CL_26_360(pExtCSD));
-	trace_info(" .PWR_CL_52_360        : 0x%X\n\r",
-		   MMC_EXT_PWR_CL_52_360(pExtCSD));
-	trace_info(" .PWR_CL_26_195        : 0x%X\n\r",
-		   MMC_EXT_PWR_CL_26_195(pExtCSD));
-	trace_info(" .PWR_CL_52_195        : 0x%X\n\r",
-		   MMC_EXT_PWR_CL_52_195(pExtCSD));
-	trace_info(" .CARD_TYPE            : 0x%X\n\r",
-		   MMC_EXT_CARD_TYPE(pExtCSD));
-	trace_info(" .CSD_STRUCTURE        : 0x%X\n\r",
-		   MMC_EXT_CSD_STRUCTURE(pExtCSD));
-	trace_info(" .EXT_CSD_REV          : 0x%X\n\r",
-		   MMC_EXT_EXT_CSD_REV(pExtCSD));
-	trace_info(" .CMD_SET              : 0x%X\n\r",
-		   MMC_EXT_CMD_SET(pExtCSD));
-	trace_info(" .CMD_SET_REV          : 0x%X\n\r",
-		   MMC_EXT_CMD_SET_REV(pExtCSD));
-	trace_info(" .POWER_CLASS          : 0x%X\n\r",
-		   MMC_EXT_POWER_CLASS(pExtCSD));
-	trace_info(" .HS_TIMING            : 0x%X\n\r",
-		   MMC_EXT_HS_TIMING(pExtCSD));
-	trace_info(" .BUS_WIDTH            : 0x%X\n\r",
-		   MMC_EXT_BUS_WIDTH(pExtCSD));
-	trace_info(" .ERASED_MEM_CONT      : 0x%X\n\r",
-		   MMC_EXT_ERASED_MEM_CONT(pExtCSD));
-	trace_info(" .BOOT_CONFIG          : 0x%X\n\r",
-		   MMC_EXT_BOOT_CONFIG(pExtCSD));
-	trace_info(" .BOOT_BUS_WIDTH       : 0x%X\n\r",
-		   MMC_EXT_BOOT_BUS_WIDTH(pExtCSD));
-	trace_info(" .ERASE_GROUP_DEF      : 0x%X\n\r",
-		   MMC_EXT_ERASE_GROUP_DEF(pExtCSD));
+	printf("======= Extended Device Specific Data =======\n\r");
+	printf(" .S_CMD_SET                  0x%X\n\r",
+	    MMC_EXT_S_CMD_SET(pExtCSD));
+	printf(" .BOOT_INFO                  0x%X\n\r",
+	    MMC_EXT_BOOT_INFO(pExtCSD));
+	printf(" .BOOT_SIZE_MULTI            0x%X\n\r",
+	    MMC_EXT_BOOT_SIZE_MULTI(pExtCSD));
+	printf(" .ACC_SIZE                   0x%X\n\r",
+	    MMC_EXT_ACC_SIZE(pExtCSD));
+	printf(" .HC_ERASE_GRP_SIZE          0x%X\n\r",
+	    MMC_EXT_HC_ERASE_GRP_SIZE(pExtCSD));
+	printf(" .ERASE_TIMEOUT_MULT         0x%X\n\r",
+	    MMC_EXT_ERASE_TIMEOUT_MULT(pExtCSD));
+	printf(" .REL_WR_SEC_C               0x%X\n\r",
+	    MMC_EXT_REL_WR_SEC_C(pExtCSD));
+	printf(" .HC_WP_GRP_SIZE             0x%X\n\r",
+	    MMC_EXT_HC_WP_GRP_SIZE(pExtCSD));
+	printf(" .S_C_VCC                    0x%X\n\r",
+	    MMC_EXT_S_C_VCC(pExtCSD));
+	printf(" .S_C_VCCQ                   0x%X\n\r",
+	    MMC_EXT_S_C_VCCQ(pExtCSD));
+	printf(" .S_A_TIMEOUT                0x%X\n\r",
+	    MMC_EXT_S_A_TIMEOUT(pExtCSD));
+	printf(" .SEC_COUNT                  0x%lX\n\r",
+	    MMC_EXT_SEC_COUNT(pExtCSD));
+	printf(" .MIN_PERF_W_8_52            0x%X\n\r",
+	    MMC_EXT_MIN_PERF_W_8_52(pExtCSD));
+	printf(" .MIN_PERF_R_8_52            0x%X\n\r",
+	    MMC_EXT_MIN_PERF_R_8_52(pExtCSD));
+	printf(" .MIN_PERF_W_8_26_4_52       0x%X\n\r",
+	    MMC_EXT_MIN_PERF_W_8_26_4_52(pExtCSD));
+	printf(" .MIN_PERF_R_8_26_4_52       0x%X\n\r",
+	    MMC_EXT_MIN_PERF_R_8_26_4_52(pExtCSD));
+	printf(" .MIN_PERF_W_4_26            0x%X\n\r",
+	    MMC_EXT_MIN_PERF_W_4_26(pExtCSD));
+	printf(" .MIN_PERF_R_4_26            0x%X\n\r",
+	    MMC_EXT_MIN_PERF_R_4_26(pExtCSD));
+	printf(" .PWR_CL_26_360              0x%X\n\r",
+	    MMC_EXT_PWR_CL_26_360(pExtCSD));
+	printf(" .PWR_CL_52_360              0x%X\n\r",
+	    MMC_EXT_PWR_CL_52_360(pExtCSD));
+	printf(" .PWR_CL_26_195              0x%X\n\r",
+	    MMC_EXT_PWR_CL_26_195(pExtCSD));
+	printf(" .PWR_CL_52_195              0x%X\n\r",
+	    MMC_EXT_PWR_CL_52_195(pExtCSD));
+	printf(" .CARD_TYPE                  0x%X\n\r",
+	    MMC_EXT_CARD_TYPE(pExtCSD));
+	printf(" .CSD_STRUCTURE              0x%X\n\r",
+	    MMC_EXT_CSD_STRUCTURE(pExtCSD));
+	printf(" .EXT_CSD_REV                0x%X\n\r",
+	    MMC_EXT_EXT_CSD_REV(pExtCSD));
+	printf(" .CMD_SET                    0x%X\n\r",
+	    MMC_EXT_CMD_SET(pExtCSD));
+	printf(" .CMD_SET_REV                0x%X\n\r",
+	    MMC_EXT_CMD_SET_REV(pExtCSD));
+	printf(" .POWER_CLASS                0x%X\n\r",
+	    MMC_EXT_POWER_CLASS(pExtCSD));
+	printf(" .HS_TIMING                  0x%X\n\r",
+	    MMC_EXT_HS_TIMING(pExtCSD));
+	printf(" .BUS_WIDTH                  0x%X\n\r",
+	    MMC_EXT_BUS_WIDTH(pExtCSD));
+	printf(" .ERASED_MEM_CONT            0x%X\n\r",
+	    MMC_EXT_ERASED_MEM_CONT(pExtCSD));
+	printf(" .BOOT_CONFIG                0x%X\n\r",
+	    MMC_EXT_BOOT_CONFIG(pExtCSD));
+	printf(" .BOOT_BUS_WIDTH             0x%X\n\r",
+	    MMC_EXT_BOOT_BUS_WIDTH(pExtCSD));
+	printf(" .ERASE_GROUP_DEF            0x%X\n\r",
+	    MMC_EXT_ERASE_GROUP_DEF(pExtCSD));
 }
 
 /**
@@ -3575,23 +3605,21 @@ SD_DumpExtCSD(const uint8_t *pExtCSD)
 void
 SD_DumpSCR(const uint8_t *pSCR)
 {
-	trace_info("========== SCR ==========");
-	trace_info_wp("\n\r");
-
-	trace_info(" .SCR_STRUCTURE         :0x%X\n\r", SD_SCR_STRUCTURE(pSCR));
-	trace_info(" .SD_SPEC               :0x%X\n\r", SD_SCR_SD_SPEC(pSCR));
-	trace_info(" .SD_SPEC3              :0x%X\n\r", SD_SCR_SD_SPEC3(pSCR));
-	trace_info(" .DATA_STAT_AFTER_ERASE :0x%X\n\r",
+	printf("======= SD Card Configuration =======\n\r");
+	printf(" .SCR_STRUCTURE              0x%X\n\r", SD_SCR_STRUCTURE(pSCR));
+	printf(" .SD_SPEC                    0x%X\n\r", SD_SCR_SD_SPEC(pSCR));
+	printf(" .SD_SPEC3                   0x%X\n\r", SD_SCR_SD_SPEC3(pSCR));
+	printf(" .DATA_STAT_AFTER_ERASE      0x%X\n\r",
 	    SD_SCR_DATA_STAT_AFTER_ERASE(pSCR));
-	trace_info(" .SD_SECURITY           :0x%X\n\r",
+	printf(" .SD_SECURITY                0x%X\n\r",
 	    SD_SCR_SD_SECURITY(pSCR));
-	trace_info(" .EX_SECURITY           :0x%X\n\r",
+	printf(" .EX_SECURITY                0x%X\n\r",
 	    SD_SCR_EX_SECURITY(pSCR));
-	trace_info(" .SD_BUS_WIDTHS         :0x%X\n\r",
+	printf(" .SD_BUS_WIDTHS              0x%X\n\r",
 	    SD_SCR_SD_BUS_WIDTHS(pSCR));
-	trace_info(" .CMD20_SUPPORT         :0x%X\n\r",
+	printf(" .CMD20_SUPPORT              0x%X\n\r",
 	    SD_SCR_CMD20_SUPPORT(pSCR));
-	trace_info(" .CMD23_SUPPORT         :0x%X\n\r",
+	printf(" .CMD23_SUPPORT              0x%X\n\r",
 	    SD_SCR_CMD23_SUPPORT(pSCR));
 }
 
@@ -3602,28 +3630,26 @@ SD_DumpSCR(const uint8_t *pSCR)
 void
 SD_DumpSdStatus(const uint8_t *pSdST)
 {
-	trace_info("=========== STAT ============");
-	trace_info_wp("\n\r");
-
-	trace_info(" .DAT_BUS_WIDTH          :0x%X\n\r",
+	printf("======= SD Status =======\n\r");
+	printf(" .DAT_BUS_WIDTH              0x%X\n\r",
 	    SD_ST_DAT_BUS_WIDTH(pSdST));
-	trace_info(" .SECURED_MODE           :0x%X\n\r",
+	printf(" .SECURED_MODE               0x%X\n\r",
 	    SD_ST_SECURED_MODE(pSdST));
-	trace_info(" .SD_CARD_TYPE           :0x%X\n\r",
+	printf(" .SD_CARD_TYPE               0x%X\n\r",
 	    SD_ST_CARD_TYPE(pSdST));
-	trace_info(" .SIZE_OF_PROTECTED_AREA :0x%lX\n\r",
+	printf(" .SIZE_OF_PROTECTED_AREA     0x%lX\n\r",
 	    SD_ST_SIZE_OF_PROTECTED_AREA(pSdST));
-	trace_info(" .SPEED_CLASS            :0x%X\n\r",
+	printf(" .SPEED_CLASS                0x%X\n\r",
 	    SD_ST_SPEED_CLASS(pSdST));
-	trace_info(" .PERFORMANCE_MOVE       :0x%X\n\r",
+	printf(" .PERFORMANCE_MOVE           0x%X\n\r",
 	    SD_ST_PERFORMANCE_MOVE(pSdST));
-	trace_info(" .AU_SIZE                :0x%X\n\r",
+	printf(" .AU_SIZE                    0x%X\n\r",
 	    SD_ST_AU_SIZE(pSdST));
-	trace_info(" .ERASE_SIZE             :0x%X\n\r",
+	printf(" .ERASE_SIZE                 0x%X\n\r",
 	    SD_ST_ERASE_SIZE(pSdST));
-	trace_info(" .ERASE_TIMEOUT          :0x%X\n\r",
+	printf(" .ERASE_TIMEOUT              0x%X\n\r",
 	    SD_ST_ERASE_TIMEOUT(pSdST));
-	trace_info(" .ERASE_OFFSET           :0x%X\n\r",
+	printf(" .ERASE_OFFSET               0x%X\n\r",
 	    SD_ST_ERASE_OFFSET(pSdST));
 }
 

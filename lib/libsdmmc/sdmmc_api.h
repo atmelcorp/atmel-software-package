@@ -595,7 +595,7 @@ void _DumpREG(void *pREG, uint32_t dwSize);
 
 void SDIO_DumpCardInformation(sSdCard * pSd);
 
-void SD_DumpCID(const uint32_t *pCID);
+void SD_DumpCID(const uint32_t *pCID, bool sd_device);
 
 void SD_DumpCSD(const uint32_t *pCSD);
 
