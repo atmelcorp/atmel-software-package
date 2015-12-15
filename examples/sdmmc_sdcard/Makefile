@@ -37,6 +37,14 @@ CONFIG_LIB_FATFS = y
 
 CFLAGS_INC += -I$(TOP)/examples/sdmmc_sdcard
 
+# Uncomment the few definitions below if you wish to selectively override the
+# global TRACE_LEVEL, which filters traces out at compile-time.
+# Also, consider forcing trace_level=TRACE_LEVEL_DEBUG in utils/trace.c,
+# otherwise the default level may filter out your extra traces at runtime.
+#
+# CFLAGS_DEFS += -DSDMMC_LIB_TRACE_LEVEL=3
+# CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=3
+
 obj-y += examples/sdmmc_sdcard/main.o
 
 include $(TOP)/scripts/Makefile.rules

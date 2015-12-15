@@ -374,11 +374,9 @@ static bool card_init(uint8_t num)
 	}
 	trace_info("-I- SD/MMC card initialization successful\n\r");
 
+	SD_DumpStatus(pSd);
 	card_type = SD_GetCardType(pSd);
 	if (card_type & CARD_TYPE_bmSDMMC) {
-		printf("-I- Device memory size: %lu MiB, %lu * %luB\n\r",
-		SD_GetTotalSizeKB(pSd) / 1024UL, SD_GetNumberBlocks(pSd),
-		SD_GetBlockSize(pSd));
 		SD_DumpCID(pSd);
 		SD_DumpCSD(pSd->CSD);
 	}

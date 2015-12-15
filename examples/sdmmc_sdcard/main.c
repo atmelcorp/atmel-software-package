@@ -259,33 +259,41 @@ static void initialize(void)
 
 static bool open_device(sSdCard *pSd)
 {
-	uint8_t rc, card_type;
+	uint8_t rc;
 
-	printf("\n\r==========================================\n\r");
 	rc = SD_Init(pSd);
 	if (rc != SDMMC_OK) {
-		printf("-E- SD/MMC device initialization failed: %d\n\r", rc);
+		trace_error("SD/MMC device initialization failed: %d\n\r", rc);
 		return false;
 	}
-	printf("-I- SD/MMC device initialization successful\n\r");
-	card_type = SD_GetCardType(pSd);
-	if (card_type & CARD_TYPE_bmSDMMC) {
-		printf("-I- Device memory size: %lu MiB, %lu * %luB\n\r",
-		    SD_GetTotalSizeKB(pSd) / 1024ul, SD_GetNumberBlocks(pSd),
-		    SD_GetBlockSize(pSd));
-		SD_DumpCID(pSd);
-		SD_DumpCSD(pSd->CSD);
-	}
-	if (card_type & CARD_TYPE_bmMMC)
-		SD_DumpExtCSD(pSd->EXT);
-	if (card_type & CARD_TYPE_bmSDIO)
-		SDIO_DumpCardInformation(pSd);
+	trace_info("SD/MMC device initialization successful\n\r");
 	return true;
 }
 
 static bool close_device(sSdCard *pSd)
 {
 	SD_DeInit(pSd);
+	return true;
+}
+
+static bool show_device_info(sSdCard *pSd)
+{
+	const uint8_t card_type = SD_GetCardType(pSd);
+
+	SD_DumpStatus(pSd);
+	if (card_type & CARD_TYPE_bmSDMMC)
+		SD_DumpCID(pSd);
+	if (card_type & CARD_TYPE_bmSD) {
+		SD_DumpSCR(pSd->SCR);
+		SD_DumpSSR(pSd->SSR);
+	}
+	if (card_type & CARD_TYPE_bmSDMMC)
+		SD_DumpCSD(pSd->CSD);
+	if (card_type & CARD_TYPE_bmMMC)
+		SD_DumpExtCSD(pSd->EXT);
+	if (card_type & CARD_TYPE_bmSDIO)
+		SDIO_DumpCardInformation(pSd);
+	printf("\n\r");
 	return true;
 }
 
@@ -310,14 +318,14 @@ static bool mount_volume(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	}
 	res = f_opendir(&dir, drive_path);
 	if (res != FR_OK) {
-		printf("-E- Failed to change to root directory, error %d\n\r", res);
+		printf("Failed to change to root directory, error %d\n\r", res);
 		return false;
 	}
 	printf("Listing the files present in the root directory:\n\r");
 	for ( ; ; ) {
 		res = f_readdir(&dir, &fno);
 		if (res != FR_OK) {
-			printf("-E- Error (%d) while listing files\n\r", res);
+			trace_error("Error (%d) while listing files\n\r", res);
 			rc = false;
 			break;
 		}
@@ -330,7 +338,7 @@ static bool mount_volume(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 
 	res = f_closedir(&dir);
 	if (res != FR_OK) {
-		printf("-E- Failed to close directory, error %d\n\r", res);
+		trace_error("Failed to close directory, error %d\n\r", res);
 		rc = false;
 	}
 	return rc;
@@ -370,7 +378,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 
 	res = f_close(&f_header.file);
 	if (res != FR_OK) {
-		printf("Failed to close file, error %d\n\r", res);
+		trace_error("Failed to close file, error %d\n\r", res);
 		return false;
 	}
 	return rc;
@@ -471,8 +479,8 @@ int main(void)
 	    || sizeof(fs_header.fs.win) % L1_CACHE_BYTES
 	    || (uint32_t)&f_header.file.buf % L1_CACHE_BYTES
 	    || sizeof(f_header.file.buf) % L1_CACHE_BYTES) {
-		printf("WARNING: buffers are not aligned on data cache lines."
-		    " Please fix this before enabling DMA.\n\r");
+		trace_error("WARNING: buffers are not aligned on data cache "
+		    "lines. Please fix this before enabling DMA.\n\r");
 		use_dma = false;
 	}
 	else
@@ -504,7 +512,8 @@ int main(void)
 				printf("Device not detected.\n\r");
 				break;
 			}
-			open_device(lib);
+			if (open_device(lib))
+				show_device_info(lib);
 			close_device(lib);
 			break;
 		case 'l':
@@ -537,7 +546,7 @@ int main(void)
 				printf("Reading blocks #%lu-%lu\n\r", block, block + BLOCK_CNT - 1);
 				rc = SD_Read(lib, block, data_buf, BLOCK_CNT, NULL, NULL);
 				if (rc != SDMMC_OK)
-					printf("-E- %s\n\r", SD_StringifyRetCode(rc));
+					trace_error("%s\n\r", SD_StringifyRetCode(rc));
 				if (rc == SDMMC_OK) {
 					printf("Printing contents of blocks #%lu-%lu before we alter them\n\r", block, block + BLOCK_CNT - 1);
 					print_buffer(BLOCK_CNT * 512ul, data_buf);
@@ -546,14 +555,14 @@ int main(void)
 					memset(data_buf, 0x55, BLOCK_CNT * 512ul);
 					rc = SD_Write(lib, block, data_buf, BLOCK_CNT, NULL, NULL);
 					if (rc != SDMMC_OK)
-						printf("-E- %s\n\r", SD_StringifyRetCode(rc));
+						trace_error("%s\n\r", SD_StringifyRetCode(rc));
 				}
 				if (rc == SDMMC_OK) {
 					memset(data_buf, 0, BLOCK_CNT * 512ul);
 					printf("Reading blocks #%lu-%lu again\n\r", block, block + BLOCK_CNT - 1);
 					rc = SD_Read(lib, block, data_buf, BLOCK_CNT, NULL, NULL);
 					if (rc != SDMMC_OK)
-						printf("-E- %s\n\r", SD_StringifyRetCode(rc));
+						trace_error("%s\n\r", SD_StringifyRetCode(rc));
 				}
 				if (rc == SDMMC_OK) {
 					printf("Printing contents of blocks #%lu-%lu\n\r", block, block + BLOCK_CNT - 1);

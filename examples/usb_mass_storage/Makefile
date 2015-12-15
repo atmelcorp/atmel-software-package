@@ -37,6 +37,14 @@ CONFIG_LIB_USB_MSD = y
 CONFIG_LIB_STORAGEMEDIA = y
 CONFIG_LIB_SDMMC = y
 
+# Uncomment the few definitions below if you wish to selectively override the
+# global TRACE_LEVEL, which filters traces out at compile-time.
+# Also, consider forcing trace_level=TRACE_LEVEL_DEBUG in utils/trace.c,
+# otherwise the default level may filter out your extra traces at runtime.
+#
+# CFLAGS_DEFS += -DSDMMC_LIB_TRACE_LEVEL=3
+# CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=3
+
 obj-y += examples/usb_mass_storage/main.o
 obj-y += examples/usb_mass_storage/main_descriptors.o
 obj-y += examples/usb_common/main_usb_common.o
