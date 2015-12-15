@@ -399,7 +399,7 @@ static uint8_t sdmmc_build_dma_table(struct sdmmc_set *set, sSdmmcCommand *cmd)
 	uint32_t line_ix, line_cnt;
 	uint8_t rc = SDMMC_OK;
 
-#if 0 && !defined(NDEBUG)
+#if 0
 	trace_debug("Configuring DMA for a %luB transfer %s %p\n\r",
 	    data_len, cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX ? "from" : "to",
 	    cmd->pData);
@@ -441,7 +441,7 @@ static uint8_t sdmmc_build_dma_table(struct sdmmc_set *set, sSdmmcCommand *cmd)
 			    | SDMMC_DMA0DL_ATTR_END | SDMMC_DMA0DL_ATTR_VALID;
 			line[1] = SDMMC_DMA1DL_ADDR(ram_addr);
 		}
-#if 0 && !defined(NDEBUG)
+#if 0
 		trace_debug("DMA descriptor: %luB @ 0x%lx%c\n\r",
 		    (line[0] & SDMMC_DMA0DL_LEN_Msk) >> SDMMC_DMA0DL_LEN_Pos,
 		    line[1], line[0] & SDMMC_DMA0DL_ATTR_END ? '.' : ' ');
@@ -513,7 +513,7 @@ static void sdmmc_get_response(struct sdmmc_set *set, sSdmmcCommand *cmd,
 	if (has_data && (cmd->bCmd == 18 || cmd->bCmd == 25) && ((first_call
 	    && set->use_set_blk_cnt) || (complete && !set->use_set_blk_cnt))) {
 		resp = set->regs->SDMMC_RR[3];
-#if 0 && !defined(NDEBUG)
+#if 0
 		trace_debug("Auto CMD%d returned status 0x%lx\n\r",
 		    set->use_set_blk_cnt ? 23 : 12, resp);
 #endif
@@ -619,12 +619,6 @@ Fetch:
 		else
 			cmd->bStatus = SDMMC_ERR;
 		set->state = cmd->bCmd == 12 ? MCID_LOCKED : MCID_ERROR;
-		/* Reset CMD and DAT lines.
-		 * Resetting DAT lines also aborts the DMA transfer - if any -
-		 * and resets the DMA circuit. */
-		regs->SDMMC_SRR |= SDMMC_SRR_SWRSTDAT | SDMMC_SRR_SWRSTCMD;
-		while (regs->SDMMC_SRR & (SDMMC_SRR_SWRSTDAT
-		    | SDMMC_SRR_SWRSTCMD)) ;
 		trace_warning("CMD%u ended with error flags %04x, cmd status "
 		    "%s\n\r", cmd->bCmd, errors, SD_StringifyRetCode(cmd->bStatus));
 		goto End;
@@ -849,7 +843,15 @@ End:
 		    cmd->bCmd, cmd->pResp[0], cmd->pResp[1], cmd->pResp[2],
 		    cmd->pResp[3]);
 #endif
-	/* Release command */
+	/* Upon error, recover by resetting the CMD and DAT lines */
+	if (cmd->bStatus != SDMMC_OK && cmd->bStatus != SDMMC_CHANGED) {
+		/* Resetting DAT lines also aborts the DMA transfer - if any -
+		 * and resets the DMA circuit. */
+		regs->SDMMC_SRR |= SDMMC_SRR_SWRSTDAT | SDMMC_SRR_SWRSTCMD;
+		while (regs->SDMMC_SRR & (SDMMC_SRR_SWRSTDAT
+		    | SDMMC_SRR_SWRSTCMD)) ;
+	}
+	/* Release this command */
 	set->cmd = NULL;
 	set->resp_len = 0;
 	set->blk_index = 0;
@@ -990,7 +992,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 	uint32_t rc = SDMMC_OK, *param_u32 = (uint32_t *)param;
 	uint8_t byte;
 
-#ifndef NDEBUG
+#if TRACE_LEVEL >= TRACE_LEVEL_DEBUG
 	if (bCtl != SDMMC_IOCTL_BUSY_CHECK && bCtl != SDMMC_IOCTL_GET_DEVICE)
 		trace_debug("%s(%lu)\n\r", SD_StringifyIOCtrl(bCtl),
 		    param ? *param_u32 : 0);
@@ -1094,7 +1096,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		rc = SDMMC_ERROR_NOT_SUPPORT;
 		break;
 	}
-#ifndef NDEBUG
+#if TRACE_LEVEL >= TRACE_LEVEL_ERROR
 	if (rc != SDMMC_OK && rc != SDMMC_CHANGED && bCtl != SDMMC_IOCTL_BUSY_CHECK)
 		trace_error("%s ended with %s\n\r", SD_StringifyIOCtrl(bCtl), SD_StringifyRetCode(rc));
 #endif
@@ -1386,7 +1388,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	regs->SDMMC_CALCR |= SDMMC_CALCR_EN;
 	while (regs->SDMMC_CALCR & SDMMC_CALCR_EN) ;
 	val = regs->SDMMC_CALCR;
-	trace_info("Result of output impedance calibration: CALN=%lu, CALP=%lu.\n\r",
+	trace_debug("Result of output impedance calibration: CALN=%lu, CALP=%lu.\n\r",
 	    (val & SDMMC_CALCR_CALN_Msk) >> SDMMC_CALCR_CALN_Pos,
 	    (val & SDMMC_CALCR_CALP_Msk) >> SDMMC_CALCR_CALP_Pos);
 
