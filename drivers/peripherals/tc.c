@@ -226,3 +226,74 @@ void tc_trigger_on_freq(Tc* tc, uint32_t channel_num, uint32_t freq)
 	tc_configure(tc, channel_num, tcclks | TC_CMR_CPCTRG);
 	channel->TC_RC = (pmc_get_peripheral_clock(tc_id) / div) / freq;
 }
+
+/**
+ * \brief Get available frequency of Timer Counter according to clock selection
+ * \param tc Pointer to Tc instance
+ * \param tc_clks TC_CMR_TCCLKS_TIMER_CLOCKx field value for clock selection.
+ * \return TC frequency
+ */
+uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks)
+{
+	switch (tc_clks) {
+	case TC_CMR_TCCLKS_TIMER_CLOCK1:
+		return pmc_get_gck_clock(get_tc_id_from_addr(tc));
+	case TC_CMR_TCCLKS_TIMER_CLOCK2:
+		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 3;
+	case TC_CMR_TCCLKS_TIMER_CLOCK3:
+		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 5;
+	case TC_CMR_TCCLKS_TIMER_CLOCK4:
+		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 7;
+	case TC_CMR_TCCLKS_TIMER_CLOCK5:
+		return pmc_get_slow_clock();
+	default:
+		assert(tc_clks <= TC_CMR_TCCLKS_TIMER_CLOCK5);
+		return 0;
+	}
+}
+
+/**
+ * \brief Set RA, RB, RC for Timer Counter
+ * \param tc Pointer to Tc instance
+ * \param channel_num channel number of the Timer Counter
+ * \param ra Pointer to the value to set into RA
+ * \param rb Pointer to the value to set into RB
+ * \param rc Pointer to the value to set into RC
+ */
+void tc_set_ra_rb_rc(Tc* tc, uint32_t channel_num,
+	uint32_t *ra, uint32_t *rb, uint32_t *rc)
+{
+	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+
+	if (ra) {
+		assert(TC_CMR_WAVE == (channel->TC_CMR & TC_CMR_WAVE));
+		channel->TC_RA = *ra;
+	}
+	if (rb) {
+		assert(TC_CMR_WAVE == (channel->TC_CMR & TC_CMR_WAVE));
+		channel->TC_RB = *rb;
+	}
+	if (rc)
+		channel->TC_RC = *rc;
+}
+
+/**
+ * \brief Get RA, RB, RC from Timer Counter
+ * \param tc Pointer to Tc instance
+ * \param channel_num channel number of the Timer Counter
+ * \param ra Pointer to the address to store RA
+ * \param rb Pointer to the address to store RB
+ * \param rc Pointer to the address to store RC
+ */
+void tc_get_ra_rb_rc(Tc* tc, uint32_t channel_num,
+	uint32_t *ra, uint32_t *rb, uint32_t *rc)
+{
+	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+
+	if (ra)
+		*ra = channel->TC_RA;
+	if (rb)
+		*rb = channel->TC_RB;
+	if (rc)
+		*rc = channel->TC_RC;
+}

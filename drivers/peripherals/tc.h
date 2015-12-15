@@ -67,6 +67,11 @@ extern void tc_enable_it(Tc* tc, uint32_t channel, uint32_t mask);
 extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t* div, uint32_t * tc_clks);
 extern uint32_t tc_get_status(Tc* tc, uint32_t channel_num);
 extern void tc_trigger_on_freq(Tc* tc, uint32_t channel_num, uint32_t freq);
+extern uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks);
+extern void tc_set_ra_rb_rc(Tc* tc, uint32_t channel_num,
+	uint32_t *ra, uint32_t *rb, uint32_t *rc);
+extern void tc_get_ra_rb_rc(Tc* tc, uint32_t channel_num,
+	uint32_t *ra, uint32_t *rb, uint32_t *rc);
 
 #ifdef __cplusplus
 }
