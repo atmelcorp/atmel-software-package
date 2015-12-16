@@ -1,0 +1,200 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resrc1.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "commctrl.h"
+#include "ntverp.h"
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 5,0,1636,1
+ PRODUCTVERSION 5,0,1636,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Microsoft Corporation\0"
+            VALUE "FileDescription", "HID Sample Client\0"
+            VALUE "FileVersion", "5.00.1636.1\0"
+            VALUE "InternalName", "hclient\0"
+            VALUE "LegalCopyright", "Copyright (C) Microsoft Corp. 1981-1997\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "HCLIENT.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Microsoft(R) Windows NT(R) Operating System\0"
+            VALUE "ProductVersion", "5.00.1636.1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+MAIN_DIALOG DIALOGEX 0, 0, 381, 273
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sample HID client app"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    COMBOBOX        IDC_DEVICES,5,26,368,103,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TYPE,6,56,168,99,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_ITEMS,6,84,167,69,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    LISTBOX         IDC_ATTRIBUTES,179,56,193,98,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "About...",IDC_ABOUT,273,250,50,14
+    DEFPUSHBUTTON   "Exit",IDOK,326,250,50,14
+    LTEXT           "HID Device",IDC_STATIC,8,15,53,9
+    LTEXT           "Item Type",IDC_STATIC,9,43,51,10
+    LTEXT           "Items",IDC_STATIC,10,73,44,8
+    LTEXT           "Item attributes",IDC_STATIC,182,43,63,9
+    EDITTEXT        IDC_EDIT_OUT,4,181,370,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_IN,4,220,370,15,ES_UPPERCASE | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Write",IDC_BUTTON_WR,305,162,29,17
+    PUSHBUTTON      "SetReport",IDC_BUTTON_SET,336,162,37,17
+    PUSHBUTTON      "Read",IDC_BUTTON_RD,305,201,29,17
+    PUSHBUTTON      "GetReport",IDC_BUTTON_GET,336,201,37,17,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    CONTROL         "LED 1",IDC_CHECK_LED1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,145,239,34,18
+    CONTROL         "LED 2",IDC_CHECK_LED2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,184,239,33,18
+    CONTROL         "BUTTON 1",IDC_CHECK_BTN1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_DISABLED,12,239,44,13,
+                    WS_EX_DLGMODALFRAME
+    CONTROL         "BUTTON 2",IDC_CHECK_BTN2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_DISABLED,63,239,44,13,
+                    WS_EX_DLGMODALFRAME
+    LTEXT           "Output (Pipe OUT):",IDC_STATIC,5,167,71,9
+    LTEXT           "Input (Pipe IN):",IDC_STATIC,6,206,48,9
+    CONTROL         "Hex",IDC_CHECK_OH,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,273,165,25,14
+    CONTROL         "Hex",IDC_CHECK_IH,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,273,202,25,14
+    GROUPBOX        "Device Information",IDC_STATIC,2,1,376,157
+    CONTROL         "Monitor BUTTONs",IDC_CHECK_MON,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,67,203,90,14
+    CONTROL         "¡ü",IDC_CHECK_UP,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_DISABLED,38,253,17,15,WS_EX_DLGMODALFRAME
+    CONTROL         "<-",IDC_CHECK_LEFT,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_DISABLED,12,253,17,15,
+                    WS_EX_DLGMODALFRAME
+    CONTROL         "¡ý",IDC_CHECK_DOWN,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_DISABLED,63,253,17,15,
+                    WS_EX_DLGMODALFRAME
+    CONTROL         "->",IDC_CHECK_RIGHT,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_DISABLED,89,253,17,15,
+                    WS_EX_DLGMODALFRAME
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resrc1.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""commctrl.h""\r\n"
+    "#include ""ntverp.h""\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "MAIN_DIALOG", DIALOG
+    BEGIN
+        BOTTOMMARGIN, 269
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

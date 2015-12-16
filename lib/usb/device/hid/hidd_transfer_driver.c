@@ -112,10 +112,10 @@ typedef struct _HIDDTransferDriver {
  *------------------------------------------------------------------------------*/
 
 /** Input report buffers */
-static HIDDTransferReport input_report;
+ALIGNED(16) static HIDDTransferReport input_report;
 
 /** Output report buffers */
-static HIDDTransferReport output_report;
+ALIGNED(16) static HIDDTransferReport output_report;
 
 /** Static instance of the HID Transfer device driver. */
 static HIDDTransferDriver hidd_transfer_driver;
