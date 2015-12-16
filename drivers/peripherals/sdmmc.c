@@ -531,13 +531,13 @@ static void sdmmc_get_response(struct sdmmc_set *set, sSdmmcCommand *cmd,
 #ifndef NDEBUG
 		resp = (resp & STAT_CURRENT_STATE) >> 9;
 		if (set->use_set_blk_cnt && resp != STATE_TRANSFER)
-			trace_warning("Auto CMD23 returned state %lx\n\r", resp)
+			trace_warning("Auto CMD23 returned state %lx\n\r", resp);
 		else if (!set->use_set_blk_cnt && cmd->bCmd == 18
 		    && resp != STATE_SENDING_DATA)
-			trace_warning("CMD18 switched to state %lx\n\r", resp)
+			trace_warning("CMD18 switched to state %lx\n\r", resp);
 		else if (!set->use_set_blk_cnt && cmd->bCmd == 25
 		    && resp != STATE_RECEIVE_DATA && resp != STATE_PROGRAMMING)
-			trace_warning("CMD25 switched to state %lx\n\r", resp)
+			trace_warning("CMD25 switched to state %lx\n\r", resp);
 #endif
 	}
 }
@@ -649,11 +649,11 @@ Fetch:
 		if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
 		    && !set->table && set->blk_index != cmd->wNbBlocks
 		    && !(regs->SDMMC_PSR & SDMMC_PSR_WTACT))
-			trace_warning("Write transfer not started\n\r")
+			trace_warning("Write transfer not started\n\r");
 		else if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX
 		    && !set->table && set->blk_index != cmd->wNbBlocks
 		    && !(regs->SDMMC_PSR & SDMMC_PSR_RTACT))
-			trace_warning("Read transfer not started\n\r")
+			trace_warning("Read transfer not started\n\r");
 #endif
 		/* Retrieve command response */
 		if (cmd->pResp)
@@ -830,11 +830,11 @@ End:
 #if 0 && !defined(NDEBUG)
 	if (set->resp_len == 1)
 		trace_debug("CMD%u got response %08lx\n\r", cmd->bCmd,
-		    cmd->pResp[0])
+		    cmd->pResp[0]);
 	else if (set->resp_len == 4)
 		trace_debug("CMD%u got response %08lx %08lx %08lx %08lx\n\r",
 		    cmd->bCmd, cmd->pResp[0], cmd->pResp[1], cmd->pResp[2],
-		    cmd->pResp[3])
+		    cmd->pResp[3]);
 #endif
 	/* Release command */
 	set->cmd = NULL;
