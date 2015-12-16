@@ -42,9 +42,9 @@
 #include <stdint.h>
 #include "compiler.h"
 #include "chip.h"
+#include "trace.h"
 #include "timer.h"
 #include "libsdmmc.h"
-#include "sdmmc_trace.h"
 
 /*----------------------------------------------------------------------------
  *         Local definitions
@@ -243,7 +243,7 @@ static const uint32_t mmcTransMultipliers[16] = {
 	0, 10, 12, 13, 15, 20, 26, 30, 35, 40, 45, 52, 55, 60, 70, 80
 };
 
-#ifdef NOTRACE
+#if TRACE_LEVEL == TRACE_LEVEL_SILENT
 static const char sdmmcEmptyString[] = "";
 #else
 static const char sdmmcInvalidIOCtrl[] = "!Invalid IO Control!";
@@ -1919,10 +1919,9 @@ MmcSelectCard(sSdCard * pSd, uint16_t address, uint8_t statCheck)
 	 * so that SD ACMD6 can process or EXT_CSD can read. */
 	error = Cmd7(pSd, address);
 	if (error == SDMMC_ERROR_NOT_INITIALIZED && address == 0) {
-	} else if (error) {
-		trace_error("MmcSelectCard.Cmd7 (%d)\n\r", error);
 	}
-
+	else if (error)
+		trace_error("MmcSelectCard.Cmd7 (%d)\n\r", error);
 	return error;
 }
 
@@ -1936,11 +1935,9 @@ MmcGetExtInformation(sSdCard * pSd)
 	uint8_t error;
 	/* MMC 4.0 Higher version */
 	if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && MMC_IsVer4(pSd)) {
-
 		error = MmcCmd8(pSd, pSd->EXT);
-		if (error) {
+		if (error)
 			trace_error("MmcGetExt.Cmd8: %d\n\r", error);
-		}
 	}
 }
 
@@ -2029,12 +2026,12 @@ SdGetExtInformation(sSdCard * pSd)
 		trace_warning("Unknown SCR structure version\n\r");
 	trace_info("SD Physical Layer Specification Version ");
 	if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
-		trace_info_wp("1.0X\n\r")
+		trace_info_wp("1.0X\n\r");
 	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
-		trace_info_wp("1.10\n\r")
+		trace_info_wp("1.10\n\r");
 	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
 		if (SD_SCR_SD_SPEC3(pSd->SCR) == SD_SCR_SD_SPEC_3_0)
-			trace_info_wp("3.0X\n\r")
+			trace_info_wp("3.0X\n\r");
 		else
 			trace_info_wp("2.00\n\r");
 	}
@@ -2155,9 +2152,8 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 					     error);
 					return SDMMC_ERROR;
 				}
-				if (status1 & SDIO_EHS) {
+				if (status1 & SDIO_EHS)
 					trace_warning("SDIO HS Enabled\n\r");
-				}
 			}
 		}
 		if (sd) {
@@ -2179,9 +2175,8 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 			} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1)) {
 				trace_info("SD HS Locked\n\r");
 				return SDMMC_ERROR_BUSY;
-			} else {
+			} else
 				trace_warning("SD HS Enabled\n\r");
-			}
 		}
 	}
 
@@ -2357,15 +2352,14 @@ SdMmcIdentify(sSdCard * pSd)
 	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status1);
 	if (!error && ((status1 & STATUS_SDIO_R5) == 0)) {
 	} else if (error == SDMMC_ERROR_NORESPONSE) {
-	} else {
+	}
+	else
 		trace_debug("SdMmcIdentify.Cmd52 fail: %u, %lx\n\r", error,
 			    status1);
-	}
 	/* Reset MEM: CMD0 */
 	error = SwReset(pSd, 1);
-	if (error) {
+	if (error)
 		trace_debug("SdMmcIdentify.SwReset fail: %u\n\r", error);
-	}
 
 	/* CMD8 is newly added in the Physical Layer Specification Version 2.00 to
 	 * support multiple voltage ranges and used to check whether the card
@@ -2386,9 +2380,8 @@ SdMmcIdentify(sSdCard * pSd)
 	/* CMD5 is newly added for SDIO initialize & power on */
 	status1 = 0;
 	error = Cmd5(pSd, &status1);
-	if (error) {
-		trace_info("SdMmcIdentify.Cmd5: %d\n\r", error)
-	}
+	if (error)
+		trace_info("SdMmcIdentify.Cmd5: %d\n\r", error);
 	/* Card has SDIO function */
 	else if ((status1 & SDIO_OCR_NF) > 0) {
 		unsigned int cmd5Retries = 10000;
@@ -2437,11 +2430,11 @@ SdMmcIdentify(sSdCard * pSd)
 			/* MMC card identification OK */
 			trace_info("MMC Card\n\r");
 			return 0;
-		} else if (ccs) {
-			trace_info("SDHC MEM\n\r");
-		} else {
-			trace_info("SD MEM\n\r");
 		}
+		else if (ccs)
+			trace_info("SDHC MEM\n\r");
+		else
+			trace_info("SD MEM\n\r");
 		mem = 1;
 	}
 	/* SD(IO) + MEM ? */
@@ -3649,7 +3642,7 @@ SD_DumpSdStatus(const uint8_t *pSdST)
 const char *
 SD_StringifyIOCtrl(uint32_t dwCtrl)
 {
-#ifdef NOTRACE
+#if TRACE_LEVEL == TRACE_LEVEL_SILENT
 	(void) dwCtrl;
 	return sdmmcEmptyString;
 #else
@@ -3672,7 +3665,7 @@ SD_StringifyIOCtrl(uint32_t dwCtrl)
 const char *
 SD_StringifyRetCode(uint32_t dwRCode)
 {
-#ifdef NOTRACE
+#if TRACE_LEVEL == TRACE_LEVEL_SILENT
 	(void) dwRCode;
 	return sdmmcEmptyString;
 #else
