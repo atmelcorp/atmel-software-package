@@ -75,6 +75,9 @@ typedef struct _HIDDTransferReport {
 	/** Report ID */
 	uint8_t bID;
 
+	/** padding one byte */
+	uint8_t padding[17];
+
 	/** Report data address */
 	uint8_t bData[HIDDTransferDriver_REPORTSIZE];
 } HIDDTransferReport;

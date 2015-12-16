@@ -85,6 +85,9 @@ typedef struct _HIDDMouseReport {
 	/** Report ID */
 	uint8_t bID;
 
+	/** padding to reach L1_CACHE_BYTES alignment */
+	uint8_t padding[17];
+
 	/** Report data block */
 	HIDDMouseInputReport report;
 } HIDDMouseReport;

@@ -73,6 +73,8 @@ typedef struct _KBDInputReport {
 	uint8_t bDelay;
 	/** Report ID */
 	uint8_t bID;
+	/* Padding to reach L1_CACHE_BYTES alignement */
+	uint8_t padding[17];
 	/** Input Report Data Block */
 	HIDDKeyboardInputReport sReport;
 } KBDInputReport;
@@ -97,6 +99,8 @@ typedef struct _KBDOutputReport {
 	uint8_t bDelay;
 	/** Report ID */
 	uint8_t bID;
+	/* Padding to reach L1_CACHE_BYTES alignement */
+	uint8_t padding[17];
 	/** Output Report Data Block */
 	HIDDKeyboardOutputReport sReport;
 } KBDOutputReport;
@@ -128,6 +132,7 @@ static KBDOutputReport output_report;
 static HIDDKeyboard hidd_keyboard;
 
 /** Report descriptor used by the driver. */
+ALIGNED(L1_CACHE_BYTES)
 const uint8_t hidd_keyboard_report_descriptor[] = {
 
 	HIDReport_GLOBAL_USAGEPAGE + 1, HIDGenericDesktop_PAGEID,

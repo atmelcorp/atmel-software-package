@@ -104,6 +104,8 @@ typedef struct _HIDDReportHeader {
 	uint8_t bDelay;
 	/** Report ID */
 	uint8_t bID;
+	/** padding to reach L1_CACHE_BYTES alignement */
+	uint8_t padding[17];
 } HIDDReportHeader;
 
 /**
@@ -125,6 +127,8 @@ typedef struct _HIDDReport {
 	uint8_t bDelay;
 	/** Report ID */
 	uint8_t bID;
+	/** padding to reach L1_CACHE_BYTES alignement */
+	uint8_t padding[17];
 	/** Report data block start ... */
 	uint8_t bData[1];
 } HIDDReport;
