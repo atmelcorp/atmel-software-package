@@ -459,7 +459,7 @@ void act8945a_set_charge_level(struct _act8945a *act8945a,
 		break;
 	default:
 		trace_warning("Invalid charge level requested: %d\r\n",
-				(int)level)
+				(int)level);
 		break;
 	}
 }
@@ -707,7 +707,7 @@ extern void act8945a_display_voltage_settings(struct _act8945a *act8945a)
 {
 	int reg;
 
-	trace_info_wp("\r\n-- ACT8945A - Voltage Settings & State --\r\n");
+	printf("\r\n-- ACT8945A - Voltage Settings & State --\r\n");
 
 	for (reg = 0; reg < NUM_REGULATORS; reg++)
 	{
@@ -726,31 +726,31 @@ extern void act8945a_display_voltage_settings(struct _act8945a *act8945a)
 			return;
 
 		u = _act8945a_convert_voltage_setting(setting);
-		trace_info_wp(" - VOUT_%d (0x%02x) = %dmV", reg + 1, ctrl, u);
+		printf(" - VOUT_%d (0x%02x) = %dmV", reg + 1, ctrl, u);
 		if (reg <= 3) {
 			union _ctrl1 *ctrl1 = (union _ctrl1*)&ctrl;
-			trace_info_wp(" %s", ctrl1->bits.on ? "on" : "off");
-			trace_info_wp(" %s", ctrl1->bits.phase ? "180" : "osc");
-			trace_info_wp(" %s", ctrl1->bits.mode ? "pwm" : "pow-saving");
-			trace_info_wp(" delay:0x%02x", ctrl1->bits.delay);
-			trace_info_wp(" %s", ctrl1->bits.nfltmsk ? "en" : "dis");
-			trace_info_wp(" %s", ctrl1->bits.ok ? "OK" : "<tresh");
+			printf(" %s", ctrl1->bits.on ? "on" : "off");
+			printf(" %s", ctrl1->bits.phase ? "180" : "osc");
+			printf(" %s", ctrl1->bits.mode ? "pwm" : "pow-saving");
+			printf(" delay:0x%02x", ctrl1->bits.delay);
+			printf(" %s", ctrl1->bits.nfltmsk ? "en" : "dis");
+			printf(" %s", ctrl1->bits.ok ? "OK" : "<tresh");
 		} else {
 			union _ctrl2 *ctrl2 = (union _ctrl2*)&ctrl;
-			trace_info_wp(" %s", ctrl2->bits.on ? "on": "off");
-			trace_info_wp(" %s", ctrl2->bits.dis ? "off" : "on");
-			trace_info_wp(" %s", ctrl2->bits.lowiq ? "normal" : "low-power");
-			trace_info_wp(" delay:0x%02x", ctrl2->bits.delay);
-			trace_info_wp(" %s", ctrl2->bits.nfltmsk ? "en" : "dis");
-			trace_info_wp(" %s", ctrl2->bits.ok ? "OK" : "<tresh");
+			printf(" %s", ctrl2->bits.on ? "on": "off");
+			printf(" %s", ctrl2->bits.dis ? "off" : "on");
+			printf(" %s", ctrl2->bits.lowiq ? "normal" : "low-power");
+			printf(" delay:0x%02x", ctrl2->bits.delay);
+			printf(" %s", ctrl2->bits.nfltmsk ? "en" : "dis");
+			printf(" %s", ctrl2->bits.ok ? "OK" : "<tresh");
 		}
-		trace_info_wp("\r\n");
+		printf("\r\n");
 	}
 
 	union _sys0 sys0;
 	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
 		return;
-	trace_info_wp(" - SYSLEV Failing Treshold (0x%02x) = %dmV\r\n", sys0.u8,
+	printf(" - SYSLEV Failing Treshold (0x%02x) = %dmV\r\n", sys0.u8,
 			2300 + sys0.bits.syslev * 100);
 }
 
@@ -759,18 +759,18 @@ void act8945a_dump_registers(struct _act8945a *act8945a)
 	uint8_t reg, data, mask, i;
 
 
-	trace_info_wp("\r\n-- ACT8945A - Registers Dump --\r\n");
+	printf("\r\n-- ACT8945A - Registers Dump --\r\n");
 	for (reg = 0; reg < ARRAY_SIZE(_regs); reg++) {
 		if (!_act8945a_read_reg(act8945a, _regs[reg].iaddr, &data))
 			return;
-		trace_info_wp(" - %s: 0x%02X  b:", _regs[reg].name, data);
+		printf(" - %s: 0x%02X  b:", _regs[reg].name, data);
 		mask = 0x80;
 		for (i=0; i<8; i++, mask>>=1) {
-			printf ("%x", (data&mask) ? 1 : 0);
+			printf("%x", (data&mask) ? 1 : 0);
 		}
-		trace_info_wp("\r\n");
+		printf("\r\n");
 	}
-	trace_info_wp("\r\n");
+	printf("\r\n");
 }
 
 void act8945a_display_apch_registers(struct _act8945a *act8945a)
@@ -780,70 +780,70 @@ void act8945a_display_apch_registers(struct _act8945a *act8945a)
 	union _apch_79 apch79;
 	union _apch_7a apch7a;
 
-	trace_info_wp("\r\n-- ACT8945A - APCH Registers --\r\n");
+	printf("\r\n-- ACT8945A - APCH Registers --\r\n");
 
 //	if (!_act8945a_read_reg(act8945a, IADDR_APCH_70, &data))
 //		return;
-//	trace_info_wp(" - APCH @0x70: 0x%02x (reserved)\r\n", data);
+//	printf(" - APCH @0x70: 0x%02x (reserved)\r\n", data);
 
 	if (!_act8945a_read_reg(act8945a, IADDR_APCH_71, &apch71.u8))
 		return;
-	trace_info_wp(" - APCH @0x71: 0x%02x\r\n", apch71.u8);
-	trace_info_wp("     Charge Suspend Control Input:          %x\r\n",
+	printf(" - APCH @0x71: 0x%02x\r\n", apch71.u8);
+	printf("     Charge Suspend Control Input:          %x\r\n",
 			apch71.bits.suschg);
-	trace_info_wp("     Total Charge Time-out Selection:       %x\r\n",
+	printf("     Total Charge Time-out Selection:       %x\r\n",
 			apch71.bits.tottimo);
-	trace_info_wp("     Precondition Charge Time-out Sel:      %x\r\n",
+	printf("     Precondition Charge Time-out Sel:      %x\r\n",
 			apch71.bits.pretimo);
-	trace_info_wp("     Input Over-Volt Prot.Threshold Sel:    %x (%s)\r\n",
+	printf("     Input Over-Volt Prot.Threshold Sel:    %x (%s)\r\n",
 			apch71.bits.ovpset, _ovp_setting[apch71.bits.ovpset]);
 
 	if (!_act8945a_read_reg(act8945a, IADDR_APCH_78, &apch78.u8))
 		return;
-	trace_info_wp(" - APCH @0x78: 0x%02x\r\n", apch78.u8);
-	trace_info_wp("     Charge Time-out Interrupt Status:      %x\r\n",
+	printf(" - APCH @0x78: 0x%02x\r\n", apch78.u8);
+	printf("     Charge Time-out Interrupt Status:      %x\r\n",
 			apch78.bits.timrstat);
-	trace_info_wp("     Battery Temperature Interrupt Status:  %x\r\n",
+	printf("     Battery Temperature Interrupt Status:  %x\r\n",
 			apch78.bits.tempstat);
-	trace_info_wp("     Input Voltage Interrupt Status:        %x\r\n",
+	printf("     Input Voltage Interrupt Status:        %x\r\n",
 			apch78.bits.instat);
-	trace_info_wp("     Charge State Interrupt Status:         %x\r\n",
+	printf("     Charge State Interrupt Status:         %x\r\n",
 			apch78.bits.chgstat);
-	trace_info_wp("     Charge Timer Status                    %x\r\n",
+	printf("     Charge Timer Status                    %x\r\n",
 			apch78.bits.timrdat);
-	trace_info_wp("     Temperature Status                     %x\r\n",
+	printf("     Temperature Status                     %x\r\n",
 			apch78.bits.tempdat);
-	trace_info_wp("     Input Voltage Status                   %x\r\n",
+	printf("     Input Voltage Status                   %x\r\n",
 			apch78.bits.indat);
-	trace_info_wp("     Charge State Machine Status            %x\r\n",
+	printf("     Charge State Machine Status            %x\r\n",
 			apch78.bits.chgdat);
 
 	if (!_act8945a_read_reg(act8945a, IADDR_APCH_79, &apch79.u8))
 		return;
-	trace_info_wp(" - APCH @0x79: 0x%02x\r\n", apch79.u8);
-	trace_info_wp("     Total Charge Time-out Int Control:     %x\r\n",
+	printf(" - APCH @0x79: 0x%02x\r\n", apch79.u8);
+	printf("     Total Charge Time-out Int Control:     %x\r\n",
 			apch79.bits.timrtot);
-	trace_info_wp("     Batt.Temp.Int.Ctrl into valid range:   %x\r\n",
+	printf("     Batt.Temp.Int.Ctrl into valid range:   %x\r\n",
 			apch79.bits.tempin);
-	trace_info_wp("     Inp.Voltage Int.Ctrl into valid range: %x\r\n",
+	printf("     Inp.Voltage Int.Ctrl into valid range: %x\r\n",
 			apch79.bits.incon);
-	trace_info_wp("     Charge State Int Ctrl into EOC state:  %x\r\n",
+	printf("     Charge State Int Ctrl into EOC state:  %x\r\n",
 			apch79.bits.chgeocin);
-	trace_info_wp("     Precharge Time-out Int Ctrl:           %x\r\n",
+	printf("     Precharge Time-out Int Ctrl:           %x\r\n",
 			apch79.bits.timrpre);
-	trace_info_wp("     Batt.Temp.Int.Ctrl. out valid range:   %x\r\n",
+	printf("     Batt.Temp.Int.Ctrl. out valid range:   %x\r\n",
 			apch79.bits.tempout);
-	trace_info_wp("     Inp.Voltage Int.Ctrl. out valid range: %x\r\n",
+	printf("     Inp.Voltage Int.Ctrl. out valid range: %x\r\n",
 			apch79.bits.indis);
-	trace_info_wp("     Charge State Int.Ctrl. out EOC state:  %x\r\n",
+	printf("     Charge State Int.Ctrl. out EOC state:  %x\r\n",
 			apch79.bits.chgeocout);
 
 	if (!_act8945a_read_reg(act8945a, IADDR_APCH_7A, &apch7a.u8))
 		return;
-	trace_info_wp(" - APCH @0x7a: 0x%02x\r\n", apch7a.u8);
-	trace_info_wp("     Charge State:                          %x (%s)\r\n",
+	printf(" - APCH @0x7a: 0x%02x\r\n", apch7a.u8);
+	printf("     Charge State:                          %x (%s)\r\n",
 			apch7a.bits.cstate, _charging_states[apch7a.bits.cstate]);
-	trace_info_wp("     ACIN Status:                           %x\r\n",
+	printf("     ACIN Status:                           %x\r\n",
 			apch7a.bits.acinstat);
 }
 
@@ -852,28 +852,28 @@ void act8945a_display_system_registers(struct _act8945a *act8945a)
 	union _sys0 sys0;
 	union _sys1 sys1;
 
-	trace_info_wp("\r\n-- ACT8945A - System Registers --\r\n");
+	printf("\r\n-- ACT8945A - System Registers --\r\n");
 
 	if (!_act8945a_read_reg(act8945a, IADDR_SYS0, &sys0.u8))
 		return;
-	trace_info_wp(" - SYS0 @0x00: 0x%02x\r\n", sys0.u8);
-	trace_info_wp("     Reset Timer Setting:                   %s\r\n",
+	printf(" - SYS0 @0x00: 0x%02x\r\n", sys0.u8);
+	printf("     Reset Timer Setting:                   %s\r\n",
 			sys0.bits.trst ? "64ms" : "260ms");
-	trace_info_wp("     SYSLEV Mode Select:                    %s\r\n",
+	printf("     SYSLEV Mode Select:                    %s\r\n",
 			sys0.bits.nsysmode ?"int" : "shutdown");
-	trace_info_wp("     System Voltage Level Int.Mask:         %s\r\n",
+	printf("     System Voltage Level Int.Mask:         %s\r\n",
 			sys0.bits.nsyslevmsk ?"int" : "noint");
-	trace_info_wp("     System Voltage Status:                 %s\r\n",
+	printf("     System Voltage Status:                 %s\r\n",
 			sys0.bits.nsysstat ? "vsys<syslev" : "vsys>syslev");
-	trace_info_wp("     SYSLEV Failing Treshold value:         %dmV\r\n",
+	printf("     SYSLEV Failing Treshold value:         %dmV\r\n",
 			2300 + sys0.bits.syslev * 100);
 
 	if (!_act8945a_read_reg(act8945a, IADDR_SYS1, &sys1.u8))
 		return;
-	trace_info_wp(" - SYS1 @0x01: 0x%02x\r\n", sys1.u8);
-	trace_info_wp("     Master Off Ctrl, All regul:            %s\r\n",
+	printf(" - SYS1 @0x01: 0x%02x\r\n", sys1.u8);
+	printf("     Master Off Ctrl, All regul:            %s\r\n",
 			sys1.bits.mstroff ? "off" : "on");
-	trace_info_wp("     Scratchpad Bits, free user:            %x\r\n",
+	printf("     Scratchpad Bits, free user:            %x\r\n",
 			sys1.bits.scratch);
 }
 
@@ -883,7 +883,8 @@ void act8945a_display_charge_state(struct _act8945a *act8945a)
 	if (!_act8945a_read_reg(act8945a, IADDR_APCH_7A, &apch7a.u8)) return;
 
 	if (act8945a->apch7a != apch7a.u8) {
-		trace_info_wp(" Charge State: %x (%s)\r\n", apch7a.bits.cstate, _charging_states[apch7a.bits.cstate]);
+		printf(" Charge State: %x (%s)\r\n", apch7a.bits.cstate,
+				_charging_states[apch7a.bits.cstate]);
 		act8945a->apch7a = apch7a.u8;
 	}
 }
