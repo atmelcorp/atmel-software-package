@@ -218,31 +218,6 @@
 #define CHIP_CIDR   (0x8A5C08C0UL)
 #define CHIP_EXID   (0x00000002UL)
 
-/* ************************************************************************** */
-/*   ELECTRICAL DEFINITIONS FOR SAMA5D28 */
-/* ************************************************************************** */
-
-/* %ATMEL_ELECTRICAL% */
-
-/* Device characteristics */
-#define CHIP_FREQ_SLCK_RC_MIN           (20000UL)
-#define CHIP_FREQ_SLCK_RC               (32000UL)
-#define CHIP_FREQ_SLCK_RC_MAX           (44000UL)
-#define CHIP_FREQ_MAINCK_RC_4MHZ        (4000000UL)
-#define CHIP_FREQ_MAINCK_RC_8MHZ        (8000000UL)
-#define CHIP_FREQ_MAINCK_RC_12MHZ       (12000000UL)
-#define CHIP_FREQ_CPU_MAX               (120000000UL)
-#define CHIP_FREQ_XTAL_32K              (32768UL)
-#define CHIP_FREQ_XTAL_12M              (12000000UL)
-
-/* Embedded Flash Read Wait State (VDDCORE set at 1.20V) */
-#define CHIP_FREQ_FWS_0                 (20000000UL)  /**< \brief Maximum operating frequency when FWS is 0 */
-#define CHIP_FREQ_FWS_1                 (40000000UL)  /**< \brief Maximum operating frequency when FWS is 1 */
-#define CHIP_FREQ_FWS_2                 (60000000UL)  /**< \brief Maximum operating frequency when FWS is 2 */
-#define CHIP_FREQ_FWS_3                 (80000000UL)  /**< \brief Maximum operating frequency when FWS is 3 */
-#define CHIP_FREQ_FWS_4                 (100000000UL) /**< \brief Maximum operating frequency when FWS is 4 */
-#define CHIP_FREQ_FWS_5                 (123000000UL) /**< \brief Maximum operating frequency when FWS is 5 */
-
 #ifdef __cplusplus
 }
 #endif
