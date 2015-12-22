@@ -257,6 +257,12 @@ extern uint32_t get_tc_id_from_addr(const Tc* addr);
  */
 extern Tc* get_tc_addr_from_id(const uint32_t id);
 
+/**
+ * \brief retrieve EBI memory start from its Chip Select (CS)
+ * \return EBI memory start on success, 0 otherwise
+ */
+extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
+
 extern uint32_t get_gmac_id_from_addr(const Gmac* addr);
 
 /** \brief Returns the matrix on which the given peripheral is connected

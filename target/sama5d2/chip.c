@@ -317,6 +317,22 @@ void *get_qspi_mem_from_addr(const Qspi* addr)
 	else return NULL;
 }
 
+uint32_t get_ebi_addr_from_cs(uint32_t cs)
+{
+	switch (cs) {
+	case 0:
+		return EBI_CS0_ADDR;
+	case 1:
+		return EBI_CS1_ADDR;
+	case 2:
+		return EBI_CS2_ADDR;
+	case 3:
+		return EBI_CS3_ADDR;
+	default:
+		return 0;
+	}
+}
+
 uint32_t get_gmac_id_from_addr(const Gmac* addr)
 {
 	if (addr == (void*)GMAC0) return ID_GMAC0;

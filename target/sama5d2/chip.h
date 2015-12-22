@@ -329,6 +329,12 @@ uint32_t get_qspi_id_from_addr(const Qspi* addr);
 void *get_qspi_mem_from_addr(const Qspi* addr);
 
 /**
+ * \brief retrieve EBI memory start from its Chip Select (CS)
+ * \return EBI memory start on success, 0 otherwise
+ */
+extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
+
+/**
  * \brief retrieve GMAC ID from its base address
  * \return GMAC ID on success, ID_PERIPH_COUNT otherwise
  */
