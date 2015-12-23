@@ -73,8 +73,11 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "compiler.h"
 #include "chip.h"
 #include "peripherals/sha.h"
+
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -115,7 +118,7 @@ uint32_t sha_get_status(void)
 	return SHA->SHA_ISR;
 }
 
-void sha_set_input(uint32_t * data, uint8_t len)
+void sha_set_input(const uint32_t * data, uint8_t len)
 {
 	uint8_t i;
 	uint8_t num;
@@ -129,7 +132,18 @@ void sha_set_input(uint32_t * data, uint8_t len)
 
 void sha_get_output(uint32_t * data)
 {
-	uint8_t i;
-	for (i = 0; i < 16; i++)
+	uint32_t algo;
+	const uint8_t hash_size[5] = { 160 / 32, 256 / 32, 384 / 32,
+	    512 / 32, 224 / 32 };
+	uint8_t i, words;
+
+	algo = SHA->SHA_MR & SHA_MR_ALGO_Msk;
+	if (algo >= SHA_MR_ALGO_HMAC_SHA1)
+		algo = algo - SHA_MR_ALGO_HMAC_SHA1 + SHA_MR_ALGO_SHA1;
+	algo >>= SHA_MR_ALGO_Pos;
+	assert(algo < ARRAY_SIZE(hash_size));
+	words = hash_size[algo];
+
+	for (i = 0; i < words; i++)
 		data[i] = SHA->SHA_IODATAR[i];
 }

@@ -86,7 +86,7 @@ extern uint32_t sha_get_status(void);
  * \param data Pointer data block.
  * \param len 512/1024-bits block size
  */
-extern void sha_set_input(uint32_t * data, uint8_t len);
+extern void sha_set_input(const uint32_t * data, uint8_t len);
 
 /**
  * \brief Getread the resulting message digest and to write the second part of the message block when the
