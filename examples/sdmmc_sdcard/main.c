@@ -98,12 +98,14 @@
 #include "board.h"
 #include "chip.h"
 #include "trace.h"
+#include "plugin_sha.h"
 #include "misc/console.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
+#include "peripherals/l2cc.h"
 #include "libsdmmc/libsdmmc.h"
 #include "fatfs/src/ff.h"
 
@@ -153,7 +155,13 @@ static struct sdmmc_set drv0 = { 0 };
 static struct sdmmc_set drv1 = { 0 };
 
 /* Library instance data (a.k.a. SDCard driver instance) */
+#if USE_EXT_RAM
+SECTION(".region_ddr")
+#endif
 ALIGNED(L1_CACHE_BYTES) static sSdCard lib0 = { .pDrv = 0 };
+#if USE_EXT_RAM
+SECTION(".region_ddr")
+#endif
 ALIGNED(L1_CACHE_BYTES) static sSdCard lib1 = { .pDrv = 0 };
 
 /* Buffer dedicated to the SDMMC Driver. Refer to sdmmc_initialize(). */
@@ -183,13 +191,21 @@ ALIGNED(L1_CACHE_BYTES) static uint8_t data_buf[
  * Padding implemented below is valid as of FatFs Module R0.10b, with structure
  * packing kept disabled. Proper alignment is checked at runtime, anyway. */
 struct padded_fatfs { uint8_t padding[16]; FATFS fs; };
+#if USE_EXT_RAM
+SECTION(".region_ddr")
+#endif
 ALIGNED(L1_CACHE_BYTES) static struct padded_fatfs fs_header;
 
 /* File object.
  * Similarly to the main data buffer above, we need to align FIL::buf[] on
  * data cache lines. */
 struct padded_fil { uint8_t padding[28]; FIL file; };
+#if USE_EXT_RAM
+SECTION(".region_ddr")
+#endif
 ALIGNED(L1_CACHE_BYTES) static struct padded_fil f_header;
+
+static struct sha_set sha = { .count = 0 };
 
 static uint8_t slot;
 static bool use_dma;
@@ -255,6 +271,7 @@ static void initialize(void)
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
 	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
+	sha_plugin_initialize(&sha, use_dma);
 }
 
 static bool open_device(sSdCard *pSd)
@@ -348,6 +365,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 {
 	const TCHAR drive_path[] = { '0' + slot_ix, ':', '\0' };
 	const UINT buf_size = BLOCK_CNT_MAX * 512ul;
+	uint32_t hash[5] = { 0 };
 	TCHAR file_path[sizeof(drive_path) + sizeof(test_file_path)];
 	uint32_t file_size;
 	UINT len;
@@ -370,11 +388,22 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	for (file_size = 0, len = buf_size; res == FR_OK && len == buf_size;
 	    file_size += len) {
 		res = f_read(&f_header.file, data_buf, buf_size, &len);
-		if (res != FR_OK)
-			printf("Error %d while attempting to read file\n\r", res);
+		if (res == FR_OK) {
+			l2cc_clean_region((uint32_t)data_buf, (uint32_t)data_buf
+			    + len);
+			sha_plugin_feed(&sha, file_size == 0, len != buf_size,
+			    data_buf, len);
+		}
+		else
+			printf("Error %d while attempting to read file\n\r",
+			    res);
 	}
-	if (res == FR_OK)
-		printf("Read %lu bytes\n\r", file_size);
+	if (res == FR_OK) {
+		sha_plugin_get_hash(&sha, hash);
+		printf("Read %lu bytes. Their SHA-1 was %08lx%08lx%08lx%08lx"
+		    "%08lx.\n\r", file_size, hash[0], hash[1], hash[2], hash[3],
+		    hash[4]);
+	}
 
 	res = f_close(&f_header.file);
 	if (res != FR_OK) {
