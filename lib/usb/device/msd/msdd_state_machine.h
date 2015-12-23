@@ -128,9 +128,13 @@
  * command.
  *
  * \section Actions
+ * - MSDD_CASE_PHASE_ERROR
  * - MSDD_CASE_STALL_IN
  * - MSDD_CASE_STALL_OUT
  */
+
+/** \brief  Indicates that the CSW should report a phase error */
+#define MSDD_CASE_PHASE_ERROR       (1 << 0)
 
 /** \brief  The driver should halt the Bulk IN pipe after the transfer */
 #define MSDD_CASE_STALL_IN               (1 << 1)
@@ -149,11 +153,11 @@
  * - MSDD_NO_TRANSFER
  */
 /** Data transfer from device to host (READ) */
-#define MSDD_DEVICE_TO_HOST              0
+#define MSDD_DEVICE_TO_HOST              (1 << 3)
 /** Data transfer from host to device (WRITE) */
-#define MSDD_HOST_TO_DEVICE              1
+#define MSDD_HOST_TO_DEVICE              (1 << 4)
 /** No data transfer */
-#define MSDD_NO_TRANSFER                 2
+#define MSDD_NO_TRANSFER                    (1 << 5)
 /**      @}*/
 
 /*-----------------------------------------------------------------------------

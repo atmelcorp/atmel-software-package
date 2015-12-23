@@ -56,10 +56,12 @@ static void msd_driver_callback(void *arg, uint8_t status,
 		uint32_t transferred, uint32_t remaining)
 {
 	MSDTransfer *transfer = (MSDTransfer *)arg;
-	transfer->status = status;
-	transfer->transferred = transferred;
-	transfer->remaining = remaining;
-	transfer->semaphore++;
+	if (transfer->semaphore == 0) {
+		transfer->status = status;
+		transfer->transferred = transferred;
+		transfer->remaining = remaining;
+		transfer->semaphore++;
+	}
 }
 
 /**
@@ -124,18 +126,19 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 				/* Case 1  (Hn = Dn) */
 				command_state->postprocess = 0;
 				command_state->length = 0;
+				csw->bCSWStatus = MSD_CSW_COMMAND_PASSED;
 			} else if (device_type == MSDD_DEVICE_TO_HOST) {
 				/* Case 2  (Hn < Di) */
 				trace_warning("msdd_preprocess_command: Case 2\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_IN;
 				command_state->length = 0;
-				csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			} else {
 				/* Case 3  (Hn < Do) */
 				trace_warning("msdd_preprocess_command: Case 3\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_IN;
 				command_state->length = 0;
-				csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			}
 		} else if (host_type == MSDD_DEVICE_TO_HOST) {
 			if (device_type == MSDD_NO_TRANSFER) {
@@ -160,14 +163,15 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 					trace_warning("msdd_preprocess_command: Case 7\n\r");
 					command_state->postprocess = MSDD_CASE_STALL_IN;
 					command_state->length = host_length;
-					csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+					csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;;
 				}
 			} else {
 				/* Case 8  (Hi <> Do) */
 				trace_warning("msdd_preprocess_command: Case 8\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_IN;
 				command_state->length = 0;
-				csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+				csw->dCSWDataResidue = host_length;
+				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			}
 		} else if (host_type == MSDD_HOST_TO_DEVICE) {
 			if (device_type == MSDD_NO_TRANSFER) {
@@ -176,12 +180,14 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 				command_state->postprocess = MSDD_CASE_STALL_OUT;
 				command_state->length = 0;
 				csw->dCSWDataResidue = host_length;
+				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			} else if (device_type == MSDD_DEVICE_TO_HOST) {
 				/* Case 10 (Ho <> Di) */
 				trace_warning("msdd_preprocess_command: Case 10\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_OUT;
 				command_state->length = 0;
-				csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+				csw->dCSWDataResidue = host_length;
+				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			} else {
 				if (host_length > device_length) {
 					/* Case 11 (Ho > Do) */
@@ -198,7 +204,7 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 					trace_warning("msdd_preprocess_command: Case 13\n\r");
 					command_state->postprocess = MSDD_CASE_STALL_OUT;
 					command_state->length = host_length;
-					csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+					csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 				}
 			}
 		}
@@ -220,7 +226,15 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 static bool msdd_postprocess_command(MSDDriver *driver)
 {
 	MSDCommandState *command_state = &(driver->commandState);
+	MSCsw *csw = &(command_state->csw);
 	bool has_halted = false;
+
+	/* Set CSW status code to phase error ? */
+	if ((command_state->postprocess & MSDD_CASE_PHASE_ERROR) != 0) {
+
+		LIBUSB_TRACE("PhaseErr ");
+		csw->bCSWStatus = MSD_CSW_PHASE_ERROR;
+	}
 
 	/* STALL Bulk IN endpoint ? */
 	if ((command_state->postprocess & MSDD_CASE_STALL_IN) != 0) {
@@ -326,8 +340,6 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 		sbc_update_sense_data(&(lun->requestSenseData),
 				SBC_SENSE_KEY_NO_SENSE, 0, 0);
 
-		/* Result codes */
-		csw->bCSWStatus = MSD_CSW_COMMAND_PASSED;
 		break;
 	}
 
@@ -447,7 +459,7 @@ void msdd_state_machine(MSDDriver * driver)
 		/* Process command */
 		if (csw->bCSWStatus == MSD_CSW_COMMAND_PASSED) {
 			if (!msdd_process_command(driver)) {
-				// skip postprocess if processing failed
+				/* skip postprocess if processing failed */
 				LIBUSB_TRACE("<!>");
 				break;
 			}
@@ -469,7 +481,6 @@ void msdd_state_machine(MSDDriver * driver)
 		csw->dCSWSignature = MSD_CSW_SIGNATURE;
 
 		/* Start the CSW write operation */
-		transfer->semaphore = 0;
 		status = usbd_write(command_state->pipeIN, csw, MSD_CSW_SIZE,
 				msd_driver_callback, transfer);
 

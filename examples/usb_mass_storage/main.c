@@ -201,22 +201,22 @@ static const struct _pin sd_pins[] = SDMMC1_PINS;
  *----------------------------------------------------------------------------*/
 
 /* Driver instance data (a.k.a. SDCard driver instance) */
-static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC] = {0};
+static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC];
 
 /* Library instance data (a.k.a. SDCard library instance) */
-ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib[BOARD_NUM_SDMMC] = {0};
+ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib[BOARD_NUM_SDMMC];
 
 /** Device LUNs. */
 static MSDLun luns[MAX_LUNS];
 
 /** LUN read/write buffer. */
 SECTION(".region_ddr")
-ALIGNED(32)
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t ram_buffer[MSD_BUFFER_SIZE];
 
 /** LUN read/write buffer. */
 SECTION(".region_ddr")
-ALIGNED(32)
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t sd_buffer[BOARD_NUM_SDMMC][MSD_BUFFER_SIZE];
 
 
@@ -226,6 +226,7 @@ static bool use_dma;
 #if USE_EXT_RAM
 SECTION(".region_ddr")
 #endif
+ALIGNED(L1_CACHE_BYTES)
 static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 
 /** Total data write to disk */
