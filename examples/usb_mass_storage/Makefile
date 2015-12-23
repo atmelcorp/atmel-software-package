@@ -35,6 +35,7 @@ BINNAME = usb_mass_storage
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_MSD = y
 CONFIG_LIB_STORAGEMEDIA = y
+CONFIG_LIB_SDMMC = y
 
 obj-y += examples/usb_mass_storage/main.o
 obj-y += examples/usb_mass_storage/main_descriptors.o

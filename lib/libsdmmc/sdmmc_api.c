@@ -40,6 +40,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
+#include "compiler.h"
 #include "chip.h"
 #include "timer.h"
 #include "libsdmmc.h"
