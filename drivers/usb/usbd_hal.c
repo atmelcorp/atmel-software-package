@@ -1601,20 +1601,20 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 }
 
 /**
- * Wait until data is available for read
+ * Get the size of data is available for read or write
  * \param ep Endpoint number
+ * \return size of data available
  */
-void usbd_hal_wait_read_data(uint8_t ep)
+uint16_t usbd_hal_get_data_size(uint8_t ep)
 {
 	UdphsEpt *ept = &UDPHS->UDPHS_EPT[ep];
 	uint32_t status;
 	uint16_t size;
-
-	do {
-		status = ept->UDPHS_EPTSTA;
-		size = (uint16_t)((status & UDPHS_EPTSTA_BYTE_COUNT_Msk)
+	
+	status = ept->UDPHS_EPTSTA;
+	size = (uint16_t)((status & UDPHS_EPTSTA_BYTE_COUNT_Msk)
 				>> UDPHS_EPTSTA_BYTE_COUNT_Pos);
-	} while (size == 0);
+	return size;
 }
 
 /**

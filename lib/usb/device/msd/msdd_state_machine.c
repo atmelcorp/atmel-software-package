@@ -391,10 +391,13 @@ void msdd_state_machine(MSDDriver * driver)
 			LIBUSB_TRACE("<WR!>");
 			break;
 		}
-
+		
+		if (!usbd_get_data_size(command_state->pipeOUT)) {
+			LIBUSB_TRACE("<NoData!>");
+			break;
+		}
 		/* Start the CBW read operation */
 		transfer->semaphore = 0;
-		usbd_wait_read_data(command_state->pipeOUT);
 		status = usbd_read(command_state->pipeOUT, cbw, MSD_CBW_SIZE,
 				msd_driver_callback, transfer);
 

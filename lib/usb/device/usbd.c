@@ -194,12 +194,13 @@ uint8_t usbd_write(uint8_t endpoint, const void *data, uint32_t length,
 }
 
 /**
- * Wait until data is available for read
+ * Get the size of data is available for read or write
  * \param ep Endpoint number
+ * \return size of data available
  */
-void usbd_wait_read_data(uint8_t endpoint)
+uint16_t usbd_get_data_size(uint8_t endpoint)
 {
-	usbd_hal_wait_read_data(endpoint);
+	 return usbd_hal_get_data_size(endpoint);
 }
 
 /**
