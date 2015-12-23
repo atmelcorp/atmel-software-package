@@ -74,6 +74,7 @@ const static struct _l2cc_control l2cc_cfg = {
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef BOARD_DDRAM_TYPE
 static void matrix_configure_slave_ddr(void)
 {
 	int i;
@@ -97,6 +98,7 @@ static void matrix_configure_slave_ddr(void)
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
 	}
 }
+#endif
 
 #ifdef CONFIG_HAVE_NANDFLASH
 static void matrix_configure_slave_nand(void)
@@ -341,17 +343,27 @@ void board_cfg_l2cc(void)
 
 void board_cfg_ddram(void)
 {
+#ifdef BOARD_DDRAM_TYPE
 	matrix_configure_slave_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
+#else
+	trace_fatal("Cannot configure DDRAM: target board have no DDRAM type definition!");
+#endif
 }
 
 #ifdef CONFIG_HAVE_NANDFLASH
 void board_cfg_nand_flash(void)
 {
+#if defined(BOARD_NANDFLASH_PINS) && defined(BOARD_NANDFLASH_BUS_WIDTH)
 	matrix_configure_slave_nand();
-	hsmc_nand_configure(BOARD_NANDFLASH_CS, BOARD_NANDFLASH_BUS_WIDTH);
+	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
+	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
+	hsmc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
+#else
+	trace_fatal("Cannot configure NAND: target board have no NAND definitions!");
+#endif
 }
 #endif
 

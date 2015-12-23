@@ -59,38 +59,15 @@
 #include "nand_flash_raw.h"
 
 /*---------------------------------------------------------------------- */
-/*         Types                                                         */
-/*---------------------------------------------------------------------- */
-
-struct _ecc_nand_flash {
-	struct _raw_nand_flash raw;
-};
-
-/*---------------------------------------------------------------------- */
 /*         Exported functions                                            */
 /*---------------------------------------------------------------------- */
 
-extern uint8_t nand_ecc_initialize(
-		struct _ecc_nand_flash *ecc,
-		const struct _nand_flash_model *model,
-		uint32_t command_address,
-		uint32_t address_address,
-		uint32_t data_address,
-		const struct _pin *pin_chip_enable,
-		const struct _pin *pin_ready_busy);
+extern uint8_t nand_ecc_read_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
-extern uint8_t nand_ecc_read_page(
-		const struct _ecc_nand_flash *ecc,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
-
-extern uint8_t nand_ecc_write_page(
-		const struct _ecc_nand_flash *ecc,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
+extern uint8_t nand_ecc_write_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
 #endif /* NAND_FLASH_ECC_H */

@@ -59,32 +59,8 @@
 #include <stdint.h>
 
 #include "peripherals/pio.h"
-#include "nand_flash_model.h"
 
-/*------------------------------------------------------------------------------ */
-/*         Types                                                                 */
-/*------------------------------------------------------------------------------ */
-
-/** Describes a physical NandFlash chip connected to the SAM micro-controller. */
-struct _raw_nand_flash {
-	/** Model describing this NandFlash characteristics. */
-	struct _nand_flash_model model;
-
-	/** Address for sending commands to the NandFlash. */
-	uint32_t command_addr;
-
-	/** Address for sending addresses to the NandFlash */
-	uint32_t address_addr;
-
-	/** Address for sending data to the NandFlash. */
-	uint32_t data_addr;
-
-	/** Pin used to enable the NandFlash chip. */
-	struct _pin pin_chip_enable;
-
-	/** Pin used to monitor the ready/busy signal from the NandFlash. */
-	struct _pin pin_ready_busy;
-};
+#include "nand_flash.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -115,9 +91,6 @@ struct _raw_nand_flash {
 
 #define ENABLE_CE(raw)
 #define DISABLE_CE(raw)
-
-/** Internal cast macros */
-#define MODEL(raw)  ((struct _nand_flash_model *) raw)
 
 /** Number of tries for erasing a block */
 #define NUMERASETRIES 2
@@ -155,48 +128,29 @@ struct _raw_nand_flash {
 /*         Exported functions                                                    */
 /*------------------------------------------------------------------------------ */
 
-extern uint8_t nand_raw_initialize(
-		struct _raw_nand_flash *raw,
-		const struct _nand_flash_model *model,
-		uint32_t command_addr,
-		uint32_t address_addr,
-		uint32_t data_addr,
-		const struct _pin *pin_chip_enable,
-		const struct _pin *pin_ready_busy);
+extern uint8_t nand_raw_initialize(struct _nand_flash *nand,
+		const struct _nand_flash_model *model);
 
-extern void nand_raw_reset(const struct _raw_nand_flash *raw);
+extern void nand_raw_reset(const struct _nand_flash *nand);
 
-extern uint32_t nand_raw_read_id(const struct _raw_nand_flash *raw);
+extern uint32_t nand_raw_read_id(const struct _nand_flash *nand);
 
-extern uint8_t nand_raw_erase_block(
-		const struct _raw_nand_flash *raw,
+extern uint8_t nand_raw_erase_block(const struct _nand_flash *nand,
 		uint16_t block);
 
-extern uint8_t nand_raw_read_page(
-		const struct _raw_nand_flash *raw,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
+extern uint8_t nand_raw_read_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
-extern uint8_t nand_raw_write_page(
-		const struct _raw_nand_flash *raw,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
+extern uint8_t nand_raw_write_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
-extern uint8_t nand_raw_copy_page(
-		const struct _raw_nand_flash *raw,
-		uint16_t source_block,
-		uint16_t source_page,
-		uint16_t dest_block,
-		uint16_t destPage);
+extern uint8_t nand_raw_copy_page(const struct _nand_flash *nand,
+		uint16_t source_block, uint16_t source_page,
+		uint16_t dest_block, uint16_t dest_page);
 
-extern uint8_t nand_raw_copy_block(
-		const struct _raw_nand_flash *raw,
-		uint16_t source_block,
-		uint16_t dest_block);
-
+extern uint8_t nand_raw_copy_block(const struct _nand_flash *nand,
+		uint16_t source_block, uint16_t dest_block);
 
 #endif /* NAND_FLASH_RAW_H */

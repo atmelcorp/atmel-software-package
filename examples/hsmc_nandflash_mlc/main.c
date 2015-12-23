@@ -116,8 +116,7 @@
 #include "peripherals/pmecc_gallois_field_512.h"
 #include "peripherals/xdmad.h"
 
-#include "memories/nand-flash/nand_flash_api.h"
-#include "memories/nand-flash/nand_flash_common.h"
+#include "memories/nand-flash/nand_flash.h"
 #include "memories/nand-flash/nand_flash_skip_block.h"
 #include "memories/nand-flash/nand_flash_spare_scheme.h"
 #include "memories/nand-flash/nand_flash_model_list.h"
@@ -157,18 +156,15 @@ static uint32_t page_size;
 static uint32_t spare_size;
 
 /** Nandflash device structure.*/
-static struct _skip_block_nand_flash skip_block_nand;
+static struct _nand_flash nand;
 
 /** Nandflash device structure. */
-static struct _nand_flash_model model_list_from_onfi;
+static struct _nand_flash_model model_from_onfi;
 
-static uint8_t nfc_enabled = 0;
-static uint8_t nfc_sram_enabled = 0;
-static uint8_t dma_enabled = 0;
+static bool nfc_enabled = false;
+static bool nfc_sram_enabled = false;
+static bool dma_enabled = false;
 static uint8_t ecc_type = ECC_PMECC;
-
-/** Pins used to access to nandflash.*/
-static const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
 
 /** Number of bits of ECC correction */
 static uint8_t onfi_ecc_correctability = 0xFF;
@@ -261,8 +257,10 @@ static void _hsmc_configure(uint8_t mode)
 		break;
 	}
 
-	nand_api_configure(ecc_type, nfc_enabled,
-			nfc_sram_enabled, dma_enabled);
+	nand_set_ecc_type(ecc_type);
+	nand_set_nfc_enabled(nfc_enabled);
+	nand_set_nfc_sram_enabled(nfc_sram_enabled);
+	nand_set_dma_enabled(dma_enabled);
 }
 
 /**
@@ -275,17 +273,17 @@ static void _page_access(void)
 	pmecc_initialize(sector_idx,correctability,
 			page_size, spare_size, 0, 0);
 
-	printf("-I- Erase block\n\r");
-	nand_skipblock_erase_block(&skip_block_nand, block,
-			SCRUB_ERASE);
+	printf("-I- Erase block %u\n\r", block);
+	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
+
+	printf("-I- Write block %u page %u\n\r", block, page);
 	memcpy(page_buffer, pattern_buffer, page_size);
-	nand_skipblock_write_page(&skip_block_nand, block,
-			page, page_buffer, 0);
+	nand_skipblock_write_page(&nand, block, page, page_buffer, 0);
 
+	printf("-I- Read block %u page %u\n\r", block, page);
 	memset(page_buffer, 0, page_size);
+	nand_skipblock_read_page(&nand, block, page, page_buffer, 0);
 
-	nand_skipblock_read_page(&skip_block_nand, block,
-			page, page_buffer, 0);
 	for (i = 0; i < page_size; i++) {
 		if (pattern_buffer[i] != page_buffer[i])
 			break;
@@ -299,9 +297,9 @@ static void _page_access(void)
 
 /**
  * \brief Check is the pmecc parameter header is valid
-  \return 1 if the pmecc parameter header is valid; otherwise returns 0
+  \return true if the pmecc parameter header is valid; otherwise returns false
  */
-static uint32_t is_valid_pmecc_param(void)
+static bool is_valid_pmecc_param(void)
 {
 	uint32_t mm, ecc_size_bytes, sector_size_per_page;
 
@@ -315,7 +313,7 @@ static uint32_t is_valid_pmecc_param(void)
 
 	sector_size_per_page = page_size / sector_size;
 	if (sector_size_per_page > 8)
-		return 0;
+		return false;
 
 	mm = sector_idx == 0 ? 13 : 14;
 	if (((mm * correctability) % 8) == 0) {
@@ -325,9 +323,9 @@ static uint32_t is_valid_pmecc_param(void)
 	}
 
 	if (ecc_size_bytes > (spare_size - 2))
-		return 0;
+		return false;
 
-	return 1;
+	return true;
 }
 
 /**
@@ -446,7 +444,7 @@ static void _loop_main(void)
 	uint8_t key;
 
 	ecc_type = ECC_PMECC;
-	nand_api_configure_ecc(ecc_type);
+	nand_set_ecc_type(ecc_type);
 	_configure_correction(1);
 
 	for (;;) {
@@ -513,7 +511,7 @@ static void _loop_main(void)
 int main(void)
 {
 	uint32_t i, j;
-	uint8_t onficompatible = 0;
+	bool onficompatible = false;
 
 	/* Disable watchdog */
 	wdt_disable();
@@ -530,82 +528,86 @@ int main(void)
 	board_cfg_nand_flash();
 	xdmad_initialize(true);
 	nand_dma_configure();
-	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
+	nand_initialize(&nand, NULL);
 
-	if (!nand_onfi_device_detect()) {
+	if (!nand_onfi_device_detect(&nand)) {
 		printf("\tDevice Unknown\n\r");
 		while (1);
 	}
 
-	if (nand_onfi_is_compatible()) {
+	if (nand_onfi_check_compatibility(&nand)) {
 		printf("\tOpen NAND Flash Interface (ONFI)-compliant\n\r");
-		model_list_from_onfi.device_id =
+
+		model_from_onfi.device_id =
 			nand_onfi_get_manufacturer_id();
-		model_list_from_onfi.options =
+
+		model_from_onfi.options =
 			nand_onfi_get_bus_width() ? NANDFLASHMODEL_DATABUS16 : NANDFLASHMODEL_DATABUS8;
-		model_list_from_onfi.page_size_in_bytes =
+
+		model_from_onfi.page_size_in_bytes =
 			nand_onfi_get_page_size();
-		model_list_from_onfi.spare_size_in_bytes =
+
+		model_from_onfi.spare_size_in_bytes =
 			nand_onfi_get_spare_size();
-		model_list_from_onfi.device_size_in_mega_bytes =
+
+		model_from_onfi.device_size_in_mega_bytes =
 			((nand_onfi_get_pages_per_block() * nand_onfi_get_blocks_per_lun()) / 1024) *
 			nand_onfi_get_page_size() / 1024;
-		model_list_from_onfi.block_size_in_kbytes =
+
+		model_from_onfi.block_size_in_kbytes =
 			(nand_onfi_get_pages_per_block() * nand_onfi_get_page_size()) / 1024;
-		onfi_ecc_correctability = nand_onfi_get_ecc_correctability();
-		onfi_ecc_correctability = 0xFF ? 2 : onfi_ecc_correctability;
+
+		onfi_ecc_correctability =
+			nand_onfi_get_ecc_correctability();
+		onfi_ecc_correctability =
+			onfi_ecc_correctability == 0xFF ? 32 : onfi_ecc_correctability;
 
 		switch (nand_onfi_get_page_size()) {
 		case 256:
-			model_list_from_onfi.scheme = &nand_spare_scheme256;
+			model_from_onfi.scheme = &nand_spare_scheme256;
 			break;
 		case 512:
-			model_list_from_onfi.scheme = &nand_spare_scheme512;
+			model_from_onfi.scheme = &nand_spare_scheme512;
 			break;
 		case 2048:
-			model_list_from_onfi.scheme = &nand_spare_scheme2048;
+			model_from_onfi.scheme = &nand_spare_scheme2048;
 			break;
 		case 4096:
-			model_list_from_onfi.scheme = &nand_spare_scheme4096;
+			model_from_onfi.scheme = &nand_spare_scheme4096;
 			break;
 		case 8192:
-			model_list_from_onfi.scheme = &nand_spare_scheme8192;
+			model_from_onfi.scheme = &nand_spare_scheme8192;
 			break;
 		}
-		onficompatible = 1;
+		onficompatible = true;
 	}
 
-	nand_onfi_disable_internal_ecc();
-	memset(&skip_block_nand, 0, sizeof(skip_block_nand));
-	if (nand_skipblock_initialize(&skip_block_nand,
-				(onficompatible ? &model_list_from_onfi : 0),
-				BOARD_NF_COMMAND_ADDR,
-				BOARD_NF_ADDRESS_ADDR,
-				BOARD_NF_DATA_ADDR,
-				NULL, NULL)) {
+	nand_onfi_disable_internal_ecc(&nand);
+
+	if (nand_raw_initialize(&nand, onficompatible ? &model_from_onfi : NULL)) {
 		printf("-E- Device Unknown\n\r");
 		return 0;
 	}
 
+	nand_skipblock_initialize(&nand);
+
 	/* Get device parameters */
-	page_size = nand_model_get_page_data_size(
-			&skip_block_nand.ecc.raw.model);
-	spare_size = nand_model_get_page_spare_size(
-			&skip_block_nand.ecc.raw.model);
+	page_size = nand_model_get_page_data_size(&nand.model);
+	spare_size = nand_model_get_page_spare_size(&nand.model);
 	printf("-I- Size of the data area of a page in bytes: 0x%x\n\r",
 			(unsigned)page_size);
 
+	/* Generate page of pattern data to be test */
 	block = 3;
 	page = 0;
-	/* Generate page of pattern data to be test */
 	for (i = 0; i < page_size / PATTERN_SIZE; i++) {
 		for (j = 0; j < PATTERN_SIZE; j++)
 			pattern_buffer[i * PATTERN_SIZE + j] =
 				(((pattern[j] + i) % 0xff));
 	}
 
-	nand_api_configure(ecc_type, nfc_enabled,
-			nfc_sram_enabled, dma_enabled);
+	/* setup using current configuration */
+	_hsmc_configure(-1);
 
 	/* Display menu */
 	_display_menu();

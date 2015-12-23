@@ -56,35 +56,36 @@
  * \return 0 if a matching model has been found; otherwise it
  * returns NAND_ERROR_UNKNOWNMODEL.
 */
-uint8_t nand_model_find(
-	const struct _nand_flash_model *model_list,
-	uint32_t size,
-	uint32_t chip_id,
-	struct _nand_flash_model *model)
+uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size,
+	uint32_t chip_id, struct _nand_flash_model *model)
 {
-	uint8_t found = 0, id2, id4;
-	uint32_t i;
+	bool found = false;
+	uint8_t id2, id4;
+	int i;
 
-	id2 = (uint8_t)(chip_id>>8);
-	id4 = (uint8_t)(chip_id>>24);
+	id2 = (chip_id >> 8) & 0xff;
+	id4 = (chip_id >> 24) & 0xff;
 
-	trace_info("Nandflash ID is 0x%08X\n\r", (unsigned int)chip_id);
+	trace_info_wp("Nandflash ID is 0x%08X\r\n", (unsigned int)chip_id);
 
-	for (i = 0; i < size; i++) {
-		if (model_list[i].device_id == id2) {
-			found = 1;
+	for (i = 0; i < list_size; i++) {
+		if (list[i].device_id == id2) {
+			found = true;
 			if (model) {
-				memcpy(model, &model_list[i],
-						sizeof(struct _nand_flash_model));
+				memcpy(model, &list[i], sizeof(*model));
 				if (model->block_size_in_kbytes == 0 ||
 					model->page_size_in_bytes == 0) {
-					trace_debug("Fetch from ID4(0x%.2x):\r\n", id4);
-					/* Fetch from the extended ID4
-					* ID4 D5  D4 BlockSize || D1  D0  PageSize
-					*     0   0   64K      || 0   0   1K
-					*     0   1   128K     || 0   1   2K
-					*     1   0   256K     || 1   0   4K
-					*     1   1   512K     || 1   1   8k */
+					trace_debug_wp("Fetch from ID4(0x%.2x):\r\n", id4);
+
+					/*
+					 * Fetch from the extended ID4
+					 * ID4 D5  D4 BlockSize || D1  D0  PageSize
+					 *     0   0   64K      || 0   0   1K
+					 *     0   1   128K     || 0   1   2K
+					 *     1   0   256K     || 1   0   4K
+					 *     1   1   512K     || 1   1   8k
+					 */
+
 					switch(id4 & 0x03) {
 					case 0x00:
 						model->page_size_in_bytes = 1024;
@@ -99,6 +100,7 @@ uint8_t nand_model_find(
 						model->page_size_in_bytes = 8192;
 						break;
 					}
+
 					switch(id4 & 0x30) {
 					case 0x00:
 						model->block_size_in_kbytes = 64;
@@ -115,20 +117,23 @@ uint8_t nand_model_find(
 					}
 				}
 			}
-			trace_debug("NAND Model found:\r\n");
-			trace_debug(" * deviceId = 0x%02X\r\n", model->device_id);
-			trace_debug(" * deviceSizeInMegaBytes = %d\r\n",
-						model->device_size_in_mega_bytes);
-			trace_debug(" * blockSizeInkBytes = %d\r\n",
-						model->block_size_in_kbytes);
-			trace_debug(" * pageSizeInBytes = %d\r\n",
-						model->page_size_in_bytes);
-			trace_debug(" * options = 0x%02X\r\n", model->options);
+
+			trace_debug_wp("NAND Model found:\r\n");
+			trace_debug_wp(" * deviceId = 0x%02X\r\n",
+					model->device_id);
+			trace_debug_wp(" * deviceSizeInMegaBytes = %d\r\n",
+					model->device_size_in_mega_bytes);
+			trace_debug_wp(" * blockSizeInkBytes = %d\r\n",
+					model->block_size_in_kbytes);
+			trace_debug_wp(" * pageSizeInBytes = %d\r\n",
+					model->page_size_in_bytes);
+			trace_debug_wp(" * options = 0x%02X\r\n",
+					model->options);
 			break;
 		}
 	}
 
-	// Check if chip has been detected
+	// check if chip has been detected
 	if (found)
 		return 0;
 	else
@@ -148,17 +153,14 @@ uint8_t nand_model_find(
  * \return 0 if the access is correct; otherwise returns
  * NAND_ERROR_OUTOFBOUNDS.
 */
-uint8_t nand_model_translate_access(
-	const struct _nand_flash_model *model,
-	uint32_t address,
-	uint32_t size,
-	uint16_t *block,
-	uint16_t *page,
-	uint16_t *offset)
+uint8_t nand_model_translate_access(const struct _nand_flash_model *model,
+	uint32_t address, uint32_t size,
+	uint16_t *block, uint16_t *page, uint16_t *offset)
 {
 	/* Get Nand info */
 	uint32_t block_size = nand_model_get_block_size_in_bytes(model);
 	uint32_t page_size = nand_model_get_page_data_size(model);
+
 	/* Translate address */
 	uint16_t tmp_block = address / block_size;
 	address -= tmp_block * block_size;
@@ -168,9 +170,7 @@ uint8_t nand_model_translate_access(
 
 	 /* Check that access is not too big */
 	if ((address + size) > nand_model_get_device_size_in_bytes(model)) {
-
-		trace_debug(
-				"nand_model_translate_access: out-of-bounds access.\n\r");
+		trace_debug("nand_model_translate_access: out-of-bounds access.\r\n");
 		return NAND_ERROR_OUTOFBOUNDS;
 	}
 
@@ -181,6 +181,7 @@ uint8_t nand_model_translate_access(
 		*page = tmp_page;
 	if (offset)
 		*offset = tmp_offset;
+
 	return 0;
 }
 
@@ -189,8 +190,8 @@ uint8_t nand_model_translate_access(
  * model.
  * \param model  Pointer to a _nand_flash_model instance.
  */
-const struct _nand_spare_scheme * nand_model_get_scheme(
-	const struct _nand_flash_model *model)
+const struct _nand_spare_scheme *nand_model_get_scheme(
+		const struct _nand_flash_model *model)
 {
 	return model->scheme;
 }
@@ -199,8 +200,7 @@ const struct _nand_spare_scheme * nand_model_get_scheme(
  * \brief Returns the device ID of a particular NANDFLASH model.
  * \param model  Pointer to a _nand_flash_model instance.
  */
-uint8_t nand_model_get_device_id(
-   const struct _nand_flash_model *model)
+uint8_t nand_model_get_device_id(const struct _nand_flash_model *model)
 {
 	return model->device_id;
 }
@@ -210,11 +210,10 @@ uint8_t nand_model_get_device_id(
  * \param model  Pointer to a _nand_flash_model instance.
  */
 uint16_t nand_model_get_device_size_in_blocks(
-   const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
-	return (
-		1024 * model->device_size_in_mega_bytes)
-			/ model->block_size_in_kbytes;
+	return (1024 * model->device_size_in_mega_bytes)
+		/ model->block_size_in_kbytes;
 }
 
 /**
@@ -222,32 +221,32 @@ uint16_t nand_model_get_device_size_in_blocks(
  * \param model  Pointer to a _nand_flash_model instance.
 */
 uint32_t nand_model_get_device_size_in_pages(
-   const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
-	return (uint32_t) nand_model_get_device_size_in_blocks(model)
-		   * nand_model_get_block_size_in_pages(model);
+	return (uint32_t)nand_model_get_device_size_in_blocks(model)
+		* nand_model_get_block_size_in_pages(model);
 }
 
 /**
- * \brief Returns the size of the whole device in bytes (this does not include the
- * size of the spare zones).
+ * \brief Returns the size of the whole device in bytes (this does not include
+ * the size of the spare zones).
  * \param model  Pointer to a _nand_flash_model instance.
 */
 uint64_t nand_model_get_device_size_in_bytes(
-						const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
-	return ((uint64_t) model->device_size_in_mega_bytes) << 20;
+	return ((uint64_t)model->device_size_in_mega_bytes) << 20;
 }
 
 /**
- * \brief Returns the size of the whole device in Mega bytes (this does not include the
- * size of the spare zones).
+ * \brief Returns the size of the whole device in Mega bytes (this does not
+ * include the size of the spare zones).
  * \param model  Pointer to a _nand_flash_model instance.
  */
 uint32_t nand_model_get_device_size_in_mbytes(
-				const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
-	return ((uint32_t) model->device_size_in_mega_bytes);
+	return model->device_size_in_mega_bytes;
 }
 
 /**
@@ -255,18 +254,18 @@ uint32_t nand_model_get_device_size_in_mbytes(
  * \param model  Pointer to a _nand_flash_model instance.
 */
 uint16_t nand_model_get_block_size_in_pages(
-   const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
 	return model->block_size_in_kbytes * 1024 / model->page_size_in_bytes;
 }
 
 /**
- * \brief Returns the size in bytes of one single block of a device. This does not
- * take into account the spare zones size.
+ * \brief Returns the size in bytes of one single block of a device. This does
+ * not take into account the spare zones size.
  * \param model  Pointer to a _nand_flash_model instance.
 */
 uint32_t nand_model_get_block_size_in_bytes(
-   const struct _nand_flash_model *model)
+		const struct _nand_flash_model *model)
 {
 	return model->block_size_in_kbytes * 1024;
 }
@@ -275,8 +274,7 @@ uint32_t nand_model_get_block_size_in_bytes(
  * \brief Returns the size of the data area of a page in bytes.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint32_t nand_model_get_page_data_size(
-   const struct _nand_flash_model *model)
+uint32_t nand_model_get_page_data_size(const struct _nand_flash_model *model)
 {
 	return model->page_size_in_bytes;
 }
@@ -285,14 +283,13 @@ uint32_t nand_model_get_page_data_size(
  * \brief Returns the size of the spare area of a page in bytes.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint16_t nand_model_get_page_spare_size(
-   const struct _nand_flash_model *model)
+uint16_t nand_model_get_page_spare_size(const struct _nand_flash_model *model)
 {
 	if (model->spare_size_in_bytes) {
 		return model->spare_size_in_bytes;
-	}
-	else {
-		return (model->page_size_in_bytes >> 5); /* Spare size is 16/512 of data size */
+	} else {
+		/* Spare size is 16/512 of data size */
+		return model->page_size_in_bytes >> 5;
 	}
 }
 
@@ -300,11 +297,9 @@ uint16_t nand_model_get_page_spare_size(
  * \brief Returns the number of bits used by the data bus of a NandFlash device.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint8_t nand_model_get_data_bus(
-   const struct _nand_flash_model *model)
+uint8_t nand_model_get_data_bus(const struct _nand_flash_model *model)
 {
-
-	return (model->options&NANDFLASHMODEL_DATABUS16)? 16: 8;
+	return model->options & NANDFLASHMODEL_DATABUS16 ? 16 : 8;
 }
 
 /**
@@ -312,19 +307,17 @@ uint8_t nand_model_get_data_bus(
  * command set; otherwise returns 0.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint8_t nand_model_has_small_blocks(
-   const struct _nand_flash_model *model)
+bool nand_model_has_small_blocks(const struct _nand_flash_model *model)
 {
-	return (model->page_size_in_bytes <= 512 )? 1: 0;
+	return model->page_size_in_bytes <= 512 ? 1 : 0;
 }
 
 /**
- * \brief Returns 1 if the device supports the copy-back operation. Otherwise returns
- * 0.
+ * \brief Returns 1 if the device supports the copy-back operation. Otherwise
+ * returns 0.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint8_t nand_model_supports_copy_back(
-	const struct _nand_flash_model *model)
+bool nand_model_supports_copy_back(const struct _nand_flash_model *model)
 {
-	return ((model->options & NANDFLASHMODEL_COPYBACK) != 0);
+	return (model->options & NANDFLASHMODEL_COPYBACK) != 0;
 }

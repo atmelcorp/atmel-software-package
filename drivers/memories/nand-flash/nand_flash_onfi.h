@@ -35,6 +35,7 @@
 /*------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------- */
 /*         Definitions                                                    */
@@ -61,7 +62,7 @@
 /** Describes memory organization block information in ONFI parameter page */
 struct _onfi_page_param {
 	/** ONFI compatible */
-	uint8_t onfi_compatible;
+	bool onfi_compatible;
 
 	/** JEDEC manufacturer ID */
 	uint8_t manufacturer_id;
@@ -95,15 +96,15 @@ struct _onfi_page_param {
 /*         Exported functions                                           */
 /*--------------------------------------------------------------------- */
 
-extern uint8_t nand_onfi_device_detect(void);
+extern bool nand_onfi_device_detect(const struct _nand_flash *nand);
 
-extern uint8_t nand_onfi_is_compatible(void);
+extern bool nand_onfi_check_compatibility(const struct _nand_flash *nand);
 
-extern uint8_t nand_onfi_enable_internal_ecc(void);
+extern bool nand_onfi_enable_internal_ecc(const struct _nand_flash *nand);
 
-extern uint8_t nand_onfi_disable_internal_ecc(void);
+extern bool nand_onfi_disable_internal_ecc(const struct _nand_flash *nand);
 
-extern uint8_t nand_onfi_compatible(void);
+extern bool nand_onfi_is_compatible(void);
 
 extern uint8_t nand_onfi_get_manufacturer_id(void);
 

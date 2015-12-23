@@ -41,8 +41,12 @@
 /*------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "nand_flash_common.h"
+#include "nand_flash_model.h"
+
+#include "peripherals/pio.h"
 
 /*------------------------------------------------------------------------*/
 /*                      Type                                              */
@@ -56,34 +60,66 @@ enum {
 	ECC_HSIAO     /** Error correction with HSIAO (sama5d3) algorithm */
 };
 
-struct _nand_hsmc_api {
-	uint8_t ecc_type;
-	uint8_t nfc_enabled;
-	uint8_t nfc_sram_enabled;
-	uint8_t dma_enabled;
-};
+/** Describes a physical NandFlash chip connected to the SAM micro-controller. */
+struct _nand_flash {
+	/** Model describing this NandFlash characteristics. */
+	struct _nand_flash_model model;
 
+	/** Address for sending data to the NandFlash. */
+	uint32_t data_addr;
+
+	/** Pin used to monitor the ready/busy signal from the NandFlash. */
+	struct _pin pin_ready_busy;
+};
 /*--------------------------------------------------------------------------
 *                        Export functions
 *-------------------------------------------------------------------------*/
 
-extern uint8_t nand_api_use_pmecc(void);
+extern uint8_t nand_initialize(struct _nand_flash *nand,
+		const struct _pin *pin_ready_busy);
 
-extern uint8_t nand_api_use_software_ecc(void);
+extern void nand_write_command(const struct _nand_flash *nand,
+		uint8_t command);
 
-extern uint8_t nand_api_use_hasio_ecc(void);
+extern void nand_write_command16(const struct _nand_flash *nand,
+		uint16_t command);
 
-extern uint8_t nand_api_no_ecc(void);
+extern void nand_write_address(const struct _nand_flash *nand,
+		uint8_t address);
 
-extern uint8_t nand_api_nfc_enabed(void);
+extern void nand_write_address16(const struct _nand_flash *nand,
+		uint16_t address);
 
-extern uint8_t nand_api_nfc_sram_enabed(void);
+extern void nand_write_data(const struct _nand_flash *nand,
+		uint8_t data);
 
-extern uint8_t nand_api_dma_enabed(void);
+extern void nand_write_data16(const struct _nand_flash *nand,
+		uint16_t data);
 
-extern void nand_api_configure(uint8_t ecc_type, uint8_t nfc_enabled,
-		uint8_t nfc_sram_enabled, uint8_t dma_enabled);
+extern uint8_t nand_read_data(const struct _nand_flash *nand);
 
-extern void nand_api_configure_ecc(uint8_t ecc_type);
+extern uint16_t nand_read_data16(const struct _nand_flash *nand);
+
+extern void nand_set_ecc_type(uint8_t ecc_type);
+
+extern bool nand_is_using_pmecc(void);
+
+extern bool nand_is_using_software_ecc(void);
+
+extern bool nand_is_using_hsiao_ecc(void);
+
+extern bool nand_is_using_no_ecc(void);
+
+extern void nand_set_nfc_enabled(bool enabled);
+
+extern bool nand_is_nfc_enabled(void);
+
+extern void nand_set_nfc_sram_enabled(bool enabled);
+
+extern bool nand_is_nfc_sram_enabled(void);
+
+extern void nand_set_dma_enabled(bool enabled);
+
+extern bool nand_is_dma_enabled(void);
 
 #endif /* NAND_FLASH_API_H */

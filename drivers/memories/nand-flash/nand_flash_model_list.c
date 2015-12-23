@@ -43,9 +43,9 @@
 /*----------------------------------------------------------------------------
  *        Exported variables
  *----------------------------------------------------------------------------*/
-/** List of NandFlash models which can be recognized by the software. */
-const struct _nand_flash_model nand_flash_model_list[NANDFLASH_MODEL_LIST_SIZE] = {
 
+/** List of NandFlash models which can be recognized by the software. */
+const struct _nand_flash_model nand_flash_model_list[] = {
 /*	|  ID  | Options   | Page  |spare  | Mo  | Block   |BlkPg   |DevBlk */
 	{0x6e, NANDFLASHMODEL_DATABUS8, 256, 0, 1, 4, &nand_spare_scheme256},
 	{0x64, NANDFLASHMODEL_DATABUS8, 256, 0, 2, 4, &nand_spare_scheme256},
@@ -122,3 +122,5 @@ const struct _nand_flash_model nand_flash_model_list[NANDFLASH_MODEL_LIST_SIZE] 
 	{0xC5, NANDFLASHMODEL_DATABUS16 | OPTIONS, 0, 0, 2048, 0, &nand_spare_scheme2048},
 	{0x38, NANDFLASHMODEL_DATABUS8 | OPTIONS, 0, 0, 1024, 0, &nand_spare_scheme4096},
 };
+
+const int nand_flash_model_list_size = ARRAY_SIZE(nand_flash_model_list);

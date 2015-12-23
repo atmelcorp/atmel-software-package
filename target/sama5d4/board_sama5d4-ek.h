@@ -169,6 +169,11 @@
 #define GMAC1_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE2, PIO_INPUT, PIO_PULLUP }
 #define GMAC1_PHY_RETRIES PHY_DEFAULT_RETRIES
 
+/* =================== NANDFLASH device definition =================== */
+
+#define BOARD_NANDFLASH_PINS      PINS_NAND8
+#define BOARD_NANDFLASH_BUS_WIDTH 8
+
 /* =================== Display device definition =================== */
 
 /** PIO pins for LCD */

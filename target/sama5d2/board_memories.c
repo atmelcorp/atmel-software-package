@@ -365,7 +365,13 @@ void board_cfg_ddram (void)
 #ifdef CONFIG_HAVE_NANDFLASH
 void board_cfg_nand_flash(void)
 {
+#if defined(BOARD_NANDFLASH_PINS) && defined(BOARD_NANDFLASH_BUS_WIDTH)
+	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
+	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
 	matrix_configure_slave_nand();
-	hsmc_nand_configure(BOARD_NANDFLASH_CS, BOARD_NANDFLASH_BUS_WIDTH);
+	hsmc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
+#else
+	trace_fatal("Cannot configure NAND: target board have no NAND definitions!");
+#endif
 }
 #endif

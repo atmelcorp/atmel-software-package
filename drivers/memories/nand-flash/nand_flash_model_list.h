@@ -49,16 +49,11 @@
 #include "nand_flash_model.h"
 
 /*---------------------------------------------------------------------- */
-/*         Definitions                                                   */
-/*---------------------------------------------------------------------- */
-
-/** Number of NandFlash models inside the list. */
-#define NANDFLASH_MODEL_LIST_SIZE         60
-
-/*---------------------------------------------------------------------- */
 /*         Exported variables                                            */
 /*---------------------------------------------------------------------- */
 
-extern const struct _nand_flash_model nand_flash_model_list[NANDFLASH_MODEL_LIST_SIZE];
+extern const struct _nand_flash_model nand_flash_model_list[];
+
+extern const int nand_flash_model_list_size;
 
 #endif /* NAND_FLASH_MODEL_LIST_H */

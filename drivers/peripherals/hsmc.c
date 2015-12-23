@@ -62,30 +62,29 @@ static void _nfc_write_cmd(uint32_t cmd, uint32_t value)
 
 /**
  * \brief Sets SMC timing for NAND FLASH.
- * \param cs  chip select.
  * \param bus_width  bus width 8/16.
  */
-void hsmc_nand_configure(uint8_t cs, uint8_t bus_width)
+void hsmc_nand_configure(uint8_t bus_width)
 {
 	pmc_enable_peripheral(ID_HSMC);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_SETUP =
+	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_SETUP =
 		HSMC_SETUP_NWE_SETUP(2) |
 		HSMC_SETUP_NCS_WR_SETUP(2) |
 		HSMC_SETUP_NRD_SETUP(2) |
 		HSMC_SETUP_NCS_RD_SETUP(2);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_PULSE =
+	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_PULSE =
 		HSMC_PULSE_NWE_PULSE(7) |
 		HSMC_PULSE_NCS_WR_PULSE(7) |
 		HSMC_PULSE_NRD_PULSE(7) |
 		HSMC_PULSE_NCS_RD_PULSE(7);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_CYCLE =
+	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_CYCLE =
 		HSMC_CYCLE_NWE_CYCLE(13) |
 		HSMC_CYCLE_NRD_CYCLE(13);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_TIMINGS =
+	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_TIMINGS =
 		HSMC_TIMINGS_TCLR(3) |
 		HSMC_TIMINGS_TADL(27) |
 		HSMC_TIMINGS_TAR(3) |
@@ -94,7 +93,7 @@ void hsmc_nand_configure(uint8_t cs, uint8_t bus_width)
 		HSMC_TIMINGS_RBNSEL(3) |
 		HSMC_TIMINGS_NFSEL;
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_MODE =
+	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_MODE =
 		HSMC_MODE_READ_MODE |
 		HSMC_MODE_WRITE_MODE |
 		((bus_width == 8 ) ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |

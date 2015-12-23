@@ -370,6 +370,15 @@
 /** GMAC1 RMII pin list */
 #define PINS_GMAC1_RMII { { PIO_GROUP_A, 0xC0FC14, PIO_PERIPH_B, PIO_DEFAULT } }
 
+/* 8-bit NAND: D0-D7, NAND{WE,CS,ALE,CLE,OE,RDY} */
+#define PINS_NAND8 { { PIO_GROUP_C, 0x0007FFE0, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/* 16-bit NAND: D0-D15, NAND{WE,CS,ALE,CLE,OE,RDY} */
+#define PINS_NAND16 {\
+	{ PIO_GROUP_B, 0x03FC0000, PIO_PERIPH_B, PIO_DEFAULT },\
+	{ PIO_GROUP_C, 0x0007FFE0, PIO_PERIPH_A, PIO_DEFAULT },\
+}
+
 //=============================================================================
 
 #endif /* _CHIP_PINS_H_ */

@@ -52,15 +52,6 @@
  * - NandCommon_MAXPAGESIZE
 */
 
-/** Address for transferring command bytes to the NANDFLASH, CLE A22*/
-#define BOARD_NF_COMMAND_ADDR   (BOARD_NANDFLASH_ADDR | 0x400000)
-
-/** Address for transferring address bytes to the NANDFLASH, ALE A21*/
-#define BOARD_NF_ADDRESS_ADDR   (BOARD_NANDFLASH_ADDR | 0x200000)
-
-/** Address for transferring data bytes to the NANDFLASH.*/
-#define BOARD_NF_DATA_ADDR      BOARD_NANDFLASH_ADDR
-
  /** Maximum number of blocks in a device */
 #define NAND_MAXNUM_BLOCKS             2048
 
@@ -146,6 +137,9 @@
 
 /** DMA failed. */
 #define NAND_ERROR_STATUS             17
+
+/** Invalid argument. */
+#define NAND_ERROR_INVALID_ARG        18
 
 
 /**@}*/

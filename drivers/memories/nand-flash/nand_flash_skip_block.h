@@ -59,81 +59,51 @@
 
 #include <stdint.h>
 
-#include "peripherals/pio.h"
-
-#include "nand_flash_common.h"
-#include "nand_flash_ecc.h"
+#include "nand_flash.h"
 
 /*---------------------------------------------------------------------- */
 /*         Definitions                                                   */
 /*---------------------------------------------------------------------- */
 
-#define NANDBLOCK_STATUS_BAD   0xBA
+/** Bad block marker */
+#define NANDBLOCK_STATUS_BAD 0xBA
 
 /* Erase types */
 
 /** Check block before erase */
-#define NORMAL_ERASE    0x00000000
+#define NORMAL_ERASE 0x00000000
 
 /** Do NOT check the block status before erasing it */
-#define SCRUB_ERASE     0x0000EA11
+#define SCRUB_ERASE  0x0000EA11
 
 /** Values returned by the nand_skipblock_check_block() function */
-#define BADBLOCK        0xFF
-#define GOODBLOCK       0XFE
-
-/*---------------------------------------------------------------------- */
-/*         Types                                                         */
-/*---------------------------------------------------------------------- */
-
-struct _skip_block_nand_flash {
-	struct _ecc_nand_flash ecc;
-};
+#define BADBLOCK     0xFF
+#define GOODBLOCK    0XFE
 
 /*---------------------------------------------------------------------- */
 /*         Exported functions                                            */
 /*---------------------------------------------------------------------- */
 
-extern uint8_t nand_skipblock_check_block(
-		const struct _skip_block_nand_flash *skip_block,
+extern void nand_skipblock_initialize(struct _nand_flash *nand);
+
+extern uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block);
 
-extern uint8_t nand_skipblock_initialize(
-		struct _skip_block_nand_flash *skip_block,
-		const struct _nand_flash_model *model,
-		uint32_t command_address,
-		uint32_t address_address,
-		uint32_t data_address,
-		const struct _pin *pin_chip_enable,
-		const struct _pin *pin_ready_busy);
+extern uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
+		uint16_t block, uint32_t erase_type);
 
-extern uint8_t nand_skipblock_erase_block(
-		struct _skip_block_nand_flash *skip_block,
-		uint16_t block,
-		uint32_t erase_type);
+extern uint8_t nand_skipblock_read_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
-extern uint8_t nand_skipblock_read_page(
-		const struct _skip_block_nand_flash *skip_block,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
+uint8_t nand_skipblock_read_block(const struct _nand_flash *nand,
+		uint16_t block, void *data);
 
-uint8_t nand_skipblock_read_block(
-		const struct _skip_block_nand_flash *skip_block,
-		uint16_t block,
-		void *data);
+extern uint8_t nand_skipblock_write_page(const struct _nand_flash *nand,
+		uint16_t block, uint16_t page,
+		void *data, void *spare);
 
-extern uint8_t nand_skipblock_write_page(
-		const struct _skip_block_nand_flash *skip_block,
-		uint16_t block,
-		uint16_t page,
-		void *data,
-		void *spare);
-
-uint8_t nand_skipblock_write_block(
-		const struct _skip_block_nand_flash *skip_block,
-		uint16_t block,
-		void *data);
+uint8_t nand_skipblock_write_block(const struct _nand_flash *nand,
+		uint16_t block, void *data);
 
 #endif /* NAND_FLASH_SKIP_BLOCK_H */

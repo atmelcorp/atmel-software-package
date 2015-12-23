@@ -110,7 +110,7 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void hsmc_nand_configure(uint8_t cs, uint8_t bus_width);
+extern void hsmc_nand_configure(uint8_t bus_width);
 
 extern void hsmc_nor_configure(uint8_t cs, uint8_t bus_width);
 

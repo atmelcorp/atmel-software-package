@@ -26,7 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/memories/nand-flash/nand_flash_api.o
+drivers-y += drivers/memories/nand-flash/nand_flash.o
 drivers-y += drivers/memories/nand-flash/nand_flash_raw.o
 drivers-y += drivers/memories/nand-flash/nand_flash_ecc.o
 drivers-y += drivers/memories/nand-flash/nand_flash_skip_block.o

@@ -60,6 +60,7 @@
 /*------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /** \addtogroup nand_model
  *@{
@@ -129,8 +130,8 @@ struct _nand_flash_model {
 /*---------------------------------------------------------------------- */
 
 extern uint8_t nand_model_find(
-		const struct _nand_flash_model *model_list,
-		uint32_t size,
+		const struct _nand_flash_model *list,
+		uint32_t list_size,
 		uint32_t id,
 		struct _nand_flash_model *model);
 
@@ -175,10 +176,10 @@ extern uint16_t nand_model_get_page_spare_size(
 extern uint8_t nand_model_get_data_bus(
 		const struct _nand_flash_model *model);
 
-extern uint8_t nand_model_has_small_blocks(
+extern bool nand_model_has_small_blocks(
 		const struct _nand_flash_model *model);
 
-extern uint8_t nand_model_supports_copy_back(
+extern bool nand_model_supports_copy_back(
 		const struct _nand_flash_model *model);
 
 /**@}*/

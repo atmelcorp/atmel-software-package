@@ -185,9 +185,7 @@
 
 /* =================== NANDFLASH device definition =================== */
 
-#define BOARD_NANDFLASH_PINS      PINS_NFC_IOS2
-#define BOARD_NANDFLASH_ADDR      EBI_CS3_ADDR
-#define BOARD_NANDFLASH_CS        3
+#define BOARD_NANDFLASH_PINS      PINS_NAND8_IOS2
 #define BOARD_NANDFLASH_BUS_WIDTH 8
 
 #endif /* #ifndef _BOARD_D2_H */

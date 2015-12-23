@@ -259,6 +259,9 @@
 #define CHIP_USB_ENDPOINT_HAS_DMA(ep) \
     ((ep == 0) ? false : ((ep < 7) ? true : false ))
 
+/** NAND EBI Chip Select */
+#define NAND_EBI_CS 3
+
 #ifdef __cplusplus
 extern "C" {
 #endif

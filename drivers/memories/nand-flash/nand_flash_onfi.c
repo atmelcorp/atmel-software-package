@@ -37,22 +37,19 @@
 
 #include "trace.h"
 
-#include "nand_flash_common.h"
+#include "nand_flash.h"
 #include "nand_flash_raw.h"
 #include "nand_flash_model.h"
-#include "nand_flash_model_list.h"
 #include "nand_flash_onfi.h"
-#include "nand_flash_api.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
+
 #define MAX_READ_STATUS_COUNT 1000
 
 /** Not all 256 bytes are useful */
 #define ONFI_PARAM_TABLE_SIZE 116
-
-#define EBI_NF_ADDR BOARD_NANDFLASH_ADDR
 
 /*---------------------------------------------------------------------- */
 /*                   Variables                                           */
@@ -65,26 +62,6 @@ static struct _onfi_page_param onfi_parameter;
  *        Internal functions
  *------------------------------------------------------------------------*/
 
-static void write_nand(uint8_t data)
-{
-	*(volatile uint8_t*)((uint32_t)EBI_NF_ADDR) = data;
-}
-
-static void write_nand_command(uint8_t cmd)
-{
-	*(volatile uint8_t*)((uint32_t)EBI_NF_ADDR | BOARD_NF_COMMAND_ADDR) = cmd;
-}
-
-static void write_nand_address(uint8_t addr)
-{
-	*(volatile uint8_t*)((uint32_t)EBI_NF_ADDR | BOARD_NF_ADDRESS_ADDR) = addr;
-}
-
-static uint8_t read_nand(void)
-{
-	return *(volatile uint8_t*)((uint32_t)EBI_NF_ADDR);
-}
-
 /**
  * \brief This function Reads the status register of the NAND device by
  * issuing a 0x70 command.
@@ -92,30 +69,28 @@ static uint8_t read_nand(void)
  *          NAND_IO_RC_FAIL     =1 : The function does not complete operation successfully.
  *          NAND_IO_RC_TIMEOUT  =2 : The function times out before operation completes.
 */
-static uint32_t onfi_read_status(void)
+static uint32_t onfi_read_status(const struct _nand_flash *nand)
 {
-	uint32_t retry;
-	uint8_t ucStatus;
+	uint8_t status;
+	int retry;
 
 	/* Issue command */
-	write_nand_command(NAND_CMD_STATUS);
-	retry = 0;
-
-	while (retry < MAX_READ_STATUS_COUNT) {
+	nand_write_command(nand, NAND_CMD_STATUS);
+	for (retry = 0; retry < MAX_READ_STATUS_COUNT; retry++) {
 		/* Read status byte */
-		ucStatus = read_nand();
+		status = nand_read_data(nand);
+
 		/* Check status */
 		/* If status bit 6 = 1 device is ready */
-		if ((ucStatus & STATUS_BIT_6) == STATUS_BIT_6) {
-
-			if ((ucStatus & STATUS_BIT_0) == 0)
+		if ((status & STATUS_BIT_6) == STATUS_BIT_6) {
 			/* If status bit 0 = 0 the last operation was successful */
+			if ((status & STATUS_BIT_0) == 0)
 				return NAND_IO_RC_PASS;
 			else
 				return NAND_IO_RC_FAIL;
 		}
-		retry++;
 	}
+
 	return NAND_IO_RC_TIMEOUT;
 }
 
@@ -126,99 +101,97 @@ static uint32_t onfi_read_status(void)
  * \return  0: ONFI not compliant or not supported.
 			1: ONFI compliant
 */
-static uint8_t nand_onfi_retrieve_param (void)
+static bool nand_onfi_retrieve_param(const struct _nand_flash *nand)
 {
 	uint8_t i;
 	uint8_t onfi_param_table[ONFI_PARAM_TABLE_SIZE];
 
-	if (nand_onfi_is_compatible()) {
-		onfi_parameter.onfi_compatible = 1;
+	if (nand_onfi_check_compatibility(nand)) {
+		onfi_parameter.onfi_compatible = true;
 		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
 			onfi_param_table[i] = 0xFF;
 		}
 		/* Perform Read Parameter Page command */
-		write_nand_command(NAND_CMD_READ_PARAM_PAGE);
-		write_nand_address(0x0);
+		nand_write_command(nand, NAND_CMD_READ_PARAM_PAGE);
+		nand_write_address(nand, 0x0);
 
 		/* Wait NF ready */
-		onfi_read_status();
+		onfi_read_status(nand);
+
 		/* Re-enable data output mode required after Read Status command */
-		write_nand_command(NAND_CMD_READ0);
+		nand_write_command(nand, NAND_CMD_READ0);
 
 		/* Read the parameter table */
 		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
-			onfi_param_table[i] = read_nand();
+			onfi_param_table[i] = nand_read_data(nand);
 		}
 		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
 			if (onfi_param_table[i] != 0xFF)
 				break;
 		}
 		if (i == ONFI_PARAM_TABLE_SIZE) {
-			onfi_parameter.onfi_compatible = 0;
-			return 0;
+			onfi_parameter.onfi_compatible = false;
+			return false;
 		}
 
-		/* JEDEC manufacturer ID */
-		onfi_parameter.manufacturer_id = *(uint8_t *)(onfi_param_table + 64);
-		trace_info("ONFI manufacturerId %x \n\r",onfi_parameter.manufacturer_id);
 		/* Bus width */
-		onfi_parameter.onfi_bus_width = (*(uint8_t *)(onfi_param_table + 6)) & 0x01;
-		/* Get number of data bytes per page (bytes 80-83 in the param table) */
-		onfi_parameter.onfi_page_size =  *(uint32_t *)(void*)(onfi_param_table + 80);
-		trace_info("ONFI onfiPageSize %x \n\r", (unsigned int)onfi_parameter.onfi_page_size);
-		/* Get number of spare bytes per page (bytes 84-85 in the param table) */
-		onfi_parameter.onfi_spare_size =  *(uint16_t *)(void*)(onfi_param_table + 84);
-		 trace_info("ONFI onfiSpareSize %x \n\r",(unsigned int)onfi_parameter.onfi_spare_size);
-		/* Number of pages per block. */
-		onfi_parameter.onfi_pages_per_block = *(uint32_t *)(void*)(onfi_param_table + 92);
-		/* Number of blocks per logical unit (LUN). */
-		onfi_parameter.onfi_blocks_per_lun = *(uint32_t *)(void*)(onfi_param_table + 96);
-		/* Number of logical units. */
-		onfi_parameter.onfi_logical_units = *(uint8_t *)(onfi_param_table + 100);
-		/* Number of bits of ECC correction */
-		onfi_parameter.onfi_ecc_correctability = *(uint8_t *)(onfi_param_table + 112);
-		trace_info("ONFI onfiEccCorrectability %x \n\r",onfi_parameter.onfi_ecc_correctability);
+		onfi_parameter.onfi_bus_width = (*(uint8_t*)(onfi_param_table + 6)) & 0x01;
 		/* Device model */
-		onfi_parameter.onfi_device_model= *(uint8_t *)(onfi_param_table + 49);
-		return 1;
+		onfi_parameter.onfi_device_model= *(uint8_t*)(onfi_param_table + 49);
+		/* JEDEC manufacturer ID */
+		onfi_parameter.manufacturer_id = *(uint8_t*)(onfi_param_table + 64);
+		/* Get number of data bytes per page (bytes 80-83 in the param table) */
+		onfi_parameter.onfi_page_size =  *(uint32_t*)(onfi_param_table + 80);
+		/* Get number of spare bytes per page (bytes 84-85 in the param table) */
+		onfi_parameter.onfi_spare_size =  *(uint16_t*)(onfi_param_table + 84);
+		/* Number of pages per block. */
+		onfi_parameter.onfi_pages_per_block = *(uint32_t*)(onfi_param_table + 92);
+		/* Number of blocks per logical unit (LUN). */
+		onfi_parameter.onfi_blocks_per_lun = *(uint32_t*)(onfi_param_table + 96);
+		/* Number of logical units. */
+		onfi_parameter.onfi_logical_units = *(uint8_t*)(onfi_param_table + 100);
+		/* Number of bits of ECC correction */
+		onfi_parameter.onfi_ecc_correctability = *(uint8_t*)(onfi_param_table + 112);
+
+		trace_info_wp("ONFI manufacturerId %x\r\n",
+				onfi_parameter.manufacturer_id);
+		trace_info_wp("ONFI onfiPageSize %x\r\n",
+				(unsigned)onfi_parameter.onfi_page_size);
+		trace_info_wp("ONFI onfiSpareSize %x\r\n",
+				(unsigned)onfi_parameter.onfi_spare_size);
+		trace_info_wp("ONFI onfiEccCorrectability %x\r\n",
+				onfi_parameter.onfi_ecc_correctability);
+		return true;
 	}
-	return 0;
+
+	return false;
 }
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
 /**
- * \brief This function read an the ONFI signature at address of 20h to detect
+ * \brief This function reads an the ONFI signature at address of 0x20 to detect
  * if the device is ONFI compatible.
- * \return  0: ONFI not compliant or not supported.
-			1: ONFI compliant
+ * \return false if ONFI not compliant or not supported, true if ONFI compliant
 */
-uint8_t nand_onfi_is_compatible (void)
+bool nand_onfi_check_compatibility(const struct _nand_flash *nand)
 {
 	uint8_t onfi_param_table[ONFI_PARAM_TABLE_SIZE];
 
-	// Check if the Nandflash is ONFI compliant
+	nand_write_command(nand, NAND_CMD_READID);
+	nand_write_address(nand, 0x20);
+	onfi_param_table[0] = nand_read_data(nand);
+	onfi_param_table[1] = nand_read_data(nand);
+	onfi_param_table[2] = nand_read_data(nand);
+	onfi_param_table[3] = nand_read_data(nand);
 
-	write_nand_command(NAND_CMD_READID);
-	write_nand_address(0x20);
-
-	onfi_param_table[0] = read_nand();
-	onfi_param_table[1] = read_nand();
-	onfi_param_table[2] = read_nand();
-	onfi_param_table[3] = read_nand();
-
-	if ((onfi_param_table[0] == 'O') &&
-		(onfi_param_table[1] == 'N') &&
-		(onfi_param_table[2] == 'F') &&
-		(onfi_param_table[3] == 'I')) {
-		return 1;
-	} else {
-		return 0;
-	}
+	return onfi_param_table[0] == 'O' && onfi_param_table[1] == 'N' &&
+		onfi_param_table[2] == 'F' && onfi_param_table[3] == 'I';
 }
 
-uint8_t nand_onfi_compatible(void)
+bool nand_onfi_is_compatible(void)
 {
 	return onfi_parameter.onfi_compatible;
 }
@@ -245,7 +218,7 @@ uint16_t nand_onfi_get_spare_size(void)
 
 uint16_t nand_onfi_get_pages_per_block(void)
 {
-	return onfi_parameter.onfi_pages_per_block ;
+	return onfi_parameter.onfi_pages_per_block;
 }
 
 uint16_t nand_onfi_get_blocks_per_lun(void)
@@ -260,110 +233,94 @@ uint8_t nand_onfi_get_ecc_correctability(void)
 
 /**
  * \brief This function check if the NANDFLASH has an embedded ECC controller.
- * \return  0: ONFI not compliant or internal ECC not supported.
-			1: Internal ECC enabled.
+ * \return false if ONFI not compliant or internal ECC not supported, true if Internal ECC enabled.
 */
-uint8_t nand_onfi_enable_internal_ecc (void)
+bool nand_onfi_enable_internal_ecc(const struct _nand_flash *nand)
 {
-	if (onfi_parameter.onfi_compatible == 1) {
+	if (onfi_parameter.onfi_compatible) {
 		/* Check if the NANDFLASH has an embedded ECC controller
 		   Known memories with this feature :
 		   - Manufacturer ID = 2Ch (Micron)
 		   - Number of bits ECC = 04h (4-bit ECC means process 34nm)
-		   - device size = 1Gb or 2Gb or 4Gb (Number of data bytes per page * Number of pages per block * Number of blocks per unit)  */
-		if ( ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON) &&
-			  (onfi_parameter.onfi_ecc_correctability == 0x4) &&
-			  ((onfi_parameter.onfi_device_model == '1')     //  1G,
-			   || (onfi_parameter.onfi_device_model == '2')     //  2G
-			   || (onfi_parameter.onfi_device_model == '4'))) { //  or 4G bits
-
+		   - device size = 1Gb or 2Gb or 4Gb */
+		if ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON &&
+				onfi_parameter.onfi_ecc_correctability == 0x4 &&
+				(onfi_parameter.onfi_device_model == '1' ||
+				 onfi_parameter.onfi_device_model == '2' ||
+				 onfi_parameter.onfi_device_model == '4')) {
 			/* then activate the internal ECC controller */
-			write_nand_command(NAND_CMD_SET_FEATURE);
-			write_nand_address(0x90);
-			write_nand(0x08);
-			write_nand(0x00);
-			write_nand(0x00);
-			write_nand(0x00);
-			nand_api_configure_ecc(ECC_NO);
-			return 1;
+			nand_write_command(nand, NAND_CMD_SET_FEATURE);
+			nand_write_address(nand, 0x90);
+			nand_write_data(nand, 0x08);
+			nand_write_data(nand, 0x00);
+			nand_write_data(nand, 0x00);
+			nand_write_data(nand, 0x00);
+			nand_set_ecc_type(ECC_NO);
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
-
 
 /**
  * \brief This function check if the NANDFLASH has an embedded ECC controller, and disable it.
- * \return  0: ONFI not compliant or internal ECC not supported.
-			1: Internal ECC disabled.
+ * \return false if ONFI not compliant or internal ECC not supported, true if Internal ECC disabled.
 */
-uint8_t nand_onfi_disable_internal_ecc (void)
+bool nand_onfi_disable_internal_ecc(const struct _nand_flash *nand)
 {
-	if (onfi_parameter.onfi_compatible == 1) {
+	if (onfi_parameter.onfi_compatible) {
 		/* Check if the NANDFLASH has an embedded ECC controller
 		   Known memories with this feature :
 		   - Manufacturer ID = 2Ch (Micron)
 		   - Number of bits ECC = 04h (4-bit ECC means process 34nm)
-		   - device size = 1Gb or 2Gb or 4Gb (Number of data bytes per page * Number of pages per block * Number of blocks per unit)  */
-		if ( ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON) &&
-			  (onfi_parameter.onfi_ecc_correctability == 0x4) &&
-			  ((onfi_parameter.onfi_device_model == '1')     //  1G,
-			   || (onfi_parameter.onfi_device_model == '2')     //  2G
-			   || (onfi_parameter.onfi_device_model == '4'))) { //  or 4G bits
-
+		   - device size = 1Gb or 2Gb or 4Gb */
+		if ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON &&
+				onfi_parameter.onfi_ecc_correctability == 0x4 &&
+				(onfi_parameter.onfi_device_model == '1' ||
+				 onfi_parameter.onfi_device_model == '2' ||
+				 onfi_parameter.onfi_device_model == '4')) {
 			/* then activate the internal ECC controller */
-			write_nand_command(NAND_CMD_SET_FEATURE);
-			write_nand_address(0x90);
-			write_nand(0x00);
-			write_nand(0x00);
-			write_nand(0x00);
-			write_nand(0x00);
-			return 1;
+			nand_write_command(nand, NAND_CMD_SET_FEATURE);
+			nand_write_address(nand, 0x90);
+			nand_write_data(nand, 0x00);
+			nand_write_data(nand, 0x00);
+			nand_write_data(nand, 0x00);
+			nand_write_data(nand, 0x00);
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 /**
  * \brief Detect NANDFLASH connection on EBI.
  * \return return TRUE if the chip is detected.  FALSE otherwise.
  */
 
-uint8_t nand_onfi_device_detect(void)
+bool nand_onfi_device_detect(const struct _nand_flash *nand)
 {
 	uint8_t rc;
-	uint8_t chip_found = 0;
-	uint8_t ids[4];
-	uint8_t i;
+	uint8_t id[4];
 
 	/* Send Reset command */
-	write_nand_command(NAND_CMD_RESET);
+	nand_write_command(nand, NAND_CMD_RESET);
+
 	/* If a NANDFLASH is connected, it should answer to a read status command */
 	for (;;) {
-		rc = onfi_read_status();
+		rc = onfi_read_status(nand);
 		if (rc == NAND_IO_RC_PASS) {
-			write_nand_command(NAND_CMD_READID);
-			write_nand_address(0);
-			ids[0] = read_nand();
-			ids[1] = read_nand();
-			ids[2] = read_nand();
-			ids[3] = read_nand();
-			printf("<%x,%x,%x,%x>",ids[0],ids[1],ids[2],ids[3]);
-			for(i = 0; i< NANDFLASH_MODEL_LIST_SIZE ; i++) {
-				if(nand_flash_model_list[i].device_id == ids[1]) {
-					chip_found = 1;
-					break;
-				}
-			}
+			nand_write_command(nand, NAND_CMD_READID);
+			nand_write_address(nand, 0);
+			id[0] = nand_read_data(nand);
+			id[1] = nand_read_data(nand);
+			id[2] = nand_read_data(nand);
+			id[3] = nand_read_data(nand);
+
+			trace_debug("NANDFLASH ID = <%x,%x,%x,%x>\r\n",
+					id[0], id[1], id[2], id[3]);
 			break;
 		}
 	}
-	if (chip_found == 0) {
-		if (nand_onfi_is_compatible()) {
-			chip_found = 1;
-			/* even if it is not in device list (it is maybe a new device, but it is ONFI compatible */
-		}
-	}
-	if (chip_found) nand_onfi_retrieve_param();
-	return chip_found;
+
+	return nand_onfi_retrieve_param(nand);
 }
 
