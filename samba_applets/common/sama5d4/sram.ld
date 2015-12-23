@@ -135,4 +135,12 @@ SECTIONS
 		. = ALIGN(8);
 		_cstack = .;
 	} > sram
+
+	.buffer (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__buffer_start__ = .;
+		. = ORIGIN(sram) + LENGTH(sram) - 1;
+		__buffer_end__ = .;
+	} > sram
 }

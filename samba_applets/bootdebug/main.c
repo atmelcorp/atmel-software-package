@@ -48,13 +48,6 @@
 #error Unsupported SOC!
 #endif
 
-/* Input arguments for the Init command. */
-struct input_init
-{
-	uint32_t comm_type;   /* Type of communication link used */
-	uint32_t trace_level; /* Trace level */
-};
-
 #define FUSE_BOOTCONFIG_WORD_POS   16
 
 /*----------------------------------------------------------------------------
@@ -244,16 +237,16 @@ static void print_all_boot_config(void)
 	printf("\r\n");
 }
 
-static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
+static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 {
-	struct input_init *in = (struct input_init *)args;
+	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
 
-	assert(cmd == APPLET_CMD_INIT);
+	assert(cmd == APPLET_CMD_INITIALIZE);
 
-	applet_set_init_params(in->comm_type, in->trace_level);
+	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'Boot Debug' from "
-			"softpack " SOFTPACK_VERSION ".\r\n");
+	trace_info_wp("\r\nApplet 'Boot Debug' from softpack "
+			SOFTPACK_VERSION ".\r\n");
 
 	printf("--- Boot Config ---\r\n");
 	print_all_boot_config();
@@ -266,6 +259,6 @@ static uint32_t handle_cmd_init(uint32_t cmd, uint32_t *args)
  *----------------------------------------------------------------------------*/
 
 const struct applet_command applet_commands[] = {
-	{ APPLET_CMD_INIT, handle_cmd_init },
+	{ APPLET_CMD_INITIALIZE, handle_cmd_initialize },
 	{ 0, NULL }
 };

@@ -36,27 +36,11 @@
  *         Global definitions
  *----------------------------------------------------------------------------*/
 
-#define APPLET_CMD_INIT              0x00 /* Applet initialization */
-#define APPLET_CMD_FULL_ERASE        0x01 /* Full erase */
-#define APPLET_CMD_WRITE             0x02 /* Write */
-#define APPLET_CMD_READ              0x03 /* Read */
-#define APPLET_CMD_LOCK              0x04 /* Lock */
-#define APPLET_CMD_UNLOCK            0x05 /* Unlock */
-#define APPLET_CMD_GPNVM             0x06 /* Set/clear GPNVM command code */
-#define APPLET_CMD_SECURITY          0x07 /* Set security bit command code */
-#define APPLET_CMD_BUFFER_ERASE      0x08 /* Buffer erase command code */
-#define APPLET_CMD_BINARY_PAGE       0x09 /* Binary page command code for Dataflash */
-#define APPLET_CMD_OTP_READ          0x0A /* Read OTP */
-#define APPLET_CMD_OTP_WRITE         0x0B /* Write OPT */
-#define APPLET_CMD_LIST_BAD_BLOCKS   0x10 /* List Bad Blocks of a Nandflash */
-#define APPLET_CMD_TAG_BLOCK         0x11 /* Tag a Nandflash Block */
-#define APPLET_CMD_READ_UNIQUE_ID    0x12 /* Read the Unique ID bits (on SAM3) */
-#define APPLET_CMD_ERASE_BLOCKS      0x13 /* Blocks erase command code */
-#define APPLET_CMD_BATCH_ERASE       0x14 /* Batch full erase command code */
-#define APPLET_CMD_PMECC_HEADER      0x15 /* Set PMECC parameter header code */
-#define APPLET_CMD_SENDBOOT          0x16 /* SendBoot file code */
-#define APPLET_CMD_SWITCH_ECC        0x17 /* Switch ECC mode code */
-#define APPLET_CMD_TRIMFFS           0x18 /* Enable/disable drop jss */
+#define APPLET_CMD_INITIALIZE        0x00 /* Initialization */
+#define APPLET_CMD_FULL_ERASE        0x30 /* Full erase */
+#define APPLET_CMD_ERASE_PAGES       0x31 /* Erase pages */
+#define APPLET_CMD_READ_PAGES        0x32 /* Read pages */
+#define APPLET_CMD_WRITE_PAGES       0x33 /* Write pages */
 
 #define APPLET_SUCCESS               0x00 /* Operation was successful */
 #define APPLET_DEV_UNKNOWN           0x01 /* Device unknown */
@@ -83,17 +67,90 @@
  */
 struct applet_mailbox
 {
-	uint32_t command;     /* Applet command */
-	uint32_t status;      /* Applet status, updated at the end of the applet execution */
-	uint32_t args[];      /* Other command-specific arguments and return values */
+	uint32_t command; /* Applet command */
+	uint32_t status;  /* Applet status, updated at the end of the applet execution */
+	uint32_t data[];  /* Other command-specific arguments and return values */
 };
 
+/** Mailbox content for the 'initialize' command. */
+union initialize_mailbox
+{
+	struct {
+		/** Type of communication link used */
+		uint32_t comm_type;
+		/** Trace level */
+		uint32_t trace_level;
+		/** Initialization parameters */
+		uint32_t parameters[4];
+	} in;
+
+	struct {
+		/** Buffer address */
+		uint32_t buf_addr;
+		/** Buffer size (in bytes) */
+		uint32_t buf_size;
+		/** Page size (in bytes) */
+		uint32_t page_size;
+		/** Memory size (in pages) */
+		uint32_t mem_size;
+		/** Supported erase size (in pages) */
+		uint32_t erase_support;
+	} out;
+};
+
+/** Mailbox content for the 'write pages' command. */
+union write_pages_mailbox {
+	struct {
+		/** Write offset (in pages) */
+		uint32_t offset;
+		/** Write length (in pages) */
+		uint32_t length;
+	} in;
+
+	struct {
+		/** Pages written */
+		uint32_t pages_written;
+	} out;
+};
+
+/** Mailbox content for the 'read pages' command. */
+union read_pages_mailbox {
+	struct {
+		/** Read offset (in pages) */
+		uint32_t offset;
+		/** Read length (in pages) */
+		uint32_t length;
+	} in;
+
+	struct {
+		/** Pages read */
+		uint32_t pages_read;
+	} out;
+};
+
+/** Mailbox content for the 'erase pages' command. */
+union erase_pages_mailbox {
+	struct {
+		/** Erase offset (in pages) */
+		uint32_t offset;
+		/** Erase length (in pages) */
+		uint32_t length;
+	} in;
+
+	struct {
+		/* Pages erased */
+		uint32_t pages_erased;
+	} out;
+};
 
 struct applet_command
 {
 	uint32_t command;
 	uint32_t (*handler)(uint32_t cmd, uint32_t *args);
 };
+
+extern uint8_t *applet_buffer;
+extern uint32_t applet_buffer_size;
 
 extern const struct applet_command applet_commands[];
 

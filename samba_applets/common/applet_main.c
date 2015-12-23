@@ -36,8 +36,13 @@
 
 #include <string.h>
 
+extern int __buffer_start__;
+extern int __buffer_end__;
+
 static bool _console_initialized;
 static uint32_t _comm_type;
+uint8_t *applet_buffer;
+uint32_t applet_buffer_size;
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -115,6 +120,12 @@ static void initialize_console(void)
 
 #endif
 
+static void init_applet_buffer(void)
+{
+	applet_buffer = (uint8_t*)&__buffer_start__;
+	applet_buffer_size = (uint32_t)&__buffer_end__ - (uint32_t)&__buffer_start__;
+}
+
 /*----------------------------------------------------------------------------
  *         Public functions
  *----------------------------------------------------------------------------*/
@@ -134,7 +145,7 @@ void applet_main(struct applet_mailbox *mailbox)
 {
 	int i;
 
-	// set default status
+	/* set default status */
 	mailbox->status = APPLET_FAIL;
 
 	if (!_console_initialized) {
@@ -142,12 +153,16 @@ void applet_main(struct applet_mailbox *mailbox)
 		_console_initialized = true;
 	}
 
-	// look for handler and call it
+	if (!applet_buffer) {
+		init_applet_buffer();
+	}
+
+	/* look for handler and call it */
 	for (i = 0; applet_commands[i].handler; i++) {
 		if (applet_commands[i].command == mailbox->command)
 		{
 			mailbox->status = applet_commands[i].handler(
-					mailbox->command, mailbox->args);
+					mailbox->command, mailbox->data);
 			break;
 		}
 	}
