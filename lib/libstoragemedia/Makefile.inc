@@ -28,3 +28,4 @@
 
 obj-$(CONFIG_LIB_STORAGEMEDIA) += lib/libstoragemedia/media.o
 obj-$(CONFIG_LIB_STORAGEMEDIA) += lib/libstoragemedia/media_ramdisk.o
+obj-$(CONFIG_LIB_STORAGEMEDIA) += lib/libstoragemedia/media_sdcard.o
