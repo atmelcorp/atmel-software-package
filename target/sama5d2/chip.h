@@ -288,6 +288,18 @@ extern uint32_t get_spi_id_from_addr(const Spi* addr);
 
 extern Spi* get_spi_addr_from_id(const uint32_t id);
 
+/**
+ * \brief retrieve PWM ID from its base address
+ * \return TC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_pwm_id_from_addr(const Pwm* addr);
+
+/**
+ * \brief retrieve PWM base address from its ID
+ * \return TC base address on success, 0 otherwise
+ */
+extern Pwm* get_pwm_addr_from_id(const uint32_t id);
+
 extern uint32_t get_uart_id_from_addr(const Uart* addr);
 
 extern uint32_t get_usart_id_from_addr(const Usart* addr);
