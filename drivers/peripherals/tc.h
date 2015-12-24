@@ -72,6 +72,7 @@ extern void tc_set_ra_rb_rc(Tc* tc, uint32_t channel_num,
 	uint32_t *ra, uint32_t *rb, uint32_t *rc);
 extern void tc_get_ra_rb_rc(Tc* tc, uint32_t channel_num,
 	uint32_t *ra, uint32_t *rb, uint32_t *rc);
+extern void tc_set_fault_mode(Tc* tc, uint32_t mode);
 
 #ifdef __cplusplus
 }

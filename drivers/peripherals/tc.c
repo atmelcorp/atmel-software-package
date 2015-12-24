@@ -297,3 +297,13 @@ void tc_get_ra_rb_rc(Tc* tc, uint32_t channel_num,
 	if (rc)
 		*rc = channel->TC_RC;
 }
+
+/**
+ * \brief Set Timer Counter Fault Mode
+ * \param tc Pointer to Tc instance
+ * \param mode fault mode
+ */
+void tc_set_fault_mode(Tc* tc, uint32_t mode)
+{
+	tc->TC_FMR = mode;
+}
