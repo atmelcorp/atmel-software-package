@@ -112,6 +112,36 @@ extern void pwmc_enable_channel_it(Pwm * p_pwm, uint8_t channel);
 extern void pwmc_disable_channel_it(Pwm * p_pwm, uint8_t channel);
 
 /**
+ * \brief Return PWM Interrupt Status1 Register
+ * \param p_pwm Pointer to a Pwm instance.
+ */
+extern uint32_t pwmc_get_it_status1(Pwm *p_pwm);
+
+/**
+ * \brief Enables the selected interrupts sources on a PWMC peripheral.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param sources1  Bitwise OR of selected interrupt sources of PWM_IER1.
+ * \param sources2  Bitwise OR of selected interrupt sources of PWM_IER2.
+ */
+extern void pwmc_enable_it(Pwm *p_pwm, uint32_t sources1, uint32_t sources2);
+
+/**
+ * \brief Disables the selected interrupts sources on a PWMC peripheral.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param sources1  Bitwise OR of selected interrupt sources of PWM_IDR1.
+ * \param sources2  Bitwise OR of selected interrupt sources of PWM_IDR2.
+ */
+extern void pwmc_disable_it(Pwm *p_pwm, uint32_t sources1, uint32_t sources2);
+
+/**
+ * \brief Return PWM Interrupt Status2 Register
+ * \param p_pwm Pointer to a Pwm instance.
+ */
+extern uint32_t pwmc_get_it_status2(Pwm *p_pwm);
+
+/**
  * \brief Configures a PWM channel with the given parameters, basic configure
  * function.
  *

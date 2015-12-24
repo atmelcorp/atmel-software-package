@@ -116,6 +116,28 @@ void pwmc_disable_channel_it(Pwm * p_pwm, uint8_t channel)
 	p_pwm->PWM_IDR1 = 0x1ul << channel;
 }
 
+uint32_t pwmc_get_it_status1(Pwm *p_pwm)
+{
+	return p_pwm->PWM_ISR1;
+}
+
+void pwmc_enable_it(Pwm *p_pwm, uint32_t sources1, uint32_t sources2)
+{
+	p_pwm->PWM_IER1 = sources1;
+	p_pwm->PWM_IER2 = sources2;
+}
+
+void pwmc_disable_it(Pwm *p_pwm, uint32_t sources1, uint32_t sources2)
+{
+	p_pwm->PWM_IDR1 = sources1;
+	p_pwm->PWM_IDR2 = sources2;
+}
+
+uint32_t pwmc_get_it_status2(Pwm *p_pwm)
+{
+	return p_pwm->PWM_ISR2;
+}
+
 void pwmc_configure_channel(Pwm * p_pwm, uint8_t channel, uint32_t mode)
 {
 	assert(PWMCH_NUM_NUMBER > channel);
