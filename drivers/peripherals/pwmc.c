@@ -82,6 +82,7 @@
 
 #include "chip.h"
 #include "peripherals/pwmc.h"
+#include "trace.h"
 
 #include <stdint.h>
 #include <assert.h>
@@ -117,7 +118,28 @@ void pwmc_disable_channel_it(Pwm * p_pwm, uint8_t channel)
 
 void pwmc_configure_channel(Pwm * p_pwm, uint8_t channel, uint32_t mode)
 {
-	p_pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+	assert(PWMCH_NUM_NUMBER > channel);
+	trace_debug("pwm: set channel %u with mode 0x%08x\n\r", \
+			(unsigned)channel, (unsigned)mode);
+	if ((p_pwm->PWM_SR & (1 << channel)) == 0)
+		p_pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+	else {
+		switch (channel) {
+			case 0:
+				p_pwm->PWM_CMUPD0 = mode;
+				break;
+			case 1:
+				p_pwm->PWM_CMUPD1 = mode;
+				break;
+			case 2:
+				p_pwm->PWM_CMUPD2 = mode;
+				break;
+			case 3:
+			default:
+				p_pwm->PWM_CMUPD3 = mode;
+				break;
+		}
+	}
 }
 
 void pwmc_set_period(Pwm * p_pwm, uint8_t channel, uint16_t period)
