@@ -257,6 +257,21 @@ extern void pwmc_output_override(Pwm * p_pwm, uint8_t channel,
 extern void pwmc_disable_output_override(Pwm *p_pwm, uint8_t channel,
 		uint8_t is_pwmh, uint8_t sync);
 
+/**
+ * \brief Sets the dead time used by a PWM channel.
+ * This function writes directly to the DT register if the channel is disabled;
+ * otherwise it uses the update register DTUPD.
+ * Note that the dead time must always be inferior or equal to the channel
+ * period.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param time_h Dead time value for PWMHx output.
+ * \param time_l Dead time value for PWMLx output.
+ */
+extern void pwmc_output_dead_time(Pwm * p_pwm, uint8_t channel,
+		uint16_t time_h, uint16_t time_l);
+
 #ifdef __cplusplus
 }
 #endif

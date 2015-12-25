@@ -339,3 +339,25 @@ void pwmc_disable_output_override(Pwm *p_pwm, uint8_t channel,
 	else
 		p_pwm->PWM_OSCUPD = mask;
 }
+
+void pwmc_output_dead_time(Pwm * p_pwm, uint8_t channel,
+		uint16_t time_h, uint16_t time_l)
+{
+	uint32_t dead_time;
+
+	trace_debug("pwm: CH%u output dead time H: %u, L: %u\n\r",
+			(unsigned)channel, (unsigned)time_h, (unsigned)time_l);
+
+	assert(time_h <= p_pwm->PWM_CH_NUM[channel].PWM_CPRD \
+		- p_pwm->PWM_CH_NUM[channel].PWM_CDTY);
+	assert(time_l <= p_pwm->PWM_CH_NUM[channel].PWM_CDTY);
+
+	dead_time = PWM_DT_DTH(time_h) | PWM_DT_DTL(time_l);
+
+	/* If channel is disabled, write to DT */
+	if ((p_pwm->PWM_SR & (1 << channel)) == 0)
+		p_pwm->PWM_CH_NUM[channel].PWM_DT = dead_time;
+	/* Otherwise use update register */
+	else
+		p_pwm->PWM_CH_NUM[channel].PWM_DTUPD = dead_time;
+}
