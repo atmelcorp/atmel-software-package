@@ -182,6 +182,7 @@ static void _display_menu(void)
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
+	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
 	printf("  o: PWM output override / dead time settings \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
@@ -446,6 +447,10 @@ int main(void)
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_dma(1, pwm_channel, cprd, clock);
 				break;
+			case 'm':
+				pwmc_configure_stepper_motor_mode(PWM,
+					PWM_SMMR_GCEN0 | PWM_SMMR_GCEN1 | PWM_SMMR_DOWN0);
+				break;
 			case 'o':
 				printf("\n\r  ---- Input options: ----\r\n");
 				printf("  0/1: override to 0/1\n\r  others: set dead-time\n\r");
@@ -477,6 +482,7 @@ int main(void)
 				/* no PWM synchronous channels */
 				pwmc_configure_sync_channels(PWM, 0);
 				pwmc_set_dma_finished_callback(NULL, 0);
+				pwmc_configure_stepper_motor_mode(PWM, 0);
 				_display_menu();
 				break;
 			}
