@@ -466,4 +466,22 @@ void pwmc_configure_external_trigger(Pwm *p_pwm,
 	}
 }
 
+void pwmc_configure_leading_edge_blanking(Pwm *p_pwm,
+		uint32_t channel, uint32_t value)
+{
+	trace_debug("pwm: leading-edge blanking channel %u, value %08x\n\r", \
+		(unsigned)channel, (unsigned)value);
+	switch (channel) {
+	case 1:
+		p_pwm->PWM_LEBR1 = value;
+		break;
+	case 2:
+		p_pwm->PWM_LEBR2 = value;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 #endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */

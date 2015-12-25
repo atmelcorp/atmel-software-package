@@ -391,6 +391,16 @@ extern void pwmc_configure_comparison_unit(Pwm *p_pwm, uint32_t x,
 extern void pwmc_configure_external_trigger(Pwm *p_pwm,
 		uint32_t channel, uint32_t value);
 
+/**
+ * \brief Configure leading-edge blanking.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param value Leading-edge blanking configuration.
+ */
+extern void pwmc_configure_leading_edge_blanking(Pwm *p_pwm,
+		uint32_t channel, uint32_t value);
+
 #endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */
 
 #ifdef __cplusplus
