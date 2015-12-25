@@ -132,6 +132,53 @@ volatile uint32_t dwTimeStamp = 0;
 static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
 
 /*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Configure outputs for a PWM asynchronous channel
+ */
+static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
+		uint32_t cprd, uint32_t clock)
+{
+	uint32_t mode;
+	static uint32_t duty_cycle;
+	static bool duty_cycle_inc;
+
+	if (init) {
+		/* Configure PWM channel 0 */
+		pwmc_disable_channel(PWM, channel);
+		mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ;
+		pwmc_configure_channel(PWM, channel, mode);
+		pwmc_set_period(PWM, channel, cprd);
+		pwmc_set_duty_cycle(PWM, channel, 0);
+		pwmc_enable_channel(PWM, channel);
+		duty_cycle = 0;
+		duty_cycle_inc = true;
+		return;
+	}
+	printf("-- PWM Channel %u Duty cycle: %lu%% Signal Period: %lu ms--\n\r",
+			(unsigned)channel,
+			(unsigned)(duty_cycle*100)/cprd,
+			(unsigned)((2*cprd*1024*32))/(clock/1000));
+
+	pwmc_set_duty_cycle(PWM, channel, duty_cycle);
+	timer_wait(50);
+
+	if (duty_cycle_inc) {
+		if (duty_cycle < (cprd - 1))
+			duty_cycle++;
+		else
+			duty_cycle_inc = false;;
+	} else {
+		if (duty_cycle > 0)
+			duty_cycle--;
+		else
+			duty_cycle_inc = true;
+	}
+}
+
+/*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
 
@@ -143,10 +190,11 @@ static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
  */
 int main(void)
 {
+	uint8_t key;
 	uint32_t mode, cprd;
 	uint32_t clock;
-	uint32_t duty_cycle;
-	bool duty_cycle_inc;
+	uint32_t pwm_channel;
+	uint8_t current_demo = 'h';
 
 	/* Disable watchdog */
 	wdt_disable();
@@ -180,8 +228,8 @@ int main(void)
 	printf("Configure PIT \n\r");
 	timer_configure(1000);
 
-	/* PIO configuration (only first LED) */
-	pio_configure(pins_pwm_led, 1);
+	/* PIO configuration */
+	pio_configure(pins_pwm_led, ARRAY_SIZE(pins_pwm_led));
 
 	/* Enable PWM peripheral clock */
 	pmc_enable_peripheral(ID_PWM);
@@ -196,37 +244,24 @@ int main(void)
 	printf("-- PWM Peripheral Clock: %u MHz --\n\r",
 			(unsigned)(clock/1000000));
 
-	/* Configure PWM channel 0 */
-	pwmc_disable_channel(PWM, PWM_LED_CH_0);
-	mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ;
-	pwmc_configure_channel(PWM, PWM_LED_CH_0, mode);
 	cprd = 26;
-	pwmc_set_period(PWM, PWM_LED_CH_0, cprd);
-	pwmc_set_duty_cycle(PWM, PWM_LED_CH_0, 0);
-	pwmc_enable_channel(PWM, PWM_LED_CH_0);
 
-	duty_cycle = 0;
-	duty_cycle_inc = true;
-	do {
-
-		printf("-- PWM Channel 1 ClockA Duty cycle: %lu%% Signal Period: %lu ms  --\n\r",
-				(unsigned)(duty_cycle*100)/cprd,
-				(unsigned)((2*cprd*1024*32))/(clock/1000));
-
-		pwmc_set_duty_cycle(PWM, PWM_LED_CH_0, duty_cycle);
-		timer_wait(50);
-
-		if (duty_cycle_inc) {
-			if (duty_cycle < (cprd - 1))
-				duty_cycle++;
-			else
-				duty_cycle_inc = false;;
-		} else {
-			if (duty_cycle > 0)
-				duty_cycle--;
-			else
-				duty_cycle_inc = true;
+	while (1) {
+		if (console_is_rx_ready()) {
+			key = console_get_char();
+			printf("Input %c\n\r", key);
+			switch (key) {
+			case 'a':
+				current_demo = key;
+				pwm_channel = PWM_LED_CH_0;
+				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
+				break;
+			default:
+				break;
+			}
 		}
-	} while(1);
+		if ('a' == current_demo)
+			_pwm_demo_asynchronous_channel(0, pwm_channel, cprd, clock);
+	}
 }
 
