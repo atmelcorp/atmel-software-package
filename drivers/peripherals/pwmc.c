@@ -399,3 +399,13 @@ void pwmc_configure_event_line_mode(Pwm *p_pwm, uint32_t value)
 {
 	p_pwm->PWM_ELMR[0] = value;
 }
+
+void pwmc_configure_spread_spectrum_mode(Pwm *p_pwm, uint32_t value)
+{
+	/* If channel 0 is disabled, write to SSPR */
+	if (0 == (p_pwm->PWM_SR & (1 << 0)))
+		p_pwm->PWM_SSPR = value;
+	/* Otherwise use update register */
+	else
+		p_pwm->PWM_SSPUP = PWM_SSPUP_SPRDUP(value);
+}

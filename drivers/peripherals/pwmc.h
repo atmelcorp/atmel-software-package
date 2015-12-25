@@ -337,6 +337,14 @@ extern void pwmc_enable_fault_protection(Pwm *p_pwm, uint8_t channel,
  */
 extern void pwmc_configure_event_line_mode(Pwm *p_pwm, uint32_t value);
 
+/**
+ * \brief Configure spread spectrum mode.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param mode Bitwise OR for SSPR
+ */
+extern void pwmc_configure_spread_spectrum_mode(Pwm *p_pwm, uint32_t value);
+
 #ifdef __cplusplus
 }
 #endif
