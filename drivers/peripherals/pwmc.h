@@ -329,6 +329,14 @@ extern void pwmc_set_fault_protection(Pwm *p_pwm, uint32_t value1, uint32_t valu
 extern void pwmc_enable_fault_protection(Pwm *p_pwm, uint8_t channel,
 		uint8_t fault_inputs);
 
+/**
+ * \brief Configure event line mode.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param value Bitwise OR of ELMR[y].
+ */
+extern void pwmc_configure_event_line_mode(Pwm *p_pwm, uint32_t value);
+
 #ifdef __cplusplus
 }
 #endif

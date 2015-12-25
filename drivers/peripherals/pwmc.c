@@ -394,3 +394,8 @@ void pwmc_enable_fault_protection(Pwm *p_pwm, uint8_t channel,
 	tmp &= ~(PWM_FPE_FPE0_Msk << channel);
 	p_pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << channel);
 }
+
+void pwmc_configure_event_line_mode(Pwm *p_pwm, uint32_t value)
+{
+	p_pwm->PWM_ELMR[0] = value;
+}
