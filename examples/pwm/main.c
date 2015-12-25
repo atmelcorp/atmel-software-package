@@ -104,6 +104,22 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
+/** Timer Counter descriptor definition */
+struct _tc_desc {
+	Tc* addr;
+	uint8_t channel;
+};
+
+/** maximum captures */
+#define MAX_CAPTURES 32
+
+/** define IDLE status for capturing */
+#define TC_CAPTURE_IDLE ((uint32_t)-1)
+
+/** define pin to capture the waveform */
+#define PIN_TC_CAPTURE_IN { \
+	PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT}
+
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -131,6 +147,22 @@ volatile uint32_t dwTimeStamp = 0;
 /** Pio pins to configure. */
 static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
 
+/** PIOs for TC capture, waveform */
+static const struct _pin pins_tc[] = {PIN_TC_CAPTURE_IN};
+
+/** define Timer Counter descriptor for capture */
+static struct _tc_desc tc_capture = {
+	.addr = TC0,
+	.channel = 2,
+};
+
+/** Clock selection for capture channel */
+static uint8_t capture_clock_sel = 4;
+/** capture index */
+static uint32_t captured_pulses = TC_CAPTURE_IDLE;
+/** capturing buffer */
+static uint32_t captured_rarb[MAX_CAPTURES][2];
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -143,8 +175,93 @@ static void _display_menu(void)
 	printf("\n\rMenu :\n\r");
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
+	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
 	printf("  -------------------------------------------\n\r\n\r");
+}
+
+/**
+ * \brief Interrupt handler for the TC capture.
+ */
+static void _tc_capture_handler(void)
+{
+	uint32_t status = tc_get_status(tc_capture.addr, tc_capture.channel);
+
+	if ( (status & TC_SR_LDRBS) == TC_SR_LDRBS ) {
+		tc_get_ra_rb_rc(tc_capture.addr, tc_capture.channel,
+			&captured_rarb[captured_pulses][0],
+			&captured_rarb[captured_pulses][1],
+			0);
+		captured_pulses++;
+		if (captured_pulses >= MAX_CAPTURES)
+			tc_stop(tc_capture.addr, tc_capture.channel);
+	}
+}
+
+/**
+ * \brief Configure a TC channel as capture operating mode.
+ */
+static void _tc_capture_initialize(struct _tc_desc *tcd)
+{
+	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
+	uint32_t mode = TC_CMR_TCCLKS(capture_clock_sel)
+		| TC_CMR_LDRA_RISING
+		| TC_CMR_LDRB_FALLING
+		| TC_CMR_ABETRG
+		| TC_CMR_ETRGEDG_FALLING;
+
+	pmc_enable_peripheral(tc_id);
+
+	tc_configure(tcd->addr, tcd->channel, mode);
+
+	aic_set_source_vector(tc_id, _tc_capture_handler);
+	aic_enable(tc_id);
+}
+
+/**
+ * \brief start capture
+ */
+static void _start_capture(void)
+{
+	if (TC_CAPTURE_IDLE != captured_pulses) {
+		printf ("Capturing, can not start new capture\n\r");
+		return;
+	}
+	printf("Start capture, result will be dumped to console when finished.\n\r");
+	tc_enable_it(tc_capture.addr, tc_capture.channel, TC_IER_LDRBS);
+	captured_pulses = 0;
+	/* Reset and enable the timer counter for TC capture channel */
+	tc_start(tc_capture.addr, tc_capture.channel);
+}
+
+/**
+ * \brief dump captured results to console
+ */
+static void _show_captured_results(void)
+{
+	uint32_t i;
+	uint32_t frequence;
+	uint32_t duty_cycle;
+
+	if ((captured_pulses < MAX_CAPTURES)
+		|| (TC_CAPTURE_IDLE == captured_pulses)) {
+		return;
+	}
+
+	printf("\n\rCaptured %u pulses from TC capture channel:\n\r",
+			(unsigned int)captured_pulses);
+	for (i = 0; i < MAX_CAPTURES; ++i)
+	{
+		frequence = tc_get_available_freq(capture_clock_sel);
+		frequence /= captured_rarb[i][1];
+		duty_cycle = (captured_rarb[i][1] - captured_rarb[i][0]) * 100;
+		duty_cycle /= captured_rarb[i][1];
+		printf("Captured[%d] frequency = %d Hz, Duty cycle = %d%% \n\r",
+			i, frequence, duty_cycle);
+	}
+	printf("\n\r");
+
+	captured_pulses = TC_CAPTURE_IDLE;
 }
 
 /**
@@ -240,6 +357,13 @@ int main(void)
 	printf("Configure PIT \n\r");
 	timer_configure(1000);
 
+	/* Configure PIO Pins for TC0 */
+	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));
+	/* Configure one TC channel as capture operating mode */
+	printf("Configure TC channel %d as capture operating mode \n\r",
+		tc_capture.channel);
+	_tc_capture_initialize(&tc_capture);
+
 	/* PIO configuration */
 	pio_configure(pins_pwm_led, ARRAY_SIZE(pins_pwm_led));
 
@@ -269,6 +393,9 @@ int main(void)
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
 				break;
+			case 'c':
+				_start_capture();
+				break;
 			case 'h':
 			default:
 				current_demo = key;
@@ -277,6 +404,7 @@ int main(void)
 				break;
 			}
 		}
+		_show_captured_results();
 		if ('a' == current_demo)
 			_pwm_demo_asynchronous_channel(0, pwm_channel, cprd, clock);
 	}
