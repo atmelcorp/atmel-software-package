@@ -429,3 +429,19 @@ uint32_t pwmc_get_write_protection_status(Pwm *p_pwm)
 {
 	return p_pwm->PWM_WPSR;
 }
+
+void pwmc_configure_comparison_unit(Pwm *p_pwm, uint32_t x,
+		uint32_t value, uint32_t mode)
+{
+	assert(x < 8);
+
+	/* If channel is disabled, write to CMPxM & CMPxV */
+	if ((p_pwm->PWM_SR & (1 << 0)) == 0) {
+		p_pwm->PWM_CMP[x].PWM_CMPM = mode;
+		p_pwm->PWM_CMP[x].PWM_CMPV = value;
+	} else {
+		/* Otherwise use update register */
+		p_pwm->PWM_CMP[x].PWM_CMPMUPD = mode;
+		p_pwm->PWM_CMP[x].PWM_CMPVUPD = value;
+	}
+}

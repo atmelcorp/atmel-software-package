@@ -369,6 +369,16 @@ extern void pwmc_set_write_protection_control(Pwm *p_pwm, uint32_t value);
  */
 extern uint32_t pwmc_get_write_protection_status(Pwm *p_pwm);
 
+/**
+ * \brief Configure comparison unit.
+ *
+ * \param x comparison x index
+ * \param value comparison x value.
+ * \param mode comparison x mode
+ */
+extern void pwmc_configure_comparison_unit(Pwm *p_pwm, uint32_t x,
+		uint32_t value, uint32_t mode);
+
 #ifdef __cplusplus
 }
 #endif
