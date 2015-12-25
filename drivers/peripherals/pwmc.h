@@ -379,6 +379,20 @@ extern uint32_t pwmc_get_write_protection_status(Pwm *p_pwm);
 extern void pwmc_configure_comparison_unit(Pwm *p_pwm, uint32_t x,
 		uint32_t value, uint32_t mode);
 
+#ifdef CONFIG_HAVE_PWM_EXTERNAL_TRIGGER
+
+/**
+ * \brief Configure external trigger.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param value External trigger configuration.
+ */
+extern void pwmc_configure_external_trigger(Pwm *p_pwm,
+		uint32_t channel, uint32_t value);
+
+#endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */
+
 #ifdef __cplusplus
 }
 #endif

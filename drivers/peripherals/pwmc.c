@@ -445,3 +445,25 @@ void pwmc_configure_comparison_unit(Pwm *p_pwm, uint32_t x,
 		p_pwm->PWM_CMP[x].PWM_CMPVUPD = value;
 	}
 }
+
+#ifdef CONFIG_HAVE_PWM_EXTERNAL_TRIGGER
+
+void pwmc_configure_external_trigger(Pwm *p_pwm,
+		uint32_t channel, uint32_t value)
+{
+	trace_debug("pwm: external trigger for channel %u, value %08x\n\r", \
+		(unsigned)channel, (unsigned)value);
+	switch (channel) {
+	case 1:
+		p_pwm->PWM_ETRG1 = value;
+		break;
+	case 2:
+		p_pwm->PWM_ETRG2 = value;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+#endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */
