@@ -57,6 +57,20 @@
 
 #include <stdint.h>
 
+/*----------------------------------------------------------------------------
+ *        Macros
+ *----------------------------------------------------------------------------*/
+
+/** definitions for PWM fault inputs */
+enum _pwm_fault_inputs{
+	PWM_FAULT_INPUT_PWMFI0 = 0,
+	PWM_FAULT_INPUT_PWMFI1 = 1,
+	PWM_FAULT_INPUT_MAIN_OSC = 2,
+	PWM_FAULT_INPUT_ADC = 3,
+	PWM_FAULT_INPUT_TIMER0 = 4,
+	PWM_FAULT_INPUT_TIMER1 = 5,
+};
+
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
@@ -271,6 +285,49 @@ extern void pwmc_disable_output_override(Pwm *p_pwm, uint8_t channel,
  */
 extern void pwmc_output_dead_time(Pwm * p_pwm, uint8_t channel,
 		uint16_t time_h, uint16_t time_l);
+
+/**
+ * \brief Set PWM fault mode.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param mode Bitwise OR of fault mode.
+ */
+extern void pwmc_set_fault_mode(Pwm *p_pwm, uint32_t mode);
+
+/**
+ * \brief Get fault status.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \return Fault status.
+ */
+extern uint32_t pwmc_get_fault_status(Pwm *p_pwm);
+
+/**
+ * \brief PWM fault clear.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param fault Bitwise OR of fault to clear.
+ */
+extern void pwmc_fault_clear(Pwm *p_pwm, uint32_t fault);
+
+/**
+ * \brief Set PWM fault protections.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param value1 Bitwise OR for PWM_FPV1.
+ * \param value2 Bitwise OR for PWM_FPV2.
+ */
+extern void pwmc_set_fault_protection(Pwm *p_pwm, uint32_t value1, uint32_t value2);
+
+/**
+ * \brief Enable PWM fault protection.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param fault_inputs Bitwise OR of FPEx[y].
+ */
+extern void pwmc_enable_fault_protection(Pwm *p_pwm, uint8_t channel,
+		uint8_t fault_inputs);
 
 #ifdef __cplusplus
 }

@@ -361,3 +361,36 @@ void pwmc_output_dead_time(Pwm * p_pwm, uint8_t channel,
 	else
 		p_pwm->PWM_CH_NUM[channel].PWM_DTUPD = dead_time;
 }
+
+void pwmc_set_fault_mode(Pwm *p_pwm, uint32_t mode)
+{
+	trace_debug("pwm: set fault mode 0x%08x\n\r",
+			(unsigned)mode);
+	p_pwm->PWM_FMR = mode;
+}
+
+uint32_t pwmc_get_fault_status(Pwm *p_pwm)
+{
+	return p_pwm->PWM_FSR;
+}
+
+void pwmc_fault_clear(Pwm *p_pwm, uint32_t fault)
+{
+	p_pwm->PWM_FCR = fault;
+}
+
+void pwmc_set_fault_protection(Pwm *p_pwm, uint32_t value1, uint32_t value2)
+{
+	p_pwm->PWM_FPV1 = value1;
+	p_pwm->PWM_FPV2 = value2;
+}
+
+void pwmc_enable_fault_protection(Pwm *p_pwm, uint8_t channel,
+		uint8_t fault_inputs)
+{
+	volatile uint32_t tmp;
+	assert(PWMCH_NUM_NUMBER > channel);
+	tmp = p_pwm->PWM_FPE;
+	tmp &= ~(PWM_FPE_FPE0_Msk << channel);
+	p_pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << channel);
+}
