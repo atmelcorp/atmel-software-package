@@ -234,6 +234,29 @@ extern void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args);
  */
 extern void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size);
 
+/**
+ * \brief Set override output.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param is_pwmh which output to override 0: PWML, others: PWMH.
+ * \param level Output level for override.
+ * \param sync 0: enable the output asynchronously, 1: enable it synchronously
+ */
+extern void pwmc_output_override(Pwm * p_pwm, uint8_t channel,
+		uint8_t is_pwmh, uint8_t level, uint8_t sync);
+
+/**
+ * \brief Disable override output.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param channel Channel number.
+ * \param is_pwmh which output to override 0: PWML, others: PWMH.
+ * \param sync 0: enable the output asynchronously, 1: enable it synchronously
+ */
+extern void pwmc_disable_output_override(Pwm *p_pwm, uint8_t channel,
+		uint8_t is_pwmh, uint8_t sync);
+
 #ifdef __cplusplus
 }
 #endif

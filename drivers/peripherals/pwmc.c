@@ -289,3 +289,53 @@ void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size)
 	l2cc_clean_region((uint32_t)duty, (uint32_t)(duty+size));
 	xdmad_start_transfer(dma_channel);
 }
+
+void pwmc_output_override(Pwm * p_pwm, uint8_t channel,
+		uint8_t is_pwmh, uint8_t level, uint8_t sync)
+{
+	volatile uint32_t tmp;
+	uint32_t mask;
+
+	trace_debug("pwm: CH%u PWM%c output overridden to %u\n\r",
+			(unsigned)channel, (0 != is_pwmh) ? 'H' : 'L', (unsigned)level);
+
+	if (0 == is_pwmh)
+		mask = PWM_OSS_OSSH0 << channel;
+	else
+		mask = PWM_OSS_OSSL0 << channel;
+
+	tmp = p_pwm->PWM_OOV;
+	if (0 == level)
+		tmp &= ~mask;
+	else
+		tmp |= mask;
+	p_pwm->PWM_OOV = tmp;
+
+	/* If channel is disabled, write to OSS */
+	if (((p_pwm->PWM_SR & (1 << channel)) == 0) || (0 != sync))
+		p_pwm->PWM_OSS = mask;
+	/* Otherwise use update register */
+	else
+		p_pwm->PWM_OSSUPD = mask;
+}
+
+void pwmc_disable_output_override(Pwm *p_pwm, uint8_t channel,
+		uint8_t is_pwmh, uint8_t sync)
+{
+	uint32_t mask;
+
+	trace_debug("pwm: CH%u PWM%c output override disabled\n\r",
+			(unsigned)channel, (0 != is_pwmh) ? 'H' : 'L');
+
+	if (0 == is_pwmh)
+		mask = PWM_OSS_OSSH0 << channel;
+	else
+		mask = PWM_OSS_OSSL0 << channel;
+
+	/* If channel is disabled, write to OSS */
+	if (((p_pwm->PWM_SR & (1 << channel)) == 0) || (0 != sync))
+		p_pwm->PWM_OSC = mask;
+	/* Otherwise use update register */
+	else
+		p_pwm->PWM_OSCUPD = mask;
+}
