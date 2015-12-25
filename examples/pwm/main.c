@@ -182,6 +182,8 @@ static void _display_menu(void)
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
+	printf("  f: PWM fault mode initialize \n\r");
+	printf("  F: PWM fault mode clear and disable \n\r");
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
 	printf("  o: PWM output override / dead time settings \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
@@ -271,6 +273,18 @@ static void _show_captured_results(void)
 	printf("\n\r");
 
 	captured_pulses = TC_CAPTURE_IDLE;
+}
+
+/**
+ * \brief Interrupt handler for the PWM.
+ */
+static void _pwm_handler(void)
+{
+	trace_debug("PWM handler, interrupt status 0x%08x 0x%08x, "
+		"fault status 0x%08x\r\n",
+		pwmc_get_it_status1(PWM),
+		pwmc_get_it_status2(PWM),
+		pwmc_get_fault_status(PWM));
 }
 
 /**
@@ -446,6 +460,31 @@ int main(void)
 				current_demo = key;
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_dma(1, pwm_channel, cprd, clock);
+				break;
+			case 'f':
+				pwmc_set_fault_mode(PWM,
+					PWM_FMR_FPOL(1 << PWM_FAULT_INPUT_TIMER0)
+					| PWM_FMR_FMOD(0) | PWM_FMR_FFIL(0));
+				pwmc_set_fault_protection(PWM, PWM_FPV1_FPVH2 | PWM_FPV1_FPVL2, 0);
+				pwmc_enable_fault_protection(PWM, pwm_channel, PWM_FAULT_INPUT_TIMER0);
+
+				pmc_enable_peripheral(ID_TC0);
+				tc_configure(TC0, 0,
+					TC_CMR_TCCLKS(4) | TC_CMR_WAVE | TC_CMR_CPCTRG);
+				tc_set_fault_mode(TC0, TC_FMR_ENCF0);
+				aic_set_source_vector(ID_PWM, _pwm_handler);
+				pwmc_enable_it(PWM, PWM_IER1_FCHID0, 0);
+				aic_enable(ID_PWM);
+
+				{
+					uint32_t rc = 0x10000;
+					tc_set_ra_rb_rc(TC0, 0, NULL, NULL, &rc);
+				}
+				tc_start(TC0, 0);
+				break;
+			case 'F':
+				pwmc_fault_clear(PWM, PWM_FAULT_INPUT_TIMER0);
+				tc_set_fault_mode(TC0, 0);
 				break;
 			case 'm':
 				pwmc_configure_stepper_motor_mode(PWM,
