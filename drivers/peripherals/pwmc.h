@@ -57,6 +57,13 @@
 
 #include <stdint.h>
 
+/*------------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+/** definitions for PWM callback function */
+typedef void (*pwmc_callback_t)(void* args);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -210,6 +217,22 @@ extern void pwmc_set_sync_channels_update_period(Pwm * p_pwm,
  * \param period update period.
  */
 extern void pwmc_set_sync_channels_update_period_update(Pwm * p_pwm, uint8_t period);
+
+/**
+ * \brief Sets the update period of the synchronous channels.
+ *
+ * \param cb Point to PWM call back routine.
+ * \param user_args parameter for call back routine.
+ */
+extern void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args);
+
+/**
+ * \brief Sets the update period of the synchronous channels.
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param duty Pointer to a duty buffer to be set.
+ * \param size size of duties to be transfered.
+ */
+extern void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size);
 
 #ifdef __cplusplus
 }

@@ -82,10 +82,18 @@
 
 #include "chip.h"
 #include "peripherals/pwmc.h"
+#include "peripherals/xdmad.h"
+#include "peripherals/l2cc.h"
 #include "trace.h"
 
 #include <stdint.h>
 #include <assert.h>
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+static pwmc_callback_t pwmc_cb = NULL;
+static void *pwmc_cb_user_args;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -226,4 +234,58 @@ void pwmc_set_sync_channels_update_period(Pwm * p_pwm,
 void pwmc_set_sync_channels_update_period_update(Pwm * p_pwm, uint8_t period)
 {
 	p_pwm->PWM_SCUPUPD = PWM_SCUPUPD_UPRUPD(period);
+}
+
+static void _pwm_xdmad_callback_wrapper(struct _xdmad_channel *dma_channel,
+		void *arg)
+{
+	(void)arg;
+	if (xdmad_is_transfer_done(dma_channel)) {
+		xdmad_free_channel(dma_channel);
+		if (pwmc_cb)
+			pwmc_cb(pwmc_cb_user_args);
+	}
+}
+
+void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args)
+{
+	pwmc_cb = cb;
+	pwmc_cb_user_args = user_args;
+}
+
+void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size)
+{
+	struct _xdmad_channel *dma_channel;
+	struct _xdmad_cfg cfg;
+	uint32_t id = get_pwm_id_from_addr(p_pwm);
+
+	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
+	assert(dma_channel);
+
+	xdmad_prepare_channel(dma_channel);
+
+	cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_MBSIZE_SINGLE
+		| XDMAC_CC_DSYNC_MEM2PER
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_CSIZE_CHK_1
+		| XDMAC_CC_DWIDTH_HALFWORD
+		| XDMAC_CC_DIF_AHB_IF1
+		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_DAM_FIXED_AM
+		| XDMAC_CC_SAM_INCREMENTED_AM;
+
+	cfg.ublock_size = size;
+	cfg.block_size = 0;
+	cfg.data_stride = 0;
+	cfg.src_ublock_stride = 0;
+	cfg.dest_ublock_stride = 0;
+	cfg.src_addr = (void*)duty;
+	cfg.dest_addr = (void*)&p_pwm->PWM_DMAR;
+
+	xdmad_configure_transfer(dma_channel, &cfg, 0, 0);
+	xdmad_set_callback(dma_channel, _pwm_xdmad_callback_wrapper, NULL);
+
+	l2cc_clean_region((uint32_t)duty, (uint32_t)(duty+size));
+	xdmad_start_transfer(dma_channel);
 }
