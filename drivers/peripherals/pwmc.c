@@ -189,3 +189,41 @@ void pwmc_set_duty_cycle(Pwm * p_pwm, uint8_t channel, uint16_t duty)
 		p_pwm->PWM_CH_NUM[channel].PWM_CDTYUPD = duty;
 	}
 }
+
+void pwmc_configure_sync_channels(Pwm * p_pwm, uint32_t mode)
+{
+	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " \
+			"DMA Request Mode %u, Request Comparison Selection %u\n\r",
+			(unsigned)(mode & (PWM_SCM_SYNC0 | PWM_SCM_SYNC1 \
+				| PWM_SCM_SYNC2 | PWM_SCM_SYNC3)), \
+			(unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos), \
+			(unsigned)(0 != (mode & PWM_SCM_PTRM)), \
+			(unsigned)((mode & PWM_SCM_PTRCS_Msk) >> PWM_SCM_PTRCS_Pos));
+
+	/* Defining a channel as a synchronous channel while it is an asynchronous
+	channel (by writing the bit SYNCx to '1' while it was at '0') is allowed
+	only if the channel is disabled at this time (CHIDx = 0 in PWM_SR). In the
+	same way, defining a channel as an asynchronous channel while it is a
+	synchronous channel (by writing the SYNCx bit to '0' while it was '1') is
+	allowed only if the channel is disabled at this time. */
+	assert(0 == (p_pwm->PWM_SR & ((p_pwm->PWM_SCM ^ mode) \
+		& (PWM_SCM_SYNC0 | PWM_SCM_SYNC1 | PWM_SCM_SYNC2 | PWM_SCM_SYNC3))));
+	assert(3 != ((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos));
+	p_pwm->PWM_SCM = mode;
+}
+
+void pwmc_set_sync_channels_update_unlock(Pwm * p_pwm)
+{
+	p_pwm->PWM_SCUC = PWM_SCUC_UPDULOCK;
+}
+
+void pwmc_set_sync_channels_update_period(Pwm * p_pwm,
+		uint8_t counter, uint8_t period)
+{
+	p_pwm->PWM_SCUP = PWM_SCUP_UPRCNT(counter) | PWM_SCUP_UPR(period);
+}
+
+void pwmc_set_sync_channels_update_period_update(Pwm * p_pwm, uint8_t period)
+{
+	p_pwm->PWM_SCUPUPD = PWM_SCUPUPD_UPRUPD(period);
+}

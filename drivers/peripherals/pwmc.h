@@ -181,6 +181,36 @@ extern void pwmc_set_period(Pwm * p_pwm, uint8_t channel, uint16_t period);
  */
 extern void pwmc_set_duty_cycle(Pwm * p_pwm, uint8_t channel, uint16_t duty);
 
+/**
+ * \brief Set PWM synchronous channels mode.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param mode Channel number.
+ */
+extern void pwmc_configure_sync_channels(Pwm * p_pwm, uint32_t mode);
+
+/**
+ * \brief Sets synchronous channels update unlock.
+ * \param p_pwm Pointer to a Pwm instance.
+ */
+extern void pwmc_set_sync_channels_update_unlock(Pwm * p_pwm);
+
+/**
+ * \brief Sets synchronous channels update period.
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param counter update period counter.
+ * \param period update period.
+ */
+extern void pwmc_set_sync_channels_update_period(Pwm * p_pwm,
+		uint8_t counter, uint8_t period);
+
+/**
+ * \brief Sets synchronous channels update period update register.
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param period update period.
+ */
+extern void pwmc_set_sync_channels_update_period_update(Pwm * p_pwm, uint8_t period);
+
 #ifdef __cplusplus
 }
 #endif
