@@ -85,6 +85,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/tc.h"
 #include "peripherals/wdt.h"
+#include "peripherals/xdmad.h"
 
 #include "cortex-a/mmu.h"
 #include "misc/console.h"
@@ -120,6 +121,8 @@ struct _tc_desc {
 #define PIN_TC_CAPTURE_IN { \
 	PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT}
 
+/** Duty cycle buffer length for synchronous channels */
+#define DUTY_BUFFER_LENGTH 100
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -146,6 +149,9 @@ volatile uint32_t dwTimeStamp = 0;
 
 /** Pio pins to configure. */
 static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
+
+/** Duty cycle buffer synchronous channels */
+static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
 
 /** PIOs for TC capture, waveform */
 static const struct _pin pins_tc[] = {PIN_TC_CAPTURE_IN};
@@ -175,6 +181,7 @@ static void _display_menu(void)
 	printf("\n\rMenu :\n\r");
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
+	printf("  d: PWM DMA operations with synchronous channels \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
 	printf("  -------------------------------------------\n\r\n\r");
@@ -307,6 +314,46 @@ static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
 	}
 }
 
+/**
+ * \brief PWM call-back routine for DMA operations
+ */
+static void _pwmc_callback(void* args)
+{
+	trace_debug("PWM DMA Transfer Finished\r\n");
+	pwmc_dma_duty_cycle(PWM, duty_buffer, DUTY_BUFFER_LENGTH);
+}
+
+/**
+ * \brief Configure DMA operation for PWM synchronous channel
+ */
+static void _pwm_demo_dma(uint32_t init, uint8_t channel,
+		uint32_t cprd, uint32_t clock)
+{
+	uint32_t i;
+	bool flag = false;
+	if (init) {
+		xdmad_initialize(false);
+		pwmc_disable_channel(PWM, channel);
+		pwmc_configure_sync_channels(PWM,
+			PWM_SCM_UPDM_MODE2 | (1 << PWM_LED_CH_0) | (1 << 0));
+		pwmc_configure_channel(PWM, 0,
+			PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
+		pwmc_set_period(PWM, 0, cprd);
+		pwmc_set_duty_cycle(PWM, 0, 0);
+		pwmc_set_sync_channels_update_period(PWM, 0, 8);
+		/* Enable the synchronous channels */
+		pwmc_enable_channel(PWM, 0);
+		for (i = 0; i < DUTY_BUFFER_LENGTH; i++) {
+			if (0 == (i % cprd))
+				flag = !flag;
+			duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
+		}
+		pwmc_set_dma_finished_callback(_pwmc_callback, 0);
+		pwmc_dma_duty_cycle(PWM, duty_buffer, DUTY_BUFFER_LENGTH);
+		return;
+	}
+}
+
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
@@ -393,13 +440,22 @@ int main(void)
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
 				break;
+			case 'd':
+				current_demo = key;
+				pwm_channel = PWM_LED_CH_0;
+				_pwm_demo_dma(1, pwm_channel, cprd, clock);
+				break;
 			case 'c':
 				_start_capture();
 				break;
 			case 'h':
 			default:
 				current_demo = key;
+				pwmc_disable_channel(PWM, 0);
 				pwmc_disable_channel(PWM, pwm_channel);
+				/* no PWM synchronous channels */
+				pwmc_configure_sync_channels(PWM, 0);
+				pwmc_set_dma_finished_callback(NULL, 0);
 				_display_menu();
 				break;
 			}
