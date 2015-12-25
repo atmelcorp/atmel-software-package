@@ -345,6 +345,14 @@ extern void pwmc_configure_event_line_mode(Pwm *p_pwm, uint32_t value);
  */
 extern void pwmc_configure_spread_spectrum_mode(Pwm *p_pwm, uint32_t value);
 
+/**
+ * \brief Configure stepper motor mode.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param mode Bitwise OR for SMMR
+ */
+extern void pwmc_configure_stepper_motor_mode(Pwm *p_pwm, uint32_t value);
+
 #ifdef __cplusplus
 }
 #endif

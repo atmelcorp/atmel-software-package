@@ -409,3 +409,13 @@ void pwmc_configure_spread_spectrum_mode(Pwm *p_pwm, uint32_t value)
 	else
 		p_pwm->PWM_SSPUP = PWM_SSPUP_SPRDUP(value);
 }
+
+void pwmc_configure_stepper_motor_mode(Pwm *p_pwm, uint32_t value)
+{
+	trace_debug("pwm: CH0-1 Gray Count %s %s, CH2-3 Gray Count %s %s\n\r", \
+			(0 != (value & PWM_SMMR_DOWN0)) ? "Down" : "Up", \
+			(0 != (value & PWM_SMMR_GCEN0)) ? "Enable" : "Disable", \
+			(0 != (value & PWM_SMMR_DOWN1)) ? "Down" : "Up", \
+			(0 != (value & PWM_SMMR_GCEN1)) ? "Enable" : "Disable");
+	p_pwm->PWM_SMMR = value;
+}
