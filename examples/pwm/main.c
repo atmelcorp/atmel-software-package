@@ -136,6 +136,18 @@ static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
  *----------------------------------------------------------------------------*/
 
 /**
+ * \brief Displays the user menu.
+ */
+static void _display_menu(void)
+{
+	printf("\n\rMenu :\n\r");
+	printf("  -------------------------------------------\n\r");
+	printf("  a: PWM operations for asynchronous channels \n\r");
+	printf("  h: Display menu \n\r");
+	printf("  -------------------------------------------\n\r\n\r");
+}
+
+/**
  * \brief Configure outputs for a PWM asynchronous channel
  */
 static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
@@ -246,6 +258,7 @@ int main(void)
 
 	cprd = 26;
 
+	_display_menu();
 	while (1) {
 		if (console_is_rx_ready()) {
 			key = console_get_char();
@@ -256,7 +269,11 @@ int main(void)
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
 				break;
+			case 'h':
 			default:
+				current_demo = key;
+				pwmc_disable_channel(PWM, pwm_channel);
+				_display_menu();
 				break;
 			}
 		}
