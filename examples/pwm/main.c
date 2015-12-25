@@ -32,9 +32,34 @@
  *
  * \section Purpose
  *
- * This example demonstrates a simple configuration of a single PWM channel to
- * generate variable duty cycle signals.
-
+ * This example demonstrates how to use PWM module.
+ *
+ * \section Requirements
+ *
+ * This package can be used with SAMA5D4-EK, SAMA5D4-XULT and SAMA5D2-XULT.
+ *
+ * Requirements before running this example on SAMA5D2-XULT:
+ * Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board (for
+ * capture the PWM output using TC).
+ *
+ * \section Descriptions
+ *
+ * This example demonstrates how to configure a single PWM channel to generate
+ * variable duty cycle signals; how to use DMA feature for synchronous channels;
+ * and how to work with fault/override/dead-time modes. A TC is also used to
+ * capture the signal PWM outputs for analyzing.
+ *
+ * The code can be roughly broken down as follows:
+ * <ul>
+ * <li>Configure TC to capture the signal PWM outputs. 'c' to start capture.
+ * <li>Captured information would be dumped to console when finished.
+ * <li>PWM outputs can also be watched with the help of an oscillator.
+ * <li>PWM asynchronous channel operations. 'a' to configure the channel.
+ * <li>PWM DMA operations for synchronous channels. 'd' to start DMA.
+ * <li>PWM fault mode test. 'f' to lunch the fault from TC0, 'F' to clear it.
+ * <li>PWM output overide/dead-time test. 'o' to configure the parameters.
+ * </ul>
+ *
  * \section Usage
  *
  * -# Build the program and download it inside the evaluation board. Please refer to the
