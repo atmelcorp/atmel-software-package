@@ -182,6 +182,7 @@ static void _display_menu(void)
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
+	printf("  o: PWM output override / dead time settings \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
 	printf("  -------------------------------------------\n\r\n\r");
@@ -444,6 +445,26 @@ int main(void)
 				current_demo = key;
 				pwm_channel = PWM_LED_CH_0;
 				_pwm_demo_dma(1, pwm_channel, cprd, clock);
+				break;
+			case 'o':
+				printf("\n\r  ---- Input options: ----\r\n");
+				printf("  0/1: override to 0/1\n\r  others: set dead-time\n\r");
+				key = console_get_char();
+				switch (key) {
+				case '0':
+					pwmc_output_override(PWM, pwm_channel, 0, 0, 0);
+					pwmc_output_override(PWM, pwm_channel, 1, 0, 0);
+					break;
+				case '1':
+					pwmc_output_override(PWM, pwm_channel, 0, 1, 0);
+					pwmc_output_override(PWM, pwm_channel, 1, 1, 0);
+					break;
+				default:
+					pwmc_output_dead_time(PWM, pwm_channel, 0, 0);
+					pwmc_disable_output_override(PWM, pwm_channel, 0, 0);
+					pwmc_disable_output_override(PWM, pwm_channel, 1, 0);
+					break;
+				}
 				break;
 			case 'c':
 				_start_capture();
