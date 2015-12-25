@@ -353,6 +353,22 @@ extern void pwmc_configure_spread_spectrum_mode(Pwm *p_pwm, uint32_t value);
  */
 extern void pwmc_configure_stepper_motor_mode(Pwm *p_pwm, uint32_t value);
 
+/**
+ * \brief Set write protection.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \param value Write protection control value.
+ */
+extern void pwmc_set_write_protection_control(Pwm *p_pwm, uint32_t value);
+
+/**
+ * \brief Get write protection status.
+ *
+ * \param p_pwm Pointer to a Pwm instance.
+ * \return Write protection status.
+ */
+extern uint32_t pwmc_get_write_protection_status(Pwm *p_pwm);
+
 #ifdef __cplusplus
 }
 #endif

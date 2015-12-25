@@ -419,3 +419,13 @@ void pwmc_configure_stepper_motor_mode(Pwm *p_pwm, uint32_t value)
 			(0 != (value & PWM_SMMR_GCEN1)) ? "Enable" : "Disable");
 	p_pwm->PWM_SMMR = value;
 }
+
+void pwmc_set_write_protection_control(Pwm *p_pwm, uint32_t value)
+{
+	p_pwm->PWM_WPCR = value;
+}
+
+uint32_t pwmc_get_write_protection_status(Pwm *p_pwm)
+{
+	return p_pwm->PWM_WPSR;
+}
