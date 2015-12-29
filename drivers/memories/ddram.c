@@ -35,9 +35,21 @@
 
 #include "peripherals/matrix.h"
 #include "peripherals/mpddrc.h"
+#include "peripherals/pmc.h"
 
 #include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
+
+/*------------------------------------------------------------------------------
+ *        Macro
+ *----------------------------------------------------------------------------*/
+
+#ifndef MAX
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#endif
+
+/* Convert nanoseconds to clock cycles for given master clock in MHz */
+#define NS2CYCLES(ns, clk) ((((ns) * (clk)) + 999) / 1000)
 
 /*------------------------------------------------------------------------------
  *        Exported Functions
@@ -46,6 +58,8 @@
 #ifdef CONFIG_HAVE_DDR3
 static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 {
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
 	desc->type = MPDDRC_TYPE_DDR3;
 
 	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60 |
@@ -65,25 +79,71 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 		| MPDDRC_CR_UNAL_SUPPORTED;
 
 	/* timings */
-	desc->tpr0 = MPDDRC_TPR0_TRAS(6)
-		| MPDDRC_TPR0_TRCD(3)
-		| MPDDRC_TPR0_TWR(4) // 4 in mode DLL off
-		| MPDDRC_TPR0_TRC(9)
-		| MPDDRC_TPR0_TRP(3)
-		| MPDDRC_TPR0_TRRD(4) // min 4 tCK
-		| MPDDRC_TPR0_TWTR(4) // min 4 tCK
-		| MPDDRC_TPR0_TMRD(4);
+	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(35, mck))  // 35ns
+		| MPDDRC_TPR0_TRCD(NS2CYCLES(14, mck))         // 13.75ns
+		| MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))          // 15ns
+		| MPDDRC_TPR0_TRC(NS2CYCLES(49, mck))          // 48.75ns
+		| MPDDRC_TPR0_TRP(NS2CYCLES(14, mck))          // 13.75ns
+		| MPDDRC_TPR0_TRRD(4)                          // greater of 4CK or 6ns
+		| MPDDRC_TPR0_TWTR(4)                          // greater of 4CK or 7.5ns
+		| MPDDRC_TPR0_TMRD(4);                         // min = 4CK
 
-	desc->tpr1 = MPDDRC_TPR1_TRFC(27)
-		| MPDDRC_TPR1_TXSNR(29)
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(160, mck)) // 160ns
+		| MPDDRC_TPR1_TXSNR(NS2CYCLES(170, mck))       // tRFC+10ns
 		| MPDDRC_TPR1_TXSRD(0)
-		| MPDDRC_TPR1_TXP(15);
+		| MPDDRC_TPR1_TXP(10);                         // greater of 10CK or or 24ns
 
 	desc->tpr2 = MPDDRC_TPR2_TXARD(0)
 		| MPDDRC_TPR2_TXARDS(0)
 		| MPDDRC_TPR2_TRPA(0)
-		| MPDDRC_TPR2_TRTP(4)
-		| MPDDRC_TPR2_TFAW(7);
+		| MPDDRC_TPR2_TRTP(4)                          // greater of 4CK or 7.5ns
+		| MPDDRC_TPR2_TFAW(NS2CYCLES(40, mck));        // 40ns
+
+	desc->bank = 8192;
+}
+
+static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_LPDDR3;
+
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
+
+	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM ;
+
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
+
+	desc->control = MPDDRC_CR_NC_10_COL_BITS
+		| MPDDRC_CR_NR_14_ROW_BITS
+		| MPDDRC_CR_CAS_DDR_CAS3
+		| MPDDRC_CR_DLL_RESET_DISABLED
+		| MPDDRC_CR_NB_8_BANKS
+		| MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH_DDR3_RZQ6
+		| MPDDRC_CR_NDQS_ENABLED
+		| MPDDRC_CR_DECOD_SEQUENTIAL
+		| MPDDRC_CR_UNAL_SUPPORTED;
+
+	/* timings */
+	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(42, mck))        // 42ns
+		| MPDDRC_TPR0_TRCD(MAX(NS2CYCLES(18, mck), 3))   // max(18ns | 3ck)
+		| MPDDRC_TPR0_TWR(MAX(NS2CYCLES(15, mck), 3))    // max(15ns | 3ck)
+		| MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))            // 55ns
+		| MPDDRC_TPR0_TRP(MAX(NS2CYCLES(8, mck), 4))     // max(7.5ns, 4ck)
+		| MPDDRC_TPR0_TRRD(MAX(NS2CYCLES(10, mck), 2))   // max(10ns, 2ck)
+		| MPDDRC_TPR0_TWTR(MAX(NS2CYCLES(8, mck), 4))    // max(7.5ns, 4ck)
+		| MPDDRC_TPR0_TMRD(MAX(NS2CYCLES(14, mck), 10)); // max(14ns, 10ck)
+
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck))    // 130ns
+		| MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck))      // 140ns
+		| MPDDRC_TPR1_TXSRD(NS2CYCLES(140, mck))      // max(tRFCab + 10ns, 2ck)
+		| MPDDRC_TPR1_TXP(MAX(NS2CYCLES(8, mck), 2)); // max(7.5ns, 2ck)
+
+	desc->tpr2 = MPDDRC_TPR2_TXARD(0)
+		| MPDDRC_TPR2_TXARDS(0)
+		| MPDDRC_TPR2_TRPA(0)
+		| MPDDRC_TPR2_TRTP(MAX(NS2CYCLES(8, mck), 4))   // max(7.5ns, 4ck)
+		| MPDDRC_TPR2_TFAW(MAX(NS2CYCLES(50, mck), 8)); // max(50ns, 8ck)
 
 	desc->bank = 8192;
 }
@@ -91,6 +151,8 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 {
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
 	desc->type = MPDDRC_TYPE_DDR2;
 	/* DBW = 0 (32 bits bus wide);
 	 * Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
@@ -115,29 +177,33 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 		| MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 
 	/* timings */
-	desc->tpr0 = MPDDRC_TPR0_TRAS(8)	//  40 ns
-		| MPDDRC_TPR0_TRCD(3)	//  12.5 ns
-		| MPDDRC_TPR0_TWR(3)	//  15 ns
-		| MPDDRC_TPR0_TRC(10)	//  55 ns
-		| MPDDRC_TPR0_TRP(3)	//
-		| MPDDRC_TPR0_TRRD(2)	//  8 ns
-		| MPDDRC_TPR0_TWTR(2)	//  2 clock cycle
-		| MPDDRC_TPR0_TMRD(2);	//  2 clock cycles
-	desc->tpr1 = MPDDRC_TPR1_TRFC(23)
-		| MPDDRC_TPR1_TXSNR(25)
-		| MPDDRC_TPR1_TXSRD(200)
-		| MPDDRC_TPR1_TXP(2);
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)
-		| MPDDRC_TPR2_TXARDS(2)
-		| MPDDRC_TPR2_TRPA(3)
-		| MPDDRC_TPR2_TRTP(2)
-		| MPDDRC_TPR2_TFAW(7);
+	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(40, mck))  // 40ns
+		| MPDDRC_TPR0_TRCD(NS2CYCLES(13, mck))         // 12.5ns
+		| MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))          // 15ns
+		| MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))          // 55ns
+		| MPDDRC_TPR0_TRP(NS2CYCLES(13, mck))          // 12.5ns
+		| MPDDRC_TPR0_TRRD(NS2CYCLES(8, mck))          // 7.5ns
+		| MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck))         // 10ns
+		| MPDDRC_TPR0_TMRD(2);                         // 2 clock cycles
+
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(128, mck)) // 127.5ns
+		| MPDDRC_TPR1_TXSNR(NS2CYCLES(138, mck))       // (tRFC)+10 = 128.5ns
+		| MPDDRC_TPR1_TXSRD(200)                       // 200ck
+		| MPDDRC_TPR1_TXP(2);                          // 2ck
+
+	desc->tpr2 = MPDDRC_TPR2_TXARD(8)                  // 8ck
+		| MPDDRC_TPR2_TXARDS(2)                        // 2ck
+		| MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))         // 15ns
+		| MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))          // 7.5ns
+		| MPDDRC_TPR2_TFAW(NS2CYCLES(35, mck));        // 35ns
 
 	desc->bank = 8192;
 }
 
 static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 {
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
 	desc->type = MPDDRC_TYPE_DDR2;
 	/* DBW = 0 (32 bits bus wide);
 	 * Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
@@ -162,24 +228,69 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 		MPDDRC_CR_UNAL_SUPPORTED | MPDDRC_CR_OCD_DDR2_EXITCALIB;
 
 	/* timings */
-	desc->tpr0 = MPDDRC_TPR0_TRAS(8)        //  40 ns
-		| MPDDRC_TPR0_TRCD(3)           //  12.5 ns
-		| MPDDRC_TPR0_TWR(3)            //  15 ns
-		| MPDDRC_TPR0_TRC(10)           //  55 ns
-		| MPDDRC_TPR0_TRP(3)            //  12.5 ns
-		| MPDDRC_TPR0_TRRD(3)           //  8 ns
-		| MPDDRC_TPR0_TWTR(2)           //  2 clock cycle
-		| MPDDRC_TPR0_TMRD(2);          //  2 clock cycles
-	desc->tpr1 = MPDDRC_TPR1_TRFC(23)
-		| MPDDRC_TPR1_TXSNR(25)
-		| MPDDRC_TPR1_TXSRD(200)
-		| MPDDRC_TPR1_TXP(2);
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)
-		| MPDDRC_TPR2_TXARDS(2)
-		| MPDDRC_TPR2_TRPA(3)
-		| MPDDRC_TPR2_TRTP(2)
-		| MPDDRC_TPR2_TFAW(8);
+	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck))    // 45ns
+		| MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck))           // 15ns
+		| MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))            // 15ns
+		| MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))            // 55ns
+		| MPDDRC_TPR0_TRP(NS2CYCLES(15, mck))            // 15ns
+		| MPDDRC_TPR0_TRRD(NS2CYCLES(13, mck))           // 12.5ns
+		| MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck))           // 10ns
+		| MPDDRC_TPR0_TMRD(NS2CYCLES(8, mck));           // 8ns
 
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(198, mck))   // 198ns
+		| MPDDRC_TPR1_TXSNR(NS2CYCLES(208, mck))         // (tRFC)+10 = 208ns
+		| MPDDRC_TPR1_TXSRD(200)                         // 200ck
+		| MPDDRC_TPR1_TXP(2);                            // 2ck
+
+	desc->tpr2 = MPDDRC_TPR2_TXARD(8)                    // 8ck
+		| MPDDRC_TPR2_TXARDS(2)                          // 2ck
+		| MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))           // 15ns
+		| MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))            // 8ns
+		| MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck));          // 45ns
+
+	desc->bank = 8192;
+}
+
+static void _init_mt42l128m16(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_LPDDR2;
+	/* DBW = 0 (32 bits bus wide);
+	 * Memory Device = 7 = LPDDR2-SDRAM = 0x00000007 */
+	desc->mode = MPDDRC_MD_MD_LPDDR2_SDRAM | MPDDRC_MD_DBW_DBW_32_BITS;
+
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
+
+	desc->control = MPDDRC_CR_NR_14_ROW_BITS |
+		MPDDRC_CR_NC_10_COL_BITS |
+		MPDDRC_CR_CAS_DDR_CAS3 |
+		MPDDRC_CR_ENRDM_OFF |
+		MPDDRC_CR_NB_8_BANKS |
+		MPDDRC_CR_UNAL_SUPPORTED;
+
+	/* timings */
+	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(40, mck))  // 40ns
+		| MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck))         // 15ns
+		| MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))          // 15ns
+		| MPDDRC_TPR0_TRC(NS2CYCLES(60, mck))          // 60ns
+		| MPDDRC_TPR0_TRP(NS2CYCLES(15, mck))          // 15ns
+		| MPDDRC_TPR0_TRRD(NS2CYCLES(11, mck))         // 11ns
+		| MPDDRC_TPR0_TWTR(NS2CYCLES(8, mck))          // 7.5ns
+		| MPDDRC_TPR0_TMRD(2);                         // 2 clock cycles
+
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck)) // 130ns
+		| MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck))       // 140ns
+		| MPDDRC_TPR1_TXSRD(200)                       // 200ck
+		| MPDDRC_TPR1_TXP(2);                          // 2ck
+
+	desc->tpr2 = MPDDRC_TPR2_TXARD(2)                  // 2ck
+		| MPDDRC_TPR2_TXARDS(2)                        // 2ck
+		| MPDDRC_TPR2_TRPA(NS2CYCLES(18, mck))         // 18ns
+		| MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))          // 8ns
+		| MPDDRC_TPR2_TFAW(NS2CYCLES(50, mck));        // 50ns
 	desc->bank = 8192;
 }
 
@@ -191,12 +302,18 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 	case MT41K128M16:
 		_init_mt41k128m16(desc);
 		break;
+	case EDF8164A3MA:
+		_init_edf8164a3ma(desc);
+		break;
 #endif
 	case MT47H128M8CF:
 		_init_mt47h128m8cf(desc);
 		break;
 	case MT47H128M16:
 		_init_mt47h128m16(desc);
+		break;
+	case MT42L128M16:
+		_init_mt42l128m16(desc);
 		break;
 	default:
 		break;
@@ -206,7 +323,6 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 void ddram_configure(struct _mpddrc_desc* desc)
 {
 	mpddrc_configure(desc);
-
 	mmu_initialize();
 	cp15_icache_invalidate();
 	cp15_dcache_invalidate();
