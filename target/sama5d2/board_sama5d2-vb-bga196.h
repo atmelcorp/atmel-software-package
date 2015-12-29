@@ -79,6 +79,16 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+/* no DDR defined by default for VB.  Please uncomment/edit the
+ * BOARD_DDRAM_TYPE and BOARD_DDR_MEMORY_SIZE defines to enable it.
+ */
+
+/** /def Definition of DDRAM's type */
+//#define BOARD_DDRAM_TYPE         MT41K128M16
+
+/** \def Board DDR memory size in bytes */
+//#define BOARD_DDR_MEMORY_SIZE    512*1024*1024
+
 /** \def Board PIT tick resolution */
 #define BOARD_TIMER_RESOLUTION   1000
 
