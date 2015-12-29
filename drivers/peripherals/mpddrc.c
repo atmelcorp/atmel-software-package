@@ -100,6 +100,13 @@ static void _send_refresh_cmd(void)
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 }
 
+static void _send_lpddr_cmd(uint32_t mrs)
+{
+	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LPDDR2_LPDDR3_CMD | MPDDRC_MR_MRS(mrs);
+	/* Perform a write access to low-power DDR3-SDRAM address to acknowledge the command */
+	*((uint32_t *)DDR_CS_ADDR) = 0;
+}
+
 #ifdef CONFIG_HAVE_DDR3
 
 static void _send_calib_cmd(void)
@@ -126,12 +133,14 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 * single toggle.
 	 */
 	timer_sleep(50);
+
 	/*
 	 * Step 5: Issue a NOP command to the memory controller using
 	 * its mode register (MPDDRC_MR). CKE is now driven high.
 	 */
 	_send_nop_cmd();
 	timer_sleep(1);
+
 	/*
 	 * Step 6: Issue Extended Mode Register Set 2 (EMRS2) cycle to
 	 * choose between commercial or high temperature
@@ -139,18 +148,21 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 */
 	_send_ext_lmr_cmd(0x2, ba_offset);
 	timer_sleep(1);
+
 	/*
 	 * Step 7: Issue Extended Mode Register Set 3 (EMRS3) cycle to set
 	 * the Extended Mode Register to 0.
 	 */
 	_send_ext_lmr_cmd(0x3, ba_offset);
 	timer_sleep(1);
+
 	/*
 	 * Step 8: Issue Extended Mode Register Set 1 (EMRS1) cycle to
 	 * disable and to program O.D.S. (Output Driver Strength).
 	 */
 	_send_ext_lmr_cmd(0x1, ba_offset);
 	timer_sleep(1);
+
 	/*
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
@@ -162,6 +174,7 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 */
 	_send_lmr_cmd();
 	timer_sleep(5);
+
 	/*
 	 * Step 11: Issue a Calibration command (MRS) cycle to calibrate RTT and
 	 * RON values for the Process Voltage Temperature (PVT).
@@ -175,10 +188,78 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	 * to any DDR3-SDRAM address to acknowledge this command.
 	 */
 	_send_normal_cmd();
+
 	/*
 	 * Step 13: Perform a write access to any DDR3-SDRAM address.
 	 */
 	*((uint32_t *)(DDR_CS_ADDR)) = 0;
+}
+
+static void _configure_lpddr3(struct _mpddrc_desc* desc)
+{
+	/* Timings */
+	_set_ddr_timings(desc);
+
+	/*
+	 * Step 3: Issue a NOP command to the memory controller using
+	 * its mode register (MPDDRC_MR).
+	 */
+	_send_nop_cmd();
+
+	/*
+	 * Step 4: A pause of at least 100ns must be observed before a
+	 * single toggle.
+	 */
+	timer_sleep(1);
+
+	/*
+	 * Step 5: Issue a NOP command to the memory controller using
+	 * its mode register (MPDDRC_MR). CKE is now driven high.
+	 */
+	_send_nop_cmd();
+
+	/* Step 6. A pause of at least 200 μs must be observed before issuing
+	a Reset command. */
+	timer_sleep(20);
+
+	/* Step 7. A Reset command is issued to the low-power DDR3-SDRAM. Write a seven
+	to the MODE field and a 63 to the MRS field. */
+	_send_lpddr_cmd(0x3f);
+
+	/* Step 8. A pause of at least tINIT5 must be observed before issuing
+	any commands.*/
+	timer_sleep(50);
+
+	/* Step 9. Issued a calibration command with MRS field.*/
+	_send_lpddr_cmd(0xa);
+
+	/* Step 10: Perform a write access by issuing mode register write command */
+	_send_lpddr_cmd(0x1);
+
+	/* Step 11: Program parameters (CAS Latency) by issuing mode register write command */
+	_send_lpddr_cmd(0x2);
+
+	/* Step 12: Program parameters (Drive Strength and Slew Rate) by issuing mode
+	 register write command */
+	_send_lpddr_cmd(0x3);
+
+	/* Step 13: Program parameters (Partial Array Self Refresh (PASR)) by issuing mode
+	 register write command */
+	_send_lpddr_cmd(0x10);
+
+	/* Step 14: Read command cycle by issuing Mode register read command */
+	_send_lpddr_cmd(0x5);
+
+	/* Step 15: Read revision by issuing Mode register read command  */
+	_send_lpddr_cmd(0x6);
+
+	/* Step 16: Read memory organization by issuing Mode register read command */
+	_send_lpddr_cmd(0x8);
+	/* Step 17: Read device information by issuing Mode register read command */
+	_send_lpddr_cmd(0x0);
+
+	/* Step 18: Issue a Normal mode command */
+	_send_normal_cmd();
 }
 
 #endif
@@ -265,10 +346,72 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	timer_sleep(1);
 }
 
+static void _configure_lpddr2(struct _mpddrc_desc* desc)
+{
+	/* Timings */
+	_set_ddr_timings(desc);
+
+	/* Step 3: An NOP command is issued to the DDR2-SDRAM. Program
+	 * the NOP command into the Mode Register and wait minimum 200
+	 * us */
+	_send_nop_cmd();
+
+	/* Step 4: A pause of at least 100 ns must be observed before a signal toggle */
+	timer_sleep(1);
+
+	/* Step 5:  Issue a NOP command. */
+	_send_nop_cmd();
+
+	/* Step 6: A pause of at least 200 μs must be observed before
+	 * issuing a Reset command. */
+	timer_sleep(20);
+
+	/* Step 7. A Reset command is issued to the low-power DDR3-SDRAM. Write a seven
+	 * to the MODE field and a 63 to the MRS field. */
+	_send_lpddr_cmd(0x3f);
+
+	/* Step 8. A pause of at least tINIT5 must be observed before issuing
+	 * any commands.*/
+	timer_sleep(50);
+
+	/* Step 9. Issued a calibration command by issuing mode register write command */
+	_send_lpddr_cmd(0xa);
+
+	/* Step 10: Perform a write access by issuing mode register write command */
+	_send_lpddr_cmd(0x1);
+
+	/* Step 11: Program parameters (CAS Latency) by issuing mode register write command */
+	_send_lpddr_cmd(0x2);
+
+	/* Step 12: Program parameters (Drive Strength and Slew Rate) by issuing mode
+	 * register write command */
+	_send_lpddr_cmd(0x3);
+
+	/* Step 13: Program parameters (Partial Array Self Refresh (PASR)) by issuing mode
+	 * register write command */
+	_send_lpddr_cmd(0x10);
+
+	/* Step 14: Read command cycle by issuing Mode register read command */
+	_send_lpddr_cmd(0x5);
+
+	/* Step 15: Read revision by issuing Mode register read command  */
+	_send_lpddr_cmd(0x6);
+
+	/* Step 16: Read memory organization by issuing Mode register read command */
+	_send_lpddr_cmd(0x8);
+
+	/* Step 17: Read device information by issuing Mode register read command */
+	_send_lpddr_cmd(0x0);
+
+	/* Step 18: Issue a Normal mode command */
+	_send_normal_cmd();
+}
+
 extern void mpddrc_configure(struct _mpddrc_desc* desc)
 {
 	/* Retrieve the current resolution to put it back later */
 	uint32_t resolution = timer_get_resolution();
+
 	/* Configure time to have 10 microseconds resolution */
 	timer_configure(10);
 
@@ -330,9 +473,15 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #endif
 		_configure_ddr3(desc);
 		break;
+	case MPDDRC_TYPE_LPDDR3:
+		_configure_lpddr3(desc);
+		break;
 #endif
 	case MPDDRC_TYPE_DDR2:
 		_configure_ddr2(desc);
+		break;
+	case MPDDRC_TYPE_LPDDR2:
+		_configure_lpddr2(desc);
 		break;
 	default:
 		trace_error("Device not handled\r\n");
@@ -341,8 +490,8 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 
 	/* Last step: Write the refresh rate */
 	/* Refresh Timer is (64ms / (bank_size)) * master_clock */
-	uint32_t master_clock = pmc_get_master_clock()/1000000;
-	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000*master_clock/desc->bank);
+	uint32_t master_clock = pmc_get_master_clock() / 1000000;
+	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000 * master_clock / desc->bank);
 
 	/* wait for end of calibration */
 	timer_sleep(1);
