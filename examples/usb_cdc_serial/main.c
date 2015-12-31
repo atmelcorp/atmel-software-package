@@ -530,10 +530,7 @@ int main(void)
 	board_cfg_console();
 
 #ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
+	board_cfg_ddram();
 #endif
 
 	/* Output example information */
