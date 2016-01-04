@@ -237,7 +237,11 @@ uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks)
 {
 	switch (tc_clks) {
 	case TC_CMR_TCCLKS_TIMER_CLOCK1:
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 		return pmc_get_gck_clock(get_tc_id_from_addr(tc));
+#else
+		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 1;
+#endif
 	case TC_CMR_TCCLKS_TIMER_CLOCK2:
 		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 3;
 	case TC_CMR_TCCLKS_TIMER_CLOCK3:
