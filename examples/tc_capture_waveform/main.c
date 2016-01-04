@@ -38,10 +38,13 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D4-EK, SAMA5D4-XULT and SAMA5D2-XULT.
+ * This package can be used with SAMA5D4-XULT and SAMA5D2-XULT.
  *
  * Requirements before running this example on SAMA5D2-XULT:
- * Connect EXP_PA19 (J21 pin 2) and EXP_PA22 (J22 pin 6) on the board.
+ * Connect EXP_PA19 (J21 pin 2) and EXP_PB22 (J22 pin 6) on the board.
+ *
+ * Requirements before running this example on SAMA5D4-XULT:
+ * Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
  *
  * \section Descriptions
  *
@@ -146,13 +149,41 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+
+/** define channel to output the waveform */
+#define CHANNEL_TC_WAVEFORM_OUT 0
+
 /** define pin to output the waveform */
 #define PIN_TC_WAVEFORM_OUT \
 	{ PIO_GROUP_A, PIO_PA19D_TIOA0, PIO_PERIPH_D, PIO_DEFAULT }
 
+/** define channel to output the waveform */
+#define CHANNEL_TC_CAPTURE_IN 2
+
 /** define pin to capture the waveform */
 #define PIN_TC_CAPTURE_IN \
 	{ PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT }
+
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+
+/** define channel to output the waveform */
+#define CHANNEL_TC_WAVEFORM_OUT 0
+
+/** define pin to output the waveform */
+#define PIN_TC_WAVEFORM_OUT \
+	{ PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** define channel to output the waveform */
+#define CHANNEL_TC_CAPTURE_IN 1
+
+/** define pin to capture the waveform */
+#define PIN_TC_CAPTURE_IN \
+	{ PIO_GROUP_E, PIO_PE12B_TIOA1, PIO_PERIPH_B, PIO_DEFAULT }
+
+#else
+#error Unsupported board!
+#endif
 
 /** Timer Counter descriptor definition */
 struct _tc_desc;
@@ -208,14 +239,14 @@ static const struct _pin pins_tc[] = {
 /** define Timer Counter descriptor for capture */
 static struct _tc_desc tc_capture = {
 	.addr = TC0,
-	.channel = 2,
+	.channel = CHANNEL_TC_CAPTURE_IN,
 	.tc_mode = TC_MODE_CAPTURE
 };
 
 /** define Timer Counter descriptor for output waveform */
 static struct _tc_desc tc_waveform = {
 	.addr = TC0,
-	.channel = 0,
+	.channel = CHANNEL_TC_WAVEFORM_OUT,
 	.tc_mode = TC_MODE_WAVEFORM
 };
 
