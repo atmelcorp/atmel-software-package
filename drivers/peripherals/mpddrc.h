@@ -33,11 +33,12 @@
 #include <stdint.h>
 
 enum _ram_type {
-	MPDDRC_TYPE_DDR3,
-	MPDDRC_TYPE_LPDDR3,
 	MPDDRC_TYPE_DDR2,
 	MPDDRC_TYPE_LPDDR2,
-	MPDDRC_TYPE_DDR
+#ifdef CONFIG_HAVE_DDR3
+	MPDDRC_TYPE_DDR3,
+	MPDDRC_TYPE_LPDDR3,
+#endif
 };
 
 struct _mpddrc_desc {

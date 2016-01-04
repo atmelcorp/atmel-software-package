@@ -31,6 +31,9 @@
  *        Header
  *----------------------------------------------------------------------------*/
 
+#include "board.h"
+#include "trace.h"
+
 #include "memories/ddram.h"
 
 #include "peripherals/matrix.h"
@@ -56,6 +59,7 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_DDR3
+
 static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
@@ -149,7 +153,8 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
-#endif
+
+#endif /* CONFIG_HAVE_DDR3 */
 
 static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 {
@@ -312,14 +317,6 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 			   enum _ddram_devices device)
 {
 	switch(device) {
-#ifdef CONFIG_HAVE_DDR3
-	case MT41K128M16:
-		_init_mt41k128m16(desc);
-		break;
-	case EDF8164A3MA:
-		_init_edf8164a3ma(desc);
-		break;
-#endif
 	case MT47H128M8CF:
 		_init_mt47h128m8cf(desc);
 		break;
@@ -329,7 +326,16 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 	case MT42L128M16:
 		_init_mt42l128m16(desc);
 		break;
+#ifdef CONFIG_HAVE_DDR3
+	case MT41K128M16:
+		_init_mt41k128m16(desc);
+		break;
+	case EDF8164A3MA:
+		_init_edf8164a3ma(desc);
+		break;
+#endif /* CONFIG_HAVE_DDR3 */
 	default:
+		trace_fatal("Unsupported DDRAM type\r\n");
 		break;
 	}
 }

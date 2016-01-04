@@ -102,8 +102,12 @@ static void _send_refresh_cmd(void)
 
 static void _send_lpddr_cmd(uint32_t mrs)
 {
+#ifdef MPDDRC_MR_MODE_LPDDR2_LPDDR3_CMD
 	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LPDDR2_LPDDR3_CMD | MPDDRC_MR_MRS(mrs);
-	/* Perform a write access to low-power DDR3-SDRAM address to acknowledge the command */
+#else
+	MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_LPDDR2_CMD | MPDDRC_MR_MRS(mrs);
+#endif
+	/* Perform a write access to low-power DDR2/3-SDRAM address to acknowledge the command */
 	*((uint32_t *)DDR_CS_ADDR) = 0;
 }
 
@@ -255,6 +259,7 @@ static void _configure_lpddr3(struct _mpddrc_desc* desc)
 
 	/* Step 16: Read memory organization by issuing Mode register read command */
 	_send_lpddr_cmd(0x8);
+
 	/* Step 17: Read device information by issuing Mode register read command */
 	_send_lpddr_cmd(0x0);
 
@@ -262,7 +267,7 @@ static void _configure_lpddr3(struct _mpddrc_desc* desc)
 	_send_normal_cmd();
 }
 
-#endif
+#endif /* CONFIG_HAVE_DDR3 */
 
 static void _configure_ddr2(struct _mpddrc_desc* desc)
 {
@@ -464,27 +469,27 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #endif
 
 	switch(desc->type) {
-#ifdef CONFIG_HAVE_DDR3
-	case MPDDRC_TYPE_DDR3:
-#ifdef CONFIG_HAVE_DDR3_SELFREFRESH
-		_set_ddr_timings(desc);
-		/* Initialize DDR chip when needed */
-		if (!sfrbu_is_ddr_backup_enabled())
-#endif
-		_configure_ddr3(desc);
-		break;
-	case MPDDRC_TYPE_LPDDR3:
-		_configure_lpddr3(desc);
-		break;
-#endif
 	case MPDDRC_TYPE_DDR2:
 		_configure_ddr2(desc);
 		break;
 	case MPDDRC_TYPE_LPDDR2:
 		_configure_lpddr2(desc);
 		break;
+#ifdef CONFIG_HAVE_DDR3
+	case MPDDRC_TYPE_DDR3:
+#ifdef CONFIG_HAVE_DDR3_SELFREFRESH
+		_set_ddr_timings(desc);
+		/* Initialize DDR chip when needed */
+		if (!sfrbu_is_ddr_backup_enabled())
+#endif /* CONFIG_HAVE_DDR3_SELFREFRESH */
+		_configure_ddr3(desc);
+		break;
+	case MPDDRC_TYPE_LPDDR3:
+		_configure_lpddr3(desc);
+		break;
+#endif /* CONFIG_HAVE_DDR3 */
 	default:
-		trace_error("Device not handled\r\n");
+		trace_error("DDRAM type not handled\r\n");
 		abort();
 	}
 
