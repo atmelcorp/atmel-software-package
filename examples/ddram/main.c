@@ -28,48 +28,19 @@
  */
 
 /**
- *  \page sdram SDRAM example
+ *  \page ddram DDRAM example
  *
  *  \section Purpose
  *
- *  The SDRAM example will help new users get familiar with Atmel's
- *  samv7 family of micro-controllers. This basic application shows Shows how
- *  to initialize and perform read and write a SDRAM memory.
+ *  The DDRAM example will help new users get familiar with Atmel's
+ *  SAMA5 family of micro-controllers. This basic application shows Shows how
+ *  to initialize and perform read and write a DDRAM memory.
  *
- *  \section Requirements
- *
- *  This package can be used with SAM V71 Xplained Ultra board.
- *
- *  \section Description
- *
- *  \section Usage
- *
- *  -# Build the program and download it inside the SAM V71 Xplained Ultra board.
- *     Please refer to the Getting Started with SAM V71 Microcontrollers.pdf
- *  -# On the computer, open and configure a terminal application
- *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
- *    - 115200 baud rates
- *    - 8 bits of data
- *    - No parity
- *    - 1 stop bit
- *    - No flow control
- *  -# Start the application.
- *  -#In the terminal window, the
- *     following text should appear (values depend on the board and chip used):
- *     \code
- *      -- SDRAM Example xxx --
- *      -- xxxxxx-xx
- *      -- Compiled: xxx xx xxxx xx:xx:xx --
- *     \endcode
- *
- *  \section References
- *  - sdram/main.c
- *  - trace.h
  */
 
 /** \file
  *
- *  This file contains all the specific code for the SDRAM example.
+ *  This file contains all the specific code for the DDRAM example.
  *
  */
 
@@ -78,15 +49,15 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "board_memories.h"
 
 #include "rand.h"
-#include "peripherals/wdt.h"
+#include "trace.h"
 
 #include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
 
-#include "trace.h"
+#include "peripherals/wdt.h"
+#include "peripherals/l2cc.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -96,22 +67,7 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/* configure the SDRAM IO pins to use HIGH drive */
-#undef SDRAM_HIGH_DRIVE
-
-/* use memory barriers between write and read/compare */
-#undef USE_BARRIERS
-
-/* use memory barrier + cache clean/invalidate between write and read/compare */
-#undef USE_CACHE_CLEAN_INV
-
-/* read and compare written data */
-#define READ_COMPARE
-
-/* increase SRAM read margins */
-#undef ADJUST_READ_MARGINS
-
-/* size of the random data buffer */
+/* size of the random data buffer (in uint32_t)*/
 #define BUFFER_SIZE (1024*8)
 
 /*----------------------------------------------------------------------------
@@ -125,24 +81,28 @@ static uint32_t random_buffer[BUFFER_SIZE];
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Test SDRAM access
- * \param baseAddr Base address of SDRAM
+ * \brief Test DDRAM access
+ * \param baseAddr Base address of DDRAM
  * \param size  Size of memory in byte
  * \return 1: OK, 0: Error
  */
-static uint32_t _sdram_access(uint32_t baseAddr, uint32_t size)
+static uint32_t _ddram_access(uint32_t baseAddr, uint32_t size)
 {
 	int i, count;
 	uint32_t offset, value;
 	uint32_t *ptr = (uint32_t *)baseAddr;
 	uint32_t ret = 1;
+	int percent, percent_old;
 
+	percent_old = -1;
 	for (offset = 0; offset < (size/4); offset += count) {
 		count = (size/4) - offset;
 		if (count > BUFFER_SIZE)
 			count = BUFFER_SIZE;
 
 		memcpy(ptr + offset, random_buffer, count*4);
+		l2cc_clean_region((uint32_t)(ptr + offset), (uint32_t)(ptr + offset + count));
+		l2cc_invalidate_region((uint32_t)(ptr + offset), (uint32_t)(ptr + offset + count));
 
 		for (i = 0; i < count; i++) {
 			value = ptr[offset + i];
@@ -150,24 +110,33 @@ static uint32_t _sdram_access(uint32_t baseAddr, uint32_t size)
 				ret = 0;
 			}
 		}
+
+		percent =  offset / (size / (4 * 100));
+		if (percent != percent_old) {
+			percent_old = percent;
+			printf("%d%%\r", percent);
+		}
 	}
 
 	return ret;
 }
 
-static void _sram_loop_test(uint32_t baseAddr, uint32_t size)
+static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
 {
-	int i;
+	int i, passed, failed;
 
-	srand(0);
+	passed = 0;
+	failed = 0;
 	while (1) {
 		for (i = 0; i < BUFFER_SIZE; i++)
 			random_buffer[i] = rand();
-		if (_sdram_access(baseAddr, size)) {
-			printf("_");
-		}
-		else {
-			printf("F");
+
+		if (_ddram_access(baseAddr, size)) {
+			passed++;
+			printf("Test Passed (passed=%d, failed=%d)\r\n", passed, failed);
+		} else {
+			failed++;
+			printf("Test Failed (passed=%d, failed=%d)\r\n", passed, failed);
 		}
 	}
 }
@@ -185,21 +154,21 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
-	board_cfg_ddram();
+	srand(0);
 
 	/* Output example information */
-	printf("\n\r-- SDRAM Example " SOFTPACK_VERSION " --\n\r"
+	printf("\n\r-- DDRAM Example " SOFTPACK_VERSION " --\n\r"
 	       "-- "BOARD_NAME "\n\r"
 	       "-- Compiled: "__DATE__" at " __TIME__ "--\n\r");
 
-	trace_info("Configuring External SDRAM \n\r");
+	trace_info("Configuring External DDRAM \n\r");
+	board_cfg_ddram();
 
-	/* Full test SDRAM  */
-	trace_info("Starting memory validation of External SDRAM \n\r");
+	/* Full test DDRAM  */
+	trace_info("Starting memory validation of External DDRAM \n\r");
 	trace_info("Buffer: %u bytes at 0x%08x\r\n", BUFFER_SIZE*4,
 		   (unsigned int)random_buffer);
 
-	_sram_loop_test(DDR_CS_ADDR, BOARD_DDR_MEMORY_SIZE);
-	printf("goto sleep, good night\r\n");
-	while(1);
+	_ddram_test_loop(DDR_CS_ADDR, BOARD_DDR_MEMORY_SIZE);
+	return 0;
 }

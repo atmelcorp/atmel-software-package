@@ -26,12 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Getting Started example
+# Makefile for compiling the DDRAM example
 
 TOP := ../..
 
-BINNAME = test-ddr
+BINNAME = ddram
 
-obj-y += tests/memories/main.o
+obj-y += examples/ddram/main.o
 
 include $(TOP)/scripts/Makefile.rules
