@@ -536,7 +536,6 @@ uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)
 void pio_add_handler_to_group(uint32_t group, uint32_t mask,
 			      pio_handler_t handler, void* user_arg)
 {
-	trace_debug("Enter in pio_add_handler_to_group()\n\r");
 	assert(group <
 	       (sizeof(_generic_handlers)/sizeof(_generic_handlers[0])));
 	_handler_push(handler, mask, user_arg);
@@ -564,7 +563,6 @@ void pio_reset_all_it(void)
  */
 void pio_configure_it(const struct _pin *pin)
 {
-	trace_debug("Enter in pio_configure_it()\n\r");
 	assert(pin != NULL);
 }
 
@@ -576,7 +574,6 @@ void pio_configure_it(const struct _pin *pin)
  */
 void pio_enable_it(const struct _pin *pin)
 {
-	trace_debug("pio_enable_it() \n\r");
 	assert(pin != NULL);
 	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
@@ -593,7 +590,6 @@ void pio_enable_it(const struct _pin *pin)
  */
 void pio_disable_it(const struct _pin *pin)
 {
-	trace_debug("pio_enable_it()\n\r");
 	assert(pin != NULL);
 	uint32_t periph_id = _pio_group_to_id(pin->group);
 	PioIo_group* pioiog = (PioIo_group*) _pio_retrive_group(pin, periph_id);
