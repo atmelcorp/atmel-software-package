@@ -36,11 +36,15 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D4-EK, SAMA5D4-XULT and SAMA5D2-XULT.
+ * This package can be used with SAMA5D4-XULT and SAMA5D2-XULT.
  *
  * Requirements before running this example on SAMA5D2-XULT:
- * Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board (for
- * capture the PWM output using TC).
+ * Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board to
+ * capture the PWM output using TC.
+ *
+ * Requirements before running this example on SAMA5D4-XULT:
+ * Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board to
+ * capture the PWM output using TC.
  *
  * \section Descriptions
  *
@@ -142,9 +146,40 @@ struct _tc_desc {
 /** define IDLE status for capturing */
 #define TC_CAPTURE_IDLE ((uint32_t)-1)
 
-/** define pin to capture the waveform */
-#define PIN_TC_CAPTURE_IN { \
-	PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT}
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+
+/** define PWM channel to output PWM signal */
+#define CHANNEL_PWM PWM_LED_CH_0
+
+/** define PWM pin to output PWM signal */
+#define PIN_PWM PIN_PWM_LED_0
+
+/** define TC channel to output the waveform */
+#define CHANNEL_TC_CAPTURE_IN 2
+
+/** define TC pin to capture the waveform */
+#define PIN_TC_CAPTURE_IN \
+	{ PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT }
+
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+
+/** define PWM channel to output PWM signal */
+#define CHANNEL_PWM 1
+
+/** define PWM pin to output PWM signal */
+#define PIN_PWM \
+	{ PIO_GROUP_B, PIO_PB11C_PWMH1, PIO_PERIPH_C, PIO_PULLUP }
+
+/** define TC channel to output the waveform */
+#define CHANNEL_TC_CAPTURE_IN 1
+
+/** define TC pin to capture the waveform */
+#define PIN_TC_CAPTURE_IN \
+	{ PIO_GROUP_E, PIO_PE12B_TIOA1, PIO_PERIPH_B, PIO_DEFAULT }
+
+#else
+#error Unsupported board!
+#endif
 
 /** Duty cycle buffer length for synchronous channels */
 #define DUTY_BUFFER_LENGTH 100
@@ -173,24 +208,26 @@ struct _act8945a act8945a = {
 volatile uint32_t dwTimeStamp = 0;
 
 /** Pio pins to configure. */
-static const struct _pin pins_pwm_led[] = PINS_PWM_LEDS;
+static const struct _pin pins_pwm[] = { PIN_PWM };
 
 /** Duty cycle buffer synchronous channels */
 static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
 
 /** PIOs for TC capture, waveform */
-static const struct _pin pins_tc[] = {PIN_TC_CAPTURE_IN};
+static const struct _pin pins_tc[] = { PIN_TC_CAPTURE_IN };
 
 /** define Timer Counter descriptor for capture */
 static struct _tc_desc tc_capture = {
 	.addr = TC0,
-	.channel = 2,
+	.channel = CHANNEL_TC_CAPTURE_IN,
 };
 
 /** Clock selection for capture channel */
-static uint8_t capture_clock_sel = 4;
+static uint8_t capture_clock_sel = TC_CMR_TCCLKS_TIMER_CLOCK4;
+
 /** capture index */
 static uint32_t captured_pulses = TC_CAPTURE_IDLE;
+
 /** capturing buffer */
 static uint32_t captured_rarb[MAX_CAPTURES][2];
 
@@ -223,7 +260,7 @@ static void _tc_capture_handler(void)
 {
 	uint32_t status = tc_get_status(tc_capture.addr, tc_capture.channel);
 
-	if ( (status & TC_SR_LDRBS) == TC_SR_LDRBS ) {
+	if ((status & TC_SR_LDRBS) == TC_SR_LDRBS) {
 		tc_get_ra_rb_rc(tc_capture.addr, tc_capture.channel,
 			&captured_rarb[captured_pulses][0],
 			&captured_rarb[captured_pulses][1],
@@ -240,11 +277,12 @@ static void _tc_capture_handler(void)
 static void _tc_capture_initialize(struct _tc_desc *tcd)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
+
 	uint32_t mode = TC_CMR_TCCLKS(capture_clock_sel)
-		| TC_CMR_LDRA_RISING
-		| TC_CMR_LDRB_FALLING
-		| TC_CMR_ABETRG
-		| TC_CMR_ETRGEDG_FALLING;
+	              | TC_CMR_LDRA_RISING
+	              | TC_CMR_LDRB_FALLING
+	              | TC_CMR_ABETRG
+	              | TC_CMR_ETRGEDG_FALLING;
 
 	pmc_enable_peripheral(tc_id);
 
@@ -276,7 +314,7 @@ static void _start_capture(void)
 static void _show_captured_results(void)
 {
 	uint32_t i;
-	uint32_t frequence;
+	uint32_t frequency;
 	uint32_t duty_cycle;
 
 	if ((captured_pulses < MAX_CAPTURES)
@@ -288,12 +326,12 @@ static void _show_captured_results(void)
 			(unsigned int)captured_pulses);
 	for (i = 0; i < MAX_CAPTURES; ++i)
 	{
-		frequence = tc_get_available_freq(capture_clock_sel);
-		frequence /= captured_rarb[i][1];
+		frequency = tc_get_available_freq(tc_capture.addr, capture_clock_sel);
+		frequency /= captured_rarb[i][1];
 		duty_cycle = (captured_rarb[i][1] - captured_rarb[i][0]) * 100;
 		duty_cycle /= captured_rarb[i][1];
 		printf("Captured[%d] frequency = %d Hz, Duty cycle = %d%% \n\r",
-			i, frequence, duty_cycle);
+			(int)i, (int)frequency, (int)duty_cycle);
 	}
 	printf("\n\r");
 
@@ -307,9 +345,9 @@ static void _pwm_handler(void)
 {
 	trace_debug("PWM handler, interrupt status 0x%08x 0x%08x, "
 		"fault status 0x%08x\r\n",
-		pwmc_get_it_status1(PWM),
-		pwmc_get_it_status2(PWM),
-		pwmc_get_fault_status(PWM));
+		(unsigned)pwmc_get_it_status1(PWM),
+		(unsigned)pwmc_get_it_status2(PWM),
+		(unsigned)pwmc_get_fault_status(PWM));
 }
 
 /**
@@ -318,15 +356,14 @@ static void _pwm_handler(void)
 static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
 		uint32_t cprd, uint32_t clock)
 {
-	uint32_t mode;
 	static uint32_t duty_cycle;
 	static bool duty_cycle_inc;
 
 	if (init) {
 		/* Configure PWM channel 0 */
 		pwmc_disable_channel(PWM, channel);
-		mode = PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA ;
-		pwmc_configure_channel(PWM, channel, mode);
+		pwmc_configure_channel(PWM, channel,
+			PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
 		pwmc_set_period(PWM, channel, cprd);
 		pwmc_set_duty_cycle(PWM, channel, 0);
 		pwmc_enable_channel(PWM, channel);
@@ -361,38 +398,33 @@ static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
 static void _pwmc_callback(void* args)
 {
 	trace_debug("PWM DMA Transfer Finished\r\n");
-	pwmc_dma_duty_cycle(PWM, duty_buffer, DUTY_BUFFER_LENGTH);
 }
 
 /**
  * \brief Configure DMA operation for PWM synchronous channel
  */
-static void _pwm_demo_dma(uint32_t init, uint8_t channel,
-		uint32_t cprd, uint32_t clock)
+static void _pwm_demo_dma(uint8_t channel, uint32_t cprd, uint32_t clock)
 {
-	uint32_t i;
+	int i;
 	bool flag = false;
-	if (init) {
-		xdmad_initialize(false);
-		pwmc_disable_channel(PWM, channel);
-		pwmc_configure_sync_channels(PWM,
-			PWM_SCM_UPDM_MODE2 | (1 << PWM_LED_CH_0) | (1 << 0));
-		pwmc_configure_channel(PWM, 0,
-			PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
-		pwmc_set_period(PWM, 0, cprd);
-		pwmc_set_duty_cycle(PWM, 0, 0);
-		pwmc_set_sync_channels_update_period(PWM, 0, 8);
-		/* Enable the synchronous channels */
-		pwmc_enable_channel(PWM, 0);
-		for (i = 0; i < DUTY_BUFFER_LENGTH; i++) {
-			if (0 == (i % cprd))
-				flag = !flag;
-			duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
-		}
-		pwmc_set_dma_finished_callback(_pwmc_callback, 0);
-		pwmc_dma_duty_cycle(PWM, duty_buffer, DUTY_BUFFER_LENGTH);
-		return;
+
+	pwmc_disable_channel(PWM, channel);
+	pwmc_configure_sync_channels(PWM,
+		PWM_SCM_UPDM_MODE2 | (1 << channel) | (1 << 0));
+	pwmc_configure_channel(PWM, 0,
+		PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
+	pwmc_set_period(PWM, 0, cprd);
+	pwmc_set_duty_cycle(PWM, 0, 0);
+	pwmc_set_sync_channels_update_period(PWM, 0, 8);
+	/* Enable the synchronous channels */
+	pwmc_enable_channel(PWM, 0);
+	for (i = 0; i < ARRAY_SIZE(duty_buffer); i++) {
+		if (0 == (i % cprd))
+			flag = !flag;
+		duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
 	}
+	pwmc_set_dma_finished_callback(_pwmc_callback, 0);
+	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
 
 /*----------------------------------------------------------------------------
@@ -402,7 +434,6 @@ static void _pwm_demo_dma(uint32_t init, uint8_t channel,
 /**
  * \brief Application entry point for PWM example.
  *
- * Outputs a PWM on LED0.
  * \return Unused (ANSI-C compatibility).
  */
 int main(void)
@@ -441,19 +472,23 @@ int main(void)
 	}
 #endif
 
+	/* Initialize XDMA subsystem */
+	xdmad_initialize(false);
+
 	/* Configure PIT for timer_wait */
 	printf("Configure PIT \n\r");
 	timer_configure(1000);
 
 	/* Configure PIO Pins for TC0 */
 	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));
+
 	/* Configure one TC channel as capture operating mode */
 	printf("Configure TC channel %d as capture operating mode \n\r",
 		tc_capture.channel);
 	_tc_capture_initialize(&tc_capture);
 
 	/* PIO configuration */
-	pio_configure(pins_pwm_led, ARRAY_SIZE(pins_pwm_led));
+	pio_configure(pins_pwm, ARRAY_SIZE(pins_pwm));
 
 	/* Enable PWM peripheral clock */
 	pmc_enable_peripheral(ID_PWM);
@@ -478,13 +513,13 @@ int main(void)
 			switch (key) {
 			case 'a':
 				current_demo = key;
-				pwm_channel = PWM_LED_CH_0;
+				pwm_channel = CHANNEL_PWM;
 				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
 				break;
 			case 'd':
 				current_demo = key;
-				pwm_channel = PWM_LED_CH_0;
-				_pwm_demo_dma(1, pwm_channel, cprd, clock);
+				pwm_channel = CHANNEL_PWM;
+				_pwm_demo_dma(pwm_channel, cprd, clock);
 				break;
 			case 'f':
 				pwmc_set_fault_mode(PWM,
@@ -492,15 +527,14 @@ int main(void)
 					| PWM_FMR_FMOD(0) | PWM_FMR_FFIL(0));
 				pwmc_set_fault_protection(PWM, PWM_FPV1_FPVH2 | PWM_FPV1_FPVL2, 0);
 				pwmc_enable_fault_protection(PWM, pwm_channel, PWM_FAULT_INPUT_TIMER0);
+				aic_set_source_vector(ID_PWM, _pwm_handler);
+				pwmc_enable_it(PWM, PWM_IER1_FCHID0, 0);
+				aic_enable(ID_PWM);
 
 				pmc_enable_peripheral(ID_TC0);
 				tc_configure(TC0, 0,
 					TC_CMR_TCCLKS(4) | TC_CMR_WAVE | TC_CMR_CPCTRG);
 				tc_set_fault_mode(TC0, TC_FMR_ENCF0);
-				aic_set_source_vector(ID_PWM, _pwm_handler);
-				pwmc_enable_it(PWM, PWM_IER1_FCHID0, 0);
-				aic_enable(ID_PWM);
-
 				{
 					uint32_t rc = 0x10000;
 					tc_set_ra_rb_rc(TC0, 0, NULL, NULL, &rc);
