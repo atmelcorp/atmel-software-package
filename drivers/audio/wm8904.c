@@ -416,7 +416,7 @@ DelayMS(signed int delay)
 uint8_t
 WM8904_Init(struct _twid * pTwid, uint32_t device, uint32_t PCK)
 {
-	uint8_t count, size;
+	uint8_t count;
 	uint16_t data = 0;
 
 	// Reset (write Reg@0x0 to reset)
@@ -429,8 +429,7 @@ WM8904_Init(struct _twid * pTwid, uint32_t device, uint32_t PCK)
 
 	if (PMC_MCKR_CSS_SLOW_CLK == PCK) {
 		{
-			size = sizeof (wm8904_access_slow) / 4 + 1;
-			for (count = 0; count < size; count++) {
+			for (count = 0; count < ARRAY_SIZE(wm8904_access_slow); count++) {
 				WM8904_Write(pTwid, device,
 					     wm8904_access_slow[count].address,
 					     wm8904_access_slow[count].value);
