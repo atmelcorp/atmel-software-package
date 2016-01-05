@@ -1,5 +1,20 @@
 # Atmel SAMA5D2x Software Package
 
+## Version ?.? - ?
+
+### New drivers/examples
+
+- new TC Capture Waveform example
+- new DDR memory tester example
+
+### Enhancements
+
+- Support for LPDDR2 (MT42L128M16) and LPDDR3 (EDF8164A3MA)
+- Several functions added to TC driver
+- Several functions added to PWM driver, existing example updated to make use
+  of these new features.
+
+
 
 ## Version 1.2 - 2015-12
 
