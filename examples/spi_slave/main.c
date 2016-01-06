@@ -37,7 +37,7 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XULT.
+ * This package can be used with SAMA5D2-XULT and SAMA5D4-XULT.
  *
  * Requirements when running on SAMA5D2-XULT:
  * We need to connect the SPI pins on the board before running the example.
@@ -46,6 +46,14 @@
  * - SPI0_MOSI  (EXP_PA15 on J17 pin 5) - SPI1_MOSI  (EXP/XPRO_PD26 on J20 pin 4)
  * - SPI0_MISO  (EXP_PA16 on J8 pin 1)  - SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
  * - SPI0_SPCK  (EXP_PA14 on J17 pin 4) - SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
+ *
+ * Requirements when running on SAMA5D4-XULT:
+ * We need to connect the SPI pins on the board before running the example.
+ * - <b>  SPI2 (MASTER)                          - SPI1 (SLAVE)</b>
+ * - SPI2_NPCS2 (EXP/XPRO_PD17 on J19 pin 3)  - SPI1_NPCS0 (EXP/XPRO_PB21 on J17 pin 3)
+ * - SPI2_MOSI  (EXP/XPRO_PD13 on J19 pin 5)  - SPI1_MOSI  (EXP/XPRO_PB19 on J17 pin 4)
+ * - SPI2_MISO  (EXP/XPRO_PD11 on J15 pin 30) - SPI1_MISO  (EXP/XPRO_PB18 on J17 pin 5)
+ * - SPI2_SPCK  (EXP/XPRO_PD15 on J15 pin 8)  - SPI1_SPCK  (EXP/XPRO_PB20 on J17 pin 6)
  *
  * \section Descriptions
  *
@@ -140,6 +148,16 @@
 #define SPI_SLAVE_ADDR SPI1
 #define SPI_SLAVE_CS   0
 #define SPI_SLAVE_PINS PINS_SPI1_NPCS0_IOS3
+
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+
+#define SPI_MASTER_ADDR SPI2
+#define SPI_MASTER_CS   0
+#define SPI_MASTER_PINS PINS_SPI2_NPCS0
+
+#define SPI_SLAVE_ADDR SPI1
+#define SPI_SLAVE_CS   0
+#define SPI_SLAVE_PINS PINS_SPI1_NPCS0
 
 #else
 #error Unsupported board!
