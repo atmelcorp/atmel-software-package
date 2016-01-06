@@ -6,6 +6,7 @@
 
 - new TC Capture Waveform example
 - new DDR memory tester example
+- new SPI slave example
 
 ### Enhancements
 
