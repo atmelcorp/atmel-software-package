@@ -34,7 +34,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
+#include "chip.h"
 #include "peripherals/twi.h"
 #include "async.h"
 

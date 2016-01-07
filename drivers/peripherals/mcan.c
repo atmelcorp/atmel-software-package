@@ -38,7 +38,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 #include "mcan.h"
 #include "pmc.h"

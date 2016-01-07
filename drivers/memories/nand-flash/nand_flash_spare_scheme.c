@@ -33,7 +33,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <chip.h>
+#include "chip.h"
 
 #include "nand_flash_spare_scheme.h"
 

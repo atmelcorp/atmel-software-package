@@ -31,7 +31,7 @@
  *        Header
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
+#include "chip.h"
 #include "trace.h"
 
 #include "memories/ddram.h"

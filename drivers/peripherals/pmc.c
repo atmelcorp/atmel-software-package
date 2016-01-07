@@ -68,7 +68,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h"
+#include "board.h" // for BOARD_{SLOW,MAIN}_CLOCK_EXT_OSC
 #include "peripherals/pmc.h"
 #include "trace.h"
 #include <assert.h>

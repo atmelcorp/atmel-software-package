@@ -43,7 +43,6 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 
 #ifdef CONFIG_HAVE_FLEXCOM

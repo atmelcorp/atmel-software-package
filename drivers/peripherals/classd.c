@@ -32,7 +32,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h"
 #include "trace.h"
 
 #include "peripherals/classd.h"

@@ -33,8 +33,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <board.h>
-
+#include "chip.h"
 #include "trace.h"
 
 #include "nand_flash.h"

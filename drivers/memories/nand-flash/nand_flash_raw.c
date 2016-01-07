@@ -32,7 +32,8 @@
 /*-----------------------------------------------------------------------*/
 /*            Headers                                                    */
 /*-----------------------------------------------------------------------*/
-#include "board.h"
+#include "chip.h"
+#include "trace.h"
 
 #include "peripherals/hsmc.h"
 #include "peripherals/pio.h"
@@ -42,8 +43,6 @@
 #include "nand_flash_raw.h"
 #include "nand_flash_dma.h"
 #include "nand_flash_model_list.h"
-
-#include "trace.h"
 
 #include <assert.h>
 #include <string.h>
