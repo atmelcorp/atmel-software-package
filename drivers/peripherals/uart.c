@@ -35,8 +35,6 @@
 #include "peripherals/uart.h"
 #include "peripherals/pmc.h"
 
-#include <stdint.h>
-
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
@@ -86,12 +84,20 @@ void uart_set_receiver_enabled (Uart* pUart, uint8_t enabled)
 		pUart->UART_CR = UART_CR_RXDIS;
 }
 
-/* Set interrupt register
+/* Enable interrupt bits
  *
  */
-void uart_set_int (Uart* pUart, uint32_t int_mask)
+void uart_enable_it(Uart* pUart, uint32_t int_mask)
 {
-	pUart->UART_IER |= int_mask;
+	pUart->UART_IER = int_mask;
+}
+
+/* Disable interrupt bits
+ *
+ */
+void uart_disable_it(Uart* pUart, uint32_t int_mask)
+{
+	pUart->UART_IDR = int_mask;
 }
 
 /**
@@ -110,17 +116,17 @@ void uart_put_char(Uart* pUart, uint8_t c)
 /**
  * Return 1 if a character can be read in UART
  */
-uint32_t uart_is_rx_ready(Uart* pUart)
+bool uart_is_rx_ready(Uart* pUart)
 {
-	return (pUart->UART_SR & UART_SR_RXRDY);
+	return (pUart->UART_SR & UART_SR_RXRDY) != 0;
 }
 
 /**
  * Return 1 if a character can be write in UART
  */
-uint32_t uart_is_tx_ready(Uart* pUart)
+bool uart_is_tx_ready(Uart* pUart)
 {
-	return (pUart->UART_SR & UART_SR_TXRDY);
+	return (pUart->UART_SR & UART_SR_TXRDY) != 0;
 }
 
 /**

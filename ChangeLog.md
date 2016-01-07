@@ -8,12 +8,20 @@
 - new DDR memory tester example
 - new SPI slave example
 
+### Changes
+
+- the console helper (misc/console.h) is no longer initialized automatically on
+  first use.  The new board-specific function board_cfg_console must be called
+explicitely before any console use (including printf/traces).
+
 ### Enhancements
 
 - Support for LPDDR2 (MT42L128M16) and LPDDR3 (EDF8164A3MA)
 - Several functions added to TC driver
 - Several functions added to PWM driver, existing example updated to make use
   of these new features.
+- Console helper can now be configured at runtime (serial peripheral, baudrate,
+  pins).
 
 
 

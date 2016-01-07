@@ -39,9 +39,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+
 #include "peripherals/dbgu.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -58,13 +61,18 @@
  */
 void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 {
-	uint32_t clock = pmc_get_peripheral_clock(get_usart_id_from_addr((Usart*)dbgu));
+	assert(dbgu == DBGU);
+
+	uint32_t clock = pmc_get_peripheral_clock(ID_DBGU);
+
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
 	dbgu->DBGU_IDR = 0xFFFFFFFF;
 	dbgu->DBGU_CR = DBGU_CR_RXDIS | DBGU_CR_TXDIS;
+
 	/* Configure baudrate */
 	dbgu->DBGU_BRGR = (clock / baudrate) / 16;
+
 	/* Enable receiver and transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RXEN | DBGU_CR_TXEN;
 }
@@ -79,7 +87,7 @@ void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 void dbgu_put_char(Dbgu* dbgu, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */
-	while ((dbgu->DBGU_SR & DBGU_SR_TXEMPTY) == 0) ;
+	while ((dbgu->DBGU_SR & DBGU_SR_TXEMPTY) == 0);
 
 	/* Send character */
 	dbgu->DBGU_THR = c;
@@ -94,7 +102,7 @@ void dbgu_put_char(Dbgu* dbgu, uint8_t c)
  */
 extern uint32_t dbgu_get_char(Dbgu* dbgu)
 {
-	while ((dbgu->DBGU_SR & DBGU_SR_RXRDY) == 0) ;
+	while ((dbgu->DBGU_SR & DBGU_SR_RXRDY) == 0);
 	return dbgu->DBGU_RHR;
 }
 
@@ -110,11 +118,21 @@ extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu)
 }
 
 /**
- * \brief   Enable interrupt
- * \param usart  Pointer to an USART peripheral.
- * \param mode  Interrupt mode.
+ * \brief Enable interrupt bits
+ * \param dbgu  Pointer to the DBGU peripheral.
+ * \param mode  Interrupt bits to enable
  */
 void dbgu_enable_it(Dbgu* dbgu, uint32_t mode)
 {
 	dbgu->DBGU_IER = mode;
+}
+
+/**
+ * \brief Disable interrupt bits
+ * \param dbgu  Pointer to the DBGU peripheral.
+ * \param mode  Interrupt bits to disable
+ */
+void dbgu_disable_it(Dbgu* dbgu, uint32_t mode)
+{
+	dbgu->DBGU_IDR = mode;
 }

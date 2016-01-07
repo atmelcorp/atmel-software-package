@@ -49,7 +49,7 @@
 #include "chip.h"
 
 #include "board_lowlevel.h"
-#include "board_memories.h"
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
  *        HW BOARD Definitions
@@ -90,12 +90,10 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
-/** CONSOLE pin definition, Use only UART */
-#define PINS_CONSOLE            PINS_UART1_IOS1
-#define CONSOLE_PER_ADD         UART1
-#define CONSOLE_ID              ID_UART1
-#define CONSOLE_BAUDRATE        57600
-#define CONSOLE_DRIVER          DRV_UART
+/** CONSOLE pin definition: use UART1 IOSET1 */
+#define BOARD_CONSOLE_PINS     PINS_UART1_IOS1
+#define BOARD_CONSOLE_ADDR     UART1
+#define BOARD_CONSOLE_BAUDRATE 57600
 
 /* =================== PIN LED definition ====================== */
 

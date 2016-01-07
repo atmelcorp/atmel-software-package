@@ -56,27 +56,16 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-/*------------------------------------------------------------------------------
- *         Definitions
- *------------------------------------------------------------------------------*/
-
-/** \section USART_mode USART modes
- * This section lists several common operating modes for an USART peripheral.
- *
- * \b Modes
- * - USART_MODE_ASYNCHRONOUS
- * - USART_MODE_IRDA
- */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdbool.h>
+#include <stdint.h>
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern void usart_reset_status(Usart *usart);
 extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
@@ -101,10 +90,9 @@ extern void usart_restart_rx_timeout(Usart *usart);
 
 extern void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeout);
 extern uint16_t usart_read(Usart *usart, volatile uint32_t timeout);
-extern uint8_t usart_is_data_available(Usart *usart);
-extern uint32_t usart_is_rx_ready(Usart *usart);
-extern uint32_t usart_is_tx_ready(Usart *usart);
 
+extern bool usart_is_rx_ready(Usart *usart);
+extern bool usart_is_tx_ready(Usart *usart);
 extern void usart_put_char(Usart *usart, uint8_t c);
 extern uint8_t usart_get_char(Usart *usart);
 
@@ -134,4 +122,4 @@ extern uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t le
 }
 #endif
 
-#endif	/* #ifndef _USART_ */
+#endif /* _USART_ */

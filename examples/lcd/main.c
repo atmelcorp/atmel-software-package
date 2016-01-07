@@ -668,8 +668,8 @@ extern int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 
 	/* Output example information */
 	printf("-- LCD Example %s --\n\r", SOFTPACK_VERSION);

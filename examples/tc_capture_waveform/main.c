@@ -406,8 +406,8 @@ int main(void)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 
 	/* Output example information */
 	printf("-- TC capture waveform Example %s --\n\r", SOFTPACK_VERSION);

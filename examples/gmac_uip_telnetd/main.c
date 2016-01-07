@@ -240,6 +240,9 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 #ifndef VARIANT_DDRAM
 	/* Configure DDRAM */
 	board_cfg_ddram();

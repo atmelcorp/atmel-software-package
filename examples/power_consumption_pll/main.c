@@ -188,21 +188,18 @@ volatile unsigned int MenuChoice;
 /**
  *  \brief Handler for DBGU input.
  */
-static void _console_handler(void)
+static void _console_handler(uint8_t c)
 {
-	if (!console_is_rx_ready())
-		return;
-	MenuChoice = console_get_char();
+	MenuChoice = c;
 }
 
 static void _restore_console(void)
 {
-	console_configure(CONSOLE_BAUDRATE);
+	board_cfg_console();
 
 	/* Initializing console interrupts */
-	aic_set_source_vector(CONSOLE_ID, _console_handler);
-	aic_enable(CONSOLE_ID);
-	console_enable_interrupts(US_IER_RXRDY);
+	console_set_rx_handler(_console_handler);
+	console_enable_rx_interrupt();
 }
 
 /* ---------------------------------------------------------------------------
@@ -240,8 +237,8 @@ extern int main(void)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 
 	/* Output example information */
 	printf("-- PLL consumption measurement %s --\n\r", SOFTPACK_VERSION);

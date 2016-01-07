@@ -39,7 +39,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "board_memories.h"
 #include "trace.h"
 
 #include "cortex-a/mmu.h"
@@ -47,9 +46,14 @@
 #include "peripherals/hsmc.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
+#include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 
 #include "memories/ddram.h"
+
+#include "misc/console.h"
+
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -138,6 +142,18 @@ static void matrix_configure_slave_nand(void)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Configure the board console if any
+ */
+void board_cfg_console(void)
+{
+#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR) && defined(BOARD_CONSOLE_BAUDRATE)
+	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
+	pio_configure(console_pins, ARRAY_SIZE(console_pins));
+	console_configure(BOARD_CONSOLE_ADDR, BOARD_CONSOLE_BAUDRATE);
+#endif
+}
 
 void board_setup_tlb(uint32_t *tlb)
 {

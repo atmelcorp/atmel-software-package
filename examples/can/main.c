@@ -420,6 +420,8 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
+	board_cfg_console();
+
 	/* Output example information */
 	printf("\r\n\r\n\r\n");
 	printf("-- CAN Example " SOFTPACK_VERSION " --\n\r") ;

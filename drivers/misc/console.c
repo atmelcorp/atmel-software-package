@@ -40,167 +40,203 @@
 
 #include "board.h"
 #include "chip.h"
-#include "misc/console.h"
+
+#include "peripherals/aic.h"
+#ifdef CONFIG_HAVE_DBGU
+#include "peripherals/dbgu.h"
+#endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/uart.h"
+#include "peripherals/usart.h"
+
+#include "console.h"
+
+#include <assert.h>
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------
-*        Variables
-*----------------------------------------------------------------------------*/
+ *        Local Types
+ *----------------------------------------------------------------------------*/
 
-typedef void (*_init_handler) (void*,uint32_t,uint32_t);
-typedef void (*_put_char_handler) (void*, uint8_t);
-typedef uint32_t (*_get_char_handler) (void*);
-typedef uint32_t (*_rx_ready_handler) (void*);
-typedef void (*_enable_it_handler) (void*,uint32_t);
+typedef void (*init_handler_t)(void*, uint32_t, uint32_t);
+typedef void (*put_char_handler_t)(void*, uint8_t);
+typedef uint8_t (*get_char_handler_t)(void*);
+typedef bool (*rx_ready_handler_t)(void*);
+typedef void (*enable_it_handler_t)(void*, uint32_t);
+typedef void (*disable_it_handler_t)(void*, uint32_t);
 
-/* Initialize console structure according to board configuration */
-#if CONSOLE_DRIVER == DRV_USART
-#include "peripherals/usart.h"
-static const struct _console console = {
-	CONSOLE_PER_ADD,
-	(_init_handler) usart_configure,
-	(_put_char_handler) usart_put_char,
-	(_get_char_handler) usart_get_char,
-	(_rx_ready_handler) usart_is_rx_ready,
-	(_enable_it_handler) usart_enable_it
+struct _console {
+	uint32_t             mode;
+	uint32_t             rx_int_mask;
+	init_handler_t       init;
+	put_char_handler_t   put_char;
+	get_char_handler_t   get_char;
+	rx_ready_handler_t   rx_ready;
+	enable_it_handler_t  enable_it;
+	disable_it_handler_t disable_it;
 };
-#elif CONSOLE_DRIVER == DRV_UART
-#include "peripherals/uart.h"
-static const struct _console console = {
-	CONSOLE_PER_ADD,
-	(_init_handler) uart_configure,
-	(_put_char_handler) uart_put_char,
-	(_get_char_handler) uart_get_char,
-	(_rx_ready_handler) uart_is_rx_ready,
-	(_enable_it_handler) uart_set_int
+
+/*----------------------------------------------------------------------------
+ *        Variables
+ *----------------------------------------------------------------------------*/
+
+static const struct _console console_usart = {
+	.mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
+	.rx_int_mask = US_IER_RXRDY,
+	.init = (init_handler_t)usart_configure,
+	.put_char = (put_char_handler_t)usart_put_char,
+	.get_char = (get_char_handler_t)usart_get_char,
+	.rx_ready = (rx_ready_handler_t)usart_is_rx_ready,
+	.enable_it = (enable_it_handler_t)usart_enable_it,
+	.disable_it = (disable_it_handler_t)usart_disable_it,
 };
-#elif CONSOLE_DRIVER == DRV_DBGU
-#include "peripherals/dbgu.h"
-static const struct _console console = {
-	CONSOLE_PER_ADD,
-	(_init_handler) dbgu_configure,
-	(_put_char_handler) dbgu_put_char,
-	(_get_char_handler) dbgu_get_char,
-	(_rx_ready_handler) dbgu_is_rx_ready,
-	(_enable_it_handler) dbgu_enable_it
+
+static const struct _console console_uart = {
+	.mode = UART_MR_CHMODE_NORMAL | UART_MR_PAR_NO,
+	.rx_int_mask = UART_IER_RXRDY,
+	.init = (init_handler_t)uart_configure,
+	.put_char = (put_char_handler_t)uart_put_char,
+	.get_char = (get_char_handler_t)uart_get_char,
+	.rx_ready = (rx_ready_handler_t)uart_is_rx_ready,
+	.enable_it = (enable_it_handler_t)uart_enable_it,
+	.disable_it = (disable_it_handler_t)uart_disable_it,
+};
+
+#ifdef CONFIG_HAVE_DBGU
+static const struct _console console_dbgu = {
+	.mode = DBGU_MR_CHMODE_NORM | DBGU_MR_PAR_NONE,
+	.rx_int_mask = DBGU_IER_RXRDY,
+	.init = (init_handler_t)dbgu_configure,
+	.put_char = (put_char_handler_t)dbgu_put_char,
+	.get_char = (get_char_handler_t)dbgu_get_char,
+	.rx_ready = (rx_ready_handler_t)dbgu_is_rx_ready,
+	.enable_it = (enable_it_handler_t)dbgu_enable_it,
+	.disable_it = (disable_it_handler_t)dbgu_disable_it,
 };
 #endif
 
-/** Pins for CONSOLE */
-static const struct _pin pinsConsole[] = PINS_CONSOLE;
-
-/** Console initialize status */
-static uint8_t _bConsoleIsInitialized = 0;
+static uint32_t console_id = 0;
+static void *console_addr = NULL;
+static const struct _console *console = NULL;
+static bool console_initialized = false;
+static console_rx_handler_t console_rx_handler;
 
 /*------------------------------------------------------------------------------
-*         Exported functions
-*------------------------------------------------------------------------------*/
+ *         Local functions
+ *------------------------------------------------------------------------------*/
 
-/**
-* \brief Configures a CONSOLE peripheral with the specified parameters.
-*
-* \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
-*/
-void console_configure(uint32_t baudrate)
+static void console_handler(void)
 {
-	/* Configure PIO */
-	pio_configure(pinsConsole, ARRAY_SIZE(pinsConsole));
+	uint8_t c;
 
-	pmc_enable_peripheral(CONSOLE_ID);
+	if (!console_is_rx_ready())
+		return;
 
-	uint32_t mode;
-#if CONSOLE_DRIVER != DRV_DBGU
-	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
-#else
-	mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO;
+	c = console_get_char();
+	if (console_rx_handler)
+		console_rx_handler(c);
+}
+
+/*------------------------------------------------------------------------------
+ *         Exported functions
+ *------------------------------------------------------------------------------*/
+
+void console_configure(void* addr, uint32_t baudrate)
+{
+	uint32_t id;
+
+	id = get_usart_id_from_addr((Usart*)addr);
+	if (id != ID_PERIPH_COUNT) {
+		console = &console_usart;
+	} else {
+		id = get_uart_id_from_addr((Uart*)addr);
+		if (id != ID_PERIPH_COUNT) {
+			console = &console_uart;
+		} else {
+#ifdef CONFIG_HAVE_DBGU
+			if (addr == DBGU) {
+				id = ID_DBGU;
+				console = &console_dbgu;
+			} else
 #endif
+			{
+				/* Unknown console type */
+				assert(0);
+				return;
+			}
+		}
+	}
 
-#if CONSOLE_DRIVER == DRV_UART
-	uint32_t mr;
-	mr = mode & US_MR_FILTER ? UART_MR_FILTER_ENABLED
-	    : UART_MR_FILTER_DISABLED;
-	mr |= UART_MR_PAR((mode & US_MR_PAR_Msk) >> US_MR_PAR_Pos);
-	if ((mode & US_MR_USCLKS_Msk) == US_MR_USCLKS_PMC_PCK)
-		mr |= UART_MR_BRSRCCK_PMC_PCK;
-	else
-		mr |= UART_MR_BRSRCCK_PERIPH_CLK;
-	mr |= UART_MR_CHMODE((mode & US_MR_CHMODE_Msk) >> US_MR_CHMODE_Pos);
-	mode = mr;
-#endif
+	/* Save console peripheral address and ID */
+	console_id = id;
+	console_addr = addr;
 
 	/* Initialize driver to use */
-	console.init(console.addr, mode, baudrate);
+	pmc_enable_peripheral(id);
+	console->init(console_addr, console->mode, baudrate);
 
 	/* Finally */
-	_bConsoleIsInitialized = 1;
+	console_initialized = true;
 }
 
-/**
-* \brief Outputs a character on the CONSOLE line.
-*
-* \note This function is synchronous (i.e. uses polling).
-* \param c  Character to send.
-*/
 void console_put_char(uint8_t c)
 {
-	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE);
+	// if console is not initialized, do nothing
+	if (!console_initialized)
+		return;
 
-	console.put_char(console.addr, c);
+	console->put_char(console_addr, c);
 }
 
-/**
-* \brief Input a character from the CONSOLE line.
-*
-* \note This function is synchronous
-* \return character received.
-*/
-extern uint32_t console_get_char(void)
+uint8_t console_get_char(void)
 {
-	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE);
-	return console.get_char(console.addr);
+	// if console is not initialized, fail
+	if (!console_initialized) {
+		assert(0);
+		while(1);
+	}
+
+	return console->get_char(console_addr);
 }
 
-/**
-* \brief Check if there is Input from DBGU line.
-*
-* \return true if there is Input.
-*/
-extern uint32_t console_is_rx_ready(void)
+bool console_is_rx_ready(void)
 {
-	if (!_bConsoleIsInitialized)
-		console_configure(CONSOLE_BAUDRATE);
-	return console.is_rx_ready(console.addr);
+	// if console is not initialized, rx not ready
+	if (!console_initialized)
+		return false;
+
+	return console->rx_ready(console_addr);
 }
 
-/**
-*  Displays the content of the given frame on the DBGU.
-*
-*  \param pucFrame Pointer to the frame to dump.
-*  \param size   Buffer size in bytes.
-*/
-void console_dump_frame(uint8_t * pframe, uint32_t size)
+void console_set_rx_handler(console_rx_handler_t handler)
 {
-	uint32_t dw;
+	console_rx_handler = handler;
+}
 
-	for (dw = 0; dw < size; dw++) {
-		printf("%02X ", pframe[dw]);
+void console_enable_rx_interrupt(void)
+{
+	aic_set_source_vector(console_id, console_handler);
+        aic_enable(console_id);
+	console->enable_it(console_addr, console->rx_int_mask);
+}
+
+void console_disable_rx_interrupt(void)
+{
+        aic_disable(console_id);
+	console->disable_it(console_addr, console->rx_int_mask);
+}
+
+void console_dump_frame(uint8_t *frame, uint32_t size)
+{
+	uint32_t i;
+	for (i = 0; i < size; i++) {
+		printf("%02x ", frame[i]);
 	}
 	printf("\n\r");
 }
 
-/**
-*  Displays the content of the given buffer on the DBGU.
-*
-*  \param pbuffer  Pointer to the buffer to dump.
-*  \param size     Buffer size in bytes.
-*  \param address  Start address to display
-*/
-void console_dump_memory(uint8_t * pbuffer, uint32_t size,
+void console_dump_memory(uint8_t *buffer, uint32_t size,
 				uint32_t address)
 {
 	uint32_t i, j;
@@ -209,13 +245,13 @@ void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 
 	for (i = 0; i < (size / 16); i++) {
 		printf("0x%08X: ", (unsigned int)(address + (i * 16)));
-		tmp = (uint8_t *) & pbuffer[i * 16];
+		tmp = (uint8_t *) & buffer[i * 16];
 		for (j = 0; j < 4; j++) {
 			printf("%02X%02X%02X%02X ", tmp[0], tmp[1], tmp[2],
 			       tmp[3]);
 			tmp += 4;
 		}
-		tmp = (uint8_t *) & pbuffer[i * 16];
+		tmp = (uint8_t *) & buffer[i * 16];
 		for (j = 0; j < 16; j++) {
 			console_put_char(*tmp++);
 		}
@@ -229,24 +265,19 @@ void console_dump_memory(uint8_t * pbuffer, uint32_t size,
 				printf(" ");
 			}
 			if (j < size)
-				printf("%02X", pbuffer[j]);
+				printf("%02X", buffer[j]);
 			else
 				printf("  ");
 		}
 		printf(" ");
 		for (j = last_line_start; j < size; j++) {
-			console_put_char(pbuffer[j]);
+			console_put_char(buffer[j]);
 		}
 		printf("\n\r");
 	}
 }
 
-/**
-*  Reads an integer
-*
-*  \param pvalue  Pointer to the uint32_t variable to contain the input value.
-*/
-extern uint32_t console_get_integer(uint32_t * pvalue)
+uint32_t console_get_integer(uint32_t * pvalue)
 {
 	uint8_t key;
 	uint8_t nb = 0;
@@ -278,14 +309,7 @@ extern uint32_t console_get_integer(uint32_t * pvalue)
 	}
 }
 
-/**
-*  Reads an integer and check the value
-*
-*  \param pvalue  Pointer to the uint32_t variable to contain the input value.
-*  \param dwMin     Minimum value
-*  \param dwMax     Maximum value
-*/
-extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
+uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 					 uint32_t max)
 {
 	uint32_t value = 0;
@@ -302,17 +326,7 @@ extern uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 	return 1;
 }
 
-void console_enable_interrupts(uint32_t mask)
-{
-	console.enable_interrupts(console.addr, mask);
-}
-
-/**
-*  Reads an hexadecimal number
-*
-*  \param pvalue  Pointer to the uint32_t variable to contain the input value.
-*/
-extern uint32_t console_get_hexa_32(uint32_t * pvalue)
+uint32_t console_get_hexa_32(uint32_t * pvalue)
 {
 	uint8_t key;
 	uint32_t dw = 0;

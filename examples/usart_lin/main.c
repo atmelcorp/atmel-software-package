@@ -320,11 +320,9 @@ static void _process_button_evt(void)
  *
  *  Handle process LED1 or LED2 status change.
  */
-static void _console_handler(void)
+static void _console_handler(uint8_t k)
 {
-	if (!console_is_rx_ready())
-		return;
-	key = console_get_char();
+	key = k;
 }
 
 /**
@@ -440,8 +438,8 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 	console_clear_screen();
 	console_reset_cursor();
 
@@ -452,9 +450,8 @@ int main(void)
 
 	/* Configure Console interrupts */
 	printf("Initializing console interrupts\r\n");
-	aic_set_source_vector(CONSOLE_ID, _console_handler);
-	aic_enable(CONSOLE_ID);
-	console_enable_interrupts(US_IER_RXRDY);
+	console_set_rx_handler(_console_handler);
+	console_enable_rx_interrupt();
 
 	/* Configure PIT. Must be always ON, used for delay */
 	printf("Configure PIT \n\r");

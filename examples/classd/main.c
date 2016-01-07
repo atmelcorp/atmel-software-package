@@ -332,11 +332,15 @@ extern int main(void)
 	/* disable watchdog */
 	wdt_disable();
 
+	/* configure console */
+	board_cfg_console();
+
 	/* output example information */
 	printf("-- CLASSD Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME "\n\r");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
+	/* configure timer */
 	timer_configure(1000);
 
 	/* configure PIO muxing for ClassD */

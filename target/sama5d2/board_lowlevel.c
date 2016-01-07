@@ -39,17 +39,14 @@
 
 #include "chip.h"
 #include "board.h"
-#include "compiler.h"
 #include "timer.h"
-
-#include "cortex-a/cpsr.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 
-#include <stdio.h>
+#include "board_lowlevel.h"
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -87,6 +84,7 @@ void low_level_init(void)
 	/* Remap */
 	matrix_remap_ram();
 
+	/* Timer */
 	timer_configure(BOARD_TIMER_RESOLUTION);
 }
 

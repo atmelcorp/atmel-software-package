@@ -84,13 +84,9 @@ static struct _spi_desc spi_at25_desc = {
 
 static struct _at25 at25drv;
 
-static void console_handler(void)
+static void console_handler(uint8_t key)
 {
 	static uint32_t index = 0;
-	uint8_t key;
-	if (!console_is_rx_ready())
-		return;
-	key = console_get_char();
 	if (mutex_try_lock(&lock))
 		return;
 	if (index >= CMD_BUFFER_SIZE) {
@@ -312,13 +308,12 @@ int main (void)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 
 	/* Configure console interrupts */
-	console_enable_interrupts(US_IER_RXRDY);
-	aic_set_source_vector(CONSOLE_ID, console_handler);
-	aic_enable(CONSOLE_ID);
+	console_set_rx_handler(console_handler);
+	console_enable_rx_interrupt();
 	_cmd_parser = _flash_cmd_parser;
 
 	/* Clear console */

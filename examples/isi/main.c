@@ -368,14 +368,15 @@ extern int main( void )
 	volatile uint32_t delay;
 	
 	wdt_disable() ;
+
+	/* Initialize console */
+	board_cfg_console();
     
 	/* Output example information */
 	printf( "-- ISI Example %s --\n\r", SOFTPACK_VERSION ) ;
 	printf( "-- %s\n\r", BOARD_NAME ) ;
 	printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
 	/* Configure LCD */
 	configure_lcd();
 

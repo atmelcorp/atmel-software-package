@@ -219,6 +219,9 @@ int main(void)
 	/* Enable watchdog */
 	_configure_wdt(WDT_COUNTER, WDT_DELTATIME);
 
+	/* Configure console */
+	board_cfg_console();
+
 #if defined (ddram)
 	mmu_initialize((uint32_t *)0x20C000);
 	cp15_enable_mmu();

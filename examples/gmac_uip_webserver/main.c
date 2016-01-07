@@ -237,6 +237,9 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 	/* Configure DDRAM */
 	board_cfg_ddram();
 

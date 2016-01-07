@@ -286,6 +286,9 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 	printf("-- USB Device Audio LoopREC Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME " --\n\r");
 	printf("-- Compiled: "__DATE__" " __TIME__ " --\n\r");

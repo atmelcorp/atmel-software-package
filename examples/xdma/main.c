@@ -351,6 +351,9 @@ extern int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 	/* Output example information */
 	printf("-- XDMA Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME "\n\r");

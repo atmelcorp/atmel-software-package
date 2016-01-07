@@ -425,7 +425,11 @@ int main(void)
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
 
+	/* Disable Watchdog */
 	wdt_disable();
+
+	/* Configure console */
+	board_cfg_console();
 
 	/* Output example information */
 	printf("\r\n\r\n\r\n");

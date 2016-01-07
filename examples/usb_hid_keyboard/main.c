@@ -269,6 +269,9 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 #ifndef VARIANT_DDRAM
 	mmu_initialize();
 	cp15_enable_mmu();

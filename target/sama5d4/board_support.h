@@ -44,6 +44,11 @@
  *----------------------------------------------------------------------------*/
 
 /**
+ * \brief Configure the board console if any
+ */
+extern void board_cfg_console(void);
+
+/**
  * \brief Setup TLB for the board
  */
 extern void board_setup_tlb(uint32_t *tlb);

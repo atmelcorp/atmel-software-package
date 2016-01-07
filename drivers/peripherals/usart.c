@@ -402,35 +402,21 @@ uint16_t usart_read(Usart *usart, volatile uint32_t timeout)
 }
 
 /**
- * \brief  Returns 1 if some data has been received and can be read from an USART;
- * otherwise returns 0.
- * \param usart  Pointer to an USART instance.
- */
-uint8_t usart_is_data_available(Usart *usart)
-{
-	if ((usart->US_CSR & US_CSR_RXRDY) != 0) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-/**
  * \brief   Return 1 if a character can be read in USART
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t usart_is_rx_ready(Usart *usart)
+bool usart_is_rx_ready(Usart *usart)
 {
-	return (usart->US_CSR & US_CSR_RXRDY);
+	return (usart->US_CSR & US_CSR_RXRDY) != 0;
 }
 
 /**
  * \brief   Return 1 if a character send in USART
  * \param usart  Pointer to an USART peripheral.
  */
-uint32_t usart_is_tx_ready(Usart *usart)
+bool usart_is_tx_ready(Usart *usart)
 {
-	return (usart->US_CSR & US_CSR_TXRDY);
+	return (usart->US_CSR & US_CSR_TXRDY) != 0;
 }
 
 /**
@@ -443,7 +429,7 @@ uint32_t usart_is_tx_ready(Usart *usart)
 void usart_put_char(Usart *usart, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */
-	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0) ;
+	while ((usart->US_CSR & US_CSR_TXEMPTY) == 0);
 	/* Send character */
 	/* Force an octet write to avoid race conditions with FIFO mode */
 	writeb(&usart->US_THR, c);
@@ -457,7 +443,7 @@ void usart_put_char(Usart *usart, uint8_t c)
  */
 uint8_t usart_get_char(Usart *usart)
 {
-	while ((usart->US_CSR & US_CSR_RXRDY) == 0) ;
+	while ((usart->US_CSR & US_CSR_RXRDY) == 0);
 	/* Force an octet read to avoid race conditions with FIFO mode */
 	uint8_t v;
 	readb(&usart->US_RHR, &v);

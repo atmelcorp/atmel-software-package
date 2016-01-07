@@ -37,7 +37,7 @@
 #include "chip.h"
 
 #include "board_lowlevel.h"
-#include "board_memories.h"
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
  *        HW BOARD Definitions
@@ -78,12 +78,10 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
-/** CONSOLE pin definition, Use only USART */
-#define CONSOLE_DRIVER          DRV_DBGU
-#define PINS_CONSOLE            {PIN_USART3_TXD,PIN_USART3_RXD}
-#define CONSOLE_PER_ADD         USART3
-#define CONSOLE_ID              ID_USART3
-#define CONSOLE_BAUDRATE        115200
+/** CONSOLE pin definition: use USART3 */
+#define BOARD_CONSOLE_PINS     { PIN_USART3_TXD, PIN_USART3_RXD }
+#define BOARD_CONSOLE_ADDR     USART3
+#define BOARD_CONSOLE_BAUDRATE 115200
 
 /* =================== PIN LED definition ====================== */
 

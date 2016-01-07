@@ -351,14 +351,14 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 	/* Initialize XDMA */
 	xdmad_initialize(false);
 
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
-
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
 
 	/* Output example information */
 	printf("-- SPI Slave Example " SOFTPACK_VERSION " --\r\n");

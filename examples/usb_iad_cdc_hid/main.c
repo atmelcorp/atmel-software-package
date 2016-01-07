@@ -384,7 +384,10 @@ int main(void)
 	uint8_t usb_connected = 0, serial_on = 0;
 
 	/* Disable watchdog */
-	wdt_disable(  );
+	wdt_disable();
+
+	/* Configure console */
+	board_cfg_console();
 
 #ifndef VARIANT_DDRAM
 	mmu_initialize();

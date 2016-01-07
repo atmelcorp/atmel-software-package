@@ -341,13 +341,8 @@ static void _display_menu(void)
 	printf("=========================================================\n\r");
 }
 
-static void console_handler(void)
+static void console_handler(uint8_t key)
 {
-	uint8_t key;
-
-	if (!console_is_rx_ready())
-		return;
-	key = console_get_char();
 	if (mutex_try_lock(&lock))
 		return;
 
@@ -564,14 +559,13 @@ int main(void)
 #endif
 
 	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	board_cfg_console();
 	console_clear_screen();
 	console_reset_cursor();
 
 	/* Configure console interrupts */
-	console_enable_interrupts(US_IER_RXRDY);
-	aic_set_source_vector(CONSOLE_ID, console_handler);
-	aic_enable(CONSOLE_ID);
+	console_set_rx_handler(console_handler);
+	console_enable_rx_interrupt();
 
 	/* Output example information */
 	printf("-- ADC12 Example " SOFTPACK_VERSION " --\n\r"

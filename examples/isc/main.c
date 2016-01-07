@@ -872,8 +872,8 @@ extern int main(void)
 	
 	wdt_disable();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 
 	/* Output example information */
 	printf("-- ISC Example %s --\n\r", SOFTPACK_VERSION);

@@ -526,6 +526,9 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
+	/* Configure console */
+	board_cfg_console();
+
 	/* Output example information */
 	printf("\r\n\r\n\r\n");
 	printf("-- RTC Example " SOFTPACK_VERSION " --\r\n");

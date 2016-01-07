@@ -413,8 +413,8 @@ extern int main( void )
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	/* Configure console */
+	board_cfg_console();
 	console_clear_screen();
 	console_reset_cursor();
 

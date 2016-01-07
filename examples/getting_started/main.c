@@ -161,6 +161,7 @@ static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 
 /* Only used to get the number of available leds */
 static const struct _pin pinsLeds[] = PINS_LEDS;
+
 /** Number of available leds */
 static const uint32_t num_leds = ARRAY_SIZE(pinsLeds);
 volatile bool led_status[MAX_LEDS];
@@ -219,12 +220,8 @@ static void pio_handler(uint32_t mask, uint32_t status, void* user_arg)
  *
  *  Handle process LED1 or LED2 status change.
  */
-static void console_handler(void)
+static void console_handler(uint8_t key)
 {
-	uint8_t key;
-	if (!console_is_rx_ready())
-		return;
-	key = console_get_char();
 	if (key >= '0' && key <= '9') {
 		process_button_evt(key - '0');
 	} else if (key == 's') {
@@ -401,7 +398,7 @@ int main(void)
 	pio_reset_all_it();
 
 	/* Initialize console */
-	console_configure(CONSOLE_BAUDRATE);
+	board_cfg_console();
 
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
@@ -433,9 +430,8 @@ int main(void)
 	configure_buttons();
 
 	printf("Initializing console interrupts\r\n");
-	aic_set_source_vector(CONSOLE_ID, console_handler);
-	aic_enable(CONSOLE_ID);
-	console_enable_interrupts(US_IER_RXRDY);
+	console_set_rx_handler(console_handler);
+	console_enable_rx_interrupt();
 
 	printf("use push buttons or console key 0 to 9.\n\r");
 	printf("Press the number of the led to make it "
