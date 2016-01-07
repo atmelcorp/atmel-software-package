@@ -240,8 +240,10 @@ int main(void)
 	/* Configure console */
 	board_cfg_console();
 
+#ifndef VARIANT_DDRAM
 	/* Configure DDRAM */
 	board_cfg_ddram();
+#endif
 
 	printf("-- GMAC uIP Web Server Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
