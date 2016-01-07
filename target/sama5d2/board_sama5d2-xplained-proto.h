@@ -66,19 +66,6 @@
 /** Name of the board */
 #define BOARD_NAME "sama5d2-xult-proto"
 
-/** Family definition */
-#if !defined sama5d2
-  #define sama5d2
-#endif
-
-/** Board definition */
-#define sama5d2xult
-
-/** Core definition */
-#define cortexa5
-
-#define BOARD_REV_A_XULT
-
 /*----------------------------------------------------------------------------*/
 /**
  *  \page sama5d2_xult_opfreq "sama5d2-XULT - Operating frequencies"
