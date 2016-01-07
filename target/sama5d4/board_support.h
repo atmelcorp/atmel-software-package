@@ -59,22 +59,29 @@ extern void board_setup_tlb(uint32_t *tlb);
 extern void board_cfg_l2cc(void);
 
 /**
- * \brief Configures DDR
+ * \brief Configure the MATRIX for DDR
+ */
+extern void board_cfg_matrix_for_ddr(void);
+
+/**
+ * \brief Configure the MATRIX for NAND
+ */
+extern void board_cfg_matrix_for_nand(void);
+
+/**
+ * \brief Configures DDR (calls board_cfg_matrix_for_ddr)
  */
 extern void board_cfg_ddram(void);
 
-#ifdef CONFIG_HAVE_NANDFLASH
 /**
- * \brief Configures the EBI for nandflash access.
+ * \brief Configures the EBI for nandflash access (calls
+ * board_cfg_matrix_for_nand)
  */
 extern void board_cfg_nand_flash(void);
-#endif
 
-#ifdef CONFIG_HAVE_NORFLASH
 /**
  * \brief Configures the EBI for norflash access.
  */
 extern void board_cfg_nor_flash(void);
-#endif
 
 #endif /* #ifndef BOARD_MEMORIES_H */

@@ -30,10 +30,6 @@
 #ifndef NAND_FLASH_COMMON_H
 #define NAND_FLASH_COMMON_H
 
-#ifndef CONFIG_HAVE_NANDFLASH
-#error NAND flash support is not enabled for the current target!
-#endif
-
 /** \addtogroup nand_common_def
 @{*/
 

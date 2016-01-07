@@ -75,71 +75,6 @@ const static struct _l2cc_control l2cc_cfg = {
 };
 
 /*----------------------------------------------------------------------------
- *        Local functions
- *----------------------------------------------------------------------------*/
-
-#ifdef BOARD_DDRAM_TYPE
-static void matrix_configure_slave_ddr(void)
-{
-	int i;
-
-	/* Disable write protection */
-	matrix_remove_write_protection(MATRIX0);
-
-	/* Internal SRAM */
-	matrix_configure_slave_sec(MATRIX0,
-			H64MX_SLAVE_SRAM, 0, 0, 0);
-	matrix_set_slave_region_size(MATRIX0,
-			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
-	matrix_set_slave_split_addr(MATRIX0,
-			H64MX_SLAVE_SRAM, MATRIX_AREA_64K, 0x1);
-
-	/* External DDR */
-	/* DDR port 0 not used */
-	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++) {
-		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
-		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xf);
-		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
-	}
-}
-#endif
-
-#ifdef CONFIG_HAVE_NANDFLASH
-static void matrix_configure_slave_nand(void)
-{
-	/* Disable write protection */
-	matrix_remove_write_protection(MATRIX0);
-	matrix_remove_write_protection(MATRIX1);
-
-	/* Internal SRAM */
-	matrix_configure_slave_sec(MATRIX0,
-			H64MX_SLAVE_SRAM, 0x1, 0x1, 0x1);
-	matrix_set_slave_split_addr(MATRIX0,
-			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
-	matrix_set_slave_region_size(MATRIX0,
-			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
-
-	/* NFC Command Register */
-	matrix_configure_slave_sec(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, 0xff, 0xff, 0xff);
-	matrix_set_slave_split_addr(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
-	matrix_set_slave_region_size(MATRIX1,
-			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
-
-	/* NFC SRAM */
-	matrix_configure_slave_sec(MATRIX1,
-			H32MX_SLAVE_NFC_SRAM, 0xff,0xff,0xff);
-	matrix_set_slave_split_addr(MATRIX1,
-			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_128M, 0x4f);
-	matrix_set_slave_region_size(MATRIX1,
-			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
-
-	MATRIX1->MATRIX_MEIER = 0x3ff;
-}
-#endif
-
-/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
@@ -357,10 +292,68 @@ void board_cfg_l2cc(void)
 	l2cc_configure(&l2cc_cfg);
 }
 
+void board_cfg_matrix_for_ddr(void)
+{
+	int i;
+
+	/* Disable write protection */
+	matrix_remove_write_protection(MATRIX0);
+
+	/* Internal SRAM */
+	matrix_configure_slave_sec(MATRIX0,
+			H64MX_SLAVE_SRAM, 0, 0, 0);
+	matrix_set_slave_region_size(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_split_addr(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_64K, 0x1);
+
+	/* External DDR */
+	/* DDR port 0 not used */
+	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++) {
+		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
+		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xf);
+		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
+	}
+}
+
+void board_cfg_matrix_for_nand(void)
+{
+	/* Disable write protection */
+	matrix_remove_write_protection(MATRIX0);
+	matrix_remove_write_protection(MATRIX1);
+
+	/* Internal SRAM */
+	matrix_configure_slave_sec(MATRIX0,
+			H64MX_SLAVE_SRAM, 0x1, 0x1, 0x1);
+	matrix_set_slave_split_addr(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_region_size(MATRIX0,
+			H64MX_SLAVE_SRAM, MATRIX_AREA_128K, 0x1);
+
+	/* NFC Command Register */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, 0xff, 0xff, 0xff);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_CMD, MATRIX_AREA_8M, 0xff);
+
+	/* NFC SRAM */
+	matrix_configure_slave_sec(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, 0xff,0xff,0xff);
+	matrix_set_slave_split_addr(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_128M, 0x4f);
+	matrix_set_slave_region_size(MATRIX1,
+			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
+
+	MATRIX1->MATRIX_MEIER = 0x3ff;
+}
+
+
 void board_cfg_ddram(void)
 {
 #ifdef BOARD_DDRAM_TYPE
-	matrix_configure_slave_ddr();
+	board_cfg_matrix_for_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
@@ -369,11 +362,10 @@ void board_cfg_ddram(void)
 #endif
 }
 
-#ifdef CONFIG_HAVE_NANDFLASH
 void board_cfg_nand_flash(void)
 {
 #if defined(BOARD_NANDFLASH_PINS) && defined(BOARD_NANDFLASH_BUS_WIDTH)
-	matrix_configure_slave_nand();
+	board_cfg_matrix_for_nand();
 	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
 	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
 	hsmc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
@@ -381,11 +373,12 @@ void board_cfg_nand_flash(void)
 	trace_fatal("Cannot configure NAND: target board have no NAND definitions!");
 #endif
 }
-#endif
 
-#ifdef CONFIG_HAVE_NORFLASH
 void board_cfg_nor_flash(void)
 {
+#if defined(BOARD_NORFLASH_CS) && defined(BOARD_NORFLASH_BUS_WIDTH)
 	hsmc_nor_configure(BOARD_NORFLASH_CS, BOARD_NORFLASH_BUS_WIDTH);
-}
+#else
+	trace_fatal("Cannot configure NOR: target board have no NOR definitions!");
 #endif
+}

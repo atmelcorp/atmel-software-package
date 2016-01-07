@@ -53,7 +53,6 @@
 
 /**
  * \brief Performs the low-level initialization of the chip.
- * It also enable a low level on the pin NRST triggers a user reset.
  */
 void low_level_init(void)
 {

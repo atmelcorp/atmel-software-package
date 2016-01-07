@@ -73,15 +73,24 @@ extern void board_setup_tlb(uint32_t *tlb);
 extern void board_cfg_l2cc(void);
 
 /**
- * \brief Configures DDR for the board
+ * \brief Configure the MATRIX for DDR
+ */
+extern void board_cfg_matrix_for_ddr(void);
+
+/**
+ * \brief Configure the MATRIX for NAND
+ */
+extern void board_cfg_matrix_for_nand(void);
+
+/**
+ * \brief Configures DDR for the board (calls board_cfg_matrix_for_ddr)
  */
 extern void board_cfg_ddram(void);
 
-#ifdef CONFIG_HAVE_NANDFLASH
 /**
- * \brief Configures SMC for the board NAND flash.
+ * \brief Configures SMC for the board NAND flash (calls
+ * board_cfg_matrix_for_nand).
  */
 extern void board_cfg_nand_flash(void);
-#endif
 
 #endif  /* BOARD_MEMORIES_H */
