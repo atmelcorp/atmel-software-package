@@ -43,7 +43,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
-#include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 
 #include "board_lowlevel.h"
@@ -87,54 +86,3 @@ void low_level_init(void)
 	/* Timer */
 	timer_configure(BOARD_TIMER_RESOLUTION);
 }
-
-/**
- * \brief Restore all IOs to default state after power-on reset.
- */
-void board_restore_pio_reset_state(void)
-{
-	int i;
-
-	/* all pins, excluding JTAG and NTRST */
-	struct _pin pins[] = {
-		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_D, 0xFFF83FFF, PIO_INPUT, PIO_PULLUP },
-	};
-
-	pio_configure(pins, ARRAY_SIZE(pins));
-	for (i = 0; i < ARRAY_SIZE(pins); i++)
-		pio_clear(&pins[i]);
-}
-
-void board_save_misc_power(void)
-{
-	int i;
-
-	/* disable USB clock */
-	pmc_disable_upll_clock();
-	pmc_disable_upll_bias();
-
-	/* Disable audio clock */
-	pmc_disable_audio();
-
-	/* disable system clocks */
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_SMD);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UHP);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK0);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK1);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK2);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-
-	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
-	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
-		if (i == ID_PIOA)
-			continue;
-		pmc_disable_peripheral(i);
-	}
-}
-

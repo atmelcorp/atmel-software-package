@@ -48,7 +48,6 @@
 
 #include "chip.h"
 
-#include "board_lowlevel.h"
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------
