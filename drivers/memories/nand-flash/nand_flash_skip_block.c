@@ -58,7 +58,7 @@
 uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block)
 {
-	uint8_t spare[NAND_MAX_PAGE_DATA_SIZE];
+	uint8_t spare[NAND_MAX_PAGE_SPARE_SIZE];
 	uint8_t error;
 	uint8_t marker;
 	const struct _nand_spare_scheme *scheme;
