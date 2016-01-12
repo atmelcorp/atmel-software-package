@@ -93,7 +93,7 @@ static bool _dspclk_configure(uint32_t dsp_clk)
 	pmc_configure_audio(&cfg);
 	pmc_enable_audio(true, false);
 
-#ifndef NDEBUG
+#if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 	{
 		uint32_t clk;
 		clk = pmc_get_audio_pmc_clock();
