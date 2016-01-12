@@ -144,51 +144,45 @@ SECTIONS
 	.bss (NOLOAD) :
 	{
 		. = ALIGN(4);
-		_sbss = . ;
 		_szero = .;
 		*(.bss .bss.*)
 		*(COMMON)
 		. = ALIGN(4);
-		_ebss = . ;
 		_ezero = .;
+	} >sram
+
+	.heap (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__heap_start__ = .;
+		. += HEAP_SIZE;
+		__heap_end__ = .;
 	} >sram
 
 	.stack (NOLOAD) :
 	{
-		__stack_start__ = . ;
-
 		. += IRQ_STACK_SIZE;
-		. = ALIGN (4);
-		_irqstack = . ;
+		. = ALIGN(8);
+		_irqstack = .;
 
 		. += FIQ_STACK_SIZE;
-		. = ALIGN (4);
-		_fiqstack = . ;
+		. = ALIGN(8);
+		_fiqstack = .;
 
 		. += ABT_STACK_SIZE;
-		. = ALIGN (4);
-		_abtstack = . ;
+		. = ALIGN(8);
+		_abtstack = .;
 
 		. += UND_STACK_SIZE;
-		. = ALIGN (4);
-		_undstack = . ;
+		. = ALIGN(8);
+		_undstack = .;
 
 		. += SYS_STACK_SIZE;
-		. = ALIGN (4);
-		_sysstack = . ;
+		. = ALIGN(8);
+		_sysstack = .;
 
 		. += C_STACK_SIZE;
-		. = ALIGN (4);
-		_cstack = . ;
-
-		. += HEAP_SIZE;
-		. = ALIGN (4);
-		_heap = . ;
-
-		__stack_end__ = .;
+		. = ALIGN(8);
+		_cstack = .;
 	} >sram
-
-	_end = . ;
-	__end = . ;
-	PROVIDE(end = .);
 }

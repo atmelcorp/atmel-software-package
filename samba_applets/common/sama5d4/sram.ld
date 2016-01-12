@@ -79,31 +79,25 @@ SECTIONS
 	.bss (NOLOAD) :
 	{
 		. = ALIGN(4);
-		_sbss = . ;
 		_szero = .;
 		*(.bss .bss.*)
 		*(COMMON)
 		. = ALIGN(4);
-		_ebss = . ;
 		_ezero = .;
+	} > sram
+
+	.heap (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__heap_start__ = .;
+		. += HEAP_SIZE;
+		__heap_end__ = .;
 	} > sram
 
 	.stack (NOLOAD) :
 	{
-		__stack_start__ = . ;
-
 		. += C_STACK_SIZE;
-		. = ALIGN (4);
-		_cstack = . ;
-
-		. += HEAP_SIZE;
-		. = ALIGN (4);
-		_heap = . ;
-
-		__stack_end__ = .;
+		. = ALIGN(8);
+		_cstack = .;
 	} > sram
-
-	_end = . ;
-	__end = . ;
-	PROVIDE(end = .);
 }

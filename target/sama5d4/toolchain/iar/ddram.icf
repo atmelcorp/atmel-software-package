@@ -47,7 +47,7 @@ define block FIQ_STACK with alignment = 8, size = __ICFEDIT_size_fiqstack__ { };
 define block ABT_STACK with alignment = 8, size = __ICFEDIT_size_abtstack__ { };
 define block UND_STACK with alignment = 8, size = __ICFEDIT_size_undstack__ { };
 define block SYS_STACK with alignment = 8, size = __ICFEDIT_size_sysstack__ { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with alignment = 4, size = __ICFEDIT_size_heap__     { };
 
 initialize by copy with packing=none { readwrite };
 do not initialize  { readonly section .noinit };
@@ -60,6 +60,6 @@ place in VEC_region { section .vectors };
 place in RAM_region { section .region_sram };
 place in DDRAM_region { readonly };
 place in DDRAM_region { section .cstartup };
-place in DDRAM_region { readwrite, block IRQ_STACK, block FIQ_STACK, block ABT_STACK, block UND_STACK, block SYS_STACK, block CSTACK, block HEAP };
+place in DDRAM_region { readwrite, block HEAP, block IRQ_STACK, block FIQ_STACK, block ABT_STACK, block UND_STACK, block SYS_STACK, block CSTACK };
 place in DDRAM_region { section .region_ddr };
 place in DDRAM_NOCACHE_region { section .region_ddr_nocache };

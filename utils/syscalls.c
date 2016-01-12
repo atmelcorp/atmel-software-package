@@ -51,7 +51,8 @@
  *        Imported variables
  *----------------------------------------------------------------------------*/
 
-extern int _heap;
+extern int __heap_start__;
+extern int __heap_end__;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -66,17 +67,22 @@ CONSTRUCTOR static void _disable_io_buffering(void)
 extern caddr_t _sbrk(int incr);
 caddr_t _sbrk(int incr)
 {
-	static unsigned char *heap = NULL;
-	unsigned char *prev_heap;
+	static caddr_t heap = NULL;
+	caddr_t prev_heap, next_heap;
 
 	if (heap == NULL) {
-		heap = (unsigned char *) &_heap;
+		heap = (caddr_t)&__heap_start__;
 	}
+
 	prev_heap = heap;
+	next_heap = (caddr_t)((unsigned int)heap + incr);
 
-	heap += incr;
-
-	return (caddr_t) prev_heap;
+	if (next_heap >= (caddr_t)&__heap_end__) {
+		return NULL;
+	} else {
+		heap = next_heap;
+		return prev_heap;
+	}
 }
 
 extern int _getpid(void);
