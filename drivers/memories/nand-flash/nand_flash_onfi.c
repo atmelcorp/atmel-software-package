@@ -313,9 +313,12 @@ bool nand_onfi_device_detect(const struct _nand_flash *nand)
 			id[1] = nand_read_data(nand);
 			id[2] = nand_read_data(nand);
 			id[3] = nand_read_data(nand);
-
+#if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 			trace_debug("NANDFLASH ID = <%x,%x,%x,%x>\r\n",
 					id[0], id[1], id[2], id[3]);
+#else
+			(void)id;
+#endif
 			break;
 		}
 	}
