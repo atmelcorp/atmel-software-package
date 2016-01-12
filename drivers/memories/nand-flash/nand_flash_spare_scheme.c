@@ -185,9 +185,8 @@ const struct _nand_spare_scheme nand_spare_scheme8192 = {
  * \param marker  Pointer to the variable to store the bad block marker.
  */
 void nand_spare_scheme_read_bad_block_marker(
-	const struct _nand_spare_scheme *scheme,
-	const uint8_t *spare,
-	uint8_t *marker)
+		const struct _nand_spare_scheme *scheme,
+		const uint8_t *spare, uint8_t *marker)
 {
 	*marker = spare[scheme->bad_block_marker_position];
 }
@@ -199,9 +198,8 @@ void nand_spare_scheme_read_bad_block_marker(
  * \param marker  Bad block marker to write.
  */
 void nand_spare_scheme_write_bad_block_marker(
-	const struct _nand_spare_scheme *scheme,
-	uint8_t *spare,
-	uint8_t marker)
+		const struct _nand_spare_scheme *scheme,
+		uint8_t *spare, uint8_t marker)
 {
 	spare[scheme->bad_block_marker_position] = marker;
 }
@@ -213,9 +211,8 @@ void nand_spare_scheme_write_bad_block_marker(
  * \param ecc  ECC buffer.
  */
 void nand_spare_scheme_read_ecc(
-	const struct _nand_spare_scheme *scheme,
-	const uint8_t *spare,
-	uint8_t *ecc)
+		const struct _nand_spare_scheme *scheme,
+		const uint8_t *spare, uint8_t *ecc)
 {
 	uint32_t i;
 	for (i = 0; i < scheme->num_ecc_bytes; i++) {
@@ -230,9 +227,8 @@ void nand_spare_scheme_read_ecc(
  * \param ecc  ECC buffer.
  */
 void nand_spare_scheme_write_ecc(
-	const struct _nand_spare_scheme *scheme,
-	uint8_t *spare,
-	const uint8_t *ecc)
+		const struct _nand_spare_scheme *scheme,
+		uint8_t *spare, const uint8_t *ecc)
 {
 	uint32_t i;
 	for (i = 0; i < scheme->num_ecc_bytes; i++) {
@@ -249,12 +245,9 @@ void nand_spare_scheme_write_ecc(
  * \param size  Number of extra bytes to read.
  * \param offset  Index where to read the first extra byte.
  */
-void nand_spare_scheme_read_extra(
-	const struct _nand_spare_scheme *scheme,
-	const uint8_t *spare,
-	void *extra,
-	uint8_t size,
-	uint8_t offset)
+void nand_spare_scheme_read_extra( const struct _nand_spare_scheme *scheme,
+		const uint8_t *spare, void *extra, uint8_t size,
+		uint8_t offset)
 {
 	uint32_t i;
 
@@ -275,12 +268,9 @@ void nand_spare_scheme_read_extra(
  * \param size  Number of extra bytes to write.
  * \param offset  Index where to write the first extra byte.
 */
-void nand_spare_scheme_write_extra(
-	const struct _nand_spare_scheme *scheme,
-	uint8_t *spare,
-	const void *extra,
-	uint8_t size,
-	uint8_t offset)
+void nand_spare_scheme_write_extra( const struct _nand_spare_scheme *scheme,
+		uint8_t *spare, const void *extra, uint8_t size,
+		uint8_t offset)
 {
 	uint32_t i;
 
@@ -299,10 +289,8 @@ void nand_spare_scheme_write_extra(
  * \param ecc_offset  Index where to write the first extra byte.
  * \return 0 if successful; otherwise returns an error code.
 */
-uint8_t nand_spare_scheme_build_4096(
-	struct _nand_spare_scheme *scheme,
-	uint16_t spare_size,
-	uint8_t ecc_offset)
+uint8_t nand_spare_scheme_build_4096(struct _nand_spare_scheme *scheme,
+		uint16_t spare_size, uint8_t ecc_offset)
 {
 	uint8_t num_ecc_bytes = nand_spare_scheme4096.num_ecc_bytes;
 	uint16_t i;

@@ -48,22 +48,22 @@
  * - NandCommon_MAXPAGESIZE
 */
 
- /** Maximum number of blocks in a device */
-#define NAND_MAXNUM_BLOCKS             2048
+/** Maximum number of blocks in a device */
+#define NAND_MAXNUM_BLOCKS               2048
 
- /** Maximum number of pages in one block */
-#define NAND_MAX_NUM_PAGES_PER_BLOCK      256
+/** Maximum number of pages in one block */
+#define NAND_MAX_NUM_PAGES_PER_BLOCK     256
 
- /** Maximum size of the data area of one page, in bytes. */
+/** Maximum size of the data area of one page, in bytes. */
 #define NAND_MAX_PAGE_DATA_SIZE          8192
 
- /** Maximum size of the spare area of one page, in bytes. */
+/** Maximum size of the spare area of one page, in bytes. */
 #define NAND_MAX_PAGE_SPARE_SIZE         512
 
- /** Maximum number of ecc bytes stored in the spare for one single page. */
+/** Maximum number of ecc bytes stored in the spare for one single page. */
 #define NAND_MAX_SPARE_ECC_BYTES         48
 
- /** Maximum number of extra free bytes inside the spare area of a page. */
+/** Maximum number of extra free bytes inside the spare area of a page. */
 #define NAND_MAX_SPARE_EXTRA_BYTES       384
 
 #define NAND_MAX_PMECC_BYTE_SIZE         512

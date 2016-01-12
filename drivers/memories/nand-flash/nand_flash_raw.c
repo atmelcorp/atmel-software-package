@@ -74,12 +74,11 @@ static uint32_t _hsmc_cfg_pagesize(uint32_t page_data_size)
 /**
  * \brief Sends the column address to the NandFlash chip.
  *
- * \param nand  Pointer to a RawNandFlash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param column_address  Column address to send.
  */
-static void _write_column_address(
-	const struct _nand_flash *nand,
-	uint16_t column_address)
+static void _write_column_address(const struct _nand_flash *nand,
+		uint16_t column_address)
 {
 	uint16_t page_data_size = nand_model_get_page_data_size(&nand->model);
 
@@ -102,12 +101,11 @@ static void _write_column_address(
 
 /**
  * \brief Sends the row address to the NandFlash chip.
- * \param nand  Pointer to a RawNandFlash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param row_address  Row address to send.
  */
-static void _write_row_address(
-	const struct _nand_flash *nand,
-	uint32_t row_address)
+static void _write_row_address(const struct _nand_flash *nand,
+		uint32_t row_address)
 {
 	uint32_t num_pages = nand_model_get_device_size_in_pages(&nand->model);
 
@@ -125,6 +123,7 @@ static void _write_row_address(
 /**
  * \brief Translates the given column and row address into first and other (1-4) address
  *  cycles. The resulting values are stored in the provided variables if they are not null.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param column_address  Column address to translate.
  * \param row_address  Row address to translate.
  * \param p_address_cycle0    First address cycle.
@@ -132,15 +131,10 @@ static void _write_row_address(
  * \param row_only           Only ROW address is used.
  * \return Number of address cycles converted.
  */
-static uint32_t _nfc_translate_address(
-	const struct _nand_flash *nand,
-	uint16_t column_address,
-	uint32_t row_address,
-	uint32_t *p_address_cycle0,
-	uint32_t *p_address_cycle_1234,
-	uint8_t row_only,
-	uint8_t col_only
-	)
+static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
+		uint16_t column_address, uint32_t row_address,
+		uint32_t *p_address_cycle0, uint32_t *p_address_cycle_1234,
+		uint8_t row_only, uint8_t col_only)
 {
 	uint16_t max_data_size =
 		nand_model_get_page_data_size(&nand->model) +
@@ -200,20 +194,16 @@ static uint32_t _nfc_translate_address(
 
 /**
  * \brief NAND flash send ALE CLE.
- * \param nand  Pointer to a RawNandFlash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param mode SMC ALE CLE mode parameter.
  * \param cmd1 First command to be sent.
  * \param cmd2 Second command to be sent.
  * \param col_address Column address.
  * \param row_address Row address.
  */
-static void _send_cle_ale(
-	const struct _nand_flash *nand,
-	uint8_t mode,
-	uint32_t cmd1,
-	uint32_t cmd2,
-	uint32_t col_address,
-	uint32_t row_address)
+static void _send_cle_ale(const struct _nand_flash *nand,
+		uint8_t mode, uint32_t cmd1, uint32_t cmd2,
+		uint32_t col_address, uint32_t row_address)
 {
 	uint32_t nfc_command;
 	uint32_t nfc_data;
@@ -276,12 +266,9 @@ static void _send_cle_ale(
  * \param buffer  Buffer where the data will be stored or sent.
  * \param size  Number of bytes that will be read
  */
-static void _data_array_in(
-	const struct _nand_flash *nand,
-	uint8_t bus_width,
-	bool host_sram,
-	uint8_t *buffer,
-	uint32_t size)
+static void _data_array_in(const struct _nand_flash *nand,
+		uint8_t bus_width, bool host_sram,
+		uint8_t *buffer, uint32_t size)
 {
 	uint32_t address;
 	uint32_t i;
@@ -329,13 +316,9 @@ static void _data_array_in(
  * \param offset Offset in bytes.
  */
 
-static void _data_array_out(
-	const struct _nand_flash *nand,
-	uint8_t bus_width,
-	bool host_sram,
-	uint8_t *buffer,
-	uint32_t size,
-	uint32_t offset)
+static void _data_array_out(const struct _nand_flash *nand,
+		uint8_t bus_width, bool host_sram,
+		uint8_t *buffer, uint32_t size, uint32_t offset)
 {
 	uint32_t address;
 	uint32_t i;
@@ -373,7 +356,7 @@ static void _data_array_out(
 /**
  * \brief NAND Flash devices have an 8-bit status register that the software can read during
     device operation..
- * \param nand  Pointer to a RawNandFlash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param status status to be checked.
  */
 static uint8_t _status_ready_pass(const struct _nand_flash *nand)
@@ -403,7 +386,7 @@ static uint8_t _status_ready_pass(const struct _nand_flash *nand)
 
 /**
  * \brief Waiting for the completion of a page program, erase and random read completion.
- * \param nand  Pointer to a RawNandFlash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  */
 static uint8_t _nand_wait_ready(const struct _nand_flash *nand)
 {
@@ -418,7 +401,7 @@ static uint8_t _nand_wait_ready(const struct _nand_flash *nand)
 /**
  * \brief Erases the specified block of the device. Returns 0 if the operation was
  * successful; otherwise returns an error code.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the physical block to erase.
  */
 static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
@@ -446,19 +429,15 @@ static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
  * \brief Reads the data and/or the spare areas of a page of a NandFlash into the
  * provided buffers. If a buffer pointer is 0, the corresponding area is not
  * read.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to read resides.
  * \param page  Number of the page to read inside the given block.
  * \param data  Buffer where the data area will be stored.
  * \param spare  Buffer where the spare area will be stored.
  * \return 0 if the operation has been successful; otherwise returns 1.
  */
-static uint8_t _read_page(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+static uint8_t _read_page(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
@@ -467,10 +446,10 @@ static uint8_t _read_page(
 	uint32_t smc_mode;
 	uint32_t smc_trans_type = 0;
 
+	trace_debug("_read_page(B#%d:P#%d)\r\n", block, page);
+
 	/* at least one area must be read */
 	assert(data || spare);
-
-	trace_debug("_read_page(B#%d:P#%d)\r\n", block, page);
 
 	if (nand_is_nfc_enabled()) {
 		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
@@ -531,19 +510,15 @@ static uint8_t _read_page(
  * \brief Reads the data and/or the spare areas of a page of a NandFlash into the
  * provided buffers. If a buffer pointer is 0, the corresponding area is not
  * read.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to read resides.
  * \param page  Number of the page to read inside the given block.
  * \param data  Buffer where the data area will be stored.
  * \param spare  Buffer where the spare area will be stored.
  * \return 0 if the operation has been successful; otherwise returns 1.
  */
-static uint8_t _read_page_with_pmecc(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
@@ -612,19 +587,15 @@ static uint8_t _read_page_with_pmecc(
 /**
  * \brief Writes the data and/or the spare area of a page on a NandFlash chip. If one
  * of the buffer pointer is 0, the corresponding area is not written.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to write resides.
  * \param page  Number of the page to write inside the given block.
  * \param data  Buffer containing the data area.
  * \return 0 if the write operation is successful; otherwise returns 1.
 */
 
-static uint8_t _write_page(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+static uint8_t _write_page(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
 	uint8_t error = 0;
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
@@ -702,18 +673,14 @@ static uint8_t _write_page(
 /**
  * \brief Writes the data and/or the spare area of a page on a NandFlash chip. If one
  * of the buffer pointer is 0, the corresponding area is not written.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to write resides.
  * \param page  Number of the page to write inside the given block.
  * \param data  Buffer containing the data area.
  * \return 0 if the write operation is successful; otherwise returns 1.
 */
-static uint8_t _write_page_with_pmecc(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
 	uint8_t ecc_table[NAND_MAX_PMECC_BYTE_SIZE];
 	uint8_t error = 0;
@@ -824,9 +791,9 @@ static uint8_t _write_page_with_pmecc(
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Initializes a _raw_nand_flash instance based on the given model.
+ * \brief Initializes a struct _nand_flash instance based on the given model.
  * If no model is provided, then the function tries to auto detect it.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param model  Pointer to the underlying NANDFLASH chip model. Can be 0.
  * \returns 0 if initialization is successful; otherwise returns
  * NAND_ERROR_UNKNOWNMODEL.
@@ -857,7 +824,7 @@ uint8_t nand_raw_initialize(struct _nand_flash *nand,
 
 /**
  * \brief Resets a NandFlash device.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  */
 void nand_raw_reset(const struct _nand_flash *nand)
 {
@@ -869,7 +836,7 @@ void nand_raw_reset(const struct _nand_flash *nand)
 
 /**
  * \brief Reads and returns the identifiers of a NandFlash chip.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \return id1|(id2<<8)|(id3<<16)|(id4<<24)
 */
 uint32_t nand_raw_read_id(const struct _nand_flash *nand)
@@ -901,7 +868,7 @@ uint32_t nand_raw_read_id(const struct _nand_flash *nand)
 
 /**
  * \brief Erases the specified block of the device, retrying several time if it fails.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the physical block to erase.
  * \return 0 if successful; otherwise returns NAND_ERROR_BADBLOCK.
  */
@@ -927,7 +894,7 @@ uint8_t nand_raw_erase_block(const struct _nand_flash *nand, uint16_t block)
  * \brief Reads the data and/or the spare areas of a page of a NandFlash into the
  * provided buffers. If a buffer pointer is 0, the corresponding area is not
  * read.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to read resides.
  * \param page  Number of the page to read inside the given block.
  * \param data  Buffer where the data area will be stored.
@@ -952,7 +919,7 @@ uint8_t nand_raw_read_page(const struct _nand_flash *nand,
  * \brief Writes the data and/or the spare area of a page on a NandFlash chip. If one
  * of the buffer pointer is 0, the corresponding area is not written. Retries
  * several time if there is an error.
- * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param nand  Pointer to a struct _nand_flash instance.
  * \param block  Number of the block where the page to write resides.
  * \param page  Number of the page to write inside the given block.
  * \param data  Buffer containing the data area.

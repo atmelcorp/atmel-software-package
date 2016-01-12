@@ -55,9 +55,8 @@
  * \param block  Number of block to check.
  */
 
-uint8_t nand_skipblock_check_block(
-	const struct _nand_flash *nand,
-	uint16_t block)
+uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
+		uint16_t block)
 {
 	uint8_t spare[NAND_MAX_PAGE_DATA_SIZE];
 	uint8_t error;
@@ -68,26 +67,27 @@ uint8_t nand_skipblock_check_block(
 	scheme = nand_model_get_scheme(&nand->model);
 
 	/* Read spare area of first page of block */
-	error = nand_raw_read_page(nand, block, 0, 0, spare);
+	error = nand_raw_read_page(nand, block, 0, NULL, spare);
 	if (error) {
-		trace_error("CheckBlock: Cannot read page #0 of block #%d\r\n", block);
+		trace_error("nand_skipblock_check_block: "
+				"Cannot read page #0 of block #%d\r\n", block);
 		return error;
 	}
-
 	nand_spare_scheme_read_bad_block_marker(scheme, spare, &marker);
-	if (marker != 0xFF)
+	if (marker != 0xff)
 		return BADBLOCK;
 
 	/* Read spare area of second page of block */
-	error = nand_raw_read_page(nand, block, 1, 0, spare);
+	error = nand_raw_read_page(nand, block, 1, NULL, spare);
 	if (error) {
-		trace_error("CheckBlock: Cannot read page #1 of block #%d\r\n", block);
+		trace_error("nand_skipblock_check_block: "
+				"Cannot read page #1 of block #%d\r\n", block);
 		return error;
 	}
-
 	nand_spare_scheme_read_bad_block_marker(scheme, spare, &marker);
-	if (marker != 0xFF)
+	if (marker != 0xff)
 		return BADBLOCK;
+
 	return GOODBLOCK;
 }
 
@@ -100,7 +100,6 @@ uint8_t nand_skipblock_check_block(
 void nand_skipblock_initialize(struct _nand_flash *nand)
 {
 	uint8_t error;
-
 	uint32_t num_blocks;
 	uint32_t block;
 
@@ -121,7 +120,8 @@ void nand_skipblock_initialize(struct _nand_flash *nand)
 				trace_debug("Block #%d is bad\r\n",
 						(unsigned int)block);
 			} else {
-				trace_error("nand_skipblock_initialize: Cannot retrieve info from block #%u\r\n",
+				trace_error("nand_skipblock_initialize: "
+						"Cannot retrieve info from block #%u\r\n",
 						(unsigned int)block);
 			}
 		}
@@ -136,10 +136,8 @@ void nand_skipblock_initialize(struct _nand_flash *nand)
  * \param erase_type Erase type: NORMAL_ERASE/SCRUB_ERASE
  * \return the nand_raw_erase_block code or NAND_ERROR_WRONGSTATUS.
 */
-uint8_t nand_skipblock_erase_block(
-	struct _nand_flash *nand,
-	uint16_t block,
-	uint32_t erase_type)
+uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
+		uint16_t block, uint32_t erase_type)
 {
 	uint8_t error;
 	const struct _nand_spare_scheme *scheme;
@@ -156,14 +154,13 @@ uint8_t nand_skipblock_erase_block(
 	/* Erase block */
 	error = nand_raw_erase_block(nand, block);
 	if (error) {
-
 		/* Try to mark the block as BAD */
 		trace_error("nand_skipblock_erase_block: Cannot erase block, try to mark it BAD\r\n");
 
 		/* Retrieve model scheme */
 		scheme = nand_model_get_scheme(&nand->model);
 
-		memset(spare, 0xFF, NAND_MAX_PAGE_SPARE_SIZE);
+		memset(spare, 0xff, sizeof(spare));
 		nand_spare_scheme_write_bad_block_marker(scheme, spare, NANDBLOCK_STATUS_BAD);
 		return nand_raw_write_page(nand, block, 0, 0, spare);
 	}
@@ -183,19 +180,15 @@ uint8_t nand_skipblock_erase_block(
  * nand_ecc_read_page().
 */
 
-uint8_t nand_skipblock_read_page(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+uint8_t nand_skipblock_read_page(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
-
 	/* Check that the block is not BAD if data is requested */
 	if (nand_skipblock_check_block(nand, block) != GOODBLOCK) {
 		trace_error("nand_skipblock_read_page: Block is BAD.\r\n");
 		return NAND_ERROR_BADBLOCK;
 	}
+
 	/* Read data with ECC verification */
 	return nand_ecc_read_page(nand, block, page, data, spare);
 }
@@ -209,16 +202,11 @@ uint8_t nand_skipblock_read_page(
  * nand_ecc_read_page().
 */
 
-uint8_t nand_skipblock_read_block(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	void *data)
+uint8_t nand_skipblock_read_block(const struct _nand_flash *nand,
+	uint16_t block, void *data)
 {
-	/* Number of pages per block */
 	uint32_t num_pages_per_block, page_size;
-	/* Page index */
 	uint16_t i;
-	/* Error returned by nand_skipblock_write_page */
 	uint8_t error = 0;
 
 	/* Retrieve model information */
@@ -239,7 +227,7 @@ uint8_t nand_skipblock_read_block(
 			trace_error("nand_skipblock_read_block: Cannot read page %d of block %d.\r\n", i, block);
 			return error;
 		}
-		data = (void *) ((uint8_t *) data + page_size);
+		data = (void*)((uint8_t*)data + page_size);
 	}
 
 	return 0;
@@ -256,12 +244,8 @@ uint8_t nand_skipblock_read_block(
  * returns nand_ecc_write_page().
  */
 
-uint8_t nand_skipblock_write_page(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	uint16_t page,
-	void *data,
-	void *spare)
+uint8_t nand_skipblock_write_page(const struct _nand_flash *nand,
+	uint16_t block, uint16_t page, void *data, void *spare)
 {
 	/* Check that the block is LIVE */
 	if (nand_skipblock_check_block(nand, block) != GOODBLOCK) {
@@ -282,18 +266,11 @@ uint8_t nand_skipblock_write_page(
  * nand_ecc_read_page().
 */
 
-uint8_t nand_skipblock_write_block(
-	const struct _nand_flash *nand,
-	uint16_t block,
-	void *data)
+uint8_t nand_skipblock_write_block(const struct _nand_flash *nand,
+	uint16_t block, void *data)
 {
-	/* Number of pages per block */
-	uint32_t num_pages_per_block;
-	/* Page size */
-	uint32_t page_size;
-	/* Page index */
+	uint32_t num_pages_per_block, page_size;
 	uint16_t i;
-	/* Error returned by nand_skipblock_write_page */
 	uint8_t error = 0;
 
 	/* Retrieve model information */
@@ -312,7 +289,7 @@ uint8_t nand_skipblock_write_block(
 			trace_error("nand_skipblock_write_block: Cannot write page %d of block %d.\r\n", i, block);
 			return NAND_ERROR_CANNOTWRITE;
 		}
-		data = (void *) ((uint8_t *) data + page_size);
+		data = (void*)((uint8_t*)data + page_size);
 	}
 
 	return 0;
