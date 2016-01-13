@@ -82,6 +82,7 @@
 #include "component/component_rxlp.h"
 #include "component/component_sckc.h"
 #include "component/component_sdmmc.h"
+#include "component/component_secumod.h"
 #include "component/component_sfc.h"
 #include "component/component_sfr.h"
 #include "component/component_sfrbu.h"
@@ -144,6 +145,7 @@
 #define TWI1     ((Twi      *)0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
 #define SAIC     ((Aic      *)0xF803C000U) /**< \brief (SAIC    ) Base Address */
 #define ICM      ((Icm      *)0xF8040000U) /**< \brief (ICM     ) Base Address */
+#define SECURAM  ((Securam  *)0xF8044000U) /**< \brief (SECURAM ) Base Address */
 #define RSTC     ((Rstc     *)0xF8048000U) /**< \brief (RSTC    ) Base Address */
 #define SHDWC    ((Shdwc    *)0xF8048010U) /**< \brief (SHDWC   ) Base Address */
 #define PIT      ((Pit      *)0xF8048030U) /**< \brief (PIT     ) Base Address */
@@ -178,6 +180,7 @@
 #define ADC      ((Adc      *)0xFC030000U) /**< \brief (ADC     ) Base Address */
 #define PIOA     ((Pio      *)0xFC038000U) /**< \brief (PIOA    ) Base Address */
 #define MATRIX1  ((Matrix   *)0xFC03C000U) /**< \brief (MATRIX1 ) Base Address */
+#define SECUMOD  ((Secumod  *)0xFC040000U) /**< \brief (SECUMOD ) Base Address */
 #define TDES     ((Tdes     *)0xFC044000U) /**< \brief (TDES    ) Base Address */
 #define CLASSD   ((Classd   *)0xFC048000U) /**< \brief (CLASSD  ) Base Address */
 #define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
