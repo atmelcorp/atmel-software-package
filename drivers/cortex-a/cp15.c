@@ -236,7 +236,8 @@ unsigned int cp15_is_dcache_enabled(void)
 {
 	unsigned int control;
 	control = cp15_read_control();
-	return ((control & ((1 << CP15_C_BIT) || (1 << CP15_M_BIT))) != 0);
+	return ((control & (1 << CP15_C_BIT)) != 0) &&
+		((control & (1 << CP15_M_BIT)) != 0);
 }
 
 /**
