@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -30,31 +30,88 @@
 /**
  * \file
  *
- * Interface for Synchronous Serial (SSC) controller.
+ * Implementation of Secure Fuse Controller (SFC).
  *
  */
-
-#ifndef _FUSE_
-#define _FUSE_
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "chip.h"
+#include "compiler.h"
 
-#include <stdint.h>
+#include "peripherals/sfc.h"
+#include "peripherals/pmc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern uint32_t FUSE_Read(uint8_t wordPosition);
-extern void FUSE_Write(uint32_t data, uint8_t wordPosition);
 
-#ifdef __cplusplus
-}
+uint32_t sfc_get_errors(void)
+{
+	uint32_t status = SFC->SFC_SR;
+	uint32_t err = 0;
+
+#ifdef SFC_SR_LCHECK
+	if (status & SFC_SR_LCHECK)
+		err |= SFC_ERR_LCHECK;
 #endif
-#endif				/* #ifndef _FUSE_ */
+
+	if (status & SFC_SR_APLE)
+		err |= SFC_ERR_APLE;
+
+	if (status & SFC_SR_ACE)
+		err |= SFC_ERR_ACE;
+
+	return err;
+}
+
+uint32_t sfc_read(uint32_t index)
+{
+	assert(index < ARRAY_SIZE(SFC->SFC_DR));
+	return SFC->SFC_DR[index];
+}
+
+void sfc_enable(void)
+{
+	pmc_enable_peripheral(ID_SFC);
+}
+
+void sfc_disable(void)
+{
+	pmc_disable_peripheral(ID_SFC);
+}
+
+bool sfc_write(uint32_t index, uint32_t data)
+{
+	uint32_t status;
+
+	assert(index < ARRAY_SIZE(SFC->SFC_DR));
+
+	/* write key */
+	SFC->SFC_KR = SFC_KR_KEY(0xFB);
+
+	/* write data to be fused */
+	SFC->SFC_DR[index] = data;
+
+	/* wait for completion */
+	do {
+		status = SFC->SFC_SR;
+	} while ((status & SFC_SR_PGMC) == 0);
+
+	/* check for failure */
+	return (status & SFC_SR_PGMF) == 0;
+}
+
+void sfc_mask_data_registers(void)
+{
+	SFC->SFC_MR |= SFC_MR_MSK;
+}
+
+bool sfc_are_data_registers_masked(void)
+{
+	return (SFC->SFC_MR & SFC_MR_MSK) != 0;
+}

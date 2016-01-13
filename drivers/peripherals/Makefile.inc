@@ -30,6 +30,7 @@ drivers-y += drivers/peripherals/adc.o
 drivers-y += drivers/peripherals/aesb.o
 drivers-y += drivers/peripherals/aes.o
 drivers-y += drivers/peripherals/aic.o
+drivers-y += drivers/peripherals/sfc.o
 drivers-y += drivers/peripherals/gmacd.o
 drivers-y += drivers/peripherals/gmac.o
 drivers-y += drivers/peripherals/icm.o

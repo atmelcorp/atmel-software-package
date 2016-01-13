@@ -46,7 +46,7 @@ typedef struct {
 	__IO uint32_t SFC_IDR;	    /**< \brief (Sfc Offset: 0x14) SFC Interrupt Disable Register */
 	__I uint32_t SFC_IMR;	    /**< \brief (Sfc Offset: 0x18) SFC Interrupt Mask Register */
 	__I uint32_t SFC_SR;	    /**< \brief (Sfc Offset: 0x1C) SFC Status Register */
-	__IO uint32_t SFC_DR[24];   /**< \brief (Sfc Offset: 0x20) SFC Data Register */
+	__IO uint32_t SFC_DR[16];   /**< \brief (Sfc Offset: 0x20) SFC Data Register */
 } Sfc;
 #endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SFC_KR : (SFC Offset: 0x00) SFC Key Register -------- */
@@ -57,23 +57,24 @@ typedef struct {
 #define SFC_MR_MSK (0x1u << 0) /**< \brief (SFC_MR) Mask Data Registers */
 /* -------- SFC_IER : (SFC Offset: 0x10) SFC Interrupt Enable Register -------- */
 #define SFC_IER_PGMC (0x1u << 0) /**< \brief (SFC_IER) Programming Sequence Completed Interrupt Enable */
-#define SFC_IER_APLE (0x1u << 16) /**< \brief (SFC_IER) Atmel Programming Lock Error Interrupt Enable */
+#define SFC_IER_PGMF (0x1u << 1) /**< \brief (SFC_IER) Programming Sequence Failed Interrupt Enable */
 #define SFC_IER_ACE (0x1u << 17) /**< \brief (SFC_IER) Atmel Check Error Interrupt Enable */
 /* -------- SFC_IDR : (SFC Offset: 0x14) SFC Interrupt Disable Register -------- */
 #define SFC_IDR_PGMC (0x1u << 0) /**< \brief (SFC_IDR) Programming Sequence Completed Interrupt Disable */
-#define SFC_IDR_APLE (0x1u << 16) /**< \brief (SFC_IDR) Atmel Programming Lock Error Interrupt Disable */
+#define SFC_IDR_PGMF (0x1u << 1) /**< \brief (SFC_IDR) Programming Sequence Failed Interrupt Disable */
 #define SFC_IDR_ACE (0x1u << 17) /**< \brief (SFC_IDR) Atmel Check Error Interrupt Disable */
 /* -------- SFC_IMR : (SFC Offset: 0x18) SFC Interrupt Mask Register -------- */
 #define SFC_IMR_PGMC (0x1u << 0) /**< \brief (SFC_IMR) Programming Sequence Completed Interrupt Mask */
-#define SFC_IMR_APLE (0x1u << 16) /**< \brief (SFC_IMR) Atmel Programming Lock Error Interrupt Mask */
+#define SFC_IMR_PGMF (0x1u << 1) /**< \brief (SFC_IMR) Programming Sequence Failed Interrupt Mask */
 #define SFC_IMR_ACE (0x1u << 17) /**< \brief (SFC_IMR) Atmel Check Error Interrupt Mask */
 /* -------- SFC_SR : (SFC Offset: 0x1C) SFC Status Register -------- */
 #define SFC_SR_PGMC (0x1u << 0)	/**< \brief (SFC_SR) Programming Sequence Completed */
+#define SFC_SR_PGMF (0x1u << 1)	/**< \brief (SFC_SR) Programming Sequence Failed */
 #define SFC_SR_APLE (0x1u << 16) /**< \brief (SFC_SR) Atmel Programming Lock Error */
 #define SFC_SR_ACE (0x1u << 17)	/**< \brief (SFC_SR) Atmel Check Error */
-/* -------- SFC_DR[24] : (SFC Offset: 0x20) SFC Data Register -------- */
+/* -------- SFC_DR[16] : (SFC Offset: 0x20) SFC Data Register -------- */
 #define SFC_DR_DATA_Pos 0
-#define SFC_DR_DATA_Msk (0xffffffffu << SFC_DR_DATA_Pos) /**< \brief (SFC_DR[24]) Fuse Data */
+#define SFC_DR_DATA_Msk (0xffffffffu << SFC_DR_DATA_Pos) /**< \brief (SFC_DR[16]) Fuse Data */
 #define SFC_DR_DATA(value) ((SFC_DR_DATA_Msk & ((value) << SFC_DR_DATA_Pos)))
 
 /*@}*/
