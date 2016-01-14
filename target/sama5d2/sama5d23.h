@@ -124,7 +124,7 @@
 #define AES      ((Aes      *)0xF002C000U) /**< \brief (AES     ) Base Address */
 #define SPI0     ((Spi      *)0xF8000000U) /**< \brief (SPI0    ) Base Address */
 #define SSC0     ((Ssc      *)0xF8004000U) /**< \brief (SSC0    ) Base Address */
-#define GMAC     ((Gmac     *)0xF8008000U) /**< \brief (GMAC    ) Base Address */
+#define GMAC0    ((Gmac     *)0xF8008000U) /**< \brief (GMAC0   ) Base Address */
 #define TC0      ((Tc       *)0xF800C000U) /**< \brief (TC0     ) Base Address */
 #define TC1      ((Tc       *)0xF8010000U) /**< \brief (TC1     ) Base Address */
 #define HSMC     ((Smc      *)0xF8014000U) /**< \brief (HSMC    ) Base Address */
