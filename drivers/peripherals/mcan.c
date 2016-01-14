@@ -39,8 +39,10 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "mcan.h"
-#include "pmc.h"
+#include "compiler.h"
+
+#include "peripherals/mcan.h"
+#include "peripherals/pmc.h"
 
 #include <assert.h>
 #include <string.h>

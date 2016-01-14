@@ -64,9 +64,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/trng.h"
+
+#include <stdlib.h>
 
 /*----------------------------------------------------------------------------
  *        Local Data

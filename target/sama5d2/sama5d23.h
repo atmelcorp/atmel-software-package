@@ -48,6 +48,7 @@
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D23 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D23_api Peripheral Software API */
 /*@{*/
 
@@ -96,11 +97,13 @@
 #include "component/component_udphs.h"
 #include "component/component_wdt.h"
 #include "component/component_xdmac.h"
+
 /*@}*/
 
 /* ************************************************************************** */
 /*   BASE ADDRESS DEFINITIONS FOR SAMA5D23 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D23_base Peripheral Base Address Definitions */
 /*@{*/
 
@@ -185,16 +188,17 @@
 /* ************************************************************************** */
 /*   PIO DEFINITIONS FOR SAMA5D23 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D23_pio Peripheral Pio Definitions */
 /*@{*/
 
 #include "pio/pio_sama5d23.h"
+
 /*@}*/
 
 /* ************************************************************************** */
 /*   MEMORY MAPPING DEFINITIONS FOR SAMA5D23 */
 /* ************************************************************************** */
-
 
 #define EBI_CS0_ADDR    (0x10000000u) /**< EBI Chip Select 0 base address */
 #define DDR_CS_ADDR     (0x20000000u) /**< DDR Chip Select base address */

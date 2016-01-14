@@ -34,6 +34,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "compiler.h"
 
 #include "nand_flash_spare_scheme.h"
 #include "nand_flash_model_list.h"

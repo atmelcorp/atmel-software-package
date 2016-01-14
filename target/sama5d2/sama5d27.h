@@ -30,8 +30,6 @@
 #ifndef _SAMA5D27_
 #define _SAMA5D27_
 
-#include "compiler.h"
-
 /** \addtogroup SAMA5D27_definitions SAMA5D27 definitions
   This file defines all structures and symbols for SAMA5D27:
     - registers and bitfields
@@ -50,6 +48,7 @@
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D27 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D27_api Peripheral Software API */
 /*@{*/
 
@@ -98,11 +97,13 @@
 #include "component/component_udphs.h"
 #include "component/component_wdt.h"
 #include "component/component_xdmac.h"
+
 /*@}*/
 
 /* ************************************************************************** */
 /*   BASE ADDRESS DEFINITIONS FOR SAMA5D27 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D27_base Peripheral Base Address Definitions */
 /*@{*/
 
@@ -193,6 +194,7 @@
 /* ************************************************************************** */
 /*   PIO DEFINITIONS FOR SAMA5D27 */
 /* ************************************************************************** */
+
 /** \addtogroup SAMA5D27_pio Peripheral Pio Definitions */
 /*@{*/
 
@@ -203,7 +205,6 @@
 /* ************************************************************************** */
 /*   MEMORY MAPPING DEFINITIONS FOR SAMA5D27 */
 /* ************************************************************************** */
-
 
 #define EBI_CS0_ADDR    (0x10000000u) /**< EBI Chip Select 0 base address */
 #define DDR_CS_ADDR     (0x20000000u) /**< DDR Chip Select base address */

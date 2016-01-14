@@ -38,6 +38,7 @@
 #include "nand_flash_dma.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 /*--------------------------------------------------------------------------
  *        Local Variables

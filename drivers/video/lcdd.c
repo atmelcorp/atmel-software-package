@@ -33,8 +33,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
+#include "compiler.h"
 
 #include "video/lcdd.h"
 #include "peripherals/pio.h"

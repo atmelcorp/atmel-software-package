@@ -38,7 +38,6 @@
 *        Headers
 *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 
 #include "peripherals/aic.h"

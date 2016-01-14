@@ -31,7 +31,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 
 #include "peripherals/pio.h"
