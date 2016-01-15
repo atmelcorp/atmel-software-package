@@ -58,6 +58,7 @@
 #include "component/component_aes.h"
 #include "component/component_aic.h"
 #include "component/component_aximx.h"
+#include "component/component_bsc.h"
 #include "component/component_chipid.h"
 #include "component/component_classd.h"
 #include "component/component_flexcom.h"
@@ -150,6 +151,7 @@
 #define PIT      ((Pit      *)0xF8048030U) /**< \brief (PIT     ) Base Address */
 #define WDT      ((Wdt      *)0xF8048040U) /**< \brief (WDT     ) Base Address */
 #define SCKC     ((Sckc     *)0xF8048050U) /**< \brief (SCKC    ) Base Address */
+#define BSC      ((Bsc      *)0xF8048054U) /**< \brief (BSC     ) Base Address */
 #define RTC      ((Rtc      *)0xF80480B0U) /**< \brief (RTC     ) Base Address */
 #define RXLP     ((Rxlp     *)0xF8049000U) /**< \brief (RXLP    ) Base Address */
 #define ACC      ((Acc      *)0xF804A000U) /**< \brief (ACC     ) Base Address */
