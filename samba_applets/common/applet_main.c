@@ -27,11 +27,93 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "chip.h"
 #include "applet.h"
 #include "trace.h"
+#include "peripherals/pio.h"
+#include "peripherals/sfc.h"
 #include "misc/console.h"
 
+#include <string.h>
+
+static bool _console_initialized;
 static uint32_t _comm_type;
+
+/*----------------------------------------------------------------------------
+ *         Local functions
+ *----------------------------------------------------------------------------*/
+
+#if defined(CONFIG_SOC_SAMA5D2)
+
+struct _console_cfg {
+	void* addr;
+	const struct _pin pins[2];
+};
+
+/**
+ * \brief Initialize console for SAMA5D2
+ * Chooses the UART and IOSET by reading the boot config in Fuses or BSCR.
+ * Baudrate is 57600.
+ */
+static void initialize_console(void)
+{
+	const struct _console_cfg console_cfg[] = {
+		{ UART1, PINS_UART1_IOS1 },
+		{ UART0, PINS_UART0_IOS1 },
+		{ UART1, PINS_UART1_IOS2 },
+		{ UART2, PINS_UART2_IOS1 },
+		{ UART2, PINS_UART2_IOS2 },
+		{ UART2, PINS_UART2_IOS3 },
+		{ UART3, PINS_UART3_IOS1 },
+		{ UART3, PINS_UART3_IOS2 },
+		{ UART3, PINS_UART3_IOS3 },
+		{ UART4, PINS_UART4_IOS1 },
+	};
+	uint32_t bcw;
+	uint32_t baudrate;
+	uint32_t console;
+
+	/* read boot config word from fuse */
+	bcw = sfc_read(16);
+
+	/* if BSCR is not disabled and BUREG index is valid, use BUREG */
+	if ((bcw & BCW_DISABLE_BSCR) == 0) {
+		uint32_t bsc_cr = BSC->BSC_CR;
+		if (bsc_cr & BSC_CR_BUREG_VALID) {
+			uint32_t index = (bsc_cr & BSC_CR_BUREG_INDEX_Msk) >> BSC_CR_BUREG_INDEX_Pos;
+			bcw = SECURAM->BUREG_256b[index];
+		}
+	}
+
+	/* if ROM-code is v1.0, use 57600 baudrate */
+	baudrate = 115200;
+	if (!memcmp((const char*)0x210000, "v1.0", 5))
+		baudrate = 57600;
+
+	/* configure console */
+	console = (bcw & BCW_UART_CONSOLE_Msk) >> BCW_UART_CONSOLE_Pos;
+	pio_configure(console_cfg[console].pins, 2);
+	console_configure(console_cfg[console].addr, baudrate);
+}
+
+#elif defined(CONFIG_SOC_SAMA5D4)
+
+/**
+ * \brief Initialize console for SAMA5D4
+ * Always USART3, baudrate is 115200.
+ */
+static void initialize_console(void)
+{
+	const struct _pin console_pins[] = { PIN_USART3_TXD, PIN_USART3_RXD };
+	pio_configure(console_pins, 2);
+	console_configure(USART3, 115200);
+}
+
+#else
+
+#error Unsupported SoC!
+
+#endif
 
 /*----------------------------------------------------------------------------
  *         Public functions
@@ -53,6 +135,11 @@ void applet_main(struct applet_mailbox *mailbox)
 
 	// set default status
 	mailbox->status = APPLET_FAIL;
+
+	if (!_console_initialized) {
+		initialize_console();
+		_console_initialized = true;
+	}
 
 	// look for handler and call it
 	for (i = 0; applet_commands[i].handler; i++) {

@@ -35,7 +35,6 @@
 #include "board.h"
 #include "chip.h"
 #include "memories/at25.h"
-#include "misc/console.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"

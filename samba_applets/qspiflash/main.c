@@ -38,7 +38,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include "memories/qspiflash.h"
-#include "misc/console.h"
 #include "pin_defs.h"
 #include "trace.h"
 #include <assert.h>
