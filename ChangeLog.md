@@ -11,6 +11,7 @@
 - added definitions for SECUMOD and boot configuration registers
 - new IrDA example using FLEXCOM USART
 - new Security Module (SECUMOD) driver and example
+- new PDMIC driver and example
 
 ### Changes
 

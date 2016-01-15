@@ -74,6 +74,7 @@ drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/acc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/classd.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
+drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/pdmic.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/secumod.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/sfrbu.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o

@@ -61,6 +61,8 @@ typedef struct {
 #define PDMIC_CR_SWRST (0x1u << 0) /**< \brief (PDMIC_CR) Software Reset */
 #define PDMIC_CR_ENPDM (0x1u << 4) /**< \brief (PDMIC_CR) Enable PDM */
 /* -------- PDMIC_MR : (PDMIC Offset: 0x04) Mode Register -------- */
+#define PDMIC_MR_CLKS_PCLK (0x0u << 4) /**< \brief (PDMIC_MR) Clock Source Selection PCLK */
+#define PDMIC_MR_CLKS_GCLK (0x1u << 4) /**< \brief (PDMIC_MR) Clock Source Selection GCLK */
 #define PDMIC_MR_PRESCAL_Pos 8
 #define PDMIC_MR_PRESCAL_Msk (0x7fu << PDMIC_MR_PRESCAL_Pos) /**< \brief (PDMIC_MR) Prescaler Rate Selection */
 #define PDMIC_MR_PRESCAL(value) ((PDMIC_MR_PRESCAL_Msk & ((value) << PDMIC_MR_PRESCAL_Pos)))
@@ -84,7 +86,8 @@ typedef struct {
 /* -------- PDMIC_DSPR0 : (PDMIC Offset: 0x58) DSP Configuration Register 0 -------- */
 #define PDMIC_DSPR0_HPFBYP (0x1u << 1) /**< \brief (PDMIC_DSPR0) High-Pass Filter Bypass */
 #define PDMIC_DSPR0_SINBYP (0x1u << 2) /**< \brief (PDMIC_DSPR0) SINCC Filter Bypass */
-#define PDMIC_DSPR0_SIZE (0x1u << 3) /**< \brief (PDMIC_DSPR0) Data Size */
+#define PDMIC_DSPR0_SIZE_16 (0x0u << 3) /**< \brief (PDMIC_DSPR0) Data Size 16bit */
+#define PDMIC_DSPR0_SIZE_32 (0x1u << 3) /**< \brief (PDMIC_DSPR0) Data Size 32bit */
 #define PDMIC_DSPR0_OSR_Pos 4
 #define PDMIC_DSPR0_OSR_Msk (0x7u << PDMIC_DSPR0_OSR_Pos) /**< \brief (PDMIC_DSPR0) Oversampling Ratio */
 #define PDMIC_DSPR0_OSR(value) ((PDMIC_DSPR0_OSR_Msk & ((value) << PDMIC_DSPR0_OSR_Pos)))
