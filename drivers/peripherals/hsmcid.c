@@ -284,10 +284,15 @@ static void _hsmci_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 	struct hsmci_set *set = (struct hsmci_set*) arg;
 
 	(void) channel;
+	assert(set);
+	assert(set->regs);
+	assert(set->cmd);
 
-	if (set->region_start && set->region_size)
+	if (set->cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX
+		&& set->region_start && set->region_size)
 		cache_invalidate_region((void *)set->region_start,
 			set->region_size);
+	hsmci_enable_it(set->regs, HSMCI_IER_XFRDONE);
 }
 
 /**
@@ -757,10 +762,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		}
 		trace_debug("DMA %s\n\r", is_read ? "read" : "write");
 		hsmci_dma(set, mr & HSMCI_MR_FBYTE, is_read);
-
-		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_DATA;
-		if (cmd->wNbBlocks > 1)
-			ier |= HSMCI_IER_FIFOEMPTY;
+		ier = STATUS_ERRORS_DATA;
 	}
 	hsmci_enable(regs);
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND)) {
