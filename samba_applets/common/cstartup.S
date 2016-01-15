@@ -72,6 +72,11 @@ init:
 	strcc   r2, [r0], #4
 	bcc     1b
 
+	/* Initialize the C library */
+
+	ldr     r0, =__libc_init_array
+	blx     r0
+
 	/* Update the is_initialized flag */
 
 	mov     r1, #1
@@ -80,7 +85,7 @@ init:
 
 	/* Branch to main */
 2:
-	add     r0, pc,#-(8+.-mailbox)
+	add     r0, pc, #-(8+.-mailbox)
 	ldr     r3, =applet_main
 	push    {r4}
 	blx     r3
