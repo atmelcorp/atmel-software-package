@@ -3366,72 +3366,88 @@ SDIO_DumpCardInformation(sSdCard * pSd)
 
 /**
  * Display the content of the CID register
- * \param pCID Pointer to CID data.
- * \param sd_device False for MMC CID format, true for SD CID format.
+ * \param pSd  Pointer to SdCard instance.
  */
 void
-SD_DumpCID(const uint32_t *pCID, bool sd_device)
+SD_DumpCID(const sSdCard *pSd)
 {
-	printf("======= Card IDentification =======\n\r");
-	printf(" .MID Manufacturer ID        %02X\n\r",
-	    (unsigned int) SD_CID_MID(pCID));
+	const uint8_t sd_device = (pSd->bCardType & CARD_TYPE_bmSDMMC)
+	    == CARD_TYPE_bmSD;
 
-	if (!sd_device)
-		printf(" .CBX Card/BGA               %X\n\r",
-		    (unsigned int) eMMC_CID_CBX(pCID));
+	/* Function-only SDIO devices have no CID register */
+	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmUNKNOWN)
+		return;
+
+	printf("======= Card IDentification =======\n\r");
+	printf(" .MID Manufacturer ID        0x%02X\n\r",
+	    (unsigned int) SD_CID_MID(pSd->CID));
 
 	if (sd_device)
 		printf(" .OID OEM/Application ID     %c%c\n\r",
-		    (char) SD_CID_OID1(pCID), (char) SD_CID_OID0(pCID));
-	else
-		printf(" .OID OEM/Application ID     %X\n\r",
-		    (unsigned int) eMMC_CID_OID(pCID));
+		    (char) SD_CID_OID1(pSd->CID), (char) SD_CID_OID0(pSd->CID));
+	else {
+		if (MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 3) {
+			printf(" .CBX Card/BGA               %u\n\r",
+			    (unsigned int) eMMC_CID_CBX(pSd->CID));
+			printf(" .OID OEM/Application ID     0x%02X\n\r",
+			    (unsigned int) eMMC_CID_OID(pSd->CID));
+		}
+		else
+			printf(" .OID OEM/Application ID     0x%04X\n\r",
+			    (unsigned int) MMC_CID_OID(pSd->CID));
+	}
 
 	if (sd_device)
 		printf(" .PNM Product name           %c%c%c%c%c\n\r",
-		    (char) SD_CID_PNM4(pCID),
-		    (char) SD_CID_PNM3(pCID),
-		    (char) SD_CID_PNM2(pCID),
-		    (char) SD_CID_PNM1(pCID), (char) SD_CID_PNM0(pCID));
+		    (char) SD_CID_PNM4(pSd->CID), (char) SD_CID_PNM3(pSd->CID),
+		    (char) SD_CID_PNM2(pSd->CID), (char) SD_CID_PNM1(pSd->CID),
+		    (char) SD_CID_PNM0(pSd->CID));
 	else
 		printf(" .PNM Product name           %c%c%c%c%c%c\n\r",
-		    (char) MMC_CID_PNM5(pCID),
-		    (char) MMC_CID_PNM4(pCID),
-		    (char) MMC_CID_PNM3(pCID),
-		    (char) MMC_CID_PNM2(pCID),
-		    (char) MMC_CID_PNM1(pCID), (char) MMC_CID_PNM0(pCID));
+		    (char) MMC_CID_PNM5(pSd->CID),
+		    (char) MMC_CID_PNM4(pSd->CID),
+		    (char) MMC_CID_PNM3(pSd->CID),
+		    (char) MMC_CID_PNM2(pSd->CID),
+		    (char) MMC_CID_PNM1(pSd->CID),
+		    (char) MMC_CID_PNM0(pSd->CID));
 
 	if (sd_device)
-		printf(" .PRV Product revision       %X\n\r",
-		    (unsigned int) SD_CID_PRV(pCID));
+		printf(" .PRV Product revision       %u.%u\n\r",
+		    (unsigned int) SD_CID_PRV1(pSd->CID),
+		    (unsigned int) SD_CID_PRV0(pSd->CID));
 	else
-		printf(" .PRV Product revision       %X\n\r",
-		    (unsigned int) MMC_CID_PRV(pCID));
+		printf(" .PRV Product revision       %u.%u\n\r",
+		    (unsigned int) MMC_CID_PRV1(pSd->CID),
+		    (unsigned int) MMC_CID_PRV0(pSd->CID));
 
 	if (sd_device)
-		printf(" .PSN Product serial number  %02X%02X%02X%02X\n\r",
-		    (unsigned int) SD_CID_PSN3(pCID),
-		    (unsigned int) SD_CID_PSN2(pCID),
-		    (unsigned int) SD_CID_PSN1(pCID),
-		    (unsigned int) SD_CID_PSN0(pCID));
+		printf(" .PSN Product serial number  0x%02X%02X%02X%02X\n\r",
+		    (unsigned int) SD_CID_PSN3(pSd->CID),
+		    (unsigned int) SD_CID_PSN2(pSd->CID),
+		    (unsigned int) SD_CID_PSN1(pSd->CID),
+		    (unsigned int) SD_CID_PSN0(pSd->CID));
 	else
-		printf(" .PSN Product serial number  %02X%02X%02X%02X\n\r",
-		    (unsigned int) MMC_CID_PSN3(pCID),
-		    (unsigned int) MMC_CID_PSN2(pCID),
-		    (unsigned int) MMC_CID_PSN1(pCID),
-		    (unsigned int) MMC_CID_PSN0(pCID));
+		printf(" .PSN Product serial number  0x%02X%02X%02X%02X\n\r",
+		    (unsigned int) MMC_CID_PSN3(pSd->CID),
+		    (unsigned int) MMC_CID_PSN2(pSd->CID),
+		    (unsigned int) MMC_CID_PSN1(pSd->CID),
+		    (unsigned int) MMC_CID_PSN0(pSd->CID));
 
 	if (sd_device)
-		printf(" .MDT Manufacturing date     %04d/%02d\n\r",
-		    (uint16_t) (SD_CID_MDT_Y(pCID) + 2000),
-		    (uint8_t) SD_CID_MDT_M(pCID));
-	else
-		printf(" .MDT Manufacturing date     %04d/%02d\n\r",
-		    (uint16_t) (MMC_CID_MDT_Y(pCID) + 1997),
-		    (uint8_t) SD_CID_MDT_M(pCID));
+		printf(" .MDT Manufacturing date     %04u/%02u\n\r",
+		    (uint16_t) (SD_CID_MDT_Y(pSd->CID) + 2000),
+		    (uint8_t) SD_CID_MDT_M(pSd->CID));
+	else {
+		uint16_t year = 1997 + (uint16_t) MMC_CID_MDT_Y(pSd->CID);
 
-	printf(" .CRC checksum               %02X\n\r",
-	    (unsigned int) SD_CID_CRC(pCID));
+		if (MMC_EXT_EXT_CSD_REV(pSd->EXT) > 4 && year < 2010)
+			year = year - 1997 + 2013;
+		printf(" .MDT Manufacturing date     %04u/%02u\n\r", year,
+		    (uint8_t) MMC_CID_MDT_M(pSd->CID));
+	}
+
+	printf(" .CRC checksum               0x%02X\n\r",
+	    (unsigned int) SD_CID_CRC(pSd->CID));
 }
 
 /**

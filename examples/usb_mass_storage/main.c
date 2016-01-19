@@ -379,7 +379,7 @@ static bool card_init(uint8_t num)
 		printf("-I- Device memory size: %lu MiB, %lu * %luB\n\r",
 		SD_GetTotalSizeKB(pSd) / 1024UL, SD_GetNumberBlocks(pSd),
 		SD_GetBlockSize(pSd));
-		SD_DumpCID(pSd->CID);
+		SD_DumpCID(pSd);
 		SD_DumpCSD(pSd->CSD);
 	}
 	if (card_type & CARD_TYPE_bmMMC)

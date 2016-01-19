@@ -184,7 +184,8 @@
 #define eMMC_CID_CBX(pCid)  SD_CID(pCid, 112, 2)   /**< eMMC BGA(01)/CARD(00) */
 #define SD_CID_OID1(pCid)   SD_CID(pCid, 112, 8)   /**< OEM/App ID Byte 1 */
 #define SD_CID_OID0(pCid)   SD_CID(pCid, 104, 8)   /**< OEM/App ID Byte 0 */
-#define eMMC_CID_OID(pCid)  SD_CID(pCid, 104, 8)   /**< eMMC OEM/App ID */
+#define MMC_CID_OID(pCid)   SD_CID(pCid, 104, 16)  /**< MMC OEM/App ID */
+#define eMMC_CID_OID(pCid)  SD_CID(pCid, 104, 8)   /**< MMC v4.3+ OEM/App ID */
 #define SD_CID_PNM4(pCid)   SD_CID(pCid,  96, 8)   /**< Product name byte 4 */
 #define SD_CID_PNM3(pCid)   SD_CID(pCid,  88, 8)   /**< Product name byte 3 */
 #define SD_CID_PNM2(pCid)   SD_CID(pCid,  80, 8)   /**< Product name byte 2 */
@@ -197,8 +198,10 @@
 #define MMC_CID_PNM1(pCid)  SD_CID(pCid,  64, 8)   /**< Product name byte 1 */
 #define MMC_CID_PNM0(pCid)  SD_CID(pCid,  56, 8)   /**< Product name byte 0 */
 
-#define SD_CID_PRV(pCid)    SD_CID(pCid,  56, 8)   /**< Product Revision */
-#define MMC_CID_PRV(pCid)   SD_CID(pCid,  48, 8)   /**< Product Revision */
+#define SD_CID_PRV1(pCid)   SD_CID(pCid,  60, 4)   /**< Product revision major number */
+#define SD_CID_PRV0(pCid)   SD_CID(pCid,  56, 4)   /**< Product revision minor number */
+#define MMC_CID_PRV1(pCid)  SD_CID(pCid,  52, 4)   /**< Product revision major number */
+#define MMC_CID_PRV0(pCid)  SD_CID(pCid,  48, 4)   /**< Product revision minor number */
 
 #define SD_CID_PSN3(pCid)   SD_CID(pCid,  48,  8)  /**< Product serial 3 */
 #define SD_CID_PSN2(pCid)   SD_CID(pCid,  40,  8)  /**< Product serial 2 */
@@ -210,8 +213,10 @@
 #define MMC_CID_PSN0(pCid)  SD_CID(pCid,  16,  8)  /**< Product serial 0 */
 
 #define SD_CID_MDT_Y(pCid)  SD_CID(pCid,  12, 8)   /**< Manufacturing Year (0=2000) */
-#define MMC_CID_MDT_Y(pCid) SD_CID(pCid,  12, 4)   /**< Manufacturing Year (0=1997) */
 #define SD_CID_MDT_M(pCid)  SD_CID(pCid,   8, 4)   /**< Manufacturing month */
+#define MMC_CID_MDT_Y(pCid) SD_CID(pCid,   8, 4)   /**< Manufacturing Year (0=1997 or 2013) */
+#define MMC_CID_MDT_M(pCid) SD_CID(pCid,  12, 4)   /**< Manufacturing month */
+
 #define SD_CID_CRC(pCid)    SD_CID(pCid,   1, 7)   /**< CRC7 checksum */
 /**     @}*/
 
@@ -595,7 +600,7 @@ void _DumpREG(void *pREG, uint32_t dwSize);
 
 void SDIO_DumpCardInformation(sSdCard * pSd);
 
-void SD_DumpCID(const uint32_t *pCID, bool sd_device);
+void SD_DumpCID(const sSdCard *pSd);
 
 void SD_DumpCSD(const uint32_t *pCSD);
 
