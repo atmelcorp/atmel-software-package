@@ -2339,7 +2339,7 @@ SdMmcDesideBuswidth(sSdCard * pSd)
 	const uint8_t io = (pSd->bCardType & CARD_TYPE_bmSDIO) != 0;
 
 	if (io)
-		busWidth = 1;   /* SDIO => 1 bit only */
+		busWidth = 1;   /* SDIO => 1 bit only. TODO: assign CCCR. */
 	else if (mmc) {
 		/* Check MMC revision 4 or later (1/4/8 bit mode) */
 		if (MMC_CSD_SPEC_VERS(pSd->CSD) >= 4)
@@ -2502,42 +2502,23 @@ SdMmcIdentify(sSdCard * pSd)
 	return 0;
 }
 
-/**
- * \brief Run the SD/MMC/SDIO enumeration sequence.
- * This function runs after the initialization and identification procedure. It
- * gets all necessary information from the card and deside transfer block size,
- * clock speed and bus width. It sets the SD/MMC/SDIO card in transfer
- * (or command) state.
- * \param pSd  Pointer to a SD card driver instance.
- * \return 0 if successful; otherwise returns an \ref sdmmc_rc "SD_ERROR code".
- */
 static uint8_t
-SdMmcEnum(sSdCard * pSd)
+MmcInit(sSdCard * pSd)
 {
-	uint8_t mem, io;
-	uint8_t error;
-	uint32_t ioSpeed = 0, memSpeed = 0;
-	uint8_t hsExec = 0;
+	uint32_t clock, drv_param, drv_err, status;
+	uint8_t error, hsExec = 0;
 
-	/* - has Memory/IO/High-Capacigy - */
-	mem = ((pSd->bCardType & CARD_TYPE_bmSDMMC) > 0);
-	io = ((pSd->bCardType & CARD_TYPE_bmSDIO) > 0);
-
-	/* For MEMORY cards:
-	 * The host then issues the command ALL_SEND_CID (CMD2) to the card to get
+	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
 	 * its unique card identification (CID) number.
 	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
 	 * number as the response (on the CMD line). */
-	if (mem) {
-		error = Cmd2(pSd);
-		if (error) {
-			trace_error("SdMmcInit.cmd2(%d)\n\r", error);
-			return error;
-		}
+	error = Cmd2(pSd);
+	if (error) {
+		trace_error("MmcInit.cmd2(%d)\n\r", error);
+		return error;
 	}
 
-	/* For MEMORY and SDIO cards:
-	 * Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
+	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
 	 * card to publish a new relative card address (RCA), which is shorter than
 	 * CID and which is used to address the card in the future data transfer
 	 * mode. Once the RCA is received the card state changes to the Stand-by
@@ -2547,83 +2528,330 @@ SdMmcEnum(sSdCard * pSd)
 	 * card. */
 	error = Cmd3(pSd);
 	if (error) {
-		trace_error("SdMmcInit.cmd3(%d)\n\r", error);
+		trace_error("MmcInit.cmd3(%d)\n\r", error);
 		return error;
 	}
 	else
 		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
 
-	/* For MEMORY cards:
-	 * SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
+	/* SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
 	 * e.g. block length, card storage capacity, etc... */
-	if (mem) {
-		error = Cmd9(pSd);
-		if (error) {
-			trace_error("SdMmcInit.cmd9(%d)\n\r", error);
-			return error;
-		}
+	error = Cmd9(pSd);
+	if (error) {
+		trace_error("MmcInit.cmd9(%d)\n\r", error);
+		return error;
 	}
 
 	/* Now select the card, to TRAN state */
 	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
 	if (error) {
-		trace_error("SdMmcInit.SelCard(%d)\n\r", error);
+		trace_error("MmcInit.SelCard(%d)\n\r", error);
 		return error;
 	}
 
-	/* - Now in TRAN, obtain extended setup information - */
-
-	/* If the card support EXT_CSD, read it! */
+	/* Get extended information of the card */
 	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
 		   (unsigned int) pSd->bCardType,
 		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
-
-	/* Get extended information of the card */
 	SdMmcUpdateInformation(pSd, 1, 1);
 
 	/* Calculate transfer speed */
-	if (io)
-		ioSpeed = SdioGetMaxSpeed(pSd);
-	if (mem)
-		memSpeed = SdmmcGetMaxSpeed(pSd);
-
-	/* Combo, min speed */
-	if (io && mem) {
-		pSd->dwTranSpeed = (ioSpeed > memSpeed) ? memSpeed : ioSpeed;
-	}
-	/* SDIO only */
-	else if (io) {
-		pSd->dwTranSpeed = ioSpeed;
-	}
-	/* Memory card only */
-	else if (mem) {
-		pSd->dwTranSpeed = memSpeed;
-	}
-	pSd->dwTranSpeed *= 1000;
+	pSd->dwTranSpeed = SdmmcGetMaxSpeed(pSd) * 1000UL;
 
 	/* Enable more bus width Mode */
 	error = SdMmcDesideBuswidth(pSd);
 	if (error) {
-		trace_error("SdmmcEnum.DesideBusWidth: %u\n\r", error);
+		trace_error("MmcInit.DesideBusWidth: %u\n\r", error);
 		return SDMMC_ERROR;
 	}
 
 	/* Enable High-Speed Mode */
 	error = SdMmcEnableHighSpeed(pSd);
-	if (!error)
+	if (error == SDMMC_OK) {
 		hsExec = 1;
-	//else if (error != SDMMC_ERROR_NOT_SUPPORT) {
-	//  return SDMMC_ERROR;
-	//}
-
-	/* In HS mode transfer speed *2 */
-	if (hsExec)
+		/* In HS mode transfer speed *2 */
 		pSd->dwTranSpeed *= 2;
+	}
 
 	/* Update card information since status changed */
 	if (hsExec || pSd->bBusMode > 1)
 		SdMmcUpdateInformation(pSd, hsExec, 1);
 
+	/* MMC devices have the SET_BLOCK_COUNT command part of both the
+	 * block-oriented read and the block-oriented write commands,
+	 * i.e. class 2 and class 4 commands.
+	 * FIXME we should normally check CSD.CCC before issuing any MMC block-
+	 * oriented read/write command. */
+	pSd->bSetBlkCnt = 1;
+	/* Ask the driver to implicitly send the SET_BLOCK_COUNT command,
+	 * immediately before every READ_MULTIPLE_BLOCK and WRITE_MULTIPLE_BLOCK
+	 * command. */
+	drv_param = pSd->bSetBlkCnt;
+	drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_SET_LENPREFIX,
+	    (uint32_t)&drv_param);
+	/* In case the driver does not support this function, we'll take it in
+	 * charge. */
+	if (pSd->bSetBlkCnt && drv_err == SDMMC_OK && drv_param)
+		pSd->bSetBlkCnt = 0;
+
+	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
+
+	if (SD_CSD_C_SIZE(pSd->CSD) == 0xFFF) {
+		/* Get size from EXT_CSD */
+		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT)
+		    == MMC_EXT_DATA_SECT_4KIB)
+			pSd->wBlockSize = 4096;
+		else
+			pSd->wBlockSize = 512;
+		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT)
+		    / (pSd->wBlockSize / 512UL);
+		/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
+		if (pSd->dwNbBlocks >= 0x800000)
+			pSd->dwTotalSize = 0xFFFFFFFF;
+		else
+			pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT) * 512UL;
+	}
+	else {
+		pSd->wBlockSize = 512;
+		pSd->dwTotalSize = SD_CSD_TOTAL_SIZE(pSd->CSD);
+		pSd->dwNbBlocks = pSd->dwTotalSize / 512;
+	}
+
+	/* Automatically select the max clock */
+	clock = pSd->dwTranSpeed;
+	_HwSetClock(pSd, &clock);
+	trace_info("Set MMC clock to %luK\n\r", clock / 1000UL);
+	pSd->dwCurrSpeed = clock;
+
+	/* Check device status and eat past exceptions, which would otherwise
+	 * prevent upcoming data transaction routines from reliably checking
+	 * fresh exceptions. */
+	error = Cmd13(pSd, &status);
+	if (error) {
+		trace_error("MmcInit.Cmd13: %u\n\r", error);
+		return error;
+	}
+	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
+	    & ~STATUS_APP_CMD;
+	if (status)
+		trace_warning("MmcInit.Cmd13.stat: %lx\n\r", status);
+
+	return 0;
+}
+
+static uint8_t
+SdInit(sSdCard * pSd)
+{
+	uint32_t clock, drv_param, drv_err, status, ioSpeed = 0, memSpeed = 0;
+	uint8_t error, hsExec = 0;
+	const bool io = pSd->bCardType & CARD_TYPE_bmSDIO ? true : false;
+
+	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
+	 * its unique card identification (CID) number.
+	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
+	 * number as the response (on the CMD line). */
+	error = Cmd2(pSd);
+	if (error) {
+		trace_error("SdInit.cmd2(%d)\n\r", error);
+		return error;
+	}
+
+	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
+	 * card to publish a new relative card address (RCA), which is shorter than
+	 * CID and which is used to address the card in the future data transfer
+	 * mode. Once the RCA is received the card state changes to the Stand-by
+	 * State. At this point, if the host wants to assign another RCA number, it
+	 * can ask the card to publish a new number by sending another CMD3 command
+	 * to the card. The last published RCA is the actual RCA number of the
+	 * card. */
+	error = Cmd3(pSd);
+	if (error) {
+		trace_error("SdInit.cmd3(%d)\n\r", error);
+		return error;
+	}
+	else
+		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
+
+	/* SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
+	 * e.g. block length, card storage capacity, etc... */
+	error = Cmd9(pSd);
+	if (error) {
+		trace_error("SdInit.cmd9(%d)\n\r", error);
+		return error;
+	}
+
+	/* Now select the card, to TRAN state */
+	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
+	if (error) {
+		trace_error("SdInit.SelCard(%d)\n\r", error);
+		return error;
+	}
+
+	/* Get extended information of the card */
+	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
+		   (unsigned int) pSd->bCardType,
+		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
+	SdMmcUpdateInformation(pSd, 1, 1);
+
+	/* Calculate transfer speed */
+	memSpeed = SdmmcGetMaxSpeed(pSd);
+	if (io) {
+		ioSpeed = SdioGetMaxSpeed(pSd);
+		pSd->dwTranSpeed = (ioSpeed > memSpeed) ? memSpeed : ioSpeed;
+	}
+	else
+		pSd->dwTranSpeed = memSpeed;
+	pSd->dwTranSpeed *= 1000;
+
+	/* Enable more bus width Mode */
+	error = SdMmcDesideBuswidth(pSd);
+	if (error) {
+		trace_error("SdInit.DesideBusWidth: %u\n\r", error);
+		return SDMMC_ERROR;
+	}
+
+	/* Enable High-Speed Mode */
+	error = SdMmcEnableHighSpeed(pSd);
+	if (error == SDMMC_OK) {
+		hsExec = 1;
+		/* In HS mode transfer speed *2 */
+		pSd->dwTranSpeed *= 2;
+	}
+
+	/* Update card information since status changed */
+	if (hsExec || pSd->bBusMode > 1)
+		SdMmcUpdateInformation(pSd, hsExec, 1);
+
+	/* Find out if the device supports the SET_BLOCK_COUNT command.
+	 * SD devices advertise in SCR.CMD_SUPPORT whether or not they handle
+	 * the SET_BLOCK_COUNT command. */
+	pSd->bSetBlkCnt = SD_SCR_CMD23_SUPPORT(pSd->SCR);
+	/* Now, if the device does not support the SET_BLOCK_COUNT command, then
+	 * the legacy STOP_TRANSMISSION command shall be issued, though not at
+	 * the same timing. */
+	if (!pSd->bSetBlkCnt) {
+		/* In case the driver does not automatically issue the
+		 * STOP_TRANSMISSION command, we'll have to do it ourselves. */
+		drv_param = 0;
+		drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv,
+		    SDMMC_IOCTL_GET_XFERCOMPL, (uint32_t)&drv_param);
+		if (drv_err != SDMMC_OK || !drv_param)
+			pSd->bStopMultXfer = 1;
+	}
+	/* Ask the driver to implicitly send the SET_BLOCK_COUNT command,
+	 * immediately before every READ_MULTIPLE_BLOCK and WRITE_MULTIPLE_BLOCK
+	 * command. Or, if the current device does not support SET_BLOCK_COUNT,
+	 * instruct the driver to stop using this command. */
+	drv_param = pSd->bSetBlkCnt;
+	drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_SET_LENPREFIX,
+	    (uint32_t)&drv_param);
+	/* In case the driver does not support this function, we'll take it in
+	 * charge. */
+	if (pSd->bSetBlkCnt && drv_err == SDMMC_OK && drv_param)
+		pSd->bSetBlkCnt = 0;
+
+	/* In the case of a Standard Capacity SD Memory Card, this command sets the
+	 * block length (in bytes) for all following block commands
+	 * (read, write, lock).
+	 * Default block length is fixed to 512 Bytes.
+	 * Set length is valid for memory access commands only if partial block read
+	 * operation are allowed in CSD.
+	 * In the case of a High Capacity SD Memory Card, block length set by CMD16
+	 * command does not affect the memory read and write commands. Always 512
+	 * Bytes fixed block length is used. This command is effective for
+	 * LOCK_UNLOCK command.
+	 * In both cases, if block length is set larger than 512Bytes, the card sets
+	 * the BLOCK_LEN_ERROR bit. */
+	if (pSd->bCardType == CARD_SD) {
+		error = Cmd16(pSd, SDMMC_BLOCK_SIZE);
+		if (error) {
+			trace_error("SdInit.cmd16: %d\n\r", error);
+			return error;
+		}
+	}
+	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
+
+	if (SD_CSD_STRUCTURE(pSd->CSD) >= 1) {
+		pSd->wBlockSize = 512;
+		pSd->dwNbBlocks = SD_CSD_BLOCKNR_HC(pSd->CSD);
+		pSd->dwTotalSize = 0xFFFFFFFF;
+	}
+	else {
+		pSd->wBlockSize = 512;	//SD_CSD_BLOCK_LEN(pSd->CSD);
+		pSd->dwTotalSize = SD_CSD_TOTAL_SIZE(pSd->CSD);
+		pSd->dwNbBlocks = pSd->dwTotalSize / 512;	//SD_CSD_BLOCKNR(pSd->CSD);
+	}
+
+	/* Automatically select the max clock */
+	clock = pSd->dwTranSpeed;
+	_HwSetClock(pSd, &clock);
+	trace_info("Set SD clock to %luK\n\r", clock / 1000UL);
+	pSd->dwCurrSpeed = clock;
+
+	/* Check device status and eat past exceptions, which would otherwise
+	 * prevent upcoming data transaction routines from reliably checking
+	 * fresh exceptions. */
+	error = Cmd13(pSd, &status);
+	if (error) {
+		trace_error("SdInit.Cmd13: %u\n\r", error);
+		return error;
+	}
+	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
+	    & ~STATUS_APP_CMD;
+	if (status)
+		trace_warning("SdInit.Cmd13.stat: %lx\n\r", status);
+
+	return 0;
+}
+
+static uint8_t
+SdioInit(sSdCard * pSd)
+{
+	uint32_t clock;
+	uint8_t error;
+
+	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
+	 * card to publish a new relative card address (RCA), which is shorter than
+	 * CID and which is used to address the card in the future data transfer
+	 * mode. Once the RCA is received the card state changes to the Stand-by
+	 * State. At this point, if the host wants to assign another RCA number, it
+	 * can ask the card to publish a new number by sending another CMD3 command
+	 * to the card. The last published RCA is the actual RCA number of the
+	 * card. */
+	error = Cmd3(pSd);
+	if (error) {
+		trace_error("SdioInit.cmd3(%d)\n\r", error);
+		return error;
+	}
+	else
+		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
+
+	/* Now select the card, to TRAN state */
+	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
+	if (error) {
+		trace_error("SdioInit.SelCard(%d)\n\r", error);
+		return error;
+	}
+
+	/* Calculate transfer speed */
+	pSd->dwTranSpeed = SdioGetMaxSpeed(pSd) * 1000UL;
+
+	/* Enable more bus width Mode */
+	error = SdMmcDesideBuswidth(pSd);
+	if (error) {
+		trace_error("SdioInit.DesideBusWidth: %u\n\r", error);
+		return SDMMC_ERROR;
+	}
+
+	/* Enable High-Speed Mode */
+	error = SdMmcEnableHighSpeed(pSd);
+	if (error == SDMMC_OK)
+		/* In HS mode transfer speed *2 */
+		pSd->dwTranSpeed *= 2;
+	clock = pSd->dwTranSpeed;
+	_HwSetClock(pSd, &clock);
+	trace_info("Set SDIO clock to %luK\n\r", clock / 1000UL);
+	pSd->dwCurrSpeed = clock;
 	return 0;
 }
 
@@ -2890,15 +3118,15 @@ SDD_Initialize(sSdCard * pSd,
 uint8_t
 SD_Init(sSdCard * pSd)
 {
+	uint32_t clock;
 	uint8_t error;
-	uint32_t clock, drv_param, drv_err, status;
 
 	_SdParamReset(pSd);
 
 	/* Power the device and the bus on */
 	_HwPowerDevice(pSd, 1);
 
-	/* Set low speed for device identification (LS device max speed) */
+	/* For device identification, clock the device at fOD */
 	clock = 400000;
 	_HwSetClock(pSd, &clock);
 
@@ -2923,121 +3151,21 @@ SD_Init(sSdCard * pSd)
 		trace_error("SD_Init.Identify: %d\n\r", error);
 		return error;
 	}
-	error = SdMmcEnum(pSd);
-	if (error) {
-		trace_error("SD_Init.Enum: %d\n\r", error);
-		return error;
-	}
 
-	/* Find out if the device supports the SET_BLOCK_COUNT command.
-	 * MMC devices have it part of both the block-oriented read and the
-	 * block-oriented write commands, i.e. class 2 and class 4 commands.
-	 * FIXME we should normally check CSD.CCC before issuing any MMC block-
-	 * oriented read/write command.
-	 * SD devices advertise in SCR.CMD_SUPPORT whether or not they handle
-	 * the SET_BLOCK_COUNT command. */
 	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC)
-		pSd->bSetBlkCnt = 1;
+		error = MmcInit(pSd);
 	else if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD)
-		pSd->bSetBlkCnt = SD_SCR_CMD23_SUPPORT(pSd->SCR);
-	/* Now, if the device does not support the SET_BLOCK_COUNT command, then
-	 * the legacy STOP_TRANSMISSION command shall be issued, though not at
-	 * the same timing. */
-	if (!pSd->bSetBlkCnt) {
-		/* In case the driver does not automatically issue the
-		 * STOP_TRANSMISSION command, we'll have to do it ourselves. */
-		drv_param = 0;
-		drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv,
-		    SDMMC_IOCTL_GET_XFERCOMPL, (uint32_t)&drv_param);
-		if (drv_err != SDMMC_OK || !drv_param)
-			pSd->bStopMultXfer = 1;
-	}
-	/* Ask the driver to implicitly send the SET_BLOCK_COUNT command,
-	 * immediately before every READ_MULTIPLE_BLOCK and WRITE_MULTIPLE_BLOCK
-	 * command. Or, if the current device does not support SET_BLOCK_COUNT,
-	 * instruct the driver to stop using this command. */
-	drv_param = pSd->bSetBlkCnt;
-	drv_err = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_SET_LENPREFIX,
-	    (uint32_t)&drv_param);
-	/* In case the driver does not support this function, we'll take it in
-	 * charge. */
-	if (pSd->bSetBlkCnt && drv_err == SDMMC_OK && drv_param)
-		pSd->bSetBlkCnt = 0;
-
-	/* In the case of a Standard Capacity SD Memory Card, this command sets the
-	 * block length (in bytes) for all following block commands
-	 * (read, write, lock).
-	 * Default block length is fixed to 512 Bytes.
-	 * Set length is valid for memory access commands only if partial block read
-	 * operation are allowed in CSD.
-	 * In the case of a High Capacity SD Memory Card, block length set by CMD16
-	 * command does not affect the memory read and write commands. Always 512
-	 * Bytes fixed block length is used. This command is effective for
-	 * LOCK_UNLOCK command.
-	 * In both cases, if block length is set larger than 512Bytes, the card sets
-	 * the BLOCK_LEN_ERROR bit. */
-	if (pSd->bCardType == CARD_SD) {
-		error = Cmd16(pSd, SDMMC_BLOCK_SIZE);
-		if (error) {
-			trace_error("SD_Init.Enum: %d\n\r", error);
-			return error;
-		}
-	}
-	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
-
-	/* If MMC Card & get size from EXT_CSD */
-	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC
-	    && SD_CSD_C_SIZE(pSd->CSD) == 0xFFF) {
-		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT)
-		    == MMC_EXT_DATA_SECT_4KIB)
-			pSd->wBlockSize = 4096;
-		else
-			pSd->wBlockSize = 512;
-		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT)
-		    / (pSd->wBlockSize / 512UL);
-		/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
-		if (pSd->dwNbBlocks >= 0x800000)
-			pSd->dwTotalSize = 0xFFFFFFFF;
-		else
-			pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT) * 512UL;
-	}
-	/* If SD CSD v2.0 */
-	else if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD
-		 && SD_CSD_STRUCTURE(pSd->CSD) >= 1) {
-		pSd->wBlockSize = 512;
-		pSd->dwNbBlocks = SD_CSD_BLOCKNR_HC(pSd->CSD);
-		pSd->dwTotalSize = 0xFFFFFFFF;
-	}
-	/* Normal SD/MMC card */
-	else if (pSd->bCardType & CARD_TYPE_bmSDMMC) {
-		pSd->wBlockSize = 512;	//SD_CSD_BLOCK_LEN(pSd->CSD);
-		pSd->dwTotalSize = SD_CSD_TOTAL_SIZE(pSd->CSD);
-		pSd->dwNbBlocks = pSd->dwTotalSize / 512;	//SD_CSD_BLOCKNR(pSd->CSD);
-	}
-
-	if (pSd->bCardType == CARD_UNKNOWN) {
+		error = SdInit(pSd);
+	else if (pSd->bCardType & CARD_TYPE_bmSDIO)
+		error = SdioInit(pSd);
+	else {
 		trace_error("SD_Init.Identify: failed\n\r");
 		return SDMMC_ERROR_NOT_INITIALIZED;
 	}
-	/* Automatically select the max clock */
-	clock = pSd->dwTranSpeed;
-	_HwSetClock(pSd, &clock);
-	trace_warning_wp("-I- Set SD/MMC clock to %uK\n\r",
-			 (unsigned int) clock / 1000);
-	pSd->dwCurrSpeed = clock;
-
-	/* Check device status and eat past exceptions, which would otherwise
-	 * prevent upcoming data transaction routines from reliably checking
-	 * fresh exceptions. */
-	error = Cmd13(pSd, &status);
 	if (error) {
-		trace_error("SD_Init.Cmd13: %u\n\r", error);
+		trace_error("SD_Init.Init: %u\n\r", error);
 		return error;
 	}
-	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
-	    & ~STATUS_APP_CMD;
-	if (status)
-		trace_warning("SD_Init.Cmd13.stat: %lx\n\r", status);
 
 	pSd->bStatus = SDMMC_OK;
 	return 0;
