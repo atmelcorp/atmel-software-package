@@ -387,6 +387,10 @@ typedef struct _SdCard {
 				/**< MMC Extended Device-Specific Data Register
 				 * (EXT_CSD). This member may have to follow
 				 * the DMA alignment requirements. */
+	uint8_t SSR[ROUND_UP_MULT(64, L1_CACHE_BYTES)];
+				/**< SD Status Register (SSR).
+				 * This member may have to follow the DMA
+				 * alignment requirements. */
 	uint8_t SCR[ROUND_UP_MULT(8, L1_CACHE_BYTES)];
 				/**< SD CARD Configuration Register (SCR).
 				 * This member may have to follow the DMA

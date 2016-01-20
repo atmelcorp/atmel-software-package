@@ -312,6 +312,10 @@
 #define     SD_SCR_SD_SPEC_3_0              1 /**< SD v3.0X */
 #define SD_SCR_EX_SECURITY(pScr)            (uint8_t)SD_SCR(pScr, 43, 4)
 #define     SD_SCR_EX_SECURITY_NO           0 /**< No extended security */
+#define SD_SCR_SD_SPEC4(pScr)               (uint8_t)SD_SCR(pScr, 42, 1)
+#define     SD_SCR_SD_SPEC_4_X              1 /**< SD v4.XX */
+#define SD_SCR_CMD58_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 35, 1)
+#define SD_SCR_CMD48_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 34, 1)
 #define SD_SCR_CMD23_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 33, 1)
 #define SD_SCR_CMD20_SUPPORT(pScr)          (uint8_t)SD_SCR(pScr, 32, 1)
 /**     @}*/
@@ -371,35 +375,58 @@
 /** \addtogroup sdmmc_sd_status SD/MMC status fields
  *      @{
  */
-/** SD Status access macros (512 bits, 16 * 32 bits, 64 * 8 bits). */
+/** SSR (SD Status) access macros (512 bits, 16 * 32 bits, 64 * 8 bits). */
 #define SD_ST(pSt, field, bits)            SD_GetField(pSt, 512, field, bits)
-#define SD_ST_DAT_BUS_WIDTH(pSt)           (uint8_t)SD_ST(pSt, 510, 2) /**< Bus width, 00: default, 10:4-bit */
-#define     SD_ST_DATA_BUS_WIDTH_1BIT      0x0 /**< 1-bit bus width */
-#define     SD_ST_DATA_BUS_WIDTH_4BIT      0x2 /**< 4-bit bus width */
-#define SD_ST_SECURED_MODE(pSt)            (uint8_t)SD_ST(pSt, 509, 1)  /**< Secured Mode */
-#define SD_ST_CARD_TYPE(pSt)               (uint16_t)SD_ST(pSt, 480, 16)
-#define     SD_ST_CARD_TYPE_RW             0x0000 /**< Regular SD R/W Card */
-#define     SD_ST_CARD_TYPE_ROM            0x0001 /**< SD ROM Card */
-#define SD_ST_SIZE_OF_PROTECTED_AREA(pSt)  SD_ST(pSt, 448, 32) /**< STD: ThisSize*Multi*BlockLen, HC: Size in bytes */
-#define SD_ST_SPEED_CLASS(pSt)             (uint8_t)SD_ST(pSt, 440, 8) /** Speed Class, value can be calculated by Pw/2 */
-#define     SD_ST_SPEED_CLASS_0            0
-#define     SD_ST_SPEED_CLASS_2            1	// >= 2MB/s
-#define     SD_ST_SPEED_CLASS_4            2	// >= 4MB/s
-#define     SD_ST_SPEED_CLASS_6            3	// >= 6MB/s
-#define SD_ST_PERFORMANCE_MOVE(pSt)        (uint8_t)SD_ST(pSt, 432, 8) /**< 8-bit, by 1MB/s step. */
-#define SD_ST_AU_SIZE(pSt)                 (uint8_t)SD_ST(pSt, 428, 4) /**< AU Size, in power of 2 from 16KB */
-#define     SD_ST_AU_SIZE_16K              1
-#define     SD_ST_AU_SIZE_32K              2
-#define     SD_ST_AU_SIZE_64K              3
-#define     SD_ST_AU_SIZE_128K             4
-#define     SD_ST_AU_SIZE_256K             5
-#define     SD_ST_AU_SIZE_512K             6
-#define     SD_ST_AU_SIZE_1M               7
-#define     SD_ST_AU_SIZE_2M               8
-#define     SD_ST_AU_SIZE_4M               9
-#define SD_ST_ERASE_SIZE(pSt)              (uint16_t)SD_ST(pSt, 408, 16) /**< 16-bit, number of AUs erased. */
-#define SD_ST_ERASE_TIMEOUT(pSt)           (uint8_t)SD_ST(pSt, 402, 6) /**< Timeout value for erasing areas */
-#define SD_ST_ERASE_OFFSET(pSt)            (uint8_t)SD_ST(pSt, 400, 2) /**< Fixed offset value added to erase time */
+#define SD_SSR_DAT_BUS_WIDTH(pSt)          (uint8_t)SD_ST(pSt, 510, 2) /**< Bus width, 00: default, 10:4-bit */
+#define     SD_SSR_DATA_BUS_WIDTH_1BIT     0x0 /**< 1-bit bus width */
+#define     SD_SSR_DATA_BUS_WIDTH_4BIT     0x2 /**< 4-bit bus width */
+#define SD_SSR_SECURED_MODE(pSt)           (uint8_t)SD_ST(pSt, 509, 1)  /**< Secured Mode */
+#define SD_SSR_CARD_TYPE(pSt)              (uint16_t)SD_ST(pSt, 480, 16)
+#define     SD_SSR_CARD_TYPE_RW            0x0000 /**< Regular SD R/W Card */
+#define     SD_SSR_CARD_TYPE_ROM           0x0001 /**< SD ROM Card */
+#define     SD_SSR_CARD_TYPE_OTP           0x0002 /**< OTP SD Card */
+#define SD_SSR_SIZE_OF_PROTECTED_AREA(pSt) SD_ST(pSt, 448, 32) /**< STD: ThisSize*Multi*BlockLen, HC: Size in bytes */
+#define SD_SSR_SPEED_CLASS(pSt)            (uint8_t)SD_ST(pSt, 440, 8) /**< Speed Class, value can be calculated by Pw/2 */
+#define     SD_SSR_SPEED_CLASS_0           0
+#define     SD_SSR_SPEED_CLASS_2           1	// >= 2MB/s
+#define     SD_SSR_SPEED_CLASS_4           2	// >= 4MB/s
+#define     SD_SSR_SPEED_CLASS_6           3	// >= 6MB/s
+#define     SD_SSR_SPEED_CLASS_10          4	// >= 10MB/s
+#define SD_SSR_PERFORMANCE_MOVE(pSt)       (uint8_t)SD_ST(pSt, 432, 8) /**< 8-bit, by 1MB/s step. */
+#define SD_SSR_AU_SIZE(pSt)                (uint8_t)SD_ST(pSt, 428, 4) /**< AU Size, in power of 2 from 16KB */
+#define     SD_SSR_AU_SIZE_16K             1
+#define     SD_SSR_AU_SIZE_32K             2
+#define     SD_SSR_AU_SIZE_64K             3
+#define     SD_SSR_AU_SIZE_128K            4
+#define     SD_SSR_AU_SIZE_256K            5
+#define     SD_SSR_AU_SIZE_512K            6
+#define     SD_SSR_AU_SIZE_1M              7
+#define     SD_SSR_AU_SIZE_2M              8
+#define     SD_SSR_AU_SIZE_4M              9
+#define     SD_SSR_AU_SIZE_8M              0xa
+#define     SD_SSR_AU_SIZE_12M             0xb
+#define     SD_SSR_AU_SIZE_16M             0xc
+#define     SD_SSR_AU_SIZE_24M             0xd
+#define     SD_SSR_AU_SIZE_32M             0xe
+#define     SD_SSR_AU_SIZE_64M             0xf
+#define SD_SSR_ERASE_SIZE(pSt)             (uint16_t)SD_ST(pSt, 408, 16) /**< 16-bit, number of AUs erased. */
+#define SD_SSR_ERASE_TIMEOUT(pSt)          (uint8_t)SD_ST(pSt, 402, 6) /**< Timeout value for erasing areas */
+#define SD_SSR_ERASE_OFFSET(pSt)           (uint8_t)SD_ST(pSt, 400, 2) /**< Fixed offset value added to erase time */
+#define SD_SSR_UHS_SPEED_GRADE(pSt)        (uint8_t)SD_ST(pSt, 396, 4) /**< Speed Grade for UHS mode */
+#define     SD_SSR_SPEED_GRADE_0           0x0
+#define     SD_SSR_SPEED_GRADE_1           0x1
+#define     SD_SSR_SPEED_GRADE_3           0x3
+#define SD_SSR_UHS_AU_SIZE(pSt)            (uint8_t)SD_ST(pSt, 392, 4) /**< Size of AU for UHS mode */
+#define     SD_SSR_UHS_AU_SIZE_UNDEF       0
+#define     SD_SSR_UHS_AU_SIZE_1M          0x7
+#define     SD_SSR_UHS_AU_SIZE_2M          0x8
+#define     SD_SSR_UHS_AU_SIZE_4M          0x9
+#define     SD_SSR_UHS_AU_SIZE_8M          0xa
+#define     SD_SSR_UHS_AU_SIZE_12M         0xb
+#define     SD_SSR_UHS_AU_SIZE_16M         0xc
+#define     SD_SSR_UHS_AU_SIZE_24M         0xd
+#define     SD_SSR_UHS_AU_SIZE_32M         0xe
+#define     SD_SSR_UHS_AU_SIZE_64M         0xf
 /**     @}*/
 
 /** \addtogroup sd_switch_status SD Switch Status fields
@@ -608,7 +635,7 @@ void SD_DumpExtCSD(const uint8_t *pExtCSD);
 
 void SD_DumpSCR(const uint8_t *pSCR);
 
-void SD_DumpSdStatus(const uint8_t *pSdST);
+void SD_DumpSSR(const uint8_t *pSSR);
 
 const char * SD_StringifyIOCtrl(uint32_t dwCtrl);
 

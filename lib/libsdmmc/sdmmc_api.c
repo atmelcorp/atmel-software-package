@@ -1422,8 +1422,49 @@ Acmd6(sSdCard * pSd, uint8_t busWidth)
 		return error;
 	}
 	arg = (busWidth == 4)
-	    ? SD_ST_DATA_BUS_WIDTH_4BIT : SD_ST_DATA_BUS_WIDTH_1BIT;
+	    ? SD_SSR_DATA_BUS_WIDTH_4BIT : SD_SSR_DATA_BUS_WIDTH_1BIT;
 	return SdAcmd6(pSd, arg, NULL);
+}
+
+/**
+ * From the selected card get its SD Status Register (SSR).
+ * ACMD13 is valid under the Transfer state.
+ * \param pSd  Pointer to a SD card driver instance.
+ * \param pSSR  Pointer to a 64-byte buffer receiving the contents of the SSR.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
+ * \param pResp  Pointer to where the response is returned.
+ * \return The command transfer result (see SendCommand).
+ */
+static uint8_t
+Acmd13(sSdCard * pSd, uint8_t * pSSR, uint32_t * pResp)
+{
+	sSdmmcCommand *pCmd = &pSd->sdCmd;
+	uint8_t error;
+
+	assert(pSd);
+
+	error = Cmd55(pSd, CARD_ADDR(pSd));
+	if (error) {
+		trace_error("Acmd13.cmd55:%u\n\r", error);
+		return error;
+	}
+
+	trace_debug("Acmd13()\n\r");
+	_ResetCmd(pCmd);
+	pCmd->bCmd = 13;
+	pCmd->cmdOp.wVal = SDMMC_CMD_CDATARX(1);
+	if (pSSR) {
+		pCmd->wBlockSize = 512 / 8;
+		pCmd->wNbBlocks = 1;
+		pCmd->pData = pSSR;
+	}
+	pCmd->pResp = pResp;
+	error = _SendCmd(pSd, NULL, NULL);
+	if (error) {
+		trace_error("Acmd13.cmd13:%u\n\r", error);
+		return error;
+	}
+	return 0;
 }
 
 /**
@@ -2006,28 +2047,40 @@ SdGetExtInformation(sSdCard * pSd)
 	uint8_t error;
 
 	error = Acmd51(pSd, pSd->SCR, &card_status);
-	if (error)
-		return;
-	card_status &= ~STATUS_READY_FOR_DATA;
-	if (card_status != (STATUS_APP_CMD | STATUS_TRAN)) {
-		trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
-		return;
+	if (error == SDMMC_OK) {
+		card_status &= ~STATUS_READY_FOR_DATA;
+		if (card_status != (STATUS_APP_CMD | STATUS_TRAN)) {
+			trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
+			error = SDMMC_STATE;
+		}
 	}
-	if (SD_SCR_STRUCTURE(pSd->SCR) != SD_SCR_STRUCTURE_1_0)
-		trace_warning("Unknown SCR structure version\n\r");
-	trace_info("SD Physical Layer Specification Version ");
-	if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
-		trace_info_wp("1.0X\n\r");
-	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
-		trace_info_wp("1.10\n\r");
-	else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
-		if (SD_SCR_SD_SPEC3(pSd->SCR) == SD_SCR_SD_SPEC_3_0)
-			trace_info_wp("3.0X\n\r");
+	if (error == SDMMC_OK) {
+		if (SD_SCR_STRUCTURE(pSd->SCR) != SD_SCR_STRUCTURE_1_0)
+			trace_warning("Unknown SCR structure version\n\r");
+		trace_info("SD Physical Layer Specification Version ");
+		if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
+			trace_info_wp("1.0X\n\r");
+		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
+			trace_info_wp("1.10\n\r");
+		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
+			if (SD_SCR_SD_SPEC4(pSd->SCR) == SD_SCR_SD_SPEC_4_X)
+				trace_info_wp("4.XX\n\r");
+			else if (SD_SCR_SD_SPEC3(pSd->SCR)
+			    == SD_SCR_SD_SPEC_3_0)
+				trace_info_wp("3.0X\n\r");
+			else
+				trace_info_wp("2.00\n\r");
+		}
 		else
-			trace_info_wp("2.00\n\r");
+			trace_info_wp("unknown\n\r");
 	}
-	else
-		trace_info_wp("unknown\n\r");
+
+	error = Acmd13(pSd, pSd->SSR, &card_status);
+	if (error == SDMMC_OK) {
+		card_status &= ~STATUS_READY_FOR_DATA;
+		if (card_status != (STATUS_APP_CMD | STATUS_TRAN))
+			trace_error("Acmd13.stat: 0x%lx\n\r", card_status);
+	}
 }
 
 /**
@@ -2804,6 +2857,7 @@ _SdParamReset(sSdCard * pSd)
 	memset(pSd->CID, 0, 16);
 	memset(pSd->CSD, 0, 16);
 	memset(pSd->EXT, 0, 512);
+	memset(pSd->SSR, 0, 64);
 	memset(pSd->SCR, 0, 8);
 }
 
@@ -3625,6 +3679,7 @@ SD_DumpSCR(const uint8_t *pSCR)
 	printf(" .SCR_STRUCTURE              0x%X\n\r", SD_SCR_STRUCTURE(pSCR));
 	printf(" .SD_SPEC                    0x%X\n\r", SD_SCR_SD_SPEC(pSCR));
 	printf(" .SD_SPEC3                   0x%X\n\r", SD_SCR_SD_SPEC3(pSCR));
+	printf(" .SD_SPEC4                   0x%X\n\r", SD_SCR_SD_SPEC4(pSCR));
 	printf(" .DATA_STAT_AFTER_ERASE      0x%X\n\r",
 	    SD_SCR_DATA_STAT_AFTER_ERASE(pSCR));
 	printf(" .SD_SECURITY                0x%X\n\r",
@@ -3637,36 +3692,44 @@ SD_DumpSCR(const uint8_t *pSCR)
 	    SD_SCR_CMD20_SUPPORT(pSCR));
 	printf(" .CMD23_SUPPORT              0x%X\n\r",
 	    SD_SCR_CMD23_SUPPORT(pSCR));
+	printf(" .CMD48/49_SUPPORT           0x%X\n\r",
+	    SD_SCR_CMD48_SUPPORT(pSCR));
+	printf(" .CMD58/59_SUPPORT           0x%X\n\r",
+	    SD_SCR_CMD58_SUPPORT(pSCR));
 }
 
 /**
- * Display the content of the SD Status
- * \param pSdST  Pointer to SD card status data.
+ * Display the content of the SD Status Register
+ * \param pSSR  Pointer to SSR data.
  */
 void
-SD_DumpSdStatus(const uint8_t *pSdST)
+SD_DumpSSR(const uint8_t *pSSR)
 {
 	printf("======= SD Status =======\n\r");
 	printf(" .DAT_BUS_WIDTH              0x%X\n\r",
-	    SD_ST_DAT_BUS_WIDTH(pSdST));
-	printf(" .SECURED_MODE               0x%X\n\r",
-	    SD_ST_SECURED_MODE(pSdST));
-	printf(" .SD_CARD_TYPE               0x%X\n\r",
-	    SD_ST_CARD_TYPE(pSdST));
-	printf(" .SIZE_OF_PROTECTED_AREA     0x%lX\n\r",
-	    SD_ST_SIZE_OF_PROTECTED_AREA(pSdST));
-	printf(" .SPEED_CLASS                0x%X\n\r",
-	    SD_ST_SPEED_CLASS(pSdST));
-	printf(" .PERFORMANCE_MOVE           0x%X\n\r",
-	    SD_ST_PERFORMANCE_MOVE(pSdST));
+	    SD_SSR_DAT_BUS_WIDTH(pSSR));
+	printf(" .SECURED_MODE               %u\n\r",
+	    SD_SSR_SECURED_MODE(pSSR));
+	printf(" .SD_CARD_TYPE               0x%04X\n\r",
+	    SD_SSR_CARD_TYPE(pSSR));
+	printf(" .SIZE_OF_PROTECTED_AREA     %lu\n\r",
+	    SD_SSR_SIZE_OF_PROTECTED_AREA(pSSR));
+	printf(" .SPEED_CLASS                0x%02X\n\r",
+	    SD_SSR_SPEED_CLASS(pSSR));
+	printf(" .UHS_SPEED_GRADE            0x%X\n\r",
+	    SD_SSR_UHS_SPEED_GRADE(pSSR));
+	printf(" .PERFORMANCE_MOVE           %u MB/sec\n\r",
+	    SD_SSR_PERFORMANCE_MOVE(pSSR));
 	printf(" .AU_SIZE                    0x%X\n\r",
-	    SD_ST_AU_SIZE(pSdST));
-	printf(" .ERASE_SIZE                 0x%X\n\r",
-	    SD_ST_ERASE_SIZE(pSdST));
-	printf(" .ERASE_TIMEOUT              0x%X\n\r",
-	    SD_ST_ERASE_TIMEOUT(pSdST));
-	printf(" .ERASE_OFFSET               0x%X\n\r",
-	    SD_ST_ERASE_OFFSET(pSdST));
+	    SD_SSR_AU_SIZE(pSSR));
+	printf(" .UHS_AU_SIZE                0x%X\n\r",
+	    SD_SSR_UHS_AU_SIZE(pSSR));
+	printf(" .ERASE_SIZE                 %u AU\n\r",
+	    SD_SSR_ERASE_SIZE(pSSR));
+	printf(" .ERASE_TIMEOUT              %u sec\n\r",
+	    SD_SSR_ERASE_TIMEOUT(pSSR));
+	printf(" .ERASE_OFFSET               %u sec\n\r",
+	    SD_SSR_ERASE_OFFSET(pSSR));
 }
 
 /**
