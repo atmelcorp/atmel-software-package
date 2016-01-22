@@ -33,18 +33,29 @@
  *  @{
  */
 
+/* By default, do not compile debug-level traces of this module. Expect them to
+ * be enabled explicitly, e.g. in the Makefile of the application. */
+#ifdef SDMMC_LIB_TRACE_LEVEL
+# undef TRACE_LEVEL
+# define TRACE_LEVEL SDMMC_LIB_TRACE_LEVEL
+#elif TRACE_LEVEL > 4
+# undef TRACE_LEVEL
+# define TRACE_LEVEL 4
+#endif
+
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include <assert.h>
-#include <string.h>
-#include <stdint.h>
 #include "compiler.h"
-#include "chip.h"
 #include "trace.h"
+#include "chip.h"
 #include "timer.h"
 #include "libsdmmc.h"
+
+#include <assert.h>
+#include <stdint.h>
+#include <string.h>
 
 /*----------------------------------------------------------------------------
  *         Local definitions
@@ -297,6 +308,37 @@ Delay(volatile unsigned int loop)
 }
 
 /**
+ * Reset SD/MMC driver runtime parameters.
+ */
+static void
+_SdParamReset(sSdCard * pSd)
+{
+	pSd->dwTranSpeed = 0;
+	pSd->dwTotalSize = 0;
+	pSd->dwNbBlocks = 0;
+	pSd->wBlockSize = 0;
+
+	pSd->wCurrBlockLen = 0;
+	pSd->dwCurrSpeed = 0;
+	pSd->wAddress = 0;
+
+	pSd->bCardType = 0;
+	pSd->bBusMode = 1;
+	pSd->bStatus = SDMMC_NOT_INITIALIZED;
+	pSd->bSetBlkCnt = 0;
+	pSd->bStopMultXfer = 0;
+
+	memset(&pSd->sdCmd, 0, sizeof(pSd->sdCmd));
+
+	/* Clear our device register cache */
+	memset(pSd->CID, 0, 16);
+	memset(pSd->CSD, 0, 16);
+	memset(pSd->EXT, 0, 512);
+	memset(pSd->SSR, 0, 64);
+	memset(pSd->SCR, 0, 8);
+}
+
+/**
  */
 static void
 _ResetCmd(sSdmmcCommand * pCmd)
@@ -503,7 +545,7 @@ SdmmcDecodeTransSpeed(uint32_t code,
  * Returns the command transfer result (see SendMciCommand).
  * \param pSd Pointer to \ref sSdCard instance.
  */
-static inline uint8_t
+static uint8_t
 Pon(sSdCard * pSd)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
@@ -526,7 +568,7 @@ Pon(sSdCard * pSd)
  * \param arg  Argument used.
  * \return the command transfer result (see SendMciCommand).
  */
-static inline uint8_t
+static uint8_t
 Cmd0(sSdCard * pSd, uint8_t arg)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
@@ -551,7 +593,7 @@ Cmd0(sSdCard * pSd, uint8_t arg)
  * \param pSd Pointer to \ref sSdCard instance.
  * \param pOCR Pointer to fill OCR value to send and get.
  */
-static inline uint8_t
+static uint8_t
 Cmd1(sSdCard * pSd, uint8_t * pHd)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
@@ -595,7 +637,7 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
  * \param pSd  Pointer to a SD card driver instance.
  * \param pCID Pointer to buffer for storing the CID numbers.
  */
-static inline uint8_t
+static uint8_t
 Cmd2(sSdCard * pSd)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
@@ -1173,7 +1215,7 @@ Cmd23(sSdCard * pSd, uint8_t write, uint32_t blocks, uint32_t * pStatus)
  *                  Pointer: Return immediately and invoke callback at end.
  *                  Callback argument is fixed to a pointer to sSdCard instance.
  */
-static inline uint8_t
+static uint8_t
 Cmd24(sSdCard * pSd,
       uint8_t * pData,
       uint32_t address, uint32_t * pStatus, fSdmmcCallback callback)
@@ -2858,6 +2900,7 @@ SdioInit(sSdCard * pSd)
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
+
 /** \brief Dump register.
  */
 void
@@ -3059,34 +3102,6 @@ SD_WriteBlocks(sSdCard * pSd,
 		pB = &pB[512];
 	}
 	return error;
-}
-
-/**
- * Reset SD/MMC driver runtime parameters.
- */
-static void
-_SdParamReset(sSdCard * pSd)
-{
-	pSd->dwTranSpeed = 0;
-	pSd->dwTotalSize = 0;
-	pSd->dwNbBlocks = 0;
-	pSd->wBlockSize = 0;
-
-	pSd->wCurrBlockLen = 0;
-	pSd->dwCurrSpeed = 0;
-	pSd->wAddress = 0;
-
-	pSd->bCardType = 0;
-	pSd->bStatus = SDMMC_NOT_INITIALIZED;
-	pSd->bSetBlkCnt = 0;
-	pSd->bStopMultXfer = 0;
-
-	/* Clear our device register cache */
-	memset(pSd->CID, 0, 16);
-	memset(pSd->CSD, 0, 16);
-	memset(pSd->EXT, 0, 512);
-	memset(pSd->SSR, 0, 64);
-	memset(pSd->SCR, 0, 8);
 }
 
 /**
