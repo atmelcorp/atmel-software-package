@@ -115,6 +115,22 @@
 /**     @}*/
 
 /**
+ *  \addtogroup sdmmc_speedmode SD/MMC Bus speed modes
+ *  Here lists the MMC, e.MMC and SD bus speed modes.
+ *      @{*/
+#define SDMMC_TIM_MMC_BC         (0x00)
+#define SDMMC_TIM_MMC_HS_SDR     (0x01)
+#define SDMMC_TIM_MMC_HS_DDR     (0x02)
+#define SDMMC_TIM_MMC_HS200      (0x03)
+#define SDMMC_TIM_SD_DS          (0x10)
+#define SDMMC_TIM_SD_HS          (0x11)
+#define SDMMC_TIM_SD_SDR12       (0x12)
+#define SDMMC_TIM_SD_SDR25       (0x13)
+#define SDMMC_TIM_SD_SDR50       (0x14)
+#define SDMMC_TIM_SD_DDR50       (0x15)
+#define SDMMC_TIM_SD_SDR104      (0x16)
+
+/**
  *  \addtogroup sdmmc_rc SD/MMC Return Codes
  *  Here lists the SD/MMC driver return codes.
  *  - \ref SDMMC_ERROR
@@ -425,7 +441,8 @@ typedef struct _SdCard {
 	uint32_t dwCurrSpeed;	/**< Transfer speed used */
 	uint16_t wAddress;	/**< Current card address */
 	uint8_t bCardType;	/**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
-	uint8_t bBusMode;	/**< 1/4/8 bit bus mode */
+	uint8_t bSpeedMode;	/**< Timing mode */
+	uint8_t bBusMode;	/**< 1/4/8 bit data bus mode */
 	uint8_t bSlot;		/**< Card access slot */
 	uint8_t bStatus;	/**< Unrecovered error */
 	uint8_t bSetBlkCnt;	/**< Explicit SET_BLOCK_COUNT command used */

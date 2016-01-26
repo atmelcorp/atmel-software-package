@@ -323,6 +323,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->wAddress = 0;
 
 	pSd->bCardType = 0;
+	pSd->bSpeedMode = 0;
 	pSd->bBusMode = 1;
 	pSd->bStatus = SDMMC_NOT_INITIALIZED;
 	pSd->bSetBlkCnt = 0;
@@ -603,7 +604,12 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 	trace_debug("Cmd1()\n\r");
 	_ResetCmd(pCmd);
 
-	dwArg = SD_HOST_VOLTAGE_RANGE | MMC_OCR_ACCESS_SECTOR;
+	/* Tell the device that the host supports 512-byte sector addressing */
+	dwArg = MMC_OCR_ACCESS_SECTOR;
+	/* Tell the device which voltage the host supplies to the VDD line.
+	 * TODO get this board-specific value from platform code. On the
+	 * SAMA5D2-XULT board, VDD is 3.3V ± 1%. */
+	dwArg |= SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
 
 	/* Fill command */
 	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3)
@@ -624,9 +630,27 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 		if ((dwArg & MMC_OCR_ACCESS_MODE) == MMC_OCR_ACCESS_SECTOR) {
 			*pHd = 1;
 		}
+		trace_info("Device supports%s%s 3.0V?:[%c%c%c%c%c%c]"
+		    " 3.3V?:[%c%c%c%c%c%c]\n\r",
+		    dwArg & MMC_OCR_VDD_170_195 ? " 1.8V" : "",
+		    dwArg & MMC_OCR_VDD_200_260 ? " 2.xV" : "",
+		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_31_32 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_30_31 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_29_30 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_28_29 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_27_28 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_35_36 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_34_35 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_33_34 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_31_32 ? 'X' : '.',
+		    dwArg & SD_OCR_VDD_30_31 ? 'X' : '.');
+		trace_info("Device supports access mode 0x%lx\n\r",
+		    dwArg >> 29 & 0x3ul);
 		return 0;
 	}
-	return SDMMC_ERROR_NOT_INITIALIZED;
+	return SDMMC_ERROR_BUSY;
 }
 
 /**
@@ -681,8 +705,8 @@ Cmd3(sSdCard * pSd)
 
 	if (pSd->bCardType == CARD_MMC || pSd->bCardType == CARD_MMCHD) {
 		uint16_t wNewAddr = CARD_ADDR(pSd) + 1;
-		if (wNewAddr == 0)
-			wNewAddr++;
+		if (wNewAddr <= 1)
+			wNewAddr = 2;
 		pCmd->dwArg = wNewAddr << 16;
 
 		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1) | SDMMC_CMD_bmOD;
@@ -2003,16 +2027,14 @@ MmcSelectCard(sSdCard * pSd, uint16_t address, uint8_t statCheck)
  * Get MMC EXT_CSD information
  * \param pSd      Pointer to a SD card driver instance.
  */
-static void
+static uint8_t
 MmcGetExtInformation(sSdCard * pSd)
 {
-	uint8_t error;
 	/* MMC 4.0 Higher version */
-	if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && MMC_IsVer4(pSd)) {
-		error = MmcCmd8(pSd, pSd->EXT);
-		if (error)
-			trace_error("MmcGetExt.Cmd8: %d\n\r", error);
-	}
+	if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && MMC_IsVer4(pSd))
+		return MmcCmd8(pSd, pSd->EXT);
+	else
+		return SDMMC_NOT_SUPPORTED;
 }
 
 /**
@@ -2185,27 +2207,20 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 	}
 	/* Check MMC */
 	if (mmc) {
-		/* MMC card type 3 (HS) */
-		//if (SD_CSD_STRUCTURE(pSd->CSD) >= 2 && (MMC_EXT_CARD_TYPE(pSd) & 0x2)) {
-		if (MMC_IsHsModeSupported(pSd)) {
-			/* Try switch to HS mode */
-			MmcCmd6Arg cmd6Arg = {
-				0x3,
-				MMC_EXT_HS_TIMING_I,
-				MMC_EXT_HS_TIMING_EN,
-				0
-			};
-			error = MmcCmd6(pSd, &cmd6Arg, &status);
-			if (error) {
-				trace_error("SdMmcEnableHS.Cmd6: %d\n\r",
-					    error);
-				return SDMMC_ERROR;
-			} else if (status & STATUS_MMC_SWITCH) {
-				trace_error("Mmc Switch HS: %lx\n\r", status);
-				return SDMMC_ERROR_NOT_SUPPORT;
-			}
-		} else {
-			trace_info("MMC without HS support\n\r");
+		/* Try switching to HS mode */
+		MmcCmd6Arg cmd6Arg = {
+			0x3,
+			MMC_EXT_HS_TIMING_I,
+			MMC_EXT_HS_TIMING_EN,
+			0
+		};
+		error = MmcCmd6(pSd, &cmd6Arg, &status);
+		if (error) {
+			trace_error("SdMmcEnableHS.Cmd6: %d\n\r",
+				    error);
+			return SDMMC_ERROR;
+		} else if (status & STATUS_MMC_SWITCH) {
+			trace_error("Mmc Switch HS: %lx\n\r", status);
 			return SDMMC_ERROR_NOT_SUPPORT;
 		}
 		trace_warning("MMC HS Enabled\n\r");
@@ -2386,8 +2401,6 @@ SdMmcDesideBuswidth(sSdCard * pSd)
 		/* Check MMC revision 4 or later (1/4/8 bit mode) */
 		if (MMC_CSD_SPEC_VERS(pSd->CSD) >= 4)
 			busWidth = mmcDetectBuswidth(pSd);
-		else
-			trace_warning("MMC 1-bit only\n\r");
 	} else if (sd) {
 		busWidth = 4;   /* default to 4-bit mode */
 		error = _HwSetBusWidth(pSd, busWidth);
@@ -2427,8 +2440,10 @@ SdMmcDesideBuswidth(sSdCard * pSd)
 static uint8_t
 SdMmcIdentify(sSdCard * pSd)
 {
+	struct _timeout timeout;
 	uint32_t status;
 	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
+	int8_t elapsed;
 
 	/* Reset HC to default HS and BusMode */
 	_HwSetHsMode(pSd, 0);
@@ -2493,7 +2508,6 @@ SdMmcIdentify(sSdCard * pSd)
 		/* Try SD memory initialize */
 		error = Acmd41(pSd, f8, &ccs);
 		if (error) {
-			unsigned int cmd1Retries = 10000;
 			trace_debug("SdMmcIdentify.Acmd41: %u, try MMC\n\r",
 				    error);
 			/* Try MMC initialize */
@@ -2504,9 +2518,19 @@ SdMmcIdentify(sSdCard * pSd)
 				return SDMMC_ERROR;
 			}
 			ccs = 1;
+			elapsed = -1;
 			do {
 				error = Cmd1(pSd, &ccs);
-			} while (error && cmd1Retries-- > 0);
+				/* Allow the device to be busy for up to 1s,
+				 * which equals 1000 system ticks. */
+				if (elapsed < 0) {
+					timer_start_timeout(&timeout, 1000);
+					elapsed = 0;
+				}
+				else if (timer_timeout_reached(&timeout))
+					elapsed = 1;
+			}
+			while (error == SDMMC_ERROR_BUSY && !elapsed);
 			if (error) {
 				trace_error("SdMmcIdentify.Cmd1: %d\n\r",
 					    error);
@@ -2548,7 +2572,7 @@ static uint8_t
 MmcInit(sSdCard * pSd)
 {
 	uint32_t clock, drv_param, drv_err, status;
-	uint8_t error, hsExec = 0;
+	uint8_t error, tim_mode = SDMMC_TIM_MMC_BC, pwr_class;
 
 	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
 	 * its unique card identification (CID) number.
@@ -2584,6 +2608,13 @@ MmcInit(sSdCard * pSd)
 		return error;
 	}
 
+	/* Calculate transfer speed */
+	pSd->dwTranSpeed = SdmmcGetMaxSpeed(pSd) * 1000UL;
+	clock = pSd->dwTranSpeed;
+	_HwSetClock(pSd, &clock);
+	trace_info("Set MMC clock to %luKHz\n\r", clock / 1000UL);
+	pSd->dwCurrSpeed = clock;
+
 	/* Now select the card, to TRAN state */
 	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
 	if (error) {
@@ -2591,33 +2622,54 @@ MmcInit(sSdCard * pSd)
 		return error;
 	}
 
-	/* Get extended information of the card */
-	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
-		   (unsigned int) pSd->bCardType,
-		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
-	SdMmcUpdateInformation(pSd, 1, 1);
+	/* If CSD:SPEC_VERS indicates v4.0 or higher, read EXT_CSD */
+	error = MmcGetExtInformation(pSd);
+	/* Consider High Speed SDR mode */
+	if (error == SDMMC_OK && MMC_IsHsModeSupported(pSd)
+	    && _HwGetHsMode(pSd) != 0)
+		tim_mode = SDMMC_TIM_MMC_HS_SDR;
+	/* Check the current consumption of the device */
+	if (error == SDMMC_OK) {
+		if (tim_mode == SDMMC_TIM_MMC_HS_SDR)
+			pwr_class = MMC_EXT_PWR_CL_52_360(pSd->EXT);
+		else
+			pwr_class = MMC_EXT_PWR_CL_26_360(pSd->EXT);
+		if (pwr_class != 0) {
+			MmcCmd6Arg cmd6Arg = {
+				.access = 0x3,   /* Write byte in the EXT_CSD register */
+				.index = MMC_EXT_POWER_CLASS_I,   /* Target byte in EXT_CSD */
+				.value = 0xf,   /* Byte value */
+			};
+			error = MmcCmd6(pSd, &cmd6Arg, &status);
+			if (error || (status & STATUS_MMC_SWITCH))
+				trace_error("Failed to increase pwr class: %d\n\r", error);
+		}
+	}
 
-	/* Calculate transfer speed */
-	pSd->dwTranSpeed = SdmmcGetMaxSpeed(pSd) * 1000UL;
+	/* Enable High Speed SDR mode */
+	if (tim_mode == SDMMC_TIM_MMC_HS_SDR) {
+		error = SdMmcEnableHighSpeed(pSd);
+		if (error == SDMMC_OK) {
+			pSd->bSpeedMode = tim_mode;
+			/* In HS mode transfer speed *2 */
+			pSd->dwTranSpeed *= 2;
+			clock = pSd->dwTranSpeed;
+			_HwSetClock(pSd, &clock);
+			pSd->dwCurrSpeed = clock;
+		}
+	}
 
-	/* Enable more bus width Mode */
+	/* Consider using the widest supported data bus */
 	error = SdMmcDesideBuswidth(pSd);
 	if (error) {
 		trace_error("MmcInit.DesideBusWidth: %u\n\r", error);
 		return SDMMC_ERROR;
 	}
 
-	/* Enable High-Speed Mode */
-	error = SdMmcEnableHighSpeed(pSd);
-	if (error == SDMMC_OK) {
-		hsExec = 1;
-		/* In HS mode transfer speed *2 */
-		pSd->dwTranSpeed *= 2;
-	}
-
 	/* Update card information since status changed */
-	if (hsExec || pSd->bBusMode > 1)
-		SdMmcUpdateInformation(pSd, hsExec, 1);
+	if (pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR || pSd->bBusMode > 1)
+		SdMmcUpdateInformation(pSd,
+		    pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR, 1);
 
 	/* MMC devices have the SET_BLOCK_COUNT command part of both the
 	 * block-oriented read and the block-oriented write commands,
@@ -2659,12 +2711,6 @@ MmcInit(sSdCard * pSd)
 		pSd->dwNbBlocks = pSd->dwTotalSize / 512;
 	}
 
-	/* Automatically select the max clock */
-	clock = pSd->dwTranSpeed;
-	_HwSetClock(pSd, &clock);
-	trace_info("Set MMC clock to %luK\n\r", clock / 1000UL);
-	pSd->dwCurrSpeed = clock;
-
 	/* Check device status and eat past exceptions, which would otherwise
 	 * prevent upcoming data transaction routines from reliably checking
 	 * fresh exceptions. */
@@ -2685,9 +2731,10 @@ static uint8_t
 SdInit(sSdCard * pSd)
 {
 	uint32_t clock, drv_param, drv_err, status, ioSpeed = 0, memSpeed = 0;
-	uint8_t error, hsExec = 0;
+	uint8_t error;
 	const bool io = pSd->bCardType & CARD_TYPE_bmSDIO ? true : false;
 
+	pSd->bSpeedMode = SDMMC_TIM_SD_DS;
 	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
 	 * its unique card identification (CID) number.
 	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
@@ -2755,14 +2802,15 @@ SdInit(sSdCard * pSd)
 	/* Enable High-Speed Mode */
 	error = SdMmcEnableHighSpeed(pSd);
 	if (error == SDMMC_OK) {
-		hsExec = 1;
+		pSd->bSpeedMode = SDMMC_TIM_SD_HS;
 		/* In HS mode transfer speed *2 */
 		pSd->dwTranSpeed *= 2;
 	}
 
 	/* Update card information since status changed */
-	if (hsExec || pSd->bBusMode > 1)
-		SdMmcUpdateInformation(pSd, hsExec, 1);
+	if (pSd->bSpeedMode == SDMMC_TIM_SD_HS || pSd->bBusMode > 1)
+		SdMmcUpdateInformation(pSd,
+		    pSd->bSpeedMode == SDMMC_TIM_SD_HS, 1);
 
 	/* Find out if the device supports the SET_BLOCK_COUNT command.
 	 * SD devices advertise in SCR.CMD_SUPPORT whether or not they handle
