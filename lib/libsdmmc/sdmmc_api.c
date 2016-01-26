@@ -2113,30 +2113,8 @@ SdGetExtInformation(sSdCard * pSd)
 	error = Acmd51(pSd, pSd->SCR, &card_status);
 	if (error == SDMMC_OK) {
 		card_status &= ~STATUS_READY_FOR_DATA;
-		if (card_status != (STATUS_APP_CMD | STATUS_TRAN)) {
+		if (card_status != (STATUS_APP_CMD | STATUS_TRAN))
 			trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
-			error = SDMMC_STATE;
-		}
-	}
-	if (error == SDMMC_OK) {
-		if (SD_SCR_STRUCTURE(pSd->SCR) != SD_SCR_STRUCTURE_1_0)
-			trace_warning("Unknown SCR structure version\n\r");
-		trace_info("SD Physical Layer Specification Version ");
-		if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
-			trace_info_wp("1.0X\n\r");
-		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
-			trace_info_wp("1.10\n\r");
-		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
-			if (SD_SCR_SD_SPEC4(pSd->SCR) == SD_SCR_SD_SPEC_4_X)
-				trace_info_wp("4.XX\n\r");
-			else if (SD_SCR_SD_SPEC3(pSd->SCR)
-			    == SD_SCR_SD_SPEC_3_0)
-				trace_info_wp("3.0X\n\r");
-			else
-				trace_info_wp("2.00\n\r");
-		}
-		else
-			trace_info_wp("unknown\n\r");
 	}
 
 	error = Acmd13(pSd, pSd->SSR, &card_status);
@@ -2223,7 +2201,6 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 			trace_error("Mmc Switch HS: %lx\n\r", status);
 			return SDMMC_ERROR_NOT_SUPPORT;
 		}
-		trace_warning("MMC HS Enabled\n\r");
 	}
 	/* SD (+IO) */
 	else {
@@ -2373,11 +2350,8 @@ mmcDetectBuswidth(sSdCard * pSd)
 			if ((pSd->sandbox1[i] ^ pSd->sandbox2[i]) != mask)
 				break;
 		}
-		if (i == len) {
-			trace_info("MMC: %d-bit bus width detected\n\r",
-			    busWidth);
+		if (i == len)
 			break;
-		}
 	}
 	return busWidth;
 }
@@ -2424,7 +2398,6 @@ SdMmcDesideBuswidth(sSdCard * pSd)
 	if (error)
 		return error;
 	pSd->bBusMode = busWidth;
-	trace_info("%u-bit data bus\n\r", busWidth);
 	return 0;
 }
 
@@ -3258,7 +3231,7 @@ SD_DeInit(sSdCard * pSd)
  *   recover by calling SD_DeInit() and SD_Init().
  */
 uint8_t
-SD_GetStatus(sSdCard * pSd)
+SD_GetStatus(const sSdCard * pSd)
 {
 	uint32_t rc, drv_param = 0;
 
@@ -3278,7 +3251,7 @@ SD_GetStatus(sSdCard * pSd)
  * \sa sdmmc_cardtype
  */
 uint8_t
-SD_GetCardType(sSdCard * pSd)
+SD_GetCardType(const sSdCard * pSd)
 {
 	assert(pSd != NULL);
 
@@ -3290,7 +3263,7 @@ SD_GetCardType(sSdCard * pSd)
  * \param pSd Pointer to \ref sSdCard instance.
  */
 uint32_t
-SD_GetTotalSizeKB(sSdCard * pSd)
+SD_GetTotalSizeKB(const sSdCard * pSd)
 {
 	assert(pSd != NULL);
 
@@ -3306,7 +3279,7 @@ SD_GetTotalSizeKB(sSdCard * pSd)
  * \param pSd Pointer to \ref sSdCard instance.
  */
 uint32_t
-SD_GetBlockSize(sSdCard * pSd)
+SD_GetBlockSize(const sSdCard * pSd)
 {
 	assert(pSd != NULL);
 
@@ -3318,7 +3291,7 @@ SD_GetBlockSize(sSdCard * pSd)
  * \param pSd Pointer to \ref sSdCard instance.
  */
 uint32_t
-SD_GetNumberBlocks(sSdCard * pSd)
+SD_GetNumberBlocks(const sSdCard * pSd)
 {
 	assert(pSd != NULL);
 
@@ -3495,6 +3468,125 @@ SDIO_WriteBytes(sSdCard * pSd,
 		return SDMMC_ERROR_NOT_SUPPORT;
 	}
 	return 0;
+}
+
+/**
+ * Print brief device type and interface status
+ * \param pSd Pointer to \ref sSdCard instance.
+ */
+void
+SD_DumpStatus(const sSdCard *pSd)
+{
+	char text[40] = "";
+	char mode[20] = "";
+
+	assert(pSd != NULL);
+
+	if (pSd->bCardType & CARD_TYPE_bmHC)
+		strcat(text, "High-capacity ");
+	if (pSd->bCardType & CARD_TYPE_bmSDIO
+	    && pSd->bCardType & CARD_TYPE_bmSD)
+		strcat(text, "SDIO combo card");
+	else if (pSd->bCardType & CARD_TYPE_bmSDIO)
+		strcat(text, "SDIO device");
+	else if (pSd->bCardType & CARD_TYPE_bmSD)
+		strcat(text, "SD card");
+	else if (pSd->bCardType & CARD_TYPE_bmMMC)
+		strcat(text, "MMC device");
+	else
+		strcat(text, "unrecognized device");
+
+	if (pSd->bCardType & CARD_TYPE_bmMMC) {
+		const uint8_t csd = (uint8_t)MMC_CSD_SPEC_VERS(pSd->CSD);
+		const uint8_t ext = MMC_EXT_EXT_CSD_REV(pSd->EXT);
+
+		strcat(text, " v");
+		if (csd == MMC_CSD_SPEC_VERS_1_0)
+			strcat(text, "1.0");
+		else if (csd == MMC_CSD_SPEC_VERS_1_4)
+			strcat(text, "1.4");
+		else if (csd == MMC_CSD_SPEC_VERS_2_0)
+			strcat(text, "2.x");
+		else if (csd == MMC_CSD_SPEC_VERS_3_1)
+			strcat(text, "3.x");
+		else if (csd == MMC_CSD_SPEC_VERS_4_0) {
+			if (ext == 0)
+				strcat(text, "4.0");
+			else if (ext == 1)
+				strcat(text, "4.1");
+			else if (ext == 2)
+				strcat(text, "4.2");
+			else if (ext == 3)
+				strcat(text, "4.3");
+			else if (ext == 4)
+				strcat(text, "4.4");
+			else if (ext == 5)
+				strcat(text, "4.41");
+			else if (ext == 6)
+				strcat(text, "4.5x");
+			else if (ext == 7)
+				strcat(text, "5.0x");
+			else if (ext == 8)
+				strcat(text, "5.1");
+			else
+				strcat(text, "5.x");
+		}
+		else
+			strcat(text, "??");
+	}
+	else if (pSd->bCardType & CARD_TYPE_bmSD
+	    && SD_SCR_STRUCTURE(pSd->SCR) == SD_SCR_STRUCTURE_1_0) {
+		strcat(text, " v");
+		if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
+			strcat(text, "1.0x");
+		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
+			strcat(text, "1.10");
+		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
+			if (SD_SCR_SD_SPEC4(pSd->SCR) == SD_SCR_SD_SPEC_4_X)
+				strcat(text, "4.xx");
+			else if (SD_SCR_SD_SPEC3(pSd->SCR)
+			    == SD_SCR_SD_SPEC_3_0)
+				strcat(text, "3.0x");
+			else
+				strcat(text, "2.00");
+		}
+		else
+			strcat(text, "??");
+	}
+
+	if (pSd->bSpeedMode == SDMMC_TIM_MMC_BC)
+		strcat(mode, "Backward-compatible");
+	else if (pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR)
+		strcat(mode, "HS SDR");
+	else if (pSd->bSpeedMode == SDMMC_TIM_MMC_HS_DDR)
+		strcat(mode, "HS DDR");
+	else if (pSd->bSpeedMode == SDMMC_TIM_MMC_HS200)
+		strcat(mode, "HS200");
+	else if (pSd->bSpeedMode == SDMMC_TIM_SD_DS)
+		strcat(mode, "DS");
+	else if (pSd->bSpeedMode == SDMMC_TIM_SD_HS)
+		strcat(mode, "HS");
+	else if (pSd->bSpeedMode >= SDMMC_TIM_SD_SDR12
+	    && pSd->bSpeedMode <= SDMMC_TIM_SD_SDR104) {
+		strcat(mode, "UHS-I ");
+		if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR12)
+			strcat(mode, "SDR12");
+		else if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR25)
+			strcat(mode, "SDR25");
+		else if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR50)
+			strcat(mode, "SDR50");
+		else if (pSd->bSpeedMode == SDMMC_TIM_SD_DDR50)
+			strcat(mode, "DDR50");
+		else
+			strcat(mode, "SDR104");
+	}
+	printf("%s, %u-bit data, in %s mode at %lu kHz\n\r", text,
+	    pSd->bBusMode, mode, pSd->dwCurrSpeed / 1000UL);
+
+	if (pSd->bCardType & CARD_TYPE_bmSDMMC)
+		printf("Device memory size: %lu MiB, %lu * %uB\n\r",
+		    SD_GetTotalSizeKB(pSd) / 1024ul, pSd->dwNbBlocks,
+		    pSd->wBlockSize);
 }
 
 /**

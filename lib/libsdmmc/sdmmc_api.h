@@ -575,11 +575,11 @@ extern uint32_t SD_GetField(const uint8_t *reg,
 extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
 extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
 
-extern uint8_t SD_GetStatus(sSdCard * pSd);
-extern uint8_t SD_GetCardType(sSdCard * pSd);
-extern uint32_t SD_GetNumberBlocks(sSdCard * pSd);
-extern uint32_t SD_GetBlockSize(sSdCard * pSd);
-extern uint32_t SD_GetTotalSizeKB(sSdCard * pSd);
+extern uint8_t SD_GetStatus(const sSdCard * pSd);
+extern uint8_t SD_GetCardType(const sSdCard * pSd);
+extern uint32_t SD_GetNumberBlocks(const sSdCard * pSd);
+extern uint32_t SD_GetBlockSize(const sSdCard * pSd);
+extern uint32_t SD_GetTotalSizeKB(const sSdCard * pSd);
 
 extern uint8_t SD_ReadBlocks(sSdCard * pSd,
 			     uint32_t dwAddr, void *pData, uint32_t dwNbBlocks);
@@ -624,6 +624,8 @@ extern uint8_t SDIO_WriteBytes(sSdCard * pSd,
 			       fSdmmcCallback fCallback, void *pArg);
 
 void _DumpREG(void *pREG, uint32_t dwSize);
+
+void SD_DumpStatus(const sSdCard *pSd);
 
 void SDIO_DumpCardInformation(sSdCard * pSd);
 
