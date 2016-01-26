@@ -50,12 +50,22 @@
  *
  */
 
+/* By default, do not compile debug-level traces of this module. Expect them to
+ * be enabled explicitly, e.g. in the Makefile of the application. */
+#ifdef SDMMC_DRV_TRACE_LEVEL
+# undef TRACE_LEVEL
+# define TRACE_LEVEL SDMMC_DRV_TRACE_LEVEL
+#elif TRACE_LEVEL > 4
+# undef TRACE_LEVEL
+# define TRACE_LEVEL 4
+#endif
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
 #include "trace.h"
+#include "chip.h"
 #include "intmath.h"
 #include "timer.h"
 #include "peripherals/pmc.h"
@@ -363,8 +373,13 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 		}
 	}
 
-	/* Stop both the output clock and the SDMMC internal clock */
-	shval = regs->SDMMC_CCR & ~SDMMC_CCR_SDCLKEN & ~SDMMC_CCR_INTCLKEN;
+	/* Stop the output clock, so we can change the frequency.
+	 * Deviation from the SD Host Controller Specification: if the internal
+	 * clock was temporarily disabled, the controller would then switch to
+	 * an irrelevant clock frequency.
+	 * This issue has been observed, notably, when trying to switch from 25
+	 * to 50 MHz. Keep the SDMMC internal clock enabled. */
+	shval = regs->SDMMC_CCR & ~SDMMC_CCR_SDCLKEN;
 	regs->SDMMC_CCR = shval;
 	set->dev_freq = new_freq;
 	/* Select the clock mode */
@@ -372,7 +387,8 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 		shval |= SDMMC_CCR_CLKGSEL;
 	else
 		shval &= ~SDMMC_CCR_CLKGSEL;
-	/* Set the clock divider, and start the SDMMC internal clock */
+	/* Set the clock divider, and start the SDMMC internal clock - if it
+	 * wasn't started yet. */
 	shval = (shval & ~SDMMC_CCR_USDCLKFSEL_Msk & ~SDMMC_CCR_SDCLKFSEL_Msk)
 	    | SDMMC_CCR_USDCLKFSEL(div >> 8) | SDMMC_CCR_SDCLKFSEL(div & 0xff)
 	    | SDMMC_CCR_INTCLKEN;
