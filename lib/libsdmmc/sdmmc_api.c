@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
 
  * All rights reserved.
  *
@@ -323,7 +323,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->wAddress = 0;
 
 	pSd->bCardType = 0;
-	pSd->bSpeedMode = 0;
+	pSd->bSpeedMode = SDMMC_TIM_MMC_BC;
 	pSd->bBusMode = 1;
 	pSd->bStatus = SDMMC_NOT_INITIALIZED;
 	pSd->bSetBlkCnt = 0;
@@ -399,25 +399,30 @@ _HwSetBusWidth(sSdCard * pSd, uint8_t newWidth)
 /**
  */
 static uint8_t
-_HwGetHsMode(sSdCard * pSd)
+_HwGetHsMode(sSdCard * pSd, uint8_t timingMode)
 {
 	sSdHalFunctions *pHal = pSd->pHalf;
 	void *pDrv = pSd->pDrv;
-	uint32_t hsMode = 0;
-	pHal->fIOCtrl(pDrv, SDMMC_IOCTL_GET_HSMODE, (uint32_t) & hsMode);
-	return hsMode;
+	uint32_t mode = timingMode;
+
+	pHal->fIOCtrl(pDrv, SDMMC_IOCTL_GET_HSMODE, (uint32_t) & mode);
+	return mode;
 }
 
 /**
  */
 static uint8_t
-_HwSetHsMode(sSdCard * pSd, uint8_t newHsMode)
+_HwSetHsMode(sSdCard * pSd, uint8_t timingMode)
 {
 	sSdHalFunctions *pHal = pSd->pHalf;
 	void *pDrv = pSd->pDrv;
-	uint32_t hsMode = newHsMode;
+	uint32_t mode = timingMode;
 	uint32_t rc;
-	rc = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_SET_HSMODE, (uint32_t) & hsMode);
+
+	rc = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_SET_HSMODE, (uint32_t) & mode);
+	if ((rc == SDMMC_OK || rc == SDMMC_CHANGED)
+	    && (mode > 0xff || mode != (uint32_t)timingMode))
+		rc = SDMMC_CHANGED;
 	return rc;
 }
 
@@ -2133,7 +2138,7 @@ SdGetExtInformation(sSdCard * pSd)
  * \return error code when update CSD error.
  */
 static void
-SdMmcUpdateInformation(sSdCard * pSd, uint8_t csd, uint8_t extData)
+SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
 {
 	uint8_t error;
 
@@ -2171,7 +2176,7 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 {
 	uint32_t status;
 	uint8_t error;
-	uint8_t io, sd, mmc;
+	uint8_t io, sd, mmc, tim_mode;
 
 	assert(sizeof(pSd->sandbox1) >= 512 / 8);
 
@@ -2180,7 +2185,8 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
 
 	/* Check host driver capability */
-	if (_HwGetHsMode(pSd) == 0) {
+	tim_mode = mmc ? SDMMC_TIM_MMC_HS_SDR : SDMMC_TIM_SD_HS;
+	if (_HwGetHsMode(pSd, tim_mode) == 0) {
 		return SDMMC_ERROR_NOT_SUPPORT;
 	}
 	/* Check MMC */
@@ -2258,12 +2264,14 @@ SdMmcEnableHighSpeed(sSdCard * pSd)
 	}
 
 	/* Enable Host HS mode */
-	_HwSetHsMode(pSd, 1);
-	return 0;
+	error = _HwSetHsMode(pSd, tim_mode);
+	if (error)
+		trace_error("Failed to go HS: %d\n\r", error);
+	return error;
 }
 
 static uint8_t
-mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth)
+mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth, bool ddr)
 {
 	uint8_t error;
 	uint32_t status;
@@ -2274,22 +2282,21 @@ mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth)
 	};
 
 	if (busWidth == 8)
-		cmd6Arg.value = MMC_EXT_BUS_WIDTH_8BUTS;
+		cmd6Arg.value = MMC_EXT_BUS_WIDTH_8BITS
+		    | (ddr ? MMC_EXT_BUS_WIDTH_DDR : 0);
 	else if (busWidth == 4)
-		cmd6Arg.value = MMC_EXT_BUS_WIDTH_4BITS;
+		cmd6Arg.value = MMC_EXT_BUS_WIDTH_4BITS
+		    | (ddr ? MMC_EXT_BUS_WIDTH_DDR : 0);
 	else if (busWidth != 1)
 		return SDMMC_ERROR_PARAM;
 	error = MmcCmd6(pSd, &cmd6Arg, &status);
 	if (error) {
 		trace_error("SdMmcSetBuswidth.Cmd6: %d\n\r", error);
 		return SDMMC_ERROR;
-	} else {
-		if (status & STATUS_MMC_SWITCH) {
-			trace_error("MMC Bus Switch error %x\n\r",
-				    (unsigned int) status);
-			return SDMMC_ERROR_NOT_SUPPORT;
-		}
-		trace_warning("MMC Bus mode %x\n\r", busWidth);
+	} else if (status & STATUS_MMC_SWITCH) {
+		trace_error("MMC Bus Switch error %x\n\r",
+		    (unsigned int) status);
+		return SDMMC_ERROR_NOT_SUPPORT;
 	}
 	return SDMMC_OK;
 }
@@ -2360,36 +2367,23 @@ mmcDetectBuswidth(sSdCard * pSd)
  * \brief Check bus width capability and enable it
  */
 static uint8_t
-SdMmcDesideBuswidth(sSdCard * pSd)
+SdDecideBuswidth(sSdCard * pSd)
 {
 	uint8_t error, busWidth = 1;
-	const uint8_t mmc = (pSd->bCardType & CARD_TYPE_bmSDMMC)
-	    == CARD_TYPE_bmMMC;
 	const uint8_t sd = (pSd->bCardType & CARD_TYPE_bmSDMMC)
 	    == CARD_TYPE_bmSD;
 	const uint8_t io = (pSd->bCardType & CARD_TYPE_bmSDIO) != 0;
 
 	if (io)
 		busWidth = 1;   /* SDIO => 1 bit only. TODO: assign CCCR. */
-	else if (mmc) {
-		/* Check MMC revision 4 or later (1/4/8 bit mode) */
-		if (MMC_CSD_SPEC_VERS(pSd->CSD) >= 4)
-			busWidth = mmcDetectBuswidth(pSd);
-	} else if (sd) {
+	else if (sd) {
 		busWidth = 4;   /* default to 4-bit mode */
 		error = _HwSetBusWidth(pSd, busWidth);
 		if (error)
 			busWidth = 1;
 	}
-	if (busWidth == 0)
-		busWidth = 1;
 	/* Switch to selected bus mode */
-	if (mmc && busWidth > 1) {
-		error = mmcSelectBuswidth(pSd, busWidth);
-		if (error)
-			return error;
-	}
-	else if (sd && busWidth > 1) {
+	if (sd && busWidth > 1) {
 		error = Acmd6(pSd, busWidth);
 		if (error)
 			return error;
@@ -2418,8 +2412,8 @@ SdMmcIdentify(sSdCard * pSd)
 	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
 	int8_t elapsed;
 
-	/* Reset HC to default HS and BusMode */
-	_HwSetHsMode(pSd, 0);
+	/* Reset HC to default timing mode and data bus width */
+	_HwSetHsMode(pSd, SDMMC_TIM_MMC_BC);
 	_HwSetBusWidth(pSd, 1);
 	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR (bit 3 of register 6) */
 	status = SDIO_RES;
@@ -2545,8 +2539,10 @@ static uint8_t
 MmcInit(sSdCard * pSd)
 {
 	uint32_t clock, drv_param, drv_err, status;
-	uint8_t error, tim_mode = SDMMC_TIM_MMC_BC, pwr_class;
+	uint8_t error, tim_mode, pwr_class, width;
+	bool flag;
 
+	tim_mode = pSd->bSpeedMode = SDMMC_TIM_MMC_BC;
 	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
 	 * its unique card identification (CID) number.
 	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
@@ -2597,13 +2593,20 @@ MmcInit(sSdCard * pSd)
 
 	/* If CSD:SPEC_VERS indicates v4.0 or higher, read EXT_CSD */
 	error = MmcGetExtInformation(pSd);
-	/* Consider High Speed SDR mode */
-	if (error == SDMMC_OK && MMC_IsHsModeSupported(pSd)
-	    && _HwGetHsMode(pSd) != 0)
+	/* Consider High Speed DDR timing mode */
+	if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 4
+	    && MMC_IsCSDVer1_2(pSd) && MMC_EXT_CARD_TYPE(pSd->EXT) & 0x4
+	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_DDR) != 0)
+		tim_mode = SDMMC_TIM_MMC_HS_DDR;
+	/* Consider High Speed SDR timing mode */
+	else if (error == SDMMC_OK && MMC_IsHsModeSupported(pSd)
+	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_SDR) != 0)
 		tim_mode = SDMMC_TIM_MMC_HS_SDR;
 	/* Check the current consumption of the device */
 	if (error == SDMMC_OK) {
-		if (tim_mode == SDMMC_TIM_MMC_HS_SDR)
+		if (tim_mode == SDMMC_TIM_MMC_HS_DDR)
+			pwr_class = MMC_EXT_PWR_CL_DDR_52_360(pSd->EXT);
+		else if (tim_mode == SDMMC_TIM_MMC_HS_SDR)
 			pwr_class = MMC_EXT_PWR_CL_52_360(pSd->EXT);
 		else
 			pwr_class = MMC_EXT_PWR_CL_26_360(pSd->EXT);
@@ -2619,11 +2622,12 @@ MmcInit(sSdCard * pSd)
 		}
 	}
 
-	/* Enable High Speed SDR mode */
-	if (tim_mode == SDMMC_TIM_MMC_HS_SDR) {
+	/* Enable High Speed SDR timing mode */
+	if (tim_mode == SDMMC_TIM_MMC_HS_SDR
+	    || tim_mode == SDMMC_TIM_MMC_HS_DDR) {
 		error = SdMmcEnableHighSpeed(pSd);
 		if (error == SDMMC_OK) {
-			pSd->bSpeedMode = tim_mode;
+			pSd->bSpeedMode = SDMMC_TIM_MMC_HS_SDR;
 			/* In HS mode transfer speed *2 */
 			pSd->dwTranSpeed *= 2;
 			clock = pSd->dwTranSpeed;
@@ -2633,16 +2637,35 @@ MmcInit(sSdCard * pSd)
 	}
 
 	/* Consider using the widest supported data bus */
-	error = SdMmcDesideBuswidth(pSd);
-	if (error) {
-		trace_error("MmcInit.DesideBusWidth: %u\n\r", error);
-		return SDMMC_ERROR;
+	if (MMC_IsCSDVer1_2(pSd) && MMC_IsVer4(pSd)) {
+		width = mmcDetectBuswidth(pSd);
+		if (width > 1) {
+			error = mmcSelectBuswidth(pSd, width,
+			    tim_mode == SDMMC_TIM_MMC_HS_DDR ? true : false);
+			if (error == SDMMC_OK)
+				error = _HwSetBusWidth(pSd, width);
+			if (error == SDMMC_OK)
+				pSd->bBusMode = width;
+			if (error == SDMMC_OK
+			    && tim_mode == SDMMC_TIM_MMC_HS_DDR) {
+				/* Switch to High Speed DDR timing mode */
+				error = _HwSetHsMode(pSd, tim_mode);
+				if (error == SDMMC_OK)
+					pSd->bSpeedMode = tim_mode;
+			}
+			if (error) {
+				trace_error("Width or DDR failure (%d)\n\r",
+				    error);
+				return error;
+			}
+		}
 	}
 
 	/* Update card information since status changed */
-	if (pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR || pSd->bBusMode > 1)
-		SdMmcUpdateInformation(pSd,
-		    pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR, 1);
+	flag = pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR
+	    || pSd->bSpeedMode == SDMMC_TIM_MMC_HS_DDR ? true : false;
+	if (flag || pSd->bBusMode > 1)
+		SdMmcUpdateInformation(pSd, flag, true);
 
 	/* MMC devices have the SET_BLOCK_COUNT command part of both the
 	 * block-oriented read and the block-oriented write commands,
@@ -2706,6 +2729,7 @@ SdInit(sSdCard * pSd)
 	uint32_t clock, drv_param, drv_err, status, ioSpeed = 0, memSpeed = 0;
 	uint8_t error;
 	const bool io = pSd->bCardType & CARD_TYPE_bmSDIO ? true : false;
+	bool flag;
 
 	pSd->bSpeedMode = SDMMC_TIM_SD_DS;
 	/* The host then issues the command ALL_SEND_CID (CMD2) to the card to get
@@ -2753,7 +2777,7 @@ SdInit(sSdCard * pSd)
 	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
 		   (unsigned int) pSd->bCardType,
 		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
-	SdMmcUpdateInformation(pSd, 1, 1);
+	SdMmcUpdateInformation(pSd, true, true);
 
 	/* Calculate transfer speed */
 	memSpeed = SdmmcGetMaxSpeed(pSd);
@@ -2766,13 +2790,13 @@ SdInit(sSdCard * pSd)
 	pSd->dwTranSpeed *= 1000;
 
 	/* Enable more bus width Mode */
-	error = SdMmcDesideBuswidth(pSd);
+	error = SdDecideBuswidth(pSd);
 	if (error) {
-		trace_error("SdInit.DesideBusWidth: %u\n\r", error);
+		trace_error("SdInit.DecideBusWidth: %u\n\r", error);
 		return SDMMC_ERROR;
 	}
 
-	/* Enable High-Speed Mode */
+	/* Enable High-Speed timing mode */
 	error = SdMmcEnableHighSpeed(pSd);
 	if (error == SDMMC_OK) {
 		pSd->bSpeedMode = SDMMC_TIM_SD_HS;
@@ -2781,9 +2805,9 @@ SdInit(sSdCard * pSd)
 	}
 
 	/* Update card information since status changed */
-	if (pSd->bSpeedMode == SDMMC_TIM_SD_HS || pSd->bBusMode > 1)
-		SdMmcUpdateInformation(pSd,
-		    pSd->bSpeedMode == SDMMC_TIM_SD_HS, 1);
+	flag = pSd->bSpeedMode == SDMMC_TIM_SD_HS ? true : false;
+	if (flag || pSd->bBusMode > 1)
+		SdMmcUpdateInformation(pSd, flag, true);
 
 	/* Find out if the device supports the SET_BLOCK_COUNT command.
 	 * SD devices advertise in SCR.CMD_SUPPORT whether or not they handle
@@ -2873,6 +2897,7 @@ SdioInit(sSdCard * pSd)
 	uint32_t clock;
 	uint8_t error;
 
+	pSd->bSpeedMode = SDMMC_TIM_SD_DS;
 	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
 	 * card to publish a new relative card address (RCA), which is shorter than
 	 * CID and which is used to address the card in the future data transfer
@@ -2900,17 +2925,19 @@ SdioInit(sSdCard * pSd)
 	pSd->dwTranSpeed = SdioGetMaxSpeed(pSd) * 1000UL;
 
 	/* Enable more bus width Mode */
-	error = SdMmcDesideBuswidth(pSd);
+	error = SdDecideBuswidth(pSd);
 	if (error) {
-		trace_error("SdioInit.DesideBusWidth: %u\n\r", error);
+		trace_error("SdioInit.DecideBusWidth: %u\n\r", error);
 		return SDMMC_ERROR;
 	}
 
-	/* Enable High-Speed Mode */
+	/* Enable High-Speed timing mode */
 	error = SdMmcEnableHighSpeed(pSd);
-	if (error == SDMMC_OK)
+	if (error == SDMMC_OK) {
+		pSd->bSpeedMode = SDMMC_TIM_SD_HS;
 		/* In HS mode transfer speed *2 */
 		pSd->dwTranSpeed *= 2;
+	}
 	clock = pSd->dwTranSpeed;
 	_HwSetClock(pSd, &clock);
 	trace_info("Set SDIO clock to %luK\n\r", clock / 1000UL);

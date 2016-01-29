@@ -228,9 +228,9 @@ typedef enum {
     Recommended for bus mode selection
     IOCtrl(pSd, SDMMC_IOCTL_SET_BUSMODE, (uint32_t*)pIoBusMode) */
 #define SDMMC_IOCTL_SET_BUSMODE   0x12
-/** SD/MMC Low Level IO Control: Set HS mode, return applied mode
-    Recommended for HS mode enable
-    IOCtrl(pSd, SDMMC_IOCTL_SET_BUSMODE, (uint32_t*)pIoHsMode) */
+/** SD/MMC Low Level IO Control: Select one of the SDMMC_TIM_x timing modes.
+    Returns the effective mode, further to this operation.
+    IOCtrl(pSd, SDMMC_IOCTL_SET_HSMODE, (uint32_t*)pIoTimingMode) */
 #define SDMMC_IOCTL_SET_HSMODE    0x13
 /** SD/MMC Low Level IO Control: Set Boot mode */
 #define SDMMC_IOCTL_SET_BOOTMODE  0x14
@@ -243,7 +243,8 @@ typedef enum {
 #define SDMMC_IOCTL_GET_CLOCK     0x21
 /** SD/MMC Low Level IO Control: Bus mode */
 #define SDMMC_IOCTL_GET_BUSMODE   0x22
-/** SD/MMC Low Level IO Control: High-speed mode */
+/** SD/MMC Low Level IO Control: Query whether the driver supports the specified
+    SDMMC_TIM_x timing mode. */
 #define SDMMC_IOCTL_GET_HSMODE    0x23
 /** SD/MMC Low Level IO Control: Boot mode */
 #define SDMMC_IOCTL_GET_BOOTMODE  0x24

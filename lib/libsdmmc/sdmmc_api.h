@@ -467,6 +467,8 @@
 #define MMC_EXT32(p, i)                 SD_U32(p, 512, i)
 #define MMC_EXT_S_CMD_SET_I             504 /**< Supported Command Sets slice */
 #define MMC_EXT_S_CMD_SET(p)            MMC_EXT8(p, MMC_EXT_S_CMD_SET_I)
+#define MMC_EXT_PWR_CL_DDR_52_360_I     239 /**< Power Class for 52MHz DDR @ 3.6V */
+#define MMC_EXT_PWR_CL_DDR_52_360(p)    MMC_EXT8(p, MMC_EXT_PWR_CL_DDR_52_360_I)
 #define MMC_EXT_BOOT_INFO_I             228 /**< Boot information  slice */
 #define MMC_EXT_BOOT_INFO(p)            MMC_EXT8(p, MMC_EXT_BOOT_INFO_I)
 #define MMC_EXT_BOOT_SIZE_MULTI_I       226 /**< Boot partition size  slice */
@@ -529,7 +531,8 @@
 #define MMC_EXT_BUS_WIDTH(p)            MMC_EXT8(p, MMC_EXT_BUS_WIDTH_I)
 #define     MMC_EXT_BUS_WIDTH_1BIT      0
 #define     MMC_EXT_BUS_WIDTH_4BITS     1
-#define     MMC_EXT_BUS_WIDTH_8BUTS     2
+#define     MMC_EXT_BUS_WIDTH_8BITS     2
+#define     MMC_EXT_BUS_WIDTH_DDR       0x4
 #define MMC_EXT_ERASED_MEM_CONT_I       181 /**< Erased Memory Content */
 #define MMC_EXT_ERASED_MEM_CONT(p)      MMC_EXT8(p, MMC_EXT_ERASED_MEM_CONT_I)
 #define MMC_EXT_BOOT_CONFIG_I           179 /**< Boot configuration slice */
