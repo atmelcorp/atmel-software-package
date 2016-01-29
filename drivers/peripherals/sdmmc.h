@@ -64,6 +64,7 @@ struct sdmmc_set
 	uint16_t blk_size;            /* max data block size, in bytes */
 	uint32_t dev_freq;            /* frequency of clock provided to memory
 				       * device, in Hz */
+	uint8_t tim_mode;             /* timing mode aka bus speed mode */
 	volatile uint8_t state;
 	struct _SdmmcCommand *cmd;    /* pointer to the command being processed */
 	uint16_t blk_index;           /* count of data blocks tranferred already,

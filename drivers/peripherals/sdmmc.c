@@ -145,6 +145,10 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 	mc1r = regs->SDMMC_MC1R;
 	tcr = regs->SDMMC_TCR;
 
+	/* Reset our state variables to match reset values of the registers */
+	set->tim_mode = set->tim_mode >= SDMMC_TIM_SD_DS ? SDMMC_TIM_SD_DS
+	    : SDMMC_TIM_MMC_BC;
+
 	/* Reset the peripheral. This will reset almost all registers. */
 	regs->SDMMC_SRR |= SDMMC_SRR_SWRSTALL;
 	while (regs->SDMMC_SRR & SDMMC_SRR_SWRSTALL) ;
@@ -264,56 +268,81 @@ static uint8_t sdmmc_set_bus_width(struct sdmmc_set *set, uint8_t bits)
 	return SDMMC_OK;
 }
 
-static bool sdmmc_get_speed_mode(struct sdmmc_set *set)
-{
-	assert(set);
-
-	if (set->regs->SDMMC_MC1R & SDMMC_MC1R_DDR)
-		return true;
-	if (set->regs->SDMMC_HC1R & SDMMC_HC1R_HSEN)
-		return true;
-	return false;
-}
-
-static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, bool high_speed)
+static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 {
 	assert(set);
 
 	Sdmmc *regs = set->regs;
-	uint8_t hc1r, mc1r;
+	uint16_t hc2r_prv, hc2r;
+	uint8_t hc1r_prv, hc1r, mc1r_prv, mc1r, rc = SDMMC_OK;
 	bool enable_dev_clock;
 
-	if (high_speed && !(regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP)) {
-		trace_error("This slot doesn't support High Speed Mode\n\r");
-		return SDMMC_PARAM;
-	}
+	if ((mode > SDMMC_TIM_MMC_HS200 && mode < SDMMC_TIM_SD_DS)
+	    || mode > SDMMC_TIM_SD_SDR104)
+		return SDMMC_ERROR_PARAM;
+
 #ifndef NDEBUG
-	if (high_speed && !(regs->SDMMC_CCR & (SDMMC_CCR_USDCLKFSEL_Msk
-	    | SDMMC_CCR_SDCLKFSEL_Msk))) {
+	/* FIXME The datasheet is unclear about CCR:DIV restriction when the MMC
+	 * timing mode is High Speed DDR */
+	if ((mode == SDMMC_TIM_MMC_HS_SDR || mode == SDMMC_TIM_MMC_HS_DDR
+	    || mode == SDMMC_TIM_SD_HS) && !(regs->SDMMC_CCR
+	    & (SDMMC_CCR_USDCLKFSEL_Msk | SDMMC_CCR_SDCLKFSEL_Msk))) {
 		trace_error("Incompatible with the current clock config\n\r");
-		return SDMMC_STATE;
+		return SDMMC_ERROR_STATE;
 	}
 #endif
-	mc1r = regs->SDMMC_MC1R;
-	if (high_speed && mc1r & SDMMC_MC1R_DDR)
-		return SDMMC_OK;
-	if (!high_speed && mc1r & SDMMC_MC1R_DDR)
-		regs->SDMMC_MC1R = mc1r & ~SDMMC_MC1R_DDR;
+	mc1r = mc1r_prv = regs->SDMMC_MC1R;
+	hc1r = hc1r_prv = regs->SDMMC_HC1R;
+	hc2r = hc2r_prv = regs->SDMMC_HC2R;
+	mc1r = (mc1r & ~SDMMC_MC1R_DDR)
+	    | (mode == SDMMC_TIM_MMC_HS_DDR ? SDMMC_MC1R_DDR : 0);
+	hc1r = (hc1r & ~SDMMC_HC1R_HSEN) | (mode == SDMMC_TIM_MMC_HS_SDR
+	    || mode == SDMMC_TIM_SD_HS ? SDMMC_HC1R_HSEN : 0);
+	hc2r = hc2r & ~SDMMC_HC2R_VS18EN & ~SDMMC_HC2R_UHSMS_Msk;
+	if (mode == SDMMC_TIM_MMC_HS200
+	    || (mode >= SDMMC_TIM_SD_SDR12 && mode <= SDMMC_TIM_SD_SDR104))
+		hc2r |= SDMMC_HC2R_VS18EN;
+	if (mode == SDMMC_TIM_MMC_HS200 || mode == SDMMC_TIM_SD_SDR104)
+		hc2r |= SDMMC_HC2R_UHSMS_SDR104;
+	else if (mode == SDMMC_TIM_SD_SDR12)
+		hc2r |= SDMMC_HC2R_UHSMS_SDR12;
+	else if (mode == SDMMC_TIM_SD_SDR25)
+		hc2r |= SDMMC_HC2R_UHSMS_SDR25;
+	else if (mode == SDMMC_TIM_SD_SDR50)
+		hc2r |= SDMMC_HC2R_UHSMS_SDR50;
+	else if (mode == SDMMC_TIM_SD_DDR50)
+		hc2r |= SDMMC_HC2R_UHSMS_DDR50;
 
-	hc1r = regs->SDMMC_HC1R;
-	if ((hc1r & SDMMC_HC1R_HSEN) == (high_speed ? SDMMC_HC1R_HSEN : 0))
+	if (hc2r == hc2r_prv && hc1r == hc1r_prv && mc1r == mc1r_prv) {
+		set->tim_mode = mode;
 		return SDMMC_OK;
-	hc1r ^= SDMMC_HC1R_HSEN;
+	}
 	/* Avoid generating glitches on the device clock */
-	enable_dev_clock = regs->SDMMC_HC2R & SDMMC_HC2R_PVALEN
+	enable_dev_clock = (hc2r_prv & SDMMC_HC2R_PVALEN || hc2r != hc2r_prv)
 	    && regs->SDMMC_CCR & SDMMC_CCR_SDCLKEN;
 	if (enable_dev_clock)
 		regs->SDMMC_CCR &= ~SDMMC_CCR_SDCLKEN;
-	/* Now change the Speed Mode */
-	regs->SDMMC_HC1R = hc1r;
+	/* Now change the timing mode */
+	if (mc1r != mc1r_prv)
+		regs->SDMMC_MC1R = mc1r;
+	if (hc1r != hc1r_prv)
+		regs->SDMMC_HC1R = hc1r;
+	if (hc2r != hc2r_prv)
+		regs->SDMMC_HC2R = hc2r;
+	if ((hc2r ^ hc2r_prv) & SDMMC_HC2R_VS18EN) {
+		/* Changing the signaling level. Allow 5 ms - which equals
+		 * 5 system ticks - for the lines to stabilize.
+		 * Alternative: wait for tPRUL = 25 ms */
+		timer_sleep(5);
+		if (hc2r & SDMMC_HC2R_VS18EN
+		    && !(regs->SDMMC_HC2R & SDMMC_HC2R_VS18EN))
+			rc = SDMMC_ERROR;
+	}
 	if (enable_dev_clock)
 		regs->SDMMC_CCR |= SDMMC_CCR_SDCLKEN;
-	return SDMMC_OK;
+	if (rc == SDMMC_OK)
+		set->tim_mode = mode;
+	return rc;
 }
 
 static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
@@ -1057,15 +1086,52 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 	case SDMMC_IOCTL_GET_HSMODE:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		*param_u32 = set->regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP ? 1 : 0;
+		if (*param_u32 > 0xff) {
+			*param_u32 = 0;
+			break;
+		}
+		byte = (uint8_t)*param_u32;
+		if (byte == SDMMC_TIM_MMC_BC || byte == SDMMC_TIM_SD_DS)
+			*param_u32 = 1;
+		else if ((byte == SDMMC_TIM_MMC_HS_SDR
+		    || byte == SDMMC_TIM_MMC_HS_DDR || byte == SDMMC_TIM_SD_HS)
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP)
+			*param_u32 = 1;
+		else if (byte == SDMMC_TIM_MMC_HS200
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && set->regs->SDMMC_CA1R & (SDMMC_CA1R_SDR50SUP
+		    | SDMMC_CA1R_DDR50SUP | SDMMC_CA1R_SDR104SUP))
+			*param_u32 = 1;
+		else if ((byte == SDMMC_TIM_SD_SDR12
+		    || byte == SDMMC_TIM_SD_SDR25)
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && set->regs->SDMMC_CA1R & (SDMMC_CA1R_SDR50SUP
+		    | SDMMC_CA1R_DDR50SUP | SDMMC_CA1R_SDR104SUP))
+			*param_u32 = 1;
+		else if (byte == SDMMC_TIM_SD_SDR50
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_SDR50SUP)
+			*param_u32 = 1;
+		else if (byte == SDMMC_TIM_SD_DDR50
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_DDR50SUP)
+			*param_u32 = 1;
+		else if (byte == SDMMC_TIM_SD_SDR104
+		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_SDR104SUP)
+			*param_u32 = 1;
+		else
+			*param_u32 = 0;
 		break;
 
 	case SDMMC_IOCTL_SET_HSMODE:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		rc = sdmmc_set_speed_mode(set, *param_u32 ? true : false);
-		*param_u32 = sdmmc_get_speed_mode(set) ? 1 : 0;
-		trace_debug("Using %s mode\n\r", *param_u32 ? "High Speed" : "Default Speed");
+		if (*param_u32 > 0xff)
+			return SDMMC_ERROR_PARAM;
+		rc = sdmmc_set_speed_mode(set, (uint8_t)*param_u32);
+		*param_u32 = set->tim_mode;
+		trace_debug("Using timing mode 0x%02x\n\r", set->tim_mode);
 		break;
 
 	case SDMMC_IOCTL_SET_CLOCK:
