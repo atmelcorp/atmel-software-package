@@ -548,16 +548,16 @@ static void udphs_endpoint_handler(uint8_t ep)
 				xfer->buffered = 0;
 			}
 			if ((xfer->transferred % endpoint->size == 0)
-			    && (xfer->remaining == 0)
-			    && (xfer->transferred > 0)
-			    && (endpoint->send_zlp == 0)) {
+				&& (xfer->remaining == 0)
+				&& (xfer->transferred > 0)
+				&& (endpoint->send_zlp == 0)) {
 				endpoint->send_zlp = 1;	// Force ZLP transmission in total length is  a multiple of endpoint size
 
 			}
 			if (xfer->buffered == 0
-			    && xfer->transferred == 0
-			    && xfer->remaining == 0
-			    && endpoint->send_zlp == 0) {
+				&& xfer->transferred == 0
+				&& xfer->remaining == 0
+				&& endpoint->send_zlp == 0) {
 				endpoint->send_zlp = 1;
 			}
 
@@ -662,9 +662,9 @@ static void udphs_endpoint_handler(uint8_t ep)
 		   transfer, the host receives the device ZLP and ack it, but the ack
 		   is not received by the device */
 		if (endpoint->state == UDPHS_ENDPOINT_RECEIVING
-		    || endpoint->state == UDPHS_ENDPOINT_RECEIVINGM
-		    || endpoint->state == UDPHS_ENDPOINT_SENDING
-		    || endpoint->state == UDPHS_ENDPOINT_SENDINGM) {
+			|| endpoint->state == UDPHS_ENDPOINT_RECEIVINGM
+			|| endpoint->state == UDPHS_ENDPOINT_SENDING
+			|| endpoint->state == UDPHS_ENDPOINT_SENDINGM) {
 			udphs_end_of_transfer(ep, USBD_STATUS_SUCCESS);
 		}
 
@@ -754,7 +754,7 @@ static void udphs_dma_handler(uint8_t ep)
 		xfer->remaining -= transferred;
 
 		USB_HAL_TRACE("[B%d:T%d:R%d] ", (int)xfer->buffered,
-			       (int)xfer->transferred, (int)xfer->remaining);
+				   (int)xfer->transferred, (int)xfer->remaining);
 
 		/* There is still data */
 		if (xfer->remaining + xfer->buffered > 0) {
@@ -780,7 +780,7 @@ static void udphs_dma_handler(uint8_t ep)
 		xfer->remaining = 0;
 
 		USB_HAL_TRACE("[B%d:T%d] ", (int)xfer->buffered,
-			       (int)xfer->transferred);
+				   (int)xfer->transferred);
 	} else {
 		trace_error("udphs_dma_handler: ST 0x%x\n\r",
 				(unsigned)dma_status);
@@ -824,10 +824,7 @@ static uint8_t udphs_write(uint8_t ep,
 	struct _single_xfer *xfer = &endpoint->transfer.single;
 
 	/* Return if busy */
-	if (endpoint->state != UDPHS_ENDPOINT_IDLE) {
-		trace_warning("udphs_write: EP%d not idle\n\r", ep);
-		return USBD_STATUS_LOCKED;
-	}
+	while (endpoint->state > UDPHS_ENDPOINT_IDLE);
 
 	/* Sending state */
 	endpoint->state = UDPHS_ENDPOINT_SENDING;
@@ -1234,29 +1231,29 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 	/* Abort the current transfer is the endpoint was configured and in
 	   Write or Read state */
 	if ((endpoint->state == UDPHS_ENDPOINT_RECEIVING)
-	    || (endpoint->state == UDPHS_ENDPOINT_SENDING)
-	    || (endpoint->state == UDPHS_ENDPOINT_RECEIVINGM)
-	    || (endpoint->state == UDPHS_ENDPOINT_SENDINGM)) {
+		|| (endpoint->state == UDPHS_ENDPOINT_SENDING)
+		|| (endpoint->state == UDPHS_ENDPOINT_RECEIVINGM)
+		|| (endpoint->state == UDPHS_ENDPOINT_SENDINGM)) {
 		udphs_end_of_transfer(ep, USBD_STATUS_RESET);
 	}
 	endpoint->state = UDPHS_ENDPOINT_IDLE;
 
 	/* Disable endpoint */
 	ept->UDPHS_EPTCTLDIS = UDPHS_EPTCTLDIS_SHRT_PCKT
-	    | UDPHS_EPTCTLDIS_BUSY_BANK
-	    | UDPHS_EPTCTLDIS_NAK_OUT
-	    | UDPHS_EPTCTLDIS_NAK_IN
-	    | UDPHS_EPTCTLDIS_STALL_SNT
-	    | UDPHS_EPTCTLDIS_RX_SETUP
-	    | UDPHS_EPTCTLDIS_TXRDY
-	    | UDPHS_EPTCTLDIS_RXRDY_TXKL
-	    | UDPHS_EPTCTLDIS_ERR_OVFLW
-	    | UDPHS_EPTCTLDIS_MDATA_RX
-	    | UDPHS_EPTCTLDIS_DATAX_RX
-	    | UDPHS_EPTCTLDIS_NYET_DIS
-	    | UDPHS_EPTCTLDIS_INTDIS_DMA
-	    | UDPHS_EPTCTLDIS_AUTO_VALID
-	    | UDPHS_EPTCTLDIS_EPT_DISABL;
+		| UDPHS_EPTCTLDIS_BUSY_BANK
+		| UDPHS_EPTCTLDIS_NAK_OUT
+		| UDPHS_EPTCTLDIS_NAK_IN
+		| UDPHS_EPTCTLDIS_STALL_SNT
+		| UDPHS_EPTCTLDIS_RX_SETUP
+		| UDPHS_EPTCTLDIS_TXRDY
+		| UDPHS_EPTCTLDIS_RXRDY_TXKL
+		| UDPHS_EPTCTLDIS_ERR_OVFLW
+		| UDPHS_EPTCTLDIS_MDATA_RX
+		| UDPHS_EPTCTLDIS_DATAX_RX
+		| UDPHS_EPTCTLDIS_NYET_DIS
+		| UDPHS_EPTCTLDIS_INTDIS_DMA
+		| UDPHS_EPTCTLDIS_AUTO_VALID
+		| UDPHS_EPTCTLDIS_EPT_DISABL;
 
 	/* Reset Endpoint Fifos */
 	ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_TOGGLESQ | UDPHS_EPTCLRSTA_FRCESTALL;
@@ -1296,7 +1293,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 		trace_error_wp("type=0x%X ", type);
 		trace_error_wp("bank=%d ", endpoint->bank);
 		trace_error_wp("UDPHS_EPTCFG=0x%X\n\r",
-			    (unsigned)ept->UDPHS_EPTCFG);
+				(unsigned)ept->UDPHS_EPTCFG);
 		trace_fatal("EP%d configuration failed\n\r", ep);
 	}
 
@@ -1330,10 +1327,7 @@ uint8_t usbd_hal_set_transfer_callback(uint8_t ep,
 	struct _endpoint *endpoint = &endpoints[ep];
 
 	/* Check that the endpoint is not transferring */
-	if (endpoint->state > UDPHS_ENDPOINT_IDLE) {
-		trace_warning("usbd_hal_set_transfer_callback: EP%d not idle\n\r", ep);
-		return USBD_STATUS_LOCKED;
-	}
+	while (endpoint->state > UDPHS_ENDPOINT_IDLE);
 
 	USB_HAL_TRACE("sXfrCb%d ", (unsigned)ep);
 
@@ -1362,10 +1356,7 @@ uint8_t usbd_hal_setup_multi_transfer(uint8_t ep,
 	int i;
 
 	/* Check that the endpoint is not transferring */
-	if (endpoint->state > UDPHS_ENDPOINT_IDLE) {
-		trace_warning("usbd_hal_setup_multi_transfer: EP%d not idle\n\r", ep);
-		return USBD_STATUS_LOCKED;
-	}
+	while (endpoint->state > UDPHS_ENDPOINT_IDLE);
 
 	USB_HAL_TRACE("sMblXfr ");
 
@@ -1465,10 +1456,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 		return USBD_STATUS_HW_NOT_SUPPORTED;
 
 	/* Return if busy */
-	if (endpoint->state != UDPHS_ENDPOINT_IDLE) {
-		trace_warning("usbd_hal_write_with_header: EP%d not idle\n\r", ep);
-		return USBD_STATUS_LOCKED;
-	}
+	while (endpoint->state > UDPHS_ENDPOINT_IDLE);
 
 	/* Sending state */
 	endpoint->state = UDPHS_ENDPOINT_SENDING;
@@ -1501,8 +1489,8 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 		dma_desc[0].next = &dma_desc[1];
 		dma_desc[0].addr = (void*)header;
 		dma_desc[0].ctrl = UDPHS_DMACONTROL_CHANN_ENB
-		    | UDPHS_DMACONTROL_BUFF_LENGTH(header_len)
-		    | UDPHS_DMACONTROL_LDNXT_DSC;
+			| UDPHS_DMACONTROL_BUFF_LENGTH(header_len)
+			| UDPHS_DMACONTROL_LDNXT_DSC;
 
 		/* High bandwidth ISO EP, max size n*ep_size */
 		if (nb_trans > 1) {
@@ -1521,18 +1509,18 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 				dma_desc[1].next = NULL;
 				dma_desc[1].addr = data_ptr;
 				dma_desc[1].ctrl =
-				    UDPHS_DMACONTROL_CHANN_ENB |
-				    UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
-				    UDPHS_DMACONTROL_END_B_EN |
-				    UDPHS_DMACONTROL_END_BUFFIT;
+					UDPHS_DMACONTROL_CHANN_ENB |
+					UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
+					UDPHS_DMACONTROL_END_B_EN |
+					UDPHS_DMACONTROL_END_BUFFIT;
 			} else {
 				dma_desc[1].next = &dma_desc[2];
 				dma_desc[1].addr = data_ptr;
 				dma_desc[1].ctrl =
-				    UDPHS_DMACONTROL_CHANN_ENB |
-				    UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
-				    UDPHS_DMACONTROL_END_B_EN |
-				    UDPHS_DMACONTROL_LDNXT_DSC;
+					UDPHS_DMACONTROL_CHANN_ENB |
+					UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
+					UDPHS_DMACONTROL_END_B_EN |
+					UDPHS_DMACONTROL_LDNXT_DSC;
 				data_len -= pkt_len;
 				data_ptr += pkt_len;
 
@@ -1542,18 +1530,18 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 					dma_desc[2].next = NULL;
 					dma_desc[2].addr = data_ptr;
 					dma_desc[2].ctrl =
-					    UDPHS_DMACONTROL_CHANN_ENB |
-					    UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
-					    UDPHS_DMACONTROL_END_B_EN |
-					    UDPHS_DMACONTROL_END_BUFFIT;
+						UDPHS_DMACONTROL_CHANN_ENB |
+						UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
+						UDPHS_DMACONTROL_END_B_EN |
+						UDPHS_DMACONTROL_END_BUFFIT;
 				} else {
 					dma_desc[2].next = &dma_desc[3];
 					dma_desc[2].addr = data_ptr;
 					dma_desc[2].ctrl =
-					    UDPHS_DMACONTROL_CHANN_ENB |
-					    UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
-					    UDPHS_DMACONTROL_END_B_EN |
-					    UDPHS_DMACONTROL_LDNXT_DSC;
+						UDPHS_DMACONTROL_CHANN_ENB |
+						UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
+						UDPHS_DMACONTROL_END_B_EN |
+						UDPHS_DMACONTROL_LDNXT_DSC;
 					data_len -= pkt_len;
 					data_ptr += pkt_len;
 
@@ -1561,10 +1549,10 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 					dma_desc[3].next = NULL;
 					dma_desc[3].addr = data_ptr;
 					dma_desc[3].ctrl =
-					    UDPHS_DMACONTROL_CHANN_ENB |
-					    UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
-					    UDPHS_DMACONTROL_END_B_EN |
-					    UDPHS_DMACONTROL_END_BUFFIT;
+						UDPHS_DMACONTROL_CHANN_ENB |
+						UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
+						UDPHS_DMACONTROL_END_B_EN |
+						UDPHS_DMACONTROL_END_BUFFIT;
 				}
 			}
 		} else {
@@ -1574,9 +1562,9 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 			dma_desc[1].next = NULL;
 			dma_desc[1].addr = (void*)data;
 			dma_desc[1].ctrl = UDPHS_DMACONTROL_CHANN_ENB
-			    | UDPHS_DMACONTROL_BUFF_LENGTH(data_len)
-			    | UDPHS_DMACONTROL_END_B_EN
-			    | UDPHS_DMACONTROL_END_BUFFIT;
+				| UDPHS_DMACONTROL_BUFF_LENGTH(data_len)
+				| UDPHS_DMACONTROL_END_B_EN
+				| UDPHS_DMACONTROL_END_BUFFIT;
 		}
 
 		/* Flush DMA descriptors */
@@ -1610,7 +1598,7 @@ uint16_t usbd_hal_get_data_size(uint8_t ep)
 	UdphsEpt *ept = &UDPHS->UDPHS_EPT[ep];
 	uint32_t status;
 	uint16_t size;
-	
+
 	status = ept->UDPHS_EPTSTA;
 	size = (uint16_t)((status & UDPHS_EPTSTA_BYTE_COUNT_Msk)
 				>> UDPHS_EPTSTA_BYTE_COUNT_Pos);
@@ -1854,7 +1842,7 @@ bool usbd_hal_halt(uint8_t ep)
 
 	/* Check that endpoint is enabled and not already in Halt state */
 	if ((endpoints[ep].state != UDPHS_ENDPOINT_DISABLED)
-	    && (endpoints[ep].state != UDPHS_ENDPOINT_HALTED)) {
+		&& (endpoints[ep].state != UDPHS_ENDPOINT_HALTED)) {
 		USB_HAL_TRACE("Halt%d ", ep);
 
 		/* Abort the current transfer if necessary */
@@ -1901,7 +1889,7 @@ bool usbd_hal_unhalt(uint8_t ep)
 		UDPHS->UDPHS_EPTRST = 1 << ep;
 	}
 
-	return endpoints[ep].state == UDPHS_ENDPOINT_HALTED;
+	return 1;
 }
 
 /**

@@ -235,9 +235,9 @@ uint32_t msd_function_request_handler(
 			else {
 
 				LIBUSB_TRACE("No ");
+				usbd_write(0, 0, 0, 0, 0);
 			}
 
-			usbd_write(0, 0, 0, 0, 0);
 
 			return USBRC_SUCCESS; /* Handled */
 
