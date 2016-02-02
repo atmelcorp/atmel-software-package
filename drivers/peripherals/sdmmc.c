@@ -992,7 +992,7 @@ static uint32_t sdmmc_release(void *_set)
 	return SDMMC_OK;
 }
 
-/** 
+/**
  * Here is the fSdmmcIOCtrl-type callback.
  * IO control functions.
  * \param _set  Pointer to driver instance data (struct sdmmc_set).
@@ -1018,7 +1018,12 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 	case SDMMC_IOCTL_GET_DEVICE:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_CARDINS ? 1 : 0;
+		if ((set->regs->SDMMC_CA0R & SDMMC_CA0R_SLTYPE_Msk)
+		    == SDMMC_CA0R_SLTYPE_EMBEDDED)
+			*param_u32 = 1;
+		else
+			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_CARDINS
+			    ? 1 : 0;
 		break;
 
 	case SDMMC_IOCTL_POWER:
@@ -1434,8 +1439,14 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	 * It doesn't affect I/O calibration however. */
 	sdmmc_reset_peripheral(set);
 	/* As sdmmc_reset_peripheral deliberately preserves MC1R.FCD, this field
-	 * has yet to be initialized. */
-	regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
+	 * has yet to be initialized. As the controller may disable outputs
+	 * depending on the state of the card detection input, this input should
+	 * be neutralized when the device is embedded. */
+	if ((regs->SDMMC_CA0R & SDMMC_CA0R_SLTYPE_Msk)
+	    == SDMMC_CA0R_SLTYPE_EMBEDDED)
+		regs->SDMMC_MC1R |= SDMMC_MC1R_FCD;
+	else
+		regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
 
 	return true;
 }
