@@ -440,3 +440,75 @@ void board_cfg_nand_flash(void)
 	trace_fatal("Cannot configure NAND: target board have no NAND definitions!");
 #endif
 }
+
+bool board_cfg_sdmmc(uint32_t periph_id)
+{
+#ifdef CONFIG_HAVE_SDMMC
+#ifdef PIN_SDMMC0_VDDSEL_IOS1
+	struct _pin vsel_pin = PIN_SDMMC0_VDDSEL_IOS1;
+	uint8_t vsel_ix;
+#endif
+#ifdef SDMMC1
+	const struct _pin pins1[] = SDMMC1_PINS;
+#endif
+	struct _pin pins0[] = SDMMC0_PINS;
+	uint32_t caps;
+	bool vccq_1v8 = false;
+
+	if (periph_id == ID_SDMMC0) {
+#ifdef PIN_SDMMC0_VDDSEL_IOS1
+		/* The PIOs of SDMMC0 normally include SDMMC0_VDDSEL. On regular
+		 * SAMA5D2-XULT, the SDMMC0_VDDSEL line has a pull-down resistor
+		 * hence at power-on time VCCQ is 3.3V. In this default config
+		 * we enable SDMMC0_VDDSEL, which can switch VCCQ to 1.8V.
+		 * Changing VCCQ on the fly is required with UHS-I SD cards. It
+		 * is illegal with e.MMC devices. Detect if the board has been
+		 * modified to supply 1.8V VCCQ at power-on time.
+		 * First, search for the SDMMC0_VDDSEL PIO on this board. */
+		for (vsel_ix = 0; vsel_ix < ARRAY_SIZE(pins0); vsel_ix++)
+			if (pins0[vsel_ix].mask == vsel_pin.mask
+			    && pins0[vsel_ix].group == vsel_pin.group)
+				break;
+		if (vsel_ix < ARRAY_SIZE(pins0)) {
+			/* Second, sense whether the SDMMC0_VDDSEL line is
+			 * pulled up or down */
+			vsel_pin.type = PIO_INPUT;
+			vsel_pin.attribute = PIO_PULLUP;
+			pio_configure(&vsel_pin, 1);
+			if (pio_get(&vsel_pin)) {
+				/* The line is pulled up => at power-on time
+				 * VCCQ is 1.8V. If the SDMMC0_VDDSEL function
+				 * was enabled, then everytime SRR:SWRSTALL was
+				 * triggered, VCCQ would switch to 3.3V. */
+				pins0[vsel_ix].type = PIO_OUTPUT_1;
+				pins0[vsel_ix].attribute = PIO_DEFAULT;
+				vccq_1v8 = true;
+			}
+		}
+#endif
+		/* SDMMC capabilities default to MPU capabilities. Adjust them
+		 * according to board design.
+		 * These modifications won't be altered by SRR:SWRSTALL. */
+		caps = (SDMMC0->SDMMC_CA0R & ~SDMMC_CA0R_SLTYPE_Msk
+		    & ~SDMMC_CA0R_V30VSUP) | SDMMC_CA0R_SLTYPE_EMBEDDED;
+		if (vccq_1v8)
+			caps &= ~SDMMC_CA0R_V33VSUP;
+		SDMMC0->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | SDMMC_CACR_CAPWREN;
+		SDMMC0->SDMMC_CA0R = caps;
+		SDMMC0->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | 0;
+		return pio_configure(pins0, ARRAY_SIZE(pins0)) ? true : false;
+	}
+#ifdef SDMMC1
+	else if (periph_id == ID_SDMMC1) {
+		caps = (SDMMC1->SDMMC_CA0R & ~SDMMC_CA0R_SLTYPE_Msk
+		    & ~SDMMC_CA0R_V30VSUP & ~SDMMC_CA0R_V18VSUP)
+		    | SDMMC_CA0R_SLTYPE_REMOVABLECARD;
+		SDMMC1->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | SDMMC_CACR_CAPWREN;
+		SDMMC1->SDMMC_CA0R = caps;
+		SDMMC1->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | 0;
+		return pio_configure(pins1, ARRAY_SIZE(pins1)) ? true : false;
+	}
+#endif
+#endif
+	return false;
+}

@@ -259,13 +259,6 @@ static void initialize(void)
 	sdmmc_initialize(&drv0, SDMMC0, ID_SDMMC0,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
-#if 1
-	/* Disable this after development phase. Declare the device on the
-	 * SDMMC0 slot i.e. the e.MMC as a non-removable device. Hence, whatever
-	 * the configuration of the BOOT_DISABLE jumper, this device is always
-	 * enabled. */
-	SDMMC0->SDMMC_MC1R |= SDMMC_MC1R_FCD;
-#endif
 	sdmmc_initialize(&drv1, SDMMC1, ID_SDMMC1,
 	    TIMER1_MODULE, TIMER1_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
@@ -457,8 +450,6 @@ bool SD_GetInstance(uint8_t index, sSdCard **holder)
  */
 int main(void)
 {
-	const struct _pin emmc_pins[] = SDMMC0_PINS;
-	const struct _pin sd_pins[] = SDMMC1_PINS;
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
 
@@ -495,8 +486,10 @@ int main(void)
 	pmc_enable_gck(ID_SDMMC1);
 	pmc_enable_peripheral(ID_SDMMC1);
 
-	pio_configure(emmc_pins, ARRAY_SIZE(emmc_pins));
-	pio_configure(sd_pins, ARRAY_SIZE(sd_pins));
+	rc = board_cfg_sdmmc(ID_SDMMC0) ? 1 : 0;
+	rc &= board_cfg_sdmmc(ID_SDMMC1) ? 1 : 0;
+	if (!rc)
+		trace_error("Failed to cfg cells\n\r");
 
 	if ((uint32_t)&data_buf % L1_CACHE_BYTES
 	    || sizeof(data_buf) % L1_CACHE_BYTES

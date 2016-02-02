@@ -181,8 +181,6 @@ static uint8_t ramdisk_reserved[RAMDISK_SIZE];
 /** Size of the MSD IO buffer in bytes (more the better). */
 #define MSD_BUFFER_SIZE (128 * BLOCK_SIZE)
 
-/** Declare the e.MMC as a non-removable device */
-#define EMMC_AS_NON_REMOVABLE    1
 /*----------------------------------------------------------------------------
  *        Global variables
  *----------------------------------------------------------------------------*/
@@ -193,9 +191,6 @@ extern const USBDDriverDescriptors msd_driver_descriptors;
 /** Available media. */
 struct _media medias[MAX_LUNS];
 
-static const struct _pin emmc_pins[] = SDMMC0_PINS;
-
-static const struct _pin sd_pins[] = SDMMC1_PINS;
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -290,6 +285,7 @@ static void msd_callbacks_data(uint8_t flow_direction, uint32_t data_length,
  */
 static void sd_driver_configure(void)
 {
+	uint8_t rc;
 
 	pmc_enable_peripheral(TIMER0_MODULE);
 #if TIMER1_MODULE != TIMER0_MODULE
@@ -310,22 +306,16 @@ static void sd_driver_configure(void)
 	pmc_enable_gck(ID_SDMMC1);
 	pmc_enable_peripheral(ID_SDMMC1);
 
-	pio_configure(emmc_pins, ARRAY_SIZE(emmc_pins));
-	pio_configure(sd_pins, ARRAY_SIZE(sd_pins));
+	rc = board_cfg_sdmmc(ID_SDMMC0) ? 1 : 0;
+	rc &= board_cfg_sdmmc(ID_SDMMC1) ? 1 : 0;
+	if (!rc)
+		trace_error("Failed to cfg cells\n\r");
 
 	use_dma = true;
 	
 	sdmmc_initialize(&sd_drv[0], SDMMC0, ID_SDMMC0, TIMER0_MODULE, TIMER0_CHANNEL,
 					use_dma ? dma_table : NULL,
 					use_dma ? ARRAY_SIZE(dma_table) : 0);
-#ifdef EMMC_AS_NON_REMOVABLE
-	/* Declare the device on the SDMMC0 slot i.e. the e.MMC as a non-removable 
-	 * device. Hence, whatever the configuration of the BOOT_DISABLE jumper, 
-	 * this device is always enabled. 
-	*/
-	SDMMC0->SDMMC_MC1R |= SDMMC_MC1R_FCD;
-#endif
-	
 	sdmmc_initialize(&sd_drv[1], SDMMC1, ID_SDMMC1, TIMER1_MODULE, TIMER1_CHANNEL,
 						use_dma ? dma_table : NULL,
 						use_dma ? ARRAY_SIZE(dma_table) : 0);

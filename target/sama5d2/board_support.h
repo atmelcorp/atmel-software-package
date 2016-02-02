@@ -93,4 +93,14 @@ extern void board_cfg_ddram(void);
  */
 extern void board_cfg_nand_flash(void);
 
+/**
+ * \brief Configures a SD/MMC/e.MMC slot of the board
+ * \param sdmmc_id  SDMMC peripheral ID (ID_SDMMCx).
+ * \note The application shall have enabled the clocks assigned to this SDMMC
+ * peripheral.
+ * \return true if successful, false if the specified peripheral could not be
+ * initialized.
+ */
+extern bool board_cfg_sdmmc(uint32_t sdmmc_id);
+
 #endif  /* BOARD_MEMORIES_H */
