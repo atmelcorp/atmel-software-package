@@ -408,7 +408,7 @@ static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
 {
 	uint32_t row_address;
 
-	trace_debug("_erase_block(%d)\r\n", block);
+	NAND_TRACE("_erase_block(%d)\r\n", block);
 
 	/* Calculate address used for erase */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model);
@@ -446,7 +446,7 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	uint32_t smc_mode;
 	uint32_t smc_trans_type = 0;
 
-	trace_debug("_read_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("_read_page(B#%d:P#%d)\r\n", block, page);
 
 	/* at least one area must be read */
 	assert(data || spare);
@@ -526,7 +526,7 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	uint32_t smc_mode;
 	uint32_t smc_trans_type = 0;
 
-	trace_debug("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
 	/* at least one area must be read */
 	assert(data || spare);
@@ -603,7 +603,7 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 	uint32_t row_address,smc_ecc_page_size;
 	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 
-	trace_debug("_write_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("_write_page(B#%d:P#%d)\r\n", block, page);
 
 	if (nand_is_nfc_enabled()) {
 		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
@@ -698,7 +698,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	uint8_t nb_sectors_per_page;
 	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 
-	trace_debug("_write_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("_write_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
 	if (nand_is_nfc_enabled()) {
 		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
@@ -801,14 +801,14 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 uint8_t nand_raw_initialize(struct _nand_flash *nand,
 		const struct _nand_flash_model *model)
 {
-	trace_debug("nand_raw_initialize()\r\n");
+	NAND_TRACE("nand_raw_initialize()\r\n");
 
 	/* Reset */
 	nand_raw_reset(nand);
 
 	/* If model is not provided, autodetect it */
 	if (!model) {
-		trace_debug("No model provided, trying autodetection ...\r\n");
+		NAND_TRACE("No model provided, trying autodetection ...\r\n");
 		if (nand_model_find(nand_flash_model_list,
 					nand_flash_model_list_size,
 					nand_raw_read_id(nand), &nand->model)) {
@@ -828,7 +828,7 @@ uint8_t nand_raw_initialize(struct _nand_flash *nand,
  */
 void nand_raw_reset(const struct _nand_flash *nand)
 {
-	trace_debug("nand_raw_reset()\r\n");
+	NAND_TRACE("nand_raw_reset()\r\n");
 
 	_send_cle_ale(nand, 0, COMMAND_RESET, 0, 0, 0);
 	_nand_wait_ready(nand);
@@ -843,7 +843,7 @@ uint32_t nand_raw_read_id(const struct _nand_flash *nand)
 {
 	uint32_t chip_id, chip_id2;
 
-	trace_debug("nand_raw_read_id()\r\n");
+	NAND_TRACE("nand_raw_read_id()\r\n");
 
 	//_send_cle_ale(nand, ALE_ROW_EN, COMMAND_READID, 0, 0, 0);
 	nand_write_command(nand, COMMAND_READID);
@@ -876,7 +876,7 @@ uint8_t nand_raw_erase_block(const struct _nand_flash *nand, uint16_t block)
 {
 	uint8_t retry = NUMERASETRIES;
 
-	trace_debug("nand_raw_erase_block(B#%d)\r\n", block);
+	NAND_TRACE("nand_raw_erase_block(B#%d)\r\n", block);
 
 	while (retry > 0) {
 		if (!_erase_block(nand, block)) {
@@ -904,7 +904,7 @@ uint8_t nand_raw_erase_block(const struct _nand_flash *nand, uint16_t block)
 uint8_t nand_raw_read_page(const struct _nand_flash *nand,
 		uint16_t block, uint16_t page, void *data, void *spare)
 {
-	trace_debug("nand_raw_read_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("nand_raw_read_page(B#%d:P#%d)\r\n", block, page);
 
 	if (!nand_is_using_pmecc() || spare)
 		return _read_page(nand, block, page, data, spare);
@@ -930,7 +930,7 @@ uint8_t nand_raw_read_page(const struct _nand_flash *nand,
 uint8_t nand_raw_write_page(const struct _nand_flash *nand,
 		uint16_t block, uint16_t page, void *data, void *spare)
 {
-	trace_debug("nand_raw_write_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("nand_raw_write_page(B#%d:P#%d)\r\n", block, page);
 
 	if (!nand_is_using_pmecc())
 		return _write_page(nand, block, page, data, spare);

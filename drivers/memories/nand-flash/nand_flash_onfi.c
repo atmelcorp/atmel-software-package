@@ -158,6 +158,8 @@ static bool nand_onfi_retrieve_param(const struct _nand_flash *nand)
 				(unsigned)onfi_parameter.onfi_page_size);
 		trace_info_wp("ONFI onfiSpareSize %x\r\n",
 				(unsigned)onfi_parameter.onfi_spare_size);
+		trace_info_wp("ONFI onfiPagesPerBlock %x\r\n",
+				(unsigned)onfi_parameter.onfi_pages_per_block);
 		trace_info_wp("ONFI onfiEccCorrectability %x\r\n",
 				onfi_parameter.onfi_ecc_correctability);
 		return true;
@@ -313,12 +315,9 @@ bool nand_onfi_device_detect(const struct _nand_flash *nand)
 			id[1] = nand_read_data(nand);
 			id[2] = nand_read_data(nand);
 			id[3] = nand_read_data(nand);
-#if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
-			trace_debug("NANDFLASH ID = <%x,%x,%x,%x>\r\n",
-					id[0], id[1], id[2], id[3]);
-#else
 			(void)id;
-#endif
+			NAND_TRACE("NANDFLASH ID = <%x,%x,%x,%x>\r\n",
+					id[0], id[1], id[2], id[3]);
 			break;
 		}
 	}

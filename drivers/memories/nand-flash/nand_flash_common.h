@@ -37,6 +37,15 @@
 /*         Definitions                                                           */
 /*------------------------------------------------------------------------------ */
 
+/* traces are disabled by default */
+#undef NAND_DEBUG
+
+#ifdef NAND_DEBUG
+#define NAND_TRACE(...) trace_debug_wp(__VA_ARGS__)
+#else
+#define NAND_TRACE(...)
+#endif
+
 /** \addtogroup nand_max_val NandFlash Maximum Supported Values
  * @{
  * Since no memory allocation is available, limits have been set on various

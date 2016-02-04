@@ -103,13 +103,13 @@ void nand_skipblock_initialize(struct _nand_flash *nand)
 	uint32_t num_blocks;
 	uint32_t block;
 
-	trace_debug("nand_skipblock_initialize()\r\n");
+	NAND_TRACE("nand_skipblock_initialize()\r\n");
 
 	/* Retrieve model information */
 	num_blocks = nand_model_get_device_size_in_blocks(&nand->model);
 
 	/* Initialize block statuses */
-	trace_debug("Retrieving bad block information ...\r\n");
+	NAND_TRACE("Retrieving bad block information ...\r\n");
 
 	/* Retrieve block status from their first page spare area */
 	for (block = 0; block < num_blocks; block++) {
@@ -117,7 +117,7 @@ void nand_skipblock_initialize(struct _nand_flash *nand)
 		error = nand_skipblock_check_block(nand, block);
 		if (error != GOODBLOCK) {
 			if (error == BADBLOCK) {
-				trace_debug("Block #%d is bad\r\n",
+				NAND_TRACE("Block #%d is bad\r\n",
 						(unsigned int)block);
 			} else {
 				trace_error("nand_skipblock_initialize: "

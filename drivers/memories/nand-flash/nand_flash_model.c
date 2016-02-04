@@ -75,7 +75,7 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 				memcpy(model, &list[i], sizeof(*model));
 				if (model->block_size_in_kbytes == 0 ||
 					model->page_size_in_bytes == 0) {
-					trace_debug_wp("Fetch from ID4(0x%.2x):\r\n", id4);
+					NAND_TRACE("Fetch from ID4(0x%.2x):\r\n", id4);
 
 					/*
 					 * Fetch from the extended ID4
@@ -118,16 +118,16 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 				}
 			}
 
-			trace_debug_wp("NAND Model found:\r\n");
-			trace_debug_wp(" * deviceId = 0x%02X\r\n",
+			NAND_TRACE("NAND Model found:\r\n");
+			NAND_TRACE(" * deviceId = 0x%02X\r\n",
 					model->device_id);
-			trace_debug_wp(" * deviceSizeInMegaBytes = %d\r\n",
+			NAND_TRACE(" * deviceSizeInMegaBytes = %d\r\n",
 					model->device_size_in_mega_bytes);
-			trace_debug_wp(" * blockSizeInkBytes = %d\r\n",
+			NAND_TRACE(" * blockSizeInkBytes = %d\r\n",
 					model->block_size_in_kbytes);
-			trace_debug_wp(" * pageSizeInBytes = %d\r\n",
+			NAND_TRACE(" * pageSizeInBytes = %d\r\n",
 					model->page_size_in_bytes);
-			trace_debug_wp(" * options = 0x%02X\r\n",
+			NAND_TRACE(" * options = 0x%02X\r\n",
 					model->options);
 			break;
 		}
@@ -170,7 +170,7 @@ uint8_t nand_model_translate_access(const struct _nand_flash_model *model,
 
 	 /* Check that access is not too big */
 	if ((address + size) > nand_model_get_device_size_in_bytes(model)) {
-		trace_debug("nand_model_translate_access: out-of-bounds access.\r\n");
+		NAND_TRACE("nand_model_translate_access: out-of-bounds access.\r\n");
 		return NAND_ERROR_OUTOFBOUNDS;
 	}
 

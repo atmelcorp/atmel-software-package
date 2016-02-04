@@ -249,7 +249,7 @@ static uint8_t ecc_write_page_with_pmecc(const struct _nand_flash *nand,
 uint8_t nand_ecc_read_page(const struct _nand_flash *nand,
 		uint16_t block, uint16_t page, void *data, void *spare)
 {
-	trace_debug("nand_ecc_read_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("nand_ecc_read_page(B#%d:P#%d)\r\n", block, page);
 	assert(data || spare);
 
 	if (nand_is_using_pmecc()) {
@@ -283,7 +283,7 @@ uint8_t nand_ecc_read_page(const struct _nand_flash *nand,
 uint8_t nand_ecc_write_page(const struct _nand_flash *nand,
 	uint16_t block, uint16_t page, void *data, void *spare)
 {
-	trace_debug("nand_ecc_write_page(B#%d:P#%d)\r\n", block, page);
+	NAND_TRACE("nand_ecc_write_page(B#%d:P#%d)\r\n", block, page);
 	assert(data || spare);
 
 	if (nand_is_using_pmecc()) {
