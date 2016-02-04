@@ -115,7 +115,7 @@ struct _pmecc_descriptor {
 /*--------------------------------------------------------------------------- */
 
 /** Pmecc decriptor instance */
-struct _pmecc_descriptor pmecc_desc;
+static struct _pmecc_descriptor pmecc_desc;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -131,7 +131,7 @@ static void gen_syn(uint32_t sector)
 	uint32_t index;
 
 	remainer = (int16_t*)&HSMC->SMC_REM[sector];
-	for (index = 0; index < (uint32_t)pmecc_desc.tt; index++) {
+	for (index = 0; index < pmecc_desc.tt; index++) {
 		/* Fill odd syndromes */
 		pmecc_desc.partial_syn[1 + (2 * index)] = remainer[index];
 	}
