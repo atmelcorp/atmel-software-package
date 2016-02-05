@@ -303,8 +303,8 @@ static void msd_callbacks_data(uint8_t flow_direction,
  * \param DTR   New DTR value.
  * \param RTS   New RTS value.
  */
-void cdcd_serial_control_line_sate_changed(uint8_t DTR,
-		uint8_t RTS)
+void cdcd_serial_control_line_sate_changed(uint8_t DTR, uint8_t RTS);
+void cdcd_serial_control_line_sate_changed(uint8_t DTR, uint8_t RTS)
 {
 	is_serial_port_on = DTR;
 	RTS = RTS; /* dummy */
@@ -360,6 +360,15 @@ static void _memories_initialize(void)
 	ram_disk_init();
 }
 
+static void _usb_data_received(void *read, uint8_t status, uint32_t received,
+							   uint32_t remaining)
+{
+	if (status == USBD_STATUS_SUCCESS)
+		*(uint32_t *)read = 1;
+	else
+		trace_warning( "_usb_data_received: Transfer error\n\r");
+}
+
 /*---------------------------------------------------------------------------
  *         Exported function
  *---------------------------------------------------------------------------*/
@@ -374,7 +383,8 @@ static void _memories_initialize(void)
 int main(void)
 {
 	uint8_t usb_connected = 0, serial_on = 0;
-
+	uint8_t serial_read = 1;
+	
 	/* Disable watchdog */
 	wdt_disable();
 
@@ -426,7 +436,10 @@ int main(void)
 				printf("-I- SerialPort ON\n\r");
 				/* Start receiving data on the USART */
 				/* Start receiving data on the USB */
-				cdcd_serial_read(usb_serial_buffer0, DATAPACKETSIZE, 0, 0);
+				if (serial_read == 1) {
+					serial_read = 0;
+					cdcd_serial_read(usb_serial_buffer0, DATAPACKETSIZE, _usb_data_received, &serial_read);
+				}
 				serial_on = 1;
 			} else if (serial_on && !is_serial_port_on) {
 				printf("-I- SerialPort OFF\n\r");
