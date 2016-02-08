@@ -128,7 +128,7 @@
 /* ================== ACT8945A PMIC definition ====================== */
 
 #define ACT8945A_PINS PINS_FLEXCOM4_TWI_IOS3
-#define ACT8945A_ADDR TWI0
+#define ACT8945A_ADDR TWI4
 #define ACT8945A_FREQ 400000
 #define ACT8945A_PIN_CHGLEV \
 	{ PIO_GROUP_A, PIO_PA22, PIO_OUTPUT_0, PIO_PULLUP }
