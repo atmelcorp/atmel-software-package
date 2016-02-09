@@ -198,6 +198,9 @@ typedef struct {
 #define SDMMC_PCR_SDBVSEL_Pos 1
 #define SDMMC_PCR_SDBVSEL_Msk (0x7u << SDMMC_PCR_SDBVSEL_Pos)
 #define SDMMC_PCR_SDBVSEL(value) ((SDMMC_PCR_SDBVSEL_Msk & ((value) << SDMMC_PCR_SDBVSEL_Pos)))
+#define   SDMMC_PCR_SDBVSEL_18V (0x5u << 1)
+#define   SDMMC_PCR_SDBVSEL_30V (0x6u << 1)
+#define   SDMMC_PCR_SDBVSEL_33V (0x7u << 1)
 /* --------  SDMMC_BGCR (SDMMC Offset: 0x02A) Block Gap Control Register */
 #define SDMMC_BGCR_STPBGR (0x1u << 0)
 #define SDMMC_BGCR_CONTR (0x1u << 1)
