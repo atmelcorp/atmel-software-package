@@ -109,6 +109,7 @@
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
+#include "power/act8945a.h"
 
 #include "libsdmmc/libsdmmc.h"
 
@@ -224,6 +225,21 @@ SECTION(".region_ddr")
 ALIGNED(L1_CACHE_BYTES)
 static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+static struct _twi_desc pmic_twid = {
+	.addr = ACT8945A_ADDR,
+	.freq = ACT8945A_FREQ,
+	.transfert_mode = TWID_MODE_POLLING,
+};
+static struct _act8945a pmic = {
+	.desc = {
+		.pin_chglev = ACT8945A_PIN_CHGLEV,
+		.pin_irq = ACT8945A_PIN_IRQ,
+		.pin_lbo = ACT8945A_PIN_LBO,
+	},
+};
+#endif
+
 /** Total data write to disk */
 uint32_t msd_write_total = 0;
 
@@ -279,6 +295,29 @@ static void msd_callbacks_data(uint8_t flow_direction, uint32_t data_length,
  *         Internal functions
  *----------------------------------------------------------------------------*/
 
+/**
+ * Enable optional power rails
+ */
+static bool pmic_configure(void)
+{
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+	const struct _pin pins[] = ACT8945A_PINS;
+
+	if (!pio_configure(pins, ARRAY_SIZE(pins)))
+		return false;
+	if (!act8945a_configure(&pmic, &pmic_twid))
+		return false;
+	if (!act8945a_set_regulator_voltage(&pmic, 7, 1800))
+		return false;
+	if (!act8945a_enable_regulator(&pmic, 7, true))
+		return false;
+	if (!act8945a_set_regulator_voltage(&pmic, 6, 2500))
+		return false;
+	return act8945a_enable_regulator(&pmic, 6, true);
+#else
+	return false;
+#endif
+}
 
 /**
  * Initialize SD card peripherals driver
@@ -474,6 +513,10 @@ int main(void)
 	printf("-- USB Device Mass Storage Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME " --\n\r");
 	printf( "-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+
+	/* Switch VDD_1V8 power rail on */
+	if (!pmic_configure())
+		trace_error("Failed to init PMIC\n\r");
 
 	/* If they are present, configure Vbus & Wake-up pins */
 	pio_reset_all_it();
