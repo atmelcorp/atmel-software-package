@@ -139,11 +139,13 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 	assert(set);
 
 	Sdmmc *regs = set->regs;
+	uint32_t calcr;
 	uint8_t mc1r, tcr;
 
 	/* First, save the few settings we'll want to restore. */
 	mc1r = regs->SDMMC_MC1R;
 	tcr = regs->SDMMC_TCR;
+	calcr = regs->SDMMC_CALCR;
 
 	/* Reset our state variables to match reset values of the registers */
 	set->tim_mode = set->tim_mode >= SDMMC_TIM_SD_DS ? SDMMC_TIM_SD_DS
@@ -158,6 +160,8 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 		regs->SDMMC_MC1R |= SDMMC_MC1R_FCD;
 	regs->SDMMC_TCR = (regs->SDMMC_TCR & ~SDMMC_TCR_DTCVAL_Msk)
 	    | (tcr & SDMMC_TCR_DTCVAL_Msk);
+	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_CNTVAL_Msk
+	    & ~SDMMC_CALCR_TUNDIS) | (calcr & SDMMC_CALCR_CNTVAL_Msk);
 
 	/* Apply our unconditional custom settings */
 	/* When using DMA, use the 32-bit Advanced DMA 2 mode */
@@ -173,15 +177,23 @@ static void sdmmc_power_device(struct sdmmc_set *set, bool on)
 	assert(set);
 
 	Sdmmc *regs = set->regs;
-	uint32_t timer_res_prv, usec = 0;
-	uint8_t mc1r;
+	uint32_t caps, timer_res_prv, usec = 0;
+	uint8_t mc1r, pcr;
 
 	if ((on && set->state != MCID_OFF) || (!on && set->state == MCID_OFF))
 		return;
 	if (on) {
 		trace_debug("Power the device on\n\r");
 		/* Power the signals to/from the device */
-		regs->SDMMC_PCR |= SDMMC_PCR_SDBPWR;
+		pcr = regs->SDMMC_PCR & ~SDMMC_PCR_SDBVSEL_Msk;
+		caps = regs->SDMMC_CA0R;
+		if (caps & SDMMC_CA0R_V33VSUP)
+			pcr |= SDMMC_PCR_SDBVSEL_33V;
+		else if (caps & SDMMC_CA0R_V30VSUP)
+			pcr |= SDMMC_PCR_SDBVSEL_30V;
+		else if (caps & SDMMC_CA0R_V18VSUP)
+			pcr |= SDMMC_PCR_SDBVSEL_18V;
+		regs->SDMMC_PCR = pcr | SDMMC_PCR_SDBPWR;
 		set->state = MCID_IDLE;
 		return;
 	}
@@ -220,6 +232,22 @@ static void sdmmc_power_device(struct sdmmc_set *set, bool on)
 	sdmmc_reset_peripheral(set);
 
 	set->state = MCID_OFF;
+}
+
+static void sdmmc_calibrate_zout(struct sdmmc_set *set)
+{
+	assert(set);
+
+	uint32_t calcr;
+
+	/* CALCR:CNTVAL has been configured by sdmmc_initialize() */
+	set->regs->SDMMC_CALCR |= SDMMC_CALCR_EN;
+	do
+		calcr = set->regs->SDMMC_CALCR;
+	while (calcr & SDMMC_CALCR_EN);
+	trace_debug("Output Z calibr. CALN=%lu CALP=%lu\n\r",
+	    (calcr & SDMMC_CALCR_CALN_Msk) >> SDMMC_CALCR_CALN_Pos,
+	    (calcr & SDMMC_CALCR_CALP_Msk) >> SDMMC_CALCR_CALP_Pos);
 }
 
 static uint8_t sdmmc_get_bus_width(struct sdmmc_set *set)
@@ -312,6 +340,12 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 		hc2r |= SDMMC_HC2R_UHSMS_SDR50;
 	else if (mode == SDMMC_TIM_SD_DDR50)
 		hc2r |= SDMMC_HC2R_UHSMS_DDR50;
+	/* The default value of HC2R:DRVSEL selects Driver Type B, i.e. 50 ohm
+	 * nominal output impedance.
+	 * TODO select the optimal host output Driver Type. That depends on
+	 * board design. Use an oscilloscope to observe signal integrity, and
+	 * among the driver types that meet rise and fall time requirements,
+	 * select the weakest. */
 
 	if (hc2r == hc2r_prv && hc1r == hc1r_prv && mc1r == mc1r_prv) {
 		set->tim_mode = mode;
@@ -340,6 +374,16 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 	}
 	if (enable_dev_clock)
 		regs->SDMMC_CCR |= SDMMC_CCR_SDCLKEN;
+
+	/* Perform the output calibration sequence, if required */
+	if (hc2r & SDMMC_HC2R_VS18EN) {
+		regs->SDMMC_CALCR |= SDMMC_CALCR_ALWYSON;
+		sdmmc_calibrate_zout(set);
+		/* TODO in SDR12-50/DDR50 mode, setup periodic re-calibration */
+	}
+	else
+		regs->SDMMC_CALCR &= ~SDMMC_CALCR_ALWYSON;
+
 	if (rc == SDMMC_OK)
 		set->tim_mode = mode;
 	return rc;
@@ -356,7 +400,10 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 	uint16_t shval;
 	bool use_prog_mode = false;
 
+	freq = freq > 120000000ul ? 120000000ul : freq;
 #ifndef NDEBUG
+	if (!(regs->SDMMC_PCR & SDMMC_PCR_SDBPWR))
+		trace_error("Bus is off\n\r");
 	if (regs->SDMMC_HC2R & SDMMC_HC2R_PVALEN)
 		trace_error("Preset values enabled though not implemented\n\r");
 #endif
@@ -389,7 +436,7 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 #endif
 	if (mult_freq != 0) {
 		/* DIV = FMULTCLK / FSDCLK - 1 */
-		p_div = ROUND_INT_DIV(mult_freq, freq);
+		p_div = CEIL_INT_DIV(mult_freq, freq);
 		if (p_div > 0x3ff)
 			p_div = 0x3ff;
 		else if (p_div != 0)
@@ -630,6 +677,10 @@ Fetch:
 			cmd->bStatus = SDMMC_NO_RESPONSE;
 		else if (errors & (SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDIDX))
 			cmd->bStatus = SDMMC_ERR_IO;
+		else if (errors & SDMMC_EISTR_TUNING)
+			cmd->bStatus = SDMMC_ERR_IO;
+		/* TODO upon SDMMC_EISTR_TUNING, clear HC2R:SCLKSEL, and perform
+		 * the tuning procedure */
 		/* TODO if SDMMC_NISTR_TRFC and only SDMMC_EISTR_DATTEO then
 		 * ignore SDMMC_EISTR_DATTEO */
 		else if (errors & SDMMC_EISTR_DATTEO)
@@ -990,6 +1041,78 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 	return SDMMC_OK;
 }
 
+static uint8_t sdmmc_tune_sampling(struct sdmmc_set *set)
+{
+	assert(set);
+	assert(set->state != MCID_OFF && set->state != MCID_CMD);
+
+	Sdmmc *regs = set->regs;
+	uint32_t response;   /* The R1 response is 32-bit long */
+	sSdmmcCommand test_cmd = {
+		/* Neither the response nor the data will be retrieved */
+		.pData = (uint8_t *)&response,
+		.wBlockSize = 128,
+		.wNbBlocks = 1,
+		.pResp = &response,
+		.cmdOp.wVal = SDMMC_CMD_CDATARX(1),
+		.bCmd = 21,
+	};
+	uint16_t hc2r;
+	uint8_t rc = SDMMC_OK, ix;
+
+	if (set->tim_mode != SDMMC_TIM_MMC_HS200)
+		test_cmd.bCmd = 19;
+	ix = sdmmc_get_bus_width(set);
+	if (ix == 4)
+		test_cmd.wBlockSize = 64;
+	else if (ix != 8)
+		return SDMMC_PARAM;
+	/* Start the tuning procedure */
+	regs->SDMMC_HC2R |= SDMMC_HC2R_EXTUN;
+	hc2r = regs->SDMMC_HC2R;
+	for (ix = 0; hc2r & SDMMC_HC2R_EXTUN && ix < 40; ix++) {
+		/* Issue the SEND_TUNING_BLOCK command */
+		set->state = MCID_LOCKED;
+		set->resp_len = 0;
+		set->blk_index = 0;
+		set->cmd_line_released = false;
+		set->dat_lines_released = false;
+		set->expect_auto_end = false;
+		rc = sdmmc_send_command(set, &test_cmd);
+		if (rc != SDMMC_OK)
+			break;
+		/* While tuning the position of the sampling point, usual
+		 * interrupts do not occur. Expect NISTR:BRDRDY only. */
+		while (!(regs->SDMMC_NISTR & SDMMC_NISTR_BRDRDY)) ;
+		regs->SDMMC_NISTR = SDMMC_NISTR_BRDRDY;
+		set->cmd = NULL;
+		hc2r = regs->SDMMC_HC2R;
+	}
+	if (hc2r & SDMMC_HC2R_EXTUN) {
+		/* Abort the tuning procedure */
+		regs->SDMMC_HC2R = hc2r & ~SDMMC_HC2R_EXTUN;
+		/* Reset the tuning circuit. Use the fixed clock when sampling
+		 * data. */
+		regs->SDMMC_HC2R = hc2r & ~SDMMC_HC2R_SCLKSEL
+		    & ~SDMMC_HC2R_EXTUN;
+		rc = SDMMC_ERR;
+	}
+	else if (!(hc2r & SDMMC_HC2R_SCLKSEL))
+		rc = SDMMC_ERR;
+	/* Clear residual interrupts, if any */
+	if (regs->SDMMC_NISTR & SDMMC_NISTR_ERRINT)
+		regs->SDMMC_EISTR = regs->SDMMC_EISTR;
+	regs->SDMMC_NISTR = regs->SDMMC_NISTR;
+	set->state = MCID_LOCKED;
+	set->resp_len = 0;
+	set->blk_index = 0;
+	set->cmd_line_released = false;
+	set->dat_lines_released = false;
+	set->expect_auto_end = false;
+	trace_debug("%u tuning blocks. %s.\n\r", ix, SD_StringifyRetCode(rc));
+	return rc;
+}
+
 /*----------------------------------------------------------------------------
  *        HAL for the SD/MMC library
  *----------------------------------------------------------------------------*/
@@ -1039,7 +1162,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 
 #if TRACE_LEVEL >= TRACE_LEVEL_DEBUG
 	if (bCtl != SDMMC_IOCTL_BUSY_CHECK && bCtl != SDMMC_IOCTL_GET_DEVICE)
-		trace_debug("%s(%lu)\n\r", SD_StringifyIOCtrl(bCtl),
+		trace_debug("SDMMC_IOCTL_%s(%lu)\n\r", SD_StringifyIOCtrl(bCtl),
 		    param ? *param_u32 : 0);
 #endif
 
@@ -1098,7 +1221,9 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP)
 			*param_u32 = 1;
 		else if (byte == SDMMC_TIM_MMC_HS200
-		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
+		    && (set->regs->SDMMC_CA0R & (SDMMC_CA0R_V18VSUP
+		    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP))
+		    == SDMMC_CA0R_V18VSUP
 		    && set->regs->SDMMC_CA1R & (SDMMC_CA1R_SDR50SUP
 		    | SDMMC_CA1R_DDR50SUP | SDMMC_CA1R_SDR104SUP))
 			*param_u32 = 1;
@@ -1141,8 +1266,14 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		sdmmc_set_device_clock(set, *param_u32);
 		trace_debug("Clocking the device at %lu Hz\n\r", set->dev_freq);
+		if (set->tim_mode == SDMMC_TIM_MMC_HS200
+		    || set->tim_mode == SDMMC_TIM_SD_SDR104
+		    || (set->tim_mode == SDMMC_TIM_SD_SDR50
+		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_TSDR50))
+			rc = sdmmc_tune_sampling(set);
+			/* TODO setup periodic re-tuning */
 		if (set->dev_freq != *param_u32) {
-			rc = SDMMC_CHANGED;
+			rc = rc == SDMMC_OK ? SDMMC_CHANGED : rc;
 			*param_u32 = set->dev_freq;
 		}
 		break;
@@ -1184,8 +1315,10 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		break;
 	}
 #if TRACE_LEVEL >= TRACE_LEVEL_ERROR
-	if (rc != SDMMC_OK && rc != SDMMC_CHANGED && bCtl != SDMMC_IOCTL_BUSY_CHECK)
-		trace_error("%s ended with %s\n\r", SD_StringifyIOCtrl(bCtl), SD_StringifyRetCode(rc));
+	if (rc != SDMMC_OK && rc != SDMMC_CHANGED
+	    && bCtl != SDMMC_IOCTL_BUSY_CHECK)
+		trace_error("SDMMC_IOCTL_%s ended with %s\n\r",
+		    SD_StringifyIOCtrl(bCtl), SD_StringifyRetCode(rc));
 #endif
 	return rc;
 }
@@ -1216,6 +1349,9 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	const bool stop_xfer = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_STOPXFR;
 	const bool has_data = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
 	    || cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX;
+	const bool use_dma = set->table != NULL
+	    && (cmd->bCmd != 21 || set->tim_mode >= SDMMC_TIM_SD_DS)
+	    && (cmd->bCmd != 19 || set->tim_mode < SDMMC_TIM_SD_DS);
 	const bool multiple_xfer = cmd->bCmd == 18 || cmd->bCmd == 25;
 	const bool blk_count_prefix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && set->use_set_blk_cnt;
@@ -1260,7 +1396,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		trace_error("%u-byte data block size not supported\n\r", cmd->wBlockSize);
 		return SDMMC_ERROR_PARAM;
 	}
-	if (has_data && set->table) {
+	if (has_data && use_dma) {
 		/* Using DMA. Prepare the descriptor table. */
 		rc = sdmmc_build_dma_table(set, cmd);
 		if (rc != SDMMC_OK && rc != SDMMC_CHANGED)
@@ -1296,7 +1432,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    & ~SDMMC_CR_DPSEL & ~SDMMC_CR_RESPTYP_Msk)
 	    | SDMMC_CR_CMDIDX(cmd->bCmd) | SDMMC_CR_CMDTYP_NORMAL
 	    | SDMMC_CR_CMDICEN | SDMMC_CR_CMDCCEN;
-	eister = SDMMC_EISTER_BOOTAE | SDMMC_EISTER_ADMA
+	eister = SDMMC_EISTER_BOOTAE | SDMMC_EISTER_TUNING | SDMMC_EISTER_ADMA
 	    | SDMMC_EISTER_ACMD | SDMMC_EISTER_CURLIM | SDMMC_EISTER_DATEND
 	    | SDMMC_EISTER_DATCRC | SDMMC_EISTER_DATTEO | SDMMC_EISTER_CMDIDX
 	    | SDMMC_EISTER_CMDEND | SDMMC_EISTER_CMDCRC | SDMMC_EISTER_CMDTEO;
@@ -1350,7 +1486,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		/* TODO check if this is fine for SDIO too (byte or block transfer) (cmd->cmdOp.bmBits.ioCmd, cmd->wBlockSize) */
 		if (multiple_xfer || cmd->wNbBlocks > 1)
 			tmr |= SDMMC_TMR_MSBSEL | SDMMC_TMR_BCEN;
-		if (set->table)
+		if (use_dma)
 			tmr |= SDMMC_TMR_DMAEN;
 	}
 
@@ -1372,16 +1508,17 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    | SDMMC_NISTR_CINT | SDMMC_NISTR_CREM | SDMMC_NISTR_CINS
 	    | SDMMC_NISTR_BRDRDY | SDMMC_NISTR_BWRRDY | SDMMC_NISTR_DMAINT
 	    | SDMMC_NISTR_BLKGE | SDMMC_NISTR_TRFC | SDMMC_NISTR_CMDC;
-	regs->SDMMC_EISTR = SDMMC_EISTR_BOOTAE | SDMMC_EISTR_ADMA
-	    | SDMMC_EISTR_ACMD | SDMMC_EISTR_CURLIM | SDMMC_EISTR_DATEND
-	    | SDMMC_EISTR_DATCRC | SDMMC_EISTR_DATTEO | SDMMC_EISTR_CMDIDX
-	    | SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDCRC | SDMMC_EISTR_CMDTEO;
+	regs->SDMMC_EISTR = SDMMC_EISTR_BOOTAE | SDMMC_EISTR_TUNING
+	    | SDMMC_EISTR_ADMA | SDMMC_EISTR_ACMD | SDMMC_EISTR_CURLIM
+	    | SDMMC_EISTR_DATEND | SDMMC_EISTR_DATCRC | SDMMC_EISTR_DATTEO
+	    | SDMMC_EISTR_CMDIDX | SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDCRC
+	    | SDMMC_EISTR_CMDTEO;
 
 	/* Issue the command */
 	if (has_data) {
 		if (blk_count_prefix)
 			regs->SDMMC_SSAR = SDMMC_SSAR_ARG2(cmd->wNbBlocks);
-		if (set->table)
+		if (use_dma)
 			regs->SDMMC_ASA0R =
 			    SDMMC_ASA0R_ADMASA((uint32_t)set->table);
 		regs->SDMMC_BSR = (regs->SDMMC_BSR & ~SDMMC_BSR_BLKSIZE_Msk)
@@ -1471,13 +1608,9 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	val = pmc_get_peripheral_clock(periph_id);
 	val = ROUND_INT_DIV(val, 4 * 500000UL);
 	assert(!(val << SDMMC_CALCR_CNTVAL_Pos & ~SDMMC_CALCR_CNTVAL_Msk));
-	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_CNTVAL_Msk) | SDMMC_CALCR_CNTVAL(val);
-	regs->SDMMC_CALCR |= SDMMC_CALCR_EN;
-	while (regs->SDMMC_CALCR & SDMMC_CALCR_EN) ;
-	val = regs->SDMMC_CALCR;
-	trace_debug("Result of output impedance calibration: CALN=%lu, CALP=%lu.\n\r",
-	    (val & SDMMC_CALCR_CALN_Msk) >> SDMMC_CALCR_CALN_Pos,
-	    (val & SDMMC_CALCR_CALP_Msk) >> SDMMC_CALCR_CALP_Pos);
+	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_CNTVAL_Msk
+	    & ~SDMMC_CALCR_TUNDIS) | SDMMC_CALCR_CNTVAL(val);
+	sdmmc_calibrate_zout(set);
 
 	/* Set DAT line timeout error to occur after 500 ms waiting delay.
 	 * 500 ms is the timeout value to implement when writing to SDXC cards.
