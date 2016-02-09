@@ -38,6 +38,15 @@
  */
 #define ABS_DIFF(a,b) ((a) < (b) ? (b) - (a) : (a) - (b))
 
+/**
+ * \brief Compute the ceiling of the quotient of two integers.
+ * \param n  The dividend.
+ * \param d  The divisor.
+ * \note The two integers shall have the same sign.
+ * \return  The ceiling of the quotient.
+ */
+#define CEIL_INT_DIV(n,d) (((n) + (d) - 1) / (d))
+
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
