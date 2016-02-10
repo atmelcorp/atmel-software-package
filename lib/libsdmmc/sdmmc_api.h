@@ -469,6 +469,8 @@
 #define MMC_EXT_S_CMD_SET(p)            MMC_EXT8(p, MMC_EXT_S_CMD_SET_I)
 #define MMC_EXT_PWR_CL_DDR_52_360_I     239 /**< Power Class for 52MHz DDR @ 3.6V */
 #define MMC_EXT_PWR_CL_DDR_52_360(p)    MMC_EXT8(p, MMC_EXT_PWR_CL_DDR_52_360_I)
+#define MMC_EXT_PWR_CL_200_195_I        237 /**< Power Class for 200MHz HS200 @ VCCQ=1.95V VCC=3.6V */
+#define MMC_EXT_PWR_CL_200_195(p)       MMC_EXT8(p, MMC_EXT_PWR_CL_200_195_I)
 #define MMC_EXT_BOOT_INFO_I             228 /**< Boot information  slice */
 #define MMC_EXT_BOOT_INFO(p)            MMC_EXT8(p, MMC_EXT_BOOT_INFO_I)
 #define MMC_EXT_BOOT_SIZE_MULTI_I       226 /**< Boot partition size  slice */
@@ -511,6 +513,8 @@
 #define MMC_EXT_PWR_CL_26_195(p)        MMC_EXT8(p, MMC_EXT_PWR_CL_26_195_I)
 #define MMC_EXT_PWR_CL_52_195_I         200 /**< Power Class for 52MHz @ 1.95V */
 #define MMC_EXT_PWR_CL_52_195(p)        MMC_EXT8(p, MMC_EXT_PWR_CL_52_195_I)
+#define MMC_EXT_DRV_STRENGTH_I          197 /**< Supported I/O driver strength types */
+#define MMC_EXT_DRV_STRENGTH(p)         MMC_EXT8(p, MMC_EXT_DRV_STRENGTH_I)
 #define MMC_EXT_CARD_TYPE_I             196 /**< Card Type */
 #define MMC_EXT_CARD_TYPE(p)            MMC_EXT8(p, MMC_EXT_CARD_TYPE_I)
 #define MMC_EXT_CSD_STRUCTURE_I         194 /**< CSD Structure Version */
@@ -525,8 +529,15 @@
 #define MMC_EXT_POWER_CLASS(p)          MMC_EXT8(p, MMC_EXT_POWER_CLASS_I)
 #define MMC_EXT_HS_TIMING_I             185 /**< High Speed Interface Timing */
 #define MMC_EXT_HS_TIMING(p)            MMC_EXT8(p, MMC_EXT_HS_TIMING_I)
-#define     MMC_EXT_HS_TIMING_EN        1
-#define     MMC_EXT_HS_TIMING_DIS       0
+#define     MMC_EXT_HS_TIMING_HS400     0x3
+#define     MMC_EXT_HS_TIMING_HS200     0x2
+#define     MMC_EXT_HS_TIMING_EN        0x1
+#define     MMC_EXT_HS_TIMING_DIS       0x0
+#define     MMC_EXT_HS_TIMING_40R       0x40
+#define     MMC_EXT_HS_TIMING_100R      0x30
+#define     MMC_EXT_HS_TIMING_66R       0x20
+#define     MMC_EXT_HS_TIMING_33R       0x10
+#define     MMC_EXT_HS_TIMING_50R       0x00
 #define MMC_EXT_BUS_WIDTH_I             183 /**< Bus Width Mode */
 #define MMC_EXT_BUS_WIDTH(p)            MMC_EXT8(p, MMC_EXT_BUS_WIDTH_I)
 #define     MMC_EXT_BUS_WIDTH_1BIT      0

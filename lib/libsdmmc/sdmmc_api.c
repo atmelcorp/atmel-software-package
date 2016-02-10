@@ -611,7 +611,8 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 
 	/* Tell the device that the host supports 512-byte sector addressing */
 	dwArg = MMC_OCR_ACCESS_SECTOR;
-	/* Tell the device which voltage the host supplies to the VDD line.
+	/* Tell the MMC device which voltage the host supplies to the VDD line
+	 * (MMC card) or VCC line (e.MMC device).
 	 * TODO get this board-specific value from platform code. On the
 	 * SAMA5D2-XULT board, VDD is 3.3V ± 1%. */
 	dwArg |= SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
@@ -1786,7 +1787,7 @@ _StopCmd(sSdCard * pSd)
 static uint8_t
 _WaitUntilReady(sSdCard * pSd, uint32_t last_dev_status)
 {
-	uint32_t timer_res_prv, state, status = last_dev_status;
+	uint32_t state, status = last_dev_status;
 	uint8_t err, count;
 
 	for (count = 0; count < 51; count++) {
@@ -1799,12 +1800,8 @@ _WaitUntilReady(sSdCard * pSd, uint32_t last_dev_status)
 		if (state != STATUS_TRAN && state != STATUS_PRG
 		    && state != STATUS_DATA && state != STATUS_RCV)
 			return SDMMC_ERROR_NOT_INITIALIZED;
-		/* Wait for about 10 ms */
-		timer_res_prv = timer_get_resolution();
-		timer_configure(10000);
-		timer_sleep(1);
-		timer_configure(timer_res_prv);
-
+		/* Wait for about 10 ms - which equals 10 system ticks */
+		timer_sleep(10);
 		err = Cmd13(pSd, &status);
 		if (err)
 			return err;
@@ -2172,99 +2169,75 @@ SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
  * \param pSd Pointer to sSdCard instance.
  */
 static uint8_t
-SdMmcEnableHighSpeed(sSdCard * pSd)
+SdEnableHighSpeed(sSdCard * pSd)
 {
 	uint32_t status;
 	uint8_t error;
-	uint8_t io, sd, mmc, tim_mode;
+	uint8_t io, sd;
 
 	assert(sizeof(pSd->sandbox1) >= 512 / 8);
 
 	io = ((pSd->bCardType & CARD_TYPE_bmSDIO) > 0);
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
-	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
 
 	/* Check host driver capability */
-	tim_mode = mmc ? SDMMC_TIM_MMC_HS_SDR : SDMMC_TIM_SD_HS;
-	if (_HwGetHsMode(pSd, tim_mode) == 0) {
+	if (_HwGetHsMode(pSd, SDMMC_TIM_SD_HS) == 0)
 		return SDMMC_ERROR_NOT_SUPPORT;
-	}
-	/* Check MMC */
-	if (mmc) {
-		/* Try switching to HS mode */
-		MmcCmd6Arg cmd6Arg = {
-			0x3,
-			MMC_EXT_HS_TIMING_I,
-			MMC_EXT_HS_TIMING_EN,
-			0
-		};
-		error = MmcCmd6(pSd, &cmd6Arg, &status);
+
+	if (io) {
+		/* Check CIA.HS */
+		status = 0;
+		error = Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG,
+		    &status);
 		if (error) {
-			trace_error("SdMmcEnableHS.Cmd6: %d\n\r",
+			trace_error("SdMmcEnableHS.Cmd52: %d\n\r",
 				    error);
 			return SDMMC_ERROR;
-		} else if (status & STATUS_MMC_SWITCH) {
-			trace_error("Mmc Switch HS: %lx\n\r", status);
+		}
+		if ((status & SDIO_SHS) == 0) {
+			trace_info("HS Mode not supported by SDIO\n\r");
 			return SDMMC_ERROR_NOT_SUPPORT;
 		}
-	}
-	/* SD (+IO) */
-	else {
-		if (io) {
-			/* Check CIA.HS */
-			status = 0;
-			error = Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG,
+		/* Enable HS mode */
+		else {
+			status = SDIO_EHS;
+			error = Cmd52(pSd, 1, SDIO_CIA, 1, SDIO_HS_REG,
 			    &status);
 			if (error) {
-				trace_error("SdMmcEnableHS.Cmd52: %d\n\r",
-					    error);
+				trace_error
+				    ("SdMmcEnableHS.Cmd52 H: %d\n\r",
+				     error);
 				return SDMMC_ERROR;
 			}
-			if ((status & SDIO_SHS) == 0) {
-				trace_info("HS Mode not supported by SDIO\n\r");
-				return SDMMC_ERROR_NOT_SUPPORT;
-			}
-			/* Enable HS mode */
-			else {
-				status = SDIO_EHS;
-				error = Cmd52(pSd, 1, SDIO_CIA, 1, SDIO_HS_REG,
-				    &status);
-				if (error) {
-					trace_error
-					    ("SdMmcEnableHS.Cmd52 H: %d\n\r",
-					     error);
-					return SDMMC_ERROR;
-				}
-				if (status & SDIO_EHS)
-					trace_warning("SDIO HS Enabled\n\r");
-			}
+			if (status & SDIO_EHS)
+				trace_warning("SDIO HS Enabled\n\r");
 		}
-		if (sd) {
-			/* Check version */
-			//if (SD_IsHsModeSupported(pSd)) {
-			/* Try enable HS mode */
-			SdCmd6Arg cmd6Arg = {
-				1, 0, 0xF, 0xF, 0xF, 0xF, 0, 1
-			};
+	}
+	if (sd) {
+		/* Check version */
+		//if (SD_IsHsModeSupported(pSd)) {
+		/* Try enable HS mode */
+		SdCmd6Arg cmd6Arg = {
+			1, 0, 0xF, 0xF, 0xF, 0xF, 0, 1
+		};
 
-			error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status);
-			if (error || (status & STATUS_SWITCH_ERROR)) {
-				trace_info("SD HS Fail\n\r");
-				return SDMMC_ERROR;
-			} else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
-				   == SD_SWITCH_ST_FUN_GRP_RC_ERROR) {
-				trace_info("SD HS Not Supported\n\r");
-				return SDMMC_ERROR_NOT_SUPPORT;
-			} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1)) {
-				trace_info("SD HS Locked\n\r");
-				return SDMMC_ERROR_BUSY;
-			} else
-				trace_warning("SD HS Enabled\n\r");
-		}
+		error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status);
+		if (error || (status & STATUS_SWITCH_ERROR)) {
+			trace_info("SD HS Fail\n\r");
+			return SDMMC_ERROR;
+		} else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
+			   == SD_SWITCH_ST_FUN_GRP_RC_ERROR) {
+			trace_info("SD HS Not Supported\n\r");
+			return SDMMC_ERROR_NOT_SUPPORT;
+		} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1)) {
+			trace_info("SD HS Locked\n\r");
+			return SDMMC_ERROR_BUSY;
+		} else
+			trace_warning("SD HS Enabled\n\r");
 	}
 
 	/* Enable Host HS mode */
-	error = _HwSetHsMode(pSd, tim_mode);
+	error = _HwSetHsMode(pSd, SDMMC_TIM_SD_HS);
 	if (error)
 		trace_error("Failed to go HS: %d\n\r", error);
 	return error;
@@ -2538,6 +2511,9 @@ SdMmcIdentify(sSdCard * pSd)
 static uint8_t
 MmcInit(sSdCard * pSd)
 {
+	MmcCmd6Arg sw_arg = {
+		.access = 0x3,   /* Write byte in the EXT_CSD register */
+	};
 	uint32_t clock, drv_param, drv_err, status;
 	uint8_t error, tim_mode, pwr_class, width;
 	bool flag;
@@ -2593,8 +2569,13 @@ MmcInit(sSdCard * pSd)
 
 	/* If CSD:SPEC_VERS indicates v4.0 or higher, read EXT_CSD */
 	error = MmcGetExtInformation(pSd);
+	/* Consider HS200 timing mode */
+	if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 6
+	    && MMC_IsCSDVer1_2(pSd) && MMC_EXT_CARD_TYPE(pSd->EXT) & 0x10
+	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS200) != 0)
+		tim_mode = SDMMC_TIM_MMC_HS200;
 	/* Consider High Speed DDR timing mode */
-	if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 4
+	else if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 4
 	    && MMC_IsCSDVer1_2(pSd) && MMC_EXT_CARD_TYPE(pSd->EXT) & 0x4
 	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_DDR) != 0)
 		tim_mode = SDMMC_TIM_MMC_HS_DDR;
@@ -2602,30 +2583,39 @@ MmcInit(sSdCard * pSd)
 	else if (error == SDMMC_OK && MMC_IsHsModeSupported(pSd)
 	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_SDR) != 0)
 		tim_mode = SDMMC_TIM_MMC_HS_SDR;
-	/* Check the current consumption of the device */
+	/* Check power requirements of the device */
 	if (error == SDMMC_OK) {
-		if (tim_mode == SDMMC_TIM_MMC_HS_DDR)
+		if (tim_mode == SDMMC_TIM_MMC_HS200)
+			pwr_class = MMC_EXT_PWR_CL_200_195(pSd->EXT);
+		else if (tim_mode == SDMMC_TIM_MMC_HS_DDR)
 			pwr_class = MMC_EXT_PWR_CL_DDR_52_360(pSd->EXT);
 		else if (tim_mode == SDMMC_TIM_MMC_HS_SDR)
 			pwr_class = MMC_EXT_PWR_CL_52_360(pSd->EXT);
 		else
 			pwr_class = MMC_EXT_PWR_CL_26_360(pSd->EXT);
 		if (pwr_class != 0) {
-			MmcCmd6Arg cmd6Arg = {
-				.access = 0x3,   /* Write byte in the EXT_CSD register */
-				.index = MMC_EXT_POWER_CLASS_I,   /* Target byte in EXT_CSD */
-				.value = 0xf,   /* Byte value */
-			};
-			error = MmcCmd6(pSd, &cmd6Arg, &status);
-			if (error || (status & STATUS_MMC_SWITCH))
-				trace_error("Failed to increase pwr class: %d\n\r", error);
+			sw_arg.index = MMC_EXT_POWER_CLASS_I;
+			sw_arg.value = 0xf;
+			error = MmcCmd6(pSd, &sw_arg, &status);
+			if (error)
+				trace_error("Pwr class failed: %d\n\r", error);
 		}
 	}
 
 	/* Enable High Speed SDR timing mode */
 	if (tim_mode == SDMMC_TIM_MMC_HS_SDR
 	    || tim_mode == SDMMC_TIM_MMC_HS_DDR) {
-		error = SdMmcEnableHighSpeed(pSd);
+		sw_arg.index = MMC_EXT_HS_TIMING_I;
+		sw_arg.value = MMC_EXT_HS_TIMING_EN;
+		error = MmcCmd6(pSd, &sw_arg, &status);
+		if (error == SDMMC_OK)
+			error = _HwSetHsMode(pSd, SDMMC_TIM_MMC_HS_SDR);
+		if (error == SDMMC_OK)
+			error = Cmd13(pSd, &status);
+		if (error == SDMMC_OK && (status & ~STATUS_STATE
+		    & ~STATUS_READY_FOR_DATA
+		    || (status & STATUS_STATE) != STATUS_TRAN))
+			error = SDMMC_ERROR_STATE;
 		if (error == SDMMC_OK) {
 			pSd->bSpeedMode = SDMMC_TIM_MMC_HS_SDR;
 			/* In HS mode transfer speed *2 */
@@ -2634,6 +2624,8 @@ MmcInit(sSdCard * pSd)
 			_HwSetClock(pSd, &clock);
 			pSd->dwCurrSpeed = clock;
 		}
+		else
+			trace_error("HS failed: %d\n\r", error);
 	}
 
 	/* Consider using the widest supported data bus */
@@ -2641,29 +2633,66 @@ MmcInit(sSdCard * pSd)
 		width = mmcDetectBuswidth(pSd);
 		if (width > 1) {
 			error = mmcSelectBuswidth(pSd, width,
-			    tim_mode == SDMMC_TIM_MMC_HS_DDR ? true : false);
+			    tim_mode == SDMMC_TIM_MMC_HS_DDR);
 			if (error == SDMMC_OK)
 				error = _HwSetBusWidth(pSd, width);
 			if (error == SDMMC_OK)
 				pSd->bBusMode = width;
 			if (error == SDMMC_OK
-			    && tim_mode == SDMMC_TIM_MMC_HS_DDR) {
+			    && tim_mode == SDMMC_TIM_MMC_HS_DDR)
 				/* Switch to High Speed DDR timing mode */
 				error = _HwSetHsMode(pSd, tim_mode);
-				if (error == SDMMC_OK)
-					pSd->bSpeedMode = tim_mode;
-			}
-			if (error) {
-				trace_error("Width or DDR failure (%d)\n\r",
-				    error);
+			if (error == SDMMC_OK)
+				error = Cmd13(pSd, &status);
+			if (error == SDMMC_OK && (status & ~STATUS_STATE
+			    & ~STATUS_READY_FOR_DATA
+			    || (status & STATUS_STATE) != STATUS_TRAN))
+				error = SDMMC_ERROR_STATE;
+			if (error == SDMMC_OK
+			    && tim_mode == SDMMC_TIM_MMC_HS_DDR)
+				pSd->bSpeedMode = tim_mode;
+			else if (error) {
+				trace_error("Width/DDR failed: %d\n\r", error);
 				return error;
 			}
 		}
 	}
 
+	/* Enable HS200 timing mode */
+	if (tim_mode == SDMMC_TIM_MMC_HS200 && pSd->bBusMode > 1) {
+		sw_arg.index = MMC_EXT_HS_TIMING_I;
+		/* Select device output Driver Type-0, i.e. 50 ohm nominal
+		 * output impedance.
+		 * TODO select the optimal device output Driver Type.
+		 * That depends on board design. Use an oscilloscope to observe
+		 * signal integrity, and among the driver types that meet rise
+		 * and fall time requirements, select the weakest. */
+		sw_arg.value = MMC_EXT_HS_TIMING_HS200 | MMC_EXT_HS_TIMING_50R;
+		error = MmcCmd6(pSd, &sw_arg, &status);
+		if (error == SDMMC_OK)
+			error = _HwSetHsMode(pSd, tim_mode);
+		if (error == SDMMC_OK) {
+			error = Cmd13(pSd, &status);
+			if (error == SDMMC_OK && (status & ~STATUS_STATE
+			    & ~STATUS_READY_FOR_DATA
+			    || (status & STATUS_STATE) != STATUS_TRAN))
+				error = SDMMC_ERROR_STATE;
+		}
+		if (error == SDMMC_OK) {
+			pSd->bSpeedMode = tim_mode;
+			clock = pSd->dwTranSpeed = 200000000ul;
+			error = _HwSetClock(pSd, &clock);
+			pSd->dwCurrSpeed = clock;
+			error = error == SDMMC_CHANGED ? SDMMC_OK : error;
+		}
+		if (error != SDMMC_OK) {
+			trace_error("HS200 failed: %d\n\r", error);
+			return error;
+		}
+	}
+
 	/* Update card information since status changed */
-	flag = pSd->bSpeedMode == SDMMC_TIM_MMC_HS_SDR
-	    || pSd->bSpeedMode == SDMMC_TIM_MMC_HS_DDR ? true : false;
+	flag = pSd->bSpeedMode >= SDMMC_TIM_MMC_HS_SDR;
 	if (flag || pSd->bBusMode > 1)
 		SdMmcUpdateInformation(pSd, flag, true);
 
@@ -2797,7 +2826,7 @@ SdInit(sSdCard * pSd)
 	}
 
 	/* Enable High-Speed timing mode */
-	error = SdMmcEnableHighSpeed(pSd);
+	error = SdEnableHighSpeed(pSd);
 	if (error == SDMMC_OK) {
 		pSd->bSpeedMode = SDMMC_TIM_SD_HS;
 		/* In HS mode transfer speed *2 */
@@ -2805,7 +2834,7 @@ SdInit(sSdCard * pSd)
 	}
 
 	/* Update card information since status changed */
-	flag = pSd->bSpeedMode == SDMMC_TIM_SD_HS ? true : false;
+	flag = pSd->bSpeedMode == SDMMC_TIM_SD_HS;
 	if (flag || pSd->bBusMode > 1)
 		SdMmcUpdateInformation(pSd, flag, true);
 
@@ -2932,7 +2961,7 @@ SdioInit(sSdCard * pSd)
 	}
 
 	/* Enable High-Speed timing mode */
-	error = SdMmcEnableHighSpeed(pSd);
+	error = SdEnableHighSpeed(pSd);
 	if (error == SDMMC_OK) {
 		pSd->bSpeedMode = SDMMC_TIM_SD_HS;
 		/* In HS mode transfer speed *2 */
@@ -3952,6 +3981,8 @@ SD_DumpExtCSD(const uint8_t *pExtCSD)
 	    MMC_EXT_PWR_CL_26_195(pExtCSD));
 	printf(" .PWR_CL_52_195              0x%X\n\r",
 	    MMC_EXT_PWR_CL_52_195(pExtCSD));
+	printf(" .DRIVER_STRENGTH            0x%X\n\r",
+	    MMC_EXT_DRV_STRENGTH(pExtCSD));
 	printf(" .CARD_TYPE                  0x%X\n\r",
 	    MMC_EXT_CARD_TYPE(pExtCSD));
 	printf(" .CSD_STRUCTURE              0x%X\n\r",
