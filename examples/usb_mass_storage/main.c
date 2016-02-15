@@ -407,7 +407,7 @@ static bool card_init(uint8_t num)
 	card_type = SD_GetCardType(pSd);
 	if (card_type & CARD_TYPE_bmSDMMC) {
 		SD_DumpCID(pSd);
-		SD_DumpCSD(pSd->CSD);
+		SD_DumpCSD(pSd);
 	}
 	if (card_type & CARD_TYPE_bmMMC)
 		SD_DumpExtCSD(pSd->EXT);

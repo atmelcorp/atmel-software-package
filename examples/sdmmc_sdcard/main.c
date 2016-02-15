@@ -335,7 +335,7 @@ static bool show_device_info(sSdCard *pSd)
 		SD_DumpSSR(pSd->SSR);
 	}
 	if (card_type & CARD_TYPE_bmSDMMC)
-		SD_DumpCSD(pSd->CSD);
+		SD_DumpCSD(pSd);
 	if (card_type & CARD_TYPE_bmMMC)
 		SD_DumpExtCSD(pSd->EXT);
 	if (card_type & CARD_TYPE_bmSDIO)

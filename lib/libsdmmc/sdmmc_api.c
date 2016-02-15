@@ -2,7 +2,7 @@
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2016, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,8 @@
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 /*----------------------------------------------------------------------------
  *         Local definitions
@@ -257,46 +259,78 @@ static const uint32_t mmcTransMultipliers[16] = {
 #if TRACE_LEVEL == TRACE_LEVEL_SILENT
 static const char sdmmcEmptyString[] = "";
 #else
-static const char sdmmcInvalidIOCtrl[] = "!Invalid IO Control!";
+static const char sdmmcInvalidCode[] = "!Invalid!";
 static const struct stringEntry_s sdmmcIOCtrlNames[] = {
-	{ SDMMC_IOCTL_BUSY_CHECK,	"SDMMC_IOCTL_BUSY_CHECK",	},
-	{ SDMMC_IOCTL_POWER,		"SDMMC_IOCTL_POWER",		},
-	{ SDMMC_IOCTL_CANCEL_CMD,	"SDMMC_IOCTL_CANCEL_CMD",	},
-	{ SDMMC_IOCTL_RESET,		"SDMMC_IOCTL_RESET",		},
-	{ SDMMC_IOCTL_SET_CLOCK,	"SDMMC_IOCTL_SET_CLOCK",	},
-	{ SDMMC_IOCTL_SET_BUSMODE,	"SDMMC_IOCTL_SET_BUSMODE",	},
-	{ SDMMC_IOCTL_SET_HSMODE,	"SDMMC_IOCTL_SET_HSMODE",	},
-	{ SDMMC_IOCTL_SET_BOOTMODE,	"SDMMC_IOCTL_SET_BOOTMODE",	},
-	{ SDMMC_IOCTL_SET_LENPREFIX,	"SDMMC_IOCTL_SET_LENPREFIX",	},
-	{ SDMMC_IOCTL_GET_CLOCK,	"SDMMC_IOCTL_GET_CLOCK",	},
-	{ SDMMC_IOCTL_GET_BUSMODE,	"SDMMC_IOCTL_GET_BUSMODE",	},
-	{ SDMMC_IOCTL_GET_HSMODE,	"SDMMC_IOCTL_GET_HSMODE",	},
-	{ SDMMC_IOCTL_GET_BOOTMODE,	"SDMMC_IOCTL_GET_BOOTMODE",	},
-	{ SDMMC_IOCTL_GET_XFERCOMPL,	"SDMMC_IOCTL_GET_XFERCOMPL",	},
-	{ SDMMC_IOCTL_GET_DEVICE,	"SDMMC_IOCTL_GET_DEVICE",	},
+	{ SDMMC_IOCTL_BUSY_CHECK,	"BUSY_CHECK",		},
+	{ SDMMC_IOCTL_POWER,		"POWER",		},
+	{ SDMMC_IOCTL_CANCEL_CMD,	"CANCEL_CMD",		},
+	{ SDMMC_IOCTL_RESET,		"RESET",		},
+	{ SDMMC_IOCTL_SET_CLOCK,	"SET_CLOCK",		},
+	{ SDMMC_IOCTL_SET_BUSMODE,	"SET_BUSMODE",		},
+	{ SDMMC_IOCTL_SET_HSMODE,	"SET_HSMODE",		},
+	{ SDMMC_IOCTL_SET_BOOTMODE,	"SET_BOOTMODE",		},
+	{ SDMMC_IOCTL_SET_LENPREFIX,	"SET_LENPREFIX",	},
+	{ SDMMC_IOCTL_GET_CLOCK,	"GET_CLOCK",		},
+	{ SDMMC_IOCTL_GET_BUSMODE,	"GET_BUSMODE",		},
+	{ SDMMC_IOCTL_GET_HSMODE,	"GET_HSMODE",		},
+	{ SDMMC_IOCTL_GET_BOOTMODE,	"GET_BOOTMODE",		},
+	{ SDMMC_IOCTL_GET_XFERCOMPL,	"GET_XFERCOMPL",	},
+	{ SDMMC_IOCTL_GET_DEVICE,	"GET_DEVICE",		},
 };
 
-static const char sdmmcInvalidRCode[] = "!Invalid return code!";
 static const struct stringEntry_s sdmmcRCodeNames[] = {
-	{ SDMMC_SUCCESS,		"SDMMC_OK",			},
-	{ SDMMC_ERROR_LOCKED,		"SDMMC_ERROR_LOCKED",		},
-	{ SDMMC_ERROR_BUSY,		"SDMMC_ERROR_BUSY",		},
-	{ SDMMC_ERROR_NORESPONSE,	"SDMMC_ERROR_NO_RESPONSE",	},
-	{ SDMMC_CHANGED,		"SDMMC_OK_CHANGED",		},
-	{ SDMMC_ERROR,			"SDMMC_ERROR",			},
-	{ SDMMC_ERR_IO,			"SDMMC_ERROR_IO",		},
-	{ SDMMC_ERR_RESP,		"SDMMC_ERROR_RESP",		},
-	{ SDMMC_ERROR_NOT_INITIALIZED,	"SDMMC_ERROR_NOT_INITIALIZED",	},
-	{ SDMMC_ERROR_PARAM,		"SDMMC_ERROR_PARAM",		},
-	{ SDMMC_ERROR_STATE,		"SDMMC_ERROR_STATE",		},
-	{ SDMMC_ERROR_USER_CANCEL,	"SDMMC_ERROR_USER_CANCEL",	},
-	{ SDMMC_ERROR_NOT_SUPPORT,	"SDMMC_ERROR_NO_SUPPORT",	},
+	{ SDMMC_SUCCESS,		"OK",			},
+	{ SDMMC_ERROR_LOCKED,		"ERR_LOCKED",		},
+	{ SDMMC_ERROR_BUSY,		"ERR_BUSY",		},
+	{ SDMMC_ERROR_NORESPONSE,	"ERR_NO_RESPONSE",	},
+	{ SDMMC_CHANGED,		"OK_CHANGED",		},
+	{ SDMMC_ERROR,			"ERROR",		},
+	{ SDMMC_ERR_IO,			"ERR_IO",		},
+	{ SDMMC_ERR_RESP,		"ERR_RESP",		},
+	{ SDMMC_ERROR_NOT_INITIALIZED,	"ERR_NOT_INITIALIZED",	},
+	{ SDMMC_ERROR_PARAM,		"ERR_PARAM",		},
+	{ SDMMC_ERROR_STATE,		"ERR_STATE",		},
+	{ SDMMC_ERROR_USER_CANCEL,	"ERR_USER_CANCEL",	},
+	{ SDMMC_ERROR_NOT_SUPPORT,	"ERR_NO_SUPPORT",	},
 };
 #endif
 
 /*----------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
+
+static void
+_PrintTitle(const char *title)
+{
+	int count;
+
+	count = printf("=== %s ", title);
+	if (count < 0)
+		return;
+	for ( ; count < 40; count++)
+		putchar('=');
+	printf("\n\r");
+}
+
+#ifdef __GNUC__
+__attribute__ ((format (gnu_printf, 2, 3)))
+#endif
+static void
+_PrintField(const char *name, const char *format, ...)
+{
+	va_list contents;
+	int count;
+
+	count = printf(" .%s", name);
+	if (count < 0)
+		return;
+	for ( ; count < 29; count++)
+		putchar(' ');
+	va_start(contents, format);
+	vprintf(format, contents);
+	va_end(contents);
+	printf("\n\r");
+}
 
 /**
  * Delay some loop
@@ -357,6 +391,8 @@ _SendCmd(sSdCard * pSd, fSdmmcCallback fCallback, void *pCbArg)
 	void *pDrv = pSd->pDrv;
 	uint8_t bRc;
 
+	if (pCmd->bCmd != 55)
+		trace_debug("Cmd%u(%lx)\n\r", pCmd->bCmd, pCmd->dwArg);
 	pCmd->fCallback = fCallback;
 	pCmd->pArg = pCbArg;
 	bRc = pHal->fCommand(pSd->pDrv, pCmd);
@@ -375,9 +411,17 @@ _SendCmd(sSdCard * pSd, fSdmmcCallback fCallback, void *pCbArg)
 			}
 #endif
 		}
-		return pCmd->bStatus;
+		bRc = pCmd->bStatus;
 	}
 
+	if (bRc == SDMMC_CHANGED)
+		trace_warning("Cmd%u %s\n\r", pCmd->bCmd,
+		    SD_StringifyRetCode(bRc));
+	else if (bRc != SDMMC_OK)
+		trace_error("Cmd%u %s\n\r", pCmd->bCmd,
+		    SD_StringifyRetCode(bRc));
+	else if (pCmd->cmdOp.bmBits.respType == 1 && pCmd->pResp)
+		trace_debug("Cmd%u st %lx\n\r", pCmd->bCmd, *pCmd->pResp);
 	return bRc;
 }
 
@@ -451,6 +495,7 @@ _HwSetClock(sSdCard * pSd, uint32_t * pIoValClk)
 	rc = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_SET_CLOCK, (uint32_t) & clock);
 	if (rc == SDMMC_SUCCESS || rc == SDMMC_CHANGED) {
 		*pIoValClk = clock;
+		trace_info("Device clk %lu kHz\n\r", clock / 1000UL);
 	}
 	return rc;
 }
@@ -486,10 +531,8 @@ SdioFindTuples(sSdCard * pSd,
 	uint32_t addManfID = 0, addFunc0 = 0;
 	for (; flagFound != 3;) {
 		error = SDIO_ReadDirect(pSd, SDIO_CIA, addr, tmp, 3);
-		if (error) {
-			trace_error("SdioFindTuples.RdDirect: %d\n\r", error);
+		if (error)
 			return error;
-		}
 		/* End */
 		if (tmp[0] == CISTPL_END)
 			break;
@@ -557,7 +600,7 @@ Pon(sSdCard * pSd)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("PwrOn()\n\r");
+	trace_debug("PwrON\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -580,7 +623,6 @@ Cmd0(sSdCard * pSd, uint8_t arg)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd0()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -606,7 +648,6 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 	uint8_t bRc;
 	uint32_t dwArg;
 
-	trace_debug("Cmd1()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Tell the device that the host supports 512-byte sector addressing */
@@ -636,8 +677,8 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 		if ((dwArg & MMC_OCR_ACCESS_MODE) == MMC_OCR_ACCESS_SECTOR) {
 			*pHd = 1;
 		}
-		trace_info("Device supports%s%s 3.0V?:[%c%c%c%c%c%c]"
-		    " 3.3V?:[%c%c%c%c%c%c]\n\r",
+		trace_info("Device supports%s%s 3.0V:[%c%c%c%c%c%c]"
+		    " 3.3V:[%c%c%c%c%c%c]\n\r",
 		    dwArg & MMC_OCR_VDD_170_195 ? " 1.8V" : "",
 		    dwArg & MMC_OCR_VDD_200_260 ? " 2.xV" : "",
 		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
@@ -652,8 +693,7 @@ Cmd1(sSdCard * pSd, uint8_t * pHd)
 		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
 		    dwArg & SD_OCR_VDD_31_32 ? 'X' : '.',
 		    dwArg & SD_OCR_VDD_30_31 ? 'X' : '.');
-		trace_info("Device supports access mode 0x%lx\n\r",
-		    dwArg >> 29 & 0x3ul);
+		trace_info("Device access 0x%lx\n\r", dwArg >> 29 & 0x3ul);
 		return 0;
 	}
 	return SDMMC_ERROR_BUSY;
@@ -673,7 +713,6 @@ Cmd2(sSdCard * pSd)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd2()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -702,7 +741,6 @@ Cmd3(sSdCard * pSd)
 	uint32_t dwResp;
 	uint8_t bRc;
 
-	trace_debug("Cmd3()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -744,7 +782,6 @@ Cmd5(sSdCard * pSd, uint32_t * pIo)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd5()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -780,7 +817,6 @@ SdCmd6(sSdCard * pSd,
 	assert(pSd);
 	assert(pSwitchArg);
 
-	trace_debug("Cmd6()\n\r");
 	_ResetCmd(pCmd);
 
 	pSdSwitch = (SdCmd6Arg *) pSwitchArg;
@@ -824,7 +860,6 @@ MmcCmd6(sSdCard * pSd, const void *pSwitchArg, uint32_t * pResp)
 	assert(pSd);
 	assert(pSwitchArg);
 
-	trace_debug("Cmd6()\n\r");
 	_ResetCmd(pCmd);
 
 	pMmcSwitch = (MmcCmd6Arg *) pSwitchArg;
@@ -837,6 +872,8 @@ MmcCmd6(sSdCard * pSd, const void *pSwitchArg, uint32_t * pResp)
 	pCmd->pResp = pResp;
 
 	bRc = _SendCmd(pSd, NULL, NULL);
+	if (!bRc && pResp && *pResp & STATUS_MMC_SWITCH)
+		trace_error("st %lx\n\r", *pResp);
 	return bRc;
 }
 
@@ -854,7 +891,6 @@ Cmd7(sSdCard * pSd, uint16_t address)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd7()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -889,7 +925,6 @@ SdCmd8(sSdCard * pSd, uint8_t supplyVoltage)
 	uint32_t dwResp;
 	uint8_t bRc;
 
-	trace_debug("Cmd8()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command information */
@@ -935,7 +970,6 @@ MmcCmd8(sSdCard * pSd, uint8_t * pEXT)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd8()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -964,7 +998,6 @@ Cmd9(sSdCard * pSd)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd9()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -989,7 +1022,6 @@ Cmd12(sSdCard * pSd, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd12()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1014,7 +1046,6 @@ Cmd13(sSdCard * pSd, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd13()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1049,7 +1080,6 @@ Cmd16(sSdCard * pSd, uint16_t blkLen)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd16()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1082,7 +1112,6 @@ Cmd17(sSdCard * pSd,
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd17()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1114,7 +1143,6 @@ Cmd14(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd14()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1144,7 +1172,6 @@ Cmd19(sSdCard * pSd, uint8_t * pData, uint8_t len, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd19()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1183,7 +1210,6 @@ Cmd18(sSdCard * pSd,
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd18()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1217,7 +1243,6 @@ Cmd23(sSdCard * pSd, uint8_t write, uint32_t blocks, uint32_t * pStatus)
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd23()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1253,7 +1278,6 @@ Cmd24(sSdCard * pSd,
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd24()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1293,7 +1317,6 @@ Cmd25(sSdCard * pSd,
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t bRc;
 
-	trace_debug("Cmd25()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1337,7 +1360,6 @@ Cmd52(sSdCard * pSd,
 	pArg52->rawFlag = rdAfterWr;
 	pArg52->regAddress = addr;
 
-	trace_debug("Cmd52()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command */
@@ -1387,8 +1409,6 @@ Cmd53(sSdCard * pSd,
 	pArg53->regAddress = addr;
 	pArg53->count = len;
 
-	trace_debug("Cmd53()\n\r");
-
 	/* Fill command */
 	pCmd->bCmd = 53;
 	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(5)
@@ -1430,7 +1450,6 @@ Cmd55(sSdCard * pSd, uint16_t cardAddr)
 	uint32_t dwResp;
 	uint8_t bRc;
 
-	trace_debug("Cmd55()\n\r");
 	_ResetCmd(pCmd);
 
 	/* Fill command information */
@@ -1449,36 +1468,6 @@ Cmd55(sSdCard * pSd, uint16_t cardAddr)
  * Defines the data bus width (00=1bit or 10=4 bits bus) to be used for data
  * transfer.
  * The allowed data bus widths are given in SCR register.
- * Should be invoked after SdmmcCmd55().
- * \param pSd     Pointer to a SD card driver instance.
- * \param arg     Argument for this command.
- * \param pStatus Pointer to buffer for command response as status.
- * \return the command transfer result (see SendMciCommand).
- */
-static uint8_t
-SdAcmd6(sSdCard * pSd, uint32_t arg, uint32_t * pStatus)
-{
-	sSdmmcCommand *pCmd = &pSd->sdCmd;
-	uint8_t bRc;
-
-	trace_debug("Acmd6()\n\r");
-	_ResetCmd(pCmd);
-
-	/* Fill command information */
-	pCmd->bCmd = 6;
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1);
-	pCmd->pResp = pStatus;
-	pCmd->dwArg = arg;
-
-	/* Send command */
-	bRc = _SendCmd(pSd, NULL, NULL);
-	return bRc;
-}
-
-/**
- * Defines the data bus width (00=1bit or 10=4 bits bus) to be used for data
- * transfer.
- * The allowed data bus widths are given in SCR register.
  * \param pSd  Pointer to a SD card driver instance.
  * \param busWidth  Bus width in bits (4 or 1).
  * \return the command transfer result (see SendCommand).
@@ -1486,16 +1475,24 @@ SdAcmd6(sSdCard * pSd, uint32_t arg, uint32_t * pStatus)
 static uint8_t
 Acmd6(sSdCard * pSd, uint8_t busWidth)
 {
+	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t error;
-	uint32_t arg;
+
+	trace_debug("Acmd%u\n\r", 6);
 	error = Cmd55(pSd, CARD_ADDR(pSd));
-	if (error) {
-		trace_error("Acmd6.cmd55:%d\n\r", error);
-		return error;
-	}
-	arg = (busWidth == 4)
+	if (error)
+		goto End;
+	_ResetCmd(pCmd);
+	pCmd->bCmd = 6;
+	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1);
+	pCmd->dwArg = (busWidth == 4)
 	    ? SD_SSR_DATA_BUS_WIDTH_4BIT : SD_SSR_DATA_BUS_WIDTH_1BIT;
-	return SdAcmd6(pSd, arg, NULL);
+	error = _SendCmd(pSd, NULL, NULL);
+
+End:
+	if (error)
+		trace_error("Acmd%u %s\n\r", 6, SD_StringifyRetCode(error));
+	return error;
 }
 
 /**
@@ -1515,13 +1512,10 @@ Acmd13(sSdCard * pSd, uint8_t * pSSR, uint32_t * pResp)
 
 	assert(pSd);
 
+	trace_debug("Acmd%u\n\r", 13);
 	error = Cmd55(pSd, CARD_ADDR(pSd));
-	if (error) {
-		trace_error("Acmd13.cmd55:%u\n\r", error);
-		return error;
-	}
-
-	trace_debug("Acmd13()\n\r");
+	if (error)
+		goto End;
 	_ResetCmd(pCmd);
 	pCmd->bCmd = 13;
 	pCmd->cmdOp.wVal = SDMMC_CMD_CDATARX(1);
@@ -1532,38 +1526,11 @@ Acmd13(sSdCard * pSd, uint8_t * pSSR, uint32_t * pResp)
 	}
 	pCmd->pResp = pResp;
 	error = _SendCmd(pSd, NULL, NULL);
-	if (error) {
-		trace_error("Acmd13.cmd13:%u\n\r", error);
-		return error;
-	}
-	return 0;
-}
 
-/**
- * Asks to all cards to send their operations conditions.
- * Returns the command transfer result (see SendMciCommand).
- * Should be invoked after SdmmcCmd55().
- * \param pSd   Pointer to a SD card driver instance.
- * \param pOpIo Pointer to argument that should be sent and OCR content.
- */
-static uint8_t
-SdAcmd41(sSdCard * pSd, uint32_t * pOpIo)
-{
-	sSdmmcCommand *pCmd = &pSd->sdCmd;
-	uint8_t bRc;
-
-	trace_debug("Acmd41()\n\r");
-	_ResetCmd(pCmd);
-
-	/* Fill command information */
-	pCmd->bCmd = 41;
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3);
-	pCmd->dwArg = *pOpIo;
-	pCmd->pResp = pOpIo;
-
-	/* Send command */
-	bRc = _SendCmd(pSd, NULL, NULL);
-	return bRc;
+End:
+	if (error)
+		trace_error("Acmd%u %s\n\r", 13, SD_StringifyRetCode(error));
+	return error;
 }
 
 /**
@@ -1576,25 +1543,29 @@ SdAcmd41(sSdCard * pSd, uint32_t * pOpIo)
 static uint8_t
 Acmd41(sSdCard * pSd, uint8_t hcs, uint8_t * pCCS)
 {
+	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	uint8_t error;
 	uint32_t arg;
+
+	trace_debug("Acmd%u\n\r", 41);
 	do {
 		error = Cmd55(pSd, 0);
-		if (error) {
-			trace_error("Acmd41.cmd55:%d\n\r", error);
-			return error;
-		}
-		arg = SD_HOST_VOLTAGE_RANGE;
-		if (hcs)
-			arg |= SD_OCR_CCS;
-		error = SdAcmd41(pSd, &arg);
-		if (error) {
-			trace_error("Acmd41.cmd41:%d\n\r", error);
-			return error;
-		}
-		*pCCS = ((arg & SD_OCR_CCS) != 0);
+		if (error)
+			break;
+		_ResetCmd(pCmd);
+		pCmd->bCmd = 41;
+		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3);
+		pCmd->dwArg = SD_HOST_VOLTAGE_RANGE | (hcs ? SD_OCR_CCS : 0);
+		pCmd->pResp = &arg;
+		error = _SendCmd(pSd, NULL, NULL);
+		if (error)
+			break;
+		*pCCS = (arg & SD_OCR_CCS) != 0;
 	} while ((arg & SD_OCR_BUSY) != SD_OCR_BUSY);
-	return 0;
+
+	if (error)
+		trace_error("Acmd%u %s\n\r", 41, SD_StringifyRetCode(error));
+	return error;
 }
 
 /**
@@ -1614,13 +1585,10 @@ Acmd51(sSdCard * pSd, uint8_t * pSCR, uint32_t * pResp)
 
 	assert(pSd);
 
+	trace_debug("Acmd%u\n\r", 51);
 	error = Cmd55(pSd, CARD_ADDR(pSd));
-	if (error) {
-		trace_error("Acmd51.cmd55:%u\n\r", error);
-		return error;
-	}
-
-	trace_debug("Acmd51()\n\r");
+	if (error)
+		goto End;
 	_ResetCmd(pCmd);
 	pCmd->bCmd = 51;
 	pCmd->cmdOp.wVal = SDMMC_CMD_CDATARX(1);
@@ -1631,11 +1599,11 @@ Acmd51(sSdCard * pSd, uint8_t * pSCR, uint32_t * pResp)
 	}
 	pCmd->pResp = pResp;
 	error = _SendCmd(pSd, NULL, NULL);
-	if (error) {
-		trace_error("Acmd51.cmd51:%u\n\r", error);
-		return error;
-	}
-	return 0;
+
+End:
+	if (error)
+		trace_error("Acmd%u %s\n\r", 51, SD_StringifyRetCode(error));
+	return error;
 }
 
 #if 0
@@ -1738,16 +1706,13 @@ static uint8_t
 _StopCmd(sSdCard * pSd)
 {
 	uint32_t status, state;
-	volatile uint32_t i, j;
+	uint32_t i, j;
 	uint8_t error = 0;
 	/* Retry stop for 9 times */
 	for (i = 0; i < 9; i++) {
 		error = Cmd12(pSd, &status);
-
-		if (error) {
-			trace_error("_StopC.Cmd12: %u\n\r", error);
+		if (error)
 			return error;
-		}
 		/* TODO handle any exception, raised in status; report that
 		 * the data transfer has failed. */
 
@@ -1755,27 +1720,21 @@ _StopCmd(sSdCard * pSd)
 		for (j = 0; j < 299; j++) {
 			error = Cmd13(pSd, &status);
 			// Wait
-			for (i = 0; i < 0x1600; i++) ;
-			if (error) {
-				trace_error("_StopC.Cmd13: %u\n\r", error);
+			Delay(0x1600);
+			if (error)
 				return error;
-			}
 			state = status & STATUS_STATE;
 
 			/* Invalid state */
-			if (state == STATUS_IDLE
-			    || state == STATUS_READY
-			    || state == STATUS_IDENT
-			    || state == STATUS_STBY || state == STATUS_DIS) {
-				trace_error("_StopC.state\n\r");
+			if (state == STATUS_IDLE || state == STATUS_READY
+			    || state == STATUS_IDENT || state == STATUS_STBY
+			    || state == STATUS_DIS)
 				return SDMMC_ERROR_NOT_INITIALIZED;
-			}
 
 			/* Ready? */
 			if ((status & STATUS_READY_FOR_DATA) ==
 			    STATUS_READY_FOR_DATA && state == STATUS_TRAN)
 				return SDMMC_SUCCESS;
-
 		}
 		/* For write, try stop command again */
 		if (state != STATUS_RCV)
@@ -1838,17 +1797,16 @@ PerformSingleTransfer(sSdCard * pSd,
 		status = status & (isRead ? STATUS_READ : STATUS_WRITE)
 		    & ~STATUS_READY_FOR_DATA & ~STATUS_STATE;
 		if (status) {
-			trace_error("CMD%u(0x%lx).stat: %lx\n\r", isRead
-			    ? 17 : 24, sdmmc_address, status);
+			trace_error("st %lx\n\r", status);
 			error = SDMMC_ERROR;
 		}
 	}
 	if (error) {
-		trace_error("SingleTx.Cmd%u: %u\n\r", isRead ? 17 : 24, error);
+		trace_error("Cmd%u(0x%lx) %s\n\r", isRead ? 17 : 24,
+		    sdmmc_address, SD_StringifyRetCode(error));
 		result = error;
 		error = Cmd13(pSd, &status);
 		if (error) {
-			trace_error("SingleTx.Cmd13: %u\n\r", error);
 			pSd->bStatus = error;
 			return result;
 		}
@@ -1896,10 +1854,8 @@ MoveToTransferState(sSdCard * pSd,
 		return SDMMC_PARAM;
 	if (pSd->bSetBlkCnt) {
 		error = Cmd23(pSd, 0, *nbBlocks, &status);
-		if (error) {
-			trace_error("MoveToTransferState.Cmd23: %u\n\r", error);
+		if (error)
 			return error;
-		}
 	}
 	if (isRead)
 		/* Move to Receiving data state */
@@ -1919,8 +1875,7 @@ MoveToTransferState(sSdCard * pSd,
 			error = _StopCmd(pSd);
 
 		if (status) {
-			trace_error("CMD%u(0x%lx, %u).stat: %lx\n\r", isRead
-			    ? 18 : 25, sdmmc_address, *nbBlocks, status);
+			trace_error("st %lx\n\r", status);
 			/* TODO ignore STATUS_ADDR_OUT_OR_RANGE if the read
 			 * operation is for the last block of memory area. */
 			error = SDMMC_ERROR;
@@ -1931,12 +1886,11 @@ MoveToTransferState(sSdCard * pSd,
 		 * exception. */
 	}
 	if (error) {
-		trace_error("MoveToTransferState.Cmd%u: %u\n\r", isRead
-		    ? 18 : 25, error);
+		trace_error("Cmd%u(0x%lx, %u) %s\n\r", isRead ? 18 : 25,
+		    sdmmc_address, *nbBlocks, SD_StringifyRetCode(error));
 		result = error;
 		error = Cmd13(pSd, &status);
 		if (error) {
-			trace_error("MoveToTransferState.Cmd13: %u\n\r", error);
 			pSd->bStatus = error;
 			return result;
 		}
@@ -1944,8 +1898,7 @@ MoveToTransferState(sSdCard * pSd,
 		if (state == STATUS_DATA || state == STATUS_RCV) {
 			error = Cmd12(pSd, &status);
 			if (error == SDMMC_OK) {
-				trace_debug("MoveToTransferState.stat: %lx\n\r",
-				    status);
+				trace_debug("st %lx\n\r", status);
 				if (status & (STATUS_ERASE_SEQ_ERROR
 				    | STATUS_ERASE_PARAM | STATUS_UN_LOCK_FAILED
 				    | STATUS_ILLEGAL_COMMAND
@@ -1998,30 +1951,23 @@ MmcSelectCard(sSdCard * pSd, uint16_t address, uint8_t statCheck)
 	 * The SD card is supposed to be in Stand-by State */
 	while (statCheck) {
 		error = Cmd13(pSd, &status);
-		if (error) {
-			trace_error("MmcSelectCard.Cmd13 (%d)\n\r", error);
+		if (error)
 			return error;
-		}
 		if (status & STATUS_READY_FOR_DATA) {
 			currState = status & STATUS_STATE;
 			if (currState == targetState)
 				return 0;
 			if (currState != srcState) {
-				trace_error("MmcSelectCard, wrong state %x\n\r",
-					    (unsigned int) currState);
+				trace_error("st %lx\n\r", currState);
 				return SDMMC_ERROR;
 			}
 			break;
 		}
 	}
 
-	/* witch to TRAN mode to Select the current SD/MMC
+	/* Switch to Transfer state. Select the current SD/MMC
 	 * so that SD ACMD6 can process or EXT_CSD can read. */
 	error = Cmd7(pSd, address);
-	if (error == SDMMC_ERROR_NOT_INITIALIZED && address == 0) {
-	}
-	else if (error)
-		trace_error("MmcSelectCard.Cmd7 (%d)\n\r", error);
 	return error;
 }
 
@@ -2046,20 +1992,11 @@ MmcGetExtInformation(sSdCard * pSd)
 static uint32_t
 SdmmcGetMaxSpeed(sSdCard * pSd)
 {
-	uint32_t speed = 0;
-	trace_debug("CSD.TRAN_SPEED = 0x%X\r\n",
-		   (unsigned int) SD_CSD_TRAN_SPEED(pSd->CSD));
-	if (pSd->bCardType & CARD_TYPE_bmSDMMC) {
-		speed = SdmmcDecodeTransSpeed(SD_CSD_TRAN_SPEED(pSd->CSD),
-					      sdmmcTransUnits,
-					      ((pSd->
-						bCardType & CARD_TYPE_bmSDMMC)
-					       ==
-					       CARD_TYPE_bmSD) ?
-					      sdTransMultipliers :
-					      mmcTransMultipliers);
-	}
-	return speed;
+	if (!(pSd->bCardType & CARD_TYPE_bmSDMMC))
+		return 0;
+	return SdmmcDecodeTransSpeed(SD_CSD_TRAN_SPEED(pSd->CSD),
+	    sdmmcTransUnits, (pSd->bCardType & CARD_TYPE_bmSDMMC)
+	    == CARD_TYPE_bmSD ? sdTransMultipliers : mmcTransMultipliers);
 }
 
 /**
@@ -2070,36 +2007,25 @@ static uint32_t
 SdioGetMaxSpeed(sSdCard * pSd)
 {
 	uint8_t error;
-	uint32_t speed = 0;
 	uint32_t addr = 0;
 	uint8_t buf[6];
-	if (pSd->bCardType & CARD_TYPE_bmSDIO) {
-		/* Check Func0 tuple in CIS area */
-		error = SDIO_ReadDirect(pSd,
-					SDIO_CIA, SDIO_CIS_PTR_REG,
-					(uint8_t *) & addr, 3);
-		if (error) {
-			trace_error
-			    ("SdioUpdateCardInformation.RdDirect: %d\n\r",
-			     error);
-			return error;
-		}
-		error = SdioFindTuples(pSd, addr, 256, NULL, &addr);
-		if (error) {
-			trace_error
-			    ("SdioUpdateCardInformation.FindTuple: %d\n\r",
-			     error);
-			return error;
-		}
-		if (addr) {
-			/* Fun0 tuple: fn0_blk_siz & max_tran_speed */
-			SDIO_ReadDirect(pSd, SDIO_CIA, addr, buf, 6);
-			speed = SdmmcDecodeTransSpeed(buf[5],
-						      sdmmcTransUnits,
-						      sdTransMultipliers);
-		}
-	}
-	return speed;
+
+	if (!(pSd->bCardType & CARD_TYPE_bmSDIO))
+		return 0;
+	/* Check Func0 tuple in CIS area */
+	error = SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CIS_PTR_REG,
+	    (uint8_t *)&addr, 3);
+	if (error)
+		return 0;
+	error = SdioFindTuples(pSd, addr, 256, NULL, &addr);
+	if (error || !addr)
+		return 0;
+	/* Fun0 tuple: fn0_blk_siz & max_tran_speed */
+	error = SDIO_ReadDirect(pSd, SDIO_CIA, addr, buf, 6);
+	if (error)
+		return 0;
+	return SdmmcDecodeTransSpeed(buf[5], sdmmcTransUnits,
+	    sdTransMultipliers);
 }
 
 /**
@@ -2116,14 +2042,14 @@ SdGetExtInformation(sSdCard * pSd)
 	if (error == SDMMC_OK) {
 		card_status &= ~STATUS_READY_FOR_DATA;
 		if (card_status != (STATUS_APP_CMD | STATUS_TRAN))
-			trace_error("Acmd51.stat: 0x%lx\n\r", card_status);
+			trace_error("SCR st %lx\n\r", card_status);
 	}
 
 	error = Acmd13(pSd, pSd->SSR, &card_status);
 	if (error == SDMMC_OK) {
 		card_status &= ~STATUS_READY_FOR_DATA;
 		if (card_status != (STATUS_APP_CMD | STATUS_TRAN))
-			trace_error("Acmd13.stat: 0x%lx\n\r", card_status);
+			trace_error("SSR st %lx\n\r", card_status);
 	}
 }
 
@@ -2144,11 +2070,9 @@ SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
 		MmcSelectCard(pSd, 0, 1);
 		Delay(800);
 		error = Cmd9(pSd);
-		if (error) {
-			trace_error("SdMmcUpdateInfo.Cmd9 (%d)\n\r", error);
+		if (error)
 			return;
-		}
-		error = MmcSelectCard(pSd, pSd->wAddress, 1);
+		MmcSelectCard(pSd, pSd->wAddress, 1);
 	}
 	if (extData) {
 		switch (pSd->bCardType & CARD_TYPE_bmSDMMC) {
@@ -2189,28 +2113,17 @@ SdEnableHighSpeed(sSdCard * pSd)
 		status = 0;
 		error = Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG,
 		    &status);
-		if (error) {
-			trace_error("SdMmcEnableHS.Cmd52: %d\n\r",
-				    error);
+		if (error)
 			return SDMMC_ERROR;
-		}
-		if ((status & SDIO_SHS) == 0) {
-			trace_info("HS Mode not supported by SDIO\n\r");
+		if (!(status & SDIO_SHS))
 			return SDMMC_ERROR_NOT_SUPPORT;
-		}
-		/* Enable HS mode */
 		else {
+			/* Enable HS mode */
 			status = SDIO_EHS;
 			error = Cmd52(pSd, 1, SDIO_CIA, 1, SDIO_HS_REG,
 			    &status);
-			if (error) {
-				trace_error
-				    ("SdMmcEnableHS.Cmd52 H: %d\n\r",
-				     error);
+			if (error || !(status & SDIO_EHS))
 				return SDMMC_ERROR;
-			}
-			if (status & SDIO_EHS)
-				trace_warning("SDIO HS Enabled\n\r");
 		}
 	}
 	if (sd) {
@@ -2222,24 +2135,17 @@ SdEnableHighSpeed(sSdCard * pSd)
 		};
 
 		error = SdCmd6(pSd, &cmd6Arg, pSd->sandbox1, &status);
-		if (error || (status & STATUS_SWITCH_ERROR)) {
-			trace_info("SD HS Fail\n\r");
+		if (error || status & STATUS_SWITCH_ERROR)
 			return SDMMC_ERROR;
-		} else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
-			   == SD_SWITCH_ST_FUN_GRP_RC_ERROR) {
-			trace_info("SD HS Not Supported\n\r");
+		else if (SD_SWITCH_ST_FUN_GRP1_RC(pSd->sandbox1)
+			   == SD_SWITCH_ST_FUN_GRP_RC_ERROR)
 			return SDMMC_ERROR_NOT_SUPPORT;
-		} else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1)) {
-			trace_info("SD HS Locked\n\r");
+		else if (SD_SWITCH_ST_FUN_GRP1_BUSY(pSd->sandbox1))
 			return SDMMC_ERROR_BUSY;
-		} else
-			trace_warning("SD HS Enabled\n\r");
 	}
 
 	/* Enable Host HS mode */
 	error = _HwSetHsMode(pSd, SDMMC_TIM_SD_HS);
-	if (error)
-		trace_error("Failed to go HS: %d\n\r", error);
 	return error;
 }
 
@@ -2263,14 +2169,10 @@ mmcSelectBuswidth(sSdCard * pSd, uint8_t busWidth, bool ddr)
 	else if (busWidth != 1)
 		return SDMMC_ERROR_PARAM;
 	error = MmcCmd6(pSd, &cmd6Arg, &status);
-	if (error) {
-		trace_error("SdMmcSetBuswidth.Cmd6: %d\n\r", error);
+	if (error)
 		return SDMMC_ERROR;
-	} else if (status & STATUS_MMC_SWITCH) {
-		trace_error("MMC Bus Switch error %x\n\r",
-		    (unsigned int) status);
+	else if (status & STATUS_MMC_SWITCH)
 		return SDMMC_ERROR_NOT_SUPPORT;
-	}
 	return SDMMC_OK;
 }
 
@@ -2304,7 +2206,6 @@ mmcDetectBuswidth(sSdCard * pSd)
 		len = busWidth >= 2 ? busWidth : 2;
 		error = Cmd19(pSd, pSd->sandbox1, len, NULL);
 		if (error) {
-			trace_error("Cmd19 %u\n\r", error);
 			/* Devices which do not respond to CMD19 - which results
 			 * in the driver returning SDMMC_ERROR_NORESPONSE -
 			 * simply do not support the bus test procedure.
@@ -2317,10 +2218,8 @@ mmcDetectBuswidth(sSdCard * pSd)
 				return 0;
 		}
 		error = Cmd14(pSd, pSd->sandbox2, busWidth, NULL);
-		if (error) {
-			trace_error("Cmd14 %u\n\r", error);
+		if (error)
 			continue;
-		}
 		if (busWidth == 1) {
 			mask = 0xc0;
 			pSd->sandbox2[0] &= mask;
@@ -2391,17 +2290,14 @@ SdMmcIdentify(sSdCard * pSd)
 	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR (bit 3 of register 6) */
 	status = SDIO_RES;
 	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status);
-	if (!error && !(status & STATUS_SDIO_R5)) {
-	}
-	else if (error == SDMMC_ERROR_NORESPONSE) {
-	}
-	else
-		trace_debug("SdMmcIdentify.Cmd52 fail: %u, %lx\n\r", error,
-			    status);
+	if ((error && error != SDMMC_ERROR_NORESPONSE)
+	    || (!error && status & STATUS_SDIO_R5))
+		trace_error("IOrst %s st %lx\n\r", SD_StringifyRetCode(error),
+		    status);
 	/* Reset MEM: CMD0 */
 	error = SwReset(pSd, 1);
 	if (error)
-		trace_debug("SdMmcIdentify.SwReset fail: %u\n\r", error);
+		trace_debug("rst %s\n\r", SD_StringifyRetCode(error));
 
 	/* CMD8 is newly added in the Physical Layer Specification Version 2.00 to
 	 * support multiple voltage ranges and used to check whether the card
@@ -2409,23 +2305,19 @@ SdMmcIdentify(sSdCard * pSd)
 	 * verify voltage before card initialization.
 	 * The host that does not support CMD8 shall supply high voltage range... */
 	error = SdCmd8(pSd, 1);
-	if (error == 0)
+	if (!error)
 		f8 = 1;
-	else if (error != SDMMC_ERROR_NORESPONSE) {
-		trace_error("SdMmcIdentify.Cmd8: %d\n\r", error);
+	else if (error != SDMMC_ERROR_NORESPONSE)
 		return SDMMC_ERROR;
-	}
-	/* Delay after "no response" */
 	else
+		/* Delay after "no response" */
 		Delay(8000);
 
 	/* CMD5 is newly added for SDIO initialize & power on */
 	status = 0;
 	error = Cmd5(pSd, &status);
-	if (error)
-		trace_debug("SdMmcIdentify.Cmd5: %d\n\r", error);
-	/* Card has SDIO function */
-	else if ((status & SDIO_OCR_NF) > 0) {
+	if (!error && (status & SDIO_OCR_NF) > 0) {
+		/* Card has SDIO function */
 		unsigned int cmd5Retries = 10000;
 		do {
 			status &= SD_HOST_VOLTAGE_RANGE;
@@ -2435,7 +2327,8 @@ SdMmcIdentify(sSdCard * pSd)
 		}
 		while (!error && cmd5Retries--);
 		if (error) {
-			trace_error("SdMmcIdentify.Cmd5 V: %d\n\r", error);
+			trace_error("SDIO oc %s\n\r",
+			    SD_StringifyRetCode(error));
 			return SDMMC_ERROR;
 		}
 		io = 1;
@@ -2448,13 +2341,11 @@ SdMmcIdentify(sSdCard * pSd)
 		/* Try SD memory initialize */
 		error = Acmd41(pSd, f8, &ccs);
 		if (error) {
-			trace_debug("SdMmcIdentify.Acmd41: %u, try MMC\n\r",
-				    error);
 			/* Try MMC initialize */
 			error = SwReset(pSd, 10);
 			if (error) {
-				trace_error("SdMmcIdentify.Mmc.SwReset: %d\n\r",
-					    error);
+				trace_error("MMC rst %s\n\r",
+				    SD_StringifyRetCode(error));
 				return SDMMC_ERROR;
 			}
 			ccs = 1;
@@ -2472,21 +2363,19 @@ SdMmcIdentify(sSdCard * pSd)
 			}
 			while (error == SDMMC_ERROR_BUSY && !elapsed);
 			if (error) {
-				trace_error("SdMmcIdentify.Cmd1: %d\n\r",
-					    error);
+				trace_error("MMC oc %s\n\r",
+				    SD_StringifyRetCode(error));
 				return SDMMC_ERROR;
 			} else if (ccs)
 				pSd->bCardType = CARD_MMCHD;
 			else
 				pSd->bCardType = CARD_MMC;
 			/* MMC card identification OK */
-			trace_info("MMC Card\n\r");
+			trace_info("MMC\n\r");
 			return 0;
 		}
-		else if (ccs)
-			trace_info("SDHC MEM\n\r");
 		else
-			trace_info("SD MEM\n\r");
+			trace_info("SD%s MEM\n\r", ccs ? "HC" : "");
 		mem = 1;
 	}
 	/* SD(IO) + MEM ? */
@@ -2525,48 +2414,36 @@ MmcInit(sSdCard * pSd)
 	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
 	 * number as the response (on the CMD line). */
 	error = Cmd2(pSd);
-	if (error) {
-		trace_error("MmcInit.cmd2(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
-	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
-	 * card to publish a new relative card address (RCA), which is shorter than
+	/* Thereafter, the host issues SET_RELATIVE_ADDR (CMD3) to assign the
+	 * device a dedicated relative card address (RCA), which is shorter than
 	 * CID and which is used to address the card in the future data transfer
 	 * mode. Once the RCA is received the card state changes to the Stand-by
-	 * State. At this point, if the host wants to assign another RCA number, it
-	 * can ask the card to publish a new number by sending another CMD3 command
-	 * to the card. The last published RCA is the actual RCA number of the
-	 * card. */
+	 * State. */
 	error = Cmd3(pSd);
-	if (error) {
-		trace_error("MmcInit.cmd3(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 	else
-		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
+		trace_debug("RCA=%u\n\r", CARD_ADDR(pSd));
 
 	/* SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
 	 * e.g. block length, card storage capacity, etc... */
 	error = Cmd9(pSd);
-	if (error) {
-		trace_error("MmcInit.cmd9(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* Calculate transfer speed */
 	pSd->dwTranSpeed = SdmmcGetMaxSpeed(pSd) * 1000UL;
 	clock = pSd->dwTranSpeed;
 	_HwSetClock(pSd, &clock);
-	trace_info("Set MMC clock to %luKHz\n\r", clock / 1000UL);
 	pSd->dwCurrSpeed = clock;
 
 	/* Now select the card, to TRAN state */
 	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
-	if (error) {
-		trace_error("MmcInit.SelCard(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* If CSD:SPEC_VERS indicates v4.0 or higher, read EXT_CSD */
 	error = MmcGetExtInformation(pSd);
@@ -2599,7 +2476,8 @@ MmcInit(sSdCard * pSd)
 			sw_arg.value = 0xf;
 			error = MmcCmd6(pSd, &sw_arg, &status);
 			if (error)
-				trace_error("Pwr class failed: %d\n\r", error);
+				trace_error("Pwr class %s\n\r",
+				    SD_StringifyRetCode(error));
 		}
 	}
 
@@ -2626,7 +2504,7 @@ MmcInit(sSdCard * pSd)
 			pSd->dwCurrSpeed = clock;
 		}
 		else
-			trace_error("HS failed: %d\n\r", error);
+			trace_error("HS %s\n\r", SD_StringifyRetCode(error));
 	}
 
 	/* Consider using the widest supported data bus */
@@ -2653,7 +2531,8 @@ MmcInit(sSdCard * pSd)
 			    && tim_mode == SDMMC_TIM_MMC_HS_DDR)
 				pSd->bSpeedMode = tim_mode;
 			else if (error) {
-				trace_error("Width/DDR failed: %d\n\r", error);
+				trace_error("Width/DDR %s\n\r",
+				    SD_StringifyRetCode(error));
 				return error;
 			}
 		}
@@ -2687,7 +2566,7 @@ MmcInit(sSdCard * pSd)
 			error = error == SDMMC_CHANGED ? SDMMC_OK : error;
 		}
 		if (error != SDMMC_OK) {
-			trace_error("HS200 failed: %d\n\r", error);
+			trace_error("HS200 %s\n\r", SD_StringifyRetCode(error));
 			return error;
 		}
 	}
@@ -2744,14 +2623,12 @@ MmcInit(sSdCard * pSd)
 	 * prevent upcoming data transaction routines from reliably checking
 	 * fresh exceptions. */
 	error = Cmd13(pSd, &status);
-	if (error) {
-		trace_error("MmcInit.Cmd13: %u\n\r", error);
+	if (error)
 		return error;
-	}
 	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
 	    & ~STATUS_APP_CMD;
 	if (status)
-		trace_warning("MmcInit.Cmd13.stat: %lx\n\r", status);
+		trace_warning("st %lx\n\r", status);
 
 	return 0;
 }
@@ -2771,10 +2648,8 @@ SdInit(sSdCard * pSd)
 	 * Card that is unidentified (i.e. which is in Ready State) sends its CID
 	 * number as the response (on the CMD line). */
 	error = Cmd2(pSd);
-	if (error) {
-		trace_error("SdInit.cmd2(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
 	 * card to publish a new relative card address (RCA), which is shorter than
@@ -2785,32 +2660,23 @@ SdInit(sSdCard * pSd)
 	 * to the card. The last published RCA is the actual RCA number of the
 	 * card. */
 	error = Cmd3(pSd);
-	if (error) {
-		trace_error("SdInit.cmd3(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 	else
-		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
+		trace_debug("RCA=%u\n\r", CARD_ADDR(pSd));
 
 	/* SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
 	 * e.g. block length, card storage capacity, etc... */
 	error = Cmd9(pSd);
-	if (error) {
-		trace_error("SdInit.cmd9(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* Now select the card, to TRAN state */
 	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
-	if (error) {
-		trace_error("SdInit.SelCard(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* Get extended information of the card */
-	trace_debug("Card Type %d, CSD_STRUCTURE %u\n\r",
-		   (unsigned int) pSd->bCardType,
-		   (unsigned int) SD_CSD_STRUCTURE(pSd->CSD));
 	SdMmcUpdateInformation(pSd, true, true);
 
 	/* Calculate transfer speed */
@@ -2826,7 +2692,7 @@ SdInit(sSdCard * pSd)
 	/* Enable more bus width Mode */
 	error = SdDecideBuswidth(pSd);
 	if (error) {
-		trace_error("SdInit.DecideBusWidth: %u\n\r", error);
+		trace_error("Bus width %s\n\r", SD_StringifyRetCode(error));
 		return SDMMC_ERROR;
 	}
 
@@ -2885,21 +2751,21 @@ SdInit(sSdCard * pSd)
 	 * the BLOCK_LEN_ERROR bit. */
 	if (pSd->bCardType == CARD_SD) {
 		error = Cmd16(pSd, SDMMC_BLOCK_SIZE);
-		if (error) {
-			trace_error("SdInit.cmd16: %d\n\r", error);
+		if (error)
 			return error;
-		}
 	}
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
 
 	if (SD_CSD_STRUCTURE(pSd->CSD) >= 1) {
+		pSd->wBlockSize = 512;
 		mem_size = SD_CSD_BLOCKNR_HC(pSd->CSD);
 		pSd->dwNbBlocks = mem_size >> 32 ? 0xFFFFFFFF
 		    : (uint32_t)mem_size;
 		if (pSd->dwNbBlocks >= 0x800000)
 			pSd->dwTotalSize = 0xFFFFFFFF;
 		else
-			pSd->dwTotalSize = pSd->dwNbBlocks * 512UL;	}
+			pSd->dwTotalSize = pSd->dwNbBlocks * 512UL;
+	}
 	else {
 		pSd->wBlockSize = 512;
 		mem_size = SD_CSD_TOTAL_SIZE(pSd->CSD);
@@ -2911,21 +2777,18 @@ SdInit(sSdCard * pSd)
 	/* Automatically select the max clock */
 	clock = pSd->dwTranSpeed;
 	_HwSetClock(pSd, &clock);
-	trace_info("Set SD clock to %luK\n\r", clock / 1000UL);
 	pSd->dwCurrSpeed = clock;
 
 	/* Check device status and eat past exceptions, which would otherwise
 	 * prevent upcoming data transaction routines from reliably checking
 	 * fresh exceptions. */
 	error = Cmd13(pSd, &status);
-	if (error) {
-		trace_error("SdInit.Cmd13: %u\n\r", error);
+	if (error)
 		return error;
-	}
 	status = status & ~STATUS_STATE & ~STATUS_READY_FOR_DATA
 	    & ~STATUS_APP_CMD;
 	if (status)
-		trace_warning("SdInit.Cmd13.stat: %lx\n\r", status);
+		trace_warning("st %lx\n\r", status);
 
 	return 0;
 }
@@ -2946,19 +2809,15 @@ SdioInit(sSdCard * pSd)
 	 * to the card. The last published RCA is the actual RCA number of the
 	 * card. */
 	error = Cmd3(pSd);
-	if (error) {
-		trace_error("SdioInit.cmd3(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 	else
-		trace_debug("Relative Card Address %u\n\r", CARD_ADDR(pSd));
+		trace_debug("RCA=%u\n\r", CARD_ADDR(pSd));
 
 	/* Now select the card, to TRAN state */
 	error = MmcSelectCard(pSd, CARD_ADDR(pSd), 0);
-	if (error) {
-		trace_error("SdioInit.SelCard(%d)\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* Calculate transfer speed */
 	pSd->dwTranSpeed = SdioGetMaxSpeed(pSd) * 1000UL;
@@ -2966,7 +2825,7 @@ SdioInit(sSdCard * pSd)
 	/* Enable more bus width Mode */
 	error = SdDecideBuswidth(pSd);
 	if (error) {
-		trace_error("SdioInit.DecideBusWidth: %u\n\r", error);
+		trace_error("Bus width %s\n\r", SD_StringifyRetCode(error));
 		return SDMMC_ERROR;
 	}
 
@@ -2979,7 +2838,6 @@ SdioInit(sSdCard * pSd)
 	}
 	clock = pSd->dwTranSpeed;
 	_HwSetClock(pSd, &clock);
-	trace_info("Set SDIO clock to %luK\n\r", clock / 1000UL);
 	pSd->dwCurrSpeed = clock;
 	return 0;
 }
@@ -3080,8 +2938,8 @@ SD_Read(sSdCard * pSd,
 		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
 		error = MoveToTransferState(pSd, blk_no, &limited, out, 1);
 	}
-	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length, error ?
-	    SD_StringifyRetCode(error) : "");
+	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length,
+	    SD_StringifyRetCode(error));
 	return error;
 }
 
@@ -3120,8 +2978,8 @@ SD_Write(sSdCard * pSd,
 		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
 		error = MoveToTransferState(pSd, blk_no, &limited, in, 0);
 	}
-	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length, error ?
-	    SD_StringifyRetCode(error) : "");
+	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length,
+	    SD_StringifyRetCode(error));
 	return error;
 }
 
@@ -3238,10 +3096,8 @@ SD_Init(sSdCard * pSd)
 	 * time to wait until the SD card can accept the first command. */
 	/* Power On Init Special Command */
 	error = Pon(pSd);
-	if (error) {
-		trace_error("SD_Init.PowON:%d\n\r", error);
+	if (error)
 		return error;
-	}
 
 	/* After power-on or CMD0, all cards?
 	 * CMD lines are in input mode, waiting for start bit of the next command.
@@ -3250,7 +3106,7 @@ SD_Init(sSdCard * pSd)
 	 * (lowest speed, highest driving current capability). */
 	error = SdMmcIdentify(pSd);
 	if (error) {
-		trace_error("SD_Init.Identify: %d\n\r", error);
+		trace_error("Identify %s\n\r", SD_StringifyRetCode(error));
 		return error;
 	}
 
@@ -3261,11 +3117,11 @@ SD_Init(sSdCard * pSd)
 	else if (pSd->bCardType & CARD_TYPE_bmSDIO)
 		error = SdioInit(pSd);
 	else {
-		trace_error("SD_Init.Identify: failed\n\r");
+		trace_error("Identify %s\n\r", "failed");
 		return SDMMC_ERROR_NOT_INITIALIZED;
 	}
 	if (error) {
-		trace_error("SD_Init.Init: %u\n\r", error);
+		trace_error("Init %s\n\r", SD_StringifyRetCode(error));
 		return error;
 	}
 
@@ -3392,14 +3248,10 @@ SDIO_ReadDirect(sSdCard * pSd,
 			    Cmd52(pSd, 0, functionNum, 0, address++, &status);
 			if (pData)
 				*pData++ = (uint8_t) status;
-			if (error) {
-				trace_error("IO_RdDirect.Cmd52: %d\n\r", error);
-				return SDMMC_ERROR;
-			} else if (status & STATUS_SDIO_R5) {
-				trace_error("RD_DIRECT(%u, %u) st %x\n\r",
-					    (unsigned int) address,
-					    (unsigned int) size,
-					    (unsigned int) status);
+			if (error || status & STATUS_SDIO_R5) {
+				trace_error("IOrdRegs %luB@%lu %s st %lx\n\r",
+				    size, address, SD_StringifyRetCode(error),
+				    status);
 				return SDMMC_ERROR;
 			}
 		}
@@ -3429,13 +3281,9 @@ SDIO_WriteDirect(sSdCard * pSd,
 	if (pSd->bCardType & CARD_TYPE_bmSDIO) {
 		status = dataByte;
 		error = Cmd52(pSd, 1, functionNum, 0, address, &status);
-		if (error) {
-			trace_error("SDIO_WrDirect.Cmd52: %d\n\r", error);
-			return SDMMC_ERROR;
-		} else if (status & STATUS_SDIO_R5) {
-			trace_error("WR_DIRECT(%u) st %x\n\r",
-				    (unsigned int) address,
-				    (unsigned int) status);
+		if (error || status & STATUS_SDIO_R5) {
+			trace_error("IOwrReg %lu %s st %lx\n\r", address,
+			    SD_StringifyRetCode(error), status);
 			return SDMMC_ERROR;
 		}
 	} else {
@@ -3476,11 +3324,9 @@ SDIO_ReadBytes(sSdCard * pSd,
 		error = Cmd53(pSd,
 			      0, functionNum, 0, !isFixedAddress,
 			      address, pData, size, &status, fCallback, pArg);
-		if (error) {
-			trace_error("IO_RdBytes.Cmd53: %d\n\r", error);
-			return SDMMC_ERROR;
-		} else if (status & STATUS_SDIO_R5) {
-			trace_error("RD_EXT st %x\n\r", (unsigned int) status);
+		if (error || status & STATUS_SDIO_R5) {
+			trace_error("IOrdExt %s st %lx\n\r",
+			    SD_StringifyRetCode(error), status);
 			return SDMMC_ERROR;
 		}
 	} else {
@@ -3523,11 +3369,9 @@ SDIO_WriteBytes(sSdCard * pSd,
 			      address, pData, size,
 			      (uint32_t *) & status, fCallback, pArg);
 		Delay(100);
-		if (error) {
-			trace_error("IO_WrBytes.Cmd53: %d\n\r", error);
-			return SDMMC_ERROR;
-		} else if (status & STATUS_SDIO_R5) {
-			trace_error("WR_EXT st %x\n\r", (unsigned int) status);
+		if (error || status & STATUS_SDIO_R5) {
+			trace_error("IOwrExt %s st %lx\n\r",
+			    SD_StringifyRetCode(error), status);
 			return SDMMC_ERROR;
 		}
 	} else {
@@ -3545,6 +3389,7 @@ SD_DumpStatus(const sSdCard *pSd)
 {
 	char text[40] = "";
 	char mode[20] = "";
+	char vers[7] = { ' ', 'v', '1', '.', '0', '\0', '\0' };
 
 	assert(pSd != NULL);
 
@@ -3563,61 +3408,68 @@ SD_DumpStatus(const sSdCard *pSd)
 		strcat(text, "unrecognized device");
 
 	if (pSd->bCardType & CARD_TYPE_bmMMC) {
-		const uint8_t csd = (uint8_t)MMC_CSD_SPEC_VERS(pSd->CSD);
+		const uint8_t csd = MMC_CSD_SPEC_VERS(pSd->CSD);
 		const uint8_t ext = MMC_EXT_EXT_CSD_REV(pSd->EXT);
 
-		strcat(text, " v");
-		if (csd == MMC_CSD_SPEC_VERS_1_0)
-			strcat(text, "1.0");
-		else if (csd == MMC_CSD_SPEC_VERS_1_4)
-			strcat(text, "1.4");
-		else if (csd == MMC_CSD_SPEC_VERS_2_0)
-			strcat(text, "2.x");
-		else if (csd == MMC_CSD_SPEC_VERS_3_1)
-			strcat(text, "3.x");
-		else if (csd == MMC_CSD_SPEC_VERS_4_0) {
-			if (ext == 0)
-				strcat(text, "4.0");
-			else if (ext == 1)
-				strcat(text, "4.1");
-			else if (ext == 2)
-				strcat(text, "4.2");
-			else if (ext == 3)
-				strcat(text, "4.3");
-			else if (ext == 4)
-				strcat(text, "4.4");
-			else if (ext == 5)
-				strcat(text, "4.41");
-			else if (ext == 6)
-				strcat(text, "4.5x");
-			else if (ext == 7)
-				strcat(text, "5.0x");
-			else if (ext == 8)
-				strcat(text, "5.1");
-			else
-				strcat(text, "5.x");
+		if (csd == MMC_CSD_SPEC_VERS_1_4)
+			vers[4] = '4';
+		else if (csd == MMC_CSD_SPEC_VERS_2_0) {
+			vers[2] = '2';
+			vers[4] = 'x';
 		}
-		else
-			strcat(text, "??");
+		else if (csd == MMC_CSD_SPEC_VERS_3_1) {
+			vers[2] = '3';
+			vers[4] = 'x';
+		}
+		else if (csd == MMC_CSD_SPEC_VERS_4_0) {
+			vers[2] = ext <= 6 ? '4' : '5';
+			if (ext <= 4)
+				vers[4] = '0' + ext;
+			else if (ext == 5) {
+				vers[4] = '4';
+				vers[5] = '1';
+			}
+			else if (ext == 6) {
+				vers[4] = '5';
+				vers[5] = 'x';
+			}
+			else if (ext == 7)
+				vers[5] = 'x';
+			else if (ext == 8)
+				vers[4] = '1';
+			else
+				vers[4] = 'x';
+		}
+		else if (csd != MMC_CSD_SPEC_VERS_1_0)
+			vers[2] = vers[4] = '?';
+		strcat(text, vers);
 	}
 	else if (pSd->bCardType & CARD_TYPE_bmSD
 	    && SD_SCR_STRUCTURE(pSd->SCR) == SD_SCR_STRUCTURE_1_0) {
-		strcat(text, " v");
 		if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_0)
-			strcat(text, "1.0x");
-		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10)
-			strcat(text, "1.10");
+			vers[5] = 'x';
+		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_1_10) {
+			vers[4] = '1';
+			vers[5] = '0';
+		}
 		else if (SD_SCR_SD_SPEC(pSd->SCR) == SD_SCR_SD_SPEC_2_00) {
-			if (SD_SCR_SD_SPEC4(pSd->SCR) == SD_SCR_SD_SPEC_4_X)
-				strcat(text, "4.xx");
+			if (SD_SCR_SD_SPEC4(pSd->SCR) == SD_SCR_SD_SPEC_4_X) {
+				vers[2] = '4';
+				vers[4] = vers[5] = 'x';
+			}
 			else if (SD_SCR_SD_SPEC3(pSd->SCR)
-			    == SD_SCR_SD_SPEC_3_0)
-				strcat(text, "3.0x");
-			else
-				strcat(text, "2.00");
+			    == SD_SCR_SD_SPEC_3_0) {
+				vers[2] = '3';
+				vers[5] = 'x';
+			}
+			else {
+				vers[2] = '2';
+				vers[5] = '0';
+			}
 		}
 		else
-			strcat(text, "??");
+			vers[2] = vers[4] = '?';
+		strcat(text, vers);
 	}
 
 	if (pSd->bSpeedMode == SDMMC_TIM_MMC_BC)
@@ -3634,17 +3486,20 @@ SD_DumpStatus(const sSdCard *pSd)
 		strcat(mode, "HS");
 	else if (pSd->bSpeedMode >= SDMMC_TIM_SD_SDR12
 	    && pSd->bSpeedMode <= SDMMC_TIM_SD_SDR104) {
-		strcat(mode, "UHS-I ");
+		char uhs_mode[10] = "UHS-I SDR";
+
+		if (pSd->bSpeedMode == SDMMC_TIM_SD_DDR50)
+			uhs_mode[6] = 'D';
+		strcat(mode, uhs_mode);
 		if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR12)
-			strcat(mode, "SDR12");
+			strcat(mode, "12");
 		else if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR25)
-			strcat(mode, "SDR25");
-		else if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR50)
-			strcat(mode, "SDR50");
-		else if (pSd->bSpeedMode == SDMMC_TIM_SD_DDR50)
-			strcat(mode, "DDR50");
+			strcat(mode, "25");
+		else if (pSd->bSpeedMode == SDMMC_TIM_SD_SDR50
+		    || pSd->bSpeedMode == SDMMC_TIM_SD_DDR50)
+			strcat(mode, "50");
 		else
-			strcat(mode, "SDR104");
+			strcat(mode, "104");
 	}
 	printf("%s, %u-bit data, in %s mode at %lu kHz\n\r", text,
 	    pSd->bBusMode, mode, pSd->dwCurrSpeed / 1000UL);
@@ -3666,104 +3521,73 @@ SDIO_DumpCardInformation(sSdCard * pSd)
 	uint8_t *p = (uint8_t *) & tmp;
 	uint8_t buf[8];
 
-	switch (pSd->bCardType) {
-	case CARD_SDIO:
-		printf("** SDIO ONLY card\n\r");
-		break;
-	case CARD_SDCOMBO:
-	case CARD_SDHCCOMBO:
-		printf("** SDIO Combo card\n\r");
-		break;
-	default:
-		printf("** NO SDIO\n\r");
-		return;
-	}
 	/* CCCR */
-	printf("====== CCCR ======\n\r");
+	_PrintTitle("CCCR");
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CCCR_REG, p, 1);
-	printf(" .SDIO                       0x%02lX\n\r",
-	    (tmp & SDIO_SDIO) >> 4);
-	printf(" .CCCR                       0x%02lX\n\r",
-	    (tmp & SDIO_CCCR) >> 0);
+	_PrintField("SDIO", "0x%02lX", (tmp & SDIO_SDIO) >> 4);
+	_PrintField("CCCR", "0x%02lX", (tmp & SDIO_CCCR) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_SD_REV_REG, p, 1);
-	printf(" .SD                         0x%02lX\n\r",
-	    (tmp & SDIO_SD) >> 0);
+	_PrintField("SD",   "0x%02lX", (tmp & SDIO_SD) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IOE_REG, p, 1);
-	printf(" .IOE                        0x%02lX\n\r",
-	    (tmp & SDIO_IOE) >> 0);
+	_PrintField("IOE",  "0x%02lX", (tmp & SDIO_IOE) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IOR_REG, p, 1);
-	printf(" .IOR                        0x%02lX\n\r",
-	    (tmp & SDIO_IOR) >> 0);
+	_PrintField("IOR",  "0x%02lX", (tmp & SDIO_IOR) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_IEN_REG, p, 1);
-	printf(" .IEN                        0x%02lX\n\r",
-	    (tmp & SDIO_IEN) >> 0);
+	_PrintField("IEN",  "0x%02lX", (tmp & SDIO_IEN) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_INT_REG, p, 1);
-	printf(" .INT                        %u\n\r",
-	    (unsigned int) (tmp & SDIO_INT));
+	_PrintField("INT",  "%lu",     (tmp & SDIO_INT) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_BUS_CTRL_REG, p, 1);
-	printf(" .CD                         0x%lX\n\r", (tmp & SDIO_CD) >> 7);
-	printf(" .SCSI                       0x%lX\n\r",
-	    (tmp & SDIO_SCSI) >> 6);
-	printf(" .ECSI                       0x%lX\n\r",
-	    (tmp & SDIO_ECSI) >> 5);
-	printf(" .BUS_WIDTH                  0x%lX\n\r",
-	    (tmp & SDIO_BUSWIDTH) >> 0);
+	_PrintField("CD",   "0x%lX",   (tmp & SDIO_CD) >> 7);
+	_PrintField("SCSI", "0x%lX",   (tmp & SDIO_SCSI) >> 6);
+	_PrintField("ECSI", "0x%lX",   (tmp & SDIO_ECSI) >> 5);
+	_PrintField("BUS_WIDTH", "0x%lX", (tmp & SDIO_BUSWIDTH) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CAP_REG, p, 1);
-	printf(" .4BLS                       0x%lX\n\r",
-	    (tmp & SDIO_4BLS) >> 7);
-	printf(" .LSC                        0x%lX\n\r", (tmp & SDIO_LSC) >> 6);
-	printf(" .E4MI                       0x%lX\n\r",
-	    (tmp & SDIO_E4MI) >> 5);
-	printf(" .S4MI                       0x%lX\n\r",
-	    (tmp & SDIO_S4MI) >> 4);
-	printf(" .SBS                        0x%lX\n\r", (tmp & SDIO_SBS) >> 3);
-	printf(" .SRW                        0x%lX\n\r", (tmp & SDIO_SRW) >> 2);
-	printf(" .SMB                        0x%lX\n\r", (tmp & SDIO_SMB) >> 1);
-	printf(" .SDC                        0x%lX\n\r", (tmp & SDIO_SDC) >> 0);
+	_PrintField("4BLS", "0x%lX",   (tmp & SDIO_4BLS) >> 7);
+	_PrintField("LSC",  "0x%lX",   (tmp & SDIO_LSC) >> 6);
+	_PrintField("E4MI", "0x%lX",   (tmp & SDIO_E4MI) >> 5);
+	_PrintField("S4MI", "0x%lX",   (tmp & SDIO_S4MI) >> 4);
+	_PrintField("SBS",  "0x%lX",   (tmp & SDIO_SBS) >> 3);
+	_PrintField("SRW",  "0x%lX",   (tmp & SDIO_SRW) >> 2);
+	_PrintField("SMB",  "0x%lX",   (tmp & SDIO_SMB) >> 1);
+	_PrintField("SDC",  "0x%lX",   (tmp & SDIO_SDC) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_CIS_PTR_REG, p, 3);
-	printf(" .CIS_PTR                    0x%06X\n\r", (unsigned int) tmp);
+	_PrintField("CIS_PTR", "0x%06lX", tmp);
 	addrCIS = tmp;
 	tmp = 0;
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_BUS_SUSP_REG, p, 1);
-	printf(" .BR                         0x%lX\n\r", (tmp & SDIO_BR) >> 1);
-	printf(" .BS                         0x%lX\n\r", (tmp & SDIO_BS) >> 0);
+	_PrintField("BR",   "0x%lX",   (tmp & SDIO_BR) >> 1);
+	_PrintField("BS",   "0x%lX",   (tmp & SDIO_BS) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_FUN_SEL_REG, p, 1);
-	printf(" .DF                         0x%lX\n\r", (tmp & SDIO_DF) >> 7);
-	printf(" .FS                         0x%lX\n\r", (tmp & SDIO_FS) >> 0);
+	_PrintField("DF",   "0x%lX",   (tmp & SDIO_DF) >> 7);
+	_PrintField("FS",   "0x%lX",   (tmp & SDIO_FS) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_EXEC_REG, p, 1);
-	printf(" .EX                         0x%lX\n\r", (tmp & SDIO_EX));
-	printf(" .EXM                        0x%lX\n\r", (tmp & SDIO_EXM) >> 0);
+	_PrintField("EX",   "0x%lX",   (tmp & SDIO_EX) >> 0);
+	_PrintField("EXM",  "0x%lX",   (tmp & SDIO_EXM) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_READY_REG, p, 1);
-	printf(" .RF                         0x%lX\n\r", (tmp & SDIO_RF));
-	printf(" .RFM                        0x%lX\n\r", (tmp & SDIO_RFM) >> 0);
+	_PrintField("RF",   "0x%lX",   (tmp & SDIO_RF) >> 1);
+	_PrintField("RFM",  "0x%lX",   (tmp & SDIO_RFM) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_FN0_BLKSIZ_REG, p, 2);
-	printf(" .FN0_SIZE                   %u(%04X)\n\r",
-	    (unsigned int) tmp, (unsigned int) tmp);
+	_PrintField("FN0_SIZE", "%lu", tmp);
 	tmp = 0;
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_POWER_REG, p, 1);
-	printf(" .EMPC                       0x%lX\n\r",
-	    (tmp & SDIO_EMPC) >> 1);
-	printf(" .SMPC                       0x%lX\n\r",
-	    (tmp & SDIO_SMPC) >> 0);
+	_PrintField("EMPC", "0x%lX",   (tmp & SDIO_EMPC) >> 1);
+	_PrintField("SMPC", "0x%lX",   (tmp & SDIO_SMPC) >> 0);
 	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_HS_REG, p, 1);
-	printf(" .EHS                        0x%lX\n\r", (tmp & SDIO_EHS) >> 1);
-	printf(" .SHS                        0x%lX\n\r", (tmp & SDIO_SHS) >> 0);
+	_PrintField("EHS",  "0x%lX",   (tmp & SDIO_EHS) >> 1);
+	_PrintField("SHS",  "0x%lX",   (tmp & SDIO_SHS) >> 0);
 	/* Metaformat */
 	SdioFindTuples(pSd, addrCIS, 128, &addrManfID, &addrFunc0);
 	if (addrManfID != 0) {
 		SDIO_ReadDirect(pSd, SDIO_CIA, addrManfID, buf, 6);
-		printf("==== CISTPL_MANFID ====\n\r");
-		printf(" ._MANF                      0x%04X\n\r",
-		    buf[2] + (buf[3] << 8));
-		printf(" ._CARD                      0x%04X\n\r",
-		    buf[4] + (buf[5] << 8));
+		_PrintTitle("CISTPL_MANFID");
+		_PrintField("MANF", "0x%04X", (uint16_t)buf[3] << 8 | buf[2]);
+		_PrintField("CARD", "0x%04X", (uint16_t)buf[5] << 8 | buf[4]);
 	}
 	if (addrFunc0 != 0) {
 		SDIO_ReadDirect(pSd, SDIO_CIA, addrFunc0, buf, 6);
-		printf("== CISTPL_FUNCE Fun0 ==\n\r");
-		printf(" ._FN0_BLK_SIZE              %d(0x%04X)\n\r",
-		    buf[3] + (buf[4] << 8), buf[3] + (buf[4] << 8));
-		printf(" ._MAX_TRAN_SPEED            0x%02X\n\r", buf[5]);
+		_PrintTitle("CISTPL_FUNCE Fun0");
+		_PrintField("BL_SIZE", "%u", (uint16_t)buf[4] << 8 | buf[3]);
+		_PrintField("MAX_TRAN_SPD", "0x%02X", buf[5]);
 	}
 }
 
@@ -3781,32 +3605,27 @@ SD_DumpCID(const sSdCard *pSd)
 	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmUNKNOWN)
 		return;
 
-	printf("======= Card IDentification =======\n\r");
-	printf(" .MID Manufacturer ID        0x%02X\n\r",
-	    (unsigned int) SD_CID_MID(pSd->CID));
+	_PrintTitle("Card IDentification");
+	_PrintField("MID", "0x%02X", SD_CID_MID(pSd->CID));
 
 	if (sd_device)
-		printf(" .OID OEM/Application ID     %c%c\n\r",
-		    (char) SD_CID_OID1(pSd->CID), (char) SD_CID_OID0(pSd->CID));
+		_PrintField("OID", "%c%c", (char) SD_CID_OID1(pSd->CID),
+		    (char) SD_CID_OID0(pSd->CID));
 	else {
 		if (MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 3) {
-			printf(" .CBX Card/BGA               %u\n\r",
-			    (unsigned int) eMMC_CID_CBX(pSd->CID));
-			printf(" .OID OEM/Application ID     0x%02X\n\r",
-			    (unsigned int) eMMC_CID_OID(pSd->CID));
+			_PrintField("CBX", "%u", eMMC_CID_CBX(pSd->CID));
+			_PrintField("OID", "0x%02X", eMMC_CID_OID(pSd->CID));
 		}
 		else
-			printf(" .OID OEM/Application ID     0x%04X\n\r",
-			    (unsigned int) MMC_CID_OID(pSd->CID));
+			_PrintField("OID", "0x%04X", MMC_CID_OID(pSd->CID));
 	}
 
 	if (sd_device)
-		printf(" .PNM Product name           %c%c%c%c%c\n\r",
-		    (char) SD_CID_PNM4(pSd->CID), (char) SD_CID_PNM3(pSd->CID),
-		    (char) SD_CID_PNM2(pSd->CID), (char) SD_CID_PNM1(pSd->CID),
-		    (char) SD_CID_PNM0(pSd->CID));
+		_PrintField("PNM", "%c%c%c%c%c", (char) SD_CID_PNM4(pSd->CID),
+		    (char) SD_CID_PNM3(pSd->CID), (char) SD_CID_PNM2(pSd->CID),
+		    (char) SD_CID_PNM1(pSd->CID), (char) SD_CID_PNM0(pSd->CID));
 	else
-		printf(" .PNM Product name           %c%c%c%c%c%c\n\r",
+		_PrintField("PNM", "%c%c%c%c%c%c",
 		    (char) MMC_CID_PNM5(pSd->CID),
 		    (char) MMC_CID_PNM4(pSd->CID),
 		    (char) MMC_CID_PNM3(pSd->CID),
@@ -3815,128 +3634,100 @@ SD_DumpCID(const sSdCard *pSd)
 		    (char) MMC_CID_PNM0(pSd->CID));
 
 	if (sd_device)
-		printf(" .PRV Product revision       %u.%u\n\r",
-		    (unsigned int) SD_CID_PRV1(pSd->CID),
-		    (unsigned int) SD_CID_PRV0(pSd->CID));
+		_PrintField("PRV", "%u.%u", SD_CID_PRV1(pSd->CID),
+		    SD_CID_PRV0(pSd->CID));
 	else
-		printf(" .PRV Product revision       %u.%u\n\r",
-		    (unsigned int) MMC_CID_PRV1(pSd->CID),
-		    (unsigned int) MMC_CID_PRV0(pSd->CID));
+		_PrintField("PRV", "%u.%u", MMC_CID_PRV1(pSd->CID),
+		    MMC_CID_PRV0(pSd->CID));
 
 	if (sd_device)
-		printf(" .PSN Product serial number  0x%02X%02X%02X%02X\n\r",
-		    (unsigned int) SD_CID_PSN3(pSd->CID),
-		    (unsigned int) SD_CID_PSN2(pSd->CID),
-		    (unsigned int) SD_CID_PSN1(pSd->CID),
-		    (unsigned int) SD_CID_PSN0(pSd->CID));
+		_PrintField("PSN", "0x%02X%02X%02X%02X", SD_CID_PSN3(pSd->CID),
+		    SD_CID_PSN2(pSd->CID), SD_CID_PSN1(pSd->CID),
+		    SD_CID_PSN0(pSd->CID));
 	else
-		printf(" .PSN Product serial number  0x%02X%02X%02X%02X\n\r",
-		    (unsigned int) MMC_CID_PSN3(pSd->CID),
-		    (unsigned int) MMC_CID_PSN2(pSd->CID),
-		    (unsigned int) MMC_CID_PSN1(pSd->CID),
-		    (unsigned int) MMC_CID_PSN0(pSd->CID));
+		_PrintField("PSN", "0x%02X%02X%02X%02X", MMC_CID_PSN3(pSd->CID),
+		    MMC_CID_PSN2(pSd->CID), MMC_CID_PSN1(pSd->CID),
+		    MMC_CID_PSN0(pSd->CID));
 
 	if (sd_device)
-		printf(" .MDT Manufacturing date     %04u/%02u\n\r",
-		    (uint16_t) (SD_CID_MDT_Y(pSd->CID) + 2000),
-		    (uint8_t) SD_CID_MDT_M(pSd->CID));
+		_PrintField("MDT", "%u/%02u", 2000 + SD_CID_MDT_Y(pSd->CID),
+		    SD_CID_MDT_M(pSd->CID));
 	else {
-		uint16_t year = 1997 + (uint16_t) MMC_CID_MDT_Y(pSd->CID);
+		uint16_t year = 1997 + MMC_CID_MDT_Y(pSd->CID);
 
 		if (MMC_EXT_EXT_CSD_REV(pSd->EXT) > 4 && year < 2010)
 			year = year - 1997 + 2013;
-		printf(" .MDT Manufacturing date     %04u/%02u\n\r", year,
-		    (uint8_t) MMC_CID_MDT_M(pSd->CID));
+		_PrintField("MDT", "%u/%02u", year, MMC_CID_MDT_M(pSd->CID));
 	}
 
-	printf(" .CRC checksum               0x%02X\n\r",
-	    (unsigned int) SD_CID_CRC(pSd->CID));
+	_PrintField("CRC", "0x%02X", SD_CID_CRC(pSd->CID));
 }
 
 /**
  * Display the content of the CSD register
- * \param pCSD Pointer to \ref sSdCard instance.
+ * \param pSd  Pointer to SdCard instance.
  */
 void
-SD_DumpCSD(const uint32_t *pCSD)
+SD_DumpCSD(const sSdCard *pSd)
 {
-	printf("======= Card-Specific Data =======\n\r");
-	printf(" .CSD_STRUCTURE              0x%X\r\n",
-	    (unsigned int) SD_CSD_STRUCTURE(pCSD));
-	printf(" .SPEC_VERS (eMMC)           0x%X\r\n",
-	    (unsigned int) MMC_CSD_SPEC_VERS(pCSD));
-	printf(" .TAAC                       0x%X\r\n",
-	    (unsigned int) SD_CSD_TAAC(pCSD));
-	printf(" .NSAC                       0x%X\r\n",
-	    (unsigned int) SD_CSD_NSAC(pCSD));
-	printf(" .TRAN_SPEED                 0x%X\r\n",
-	    (unsigned int) SD_CSD_TRAN_SPEED(pCSD));
-	printf(" .CCC                        0x%X\r\n",
-	    (unsigned int) SD_CSD_CCC(pCSD));
-	printf(" .READ_BL_LEN                0x%X\r\n",
-	    (unsigned int) SD_CSD_READ_BL_LEN(pCSD));
-	printf(" .READ_BL_PARTIAL            0x%X\r\n",
-	    (unsigned int) SD_CSD_READ_BL_PARTIAL(pCSD));
-	printf(" .WRITE_BLK_MISALIGN         0x%X\r\n",
-	    (unsigned int) SD_CSD_WRITE_BLK_MISALIGN(pCSD));
-	printf(" .READ_BLK_MISALIGN          0x%X\r\n",
-	    (unsigned int) SD_CSD_READ_BLK_MISALIGN(pCSD));
-	printf(" .DSR_IMP                    0x%X\r\n",
-	    (unsigned int) SD_CSD_DSR_IMP(pCSD));
-	printf(" .C_SIZE                     0x%X\r\n",
-	    (unsigned int) SD_CSD_C_SIZE(pCSD));
-	printf(" .C_SIZE_HC                  0x%X\r\n",
-	    (unsigned int) SD2_CSD_C_SIZE(pCSD));
-	printf(" .VDD_R_CURR_MIN             0x%X\r\n",
-	    (unsigned int) SD_CSD_VDD_R_CURR_MIN(pCSD));
-	printf(" .VDD_R_CURR_MAX             0x%X\r\n",
-	    (unsigned int) SD_CSD_VDD_R_CURR_MAX(pCSD));
-	printf(" .VDD_W_CURR_MIN             0x%X\r\n",
-	    (unsigned int) SD_CSD_VDD_W_CURR_MIN(pCSD));
-	printf(" .VDD_W_CURR_MAX             0x%X\r\n",
-	    (unsigned int) SD_CSD_VDD_W_CURR_MAX(pCSD));
-	printf(" .C_SIZE_MULT                0x%X\r\n",
-	    (unsigned int) SD_CSD_C_SIZE_MULT(pCSD));
-	printf(" .ERASE_BLK_EN               0x%X\r\n",
-	    (unsigned int) SD_CSD_ERASE_BLK_EN(pCSD));
-	printf(" .SECTOR_SIZE                0x%X\r\n",
-	    (unsigned int) SD_CSD_SECTOR_SIZE(pCSD));
-	printf(" .WP_GRP_SIZE                0x%X\r\n",
-	    (unsigned int) SD_CSD_WP_GRP_SIZE(pCSD));
-	printf(" .WP_GRP_ENABLE              0x%X\r\n",
-	    (unsigned int) SD_CSD_WP_GRP_ENABLE(pCSD));
-	printf(" .R2W_FACTOR                 0x%X\r\n",
-	    (unsigned int) SD_CSD_R2W_FACTOR(pCSD));
-	printf(" .WRITE_BL_LEN               0x%X\r\n",
-	    (unsigned int) SD_CSD_WRITE_BL_LEN(pCSD));
-	printf(" .WRITE_BL_PARTIAL           0x%X\r\n",
-	    (unsigned int) SD_CSD_WRITE_BL_PARTIAL(pCSD));
-	printf(" .FILE_FORMAT_GRP            0x%X\r\n",
-	    (unsigned int) SD_CSD_FILE_FORMAT_GRP(pCSD));
-	printf(" .COPY                       0x%X\r\n",
-	    (unsigned int) SD_CSD_COPY(pCSD));
-	printf(" .PERM_WRITE_PROTECT         0x%X\r\n",
-	    (unsigned int) SD_CSD_PERM_WRITE_PROTECT(pCSD));
-	printf(" .TMP_WRITE_PROTECT          0x%X\r\n",
-	    (unsigned int) SD_CSD_TMP_WRITE_PROTECT(pCSD));
-	printf(" .FILE_FORMAT                0x%X\r\n",
-	    (unsigned int) SD_CSD_FILE_FORMAT(pCSD));
-	printf(" .ECC (MMC)                  0x%X\r\n",
-	    (unsigned int) MMC_CSD_ECC(pCSD));
-	printf(" .CRC                        0x%X\r\n",
-	    (unsigned int) SD_CSD_CRC(pCSD));
-	printf(" .MULT                       0x%X\r\n",
-	    (unsigned int) SD_CSD_MULT(pCSD));
-	printf(" .BLOCKNR                    0x%X\r\n",
-	    (unsigned int) SD_CSD_BLOCKNR(pCSD));
-	printf(" .BLOCKNR_HC                 0x%X\r\n",
-	    (unsigned int) SD_CSD_BLOCKNR_HC(pCSD));
-	printf(" .BLOCK_LEN                  0x%X\r\n",
-	    (unsigned int) SD_CSD_BLOCK_LEN(pCSD));
-	printf(" -TOTAL_SIZE                 0x%X\r\n",
-	    (unsigned int) SD_CSD_TOTAL_SIZE(pCSD));
-	printf(" -TOTAL_SIZE_HC              0x%X\r\n",
-	    (unsigned int) SD_CSD_TOTAL_SIZE_HC(pCSD));
+	const uint8_t sd_device = (pSd->bCardType & CARD_TYPE_bmSDMMC)
+	    == CARD_TYPE_bmSD;
+	const uint8_t sd_csd_v2 = sd_device
+	    && SD_CSD_STRUCTURE(pSd->CSD) >= 0x1;
+
+	_PrintTitle("Card-Specific Data");
+	_PrintField("CSD_STRUCT", "0x%X", SD_CSD_STRUCTURE(pSd->CSD));
+	if (!sd_device)
+		_PrintField("SPEC_V", "0x%X", MMC_CSD_SPEC_VERS(pSd->CSD));
+	_PrintField("TAAC", "0x%X", SD_CSD_TAAC(pSd->CSD));
+	_PrintField("NSAC", "0x%X", SD_CSD_NSAC(pSd->CSD));
+	_PrintField("TRAN_SPD", "0x%X", SD_CSD_TRAN_SPEED(pSd->CSD));
+	_PrintField("CCC", "0x%X", SD_CSD_CCC(pSd->CSD));
+	_PrintField("RD_BL_LEN", "0x%X", SD_CSD_READ_BL_LEN(pSd->CSD));
+	_PrintField("RD_BL_PART", "%u", SD_CSD_READ_BL_PARTIAL(pSd->CSD));
+	_PrintField("WR_BL_MALIGN", "%u", SD_CSD_WRITE_BLK_MISALIGN(pSd->CSD));
+	_PrintField("RD_BL_MALIGN", "%u", SD_CSD_READ_BLK_MISALIGN(pSd->CSD));
+	_PrintField("DSR_IMP", "%u", SD_CSD_DSR_IMP(pSd->CSD));
+	_PrintField("C_SIZE", "0x%lX", sd_csd_v2 ? SD2_CSD_C_SIZE(pSd->CSD)
+	    : SD_CSD_C_SIZE(pSd->CSD));
+	if (!sd_csd_v2) {
+		_PrintField("RD_CUR_MIN", "0x%X",
+		    SD_CSD_VDD_R_CURR_MIN(pSd->CSD));
+		_PrintField("RD_CUR_MAX", "0x%X",
+		    SD_CSD_VDD_R_CURR_MAX(pSd->CSD));
+		_PrintField("WR_CUR_MIN", "0x%X",
+		    SD_CSD_VDD_W_CURR_MIN(pSd->CSD));
+		_PrintField("WR_CUR_MAX", "0x%X",
+		    SD_CSD_VDD_W_CURR_MAX(pSd->CSD));
+		_PrintField("C_SIZE_MULT", "0x%X",
+		    SD_CSD_C_SIZE_MULT(pSd->CSD));
+	}
+	if (sd_device) {
+		_PrintField("ER_BL_EN", "%u", SD_CSD_ERASE_BLK_EN(pSd->CSD));
+		_PrintField("SECT_SIZE", "0x%X", SD_CSD_SECTOR_SIZE(pSd->CSD));
+	}
+	else {
+		_PrintField("ER_GRP_SIZE", "0x%X",
+		    MMC_CSD_ERASE_GRP_SIZE(pSd->CSD));
+		_PrintField("ER_GRP_MULT", "0x%X",
+		    MMC_CSD_ERASE_GRP_MULT(pSd->CSD));
+	}
+	_PrintField("WP_GRP_SIZE", "0x%X", sd_device ?
+	    SD_CSD_WP_GRP_SIZE(pSd->CSD) : MMC_CSD_WP_GRP_SIZE(pSd->CSD));
+	_PrintField("WP_GRP_EN", "%u", SD_CSD_WP_GRP_ENABLE(pSd->CSD));
+	if (!sd_device)
+		_PrintField("DEF_ECC", "0x%X", MMC_CSD_DEFAULT_ECC(pSd->CSD));
+	_PrintField("R2W_FACT", "0x%X", SD_CSD_R2W_FACTOR(pSd->CSD));
+	_PrintField("WR_BL_LEN", "0x%X", SD_CSD_WRITE_BL_LEN(pSd->CSD));
+	_PrintField("WR_BL_PART", "%u", SD_CSD_WRITE_BL_PARTIAL(pSd->CSD));
+	_PrintField("FILE_FMT_GRP", "%u", SD_CSD_FILE_FORMAT_GRP(pSd->CSD));
+	_PrintField("COPY", "%u", SD_CSD_COPY(pSd->CSD));
+	_PrintField("PERM_WP", "%u", SD_CSD_PERM_WRITE_PROTECT(pSd->CSD));
+	_PrintField("TMP_WP", "%u", SD_CSD_TMP_WRITE_PROTECT(pSd->CSD));
+	_PrintField("FILE_FMT", "0x%X", SD_CSD_FILE_FORMAT(pSd->CSD));
+	if (!sd_device)
+		_PrintField("ECC", "0x%X", MMC_CSD_ECC(pSd->CSD));
+	_PrintField("CRC", "0x%X", SD_CSD_CRC(pSd->CSD));
 }
 
 /**
@@ -3946,77 +3737,47 @@ SD_DumpCSD(const uint32_t *pCSD)
 void
 SD_DumpExtCSD(const uint8_t *pExtCSD)
 {
-	printf("======= Extended Device Specific Data =======\n\r");
-	printf(" .S_CMD_SET                  0x%X\n\r",
-	    MMC_EXT_S_CMD_SET(pExtCSD));
-	printf(" .BOOT_INFO                  0x%X\n\r",
-	    MMC_EXT_BOOT_INFO(pExtCSD));
-	printf(" .BOOT_SIZE_MULTI            0x%X\n\r",
+	_PrintTitle("Extended Device Specific Data");
+	_PrintField("S_CMD_SET", "0x%X", MMC_EXT_S_CMD_SET(pExtCSD));
+	_PrintField("BOOT_INFO", "0x%X", MMC_EXT_BOOT_INFO(pExtCSD));
+	_PrintField("BOOT_SIZE_MULTI", "0x%X",
 	    MMC_EXT_BOOT_SIZE_MULTI(pExtCSD));
-	printf(" .ACC_SIZE                   0x%X\n\r",
-	    MMC_EXT_ACC_SIZE(pExtCSD));
-	printf(" .HC_ERASE_GRP_SIZE          0x%X\n\r",
+	_PrintField("ACC_SIZE", "0x%X", MMC_EXT_ACC_SIZE(pExtCSD));
+	_PrintField("HC_ER_GRP_SIZE", "0x%X",
 	    MMC_EXT_HC_ERASE_GRP_SIZE(pExtCSD));
-	printf(" .ERASE_TIMEOUT_MULT         0x%X\n\r",
+	_PrintField("ER_TIMEOUT_MULT", "0x%X",
 	    MMC_EXT_ERASE_TIMEOUT_MULT(pExtCSD));
-	printf(" .REL_WR_SEC_C               0x%X\n\r",
-	    MMC_EXT_REL_WR_SEC_C(pExtCSD));
-	printf(" .HC_WP_GRP_SIZE             0x%X\n\r",
-	    MMC_EXT_HC_WP_GRP_SIZE(pExtCSD));
-	printf(" .S_C_VCC                    0x%X\n\r",
-	    MMC_EXT_S_C_VCC(pExtCSD));
-	printf(" .S_C_VCCQ                   0x%X\n\r",
-	    MMC_EXT_S_C_VCCQ(pExtCSD));
-	printf(" .S_A_TIMEOUT                0x%X\n\r",
-	    MMC_EXT_S_A_TIMEOUT(pExtCSD));
-	printf(" .SEC_COUNT                  0x%lX\n\r",
-	    MMC_EXT_SEC_COUNT(pExtCSD));
-	printf(" .MIN_PERF_W_8_52            0x%X\n\r",
-	    MMC_EXT_MIN_PERF_W_8_52(pExtCSD));
-	printf(" .MIN_PERF_R_8_52            0x%X\n\r",
-	    MMC_EXT_MIN_PERF_R_8_52(pExtCSD));
-	printf(" .MIN_PERF_W_8_26_4_52       0x%X\n\r",
+	_PrintField("REL_WR_SEC_C", "0x%X", MMC_EXT_REL_WR_SEC_C(pExtCSD));
+	_PrintField("HC_WP_GRP_SIZE", "0x%X", MMC_EXT_HC_WP_GRP_SIZE(pExtCSD));
+	_PrintField("S_C_VCC", "0x%X", MMC_EXT_S_C_VCC(pExtCSD));
+	_PrintField("S_C_VCCQ", "0x%X", MMC_EXT_S_C_VCCQ(pExtCSD));
+	_PrintField("S_A_TIMEOUT", "0x%X", MMC_EXT_S_A_TIMEOUT(pExtCSD));
+	_PrintField("SEC_CNT", "0x%lX", MMC_EXT_SEC_COUNT(pExtCSD));
+	_PrintField("MIN_PE_W_8_52", "0x%X", MMC_EXT_MIN_PERF_W_8_52(pExtCSD));
+	_PrintField("MIN_PE_R_8_52", "0x%X", MMC_EXT_MIN_PERF_R_8_52(pExtCSD));
+	_PrintField("MIN_PE_W_8_26_4_52", "0x%X",
 	    MMC_EXT_MIN_PERF_W_8_26_4_52(pExtCSD));
-	printf(" .MIN_PERF_R_8_26_4_52       0x%X\n\r",
+	_PrintField("MIN_PE_R_8_26_4_52", "0x%X",
 	    MMC_EXT_MIN_PERF_R_8_26_4_52(pExtCSD));
-	printf(" .MIN_PERF_W_4_26            0x%X\n\r",
-	    MMC_EXT_MIN_PERF_W_4_26(pExtCSD));
-	printf(" .MIN_PERF_R_4_26            0x%X\n\r",
-	    MMC_EXT_MIN_PERF_R_4_26(pExtCSD));
-	printf(" .PWR_CL_26_360              0x%X\n\r",
-	    MMC_EXT_PWR_CL_26_360(pExtCSD));
-	printf(" .PWR_CL_52_360              0x%X\n\r",
-	    MMC_EXT_PWR_CL_52_360(pExtCSD));
-	printf(" .PWR_CL_26_195              0x%X\n\r",
-	    MMC_EXT_PWR_CL_26_195(pExtCSD));
-	printf(" .PWR_CL_52_195              0x%X\n\r",
-	    MMC_EXT_PWR_CL_52_195(pExtCSD));
-	printf(" .DRIVER_STRENGTH            0x%X\n\r",
-	    MMC_EXT_DRV_STRENGTH(pExtCSD));
-	printf(" .CARD_TYPE                  0x%X\n\r",
-	    MMC_EXT_CARD_TYPE(pExtCSD));
-	printf(" .CSD_STRUCTURE              0x%X\n\r",
-	    MMC_EXT_CSD_STRUCTURE(pExtCSD));
-	printf(" .EXT_CSD_REV                0x%X\n\r",
-	    MMC_EXT_EXT_CSD_REV(pExtCSD));
-	printf(" .CMD_SET                    0x%X\n\r",
-	    MMC_EXT_CMD_SET(pExtCSD));
-	printf(" .CMD_SET_REV                0x%X\n\r",
-	    MMC_EXT_CMD_SET_REV(pExtCSD));
-	printf(" .POWER_CLASS                0x%X\n\r",
-	    MMC_EXT_POWER_CLASS(pExtCSD));
-	printf(" .HS_TIMING                  0x%X\n\r",
-	    MMC_EXT_HS_TIMING(pExtCSD));
-	printf(" .BUS_WIDTH                  0x%X\n\r",
-	    MMC_EXT_BUS_WIDTH(pExtCSD));
-	printf(" .ERASED_MEM_CONT            0x%X\n\r",
-	    MMC_EXT_ERASED_MEM_CONT(pExtCSD));
-	printf(" .BOOT_CONFIG                0x%X\n\r",
-	    MMC_EXT_BOOT_CONFIG(pExtCSD));
-	printf(" .BOOT_BUS_WIDTH             0x%X\n\r",
-	    MMC_EXT_BOOT_BUS_WIDTH(pExtCSD));
-	printf(" .ERASE_GROUP_DEF            0x%X\n\r",
-	    MMC_EXT_ERASE_GROUP_DEF(pExtCSD));
+	_PrintField("MIN_PE_W_4_26", "0x%X", MMC_EXT_MIN_PERF_W_4_26(pExtCSD));
+	_PrintField("MIN_PE_R_4_26", "0x%X", MMC_EXT_MIN_PERF_R_4_26(pExtCSD));
+	_PrintField("PWR_CL_26_360", "0x%X", MMC_EXT_PWR_CL_26_360(pExtCSD));
+	_PrintField("PWR_CL_52_360", "0x%X", MMC_EXT_PWR_CL_52_360(pExtCSD));
+	_PrintField("PWR_CL_26_195", "0x%X", MMC_EXT_PWR_CL_26_195(pExtCSD));
+	_PrintField("PWR_CL_52_195", "0x%X", MMC_EXT_PWR_CL_52_195(pExtCSD));
+	_PrintField("DRV_STR", "0x%X", MMC_EXT_DRV_STRENGTH(pExtCSD));
+	_PrintField("CARD_TYPE", "0x%X", MMC_EXT_CARD_TYPE(pExtCSD));
+	_PrintField("CSD_STRUCT", "0x%X", MMC_EXT_CSD_STRUCTURE(pExtCSD));
+	_PrintField("EXT_CSD_REV", "0x%X", MMC_EXT_EXT_CSD_REV(pExtCSD));
+	_PrintField("CMD_SET", "0x%X", MMC_EXT_CMD_SET(pExtCSD));
+	_PrintField("CMD_SET_REV", "0x%X", MMC_EXT_CMD_SET_REV(pExtCSD));
+	_PrintField("PWR_CLASS", "0x%X", MMC_EXT_POWER_CLASS(pExtCSD));
+	_PrintField("HS_TIM", "0x%X", MMC_EXT_HS_TIMING(pExtCSD));
+	_PrintField("BUS_WIDTH", "0x%X", MMC_EXT_BUS_WIDTH(pExtCSD));
+	_PrintField("ER_MEM_CONT", "0x%X", MMC_EXT_ERASED_MEM_CONT(pExtCSD));
+	_PrintField("BOOT_CFG", "0x%X", MMC_EXT_BOOT_CONFIG(pExtCSD));
+	_PrintField("BOOT_BUS_WIDTH", "0x%X", MMC_EXT_BOOT_BUS_WIDTH(pExtCSD));
+	_PrintField("ER_GRP_DEF", "0x%X", MMC_EXT_ERASE_GROUP_DEF(pExtCSD));
 }
 
 /**
@@ -4026,27 +3787,20 @@ SD_DumpExtCSD(const uint8_t *pExtCSD)
 void
 SD_DumpSCR(const uint8_t *pSCR)
 {
-	printf("======= SD Card Configuration =======\n\r");
-	printf(" .SCR_STRUCTURE              0x%X\n\r", SD_SCR_STRUCTURE(pSCR));
-	printf(" .SD_SPEC                    0x%X\n\r", SD_SCR_SD_SPEC(pSCR));
-	printf(" .SD_SPEC3                   0x%X\n\r", SD_SCR_SD_SPEC3(pSCR));
-	printf(" .SD_SPEC4                   0x%X\n\r", SD_SCR_SD_SPEC4(pSCR));
-	printf(" .DATA_STAT_AFTER_ERASE      0x%X\n\r",
+	_PrintTitle("SD Card Configuration");
+	_PrintField("SCR_STRUCT", "0x%X", SD_SCR_STRUCTURE(pSCR));
+	_PrintField("SD_SPEC", "0x%X", SD_SCR_SD_SPEC(pSCR));
+	_PrintField("SD_SPEC3", "%u", SD_SCR_SD_SPEC3(pSCR));
+	_PrintField("SD_SPEC4", "%u", SD_SCR_SD_SPEC4(pSCR));
+	_PrintField("DATA_ST_AFTER_ER", "%u",
 	    SD_SCR_DATA_STAT_AFTER_ERASE(pSCR));
-	printf(" .SD_SECURITY                0x%X\n\r",
-	    SD_SCR_SD_SECURITY(pSCR));
-	printf(" .EX_SECURITY                0x%X\n\r",
-	    SD_SCR_EX_SECURITY(pSCR));
-	printf(" .SD_BUS_WIDTHS              0x%X\n\r",
-	    SD_SCR_SD_BUS_WIDTHS(pSCR));
-	printf(" .CMD20_SUPPORT              0x%X\n\r",
-	    SD_SCR_CMD20_SUPPORT(pSCR));
-	printf(" .CMD23_SUPPORT              0x%X\n\r",
-	    SD_SCR_CMD23_SUPPORT(pSCR));
-	printf(" .CMD48/49_SUPPORT           0x%X\n\r",
-	    SD_SCR_CMD48_SUPPORT(pSCR));
-	printf(" .CMD58/59_SUPPORT           0x%X\n\r",
-	    SD_SCR_CMD58_SUPPORT(pSCR));
+	_PrintField("SD_SEC", "0x%X", SD_SCR_SD_SECURITY(pSCR));
+	_PrintField("EX_SEC", "0x%X", SD_SCR_EX_SECURITY(pSCR));
+	_PrintField("SD_BUS_WIDTHS", "0x%X", SD_SCR_SD_BUS_WIDTHS(pSCR));
+	_PrintField("CMD20", "%u", SD_SCR_CMD20_SUPPORT(pSCR));
+	_PrintField("CMD23", "%u", SD_SCR_CMD23_SUPPORT(pSCR));
+	_PrintField("CMD48/49", "%u", SD_SCR_CMD48_SUPPORT(pSCR));
+	_PrintField("CMD58/59", "%u", SD_SCR_CMD58_SUPPORT(pSCR));
 }
 
 /**
@@ -4056,31 +3810,20 @@ SD_DumpSCR(const uint8_t *pSCR)
 void
 SD_DumpSSR(const uint8_t *pSSR)
 {
-	printf("======= SD Status =======\n\r");
-	printf(" .DAT_BUS_WIDTH              0x%X\n\r",
-	    SD_SSR_DAT_BUS_WIDTH(pSSR));
-	printf(" .SECURED_MODE               %u\n\r",
-	    SD_SSR_SECURED_MODE(pSSR));
-	printf(" .SD_CARD_TYPE               0x%04X\n\r",
-	    SD_SSR_CARD_TYPE(pSSR));
-	printf(" .SIZE_OF_PROTECTED_AREA     %lu\n\r",
+	_PrintTitle("SD Status");
+	_PrintField("DAT_BUS_WIDTH", "0x%X", SD_SSR_DAT_BUS_WIDTH(pSSR));
+	_PrintField("SEC_MODE", "%u", SD_SSR_SECURED_MODE(pSSR));
+	_PrintField("SD_CARD_TYPE", "0x%04X", SD_SSR_CARD_TYPE(pSSR));
+	_PrintField("PAREA_SIZE", "%lu",
 	    SD_SSR_SIZE_OF_PROTECTED_AREA(pSSR));
-	printf(" .SPEED_CLASS                0x%02X\n\r",
-	    SD_SSR_SPEED_CLASS(pSSR));
-	printf(" .UHS_SPEED_GRADE            0x%X\n\r",
-	    SD_SSR_UHS_SPEED_GRADE(pSSR));
-	printf(" .PERFORMANCE_MOVE           %u MB/sec\n\r",
-	    SD_SSR_PERFORMANCE_MOVE(pSSR));
-	printf(" .AU_SIZE                    0x%X\n\r",
-	    SD_SSR_AU_SIZE(pSSR));
-	printf(" .UHS_AU_SIZE                0x%X\n\r",
-	    SD_SSR_UHS_AU_SIZE(pSSR));
-	printf(" .ERASE_SIZE                 %u AU\n\r",
-	    SD_SSR_ERASE_SIZE(pSSR));
-	printf(" .ERASE_TIMEOUT              %u sec\n\r",
-	    SD_SSR_ERASE_TIMEOUT(pSSR));
-	printf(" .ERASE_OFFSET               %u sec\n\r",
-	    SD_SSR_ERASE_OFFSET(pSSR));
+	_PrintField("SPD_CLASS", "0x%02X", SD_SSR_SPEED_CLASS(pSSR));
+	_PrintField("UHS_SPD_GRADE", "0x%X", SD_SSR_UHS_SPEED_GRADE(pSSR));
+	_PrintField("PE_MOVE", "%u MB/sec", SD_SSR_PERFORMANCE_MOVE(pSSR));
+	_PrintField("AU_SIZE", "0x%X", SD_SSR_AU_SIZE(pSSR));
+	_PrintField("UHS_AU_SIZE", "0x%X", SD_SSR_UHS_AU_SIZE(pSSR));
+	_PrintField("ER_SIZE", "%u AU", SD_SSR_ERASE_SIZE(pSSR));
+	_PrintField("ER_TIMEOUT", "%u sec", SD_SSR_ERASE_TIMEOUT(pSSR));
+	_PrintField("ER_OFFS", "%u sec", SD_SSR_ERASE_OFFSET(pSSR));
 }
 
 /**
@@ -4102,7 +3845,7 @@ SD_StringifyIOCtrl(uint32_t dwCtrl)
 			return sdmmcIOCtrlNames[ix].name;
 	}
 
-	return sdmmcInvalidIOCtrl;
+	return sdmmcInvalidCode;
 #endif
 }
 
@@ -4125,7 +3868,7 @@ SD_StringifyRetCode(uint32_t dwRCode)
 			return sdmmcRCodeNames[ix].name;
 	}
 
-	return sdmmcInvalidRCode;
+	return sdmmcInvalidCode;
 #endif
 }
 

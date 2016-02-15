@@ -159,7 +159,7 @@
 #define SDIO_OCR_NF             (0x3ul << 28)	/**< SDIO: Number of functions */
 #define MMC_OCR_ACCESS_MODE     (0x3ul << 29)	/**< MMC: Access mode, 0x2 is sector mode */
 #define MMC_OCR_ACCESS_BYTE     (0x0 << 29)	/**< MMC: Byte access mode */
-#define MMC_OCR_ACCESS_SECTOR   (0x2 << 29)	/**< MMC: Sector access mode */
+#define MMC_OCR_ACCESS_SECTOR   (0x2ul << 29)	/**< MMC: Sector access mode */
 #define SD_OCR_CCS              (1ul << 30)	/**< SD Card Capacity Status (CCS) */
 #define SD_OCR_BUSY             (1ul << 31)	/**< SD/MMC Card power up status bit (busy) */
 
@@ -180,44 +180,44 @@
  */
 /** CID register access (128 bits, 16 * 8 bits, 4 * 32 bits) */
 #define SD_CID(pCid, field, bits)        SD_BITS32(pCid, 128, field, bits)
-#define SD_CID_MID(pCid)    SD_CID(pCid, 120, 8)   /**< Manufacture ID */
-#define eMMC_CID_CBX(pCid)  SD_CID(pCid, 112, 2)   /**< eMMC BGA(01)/CARD(00) */
-#define SD_CID_OID1(pCid)   SD_CID(pCid, 112, 8)   /**< OEM/App ID Byte 1 */
-#define SD_CID_OID0(pCid)   SD_CID(pCid, 104, 8)   /**< OEM/App ID Byte 0 */
-#define MMC_CID_OID(pCid)   SD_CID(pCid, 104, 16)  /**< MMC OEM/App ID */
-#define eMMC_CID_OID(pCid)  SD_CID(pCid, 104, 8)   /**< MMC v4.3+ OEM/App ID */
-#define SD_CID_PNM4(pCid)   SD_CID(pCid,  96, 8)   /**< Product name byte 4 */
-#define SD_CID_PNM3(pCid)   SD_CID(pCid,  88, 8)   /**< Product name byte 3 */
-#define SD_CID_PNM2(pCid)   SD_CID(pCid,  80, 8)   /**< Product name byte 2 */
-#define SD_CID_PNM1(pCid)   SD_CID(pCid,  72, 8)   /**< Product name byte 1 */
-#define SD_CID_PNM0(pCid)   SD_CID(pCid,  64, 8)   /**< Product name byte 0 */
-#define MMC_CID_PNM5(pCid)  SD_CID(pCid,  96, 8)   /**< Product name byte 5 */
-#define MMC_CID_PNM4(pCid)  SD_CID(pCid,  88, 8)   /**< Product name byte 4 */
-#define MMC_CID_PNM3(pCid)  SD_CID(pCid,  80, 8)   /**< Product name byte 3 */
-#define MMC_CID_PNM2(pCid)  SD_CID(pCid,  72, 8)   /**< Product name byte 2 */
-#define MMC_CID_PNM1(pCid)  SD_CID(pCid,  64, 8)   /**< Product name byte 1 */
-#define MMC_CID_PNM0(pCid)  SD_CID(pCid,  56, 8)   /**< Product name byte 0 */
+#define SD_CID_MID(pCid)    (uint8_t)SD_CID(pCid, 120, 8)   /**< Manufacture ID */
+#define eMMC_CID_CBX(pCid)  (uint8_t)SD_CID(pCid, 112, 2)   /**< eMMC BGA(01)/CARD(00) */
+#define SD_CID_OID1(pCid)   (uint8_t)SD_CID(pCid, 112, 8)   /**< OEM/App ID Byte 1 */
+#define SD_CID_OID0(pCid)   (uint8_t)SD_CID(pCid, 104, 8)   /**< OEM/App ID Byte 0 */
+#define MMC_CID_OID(pCid)   (uint16_t)SD_CID(pCid, 104, 16)  /**< MMC OEM/App ID */
+#define eMMC_CID_OID(pCid)  (uint8_t)SD_CID(pCid, 104, 8)   /**< MMC v4.3+ OEM/App ID */
+#define SD_CID_PNM4(pCid)   (uint8_t)SD_CID(pCid,  96, 8)   /**< Product name byte 4 */
+#define SD_CID_PNM3(pCid)   (uint8_t)SD_CID(pCid,  88, 8)   /**< Product name byte 3 */
+#define SD_CID_PNM2(pCid)   (uint8_t)SD_CID(pCid,  80, 8)   /**< Product name byte 2 */
+#define SD_CID_PNM1(pCid)   (uint8_t)SD_CID(pCid,  72, 8)   /**< Product name byte 1 */
+#define SD_CID_PNM0(pCid)   (uint8_t)SD_CID(pCid,  64, 8)   /**< Product name byte 0 */
+#define MMC_CID_PNM5(pCid)  (uint8_t)SD_CID(pCid,  96, 8)   /**< Product name byte 5 */
+#define MMC_CID_PNM4(pCid)  (uint8_t)SD_CID(pCid,  88, 8)   /**< Product name byte 4 */
+#define MMC_CID_PNM3(pCid)  (uint8_t)SD_CID(pCid,  80, 8)   /**< Product name byte 3 */
+#define MMC_CID_PNM2(pCid)  (uint8_t)SD_CID(pCid,  72, 8)   /**< Product name byte 2 */
+#define MMC_CID_PNM1(pCid)  (uint8_t)SD_CID(pCid,  64, 8)   /**< Product name byte 1 */
+#define MMC_CID_PNM0(pCid)  (uint8_t)SD_CID(pCid,  56, 8)   /**< Product name byte 0 */
 
-#define SD_CID_PRV1(pCid)   SD_CID(pCid,  60, 4)   /**< Product revision major number */
-#define SD_CID_PRV0(pCid)   SD_CID(pCid,  56, 4)   /**< Product revision minor number */
-#define MMC_CID_PRV1(pCid)  SD_CID(pCid,  52, 4)   /**< Product revision major number */
-#define MMC_CID_PRV0(pCid)  SD_CID(pCid,  48, 4)   /**< Product revision minor number */
+#define SD_CID_PRV1(pCid)   (uint8_t)SD_CID(pCid,  60, 4)   /**< Product revision major number */
+#define SD_CID_PRV0(pCid)   (uint8_t)SD_CID(pCid,  56, 4)   /**< Product revision minor number */
+#define MMC_CID_PRV1(pCid)  (uint8_t)SD_CID(pCid,  52, 4)   /**< Product revision major number */
+#define MMC_CID_PRV0(pCid)  (uint8_t)SD_CID(pCid,  48, 4)   /**< Product revision minor number */
 
-#define SD_CID_PSN3(pCid)   SD_CID(pCid,  48,  8)  /**< Product serial 3 */
-#define SD_CID_PSN2(pCid)   SD_CID(pCid,  40,  8)  /**< Product serial 2 */
-#define SD_CID_PSN1(pCid)   SD_CID(pCid,  32,  8)  /**< Product serial 1 */
-#define SD_CID_PSN0(pCid)   SD_CID(pCid,  24,  8)  /**< Product serial 0 */
-#define MMC_CID_PSN3(pCid)  SD_CID(pCid,  40,  8)  /**< Product serial 3 */
-#define MMC_CID_PSN2(pCid)  SD_CID(pCid,  32,  8)  /**< Product serial 2 */
-#define MMC_CID_PSN1(pCid)  SD_CID(pCid,  24,  8)  /**< Product serial 1 */
-#define MMC_CID_PSN0(pCid)  SD_CID(pCid,  16,  8)  /**< Product serial 0 */
+#define SD_CID_PSN3(pCid)   (uint8_t)SD_CID(pCid,  48, 8)  /**< Product serial 3 */
+#define SD_CID_PSN2(pCid)   (uint8_t)SD_CID(pCid,  40, 8)  /**< Product serial 2 */
+#define SD_CID_PSN1(pCid)   (uint8_t)SD_CID(pCid,  32, 8)  /**< Product serial 1 */
+#define SD_CID_PSN0(pCid)   (uint8_t)SD_CID(pCid,  24, 8)  /**< Product serial 0 */
+#define MMC_CID_PSN3(pCid)  (uint8_t)SD_CID(pCid,  40, 8)  /**< Product serial 3 */
+#define MMC_CID_PSN2(pCid)  (uint8_t)SD_CID(pCid,  32, 8)  /**< Product serial 2 */
+#define MMC_CID_PSN1(pCid)  (uint8_t)SD_CID(pCid,  24, 8)  /**< Product serial 1 */
+#define MMC_CID_PSN0(pCid)  (uint8_t)SD_CID(pCid,  16, 8)  /**< Product serial 0 */
 
-#define SD_CID_MDT_Y(pCid)  SD_CID(pCid,  12, 8)   /**< Manufacturing Year (0=2000) */
-#define SD_CID_MDT_M(pCid)  SD_CID(pCid,   8, 4)   /**< Manufacturing month */
-#define MMC_CID_MDT_Y(pCid) SD_CID(pCid,   8, 4)   /**< Manufacturing Year (0=1997 or 2013) */
-#define MMC_CID_MDT_M(pCid) SD_CID(pCid,  12, 4)   /**< Manufacturing month */
+#define SD_CID_MDT_Y(pCid)  (uint8_t)SD_CID(pCid,  12, 8)   /**< Manufacturing Year (0=2000) */
+#define SD_CID_MDT_M(pCid)  (uint8_t)SD_CID(pCid,   8, 4)   /**< Manufacturing month */
+#define MMC_CID_MDT_Y(pCid) (uint8_t)SD_CID(pCid,   8, 4)   /**< Manufacturing Year (0=1997 or 2013) */
+#define MMC_CID_MDT_M(pCid) (uint8_t)SD_CID(pCid,  12, 4)   /**< Manufacturing month */
 
-#define SD_CID_CRC(pCid)    SD_CID(pCid,   1, 7)   /**< CRC7 checksum */
+#define SD_CID_CRC(pCid)    (uint8_t)SD_CID(pCid,   1, 7)   /**< CRC7 checksum */
 /**     @}*/
 
 /** \addtogroup sdmmc_csd_acc SD/MMC CSD register fields
@@ -225,65 +225,66 @@
  */
 /** CSD register access macros (128 bits, 16 * 8 bits, 4 * 32  bits */
 #define SD_CSD(pCsd, field, bits)    SD_BITS32(pCsd, 128, field, bits)
-#define SD_CSD_STRUCTURE(pCsd)          SD_CSD(pCsd, 126, 2) /**< CSD structure */
+#define SD_CSD_STRUCTURE(pCsd)          (uint8_t)SD_CSD(pCsd, 126, 2) /**< CSD structure */
 #define SD_CSD_STRUCTURE_1_0            0 /**< SD v1.01~1.10, v2.0/Std Capacity */
 #define SD_CSD_STRUCTURE_2_0            1 /**< SD v2.0/HC */
 #define MMC_CSD_STRUCTURE_1_0           0 /**< MMC v1.0~1.2 */
 #define MMC_CSD_STRUCTURE_1_1           1 /**< MMC v1.4~2.2 */
 #define MMC_CSD_STRUCTURE_1_2           2 /**< MMC v3.1~3.31(v4.0), v4.1~(>v4.1) */
-#define MMC_CSD_SPEC_VERS(pCsd)         SD_CSD(pCsd, 122, 4) /**< System spec version */
+#define MMC_CSD_SPEC_VERS(pCsd)         (uint8_t)SD_CSD(pCsd, 122, 4) /**< System spec version */
 #define MMC_CSD_SPEC_VERS_1_0           0 /**< MMC v1.0~1.2 */
 #define MMC_CSD_SPEC_VERS_1_4           1 /**< MMC v1.4 */
 #define MMC_CSD_SPEC_VERS_2_0           2 /**< MMC v2.0~2.2 */
 #define MMC_CSD_SPEC_VERS_3_1           3 /**< MMC v3.1~3.31 */
 #define MMC_CSD_SPEC_VERS_4_0           4 /**< MMC v4.0(v4.0), v4.1~(>v4.1) */
-#define SD_CSD_TAAC(pCsd)               SD_CSD(pCsd, 112, 8) /**< Data read-access-time-1 */
-#define SD_CSD_NSAC(pCsd)               SD_CSD(pCsd, 104, 8) /**< Data read access-time-2 in CLK cycles */
-#define SD_CSD_TRAN_SPEED(pCsd)         SD_CSD(pCsd, 96,  8) /**< Max. data transfer rate */
-#define SD_CSD_CCC(pCsd)                SD_CSD(pCsd, 84, 12) /**< Card command class */
-#define SD_CSD_READ_BL_LEN(pCsd)        SD_CSD(pCsd, 80,  4) /**< Max. read data block length */
-#define SD_CSD_READ_BL_PARTIAL(pCsd)    SD_CSD(pCsd, 79,  1) /**< Bartial blocks for read allowed */
-#define SD_CSD_WRITE_BLK_MISALIGN(pCsd) SD_CSD(pCsd, 78,  1) /**< Write block misalignment */
-#define SD_CSD_READ_BLK_MISALIGN(pCsd)  SD_CSD(pCsd, 77,  1) /**< Read block misalignment */
-#define SD_CSD_DSR_IMP(pCsd)            SD_CSD(pCsd, 76,  1) /**< DSP implemented */
-#define SD_CSD_C_SIZE(pCsd)             ((SD_CSD(pCsd, 72,  2) << 10) + \
-                                        (SD_CSD(pCsd, 64,  8) << 2)  + \
-                                         SD_CSD(pCsd, 62,  2)) /**< Device size */
-#define SD2_CSD_C_SIZE(pCsd)            ((SD_CSD(pCsd, 64,  6) << 16) + \
-                                        (SD_CSD(pCsd, 56,  8) << 8)  + \
-                                         SD_CSD(pCsd, 48,  8)) /**< Device size v2.0 */
-#define SD_CSD_VDD_R_CURR_MIN(pCsd)     SD_CSD(pCsd, 59,  3) /**< Max. read current VDD min */
-#define SD_CSD_VDD_R_CURR_MAX(pCsd)     SD_CSD(pCsd, 56,  3) /**< Max. read current VDD max */
-#define SD_CSD_VDD_W_CURR_MIN(pCsd)     SD_CSD(pCsd, 53,  3) /**< Max. write current VDD min */
-#define SD_CSD_VDD_W_CURR_MAX(pCsd)     SD_CSD(pCsd, 50,  3) /**< Max. write current VDD max */
-#define SD_CSD_C_SIZE_MULT(pCsd)        SD_CSD(pCsd, 47,  3) /**< Device size multiplier */
-#define SD_CSD_ERASE_BLK_EN(pCsd)       SD_CSD(pCsd, 46,  1) /**< Erase single block enable */
-#define MMC_CSD_ERASE_BLK_EN(pCsd)      SD_CSD(pCsd, 46,  1) /**< Erase single block enable */
-#define MMC_CSD_ERASE_GRP_SIZE(pCsd)    SD_CSD(pCsd, 42,  4) /**< Erase group size */
-#define SD_CSD_ERASE_GRP_MULT(pCsd)     SD_CSD(pCsd, 37,  4) /**< Erase group size multiplier */
-#define SD_CSD_SECTOR_SIZE(pCsd)       ((SD_CSD(pCsd, 40,  6) << 1) \
-                                      + SD_CSD(pCsd, 39,  1)) /**< Erase sector size*/
-#define SD_CSD_WP_GRP_SIZE(pCsd)        SD_CSD(pCsd, 32,  7) /**< Write protect group size*/
-#define SD_CSD_WP_GRP_ENABLE(pCsd)      SD_CSD(pCsd, 31,  1) /**< write protect group enable*/
-#define SD_CSD_R2W_FACTOR(pCsd)         SD_CSD(pCsd, 26,  3) /**< Write speed factor*/
-#define SD_CSD_WRITE_BL_LEN(pCsd)      ((SD_CSD(pCsd, 24,  2) << 2) \
-                                      + SD_CSD(pCsd, 22,  2)) /**< Max write block length*/
-#define SD_CSD_WRITE_BL_PARTIAL(pCsd)   SD_CSD(pCsd, 21,  1) /**< Partial blocks for write allowed*/
-#define SD_CSD_CONTENT_PROT_APP(pCsd)   SD_CSD(pCsd, 16,  1) /**< File format group*/
-#define SD_CSD_FILE_FORMAT_GRP(pCsd)    SD_CSD(pCsd, 15,  1) /**< File format group*/
-#define SD_CSD_COPY(pCsd)               SD_CSD(pCsd, 14,  1) /**< Copy flag (OTP)*/
-#define SD_CSD_PERM_WRITE_PROTECT(pCsd) SD_CSD(pCsd, 13,  1) /**< Permanent write protect*/
-#define SD_CSD_TMP_WRITE_PROTECT(pCsd)  SD_CSD(pCsd, 12,  1) /**< Temporary write protection*/
-#define SD_CSD_FILE_FORMAT(pCsd)        SD_CSD(pCsd, 10,  2) /**< File format*/
-#define MMC_CSD_ECC(pCsd)               SD_CSD(pCsd,  8,  2) /**< ECC */
+#define SD_CSD_TAAC(pCsd)               (uint8_t)SD_CSD(pCsd, 112, 8) /**< Data read-access-time-1 */
+#define SD_CSD_NSAC(pCsd)               (uint8_t)SD_CSD(pCsd, 104, 8) /**< Data read access-time-2 in CLK cycles */
+#define SD_CSD_TRAN_SPEED(pCsd)         (uint8_t)SD_CSD(pCsd,  96, 8) /**< Max. data transfer rate */
+#define SD_CSD_CCC(pCsd)                (uint16_t)SD_CSD(pCsd, 84, 12) /**< Card command class */
+#define SD_CSD_READ_BL_LEN(pCsd)        (uint8_t)SD_CSD(pCsd,  80, 4) /**< Max. read data block length */
+#define SD_CSD_READ_BL_PARTIAL(pCsd)    (uint8_t)SD_CSD(pCsd,  79, 1) /**< Bartial blocks for read allowed */
+#define SD_CSD_WRITE_BLK_MISALIGN(pCsd) (uint8_t)SD_CSD(pCsd,  78, 1) /**< Write block misalignment */
+#define SD_CSD_READ_BLK_MISALIGN(pCsd)  (uint8_t)SD_CSD(pCsd,  77, 1) /**< Read block misalignment */
+#define SD_CSD_DSR_IMP(pCsd)            (uint8_t)SD_CSD(pCsd,  76, 1) /**< DSP implemented */
+#define SD_CSD_C_SIZE(pCsd)             (uint16_t)((SD_CSD(pCsd, 72, 2) << 10) | \
+					(SD_CSD(pCsd, 64, 8) << 2)  | \
+					 SD_CSD(pCsd, 62, 2)) /**< Device size */
+#define SD2_CSD_C_SIZE(pCsd)            ((SD_CSD(pCsd, 64, 6) << 16) | \
+					(SD_CSD(pCsd, 56, 8) << 8)  | \
+					 SD_CSD(pCsd, 48, 8)) /**< Device size v2.0 */
+#define SD_CSD_VDD_R_CURR_MIN(pCsd)     (uint8_t)SD_CSD(pCsd,  59, 3) /**< Max. read current VDD min */
+#define SD_CSD_VDD_R_CURR_MAX(pCsd)     (uint8_t)SD_CSD(pCsd,  56, 3) /**< Max. read current VDD max */
+#define SD_CSD_VDD_W_CURR_MIN(pCsd)     (uint8_t)SD_CSD(pCsd,  53, 3) /**< Max. write current VDD min */
+#define SD_CSD_VDD_W_CURR_MAX(pCsd)     (uint8_t)SD_CSD(pCsd,  50, 3) /**< Max. write current VDD max */
+#define SD_CSD_C_SIZE_MULT(pCsd)        (uint8_t)SD_CSD(pCsd,  47, 3) /**< Device size multiplier */
+#define SD_CSD_ERASE_BLK_EN(pCsd)       (uint8_t)SD_CSD(pCsd,  46, 1) /**< Erase single block enable */
+#define SD_CSD_SECTOR_SIZE(pCsd)        (uint8_t)((SD_CSD(pCsd, 40, 6) << 1) | \
+					 SD_CSD(pCsd, 39, 1)) /**< Erase sector size*/
+#define SD_CSD_WP_GRP_SIZE(pCsd)        (uint8_t)SD_CSD(pCsd,  32, 7) /**< Write protect group size*/
+#define MMC_CSD_ERASE_GRP_SIZE(pCsd)    (uint8_t)SD_CSD(pCsd,  42, 5) /**< Erase group size */
+#define MMC_CSD_ERASE_GRP_MULT(pCsd)    (uint8_t)SD_CSD(pCsd,  37, 5) /**< Erase group size multiplier */
+#define MMC_CSD_WP_GRP_SIZE(pCsd)       (uint8_t)SD_CSD(pCsd,  32, 5) /**< Write protect group size*/
+#define SD_CSD_WP_GRP_ENABLE(pCsd)      (uint8_t)SD_CSD(pCsd,  31, 1) /**< write protect group enable*/
+#define MMC_CSD_DEFAULT_ECC(pCsd)       (uint8_t)SD_CSD(pCsd,  29, 2) /**< Manufacturer default ECC */
+#define SD_CSD_R2W_FACTOR(pCsd)         (uint8_t)SD_CSD(pCsd,  26, 3) /**< Write speed factor*/
+#define SD_CSD_WRITE_BL_LEN(pCsd)       (uint8_t)((SD_CSD(pCsd, 24, 2) << 2) | \
+					 SD_CSD(pCsd, 22, 2)) /**< Max write block length*/
+#define SD_CSD_WRITE_BL_PARTIAL(pCsd)   (uint8_t)SD_CSD(pCsd,  21, 1) /**< Partial blocks for write allowed*/
+#define SD_CSD_CONTENT_PROT_APP(pCsd)   (uint8_t)SD_CSD(pCsd,  16, 1) /**< File format group*/
+#define SD_CSD_FILE_FORMAT_GRP(pCsd)    (uint8_t)SD_CSD(pCsd,  15, 1) /**< File format group*/
+#define SD_CSD_COPY(pCsd)               (uint8_t)SD_CSD(pCsd,  14, 1) /**< Copy flag (OTP)*/
+#define SD_CSD_PERM_WRITE_PROTECT(pCsd) (uint8_t)SD_CSD(pCsd,  13, 1) /**< Permanent write protect*/
+#define SD_CSD_TMP_WRITE_PROTECT(pCsd)  (uint8_t)SD_CSD(pCsd,  12, 1) /**< Temporary write protection*/
+#define SD_CSD_FILE_FORMAT(pCsd)        (uint8_t)SD_CSD(pCsd,  10, 2) /**< File format*/
+#define MMC_CSD_ECC(pCsd)               (uint8_t)SD_CSD(pCsd,   8, 2) /**< ECC */
 #define MMC_CSD_ECC_NONE                0 /**< none */
 #define MMC_CSD_ECC_BCH                 1 /**< BCH, 3 correctable bits per block */
-#define SD_CSD_CRC(pCsd)                SD_CSD(pCsd,  1,  7) /**< CRC*/
+#define SD_CSD_CRC(pCsd)                (uint8_t)SD_CSD(pCsd,   1, 7) /**< CRC*/
 
-#define SD_CSD_MULT(pCsd)               (1 << (SD_CSD_C_SIZE_MULT(pCsd) + 2))
+#define SD_CSD_MULT(pCsd)               (uint16_t)(1u << (SD_CSD_C_SIZE_MULT(pCsd) + 2))
 #define SD_CSD_BLOCKNR(pCsd)            ((SD_CSD_C_SIZE(pCsd) + 1ul) * SD_CSD_MULT(pCsd))
 #define SD_CSD_BLOCKNR_HC(pCsd)         ((SD2_CSD_C_SIZE(pCsd) + 1ul) * 1024ull)
-#define SD_CSD_BLOCK_LEN(pCsd)          (1 << SD_CSD_READ_BL_LEN(pCsd))
+#define SD_CSD_BLOCK_LEN(pCsd)          (uint16_t)(1u << SD_CSD_READ_BL_LEN(pCsd))
 #define SD_CSD_TOTAL_SIZE(pCsd)         ((uint64_t)SD_CSD_BLOCKNR(pCsd) * SD_CSD_BLOCK_LEN(pCsd))
 #define SD_CSD_TOTAL_SIZE_HC(pCsd)      ((SD2_CSD_C_SIZE(pCsd) + 1ul) * 512ull * 1024ull)
 /**     @}*/
@@ -645,7 +646,7 @@ void SDIO_DumpCardInformation(sSdCard * pSd);
 
 void SD_DumpCID(const sSdCard *pSd);
 
-void SD_DumpCSD(const uint32_t *pCSD);
+void SD_DumpCSD(const sSdCard *pSd);
 
 void SD_DumpExtCSD(const uint8_t *pExtCSD);
 
