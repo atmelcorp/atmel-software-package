@@ -2514,6 +2514,7 @@ MmcInit(sSdCard * pSd)
 	MmcCmd6Arg sw_arg = {
 		.access = 0x3,   /* Write byte in the EXT_CSD register */
 	};
+	uint64_t mem_size;
 	uint32_t clock, drv_param, drv_err, status;
 	uint8_t error, tim_mode, pwr_class, width;
 	bool flag;
@@ -2715,7 +2716,7 @@ MmcInit(sSdCard * pSd)
 
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
 
-	if (SD_CSD_C_SIZE(pSd->CSD) == 0xFFF) {
+	if (MMC_IsCSDVer1_2(pSd) && MMC_IsVer4(pSd)) {
 		/* Get size from EXT_CSD */
 		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT)
 		    == MMC_EXT_DATA_SECT_4KIB)
@@ -2725,15 +2726,18 @@ MmcInit(sSdCard * pSd)
 		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT)
 		    / (pSd->wBlockSize / 512UL);
 		/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
-		if (pSd->dwNbBlocks >= 0x800000)
+		pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT);
+		if (pSd->dwTotalSize >= 0x800000)
 			pSd->dwTotalSize = 0xFFFFFFFF;
 		else
-			pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT) * 512UL;
+			pSd->dwTotalSize *= 512UL;
 	}
 	else {
 		pSd->wBlockSize = 512;
-		pSd->dwTotalSize = SD_CSD_TOTAL_SIZE(pSd->CSD);
-		pSd->dwNbBlocks = pSd->dwTotalSize / 512;
+		mem_size = SD_CSD_TOTAL_SIZE(pSd->CSD);
+		pSd->dwNbBlocks = (uint32_t)(mem_size >> 9);
+		pSd->dwTotalSize = mem_size >> 32 ? 0xFFFFFFFF
+		    : (uint32_t)mem_size;
 	}
 
 	/* Check device status and eat past exceptions, which would otherwise
@@ -2755,6 +2759,7 @@ MmcInit(sSdCard * pSd)
 static uint8_t
 SdInit(sSdCard * pSd)
 {
+	uint64_t mem_size;
 	uint32_t clock, drv_param, drv_err, status, ioSpeed = 0, memSpeed = 0;
 	uint8_t error;
 	const bool io = pSd->bCardType & CARD_TYPE_bmSDIO ? true : false;
@@ -2888,14 +2893,19 @@ SdInit(sSdCard * pSd)
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
 
 	if (SD_CSD_STRUCTURE(pSd->CSD) >= 1) {
-		pSd->wBlockSize = 512;
-		pSd->dwNbBlocks = SD_CSD_BLOCKNR_HC(pSd->CSD);
-		pSd->dwTotalSize = 0xFFFFFFFF;
-	}
+		mem_size = SD_CSD_BLOCKNR_HC(pSd->CSD);
+		pSd->dwNbBlocks = mem_size >> 32 ? 0xFFFFFFFF
+		    : (uint32_t)mem_size;
+		if (pSd->dwNbBlocks >= 0x800000)
+			pSd->dwTotalSize = 0xFFFFFFFF;
+		else
+			pSd->dwTotalSize = pSd->dwNbBlocks * 512UL;	}
 	else {
-		pSd->wBlockSize = 512;	//SD_CSD_BLOCK_LEN(pSd->CSD);
-		pSd->dwTotalSize = SD_CSD_TOTAL_SIZE(pSd->CSD);
-		pSd->dwNbBlocks = pSd->dwTotalSize / 512;	//SD_CSD_BLOCKNR(pSd->CSD);
+		pSd->wBlockSize = 512;
+		mem_size = SD_CSD_TOTAL_SIZE(pSd->CSD);
+		pSd->dwNbBlocks = (uint32_t)(mem_size >> 9);
+		pSd->dwTotalSize = mem_size >> 32 ? 0xFFFFFFFF
+		    : (uint32_t)mem_size;
 	}
 
 	/* Automatically select the max clock */

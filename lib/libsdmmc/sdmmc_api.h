@@ -281,11 +281,11 @@
 #define SD_CSD_CRC(pCsd)                SD_CSD(pCsd,  1,  7) /**< CRC*/
 
 #define SD_CSD_MULT(pCsd)               (1 << (SD_CSD_C_SIZE_MULT(pCsd) + 2))
-#define SD_CSD_BLOCKNR(pCsd)            ((SD_CSD_C_SIZE(pCsd) + 1) * SD_CSD_MULT(pCsd))
-#define SD_CSD_BLOCKNR_HC(pCsd)         ((SD2_CSD_C_SIZE(pCsd) + 1) * 1024)
+#define SD_CSD_BLOCKNR(pCsd)            ((SD_CSD_C_SIZE(pCsd) + 1ul) * SD_CSD_MULT(pCsd))
+#define SD_CSD_BLOCKNR_HC(pCsd)         ((SD2_CSD_C_SIZE(pCsd) + 1ul) * 1024ull)
 #define SD_CSD_BLOCK_LEN(pCsd)          (1 << SD_CSD_READ_BL_LEN(pCsd))
-#define SD_CSD_TOTAL_SIZE(pCsd)         (SD_CSD_BLOCKNR(pCsd) * SD_CSD_BLOCK_LEN(pCsd))
-#define SD_CSD_TOTAL_SIZE_HC(pCsd)      ((SD2_CSD_C_SIZE(pCsd) + 1) * 512* 1024)
+#define SD_CSD_TOTAL_SIZE(pCsd)         ((uint64_t)SD_CSD_BLOCKNR(pCsd) * SD_CSD_BLOCK_LEN(pCsd))
+#define SD_CSD_TOTAL_SIZE_HC(pCsd)      ((SD2_CSD_C_SIZE(pCsd) + 1ul) * 512ull * 1024ull)
 /**     @}*/
 
 /** \addtogroup sd_scr_acc SD SCR register fields
