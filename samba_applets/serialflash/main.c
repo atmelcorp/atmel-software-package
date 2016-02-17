@@ -126,7 +126,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	if (!configure_instance_pio(instance, ioset, chip_select,
 				&spi_at25_desc.addr)) {
-		trace_error_wp("Invalid configuration: QSPI%u IOSet%u NPCS%u\r\n",
+		trace_error_wp("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select);
 		return APPLET_FAIL;
