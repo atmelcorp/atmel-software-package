@@ -161,19 +161,19 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		trace_info_wp("Size: %u bytes\r\n", (unsigned)size);
 		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
-		if (at25drv.desc->erase_support & AT25_ERASE_4K) {
+		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_4K) {
 			trace_info_wp("Supports 4K block erase\r\n");
 			erase_support |= (4 * 1024) / page_size;
 		}
-		if (at25drv.desc->erase_support & AT25_ERASE_32K) {
+		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_32K) {
 			trace_info_wp("Supports 32K block erase\r\n");
 			erase_support |= (32 * 1024) / page_size;
 		}
-		if (at25drv.desc->erase_support & AT25_ERASE_64K) {
+		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_64K) {
 			trace_info_wp("Supports 64K block erase\r\n");
 			erase_support |= (64 * 1024) / page_size;
 		}
-		if (at25drv.desc->erase_support & AT25_ERASE_256K) {
+		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_256K) {
 			trace_info_wp("Supports 256K block erase\r\n");
 			erase_support |= (256 * 1024) / page_size;
 		}
@@ -188,7 +188,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		buffer_size = applet_buffer_size & ~(page_size - 1);
 		/* SST Flash write is slow, reduce buffer size to avoid
 		 * timeouts */
-		if (AT25_JEDEC_MANUF(at25drv.desc->jedec_id) == AT25_MANUF_SST) {
+		if (SPINOR_JEDEC_MANUF(at25drv.desc->jedec_id) == SPINOR_MANUF_SST) {
 			buffer_size = min_u32(10 * page_size, buffer_size);
 		}
 		if (buffer_size == 0) {
@@ -290,24 +290,19 @@ static uint32_t handle_cmd_full_erase(uint32_t cmd, uint32_t *args)
 static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union erase_pages_mailbox *mbx = (union erase_pages_mailbox*)mailbox;
-	uint32_t erase_type = 0;
 	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
 	uint32_t length = mbx->in.length * at25drv.desc->page_size;
 
 	assert(cmd == APPLET_CMD_ERASE_PAGES);
 
-	if ((at25drv.desc->erase_support & AT25_ERASE_4K)
+	if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_4K)
 			&& length == 4 * 1024) {
-		erase_type = AT25_ERASE_4K;
-	} else if ((at25drv.desc->erase_support & AT25_ERASE_32K)
+	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_32K)
 			&& length == 32 * 1024) {
-		erase_type = AT25_ERASE_32K;
-	} else if ((at25drv.desc->erase_support & AT25_ERASE_64K)
+	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_64K)
 			&& length == 64 * 1024) {
-		erase_type = AT25_ERASE_64K;
-	} else if ((at25drv.desc->erase_support & AT25_ERASE_256K)
-			&& length == 256 * 104) {
-		erase_type = AT25_ERASE_256K;
+	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_256K)
+			&& length == 256 * 1024) {
 	} else {
 		trace_error("Memory does not support requested erase size "
 				"%u bytes\r\n", (unsigned)length);
@@ -321,7 +316,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (at25_erase_block(&at25drv, offset, erase_type) != AT25_SUCCESS) {
+	if (at25_erase_block(&at25drv, offset, length) != AT25_SUCCESS) {
 		trace_error("Erase failed at offset 0x%08x\r\n",
 				(unsigned)offset);
 		return APPLET_ERASE_FAIL;

@@ -214,34 +214,28 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
-	uint32_t erase_type = AT25_ERASE_4K;
+	uint32_t erase_length = 4096;
 
 	erase_type_str = end_addr + 1;
-	switch(*erase_type_str) {
-	case '4':
-		if (*(erase_type_str+1) == 'k' || *(erase_type_str+1) == 'K') {
-			erase_type = AT25_ERASE_4K;
-		}
-		break;
-	case '3':
-		if (*(erase_type_str+1) == '2' &&
-		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
-			erase_type = AT25_ERASE_32K;
-		}
-		break;
-	case '6':
-		if (*(erase_type_str+1) == '4' &&
-		    (*(erase_type_str+2) == 'k' || *(erase_type_str+2) == 'K')) {
-			erase_type = AT25_ERASE_64K;
-		}
-		break;
-	default:
+	if (!strcmp("4k", erase_type_str) ||
+	    !strcmp("4K", erase_type_str)) {
+		erase_length = 4 * 1024;
+	} else if (!strcmp("32k", erase_type_str) ||
+	           !strcmp("32K", erase_type_str)) {
+		erase_length = 32 * 1024;
+	} else if (!strcmp("64k", erase_type_str) ||
+	           !strcmp("64K", erase_type_str)) {
+		erase_length = 64 * 1024;
+	} else if (!strcmp("256k", erase_type_str) ||
+	           !strcmp("256K", erase_type_str)) {
+		erase_length = 256 * 1024;
+	} else {
 		printf("Args: %s\r\n"
 		       "Invalid Erase type\r\n",
 		       buffer);
 		return;
 	}
-	at25_erase_block(&at25drv, addr, erase_type);
+	at25_erase_block(&at25drv, addr, erase_length);
 }
 
 static void print_menu(void)
@@ -256,9 +250,9 @@ static void print_menu(void)
 	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
 	       "| w addr str                                            |\r\n"
 	       "|      Write 'str' to address 'addr'                    |\r\n"
-	       "| d addr [4k|32k|64k]                                   |\r\n"
+	       "| d addr [4k|32k|64k|256k]                              |\r\n"
 	       "|      Erase block containing the address 'addr'        |\r\n"
-	       "|      The erase can be 4k, 32k or 64k                  |\r\n"
+	       "|      The erase can be 4k, 32k, 64k or 256k            |\r\n"
 	       "| m                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");

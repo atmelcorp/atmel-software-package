@@ -35,6 +35,7 @@
 //------------------------------------------------------------------------------
 
 #include <stdint.h>
+#include "memories/spi-nor.h"
 #include "peripherals/spid.h"
 
 /*----------------------------------------------------------------------------
@@ -89,20 +90,6 @@
 /** Sector protection registers are locked. */
 #define AT25_STATUS_SPRL_LOCKED     (1 << 7)
 
-/* SPI Flash JEDEC ID */
-#define AT25_JEDEC_MANUF(jedec_id)   (((jedec_id) & 0x0000FFu) >> 0)
-#define AT25_JEDEC_DENSITY(jedec_id) (((jedec_id) & 0x001F00u) >> 8)
-#define AT25_JEDEC_FAMILY(jedec_id)  (((jedec_id) & 0x00E000u) >> 13)
-#define AT25_JEDEC_VERSION(jedec_id) (((jedec_id) & 0x1F0000u) >> 16)
-#define AT25_JEDEC_SUBCODE(jedec_id) (((jedec_id) & 0xE00000u) >> 21)
-
-#define AT25_MANUF_ATMEL          0x1Fu
-#define AT25_MANUF_ST             0x20u
-#define AT25_MANUF_WINBOND        0xEFu
-#define AT25_MANUF_MACRONIX       0xC2u
-#define AT25_MANUF_SST            0xBFu
-#define AT25_MANUF_SPANSION       0x01u
-
 #define AT25_ADDRESS_4_BYTES      0x4Bu
 #define AT25_ADDRESS_3_BYTES      0x3Bu
 
@@ -110,29 +97,9 @@
 #define AT25_DEVICE_NOT_SUPPORTED 0xFu
 #define AT25_ADDR_OOB             0xBu
 
-#define AT25_ERASE_4K             0x1u
-#define AT25_ERASE_32K            0x2u
-#define AT25_ERASE_64K            0x4u
-#define AT25_ERASE_256K           0x8u
-
-/** Describes a serial firmware flash device parameters. */
-struct _at25_desc {
-
-	/** Device string name. */
-	const char *name;
-	/** JEDEC ID of device. */
-	uint32_t jedec_id;
-	/** Size of device in bytes. */
-	uint32_t size;
-	/** Size of one page in bytes. */
-	uint32_t page_size;
-	/** Block erase supported (bitfield). */
-	uint8_t erase_support;
-};
-
 struct _at25 {
 	struct _spi_desc* spid;
-	const struct _at25_desc* desc;
+	const struct _spi_nor_desc* desc;
 	uint32_t addressing;
 };
 
@@ -155,7 +122,7 @@ extern uint32_t at25_read(struct _at25* at25, uint32_t addr,
 			  uint8_t* data, uint32_t length);
 extern uint32_t at25_erase_chip(struct _at25* at25);
 extern uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
-				 uint32_t erase_type);
+				 uint32_t length);
 extern uint32_t at25_write(struct _at25* at25, uint32_t addr,
 			   const uint8_t* data, uint32_t length);
 
