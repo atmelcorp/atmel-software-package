@@ -53,6 +53,9 @@ uint32_t l2cc_is_enabled(void)
 
 void l2cc_enable(void)
 {
+#ifdef SFR_L2CC_HRAMC_SRAM_SEL
+	SFR->SFR_L2CC_HRAMC = SFR_L2CC_HRAMC_SRAM_SEL;
+#endif
 	L2CC->L2CC_CR |= L2CC_CR_L2CEN;
 	asm volatile("": : :"memory");
 	asm("dsb");
