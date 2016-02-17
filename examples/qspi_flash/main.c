@@ -61,7 +61,8 @@ int main(void)
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
 
 	qspi_initialize(QSPIFLASH_ADDR);
-	qspi_set_baudrate(QSPIFLASH_ADDR, QSPIFLASH_BAUDRATE);
+	uint32_t baudrate = qspi_set_baudrate(QSPIFLASH_ADDR, QSPIFLASH_BAUDRATE);
+	printf("set baudrate to %u\r\n", (unsigned)baudrate);
 
 	struct _qspiflash flash;
 	bool rc = qspiflash_configure(&flash, QSPIFLASH_ADDR);
@@ -72,7 +73,7 @@ int main(void)
 	uint8_t buf[768];
 
 	printf("erasing block at 0x%08x\r\n", (int)start);
-	rc = qspiflash_erase_block(&flash, start, false);
+	rc = qspiflash_erase_block(&flash, start, 64 * 1024);
 	printf("erase returns %s\r\n", rc ? "true" : "false");
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);

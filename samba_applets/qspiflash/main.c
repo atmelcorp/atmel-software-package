@@ -137,14 +137,29 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 	else {
 		uint32_t page_size = flash.desc.page_size;
-		uint32_t mem_size =
-			flash.desc.num_blocks * flash.desc.block_size;
+		uint32_t mem_size = flash.desc.size;
+		uint32_t erase_support = 0;
 
 		trace_info_wp("Found Device %s\r\n", flash.desc.name);
 		trace_info_wp("Size: %u bytes\r\n", (unsigned)mem_size);
 		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
-		trace_info_wp("Block Size: %u bytes\r\n",
-				(unsigned)flash.desc.block_size);
+
+		if (flash.desc.flags & SPINOR_FLAG_ERASE_4K) {
+			trace_info_wp("Supports 4K block erase\r\n");
+			erase_support |= (4 * 1024) / page_size;
+		}
+		if (flash.desc.flags & SPINOR_FLAG_ERASE_32K) {
+			trace_info_wp("Supports 32K block erase\r\n");
+			erase_support |= (32 * 1024) / page_size;
+		}
+		if (flash.desc.flags & SPINOR_FLAG_ERASE_64K) {
+			trace_info_wp("Supports 64K block erase\r\n");
+			erase_support |= (64 * 1024) / page_size;
+		}
+		if (flash.desc.flags & SPINOR_FLAG_ERASE_256K) {
+			trace_info_wp("Supports 256K block erase\r\n");
+			erase_support |= (256 * 1024) / page_size;
+		}
 
 		/* round buffer size to a multiple of page size and check if
 		 * it's big enough for at least one page */
@@ -161,7 +176,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.buf_size = buffer_size;
 		mbx->out.page_size = page_size;
 		mbx->out.mem_size = mem_size / page_size;
-		mbx->out.erase_support = flash.desc.block_size / page_size;
+		mbx->out.erase_support = erase_support;
 
 		initialized = true;
 		trace_info_wp("QSPI applet initialized successfully.\r\n");
@@ -252,10 +267,17 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 
 	assert(cmd == APPLET_CMD_ERASE_PAGES);
 
-	if (length != flash.desc.block_size) {
+	if ((flash.desc.flags & SPINOR_FLAG_ERASE_4K)
+			&& length == 4 * 1024) {
+	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_32K)
+			&& length == 32 * 1024) {
+	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_64K)
+			&& length == 64 * 1024) {
+	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_256K)
+			&& length == 256 * 1024) {
+	} else {
 		trace_error("Memory does not support requested erase size "
-				"%u bytes\r\n",
-				(unsigned)length);
+				"%u bytes\r\n", (unsigned)length);
 		return APPLET_FAIL;
 	}
 
@@ -266,7 +288,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (!qspiflash_erase_block(&flash, offset, false)) {
+	if (!qspiflash_erase_block(&flash, offset, length)) {
 		trace_error("Erase failed at offset 0x%lx\r\n", offset);
 		return APPLET_ERASE_FAIL;
 	}

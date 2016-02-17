@@ -36,6 +36,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "memories/spi-nor.h"
 #include "peripherals/qspi.h"
 
 /*----------------------------------------------------------------------------
@@ -44,34 +45,19 @@
 
 struct _qspiflash;
 
-typedef bool (*qspiflash_initialize_t)(struct _qspiflash *flash);
-typedef bool (*qspiflash_switch_to_quad)(struct _qspiflash *flash);
-
-/** Describes a QSPI flash device parameters. */
-struct _qspiflash_desc {
-	const char *name;
-	uint32_t jedec_id;
-	uint32_t num_blocks;
-	uint32_t block_size;
-	uint32_t page_size;
-	uint8_t num_mode_cycles;
-	uint8_t num_dummy_cycles;
+struct _qspiflash {
+	Qspi *qspi;
+	struct _spi_nor_desc desc;
+	uint32_t ifr_width_reg;
+	uint32_t ifr_width_read;
+	uint32_t ifr_width_program;
+	uint32_t ifr_width_erase;
+	uint8_t opcode_read;
+	bool mode_addr4;
 	uint8_t normal_read_mode;
 	uint8_t continuous_read_mode;
-	uint32_t features;
-	qspiflash_initialize_t init;
-	qspiflash_switch_to_quad switch_to_quad;
-};
-
-enum _qspiflash_feature {
-	QSPIFLASH_FEAT_ERASE_4K = (1 << 0),
-};
-
-struct _qspiflash {
-    Qspi *qspi;
-    struct _qspiflash_desc desc;
-    uint32_t ifr_width;
-    bool mode_addr4;
+	uint8_t num_mode_cycles;
+	uint8_t num_dummy_cycles;
 };
 
 /*----------------------------------------------------------------------------
@@ -88,7 +74,7 @@ extern bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeou
 extern bool qspiflash_read_jedec_id(const struct _qspiflash *flash, uint32_t *jedec_id);
 extern bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data, uint32_t length);
 extern bool qspiflash_erase_chip(const struct _qspiflash *flash);
-extern bool qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr, bool erase_4k);
+extern bool qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr, uint32_t length);
 extern bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr, const void *data, uint32_t length);
 
 #ifdef __cplusplus

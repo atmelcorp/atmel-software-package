@@ -48,25 +48,28 @@
 /* Default timeout values (in timer ticks, for 1000 Hz timer) */
 #define TIMEOUT_DEFAULT       100 /* 0.1s */
 #define TIMEOUT_WRITE         800 /* 0.8s */
-#define TIMEOUT_ERASE         800 /* 0.8s */
-#define TIMEOUT_ERASE_CHIP 300000 /* 300s */
-
-/** QSPI Status Register bits */
-#define SR_WIP                    (1 << 0)  /* Write In Progress */
+#define TIMEOUT_ERASE        3000 /* 3s */
+#define TIMEOUT_ERASE_CHIP 500000 /* 500s */
 
 /** QSPI Commands */
 #define CMD_WRITE_STATUS     0x01 /* Write Status Register */
 #define CMD_PAGE_PROGRAM     0x02 /* Page Program */
+#define CMD_READ             0x03 /* Read */
 #define CMD_WRITE_DISABLE    0x04 /* Write Disable */
 #define CMD_READ_STATUS      0x05 /* Read Status Register */
 #define CMD_WRITE_ENABLE     0x06 /* Write Enable */
+#define CMD_FAST_READ        0x0b /* Fast Read */
 #define CMD_SECTOR_ERASE     0x20 /* 4KB Sector Erase */
 #define CMD_READ_CONFIG      0x35 /* Read Configuration Register */
+#define CMD_FAST_READ_1_1_2  0x3b /* Fast Read (1-1-2) */
+#define CMD_BLOCK_ERASE_32K  0x52 /* 32KB Block Erase */
+#define CMD_FAST_READ_1_1_4  0x6b /* Fast Read (1-1-4) */
 #define CMD_READ_ID          0x9f /* Read JEDEC ID */
 #define CMD_MULTI_IO_READ_ID 0xaf /* Read JEDEC ID (multiple IO) */
+#define CMD_FAST_READ_1_2_2  0xbb /* Fast Read (1-2-2) */
 #define CMD_BULK_ERASE       0xc7 /* Bulk Chip Erase */
-#define CMD_BLOCK_ERASE      0xd8 /* 64KB Block Erase */
-#define CMD_READ_QUAD_IO     0xeb /* Read Quad IO (1-4-4) */
+#define CMD_BLOCK_ERASE      0xd8 /* 64/256KB Block Erase */
+#define CMD_FAST_READ_1_4_4  0xeb /* Fast Read (1-4-4) */
 #define CMD_ENTER_ADDR4_MODE 0xb7 /* Enter 4-byte address mode */
 
 /** QSPI Commands (Micron) */
@@ -78,49 +81,53 @@
 /* QSPI Commands (Macronix) */
 #define CMD_MACRONIX_READ_CONFIG 0x15 /* Read Configuration Register */
 
-/* Quad-IO switching method */
-#define QUAD_IO_SWITCH_MICRON 0
-#define QUAD_IO_SWITCH_SPANSION 1
-#define QUAD_IO_SWITCH_MACRONIX 2
+/** QSPI Status Register bits */
+#define SR_WIP              (1 << 0) /* Write In Progress */
+#define SR_MACRONIX_QUAD_EN (1 << 6) /* Quad-IO Enable */
+
+/* Micron Enhanced Volatile Configuration Register  */
+#define EVCR_DUAL_ENABLE (1 << 6)
+#define EVCR_QUAD_ENABLE (1 << 7)
+
+/*----------------------------------------------------------------------------
+ *        Local Types
+ *----------------------------------------------------------------------------*/
+
+struct _read_id_config {
+	uint32_t ifr_width;
+	uint8_t  opcode;
+};
+
+struct _flash_init {
+	uint8_t manuf_id;
+	bool (*init)(struct _qspiflash *);
+};
 
 /*----------------------------------------------------------------------------
  *        Local Forward Function Declarations
  *----------------------------------------------------------------------------*/
 
-static bool _qspiflash_switch_to_quad_micron(struct _qspiflash *flash);
-static bool _qspiflash_switch_to_quad_spansion(struct _qspiflash *flash);
-static bool _qspiflash_switch_to_quad_macronix(struct _qspiflash *flash);
-static bool _qspiflash_init_spansion_fls(struct _qspiflash *flash);
+static bool _qspiflash_init_micron(struct _qspiflash *flash);
+static bool _qspiflash_init_macronix(struct _qspiflash *flash);
 
 /*----------------------------------------------------------------------------
  *        Local Constants
  *----------------------------------------------------------------------------*/
 
-static const struct _qspiflash_desc _qspiflash_devices[] = {
-	/* Manufacturer: Micron */
-	/* mode cycle - bit[0] = 0x0: continuous read, normal read otherwise */
-	{ "N25Q128A",   0x0018ba20, 256, 64 * 1024, 256, 1, 9, 0x01, 0x00,
-		QSPIFLASH_FEAT_ERASE_4K, NULL, _qspiflash_switch_to_quad_micron },
+static const struct _read_id_config configs[] = {
+	/* Regular protocol and command */
+	{ QSPI_IFR_WIDTH_SINGLE_BIT_SPI, CMD_READ_ID },
+	/* Micron Quad mode & Macronix QPI mode */
+	{ QSPI_IFR_WIDTH_QUAD_CMD, CMD_MULTI_IO_READ_ID },
+	/* Micron Dual mode */
+	{ QSPI_IFR_WIDTH_DUAL_CMD, CMD_MULTI_IO_READ_ID },
+	/* Winbond QPI mode */
+	{ QSPI_IFR_WIDTH_QUAD_CMD, CMD_READ_ID },
+};
 
-	/* Manufacturer: Spansion */
-	/* mode cycle - bit[4:7] = 0xa: continuous read, normal read otherwise */
-	{ "S25FL116K",  0x00154001, 32, 64 * 1024, 256, 2, 4, 0x00, 0xa0,
-		QSPIFLASH_FEAT_ERASE_4K, NULL, _qspiflash_switch_to_quad_spansion },
-	{ "S25FL132K",  0x00164001, 64, 64 * 1024, 256, 2, 4, 0x00, 0xa0,
-		QSPIFLASH_FEAT_ERASE_4K, NULL, _qspiflash_switch_to_quad_spansion },
-	{ "S25FL164K",  0x00174001, 128, 64 * 1024, 256, 2, 4, 0x00, 0xa0,
-		QSPIFLASH_FEAT_ERASE_4K, NULL, _qspiflash_switch_to_quad_spansion },
-	{ "S25FL128S",  0x00182001,  16, 64 * 1024, 256, 2, 4, 0x00, 0xa0,
-		0, _qspiflash_init_spansion_fls, _qspiflash_switch_to_quad_spansion },
-	{ "S25FL256S",  0x00190201,  32, 64 * 1024, 256, 2, 4, 0x00, 0xa0,
-		0, _qspiflash_init_spansion_fls, _qspiflash_switch_to_quad_spansion },
-	{ "S25FL512S",  0x00200201,  1024, 256 * 1024, 256, 2, 4, 0x00, 0xa0,
-		0, NULL, _qspiflash_switch_to_quad_spansion },
-
-	/* Manufacturer: Macronix */
-	/* mode cycles: bit[0:3] = ~bit[4:7]: continuous read, normal read otherwise */
-	{ "MX66L1G45G", 0x00201bc2, 2048, 64 * 1024, 256, 2, 4, 0x00, 0xf0,
-		QSPIFLASH_FEAT_ERASE_4K, NULL, _qspiflash_switch_to_quad_macronix },
+static const struct _flash_init flash_inits[] = {
+	{ SPINOR_MANUF_MICRON, _qspiflash_init_micron },
+	{ SPINOR_MANUF_MACRONIX, _qspiflash_init_macronix },
 };
 
 /*----------------------------------------------------------------------------
@@ -132,7 +139,7 @@ static bool _qspiflash_read_reg(const struct _qspiflash *flash, uint8_t code, vo
 	struct _qspi_cmd cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_READ;
-	cmd.ifr_width = flash->ifr_width;
+	cmd.ifr_width = flash->ifr_width_reg;
 	cmd.enable.instruction = 1;
 	cmd.enable.data = 1;
 	cmd.instruction = code;
@@ -147,7 +154,7 @@ static bool _qspiflash_write_reg(const struct _qspiflash *flash, uint8_t code, c
 	struct _qspi_cmd cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE;
-	cmd.ifr_width = flash->ifr_width;
+	cmd.ifr_width = flash->ifr_width_reg;
 	cmd.enable.instruction = 1;
 	cmd.enable.data = (value != NULL);
 	cmd.instruction = code;
@@ -171,164 +178,298 @@ static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
 	return false;
 }
 
-static bool _qspiflash_switch_to_quad_micron(struct _qspiflash *flash)
-{
-	struct _qspiflash_desc *desc = &flash->desc;
-	uint8_t evcr, vcr;
+/*----------------------------------------------------------------------------
+ *        Local Functions (Micron support)
+ *----------------------------------------------------------------------------*/
 
-	/* Read the Enhanced Volatile Configuration Register (EVCR) */
+static bool _micron_set_protocol(struct _qspiflash *flash,
+		uint8_t mask, uint8_t val, uint32_t ifr_width)
+{
+	uint8_t evcr;
+
+	/* Read the Enhanced Volatile Configuration Register (EVCR). */
 	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1))
 		return false;
 
-	/* Enable Write */
+	/* Check whether we need to update the protocol bits. */
+	if ((evcr & mask) == val) {
+		trace_debug("QSPI Flash: Micron Quad mode already enabled\r\n");
+		return true;
+	}
+
+	trace_debug("QSPI Flash: Micron Quad mode disabled, will enable it\r\n");
+
+	/* Set EVCR protocol bits. */
 	if (!_qspiflash_write_enable(flash))
 		return false;
-
-	/* Set EVCR, enable quad SPI (4-4-4) */
-	evcr &= ~(1 << 7); /* clear bit 7 to enable the Quad SPI protocol 4-4-4 */
+	evcr = (evcr & ~mask) | val;
 	if (!_qspiflash_write_reg(flash, CMD_MICRON_WRITE_EVCR, &evcr, 1))
 		return false;
 
-	/* Switch the QSPI controller to Quad CMD protocol (4-4-4) */
-	flash->ifr_width = QSPI_IFR_WIDTH_QUAD_CMD;
+	/* Switch reg protocol now before accessing any other registers. */
+	flash->ifr_width_reg = ifr_width;
 
-	/* Wait till ready */
 	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
 		return false;
 
-	/* Read EVCR to check the protocol update */
+	/* Read EVCR and check it. */
 	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1))
 		return false;
-
-	if (evcr & (1 << 7))
+	if ((evcr & mask) != val)
 		return false;
 
-	/* Read the Volatile Configuration Register (VCR) */
+	return true;
+}
+
+static bool _micron_set_quad_spi_protocol(struct _qspiflash *flash)
+{
+	/* Set Quad/Dual bits to 0_ to select the Quad SPI mode. */
+	if (!_micron_set_protocol(flash, EVCR_QUAD_ENABLE, 0,
+				QSPI_IFR_WIDTH_QUAD_CMD))
+		return false;
+
+	flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_CMD;
+	flash->ifr_width_program = QSPI_IFR_WIDTH_QUAD_CMD;
+	flash->ifr_width_erase = QSPI_IFR_WIDTH_QUAD_CMD;
+
+	return true;
+}
+
+static bool _micron_set_dummy_cycles(struct _qspiflash *flash,
+		uint8_t num_dummy_cycles)
+{
+	uint8_t vcr, val, mask;
+
+	/* Clear bit3 (XIP) to enable the Continuoues Read mode. */
+	mask = 0xf8;
+	val = (num_dummy_cycles << 4) & mask;
+
+	/* Read the Volatile Configuration Register (VCR). */
 	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1))
 		return false;
 
-	/* Enable Write */
+	/* Check whether we need to update the number of dummy cycles. */
+	if ((vcr & mask) == val)
+		goto updated;
+
+	/* Update the number of dummy into the VCR. */
 	if (!_qspiflash_write_enable(flash))
 		return false;
-
-	/* Update the VCR to enable XIP */
-	vcr &= ~(1 << 3); /* clear bit3 in VCR to enable XIP */
-	vcr &= ~(0xf << 4); /* set number of mode/dummy clock cycles for all FAST READ commands */
-	vcr |= ((desc->num_mode_cycles + desc->num_dummy_cycles) & 0xf) << 4;
-	vcr |= 0x3; /* continuous read */
+	vcr = (vcr & ~mask) | val;
 	if (!_qspiflash_write_reg(flash, CMD_MICRON_WRITE_VCR, &vcr, 1))
 		return false;
 
-	/* Wait till ready */
 	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
 		return false;
 
-	/* Check XIP update */
+	/* Read VCR and check it. */
 	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1))
 		return false;
-
-	if (vcr & (1 << 3))
+	if ((vcr & mask) != val)
 		return false;
 
-	return true;
-}
-
-static bool _qspiflash_init_spansion_fls(struct _qspiflash *flash)
-{
-	uint32_t cmd = flash->ifr_width == QSPI_IFR_WIDTH_SINGLE_BIT_SPI ? CMD_READ_ID : CMD_MULTI_IO_READ_ID;
-	uint8_t id[6];
-	memset(id, 0, 6);
-	if (_qspiflash_read_reg(flash, cmd, &id, 6)) {
-		/* Verify ID-CFI length */
-		if (id[3] == 0x4d) {
-			/* Verify family is FL-S */
-			if (id[5] == 0x80) {
-				struct _qspiflash_desc *desc = &flash->desc;
-				uint32_t size = desc->num_blocks * desc->block_size;
-				/* Sector Architecture */
-				if (id[4] == 0) {
-					/* Uniform 256kB sectors */
-					desc->block_size = 256 * 1024;
-					desc->num_blocks = size / desc->block_size;
-					return true;
-				} else if (id[4] == 1) {
-					/* Uniform 64kB sectors */
-					desc->block_size = 64 * 1024;
-					desc->num_blocks = size / desc->block_size;
-					return true;
-				}
-			}
-		}
+updated:
+	/* Save the number of mode/dummy cycles to use with Fast Read commands. */
+	if (num_dummy_cycles) {
+		flash->num_mode_cycles = 1;
+		flash->num_dummy_cycles = num_dummy_cycles - 1;
+	} else {
+		flash->num_mode_cycles = 0;
+		flash->num_dummy_cycles = 0;
 	}
-	return false;
-}
 
-static bool _qspiflash_switch_to_quad_spansion(struct _qspiflash *flash)
-{
-	uint8_t cr, sr_cr[2];
+	/* mode cycle - bit[0] = 0x0: continuous read, normal read otherwise */
+	flash->normal_read_mode = 0x01;
+	flash->continuous_read_mode = 0x00;
 
-	/* Set the Status and Control Registers */
-	sr_cr[0] = 0x00; /* Status Register */
-	sr_cr[1] = 0x02; /* Configuration Register: Set the Quad Data Width bit (non volatile) and Latency Code bits to 00b */
-	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, sr_cr, sizeof(sr_cr)))
-		return false;
-
-	/* Wait till ready */
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
-
-	/* Check the protocol update: this command still uses SPI 1-1-1 protocol */
-	if (!_qspiflash_read_reg(flash, CMD_READ_CONFIG, &cr, 1))
-		return false;
-
-	if ((cr & 0xc2) != 0x02)
-		return false;
-
-	/* Switch the QSPI host controller in Quad IO (1-4-4) */
-	flash->ifr_width = QSPI_IFR_WIDTH_QUAD_IO;
 	return true;
 }
 
-static bool _qspiflash_switch_to_quad_macronix(struct _qspiflash *flash)
+static bool _qspiflash_init_micron(struct _qspiflash *flash)
 {
-	uint8_t sr_cr[2];
+	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+		if (!_micron_set_quad_spi_protocol(flash))
+			return false;
 
-	/* Read the Status Register */
-	if (!qspiflash_read_status(flash, &sr_cr[0]))
+		flash->opcode_read = CMD_FAST_READ_1_4_4;
+	}
+
+	if (!_micron_set_dummy_cycles(flash, 8))
 		return false;
 
-	/* Read the Control Register */
-	if (!_qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &sr_cr[1], 1))
+	return true;
+}
+
+
+/*----------------------------------------------------------------------------
+ *        Local Functions (Macronix support)
+ *----------------------------------------------------------------------------*/
+
+static bool _macronix_quad_enable(struct _qspiflash *flash)
+{
+	uint8_t status;
+
+	if (!qspiflash_read_status(flash, &status))
 		return false;
 
-	/* Update the Status Register to set the Quad Enable bit (non-volatile) */
-	sr_cr[0] |= (1 << 6);
+	if (status & SR_MACRONIX_QUAD_EN) {
+		trace_debug("QSPI Flash: Macronix Quad mode already enabled\r\n");
+		return true;
+	}
 
-	/* Configure 2 mode + 4 dummy cycles for Read Quad IO (1-4-4) up to 84MHz */
-	sr_cr[1] &= ~0xe0; /* clear bit7:bit6:bit5 (all volatile) */
+	trace_debug("QSPI Flash: Macronix Quad mode disabled, will enable it\r\n");
 
-	/* Enable Write */
 	if (!_qspiflash_write_enable(flash))
 		return false;
 
-	/* Write the Status and Control Registers */
-	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, sr_cr, 2))
+	status |= SR_MACRONIX_QUAD_EN;
+	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, &status, 1))
 		return false;
 
-	/* Wait till ready */
 	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
 		return false;
 
-	/* Assert the Quad Enable bit is set */
-	if (!qspiflash_read_status(flash, &sr_cr[0]))
+	if (!qspiflash_read_status(flash, &status))
 		return false;
 
-	if ((sr_cr[0] & (1 << 6)) == 0)
+	if ((status & SR_MACRONIX_QUAD_EN) == 0)
 		return false;
 
-	/* Stay in SPI Mode (as opposed to QPI mode), so switch to QUAD IO (not QUAD CMD) */
-	flash->ifr_width = QSPI_IFR_WIDTH_QUAD_IO;
 	return true;
+}
+
+static bool _macronix_dummy2code(uint8_t read_opcode,
+		uint8_t num_dummy_cycles, uint8_t *dc)
+{
+	switch (read_opcode) {
+	case CMD_READ:
+		*dc = 0;
+		break;
+
+	case CMD_FAST_READ:
+	case CMD_FAST_READ_1_1_4:
+		switch (num_dummy_cycles) {
+		case 6:
+			*dc = 1;
+			break;
+		case 8:
+			*dc = 0;
+			break;
+		case 10:
+			*dc = 3;
+			break;
+		default:
+			return false;
+		}
+		break;
+
+	case CMD_FAST_READ_1_4_4:
+		switch (num_dummy_cycles) {
+		case 4:
+			*dc = 1;
+			break;
+		case 6:
+			*dc = 0;
+			break;
+		case 8:
+			*dc = 2;
+			break;
+		case 10:
+			*dc = 3;
+		default:
+			return false;
+		}
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+static bool _macronix_set_dummy_cycles(struct _qspiflash *flash,
+		uint8_t num_dummy_cycles)
+{
+	uint8_t mask, val, dc;
+	uint8_t cr, sr, sr_cr[2];
+
+	/* Convert the number of dummy cycles into Macronix DC volatile bits. */
+	if (!_macronix_dummy2code(flash->opcode_read, num_dummy_cycles, &dc))
+		return false;
+
+	mask = 0xc0;
+	val = (dc << 6) & mask;
+
+	if (!_qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1))
+		return false;
+
+	if ((cr & mask) == val)
+		goto updated;
+
+	if (!qspiflash_read_status(flash, &sr))
+		return false;
+
+	if (!_qspiflash_write_enable(flash))
+		return false;
+
+	cr = (cr & ~mask) | val;
+	sr_cr[0] = sr & 0xff;
+	sr_cr[1] = cr & 0xff;
+	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, sr_cr, 2))
+		return false;
+
+	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
+		return false;
+
+	if (!_qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1))
+		return false;
+
+	if ((cr & mask) != val)
+		return false;
+
+updated:
+	if (num_dummy_cycles) {
+		flash->num_mode_cycles = 2;
+		flash->num_dummy_cycles = num_dummy_cycles - 2;
+	} else {
+		flash->num_mode_cycles = 0;
+		flash->num_dummy_cycles = 0;
+	}
+
+	/* mode cycles: bit[0:3] = ~bit[4:7]: continuous read, normal read otherwise */
+	flash->normal_read_mode = 0x00;
+	flash->continuous_read_mode = 0xf0;
+
+	return true;
+}
+
+static bool _qspiflash_init_macronix(struct _qspiflash *flash)
+{
+	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+		/*
+		 * In QPI mode, only the Fast Read 1-4-4 (0xeb) op code is supported.
+		 * In SPI mode, both the Fast Read 1-1-4 (0x6b) and Fast Read 1-4-4
+		 * (0xeb) op codes are supported but we'd rather use the Fast Read 1-4-4
+		 * command as it is the only one which allows us to enter/leave the
+		 * peformance enhance (continuous read) mode required by XIP operations.
+		 */
+		flash->opcode_read = CMD_FAST_READ_1_4_4;
+
+		/*
+		 * Check whether the QPI mode is enabled: if it is then we know that
+		 * the Quad Enabled (QE) non-volatile bit is already set. Otherwise,
+		 * we MUST set the QE bit before using any Quad SPI command.
+		 */
+		if (flash->ifr_width_read != QSPI_IFR_WIDTH_QUAD_CMD) {
+			if (!_macronix_quad_enable(flash))
+				return false;
+
+			flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
+		}
+	}
+
+	return _macronix_set_dummy_cycles(flash, 8);
 }
 
 /*----------------------------------------------------------------------------
@@ -337,56 +478,74 @@ static bool _qspiflash_switch_to_quad_macronix(struct _qspiflash *flash)
 
 bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 {
-	static const uint32_t ifr_widths[] = {
-		QSPI_IFR_WIDTH_SINGLE_BIT_SPI,
-		QSPI_IFR_WIDTH_QUAD_IO,
-		QSPI_IFR_WIDTH_QUAD_CMD,
-	};
-	int i,j;
+	int i;
 
 	memset(flash, 0, sizeof(*flash));
 	flash->qspi = qspi;
 
 	bool found = false;
-	for (i = 0; !found && i < ARRAY_SIZE(ifr_widths); i++) {
+	uint32_t jedec_id = 0;
+	for (i = 0; !found && i < ARRAY_SIZE(configs); i++) {
+		trace_debug("Trying protocol %u opcode 0x%02x\r\n",
+				(unsigned)configs[i].ifr_width,
+				configs[i].opcode);
+
 		/* Switch QSPI protocol */
-		flash->ifr_width = ifr_widths[i];
+		flash->ifr_width_reg = configs[i].ifr_width;
+		flash->ifr_width_read = configs[i].ifr_width;
+		flash->ifr_width_program = configs[i].ifr_width;
+		flash->ifr_width_erase = configs[i].ifr_width;
 
 		/* Read JEDEC ID */
-		uint32_t jedec_id = 0;
-		if (!qspiflash_read_jedec_id(flash, &jedec_id))
+		jedec_id = 0;
+		if (!_qspiflash_read_reg(flash, configs[i].opcode, &jedec_id, 3))
 			continue;
 
-		/* Look for a supported flash */
-		for (j = 0; !found && j < ARRAY_SIZE(_qspiflash_devices); j++) {
-			const struct _qspiflash_desc *desc = &_qspiflash_devices[j];
-			if (jedec_id == desc->jedec_id) {
+		if (jedec_id != 0xffffff) {
+			trace_debug("Found memory with JEDEC ID 0x%08x.\r\n",
+					(unsigned)jedec_id);
+
+			/* Look for a supported flash */
+			const struct _spi_nor_desc *desc = spi_nor_find(jedec_id);
+			if (desc) {
 				memcpy(&flash->desc, desc, sizeof(*desc));
 				found = true;
+			} else {
+				trace_warning("Memory with JEDEC ID 0x%08x is not supported\r\n",
+						(unsigned)jedec_id);
 			}
 		}
 	}
 
 	/* Not found */
-	if (!found)
+	if (!found) {
+		trace_debug("No supported memory found.\r\n");
 		return false;
+	} else {
+		trace_debug("Found supported memory with JEDEC ID 0x%08x (%s).\r\n",
+				(unsigned)jedec_id, flash->desc.name);
+	}
+
+	/* Set default settings */
+	flash->opcode_read = CMD_FAST_READ;
+	flash->mode_addr4 = false;
+	flash->num_mode_cycles = 0;
+	flash->num_dummy_cycles = 8;
 
 	/* Initialize */
-	if (flash->desc.init) {
-		if (!flash->desc.init(flash)) {
-			return false;
+	for (i = 0;  i < ARRAY_SIZE(flash_inits); i++) {
+		if ((jedec_id & 0xff) == flash_inits[i].manuf_id) {
+			if (!flash_inits[i].init(flash)) {
+				trace_warning("Could not initialize QSPI memory\r\n");
+				return false;
+			}
 		}
 	}
 
 	/* Enter 4-byte addressig mode if size > 16MB */
-	if (flash->desc.num_blocks * flash->desc.block_size > 16 * 1024 * 1024) {
-		if (!_qspiflash_enter_addr4_mode(flash))
-			return false;
-	}
-
-	/* Switch to Quad SPI */
-	if (flash->desc.switch_to_quad) {
-		if (!flash->desc.switch_to_quad(flash)) {
+	if (flash->desc.size > 16 * 1024 * 1024) {
+		if (!_qspiflash_enter_addr4_mode(flash)) {
+			trace_warning("Could not switch QSPI memory to 4-byte address mode\r\n");
 			return false;
 		}
 	}
@@ -423,7 +582,7 @@ bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout)
 bool qspiflash_read_jedec_id(const struct _qspiflash *flash,
 		uint32_t *jedec_id)
 {
-	uint32_t cmd = flash->ifr_width == QSPI_IFR_WIDTH_SINGLE_BIT_SPI ? CMD_READ_ID : CMD_MULTI_IO_READ_ID;
+	uint32_t cmd = flash->ifr_width_reg == QSPI_IFR_WIDTH_SINGLE_BIT_SPI ? CMD_READ_ID : CMD_MULTI_IO_READ_ID;
 	uint32_t id = 0;
 	if (_qspiflash_read_reg(flash, cmd, &id, 3)) {
 		*jedec_id = id;
@@ -435,8 +594,7 @@ bool qspiflash_read_jedec_id(const struct _qspiflash *flash,
 bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
 		uint32_t length)
 {
-	const struct _qspiflash_desc *desc = &flash->desc;
-	uint8_t mode = data ? desc->normal_read_mode : desc->continuous_read_mode;
+	uint8_t mode = data ? flash->normal_read_mode : flash->continuous_read_mode;
 	struct _qspi_cmd cmd;
 
 	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
@@ -444,16 +602,16 @@ bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY;
-	cmd.ifr_width = flash->ifr_width;
+	cmd.ifr_width = flash->ifr_width_read;
 	cmd.enable.instruction = 1;
 	cmd.enable.address = flash->mode_addr4 ? 4 : 3;
-	cmd.enable.mode = (desc->num_mode_cycles > 0);
-	cmd.enable.dummy = (desc->num_dummy_cycles > 0);
+	cmd.enable.mode = (flash->num_mode_cycles > 0);
+	cmd.enable.dummy = (flash->num_dummy_cycles > 0);
 	cmd.enable.data = 1;
-	cmd.instruction = CMD_READ_QUAD_IO;
+	cmd.instruction = flash->opcode_read;
 	cmd.mode = mode;
-	cmd.num_mode_cycles = desc->num_mode_cycles;
-	cmd.num_dummy_cycles = desc->num_dummy_cycles;
+	cmd.num_mode_cycles = flash->num_mode_cycles;
+	cmd.num_dummy_cycles = flash->num_dummy_cycles;
 	cmd.address = addr;
 	cmd.rx_buffer = data;
 	cmd.buffer_len = length;
@@ -478,20 +636,50 @@ bool qspiflash_erase_chip(const struct _qspiflash *flash)
 	return true;
 }
 
-bool qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr,
-		bool erase_4k)
+bool qspiflash_erase_block(const struct _qspiflash *flash,
+		uint32_t addr, uint32_t length)
 {
+	uint32_t flags = flash->desc.flags;
 	struct _qspi_cmd cmd;
 	uint8_t instr;
 
-	if (erase_4k) {
-		if (flash->desc.features & QSPIFLASH_FEAT_ERASE_4K) {
-			instr = CMD_SECTOR_ERASE;
+	switch (length) {
+	case 256 * 1024:
+		if (flags & SPINOR_FLAG_ERASE_256K) {
+			instr = CMD_BLOCK_ERASE;
 		} else {
+			trace_error("qspiflash: 256K Erase not supported\r\n");
 			return false;
 		}
-	} else {
-		instr = CMD_BLOCK_ERASE;
+		break;
+	case 64 * 1024:
+		if (flags & SPINOR_FLAG_ERASE_64K) {
+			instr = CMD_BLOCK_ERASE;
+		} else {
+			trace_error("qspiflash: 64K Erase not supported\r\n");
+			return false;
+		}
+		break;
+	case 32 * 1024:
+		if (flags & SPINOR_FLAG_ERASE_32K) {
+			instr = CMD_BLOCK_ERASE_32K;
+		} else {
+			trace_error("qspiflash: 32K Erase not supported\r\n");
+			return false;
+		}
+		break;
+	case 4 * 1024:
+		if (flags & SPINOR_FLAG_ERASE_4K) {
+			instr = CMD_SECTOR_ERASE;
+		} else {
+			trace_error("qspiflash: 4K Erase not supported\r\n");
+			return false;
+		}
+		break;
+	default:
+		trace_error("qspiflash: unsupported erase length (%u)\r\n",
+				(unsigned)length);
+		return false;
 	}
 
 	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
@@ -502,7 +690,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr,
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE;
-	cmd.ifr_width = flash->ifr_width;
+	cmd.ifr_width = flash->ifr_width_erase;
 	cmd.enable.instruction = 1;
 	cmd.enable.address = flash->mode_addr4 ? 4 : 3;
 	cmd.instruction = instr;
@@ -539,7 +727,7 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY;
-		cmd.ifr_width = flash->ifr_width;
+		cmd.ifr_width = flash->ifr_width_program;
 		cmd.enable.instruction = 1;
 		cmd.enable.address = flash->mode_addr4 ? 4 : 3;
 		cmd.enable.data = 1;
