@@ -122,7 +122,7 @@ static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
 
 static void _at25_send_write_cmd(struct _at25* at25, uint32_t addr)
 {
-	uint8_t cmd[5];
+	uint8_t cmd[6];
 	uint8_t dummy_byte = 0;
 
 	struct _buffer out = {
