@@ -1,27 +1,47 @@
 # Atmel SAMA5D2x Software Package
 
-## Version ?.? - ?
+## Version ?.? - 2016-?
 
 ### New drivers/examples
 
 - new TC Capture Waveform example
 - new DDR memory tester example
 - new SPI slave example
+- new driver for SFC (Secure Fuse Controller)
+- added definitions for SECUMOD and boot configuration registers
 
 ### Changes
 
 - the console helper (misc/console.h) is no longer initialized automatically on
   first use.  The new board-specific function board_cfg_console must be called
-explicitely before any console use (including printf/traces).
+explicitely before any console use (including printf/traces)
+- NAND API changed to be easier to use
+- SAM-BA applet API has changed (most parameters are now expressed in pages
+  instead of bytes, to support bigger memories). The new API is not compatible
+with SAM-BA <= 3.0
+- AT25 and QSPIFLASH drivers now share a common device database.
+- Functions at25_erase_block and qspiflash_erase_block now take the erase block
+  size as parameter.
 
 ### Enhancements
 
 - Support for LPDDR2 (MT42L128M16) and LPDDR3 (EDF8164A3MA)
 - Several functions added to TC driver
 - Several functions added to PWM driver, existing example updated to make use
-  of these new features.
+  of these new features
 - Console helper can now be configured at runtime (serial peripheral, baudrate,
-  pins).
+  pins)
+- TWI eeprom example now contains a 'TWI slave' example emulating a AT24 eeprom
+
+### Fixes
+
+- several NAND bugfixes
+- GCC linker scripts: fixed stacks/heap handling
+- fixed cp15_is_dcache_enabled function
+- L2CC driver now configures the L2 SRAM before enabling the cache
+- several fixes to QSPIFLASH driver related to Quad-mode activation (Micron,
+  Macronix). Initialization code for Spansion memories was removed because it
+was never tested. Will be re-added later.
 
 
 
