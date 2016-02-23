@@ -14,11 +14,11 @@
 
 - the console helper (misc/console.h) is no longer initialized automatically on
   first use.  The new board-specific function board_cfg_console must be called
-explicitely before any console use (including printf/traces)
+  explicitely before any console use (including printf/traces)
 - NAND API changed to be easier to use
 - SAM-BA applet API has changed (most parameters are now expressed in pages
   instead of bytes, to support bigger memories). The new API is not compatible
-with SAM-BA <= 3.0
+  with SAM-BA <= 3.0
 - AT25 and QSPIFLASH drivers now share a common device database.
 - Functions at25_erase_block and qspiflash_erase_block now take the erase block
   size as parameter.
@@ -41,7 +41,8 @@ with SAM-BA <= 3.0
 - L2CC driver now configures the L2 SRAM before enabling the cache
 - several fixes to QSPIFLASH driver related to Quad-mode activation (Micron,
   Macronix). Initialization code for Spansion memories was removed because it
-was never tested. Will be re-added later.
+  was never tested. Will be re-added later.
+- fixed QSPI MMU mapping and enabled MMU and caches in QSPI example
 
 
 
