@@ -242,7 +242,7 @@ static void _usb_data_received0(void *read,
 {
 	/* Check that data has been received successfully */
 	if (status == USBD_STATUS_SUCCESS) {
-		*(uint32_t *)read = 1;
+		*(uint8_t *)read = 1;
 		/* Send data through USBSerial 1 */
 		while (cdcd_serial_port_write(dual_cdcd_driver_get_serialport(1),
 							usb_serial_buffer0,
@@ -270,7 +270,7 @@ static void _usb_data_received1(void *read,
 {
 	/* Check that data has been received successfully */
 	if (status == USBD_STATUS_SUCCESS) {
-		*(uint32_t *)read = 1;
+		*(uint8_t *)read = 1;
 		/* Send data through USBSerial 0 */
 		while (cdcd_serial_port_write(dual_cdcd_driver_get_serialport(0),
 							usb_serial_buffer1,
