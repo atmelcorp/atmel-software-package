@@ -7,6 +7,9 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
@@ -51,6 +54,13 @@ int main(void)
 	/* Configure console */
 	board_cfg_console();
 
+	/* Initialize MMU & caches */
+	mmu_initialize();
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+
+	/* Initialize TRNG */
 	trng_enable();
 
 	/* Output example information */
@@ -85,8 +95,8 @@ int main(void)
 	printf("preparing write buffer\r\n");
 	uint8_t r = trng_get_random_data() & 0xff;
 	uint32_t i = 0;
-	while (i * 256 < sizeof(buf)) {
-		memset(buf + i * 256, r + i, 256);
+	while (i * 32 < sizeof(buf)) {
+		memset(buf + i * 32, r + i, 32);
 		i++;
 	}
 	_display_buf(buf, sizeof(buf));
