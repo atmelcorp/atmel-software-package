@@ -327,7 +327,7 @@ void board_setup_tlb(uint32_t *tlb)
 	                  | TTB_TYPE_SECT;
 
 	/* 0xd0000000: QSPI0/1 MEM */
-	for (addr = 0xe00; addr < 0xe00; addr++)
+	for (addr = 0xd00; addr < 0xe00; addr++)
 		tlb[addr] = TTB_SECT_ADDR(addr << 20)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
