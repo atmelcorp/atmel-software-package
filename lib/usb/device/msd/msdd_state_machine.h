@@ -180,12 +180,12 @@ typedef struct _MSDTransfer {
  * \see    MSDTransfer
  *------------------------------------------------------------------------------*/
 typedef struct _MSDCommandState {
-	MSDTransfer     transfer;    /**< Current transfer status (USB) */
-	MSDTransfer     disktransfer;/**< Current transfer status (Disk) */
-	uint32_t        length;      /**< Remaining length of command */
 	MSCbw           cbw;         /**< Received CBW (31 bytes) */
 	uint8_t         state;       /**< Current command state */
 	MSCsw           csw;         /**< CSW to send  (13 bytes) */
+	MSDTransfer     transfer;    /**< Current transfer status (USB) */
+	MSDTransfer     disktransfer;/**< Current transfer status (Disk) */
+	uint32_t        length;      /**< Remaining length of command */
 	uint8_t         postprocess; /**< Actions to perform when command is complete */
 	uint8_t         pipeIN;      /**< Pipe ID for input */
 	uint8_t         pipeOUT;     /**< Pipe ID for output */
@@ -198,11 +198,10 @@ typedef struct _MSDCommandState {
  * \see    MSDLun
  */
 typedef struct _MSDDriver {
-
-	/** LUN list for the %device. */
-	MSDLun *luns;
 	/** State of the currently executing command */
 	MSDCommandState commandState;
+	/** LUN list for the %device. */
+	MSDLun *luns;
 	/** Associated interface number */
 	uint8_t interfaceNb;
 	/** Maximum LUN index */

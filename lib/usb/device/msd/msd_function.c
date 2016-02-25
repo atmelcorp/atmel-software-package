@@ -38,6 +38,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "trace.h"
+#include "chip.h"
 
 #include "usb/common/msd/msd_descriptors.h"
 #include "usb/device/msd/msd_driver.h"
@@ -62,7 +63,7 @@ typedef struct _MSDParseData {
  *-----------------------------------------------------------------------------*/
 
 /** MSD Driver instance for device function */
-static MSDDriver msd_function;
+ALIGNED(L1_CACHE_BYTES) static MSDDriver msd_function;
 
 /*-----------------------------------------------------------------------------
  *      Internal functions
