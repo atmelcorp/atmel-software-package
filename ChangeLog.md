@@ -9,6 +9,7 @@
 - new SPI slave example
 - new driver for SFC (Secure Fuse Controller)
 - added definitions for SECUMOD and boot configuration registers
+- new IrDA example using FLEXCOM USART
 
 ### Changes
 
