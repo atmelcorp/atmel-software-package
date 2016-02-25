@@ -38,6 +38,7 @@
 
 #include "trace.h"
 
+#include "chip.h"
 #include "usb/common/usb_requests.h"
 #include "usb/common/hid/hid_descriptors.h"
 #include "usb/device/hid/hidd_function.h"
@@ -112,10 +113,10 @@ typedef struct _HIDDTransferDriver {
  *------------------------------------------------------------------------------*/
 
 /** Input report buffers */
-ALIGNED(16) static HIDDTransferReport input_report;
+ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport input_report;
 
 /** Output report buffers */
-ALIGNED(16) static HIDDTransferReport output_report;
+ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport output_report;
 
 /** Static instance of the HID Transfer device driver. */
 static HIDDTransferDriver hidd_transfer_driver;

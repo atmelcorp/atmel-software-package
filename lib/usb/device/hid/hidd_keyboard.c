@@ -39,6 +39,7 @@
 
 #include "trace.h"
 
+#include "chip.h"
 #include "usb/common/usb_requests.h"
 #include "usb/common/hid/hid_descriptors.h"
 #include "usb/common/hid/hid_reports.h"
@@ -123,12 +124,15 @@ typedef struct _HIDDKeyboard {
  *------------------------------------------------------------------------------*/
 
 /** HIDD Keyboard Input Report Instance */
+ALIGNED(L1_CACHE_BYTES)
 static KBDInputReport input_report;
 
 /** HIDD Keyboard Output Report Instance */
+ALIGNED(L1_CACHE_BYTES)
 static KBDOutputReport output_report;
 
 /** Static instance of the HIDD keyboard device driver. */
+ALIGNED(L1_CACHE_BYTES)
 static HIDDKeyboard hidd_keyboard;
 
 /** Report descriptor used by the driver. */
@@ -326,8 +330,7 @@ uint32_t hidd_keyboard_change_keys(uint8_t *pressed_keys, uint8_t pressed_keys_s
 
 	/* Send input report through the interrupt IN endpoint */
 	return usbd_write(p_hidd->bPipeIN,
-			p_report, sizeof(HIDDKeyboardInputReport),
-			NULL, NULL);
+					  p_report, sizeof(HIDDKeyboardInputReport), 0, 0);
 }
 
 /**
