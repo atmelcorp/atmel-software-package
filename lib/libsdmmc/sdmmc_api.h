@@ -60,6 +60,10 @@
  *    -# SDIO_WriteDirect() : Write one byte to register.
  *    -# SDIO_ReadBytes() : Read 1 ~ 512 bytes from card.
  *    -# SDIO_WriteBytes() : Write 1 ~ 512 bytes to card.
+ *    -# SDIO_ReadBlocks() : Read 1 ~ 511 blocks from card.
+ *    -# SDIO_WriteBlocks() : Write 1 ~ 511 blocks to card.
+ *    -# SDIO_Read() : Read an arbitrary number of bytes from card.
+ *    -# SDIO_Write() : Write an arbitrary number of bytes to card.
  */
 /** \addtogroup libsdmmc_module
  *
@@ -643,6 +647,38 @@ extern uint8_t SDIO_WriteBytes(sSdCard * pSd,
 			       uint8_t * pData,
 			       uint16_t wSize,
 			       fSdmmcCallback fCallback, void *pArg);
+
+extern uint8_t SDIO_ReadBlocks(sSdCard * pSd,
+                               uint8_t bFunctionNum,
+                               uint32_t dwAddress,
+                               uint8_t bIsFixedAddress,
+                               uint8_t * pData,
+                               uint16_t wCount,
+                               fSdmmcCallback fCallback, void *pArg);
+
+extern uint8_t SDIO_WriteBlocks(sSdCard * pSd,
+                                uint8_t bFunctionNum,
+                                uint32_t dwAddress,
+                                uint8_t bIsFixedAddress,
+                                uint8_t * pData,
+                                uint16_t wCount,
+                                fSdmmcCallback fCallback, void *pArg);
+
+extern uint8_t SDIO_Read(sSdCard * pSd,
+                         uint8_t bFunctionNum,
+                         uint32_t dwAddress,
+                         uint8_t bIsFixedAddress,
+                         uint8_t * pData,
+                         uint32_t dwSize,
+                         fSdmmcCallback fCallback, void *pArg);
+
+extern uint8_t SDIO_Write(sSdCard * pSd,
+                          uint8_t bFunctionNum,
+                          uint32_t dwAddress,
+                          uint8_t bIsFixedAddress,
+                          uint8_t * pData,
+                          uint32_t dwSize,
+                          fSdmmcCallback fCallback, void *pArg);
 
 void _DumpREG(void *pREG, uint32_t dwSize);
 

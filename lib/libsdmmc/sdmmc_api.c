@@ -1411,13 +1411,14 @@ Cmd53(sSdCard * pSd,
 	uint8_t bRc;
 
 	SdioCmd53Arg *pArg53;
+	/* TODO check that all input values fit the argument fields */
 	pArg53 = (SdioCmd53Arg *) pArgResp;
 	pArg53->rwFlag = wrFlag;
 	pArg53->functionNum = funcNb;
 	pArg53->blockMode = blockMode;
 	pArg53->opCode = incAddr;
 	pArg53->regAddress = addr;
-	pArg53->count = len;
+	pArg53->count = len < 512 ? len : 0;
 
 	/* Fill command */
 	pCmd->bCmd = 53;
@@ -1430,15 +1431,14 @@ Cmd53(sSdCard * pSd,
 	}
 	if (blockMode) {
 		pCmd->wBlockSize = pSd->wCurrBlockLen;
+		pCmd->wNbBlocks = len;
 	} else {
-		/* Force byte mode */
-		pCmd->wBlockSize = 0;
-		//pCmd->wBlockSize = 1;
+		pCmd->wBlockSize = len;
+		pCmd->wNbBlocks = 1;
 	}
 	pCmd->dwArg = *pArgResp;
 	pCmd->pResp = pArgResp;
 	pCmd->pData = pIoData;
-	pCmd->wNbBlocks = len;
 	pCmd->fCallback = fCallback;
 	pCmd->pArg = pCbArg;
 
@@ -3410,6 +3410,225 @@ SDIO_WriteBytes(sSdCard * pSd,
 }
 
 /**
+ * Read block-sized chunks from SDIO card, using IO_RW_EXTENDED command.
+ * \param pSd            Pointer to SdCard instance.
+ * \param functionNum    Function number.
+ * \param address        First byte address of data in SDIO card.
+ * \param isFixedAddress During transfer the data address is never increased.
+ * \param pData          Pointer to data buffer.
+ * \param count          Number of data blocks to read (1 ~ 511).
+ * \param fCallback      Callback function invoked when transfer finished.
+ * \param pArg           Pointer to callback argument.
+ * \return a \ref sdmmc_rc "result code".
+ */
+uint8_t
+SDIO_ReadBlocks(sSdCard * pSd,
+                uint8_t functionNum,
+                uint32_t address,
+                uint8_t isFixedAddress,
+                uint8_t * pData,
+                uint16_t count, fSdmmcCallback fCallback, void * pArg)
+{
+	uint8_t error;
+	uint32_t status;
+
+	assert(pSd);
+
+	if (!(pSd->bCardType & CARD_TYPE_bmSDIO))
+		return SDMMC_ERROR_NOT_SUPPORT;
+	if (count == 0 || count > 511)
+		return SDMMC_ERROR_PARAM;
+	error = Cmd53(pSd, 0, functionNum, 1, !isFixedAddress, address, pData,
+	    count, &status, fCallback, pArg);
+	if (error != SDMMC_SUCCESS || status & STATUS_SDIO_R5) {
+		trace_error("IOrdExt %s st %lx\n\r",
+		    SD_StringifyRetCode(error), status);
+		return error != SDMMC_SUCCESS ? error : SDMMC_ERROR;
+	}
+	return SDMMC_SUCCESS;
+}
+
+/**
+ * Write block-sized chunks to SDIO card, using IO_RW_EXTENDED command.
+ * \param pSd            Pointer to SdCard instance.
+ * \param functionNum    Function number.
+ * \param address        First byte address of data in SDIO card.
+ * \param isFixedAddress During transfer the data address is never increased.
+ * \param pData          Pointer to data buffer.
+ * \param count          Number of data blocks to write (1 ~ 511).
+ * \param fCallback      Callback function invoked when transfer finished.
+ * \param pArg           Pointer to callback argument.
+ * \return a \ref sdmmc_rc "result code".
+ */
+uint8_t
+SDIO_WriteBlocks(sSdCard * pSd,
+                 uint8_t functionNum,
+                 uint32_t address,
+                 uint8_t isFixedAddress,
+                 uint8_t * pData,
+                 uint16_t count, fSdmmcCallback fCallback, void * pArg)
+{
+	uint8_t error;
+	uint32_t status;
+
+	assert(pSd);
+
+	if (!(pSd->bCardType & CARD_TYPE_bmSDIO))
+		return SDMMC_ERROR_NOT_SUPPORT;
+	if (count == 0 || count > 511)
+		return SDMMC_ERROR_PARAM;
+	error = Cmd53(pSd, 1, functionNum, 1, !isFixedAddress, address, pData,
+	    count, &status, fCallback, pArg);
+	if (error != SDMMC_SUCCESS || status & STATUS_SDIO_R5) {
+		trace_error("IOwrExt %s st %lx\n\r",
+		    SD_StringifyRetCode(error), status);
+		return error != SDMMC_SUCCESS ? error : SDMMC_ERROR;
+	}
+	return SDMMC_SUCCESS;
+}
+
+/**
+ * Read from SDIO device, using the RW_EXTENDED command and byte or block I/O
+ * automatically.
+ * When data size reaches or exceeds two SDIO blocks, block I/O is used.
+ * Byte I/O is used for excess bytes, small data chunks, or when block I/O
+ * is disabled or simply not supported.
+ * \param pSd            Pointer to SdCard instance.
+ * \param functionNum    Function number.
+ * \param address        First byte address of data in SDIO card.
+ * \param isFixedAddress During transfer the data address is never increased.
+ * \param pData          Pointer to data buffer.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
+ * \param size           Size of data to read.
+ * \param fCallback      Callback function invoked when transfer finished.
+ * \param pArg           Pointer to callback argument.
+ * \return 0 if successful; otherwise returns an \ref sdmmc_rc "error code".
+ */
+uint8_t
+SDIO_Read(sSdCard * pSd,
+          uint8_t functionNum,
+          uint32_t address,
+          uint8_t isFixedAddress,
+          uint8_t * pData,
+          uint32_t size, fSdmmcCallback fCallback, void *pArg)
+{
+	uint8_t *out = NULL;
+	uint32_t addr_now, remaining, limited;
+	/* TODO retrieve and cache the I/O block size negotiated for the
+	 * specified I/O Function. In case the device doesn't support block
+	 * I/O, assign 0. */
+	uint16_t blk_size = 0;
+	uint8_t rc = SDMMC_SUCCESS, blk_rc;
+
+	assert(pSd);
+	assert(pData);
+
+	if (!(pSd->bCardType & CARD_TYPE_bmSDIO))
+		return SDMMC_ERROR_NOT_SUPPORT;
+
+	for (addr_now = address, remaining = size, out = pData;
+	    (blk_size ? remaining / blk_size >= (blk_size > 512 ? 1 : 2) : 0)
+	    && rc == SDMMC_SUCCESS;
+	    addr_now += limited * blk_size, remaining -= limited * blk_size,
+	    out += limited * blk_size) {
+		limited = remaining / blk_size;
+		limited = min_u32(limited, 511);
+		rc = SDIO_ReadBlocks(pSd, functionNum, isFixedAddress
+		    ? address : addr_now, isFixedAddress, out,
+		    (uint16_t)limited, NULL, NULL);
+	}
+	blk_rc = rc;
+	if (blk_rc != SDMMC_SUCCESS)
+		trace_error("IOrdExt failed %lu blocks from 0x%lx\n\r", limited,
+		    addr_now - limited * blk_size);
+
+	for ( ; remaining >= 1 && rc == SDMMC_SUCCESS;
+	    addr_now += limited, remaining -= limited, out += limited) {
+		limited = min_u32(remaining, 512);
+		rc = SDIO_ReadBytes(pSd, functionNum, isFixedAddress
+		    ? address : addr_now, isFixedAddress, out,
+		    (uint16_t)limited, NULL, NULL);
+	}
+	if (blk_rc == SDMMC_SUCCESS && rc != SDMMC_SUCCESS)
+		trace_error("IOrdExt failed %luB from 0x%lx\n\r", limited,
+		    addr_now - limited);
+
+	/* Invoke the optional callback */
+	if (fCallback)
+		(fCallback)(rc, pArg);
+	return rc;
+}
+
+/**
+ * Write to SDIO device, using the RW_EXTENDED command and byte or block I/O
+ * automatically.
+ * When data size reaches or exceeds two SDIO blocks, block I/O is used.
+ * Byte I/O is used for excess bytes, small data chunks, or when block I/O
+ * is disabled or simply not supported.
+ * \param pSd            Pointer to SdCard instance.
+ * \param functionNum    Function number.
+ * \param address        First byte address of data in SDIO card.
+ * \param isFixedAddress During transfer the data address is never increased.
+ * \param pData          Pointer to data buffer.
+ * The buffer shall follow the peripheral and DMA alignment requirements.
+ * \param size           Size of data to write.
+ * \param fCallback      Callback function invoked when transfer finished.
+ * \param pArg           Pointer to callback argument.
+ * \return 0 if successful; otherwise returns an \ref sdmmc_rc "error code".
+ */
+uint8_t
+SDIO_Write(sSdCard * pSd,
+           uint8_t functionNum,
+           uint32_t address,
+           uint8_t isFixedAddress,
+           uint8_t * pData,
+           uint32_t size, fSdmmcCallback fCallback, void *pArg)
+{
+	uint8_t *in = NULL;
+	uint32_t addr_now, remaining, limited;
+	uint16_t blk_size = 0; /* TODO retrieve and cache I/O block size */
+	uint8_t rc = SDMMC_SUCCESS, blk_rc;
+
+	assert(pSd);
+	assert(pData);
+
+	if (!(pSd->bCardType & CARD_TYPE_bmSDIO))
+		return SDMMC_ERROR_NOT_SUPPORT;
+
+	for (addr_now = address, remaining = size, in = pData;
+	    (blk_size ? remaining / blk_size >= (blk_size > 512 ? 1 : 2) : 0)
+	    && rc == SDMMC_SUCCESS;
+	    addr_now += limited * blk_size, remaining -= limited * blk_size,
+	    in += limited * blk_size) {
+		limited = remaining / blk_size;
+		limited = min_u32(limited, 511);
+		rc = SDIO_WriteBlocks(pSd, functionNum, isFixedAddress
+		    ? address : addr_now, isFixedAddress, in, (uint16_t)limited,
+		    NULL, NULL);
+	}
+	blk_rc = rc;
+	if (blk_rc != SDMMC_SUCCESS)
+		trace_error("IOwrExt failed %lu blocks to 0x%lx\n\r", limited,
+		    addr_now - limited * blk_size);
+
+	for ( ; remaining >= 1 && rc == SDMMC_SUCCESS;
+	    addr_now += limited, remaining -= limited, in += limited) {
+		limited = min_u32(remaining, 512);
+		rc = SDIO_WriteBytes(pSd, functionNum, isFixedAddress
+		    ? address : addr_now, isFixedAddress, in, (uint16_t)limited,
+		    NULL, NULL);
+	}
+	if (blk_rc == SDMMC_SUCCESS && rc != SDMMC_SUCCESS)
+		trace_error("IOwrExt failed %luB to 0x%lx\n\r", limited,
+		    addr_now - limited);
+
+	/* Invoke the optional callback */
+	if (fCallback)
+		(fCallback)(rc, pArg);
+	return rc;
+}
+
+/**
  * Print brief device type and interface status
  * \param pSd Pointer to \ref sSdCard instance.
  */
@@ -3546,9 +3765,9 @@ SD_DumpStatus(const sSdCard *pSd)
 void
 SDIO_DumpCardInformation(sSdCard * pSd)
 {
-	uint32_t tmp = 0, addrCIS = 0, addrManfID = 0, addrFunc0 = 0;
+	uint32_t tmp = 0, addrCIS = 0, addrManfID = 0, addrFuncE = 0;
 	uint8_t *p = (uint8_t *) & tmp;
-	uint8_t buf[8];
+	uint8_t buf[16];
 
 	/* CCCR */
 	_PrintTitle("CCCR");
@@ -3605,18 +3824,31 @@ SDIO_DumpCardInformation(sSdCard * pSd)
 	_PrintField("EHS",  "0x%lX",   (tmp & SDIO_EHS) >> 1);
 	_PrintField("SHS",  "0x%lX",   (tmp & SDIO_SHS) >> 0);
 	/* Metaformat */
-	SdioFindTuples(pSd, addrCIS, 128, &addrManfID, &addrFunc0);
+	SdioFindTuples(pSd, addrCIS, 128, &addrManfID, &addrFuncE);
 	if (addrManfID != 0) {
 		SDIO_ReadDirect(pSd, SDIO_CIA, addrManfID, buf, 6);
 		_PrintTitle("CISTPL_MANFID");
 		_PrintField("MANF", "0x%04X", (uint16_t)buf[3] << 8 | buf[2]);
 		_PrintField("CARD", "0x%04X", (uint16_t)buf[5] << 8 | buf[4]);
 	}
-	if (addrFunc0 != 0) {
-		SDIO_ReadDirect(pSd, SDIO_CIA, addrFunc0, buf, 6);
+	if (addrFuncE != 0) {
+		SDIO_ReadDirect(pSd, SDIO_CIA, addrFuncE, buf, 6);
 		_PrintTitle("CISTPL_FUNCE Fun0");
 		_PrintField("BL_SIZE", "%u", (uint16_t)buf[4] << 8 | buf[3]);
 		_PrintField("MAX_TRAN_SPD", "0x%02X", buf[5]);
+	}
+	/* I/O function 1 */
+	SDIO_ReadDirect(pSd, SDIO_CIA, SDIO_FBR_ADDR(1, SDIO_FBR_CIS_PTR),
+	    p, 3);
+	addrFuncE = 0;
+	/* TODO Augment SdioFindTuples so it finds CISTPL_FUNCE for Function 1
+	 * with Extended Data 01h */
+	SdioFindTuples(pSd, tmp, 256, NULL, &addrFuncE);
+	if (addrFuncE != 0) {
+		SDIO_ReadDirect(pSd, SDIO_CIA, addrFuncE, buf, 16);
+		_PrintTitle("CISTPL_FUNCE Fun1");
+		_PrintField("MAX_BLK_SIZE", "%u", (uint16_t)buf[0xf] << 8
+		    | buf[0xe]);
 	}
 }
 
