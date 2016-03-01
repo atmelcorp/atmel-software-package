@@ -10,6 +10,7 @@
 - new driver for SFC (Secure Fuse Controller)
 - added definitions for SECUMOD and boot configuration registers
 - new IrDA example using FLEXCOM USART
+- new Security Module (SECUMOD) driver and example
 
 ### Changes
 

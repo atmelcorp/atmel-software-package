@@ -77,15 +77,22 @@ typedef struct {
 #define SECUMOD_CR_NIMP_EN_Pos 3
 #define SECUMOD_CR_NIMP_EN_Msk (0x3u << SECUMOD_CR_NIMP_EN_Pos) /**< \brief (SECUMOD_CR) Non-Imprinting Enable */
 #define SECUMOD_CR_NIMP_EN(value) ((SECUMOD_CR_NIMP_EN_Msk & ((value) << SECUMOD_CR_NIMP_EN_Pos)))
+#define SECUMOD_CR_NIMP_EN_DISABLE (0x2u << 3) /**< \brief (SECUMOD_CR) Non-imprinting mechanism is disabled (default) */
+#define SECUMOD_CR_NIMP_EN_ENABLE  (0x1u << 3) /**< \brief (SECUMOD_CR) Non-imprinting mechanism is authorized to start when the required conditions are met */
 #define SECUMOD_CR_AUTOBKP_Pos 5
 #define SECUMOD_CR_AUTOBKP_Msk (0x3u << SECUMOD_CR_AUTOBKP_Pos) /**< \brief (SECUMOD_CR) Automatic Normal to Backup Mode Switching */
 #define SECUMOD_CR_AUTOBKP(value) ((SECUMOD_CR_AUTOBKP_Msk & ((value) << SECUMOD_CR_AUTOBKP_Pos)))
+#define SECUMOD_CR_AUTOBKP_SW_SWITCH   (0x2u << 3) /**< \brief (SECUMOD_CR) When in Normal mode, software must switch to Backup mode before powering down the core */
+#define SECUMOD_CR_AUTOBKP_AUTO_SWITCH (0x1u << 3) /**< \brief (SECUMOD_CR) When in Normal mode, the power down of the core supply will automatically switch the mode to Backup mode, simultaneously with core to backup isolation barrier activation. (default) */
 #define SECUMOD_CR_SCRAMB_Pos 9
 #define SECUMOD_CR_SCRAMB_Msk (0x3u << SECUMOD_CR_SCRAMB_Pos) /**< \brief (SECUMOD_CR) Memory Scrambling Enable */
 #define SECUMOD_CR_SCRAMB(value) ((SECUMOD_CR_SCRAMB_Msk & ((value) << SECUMOD_CR_SCRAMB_Pos)))
+#define SECUMOD_CR_SCRAMB_DISABLE (0x2u << 3) /**< \brief (SECUMOD_CR) Memories are not scrambled */
+#define SECUMOD_CR_SCRAMB_ENABLE  (0x1u << 3) /**< \brief (SECUMOD_CR) Memories are scrambled (default) */
 #define SECUMOD_CR_KEY_Pos 16
 #define SECUMOD_CR_KEY_Msk (0xffffu << SECUMOD_CR_KEY_Pos) /**< \brief (SECUMOD_CR) Password */
 #define SECUMOD_CR_KEY(value) ((SECUMOD_CR_KEY_Msk & ((value) << SECUMOD_CR_KEY_Pos)))
+#define   SECUMOD_CR_KEY_TOGGLE (SECUMOD_CR_KEY(0x89CAu))
 /* -------- SECUMOD_SYSR : (SECUMOD Offset: 0x0004) System Status Register -------- */
 #define SECUMOD_SYSR_ERASE_DONE (0x1u << 0) /**< \brief (SECUMOD_SYSR) Erasable Memories State (RW) */
 #define SECUMOD_SYSR_ERASE_ON (0x1u << 1) /**< \brief (SECUMOD_SYSR) Erase Process Ongoing (RO) */
@@ -146,18 +153,45 @@ typedef struct {
 /* -------- SECUMOD_RAMRDY : (SECUMOD Offset: 0x0014) RAM Access Ready Register -------- */
 #define SECUMOD_RAMRDY_READY (0x1u << 0) /**< \brief (SECUMOD_RAMRDY) Ready for system access flag */
 /* -------- SECUMOD_PIOBU[8] : (SECUMOD Offset: 0x0018) PIO Backup Register -------- */
-#define SECUMOD_PIOBU_PIOBU_AFV_Pos 0
-#define SECUMOD_PIOBU_PIOBU_AFV_Msk (0xfu << SECUMOD_PIOBU_PIOBU_AFV_Pos) /**< \brief (SECUMOD_PIOBU[8]) PIOBU Alarm Filter Value */
-#define SECUMOD_PIOBU_PIOBU_AFV(value) ((SECUMOD_PIOBU_PIOBU_AFV_Msk & ((value) << SECUMOD_PIOBU_PIOBU_AFV_Pos)))
-#define SECUMOD_PIOBU_PIOBU_RFV_Pos 4
-#define SECUMOD_PIOBU_PIOBU_RFV_Msk (0xfu << SECUMOD_PIOBU_PIOBU_RFV_Pos) /**< \brief (SECUMOD_PIOBU[8]) PIOBUx Reset Filter Value */
-#define SECUMOD_PIOBU_PIOBU_RFV(value) ((SECUMOD_PIOBU_PIOBU_RFV_Msk & ((value) << SECUMOD_PIOBU_PIOBU_RFV_Pos)))
+#define SECUMOD_PIOBU_AFV_Pos 0
+#define SECUMOD_PIOBU_AFV_Msk (0xfu << SECUMOD_PIOBU_AFV_Pos) /**< \brief (SECUMOD_PIOBU[8]) PIOBU Alarm Filter Value */
+#define SECUMOD_PIOBU_AFV_0   (0x0u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 0 */
+#define SECUMOD_PIOBU_AFV_2   (0x1u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 2 */
+#define SECUMOD_PIOBU_AFV_4   (0x2u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 4 */
+#define SECUMOD_PIOBU_AFV_8   (0x3u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 8 */
+#define SECUMOD_PIOBU_AFV_16  (0x4u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 16 */
+#define SECUMOD_PIOBU_AFV_32  (0x5u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 32 */
+#define SECUMOD_PIOBU_AFV_64  (0x6u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 64 */
+#define SECUMOD_PIOBU_AFV_128 (0x7u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 128 */
+#define SECUMOD_PIOBU_AFV_256 (0x8u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 256 */
+#define SECUMOD_PIOBU_AFV_512 (0x9u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 512 */
+#define SECUMOD_PIOBU_AFV_512 (0x9u << 0) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 512 */
+#define SECUMOD_PIOBU_AFV(value) ((SECUMOD_PIOBU_AFV_Msk & ((value) << SECUMOD_PIOBU_AFV_Pos)))
+#define SECUMOD_PIOBU_RFV_Pos 4
+#define SECUMOD_PIOBU_RFV_Msk (0xFu << SECUMOD_PIOBU_RFV_Pos) /**< \brief (SECUMOD_PIOBU) PIOBU Reset Filter Value */
+#define SECUMOD_PIOBU_RFV_0   (0x0u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 0 */
+#define SECUMOD_PIOBU_RFV_2   (0x1u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 2 */
+#define SECUMOD_PIOBU_RFV_4   (0x2u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 4 */
+#define SECUMOD_PIOBU_RFV_8   (0x3u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 8 */
+#define SECUMOD_PIOBU_RFV_16  (0x4u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 16 */
+#define SECUMOD_PIOBU_RFV_32  (0x5u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 32 */
+#define SECUMOD_PIOBU_RFV_64  (0x6u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 64 */
+#define SECUMOD_PIOBU_RFV_128 (0x7u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 128 */
+#define SECUMOD_PIOBU_RFV_256 (0x8u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 256 */
+#define SECUMOD_PIOBU_RFV_512 (0x9u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 512 */
+#define SECUMOD_PIOBU_RFV_512 (0x9u << 4) /**< \brief (SECUMOD_PIOBU) Maximun Counter Value is 512 */
+#define SECUMOD_PIOBU_RFV(value) ((SECUMOD_PIOBU_RFV_Msk & ((value) << SECUMOD_PIOBU_RFV_Pos)))
 #define SECUMOD_PIOBU_OUTPUT (0x1u << 8) /**< \brief (SECUMOD_PIOBU[8]) Configure I/O Line in Input/Output */
+#define SECUMOD_PIOBU_OUTPUT_PURE_INPUT     (0x0u << 8) /**< \brief (SECUMOD_PIOBU) The I/O is a pure input */
+#define SECUMOD_PIOBU_OUTPUT_ENABLED_OUTPUT (0x1u << 8) /**< \brief (SECUMOD_PIOBU) The I/O is enabled in output */
 #define SECUMOD_PIOBU_PIO_SOD (0x1u << 9) /**< \brief (SECUMOD_PIOBU[8]) Set/Clear the I/O Line when configured in Output Mode (OUTPUT =1) */
 #define SECUMOD_PIOBU_PIO_PDS (0x1u << 10) /**< \brief (SECUMOD_PIOBU[8]) Level on the Pin in Input Mode (OUTPUT = 0) (Read-only) */
 #define SECUMOD_PIOBU_PULLUP_Pos 12
 #define SECUMOD_PIOBU_PULLUP_Msk (0x3u << SECUMOD_PIOBU_PULLUP_Pos) /**< \brief (SECUMOD_PIOBU[8]) Programmable Pull-up State */
 #define SECUMOD_PIOBU_PULLUP(value) ((SECUMOD_PIOBU_PULLUP_Msk & ((value) << SECUMOD_PIOBU_PULLUP_Pos)))
+#define SECUMOD_PIOBU_PULLUP_NONE      (0x0u << 12) /**< \brief (SECUMOD_PIOBU) No pull-up/pull-down connected */
+#define SECUMOD_PIOBU_PULLUP_PULL_UP   (0x1u << 12) /**< \brief (SECUMOD_PIOBU) Pull-up connected */
+#define SECUMOD_PIOBU_PULLUP_PULL_DOWN (0x2u << 12) /**< \brief (SECUMOD_PIOBU) Pull-down connected */
 #define SECUMOD_PIOBU_SCHEDULE (0x1u << 14) /**< \brief (SECUMOD_PIOBU[8]) Pull-up/Down Scheduled */
 #define SECUMOD_PIOBU_SWITCH (0x1u << 15) /**< \brief (SECUMOD_PIOBU[8]) Switch State for Intrusion Detection */
 #define SECUMOD_PIOBU_DYNSTAT (0x1u << 20) /**< \brief (SECUMOD_PIOBU[8]) Switch for Static or Dynamic Detection Intrusion */
@@ -176,6 +210,11 @@ typedef struct {
 #define SECUMOD_JTAGCR_CA5_DEBUG_MODE_Msk (0x7u << SECUMOD_JTAGCR_CA5_DEBUG_MODE_Pos) /**< \brief (SECUMOD_JTAGCR) Cortex-A5 Invasive/Non-Invasive Secure/Non-Secure Debug Permissions */
 #define SECUMOD_JTAGCR_CA5_DEBUG_MODE(value) ((SECUMOD_JTAGCR_CA5_DEBUG_MODE_Msk & ((value) << SECUMOD_JTAGCR_CA5_DEBUG_MODE_Pos)))
 #define SECUMOD_JTAGCR_CA5_DEBUG_MON (0x1u << 4) /**< \brief (SECUMOD_JTAGCR) Cortex-A5 Debug Acknowledge (DBGACK) Monitoring */
+#define SECUMOD_JTAGCR_CA5_DEBUG_MODE_NO_DEBUG    (0x0u << 1) /**< \brief (SECUMOD_JTAGCR) No debug */
+#define SECUMOD_JTAGCR_CA5_DEBUG_MODE_NINS        (0x1u << 1) /**< \brief (SECUMOD_JTAGCR) Non-Invasive Non-Secure */
+#define SECUMOD_JTAGCR_CA5_DEBUG_MODE_FULL_NS     (0x2u << 1) /**< \brief (SECUMOD_JTAGCR) Full Non-Secure (Invasive and Non-Invasive) */
+#define SECUMOD_JTAGCR_CA5_DEBUG_MODE_FULL_NS_NIS (0x3u << 1) /**< \brief (SECUMOD_JTAGCR) Full Non-Secure + Non-Invasive Secure */
+#define SECUMOD_JTAGCR_CA5_DEBUG_MODE_FULL_DEBUG  (0x4u << 1) /**< \brief (SECUMOD_JTAGCR) Full debug allowed */
 /* -------- SECUMOD_DYSTUNE : (SECUMOD Offset: 0x006C) Dynamic Signatures Tuning Register -------- */
 #define SECUMOD_DYSTUNE_RX_ERROR_THRESHOLD_Pos 0
 #define SECUMOD_DYSTUNE_RX_ERROR_THRESHOLD_Msk (0x7fu << SECUMOD_DYSTUNE_RX_ERROR_THRESHOLD_Pos) /**< \brief (SECUMOD_DYSTUNE) Error Detection Threshold */
@@ -210,6 +249,12 @@ typedef struct {
 #define SECUMOD_RAMACC_RW5_Pos 10
 #define SECUMOD_RAMACC_RW5_Msk (0x3u << SECUMOD_RAMACC_RW5_Pos) /**< \brief (SECUMOD_RAMACC) Access right for RAM region [5 Kbytes; 6 Kbytes] (register bank BUREG256b) */
 #define SECUMOD_RAMACC_RW5(value) ((SECUMOD_RAMACC_RW5_Msk & ((value) << SECUMOD_RAMACC_RW5_Pos)))
+#define SECUMOD_RAMACC_RWx_Pos(x)          ( 2 * (x) )
+#define SECUMOD_RAMACC_RWx_Msk(x)          ( 0x3u << ( 2 * (x) ) ) /**< \brief (SECUMOD_RAMACC) Access right for RAM region */
+#define SECUMOD_RAMACC_RWx_NO_ACCESS(x)    ( 0x0u << ( 2 * (x) ) ) /**< \brief (SECUMOD_RAMACC) No access allowed */
+#define SECUMOD_RAMACC_RWx_WR_ACCESS(x)    ( 0x1u << ( 2 * (x) ) ) /**< \brief (SECUMOD_RAMACC) Only write access allowed */
+#define SECUMOD_RAMACC_RWx_RD_ACCESS(x)    ( 0x2u << ( 2 * (x) ) ) /**< \brief (SECUMOD_RAMACC) Only read access allowed */
+#define SECUMOD_RAMACC_RWx_RD_WR_ACCESS(x) ( 0x3u << ( 2 * (x) ) ) /**< \brief (SECUMOD_RAMACC) Read and write access allowed */
 /* -------- SECUMOD_RAMACCSR : (SECUMOD Offset: 0x0078) RAM Access Rights Status Register -------- */
 #define SECUMOD_RAMACCSR_RW0_Pos 0
 #define SECUMOD_RAMACCSR_RW0_Msk (0x3u << SECUMOD_RAMACCSR_RW0_Pos) /**< \brief (SECUMOD_RAMACCSR) Access right status for RAM region [0; 1 Kbyte] */
@@ -229,7 +274,13 @@ typedef struct {
 #define SECUMOD_RAMACCSR_RW5_Pos 10
 #define SECUMOD_RAMACCSR_RW5_Msk (0x3u << SECUMOD_RAMACCSR_RW5_Pos) /**< \brief (SECUMOD_RAMACCSR) Access right status for RAM region [5 Kbytes; 6 Kbytes] (register bank BUREG256b) */
 #define SECUMOD_RAMACCSR_RW5(value) ((SECUMOD_RAMACCSR_RW5_Msk & ((value) << SECUMOD_RAMACCSR_RW5_Pos)))
+#define SECUMOD_RAMACCSR_RWx_Pos(x)          ( 2 * (x) )
+#define SECUMOD_RAMACCSR_NO_VIOLATION        ( 0x0u ) /**< \brief (SECUMOD_RAMACCSR) No access violation occurred */
+#define SECUMOD_RAMACCSR_W_VIOLATION         ( 0x1u ) /**< \brief (SECUMOD_RAMACCSR) Only write access violation occurred */
+#define SECUMOD_RAMACCSR_R_VIOLATION         ( 0x2u ) /**< \brief (SECUMOD_RAMACCSR) Only read access violation occurred */
+#define SECUMOD_RAMACCSR_RW_VIOLATION        ( 0x3u ) /**< \brief (SECUMOD_RAMACCSR) Read and write access violation occurred */
 /* -------- SECUMOD_BMPR : (SECUMOD Offset: 0x007C) Backup Mode Protection Register -------- */
+#define SECUMOD_BMPR_ALL  (0x00FF0CCFu)
 #define SECUMOD_BMPR_SHLDM (0x1u << 0) /**< \brief (SECUMOD_BMPR) Shield Monitor Protection */
 #define SECUMOD_BMPR_DBLFM (0x1u << 1) /**< \brief (SECUMOD_BMPR) Double Frequency Monitor Protection */
 #define SECUMOD_BMPR_TST (0x1u << 2) /**< \brief (SECUMOD_BMPR) Test Pin Protection */
@@ -247,6 +298,7 @@ typedef struct {
 #define SECUMOD_BMPR_DET6 (0x1u << 22) /**< \brief (SECUMOD_BMPR) PIOBU Intrusion Detector Protection */
 #define SECUMOD_BMPR_DET7 (0x1u << 23) /**< \brief (SECUMOD_BMPR) PIOBU Intrusion Detector Protection */
 /* -------- SECUMOD_NMPR : (SECUMOD Offset: 0x0080) Normal Mode Protection Register -------- */
+#define SECUMOD_NMPR_ALL  (0x00FF3CEFu)
 #define SECUMOD_NMPR_SHLDM (0x1u << 0) /**< \brief (SECUMOD_NMPR) Shield Monitor Protection */
 #define SECUMOD_NMPR_DBLFM (0x1u << 1) /**< \brief (SECUMOD_NMPR) Double Frequency Monitor Protection */
 #define SECUMOD_NMPR_TST (0x1u << 2) /**< \brief (SECUMOD_NMPR) Test Pin Protection */
@@ -267,6 +319,7 @@ typedef struct {
 #define SECUMOD_NMPR_DET6 (0x1u << 22) /**< \brief (SECUMOD_NMPR) PIOBU Intrusion Detector Protection */
 #define SECUMOD_NMPR_DET7 (0x1u << 23) /**< \brief (SECUMOD_NMPR) PIOBU Intrusion Detector Protection */
 /* -------- SECUMOD_NIEPR : (SECUMOD Offset: 0x0084) Normal Interrupt Enable Protection Register -------- */
+#define SECUMOD_NIEPR_ALL  (0x00FF3CEFu)
 #define SECUMOD_NIEPR_SHLDM (0x1u << 0) /**< \brief (SECUMOD_NIEPR) Shield Monitor Protection Interrupt Enable */
 #define SECUMOD_NIEPR_DBLFM (0x1u << 1) /**< \brief (SECUMOD_NIEPR) Double Frequency Monitor Protection Interrupt Enable */
 #define SECUMOD_NIEPR_TST (0x1u << 2) /**< \brief (SECUMOD_NIEPR) Test Pin Protection Interrupt Enable */
@@ -287,6 +340,7 @@ typedef struct {
 #define SECUMOD_NIEPR_DET6 (0x1u << 22) /**< \brief (SECUMOD_NIEPR) PIOBU Intrusion Detector Protection Interrupt Enable */
 #define SECUMOD_NIEPR_DET7 (0x1u << 23) /**< \brief (SECUMOD_NIEPR) PIOBU Intrusion Detector Protection Interrupt Enable */
 /* -------- SECUMOD_NIDPR : (SECUMOD Offset: 0x0088) Normal Interrupt Disable Protection Register -------- */
+#define SECUMOD_NIDPR_ALL  (0x00FF3CEFu)
 #define SECUMOD_NIDPR_SHLDM (0x1u << 0) /**< \brief (SECUMOD_NIDPR) Shield Monitor Protection Interrupt Disable */
 #define SECUMOD_NIDPR_DBLFM (0x1u << 1) /**< \brief (SECUMOD_NIDPR) Double Frequency Monitor Protection Interrupt Disable */
 #define SECUMOD_NIDPR_TST (0x1u << 2) /**< \brief (SECUMOD_NIDPR) Test Pin Protection Interrupt Disable */
@@ -307,6 +361,7 @@ typedef struct {
 #define SECUMOD_NIDPR_DET6 (0x1u << 22) /**< \brief (SECUMOD_NIDPR) PIOBU Intrusion Detector Protection Interrupt Disable */
 #define SECUMOD_NIDPR_DET7 (0x1u << 23) /**< \brief (SECUMOD_NIDPR) PIOBU Intrusion Detector Protection Interrupt Disable */
 /* -------- SECUMOD_NIMPR : (SECUMOD Offset: 0x008C) Normal Interrupt Mask Protection Register -------- */
+#define SECUMOD_NIMPR_ALL  (0x00FF3CEFu)
 #define SECUMOD_NIMPR_SHLDM (0x1u << 0) /**< \brief (SECUMOD_NIMPR) Shield Monitor Protection Interrupt Mask */
 #define SECUMOD_NIMPR_DBLFM (0x1u << 1) /**< \brief (SECUMOD_NIMPR) Double Frequency Monitor Protection Interrupt Mask */
 #define SECUMOD_NIMPR_TST (0x1u << 2) /**< \brief (SECUMOD_NIMPR) Test Pin Protection Interrupt Mask */
