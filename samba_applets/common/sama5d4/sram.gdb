@@ -73,17 +73,13 @@ end
 # Show registers state
 mon regs
 
-set $trace_level=5
-
 end
 
 define mbxin
   printf "- Mailbox IN -\n"
   printf "CMD:    0x%x (%d)\n", *0x200004, *0x200004
   printf "STATUS: 0x%x (%d)\n", *0x200008, *0x200008
-  printf "COMM:   %d\n", *0x20000C
-  printf "TRACE:  %d\n", *0x200010
-  x/32xw 0x200014
+  x/32xw 0x20000C
 end
 
 define mbxout
@@ -97,30 +93,38 @@ define runapplet
   set $applet_cmd = $arg0
   set *0x200004=$applet_cmd
   set *0x200008=0
-  set *0x20000C=0
-  set *0x200010=$trace_level
   if $argc >= 2
-    set *0x200014=$arg1
+    set *0x20000C=$arg1
+  else
+    set *0x20000C=0
+  end
+  if $argc >= 3
+    set *0x200010=$arg2
+  else
+    set *0x200010=0
+  end
+  if $argc >= 4
+    set *0x200014=$arg3
   else
     set *0x200014=0
   end
-  if $argc >= 3
-    set *0x200018=$arg2
+  if $argc >= 5
+    set *0x200018=$arg4
   else
     set *0x200018=0
   end
-  if $argc >= 4
-    set *0x20001C=$arg3
+  if $argc >= 6
+    set *0x20001C=$arg5
   else
     set *0x20001C=0
   end
-  if $argc >= 5
-    set *0x200020=$arg4
+  if $argc >= 7
+    set *0x200020=$arg6
   else
     set *0x200020=0
   end
-  if $argc >= 6
-    set *0x200024=$arg5
+  if $argc >= 8
+    set *0x200024=$arg7
   else
     set *0x200024=0
   end
