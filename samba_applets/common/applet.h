@@ -41,6 +41,8 @@
 #define APPLET_CMD_ERASE_PAGES       0x31 /* Erase pages */
 #define APPLET_CMD_READ_PAGES        0x32 /* Read pages */
 #define APPLET_CMD_WRITE_PAGES       0x33 /* Write pages */
+#define APPLET_CMD_READ_BOOTCFG      0x34 /* Read Boot Config */
+#define APPLET_CMD_WRITE_BOOTCFG     0x35 /* Write Boot Config */
 
 #define APPLET_SUCCESS               0x00 /* Operation was successful */
 #define APPLET_DEV_UNKNOWN           0x01 /* Device unknown */
