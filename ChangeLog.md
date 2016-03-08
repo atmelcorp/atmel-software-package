@@ -13,6 +13,7 @@
 - new Security Module (SECUMOD) driver and example
 - new PDMIC driver and example
 - new USB examples: composite, hid, audio
+- new QSPI XIP example
 
 ### Changes
 
@@ -44,8 +45,7 @@
 - fixed cp15_is_dcache_enabled function
 - L2CC driver now configures the L2 SRAM before enabling the cache
 - several fixes to QSPIFLASH driver related to Quad-mode activation (Micron,
-  Macronix). Initialization code for Spansion memories was removed because it
-  was never tested. Will be re-added later.
+  Macronix, Spansion).
 - fixed QSPI MMU mapping and enabled MMU and caches in QSPI example
 
 
