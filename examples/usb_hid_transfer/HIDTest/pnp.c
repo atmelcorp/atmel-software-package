@@ -779,7 +779,11 @@ CloseHidDevice (
     IN PHID_DEVICE HidDevice
 )
 {
-    free(HidDevice -> DevicePath);
+	if (NULL != HidDevice->DevicePath)
+	{
+		free(HidDevice->DevicePath);
+		HidDevice->DevicePath = NULL;
+	}
 
     if (INVALID_HANDLE_VALUE != HidDevice -> HidDevice)
     {

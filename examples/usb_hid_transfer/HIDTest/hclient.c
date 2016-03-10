@@ -949,7 +949,8 @@ bMainDlgProc(
                         }
                         else {
 
-                            tmpBuffer[0] = 0;
+                            //tmpBuffer[0] = 0;
+							memset(tmpBuffer, 0x00 ,sizeof(tmpBuffer));
                             SendDlgItemMessage(hDlg, IDC_EDIT_OUT, WM_GETTEXT, 64*6 - 1, (LPARAM)(&tmpBuffer[1]));
                             if (!WriteFile(hidDevice.HidDevice,
                                         tmpBuffer,
@@ -981,6 +982,8 @@ bMainDlgProc(
                             }
 
                             EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_RD), FALSE);
+							EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GET), FALSE);
+							EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GET_FEATURE), FALSE);
 
                             readContext.HidDevice = pDevice;
                             readContext.TerminateThread = FALSE;
@@ -1004,6 +1007,8 @@ bMainDlgProc(
                             readContext.TerminateThread = TRUE;
                             WaitForSingleObject(readThread, INFINITE);
                             EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_RD), TRUE);
+							EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GET), TRUE);
+							EnableWindow(GetDlgItem(hDlg, IDC_BUTTON_GET_FEATURE), TRUE);
                             CloseHidDevice(&hidDevice);
                         }
                     }
@@ -1094,7 +1099,8 @@ bMainDlgProc(
                         }
                         else {
 
-                            tmpBuffer[0] = 0;
+                            //tmpBuffer[0] = 0;
+							memset(tmpBuffer, 0x00, sizeof(tmpBuffer));
                             SendDlgItemMessage(hDlg, IDC_EDIT_OUT, WM_GETTEXT, 64 * 6 - 1, (LPARAM)(&tmpBuffer[1]));
                             if (!HidD_SetOutputReport(hidDevice.HidDevice,
                                                       tmpBuffer,
@@ -1105,6 +1111,36 @@ bMainDlgProc(
                         CloseHidDevice(&hidDevice);
                     }
                     break;
+
+				case IDC_BUTTON_SET_FEATURE:
+					GET_CURRENT_DEVICE(hDlg, pDevice);
+
+					if (NULL != pDevice)
+					{
+						BYTE tmpBuffer[64 * 6];
+						if (!OpenHidDevice(pDevice->DevicePath,
+							FALSE,
+							TRUE,
+							FALSE,
+							FALSE,
+							&hidDevice)) {
+							MessageBox(hDlg, "Can not open HID device!", "Err Write", MB_ICONSTOP);
+							break;
+						}
+						else {
+
+							//tmpBuffer[0] = 0;
+							memset(tmpBuffer, 0x00, sizeof(tmpBuffer));
+							SendDlgItemMessage(hDlg, IDC_EDIT_OUT, WM_GETTEXT, 64 * 6 - 1, (LPARAM)(&tmpBuffer[1]));
+							if (!HidD_SetFeature(hidDevice.HidDevice,
+								tmpBuffer,
+								hidDevice.Caps.FeatureReportByteLength)) {
+								MessageBox(hDlg, "Failed to set feature!", "Err SetFeature", MB_ICONSTOP);
+							}
+						}
+						CloseHidDevice(&hidDevice);
+					}
+					break;
 
                 case IDC_BUTTON_GET:
                     GET_CURRENT_DEVICE(hDlg, pDevice);
@@ -1122,7 +1158,8 @@ bMainDlgProc(
                             break;
                         }
 
-                        tmpBuffer[0] = 0;
+                        //tmpBuffer[0] = 0;
+						memset(tmpBuffer, 0x00, sizeof(tmpBuffer));
                         if (!HidD_GetInputReport(hidDevice.HidDevice,
                                                  tmpBuffer,
                                                  hidDevice.Caps.InputReportByteLength)) {
@@ -1145,6 +1182,47 @@ bMainDlgProc(
                         CloseHidDevice(&hidDevice);
                     }
                     break;
+
+				case IDC_BUTTON_GET_FEATURE:
+					GET_CURRENT_DEVICE(hDlg, pDevice);
+
+					if (NULL != pDevice)
+					{
+						BYTE tmpBuffer[66];
+						if (!OpenHidDevice(pDevice->DevicePath,
+							TRUE,
+							FALSE,
+							FALSE,
+							FALSE,
+							&hidDevice)) {
+							MessageBox(hDlg, "Can not open HID device!", "Err GetFeature", MB_ICONSTOP);
+							break;
+						}
+
+						//tmpBuffer[0] = 0;
+						memset(tmpBuffer, 0x00, sizeof(tmpBuffer));
+						if (!HidD_GetFeature(hidDevice.HidDevice,
+							tmpBuffer,
+							hidDevice.Caps.FeatureReportByteLength)) {
+							MessageBox(hDlg, "Failed to get feature!", "Err GetFeature", MB_ICONSTOP);
+						}
+						else {
+							// Dump buffer
+							int i;
+							char * pBuff = szTempBuff, tmpChar;
+							for (i = 1; i < hidDevice.Caps.InputReportByteLength; i++) {
+
+								*pBuff++ = HalfBtoHex(tmpBuffer[i] >> 4);
+								*pBuff++ = HalfBtoHex(tmpBuffer[i]);
+								*pBuff++ = ' ';
+							}
+							*pBuff = 0;
+
+							SendDlgItemMessage(hDlg, IDC_EDIT_IN, WM_SETTEXT, 0, (LPARAM)szTempBuff);
+						}
+						CloseHidDevice(&hidDevice);
+					}
+					break;
 
                 case IDC_ABOUT:
 

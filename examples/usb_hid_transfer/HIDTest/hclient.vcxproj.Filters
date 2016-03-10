@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;*</Extensions>
+      <UniqueIdentifier>{55093100-B347-4736-B0EC-F835DDA0D98D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <UniqueIdentifier>{43D41B7E-82A6-4508-B577-4B2702FA8C8C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms;man;xml</Extensions>
+      <UniqueIdentifier>{2B0259E8-4B79-49E6-BAEE-57D0FB83FFC8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="buffers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ecdisp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hclient.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pnp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="report.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strings.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="hclient.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+    <ClInclude Include="buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdisp.h" />
+    <ClInclude Include="hclient.h" />
+    <ClInclude Include="hid.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resrc1.h" />
+    <ClInclude Include="strings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="*.txt;*.htm;*.html" />
+  </ItemGroup>
+</Project>
