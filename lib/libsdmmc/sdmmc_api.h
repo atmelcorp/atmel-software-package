@@ -625,7 +625,8 @@ extern uint8_t SDIO_ReadDirect(sSdCard * pSd,
 
 extern uint8_t SDIO_WriteDirect(sSdCard * pSd,
 				uint8_t bFunctionNum,
-				uint32_t dwAddress, uint8_t bDataByte);
+				uint32_t dwAddress,
+				uint8_t * pData, uint8_t rdAfterWr);
 
 extern uint8_t SDIO_ReadBytes(sSdCard * pSd,
 			      uint8_t bFunctionNum,

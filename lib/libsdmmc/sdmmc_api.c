@@ -186,6 +186,8 @@ struct stringEntry_s
                          | SDIO_R5_ERROR \
                          | SDIO_R5_FUNCN_ERROR \
                          | SDIO_R5_OUT_OF_RANGE)
+
+#define DATA_SDIO_R5(response)  ((response) & 0xffu)
 /**     @}*/
 
 /*----------------------------------------------------------------------------
@@ -3282,26 +3284,38 @@ SDIO_ReadDirect(sSdCard * pSd,
  * \param pSd         Pointer to SdCard instance.
  * \param functionNum Function number.
  * \param address     Register address to write to.
- * \param dataByte    Data to write.
+ * \param pData       Pointer to the value to be written.
+ * \param rdAfterWr   Boolean, true to read the register back, returning the new
+ * value of the register in *pData.
  * \return 0 if successful; otherwise returns an \ref sdmmc_rc "error code".
  */
 uint8_t
 SDIO_WriteDirect(sSdCard * pSd,
-		 uint8_t functionNum, uint32_t address, uint8_t dataByte)
+		 uint8_t functionNum,
+		 uint32_t address, uint8_t * pData, uint8_t rdAfterWr)
 {
 	uint8_t error;
 	uint32_t status;
 
 	assert(pSd != NULL);
+	assert(pData);
 
 	if (pSd->bCardType & CARD_TYPE_bmSDIO) {
-		status = dataByte;
-		error = Cmd52(pSd, 1, functionNum, 0, address, &status);
+		status = 0 | *pData;
+		error = Cmd52(pSd, 1, functionNum, rdAfterWr ? 1 : 0, address,
+		    &status);
 		if (error || status & STATUS_SDIO_R5) {
 			trace_error("IOwrReg %lu %s st %lx\n\r", address,
 			    SD_StringifyRetCode(error), status);
 			return SDMMC_ERROR;
 		}
+		error = DATA_SDIO_R5(status);
+		if (!rdAfterWr && error != *pData) {
+			trace_error("IOwrReg mismatch 0x%02x\n\r", error);
+			return SDMMC_ERROR;
+		}
+		if (rdAfterWr)
+			*pData = error;
 	} else {
 		return SDMMC_ERROR_NOT_SUPPORT;
 	}
