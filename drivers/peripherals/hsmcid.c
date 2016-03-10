@@ -185,7 +185,7 @@ static void hsmci_handler(struct hsmci_set *set)
 {
 	Hsmci *regs = set->regs;
 	sSdmmcCommand *pCmd = set->cmd;
-	uint32_t dwSr, dwMsk, dwMaskedSr;
+	uint32_t dwSr, dwMaskedSr;
 	assert(regs);
 
 	/* Do nothing if no pending command */
@@ -195,61 +195,51 @@ static void hsmci_handler(struct hsmci_set *set)
 		return;
 	}
 
-	xdmad_poll();
+	if (set->use_polling)
+		xdmad_poll();
 
 	/* Read status */
-	dwSr  = hsmci_get_status(regs);
-	dwMsk = hsmci_get_it_mask(regs);
-	dwMaskedSr = dwSr & dwMsk;
+	dwSr = hsmci_get_status(regs);
+	dwMaskedSr = dwSr & hsmci_get_it_mask(regs);
 	/* Check errors */
 	if (dwMaskedSr & STATUS_ERRORS) {
 		if (dwMaskedSr & HSMCI_SR_RTOE)
 			pCmd->bStatus = SDMMC_ERROR_NORESPONSE;
-
-		if (pCmd->bCmd != 12)
-			set->state = MCID_ERROR;
-		trace_warning("error status: 0x%08lx\n\r", dwMaskedSr);
+		else
+			pCmd->bStatus = SDMMC_ERR_IO;
+		set->state = MCID_ERROR;
+		trace_debug("HSMCI_SR 0x%08lx\n\r", dwSr);
 	}
-	dwMsk &= ~STATUS_ERRORS;
 
 	/* Check command complete */
 	if (dwMaskedSr & HSMCI_SR_CMDRDY) {
-		trace_debug("CMDRDY \n\r");
 		hsmci_disable_it(regs, HSMCI_IDR_CMDRDY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_CMDRDY;
+		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_CMDRDY;
+		trace_debug("CMDRDY\n\r");
 	}
-
 	/* Check if not busy */
 	if (dwMaskedSr & HSMCI_SR_NOTBUSY) {
-		trace_debug("NOTBUSY ");
 		hsmci_disable_it(regs, HSMCI_IDR_NOTBUSY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_NOTBUSY;
-	}
-	/* Check if TX ready */
-	if (dwMaskedSr & HSMCI_SR_TXRDY) {
-		trace_debug("TXRDY ");
-		dwMsk &= ~(uint32_t)HSMCI_IMR_TXRDY;
+		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_NOTBUSY;
+		trace_debug("NOTBUSY\n\r");
 	}
 	/* Check if FIFO empty (all data sent) */
 	if (dwMaskedSr & HSMCI_SR_FIFOEMPTY) {
-		/* Disable FIFO empty */
 		hsmci_disable_it(regs, HSMCI_IDR_FIFOEMPTY);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_FIFOEMPTY;
-		trace_debug("FIFOEMPTY %lx \n\r", dwMsk);
+		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_FIFOEMPTY;
+		trace_debug("FIFOEMPTY\n\r");
 	}
-
-	/* Check if DMA finished */
+	/* Check if data transfer has completed */
 	if (dwMaskedSr & HSMCI_SR_XFRDONE) {
-
 		hsmci_disable_it(regs, HSMCI_IDR_XFRDONE);
-		dwMsk &= ~(uint32_t)HSMCI_IMR_XFRDONE;
-		trace_debug("XFRDONE %lx \n\r", dwMsk);
+		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_XFRDONE;
+		trace_debug("XFRDONE\n\r");
 	}
 
 	/* All none error mask done, complete the command */
-	if (0 == dwMsk || set->state == MCID_ERROR) {
+	if (set->nxt_evts == 0 || set->state == MCID_ERROR) {
 		/* Disable interrupts */
-		hsmci_disable_it(regs, hsmci_get_it_mask(regs));
+		hsmci_disable_it(regs, ~0ul);
 		/* Halt the DMA (if used) */
 		hsmci_release_dma(set);
 		/* Error reset */
@@ -498,6 +488,8 @@ static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus)
 	/* Release command */
 	set->cmd = NULL;
 	set->state = MCID_LOCKED;
+	if (cmd == NULL)
+		return;
 	cmd->bStatus = bStatus;
 	/* Invoke callback */
 	if (cmd->fCallback)
@@ -712,7 +704,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	struct hsmci_set *set = (struct hsmci_set *)_set;
 	Hsmci *regs = set->regs;
 	uint32_t mr, ier;
-	uint32_t cmdr;
+	uint32_t cmdr = 0;
 	uint16_t blkr_len, blkr_cnt;
 	uint8_t rc, is_read, blk_io = 0;
 	const uint8_t has_data = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
@@ -724,36 +716,42 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	if (hsmci_is_busy(set))
 		return SDMMC_ERROR_BUSY;
 
-	set->state = MCID_CMD;
-	set->cmd   = cmd;
-
 	trace_debug("cmd %d, op 0x%04x, %d x %d, arg 0x%08lx, status %d\n\r",
 		cmd->bCmd, cmd->cmdOp.wVal, cmd->wBlockSize, cmd->wNbBlocks,
 		cmd->dwArg, cmd->bStatus);
-
+	hsmci_disable_it(regs, ~0ul);
 	hsmci_disable(regs);
+
+	set->state = MCID_CMD;
+	set->cmd = cmd;
+	cmd->bStatus = SDMMC_SUCCESS;
+	set->nxt_evts = 0;
 	mr = hsmci_get_mode(regs) & ~HSMCI_MR_WRPROOF & ~HSMCI_MR_RDPROOF
 		& ~HSMCI_MR_FBYTE;
 
 	/* Special: PowerON Init */
 	if (cmd->cmdOp.wVal == SDMMC_CMD_POWERONINIT) {
 		hsmci_cfg_mode(regs, mr);
-		ier = HSMCI_IER_XFRDONE;
+		set->nxt_evts = ier = HSMCI_IER_XFRDONE;
 	}
 	/* Normal command: idle the bus */
 	else if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_STOPXFR) {
 		hsmci_cfg_mode(regs, mr);
-		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
+		set->nxt_evts = HSMCI_IER_XFRDONE;
+		ier = set->nxt_evts | STATUS_ERRORS_RESP;
 	}
 	else if ((cmd->cmdOp.wVal & SDMMC_CMD_CNODATA(0xf))
 		== SDMMC_CMD_CNODATA(0)) {
 		/* Command without response */
-		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
+		hsmci_cfg_mode(regs, mr);
+		set->nxt_evts = HSMCI_IER_XFRDONE;
+		ier = set->nxt_evts | STATUS_ERRORS_RESP;
 	}
 	else if (!has_data) {
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
 		hsmci_cfg_xfer(regs, 0, 0);
-		ier = HSMCI_IER_CMDRDY | STATUS_ERRORS_RESP;
+		set->nxt_evts = HSMCI_IER_CMDRDY;
+		ier = set->nxt_evts | STATUS_ERRORS_RESP;
 	}
 	/* Command with data */
 	else {
@@ -787,12 +785,14 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 			trace_error("DMA error %u\n\r", rc);
 			return rc;
 		}
+		set->nxt_evts = HSMCI_IER_XFRDONE;
+		/* Let's ensure the DMA transfer has completed, before enabling
+		 * the XFRDONE interrupt that will close the request. */
 		ier = STATUS_ERRORS_DATA;
 	}
-	hsmci_enable(regs);
+
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND)) {
 		cmdr = cmd->bCmd;
-
 		if (cmd->cmdOp.bmBits.powerON)
 			cmdr |= HSMCI_CMDR_OPDCMD | HSMCI_CMDR_SPCMD_INIT;
 		if (cmd->cmdOp.bmBits.odON)
@@ -832,17 +832,12 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 				ier &= ~(uint32_t)HSMCI_IER_RTOE;
 				break;
 		}
-
-		hsmci_send_cmd(regs, cmdr, cmd->dwArg);
 	}
 
-	/* Ignore CRC error for R3 & R4 */
-	if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_STOPXFR)
-		ier &= ~STATUS_ERRORS_DATA;
-
-	/* Enable status flags */
+	hsmci_enable(regs);
 	hsmci_enable_it(regs, ier);
-
+	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND))
+		hsmci_send_cmd(regs, cmdr, cmd->dwArg);
 	return SDMMC_OK;
 }
 

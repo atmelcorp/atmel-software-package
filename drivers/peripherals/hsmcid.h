@@ -81,6 +81,7 @@ struct hsmci_set
 	struct _xdmad_channel *dma_channel;
 	struct _xdmad_desc_view1 *dma_link_list;
 	uint32_t link_list_size;
+	uint32_t nxt_evts;            /* HSMCI IRQs we're still waiting for */
 	uint32_t dwXfrNdx;            /* DMA transferred data index (bytes) */
 	uint32_t dwXSize;             /* DMA transfer size (bytes) */
 	bool use_polling;             /* polling mode */
