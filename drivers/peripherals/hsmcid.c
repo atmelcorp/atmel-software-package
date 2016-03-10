@@ -713,8 +713,14 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	Hsmci *regs = set->regs;
 	uint32_t mr, ier;
 	uint32_t cmdr;
-	uint8_t rc, is_read;
+	uint16_t blkr_len, blkr_cnt;
+	uint8_t rc, is_read, blk_io = 0;
+	const uint8_t has_data = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
+		|| cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX;
 
+	if (has_data && (cmd->wBlockSize == 0 || cmd->wNbBlocks == 0
+		|| cmd->pData == NULL))
+		return SDMMC_ERROR_PARAM;
 	if (hsmci_is_busy(set))
 		return SDMMC_ERROR_BUSY;
 
@@ -739,30 +745,33 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		hsmci_cfg_mode(regs, mr);
 		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
 	}
-	/* No data transfer */
 	else if ((cmd->cmdOp.wVal & SDMMC_CMD_CNODATA(0xf))
 		== SDMMC_CMD_CNODATA(0)) {
+		/* Command without response */
 		ier = HSMCI_IER_XFRDONE | STATUS_ERRORS_RESP;
-		/* R3 response, no CRC */
-		if (cmd->cmdOp.bmBits.respType == 3)
-			ier &= ~(uint32_t)HSMCI_IER_RCRCE;
 	}
-	/* Data command but no following */
-	else if (cmd->wNbBlocks == 0 || cmd->pData == 0) {
+	else if (!has_data) {
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
-		hsmci_cfg_xfer(regs, cmd->wBlockSize, cmd->wNbBlocks);
+		hsmci_cfg_xfer(regs, 0, 0);
 		ier = HSMCI_IER_CMDRDY | STATUS_ERRORS_RESP;
 	}
 	/* Command with data */
 	else {
-		/* Setup block size */
-		if (cmd->cmdOp.bmBits.sendCmd)
-			hsmci_cfg_xfer(regs, cmd->wBlockSize, cmd->wNbBlocks);
-		/* Block size is 0, force byte */
-		if (cmd->wBlockSize == 0)
-			cmd->wBlockSize = 1;
-
-		/* Force byte transfer */
+		if (cmd->cmdOp.bmBits.ioCmd && cmd->bCmd == 53) {
+			SdioCmd53Arg *cmd_arg = (SdioCmd53Arg*)&cmd->dwArg;
+			blk_io = cmd_arg->blockMode;
+		}
+		/* Setup transfer size */
+		if (cmd->cmdOp.bmBits.sendCmd) {
+			blkr_len = cmd->cmdOp.bmBits.ioCmd && !blk_io
+				? 0 : cmd->wBlockSize;
+			blkr_cnt = cmd->cmdOp.bmBits.ioCmd && !blk_io
+				? cmd->wBlockSize : cmd->wNbBlocks;
+			hsmci_cfg_xfer(regs, blkr_len, blkr_cnt);
+		}
+		/* Data chunks and blocks - including SDIO byte operations -
+		 * whose size is not a multiple of 4 bytes are supported with
+		 * specific handling. */
 		if (cmd->wBlockSize & 0x3)
 			mr |= HSMCI_MR_FBYTE;
 		/* Set block size & MR */
@@ -791,29 +800,17 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		if (cmd->cmdOp.bmBits.sendCmd)
 			cmdr |= HSMCI_CMDR_MAXLAT;
 		switch (cmd->cmdOp.bmBits.xfrData) {
+			case SDMMC_CMD_RX:
+				cmdr |= HSMCI_CMDR_TRDIR_READ;
 			case SDMMC_CMD_TX:
 				cmdr |= HSMCI_CMDR_TRCMD_START_DATA;
 				if (cmd->cmdOp.bmBits.ioCmd)
-					cmdr |= cmd->wBlockSize == 1
-						? HSMCI_CMDR_TRTYP_BYTE
-						: HSMCI_CMDR_TRTYP_BLOCK;
+					cmdr |= blk_io ? HSMCI_CMDR_TRTYP_BLOCK
+						: HSMCI_CMDR_TRTYP_BYTE;
 				else
-					cmdr |= cmd->wNbBlocks == 1
-						? HSMCI_CMDR_TRTYP_SINGLE
-						: HSMCI_CMDR_TRTYP_MULTIPLE;
-				break;
-
-			case SDMMC_CMD_RX:
-				cmdr |= HSMCI_CMDR_TRDIR_READ
-					| HSMCI_CMDR_TRCMD_START_DATA;
-				if (cmd->cmdOp.bmBits.ioCmd)
-					cmdr |= cmd->wBlockSize == 1
-						? HSMCI_CMDR_TRTYP_BYTE
-						: HSMCI_CMDR_TRTYP_BLOCK;
-				else
-					cmdr |= cmd->wNbBlocks == 1
-						? HSMCI_CMDR_TRTYP_SINGLE
-						: HSMCI_CMDR_TRTYP_MULTIPLE;
+					cmdr |= cmd->wNbBlocks > 1
+						? HSMCI_CMDR_TRTYP_MULTIPLE
+						: HSMCI_CMDR_TRTYP_SINGLE;
 				break;
 
 			case SDMMC_CMD_STOPXFR:
