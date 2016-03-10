@@ -74,9 +74,6 @@
 #define MCID_CMD    3       /**< Processing the command */
 #define MCID_ERROR  4       /**< Command error */
 
-/** Return word(32-bit) count from byte count */
-#define toWCOUNT(byteCnt)  (((byteCnt)&0x3) ? (((byteCnt)/4)+1) : ((byteCnt)/4))
-
 /** Bit mask for status register errors. */
 #define STATUS_ERRORS ((uint32_t)(HSMCI_SR_UNRE  \
                        | HSMCI_SR_OVRE \
@@ -107,11 +104,43 @@
 /** Max DMA size in a single transfer */
 #define MAX_DMA_SIZE (XDMAC_MAX_BT_SIZE & 0xffffff00)
 
-static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus);
-
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
+static uint8_t hsmci_cancel_command(struct hsmci_set *set);
+static uint8_t hsmci_release_dma(struct hsmci_set *set);
+static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus);
+
+static void hsmci_power_device(struct hsmci_set *set, bool on)
+{
+	assert(set);
+
+	if ((on && set->state != MCID_OFF) || (!on && set->state == MCID_OFF))
+		return;
+	if (on) {
+		trace_debug("Power the device on\n\r");
+		board_power_sdmmc_device(set->id, true);
+		hsmci_enable(set->regs);
+		set->state = MCID_IDLE;
+		return;
+	}
+	trace_debug("Release and power the device off\n\r");
+	if (set->state == MCID_CMD)
+		hsmci_cancel_command(set);
+	/* Cut the power rail supplying signals to/from the device */
+	set->dev_freq = 0;
+	hsmci_disable(set->regs);
+	/* Reset the Mode Register */
+	hsmci_cfg_mode(set->regs, hsmci_get_mode(set->regs)
+		& (HSMCI_MR_CLKDIV_Msk | HSMCI_MR_PWSDIV_Msk));
+	/* Reset the Block Register */
+	hsmci_cfg_xfer(set->regs, 0, 0);
+	/* Reset the peripheral. This will reset almost all registers. */
+	hsmci_reset(set->regs, true);
+	board_power_sdmmc_device(set->id, false);
+	set->state = MCID_OFF;
+}
 
 static uint8_t hsmci_set_speed_mode(struct hsmci_set *set, uint8_t mode)
 {
@@ -219,6 +248,10 @@ static void hsmci_handler(struct hsmci_set *set)
 
 	/* All none error mask done, complete the command */
 	if (0 == dwMsk || set->state == MCID_ERROR) {
+		/* Disable interrupts */
+		hsmci_disable_it(regs, hsmci_get_it_mask(regs));
+		/* Halt the DMA (if used) */
+		hsmci_release_dma(set);
 		/* Error reset */
 		if (set->state == MCID_ERROR)
 			hsmci_reset(regs, true);
@@ -242,8 +275,6 @@ static void hsmci_handler(struct hsmci_set *set)
 						hsmci_get_response(regs);
 			}
 		}
-		/* Disable interrupts */
-		hsmci_disable_it(regs, hsmci_get_it_mask(regs));
 		/* Command is finished */
 		hsmci_finish_cmd(set, pCmd->bStatus);
 	}
@@ -271,6 +302,7 @@ static uint8_t hsmci_cancel_command(struct hsmci_set *set)
 		return SDMMC_ERROR_STATE;
 	if (set->state == MCID_CMD) {
 		/* Cancel ... */
+		hsmci_release_dma(set);
 		hsmci_reset(set->regs, true);
 		/* Command is finished */
 		hsmci_finish_cmd(set, SDMMC_ERROR_USER_CANCEL);
@@ -286,192 +318,183 @@ static void _hsmci_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 	(void) channel;
 	assert(set);
 	assert(set->regs);
-	assert(set->cmd);
 
-	if (set->cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX
-		&& set->region_start && set->region_size)
-		cache_invalidate_region((void *)set->region_start,
-			set->region_size);
 	hsmci_enable_it(set->regs, HSMCI_IER_XFRDONE);
 }
 
 /**
- * HSMCI DMA R/W prepare
+ * \brief Release the DMA channel
+ * \return SDMMC_SUCCESS if the DMA channel has been released without issue.
  */
-static uint32_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
+static uint8_t hsmci_release_dma(struct hsmci_set *set)
 {
+	uint32_t rc;
+	uint8_t res = SDMMC_SUCCESS;
+
+	assert(set);
+
+	if (set->dma_channel == NULL)
+		return SDMMC_ERROR_STATE;
+	rc = xdmad_stop_transfer(set->dma_channel);
+	if (rc != XDMAD_OK) {
+		trace_error("Error halting DMA channel\n\r");
+		res = SDMMC_ERROR_STATE;
+	}
+	rc = xdmad_free_channel(set->dma_channel);
+	if (rc != XDMAD_OK) {
+		trace_error("Couldn't free DMA channel\n\r");
+		res = SDMMC_ERROR_STATE;
+	}
+	set->dma_channel = NULL;
+	return res;
+}
+
+/**
+ * \brief Prepare a DMA channel
+ * \return SDMMC_SUCCESS if the DMA channel is ready for transfer setup.
+ */
+static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
+{
+	uint32_t rc;
+
+	assert(set);
+
 	set->dma_channel = xdmad_allocate_channel(
 		bRd ? set->id : XDMAD_PERIPH_MEMORY,
 		bRd ? XDMAD_PERIPH_MEMORY : set->id);
 	if (NULL == set->dma_channel)
 		return SDMMC_ERROR_BUSY;
-	xdmad_set_callback(set->dma_channel, _hsmci_xdmad_callback_wrapper,
+	rc = xdmad_set_callback(set->dma_channel, _hsmci_xdmad_callback_wrapper,
 		set);
+	if (rc != XDMAD_OK) {
+		hsmci_release_dma(set);
+		return SDMMC_ERROR_STATE;
+	}
 	return SDMMC_SUCCESS;
 }
 
-static uint32_t hsmci_dma(struct hsmci_set *set, uint32_t bFByte, uint8_t bRd)
+/**
+ * \brief Configure and start DMA for the specified data transfer
+ * \return SDMMC_SUCCESS if the DMA transfer has been started.
+ */
+static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 {
-	Hsmci *regs = set->regs;
-	sSdmmcCommand *cmd = set->cmd;
-	struct _xdmad_cfg xdma_cfg;
-	uint32_t xdmaCndc;
-	uint8_t i;
-	uint32_t totalSize = cmd->wNbBlocks * cmd->wBlockSize;
-	uint32_t maxXSize;
-	uint32_t memAddress;
-	uint8_t  bMByte;
+	sSdmmcCommand * const cmd = set->cmd;
 
-	if (set->dwXfrNdx >= totalSize)
-		return 0;
+	assert(set);
+	assert(cmd);
+	assert(cmd->wBlockSize != 0 && cmd->wNbBlocks != 0);
 
-	memset(&xdma_cfg, 0, sizeof(xdma_cfg));
-	/* Prepare DMA transfer */
-	if (cmd->wBlockSize != 1) {
-		set->dwXSize = totalSize - set->dwXfrNdx;
-		if (bRd) {
-			trace_debug("hsmci_dma read %d,%d \n\r",
-				cmd->wBlockSize, cmd->bCmd);
-			assert(cmd->wNbBlocks <= set->link_list_size);
-			for (i = 0; i < cmd->wNbBlocks; i++) {
-				set->dma_link_list[i].mbr_ubc =
-					XDMA_UBC_NVIEW_NDV1
-					| (i == cmd->wNbBlocks - 1
-					? 0 : XDMA_UBC_NDE_FETCH_EN)
-					| XDMA_UBC_NDEN_UPDATED
-					| cmd->wBlockSize / 4;
-				set->dma_link_list[i].mbr_sa = (uint32_t*)
-					&regs->HSMCI_FIFO[i];
-				set->dma_link_list[i].mbr_da =
-					&cmd->pData[i * cmd->wBlockSize];
-				set->dma_link_list[i].mbr_nda =
-					i == cmd->wNbBlocks - 1 ?
-					NULL : &set->dma_link_list[i + 1];
-			}
-			set->region_start = (uint32_t)cmd->pData;
-			set->region_size = totalSize;
-			xdma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-				| XDMAC_CC_MBSIZE_SINGLE
-				| XDMAC_CC_DSYNC_PER2MEM
-				| XDMAC_CC_CSIZE_CHK_1
-				| XDMAC_CC_DWIDTH_WORD
-				| XDMAC_CC_SIF_AHB_IF1
-				| XDMAC_CC_DIF_AHB_IF0
-				| XDMAC_CC_SAM_FIXED_AM
-				| XDMAC_CC_DAM_INCREMENTED_AM;
-		} else {
-			trace_debug("hsmci_dma write %d,%d \n\r",
-				cmd->wBlockSize, cmd->bCmd);
-			assert(cmd->wNbBlocks <= set->link_list_size);
-			for (i = 0; i < cmd->wNbBlocks; i++) {
-				set->dma_link_list[i].mbr_ubc =
-					XDMA_UBC_NVIEW_NDV1
-					| (i == cmd->wNbBlocks - 1
-					? 0 : XDMA_UBC_NDE_FETCH_EN)
-					| XDMA_UBC_NDEN_UPDATED
-					| cmd->wBlockSize / 4;
-				set->dma_link_list[i].mbr_sa =
-					&cmd->pData[i * cmd->wBlockSize];
-				set->dma_link_list[i].mbr_da = (uint32_t*)
-					&regs->HSMCI_FIFO[i];
-				set->dma_link_list[i].mbr_nda =
-					i == cmd->wNbBlocks - 1 ?
-					NULL : &set->dma_link_list[i + 1];
-			}
-			set->region_size = 0;
-			cache_clean_region(cmd->pData, totalSize);
-			xdma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-				| XDMAC_CC_MBSIZE_SINGLE
-				| XDMAC_CC_DSYNC_MEM2PER
-				| XDMAC_CC_CSIZE_CHK_1
-				| XDMAC_CC_DWIDTH_WORD
-				| XDMAC_CC_SIF_AHB_IF0
-				| XDMAC_CC_DIF_AHB_IF1
-				| XDMAC_CC_SAM_INCREMENTED_AM
-				| XDMAC_CC_DAM_FIXED_AM;
-		}
-		xdmaCndc = XDMAC_CNDC_NDVIEW_NDV1
-				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
-				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-		cache_clean_region(set->dma_link_list,
-			set->link_list_size * sizeof(struct _xdmad_desc_view1));
-		if (xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
-			xdmaCndc, set->dma_link_list))
-			return 0;
-	} else {
-		/* Memory address and alignment */
-		memAddress = (uint32_t)&cmd->pData[set->dwXfrNdx];
-		bMByte = bFByte ? 1 : (memAddress & 0x3) || (totalSize & 0x3);
-		/* P to M: Max size is P size */
-		if (bRd)
-			maxXSize = bFByte ? MAX_DMA_SIZE : (MAX_DMA_SIZE * 4);
-		/* M to P: Max size is M size */
-		else
-			maxXSize = bMByte ? MAX_DMA_SIZE : (MAX_DMA_SIZE * 4);
-		/* Update index */
-		set->dwXSize = totalSize - set->dwXfrNdx;
-		if (set->dwXSize > maxXSize)
-			set->dwXSize = maxXSize;
-		/* Prepare DMA transfer */
-		if (bRd) {
-			xdma_cfg.ubc = bFByte
-				? set->dwXSize : toWCOUNT(set->dwXSize);
-			xdma_cfg.sa = (uint32_t*)&regs->HSMCI_RDR;
-			xdma_cfg.da = (void *)memAddress;
-			xdma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-					| XDMAC_CC_MEMSET_NORMAL_MODE
-					| XDMAC_CC_DSYNC_PER2MEM
-					| XDMAC_CC_CSIZE_CHK_1
-					| (bFByte ? XDMAC_CC_DWIDTH_BYTE
-					: XDMAC_CC_DWIDTH_WORD)
-					| XDMAC_CC_SIF_AHB_IF1
-					| XDMAC_CC_DIF_AHB_IF0
-					| XDMAC_CC_SAM_FIXED_AM
-					| XDMAC_CC_DAM_INCREMENTED_AM;
-			set->region_start = memAddress;
-			set->region_size = xdma_cfg.ubc;
-		} else {
-			xdma_cfg.ubc = bFByte
-				? set->dwXSize : toWCOUNT(set->dwXSize);
-			xdma_cfg.sa = (void *)memAddress;
-			xdma_cfg.da = (uint32_t*)&regs->HSMCI_TDR;
-			xdma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-					| XDMAC_CC_MEMSET_NORMAL_MODE
-					| XDMAC_CC_DSYNC_MEM2PER
-					| XDMAC_CC_CSIZE_CHK_1
-					| (bFByte ? XDMAC_CC_DWIDTH_BYTE
-					: XDMAC_CC_DWIDTH_WORD)
-					| XDMAC_CC_SIF_AHB_IF0
-					| XDMAC_CC_DIF_AHB_IF1
-					| XDMAC_CC_SAM_INCREMENTED_AM
-					| XDMAC_CC_DAM_FIXED_AM;
-			set->region_size = 0;
-			cache_clean_region((void *)memAddress,
-				xdma_cfg.ubc);
-		}
+	const uint8_t unit = cmd->wBlockSize & 0x3 ? 1 : 4;
+	struct _xdmad_cfg xdma_cfg = {
+		.cfg = XDMAC_CC_TYPE_PER_TRAN
+			| XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_MEMSET_NORMAL_MODE
+			| XDMAC_CC_CSIZE_CHK_1 | (unit == 1
+			? XDMAC_CC_DWIDTH_BYTE : XDMAC_CC_DWIDTH_WORD),
+	};
+	uint32_t rc, memAddress = (uint32_t)cmd->pData;
+	uint16_t i;
+
+	if (bRd)
+		xdma_cfg.cfg |= XDMAC_CC_DSYNC_PER2MEM
+			| XDMAC_CC_SIF_AHB_IF1 | XDMAC_CC_DIF_AHB_IF0
+			| XDMAC_CC_SAM_FIXED_AM | XDMAC_CC_DAM_INCREMENTED_AM;
+	else
+		xdma_cfg.cfg |= XDMAC_CC_DSYNC_MEM2PER
+			| XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF1
+			| XDMAC_CC_SAM_INCREMENTED_AM | XDMAC_CC_DAM_FIXED_AM;
+	if (cmd->wNbBlocks == 1) {
+		/* Transferring a single data chunk */
+		if (cmd->wBlockSize > MAX_DMA_SIZE * (uint32_t)unit)
+			/* TODO iterative transfer using dwXSize and dwXfrNdx */
+			return SDMMC_ERROR_PARAM;
+		/* Configure a single microblock per block */
 		xdma_cfg.bc = 0;
-		if (xdmad_configure_transfer(set->dma_channel, &xdma_cfg, 0, 0))
-			return 0;
+		/* Configure data count per microblock */
+		xdma_cfg.ubc = cmd->wBlockSize / unit;
+		xdma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR
+			: cmd->pData;
+		xdma_cfg.da = bRd ? cmd->pData
+			: (void*)&set->regs->HSMCI_TDR;
+		rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
+			XDMAC_CNDC_NDE_DSCR_FETCH_DIS, NULL);
+		if (rc != XDMAD_OK)
+			return SDMMC_ERROR_BUSY;
+		if (bRd)
+			/* Invalidate the corresponding data cache lines now, so
+			 * this buffer is protected against a global cache clean
+			 * operation, that concurrent code may trigger.
+			 * Warning: until the command is reported as complete,
+			 * no code should read from this buffer, nor from
+			 * variables cached in the same lines. If such anticipa-
+			 * ted reading had to be supported, the data cache lines
+			 * would need to be invalidated twice: both now and
+			 * upon completion of the DMA transfer. */
+			cache_invalidate_region(cmd->pData, cmd->wBlockSize);
+		else
+			cache_clean_region(cmd->pData, cmd->wBlockSize);
+	} else {
+		/* Transferring multiple blocks */
+		if (cmd->wNbBlocks > set->link_list_size)
+			/* TODO iterative transfer using dwXSize and dwXfrNdx */
+			return SDMMC_ERROR_PARAM;
+		/* TODO try multiple Microblocks, rather than multiple Blocks,
+		 * which require writing and reading numerous transfer
+		 * descriptors to/from RAM. */
+		for (i = 0; i < cmd->wNbBlocks; i++,
+			memAddress += cmd->wBlockSize) {
+			set->dma_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+				| (bRd ? XDMA_UBC_NDEN_UPDATED
+					| XDMA_UBC_NSEN_UNCHANGED
+				: XDMA_UBC_NDEN_UNCHANGED
+					| XDMA_UBC_NSEN_UPDATED)
+				| (i == cmd->wNbBlocks - 1
+				? XDMA_UBC_NDE_FETCH_DIS
+				: XDMA_UBC_NDE_FETCH_EN)
+				| cmd->wBlockSize / unit;
+			/* Alternatively we may transfer to/from HSMCI_FIFO,
+			 * however on ATSAMV71 using HSMCI_TDR and HSMCI_RDR
+			 * registers is as fast as using HSMCI_FIFO. */
+			set->dma_link_list[i].mbr_sa = bRd
+				? (void*)&set->regs->HSMCI_RDR
+				: (void*)memAddress;
+			set->dma_link_list[i].mbr_da = bRd
+				? (void*)memAddress
+				: (void*)&set->regs->HSMCI_TDR;
+			set->dma_link_list[i].mbr_nda =
+				i == cmd->wNbBlocks - 1
+				? NULL : &set->dma_link_list[i + 1];
+		}
+		/* Clean the underlying cache lines, to ensure the DMA gets our
+		 * linked list when it reads from RAM.
+		 * CPU access to the table above is write-only, DMA controller
+		 * access is read-only, hence there is no need to invalidate. */
+		cache_clean_region(set->dma_link_list,
+			sizeof(*set->dma_link_list) * (int32_t)cmd->wNbBlocks);
+		rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
+			XDMAC_CNDC_NDVIEW_NDV1
+			| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED
+			| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
+			| XDMAC_CNDC_NDE_DSCR_FETCH_EN, set->dma_link_list);
+		if (rc != XDMAD_OK)
+			return SDMMC_ERROR_BUSY;
+		if (bRd)
+			cache_invalidate_region(cmd->pData, cmd->wBlockSize
+				* (uint32_t)cmd->wNbBlocks);
+		else
+			cache_clean_region(cmd->pData, cmd->wBlockSize
+				* (uint32_t)cmd->wNbBlocks);
 	}
-	if (xdmad_start_transfer(set->dma_channel))
-		return 0;
-	return 1;
+	rc = xdmad_start_transfer(set->dma_channel);
+	return rc == XDMAD_OK ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
 static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus)
 {
-	sSdmmcCommand *cmd = set->cmd;
+	sSdmmcCommand * const cmd = set->cmd;
 
 	/* Release DMA channel (if used) */
-	if (set->dma_channel != NULL) {
-		if (!xdmad_is_transfer_done(set->dma_channel))
-			xdmad_stop_transfer(set->dma_channel);
-		if (xdmad_free_channel(set->dma_channel)) {
-			trace_error("Can't free xdma channel\n\r");
-		}
-		set->dma_channel = NULL;
-	}
+	hsmci_release_dma(set);
 	/* Release command */
 	set->cmd = NULL;
 	set->state = MCID_LOCKED;
@@ -538,7 +561,6 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 	struct hsmci_set *set = (struct hsmci_set *)_set;
 	uint32_t rc = SDMMC_OK, *param_u32 = (uint32_t *)param;
 	uint8_t byte;
-	bool on;
 
 #if TRACE_LEVEL >= TRACE_LEVEL_DEBUG
 	if (bCtl != SDMMC_IOCTL_BUSY_CHECK && bCtl != SDMMC_IOCTL_GET_DEVICE)
@@ -556,21 +578,12 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 	case SDMMC_IOCTL_POWER:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		on = *param_u32 ? true : false;
-		if ((on && set->state != MCID_OFF)
-			|| (!on && set->state == MCID_OFF)) {
-		} else {
-			board_power_sdmmc_device(set->id, on);
-			if (!on)
-				hsmci_reset(set->regs, true);
-			set->state = on ? MCID_IDLE : MCID_OFF;
-		}
+		hsmci_power_device(set, *param_u32 ? true : false);
 		break;
 
 	case SDMMC_IOCTL_RESET:
 		/* Release the device. The device may have been removed. */
-		board_power_sdmmc_device(set->id, false);
-		hsmci_reset(set->regs, true);
+		hsmci_power_device(set, false);
 		break;
 
 	case SDMMC_IOCTL_GET_BUSMODE:
@@ -700,7 +713,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	Hsmci *regs = set->regs;
 	uint32_t mr, ier;
 	uint32_t cmdr;
-	uint8_t is_read;
+	uint8_t rc, is_read;
 
 	if (hsmci_is_busy(set))
 		return SDMMC_ERROR_BUSY;
@@ -756,12 +769,15 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
 
 		is_read = (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX) ? 0 : 1;
-		if (hsmci_prepare_dma(set, is_read)) {
-			hsmci_finish_cmd(set, SDMMC_ERROR_BUSY);
-			return SDMMC_ERROR_BUSY;
+		rc = hsmci_prepare_dma(set, is_read);
+		if (rc == SDMMC_SUCCESS)
+			rc = hsmci_configure_dma(set, is_read);
+		if (rc != SDMMC_SUCCESS) {
+			hsmci_enable(regs);
+			hsmci_finish_cmd(set, rc);
+			trace_error("DMA error %u\n\r", rc);
+			return rc;
 		}
-		trace_debug("DMA %s\n\r", is_read ? "read" : "write");
-		hsmci_dma(set, mr & HSMCI_MR_FBYTE, is_read);
 		ier = STATUS_ERRORS_DATA;
 	}
 	hsmci_enable(regs);

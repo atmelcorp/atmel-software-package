@@ -95,8 +95,6 @@ struct hsmci_set
 	uint8_t resp_len;             /* size of the response, once retrieved,
 	                               * in the context of the command being
 	                               * executed, expressed in 32-bit words */
-	uint32_t region_start;
-	uint32_t region_size;
 };
 
 /*----------------------------------------------------------------------------
