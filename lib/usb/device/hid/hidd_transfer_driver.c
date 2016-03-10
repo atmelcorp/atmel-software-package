@@ -98,13 +98,22 @@ typedef struct _HIDDTransferDriver {
 	/** HID Output report list */
 	HIDDReport *outputReports[1];
 
+	/** HID Feature report list */
+	HIDDReport *featureReports[1];
+
 	/* OUT Report - block input for SET_REPORT */
 
 	/**< Output report block size */
 	uint16_t iReportLen;
 
+	/**<  Feature report block size */
+	uint16_t iFeatureLen;
+
 	/**< Output report data buffer */
 	uint8_t  iReportBuf[HIDDTransferDriver_REPORTSIZE];
+	
+	/**< Feature report data buffer */
+	uint8_t  iFeatureBuf[HIDDTransferDriver_REPORTSIZE];
 
 } HIDDTransferDriver;
 
@@ -117,6 +126,9 @@ ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport input_report;
 
 /** Output report buffers */
 ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport output_report;
+
+/** Feature report buffers */
+ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport feature_report;
 
 /** Static instance of the HID Transfer device driver. */
 static HIDDTransferDriver hidd_transfer_driver;
@@ -142,6 +154,15 @@ static const uint8_t hidd_transfer_report_descriptor[] = {
 		HIDReport_GLOBAL_LOGICALMINIMUM + 1, (uint8_t) -128,
 		HIDReport_GLOBAL_LOGICALMAXIMUM + 1, (uint8_t)  127,
 		HIDReport_OUTPUT + 1, 0,    /* No Modifiers */
+		/* Feature report: vendor-defined */
+
+		HIDReport_LOCAL_USAGE + 1, 0xFF, /* Vendor-defined usage */
+		HIDReport_GLOBAL_REPORTSIZE + 1, 8,
+		HIDReport_GLOBAL_REPORTCOUNT + 1, HIDDTransferDriver_REPORTSIZE,
+		HIDReport_GLOBAL_LOGICALMINIMUM + 1, (uint8_t) -128,
+		HIDReport_GLOBAL_LOGICALMAXIMUM + 1, (uint8_t)  127,
+		HIDReport_FEATURE + 1, 0x02,    /* FEATURE (Data,Var,Abs) */
+
 	HIDReport_ENDCOLLECTION
 };
 
@@ -221,6 +242,60 @@ static void hidd_transfer_driver_report_received(void *p_arg, uint8_t status,
 	usbd_write(0, 0, 0, 0, 0);
 }
 
+/**
+ * Callback function when GetReport request data received from host
+ * \param p_arg Pointer to additional argument struct
+ * \param status Result status
+ * \param transferred Number of bytes transferred
+ * \param remaining Number of bytes that are not transferred yet
+ */
+static void hidd_transfer_driver_get_report_received(void *p_arg, uint8_t status,
+		uint32_t transferred, uint32_t remaining)
+{
+	HIDDTransferDriver *p_drv = &hidd_transfer_driver;
+	remaining = remaining;
+	status = status;
+	p_arg = p_arg;
+	p_drv = p_drv;
+	/* Do nothing at present */
+}
+
+/**
+ * Callback function when SetReport(feature) request data received from host
+ * \param p_arg Pointer to additional argument struct
+ * \param status Result status
+ * \param transferred Number of bytes transferred
+ * \param remaining Number of bytes that are not transferred yet
+ */
+static void hidd_transfer_driver_set_feature_received(void *p_arg, uint8_t status,
+		uint32_t transferred, uint32_t remaining)
+{
+	HIDDTransferDriver *p_drv = &hidd_transfer_driver;
+	remaining = remaining;
+	status = status;
+	p_arg = p_arg;
+	p_drv->iFeatureLen = transferred;
+	usbd_write(0, 0, 0, 0, 0);
+}
+
+/**
+ * Callback function when GetReport(feature) request data received from host
+ * \param p_arg Pointer to additional argument struct
+ * \param status Result status
+ * \param transferred Number of bytes transferred
+ * \param remaining Number of bytes that are not transferred yet
+ */
+static void hidd_transfer_driver_get_feature_received(void *p_arg, uint8_t status,
+		uint32_t transferred, uint32_t remaining)
+{
+	HIDDTransferDriver *p_drv = &hidd_transfer_driver;
+	remaining = remaining;
+	status = status;
+	p_arg = p_arg;
+	p_drv = p_drv;
+	/* Do nothing at present */
+}
+
 /*------------------------------------------------------------------------------
  *      Exported functions
  *------------------------------------------------------------------------------*/
@@ -242,6 +317,11 @@ void hidd_transfer_driver_initialize(const USBDDriverDescriptors *descriptors)
 	p_drv->outputReports[0] = (HIDDReport*)&output_report;
 	hidd_function_initialize_report((HIDDReport *)p_drv->outputReports[0],
 			HIDDTransferDriver_REPORTSIZE, 0, 0, 0); 
+
+	/* One feature report */
+	p_drv->featureReports[0] = (HIDDReport*)&feature_report;
+	hidd_function_initialize_report((HIDDReport *)p_drv->featureReports[0],
+			HIDDTransferDriver_REPORTSIZE, 0, 0, 0);
 
 	/* Initialize USBD Driver instance */
 	usbd_driver_initialize(descriptors, 0);
@@ -341,14 +421,37 @@ void hidd_transfer_driver_request_handler(const USBGenericRequest *request)
 						length = HIDDTransferDriver_REPORTSIZE;
 					usbd_read(0, p_drv->iReportBuf, length,
 							hidd_transfer_driver_report_received, NULL);
+				} else if (type == HIDReportRequest_FEATURE) {
+					if (length > HIDDTransferDriver_REPORTSIZE)
+						length = HIDDTransferDriver_REPORTSIZE;
+					usbd_read(0, p_drv->iFeatureBuf, length,
+							hidd_transfer_driver_set_feature_received, NULL);
 				} else {
 					usbd_stall(0);
 				}
 			}
 			return; /* Handled, no need do others */
+		case HIDGenericRequest_GETREPORT:
+		  {
+				uint16_t length = usb_generic_request_get_length(request);
+				uint8_t  type = hid_report_request_get_report_type(request);
+				if (type == HIDReportRequest_INPUT) {
+					if (length > HIDDTransferDriver_REPORTSIZE)
+						length = HIDDTransferDriver_REPORTSIZE;
+					usbd_write(0, p_drv->iReportBuf, length,
+							hidd_transfer_driver_get_report_received, NULL);
+				} else if (type== HIDReportRequest_FEATURE) {
+					if (length > HIDDTransferDriver_REPORTSIZE)
+						length = HIDDTransferDriver_REPORTSIZE;
+					usbd_write(0, p_drv->iFeatureBuf, length,
+							hidd_transfer_driver_get_feature_received, NULL);
+				} else {
+					usbd_stall(0);
+				}
+			}
+			return;
 		}
 	}
-
 	/* Process HID requests */
 	if (hidd_function_request_handler(p_hidd, request) != USBRC_SUCCESS) {
 		usbd_driver_request_handler(request);
@@ -380,6 +483,35 @@ uint16_t hidd_transfer_driver_read_report(void *data, uint32_t length)
 
 	p_drv->iReportLen = 0;
 	memcpy(data, p_drv->iReportBuf, length);
+
+	return length;
+}
+
+/**
+ * Try to read request buffer of SetReport(feature).
+ * Set pData to 0 to get current data length only.
+ * \param data Pointer to data buffer
+ * \param length Data buffer length
+ * \return Number of bytes read
+ */
+uint16_t hidd_transfer_driver_read_feature(void *data, uint32_t length)
+{
+	HIDDTransferDriver *p_drv = &hidd_transfer_driver;
+
+	if (data == 0) {
+		return p_drv->iFeatureLen;
+	}
+
+	if (length > HIDDTransferDriver_REPORTSIZE) {
+		length = HIDDTransferDriver_REPORTSIZE;
+	}
+
+	if (length > p_drv->iFeatureLen) {
+		length = p_drv->iFeatureLen;
+	}
+
+	p_drv->iFeatureLen = 0;
+	memcpy(data, p_drv->iFeatureBuf, length);
 
 	return length;
 }

@@ -390,7 +390,17 @@ int main( void )
 		data_len = hidd_transfer_driver_read_report(in_buffer, BUFFER_SIZE);
 
 		if (data_len) {
-			printf("Report In(%u):", (unsigned int)data_len);
+			printf("OutputReport In(%u):", (unsigned int)data_len);
+			_show_buffer(in_buffer, data_len);
+
+			led_stat = in_buffer[0];
+			update = 1;
+		}
+
+		data_len = hidd_transfer_driver_read_feature(in_buffer, BUFFER_SIZE);
+
+		if (data_len) {
+			printf("FeatureReport In(%u):", (unsigned int)data_len);
 			_show_buffer(in_buffer, data_len);
 
 			led_stat = in_buffer[0];

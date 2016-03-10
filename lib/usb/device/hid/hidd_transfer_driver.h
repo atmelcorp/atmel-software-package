@@ -74,7 +74,7 @@
 #define HIDDTransferDriver_REPORTSIZE               32
 
 /** Size of the report descriptor, in bytes */
-#define HIDDTransferDriver_REPORTDESCRIPTORSIZE     32
+#define HIDDTransferDriver_REPORTDESCRIPTORSIZE     44
 
 /*------------------------------------------------------------------------------
  *         Types
@@ -119,6 +119,9 @@ extern void hidd_transfer_driver_request_handler(
 extern uint16_t hidd_transfer_driver_read(void *data, uint32_t length);
 
 extern uint16_t hidd_transfer_driver_read_report(
+		void *data, uint32_t length);
+
+extern uint16_t hidd_transfer_driver_read_feature(
 		void *data, uint32_t length);
 
 extern uint8_t hidd_transfer_driver_write(const void *data, uint32_t length,
