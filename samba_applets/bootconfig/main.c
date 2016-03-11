@@ -48,43 +48,36 @@
 #error Unsupported SOC!
 #endif
 
+#define BOOTCFG_BSCR    0
+#define BOOTCFG_BUREG0  1
+#define BOOTCFG_BUREG1  2
+#define BOOTCFG_BUREG2  3
+#define BOOTCFG_BUREG3  4
+#define BOOTCFG_FUSE    5
+
 /** Mailbox content for the 'read boot config' command. */
 union read_bootcfg_mailbox
 {
 	struct {
+		/** Configuration index to read */
+		uint32_t index;
 	} in;
 
 	struct {
-		/** Boot Fuse */
-		uint32_t boot_fuse;
-		/** BSC CR register */
-		uint32_t bsc_cr;
-		/** BUREG registers */
-		uint32_t bureg[4];
+		/** Configuration value */
+		uint32_t value;
 	} out;
 };
-
-#define WRITE_BOOTCFG_FLAG_KEY     (0xA5D2 << 16)
-#define WRITE_BOOTCFG_FLAG_KEYMASK (0xFFFF << 16)
-#define WRITE_BOOTCFG_FLAG_FUSE    (1 << 0)
-#define WRITE_BOOTCFG_FLAG_BSCR    (1 << 1)
-#define WRITE_BOOTCFG_FLAG_BUREG0  (1 << 2)
-#define WRITE_BOOTCFG_FLAG_BUREG1  (1 << 3)
-#define WRITE_BOOTCFG_FLAG_BUREG2  (1 << 4)
-#define WRITE_BOOTCFG_FLAG_BUREG3  (1 << 5)
 
 /** Mailbox content for the 'write boot config' command. */
 union write_bootcfg_mailbox
 {
 	struct {
-		/** Write flags */
-		uint32_t flags;
-		/** Boot Fuse */
-		uint32_t boot_fuse;
-		/** BSC CR register */
-		uint32_t bsc_cr;
-		/** BUREG registers */
-		uint32_t bureg[4];
+		/** Configuration index to read */
+		uint32_t index;
+
+		/** Configuration value */
+		uint32_t value;
 	} in;
 
 	struct {
@@ -97,37 +90,34 @@ union write_bootcfg_mailbox
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static void print_bscr(void)
+static void print_bscr(uint32_t bsc_cr)
 {
-	uint32_t bsc_cr = BSC->BSC_CR;
-
-	trace_info_wp("0x%08x -> ", (unsigned)bsc_cr);
+	trace_info_wp("BSCR: 0x%08x -> ", (unsigned)bsc_cr);
 
 	if (bsc_cr & BSC_CR_BUREG_VALID)
 		trace_info_wp("BUREG_VALID");
-	else
-		trace_info_wp("BUREG_INVALID");
 
 	switch (bsc_cr & BSC_CR_BUREG_INDEX_Msk) {
 	case BSC_CR_BUREG_0:
-		trace_info_wp(" BUREG0");
+		trace_info_wp(" BUREG_0");
 		break;
 	case BSC_CR_BUREG_1:
-		trace_info_wp(" BUREG1");
+		trace_info_wp(" BUREG_1");
 		break;
 	case BSC_CR_BUREG_2:
-		trace_info_wp(" BUREG2");
+		trace_info_wp(" BUREG_2");
 		break;
 	case BSC_CR_BUREG_3:
-		trace_info_wp(" BUREG3");
+		trace_info_wp(" BUREG_3");
 		break;
 	}
 
+	trace_info_wp("\r\n");
 }
 
-static void print_boot_config(uint32_t value)
+static void print_bcw(const char* name, uint32_t value)
 {
-	trace_info_wp("0x%08x ->", (unsigned)value);
+	trace_info_wp("%s: 0x%08x ->", name, (unsigned)value);
 
 	switch (value & BCW_QSPI_0_Msk) {
 	case BCW_QSPI_0_IOSET_1:
@@ -251,32 +241,7 @@ static void print_boot_config(uint32_t value)
 
 	if (value & BCW_SECURE_MODE)
 		trace_info_wp(" SECURE_MODE*");
-}
 
-static void print_all_boot_config(void)
-{
-	trace_info_wp("BSCR:          ");
-	print_bscr();
-	trace_info_wp("\r\n");
-
-	trace_info_wp("BUREG[0]:      ");
-	print_boot_config(SECURAM->BUREG_256b[0]);
-	trace_info_wp("\r\n");
-
-	trace_info_wp("BUREG[1]:      ");
-	print_boot_config(SECURAM->BUREG_256b[1]);
-	trace_info_wp("\r\n");
-
-	trace_info_wp("BUREG[2]:      ");
-	print_boot_config(SECURAM->BUREG_256b[2]);
-	trace_info_wp("\r\n");
-
-	trace_info_wp("BUREG[3]:      ");
-	print_boot_config(SECURAM->BUREG_256b[3]);
-	trace_info_wp("\r\n");
-
-	trace_info_wp("Boot Cfg Fuse: ");
-	print_boot_config(sfc_read(FUSE_BOOTCONFIG_WORD_POS));
 	trace_info_wp("\r\n");
 }
 
@@ -306,15 +271,37 @@ static uint32_t handle_cmd_read_bootcfg(uint32_t cmd, uint32_t *mailbox)
 
 	assert(cmd == APPLET_CMD_READ_BOOTCFG);
 
-	mbx->out.boot_fuse = sfc_read(FUSE_BOOTCONFIG_WORD_POS);
-	mbx->out.bsc_cr = BSC->BSC_CR;
-	mbx->out.bureg[0] = SECURAM->BUREG_256b[0];
-	mbx->out.bureg[1] = SECURAM->BUREG_256b[1];
-	mbx->out.bureg[2] = SECURAM->BUREG_256b[2];
-	mbx->out.bureg[3] = SECURAM->BUREG_256b[3];
+	switch (mbx->in.index) {
+	case BOOTCFG_BSCR:
+		mbx->out.value = BSC->BSC_CR;
+		print_bscr(mbx->out.value);
+		break;
+	case BOOTCFG_BUREG0:
+		mbx->out.value = SECURAM->BUREG_256b[0];
+		print_bcw("BUREG0", mbx->out.value);
+		break;
+	case BOOTCFG_BUREG1:
+		mbx->out.value = SECURAM->BUREG_256b[1];
+		print_bcw("BUREG1", mbx->out.value);
+		break;
+	case BOOTCFG_BUREG2:
+		mbx->out.value = SECURAM->BUREG_256b[2];
+		print_bcw("BUREG2", mbx->out.value);
+		break;
+	case BOOTCFG_BUREG3:
+		mbx->out.value = SECURAM->BUREG_256b[3];
+		print_bcw("BUREG3", mbx->out.value);
+		break;
+	case BOOTCFG_FUSE:
+		mbx->out.value = sfc_read(FUSE_BOOTCONFIG_WORD_POS);
+		print_bcw("FUSE", mbx->out.value);
+		break;
+	default:
+		trace_error("Unknown configuration index %u\r\n",
+				(unsigned)mbx->in.index);
+		return APPLET_FAIL;
+	}
 
-	trace_info_wp("----- Reading Boot Configuration -----\r\n");
-	print_all_boot_config();
 
 	return APPLET_SUCCESS;
 }
@@ -325,53 +312,64 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 
 	assert(cmd == APPLET_CMD_WRITE_BOOTCFG);
 
-	if ((mbx->in.flags & WRITE_BOOTCFG_FLAG_KEYMASK) !=
-	    WRITE_BOOTCFG_FLAG_KEY) {
-		trace_error_wp("Invalid key in write boot config flags!\r\n");
-		return APPLET_FAIL;
-	}
+	uint32_t bureg0, bureg1, bureg2, bureg3;
 
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_FUSE) {
+	bureg0 = SECURAM->BUREG_256b[0];
+	bureg1 = SECURAM->BUREG_256b[1];
+	bureg2 = SECURAM->BUREG_256b[2];
+	bureg3 = SECURAM->BUREG_256b[3];
+
+	switch (mbx->in.index) {
+	case BOOTCFG_BSCR:
+		trace_info_wp("Writing 0x%08x to BSC CR\r\n",
+		              (unsigned)mbx->in.value);
+		BSC->BSC_CR = (mbx->in.value & ~BSC_CR_WPKEY_Msk) | BSC_CR_WPKEY;
+		break;
+	case BOOTCFG_BUREG0:
+		trace_info_wp("Writing 0x%08x to BUREG[0]\r\n",
+		              (unsigned)mbx->in.value);
+		SECURAM->BUREG_256b[0] = mbx->in.value;
+		SECURAM->BUREG_256b[1] = bureg1;
+		SECURAM->BUREG_256b[2] = bureg2;
+		SECURAM->BUREG_256b[3] = bureg3;
+		break;
+	case BOOTCFG_BUREG1:
+		trace_info_wp("Writing 0x%08x to BUREG[1]\r\n",
+		              (unsigned)mbx->in.value);
+		SECURAM->BUREG_256b[0] = bureg0;
+		SECURAM->BUREG_256b[1] = mbx->in.value;
+		SECURAM->BUREG_256b[2] = bureg2;
+		SECURAM->BUREG_256b[3] = bureg3;
+		break;
+	case BOOTCFG_BUREG2:
+		trace_info_wp("Writing 0x%08x to BUREG[2]\r\n",
+		              (unsigned)mbx->in.value);
+		SECURAM->BUREG_256b[0] = bureg0;
+		SECURAM->BUREG_256b[1] = bureg1;
+		SECURAM->BUREG_256b[2] = mbx->in.value;
+		SECURAM->BUREG_256b[3] = bureg3;
+		break;
+	case BOOTCFG_BUREG3:
+		trace_info_wp("Writing 0x%08x to BUREG[3]\r\n",
+		              (unsigned)mbx->in.value);
+		SECURAM->BUREG_256b[0] = bureg0;
+		SECURAM->BUREG_256b[1] = bureg1;
+		SECURAM->BUREG_256b[2] = bureg2;
+		SECURAM->BUREG_256b[3] = mbx->in.value;
+		break;
+	case BOOTCFG_FUSE:
 		trace_info_wp("Writing 0x%08x to bootcfg fuse (fuse #%d)\r\n",
-		              (unsigned)mbx->in.boot_fuse,
+		              (unsigned)mbx->in.value,
 			      FUSE_BOOTCONFIG_WORD_POS);
 		sfc_enable();
-		sfc_write(FUSE_BOOTCONFIG_WORD_POS, mbx->in.boot_fuse);
+		sfc_write(FUSE_BOOTCONFIG_WORD_POS, mbx->in.value);
 		sfc_disable();
+		break;
+	default:
+		trace_error("Unknown configuration index %u\r\n",
+				(unsigned)mbx->in.index);
+		return APPLET_FAIL;
 	}
-
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_BSCR) {
-		trace_info_wp("Writing 0x%08x to BSC CR\r\n",
-		              (unsigned)mbx->in.bsc_cr);
-		BSC->BSC_CR = mbx->in.bsc_cr;
-	}
-
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_BUREG0) {
-		trace_info_wp("Writing 0x%08x to BUREG[0]\r\n",
-		              (unsigned)mbx->in.bureg[0]);
-		SECURAM->BUREG_256b[0] = mbx->in.bureg[0];
-	}
-
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_BUREG1) {
-		trace_info_wp("Writing 0x%08x to BUREG[1]\r\n",
-		              (unsigned)mbx->in.bureg[1]);
-		SECURAM->BUREG_256b[1] = mbx->in.bureg[1];
-	}
-
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_BUREG2) {
-		trace_info_wp("Writing 0x%08x to BUREG[2]\r\n",
-		              (unsigned)mbx->in.bureg[2]);
-		SECURAM->BUREG_256b[2] = mbx->in.bureg[2];
-	}
-
-	if (mbx->in.flags & WRITE_BOOTCFG_FLAG_BUREG3) {
-		trace_info_wp("Writing 0x%08x to BUREG[3]\r\n",
-		              (unsigned)mbx->in.bureg[3]);
-		SECURAM->BUREG_256b[3] = mbx->in.bureg[3];
-	}
-
-	trace_info_wp("----- Boot Configuration after modification -----\r\n");
-	print_all_boot_config();
 
 	return APPLET_SUCCESS;
 }

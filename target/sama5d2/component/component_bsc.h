@@ -51,6 +51,9 @@ typedef struct {
 #define   BSC_CR_BUREG_2 (0x2u << 0)
 #define   BSC_CR_BUREG_3 (0x3u << 0)
 #define BSC_CR_BUREG_VALID (1 << 2)
+#define BSC_CR_WPKEY_Pos 16
+#define BSC_CR_WPKEY_Msk (0xffffu << BSC_CR_WPKEY_Pos)
+#define BSC_CR_WPKEY (0x6683 << 16)
 
 /* -------- BCW : Boot Control Word -------- */
 #define BCW_QSPI_0_Pos 0
