@@ -1,4 +1,4 @@
-Copyright (c) 2015, Atmel Corporation All rights reserved.
+Copyright (c) 2015-2016, Atmel Corporation All rights reserved.
 ----------------------------------------------------------
 
 * Redistribution and use in source and binary forms, with or without
@@ -24,15 +24,26 @@ Copyright (c) 2015, Atmel Corporation All rights reserved.
 
 # Atmel SAMA5D2x Software Package
 
+## Disclaimer
+
+The support of SAMA5D4 is experimental in this release. It is not well tested.
+
 ## Overview
 
-This softpack comes as an early delivery and all presented APIs are subject to change.
+This softpack comes as an early delivery and all presented APIs are subject to
+change.
 
-Each software module is provided with full source code, example of usage, and ready-to-use projects.
+Each software module is provided with full source code, example of usage, and
+ready-to-use projects.
+
+This softpack is hosted on GitHub:
+https://github.com/atmelcorp/atmel-software-package
 
 ### Supported Platforms
 
-Windows and Linux with the gnu GCC ARM Embedded toolchain. It is downloadable at this address: https://launchpad.net/gcc-arm-embedded (Mac OS X should also work but as not been tested yet).
+Windows and Linux with the gnu GCC ARM Embedded toolchain. It is downloadable
+at this address: https://launchpad.net/gcc-arm-embedded (Mac OS X should also
+work but as not been tested yet).
 Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32 for Windows architectures)
 - bash (from MinGW, Cygwin for Windows architectures)
@@ -44,17 +55,24 @@ Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for IAR project generation
 
-Notice: This softpack comes as an early delivery and all presented APIs are subject to change.
+Notice: This softpack comes as an early delivery and all presented APIs are
+subject to change.
 
 ## Contents 
 
 ### Directory Architecture
 
 - target/sama5d2
-  All chip and board specific source files
+  All sama5d2 chip and board specific source files
 
 - target/sama5d2/toolchain/
-  Linker and debugger scripts
+  Linker and debugger scripts for sama5d2
+
+- target/sama5d4
+  All sama5d4 chip and board specific source files
+
+- target/sama5d4/toolchain/
+  Linker and debugger scripts for sama5d4
 
 - scripts/
   generators and build script templates (Makefiles)
@@ -67,57 +85,17 @@ Notice: This softpack comes as an early delivery and all presented APIs are subj
 
 ### Examples
 
-This release contains the following examples:
+## List of examples
 
-adc: Example using ADC
-
-can: Example using CAN
-
-crypto_aes: AES hardware computation (with and without DMA)
-
-crypto_sha: SHA hardware computation (with and without DMA)
-
-crypto_tdes: Triple-DES hardware computation (with and without DMA)
-
-fifo: Test Flexcom USART FIFO
-
-gettting-started: LED blink (uses PIT and PIO)
-
-gmac: GMAC example using a simple IP stack
-
-gmac_lwip: GMAC example using LWIP stack
-
-gmac_uip_helloworld: GMAC example using UIP stack (UIP helloworld example)
-
-gmac_uip_telnetd: GMAC example using UIP stack (UIP telnetd example)
-
-gmac_uip_webserver: GMAC example using UIP stack (UIP webserver example)
-
-isc: Example using ISC controller (OV7740 sensor)
-
-lcd: Example using LCD controller
-
-qspi_flash: Read/Write/Delete commands to a QSPI serial flash
-
-rtc: RTC Example
-
-spi_serialflash: Read/Write/Delete commands to an SPI serial flash
-
-trng: Example using hardware RNG (interrupt mode)
-
-twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
-
-wdt: Example using watchdog timer
-
-xdma: Memory-to-memory DMA transfert example
-
-xdma_usart: Bidirectionnal Usart-memory DMA transfert example
+The examples are listed in [SAMA5D2 README](examples/README.SAMAD5D2.md) and
+[SAMA5D4 README](examples/README.SAMA5D4.md).
 
 ## Usage (GCC ARM Embedded)
 
 ### Environment Variable
 
-TARGET: Name of the wanted target (sama5d2-xplained for samad52 XPLAINED ULTRA boards). This variable is mandatory to launch any build.
+TARGET: Name of the wanted target (sama5d2-xplained for samad52 XPLAINED ULTRA
+boards). This variable is mandatory to launch any build.
 
 DEBUG: Build with debug flags (default).
 
@@ -137,9 +115,11 @@ make TARGET=wanted_target # if TARGET is not set
 
 ### Run and Debug (with GDB)
 
-To run examples with gdb, first, JLinkGDBServer must be started. It can be downloaded for each platform at http://www.segger.com
+To run examples with gdb, first, JLinkGDBServer must be started. It can be
+downloaded for each platform at http://www.segger.com
 
-A make target is provided to launch the test with the correct gdb command arguments, run:
+A make target is provided to launch the test with the correct gdb command
+arguments, run:
 
 make debug
 #or
@@ -147,9 +127,11 @@ make TARGET=wanted_target debug # if TARGET is not set
 
 ## Usage (IAR)
 
-The Win version of this softpack release comes with pregenerated IAR projects compatible with IAR Systems Embedded Workbench for ARM version 7.40.
+The Win version of this softpack release comes with pregenerated IAR projects
+compatible with IAR Systems Embedded Workbench for ARM version 7.40.
 
-The C-SPY device description files and device selections files are not included and must be installed manually.
+The C-SPY device description files and device selections files are not included
+and must be installed manually.
 
 ### IAR Project generation
 
@@ -159,7 +141,8 @@ make iar
 #or
 make TARGET=wanted_target iar # if TARGET is not set
 
-All needed IAR project files will be put in the example directory, including a default workspace one.
+All needed IAR project files will be put in the example directory, including a
+default workspace one.
 
 Notice:
 GNU make may fail on Windows platforms if the Makefile contains UNIX line endings.

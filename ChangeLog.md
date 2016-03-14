@@ -12,6 +12,7 @@
 - new IrDA example using FLEXCOM USART
 - new Security Module (SECUMOD) driver and example
 - new PDMIC driver and example
+- new USB examples: composite, hid, audio
 
 ### Changes
 
