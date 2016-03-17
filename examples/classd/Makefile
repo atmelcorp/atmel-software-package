@@ -34,8 +34,6 @@ BINNAME = classd
 
 VARIANT = ddram
 
-CFLAGS_OPT = -O0
-
 obj-y += examples/classd/main.o
 
 include $(TOP)/scripts/Makefile.rules

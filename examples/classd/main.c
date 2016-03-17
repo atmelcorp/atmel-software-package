@@ -109,6 +109,9 @@
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
+
 #include "misc/console.h"
 
 #include <string.h>
@@ -182,7 +185,7 @@ static void _set_attenuation(uint8_t attn)
 	classd_set_right_attenuation(attn);
 }
 
-static uint32_t start_tick;
+static volatile uint32_t start_tick;
 
 static void _playback_start(void)
 {
@@ -262,7 +265,7 @@ static void _playback_with_dma(uint8_t attn)
 {
 	uint32_t* audio = (uint32_t*)(music_data + sizeof(struct _wav_header));
 	uint32_t  audio_length = ((struct _wav_header*)music_data)->subchunk2_size;
-	bool done = false;
+	volatile bool done = false;
 
 	_playback_start();
 	_setup_dma_transfer(audio, audio_length);
