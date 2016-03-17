@@ -189,6 +189,7 @@ struct _adc_sample
 	uint16_t done;
 };
 
+ALIGNED(L1_CACHE_BYTES)
 static uint16_t _dma_buffer[NUM_CHANNELS];
 bool modif_config = false;
 unsigned count = 0;
