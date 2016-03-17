@@ -63,7 +63,6 @@ extern "C" {
 #endif
 
 struct _xdmad_channel;
-struct _xdmad_desc_view1;
 struct _SdmmcCommand;
 
 /*----------------------------------------------------------------------------
@@ -79,8 +78,6 @@ struct hsmci_set
 	uint32_t tc_id;               /* Timer/Counter peripheral ID (ID_TCx) */
 	TcChannel *timer;             /* set of TC channel hardware registers */
 	struct _xdmad_channel *dma_channel;
-	struct _xdmad_desc_view1 *dma_link_list;
-	uint32_t link_list_size;
 	uint32_t nxt_evts;            /* HSMCI IRQs we're still waiting for */
 	uint32_t dwXfrNdx;            /* DMA transferred data index (bytes) */
 	uint32_t dwXSize;             /* DMA transfer size (bytes) */
@@ -117,16 +114,11 @@ struct hsmci_set
  * \param tc_ch		TC channel number, within the Timer/Counter module
  * designated by tc_id. Every instance of the HSMCI Driver requires a
  * Timer/Counter channel for its exclusive usage.
- * \param dma_dlist	Array of xDMA transfer descriptors, allocated by the
- * application. The larger the array is, the greater throughput we achieve.
- * \param dlist_size	Size of the dma_dlist array i.e. the number of
- * descriptors it can contain.
  * \return true if successful, false if a parameter is assigned an unsupported
  * value.
  */
 extern bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs,
-	uint32_t periph_id, uint32_t tc_id, uint32_t tc_ch,
-	struct _xdmad_desc_view1 *dma_dlist, uint32_t dlist_size);
+	uint32_t periph_id, uint32_t tc_id, uint32_t tc_ch);
 
 /**     @} */
 

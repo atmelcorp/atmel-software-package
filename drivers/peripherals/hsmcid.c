@@ -101,9 +101,6 @@
 							| HSMCI_SR_DTOE \
 							| HSMCI_SR_DCRCE))
 
-/** Max DMA size in a single transfer */
-#define MAX_DMA_SIZE (XDMAC_MAX_BT_SIZE & 0xffffff00)
-
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -375,15 +372,19 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	assert(cmd);
 	assert(cmd->wBlockSize != 0 && cmd->wNbBlocks != 0);
 
+	const uint32_t ubl_len_max = XDMAC_CUBC_UBLEN_Msk
+		>> XDMAC_CUBC_UBLEN_Pos;
+	const uint32_t ubl_cnt_max = (XDMAC_CBC_BLEN_Msk >> XDMAC_CBC_BLEN_Pos)
+		+ 1ul;
 	const uint8_t unit = cmd->wBlockSize & 0x3 ? 1 : 4;
+	uint32_t rc, ubl_len, ubl_cnt, quot;
+	uint8_t shift, fail;
 	struct _xdmad_cfg xdma_cfg = {
 		.cfg = XDMAC_CC_TYPE_PER_TRAN
 			| XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_MEMSET_NORMAL_MODE
 			| XDMAC_CC_CSIZE_CHK_1 | (unit == 1
 			? XDMAC_CC_DWIDTH_BYTE : XDMAC_CC_DWIDTH_WORD),
 	};
-	uint32_t rc, memAddress = (uint32_t)cmd->pData;
-	uint16_t i;
 
 	if (bRd)
 		xdma_cfg.cfg |= XDMAC_CC_DSYNC_PER2MEM
@@ -393,88 +394,65 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		xdma_cfg.cfg |= XDMAC_CC_DSYNC_MEM2PER
 			| XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF1
 			| XDMAC_CC_SAM_INCREMENTED_AM | XDMAC_CC_DAM_FIXED_AM;
-	if (cmd->wNbBlocks == 1) {
-		/* Transferring a single data chunk */
-		if (cmd->wBlockSize > MAX_DMA_SIZE * (uint32_t)unit)
-			/* TODO iterative transfer using dwXSize and dwXfrNdx */
-			return SDMMC_ERROR_PARAM;
-		/* Configure a single microblock per block */
-		xdma_cfg.bc = 0;
-		/* Configure data count per microblock */
-		xdma_cfg.ubc = cmd->wBlockSize / unit;
-		xdma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR
-			: cmd->pData;
-		xdma_cfg.da = bRd ? cmd->pData
-			: (void*)&set->regs->HSMCI_TDR;
-		rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
-			XDMAC_CNDC_NDE_DSCR_FETCH_DIS, NULL);
-		if (rc != XDMAD_OK)
-			return SDMMC_ERROR_BUSY;
-		if (bRd)
-			/* Invalidate the corresponding data cache lines now, so
-			 * this buffer is protected against a global cache clean
-			 * operation, that concurrent code may trigger.
-			 * Warning: until the command is reported as complete,
-			 * no code should read from this buffer, nor from
-			 * variables cached in the same lines. If such anticipa-
-			 * ted reading had to be supported, the data cache lines
-			 * would need to be invalidated twice: both now and
-			 * upon completion of the DMA transfer. */
-			cache_invalidate_region(cmd->pData, cmd->wBlockSize);
-		else
-			cache_clean_region(cmd->pData, cmd->wBlockSize);
-	} else {
-		/* Transferring multiple blocks */
-		if (cmd->wNbBlocks > set->link_list_size)
-			/* TODO iterative transfer using dwXSize and dwXfrNdx */
-			return SDMMC_ERROR_PARAM;
-		/* TODO try multiple Microblocks, rather than multiple Blocks,
-		 * which require writing and reading numerous transfer
-		 * descriptors to/from RAM. */
-		for (i = 0; i < cmd->wNbBlocks; i++,
-			memAddress += cmd->wBlockSize) {
-			set->dma_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-				| (bRd ? XDMA_UBC_NDEN_UPDATED
-					| XDMA_UBC_NSEN_UNCHANGED
-				: XDMA_UBC_NDEN_UNCHANGED
-					| XDMA_UBC_NSEN_UPDATED)
-				| (i == cmd->wNbBlocks - 1
-				? XDMA_UBC_NDE_FETCH_DIS
-				: XDMA_UBC_NDE_FETCH_EN)
-				| cmd->wBlockSize / unit;
-			/* Alternatively we may transfer to/from HSMCI_FIFO,
-			 * however on ATSAMV71 using HSMCI_TDR and HSMCI_RDR
-			 * registers is as fast as using HSMCI_FIFO. */
-			set->dma_link_list[i].mbr_sa = bRd
-				? (void*)&set->regs->HSMCI_RDR
-				: (void*)memAddress;
-			set->dma_link_list[i].mbr_da = bRd
-				? (void*)memAddress
-				: (void*)&set->regs->HSMCI_TDR;
-			set->dma_link_list[i].mbr_nda =
-				i == cmd->wNbBlocks - 1
-				? NULL : &set->dma_link_list[i + 1];
+	/* Configure data count per microblock */
+	ubl_len = (cmd->wBlockSize / unit) * (uint32_t)cmd->wNbBlocks;
+	/* Configure microblock count per block */
+	ubl_cnt = 1;
+	if (ubl_len > ubl_len_max) {
+		/* Split transfer to fit the limit that each XDMAC level has */
+		if (cmd->wBlockSize / unit <= ubl_len_max
+			&& cmd->wNbBlocks <= ubl_cnt_max) {
+			ubl_len = cmd->wBlockSize / unit;
+			ubl_cnt = cmd->wNbBlocks;
 		}
-		/* Clean the underlying cache lines, to ensure the DMA gets our
-		 * linked list when it reads from RAM.
-		 * CPU access to the table above is write-only, DMA controller
-		 * access is read-only, hence there is no need to invalidate. */
-		cache_clean_region(set->dma_link_list,
-			sizeof(*set->dma_link_list) * (int32_t)cmd->wNbBlocks);
-		rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
-			XDMAC_CNDC_NDVIEW_NDV1
-			| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED
-			| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-			| XDMAC_CNDC_NDE_DSCR_FETCH_EN, set->dma_link_list);
-		if (rc != XDMAD_OK)
-			return SDMMC_ERROR_BUSY;
-		if (bRd)
-			cache_invalidate_region(cmd->pData, cmd->wBlockSize
-				* (uint32_t)cmd->wNbBlocks);
-		else
-			cache_clean_region(cmd->pData, cmd->wBlockSize
-				* (uint32_t)cmd->wNbBlocks);
+		else if (cmd->wBlockSize / unit <= ubl_cnt_max
+			&& cmd->wNbBlocks <= ubl_len_max) {
+			ubl_len = cmd->wNbBlocks;
+			ubl_cnt = cmd->wBlockSize / unit;
+		}
+		else {
+			/* Try dividing size by 2, 4, 8, etc. */
+			quot = CEIL_INT_DIV(ubl_len, ubl_len_max);
+			for (fail = 0, shift = 0; !fail; shift++) {
+				if (ubl_len & 1ul << shift
+					|| 2ul << shift > ubl_cnt_max)
+					fail = 1;
+				else if (2ul << shift >= quot)
+					break;
+			}
+			/* Note that we may try harder, dividing size by
+			 * quot +0, +1, +2, etc. however it would be slow. */
+			if (fail)
+				return SDMMC_ERROR_PARAM;
+			ubl_len >>= shift + 1;
+			ubl_cnt = 2ul << shift;
+		}
 	}
+	xdma_cfg.ubc = ubl_len;
+	xdma_cfg.bc = ubl_cnt - 1;
+	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
+	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
+	xdma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
+	xdma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
+	/* Configure a single block per master transfer, i.e. no linked list */
+	rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
+		XDMAC_CNDC_NDE_DSCR_FETCH_DIS, NULL);
+	if (rc != XDMAD_OK)
+		return SDMMC_ERROR_BUSY;
+	if (bRd)
+		/* Invalidate the corresponding data cache lines now, so this
+		 * buffer is protected against a global cache clean operation,
+		 * that concurrent code may trigger.
+		 * Warning: until the command is reported as complete, no code
+		 * should read from this buffer, nor from variables cached in
+		 * the same lines. If such anticipated reading had to be
+		 * supported, the data cache lines would need to be invalidated
+		 * twice: both now and upon completion of the DMA transfer. */
+		cache_invalidate_region(cmd->pData, cmd->wBlockSize
+			* (uint32_t)cmd->wNbBlocks);
+	else
+		cache_clean_region(cmd->pData, cmd->wBlockSize
+			* (uint32_t)cmd->wNbBlocks);
 	rc = xdmad_start_transfer(set->dma_channel);
 	return rc == XDMAD_OK ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
@@ -860,14 +838,12 @@ static sSdHalFunctions sdHal = {
  *---------------------------------------------------------------------------*/
 
 bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs, uint32_t periph_id,
-	uint32_t tc_id, uint32_t tc_ch,
-	struct _xdmad_desc_view1 *dma_dlist, uint32_t dlist_size)
+	uint32_t tc_id, uint32_t tc_ch)
 {
 	assert(set);
 	assert(regs);
 	assert(periph_id <= 0xff);
 	assert(tc_ch < TCCHANNEL_NUMBER);
-	assert(dma_dlist);
 
 	Tc * const tc_module = get_tc_addr_from_id(tc_id);
 
@@ -877,8 +853,6 @@ bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs, uint32_t periph_id,
 	set->regs = regs;
 	set->tc_id = tc_id;
 	set->timer = &tc_module->TC_CHANNEL[tc_ch];
-	set->link_list_size = dlist_size;
-	set->dma_link_list = dma_dlist;
 	set->use_polling = true;
 	set->state = MCID_OFF;
 
