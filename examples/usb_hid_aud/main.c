@@ -229,6 +229,7 @@ static uint8_t key_codes[NUM_KEYS] = {
 static uint8_t key_status[NUM_KEYS];
 
 /*- Audio */
+ALIGNED(L1_CACHE_BYTES)
 /**  Data buffers for receiving audio frames from the USB host. */
 static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 /**  Number of samples stored in each data buffer. */
