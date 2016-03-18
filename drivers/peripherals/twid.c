@@ -160,21 +160,18 @@ static void _twid_init_dma_write_channel(struct _twi_desc* desc,
 	cfg->dest_addr = (void*)&desc->addr->TWI_THR;
 }
 
-static void _twid_dma_write(struct _twi_desc* desc,
-			    struct _buffer* buffer)
+static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	struct _xdmad_channel* channel = NULL;
 	struct _xdmad_cfg cfg;
 
 	_twid_init_dma_write_channel(desc, &channel, &cfg);
-	cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM
-		>> XDMAC_CC_SAM_Pos;
+	cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM >> XDMAC_CC_SAM_Pos;
 	cfg.src_addr = buffer->data;
 	cfg.ublock_size = buffer->size;
 	cfg.block_size = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
-	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper,
-			   (void*)desc);
+	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
 	l2cc_clean_region(desc->region_start, desc->region_end);
 	xdmad_start_transfer(channel);
 }
@@ -418,8 +415,8 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 		buffer->data[i] = twi_read_byte(desc->addr);
 		if( _check_nack(addr) != TWID_SUCCESS )
 			return TWID_ERROR_ACK ;
-		}
 	}
+
 	/* wait transfert to be finished */
 	return _twid_wait_twi_transfer(desc);
 }
@@ -443,7 +440,6 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		twi_write_byte(desc->addr, buffer->data[i]);
 		if( _check_nack(addr) != TWID_SUCCESS )
 			return TWID_ERROR_ACK ;
-		}
 	}
 	/* wait transfert to be finished */
 	return _twid_wait_twi_transfer(desc);

@@ -40,8 +40,9 @@
 #include "memories/at24.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 #include "peripherals/twi.h"
+#include "peripherals/twid.h"
+
 
 #include <stdio.h>
 #include <stdint.h>
@@ -52,6 +53,7 @@
  *         Local functions
  *----------------------------------------------------------------------------*/
 
+void at24_free_mutex(struct _twi_desc* twi, void* arg);
 void at24_free_mutex(struct _twi_desc* twi, void* arg)
 {
 	twid_finish_transfert(twi);

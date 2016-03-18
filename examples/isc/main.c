@@ -101,7 +101,7 @@
 
 #include "misc/console.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid_legacy.h"
+#include "peripherals/twid.h"
 #include "peripherals/isc.h"
 
 
@@ -219,7 +219,7 @@ ALIGNED(64)
 static struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
-struct _twid twid;
+struct _twi_desc twid;
 static awb_status_t awb_status_machine;
 
 /** LCD buffer.*/
@@ -401,8 +401,8 @@ static void configure_twi(void)
 	/* Enable TWI peripheral clock */
 	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
 	/* Configure TWI */
-	twi_configure_master(ISC_TWI_ADDR, TWCK);
-	twid_initialize(&twid, ISC_TWI_ADDR);
+	twid.freq = TWCK;
+	twid_configure(&twid);
 	/* Configure TWI interrupts */
 }
 

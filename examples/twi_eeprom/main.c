@@ -103,6 +103,9 @@
 #include "peripherals/twid.h"
 #include "peripherals/xdmad.h"
 
+#include <cortex-a/mmu.h>
+#include <cortex-a/cp15.h>
+
 #include "memories/at24.h"
 
 #include "misc/console.h"
@@ -172,10 +175,17 @@ mutex_t lock = 0;
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 /* =================== TWI slave device definition ============== */
 /* twi_slave examples mimics a serial memory with TWI interface. */
-/** TWI slave pins definition */
+/** TWI slave pins definition **/
 #define TWI_SLAVE_PINS PINS_TWI0_IOS1
 /** TWI slave address definition */
 #define TWI_SLAVE_ADDR ((Twi*)TWIHS0)
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+/* =================== TWI slave device definition ============== */
+/* twi_slave examples mimics a serial memory with TWI interface. */
+/** TWI slave pins definition **/
+#define TWI_SLAVE_PINS PINS_TWI0
+/** TWI slave address definition */
+#define TWI_SLAVE_ADDR ((Twi*)TWI0)
 #else
 #error Unsupported board...
 #endif
@@ -494,6 +504,15 @@ int main (void)
 	/* Configure console */
 	board_cfg_console();
 
+#ifndef VARIANT_DDRAM
+	mmu_initialize();
+	cp15_icache_invalidate();
+	cp15_dcache_invalidate();
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+#endif
+
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -507,7 +526,7 @@ int main (void)
 
 	/* configure twi flash pins */
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
-	uint8_t status = at24_configure(&at24_drv, &at24_twid);
+	at24_configure(&at24_drv, &at24_twid);
 
 	/* Configure TWI as slave */
 	for (i=0 ; i < sizeof(emulate_driver.memory) ; i++)

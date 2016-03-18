@@ -37,7 +37,7 @@
 #ifndef WM8904_H
 #define WM8904_H
 
-#include "peripherals/twid_legacy.h"
+#include <peripherals/twid.h>
 
 /*----------------------------------------------------------------------------
  *         Definitions
@@ -147,10 +147,10 @@
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint16_t WM8904_Read(struct _twid * pTwid, uint32_t device, uint32_t regAddr);
-extern void WM8904_Write(struct _twid * pTwid, uint32_t device, uint32_t regAddr,
+extern uint16_t WM8904_Read(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr);
+extern void WM8904_Write(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr,
 			 uint16_t data);
-extern uint8_t WM8904_Init(struct _twid * pTwid, uint32_t device, uint32_t PCK);
-extern uint8_t WM8904_VolumeSet(struct _twid * pTwid, uint32_t device, uint16_t value);
-extern void WM8904_IN2R_IN1L(struct _twid * pTwid, uint32_t device);
+extern uint8_t WM8904_Init(struct _twi_desc * pTwid, uint32_t device, uint32_t PCK);
+extern uint8_t WM8904_VolumeSet(struct _twi_desc * pTwid, uint32_t device, uint16_t value);
+extern void WM8904_IN2R_IN1L(struct _twi_desc * pTwid, uint32_t device);
 #endif				// WM8904_H

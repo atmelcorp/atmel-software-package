@@ -39,7 +39,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "audio/wm8904.h"
-#include "peripherals/twid_legacy.h"
+#include "peripherals/twid.h"
 #include "peripherals/pmc.h"
 
 #include <stdio.h>
@@ -64,12 +64,22 @@ typedef struct {
  * \return value in the given register.
  */
 uint16_t
-WM8904_Read(struct _twid * pTwid, uint32_t device, uint32_t regAddr)
+WM8904_Read(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr)
 {
 	uint16_t bitsDataRegister;
 	uint8_t Tdata[2] = { 0, 0 };
+	struct _buffer in = {
+		.data = Tdata,
+		.size = 2,
+	};
 
-	twid_read(pTwid, device, regAddr, 1, Tdata, 2, 0);
+	pTwid->slave_addr = device;
+	pTwid->iaddr = regAddr;
+	pTwid->isize = 1;
+
+	twid_transfert(pTwid, &in, NULL, NULL, NULL);
+	while (twid_is_busy(pTwid));
+
 	bitsDataRegister = (Tdata[0] << 8) | Tdata[1];
 	return bitsDataRegister;
 }
@@ -83,13 +93,22 @@ WM8904_Read(struct _twid * pTwid, uint32_t device, uint32_t regAddr)
  * \param data    Data to write
  */
 void
-WM8904_Write(struct _twid * pTwid, uint32_t device, uint32_t regAddr, uint16_t data)
+WM8904_Write(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr, uint16_t data)
 {
 	uint8_t tmpData[2];
+	struct _buffer out = {
+		.data = tmpData,
+		.size = 2,
+	};
+
+	pTwid->slave_addr = device;
+	pTwid->iaddr = regAddr;
+	pTwid->isize = 1;
 
 	tmpData[0] = (data & 0xff00) >> 8;
 	tmpData[1] = data & 0xff;
-	twid_write(pTwid, device, regAddr, 1, tmpData, 2, 0);
+	twid_transfert(pTwid, NULL, &out, NULL, NULL);
+	while (twid_is_busy(pTwid));
 }
 
 static WM8904_PARA wm8904_access_slow[] = {
@@ -414,7 +433,7 @@ DelayMS(signed int delay)
 }
 
 uint8_t
-WM8904_Init(struct _twid * pTwid, uint32_t device, uint32_t PCK)
+WM8904_Init(struct _twi_desc * pTwid, uint32_t device, uint32_t PCK)
 {
 	uint8_t count;
 	uint16_t data = 0;
@@ -476,7 +495,7 @@ WM8904_Init(struct _twid * pTwid, uint32_t device, uint32_t PCK)
 }
 
 void
-WM8904_IN2R_IN1L(struct _twid * pTwid, uint32_t device)
+WM8904_IN2R_IN1L(struct _twi_desc * pTwid, uint32_t device)
 {
 	//{ 0x0005, 44},  /** R44  - Analogue Left Input 0 */
 	//{ 0x0005, 45},  /** R45  - Analogue Right Input 0 */

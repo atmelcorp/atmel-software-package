@@ -47,7 +47,7 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-struct _twid;
+struct _twi_desc;
 
 /** Sensor type */
 typedef enum _sensor_type {
@@ -132,13 +132,13 @@ typedef struct _sensor_profile {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern sensor_status_t sensor_twi_write_regs(struct _twid *p_twid,
+extern sensor_status_t sensor_twi_write_regs(struct _twi_desc *p_twid,
 						const sensor_reg_t *p_reglist);
 
-extern sensor_status_t sensor_twi_read_regs(struct _twid *p_twid,
+extern sensor_status_t sensor_twi_read_regs(struct _twi_desc *p_twid,
 						const sensor_reg_t *p_reglist);
 
-extern sensor_status_t sensor_setup(struct _twid *p_twid,
+extern sensor_status_t sensor_setup(struct _twi_desc *p_twid,
 						const sensor_profile_t *sensor_profile,
 						sensor_output_resolution_t resolution,
 						sensor_output_format_t format);

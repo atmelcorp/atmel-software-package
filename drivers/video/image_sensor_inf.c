@@ -34,7 +34,7 @@
 
 #include "video/image_sensor_inf.h"
 #include "peripherals/twi.h"
-#include "peripherals/twid_legacy.h"
+#include "peripherals/twid.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -56,29 +56,58 @@ static const sensor_profile_t *p_sensor;
  * \param p_data Data read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_read_reg(struct _twid* p_twid,
+static sensor_status_t sensor_twi_read_reg(struct _twi_desc* p_twid,
 						uint16_t reg,
 						uint8_t *p_data)
 {
 	uint8_t status;
 	uint8_t reg8[2];
+	struct _buffer in;
+	struct _buffer out;
+
+	p_twid->slave_addr = p_sensor->twi_slave_addr;
+	p_twid->iaddr = 0;
+	p_twid->isize = 0;
+
 	reg8[0] = reg >> 8;
 	reg8[1] = reg & 0xff;
 	switch (p_sensor->twi_inf_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, 0, 0, &reg8[1], 1, 0);
+		out.data = reg8 + 1;
+		out.size = 1;
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
+
         timer_wait(10);
-		status |= twid_read(p_twid, p_sensor->twi_slave_addr, 0, 0, p_data, 1, 0);
+
+		in.data = p_data;
+		in.size = 1;
+		status|= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, 0, 0, reg8, 2, 0);
-		status |= twid_read(p_twid, p_sensor->twi_slave_addr, 0, 0, p_data, 1, 0);
+		out.data = reg8;
+		out.size = 2;
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
+
+		in.data = p_data;
+		in.size = 1;
+		status |= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_BYTE_DATA_2BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, 0, 0, &reg8[1], 1, 0);
-		status |= twid_read(p_twid, p_sensor->twi_slave_addr, 0, 0, p_data, 2, 0);
+		out.data = reg8 + 1;
+		out.size = 1;
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
+
+		in.data = p_data;
+		in.size = 2;
+		status |= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		while (twid_is_busy(p_twid));
 
 		break;
 	default:
@@ -95,22 +124,41 @@ static sensor_status_t sensor_twi_read_reg(struct _twid* p_twid,
  * \param p_data Data written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_write_reg(struct _twid* p_twid,
+static sensor_status_t sensor_twi_write_reg(struct _twi_desc* p_twid,
 						uint16_t reg,
 						uint8_t *p_data)
 {
 	uint8_t status;
+	struct _buffer out = {
+		.data = p_data,
+	};
+
+	p_twid->slave_addr = p_sensor->twi_slave_addr;
+	p_twid->iaddr = reg;
+
 	switch (p_sensor->twi_inf_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, reg, 1, p_data, 1, 0);
+		out.size = 1;
+		p_twid->isize = 1;
+
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, reg, 2, p_data, 1, 0);
+		out.size = 1;
+		p_twid->isize = 2;
+
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_BYTE_DATA_2BYTE:
-		status = twid_write(p_twid, p_sensor->twi_slave_addr, reg, 1, p_data, 2, 0);
+		out.size = 2;
+		p_twid->isize = 1;
+
+		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		while (twid_is_busy(p_twid));
 		break;
 
 	default:
@@ -129,7 +177,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twid* p_twid,
  * \param ver_mask version mask.
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_check_pid(struct _twid *p_twid,
+static sensor_status_t sensor_check_pid(struct _twi_desc *p_twid,
 						uint16_t reg_h,
 						uint16_t reg_l,
 						uint16_t pid,
@@ -159,7 +207,7 @@ static sensor_status_t sensor_check_pid(struct _twid *p_twid,
  * \param p_reglist Register list to be written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-sensor_status_t sensor_twi_write_regs(struct _twid *p_twid, const sensor_reg_t *p_reglist)
+sensor_status_t sensor_twi_write_regs(struct _twi_desc *p_twid, const sensor_reg_t *p_reglist)
 {
 	uint8_t status;
 	const sensor_reg_t *p_next = p_reglist;
@@ -181,7 +229,7 @@ sensor_status_t sensor_twi_write_regs(struct _twid *p_twid, const sensor_reg_t *
  * \param p_reglist Register list to be read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-sensor_status_t sensor_twi_read_regs(struct _twid *p_twid, const sensor_reg_t *p_reglist)
+sensor_status_t sensor_twi_read_regs(struct _twi_desc *p_twid, const sensor_reg_t *p_reglist)
 {
 	uint8_t status;
 	const sensor_reg_t *p_next = p_reglist;
@@ -202,7 +250,7 @@ sensor_status_t sensor_twi_read_regs(struct _twid *p_twid, const sensor_reg_t *p
  * \param resolution resolution request
  * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
  */
-sensor_status_t sensor_setup(struct _twid* p_twid,
+sensor_status_t sensor_setup(struct _twi_desc* p_twid,
 				const sensor_profile_t *sensor_profile,
 				sensor_output_resolution_t resolution,
 				sensor_output_format_t format )

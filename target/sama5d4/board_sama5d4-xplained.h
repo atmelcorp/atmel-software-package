@@ -148,6 +148,11 @@
 #define AT24_ADDR       TWI0
 #define AT24_FREQ       400000
 #define AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define AT24_EEP_ADDR       (0x50 | 0x4)
+#define AT24_SN_ADDR        (0x58 | 0x4)
+#define AT24_SN_OFFSET      0x80        // 0x80-0x8F
+#define AT24_EUI48_OFFSET   0x9A        // 0x9A-0x9F
+
 
 /* =================== GMAC/PHY definition =================== */
 
