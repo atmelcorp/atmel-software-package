@@ -583,11 +583,12 @@ int main(void)
 				_usart_dma_rx(usart_current_buffer);
 				usart_enable_it(BASE_USART,
 						US_CSR_FRAME | US_CSR_OVRE);
+				/* Start receiving data on the USB */
+				cdcd_serial_driver_read(usb_buffer, DATAPACKETSIZE,
+					_usb_data_received, NULL);
 			}
 
-			/* Start receiving data on the USB */
-			cdcd_serial_driver_read(usb_buffer, DATAPACKETSIZE,
-					_usb_data_received, NULL);
+
 		} else if (is_cdc_serial_on) {
 			is_cdc_serial_on = 0;
 		}
