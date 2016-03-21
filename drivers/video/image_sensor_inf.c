@@ -39,6 +39,7 @@
 #include <stdbool.h>
 #include <stdio.h>
  
+#include "timer.h"
 #include "trace.h"
 /*----------------------------------------------------------------------------
  *        Local variable
@@ -66,6 +67,7 @@ static sensor_status_t sensor_twi_read_reg(struct _twid* p_twid,
 	switch (p_sensor->twi_inf_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
 		status = twid_write(p_twid, p_sensor->twi_slave_addr, 0, 0, &reg8[1], 1, 0);
+        timer_wait(10);
 		status |= twid_read(p_twid, p_sensor->twi_slave_addr, 0, 0, p_data, 1, 0);
 		break;
 
@@ -133,12 +135,12 @@ static sensor_status_t sensor_check_pid(struct _twid *p_twid,
 						uint16_t pid,
 						uint16_t ver_mask)
 {
-	uint8_t status;
 	uint16_t pid_high, pid_low;
-	status = sensor_twi_read_reg(p_twid, reg_h, (uint8_t*)&pid_high);
-	status |= sensor_twi_read_reg(p_twid, reg_l,(uint8_t*)&pid_low);
+	if (sensor_twi_read_reg(p_twid, reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
+		return SENSOR_TWI_ERROR;
+	if (sensor_twi_read_reg(p_twid, reg_l,(uint8_t*)&pid_low) != SENSOR_OK)
+		return SENSOR_TWI_ERROR;
 	printf("PID = <%x, %x> \n\r", pid_high ,pid_low );
-	if (status) return SENSOR_TWI_ERROR;
 	if ((pid & ver_mask) == (((pid_high << 8 )| (pid_low)) & ver_mask))
 		return SENSOR_OK;
 	else
@@ -227,9 +229,10 @@ sensor_status_t sensor_setup(struct _twid* p_twid,
 					p_sensor->pid_low_reg,
 					(p_sensor->pid_high) << 8 | p_sensor->pid_low,
 					p_sensor->version_mask);
-
-	if (status) return SENSOR_ID_ERROR;
-	return sensor_twi_write_regs(p_twid, p_sensor->output_conf[i]->output_setting);
+	if (status != SENSOR_OK)
+		return SENSOR_ID_ERROR;
+	else 
+		return sensor_twi_write_regs(p_twid, p_sensor->output_conf[i]->output_setting);
 }
 
 
