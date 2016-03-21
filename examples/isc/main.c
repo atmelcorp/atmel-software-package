@@ -48,7 +48,7 @@
  * internal image processor includes color filter array interpolation,
  * gamma correction, 12 bits to 10 bits compression, color space conversion,
  * luminance adjustment. It introduces how to samples data stream to expected
- * data format and transfer with DMA master module. 
+ * data format and transfer with DMA master module.
  *
  * \section Usage
  *  -# Build the program and download it inside the SAMA5D2-EK board.
@@ -90,7 +90,8 @@
 #include "chip.h"
 
 #include "cortex-a/cp15.h"
- 
+
+#include "peripherals/l2cc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
@@ -106,13 +107,14 @@
 
 #include "video/lcdd.h"
 #include "video/image_sensor_inf.h"
+#include "timer.h"
 
 #include "lcd_draw.h"
 #include "trace.h"
 
 #include <stdbool.h>
 #include <stdio.h>
- 
+
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -121,7 +123,7 @@
 #define ISC_OUTPUT_BASE_ADDRESS  (DDR_CS_ADDR + 16 * 1024 * 1024)
 #define ISC_OUTPUT_BASE_ADDRESS1  (ISC_OUTPUT_BASE_ADDRESS + 0x400000)
 #define ISC_OUTPUT_BASE_ADDRESS2  (ISC_OUTPUT_BASE_ADDRESS1 + 0x400000)
- 
+
 /** DMA memory address for Histogram */
 #define ISC_HIS_BASE_ADDRESS  (0x22000000)
 
@@ -145,7 +147,7 @@
 #define OV7740
 //#define OV5640
 //#define OV2643
- 
+
 
 /* GAMMA and HISTOGRAM definitions */
 #define GAMMA_28
@@ -199,7 +201,7 @@ extern const sensor_profile_t ov7740_profile;
 extern const sensor_profile_t ov9740_profile;
 #else
 #error No image sensor defined!
-#endif 
+#endif
 
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
@@ -318,7 +320,7 @@ static void xdma_read_histogram(uint32_t buf)
 	xdmad_cfg.ublock_size = HIST_ENTRIES;
 	xdmad_cfg.src_addr = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
 	xdmad_cfg.dest_addr =  (uint32_t* )buf;
-	xdmad_cfg.cfg.uint32_value = 
+	xdmad_cfg.cfg.uint32_value =
 								XDMAC_CC_MBSIZE_SINGLE |
 								XDMAC_CC_TYPE_MEM_TRAN |
 								XDMAC_CC_CSIZE_CHK_1 |
@@ -380,11 +382,11 @@ static void isc_handler(void)
 	}
 	if ((status & ISC_INTSR_DDONE) == ISC_INTSR_DDONE) {
 	}
-	
+
 	if ((status & ISC_INTSR_HISDONE) == ISC_INTSR_HISDONE) {
 		histogram_done = true;
 	}
-	
+
 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
 }
@@ -429,6 +431,7 @@ static void sensor_reset(void)
 	pio_clear(&pin_pwd);
 	pio_clear(&pin_rst);
 	pio_set(&pin_rst);
+	timer_wait(10);
 }
 
 /**
@@ -525,7 +528,7 @@ static void configure_isc(void)
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(sensor_output_bit_width));
 	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
-	
+
 	/* Set Continuous Acquisition mode */
 	isc_pfe_set_continuous_shot();
 	isc_cfa_enabled(0);
@@ -615,7 +618,7 @@ static void configure_isc(void)
 			if ((lcd_mode == LCD_MODE_YUV422_PLANAR) \
 				|| (lcd_mode == LCD_MODE_YUV420_PLANAR)){
 				isc_dma_enable(ISC_DCTRL_DVIEW_PLANAR | ISC_DCTRL_DE);
-			} 
+			}
 			if ((lcd_mode == LCD_MODE_YUV422_SEMIPLANAR)\
 				|| (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR )){
 				isc_dma_enable(ISC_DCTRL_DVIEW_SEMIPLANAR | ISC_DCTRL_DE);
@@ -657,7 +660,7 @@ static void configure_isc(void)
 	isc_histogram_enabled(1);
 	isc_clear_histogram_table();
 	isc_update_profile();
-	
+
 	aic_set_source_vector(ID_ISC, isc_handler);
 	i = isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD
@@ -669,8 +672,8 @@ static void configure_isc(void)
 	isc_interrupt_status();
 	capture_started = 0;
 	aic_enable(ID_ISC);
-	
-} 
+
+}
 
 /**
  * \brief Set up DMA Descriptors.
@@ -707,6 +710,7 @@ static void configure_dma_linklist(void)
 			dma_descs2[i].stride2 = 0;
 		}
 		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
+		l2cc_clean_region((uint32_t)dma_descs2, ((uint32_t)dma_descs2) + sizeof(dma_descs2));
 	} else {
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
 			dma_descs[i].ctrl =
@@ -716,6 +720,7 @@ static void configure_dma_linklist(void)
 			dma_descs[i].stride = 0;
 		}
 		dma_descs[i-1].next_desc = (uint32_t)&dma_descs[0];
+		l2cc_clean_region((uint32_t)dma_descs, ((uint32_t)dma_descs) + sizeof(dma_descs));
 	}
 }
 
@@ -726,23 +731,23 @@ static void awb_update(void)
 {
 	float gain[HIST_RGGB_BAYER];
 	uint32_t gain_049[HIST_RGGB_BAYER];
-	gain[HISTOGRAM_GB] = 1.0000000; 
+	gain[HISTOGRAM_GB] = 1.0000000;
 	gain[HISTOGRAM_GR] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_GR]);
 	gain[HISTOGRAM_R] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_R]);
 	gain[HISTOGRAM_B] = (float)(histogram_count[HISTOGRAM_GB]) / \
 						(float)(histogram_count[HISTOGRAM_B]);
-	
+
 	gain_049[HISTOGRAM_GB] = float2hex(0, 4, 9, gain[HISTOGRAM_GB]);
 	gain_049[HISTOGRAM_GR] = float2hex(0, 4, 9, gain[HISTOGRAM_GR]);
 	gain_049[HISTOGRAM_B] = float2hex(0, 4, 9, gain[HISTOGRAM_B]);
 	gain_049[HISTOGRAM_R] = float2hex(0, 4, 9, gain[HISTOGRAM_R]);
-		
-	isc_wb_adjust_bayer_color(0, 0, 0, 0, 
-					gain_049[HISTOGRAM_R], 
-					gain_049[HISTOGRAM_GR], 
-					gain_049[HISTOGRAM_B], 
+
+	isc_wb_adjust_bayer_color(0, 0, 0, 0,
+					gain_049[HISTOGRAM_R],
+					gain_049[HISTOGRAM_GR],
+					gain_049[HISTOGRAM_B],
 					gain_049[HISTOGRAM_GB]);
 	isc_update_profile();
 }
@@ -758,7 +763,7 @@ static void ae_update(void)
 	uint32_t ycount;
 	uint16_t dart_threshold, bright_threshold;
 	uint32_t gain_110,offset_138;
-	
+
 	ycount = 0;
 	for(i = 0; i < HIST_ENTRIES; i++){
 		ycount += histogram_y[i];
@@ -782,7 +787,7 @@ static void ae_update(void)
 	//printf("<%f, %f> ",ygain,offset);
 	gain_110 = float2hex(1, 10, 0, ygain);
 	offset_138 = float2hex(1, 3, 8, offset);
-	
+
 	isc_cbc_configure(0, 0, gain_110, offset_138);
 	isc_update_profile();
 	//printf("<%x, %x> ",gain_110,offset_138);
@@ -826,7 +831,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_HIS_READY){
-		if(!histogram_done) 
+		if(!histogram_done)
 			return true;
 		histogram_done = false;
 		xdma_read_histogram(ISC_HIS_BASE_ADDRESS);
@@ -834,7 +839,7 @@ static bool auto_white_balance(void)
 		return true;
 	}
 	if (awb_status_machine == AWB_WAIT_DMA_READY){
-		if(!histogram_read) 
+		if(!histogram_read)
 			return true;
 		histogram_read = false;
 		histogram_count_up();
@@ -869,7 +874,7 @@ static bool auto_white_balance(void)
 extern int main(void)
 {
 	uint8_t key;
-	
+
 	wdt_disable();
 
 	/* Configure console */
@@ -883,19 +888,18 @@ extern int main(void)
 #ifndef VARIANT_DDRAM
 	board_cfg_ddram();
 #endif
-	cp15_disable_mmu();
-	cp15_disable_icache();
-	cp15_disable_dcache();
-	
+
 	/* TWI Initialize */
 	configure_twi();
+
+	timer_configure(0);
 
 	/* Configure all ISC pins */
 	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
 
 	/* ISI PCK clock Initialize */
 	configure_mck_clock();
-	
+
 	/* Initialize XDMA driver instance in interrupt mode */
 	xdmad_initialize(false);
 
@@ -907,7 +911,7 @@ extern int main(void)
 		return 0;
 	}
 	xdmad_prepare_channel(xdmad_channel);
-	
+
 reSensor:
 	/* Reset Sensor board */
 	sensor_reset();
