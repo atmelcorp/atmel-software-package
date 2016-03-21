@@ -33,9 +33,54 @@ iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
 iar: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
 
 .PHONY: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
-$(BINNAME).ewp:
+
+EWP_SPLIT:
+	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "split" $(iar-project-template-y) 4 3
+	$(Q)mv -f $(TOP)/scripts/iar_project.template.* .
+	$(Q)rm -f $(BINNAME).ewp.bodies
+
+EWD_SPLIT:
+	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "split" $(iar-debug-template-y) 4 3
+	$(Q)mv -f $(TOP)/scripts/iar_debug.template.* .
+	$(Q)rm -f $(BINNAME).ewd.bodies
+
+define IAR_CONF
+$(1)_$(2).ewp: EWP_SPLIT
+	$(ECHO) GEN temporary file $(1)_$(2).ewp
+	$(Q)cat iar_project.template.body > $(2).ewp.1
+	$(Q)echo $(CFLAGS_DEFS_$(2)) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $(2).ewp.1 > $(2).ewp.2
+	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $(2).ewp.2 > $(2).ewp.3
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $(2).ewp.3 $(iar-linker-script-$(2)-y) > $(2).ewp.4
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $(2).ewp.4 $(chip-serie-name-y) > $(2).ewp.5
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $(2).ewp.5 $(BINNAME) > $(2).ewp.6
+	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "configuration" $(2).ewp.6 $(2) $(SELECTED_BOARD) > $(1)_$(2).ewp
+	$(Q)rm -f $(2).ewp.*
+
+$(1)_$(2).ewd: EWD_SPLIT
+	$(ECHO) GEN temporary file $(1)_$(2).ewd
+	$(Q)bash $(TOP)/scripts/iar_gen_debug.sh iar_debug.template.body $(iar-debug-script-$(2)-y) > $(2).ewd.1
+	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "configuration" $(2).ewd.1 $(2) $(SELECTED_BOARD) > $(1)_$(2).ewd
+	$(Q)rm -f $(2).ewd.*
+endef
+
+$(BINNAME).eww:
 	$(ECHO) GEN $@
-	$(Q)echo "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $(iar-project-template-y) "target" > $@.1
+	$(Q)bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
+
+$(foreach MEMORY, $(MEMORIES), $(eval $(call IAR_CONF, $(BINNAME),$(MEMORY))))
+EWP_FILES := $(foreach MEMORY, $(MEMORIES), $(BINNAME)_$(MEMORY).ewp)
+EWD_FILES := $(foreach MEMORY, $(MEMORIES), $(BINNAME)_$(MEMORY).ewd)
+
+$(BINNAME).ewp.bodies: $(EWP_FILES)
+	$(Q)cat $(BINNAME)_*.ewp > $@
+	$(Q)rm -f $(BINNAME)_*.ewp
+
+$(BINNAME).ewp: EWP_SPLIT $(BINNAME).ewp.bodies
+	$(ECHO) GEN $(BINNAME).ewp
+	$(Q)cat iar_project.template.head > $@.0
+	$(Q)cat $(BINNAME).ewp.bodies >> $@.0
+	$(Q)cat iar_project.template.tail >> $@.0
+	$(Q)echo "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.0 "target" > $@.1
 	$(Q)echo "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.1 "utils" > $@.2
 	$(Q)echo "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.2 "drivers"> $@.3
 	$(Q)echo "$(addprefix $(TOP)/,$(lwip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.3 "lwip" > $@.4
@@ -43,19 +88,20 @@ $(BINNAME).ewp:
 	$(Q)echo "$(addprefix $(TOP)/,$(usb-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.5  "usb"> $@.6
 	$(Q)echo "$(addprefix $(TOP)/,$(libsdmmc-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.6 "libsdmmc" > $@.7
 	$(Q)echo "$(addprefix $(TOP)/,$(libfatfs-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.7 "libfatfs" > $@.8
-	$(Q)echo $(CFLAGS_DEFS) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $@.8 > $@.9
-	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $@.9 > $@.10
-	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.10 > $@.11
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $@.11 $(iar-linker-script-y) > $@.12
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $@.12 $(chip-serie-name-y) > $@.13
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $@.13 $(BINNAME) > $@.14
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.14 > $@
+	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.8 > $@.9
+	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.9 > $@
+	$(Q)rm -f iar_project.template.*
+	$(Q)rm -f $(BINNAME).ewp.bodies
 	$(Q)rm -f $@.*
 
-$(BINNAME).eww:
-	$(ECHO) GEN $@
-	$(Q)bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
+$(BINNAME).ewd.bodies: $(EWD_FILES)
+	$(Q)cat $(BINNAME)_*.ewd > $@
+	$(Q)rm -f $(BINNAME)_*.ewd
 
-$(BINNAME).ewd:
-	$(ECHO) GEN $@
-	$(Q)bash $(TOP)/scripts/iar_gen_debug.sh $(iar-debug-template-y) $(iar-debug-script-y) > $@
+$(BINNAME).ewd: EWD_SPLIT $(BINNAME).ewd.bodies
+	$(ECHO) GEN $(BINNAME).ewd
+	$(Q)cat iar_debug.template.head > $@
+	$(Q)cat $(BINNAME).ewd.bodies >> $@
+	$(Q)cat iar_debug.template.tail >> $@
+	$(Q)rm -f iar_debug.template.*
+	$(Q)rm -f $(BINNAME).ewd.bodies

@@ -37,20 +37,22 @@ iar-cstartup-y ?= target/sama5d2/toolchain/iar/cstartup.s
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.gdb
-iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
 endif
+iar-linker-script-sram-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
+iar-debug-script-sram-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
 
 ifeq ($(VARIANT),ddram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
-iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
+endif
+iar-linker-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
 ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED),y)
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
+iar-debug-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 endif
 ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO),y)
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
+iar-debug-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 endif
+ifeq ($(VARIANT),ddram)
 bootstrap-y ?= target/sama5d2/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 endif
