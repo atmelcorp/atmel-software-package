@@ -142,8 +142,8 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static const struct _pin at24_pins[] = AT24_PINS;
 
-ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
+ALIGNED(L1_CACHE_BYTES) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+ALIGNED(L1_CACHE_BYTES) static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 static _parser _cmd_parser;
 static uint32_t cmd_index = 0;
@@ -183,9 +183,9 @@ mutex_t lock = 0;
 /* =================== TWI slave device definition ============== */
 /* twi_slave examples mimics a serial memory with TWI interface. */
 /** TWI slave pins definition **/
-#define TWI_SLAVE_PINS PINS_TWI0
+#define TWI_SLAVE_PINS PINS_TWI1
 /** TWI slave address definition */
-#define TWI_SLAVE_ADDR ((Twi*)TWI0)
+#define TWI_SLAVE_ADDR ((Twi*)TWI1)
 #else
 #error Unsupported board...
 #endif
