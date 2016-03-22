@@ -127,8 +127,11 @@
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
 #include "peripherals/wdt.h"
+#include "peripherals/l2cc.h"
 #include "peripherals/xdmad.h"
+#include "peripherals/usartd.h"
 #include "peripherals/usart.h"
+#include "peripherals/flexcom.h"
 
 #include "usb/device/cdc/cdcd_serial_driver.h"
 #include "usb/device/usbd.h"
@@ -153,17 +156,11 @@
 /** Basic asynchronous mode, i.e. 8 bits no parity.*/
 #define USART_MODE_ASYNCHRONOUS        (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_PAR_NO)
 
-/** Register base for USART operation */
-#define BASE_USART      USART1
-
-/** USART ID */
-#define ID_USART        ID_USART1
-
 /** test buffer size */
 #define TEST_BUFFER_SIZE    (2*1024)
 
 /** write loop count */
-#define TEST_COUNT          (30)
+#define TEST_COUNT          (1)
 
 /*----------------------------------------------------------------------------
  *      External variables
@@ -174,26 +171,11 @@ extern const USBDDriverDescriptors cdcd_serial_driver_descriptors;
 /*----------------------------------------------------------------------------
  *      Internal variables
 ----------------------------------------------------------------------------*/
-
-
-/** DMA channel for RX */
-static struct _xdmad_channel* usart_dma_rx_channel;
-/** DMA channel for TX */
-static struct _xdmad_channel* usart_dma_tx_channel;
-
-/** USART link list for data RX */
-static struct _xdmad_desc_view1 dma_rx_link_list[2];
-
-/** List of pins that must be configured for use by the application. */
-static const struct _pin pins[] = PINS_FLEXCOM1_USART_IOS1;
-
-/** Double-buffer for storing incoming USART data. */
-static uint8_t usart_buffers[2][DATABUFFERSIZE];
-
-/** Current USART buffer index. */
-static uint8_t usart_current_buffer = 0;
+Flexcom* flexcom = FLEXCOM3;
+static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
 
 /** Buffer for storing incoming USB data. */
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t usb_buffer[DATABUFFERSIZE];
 
 /** Serial Port ON/OFF */
@@ -205,8 +187,18 @@ static uint8_t is_cdc_echo_on = 0;
 /** USB Tx flag */
 static volatile uint8_t tx_done_flag = 0;
 /** Test buffer */
+ALIGNED(L1_CACHE_BYTES)
 static uint8_t test_buffer[TEST_BUFFER_SIZE];
 
+static struct _usart_desc usart_desc = {
+	.addr           = USART3,
+	.baudrate       = 115200,
+	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
+	.transfert_mode = USARTD_MODE_DMA,
+};
+
+static volatile bool usart_rx_flag = false;
+static volatile uint8_t char_recv;
 /*----------------------------------------------------------------------------
  *         Internal Prototypes
  *----------------------------------------------------------------------------*/
@@ -220,34 +212,16 @@ static uint8_t test_buffer[TEST_BUFFER_SIZE];
  */
 static void usart_irq_handler( void )
 {
-	Usart *p_us = BASE_USART;
-	uint32_t status;
-	uint16_t serial_state;
-
-	status  = usart_get_status(p_us);
-	status &= usart_get_it_mask(p_us);
-
+	Usart *p_us = &flexcom->usart;
+	
 	/* If USB device is not configured, do nothing */
-	if (!is_cdc_serial_on)
-	{
+	if (!is_cdc_serial_on) {
 		usart_disable_it(p_us, 0xFFFFFFFF);
 		return;
 	}
-
-	/* Errors */
-	serial_state = cdcd_serial_driver_get_serial_state();
-	/* Overrun */
-	if ((status & US_CSR_OVRE) != 0) {
-		trace_warning( "usart_irq_handler: Overrun\n\r");
-		serial_state |= CDCSerialState_OVERRUN;
-	}
-
-	/* Framing error */
-	if ((status & US_CSR_FRAME) != 0) {
-		trace_warning( "usart_irq_handler: Framing error\n\r");
-		serial_state |= CDCSerialState_FRAMING;
-	}
-	cdcd_serial_driver_set_serial_state(serial_state);
+	char_recv = usart_get_char(p_us);
+	usart_rx_flag = true;
+	p_us->US_CR = US_CR_RSTSTA;
 }
 
 /*-----------------------------------------------------------------------------
@@ -278,100 +252,39 @@ void usbd_callbacks_request_received(const USBGenericRequest *request)
  *----------------------------------------------------------------------------*/
 
 /**
+ * \brief DMA TX callback function
+ */
+static void _us_dma_tx_callback(struct _usart_desc* desc,
+						 void* user_args)
+{
+	(void)user_args;
+	usartd_finish_transfert(desc);
+}
+
+/**
  *  \brief Send single buffer data through DMA
  */
-static void _usart_dma_tx( uint32_t dw_dest_addr,
-			void* pBuffer, uint16_t wSize )
+static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 {
-	/* Setup transfer */
-	struct _xdmad_cfg xdmad_cfg;
-	xdmad_cfg.ublock_size = wSize ;
-	xdmad_cfg.src_addr = (void*) pBuffer;
-	xdmad_cfg.dest_addr = (void*) dw_dest_addr;
-	xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
-				| XDMAC_CC_MEMSET_NORMAL_MODE
-				| XDMAC_CC_CSIZE_CHK_1
-				| XDMAC_CC_DWIDTH_BYTE
-				| XDMAC_CC_SIF_AHB_IF0
-				| XDMAC_CC_DIF_AHB_IF1
-				| XDMAC_CC_SAM_INCREMENTED_AM
-				| XDMAC_CC_DAM_FIXED_AM;
 
-	xdmad_cfg.block_size = 0;
-	xdmad_configure_transfer( usart_dma_tx_channel, &xdmad_cfg, 0, 0);
-	xdmad_start_transfer( usart_dma_tx_channel );
-}
+	struct _buffer tx = {
+		.data = (unsigned char*)buffer,
+		.size = len
+	};
+	usartd_transfert(&usart_desc, 0, &tx,
+				_us_dma_tx_callback, 0);
 
-/**
- *  \brief Prepare link list for USART RX
- *  Ringed link list initialized for 2 USART buffer.
- */
-static void _usart_dma_rx_setup( void )
-{
-	uint8_t i;
-	Usart *p_us = BASE_USART;
-	for (i = 0; i < 2; i++) {
-
-		dma_rx_link_list[i].ublock_size = XDMA_UBC_NVIEW_NDV1
-				| XDMA_UBC_NDE_FETCH_EN
-				| XDMA_UBC_NSEN_UPDATED
-				| XDMAC_CUBC_UBLEN(DATAPACKETSIZE);
-
-		dma_rx_link_list[i].src_addr  = (void*)&p_us->US_RHR;
-		dma_rx_link_list[i].dest_addr = (void*)usart_buffers[i];
-		dma_rx_link_list[i].next_desc = (void*)&dma_rx_link_list[i];
-	}
-}
-
-/**
- *  \brief Start waiting USART data
- *  Start DMA, the 1st DMA buffer is free USART buffer assigned.
- */
-static void _usart_dma_rx( uint32_t start_buffer )
-{
-	struct _xdmad_cfg xdmad_usart_rx_cfg;
-	uint32_t xdma_usart_rx_cndc;
-
-	xdmad_usart_rx_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
-				| XDMAC_CC_MBSIZE_SINGLE
-				| XDMAC_CC_DSYNC_PER2MEM
-				| XDMAC_CC_CSIZE_CHK_1
-				| XDMAC_CC_DWIDTH_BYTE
-				| XDMAC_CC_SIF_AHB_IF1
-				| XDMAC_CC_DIF_AHB_IF0
-				| XDMAC_CC_SAM_FIXED_AM
-				| XDMAC_CC_DAM_INCREMENTED_AM;
-
-	xdma_usart_rx_cndc = XDMAC_CNDC_NDVIEW_NDV1
-				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
-				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED ;
-
-	xdmad_configure_transfer( usart_dma_rx_channel, &xdmad_usart_rx_cfg,
-			xdma_usart_rx_cndc, (void*)&dma_rx_link_list[start_buffer]);
-	xdmad_start_transfer( usart_dma_rx_channel);
-}
-
-/**
- * console help dump
- */
-static void _debug_help(void)
-{
-	printf("-- ESC to Enable/Disable ECHO on cdc serial --\n\r");
-	printf("-- Press 't' to test trasfer --\n\r");
 }
 
 /**
  * Callback invoked when data has been received on the USB.
  */
-static void _usb_data_received(void *arg, uint8_t status,
+static void _usb_data_received(void *read, uint8_t status,
 		uint32_t received, uint32_t remaining)
 {
-	Usart *p_us = BASE_USART;
-
 	/* Check that data has been received successfully */
 	if (status == USBD_STATUS_SUCCESS) {
-
+		*(uint8_t *)read = 1;
 		/* Send back CDC data */
 		if (is_cdc_echo_on){
 
@@ -380,8 +293,7 @@ static void _usb_data_received(void *arg, uint8_t status,
 		/* Send data through USART */
 		if (is_cdc_serial_on) {
 
-			_usart_dma_tx( (uint32_t)&p_us->US_THR,
-					usb_buffer, received );
+			_usart_dma_tx( usb_buffer, received );
 		}
 
 		/* Check if bytes have been discarded */
@@ -397,6 +309,18 @@ static void _usb_data_received(void *arg, uint8_t status,
 	}
 }
 
+
+
+/**
+ * console help dump
+ */
+static void _debug_help(void)
+{
+	printf("-- ESC to Enable/Disable ECHO on cdc serial --\n\r");
+	printf("-- Press 't' to test trasfer --\n\r");
+}
+
+
 /**
  * Callback invoked when data has been sent.
  */
@@ -405,79 +329,20 @@ static void _usb_data_sent(void *arg, uint8_t status, uint32_t transferred, uint
 	tx_done_flag = 1;
 }
 
-/**
- * \brief DMA RX callback function
- */
-static void _us_dma_rx_callback( uint8_t status, void *p_arg)
-{
-	p_arg = p_arg;
-	if (status != XDMAD_OK) return;
-
-	/* Send buffer through the USB */
-	while (cdcd_serial_driver_write(usart_buffers[usart_current_buffer],
-			DATAPACKETSIZE, 0, 0) != USBD_STATUS_SUCCESS);
-
-	/* Restart read on buffer */
-	usart_current_buffer = 1 - usart_current_buffer;
-	_usart_dma_rx(usart_current_buffer);
-
-}
-
-/**
- * \brief DMA TX callback function
- */
-static void _us_dma_tx_callback( uint8_t status, void *p_arg)
-{
-	p_arg = p_arg;
-	if (status != XDMAD_OK) return;
-
-	/* Restart USB read */
-	cdcd_serial_driver_read(usb_buffer, DATAPACKETSIZE,
-			_usb_data_received, NULL);
-}
-
-/**
- * \brief DMA driver configuration
- */
-static void _configure_dma( void )
-{
-	/* Driver initialize */
-	xdmad_initialize(0);
-
-	/* Allocate DMA channels for USART */
-	usart_dma_tx_channel =
-			xdmad_allocate_channel( XDMAD_PERIPH_MEMORY, ID_USART);
-	usart_dma_rx_channel =
-			xdmad_allocate_channel( ID_USART, XDMAD_PERIPH_MEMORY);
-
-	/* Set RX callback */
-	xdmad_set_callback( usart_dma_rx_channel,
-				(xdmad_callback_t)_us_dma_rx_callback, 0);
-	/* Set TX callback */
-	xdmad_set_callback( usart_dma_tx_channel,
-				(xdmad_callback_t)_us_dma_tx_callback, 0);
-
-	xdmad_prepare_channel( usart_dma_rx_channel);
-	xdmad_prepare_channel( usart_dma_tx_channel);
-}
 
 /**
  * Configure USART to work @ 115200
  */
 static void _configure_usart(void)
 {
-	pio_configure(pins, ARRAY_SIZE(pins));
-	pmc_enable_peripheral(ID_USART);
-	usart_disable_it(BASE_USART, 0xFFFFFFFF);
-	usart_configure(BASE_USART,
-			USART_MODE_ASYNCHRONOUS,
-			115200
-			);
-
-	usart_set_transmitter_enabled(BASE_USART, 1);
-	usart_set_receiver_enabled(BASE_USART, 1);
-	aic_set_source_vector(ID_USART, usart_irq_handler);
-	aic_enable(ID_USART);
+	/* Driver initialize */
+	xdmad_initialize(0);
+	flexcom_select(FLEXCOM3, FLEX_MR_OPMODE_USART);
+	usartd_configure(&usart_desc);
+	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
+	usart_enable_it(&FLEXCOM3->usart, US_IER_RXRDY);
+	aic_set_source_vector(ID_USART3, usart_irq_handler);
+	aic_enable(ID_USART3);
 }
 
 /**
@@ -508,6 +373,7 @@ static void _send_text(void)
 
 	/* Finish sending */
 	cdcd_serial_driver_write(NULL, 0, NULL, NULL);
+	_usart_dma_tx(test_buffer, TEST_BUFFER_SIZE);
 }
 
 /*----------------------------------------------------------------------------
@@ -522,6 +388,7 @@ static void _send_text(void)
 int main(void)
 {
 	uint8_t is_usb_connected = 0;
+	uint8_t usb_serial_read = 1;
 
 	/* Disable watchdog */
 	wdt_disable();
@@ -541,12 +408,8 @@ int main(void)
 	/* Initialize all USB power (off) */
 	usb_power_configure();
 
-	/* Configure DMA driver */
-	_configure_dma();
-
 	/* Configure USART */
 	_configure_usart();
-	_usart_dma_rx_setup();
 
 	/* CDC serial driver initialization */
 	cdcd_serial_driver_initialize(&cdcd_serial_driver_descriptors);
@@ -577,24 +440,25 @@ int main(void)
 					& CDCControlLineState_DTR) {
 			if (!is_cdc_serial_on) {
 				is_cdc_serial_on = 1;
-
-				/* Start receiving data on the USART */
-				usart_current_buffer = 0;
-				_usart_dma_rx(usart_current_buffer);
-				usart_enable_it(BASE_USART,
-						US_CSR_FRAME | US_CSR_OVRE);
+				}
+			if(usb_serial_read == 1) {
+				usb_serial_read = 0;
 				/* Start receiving data on the USB */
 				cdcd_serial_driver_read(usb_buffer, DATAPACKETSIZE,
-					_usb_data_received, NULL);
+							_usb_data_received, &usb_serial_read);
 			}
-
-
+			if(usart_rx_flag == true) {
+				usart_rx_flag = false;
+				cdcd_serial_driver_write((void *)&char_recv, 1, 0, 0);
+				if(is_cdc_echo_on) {
+					_usart_dma_tx((uint8_t*)&char_recv, 1);
+				}
+			}
 		} else if (is_cdc_serial_on) {
 			is_cdc_serial_on = 0;
 		}
-
+		
 		if (console_is_rx_ready()) {
-
 			uint8_t key = console_get_char();
 			/* ESC: CDC Echo ON/OFF */
 			if (key == 27) {
@@ -611,6 +475,7 @@ int main(void)
 				printf("Alive\n\r");
 				cdcd_serial_driver_write((char*)"Alive\n\r", 8,
 						NULL, NULL);
+				_usart_dma_tx((uint8_t*)"Alive\n\r", 8);
 				_debug_help();
 			}
 		}
