@@ -47,6 +47,16 @@ fifo: Test Flexcom USART FIFO
 
 gettting-started: LED blink (uses PIT and PIO)
 
+gmac: GMAC example using a simple IP stack
+
+gmac_lwip: GMAC example using LWIP stack
+
+gmac_uip_helloworld: GMAC example using UIP stack (UIP helloworld example)
+
+gmac_uip_telnetd: GMAC example using UIP stack (UIP telnetd example)
+
+gmac_uip_webserver: GMAC example using UIP stack (UIP webserver example)
+
 isi: Example using ISI controller (only for SAMA5D4-EK board)
 
 lcd: Example using LCD controller
@@ -70,6 +80,8 @@ spi_slave: Set up the SAMA5D4x as a SPI slave
 tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an external signal
 
 trng: Example using hardware RNG (interrupt mode)
+
+twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 
 usb_audio_looprec: Set up a SAMA5D4x as a USB Audio Device to record sounds
 
