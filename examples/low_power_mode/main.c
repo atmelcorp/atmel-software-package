@@ -27,6 +27,79 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ *  \page low_power_mode Low Power Mode Example
+ *
+ *  \section Purpose
+ *  This example will help new users get familiar with device Low-power modes.
+ *
+ *  \section Requirements
+ *  This package can be used with SAMA5D2-XULT.
+ *
+ *  \section Description
+ *  The demonstration program offers methods to make the device enter low power
+ *  mode, users can also change the settings of clock and DDR.
+ *  Power consumptions could be measured by ammeters connected between the
+ *  jumpers of VDDCORE or VDDBU.
+ *
+ *  \section Note
+ *  Due to the power consumption results can be affected by IOs setting, the
+ *  value in datasheet is measured with most IOs disconnected from external
+ *  devices.
+ *  For boards with the chip can't disconnected from other devices, user can
+ *  change the IOs setting to get lower power consumption. For SAMA5D2-XULT
+ *  board, put IOs to the state described in board_restore_pio_reset_state() can
+ *  achieve lower power consumption.
+ *
+ *  \section Usage
+ *  -# Build the program and download it inside the evaluation board. Please
+ *     refer to the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *     SAM-BA User Guide</a>, the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *     GNU-Based Software Development</a>
+ *     application note or to the
+ *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *     IAR EWARM User Guide</a>,
+ *     depending on your chosen solution.
+ *  -# On the computer, open and configure a terminal application
+ *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *    - 115200 bauds
+ *    - 8 bits of data
+ *    - No parity
+ *    - 1 stop bit
+ *    - No flow control
+ *  -# Start the application.
+ *  -# In the terminal window, the following text should appear (values depend on
+ *     the board and chip used):
+ *     \code
+ *      -- Low Power mode --
+ *      -- SAMxxxxx-xx
+ *      -- Compiled: xxx xx xxxx xx:xx:xx --
+ *      -- Select an option :
+ *      -- 0 -> Select clock setting
+ *      -- 1 -> Enter BackUp mode
+ *      -- 2 -> Enter Ultra Low Power mode 0
+ *      -- 3 -> Enter Ultra Low Power mode 1
+ *      -- 4 -> Enter Idle mode
+ *      -- A -> Init DDR
+ *      -- B -> write data in DDR
+ *      -- C -> check data in DDR
+ *      -- D -> set DDR self-refresh and isolate Pads
+ *     \endcode
+ *
+ *  \section References
+ *  - low_power_mode/main.c
+ *  - pio.h
+ *  - pio_it.h
+ */
+
+/** \file
+ *
+ *  This file contains all the specific code for the getting-started example.
+ *
+ */
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------
@@ -67,11 +140,11 @@
 
 struct pck_mck_cfg clock_test_setting[] = {
 	/* PLL A = 996, PCK = 498, MCK = 166 MHz */
-	/* PLLA RC12M RC32K MULA=83 DIV2ON=1 PRES=0 MDIV=3 */
+	/* PLLA EXT12M EXT32K MULA=82 DIV=1 DIV2ON=1 PRES=0 MDIV=3 h32mxdiv2=1*/
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
-		.ext12m = false,
-		.ext32k = false,
+		.ext12m = true,
+		.ext32k = true,
 		.plla_mul = 82,
 		.plla_div = 1,
 		.plla_div2 = true,
@@ -80,11 +153,11 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.h32mxdiv2 = true,
 	},
 	/* PCK = MCK = 12MHz */
-	/* MAIN RC12M RC32K MULA=0 DIV2ON=0 PRES=0 MDIV=0 */
+	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 h32mxdiv2=0*/
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = false,
-		.ext32k = false,
+		.ext12m = true,
+		.ext32k = true,
 		.plla_mul = 0,
 		.plla_div = 1,
 		.plla_div2 = false,
@@ -93,11 +166,11 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.h32mxdiv2 = false,
 	},
 	/* PCK = MCK = 750 kHz */
-	/* MAIN RC12M RC32K MULA=0 DIV2ON=0 PRES=16 MDIV=0 */
+	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=16 MDIV=0 h32mxdiv2=0*/
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = false,
-		.ext32k = false,
+		.ext12m = true,
+		.ext32k = true,
 		.plla_mul = 0,
 		.plla_div = 1,
 		.plla_div2 = false,
@@ -106,11 +179,11 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.h32mxdiv2 = false,
 	},
 	/* PCK = MCK = 187.5 kHz */
-	/* MAIN RC12M RC32K MULA=0 DIV2ON=0 PRES=64 MDIV=0 */
+	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=64 MDIV=0 h32mxdiv2=0*/
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = false,
-		.ext32k = false,
+		.ext12m = true,
+		.ext32k = true,
 		.plla_mul = 0,
 		.plla_div = 1,
 		.plla_div2 = false,
@@ -119,9 +192,35 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.h32mxdiv2 = false,
 	},
 	/* PCK = MCK = 32 kHz */
-	/* slow clock RC12M RC32K MULA=0 DIV2ON=0 PRES=0 MDIV=0 */
+	/* slow clock EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 h32mxdiv2=0*/
 	{
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
+		.ext12m = true,
+		.ext32k = true,
+		.plla_mul = 0,
+		.plla_div = 1,
+		.plla_div2 = false,
+		.pck_pres = PMC_MCKR_PRES_CLOCK,
+		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		.h32mxdiv2 = false,
+	},
+	/* PCK = MCK = 512 Hz */
+	/* slow clock EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=64 MDIV=0 h32mxdiv2=0*/
+	{
+		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
+		.ext12m = true,
+		.ext32k = true,
+		.plla_mul = 0,
+		.plla_div = 1,
+		.plla_div2 = false,
+		.pck_pres = PMC_MCKR_PRES_CLOCK_DIV64,
+		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		.h32mxdiv2 = false,
+	},
+        /* PCK = MCK = RC12MHz */
+	/* MAIN RC12M RC32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 h32mxdiv2=0*/
+	{
+		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
 		.ext12m = false,
 		.ext32k = false,
 		.plla_mul = 0,
@@ -131,21 +230,8 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
 		.h32mxdiv2 = false,
 	},
-	/* PCK = MCK = 512 Hz */
-	/* slow clock RC12M RC32K MULA=0 DIV2ON=0 PRES=64 MDIV=0 */
-	{
-		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
-		.ext12m = false,
-		.ext32k = false,
-		.plla_mul = 0,
-		.plla_div = 1,
-		.plla_div2 = false,
-		.pck_pres = PMC_MCKR_PRES_CLOCK_DIV64,
-		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-		.h32mxdiv2 = false,
-	},
 	/* PLL A = 792, PCK = 396, MCK = 132MHz */
-	/* MAIN RC12M EXT32K MULA=66 DIV2ON=1 PRES=0 MDIV=3 */
+	/* MAIN EXT12M EXT32K MULA=66 DIV=1 DIV2ON=1 PRES=0 MDIV=3 h32mxdiv2=1*/
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
@@ -155,7 +241,7 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.plla_div2 = true,
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
 		.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-		.h32mxdiv2 = false,
+		.h32mxdiv2 = true,
 	},
 };
 
