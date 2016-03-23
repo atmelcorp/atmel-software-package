@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2015-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,9 +27,71 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * \page Usart FIFO Example
+ *
+ * \section Purpose
+ *
+ * The Usart FIFO example will help new users get familiar with Atmel's
+ * SAMA5D2X family of microcontrollers. This basic application shows the
+ * usage of Usart FIFO mode.
+ *
+ * \section Requirements
+ *
+ * This package can be used with SAMA5D2-XPLAINED.
+ *
+ * \section Description
+ *
+ *
+ * \section Usage
+ *
+ * -# Build the program and download it inside the evaluation board. Please
+ *    refer to the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *    SAM-BA User Guide</a>, the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *    GNU-Based Software Development</a>
+ *    application note or to the
+ *    <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *    IAR EWARM User Guide</a>,
+ *    depending on your chosen solution.
+ * -# On the computer, open and configure a terminal application
+ *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *   - 57600 bauds
+ *   - 8 bits of data
+ *   - No parity
+ *   - 1 stop bit
+ *   - No flow control
+ * -# Start the application.
+ * -# In the terminal window, the following text should appear:
+ *     \code
+ *      -- Usart FIFO Example xxx --
+ *      -- SAMxxxxx-xx
+ *      -- Compiled: xxx xx xxxx xx:xx:xx --
+ *     \endcode
+ * -# Connect the F3_TXD and F3_RXD pins of board to the serial of PC first;
+ * -# Press the key listed in the menu to perform the corresponding action.
+ * \section References
+ * - fifo/main.c
+ * - usart.h
+ * - usart.c
+ */
+
+/** \file
+ *
+ *  This file contains all the specific code for the Usart FIFO example.
+ *
+ */
+
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include <stdint.h>
 
+#include "board.h"
 #include "chip.h"
+#include "compiler.h"
 
 #include "peripherals/flexcom.h"
 #include "peripherals/usart.h"
@@ -38,11 +100,40 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 
+#include "misc/console.h"
+
+#include <stdio.h>
+#include <string.h>
+
+/*----------------------------------------------------------------------------
+ *      Internal variables
+----------------------------------------------------------------------------*/
 Flexcom* flexcom = FLEXCOM3;
 static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
 
-static const char data [] = "-- Write FIFO test PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING -- \r\n";
+ALIGNED(L1_CACHE_BYTES)
+static const char test_data [] = "-- Write FIFO test PADDING PADDING PADDING \
+PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING -- \r\n";
 
+/** Usart Echo back ON/OFF */
+static volatile uint8_t is_usart_echo_on = 0;
+
+/**
+ * console help dump
+ */
+static void _print_help(void)
+{
+	printf("-- ESC to Enable/Disable ECHO on Usart --\n\r");
+	printf("-- Press 't' to send test data to Usart --\n\r");
+}
+
+/*----------------------------------------------------------------------------
+ *  Interrupt handlers
+ *----------------------------------------------------------------------------*/
+
+/**
+ * USART interrupt handler
+ */
 static void usart_handler(void)
 {
 	char read_buffer[33];
@@ -56,12 +147,17 @@ static void usart_handler(void)
 	}
 	flexcom->usart.US_CR = US_CR_RSTSTA;
 
-	usart_write_stream(&flexcom->usart, read_buffer, read);
+	if(is_usart_echo_on) {
+		usart_write_stream(&flexcom->usart, read_buffer, read);
+	}
 }
 
+/**
+ * Configure USART to work @ 115200 FIFO mode
+ */
 static void _configure_usart(void)
 {
-	pio_configure(usart_pins, 1);
+	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
 	pmc_enable_peripheral(ID_USART3);
 
 	aic_set_source_vector(ID_USART3, usart_handler);
@@ -73,26 +169,72 @@ static void _configure_usart(void)
 	usart_configure(&flexcom->usart, mode, 115200);
 
 	usart_fifo_configure(&flexcom->usart, 16u, 7u, 4u,
-			     US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA);
+				US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA);
 
 	usart_enable_it(&flexcom->usart, US_IER_RXRDY);
 	aic_enable(ID_USART3);
 }
 
+
+/**
+ * Test Usart write
+ */
+static void _send_test_data(void)
+{
+	usart_write_stream(&flexcom->usart, test_data, sizeof(test_data));
+}
+
+/*----------------------------------------------------------------------------
+ *          Main
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Usart FIFO Application entry point.
+ *
+ * Initializes drivers and start the Usart Serial .
+ */
 int main (void)
 {
 	/* Disable watchdog */
 	wdt_disable();
 
-#if defined (ddram)
-	mmu_initialize((uint32_t *) 0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
+	/* Disable all PIO interrupts */
+	pio_reset_all_it();
+
+	board_cfg_console();
+
+	/* Enable DDRAM */
+#ifndef VARIANT_DDRAM
+	board_cfg_ddram();
 #endif
+
+	printf("-- Usart FIFO Example %s --\n\r", SOFTPACK_VERSION);
+	printf("-- %s\n\r", BOARD_NAME);
+	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+
 	_configure_usart();
 
-	usart_write_stream(&flexcom->usart, data, sizeof(data));
+	/* Help informaiton */
+	_print_help();
 
-	while (1);
+	while (1) {
+		if (console_is_rx_ready()) {
+
+			uint8_t key = console_get_char();
+			/* ESC: Usart Echo ON/OFF */
+			if (key == 27) {
+				printf("** USART Echo %s\n\r",
+						is_usart_echo_on ? "OFF" : "ON");
+				is_usart_echo_on = !is_usart_echo_on;
+
+			} else if (key == 't') {
+				/* 't': Test Usart writing  */
+				_send_test_data();
+
+			} else {
+				printf("Alive\n\r");
+				usart_write_stream(&flexcom->usart, (char*)"Alive\n\r", 8);
+			}
+		}
+	}
 }
