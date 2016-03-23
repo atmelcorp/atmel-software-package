@@ -111,6 +111,7 @@
 #include "memories/at24.h"
 #include "peripherals/pio.h"
 #include "peripherals/wdt.h"
+#include "peripherals/xdmad.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -134,7 +135,10 @@
 static const struct _pin at24_pins[] = AT24_PINS;
 
 struct _at24 at24_drv = {
-        .desc = AT24_DESC
+	.desc = AT24_DESC,
+	.sn_addr = AT24_SN_ADDR,
+	.sn_offset = AT24_SN_OFFSET,
+	.eui_offset = AT24_EUI48_OFFSET,
 };
 
 struct _twi_desc at24_twid = {
@@ -238,7 +242,8 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
-	/* Configure console */
+	xdmad_initialize(false);
+    /* Configure console */
 	board_cfg_console();
 
 #ifndef VARIANT_DDRAM
