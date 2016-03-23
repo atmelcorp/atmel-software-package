@@ -41,6 +41,8 @@
 #include "chip.h"
 #include "board.h"
 
+#include "compiler.h"
+
 #include "peripherals/gmacd.h"
 #include "peripherals/pio.h"
 #include "network/phy.h"

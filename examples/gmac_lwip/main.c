@@ -153,7 +153,10 @@ static timers_info timers_table[] = {
 static const struct _pin at24_pins[] = AT24_PINS;
 
 struct _at24 at24_drv = {
-        .desc = AT24_DESC
+	.desc = AT24_DESC,
+	.sn_addr = AT24_SN_ADDR,
+	.sn_offset = AT24_SN_OFFSET,
+	.eui_offset = AT24_EUI48_OFFSET,
 };
 
 struct _twi_desc at24_twid = {
@@ -278,9 +281,6 @@ int main(void)
 #else
 	printf(" - DHCP Enabled\n\r");
 #endif
-
-	/* Initialize system timing */
-	sys_init_timing();
 
 	/* Initialize lwIP modules */
 	lwip_init();
