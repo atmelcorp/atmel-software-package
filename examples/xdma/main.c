@@ -92,6 +92,8 @@
 
 #include "chip.h"
 #include "board.h"
+
+#include "peripherals/l2cc.h"
 #include "peripherals/aic.h"
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
@@ -292,7 +294,7 @@ static void _configure_transfer(void)
 		    XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 		    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 		    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-
+		l2cc_clean_region((uint32_t)xdmad_desc, (uint32_t )xdmad_desc + sizeof(xdmad_desc));
 		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, desc_cntrl,
 				xdmad_desc);
 	}
@@ -320,6 +322,7 @@ static uint8_t _start_dma_transfer(void)
 
 	/* Start transfer */
 	transfer_complete = false;
+	l2cc_clean_region((uint32_t)src_buf, ((uint32_t)src_buf) + 512);
 	xdmad_start_transfer(xdmad_channel);
 
 	/* Wait for completion */
@@ -330,6 +333,7 @@ static uint8_t _start_dma_transfer(void)
 	}
 
 	printf("-I- The Destination Buffer content after transfer\n\r");
+	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + 512);
 	_dump_buffer(dest_buf);
 
 	return 0;
