@@ -27,53 +27,10 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup icm_module Working with ICM
- * The TWI driver provides the interface to True Random Number Generator (ICM) passes the American NIST Special Publication 800-22 and Diehard
-Random Tests Suites.
-The ICM may be used as an entropy source for seeding an NIST approved DRNG (Deterministic RNG) as required by
-FIPS PUB 140-2 and 140-3. use the TWI
- * peripheral.
- *
- * \section Usage
- * <ul>
- * <li> Configures a TWI peripheral to operate in master mode, at the given
- * frequency (in Hz) using TWI_Configure(). </li>
- * <li> Sends a STOP condition on the TWI using twi_stop().</li>
- * <li> Starts a read operation on the TWI bus with the specified slave using
- * twi_start_read(). Data must then be read using twi_read_byte() whenever
- * a byte is available (poll using twi_is_byte_received()).</li>
- * <li> Starts a write operation on the TWI to access the selected slave using
- * twi_start_write(). A byte of data must be provided to start the write;
- * other bytes are written next.</li>
- * <li> Sends a byte of data to one of the TWI slaves on the bus using twi_write_byte().
- * This function must be called once before twi_start_write() with the first byte of data
- * to send, then it ICMll be called repeatedly after that to send the remaining bytes.</li>
- * <li> Check if a byte has been received and can be read on the given TWI
- * peripheral using twi_is_byte_received().<
- * Check if a byte has been sent using twi_byte_sent().</li>
- * <li> Check if the current transmission is complete (the STOP has been sent)
- * using twi_is_transfer_complete().</li>
- * <li> Enables & disable the selected interrupts sources on a TWI peripheral
- * using twi_enable_it() and twi_enable_it().</li>
- * <li> Get current status register of the given TWI peripheral using
- * twi_get_status(). Get current status register of the given TWI peripheral, but
- * masking interrupt sources which are not currently enabled using
- * twi_get_masked_status().</li>
- * </ul>
- * For more accurate information, please look at the TWI section of the
- * Datasheet.
- *
- * Related files :\n
- * \ref twi.c\n
- * \ref twi.h.\n
-*/
-/*@{*/
-/*@}*/
-
 /**
  * \file
  *
- * Implementation of True Random Number Generator (ICM)
+ * Implementation of Integrity Check Monitor (ICM)
  *
  */
 
@@ -84,22 +41,6 @@ FIPS PUB 140-2 and 140-3. use the TWI
 #include "chip.h"
 #include "peripherals/icm.h"
 
-/** \brief Structure for storing parameters for DMA view1 that can be
- * performed by the DMA Master transfer.*/
-typedef struct _LinkedListDescriporView1 {
-	/** Next Descriptor Address number. */
-	uint32_t next_desc;
-	/** Microblock Control Member. */
-	uint32_t ublock_size;
-	/** Source Address Member. */
-	uint32_t src_addr;
-	/** Destination Address Member. */
-	uint32_t dest_addr;
-} LinkedListDescriporView1;
-/*----------------------------------------------------------------------------
- *        Local functions
- *----------------------------------------------------------------------------*/
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -107,8 +48,7 @@ typedef struct _LinkedListDescriporView1 {
 /**
  * \brief Enable ICM, the ICM controller is activated
  */
-void
-ICM_Enable(void)
+void icm_enable(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_ENABLE;
 }
@@ -116,8 +56,7 @@ ICM_Enable(void)
 /**
  * \brief Disable ICM, if a region is active, this region is terminated
  */
-void
-ICM_Disable(void)
+void icm_disable(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_DISABLE;
 }
@@ -125,29 +64,16 @@ ICM_Disable(void)
 /**
  * \brief Resets the ICM controller.
  */
-void
-ICM_SoftReset(void)
+void icm_swrst(void)
 {
 	ICM->ICM_CTRL = ICM_CTRL_SWRST;
-}
-
-/**
- * \brief Recompute Internal hash.
- * \param region When REHASH[region] is set to one, the region digest is re-computed.
- * \note This bit is only available when Region monitoring is disabled.
- */
-void
-ICM_ReComputeHash(uint8_t region)
-{
-	ICM->ICM_CTRL = ICM_CTRL_REHASH(region);
 }
 
 /**
  * \brief Enable region monitoring for given region
  * \param region When bit RMEN[region] is set to one, the monitoring of Region is activated.
  */
-void
-ICM_EnableMonitor(uint8_t region)
+void icm_enable_monitor(uint8_t region)
 {
 	ICM->ICM_CTRL = ICM_CTRL_RMEN(region);
 }
@@ -157,17 +83,29 @@ ICM_EnableMonitor(uint8_t region)
  * \param region When bit RMDIS[region] is set to one, the monitoring of Region is disabled.
  */
 void
-ICM_DisableMonitor(uint8_t region)
+icm_disable_monitor(uint8_t region)
 {
 	ICM->ICM_CTRL = ICM_CTRL_RMDIS(region);
+}
+
+/**
+ * \brief Recompute Internal hash.
+ * \param region When REHASH[region] is set to one, the region digest is re-computed.
+ * \note This bit is only available when Region monitoring is disabled.
+ */
+void
+icm_re_compute_hash(uint8_t region)
+{
+	/* This bit is only available when region monitoring is disabled. */
+	if ((ICM->ICM_SR & ICM_SR_RMDIS(region)) == ICM_SR_RMDIS(region))
+		ICM->ICM_CTRL = ICM_CTRL_REHASH(region);
 }
 
 /**
  * \brief Configures an ICM peripheral with the specified parameters.
  *  \param mode  Desired value for the ICM mode register (see the datasheet).
  */
-void
-ICM_Configure(uint32_t mode)
+void icm_configure(uint32_t mode)
 {
 	ICM->ICM_CFG = mode;
 }
@@ -177,7 +115,7 @@ ICM_Configure(uint32_t mode)
  * \param sources  Bitwise OR of selected interrupt sources.
  */
 void
-ICM_EnableIt(uint32_t sources)
+icm_enable_it(uint32_t sources)
 {
 	ICM->ICM_IER = sources;
 }
@@ -187,7 +125,7 @@ ICM_EnableIt(uint32_t sources)
  * \param sources  Bitwise OR of selected interrupt sources.
  */
 void
-ICM_DisableIt(uint32_t sources)
+icm_disable_it(uint32_t sources)
 {
 	ICM->ICM_IDR = sources;
 }
@@ -196,18 +134,26 @@ ICM_DisableIt(uint32_t sources)
  * \brief Get the current interrupt status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t
-ICM_GetIntStatus(void)
+uint32_t icm_get_int_status(void)
 {
 	return ICM->ICM_ISR;
 }
 
 /**
+ * \brief Get the current interrupt mask register of the given ICM peripheral.
+ * \return  ICM interrupt mask register.
+ */
+uint32_t icm_get_int_mask(void)
+{
+	return ICM->ICM_IMR;
+}
+
+
+/**
  * \brief Get the current status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t
-ICM_GetStatus(void)
+uint32_t icm_get_status(void)
 {
 	return ICM->ICM_SR;
 }
@@ -216,8 +162,7 @@ ICM_GetStatus(void)
  * \brief Get the undefined access status register of the given ICM peripheral.
  * \return  ICM status register.
  */
-uint32_t
-ICM_GetUStatus(void)
+uint32_t icm_get_access_status(void)
 {
 	return ICM->ICM_UASR;
 }
@@ -227,8 +172,7 @@ ICM_GetUStatus(void)
  * \param addr start address
  * \note The start address is a multiple of the total size of the data structure (64 bytes).
  */
-void
-ICM_SetDescStartAddress(uint32_t addr)
+void icm_set_desc_address(uint32_t addr)
 {
 	ICM->ICM_DSCR = addr;
 }
@@ -238,18 +182,17 @@ ICM_SetDescStartAddress(uint32_t addr)
  * \param addr start address
  * \note This field points at the Hash memory location. The address must be a multiple of 128 bytes.
  */
-void
-ICM_SetHashStartAddress(uint32_t addr)
+void icm_set_hash_address(uint32_t addr)
 {
 	ICM->ICM_HASH = addr;
 }
 
 /**
  * \brief Set ICM user initial Hash value register.
+ * \param field
  * \param val Initial Hash Value
  */
-void
-ICM_SetInitHashValue(uint32_t val)
+void icm_set_init_hash(uint8_t field, uint32_t val)
 {
-	ICM->ICM_UIHVAL[0] = ICM_UIHVAL_VAL(val);
+	ICM->ICM_UIHVAL[field] = ICM_UIHVAL_VAL(val);
 }

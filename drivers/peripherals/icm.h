@@ -63,7 +63,7 @@
 /*------------------------------------------------------------------------------*/
 
 /** \brief Structure ICM region descriptor area. */
-typedef struct _LinkedListDescriporIcmRegion {
+typedef struct _icm_region_linked_list_descripor {
 	/** the first byte address of the Region. */
 	uint32_t icm_raddr;
 	/** Configuration Structure Member. */
@@ -72,24 +72,26 @@ typedef struct _LinkedListDescriporIcmRegion {
 	uint32_t icm_rctrl;
 	/** Next Address Structure Member. */
 	uint32_t icm_rnext;
-} LinkedListDescriporIcmRegion;
+} icm_region_linked_list_descripor;
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
-void ICM_Enable(void);
-void ICM_Disable(void);
-void ICM_SoftReset(void);
-void ICM_ReComputeHash(uint8_t region);
-void ICM_EnableMonitor(uint8_t region);
-void ICM_DisableMonitor(uint8_t region);
-void ICM_Configure(uint32_t mode);
-void ICM_EnableIt(uint32_t sources);
-void ICM_DisableIt(uint32_t sources);
-extern uint32_t ICM_GetIntStatus(void);
-extern uint32_t ICM_GetStatus(void);
-extern uint32_t ICM_GetUStatus(void);
-void ICM_SetDescStartAddress(uint32_t addr);
-void ICM_SetHashStartAddress(uint32_t addr);
-void ICM_SetInitHashValue(uint32_t val);
+extern void icm_enable(void);
+extern void icm_disable(void);
+extern void icm_swrst(void);
+extern void icm_enable_monitor(uint8_t region);
+extern void icm_disable_monitor(uint8_t region);
+extern void icm_re_compute_hash(uint8_t region);
+extern void icm_configure(uint32_t mode);
+extern void icm_enable_it(uint32_t sources);
+extern void icm_disable_it(uint32_t sources);
+extern uint32_t icm_get_int_status(void);
+extern uint32_t icm_get_int_mask(void);
+extern uint32_t icm_get_status(void);
+extern uint32_t icm_get_access_status(void);
+extern void icm_set_desc_address(uint32_t addr);
+extern void icm_set_hash_address(uint32_t addr);
+extern void icm_set_init_hash(uint8_t field, uint32_t val);
+
 #endif				/* #ifndef _ICM_ */
