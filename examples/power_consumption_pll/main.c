@@ -27,6 +27,80 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ *  \page power_consumption_pll Power Consumption PLL Example
+ *
+ *  \section Purpose
+ *  The demonstration program offers methods to change the settings of Audio PLL,
+ *  UPLL and PLLA.
+ *  Power consumptions could be measured by ammeters connected between the
+ *  jumpers of VDDCORE or VDDBU.
+ *
+ *  \section Requirements
+ *  This package can be used with SAMA5D2-XULT.
+ *
+ *  \section Note
+ *  The default peripheral clock is 12MHz, and there might be some unreadable
+ *  code on the console when console's baudrate is 115200 bps, the reason is:
+ *  the value of UART_BRGR will be 12000000/115200/16 = 6, and the actual
+ *  baudrate of console would be 12000000/6/16 = 125000, that has a gap of 8.5%
+ *  to the desired one, so the unreadable code occurs)
+ *  User can change the clock by replacing clock_test_setting[1] to
+ *  clock_test_setting[0] in the main routine to avoid unreadable code.
+ *
+ *  \section Usage
+ *  -# Build the program and download it inside the evaluation board. Please
+ *     refer to the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *     SAM-BA User Guide</a>, the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *     GNU-Based Software Development</a>
+ *     application note or to the
+ *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *     IAR EWARM User Guide</a>,
+ *     depending on your chosen solution.
+ *  -# On the computer, open and configure a terminal application
+ *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *    - 115200 bauds
+ *    - 8 bits of data
+ *    - No parity
+ *    - 1 stop bit
+ *    - No flow control
+ *  -# Start the application.
+ *  -# In the terminal window, the following text should appear (values depend on
+ *     the board and chip used):
+ *     \code
+ *      -- PLL consumption measurement xxx --
+ *      -- SAMxxxxx-xx
+ *      -- Compiled: xxx xx xxxx xx:xx:xx --
+ *      Select main clock as MCK
+ *      Select an option :
+ *      ############################
+ *      1 -> Disable AUDIOPLL
+ *      2 -> AUDIOPLL 660 MHz
+ *      3 -> AUDIOPLL 696 MHz
+ *      4 -> AUDIOPLL 720 MHz
+ *      5 -> AUDIOPLL 744 MHz
+ *      ############################
+ *      6 -> Disable UPLL
+ *      7 -> Enable  UPLL
+ *      ############################
+ *      8 -> Disable PLLA
+ *      9 -> PLLA =   408 MHz
+ *      0 -> PLLA =   600 MHz
+ *      a -> PLLA =   792 MHz
+ *      b -> PLLA =   996 MHz
+ *      c -> PLLA =  1200 MHz
+ *      ############################
+ *      =>
+ *     \endcode
+ *
+ *  \section References
+ *  - power_consumption_pll/main.c
+ *  - pio.h
+ *  - pio_it.h
+ */
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------
