@@ -27,11 +27,68 @@
  * ----------------------------------------------------------------------------
  */
 
-/*
- * shows how to switch from a clock to another (PLLA,
- * PLLUTMI, SLCK, MCK) or change divider. Shows how
+/**
+ *  \page pmc_clock_switching PMC Clock Switching Example
+ *
+ *  \section Purpose
+ * This examples shows how to switch from a clock to another (PLLA,
+ * PLLUTMI, SLCK, MCK) or change divider, also shows how
  * to change SLCK (32K OSC or internal RC)
-*/
+ *
+ *  \section Requirements
+ *  This package can be used with SAMA5D2-XULT.
+ *
+ *  \section Note
+ *  Using some frequency of peripheral clock would cause unreadable code on the
+ *  console. (e.g. when console's target baudrate is 115200 bps, peripheral clock
+ *  is 12MHz: the value of UART_BRGR will be 12000000/115200/16 = 6, and the
+ *  actual baudrate of console would be 12000000/6/16 = 125000, that has a gap
+ *  of 8.5% to the desired one, so the unreadable code occurs)
+ *
+ *  \section Usage
+ *  -# Build the program and download it inside the evaluation board. Please
+ *     refer to the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *     SAM-BA User Guide</a>, the
+ *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *     GNU-Based Software Development</a>
+ *     application note or to the
+ *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *     IAR EWARM User Guide</a>,
+ *     depending on your chosen solution.
+ *  -# On the computer, open and configure a terminal application
+ *     (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *    - 115200 bauds
+ *    - 8 bits of data
+ *    - No parity
+ *    - 1 stop bit
+ *    - No flow control
+ *  -# Start the application.
+ *  -# In the terminal window, the following text should appear (values depend on
+ *     the board and chip used):
+ *     \code
+ *      -- Clock switching Example xxx --
+ *      -- SAMxxxxx-xx
+ *      -- Compiled: xxx xx xxxx xx:xx:xx --
+ *      MCK = 166 Mhz
+ *      PLLA = 498 Mhz
+ *      Processor clock = 498 Mhz
+ *      Select an option :
+ *      ###############################
+ *      1 -> Switch to PLLA
+ *      2 -> Switch to UPLL
+ *      3 -> Switch to main clock
+ *      4 -> Switch to slow clock
+ *      -------------------------------
+ *      =>
+ *     \endcode
+ *
+ *  \section References
+ *  - pmc_clock_switching/main.c
+ *  - pio.h
+ *  - pio_it.h
+
+ */
 
 /*----------------------------------------------------------------------------
  *        Headers
