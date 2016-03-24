@@ -45,15 +45,27 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-void AESB_Start(void);
-void AESB_SoftReset(void);
-void AESB_Configure(uint32_t mode);
-void AESB_EnableIt(uint32_t sources);
-void AESB_DisableIt(uint32_t sources);
-extern uint32_t AESB_GetStatus(void);
-void AESB_WriteKey(const uint32_t * pKey);
-void AESB_SetInput(uint32_t * data);
-void AESB_GetOutput(uint32_t * data);
-void AESB_SetVector(const uint32_t * pVector);
+
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include "chip.h"
+#include "peripherals/aesb.h"
+
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
+
+extern void aesb_start(void);
+extern void aesb_swrst(void);
+extern void aesb_configure(uint32_t mode);
+extern void aesb_enable_it(uint32_t sources);
+extern void aesb_disable_it(uint32_t sources);
+extern uint32_t aesb_get_status(void);
+extern void aesb_write_key(const uint32_t * pKey);
+extern void aesb_set_input(uint32_t * data);
+extern void aesb_get_output(uint32_t * data);
+extern void aesb_set_vector(const uint32_t * vector);
 
 #endif				/* #ifndef _AESB_ */
