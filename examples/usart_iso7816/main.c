@@ -111,6 +111,9 @@
 #include "peripherals/pit.h"
 #include "peripherals/usart_iso7816_4.h"
 
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
+
 #include "misc/led.h"
 #include "misc/console.h"
 
@@ -421,6 +424,16 @@ extern int main( void )
 	/* Configure PIT. Must be always ON, used for delay */
 	printf("Configure PIT \n\r");
 	timer_configure(BLINK_PERIOD);
+
+	/* Enable DDRAM */
+#ifndef VARIANT_DDRAM
+	mmu_initialize();
+	cp15_icache_invalidate();
+	cp15_dcache_invalidate();
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+#endif
 
     printf( "-- USART ISO7816 Example %s --\n\r", SOFTPACK_VERSION ) ;
     printf( "-- %s\n\r", BOARD_NAME ) ;
