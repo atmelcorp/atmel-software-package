@@ -100,7 +100,7 @@ static uint32_t iso7816_get_char(Usart* usart, uint8_t * pchar_to_receive)
 			return (0);
 		}
 	}
-	trace_debug("T: %u\n\r", (unsigned)timeout);
+	/* trace_debug("T: %u\n\r", (unsigned)timeout); */
 
 	/* At least one complete character has been received and US_RHR has not yet been read. */
 	/* Get a char */
@@ -236,7 +236,7 @@ uint16_t iso7816_xfr_block_TPDU_T0(const struct _iso7816_desc* iso7816, const ui
 		}
 	}
 
-	trace_debug("CASE=0x%X NeNc=0x%X\n\r", cmdCase, NeNc);
+	/* trace_debug("CASE=0x%X NeNc=0x%X\n\r", cmdCase, NeNc); */
 
 	/* Handle Procedure Bytes */
 	do {
