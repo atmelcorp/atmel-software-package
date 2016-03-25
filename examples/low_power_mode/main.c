@@ -83,10 +83,12 @@
  *      -- 3 -> Enter Ultra Low Power mode 1
  *      -- 4 -> Enter Idle mode
  *      -- A -> Init DDR
- *      -- B -> write data in DDR
- *      -- C -> check data in DDR
- *      -- D -> set DDR self-refresh and isolate Pads
+ *      -- B -> Write data in DDR
+ *      -- C -> Check data in DDR
+ *      -- D -> Set DDR self-refresh mode and isolate Pads
+ *      -- E -> Reset DDR to normal mode and reconnect Pads
  *     \endcode
+ *  -# When setting DDR to self-refresh mode
  *
  *  \section References
  *  - low_power_mode/main.c
@@ -118,6 +120,7 @@
 #include "peripherals/shdwc.h"
 #include "peripherals/sfrbu.h"
 #include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
 
 #include "misc/led.h"
 #include "power/act8945a.h"
@@ -255,9 +258,10 @@ char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
 	" 3 -> Enter Ultra Low Power mode 1\n\r",
 	" 4 -> Enter Idle mode\n\r",
 	" A -> Init DDR\n\r",
-	" B -> write data in DDR\n\r",
-	" C -> check data in DDR\n\r",
-	" D -> set DDR self-refresh and isolate Pads\n\r"};
+	" B -> Write data in DDR\n\r",
+	" C -> Check data in DDR\n\r",
+	" D -> Set DDR self-refresh mode and isolate Pads\n\r"
+	" E -> Reset DDR to normal mode and reconnect Pads\n\r"};
 /* "====================MAXLENGTH==================== */
 
 /*----------------------------------------------------------------------------
@@ -679,6 +683,7 @@ static void menu_idle(void)
 
 static void menu_init_ddr(void)
 {
+#ifndef VARIANT_DDRAM
 	printf("\n\r\n\r");
 	printf("  =========== Init DDR ===========\n\r");
 
@@ -686,6 +691,10 @@ static void menu_init_ddr(void)
 	board_cfg_ddram();
 	/* During ddr init, PIT inturrupt is enabled. Disable it here*/
 	aic_disable(ID_PIT);
+#else
+	printf("\n\r\n\r");
+	printf("DDRAM already initialized\n\r");
+#endif
 }
 
 static void menu_write_ddr(void)
@@ -724,6 +733,14 @@ static void menu_self_refresh(void)
 
 		sfrbu_enable_ddr_backup();
 	}
+}
+
+static void menu_out_of_self_refresh(void)
+{
+	printf("\n\r\n\r");
+	printf("=========== Out of DDR Self refresh state  ===========\n\r");
+
+	_check_ddr_ready();
 }
 
 /*----------------------------------------------------------------------------
@@ -843,6 +860,13 @@ int main(void)
 		case 'D':
 			printf("d");
 			menu_self_refresh();
+			MenuChoice = 0;
+			_print_menu();
+			break;
+		case 'e':
+		case 'E':
+			printf("e");
+			menu_out_of_self_refresh();
 			MenuChoice = 0;
 			_print_menu();
 			break;
