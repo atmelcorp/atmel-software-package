@@ -99,6 +99,9 @@
 #include "peripherals/xdmad.h"
 #include "misc/console.h"
 
+#include "cortex-a/cp15.h"
+#include "cortex-a/mmu.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -135,10 +138,10 @@ ALIGNED(8) static struct _xdmad_desc_view1 xdmad_desc[MAX_LL_SIZE];
 static struct _xdmad_channel *xdmad_channel;
 
 /** Source buffer */
-ALIGNED(32) static uint8_t src_buf[512];
+ALIGNED(L1_CACHE_BYTES) static uint8_t src_buf[BUFFER_LEN];
 
 /** Destination buffer */
-ALIGNED(32) static uint8_t dest_buf[512];
+ALIGNED(L1_CACHE_BYTES) static uint8_t dest_buf[BUFFER_LEN];
 
 /* Current Programming DMA mode for Multiple Buffer Transfers */
 static uint8_t dma_mode = 0;
@@ -312,6 +315,8 @@ static uint8_t _start_dma_transfer(void)
 	uint32_t i;
 
 	/* Prepare source data to be transfered. */
+	l2cc_invalidate_region((uint32_t)src_buf, ((uint32_t)src_buf) + BUFFER_LEN);
+	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
 	for (i = 0; i < BUFFER_LEN; i++) {
 		src_buf[i] = i;
 		dest_buf[i] = 0xFF;
@@ -322,7 +327,8 @@ static uint8_t _start_dma_transfer(void)
 
 	/* Start transfer */
 	transfer_complete = false;
-	l2cc_clean_region((uint32_t)src_buf, ((uint32_t)src_buf) + 512);
+	l2cc_clean_region((uint32_t)src_buf, ((uint32_t)src_buf) + BUFFER_LEN);
+	l2cc_clean_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
 	xdmad_start_transfer(xdmad_channel);
 
 	/* Wait for completion */
@@ -333,7 +339,7 @@ static uint8_t _start_dma_transfer(void)
 	}
 
 	printf("-I- The Destination Buffer content after transfer\n\r");
-	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + 512);
+	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
 	_dump_buffer(dest_buf);
 
 	return 0;
@@ -358,6 +364,15 @@ extern int main(void)
 	/* Configure console */
 	board_cfg_console();
 
+#ifndef VARIANT_DDRAM
+	mmu_initialize();
+	cp15_icache_invalidate();
+	cp15_dcache_invalidate();
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
+#endif
+	
 	/* Output example information */
 	printf("-- XDMA Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME "\n\r");
