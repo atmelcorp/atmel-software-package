@@ -80,6 +80,8 @@ qspi_flash: Read/Write/Delete commands to a QSPI serial flash
 
 rtc: RTC Example
 
+sdmmc_sdcard: Example of Read/Write access from/to SD Cards, MMC Cards, e.MMC devices
+
 spi_serialflash: Read/Write/Delete commands to an SPI serial flash
 
 spi_slave: Set up the SAMA5D2 as a SPI slave
