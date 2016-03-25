@@ -65,6 +65,11 @@ static uint8_t  adesc_index = 0;
 /*----------------------------------------------------------------------------
  *        Internal functions
  *----------------------------------------------------------------------------*/
+static uint8_t _check_nack(Twi* addr);
+static uint8_t _check_rx_time_out(Twi* addr);
+static uint8_t _check_tx_time_out(Twi* addr);
+static void _twid_handler(void);
+
 
 static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 {
@@ -179,7 +184,7 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 /*
  *
  */
-uint8_t _check_nack(Twi* addr)
+static uint8_t _check_nack(Twi* addr)
 {
 	if(twi_get_status(addr) & TWI_SR_NACK) {
 		trace_error("twid: command NACK\r\n");
@@ -191,7 +196,7 @@ uint8_t _check_nack(Twi* addr)
 /*
  *
  */
-uint8_t _check_rx_time_out(Twi* addr)
+static uint8_t _check_rx_time_out(Twi* addr)
 {
 	uint8_t status = TWID_SUCCESS;
 	struct _timeout timeout;
@@ -210,7 +215,7 @@ uint8_t _check_rx_time_out(Twi* addr)
 /*
  *
  */
-uint8_t _check_tx_time_out(Twi* addr)
+static uint8_t _check_tx_time_out(Twi* addr)
 {
 	uint8_t status = TWID_SUCCESS;
 	struct _timeout timeout;
@@ -229,7 +234,7 @@ uint8_t _check_tx_time_out(Twi* addr)
 /*
  *
  */
-void _twid_handler(void)
+static void _twid_handler(void)
 {
 	uint8_t i;
 	uint32_t status = 0;
