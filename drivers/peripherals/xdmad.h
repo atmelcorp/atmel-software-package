@@ -51,6 +51,11 @@
 
 /* XDMA_MBR_UBC */
 
+#define XDMA_UBC_UBLEN_Pos 0
+#define    XDMA_UBC_UBLEN_Msk (0xffffffu << XDMA_UBC_UBLEN_Pos)
+#define    XDMA_UBC_UBLEN(value) ((XDMA_UBC_UBLEN_Msk \
+               & ((value) << XDMA_UBC_UBLEN_Pos)))
+
 #define XDMA_UBC_NDE (0x1u << 24)
 #define   XDMA_UBC_NDE_FETCH_DIS (0x0u << 24)
 #define   XDMA_UBC_NDE_FETCH_EN  (0x1u << 24)

@@ -325,6 +325,7 @@ uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
 		return XDMAD_BUSY;
 
 	Xdmac *xdmac = channel->xdmac;
+	const uint32_t first_view = desc_cntrl & XDMAC_CNDC_NDVIEW_Msk;
 
 	if (cfg->cfg.bitfield.dsync == XDMAC_CC_DSYNC_PER2MEM) {
 		cfg->cfg.bitfield.perid = channel->src_rxif;
@@ -338,29 +339,38 @@ uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
 
 	if ((desc_cntrl & XDMAC_CNDC_NDE) == XDMAC_CNDC_NDE_DSCR_FETCH_EN) {
 		/* Linked List is enabled */
-		if ((desc_cntrl & XDMAC_CNDC_NDVIEW_Msk)
-		    == XDMAC_CNDC_NDVIEW_NDV0) {
+		if (first_view <= XDMAC_CNDC_NDVIEW_NDV1)
 			xdmac_set_channel_config(xdmac, channel->id,
 						 cfg->cfg.uint32_value);
+		if (first_view == XDMAC_CNDC_NDVIEW_NDV0) {
 			xdmac_set_src_addr(xdmac, channel->id, cfg->src_addr);
 			xdmac_set_dest_addr(xdmac, channel->id, cfg->dest_addr);
 		}
-		else if ((desc_cntrl & XDMAC_CNDC_NDVIEW_Msk)
-			 == XDMAC_CNDC_NDVIEW_NDV1) {
-			xdmac_set_channel_config(xdmac, channel->id,
-						 cfg->cfg.uint32_value);
+		if (first_view <= XDMAC_CNDC_NDVIEW_NDV2) {
+			xdmac_set_block_control(xdmac, channel->id,
+						cfg->block_size > 1
+						? cfg->block_size - 1 : 0);
+			xdmac_set_data_stride_mem_pattern(xdmac, channel->id,
+							  cfg->data_stride);
+			xdmac_set_src_microblock_stride(xdmac, channel->id,
+							cfg->src_ublock_stride);
+			xdmac_set_dest_microblock_stride(xdmac, channel->id,
+							 cfg->dest_ublock_stride);
 		}
 		xdmac_set_descriptor_addr(xdmac, channel->id, desc_addr, 0);
 		xdmac_set_descriptor_control(xdmac, channel->id, desc_cntrl);
-		xdmac_disable_channel_it(xdmac, channel->id, -1);
+		xdmac_disable_channel_it(xdmac, channel->id,
+					 XDMAC_CID_BID | XDMAC_CID_DID |
+					 XDMAC_CID_FID | XDMAC_CID_RBEID |
+					 XDMAC_CID_WBEID | XDMAC_CID_ROID);
 		xdmac_enable_channel_it(xdmac, channel->id, XDMAC_CIE_LIE);
 	} else {
 		/* Linked List is disabled. */
 		xdmac_set_src_addr(xdmac, channel->id, cfg->src_addr);
 		xdmac_set_dest_addr(xdmac, channel->id, cfg->dest_addr);
 		xdmac_set_microblock_control(xdmac, channel->id, cfg->ublock_size);
-		xdmac_set_block_control(xdmac, channel->id,
-					cfg->block_size > 1 ? cfg->block_size : 0);
+		xdmac_set_block_control(xdmac, channel->id, cfg->block_size > 1
+					? cfg->block_size - 1 : 0);
 		xdmac_set_data_stride_mem_pattern(xdmac, channel->id,
 						  cfg->data_stride);
 		xdmac_set_src_microblock_stride(xdmac, channel->id,
@@ -370,6 +380,7 @@ uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
 		xdmac_set_channel_config(xdmac, channel->id, cfg->cfg.uint32_value);
 		xdmac_set_descriptor_addr(xdmac, channel->id, 0, 0);
 		xdmac_set_descriptor_control(xdmac, channel->id, 0);
+		xdmac_disable_channel_it(xdmac, channel->id, XDMAC_CID_LID);
 		xdmac_enable_channel_it(xdmac, channel->id,
 					XDMAC_CIE_BIE | XDMAC_CIE_DIE |
 					XDMAC_CIE_FIE | XDMAC_CIE_RBIE |
