@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Class D example
+AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 
 BINNAME = classd
 
-VARIANT = ddram
+VARIANT ?= ddram
 
 obj-y += examples/classd/main.o
 

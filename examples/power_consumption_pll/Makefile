@@ -27,8 +27,11 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the power_consumption_pll example
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
+
+VARIANT ?= sram
 
 BINNAME = power_consumption_pll
 

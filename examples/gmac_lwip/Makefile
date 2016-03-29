@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the GMAC LWIP example
+AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 
 BINNAME = gmac_lwip
 
-VARIANT = ddram
+VARIANT ?= ddram
 
 CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_IPV4 = y

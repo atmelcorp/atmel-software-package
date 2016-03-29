@@ -27,10 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the DDRAM example
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
 BINNAME = ddram
+
+VARIANT ?= sram
 
 obj-y += examples/ddram/main.o
 

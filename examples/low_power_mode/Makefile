@@ -27,10 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the low_power_mode example
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
 BINNAME = low_power_mode
+
+VARIANT ?= sram
 
 obj-y += examples/low_power_mode/main.o
 

@@ -27,10 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the secumod example
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
 BINNAME = secumod
+
+VARIANT ?= "sram"
 
 obj-y += examples/secumod/main.o
 

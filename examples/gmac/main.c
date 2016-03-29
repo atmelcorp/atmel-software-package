@@ -154,7 +154,10 @@
 static const struct _pin at24_pins[] = AT24_PINS;
 
 struct _at24 at24_drv = {
-        .desc = AT24_DESC
+	.desc = AT24_DESC,
+	.sn_addr = AT24_SN_ADDR,
+	.sn_offset = AT24_SN_OFFSET,
+	.eui_offset = AT24_EUI48_OFFSET,
 };
 
 struct _twi_desc at24_twid = {
@@ -184,11 +187,11 @@ ALIGNED(8) SECTION(".region_ddr_nocache")
 static struct _gmac_desc _rx_desc[RX_BUFFERS];
 
 /** TX Buffers (must be aligned on a cache line) */
-ALIGNED(32) SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
 static uint8_t _tx_buffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
 
 /** RX Buffers (must be aligned on a cache line) */
-ALIGNED(32) SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
 static uint8_t _rx_buffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
 
 /** Buffer for Ethernet packets */

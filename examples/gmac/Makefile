@@ -27,12 +27,9 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the GMAC example
-
 TOP := ../..
 
 BINNAME = gmac
-
-VARIANT = sram
 
 obj-y += examples/gmac/main.o
 obj-y += examples/gmac/mini_ip.o

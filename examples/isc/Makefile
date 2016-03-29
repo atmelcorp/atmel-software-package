@@ -27,12 +27,14 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the ISC example
+AVAILABLE_BOARDS = sama5d2-xplained sama5d2-xplained-proto
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
 BINNAME = isc
 
-VARIANT = sram
+VARIANT ?= sram
 
 obj-y += examples/isc/main.o
 

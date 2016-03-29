@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the hsmc_nandflash_slc example
+AVAILABLE_BOARDS = sama5d2-ptc-engi
 
 TOP := ../..
 

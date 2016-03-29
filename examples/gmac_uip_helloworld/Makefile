@@ -32,8 +32,6 @@ TOP := ../..
 
 BINNAME = gmac_uip_helloworld
 
-VARIANT = sram
-
 CONFIG_LIB_UIP = y
 CONFIG_LIB_UIP_HELLOWORLD = y
 

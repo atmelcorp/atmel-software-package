@@ -27,12 +27,9 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the GMAC UIP Telnetd example
-
 TOP := ../..
 
 BINNAME = gmac_uip_telnetd
-
-VARIANT = sram
 
 CONFIG_LIB_UIP = y
 CONFIG_LIB_UIP_TELNETD = y

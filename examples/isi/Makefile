@@ -27,12 +27,14 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the ISI example
+AVAILABLE_BOARDS = sama5d4-ek
+AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 
 BINNAME = isi
 
-VARIANT = ddram
+VARIANT ?= ddram
 
 obj-y += examples/isi/main.o
 
