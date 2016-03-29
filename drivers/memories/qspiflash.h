@@ -53,6 +53,7 @@ struct _qspiflash {
 	uint32_t ifr_width_program;
 	uint32_t ifr_width_erase;
 	uint8_t opcode_read;
+	uint8_t opcode_page_program;
 	bool mode_addr4;
 	uint8_t normal_read_mode;
 	uint8_t continuous_read_mode;

@@ -81,9 +81,19 @@
 /* QSPI Commands (Macronix) */
 #define CMD_MACRONIX_READ_CONFIG 0x15 /* Read Configuration Register */
 
+/* QSPI Commands (Spansion) */
+#define CMD_SPANSION_QPP 0x32 /* Quad Page Programming */
+
 /** QSPI Status Register bits */
 #define SR_WIP              (1 << 0) /* Write In Progress */
 #define SR_MACRONIX_QUAD_EN (1 << 6) /* Quad-IO Enable */
+#define SR_SPANSION_BP0     (1 << 2) /* Block Protect */
+#define SR_SPANSION_BP1     (1 << 3) /* Block Protect */
+#define SR_SPANSION_BP2     (1 << 4) /* Block Protect */
+
+/* QSPI Configuration Register bits */
+#define CR_SPANSION_QUAD (1 << 1) /* Puts the device into Quad I/O mode */
+#define CR_SPANSION_BPNV (1 << 3) /* Configures BP2-0 bits in the Status Register */
 
 /* Micron Enhanced Volatile Configuration Register  */
 #define EVCR_DUAL_ENABLE (1 << 6)
@@ -109,6 +119,7 @@ struct _flash_init {
 
 static bool _qspiflash_init_micron(struct _qspiflash *flash);
 static bool _qspiflash_init_macronix(struct _qspiflash *flash);
+static bool _qspiflash_init_spansion(struct _qspiflash *flash);
 
 /*----------------------------------------------------------------------------
  *        Local Constants
@@ -128,6 +139,7 @@ static const struct _read_id_config configs[] = {
 static const struct _flash_init flash_inits[] = {
 	{ SPINOR_MANUF_MICRON, _qspiflash_init_micron },
 	{ SPINOR_MANUF_MACRONIX, _qspiflash_init_macronix },
+	{ SPINOR_MANUF_SPANSION, _qspiflash_init_spansion },
 };
 
 /*----------------------------------------------------------------------------
@@ -304,7 +316,6 @@ static bool _qspiflash_init_micron(struct _qspiflash *flash)
 	return true;
 }
 
-
 /*----------------------------------------------------------------------------
  *        Local Functions (Macronix support)
  *----------------------------------------------------------------------------*/
@@ -477,6 +488,114 @@ static bool _qspiflash_init_macronix(struct _qspiflash *flash)
 }
 
 /*----------------------------------------------------------------------------
+ *        Local Functions (Spansion support)
+ *----------------------------------------------------------------------------*/
+
+static bool _spansion_set_protocol(struct _qspiflash *flash,
+		uint8_t mask, uint8_t val)
+{
+	bool need_update = false;
+	uint8_t wrr_val[2];
+
+	/* Read the Status Register. */
+	if (!qspiflash_read_status(flash, &wrr_val[0]))
+		return false;
+
+	/* Read the Configuration Register. */
+	if (!_qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1))
+		return false;
+
+	/* Check whether block protect is enabled and disable it */
+	if (wrr_val[0] & (SR_SPANSION_BP0 | SR_SPANSION_BP1 | SR_SPANSION_BP2)) {
+		trace_debug("QSPI Flash: Chip protected from program/erase, will un-protect\r\n");
+		wrr_val[0] = 0;
+		wrr_val[1] |= CR_SPANSION_BPNV;
+		need_update = true;
+	}
+
+	/* Check whether we need to update the protocol bits. */
+	if ((wrr_val[1] & mask) != val) {
+		trace_debug("QSPI Flash: Spansion Quad mode disabled, will enable it\r\n");
+		/* Set Quad protocol bit. */
+		wrr_val[1] = (wrr_val[1] & ~mask) | val;
+		need_update = true;
+	} else {
+		trace_debug("QSPI Flash: Spansion Quad mode already enabled\r\n");
+	}
+
+	if (!need_update)
+		return true;
+
+	if (!_qspiflash_write_enable(flash))
+		return false;
+
+	/* Write the Status and Config Registers. */
+	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS,
+			wrr_val, sizeof(wrr_val)))
+		return false;
+
+	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
+		return false;
+
+	/* Read the Configuration Register and check it. */
+	if (!_qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1))
+		return false;
+
+	if ((wrr_val[1] & mask) != val)
+		return false;
+
+	return true;
+}
+
+static bool _spansion_set_dummy_cycles(struct _qspiflash *flash,
+		uint8_t num_dummy_cycles)
+{
+	/* Save the number of mode/dummy cycles to use with Fast Read commands. */
+	if (num_dummy_cycles) {
+		flash->num_mode_cycles = 2;
+		flash->num_dummy_cycles = num_dummy_cycles - 2;
+	} else {
+		flash->num_mode_cycles = 0;
+		flash->num_dummy_cycles = 0;
+	}
+
+	/* The upper nibble (bits 7-4) of the Mode bits control the length of the
+	   next Quad I/O High Performance instruction through the inclusion or
+	   exclusion of the first byte instruction code. The lower nibble (bits 3-0)
+	   of the Mode bits are DON'T CARE ("x"). If the Mode bits equal Axh, then
+	   the device remains in Quad I/O High Performance Read Mode and the next
+	   address can be entered (after CS# is raised high and then asserted low)
+	   without requiring the EBh instruction opcode. */
+	flash->normal_read_mode = 0x00;
+	flash->continuous_read_mode = 0xA0;
+
+	return true;
+}
+
+static bool _qspiflash_init_spansion(struct _qspiflash *flash)
+{
+	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+		/* Puts the device into Quad I/O mode */
+		if (!_spansion_set_protocol(flash, CR_SPANSION_QUAD, CR_SPANSION_QUAD))
+			return false;
+
+		flash->opcode_read = CMD_FAST_READ_1_4_4;
+		flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
+
+		if (flash->desc.flags & SPINOR_FLAG_QPP) {
+			flash->opcode_page_program = CMD_SPANSION_QPP;
+			flash->ifr_width_program = QSPI_IFR_WIDTH_QUAD_OUTPUT;
+		}
+	}
+
+	if (!_spansion_set_dummy_cycles(flash, 6))
+		return false;
+
+	return true;
+}
+
+
+/*----------------------------------------------------------------------------
  *        Public Functions
  *----------------------------------------------------------------------------*/
 
@@ -532,6 +651,7 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 
 	/* Set default settings */
 	flash->opcode_read = CMD_FAST_READ;
+	flash->opcode_page_program = CMD_PAGE_PROGRAM;
 	flash->mode_addr4 = false;
 	flash->num_mode_cycles = 0;
 	flash->num_dummy_cycles = 8;
@@ -735,7 +855,7 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		cmd.enable.instruction = 1;
 		cmd.enable.address = flash->mode_addr4 ? 4 : 3;
 		cmd.enable.data = 1;
-		cmd.instruction = CMD_PAGE_PROGRAM;
+		cmd.instruction = flash->opcode_page_program;
 		cmd.address = addr;
 		cmd.tx_buffer = ptr;
 		cmd.buffer_len = count;
