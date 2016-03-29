@@ -204,6 +204,8 @@ static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 
 static void _at25_enter_4addr_mode(struct _at25* at25)
 {
+	_at25_enable_write(at25);
+
 	spid_begin_transfert(at25->spid);
 	uint8_t opcode = CMD_ENTER_4ADDR_MODE;
 	struct _buffer out = {
@@ -216,6 +218,8 @@ static void _at25_enter_4addr_mode(struct _at25* at25)
 
 static void _at25_exit_4addr_mode(struct _at25* at25)
 {
+	_at25_enable_write(at25);
+
 	spid_begin_transfert(at25->spid);
 	uint8_t opcode = CMD_EXIT_4ADDR_MODE;
 	struct _buffer out = {

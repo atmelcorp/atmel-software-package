@@ -171,10 +171,14 @@ static bool _qspiflash_write_enable(const struct _qspiflash *flash)
 
 static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
 {
+	if (!_qspiflash_write_enable(flash))
+		return false;
+
 	if (_qspiflash_write_reg(flash, CMD_ENTER_ADDR4_MODE, NULL, 0)) {
 		flash->mode_addr4 = true;
 		return true;
 	}
+
 	return false;
 }
 
