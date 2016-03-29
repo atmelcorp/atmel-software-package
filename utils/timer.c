@@ -48,7 +48,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Tick Counter */
-static volatile uint32_t _timer = 0;
+static volatile uint32_t _tick_counter = 0;
 static uint32_t _resolution = 0;
 
 /*----------------------------------------------------------------------------
@@ -60,35 +60,33 @@ static uint32_t _resolution = 0;
  */
 static void timer_increment(void)
 {
-	uint32_t status;
-
 	/* Read the PIT status register */
-	status = pit_get_status() & PIT_SR_PITS;
-	if (status != 0) {
-
-		/* 1 = The Periodic Interval timer has reached PIV
-		 * since the last read of PIT_PIVR. Read the PIVR to
-		 * acknowledge interrupt and get number of ticks
-		 * Returns the number of occurrences of periodic
-		 * intervals since the last read of PIT_PIVR. */
-		_timer += (pit_get_pivr() >> 20);
+	if (pit_get_status() & PIT_SR_PITS) {
+		/* The Periodic Interval timer has reached PIV since the last
+		 * read of PIT_PIVR.
+		 * Read the PIVR to acknowledge interrupt and get number of
+		 * ticks.
+		 * Return the number of occurrences of periodic intervals
+		 * since the last read of PIT_PIVR. */
+		_tick_counter += pit_get_pivr() >> 20;
 	}
 }
 
-uint32_t timer_configure(uint32_t resolution)
+void timer_configure(uint32_t resolution)
 {
-	pit_disable_it();
-	if (!resolution)
-		resolution = BOARD_TIMER_RESOLUTION;
-	_timer = 0;
+	_resolution = resolution ? resolution : BOARD_TIMER_RESOLUTION;
+	_tick_counter = 0;
+
 	pmc_enable_peripheral(ID_PIT);
-	pit_init(resolution);
+	pit_init(_resolution);
+#ifdef CONFIG_TIMER_POLLING
+	pit_disable_it();
+#else
 	aic_set_source_vector(ID_PIT, timer_increment);
 	aic_enable(ID_PIT);
 	pit_enable_it();
+#endif
 	pit_enable();
-	_resolution = resolution;
-	return 0;
 }
 
 uint32_t timer_get_resolution(void)
@@ -105,37 +103,40 @@ uint32_t timer_get_interval(uint32_t start, uint32_t end)
 
 void timer_start_timeout(struct _timeout* timeout, uint32_t count)
 {
-	timeout->start = _timer;
+	timeout->start = timer_get_tick();
 	timeout->count = count;
 }
 
 uint8_t timer_timeout_reached(struct _timeout* timeout)
 {
-	return timer_get_interval(timeout->start, _timer) >= timeout->count;
+	return timer_get_interval(timeout->start, timer_get_tick()) >= timeout->count;
 }
 
 void timer_wait(uint32_t count)
 {
-	uint32_t start, current;
-	start = _timer;
-	do {
-		current = _timer;
-	} while (timer_get_interval(start, current) < count);
+#ifdef CONFIG_TIMER_POLLING
+	struct _timeout timeout;
+	timer_start_timeout(&timeout, count);
+	while (!timer_timeout_reached(&timeout)) {}
+#else
+	struct _timeout timeout;
+	asm("CPSIE   I");
+	timer_start_timeout(&timeout, count);
+	while (!timer_timeout_reached(&timeout)) {
+		asm("WFI");
+	}
+#endif
 }
 
 void timer_sleep(uint32_t count)
 {
-	uint32_t start, current;
-	asm("CPSIE   I");
-	start = _timer;
-
-	do {
-		asm("WFI");
-		current = _timer;
-	} while (timer_get_interval(start, current) < count);
+	timer_wait(count);
 }
 
 uint32_t timer_get_tick(void)
 {
-	return _timer;
+#ifdef CONFIG_TIMER_POLLING
+	timer_increment();
+#endif
+	return _tick_counter;
 }

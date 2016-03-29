@@ -60,39 +60,46 @@ struct _timeout
 	uint32_t start;
 	uint32_t count;
 };
+
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Configures the PIT & reset _timer.
- *  Systick interrupt handler will generates 1ms interrupt and increase a
- *  tickCount.
+ * \brief Configures the timer and reset tick counter.
  *
- *  \note PIT is enabled automatically in this function.
- *  \warning This function also set PIT handler to aic which is
- *  mandatory to make the timer API work
+ * If CONFIG_TIMER_POLLING is not defined, the PIT interrupt will be used to
+ * increment the tick counter.  If CONFIG_TIMER_POLLING is defined, the tick
+ * counter will be updated from the PIT when requested.
  *
- *  \param resolution initialize PIT resolution (in nano seconds)
+ * \note PIT is enabled automatically in this function.
+ * \warning If interrupts are used, this function also reconfigures the PIT
+ * handler in AIC.
+ *
+ * \param resolution initialize timer resolution (=PIT period, in nano seconds)
  */
-extern uint32_t timer_configure(uint32_t resolution);
+extern void timer_configure(uint32_t resolution);
 
 /**
- *  \brief Sync wait for count times resoltion
+ * \brief Wait for count times the timer resolution
+ *
+ * If interrupts are enabled, the waiting loop will use WFI instructions to put
+ * the core to sleep between timer ticks.  Otherwise, if polling is enabled, a
+ * busy-loop is used to poll the PIT counter value.
  */
 extern void timer_wait(uint32_t count);
 
 /**
- * \brief Retrieve current timer resolution.
- *
- * \return Current timer resolution (0 if not already set)
- */
-extern uint32_t timer_get_resolution(void);
-
-/**
- *  \brief Sync sleep for count times resolution
+ *  \brief Alias for timer_wait.
  */
 extern void timer_sleep(uint32_t count);
+
+/**
+ * \brief Retrieve current timer resolution.
+ *
+ * \return Current timer resolution (0 if not already configured)
+ */
+extern uint32_t timer_get_resolution(void);
 
 /**
  *  \brief Initialize a timeout
@@ -106,7 +113,7 @@ extern uint8_t timer_timeout_reached(struct _timeout* timeout);
 
 /**
  * \brief Compute elapsed number of ticks between start and end with
- * taking overlaps into accounts
+ * taking overlaps into account
  *
  * \param start Start tick point.
  * \param end End tick point.
