@@ -102,6 +102,7 @@
 
 #include "board.h"
 #include "chip.h"
+#include "compiler.h"
 #include "peripherals/mcan.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
