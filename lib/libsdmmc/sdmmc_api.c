@@ -3872,4 +3872,75 @@ SD_StringifyRetCode(uint32_t dwRCode)
 #endif
 }
 
+uint8_t
+mmc_configure_partition(sSdCard * pSd, uint32_t config)
+{
+	uint8_t error;
+	uint32_t status;
+
+	/* Check if MMC */
+	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) != CARD_TYPE_bmMMC) {
+		trace_error("mmc_configure_partition: Not an MMC\n\r");
+		return SDMMC_ERROR_NOT_SUPPORT;
+	}
+
+	if (MMC_EXT_BOOT_SIZE_MULTI(pSd->EXT)) {
+		/* Try switch to HS mode */
+		MmcCmd6Arg cmd6Arg = {
+			.access = 0x3,                  /* Write byte in the EXT_CSD register */
+			.index = MMC_EXT_BOOT_CONFIG_I, /* Target byte in EXT_CSD */
+			.value = config,                /* Byte value */
+		};
+		error = MmcCmd6(pSd, &cmd6Arg, &status);
+		if (error) {
+			trace_error("mmc_configure_partition.Cmd6: %d\n\r", error);
+			return SDMMC_ERROR;
+		} else if (status & STATUS_MMC_SWITCH) {
+			trace_error("mmc_configure_partition: %x\n\r", (unsigned)status);
+			return SDMMC_ERROR_NOT_SUPPORT;
+		}
+	} else {
+		trace_error("mmc_configure_partition: MMC without boot partition support\n\r");
+		return SDMMC_ERROR_NOT_SUPPORT;
+	}
+
+	return SDMMC_OK;
+}
+
+
+uint8_t
+mmc_configure_boot_bus(sSdCard * pSd, uint32_t config)
+{
+	uint8_t error;
+	uint32_t status;
+
+	/* Check if MMC */
+	if ((pSd->bCardType & CARD_TYPE_bmSDMMC) != CARD_TYPE_bmMMC) {
+		trace_error("mmc_configure_boot_bus: not an MMC\n\r");
+		return SDMMC_ERROR_NOT_SUPPORT;
+	}
+
+	if (MMC_EXT_BOOT_SIZE_MULTI(pSd->EXT)) {
+		/* Try switch to HS mode */
+		MmcCmd6Arg cmd6Arg = {
+			.access = 0x3,                     /* Write byte in the EXT_CSD register */
+			.index = MMC_EXT_BOOT_BUS_WIDTH_I, /* Target byte in EXT_CSD */
+			.value = config,                   /* Byte value */
+		};
+		error = MmcCmd6(pSd, &cmd6Arg, &status);
+		if (error) {
+			trace_error("mmc_configure_boot_bus.Cmd6: %d\n\r", error);
+			return SDMMC_ERROR;
+		} else if (status & STATUS_MMC_SWITCH) {
+			trace_error("mmc_configure_boot_bus: %x\n\r", (unsigned)status);
+			return SDMMC_ERROR_NOT_SUPPORT;
+		}
+	} else {
+		trace_error("mmc_configure_boot_bus: MMC without boot partition support\n\r");
+		return SDMMC_ERROR_NOT_SUPPORT;
+	}
+
+	return SDMMC_OK;
+}
+
 /**@}*/

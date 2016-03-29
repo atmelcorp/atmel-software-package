@@ -553,6 +553,8 @@
 #define MMC_EXT_BOOT_BUS_WIDTH(p)       MMC_EXT8(p, MMC_EXT_BOOT_BUS_WIDTH_I)
 #define MMC_EXT_ERASE_GROUP_DEF_I       175 /**< High-density erase group definition */
 #define MMC_EXT_ERASE_GROUP_DEF(p)      MMC_EXT8(p, MMC_EXT_ERASE_GROUP_DEF_I)
+#define MMC_EXT_BOOT_WP_STATUS_I        174 /**< Current protection status of the boot partitions */
+#define MMC_EXT_BOOT_WP_STATUS(p)       MMC_EXT8(p, MMC_EXT_BOOT_WP_STATUS_I)
 #define MMC_EXT_DATA_SECTOR_SIZE_I      61  /**< Current sector size */
 #define MMC_EXT_DATA_SECTOR_SIZE(p)     MMC_EXT8(p, MMC_EXT_DATA_SECTOR_SIZE_I)
 #define     MMC_EXT_DATA_SECT_512B      0
@@ -595,6 +597,9 @@ extern uint8_t SD_GetCardType(const sSdCard * pSd);
 extern uint32_t SD_GetNumberBlocks(const sSdCard * pSd);
 extern uint32_t SD_GetBlockSize(const sSdCard * pSd);
 extern uint32_t SD_GetTotalSizeKB(const sSdCard * pSd);
+
+extern uint8_t mmc_configure_partition(sSdCard * pSd, uint32_t config);
+extern uint8_t mmc_configure_boot_bus(sSdCard * pSd, uint32_t config);
 
 extern uint8_t SD_ReadBlocks(sSdCard * pSd,
 			     uint32_t dwAddr, void *pData, uint32_t dwNbBlocks);
