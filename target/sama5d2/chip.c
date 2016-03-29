@@ -159,7 +159,7 @@ uint32_t get_twi_id_from_addr(const Twi* addr)
 #ifdef TWIHS0
 	else if (addr == (void*)TWIHS0) return ID_TWIHS0; /**< \brief TWIHS0 */
 #endif
-#ifdef TWIHS0
+#ifdef TWIHS1
 	else if (addr == (void*)TWIHS1) return ID_TWIHS1; /**< \brief TWIHS1 */
 #endif
 	else return ID_PERIPH_COUNT;
