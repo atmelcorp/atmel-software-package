@@ -38,6 +38,11 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
+struct chipid {
+	uint32_t    exid; /**< EXID */
+	const char* name; /**< Chip Name */
+};
+
 struct peripheral_xdma {
 	uint32_t id;   /**< Peripheral ID */
 	uint8_t  iftx; /**< DMA Interface for TX */
@@ -47,6 +52,13 @@ struct peripheral_xdma {
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
+
+static const struct chipid _exid_names[] = {
+	{ CHIPID_EXID_SAMA5D41, "SAMA5D41" },
+	{ CHIPID_EXID_SAMA5D42, "SAMA5D42" },
+	{ CHIPID_EXID_SAMA5D43, "SAMA5D43" },
+	{ CHIPID_EXID_SAMA5D44, "SAMA5D44" },
+};
 
 static const uint8_t _h64_peripherals[] = {
 	ID_ARM,     /* 2: Performance Monitor Unit (ARM) */
@@ -142,6 +154,22 @@ static const struct peripheral_xdma *get_peripheral_xdma(uint32_t id, Xdmac *xdm
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+const char* get_chip_name(void)
+{
+	int i;
+
+	if ((DBGU->DBGU_CIDR & ~DBGU_CIDR_VERSION_Msk) ==
+			CHIPID_CIDR_SAMA5D4) {
+		uint32_t exid = DBGU->DBGU_EXID;
+		for (i = 0; i < ARRAY_SIZE(_exid_names); i++) {
+			if (_exid_names[i].exid == exid)
+				return _exid_names[i].name;
+		}
+	}
+
+	return "Unknown";
+}
 
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {

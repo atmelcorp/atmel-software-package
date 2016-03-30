@@ -226,14 +226,6 @@
 #define DAP_ADDR        (0x00700000u) /**< Debug Access Port base address */
 #define PTCMEM_ADDR     (0x00800000u) /**< PTC Memory base address */
 
-/* ************************************************************************** */
-/*   MISCELLANEOUS DEFINITIONS FOR SAMA5D22 */
-/* ************************************************************************** */
-
-#define CHIP_JTAGID (0x05B3F03FUL)
-#define CHIP_CIDR   (0x8A5C08C0UL)
-#define CHIP_EXID   (0x00000002UL)
-
 #ifdef __cplusplus
 }
 #endif

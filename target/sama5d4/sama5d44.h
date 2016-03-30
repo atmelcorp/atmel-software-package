@@ -197,14 +197,6 @@ extern "C" {
 #define DAP_ADDR        (0x00800000u) /**< Debug Access Port base address */
 #define SMD_ADDR        (0x00900000u) /**< Software Modem Device base address */
 
-/* ************************************************************************** */
-/*   MISCELLANEOUS DEFINITIONS FOR SAMA5D44 */
-/* ************************************************************************** */
-
-#define CHIP_JTAGID (0x05B3903FUL)
-#define CHIP_CIDR   (0x8A5C07CUL)
-#define CHIP_EXID   (0x00000004UL)
-
 #ifdef __cplusplus
 }
 #endif

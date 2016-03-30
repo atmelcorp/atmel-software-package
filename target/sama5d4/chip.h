@@ -42,6 +42,21 @@
 #define   __IO volatile	      /**< Defines 'read/write' permissions */
 
 /* ************************************************************************** */
+/*   CHIPID DEFINITIONS FOR SAMA5D4x */
+/* ************************************************************************** */
+/** \addtogroup SAMA5D4x_chipid CHIPID Definitions */
+/*@{*/
+
+#define CHIPID_CIDR_SAMA5D4  (0x8a5c07c0ul)
+
+#define CHIPID_EXID_SAMA5D41 (0x00000001ul)
+#define CHIPID_EXID_SAMA5D42 (0x00000002ul)
+#define CHIPID_EXID_SAMA5D43 (0x00000003ul)
+#define CHIPID_EXID_SAMA5D44 (0x00000004ul)
+
+/*@}*/
+
+/* ************************************************************************** */
 /*   PERIPHERAL ID DEFINITIONS FOR SAMA5D4x */
 /* ************************************************************************** */
 /** \addtogroup SAMA5D4x_id Peripheral Ids Definitions */
@@ -212,6 +227,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \brief Identify the chip model and return it as a string
+ * \return a constant string containing the chip name
+ */
+extern const char* get_chip_name(void);
 
 /**
  * \brief retrieve TWI ID from its base address

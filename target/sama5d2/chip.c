@@ -38,6 +38,11 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
+struct chipid {
+	uint32_t    exid; /**< EXID */
+	const char* name; /**< Chip Name */
+};
+
 struct peripheral_xdma {
 	uint32_t id;   /**< Peripheral ID */
 	uint8_t  iftx; /**< DMA Interface for TX */
@@ -48,7 +53,21 @@ struct peripheral_xdma {
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static uint8_t _h64_peripherals[] = {
+static const struct chipid _exid_names[] = {
+	{ CHIPID_EXID_SAMA5D21_CU, "SAMA5D21-CU" },
+	{ CHIPID_EXID_SAMA5D22_CU, "SAMA5D22-CU" },
+	{ CHIPID_EXID_SAMA5D22_CN, "SAMA5D22-CN" },
+	{ CHIPID_EXID_SAMA5D23_CU, "SAMA5D23-CU" },
+	{ CHIPID_EXID_SAMA5D24_CX, "SAMA5D24-CX" },
+	{ CHIPID_EXID_SAMA5D24_CU, "SAMA5D24-CU" },
+	{ CHIPID_EXID_SAMA5D26_CU, "SAMA5D26-CU" },
+	{ CHIPID_EXID_SAMA5D27_CU, "SAMA5D27-CU" },
+	{ CHIPID_EXID_SAMA5D27_CN, "SAMA5D27-CN" },
+	{ CHIPID_EXID_SAMA5D28_CU, "SAMA5D28-CU" },
+	{ CHIPID_EXID_SAMA5D28_CN, "SAMA5D28-CN" },
+};
+
+static const uint8_t _h64_peripherals[] = {
 	ID_ARM_PMU, /*  2: Performance Monitor Unit (PMU) (ARM_PMU) */
 	ID_XDMAC0,  /*  6: DMA Controller 0 (XDMAC0) */
 	ID_XDMAC1,  /*  7: DMA Controller 1 (XDMAC1) */
@@ -122,6 +141,22 @@ static const struct peripheral_xdma *get_peripheral_xdma(uint32_t id, Xdmac *xdm
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+const char* get_chip_name(void)
+{
+	int i;
+
+	if ((CHIPID->CHIPID_CIDR & ~CHIPID_CIDR_VERSION_Msk) ==
+			CHIPID_CIDR_SAMA5D2) {
+		uint32_t exid = CHIPID->CHIPID_EXID;
+		for (i = 0; i < ARRAY_SIZE(_exid_names); i++) {
+			if (_exid_names[i].exid == exid)
+				return _exid_names[i].name;
+		}
+	}
+
+	return "Unknown";
+}
 
 Flexcom* get_flexcom_addr_from_id(const uint32_t id)
 {

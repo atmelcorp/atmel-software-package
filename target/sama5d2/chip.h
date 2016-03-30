@@ -42,6 +42,28 @@
 #define   __IO volatile	      /**< Defines 'read/write' permissions */
 
 /* ************************************************************************** */
+/*   CHIPID DEFINITIONS FOR SAMA5D2x */
+/* ************************************************************************** */
+/** \addtogroup SAMA5D2x_chipid CHIPID Definitions */
+/*@{*/
+
+#define CHIPID_CIDR_SAMA5D2     (0x8a5c08c0ul)
+
+#define CHIPID_EXID_SAMA5D21_CU (0x0000005aul)
+#define CHIPID_EXID_SAMA5D22_CU (0x00000059ul)
+#define CHIPID_EXID_SAMA5D22_CN (0x00000069ul)
+#define CHIPID_EXID_SAMA5D23_CU (0x00000058ul)
+#define CHIPID_EXID_SAMA5D24_CX (0x00000004ul)
+#define CHIPID_EXID_SAMA5D24_CU (0x00000014ul)
+#define CHIPID_EXID_SAMA5D26_CU (0x00000012ul)
+#define CHIPID_EXID_SAMA5D27_CU (0x00000011ul)
+#define CHIPID_EXID_SAMA5D27_CN (0x00000021ul)
+#define CHIPID_EXID_SAMA5D28_CU (0x00000010ul)
+#define CHIPID_EXID_SAMA5D28_CN (0x00000020ul)
+
+/*@}*/
+
+/* ************************************************************************** */
 /*   PERIPHERAL ID DEFINITIONS FOR SAMA5D2x */
 /* ************************************************************************** */
 /** \addtogroup SAMA5D2x_id Peripheral Ids Definitions */
@@ -266,6 +288,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * \brief Identify the chip model and return it as a string
+ * \return a constant string containing the chip name
+ */
+extern const char* get_chip_name(void);
 
 /**
  * \brief retrieve Flexcom base address from its ID
