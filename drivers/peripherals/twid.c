@@ -58,7 +58,7 @@
 #define TWID_DMA_THRESHOLD      16
 #define TWID_TIMEOUT            100
 
-#define MAX_ADESC 	8
+#define MAX_ADESC               8
 struct _async_desc asyncdesc[MAX_ADESC];
 static uint8_t  adesc_index = 0;
 
@@ -66,15 +66,15 @@ static uint8_t  adesc_index = 0;
  *        Internal functions
  *----------------------------------------------------------------------------*/
 static uint8_t _check_nack(Twi* addr);
-static uint8_t _check_rx_time_out(Twi* addr);
-static uint8_t _check_tx_time_out(Twi* addr);
+static uint8_t _check_rx_time_out(struct _twi_desc* desc);
+static uint8_t _check_tx_time_out(struct _twi_desc* desc);
 static void _twid_handler(void);
 
 
 static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 {
 	struct _timeout timeout;
-	timer_start_timeout(&timeout, TWID_TIMEOUT);
+	timer_start_timeout(&timeout, desc->timeout);
 	while(!twi_is_transfer_complete(desc->addr)){
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Unable to complete transfert!\r\n");
@@ -196,13 +196,13 @@ static uint8_t _check_nack(Twi* addr)
 /*
  *
  */
-static uint8_t _check_rx_time_out(Twi* addr)
+static uint8_t _check_rx_time_out(struct _twi_desc* desc)
 {
 	uint8_t status = TWID_SUCCESS;
 	struct _timeout timeout;
 
-	timer_start_timeout(&timeout, TWID_TIMEOUT);
-	while(!twi_is_byte_received(addr)) {
+	timer_start_timeout(&timeout, desc->timeout);
+	while(!twi_is_byte_received(desc->addr)) {
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Device doesn't answer (RX TIMEOUT)\r\n");
 			status = TWID_ERROR_TIMEOUT;
@@ -215,13 +215,13 @@ static uint8_t _check_rx_time_out(Twi* addr)
 /*
  *
  */
-static uint8_t _check_tx_time_out(Twi* addr)
+static uint8_t _check_tx_time_out(struct _twi_desc* desc)
 {
 	uint8_t status = TWID_SUCCESS;
 	struct _timeout timeout;
 
-	timer_start_timeout(&timeout, TWID_TIMEOUT);
-	while(!twi_is_byte_sent(addr)) {
+	timer_start_timeout(&timeout, desc->timeout);
+	while(!twi_is_byte_sent(desc->addr)) {
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Device doesn't answer (TX TIMEOUT)\r\n");
 			status = TWID_ERROR_TIMEOUT;
@@ -240,10 +240,6 @@ static void _twid_handler(void)
 	uint32_t status = 0;
 	Twi* addr;
 	uint32_t id = aic_get_current_interrupt_identifier();
-
-	/* use to simulate */
-	//uint32_t id = 32;
-
 
 	for (i=0; i!=MAX_ADESC; i++) {
 		if(asyncdesc[i].twi_id == id) {
@@ -312,6 +308,9 @@ void twid_configure(struct _twi_desc* desc)
 {
 	uint32_t id = get_twi_id_from_addr(desc->addr);
 	assert(id < ID_PERIPH_COUNT);
+
+	if (desc->timeout == 0)
+		desc->timeout = TWID_TIMEOUT;
 
 #ifdef CONFIG_HAVE_FLEXCOM
 	Flexcom* flexcom = get_flexcom_addr_from_id(get_twi_id_from_addr(desc->addr));
@@ -415,10 +414,10 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 		return TWID_ERROR_ACK ;
 
 	for (i = 0; i < buffer->size; ++i) {
-		if( _check_rx_time_out(addr) != TWID_SUCCESS )
+		if (_check_rx_time_out(desc) != TWID_SUCCESS)
 				break;
 		buffer->data[i] = twi_read_byte(desc->addr);
-		if( _check_nack(addr) != TWID_SUCCESS )
+		if (_check_nack(addr) != TWID_SUCCESS)
 			return TWID_ERROR_ACK ;
 	}
 
@@ -436,14 +435,14 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 							 desc->isize, buffer->size);
 	#endif
 
-	if( _check_nack(addr) != TWID_SUCCESS )
+	if (_check_nack(addr) != TWID_SUCCESS)
 		return TWID_ERROR_ACK ;
 
 	for (i = 0; i < buffer->size; ++i) {
-		if( _check_tx_time_out(addr) != TWID_SUCCESS )
+		if (_check_tx_time_out(desc) != TWID_SUCCESS)
 			break;
 		twi_write_byte(desc->addr, buffer->data[i]);
-		if( _check_nack(addr) != TWID_SUCCESS )
+		if (_check_nack(addr) != TWID_SUCCESS)
 			return TWID_ERROR_ACK ;
 	}
 	/* wait transfert to be finished */
@@ -595,7 +594,8 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 	case TWID_MODE_FIFO:
 		if (tx != NULL) {
 			status = twi_write_stream(desc->addr, desc->slave_addr,
-						  desc->iaddr, desc->isize, tx->data, tx->size);
+						  desc->iaddr, desc->isize,
+						  tx->data, tx->size, desc->timeout);
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
 			if (status)
 				break;
@@ -606,7 +606,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 		if (rx != NULL) {
 			status = twi_read_stream(desc->addr, desc->slave_addr,
 						 desc->iaddr, desc->isize,
-						 rx->data, rx->size);
+						 rx->data, rx->size, desc->timeout);
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
 			if (status)
 				break;
@@ -620,7 +620,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 #endif
 
 	default:
-		trace_debug("Unkown mode");
+		trace_debug("Unknown mode");
 	}
 
 	if (status)

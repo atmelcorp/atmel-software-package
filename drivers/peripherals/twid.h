@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef TWID_HEADER__
-#define TWID_HEADER__
+#ifndef TWID_H_
+#define TWID_H_
 
 /*------------------------------------------------------------------------------
  *        Header
@@ -53,7 +53,6 @@
 
 #define TWID_TRANSFER_IN_PROGRESS  (0x80)
 
-
 enum _twid_trans_mode
 {
 	TWID_MODE_POLLING,
@@ -74,6 +73,7 @@ struct _twi_desc
 	uint32_t iaddr;
 	uint32_t isize;
 	uint8_t transfert_mode;
+	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
 	uint32_t region_start;
@@ -82,17 +82,15 @@ struct _twi_desc
 	void*   cb_args;
 };
 
-
 /** \brief twi asynchronous transfer descriptor.*/
 struct _async_desc
 {
 	struct _twi_desc twi_desc;
 	uint32_t twi_id;
-    uint8_t *pdata;				/** Pointer to the data buffer.*/
-    uint32_t size;	 			/** Total number of bytes to transfer.*/
-    uint32_t transferred;		/** Number of already transferred bytes.*/
+	uint8_t *pdata; /**< Pointer to the data buffer. */
+	uint32_t size; /**< Total number of bytes to transfer. */
+	uint32_t transferred; /**< Number of already transferred bytes. */
 };
-
 
 /*------------------------------------------------------------------------------
  *        Functions
@@ -101,13 +99,16 @@ struct _async_desc
 extern void twid_configure(struct _twi_desc* desc);
 
 extern uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
-			  struct _buffer* tx, twid_callback_t cb, void* user_args);
+                               struct _buffer* tx, twid_callback_t cb,
+                               void* user_args);
 
 extern void twid_finish_transfert_callback(struct _twi_desc* desc,
-				      void* user_args);
+                                           void* user_args);
 
 extern void twid_finish_transfert(struct _twi_desc* desc);
+
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
+
 extern void twid_wait_transfert(const struct _twi_desc* desc);
 
-#endif /* TWID_HEADER__ */
+#endif /* TWID_H_ */
