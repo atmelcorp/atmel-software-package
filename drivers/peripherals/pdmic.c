@@ -237,20 +237,21 @@ static void pdmic_dma_init(void)
 
 bool pdmic_init(struct _pdmic_desc *desc)
 {
+#if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 	uint32_t pclk, gclk;
-
 	pclk = pmc_get_peripheral_clock(ID_PDMIC);
-
-	trace_debug("-- PDMIC PCLK: %u MHz --\n\r",
-			(unsigned)(pclk / 1000000));
+	trace_debug("-- PDMIC PCLK: %uMHz --\n\r", (unsigned)(pclk / 1000000));
+#endif
 
 	/* The gclk clock frequency must always be three times
 	 * lower than the pclk clock frequency
 	 */
 	pmc_configure_gck(ID_PDMIC, PMC_PCR_GCKCSS_PLLA_CLK, 18 - 1);
-	gclk = pmc_get_gck_clock(ID_PDMIC);
 
-	trace_debug("-- PDMIC GCLK: %u MHz --\n\r", (unsigned)(gclk / 1000000));
+#if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
+	gclk = pmc_get_gck_clock(ID_PDMIC);
+	trace_debug("-- PDMIC GCLK: %uMHz --\n\r", (unsigned)(gclk / 1000000));
+#endif
 
 	pdmic_dma_init();
 	pdmic_enable();
