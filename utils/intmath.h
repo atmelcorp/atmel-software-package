@@ -49,7 +49,7 @@
  *  \param a First integer to compare
  *  \param b Second integer to compare
  */
-static inline int32_t min_u32(uint32_t a, uint32_t b)
+static inline uint32_t min_u32(uint32_t a, uint32_t b)
 {
 	return a < b ? a : b;
 }
