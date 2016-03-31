@@ -485,11 +485,8 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 		_status_ready_pass(nand);
 		_send_cle_ale(nand, CLE_DATA_EN, COMMAND_READ_1, 0, 0, 0);
 	} else {
-		if (!nand_is_nfc_sram_enabled())
-			hsmc_nfc_wait_rb_busy();
+		hsmc_nfc_wait_rb_busy();
 	}
-	if (nand_is_nfc_sram_enabled())
-		hsmc_nfc_wait_xfr_done();
 
 	/* Read data area */
 	if (data) {
