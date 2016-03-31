@@ -209,7 +209,7 @@ static sensor_status_t sensor_check_pid(struct _twi_desc *p_twid,
  */
 sensor_status_t sensor_twi_write_regs(struct _twi_desc *p_twid, const sensor_reg_t *p_reglist)
 {
-	uint8_t status;
+	sensor_status_t status;
 	const sensor_reg_t *p_next = p_reglist;
 	volatile uint32_t delay;
 
@@ -231,7 +231,7 @@ sensor_status_t sensor_twi_write_regs(struct _twi_desc *p_twid, const sensor_reg
  */
 sensor_status_t sensor_twi_read_regs(struct _twi_desc *p_twid, const sensor_reg_t *p_reglist)
 {
-	uint8_t status;
+	sensor_status_t status;
 	const sensor_reg_t *p_next = p_reglist;
 	volatile uint32_t delay;
 	uint8_t val;
