@@ -34,27 +34,31 @@ gnu-debug-lib-y ?= $(TOP)/target/sama5d4/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/sama5d4/toolchain/gnu/cstartup.S
 iar-cstartup-y ?= target/sama5d4/toolchain/iar/cstartup.s
 
+# SRAM variant (GCC)
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.gdb
 endif
+
+# SRAM variant (IAR)
 iar-linker-script-sram-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.icf
 iar-debug-script-sram-y ?= $(TOP)/target/sama5d4/toolchain/iar/sram.mac
 
+# DDRAM variant (GCC)
 ifeq ($(VARIANT),ddram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/ddram.gdb
-endif
-iar-linker-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram.icf
-ifeq ("y",$(TARGET:%-xplained="y"))
-iar-debug-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
-endif
-ifeq ("y",$(TARGET:%-ek="y"))
-iar-debug-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
-endif
-ifeq ($(VARIANT),ddram)
 bootstrap-y ?= target/sama5d4/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
+endif
+
+# DDRAM variant (IAR)
+iar-linker-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram.icf
+ifeq ($(TARGET),sama5d4-xplained)
+iar-debug-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
+endif
+ifeq ($(TARGET),sama5d4-ek)
+iar-debug-script-ddram-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
 endif
 
 chip-serie-name-y = sama5d4

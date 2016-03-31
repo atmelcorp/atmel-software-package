@@ -34,17 +34,25 @@ gnu-debug-lib-y ?= $(TOP)/target/sama5d2/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/sama5d2/toolchain/gnu/cstartup.S
 iar-cstartup-y ?= target/sama5d2/toolchain/iar/cstartup.s
 
+# SRAM variant (GCC)
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.gdb
 endif
+
+# SRAM variant (IAR)
 iar-linker-script-sram-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
 iar-debug-script-sram-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
 
+# DDRAM variant (GCC)
 ifeq ($(VARIANT),ddram)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
+bootstrap-y ?= target/sama5d2/bootstrap.o
+bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 endif
+
+# DDRAM variant (IAR)
 iar-linker-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
 ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED),y)
 iar-debug-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
@@ -52,9 +60,8 @@ endif
 ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO),y)
 iar-debug-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 endif
-ifeq ($(VARIANT),ddram)
-bootstrap-y ?= target/sama5d2/bootstrap.o
-bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
+ifeq ($(CONFIG_BOARD_SAMA5D2_PTC_ENGI),y)
+iar-debug-script-ddram-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 endif
 
 chip-serie-name-y = sama5d2
