@@ -219,7 +219,12 @@ ALIGNED(64)
 static struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
-struct _twi_desc twid;
+static struct _twi_desc twid = {
+	.addr = ISC_TWI_ADDR,
+	.freq = TWCK,
+	.transfert_mode = TWID_MODE_POLLING
+};
+
 static awb_status_t awb_status_machine;
 
 /** LCD buffer.*/
@@ -401,9 +406,7 @@ static void configure_twi(void)
 	/* Enable TWI peripheral clock */
 	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
 	/* Configure TWI */
-	twid.freq = TWCK;
 	twid_configure(&twid);
-	/* Configure TWI interrupts */
 }
 
 /**
@@ -413,7 +416,7 @@ static void configure_mck_clock(void)
 {
 	pmc_enable_peripheral(ID_ISC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(11 ,0);
+	isc_configure_master_clock(8 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_master_clock();
 	isc_configure_isp_clock(4 ,0);
