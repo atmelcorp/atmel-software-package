@@ -907,11 +907,6 @@ Fetch:
 			set->state = MCID_ERROR;
 			goto End;
 		}
-		else if (has_data && set->table
-		    && cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX)
-			l2cc_invalidate_region((uint32_t)cmd->pData,
-			    (uint32_t)cmd->pData + (uint32_t)cmd->wNbBlocks
-			    * (uint32_t)cmd->wBlockSize);
 		if (set->cmd_line_released && !set->expect_auto_end)
 			goto Succeed;
 	}
@@ -1357,7 +1352,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    && set->use_set_blk_cnt;
 	const bool stop_xfer_suffix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && !set->use_set_blk_cnt;
-	uint32_t timer_res_prv, usec, eister, mask, cycles;
+	uint32_t timer_res_prv, usec, eister, mask, addr, len, cycles;
 	uint16_t cr, tmr;
 	uint8_t rc = SDMMC_OK, mc1r;
 
@@ -1401,12 +1396,23 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		rc = sdmmc_build_dma_table(set, cmd);
 		if (rc != SDMMC_OK && rc != SDMMC_CHANGED)
 			return rc;
+		addr = (uint32_t)cmd->pData;
+		len = (uint32_t)cmd->wNbBlocks * (uint32_t)cmd->wBlockSize;
 		if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX)
 			/* Ensure the outgoing data can be fetched directly from
 			 * RAM */
-			l2cc_clean_region((uint32_t)cmd->pData,
-			    (uint32_t)cmd->pData + (uint32_t)cmd->wNbBlocks
-			    * (uint32_t)cmd->wBlockSize);
+			l2cc_clean_region(addr, addr + len);
+		else if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX)
+			/* Invalidate the corresponding data cache lines now, so
+			 * this buffer is protected against a global cache clean
+			 * operation, that concurrent code may trigger.
+			 * Warning: until the command is reported as complete,
+			 * no code should read from this buffer, nor from
+			 * variables cached in the same lines. If such
+			 * anticipated reading had to be supported, the data
+			 * cache lines would need to be invalidated twice: both
+			 * now and upon Transfer Complete. */
+			l2cc_invalidate_region(addr, addr + len);
 	}
 	if (multiple_xfer && !has_data)
 		trace_warning("Inconsistent data\n\r");
