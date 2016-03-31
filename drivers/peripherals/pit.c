@@ -67,6 +67,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "compiler.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 
@@ -77,14 +78,14 @@
 void pit_init(uint32_t period)
 {
 	uint32_t pit_frequency = pmc_get_peripheral_clock(ID_PIT) / 1000000;
-	PIT->PIT_MR = period ? (period * pit_frequency + 8) >> 4 : 0;
+	PIT->PIT_MR = period ? ROUND_INT_DIV(period * pit_frequency, 16) : 0;
 	PIT->PIT_MR |= PIT_MR_PITEN;
 }
 
 void pit_set_piv(uint32_t piv)
 {
-	uint32_t dwMr = PIT->PIT_MR & (~PIT_MR_PIV_Msk);
-	PIT->PIT_MR = dwMr | PIT_MR_PIV(piv);
+	uint32_t mr = PIT->PIT_MR & ~PIT_MR_PIV_Msk;
+	PIT->PIT_MR = mr | PIT_MR_PIV(piv);
 }
 
 void pit_enable(void)
