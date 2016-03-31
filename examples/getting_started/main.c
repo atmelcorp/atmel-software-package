@@ -102,12 +102,12 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
+#include "timer.h"
 
 #include "cortex-a/mmu.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
-#include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
@@ -124,9 +124,6 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
-
-/** LED0 blink time, LED1 blink half this time, in ms */
-#define BLINK_PERIOD        1000
 
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
@@ -165,9 +162,6 @@ static const struct _pin pinsLeds[] = PINS_LEDS;
 /** Number of available leds */
 static const uint32_t num_leds = ARRAY_SIZE(pinsLeds);
 volatile bool led_status[MAX_LEDS];
-
-/** Global timestamp in milliseconds since start of application */
-volatile uint32_t dwTimeStamp = 0;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -229,48 +223,6 @@ static void console_handler(uint8_t key)
 	} else if (key == 'b') {
 		tc_start(TC0, 0);
 	}
-}
-
-/**
- *  \brief Handler for PIT interrupt.
- */
-static void pit_handler(void)
-{
-	uint32_t status;
-
-	/* Read the PIT status register */
-	status = pit_get_status() & PIT_SR_PITS;
-	if (status != 0) {
-
-		/* 1 = The Periodic Interval timer has reached PIV
-		 * since the last read of PIT_PIVR. Read the PIVR to
-		 * acknowledge interrupt and get number of ticks
-		 * Returns the number of occurrences of periodic
-		 * intervals since the last read of PIT_PIVR. */
-		dwTimeStamp += (pit_get_pivr() >> 20);
-	}
-}
-
-/**
- *  \brief Configure the periodic interval timer (PIT) to generate an interrupt
- *  every interrupt every millisecond
- */
-static void configure_pit(void)
-{
-	/* Enable PIT controller */
-	pmc_enable_peripheral(ID_PIT);
-
-	/* Initialize the PIT to the desired frequency */
-	pit_init(BLINK_PERIOD);
-
-	/* Configure interrupt on PIT */
-	aic_enable(ID_PIT);
-	aic_set_source_vector(ID_PIT, pit_handler);
-
-	pit_enable_it();
-
-	/* Enable the pit */
-	pit_enable();
 }
 
 /**
@@ -358,22 +310,6 @@ static void configure_tc(void)
 	}
 }
 
-/**
- *  Waits for the given number of milliseconds (using the dwTimeStamp generated
- *  by the SAM3's microcontrollers's system tick).
- *  \param delay  Delay to wait for, in milliseconds.
- */
-static void _Wait(unsigned long delay)
-{
-	uint32_t start = dwTimeStamp;
-	uint32_t elapsed;
-
-	do {
-		elapsed = dwTimeStamp;
-		elapsed -= start;
-	} while (elapsed < delay);
-}
-
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -415,10 +351,6 @@ int main(void)
 	}
 #endif
 
-	/* Configure PIT. */
-	printf("Configure PIT \n\r");
-	configure_pit();
-
 	/* Configure TC */
 	printf("Configure TC.\n\r");
 	configure_tc();
@@ -449,7 +381,7 @@ int main(void)
 			printf("0 ");
 		}
 
-		/* Wait for 500ms */
-		_Wait(500);
+		/* Wait for 250ms (4Hz) */
+		timer_wait(250);
 	}
 }
