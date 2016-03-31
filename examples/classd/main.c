@@ -343,9 +343,6 @@ extern int main(void)
 	printf("-- " BOARD_NAME "\n\r");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
 
-	/* configure timer */
-	timer_configure(1000);
-
 	/* configure PIO muxing for ClassD */
 	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));
 

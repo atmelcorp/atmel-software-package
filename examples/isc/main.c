@@ -895,8 +895,6 @@ extern int main(void)
 	/* TWI Initialize */
 	configure_twi();
 
-	timer_configure(0);
-
 	/* Configure all ISC pins */
 	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
 

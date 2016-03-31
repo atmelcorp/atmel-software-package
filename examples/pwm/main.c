@@ -473,10 +473,6 @@ int main(void)
 	/* Initialize XDMA subsystem */
 	xdmad_initialize(false);
 
-	/* Configure PIT for timer_wait */
-	printf("Configure PIT \n\r");
-	timer_configure(1000);
-
 	/* Configure PIO Pins for TC0 */
 	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));
 
