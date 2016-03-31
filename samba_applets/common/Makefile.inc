@@ -28,6 +28,8 @@
 
 ifeq ($(CONFIG_SAMBA_APPLET),y)
 
+CONFIG_TIMER_POLLING = y
+
 CFLAGS_INC += -I$(TOP)/samba_applets/common
 
 obj-y += samba_applets/common/applet_main.o
