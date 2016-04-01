@@ -1,6 +1,6 @@
 # Atmel SAMA5D2x Software Package
 
-## Version ?.? - 2016-?
+## Version 1.3 - 2016-04
 
 ### New drivers/examples
 
