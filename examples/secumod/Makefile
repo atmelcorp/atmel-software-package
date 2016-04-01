@@ -33,7 +33,7 @@ TOP := ../..
 
 BINNAME = secumod
 
-VARIANT ?= "sram"
+VARIANT ?= sram
 
 obj-y += examples/secumod/main.o
 
