@@ -1,0 +1,52 @@
+AESB EXAMPLE
+============
+
+# Objectives
+------------
+This example aims to protect electronic data with Advanced Encryption Standard
+Bridge (AESB).
+
+# Example Description
+---------------------
+This example shows how to configure AESB to protect electronic data. The
+Automatic Bridge mode, when the AESB block is connected between the system bus
+and a DDR port, provides automatic encryption/decryption to/from a DDR port
+without any action on the part of the user.
+
+# Test
+------
+
+## Setup
+--------
+On the computer, open and configure a terminal application
+(e.g. HyperTerminal on Microsoft Windows) with these settings:
+ - 57600 bauds (for sama5d2-xplained)
+ - 115200 bauds (for sama5d4-xplained)
+ - 8 bits of data
+ - No parity
+ - 1 stop bit
+ - No flow control
+
+## Start the application (SAMA5D2-XPLAINED)
+--------
+
+Tested with IAR and GCC (sram and ddram configuration)
+
+In order to test this example, the process is the following:
+
+Step | Description | Expected Result | Result
+-----|-------------|-----------------|-------
+Transfer data to address of AESB IP scope | the data is ciphered on-the-fly | PASSED | PASSED
+Read data from address of AESB IP scope | the data is deciphered on-the-fly | PASSED | PASSED
+Read data from address outside of AESB IP scope | the data can not be deciphered | FAILED | PASSED
+
+
+# Log
+------
+
+## Current version
+--------
+ - v1.3
+
+## History
+--------

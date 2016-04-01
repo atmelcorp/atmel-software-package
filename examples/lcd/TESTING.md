@@ -1,0 +1,46 @@
+LCD EXAMPLE
+============
+
+# Objectives
+------------
+This example aims to  demonstrates how to configure the LCD Controller (LCDC)
+to use the LCD on the board.
+
+# Example Description
+---------------------
+The example configures the LCDC for LCD to display and then draw test patterns on LCD.
+4 layers are displayed:
+ - Base: The layer at bottom, show test pattern with color blocks.
+ - OVR1: The layer over base, used as canvas to draw shapes.
+ - OVR2: The layer over base, used as canvas to draw shapes.
+ - HEO:  The next layer, showed scaled ('F') which flips or rotates once  for a while.
+
+# Test
+------
+
+## Setup
+--------
+On the computer, open and configure a terminal application
+(e.g. HyperTerminal on Microsoft Windows) with these settings:
+ - 57600 bauds (for sama5d2-xplained)
+ - 115200 bauds (for sama5d4-xplained)
+ - 8 bits of data
+ - No parity
+ - 1 stop bit
+ - No flow control
+
+## Start the application (SAMA5D2-XPLAINED)
+--------
+Tested with IAR and GCC (sram and ddram configration)
+
+PASSED
+
+# Log
+------
+
+## Current version
+--------
+ - v1.3
+
+## History
+--------

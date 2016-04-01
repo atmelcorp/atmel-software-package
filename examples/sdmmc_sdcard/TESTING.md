@@ -1,4 +1,4 @@
-Secure Digital Memory Card Example
+SDMMC_SDCARD EXAMPLE
 ============
 
 # Objectives
@@ -67,9 +67,20 @@ Follow the test steps listed hereafter.
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Press 'i' | Test card detection | "Device not detected." | PASS
-Now insert the memory card | | |
+Now insert the memory card | N/A | N/A
 Press 'i' again | Run the initialization sequence | Card properties are displayed and seem valid. | PASS
 Press 'l' | Mount the file system | Files in the root directory are properly listed. | PASS
 Press 'r' | Read the predefined file | File size is reported and allright. SHA-1 is printed and matches the hash computed on the host. | PASS
 Press 't' | Select the on-board e.MMC device | |
 Press 'i' | Run the initialization sequence | Properties of the e.MMC are displayed and seem valid. | PASS
+
+
+# Log
+------
+
+## Current version
+--------
+ - v1.3
+
+## History
+--------
