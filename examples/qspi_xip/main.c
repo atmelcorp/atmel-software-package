@@ -41,7 +41,7 @@
  *
  * \section Description
  *
- * Ths code writes the getting-started code into flash via SPI and enables
+ * This example writes the getting-started code into flash via SPI and enables
  * quad mode spi to read code and to execute from it.
  *
  * \section Usage
