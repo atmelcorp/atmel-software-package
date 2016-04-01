@@ -67,9 +67,9 @@ $(BINNAME).eww:
 	$(ECHO) GEN $@
 	$(Q)bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
 
-$(foreach MEMORY, $(MEMORIES), $(eval $(call IAR_CONF, $(BINNAME),$(MEMORY))))
-EWP_FILES := $(foreach MEMORY, $(MEMORIES), $(BINNAME)_$(MEMORY).ewp)
-EWD_FILES := $(foreach MEMORY, $(MEMORIES), $(BINNAME)_$(MEMORY).ewd)
+$(foreach variant, $(AVAILABLE_VARIANTS), $(eval $(call IAR_CONF, $(BINNAME),$(variant))))
+EWP_FILES := $(foreach variant, $(AVAILABLE_VARIANTS), $(BINNAME)_$(variant).ewp)
+EWD_FILES := $(foreach variant, $(AVAILABLE_VARIANTS), $(BINNAME)_$(variant).ewd)
 
 $(BINNAME).ewp.bodies: $(EWP_FILES)
 	$(Q)cat $(BINNAME)_*.ewp > $@
