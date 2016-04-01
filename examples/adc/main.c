@@ -129,12 +129,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** LED0 blink time, LED1 blink half this time, in ms */
-#define BLINK_PERIOD        1000
-
-/** Maximum number of handled led */
-#define MAX_LEDS            3
-
 /** ADC clock */
 #define BOARD_ADC_FREQ (300000)
 
@@ -189,8 +183,10 @@ struct _adc_sample
 	uint16_t done;
 };
 
+#define _DMA_BUFFER_NUM ROUND_UP_MULT(NUM_CHANNELS * sizeof(uint16_t), L1_CACHE_BYTES) / sizeof(uint16_t)
 ALIGNED(L1_CACHE_BYTES)
-static uint16_t _dma_buffer[NUM_CHANNELS];
+static uint16_t _dma_buffer[_DMA_BUFFER_NUM];
+
 bool modif_config = false;
 unsigned count = 0;
 
@@ -573,10 +569,6 @@ int main(void)
 	       "-- " BOARD_NAME "\n\r"
 	       "-- Compiled: "__DATE__ " at " __TIME__" --\n\r");
 
-	/* Configure PIT. Must be always ON, used for delay */
-	printf("Configure PIT \n\r");
-	timer_configure(BLINK_PERIOD);
-
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
 	if (act8945a_configure(&act8945a, &act8945a_twid)) {
@@ -590,7 +582,6 @@ int main(void)
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
 	led_configure(LED_RED);
-	led_configure(LED_BLUE);
 
 	pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
 	xdmad_initialize(false);
