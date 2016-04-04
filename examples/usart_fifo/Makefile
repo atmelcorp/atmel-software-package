@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,12 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the IrDA example
+# Makefile for compiling the FIFO example
 
 TOP := ../..
 
-BINNAME = irda
+BINNAME = usart_fifo
 
-obj-y += examples/irda/main.o
+obj-y += examples/usart_fifo/main.o
 
 include $(TOP)/scripts/Makefile.rules

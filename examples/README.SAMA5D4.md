@@ -43,8 +43,6 @@ crypto_tdes: Triple-DES hardware computation (with and without DMA)
 
 ddram: Example of using DDRAM
 
-fifo: Test Flexcom USART FIFO
-
 gettting-started: LED blink (uses PIT and PIO)
 
 gmac: GMAC example using a simple IP stack
@@ -71,6 +69,8 @@ power_consumption_pll: Measure power consumption
 
 qspi_flash: Read/Write/Delete commands to a QSPI serial flash
 
+qspi_xip: Load a binary into QSPI memory and jump to it
+
 rtc: RTC Example
 
 spi_serialflash: Read/Write/Delete commands to an SPI serial flash
@@ -82,6 +82,8 @@ tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an ext
 trng: Example using hardware RNG (interrupt mode)
 
 twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
+
+usart_fifo: Test Flexcom USART FIFO
 
 usb_audio_looprec: Set up a SAMA5D4x as a USB Audio Device to record sounds
 

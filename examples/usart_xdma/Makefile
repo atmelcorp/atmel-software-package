@@ -30,8 +30,8 @@
 
 TOP := ../..
 
-BINNAME = xdma-usart
+BINNAME = usart_xdma
 
-obj-y += examples/xdma_usart/main.o
+obj-y += examples/usart_xdma/main.o
 
 include $(TOP)/scripts/Makefile.rules

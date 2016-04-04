@@ -42,8 +42,6 @@ crypto_tdes: Triple-DES hardware computation (with and without DMA)
 
 ddram: Example of using DDRAM
 
-fifo: Test Flexcom USART FIFO
-
 gettting-started: LED blink (uses PIT and PIO)
 
 gmac: GMAC example using a simple IP stack
@@ -59,8 +57,6 @@ gmac_uip_webserver: GMAC example using UIP stack (UIP webserver example)
 hsmc_nandflash_mlc: Example of NAND Flash MLC
 
 hsmc_nandflash_slc: Example of NAND Flash SLC
-
-irda: Example of communication over IrDA sensors (FieldBus extension board)
 
 isc: Example using ISC controller (OV7740 sensor)
 
@@ -78,6 +74,8 @@ pwm: Example of PWM
 
 qspi_flash: Read/Write/Delete commands to a QSPI serial flash
 
+qspi_xip: Load a binary into QSPI memory and jump to it
+
 rtc: RTC Example
 
 sdmmc_sdcard: Example of Read/Write access from/to SD Cards, MMC Cards, e.MMC devices
@@ -94,9 +92,15 @@ twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 
 twi_slave: Set up SAMA5D2 as a slave I2C device
 
+usart_fifo: Test Flexcom USART FIFO
+
+usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
+
 usart_iso7816: Example of USART configured for ISO7816
 
 usart_lin: Example of USART configured for LIN
+
+usart_xdma: Bidirectionnal Usart-memory DMA transfert example
 
 usb_audio_looprec: Set up a SAMA5D2x as a USB Audio Device to record sounds
 
@@ -127,7 +131,5 @@ usb_mass_storage: Example of SAMA5D2 configured as a USB Mass Storage device
 wdt: Example using watchdog timer
 
 xdma: Memory-to-memory DMA transfert example
-
-xdma_usart: Bidirectionnal Usart-memory DMA transfert example
 
 
