@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Low-level initialization SAM-BA applet
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
-BINNAME = applet-lowlevel-$(chip-serie-name-y)
+BINNAME = applet-lowlevel
 
-VARIANT = sram
+VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/lowlevel/main.o

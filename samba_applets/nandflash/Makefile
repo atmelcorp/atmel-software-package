@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the NandFlash SAM-BA applet
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
-BINNAME = applet-nandflash-$(chip-serie-name-y)
+BINNAME = applet-nandflash
 
-VARIANT = sram
+VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/nandflash/main.o

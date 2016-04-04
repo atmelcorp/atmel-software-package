@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the BootConfig applet
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
-BINNAME = applet-bootconfig-$(chip-serie-name-y)
+BINNAME = applet-bootconfig
 
-VARIANT = sram
+VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/bootconfig/main.o

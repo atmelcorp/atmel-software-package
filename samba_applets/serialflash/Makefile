@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SPI SerialFlash SAM-BA applet
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
-BINNAME = applet-serialflash-$(chip-serie-name-y)
+BINNAME = applet-serialflash
 
-VARIANT = sram
+VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/serialflash/main.o

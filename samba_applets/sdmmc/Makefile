@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SD/MMC SAM-BA applet
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
-BINNAME = applet-sdmmc-$(chip-serie-name-y)
+BINNAME = applet-sdmmc
 
-VARIANT = sram
+VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 CONFIG_LIB_SDMMC = y
 
