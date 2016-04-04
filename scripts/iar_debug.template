@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>__REPLACE_CONF_____REPLACE_BOARD__</name>
+    <name>__REPLACE_BOARD_____REPLACE_CONF__</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -45,7 +45,7 @@
         </option>
         <option>
           <name>MemFile</name>
-          <state>$TOOLKIT_DIR$\CONFIG\debugger\Atmel\ATSAMA5D27.ddf</state>
+          <state>$TOOLKIT_DIR$\CONFIG\debugger\Atmel\AT__REPLACE_SOC__.ddf</state>
         </option>
         <option>
           <name>RunToEnable</name>

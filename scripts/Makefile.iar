@@ -30,78 +30,28 @@ iar-project-template-y ?= $(TOP)/scripts/iar_project.template
 iar-workspace-template-y ?= $(TOP)/scripts/iar_workspace.template
 iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
 
-iar: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
+iar:
+	$(Q)bash $(TOP)/scripts/iar_project.sh $(shell pwd) $(TOP) $(BINNAME) $(SELECTED_BOARD) '$(AVAILABLE_VARIANTS)'
 
-.PHONY: $(BINNAME).ewp $(BINNAME).eww $(BINNAME).ewd
+clean-env:
+	rm -f .env-$(VARIANT).sh
 
-EWP_SPLIT:
-	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "split" $(iar-project-template-y) 4 3
-	$(Q)mv -f $(TOP)/scripts/iar_project.template.* .
-	$(Q)rm -f $(BINNAME).ewp.bodies
-
-EWD_SPLIT:
-	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "split" $(iar-debug-template-y) 4 3
-	$(Q)mv -f $(TOP)/scripts/iar_debug.template.* .
-	$(Q)rm -f $(BINNAME).ewd.bodies
-
-define IAR_CONF
-$(1)_$(2).ewp: EWP_SPLIT
-	$(ECHO) GEN temporary file $(1)_$(2).ewp
-	$(Q)cat iar_project.template.body > $(2).ewp.1
-	$(Q)echo $(CFLAGS_DEFS_$(2)) | bash $(TOP)/scripts/iar_gen_project.sh "definitions" $(2).ewp.1 > $(2).ewp.2
-	$(Q)echo $(CFLAGS_INC) | bash $(TOP)/scripts/iar_gen_project.sh "includes" $(2).ewp.2 > $(2).ewp.3
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "linker" $(2).ewp.3 $(iar-linker-script-$(2)-y) > $(2).ewp.4
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "chip_serie" $(2).ewp.4 $(chip-serie-name-y) > $(2).ewp.5
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "binary" $(2).ewp.5 $(BINNAME) > $(2).ewp.6
-	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "configuration" $(2).ewp.6 $(2) $(SELECTED_BOARD) > $(1)_$(2).ewp
-	$(Q)rm -f $(2).ewp.*
-
-$(1)_$(2).ewd: EWD_SPLIT
-	$(ECHO) GEN temporary file $(1)_$(2).ewd
-	$(Q)bash $(TOP)/scripts/iar_gen_debug.sh iar_debug.template.body $(iar-debug-script-$(2)-y) > $(2).ewd.1
-	$(Q)bash $(TOP)/scripts/iar_template_conf.sh "configuration" $(2).ewd.1 $(2) $(SELECTED_BOARD) > $(1)_$(2).ewd
-	$(Q)rm -f $(2).ewd.*
-endef
-
-$(BINNAME).eww:
-	$(ECHO) GEN $@
-	$(Q)bash $(TOP)/scripts/iar_gen_workspace.sh $(iar-workspace-template-y) $(BINNAME) > $@
-
-$(foreach variant, $(AVAILABLE_VARIANTS), $(eval $(call IAR_CONF, $(BINNAME),$(variant))))
-EWP_FILES := $(foreach variant, $(AVAILABLE_VARIANTS), $(BINNAME)_$(variant).ewp)
-EWD_FILES := $(foreach variant, $(AVAILABLE_VARIANTS), $(BINNAME)_$(variant).ewd)
-
-$(BINNAME).ewp.bodies: $(EWP_FILES)
-	$(Q)cat $(BINNAME)_*.ewp > $@
-	$(Q)rm -f $(BINNAME)_*.ewp
-
-$(BINNAME).ewp: EWP_SPLIT $(BINNAME).ewp.bodies
-	$(ECHO) GEN $(BINNAME).ewp
-	$(Q)cat iar_project.template.head > $@.0
-	$(Q)cat $(BINNAME).ewp.bodies >> $@.0
-	$(Q)cat iar_project.template.tail >> $@.0
-	$(Q)echo "$(addprefix $(TOP)/,$(target-y)) $(TOP)/$(iar-cstartup-y)" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.0 "target" > $@.1
-	$(Q)echo "$(addprefix $(TOP)/,$(utils-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.1 "utils" > $@.2
-	$(Q)echo "$(addprefix $(TOP)/,$(drivers-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.2 "drivers"> $@.3
-	$(Q)echo "$(addprefix $(TOP)/,$(lwip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.3 "lwip" > $@.4
-	$(Q)echo "$(addprefix $(TOP)/,$(uip-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.4  "uip"> $@.5
-	$(Q)echo "$(addprefix $(TOP)/,$(usb-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.5  "usb"> $@.6
-	$(Q)echo "$(addprefix $(TOP)/,$(libsdmmc-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.6 "libsdmmc" > $@.7
-	$(Q)echo "$(addprefix $(TOP)/,$(libfatfs-y))" | bash $(TOP)/scripts/iar_gen_project.sh "lib" $@.7 "libfatfs" > $@.8
-	$(Q)echo "$(addprefix $(TOP)/,$(obj-y))" | bash $(TOP)/scripts/iar_gen_project.sh "project_files" $@.8 > $@.9
-	$(Q)bash $(TOP)/scripts/iar_gen_project.sh "finalize" $@.9 > $@
-	$(Q)rm -f iar_project.template.*
-	$(Q)rm -f $(BINNAME).ewp.bodies
-	$(Q)rm -f $@.*
-
-$(BINNAME).ewd.bodies: $(EWD_FILES)
-	$(Q)cat $(BINNAME)_*.ewd > $@
-	$(Q)rm -f $(BINNAME)_*.ewd
-
-$(BINNAME).ewd: EWD_SPLIT $(BINNAME).ewd.bodies
-	$(ECHO) GEN $(BINNAME).ewd
-	$(Q)cat iar_debug.template.head > $@
-	$(Q)cat $(BINNAME).ewd.bodies >> $@
-	$(Q)cat iar_debug.template.tail >> $@
-	$(Q)rm -f iar_debug.template.*
-	$(Q)rm -f $(BINNAME).ewd.bodies
+iar-env:
+	$(Q)rm -f .env-$(VARIANT).sh
+	$(Q)echo GEN Environment .env-$(VARIANT).sh
+	$(Q)touch .env-$(VARIANT).sh
+	$(Q)echo TOP=\"$(TOP)\"                               >> .env-$(VARIANT).sh
+	$(Q)echo CFLAGS_DEFS=\'$(CFLAGS_DEFS)\'               >> .env-$(VARIANT).sh
+	$(Q)echo CFLAGS_INC=\"$(CFLAGS_INC)\"                 >> .env-$(VARIANT).sh
+	$(Q)echo iar_linker_script_$(VARIANT)_y=\"$(iar-linker-script-$(VARIANT)-y)\" >> .env-$(VARIANT).sh
+	$(Q)echo iar_debug_script_$(VARIANT)_y=\"$(iar-debug-script-$(VARIANT)-y)\" >> .env-$(VARIANT).sh
+	$(Q)echo target_y=\"$(target-y) $(iar-cstartup-y)\"   >> .env-$(VARIANT).sh
+	$(Q)echo utils_y=\"$(utils-y)\"                       >> .env-$(VARIANT).sh
+	$(Q)echo drivers_y=\"$(drivers-y)\"                   >> .env-$(VARIANT).sh
+	$(Q)echo lwip_y=\"$(lwip-y)\"                         >> .env-$(VARIANT).sh
+	$(Q)echo uip_y=\"$(uip-y)\"                           >> .env-$(VARIANT).sh
+	$(Q)echo usb_y=\"$(usb-y)\"                           >> .env-$(VARIANT).sh
+	$(Q)echo libsdmmc_y=\"$(libsdmmc-y)\"                 >> .env-$(VARIANT).sh
+	$(Q)echo libfatfs_y=\"$(libfatfs-y)\"                 >> .env-$(VARIANT).sh
+	$(Q)echo obj_y=\"$(obj-y)\"                           >> .env-$(VARIANT).sh
+	$(Q)sed -i 's/\(SOFTPACK_VERSION=".*\) \(.*"\) /\1:\2 /' .env-$(VARIANT).sh

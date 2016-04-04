@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>__REPLACE_CONF_____REPLACE_BOARD__</name>
+    <name>__REPLACE_BOARD_____REPLACE_CONF__</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -17,15 +17,15 @@
         <debug>1</debug>
         <option>
           <name>ExePath</name>
-          <state>build\build___REPLACE_CONF__\Exe</state>
+          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>build\build___REPLACE_CONF__\Obj</state>
+          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>build\build___REPLACE_CONF__\List</state>
+          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\List</state>
         </option>
         <option>
           <name>Variant</name>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>ATSAMA5D27	Atmel SAMA5D27</state>
+          <state>AT__REPLACE_SOC__	Atmel __REPLACE_SOC__</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
