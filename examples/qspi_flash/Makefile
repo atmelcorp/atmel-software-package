@@ -27,10 +27,11 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the QSPI Flash example
+AVAILABLE_BOARDS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi
 
 TOP := ../..
 
-BINNAME = qspi-flash
+BINNAME = qspi_flash
 
 obj-y += examples/qspi_flash/main.o
 

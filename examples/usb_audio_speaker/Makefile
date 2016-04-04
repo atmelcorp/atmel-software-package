@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USB AUDIO Speaker example
+AVAILABLE_BOARDS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi
 
 TOP := ../..
 

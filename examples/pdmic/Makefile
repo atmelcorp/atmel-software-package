@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the PDMIC example
+AVAILABLE_BOARDS = sama5d2-xplained
 
 TOP := ../..
 
