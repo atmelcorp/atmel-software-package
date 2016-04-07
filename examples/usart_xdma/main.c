@@ -36,7 +36,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
-#include "peripherals/flexcom.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
 #include "peripherals/xdmad.h"
@@ -59,7 +58,23 @@
 #define READ_BUFFER_SIZE  256
 #endif
 
-static const struct _pin usart_pins[] = PINS_FLEXCOM4_USART_IOS2;
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#define USART_ADDR USART4
+#define USART_PINS PINS_FLEXCOM4_USART_IOS2
+
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#define USART_ADDR USART4
+#define USART_PINS PINS_USART4
+
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+#define USART_ADDR USART4
+#define USART_PINS PINS_USART4
+
+#else
+#error Unsupported SoC!
+#endif
+
+static const struct _pin usart_pins[] = USART_PINS;
 
 ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -72,7 +87,7 @@ static uint32_t cmd_index = 0;
 mutex_t lock = 0;
 
 static struct _usart_desc usart_desc = {
-	.addr           = USART4,
+	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfert_mode = USARTD_MODE_DMA,
@@ -191,8 +206,6 @@ int main (void)
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
-
-	flexcom_select(FLEXCOM4, FLEX_MR_OPMODE_USART);
 
 	usartd_configure(&usart_desc);
 	_cmd_parser = _usart_cmd_parser;
