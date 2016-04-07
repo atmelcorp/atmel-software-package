@@ -75,9 +75,6 @@ typedef struct {
 #define   SHA_MR_ALGO_SHA384 (0x2u << 8) /**< \brief (SHA_MR) SHA384 algorithm processed */
 #define   SHA_MR_ALGO_SHA512 (0x3u << 8) /**< \brief (SHA_MR) SHA512 algorithm processed */
 #define   SHA_MR_ALGO_SHA224 (0x4u << 8) /**< \brief (SHA_MR) SHA224 algorithm processed */
-#define   SHA_MR_ALGO_HMAC_SHA384 (0xAu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA384 Hash processed */
-#define   SHA_MR_ALGO_HMAC_SHA512 (0xBu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA512 Hash processed */
-#define   SHA_MR_ALGO_HMAC_SHA224 (0xCu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA224 Hash processed */
 #define SHA_MR_DUALBUFF (0x1u << 16) /**< \brief (SHA_MR) Dual Input Buffer */
 #define   SHA_MR_DUALBUFF_INACTIVE (0x0u << 16)	/**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx cannot be written during processing of previous block. */
 #define   SHA_MR_DUALBUFF_ACTIVE (0x1u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx can be written during processing of previous block when SMOD value = 2. It speeds up the overall runtime of large files. */

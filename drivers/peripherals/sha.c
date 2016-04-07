@@ -138,8 +138,10 @@ void sha_get_output(uint32_t * data)
 	uint8_t i, words;
 
 	algo = SHA->SHA_MR & SHA_MR_ALGO_Msk;
+#ifdef SHA_MR_ALGO_HMAC_SHA1
 	if (algo >= SHA_MR_ALGO_HMAC_SHA1)
 		algo = algo - SHA_MR_ALGO_HMAC_SHA1 + SHA_MR_ALGO_SHA1;
+#endif
 	algo >>= SHA_MR_ALGO_Pos;
 	assert(algo < ARRAY_SIZE(hash_size));
 	words = hash_size[algo];
