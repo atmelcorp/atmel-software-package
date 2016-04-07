@@ -349,7 +349,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	{
 		/* get buffer_size-1 data */
 		for (i = 0; i < buffer->size-1; ++i) {
-			if( _check_rx_time_out(addr) != TWID_SUCCESS )
+			if( _check_rx_time_out(desc) != TWID_SUCCESS )
 				break;
 			buffer->data[i] = twi_read_byte(addr);
 			if( _check_nack(addr) != TWID_SUCCESS )
@@ -361,7 +361,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 
 	if( _check_nack(addr) != TWID_SUCCESS )
 		return TWID_ERROR_ACK ;
-	if( _check_rx_time_out(addr) != TWID_SUCCESS )
+	if( _check_rx_time_out(desc) != TWID_SUCCESS )
 		return TWID_ERROR_TIMEOUT;
 	buffer->data[i] = twi_read_byte(addr);
 	/* wait transfert to be finished */
@@ -384,7 +384,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		return TWID_ERROR_ACK;
 
 	for (i = 1; i < buffer->size; ++i) {
-		if( _check_tx_time_out(addr) != TWID_SUCCESS )
+		if( _check_tx_time_out(desc) != TWID_SUCCESS )
 			break;
 		twi_write_byte(addr, buffer->data[i]);
 		if( _check_nack(addr) != TWID_SUCCESS )
