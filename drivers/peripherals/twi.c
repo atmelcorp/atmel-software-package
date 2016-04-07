@@ -94,6 +94,7 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_TWI_FIFO
 static bool _twi_wait_status(Twi *twi, uint32_t status, uint32_t timeout)
 {
 	struct _timeout tm;
@@ -104,6 +105,7 @@ static bool _twi_wait_status(Twi *twi, uint32_t status, uint32_t timeout)
 	}
 	return true;
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
