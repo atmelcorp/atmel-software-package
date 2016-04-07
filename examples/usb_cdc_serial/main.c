@@ -131,7 +131,6 @@
 #include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
-#include "peripherals/flexcom.h"
 
 #include "usb/device/cdc/cdcd_serial_driver.h"
 #include "usb/device/usbd.h"
@@ -162,6 +161,22 @@
 /** write loop count */
 #define TEST_COUNT          (1)
 
+/** define the peripherals and pins used for USART */
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#define USART_ADDR USART3
+#define USART_PINS PINS_FLEXCOM3_USART_IOS3
+
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#define USART_ADDR USART4
+#define USART_PINS PINS_USART4
+
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+#define USART_ADDR USART4
+#define USART_PINS PINS_USART4
+#else
+#error Unsupported SoC!
+#endif
+
 /*----------------------------------------------------------------------------
  *      External variables
  *----------------------------------------------------------------------------*/
@@ -171,8 +186,8 @@ extern const USBDDriverDescriptors cdcd_serial_driver_descriptors;
 /*----------------------------------------------------------------------------
  *      Internal variables
 ----------------------------------------------------------------------------*/
-Flexcom* flexcom = FLEXCOM3;
-static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
+
+static const struct _pin usart_pins[] = USART_PINS;
 
 /** Buffer for storing incoming USB data. */
 ALIGNED(L1_CACHE_BYTES)
@@ -191,7 +206,7 @@ ALIGNED(L1_CACHE_BYTES)
 static uint8_t test_buffer[TEST_BUFFER_SIZE];
 
 static struct _usart_desc usart_desc = {
-	.addr           = USART3,
+	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfert_mode = USARTD_MODE_DMA,
@@ -199,6 +214,7 @@ static struct _usart_desc usart_desc = {
 
 static volatile bool usart_rx_flag = false;
 static volatile uint8_t char_recv;
+
 /*----------------------------------------------------------------------------
  *         Internal Prototypes
  *----------------------------------------------------------------------------*/
@@ -212,7 +228,7 @@ static volatile uint8_t char_recv;
  */
 static void usart_irq_handler( void )
 {
-	Usart *p_us = &flexcom->usart;
+	Usart* p_us = usart_desc.addr;
 	
 	/* If USB device is not configured, do nothing */
 	if (!is_cdc_serial_on) {
@@ -335,14 +351,15 @@ static void _usb_data_sent(void *arg, uint8_t status, uint32_t transferred, uint
  */
 static void _configure_usart(void)
 {
+	Usart* usart = usart_desc.addr;
+	uint32_t id = get_usart_id_from_addr(usart);
 	/* Driver initialize */
 	xdmad_initialize(0);
-	flexcom_select(FLEXCOM3, FLEX_MR_OPMODE_USART);
 	usartd_configure(&usart_desc);
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
-	usart_enable_it(&FLEXCOM3->usart, US_IER_RXRDY);
-	aic_set_source_vector(ID_USART3, usart_irq_handler);
-	aic_enable(ID_USART3);
+	usart_enable_it(usart, US_IER_RXRDY);
+	aic_set_source_vector(id, usart_irq_handler);
+	aic_enable(id);
 }
 
 /**
