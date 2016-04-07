@@ -111,11 +111,22 @@
  *         Internal definitions
  *------------------------------------------------------------------------------*/
 
-/** define the peripheral used for IrDA */
+/** define the peripherals and pins used for IrDA */
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #define IRDA_USART USART3
+#define IRDA_PINS  PINS_FLEXCOM3_USART_IOS3
 
-/** define the pins used for IrDA */
-#define IRDA_PINS PINS_FLEXCOM3_USART_IOS3
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#define IRDA_USART USART4
+#define IRDA_PINS  PINS_USART4
+
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+#define IRDA_USART USART4
+#define IRDA_PINS  PINS_USART4
+
+#else
+#error Unsupported SoC!
+#endif
 
 /*------------------------------------------------------------------------------
  *         Internal variables
