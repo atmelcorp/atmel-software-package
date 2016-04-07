@@ -109,6 +109,7 @@
 
 #include "board.h"
 #include "trace.h"
+#include "timer.h"
 
 #include "memories/at24.h"
 #include "peripherals/pio.h"
@@ -117,7 +118,6 @@
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/clock.h"
-#include "uip/timer.h"
 #include "gmac_tapdev.h"
 #include "telnetd.h"
 
@@ -237,7 +237,7 @@ void dhcpc_configured(const struct dhcpc_state *s)
 int main(void)
 {
 	uip_ipaddr_t ipaddr;
-	struct timer periodic_timer, arp_timer;
+	struct _timeout periodic_timer, arp_timer;
 	uint32_t i;
 
 	/* Disable watchdog */
@@ -282,8 +282,8 @@ int main(void)
 	gmac_tapdev_setmac((uint8_t *)MacAddress.addr);
 	gmac_tapdev_init();
 	clock_init();
-	timer_set(&periodic_timer, CLOCK_SECOND / 2);
-	timer_set(&arp_timer, CLOCK_SECOND * 10);
+	timer_start_timeout(&periodic_timer, timer_get_resolution() / 2);
+	timer_start_timeout(&arp_timer, timer_get_resolution() * 10);
 
 	/* Init uIP */
 	uip_init();
@@ -336,8 +336,8 @@ int main(void)
 					gmac_tapdev_send();
 				}
 			}
-		} else if(timer_expired(&periodic_timer)) {
-			timer_reset(&periodic_timer);
+		} else if(timer_timeout_reached(&periodic_timer)) {
+			timer_reset_timeout(&periodic_timer);
 			for(i = 0; i < UIP_CONNS; i++) {
 				uip_periodic(i);
 				/* If the above function invocation resulted in data that
@@ -362,8 +362,8 @@ int main(void)
 #endif /* UIP_UDP */
 
 			/* Call the ARP timer function every 10 seconds. */
-			if(timer_expired(&arp_timer)) {
-				timer_reset(&arp_timer);
+			if(timer_timeout_reached(&arp_timer)) {
+				timer_reset_timeout(&arp_timer);
 				uip_arp_timer();
 			}
 		}

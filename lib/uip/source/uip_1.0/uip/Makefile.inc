@@ -30,7 +30,6 @@ CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0
 CFLAGS_INC += -I$(TOP)/lib/uip/source/uip_1.0/uip
 
 uip-y += lib/uip/source/uip_1.0/uip/psock.o
-uip-y += lib/uip/source/uip_1.0/uip/timer.o
 uip-y += lib/uip/source/uip_1.0/uip/uip_arp.o
 uip-y += lib/uip/source/uip_1.0/uip/uip.o
 uip-y += lib/uip/source/uip_1.0/uip/uip-fw.o
