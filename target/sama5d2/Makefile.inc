@@ -60,6 +60,18 @@ iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained
 endif
 endif
 
+# QSPI0 variant
+ifeq ($(VARIANT),qspi0)
+gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi0.ld
+iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi0.icf
+endif
+
+# QSPI1 variant
+ifeq ($(VARIANT),qspi1)
+gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi1.ld
+iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi1.icf
+endif
+
 chip-serie-name-y = sama5d2
 
 target-y += target/sama5d2/chip.o
