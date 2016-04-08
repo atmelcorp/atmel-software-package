@@ -27,6 +27,8 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USB Mass Storage example
+AVAILABLE_VARIANTS = ddram
+VARIANT ?= ddram
 
 TOP := ../..
 
