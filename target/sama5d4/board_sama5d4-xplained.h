@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _BOARD_SAMA5D4_EK_H
-#define _BOARD_SAMA5D4_EK_H
+#ifndef _BOARD_SAMA5D4_XPLAINED_H
+#define _BOARD_SAMA5D4_XPLAINED_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -43,7 +43,7 @@
  *----------------------------------------------------------------------------*/
 
 /**
- * \page sama5d4-ek_board_info "sama5d4-ek - Board Informations"
+ * \page sama5d4-xplained_board_info "sama5d4-xplained - Board Informations"
  * This page lists several definition related to the board description.
  *
  * \section Definitions
@@ -55,7 +55,7 @@
 
 /*----------------------------------------------------------------------------*/
 /**
- *  \page sama5d4_ek_opfreq "sama5d4-ek - Operating Frequencies"
+ *  \page sama5d4_xplained_opfreq "sama5d4-xplained - Operating Frequencies"
  *  This page lists several definition related to the board operating frequency
  *  (when using the initialization done by board_lowlevel.c).
  */
@@ -192,4 +192,4 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
-#endif /* _BOARD_SAMA5D4_EK_H */
+#endif /* _BOARD_SAMA5D4_XPLAINED_H */
