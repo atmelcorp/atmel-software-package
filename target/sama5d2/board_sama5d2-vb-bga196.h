@@ -171,12 +171,6 @@
 	{ PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT  },\
 }
 
-/* =================== PIN SDMMC definition ===================== */
-
-#define SDMMC0_PINS  { PINS_SDMMC0_4B_IOS1, PIN_SDMMC0_CK_IOS1,\
-                       PIN_SDMMC0_CD_IOS1, PIN_SDMMC0_RSTN_IOS1,\
-                       PIN_SDMMC0_WP_IOS1 }
-
 /* =================== PIN CAN definition ======================= */
 /* CAN0 {PC1; PC2} is wired to the J18 connector via an AT6561 transceiver. */
 

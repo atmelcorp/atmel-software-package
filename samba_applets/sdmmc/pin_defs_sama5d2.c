@@ -38,8 +38,20 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin pins_sdmmc0[] = SDMMC0_PINS;
-static const struct _pin pins_sdmmc1[] = SDMMC1_PINS;
+static const struct _pin pins_sdmmc0[] = {
+	PIN_SDMMC0_CD_IOS1,
+	PIN_SDMMC0_CK_IOS1,
+	PIN_SDMMC0_CMD_IOS1,
+	PIN_SDMMC0_VDDSEL_IOS1,
+	PINS_SDMMC0_DATA8B_IOS1
+};
+
+static const struct _pin pins_sdmmc1[] = {
+	PIN_SDMMC1_CD_IOS1,
+	PIN_SDMMC1_CK_IOS1,
+	PIN_SDMMC1_CMD_IOS1,
+	PINS_SDMMC1_DATA4B_IOS1
+};
 
 /*----------------------------------------------------------------------------
  *        Public constants

@@ -110,7 +110,7 @@
 
 #define AXIMX    ((Aximx    *)0x00600000U) /**< \brief (AXIMX   ) Base Address */
 #define L2CC     ((L2cc     *)0x00A00000U) /**< \brief (L2CC    ) Base Address */
-#define SDMMC0   ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC0  ) Base Address */
+#define SDMMC1   ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC1  ) Base Address */
 #define LCDC     ((Lcdc     *)0xF0000000U) /**< \brief (LCDC    ) Base Address */
 #define XDMAC1   ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1  ) Base Address */
 #define ISC      ((Isc      *)0xF0008000U) /**< \brief (ISC     ) Base Address */
@@ -210,7 +210,7 @@
 #define EBI_CS3_ADDR    (0x80000000u) /**< EBI Chip Select 3 base address */
 #define QSPI_AES0_ADDR  (0x90000000u) /**< QPSI Memory crypted with AES 0 base address */
 #define QSPI_AES1_ADDR  (0x98000000u) /**< QPSI Memory crypted with AES 1 base address */
-#define SDMMC0_ADDR     (0xB0000000u) /**< SDMMC 0 base address */
+#define SDMMC1_ADDR     (0xB0000000u) /**< SDMMC 1 base address */
 #define NFC_ADDR        (0xC0000000u) /**< NAND Flash Controller Command base address */
 #define QSPIMEM0_ADDR   (0xD0000000u) /**< QSPI Memory 0 base address */
 #define QSPIMEM1_ADDR   (0xD8000000u) /**< QSPI Memory 1 base address */

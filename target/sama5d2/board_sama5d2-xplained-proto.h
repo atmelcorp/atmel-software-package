@@ -202,13 +202,22 @@
 
 #define CLASSD_PINS PINS_CLASSD_IOS1
 
-/* =================== PIN SDMMC definition ===================== */
+/* =================== SDMMC device definition ==================== */
 
-#define SDMMC0_PINS  { PINS_SDMMC0_8B_IOS1, PIN_SDMMC0_CK_IOS1,\
-                       PIN_SDMMC0_VDDSEL_IOS1, PIN_SDMMC0_RSTN_IOS1 }
+#define BOARD_SDMMC0_PINS { PIN_SDMMC0_CK_IOS1, PIN_SDMMC0_CMD_IOS1,\
+                            PIN_SDMMC0_RSTN_IOS1, PIN_SDMMC0_VDDSEL_IOS1,\
+                            PINS_SDMMC0_DATA8B_IOS1 }
 
-#define SDMMC1_PINS  { PINS_SDMMC1_4B_IOS1, PIN_SDMMC1_CK_IOS1,\
-                       PIN_SDMMC1_CD_IOS1 }
+#define BOARD_SDMMC0_CAPS0 (SDMMC_CA0R_V33VSUP | \
+                            SDMMC_CA0R_V18VSUP | \
+                            SDMMC_CA0R_SLTYPE_EMBEDDED | \
+                            SDMMC_CA0R_ED8SUP)
+
+#define BOARD_SDMMC1_PINS { PIN_SDMMC1_CD_IOS1, PIN_SDMMC1_CK_IOS1,\
+                            PIN_SDMMC1_CMD_IOS1, PINS_SDMMC1_DATA4B_IOS1 }
+
+#define BOARD_SDMMC1_CAPS0 (SDMMC_CA0R_V33VSUP | \
+                            SDMMC_CA0R_SLTYPE_REMOVABLECARD)
 
 /* =================== AT25 device definition =================== */
 
