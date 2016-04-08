@@ -83,6 +83,33 @@ struct sdmmc_set
  *----------------------------------------------------------------------------*/
 
 /**
+ * \brief Set the values of the capabilities registers (SDMMC_CA0R &
+ * SDMMC_CA1R)
+ *
+ * SDMMC capabilities default to MPU capabilities and can be adjusted using
+ * this function, according to board design.
+ *
+ * These modifications won't be altered by SRR:SWRSTALL and must be done before
+ * calling sdmmc_initialize.
+ *
+ * In pseudo-code, this function is equivalent to:
+ * SDMMC_CA0R = (SDMMC_CA0R & ~caps0_mask) | (caps0 & caps0_mask)
+ * SDMMC_CA1R = (SDMMC_CA1R & ~caps1_mask) | (caps1 & caps1_mask)
+ *
+ * Warning: setting invalid capabilities can have unfortunate consequences on
+ * the hardware (some capabilities control the voltage).
+ *
+ * \param regs SD/MMC peripheral instance to use
+ * \param caps0 value of the "capabilities 0 register"
+ * \param caps0_mask mask for the "capabilities 0 register"
+ * \param caps1 value of the "capabilities 1 register"
+ * \param caps1_mask mask for the "capabilities 1 register"
+ */
+extern void sdmmc_set_capabilities(Sdmmc* regs,
+		uint32_t caps0, uint32_t caps0_mask,
+		uint32_t caps1, uint32_t caps1_mask);
+
+/**
  * \brief Initialize the specified driver instance and the associated SDMMC 
  * peripheral.
  * \param set  Pointer to uninitialized driver instance data.
@@ -102,7 +129,7 @@ struct sdmmc_set
  * \return true if successful, false if a parameter is assigned an unsupported
  * value.
  */
-bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t sdmmc_id,
+extern bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t sdmmc_id,
     uint32_t tc_id, uint32_t tc_ch, uint32_t *dma_buf, uint32_t dma_buf_size);
 
 #ifdef __cplusplus

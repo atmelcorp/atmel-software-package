@@ -1575,6 +1575,25 @@ static sSdHalFunctions sdHal = {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+void sdmmc_set_capabilities(Sdmmc* regs,
+		uint32_t caps0, uint32_t caps0_mask,
+		uint32_t caps1, uint32_t caps1_mask)
+{
+	assert((caps0 & caps0_mask) == caps0);
+	assert((caps1 & caps1_mask) == caps1);
+
+	caps0 = (regs->SDMMC_CA0R & ~caps0_mask) | (caps0 & caps0_mask);
+	caps1 = (regs->SDMMC_CA1R & ~caps1_mask) | (caps1 & caps1_mask);
+
+	regs->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | SDMMC_CACR_CAPWREN;
+	if (regs->SDMMC_CA0R != caps0)
+		regs->SDMMC_CA0R = caps0;
+	if (regs->SDMMC_CA1R != caps1)
+		regs->SDMMC_CA1R = caps1;
+	regs->SDMMC_CACR = SDMMC_CACR_KEY(0x46) | 0;
+}
+
+
 bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
     uint32_t tc_id, uint32_t tc_ch, uint32_t *dma_buf, uint32_t dma_buf_size)
 {
