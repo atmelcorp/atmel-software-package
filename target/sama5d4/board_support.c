@@ -83,10 +83,31 @@ const static struct _l2cc_control l2cc_cfg = {
  */
 void board_cfg_console(void)
 {
-#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR) && defined(BOARD_CONSOLE_BAUDRATE)
+#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR)
 	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
+	uint32_t baudrate;
+
+#ifdef BOARD_CONSOLE_BAUDRATE
+	baudrate = BOARD_CONSOLE_BAUDRATE;
+#else
+	baudrate = 115200;
+#endif
+
 	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(BOARD_CONSOLE_ADDR, BOARD_CONSOLE_BAUDRATE);
+	console_configure(BOARD_CONSOLE_ADDR, baudrate);
+#else
+	uint32_t baudrate;
+
+#ifdef BOARD_CONSOLE_BAUDRATE
+	baudrate = BOARD_CONSOLE_BAUDRATE;
+#else
+	baudrate = 115200;
+#endif
+
+	/* default console port used by ROM-code */
+	const struct _pin console_pins[] = { PIN_USART3_TXD, PIN_USART3_RXD };
+	pio_configure(console_pins, 2);
+	console_configure(USART3, baudrate);
 #endif
 }
 

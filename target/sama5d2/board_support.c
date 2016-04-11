@@ -47,15 +47,24 @@
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
-#include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
+#include "peripherals/sfc.h"
 
 #include "memories/ddram.h"
 
 #include "misc/console.h"
 
 #include "board_support.h"
+
+/*----------------------------------------------------------------------------
+ *        Local types
+ *----------------------------------------------------------------------------*/
+
+struct _console_cfg {
+	void* addr;
+	const struct _pin pins[2];
+};
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -82,10 +91,59 @@ const static struct _l2cc_control l2cc_cfg = {
 
 void board_cfg_console(void)
 {
-#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR) && defined(BOARD_CONSOLE_BAUDRATE)
+#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR)
 	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
+	uint32_t baudrate;
+#ifdef BOARD_CONSOLE_BAUDRATE
+	baudrate = BOARD_CONSOLE_BAUDRATE;
+#else
+	baudrate = 57600;
+#endif
+
 	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(BOARD_CONSOLE_ADDR, BOARD_CONSOLE_BAUDRATE);
+	console_configure(BOARD_CONSOLE_ADDR, baudrate);
+#else
+	/* default console ports used by ROM-code */
+	const struct _console_cfg console_cfg[] = {
+		{ UART1, PINS_UART1_IOS1 },
+		{ UART0, PINS_UART0_IOS1 },
+		{ UART1, PINS_UART1_IOS2 },
+		{ UART2, PINS_UART2_IOS1 },
+		{ UART2, PINS_UART2_IOS2 },
+		{ UART2, PINS_UART2_IOS3 },
+		{ UART3, PINS_UART3_IOS1 },
+		{ UART3, PINS_UART3_IOS2 },
+		{ UART3, PINS_UART3_IOS3 },
+		{ UART4, PINS_UART4_IOS1 },
+	};
+	uint32_t bcw;
+	uint32_t baudrate;
+	uint32_t console;
+
+	/* read boot config word from fuse */
+	bcw = sfc_read(16);
+
+	/* if BSCR is not disabled and BUREG index is valid, use BUREG */
+	if ((bcw & BCW_DISABLE_BSCR) == 0) {
+		uint32_t bsc_cr = BSC->BSC_CR;
+		if (bsc_cr & BSC_CR_BUREG_VALID) {
+			uint32_t index = (bsc_cr & BSC_CR_BUREG_INDEX_Msk) >> BSC_CR_BUREG_INDEX_Pos;
+			bcw = SECURAM->BUREG_256b[index];
+		}
+	}
+
+#ifdef BOARD_CONSOLE_BAUDRATE
+	baudrate = BOARD_CONSOLE_BAUDRATE;
+#else
+	baudrate = 57600;
+#endif
+
+	/* configure console */
+	console = (bcw & BCW_UART_CONSOLE_Msk) >> BCW_UART_CONSOLE_Pos;
+	if (console < ARRAY_SIZE(console_cfg)) {
+		pio_configure(console_cfg[console].pins, 2);
+		console_configure(console_cfg[console].addr, baudrate);
+	}
 #endif
 }
 

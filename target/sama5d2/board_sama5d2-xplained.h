@@ -90,6 +90,8 @@
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition: use UART1 IOSET1 */
+/* Note that these definitions could be omitted if the console is configured in
+ * the active boot config word. */
 #define BOARD_CONSOLE_PINS     PINS_UART1_IOS1
 #define BOARD_CONSOLE_ADDR     UART1
 #define BOARD_CONSOLE_BAUDRATE 57600
