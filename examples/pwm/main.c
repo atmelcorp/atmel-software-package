@@ -42,6 +42,9 @@
  * Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board to
  * capture the PWM output using TC.
  *
+ * Requirements before running this example on SAMA5D4-EK:
+ * Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44).
+ *
  * Requirements before running this example on SAMA5D4-XULT:
  * Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board to
  * capture the PWM output using TC.
@@ -147,42 +150,19 @@ struct _tc_desc {
 #define TC_CAPTURE_IDLE ((uint32_t)-1)
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-
-/** define PWM channel to output PWM signal */
-#define CHANNEL_PWM PWM_LED_CH_0
-
-/** define PWM pin to output PWM signal */
-#define PIN_PWM PIN_PWM_LED_0
-
-/** define TC channel to output the waveform */
-#define CHANNEL_TC_CAPTURE_IN 2
-
-/** define TC pin to capture the waveform */
-#define PIN_TC_CAPTURE_IN \
-	{ PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT }
-
+	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-
-/** define PWM channel to output PWM signal */
-#define CHANNEL_PWM 1
-
-/** define PWM pin to output PWM signal */
-#define PIN_PWM \
-	{ PIO_GROUP_B, PIO_PB11C_PWMH1, PIO_PERIPH_C, PIO_PULLUP }
-
-/** define TC channel to output the waveform */
-#define CHANNEL_TC_CAPTURE_IN 1
-
-/** define TC pin to capture the waveform */
-#define PIN_TC_CAPTURE_IN \
-	{ PIO_GROUP_E, PIO_PE12B_TIOA1, PIO_PERIPH_B, PIO_DEFAULT }
-
+	#include "config_sama5d4-xplained.h"
 #else
 #error Unsupported board!
 #endif
 
+#ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer length for synchronous channels */
 #define DUTY_BUFFER_LENGTH 100
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -210,8 +190,10 @@ volatile uint32_t dwTimeStamp = 0;
 /** Pio pins to configure. */
 static const struct _pin pins_pwm[] = { PIN_PWM };
 
+#ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer synchronous channels */
 static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
+#endif
 
 /** PIOs for TC capture, waveform */
 static const struct _pin pins_tc[] = { PIN_TC_CAPTURE_IN };
@@ -243,7 +225,9 @@ static void _display_menu(void)
 	printf("\n\rMenu :\n\r");
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
+#ifdef CONFIG_HAVE_PWM_DMA
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
+#endif
 	printf("  f: PWM fault mode initialize \n\r");
 	printf("  F: PWM fault mode clear and disable \n\r");
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
@@ -400,6 +384,7 @@ static void _pwmc_callback(void* args)
 	trace_debug("PWM DMA Transfer Finished\r\n");
 }
 
+#ifdef CONFIG_HAVE_PWM_DMA
 /**
  * \brief Configure DMA operation for PWM synchronous channel
  */
@@ -426,6 +411,7 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd, uint32_t clock)
 	pwmc_set_dma_finished_callback(_pwmc_callback, 0);
 	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -510,11 +496,13 @@ int main(void)
 				pwm_channel = CHANNEL_PWM;
 				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
 				break;
+#ifdef CONFIG_HAVE_PWM_DMA
 			case 'd':
 				current_demo = key;
 				pwm_channel = CHANNEL_PWM;
 				_pwm_demo_dma(pwm_channel, cprd, clock);
 				break;
+#endif
 			case 'f':
 				pwmc_set_fault_mode(PWM,
 					PWM_FMR_FPOL(1 << PWM_FAULT_INPUT_TIMER0)

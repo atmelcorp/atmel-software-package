@@ -22,7 +22,7 @@ Step needed to set up the example.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
  on Microsoft Windows) with these settings:
 	- 57600 bauds (for sama5d2-xplained)
-	- 115200 bauds (for sama5d4-xplained)
+	- 115200 bauds (for sama5d4-ek or sama5d4-xplained)
 	- 8 bits of data
 	- No parity
 	- 1 stop bit
@@ -53,7 +53,7 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Connect for capture | Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on sama5d2-xplained board | N/A | N/A
+Connect for capture | `sama5d2-xplained board:` Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6); `sama5d4-ek board:` Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44); `sama5d4-xplained board:` Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) | N/A | N/A
 Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
 Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
