@@ -107,6 +107,11 @@ void timer_start_timeout(struct _timeout* timeout, uint32_t count)
 	timeout->count = count;
 }
 
+void timer_reset_timeout(struct _timeout* timeout)
+{
+	timeout->start = timer_get_tick();
+}
+
 uint8_t timer_timeout_reached(struct _timeout* timeout)
 {
 	return timer_get_interval(timeout->start, timer_get_tick()) >= timeout->count;

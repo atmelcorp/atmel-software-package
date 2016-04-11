@@ -107,6 +107,11 @@ extern uint32_t timer_get_resolution(void);
 extern void timer_start_timeout(struct _timeout* timeout, uint32_t count);
 
 /**
+ *  \brief Reset the starting time of a timeout structure
+ */
+extern void timer_reset_timeout(struct _timeout* timeout);
+
+/**
  *  \brief Tells if the timeout as been reached
  */
 extern uint8_t timer_timeout_reached(struct _timeout* timeout);
