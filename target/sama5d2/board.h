@@ -30,7 +30,9 @@
 #ifndef _BOARD_HEADER_
 #define _BOARD_HEADER_
 
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_GENERIC)
+  #include "board_sama5d2-generic.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
   #include "board_sama5d2-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO)
   #include "board_sama5d2-xplained-proto.h"

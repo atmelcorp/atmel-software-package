@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2014, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,17 +27,46 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _BOARD_HEADER_
-#define _BOARD_HEADER_
+#ifndef _BOARD_SAMA5D4_GENERIC_H
+#define _BOARD_SAMA5D4_GENERIC_H
 
-#if defined(CONFIG_BOARD_SAMA5D4_GENERIC)
-  #include "board_sama5d4-generic.h"
-#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-  #include "board_sama5d4-xplained.h"
-#elif defined(CONFIG_BOARD_SAMA5D4_EK)
-  #include "board_sama5d4-ek.h"
-#else
-  #error "No board defined"
-#endif
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#endif				/* #ifndef _BOARD_HEADER_ */
+#include "chip.h"
+
+#include "board_support.h"
+
+/*----------------------------------------------------------------------------
+ *        HW BOARD Definitions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \page sama5d4-generic_board_info "sama5d4-generic - Board Informations"
+ * This page lists several definition related to the board description.
+ *
+ * \section Definitions
+ * - \ref BOARD_NAME
+ */
+
+/** Name of the board */
+#define BOARD_NAME "sama5d4-generic"
+
+/*----------------------------------------------------------------------------*/
+/**
+ *  \page sama5d4_generic_opfreq "sama5d4-generic - Operating Frequencies"
+ *  This page lists several definition related to the board operating frequency
+ *  (when using the initialization done by board_lowlevel.c).
+ */
+
+/** Frequency of the board slow clock oscillator */
+#define BOARD_SLOW_CLOCK_EXT_OSC 32768
+
+/** Frequency of the board main clock oscillator */
+#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
+
+/** \def Board PIT tick resolution */
+#define BOARD_TIMER_RESOLUTION    1000
+
+#endif /* _BOARD_SAMA5D4_GENERIC_H */

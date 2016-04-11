@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SD/MMC SAM-BA applet
+AVAILABLE_TARGETS = sama5d2-generic
 AVAILABLE_VARIANTS = sram
 
 TOP := ../..

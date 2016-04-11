@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Low-level initialization SAM-BA applet
+AVAILABLE_TARGETS = sama5d2-generic sama5d4-generic
 AVAILABLE_VARIANTS = sram
 
 TOP := ../..

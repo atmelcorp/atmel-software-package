@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the BootConfig applet
+AVAILABLE_TARGETS = sama5d2-generic
 AVAILABLE_VARIANTS = sram
 
 TOP := ../..

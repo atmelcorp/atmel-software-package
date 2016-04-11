@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SPI SerialFlash SAM-BA applet
+AVAILABLE_TARGETS = sama5d2-generic sama5d4-generic
 AVAILABLE_VARIANTS = sram
 
 TOP := ../..
