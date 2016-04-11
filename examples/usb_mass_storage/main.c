@@ -132,23 +132,8 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/* Configure whether the on-board DDR3-SDRAM should be used */
-#define USE_EXT_RAM                   1
-
-#ifdef VARIANT_DDRAM
-# undef USE_EXT_RAM
-# define USE_EXT_RAM                  1
-#endif
-
-#if USE_EXT_RAM
-# define BLOCK_CNT_MAX                65536ul
-# define DMADL_CNT_MAX                512u
-#else
-# define BLOCK_CNT_MAX                24u
-# define DMADL_CNT_MAX                1u
-#endif
-
-#define BLOCK_CNT                     3u
+/* Max number of DMA descriptors per slot, refer to sdmmc_initialize(). */
+#define DMADL_CNT_MAX                 512u
 
 /* Allocate 2 Timers/Counters, that are not used already by the libraries and
  * drivers this example depends on. */
@@ -175,10 +160,6 @@
 /** RamDisk size (WinXP can not format the disk if lower than 20K) */
 #define RAMDISK_SIZE (8 * 1024 * 1024)
 
-SECTION(".region_ddr")
-ALIGNED(BLOCK_SIZE)
-static uint8_t ramdisk_reserved[RAMDISK_SIZE];
-
 /** Size of the MSD IO buffer in bytes (more the better). */
 #define MSD_BUFFER_SIZE (128 * BLOCK_SIZE)
 
@@ -196,11 +177,19 @@ struct _media medias[MAX_LUNS];
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+SECTION(".region_ddr")
+ALIGNED(BLOCK_SIZE)
+static uint8_t ramdisk_reserved[RAMDISK_SIZE];
+
 /* Driver instance data (a.k.a. SDCard driver instance) */
 static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC];
 
 /* Library instance data (a.k.a. SDCard library instance) */
-ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib[BOARD_NUM_SDMMC];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib0;
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib1;
+static sSdCard * sd_lib[BOARD_NUM_SDMMC] = { &sd_lib0, &sd_lib1 };
 
 /** Device LUNs. */
 static MSDLun luns[MAX_LUNS];
@@ -212,18 +201,19 @@ static uint8_t ram_buffer[MSD_BUFFER_SIZE];
 
 /** LUN read/write buffer. */
 SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t sd_buffer[BOARD_NUM_SDMMC][MSD_BUFFER_SIZE];
+ALIGNED(L1_CACHE_BYTES) static uint8_t sd_buffer0[MSD_BUFFER_SIZE];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES) static uint8_t sd_buffer1[MSD_BUFFER_SIZE];
+static uint8_t * sd_buffer[BOARD_NUM_SDMMC] = { sd_buffer0, sd_buffer1 };
 
 
 static bool use_dma;
 
-/* Buffer dedicated to the SDMMC Driver. Refer to sdmmc_initialize(). */
-#if USE_EXT_RAM
+/* Buffers dedicated to the SDMMC Driver. Refer to sdmmc_initialize(). */
 SECTION(".region_ddr")
-#endif
-ALIGNED(L1_CACHE_BYTES)
-static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+static uint32_t sd_dma_table0[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+SECTION(".region_ddr")
+static uint32_t sd_dma_table1[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 static struct _twi_desc pmic_twid = {
@@ -241,12 +231,12 @@ static struct _act8945a pmic = {
 #endif
 
 /** Total data write to disk */
-uint32_t msd_write_total = 0;
+static uint32_t msd_write_total = 0;
 
 /** Delay TO event */
-uint8_t  msd_refresh = 0;
+static uint8_t msd_refresh = 0;
 
-uint8_t current_lun_num = 0;
+static uint8_t current_lun_num = 0;
 /*-----------------------------------------------------------------------------
  *         Callback re-implementation
  *-----------------------------------------------------------------------------*/
@@ -352,15 +342,16 @@ static void sd_driver_configure(void)
 
 	use_dma = true;
 	
-	sdmmc_initialize(&sd_drv[0], SDMMC0, ID_SDMMC0, TIMER0_MODULE, TIMER0_CHANNEL,
-					use_dma ? dma_table : NULL,
-					use_dma ? ARRAY_SIZE(dma_table) : 0);
-	sdmmc_initialize(&sd_drv[1], SDMMC1, ID_SDMMC1, TIMER1_MODULE, TIMER1_CHANNEL,
-						use_dma ? dma_table : NULL,
-						use_dma ? ARRAY_SIZE(dma_table) : 0);
+	sdmmc_initialize(&sd_drv[0], SDMMC0, ID_SDMMC0, TIMER0_MODULE,
+	    TIMER0_CHANNEL, use_dma ? sd_dma_table0 : NULL,
+	    use_dma ? ARRAY_SIZE(sd_dma_table0) : 0);
+	sdmmc_initialize(&sd_drv[1], SDMMC1, ID_SDMMC1, TIMER1_MODULE,
+	    TIMER1_CHANNEL, use_dma ? sd_dma_table1 : NULL,
+	    use_dma ? ARRAY_SIZE(sd_dma_table1) : 0);
 
-	SDD_InitializeSdmmcMode(&sd_lib[0], &sd_drv[0], 0);
-	SDD_InitializeSdmmcMode(&sd_lib[1], &sd_drv[1], 0);
+	/* As of writing, libsdmmc ignores the slot number */
+	SDD_InitializeSdmmcMode(&sd_lib0, &sd_drv[0], 0);
+	SDD_InitializeSdmmcMode(&sd_lib1, &sd_drv[1], 0);
 }
 
 /**
@@ -371,7 +362,7 @@ static void ramdisk_init(void)
 	trace_info("RamDisk @ %x, size %d\n\r", (unsigned)&ramdisk_reserved, RAMDISK_SIZE);
 
 	media_ramdisk_init(&(medias[DRV_RAMDISK]),
-			((uint32_t)&ramdisk_reserved) / BLOCK_SIZE,
+			(uint32_t)ramdisk_reserved / BLOCK_SIZE,
 			RAMDISK_SIZE / BLOCK_SIZE,
 			BLOCK_SIZE);
 
@@ -390,29 +381,17 @@ static void ramdisk_init(void)
  */
 static bool card_init(uint8_t num)
 {
-	sSdCard *pSd = &sd_lib[num];
-	uint8_t card_type;
+	sSdCard *pSd = sd_lib[num];
 	uint8_t rc;
 	
 	trace_info("\n\r==========================================\n\r");
 
 	rc = SD_Init(pSd);
 	if (rc != SDMMC_OK) {
-		trace_info("-E- SD/MMC device initialization failed: %d\n\r", rc);
+		trace_error("SD/MMC device initialization failed: %d\n\r", rc);
 		return false;
 	}
-	trace_info("-I- SD/MMC card initialization successful\n\r");
-
 	SD_DumpStatus(pSd);
-	card_type = SD_GetCardType(pSd);
-	if (card_type & CARD_TYPE_bmSDMMC) {
-		SD_DumpCID(pSd);
-		SD_DumpCSD(pSd);
-	}
-	if (card_type & CARD_TYPE_bmMMC)
-		SD_DumpExtCSD(pSd->EXT);
-	if (card_type & CARD_TYPE_bmSDIO)
-		SDIO_DumpCardInformation(pSd);
 	return true;
 }
 
@@ -427,13 +406,13 @@ static void sddisk_init(void)
 	for (i = 0; i < BOARD_NUM_SDMMC; i ++) sd_connected[i]=0;
 	for (i = 0; i < BOARD_NUM_SDMMC; i ++) {
 
-	if (SD_GetStatus(&sd_lib[i]) != SDMMC_NOT_SUPPORTED) {
+	if (SD_GetStatus(sd_lib[i]) != SDMMC_NOT_SUPPORTED) {
 		if (sd_connected[i] == 0) {
 				sd_connected[i] = 1;
-				trace_info("-I- connect to solt %x \n\r",i);
+				trace_info("Connecting to slot %x \n\r",i);
 				rc = card_init(i);
 				if(rc) {
-					pSd = &sd_lib[i];
+					pSd = sd_lib[i];
 					media_sdusb_initialize(&medias[current_lun_num], pSd);
 					lun_init(&(luns[current_lun_num]), &(medias[current_lun_num]),
 								sd_buffer[i], MSD_BUFFER_SIZE, 0, 0, 0, 0, 
@@ -471,26 +450,6 @@ static void _MemoriesInitialize(void)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-
-/* Refer to sdmmc_ff.c */
-bool SD_GetInstance(uint8_t index, sSdCard **holder);
-
-bool SD_GetInstance(uint8_t index, sSdCard **holder)
-{
-	assert(holder);
-
-	switch (index) {
-	case 0:
-		*holder = &sd_lib[0];
-		break;
-	case 1:
-		*holder = &sd_lib[1];
-		break;
-	default:
-		return false;
-	}
-	return true;
-}
 
 /**
  * \brief usb_massstorage Application entry point.
