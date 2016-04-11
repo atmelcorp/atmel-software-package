@@ -21,8 +21,7 @@ Step needed to set up the example.
 * Build the program and download it inside the evaluation board.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
  on Microsoft Windows) with these settings:
-	- 57600 bauds (for sama5d2-xplained)
-	- 115200 bauds (for sama5d4-xplained)
+	- 115200 bauds
 	- 8 bits of data
 	- No parity
 	- 1 stop bit

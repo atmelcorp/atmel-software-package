@@ -94,7 +94,7 @@
  * the active boot config word. */
 #define BOARD_CONSOLE_PINS     PINS_UART1_IOS1
 #define BOARD_CONSOLE_ADDR     UART1
-#define BOARD_CONSOLE_BAUDRATE 57600
+#define BOARD_CONSOLE_BAUDRATE 115200
 
 /* =================== PIN LED definition ====================== */
 

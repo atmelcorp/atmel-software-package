@@ -97,7 +97,7 @@ void board_cfg_console(void)
 #ifdef BOARD_CONSOLE_BAUDRATE
 	baudrate = BOARD_CONSOLE_BAUDRATE;
 #else
-	baudrate = 57600;
+	baudrate = 115200;
 #endif
 
 	pio_configure(console_pins, ARRAY_SIZE(console_pins));
@@ -135,7 +135,7 @@ void board_cfg_console(void)
 #ifdef BOARD_CONSOLE_BAUDRATE
 	baudrate = BOARD_CONSOLE_BAUDRATE;
 #else
-	baudrate = 57600;
+	baudrate = 115200;
 #endif
 
 	/* configure console */
