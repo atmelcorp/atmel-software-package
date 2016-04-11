@@ -100,6 +100,8 @@
 #include "trace.h"
 #include "plugin_sha.h"
 #include "misc/console.h"
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
@@ -507,6 +509,13 @@ int main(void)
 
 #if USE_EXT_RAM && !defined(VARIANT_DDRAM)
 	board_cfg_ddram();
+#elif !defined(VARIANT_DDRAM)
+	mmu_initialize();
+	cp15_icache_invalidate();
+	cp15_dcache_invalidate();
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
 #endif
 
 	pmc_enable_peripheral(TIMER0_MODULE);
