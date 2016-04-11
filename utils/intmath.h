@@ -64,6 +64,16 @@ static inline uint32_t min_u32(uint32_t a, uint32_t b)
 }
 
 /**
+ *  Returns the maximum value between two integers.
+ *  \param a First integer to compare
+ *  \param b Second integer to compare
+ */
+static inline uint32_t max_u32(uint32_t a, uint32_t b)
+{
+	return a > b ? a : b;
+}
+
+/**
  *  Returns the absolute value of an integer.
  *  \param value Integer value
  */
