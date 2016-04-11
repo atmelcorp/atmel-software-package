@@ -40,7 +40,6 @@
 extern int __buffer_start__;
 extern int __buffer_end__;
 
-static bool _console_initialized;
 static uint32_t _comm_type;
 uint8_t *applet_buffer;
 uint32_t applet_buffer_size;
@@ -62,7 +61,16 @@ static void init_applet_buffer(void)
 void applet_set_init_params(uint32_t comm, uint32_t trace)
 {
 	_comm_type = comm;
-	trace_level = trace;
+
+	if (_comm_type  != COMM_TYPE_DBGU) {
+		trace_level = trace;
+		board_cfg_console();
+	} else {
+		/* We are communicating using the console UART so the applet */
+		/* cannot display any trace */
+		trace_level = 0;
+	}
+
 }
 
 /**
@@ -76,11 +84,6 @@ void applet_main(struct applet_mailbox *mailbox)
 
 	/* set default status */
 	mailbox->status = APPLET_FAIL;
-
-	if (!_console_initialized) {
-		board_cfg_console();
-		_console_initialized = true;
-	}
 
 	if (!applet_buffer) {
 		init_applet_buffer();
