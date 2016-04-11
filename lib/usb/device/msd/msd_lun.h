@@ -191,6 +191,11 @@ extern void lun_init(MSDLun        *lun,
 
 extern uint32_t lun_eject(MSDLun *lun);
 
+extern uint32_t lun_access(MSDLun         *lun,
+					  uint32_t           block_address,
+					  uint32_t           length,
+					  uint8_t            write);
+
 extern uint32_t lun_write(MSDLun           *lun,
 					   uint32_t         blockAddress,
 					   void             *data,

@@ -37,6 +37,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "trace.h"
+#include "intmath.h"
 
 #include "libstoragemedia/media.h"
 
@@ -159,7 +160,7 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 	MSDTransfer *transfer = &(command_state->transfer);
 	MSDTransfer *disktransfer = &(command_state->disktransfer);
 	MSDIOFifo *fifo = &lun->ioFifo;
-	uint32_t old_chunk_size, new_chunk_size;
+	uint32_t lba, old_chunk_size, new_chunk_size;
 
 	/* Init command state */
 	if (command_state->state == 0) {
@@ -175,10 +176,8 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 			fifo->blockSize = lun->blockSize *
 				media_get_block_size(lun->media);
 #ifdef MSDIO_WRITE10_CHUNK_SIZE
-			if (fifo->blockSize < MSDIO_WRITE10_CHUNK_SIZE)
-				fifo->chunkSize = MSDIO_WRITE10_CHUNK_SIZE;
-			else
-				fifo->chunkSize = fifo->blockSize;
+			fifo->chunkSize = max_u32(fifo->blockSize,
+						  MSDIO_WRITE10_CHUNK_SIZE);
 #endif
 			fifo->fullCnt = 0;
 			fifo->nullCnt = 0;
@@ -230,13 +229,23 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 
 		/* Read one block of data sent by the host */
 		if (media_is_mapped_write_supported(lun->media)) {
-			/* Directly write to memory */
-			uint32_t mappedAddr = media_get_mapped_address(lun->media,
-					DWORDB(command->pLogicalBlockAddress) *
-					lun->blockSize);
-			status = usbd_read(command_state->pipeOUT,
-					(void*)mappedAddr, fifo->dataTotal,
-					msd_driver_callback, transfer);
+			uint32_t mappedAddr;
+			/* Validate the specified block range then write
+			 * directly to the memory area assigned to the device */
+			status = lun_access(lun,
+					DWORDB(command->pLogicalBlockAddress),
+					WORDB(command->pTransferLength), 1);
+			if (status != USBD_STATUS_SUCCESS)
+				msd_driver_callback(transfer,
+						MEDIA_STATUS_ERROR, 0, 0);
+			else {
+				mappedAddr = media_get_mapped_address(lun->media,
+						DWORDB(command->pLogicalBlockAddress)
+						* lun->blockSize);
+				status = usbd_read(command_state->pipeOUT,
+						(void*)mappedAddr, fifo->dataTotal,
+						msd_driver_callback, transfer);
+			}
 		} else {
 			/* Read block to buffer */
 #ifdef MSDIO_WRITE10_CHUNK_SIZE
@@ -406,20 +415,19 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 				fifo->outputState = MSDIO_IDLE;
 			} else {
 				/* Update output index */
+				lba = DWORDB(command->pLogicalBlockAddress);
 #ifdef MSDIO_WRITE10_CHUNK_SIZE
-				STORE_DWORDB(DWORDB(command->pLogicalBlockAddress) +
-						fifo->chunkSize/fifo->blockSize,
-						command->pLogicalBlockAddress);
+				lba += fifo->chunkSize / fifo->blockSize;
 				MSDIOFifo_IncNdx(fifo->outputNdx, fifo->chunkSize,
 						fifo->bufferSize);
 				fifo->outputTotal += fifo->chunkSize;
 #else
-				STORE_DWORDB(DWORDB(command->pLogicalBlockAddress) + 1,
-						command->pLogicalBlockAddress);
+				lba++;
 				MSDIOFifo_IncNdx(fifo->outputNdx, fifo->blockSize,
 						fifo->bufferSize);
 				fifo->outputTotal += fifo->blockSize;
 #endif
+				STORE_DWORDB(lba, command->pLogicalBlockAddress);
 
 				/* Start Next block */
 
@@ -472,7 +480,7 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 	MSDTransfer *transfer = &(command_state->transfer);
 	MSDTransfer *disktransfer = &(command_state->disktransfer);
 	MSDIOFifo   *fifo = &lun->ioFifo;
-	uint32_t old_chunk_size, new_chunk_size;
+	uint32_t lba, old_chunk_size, new_chunk_size;
 
 	/* Init command state */
 	if (command_state->state == 0) {
@@ -488,10 +496,8 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 			fifo->blockSize = lun->blockSize *
 				media_get_block_size(lun->media);
 #ifdef MSDIO_READ10_CHUNK_SIZE
-			if (fifo->blockSize < MSDIO_READ10_CHUNK_SIZE)
-				fifo->chunkSize = MSDIO_READ10_CHUNK_SIZE;
-			else
-				fifo->chunkSize = fifo->blockSize;
+			fifo->chunkSize = max_u32(fifo->blockSize,
+						  MSDIO_READ10_CHUNK_SIZE);
 #endif
 			fifo->fullCnt = 0;
 			fifo->nullCnt = 0;
@@ -545,9 +551,15 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 	case MSDIO_START:
 		/* Read one block of data from the media */
 		if (media_is_mapped_read_supported(lun->media)) {
-			/* Directly write, no read needed */
-			msd_driver_callback(disktransfer, MEDIA_STATUS_SUCCESS, 0, 0);
-			status = LUN_STATUS_SUCCESS;
+			/* Data are in memory already. We only need to validate
+			 * the block range. */
+			status = lun_access(lun,
+					DWORDB(command->pLogicalBlockAddress),
+					WORDB(command->pTransferLength), 0);
+			msd_driver_callback(disktransfer,
+					status == USBD_STATUS_SUCCESS
+					? MEDIA_STATUS_SUCCESS
+					: MEDIA_STATUS_ERROR, 0, 0);
 		} else {
 #ifdef MSDIO_READ10_CHUNK_SIZE
 			status = lun_read(lun, DWORDB(command->pLogicalBlockAddress),
@@ -564,11 +576,14 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check operation result code */
 		if (status != LUN_STATUS_SUCCESS) {
 			trace_warning("RBC_Read10: Failed to start reading\n\r");
-			if (sbc_lun_is_ready(lun)) {
+			if (sbc_lun_is_ready(lun))
+				sbc_update_sense_data(&(lun->requestSenseData),
+						SBC_SENSE_KEY_RECOVERED_ERROR,
+						SBC_ASC_LOGICAL_BLOCK_ADDRESS_OUT_OF_RANGE, 0);
+			else
 				sbc_update_sense_data(&(lun->requestSenseData),
 						SBC_SENSE_KEY_NOT_READY,
 						SBC_ASC_LOGICAL_UNIT_NOT_READY, 0);
-			}
 			fifo->inputState = MSDIO_ERROR;
 		} else {
 			LIBUSB_TRACE("dRd ");
@@ -603,24 +618,20 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 				fifo->inputState = MSDIO_IDLE;
 				fifo->inputTotal = fifo->dataTotal;
 			} else {
+				/* Update block address, and input index */
+				lba = DWORDB(command->pLogicalBlockAddress);
 #ifdef MSDIO_READ10_CHUNK_SIZE
-				/* Update block address */
-				STORE_DWORDB(DWORDB(command->pLogicalBlockAddress) +
-						fifo->chunkSize/fifo->blockSize,
-						command->pLogicalBlockAddress);
-				/* Update input index */
+				lba += fifo->chunkSize / fifo->blockSize;
 				MSDIOFifo_IncNdx(fifo->inputNdx, fifo->chunkSize,
 						fifo->bufferSize);
 				fifo->inputTotal += fifo->chunkSize;
 #else
-				/* Update block address */
-				STORE_DWORDB(DWORDB(command->pLogicalBlockAddress) + 1,
-						command->pLogicalBlockAddress);
-				/* Update input index */
+				lba++;
 				MSDIOFifo_IncNdx(fifo->inputNdx, fifo->blockSize,
 						fifo->bufferSize);
 				fifo->inputTotal += fifo->blockSize;
 #endif
+				STORE_DWORDB(lba, command->pLogicalBlockAddress);
 
 				/* Start Next block */
 
@@ -674,8 +685,8 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 
 	case MSDIO_START:
 		/* Should not start if there is any disk error */
-		if (fifo->outputState == MSDIO_ERROR) {
-			fifo->inputState = MSDIO_ERROR;
+		if (fifo->inputState == MSDIO_ERROR) {
+			fifo->outputState = MSDIO_ERROR;
 			break;
 		}
 

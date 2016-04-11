@@ -243,6 +243,32 @@ uint32_t lun_eject(MSDLun *lun)
 }
 
 /**
+ * \brief  Check whether the specified LUN block range is accessible.
+ * \param  lun          Pointer to a MSDLun instance
+ * \param  block_address First block address to access
+ * \param  length       Number of blocks to access
+ * \param  write        Access type: write (1) or read (0).
+ * \return Operation result code
+ */
+uint32_t lun_access(MSDLun        *lun,
+					uint32_t block_address,
+					uint32_t length,
+					uint8_t  write)
+{
+	const uint32_t lun_blk_cnt = lun->size / lun->blockSize;
+
+	if (block_address > lun_blk_cnt || length > lun_blk_cnt
+	    || block_address + length > lun_blk_cnt)
+		return USBD_STATUS_INVALID_PARAMETER;
+	else if (lun->media == NULL || lun->status != LUN_READY)
+		return USBD_STATUS_LOCKED;
+	else if (write && lun->protected)
+		return USBD_STATUS_ABORTED;
+	else
+		return USBD_STATUS_SUCCESS;
+}
+
+/**
  * \brief  Writes data on the a LUN starting at the specified block address.
  * \param  lun          Pointer to a MSDLun instance
  * \param  block_address First block address to write
