@@ -192,9 +192,8 @@ static uint8_t media_sdusb_read(struct _media *media,
 
 	/* Enter Busy state */
 	media->state = MEDIA_STATE_BUSY;
-	error = SD_Read((sSdCard *)media->interface,
-					address, data, length,
-					(fSdmmcCallback)callback, NULL);
+	error = SD_Read((sSdCard *)media->interface, address, data, length,
+			NULL, NULL);
 	error = (error ? MEDIA_STATUS_ERROR : MEDIA_STATUS_SUCCESS);
 	media->state = MEDIA_STATE_READY;
 
@@ -240,7 +239,7 @@ static uint8_t media_sdusb_write(struct _media *media,
 	/* Put the media in Busy state */
 	media->state = MEDIA_STATE_BUSY;
 	error = SD_Write((sSdCard *)media->interface, address, data, length,
-						(fSdmmcCallback)callback, NULL);
+			 NULL, NULL);
 	error = (error ? MEDIA_STATUS_ERROR : MEDIA_STATUS_SUCCESS);
 	media->state = MEDIA_STATE_READY;
 
