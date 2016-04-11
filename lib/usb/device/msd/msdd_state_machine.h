@@ -185,11 +185,12 @@ typedef struct _MSDTransfer {
  *------------------------------------------------------------------------------*/
 typedef struct _MSDCommandState {
 	MSCbw           cbw;         /**< Received CBW (31 bytes) */
-	uint8_t         state;       /**< Current command state */
+	uint8_t         reserved1;   /**< Pad up to cache line boundary */
 	MSCsw           csw;         /**< CSW to send  (13 bytes) */
 	MSDTransfer     transfer;    /**< Current transfer status (USB) */
 	MSDTransfer     disktransfer;/**< Current transfer status (Disk) */
 	uint32_t        length;      /**< Remaining length of command */
+	uint8_t         state;       /**< Current command state */
 	uint8_t         postprocess; /**< Actions to perform when command is complete */
 	uint8_t         pipeIN;      /**< Pipe ID for input */
 	uint8_t         pipeOUT;     /**< Pipe ID for output */

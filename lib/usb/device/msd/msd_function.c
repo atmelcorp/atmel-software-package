@@ -39,11 +39,14 @@
 
 #include "trace.h"
 #include "chip.h"
+#include "compiler.h"
 
 #include "usb/common/msd/msd_descriptors.h"
 #include "usb/device/msd/msd_driver.h"
 #include "usb/device/usbd_driver.h"
 #include "usb/device/usbd.h"
+
+#include <assert.h>
 
 /*-----------------------------------------------------------------------------
  *         Internal Types
@@ -62,7 +65,15 @@ typedef struct _MSDParseData {
  *         Internal variables
  *-----------------------------------------------------------------------------*/
 
-/** MSD Driver instance for device function */
+/**
+ * MSD Driver instance for device function
+ * Contains a MSCbw buffer that will receive data transferred from the device by
+ * the DMA. As the L1 data cache won't notice when RAM contents is altered, the
+ * driver will invalidate any matching cache lines.
+ * May this buffer fail to be aligned on cache lines, cached changes to adjacent
+ * data would be lost at the time the dirty and shared cache lines were
+ * invalidated.
+ */
 ALIGNED(L1_CACHE_BYTES) static MSDDriver msd_function;
 
 /*-----------------------------------------------------------------------------
@@ -148,8 +159,25 @@ void msd_function_initialize(uint8_t bInterfaceNb,
 	MSDLun *p_luns, uint8_t numLuns)
 {
 	MSDDriver *p_msd_driver = &msd_function;
+#ifndef NDEBUG
+	uint8_t lun_ix;
+#endif
 
 	LIBUSB_TRACE("MSDFunInit ");
+
+	/* Verify that all fields that may receive data from the DMA are aligned
+	 * on data cache lines.
+	 * It is assumed that, in MSDCommandState struct, next to cbw is csw. */
+	assert((uint32_t)&p_msd_driver->commandState.cbw % L1_CACHE_BYTES == 0
+	    && (uint32_t)&p_msd_driver->commandState.csw
+	    >= (uint32_t)&p_msd_driver->commandState.cbw + ROUND_UP_MULT(
+	    sizeof(p_msd_driver->commandState.cbw), L1_CACHE_BYTES));
+#ifndef NDEBUG
+	for (lun_ix = 0; lun_ix < numLuns; lun_ix++)
+		assert((uint32_t)p_luns[lun_ix].ioFifo.pBuffer
+		    % L1_CACHE_BYTES == 0
+		    && p_luns[lun_ix].ioFifo.bufferSize % L1_CACHE_BYTES == 0);
+#endif
 
 	/* Driver instance */
 	p_msd_driver->interfaceNb = bInterfaceNb;
