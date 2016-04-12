@@ -136,28 +136,6 @@
 /** Maximum number of handled led */
 #define MAX_LEDS            3
 
-#define PINS_FLEXCOM0_USART_ISO7816_IOS1 {\
-	{ PIO_GROUP_B, PIO_PB28C_FLEXCOM0_IO0, PIO_PERIPH_C, PIO_DEFAULT },\
-	{ PIO_GROUP_B, PIO_PB30C_FLEXCOM0_IO2, PIO_PERIPH_C, PIO_DEFAULT },\
-}
-
-/** NCN4555MN usart pin definition */
-/* IO TXD bidirectionnal */
-/* SCK	*/
-#define PIN_COM2_ISO7816  PINS_FLEXCOM0_USART_ISO7816_IOS1
-
-/** NCN4555MN STOP pin definition */
-/* Connected to CTS */
-#define PIN_STOP_ISO7816 { PIO_GROUP_B, PIO_PB31C_FLEXCOM0_IO3, PIO_OUTPUT_1, PIO_PULLUP }
-
-/** NCN4555MN MOD VCC pin definition */
-/* Connected to RXD */
-#define PIN_MODE_VCC_ISO7816 { PIO_GROUP_B, PIO_PB29C_FLEXCOM0_IO1, PIO_OUTPUT_1, PIO_PULLUP }
-
-/** NCN4555MN RST pin definition */
-/* Connected to RTS */
-#define PIN_RST_ISO7816 { PIO_GROUP_C, PIO_PC0C_FLEXCOM0_IO4, PIO_OUTPUT_0, PIO_DEFAULT }
-
 /** Maximum uc_size in bytes of the smartcard answer to a uc_command. */
 #define MAX_ANSWER_SIZE         10
 
@@ -169,6 +147,16 @@
 
 /** Define the FI_DI_RATIO filed value. */
 #define ISO7816_FI_DI           372
+
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	#include "config_sama5d4-ek.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+	#include "config_sama5d4-xplained.h"
+#else
+#error Unsupported board!
+#endif
 
 /*------------------------------------------------------------------------------
  *         Internal variables
@@ -215,8 +203,8 @@ struct _iso7816_desc iso7816_desc = {
 	.pin_mod_vcc = PIN_MODE_VCC_ISO7816,
 	.pin_rst = PIN_RST_ISO7816,
 
-	.addr = USART0,
-	.id = ID_USART0,
+	.addr = USART_ADDR,
+	.id = ID_USART,
 };
 
 struct _iso7816_opt iso7816_opt = {
@@ -452,9 +440,9 @@ extern int main( void )
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
 	_configure_leds();
-	led_set(LED_GREEN);
+	led_set(LED_BLUE);
 	timer_wait(500);
-	led_clear(LED_GREEN);
+	led_clear(LED_BLUE);
 	led_status[LED_BLUE] = 1;
 
 	/* PIO configuration for Button, use to simulate card detection. */
