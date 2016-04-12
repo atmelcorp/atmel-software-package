@@ -152,7 +152,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/flexcom.h"
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
