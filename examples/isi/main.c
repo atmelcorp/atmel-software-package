@@ -46,7 +46,7 @@
  *
  *  \section Note
  *
- *  Some pins conflict between LCD pins and JTAG pins, this example can not run 
+ *  Some pins conflict between LCD pins and JTAG pins, this example can not run
  * in debugger mode.
  *
  * \section Usage
@@ -66,7 +66,7 @@
  *      -- SAMxxxxx-xx
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *    \endcode
- * The user can then choose any of the available options to perform the 
+ * The user can then choose any of the available options to perform the
  * described action.
  *
  * \section References
@@ -92,6 +92,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
+#include "peripherals/l2cc.h"
 
 #include "misc/console.h"
 #include "peripherals/twi.h"
@@ -102,6 +103,7 @@
 #include "video/image_sensor_inf.h"
 
 #include "trace.h"
+#include "timer.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -129,20 +131,11 @@
 /** LCD buffer start address for captured image (same address for ISI codec buffer) */
 #define LCD_CAPTURED_BASE_ADDRESS      ISI_CODEC_PATH_BASE_ADDRESS
 
-#define ISI_DMA_DESC_PREV_ADDR             (ISI_CODEC_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE)
-#define ISI_DMA_DESC_CODEC_ADDR            (ISI_DMA_DESC_PREV_ADDR + 0x1000)
+#define ISI_DMA_DESC_PREV_ADDR        (ISI_CODEC_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE)
+#define ISI_DMA_DESC_CODEC_ADDR       (ISI_DMA_DESC_PREV_ADDR + 0x1000)
 
 /** TWI clock frequency in Hz. */
 #define TWCK                400000
-
-/** TWI Pins definition */
-#define BOARD_PINS_TWI_ISI PINS_TWI0
-
-/** TWI peripheral ID for sensor TWI interface */
-#define BOARD_ID_TWI_ISI   ID_TWI0
-
-/** TWI base address for sensor TWI interface*/
-#define BOARD_BASE_TWI_ISI TWI0
 
 /** LCDD_OVR1 layer use for preview frame display in RGB output */
 #define LCD_PREVIEW_LAYER  LCDD_OVR1
@@ -172,53 +165,47 @@ extern const sensor_profile_t ov5640_profile;
 extern const sensor_profile_t ov7740_profile;
 extern const sensor_profile_t ov9740_profile;
 
-/** Supported sensor profiles */ 
-static const sensor_profile_t *sensor_profiles[5] = {&ov2640_profile, 
+/** Supported sensor profiles */
+static const sensor_profile_t *sensor_profiles[5] = {&ov2640_profile,
                                                   &ov2643_profile,
                                                   &ov5640_profile,
                                                   &ov7740_profile,
                                                   &ov9740_profile
 };
 
-/** Pio pins to configure. */
-static const struct _pin pins_twi[] = BOARD_PINS_TWI_ISI;
-static const struct _pin pin_rstn = PIN_ISI_RSTN;
-static const struct _pin pins_isi[]= {PINS_ISI};
-static const struct _pin pin_mck = BOARD_ISI_MCK;
+/** PIO pins to configured. */
+const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
+const struct _pin pin_rst = BOARD_ISI_RST_PIN;
+const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
+const struct _pin pins_isi[]= BOARD_ISI_PINS;
+
 /** Pins for LCDC */
-static const struct _pin pins_lcd[] = PINS_LCD;
+static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** ISI frame buffer descriptor */
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8)))
-#endif
-isi_frame_buffer_desc_t preview_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
+ALIGNED(8) isi_frame_buffer_desc_t preview_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
 
-#if defined ( __ICCARM__ ) /* IAR Ewarm */
-#pragma data_alignment=64
-#elif defined (  __GNUC__  ) /* GCC CS3 */
-__attribute__((aligned(8)))
-#endif
-isi_frame_buffer_desc_t codec_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
-
+ALIGNED(8) isi_frame_buffer_desc_t codec_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
 
 /** TWI driver instance.*/
-struct _twid twid;
+static struct _twi_desc twid = {
+	.addr = BOARD_ISI_TWI_ADDR,
+	.freq = TWCK,
+	.transfert_mode = TWID_MODE_POLLING
+};
 
 /** LCD buffer.*/
 static uint8_t *pOvr1Buffer = (uint8_t*)LCD_PREVIEW_BASE_ADDRESS;
 static uint8_t *pHeoBuffer =  (uint8_t*)LCD_CAPTURED_BASE_ADDRESS;
 
 /* Image size in preview mode */
-static uint32_t wImageWidth, wImageHeight;
+static uint32_t image_width, image_height;
 
 /* Image output format */
-static sensor_output_format_t wImageFormat;
+static sensor_output_format_t image_format;
 
 /* Image output bit width */
-static sensor_output_bit_t wSensorOutBitWidth;
+static sensor_output_bit_t sensor_bit_width;
 
 static isi_yuv2rgc_t y2r = {0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC,};
 /*----------------------------------------------------------------------------
@@ -233,10 +220,9 @@ static void configure_twi(void)
 	/* Configure TWI pins. */
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
 	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(BOARD_ID_TWI_ISI);
+	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISI_TWI_ADDR));
 	/* Configure TWI */
-	twi_configure_master(BOARD_BASE_TWI_ISI, TWCK);
-	twid_initialize(&twid, BOARD_BASE_TWI_ISI);
+	twid_configure(&twid);
 }
 
 /**
@@ -244,18 +230,23 @@ static void configure_twi(void)
  */
 static void configure_isi_clock(void)
 {
-	/* Configure ISI pins. */
-	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-	/* Configure RSTN pin. */
-	pio_configure(&pin_rstn, 1);
-	/* Configure PCK as peripheral */
-	pio_configure(&pin_mck, 1);
 	/* Configure PMC programmable clock(PCK0) */
 	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
 	pmc_enable_pck1();
-	/* ISI PWD OFF*/
-	pio_clear(&pin_rstn);
+}
 
+
+/**
+ * \brief Hardware reset sensor.
+ */
+static void sensor_reset(void)
+{
+	pio_configure(&pin_rst,1);
+	pio_configure(&pin_pwd,1);
+	pio_clear(&pin_pwd);
+	pio_clear(&pin_rst);
+	pio_set(&pin_rst);
+	timer_wait(10);
 }
 
 /**
@@ -273,22 +264,24 @@ static void configure_frame_buffer(void)
 	preview_path_fb_desc[i-1].next = (uint32_t)&preview_path_fb_desc[0];
 
 	for(i = 0; i < ISI_MAX_NUM_PREVIVEW_BUFFER; i++) {
-		codec_path_fb_desc[i].address = (uint32_t)ISI_CODEC_PATH_BASE_ADDRESS; 
+		codec_path_fb_desc[i].address = (uint32_t)ISI_CODEC_PATH_BASE_ADDRESS;
 		codec_path_fb_desc[i].control = ISI_DMA_C_CTRL_C_FETCH | ISI_DMA_C_CTRL_C_WB;
 		codec_path_fb_desc[i].next    = (uint32_t)&codec_path_fb_desc[ i + 1];
 	}
 	/* Wrapping to first FBD */
 	codec_path_fb_desc[i-1].next = (uint32_t)&codec_path_fb_desc[0];
+	l2cc_clean_region((uint32_t)preview_path_fb_desc, ((uint32_t)preview_path_fb_desc) + sizeof(preview_path_fb_desc));
+	l2cc_clean_region((uint32_t)codec_path_fb_desc, ((uint32_t)codec_path_fb_desc) + sizeof(codec_path_fb_desc));
 }
 
 /**
  * \brief Configure LCD controller.
  */
-static void configure_lcd(void) 
+static void configure_lcd(void)
 {
 	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
 	lcdd_configure(&lcd_desc);
-    
+
 	lcdd_configure_input_mode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
 	lcdd_configure_input_mode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
 							LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE3);
@@ -310,7 +303,7 @@ static void configure_isi(void)
 	/* Set the windows blank */
 	isi_set_blank(0, 0);
 	/* Set vertical and horizontal Size of the Image Sensor for preview path*/
-	isi_set_sensor_size(wImageWidth, wImageHeight);
+	isi_set_sensor_size(image_width, image_height);
 	/* Set preview size to fit LCD size*/
 	isi_set_preview_size(BOARD_LCD_WIDTH, BOARD_LCD_HEIGHT );
 	/* calculate scaler factor automatically. */
@@ -323,29 +316,29 @@ static void configure_isi(void)
 	isi_set_matrix_yuv2rgb(&y2r);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)&preview_path_fb_desc[0], 
-							ISI_DMA_P_CTRL_P_FETCH, 
+	isi_set_dma_preview_path((uint32_t)&preview_path_fb_desc[0],
+							ISI_DMA_P_CTRL_P_FETCH,
 							(uint32_t)ISI_PREVIEW_PATH_BASE_ADDRESS);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_codec_path((uint32_t)&codec_path_fb_desc[0], 
-							ISI_DMA_C_CTRL_C_FETCH, 
+	isi_set_dma_codec_path((uint32_t)&codec_path_fb_desc[0],
+							ISI_DMA_C_CTRL_C_FETCH,
 							(uint32_t)ISI_CODEC_PATH_BASE_ADDRESS);
 
-	lcdd_create_canvas(LCD_PREVIEW_LAYER, 
-						pOvr1Buffer, 
-						16, 
-						(BOARD_LCD_WIDTH -wImageWidth)/2,
-						(BOARD_LCD_HEIGHT -wImageHeight)/2,
-						wImageWidth, 
-						wImageHeight);
-	lcdd_create_canvas(LCD_CAPTURE_LAYER, 
-						pHeoBuffer, 
-						16, 
-						(BOARD_LCD_WIDTH -wImageWidth)/2,
-						(BOARD_LCD_HEIGHT -wImageHeight)/2,
-						wImageWidth, 
-						wImageHeight);
+	lcdd_create_canvas(LCD_PREVIEW_LAYER,
+						pOvr1Buffer,
+						16,
+						(BOARD_LCD_WIDTH -image_width)/2,
+						(BOARD_LCD_HEIGHT -image_height)/2,
+						image_width,
+						image_height);
+	lcdd_create_canvas(LCD_CAPTURE_LAYER,
+						pHeoBuffer,
+						16,
+						(BOARD_LCD_WIDTH -image_width)/2,
+						(BOARD_LCD_HEIGHT -image_height)/2,
+						image_width,
+						image_height);
 	isi_reset();
 	isi_disable_interrupt(0xFFFFFFFF);
 	isi_enable();
@@ -365,12 +358,12 @@ extern int main( void )
 {
 	uint8_t key;
 	volatile uint32_t delay;
-	
-	wdt_disable() ;
+
+	wdt_disable();
 
 	/* Initialize console */
 	board_cfg_console();
-    
+
 	/* Output example information */
 	printf( "-- ISI Example %s --\n\r", SOFTPACK_VERSION ) ;
 	printf( "-- %s\n\r", BOARD_NAME ) ;
@@ -382,8 +375,12 @@ extern int main( void )
 	/* TWI Initialize */
 	configure_twi();
 
+	/* Configure ISI pins. */
+	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
+
 	/* ISI PCK clock Initialize */
 	configure_isi_clock();
+	sensor_reset();
 
 	printf("Press [0|1|2|3|4][5] to select supported sensor \n\r");
 	printf("- '0' omnivision 2640 \n\r");
@@ -403,12 +400,12 @@ extern int main( void )
 		}
 	}
 	/* Retrieve sensor output format and size */
-	sensor_get_output(VGA, YUV_422, &wSensorOutBitWidth, &wImageWidth, &wImageHeight);
-	wImageFormat = (sensor_output_format_t)YUV_INPUT;
-	printf("Image attributes : <%x, %u, %u>\n\r", wImageFormat,
-			(unsigned)wImageWidth, (unsigned)wImageHeight);
+	sensor_get_output(VGA, YUV_422, &sensor_bit_width, &image_width, &image_height);
+	image_format = (sensor_output_format_t)YUV_INPUT;
+	printf("Image attributes : <%x, %u, %u>\n\r", image_format,
+			(unsigned)image_width, (unsigned)image_height);
 	printf("preview in RGB 565 mode\n\r");
-	
+
 	/* ISI Initialize */
 	configure_isi();
 
@@ -427,15 +424,15 @@ extern int main( void )
 			isi_codec_wait_dma_completed();
 			printf("-I- Capture done \r\n");
 			for (delay = 0; delay < 0x5ffff; delay++);
-			lcdd_put_image_rotated(LCD_CAPTURE_LAYER, 
-								NULL, 
-								16, 
-								(BOARD_LCD_WIDTH - wImageWidth)/2, 
-								(BOARD_LCD_HEIGHT-  wImageHeight)/2, 
-								wImageWidth, 
-								wImageHeight,
-								wImageWidth,
-								wImageHeight,
+			lcdd_put_image_rotated(LCD_CAPTURE_LAYER,
+								NULL,
+								16,
+								(BOARD_LCD_WIDTH - image_width)/2,
+								(BOARD_LCD_HEIGHT-  image_height)/2,
+								image_width,
+								image_height,
+								image_width,
+								image_height,
 								0);
 			lcdd_enable_layer(LCD_CAPTURE_LAYER, 1);
 			break;

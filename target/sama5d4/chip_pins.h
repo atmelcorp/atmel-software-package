@@ -430,6 +430,24 @@
 	{ PIO_GROUP_C, 0x0007FFE0, PIO_PERIPH_A, PIO_DEFAULT },\
 }
 
+/** Image Sensor Interface vertical sync. */
+#define PIN_ISI_VSYNC { PIO_GROUP_B, PIO_PB3C_ISI_VSYNC, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface horizontal sync. */
+#define PIN_ISI_HSYNC { PIO_GROUP_B, PIO_PB4C_ISI_HSYNC, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface data clock. */
+#define PIN_ISI_PCK { PIO_GROUP_B, PIO_PB1C_ISI_PCK, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface MCK. */
+#define PIN_ISI_MCK { PIO_GROUP_C, PIO_PC4C_PCK1, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface data pins. */
+#define PINS_ISI_DATA { PIO_GROUP_C, 0x07F80000, PIO_PERIPH_A, PIO_DEFAULT } // pc19-26
+
+/** Image Sensor Interface pin list. */
+#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
+
 //=============================================================================
 
 #endif /* _CHIP_PINS_H_ */

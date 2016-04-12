@@ -200,29 +200,10 @@
 
 /* =================== ISI device definition =================== */
 
-/** Image Sensor Interface vertical sync. */
-#define BOARD_ISI_VSYNC { PIO_GROUP_B, PIO_PB3C_ISI_VSYNC, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** Image Sensor Interface horizontal sync. */
-#define BOARD_ISI_HSYNC { PIO_GROUP_B, PIO_PB4C_ISI_HSYNC, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** Image Sensor Interface data clock. */
-#define BOARD_ISI_PCK { PIO_GROUP_B, PIO_PB1C_ISI_PCK, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** Image Sensor Interface MCK. */
-#define BOARD_ISI_MCK { PIO_GROUP_C, PIO_PC4C_PCK1, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** Image Sensor Interface data pins. */
-#define BOARD_ISI_PINS_DATA { PIO_GROUP_C, 0x07F80000, PIO_PERIPH_A, PIO_DEFAULT } // pc19-26
-//#define BOARD_ISI_PINS_DATA2 { PIO_GROUP_C, 0x0000000F, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** Image Sensor Interface reset pin. */
-#define PIN_ISI_RST { PIO_GROUP_B, 1 << 11, PIO_OUTPUT_1, PIO_DEFAULT }
-
-/** Image Sensor Interface reset_n pin. */
-#define PIN_ISI_RSTN { PIO_GROUP_B, 1 << 5, PIO_OUTPUT_1, PIO_DEFAULT }
-
-/** Image Sensor Interface pin list. */
-#define PINS_ISI BOARD_ISI_VSYNC, BOARD_ISI_HSYNC, BOARD_ISI_PCK , BOARD_ISI_PINS_DATA
+#define BOARD_ISI_TWI_ADDR ((Twi*)TWI0)
+#define BOARD_ISI_TWI_PINS PINS_TWI0
+#define BOARD_ISI_PINS     PINS_ISI
+#define BOARD_ISI_RST_PIN  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN  { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_DEFAULT }
 
 #endif /* _BOARD_SAMA5D4_EK_H */
