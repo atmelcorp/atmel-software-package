@@ -37,11 +37,7 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XULT.
- *
- * Requirements before running this example on SAMA5D2-XULT:
- * Connect SDA1 (J22 pin 8) and SDA0 (J20 pin 10) on the board.
- * Connect SCL1 (J22 pin 7) and SD1 (J20 pin 9) on the board.
+ * This package can be used with SAMA5D2-XULT and SAMA5D4-XULT.
  *
  * \section Descriptions
  *

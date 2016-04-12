@@ -26,7 +26,8 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the FIFO example
+# Makefile for compiling the twi_eeprom example
+AVAILABLE_BOARDS = sama5d2-xplained sama5d4-xplained
 
 TOP := ../..
 
