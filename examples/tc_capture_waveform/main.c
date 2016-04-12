@@ -38,10 +38,13 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D4-XULT and SAMA5D2-XULT.
+ * This package can be used with SAMA5D2-XULT, SAMA5D2-EK and SAMA5D4-XULT.
  *
  * Requirements before running this example on SAMA5D2-XULT:
  * Connect EXP_PA19 (J21 pin 2) and EXP_PB22 (J22 pin 6) on the board.
+ *
+ * Requirements before running this example on SAMA5D4-EK:
+ * Connect USBC_EN5V_PE12 (J19 pin 44) and MCI1_PWR_PE15 (J19 pin 47) on the board.
  *
  * Requirements before running this example on SAMA5D4-XULT:
  * Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
@@ -151,39 +154,13 @@
  *----------------------------------------------------------------------------*/
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-
-/** define channel to output the waveform */
-#define CHANNEL_TC_WAVEFORM_OUT 0
-
-/** define pin to output the waveform */
-#define PIN_TC_WAVEFORM_OUT \
-	{ PIO_GROUP_A, PIO_PA19D_TIOA0, PIO_PERIPH_D, PIO_DEFAULT }
-
-/** define channel to output the waveform */
-#define CHANNEL_TC_CAPTURE_IN 2
-
-/** define pin to capture the waveform */
-#define PIN_TC_CAPTURE_IN \
-	{ PIO_GROUP_B, PIO_PB22D_TIOA2, PIO_PERIPH_D, PIO_DEFAULT }
-
+	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-
-/** define channel to output the waveform */
-#define CHANNEL_TC_WAVEFORM_OUT 0
-
-/** define pin to output the waveform */
-#define PIN_TC_WAVEFORM_OUT \
-	{ PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C, PIO_DEFAULT }
-
-/** define channel to output the waveform */
-#define CHANNEL_TC_CAPTURE_IN 1
-
-/** define pin to capture the waveform */
-#define PIN_TC_CAPTURE_IN \
-	{ PIO_GROUP_E, PIO_PE12B_TIOA1, PIO_PERIPH_B, PIO_DEFAULT }
-
+	#include "config_sama5d4-xplained.h"
 #else
-#error Unsupported board!
+	#error Unsupported board!
 #endif
 
 /** Timer Counter descriptor definition */
@@ -418,7 +395,7 @@ int main(void)
     cp15_enable_mmu();
     cp15_enable_dcache();
 #endif
-	
+
 	/* Output example information */
 	printf("-- TC capture waveform Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

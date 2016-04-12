@@ -41,6 +41,10 @@ This package can be used with SAMA5D4-XULT and SAMA5D2-XULT.
 ----------------
 Connect EXP_PA19 (J21 pin 2) and EXP_PB22 (J22 pin 6) on the board.
 
+### SAMA5D4-EK
+----------------
+Connect USBC_EN5V_PE12 (J19 pin 44) and MCI1_PWR_PE15 (J19 pin 47) on the board.
+
 ### SAMA5D4-XULT
 ----------------
 Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
