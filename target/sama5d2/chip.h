@@ -344,6 +344,12 @@ extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
  */
 uint32_t get_gmac_id_from_addr(const Gmac* addr);
 
+/**
+ * \brief retrieve SDMMC ID from its base address
+ * \return SDMMC ID on success, ID_PERIPH_COUNT otherwise
+ */
+uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr);
+
 /** \brief Returns the matrix on which the given peripheral is connected
  *
  * \param id the Peripheral ID
