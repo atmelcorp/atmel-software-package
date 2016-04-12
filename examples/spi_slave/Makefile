@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SPI slave example
+AVAILABLE_BOARDS = sama5d2-xplained sama5d4-ek sama5d4-xplained
 
 TOP := ../..
 

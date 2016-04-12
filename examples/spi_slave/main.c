@@ -47,10 +47,18 @@
  * - SPI0_MISO  (EXP_PA16 on J8 pin 1)  - SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
  * - SPI0_SPCK  (EXP_PA14 on J17 pin 4) - SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
  *
+ * Requirements when running on SAMA5D4-EK:
+ * We need to connect the SPI pins on the board before running the example.
+ * - <b>  SPI1 (MASTER)                        - SPI2 (SLAVE)</b>
+ * - SPI1_NPCS2(LCD_SPI1_CS2 on J10 pin 34) - SPI2_NPCS0 (XPRO_PD17 on J11 XPRO pin 14)
+ * - SPI1_MOSI (LCD_SPI1_SI  on J10 pin 32) - SPI2_MOSI  (XPRO_PD13 on J11 XPRO pin 16)
+ * - SPI1_MISO (LCD_SPI1_SO  on J10 pin 31) - SPI2_MISO  (XPRO_PD11 on J11 XPRO pin 17)
+ * - SPI1_SPCK (LCD_SPI1_CLK on J10 pin 33) - SPI2_SPCK  (XPRO_PD15 on J11 XPRO pin 18)
+ *
  * Requirements when running on SAMA5D4-XULT:
  * We need to connect the SPI pins on the board before running the example.
  * - <b>  SPI2 (MASTER)                          - SPI1 (SLAVE)</b>
- * - SPI2_NPCS2 (EXP/XPRO_PD17 on J19 pin 3)  - SPI1_NPCS0 (EXP/XPRO_PB21 on J17 pin 3)
+ * - SPI2_NPCS0 (EXP/XPRO_PD17 on J19 pin 3)  - SPI1_NPCS0 (EXP/XPRO_PB21 on J17 pin 3)
  * - SPI2_MOSI  (EXP/XPRO_PD13 on J19 pin 5)  - SPI1_MOSI  (EXP/XPRO_PB19 on J17 pin 4)
  * - SPI2_MISO  (EXP/XPRO_PD11 on J15 pin 30) - SPI1_MISO  (EXP/XPRO_PB18 on J17 pin 5)
  * - SPI2_SPCK  (EXP/XPRO_PD15 on J15 pin 8)  - SPI1_SPCK  (EXP/XPRO_PB20 on J17 pin 6)
@@ -140,27 +148,13 @@
 #define DMA_TRANS_SIZE 256
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-
-#define SPI_MASTER_ADDR SPI0
-#define SPI_MASTER_CS   2
-#define SPI_MASTER_PINS PINS_SPI0_NPCS2_IOS1
-
-#define SPI_SLAVE_ADDR SPI1
-#define SPI_SLAVE_CS   0
-#define SPI_SLAVE_PINS PINS_SPI1_NPCS0_IOS3
-
+	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-
-#define SPI_MASTER_ADDR SPI2
-#define SPI_MASTER_CS   0
-#define SPI_MASTER_PINS PINS_SPI2_NPCS0
-
-#define SPI_SLAVE_ADDR SPI1
-#define SPI_SLAVE_CS   0
-#define SPI_SLAVE_PINS PINS_SPI1_NPCS0
-
+	#include "config_sama5d4-xplained.h"
 #else
-#error Unsupported board!
+	#error Unsupported board!
 #endif
 
 /*----------------------------------------------------------------------------
