@@ -38,18 +38,38 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin pins_sdmmc0[] = {
-	PIN_SDMMC0_CD_IOS1,
-	PIN_SDMMC0_CK_IOS1,
-	PIN_SDMMC0_CMD_IOS1,
-	PIN_SDMMC0_VDDSEL_IOS1,
+static const struct _pin pin_sdmmc0_ck =
+	PIN_SDMMC0_CK_IOS1;
+
+static const struct _pin pin_sdmmc0_cmd =
+	PIN_SDMMC0_CMD_IOS1;
+
+static const struct _pin pin_sdmmc0_vdd_sel =
+	PIN_SDMMC0_VDDSEL_IOS1;
+
+static const struct _pin pins_sdmmc0_data1b[] = {
+	PINS_SDMMC0_DATA1B_IOS1
+};
+
+static const struct _pin pins_sdmmc0_data4b[] = {
+	PINS_SDMMC0_DATA4B_IOS1
+};
+
+static const struct _pin pins_sdmmc0_data8b[] = {
 	PINS_SDMMC0_DATA8B_IOS1
 };
 
-static const struct _pin pins_sdmmc1[] = {
-	PIN_SDMMC1_CD_IOS1,
-	PIN_SDMMC1_CK_IOS1,
-	PIN_SDMMC1_CMD_IOS1,
+static const struct _pin pin_sdmmc1_ck =
+	PIN_SDMMC1_CK_IOS1;
+
+static const struct _pin pin_sdmmc1_cmd =
+	PIN_SDMMC1_CMD_IOS1;
+
+static const struct _pin pins_sdmmc1_data1b[] = {
+	PINS_SDMMC1_DATA1B_IOS1
+};
+
+static const struct _pin pins_sdmmc1_data4b[] = {
 	PINS_SDMMC1_DATA4B_IOS1
 };
 
@@ -60,17 +80,29 @@ static const struct _pin pins_sdmmc1[] = {
 const struct sdmmc_pin_definition sdmmc_pin_defs[] = {
 	{
 		.instance = 0,
-		.num_pins = ARRAY_SIZE(pins_sdmmc0),
 		.addr = SDMMC0,
-		.sdmmc_id = ID_SDMMC0,
-		.pins = pins_sdmmc0,
+		.pin_ck = &pin_sdmmc0_ck,
+		.pin_cmd = &pin_sdmmc0_cmd,
+		.pin_vdd_sel = &pin_sdmmc0_vdd_sel,
+		.num_pins_data1b = ARRAY_SIZE(pins_sdmmc0_data1b),
+		.pins_data1b = pins_sdmmc0_data1b,
+		.num_pins_data4b = ARRAY_SIZE(pins_sdmmc0_data4b),
+		.pins_data4b = pins_sdmmc0_data4b,
+		.num_pins_data8b = ARRAY_SIZE(pins_sdmmc0_data8b),
+		.pins_data8b = pins_sdmmc0_data8b,
 	},
 	{
 		.instance = 1,
-		.num_pins = ARRAY_SIZE(pins_sdmmc1),
 		.addr = SDMMC1,
-		.sdmmc_id = ID_SDMMC1,
-		.pins = pins_sdmmc1,
+		.pin_ck = &pin_sdmmc1_ck,
+		.pin_cmd = &pin_sdmmc1_cmd,
+		.pin_vdd_sel = NULL,
+		.num_pins_data1b = ARRAY_SIZE(pins_sdmmc1_data1b),
+		.pins_data1b = pins_sdmmc1_data1b,
+		.num_pins_data4b = ARRAY_SIZE(pins_sdmmc1_data4b),
+		.pins_data4b = pins_sdmmc1_data4b,
+		.num_pins_data8b = 0,
+		.pins_data8b = NULL,
 	},
 };
 

@@ -37,10 +37,16 @@
 struct sdmmc_pin_definition
 {
 	uint32_t           instance;
-	uint32_t           num_pins;
 	Sdmmc*             addr;
-	uint32_t           sdmmc_id;
-	const struct _pin *pins;
+	const struct _pin *pin_ck;
+	const struct _pin *pin_cmd;
+	const struct _pin *pin_vdd_sel;
+	uint32_t           num_pins_data1b;
+	const struct _pin *pins_data1b;
+	uint32_t           num_pins_data4b;
+	const struct _pin *pins_data4b;
+	uint32_t           num_pins_data8b;
+	const struct _pin *pins_data8b;
 };
 
 extern const struct sdmmc_pin_definition sdmmc_pin_defs[];
