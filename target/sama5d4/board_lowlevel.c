@@ -40,6 +40,9 @@
 #include "board.h"
 #include "timer.h"
 
+#include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pmc.h"
@@ -57,8 +60,7 @@
 void low_level_init(void)
 {
 	/* Configure clocking if code is not in external mem */
-	if ((uint32_t)low_level_init < DDR_CS_ADDR)
-	{
+	if ((uint32_t)low_level_init < DDR_CS_ADDR) {
 		pmc_select_external_osc();
 		pmc_switch_mck_to_main();
 		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
@@ -72,6 +74,17 @@ void low_level_init(void)
 
 	/* Setup default interrupt handlers */
 	aic_initialize();
+
+	/* Enable MMU, I-Cache and D-Cache */
+	if (!cp15_is_mmu_enabled()) {
+		mmu_initialize();
+		cp15_enable_icache();
+		cp15_enable_mmu();
+		cp15_enable_dcache();
+	} else {
+		cp15_enable_icache();
+		cp15_enable_dcache();
+	}
 
 	/* Timer */
 	timer_configure(BOARD_TIMER_RESOLUTION);

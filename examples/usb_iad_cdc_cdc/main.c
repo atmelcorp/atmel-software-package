@@ -144,8 +144,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 #include "misc/console.h"
 
 #include "peripherals/aic.h"
@@ -312,11 +310,6 @@ int main(void)
 	wdt_disable();
 
 	board_cfg_console();
-
-	/* Enable DDRAM */
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
 
 	printf("-- USB Dual CDC Device Project %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

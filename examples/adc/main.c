@@ -551,10 +551,6 @@ int main(void)
 	/* Disable watchdog */
 	wdt_disable();
 
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
 	/* Initialize console */
 	board_cfg_console();
 	console_clear_screen();

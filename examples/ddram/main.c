@@ -53,9 +53,6 @@
 #include "rand.h"
 #include "trace.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "peripherals/wdt.h"
 #include "peripherals/l2cc.h"
 
@@ -164,10 +161,8 @@ int main(void)
 	       "-- "BOARD_NAME "\n\r"
 	       "-- Compiled: "__DATE__" at " __TIME__ "--\n\r");
 
-#ifndef VARIANT_DDRAM
 	trace_info("Configuring External DDRAM \n\r");
 	board_cfg_ddram();
-#endif
 
 	/* Full test DDRAM  */
 	trace_info("Starting memory validation of External DDRAM \n\r");

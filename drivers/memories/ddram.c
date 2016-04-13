@@ -343,10 +343,4 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 void ddram_configure(struct _mpddrc_desc* desc)
 {
 	mpddrc_configure(desc);
-	mmu_initialize();
-	cp15_icache_invalidate();
-	cp15_dcache_invalidate();
-	cp15_enable_icache();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
 }

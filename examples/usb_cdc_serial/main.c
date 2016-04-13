@@ -115,9 +115,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "misc/console.h"
 
 #include "peripherals/aic.h"
@@ -412,10 +409,6 @@ int main(void)
 
 	/* Configure console */
 	board_cfg_console();
-
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
 
 	/* Output example information */
 	printf("-- USB Device CDC Serial Project %s --\n\r", SOFTPACK_VERSION);

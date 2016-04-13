@@ -116,11 +116,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
-
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
@@ -128,7 +123,6 @@
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
 #include "peripherals/wdt.h"
-
 
 #include "misc/console.h"
 #include "misc/led.h"
@@ -322,11 +316,6 @@ int main( void )
 	wdt_disable();
 
 	board_cfg_console();
-
-	/* Enable DDRAM */
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
 
 	printf("-- USB Device HID Transfer Project %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

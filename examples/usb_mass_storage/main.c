@@ -102,9 +102,6 @@
 #include "board.h"
 #include "trace.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "peripherals/pio.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"

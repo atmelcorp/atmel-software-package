@@ -118,7 +118,6 @@
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
 
-#include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
 
 #include "misc/console.h"
@@ -443,15 +442,6 @@ int main(void)
 
 	wdt_disable();
 	board_cfg_console();
-
-#ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_icache_invalidate();
-	cp15_dcache_invalidate();
-	cp15_enable_icache();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-#endif
 
 	/* Output example information */
 	printf("\r\n\r\n\r\n");

@@ -93,9 +93,6 @@
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
 
@@ -259,13 +256,6 @@ extern int main( void )
 	board_cfg_console();
 	console_clear_screen();
 	console_reset_cursor();
-
-#ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
 
 	printf( "-- IrDA Example %s --\n\r", SOFTPACK_VERSION ) ;
 	printf( "-- %s\n\r", BOARD_NAME ) ;

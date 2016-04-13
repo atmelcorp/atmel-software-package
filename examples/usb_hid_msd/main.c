@@ -152,9 +152,6 @@
 #include "board.h"
 #include "trace.h"
 
-
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 
@@ -164,7 +161,6 @@
 
 #include "misc/console.h"
 #include "misc/led.h"
-
 
 #include "usb/device/msd/msd_driver.h"
 #include "usb/device/msd/msd_lun.h"
@@ -177,7 +173,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
 
 /*---------------------------------------------------------------------------
  *      Definitions

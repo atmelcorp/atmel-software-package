@@ -125,8 +125,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-
 #include "peripherals/pio.h"
 #include "peripherals/twid.h"
 #include "peripherals/spid.h"

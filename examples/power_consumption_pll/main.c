@@ -114,7 +114,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
-#include "cortex-a/mmu.h"
 
 #include "misc/led.h"
 #include "power/act8945a.h"

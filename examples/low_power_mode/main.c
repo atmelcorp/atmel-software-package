@@ -120,9 +120,6 @@
 #include "peripherals/shdwc.h"
 #ifdef CONFIG_HAVE_SFRBU
 #include "peripherals/sfrbu.h"
-#endif
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 
 #include "misc/led.h"
 #include "power/act8945a.h"

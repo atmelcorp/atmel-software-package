@@ -148,8 +148,6 @@
 
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 #include "misc/console.h"
 
 #include "peripherals/wdt.h"

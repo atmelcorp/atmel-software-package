@@ -92,7 +92,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
-#include "cortex-a/mmu.h"
 
 #include "misc/console.h"
 #include "peripherals/twi.h"

@@ -109,9 +109,6 @@
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "misc/console.h"
 
 #include <string.h>

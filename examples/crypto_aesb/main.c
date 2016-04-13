@@ -96,9 +96,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "peripherals/l2cc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"

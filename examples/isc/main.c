@@ -89,15 +89,12 @@
 #include "board.h"
 #include "chip.h"
 
-#include "cortex-a/cp15.h"
-
 #include "peripherals/l2cc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/xdmad.h"
-#include "cortex-a/mmu.h"
 
 #include "misc/console.h"
 #include "peripherals/twi.h"

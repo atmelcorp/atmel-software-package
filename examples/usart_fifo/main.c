@@ -203,11 +203,6 @@ int main (void)
 
 	board_cfg_console();
 
-	/* Enable DDRAM */
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
 	printf("-- Usart FIFO Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);

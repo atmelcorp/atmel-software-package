@@ -104,8 +104,6 @@
 #include "compiler.h"
 #include "timer.h"
 
-#include "cortex-a/mmu.h"
-
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"

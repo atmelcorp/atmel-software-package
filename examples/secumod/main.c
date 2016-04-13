@@ -160,8 +160,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"

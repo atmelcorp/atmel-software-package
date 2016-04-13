@@ -222,13 +222,6 @@ int main(void)
 	/* Configure console */
 	board_cfg_console();
 
-#if defined (ddram)
-	mmu_initialize((uint32_t *)0x20C000);
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
-
 	/* Output example information */
 	printf("-- WDT Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME "\n\r");

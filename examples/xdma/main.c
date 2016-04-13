@@ -99,9 +99,6 @@
 #include "peripherals/xdmad.h"
 #include "misc/console.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/mmu.h"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -364,15 +361,6 @@ extern int main(void)
 	/* Configure console */
 	board_cfg_console();
 
-#ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_icache_invalidate();
-	cp15_dcache_invalidate();
-	cp15_enable_icache();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-#endif
-	
 	/* Output example information */
 	printf("-- XDMA Example " SOFTPACK_VERSION " --\n\r");
 	printf("-- " BOARD_NAME "\n\r");

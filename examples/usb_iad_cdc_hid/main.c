@@ -145,9 +145,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "misc/console.h"
 #include "misc/led.h"
 
@@ -388,13 +385,6 @@ int main(void)
 
 	/* Configure console */
 	board_cfg_console();
-
-#ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-	cp15_enable_icache();
-#endif
 
 	printf("-- USB CDC HID Device Project %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

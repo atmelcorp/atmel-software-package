@@ -99,9 +99,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/xdmad.h"
 
-#include <cortex-a/mmu.h>
-#include <cortex-a/cp15.h>
-
 #include "memories/at24.h"
 
 #include "misc/console.h"
@@ -499,15 +496,6 @@ int main (void)
 
 	/* Configure console */
 	board_cfg_console();
-
-#ifndef VARIANT_DDRAM
-	mmu_initialize();
-	cp15_icache_invalidate();
-	cp15_dcache_invalidate();
-	cp15_enable_icache();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
-#endif
 
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
