@@ -489,6 +489,10 @@ bool SD_GetInstance(uint8_t index, sSdCard **holder)
  */
 int main(void)
 {
+	struct _pmc_audio_cfg audio_pll_cfg = {
+		.fracr = 0,
+		.qdpmc = 0,
+	};
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
 
@@ -524,14 +528,45 @@ int main(void)
 #endif
 
 	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
-	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
-	 * Configure GCLKx = <PLLA clock> divided by 1
-	 * As of writing, the PLLA clock runs at 498 MHz */
-	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
+#if 1
+	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
+	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
+	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
+	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz. */
+	audio_pll_cfg.nd = 51;
+	pmc_configure_audio(&audio_pll_cfg);
+	pmc_enable_audio(true, false);
+	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+
+	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
+	 * connector. SD cards are the most likely devices. Since the SDMMC1
+	 * peripheral supports 3.3V signaling level only, target SD High Speed
+	 * mode @ 50 MHz.
+	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
+	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
+	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+#else
+	/* Running on a board which has its SDMMC0 slot equipped with an e.MMC
+	 * device supporting the HS200 bus speed mode, or accepts UHS-I SD
+	 * devices. Target the maximum device clock frequency supported by
+	 * SAMA5D2x MPUs, that is 120 MHz.
+	 * Use the UTMI PLL, since it runs at 480 MHz. */
+	pmc_enable_upll_clock();
+	pmc_enable_upll_bias();
+	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_UPLL_CLK, 1 - 1);
+
+	/* On the SDMMC1 slot, target SD High Speed mode @ 50 MHz.
+	 * Use the Audio PLL and set AUDIOCORECLK frequency to
+	 * 12 * (57 + 1 + 1398101/2^22) =~ 700 MHz. */
+	audio_pll_cfg.nd = 57;
+	audio_pll_cfg.fracr = 1398101;
+	pmc_configure_audio(&audio_pll_cfg);
+	pmc_enable_audio(true, false);
+	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+#endif
 	pmc_enable_gck(ID_SDMMC0);
 	pmc_enable_peripheral(ID_SDMMC0);
-
-	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
 	pmc_enable_gck(ID_SDMMC1);
 	pmc_enable_peripheral(ID_SDMMC1);
 

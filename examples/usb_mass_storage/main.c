@@ -314,6 +314,10 @@ static bool pmic_configure(void)
  */
 static void sd_driver_configure(void)
 {
+	struct _pmc_audio_cfg audio_pll_cfg = {
+		.fracr = 0,
+		.qdpmc = 0,
+	};
 	uint8_t rc;
 
 	pmc_enable_peripheral(TIMER0_MODULE);
@@ -322,15 +326,24 @@ static void sd_driver_configure(void)
 #endif
 	
 	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
-	  * Master Clock, and a Generated Clock (at least on SAMA5D2x).
-	  * Configure GCLKx = <PLLA clock> divided by 1
-	  * As of writing, the PLLA clock runs at 498 MHz 
-	*/
-
-	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
+	 * The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
+	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
+	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
+	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz. */
+	audio_pll_cfg.nd = 51;
+	pmc_configure_audio(&audio_pll_cfg);
+	pmc_enable_audio(true, false);
+	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
 	pmc_enable_gck(ID_SDMMC0);
 	pmc_enable_peripheral(ID_SDMMC0);
 
+	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
+	 * connector. SD cards are the most likely devices. Since the SDMMC1
+	 * peripheral supports 3.3V signaling level only, target SD High Speed
+	 * mode @ 50 MHz.
+	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
+	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
 	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
 	pmc_enable_gck(ID_SDMMC1);
 	pmc_enable_peripheral(ID_SDMMC1);
