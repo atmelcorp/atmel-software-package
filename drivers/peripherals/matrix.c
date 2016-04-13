@@ -28,6 +28,7 @@
  */
 
 #include "peripherals/matrix.h"
+#include "cortex-a/cp15.h"
 
 #include <assert.h>
 
@@ -84,7 +85,10 @@ void matrix_remove_write_protection(Matrix* mtx)
  */
 void matrix_remap_rom(void)
 {
+	volatile int i;
 	AXIMX->AXIMX_REMAP = 0;
+	for (i = 200; i--; ) {}
+	cp15_icache_invalidate();
 }
 
 /**
@@ -94,7 +98,8 @@ void matrix_remap_rom(void)
 
 void matrix_remap_ram(void)
 {
-	volatile uint32_t i;
+	volatile int i;
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
-	for(i=1000;--i;);
+	for (i = 200; i--; ) {}
+	cp15_icache_invalidate();
 }
