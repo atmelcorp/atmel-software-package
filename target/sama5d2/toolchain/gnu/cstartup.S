@@ -76,12 +76,13 @@ resetVector:
 /* Data Abort */
 	ldr     pc, =data_abort_irq_handler
 /* Reserved for future use */
-1:
-	b       1b
+	.word   0
 /* Interrupt */
-	b       irqHandler
+	ldr     pc, =irqHandler
 /* Fast interrupt */
-	b       fiqHandler
+	ldr     pc, =fiqHandler
+
+	.section    .text
 
 //------------------------------------------------------------------------------
 /// Handles a fast interrupt request by branching to the address defined in the
@@ -177,28 +178,20 @@ irqHandler:
 	.global     entry
 
 entry:
+	/* Dummy vector table for ROM-code for cases when the real vector table
+	 * is relocated (QSPI-XIP) */
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+	ldr     pc, =resetHandler
+
 resetHandler:
 
 	cpsie   a
-
-/* Useless instruction for referencing the .vectors section */
-
-	ldr     r0, =resetVector
-
-/* Set pc to actual code location (i.e. not in remap zone) */
-
-	ldr     pc, =1f
-1:
-
-/* Relocate */
-	ldr     r0, =_etext
-	ldr     r1, =_srelocate
-	ldr     r2, =_erelocate
-1:
-	cmp     r1, r2
-	ldrcc   r3, [r0], #4
-	strcc   r3, [r1], #4
-	bcc     1b
 
 /* Set up the fast interrupt stack pointer */
 
@@ -249,10 +242,19 @@ resetHandler:
 	ldr     sp, =_cstack
 	bic     sp, sp, #0x7
 
-/* Perform low-level initialization of the chip using low_level_init() */
-
-	ldr     r0, =low_level_init
+/* Remap SRAM at 0x00000000 */
+	ldr     r0, =matrix_remap_ram
 	blx     r0
+
+/* Relocate */
+	ldr     r0, =_etext
+	ldr     r1, =_srelocate
+	ldr     r2, =_erelocate
+1:
+	cmp     r1, r2
+	ldrcc   r3, [r0], #4
+	strcc   r3, [r1], #4
+	bcc     1b
 
 /* Clear the zero segment */
 	ldr     r0, =_szero
@@ -278,6 +280,11 @@ resetHandler:
 /* Initialize the C library */
 
 	ldr     r0, =__libc_init_array
+	blx     r0
+
+/* Perform low-level initialization of the chip */
+
+	ldr     r0, =low_level_init
 	blx     r0
 
 /* Branch to main() */

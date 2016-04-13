@@ -49,17 +49,16 @@ define block UND_STACK with alignment = 8, size = __ICFEDIT_size_undstack__ { };
 define block SYS_STACK with alignment = 8, size = __ICFEDIT_size_sysstack__ { };
 define block HEAP      with alignment = 4, size = __ICFEDIT_size_heap__     { };
 
-initialize by copy with packing=none { readwrite };
+initialize by copy with packing=none { readwrite, section .vectors };
 do not initialize  { readonly section .noinit };
-/* Warning: ICC still considers the sections below as zero-initialized, by default. */
 do not initialize  { section .region_sram };
 do not initialize  { section .region_ddr };
 do not initialize  { section .region_ddr_nocache };
 
 place in VEC_region { section .vectors };
 place in RAM_region { section .region_sram };
+place at start of DDRAM_region { section .cstartup };
 place in DDRAM_region { readonly };
-place in DDRAM_region { section .cstartup };
 place in DDRAM_region { readwrite, block HEAP, block IRQ_STACK, block FIQ_STACK, block ABT_STACK, block UND_STACK, block SYS_STACK, block CSTACK };
 place in DDRAM_region { section .region_ddr };
 place in DDRAM_NOCACHE_region { section .region_ddr_nocache };

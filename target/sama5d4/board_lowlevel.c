@@ -56,9 +56,6 @@
  */
 void low_level_init(void)
 {
-	/* Setup default interrupt handlers */
-	aic_initialize();
-
 	/* Configure clocking if code is not in external mem */
 	if ((uint32_t)low_level_init < DDR_CS_ADDR)
 	{
@@ -73,8 +70,8 @@ void low_level_init(void)
 		pmc_switch_mck_to_pll();
 	}
 
-	/* Remap */
-	matrix_remap_ram();
+	/* Setup default interrupt handlers */
+	aic_initialize();
 
 	/* Timer */
 	timer_configure(BOARD_TIMER_RESOLUTION);

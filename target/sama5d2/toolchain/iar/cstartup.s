@@ -159,14 +159,14 @@ irqHandler:
 
         sub         lr, lr, #4
         stmfd       sp!, {lr}
-        mrs            lr, SPSR
+        mrs         lr, SPSR
         stmfd       sp!, {r0, lr}
 
         ; Write in the IVR to support Protect Mode
 
         ldr         lr, =AT91C_BASE_AIC
         ldr         r0, [r14, #AIC_IVR]
-           str         lr, [r14, #AIC_IVR]
+        str         lr, [r14, #AIC_IVR]
 
         ; Branch to interrupt handler in Supervisor mode
 
@@ -183,7 +183,7 @@ irqHandler:
         blx         r0
 
         ldmia       sp!, {r1, lr}
-        add            sp, sp, r1
+        add         sp, sp, r1
 
         ldmia       sp!, { r1-r3, r4, r12, lr}
         msr         CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
@@ -203,16 +203,30 @@ irqHandler:
 /// Initializes the chip and branches to the main() function.
 //------------------------------------------------------------------------------
 
-        SECTION .text:CODE:NOROOT(2)
-        PUBLIC    __iar_program_start
-        EXTERN  __cmain
-        EXTERN     low_level_init
+        SECTION .cstartup:CODE:NOROOT(2)
+        PUBLIC  __iar_program_start
+        EXTERN  main
+        EXTERN  matrix_remap_ram
+        EXTERN  low_level_init
         REQUIRE _reset_vector
 
+        EXTWEAK __iar_data_init3
         EXTWEAK __iar_init_core
         EXTWEAK __iar_init_vfp
+        EXTWEAK __iar_argc_argv
 
         ARM
+
+        /* Dummy vector table for ROM-code for cases when the real vector table
+         * is relocated (QSPI-XIP) */
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
+        ldr     pc, =__iar_program_start
 
 __iar_program_start:
 ?cstartup:
@@ -268,21 +282,40 @@ __iar_program_start:
         ldr     sp, =SFE(CSTACK)
         bic     sp, sp, #0x7
 
+        /* Remap SRAM at 0x00000000 */
+        ldr     r0, =matrix_remap_ram
+        blx     r0
+
+        ; Execute relocations & zero BSS
+
+        FUNCALL __iar_program_start, __iar_data_init3
+        bl      __iar_data_init3
+
         ; Perform low-level initialization of the chip using low_level_init()
 
         ldr     r0, =low_level_init
         blx     r0
 
         ; Turn on core features assumed to be enabled
+
         FUNCALL __iar_program_start, __iar_init_core
         bl      __iar_init_core
 
-        ;; Initialize VFP (if needed)
+        ; Initialize VFP (if needed)
+
         FUNCALL __iar_program_start, __iar_init_vfp
         bl      __iar_init_vfp
 
-        FUNCALL __iar_program_start, __cmain
-        bl      __cmain
+        ; Setup command line
+
+        mov     r0, #0
+        FUNCALL __iar_program_start, __iar_argc_argv
+        bl      __iar_argc_argv
+
+        ; Call main()
+
+        FUNCALL __iar_program_start, main
+        bl      main
 
        ;; Loop indefinitely when program is finished
 loop4:  b       loop4
