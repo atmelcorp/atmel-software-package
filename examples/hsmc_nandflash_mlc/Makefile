@@ -28,6 +28,7 @@
 
 # Makefile for compiling the hsmc_nandflash_mlc example
 AVAILABLE_BOARDS = sama5d2-ptc-engi sama5d4-xplained
+AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 

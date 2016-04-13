@@ -36,6 +36,7 @@ BINNAME = applet-nandflash
 
 VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
+CONFIG_USE_ROM_GALOIS_TABLE = y
 
 obj-y += samba_applets/nandflash/main.o
 obj-y += samba_applets/nandflash/pin_defs_$(chip-serie-name-y).o

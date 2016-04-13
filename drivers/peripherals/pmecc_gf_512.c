@@ -41,7 +41,7 @@
  *         Variables
  *----------------------------------------------------------------------------*/
 
-#ifdef GALOIS_TABLE_512_ROM_MAPPING
+#if defined(GALOIS_TABLE_512_ROM_MAPPING) && defined(CONFIG_USE_ROM_GALOIS_TABLE)
 void pmecc_get_gf_512_tables(const int16_t **alpha_to, const int16_t **index_of)
 {
 	const int16_t *pmecc_gf_512 = (const int16_t*)GALOIS_TABLE_512_ROM_MAPPING;
