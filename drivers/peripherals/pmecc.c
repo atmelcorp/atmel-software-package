@@ -36,8 +36,8 @@
 #include "trace.h"
 
 #include "peripherals/pmecc.h"
-#include "peripherals/pmecc_gallois_field_512.h"
-#include "peripherals/pmecc_gallois_field_1024.h"
+#include "peripherals/pmecc_gf_512.h"
+#include "peripherals/pmecc_gf_1024.h"
 
 /*--------------------------------------------------------------------------- */
 /*         Local types                                                        */
@@ -91,10 +91,10 @@ struct _pmecc_descriptor {
 	/** length of codeword =  nn=2**mm -1 */
 	int32_t nn;
 
-	/** Gallois field table */
+	/** Galois field table */
 	const int16_t *alpha_to;
 
-	/** Index of Gallois field table */
+	/** Index of Galois field table */
 	const int16_t *index_of;
 
 	/** */

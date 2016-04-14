@@ -35,7 +35,7 @@
 #include <stdint.h>
 
 #include "chip.h"
-#include "pmecc_gallois_field_1024.h"
+#include "pmecc_gf_1024.h"
 
 /*----------------------------------------------------------------------------
  *         Variables

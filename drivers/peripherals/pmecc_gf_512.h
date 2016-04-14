@@ -26,8 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-#ifndef PMECC_TABLES_512_H
-#define PMECC_TABLES_512_H
+#ifndef PMECC_GF_512_H
+#define PMECC_GF_512_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -45,8 +45,8 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/** \brief Get the addresses of Gallois Field tables for 512 bytes sectors */
+/** \brief Get the addresses of Galois Field tables for 512 bytes sectors */
 void pmecc_get_gf_512_tables(const int16_t **alpha_to, const int16_t **index_of);
 
-#endif /* PMECC_TABLES_512_H */
+#endif /* PMECC_GF_512_H */
 

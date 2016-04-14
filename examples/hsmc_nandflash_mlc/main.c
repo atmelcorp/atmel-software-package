@@ -109,8 +109,8 @@
 #include "peripherals/wdt.h"
 
 #include "peripherals/pmecc.h"
-#include "peripherals/pmecc_gallois_field_1024.h"
-#include "peripherals/pmecc_gallois_field_512.h"
+#include "peripherals/pmecc_gf_1024.h"
+#include "peripherals/pmecc_gf_512.h"
 #include "peripherals/xdmad.h"
 
 #include "memories/nand-flash/nand_flash.h"
