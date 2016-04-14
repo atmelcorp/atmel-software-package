@@ -202,13 +202,12 @@ tpl-set-soc() {
 generate-bodies-ewd() {
     local file="$1"
     local variant=$2
-    local dbg_script="iar_debug_script_${variant}_y"
     local tpl=$DIR/${file}_$variant.ewd
 
     echo "GEN temporary file ${file}_$variant.ewd"
 
     cat $DIR/iar_debug.template.body > "$tpl"
-    local win_path=$(helper-use-windows-path "${!dbg_script}")
+    local win_path=$(helper-use-windows-path "$iar_debug_script_y")
     sed -i -e "s%__REPLACE_MACFILE__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
     sed -i -e "s%//%/%g" "$tpl"
 
@@ -254,13 +253,12 @@ generate-bodies-ewp() {
     local file="$1"
     local variant="$2"
     local tpl=$DIR/${file}_$variant.ewp
-    local link_script=iar_linker_script_${variant}_y
 
     echo "GEN temporary file ${file}_$variant.ewp"
     cat $DIR/iar_project.template.body > "$tpl"
     tpl-set-defines       "$tpl"
     tpl-set-includes      "$tpl"
-    tpl-set-linker-script "$tpl" "${!link_script}"
+    tpl-set-linker-script "$tpl" "$iar_linker_script_y"
     tpl-set-binary-name   "$tpl" "$file"
     tpl-set-configuration "$tpl" $TARGET $variant
 }
