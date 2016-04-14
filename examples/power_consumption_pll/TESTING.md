@@ -59,7 +59,12 @@ Step needed to set up the example.
  =>
 ```
 
-`Note: while running out of DDR, changing clock is not permitted.`
+```
+Note:
+ * while running out of DDR, changing clock is not permitted.
+ * there's no audio clock in SAMA5D4x chips.
+ * change PLLA might cause some unreadable code on the console.
+```
 
 Tested with IAR and GCC (sram and ddram configurations)
 

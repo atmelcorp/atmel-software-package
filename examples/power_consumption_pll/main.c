@@ -227,12 +227,14 @@ struct pck_mck_cfg clock_test_setting[] = {
 #define MENU_NB_OPTIONS      17
 #define MENU_STRING_LENGTH   200
 char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	" ############################\n\r",
 	" 1 -> Disable AUDIOPLL\n\r",
 	" 2 -> AUDIOPLL 660 MHz\n\r",
 	" 3 -> AUDIOPLL 696 MHz\n\r",
 	" 4 -> AUDIOPLL 720 MHz\n\r",
 	" 5 -> AUDIOPLL 744 MHz\n\r",
+#endif
 	" ############################\n\r",
 	" 6 -> Disable UPLL\n\r",
 	" 7 -> Enable  UPLL\n\r",
@@ -325,12 +327,15 @@ extern int main(void)
 	/* Initialize console */
 	_restore_console();
 
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	struct _pmc_audio_cfg audiopll_cfg;
+#endif
 
 	_print_menu();
 	MenuChoice = 0;
 	while (1) {
 		switch (MenuChoice) {
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 		case '1':
 			printf(" %c \r\n", MenuChoice);
 			printf("Disable AUDIOPLL\r\n");
@@ -421,6 +426,7 @@ extern int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
+#endif
 
 		case '6':
 			printf(" %c \r\n", MenuChoice);
