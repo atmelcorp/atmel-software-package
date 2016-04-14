@@ -49,7 +49,12 @@ Step needed to set up the example.
  D -> Set DDR self-refresh mode and isolate Pads
  E -> Reset DDR to normal mode and reconnect Pads
 ```
-`Note: some DDR related operations are omitted while running out of DDR.`
+```
+Note:
+ * some DDR related operations are omitted while running out of DDR.
+ * The battery should be mounted to support the BackUp mode correctly.
+ * There are two ULP modes for SAMA5D2 while only one ULP mode for SAMA5D4.
+```
 
 Tested with IAR and GCC (sram and ddram configurations)
 

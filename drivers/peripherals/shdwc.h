@@ -42,6 +42,7 @@
  *         Global functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_SOC_SAMA5D2
 /**
  * \brief Configure the Shutdown Mode Register
  */
@@ -57,6 +58,12 @@ extern void shdwc_configure_wakeup_mode(uint32_t config);
  */
 extern void shdwc_set_wakeup_input(uint32_t input_enable,
                                    uint32_t input_type);
+#endif
+
+/**
+ * \brief Configure the Shutdown Wake-up
+ */
+void shdwc_configure_wakeup(void);
 
 /**
  * \brief Launch the ShutDown

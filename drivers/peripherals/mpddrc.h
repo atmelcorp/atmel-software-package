@@ -55,4 +55,12 @@ struct _mpddrc_desc {
 
 extern void mpddrc_configure(struct _mpddrc_desc* desc);
 
+/**
+ * \brief Issue a Low-Power Command to the DDR-SDRAM device.
+ *
+ * \param cmd the Low-Power Command to send (one of the MPDDRC_LPR_LPCB_*
+ * constants)
+ */
+extern void mpddrc_issue_low_power_command(uint32_t cmd);
+
 #endif

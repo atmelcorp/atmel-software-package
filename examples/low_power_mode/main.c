@@ -118,7 +118,9 @@
 #include "peripherals/pio.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/shdwc.h"
+#ifdef CONFIG_HAVE_SFRBU
 #include "peripherals/sfrbu.h"
+#endif
 #include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
 
@@ -254,8 +256,12 @@ char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
 /* "====================MAXLENGTH==================== */
 	" 0 -> Select clock setting\n\r",
 	" 1 -> Enter BackUp mode\n\r",
+#if defined(CONFIG_SOC_SAMA5D2)
 	" 2 -> Enter Ultra Low Power mode 0\n\r",
 	" 3 -> Enter Ultra Low Power mode 1\n\r",
+#elif defined(CONFIG_SOC_SAMA5D4)
+	" 2 -> Enter Ultra Low Power mode\n\r",
+#endif
 	" 4 -> Enter Idle mode\n\r",
 	" A -> Init DDR\n\r",
 	" B -> Write data in DDR\n\r",
@@ -367,14 +373,18 @@ static void _configure_buttons(void)
 
 static void _check_ddr_ready(void)
 {
+#ifdef CONFIG_HAVE_SFRBU
 	if (sfrbu_is_ddr_backup_enabled()) {
 		/* Enable the DDR Controller clock signal at PMC level */
 		pmc_enable_peripheral(ID_MPDDRC);
 		/* Enable ddrclk */
 		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
-
+		/* Disable DDR Backup mode */
 		sfrbu_disable_ddr_backup();
 	}
+#else
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_NOLOWPOWER);
+#endif
 }
 
 /**
@@ -539,16 +549,17 @@ static void menu_backup(void)
 	printf("\n\r\n\r");
 	printf("  =========== Enter Backup mode ===========\n\r");
 
-	/* SHDW_WUIR_WKUPT0_LOW for new board */
-	/* SHDW_WUIR_WKUPT0_HIGH for old version */
-	shdwc_set_wakeup_input(SHDW_WUIR_WKUPEN0_ENABLE, SHDW_WUIR_WKUPT0_LOW);
-	shdwc_configure_wakeup_mode(0);
+	/* config the wakeup */
+	shdwc_configure_wakeup();
+	/* clear status */
+	(void)shdwc_get_status();
 	/* enter backup mode */
 	shdwc_do_shutdown();
 
 	printf("\n\r ! ! ! ! ! ! ! Enter Backup FAILED ! ! ! ! ! ! ! !");
 }
 
+#if defined(CONFIG_SOC_SAMA5D2)
 static void menu_ulp0(void)
 {
 	unsigned int  read_reg[4];
@@ -652,6 +663,60 @@ static void menu_ulp1(void)
 
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
 }
+#elif defined(CONFIG_SOC_SAMA5D4)
+static void menu_ulp(void)
+{
+	unsigned int  read_reg[4];
+
+	printf("\n\r\n\r");
+	printf("  =========== Enter Ultra Low Power mode  ============\n\r");
+	printf("  === Auto wakeup from RTC alarm after 30 second =====\n\r");
+
+	/* Back up IOs and USB transceivers */
+	read_reg[0] = PMC->PMC_PCSR0;
+	read_reg[1] = PMC->PMC_PCSR1;
+	read_reg[2] = PMC->PMC_SCSR;
+	read_reg[3] = PMC->CKGR_UCKR;
+
+	/* Set the I/Os to an appropriate state */
+	board_restore_pio_reset_state();
+
+	/* Disable the USB transceivers and all peripheral clocks */
+	board_save_misc_power();
+
+	/* config a led for indicator to capture wake-up time*/
+	led_configure(0);
+
+	/* ultra low power mode 1, RC12 is selected for Main Clock */
+	/* Disable the PLLs and the main oscillator */
+	pmc_set_custom_pck_mck(&clock_test_setting[6]);
+
+	/* set RTC alarm for wake up */
+	_start_rtc_timer_for_wakeup(30);
+
+	/* enter ULP */
+	asm("wfi");
+
+	/* wait for the PMC_SR.MCKRDY bit to be set. */
+	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
+
+	/* To capture wakeup time, we need to write the register */
+	/* directly instead of calling C function */
+	led_toggle(0);
+
+	/* Restore default PCK and MCK */
+	pmc_set_custom_pck_mck(&clock_test_setting[0]);
+	_restore_console();
+
+	/* Restore IOs and USB transceivers */
+	PMC->PMC_PCER0 = read_reg[0];
+	PMC->PMC_PCER1 = read_reg[1];
+	PMC->PMC_SCER  = read_reg[2];
+	PMC->CKGR_UCKR = read_reg[3];
+
+	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
+}
+#endif
 
 static void menu_idle(void)
 {
@@ -722,6 +787,7 @@ static void menu_self_refresh(void)
 	printf("\n\r\n\r");
 	printf("=========== Set DDR into self-refresh ===========\n\r");
 
+#ifdef CONFIG_HAVE_SFRBU
 	if (!sfrbu_is_ddr_backup_enabled()) {
 		/* Wait DDR into self-refresh mode*/
 		while (!((MPDDRC->MPDDRC_LPR) & MPDDRC_LPR_SELF_DONE));
@@ -733,6 +799,9 @@ static void menu_self_refresh(void)
 
 		sfrbu_enable_ddr_backup();
 	}
+#else
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
+#endif
 }
 
 static void menu_out_of_self_refresh(void)
@@ -817,6 +886,7 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
+#if defined(CONFIG_SOC_SAMA5D2)
 		case '2':
 			printf("2");
 			menu_ulp0();
@@ -829,6 +899,14 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
+#elif defined(CONFIG_SOC_SAMA5D4)
+		case '2':
+			printf("2");
+			menu_ulp();
+			MenuChoice = 0;
+			_print_menu();
+			break;
+#endif
 		case '4':
 			printf("4");
 			menu_idle();

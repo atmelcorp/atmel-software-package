@@ -49,6 +49,16 @@
 extern void board_cfg_console(void);
 
 /**
+ * \brief Restore all IOs to default state after power-on reset.
+ */
+extern void board_restore_pio_reset_state(void);
+
+/**
+ * \brief Save power by disabling most peripherals
+ */
+extern void board_save_misc_power(void);
+
+/**
  * \brief Setup TLB for the board
  */
 extern void board_setup_tlb(uint32_t *tlb);

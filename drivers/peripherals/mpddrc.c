@@ -511,3 +511,10 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	}
 #endif
 }
+
+void mpddrc_issue_low_power_command(uint32_t cmd)
+{
+	uint32_t value;
+	value = MPDDRC->MPDDRC_LPR & ~MPDDRC_LPR_LPCB_Msk;
+	MPDDRC->MPDDRC_LPR = value | (cmd & MPDDRC_LPR_LPCB_Msk);
+}

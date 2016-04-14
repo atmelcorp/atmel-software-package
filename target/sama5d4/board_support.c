@@ -111,6 +111,56 @@ void board_cfg_console(void)
 #endif
 }
 
+void board_restore_pio_reset_state(void)
+{
+	int i;
+
+	/* all pins, excluding JTAG and NTRST */
+	struct _pin pins[] = {
+		{ PIO_GROUP_A, 0xFFFEFEFE, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_B, 0xFCFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_D, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
+	};
+
+	/* For low_power_mode example, power consumption results can be affected
+	* by IOs setting. To generate power consumption numbers in datasheet,
+	* most IOs must be disconnected from external devices just like on
+	* VB board. Then putting IOs to reset state are OK.
+	*/
+
+	pio_configure(pins, ARRAY_SIZE(pins));
+	for (i = 0; i < ARRAY_SIZE(pins); i++)
+		pio_clear(&pins[i]);
+}
+
+void board_save_misc_power(void)
+{
+	int i;
+
+	/* disable USB clock */
+	pmc_disable_upll_clock();
+	pmc_disable_upll_bias();
+
+	/* disable system clocks */
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_SMD);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UHP);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK0);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK1);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK2);
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+
+	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
+	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
+		if (i == ID_PIOA)
+			continue;
+		pmc_disable_peripheral(i);
+	}
+}
+
 void board_setup_tlb(uint32_t *tlb)
 {
 	uint32_t addr;

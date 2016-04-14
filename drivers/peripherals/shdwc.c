@@ -64,6 +64,7 @@ union _shdwc_cfg {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_SOC_SAMA5D2
 void shdwc_configure_wakeup_mode(uint32_t config)
 {
 	union _shdwc_cfg cfg;
@@ -87,6 +88,17 @@ void shdwc_set_wakeup_input(uint32_t input_enable, uint32_t input_type)
 	uint32_t wuir = (input_enable & 0x0000FFFF) | (input_type & 0xFFFF0000);
 
 	SHDWC->SHDW_WUIR |= wuir;
+}
+#endif
+
+void shdwc_configure_wakeup(void)
+{
+#if defined(CONFIG_SOC_SAMA5D2)
+	shdwc_set_wakeup_input(SHDW_WUIR_WKUPEN0_ENABLE, SHDW_WUIR_WKUPT0_LOW);
+	shdwc_configure_wakeup_mode(0);
+#elif defined(CONFIG_SOC_SAMA5D4)
+	SHDWC->SHDW_MR = SHDW_MR_WKMODE0_FALLING_EDGE | SHDW_MR_CPTWK0(0x8);
+#endif
 }
 
 void shdwc_do_shutdown(void)

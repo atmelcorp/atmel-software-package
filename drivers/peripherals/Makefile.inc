@@ -47,6 +47,7 @@ drivers-y += drivers/peripherals/rstc.o
 drivers-y += drivers/peripherals/rtc.o
 drivers-y += drivers/peripherals/sha.o
 drivers-y += drivers/peripherals/hsmc.o
+drivers-y += drivers/peripherals/shdwc.o
 drivers-y += drivers/peripherals/spid.o
 drivers-y += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/tc.o
@@ -78,7 +79,6 @@ drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/isc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/pdmic.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/secumod.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/sfrbu.o
-drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/peripherals/twid.o
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/peripherals/hsmci.o
