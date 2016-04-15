@@ -47,9 +47,10 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "compiler.h"
 #include "trace.h"
 #include "chip.h"
+#include "compiler.h"
+#include "intmath.h"
 #include "timer.h"
 #include "libsdmmc.h"
 
@@ -333,15 +334,6 @@ _PrintField(const char *name, const char *format, ...)
 }
 
 /**
- * Delay some loop
- */
-static void
-Delay(volatile unsigned int loop)
-{
-	for (; loop > 0; loop--) ;
-}
-
-/**
  * Reset SD/MMC driver runtime parameters.
  */
 static void
@@ -386,10 +378,13 @@ _ResetCmd(sSdmmcCommand * pCmd)
 static uint8_t
 _SendCmd(sSdCard * pSd, fSdmmcCallback fCallback, void *pCbArg)
 {
+	struct _timeout timeout;
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
 	sSdHalFunctions *pHal = pSd->pHalf;
 	void *pDrv = pSd->pDrv;
+	uint32_t err, drv_is_busy;
 	uint8_t bRc;
+	bool elapsed = false;
 
 	if (pCmd->bCmd != 55)
 		trace_debug("Cmd%u(%lx)\n\r", pCmd->bCmd, pCmd->dwArg);
@@ -398,18 +393,30 @@ _SendCmd(sSdCard * pSd, fSdmmcCallback fCallback, void *pCbArg)
 	bRc = pHal->fCommand(pSd->pDrv, pCmd);
 
 	if (fCallback == NULL) {
-		uint32_t busy = 1;
-		int32_t to = 0;
-		for (; busy == 1;) {
-			pHal->fIOCtrl(pDrv, SDMMC_IOCTL_BUSY_CHECK,
-				      (uint32_t) & busy);
-#if 1
-			if (++to > 0x100000 + 0x100000 * pCmd->wNbBlocks / 1024) {
-				pHal->fIOCtrl(pDrv, SDMMC_IOCTL_CANCEL_CMD, 0);
-				pCmd->bStatus = SDMMC_NO_RESPONSE;
-				break;
-			}
-#endif
+		/* Poll command status.
+		 * The driver is responsible for detecting and reporting
+		 * timeout conditions. Here we only start a backup timer, in
+		 * case the driver or the peripheral meets an unexpected
+		 * condition. Mind that defining how long a command such as
+		 * WRITE_MULTIPLE_BLOCK could take in total may only lead to an
+		 * experimental value, lesser than the unrealistic theoretical
+		 * maximum.
+		 * Abort the command if the driver is still busy after 30s,
+		 * which equals 30*1000 system ticks. */
+		timer_start_timeout(&timeout, 30000);
+		do {
+			if (timer_timeout_reached(&timeout))
+				elapsed = true;
+			drv_is_busy = 1;
+			err = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_BUSY_CHECK,
+			    (uint32_t)&drv_is_busy);
+		}
+		while (drv_is_busy && err == SDMMC_OK && !elapsed);
+		if (err != SDMMC_OK)
+			pCmd->bStatus = (uint8_t)err;
+		else if (drv_is_busy) {
+			pHal->fIOCtrl(pDrv, SDMMC_IOCTL_CANCEL_CMD, 0);
+			pCmd->bStatus = SDMMC_NO_RESPONSE;
 		}
 		bRc = pCmd->bStatus;
 	}
@@ -748,9 +755,8 @@ Cmd3(sSdCard * pSd)
 	pCmd->pResp = &dwResp;
 
 	if (pSd->bCardType == CARD_MMC || pSd->bCardType == CARD_MMCHD) {
-		uint16_t wNewAddr = CARD_ADDR(pSd) + 1;
-		if (wNewAddr <= 1)
-			wNewAddr = 2;
+		uint16_t wNewAddr = (uint16_t)max_u32((CARD_ADDR(pSd) + 1)
+		    & 0xffff, 2);
 		pCmd->dwArg = wNewAddr << 16;
 
 		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(1) | SDMMC_CMD_bmOD;
@@ -1679,25 +1685,6 @@ SdmmcWrite(sSdCard * pSd,
 	return bRc;
 }
 #endif
-/**
- * Try SW Reset several times (CMD0 with ARG 0)
- * \param pSd      Pointer to a SD card driver instance.
- * \param retry    Retry times.
- * \return 0 or MCI error code.
- */
-static uint8_t
-SwReset(sSdCard * pSd, uint32_t retry)
-{
-	uint32_t i;
-	uint8_t error = 0;
-
-	for (i = 0; i < retry; i++) {
-		error = Cmd0(pSd, 0);
-		if (error != SDMMC_ERROR_NORESPONSE)
-			break;
-	}
-	return error;
-}
 
 /**
  * Stop TX/RX
@@ -1705,24 +1692,24 @@ SwReset(sSdCard * pSd, uint32_t retry)
 static uint8_t
 _StopCmd(sSdCard * pSd)
 {
-	uint32_t status, state;
-	uint32_t i, j;
-	uint8_t error = 0;
-	/* Retry stop for 9 times */
-	for (i = 0; i < 9; i++) {
-		error = Cmd12(pSd, &status);
-		if (error)
-			return error;
+	uint32_t status, state = STATUS_RCV;
+	uint32_t i;
+	uint8_t err, count;
+	/* When stopping a write operation, allow retrying several times */
+	for (i = 0; i < 9 && state == STATUS_RCV; i++) {
+		err = Cmd12(pSd, &status);
+		if (err)
+			return err;
 		/* TODO handle any exception, raised in status; report that
 		 * the data transfer has failed. */
 
-		/* Check status for 299 times */
-		for (j = 0; j < 299; j++) {
-			error = Cmd13(pSd, &status);
-			// Wait
-			Delay(0x1600);
-			if (error)
-				return error;
+		/* Wait until ready. Allow 30 ms. */
+		for (count = 0; count < 6; count++) {
+			/* Wait for about 5 ms - which equals 5 system ticks */
+			timer_sleep(5);
+			err = Cmd13(pSd, &status);
+			if (err)
+				return err;
 			state = status & STATUS_STATE;
 
 			/* Invalid state */
@@ -1736,9 +1723,6 @@ _StopCmd(sSdCard * pSd)
 			    STATUS_READY_FOR_DATA && state == STATUS_TRAN)
 				return SDMMC_SUCCESS;
 		}
-		/* For write, try stop command again */
-		if (state != STATUS_RCV)
-			break;
 	}
 	return SDMMC_ERROR_STATE;
 }
@@ -2063,12 +2047,18 @@ SdGetExtInformation(sSdCard * pSd)
 static void
 SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
 {
+	uint32_t timer_res_prv;
 	uint8_t error;
 
 	/* Update CSD for new TRAN_SPEED value */
 	if (csd) {
 		MmcSelectCard(pSd, 0, 1);
-		Delay(800);
+		/* Wait for 14 usec (or more) */
+		timer_res_prv = timer_get_resolution();
+		timer_configure(10);
+		timer_sleep(2);
+		timer_configure(timer_res_prv);
+
 		error = Cmd9(pSd);
 		if (error)
 			return;
@@ -2203,7 +2193,7 @@ mmcDetectBuswidth(sSdCard * pSd)
 			pSd->sandbox1[1] = 0;
 			break;
 		}
-		len = busWidth >= 2 ? busWidth : 2;
+		len = (uint8_t)max_u32(busWidth, 2);
 		error = Cmd19(pSd, pSd->sandbox1, len, NULL);
 		if (error) {
 			/* Devices which do not respond to CMD19 - which results
@@ -2280,8 +2270,8 @@ static uint8_t
 SdMmcIdentify(sSdCard * pSd)
 {
 	struct _timeout timeout;
-	uint32_t status;
-	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
+	uint32_t status, timer_res_prv;
+	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0, count;
 	int8_t elapsed;
 
 	/* Reset HC to default timing mode and data bus width */
@@ -2295,7 +2285,7 @@ SdMmcIdentify(sSdCard * pSd)
 		trace_error("IOrst %s st %lx\n\r", SD_StringifyRetCode(error),
 		    status);
 	/* Reset MEM: CMD0 */
-	error = SwReset(pSd, 1);
+	error = Cmd0(pSd, 0);
 	if (error)
 		trace_debug("rst %s\n\r", SD_StringifyRetCode(error));
 
@@ -2309,23 +2299,30 @@ SdMmcIdentify(sSdCard * pSd)
 		f8 = 1;
 	else if (error != SDMMC_ERROR_NORESPONSE)
 		return SDMMC_ERROR;
-	else
-		/* Delay after "no response" */
-		Delay(8000);
+	else {
+		/* No response to CMD8. Wait for 130 usec (or more). */
+		timer_res_prv = timer_get_resolution();
+		timer_configure(10);
+		timer_sleep(13);
+		timer_configure(timer_res_prv);
+	}
 
 	/* CMD5 is newly added for SDIO initialize & power on */
 	status = 0;
 	error = Cmd5(pSd, &status);
 	if (!error && (status & SDIO_OCR_NF) > 0) {
-		/* Card has SDIO function */
-		unsigned int cmd5Retries = 10000;
-		do {
+		/* Card has SDIO function. Wait until it raises the IORDY flag,
+		 * which may take up to 1s, i.e. 1000 system ticks. */
+		timer_start_timeout(&timeout, 1000);
+		for (elapsed = 0;
+		    !(status & SD_OCR_BUSY) && !error && !elapsed; ) {
+			if (timer_timeout_reached(&timeout))
+				elapsed = 1;
 			status &= SD_HOST_VOLTAGE_RANGE;
 			error = Cmd5(pSd, &status);
-			if (status & SD_OCR_BUSY)
-				break;
 		}
-		while (!error && cmd5Retries--);
+		if (!(status & SD_OCR_BUSY) && !error)
+			error = SDMMC_ERROR_BUSY;
 		if (error) {
 			trace_error("SDIO oc %s\n\r",
 			    SD_StringifyRetCode(error));
@@ -2342,7 +2339,10 @@ SdMmcIdentify(sSdCard * pSd)
 		error = Acmd41(pSd, f8, &ccs);
 		if (error) {
 			/* Try MMC initialize */
-			error = SwReset(pSd, 10);
+			for (error = SDMMC_ERROR_NORESPONSE, count = 0;
+			    error == SDMMC_ERROR_NORESPONSE && count < 10;
+			    count++)
+				error = Cmd0(pSd, 0);
 			if (error) {
 				trace_error("MMC rst %s\n\r",
 				    SD_StringifyRetCode(error));
@@ -2683,7 +2683,7 @@ SdInit(sSdCard * pSd)
 	memSpeed = SdmmcGetMaxSpeed(pSd);
 	if (io) {
 		ioSpeed = SdioGetMaxSpeed(pSd);
-		pSd->dwTranSpeed = (ioSpeed > memSpeed) ? memSpeed : ioSpeed;
+		pSd->dwTranSpeed = min_u32(ioSpeed, memSpeed);
 	}
 	else
 		pSd->dwTranSpeed = memSpeed;
@@ -2935,7 +2935,7 @@ SD_Read(sSdCard * pSd,
 	    remaining != 0 && error == SDMMC_OK;
 	    blk_no += limited, remaining -= limited,
 	    out += (uint32_t)limited * (uint32_t)BLOCK_SIZE(pSd)) {
-		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
+		limited = (uint16_t)min_u32(remaining, 65535);
 		error = MoveToTransferState(pSd, blk_no, &limited, out, 1);
 	}
 	trace_debug("SDrd(%lu,%lu) %s\n\r", address, length,
@@ -2975,7 +2975,7 @@ SD_Write(sSdCard * pSd,
 	    remaining != 0 && error == SDMMC_OK;
 	    blk_no += limited, remaining -= limited,
 	    in += (uint32_t)limited * (uint32_t)BLOCK_SIZE(pSd)) {
-		limited = remaining < 65536 ? (uint16_t)remaining : 65535;
+		limited = (uint16_t)min_u32(remaining, 65535);
 		error = MoveToTransferState(pSd, blk_no, &limited, in, 0);
 	}
 	trace_debug("SDwr(%lu,%lu) %s\n\r", address, length,
@@ -3368,7 +3368,6 @@ SDIO_WriteBytes(sSdCard * pSd,
 			      1, functionNum, 0, !isFixedAddress,
 			      address, pData, size,
 			      (uint32_t *) & status, fCallback, pArg);
-		Delay(100);
 		if (error || status & STATUS_SDIO_R5) {
 			trace_error("IOwrExt %s st %lx\n\r",
 			    SD_StringifyRetCode(error), status);

@@ -219,7 +219,7 @@ static void sdmmc_power_device(struct sdmmc_set *set, bool on)
 	 * the e.MMC Electrical Standard. */
 	if (set->dev_freq != 0)
 		usec = ROUND_INT_DIV(74 * 1000000UL / 10UL, set->dev_freq);
-	usec = usec < 20 ? 20 : usec;
+	usec = max_u32(usec, 20);
 	timer_sleep(usec);
 	timer_configure(timer_res_prv);
 
@@ -400,7 +400,7 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 	uint16_t shval;
 	bool use_prog_mode = false;
 
-	freq = freq > 120000000ul ? 120000000ul : freq;
+	freq = min_u32(freq, 120000000ul);
 #ifndef NDEBUG
 	if (!(regs->SDMMC_PCR & SDMMC_PCR_SDBPWR))
 		trace_error("Bus is off\n\r");
@@ -1376,7 +1376,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		}
 		timer_res_prv = timer_get_resolution();
 		usec = ROUND_INT_DIV(74 * 1000000UL, set->dev_freq);
-		timer_configure(usec < 200 ? 200 : usec);
+		timer_configure(max_u32(usec, 200));
 		timer_sleep(1);
 		timer_configure(timer_res_prv);
 		return SDMMC_OK;
@@ -1558,7 +1558,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		cycles = pmc_get_peripheral_clock(set->tc_id)
 		    / (set->dev_freq / (2ul + 64ul + 48ul));
 		/* The Timer operates with RC >= 1 */
-		set->timer->TC_RC = cycles ? cycles : 1;
+		set->timer->TC_RC = max_u32(cycles, 1);
 	}
 
 	return SDMMC_OK;
@@ -1652,7 +1652,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	}
 	else {
 		exp = exp + 1 - 13;
-		exp = exp <= max_exp ? exp : max_exp;
+		exp = (uint8_t)min_u32(exp, max_exp);
 	}
 	regs->SDMMC_TCR = (regs->SDMMC_TCR & ~SDMMC_TCR_DTCVAL_Msk)
 	    | SDMMC_TCR_DTCVAL(exp);
