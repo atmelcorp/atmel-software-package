@@ -642,7 +642,7 @@ static void _display_menu(void)
 		"[ ] None   [ ] W   [ ] R   [X] RW",
 	};
 
-	printf("\n\r============== SECUMOD (Secure Box Module) Menu =================\n\r");
+	printf("\n\r============= SECUMOD (Security Module) Menu =============\n\r");
 	printf("\n\r");
 	printf("|-----------------------------------------------------------|\n\r");
 	printf("|                 Protection Configuration                  |\n\r");

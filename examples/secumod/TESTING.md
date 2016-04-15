@@ -33,7 +33,7 @@ Step needed to set up the example.
  -- SECUMOD Example xxx --
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
- ============== SECUMOD (Secure Box Module) Menu =================
+ ============== SECUMOD (Security Module) Menu =================
 
  |-----------------------------------------------------------|
  |                 Protection Configuration                  |
@@ -83,10 +83,10 @@ Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Press 'h' | Print the menu on screen | PASSED | PASSED
 Press 'i' | Print `-I- no SECURAM events happened.`, `-I- no access violations happened.` ... on screen | PASSED | PASSED
-Press '0' | Print `SECUMOD (Secure Box Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Enabled ]` ... on screen | PASSED | PASSED
+Press '0' | Print `SECUMOD (Security Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Enabled ]` ... on screen | PASSED | PASSED
 Press 'i' | Print `SECRAM erased X times` ... `SECURAM: 4 kbytes and 256 bits areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECRAM erased X times` on screen | PASSED | PASSED
 Press 'i' | Print `SECRAM erased X times` ... `SECURAM: 4 kbytes and 256 bits areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECRAM erased X times` on screen | PASSED | PASSED
-Press '0' | Print `SECUMOD (Secure Box Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Disabled]` ... on screen | PASSED | PASSED
+Press '0' | Print `SECUMOD (Security Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Disabled]` ... on screen | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
 PIOBU3/PIOBU7 tamper | test tamper static mode | PASSED | PASSED
 JTAG tamper | test JTAG tamper | PASSED | PASSED
