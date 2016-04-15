@@ -54,6 +54,9 @@
  *        HW BOARD Definitions
  *----------------------------------------------------------------------------*/
 
+/* Uncomment next line to use early prototype versions of SAMA5D2-XULT. */
+//#define CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO
+
 /**
  * \page sama5d2_xult_board_info "sama5d2-XULT - Board informations"
  * This page lists several definition related to the board description.
@@ -104,7 +107,12 @@
 #define LED_BLUE  2
 
 /** LED #0 pin definition (Red). */
+#ifndef CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO
 #define PIN_LED_0 { PIO_GROUP_B, PIO_PB6, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#else
+/* on prototype board, LED_0 shares a pin with SDMMC0 (eMMC) card detect */
+#define PIN_LED_0 { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_0, PIO_OPENDRAIN }
+#endif
 
 /** LED #1 pin definition (Green). */
 #define PIN_LED_1 { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_OPENDRAIN }
@@ -139,7 +147,11 @@
 
 #define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)
 
+#ifndef CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO
 #define PIN_PUSHBUTTON_1 { PIO_GROUP_B, PIO_PB9, PIO_INPUT, PIO_CFG_PB }
+#else
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_B, PIO_PB6, PIO_INPUT, PIO_CFG_PB }
+#endif
 
 /** List of all push button definitions. */
 #define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1 }
@@ -156,8 +168,14 @@
 	{ PIO_GROUP_A, PIO_PA12, PIO_OUTPUT_0, PIO_PULLUP }
 #define ACT8945A_PIN_IRQ \
 	{ PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#ifndef CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO
 #define ACT8945A_PIN_LBO \
 	{ PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#else
+/* on prototype board, ACT8945A_LBO shares a pin with ACT8945A_IRQ */
+#define ACT8945A_PIN_LBO \
+	{ PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#endif
 
 /* ================== PIN USB definition ======================= */
 
