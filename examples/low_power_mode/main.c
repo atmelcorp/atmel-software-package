@@ -120,6 +120,8 @@
 #include "peripherals/shdwc.h"
 #ifdef CONFIG_HAVE_SFRBU
 #include "peripherals/sfrbu.h"
+#endif
+#include "peripherals/mpddrc.h"
 
 #include "misc/led.h"
 #include "power/act8945a.h"
