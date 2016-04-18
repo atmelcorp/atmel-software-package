@@ -573,13 +573,13 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 void pio_enable_write_protect(const struct _pin *pin)
 {
 	Pio* pio = _pio_get_instance(pin->group);
-	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN);
+	pio->PIO_WPMR = (PIO_WPMR_WPKEY_PASSWD | PIO_WPMR_WPEN);
 }
 
 void pio_disable_write_protect(const struct _pin *pin)
 {
 	Pio* pio = _pio_get_instance(pin->group);
-	pio->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS);
+	pio->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
 }
 
 uint32_t pio_get_write_protect_violation_info(const struct _pin * pin)

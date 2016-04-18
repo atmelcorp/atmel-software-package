@@ -508,7 +508,7 @@ void pio_set_debounce_filter(const struct _pin *pin, uint32_t cuttoff)
 void pio_enable_write_protect(const struct _pin *pin)
 {
 	assert(pin->group < PIO_GROUP_LENGTH);
-	PIOA->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_EN  );
+	PIOA->PIO_WPMR = (PIO_WPMR_WPKEY_PASSWD | PIO_WPMR_WPEN);
 }
 
 /**
@@ -519,7 +519,7 @@ void pio_enable_write_protect(const struct _pin *pin)
 void pio_disable_write_protect(const struct _pin *pin)
 {
 	assert(pin->group < PIO_GROUP_LENGTH);
-	PIOA->PIO_WPMR = (PIO_WPMR_WPKEY_VALID | PIO_WPMR_WPEN_DIS );
+	PIOA->PIO_WPMR = PIO_WPMR_WPKEY_PASSWD;
 }
 
 /**

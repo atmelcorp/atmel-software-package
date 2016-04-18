@@ -123,15 +123,15 @@
 /* The internal pin pull-down is active. */
 #define PIO_PULLDOWN                (1 << 3)
 /*  The internal debouncing filter is active. */
-#define PIO_DEBOUNCE                (1 << 3)
+#define PIO_DEBOUNCE                (1 << 4)
 
 /*  Enable additional interrupt modes. */
-#define PIO_IT_AIME                 (1 << 4)
+#define PIO_IT_AIME                 (1 << 5)
 
 /*  Interrupt High Level/Rising Edge detection is active. */
-#define PIO_IT_RE_OR_HL             (1 << 5)
+#define PIO_IT_RE_OR_HL             (1 << 6)
 /*  Interrupt Edge detection is active. */
-#define PIO_IT_EDGE                 (1 << 6)
+#define PIO_IT_EDGE                 (1 << 7)
 
 /*  Low level interrupt is active */
 #define PIO_IT_LOW_LEVEL            (0 | 0 | PIO_IT_AIME)
@@ -141,11 +141,5 @@
 #define PIO_IT_FALL_EDGE            (0 | PIO_IT_EDGE | PIO_IT_AIME)
 /*  Rising edge interrupt is active */
 #define PIO_IT_RISE_EDGE            (PIO_IT_RE_OR_HL | PIO_IT_EDGE | PIO_IT_AIME)
-
-#define PIO_WPMR_WPEN_EN            ( 0x01     << 0 )
-
-#define PIO_WPMR_WPEN_DIS           ( 0x00     << 0 )
-
-#define PIO_WPMR_WPKEY_VALID        ( 0x50494F << 8 )
 
 #endif	/* #ifndef _PIO3_H */

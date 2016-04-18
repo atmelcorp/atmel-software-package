@@ -155,10 +155,4 @@
 /*Event detection on high level input. */
 #define PIO_IT_HIGH_LEVEL           (0x4u << 12)
 
-#define PIO_WPMR_WPEN_EN            ( 0x01 << 0 )
-
-#define PIO_WPMR_WPEN_DIS           ( 0x00 << 0 )
-
-#define PIO_WPMR_WPKEY_VALID        ( 0x50494F << 8 )
-
 #endif	/* #ifndef _PIO4_H */
