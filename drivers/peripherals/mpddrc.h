@@ -31,6 +31,7 @@
 #define MPDDRC_HEADER_
 
 #include <stdint.h>
+#include <peripherals/mpddrc.h>
 
 enum _ram_type {
 	MPDDRC_TYPE_DDR2,
@@ -44,7 +45,9 @@ enum _ram_type {
 struct _mpddrc_desc {
 	enum _ram_type type;
 	uint32_t io_calibr;
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	uint32_t data_path;
+#endif
 	uint32_t mode;
 	uint32_t control;
 	uint32_t bank;

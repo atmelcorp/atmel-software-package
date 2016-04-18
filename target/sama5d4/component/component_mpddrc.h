@@ -108,10 +108,10 @@ typedef struct {
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
-#define   MPDDRC_CR_NC_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns */
-#define   MPDDRC_CR_NC_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns */
-#define   MPDDRC_CR_NC_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns */
-#define   MPDDRC_CR_NC_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns */
+#define   MPDDRC_CR_NC_DDR9_MDDR8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns */
+#define   MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns */
+#define   MPDDRC_CR_NC_DDR11_MDDR10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns */
+#define   MPDDRC_CR_NC_DDR12_MDDR11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns */
 #define MPDDRC_CR_NR_Pos 2
 #define MPDDRC_CR_NR_Msk (0x3u << MPDDRC_CR_NR_Pos) /**< \brief (MPDDRC_CR) Number of Row Bits */
 #define MPDDRC_CR_NR(value) ((MPDDRC_CR_NR_Msk & ((value) << MPDDRC_CR_NR_Pos)))

@@ -436,7 +436,9 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	value |= desc->io_calibr;
 	MPDDRC->MPDDRC_IO_CALIBR = value;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	MPDDRC->MPDDRC_RD_DATA_PATH = desc->data_path;
+#endif
 
 	/* Step 2: Program features of the DDR3-SDRAM device in the
 	 * configuration register and timing parameter registers (TPR0

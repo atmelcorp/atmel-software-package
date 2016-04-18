@@ -68,9 +68,11 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
+#endif
 
-	desc->control = MPDDRC_CR_NC_10_COL_BITS
+	desc->control = MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
 	              | MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS5
 	              | MPDDRC_CR_DIS_DLL
@@ -115,9 +117,11 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM ;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
+#endif
 
-	desc->control = MPDDRC_CR_NC_10_COL_BITS
+	desc->control = MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
 	              | MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_DLL_RESET_DISABLED
@@ -167,10 +171,12 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_10_COL_BITS
+	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_DLL_RESET_DISABLED
 	              | MPDDRC_CR_DQMS_NOT_SHARED
@@ -222,10 +228,12 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_10_COL_BITS
+	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_DLL_RESET_DISABLED
 	              | MPDDRC_CR_DQMS_NOT_SHARED
@@ -277,10 +285,12 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_LPDDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
+#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_10_COL_BITS
+	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_ENRDM_OFF
 	              | MPDDRC_CR_NB_8_BANKS
