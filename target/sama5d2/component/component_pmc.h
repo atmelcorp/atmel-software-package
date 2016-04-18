@@ -386,9 +386,6 @@ typedef struct {
 #define PMC_PLLICPR_ICP_PLLA_Pos 0
 #define PMC_PLLICPR_ICP_PLLA_Msk (0x3u << PMC_PLLICPR_ICP_PLLA_Pos) /**< \brief (PMC_PLLICPR) Must Be Written to Zero */
 #define PMC_PLLICPR_ICP_PLLA(value) ((PMC_PLLICPR_ICP_PLLA_Msk & ((value) << PMC_PLLICPR_ICP_PLLA_Pos)))
-#define PMC_PLLICPR_IPLL_PLLA_Pos 8
-#define PMC_PLLICPR_IPLL_PLLA_Msk (0x7u << PMC_PLLICPR_IPLL_PLLA_Pos) /**< \brief (PMC_PLLICPR) Engineering Configuration PLLA */
-#define PMC_PLLICPR_IPLL_PLLA(value) ((PMC_PLLICPR_IPLL_PLLA_Msk & ((value) << PMC_PLLICPR_IPLL_PLLA_Pos)))
 #define PMC_PLLICPR_ICP_PLLU_Pos 16
 #define PMC_PLLICPR_ICP_PLLU_Msk (0x3u << PMC_PLLICPR_ICP_PLLU_Pos) /**< \brief (PMC_PLLICPR) Charge Pump Current PLL UTMI */
 #define PMC_PLLICPR_ICP_PLLU(value) ((PMC_PLLICPR_ICP_PLLU_Msk & ((value) << PMC_PLLICPR_ICP_PLLU_Pos)))
@@ -523,13 +520,6 @@ typedef struct {
 #define   PMC_PCR_GCKCSS_MCK_CLK (0x4u << 8) /**< \brief (PMC_PCR) Master Clock is selected */
 #define   PMC_PCR_GCKCSS_AUDIO_CLK (0x5u << 8) /**< \brief (PMC_PCR) Audio PLL clock is selected */
 #define PMC_PCR_CMD (0x1u << 12) /**< \brief (PMC_PCR) Command */
-#define PMC_PCR_DIV_Pos 16
-#define PMC_PCR_DIV_Msk (0x3u << PMC_PCR_DIV_Pos) /**< \brief (PMC_PCR) Divisor Value */
-#define PMC_PCR_DIV(value) ((PMC_PCR_DIV_Msk & ((value) << PMC_PCR_DIV_Pos)))
-#define   PMC_PCR_DIV_PERIPH_DIV_MCK (0x0u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK */
-#define   PMC_PCR_DIV_PERIPH_DIV2_MCK (0x1u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/2 */
-#define   PMC_PCR_DIV_PERIPH_DIV4_MCK (0x2u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/4 */
-#define   PMC_PCR_DIV_PERIPH_DIV8_MCK (0x3u << 16) /**< \brief (PMC_PCR) Peripheral clock is MCK/8 */
 #define PMC_PCR_GCKDIV_Pos 20
 #define PMC_PCR_GCKDIV_Msk (0xffu << PMC_PCR_GCKDIV_Pos) /**< \brief (PMC_PCR) Generated Clock Division Ratio */
 #define PMC_PCR_GCKDIV(value) ((PMC_PCR_GCKDIV_Msk & ((value) << PMC_PCR_GCKDIV_Pos)))

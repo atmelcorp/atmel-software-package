@@ -67,12 +67,12 @@ void low_level_init(void)
 		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 		pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
 		/* Disable PLLA */
-		pmc_set_plla(0, PMC_PLLICPR_IPLL_PLLA(0x3));
+		pmc_set_plla(0, 0);
 		pmc_select_external_osc();
 		/* Configure PLLA */
 		pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
 			CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(82) |
-			CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+			CKGR_PLLAR_DIVA_BYPASS, 0);
 		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 		pmc_switch_mck_to_pll();

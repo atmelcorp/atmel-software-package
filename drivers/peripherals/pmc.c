@@ -401,16 +401,16 @@ void pmc_select_internal_crystal(void)
 
 void pmc_select_external_osc(void)
 {
+	/* Return if external osc had been selected */
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
+		return;
+
 	/* Enable external osc 12 MHz when needed */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
 		PMC->CKGR_MOR |= CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
 		/* Wait Main Oscillator ready */
 		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
 	}
-
-	/* Return if external osc had been selected */
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
-		return;
 
 	/* switch MAIN clock to external OSC 12 MHz */
 	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
@@ -602,21 +602,19 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 	else
 		pmc_select_internal_crystal();
 
-	pmc_set_mck_prescaler(cfg->pck_pres);
-	pmc_set_mck_divider(cfg->mck_div);
-
-	pmc_set_mck_plla_div(cfg->plla_div2 ? PMC_MCKR_PLLADIV2 : 0);
+	pmc_disable_plla();
 	if (cfg->plla_mul > 0) {
-		pmc_disable_plla();
+		pmc_set_mck_plla_div(cfg->plla_div2 ? PMC_MCKR_PLLADIV2 : 0);
 		uint32_t tmp = CKGR_PLLAR_ONE |
 			CKGR_PLLAR_PLLACOUNT(0x3F) |
 			CKGR_PLLAR_OUTA(0x0) |
 			CKGR_PLLAR_MULA(cfg->plla_mul) |
 			CKGR_PLLAR_DIVA(cfg->plla_div);
-		pmc_set_plla(tmp, PMC_PLLICPR_IPLL_PLLA(0x3));
-	} else {
-		pmc_disable_plla();
+		pmc_set_plla(tmp, 0);
 	}
+
+	pmc_set_mck_prescaler(cfg->pck_pres);
+	pmc_set_mck_divider(cfg->mck_div);
 
 	if (cfg->h32mxdiv2)
 		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
@@ -648,20 +646,22 @@ void pmc_enable_peripheral(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
 
+	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
-	volatile uint32_t pcr = PMC->PMC_PCR;
 
-	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_EN;
+	// enable it but keep previous configuration
+	PMC->PMC_PCR = PMC->PMC_PCR | PMC_PCR_CMD | PMC_PCR_EN;
 }
 
 void pmc_disable_peripheral(uint32_t id)
 {
 	assert(id > 1 && id < ID_PERIPH_COUNT);
 
+	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
-	volatile uint32_t pcr = PMC->PMC_PCR;
 
-	PMC->PMC_PCR = PMC_PCR_CMD | (pcr & ~PMC_PCR_EN);
+	// disable it but keep previous configuration
+	PMC->PMC_PCR = (PMC->PMC_PCR & ~PMC_PCR_EN) | PMC_PCR_CMD;
 }
 
 uint32_t pmc_is_peripheral_enabled(uint32_t id)
