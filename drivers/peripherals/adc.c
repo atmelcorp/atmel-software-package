@@ -141,17 +141,17 @@ void adc_initialize(void)
  *
  * \return ADC clock
  */
-uint32_t adc_set_clock(uint32_t clk)
+uint32_t adc_set_clock(uint32_t adc_clk)
 {
 	uint32_t prescale, mode_reg;
-	uint32_t mck = pmc_get_peripheral_clock(ID_ADC);
+	uint32_t pck = pmc_get_peripheral_clock(ID_ADC);
 	/* Formula for PRESCAL is:
-	   ADCClock = MCK / ( (PRESCAL+1) * 2 )
-	   PRESCAL = (MCK / (2 * ADCCLK)) + 1
+	   ADCClock = PCK / ( (PRESCAL+1) * 2 )
+	   PRESCAL = (PCK / (2 * ADCCLK)) - 1
 	   First, we do the division, multiplied by 10 to get higher precision
 	   If the last digit is not zero, we round up to avoid generating a higher
 	   than required frequency. */
-	prescale = (mck * 5) / clk;
+	prescale = (pck * 5) / adc_clk;
 	if (prescale % 10)
 		prescale = prescale / 10;
 	else {
@@ -167,8 +167,8 @@ uint32_t adc_set_clock(uint32_t clk)
 	mode_reg |= (ADC->ADC_MR & ~ADC_MR_PRESCAL_Msk);
 	ADC->ADC_MR = mode_reg;
 
-	_adc_clock = mck / (prescale + 1) / 2;
-	//_adc_clock = _adc_clock / 1000 * 1000;
+	_adc_clock = pck / (prescale + 1) / 2;
+
 	return _adc_clock;
 }
 
@@ -179,7 +179,7 @@ void adc_enable_it(uint32_t mask)
 
 void adc_disable_it(uint32_t mask)
 {
-	ADC->ADC_IER &= ~mask;
+	ADC->ADC_IDR |= mask;
 }
 
 /**
@@ -203,6 +203,9 @@ void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 	mode_reg = ADC->ADC_MR;
 	mode_reg &= (~ADC_MR_STARTUP_Msk) & (~ADC_MR_TRACKTIM_Msk);
 
+#ifdef CONFIG_HAVE_ADC_SETTLING_TIME
+	mode_reg &= (~ADC_MR_SETTLING_Msk);
+#endif
 	/* Formula:
 	 *     Startup  Time = startup value / ADCClock
 	 *     Transfer Time = (TRANSFER * 2 + 3) / ADCClock
