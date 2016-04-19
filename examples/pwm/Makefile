@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the PWM example
-AVAILABLE_BOARDS = sama5d2-xplained sama5d4-ek sama5d4-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d4-xplained
 
 TOP := ../..
 

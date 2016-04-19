@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Class D example
-AVAILABLE_BOARDS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289
+AVAILABLE_TARGETS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289
 AVAILABLE_VARIANTS = ddram
 
 TOP := ../..

@@ -181,7 +181,7 @@ tpl-set-configuration() {
 
     echo "SET target=$target, variant=$variant"
     sed -i "s/__REPLACE_CONF__/$variant/g" "$tpl"
-    sed -i "s/__REPLACE_BOARD__/$target/g" "$tpl"
+    sed -i "s/__REPLACE_TARGET__/$target/g" "$tpl"
 }
 
 tpl-set-soc() {

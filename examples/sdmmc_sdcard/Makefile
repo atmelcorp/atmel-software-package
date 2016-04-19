@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Secure Digital Memory Card example
-AVAILABLE_BOARDS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d2-xplained
 
 TOP := ../..
 

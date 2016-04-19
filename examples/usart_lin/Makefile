@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USART LIN example
-AVAILABLE_BOARDS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi
+AVAILABLE_TARGETS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi
 
 TOP := ../..
 

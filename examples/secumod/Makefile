@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the secumod example
-AVAILABLE_BOARDS = sama5d2-xplained sama5d2-ptc-engi \
+AVAILABLE_TARGETS = sama5d2-xplained sama5d2-ptc-engi \
 		   sama5d2-vb-bga196 sama5d2-vb-bga289
 AVAILABLE_VARIANTS = sram
 

@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>__REPLACE_BOARD_____REPLACE_CONF__</name>
+    <name>__REPLACE_TARGET_____REPLACE_CONF__</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -17,15 +17,15 @@
         <debug>1</debug>
         <option>
           <name>ExePath</name>
-          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\Exe</state>
+          <state>build\__REPLACE_TARGET_____REPLACE_CONF__\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\Obj</state>
+          <state>build\__REPLACE_TARGET_____REPLACE_CONF__\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>build\__REPLACE_BOARD_____REPLACE_CONF__\List</state>
+          <state>build\__REPLACE_TARGET_____REPLACE_CONF__\List</state>
         </option>
         <option>
           <name>Variant</name>
@@ -591,7 +591,7 @@ __REPLACE_DEFINES__
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>__REPLACE_BIN_NAME_____REPLACE_BOARD_____REPLACE_CONF__.bin</state>
+          <state>__REPLACE_BIN_NAME_____REPLACE_TARGET_____REPLACE_CONF__.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -645,7 +645,7 @@ __REPLACE_DEFINES__
         </option>
         <option>
           <name>IlinkOutputFile</name>
-          <state>__REPLACE_BIN_NAME_____REPLACE_BOARD_____REPLACE_CONF__.out</state>
+          <state>__REPLACE_BIN_NAME_____REPLACE_TARGET_____REPLACE_CONF__.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
