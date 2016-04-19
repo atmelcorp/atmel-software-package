@@ -33,5 +33,6 @@ TOP := ../..
 BINNAME = pmc_clock_switching
 
 obj-y += examples/pmc_clock_switching/main.o
+obj-y += examples/pmc_clock_switching/clk-config_$(chip-family).o
 
 include $(TOP)/scripts/Makefile.rules
