@@ -774,6 +774,7 @@ Cmd3(sSdCard * pSd)
 	return bRc;
 }
 
+#ifndef SDMMC_TRIM_SDIO
 /**
  * SDIO SEND OPERATION CONDITION (OCR) command.
  * Sends host capacity support information and acrivates the card's
@@ -801,6 +802,7 @@ Cmd5(sSdCard * pSd, uint32_t * pIo)
 	bRc = _SendCmd(pSd, NULL, NULL);
 	return bRc;
 }
+#endif
 
 /**
  * Switches the mode of operation of the selected card.
@@ -1983,6 +1985,7 @@ SdmmcGetMaxSpeed(sSdCard * pSd)
 	    == CARD_TYPE_bmSD ? sdTransMultipliers : mmcTransMultipliers);
 }
 
+#ifndef SDMMC_TRIM_SDIO
 /**
  * Get SDIO max transfer speed, in K.
  * \param pSd Pointer to a SD card driver instance.
@@ -2011,6 +2014,7 @@ SdioGetMaxSpeed(sSdCard * pSd)
 	return SdmmcDecodeTransSpeed(buf[5], sdmmcTransUnits,
 	    sdTransMultipliers);
 }
+#endif
 
 /**
  * Get SCR and SD Status information
@@ -2087,18 +2091,18 @@ SdEnableHighSpeed(sSdCard * pSd)
 {
 	uint32_t status;
 	uint8_t error;
-	uint8_t io, sd;
+	uint8_t sd;
 
 	assert(sizeof(pSd->sandbox1) >= 512 / 8);
 
-	io = ((pSd->bCardType & CARD_TYPE_bmSDIO) > 0);
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
 
 	/* Check host driver capability */
 	if (_HwGetHsMode(pSd, SDMMC_TIM_SD_HS) == 0)
 		return SDMMC_ERROR_NOT_SUPPORT;
 
-	if (io) {
+#ifndef SDMMC_TRIM_SDIO
+	if (pSd->bCardType & CARD_TYPE_bmSDIO) {
 		/* Check CIA.HS */
 		status = 0;
 		error = Cmd52(pSd, 0, SDIO_CIA, 0, SDIO_HS_REG,
@@ -2116,6 +2120,7 @@ SdEnableHighSpeed(sSdCard * pSd)
 				return SDMMC_ERROR;
 		}
 	}
+#endif
 	if (sd) {
 		/* Check version */
 		//if (SD_IsHsModeSupported(pSd)) {
@@ -2269,14 +2274,18 @@ SdDecideBuswidth(sSdCard * pSd)
 static uint8_t
 SdMmcIdentify(sSdCard * pSd)
 {
+#ifndef SDMMC_TRIM_SDIO
+	uint32_t status;
+#endif
 	struct _timeout timeout;
-	uint32_t status, timer_res_prv;
+	uint32_t timer_res_prv;
 	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0, count;
 	int8_t elapsed;
 
 	/* Reset HC to default timing mode and data bus width */
 	_HwSetHsMode(pSd, SDMMC_TIM_MMC_BC);
 	_HwSetBusWidth(pSd, 1);
+#ifndef SDMMC_TRIM_SDIO
 	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR (bit 3 of register 6) */
 	status = SDIO_RES;
 	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status);
@@ -2284,6 +2293,7 @@ SdMmcIdentify(sSdCard * pSd)
 	    || (!error && status & STATUS_SDIO_R5))
 		trace_error("IOrst %s st %lx\n\r", SD_StringifyRetCode(error),
 		    status);
+#endif
 	/* Reset MEM: CMD0 */
 	error = Cmd0(pSd, 0);
 	if (error)
@@ -2307,6 +2317,7 @@ SdMmcIdentify(sSdCard * pSd)
 		timer_configure(timer_res_prv);
 	}
 
+#ifndef SDMMC_TRIM_SDIO
 	/* CMD5 is newly added for SDIO initialize & power on */
 	status = 0;
 	error = Cmd5(pSd, &status);
@@ -2333,6 +2344,8 @@ SdMmcIdentify(sSdCard * pSd)
 		/* IO only ? */
 		mp = ((status & SDIO_OCR_MP) > 0);
 	}
+#endif
+
 	/* Has memory: SD/MMC/COMBO */
 	if (mp) {
 		/* Try SD memory initialize */
@@ -2637,9 +2650,8 @@ static uint8_t
 SdInit(sSdCard * pSd)
 {
 	uint64_t mem_size;
-	uint32_t clock, drv_param, drv_err, status, ioSpeed = 0, memSpeed = 0;
+	uint32_t clock, drv_param, drv_err, status;
 	uint8_t error;
-	const bool io = pSd->bCardType & CARD_TYPE_bmSDIO ? true : false;
 	bool flag;
 
 	pSd->bSpeedMode = SDMMC_TIM_SD_DS;
@@ -2680,13 +2692,13 @@ SdInit(sSdCard * pSd)
 	SdMmcUpdateInformation(pSd, true, true);
 
 	/* Calculate transfer speed */
-	memSpeed = SdmmcGetMaxSpeed(pSd);
-	if (io) {
-		ioSpeed = SdioGetMaxSpeed(pSd);
-		pSd->dwTranSpeed = min_u32(ioSpeed, memSpeed);
+	pSd->dwTranSpeed = SdmmcGetMaxSpeed(pSd);
+#ifndef SDMMC_TRIM_SDIO
+	if (pSd->bCardType & CARD_TYPE_bmSDIO) {
+		clock = SdioGetMaxSpeed(pSd);
+		pSd->dwTranSpeed = min_u32(clock, pSd->dwTranSpeed);
 	}
-	else
-		pSd->dwTranSpeed = memSpeed;
+#endif
 	pSd->dwTranSpeed *= 1000;
 
 	/* Enable more bus width Mode */
@@ -2793,6 +2805,7 @@ SdInit(sSdCard * pSd)
 	return 0;
 }
 
+#ifndef SDMMC_TRIM_SDIO
 static uint8_t
 SdioInit(sSdCard * pSd)
 {
@@ -2841,6 +2854,7 @@ SdioInit(sSdCard * pSd)
 	pSd->dwCurrSpeed = clock;
 	return 0;
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -3114,8 +3128,10 @@ SD_Init(sSdCard * pSd)
 		error = MmcInit(pSd);
 	else if ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD)
 		error = SdInit(pSd);
+#ifndef SDMMC_TRIM_SDIO
 	else if (pSd->bCardType & CARD_TYPE_bmSDIO)
 		error = SdioInit(pSd);
+#endif
 	else {
 		trace_error("Identify %s\n\r", "failed");
 		return SDMMC_ERROR_NOT_INITIALIZED;
