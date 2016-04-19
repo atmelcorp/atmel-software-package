@@ -107,6 +107,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
 #include "peripherals/l2cc.h"
+#include "peripherals/twid.h"
 #include "power/act8945a.h"
 #include "libsdmmc/libsdmmc.h"
 #include "fatfs/src/ff.h"
@@ -209,7 +210,7 @@ ALIGNED(L1_CACHE_BYTES) static struct padded_fil f_header;
 
 static struct sha_set sha = { .count = 0 };
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
+#if defined(CONFIG_HAVE_PMIC_ACT8945A) && !defined(SDMMC_TRIM_LOW_VOLTAGE)
 static struct _twi_desc pmic_twid = {
 	.addr = ACT8945A_ADDR,
 	.freq = ACT8945A_FREQ,
@@ -270,7 +271,7 @@ static void display_menu(void)
 
 static bool configure_pmic(void)
 {
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
+#if defined(CONFIG_HAVE_PMIC_ACT8945A) && !defined(SDMMC_TRIM_LOW_VOLTAGE)
 	const struct _pin pins[] = ACT8945A_PINS;
 
 	if (!pio_configure(pins, ARRAY_SIZE(pins)))
@@ -326,9 +327,12 @@ static bool close_device(sSdCard *pSd)
 
 static bool show_device_info(sSdCard *pSd)
 {
+#ifndef SDMMC_TRIM_INFO
 	const uint8_t card_type = SD_GetCardType(pSd);
+#endif
 
 	SD_DumpStatus(pSd);
+#ifndef SDMMC_TRIM_INFO
 	if (card_type & CARD_TYPE_bmSDMMC)
 		SD_DumpCID(pSd);
 	if (card_type & CARD_TYPE_bmSD) {
@@ -339,9 +343,12 @@ static bool show_device_info(sSdCard *pSd)
 		SD_DumpCSD(pSd);
 	if (card_type & CARD_TYPE_bmMMC)
 		SD_DumpExtCSD(pSd->EXT);
+#ifndef SDMMC_TRIM_SDIO
 	if (card_type & CARD_TYPE_bmSDIO)
 		SDIO_DumpCardInformation(pSd);
+#endif
 	printf("\n\r");
+#endif
 	return true;
 }
 
