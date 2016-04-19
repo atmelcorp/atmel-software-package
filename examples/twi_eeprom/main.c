@@ -105,6 +105,8 @@
 
 #include "memories/at25.h"
 
+#include "twi_eeprom-config.h"
+
 #include "trace.h"
 #include "mutex.h"
 #include "timer.h"
@@ -141,54 +143,11 @@ ALIGNED(L1_CACHE_BYTES) static uint8_t read_buffer[READ_BUFFER_SIZE];
 static _parser _cmd_parser;
 static uint32_t cmd_index = 0;
 
-struct _at24 at24_drv = {
-	.desc = AT24_DESC,
-	.addr = AT24_EEP_ADDR,
-	.sn_addr = AT24_SN_ADDR,
-	.sn_offset = AT24_SN_OFFSET,
-	.eui_offset = AT24_EUI48_OFFSET,
-};
-struct _twi_desc at24_twid = {
-	.addr = AT24_ADDR,
-	.freq = AT24_FREQ,
-#ifdef CONFIG_SOC_SAMA5D4
-	//.transfert_mode = TWID_MODE_ASYNC
-	.transfert_mode = TWID_MODE_POLLING
-#else
-	.transfert_mode = TWID_MODE_DMA
-#endif
-};
-
 mutex_t lock = 0;
 
 /*----------------------------------------------------------------------------
  *        Slave definitions
  *----------------------------------------------------------------------------*/
-
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-/* =================== TWI slave device definition ============== */
-/* twi_slave examples mimics a serial memory with TWI interface. */
-/** TWI slave pins definition **/
-#define TWI_SLAVE_PINS PINS_TWI0_IOS1
-/** TWI slave address definition */
-#define TWI_SLAVE_ADDR ((Twi*)TWIHS0)
-#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-/* =================== TWI slave device definition ============== */
-/* twi_slave examples mimics a serial memory with TWI interface. */
-/** TWI slave pins definition **/
-#define TWI_SLAVE_PINS PINS_TWI1
-/** TWI slave address definition */
-#define TWI_SLAVE_ADDR ((Twi*)TWI1)
-#else
-#error Unsupported board...
-#endif
-
-/** Slave address of the device on TWI bus. */
-#define TWI_SLAVE_EEP_ADDR 0x53
-/** TWI slave serial memory pages (example AT24C02)*/
-#define TWI_SLAVE_EEP_PAGES 16
-/** TWI slave serial memory page size (example AT24C02)*/
-#define TWI_SLAVE_EEP_PAGE_SIZE 16
 
 /** The slave device instance*/
 struct _slave_device_driver

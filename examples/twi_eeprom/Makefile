@@ -34,5 +34,6 @@ TOP := ../..
 BINNAME = twi_eeprom
 
 obj-y += examples/twi_eeprom/main.o
+obj-y += examples/twi_eeprom/twi_eeprom-config_$(TARGET).o
 
 include $(TOP)/scripts/Makefile.rules
