@@ -87,7 +87,7 @@ void shdwc_set_wakeup_input(uint32_t input_enable, uint32_t input_type)
 {
 	uint32_t wuir = (input_enable & 0x0000FFFF) | (input_type & 0xFFFF0000);
 
-	SHDWC->SHDW_WUIR |= wuir;
+	SHDWC->SHDW_WUIR = wuir;
 }
 
 void shdwc_set_wakeup_debounce(uint32_t debounce)
