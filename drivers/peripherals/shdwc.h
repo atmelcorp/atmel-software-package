@@ -58,6 +58,14 @@ extern void shdwc_configure_wakeup_mode(uint32_t config);
  */
 extern void shdwc_set_wakeup_input(uint32_t input_enable,
                                    uint32_t input_type);
+
+/**
+ * \brief Configure the Shutdown Wake-up Debounce
+ *
+ * \param debounce Wake-up debounce value (one of the SHDW_MR_WKUPDBC_*
+ * constants)
+ */
+extern void shdwc_set_wakeup_debounce(uint32_t debounce);
 #endif
 
 /**
