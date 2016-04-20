@@ -55,15 +55,15 @@
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern void uart_configure(Uart* puart, uint32_t mode, uint32_t baudrate);
-extern void uart_set_transmitter_enabled(Uart* puart, uint8_t enabled);
-extern void uart_set_receiver_enabled (Uart* puart, uint8_t enabled);
-extern void uart_enable_it(Uart* puart, uint32_t int_mask);
-extern void uart_disable_it(Uart* puart, uint32_t int_mask);
-extern void uart_put_char(Uart* puart, uint8_t c);
-extern bool uart_is_rx_ready(Uart* puart);
-extern bool uart_is_tx_ready(Uart* puart);
-extern uint8_t uart_get_char(Uart* puart);
+extern void uart_configure(Uart* uart, uint32_t mode, uint32_t baudrate);
+extern void uart_set_transmitter_enabled(Uart* uart, bool enabled);
+extern void uart_set_receiver_enabled (Uart* uart, bool enabled);
+extern void uart_enable_it(Uart* uart, uint32_t mask);
+extern void uart_disable_it(Uart* uart, uint32_t mask);
+extern bool uart_is_tx_ready(Uart* uart);
+extern void uart_put_char(Uart* uart, uint8_t c);
+extern bool uart_is_rx_ready(Uart* uart);
+extern uint8_t uart_get_char(Uart* uart);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -49,55 +49,63 @@
  * \param baudrate  Desired baudrate (e.g. 115200).
  * \param mck  Frequency of the system master clock in Hz.
  */
-void uart_configure(Uart* pUart, uint32_t mode, uint32_t baudrate)
+void uart_configure(Uart* uart, uint32_t mode, uint32_t baudrate)
 {
-	uint32_t uart_id = get_uart_id_from_addr(pUart);
-	// Reset & disable receiver and transmitter, disable interrupts
-	pUart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS
-		| UART_CR_RSTSTA;
-	pUart->UART_IDR = 0xFFFFFFFF;
-	// Configure baud rate
-	pUart->UART_BRGR = pmc_get_peripheral_clock(uart_id) / (baudrate * 16);
-	// Configure mode register
-	pUart->UART_MR = mode;
-	// Enable receiver and transmitter
-	pUart->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
+	uint32_t uart_id = get_uart_id_from_addr(uart);
+
+	/* Reset & disable receiver and transmitter, disable interrupts */
+	uart->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX |
+	                UART_CR_RXDIS | UART_CR_TXDIS | UART_CR_RSTSTA;
+	uart->UART_IDR = 0xffffffffu;
+
+	/* Configure baud rate */
+	uart->UART_BRGR = pmc_get_peripheral_clock(uart_id) / (baudrate * 16);
+
+	/* Configure mode register */
+	uart->UART_MR = mode;
+
+	/* Enable receiver and transmitter */
+	uart->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
 }
 
 /* Enable transmitter
  *
  */
-void uart_set_transmitter_enabled (Uart* pUart, uint8_t enabled)
+void uart_set_transmitter_enabled(Uart* uart, bool enabled)
 {
-	if (enabled) pUart->UART_CR = UART_CR_TXEN;
-	else pUart->UART_CR = UART_CR_TXDIS;
+	uart->UART_CR = enabled ? UART_CR_TXEN : UART_CR_TXDIS;
 }
 
 /* Enable receiver
  *
  */
-void uart_set_receiver_enabled (Uart* pUart, uint8_t enabled)
+void uart_set_receiver_enabled(Uart* uart, bool enabled)
 {
-	if (enabled)
-		pUart->UART_CR = UART_CR_RXEN;
-	else
-		pUart->UART_CR = UART_CR_RXDIS;
+	uart->UART_CR = enabled ? UART_CR_RXEN : UART_CR_RXDIS;
 }
 
 /* Enable interrupt bits
  *
  */
-void uart_enable_it(Uart* pUart, uint32_t int_mask)
+void uart_enable_it(Uart* uart, uint32_t mask)
 {
-	pUart->UART_IER = int_mask;
+	uart->UART_IER = mask;
 }
 
 /* Disable interrupt bits
  *
  */
-void uart_disable_it(Uart* pUart, uint32_t int_mask)
+void uart_disable_it(Uart* uart, uint32_t mask)
 {
-	pUart->UART_IDR = int_mask;
+	uart->UART_IDR = mask;
+}
+
+/**
+ * Return true if a character can be written in UART
+ */
+bool uart_is_tx_ready(Uart* uart)
+{
+	return (uart->UART_SR & UART_SR_TXRDY) != 0;
 }
 
 /**
@@ -105,28 +113,21 @@ void uart_disable_it(Uart* pUart, uint32_t int_mask)
  * \note This function is synchronous (i.e. uses polling).
  * \param c  Character to send.
  */
-void uart_put_char(Uart* pUart, uint8_t c)
+void uart_put_char(Uart* uart, uint8_t c)
 {
-	// Wait for the transmitter to be ready
-	while ((pUart->UART_SR & UART_SR_TXEMPTY) == 0);
-	// Send character
-	pUart->UART_THR = c;
+	/* Wait for the transmitter to be ready */
+	while (!uart_is_tx_ready(uart)) {}
+
+	/* Send character */
+	uart->UART_THR = c;
 }
 
 /**
- * Return 1 if a character can be read in UART
+ * Return true if a character can be read in UART
  */
-bool uart_is_rx_ready(Uart* pUart)
+bool uart_is_rx_ready(Uart* uart)
 {
-	return (pUart->UART_SR & UART_SR_RXRDY) != 0;
-}
-
-/**
- * Return 1 if a character can be write in UART
- */
-bool uart_is_tx_ready(Uart* pUart)
-{
-	return (pUart->UART_SR & UART_SR_TXRDY) != 0;
+	return (uart->UART_SR & UART_SR_RXRDY) != 0;
 }
 
 /**
@@ -134,8 +135,11 @@ bool uart_is_tx_ready(Uart* pUart)
  * \note This function is synchronous (i.e. uses polling).
  * \return Character received.
  */
-uint8_t uart_get_char(Uart* pUart)
+uint8_t uart_get_char(Uart* uart)
 {
-	while ((pUart->UART_SR & UART_SR_RXRDY) == 0);
-	return pUart->UART_RHR;
+	/* Wait for the receiver to be ready */
+	while (!uart_is_rx_ready(uart)) {}
+
+	/* Read charecter */
+	return uart->UART_RHR;
 }
