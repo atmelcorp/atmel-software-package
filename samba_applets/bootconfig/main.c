@@ -277,19 +277,19 @@ static uint32_t handle_cmd_read_bootcfg(uint32_t cmd, uint32_t *mailbox)
 		print_bscr(mbx->out.value);
 		break;
 	case BOOTCFG_BUREG0:
-		mbx->out.value = SECURAM->BUREG_256b[0];
+		mbx->out.value = SECURAM->BUREG[0];
 		print_bcw("BUREG0", mbx->out.value);
 		break;
 	case BOOTCFG_BUREG1:
-		mbx->out.value = SECURAM->BUREG_256b[1];
+		mbx->out.value = SECURAM->BUREG[1];
 		print_bcw("BUREG1", mbx->out.value);
 		break;
 	case BOOTCFG_BUREG2:
-		mbx->out.value = SECURAM->BUREG_256b[2];
+		mbx->out.value = SECURAM->BUREG[2];
 		print_bcw("BUREG2", mbx->out.value);
 		break;
 	case BOOTCFG_BUREG3:
-		mbx->out.value = SECURAM->BUREG_256b[3];
+		mbx->out.value = SECURAM->BUREG[3];
 		print_bcw("BUREG3", mbx->out.value);
 		break;
 	case BOOTCFG_FUSE:
@@ -314,10 +314,10 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 
 	uint32_t bureg0, bureg1, bureg2, bureg3;
 
-	bureg0 = SECURAM->BUREG_256b[0];
-	bureg1 = SECURAM->BUREG_256b[1];
-	bureg2 = SECURAM->BUREG_256b[2];
-	bureg3 = SECURAM->BUREG_256b[3];
+	bureg0 = SECURAM->BUREG[0];
+	bureg1 = SECURAM->BUREG[1];
+	bureg2 = SECURAM->BUREG[2];
+	bureg3 = SECURAM->BUREG[3];
 
 	switch (mbx->in.index) {
 	case BOOTCFG_BSCR:
@@ -328,34 +328,34 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 	case BOOTCFG_BUREG0:
 		trace_info_wp("Writing 0x%08x to BUREG[0]\r\n",
 		              (unsigned)mbx->in.value);
-		SECURAM->BUREG_256b[0] = mbx->in.value;
-		SECURAM->BUREG_256b[1] = bureg1;
-		SECURAM->BUREG_256b[2] = bureg2;
-		SECURAM->BUREG_256b[3] = bureg3;
+		SECURAM->BUREG[0] = mbx->in.value;
+		SECURAM->BUREG[1] = bureg1;
+		SECURAM->BUREG[2] = bureg2;
+		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG1:
 		trace_info_wp("Writing 0x%08x to BUREG[1]\r\n",
 		              (unsigned)mbx->in.value);
-		SECURAM->BUREG_256b[0] = bureg0;
-		SECURAM->BUREG_256b[1] = mbx->in.value;
-		SECURAM->BUREG_256b[2] = bureg2;
-		SECURAM->BUREG_256b[3] = bureg3;
+		SECURAM->BUREG[0] = bureg0;
+		SECURAM->BUREG[1] = mbx->in.value;
+		SECURAM->BUREG[2] = bureg2;
+		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG2:
 		trace_info_wp("Writing 0x%08x to BUREG[2]\r\n",
 		              (unsigned)mbx->in.value);
-		SECURAM->BUREG_256b[0] = bureg0;
-		SECURAM->BUREG_256b[1] = bureg1;
-		SECURAM->BUREG_256b[2] = mbx->in.value;
-		SECURAM->BUREG_256b[3] = bureg3;
+		SECURAM->BUREG[0] = bureg0;
+		SECURAM->BUREG[1] = bureg1;
+		SECURAM->BUREG[2] = mbx->in.value;
+		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG3:
 		trace_info_wp("Writing 0x%08x to BUREG[3]\r\n",
 		              (unsigned)mbx->in.value);
-		SECURAM->BUREG_256b[0] = bureg0;
-		SECURAM->BUREG_256b[1] = bureg1;
-		SECURAM->BUREG_256b[2] = bureg2;
-		SECURAM->BUREG_256b[3] = mbx->in.value;
+		SECURAM->BUREG[0] = bureg0;
+		SECURAM->BUREG[1] = bureg1;
+		SECURAM->BUREG[2] = bureg2;
+		SECURAM->BUREG[3] = mbx->in.value;
 		break;
 	case BOOTCFG_FUSE:
 		trace_info_wp("Writing 0x%08x to bootcfg fuse (fuse #%d)\r\n",

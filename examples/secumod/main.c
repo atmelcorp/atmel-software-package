@@ -33,12 +33,13 @@
  * \section Purpose
  *
  * This basic example shows how to use the \ref secumod_module "Security Module (SECUMOD)"
- * available on the Atmel SAMA5D2 microcontrollers. The SECUMOD provides features to
- * protect against attacks on the chip, recording and timestamping of tamper events.
+ * available on the Atmel SAMA5D2 and SAMA5D4 microcontrollers. The SECUMOD
+ * provides features to protect against attacks on the chip, recording and
+ * timestamping of tamper events.
  *
  * \section Requirements
  *
- * This example can be run on SAMA5D2-XULT boards.
+ * This example can be run on all SAMA5D2 and SAMA5D4 boards.
  *
  * PIOBU pins 0, 1, 3, and 7 are used to monitor the intrusion events:
  * - PIOBU0, PIOBU1 work as a pair in dynamic mode,
@@ -116,9 +117,9 @@
  *    |                                                           |
  *    | Press [a|b|c] to change access rights for regions below   |
  *    |                                                           |
- *    |  a: 4 kbytes area   [ ] None  [ ] W  [ ] R  [X] RW        |
- *    |  b: 1 kbytes area   [ ] None  [ ] W  [ ] R  [X] RW        |
- *    |  c: 256 bits area   [ ] None  [ ] W  [ ] R  [X] RW        |
+ *    |  a: Lower area       [ ] None  [ ] W  [ ] R  [X] RW       |
+ *    |  b: Higher area      [ ] None  [ ] W  [ ] R  [X] RW       |
+ *    |  c: Reg. Bank area   [ ] None  [ ] W  [ ] R  [X] RW       |
  *    |                                                           |
  *    |-----------------------------------------------------------|
  *    |-----------------------------------------------------------|
@@ -182,11 +183,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/* Definition of SECUMOD internal RAM region */
-#define RAM_REGION_4K   0
-#define RAM_REGION_1K   1
-#define RAM_REGION_256b 2
-
 /** Flag for invalid tamper counter */
 #define TAMPER_COUNTER_INVALID (0xFFFFFFFF)
 
@@ -240,10 +236,14 @@ struct _act8945a act8945a = {
 /* Tamper interrupt enable/disable option */
 static bool int_opt = false;
 static bool erase_opt = false;
+#ifdef CONFIG_SOC_SAMA5D2
 static unsigned int bureg0_value, bsc_cr_value;
+#endif
 
 /** Initial access rights of the RAM regions */
-static uint8_t access_rights[RAM_REGION_256b + 1] = { 3, 3, 3 };
+static uint8_t access_rights_lower = 3;
+static uint8_t access_rights_higher = 3;
+static uint8_t access_rights_bureg = 3;
 
 /** Initial on/off status of the detections */
 static struct _option options = {
@@ -394,7 +394,7 @@ static void _memory_erased_callback(void)
 static void _dump_buffer(uint8_t *buffer, uint32_t size)
 {
 	uint32_t i = 0;
-	uint32_t offset = (uint32_t)buffer - (uint32_t)SECURAM->BUSRAM_4KB;
+	uint32_t offset = (uint32_t)buffer - (uint32_t)SECURAM->BUSRAM_LOWER;
 	do {
 		if (i == 16 * 4) {
 			printf("\n\r ...");
@@ -596,14 +596,17 @@ static void _enter_backup_mode(void)
 {
 	volatile uint32_t delay = 500;
 
-	/* Retreive BUREG/BSC_CR values in case they are erased by auto erase */
-	SECURAM->BUREG_256b[0] = bureg0_value;
+#ifdef CONFIG_SOC_SAMA5D2
+	/* Retrieve BUREG/BSC_CR values in case they are erased by auto erase */
+	SECURAM->BUREG[0] = bureg0_value;
 	BSC->BSC_CR = bsc_cr_value;
 
 	printf("backup: bcr_cr register = 0x%08x\r\n",
 			(unsigned)BSC->BSC_CR);
 	printf("backup: bureg0 register = 0x%08x\r\n",
-			(unsigned)SECURAM->BUREG_256b[0]);
+			(unsigned)SECURAM->BUREG[0]);
+#endif
+
 	printf("backup mode protection register  0x%08x\n\r",
 			(unsigned)secumod_get_backup_mode_protections());
 	printf("backup mode wakeup register  0x%08x\n\r",
@@ -616,17 +619,20 @@ static void _enter_backup_mode(void)
 	/* Delay for a while */
 	while (delay--);
 
-	/* enable Secure module input as wake-up source, and set its input type
+#ifdef CONFIG_SOC_SAMA5D2
+	/* Enable Secure Module input as wake-up source, and set its input type
 	 * as rising edge */
-	SHDWC->SHDW_WUIR = 0x20003;
+	shdwc_set_wakeup_input(SHDW_WUIR_WKUPEN0_ENABLE | SHDW_WUIR_WKUPEN1_ENABLE,
+	                       SHDW_WUIR_WKUPT0_LOW     | SHDW_WUIR_WKUPT1_HIGH);
 
-	/* set wakeup inputs debuoucer period of PIOBUx */
-	SHDWC->SHDW_MR|= 0x3000000;
+	/* set debouncer period for wakeup inputs of PIOBUx */
+	shdwc_set_wakeup_debounce(SHDW_MR_WKUPDBC_512_SLCK);
+#endif
 
-	/* enter backup*/
-	SHDWC->SHDW_CR = SHDW_CR_KEY(0xA5) | SHDW_CR_SHDW;
+	/* enter backup */
+	shdwc_do_shutdown();
 
-	while(1);
+	while (1);
 }
 
 /**
@@ -636,10 +642,10 @@ static void _display_menu(void)
 {
 	const char* enDis[] = { "Disabled", "Enabled " };
 	const char* strAccess[] = {
-		"[X] None   [ ] W   [ ] R   [ ] RW",
-		"[ ] None   [X] W   [ ] R   [ ] RW",
-		"[ ] None   [ ] W   [X] R   [ ] RW",
-		"[ ] None   [ ] W   [ ] R   [X] RW",
+		"[X] None  [ ] W  [ ] R  [ ] RW",
+		"[ ] None  [X] W  [ ] R  [ ] RW",
+		"[ ] None  [ ] W  [X] R  [ ] RW",
+		"[ ] None  [ ] W  [ ] R  [X] RW",
 	};
 
 	printf("\n\r============= SECUMOD (Security Module) Menu =============\n\r");
@@ -663,9 +669,9 @@ static void _display_menu(void)
 	printf("|                                                           |\n\r");
 	printf("| Press [a|b|c] to change access rights for regions below   |\n\r");
 	printf("|                                                           |\n\r");
-	printf("|  a: 4 kbytes area     %s   |\n\r", strAccess[access_rights[RAM_REGION_4K]]);
-	printf("|  b: 1 kbytes area     %s   |\n\r", strAccess[access_rights[RAM_REGION_1K]]);
-	printf("|  c: 256 bits area     %s   |\n\r", strAccess[access_rights[RAM_REGION_256b]]);
+	printf("|  a: Lower area      %s        |\n\r", strAccess[access_rights_lower]);
+	printf("|  b: Higher area     %s        |\n\r", strAccess[access_rights_higher]);
+	printf("|  c: Reg Bank area   %s        |\n\r", strAccess[access_rights_bureg]);
 	printf("|                                                           |\n\r");
 	printf("|-----------------------------------------------------------|\n\r");
 	printf("|-----------------------------------------------------------|\n\r");
@@ -730,48 +736,18 @@ int main(void)
 #endif
 
 	/*Print the chip module information*/
-	if(CHIPID->CHIPID_EXID == 0x0000005A){
-		printf("-- CHIP Module: SAMA5D21-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000059){
-		printf("-- CHIP Module: SAMA5D22-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000069){
-		printf("-- CHIP Module: SAMA5D22-CN --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000058){
-		printf("-- CHIP Module: SAMA5D23-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000004){
-		printf("-- CHIP Module: SAMA5D24-CX --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000014){
-		printf("-- CHIP Module: SAMA5D24-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000012){
-		printf("-- CHIP Module: SAMA5D26-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000011){
-		printf("-- CHIP Module: SAMA5D27-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000021){
-		printf("-- CHIP Module: SAMA5D27-CN --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000010){
-		printf("-- CHIP Module: SAMA5D28-CU --\n\r");
-	}
-	else if(CHIPID->CHIPID_EXID == 0x00000020){
-		printf("-- CHIP Module: SAMA5D28-CN --\n\r");
-	}
-	printf("--PCK = %d MHz, MCK = %d MHz--\n\r",
+	printf("-- CHIP Module: %s --\n\r", get_chip_name());
+	printf("-- PCK = %d MHz, MCK = %d MHz--\n\r",
 			(unsigned)(pmc_get_processor_clock() / 1000000),
 			(unsigned)(pmc_get_master_clock() / 1000000));
 
+#ifdef CONFIG_SOC_SAMA5D2
 	/* store the gpbr value in case it is erased by tamper event */
 	bsc_cr_value = BSC->BSC_CR;
-	bureg0_value = SECURAM->BUREG_256b[0];
+	bureg0_value = SECURAM->BUREG[0];
 	printf("main: bsc_cr = 0x%08x\r\n", bsc_cr_value);
 	printf("main: bureg0 = 0x%08x\r\n", bureg0_value);
+#endif
 
 	/* Initialize PIT for clean SECUMOD alarm status */
 	if (PMC->PMC_MCKR & PMC_MCKR_H32MXDIV_H32MXDIV2) {
@@ -851,12 +827,12 @@ int main(void)
 
 		if (key == 'I' || key == 'i') {
 			if (memory_erased) {
-				printf("\n\r SECRAM erased %u times",
+				printf("\n\r SECURAM erased %u times",
 						(unsigned)memory_erased);
 				memory_erased = 0;
 				printf(" \n\r ");
 				_display_current_time();
-				printf(" SECURAM: 4 kbytes and 256 bits areas have been erased.\n\r");
+				printf(" SECURAM: lower and register bank areas have been erased.\n\r");
 			} else {
 				printf("\n\r -I- no SECURAM events happened.\n\r");
 			}
@@ -965,21 +941,21 @@ int main(void)
 			/* NOTE: Read SECURAM with access rights check using secumod_read_internal_memory() */
 			printf("\r\n-I- SECURAM dump:");
 
-			printf("\r\n-- 4 kbytes area (offset 0x0 to 0xFFF)");
-			_dump_buffer((uint8_t *)SECURAM->BUSRAM_4KB, sizeof(SECURAM->BUSRAM_4KB));
+			printf("\r\n-- Lower area (%d bytes)", sizeof(SECURAM->BUSRAM_LOWER));
+			_dump_buffer((uint8_t *)SECURAM->BUSRAM_LOWER, sizeof(SECURAM->BUSRAM_LOWER));
 			printf("\r\n");
 
-			printf("\r\n-- 1 kbytes area (offset 0x1000 to 0x13FF)");
-			_dump_buffer((uint8_t *)SECURAM->BUSRAM_1KB, sizeof(SECURAM->BUSRAM_1KB));
+			printf("\r\n-- Higher area (%d bytes)", sizeof(SECURAM->BUSRAM_HIGHER));
+			_dump_buffer((uint8_t *)SECURAM->BUSRAM_HIGHER, sizeof(SECURAM->BUSRAM_HIGHER));
 			printf("\r\n");
 
-			printf("\r\n-- 256 bits area (offset 0x1400 to 0x1500)");
-			_dump_buffer((uint8_t *)SECURAM->BUREG_256b, sizeof(SECURAM->BUREG_256b));
+			printf("\r\n-- Register Bank area (%d bits)", 8 * sizeof(SECURAM->BUREG));
+			_dump_buffer((uint8_t *)SECURAM->BUREG, sizeof(SECURAM->BUREG));
+
 			printf("\n\r");
 
 			continue;
 		} else if (key == 'W' || key == 'w') {
-			uint32_t tmp;
 
 			/* Wait SECURAM ready */
 			while (SECUMOD_RAMRDY_READY != (SECUMOD->SECUMOD_RAMRDY & SECUMOD_RAMRDY_READY));
@@ -987,32 +963,27 @@ int main(void)
 			/* NOTE: Write SECURAM with access rights check using secumod_write_internal_memory() */
 			printf("\r\n-I- Fill SECURAM:");
 
-			printf("\r\n-I- -- 4 kbytes area with 0x04, size of SECURAM->BUSRAM_4KB = %d ",
-					sizeof(SECURAM->BUSRAM_4KB));
-			memset((uint8_t *)SECURAM->BUSRAM_4KB, 0x04, sizeof(SECURAM->BUSRAM_4KB));
+			printf("\r\n-I- -- Lower area with 0x04 (%d bytes)", sizeof(SECURAM->BUSRAM_LOWER));
+			memset((uint8_t *)SECURAM->BUSRAM_LOWER, 0x04, sizeof(SECURAM->BUSRAM_LOWER));
 
-			printf("\r\n-I- -- 1 kbytes area with 0x01, size of SECURAM->BUSRAM_1KB = %d ",
-					sizeof(SECURAM->BUSRAM_1KB));
-			memset((uint8_t *)SECURAM->BUSRAM_1KB, 0x01, sizeof(SECURAM->BUSRAM_1KB));
+			printf("\r\n-I- -- Higher area with 0x01 (%d bytes)", sizeof(SECURAM->BUSRAM_HIGHER));
+			memset((uint8_t *)SECURAM->BUSRAM_HIGHER, 0x01, sizeof(SECURAM->BUSRAM_HIGHER));
 
-			printf("\r\n-I- -- 256 bits area with 256, size of "
-					"SECURAM->BUREG_256b = %d, sizeof(SECURAM->BUREG_256b[0]=%d ",
-					sizeof(SECURAM->BUREG_256b), sizeof(SECURAM->BUREG_256b[0]));
-			for(tmp = 0; tmp < ARRAY_SIZE(SECURAM->BUREG_256b); tmp++) {
-				SECURAM->BUREG_256b[tmp] = 0x2b256b51;
-			}
+			printf("\r\n-I- -- Register Bank area with 0xff (%d bits)", 8 * sizeof(SECURAM->BUREG));
+			memset((uint8_t *)SECURAM->BUREG, 0xff, sizeof(SECURAM->BUREG));
+
 			printf("\r\n");
 
 			continue;
 		} else if (key == 'A' || key == 'a') {
-			access_rights[RAM_REGION_4K] = (access_rights[RAM_REGION_4K] + 1) & 0x3;
-			secumod_set_ram_access_rights(0, access_rights[RAM_REGION_4K]);
+			access_rights_lower = (access_rights_lower + 1) & 0x3;
+			secumod_set_ram_access_rights(0, access_rights_lower);
 		} else if (key == 'B' || key == 'b') {
-			access_rights[RAM_REGION_1K] = (access_rights[RAM_REGION_1K] + 1) & 0x3;
-			secumod_set_ram_access_rights(4, access_rights[RAM_REGION_1K]);
+			access_rights_higher = (access_rights_higher + 1) & 0x3;
+			secumod_set_ram_access_rights(4, access_rights_higher);
 		} else if (key == 'C' || key == 'c') {
-			access_rights[RAM_REGION_256b] = (access_rights[RAM_REGION_256b] + 1) & 0x3;
-			secumod_set_ram_access_rights(5, access_rights[RAM_REGION_256b]);
+			access_rights_bureg = (access_rights_bureg + 1) & 0x3;
+			secumod_set_ram_access_rights(5, access_rights_bureg);
 		} else if (key == 'P' || key == 'p') {
 			secumod_software_protection();
 			printf("\r\n -I- SECURAM erased.\r\n");

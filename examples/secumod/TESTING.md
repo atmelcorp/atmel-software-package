@@ -54,9 +54,9 @@ Step needed to set up the example.
  |                                                           |
  | Press [a|b|c] to change access rights for regions below   |
  |                                                           |
- |  a: 4 kbytes area     [ ] None   [ ] W   [ ] R   [X] RW   |
- |  b: 1 kbytes area     [ ] None   [ ] W   [ ] R   [X] RW   |
- |  c: 256 bits area     [ ] None   [ ] W   [ ] R   [X] RW   |
+ |  a: Lower area       [ ] None   [ ] W   [ ] R   [X] RW    |
+ |  b: Higher area      [ ] None   [ ] W   [ ] R   [X] RW    |
+ |  c: Reg. Bank area   [ ] None   [ ] W   [ ] R   [X] RW    |
  |                                                           |
  |-----------------------------------------------------------|
  |-----------------------------------------------------------|
@@ -84,8 +84,8 @@ Step | Description | Expected Result | Result
 Press 'h' | Print the menu on screen | PASSED | PASSED
 Press 'i' | Print `-I- no SECURAM events happened.`, `-I- no access violations happened.` ... on screen | PASSED | PASSED
 Press '0' | Print `SECUMOD (Security Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Enabled ]` ... on screen | PASSED | PASSED
-Press 'i' | Print `SECRAM erased X times` ... `SECURAM: 4 kbytes and 256 bits areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECRAM erased X times` on screen | PASSED | PASSED
-Press 'i' | Print `SECRAM erased X times` ... `SECURAM: 4 kbytes and 256 bits areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECRAM erased X times` on screen | PASSED | PASSED
+Press 'i' | Print `SECURAM erased X times` ... `SECURAM: lower and register bank areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECURAM erased X times` on screen | PASSED | PASSED
+Press 'i' | Print `SECURAM erased X times` ... `SECURAM: lower and register bank areas have been erased.` ... `SECUMOD interrupt occurs X times` ... `Tamper source:    PIOBU1 Intrusion Detector` ... `SECRAM erased X times` on screen | PASSED | PASSED
 Press '0' | Print `SECUMOD (Security Module) Menu` ... `0: PIOBU0 and 1 (Dynamic)  [Disabled]` ... on screen | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
 PIOBU3/PIOBU7 tamper | test tamper static mode | PASSED | PASSED
@@ -95,17 +95,17 @@ Press 'q' | Print ... `q: Tamper Interrupt        [Disabled]` ... on screen | PA
 Press 'q' | Print ... `q: Tamper Interrupt        [Enabled ]` ... on screen | PASSED | PASSED
 Press 'y' | Print ... `y: SECURAM Auto Erase      [Disabled]` ... on screen | PASSED | PASSED
 Press 'y' | Print ... `y: SECURAM Auto Erase      [Enabled ]` ... on screen | PASSED | PASSED
-Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- 4 kbytes area with 0x04, size of SECURAM->BUSRAM_4KB = 4096`, `-I- -- 1 kbytes area with 0x01, size of SECURAM->BUSRAM_1KB = 1024`, `-I- -- 256 bits area with 256, size of SECURAM->BUREG_256b = 32, sizeof(SECURAM->BUREG_256b[0]=4` on screen | PASSED | PASSED
+Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- Lower area with 0x04 (size 4096 bytes)`, `-I- -- Higher area with 0x01 (size 1024)`, `-I- -- Register Bank area with 0xff (size 256 bits)` on screen | PASSED | PASSED
 Press 'r' | Print `-I- SECURAM dump:` ... on screen | PASSED | PASSED
-Press 'a' | Print ... `a: 4 kbytes area     [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
-Press 'b' | Print ... `b: 1 kbytes area     [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
-Press 'c' | Print ... `c: 256 bits area     [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
-Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- 4 kbytes area with 0x04, size of SECURAM->BUSRAM_4KB = 4096`, `-I- -- 1 kbytes area with 0x01, size of SECURAM->BUSRAM_1KB = 1024`, `-I- -- 256 bits area with 256, size of SECURAM->BUREG_256b = 32, sizeof(SECURAM->BUREG_256b[0]=4` on screen | PASSED | PASSED
+Press 'a' | Print ... `a: Lower area      [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
+Press 'b' | Print ... `b: Higher area     [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
+Press 'c' | Print ... `c: Reg. Bank area  [X] None   [ ] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
+Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- Lower area with 0x04 (size 4096 bytes)`, `-I- -- Higher area with 0x01 (size 1024 bytes)`, `-I- -- Register Bank area with 0xff (size 256 bits)` on screen | PASSED | PASSED
 Press 'i' | Print `SECURAM Region [5 kbytes - 6 kbytes] write access violation occurred.` ... on screen | PASSED | PASSED
 Press 'r' | Print `-I- SECURAM dump:` ... on screen | PASSED | PASSED
 Press 'i' | Print `SECURAM Region [5 kbytes - 6 kbytes] read access violation occurred.` ... on screen | PASSED | PASSED
-Press 'c' | Print ... `c: 256 bits area     [ ] None   [X] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
-Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- 4 kbytes area with 0x04, size of SECURAM->BUSRAM_4KB = 4096`, `-I- -- 1 kbytes area with 0x01, size of SECURAM->BUSRAM_1KB = 1024`, `-I- -- 256 bits area with 256, size of SECURAM->BUREG_256b = 32, sizeof(SECURAM->BUREG_256b[0]=4` on screen | PASSED | PASSED
+Press 'c' | Print ... `c: Reg. Bank area  [ ] None   [X] W   [ ] R   [ ] RW` ... on screen | PASSED | PASSED
+Press 'w' | Print `-I- Fill SECURAM:`, `-I- -- Lower area with 0x04 (size 4096 bytes)`, `-I- -- Higher area with 0x01 (size 1024)`, `-I- -- Register Bank area with 0xff (size 256 bits)` on screen | PASSED | PASSED
 Press 'i' | Print `SECURAM Region [4 kbytes - 5 kbytes] write access violation occurred.` ... on screen | PASSED | PASSED
 Press 'p' | Print `-I- SECURAM erased.` on screen | PASSED | PASSED
 Press 's' | Print `-I- Current Scrambling Key is:` ... on screen then test functions with the new scrambling key | PASSED | PASSED

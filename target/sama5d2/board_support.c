@@ -128,7 +128,7 @@ void board_cfg_console(void)
 		uint32_t bsc_cr = BSC->BSC_CR;
 		if (bsc_cr & BSC_CR_BUREG_VALID) {
 			uint32_t index = (bsc_cr & BSC_CR_BUREG_INDEX_Msk) >> BSC_CR_BUREG_INDEX_Pos;
-			bcw = SECURAM->BUREG_256b[index];
+			bcw = SECURAM->BUREG[index];
 		}
 	}
 

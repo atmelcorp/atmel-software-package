@@ -80,6 +80,7 @@
 #define ID_MATRIX1      (17) /**< \brief H32MX, 32-bit AHB Matrix (MATRIX1) */
 #define ID_MATRIX0      (18) /**< \brief H64MX, 64-bit AHB Matrix (MATRIX0) */
 #define ID_VDEC         (19) /**< \brief Video Decoder (VDEC) */
+#define ID_SECUMOD      (20) /**< \brief Security Module (SECUMOD) */
 #define ID_MSADCC       (21) /**< \brief Magnetic Stripe converter Controller (MSADCC) */
 #define ID_HSMC         (22) /**< \brief Multi-bit ECC Interrupt (HSMC) */
 #define ID_PIOA         (23) /**< \brief Parallel I/O Controller A (PIOA) */
@@ -117,6 +118,7 @@
 #define ID_GMAC1        (55) /**< \brief Ethernet MAC 1 (GMAC1) */
 #define ID_IRQ          (56) /**< \brief IRQ Interrupt ID (IRQ) */
 #define ID_SFC          (57) /**< \brief Fuse Controller (SFC) */
+#define ID_SECURAM      (59) /**< \brief Secure RAM */
 #define ID_SMD          (61) /**< \brief SMD Soft Modem (SMD) */
 #define ID_TWI3         (62) /**< \brief Two-Wire Interface 3 (TWI3) */
 #define ID_SFR          (64) /**< \brief Special Function Register  (SFR) */

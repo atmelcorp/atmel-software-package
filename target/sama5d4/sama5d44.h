@@ -74,6 +74,7 @@ extern "C" {
 #include "component/component_rstc.h"
 #include "component/component_rtc.h"
 #include "component/component_sckc.h"
+#include "component/component_secumod.h"
 #include "component/component_sfc.h"
 #include "component/component_sfr.h"
 #include "component/component_sha.h"
@@ -144,9 +145,11 @@ extern "C" {
 #define TDES    ((Tdes    *)0xFC04C000U) /**< \brief (TDES   ) Base Address */
 #define SHA     ((Sha     *)0xFC050000U) /**< \brief (SHA    ) Base Address */
 #define MATRIX1 ((Matrix  *)0xFC054000U) /**< \brief (MATRIX1) Base Address */
+#define SECURAM ((Securam *)0xFC058000U) /**< \brief (SECURAM) Base Address */
 #define HSMC    ((Smc     *)0xFC05C000U) /**< \brief (HSMC   ) Base Address */
 #define SFC     ((Sfc     *)0xFC060000U) /**< \brief (SFC    ) Base Address */
 #define PIOD    ((Pio     *)0xFC068000U) /**< \brief (PIOD   ) Base Address */
+#define SECUMOD ((Secumod *)0xFC068200U) /**< \brief (SECUMOD) Base Address */
 #define SAIC    ((Aic     *)0xFC068400U) /**< \brief (SAIC   ) Base Address */
 #define RSTC    ((Rstc    *)0xFC068600U) /**< \brief (RSTC   ) Base Address */
 #define SHDWC   ((Shdwc   *)0xFC068610U) /**< \brief (SHDWC  ) Base Address */
@@ -196,6 +199,7 @@ extern "C" {
 #define AXIMX_ADDR      (0x00700000u) /**< AXI Bus Matrix base address */
 #define DAP_ADDR        (0x00800000u) /**< Debug Access Port base address */
 #define SMD_ADDR        (0x00900000u) /**< Software Modem Device base address */
+#define SECURAM_ADDR    (0xFC058000u) /**< Security Module Internal Memory base address */
 
 #ifdef __cplusplus
 }

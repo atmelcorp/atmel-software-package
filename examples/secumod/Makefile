@@ -28,7 +28,8 @@
 
 # Makefile for compiling the secumod example
 AVAILABLE_TARGETS = sama5d2-xplained sama5d2-ptc-engi \
-		   sama5d2-vb-bga196 sama5d2-vb-bga289
+		    sama5d2-vb-bga196 sama5d2-vb-bga289 \
+		    sama5d4-explained sama5d4-ek
 AVAILABLE_VARIANTS = sram
 
 TOP := ../..
