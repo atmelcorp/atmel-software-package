@@ -57,7 +57,7 @@ iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
 endif
 endif
 
-chip-serie-name-y = sama5d4
+chip-family = sama5d4
 
 target-y += target/sama5d4/chip.o
 target-y += target/sama5d4/board_lowlevel.o

@@ -72,7 +72,7 @@ gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi1.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi1.icf
 endif
 
-chip-serie-name-y = sama5d2
+chip-family = sama5d2
 
 target-y += target/sama5d2/chip.o
 target-y += target/sama5d2/board_lowlevel.o
