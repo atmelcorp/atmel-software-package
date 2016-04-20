@@ -38,6 +38,10 @@ VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 CONFIG_LIB_SDMMC = y
 
+CFLAGS_DEFS += -DSDMMC_TRIM_SDIO
+CFLAGS_DEFS += -DSDMMC_LIB_TRACE_LEVEL=3
+CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=3
+
 obj-y += samba_applets/sdmmc/main.o
 obj-y += samba_applets/sdmmc/pin_defs_$(chip-family).o
 
