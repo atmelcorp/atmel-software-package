@@ -466,7 +466,7 @@ extern int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(33)  |
-				CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+				CKGR_PLLAR_DIVA_BYPASS, 0);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -479,7 +479,7 @@ extern int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(49)  |
-				CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+				CKGR_PLLAR_DIVA_BYPASS, 0);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -493,7 +493,7 @@ extern int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(65)  |
-				CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+				CKGR_PLLAR_DIVA_BYPASS, 0);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -507,7 +507,7 @@ extern int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(82)  |
-				CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+				CKGR_PLLAR_DIVA_BYPASS, 0);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -521,7 +521,7 @@ extern int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(99)  |
-				CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x3));
+				CKGR_PLLAR_DIVA_BYPASS, 0);
 
 			MenuChoice = 0;
 			_print_menu();
