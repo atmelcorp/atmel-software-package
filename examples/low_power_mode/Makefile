@@ -36,5 +36,6 @@ BINNAME = low_power_mode
 VARIANT ?= sram
 
 obj-y += examples/low_power_mode/main.o
+obj-y += examples/low_power_mode/clk-config_$(chip-family).o
 
 include $(TOP)/scripts/Makefile.rules
