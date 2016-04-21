@@ -31,6 +31,7 @@ drivers-y += drivers/video/ov2640_config.o
 drivers-y += drivers/video/ov2643_config.o
 drivers-y += drivers/video/ov5640_config.o
 drivers-y += drivers/video/ov7740_config.o
+drivers-y += drivers/video/ov7670_config.o
 drivers-y += drivers/video/ov9740_config.o
 drivers-y += drivers/video/qt1070.o
 
