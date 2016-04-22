@@ -352,5 +352,7 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 
 void ddram_configure(struct _mpddrc_desc* desc)
 {
+	mmu_update_ddr_attr(false);
 	mpddrc_configure(desc);
+	mmu_update_ddr_attr(true);
 }
