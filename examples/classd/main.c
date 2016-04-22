@@ -266,7 +266,7 @@ static void _playback_with_dma(uint8_t attn)
 
 	_playback_start();
 	_setup_dma_transfer(audio, audio_length);
-	xdmad_set_callback(dma_channel, _dma_callback, &done);
+	xdmad_set_callback(dma_channel, _dma_callback, (void *)&done);
 	xdmad_start_transfer(dma_channel);
 	while (!done);
 	_playback_stop();
