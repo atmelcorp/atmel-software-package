@@ -68,6 +68,11 @@ extern void board_save_misc_power(void);
 extern void board_setup_tlb(uint32_t *tlb);
 
 /**
+ * \brief Update TLB in ddr region with cacheable attribute.
+ */
+extern void board_update_tlb_ddr_attr(uint32_t *tlb, bool cacheable);
+
+/**
  * \brief Configures L2CC for the board
  */
 extern void board_cfg_l2cc(void);

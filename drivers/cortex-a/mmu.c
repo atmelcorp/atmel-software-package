@@ -87,3 +87,12 @@ void mmu_initialize(void)
 	asm("dsb");
 	asm("isb");
 }
+
+void mmu_update_ddr_attr(bool cacheable)
+{
+	board_update_tlb_ddr_attr(_tlb, cacheable);
+	cp15_write_ttb((unsigned int)_tlb);
+	asm volatile("": : :"memory");
+	asm("dsb");
+	asm("isb");
+}
