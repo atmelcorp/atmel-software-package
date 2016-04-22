@@ -28,6 +28,7 @@
  */
 
 #include "twi_eeprom-config.h"
+#include "board.h"
 
 struct _at24 at24_drv = {
 	.desc = AT24_DESC,
