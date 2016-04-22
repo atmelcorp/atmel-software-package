@@ -49,7 +49,8 @@
  *
  * \section Usage
  * <ul>
- * <li> Initialize the SECUMOD peripheral using secumod_config() and secumod_piobu_config().
+ * <li> Initialize the SECUMOD peripheral using secumod_set_auto_backup(), secumod_set_scrambling()
+ * and secumod_piobu_config().
  * <li> Enable & disable SECUMOD interrupt using secumod_enable_it() and secumod_disable_it().
  * <li> Get interrupt mask using secumod_get_normal_it_mask().
  * <li> Register SECUMOD_BMPR and SECUMOD_NMPR can be toggled the appearance using secumod_toggle_protection_reg().
@@ -197,10 +198,7 @@ static void securam_irq_handler(void)
  */
 static void secumod_irq_handler(void)
 {
-	uint32_t status;
-	uint32_t jtag;
-	uint32_t index;
-	uint32_t protections;
+	uint32_t status, index, protections;
 	struct _tamper_detail *detail;
 
 	/* Read Periodic Interval Timer Value, also clears the PICNT */
@@ -220,7 +218,7 @@ static void secumod_irq_handler(void)
 
 	/* Read auxiliary status if needed */
 	if (status & SECUMOD_SR_JTAG) {
-		jtag = SECUMOD->SECUMOD_ASR;
+		uint32_t jtag = SECUMOD->SECUMOD_ASR;
 		secumod_inst.tamper_info.jtag_sel_ca5 = (jtag & SECUMOD_ASR_JTAG) != 0;
 		secumod_inst.tamper_info.jtag_tck_tms = (jtag & SECUMOD_ASR_TCK) != 0;
 	}
@@ -344,21 +342,31 @@ void secumod_switch_to_normal_mode(void)
  */
 void secumod_software_protection(void)
 {
-	SECUMOD->SECUMOD_CR |=SECUMOD_CR_SWPROT;
+	SECUMOD->SECUMOD_CR = SECUMOD_CR_SWPROT;
 }
 
 /**
- * \brief Misc configurations of SECUMOD.
- *
- * \param enable_auto_backup    if true Switch to backup mode by software else Switch to backup mode automatically.
- * \param enable_scrambing      Enable/Disable memory scrambling.
+ * \brief Enable/Disable Auto-Backup
+ * \param enable Enable auto-backup if true, disable otherwise.
  */
-void secumod_config(bool enable_auto_backup, bool enable_scrambing)
+void secumod_set_auto_backup(bool enable)
 {
-	uint32_t cr = 0;
-	cr |= enable_auto_backup ? SECUMOD_CR_AUTOBKP_AUTO_SWITCH : SECUMOD_CR_AUTOBKP_SW_SWITCH;
-	cr |= enable_scrambing ? SECUMOD_CR_SCRAMB_ENABLE : SECUMOD_CR_SCRAMB_DISABLE;
-	SECUMOD->SECUMOD_CR = cr;
+	if (enable)
+		SECUMOD->SECUMOD_CR = SECUMOD_CR_AUTOBKP_AUTO_SWITCH;
+	else
+		SECUMOD->SECUMOD_CR = SECUMOD_CR_AUTOBKP_SW_SWITCH;
+}
+
+/**
+ * \brief Enable/Disable Memory Scrambling
+ * \param enable Enable memory scrambling if true, disable otherwise.
+ */
+void secumod_set_scrambling(bool enable)
+{
+	if (enable)
+		SECUMOD->SECUMOD_CR = SECUMOD_CR_SCRAMB_ENABLE;
+	else
+		SECUMOD->SECUMOD_CR = SECUMOD_CR_SCRAMB_DISABLE;
 }
 
 /**

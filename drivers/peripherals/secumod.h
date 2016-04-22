@@ -189,12 +189,16 @@ extern void secumod_switch_to_normal_mode(void);
 extern void secumod_software_protection(void);
 
 /**
- * \brief Misc configurations of SECUMOD.
- *
- * \param enable_auto_backup    if true Switch to backup mode by software else Switch to backup mode automatically.
- * \param enable_scrambing      Enable/Disable memory scrambling.
+ * \brief Enable/Disable Auto-Backup
+ * \param enable Enable auto-backup if true, disable otherwise.
  */
-extern void secumod_config(bool enable_auto_backup, bool enable_scrambing);
+extern void secumod_set_auto_backup(bool enable);
+
+/**
+ * \brief Enable/Disable Memory Scrambling
+ * \param enable Enable memory scrambling if true, disable otherwise.
+ */
+extern void secumod_set_scrambling(bool enable);
 
 /**
  * \brief Toggle normal or backup protection registers appear and disappear.
