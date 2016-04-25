@@ -353,14 +353,30 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.buf_addr = (uint32_t)buffer;
 	mbx->out.buf_size = buffer_size;
 	mbx->out.page_size = BLOCK_SIZE;
-	mbx->out.erase_support = 0;
 	mbx->out.mem_size = mem_size;
+	mbx->out.erase_support = 0;
 
 	trace_info_wp("SD/MMC device initialization successful\n\r");
 	trace_info_wp("Buffer Address: 0x%lx\r\n", mbx->out.buf_addr);
 	trace_info_wp("Buffer Size: %ld bytes\r\n", mbx->out.buf_size);
 	trace_info_wp("Page Size: %ld bytes\r\n", mbx->out.page_size);
 	trace_info_wp("Memory Size: %ld pages\r\n", mbx->out.mem_size);
+
+	return APPLET_SUCCESS;
+}
+
+static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
+{
+	/* 'read info' uses the same mailbox output as 'initialize' */
+	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
+
+	assert(cmd == APPLET_CMD_READ_INFO);
+
+	mbx->out.buf_addr = (uint32_t)buffer;
+	mbx->out.buf_size = buffer_size;
+	mbx->out.page_size = BLOCK_SIZE;
+	mbx->out.mem_size = mem_size;
+	mbx->out.erase_support = 0;
 
 	return APPLET_SUCCESS;
 }
@@ -446,6 +462,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 
 const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_INITIALIZE, handle_cmd_initialize },
+	{ APPLET_CMD_READ_INFO, handle_cmd_read_info },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
 	{ 0, NULL }

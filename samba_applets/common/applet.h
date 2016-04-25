@@ -37,6 +37,7 @@
  *----------------------------------------------------------------------------*/
 
 #define APPLET_CMD_INITIALIZE        0x00 /* Initialization */
+#define APPLET_CMD_READ_INFO         0x30 /* Read Info */
 #define APPLET_CMD_ERASE_PAGES       0x31 /* Erase pages */
 #define APPLET_CMD_READ_PAGES        0x32 /* Read pages */
 #define APPLET_CMD_WRITE_PAGES       0x33 /* Write pages */
@@ -96,6 +97,8 @@ union initialize_mailbox
 		uint32_t mem_size;
 		/** Supported erase size (in pages) */
 		uint32_t erase_support;
+		/** NAND header (if applicable) */
+		uint32_t nand_header;
 	} out;
 };
 

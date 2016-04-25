@@ -96,6 +96,7 @@ union _nand_header
 static uint8_t *buffer;
 static uint32_t buffer_size;
 
+static uint32_t nand_header;
 static struct _nand_flash nand;
 static uint32_t page_size;
 static uint32_t block_size;
@@ -125,23 +126,25 @@ static bool configure_instance_pio(uint32_t ioset)
 	return false;
 }
 
-static bool pmecc_set_header(uint32_t nand_header)
+static bool pmecc_set_header(uint32_t header)
 {
 	uint16_t sector_size_in_byte, ecc_size_in_byte;
 	uint8_t mm;
 	uint8_t ecc_correction;
-	union _nand_header *header;
+	union _nand_header *hdr;
 
-	header = (union _nand_header *)&nand_header;
-	ecc_correction = ecc_bit_req_2_tt[header->bitfield.ecc_bit_req];
+	trace_info_wp("PMECC configuration: 0x%08x\r\n", (unsigned)header);
 
-	if (header->bitfield.key != NAND_HEADER_KEY) {
+	hdr = (union _nand_header *)&header;
+	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
+
+	if (hdr->bitfield.key != NAND_HEADER_KEY) {
 		trace_error_wp("Invalid key field in PMECC configuration\r\n");
 		return false;
 	}
 
-	if (!header->bitfield.use_pmecc) {
-		printf("ECC disabled\r\n");
+	if (!hdr->bitfield.use_pmecc) {
+		trace_info_wp("ECC disabled\r\n");
 		nand_set_ecc_type(ECC_NO);
 		return true;
 	}
@@ -153,35 +156,35 @@ static bool pmecc_set_header(uint32_t nand_header)
 		return false;
 	}
 
-	if (header->bitfield.spare_size > nand_onfi_get_spare_size()) {
+	if (hdr->bitfield.spare_size > nand_onfi_get_spare_size()) {
 		trace_error_wp("Invalid parameter spare_size (%u): Spare size (%u) exceed\r\n",
-				(unsigned)header->bitfield.spare_size,
+				(unsigned)hdr->bitfield.spare_size,
 				(unsigned)nand_onfi_get_spare_size());
 		return false;
 	}
 
-	if (header->bitfield.ecc_bit_req >= ARRAY_SIZE(ecc_bit_req_2_tt)) {
+	if (hdr->bitfield.ecc_bit_req >= ARRAY_SIZE(ecc_bit_req_2_tt)) {
 		trace_error_wp("Invalid parameter ecc: Only support 2,4,8,12,24,(32)-bit ECC\r\n");
 		return false;
 	}
 
-	if (header->bitfield.sector_size > 1) {
+	if (hdr->bitfield.sector_size > 1) {
 		trace_error_wp("Invalid parameter sector size: 0 for 512 bytes, 1 for 1024 bytes per sector\r\n");
 		return false;
 	}
 
-	sector_size_in_byte = (header->bitfield.sector_size == 1) ? 1024 : 512;
+	sector_size_in_byte = (hdr->bitfield.sector_size == 1) ? 1024 : 512;
 	if ((page_size / sector_size_in_byte) > 8) {
 		trace_error_wp("Invalid parameter sector size: not supportted page size or sector size\r\n");
 		return false;
 	}
 
-	if (header->bitfield.ecc_offset > header->bitfield.spare_size) {
+	if (hdr->bitfield.ecc_offset > hdr->bitfield.spare_size) {
 		trace_error_wp("Invalid parameter offset: Offset exceed spare zone\r\n");
 		return false;
 	}
 
-	mm = header->bitfield.sector_size == 0 ? 13 : 14;
+	mm = hdr->bitfield.sector_size == 0 ? 13 : 14;
 	if (((mm * ecc_correction) % 8 ) == 0) {
 		ecc_size_in_byte = ((mm * ecc_correction) / 8) *
 			(page_size / sector_size_in_byte);
@@ -190,22 +193,22 @@ static bool pmecc_set_header(uint32_t nand_header)
 			(page_size / sector_size_in_byte);
 	}
 
-	if ((header->bitfield.ecc_offset + ecc_size_in_byte) > header->bitfield.spare_size) {
+	if ((hdr->bitfield.ecc_offset + ecc_size_in_byte) > hdr->bitfield.spare_size) {
 		trace_error_wp("Invalid parameter offset: Offset exceed spare zone\r\n");
 		return false;
 	}
 
 	nand_set_ecc_type(ECC_PMECC);
-	pmecc_initialize(header->bitfield.sector_size, ecc_correction,
-					 page_size, header->bitfield.spare_size,
-					 header->bitfield.ecc_offset, 0);
+	pmecc_initialize(hdr->bitfield.sector_size, ecc_correction,
+					 page_size, hdr->bitfield.spare_size,
+					 hdr->bitfield.ecc_offset, 0);
 
-	printf("PMECC enabled\r\n");
-	printf("Sector size: %d\r\n", sector_size_in_byte);
-	printf("Sectors per page: %d\r\n", 1 << header->bitfield.nb_sector_per_page);
-	printf("Spare size: %d\r\n", header->bitfield.spare_size);
-	printf("ECC bits: %d\r\n", ecc_correction);
-	printf("ECC offset: %d\r\n", header->bitfield.ecc_offset);
+	trace_info_wp("PMECC enabled\r\n");
+	trace_info_wp("Sector size: %d\r\n", sector_size_in_byte);
+	trace_info_wp("Sectors per page: %d\r\n", 1 << hdr->bitfield.nb_sector_per_page);
+	trace_info_wp("Spare size: %d\r\n", hdr->bitfield.spare_size);
+	trace_info_wp("ECC bits: %d\r\n", ecc_correction);
+	trace_info_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
 
 	return true;
 }
@@ -216,7 +219,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
 	uint32_t ioset = mbx->in.parameters[0];
 	uint32_t bus_width = mbx->in.parameters[1];
-	uint32_t nand_header = mbx->in.parameters[2];
+	uint32_t header = mbx->in.parameters[2];
 	bool onfi_compatible = false;
 	struct _nand_flash_model model_from_onfi;
 	uint8_t correctability = 0;
@@ -295,7 +298,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	if (nand_raw_initialize(&nand,
 				onfi_compatible ? &model_from_onfi : NULL)) {
-		printf("-E- Device Unknown\r\n");
+		trace_error_wp("Device Unknown\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -309,8 +312,10 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	nand_set_dma_enabled(false);
 
 	/* Initialize PMECC */
-	if (!pmecc_set_header(nand_header)) {
-		printf("-E- PMECC initialization failed\r\n");
+	if (pmecc_set_header(header)) {
+		nand_header = header;
+	} else {
+		trace_error_wp("PMECC initialization failed\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -330,8 +335,26 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = page_size;
 	mbx->out.mem_size = nand_model_get_device_size_in_pages(&nand.model);
 	mbx->out.erase_support = block_size;
+	mbx->out.nand_header = nand_header;
 
 	trace_info_wp("NAND applet initialized successfully.\r\n");
+	return APPLET_SUCCESS;
+}
+
+static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
+{
+	/* 'read info' uses the same mailbox output as 'initialize' */
+	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
+
+	assert(cmd == APPLET_CMD_READ_INFO);
+
+	mbx->out.buf_addr = (uint32_t)buffer;
+	mbx->out.buf_size = buffer_size;
+	mbx->out.page_size = page_size;
+	mbx->out.mem_size = nand_model_get_device_size_in_pages(&nand.model);
+	mbx->out.erase_support = block_size;
+	mbx->out.nand_header = nand_header;
+
 	return APPLET_SUCCESS;
 }
 
@@ -493,6 +516,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 
 const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_INITIALIZE, handle_cmd_initialize },
+	{ APPLET_CMD_READ_INFO, handle_cmd_read_info },
 	{ APPLET_CMD_ERASE_PAGES, handle_cmd_erase_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },

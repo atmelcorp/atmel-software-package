@@ -181,6 +181,21 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 }
 
+static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
+{
+	/* 'read info' uses the same mailbox output as 'initialize' */
+	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
+
+	assert(cmd == APPLET_CMD_READ_INFO);
+
+	mbx->out.buf_addr = (uint32_t)buffer;
+	mbx->out.buf_size = buffer_size;
+	mbx->out.page_size = flash.desc.page_size;
+	mbx->out.mem_size = flash.desc.size / flash.desc.page_size;
+	mbx->out.erase_support = erase_support;
+	return APPLET_SUCCESS;
+}
+
 static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union read_write_erase_pages_mailbox *mbx =
@@ -291,6 +306,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 
 const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_INITIALIZE, handle_cmd_initialize },
+	{ APPLET_CMD_READ_INFO, handle_cmd_read_info },
 	{ APPLET_CMD_ERASE_PAGES, handle_cmd_erase_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },
