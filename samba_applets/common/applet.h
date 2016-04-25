@@ -37,7 +37,6 @@
  *----------------------------------------------------------------------------*/
 
 #define APPLET_CMD_INITIALIZE        0x00 /* Initialization */
-#define APPLET_CMD_FULL_ERASE        0x30 /* Full erase */
 #define APPLET_CMD_ERASE_PAGES       0x31 /* Erase pages */
 #define APPLET_CMD_READ_PAGES        0x32 /* Read pages */
 #define APPLET_CMD_WRITE_PAGES       0x33 /* Write pages */

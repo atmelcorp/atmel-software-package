@@ -270,23 +270,6 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	return APPLET_SUCCESS;
 }
 
-static uint32_t handle_cmd_full_erase(uint32_t cmd, uint32_t *args)
-{
-	assert(cmd == APPLET_CMD_FULL_ERASE);
-
-	/* unused argument */
-	(void)args;
-
-	if (at25_erase_chip(&at25drv) != AT25_SUCCESS) {
-		return APPLET_ERASE_FAIL;
-	}
-	at25_wait(&at25drv);
-
-	trace_info_wp("Full erase completed.\r\n");
-
-	return APPLET_SUCCESS;
-}
-
 static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union erase_pages_mailbox *mbx = (union erase_pages_mailbox*)mailbox;
@@ -337,7 +320,6 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 
 const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_INITIALIZE, handle_cmd_initialize },
-	{ APPLET_CMD_FULL_ERASE, handle_cmd_full_erase },
 	{ APPLET_CMD_ERASE_PAGES, handle_cmd_erase_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },
