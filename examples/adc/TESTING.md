@@ -18,6 +18,11 @@ Users can select different mode by configuration menu in the terminal.
 
 ## Setup
 --------
+On the board:
+ - SAMA5D2-XPLAINED: Connect PB9 to PD31 (ADTRG)
+ - SAMA5D4-XPLAINED: Connect PE23 to PE31 (ADTRG)
+ - SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
+
 On the computer, open and configure a terminal application
 (e.g. HyperTerminal on Microsoft Windows) with these settings:
  - 115200 bauds

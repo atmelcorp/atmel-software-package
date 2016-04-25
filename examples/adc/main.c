@@ -38,6 +38,10 @@
  *
  *  This package can be used with SAMA5D2-XPLAINED, SAMA5D4-EK and
  *  SAMA5D4-XULT. Refer to \ref adc_adc12_requirement for detail.
+ *  
+ *  -# SAMA5D2-XPLAINED: Connect PB9 to PD31 (ADTRG)
+ *  -# SAMA5D4-XPLAINED: Connect PE23 to PE31 (ADTRG)
+ *  -# SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
  *
  *  \section Description
  *
@@ -115,6 +119,7 @@
 #include "peripherals/adc.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/tc.h"
+#include "component/component_tc.h"
 #include "peripherals/xdmad.h"
 
 #include "misc/led.h"
@@ -173,6 +178,7 @@ enum _trg_mode
 	TRIGGER_MODE_SOFTWARE = 0,
 	TRIGGER_MODE_ADTRG,
 	TRIGGER_MODE_TIMER,
+	TRIGGER_MODE_ADC_TIMER,
 };
 
 /** ADC sample data */
@@ -220,6 +226,21 @@ static struct _adc_test_mode _test_mode;
 
 /* /\** Definition of ADTRG pin *\/ */
 struct _pin pin_adtrg[] = {PIN_ADTRG};
+#if   defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+struct _pin pin_trig = { PIO_GROUP_E, PIO_PE23, PIO_OUTPUT_1, PIO_PULLUP };
+struct _pin pin_tioa0 = { PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C , PIO_DEFAULT };
+
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+struct _pin pin_trig = { PIO_GROUP_E, PIO_PE23, PIO_OUTPUT_1, PIO_PULLUP };
+struct _pin pin_tioa0 = { PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C , PIO_DEFAULT };
+
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+struct _pin pin_trig = { PIO_GROUP_B, PIO_PB9,  PIO_OUTPUT_0, PIO_DEFAULT };
+struct _pin pin_tioa0 = { PIO_GROUP_A, PIO_PA19D_TIOA0, PIO_PERIPH_D , PIO_DEFAULT };
+
+#else
+#error Unsupported target...
+#endif
 
 mutex_t lock = 0;
 
@@ -329,6 +350,8 @@ static void _display_menu(void)
 	printf("[%c] 1: Set ADC trigger mode: ADTRG.\n\r", tmp);
 	tmp = (_test_mode.trigger_mode == TRIGGER_MODE_TIMER) ? 'X' : ' ';
 	printf("[%c] 2: Set ADC trigger mode: Timer TIOA.\n\r", tmp);
+	tmp = (_test_mode.trigger_mode == TRIGGER_MODE_ADC_TIMER) ? 'X' : ' ';
+	printf("[%c] 3: Set ADC trigger mode: ADC Internal Timer.\n\r", tmp);
 	tmp = (_test_mode.sequence_enabled ) ? 'E' : 'D';
 	printf("[%c] S: Enable/Disable sequencer.\n\r", tmp);
 	tmp = (_test_mode.dma_enabled) ? 'E' : 'D';
@@ -352,6 +375,9 @@ static void console_handler(uint8_t key)
 		break;
 	case '2' :
 		_test_mode.trigger_mode = TRIGGER_MODE_TIMER;
+		break;
+	case '3' :
+		_test_mode.trigger_mode = TRIGGER_MODE_ADC_TIMER;
 		break;
 
 	case 's' :
@@ -380,29 +406,28 @@ static void console_handler(uint8_t key)
 	mutex_free(&lock);
 }
 
-static void tc_handler(void)
-{
-	/* Clear status bit to acknowledge interrupt */
-	tc_get_status(TC0, 0);
-
-	led_toggle(LED_BLUE);
-}
-
 /**
  * \brief Configure to trigger ADC by TIOA output of timer.
  */
 static void _configure_tc_trigger(void)
 {
+	uint32_t div = 0;
+	uint32_t tcclks = 0;
+	uint32_t ra, rc;
+	
+	pio_configure(&pin_tioa0, 1);
 	/* Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
-	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc_handler);
-	/* Configure TC for a 1Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, 0, 10);
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
+	/* Configure TC for a 10Hz frequency and trigger on RC compare. */
+	tc_find_mck_divisor(10, &div, &tcclks);
+	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET | TC_CMR_ACPC_CLEAR | TC_CMR_CPCTRG);
+	rc = tc_get_available_freq(TC0, tcclks) / 10;
+	ra = 50 * rc / 100;
+	tc_set_ra_rb_rc(TC0, 0, &ra, 0, &rc);
 	/* Start the Timer */
 	tc_start(TC0, 0);
 }
+
 
 static void _initialize_adc(void)
 {
@@ -496,28 +521,36 @@ static void _configure_adc(void)
 			adc_set_trigger(0);
 			/* No trigger, only software trigger can start conversions */
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_NO_TRIGGER);
-			aic_enable(ID_ADC);
 			break;
-		case TRIGGER_MODE_ADTRG:
+
+	    case TRIGGER_MODE_ADTRG:
 			pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
+			pio_configure(&pin_trig, 1);
+			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
+			adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_ANY);
 			break;
+			
 		case TRIGGER_MODE_TIMER :
-			/* Enable hardware trigger */
+			/* Trigger timer*/
+			/* Configure Timer TC0 */
+			_configure_tc_trigger();
 			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG1);
+			adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_RISE);
+			break;
+
+		case TRIGGER_MODE_ADC_TIMER :
 			/* Trigger timer*/
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_PERIOD_TRIG);
 			adc_set_trigger_period(250);
-			aic_enable(ID_TC0);
 			break;
-		default :
+
+	    default :
 			break;
 	}
 
 	if (_test_mode.dma_enabled) {
-		aic_disable(ID_ADC);
 		_start_dma();
-	}
-	else {
+	} else {
 		aic_enable(ID_ADC);
 	}
 }
@@ -529,7 +562,8 @@ static void _configure_adc(void)
 static void _set_adc_configuration(void)
 {
 	aic_disable(ID_ADC);
-	aic_disable(ID_TC0);
+	tc_stop(TC0, 0);
+	led_set(LED_BLUE);
 	_configure_adc();
 	adc_start_conversion();
 	modif_config = false;
@@ -578,6 +612,7 @@ int main(void)
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
 	led_configure(LED_RED);
+	led_configure(LED_BLUE);
 
 	pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
 	xdmad_initialize(false);
@@ -588,8 +623,6 @@ int main(void)
 	_test_mode.dma_enabled = 0;
 	_test_mode.sequence_enabled = 0;
 
-	/* Configure Timer TC0 */
-	_configure_tc_trigger();
 	/* Initialize ADC clock */
 	_initialize_adc();
 	/* Init ADC config */
@@ -612,10 +645,11 @@ int main(void)
 			}
 		}
 		if (_test_mode.trigger_mode == TRIGGER_MODE_ADTRG) {
-			if (pio_get_output_data_status(&pin_adtrg[0]))
-				pio_clear(&pin_adtrg[0]);
+			timer_wait(250);
+			if (pio_get(&pin_trig))
+				pio_clear(&pin_trig);
 			else
-				pio_set(&pin_adtrg[0]);
+				pio_set(&pin_trig);
 		}
 		/* Check if ADC sample is done */
 		if (_data.done) {
