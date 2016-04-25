@@ -69,9 +69,9 @@ static struct _spi_desc spi_at25_desc = {
 	.transfert_mode = SPID_MODE_FIFO,
 };
 
-static bool initialized = false;
 static uint8_t *buffer;
 static uint32_t buffer_size;
+static uint32_t erase_support;
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -110,8 +110,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
-
-	initialized = false;
 
 	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
@@ -155,12 +153,12 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		/* Get device parameters */
 		uint32_t size = at25drv.desc->size;
 		uint32_t page_size = at25drv.desc->page_size;
-		uint32_t erase_support = 0;
 
 		trace_info_wp("Found Device %s\r\n", at25drv.desc->name);
 		trace_info_wp("Size: %u bytes\r\n", (unsigned)size);
 		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
+		erase_support = 0;
 		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_4K) {
 			trace_info_wp("Supports 4K block erase\r\n");
 			erase_support |= (4 * 1024) / page_size;
@@ -205,7 +203,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.mem_size = size / page_size;
 		mbx->out.erase_support = erase_support;
 
-		initialized = true;
 		trace_info_wp("SPI serialflash applet initialized successfully.\r\n");
 		return APPLET_SUCCESS;
 	}
@@ -213,7 +210,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union write_pages_mailbox *mbx = (union write_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
 	uint32_t length = mbx->in.length * at25drv.desc->page_size;
 
@@ -228,7 +226,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	/* perform the write operation */
 	if (at25_write(&at25drv, offset, buffer, length) != AT25_SUCCESS) {
 		trace_error("Write error\r\n");
-		mbx->out.pages_written = 0;
+		mbx->out.pages = 0;
 		return APPLET_WRITE_FAIL;
 	}
 	at25_wait(&at25drv);
@@ -236,14 +234,15 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("Wrote %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);
 
-	mbx->out.pages_written = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union read_pages_mailbox *mbx = (union read_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
 	uint32_t length = mbx->in.length * at25drv.desc->page_size;
 
@@ -258,21 +257,22 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	/* perform the read operation */
 	if (at25_read(&at25drv, offset, buffer, length) != AT25_SUCCESS) {
 		trace_error("Read error\r\n");
-		mbx->out.pages_read = 0;
+		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
 	}
 
 	trace_info_wp("Read %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);
 
-	mbx->out.pages_read = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union erase_pages_mailbox *mbx = (union erase_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
 	uint32_t length = mbx->in.length * at25drv.desc->page_size;
 
@@ -309,7 +309,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("Erased %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);
 
-	mbx->out.pages_erased = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }

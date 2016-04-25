@@ -93,8 +93,6 @@ union _nand_header
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-static bool initialized = false;
-
 static uint8_t *buffer;
 static uint32_t buffer_size;
 
@@ -226,7 +224,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
-	initialized = false;
 
 	trace_info_wp("\r\nApplet 'NAND Flash' from softpack "
 			SOFTPACK_VERSION ".\r\n");
@@ -334,7 +331,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.mem_size = nand_model_get_device_size_in_pages(&nand.model);
 	mbx->out.erase_support = block_size;
 
-	initialized = true;
 	trace_info_wp("NAND applet initialized successfully.\r\n");
 	return APPLET_SUCCESS;
 }
@@ -344,7 +340,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 */
 static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union write_pages_mailbox *mbx = (union write_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t i;
 	uint8_t *buf;
 	uint16_t block, page;
@@ -368,12 +365,12 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 		if (status == NAND_ERROR_BADBLOCK) {
 			trace_error_wp("Cannot write bad block %u (page %u)\r\n",
 					block, page);
-			mbx->out.pages_written = i;
+			mbx->out.pages = i;
 			return APPLET_BAD_BLOCK;
 		} else if (status != 0) {
 			trace_error_wp("Write error at block %u, page %u\r\n",
 					block, page);
-			mbx->out.pages_written = 0;
+			mbx->out.pages = 0;
 			return APPLET_WRITE_FAIL;
 		}
 
@@ -389,7 +386,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 			(unsigned)(mbx->in.length * page_size),
 			(unsigned)(mbx->in.offset * page_size));
 
-	mbx->out.pages_written = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }
@@ -399,7 +396,8 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 */
 static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union read_pages_mailbox *mbx = (union read_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t i;
 	uint8_t *buf;
 	uint16_t block, page;
@@ -419,12 +417,12 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 		uint8_t status = nand_skipblock_read_page(&nand, block, page, buf, NULL);
 		if (status == NAND_ERROR_BADBLOCK) {
 			trace_error_wp("Cannot read bad block %u\r\n", block);
-			mbx->out.pages_read = i;
+			mbx->out.pages = i;
 			return APPLET_BAD_BLOCK;
 		} else if (status != 0) {
 			trace_error_wp("Read error at block %u, page %u\r\n",
 					block, page);
-			mbx->out.pages_read = 0;
+			mbx->out.pages = 0;
 			return APPLET_READ_FAIL;
 		}
 
@@ -439,7 +437,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 			(unsigned)(mbx->in.length * page_size),
 			(unsigned)(mbx->in.offset * page_size));
 
-	mbx->out.pages_read = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }
@@ -449,7 +447,8 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 */
 static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union erase_pages_mailbox *mbx = (union erase_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint16_t block;
 	uint8_t status;
 
@@ -472,18 +471,18 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 	status = nand_skipblock_erase_block(&nand, block, NORMAL_ERASE);
 	if (status == NAND_ERROR_BADBLOCK) {
 		trace_error_wp("Cannot erase bad block %u\r\n", block);
-		mbx->out.pages_erased = 0;
+		mbx->out.pages = 0;
 		return APPLET_BAD_BLOCK;
 	} else if (status != 0) {
 		trace_error_wp("Erase error at block %u\r\n", block);
-		mbx->out.pages_erased = 0;
+		mbx->out.pages = 0;
 		return APPLET_ERASE_FAIL;
 	}
 
 	trace_info_wp("Erased %u bytes at 0x%08x\r\n",
 			(unsigned)(mbx->in.length * page_size),
 			(unsigned)(mbx->in.offset * page_size));
-	mbx->out.pages_erased = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }

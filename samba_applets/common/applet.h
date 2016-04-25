@@ -99,55 +99,27 @@ union initialize_mailbox
 	} out;
 };
 
-/** Mailbox content for the 'write pages' command. */
-union write_pages_mailbox {
+/** Mailbox content for the 'read/write/erase pages' commands. */
+union read_write_erase_pages_mailbox {
 	struct {
-		/** Write offset (in pages) */
+		/** Read/Write/Erase offset (in pages) */
 		uint32_t offset;
-		/** Write length (in pages) */
+		/** Read/Write/Erase length (in pages) */
 		uint32_t length;
 	} in;
 
 	struct {
-		/** Pages written */
-		uint32_t pages_written;
+		/** Pages read/written/erased */
+		uint32_t pages;
 	} out;
 };
 
-/** Mailbox content for the 'read pages' command. */
-union read_pages_mailbox {
-	struct {
-		/** Read offset (in pages) */
-		uint32_t offset;
-		/** Read length (in pages) */
-		uint32_t length;
-	} in;
-
-	struct {
-		/** Pages read */
-		uint32_t pages_read;
-	} out;
-};
-
-/** Mailbox content for the 'erase pages' command. */
-union erase_pages_mailbox {
-	struct {
-		/** Erase offset (in pages) */
-		uint32_t offset;
-		/** Erase length (in pages) */
-		uint32_t length;
-	} in;
-
-	struct {
-		/* Pages erased */
-		uint32_t pages_erased;
-	} out;
-};
+typedef uint32_t (*applet_command_handler_t)(uint32_t cmd, uint32_t *args);
 
 struct applet_command
 {
 	uint32_t command;
-	uint32_t (*handler)(uint32_t cmd, uint32_t *args);
+	applet_command_handler_t handler;
 };
 
 extern uint8_t *applet_buffer;
@@ -156,6 +128,8 @@ extern uint32_t applet_buffer_size;
 extern const struct applet_command applet_commands[];
 
 extern void applet_set_init_params(uint32_t comm, uint32_t trace);
+
+extern applet_command_handler_t get_applet_command_handler(uint8_t cmd);
 
 extern void applet_main(struct applet_mailbox *mailbox);
 

@@ -88,8 +88,6 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-static bool initialized = false;
-
 static uint8_t* buffer;
 
 static uint32_t buffer_size;
@@ -219,7 +217,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
-	initialized = false;
 
 	trace_info_wp("\r\nApplet 'SD/MMC' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
@@ -365,22 +362,17 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("Page Size: %ld bytes\r\n", mbx->out.page_size);
 	trace_info_wp("Memory Size: %ld pages\r\n", mbx->out.mem_size);
 
-	initialized = true;
 	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union write_pages_mailbox *mbx = (union write_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t offset = mbx->in.offset;
 	uint32_t length = mbx->in.length;
 
 	assert(cmd == APPLET_CMD_WRITE_PAGES);
-
-	if (!initialized) {
-		trace_error_wp("Applet not initialized\r\n");
-		return APPLET_FAIL;
-	}
 
 	/* check that requested size does not overflow buffer */
 	if ((length * BLOCK_SIZE) > buffer_size) {
@@ -398,30 +390,26 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 		trace_info_wp("Error while writing %u bytes at offset 0x%08x\r\n",
 				(unsigned)(mbx->in.length * BLOCK_SIZE),
 				(unsigned)(mbx->in.offset * BLOCK_SIZE));
-		mbx->out.pages_written = 0;
+		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
 	}
 
 	trace_info_wp("Wrote %u bytes at offset 0x%08x\r\n",
 			(unsigned)(mbx->in.length * BLOCK_SIZE),
 			(unsigned)(mbx->in.offset * BLOCK_SIZE));
-	mbx->out.pages_written = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 {
-	union read_pages_mailbox *mbx = (union read_pages_mailbox*)mailbox;
+	union read_write_erase_pages_mailbox *mbx =
+		(union read_write_erase_pages_mailbox*)mailbox;
 	uint32_t offset = mbx->in.offset;
 	uint32_t length = mbx->in.length;
 
 	assert(cmd == APPLET_CMD_READ_PAGES);
-
-	if (!initialized) {
-		trace_error_wp("Applet not initialized\r\n");
-		return APPLET_FAIL;
-	}
 
 	/* check that requested size does not overflow buffer */
 	if ((length * BLOCK_SIZE) > buffer_size) {
@@ -439,14 +427,14 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 		trace_info_wp("Error while reading %u bytes at offset 0x%08x\r\n",
 				(unsigned)(mbx->in.length * BLOCK_SIZE),
 				(unsigned)(mbx->in.offset * BLOCK_SIZE));
-		mbx->out.pages_read = 0;
+		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
 	}
 
 	trace_info_wp("Read %u bytes at offset 0x%08x\r\n",
 			(unsigned)(mbx->in.length * BLOCK_SIZE),
 			(unsigned)(mbx->in.offset * BLOCK_SIZE));
-	mbx->out.pages_read = mbx->in.length;
+	mbx->out.pages = mbx->in.length;
 
 	return APPLET_SUCCESS;
 }

@@ -40,7 +40,9 @@
 extern int __buffer_start__;
 extern int __buffer_end__;
 
+static bool applet_initialized = false;
 static uint32_t _comm_type;
+
 uint8_t *applet_buffer;
 uint32_t applet_buffer_size;
 
@@ -73,6 +75,15 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
 
 }
 
+applet_command_handler_t get_applet_command_handler(uint8_t cmd)
+{
+	int i;
+	for (i = 0; applet_commands[i].handler; i++)
+		if (applet_commands[i].command == cmd)
+			return applet_commands[i].handler;
+	return NULL;
+}
+
 /**
  * \brief  Applet main entry. This function decodes received command and
  * executes it.
@@ -80,25 +91,27 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
  */
 void applet_main(struct applet_mailbox *mailbox)
 {
-	int i;
-
-	/* set default status */
-	mailbox->status = APPLET_FAIL;
+	applet_command_handler_t handler;
 
 	if (!applet_buffer) {
 		init_applet_buffer();
 	}
 
+	/* set default status */
+	mailbox->status = APPLET_FAIL;
+
 	/* look for handler and call it */
-	for (i = 0; applet_commands[i].handler; i++) {
-		if (applet_commands[i].command == mailbox->command)
-		{
-			mailbox->status = applet_commands[i].handler(
-					mailbox->command, mailbox->data);
-			break;
+	handler = get_applet_command_handler(mailbox->command);
+	if (handler) {
+		if (applet_initialized) {
+			mailbox->status = handler(mailbox->command, mailbox->data);
+		} else if (mailbox->command == APPLET_CMD_INITIALIZE) {
+			mailbox->status = handler(mailbox->command, mailbox->data);
+			applet_initialized = (mailbox->status == APPLET_SUCCESS);
+		} else {
+			trace_error_wp("Applet not initialized!\r\n");
 		}
-	}
-	if (!applet_commands[i].handler) {
+	} else {
 		trace_error_wp("Unsupported applet command 0x%08x\r\n",
 				(unsigned)mailbox->command);
 	}
