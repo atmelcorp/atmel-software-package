@@ -1,5 +1,40 @@
 # Atmel SAMA5D2x Software Package
 
+## Version 2.0 - 2016-04
+
+### New drivers/examples
+
+- New SECUMOD driver and example for SAMA5D4
+
+### Changes
+
+- Baudrate of console on SAMA5D2 is now 115200 (previously was 57600)
+- MMU, I-Cache and D-Cache are now enabled by default in low level init
+- DDRAM variant now generates bootable binaries (to be loaded by at91bootstrap)
+
+### Enhancements
+
+- new SoC support: SAMA5D4 is now supported by the softpack
+- New generic targets (sama5dX-generic) to build SAM-BA applets
+- Examples prepared to support more architectures
+- Unified interface for TWI driver between SAMA5D2 and SAMA5D4 and
+  removed twi_legacy driver
+- Improve independance from example to the direct use of SoC features
+- New qspi0 and qspi1 variants to generate XIP-bootable binaries on QSPI
+- IAR project files now include all variants which can build/run on a target
+- Board support for SDMMC improved
+
+### Fixes
+
+- Multiple fixes inside ADC example
+- Fixes in XDMAC driver
+- Fixes in USB Mass Storage stack
+- Multiple fixes in ISI example
+- Fixes in PMC driver
+- Fixes in SHDWC drivers
+
+
+
 ## Version 1.3 - 2016-04
 
 ### New drivers/examples
