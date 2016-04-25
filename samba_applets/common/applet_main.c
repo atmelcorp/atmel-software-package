@@ -30,6 +30,7 @@
 #include "chip.h"
 #include "board.h"
 #include "applet.h"
+#include "applet_legacy.h"
 #include "trace.h"
 #include "peripherals/pio.h"
 #include "peripherals/sfc.h"
@@ -108,6 +109,13 @@ void applet_main(struct applet_mailbox *mailbox)
 		} else if (mailbox->command == APPLET_CMD_INITIALIZE) {
 			mailbox->status = handler(mailbox->command, mailbox->data);
 			applet_initialized = (mailbox->status == APPLET_SUCCESS);
+		} else {
+			trace_error_wp("Applet not initialized!\r\n");
+		}
+	} else if (applet_is_legacy_command(mailbox->command)) {
+		if (applet_initialized) {
+			mailbox->status = applet_emulate_legacy_command(
+					mailbox->command, mailbox->data);
 		} else {
 			trace_error_wp("Applet not initialized!\r\n");
 		}

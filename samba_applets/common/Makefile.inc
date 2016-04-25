@@ -35,6 +35,7 @@ CFLAGS_INC += -I$(TOP)/samba_applets/common
 CFLAGS += -mno-unaligned-access
 
 obj-y += samba_applets/common/applet_main.o
+obj-y += samba_applets/common/applet_legacy.o
 
 gnu-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.gdb
