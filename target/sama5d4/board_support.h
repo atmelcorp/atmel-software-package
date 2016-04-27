@@ -135,7 +135,37 @@ extern void board_cfg_isi(void);
 
 extern void board_cfg_led(void);
 
+/**
+ * \brief Configure a SD/MMC slot of the board
+ * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
+ * \note The application shall have enabled the clocks assigned to this HSMCI
+ * peripheral.
+ * \return true if successful, false if the specified peripheral could not be
+ * initialized.
+ */
+extern bool board_cfg_sdmmc(uint32_t hsmci_id);
+
 extern void board_init(void);
 
+/**
+ * \brief Detect whether or not a card is inserted into the specified SD/MMC
+ * slot of the board
+ * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
+ * \return true if a card is inserted, false if no card is inserted.
+ * \note board_cfg_sdmmc() must have been called prior to using this function.
+ */
+extern bool board_is_sdmmc_inserted(uint32_t hsmci_id);
+
+/**
+ * \brief Power ON/OFF the SD/MMC device connected to the specified slot
+ * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
+ * \param on  true to power the device ON, false to power it OFF.
+ * \return true if successful, false if the specified peripheral could not be
+ * controlled.
+ * \note board_cfg_sdmmc() must have been called prior to using this function.
+ * When powering the device OFF it may still be powered upon return of this
+ * function by a residual charge in the capacitors.
+*/
+extern bool board_power_sdmmc_device(uint32_t hsmci_id, bool on);
 
 #endif /* #ifndef BOARD_MEMORIES_H */

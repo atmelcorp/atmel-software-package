@@ -480,6 +480,35 @@
 /** Image Sensor Interface pin list. */
 #define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
 
+/** List of all HSMCI pin definitions. */
+
+/** HSMCI0 pin Card Command slot A (CDA) */
+#define PIN_HSMCI0_CDA {PIO_GROUP_C, PIO_PC5B_MCI0_CDA, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI0 pin Card Command slot B (CDB) */
+#define PIN_HSMCI0_CDB {PIO_GROUP_E, PIO_PE0B_MCI0_CDB, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI0 pin Card Clock (CK) */
+#define PIN_HSMCI0_CK {PIO_GROUP_C, PIO_PC4B_MCI0_CK, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI0 pin 4-bit Data slot A (DA0-3) */
+#define PINS_HSMCI0_DA0_3 {PIO_GROUP_C, 0x000003C0, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI0 pin 8-bit Data slot A (DA0-7) */
+#define PINS_HSMCI0_DA {PIO_GROUP_C, 0x00003FC0, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI0 pin 4-bit Data slot B (DB0-3) */
+#define PINS_HSMCI0_DB {PIO_GROUP_E, 0x0000001E, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** HSMCI1 pin Card Command (CDA) */
+#define PIN_HSMCI1_CDA {PIO_GROUP_E, PIO_PE19C_MCI1_CDA, PIO_PERIPH_C, PIO_DEFAULT}
+
+/** HSMCI1 pin Card Clock (CK) */
+#define PIN_HSMCI1_CK {PIO_GROUP_E, PIO_PE18C_MCI1_CK, PIO_PERIPH_C, PIO_DEFAULT}
+
+/** HSMCI1 pin 4-bit Data (DA0-3) */
+#define PINS_HSMCI1_DA {PIO_GROUP_E, 0x00F00000, PIO_PERIPH_C, PIO_DEFAULT}
+
 //=============================================================================
 
 #endif /* _CHIP_PINS_H_ */

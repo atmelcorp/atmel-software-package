@@ -404,6 +404,16 @@ uint32_t get_gmac_id_from_addr(const Gmac* addr)
 		return ID_PERIPH_COUNT;
 }
 
+uint32_t get_mci_id_from_addr(const Hsmci* addr)
+{
+	if (addr == HSMCI0)
+		return ID_HSMCI0;
+	else if (addr == HSMCI1)
+		return ID_HSMCI1;
+	else
+		return ID_PERIPH_COUNT;
+}
+
 uint32_t get_ssc_id_from_addr(const Ssc* addr)
 {
 	if (addr == SSC0)

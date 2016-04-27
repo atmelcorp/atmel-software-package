@@ -144,6 +144,49 @@
 #define BOARD_USB_BMATTRIBUTES \
 	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
+/* =================== HSMCI device definition ==================== */
+
+/** HSMCI0 power control: none, always powered on */
+
+/** HSMCI0: the 4 most-significant data bits miss on-board pull-up resistors,
+ *  enable the on-chip pull-up resistors. */
+#define PINS_HSMCI0_DA4_7 \
+	{ PIO_GROUP_C, PIO_PC10B_MCI0_DA4 | PIO_PC11B_MCI0_DA5 \
+	  | PIO_PC12B_MCI0_DA6 | PIO_PC13B_MCI0_DA7, PIO_PERIPH_B, PIO_PULLUP }
+
+/** HSMCI0 Card detect pin definition */
+#define BOARD_HSMCI0_PIN_CD \
+	{ PIO_GROUP_E, PIO_PE5, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI0 device interface pin set definition */
+#define BOARD_HSMCI0_DEV_PINS \
+	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA0_3, PINS_HSMCI0_DA4_7 }
+
+/** HSMCI0 pin set definition */
+#define BOARD_HSMCI0_PINS \
+	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA0_3, PINS_HSMCI0_DA4_7, \
+	  BOARD_HSMCI0_PIN_CD }
+
+/** HSMCI0 slot definition */
+#define BOARD_HSMCI0_SLOT HSMCI_SDCR_SDCSEL_SLOTA
+
+/** HSMCI1 power control definition */
+#define BOARD_HSMCI1_PIN_POWER \
+	{ PIO_GROUP_E, PIO_PE15, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** HSMCI1 Card detect pin definition */
+#define BOARD_HSMCI1_PIN_CD \
+	{ PIO_GROUP_E, PIO_PE6, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI1 device interface pin set definition */
+#define BOARD_HSMCI1_DEV_PINS \
+	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA }
+
+/** HSMCI1 pin set definition */
+#define BOARD_HSMCI1_PINS \
+	{ BOARD_HSMCI1_PIN_POWER, PIN_HSMCI1_CDA, \
+	  PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
+
 /* =================== AT25 device definition =================== */
 
 #define AT25_PINS     PINS_SPI0_NPCS0

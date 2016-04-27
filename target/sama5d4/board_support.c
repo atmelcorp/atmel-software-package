@@ -40,6 +40,7 @@
 
 #include "board.h"
 #include "trace.h"
+#include "timer.h"
 
 #include "cortex-a/cp15.h"
 #include "cortex-a/mmu.h"
@@ -108,6 +109,34 @@ static struct _act8865 pmic = {
  *----------------------------------------------------------------------------*/
 
 ALIGNED(16384) static uint32_t tlb[4096];
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static bool board_cfg_sd_dev_pins(uint32_t periph_id, bool down, bool up)
+{
+	struct _pin *dev_pins = NULL;
+	uint32_t count = 0, pin_ix;
+#ifdef BOARD_HSMCI0_DEV_PINS
+	struct _pin dev0_pins[] = BOARD_HSMCI0_DEV_PINS;
+	dev_pins = periph_id == ID_HSMCI0 ? dev0_pins : dev_pins;
+	count = periph_id == ID_HSMCI0 ? ARRAY_SIZE(dev0_pins) : count;
+#endif
+#ifdef BOARD_HSMCI1_DEV_PINS
+	struct _pin dev1_pins[] = BOARD_HSMCI1_DEV_PINS;
+	dev_pins = periph_id == ID_HSMCI1 ? dev1_pins : dev_pins;
+	count = periph_id == ID_HSMCI1 ? ARRAY_SIZE(dev1_pins) : count;
+#endif
+
+	if (count == 0)
+		return false;
+	for (pin_ix = 0; (down || up) && pin_ix < count; pin_ix++) {
+		dev_pins[pin_ix].type = up ? PIO_OUTPUT_1 : PIO_OUTPUT_0;
+		dev_pins[pin_ix].attribute = PIO_DEFAULT;
+	}
+	return pio_configure(dev_pins, count) ? true : false;
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -625,4 +654,108 @@ void board_cfg_led(void)
 		led_configure(i);
 	}
 #endif
+}
+
+bool board_cfg_sdmmc(uint32_t periph_id)
+{
+	switch (periph_id) {
+	case ID_HSMCI0:
+	{
+#ifdef BOARD_HSMCI0_PINS
+		const struct _pin pins[] = BOARD_HSMCI0_PINS;
+
+		/* Configure HSMCI0 pins */
+		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+#else
+		trace_fatal("Target board misses HSMCI0 pins");
+		return false;
+#endif
+	}
+	case ID_HSMCI1:
+	{
+#ifdef BOARD_HSMCI1_PINS
+		const struct _pin pins[] = BOARD_HSMCI1_PINS;
+
+		/* Configure HSMCI1 pins */
+		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+#else
+		trace_fatal("Target board misses HSMCI1 pins");
+		return false;
+#endif
+	}
+	default:
+		return false;
+	}
+}
+
+bool board_is_sdmmc_inserted(uint32_t periph_id)
+{
+	const struct _pin *cd_input = NULL;
+	bool res;
+#ifdef BOARD_HSMCI0_PIN_CD
+	const struct _pin cd0_input = BOARD_HSMCI0_PIN_CD;
+	cd_input = periph_id == ID_HSMCI0 ? &cd0_input : cd_input;
+#endif
+#ifdef BOARD_HSMCI1_PIN_CD
+	const struct _pin cd1_input = BOARD_HSMCI1_PIN_CD;
+	cd_input = periph_id == ID_HSMCI1 ? &cd1_input : cd_input;
+#endif
+
+	if (!cd_input)
+		return false;
+#ifdef CONFIG_BOARD_SAMA5D4_EK
+	/* HW erratum affecting the HSMCI1 slot of the SAMA5D4-EK board;
+	 * card detection status is valid only when power is supplied to
+	 * the microSD connector. */
+	const struct _pin pwr_sig = BOARD_HSMCI1_PIN_POWER;
+	const bool powered = periph_id == ID_HSMCI1
+		? (pio_get(&pwr_sig) ? false : true) : true;
+	if (!powered)
+		if (!board_power_sdmmc_device(periph_id, true))
+			return false;
+#endif
+	res = pio_get(cd_input) ? false : true;
+#ifdef CONFIG_BOARD_SAMA5D4_EK
+	if (!powered)
+		board_power_sdmmc_device(periph_id, false);
+#endif
+	return res;
+}
+
+bool board_power_sdmmc_device(uint32_t periph_id, bool on)
+{
+	const struct _pin *pwr_ctrl = NULL;
+#ifdef BOARD_HSMCI0_PIN_POWER
+	const struct _pin pwr0_ctrl = BOARD_HSMCI0_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI0 ? &pwr0_ctrl : pwr_ctrl;
+#endif
+#ifdef BOARD_HSMCI1_PIN_POWER
+	const struct _pin pwr1_ctrl = BOARD_HSMCI1_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI1 ? &pwr1_ctrl : pwr_ctrl;
+#endif
+
+	if (periph_id != ID_HSMCI0 && periph_id != ID_HSMCI1)
+		return false;
+	if (!pwr_ctrl)
+		/* This slot doesn't support switching VDD off */
+		return on;
+	if (on) {
+		/* Workaround HW issue affecting SAMA5D4-EK and SAMA5D4-XULT;
+		 * flipping straight the VDD switch often causes the VCC_3V3
+		 * rail to drop and trigger reset upon under-voltage. */
+		board_cfg_sd_dev_pins(periph_id, false, true);
+		timer_sleep(100);
+		pio_clear(pwr_ctrl);
+		/* Wait for the VDD rail to settle at nominal voltage */
+		timer_sleep(1);
+		board_cfg_sd_dev_pins(periph_id, false, false);
+		timer_sleep(1);
+	} else {
+		pio_set(pwr_ctrl);
+		/* Drive all device signals low, in an attempt to have VDD
+		 * falling quicker. This also workarounds the unswitched pull-up
+		 * resistors found on the SAMA5D4-XULT board. */
+		board_cfg_sd_dev_pins(periph_id, true, false);
+	}
+	return true;
 }
