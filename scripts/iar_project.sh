@@ -206,7 +206,7 @@ generate-bodies-ewd() {
 
     echo "GEN temporary file ${file}_$variant.ewd"
 
-    cat $DIR/iar_debug.template.body > "$tpl"
+    cat $DIR/$tpl_debug.body > "$tpl"
     local win_path=$(helper-use-windows-path "$iar_debug_script_y")
     sed -i -e "s%__REPLACE_MACFILE__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
     sed -i -e "s%//%/%g" "$tpl"
@@ -234,19 +234,21 @@ generate-ewd() {
     touch "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
         cat $DIR/${file}_$variant.ewd >> $DIR/$file.ewd.bodies
+        rm -f $DIR/${file}_$variant.ewd
     done
-    rm -f $DIR/${file}_*.ewd
 
     tpl-set-soc "$DIR/$file.ewd.bodies"
 
     echo "GEN ${file}_$TARGET.ewd"
-    cat $DIR/iar_debug.template.head >  "$tpl"
-    cat $DIR/$file.ewd.bodies        >> "$tpl"
-    cat $DIR/iar_debug.template.tail >> "$tpl"
+    cat $DIR/$tpl_debug.head >  "$tpl"
+    rm -f $DIR/$tpl_debug.head
 
-    # Clean temporary files
-    rm -f $DIR/iar_debug.template.*
+    cat $DIR/$file.ewd.bodies        >> "$tpl"
+    rm -f $tpl_debug.body
     rm -f $DIR/$file.ewd.bodies
+
+    cat $DIR/$tpl_debug.tail >> "$tpl"
+    rm -f $DIR/$tpl_debug.tail
 }
 
 generate-bodies-ewp() {
@@ -255,7 +257,7 @@ generate-bodies-ewp() {
     local tpl=$DIR/${file}_$variant.ewp
 
     echo "GEN temporary file ${file}_$variant.ewp"
-    cat $DIR/iar_project.template.body > "$tpl"
+    cat $DIR/$tpl_project.body > "$tpl"
     tpl-set-defines       "$tpl"
     tpl-set-includes      "$tpl"
     tpl-set-linker-script "$tpl" "$iar_linker_script_y"
@@ -282,13 +284,20 @@ generate-ewp() {
     touch "$DIR/$file.ewp.bodies"
     for variant in $AVAILABLE_VARIANTS; do
         cat $DIR/${file}_$variant.ewp >> $DIR/$file.ewp.bodies
+		rm -f $DIR/${file}_$variant.ewp
     done
-    rm -f $DIR/$file_*.ewp
 
     echo "GEN ${file}_$TARGET.ewp"
-    cat $DIR/iar_project.template.head >  "$tpl"
+    cat $DIR/$tpl_project.head >  "$tpl"
+    rm -f $DIR/$tpl_project.head
+
     cat $DIR/$file.ewp.bodies          >> "$tpl"
-    cat $DIR/iar_project.template.tail >> "$tpl"
+    rm -f $DIR/$tpl_project.body
+    rm -f $DIR/$file.ewp.bodies
+
+    cat $DIR/$tpl_project.tail >> "$tpl"
+    rm -f $DIR/$tpl_project.tail
+
     tpl-set-deps      "$tpl" "target"        "$target_y"
     tpl-set-deps      "$tpl" "utils"         "$utils_y"
     tpl-set-deps      "$tpl" "drivers"       "$drivers_y"
@@ -300,10 +309,6 @@ generate-ewp() {
     tpl-set-soc       "$tpl"
     tpl-set-prj-files "$tpl" "project_files" "$obj_y"
     tpl-finalize      "$tpl"
-
-    # Remove generated files
-    rm -f $DIR/iar_project.template.*
-    rm -f $DIR/$file.ewp.bodies
 }
 
 generate-eww() {
