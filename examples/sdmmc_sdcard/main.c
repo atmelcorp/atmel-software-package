@@ -29,20 +29,21 @@
 
 /**
  * \page sdcard Secure Digital Memory Card.
- * An example using the SDMMC peripheral of SAMA5D2x
- * Microcontrollers.
+ * An example using the SD/MMC peripherals of SAMA5Dxx MPUs.
  *
  * \section Purpose
  *
  * The Secure Digital Memory Card example will help new users
- * get familiar with the SDMMC peripheral used in Atmel's
- * SAMA5D2x microcontrollers.
+ * get familiar with the SD/MMC peripheral used in Atmel's
+ * SAMA5Dxx MPUs.
  *
  * \section Requirements
  *
  * This package is compatible with the evaluation boards listed below:
  * - SAMA5D2-VB
  * - SAMA5D2-XULT
+ * - SAMA5D4-EK
+ * - SAMA5D4-XULT
  *
  * \section Description
  *
@@ -98,15 +99,20 @@
 #include "board.h"
 #include "chip.h"
 #include "trace.h"
-#include "timer.h"
 #include "plugin_sha.h"
 #include "misc/cache.h"
 #include "misc/console.h"
-
-#include "peripherals/sdmmc.h"
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
-#include "peripherals/aic.h"
+
+#ifdef CONFIG_HAVE_SDMMC
+#  include "peripherals/sdmmc.h"
+#elif defined(CONFIG_HAVE_HSMCI)
+#  include "peripherals/hsmcic.h"
+#  include "peripherals/hsmcid.h"
+#else
+#  error No peripheral for SD/MMC devices
+#endif
+
 #include "libsdmmc/libsdmmc.h"
 #include "fatfs/src/ff.h"
 
@@ -124,16 +130,16 @@
 #define USE_EXT_RAM                   1
 
 #ifdef VARIANT_DDRAM
-# undef USE_EXT_RAM
-# define USE_EXT_RAM                  1
+#  undef USE_EXT_RAM
+#  define USE_EXT_RAM                 1
 #endif
 
 #if USE_EXT_RAM
-# define BLOCK_CNT_MAX                65536ul
-# define DMADL_CNT_MAX                512u
+#  define BLOCK_CNT_MAX               65536ul
+#  define DMADL_CNT_MAX               512u
 #else
-# define BLOCK_CNT_MAX                24u
-# define DMADL_CNT_MAX                1u
+#  define BLOCK_CNT_MAX               24u
+#  define DMADL_CNT_MAX               1u
 #endif
 
 #define BLOCK_CNT                     3u
@@ -145,15 +151,44 @@
 #define TIMER1_MODULE                 ID_TC0
 #define TIMER1_CHANNEL                1u
 
+#ifdef CONFIG_BOARD_SAMA5D2_XPLAINED
+#  define SLOT0_TAG                   "(e.MMC)"
+#  define SLOT1_TAG                   "(removable card)"
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_TAG                   "(microSD)"
+#else
+#  define SLOT0_TAG                   ""
+#  define SLOT1_TAG                   ""
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
 const char test_file_path[] = "test_data.bin";
 
+#ifdef CONFIG_HAVE_SDMMC
+#  define HOST0_ID                    ID_SDMMC0
+#  define HOST0_REGS                  SDMMC0
+#  define HOST1_ID                    ID_SDMMC1
+#  define HOST1_REGS                  SDMMC1
 /* Driver instance data (a.k.a. MCI driver instance) */
 static struct sdmmc_set drv0 = { 0 };
 static struct sdmmc_set drv1 = { 0 };
+
+#elif defined(CONFIG_HAVE_HSMCI)
+#  define HOST0_ID                    ID_HSMCI0
+#  define HOST0_REGS                  HSMCI0
+#  define HOST1_ID                    ID_HSMCI1
+#  define HOST1_REGS                  HSMCI1
+/* MCI driver instance data */
+static struct hsmci_set drv0 = { 0 };
+static struct hsmci_set drv1 = { 0 };
+#endif
 
 /* Library instance data (a.k.a. SDCard driver instance) */
 #if USE_EXT_RAM
@@ -165,11 +200,15 @@ SECTION(".region_ddr")
 #endif
 ALIGNED(L1_CACHE_BYTES) static sSdCard lib1 = { .pDrv = 0 };
 
-/* Buffer dedicated to the SDMMC Driver. Refer to sdmmc_initialize(). */
-#if USE_EXT_RAM
+/* Buffer dedicated to the driver, refer to the driver API. Aligning it on
+ * cache lines is optional. */
+#ifdef CONFIG_HAVE_SDMMC
+#  if USE_EXT_RAM
 SECTION(".region_ddr")
-#endif
+#  endif
+ALIGNED(L1_CACHE_BYTES)
 static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+#endif
 
 /* Read/write data buffer.
  * It may receive data transferred from the device by the DMA. As the L1 data
@@ -238,12 +277,14 @@ static void display_menu(void)
 {
 	printf("\n\rSD Card menu:\n\r");
 	printf("   h: Display this menu\n\r");
-	printf("   t: Toggle between Slot%c0%c(e.MMC) and Slot%c1%c(removable"
-	    " card)\n\r", slot ? ' ' : '[', slot ? ' ' : ']', slot ? '[' : ' ',
+	printf("   t: Toggle between Slot%c0%c" SLOT0_TAG " and Slot%c1%c"
+	    SLOT1_TAG "\n\r", slot ? ' ' : '[', slot ? ' ' : ']', slot ? '[' : ' ',
 	    slot ? ']' : ' ');
+#ifdef CONFIG_HAVE_SDMMC
 	printf("   d: Select either %cCPU programmed I/O%c or %cDMA operation%c"
 	    "\n\r", use_dma ? ' ' : '[', use_dma ? ' ' : ']',
 	    use_dma ? '[' : ' ', use_dma ? ']' : ' ');
+#endif
 	printf("   i: Display device info\n\r");
 	printf("   l: Mount FAT file system and list files\n\r");
 	printf("   r: Read the file named '%s'\n\r", test_file_path);
@@ -253,15 +294,22 @@ static void display_menu(void)
 
 static void initialize(void)
 {
-	/* As long as we do not transfer from/to SDMMC0 and SDMMC1 peripherals
-	 * at the same time, we can share a single DMA buffer between the two
-	 * instances. */
-	sdmmc_initialize(&drv0, SDMMC0, ID_SDMMC0,
+	/* As long as we do not transfer from/to the two peripherals at the same
+	 * time, we can have the two instances sharing a single DMA buffer. */
+#ifdef CONFIG_HAVE_SDMMC
+	sdmmc_initialize(&drv0, HOST0_REGS, HOST0_ID,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
-	sdmmc_initialize(&drv1, SDMMC1, ID_SDMMC1,
+	sdmmc_initialize(&drv1, HOST1_REGS, HOST1_ID,
 	    TIMER1_MODULE, TIMER1_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
+#elif defined(CONFIG_HAVE_HSMCI)
+	hsmci_initialize(&drv0, HOST0_REGS, HOST0_ID,
+	    TIMER0_MODULE, TIMER0_CHANNEL);
+	hsmci_set_slot(HOST0_REGS, BOARD_HSMCI0_SLOT);
+	hsmci_initialize(&drv1, HOST1_REGS, HOST1_ID,
+	    TIMER1_MODULE, TIMER1_CHANNEL);
+#endif
 	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
 	sha_plugin_initialize(&sha, use_dma);
@@ -455,11 +503,13 @@ bool SD_GetInstance(uint8_t index, sSdCard **holder)
  */
 int main(void)
 {
+#ifdef CONFIG_HAVE_SDMMC
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
 		.div = 3,
 		.qdaudio = 24,
 	};
+#endif
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
 
@@ -471,41 +521,14 @@ int main(void)
 	pmc_enable_peripheral(TIMER1_MODULE);
 #endif
 
-	/* Workaround an issue observed on ATSAMA5D2 when switching the source
-	 * of the generic clock, from the default selection (PLLA) directly to
-	 * the Audio PLL. */
-	PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_GCKCSS_SLOW_CLK
-	    | PMC_PCR_PID(ID_SDMMC0);
-	PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_GCKCSS_SLOW_CLK
-	    | PMC_PCR_PID(ID_SDMMC1);
-	timer_sleep(1);
-
-	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
+	/* The HSMCI peripherals are clocked by the Master Clock (at least on
+	 * SAMA5D4x).
+	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
-	pmc_enable_peripheral(ID_SDMMC0);
-	pmc_enable_peripheral(ID_SDMMC1);
-#if 1
-	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
-	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
-	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
-	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz.
-	 * And set AUDIOPLLCK frequency to 624 / (5 + 1) = 104 MHz. */
-	audio_pll_cfg.nd = 51;
-	audio_pll_cfg.qdpmc = 5;
-	pmc_configure_audio(&audio_pll_cfg);
-	pmc_enable_audio(true, false);
-	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC0);
+	pmc_enable_peripheral(HOST0_ID);
+	pmc_enable_peripheral(HOST1_ID);
 
-	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
-	 * connector. SD cards are the most likely devices. Since the SDMMC1
-	 * peripheral supports 3.3V signaling level only, target SD High Speed
-	 * mode @ 50 MHz.
-	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
-	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
-	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC1);
-#else
+#if defined(CONFIG_HAVE_SDMMC) && defined(SDMMC_USE_FASTEST_CLK)
 	/* Running on a board which has its SDMMC0 slot equipped with an e.MMC
 	 * device supporting the HS200 bus speed mode, or accepts UHS-I SD
 	 * devices. Target the maximum device clock frequency supported by
@@ -513,8 +536,8 @@ int main(void)
 	 * Use the UTMI PLL, since it runs at 480 MHz. */
 	pmc_enable_upll_clock();
 	pmc_enable_upll_bias();
-	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_UPLL_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC0);
+	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_UPLL_CLK, 1 - 1);
+	pmc_enable_gck(HOST0_ID);
 
 	/* On the SDMMC1 slot, target SD High Speed mode @ 50 MHz.
 	 * Use the Audio PLL and set AUDIOCORECLK frequency to
@@ -525,12 +548,34 @@ int main(void)
 	audio_pll_cfg.qdpmc = 6;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC1);
+	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+	pmc_enable_gck(HOST1_ID);
+
+#elif defined(CONFIG_HAVE_SDMMC)
+	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
+	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
+	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
+	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz.
+	 * And set AUDIOPLLCK frequency to 624 / (5 + 1) = 104 MHz. */
+	audio_pll_cfg.nd = 51;
+	audio_pll_cfg.qdpmc = 5;
+	pmc_configure_audio(&audio_pll_cfg);
+	pmc_enable_audio(true, false);
+	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+	pmc_enable_gck(HOST0_ID);
+
+	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
+	 * connector. SD cards are the most likely devices. Since the SDMMC1
+	 * peripheral supports 3.3V signaling level only, target SD High Speed
+	 * mode @ 50 MHz.
+	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
+	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
+	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+	pmc_enable_gck(HOST1_ID);
 #endif
 
-	rc = board_cfg_sdmmc(ID_SDMMC0) ? 1 : 0;
-	rc &= board_cfg_sdmmc(ID_SDMMC1) ? 1 : 0;
+	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;
+	rc &= board_cfg_sdmmc(HOST1_ID) ? 1 : 0;
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
@@ -566,11 +611,13 @@ int main(void)
 			slot = slot ? 0 : 1;
 			display_menu();
 			break;
+#ifdef CONFIG_HAVE_SDMMC
 		case 'd':
 			use_dma = use_dma ? false : true;
 			initialize();
 			display_menu();
 			break;
+#endif
 		case 'i':
 			lib = slot ? &lib1 : &lib0;
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {

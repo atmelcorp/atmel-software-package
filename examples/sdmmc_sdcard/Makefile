@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Secure Digital Memory Card example
-AVAILABLE_TARGETS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d4-xplained
 AVAILABLE_VARIANTS = ddram
 VARIANT ?= ddram
 
@@ -40,6 +40,11 @@ CONFIG_LIB_SDMMC = y
 CONFIG_LIB_FATFS = y
 
 CFLAGS_INC += -I$(TOP)/examples/sdmmc_sdcard
+
+# Uncomment the definition below when using a board that features an
+# ultra high speed device.
+#
+# CFLAGS_DEFS += -DSDMMC_USE_FASTEST_CLK
 
 # Uncomment selected definitions below if you need the binary to shrink.
 #
