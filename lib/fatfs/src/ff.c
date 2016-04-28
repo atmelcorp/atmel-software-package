@@ -1274,7 +1274,7 @@ DWORD ld_clust (
 {
 	DWORD cl;
 
-	cl = LD_WORD(dir+DIR_FstClusLO);
+	cl = (DWORD)LD_WORD(dir+DIR_FstClusLO);
 	if (fs->fs_type == FS_FAT32)
 		cl |= (DWORD)LD_WORD(dir+DIR_FstClusHI) << 16;
 
