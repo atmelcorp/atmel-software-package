@@ -195,7 +195,6 @@ void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 
 #ifndef CONFIG_HAVE_ADC_SETTLING_TIME
 	if (settling) {
-		settling = 0;
 		trace_warning("adc: Analog settling time not supported, IGNORED!\r\n");
 	}
 #endif
