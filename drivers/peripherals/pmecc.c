@@ -345,7 +345,6 @@ static int32_t error_location (uint32_t sector_size_in_bits)
 	/* Disable PMECC Error Location IP */
 	HSMC->HSMC_ELDIS |= 0xFFFFFFFF;
 	error_number = 0;
-	alphax = 0;
 
 	sigma = (uint32_t*)&HSMC->HSMC_SIGMA0;
 
@@ -719,7 +718,6 @@ uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer)
 	HSMC->HSMC_ELCFG = pmecc_desc.sector_size >> 4;
 
 	while (sector_number < (uint32_t)((1 << ((HSMC->HSMC_PMECCFG & HSMC_PMECCFG_PAGESIZE_Msk) >> 8)))) {
-		error_nbr = 0;
 		if (pmecc_status & 0x1) {
 			sector_base_address = page_buffer + (sector_number * ((pmecc_desc.sector_size >> 4) + 1) * 512);
 			gen_syn(sector_number);
