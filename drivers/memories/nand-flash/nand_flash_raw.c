@@ -444,7 +444,6 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 	uint32_t col_address, row_address, smc_ecc_page_size;
 	uint32_t smc_mode;
-	uint32_t smc_trans_type = 0;
 
 	NAND_TRACE("_read_page(B#%d:P#%d)\r\n", block, page);
 
@@ -470,7 +469,6 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 		col_address = page_data_size;
 
 	if (nand_is_nfc_sram_enabled()) {
-		smc_trans_type |= SMC_TRANS_HOST_EN;
 		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN;
 		_send_cle_ale(nand, smc_mode, COMMAND_READ_1,
 					COMMAND_READ_2, col_address, row_address);
@@ -521,7 +519,6 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address, smc_ecc_page_size;
 	uint32_t smc_mode;
-	uint32_t smc_trans_type = 0;
 
 	NAND_TRACE("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
@@ -543,14 +540,11 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled())
-		smc_trans_type |= SMC_TRANS_HOST_EN;
 	hsmc_pmecc_reset();
 	hsmc_pmecc_enable();
 	if (!hsmc_pmecc_auto_apare_en())
 		hsmc_pmecc_auto_enable();
 	if(nand_is_nfc_sram_enabled()){
-		smc_trans_type |= SMC_TRANS_HOST_EN;
 		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN;
 		hsmc_pmecc_data_phase();
 		_send_cle_ale(nand, smc_mode, COMMAND_READ_1, COMMAND_READ_2, 0, row_address);

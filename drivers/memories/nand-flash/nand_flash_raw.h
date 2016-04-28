@@ -110,12 +110,6 @@
 #define READ_STATUS_TIMEOUT 0xFFFF
 
 /*
- * NFC Transfer parameter
- */
-#define SMC_TRANS_WITH_DMA (1 << 0)
-#define SMC_TRANS_HOST_EN  (1 << 1)
-
-/*
  * NFC ALE CLE command parameter
  */
 #define ALE_COL_EN   (1 << 0)
