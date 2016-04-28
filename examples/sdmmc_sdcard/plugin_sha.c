@@ -311,7 +311,6 @@ void sha_plugin_feed(struct sha_set *set, bool open, bool close,
 	if (close) {
 		if (pending_async) {
 			run_dma_xfer(set);
-			pending_async = false;
 		}
 		chunk = pad_message(set->pending_data + set->pending, set->count
 		    + set->pending);
