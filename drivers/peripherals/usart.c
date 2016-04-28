@@ -744,7 +744,6 @@ uint32_t usart_read_stream(Usart *usart, void *stream, uint32_t len)
 			readb(&usart->US_RHR, buffer);
 			buffer += sizeof(uint8_t);
 			left -= sizeof(uint8_t);
-			buf_size -= sizeof(uint8_t);
 		}
 	}
 	return len - left;
@@ -802,7 +801,6 @@ uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t len)
 			writeb(&usart->US_THR, *buffer);
 			buffer += sizeof(uint8_t);
 			left -= sizeof(uint8_t);
-			buf_size -= sizeof(uint8_t);
 		}
 	}
 	return len - left;
