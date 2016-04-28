@@ -959,7 +959,7 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 	}
 
 	/* Scaling setup */
-	if (layer->reg_scale) {
+	if (layer->reg_win && layer->reg_scale) {
 		/* Image size only used in scaling */
 		/* Scaling target */
 		if (rotation == 90 || rotation == 270) {
