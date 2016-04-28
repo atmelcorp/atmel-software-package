@@ -307,7 +307,7 @@ uint32_t rtc_set_time(struct _time *time)
 	    (sec_bcd & (uint8_t) (~RTC_SEC_BIT_LEN_MASK))) {
 		return 1;
 	}
-	ltime = sec_bcd | (min_bcd << 8) | (hour_bcd << 16);
+	ltime |= sec_bcd | (min_bcd << 8) | (hour_bcd << 16);
 	RTC->RTC_CR |= RTC_CR_UPDTIM;
 	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
 	RTC->RTC_SCCR = RTC_SCCR_ACKCLR;
