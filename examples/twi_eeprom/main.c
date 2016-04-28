@@ -372,24 +372,29 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	if (!strncmp((char*)buffer, serial_lbl, 6)) {
 		status = at24_get_serial_number(&at24_drv);
-		if(status == TWID_SUCCESS) {
+		if (status == TWID_SUCCESS) {
 			printf("serial number: ");
 			for (i = 0; i < sizeof(at24_drv.serial_number); ++i) {
 				printf("%u", (unsigned char)at24_drv.serial_number[i]);
 			}
+		} else {
+			printf("--E-- Error twi ");
 		}
-		else printf("--E-- Error twi ");
 		printf("\r\n");
 	} else if (!strncmp((char*)buffer, mac_lbl, 3)) {
 		status = at24_get_mac_address(&at24_drv);
-		printf("MAC addr: ");
-		for (i = 0; i < sizeof(at24_drv.mac_addr_48); i+=2) {
-			printf("%s%02X:%02X",
-			       (i != 0 ? ":" : ""),
-			       (unsigned int)at24_drv.mac_addr_48[i],
-			       (unsigned int)at24_drv.mac_addr_48[i+1]);
+		if (status == TWID_SUCCESS) {
+			printf("MAC addr: ");
+			for (i = 0; i < sizeof(at24_drv.mac_addr_48); i+=2) {
+				printf("%s%02X:%02X",
+					   (i != 0 ? ":" : ""),
+					   (unsigned int)at24_drv.mac_addr_48[i],
+					   (unsigned int)at24_drv.mac_addr_48[i+1]);
+			}
+		} else {
+			printf("--E-- Error twi ");
 		}
-		printf("\r\n");
+			printf("\r\n");
 	}
 }
 
