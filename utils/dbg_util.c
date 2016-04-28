@@ -223,7 +223,6 @@ DbgReceive1KXModem(uint8_t * pktBuffer, uint32_t address, uint32_t maxSize)
 		}
 		/* Done */
 		if (EOT == inChar) {
-			error = 0;
 			console_put_char(ACK);
 			break;
 		} else if (CAN == inChar) {

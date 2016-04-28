@@ -145,7 +145,7 @@ static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY
 	uint16_t w = pDisp->width;
 	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = w * cw;	/* row width in bytes */
-	uint8_t *base = pDisp->buffer;
+	uint8_t *base;
 	uint8_t *buffer = pDisp->buffer;
 	uint32_t fillStart, fillEnd;
 	uint32_t i;
