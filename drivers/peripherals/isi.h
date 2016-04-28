@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -56,7 +56,7 @@
 #define YUV_INPUT          0
 #define RGB_INPUT          1
 #define GRAYSCALE_INPUT    2
- 
+
 #define ONE_BYTE_PER_PIXEL    1
 #define TWO_BYTE_PER_PIXEL    2
 #define THREE_BYTE_PER_PIXEL  3
@@ -69,7 +69,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Frame Buffer Descriptors */
-typedef struct 
+typedef struct
 {
 	/** Address of the Current FrameBuffer */
 	uint32_t address;
@@ -99,7 +99,7 @@ typedef struct
 	uint8_t yoff;
 	 /** Color Space Conversion Matrix Coefficient C4 */
 	uint16_t c4;
-}isi_yuv2rgc_t;
+}isi_yuv2rgb_t;
 
 /** ISI Matrix Color Space Conversion RGB to YCrCb */
 typedef struct
@@ -128,7 +128,7 @@ typedef struct
 	uint8_t c8;
 	/** Color Space Conversion Blue Component Offset */
 	uint8_t boff;
-}isi_rgc2yuv_t;
+}isi_rgb2yuv_t;
 
 /*----------------------------------------------------------------------------
  *         Exported functions
@@ -159,44 +159,40 @@ extern void isi_preview_wait_dma_completed(void);
 
 extern void isi_set_framerate(uint32_t frame);
 
-extern uint8_t isi_bytes_one_pixel(uint8_t bmpRgb);
+extern uint8_t isi_bytes_one_pixel(uint8_t bmp_rgb);
 
 extern void isi_reset(void);
 
 extern uint32_t isi_get_status(void);
 
-extern void isi_set_blank( uint8_t hBlank, uint8_t vBlank);
+extern void isi_set_blank(uint8_t horizontal_bank, uint8_t vertical_bank);
 
-extern void isi_set_sensor_size( uint32_t hSize, uint32_t vSize);
+extern void isi_set_sensor_size(uint32_t horizontal_size, uint32_t vertical_size);
 
-extern void isi_rgb_pixel_mapping(uint32_t wRgbPixelMapping);
+extern void isi_rgb_pixel_mapping(uint32_t rgb_pixel_pattern);
 
-extern void isi_rgb_swap_mode(uint32_t swapMode);
+extern void isi_rgb_swap_mode(uint32_t rgb_swap);
 
-extern void isi_ycrcb_format(uint32_t wYuvSwapMode);
+extern void isi_ycrcb_format(uint32_t yuv_swap);
 
-extern void isi_set_grayscale_mode(uint32_t wPixelFormat);
+extern void isi_set_grayscale_mode(uint32_t pixel_format);
 
-extern void isi_set_input_stream(uint32_t wStreamMode);
+extern void isi_set_input_stream(uint32_t stream_mode);
 
-extern void isi_set_preview_size(
-	uint32_t hSize, 
-	uint32_t vSize);
+extern void isi_set_preview_size(uint32_t horizontal_size, uint32_t vertical_size);
 
 extern void isi_calc_scaler_factor( void );
 
-extern void isi_set_dma_preview_path(
-	uint32_t baseFrameBufDesc, 
-	uint32_t dmaCtrl, 
-	uint32_t frameBufferStartAddr);
+extern void isi_set_dma_preview_path(uint32_t descriptor_address,
+									 uint32_t descriptor_dma_control,
+									 uint32_t frame_buffer_address);
 
-extern void isi_set_dma_codec_path(
-	uint32_t baseFrameBufDesc, 
-	uint32_t dmaCtrl, 
-	uint32_t frameBufferStartAddr);
+extern void isi_set_dma_codec_path(uint32_t descriptor_address,
+									 uint32_t descriptor_dma_control,
+									 uint32_t frame_buffer_address);
 
-extern void isi_set_matrix_yuv2rgb (isi_yuv2rgc_t* yuv2rgb);
-extern void isi_set_matrix_rgb2yuv (isi_rgc2yuv_t* rgb2yuv);
+extern void isi_set_matrix_yuv2rgb (isi_yuv2rgb_t* yuv2rgb);
+extern void isi_set_matrix_rgb2yuv (isi_rgb2yuv_t* rgb2yuv);
 
 #endif /* CONFIG_HAVE_ISI */
 

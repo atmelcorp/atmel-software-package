@@ -201,7 +201,7 @@ static sensor_output_format_t image_format;
 /* Image output bit width */
 static sensor_output_bit_t sensor_bit_width;
 
-static isi_yuv2rgc_t y2r = {0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC,};
+static isi_yuv2rgb_t y2r = {0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC,};
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
