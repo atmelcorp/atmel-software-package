@@ -662,7 +662,6 @@ Fetch:
 	if (!events)
 		return;
 
-	errors = 0;
 	/* Check the global error flag */
 	if (events & SDMMC_NISTR_ERRINT) {
 		errors = regs->SDMMC_EISTR;
