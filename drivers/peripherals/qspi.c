@@ -100,6 +100,7 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 {
 	uint32_t iar, icr, ifr;
 	uint32_t offset;
+	uint8_t *ptr;
 
 	iar = 0;
 	icr = 0;
@@ -206,11 +207,23 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 	/* Send/Receive data */
 	if (cmd->tx_buffer) {
 		/* Write data */
-		uint8_t *ptr = (uint8_t*)get_qspi_mem_from_addr(qspi);
+#ifdef CONFIG_HAVE_AESB
+		if(cmd->use_aesb)
+			ptr = (uint8_t*)get_qspi_aesb_mem_from_addr(qspi);
+		else
+#endif
+			ptr = (uint8_t*)get_qspi_mem_from_addr(qspi);
+
 		qspi_memcpy(ptr + offset, cmd->tx_buffer, cmd->buffer_len);
 	} else if (cmd->rx_buffer) {
 		/* Read data */
-		const uint8_t *ptr = (const uint8_t*)get_qspi_mem_from_addr(qspi);
+#ifdef CONFIG_HAVE_AESB
+		if (cmd->use_aesb)
+			ptr = (uint8_t*)get_qspi_aesb_mem_from_addr(qspi);
+		else
+#endif
+			ptr = (uint8_t*)get_qspi_mem_from_addr(qspi);
+
 		qspi_memcpy(cmd->rx_buffer, ptr + offset, cmd->buffer_len);
 	} else {
 		/* Stop here for continuous read */

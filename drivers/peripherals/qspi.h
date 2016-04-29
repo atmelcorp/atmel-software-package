@@ -74,6 +74,11 @@ struct _qspi_cmd {
 	/** Mode bits */
 	uint8_t mode;
 
+#ifdef CONFIG_HAVE_AESB
+	/** QSPI aesb scope enabled */
+	bool use_aesb;
+#endif
+	
 	/** Number of mode cycles */
 	uint8_t num_mode_cycles;
 
