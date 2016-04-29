@@ -55,6 +55,9 @@ struct _qspiflash {
 	uint8_t opcode_read;
 	uint8_t opcode_page_program;
 	bool mode_addr4;
+#ifdef CONFIG_HAVE_AESB
+	bool use_aesb;
+#endif
 	uint8_t normal_read_mode;
 	uint8_t continuous_read_mode;
 	uint8_t num_mode_cycles;
@@ -70,6 +73,9 @@ extern "C" {
 #endif
 
 extern bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi);
+#ifdef CONFIG_HAVE_AESB
+extern void qspiflash_use_aesb(struct _qspiflash *flash, bool enable);
+#endif
 extern bool qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status);
 extern bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout);
 extern bool qspiflash_read_jedec_id(const struct _qspiflash *flash, uint32_t *jedec_id);

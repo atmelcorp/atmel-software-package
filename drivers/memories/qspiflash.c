@@ -653,6 +653,9 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	flash->opcode_read = CMD_FAST_READ;
 	flash->opcode_page_program = CMD_PAGE_PROGRAM;
 	flash->mode_addr4 = false;
+#ifdef CONFIG_HAVE_AESB
+	flash->use_aesb = false;
+#endif
 	flash->num_mode_cycles = 0;
 	flash->num_dummy_cycles = 8;
 
@@ -677,6 +680,12 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	return true;
 }
 
+#ifdef CONFIG_HAVE_AESB
+void qspiflash_use_aesb(struct _qspiflash *flash, bool enable)
+{
+	flash->use_aesb = enable;
+}
+#endif
 
 bool qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status)
 {
@@ -733,6 +742,9 @@ bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
 	cmd.enable.dummy = (flash->num_dummy_cycles > 0);
 	cmd.enable.data = 1;
 	cmd.instruction = flash->opcode_read;
+#ifdef CONFIG_HAVE_AESB
+	cmd.use_aesb = flash->use_aesb;
+#endif
 	cmd.mode = mode;
 	cmd.num_mode_cycles = flash->num_mode_cycles;
 	cmd.num_dummy_cycles = flash->num_dummy_cycles;
@@ -816,6 +828,9 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE;
 	cmd.ifr_width = flash->ifr_width_erase;
 	cmd.enable.instruction = 1;
+#ifdef CONFIG_HAVE_AESB
+	cmd.use_aesb = flash->use_aesb;
+#endif
 	cmd.enable.address = flash->mode_addr4 ? 4 : 3;
 	cmd.instruction = instr;
 	cmd.address = addr;
@@ -854,6 +869,9 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		cmd.ifr_width = flash->ifr_width_program;
 		cmd.enable.instruction = 1;
 		cmd.enable.address = flash->mode_addr4 ? 4 : 3;
+#ifdef CONFIG_HAVE_AESB
+		cmd.use_aesb = flash->use_aesb;
+#endif
 		cmd.enable.data = 1;
 		cmd.instruction = flash->opcode_page_program;
 		cmd.address = addr;
