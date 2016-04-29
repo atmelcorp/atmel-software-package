@@ -1031,7 +1031,6 @@ static void udphs_irq_handler(void)
 
 			/* Acknowledge interrupt */
 			UDPHS->UDPHS_CLRINT = UDPHS_CLRINT_INT_SOF;
-			status &= ~(uint32_t) UDPHS_INTSTA_INT_SOF;
 		}
 		/* Suspend, treated last */
 		else if (status == UDPHS_INTSTA_DET_SUSPD) {
