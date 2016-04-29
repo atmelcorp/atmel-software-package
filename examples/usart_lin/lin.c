@@ -347,7 +347,6 @@ void lin_slave_usart_handler(uint8_t node)
 					memcpy(lin_mes_list_node[node][handle].pdata,  &lin_rx_buffer_node[node][0], frame_len);
 					_display_frame (node, handle, frame_len);
 				}
-				lin_status = 1;
 				break;
 
 			case IGNORE:
