@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -147,10 +147,10 @@
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint16_t WM8904_Read(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr);
-extern void WM8904_Write(struct _twi_desc * pTwid, uint32_t device, uint32_t regAddr,
-			 uint16_t data);
-extern uint8_t WM8904_Init(struct _twi_desc * pTwid, uint32_t device, uint32_t PCK);
-extern uint8_t WM8904_VolumeSet(struct _twi_desc * pTwid, uint32_t device, uint16_t value);
-extern void WM8904_IN2R_IN1L(struct _twi_desc * pTwid, uint32_t device);
-#endif				// WM8904_H
+extern uint16_t wm8904_read(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr);
+extern void wm8904_write(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr,
+				uint16_t data);
+extern uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK);
+extern uint8_t wm8904_volume_set(struct _twi_desc* twid, uint32_t device, uint16_t value);
+extern void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device);
+#endif
