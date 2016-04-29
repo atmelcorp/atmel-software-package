@@ -1196,8 +1196,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		if (*param_u32 > 0xff)
 			return SDMMC_ERROR_PARAM;
 		rc = sdmmc_set_bus_width(set, (uint8_t)*param_u32);
-		byte = sdmmc_get_bus_width(set);
-		trace_debug("Using a %u-bit data bus\n\r", byte);
+		trace_debug("Using a %u-bit data bus\n\r", sdmmc_get_bus_width(set));
 		break;
 
 	case SDMMC_IOCTL_GET_HSMODE:
