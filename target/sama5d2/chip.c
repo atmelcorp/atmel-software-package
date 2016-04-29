@@ -352,6 +352,13 @@ void *get_qspi_mem_from_addr(const Qspi* addr)
 	else return NULL;
 }
 
+void *get_qspi_aesb_mem_from_addr(const Qspi* addr)
+{
+	if (addr == (void*)QSPI0) return (void*)QSPI_AES0_ADDR;
+	else if (addr == (void*)QSPI1) return (void*)QSPI_AES1_ADDR;
+	else return NULL;
+}
+
 uint32_t get_ebi_addr_from_cs(uint32_t cs)
 {
 	switch (cs) {

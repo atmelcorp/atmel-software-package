@@ -361,6 +361,12 @@ uint32_t get_qspi_id_from_addr(const Qspi* addr);
 void *get_qspi_mem_from_addr(const Qspi* addr);
 
 /**
+ * \brief retrieve QSPI AESB memory start from its base address
+ * \return QSPI memory start on success, NULL otherwise
+ */
+void *get_qspi_aesb_mem_from_addr(const Qspi* addr);
+
+/**
  * \brief retrieve EBI memory start from its Chip Select (CS)
  * \return EBI memory start on success, 0 otherwise
  */
