@@ -28,3 +28,4 @@
 
 
 drivers-$(CONFIG_HAVE_PMIC_ACT8945A) += drivers/power/act8945a.o
+drivers-$(CONFIG_HAVE_PMIC_ACT8865) += drivers/power/act8865.o
