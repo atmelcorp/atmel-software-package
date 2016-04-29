@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -49,23 +49,77 @@ extern "C" {
 #endif
 
 /*----------------------------------------------------------------------------
+ *        Define
+ *----------------------------------------------------------------------------*/
+/* Send data on Frame changes */
+#define I2S_SLAVE_TX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
+                             (SSC_TCMR_CKS_TK) |\
+                             (SSC_TCMR_CKO_NONE) |\
+							(SSC_TCMR_START_TF_EDGE) |\
+                             (SSC_TCMR_STTDLY(1)) |\
+                             (SSC_TCMR_PERIOD(0)))
+/* Send 1 data each time */
+#define I2S_SLAVE_TX_FRM_SETTING(nb_bit_by_slot, nb_slot_by_frame)( \
+                                 (SSC_TFMR_DATLEN(nb_bit_by_slot - 1)) |\
+                                 (SSC_TFMR_MSBF) |\
+                                 (SSC_TFMR_DATNB(nb_slot_by_frame - 1)) |\
+                                 (SSC_TFMR_FSOS_NONE))
+/* Read data on Frame changes */
+#define I2S_SLAVE_RX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
+                            (SSC_TCMR_CKS_TK) |\
+                            (SSC_RCMR_CKO_NONE) |\
+							  (SSC_RCMR_CKI) |\
+                            (SSC_RCMR_START_RF_FALLING) |\
+                            (SSC_RCMR_STTDLY(1)) |\
+                            (SSC_RCMR_PERIOD(0)))
+/* Read 1 data each time */
+#define I2S_SLAVE_RX_FRM_SETTING(nb_bit_by_slot, nb_slot_by_frame)( \
+                                 (SSC_RFMR_DATLEN(nb_bit_by_slot - 1)) |\
+                                 (SSC_RFMR_MSBF) |\
+                                 (SSC_RFMR_DATNB(nb_slot_by_frame - 1)) |\
+                                 (SSC_RFMR_FSOS_NONE))
+
+/*------------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+/**
+ * Configuration setting structure.
+ */
+
+struct _ssc_desc {
+	Ssc *addr;
+	/* Master Clock */
+	uint32_t bit_rate;
+	/* Sample Frequency (fs) Ratio */
+	uint32_t sample_rate;
+	/* Number of bits of the slot */
+ 	uint8_t  slot_length;
+	/* Number of slot per frame */
+ 	uint8_t  slot_num;
+	/* tx channel enable */
+	bool tx_auto_cfg;
+	/* rx channel enable */
+	bool rx_auto_cfg;
+
+};
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void SSC_Configure(Ssc * ssc, uint32_t bitRate,
-			  uint32_t masterClock);
-extern void SSC_ConfigureTransmitter(Ssc * ssc, uint32_t tcmr,
-				     uint32_t tfmr);
-extern void SSC_ConfigureReceiver(Ssc * ssc, uint32_t rcmr,
-				  uint32_t rfmr);
-extern void SSC_EnableTransmitter(Ssc * ssc);
-extern void SSC_DisableTransmitter(Ssc * ssc);
-extern void SSC_EnableReceiver(Ssc * ssc);
-extern void SSC_DisableReceiver(Ssc * ssc);
-extern void SSC_EnableInterrupts(Ssc * ssc, uint32_t sources);
-extern void SSC_DisableInterrupts(Ssc * ssc, uint32_t sources);
-extern void SSC_Write(Ssc * ssc, uint32_t frame);
-extern uint32_t SSC_Read(Ssc * ssc);
-extern uint8_t SSC_IsRxReady(Ssc * ssc);
+extern void ssc_configure(struct _ssc_desc* desc);
+extern void ssc_configure_transmitter(struct _ssc_desc* desc, uint32_t tcmr,
+					uint32_t tfmr);
+extern void ssc_configure_receiver(struct _ssc_desc* desc, uint32_t rcmr,
+					uint32_t rfmr);
+extern void ssc_enable_transmitter(struct _ssc_desc* desc);
+extern void ssc_disable_transmitter(struct _ssc_desc* desc);
+extern void ssc_enable_receiver(struct _ssc_desc* desc);
+extern void ssc_disable_receiver(struct _ssc_desc* desc);
+extern void ssc_enable_interrupts(struct _ssc_desc* desc, uint32_t sources);
+extern void ssc_disable_interrupts(struct _ssc_desc* desc, uint32_t sources);
+extern void ssc_write(struct _ssc_desc* desc, uint32_t frame);
+extern uint32_t ssc_read(struct _ssc_desc* desc);
+extern uint8_t ssc_is_rx_ready(struct _ssc_desc* desc);
 
 #ifdef __cplusplus
 }
