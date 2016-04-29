@@ -30,6 +30,7 @@
 #ifndef _XDMAD_H_
 #define _XDMAD_H_
 
+#ifdef CONFIG_HAVE_XDMAC
 /*----------------------------------------------------------------------------
  *        Includes
  *----------------------------------------------------------------------------*/
@@ -261,5 +262,7 @@ extern uint32_t xdmad_stop_transfer(struct _xdmad_channel *channel);
 /**     @}*/
 
 /**@}*/
+
+#endif /* CONFIG_HAVE_XDMAC */
 
 #endif /* _XDMAD_H_ */

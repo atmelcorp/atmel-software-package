@@ -30,6 +30,8 @@
 #ifndef _SHA_
 #define _SHA_
 
+#ifdef CONFIG_HAVE_SHA
+
 /*------------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
@@ -94,5 +96,7 @@ extern void sha_set_input(const uint32_t * data, uint8_t len);
  * \param data pointer to the word that has been encrypted/decrypted..
  */
 extern void sha_get_output(uint32_t * data);
+
+#endif /* CONFIG_HAVE_SHA */
 
 #endif				/* #ifndef _SHA_ */

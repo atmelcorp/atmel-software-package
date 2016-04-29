@@ -40,6 +40,7 @@
 #ifndef ISC_H
 #define ISC_H
 
+#ifdef CONFIG_HAVE_ISC
 #include <stdint.h>
 
 /*------------------------------------------------------------------------------
@@ -277,5 +278,7 @@ extern void isc_dma_configure_input_mode(uint32_t mode);
 extern void isc_dma_configure_desc_entry(uint32_t desc_entry);
 extern void isc_dma_enable(uint32_t ctrl);
 extern void isc_dma_adderss(uint8_t channel, uint32_t address, uint32_t stride);
+
+#endif /* CONFIG_HAVE_ISC */
 
 #endif //#ifndef ISC_H

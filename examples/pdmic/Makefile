@@ -31,6 +31,9 @@ AVAILABLE_TARGETS = sama5d2-xplained
 
 TOP := ../..
 
+CONFIG_HAVE_PDMIC = y
+CONFIG_HAVE_CLASSD = y
+
 BINNAME = pdmic
 
 obj-y += examples/pdmic/main.o

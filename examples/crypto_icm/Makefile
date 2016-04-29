@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_ICM = y
+
 BINNAME = crypto-icm
 
 obj-y += examples/crypto_icm/main.o

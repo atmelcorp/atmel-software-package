@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_ADC = y
+
 BINNAME = adc
 
 obj-y += examples/adc/main.o

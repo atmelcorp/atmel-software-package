@@ -88,11 +88,13 @@ extern void board_cfg_matrix_for_nand(void);
  */
 extern void board_cfg_ddram(void);
 
+#ifdef CONFIG_HAVE_NAND_FLASH
 /**
  * \brief Configures the EBI for nandflash access (calls
  * board_cfg_matrix_for_nand)
  */
 extern void board_cfg_nand_flash(void);
+#endif /* CONFIG_HAVE_NAND_FLASH */
 
 /**
  * \brief Configures the EBI for norflash access.

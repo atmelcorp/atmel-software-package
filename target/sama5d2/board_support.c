@@ -503,6 +503,7 @@ void board_cfg_ddram (void)
 #endif
 }
 
+#ifdef CONFIG_HAVE_NAND_FLASH
 void board_cfg_nand_flash(void)
 {
 #if defined(BOARD_NANDFLASH_PINS) && defined(BOARD_NANDFLASH_BUS_WIDTH)
@@ -514,6 +515,7 @@ void board_cfg_nand_flash(void)
 	trace_fatal("Cannot configure NAND: target board has no NAND definitions!");
 #endif
 }
+#endif /* CONFIG_HAVE_NAND_FLASH */
 
 bool board_cfg_sdmmc(uint32_t periph_id)
 {

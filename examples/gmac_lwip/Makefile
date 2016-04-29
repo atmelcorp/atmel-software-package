@@ -31,9 +31,11 @@ AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 
-BINNAME = gmac_lwip
-
 VARIANT ?= ddram
+
+CONFIG_HAVE_GMAC = y
+
+BINNAME = gmac_lwip
 
 CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_IPV4 = y

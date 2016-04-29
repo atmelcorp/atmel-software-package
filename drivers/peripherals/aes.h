@@ -30,6 +30,8 @@
 #ifndef _AES_
 #define _AES_
 
+#ifdef CONFIG_HAVE_AES
+
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -151,5 +153,7 @@ void aes_get_gcm_counter(uint32_t * counter);
  * \param h  Pointer to the word that has been encrypted/decrypted.
  */
 void aes_get_gcm_hash_subkey(uint32_t * h);
+
+#endif /* CONFIG_HAVE_AES */
 
 #endif				/* #ifndef _AES_ */

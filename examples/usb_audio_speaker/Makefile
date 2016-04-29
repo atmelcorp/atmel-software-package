@@ -33,6 +33,7 @@ TOP := ../..
 
 BINNAME = usb_audio_speaker
 
+CONFIG_HAVE_CLASSD = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_AUDIO = y
 

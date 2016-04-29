@@ -32,11 +32,13 @@ AVAILABLE_TARGETS = sama5d2-xplained sama5d2-ptc-engi \
 		    sama5d4-explained sama5d4-ek
 AVAILABLE_VARIANTS = sram
 
+VARIANT ?= sram
+
 TOP := ../..
 
-BINNAME = secumod
+CONFIG_HAVE_SECUMOD = y
 
-VARIANT ?= sram
+BINNAME = secumod
 
 obj-y += examples/secumod/main.o
 

@@ -48,6 +48,8 @@
 #ifndef ISI_H
 #define ISI_H
 
+#ifdef CONFIG_HAVE_ISI
+
 /*----------------------------------------------------------------------------
  *        Definition
  *----------------------------------------------------------------------------*/
@@ -195,6 +197,8 @@ extern void isi_set_dma_codec_path(
 
 extern void isi_set_matrix_yuv2rgb (isi_yuv2rgc_t* yuv2rgb);
 extern void isi_set_matrix_rgb2yuv (isi_rgc2yuv_t* rgb2yuv);
+
+#endif /* CONFIG_HAVE_ISI */
 
 #endif //#ifndef ISI_H
 

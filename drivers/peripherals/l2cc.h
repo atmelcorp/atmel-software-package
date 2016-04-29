@@ -50,6 +50,8 @@
 #ifndef _L2CC_H
 #define _L2CC_H
 
+#ifdef CONFIG_HAVE_L2CC
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -344,4 +346,6 @@ extern void l2cc_configure(const struct _l2cc_control* cfg);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_HAVE_L2CC */
 #endif				/* #ifndef _L2CC_ */

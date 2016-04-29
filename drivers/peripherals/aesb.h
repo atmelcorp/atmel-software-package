@@ -30,6 +30,7 @@
 #ifndef _AESB_
 #define _AESB_
 
+#ifdef CONFIG_HAVE_AESB
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -67,5 +68,7 @@ extern void aesb_write_key(const uint32_t * pKey);
 extern void aesb_set_input(uint32_t * data);
 extern void aesb_get_output(uint32_t * data);
 extern void aesb_set_vector(const uint32_t * vector);
+
+#endif /* CONFIG_HAVE_AESB */
 
 #endif				/* #ifndef _AESB_ */

@@ -60,6 +60,7 @@
 #ifndef _GMACD_H_
 #define _GMACD_H_
 
+#ifdef CONFIG_HAVE_GMAC
 /*---------------------------------------------------------------------------
  *         Headers
  *---------------------------------------------------------------------------*/
@@ -185,5 +186,7 @@ extern uint8_t gmacd_set_tx_wakeup_callback(struct _gmacd *gmacd,
 		uint16_t threshold);
 
 /** @}*/
+
+#endif /* CONFIG_HAVE_GMAC */
 
 #endif /* _GMACD_H_ */

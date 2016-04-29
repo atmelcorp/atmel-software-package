@@ -48,6 +48,7 @@
 #ifndef _ADC_
 #define _ADC_
 
+#ifdef CONFIG_HAVE_ADC
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -396,4 +397,6 @@ extern void adc_set_low_resolution(uint8_t enable);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_HAVE_ADC */
 #endif /* _ADC_ */

@@ -30,6 +30,8 @@
 #ifndef _ICM_
 #define _ICM_
 
+#ifdef CONFIG_HAVE_ICM
+
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -93,5 +95,7 @@ extern uint32_t icm_get_access_status(void);
 extern void icm_set_desc_address(uint32_t addr);
 extern void icm_set_hash_address(uint32_t addr);
 extern void icm_set_init_hash(uint8_t field, uint32_t val);
+
+#endif /* CONFIG_HAVE_ICM */
 
 #endif				/* #ifndef _ICM_ */

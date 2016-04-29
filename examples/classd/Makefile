@@ -36,6 +36,8 @@ BINNAME = classd
 
 VARIANT ?= ddram
 
+CONFIG_HAVE_CLASSD = y
+
 obj-y += examples/classd/main.o
 
 include $(TOP)/scripts/Makefile.rules

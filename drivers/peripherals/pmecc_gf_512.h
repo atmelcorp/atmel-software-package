@@ -29,6 +29,7 @@
 #ifndef PMECC_GF_512_H
 #define PMECC_GF_512_H
 
+#ifdef CONFIG_HAVE_NAND_FLASH
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -47,6 +48,8 @@
 
 /** \brief Get the addresses of Galois Field tables for 512 bytes sectors */
 void pmecc_get_gf_512_tables(const int16_t **alpha_to, const int16_t **index_of);
+
+#endif /* CONFIG_HAVE_NAND_FLASH */
 
 #endif /* PMECC_GF_512_H */
 

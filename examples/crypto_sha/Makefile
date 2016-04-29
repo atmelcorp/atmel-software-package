@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_SHA = y
+
 BINNAME = crypto-sha
 
 obj-y += examples/crypto_sha/main.o

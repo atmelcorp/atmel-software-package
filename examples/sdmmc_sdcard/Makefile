@@ -35,6 +35,7 @@ TOP := ../..
 
 BINNAME = sdcard
 
+CONFIG_HAVE_SHA = y
 CONFIG_LIB_SDMMC = y
 CONFIG_LIB_FATFS = y
 

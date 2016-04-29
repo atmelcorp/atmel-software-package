@@ -30,7 +30,11 @@
 AVAILABLE_TARGETS = sama5d2-ptc-engi sama5d4-xplained
 AVAILABLE_VARIANTS = ddram
 
+VARIANT ?= ddram
+
 TOP := ../..
+
+CONFIG_HAVE_NAND_FLASH = y
 
 BINNAME = hsmc_nandflash_mlc
 

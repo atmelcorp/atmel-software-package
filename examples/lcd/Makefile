@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_LCDD = y
+
 BINNAME = lcd
 
 obj-y += examples/lcd/main.o

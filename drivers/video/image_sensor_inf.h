@@ -27,6 +27,11 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifndef IMAGE_SENSOR_INF_H
+#define IMAGE_SENSOR_INF_H
+
+#ifdef CONFIG_HAVE_IMAGE_SENSOR
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -148,3 +153,7 @@ extern sensor_status_t sensor_get_output(sensor_output_resolution_t resolution,
 						sensor_output_bit_t *bits,
 						uint32_t *width,
 						uint32_t *height);
+
+#endif /* CONFIG_HAVE_IMAGE_SENSOR */
+
+#endif /* ! IMAGE_SENSOR_INF_H */

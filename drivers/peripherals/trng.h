@@ -30,6 +30,8 @@
 #ifndef _TRNG_H_
 #define _TRNG_H_
 
+#ifdef CONFIG_HAVE_TRNG
+
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
@@ -77,5 +79,7 @@ extern void trng_disable_it(void);
  * \return a random value
  */
 extern uint32_t trng_get_random_data(void);
+
+#endif /* CONFIG_HAVE_TRNG */
 
 #endif /* _TRNG_H_ */

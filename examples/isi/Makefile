@@ -30,11 +30,14 @@
 AVAILABLE_TARGETS = sama5d4-ek
 AVAILABLE_VARIANTS = ddram
 
+VARIANT ?= ddram
+
 TOP := ../..
 
-BINNAME = isi
+CONFIG_HAVE_ISI = y
+CONFIG_HAVE_IMAGE_SENSOR = y
 
-VARIANT ?= ddram
+BINNAME = isi
 
 obj-y += examples/isi/main.o
 

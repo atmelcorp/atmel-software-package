@@ -53,6 +53,8 @@
 #ifndef _PHY_H
 #define _PHY_H
 
+#ifdef CONFIG_HAVE_GMAC
+
 /*---------------------------------------------------------------------------
  *         Headers
  *---------------------------------------------------------------------------*/
@@ -103,5 +105,7 @@ extern void phy_dump_registers(const struct _phy* phy);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_HAVE_GMAC */
 
 #endif /* _PHY_H_ */

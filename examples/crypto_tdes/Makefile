@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_TDES = y
+
 BINNAME = crypto-tdes
 
 obj-y += examples/crypto_tdes/main.o

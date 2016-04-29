@@ -30,6 +30,8 @@
 #ifndef _CLASSD_H
 #define _CLASSD_H
 
+#ifdef CONFIG_HAVE_CLASSD
+
 /*---------------------------------------------------------------------------
  *         Includes
  *---------------------------------------------------------------------------*/
@@ -121,5 +123,7 @@ extern void classd_set_right_attenuation(uint8_t attn);
 extern void classd_volume_mute(bool left, bool right);
 
 extern void classd_volume_unmute(bool left, bool right);
+
+#endif /* CONFIG_HAVE_CLASSD */
 
 #endif /* _CLASSD_H */

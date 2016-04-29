@@ -31,6 +31,8 @@ AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
 
+CONFIG_HAVE_GMAC = y
+
 BINNAME = gmac_uip_webserver
 
 VARIANT ?= ddram

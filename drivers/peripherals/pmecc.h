@@ -30,6 +30,7 @@
 #ifndef PMECC_H
 #define PMECC_H
 
+#ifdef CONFIG_HAVE_NAND_FLASH
 /*----------------------------------------------------------------------- */
 /*         Definition                                                     */
 /*----------------------------------------------------------------------- */
@@ -61,6 +62,8 @@ extern uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer);
 extern void build_gf(uint32_t mm, int32_t *index_of, int32_t *alpha_to);
 
 extern void pmecc_disable(void);
+
+#endif /* CONFIG_HAVE_NAND_FLASH */
 
 #endif
 

@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_GMAC = y
+
 BINNAME = gmac_uip_helloworld
 
 CONFIG_LIB_UIP = y

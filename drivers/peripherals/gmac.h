@@ -82,6 +82,8 @@
 #ifndef _GMAC_H_
 #define _GMAC_H_
 
+#ifdef CONFIG_HAVE_GMAC
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -357,5 +359,7 @@ extern void gmac_halt_transmission(Gmac* gmac);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_HAVE_GMAC */
 
 #endif /* _GMAC_H_ */

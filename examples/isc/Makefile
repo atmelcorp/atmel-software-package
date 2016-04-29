@@ -30,11 +30,15 @@
 AVAILABLE_TARGETS = sama5d2-xplained
 AVAILABLE_VARIANTS = sram
 
+VARIANT ?= sram
+
 TOP := ../..
 
-BINNAME = isc
+CONFIG_HAVE_ISC = y
+CONFIG_HAVE_IMAGE_SENSOR = y
+CONFIG_HAVE_LCDD = y
 
-VARIANT ?= sram
+BINNAME = isc
 
 obj-y += examples/isc/main.o
 

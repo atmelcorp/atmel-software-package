@@ -30,6 +30,8 @@
 #ifndef _TDES_
 #define _TDES_
 
+#ifdef CONFIG_HAVE_TDES
+
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
@@ -121,5 +123,7 @@ void tdes_set_vector(uint32_t v0, uint32_t v1);
  * \param rounds  Corresponds to rounds+1 complete round.
  */
 void tdes_set_xtea_rounds(uint32_t rounds);
+
+#endif /* CONFIG_HAVE_TDES */
 
 #endif				/* #ifndef _TDES_ */

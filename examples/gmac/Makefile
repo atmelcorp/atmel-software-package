@@ -29,6 +29,8 @@
 # Makefile for compiling the GMAC example
 TOP := ../..
 
+CONFIG_HAVE_GMAC = y
+
 BINNAME = gmac
 
 obj-y += examples/gmac/main.o

@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_TRNG = y
+
 BINNAME = trng
 
 obj-y += examples/trng/main.o

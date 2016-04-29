@@ -88,6 +88,9 @@
 
 #ifndef LCDD_H
 #define LCDD_H
+
+#ifdef CONFIG_HAVE_LCDD
+
 /** \addtogroup lcdd_base
  *  @{
  */
@@ -235,4 +238,7 @@ extern void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 /**  @}*/
+
+#endif /* CONFIG_HAVE_LCDD */
+
 #endif /* #ifndef LCDD_H */

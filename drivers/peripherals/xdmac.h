@@ -60,6 +60,8 @@
 #ifndef _XDMAC_H_
 #define _XDMAC_H_
 
+#ifdef CONFIG_HAVE_XDMAC
+
 /**@{*/
 
 /*------------------------------------------------------------------------------
@@ -436,5 +438,7 @@ extern uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel);
 #endif
 
 /**     @}*//**@}*/
+
+#endif /* CONFIG_HAVE_XDMAC */
 
 #endif /* _XDMAC_H_ */

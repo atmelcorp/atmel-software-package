@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_AES = y
+
 BINNAME = crypto-aes
 
 obj-y += examples/crypto_aes/main.o

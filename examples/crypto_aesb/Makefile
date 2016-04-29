@@ -30,6 +30,8 @@
 
 TOP := ../..
 
+CONFIG_HAVE_AESB = y
+
 BINNAME = crypto-aesb
 
 obj-y += examples/crypto_aesb/main.o
