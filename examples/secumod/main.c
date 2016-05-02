@@ -495,7 +495,6 @@ static void _show_tamper_info(struct _tamper_info *tamper_info)
 			_show_tamper_detail(1);
 		} else {
 			if (tamper_cnt >= 15) {
-				tamper_cnt = TAMPER_COUNTER_INVALID;
 				printf(" \n\r More than 15 tamper events occurred since last check.");
 			} else {
 				printf(" \n\r %u tamper events occurred since last check.",
