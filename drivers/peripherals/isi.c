@@ -246,6 +246,8 @@ void isi_set_sensor_size(uint32_t horizontal_size, uint32_t vertical_size)
 	// Vertical size = IM_VSIZE + 1
 	// IM_HSIZE: Horizontal size of the Image sensor [0..2047]
 	// Horizontal size = IM_HSIZE + 1
+	ISI->ISI_CFG2 &= (~ISI_CFG2_IM_VSIZE_Msk);
+	ISI->ISI_CFG2 &= (~ISI_CFG2_IM_HSIZE_Msk);
 	ISI->ISI_CFG2 |= ISI_CFG2_IM_VSIZE(vertical_size - 1)
 					| ISI_CFG2_IM_HSIZE(horizontal_size - 1);
 }
