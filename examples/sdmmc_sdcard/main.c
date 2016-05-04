@@ -360,8 +360,10 @@ static bool show_device_info(sSdCard *pSd)
 	}
 	if (card_type & CARD_TYPE_bmSDMMC)
 		SD_DumpCSD(pSd);
+#ifndef SDMMC_TRIM_MMC
 	if (card_type & CARD_TYPE_bmMMC)
 		SD_DumpExtCSD(pSd->EXT);
+#endif
 #ifndef SDMMC_TRIM_SDIO
 	if (card_type & CARD_TYPE_bmSDIO)
 		SDIO_DumpCardInformation(pSd);

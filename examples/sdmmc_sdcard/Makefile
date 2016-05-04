@@ -50,6 +50,7 @@ CFLAGS_INC += -I$(TOP)/examples/sdmmc_sdcard
 #
 # CFLAGS_DEFS += -DSDMMC_TRIM_INFO
 # CFLAGS_DEFS += -DSDMMC_TRIM_LOW_VOLTAGE
+# CFLAGS_DEFS += -DSDMMC_TRIM_MMC
 # CFLAGS_DEFS += -DSDMMC_TRIM_SDIO
 #
 # Uncomment the few definitions below if you wish to selectively override the
