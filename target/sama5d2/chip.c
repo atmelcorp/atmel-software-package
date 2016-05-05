@@ -496,3 +496,21 @@ int32_t get_peripheral_fifo_depth(void* addr)
 	}
 	return size;
 }
+
+uint32_t get_classd_id_from_addr(const Classd* addr)
+{
+	if (addr == CLASSD)
+		return ID_CLASSD;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+uint32_t get_ssc_id_from_addr(const Ssc* addr)
+{
+	if (addr == SSC0)
+		return ID_SSC0;
+	else if (addr == SSC1)
+		return ID_SSC1;
+	else
+		return ID_PERIPH_COUNT;
+}

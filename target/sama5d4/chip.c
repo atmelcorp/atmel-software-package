@@ -364,3 +364,13 @@ bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac)
 {
 	return get_peripheral_xdma(id, xdmac) != NULL;
 }
+
+uint32_t get_ssc_id_from_addr(const Ssc* addr)
+{
+	if (addr == SSC0)
+		return ID_SSC0;
+	else if (addr == SSC1)
+		return ID_SSC1;
+	else
+		return ID_PERIPH_COUNT;
+}

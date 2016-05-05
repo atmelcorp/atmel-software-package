@@ -425,6 +425,13 @@ extern bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
  */
 extern int32_t get_peripheral_fifo_depth(void* addr);
 
+/**
+ *
+ */
+extern uint32_t get_classd_id_from_addr(const Classd* addr);
+
+extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
+
 #ifdef __cplusplus
 }
 #endif
