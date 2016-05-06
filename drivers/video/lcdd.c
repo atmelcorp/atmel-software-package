@@ -39,6 +39,7 @@
 #include "video/lcdd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
+#include "peripherals/l2cc.h"
 
 #include "cortex-a/cp15.h"
 
@@ -279,7 +280,7 @@ static void _set_dma_desc(void *buffer, struct _lcdc_dma_desc *desc,
 	desc->addr = (uint32_t)buffer;
 	desc->ctrl = LCDC_BASECTRL_DFETCH;
 	desc->next = (uint32_t)desc;
-
+	l2cc_clean_region((uint32_t)desc, (uint32_t)desc + sizeof(struct _lcdc_dma_desc));
 	/* Modify registers */
 	dma_head_reg[1] = (uint32_t)buffer;
 	dma_head_reg[2] = LCDC_BASECTRL_DFETCH;
@@ -296,6 +297,7 @@ static void _clear_dma_desc(struct _lcdc_dma_desc *desc,
 	if (desc) {
 		desc->ctrl &= ~LCDC_BASECTRL_DFETCH;
 		desc->next = (uint32_t)desc;
+		l2cc_clean_region((uint32_t)desc, (uint32_t)desc + sizeof(struct _lcdc_dma_desc));
 	}
 
 	/* Modify registers */
