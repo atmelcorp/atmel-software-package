@@ -118,8 +118,8 @@
 
 /** DMA memory address for DMA package 8/16 and DMA YC422P */
 #define ISC_OUTPUT_BASE_ADDRESS  (DDR_CS_ADDR + 16 * 1024 * 1024)
-#define ISC_OUTPUT_BASE_ADDRESS1  (ISC_OUTPUT_BASE_ADDRESS + 0x400000)
-#define ISC_OUTPUT_BASE_ADDRESS2  (ISC_OUTPUT_BASE_ADDRESS1 + 0x400000)
+#define ISC_OUTPUT_BASE_ADDRESS1  (ISC_OUTPUT_BASE_ADDRESS + 0x100000)
+#define ISC_OUTPUT_BASE_ADDRESS2  (ISC_OUTPUT_BASE_ADDRESS1 + 0x100000)
 
 /** DMA memory address for Histogram */
 #define ISC_HIS_BASE_ADDRESS  (0x22000000)
@@ -197,12 +197,12 @@ const struct _pin pins_isc[]= ISC_PINS;
 const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
-ALIGNED(64)
-static struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
+ALIGNED(L1_CACHE_BYTES)
+static struct _isc_dma_view0 dma_descs[ROUND_UP_MULT(ROUND_UP_MULT((ISC_MAX_NUM_FRAME_BUFFER + 1) * sizeof(struct _isc_dma_view0), L1_CACHE_BYTES), sizeof(struct _isc_dma_view0)) / sizeof(struct _isc_dma_view0)];
 
 /** Descriptor view 2 is used for YCbCr planar pixel stream. */
-ALIGNED(64)
-static struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
+ALIGNED(L1_CACHE_BYTES)
+static struct _isc_dma_view2 dma_descs2[ROUND_UP_MULT(ROUND_UP_MULT((ISC_MAX_NUM_FRAME_BUFFER + 1) * sizeof(struct _isc_dma_view2), L1_CACHE_BYTES), sizeof(struct _isc_dma_view2)) / sizeof(struct _isc_dma_view2)];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -687,6 +687,8 @@ static void configure_dma_linklist(void)
 			dma_descs2[i].stride2 = 0;
 		}
 		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
+		l2cc_clean_region((uint32_t)dma_descs2, ((uint32_t)dma_descs2) + sizeof(dma_descs2));
+
 	} else if ((lcd_mode == LCD_MODE_YUV422_SEMIPLANAR) \
 				|| (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR)){
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
