@@ -138,14 +138,6 @@
 /** TWI clock frequency in Hz. */
 #define TWCK                  400000
 
-
-
-//#define OV9740
-#define OV7740
-//#define OV5640
-//#define OV2643
-
-
 /* GAMMA and HISTOGRAM definitions */
 #define GAMMA_28
 #define GAMMA_ENTRIES   64
@@ -187,6 +179,16 @@ static const struct _lcdd_desc lcd_desc = {
 	.timing_hpw = BOARD_LCD_TIMING_HPW,
 };
 
+/** Supported sensor profiles */
+static const sensor_profile_t *sensor_profiles[6] = {
+	&ov2640_profile,
+	&ov2643_profile,
+	&ov5640_profile,
+	&ov7670_profile,
+	&ov7740_profile,
+	&ov9740_profile
+};
+
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
 const struct _pin pin_rst = ISC_PIN_RST;
@@ -218,6 +220,8 @@ static uint8_t *pHeoBuffer2 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS2;
 
 /* Image size in preview mode */
 static uint32_t image_width, image_height;
+
+static uint8_t sensor_idx;
 
 /* Image output bit width */
 static sensor_output_bit_t sensor_output_bit_width;
@@ -860,6 +864,7 @@ static bool auto_white_balance(void)
  */
 extern int main(void)
 {
+	int i;
 	uint8_t key;
 
 	wdt_disable();
@@ -897,18 +902,26 @@ extern int main(void)
 	}
 	xdmad_prepare_channel(xdmad_channel);
 
-reSensor:
+	printf("Image Sensor Selection:\n\r");
+	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
+		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
+	for(;;) {
+		printf("Press [1..%d] to select supported sensor\n\r",
+			ARRAY_SIZE(sensor_profiles));
+		key = console_get_char();
+		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
+			sensor_idx = key - '1';
+			break;
+		}
+	}
+	
+restart_sensor:
+
 	/* Reset Sensor board */
 	sensor_reset();
-#if defined OV2643
-	printf("------------ OV2643 -------------\n\r");
-#elif defined OV5640
-	printf("------------ OV5640 -------------\n\r");
-#elif defined OV7740
-	printf("------------ OV7740 -------------\n\r");
-#elif defined OV9740
-	printf("------------ OV9740 -------------\n\r");
-#endif
+
+	printf("------------ %s -------------\n\r",
+		sensor_profiles[sensor_idx]->name);
 	printf("- 'Y' Test YUV mode input       -\n\r");
 	printf("- 'B' Test RAW BAYER mode input -\n\r");
 	printf("---------------------------------\n\r");
@@ -924,21 +937,9 @@ reSensor:
 		}
 	}
 
-#if defined OV2643
-	if (sensor_setup(&twid, &ov2643_profile, QVGA, sensor_mode)
-	   != SENSOR_OK){
-#elif defined OV5640
-	if (sensor_setup(&twid, &ov5640_profile, QVGA, sensor_mode)
-	   != SENSOR_OK){
-#elif defined OV7740
-	if (sensor_setup(&twid, &ov7740_profile, QVGA, sensor_mode)
-	   != SENSOR_OK){
-#elif defined OV9740
-	if (sensor_setup(&twid, &ov9740_profile, QVGA, sensor_mode)
-	   != SENSOR_OK){
-#endif
-		printf("-E- Sensor setup failed \n\r");
-		while(1);
+	if (sensor_setup(&twid, sensor_profiles[sensor_idx], QVGA, sensor_mode) != SENSOR_OK){
+		printf("-E- Sensor setup failed.");
+		while (1);
 	}
 
 	/* Retrieve sensor output format and size */
@@ -1003,5 +1004,5 @@ reSensor:
 			}
 		}
 	}
-	goto reSensor;
+	goto restart_sensor;
 }

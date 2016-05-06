@@ -160,11 +160,13 @@ static const struct _lcdd_desc lcd_desc = {
 };
 
 /** Supported sensor profiles */
-static const sensor_profile_t *sensor_profiles[5] = {&ov2640_profile,
-                                                  &ov2643_profile,
-                                                  &ov5640_profile,
-                                                  &ov7740_profile,
-                                                  &ov9740_profile
+static const sensor_profile_t *sensor_profiles[6] = {
+	&ov2640_profile,
+	&ov2643_profile,
+	&ov5640_profile,
+	&ov7670_profile,
+	&ov7740_profile,
+	&ov9740_profile
 };
 
 /** PIO pins to configured. */
@@ -350,6 +352,7 @@ static void configure_isi(void)
  */
 extern int main( void )
 {
+	int i;
 	uint8_t key;
 	volatile uint32_t delay;
 
@@ -376,16 +379,15 @@ extern int main( void )
 	configure_isi_clock();
 	sensor_reset();
 
-	printf("Press [0|1|2|3|4][5] to select supported sensor \n\r");
-	printf("- '0' omnivision 2640 \n\r");
-	printf("- '1' omnivision 2643 \n\r");
-	printf("- '2' omnivision 5640 \n\r");
-	printf("- '3' omnivision 7740 \n\r");
-	printf("- '4' omnivision 9740 \n\r");
+	printf("Image Sensor Selection:\n\r");
+	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
+		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
 	for(;;) {
+		printf("Press [1..%d] to select supported sensor\n\r",
+			ARRAY_SIZE(sensor_profiles));
 		key = console_get_char();
-		if ((key >= '0') && (key <='5')) {
-			if (sensor_setup(&twid, sensor_profiles[key- '0'], VGA, YUV_422) != SENSOR_OK){
+		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
+			if (sensor_setup(&twid, sensor_profiles[key - '1'], VGA, YUV_422) != SENSOR_OK){
 				printf("-E- Sensor setup failed.");
 				while (1);
 			} else {
@@ -393,6 +395,7 @@ extern int main( void )
 			}
 		}
 	}
+
 	/* Retrieve sensor output format and size */
 	sensor_get_output(VGA, YUV_422, &sensor_bit_width, &image_width, &image_height);
 	image_format = (sensor_output_format_t)YUV_INPUT;
