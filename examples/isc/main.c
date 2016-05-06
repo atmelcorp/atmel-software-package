@@ -187,19 +187,6 @@ static const struct _lcdd_desc lcd_desc = {
 	.timing_hpw = BOARD_LCD_TIMING_HPW,
 };
 
- /* Profile for omnivision 7740 */
-#if defined OV2643
-extern const sensor_profile_t ov2643_profile;
-#elif defined OV5640
-extern const sensor_profile_t ov5640_profile;
-#elif defined OV7740
-extern const sensor_profile_t ov7740_profile;
-#elif defined OV9740
-extern const sensor_profile_t ov9740_profile;
-#else
-#error No image sensor defined!
-#endif
-
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
 const struct _pin pin_rst = ISC_PIN_RST;

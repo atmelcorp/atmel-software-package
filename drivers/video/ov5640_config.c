@@ -53,7 +53,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensor_reg_t ov5640_raw_qvga[] = {
+static const sensor_reg_t ov5640_raw_qvga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -184,7 +184,7 @@ const sensor_reg_t ov5640_raw_qvga[] = {
 };
 
 
-const sensor_reg_t ov5640_yuv_qvga[] = {
+static const sensor_reg_t ov5640_yuv_qvga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -487,7 +487,7 @@ const sensor_reg_t ov5640_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov5640_yuv_vga[] = {
+static const sensor_reg_t ov5640_yuv_vga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -787,7 +787,7 @@ const sensor_reg_t ov5640_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov5640_yuv_wxga[] = {
+static const sensor_reg_t ov5640_yuv_wxga[] = {
 	{0x3103, 0x11},
 	{0x3008, 0x82},
 	{0xFFFF, 0x05},
@@ -1135,7 +1135,7 @@ const sensor_reg_t ov5640_yuv_wxga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov5640_afc[] = {
+static const sensor_reg_t ov5640_afc[] = {
 	{0x3000, 0x20},
 	{0x8000, 0x02},
 	{0x8001, 0x0f},
@@ -5239,23 +5239,24 @@ const sensor_reg_t ov5640_afc[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_output_t ov5640_output_yuv_qvga =
-{0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov5640_yuv_qvga};
+static const sensor_output_t ov5640_output_yuv_qvga =
+{ 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov5640_yuv_qvga };
 
-const sensor_output_t ov5640_output_raw_qvga =
-{0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov5640_raw_qvga};
+static const sensor_output_t ov5640_output_raw_qvga =
+{ 0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov5640_raw_qvga };
 
-const sensor_output_t ov5640_output_vga =
-{0, VGA, YUV_422, BIT_8, 1, 640, 480, ov5640_yuv_vga};
+static const sensor_output_t ov5640_output_vga =
+{ 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov5640_yuv_vga };
 
-const sensor_output_t ov5640_output_wxga =
-{0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov5640_yuv_wxga};
+static const sensor_output_t ov5640_output_wxga =
+{ 0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov5640_yuv_wxga };
 
-const sensor_output_t ov5640_output_af =
-{1, (sensor_output_resolution_t)0, (sensor_output_format_t)0, (sensor_output_bit_t)0, 1, 0, 0, ov5640_afc};
+static const sensor_output_t ov5640_output_af =
+{ 1, (sensor_output_resolution_t)0, (sensor_output_format_t)0, (sensor_output_bit_t)0, 1, 0, 0, ov5640_afc };
 
 const sensor_profile_t ov5640_profile =
 {
+	"OV5640",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_2BYTE_DATA_BYTE,  /* TWI interface mode  */
 	OV5640_SLAVE_ADDRESS,            /* TWI slave address */

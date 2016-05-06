@@ -55,7 +55,7 @@
  *------------------------------------------------------------------------------*/
 
 /* 320*240 */
-const sensor_reg_t ov2640_yuv_qvga[] = {
+static const sensor_reg_t ov2640_yuv_qvga[] = {
 	{0xff, 0x01},
 	{0x12, 0x80},
 	{0xff, 0x00},
@@ -285,7 +285,7 @@ const sensor_reg_t ov2640_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov2640_yuv_vga[] = {
+static const sensor_reg_t ov2640_yuv_vga[] = {
 	{0xff, 0x01}, //dsp
 	{0x12, 0x80}, //reset
 	{0xff, 0x00}, //sensor
@@ -523,14 +523,15 @@ const sensor_reg_t ov2640_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_output_t ov2640_output_qvga =
-{0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov2640_yuv_qvga};
+static const sensor_output_t ov2640_output_qvga =
+{ 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov2640_yuv_qvga };
 
-const sensor_output_t ov2640_output_vga =
-{0, VGA, YUV_422, BIT_8, 1, 640, 480, ov2640_yuv_vga};
+static const sensor_output_t ov2640_output_vga =
+{ 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov2640_yuv_vga };
 
 const sensor_profile_t ov2640_profile =
 {
+	"OV2640",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
 	OV2640_SLAVE_ADDRESS,            /* TWI slave address */

@@ -53,7 +53,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensor_reg_t ov7740_yuv_vga[] = {
+static const sensor_reg_t ov7740_yuv_vga[] = {
 
 	{0x12, 0x80},
 	/* flag for soft reset delay */
@@ -201,7 +201,7 @@ const sensor_reg_t ov7740_yuv_vga[] = {
  *  - 320*240 pixel by picture (QVGA)
  *  - pixel data in YUV
  */
-const sensor_reg_t ov7740_qvga_yuv[] = {
+static const sensor_reg_t ov7740_qvga_yuv[] = {
 	{0x12, 0x80},
 	/* flag for soft reset delay */
 	{0x55 ,0x40},
@@ -355,7 +355,7 @@ const sensor_reg_t ov7740_qvga_yuv[] = {
  *  - 320*240 pixel by picture (QVGA)
  *  - pixel data in YUV
  */
-const sensor_reg_t ov7740_qvga_raw[] = {
+static const sensor_reg_t ov7740_qvga_raw[] = {
 	{0x12, 0x80},
 	/* flag for soft reset delay */
 	{0x55 ,0x40},
@@ -502,17 +502,18 @@ const sensor_reg_t ov7740_qvga_raw[] = {
 	
 };
 
-const sensor_output_t ov7740_output_vga =
-{0, VGA, YUV_422, BIT_8, 1, 640, 480, ov7740_yuv_vga};
+static const sensor_output_t ov7740_output_vga =
+{ 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov7740_yuv_vga };
 
-const sensor_output_t ov7740_output_qvga =
-{0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov7740_qvga_yuv};
+static const sensor_output_t ov7740_output_qvga =
+{ 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov7740_qvga_yuv };
 
-const sensor_output_t ov7740_output_qvga_raw =
-{0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov7740_qvga_raw};
+static const sensor_output_t ov7740_output_qvga_raw =
+{ 0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov7740_qvga_raw };
 
 const sensor_profile_t ov7740_profile =
 {
+	"OV7740",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
 	OV7740_SLAVE_ADDRESS,            /* TWI slave address */

@@ -195,7 +195,7 @@
 #define REG_HAECC7      0xaa    /* Hist AEC/AGC control 7 */
 #define REG_BD60MAX     0xab    /* 60hz banding step limit */
 
-const sensor_reg_t ov7670_yuv_vga[] = {
+static const sensor_reg_t ov7670_yuv_vga[] = {
 	{ REG_COM7, COM7_RESET },
 
 	{ REG_CLKRC, 0x1 },     /* OV: clock scale (30 fps) */
@@ -379,7 +379,7 @@ const sensor_reg_t ov7670_yuv_vga[] = {
 	{ 0xff, 0xff }, /* END MARKER */
 };
 
-const sensor_reg_t ov7670_qvga_raw[] = {
+static const sensor_reg_t ov7670_qvga_raw[] = {
 	{ REG_COM7, COM7_RESET },
 
 	{ REG_CLKRC, 0x1 },     /* OV: clock scale (30 fps) */
@@ -569,7 +569,7 @@ const sensor_reg_t ov7670_qvga_raw[] = {
 	{ 0xff, 0xff }, /* END MARKER */
 };
 
-const sensor_reg_t ov7670_qvga_yuv[] = {
+static const sensor_reg_t ov7670_qvga_yuv[] = {
 	{ REG_COM7, COM7_RESET },
 	{ REG_CLKRC, 0x1 },     /* OV: clock scale (30 fps) */
 	{ REG_TSLB,  0x04 },    /* OV */
@@ -752,17 +752,18 @@ const sensor_reg_t ov7670_qvga_yuv[] = {
 	{ 0xff, 0xff }, /* END MARKER */
 };
 
-const sensor_output_t ov7670_output_vga =
-{0, VGA, YUV_422, BIT_8, 1, 640, 480, ov7670_yuv_vga};
+static const sensor_output_t ov7670_output_vga =
+{ 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov7670_yuv_vga };
 
-const sensor_output_t ov7670_output_qvga =
-{0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov7670_qvga_yuv};
+static const sensor_output_t ov7670_output_qvga =
+{ 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov7670_qvga_yuv };
 
-const sensor_output_t ov7670_output_qvga_raw =
-{0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov7670_qvga_raw};
+static const sensor_output_t ov7670_output_qvga_raw =
+{ 0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov7670_qvga_raw };
 
 const sensor_profile_t ov7670_profile =
 {
+	"OV7670",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
 	OV7670_SLAVE_ADDRESS,            /* TWI slave address */

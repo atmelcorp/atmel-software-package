@@ -108,10 +108,10 @@ typedef enum _sensor_output_bit {
 typedef struct _sensor_reg {
 	uint16_t reg; /* Register to be written */
 	uint16_t val; /* value to be written */
-}sensor_reg_t;
+} sensor_reg_t;
 
 typedef struct _sensor_output {
-	uint8_t type ;                              /** Index 0: normal, 1: AF setting*/
+	uint8_t type;                              /** Index 0: normal, 1: AF setting*/
 	sensor_output_resolution_t output_resolution; /** sensor output resolution */
 	sensor_output_format_t output_format;         /** sensor output format */
 	sensor_output_bit_t output_bit;               /** sensor output bit width */
@@ -119,11 +119,12 @@ typedef struct _sensor_output {
 	uint32_t output_width;                      /** output width */
 	uint32_t output_height;                     /** output height */
 	const sensor_reg_t *output_setting;          /** sensor registers setting */
-}sensor_output_t;
+} sensor_output_t;
 
 /** define a structure for sensor profile */
 typedef struct _sensor_profile {
-	sensor_type_t cmos_ccd;        /** Sensor type for CMOS sensor or CCD */
+	const char* name;             /** Sensor name */
+	sensor_type_t cmos_ccd;       /** Sensor type for CMOS sensor or CCD */
 	sensor_twi_mode_t twi_inf_mode; /** TWI interface mode  */
 	uint32_t twi_slave_addr;      /** TWI slave address */
 	uint16_t pid_high_reg;        /** Register address for product ID high byte */
@@ -132,7 +133,19 @@ typedef struct _sensor_profile {
 	uint16_t pid_low;             /** product ID low byte */
 	uint16_t version_mask;        /** version mask */
 	const sensor_output_t *output_conf[SENSOR_SUPPORTED_OUTPUTS]; /** sensor settings */
-}sensor_profile_t;
+} sensor_profile_t;
+
+/*----------------------------------------------------------------------------
+ *        Exported sensor profiles
+ *----------------------------------------------------------------------------*/
+
+extern const sensor_profile_t mt9v022_profile;
+extern const sensor_profile_t ov2640_profile;
+extern const sensor_profile_t ov2643_profile;
+extern const sensor_profile_t ov5640_profile;
+extern const sensor_profile_t ov7670_profile;
+extern const sensor_profile_t ov7740_profile;
+extern const sensor_profile_t ov9740_profile;
 
 /*----------------------------------------------------------------------------
  *        Exported functions

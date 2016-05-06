@@ -159,12 +159,6 @@ static const struct _lcdd_desc lcd_desc = {
 	.timing_hpw = BOARD_LCD_TIMING_HPW,
 };
 
-extern const sensor_profile_t ov2640_profile;
-extern const sensor_profile_t ov2643_profile;
-extern const sensor_profile_t ov5640_profile;
-extern const sensor_profile_t ov7740_profile;
-extern const sensor_profile_t ov9740_profile;
-
 /** Supported sensor profiles */
 static const sensor_profile_t *sensor_profiles[5] = {&ov2640_profile,
                                                   &ov2643_profile,

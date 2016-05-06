@@ -53,7 +53,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-const sensor_reg_t ov9740_yuv_vga[] = {
+static const sensor_reg_t ov9740_yuv_vga[] = {
 	/* VGA 640x360 bin YUV DVP 60FPS (Full speed) */
 	{0x0103, 0x01},
 	{0x3026, 0x00},
@@ -331,7 +331,7 @@ const sensor_reg_t ov9740_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov9740_yuv_wxga[] = {
+static const sensor_reg_t ov9740_yuv_wxga[] = {
 	/* WXGA 1280x720 YUV DVP 15FPS for card reader */
 	{0x0103, 0x01},
 	{0x3026, 0x00},
@@ -610,7 +610,7 @@ const sensor_reg_t ov9740_yuv_wxga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_reg_t ov9740_raw_qvga[] = {
+static const sensor_reg_t ov9740_raw_qvga[] = {
 
 	/* Software RESET */
 	{0x0103, 0x01},
@@ -1057,7 +1057,7 @@ const sensor_reg_t ov9740_raw_qvga[] = {
 };
 
 
-const sensor_reg_t ov9740_yuv_qvga[] = {
+static const sensor_reg_t ov9740_yuv_qvga[] = {
 
 	/* Software RESET */
 	{0x0103, 0x01},
@@ -1427,20 +1427,21 @@ const sensor_reg_t ov9740_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-const sensor_output_t ov9740_output_vga =
-{0, VGA, YUV_422, BIT_8, 1, 640, 360, ov9740_yuv_vga};
+static const sensor_output_t ov9740_output_vga =
+{ 0, VGA, YUV_422, BIT_8, 1, 640, 360, ov9740_yuv_vga };
 
-const sensor_output_t ov9740_output_wxga =
-{0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov9740_yuv_wxga};
+static const sensor_output_t ov9740_output_wxga =
+{ 0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov9740_yuv_wxga };
 
-const sensor_output_t ov9740_output_qvga_raw =
-{0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov9740_raw_qvga};
+static const sensor_output_t ov9740_output_qvga_raw =
+{ 0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov9740_raw_qvga };
 
-const sensor_output_t ov9740_output_qvga_yuv =
-{0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov9740_yuv_qvga};
+static const sensor_output_t ov9740_output_qvga_yuv =
+{ 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov9740_yuv_qvga };
 
 const sensor_profile_t ov9740_profile =
 {
+	"OV9740",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_2BYTE_DATA_BYTE,  /* TWI interface mode  */
 	OV9740_SLAVE_ADDRESS,            /* TWI slave address */
@@ -1459,4 +1460,3 @@ const sensor_profile_t ov9740_profile =
 		0
 	}
 };
-
