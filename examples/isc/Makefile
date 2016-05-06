@@ -28,9 +28,9 @@
 
 # Makefile for compiling the ISC example
 AVAILABLE_TARGETS = sama5d2-xplained
-AVAILABLE_VARIANTS = sram
+AVAILABLE_VARIANTS = ddram
 
-VARIANT ?= sram
+VARIANT ?= ddram
 
 TOP := ../..
 
