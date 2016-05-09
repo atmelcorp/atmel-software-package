@@ -58,6 +58,11 @@
 
 #include "board_support.h"
 
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+#include "peripherals/twid.h"
+#include "power/act8945a.h"
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local types
  *----------------------------------------------------------------------------*/
@@ -85,6 +90,28 @@ const static struct _l2cc_control l2cc_cfg = {
 	.standby_mode = true,
 	.dyn_clock_gating = true
 };
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+static struct _twi_desc act8945a_twid = {
+	.addr = ACT8945A_ADDR,
+	.freq = ACT8945A_FREQ,
+	.transfert_mode = TWID_MODE_POLLING
+};
+
+static struct _act8945a act8945a = {
+	.desc = {
+		.pin_chglev = ACT8945A_PIN_CHGLEV,
+		.pin_irq = ACT8945A_PIN_IRQ,
+		.pin_lbo = ACT8945A_PIN_LBO
+	}
+};
+
+static bool act8945a_initialized = false;
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -531,6 +558,19 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		struct _pin vsel_pin = PIN_SDMMC0_VDDSEL_IOS1;
 		int vsel_ix;
 
+#ifndef SDMMC_TRIM_LOW_VOLTAGE
+		/* Set PMIC output 7 to 1.8V (VDDSDHC1V8) */
+		if (!act8945a_initialized) {
+			board_cfg_pmic();
+			if (!act8945a_initialized)
+				return false;
+		}
+		if (!act8945a_set_regulator_voltage(&act8945a, 7, 1800))
+			return false;
+		if (!act8945a_enable_regulator(&act8945a, 7, true))
+			return false;
+#endif
+
 		/* The PIOs of SDMMC0 normally include SDMMC0_VDDSEL. On regular
 		 * SAMA5D2-XULT, the SDMMC0_VDDSEL line has a pull-down resistor
 		 * hence at power-on time VCCQ is 3.3V. In this default config
@@ -556,7 +596,9 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 				 * triggered, VCCQ would switch to 3.3V. */
 				pins[vsel_ix].type = PIO_OUTPUT_1;
 				pins[vsel_ix].attribute = PIO_DEFAULT;
-				/* Force capabilities to 1.8V */
+				/* Deviation from the specification: we use the
+				 * Voltage Support capabilities to indicate the
+				 * supported signaling levels (VCCQ). */
 				caps0 &= ~SDMMC_CA0R_V33VSUP;
 				caps0 &= ~SDMMC_CA0R_V30VSUP;
 				caps0 |= SDMMC_CA0R_V18VSUP;
@@ -595,4 +637,31 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	}
 
 #undef CAPS0_MASK
+}
+
+void board_cfg_pmic()
+{
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+	const struct _pin pins[] = ACT8945A_PINS;
+
+	if (act8945a_initialized)
+		return;
+
+	if (!pio_configure(pins, ARRAY_SIZE(pins)))
+		goto Fail;
+	if (!act8945a_configure(&act8945a, &act8945a_twid))
+		goto Fail;
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED) || defined(CONFIG_BOARD_SAMA5D2_PTC_ENGI)
+	/* Set PMIC output 6 to 2.5V (VDD_LED) */
+	if (!act8945a_set_regulator_voltage(&act8945a, 6, 2500))
+		goto Fail;
+	if (!act8945a_enable_regulator(&act8945a, 6, true))
+		goto Fail;
+#endif
+	act8945a_initialized = true;
+	return;
+
+Fail:
+	trace_error("Error initializing ACT8945A PMIC\r\n");
+#endif
 }

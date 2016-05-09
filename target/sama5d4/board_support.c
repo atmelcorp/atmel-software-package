@@ -56,6 +56,10 @@
 
 #include "board_support.h"
 
+#ifdef CONFIG_HAVE_PMIC_ACT8865
+#include "power/act8865.h"
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
@@ -461,5 +465,40 @@ void board_cfg_nor_flash(void)
 	hsmc_nor_configure(BOARD_NORFLASH_CS, BOARD_NORFLASH_BUS_WIDTH);
 #else
 	trace_fatal("Cannot configure NOR: target board have no NOR definitions!");
+#endif
+}
+
+void board_cfg_pmic()
+{
+#ifdef CONFIG_HAVE_PMIC_ACT8865
+	struct _twi_desc act8865_twid = {
+		.addr = ACT8865_ADDR,
+		.freq = ACT8865_FREQ,
+		.transfert_mode = TWID_MODE_POLLING
+	};
+	struct _pin act8865_pins[] = ACT8865_PINS;
+	struct _act8865 pmic = {
+		.twid = &act8865_twid
+	};
+
+	/* configure and enable the PMIC TWI */
+	pio_configure(act8865_pins, ARRAY_SIZE(act8865_pins));
+	twid_configure(pmic.twid);
+
+	/* check PMIC chip presence */
+	if (act8865_check_twi_status(&pmic)) {
+#if defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+		/* Setup PMIC output 5 to 3.3V (VDDANA) */
+		act8865_set_reg_voltage(&pmic, REG5_0, ACT8865_3V3);
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+		/* Setup PMIC output 5 to 3.3V (VDDANA, 3V3_AUDIO) */
+		act8865_set_reg_voltage(&pmic, REG5_0, ACT8865_3V3);
+		/* Setup PMIC output 6 to 1.8V (1V8_AUDIO) */
+		act8865_set_reg_voltage(&pmic, REG6_0, ACT8865_1V8);
+#endif
+	} else {
+		trace_error("Error initializing ACT8865 PMIC\n\r");
+		return;
+	}
 #endif
 }

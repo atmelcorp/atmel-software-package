@@ -194,4 +194,12 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== ACT8865 PMIC definition ====================== */
+
+#define ACT8865_PINS PINS_TWI3
+#define ACT8865_ADDR TWI3
+#define ACT8865_FREQ 400000
+#define ACT8865_PIN_IRQ \
+	{ PIO_GROUP_E, PIO_PE25, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+
 #endif /* _BOARD_SAMA5D4_XPLAINED_H */

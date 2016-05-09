@@ -111,4 +111,9 @@ extern void board_cfg_nand_flash(void);
  */
 extern bool board_cfg_sdmmc(uint32_t sdmmc_id);
 
+/**
+ * \brief Configures pmic for the board
+ */
+extern void board_cfg_pmic(void);
+
 #endif  /* BOARD_MEMORIES_H */

@@ -102,4 +102,9 @@ extern void board_cfg_nand_flash(void);
  */
 extern void board_cfg_nor_flash(void);
 
+/**
+ * \brief Configures pmic for the board
+ */
+extern void board_cfg_pmic(void);
+
 #endif /* #ifndef BOARD_MEMORIES_H */
