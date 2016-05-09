@@ -442,6 +442,7 @@ typedef struct _SdCard {
 	uint32_t dwCurrSpeed;	/**< Transfer speed used */
 	uint16_t wAddress;	/**< Current card address */
 	uint8_t bCardType;	/**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
+	uint8_t bCardSigLevel;	/**< low/high signaling level used by the card */
 	uint8_t bSpeedMode;	/**< Timing mode */
 	uint8_t bBusMode;	/**< 1/4/8 bit data bus mode */
 	uint8_t bSlot;		/**< Card access slot */

@@ -136,12 +136,33 @@
       (uint32_t)((uint8_t*)(pD))[(iByte) + 3] << 24 )
 /**     @} */
 
+/** \addtogroup sdmmc_ifc_acc SD SEND_IF_COND command argument fields (SD 2.0)
+ *      @{
+ */
+#define SD_IFC_CHK_PATTERN_Pos  0		/**< Check pattern */
+#define SD_IFC_CHK_PATTERN_Msk  (0xffu << SD_IFC_CHK_PATTERN_Pos)
+#define   SD_IFC_CHK_PATTERN_STD  (0xaau << 0)
+#define SD_IFC_VHS_Pos          8		/**< Host Supplied Voltage range */
+#define SD_IFC_VHS_Msk          (0xfu << SD_IFC_VHS_Pos)
+#define   SD_IFC_VHS_27_36        (0x1u << 8)
+#define   SD_IFC_VHS_LOW          (0x2u << 8)
+/**     @}*/
+
+/** \addtogroup sdmmc_opc_acc SD_SEND_OP_COND command argument fields
+ *      @{
+ */
+#define SD_OPC_S18R             (1ul << 24)	/**< Switching to 1.8V signaling level Request */
+#define SD_OPC_XPC              (1ul << 28)	/**< SDXC Power Control */
+#define SD_OPC_FB               (1ul << 29)	/**< eSD Fast Boot */
+#define SD_OPC_HCS              (1ul << 30)	/**< Host Capacity Support */
+/**     @}*/
+
 /** \addtogroup sdmmc_ocr_acc SD/MMC OCR register fields (SD 2.0 & MMC 4.3)
  *      @{
  */
 #define SD_OCR_VDD_LOW          (1ul <<  7)	/**< SD: Reserved for Low Voltage Range */
 #define MMC_OCR_VDD_170_195     (1ul <<  7)	/**< MMC: 1.7 ~ 1.95V, Dual vol and eMMC is 1 */
-#define MMC_OCR_VDD_200_260     (0x3Ful << 8)	/**< MMC: 2.0 ~ 2.6 V */
+#define MMC_OCR_VDD_200_270     (0x7Ful << 8)	/**< MMC: 2.0 ~ 2.7 V */
 #define SD_OCR_VDD_20_21        (1ul <<  8)
 #define SD_OCR_VDD_21_22        (1ul <<  9)
 #define SD_OCR_VDD_22_23        (1ul << 10)
@@ -159,13 +180,15 @@
 #define SD_OCR_VDD_34_35        (1ul << 22)
 #define SD_OCR_VDD_35_36        (1ul << 23)
 
+#define SD_OCR_S18A             (1ul << 24)	/**< Switching to 1.8V signaling level Accepted */
 #define SDIO_OCR_MP             (0x1ul << 27)	/**< SDIO: Memory present */
 #define SDIO_OCR_NF             (0x3ul << 28)	/**< SDIO: Number of functions */
 #define MMC_OCR_ACCESS_MODE     (0x3ul << 29)	/**< MMC: Access mode, 0x2 is sector mode */
 #define MMC_OCR_ACCESS_BYTE     (0x0 << 29)	/**< MMC: Byte access mode */
 #define MMC_OCR_ACCESS_SECTOR   (0x2ul << 29)	/**< MMC: Sector access mode */
-#define SD_OCR_CCS              (1ul << 30)	/**< SD Card Capacity Status (CCS) */
-#define SD_OCR_BUSY             (1ul << 31)	/**< SD/MMC Card power up status bit (busy) */
+#define SD_OCR_UHS_II           (1ul << 29)	/**< SD: UHS-II Card Status */
+#define SD_OCR_CCS              (1ul << 30)	/**< SD: Card Capacity Status */
+#define SD_OCR_BUSYN            (1ul << 31)	/**< SD/MMC: Busy Status */
 
 /** We support 2.7 ~ 3.3V cards */
 #define SD_HOST_VOLTAGE_RANGE     (SD_OCR_VDD_27_28 +\

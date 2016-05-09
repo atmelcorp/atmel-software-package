@@ -344,6 +344,7 @@ _SdParamReset(sSdCard * pSd)
 	pSd->wAddress = 0;
 
 	pSd->bCardType = 0;
+	pSd->bCardSigLevel = 2;
 	pSd->bSpeedMode = SDMMC_TIM_MMC_BC;
 	pSd->bBusMode = 1;
 	pSd->bStatus = SDMMC_NOT_INITIALIZED;
@@ -444,15 +445,15 @@ _HwSetBusWidth(sSdCard * pSd, uint8_t newWidth)
 
 /**
  */
-static uint8_t
-_HwGetHsMode(sSdCard * pSd, uint8_t timingMode)
+static bool
+_HwIsTimingSupported(sSdCard * pSd, uint8_t timingMode)
 {
 	sSdHalFunctions *pHal = pSd->pHalf;
 	void *pDrv = pSd->pDrv;
-	uint32_t mode = timingMode;
+	uint32_t rc, mode = timingMode;
 
-	pHal->fIOCtrl(pDrv, SDMMC_IOCTL_GET_HSMODE, (uint32_t) & mode);
-	return mode;
+	rc = pHal->fIOCtrl(pDrv, SDMMC_IOCTL_GET_HSMODE, (uint32_t) & mode);
+	return rc == SDMMC_OK ? (mode ? true : false) : false;
 }
 
 /**
@@ -640,66 +641,72 @@ Cmd0(sSdCard * pSd, uint8_t arg)
  * Sends host capacity support information and activates the card's
  * initialization process.
  * Returns the command transfer result (see SendMciCommand).
- * \param pSd Pointer to \ref sSdCard instance.
- * \param pOCR Pointer to fill OCR value to send and get.
+ * \param pSd  Pointer to \ref sSdCard instance.
+ * \param hc  Upon success tells whether the device is a high capacity device.
  */
 #ifndef SDMMC_TRIM_MMC
 static uint8_t
-Cmd1(sSdCard * pSd, uint8_t * pHd)
+Cmd1(sSdCard * pSd, bool * hc)
 {
+	struct _timeout timeout;
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
-	uint8_t bRc;
-	uint32_t dwArg;
-
-	_ResetCmd(pCmd);
+	uint32_t arg, ocr = 0;
+	uint8_t rc;
+	int8_t elapsed = -1;
 
 	/* Tell the device that the host supports 512-byte sector addressing */
-	dwArg = MMC_OCR_ACCESS_SECTOR;
+	arg = MMC_OCR_ACCESS_SECTOR;
 	/* Tell the MMC device which voltage the host supplies to the VDD line
 	 * (MMC card) or VCC line (e.MMC device).
 	 * TODO get this board-specific value from platform code. On the
 	 * SAMA5D2-XULT board, VDD is 3.3V ± 1%. */
-	dwArg |= SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
+	arg |= SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
 
 	/* Fill command */
-	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3)
-	    | SDMMC_CMD_bmOD;
+	_ResetCmd(pCmd);
+	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3) | SDMMC_CMD_bmOD;
 	pCmd->bCmd = 1;
-	pCmd->dwArg = dwArg;
-	pCmd->pResp = &dwArg;
+	pCmd->dwArg = arg;
+	pCmd->pResp = &ocr;
 
-	/* Send command */
-	bRc = _SendCmd(pSd, NULL, NULL);
-
-	/* Check result */
-	if (bRc)
-		return bRc;
-
-	if (dwArg & SD_OCR_BUSY) {
-		*pHd = 0;
-		if ((dwArg & MMC_OCR_ACCESS_MODE) == MMC_OCR_ACCESS_SECTOR) {
-			*pHd = 1;
+	do {
+		rc = _SendCmd(pSd, NULL, NULL);
+		if (rc == SDMMC_SUCCESS && !(ocr & SD_OCR_BUSYN))
+			rc = SDMMC_ERROR_BUSY;
+		/* Allow the device to be busy for up to 1s,
+		 * which equals 1000 system ticks. */
+		if (elapsed < 0) {
+			timer_start_timeout(&timeout, 1000);
+			elapsed = 0;
 		}
-		trace_info("Device supports%s%s 3.0V:[%c%c%c%c%c%c]"
-		    " 3.3V:[%c%c%c%c%c%c]\n\r",
-		    dwArg & MMC_OCR_VDD_170_195 ? " 1.8V" : "",
-		    dwArg & MMC_OCR_VDD_200_260 ? " 2.xV" : "",
-		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_31_32 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_30_31 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_29_30 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_28_29 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_27_28 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_35_36 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_34_35 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_33_34 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_32_33 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_31_32 ? 'X' : '.',
-		    dwArg & SD_OCR_VDD_30_31 ? 'X' : '.');
-		trace_info("Device access 0x%lx\n\r", dwArg >> 29 & 0x3ul);
-		return 0;
+		else if (timer_timeout_reached(&timeout))
+			elapsed = 1;
 	}
-	return SDMMC_ERROR_BUSY;
+	while (rc == SDMMC_ERROR_BUSY && !elapsed);
+	if (rc != SDMMC_SUCCESS)
+		return rc;
+
+	/* Analyze the final contents of the OCR Register */
+	trace_info("Device supports%s%s 3.0V:[%c%c%c%c%c%c]"
+	    " 3.3V:[%c%c%c%c%c%c]\n\r",
+	    ocr & MMC_OCR_VDD_170_195 ? " 1.8V" : "",
+	    ocr & MMC_OCR_VDD_200_270 ? " 2.xV" : "",
+	    ocr & SD_OCR_VDD_27_28 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_28_29 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_29_30 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_30_31 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_31_32 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_32_33 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_30_31 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_31_32 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_32_33 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_33_34 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_34_35 ? 'X' : '.',
+	    ocr & SD_OCR_VDD_35_36 ? 'X' : '.');
+	trace_info("Device access 0x%lx\n\r", ocr >> 29 & 0x3ul);
+	*hc = (ocr & MMC_OCR_ACCESS_MODE) == MMC_OCR_ACCESS_SECTOR
+	    ? true : false;
+	return SDMMC_SUCCESS;
 }
 #endif
 
@@ -931,7 +938,9 @@ static uint8_t
 SdCmd8(sSdCard * pSd, uint8_t supplyVoltage)
 {
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
-	uint32_t dwResp;
+	const uint32_t arg = supplyVoltage << SD_IFC_VHS_Pos
+	    | SD_IFC_CHK_PATTERN_STD;
+	uint32_t dwResp = 0;
 	uint8_t bRc;
 
 	_ResetCmd(pCmd);
@@ -940,27 +949,21 @@ SdCmd8(sSdCard * pSd, uint8_t supplyVoltage)
 	pCmd->bCmd = 8;
 	pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(7)
 	    | SDMMC_CMD_bmOD;
-	pCmd->dwArg = (supplyVoltage << 8) | (0xAA);
+	pCmd->dwArg = arg;
 	pCmd->pResp = &dwResp;
 
 	/* Send command */
 	bRc = _SendCmd(pSd, NULL, NULL);
 
-	/* Check result */
-	if (bRc == SDMMC_ERROR_NORESPONSE) {
+	/* Expect the R7 response, which is the card interface condition.
+	 * Expect VCA to match VHS, and the check pattern to match as well. */
+	if (bRc == SDMMC_SUCCESS
+	    && (dwResp & (SD_IFC_VHS_Msk | SD_IFC_CHK_PATTERN_Msk)) == arg)
+		return SDMMC_SUCCESS;
+	else if (bRc == SDMMC_ERROR_NORESPONSE)
 		return SDMMC_ERROR_NORESPONSE;
-	}
-	/* SD_R7
-	 * Bit 0 - 7: check pattern (echo-back)
-	 * Bit 8 -11: voltage accepted
-	 */
-	else if (!bRc &&
-		 ((dwResp & 0x00000FFF) ==
-		  ((uint32_t) (supplyVoltage << 8) | 0xAA))) {
-		return 0;
-	} else {
+	else
 		return SDMMC_ERROR;
-	}
 }
 
 /**
@@ -1550,35 +1553,86 @@ End:
  * Asks to all cards to send their operations conditions.
  * Returns the command transfer result (see SendCommand).
  * \param pSd  Pointer to a SD card driver instance.
- * \param hcs  Shall be true if Host support High capacity.
- * \param pCCS  Set the pointed flag to 1 if hcs != 0 and SD OCR CCS flag is set.
+ * \param low_sig_lvl  In: tells whether the host supports UHS-I timing modes.
+ * Out: tells whether the device may switch to low signaling level.
+ * \param hc  In: tells whether the device has replied to SEND_IF_COND.
+ * Out: tells whether the device is a high capacity device.
  */
 static uint8_t
-Acmd41(sSdCard * pSd, uint8_t hcs, uint8_t * pCCS)
+Acmd41(sSdCard * pSd, bool * low_sig_lvl, bool * hc)
 {
+	struct _timeout timeout;
 	sSdmmcCommand *pCmd = &pSd->sdCmd;
-	uint8_t error;
-	uint32_t arg;
+	/* TODO get this board-specific value from platform code. On the
+	 * SAMA5D2-XULT board, VDD is 3.3V ± 1%. */
+	const uint32_t vdd_range = SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
+	uint32_t arg, ocr = 0;
+	uint8_t rc;
+	int8_t elapsed = -1;
 
 	trace_debug("Acmd%u\n\r", 41);
+	/* Provided the device has answered the SEND_IF_COND command, raise the
+	 * Host Capacity Support flag. Also, set the SDXC Power Control flag.
+	 * TODO assign XPC depending on board capabilities. */
+	arg = *hc ? SD_OPC_HCS | SD_OPC_XPC : 0;
+	/* Preparing UHS-I timing modes, ask the device whether it's in a
+	 * position to switch to low signaling voltage. */
+	arg |= *low_sig_lvl ? SD_OPC_S18R : 0;
+	/* Tell the SD device which voltage the host supplies to the VDD line */
+	arg |= vdd_range;
+
 	do {
-		error = Cmd55(pSd, 0);
-		if (error)
+		rc = Cmd55(pSd, 0);
+		if (rc != SDMMC_SUCCESS)
 			break;
 		_ResetCmd(pCmd);
 		pCmd->bCmd = 41;
 		pCmd->cmdOp.wVal = SDMMC_CMD_CNODATA(3);
-		pCmd->dwArg = SD_HOST_VOLTAGE_RANGE | (hcs ? SD_OCR_CCS : 0);
-		pCmd->pResp = &arg;
-		error = _SendCmd(pSd, NULL, NULL);
-		if (error)
+		pCmd->dwArg = arg;
+		pCmd->pResp = &ocr;
+		rc = _SendCmd(pSd, NULL, NULL);
+		if (rc != SDMMC_SUCCESS)
 			break;
-		*pCCS = (arg & SD_OCR_CCS) != 0;
-	} while ((arg & SD_OCR_BUSY) != SD_OCR_BUSY);
+		/* Allow the device to be busy for up to 1s,
+		 * which equals 1000 system ticks. */
+		if (elapsed < 0) {
+			timer_start_timeout(&timeout, 1000);
+			elapsed = 0;
+		}
+		else if (timer_timeout_reached(&timeout))
+			elapsed = 1;
+	} while (!(ocr & SD_OCR_BUSYN) && !elapsed);
 
-	if (error)
-		trace_error("Acmd%u %s\n\r", 41, SD_StringifyRetCode(error));
-	return error;
+	if (!(ocr & SD_OCR_BUSYN) && rc == SDMMC_SUCCESS)
+		/* Supply voltage range is incompatible */
+		rc = SDMMC_ERROR_BUSY;
+	if (rc != SDMMC_SUCCESS)
+		trace_error("Acmd%u %s\n\r", 41, SD_StringifyRetCode(rc));
+	else {
+		/* Analyze the final contents of the OCR Register */
+		trace_info("Device supports%s%s 3.0V:[%c%c%c%c%c%c]"
+		    " 3.3V:[%c%c%c%c%c%c]\n\r",
+		    ocr & SD_OCR_VDD_LOW ? " 1.xV" : "", "",
+		    ocr & SD_OCR_VDD_27_28 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_28_29 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_29_30 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_30_31 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_31_32 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_32_33 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_30_31 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_31_32 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_32_33 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_33_34 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_34_35 ? 'X' : '.',
+		    ocr & SD_OCR_VDD_35_36 ? 'X' : '.');
+		/* Verify that arg[23:15] range fits within OCR[23:15] range */
+		if ((ocr & vdd_range) != vdd_range)
+			rc = SDMMC_ERROR_NOT_SUPPORT;
+		if (*low_sig_lvl)
+			*low_sig_lvl = ocr & SD_OCR_S18A ? true : false;
+		*hc = ocr & SD_OCR_CCS ? true : false;
+	}
+	return rc;
 }
 
 /**
@@ -2110,7 +2164,7 @@ SdEnableHighSpeed(sSdCard * pSd)
 	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
 
 	/* Check host driver capability */
-	if (_HwGetHsMode(pSd, SDMMC_TIM_SD_HS) == 0)
+	if (!_HwIsTimingSupported(pSd, SDMMC_TIM_SD_HS))
 		return SDMMC_ERROR_NOT_SUPPORT;
 
 #ifndef SDMMC_TRIM_SDIO
@@ -2288,24 +2342,27 @@ SdDecideBuswidth(sSdCard * pSd)
 static uint8_t
 SdMmcIdentify(sSdCard * pSd)
 {
-#ifndef SDMMC_TRIM_SDIO
-	uint32_t status;
-#endif
 	uint32_t timer_res_prv;
-	uint8_t error, mem = 0, io = 0, f8 = 0, mp = 1, ccs = 0;
+	uint8_t error, dev_type = CARD_UNKNOWN;
+	bool sd_v2 = false, high_capacity;
 
 	/* Reset HC to default timing mode and data bus width */
 	_HwSetHsMode(pSd, SDMMC_TIM_MMC_BC);
 	_HwSetBusWidth(pSd, 1);
+
 #ifndef SDMMC_TRIM_SDIO
-	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR (bit 3 of register 6) */
-	status = SDIO_RES;
-	error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status);
-	if ((error && error != SDMMC_ERROR_NORESPONSE)
-	    || (!error && status & STATUS_SDIO_R5))
-		trace_error("IOrst %s st %lx\n\r", SD_StringifyRetCode(error),
-		    status);
+	/* Reset SDIO: CMD52, write 1 to RES bit in CCCR */
+	{
+		uint32_t status = SDIO_RES;
+
+		error = Cmd52(pSd, 1, SDIO_CIA, 0, SDIO_IOA_REG, &status);
+		if ((error && error != SDMMC_ERROR_NORESPONSE)
+		    || (!error && status & STATUS_SDIO_R5))
+			trace_error("IOrst %s st %lx\n\r",
+			    SD_StringifyRetCode(error), status);
+	}
 #endif
+
 	/* Reset MEM: CMD0 */
 	error = Cmd0(pSd, 0);
 	if (error)
@@ -2316,9 +2373,9 @@ SdMmcIdentify(sSdCard * pSd)
 	 * supports supplied voltage. The version 2.00 host shall issue CMD8 and
 	 * verify voltage before card initialization.
 	 * The host that does not support CMD8 shall supply high voltage range... */
-	error = SdCmd8(pSd, 1);
+	error = SdCmd8(pSd, SD_IFC_VHS_27_36 >> SD_IFC_VHS_Pos);
 	if (!error)
-		f8 = 1;
+		sd_v2 = true;
 	else if (error != SDMMC_ERROR_NORESPONSE)
 		return SDMMC_ERROR;
 	else {
@@ -2331,105 +2388,89 @@ SdMmcIdentify(sSdCard * pSd)
 
 #ifndef SDMMC_TRIM_SDIO
 	/* CMD5 is newly added for SDIO initialize & power on */
-	status = 0;
-	error = Cmd5(pSd, &status);
-	if (!error && (status & SDIO_OCR_NF) > 0) {
-		struct _timeout timeout;
-		int8_t elapsed;
+	{
+		uint32_t status = 0;
 
-		/* Card has SDIO function. Wait until it raises the IORDY flag,
-		 * which may take up to 1s, i.e. 1000 system ticks. */
-		timer_start_timeout(&timeout, 1000);
-		for (elapsed = 0;
-		    !(status & SD_OCR_BUSY) && !error && !elapsed; ) {
-			if (timer_timeout_reached(&timeout))
-				elapsed = 1;
-			status &= SD_HOST_VOLTAGE_RANGE;
-			error = Cmd5(pSd, &status);
+		error = Cmd5(pSd, &status);
+		if (!error && (status & SDIO_OCR_NF) > 0) {
+			struct _timeout timeout;
+			int8_t elapsed;
+
+			/* Card has SDIO function. Wait until it raises the
+			 * IORDY flag, which may take up to 1s, i.e. 1000 system
+			 * ticks. */
+			timer_start_timeout(&timeout, 1000);
+			for (elapsed = 0;
+			    !(status & SD_OCR_BUSYN) && !error && !elapsed; ) {
+				if (timer_timeout_reached(&timeout))
+					elapsed = 1;
+				status &= SD_HOST_VOLTAGE_RANGE;
+				error = Cmd5(pSd, &status);
+			}
+			if (!(status & SD_OCR_BUSYN) && !error)
+				error = SDMMC_ERROR_BUSY;
+			if (error) {
+				trace_error("SDIO oc %s\n\r",
+				    SD_StringifyRetCode(error));
+				return SDMMC_ERROR;
+			}
+			trace_info("SDIO\n\r");
+			dev_type = status & SDIO_OCR_MP
+			    ? CARD_SDCOMBO : CARD_SDIO;
 		}
-		if (!(status & SD_OCR_BUSY) && !error)
-			error = SDMMC_ERROR_BUSY;
+	}
+#endif
+
+	if (dev_type != CARD_SDIO) {
+		/* The device should have memory (MMC or SD or COMBO).
+		 * Try to initialize SD memory. */
+		bool low_sig_lvl =
+		    _HwIsTimingSupported(pSd, SDMMC_TIM_SD_SDR12);
+
+		high_capacity = sd_v2;
+		error = Acmd41(pSd, &low_sig_lvl, &high_capacity);
+		if (!error) {
+			trace_info("SD%s MEM\n\r", high_capacity ? "HC" : "");
+			dev_type |= high_capacity ? CARD_SDHC : CARD_SD;
+			if (low_sig_lvl)
+				pSd->bCardSigLevel = 1;
+		}
+		else if (dev_type == CARD_SDCOMBO)
+			dev_type = CARD_SDIO;
+	}
+
+#ifndef SDMMC_TRIM_MMC
+	if (dev_type == CARD_UNKNOWN) {
+		/* Try MMC initialize */
+		uint8_t count;
+
+		for (error = SDMMC_ERROR_NORESPONSE, count = 0;
+		    error == SDMMC_ERROR_NORESPONSE && count < 10;
+		    count++)
+			error = Cmd0(pSd, 0);
 		if (error) {
-			trace_error("SDIO oc %s\n\r",
+			trace_error("MMC rst %s\n\r",
 			    SD_StringifyRetCode(error));
 			return SDMMC_ERROR;
 		}
-		io = 1;
-		trace_info("SDIO\n\r");
-		/* IO only ? */
-		mp = ((status & SDIO_OCR_MP) > 0);
-	}
-#endif
-
-	/* Has memory: SD/MMC/COMBO */
-	if (mp) {
-		/* Try SD memory initialize */
-		error = Acmd41(pSd, f8, &ccs);
+		high_capacity = false;
+		error = Cmd1(pSd, &high_capacity);
 		if (error) {
-#ifdef SDMMC_TRIM_MMC
-			return SDMMC_NOT_INITIALIZED;
-#else
-			/* Try MMC initialize */
-			struct _timeout timeout;
-			uint8_t count;
-			int8_t elapsed;
-
-			for (error = SDMMC_ERROR_NORESPONSE, count = 0;
-			    error == SDMMC_ERROR_NORESPONSE && count < 10;
-			    count++)
-				error = Cmd0(pSd, 0);
-			if (error) {
-				trace_error("MMC rst %s\n\r",
-				    SD_StringifyRetCode(error));
-				return SDMMC_ERROR;
-			}
-			ccs = 1;
-			elapsed = -1;
-			do {
-				error = Cmd1(pSd, &ccs);
-				/* Allow the device to be busy for up to 1s,
-				 * which equals 1000 system ticks. */
-				if (elapsed < 0) {
-					timer_start_timeout(&timeout, 1000);
-					elapsed = 0;
-				}
-				else if (timer_timeout_reached(&timeout))
-					elapsed = 1;
-			}
-			while (error == SDMMC_ERROR_BUSY && !elapsed);
-			if (error) {
-				trace_error("MMC oc %s\n\r",
-				    SD_StringifyRetCode(error));
-				return SDMMC_ERROR;
-			} else if (ccs)
-				pSd->bCardType = CARD_MMCHD;
-			else
-				pSd->bCardType = CARD_MMC;
-			/* MMC card identification OK */
-			trace_info("MMC\n\r");
-			return 0;
-#endif
-		}
-		else
-			trace_info("SD%s MEM\n\r", ccs ? "HC" : "");
-		mem = 1;
-	}
-	/* SD(IO) + MEM ? */
-	if (!mem) {
-		if (io)
-			pSd->bCardType = CARD_SDIO;
-		else {
-			trace_error("Unknown card\n\r");
+			trace_error("MMC oc %s\n\r",
+			    SD_StringifyRetCode(error));
 			return SDMMC_ERROR;
 		}
+		/* MMC card identification OK */
+		trace_info("MMC\n\r");
+		dev_type = high_capacity ? CARD_MMCHD : CARD_MMC;
 	}
-	/* SD(HC) combo */
-	else if (io)
-		pSd->bCardType = ccs ? CARD_SDHCCOMBO : CARD_SDCOMBO;
-	/* SD(HC) */
-	else
-		pSd->bCardType = ccs ? CARD_SDHC : CARD_SD;
+#endif
 
+	if (dev_type == CARD_UNKNOWN) {
+		trace_error("Unknown card\n\r");
+		return SDMMC_ERROR;
+	}
+	pSd->bCardType = dev_type;
 	return 0;
 }
 
@@ -2487,16 +2528,16 @@ MmcInit(sSdCard * pSd)
 	/* Consider HS200 timing mode */
 	if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 6
 	    && MMC_IsCSDVer1_2(pSd) && MMC_EXT_CARD_TYPE(pSd->EXT) & 0x10
-	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS200) != 0)
+	    && _HwIsTimingSupported(pSd, SDMMC_TIM_MMC_HS200))
 		tim_mode = SDMMC_TIM_MMC_HS200;
 	/* Consider High Speed DDR timing mode */
 	else if (error == SDMMC_OK && MMC_EXT_EXT_CSD_REV(pSd->EXT) >= 4
 	    && MMC_IsCSDVer1_2(pSd) && MMC_EXT_CARD_TYPE(pSd->EXT) & 0x4
-	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_DDR) != 0)
+	    && _HwIsTimingSupported(pSd, SDMMC_TIM_MMC_HS_DDR))
 		tim_mode = SDMMC_TIM_MMC_HS_DDR;
 	/* Consider High Speed SDR timing mode */
 	else if (error == SDMMC_OK && MMC_IsHsModeSupported(pSd)
-	    && _HwGetHsMode(pSd, SDMMC_TIM_MMC_HS_SDR) != 0)
+	    && _HwIsTimingSupported(pSd, SDMMC_TIM_MMC_HS_SDR))
 		tim_mode = SDMMC_TIM_MMC_HS_SDR;
 	/* Check power requirements of the device */
 	if (error == SDMMC_OK) {
