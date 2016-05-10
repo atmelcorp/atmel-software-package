@@ -533,7 +533,7 @@ int main(void)
 	wdt_disable( );
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	printf("-- USB CDC + Audio Device Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

@@ -1,5 +1,15 @@
 # Atmel SAMA5D2x Software Package
 
+## Version ?.? - 2016-??
+
+### Changes
+
+- Function prototype for board_cfg_console was changed to allow custom
+  baudrate.  Passing 0 as baudrate parameter selects default baudrate for the
+  board.
+
+
+
 ## Version 2.0 - 2016-04
 
 ### New drivers/examples

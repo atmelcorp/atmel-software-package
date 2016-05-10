@@ -427,7 +427,7 @@ int main(void)
 	uint8_t user_key;
 
 	wdt_disable();
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("\r\n\r\n\r\n");

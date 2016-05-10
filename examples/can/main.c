@@ -421,7 +421,7 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("\r\n\r\n\r\n");

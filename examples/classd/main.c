@@ -333,7 +333,7 @@ extern int main(void)
 	wdt_disable();
 
 	/* configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* output example information */
 	printf("-- CLASSD Example " SOFTPACK_VERSION " --\n\r");

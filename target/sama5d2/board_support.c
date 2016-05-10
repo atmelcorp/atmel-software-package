@@ -90,16 +90,18 @@ const static struct _l2cc_control l2cc_cfg = {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void board_cfg_console(void)
+void board_cfg_console(uint32_t baudrate)
 {
+	if (!baudrate) {
+#ifdef BOARD_CONSOLE_BAUDRATE
+		baudrate = BOARD_CONSOLE_BAUDRATE;
+#else
+		baudrate = 115200;
+#endif
+	}
+
 #if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR)
 	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
-	uint32_t baudrate;
-#ifdef BOARD_CONSOLE_BAUDRATE
-	baudrate = BOARD_CONSOLE_BAUDRATE;
-#else
-	baudrate = 115200;
-#endif
 
 	pio_configure(console_pins, ARRAY_SIZE(console_pins));
 	console_configure(BOARD_CONSOLE_ADDR, baudrate);
@@ -118,7 +120,6 @@ void board_cfg_console(void)
 		{ UART4, PINS_UART4_IOS1 },
 	};
 	uint32_t bcw;
-	uint32_t baudrate;
 	uint32_t console;
 
 	/* read boot config word from fuse */
@@ -132,12 +133,6 @@ void board_cfg_console(void)
 			bcw = SECURAM->BUREG[index];
 		}
 	}
-
-#ifdef BOARD_CONSOLE_BAUDRATE
-	baudrate = BOARD_CONSOLE_BAUDRATE;
-#else
-	baudrate = 115200;
-#endif
 
 	/* configure console */
 	console = (bcw & BCW_UART_CONSOLE_Msk) >> BCW_UART_CONSOLE_Pos;

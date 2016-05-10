@@ -244,7 +244,7 @@ int main(void)
 
 	xdmad_initialize(false);
     /* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 #ifndef VARIANT_DDRAM
 	/* Configure DDRAM */

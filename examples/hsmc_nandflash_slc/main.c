@@ -736,7 +736,7 @@ int main(void)
 	wdt_disable();
 
 	/* Initialize console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("-- HSMC NandFlash SLC Example %s --\n\r", SOFTPACK_VERSION);

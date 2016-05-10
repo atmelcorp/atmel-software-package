@@ -253,7 +253,7 @@ extern int main( void )
 	pio_reset_all_it();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 	console_clear_screen();
 	console_reset_cursor();
 

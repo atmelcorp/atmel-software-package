@@ -332,7 +332,7 @@ int main(void)
 	pio_reset_all_it();
 
 	/* Initialize console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);

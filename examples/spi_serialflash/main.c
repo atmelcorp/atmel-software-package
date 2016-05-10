@@ -303,7 +303,7 @@ int main (void)
 	pio_reset_all_it();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);

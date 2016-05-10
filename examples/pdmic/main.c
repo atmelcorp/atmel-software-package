@@ -373,7 +373,7 @@ int main(void)
 	wdt_disable();
 
 	/* enable console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 #ifndef VARIANT_DDRAM
 	/* Enable DDRAM */

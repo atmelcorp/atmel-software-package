@@ -201,7 +201,7 @@ int main (void)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-	board_cfg_console();
+	board_cfg_console(0);
 
 	printf("-- Usart FIFO Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

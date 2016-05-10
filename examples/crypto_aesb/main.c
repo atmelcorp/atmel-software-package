@@ -132,7 +132,7 @@ int main(void)
 #endif
 
 	/* Initialize console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("-- AESB Example %s --\n\r", SOFTPACK_VERSION);

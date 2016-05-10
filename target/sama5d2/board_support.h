@@ -49,8 +49,9 @@
 
 /**
  * \brief Configure the board console if any
+ * \param baudrate Requested baudrate, or board default if 0
  */
-extern void board_cfg_console(void);
+extern void board_cfg_console(uint32_t baudrate);
 
 /**
  * \brief Restore all IOs to default state after power-on reset.

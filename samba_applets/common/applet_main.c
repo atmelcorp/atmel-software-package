@@ -67,7 +67,7 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
 
 	if (_comm_type  != COMM_TYPE_DBGU) {
 		trace_level = trace;
-		board_cfg_console();
+		board_cfg_console(0);
 	} else {
 		/* We are communicating using the console UART so the applet */
 		/* cannot display any trace */

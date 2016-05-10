@@ -266,7 +266,7 @@ int main(void)
 	wdt_disable();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	printf("-- USB Device HID Keyboard Project %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

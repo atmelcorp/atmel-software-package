@@ -178,7 +178,7 @@ static void _console_handler(uint8_t c)
 
 static void _restore_console(void)
 {
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Initializing console interrupts */
 	console_set_rx_handler(_console_handler);
@@ -221,7 +221,7 @@ extern int main(void)
 	pio_reset_all_it();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("-- PLL consumption measurement %s --\n\r", SOFTPACK_VERSION);

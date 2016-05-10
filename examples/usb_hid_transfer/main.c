@@ -315,7 +315,7 @@ int main( void )
 	/* Disable watchdog */
 	wdt_disable();
 
-	board_cfg_console();
+	board_cfg_console(0);
 
 	printf("-- USB Device HID Transfer Project %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);

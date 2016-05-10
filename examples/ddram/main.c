@@ -152,7 +152,7 @@ int main(void)
 	wdt_disable();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	srand(0);
 

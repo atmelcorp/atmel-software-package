@@ -506,7 +506,7 @@ int main(void)
 	wdt_disable();
 
 	/* Configure console */
-	board_cfg_console();
+	board_cfg_console(0);
 
 	/* Output example information */
 	printf("\r\n\r\n\r\n");
