@@ -66,7 +66,11 @@ static struct _spi_desc spi_at25_desc = {
 	.dlybct         = 0,
 	.mutex          = 1,
 	.spi_mode       = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT,
+#if defined(CONFIG_HAVE_SPI_FIFO)
 	.transfert_mode = SPID_MODE_FIFO,
+#else
+	.transfert_mode = SPID_MODE_POLLING,
+#endif
 };
 
 static uint8_t *buffer;
