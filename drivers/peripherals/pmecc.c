@@ -338,7 +338,7 @@ static uint32_t get_sigma(void)
 static int32_t error_location (uint32_t sector_size_in_bits)
 {
 	uint32_t alphax;
-	uint32_t *sigma;
+	volatile uint32_t *sigma;
 	uint32_t error_number;
 	uint32_t nbr_of_roots;
 
@@ -346,7 +346,7 @@ static int32_t error_location (uint32_t sector_size_in_bits)
 	HSMC->HSMC_ELDIS |= 0xFFFFFFFF;
 	error_number = 0;
 
-	sigma = (uint32_t*)&HSMC->HSMC_SIGMA0;
+	sigma = HSMC->HSMC_SIGMA;
 
 	for (alphax = 0; alphax <= (uint32_t)(pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1); alphax++) {
 		*sigma++ = pmecc_desc.smu[pmecc_desc.tt + 1][alphax];
@@ -377,14 +377,14 @@ static int32_t error_location (uint32_t sector_size_in_bits)
  */
 static uint32_t error_correction(uint32_t sector_base_address, uint32_t extra_bytes, uint32_t error_nbr)
 {
-	uint32_t *error_pos;
+	volatile const uint32_t *error_pos;
 	uint32_t byte_pos;
 	uint32_t bit_pos;
 	uint32_t sector_size;
 	uint32_t ecc_size;
 	uint32_t ecc_end_addr;
 
-	error_pos = (uint32_t*)&HSMC->HSMC_ERRLOC0;
+	error_pos = HSMC->HSMC_ERRLOC;
 
 	sector_size = 512 * (((HSMC->HSMC_PMECCFG & HSMC_PMECCFG_SECTORSZ) >> 4) + 1);
 

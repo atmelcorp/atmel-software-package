@@ -94,55 +94,8 @@ typedef struct {
 	__I uint32_t HSMC_ELIMR;			      /**< \brief (Smc Offset: 0x51C) PMECC Error Location Interrupt Mask Register */
 	__I uint32_t HSMC_ELISR;			      /**< \brief (Smc Offset: 0x520) PMECC Error Location Interrupt Status Register */
 	__I uint32_t Reserved5[1];
-	__IO uint32_t HSMC_SIGMA0;			      /**< \brief (Smc Offset: 0x528) PMECC Error Location SIGMA 0 Register */
-	__IO uint32_t HSMC_SIGMA1;			      /**< \brief (Smc Offset: 0x52C) PMECC Error Location SIGMA 1 Register */
-	__IO uint32_t HSMC_SIGMA2;			      /**< \brief (Smc Offset: 0x530) PMECC Error Location SIGMA 2 Register */
-	__IO uint32_t HSMC_SIGMA3;			      /**< \brief (Smc Offset: 0x534) PMECC Error Location SIGMA 3 Register */
-	__IO uint32_t HSMC_SIGMA4;			      /**< \brief (Smc Offset: 0x538) PMECC Error Location SIGMA 4 Register */
-	__IO uint32_t HSMC_SIGMA5;			      /**< \brief (Smc Offset: 0x53C) PMECC Error Location SIGMA 5 Register */
-	__IO uint32_t HSMC_SIGMA6;			      /**< \brief (Smc Offset: 0x540) PMECC Error Location SIGMA 6 Register */
-	__IO uint32_t HSMC_SIGMA7;			      /**< \brief (Smc Offset: 0x544) PMECC Error Location SIGMA 7 Register */
-	__IO uint32_t HSMC_SIGMA8;			      /**< \brief (Smc Offset: 0x548) PMECC Error Location SIGMA 8 Register */
-	__IO uint32_t HSMC_SIGMA9;			      /**< \brief (Smc Offset: 0x54C) PMECC Error Location SIGMA 9 Register */
-	__IO uint32_t HSMC_SIGMA10;			      /**< \brief (Smc Offset: 0x550) PMECC Error Location SIGMA 10 Register */
-	__IO uint32_t HSMC_SIGMA11;			      /**< \brief (Smc Offset: 0x554) PMECC Error Location SIGMA 11 Register */
-	__IO uint32_t HSMC_SIGMA12;			      /**< \brief (Smc Offset: 0x558) PMECC Error Location SIGMA 12 Register */
-	__IO uint32_t HSMC_SIGMA13;			      /**< \brief (Smc Offset: 0x55C) PMECC Error Location SIGMA 13 Register */
-	__IO uint32_t HSMC_SIGMA14;			      /**< \brief (Smc Offset: 0x560) PMECC Error Location SIGMA 14 Register */
-	__IO uint32_t HSMC_SIGMA15;			      /**< \brief (Smc Offset: 0x564) PMECC Error Location SIGMA 15 Register */
-	__IO uint32_t HSMC_SIGMA16;			      /**< \brief (Smc Offset: 0x568) PMECC Error Location SIGMA 16 Register */
-	__IO uint32_t HSMC_SIGMA17;			      /**< \brief (Smc Offset: 0x56C) PMECC Error Location SIGMA 17 Register */
-	__IO uint32_t HSMC_SIGMA18;			      /**< \brief (Smc Offset: 0x570) PMECC Error Location SIGMA 18 Register */
-	__IO uint32_t HSMC_SIGMA19;			      /**< \brief (Smc Offset: 0x574) PMECC Error Location SIGMA 19 Register */
-	__IO uint32_t HSMC_SIGMA20;			      /**< \brief (Smc Offset: 0x578) PMECC Error Location SIGMA 20 Register */
-	__IO uint32_t HSMC_SIGMA21;			      /**< \brief (Smc Offset: 0x57C) PMECC Error Location SIGMA 21 Register */
-	__IO uint32_t HSMC_SIGMA22;			      /**< \brief (Smc Offset: 0x580) PMECC Error Location SIGMA 22 Register */
-	__IO uint32_t HSMC_SIGMA23;			      /**< \brief (Smc Offset: 0x584) PMECC Error Location SIGMA 23 Register */
-	__IO uint32_t HSMC_SIGMA24;			      /**< \brief (Smc Offset: 0x588) PMECC Error Location SIGMA 24 Register */
-	__I uint32_t HSMC_ERRLOC0;			      /**< \brief (Smc Offset: 0x58C) PMECC Error Location 0 Register */
-	__I uint32_t HSMC_ERRLOC1;			      /**< \brief (Smc Offset: 0x590) PMECC Error Location 1 Register */
-	__I uint32_t HSMC_ERRLOC2;			      /**< \brief (Smc Offset: 0x594) PMECC Error Location 2 Register */
-	__I uint32_t HSMC_ERRLOC3;			      /**< \brief (Smc Offset: 0x598) PMECC Error Location 3 Register */
-	__I uint32_t HSMC_ERRLOC4;			      /**< \brief (Smc Offset: 0x59C) PMECC Error Location 4 Register */
-	__I uint32_t HSMC_ERRLOC5;			      /**< \brief (Smc Offset: 0x5A0) PMECC Error Location 5 Register */
-	__I uint32_t HSMC_ERRLOC6;			      /**< \brief (Smc Offset: 0x5A4) PMECC Error Location 6 Register */
-	__I uint32_t HSMC_ERRLOC7;			      /**< \brief (Smc Offset: 0x5A8) PMECC Error Location 7 Register */
-	__I uint32_t HSMC_ERRLOC8;			      /**< \brief (Smc Offset: 0x5AC) PMECC Error Location 8 Register */
-	__I uint32_t HSMC_ERRLOC9;			      /**< \brief (Smc Offset: 0x5B0) PMECC Error Location 9 Register */
-	__I uint32_t HSMC_ERRLOC10;			      /**< \brief (Smc Offset: 0x5B4) PMECC Error Location 10 Register */
-	__I uint32_t HSMC_ERRLOC11;			      /**< \brief (Smc Offset: 0x5B8) PMECC Error Location 11 Register */
-	__I uint32_t HSMC_ERRLOC12;			      /**< \brief (Smc Offset: 0x5BC) PMECC Error Location 12 Register */
-	__I uint32_t HSMC_ERRLOC13;			      /**< \brief (Smc Offset: 0x5C0) PMECC Error Location 13 Register */
-	__I uint32_t HSMC_ERRLOC14;			      /**< \brief (Smc Offset: 0x5C4) PMECC Error Location 14 Register */
-	__I uint32_t HSMC_ERRLOC15;			      /**< \brief (Smc Offset: 0x5C8) PMECC Error Location 15 Register */
-	__I uint32_t HSMC_ERRLOC16;			      /**< \brief (Smc Offset: 0x5CC) PMECC Error Location 16 Register */
-	__I uint32_t HSMC_ERRLOC17;			      /**< \brief (Smc Offset: 0x5D0) PMECC Error Location 17 Register */
-	__I uint32_t HSMC_ERRLOC18;			      /**< \brief (Smc Offset: 0x5D4) PMECC Error Location 18 Register */
-	__I uint32_t HSMC_ERRLOC19;			      /**< \brief (Smc Offset: 0x5D8) PMECC Error Location 19 Register */
-	__I uint32_t HSMC_ERRLOC20;			      /**< \brief (Smc Offset: 0x5DC) PMECC Error Location 20 Register */
-	__I uint32_t HSMC_ERRLOC21;			      /**< \brief (Smc Offset: 0x5E0) PMECC Error Location 21 Register */
-	__I uint32_t HSMC_ERRLOC22;			      /**< \brief (Smc Offset: 0x5E4) PMECC Error Location 22 Register */
-	__I uint32_t HSMC_ERRLOC23;			      /**< \brief (Smc Offset: 0x5E8) PMECC Error Location 23 Register */
+	__IO uint32_t HSMC_SIGMA[25];			      /**< \brief (Smc Offset: 0x528) PMECC Error Location SIGMA x Register */
+	__I uint32_t HSMC_ERRLOC[24];			      /**< \brief (Smc Offset: 0x58C) PMECC Error Location x Register */
 	__I uint32_t Reserved6[5];
 	SmcCs_number SMC_CS_NUMBER[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x600) CS_number = 0 .. 3 */
 	__I uint32_t Reserved7[20];
@@ -322,106 +275,9 @@ typedef struct {
 #define HSMC_ELISR_DONE (0x1u << 0) /**< \brief (HSMC_ELISR) Computation Terminated Interrupt Status */
 #define HSMC_ELISR_ERR_CNT_Pos 8
 #define HSMC_ELISR_ERR_CNT_Msk (0x1fu << HSMC_ELISR_ERR_CNT_Pos) /**< \brief (HSMC_ELISR) Error Counter value */
-/* -------- HSMC_SIGMA0 : (SMC Offset: 0x528) PMECC Error Location SIGMA 0 Register -------- */
-#define HSMC_SIGMA0_SIGMA0_Pos 0
-#define HSMC_SIGMA0_SIGMA0_Msk (0x3fffu << HSMC_SIGMA0_SIGMA0_Pos) /**< \brief (HSMC_SIGMA0) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA0_SIGMA0(value) ((HSMC_SIGMA0_SIGMA0_Msk & ((value) << HSMC_SIGMA0_SIGMA0_Pos)))
-/* -------- HSMC_SIGMA1 : (SMC Offset: 0x52C) PMECC Error Location SIGMA 1 Register -------- */
-#define HSMC_SIGMA1_SIGMA1_Pos 0
-#define HSMC_SIGMA1_SIGMA1_Msk (0x3fffu << HSMC_SIGMA1_SIGMA1_Pos) /**< \brief (HSMC_SIGMA1) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA1_SIGMA1(value) ((HSMC_SIGMA1_SIGMA1_Msk & ((value) << HSMC_SIGMA1_SIGMA1_Pos)))
-/* -------- HSMC_SIGMA2 : (SMC Offset: 0x530) PMECC Error Location SIGMA 2 Register -------- */
-#define HSMC_SIGMA2_SIGMA2_Pos 0
-#define HSMC_SIGMA2_SIGMA2_Msk (0x3fffu << HSMC_SIGMA2_SIGMA2_Pos) /**< \brief (HSMC_SIGMA2) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA2_SIGMA2(value) ((HSMC_SIGMA2_SIGMA2_Msk & ((value) << HSMC_SIGMA2_SIGMA2_Pos)))
-/* -------- HSMC_SIGMA3 : (SMC Offset: 0x534) PMECC Error Location SIGMA 3 Register -------- */
-#define HSMC_SIGMA3_SIGMA3_Pos 0
-#define HSMC_SIGMA3_SIGMA3_Msk (0x3fffu << HSMC_SIGMA3_SIGMA3_Pos) /**< \brief (HSMC_SIGMA3) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA3_SIGMA3(value) ((HSMC_SIGMA3_SIGMA3_Msk & ((value) << HSMC_SIGMA3_SIGMA3_Pos)))
-/* -------- HSMC_SIGMA4 : (SMC Offset: 0x538) PMECC Error Location SIGMA 4 Register -------- */
-#define HSMC_SIGMA4_SIGMA4_Pos 0
-#define HSMC_SIGMA4_SIGMA4_Msk (0x3fffu << HSMC_SIGMA4_SIGMA4_Pos) /**< \brief (HSMC_SIGMA4) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA4_SIGMA4(value) ((HSMC_SIGMA4_SIGMA4_Msk & ((value) << HSMC_SIGMA4_SIGMA4_Pos)))
-/* -------- HSMC_SIGMA5 : (SMC Offset: 0x53C) PMECC Error Location SIGMA 5 Register -------- */
-#define HSMC_SIGMA5_SIGMA5_Pos 0
-#define HSMC_SIGMA5_SIGMA5_Msk (0x3fffu << HSMC_SIGMA5_SIGMA5_Pos) /**< \brief (HSMC_SIGMA5) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA5_SIGMA5(value) ((HSMC_SIGMA5_SIGMA5_Msk & ((value) << HSMC_SIGMA5_SIGMA5_Pos)))
-/* -------- HSMC_SIGMA6 : (SMC Offset: 0x540) PMECC Error Location SIGMA 6 Register -------- */
-#define HSMC_SIGMA6_SIGMA6_Pos 0
-#define HSMC_SIGMA6_SIGMA6_Msk (0x3fffu << HSMC_SIGMA6_SIGMA6_Pos) /**< \brief (HSMC_SIGMA6) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA6_SIGMA6(value) ((HSMC_SIGMA6_SIGMA6_Msk & ((value) << HSMC_SIGMA6_SIGMA6_Pos)))
-/* -------- HSMC_SIGMA7 : (SMC Offset: 0x544) PMECC Error Location SIGMA 7 Register -------- */
-#define HSMC_SIGMA7_SIGMA7_Pos 0
-#define HSMC_SIGMA7_SIGMA7_Msk (0x3fffu << HSMC_SIGMA7_SIGMA7_Pos) /**< \brief (HSMC_SIGMA7) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA7_SIGMA7(value) ((HSMC_SIGMA7_SIGMA7_Msk & ((value) << HSMC_SIGMA7_SIGMA7_Pos)))
-/* -------- HSMC_SIGMA8 : (SMC Offset: 0x548) PMECC Error Location SIGMA 8 Register -------- */
-#define HSMC_SIGMA8_SIGMA8_Pos 0
-#define HSMC_SIGMA8_SIGMA8_Msk (0x3fffu << HSMC_SIGMA8_SIGMA8_Pos) /**< \brief (HSMC_SIGMA8) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA8_SIGMA8(value) ((HSMC_SIGMA8_SIGMA8_Msk & ((value) << HSMC_SIGMA8_SIGMA8_Pos)))
-/* -------- HSMC_SIGMA9 : (SMC Offset: 0x54C) PMECC Error Location SIGMA 9 Register -------- */
-#define HSMC_SIGMA9_SIGMA9_Pos 0
-#define HSMC_SIGMA9_SIGMA9_Msk (0x3fffu << HSMC_SIGMA9_SIGMA9_Pos) /**< \brief (HSMC_SIGMA9) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA9_SIGMA9(value) ((HSMC_SIGMA9_SIGMA9_Msk & ((value) << HSMC_SIGMA9_SIGMA9_Pos)))
-/* -------- HSMC_SIGMA10 : (SMC Offset: 0x550) PMECC Error Location SIGMA 10 Register -------- */
-#define HSMC_SIGMA10_SIGMA10_Pos 0
-#define HSMC_SIGMA10_SIGMA10_Msk (0x3fffu << HSMC_SIGMA10_SIGMA10_Pos) /**< \brief (HSMC_SIGMA10) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA10_SIGMA10(value) ((HSMC_SIGMA10_SIGMA10_Msk & ((value) << HSMC_SIGMA10_SIGMA10_Pos)))
-/* -------- HSMC_SIGMA11 : (SMC Offset: 0x554) PMECC Error Location SIGMA 11 Register -------- */
-#define HSMC_SIGMA11_SIGMA11_Pos 0
-#define HSMC_SIGMA11_SIGMA11_Msk (0x3fffu << HSMC_SIGMA11_SIGMA11_Pos) /**< \brief (HSMC_SIGMA11) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA11_SIGMA11(value) ((HSMC_SIGMA11_SIGMA11_Msk & ((value) << HSMC_SIGMA11_SIGMA11_Pos)))
-/* -------- HSMC_SIGMA12 : (SMC Offset: 0x558) PMECC Error Location SIGMA 12 Register -------- */
-#define HSMC_SIGMA12_SIGMA12_Pos 0
-#define HSMC_SIGMA12_SIGMA12_Msk (0x3fffu << HSMC_SIGMA12_SIGMA12_Pos) /**< \brief (HSMC_SIGMA12) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA12_SIGMA12(value) ((HSMC_SIGMA12_SIGMA12_Msk & ((value) << HSMC_SIGMA12_SIGMA12_Pos)))
-/* -------- HSMC_SIGMA13 : (SMC Offset: 0x55C) PMECC Error Location SIGMA 13 Register -------- */
-#define HSMC_SIGMA13_SIGMA13_Pos 0
-#define HSMC_SIGMA13_SIGMA13_Msk (0x3fffu << HSMC_SIGMA13_SIGMA13_Pos) /**< \brief (HSMC_SIGMA13) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA13_SIGMA13(value) ((HSMC_SIGMA13_SIGMA13_Msk & ((value) << HSMC_SIGMA13_SIGMA13_Pos)))
-/* -------- HSMC_SIGMA14 : (SMC Offset: 0x560) PMECC Error Location SIGMA 14 Register -------- */
-#define HSMC_SIGMA14_SIGMA14_Pos 0
-#define HSMC_SIGMA14_SIGMA14_Msk (0x3fffu << HSMC_SIGMA14_SIGMA14_Pos) /**< \brief (HSMC_SIGMA14) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA14_SIGMA14(value) ((HSMC_SIGMA14_SIGMA14_Msk & ((value) << HSMC_SIGMA14_SIGMA14_Pos)))
-/* -------- HSMC_SIGMA15 : (SMC Offset: 0x564) PMECC Error Location SIGMA 15 Register -------- */
-#define HSMC_SIGMA15_SIGMA15_Pos 0
-#define HSMC_SIGMA15_SIGMA15_Msk (0x3fffu << HSMC_SIGMA15_SIGMA15_Pos) /**< \brief (HSMC_SIGMA15) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA15_SIGMA15(value) ((HSMC_SIGMA15_SIGMA15_Msk & ((value) << HSMC_SIGMA15_SIGMA15_Pos)))
-/* -------- HSMC_SIGMA16 : (SMC Offset: 0x568) PMECC Error Location SIGMA 16 Register -------- */
-#define HSMC_SIGMA16_SIGMA16_Pos 0
-#define HSMC_SIGMA16_SIGMA16_Msk (0x3fffu << HSMC_SIGMA16_SIGMA16_Pos) /**< \brief (HSMC_SIGMA16) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA16_SIGMA16(value) ((HSMC_SIGMA16_SIGMA16_Msk & ((value) << HSMC_SIGMA16_SIGMA16_Pos)))
-/* -------- HSMC_SIGMA17 : (SMC Offset: 0x56C) PMECC Error Location SIGMA 17 Register -------- */
-#define HSMC_SIGMA17_SIGMA17_Pos 0
-#define HSMC_SIGMA17_SIGMA17_Msk (0x3fffu << HSMC_SIGMA17_SIGMA17_Pos) /**< \brief (HSMC_SIGMA17) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA17_SIGMA17(value) ((HSMC_SIGMA17_SIGMA17_Msk & ((value) << HSMC_SIGMA17_SIGMA17_Pos)))
-/* -------- HSMC_SIGMA18 : (SMC Offset: 0x570) PMECC Error Location SIGMA 18 Register -------- */
-#define HSMC_SIGMA18_SIGMA18_Pos 0
-#define HSMC_SIGMA18_SIGMA18_Msk (0x3fffu << HSMC_SIGMA18_SIGMA18_Pos) /**< \brief (HSMC_SIGMA18) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA18_SIGMA18(value) ((HSMC_SIGMA18_SIGMA18_Msk & ((value) << HSMC_SIGMA18_SIGMA18_Pos)))
-/* -------- HSMC_SIGMA19 : (SMC Offset: 0x574) PMECC Error Location SIGMA 19 Register -------- */
-#define HSMC_SIGMA19_SIGMA19_Pos 0
-#define HSMC_SIGMA19_SIGMA19_Msk (0x3fffu << HSMC_SIGMA19_SIGMA19_Pos) /**< \brief (HSMC_SIGMA19) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA19_SIGMA19(value) ((HSMC_SIGMA19_SIGMA19_Msk & ((value) << HSMC_SIGMA19_SIGMA19_Pos)))
-/* -------- HSMC_SIGMA20 : (SMC Offset: 0x578) PMECC Error Location SIGMA 20 Register -------- */
-#define HSMC_SIGMA20_SIGMA20_Pos 0
-#define HSMC_SIGMA20_SIGMA20_Msk (0x3fffu << HSMC_SIGMA20_SIGMA20_Pos) /**< \brief (HSMC_SIGMA20) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA20_SIGMA20(value) ((HSMC_SIGMA20_SIGMA20_Msk & ((value) << HSMC_SIGMA20_SIGMA20_Pos)))
-/* -------- HSMC_SIGMA21 : (SMC Offset: 0x57C) PMECC Error Location SIGMA 21 Register -------- */
-#define HSMC_SIGMA21_SIGMA21_Pos 0
-#define HSMC_SIGMA21_SIGMA21_Msk (0x3fffu << HSMC_SIGMA21_SIGMA21_Pos) /**< \brief (HSMC_SIGMA21) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA21_SIGMA21(value) ((HSMC_SIGMA21_SIGMA21_Msk & ((value) << HSMC_SIGMA21_SIGMA21_Pos)))
-/* -------- HSMC_SIGMA22 : (SMC Offset: 0x580) PMECC Error Location SIGMA 22 Register -------- */
-#define HSMC_SIGMA22_SIGMA22_Pos 0
-#define HSMC_SIGMA22_SIGMA22_Msk (0x3fffu << HSMC_SIGMA22_SIGMA22_Pos) /**< \brief (HSMC_SIGMA22) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA22_SIGMA22(value) ((HSMC_SIGMA22_SIGMA22_Msk & ((value) << HSMC_SIGMA22_SIGMA22_Pos)))
-/* -------- HSMC_SIGMA23 : (SMC Offset: 0x584) PMECC Error Location SIGMA 23 Register -------- */
-#define HSMC_SIGMA23_SIGMA23_Pos 0
-#define HSMC_SIGMA23_SIGMA23_Msk (0x3fffu << HSMC_SIGMA23_SIGMA23_Pos) /**< \brief (HSMC_SIGMA23) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA23_SIGMA23(value) ((HSMC_SIGMA23_SIGMA23_Msk & ((value) << HSMC_SIGMA23_SIGMA23_Pos)))
-/* -------- HSMC_SIGMA24 : (SMC Offset: 0x588) PMECC Error Location SIGMA 24 Register -------- */
-#define HSMC_SIGMA24_SIGMA24_Pos 0
-#define HSMC_SIGMA24_SIGMA24_Msk (0x3fffu << HSMC_SIGMA24_SIGMA24_Pos) /**< \brief (HSMC_SIGMA24) Coefficient of degree x in the SIGMA polynomial. */
-#define HSMC_SIGMA24_SIGMA24(value) ((HSMC_SIGMA24_SIGMA24_Msk & ((value) << HSMC_SIGMA24_SIGMA24_Pos)))
+/* -------- HSMC_SIGMA[25] : (SMC Offset: 0x528) PMECC Error Location SIGMA 0 Register -------- */
+#define HSMC_SIGMA_SIGMA_Pos 0
+#define HSMC_SIGMA_SIGMA_Msk (0x3fffu << HSMC_SIGMA_SIGMA_Pos) /**< \brief (HSMC_SIGMA[25]) Coefficient of degree x in the SIGMA polynomial. */
 /* -------- HSMC_ERRLOC[24] : (SMC Offset: 0x58C) PMECC Error Location 0 Register -------- */
 #define HSMC_ERRLOC_ERRLOCN_Pos 0
 #define HSMC_ERRLOC_ERRLOCN_Msk (0x3fffu << HSMC_ERRLOC_ERRLOCN_Pos) /**< \brief (HSMC_ERRLOC[24]) Error Position within the Set {sector area, spare area} */
