@@ -2,11 +2,27 @@
 
 ## Version ?.? - 2016-??
 
+### New drivers/examples
+
+- New QSPI AESB example
+
 ### Changes
 
 - Function prototype for board_cfg_console was changed to allow custom
   baudrate.  Passing 0 as baudrate parameter selects default baudrate for the
   board.
+- Introduction of audio device API to use SSC or CLASSD device to play sounds
+
+### Enhancements
+
+- Function board_cfg_pmic has been added to remove board specific PMIC configuration
+  from examples main.c
+- Add support of AESB address space in QSPI driver
+
+### Fixes
+
+- Multiple fixes to remove dead assignements, dead increments, and possible
+  null pointer dereferences
 
 
 
