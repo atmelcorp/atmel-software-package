@@ -102,11 +102,7 @@ static uint32_t page_size;
 static uint32_t block_size;
 
 static uint8_t ecc_bit_req_2_tt[] = {
-#if defined(CONFIG_SOC_SAMA5D2)
 	2, 4, 8, 12, 24, 32
-#elif defined(CONFIG_SOC_SAMA5D4)
-	2, 4, 8, 12, 24
-#endif
 };
 
 /*----------------------------------------------------------------------------
@@ -126,6 +122,29 @@ static bool configure_instance_pio(uint32_t ioset)
 	return false;
 }
 
+static int pmecc_get_ecc_bit_req(uint8_t ecc_correctability) {
+	int i;
+	for (i = 0; i < ARRAY_SIZE(ecc_bit_req_2_tt); i++) {
+		if (ecc_bit_req_2_tt[i] >= ecc_correctability)
+			return i;
+	}
+	return ARRAY_SIZE(ecc_bit_req_2_tt) - 1;
+}
+
+static uint32_t pmecc_get_default_header(void)
+{
+	union _nand_header hdr;
+	hdr.bitfield.use_pmecc = 1;
+	hdr.bitfield.nb_sector_per_page = nand_onfi_get_page_size() >> 9;
+	hdr.bitfield.spare_size = nand_onfi_get_spare_size();
+	hdr.bitfield.ecc_bit_req = pmecc_get_ecc_bit_req(nand_onfi_get_ecc_correctability());
+	hdr.bitfield.sector_size = 0; // 512 bytes
+	hdr.bitfield.ecc_offset = 2;
+	hdr.bitfield.reserved = 0;
+	hdr.bitfield.key = NAND_HEADER_KEY;
+	return *(uint32_t*)&hdr;
+}
+
 static bool pmecc_set_header(uint32_t header)
 {
 	uint16_t sector_size_in_byte, ecc_size_in_byte;
@@ -136,7 +155,6 @@ static bool pmecc_set_header(uint32_t header)
 	trace_info_wp("PMECC configuration: 0x%08x\r\n", (unsigned)header);
 
 	hdr = (union _nand_header *)&header;
-	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
 
 	if (hdr->bitfield.key != NAND_HEADER_KEY) {
 		trace_error_wp("Invalid key field in PMECC configuration\r\n");
@@ -149,38 +167,49 @@ static bool pmecc_set_header(uint32_t header)
 		return true;
 	}
 
+	if (hdr->bitfield.ecc_bit_req >= ARRAY_SIZE(ecc_bit_req_2_tt)) {
+		trace_error_wp("Unsupported ECC parameter (%u)\r\n",
+				(unsigned)hdr->bitfield.ecc_bit_req);
+		return false;
+	}
+	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
+	if (ecc_correction > (sizeof(HSMC->HSMC_ERRLOC) / sizeof(uint32_t))) {
+		trace_error_wp("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
+				(unsigned)hdr->bitfield.ecc_bit_req,
+				(unsigned)ecc_correction,
+				sizeof(HSMC->HSMC_ERRLOC) / sizeof(uint32_t));
+		return false;
+	}
 	if (ecc_correction < nand_onfi_get_ecc_correctability() &&
 		nand_onfi_get_ecc_correctability() != 0xFF) {
-		trace_error_wp("Invalid parameter ecc: Incompatible ecc vs ONFI %x\r\n",
+		trace_error_wp("Invalid ECC parameter (%u: %u bits): requested value incompatible with ONFI %u bits\r\n",
+				(unsigned)hdr->bitfield.ecc_bit_req,
+				(unsigned)ecc_correction,
 				nand_onfi_get_ecc_correctability());
 		return false;
 	}
 
 	if (hdr->bitfield.spare_size > nand_onfi_get_spare_size()) {
-		trace_error_wp("Invalid parameter spare_size (%u): Spare size (%u) exceed\r\n",
+		trace_error_wp("Invalid spare_size parameter (%u): ONFI spare size (%u) exceeded\r\n",
 				(unsigned)hdr->bitfield.spare_size,
 				(unsigned)nand_onfi_get_spare_size());
 		return false;
 	}
 
-	if (hdr->bitfield.ecc_bit_req >= ARRAY_SIZE(ecc_bit_req_2_tt)) {
-		trace_error_wp("Invalid parameter ecc: Only support 2,4,8,12,24,(32)-bit ECC\r\n");
-		return false;
-	}
-
 	if (hdr->bitfield.sector_size > 1) {
-		trace_error_wp("Invalid parameter sector size: 0 for 512 bytes, 1 for 1024 bytes per sector\r\n");
+		trace_error_wp("Invalid sector size parameter (%u): use 0 for 512 bytes, 1 for 1024 bytes per sector\r\n",
+				(unsigned)hdr->bitfield.sector_size);
 		return false;
 	}
-
-	sector_size_in_byte = (hdr->bitfield.sector_size == 1) ? 1024 : 512;
+	sector_size_in_byte = hdr->bitfield.sector_size == 1 ? 1024 : 512;
 	if ((page_size / sector_size_in_byte) > 8) {
-		trace_error_wp("Invalid parameter sector size: not supportted page size or sector size\r\n");
+		trace_error_wp("Invalid sector size parameter (%u): unsupportted page or sector size\r\n",
+				(unsigned)hdr->bitfield.sector_size);
 		return false;
 	}
 
 	if (hdr->bitfield.ecc_offset > hdr->bitfield.spare_size) {
-		trace_error_wp("Invalid parameter offset: Offset exceed spare zone\r\n");
+		trace_error_wp("Invalid ECC offset parameter: offset exceeds spare size\r\n");
 		return false;
 	}
 
@@ -194,7 +223,7 @@ static bool pmecc_set_header(uint32_t header)
 	}
 
 	if ((hdr->bitfield.ecc_offset + ecc_size_in_byte) > hdr->bitfield.spare_size) {
-		trace_error_wp("Invalid parameter offset: Offset exceed spare zone\r\n");
+		trace_error_wp("Invalid ECC offset parameter: ECC overflows spare zone\r\n");
 		return false;
 	}
 
@@ -312,6 +341,10 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	nand_set_dma_enabled(false);
 
 	/* Initialize PMECC */
+	if (header == 0) {
+		header = pmecc_get_default_header();
+		trace_info_wp("Using default PMECC configuration\r\n");
+	}
 	if (pmecc_set_header(header)) {
 		nand_header = header;
 	} else {
