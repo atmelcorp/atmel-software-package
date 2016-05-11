@@ -404,10 +404,10 @@ static void configure_mck_clock(void)
 {
 	pmc_enable_peripheral(ID_ISC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(8 ,0);
+	isc_configure_master_clock(7 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_master_clock();
-	isc_configure_isp_clock(4 ,0);
+	isc_configure_isp_clock(2 ,0);
 	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 	isc_enable_isp_clock();
 }
@@ -514,7 +514,6 @@ static void configure_isc(void)
 	 * shows the number of bits per sample depends on the bit
 	 * width of sensor output. The PFE module outputs a 12-bit
 	 * data on the vp_data[11:0] bus */
-	aic_disable(ID_ISC);
 	isc_software_reset();
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(sensor_output_bit_width));
@@ -672,6 +671,8 @@ static void configure_isc(void)
 static void configure_dma_linklist(void)
 {
 	uint32_t i;
+
+	aic_disable(ID_ISC);
 	isc_software_reset();
 	if ((lcd_mode == LCD_MODE_YUV422_PLANAR) \
 		|| (lcd_mode == LCD_MODE_YUV420_PLANAR)){
