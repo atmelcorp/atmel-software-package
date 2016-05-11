@@ -225,7 +225,8 @@ void isc_pfe_set_cropping_area(
  */
 void isc_configure_isp_clock(uint32_t ispClockDiv, uint32_t ispClockSelection)
 {
-	ISC->ISC_CLKCFG |= ISC_CLKCFG_ICDIV(ispClockDiv) | (ispClockSelection << 8);
+	uint32_t clkcfg = ISC->ISC_CLKCFG & ~(ISC_CLKCFG_ICDIV_Msk | ISC_CLKCFG_ICSEL);
+	ISC->ISC_CLKCFG = clkcfg | ISC_CLKCFG_ICDIV(ispClockDiv) | (ispClockSelection << 8);
 }
 
 /**
@@ -262,8 +263,9 @@ void isc_reset_isp_clock(void)
  */
 void isc_configure_master_clock(uint32_t masterClockDiv, uint32_t masterClockSelection)
 {
-	ISC->ISC_CLKCFG |= ISC_CLKCFG_MCDIV(masterClockDiv)
-					| ISC_CLKCFG_MCSEL(masterClockSelection);
+	uint32_t clkcfg = ISC->ISC_CLKCFG & ~(ISC_CLKCFG_MCDIV_Msk | ISC_CLKCFG_MCSEL_Msk);
+	ISC->ISC_CLKCFG = clkcfg | ISC_CLKCFG_MCDIV(masterClockDiv)
+		                     | ISC_CLKCFG_MCSEL(masterClockSelection);
 }
 
 /**
@@ -576,7 +578,8 @@ void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
 		ISC->ISC_SUB422_CFG = ISC_SUB422_CFG_CCIR | byteOrder ;
 	else
 		ISC->ISC_SUB422_CFG = 0;
-	ISC->ISC_SUB422_CFG |= lpf;
+   ISC->ISC_SUB422_CFG &= ~ISC_SUB422_CFG_FILTER_Msk;
+   ISC->ISC_SUB422_CFG |= lpf;
 }
 
 /**
