@@ -183,18 +183,25 @@ static sensor_status_t sensor_check_pid(struct _twi_desc *p_twid,
 						uint16_t pid,
 						uint16_t ver_mask)
 {
-	uint16_t pid_high, pid_low;
+	/* use uint32_t to force 4-byte alignment */
+	uint32_t pid_high = 0;
+	uint32_t pid_low = 0;
+
 	if (sensor_twi_read_reg(p_twid, reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
-	if (sensor_twi_read_reg(p_twid, reg_l,(uint8_t*)&pid_low) != SENSOR_OK)
+	pid_high &= 0xff;
+	if (sensor_twi_read_reg(p_twid, reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
-	printf("PID = <%x, %x> \n\r", pid_high ,pid_low );
-	if ((pid & ver_mask) == (((pid_high << 8 )| (pid_low)) & ver_mask))
+	pid_low &= 0xff;
+	
+	trace_debug_wp("SENSOR PID = <%x, %x>\n\r",
+			(unsigned)pid_high, (unsigned)pid_low);
+	
+	if ((pid & ver_mask) == (((pid_high << 8) | pid_low) & ver_mask))
 		return SENSOR_OK;
 	else
 		return SENSOR_ID_ERROR;
 }
-
 
 /*----------------------------------------------------------------------------
  *        Exported functions
