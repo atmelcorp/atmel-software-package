@@ -951,8 +951,6 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 		   to one. */
 		_set_dma_desc(buffer, data->dma_desc, layer->reg_dma_head);
 	}
-	cp15_flush_dcache_for_dma((uint32_t)data->dma_desc,
-			((uint32_t)data->dma_desc) + sizeof(struct _lcdc_dma_desc));
 
 	/* Set window & position */
 	if (layer->reg_win) {
