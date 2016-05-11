@@ -39,6 +39,14 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+/* \brief Writing to the ISC_CTRLEN or ISC_CTRLDIS register requires a double domain 
+  * synchronization, so it is forbidden to write these registers when the ISC_CTRLSR.SIP
+  * bit is asserted.
+*/
+static bool isc_is_sip_asserted(void)
+{
+	return (ISC->ISC_CTRLSR & ISC_CTRLSR_SIP) == ISC_CTRLSR_SIP;
+}
 
 /*----------------------------------------------------------------------------
  *        Export functions
@@ -53,6 +61,7 @@
  */
 void isc_start_capture(void)
 {
+	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLEN = ISC_CTRLEN_CAPTURE;
 }
 
@@ -61,6 +70,7 @@ void isc_start_capture(void)
  */
 void isc_stop_capture(void)
 {
+	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLDIS = ISC_CTRLDIS_DISABLE;
 }
 
@@ -77,6 +87,7 @@ uint32_t isc_get_ctrl_status(void)
  */
 void isc_update_profile(void)
 {
+	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLEN = ISC_CTRLEN_UPPRO;
 	while((ISC->ISC_CTRLSR & ISC_CTRLSR_UPPRO) == ISC_CTRLSR_UPPRO);
 }
@@ -86,6 +97,7 @@ void isc_update_profile(void)
  */
 void isc_software_reset(void)
 {
+	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLDIS = ISC_CTRLDIS_SWRST;
 }
 
@@ -648,6 +660,7 @@ void isc_update_histogram_table(void)
  */
 void isc_clear_histogram_table(void)
 {
+	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISCLR;
 }
 
