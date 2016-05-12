@@ -101,6 +101,7 @@
 
 #include "video/lcdd.h"
 #include "video/image_sensor_inf.h"
+#include "compiler.h"
 
 #include "trace.h"
 #include "timer.h"
@@ -179,9 +180,11 @@ const struct _pin pins_isi[]= BOARD_ISI_PINS;
 static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** ISI frame buffer descriptor */
-ALIGNED(8) isi_frame_buffer_desc_t preview_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
+ALIGNED(L1_CACHE_BYTES)
+isi_frame_buffer_desc_t preview_path_fb_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIVEW_BUFFER, L1_CACHE_BYTES)];
 
-ALIGNED(8) isi_frame_buffer_desc_t codec_path_fb_desc[ISI_MAX_NUM_PREVIVEW_BUFFER];
+ALIGNED(L1_CACHE_BYTES)
+isi_frame_buffer_desc_t codec_path_fb_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIVEW_BUFFER, L1_CACHE_BYTES)];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -257,7 +260,7 @@ static void configure_frame_buffer(void)
 		preview_path_fb_desc[i].next    = (uint32_t)&preview_path_fb_desc[i + 1];
 	}
 	/* Wrapping to first FBD */
-	preview_path_fb_desc[i-1].next = (uint32_t)&preview_path_fb_desc[0];
+	preview_path_fb_desc[i-1].next = (uint32_t)preview_path_fb_desc;
 
 	for(i = 0; i < ISI_MAX_NUM_PREVIVEW_BUFFER; i++) {
 		codec_path_fb_desc[i].address = (uint32_t)ISI_CODEC_PATH_BASE_ADDRESS;
@@ -265,7 +268,7 @@ static void configure_frame_buffer(void)
 		codec_path_fb_desc[i].next    = (uint32_t)&codec_path_fb_desc[ i + 1];
 	}
 	/* Wrapping to first FBD */
-	codec_path_fb_desc[i-1].next = (uint32_t)&codec_path_fb_desc[0];
+	codec_path_fb_desc[i-1].next = (uint32_t)codec_path_fb_desc;
 	cache_clean_region(preview_path_fb_desc, sizeof(preview_path_fb_desc));
 	cache_clean_region(codec_path_fb_desc, sizeof(codec_path_fb_desc));
 }
@@ -312,12 +315,12 @@ static void configure_isi(void)
 	isi_set_matrix_yuv2rgb(&y2r);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)&preview_path_fb_desc[0],
+	isi_set_dma_preview_path((uint32_t)preview_path_fb_desc,
 							ISI_DMA_P_CTRL_P_FETCH,
 							(uint32_t)ISI_PREVIEW_PATH_BASE_ADDRESS);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_codec_path((uint32_t)&codec_path_fb_desc[0],
+	isi_set_dma_codec_path((uint32_t)codec_path_fb_desc,
 							ISI_DMA_C_CTRL_C_FETCH,
 							(uint32_t)ISI_CODEC_PATH_BASE_ADDRESS);
 
