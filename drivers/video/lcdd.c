@@ -98,33 +98,33 @@ static struct _lcdd_desc lcdd_config;         /**< Current LCD configuration */
 
 static struct _lcdd_layer lcdd_canvas;        /**< Current selected canvas */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
 
 static struct _layer_data lcdd_base;         /**< Base Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc ovr1_dma_desc;  /**< DMA desc. for OVR1 Layer */
 
 static struct _layer_data lcdd_ovr1;         /**< OVR1 Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc ovr2_dma_desc;  /**< DMA desc. for OVR2 Layer */
 
 static struct _layer_data lcdd_ovr2;         /**< OVR2 Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc heo_dma_desc;   /**< DMA desc. for HEO Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc heo_dma_u_desc; /**< DMA desc. for HEO U-UV Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc heo_dma_v_desc; /**< DMA desc. for HEO V Layer */
 
 static struct _layer_data lcdd_heo;          /**< HEO Layer */
 
-ALIGNED(64)
+ALIGNED(8)
 static struct _lcdc_dma_desc hcc_dma_desc;   /**< DMA desc. for HCC Layer */
 
 static struct _layer_data lcdd_hcc;          /**< HCC Layer */
@@ -936,6 +936,7 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 		data->dma_desc->addr = (uint32_t)buffer;
 		data->dma_desc->ctrl = LCDC_HEOCTRL_DFETCH;
 		data->dma_desc->next = (uint32_t)data->dma_desc;
+		cache_clean_region(data->dma_desc, sizeof(data->dma_desc));
 		layer->reg_dma_head[0] = (uint32_t)data->dma_desc;
 		layer->reg_enable[0] = LCDC_HEOCHER_A2QEN;
 	} else {

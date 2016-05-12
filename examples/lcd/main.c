@@ -145,13 +145,17 @@
 #define abs(x)  (((x) > 0)?(x):(-(x)))
 
 /** Size of base image buffer */
-#define SIZE_LCD_BUFFER_BASE    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
+#define SIZE_LCD_BUFFER_BASE \
+	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
 /** Size of Overlay 1 buffer */
-#define SIZE_LCD_BUFFER_OVR1    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
+#define SIZE_LCD_BUFFER_OVR1 \
+	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
 /** Size of Overlay 2 buffer */
-#define SIZE_LCD_BUFFER_OVR2    (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
+#define SIZE_LCD_BUFFER_OVR2 \
+	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
 /** Size of High End Overlay buffer */
-#define SIZE_LCD_BUFFER_HEO     (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
+#define SIZE_LCD_BUFFER_HEO \
+	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
 
 /** Width for OVR1 */
 #define OVR1_W      (BOARD_LCD_WIDTH*5/6)
@@ -194,19 +198,27 @@ static const struct _lcdd_desc lcd_desc = {
 
 /** LCD BASE buffer */
 
-SECTION(".region_ddr") static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES)
+static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
 /** Overlay 1 buffer */
 
-SECTION(".region_ddr") static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES)
+static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
 
 /** Overlay 2 buffer */
 
-SECTION(".region_ddr") static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES)
+static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 
 /** High End Overlay buffer */
 
-SECTION(".region_ddr") static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
+SECTION(".region_ddr")
+ALIGNED(L1_CACHE_BYTES)
+static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
 
 /** Pins for LCDC */
 static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
