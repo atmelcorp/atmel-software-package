@@ -175,8 +175,10 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.page_size = page_size;
 		mbx->out.mem_size = mem_size / page_size;
 		mbx->out.erase_support = erase_support;
+		mbx->out.nand_header = 0;
 
 		trace_info_wp("QSPI applet initialized successfully.\r\n");
+
 		return APPLET_SUCCESS;
 	}
 }
@@ -193,6 +195,8 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = flash.desc.page_size;
 	mbx->out.mem_size = flash.desc.size / flash.desc.page_size;
 	mbx->out.erase_support = erase_support;
+	mbx->out.nand_header = 0;
+
 	return APPLET_SUCCESS;
 }
 
@@ -221,7 +225,9 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 
 	trace_info_wp("Wrote %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);
+
 	mbx->out.pages = mbx->in.length;
+
 	return APPLET_SUCCESS;
 }
 

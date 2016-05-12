@@ -206,6 +206,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.page_size = page_size;
 		mbx->out.mem_size = size / page_size;
 		mbx->out.erase_support = erase_support;
+		mbx->out.nand_header = 0;
 
 		trace_info_wp("SPI serialflash applet initialized successfully.\r\n");
 		return APPLET_SUCCESS;
@@ -224,6 +225,7 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = at25drv.desc->page_size;
 	mbx->out.mem_size = at25drv.desc->size / at25drv.desc->page_size;
 	mbx->out.erase_support = erase_support;
+	mbx->out.nand_header = 0;
 
 	return APPLET_SUCCESS;
 }

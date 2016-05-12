@@ -261,6 +261,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = 0;
 	mbx->out.mem_size = 0;
 	mbx->out.erase_support = 0;
+	mbx->out.nand_header = 0;
 
 	return APPLET_SUCCESS;
 }

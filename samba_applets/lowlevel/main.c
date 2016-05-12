@@ -91,6 +91,14 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("Low-Level initialization complete.\r\n");
 	trace_info_wp("Processor clock: %dHz\r\n",
 			(unsigned)pmc_get_processor_clock());
+
+	mbx->out.buf_addr = 0;
+	mbx->out.buf_size = 0;
+	mbx->out.page_size = 0;
+	mbx->out.mem_size = 0;
+	mbx->out.erase_support = 0;
+	mbx->out.nand_header = 0;
+
 	return APPLET_SUCCESS;
 }
 

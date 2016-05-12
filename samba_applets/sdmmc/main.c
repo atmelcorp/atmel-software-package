@@ -355,6 +355,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = BLOCK_SIZE;
 	mbx->out.mem_size = mem_size;
 	mbx->out.erase_support = 0;
+	mbx->out.nand_header = 0;
 
 	trace_info_wp("SD/MMC device initialization successful\n\r");
 	trace_info_wp("Buffer Address: 0x%lx\r\n", mbx->out.buf_addr);
@@ -377,6 +378,7 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.page_size = BLOCK_SIZE;
 	mbx->out.mem_size = mem_size;
 	mbx->out.erase_support = 0;
+	mbx->out.nand_header = 0;
 
 	return APPLET_SUCCESS;
 }
