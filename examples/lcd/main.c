@@ -371,7 +371,7 @@ static void _LcdOn(void)
 	lcdd_draw_string(8, 56, "ATMEL RFO", COLOR_BLACK);
 	cache_clean_region(_ovr2_buffer, sizeof(_ovr2_buffer));
 
-    /* Test LCD draw */
+	/* Test LCD draw */
 	wOvr1X = IMG_X(0);
 	wOvr1Y = IMG_Y(0);
 	wOvr1W = BOARD_LCD_WIDTH/2;
@@ -391,9 +391,9 @@ static void _LcdOn(void)
  * \param pDir Pointer to DIR.
  */
 static void _move_calc(uint16_t *pwX, uint16_t *pwY, uint8_t *pDir,
-						uint8_t  bXMov, uint8_t  bYMov,
-						uint16_t wXMin, uint16_t wXMax,
-						uint16_t wYMin, uint16_t wYMax)
+	uint8_t  bXMov, uint8_t  bYMov,
+	uint16_t wXMin, uint16_t wXMax,
+	uint16_t wYMin, uint16_t wYMax)
 {
 	uint8_t x_dir = (0xF0 & *pDir);
 	uint8_t y_dir = (0x0F & *pDir);
@@ -437,7 +437,8 @@ static void _rotates(void)
 	int32_t w = wHeoW, h = wHeoH;
 	uint16_t wRotate = 0;
 
-	if (!lcdd_is_layer_on(LCDD_HEO)) return;
+	if (!lcdd_is_layer_on(LCDD_HEO))
+		return;
 
 	switch (bHeoDraw){
 		/* Origional size */
@@ -529,9 +530,8 @@ static void _rotates(void)
 		wHeoY = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
 	}
 
-	printf("Show: %u,%u %d, %d %u\n\r", (unsigned int)SCR_X(wHeoX),
-	       (unsigned int)SCR_Y(wHeoY), (int)w, (int)h,
-	       (unsigned int)wRotate);
+	printf("Show: %u,%u %d, %d %u\n\r", (unsigned)SCR_X(wHeoX),
+	       (unsigned)SCR_Y(wHeoY), (int)w, (int)h, (unsigned)wRotate);
 	lcdd_put_image_rotated(LCDD_HEO, 0, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY),
 			      w, h, wHeoImgW, wHeoImgH, wRotate);
 
@@ -551,11 +551,13 @@ static void _draws(void)
 
 	x = wOvr1W / 2;
 	y = wOvr1H / 2;
-	if (!lcdd_is_layer_on(LCDD_OVR1)) return;
+	if (!lcdd_is_layer_on(LCDD_OVR1))
+		return;
 
 	/* Drawing width, height */
-	if (bDrawSize == 0) w = h = 2;
-	else {
+	if (bDrawSize == 0) {
+		w = h = 2;
+	} else {
 		w = wOvr1W / 10 * bDrawSize;
 		h = wOvr1H / 10 * bDrawSize;
 	}
@@ -568,12 +570,9 @@ static void _draws(void)
 		lcdd_draw_circle(x, y, w > h ? h/2 : w/2, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	} else {
-	/* Draw rectangles */
 		/* Remove last shape */
-		//lcdd_draw_rectangle(x - wLastW/2, y - wLastH/2, wLastW, wLastH, OVR1_BG);
 		lcdd_draw_rounded_rect(x - wLastW/2, y - wLastH/2, wLastW, wLastH, wLastH/3, OVR1_BG);
-	/* Draw new */
-		//lcdd_draw_rectangle(x - w/2, y - h/2, w, h, test_colors[ncolor]);
+		/* Draw new */
 		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	}
@@ -582,29 +581,30 @@ static void _draws(void)
 	wLastW = w;
 	wLastH = h;
 
-    /* Size -- */
-	if (bDrawChange){
-		if (bDrawSize == 0){
+	/* Size -- */
+	if (bDrawChange) {
+		if (bDrawSize == 0) {
 			bDrawShape = !bDrawShape;
 			bDrawChange = 0;
 		} else {
-			bDrawSize --;
+			bDrawSize--;
 		}
 	}
 	/* Size ++ */
 	else {
-		if (bDrawSize == 8){
+		if (bDrawSize == 8) {
 			bDrawChange = 1;
 		} else {
-			bDrawSize ++;
+			bDrawSize++;
 		}
 	}
 
 	/* Display message font 10x8 */
 	lcdd_select_font(FONT10x8);
-	lcdd_draw_string(1, 1, "This example shows the \n graphic "
-			 "functionnalities \n  on a SAMA5D27-XULT board",
-			 COLOR_BLACK);
+	lcdd_draw_string(1, 1,
+			" This example shows the \n"
+			"graphic functionnalities\n"
+			"       on a SAMA5", COLOR_BLACK);
 }
 
 /**
@@ -692,28 +692,33 @@ extern int main(void)
 	_LcdOn();
 
 	t1 = timer_get_tick();
-	printf("ADDR_LCD_BUFFER_HEO is %x, %x\n\r",
-	       (unsigned int)_heo_buffer,
-	       (unsigned int)_heo_buffer+sizeof(_heo_buffer));
+	printf("ADDR_LCD_BUFFER_HEO is 0x%x, size %u\n\r",
+	       (unsigned)_heo_buffer,
+	       (unsigned)sizeof(_heo_buffer));
 	while(1) {
 		_DbgEvents();
 		t2 = timer_get_tick();
 		/* Move layers */
-		if ((t2 - t1) >= 10){
+		if ((t2 - t1) >= 10) {
 			t1 = t2;
 			_moves();
+
 			/* Change OVR1  */
 			if (ovr1Dly >= 500 / 50){
 				ovr1Dly = 0;
 				_draws();
 				led_toggle(LED_BLUE);
-			} else ovr1Dly ++;
+			} else {
+				ovr1Dly++;
+			}
 
 			/* Change HEO display mode */
 			if (heoDly >= 4000 / 50) {
 				heoDly = 0;
 				_rotates();
-			} else heoDly ++;
+			} else {
+				heoDly++;
+			}
 		}
 	}
 }
