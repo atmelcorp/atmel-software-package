@@ -1347,13 +1347,9 @@ struct _lcdd_layer *lcdd_get_canvas(void)
 void lcdd_flush_canvas(void)
 {
 	struct _lcdd_layer *layer;
-	uint32_t base, height, width;
 
 	layer = lcdd_get_canvas();
-	base = (uint32_t)layer->buffer;
-	height = layer->height;
-	width = layer->width;
-	cache_clean_region(base, height * width * 4);
+	cache_clean_region(layer->buffer, layer->height * layer->width * 4);
 }
 
 /**
