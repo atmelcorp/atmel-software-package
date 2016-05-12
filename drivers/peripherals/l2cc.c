@@ -331,8 +331,6 @@ void l2cc_instruction_lockdown(uint8_t way)
 
 static void l2cc_clean(void)
 {
-	// Clean of L1; This is broadcast within the cluster
-	cp15_dcache_clean();
 	if (l2cc_is_enabled()) {
 		// forces the address out past level 2
 		l2cc_clean_way(0xFF);
@@ -349,24 +347,16 @@ static void l2cc_invalidate(void)
 		// Ensures completion of the L2 inval
 		l2cc_cache_sync();
 	}
-	// Inval of L1; This is broadcast within the cluster
-	cp15_dcache_invalidate();
 }
 
 static void l2cc_clean_invalidate(void)
 {
-	/* Clean of L1; This is broadcast within the cluster */
-	cp15_dcache_clean();
-
 	if (l2cc_is_enabled()) {
 		/* forces the address out past level 2 */
 		l2cc_clean_invalidate_way(0xFF);
 		/* Ensures completion of the L2 inval */
 		l2cc_cache_sync();
 	}
-
-	/* Inval of L1; This is broadcast within the cluster */
-	cp15_dcache_invalidate();
 }
 
 void l2cc_cache_maintenance(enum _maint_op maintenance)
