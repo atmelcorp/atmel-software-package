@@ -113,7 +113,6 @@
 #include "misc/led.h"
 #include "misc/console.h"
 
-#include "power/act8945a.h"
 
 #include "lin.h"
 
@@ -160,22 +159,6 @@ uint8_t lin_data_slave[8];
 
 static uint32_t lin_led_red_counter = 0;
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	struct _pin act8945a_pins[] = ACT8945A_PINS;
-
-	struct _twi_desc act8945a_twid = {
-		.addr = ACT8945A_ADDR,
-		.freq = ACT8945A_FREQ,
-		.transfert_mode = TWID_MODE_POLLING
-	};
-	struct _act8945a act8945a = {
-		.desc = {
-			.pin_chglev = ACT8945A_PIN_CHGLEV,
-			.pin_irq = ACT8945A_PIN_IRQ,
-			.pin_lbo = ACT8945A_PIN_LBO
-		}
-	};
-#endif
 
 /** COM2 definition **/
 #define PINS_COM2_USART         PINS_FLEXCOM0_USART_IOS1
@@ -459,15 +442,7 @@ int main(void)
 	led_configure(LED_GREEN);
 	led_configure(LED_BLUE);
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500); /* VLEDS */
-		act8945a_enable_regulator(&act8945a, 6, true);
-	} else {
-		printf("--E-- Error initializing ACT8945A PMIC\n\r");
-	}
-#endif
+	board_cfg_pmic();
 
 	/* Configure Timer/Counter */
 	_configure_tc();

@@ -125,7 +125,6 @@
 #include "misc/led.h"
 #include "misc/console.h"
 
-#include "power/act8945a.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -199,24 +198,6 @@ unsigned count = 0;
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	struct _pin act8945a_pins[] = ACT8945A_PINS;
-
-	struct _twi_desc act8945a_twid = {
-		.addr = ACT8945A_ADDR,
-		.freq = ACT8945A_FREQ,
-		.transfert_mode = TWID_MODE_POLLING
-	};
-
-	struct _act8945a act8945a = {
-		.desc = {
-			.pin_chglev = ACT8945A_PIN_CHGLEV,
-			.pin_irq = ACT8945A_PIN_IRQ,
-			.pin_lbo = ACT8945A_PIN_LBO
-		}
-	};
-#endif
 
 /** ADC sample data */
 static struct _adc_sample _data;
@@ -599,15 +580,7 @@ int main(void)
 	       "-- " BOARD_NAME "\n\r"
 	       "-- Compiled: "__DATE__ " at " __TIME__" --\n\r");
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500); /* VLEDS */
-		act8945a_enable_regulator(&act8945a, 6, true);
-	} else {
-		printf("--E-- Error initializing ACT8945A PMIC\n\r");
-	}
-#endif
+	board_cfg_pmic();
 
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");

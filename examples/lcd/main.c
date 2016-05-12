@@ -102,7 +102,6 @@
 #include "peripherals/l2cc.h"
 
 #include "misc/console.h"
-#include "power/act8945a.h"
 #include "misc/led.h"
 
 #include "video/lcdd.h"

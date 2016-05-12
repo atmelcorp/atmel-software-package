@@ -133,7 +133,6 @@
 
 #include "misc/console.h"
 
-#include "power/act8945a.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -159,21 +158,6 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-struct _pin act8945a_pins[] = ACT8945A_PINS;
-struct _twi_desc act8945a_twid = {
-	.addr = ACT8945A_ADDR,
-	.freq = ACT8945A_FREQ,
-	.transfert_mode = TWID_MODE_POLLING
-};
-struct _act8945a act8945a = {
-	.desc = {
-		.pin_chglev = ACT8945A_PIN_CHGLEV,
-		.pin_irq = ACT8945A_PIN_IRQ,
-		.pin_lbo = ACT8945A_PIN_LBO
-	}
-};
-#endif
 
 /** data buffer for SPI master's receive */
 static uint8_t spi_buffer_master_rx[DMA_TRANS_SIZE];
@@ -357,16 +341,7 @@ int main(void)
 	printf("-- " BOARD_NAME "\r\n");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\r\n");
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
-		act8945a_enable_regulator(&act8945a, 6, true);
-	} else {
-		printf("Error initializing ACT8945A PMIC\r\n");
-		return 0;
-	}
-#endif
+	board_cfg_pmic();
 
 	/* Configure SPI pins */
 	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));

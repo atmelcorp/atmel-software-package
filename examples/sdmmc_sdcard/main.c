@@ -107,8 +107,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
 #include "peripherals/l2cc.h"
-#include "peripherals/twid.h"
-#include "power/act8945a.h"
 #include "libsdmmc/libsdmmc.h"
 #include "fatfs/src/ff.h"
 
@@ -209,22 +207,6 @@ SECTION(".region_ddr")
 ALIGNED(L1_CACHE_BYTES) static struct padded_fil f_header;
 
 static struct sha_set sha = { .count = 0 };
-
-#if defined(CONFIG_HAVE_PMIC_ACT8945A) && !defined(SDMMC_TRIM_LOW_VOLTAGE)
-static struct _twi_desc pmic_twid = {
-	.addr = ACT8945A_ADDR,
-	.freq = ACT8945A_FREQ,
-	.transfert_mode = TWID_MODE_POLLING,
-};
-static struct _act8945a pmic = {
-	.desc = {
-		.pin_chglev = ACT8945A_PIN_CHGLEV,
-		.pin_irq = ACT8945A_PIN_IRQ,
-		.pin_lbo = ACT8945A_PIN_LBO,
-	},
-};
-#endif
-
 static uint8_t slot;
 static bool use_dma;
 
@@ -267,27 +249,6 @@ static void display_menu(void)
 	printf("   r: Read the file named '%s'\n\r", test_file_path);
 	printf("   w: Perform a basic RAW read/write test.\n\r");
 	printf("\n\r");
-}
-
-static bool configure_pmic(void)
-{
-#if defined(CONFIG_HAVE_PMIC_ACT8945A) && !defined(SDMMC_TRIM_LOW_VOLTAGE)
-	const struct _pin pins[] = ACT8945A_PINS;
-
-	if (!pio_configure(pins, ARRAY_SIZE(pins)))
-		return false;
-	if (!act8945a_configure(&pmic, &pmic_twid))
-		return false;
-	if (!act8945a_set_regulator_voltage(&pmic, 7, 1800))
-		return false;
-	if (!act8945a_enable_regulator(&pmic, 7, true))
-		return false;
-	if (!act8945a_set_regulator_voltage(&pmic, 6, 2500))
-		return false;
-	return act8945a_enable_regulator(&pmic, 6, true);
-#else
-	return false;
-#endif
 }
 
 static void initialize(void)
@@ -513,9 +474,6 @@ int main(void)
 	printf("-- SD Card Example " SOFTPACK_VERSION " --\n\r") ;
 	printf("-- " BOARD_NAME "\n\r");
 	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
-
-	if (!configure_pmic())
-		trace_error("Failed to init PMIC\n\r");
 
 #if USE_EXT_RAM && !defined(VARIANT_DDRAM)
 	board_cfg_ddram();

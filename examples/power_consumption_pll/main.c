@@ -116,7 +116,6 @@
 #include "peripherals/pio.h"
 
 #include "misc/led.h"
-#include "power/act8945a.h"
 #include "misc/console.h"
 
 #include "clk-config.h"

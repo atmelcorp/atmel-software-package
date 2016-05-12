@@ -112,7 +112,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/pmc.h"
 
-#include "power/act8865.h"
 #include "audio/wm8904.h"
 
 #include <stdio.h>
@@ -171,15 +170,6 @@ static struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
 ALIGNED(L1_CACHE_BYTES) 
 static struct _xdmad_desc_view1 dma_read_link_list[TOTAL_BUFFERS];
 
-struct _twi_desc act8865_twid = {
-	.addr = TWI0,
-	.freq = TWI_CLOCK,
-	.transfert_mode = TWID_MODE_POLLING
-};
-
-static struct _act8865 pmic = {
-	.twid = &act8865_twid
-};
 
 /** Twi instance*/
 struct _twi_desc wm8904_twid = {
@@ -357,19 +347,7 @@ int main( void )
 	/* Configure DMA */
 	dma_configure();
 
-	/* Configure and enable the TWI (required for accessing the DAC) */
-	twid_configure(pmic.twid);
-
-	/* check the pmic chip is present */
-	if (!act8865_check_twi_status(&pmic)) {
-		printf("ac8865 not found!\n\r");
-		while(1);
-	}
-
-	/* Enable pmic output 3.3V for audio chip */
-	act8865_set_reg_voltage(&pmic, REG5_0, ACT8865_3V3);
-	/* Enable pmic output 1.8V AVDD for audio chip */
-	act8865_set_reg_voltage(&pmic, REG6_0, ACT8865_1V8);
+	board_cfg_pmic();
 
 	/* Configure and enable the TWI (required for accessing the DAC) */
 	twid_configure(&wm8904_twid);

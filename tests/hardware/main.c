@@ -52,7 +52,6 @@
 #include "misc/console.h"
 #include "utils/timer.h"
 
-#include "power/act8945a.h"
 #include "video/lcdd.h"
 #include "utils/widget.h"
 
@@ -70,23 +69,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	struct _pin act8945a_pins[] = ACT8945A_PINS;
-
-	struct _twi_desc act8945a_twid = {
-		.addr = ACT8945A_ADDR,
-		.freq = ACT8945A_FREQ,
-		.transfert_mode = TWID_MODE_POLLING
-	};
-
-	struct _act8945a act8945a = {
-		.desc = {
-			.pin_chglev = ACT8945A_PIN_CHGLEV,
-			.pin_irq = ACT8945A_PIN_IRQ,
-			.pin_lbo = ACT8945A_PIN_LBO
-		}
-	};
-#endif
 
 /** LED0 blink time, LED1 blink half this time, in ms */
 #define BLINK_PERIOD        1000
@@ -295,17 +277,7 @@ int main(void)
 	printf("Configure PIT \n\r");
 	timer_configure(BLINK_PERIOD);
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
-		act8945a_enable_regulator(&act8945a, 6, true);
-		act8945a_set_regulator_voltage(&act8945a, 7, 1800);
-		act8945a_enable_regulator(&act8945a, 7, true);
-	} else {
-		printf("--E-- Error initializing ACT8945A PMIC\n\r");
-	}
-#endif
+	board_cfg_pmic();
 
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");

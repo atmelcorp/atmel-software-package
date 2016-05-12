@@ -127,7 +127,6 @@
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "power/act8945a.h"
 
 #include "usb/device/hid/hidd_transfer_driver.h"
 #include "usb/device/usbd.h"
@@ -160,21 +159,6 @@ uint8_t  in_buffer[BUFFER_SIZE];
 ALIGNED(L1_CACHE_BYTES) 
 uint8_t  out_buffer[BUFFER_SIZE] = {0x80};
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-struct _pin act8945a_pins[] = ACT8945A_PINS;
-struct _twi_desc act8945a_twid = {
-	.addr = ACT8945A_ADDR,
-	.freq = ACT8945A_FREQ,
-	.transfert_mode = TWID_MODE_POLLING
-};
-struct _act8945a act8945a = {
-	.desc = {
-		.pin_chglev = ACT8945A_PIN_CHGLEV,
-		.pin_irq = ACT8945A_PIN_IRQ,
-		.pin_lbo = ACT8945A_PIN_LBO
-	}
-};
-#endif
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -321,16 +305,7 @@ int main( void )
 	printf("-- %s\n\r", BOARD_NAME);
 	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
 
-
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
-		act8945a_enable_regulator(&act8945a, 6, true);
-	} else {
-		printf("--E-- Error initializing ACT8945A PMIC\n\r");
-	}
-#endif
+	board_cfg_pmic();
 
 	/* If they are present, configure Vbus & Wake-up pins */
 	pio_reset_all_it();

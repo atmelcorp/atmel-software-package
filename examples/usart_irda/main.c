@@ -98,7 +98,6 @@
 
 #include "misc/console.h"
 
-#include "power/act8945a.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -128,24 +127,6 @@
 /*------------------------------------------------------------------------------
  *         Internal variables
  *------------------------------------------------------------------------------*/
-
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	struct _pin act8945a_pins[] = ACT8945A_PINS;
-
-	struct _twi_desc act8945a_twid = {
-		.addr = ACT8945A_ADDR,
-		.freq = ACT8945A_FREQ,
-		.transfert_mode = TWID_MODE_POLLING
-	};
-
-	struct _act8945a act8945a = {
-		.desc = {
-			.pin_chglev = ACT8945A_PIN_CHGLEV,
-			.pin_irq = ACT8945A_PIN_IRQ,
-			.pin_lbo = ACT8945A_PIN_LBO
-		}
-	};
-#endif
 
 /** define pins for IrDA TX & RX */
 static const struct _pin pins_irda[] = IRDA_PINS;
@@ -261,15 +242,7 @@ extern int main( void )
 	printf( "-- %s\n\r", BOARD_NAME ) ;
 	printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
 
-#ifdef CONFIG_HAVE_PMIC_ACT8945A
-	pio_configure(act8945a_pins, ARRAY_SIZE(act8945a_pins));
-	if (act8945a_configure(&act8945a, &act8945a_twid)) {
-		act8945a_set_regulator_voltage(&act8945a, 6, 2500);
-		act8945a_enable_regulator(&act8945a, 6, true);
-	} else {
-		printf("--E-- Error initializing ACT8945A PMIC\n\r");
-	}
-#endif
+	board_cfg_pmic();
 
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
