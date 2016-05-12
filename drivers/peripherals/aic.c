@@ -62,8 +62,6 @@
 #include "chip.h"
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
-#include "cortex-a/cp15.h"
-#include "cortex-a/cp15_pmu.h"
 #include "cortex-a/cpsr.h"
 
 #include <stdint.h>

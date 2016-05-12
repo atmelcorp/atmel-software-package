@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -147,7 +147,7 @@
 #include "misc/led.h"
 
 #include "peripherals/classd.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -257,7 +257,7 @@ static void _classd_dma_tx(void* buffer, uint16_t wsize)
 {
 	static struct _xdmad_cfg xdmad_cfg;
 
-	l2cc_clean_region((uint32_t)buffer, (uint32_t)((uint32_t*)buffer + (wsize/2)));
+	cache_clean_region(buffer, wsize / 2);
 
 	xdmad_cfg.ublock_size = wsize/2;
 	xdmad_cfg.src_addr = (uint32_t*)buffer;

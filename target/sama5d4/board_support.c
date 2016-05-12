@@ -42,7 +42,6 @@
 #include "trace.h"
 
 #include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 
 #include "peripherals/hsmc.h"
 #include "peripherals/l2cc.h"
@@ -52,6 +51,7 @@
 
 #include "memories/ddram.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "board_support.h"
@@ -367,7 +367,7 @@ void board_update_tlb_ddr_attr(uint32_t *tlb, bool cacheable)
 			  | TTB_SECT_EXEC
 			  | (cacheable ? TTB_SECT_CACHEABLE_WB : TTB_SECT_STRONGLY_ORDERED)
 			  | TTB_TYPE_SECT;
-	cp15_coherent_dcache_for_dma((uint32_t)tlb, (uint32_t)tlb + 4096);
+	cache_clean_region(tlb, 4096);
 }
 
 void board_cfg_l2cc(void)

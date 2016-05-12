@@ -97,12 +97,11 @@
 #include "timer.h"
 
 #include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/wdt.h"
@@ -258,8 +257,7 @@ static void play_recording(void)
 				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
 				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
 
-	l2cc_clean_region((uint32_t)dma_read_link_list, (uint32_t )dma_read_link_list 
-							+ sizeof(dma_read_link_list));
+	cache_clean_region(dma_read_link_list, sizeof(dma_read_link_list));
 
 	xdmad_configure_transfer(ssc_dma_rx_channel, &xdmad_cfg, xdma_cndc,
 							&dma_read_link_list[0]);
@@ -299,7 +297,7 @@ static void play_recording(void)
 	xdmad_configure_transfer(ssc_dma_tx_channel, &xdmad_cfg, xdma_cndc,
 							&dma_write_link_list[0]);
 
-	l2cc_clean_region((uint32_t)dma_write_link_list, (uint32_t)dma_write_link_list + sizeof(dma_write_link_list));
+	cache_clean_region(dma_write_link_list, sizeof(dma_write_link_list));
 	xdmad_start_transfer(ssc_dma_rx_channel);
 	ssc_enable_receiver(&ssc_dev);
 

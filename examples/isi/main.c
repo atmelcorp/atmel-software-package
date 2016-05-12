@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -92,7 +92,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 
 #include "misc/console.h"
 #include "peripherals/twi.h"
@@ -266,8 +266,8 @@ static void configure_frame_buffer(void)
 	}
 	/* Wrapping to first FBD */
 	codec_path_fb_desc[i-1].next = (uint32_t)&codec_path_fb_desc[0];
-	l2cc_clean_region((uint32_t)preview_path_fb_desc, ((uint32_t)preview_path_fb_desc) + sizeof(preview_path_fb_desc));
-	l2cc_clean_region((uint32_t)codec_path_fb_desc, ((uint32_t)codec_path_fb_desc) + sizeof(codec_path_fb_desc));
+	cache_clean_region(preview_path_fb_desc, sizeof(preview_path_fb_desc));
+	cache_clean_region(codec_path_fb_desc, sizeof(codec_path_fb_desc));
 }
 
 /**

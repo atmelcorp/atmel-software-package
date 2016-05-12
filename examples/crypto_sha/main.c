@@ -105,8 +105,8 @@
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
-#include "cortex-a/cp15.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "trace.h"
 
@@ -336,7 +336,7 @@ static void init_dma(void)
 static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	const uint32_t words = algo_desc[op_mode].block_len_words;
-	uint32_t i, addr;
+	uint32_t i;
 
 	dma_cfg.cfg.uint32_value =
 		XDMAC_CC_TYPE_PER_TRAN |
@@ -349,8 +349,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		XDMAC_CC_SAM_INCREMENTED_AM |
 		XDMAC_CC_DAM_FIXED_AM;
 	for (i = 0; i < len; i++) {
-		addr = (uint32_t)&buf[i * words];
-		cp15_coherent_dcache_for_dma(addr, addr + words * 4);
+		cache_clean_region(&buf[i * words], words * 4);
 		dma_dlist[i].ublock_size = XDMA_UBC_NVIEW_NDV1 |
 			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
 			XDMA_UBC_NSEN_UPDATED | words;
@@ -358,8 +357,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		dma_dlist[i].dest_addr = (void*)&SHA->SHA_IDATAR[0];
 		dma_dlist[i].next_desc = i == len - 1 ? NULL : &dma_dlist[i + 1];
 	}
-	addr = (uint32_t)&dma_dlist[0];
-	cp15_coherent_dcache_for_dma(addr, addr + sizeof(*dma_dlist) * len);
+	cache_clean_region(dma_dlist, sizeof(*dma_dlist) * len);
 	xdmad_configure_transfer(dma_chan, &dma_cfg,
 		XDMAC_CNDC_NDVIEW_NDV1 |
 		XDMAC_CNDC_NDE_DSCR_FETCH_EN |

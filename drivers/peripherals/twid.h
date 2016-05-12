@@ -76,8 +76,8 @@ struct _twi_desc
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
-	uint32_t region_start;
-	uint32_t region_end;
+	void* region_start;
+	uint32_t region_length;
 	twid_callback_t callback;
 	void*   cb_args;
 };

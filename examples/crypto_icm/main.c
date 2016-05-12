@@ -93,7 +93,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/wdt.h"
@@ -250,7 +250,7 @@ int main( void )
 	mainlist[3].icm_rcfg = ICM_RCFG_EOM | ICM_RCFG_ALGO_SHA256;
 	mainlist[3].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */
 	mainlist[3].icm_rnext = 0;
-	l2cc_clean_region((uint32_t)mainlist, ((uint32_t)mainlist) + sizeof(mainlist));
+	cache_clean_region(mainlist, sizeof(mainlist));
 
 	/* A software triggered hardware reset of the ICM interface is performed */
 	icm_swrst();
@@ -298,7 +298,7 @@ int main( void )
 	mainlist[3].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */
 	mainlist[3].icm_rnext = 0;
 
-	l2cc_clean_region((uint32_t)mainlist, ((uint32_t)mainlist) + sizeof(mainlist));
+	cache_clean_region(mainlist, sizeof(mainlist));
 	icm_disable_it(-1);
 	icm_enable_monitor(ID_REGION0 | ID_REGION1 | ID_REGION2 | ID_REGION3);
 	icm_enable_it(ICM_IER_RDM(ID_REGION0 | ID_REGION1 | ID_REGION2 | ID_REGION3));
@@ -311,10 +311,10 @@ int main( void )
 	printf("Change context in region 3, expect region 3 digest mismatch...\n\r");
 	message_region3_sha256[6] = 0xFFFFFFFF;
 
-	l2cc_clean_region((uint32_t)message_region0_sha1, ((uint32_t)message_region0_sha1) + 64);
-	l2cc_clean_region((uint32_t)message_region1_sha1, ((uint32_t)message_region1_sha1) + 64);
-	l2cc_clean_region((uint32_t)message_region2_sha224, ((uint32_t)message_region2_sha224) + 64);
-	l2cc_clean_region((uint32_t)message_region3_sha256, ((uint32_t)message_region3_sha256) + 64);
+	cache_clean_region(message_region0_sha1, 64);
+	cache_clean_region(message_region1_sha1, 64);
+	cache_clean_region(message_region2_sha224, 64);
+	cache_clean_region(message_region3_sha256, 64);
 
 	icm_enable();
 	region_mismatch = 0;

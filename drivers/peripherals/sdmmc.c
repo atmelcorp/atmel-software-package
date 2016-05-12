@@ -70,7 +70,7 @@
 #include "timer.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/sdmmc.h"
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"   /* Included for debug functions only */
@@ -543,7 +543,7 @@ static uint8_t sdmmc_build_dma_table(struct sdmmc_set *set, sSdmmcCommand *cmd)
 	 * when it reads from RAM.
 	 * CPU access to the table is write-only, peripheral/DMA access is read-
 	 * only, hence there is no need to invalidate. */
-	l2cc_clean_region((uint32_t)set->table, (uint32_t)line);
+	cache_clean_region(set->table, (uint32_t)line - (uint32_t)set->table);
 
 	return rc;
 }
@@ -1350,7 +1350,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    && set->use_set_blk_cnt;
 	const bool stop_xfer_suffix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && !set->use_set_blk_cnt;
-	uint32_t timer_res_prv, usec, eister, mask, addr, len, cycles;
+	uint32_t timer_res_prv, usec, eister, mask, len, cycles;
 	uint16_t cr, tmr;
 	uint8_t rc = SDMMC_OK, mc1r;
 
@@ -1394,12 +1394,11 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		rc = sdmmc_build_dma_table(set, cmd);
 		if (rc != SDMMC_OK && rc != SDMMC_CHANGED)
 			return rc;
-		addr = (uint32_t)cmd->pData;
 		len = (uint32_t)cmd->wNbBlocks * (uint32_t)cmd->wBlockSize;
 		if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX)
 			/* Ensure the outgoing data can be fetched directly from
 			 * RAM */
-			l2cc_clean_region(addr, addr + len);
+			cache_clean_region(cmd->pData, len);
 		else if (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX)
 			/* Invalidate the corresponding data cache lines now, so
 			 * this buffer is protected against a global cache clean
@@ -1410,7 +1409,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 			 * anticipated reading had to be supported, the data
 			 * cache lines would need to be invalidated twice: both
 			 * now and upon Transfer Complete. */
-			l2cc_invalidate_region(addr, addr + len);
+			cache_invalidate_region(cmd->pData, len);
 	}
 	if (multiple_xfer && !has_data)
 		trace_warning("Inconsistent data\n\r");

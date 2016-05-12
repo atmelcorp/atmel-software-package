@@ -75,8 +75,8 @@ struct _spi_desc
 	spid_callback_t callback;
 	void*           cb_args;
 	mutex_t         mutex;
-	uint32_t        region_start;
-	uint32_t        region_end;
+	void*           region_start;
+	uint32_t        region_length;
 };
 
 /*------------------------------------------------------------------------------

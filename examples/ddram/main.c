@@ -54,7 +54,7 @@
 #include "trace.h"
 
 #include "peripherals/wdt.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -98,8 +98,8 @@ static uint32_t _ddram_access(uint32_t baseAddr, uint32_t size)
 			count = BUFFER_SIZE;
 
 		memcpy(ptr + offset, random_buffer, count*4);
-		l2cc_clean_region((uint32_t)(ptr + offset), (uint32_t)(ptr + offset + count));
-		l2cc_invalidate_region((uint32_t)(ptr + offset), (uint32_t)(ptr + offset + count));
+		cache_clean_region(ptr + offset, count);
+		cache_invalidate_region(ptr + offset, count);
 
 		for (i = 0; i < count; i++) {
 			value = ptr[offset + i];

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -40,9 +40,7 @@
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/l2cc.h"
-
-#include "cortex-a/cp15.h"
+#include "misc/cache.h"
 
 #include "trace.h"
 #include "io.h"
@@ -91,8 +89,8 @@ static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 	trace_debug("TWID DMA Transfert Finished\r\n");
 	struct _twi_desc* twid = (struct _twi_desc*) args;
 	xdmad_free_channel(channel);
-	if (twid->region_start && twid->region_end) {
-		l2cc_invalidate_region(twid->region_start, twid->region_end);
+	if (twid->region_start && twid->region_length) {
+		cache_invalidate_region(twid->region_start, twid->region_length);
 	}
 	if (twid && twid->callback)
 		twid->callback(twid, twid->cb_args);
@@ -137,7 +135,7 @@ static void _twid_dma_read(const struct _twi_desc* desc,
 	cfg.block_size = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
-	l2cc_clean_region(desc->region_start, desc->region_end);
+	cache_clean_region(desc->region_start, desc->region_length);
 	xdmad_start_transfer(channel);
 }
 
@@ -177,7 +175,7 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 	cfg.block_size = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
-	l2cc_clean_region(desc->region_start, desc->region_end);
+	cache_clean_region(desc->region_start, desc->region_length);
 	xdmad_start_transfer(channel);
 }
 
@@ -554,8 +552,8 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 
 				#endif
 
-				desc->region_start = (uint32_t)tx->data;
-				desc->region_end = desc->region_start + tx->size;
+				desc->region_start = tx->data;
+				desc->region_length = tx->size;
 				_twid_dma_write(desc, tx);
 			}
 		}
@@ -577,8 +575,8 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 
 				#endif
 
-				desc->region_start = (uint32_t)rx->data;
-				desc->region_end = desc->region_start + rx->size;
+				desc->region_start = rx->data;
+				desc->region_length = rx->size;
 				if(twi_get_status(desc->addr) & TWI_SR_NACK) {
 					trace_error("twid: Acknolegment " "Error\r\n");
 					status = TWID_ERROR_ACK;

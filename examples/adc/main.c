@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -117,7 +117,7 @@
 #include "peripherals/pit.h"
 
 #include "peripherals/adc.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"
 #include "peripherals/xdmad.h"
@@ -233,8 +233,7 @@ static void _start_dma(void);
 
 static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
 {
-	l2cc_invalidate_region((uint32_t)_dma_buffer,
-			       (uint32_t)_dma_buffer + sizeof(_dma_buffer));
+	cache_invalidate_region(_dma_buffer, sizeof(_dma_buffer));
 
 	/* Only keep sample value, discard channel number */
 	int i, j, chan, value;

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -83,7 +83,7 @@
 #include "chip.h"
 #include "peripherals/pwmc.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "trace.h"
 
 #include <stdint.h>
@@ -286,7 +286,7 @@ void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size)
 	xdmad_configure_transfer(dma_channel, &cfg, 0, 0);
 	xdmad_set_callback(dma_channel, _pwm_xdmad_callback_wrapper, NULL);
 
-	l2cc_clean_region((uint32_t)duty, (uint32_t)(duty+size));
+	cache_clean_region(duty, size);
 	xdmad_start_transfer(dma_channel);
 }
 

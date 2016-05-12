@@ -47,7 +47,7 @@
 #include "trace.h"
 
 #include "peripherals/aic.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 
 #include "usb/device/usbd_hal.h"
@@ -792,8 +792,7 @@ static void udphs_dma_handler(uint8_t ep)
 	if (xfer->remaining == 0) {
 		/* invalidate cache if receiving */
 		if (endpoint->state == UDPHS_ENDPOINT_RECEIVING && xfer->transferred)
-			l2cc_invalidate_region((uint32_t)xfer->data,
-					((uint32_t)xfer->data) + xfer->transferred);
+			cache_invalidate_region(xfer->data, xfer->transferred);
 		udphs_end_of_transfer(ep, rc);
 	}
 }
@@ -1408,7 +1407,7 @@ uint8_t usbd_hal_setup_multi_transfer(uint8_t ep,
 uint8_t usbd_hal_write(uint8_t ep, const void *data, uint32_t data_len)
 {
 	if (data_len)
-		l2cc_clean_region((uint32_t)data, ((uint32_t)data) + data_len);
+		cache_clean_region(data, data_len);
 
 	if (endpoints[ep].transfer.use_multi)
 		return udphs_add_buffer(ep, data, data_len);
@@ -1446,9 +1445,9 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 	struct _single_xfer *xfer = &endpoint->transfer.single;
 
 	if (header_len)
-		l2cc_clean_region((uint32_t)header, ((uint32_t)header) + header_len);
+		cache_clean_region(header, header_len);
 	if (data_len)
-		l2cc_clean_region((uint32_t)data, ((uint32_t)data) + data_len);
+		cache_clean_region(data, data_len);
 
 	/* Return if DMA is not supported */
 	if (!CHIP_USB_ENDPOINT_HAS_DMA(ep))
@@ -1567,7 +1566,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 		}
 
 		/* Flush DMA descriptors */
-		l2cc_clean_region((uint32_t)dma_desc, ((uint32_t)dma_desc) + sizeof(dma_desc));
+		cache_clean_region(dma_desc, sizeof(dma_desc));
 
 		/* Interrupt enable */
 		UDPHS->UDPHS_IEN |= UDPHS_IEN_DMA_1 << (ep - 1);

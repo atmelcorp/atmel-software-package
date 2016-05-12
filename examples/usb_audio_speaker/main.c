@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -114,7 +114,7 @@
 #include "misc/led.h"
 
 #include "peripherals/classd.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -267,7 +267,7 @@ static void _classd_dma_start_transfer(void)
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 
-	l2cc_clean_region((uint32_t)buffer, (uint32_t)buffer + wsize);
+	cache_clean_region(buffer, wsize);
 
 	xdmad_cfg.ublock_size = wsize / AUDDSpeakerDriver_BYTESPERSUBFRAME;
 	xdmad_cfg.src_addr = (uint32_t*)buffer;

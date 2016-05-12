@@ -96,7 +96,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/aesb.h"
@@ -160,7 +160,7 @@ int main(void)
 	p = (uint32_t *)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN);
 	for (i = 0; i < 64; i++)
 		*p++ = i;
-	l2cc_clean_region((uint32_t)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN),(uint32_t)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN + 64));
+	cache_clean_region((void*)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN), 64);
 	
 	printf("-I- Read data from address of AESB IP scope\r\n");
 

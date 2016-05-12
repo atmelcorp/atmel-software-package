@@ -38,7 +38,7 @@
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 #include "peripherals/rtc.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 
 #include "test_lcd.h"
 #include "video/qt1070.h"
@@ -309,7 +309,7 @@ static void _LcdOn(void)
 	void *pBuffer = NULL;
 
 	test_pattern_24RGB (base_desc.pbuffer);
-	l2cc_clean_region((uint32_t)_base_buffer, (uint32_t)_base_buffer + sizeof(_base_buffer));
+	cache_clean_region(_base_buffer, sizeof(_base_buffer));
 
 	/* OVR1 */
 	pBuffer = create_canvas(&ovr1_desc);

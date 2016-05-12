@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -37,9 +37,7 @@
 #include "peripherals/spi.h"
 #include "peripherals/xdmac.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/l2cc.h"
-
-#include "cortex-a/cp15.h"
+#include "misc/cache.h"
 
 #include "trace.h"
 
@@ -61,8 +59,8 @@ static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
 
 	xdmad_free_channel(channel);
 
-	if (spid->region_start && spid->region_end) {
-		l2cc_invalidate_region(spid->region_start, spid->region_end);
+	if (spid->region_start && spid->region_length) {
+		cache_invalidate_region(spid->region_start, spid->region_length);
 	}
 
 	if (spid && spid->callback)
@@ -204,7 +202,7 @@ static void _spid_dma_write(const struct _spi_desc* desc,
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	l2cc_clean_region(desc->region_start, desc->region_end);
+	cache_clean_region(desc->region_start, desc->region_length);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -237,7 +235,7 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	l2cc_clean_region(desc->region_start, desc->region_end);
+	cache_clean_region(desc->region_start, desc->region_length);
 
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
@@ -285,9 +283,8 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 					mutex_free(&desc->mutex);
 				}
 			} else {
-				desc->region_start = (uint32_t)tx->data;
-				desc->region_end = desc->region_start
-					+ tx->size;
+				desc->region_start = tx->data;
+				desc->region_length = tx->size;
 				_spid_dma_write(desc, tx);
 				if (rx) {
 					spid_wait_transfert(desc);
@@ -304,9 +301,8 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 					cb(desc, user_args);
 				mutex_free(&desc->mutex);
 			} else {
-				desc->region_start = (uint32_t)rx->data;
-				desc->region_end = desc->region_start
-					+ rx->size;
+				desc->region_start = rx->data;
+				desc->region_length = rx->size;
 				_spid_dma_read(desc, rx);
 			}
 		}

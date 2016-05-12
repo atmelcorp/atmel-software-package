@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -89,7 +89,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
@@ -688,7 +688,7 @@ static void configure_dma_linklist(void)
 			dma_descs2[i].stride2 = 0;
 		}
 		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
-		l2cc_clean_region((uint32_t)dma_descs2, ((uint32_t)dma_descs2) + sizeof(dma_descs2));
+		cache_clean_region(dma_descs2, sizeof(dma_descs2));
 
 	} else if ((lcd_mode == LCD_MODE_YUV422_SEMIPLANAR) \
 				|| (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR)){
@@ -704,7 +704,7 @@ static void configure_dma_linklist(void)
 			dma_descs2[i].stride2 = 0;
 		}
 		dma_descs2[i-1].next_desc = (uint32_t)&dma_descs2[0];
-		l2cc_clean_region((uint32_t)dma_descs2, ((uint32_t)dma_descs2) + sizeof(dma_descs2));
+		cache_clean_region(dma_descs2, sizeof(dma_descs2));
 	} else {
 		for(i = 0; i < ISC_MAX_NUM_FRAME_BUFFER; i++) {
 			dma_descs[i].ctrl =
@@ -714,7 +714,7 @@ static void configure_dma_linklist(void)
 			dma_descs[i].stride = 0;
 		}
 		dma_descs[i-1].next_desc = (uint32_t)&dma_descs[0];
-		l2cc_clean_region((uint32_t)dma_descs, ((uint32_t)dma_descs) + sizeof(dma_descs));
+		cache_clean_region(dma_descs, sizeof(dma_descs));
 	}
 }
 

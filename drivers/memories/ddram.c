@@ -41,7 +41,6 @@
 #include "peripherals/pmc.h"
 
 #include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 
 /*------------------------------------------------------------------------------
  *        Macro

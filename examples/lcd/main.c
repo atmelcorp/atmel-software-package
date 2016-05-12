@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -99,7 +99,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 
 #include "misc/console.h"
 #include "misc/led.h"
@@ -309,8 +309,7 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
 static void _LcdOn(void)
 {
 	test_pattern_24RGB(_base_buffer);
-	l2cc_clean_region((uint32_t)_base_buffer,
-			  (uint32_t)_base_buffer + sizeof(_base_buffer));
+	cache_clean_region(_base_buffer, sizeof(_base_buffer));
 
 	lcdd_on();
 
@@ -339,8 +338,7 @@ static void _LcdOn(void)
 				   13 * EXAMPLE_LCD_SCALE,
 				   13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
 
-	l2cc_clean_region((uint32_t)_heo_buffer,
-			  (uint32_t)_heo_buffer + sizeof(_heo_buffer));
+	cache_clean_region(_heo_buffer, sizeof(_heo_buffer));
 	lcdd_put_image_rotated(LCDD_HEO, _heo_buffer, bHeoBpp, SCR_X(wHeoX),
 			      SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW,
 			      wHeoImgH, 0);
@@ -359,8 +357,7 @@ static void _LcdOn(void)
 	/* Display message font 8x8 */
 	lcdd_select_font(FONT8x8);
 	lcdd_draw_string(8, 56, "ATMEL RFO", COLOR_BLACK);
-	l2cc_clean_region((uint32_t)_ovr2_buffer,
-			  (uint32_t)_ovr2_buffer + sizeof(_ovr2_buffer));
+	cache_clean_region(_ovr2_buffer, sizeof(_ovr2_buffer));
 
     /* Test LCD draw */
 	wOvr1X = IMG_X(0);
@@ -370,8 +367,7 @@ static void _LcdOn(void)
 	lcdd_create_canvas(LCDD_OVR1, _ovr1_buffer, 24, SCR_X(wOvr1X),
 			   SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
 	lcdd_fill(OVR1_BG);
-	l2cc_clean_region((uint32_t)_ovr1_buffer,
-			  (uint32_t)_ovr1_buffer + sizeof(_ovr1_buffer));
+	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 
 	printf("- LCD ON\n\r");
 }
@@ -569,8 +565,7 @@ static void _draws(void)
 		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	}
-	l2cc_clean_region((uint32_t)_ovr1_buffer,
-			  (uint32_t)_ovr1_buffer + sizeof(_ovr1_buffer));
+	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 
 	wLastW = w;
 	wLastH = h;

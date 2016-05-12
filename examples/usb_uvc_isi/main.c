@@ -103,13 +103,12 @@
 #include "rand.h"
 
 #include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
 #include "misc/console.h"
 #include "timer.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/isi.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -245,8 +244,7 @@ static void configure_dma_linklist(void)
 	fb_desc.preview_path.address = (uint32_t)stream_buffers;
 	fb_desc.preview_path.control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
 	fb_desc.preview_path.next = (uint32_t)&fb_desc.preview_path;
-	l2cc_clean_region((uint32_t)&fb_desc,
-			 ((uint32_t)&fb_desc) + sizeof(fb_desc));
+	cache_clean_region(&fb_desc, sizeof(fb_desc));
 }
 
 /**
@@ -382,8 +380,7 @@ extern int main( void )
 
 	/* clear video buffer */
 	memset(stream_buffers, 0, sizeof(stream_buffers));
-	l2cc_clean_region((uint32_t)stream_buffers,
-			(uint32_t)stream_buffers + sizeof(stream_buffers));
+	cache_clean_region(stream_buffers, sizeof(stream_buffers));
 
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {

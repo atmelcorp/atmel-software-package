@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -38,7 +38,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
 #include "peripherals/gmac.h"
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 
 #include <string.h>
@@ -595,7 +595,7 @@ uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
 		/* Copy data into transmittion buffer */
 		if (sg->buffer && sg->size) {
 			memcpy((void*)desc->addr, sg->buffer, sg->size);
-			l2cc_clean_region(desc->addr, desc->addr + sg->size);
+			cache_clean_region((void*)desc->addr, sg->size);
 		}
 
 		/* Compute buffer descriptor status word */
@@ -720,9 +720,9 @@ uint8_t gmacd_poll(struct _gmacd* gmacd, uint8_t queue,
 				length = buffer_size - cur_frame_size;
 			}
 
-			uint32_t addr = desc->addr & GMAC_RX_ADDR_MASK;
-			l2cc_invalidate_region(addr, addr + length);
-			memcpy(cur_frame, (void*)addr, length);
+			void* addr = (void*)(desc->addr & GMAC_RX_ADDR_MASK);
+			cache_invalidate_region(addr, length);
+			memcpy(cur_frame, addr, length);
 			cur_frame += length;
 			cur_frame_size += length;
 

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -93,7 +93,7 @@
 #include "chip.h"
 #include "board.h"
 
-#include "peripherals/l2cc.h"
+#include "misc/cache.h"
 #include "peripherals/aic.h"
 #include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
@@ -294,7 +294,7 @@ static void _configure_transfer(void)
 		    XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 		    XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 		    XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-		l2cc_clean_region((uint32_t)xdmad_desc, (uint32_t )xdmad_desc + sizeof(xdmad_desc));
+		cache_clean_region(xdmad_desc, sizeof(xdmad_desc));
 		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, desc_cntrl,
 				xdmad_desc);
 	}
@@ -312,8 +312,8 @@ static uint8_t _start_dma_transfer(void)
 	uint32_t i;
 
 	/* Prepare source data to be transfered. */
-	l2cc_invalidate_region((uint32_t)src_buf, ((uint32_t)src_buf) + BUFFER_LEN);
-	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
+	cache_invalidate_region(src_buf, BUFFER_LEN);
+	cache_invalidate_region(dest_buf, BUFFER_LEN);
 	for (i = 0; i < BUFFER_LEN; i++) {
 		src_buf[i] = i;
 		dest_buf[i] = 0xFF;
@@ -324,8 +324,8 @@ static uint8_t _start_dma_transfer(void)
 
 	/* Start transfer */
 	transfer_complete = false;
-	l2cc_clean_region((uint32_t)src_buf, ((uint32_t)src_buf) + BUFFER_LEN);
-	l2cc_clean_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
+	cache_clean_region(src_buf, BUFFER_LEN);
+	cache_clean_region(dest_buf, BUFFER_LEN);
 	xdmad_start_transfer(xdmad_channel);
 
 	/* Wait for completion */
@@ -336,7 +336,7 @@ static uint8_t _start_dma_transfer(void)
 	}
 
 	printf("-I- The Destination Buffer content after transfer\n\r");
-	l2cc_invalidate_region((uint32_t)dest_buf, ((uint32_t)dest_buf) + BUFFER_LEN);
+	cache_invalidate_region(dest_buf, BUFFER_LEN);
 	_dump_buffer(dest_buf);
 
 	return 0;

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -34,9 +34,9 @@
 #include "compiler.h"
 #include "intmath.h"
 #include "plugin_sha.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#include "peripherals/l2cc.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/sha.h"
 
@@ -100,7 +100,7 @@ static void run_dma_xfer(struct sha_set *set)
 		    | XDMAC_CC_DAM_FIXED_AM,
 	};
 	struct _xdmad_desc_view1 *desc = NULL, *last_desc = NULL;
-	uint32_t addr, rc;
+	uint32_t rc;
 
 	assert(set->dma_ch);
 	assert(set->dlist_len <= ARRAY_SIZE(set->dma_dlist));
@@ -134,9 +134,8 @@ static void run_dma_xfer(struct sha_set *set)
 		 * descriptors when it reads from RAM.
 		 * CPU access to the table is write-only, DMA access is
 		 * read-only, hence there is no need to invalidate. */
-		addr = (uint32_t)set->dma_dlist;
-		l2cc_clean_region(addr, addr + sizeof(*last_desc)
-		    * (uint32_t)set->dlist_len);
+		cache_clean_region(set->dma_dlist, sizeof(*last_desc)
+				* (uint32_t)set->dlist_len);
 		xdmad_configure_transfer(set->dma_ch, &dma_cfg,
 		    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED
 		    | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
@@ -281,8 +280,7 @@ void sha_plugin_feed(struct sha_set *set, bool open, bool close,
 			if (set->dma_ch)
 				/* Ensure the outgoing data can be fetched
 				 * directly from RAM */
-				l2cc_clean_region((uint32_t)set->pending_data,
-				    (uint32_t)set->pending_data + 64ul);
+				cache_clean_region(set->pending_data, 64ul);
 			write_blocks(set, (const uint32_t*)set->pending_data, 1);
 			pending_async = set->dma_ch != NULL;
 			set->pending = 0;
@@ -318,8 +316,7 @@ void sha_plugin_feed(struct sha_set *set, bool open, bool close,
 		assert(chunk == 64 || chunk == 128);
 		set->pending = 0;
 		if (set->dma_ch)
-			l2cc_clean_region((uint32_t)set->pending_data,
-			    (uint32_t)set->pending_data + chunk);
+			cache_clean_region(set->pending_data, chunk);
 		write_blocks(set, (const uint32_t*)set->pending_data,
 		    chunk / 64);
 	}

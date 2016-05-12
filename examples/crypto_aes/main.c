@@ -103,8 +103,8 @@
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
-#include "cortex-a/cp15.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "trace.h"
 
@@ -214,7 +214,7 @@ static void init_dma(void)
  */
 static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
-	uint32_t i, addr;
+	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
 		.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
 			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_MEM2PER |
@@ -232,8 +232,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		dma_wr_dlist[i].next_desc = i == len - 1 ? NULL :
 			&dma_wr_dlist[i + 1];
 	}
-	addr = (uint32_t)dma_wr_dlist;
-	cp15_coherent_dcache_for_dma(addr, addr + sizeof(*dma_wr_dlist) * len);
+	cache_clean_region(dma_wr_dlist, sizeof(*dma_wr_dlist) * len);
 	xdmad_configure_transfer(dma_wr_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
 		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
@@ -247,7 +246,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
  */
 static void configure_dma_read(uint32_t *buf, uint32_t len)
 {
-	uint32_t i, addr;
+	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
 		.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
 			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_PER2MEM |
@@ -265,8 +264,7 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 		dma_rd_dlist[i].next_desc = i == len - 1 ? NULL :
 			&dma_rd_dlist[i + 1];
 	}
-	addr = (uint32_t)dma_rd_dlist;
-	cp15_coherent_dcache_for_dma(addr, addr + sizeof(*dma_rd_dlist) * len);
+	cache_clean_region(dma_rd_dlist, sizeof(*dma_rd_dlist) * len);
 	xdmad_configure_transfer(dma_rd_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
 		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
 		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
@@ -308,8 +306,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		init_dma();
 		aes_set_data_len(DATA_LEN_INBYTE);
 		if (encrypt)
-			cp15_coherent_dcache_for_dma((uint32_t)in,
-				(uint32_t)in + DATA_LEN_INBYTE);
+			cache_clean_region(in, DATA_LEN_INBYTE);
 		configure_dma_write(in, DATA_LEN_INWORD / 4);
 		configure_dma_read(out, DATA_LEN_INWORD / 4);
 		printf("-I- AES %scryption, starting dual DMA transfer"
@@ -325,8 +322,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		}
 		xdmad_free_channel(dma_rd_chan); dma_rd_chan = NULL;
 		xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
-		cp15_invalidate_dcache_for_dma((uint32_t)out,
-			(uint32_t)out + DATA_LEN_INBYTE);
+		cache_invalidate_region(out, DATA_LEN_INBYTE);
 	} else
 		/* Iterate per 128-bit data block */
 		for (i = 0; i < DATA_LEN_INWORD; i += 4) {

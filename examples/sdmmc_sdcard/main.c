@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -99,6 +99,7 @@
 #include "chip.h"
 #include "trace.h"
 #include "plugin_sha.h"
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "peripherals/sdmmc.h"
@@ -106,7 +107,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
-#include "peripherals/l2cc.h"
 #include "libsdmmc/libsdmmc.h"
 #include "fatfs/src/ff.h"
 
@@ -388,8 +388,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	    file_size += len) {
 		res = f_read(&f_header.file, data_buf, buf_size, &len);
 		if (res == FR_OK) {
-			l2cc_clean_region((uint32_t)data_buf, (uint32_t)data_buf
-			    + len);
+			cache_clean_region(data_buf, len);
 			sha_plugin_feed(&sha, file_size == 0, len != buf_size,
 			    data_buf, len);
 		}

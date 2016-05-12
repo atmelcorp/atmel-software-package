@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -124,7 +124,6 @@
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
 #include "peripherals/wdt.h"
-#include "peripherals/l2cc.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
