@@ -159,26 +159,29 @@ char example_text[DATA_LEN_INBYTE] = "\
                                         \n\r\
 ***************************************************************\n\r";
 
-static uint32_t msg_in_clear[DATA_LEN_INWORD];
-/* Buffers hereafter will receive data transferred by the DMA from the
+/* Buffers hereafter will receive data transferred by the DMA to/from the
  * peripheral. The data cache won't notice this memory update, hence we'll have
- * to invalidate the related cache lines.
+ * to clean/invalidate the related cache lines.
  * May the buffers fail to be aligned on cache lines, cache clean operations
  * would then occur on the shared lines. Which would be prone to data conflicts
  * between these buffers and the variables placed on a same cache line.
  * Alternatively, we might consider allocating these buffers from a
  * non-cacheable memory region. */
-ALIGNED(L1_CACHE_BYTES) static uint32_t msg_encrypted[
-	ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
-ALIGNED(L1_CACHE_BYTES) static uint32_t msg_out_decrypted[
-	ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_in_clear[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_encrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
 
 static uint32_t algo, op_mode, start_mode, key_mode;
 static volatile bool data_ready = false;
 
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
 /* DMA linked lists */
+ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
+ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
 
 /*----------------------------------------------------------------------------
@@ -303,8 +306,8 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	tdes_write_key2(TDES_KEY2_0, TDES_KEY2_1);
 	if (key_mode == 0)
 		tdes_write_key3(TDES_KEY3_0, TDES_KEY3_1);
-else
-tdes_write_key3(0, 0);
+	else
+		tdes_write_key3(0, 0);
 	/* The Initialization Vector Registers apply to all modes except ECB. */
 	if (op_mode != TDES_MR_OPMOD_ECB)
 		tdes_set_vector(TDES_VECTOR_0, TDES_VECTOR_1);
@@ -364,7 +367,7 @@ static void start_tdes(void)
 
 	memcpy((char*)msg_in_clear, example_text, sizeof(example_text));
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
-	memset(msg_out_decrypted, 0xff, DATA_LEN_INBYTE);
+	memset(msg_decrypted, 0xff, DATA_LEN_INBYTE);
 
 	process_buffer(true, msg_in_clear, msg_encrypted);
 	printf("-I- Dumping the encrypted message...");
@@ -375,11 +378,11 @@ static void start_tdes(void)
 	}
 	printf("\n\r");
 
-	process_buffer(false, msg_encrypted, msg_out_decrypted);
+	process_buffer(false, msg_encrypted, msg_decrypted);
 	printf("-I- Dumping plain text after TDES decryption...\n\r");
 	/* Print the entire buffer, even past the nul characters if any */
 	for (i = 0; i < DATA_LEN_INBYTE; i++) {
-		c = ((const uint8_t*)msg_out_decrypted)[i];
+		c = ((const uint8_t*)msg_decrypted)[i];
 		if (isprint(c) || isspace(c))
 			putchar(c);
 		else

@@ -157,19 +157,20 @@ const uint32_t aes_keys[8] = {
 	AES_KEY_0, AES_KEY_1, AES_KEY_2, AES_KEY_3, AES_KEY_4, AES_KEY_5,
 	AES_KEY_6, AES_KEY_7 };
 
-static uint32_t msg_in_clear[DATA_LEN_INWORD];
-/* Buffers hereafter will receive data transferred by the DMA from the
+/* Buffers hereafter will receive data transferred by the DMA to/from the
  * peripheral. The data cache won't notice this memory update, hence we'll have
- * to invalidate the related cache lines.
+ * to clean/invalidate the related cache lines.
  * May the buffers fail to be aligned on cache lines, cache clean operations
  * would then occur on the shared lines. Which would be prone to data conflicts
  * between these buffers and the variables placed on a same cache line.
  * Alternatively, we might consider allocating these buffers from a
  * non-cacheable memory region. */
-ALIGNED(L1_CACHE_BYTES) static uint32_t msg_encrypted[
-	ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
-ALIGNED(L1_CACHE_BYTES) static uint32_t msg_out_decrypted[
-	ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_in_clear[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_encrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+ALIGNED(L1_CACHE_BYTES)
+static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
 
 static uint32_t op_mode, start_mode, key_id, key_byte_len;
 static volatile uint32_t data_ready = 0;
@@ -177,7 +178,9 @@ static volatile uint32_t data_ready = 0;
 /** Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
 /* DMA linked lists */
+ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
+ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
 
 /*----------------------------------------------------------------------------
@@ -354,7 +357,7 @@ static void start_aes(void)
 
 	memcpy((char*)msg_in_clear, example_text, sizeof(example_text));
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
-	memset(msg_out_decrypted, 0xff, DATA_LEN_INBYTE);
+	memset(msg_decrypted, 0xff, DATA_LEN_INBYTE);
 
 	process_buffer(true, msg_in_clear, msg_encrypted);
 	printf("-I- Dumping the encrypted message...");
@@ -365,11 +368,11 @@ static void start_aes(void)
 	}
 	printf("\n\r");
 
-	process_buffer(false, msg_encrypted, msg_out_decrypted);
+	process_buffer(false, msg_encrypted, msg_decrypted);
 	printf("-I- Dumping plain text after AES decryption...\n\r");
 	/* Print the entire buffer, even past the nul characters if any */
 	for (i = 0; i < DATA_LEN_INBYTE; i++) {
-		c = ((const uint8_t*)msg_out_decrypted)[i];
+		c = ((const uint8_t*)msg_decrypted)[i];
 		if (isprint(c))
 			putchar(c);
 		else
