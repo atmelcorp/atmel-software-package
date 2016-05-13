@@ -98,6 +98,7 @@
 #include "board.h"
 #include "chip.h"
 #include "trace.h"
+#include "timer.h"
 #include "plugin_sha.h"
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -457,7 +458,8 @@ int main(void)
 {
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
-		.qdpmc = 0,
+		.div = 3,
+		.qdaudio = 24,
 	};
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
@@ -483,17 +485,31 @@ int main(void)
 	pmc_enable_peripheral(TIMER1_MODULE);
 #endif
 
+	/* Workaround an issue observed on ATSAMA5D2 when switching the source
+	 * of the generic clock, from the default selection (PLLA) directly to
+	 * the Audio PLL. */
+	PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_GCKCSS_SLOW_CLK
+	    | PMC_PCR_PID(ID_SDMMC0);
+	PMC->PMC_PCR = PMC_PCR_CMD | PMC_PCR_GCKCSS_SLOW_CLK
+	    | PMC_PCR_PID(ID_SDMMC1);
+	timer_sleep(1);
+
 	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
+	pmc_enable_peripheral(ID_SDMMC0);
+	pmc_enable_peripheral(ID_SDMMC1);
 #if 1
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
 	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
-	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz. */
+	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz.
+	 * And set AUDIOPLLCK frequency to 624 / (5 + 1) = 104 MHz. */
 	audio_pll_cfg.nd = 51;
+	audio_pll_cfg.qdpmc = 5;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
 	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+	pmc_enable_gck(ID_SDMMC0);
 
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
@@ -502,6 +518,7 @@ int main(void)
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
 	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+	pmc_enable_gck(ID_SDMMC1);
 #else
 	/* Running on a board which has its SDMMC0 slot equipped with an e.MMC
 	 * device supporting the HS200 bus speed mode, or accepts UHS-I SD
@@ -511,20 +528,20 @@ int main(void)
 	pmc_enable_upll_clock();
 	pmc_enable_upll_bias();
 	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_UPLL_CLK, 1 - 1);
+	pmc_enable_gck(ID_SDMMC0);
 
 	/* On the SDMMC1 slot, target SD High Speed mode @ 50 MHz.
 	 * Use the Audio PLL and set AUDIOCORECLK frequency to
-	 * 12 * (57 + 1 + 1398101/2^22) =~ 700 MHz. */
+	 * 12 * (57 + 1 + 1398101/2^22) =~ 700 MHz.
+	 * Set AUDIOPLLCK frequency to 700 / (6 + 1) = 100 MHz. */
 	audio_pll_cfg.nd = 57;
 	audio_pll_cfg.fracr = 1398101;
+	audio_pll_cfg.qdpmc = 6;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
 	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-#endif
-	pmc_enable_gck(ID_SDMMC0);
-	pmc_enable_peripheral(ID_SDMMC0);
 	pmc_enable_gck(ID_SDMMC1);
-	pmc_enable_peripheral(ID_SDMMC1);
+#endif
 
 	rc = board_cfg_sdmmc(ID_SDMMC0) ? 1 : 0;
 	rc &= board_cfg_sdmmc(ID_SDMMC1) ? 1 : 0;
