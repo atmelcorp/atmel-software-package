@@ -544,12 +544,26 @@ typedef struct {
 #define PMC_AUDIO_PLL0_PADEN (0x1u << 1) /**< \brief (PMC_AUDIO_PLL0) Pad Clock Enable */
 #define PMC_AUDIO_PLL0_PMCEN (0x1u << 2) /**< \brief (PMC_AUDIO_PLL0) PMC Clock Enable */
 #define PMC_AUDIO_PLL0_RESETN (0x1u << 3) /**< \brief (PMC_AUDIO_PLL0) Audio PLL Reset */
+#define PMC_AUDIO_PLL0_PLLFLT_Pos 4
+#define PMC_AUDIO_PLL0_PLLFLT_Msk (0xfu << PMC_AUDIO_PLL0_PLLFLT_Pos) /**< \brief (PMC_AUDIO_PLL0) PLL Loop Filter Selection */
+#define PMC_AUDIO_PLL0_PLLFLT(value) ((PMC_AUDIO_PLL0_PLLFLT_Msk & ((value) << PMC_AUDIO_PLL0_PLLFLT_Pos)))
+#define   PMC_AUDIO_PLL0_PLLFLT_STD (0xdu << 4) /**< \brief (PMC_AUDIO_PLL0) Recommended value */
 #define PMC_AUDIO_PLL0_ND_Pos 8
 #define PMC_AUDIO_PLL0_ND_Msk (0x7fu << PMC_AUDIO_PLL0_ND_Pos) /**< \brief (PMC_AUDIO_PLL0) Loop Divider Ratio */
 #define PMC_AUDIO_PLL0_ND(value) ((PMC_AUDIO_PLL0_ND_Msk & ((value) << PMC_AUDIO_PLL0_ND_Pos)))
 #define PMC_AUDIO_PLL0_QDPMC_Pos 16
 #define PMC_AUDIO_PLL0_QDPMC_Msk (0x7fu << PMC_AUDIO_PLL0_QDPMC_Pos) /**< \brief (PMC_AUDIO_PLL0) Output Divider Ratio for PMC Clock */
 #define PMC_AUDIO_PLL0_QDPMC(value) ((PMC_AUDIO_PLL0_QDPMC_Msk & ((value) << PMC_AUDIO_PLL0_QDPMC_Pos)))
+#define PMC_AUDIO_PLL0_DCOFLT_Pos 24
+#define PMC_AUDIO_PLL0_DCOFLT_Msk (0xfu << PMC_AUDIO_PLL0_DCOFLT_Pos) /**< \brief (PMC_AUDIO_PLL0) Digitally Controlled Oscillator Filter Selection */
+#define PMC_AUDIO_PLL0_DCOFLT(value) ((PMC_AUDIO_PLL0_DCOFLT_Msk & ((value) << PMC_AUDIO_PLL0_DCOFLT_Pos)))
+#define PMC_AUDIO_PLL0_DCOGAIN_Pos 28
+#define PMC_AUDIO_PLL0_DCOGAIN_Msk (0x3u << PMC_AUDIO_PLL0_DCOGAIN_Pos) /**< \brief (PMC_AUDIO_PLL0) Digitally Controlled Oscillator Gain Selection */
+#define PMC_AUDIO_PLL0_DCOGAIN(value) ((PMC_AUDIO_PLL0_DCOGAIN_Msk & ((value) << PMC_AUDIO_PLL0_DCOGAIN_Pos)))
+#define   PMC_AUDIO_PLL0_DCOGAIN_STD (0x0u << 28) /**< \brief (PMC_AUDIO_PLL0) Default */
+#define   PMC_AUDIO_PLL0_DCOGAIN_MAX (0x1u << 28) /**< \brief (PMC_AUDIO_PLL0) Maximum */
+#define   PMC_AUDIO_PLL0_DCOGAIN_MIN (0x2u << 28) /**< \brief (PMC_AUDIO_PLL0) Minimum */
+#define   PMC_AUDIO_PLL0_DCOGAIN_HIGH (0x3u << 28) /**< \brief (PMC_AUDIO_PLL0) High */
 /* -------- PMC_AUDIO_PLL1 : (PMC Offset: 0x0150) Audio PLL Register 1 -------- */
 #define PMC_AUDIO_PLL1_FRACR_Pos 0
 #define PMC_AUDIO_PLL1_FRACR_Msk (0x3fffffu << PMC_AUDIO_PLL1_FRACR_Pos) /**< \brief (PMC_AUDIO_PLL1) Fractional Loop Divider Setting */

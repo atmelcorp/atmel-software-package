@@ -69,6 +69,7 @@
 
 #include "chip.h"
 #include "board.h" // for BOARD_{SLOW,MAIN}_CLOCK_EXT_OSC
+#include "timer.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
 #include <assert.h>
@@ -897,6 +898,8 @@ void pmc_configure_audio(struct _pmc_audio_cfg *cfg)
 
 	/* configure values */
 	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
+	pll0 &= ~PMC_AUDIO_PLL0_PLLFLT_Msk;
+	pll0 |= PMC_AUDIO_PLL0_PLLFLT_STD;
 	pll0 &= ~PMC_AUDIO_PLL0_ND_Msk;
 	pll0 |= cfg->nd << PMC_AUDIO_PLL0_ND_Pos;
 	pll0 &= ~PMC_AUDIO_PLL0_QDPMC_Msk;
@@ -928,6 +931,9 @@ void pmc_enable_audio(bool pmc_clock, bool pad_clock)
 		nbits |= PMC_AUDIO_PLL0_PMCEN;
 
 	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~nbits) | bits;
+
+	/* Wait for the Audio PLL Startup Time (tSTART = 100 usec) */
+	timer_sleep(1);
 }
 
 void pmc_disable_audio()
