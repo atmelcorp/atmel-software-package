@@ -138,16 +138,26 @@
 #define BITS_BY_SLOT            (16)
 
 /** DMA Descriptor */
-#define TOTAL_BUFFERS            (10)
+#define TOTAL_BUFFERS \
+	(ROUND_UP_MULT(														\
+		ROUND_UP_MULT(10 * sizeof(struct _xdmad_desc_view1), L1_CACHE_BYTES), \
+		sizeof(struct _xdmad_desc_view1)) \
+	 / sizeof(struct _xdmad_desc_view1)	  \
+		)
 
 #define DMA_TRANSFER_LEN    (0xFFFF)
+
+#define AUDIO_BUFFER_LEN    ROUND_UP_MULT(						\
+		TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8),	\
+		L1_CACHE_BYTES											\
+		)
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 /* Audio buffer */
 SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) uint16_t audio_buffer[TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8)];
+ALIGNED(L1_CACHE_BYTES) uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
 /** List of pins to configure. */
 static const struct _pin  pins_ssc[] = PINS_SSC_CODEC;

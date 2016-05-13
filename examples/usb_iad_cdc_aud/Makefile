@@ -27,13 +27,12 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Getting Started example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi
+AVAILABLE_TARGETS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi sama5d4-ek
 
 TOP := ../..
 
 BINNAME = usb_iad_cdc_aud
 
-CONFIG_HAVE_CLASSD = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_COMPOSITE = y
 CONFIG_LIB_USB_CDC = y
