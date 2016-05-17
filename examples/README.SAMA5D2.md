@@ -36,6 +36,8 @@ classd: Example using Class-D Audio
 
 crypto_aes: AES hardware computation (with and without DMA)
 
+crypto_aesb: AESB hardware computation to read/write in DDRAM (with and without DMA)
+
 crypto_sha: SHA hardware computation (with and without DMA)
 
 crypto_tdes: Triple-DES hardware computation (with and without DMA)
@@ -90,8 +92,6 @@ trng: Example using hardware RNG (interrupt mode)
 
 twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 
-twi_slave: Set up SAMA5D2 as a slave I2C device
-
 usart_fifo: Test Flexcom USART FIFO
 
 usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
@@ -108,7 +108,7 @@ usb_audio_speaker: Set up a SAMA5D2x as a USB Audio Speaker
 
 usb_cdc_serial: Example of Virtual COM Port
 
-usb_hid_aud: Example of USB Device Port (UDP) and Class-D for SAMA5D2
+usb_hid_aud: Example of USB Device Port (UDP) and Class-D for SAMA5D2x
 
 usb_hid_keyboard: Example of usb HID keyboard device
 
@@ -124,12 +124,12 @@ usb_iad_cdc_cdc: Example of usb composite device: 2 virtual com ports
 
 usb_iad_cdc_hid: Example of usb composite device: virtual com port and usb mass storage device
 
-usb_iad_cdc_msd: Example of SAMA5D2 configured as a CDC USB Mass Storage device
+usb_iad_cdc_msd: Example of SAMA5D2x configured as a CDC USB Mass Storage device
 
-usb_mass_storage: Example of SAMA5D2 configured as a USB Mass Storage device
+usb_mass_storage: Example of SAMA5D2x configured as a USB Mass Storage device
+
+usb_usv_isc: Example of SAMA5D2x configured as a USB Video Device
 
 wdt: Example using watchdog timer
 
 xdma: Memory-to-memory DMA transfert example
-
-

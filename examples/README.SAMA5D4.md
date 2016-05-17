@@ -22,12 +22,7 @@ Copyright (c) 2015-2016, Atmel Corporation All rights reserved.
 * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-# Atmel SAMA5D4 Software Package
-
-## Disclaimer
-
-The SAMA5D4x support is currently **experimental** in this release of software package.
-The SAMA5D4x will be tested and supported more deeply in a near future.
+# Atmel SAMA5D4x Software Package
 
 ## Examples
 
@@ -55,6 +50,10 @@ gmac_uip_telnetd: GMAC example using UIP stack (UIP telnetd example)
 
 gmac_uip_webserver: GMAC example using UIP stack (UIP webserver example)
 
+hsmc_nandflash_mlc: Example of NAND Flash MLC
+
+hsmc_nandflash_slc: Example of NAND Flash SLC
+
 isi: Example using ISI controller (only for SAMA5D4-EK board)
 
 lcd: Example using LCD controller
@@ -73,6 +72,8 @@ qspi_xip: Load a binary into QSPI memory and jump to it
 
 rtc: RTC Example
 
+sdmmc_sdcard: (NOT YET IMPLEMENTED) Example of Read/Write access from/to SD Cards, MMC Cards, e.MMC devices
+
 spi_serialflash: Read/Write/Delete commands to an SPI serial flash
 
 spi_slave: Set up the SAMA5D4x as a SPI slave
@@ -87,6 +88,12 @@ usart_fifo: Test Flexcom USART FIFO
 
 usb_audio_looprec: Set up a SAMA5D4x as a USB Audio Device to record sounds
 
+usb_audio_speaker: Set up a SAMA5D4x as a USB Audio Speaker
+
+usb_cdc_serial: Example of Virtual COM Port
+
+usb_hid_aud: Example of USB Device Port (UDP) and Class-D for SAMA5D4x
+
 usb_hid_keyboard: Example of usb HID keyboard device
 
 usb_hid_mouse: Example of usb HID moude device
@@ -95,10 +102,18 @@ usb_hid_msd: Example of usb composite device: HID device and usb mass storage
 
 usb_hid_transfer: Example of USB HID device
 
+usb_iad_cdc_aud: Example of usb composite device: virtual com port and usb class-d device
+
+usb_iad_cdc_cdc: Example of usb composite device: 2 virtual com ports
+
+usb_iad_cdc_hid: Example of usb composite device: virtual com port and usb mass storage device
+
+usb_iad_cdc_msd: Example of SAMA5D4x configured as a CDC USB Mass Storage device
+
 usb_mass_storage: Example of SAMA5D4x configured as a USB Mass Storage device
+
+usb_usv_isi: Example of SAMA5D4x configured as a USB Video Device
 
 wdt: Example using watchdog timer
 
 xdma: Memory-to-memory DMA transfert example
-
-

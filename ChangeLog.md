@@ -1,10 +1,12 @@
-# Atmel SAMA5D2x Software Package
+# Atmel SAMA5 Software Package
 
-## Version ?.? - 2016-??
+## Version 2.1 - 2016-05
 
 ### New drivers/examples
 
 - New QSPI AESB example
+- New USB UVC driver and example (for ISI and ISC) available for SAMA5D2 and SAMA5D4
+- Function board_cfg_pmic was introduced to handle PMIC configuration
 
 ### Changes
 
@@ -18,11 +20,15 @@
 - Function board_cfg_pmic has been added to remove board specific PMIC configuration
   from examples main.c
 - Add support of AESB address space in QSPI driver
+- Decrease build time by modularization of peripherals
 
 ### Fixes
 
 - Multiple fixes to remove dead assignements, dead increments, and possible
   null pointer dereferences
+- Fix Audio PLL configuration
+- Fix configuration errors for ISI image sensors
+- Fix buffer alignment errors
 
 
 
