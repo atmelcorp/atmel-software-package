@@ -79,6 +79,18 @@ const static struct _l2cc_control l2cc_cfg = {
 	.dyn_clock_gating = true
 };
 
+#ifdef CONFIG_HAVE_PMIC_ACT8865
+struct _twi_desc act8865_twid = {
+	.addr = ACT8865_ADDR,
+	.freq = ACT8865_FREQ,
+	.transfert_mode = TWID_MODE_POLLING
+};
+
+struct _act8865 pmic = {
+	.twid = &act8865_twid
+};
+#endif
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -471,15 +483,7 @@ void board_cfg_nor_flash(void)
 void board_cfg_pmic()
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-	struct _twi_desc act8865_twid = {
-		.addr = ACT8865_ADDR,
-		.freq = ACT8865_FREQ,
-		.transfert_mode = TWID_MODE_POLLING
-	};
 	struct _pin act8865_pins[] = ACT8865_PINS;
-	struct _act8865 pmic = {
-		.twid = &act8865_twid
-	};
 
 	/* configure and enable the PMIC TWI */
 	pio_configure(act8865_pins, ARRAY_SIZE(act8865_pins));
