@@ -402,20 +402,25 @@ void pmc_select_internal_crystal(void)
 
 void pmc_select_external_osc(void)
 {
+	uint32_t cgmor = PMC->CKGR_MOR;
+
 	/* Return if external osc had been selected */
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
+	if ((cgmor & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
 		return;
 
 	/* Enable external osc 12 MHz when needed */
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
-		PMC->CKGR_MOR |= CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
+		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
+		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN
+		    | CKGR_MOR_KEY_PASSWD;
+		PMC->CKGR_MOR = cgmor;
 		/* Wait Main Oscillator ready */
 		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
 	}
 
 	/* switch MAIN clock to external OSC 12 MHz */
-	PMC->CKGR_MOR |= CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_PASSWD;
-
+	PMC->CKGR_MOR = (cgmor & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCSEL
+	    | CKGR_MOR_KEY_PASSWD;
 	/* wait for the command to be taken into account */
 	while ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) != CKGR_MOR_MOSCSEL);
 
@@ -429,7 +434,8 @@ void pmc_select_external_osc(void)
 void pmc_disable_external_osc(void)
 {
 	/* disable external OSC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN
+	    & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
 }
 
 void pmc_select_internal_osc(void)
@@ -437,14 +443,16 @@ void pmc_select_internal_osc(void)
 #ifdef CKGR_MOR_MOSCRCEN
 	/* Enable internal RC 12 MHz when needed */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
-		PMC->CKGR_MOR |= CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
+		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk)
+		    | CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
 		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
 		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
 	}
 #endif
 
 	/* switch MAIN clock to internal RC 12 MHz */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL & ~CKGR_MOR_KEY_Msk)
+	    | CKGR_MOR_KEY_PASSWD;
 
 	/* in case where MCK is running on MAIN CLK */
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
@@ -457,7 +465,8 @@ void pmc_disable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
 	/* disable internal RC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN & ~CKGR_MOR_KEY_Msk)
+	    | CKGR_MOR_KEY_PASSWD;
 #endif
 }
 
@@ -482,7 +491,7 @@ void pmc_switch_mck_to_upll(void)
 void pmc_switch_mck_to_main(void)
 {
 	/* Select Main Oscillator as input clock for PCK and MCK */
-	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_MAIN_CLK;
+	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_MAIN_CLK;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
 	_pmc_mck = 0;
@@ -491,7 +500,7 @@ void pmc_switch_mck_to_main(void)
 void pmc_switch_mck_to_slck(void)
 {
 	/* Select Slow Clock as input clock for PCK and MCK */
-	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_PCK_CSS_SLOW_CLK;
+	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_SLOW_CLK;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
 	_pmc_mck = 0;
@@ -499,6 +508,8 @@ void pmc_switch_mck_to_slck(void)
 
 void pmc_set_mck_prescaler(uint32_t prescaler)
 {
+	assert(!(prescaler & ~PMC_MCKR_PRES_Msk));
+
 	/* Change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
@@ -534,6 +545,8 @@ void pmc_set_mck_h32mxdiv(uint32_t divider)
 
 void pmc_set_mck_divider(uint32_t divider)
 {
+	assert(!(divider & ~PMC_MCKR_MDIV_Msk));
+
 	/* change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
@@ -699,8 +712,11 @@ void pmc_disable_all_peripherals(void)
 
 void pmc_configure_pck0(uint32_t clock_source, uint32_t prescaler)
 {
+	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
+	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
+
 	pmc_disable_pck0();
-	PMC->PMC_PCK[0] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+	PMC->PMC_PCK[0] = clock_source | PMC_PCK_PRES(prescaler);
 }
 
 void pmc_enable_pck0(void)
@@ -722,8 +738,11 @@ uint32_t pmc_get_pck0_clock(void)
 
 void pmc_configure_pck1(uint32_t clock_source, uint32_t prescaler)
 {
+	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
+	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
+
 	pmc_disable_pck1();
-	PMC->PMC_PCK[1] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+	PMC->PMC_PCK[1] = clock_source | PMC_PCK_PRES(prescaler);
 }
 
 void pmc_enable_pck1(void)
@@ -745,8 +764,11 @@ uint32_t pmc_get_pck1_clock(void)
 
 void pmc_configure_pck2(uint32_t clock_source, uint32_t prescaler)
 {
+	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
+	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
+
 	pmc_disable_pck2();
-	PMC->PMC_PCK[2] = (clock_source & PMC_PCK_CSS_Msk) | PMC_PCK_PRES(prescaler);
+	PMC->PMC_PCK[2] = clock_source | PMC_PCK_PRES(prescaler);
 }
 
 void pmc_enable_pck2(void)
@@ -772,7 +794,7 @@ uint32_t pmc_get_pck2_clock(void)
 
 void pmc_enable_upll_clock(void)
 {
-	/* enable 480Mhz UPLL */
+	/* enable the 480MHz UTMI PLL; disable the UTMI BIAS */
 	PMC->CKGR_UCKR = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3)
 		| CKGR_UCKR_BIASCOUNT(0x1);
 
@@ -826,8 +848,8 @@ void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
 	pmc_disable_gck(id);
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
-	PMC->PMC_PCR = pcr | (clock_source & PMC_PCR_GCKCSS_Msk) | PMC_PCR_CMD
-	    | PMC_PCR_GCKDIV(div);
+	PMC->PMC_PCR = (pcr & ~PMC_PCR_GCKCSS_Msk & ~PMC_PCR_GCKDIV_Msk)
+	    | clock_source | PMC_PCR_CMD | PMC_PCR_GCKDIV(div);
 }
 
 void pmc_enable_gck(uint32_t id)
@@ -897,22 +919,15 @@ void pmc_configure_audio(struct _pmc_audio_cfg *cfg)
 	PMC->PMC_AUDIO_PLL0 |= PMC_AUDIO_PLL0_RESETN;
 
 	/* configure values */
-	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
-	pll0 &= ~PMC_AUDIO_PLL0_PLLFLT_Msk;
-	pll0 |= PMC_AUDIO_PLL0_PLLFLT_STD;
-	pll0 &= ~PMC_AUDIO_PLL0_ND_Msk;
-	pll0 |= cfg->nd << PMC_AUDIO_PLL0_ND_Pos;
-	pll0 &= ~PMC_AUDIO_PLL0_QDPMC_Msk;
-	pll0 |= cfg->qdpmc << PMC_AUDIO_PLL0_QDPMC_Pos;
-	PMC->PMC_AUDIO_PLL0 = pll0;
-	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
-	pll1 &= ~PMC_AUDIO_PLL1_DIV_Msk;
-	pll1 |= cfg->div << PMC_AUDIO_PLL1_DIV_Pos;
-	pll1 &= ~PMC_AUDIO_PLL1_FRACR_Msk;
-	pll1 |= cfg->fracr << PMC_AUDIO_PLL1_FRACR_Pos;
-	pll1 &= ~PMC_AUDIO_PLL1_QDAUDIO_Msk;
-	pll1 |= cfg->qdaudio << PMC_AUDIO_PLL1_QDAUDIO_Pos;
-	PMC->PMC_AUDIO_PLL1 = pll1;
+	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~PMC_AUDIO_PLL0_PLLFLT_Msk
+	    & ~PMC_AUDIO_PLL0_ND_Msk & ~PMC_AUDIO_PLL0_QDPMC_Msk)
+	    | PMC_AUDIO_PLL0_PLLFLT_STD | PMC_AUDIO_PLL0_ND(cfg->nd)
+	    | PMC_AUDIO_PLL0_QDPMC(cfg->qdpmc);
+
+	PMC->PMC_AUDIO_PLL1 = (PMC->PMC_AUDIO_PLL1 & ~PMC_AUDIO_PLL1_FRACR_Msk
+	    & ~PMC_AUDIO_PLL1_DIV_Msk & ~PMC_AUDIO_PLL1_QDAUDIO_Msk)
+	    | PMC_AUDIO_PLL1_FRACR(cfg->fracr) | PMC_AUDIO_PLL1_DIV(cfg->div)
+	    | PMC_AUDIO_PLL1_QDAUDIO(cfg->qdaudio);
 }
 
 void pmc_enable_audio(bool pmc_clock, bool pad_clock)

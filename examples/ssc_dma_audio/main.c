@@ -374,7 +374,7 @@ int main( void )
 	/* Enable the DAC master clock */
 	pmc_select_internal_crystal();
 	pmc_disable_pck2();
-	pmc_configure_pck2(PMC_MCKR_CSS_SLOW_CLK, 0);
+	pmc_configure_pck2(PMC_PCK_CSS_SLOW_CLK, 0);
 	pmc_enable_pck2();
 
 	printf("Insert Line-in cable with PC Headphone output\n\r");
