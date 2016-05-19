@@ -27,4 +27,4 @@
 # ----------------------------------------------------------------------------
 
 drivers-$(CONFIG_SOC_SAMA5D4) += drivers/audio/wm8904.o
-drivers-y += drivers/audio/audio_device.o
+drivers-$(CONFIG_HAVE_AUDIO) += drivers/audio/audio_device.o
