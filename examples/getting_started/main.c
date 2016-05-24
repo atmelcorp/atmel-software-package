@@ -109,7 +109,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 #include "misc/led.h"
@@ -125,9 +124,6 @@
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
 
-/** Maximum number of handled led */
-#define MAX_LEDS            5
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -138,12 +134,7 @@
 static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 #endif
 
-/* Only used to get the number of available leds */
-static const struct _pin pinsLeds[] = PINS_LEDS;
-
-/** Number of available leds */
-static const uint32_t num_leds = ARRAY_SIZE(pinsLeds);
-volatile bool led_status[MAX_LEDS];
+volatile bool led_status[NUM_LEDS];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -156,7 +147,7 @@ volatile bool led_status[MAX_LEDS];
  */
 static void process_button_evt(uint8_t bt)
 {
-	if (bt >= num_leds) {
+	if (bt >= NUM_LEDS) {
 		return;
 	}
 	led_status[bt] = !led_status[bt];
@@ -164,7 +155,7 @@ static void process_button_evt(uint8_t bt)
 		if (!led_status[bt]) {
 			led_clear(bt);
 		}
-	} else if (bt < num_leds) {
+	} else if (bt < NUM_LEDS) {
 		if (led_status[bt]) {
 			led_set(bt);
 		} else {
@@ -236,19 +227,6 @@ static void configure_buttons(void)
 }
 
 /**
- *  \brief Configure LEDs
- *
- *  Configures LEDs \#1 and \#2 (cleared by default).
- */
-static void configure_leds(void)
-{
-	int i = 0;
-	for (i = 0; i < num_leds; ++i) {
-		led_configure(i);
-	}
-}
-
-/**
  *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
  */
 static void tc_handler(void)
@@ -260,7 +238,7 @@ static void tc_handler(void)
 	(void) dummy;
 
 	/** Toggle LEDs state. */
-	for (i = 1; i < num_leds; ++i) {
+	for (i = 1; i < NUM_LEDS; ++i) {
 		if (led_status[i]) {
 			led_toggle(i);
 			printf("%i ", (unsigned int)i);
@@ -304,32 +282,18 @@ static void configure_tc(void)
 int main(void)
 {
 	int i = 0;
+
 	led_status[0] = true;
-	for (i = 1; i < num_leds; ++i) {
+	for (i = 1; i < NUM_LEDS; ++i) {
 		led_status[i] = led_status[i-1];
 	}
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Initialize console */
-	board_cfg_console(0);
-
-	/* Output example information */
 	console_example_info("Getting Started Example");
-
-	board_cfg_pmic();
 
 	/* Configure TC */
 	printf("Configure TC.\n\r");
 	configure_tc();
 
-	/* PIO configuration for LEDs and Buttons. */
-	printf("Configure LED PIOs.\n\r");
-	configure_leds();
 	printf("Configure buttons with debouncing.\n\r");
 	configure_buttons();
 

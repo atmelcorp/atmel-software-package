@@ -129,7 +129,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/spid.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 
@@ -324,22 +323,8 @@ int main(void)
 {
 	uint8_t key;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* Initialize XDMA */
-	xdmad_initialize(false);
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
 	/* Output example information */
 	console_example_info("SPI Slave Example");
-
-	board_cfg_pmic();
 
 	/* Configure SPI pins */
 	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));

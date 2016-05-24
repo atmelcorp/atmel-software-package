@@ -112,7 +112,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 
@@ -562,12 +561,6 @@ int main(void)
 {
 	uint8_t i;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Initialize console */
-	board_cfg_console(0);
-
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -575,18 +568,10 @@ int main(void)
 	/* Output example information */
 	console_example_info("ADC12 Example");
 
-	board_cfg_pmic();
-
+	/* Configure trigger pins */
 	pio_configure(&pin_trig, 1);
 	pio_clear(&pin_trig);
-
-	/* PIO configuration for LEDs */
-	printf("Configure LED PIOs.\n\r");
-	led_configure(LED_RED);
-	led_configure(LED_BLUE);
-
 	pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
-	xdmad_initialize(false);
 
 	/* Set defaut ADC test mode */
 	memset((void *)&_test_mode, 0, sizeof(_test_mode));

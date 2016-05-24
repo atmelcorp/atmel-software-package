@@ -104,7 +104,6 @@
 #include "misc/console.h"
 
 #include "peripherals/sdmmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
@@ -464,18 +463,8 @@ int main(void)
 	sSdCard *lib = NULL;
 	uint8_t user_key, rc;
 
-	/* Disable Watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("SD/MMC Example");
-
-#if USE_EXT_RAM && !defined(VARIANT_DDRAM)
-	board_cfg_ddram();
-#endif
 
 	pmc_enable_peripheral(TIMER0_MODULE);
 #if TIMER1_MODULE != TIMER0_MODULE

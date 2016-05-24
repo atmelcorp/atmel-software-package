@@ -111,7 +111,6 @@
 #include "memories/at24.h"
 #include "misc/console.h"
 #include "peripherals/pio.h"
-#include "peripherals/wdt.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -237,17 +236,6 @@ int main(void)
 	uip_ipaddr_t ipaddr;
 	struct _timeout periodic_timer, arp_timer;
 	uint32_t i;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-#ifndef VARIANT_DDRAM
-	/* Configure DDRAM */
-	board_cfg_ddram();
-#endif
 
 	/* Output example information */
 	console_example_info("GMAC uIP Web Server Example");

@@ -106,7 +106,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/usart_iso7816_4.h"
@@ -122,9 +121,6 @@
 /*------------------------------------------------------------------------------
  *         Internal definitions
  *------------------------------------------------------------------------------*/
-
-/** LED0 blink time, LED1 blink half this time, in ms */
-#define BLINK_PERIOD        1000
 
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
@@ -209,19 +205,6 @@ uint8_t smartcard = 0;
 /*------------------------------------------------------------------------------
  *         Internal functions
  *------------------------------------------------------------------------------*/
-
-/**
- *  \brief Configure the Leds
- *
- */
-static void _configure_leds(void)
-{
-	uint8_t i = 0;
-	for (i = 0; i<MAX_LEDS; ++i) {
-		led_configure(i);
-		led_status[i] = 0;
-	}
-}
 
 /**
  *  \brief Process Buttons Events
@@ -376,27 +359,9 @@ extern int main( void )
     uint8_t Atr[MAX_ATR_SIZE] ;
     uint8_t size ;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* Configure PIT. Must be always ON, used for delay */
-	printf("Configure PIT \n\r");
-	timer_configure(BLINK_PERIOD);
-
 	/* Output example information */
 	console_example_info("USART ISO7816 Example");
 
-	board_cfg_pmic();
-
-	/* PIO configuration for LEDs */
-	printf("Configure LED PIOs.\n\r");
-	_configure_leds();
 	led_set(LED_BLUE);
 	timer_wait(500);
 	led_clear(LED_BLUE);

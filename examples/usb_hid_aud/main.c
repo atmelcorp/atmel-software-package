@@ -150,7 +150,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
 #include "usb/device/audio/audd_function.h"
@@ -513,23 +512,11 @@ int main(void)
 	bool usb_conn = false;
 	bool audio_on = false;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB HID + Audio Device Example");
 
-	/* configure pmic */
-	board_cfg_pmic();
-
 	/* Initialize all USB power (off) */
 	usb_power_configure();
-
-	/* DMA Driver initialize */
-	xdmad_initialize(false);
 
 	/* ----- HID Function Initialize */
 #ifdef NO_PUSHBUTTON
@@ -540,9 +527,6 @@ int main(void)
 	pio_configure(pins_push_buttons,  ARRAY_SIZE(pins_push_buttons));
 #endif
 	memset(key_status, 1, NUM_KEYS);
-
-	/* Numlock LED */
-	led_configure(LED_NUMLOCK);
 
 	/* Configure Audio */
 	audio_play_configure(&audio_device);

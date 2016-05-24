@@ -190,15 +190,9 @@ static void _print_menu(void)
  *----------------------------------------------------------------------------
  */
 
-/**
- *  \brief Application entry point for clock switching.
- *
- *  \return Unused (ANSI-C compatibility).
- */
-int main(void)
+/* override default board_init */
+void board_init(void)
 {
-	volatile unsigned int delay;
-
 	/* Disable watchdog */
 	wdt_disable();
 
@@ -207,6 +201,16 @@ int main(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+}
+
+/**
+ *  \brief Application entry point for clock switching.
+ *
+ *  \return Unused (ANSI-C compatibility).
+ */
+int main(void)
+{
+	volatile unsigned int delay;
 
 	/* Output example information */
 	console_example_info("Clock Switching Example");

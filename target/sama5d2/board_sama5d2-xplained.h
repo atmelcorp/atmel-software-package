@@ -123,6 +123,8 @@
 /** List of all LEDs definitions. */
 #define PINS_LEDS { PIN_LED_0, PIN_LED_1, PIN_LED_2 }
 
+#define NUM_LEDS  3
+
 /* =================== LWM LED definition ====================== */
 
 /** LED #1 PWM Channel */

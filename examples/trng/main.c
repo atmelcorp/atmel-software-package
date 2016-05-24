@@ -94,7 +94,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/trng.h"
-#include "peripherals/wdt.h"
 
 #include <stdio.h>
 
@@ -119,12 +118,6 @@ static void trng_callback(uint32_t random_value, void* user_arg)
  */
 int main(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("TRNG Example");
 

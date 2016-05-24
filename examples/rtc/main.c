@@ -117,7 +117,6 @@
 #include "peripherals/tc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#include "peripherals/wdt.h"
 #include "trace.h"
 
 #include <stdint.h>
@@ -522,12 +521,6 @@ static void configure_tc(void)
 int main(void)
 {
 	uint8_t ucKey;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("RTC Example");

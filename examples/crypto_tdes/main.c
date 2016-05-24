@@ -113,7 +113,6 @@
 #include "compiler.h"
 #include "chip.h"
 #include "peripherals/tdes.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
@@ -193,7 +192,6 @@ static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
 static void init_dma(void)
 {
 	/* Initialize XDMA driver instance with polling mode */
-	xdmad_initialize(true);
 	/* Allocate XDMA channels:
 	 * 1. Write accesses into TDES_IDATARx
 	 * 2. Read accesses into TDES_ODATARx */
@@ -437,9 +435,6 @@ static void display_menu(void)
 int main(void)
 {
 	uint8_t user_key;
-
-	wdt_disable();
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("TDES Example");

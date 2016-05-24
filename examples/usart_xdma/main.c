@@ -32,7 +32,6 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
@@ -194,15 +193,6 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 
 int main (void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USART XDMA Example");
 
@@ -212,9 +202,6 @@ int main (void)
 
 	usartd_configure(&usart_desc);
 	_cmd_parser = _usart_cmd_parser;
-
-	/* Initialize XDMA */
-	xdmad_initialize(false);
 
 	/* configure spi serial flash pins */
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));

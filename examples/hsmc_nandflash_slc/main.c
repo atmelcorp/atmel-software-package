@@ -106,7 +106,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "peripherals/pmecc.h"
 #include "peripherals/pmecc_gf_1024.h"
@@ -732,18 +731,10 @@ int main(void)
 	uint32_t i, j;
 	bool onficompatible = false;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Initialize console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("HSMC NandFlash SLC Example");
 
 	/* Configure HSMC for Nandflash accesses */
-	board_cfg_nand_flash();
-	xdmad_initialize(true);
 	nand_dma_configure();
 	nand_initialize(&nand, NULL);
 

@@ -207,6 +207,8 @@
 /*   MEMORY MAPPING DEFINITIONS FOR SAMA5D24 */
 /* ************************************************************************** */
 
+#define IRAM_SIZE (0x20000u)
+
 #define EBI_CS0_ADDR    (0x10000000u) /**< EBI Chip Select 0 base address */
 #define DDR_CS_ADDR     (0x20000000u) /**< DDR Chip Select base address */
 #define DDR_AES_CS_ADDR (0x40000000u) /**< DDR with AES Chip Select base address */
@@ -224,6 +226,7 @@
 #define ECC_ROM_ADDR    (0x00040000u) /**< ECC ROM base address */
 #define NFC_RAM_ADDR    (0x00100000u) /**< NAND Flash Controller RAM base address */
 #define IRAM0_ADDR      (0x00200000u) /**< Internal RAM 0 base address */
+#define IRAM_ADDR       IRAM0_ADDR
 #define IRAM1_ADDR      (0x00220000u) /**< Internal RAM 1 base address */
 #define UDPHS_RAM_ADDR  (0x00300000u) /**< USB High Speed Device Port RAM base address */
 #define UHPHS_OHCI_ADDR (0x00400000u) /**< USB High Speed Device Port RAM base address */

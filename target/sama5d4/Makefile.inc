@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -49,18 +49,16 @@ gnu-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/ddram.gdb
 bootstrap-y ?= target/sama5d4/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram.icf
-ifeq ($(TARGET),sama5d4-xplained)
-iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
-endif
-ifeq ($(TARGET),sama5d4-ek)
-iar-debug-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
-endif
+iar-debug-script-$(CONFIG_BOARD_SAMA5D4_EK) ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
+iar-debug-script-$(CONFIG_BOARD_SAMA5D4_XPLAINED) ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
 endif
 
 chip-family = sama5d4
 
 target-y += target/sama5d4/chip.o
-target-y += target/sama5d4/board_lowlevel.o
 target-y += target/sama5d4/board_support.o
+target-$(CONFIG_BOARD_SAMA5D4_EK) += target/sama5d4/board_sama5d4-ek.o
+target-$(CONFIG_BOARD_SAMA5D4_GENERIC) += target/sama5d4/board_sama5d4-generic.o
+target-$(CONFIG_BOARD_SAMA5D4_XPLAINED) += target/sama5d4/board_sama5d4-xplained.o
 
 endif

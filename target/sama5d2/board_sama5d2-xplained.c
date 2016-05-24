@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,20 +27,51 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for the low-level initialization function.
- *
- */
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#ifndef BOARD_LOWLEVEL_H
-#define BOARD_LOWLEVEL_H
+#include "chip.h"
+#include "board.h"
+#include "compiler.h"
+
+#include "peripherals/xdmad.h"
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void low_level_init(void);
+WEAK void board_init(void)
+{
+#ifdef VARIANT_DDRAM
+	bool ddram = false;
+#else
+	bool ddram = true;
+#endif
 
-#endif /* BOARD_LOWLEVEL_H */
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(ddram, true);
+
+	/* Configure console */
+	board_cfg_console(0);
+
+	/* XDMAC Driver init */
+	xdmad_initialize(false);
+
+	/* Configure PMIC */
+	board_cfg_pmic();
+
+	/* Configure LEDs */
+	board_cfg_led();
+
+#ifdef CONFIG_HAVE_LCDD
+	/* Configure LCD controller/display */
+	board_cfg_lcd();
+#endif
+
+#ifdef CONFIG_HAVE_ISC
+	/* Configure camera interface */
+	board_cfg_isc();
+#endif
+}

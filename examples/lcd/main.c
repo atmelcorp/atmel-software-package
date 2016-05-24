@@ -97,7 +97,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "misc/cache.h"
 
@@ -179,18 +178,6 @@
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
-
-static const struct _lcdd_desc lcd_desc = {
-	.width = BOARD_LCD_WIDTH,
-	.height = BOARD_LCD_HEIGHT,
-	.framerate = BOARD_LCD_FRAMERATE,
-	.timing_vfp = BOARD_LCD_TIMING_VFP,
-	.timing_vbp = BOARD_LCD_TIMING_VBP,
-	.timing_vpw = BOARD_LCD_TIMING_VPW,
-	.timing_hfp = BOARD_LCD_TIMING_HFP,
-	.timing_hbp = BOARD_LCD_TIMING_HBP,
-	.timing_hpw = BOARD_LCD_TIMING_HPW,
-};
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -670,23 +657,10 @@ extern int main(void)
 	uint32_t heoDly = 0;
 	uint32_t ovr1Dly = 0;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("LCD Example");
 
-#ifndef VARIANT_DDRAM
-	/* Configure DDR3 */
-	board_cfg_ddram();
-#endif
-
 	/* Configure LCD */
-	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdd_configure(&lcd_desc);
 	_LcdOn();
 
 	t1 = timer_get_tick();

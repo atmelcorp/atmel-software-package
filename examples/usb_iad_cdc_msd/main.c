@@ -150,7 +150,6 @@
 
 #include "misc/console.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 
 
@@ -382,22 +381,9 @@ int main(void)
 {
 	uint8_t usb_connected = 0, serial_on = 0;
 	uint8_t serial_read = 1;
-	
-	/* Disable watchdog */
-	wdt_disable();
-
-	board_cfg_console(0);
-
-	/* Enable DDRAM */
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
 
 	/* Output example information */
 	console_example_info("USB CDCMSD Device Example");
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* If there is on board power, switch it off */
 	usb_power_configure();

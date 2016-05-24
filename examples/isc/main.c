@@ -92,7 +92,6 @@
 #include "misc/cache.h"
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/xdmad.h"
 
@@ -167,18 +166,6 @@ typedef enum _awb_status {
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
 
-static const struct _lcdd_desc lcd_desc = {
-	.width = BOARD_LCD_WIDTH,
-	.height = BOARD_LCD_HEIGHT,
-	.framerate = BOARD_LCD_FRAMERATE,
-	.timing_vfp = BOARD_LCD_TIMING_VFP,
-	.timing_vbp = BOARD_LCD_TIMING_VBP,
-	.timing_vpw = BOARD_LCD_TIMING_VPW,
-	.timing_hfp = BOARD_LCD_TIMING_HFP,
-	.timing_hbp = BOARD_LCD_TIMING_HBP,
-	.timing_hpw = BOARD_LCD_TIMING_HPW,
-};
-
 /** Supported sensor profiles */
 static const sensor_profile_t *sensor_profiles[6] = {
 	&ov2640_profile,
@@ -191,10 +178,6 @@ static const sensor_profile_t *sensor_profiles[6] = {
 
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
-const struct _pin pin_rst = ISC_PIN_RST;
-const struct _pin pin_pwd = ISC_PIN_PWD;
-const struct _pin pins_isc[]= ISC_PINS;
-const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(L1_CACHE_BYTES)
@@ -397,41 +380,12 @@ static void configure_twi(void)
 }
 
 /**
- * \brief ISI PCK initialization.
- */
-static void configure_mck_clock(void)
-{
-	pmc_enable_peripheral(ID_ISC);
-	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(7 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-	isc_enable_master_clock();
-	isc_configure_isp_clock(2 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-	isc_enable_isp_clock();
-}
-
-/**
- * \brief Hardware reset sensor.
- */
-static void sensor_reset(void)
-{
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	timer_wait(10);
-}
-
-/**
  * \brief Configure LCD controller.
  */
 static void configure_lcd(void)
 {
 	lcdd_enable_layer(LCDD_HEO, 0);
-	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdd_configure(&lcd_desc);
+
 	if (sensor_mode == YUV_422) {
 		lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV);
 		lcdd_create_canvas(LCDD_HEO,
@@ -868,29 +822,11 @@ extern int main(void)
 	int i;
 	uint8_t key;
 
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("ISC Example");
 
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
 	/* TWI Initialize */
 	configure_twi();
-
-	/* Configure all ISC pins */
-	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
-
-	/* ISI PCK clock Initialize */
-	configure_mck_clock();
-
-	/* Initialize XDMA driver instance in interrupt mode */
-	xdmad_initialize(false);
 
 	/* Allocate a XDMA channel. */
 	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
@@ -915,9 +851,6 @@ extern int main(void)
 	}
 	
 restart_sensor:
-
-	/* Reset Sensor board */
-	sensor_reset();
 
 	printf("------------ %s -------------\n\r",
 		sensor_profiles[sensor_idx]->name);

@@ -231,10 +231,6 @@ resetHandler:
 	ldr     sp, =_cstack
 	bic     sp, sp, #0x7
 
-/* Remap SRAM at 0x00000000 */
-	ldr     r0, =matrix_remap_ram
-	blx     r0
-
 /* Relocate */
 	ldr     r0, =_etext
 	ldr     r1, =_srelocate
@@ -254,6 +250,9 @@ resetHandler:
 	strcc   r2, [r0], #4
 	bcc     1b
 
+/* Remap SRAM at 0x00000000 */
+	bl      matrix_remap_ram
+
 /* Enable fpu */
 	/* Grant non secure access for CP10 and CP11 */
 	mrc	p15, 0, r0, c1, c1, 2
@@ -268,18 +267,15 @@ resetHandler:
 
 /* Initialize the C library */
 
-	ldr     r0, =__libc_init_array
-	blx     r0
+	bl      __libc_init_array
 
-/* Perform low-level initialization of the chip using low_level_init() */
+/* Perform board initialization */
 
-	ldr     r0, =low_level_init
-	blx     r0
+	bl      board_init
 
 /* Branch to main() */
 
-	ldr     r0, =main
-	blx     r0
+	bl      main
 
 /* Loop indefinitely when program is finished */
 

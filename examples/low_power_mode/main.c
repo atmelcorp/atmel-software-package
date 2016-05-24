@@ -694,12 +694,8 @@ static void menu_out_of_self_refresh(void)
  *----------------------------------------------------------------------------
  */
 
-/**
- *  \brief Application entry point.
- *
- *  \return Unused (ANSI-C compatibility).
- */
-int main(void)
+/* override default board_init */
+void board_init(void)
 {
 	/* Disable watchdog */
 	wdt_disable();
@@ -710,10 +706,19 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
+	/* Configure PMIC */
+	board_cfg_pmic();
+}
+
+/**
+ *  \brief Application entry point.
+ *
+ *  \return Unused (ANSI-C compatibility).
+ */
+int main(void)
+{
 	/* Output example information */
 	console_example_info("Low Power Mode Example");
-
-	board_cfg_pmic();
 
 	/* set a default state at the beginning to save power */
 	/* Enable L2 cache clock gating */

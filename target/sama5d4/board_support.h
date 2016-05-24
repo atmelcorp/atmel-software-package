@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -49,6 +49,18 @@
 extern const char* get_board_name(void);
 
 /**
+ * \brief Configure the board master clock using PMC
+ */
+extern void board_cfg_clocks(void);
+
+/**
+ * \brief Performs the low-level initialization of the chip.
+ *
+ * This includes watchdog, master clock, AIC, timer, DDRAM and MMU.
+ */
+extern void board_cfg_lowlevel(bool ddram, bool mmu);
+
+/**
  * \brief Configure the board console if any
  * \param baudrate Requested baudrate, or board default if 0
  */
@@ -65,9 +77,9 @@ extern void board_restore_pio_reset_state(void);
 extern void board_save_misc_power(void);
 
 /**
- * \brief Setup TLB for the board
+ * \brief Setup MMU for the board
  */
-extern void board_setup_tlb(uint32_t *tlb);
+extern void board_cfg_mmu(void);
 
 /**
  * \brief Configures L2CC for the board
@@ -106,5 +118,24 @@ extern void board_cfg_nor_flash(void);
  * \brief Configures pmic for the board
  */
 extern void board_cfg_pmic(void);
+
+/**
+ * \brief Configures LCD for the board
+ */
+#ifdef CONFIG_HAVE_LCDD
+extern void board_cfg_lcd(void);
+#endif
+
+/**
+ * \brief Configures ISI for the board
+ */
+#ifdef CONFIG_HAVE_ISI
+extern void board_cfg_isi(void);
+#endif
+
+extern void board_cfg_led(void);
+
+extern void board_init(void);
+
 
 #endif /* #ifndef BOARD_MEMORIES_H */

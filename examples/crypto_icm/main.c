@@ -96,7 +96,6 @@
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#include "peripherals/wdt.h"
 #include "peripherals/icm.h"
 #include "misc/console.h"
 
@@ -212,12 +211,6 @@ static void check_hash(uint8_t region)
 int main( void )
 {
 	uint8_t i;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Initialize console */
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("ICM Example");

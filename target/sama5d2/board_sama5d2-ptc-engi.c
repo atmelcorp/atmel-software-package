@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,65 +27,46 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Provides the low-level initialization function that called on chip startup.
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "chip.h"
 #include "board.h"
-#include "timer.h"
+#include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
-#include "peripherals/aic.h"
-#include "peripherals/matrix.h"
-#include "peripherals/pmc.h"
-
-#include "board_lowlevel.h"
+#include "peripherals/xdmad.h"
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
- *        Functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Performs the low-level initialization of the chip.
- * It also enable a low level on the pin NRST triggers a user reset.
- */
-void low_level_init(void)
+WEAK void board_init(void)
 {
-	/* Configure clocking if code is not in external mem */
-	if ((uint32_t)low_level_init < DDR_CS_ADDR) {
-		pmc_select_external_osc();
-		pmc_switch_mck_to_main();
-		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-		pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-			     CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(87) |
-			     CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x0));
-		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
-		pmc_switch_mck_to_pll();
-	}
+#ifdef VARIANT_DDRAM
+	bool ddram = false;
+#else
+	bool ddram = true;
+#endif
 
-	/* Setup default interrupt handlers */
-	aic_initialize();
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(ddram, true);
 
-	/* Enable MMU, I-Cache and D-Cache */
-	if (!cp15_is_mmu_enabled()) {
-		mmu_initialize();
-		cp15_enable_icache();
-		cp15_enable_mmu();
-		cp15_enable_dcache();
-	} else {
-		cp15_enable_icache();
-		cp15_enable_dcache();
-	}
+	/* Configure console */
+	board_cfg_console(0);
 
-	/* Timer */
-	timer_configure(BOARD_TIMER_RESOLUTION);
+	/* XDMAC Driver init */
+	xdmad_initialize(false);
+
+	/* Configure PMIC */
+	board_cfg_pmic();
+
+	/* Configure LEDs */
+	board_cfg_led();
+
+#ifdef CONFIG_HAVE_NAND_FLASH
+	/* Configure NAND flash */
+	board_cfg_nand_flash();
+#endif
 }

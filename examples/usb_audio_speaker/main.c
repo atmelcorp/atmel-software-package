@@ -111,13 +111,9 @@
 #include "compiler.h"
 #include "mutex.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
 #include "usb/device/audio/audd_speaker_driver.h"
@@ -381,28 +377,15 @@ int main(void)
 	bool usb_conn = false;
 	bool audio_on = false;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 
 	/* Output example information */
 	console_example_info("USB Device Audio Speaker Example");
 
-	/* configure pmic */
-	board_cfg_pmic();
-
 	/* Initialize all USB power (off) */
 	usb_power_configure();
 		
-	/* DMA Driver initialize */
-	xdmad_initialize(false);
-	
 	/* Configure Audio */
 	audio_play_configure(&audio_device);
 

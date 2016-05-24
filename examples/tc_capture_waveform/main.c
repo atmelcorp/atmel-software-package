@@ -136,7 +136,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/tc.h"
 #include "peripherals/xdmad.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 
@@ -359,19 +358,8 @@ int main(void)
 	uint32_t duty_cycle;
 	uint32_t tc_id;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("TC Capture Waveform Example");
-
-	board_cfg_pmic();
 
 	/* Configure PIO Pins for TC0 */
 	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));

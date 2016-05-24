@@ -38,7 +38,6 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
@@ -292,26 +291,9 @@ int main (void)
 {
 	uint32_t rc = 0;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 	_cmd_parser = _flash_cmd_parser;
-
-	/* Initializze XDMA */
-	xdmad_initialize(false);
 
 	/* Output example information */
 	console_example_info("SPI Flash Example");

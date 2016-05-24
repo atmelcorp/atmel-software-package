@@ -166,7 +166,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 #include "peripherals/rtc.h"
 #include "peripherals/secumod.h"
 #include "peripherals/shdwc.h"
@@ -695,16 +694,8 @@ int main(void)
 	/* reconfigure PCK=354MHz, MCK=177MHz */
 	pmc_set_custom_pck_mck(&clock_setting);
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Initialize console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("SECUMOD Example");
-
-	board_cfg_pmic();
 
 	/*Print the chip module information*/
 	printf("-- CHIP Module: %s --\n\r", get_chip_name());

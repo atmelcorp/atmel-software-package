@@ -122,7 +122,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 #include "misc/led.h"
@@ -243,20 +242,6 @@ static void _show_buffer( uint8_t *puc_buffer, uint32_t data_len )
 	printf("\n\r");
 }
 
-
-/**
- *  \brief Configure LEDs
- *
- *  Configures LEDs \#1 and \#2 (cleared by default).
- */
-static void configure_leds(void)
-{
-	int i = 0;
-	for (i = 0; i < num_leds; ++i) {
-		led_configure(i);
-	}
-}
-
 /*----------------------------------------------------------------------------
  *         Callbacks re-implementation
  *----------------------------------------------------------------------------*/
@@ -296,18 +281,8 @@ int main( void )
 	uint8_t  led_stat = 0;
 	uint8_t  update;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB Device HID Transfer Example");
-
-	board_cfg_pmic();
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* If there is on board power, switch it off */
 	usb_power_configure();
@@ -316,9 +291,6 @@ int main( void )
 	/* If there is wakeup pin, configure it */
 	_configure_wake_up();
 #endif
-
-	/* Configure PINs for LEDs and Buttons */
-	configure_leds();
 
 #ifdef NO_PUSHBUTTON
 	printf("-- : DBG key 1 2 used as monitored buttons\n\r");

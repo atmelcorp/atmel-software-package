@@ -90,7 +90,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "misc/cache.h"
 
@@ -148,18 +147,6 @@
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
 
-static const struct _lcdd_desc lcd_desc = {
-	.width = BOARD_LCD_WIDTH,
-	.height = BOARD_LCD_HEIGHT,
-	.framerate = BOARD_LCD_FRAMERATE,
-	.timing_vfp = BOARD_LCD_TIMING_VFP,
-	.timing_vbp = BOARD_LCD_TIMING_VBP,
-	.timing_vpw = BOARD_LCD_TIMING_VPW,
-	.timing_hfp = BOARD_LCD_TIMING_HFP,
-	.timing_hbp = BOARD_LCD_TIMING_HBP,
-	.timing_hpw = BOARD_LCD_TIMING_HPW,
-};
-
 /** Supported sensor profiles */
 static const sensor_profile_t *sensor_profiles[6] = {
 	&ov2640_profile,
@@ -172,12 +159,6 @@ static const sensor_profile_t *sensor_profiles[6] = {
 
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
-const struct _pin pin_rst = BOARD_ISI_RST_PIN;
-const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
-const struct _pin pins_isi[]= BOARD_ISI_PINS;
-
-/** Pins for LCDC */
-static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
 
 /** ISI frame buffer descriptor */
 ALIGNED(L1_CACHE_BYTES)
@@ -225,30 +206,6 @@ static void configure_twi(void)
 }
 
 /**
- * \brief ISI MCK initialization.
- */
-static void configure_isi_clock(void)
-{
-	/* Configure PMC programmable clock(PCK0) */
-	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
-	pmc_enable_pck1();
-}
-
-
-/**
- * \brief Hardware reset sensor.
- */
-static void sensor_reset(void)
-{
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	timer_wait(10);
-}
-
-/**
  * \brief Set up Frame Buffer Descriptors(FBD) for preview path.
  */
 static void configure_frame_buffer(void)
@@ -278,9 +235,6 @@ static void configure_frame_buffer(void)
  */
 static void configure_lcd(void)
 {
-	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdd_configure(&lcd_desc);
-
 	lcdd_configure_input_mode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
 	lcdd_configure_input_mode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
 							LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE3);
@@ -292,9 +246,6 @@ static void configure_lcd(void)
  */
 static void configure_isi(void)
 {
-	/* Enable ISI peripheral clock */
-	pmc_enable_peripheral(ID_ISI);
-
 	/* Set up Frame Buffer Descriptors(FBD) for preview path. */
 	configure_frame_buffer();
 	/* Reset ISI peripheral */
@@ -359,11 +310,6 @@ extern int main( void )
 	uint8_t key;
 	volatile uint32_t delay;
 
-	wdt_disable();
-
-	/* Initialize console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("ISI Example");
 
@@ -372,13 +318,6 @@ extern int main( void )
 
 	/* TWI Initialize */
 	configure_twi();
-
-	/* Configure ISI pins. */
-	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-
-	/* ISI PCK clock Initialize */
-	configure_isi_clock();
-	sensor_reset();
 
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)

@@ -206,12 +206,8 @@ static void _print_menu(void)
  *----------------------------------------------------------------------------
  */
 
-/**
- *  \brief Application entry point for PLL consumption measurement.
- *
- *  \return Unused (ANSI-C compatibility).
- */
-extern int main(void)
+/* override default board_init */
+void board_init(void)
 {
 	/* Disable watchdog */
 	wdt_disable();
@@ -221,7 +217,15 @@ extern int main(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+}
 
+/**
+ *  \brief Application entry point for PLL consumption measurement.
+ *
+ *  \return Unused (ANSI-C compatibility).
+ */
+int main(void)
+{
 	/* Output example information */
 	console_example_info("PLL Consumption Measurement Example");
 

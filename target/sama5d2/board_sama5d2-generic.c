@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,71 +27,29 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Provides the low-level initialization function that called on chip startup.
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
 #include "board.h"
-#include "timer.h"
+#include "compiler.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
-#include "peripherals/aic.h"
-#include "peripherals/matrix.h"
-#include "peripherals/pmc.h"
-
-#include "board_lowlevel.h"
+#include "peripherals/xdmad.h"
+#include "board_support.h"
 
 /*----------------------------------------------------------------------------
- *        Functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Performs the low-level initialization of the chip.
- */
-void low_level_init(void)
+WEAK void board_init(void)
 {
-	/* Configure clocking if code is not in external mem */
-	if ((uint32_t)low_level_init < DDR_CS_ADDR) {
-		pmc_switch_mck_to_slck();
-		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
-		pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-		pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
-		/* Disable PLLA */
-		pmc_set_plla(0, 0);
-		pmc_select_external_osc();
-		/* Configure PLLA */
-		pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-			CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(82) |
-			CKGR_PLLAR_DIVA_BYPASS, 0);
-		pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
-		pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-		pmc_switch_mck_to_pll();
-	}
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(false, true);
 
-	/* Setup default interrupt handlers */
-	aic_initialize();
+	/* Configure console */
+	board_cfg_console(0);
 
-	/* Enable MMU, I-Cache and D-Cache */
-	if (!cp15_is_mmu_enabled()) {
-		mmu_initialize();
-		cp15_enable_icache();
-		cp15_enable_mmu();
-		cp15_enable_dcache();
-	} else {
-		cp15_enable_icache();
-		cp15_enable_dcache();
-	}
-
-	/* Timer */
-	timer_configure(BOARD_TIMER_RESOLUTION);
+	/* XDMAC Driver init */
+	xdmad_initialize(false);
 }

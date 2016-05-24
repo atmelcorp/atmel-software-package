@@ -99,7 +99,6 @@
 #include "board.h"
 #include "chip.h"
 #include "peripherals/aes.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
@@ -205,7 +204,6 @@ static void dma_wr_callback(struct _xdmad_channel *channel, void *arg)
 static void init_dma(void)
 {
 	/* Initialize XDMA driver instance with polling mode */
-	xdmad_initialize(true);
 	/* Allocate XDMA channels:
 	 * 1. Write accesses into AES_IDATARx
 	 * 2. Read accesses into AES_ODATARx */
@@ -457,9 +455,6 @@ static void display_menu(void)
 int main(void)
 {
 	uint8_t user_key;
-
-	wdt_disable();
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("AES Example");

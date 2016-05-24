@@ -95,7 +95,6 @@
 
 #include "misc/cache.h"
 #include "peripherals/aic.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 #include "misc/console.h"
 
@@ -486,24 +485,8 @@ extern int main(void)
 	uint8_t key;
 	bool configured = false;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("XDMA Example");
-
-#ifdef USE_POLLING
-	/* Initialize XDMA driver instance in polling mode */
-	xdmad_initialize(true);
-	printf("\n\rDMA using polling mode\n\r");
-#else
-	/* Initialize XDMA driver instance in interrupt mode */
-	xdmad_initialize(false);
-	printf("\n\rDMA using interrupt mode\n\r");
-#endif
 
 	/* Allocate a XDMA channel. */
 	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);

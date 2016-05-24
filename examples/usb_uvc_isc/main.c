@@ -109,7 +109,6 @@
 #include "compiler.h"
 #include "rand.h"
 
-#include "cortex-a/mmu.h"
 #include "misc/console.h"
 #include "timer.h"
 
@@ -120,7 +119,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "video/image_sensor_inf.h"
 
@@ -157,9 +155,6 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 
 /** PIO pins to configured for ISC */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
-const struct _pin pin_rst = ISC_PIN_RST;
-const struct _pin pin_pwd = ISC_PIN_PWD;
-const struct _pin pins_isc[]= ISC_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 ALIGNED(L1_CACHE_BYTES) static union {
@@ -219,34 +214,6 @@ static void configure_twi(void)
 	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
 	/* Configure TWI */
 	twid_configure(&twid);
-}
-
-/**
- * \brief ISI PCK initialization.
- */
-static void configure_mck_clock(void)
-{
-	pmc_enable_peripheral(ID_ISC);
-	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(7 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-	isc_enable_master_clock();
-	isc_configure_isp_clock(2 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-	isc_enable_isp_clock();
-}
-
-/**
- * \brief Hardware reset sensor.
- */
-static void sensor_reset(void)
-{
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	timer_wait(10);
 }
 
 /**
@@ -329,8 +296,6 @@ static void configure_isc(void)
 static void start_preview(void)
 {
 	sensor_output_format_t sensor_mode = YUV_422;
-	/* Reset Sensor board */
-	sensor_reset();
 
 	/* Re-configure sensor with giving resolution */
 	if (sensor_setup(&twid, sensor_profiles[sensor_idx], image_resolution, sensor_mode) != SENSOR_OK) {
@@ -386,26 +351,11 @@ extern int main( void )
 	uint8_t key;
 	bool is_usb_vid_on = false;
 
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB UVC ISC Example");
 
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
 	/* TWI Initialize */
 	configure_twi();
-
-	/* Configure all ISC pins */
-	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
-
-	/* ISC PCK clock Initialize */
-	configure_mck_clock();
 
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)

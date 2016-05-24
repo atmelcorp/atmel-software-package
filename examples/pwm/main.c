@@ -116,7 +116,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pio.h"
 #include "peripherals/tc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
 #include "misc/console.h"
@@ -413,22 +412,8 @@ int main(void)
 	uint32_t pwm_channel;
 	uint8_t current_demo = 'h';
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("PWM Example");
-
-	board_cfg_pmic();
-
-	/* Initialize XDMA subsystem */
-	xdmad_initialize(false);
 
 	/* Configure PIO Pins for TC0 */
 	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));

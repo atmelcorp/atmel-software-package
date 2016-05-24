@@ -131,7 +131,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 #include "misc/led.h"
@@ -262,17 +261,8 @@ int main(void)
 	uint8_t released_keys_size;
 	uint32_t i;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB Device HID Keyboard Example");
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();
@@ -285,9 +275,6 @@ int main(void)
 	pio_configure(pins_push_buttons, ARRAY_SIZE(pins_push_buttons));
 #endif
 	memset(key_status, 1, NUM_KEYS);
-
-	/* Configure LEDs */
-	led_configure(LED_NUMLOCK);
 
 	/* HID driver initialization */
 	hidd_keyboard_driver_initialize(&hidd_keyboard_driver_descriptors);

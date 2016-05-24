@@ -151,7 +151,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 
 #include "usb/device/cdc/cdcd_serial.h"
 #include "usb/device/composite/cdc_hidd_driver.h"
@@ -380,12 +379,6 @@ int main(void)
 {
 	uint8_t usb_connected = 0, serial_on = 0;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB CDC HID Device Example");
 
@@ -401,9 +394,6 @@ int main(void)
 	pio_configure(pin_push_buttons, ARRAY_SIZE(pin_push_buttons));
 #endif
 	memset(key_status, 1, NUM_KEYS);
-
-	/* Configure LEDs */
-	led_configure(LED_NUMLOCK);
 
 	/* USB CDCHID driver initialization */
 	cdc_hidd_driver_initialize(&cdc_hidd_driver_descriptors);

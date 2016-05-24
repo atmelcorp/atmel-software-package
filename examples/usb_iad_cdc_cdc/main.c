@@ -150,7 +150,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
@@ -306,16 +305,8 @@ int main(void)
 	uint8_t serial0_read = 1;
 	uint8_t serial1_read = 1;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB Dual CDC Device Example");
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* If there is on board power, switch it off */
 	usb_power_configure();

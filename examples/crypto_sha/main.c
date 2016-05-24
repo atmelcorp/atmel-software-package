@@ -101,7 +101,6 @@
 #include "board.h"
 #include "chip.h"
 #include "peripherals/sha.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/xdmad.h"
@@ -319,7 +318,6 @@ static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
 static void init_dma(void)
 {
 	/* Initialize XDMA driver instance with polling mode */
-	xdmad_initialize(true);
 	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
 	dma_chan = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_SHA);
 	if (!dma_chan)
@@ -631,15 +629,8 @@ int main(void)
 {
 	uint8_t user_key;
 
-	wdt_disable();
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("SHA Example");
-
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);

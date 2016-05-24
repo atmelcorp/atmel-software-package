@@ -112,7 +112,6 @@
 #include "memories/at24.h"
 #include "misc/console.h"
 #include "peripherals/pio.h"
-#include "peripherals/wdt.h"
 
 #include "liblwip.h"
 #include "httpd.h"
@@ -238,17 +237,6 @@ int main(void)
 
 #if LWIP_DHCP
 	u8_t   dhcp_state = DHCP_INIT;
-#endif
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-#ifndef VARIANT_DDRAM
-	/* Configure DDRAM */
-	board_cfg_ddram();
 #endif
 
 	/* Output example information */

@@ -59,31 +59,21 @@
 /*         Headers                                                               */
 /*------------------------------------------------------------------------------ */
 
-#include "chip.h"
-#include "board.h"
-#include "cortex-a/cp15.h"
-#include "cortex-a/mmu.h"
-
 #include "compiler.h"
 
-/*------------------------------------------------------------------------------ */
-/*         Local variables                                                       */
-/*------------------------------------------------------------------------------ */
-
-ALIGNED(16384) static uint32_t _tlb[4096];
+#include "cortex-a/cp15.h"
+#include "cortex-a/mmu.h"
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
 /*------------------------------------------------------------------------------ */
 
-void mmu_initialize(void)
+void mmu_configure(uint32_t *tlb)
 {
-	board_setup_tlb(_tlb);
-	cp15_write_ttb((unsigned int)_tlb);
+	cp15_write_ttb((unsigned int)tlb);
 	/* Program the domain access register */
 	/* only domain 15: access are not checked */
 	cp15_write_domain_access_control(0xC0000000);
-	asm volatile("": : :"memory");
-	asm("dsb");
-	asm("isb");
+	DSB();
+	ISB();
 }

@@ -208,6 +208,7 @@ irqHandler:
         EXTERN  main
         EXTERN  matrix_remap_ram
         EXTERN  low_level_init
+        EXTERN  board_init
         REQUIRE _reset_vector
 
         EXTWEAK __iar_data_init3
@@ -271,19 +272,14 @@ __iar_program_start:
         ldr     sp, =SFE(CSTACK)
         bic     sp, sp, #0x7
 
-        /* Remap SRAM at 0x00000000 */
-        ldr     r0, =matrix_remap_ram
-        blx     r0
-
         ; Execute relocations & zero BSS
 
         FUNCALL __iar_program_start, __iar_data_init3
         bl      __iar_data_init3
 
-        ; Perform low-level initialization of the chip using low_level_init()
-
-        ldr     r0, =low_level_init
-        blx     r0
+        ; Remap SRAM at 0x00000000
+        FUNCALL __iar_program_start, matrix_remap_ram
+        bl      matrix_remap_ram
 
         ; Turn on core features assumed to be enabled
 
@@ -294,6 +290,11 @@ __iar_program_start:
 
         FUNCALL __iar_program_start, __iar_init_vfp
         bl      __iar_init_vfp
+
+        ; Perform board initialization
+
+        FUNCALL __iar_program_start, board_init
+        bl      board_init
 
         ; Setup command line
 

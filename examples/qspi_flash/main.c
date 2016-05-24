@@ -12,7 +12,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include "peripherals/trng.h"
-#include "peripherals/wdt.h"
 
 #include "memories/qspiflash.h"
 #include "misc/console.h"
@@ -42,15 +41,6 @@ static struct _pin pins_qspi[] = QSPIFLASH_PINS;
 
 int main(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Initialize TRNG */
 	trng_enable();
 

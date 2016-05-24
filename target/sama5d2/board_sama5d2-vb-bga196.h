@@ -116,6 +116,8 @@
 /** List of all LEDs definitions. */
 #define PINS_LEDS       { PIN_LED_0, PIN_LED_1 }
 
+#define NUM_LEDS        2
+
 /* =================== PIN PUSH BUTTON definition ============== */
 
 #define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)

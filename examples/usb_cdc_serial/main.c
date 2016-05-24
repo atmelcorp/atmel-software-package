@@ -123,7 +123,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
@@ -350,7 +349,6 @@ static void _configure_usart(void)
 	Usart* usart = usart_desc.addr;
 	uint32_t id = get_usart_id_from_addr(usart);
 	/* Driver initialize */
-	xdmad_initialize(0);
 	usartd_configure(&usart_desc);
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
 	usart_enable_it(usart, US_IER_RXRDY);
@@ -402,12 +400,6 @@ int main(void)
 {
 	uint8_t is_usb_connected = 0;
 	uint8_t usb_serial_read = 1;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("USB Device CDC Serial Example");

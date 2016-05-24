@@ -98,7 +98,6 @@
 
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/aesb.h"
 #include "misc/console.h"
 
@@ -123,16 +122,6 @@ int main(void)
 {
 	uint32_t* p;
 	uint8_t i;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
-	/* Initialize console */
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("AESB Example");

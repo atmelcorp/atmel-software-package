@@ -102,7 +102,6 @@
 #include "compiler.h"
 #include "rand.h"
 
-#include "cortex-a/mmu.h"
 #include "misc/console.h"
 #include "timer.h"
 
@@ -113,7 +112,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "video/image_sensor_inf.h"
 
@@ -150,9 +148,6 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 
 /** PIO pins to configured for ISI */
 const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
-const struct _pin pin_rst = BOARD_ISI_RST_PIN;
-const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
-const struct _pin pins_isi[]= BOARD_ISI_PINS;
 
 /** ISI frame buffer descriptor */
 ALIGNED(L1_CACHE_BYTES) union {
@@ -214,29 +209,6 @@ static void configure_twi(void)
 }
 
 /**
- * \brief ISI PCK initialization.
- */
-static void configure_mck_clock(void)
-{
-	/* Configure PMC programmable clock(PCK1) */
-	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
-	pmc_enable_pck1();
-}
-
-/**
- * \brief Hardware reset sensor.
- */
-static void sensor_reset(void)
-{
-	pio_configure(&pin_rst, 1);
-	pio_configure(&pin_pwd, 1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	timer_wait(10);
-}
-
-/**
  * \brief Set up DMA Descriptors.
  */
 static void configure_dma_linklist(void)
@@ -279,9 +251,6 @@ static void configure_isi(void)
 static void start_preview(void)
 {
 	sensor_output_format_t sensor_mode = YUV_422;
-
-	/* Reset Sensor board */
-	sensor_reset();
 
 	/* Re-configure sensor with giving resolution */
 	if (sensor_setup(&twid, sensor_profiles[sensor_idx], image_resolution, sensor_mode) != SENSOR_OK) {
@@ -336,25 +305,11 @@ extern int main( void )
 	uint8_t key;
 	bool is_usb_vid_on = false;
 
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB UVC ISI Example");
 
 	/* TWI Initialize */
 	configure_twi();
-
-	/* Configure all ISI pins */
-	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-
-	/* ISI PCK clock Initialize */
-	configure_mck_clock();
-
-	/* Enable ISI peripheral clock */
-	pmc_enable_peripheral(ID_ISI);
 
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)

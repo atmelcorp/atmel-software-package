@@ -118,7 +118,6 @@
 #include "peripherals/gmacd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 
 #include "network/phy.h"
 
@@ -432,17 +431,6 @@ static void _gmac_rx_callback(uint8_t queue, uint32_t status)
 int main(void)
 {
 	uint32_t tick_start;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-#ifndef VARIANT_DDRAM
-	/* Configure DDRAM */
-	board_cfg_ddram();
-#endif
 
 	/* Output example information */
 	console_example_info("GMAC Example");

@@ -94,7 +94,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
-#include "peripherals/wdt.h"
 
 #include "memories/qspiflash.h"
 #include "misc/console.h"
@@ -141,19 +140,8 @@ int main(void)
 	uint32_t buffer[4];
 	uint8_t *ptr;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("QSPI XIP Example");
-
-	board_cfg_pmic();
 
 	/* Initialize the QSPI and serial flash */
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2015-2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -49,15 +49,9 @@ gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
 bootstrap-y ?= target/sama5d2/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
-ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED),y)
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-endif
-ifeq ($(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO),y)
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-endif
-ifeq ($(CONFIG_BOARD_SAMA5D2_PTC_ENGI),y)
-iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-endif
+iar-debug-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
+iar-debug-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
+iar-debug-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 endif
 
 # QSPI0 variant
@@ -75,7 +69,11 @@ endif
 chip-family = sama5d2
 
 target-y += target/sama5d2/chip.o
-target-y += target/sama5d2/board_lowlevel.o
 target-y += target/sama5d2/board_support.o
+target-$(CONFIG_BOARD_SAMA5D2_GENERIC) += target/sama5d2/board_sama5d2-xplained.o
+target-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) += target/sama5d2/board_sama5d2-ptc-engi.o
+target-$(CONFIG_BOARD_SAMA5D2_VB_BGA196) += target/sama5d2/board_sama5d2-vb-bga196.o
+target-$(CONFIG_BOARD_SAMA5D2_VB_BGA289) += target/sama5d2/board_sama5d2-vb-bga289.o
+target-$(CONFIG_BOARD_SAMA5D2_XPLAINED) += target/sama5d2/board_sama5d2-xplained.o
 
 endif

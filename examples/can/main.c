@@ -104,7 +104,6 @@
 #include "chip.h"
 #include "compiler.h"
 #include "peripherals/mcan.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/aic.h"
@@ -411,17 +410,6 @@ int main(void)
 	};
 	uint32_t int_source, mcan_msg_ram_size = ARRAY_SIZE(mcan_msg_ram);
 	uint8_t user_key;
-
-	wdt_disable();
-
-#ifndef VARIANT_DDRAM
-	/* In this variant the program runs from SRAM, but still the MCAN Driver
-	 * requires access to DDR SDRAM, since it allocates the MCAN Message RAM
-	 * from it. */
-	board_cfg_ddram();
-#endif
-
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("CAN Example");

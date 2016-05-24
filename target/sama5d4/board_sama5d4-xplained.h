@@ -99,6 +99,8 @@
 /** List of all LEDs definitions. */
 #define PINS_LEDS { PIN_LED_0, PIN_LED_1 }
 
+#define NUM_LEDS 2
+
 /* =================== PIN PUSH BUTTON definition ============== */
 
 #define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE)
@@ -201,5 +203,6 @@
 #define ACT8865_FREQ 400000
 #define ACT8865_PIN_IRQ \
 	{ PIO_GROUP_E, PIO_PE25, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+
 
 #endif /* _BOARD_SAMA5D4_XPLAINED_H */

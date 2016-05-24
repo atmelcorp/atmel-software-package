@@ -150,7 +150,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
 #include "usb/device/audio/audd_function.h"
@@ -432,26 +431,11 @@ int main(void)
 	bool audio_on = false;
 	volatile uint8_t serial_on = 0;
 
-	/* Disable watchdog */
-	wdt_disable( );
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB CDC + Audio Device Example");
 
-	/* configure pmic */
-	board_cfg_pmic();
-
 	/* If there is on board power, switch it off */
 	usb_power_configure();
-
-	/* Audio STREAM LED */
-	led_configure(LED_BLUE);
-
-	/* DMA Driver initialize */
-	xdmad_initialize(false);
 
 	/* Configure Audio */
 	audio_play_configure(&audio_device);

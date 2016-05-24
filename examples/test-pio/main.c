@@ -94,7 +94,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 
@@ -158,16 +157,6 @@ int main(void)
 	int tests = 0;
 	int test_fail = 0;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Initialize console */
-	board_cfg_console(0);
-	board_cfg_pmic();
-
 	printf("<?xml version=\"1.0\" encoding=\"UTF-8\">\r\n\r\n");
 	printf("<testsuite>\r\n");
 	printf("  <testcase classname=\"pio.setup\" name=\"Setup\">\r\n");
@@ -175,7 +164,7 @@ int main(void)
 
 	/* Output example information */
 	console_example_info("PIO Testing Example");
-	
+
 	/* Configure PIO for input acquisition */
 	pio_configure(&pio_input, 1);
 	pio_set_debounce_filter(&pio_input, 100);

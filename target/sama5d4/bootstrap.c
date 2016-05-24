@@ -29,10 +29,27 @@
 
 #include "board.h"
 
+#include "cortex-a/cp15.h"
+#include "cortex-a/cpsr.h"
+
+#include "misc/console.h"
+
+/* override default board init */
+void board_init()
+{
+	board_cfg_lowlevel(true, false);
+	board_cfg_console(0);
+}
+
 int main(void)
 {
-	board_cfg_ddram();
+	console_example_info("DDRAM Bootstrap");
+
+	/* Disable IRQ and FIQ at core level */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+
 	asm("BKPT");
+
 	/* never reached */
 	return 0;
 }

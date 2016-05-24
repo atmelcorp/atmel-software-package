@@ -122,7 +122,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
-#include "peripherals/wdt.h"
 
 #include "misc/console.h"
 
@@ -266,17 +265,8 @@ int main(void)
 	int8_t dx = 0, dy = 0;
 	uint8_t is_changed;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USB Device HID Mouse Example");
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();

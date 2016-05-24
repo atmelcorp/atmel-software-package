@@ -113,7 +113,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 #include "peripherals/classd.h"
 
@@ -279,12 +278,6 @@ void audd_speaker_phone_driver_stream_setting_changed(uint8_t mic,
 int main(void)
 {
 	bool play_on = false, rec_on = false;
-
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("USB Device Audio LoopREC Example");

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,29 +27,54 @@
  * ----------------------------------------------------------------------------
  */
 
+ /*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include "chip.h"
 #include "board.h"
+#include "compiler.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/cpsr.h"
+#include "peripherals/pio.h"
+#include "peripherals/xdmad.h"
+#include "peripherals/wdt.h"
 
-#include "misc/console.h"
+#include "board_support.h"
 
-/* override default board init */
-void board_init()
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
+
+WEAK void board_init(void)
 {
-	board_cfg_lowlevel(true, false);
+#ifdef VARIANT_DDRAM
+	bool ddram = false;
+#else
+	bool ddram = true;
+#endif
+
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(ddram, true);
+
+	/* Configure console */
 	board_cfg_console(0);
-}
 
-int main(void)
-{
-	console_example_info("DDRAM Bootstrap");
+	/* XDMAC Driver init */
+	xdmad_initialize(false);
 
-	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	/* Configure PMIC */
+	board_cfg_pmic();
 
-	asm("BKPT");
+	/* Configure LEDs */
+	board_cfg_led();
 
-	/* never reached */
-	return 0;
+#ifdef CONFIG_HAVE_LCDD
+	/* Configure LCD controller/display */
+	board_cfg_lcd();
+#endif
+
+#ifdef CONFIG_HAVE_NAND_FLASH
+	/* Configure NAND flash */
+	board_cfg_nand_flash();
+#endif
 }

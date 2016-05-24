@@ -95,7 +95,6 @@
 
 #include "peripherals/flexcom.h"
 #include "peripherals/usart.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
@@ -195,14 +194,6 @@ static void _send_test_data(void)
  */
 int main (void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("USART FIFO Example");
 

@@ -90,7 +90,6 @@
 #include "timer.h"
 
 #include "peripherals/aic.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 
 #include "peripherals/usartd.h"
@@ -227,19 +226,8 @@ static void irda_interface_init(void)
  */
 extern int main( void )
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("IrDA Example");
-
-	board_cfg_pmic();
 
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();

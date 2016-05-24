@@ -53,7 +53,6 @@
 #include "rand.h"
 #include "trace.h"
 
-#include "peripherals/wdt.h"
 #include "misc/cache.h"
 #include "misc/console.h"
 
@@ -149,19 +148,10 @@ static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
  */
 int main(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	srand(0);
 
 	/* Output example information */
 	console_example_info("DDRAM Example");
-
-	trace_info("Configuring External DDRAM \n\r");
-	board_cfg_ddram();
 
 	/* Full test DDRAM  */
 	trace_info("Starting memory validation of External DDRAM \n\r");

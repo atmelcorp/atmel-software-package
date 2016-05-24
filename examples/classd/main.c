@@ -106,7 +106,6 @@
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/xdmad.h"
 
 #include "misc/console.h"
@@ -204,9 +203,6 @@ static void _playback_stop(void)
  */
 static void _initialize_dma(void)
 {
-	/* Driver initialize */
-	xdmad_initialize(false);
-
 	/* Allocate DMA TX channels for CLASSD */
 	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_CLASSD);
 	if (dma_channel)
@@ -328,12 +324,6 @@ extern int main(void)
 {
 	uint8_t key;
 	uint8_t attn = INITIAL_ATTENUATION;
-
-	/* disable watchdog */
-	wdt_disable();
-
-	/* configure console */
-	board_cfg_console(0);
 
 	/* output example information */
 	console_example_info("CLASSD Example");

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,23 +27,32 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for the low-level initialization function.
- *
- */
+ /*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#ifndef BOARD_LOWLEVEL_H
-#define BOARD_LOWLEVEL_H
+#include "chip.h"
+#include "board.h"
+#include "compiler.h"
+
+#include "peripherals/pio.h"
+#include "peripherals/xdmad.h"
+#include "peripherals/wdt.h"
+#include "board_support.h"
+
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Low-Level chip initialization -- called by startup
- */
-extern void low_level_init(void);
+WEAK void board_init(void)
+{
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(false, true);
 
-#endif /* BOARD_LOWLEVEL_H */
+	/* Configure console */
+	board_cfg_console(0);
+
+	/* XDMAC Driver init */
+	xdmad_initialize(false);
+}

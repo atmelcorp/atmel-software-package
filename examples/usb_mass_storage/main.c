@@ -103,7 +103,6 @@
 #include "trace.h"
 
 #include "peripherals/pio.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
 
@@ -115,9 +114,12 @@
 #include "libstoragemedia/media_sdcard.h"
 
 #include "usb/device/msd/msd_driver.h"
+
 #include "usb/device/msd/msd_lun.h"
 
 #include "../usb_common/main_usb_common.h"
+
+#include "misc/console.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -429,23 +431,7 @@ static void _MemoriesInitialize(void)
  */
 int main(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-#ifndef VARIANT_DDRAM
-	/* Initialize DDR */
-	board_cfg_ddram();
-#endif
-
 	console_example_info("USB Device Mass Storage Example");
-
-	board_cfg_pmic();
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();

@@ -96,7 +96,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
-#include "peripherals/wdt.h"
 #include "peripherals/aesb.h"
 
 #include "memories/qspiflash.h"
@@ -132,19 +131,8 @@ int main(void)
 	uint8_t buffer[4096];
 	uint8_t buffer_read[4096];
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("QSPI AESB Example");
-
-	board_cfg_pmic();
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_AESB);

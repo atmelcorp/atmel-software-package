@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -41,18 +41,28 @@
 #include "board.h"
 #include "trace.h"
 
+#include "cortex-a/cp15.h"
 #include "cortex-a/mmu.h"
 
+#include "peripherals/aic.h"
 #include "peripherals/hsmc.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
+#include "peripherals/wdt.h"
 
 #include "memories/ddram.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
+#include "misc/led.h"
+
+#ifdef CONFIG_HAVE_LCDD
+#include "video/lcdd.h"
+#endif
+
+#include "timer.h"
 
 #include "board_support.h"
 
@@ -82,16 +92,22 @@ static const struct _l2cc_control l2cc_cfg = {
 static const char* board_name = BOARD_NAME;
 
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-struct _twi_desc act8865_twid = {
+static struct _twi_desc act8865_twid = {
 	.addr = ACT8865_ADDR,
 	.freq = ACT8865_FREQ,
 	.transfert_mode = TWID_MODE_POLLING
 };
 
-struct _act8865 pmic = {
+static struct _act8865 pmic = {
 	.twid = &act8865_twid
 };
 #endif
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+ALIGNED(16384) static uint32_t tlb[4096];
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -100,6 +116,49 @@ struct _act8865 pmic = {
 const char* get_board_name(void)
 {
 	return board_name;
+}
+
+void board_cfg_clocks(void)
+{
+	pmc_select_external_osc();
+	pmc_switch_mck_to_main();
+	pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
+	pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
+		     CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(87) |
+		     CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x0));
+	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
+	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
+	pmc_switch_mck_to_pll();
+}
+
+void board_cfg_lowlevel(bool ddram, bool mmu)
+{
+	/* Disable Watchdog */
+	wdt_disable();
+
+	/* Disable all PIO interrupts */
+	pio_reset_all_it();
+
+#ifdef VARIANT_SRAM
+	/* Configure clocking if code is not in external mem */
+	board_cfg_clocks();
+#endif
+
+	/* Setup default interrupt handlers */
+	aic_initialize();
+
+	if (ddram) {
+		/* Configure DDRAM */
+		board_cfg_ddram();
+	}
+
+	if (mmu) {
+		/* Setup MMU */
+		board_cfg_mmu();
+	}
+
+	/* Timer */
+	timer_configure(BOARD_TIMER_RESOLUTION);
 }
 
 /**
@@ -178,9 +237,12 @@ void board_save_misc_power(void)
 	}
 }
 
-void board_setup_tlb(uint32_t *tlb)
+void board_cfg_mmu(void)
 {
 	uint32_t addr;
+
+	if (cp15_is_mmu_enabled())
+		return;
 
 	/* TODO: some peripherals are configured TTB_SECT_STRONGLY_ORDERED
 	   instead of TTB_SECT_SHAREABLE_DEVICE because their drivers have to
@@ -373,6 +435,12 @@ void board_setup_tlb(uint32_t *tlb)
 	           | TTB_SECT_EXEC
 	           | TTB_SECT_STRONGLY_ORDERED
 	           | TTB_TYPE_SECT;
+
+	/* Enable MMU, I-Cache and D-Cache */
+	mmu_configure(tlb);
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
 }
 
 void board_cfg_l2cc(void)
@@ -496,6 +564,65 @@ void board_cfg_pmic()
 	} else {
 		trace_error("Error initializing ACT8865 PMIC\n\r");
 		return;
+	}
+#endif
+}
+
+#ifdef CONFIG_HAVE_ISI
+void board_cfg_isi(void)
+{
+	const struct _pin pins_isi[]= BOARD_ISI_PINS;
+	const struct _pin pin_rst = BOARD_ISI_RST_PIN;
+	const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
+
+	/* Configure ISI pins */
+	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
+
+	/* Configure PMC programmable clock(PCK0) */
+	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
+	pmc_enable_pck1();
+
+	/* Reset sensor */
+	pio_configure(&pin_rst,1);
+	pio_configure(&pin_pwd,1);
+	pio_clear(&pin_pwd);
+	pio_clear(&pin_rst);
+	pio_set(&pin_rst);
+	timer_wait(10);
+
+	/* Enable ISI peripheral clock */
+	pmc_enable_peripheral(ID_ISI);
+}
+#endif
+
+#ifdef CONFIG_HAVE_LCDD
+void board_cfg_lcd(void)
+{
+	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
+	const struct _lcdd_desc lcd_desc = {
+		.width = BOARD_LCD_WIDTH,
+		.height = BOARD_LCD_HEIGHT,
+		.framerate = BOARD_LCD_FRAMERATE,
+		.timing_vfp = BOARD_LCD_TIMING_VFP,
+		.timing_vbp = BOARD_LCD_TIMING_VBP,
+		.timing_vpw = BOARD_LCD_TIMING_VPW,
+		.timing_hfp = BOARD_LCD_TIMING_HFP,
+		.timing_hbp = BOARD_LCD_TIMING_HBP,
+		.timing_hpw = BOARD_LCD_TIMING_HPW,
+	};
+
+	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
+	lcdd_configure(&lcd_desc);
+}
+#endif
+
+void board_cfg_led(void)
+{
+#ifdef NUM_LEDS
+	uint8_t i;
+
+	for (i = 0; i < NUM_LEDS; ++i) {
+		led_configure(i);
 	}
 #endif
 }

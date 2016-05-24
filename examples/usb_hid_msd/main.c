@@ -152,7 +152,6 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 
 #include "libstoragemedia/media.h"
@@ -474,21 +473,8 @@ int main(void)
 {
 	uint8_t usb_connected = 0;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	board_cfg_console(0);
-
-	/* Enable DDRAM */
-#ifndef VARIANT_DDRAM
-	board_cfg_ddram();
-#endif
-
 	/* Output example information */
 	console_example_info("USB HIDMSD Device Example");
-
-	/* If they are present, configure Vbus & Wake-up pins */
-	pio_reset_all_it();
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();
@@ -503,9 +489,6 @@ int main(void)
 #endif
 	memset(key_status, 1, NUM_KEYS);
 
-	/* Configure LEDs */
-	led_configure(LED_NUMLOCK);
-	
 	_memories_initialize();
 
 	/* USB COMPOSITE driver initialization */

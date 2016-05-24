@@ -216,9 +216,6 @@ int main(void)
 {
 	uint8_t key;
 
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("WDT Example");
 

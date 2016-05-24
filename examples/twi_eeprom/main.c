@@ -92,7 +92,6 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
@@ -452,15 +451,6 @@ int main (void)
 	uint32_t i;
 	uint32_t twi_id;
 
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("TWI EEPROM Example");
 
@@ -469,8 +459,6 @@ int main (void)
 	console_enable_rx_interrupt();
 
 	_cmd_parser = _eeprom_cmd_parser;
-
-	xdmad_initialize(false);
 
 	/* configure twi flash pins */
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

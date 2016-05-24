@@ -106,7 +106,6 @@
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 
 
 #include "misc/console.h"
@@ -368,17 +367,6 @@ int main(void)
 {
 	uint8_t key = 0;
 	int8_t gain = INITIAL_GAIN;
-
-	/* disable watchdog */
-	wdt_disable();
-
-	/* enable console */
-	board_cfg_console(0);
-
-#ifndef VARIANT_DDRAM
-	/* Enable DDRAM */
-	board_cfg_ddram();
-#endif
 
 	/* Output example information */
 	console_example_info("PDMIC Example");

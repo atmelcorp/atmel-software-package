@@ -29,6 +29,7 @@
 
 #include "peripherals/matrix.h"
 #include "cortex-a/cp15.h"
+#include "misc/cache.h"
 
 #include <assert.h>
 
@@ -89,6 +90,9 @@ void matrix_remap_rom(void)
 	AXIMX->AXIMX_REMAP = 0;
 	for (i = 200; i--; ) {}
 	cp15_icache_invalidate();
+
+	/* If caching is enabled, invalidate the remap area */
+	cache_invalidate_region((void*)0, IRAM_SIZE);
 }
 
 /**
@@ -102,4 +106,9 @@ void matrix_remap_ram(void)
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 	for (i = 200; i--; ) {}
 	cp15_icache_invalidate();
+
+	/* If caching is enabled, clean the SRAM region and invalidate remap
+	 * area */
+	cache_clean_region((void*)IRAM_ADDR, IRAM_SIZE);
+	cache_invalidate_region((void*)0, IRAM_SIZE);
 }

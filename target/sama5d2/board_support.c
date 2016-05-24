@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2015-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -42,19 +42,31 @@
 #include "trace.h"
 
 #include "cortex-a/mmu.h"
+#include "cortex-a/cp15.h"
 
+#include "peripherals/aic.h"
 #include "peripherals/hsmc.h"
+#ifdef CONFIG_HAVE_ISC
+#include "peripherals/isc.h"
+#endif
 #include "peripherals/l2cc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/sfc.h"
+#include "peripherals/wdt.h"
 
+#ifdef CONFIG_HAVE_LCDD
+#include "video/lcdd.h"
+#endif
+
+#include "timer.h"
 #include "memories/ddram.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
+#include "misc/led.h"
 
 #include "board_support.h"
 
@@ -97,6 +109,8 @@ static const char* board_name = BOARD_NAME;
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+ALIGNED(16384) static uint32_t tlb[4096];
+
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 static struct _twi_desc act8945a_twid = {
 	.addr = ACT8945A_ADDR,
@@ -122,6 +136,55 @@ static bool act8945a_initialized = false;
 const char* get_board_name(void)
 {
 	return board_name;
+}
+
+void board_cfg_clocks(void)
+{
+	pmc_switch_mck_to_slck();
+	pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
+	pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
+	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
+	pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
+	/* Disable PLLA */
+	pmc_set_plla(0, 0);
+	pmc_select_external_osc();
+	/* Configure PLLA */
+	pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
+		CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(82) |
+		CKGR_PLLAR_DIVA_BYPASS, 0);
+	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
+	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
+	pmc_switch_mck_to_pll();
+}
+
+void board_cfg_lowlevel(bool ddram, bool mmu)
+{
+	/* Disable Watchdog */
+	wdt_disable();
+
+	/* Disable all PIO interrupts */
+	pio_reset_all_it();
+
+#ifdef VARIANT_SRAM
+	/* Configure clocking if code is not in external mem */
+	board_cfg_clocks();
+#endif
+
+	/* Setup default interrupt handlers */
+	aic_initialize();
+
+	if (ddram) {
+		/* Configure DDRAM */
+		board_cfg_ddram();
+	}
+
+	if (mmu) {
+		/* Setup MMU */
+		board_cfg_mmu();
+	}
+
+	/* Timer */
+	timer_configure(BOARD_TIMER_RESOLUTION);
 }
 
 void board_cfg_console(uint32_t baudrate)
@@ -237,9 +300,12 @@ void board_save_misc_power(void)
 	}
 }
 
-void board_setup_tlb(uint32_t *tlb)
+void board_cfg_mmu(void)
 {
 	uint32_t addr;
+
+	if (cp15_is_mmu_enabled())
+		return;
 
 	/* TODO: some peripherals are configured TTB_SECT_STRONGLY_ORDERED
 	   instead of TTB_SECT_SHAREABLE_DEVICE because their drivers have to
@@ -460,6 +526,12 @@ void board_setup_tlb(uint32_t *tlb)
 	           | TTB_SECT_EXEC
 	           | TTB_SECT_STRONGLY_ORDERED
 	           | TTB_TYPE_SECT;
+
+	/* Enable MMU, I-Cache and D-Cache */
+	mmu_configure(tlb);
+	cp15_enable_icache();
+	cp15_enable_mmu();
+	cp15_enable_dcache();
 }
 
 void board_cfg_l2cc(void)
@@ -505,16 +577,13 @@ void board_cfg_matrix_for_nand(void)
 			H32MX_SLAVE_NFC_SRAM, MATRIX_AREA_8K, 0x1);
 }
 
-
-void board_cfg_ddram (void)
+void board_cfg_ddram(void)
 {
 #ifdef BOARD_DDRAM_TYPE
 	board_cfg_matrix_for_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
-#else
-	trace_fatal("Cannot configure DDRAM: target board has no DDRAM type definition!");
 #endif
 }
 
@@ -632,7 +701,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 #undef CAPS0_MASK
 }
 
-void board_cfg_pmic()
+void board_cfg_pmic(void)
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	const struct _pin pins[] = ACT8945A_PINS;
@@ -656,5 +725,68 @@ void board_cfg_pmic()
 
 Fail:
 	trace_error("Error initializing ACT8945A PMIC\r\n");
+#endif
+}
+
+#ifdef CONFIG_HAVE_ISC
+void board_cfg_isc(void)
+{
+	const struct _pin pins_isc[]= ISC_PINS;
+	const struct _pin pin_rst = ISC_PIN_RST;
+	const struct _pin pin_pwd = ISC_PIN_PWD;
+
+	/* Configure ISC pins */
+	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
+
+	/* Reset sensor */
+	pio_configure(&pin_rst,1);
+	pio_configure(&pin_pwd,1);
+	pio_clear(&pin_pwd);
+	pio_clear(&pin_rst);
+	pio_set(&pin_rst);
+	timer_wait(10);
+
+	pmc_enable_peripheral(ID_ISC);
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+	isc_configure_master_clock(7 ,0);
+	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
+
+	isc_enable_master_clock();
+	isc_configure_isp_clock(2 ,0);
+	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
+
+	isc_enable_isp_clock();
+}
+#endif
+
+#ifdef CONFIG_HAVE_LCDD
+void board_cfg_lcd(void)
+{
+	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
+	const struct _lcdd_desc lcd_desc = {
+		.width = BOARD_LCD_WIDTH,
+		.height = BOARD_LCD_HEIGHT,
+		.framerate = BOARD_LCD_FRAMERATE,
+		.timing_vfp = BOARD_LCD_TIMING_VFP,
+		.timing_vbp = BOARD_LCD_TIMING_VBP,
+		.timing_vpw = BOARD_LCD_TIMING_VPW,
+		.timing_hfp = BOARD_LCD_TIMING_HFP,
+		.timing_hbp = BOARD_LCD_TIMING_HBP,
+		.timing_hpw = BOARD_LCD_TIMING_HPW,
+	};
+
+	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
+	lcdd_configure(&lcd_desc);
+}
+#endif
+
+void board_cfg_led(void)
+{
+#ifdef NUM_LEDS
+	uint8_t i;
+
+	for (i = 0 ; i < NUM_LEDS ; ++i) {
+		led_configure(i);
+	}
 #endif
 }

@@ -103,7 +103,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/l2cc.h"
@@ -122,9 +121,6 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
-
-/** LED0 blink time, LED1 blink half this time, in ms */
-#define BLINK_PERIOD        1000
 
 /** Maximum number of handled led */
 #define MAX_LEDS            3
@@ -414,12 +410,6 @@ static void _display_menu (void)
  */
 int main(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Configure console */
-	board_cfg_console(0);
-
 	/* Output example information */
 	console_example_info("LIN Example");
 
@@ -427,18 +417,6 @@ int main(void)
 	printf("Initializing console interrupts\r\n");
 	console_set_rx_handler(_console_handler);
 	console_enable_rx_interrupt();
-
-	/* Configure PIT. Must be always ON, used for delay */
-	printf("Configure PIT \n\r");
-	timer_configure(BLINK_PERIOD);
-
-	/* PIO configuration for LEDs */
-	printf("Configure LED PIOs.\n\r");
-	led_configure(LED_RED);
-	led_configure(LED_GREEN);
-	led_configure(LED_BLUE);
-
-	board_cfg_pmic();
 
 	/* Configure Timer/Counter */
 	_configure_tc();
