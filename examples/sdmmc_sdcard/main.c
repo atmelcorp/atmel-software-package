@@ -471,10 +471,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("\r\n\r\n\r\n");
-	printf("-- SD Card Example " SOFTPACK_VERSION " --\n\r") ;
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("SD/MMC Example");
 
 #if USE_EXT_RAM && !defined(VARIANT_DDRAM)
 	board_cfg_ddram();

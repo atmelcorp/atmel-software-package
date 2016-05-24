@@ -393,9 +393,8 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	printf("-- USB CDCMSD Device Project %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	/* Output example information */
+	console_example_info("USB CDCMSD Device Example");
 
 	/* If they are present, configure Vbus & Wake-up pins */
 	pio_reset_all_it();

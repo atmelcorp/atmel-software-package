@@ -38,6 +38,7 @@
 *        Headers
 *----------------------------------------------------------------------------*/
 
+#include "board.h"
 #include "chip.h"
 
 #include "peripherals/aic.h"
@@ -224,6 +225,19 @@ void console_disable_rx_interrupt(void)
 {
         aic_disable(console_id);
 	console->disable_it(console_addr, console->rx_int_mask);
+}
+
+void console_example_info(const char *example_name)
+{
+	/* Clear screen */
+	console_clear_screen();
+
+	/* reset cursor */
+	console_reset_cursor();
+
+	/* Output example information */
+	printf("-- %s %s --\n\r", example_name, SOFTPACK_VERSION);
+	printf("-- %s (%s)\n\r", get_board_name(), get_chip_name());
 }
 
 void console_dump_frame(uint8_t *frame, uint32_t size)

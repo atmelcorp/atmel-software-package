@@ -410,9 +410,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- USB Device CDC Serial Project %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("USB Device CDC Serial Example");
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();

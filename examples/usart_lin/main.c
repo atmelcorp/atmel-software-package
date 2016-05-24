@@ -419,13 +419,9 @@ int main(void)
 
 	/* Configure console */
 	board_cfg_console(0);
-	console_clear_screen();
-	console_reset_cursor();
 
 	/* Output example information */
-	printf("-- LIN Example " SOFTPACK_VERSION " --\n\r"
-	       "-- " BOARD_NAME "\n\r"
-	       "-- Compiled: "__DATE__ " at " __TIME__" --\n\r");
+	console_example_info("LIN Example");
 
 	/* Configure Console interrupts */
 	printf("Initializing console interrupts\r\n");

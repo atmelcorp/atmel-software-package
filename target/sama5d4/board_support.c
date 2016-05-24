@@ -64,7 +64,7 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-const static struct _l2cc_control l2cc_cfg = {
+static const struct _l2cc_control l2cc_cfg = {
 	.instruct_prefetch = true,	// Instruction prefetch enable
 	.data_prefetch = true,	// Data prefetch enable
 	.double_linefill = true,
@@ -78,6 +78,8 @@ const static struct _l2cc_control l2cc_cfg = {
 	.standby_mode = true,
 	.dyn_clock_gating = true
 };
+
+static const char* board_name = BOARD_NAME;
 
 #ifdef CONFIG_HAVE_PMIC_ACT8865
 struct _twi_desc act8865_twid = {
@@ -94,6 +96,11 @@ struct _act8865 pmic = {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+const char* get_board_name(void)
+{
+	return board_name;
+}
 
 /**
  * \brief Configure the board console if any

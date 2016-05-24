@@ -421,13 +421,9 @@ int main(void)
 
 	/* Configure console */
 	board_cfg_console(0);
-	console_clear_screen();
-	console_reset_cursor();
 
 	/* Output example information */
-	printf("-- PWM Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("PWM Example");
 
 	board_cfg_pmic();
 

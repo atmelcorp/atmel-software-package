@@ -711,9 +711,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- Low Power mode --\n\r");
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("Low Power Mode Example");
 
 	board_cfg_pmic();
 

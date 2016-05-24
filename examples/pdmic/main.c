@@ -380,10 +380,8 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	/* output example information */
-	printf("-- PDMIC Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	/* Output example information */
+	console_example_info("PDMIC Example");
 
 	/* configure PIO muxing for ClassD */
 	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));

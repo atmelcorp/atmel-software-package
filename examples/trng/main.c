@@ -90,6 +90,8 @@
 #include "board.h"
 #include "chip.h"
 
+#include "misc/console.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/trng.h"
 #include "peripherals/wdt.h"
@@ -124,9 +126,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- TRNG Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME " --\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("TRNG Example");
 
 	trng_enable();
 	trng_enable_it(&trng_callback, NULL);

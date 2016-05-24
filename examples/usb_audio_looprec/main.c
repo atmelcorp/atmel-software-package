@@ -286,9 +286,8 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-	printf("-- USB Device Audio LoopREC Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME " --\n\r");
-	printf("-- Compiled: "__DATE__" " __TIME__ " --\n\r");
+	/* Output example information */
+	console_example_info("USB Device Audio LoopREC Example");
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();

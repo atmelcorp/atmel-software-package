@@ -113,6 +113,7 @@
 #include "trace.h"
 
 #include "memories/at24.h"
+#include "misc/console.h"
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
 #include "peripherals/pio.h"
@@ -443,9 +444,8 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	printf("-- GMAC Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	/* Output example information */
+	console_example_info("GMAC Example");
 
 #ifdef AT24_PINS
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

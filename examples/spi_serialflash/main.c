@@ -310,11 +310,11 @@ int main (void)
 	console_enable_rx_interrupt();
 	_cmd_parser = _flash_cmd_parser;
 
-	/* Clear console */
+	/* Initializze XDMA */
 	xdmad_initialize(false);
-	printf("-- Spi flash Example " SOFTPACK_VERSION " --\n\r"
-	       "-- " BOARD_NAME " --\n\r"
-	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
+
+	/* Output example information */
+	console_example_info("SPI Flash Example");
 
 	/* configure spi serial flash pins */
 	pio_configure(at25_pins, ARRAY_SIZE(at25_pins));

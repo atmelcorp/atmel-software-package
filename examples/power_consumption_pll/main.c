@@ -223,9 +223,7 @@ extern int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- PLL consumption measurement %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("PLL Consumption Measurement Example");
 
 	printf("Select main clock as MCK\r\n");
 	pmc_set_custom_pck_mck(&clock_test_setting[1]);

@@ -272,9 +272,8 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-	printf("-- USB Device HID Mouse Project %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	/* Output example information */
+	console_example_info("USB Device HID Mouse Example");
 
 	/* If they are present, configure Vbus & Wake-up pins */
 	pio_reset_all_it();

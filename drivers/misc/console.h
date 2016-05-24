@@ -159,4 +159,6 @@ extern void console_clear_screen(void);
  */
 extern void console_reset_cursor(void);
 
+extern void console_example_info(const char *example_name);
+
 #endif	/* _CONSOLE_H_ */

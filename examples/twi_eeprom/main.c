@@ -461,6 +461,9 @@ int main (void)
 	/* Configure console */
 	board_cfg_console(0);
 
+	/* Output example information */
+	console_example_info("TWI EEPROM Example");
+
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -468,9 +471,6 @@ int main (void)
 	_cmd_parser = _eeprom_cmd_parser;
 
 	xdmad_initialize(false);
-	printf("-- Twi EEPROM Example " SOFTPACK_VERSION " --\n\r"
-	       "-- " BOARD_NAME " --\n\r"
-	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
 
 	/* configure twi flash pins */
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

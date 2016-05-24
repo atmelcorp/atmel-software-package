@@ -635,10 +635,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("\r\n\r\n\r\n");
-	printf("-- SHA Example " SOFTPACK_VERSION " --\r\n");
-	printf("-- " BOARD_NAME "\r\n");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("SHA Example");
 
 #ifndef VARIANT_DDRAM
 	board_cfg_ddram();

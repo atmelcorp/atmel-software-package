@@ -438,9 +438,8 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-	printf("-- USB CDC + Audio Device Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	/* Output example information */
+	console_example_info("USB CDC + Audio Device Example");
 
 	/* configure pmic */
 	board_cfg_pmic();

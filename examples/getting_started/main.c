@@ -319,9 +319,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("Getting Started Example");
 
 	board_cfg_pmic();
 

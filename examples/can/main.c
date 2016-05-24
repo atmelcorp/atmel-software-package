@@ -424,10 +424,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("\r\n\r\n\r\n");
-	printf("-- CAN Example " SOFTPACK_VERSION " --\n\r") ;
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("CAN Example");
 
 	/* The MCAN peripheral is clocked by both its Peripheral Clock
 	 * and Generated Clock 3 (at least on SAMA5D2x). */

@@ -55,9 +55,7 @@ int main(void)
 	trng_enable();
 
 	/* Output example information */
-	printf("-- QSPI test %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("QSPI Example");
 
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
 

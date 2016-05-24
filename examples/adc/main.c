@@ -567,17 +567,13 @@ int main(void)
 
 	/* Initialize console */
 	board_cfg_console(0);
-	console_clear_screen();
-	console_reset_cursor();
 
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 
 	/* Output example information */
-	printf("-- ADC12 Example " SOFTPACK_VERSION " --\n\r"
-	       "-- " BOARD_NAME "\n\r"
-	       "-- Compiled: "__DATE__ " at " __TIME__" --\n\r");
+	console_example_info("ADC12 Example");
 
 	board_cfg_pmic();
 

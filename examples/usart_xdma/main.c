@@ -203,6 +203,9 @@ int main (void)
 	/* Configure console */
 	board_cfg_console(0);
 
+	/* Output example information */
+	console_example_info("USART XDMA Example");
+
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -210,11 +213,8 @@ int main (void)
 	usartd_configure(&usart_desc);
 	_cmd_parser = _usart_cmd_parser;
 
-	/* Clear console */
+	/* Initialize XDMA */
 	xdmad_initialize(false);
-	printf("-- Usart XDMA Example " SOFTPACK_VERSION " --\n\r"
-	       "-- " BOARD_NAME " --\n\r"
-	       "-- Compiled: " __DATE__ " at " __TIME__ " --\n\r");
 
 	/* configure spi serial flash pins */
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));

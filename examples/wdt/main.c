@@ -216,16 +216,14 @@ int main(void)
 {
 	uint8_t key;
 
-	/* Enable watchdog */
-	_configure_wdt(WDT_COUNTER, WDT_DELTATIME);
-
 	/* Configure console */
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- WDT Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("WDT Example");
+
+	/* Enable watchdog */
+	_configure_wdt(WDT_COUNTER, WDT_DELTATIME);
 
 	printf("Configure TC.\n\r");
 	_configure_tc() ;

@@ -76,7 +76,7 @@ struct _console_cfg {
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-const static struct _l2cc_control l2cc_cfg = {
+static const struct _l2cc_control l2cc_cfg = {
 	.instruct_prefetch = true,	// Instruction prefetch enable
 	.data_prefetch = true,	// Data prefetch enable
 	.double_linefill = true,
@@ -90,6 +90,8 @@ const static struct _l2cc_control l2cc_cfg = {
 	.standby_mode = true,
 	.dyn_clock_gating = true
 };
+
+static const char* board_name = BOARD_NAME;
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -116,6 +118,11 @@ static bool act8945a_initialized = false;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+const char* get_board_name(void)
+{
+	return board_name;
+}
 
 void board_cfg_console(uint32_t baudrate)
 {

@@ -517,9 +517,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- HSMC NandFlash MLC Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("HSMC NandFlash MLC Example");
 
 	/* Configure HSMC for Nandflash accesses */
 	board_cfg_nand_flash();

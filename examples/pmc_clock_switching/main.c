@@ -208,13 +208,8 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-	/* To align display */
-	printf("\r\n");
-
 	/* Output example information */
-	printf("-- Clock switching example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("Clock Switching Example");
 
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);
 	_restore_console();

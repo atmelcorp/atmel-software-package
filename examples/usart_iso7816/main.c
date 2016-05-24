@@ -384,16 +384,13 @@ extern int main( void )
 
 	/* Configure console */
 	board_cfg_console(0);
-	console_clear_screen();
-	console_reset_cursor();
 
 	/* Configure PIT. Must be always ON, used for delay */
 	printf("Configure PIT \n\r");
 	timer_configure(BLINK_PERIOD);
 
-    printf( "-- USART ISO7816 Example %s --\n\r", SOFTPACK_VERSION ) ;
-    printf( "-- %s\n\r", BOARD_NAME ) ;
-    printf( "-- Compiled: %s %s --\n\r", __DATE__, __TIME__ ) ;
+	/* Output example information */
+	console_example_info("USART ISO7816 Example");
 
 	board_cfg_pmic();
 

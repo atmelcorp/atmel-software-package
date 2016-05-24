@@ -337,9 +337,7 @@ int main(void)
 	pio_reset_all_it();
 
 	/* Output example information */
-	printf("-- SPI Slave Example " SOFTPACK_VERSION " --\r\n");
-	printf("-- " BOARD_NAME "\r\n");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\r\n");
+	console_example_info("SPI Slave Example");
 
 	board_cfg_pmic();
 

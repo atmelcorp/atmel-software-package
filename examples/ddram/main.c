@@ -55,6 +55,7 @@
 
 #include "peripherals/wdt.h"
 #include "misc/cache.h"
+#include "misc/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -157,9 +158,7 @@ int main(void)
 	srand(0);
 
 	/* Output example information */
-	printf("\n\r-- DDRAM Example " SOFTPACK_VERSION " --\n\r"
-	       "-- "BOARD_NAME "\n\r"
-	       "-- Compiled: "__DATE__" at " __TIME__ "--\n\r");
+	console_example_info("DDRAM Example");
 
 	trace_info("Configuring External DDRAM \n\r");
 	board_cfg_ddram();

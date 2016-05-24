@@ -493,9 +493,7 @@ extern int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- XDMA Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("XDMA Example");
 
 #ifdef USE_POLLING
 	/* Initialize XDMA driver instance in polling mode */

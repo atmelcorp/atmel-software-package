@@ -392,9 +392,7 @@ int main(void)
 	console_enable_rx_interrupt();
 
 	/* Output example information */
-	printf("-- USB Device Audio Speaker Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("USB Device Audio Speaker Example");
 
 	/* configure pmic */
 	board_cfg_pmic();

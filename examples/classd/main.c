@@ -336,9 +336,7 @@ extern int main(void)
 	board_cfg_console(0);
 
 	/* output example information */
-	printf("-- CLASSD Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME "\n\r");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("CLASSD Example");
 
 	/* configure PIO muxing for ClassD */
 	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));

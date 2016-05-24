@@ -874,9 +874,7 @@ extern int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("-- ISC Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("ISC Example");
 
 #ifndef VARIANT_DDRAM
 	board_cfg_ddram();

@@ -530,10 +530,7 @@ int main(void)
 	board_cfg_console(0);
 
 	/* Output example information */
-	printf("\r\n\r\n\r\n");
-	printf("-- RTC Example " SOFTPACK_VERSION " --\r\n");
-	printf("-- " BOARD_NAME "\r\n");
-	printf("-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("RTC Example");
 
 	// put 25 °C as a default temp, if there is no temprature sensor
 	Temperature = 25;

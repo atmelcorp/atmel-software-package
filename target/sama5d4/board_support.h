@@ -43,6 +43,11 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+/* \brief Return a string containing the board name
+ * \return the board name
+ */
+extern const char* get_board_name(void);
+
 /**
  * \brief Configure the board console if any
  * \param baudrate Requested baudrate, or board default if 0

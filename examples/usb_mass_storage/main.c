@@ -440,9 +440,7 @@ int main(void)
 	board_cfg_ddram();
 #endif
 
-	printf("-- USB Device Mass Storage Example " SOFTPACK_VERSION " --\n\r");
-	printf("-- " BOARD_NAME " --\n\r");
-	printf( "-- Compiled: " __DATE__ " " __TIME__ " --\n\r");
+	console_example_info("USB Device Mass Storage Example");
 
 	board_cfg_pmic();
 

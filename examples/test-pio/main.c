@@ -172,10 +172,9 @@ int main(void)
 	printf("<testsuite>\r\n");
 	printf("  <testcase classname=\"pio.setup\" name=\"Setup\">\r\n");
 	printf("    <system-out>\r\n");
+
 	/* Output example information */
-	printf("-- Getting Started Example %s --\n\r", SOFTPACK_VERSION);
-	printf("-- %s\n\r", BOARD_NAME);
-	printf("-- Compiled: %s %s --\n\r", __DATE__, __TIME__);
+	console_example_info("PIO Testing Example");
 	
 	/* Configure PIO for input acquisition */
 	pio_configure(&pio_input, 1);
