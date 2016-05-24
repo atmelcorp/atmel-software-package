@@ -253,3 +253,45 @@ void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device)
 	/** R47  - Analogue Right Input 1 */
 	wm8904_write(twid, device, 0x2F, 0x0010);
 }
+
+void wm8904_set_left_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol)
+{
+	if(vol > WM8904_HPOUT_MAX_VOLUME)
+		return;
+	/** R57 (0x39) - Analogue OUT1 Left */
+	wm8904_write(twid, device, 0x39, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
+}
+
+void wm8904_set_right_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol)
+{
+	if(vol > WM8904_HPOUT_MAX_VOLUME)
+		return;
+	/** R58 (0x3a) Analogue OUT1 Right */
+	wm8904_write(twid, device, 0x3a, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
+}
+
+void wm8904_volume_mute(struct _twi_desc* twid, uint32_t device, bool left, bool right)
+{
+	uint16_t left_val = wm8904_read(twid, device, 0x39);
+	uint16_t right_val = wm8904_read(twid, device, 0x3a);
+
+	if(left) {
+		/** R57 (0x39) - Analogue OUT1 Left Mute */
+		wm8904_write(twid, device, 0x39, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | left_val);
+	} else {
+		left_val &= ~WM8904_HPOUT_MUTE;
+		/** R57 (0x39) - Analogue OUT1 Left Unmute */
+		wm8904_write(twid, device, 0x39, WM8904_HPOUT_VU |  left_val);
+	}
+
+	if(right) {
+		/** R58 (0x3a) Analogue OUT1 Right Mute */
+		wm8904_write(twid, device, 0x3a, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | right_val);
+	} else {
+		right_val &= ~WM8904_HPOUT_MUTE;
+		/** R58 (0x3a) Analogue OUT1 Right Unmute */
+		wm8904_write(twid, device, 0x3a, WM8904_HPOUT_VU | right_val);
+	}
+
+}
+

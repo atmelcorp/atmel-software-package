@@ -143,6 +143,15 @@
 /** DUMMY register*/
 #define WM8904_REG_END                             0xFF
 
+/* 0x39 Analogue OUT1 Left */
+/* 0x3a Analogue OUT1 Right */
+
+#define WM8904_HPOUT_MUTE            (1 << 8)  /* Bit 8:  Headphone output mute */
+#define WM8904_HPOUT_VU              (1 << 7)  /* Bit 7:  Headphone output volume update */
+#define WM8904_HPOUTZC               (1 << 6)  /* Bit 6:  Headphone output zero cross enable */
+#define WM8904_HPOUT_VOL_SHIFT       (0)       /* Bits 0-5: Headphone output volume */
+#define WM8904_HPOUT_MAX_VOLUME      (63)      /* Headphone output max volume */
+
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
@@ -151,6 +160,8 @@ extern uint16_t wm8904_read(struct _twi_desc* twid, uint32_t device, uint32_t re
 extern void wm8904_write(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr,
 				uint16_t data);
 extern uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK);
-extern uint8_t wm8904_volume_set(struct _twi_desc* twid, uint32_t device, uint16_t value);
 extern void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device);
+extern void wm8904_set_left_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);
+extern void wm8904_set_right_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);
+extern void wm8904_volume_mute(struct _twi_desc* twid, uint32_t device, bool left, bool right);
 #endif

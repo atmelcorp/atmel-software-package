@@ -201,6 +201,19 @@ struct _ssc_desc ssc_dev = {
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+/**
+ * \brief Display main menu.
+ */
+static void _display_menu(void)
+{
+	printf("\n\r");
+	printf("Insert Line-in cable with PC Headphone output\n\r");
+	printf("m -> Mute the play sound\n\r");
+	printf("u -> Unmute the play sound\n\r");
+	printf("+ -> Increase the volume (volume increased by 3dB)\n\r");
+	printf("- -> Decrease the volume (volume reduced by 3dB)\n\r");
+	printf("=>");
+}
 
 /**
  * \brief DMA driver configuration
@@ -319,6 +332,12 @@ static void play_recording(void)
 
 }
 
+static void _set_volume(uint8_t vol)
+{
+	printf("Setting volume to %ddB\r\n", (signed)(vol-57));
+	wm8904_set_left_volume(&wm8904_twid, WM8904_SLAVE_ADDRESS, vol);
+	wm8904_set_right_volume(&wm8904_twid, WM8904_SLAVE_ADDRESS, vol);
+}
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -328,9 +347,11 @@ static void play_recording(void)
  *
  * \return Unused (ANSI-C compatibility).
  */
-int main( void )
+extern int main( void )
 {
 	uint16_t data = 0;
+	uint8_t vol = 30;
+	uint8_t key;
 	/* Disable watchdog */
 	wdt_disable();
 
@@ -377,9 +398,31 @@ int main( void )
 	pmc_configure_pck2(PMC_PCK_CSS_SLOW_CLK, 0);
 	pmc_enable_pck2();
 
-	printf("Insert Line-in cable with PC Headphone output\n\r");
-
+	_set_volume(vol);
 	play_recording();
 
-	while(1);
+	while(1) {
+		_display_menu();
+		key = console_get_char();
+		printf("%c\r\n", key);
+		if (key == '+') {
+			if (vol < 63) {
+				vol += 3;
+				_set_volume(vol);
+			} else {
+				printf("Volume is already at max (+6dB)\r\n");
+			}
+		} else if (key == '-') {
+			if (vol > 1) {
+				vol -= 3;
+				_set_volume(vol);
+			} else {
+				printf("Volume is already at min (-57dB)\r\n");
+			}
+		} else if (key == 'm') {
+			wm8904_volume_mute(&wm8904_twid, WM8904_SLAVE_ADDRESS, true, true);
+		} else if(key == 'u') {
+			wm8904_volume_mute(&wm8904_twid, WM8904_SLAVE_ADDRESS, false, false);
+		}
+	};
 }
