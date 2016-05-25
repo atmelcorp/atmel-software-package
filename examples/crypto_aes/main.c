@@ -216,7 +216,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
-		.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
+		.cfg = XDMAC_CC_TYPE_PER_TRAN |
 			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_MEM2PER |
 			XDMAC_CC_CSIZE_CHK_4 | XDMAC_CC_DWIDTH_WORD |
 			XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF1 |
@@ -224,12 +224,12 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 	};
 
 	for (i = 0; i < len; i++) {
-		dma_wr_dlist[i].ublock_size = XDMA_UBC_NVIEW_NDV1 |
+		dma_wr_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
 			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
 			XDMA_UBC_NSEN_UPDATED | 4;
-		dma_wr_dlist[i].src_addr = &buf[i * 4];
-		dma_wr_dlist[i].dest_addr = (void*)&AES->AES_IDATAR[0];
-		dma_wr_dlist[i].next_desc = i == len - 1 ? NULL :
+		dma_wr_dlist[i].mbr_sa = &buf[i * 4];
+		dma_wr_dlist[i].mbr_da = (void*)&AES->AES_IDATAR[0];
+		dma_wr_dlist[i].mbr_nda = i == len - 1 ? NULL :
 			&dma_wr_dlist[i + 1];
 	}
 	cache_clean_region(dma_wr_dlist, sizeof(*dma_wr_dlist) * len);
@@ -248,7 +248,7 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
-		.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
+		.cfg = XDMAC_CC_TYPE_PER_TRAN |
 			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_PER2MEM |
 			XDMAC_CC_CSIZE_CHK_4 | XDMAC_CC_DWIDTH_WORD |
 			XDMAC_CC_SIF_AHB_IF1 | XDMAC_CC_DIF_AHB_IF0 |
@@ -256,12 +256,12 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 	};
 
 	for (i = 0; i < len; i++) {
-		dma_rd_dlist[i].ublock_size = XDMA_UBC_NVIEW_NDV1 |
+		dma_rd_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
 			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
 			XDMA_UBC_NDEN_UPDATED | 4;
-		dma_rd_dlist[i].src_addr = (void*)&AES->AES_ODATAR[0];
-		dma_rd_dlist[i].dest_addr = &buf[i * 4];
-		dma_rd_dlist[i].next_desc = i == len - 1 ? NULL :
+		dma_rd_dlist[i].mbr_sa = (void*)&AES->AES_ODATAR[0];
+		dma_rd_dlist[i].mbr_da = &buf[i * 4];
+		dma_rd_dlist[i].mbr_nda = i == len - 1 ? NULL :
 			&dma_rd_dlist[i + 1];
 	}
 	cache_clean_region(dma_rd_dlist, sizeof(*dma_rd_dlist) * len);

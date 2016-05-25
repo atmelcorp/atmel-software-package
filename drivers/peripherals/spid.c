@@ -135,16 +135,17 @@ static void _spid_init_dma_write_channel(const struct _spi_desc* desc,
 	assert(*channel);
 
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF1
 		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_SAM_INCREMENTED_AM
 		| XDMAC_CC_DAM_FIXED_AM;
 
-	cfg->dest_addr = (void*)&desc->addr->SPI_TDR;
+	cfg->da = (void*)&desc->addr->SPI_TDR;
 }
 
 static void _spid_init_dma_read_channel(const struct _spi_desc* desc,
@@ -163,16 +164,17 @@ static void _spid_init_dma_read_channel(const struct _spi_desc* desc,
 	assert(*channel);
 
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_PER2MEM
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF0
 		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM;
+		| XDMAC_CC_SAM_FIXED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM;
 
-	cfg->src_addr = (void*)&desc->addr->SPI_RDR;
+	cfg->sa = (void*)&desc->addr->SPI_RDR;
 }
 
 static void _spid_dma_write(const struct _spi_desc* desc,
@@ -184,20 +186,15 @@ static void _spid_dma_write(const struct _spi_desc* desc,
 	struct _xdmad_cfg r_cfg;
 
 	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
-	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
-
-	w_cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM
-		>> XDMAC_CC_SAM_Pos;
-	w_cfg.src_addr = buffer->data;
-	w_cfg.ublock_size = buffer->size;
+	w_cfg.sa = buffer->data;
+	w_cfg.ubc = buffer->size;
 	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
 	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback,
 			   NULL);
 
-	r_cfg.cfg.bitfield.dam = XDMAC_CC_DAM_FIXED_AM
-		>> XDMAC_CC_DAM_Pos;
-	r_cfg.dest_addr = &_garbage;
-	r_cfg.ublock_size = buffer->size;
+	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
+	r_cfg.da = &_garbage;
+	r_cfg.ubc = buffer->size;
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
@@ -217,20 +214,16 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	struct _xdmad_cfg r_cfg;
 
 	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
-	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
 
-	w_cfg.cfg.bitfield.sam = XDMAC_CC_SAM_FIXED_AM
-		>> XDMAC_CC_SAM_Pos;
-	w_cfg.src_addr = buffer->data;
-	w_cfg.ublock_size = buffer->size;
-	w_cfg.block_size = 0;
+	w_cfg.sa = buffer->data;
+	w_cfg.ubc = buffer->size;
+	w_cfg.bc = 0;
 	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
 	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback, NULL);
 
-	r_cfg.cfg.bitfield.dam = XDMAC_CC_DAM_INCREMENTED_AM
-		>> XDMAC_CC_DAM_Pos;
-	r_cfg.dest_addr = buffer->data;
-	r_cfg.ublock_size = buffer->size;
+	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
+	r_cfg.da = buffer->data;
+	r_cfg.ubc = buffer->size;
 	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);

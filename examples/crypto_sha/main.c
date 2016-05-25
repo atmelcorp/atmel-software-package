@@ -338,7 +338,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 	const uint32_t words = algo_desc[op_mode].block_len_words;
 	uint32_t i;
 
-	dma_cfg.cfg.uint32_value =
+	dma_cfg.cfg =
 		XDMAC_CC_TYPE_PER_TRAN |
 		XDMAC_CC_MBSIZE_SINGLE |
 		XDMAC_CC_DSYNC_MEM2PER |
@@ -350,12 +350,12 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		XDMAC_CC_DAM_FIXED_AM;
 	for (i = 0; i < len; i++) {
 		cache_clean_region(&buf[i * words], words * 4);
-		dma_dlist[i].ublock_size = XDMA_UBC_NVIEW_NDV1 |
+		dma_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
 			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
 			XDMA_UBC_NSEN_UPDATED | words;
-		dma_dlist[i].src_addr = &buf[i * words];
-		dma_dlist[i].dest_addr = (void*)&SHA->SHA_IDATAR[0];
-		dma_dlist[i].next_desc = i == len - 1 ? NULL : &dma_dlist[i + 1];
+		dma_dlist[i].mbr_sa = &buf[i * words];
+		dma_dlist[i].mbr_da = (void*)&SHA->SHA_IDATAR[0];
+		dma_dlist[i].mbr_nda = i == len - 1 ? NULL : &dma_dlist[i + 1];
 	}
 	cache_clean_region(dma_dlist, sizeof(*dma_dlist) * len);
 	xdmad_configure_transfer(dma_chan, &dma_cfg,

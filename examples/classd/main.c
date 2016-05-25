@@ -225,14 +225,14 @@ static void _setup_dma_transfer(void* buffer, uint32_t size)
 {
 	struct _xdmad_cfg cfg;
 
-	cfg.ublock_size = size / 4;
-	cfg.block_size = 1;
-	cfg.data_stride = 0;
-	cfg.src_ublock_stride = 0;
-	cfg.dest_ublock_stride = 0;
-	cfg.src_addr = buffer;
-	cfg.dest_addr = (void*)&CLASSD->CLASSD_THR;
-	cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg.ubc = size / 4;
+	cfg.bc = 0;
+	cfg.ds = 0;
+	cfg.sus = 0;
+	cfg.dus = 0;
+	cfg.sa = buffer;
+	cfg.da = (void*)&CLASSD->CLASSD_THR;
+	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_MBSIZE_SINGLE
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_CSIZE_CHK_1

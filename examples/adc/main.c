@@ -296,10 +296,11 @@ static void _start_dma(void)
 	xdmad_prepare_channel(dma_channel);
 	struct _xdmad_cfg dma_cfg;
 	memset(&dma_cfg, 0, sizeof(dma_cfg));
-	dma_cfg.ublock_size = NUM_CHANNELS;
-	dma_cfg.src_addr = (void*)&ADC->ADC_LCDR;
-	dma_cfg.dest_addr = (void*)_dma_buffer;
-	dma_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	dma_cfg.ubc = NUM_CHANNELS;
+	dma_cfg.sa = (void*)&ADC->ADC_LCDR;
+	dma_cfg.da = (void*)_dma_buffer;
+	dma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_DSYNC_PER2MEM
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_HALFWORD
@@ -307,7 +308,7 @@ static void _start_dma(void)
 		| XDMAC_CC_DIF_AHB_IF0
 		| XDMAC_CC_SAM_FIXED_AM
 		| XDMAC_CC_DAM_INCREMENTED_AM;
-	dma_cfg.block_size = 0;
+	dma_cfg.bc = 0;
 	xdmad_configure_transfer(dma_channel, &dma_cfg, 0, 0);
 	xdmad_set_callback(dma_channel, _adc_dma_callback, NULL);
 	xdmad_start_transfer(dma_channel);

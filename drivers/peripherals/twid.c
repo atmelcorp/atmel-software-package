@@ -110,15 +110,16 @@ static void _twid_init_dma_read_channel(const struct _twi_desc* desc,
 	*channel = xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
 	assert(*channel);
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_PER2MEM
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF0
 		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM;
-	cfg->src_addr = (void*)&desc->addr->TWI_RHR;
+		| XDMAC_CC_SAM_FIXED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM;
+	cfg->sa = (void*)&desc->addr->TWI_RHR;
 }
 
 static void _twid_dma_read(const struct _twi_desc* desc,
@@ -128,11 +129,9 @@ static void _twid_dma_read(const struct _twi_desc* desc,
 	struct _xdmad_cfg cfg;
 
 	_twid_init_dma_read_channel(desc, &channel, &cfg);
-	cfg.cfg.bitfield.dam = XDMAC_CC_DAM_INCREMENTED_AM
-		>> XDMAC_CC_DAM_Pos;
-	cfg.dest_addr = buffer->data;
-	cfg.ublock_size = buffer->size;
-	cfg.block_size = 0;
+	cfg.da = buffer->data;
+	cfg.ubc = buffer->size;
+	cfg.bc = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
 	cache_clean_region(desc->region_start, desc->region_length);
@@ -152,15 +151,16 @@ static void _twid_init_dma_write_channel(struct _twi_desc* desc,
 	*channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
 	assert(*channel);
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF1
 		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_SAM_INCREMENTED_AM
 		| XDMAC_CC_DAM_FIXED_AM;
-	cfg->dest_addr = (void*)&desc->addr->TWI_THR;
+	cfg->da = (void*)&desc->addr->TWI_THR;
 }
 
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
@@ -169,10 +169,9 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 	struct _xdmad_cfg cfg;
 
 	_twid_init_dma_write_channel(desc, &channel, &cfg);
-	cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM >> XDMAC_CC_SAM_Pos;
-	cfg.src_addr = buffer->data;
-	cfg.ublock_size = buffer->size;
-	cfg.block_size = 0;
+	cfg.sa = buffer->data;
+	cfg.ubc = buffer->size;
+	cfg.bc = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
 	cache_clean_region(desc->region_start, desc->region_length);

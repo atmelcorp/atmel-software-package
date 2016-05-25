@@ -61,6 +61,8 @@
 #endif
 #endif
 
+#include "misc/cache.h"
+
 static struct _xdmad_cfg xdmad_cfg;
 
 static bool dma_configured = false;
@@ -163,8 +165,8 @@ static void _audio_dma_start_transfer(void *src_address, void *dest_address, uin
 	if(size)
 		cache_clean_region(src_address, size);
 
-	xdmad_cfg.src_addr = (uint32_t*)src_address;
-	xdmad_cfg.dest_addr = (uint32_t*)dest_address;
+	xdmad_cfg.sa = (uint32_t*)src_address;
+	xdmad_cfg.da = (uint32_t*)dest_address;
 
 	xdmad_configure_transfer(audio_dma_tx_channel, &xdmad_cfg, 0, 0);
 	xdmad_set_callback(audio_dma_tx_channel, cb, NULL);
@@ -333,7 +335,7 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint16_t size,
 	}
 	if(!dma_configured) {
 
-		xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
+		xdmad_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
 			XDMAC_CC_MBSIZE_SINGLE |
 			XDMAC_CC_DSYNC_MEM2PER |
 			XDMAC_CC_CSIZE_CHK_1 |
@@ -343,14 +345,14 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint16_t size,
 			XDMAC_CC_SAM_INCREMENTED_AM |
 			XDMAC_CC_DAM_FIXED_AM;
 
-		xdmad_cfg.block_size = 0;
+		xdmad_cfg.bc = 0;
 		dma_configured = true;
 
 	}
 	if(dma_data_width == XDMAC_CC_DWIDTH_WORD) {
-		xdmad_cfg.ublock_size = size / 4;
+		xdmad_cfg.ubc = size / 4;
 	} else if(dma_data_width  == XDMAC_CC_DWIDTH_HALFWORD) {
-		xdmad_cfg.ublock_size = size / 2;
+		xdmad_cfg.ubc = size / 2;
 	}
 
 	if(dest_addr)

@@ -270,35 +270,35 @@ void pdmic_dma_transfer(void *buffer, uint32_t size,
 	struct _xdmad_cfg cfg;
 
 	/* Configure PDMIC DMA transfer */
-	cfg.block_size = 1;
-	cfg.data_stride = 0;
-	cfg.src_ublock_stride = 0;
-	cfg.dest_ublock_stride = 0;
-	cfg.src_addr = (void *)&PDMIC->PDMIC_CDR;
-	cfg.dest_addr = buffer;
+	cfg.bc = 0;
+	cfg.ds = 0;
+	cfg.sus = 0;
+	cfg.dus = 0;
+	cfg.sa = (void *)&PDMIC->PDMIC_CDR;
+	cfg.da = buffer;
 
 	if (pdmic_dsp_size == PDMIC_DSPR0_SIZE_32) {
-		cfg.ublock_size = size / 4;
-		cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
-		                       XDMAC_CC_MBSIZE_SINGLE |
-		                       XDMAC_CC_DSYNC_PER2MEM |
-		                       XDMAC_CC_CSIZE_CHK_1 |
-		                       XDMAC_CC_DWIDTH_WORD |
-		                       XDMAC_CC_SIF_AHB_IF1 |
-		                       XDMAC_CC_DIF_AHB_IF0 |
-		                       XDMAC_CC_SAM_INCREMENTED_AM |
-		                       XDMAC_CC_DAM_FIXED_AM;
+		cfg.ubc = size / 4;
+		cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
+		          XDMAC_CC_MBSIZE_SINGLE |
+		          XDMAC_CC_DSYNC_PER2MEM |
+		          XDMAC_CC_CSIZE_CHK_1 |
+		          XDMAC_CC_DWIDTH_WORD |
+		          XDMAC_CC_SIF_AHB_IF1 |
+		          XDMAC_CC_DIF_AHB_IF0 |
+		          XDMAC_CC_SAM_INCREMENTED_AM |
+		          XDMAC_CC_DAM_FIXED_AM;
 	} else {
-		cfg.ublock_size = size / 2;
-		cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN |
-		                       XDMAC_CC_MBSIZE_SINGLE |
-		                       XDMAC_CC_DSYNC_PER2MEM |
-		                       XDMAC_CC_CSIZE_CHK_1 |
-		                       XDMAC_CC_DWIDTH_HALFWORD |
-		                       XDMAC_CC_SIF_AHB_IF1 |
-		                       XDMAC_CC_DIF_AHB_IF0 |
-		                       XDMAC_CC_SAM_FIXED_AM |
-		                       XDMAC_CC_DAM_INCREMENTED_AM;
+		cfg.ubc = size / 2;
+		cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
+		          XDMAC_CC_MBSIZE_SINGLE |
+		          XDMAC_CC_DSYNC_PER2MEM |
+		          XDMAC_CC_CSIZE_CHK_1 |
+		          XDMAC_CC_DWIDTH_HALFWORD |
+		          XDMAC_CC_SIF_AHB_IF1 |
+		          XDMAC_CC_DIF_AHB_IF0 |
+		          XDMAC_CC_SAM_FIXED_AM |
+		          XDMAC_CC_DAM_INCREMENTED_AM;
 	}
 
 	xdmad_configure_transfer(pdmic_dma_channel, &cfg, 0, NULL);

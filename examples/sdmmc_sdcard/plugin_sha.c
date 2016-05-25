@@ -90,9 +90,9 @@ static void run_dma_xfer(struct sha_set *set)
 {
 	struct _xdmad_cfg dma_cfg = {
 		/* Configure a single microblock per block */
-		.block_size = 1,
+		.bc = 0,
 		/* Configure 4 bytes per data, and 16 data per chunk */
-		.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+		.cfg = XDMAC_CC_TYPE_PER_TRAN
 		    | XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_MEM2PER
 		    | XDMAC_CC_MEMSET_NORMAL_MODE | XDMAC_CC_CSIZE_CHK_16
 		    | XDMAC_CC_DWIDTH_WORD | XDMAC_CC_SIF_AHB_IF0
@@ -109,10 +109,10 @@ static void run_dma_xfer(struct sha_set *set)
 	if (set->dlist_len == 1) {
 		desc = set->dma_dlist;
 		/* Configure data count per microblock */
-		dma_cfg.ublock_size = desc->ublock_size;
+		dma_cfg.ubc = desc->mbr_ubc;
 		/* Configure source and destination addresses */
-		dma_cfg.src_addr = desc->src_addr;
-		dma_cfg.dest_addr = (void*)&SHA->SHA_IDATAR[0];
+		dma_cfg.sa = desc->mbr_sa;
+		dma_cfg.da = (void*)&SHA->SHA_IDATAR[0];
 		/* Configure a single block per master transfer, i.e. no linked
 		 * list */
 		xdmad_configure_transfer(set->dma_ch, &dma_cfg,
@@ -122,13 +122,13 @@ static void run_dma_xfer(struct sha_set *set)
 		last_desc = set->dma_dlist + (set->dlist_len - 1);
 		for (desc = set->dma_dlist; desc <= last_desc; desc++) {
 			/* Complete descriptor contents */
-			desc->ublock_size = (desc == last_desc
+			desc->mbr_ubc = (desc == last_desc
 			    ? XDMA_UBC_NDE_FETCH_DIS
 			    : XDMA_UBC_NVIEW_NDV1 | XDMA_UBC_NDEN_UNCHANGED
 			    | XDMA_UBC_NSEN_UPDATED | XDMA_UBC_NDE_FETCH_EN)
-			    | XDMA_UBC_UBLEN(desc->ublock_size);
-			desc->dest_addr = (void*)&SHA->SHA_IDATAR[0];
-			desc->next_desc = desc == last_desc ? NULL : desc + 1;
+			    | XDMA_UBC_UBLEN(desc->mbr_ubc);
+			desc->mbr_da = (void*)&SHA->SHA_IDATAR[0];
+			desc->mbr_nda = desc == last_desc ? NULL : desc + 1;
 		}
 		/* Clean the underlying cache lines, to ensure the DMA gets our
 		 * descriptors when it reads from RAM.
@@ -184,8 +184,8 @@ static void write_blocks(struct sha_set *set, const uint32_t *data,
 			limited = min_u32(blocks - ix, ubl_len_max / 16ul);
 			desc = set->dma_dlist + set->dlist_len;
 			/* Configure data count per microblock */
-			desc->ublock_size = limited * 16ul;
-			desc->src_addr = (void*)(data + ix * 16ul);
+			desc->mbr_ubc = limited * 16ul;
+			desc->mbr_sa = (void*)(data + ix * 16ul);
 			/* The other parameters in the descriptor will be
 			 * configured by run_dma_xfer() */
 			set->dlist_len++;

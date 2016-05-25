@@ -139,18 +139,15 @@
 
 /** DMA Descriptor */
 #define TOTAL_BUFFERS \
-	(ROUND_UP_MULT(														\
+	ROUND_UP_MULT( \
 		ROUND_UP_MULT(10 * sizeof(struct _xdmad_desc_view1), L1_CACHE_BYTES), \
-		sizeof(struct _xdmad_desc_view1)) \
-	 / sizeof(struct _xdmad_desc_view1)	  \
-		)
+		sizeof(struct _xdmad_desc_view1)) / sizeof(struct _xdmad_desc_view1)
 
 #define DMA_TRANSFER_LEN    (0xFFFF)
 
-#define AUDIO_BUFFER_LEN    ROUND_UP_MULT(						\
-		TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8),	\
-		L1_CACHE_BYTES											\
-		)
+#define AUDIO_BUFFER_LEN \
+	ROUND_UP_MULT( \
+		TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8), L1_CACHE_BYTES)
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -250,35 +247,35 @@ static void play_recording(void)
 	memset(audio_buffer, 0x00, sizeof(audio_buffer));
 
 	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_read_link_list[i].ublock_size = XDMA_UBC_NVIEW_NDV1
-											| XDMA_UBC_NDE_FETCH_EN
-											| XDMA_UBC_NSEN_UPDATED
-											| XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
-		dma_read_link_list[i].src_addr  = (uint32_t *)&(ssc_dev.addr->SSC_RHR);
-		dma_read_link_list[i].dest_addr = (uint32_t *)(src);
+		dma_read_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+		                              | XDMA_UBC_NDE_FETCH_EN
+		                              | XDMA_UBC_NSEN_UPDATED
+		                              | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
+		dma_read_link_list[i].mbr_sa = (uint32_t *)&(ssc_dev.addr->SSC_RHR);
+		dma_read_link_list[i].mbr_da = (uint32_t *)(src);
 
 		if (i == (TOTAL_BUFFERS - 1))
-			dma_read_link_list[i].next_desc = &dma_read_link_list[0];
+			dma_read_link_list[i].mbr_nda = &dma_read_link_list[0];
 		else
-			dma_read_link_list[i].next_desc = &dma_read_link_list[i + 1];
+			dma_read_link_list[i].mbr_nda = &dma_read_link_list[i + 1];
 
 		src += DMA_TRANSFER_LEN;
 	}
 
-	xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
-								| XDMAC_CC_MBSIZE_SINGLE
-								| XDMAC_CC_DSYNC_PER2MEM
-								| XDMAC_CC_CSIZE_CHK_1
-								| XDMAC_CC_DWIDTH_HALFWORD
-								| XDMAC_CC_SIF_AHB_IF1
-								| XDMAC_CC_DIF_AHB_IF0
-								| XDMAC_CC_SAM_FIXED_AM
-								| XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmad_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
+	              | XDMAC_CC_MBSIZE_SINGLE
+	              | XDMAC_CC_DSYNC_PER2MEM
+	              | XDMAC_CC_CSIZE_CHK_1
+	              | XDMAC_CC_DWIDTH_HALFWORD
+	              | XDMAC_CC_SIF_AHB_IF1
+	              | XDMAC_CC_DIF_AHB_IF0
+	              | XDMAC_CC_SAM_FIXED_AM
+	              | XDMAC_CC_DAM_INCREMENTED_AM;
 
 	xdma_cndc = XDMAC_CNDC_NDVIEW_NDV1
-				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
-				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
+	          | XDMAC_CNDC_NDE_DSCR_FETCH_EN
+	          | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
+	          | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
 
 	cache_clean_region(dma_read_link_list, sizeof(dma_read_link_list));
 
@@ -287,36 +284,36 @@ static void play_recording(void)
 	src = audio_buffer;
 
 	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_write_link_list[i].ublock_size = XDMA_UBC_NVIEW_NDV1
-											| XDMA_UBC_NDE_FETCH_EN
-											| XDMA_UBC_NSEN_UPDATED
-											| XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
+		dma_write_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+		                               | XDMA_UBC_NDE_FETCH_EN
+		                               | XDMA_UBC_NSEN_UPDATED
+		                               | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
 
-		dma_write_link_list[i].src_addr = (uint32_t *)(src);
-		dma_write_link_list[i].dest_addr = (uint32_t *)&(ssc_dev.addr->SSC_THR);
+		dma_write_link_list[i].mbr_sa = (uint32_t *)(src);
+		dma_write_link_list[i].mbr_da = (uint32_t *)&(ssc_dev.addr->SSC_THR);
 
 		if (i == (TOTAL_BUFFERS - 1 ))
-			dma_write_link_list[i].next_desc = &dma_write_link_list[0];
+			dma_write_link_list[i].mbr_nda = &dma_write_link_list[0];
 		else
-			dma_write_link_list[i].next_desc = &dma_write_link_list[i + 1];
+			dma_write_link_list[i].mbr_nda = &dma_write_link_list[i + 1];
 
 		src += DMA_TRANSFER_LEN;
 	}
 
-	xdmad_cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
-								| XDMAC_CC_MBSIZE_SINGLE
-								| XDMAC_CC_DSYNC_MEM2PER
-								| XDMAC_CC_CSIZE_CHK_1
-								| XDMAC_CC_DWIDTH_HALFWORD
-								| XDMAC_CC_SIF_AHB_IF0
-								| XDMAC_CC_DIF_AHB_IF1
-								| XDMAC_CC_SAM_INCREMENTED_AM
-								| XDMAC_CC_DAM_FIXED_AM;
+	xdmad_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
+	              | XDMAC_CC_MBSIZE_SINGLE
+	              | XDMAC_CC_DSYNC_MEM2PER
+	              | XDMAC_CC_CSIZE_CHK_1
+	              | XDMAC_CC_DWIDTH_HALFWORD
+	              | XDMAC_CC_SIF_AHB_IF0
+	              | XDMAC_CC_DIF_AHB_IF1
+	              | XDMAC_CC_SAM_INCREMENTED_AM
+	              | XDMAC_CC_DAM_FIXED_AM;
 
 	xdma_cndc = XDMAC_CNDC_NDVIEW_NDV1
-				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
-				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED ;
+	          | XDMAC_CNDC_NDE_DSCR_FETCH_EN
+	          | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
+	          | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
 	xdmad_configure_transfer(ssc_dma_tx_channel, &xdmad_cfg, xdma_cndc,
 							&dma_write_link_list[0]);
 

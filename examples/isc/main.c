@@ -310,22 +310,21 @@ static void _dma_callback(struct _xdmad_channel *channel, void *arg)
 static void xdma_read_histogram(uint32_t buf)
 {
 	struct _xdmad_cfg xdmad_cfg;
-	xdmad_cfg.ublock_size = HIST_ENTRIES;
-	xdmad_cfg.src_addr = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
-	xdmad_cfg.dest_addr =  (uint32_t* )buf;
-	xdmad_cfg.cfg.uint32_value =
-								XDMAC_CC_MBSIZE_SINGLE |
-								XDMAC_CC_TYPE_MEM_TRAN |
-								XDMAC_CC_CSIZE_CHK_1 |
-								XDMAC_CC_DWIDTH_WORD |
-								XDMAC_CC_SIF_AHB_IF0 |
-								XDMAC_CC_DIF_AHB_IF0 |
-								XDMAC_CC_SAM_INCREMENTED_AM |
-								XDMAC_CC_DAM_INCREMENTED_AM;
-	xdmad_cfg.block_size = 0 ;
-	xdmad_cfg.data_stride = 0;
-	xdmad_cfg.src_ublock_stride = 0;
-	xdmad_cfg.dest_ublock_stride = 0;
+	xdmad_cfg.ubc = HIST_ENTRIES;
+	xdmad_cfg.sa = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
+	xdmad_cfg.da =  (uint32_t* )buf;
+	xdmad_cfg.cfg = XDMAC_CC_MBSIZE_SINGLE
+	              | XDMAC_CC_TYPE_MEM_TRAN
+	              | XDMAC_CC_CSIZE_CHK_1
+	              | XDMAC_CC_DWIDTH_WORD
+	              | XDMAC_CC_SIF_AHB_IF0
+	              | XDMAC_CC_DIF_AHB_IF0
+	              | XDMAC_CC_SAM_INCREMENTED_AM
+	              | XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmad_cfg.bc = 0;
+	xdmad_cfg.ds = 0;
+	xdmad_cfg.sus = 0;
+	xdmad_cfg.dus = 0;
 	xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, 0, 0);
 	xdmad_set_callback(xdmad_channel, _dma_callback, NULL);
 	xdmad_start_transfer(xdmad_channel);

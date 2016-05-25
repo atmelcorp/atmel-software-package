@@ -82,16 +82,17 @@ static void _usartd_init_dma_read_channel(const struct _usart_desc* desc,
 	assert(*channel);
 
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_PER2MEM
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF0
 		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM;
+		| XDMAC_CC_SAM_FIXED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM;
 
-	cfg->src_addr = (void*)&desc->addr->US_RHR;
+	cfg->sa = (void*)&desc->addr->US_RHR;
 }
 
 static void _usartd_dma_read(const struct _usart_desc* desc,
@@ -102,11 +103,9 @@ static void _usartd_dma_read(const struct _usart_desc* desc,
 
 	_usartd_init_dma_read_channel(desc, &channel, &cfg);
 
-	cfg.cfg.bitfield.dam = XDMAC_CC_DAM_INCREMENTED_AM
-		>> XDMAC_CC_DAM_Pos;
-	cfg.dest_addr = buffer->data;
-	cfg.ublock_size = buffer->size;
-	cfg.block_size = 0;
+	cfg.da = buffer->data;
+	cfg.ubc = buffer->size;
+	cfg.bc = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
 			   (void*)desc);
@@ -132,16 +131,17 @@ static void _usartd_init_dma_write_channel(const struct _usart_desc* desc,
 	assert(*channel);
 
 	xdmad_prepare_channel(*channel);
-	cfg->cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_MEMSET_NORMAL_MODE
 		| XDMAC_CC_CSIZE_CHK_1
 		| XDMAC_CC_DWIDTH_BYTE
 		| XDMAC_CC_DIF_AHB_IF1
 		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_SAM_INCREMENTED_AM
 		| XDMAC_CC_DAM_FIXED_AM;
 
-	cfg->dest_addr = (void*)&desc->addr->US_THR;
+	cfg->da = (void*)&desc->addr->US_THR;
 }
 
 static void _usartd_dma_write(const struct _usart_desc* desc,
@@ -152,11 +152,9 @@ static void _usartd_dma_write(const struct _usart_desc* desc,
 
 	_usartd_init_dma_write_channel(desc, &channel, &cfg);
 
-	cfg.cfg.bitfield.sam = XDMAC_CC_SAM_INCREMENTED_AM
-		>> XDMAC_CC_SAM_Pos;
-	cfg.src_addr = buffer->data;
-	cfg.ublock_size = buffer->size;
-	cfg.block_size = 0;
+	cfg.sa = buffer->data;
+	cfg.ubc = buffer->size;
+	cfg.bc = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
 			   (void*)desc);

@@ -264,7 +264,7 @@ void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size)
 
 	xdmad_prepare_channel(dma_channel);
 
-	cfg.cfg.uint32_value = XDMAC_CC_TYPE_PER_TRAN
+	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_MBSIZE_SINGLE
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_MEMSET_NORMAL_MODE
@@ -275,13 +275,13 @@ void pwmc_dma_duty_cycle(Pwm * p_pwm, uint16_t *duty, uint32_t size)
 		| XDMAC_CC_DAM_FIXED_AM
 		| XDMAC_CC_SAM_INCREMENTED_AM;
 
-	cfg.ublock_size = size;
-	cfg.block_size = 0;
-	cfg.data_stride = 0;
-	cfg.src_ublock_stride = 0;
-	cfg.dest_ublock_stride = 0;
-	cfg.src_addr = (void*)duty;
-	cfg.dest_addr = (void*)&p_pwm->PWM_DMAR;
+	cfg.ubc = size;
+	cfg.bc = 0;
+	cfg.ds = 0;
+	cfg.sus = 0;
+	cfg.dus = 0;
+	cfg.sa = (void*)duty;
+	cfg.da = (void*)&p_pwm->PWM_DMAR;
 
 	xdmad_configure_transfer(dma_channel, &cfg, 0, 0);
 	xdmad_set_callback(dma_channel, _pwm_xdmad_callback_wrapper, NULL);

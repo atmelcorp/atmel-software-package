@@ -104,21 +104,21 @@ uint8_t nand_dma_write(uint32_t src_address,
 {
 	struct _xdmad_cfg xdmadCfg;
 
-	xdmadCfg.ublock_size = size;
-	xdmadCfg.src_addr = (uint32_t *)src_address;
-	xdmadCfg.dest_addr = (uint32_t *)dest_address;
-	xdmadCfg.cfg.uint32_value = XDMAC_CC_TYPE_MEM_TRAN |
-					   XDMAC_CC_MEMSET_NORMAL_MODE |
-					   XDMAC_CC_CSIZE_CHK_1 |
-					   XDMAC_CC_DWIDTH_BYTE |
-					   XDMAC_CC_SIF_AHB_IF0 |
-					   XDMAC_CC_DIF_AHB_IF0 |
-					   XDMAC_CC_SAM_INCREMENTED_AM |
-					   XDMAC_CC_DAM_INCREMENTED_AM;
-	xdmadCfg.block_size = 0;
-	xdmadCfg.data_stride = 0;
-	xdmadCfg.src_ublock_stride = 0;
-	xdmadCfg.dest_ublock_stride = 0;
+	xdmadCfg.ubc = size;
+	xdmadCfg.sa = (uint32_t *)src_address;
+	xdmadCfg.da = (uint32_t *)dest_address;
+	xdmadCfg.cfg = XDMAC_CC_TYPE_MEM_TRAN
+	             | XDMAC_CC_MEMSET_NORMAL_MODE
+	             | XDMAC_CC_CSIZE_CHK_1
+	             | XDMAC_CC_DWIDTH_BYTE
+	             | XDMAC_CC_SIF_AHB_IF0
+	             | XDMAC_CC_DIF_AHB_IF0
+	             | XDMAC_CC_SAM_INCREMENTED_AM
+	             | XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmadCfg.bc = 0;
+	xdmadCfg.ds = 0;
+	xdmadCfg.sus = 0;
+	xdmadCfg.dus = 0;
 	xdmad_configure_transfer( nand_dma_tx_channel, &xdmadCfg, 0, 0);
 
 	/* Start transfer */
@@ -147,21 +147,21 @@ uint8_t nand_dma_read(uint32_t src_address,
 {
 	struct _xdmad_cfg xdmadCfg;
 
-	xdmadCfg.ublock_size = size;
-	xdmadCfg.src_addr = (uint32_t *)src_address;
-	xdmadCfg.dest_addr = (uint32_t * )dest_address;
-	xdmadCfg.cfg.uint32_value = XDMAC_CC_TYPE_MEM_TRAN |
-					   XDMAC_CC_MEMSET_NORMAL_MODE |
-					   XDMAC_CC_CSIZE_CHK_1 |
-					   XDMAC_CC_DWIDTH_BYTE |
-					   XDMAC_CC_SIF_AHB_IF0 |
-					   XDMAC_CC_DIF_AHB_IF0 |
-					   XDMAC_CC_SAM_INCREMENTED_AM |
-					   XDMAC_CC_DAM_INCREMENTED_AM;
-	xdmadCfg.block_size = 0;
-	xdmadCfg.data_stride = 0;
-	xdmadCfg.src_ublock_stride = 0;
-	xdmadCfg.dest_ublock_stride = 0;
+	xdmadCfg.ubc = size;
+	xdmadCfg.sa = (uint32_t *)src_address;
+	xdmadCfg.da = (uint32_t * )dest_address;
+	xdmadCfg.cfg = XDMAC_CC_TYPE_MEM_TRAN
+	             | XDMAC_CC_MEMSET_NORMAL_MODE
+	             | XDMAC_CC_CSIZE_CHK_1
+	             | XDMAC_CC_DWIDTH_BYTE
+	             | XDMAC_CC_SIF_AHB_IF0
+	             | XDMAC_CC_DIF_AHB_IF0
+	             | XDMAC_CC_SAM_INCREMENTED_AM
+	             | XDMAC_CC_DAM_INCREMENTED_AM;
+	xdmadCfg.bc = 0;
+	xdmadCfg.ds = 0;
+	xdmadCfg.sus = 0;
+	xdmadCfg.dus = 0;
 	xdmad_configure_transfer( nand_dma_rx_channel, &xdmadCfg, 0, 0);
 
 	/* Start transfer */
