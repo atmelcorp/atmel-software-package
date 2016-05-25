@@ -109,6 +109,7 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
+#include "mutex.h"
 
 #include "cortex-a/mmu.h"
 #include "cortex-a/cp15.h"
@@ -188,7 +189,10 @@ static volatile bool is_first_frame = true;
 /** audio playing flag */
 static volatile bool is_audio_playing = false;
 
+/** audio playing volume */
+static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 
+mutex_t lock = 0;
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
@@ -214,7 +218,7 @@ void audio_tx_finish_callback(struct _xdmad_channel *channel, void* p_arg)
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-						buffer_sizes[out_buffer_index], audio_tx_finish_callback);
+			buffer_sizes[out_buffer_index], audio_tx_finish_callback);
 
 }
 
@@ -233,7 +237,6 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 	(void)remaining;
 
 	if (status == USBD_STATUS_SUCCESS) {
-
 		assert(transferred <= BUFFER_SIZE);
 		buffer_sizes[in_buffer_index] = transferred;
 		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
@@ -246,10 +249,8 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
 			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-							buffer_sizes[out_buffer_index], audio_tx_finish_callback);
-
+					buffer_sizes[out_buffer_index], audio_tx_finish_callback);
 		}
-
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
 		buffer_sizes[in_buffer_index] = 0;
@@ -261,6 +262,42 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 	audd_speaker_driver_read(buffers[in_buffer_index],
 			AUDDSpeakerDriver_BYTESPERFRAME,
 			frame_received, 0);
+}
+
+static void console_handler(uint8_t key)
+{
+	if (mutex_try_lock(&lock))
+		return;
+
+	switch (key) {
+	case '+':
+		if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
+			play_vol += 10;
+			audio_play_set_volume(&audio_device, play_vol);
+		}
+		break;
+	case '-':
+		if (play_vol > 10) {
+			play_vol -= 10;
+			audio_play_set_volume(&audio_device, play_vol);
+		}
+		break;
+
+	case 'u':
+	case 'U':
+		audio_play_mute(&audio_device, false);
+		break;
+
+	case 'm':
+	case 'M':
+		audio_play_mute(&audio_device, true);
+		break;
+
+	default:
+		break;
+	}
+
+	mutex_free(&lock);
 }
 
 /*----------------------------------------------------------------------------
@@ -307,7 +344,7 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 {
 	/* Speaker Master channel */
 	if (channel == AUDDSpeakerDriver_MASTERCHANNEL){
-		if (muted){
+		if (muted) {
 			audio_play_mute(&audio_device, true);
 			printf("MuteMaster ");
 		} else {
@@ -350,6 +387,10 @@ int main(void)
 	/* Configure console */
 	board_cfg_console(0);
 
+	/* Configure console interrupts */
+	console_set_rx_handler(console_handler);
+	console_enable_rx_interrupt();
+
 	/* Output example information */
 	printf("-- USB Device Audio Speaker Example %s --\n\r", SOFTPACK_VERSION);
 	printf("-- %s\n\r", BOARD_NAME);
@@ -367,12 +408,19 @@ int main(void)
 	/* Configure Audio */
 	audio_play_configure(&audio_device);
 
+	/* Configure audio play volume */
+	audio_play_set_volume(&audio_device, play_vol);
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
 
 	/* connect if needed */
 	usb_vbus_configure();
+
+	printf("=========================================================\n\r");
+	printf("Input '+' or '-' to increase or decrease volume\n\r");
+	printf("Input 'm' or 'u' to mute or unmute sound\n\r");
+	printf("=========================================================\n\r");
 
 	/* Infinite loop */
 	while (1) {
