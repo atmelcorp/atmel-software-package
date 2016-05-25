@@ -1,5 +1,46 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.2 - 2016-06
+
+### New drivers/examples
+
+- New HSMCI driver for SAMA5D4.
+- New audio_recorder example.
+- Add QSPI XIP IAR flashloader for sama5d2-xplained board.
+- Initial support for SAMA5D3 SOC family in the softpack (DMA is not yet supported.)
+
+### Changes
+
+- Introduce board_init() function called at startup before main() to initialize the
+  board. It simplifies the examples a lot and allow common initialization for each board.
+- Rename the XDMA configuration fields to match the datasheet names.
+- Add new section in SRAM and DDRAM to hold only aligned variable on cache line size.
+  It allows to use cache maintance functions over those variables without risking to flush/clean
+  variables located in the same cache line.
+
+### Enhancements
+
+- Add support for views view0, view2 and view3 in the XDMA example.
+- Improve audio_device driver to support also record feature over PDMIC, and SSC.
+- sdmmc_sdcard is fully supported for the SAMA5D4 SOC family.
+- Add volume control in audio examples.
+- SAM-BA applets can now compile with IAR.
+- Improve the libsdmmc.
+- Caching is enabled on the QSPI memory region.
+
+### Fixes
+
+- Fix a bug in pmc_configure_gck that was causing initialization problems on
+  some boards.
+- Fix cache alignement issues all over the examples.
+- Fix a bug in USB Device Unhalt function.
+- Fix PIO3 bugs.
+- Fix ADC example to also work with TC trigger and ADTRG.
+- Fix NAND ECC configuration.
+- Fix image sensor OV9740 VGA configuration.
+
+
+
 ## Version 2.1 - 2016-05
 
 ### New drivers/examples
