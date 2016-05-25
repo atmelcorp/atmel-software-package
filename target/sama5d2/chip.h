@@ -296,10 +296,16 @@ extern "C" {
 extern const char* get_chip_name(void);
 
 /**
+ * \brief retrieve FLEXCOM ID from its base address
+ * \return FLEXCOM ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_flexcom_id_from_addr(const Flexcom* addr);
+
+/**
  * \brief retrieve Flexcom base address from its ID
  * \return Flexcom base address on success, 0 otherwise
  */
-extern Flexcom* get_flexcom_addr_from_id(const uint32_t id);
+extern Flexcom* get_flexcom_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve TWI ID from its base address
@@ -311,14 +317,19 @@ extern uint32_t get_twi_id_from_addr(const Twi* addr);
  * \brief retrieve TWI base address from its ID
  * \return TWI base address on success, 0 otherwise
  */
-extern Twi* get_twi_addr_from_id(const uint32_t id);
+extern Twi* get_twi_addr_from_id(uint32_t id);
 
 /**
- *
+ * \brief retrieve SPI ID from its base address
+ * \return SPI ID on success, ID_PERIPH_COUNT otherwise
  */
 extern uint32_t get_spi_id_from_addr(const Spi* addr);
 
-extern Spi* get_spi_addr_from_id(const uint32_t id);
+/**
+ * \brief retrieve SPI base address from its ID
+ * \return SPI base address on success, 0 otherwise
+ */
+extern Spi* get_spi_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve PWM ID from its base address
@@ -330,11 +341,31 @@ extern uint32_t get_pwm_id_from_addr(const Pwm* addr);
  * \brief retrieve PWM base address from its ID
  * \return TC base address on success, 0 otherwise
  */
-extern Pwm* get_pwm_addr_from_id(const uint32_t id);
+extern Pwm* get_pwm_addr_from_id(uint32_t id);
 
+/**
+ * \brief retrieve UART ID from its base address
+ * \return UART ID on success, ID_PERIPH_COUNT otherwise
+ */
 extern uint32_t get_uart_id_from_addr(const Uart* addr);
 
+/**
+ * \brief retrieve UART base address from its ID
+ * \return UART base address on success, 0 otherwise
+ */
+extern Uart* get_uart_addr_from_id(uint32_t id);
+
+/**
+ * \brief retrieve USART ID from its base address
+ * \return USART ID on success, ID_PERIPH_COUNT otherwise
+ */
 extern uint32_t get_usart_id_from_addr(const Usart* addr);
+
+/**
+ * \brief retrieve USART base address from its ID
+ * \return USART base address on success, 0 otherwise
+ */
+extern Usart* get_usart_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve Timer/Counter ID from its base address
@@ -346,43 +377,55 @@ extern uint32_t get_tc_id_from_addr(const Tc* addr);
  * \brief retrieve Timer/Counter base address from its ID
  * \return TC base address on success, 0 otherwise
  */
-extern Tc* get_tc_addr_from_id(const uint32_t id);
+extern Tc* get_tc_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve QSPI ID from its base address
  * \return QSPI ID on success, ID_PERIPH_COUNT otherwise
  */
-uint32_t get_qspi_id_from_addr(const Qspi* addr);
+extern uint32_t get_qspi_id_from_addr(const Qspi* addr);
 
 /**
  * \brief retrieve QSPI memory start from its base address
  * \return QSPI memory start on success, NULL otherwise
  */
-void *get_qspi_mem_from_addr(const Qspi* addr);
+extern void *get_qspi_mem_from_addr(const Qspi* addr);
 
 /**
  * \brief retrieve QSPI AESB memory start from its base address
  * \return QSPI memory start on success, NULL otherwise
  */
-void *get_qspi_aesb_mem_from_addr(const Qspi* addr);
+extern void *get_qspi_aesb_mem_from_addr(const Qspi* addr);
+
+/**
+ * \brief retrieve GMAC ID from its base address
+ * \return GMAC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_gmac_id_from_addr(const Gmac* addr);
+
+/**
+ * \brief retrieve SDMMC ID from its base address
+ * \return SDMMC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr);
+
+/**
+ * \brief retrieve CLASSD ID from its base address
+ * \return CLASSD ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_classd_id_from_addr(const Classd* addr);
+
+/**
+ * \brief retrieve SSC ID from its base address
+ * \return SSC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
 
 /**
  * \brief retrieve EBI memory start from its Chip Select (CS)
  * \return EBI memory start on success, 0 otherwise
  */
 extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
-
-/**
- * \brief retrieve GMAC ID from its base address
- * \return GMAC ID on success, ID_PERIPH_COUNT otherwise
- */
-uint32_t get_gmac_id_from_addr(const Gmac* addr);
-
-/**
- * \brief retrieve SDMMC ID from its base address
- * \return SDMMC ID on success, ID_PERIPH_COUNT otherwise
- */
-uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr);
 
 /** \brief Returns the matrix on which the given peripheral is connected
  *
@@ -424,13 +467,6 @@ extern bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
  * available, negative value otherwise.
  */
 extern int32_t get_peripheral_fifo_depth(void* addr);
-
-/**
- *
- */
-extern uint32_t get_classd_id_from_addr(const Classd* addr);
-
-extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
 
 #ifdef __cplusplus
 }

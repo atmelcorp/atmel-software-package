@@ -158,205 +158,384 @@ const char* get_chip_name(void)
 	return "Unknown";
 }
 
-Flexcom* get_flexcom_addr_from_id(const uint32_t id)
+uint32_t get_flexcom_id_from_addr(const Flexcom* addr)
 {
-	if (id == ID_FLEXCOM0) return FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+	if (addr == FLEXCOM0)
+		return ID_FLEXCOM0;
 #ifdef FLEXCOM1
-	else if (id == ID_FLEXCOM1) return FLEXCOM1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+	else if (addr == FLEXCOM1)
+		return ID_FLEXCOM1;
 #endif
 #ifdef FLEXCOM2
-	else if (id == ID_FLEXCOM2) return FLEXCOM2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+	else if (addr == FLEXCOM2)
+		return ID_FLEXCOM2;
 #endif
 #ifdef FLEXCOM3
-	else if (id == ID_FLEXCOM3) return FLEXCOM3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+	else if (addr == FLEXCOM3)
+		return ID_FLEXCOM3;
 #endif
 #ifdef FLEXCOM4
-	else if (id == ID_FLEXCOM4) return FLEXCOM4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+	else if (addr == FLEXCOM4)
+		return ID_FLEXCOM4;
 #endif
-	else return (void*)0;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+Flexcom* get_flexcom_addr_from_id(uint32_t id)
+{
+	if (id == ID_FLEXCOM0)
+		return FLEXCOM0;
+#ifdef FLEXCOM1
+	else if (id == ID_FLEXCOM1)
+		return FLEXCOM1;
+#endif
+#ifdef FLEXCOM2
+	else if (id == ID_FLEXCOM2)
+		return FLEXCOM2;
+#endif
+#ifdef FLEXCOM3
+	else if (id == ID_FLEXCOM3)
+		return FLEXCOM3;
+#endif
+#ifdef FLEXCOM4
+	else if (id == ID_FLEXCOM4)
+		return FLEXCOM4;
+#endif
+	else
+		return (void*)0;
 }
 
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {
-	if (addr == (void*)TWI0) return ID_FLEXCOM0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+	if (addr == TWI0)
+		return ID_FLEXCOM0;
 #ifdef TWI1
-	else if (addr == (void*)TWI1) return ID_FLEXCOM1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+	else if (addr == TWI1)
+		return ID_FLEXCOM1;
 #endif
 #ifdef TWI2
-	else if (addr == (void*)TWI2) return ID_FLEXCOM2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+	else if (addr == TWI2)
+		return ID_FLEXCOM2;
 #endif
 #ifdef TWI3
-	else if (addr == (void*)TWI3) return ID_FLEXCOM3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+	else if (addr == TWI3)
+		return ID_FLEXCOM3;
 #endif
 #ifdef TWI4
-	else if (addr == (void*)TWI4) return ID_FLEXCOM4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+	else if (addr == TWI4)
+		return ID_FLEXCOM4;
 #endif
 #ifdef TWIHS0
-	else if (addr == (void*)TWIHS0) return ID_TWIHS0; /**< \brief TWIHS0 */
+	else if (addr == (Twi*)TWIHS0)
+		return ID_TWIHS0;
 #endif
 #ifdef TWIHS1
-	else if (addr == (void*)TWIHS1) return ID_TWIHS1; /**< \brief TWIHS1 */
+	else if (addr == (Twi*)TWIHS1)
+		return ID_TWIHS1;
 #endif
-	else return ID_PERIPH_COUNT;
+	else
+		return ID_PERIPH_COUNT;
 }
 
-Twi* get_twi_addr_from_id(const uint32_t id)
+Twi* get_twi_addr_from_id(uint32_t id)
 {
-	if (id == ID_FLEXCOM0) return TWI0; /**< \brief FLEXCOM 0 (FLEXCOM0) */
+	if (id == ID_FLEXCOM0)
+		return TWI0;
 #ifdef TWI1
-	else if (id == ID_FLEXCOM1) return TWI1; /**< \brief FLEXCOM 1 (FLEXCOM1) */
+	else if (id == ID_FLEXCOM1)
+		return TWI1;
 #endif
 #ifdef TWI2
-	else if (id == ID_FLEXCOM2) return TWI2; /**< \brief FLEXCOM 2 (FLEXCOM2) */
+	else if (id == ID_FLEXCOM2)
+		return TWI2;
 #endif
 #ifdef TWI3
-	else if (id == ID_FLEXCOM3) return TWI3; /**< \brief FLEXCOM 3 (FLEXCOM3) */
+	else if (id == ID_FLEXCOM3)
+		return TWI3;
 #endif
 #ifdef TWI4
-	else if (id == ID_FLEXCOM4) return TWI4; /**< \brief FLEXCOM 4 (FLEXCOM4) */
+	else if (id == ID_FLEXCOM4)
+		return TWI4;
 #endif
 #ifdef TWIHS0
-	else if (id == ID_TWIHS0) return (Twi*)TWIHS0; /**< \brief TWIHS0 */
+	else if (id == ID_TWIHS0)
+		return (Twi*)TWIHS0;
 #endif
 #ifdef TWIHS1
-	else if (id == ID_TWIHS1) return (Twi*)TWIHS1; /**< \brief TWIHS1 */
+	else if (id == ID_TWIHS1)
+		return (Twi*)TWIHS1;
 #endif
-	else return (void*)0;
+	else
+		return (void*)0;
 }
 
 uint32_t get_spi_id_from_addr(const Spi* addr)
 {
-	if (addr == (void*)SPI0) return ID_SPI0;
+	if (addr == SPI0)
+		return ID_SPI0;
 #ifdef SPI1
-	else if (addr == (void*)SPI1) return ID_SPI1;
+	else if (addr == SPI1)
+		return ID_SPI1;
 #endif
 #ifdef FCOMSPI0
-	else if (addr == (void*)FCOMSPI0) return ID_FCOMSPI0;
+	else if (addr == FCOMSPI0)
+		return ID_FCOMSPI0;
 #endif
 #ifdef FCOMSPI1
-	else if (addr == (void*)FCOMSPI1) return ID_FCOMSPI1;
+	else if (addr == FCOMSPI1)
+		return ID_FCOMSPI1;
 #endif
 #ifdef FCOMSPI2
-	else if (addr == (void*)FCOMSPI2) return ID_FCOMSPI2;
+	else if (addr == FCOMSPI2)
+		return ID_FCOMSPI2;
 #endif
 #ifdef FCOMSPI3
-	else if (addr == (void*)FCOMSPI3) return ID_FCOMSPI3;
+	else if (addr == FCOMSPI3)
+		return ID_FCOMSPI3;
 #endif
 #ifdef FCOMSPI4
-	else if (addr == (void*)FCOMSPI4) return ID_FCOMSPI4;
+	else if (addr == FCOMSPI4)
+		return ID_FCOMSPI4;
 #endif
-	else return ID_PERIPH_COUNT;
+	else
+		return ID_PERIPH_COUNT;
 }
 
-Spi* get_spi_addr_from_id(const uint32_t id)
+Spi* get_spi_addr_from_id(uint32_t id)
 {
-	if (id == ID_SPI0) return SPI0; /**< \brief SPI 0 (SPI0) */
+	if (id == ID_SPI0)
+		return SPI0;
 #ifdef SPI1
-	else if (id == ID_SPI1) return SPI1; /**< \brief SPI 1 (SPI1) */
+	else if (id == ID_SPI1)
+		return SPI1;
 #endif
 #ifdef  FCOMSPI0
-	else if (id == ID_FCOMSPI0) return FCOMSPI0; /**< \brief FLEXCOM SPI 0 (FCOMSPI0) */
+	else if (id == ID_FCOMSPI0)
+		return FCOMSPI0;
 #endif
 #ifdef  FCOMSPI1
-	else if (id == ID_FCOMSPI1) return FCOMSPI1; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+	else if (id == ID_FCOMSPI1)
+		return FCOMSPI1;
 #endif
 #ifdef  FCOMSPI2
-	else if (id == ID_FCOMSPI2) return FCOMSPI2; /**< \brief FLEXCOM SPI 1 (FCOMSPI1) */
+	else if (id == ID_FCOMSPI2)
+		return FCOMSPI2;
 #endif
 #ifdef  FCOMSPI3
-	else if (id == ID_FCOMSPI3) return FCOMSPI3; /**< \brief FLEXCOM SPI 3 (FCOMSPI3) */
+	else if (id == ID_FCOMSPI3)
+		return FCOMSPI3;
 #endif
 #ifdef  FCOMSPI4
-	else if (id == ID_FCOMSPI4) return FCOMSPI4; /**< \brief FLEXCOM SPI 4 (FCOMSPI4) */
+	else if (id == ID_FCOMSPI4)
+		return FCOMSPI4;
 #endif
-	else return (void*)0;
+	else
+		return (void*)0;
 }
 
 uint32_t get_pwm_id_from_addr(const Pwm* addr)
 {
-	if (addr == (void*)PWM) return ID_PWM;
-	else return ID_PERIPH_COUNT;
+	if (addr == PWM)
+		return ID_PWM;
+	else
+		return ID_PERIPH_COUNT;
 }
 
-Pwm* get_pwm_addr_from_id(const uint32_t id)
+Pwm* get_pwm_addr_from_id(uint32_t id)
 {
-	if (id == ID_PWM) return PWM;
-	else return (void*)0;
+	if (id == ID_PWM)
+		return PWM;
+	else
+		return (void*)0;
 }
 
 uint32_t get_uart_id_from_addr(const Uart* addr)
 {
-	if (addr == (void*)UART0) return ID_UART0;
+	if (addr == UART0)
+		return ID_UART0;
 #ifdef UART1
-	else if (addr == (void*)UART1) return ID_UART1;
+	else if (addr == UART1)
+		return ID_UART1;
 #endif
 #ifdef UART2
-	else if (addr == (void*)UART2) return ID_UART2;
+	else if (addr == UART2)
+		return ID_UART2;
 #endif
 #ifdef UART3
-	else if (addr == (void*)UART3) return ID_UART3;
+	else if (addr == UART3)
+		return ID_UART3;
 #endif
 #ifdef UART4
-	else if (addr == (void*)UART4) return ID_UART4;
+	else if (addr == UART4)
+		return ID_UART4;
 #endif
-	else return ID_PERIPH_COUNT;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+Uart* get_uart_addr_from_id(uint32_t id)
+{
+	if (id == ID_UART0)
+		return UART0;
+#ifdef UART1
+	else if (id == ID_UART1)
+		return UART1;
+#endif
+#ifdef UART2
+	else if (id == ID_UART2)
+		return UART2;
+#endif
+#ifdef UART3
+	else if (id == ID_UART3)
+		return UART3;
+#endif
+#ifdef UART4
+	else if (id == ID_UART4)
+		return UART4;
+#endif
+	else
+		return (void*)0;
 }
 
 uint32_t get_usart_id_from_addr(const Usart* addr)
 {
-	if (addr == (void*)USART0) return ID_USART0;
+	if (addr == USART0)
+		return ID_USART0;
 #ifdef USART1
-	else if (addr == (void*)USART1) return ID_USART1;
+	else if (addr == USART1)
+		return ID_USART1;
 #endif
 #ifdef USART2
-	else if (addr == (void*)USART2) return ID_USART2;
+	else if (addr == USART2)
+		return ID_USART2;
 #endif
 #ifdef USART3
-	else if (addr == (void*)USART3) return ID_USART3;
+	else if (addr == USART3)
+		return ID_USART3;
 #endif
 #ifdef USART4
-	else if (addr == (void*)USART4) return ID_USART4;
+	else if (addr == USART4)
+		return ID_USART4;
 #endif
-	else return ID_PERIPH_COUNT;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+Usart* get_usart_addr_from_id(uint32_t id)
+{
+	if (id == ID_USART0)
+		return USART0;
+#ifdef USART1
+	else if (id == ID_USART1)
+		return USART1;
+#endif
+#ifdef USART2
+	else if (id == ID_USART2)
+		return USART2;
+#endif
+#ifdef USART3
+	else if (id == ID_USART3)
+		return USART3;
+#endif
+#ifdef USART4
+	else if (id == ID_USART4)
+		return USART4;
+#endif
+	else
+		return (void*)0;
 }
 
 uint32_t get_tc_id_from_addr(const Tc* addr)
 {
-	if (addr == TC0) return ID_TC0;
+	if (addr == TC0)
+		return ID_TC0;
 #ifdef TC1
-	else if (addr == TC1) return ID_TC1;
+	else if (addr == TC1)
+		return ID_TC1;
 #endif
-	else return ID_PERIPH_COUNT;
+	else
+		return ID_PERIPH_COUNT;
 }
 
-Tc* get_tc_addr_from_id(const uint32_t id)
+Tc* get_tc_addr_from_id(uint32_t id)
 {
-	if (id == ID_TC0) return TC0; /**< \brief Timer/Counter 0 (TC0) */
+	if (id == ID_TC0)
+		return TC0;
 #ifdef TC1
-	else if (id == ID_TC1) return TC1; /**< \brief Timer/Counter 1 (TC1) */
+	else if (id == ID_TC1)
+		return TC1;
 #endif
-	else return (void*)0;
+	else
+		return (void*)0;
 }
 
 uint32_t get_qspi_id_from_addr(const Qspi* addr)
 {
-	if (addr == (void*)QSPI0) return ID_QSPI0;
-	else if (addr == (void*)QSPI1) return ID_QSPI1;
-	else return ID_PERIPH_COUNT;
+	if (addr == QSPI0)
+		return ID_QSPI0;
+	else if (addr == QSPI1)
+		return ID_QSPI1;
+	else
+		return ID_PERIPH_COUNT;
 }
 
 void *get_qspi_mem_from_addr(const Qspi* addr)
 {
-	if (addr == (void*)QSPI0) return (void*)QSPIMEM0_ADDR;
-	else if (addr == (void*)QSPI1) return (void*)QSPIMEM1_ADDR;
-	else return NULL;
+	if (addr == QSPI0)
+		return (void*)QSPIMEM0_ADDR;
+	else if (addr == QSPI1)
+		return (void*)QSPIMEM1_ADDR;
+	else
+		return NULL;
 }
 
 void *get_qspi_aesb_mem_from_addr(const Qspi* addr)
 {
-	if (addr == (void*)QSPI0) return (void*)QSPI_AES0_ADDR;
-	else if (addr == (void*)QSPI1) return (void*)QSPI_AES1_ADDR;
-	else return NULL;
+	if (addr == QSPI0)
+		return (void*)QSPI_AES0_ADDR;
+	else if (addr == QSPI1)
+		return (void*)QSPI_AES1_ADDR;
+	else
+		return NULL;
+}
+
+uint32_t get_gmac_id_from_addr(const Gmac* addr)
+{
+	if (addr == GMAC0)
+		return ID_GMAC0;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr)
+{
+	if (addr == SDMMC1)
+		return ID_SDMMC1;
+#ifdef SDMMC0
+	else if (addr == SDMMC0)
+		return ID_SDMMC0;
+#endif
+	else
+		return ID_PERIPH_COUNT;
+}
+
+uint32_t get_classd_id_from_addr(const Classd* addr)
+{
+	if (addr == CLASSD)
+		return ID_CLASSD;
+	else
+		return ID_PERIPH_COUNT;
+}
+
+uint32_t get_ssc_id_from_addr(const Ssc* addr)
+{
+	if (addr == SSC0)
+		return ID_SSC0;
+	else if (addr == SSC1)
+		return ID_SSC1;
+	else
+		return ID_PERIPH_COUNT;
 }
 
 uint32_t get_ebi_addr_from_cs(uint32_t cs)
@@ -373,22 +552,6 @@ uint32_t get_ebi_addr_from_cs(uint32_t cs)
 	default:
 		return 0;
 	}
-}
-
-uint32_t get_gmac_id_from_addr(const Gmac* addr)
-{
-	if (addr == (void*)GMAC0) return ID_GMAC0;
-	else return ID_PERIPH_COUNT;
-}
-
-uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr)
-{
-#ifdef SDMMC0
-	if (addr == (void*)SDMMC0) return ID_SDMMC0;
-	else
-#endif
-	if (addr == (void*)SDMMC1) return ID_SDMMC1;
-	else return ID_PERIPH_COUNT;
 }
 
 Matrix* get_peripheral_matrix(uint32_t id)
@@ -495,22 +658,4 @@ int32_t get_peripheral_fifo_depth(void* addr)
 		size = -1;
 	}
 	return size;
-}
-
-uint32_t get_classd_id_from_addr(const Classd* addr)
-{
-	if (addr == CLASSD)
-		return ID_CLASSD;
-	else
-		return ID_PERIPH_COUNT;
-}
-
-uint32_t get_ssc_id_from_addr(const Ssc* addr)
-{
-	if (addr == SSC0)
-		return ID_SSC0;
-	else if (addr == SSC1)
-		return ID_SSC1;
-	else
-		return ID_PERIPH_COUNT;
 }
