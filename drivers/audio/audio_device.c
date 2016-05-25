@@ -48,13 +48,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "misc/cache.h"
+
 #if defined(CONFIG_HAVE_CLASSD)
 #include "peripherals/classd.h"
 #endif
 
 #if defined(CONFIG_HAVE_SSC)
 #include "peripherals/ssc.h"
+#ifdef CONFIG_HAVE_AUDIO_WM8904
 #include "audio/wm8904.h"
+#endif
 #endif
 
 static struct _xdmad_cfg xdmad_cfg;
@@ -111,11 +115,6 @@ static void _configure_ssc(struct _audio_desc *desc)
 	pio_configure(desc->device.ssc.codec_chip->clk_pin, 
 						desc->device.ssc.codec_chip->clk_pin_size);
 
-	/* Configure TWI pins. */
-	pio_configure(desc->device.ssc.codec_chip->codec_twid_pin, 
-						desc->device.ssc.codec_chip->codec_twid_pin_size);
-
-
 	ssc_dev.addr = desc->device.ssc.addr;
 	ssc_dev.sample_rate = desc->sample_rate;
 	ssc_dev.slot_num = desc->num_channels;
@@ -123,7 +122,12 @@ static void _configure_ssc(struct _audio_desc *desc)
 
 	ssc_configure(&ssc_dev);
 	ssc_disable_transmitter(&ssc_dev);
-	
+
+#ifdef CONFIG_HAVE_AUDIO_WM8904
+	/* Configure TWI pins. */
+	pio_configure(desc->device.ssc.codec_chip->codec_twid_pin, 
+						desc->device.ssc.codec_chip->codec_twid_pin_size);
+
 	/* -- WM8904 Initialize -- */
 	twid_configure(desc->device.ssc.codec_chip->codec_twid);
 	/* check that WM8904 is present */
@@ -137,6 +141,7 @@ static void _configure_ssc(struct _audio_desc *desc)
 	}
 
 	wm8904_init(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK);
+#endif
 
 	pmc_select_internal_crystal();
 	pmc_disable_pck2();
@@ -156,7 +161,7 @@ static void _audio_dma_start_transfer(void *src_address, void *dest_address, uin
 										audio_callback_t cb)
 {
 	if(size)
-		l2cc_clean_region((uint32_t)src_address, (uint32_t)src_address + size);
+		cache_clean_region(src_address, size);
 
 	xdmad_cfg.src_addr = (uint32_t*)src_address;
 	xdmad_cfg.dest_addr = (uint32_t*)dest_address;

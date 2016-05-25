@@ -26,5 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_SOC_SAMA5D4) += drivers/audio/wm8904.o
+drivers-$(CONFIG_HAVE_AUDIO_WM8904) += drivers/audio/wm8904.o
 drivers-$(CONFIG_HAVE_AUDIO) += drivers/audio/audio_device.o
