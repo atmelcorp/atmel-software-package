@@ -652,7 +652,6 @@ static void configure_isc(void)
 	isc_update_profile();
 
 	aic_set_source_vector(ID_ISC, isc_handler);
-	i = isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD
 			      | ISC_INTEN_DDONE
 			      | ISC_INTEN_LDONE
