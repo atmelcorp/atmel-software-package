@@ -89,12 +89,14 @@
 #include "component/component_sha.h"
 #include "component/component_shdwc.h"
 #include "component/component_smc.h"
+#include "component/component_spi.h"
 #include "component/component_ssc.h"
 #include "component/component_tc.h"
 #include "component/component_tdes.h"
 #include "component/component_trng.h"
-#include "component/component_twihs.h"
+#include "component/component_twi.h"
 #include "component/component_uart.h"
+#include "component/component_usart.h"
 #include "component/component_udphs.h"
 #include "component/component_wdt.h"
 #include "component/component_xdmac.h"
@@ -133,7 +135,7 @@
 #define UART0    ((Uart     *)0xF801C000U) /**< \brief (UART0   ) Base Address */
 #define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */
 #define UART2    ((Uart     *)0xF8024000U) /**< \brief (UART2   ) Base Address */
-#define TWIHS0   ((Twihs    *)0xF8028000U) /**< \brief (TWIHS0  ) Base Address */
+#define TWIHS0   ((Twi      *)0xF8028000U) /**< \brief (TWIHS0  ) Base Address */
 #define PWM      ((Pwm      *)0xF802C000U) /**< \brief (PWM     ) Base Address */
 #define SFR      ((Sfr      *)0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
@@ -173,7 +175,7 @@
 #define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
 #define TRNG     ((Trng     *)0xFC01C000U) /**< \brief (TRNG    ) Base Address */
 #define AIC      ((Aic      *)0xFC020000U) /**< \brief (AIC     ) Base Address */
-#define TWIHS1   ((Twihs    *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
+#define TWIHS1   ((Twi      *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
 #define UDPHS    ((Udphs    *)0xFC02C000U) /**< \brief (UDPHS   ) Base Address */
 #define ADC      ((Adc      *)0xFC030000U) /**< \brief (ADC     ) Base Address */
 #define PIOA     ((Pio      *)0xFC038000U) /**< \brief (PIOA    ) Base Address */

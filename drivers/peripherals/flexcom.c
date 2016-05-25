@@ -54,27 +54,39 @@
 void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 {
 	assert(flexcom);
-	uint32_t current_protocol = flexcom->FLEX_MR;
+
+	assert(protocol == FLEX_MR_OPMODE_NO_COM ||
+	       protocol == FLEX_MR_OPMODE_USART ||
+	       protocol == FLEX_MR_OPMODE_SPI ||
+	       protocol == FLEX_MR_OPMODE_TWI);
+
+	uint32_t flexcom_id = get_flexcom_id_from_addr(flexcom);
+	uint32_t current_protocol = flexcom->FLEX_MR & FLEX_MR_OPMODE_Msk;
 
 	/* Shutdown previous protocol */
 	switch (current_protocol) {
 	case FLEX_MR_OPMODE_USART:
-		usart_set_receiver_enabled(&flexcom->usart, 0u);
-		usart_set_transmitter_enabled(&flexcom->usart, 0u);
+		{
+			Usart* usart = get_usart_addr_from_id(flexcom_id);
+			usart_set_receiver_enabled(usart, 0u);
+			usart_set_transmitter_enabled(usart, 0u);
+		}
 		break;
 	case FLEX_MR_OPMODE_SPI:
-		spi_disable(&flexcom->spi);
+		{
+			Spi* spi = get_spi_addr_from_id(flexcom_id);
+			spi_disable(spi);
+		}
 		break;
 	case FLEX_MR_OPMODE_TWI:
-		twi_stop(&flexcom->twi);
+		{
+			Twi* twi = get_twi_addr_from_id(flexcom_id);
+			twi_stop(twi);
+		}
 	default:
 		break;
 	}
 
-	assert(protocol & FLEX_MR_OPMODE_NO_COM ||
-	       protocol & FLEX_MR_OPMODE_USART ||
-	       FLEX_MR_OPMODE_SPI || FLEX_MR_OPMODE_TWI);
-
 	/* Activate the new mode () */
-	flexcom->FLEX_MR = protocol;
+	flexcom->FLEX_MR = protocol & FLEX_MR_OPMODE_Msk;
 }

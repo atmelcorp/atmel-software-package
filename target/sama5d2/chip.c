@@ -227,11 +227,11 @@ uint32_t get_twi_id_from_addr(const Twi* addr)
 		return ID_FLEXCOM4;
 #endif
 #ifdef TWIHS0
-	else if (addr == (Twi*)TWIHS0)
+	else if (addr == TWIHS0)
 		return ID_TWIHS0;
 #endif
 #ifdef TWIHS1
-	else if (addr == (Twi*)TWIHS1)
+	else if (addr == TWIHS1)
 		return ID_TWIHS1;
 #endif
 	else
@@ -260,11 +260,11 @@ Twi* get_twi_addr_from_id(uint32_t id)
 #endif
 #ifdef TWIHS0
 	else if (id == ID_TWIHS0)
-		return (Twi*)TWIHS0;
+		return TWIHS0;
 #endif
 #ifdef TWIHS1
 	else if (id == ID_TWIHS1)
-		return (Twi*)TWIHS1;
+		return TWIHS1;
 #endif
 	else
 		return (void*)0;

@@ -51,12 +51,10 @@ typedef struct {
   __IO uint32_t SPI_CSR[4];    /**< \brief (Spi Offset: 0x30) Chip Select Register */
   __IO uint32_t SPI_FMR;       /**< \brief (Spi Offset: 0x40) FIFO Mode Register */
   __I  uint32_t SPI_FLR;       /**< \brief (Spi Offset: 0x44) FIFO Level Register */
-  __I  uint32_t SPI_CMPR;      /**< \brief (Spi Offset: 0x48) Comparison Register */
+  __IO uint32_t SPI_CMPR;      /**< \brief (Spi Offset: 0x48) Comparison Register */
   __I  uint32_t Reserved2[38];
   __IO uint32_t SPI_WPMR;      /**< \brief (Spi Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t SPI_WPSR;      /**< \brief (Spi Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved3[4];
-  __I  uint32_t SPI_VERSION;   /**< \brief (Spi Offset: 0xFC) Version Register */
 } Spi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SPI_CR : (SPI Offset: 0x00) Control Register -------- */
@@ -73,6 +71,9 @@ typedef struct {
 #define SPI_MR_MSTR (0x1u << 0) /**< \brief (SPI_MR) Master/Slave Mode */
 #define SPI_MR_PS (0x1u << 1) /**< \brief (SPI_MR) Peripheral Select */
 #define SPI_MR_PCSDEC (0x1u << 2) /**< \brief (SPI_MR) Chip Select Decode */
+#define SPI_MR_BRSRCCLK (0x1u << 3) /**< \brief (SPI_MR) Bit Rate Source Clock */
+#define   SPI_MR_BRSRCCLK_PERIPH_CLK (0x0u << 3) /**< \brief (SPI_MR) The peripheral clock is the source clock for the bit rate generation. */
+#define   SPI_MR_BRSRCCLK_PMC_PCK (0x1u << 3) /**< \brief (SPI_MR) PMC PCKx is the source clock for the bit rate generation, thus the bit rate can be independent of the core/peripheral clock. */
 #define SPI_MR_MODFDIS (0x1u << 4) /**< \brief (SPI_MR) Mode Fault Detection */
 #define SPI_MR_WDRBT (0x1u << 5) /**< \brief (SPI_MR) Wait Data Read Before Transfer */
 #define SPI_MR_LLB (0x1u << 7) /**< \brief (SPI_MR) Local Loopback Enable */
@@ -238,8 +239,10 @@ typedef struct {
 /* -------- SPI_CMPR : (SPI Offset: 0x48) Comparison Register -------- */
 #define SPI_CMPR_VAL1_Pos 0
 #define SPI_CMPR_VAL1_Msk (0xffffu << SPI_CMPR_VAL1_Pos) /**< \brief (SPI_CMPR) First Comparison Value for Received Character */
+#define SPI_CMPR_VAL1(value) ((SPI_CMPR_VAL1_Msk & ((value) << SPI_CMPR_VAL1_Pos)))
 #define SPI_CMPR_VAL2_Pos 16
 #define SPI_CMPR_VAL2_Msk (0xffffu << SPI_CMPR_VAL2_Pos) /**< \brief (SPI_CMPR) Second Comparison Value for Received Character */
+#define SPI_CMPR_VAL2(value) ((SPI_CMPR_VAL2_Msk & ((value) << SPI_CMPR_VAL2_Pos)))
 /* -------- SPI_WPMR : (SPI Offset: 0xE4) Write Protection Mode Register -------- */
 #define SPI_WPMR_WPEN (0x1u << 0) /**< \brief (SPI_WPMR) Write Protection Enable */
 #define SPI_WPMR_WPKEY_Pos 8
@@ -250,11 +253,6 @@ typedef struct {
 #define SPI_WPSR_WPVS (0x1u << 0) /**< \brief (SPI_WPSR) Write Protection Violation Status */
 #define SPI_WPSR_WPVSRC_Pos 8
 #define SPI_WPSR_WPVSRC_Msk (0xffu << SPI_WPSR_WPVSRC_Pos) /**< \brief (SPI_WPSR) Write Protection Violation Source */
-/* -------- SPI_VERSION : (SPI Offset: 0xFC) Version Register -------- */
-#define SPI_VERSION_VERSION_Pos 0
-#define SPI_VERSION_VERSION_Msk (0xfffu << SPI_VERSION_VERSION_Pos) /**< \brief (SPI_VERSION) Version of the Hardware Module */
-#define SPI_VERSION_MFN_Pos 16
-#define SPI_VERSION_MFN_Msk (0x7u << SPI_VERSION_MFN_Pos) /**< \brief (SPI_VERSION) Metal Fix Number */
 
 /*@}*/
 
