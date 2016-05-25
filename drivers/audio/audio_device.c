@@ -277,7 +277,10 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #endif
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
-			audio_play_enable(desc, false);
+#ifdef CONFIG_HAVE_AUDIO_WM8904
+			wm8904_volume_mute(desc->device.ssc.codec_chip->codec_twid,
+							WM8904_SLAVE_ADDRESS, true, true);
+#endif
 			break;
 #endif
 		default:
@@ -292,9 +295,49 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #endif
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
-			audio_play_enable(desc, true);
+#ifdef CONFIG_HAVE_AUDIO_WM8904
+			wm8904_volume_mute(desc->device.ssc.codec_chip->codec_twid,
+							WM8904_SLAVE_ADDRESS, false, false);
+#endif
 			break;
 #endif			
+		default:
+			return;
+		}
+	}
+}
+
+/**
+ * Set audio play volume
+ */
+void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
+{
+	/* unify the volume value for different codec chip */
+	/* vol=0 means min volume, vol=100 means max volume */
+	uint8_t val;
+	if (vol <= AUDIO_PLAY_MAX_VOLUME) {
+		switch (desc->type) {
+#if defined(CONFIG_HAVE_CLASSD)
+		case AUDIO_DEVICE_CLASSD:
+			/* classd attenuation range 0~-77db*/
+			val = (AUDIO_PLAY_MAX_VOLUME-vol)*77/AUDIO_PLAY_MAX_VOLUME;
+			classd_set_left_attenuation(val);
+			classd_set_right_attenuation(val);
+			break;
+#endif
+
+#if defined(CONFIG_HAVE_SSC)
+		case AUDIO_DEVICE_SSC:
+#ifdef CONFIG_HAVE_AUDIO_WM8904
+			/* wm8904 heardphone output volume range -57db~6db */
+			val = (vol*63)/AUDIO_PLAY_MAX_VOLUME;
+			wm8904_set_left_volume(desc->device.ssc.codec_chip->codec_twid,
+							WM8904_SLAVE_ADDRESS, val);
+			wm8904_set_right_volume(desc->device.ssc.codec_chip->codec_twid,
+							WM8904_SLAVE_ADDRESS, val);
+#endif
+			break;
+#endif
 		default:
 			return;
 		}

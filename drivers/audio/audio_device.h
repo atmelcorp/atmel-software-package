@@ -33,7 +33,7 @@
 #include "peripherals/xdmad.h"
 #include "peripherals/pio.h"
 
-
+#define AUDIO_PLAY_MAX_VOLUME    (100)
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
@@ -94,6 +94,7 @@ struct _audio_desc {
 extern void audio_play_configure(struct _audio_desc *desc);
 extern void audio_play_enable(struct _audio_desc *desc, bool enable);
 extern void audio_play_mute(struct _audio_desc *desc, bool mute);
+extern void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol);
 extern void audio_play_stop(struct _audio_desc *desc);
 extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer,
 									uint16_t size, audio_callback_t cb);
