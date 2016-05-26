@@ -173,7 +173,7 @@ ALIGNED(L1_CACHE_BYTES)
 static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
 
 static uint32_t op_mode, start_mode, key_id, key_byte_len;
-static volatile uint32_t data_ready = 0;
+static volatile bool data_ready = false;
 
 /** Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
@@ -183,9 +183,21 @@ static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
 ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
 
+static volatile bool dma_rd_complete = false;
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+static void dma_rd_callback(struct _xdmad_channel *channel, void *arg)
+{
+	printf("-I- xdma: read completed\r\n");
+	dma_rd_complete = true;
+}
+
+static void dma_wr_callback(struct _xdmad_channel *channel, void *arg)
+{
+	printf("-I- xdma: write completed\r\n");
+}
 
 /**
  * \brief xDMA init.
@@ -204,6 +216,9 @@ static void init_dma(void)
 	else {
 		xdmad_prepare_channel(dma_wr_chan);
 		xdmad_prepare_channel(dma_rd_chan);
+
+		xdmad_set_callback(dma_wr_chan, dma_wr_callback, NULL);
+		xdmad_set_callback(dma_rd_chan, dma_rd_callback, NULL);
 	}
 }
 
@@ -216,22 +231,30 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
-		.cfg = XDMAC_CC_TYPE_PER_TRAN |
-			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_MEM2PER |
-			XDMAC_CC_CSIZE_CHK_4 | XDMAC_CC_DWIDTH_WORD |
-			XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF1 |
-			XDMAC_CC_SAM_INCREMENTED_AM | XDMAC_CC_DAM_FIXED_AM,
+		.cfg = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_DSYNC_MEM2PER
+		| XDMAC_CC_MBSIZE_SINGLE 
+		| XDMAC_CC_CSIZE_CHK_4
+		| XDMAC_CC_DWIDTH_WORD
+		| XDMAC_CC_SIF_AHB_IF0
+		| XDMAC_CC_DIF_AHB_IF1
+		| XDMAC_CC_SAM_INCREMENTED_AM
+		| XDMAC_CC_DAM_FIXED_AM,
 	};
 
 	for (i = 0; i < len; i++) {
-		dma_wr_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
-			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
-			XDMA_UBC_NSEN_UPDATED | 4;
+		dma_wr_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+			| XDMA_UBC_NDE_FETCH_EN
+			| XDMA_UBC_NSEN_UPDATED
+			| XDMA_UBC_UBLEN(4);
 		dma_wr_dlist[i].mbr_sa = &buf[i * 4];
-		dma_wr_dlist[i].mbr_da = (void*)&AES->AES_IDATAR[0];
-		dma_wr_dlist[i].mbr_nda = i == len - 1 ? NULL :
-			&dma_wr_dlist[i + 1];
+		dma_wr_dlist[i].mbr_da = (void *)AES->AES_IDATAR;
+		dma_wr_dlist[i].mbr_nda = &dma_wr_dlist[i + 1];
 	}
+	dma_wr_dlist[len - 1].mbr_nda = 0;
+	dma_wr_dlist[len - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+
 	cache_clean_region(dma_wr_dlist, sizeof(*dma_wr_dlist) * len);
 	xdmad_configure_transfer(dma_wr_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
 		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
@@ -248,22 +271,30 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
 	struct _xdmad_cfg dma_cfg = {
-		.cfg = XDMAC_CC_TYPE_PER_TRAN |
-			XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_PER2MEM |
-			XDMAC_CC_CSIZE_CHK_4 | XDMAC_CC_DWIDTH_WORD |
-			XDMAC_CC_SIF_AHB_IF1 | XDMAC_CC_DIF_AHB_IF0 |
-			XDMAC_CC_SAM_FIXED_AM | XDMAC_CC_DAM_INCREMENTED_AM,
+		.cfg = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_MBSIZE_SINGLE
+		| XDMAC_CC_DSYNC_PER2MEM
+		| XDMAC_CC_CSIZE_CHK_4
+		| XDMAC_CC_DWIDTH_WORD
+		| XDMAC_CC_SIF_AHB_IF1
+		| XDMAC_CC_DIF_AHB_IF0
+		| XDMAC_CC_SAM_FIXED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM,
 	};
 
 	for (i = 0; i < len; i++) {
-		dma_rd_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
-			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
-			XDMA_UBC_NDEN_UPDATED | 4;
-		dma_rd_dlist[i].mbr_sa = (void*)&AES->AES_ODATAR[0];
+		dma_rd_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+			| XDMA_UBC_NDE_FETCH_EN
+			| XDMA_UBC_NDEN_UPDATED
+			| XDMA_UBC_UBLEN(4);
+		dma_rd_dlist[i].mbr_sa = (void *)AES->AES_ODATAR;
 		dma_rd_dlist[i].mbr_da = &buf[i * 4];
-		dma_rd_dlist[i].mbr_nda = i == len - 1 ? NULL :
-			&dma_rd_dlist[i + 1];
+		dma_rd_dlist[i].mbr_nda = &dma_rd_dlist[i + 1];
 	}
+	dma_rd_dlist[len - 1].mbr_nda = 0;
+	dma_rd_dlist[len - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+
 	cache_clean_region(dma_rd_dlist, sizeof(*dma_rd_dlist) * len);
 	xdmad_configure_transfer(dma_rd_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
 		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
@@ -278,7 +309,7 @@ static void handle_aes_irq(void)
 {
 	if ((aes_get_status() & AES_ISR_DATRDY) == AES_ISR_DATRDY) {
 		aes_disable_it(AES_IER_DATRDY);
-		data_ready = 1;
+		data_ready = true;
 	}
 }
 
@@ -311,12 +342,14 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		configure_dma_read(out, DATA_LEN_INWORD / 4);
 		printf("-I- AES %scryption, starting dual DMA transfer"
 			   "\n\r", encrypt ? "en" : "de");
+		dma_rd_complete = false;
 		rc = xdmad_start_transfer(dma_wr_chan);
 		if (rc == XDMAD_OK)
 			rc = xdmad_start_transfer(dma_rd_chan);
 		if (rc == XDMAD_OK) {
-			while (!xdmad_is_transfer_done(dma_rd_chan))
+			while (!dma_rd_complete)
 				xdmad_poll();
+
 			xdmad_stop_transfer(dma_rd_chan);
 			xdmad_stop_transfer(dma_wr_chan);
 		}
@@ -326,7 +359,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	} else
 		/* Iterate per 128-bit data block */
 		for (i = 0; i < DATA_LEN_INWORD; i += 4) {
-			data_ready = 0;
+			data_ready = false;
 			aes_enable_it(AES_IER_DATRDY);
 			/* Write one 128-bit input data block in the authorized
 			 * Input Data Registers */
