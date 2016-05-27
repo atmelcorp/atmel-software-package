@@ -526,13 +526,10 @@ void adc_set_tracking_time(uint32_t dwNs)
 void adc_set_trigger_period(uint32_t period)
 {
 	uint32_t trg_period;
-	uint32_t trg_reg;
 	if (_adc_clock == 0)
 		return;
 	trg_period = period * (_adc_clock/1000) - 1;
-	trg_reg = ADC->ADC_TRGR & ~ADC_TRGR_TRGPER_Msk;
-	trg_reg |= ADC_TRGR_TRGPER(trg_period);
-	ADC->ADC_TRGR = trg_reg;
+	ADC->ADC_TRGR = (ADC->ADC_TRGR & ~ADC_TRGR_TRGPER_Msk) | ADC_TRGR_TRGPER(trg_period);
 }
 
 void adc_ts_calibration(void)
@@ -556,7 +553,6 @@ void adc_set_ts_debounce(uint32_t time)
 	uint32_t clk = _adc_clock;
 	uint32_t dwPenbc = 0;
 	uint32_t target, current;
-	uint32_t tsmr;
 	if (time == 0 || _adc_clock == 0)
 		return;
 	/* Divide time & ADCCLK to avoid overflows */
@@ -575,11 +571,7 @@ void adc_set_ts_debounce(uint32_t time)
 		dwPenbc++;
 		current *= 2;
 	}
-	tsmr = ADC_TSMR_PENDBC(dwPenbc);
-	if (tsmr == 0)
-		return;
-	tsmr |= ADC->ADC_TSMR & ~ADC_TSMR_PENDBC_Msk;
-	ADC->ADC_TSMR = tsmr;
+	ADC->ADC_TSMR = (ADC->ADC_TSMR & ~ADC_TSMR_PENDBC_Msk) | ADC_TSMR_PENDBC(dwPenbc);
 }
 
 void adc_set_ts_pen_detect(uint8_t enable)
@@ -621,12 +613,7 @@ uint32_t adc_get_ts_pressure(void)
 
 void adc_set_trigger(uint32_t trigger)
 {
-	uint32_t mode_reg;
-
-	mode_reg = ADC->ADC_MR;
-	mode_reg &= ~ADC_MR_TRGSEL_Msk;
-	mode_reg |= trigger;
-	ADC->ADC_MR |= mode_reg;
+	ADC->ADC_MR = (ADC->ADC_MR & ~ADC_MR_TRGSEL_Msk) | trigger;
 }
 
 #ifdef CONFIG_HAVE_ADC_LOW_RES
