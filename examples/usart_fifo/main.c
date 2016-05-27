@@ -93,7 +93,9 @@
 #include "chip.h"
 #include "compiler.h"
 
+#ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
+#endif
 #include "peripherals/usart.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
@@ -105,10 +107,17 @@
 #include <string.h>
 
 /*----------------------------------------------------------------------------
+ *      Internal constants
+ *----------------------------------------------------------------------------*/
+
+#define EXAMPLE_USART_ADDR USART3
+#define EXAMPLE_USART_PINS PINS_FLEXCOM3_USART_IOS3
+
+/*----------------------------------------------------------------------------
  *      Internal variables
-----------------------------------------------------------------------------*/
-Flexcom* flexcom = FLEXCOM3;
-static const struct _pin usart_pins[] = PINS_FLEXCOM3_USART_IOS3;
+ *----------------------------------------------------------------------------*/
+
+static const struct _pin usart_pins[] = EXAMPLE_USART_PINS;
 
 ALIGNED(L1_CACHE_BYTES)
 static const char test_data [] = "-- Write FIFO test PADDING PADDING PADDING \
@@ -135,19 +144,22 @@ static void _print_help(void)
  */
 static void usart_handler(void)
 {
-	char read_buffer[33];
+	uint8_t read_buffer[33];
 	uint32_t read = 0;
 	*read_buffer = '\0';
 
-	if (usart_is_rx_ready(&flexcom->usart)) {
-		uint32_t size = usart_fifo_rx_size(&flexcom->usart);
-		read = usart_read_stream(&flexcom->usart, read_buffer, size);
+	if (usart_is_rx_ready(EXAMPLE_USART_ADDR)) {
+		uint32_t size = usart_fifo_rx_size(EXAMPLE_USART_ADDR);
+		read = usart_read_stream(EXAMPLE_USART_ADDR, read_buffer, size);
 		read_buffer[read] = '\0';
 	}
-	flexcom->usart.US_CR = US_CR_RSTSTA;
+	usart_reset_status(EXAMPLE_USART_ADDR);
 
-	if(is_usart_echo_on) {
-		usart_write_stream(&flexcom->usart, read_buffer, read);
+	if (read) {
+		if (is_usart_echo_on)
+			usart_write_stream(EXAMPLE_USART_ADDR, read_buffer, read);
+		else
+			printf("%s", read_buffer);
 	}
 }
 
@@ -156,22 +168,31 @@ static void usart_handler(void)
  */
 static void _configure_usart(void)
 {
-	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
-	pmc_enable_peripheral(ID_USART3);
+	uint32_t id;
 
-	aic_set_source_vector(ID_USART3, usart_handler);
+	id = get_usart_id_from_addr(EXAMPLE_USART_ADDR);
+
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(id);
+	if (flexcom) {
+		flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+	}
+#endif
+
+	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
+	pmc_enable_peripheral(id);
+
+	aic_set_source_vector(id, usart_handler);
 
 	uint32_t mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
 
-	flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+	usart_configure(EXAMPLE_USART_ADDR, mode, 115200);
 
-	usart_configure(&flexcom->usart, mode, 115200);
+	usart_fifo_configure(EXAMPLE_USART_ADDR, 16u, 7u, 4u,
+			US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA);
 
-	usart_fifo_configure(&flexcom->usart, 16u, 7u, 4u,
-				US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA);
-
-	usart_enable_it(&flexcom->usart, US_IER_RXRDY);
-	aic_enable(ID_USART3);
+	usart_enable_it(EXAMPLE_USART_ADDR, US_IER_RXRDY);
+	aic_enable(id);
 }
 
 
@@ -180,7 +201,7 @@ static void _configure_usart(void)
  */
 static void _send_test_data(void)
 {
-	usart_write_stream(&flexcom->usart, test_data, sizeof(test_data));
+	usart_write_stream(EXAMPLE_USART_ADDR, test_data, sizeof(test_data));
 }
 
 /*----------------------------------------------------------------------------
@@ -204,21 +225,15 @@ int main (void)
 
 	while (1) {
 		if (console_is_rx_ready()) {
-
 			uint8_t key = console_get_char();
 			/* ESC: Usart Echo ON/OFF */
 			if (key == 27) {
-				printf("** USART Echo %s\n\r",
-						is_usart_echo_on ? "OFF" : "ON");
 				is_usart_echo_on = !is_usart_echo_on;
-
+				printf("** USART Echo %s\n\r",
+						is_usart_echo_on ? "ON" : "OFF");
 			} else if (key == 't') {
 				/* 't': Test Usart writing  */
 				_send_test_data();
-
-			} else {
-				printf("Alive\n\r");
-				usart_write_stream(&flexcom->usart, (char*)"Alive\n\r", 8);
 			}
 		}
 	}
