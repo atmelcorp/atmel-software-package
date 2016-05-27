@@ -448,6 +448,8 @@ static void _configure_adc(void)
 {
 	uint8_t i = 0;
 
+	aic_disable(ID_ADC);
+
 	led_clear(LED_RED);
 	led_clear(LED_BLUE);
 
@@ -505,8 +507,7 @@ static void _configure_adc(void)
 			break;
 
 	    case TRIGGER_MODE_ADTRG:
-			pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
-			pio_configure(&pin_trig, 1);
+			pio_clear(&pin_trig);
 			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_ANY);
 			break;
@@ -542,9 +543,7 @@ static void _configure_adc(void)
  */
 static void _set_adc_configuration(void)
 {
-	aic_disable(ID_ADC);
 	tc_stop(TC0, 0);
-	led_set(LED_BLUE);
 	_configure_adc();
 	adc_start_conversion();
 	modif_config = false;
@@ -582,6 +581,9 @@ int main(void)
 
 	board_cfg_pmic();
 
+	pio_configure(&pin_trig, 1);
+	pio_clear(&pin_trig);
+
 	/* PIO configuration for LEDs */
 	printf("Configure LED PIOs.\n\r");
 	led_configure(LED_RED);
@@ -618,11 +620,14 @@ int main(void)
 			}
 		}
 		if (_test_mode.trigger_mode == TRIGGER_MODE_ADTRG) {
-			timer_wait(250);
-			if (pio_get(&pin_trig))
+			timer_wait(500);
+			if (pio_get(&pin_trig)) {
+				led_clear(LED_RED);
 				pio_clear(&pin_trig);
-			else
+			} else {
 				pio_set(&pin_trig);
+				led_set(LED_RED);
+			}
 		}
 		/* Check if ADC sample is done */
 		if (_data.done) {
