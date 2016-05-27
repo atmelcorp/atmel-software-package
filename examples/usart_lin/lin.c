@@ -35,9 +35,11 @@
 #include "board.h"
 #include "chip.h"
 
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/flexcom.h"
 #include "peripherals/usart.h"
 #include "peripherals/usart_lin.h"
 
@@ -54,38 +56,38 @@
  *----------------------------------------------------------------------------*/
 
 /** LIN Version Supported LIN_13 or LIN_20 */
-#define USART_LIN_VERSION	LIN_2x
+#define USART_LIN_VERSION LIN_2x
 
 /** LIN node number */
-#define LIN_NODE_NUM 		2
+#define LIN_NODE_NUM 2
 
 /** LIN buffer size */
-#define LIN_BUFF_SIZE 		64
+#define LIN_BUFF_SIZE 64
 
 /** LIN frame node number */
-#define NUMBER_OF_LIN_FRAMES_NODE    8
+#define NUMBER_OF_LIN_FRAMES_NODE 8
 
 /** The frame identifier used to carry diagnostic data */
-#define USART_LIN_DIAGNOSTIC_FRAME_ID    60
+#define USART_LIN_DIAGNOSTIC_FRAME_ID 60
 
 /** LIN error offset */
-#define USART_LIN_ERROR_OFFSET    25
+#define USART_LIN_ERROR_OFFSET 25
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
 /* Array of structure of type:'st_lin_message' */
-struct _lin_message lin_mes_list_node[LIN_NODE_NUM][NUMBER_OF_LIN_FRAMES_NODE];
+struct _lin_message lin_msg_list_node[LIN_NODE_NUM][NUMBER_OF_LIN_FRAMES_NODE];
 
 /* Error counter */
-uint16_t lin_error_number_node[LIN_NODE_NUM] = {0};
+uint16_t lin_error_number_node[LIN_NODE_NUM] = { 0 };
 
 /* OK rx frame counter */
-uint16_t lin_rx_frame_counter[LIN_NODE_NUM] = {0};
+uint16_t lin_rx_frame_counter[LIN_NODE_NUM] = { 0 };
 
-/* Last error[node_num][n]: lin_handle | status - lenght = 4 */
-uint16_t lin_last_errors_node[LIN_NODE_NUM][LIN_LAST_ERR_LENGHT];
+/* Last error[node_num][n]: lin_handle | status - length = 4 */
+uint16_t lin_last_errors_node[LIN_NODE_NUM][LIN_LAST_ERR_LENGTH];
 
 /* Tx Buffer message */
 uint8_t lin_tx_buffer_node[LIN_NODE_NUM][LIN_BUFF_SIZE];
@@ -117,12 +119,13 @@ struct _transfert_packet transfert_packet[LIN_NODE_NUM];
  */
 static void _lin_tx_header_and_data(Usart *usart, uint8_t node, uint8_t handle, uint8_t len)
 {
-	lin_tx_buffer_node[node][0] = lin_mes_list_node[node][handle].id;
+	lin_tx_buffer_node[node][0] = lin_msg_list_node[node][handle].id;
+
 	/* Write IDCHR in FLEX_US_LINIR to send the header */
 	usart_lin_set_tx_identifier(usart, lin_tx_buffer_node[node][0]);
 
 	if(len) {
-		memcpy(&lin_tx_buffer_node[node][1], lin_mes_list_node[node][handle].pdata, len);
+		memcpy(&lin_tx_buffer_node[node][1], lin_msg_list_node[node][handle].pdata, len);
 	}
 	usart_lin_write_stream(usart, &lin_tx_buffer_node[node][1], len);
 }
@@ -166,14 +169,14 @@ static uint8_t _lin_rx_frame(Usart *usart, uint8_t node, uint8_t len)
 static void _lin_display_info (uint32_t status, uint8_t node, uint8_t handle, uint8_t rx_len)
 {
 	uint8_t i;
-	uint8_t *pdata = lin_mes_list_node[node][handle].pdata;
+	uint8_t *pdata = lin_msg_list_node[node][handle].pdata;
 
 	printf("\n\r");
 	printf(" LIN MESSAGE Node:%02d Handle:%02d RxLen:0x%02x \n\r", node, handle, rx_len);
-	printf(" ID message     0x%02x \n\r", lin_mes_list_node[node][handle].id);
-	printf(" Length message 0x%02x \n\r",lin_mes_list_node[node][handle].dlc );
-	printf(" Command        0x%02x \n\r", lin_mes_list_node[node][handle].lin_cmd);
-	printf(" Status         0x%02x \n\r", lin_mes_list_node[node][handle].status);
+	printf(" ID message     0x%02x \n\r", lin_msg_list_node[node][handle].id);
+	printf(" Length message 0x%02x \n\r",lin_msg_list_node[node][handle].dlc );
+	printf(" Command        0x%02x \n\r", lin_msg_list_node[node][handle].lin_cmd);
+	printf(" Status         0x%02x \n\r", lin_msg_list_node[node][handle].status);
 	printf(" .... Data      ");
 	for (i=0; i<rx_len; i++) {
 		printf("0x%02X ", pdata[i]);
@@ -200,7 +203,7 @@ static void _lin_display_info (uint32_t status, uint8_t node, uint8_t handle, ui
 
 static void _display_frame (uint8_t node, uint8_t handle, uint8_t len)
 {
-	uint8_t *pdata = lin_mes_list_node[node][handle].pdata;
+	uint8_t *pdata = lin_msg_list_node[node][handle].pdata;
 	printf ("Rx Frame ... Node:%d Handle:%d Count:%04d [ ", node, handle, lin_rx_frame_counter[node]);
 	while (len--) {
 		printf ("0x%02X ", *(pdata++));
@@ -223,23 +226,30 @@ static void _display_frame (uint8_t node, uint8_t handle, uint8_t len)
  *
  * \return Status PASS / FAIL.
  */
-uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node, uint32_t mode, uint32_t baudrate)
+uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node)
 {
-	Usart* usart = &lin_desc->addr->usart;
-	usart_lin_node[node] = usart;
+	uint32_t id = get_usart_id_from_addr(lin_desc->addr);
 
-	/* Configure control Pios */
-	pio_configure(&lin_desc->pin_rts, 1);
-	pio_configure(&lin_desc->pin_cts, 1);
+	usart_lin_node[node] = lin_desc->addr;
 
-	pmc_enable_peripheral(lin_desc->id);
-	/* Flexcom mode Usart */
-	flexcom_select(lin_desc->addr, FLEX_MR_OPMODE_USART);
+	/* Configure ENABLE pin */
+	pio_configure(&lin_desc->pin_enable, 1);
+
+	pmc_enable_peripheral(id);
+
+#ifdef CONFIG_HAVE_FLEXCOM
+	{
+		/* Flexcom mode Usart */
+		Flexcom* flexcom = get_flexcom_addr_from_id(id);
+		flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
+	}
+#endif
+
 	/* Configure usart mode */
-	usart_configure(usart, mode, baudrate);
+	usart_configure(lin_desc->addr, lin_desc->mode, lin_desc->baudrate);
 
 	/* Mode fifo */
-	usart_fifo_configure(usart, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA | US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(lin_desc->addr, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA | US_FMR_RXRDYM_ONE_DATA);
 
 	return 0;
 }
@@ -254,14 +264,14 @@ uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node, uint32_t mode, uint32
  * \return Status PASS / FAIL.
  *
  */
-uint8_t lin_register_descriptor(uint8_t node, uint8_t frame_id, struct _lin_message *lin_mes)
+uint8_t lin_register_descriptor(uint8_t node, uint8_t frame_id, struct _lin_message *msg)
 {
-	lin_mes_list_node[node][frame_id].id = lin_mes->id;
-	lin_mes_list_node[node][frame_id].dlc = lin_mes->dlc;
-	lin_mes_list_node[node][frame_id].lin_cmd = lin_mes->lin_cmd;
-	lin_mes_list_node[node][frame_id].status = lin_mes->status;
-	lin_mes_list_node[node][frame_id].pdata = lin_mes->pdata;
-	lin_mes_list_node[node][frame_id].pfnct = lin_mes->pfnct;
+	lin_msg_list_node[node][frame_id].id = msg->id;
+	lin_msg_list_node[node][frame_id].dlc = msg->dlc;
+	lin_msg_list_node[node][frame_id].lin_cmd = msg->lin_cmd;
+	lin_msg_list_node[node][frame_id].status = msg->status;
+	lin_msg_list_node[node][frame_id].pdata = msg->pdata;
+	lin_msg_list_node[node][frame_id].pfnct = msg->pfnct;
 
 	return 0;
 }
@@ -284,7 +294,7 @@ void lin_slave_usart_handler(uint8_t node)
 	for (i = 0; i < NUMBER_OF_LIN_FRAMES_NODE; i++) {
 		/* Read IDCHR in FLEX_US_RHR */
 		/* Check if the ID received is registered into the lin description list */
-		if (lin_mes_list_node[node][i].id == usart_lin_read_identifier(usart_lin_node[node])) {
+		if (lin_msg_list_node[node][i].id == usart_lin_read_identifier(usart_lin_node[node])) {
 			handle = i;
 			break;
 		}
@@ -292,16 +302,16 @@ void lin_slave_usart_handler(uint8_t node)
 	/* Check if error */
 	if (handle != 0xFF) {
 			/* Start of the associated task */
-			if (lin_mes_list_node[node][handle].pfnct != NULL) {
-				lin_mes_list_node[node][handle].pfnct(lin_mes_list_node[node][handle].pdata);
+			if (lin_msg_list_node[node][handle].pfnct != NULL) {
+				lin_msg_list_node[node][handle].pfnct(lin_msg_list_node[node][handle].pdata);
 			}
 
 		/* Check Error Status */
 		usart_reset_status(usart_lin_node[node]);
 		/* Check if US_CSR_LINBE | US_CSR_LINISFE | US_CSR_LINIPE | US_CSR_LINCE */
 		if (lin_status & US_CSR_LIN_ERROR) {
-			lin_mes_list_node[node][handle].status = (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET;
-			lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGHT - 1))] \
+			lin_msg_list_node[node][handle].status = (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET;
+			lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGTH - 1))] \
 				= ((((uint16_t)handle) <<8) | (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET);
 			lin_error_number_node[node]++;
 			_lin_display_info (lin_status, node, handle, usart_fifo_rx_size(usart));
@@ -313,7 +323,7 @@ void lin_slave_usart_handler(uint8_t node)
 			 * FLEX_US_LINMR must be written with NACT = PUBLISH even if this
 			 * field is already correctly configured, in order to set the TXREADY
 			 * flag and the corresponding write transfer request. */
-			usart_lin_set_node_action(usart_lin_node[node], lin_mes_list_node[node][handle].lin_cmd);
+			usart_lin_set_node_action(usart_lin_node[node], lin_msg_list_node[node][handle].lin_cmd);
 			/* Configure Parity */
 			usart_lin_enable_parity(usart);
 			/* Configure Checksum */
@@ -324,9 +334,9 @@ void lin_slave_usart_handler(uint8_t node)
 			usart_lin_enable_frame_slot(usart);
 			/* Configure Frame Length */
 			//usart_lin_set_data_len_mode(usart, USART_LIN_DLM_IDCHR);
-			//usart_lin_set_response_data_len(usart, lin_mes_list_node[node][handle].dlc);
+			//usart_lin_set_response_data_len(usart, lin_msg_list_node[node][handle].dlc);
 			usart_lin_set_data_len_mode(usart, USART_LIN_DLM_DLC);
-			usart_lin_set_frame_data_len(usart, lin_mes_list_node[node][handle].dlc);
+			usart_lin_set_frame_data_len(usart, lin_msg_list_node[node][handle].dlc);
 
 			/* Diagnostic frames in LIN 2.0/2.1 */
 			if ((usart_lin_read_identifier(usart) >= USART_LIN_DIAGNOSTIC_FRAME_ID)) {
@@ -335,16 +345,16 @@ void lin_slave_usart_handler(uint8_t node)
 				usart_lin_set_data_len_mode( usart, USART_LIN_DLM_DLC);
 			}
 
-			switch (lin_mes_list_node[node][handle].lin_cmd) {
+			switch (lin_msg_list_node[node][handle].lin_cmd) {
 			case PUBLISH:
-				_lin_tx_frame(usart, node, lin_mes_list_node[node][handle].pdata, lin_mes_list_node[node][handle].dlc);
+				_lin_tx_frame(usart, node, lin_msg_list_node[node][handle].pdata, lin_msg_list_node[node][handle].dlc);
 				break;
 
 			case SUBSCRIBE:
-				frame_len = _lin_rx_frame(usart, node, lin_mes_list_node[node][handle].dlc);
+				frame_len = _lin_rx_frame(usart, node, lin_msg_list_node[node][handle].dlc);
 				if (frame_len) {
 					lin_rx_frame_counter[node]++;
-					memcpy(lin_mes_list_node[node][handle].pdata,  &lin_rx_buffer_node[node][0], frame_len);
+					memcpy(lin_msg_list_node[node][handle].pdata,  &lin_rx_buffer_node[node][0], frame_len);
 					_display_frame (node, handle, frame_len);
 				}
 				break;
@@ -381,7 +391,7 @@ uint8_t lin_send_cmd(uint8_t node, uint8_t id, uint8_t len)
 	usart_reset_status(usart);
 
 	for (i = 0; i < NUMBER_OF_LIN_FRAMES_NODE; i++) {
-		if (lin_mes_list_node[node][i].id == id) {
+		if (lin_msg_list_node[node][i].id == id) {
 			handle = i;
 			break;
 		}
@@ -389,7 +399,7 @@ uint8_t lin_send_cmd(uint8_t node, uint8_t id, uint8_t len)
 
 	if (handle != 0xFF) {
 		/* action: 0 for PUBLISH, 1 for SUBSCRIBE, 2 for IGNORE */
-		usart_lin_set_node_action(usart, lin_mes_list_node[node][handle].lin_cmd);
+		usart_lin_set_node_action(usart, lin_msg_list_node[node][handle].lin_cmd);
 		/* Configure Parity */
 		usart_lin_enable_parity(usart);
 		/* Configure Checksum */
@@ -403,13 +413,13 @@ uint8_t lin_send_cmd(uint8_t node, uint8_t id, uint8_t len)
 		usart_lin_set_frame_data_len(usart, len);
 
 		/* Switch to Classic Checksum if diagnostic ID request */
-		if (lin_mes_list_node[node][handle].id >= USART_LIN_DIAGNOSTIC_FRAME_ID) {
+		if (lin_msg_list_node[node][handle].id >= USART_LIN_DIAGNOSTIC_FRAME_ID) {
 			usart_lin_set_checksum_type(usart, USART_LIN_CLASSIC_CHECKSUM);
 			/* Configure Frame Length */
 			usart_lin_set_data_len_mode(usart, USART_LIN_DLM_IDCHR);
 		}
 
-		switch (lin_mes_list_node[node][handle].lin_cmd) {
+		switch (lin_msg_list_node[node][handle].lin_cmd) {
 
 		/* Master in PUBLISH and Slave in SUBSCRIBE
 		 * -> Data transfer from the master to the all slaves in SUBSCRIBE */
@@ -443,27 +453,27 @@ void lin_master_usart_handler(uint8_t node)
 	for (i = 0; i < NUMBER_OF_LIN_FRAMES_NODE; i++) {
 		/* Read IDCHR in FLEX_US_RHR */
 		/* Check if the ID received is registered into the lin description list */
-		if (lin_mes_list_node[node][i].id == usart_lin_read_identifier(usart_lin_node[node])) {
+		if (lin_msg_list_node[node][i].id == usart_lin_read_identifier(usart_lin_node[node])) {
 			handle = i;
 			break;
 		}
 	}
 
-	/* Check if US_CSR_LINBE | US_CSR_LINISFE | US_CSR_LINIPE | US_CSR_LINCE */
+	/* Check if a LIN error occured */
 	if (lin_status & US_CSR_LIN_ERROR) {
-		lin_mes_list_node[node][handle].status = (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET;
-		lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGHT - 1))] \
+		lin_msg_list_node[node][handle].status = (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET;
+		lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGTH - 1))] \
 			= ((((uint16_t)handle) <<8) | (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET);
 		lin_error_number_node[node]++;
 		_lin_display_info (lin_status, node, handle, usart_fifo_rx_size(usart));
 	}
-	/* Here the communication go on only in case no error is detected!!! */
+	/* Here the communication go on only in case no error is detected */
 	else {
 		rx_len = usart_fifo_rx_size(usart);
 		rx_len = _lin_rx_frame(usart, node, rx_len);
 		if (rx_len) {
 			lin_rx_frame_counter[node]++;
-			memcpy(lin_mes_list_node[node][handle].pdata,  &lin_rx_buffer_node[node][0], rx_len);
+			memcpy(lin_msg_list_node[node][handle].pdata,  &lin_rx_buffer_node[node][0], rx_len);
 			_display_frame (node, handle, rx_len);
 		}
 	}

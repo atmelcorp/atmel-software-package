@@ -122,13 +122,23 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** Maximum number of handled led */
-#define MAX_LEDS            3
+/** COM2 definition **/
+#define COM2_USART_PINS         PINS_FLEXCOM0_USART_IOS1
+#define COM2_USART_ENA_PIN      { PIO_GROUP_C, PIO_PC0C_FLEXCOM0_IO4, PIO_OUTPUT_1, PIO_DEFAULT }
+#define COM2_USART_ADDR         USART0
+#define COM2_USART_BAUDRATE     9600
+#define COM2_USART_MODE         (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_MASTER)
+
+/** COM3 definition **/
+#define COM3_USART_PINS         PINS_FLEXCOM1_USART_IOS1
+#define COM3_USART_ENA_PIN      { PIO_GROUP_A, PIO_PA26A_FLEXCOM1_IO4, PIO_OUTPUT_1, PIO_DEFAULT }
+#define COM3_USART_ADDR         USART1
+#define COM3_USART_BAUDRATE     9600
+#define COM3_USART_MODE         (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_SLAVE)
 
 /** LIN frame number */
 #define LIN_FRAME_ID_12       0x12
 #define LIN_FRAME_ID_15       0x15
-
 
 /** LIN master node number */
 #define LIN_MASTER_NODE_NUM   0
@@ -149,63 +159,27 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** Local Buffer for emission */
-uint8_t lin_data_master[8];
-uint8_t lin_data_slave[8];
+static const struct _pin pins_com2[] = COM2_USART_PINS;
 
-static uint32_t lin_led_red_counter = 0;
-
-
-/** COM2 definition **/
-#define PINS_COM2_USART         PINS_FLEXCOM0_USART_IOS1
-#define COM2_PER_ADD            FLEXCOM0
-#define COM2_ID                 ID_FLEXCOM0
-#define COM2_BAUDRATE           9600
-#define COM2_MODE_LIN_MASTER    (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_MASTER)
-#define COM2_MODE_LIN_SLAVE     (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_SLAVE)
-
-/** Pins for COM2 */
-static const struct _pin pins_com2[] = PINS_COM2_USART;
-
-/* Connected to CTS */
-#define PIN_LIN_COM2_CTS 	{ PIO_GROUP_B, PIO_PB31C_FLEXCOM0_IO3, PIO_OUTPUT_1, PIO_PULLUP }
-/* Connected to RTS */
-#define PIN_LIN_COM2_RTS 	{ PIO_GROUP_C, PIO_PC0C_FLEXCOM0_IO4, PIO_OUTPUT_1, PIO_DEFAULT }
-
-
-struct _lin_desc lin_desc2 = {
-	.pin_rts = PIN_LIN_COM2_RTS,
-	.pin_cts = PIN_LIN_COM2_CTS,
-	.addr = COM2_PER_ADD,
-	.id = COM2_ID,
+static struct _lin_desc lin_desc2 = {
+	.pin_enable = COM2_USART_ENA_PIN,
+	.addr = COM2_USART_ADDR,
+	.mode = COM2_USART_MODE,
+	.baudrate = COM2_USART_BAUDRATE
 };
 
+static const struct _pin pins_com3[] = COM3_USART_PINS;
 
-/** COM3 definition **/
-#define PINS_COM3_USART         PINS_FLEXCOM1_USART_IOS1
-#define COM3_PER_ADD            FLEXCOM1
-#define COM3_ID                 ID_FLEXCOM1
-#define COM3_BAUDRATE           9600
-#define COM3_MODE_LIN_MASTER    (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_MASTER)
-#define COM3_MODE_LIN_SLAVE     (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_SLAVE)
-
-static const struct _pin pins_com3[] = PINS_COM3_USART;
-
-/* Connected to CTS */
-#define PIN_LIN_COM3_CTS 	{ PIO_GROUP_A, PIO_PA25A_FLEXCOM1_IO3, PIO_OUTPUT_1, PIO_DEFAULT }
-/* Connected to RTS */
-#define PIN_LIN_COM3_RTS 	{ PIO_GROUP_A, PIO_PA26A_FLEXCOM1_IO4, PIO_OUTPUT_1, PIO_PULLUP }
-
-
-struct _lin_desc lin_desc3 = {
-	.pin_rts = PIN_LIN_COM3_RTS,
-	.pin_cts = PIN_LIN_COM3_CTS,
-	.addr = COM3_PER_ADD,
-	.id = COM3_ID,
+static struct _lin_desc lin_desc3 = {
+	.pin_enable = COM3_USART_ENA_PIN,
+	.addr = COM3_USART_ADDR,
+	.mode = COM3_USART_MODE,
+	.baudrate = COM3_USART_BAUDRATE
 };
 
-/* Default configure lin massage structure */
-struct _lin_message lin_mes_master = {
+static uint8_t lin_data_master[8];
+
+static struct _lin_message lin_msg_master = {
 	.id = 0,
 	.dlc = 0,
 	.lin_cmd = IGNORE,
@@ -213,7 +187,10 @@ struct _lin_message lin_mes_master = {
 	.pdata = &lin_data_master[0],
 	.pfnct = NULL,
 };
-struct _lin_message lin_mes_slave = {
+
+static uint8_t lin_data_slave[8];
+
+static struct _lin_message lin_msg_slave = {
 	.id = 0,
 	.dlc = sizeof(lin_data_slave),
 	.lin_cmd = IGNORE,
@@ -222,7 +199,9 @@ struct _lin_message lin_mes_slave = {
 	.pfnct = NULL,
 };
 
-uint8_t key;
+static uint32_t lin_led_red_counter = 0;
+
+static uint8_t key;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -249,46 +228,48 @@ static void  lin_slave_task_ID12(uint8_t *buf)
  */
 static void _process_button_evt(void)
 {
+	uint32_t id = get_usart_id_from_addr(lin_desc2.addr);
+
 	switch (key) {
 	case 'P':
 	case 'p':
 		/* No interrupt on Master */
-		aic_disable(lin_desc2.id);
+		aic_disable(id);
 		/* Configure lin_descriptor MASTER */
-		lin_mes_master.id = LIN_FRAME_ID_12;
-		lin_mes_master.dlc = sizeof(lin_data_master);
-		lin_mes_master.lin_cmd = PUBLISH;
-		lin_register_descriptor(LIN_MASTER_NODE_NUM, 0, &lin_mes_master);
+		lin_msg_master.id = LIN_FRAME_ID_12;
+		lin_msg_master.dlc = sizeof(lin_data_master);
+		lin_msg_master.lin_cmd = PUBLISH;
+		lin_register_descriptor(LIN_MASTER_NODE_NUM, 0, &lin_msg_master);
 		/* Configure lin_descriptor SLAVE */
-		lin_mes_slave.id = LIN_FRAME_ID_12;
-		lin_mes_slave.dlc = sizeof(lin_data_slave);
-		lin_mes_slave.lin_cmd = SUBSCRIBE;
-		lin_mes_slave.pfnct = lin_slave_task_ID12,
-		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 0, &lin_mes_slave);
-		memcpy(&lin_data_master, "12345678",sizeof(lin_data_master));
+		lin_msg_slave.id = LIN_FRAME_ID_12;
+		lin_msg_slave.dlc = sizeof(lin_data_slave);
+		lin_msg_slave.lin_cmd = SUBSCRIBE;
+		lin_msg_slave.pfnct = lin_slave_task_ID12,
+		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 0, &lin_msg_slave);
+		memcpy(&lin_data_master, "12345678", sizeof(lin_data_master));
 		break;
 
 	case 'S':
 	case 's':
 		/* Configure lin_descriptor MASTER */
-		lin_mes_master.id = LIN_FRAME_ID_15;
-		lin_mes_master.dlc = sizeof(lin_data_master);
-		lin_mes_master.lin_cmd = SUBSCRIBE;
-		lin_register_descriptor(LIN_MASTER_NODE_NUM, 1, &lin_mes_master);
+		lin_msg_master.id = LIN_FRAME_ID_15;
+		lin_msg_master.dlc = sizeof(lin_data_master);
+		lin_msg_master.lin_cmd = SUBSCRIBE;
+		lin_register_descriptor(LIN_MASTER_NODE_NUM, 1, &lin_msg_master);
 		/* Configure lin_descriptor SLAVE */
-		lin_mes_slave.id = LIN_FRAME_ID_15;
-		lin_mes_slave.dlc = sizeof(lin_data_slave);
-		lin_mes_slave.lin_cmd = PUBLISH;
-		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 1, &lin_mes_slave);
+		lin_msg_slave.id = LIN_FRAME_ID_15;
+		lin_msg_slave.dlc = sizeof(lin_data_slave);
+		lin_msg_slave.lin_cmd = PUBLISH;
+		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 1, &lin_msg_slave);
 		/* Interrupt Master, wait transfert complete */
-		aic_enable(lin_desc2.id);
-		memcpy(&lin_data_slave, "87654321",sizeof(lin_data_slave));
+		aic_enable(id);
+		memcpy(&lin_data_slave, "87654321", sizeof(lin_data_slave));
 		break;
 
 	default:
-		aic_disable(lin_desc2.id);
-		lin_mes_master.lin_cmd = IGNORE;
-		lin_mes_slave.lin_cmd = IGNORE;
+		aic_disable(id);
+		lin_msg_master.lin_cmd = IGNORE;
+		lin_msg_slave.lin_cmd = IGNORE;
 		break;
 	}
 }
@@ -310,12 +291,10 @@ static void _console_handler(uint8_t k)
  */
 static void _tc_handler(void)
 {
-	uint32_t dummy;
 	/* Clear status bit to acknowledge interrupt */
-	dummy = tc_get_status(TC0, TC_CHANNEL);
-	(void) dummy;
+	tc_get_status(TC0, TC_CHANNEL);
 
-	if(lin_mes_master.lin_cmd == PUBLISH)
+	if (lin_msg_master.lin_cmd == PUBLISH)
 		lin_send_cmd(LIN_MASTER_NODE_NUM, LIN_FRAME_ID_12, sizeof(lin_data_master));
 	else
 		lin_send_cmd(LIN_MASTER_NODE_NUM, LIN_FRAME_ID_15, sizeof(lin_data_master));
@@ -329,10 +308,13 @@ static void _configure_tc(void)
 {
 	/** Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
+
 	/* Put the source vector */
 	aic_set_source_vector(ID_TC0, _tc_handler);
+
 	/** Configure TC for a 50Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC0, TC_CHANNEL, TC_FREQ);
+
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, TC_CHANNEL, TC_IER_CPCS);
 	aic_enable(ID_TC0);
@@ -359,15 +341,17 @@ static void _com3_slave_handler (void)
  */
 static void _init_com_master (void)
 {
-	Usart* usart = &lin_desc2.addr->usart;
+	uint32_t id = get_usart_id_from_addr(lin_desc2.addr);
 
 	/* Configure Pios usart*/
 	pio_configure(&pins_com2[0], ARRAY_SIZE(pins_com2));
-	/* Init LIN MASTER data Node 0 */
-	lin_init(&lin_desc2, LIN_MASTER_NODE_NUM, COM2_MODE_LIN_MASTER, COM2_BAUDRATE);
 
-	usart_enable_it(usart, US_IER_LINTC);
-	aic_set_source_vector(lin_desc2.id, _com2_master_handler);
+	/* Init LIN MASTER data Node 0 */
+	lin_init(&lin_desc2, LIN_MASTER_NODE_NUM);
+
+	/* Configure interrupts */
+	usart_enable_it(lin_desc2.addr, US_IER_LINTC);
+	aic_set_source_vector(id, _com2_master_handler);
 }
 
 /**
@@ -375,16 +359,18 @@ static void _init_com_master (void)
  */
 static void _init_com_slave (void)
 {
-	Usart* usart = &lin_desc3.addr->usart;
+	uint32_t id = get_usart_id_from_addr(lin_desc3.addr);
 
 	/* Configure Pios usart*/
 	pio_configure(&pins_com3[0], ARRAY_SIZE(pins_com3));
-	/* Init LIN SLAVE data Node 0 */
-	lin_init(&lin_desc3, LIN_SLAVE_NODE_NUM, COM3_MODE_LIN_SLAVE, COM3_BAUDRATE);
 
-	usart_enable_it(usart, US_IER_LINID);
-	aic_set_source_vector(lin_desc3.id, _com3_slave_handler);
-	aic_enable(lin_desc3.id);
+	/* Init LIN SLAVE data Node 0 */
+	lin_init(&lin_desc3, LIN_SLAVE_NODE_NUM);
+
+	/* Configure interrupts */
+	usart_enable_it(lin_desc3.addr, US_IER_LINID);
+	aic_set_source_vector(id, _com3_slave_handler);
+	aic_enable(id);
 }
 
 /**
@@ -393,9 +379,9 @@ static void _init_com_slave (void)
 static void _display_menu (void)
 {
 	printf("\n\rMenu :\n\r ------\n\r");
-	printf("  P: [%c] Run Master PUBLISHER to Slave SUBSCRIBER \n\r", (lin_mes_master.lin_cmd==PUBLISH) ? 'X' : ' ');
-	printf("  S: [%c] Run Master SUBSCRIBER to Slave PUBLISHER \n\r", (lin_mes_master.lin_cmd==SUBSCRIBE) ? 'X' : ' ');
-	printf("  I: [%c] Master and Slave mode IGNORE \n\r", (lin_mes_master.lin_cmd==IGNORE) ? 'X' : ' ');
+	printf("  P: [%c] Run Master PUBLISHER to Slave SUBSCRIBER \n\r", (lin_msg_master.lin_cmd==PUBLISH) ? 'X' : ' ');
+	printf("  S: [%c] Run Master SUBSCRIBER to Slave PUBLISHER \n\r", (lin_msg_master.lin_cmd==SUBSCRIBE) ? 'X' : ' ');
+	printf("  I: [%c] Master and Slave mode IGNORE \n\r", (lin_msg_master.lin_cmd==IGNORE) ? 'X' : ' ');
 	printf("  Q: Stop demo and Quit \n\r ------\n\r\r");
 }
 
@@ -438,17 +424,19 @@ int main(void)
 			tc_stop(TC0, TC_CHANNEL);
 			_process_button_evt();
 			_display_menu();
-			if ((key == 'I') || (key == 'i') ) tc_stop(TC0, 0);
-			else tc_start(TC0, TC_CHANNEL);
+			if (key == 'I' || key == 'i')
+				tc_stop(TC0, 0);
+			else
+				tc_start(TC0, TC_CHANNEL);
 			key = 0;
 			break;
 		default:
 			break;
 		}
-	} while ( key != 'q' && key != 'Q');
+	} while (key != 'q' && key != 'Q');
 
 	tc_stop(TC0, TC_CHANNEL);
 	timer_wait(500);
-	printf("\n\r End of demo \n\r");
+	printf("\n\rEnd of demo\n\r");
 	while (1);
 }

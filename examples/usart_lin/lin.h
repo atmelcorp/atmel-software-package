@@ -35,32 +35,30 @@
  *----------------------------------------------------------------------------*/
 
 /** LIN error type */
-//#define US_CSR_LIN_ERROR (US_CSR_LINBE | US_CSR_LINISFE | US_CSR_LINIPE | US_CSR_LINCE | US_CSR_LINSNRE)
-
-#define US_CSR_LIN_ERROR (US_CSR_LINBE | US_CSR_LINISFE | US_CSR_LINIPE | US_CSR_LINCE )
+#define US_CSR_LIN_ERROR (US_CSR_LINBE | US_CSR_LINISFE | US_CSR_LINIPE | US_CSR_LINCE)
 
 /** Enhanced checksum used in the LIN 2.x */
-#define USART_LIN_ENHANCED_CHECKSUM    0
+#define USART_LIN_ENHANCED_CHECKSUM 0
 
 /** Classic checksum used in the LIN 1.x */
-#define USART_LIN_CLASSIC_CHECKSUM    1
+#define USART_LIN_CLASSIC_CHECKSUM 1
 
 /** The response data length is defined by the field DLC of DLM */
-#define USART_LIN_DLM_DLC    0
+#define USART_LIN_DLM_DLC 0
 
 /** The response data length is defined by the bits 5 and 6 of the identifier */
-#define USART_LIN_DLM_IDCHR    1
+#define USART_LIN_DLM_IDCHR 1
 
 
 enum enum_lin_cmd {
-  PUBLISH,            //< The node sends the response
-  SUBSCRIBE,          //< The node receives the response
-  IGNORE              //< The node is not concerned by the response, it doesn't send or receive
+	PUBLISH,   /* The node sends the response */
+	SUBSCRIBE, /* The node receives the response */
+	IGNORE     /* The node is not concerned by the response, it doesn't send or receive */
 } ;
 
 struct _transfert_packet {
-	uint32_t addr;	/** Start address of the transfer packet data. */
-	uint32_t size;	/** Transfer packet size (in units of the peripheral data width). */
+	uint32_t addr; /* Start address of the transfer packet data */
+	uint32_t size; /* Transfer packet size (in units of the peripheral data width) */
 };
 
 /*! @brief This structure allows to handle a LIN message and, at the end of the
@@ -68,36 +66,33 @@ struct _transfert_packet {
  *        to this message, the update or the capture of "signals".
  */
 struct _lin_message {
-    uint8_t             id;		// LIN message ID (in case of LIN 1.3 - without lenght)
-    uint8_t             dlc; 	// Length of the LIN message, it is the number of data bytes of the LIN response
-    enum enum_lin_cmd 	lin_cmd;// Select an action for a specific message
-    uint8_t             status; // Status of the last communication:== 0x00: RXOK or TXOK != 0x00: LINERR, content of LIN Error Register 'LINERR'
-    uint8_t*            pdata; 	// Pointer on the data buffer, the data buffer where the bytes of the LIN response are stored
-    void  (*pfnct)(uint8_t*);	// Pointer on the function which handles the data.
+	uint8_t             id;      /* LIN message ID (in case of LIN 1.3 - without length) */
+	uint8_t             dlc;     /* Length of the LIN message, it is the number of data bytes of the LIN response */
+	enum enum_lin_cmd   lin_cmd; /* Select an action for a specific message */
+	uint8_t             status;  /* Status of the last communication:== 0x00: RXOK or TXOK != 0x00: LINERR, content of LIN Error Register 'LINERR' */
+	uint8_t*            pdata;   /* Pointer on the data buffer, the data buffer where the bytes of the LIN response are stored */
+	void  (*pfnct)(uint8_t*);    /* Pointer on the function which handles the data */
 } ;
 
 /*! @brief Error report definitions
  */
-#define  LIN_OVERLOAD_INT     ((uint16_t)0x00FF)  //< More than ONE interrupt in the same time !
-#ifndef  LIN_LAST_ERR_LENGHT
-#define  LIN_LAST_ERR_LENGHT   0x04          //< Default lenght of the 'lin_last_error[]' array
-#endif
+#define  LIN_OVERLOAD_INT    ((uint16_t)0x00FF) /* More than ONE interrupt in the same time */
+#define  LIN_LAST_ERR_LENGTH 0x04               /* Default length of the 'lin_last_error[]' array */
 
 struct _lin_desc {
-	const struct _pin pin_rts; 	// Pin EN to enable interface
-	const struct _pin pin_cts;
-	Flexcom* addr;				// Flexcom address
-	uint8_t id;					// Flecxom ID
+	const struct _pin pin_enable; /* pin connected to LIN driver enable */
+	Usart* addr;               /* USART address */
+	uint32_t mode;             /* USART mode */
+	uint32_t baudrate;         /* USART baudrate */
 };
-
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
-extern uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node, uint32_t mode, uint32_t baudrate);
+extern uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node);
 
-extern uint8_t lin_register_descriptor(uint8_t node, uint8_t frame_id, struct _lin_message *lin_mes);
+extern uint8_t lin_register_descriptor(uint8_t node, uint8_t frame_id, struct _lin_message *msg);
 
 extern uint8_t lin_send_cmd(uint8_t node, uint8_t id, uint8_t len);
 
