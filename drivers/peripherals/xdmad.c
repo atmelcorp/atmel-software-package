@@ -335,7 +335,8 @@ uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
 			cfg->cfg |= XDMAC_CC_PERID(channel->dest_txif);
 		}
 	} else {
-		cfg->cfg |= XDMAC_CC_PERID(0xff);
+		/* Use PERID mask as 'unused peripheral number' for MEM2MEM */
+		cfg->cfg |= XDMAC_CC_PERID_Msk;
 	}
 
 	/* Clear status */
