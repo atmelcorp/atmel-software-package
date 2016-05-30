@@ -110,19 +110,19 @@ static struct _handler _handlers[IRQ_PIO_HANDLERS_SIZE];
 
 static const aic_handler_t _generic_handlers[PIO_GROUP_LENGTH] = {
 #ifdef PIOA
-	(const aic_handler_t)_pioa_handler,
+	_pioa_handler,
 #endif
 #ifdef PIOB
-	(const aic_handler_t)_piob_handler,
+	_piob_handler,
 #endif
 #ifdef PIOC
-	(const aic_handler_t)_pioc_handler,
+	_pioc_handler,
 #endif
 #ifdef PIOD
-	(const aic_handler_t)_piod_handler,
+	_piod_handler,
 #endif
 #ifdef PIOE
-	(const aic_handler_t)_pioe_handler,
+	_pioe_handler,
 #endif
 };
 
@@ -208,311 +208,156 @@ static void _pioe_handler(void)
 
 static uint32_t _pio_get_index(int group)
 {
-	switch(group) {
-	case PIO_GROUP_A:
-		return 0;
-	case PIO_GROUP_B:
-		return 1;
-	case PIO_GROUP_C:
-		return 2;
-	case PIO_GROUP_D:
-		return 3;
-	case PIO_GROUP_E:
-		return 4;
-	default:
+	uint32_t ix = PIO_GROUP_LENGTH;
+
+	if (group == PIO_GROUP_A)
+		ix = 0;
+	else if (group == PIO_GROUP_B)
+		ix = 1;
+	else if (group == PIO_GROUP_C)
+		ix = 2;
+	else if (group == PIO_GROUP_D)
+		ix = 3;
+	else if (group == PIO_GROUP_E)
+		ix = 4;
+	else
 		trace_fatal("Invalid PIO group!");
-		return -1;
-	};
+	return ix;
 }
 
 static Pio *_pio_get_instance(int group)
 {
-	switch(group) {
-	case PIO_GROUP_A:
-		return PIOA;
-	case PIO_GROUP_B:
-		return PIOB;
-	case PIO_GROUP_C:
-		return PIOC;
-	case PIO_GROUP_D:
-		return PIOD;
-	case PIO_GROUP_E:
-		return PIOE;
-	default:
+	Pio *pio = NULL;
+
+	if (group == PIO_GROUP_A)
+		pio = PIOA;
+	else if (group == PIO_GROUP_B)
+		pio = PIOB;
+	else if (group == PIO_GROUP_C)
+		pio = PIOC;
+	else if (group == PIO_GROUP_D)
+		pio = PIOD;
+	else if (group == PIO_GROUP_E)
+		pio = PIOE;
+	else
 		trace_fatal("Invalid PIO group!");
-		return NULL;
-	};
+	return pio;
 }
 
 static uint32_t _pio_get_periph_id(int group)
 {
-	switch(group) {
-	case PIO_GROUP_A:
-		return ID_PIOA;
-	case PIO_GROUP_B:
-		return ID_PIOB;
-	case PIO_GROUP_C:
-		return ID_PIOC;
-	case PIO_GROUP_D:
-		return ID_PIOD;
-	case PIO_GROUP_E:
-		return ID_PIOE;
-	default:
-		trace_fatal("Invalid PIO group!");
-		return 0;
-	};
-}
+	uint32_t id = ID_PERIPH_COUNT;
 
-/**
- * \brief Configures one or more pin(s) of a PIO controller as being
- * controlled by peripheral A. Optionally, the corresponding internal
- * pull-up(s) can be enabled.
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask of one or more pin(s) to configure.
- * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
- *                      configured.
- */
-static void pio_set_peripheralA(Pio * pio, uint32_t mask, uint8_t enablePullUp)
-{
-	uint32_t abcdsr;
-	/* Disable interrupts on the pin(s) */
-	pio->PIO_IDR = mask;
-	/* Enable the pull-up(s) if necessary */
-	if (enablePullUp) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		//pio->PIO_PUDR = mask;
-		pio->PIO_PPDDR = mask;
-	}
-	abcdsr = pio->PIO_ABCDSR[0];
-	pio->PIO_ABCDSR[0] &= (~mask & abcdsr);
-	abcdsr = pio->PIO_ABCDSR[1];
-	pio->PIO_ABCDSR[1] &= (~mask & abcdsr);
-	pio->PIO_PDR = mask;
-
-}
-
-/**
- * \brief Configures one or more pin(s) of a PIO controller as being controlled
- * by peripheral B. Optionally, the corresponding internal pull-up(s) can be
- * enabled.
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask of one or more pin(s) to configure.
- * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
- *                      configured.
- */
-static void pio_set_peripheralB(Pio * pio, uint32_t mask, uint8_t enablePullUp)
-{
-	uint32_t abcdsr;
-	/* Disable interrupts on the pin(s) */
-	pio->PIO_IDR = mask;
-	/* Enable the pull-up(s) if necessary */
-	if (enablePullUp) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		pio->PIO_PUDR = mask;
-		pio->PIO_PPDDR = mask;
-	}
-	abcdsr = pio->PIO_ABCDSR[0];
-	pio->PIO_ABCDSR[0] = (mask | abcdsr);
-	abcdsr = pio->PIO_ABCDSR[1];
-	pio->PIO_ABCDSR[1] &= (~mask & abcdsr);
-	pio->PIO_PDR = mask;
-}
-
-/**
- * \brief Configures one or more pin(s) of a PIO controller as being
- * controlled by peripheral C. Optionally, the corresponding internal
- * pull-up(s) can be enabled.
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask of one or more pin(s) to configure.
- * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
- *                      configured.
- */
-static void pio_set_peripheralC(Pio * pio, uint32_t mask, uint8_t enablePullUp)
-{
-	uint32_t abcdsr;
-	/* Disable interrupts on the pin(s) */
-	pio->PIO_IDR = mask;
-	/* Enable the pull-up(s) if necessary */
-	if (enablePullUp) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		pio->PIO_PUDR = mask;
-		//  pio->PIO_PPDDR = mask;
-	}
-	abcdsr = pio->PIO_ABCDSR[0];
-	pio->PIO_ABCDSR[0] &= (~mask & abcdsr);
-	abcdsr = pio->PIO_ABCDSR[1];
-	pio->PIO_ABCDSR[1] = (mask | abcdsr);
-	pio->PIO_PDR = mask;
-}
-
-/**
- * \brief Configures one or more pin(s) of a PIO controller as being
- * controlled by peripheral D. Optionally, the corresponding internal
- * pull-up(s) can be enabled.
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask of one or more pin(s) to configure.
- * \param enablePullUp  Indicates if the pin(s) internal pull-up shall be
- *                      configured.
- */
-static void pio_set_peripheralD(Pio * pio, uint32_t mask, uint8_t enablePullUp)
-{
-	uint32_t abcdsr;
-	/* Disable interrupts on the pin(s) */
-	pio->PIO_IDR = mask;
-	/* Enable the pull-up(s) if necessary */
-	if (enablePullUp) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		pio->PIO_PUDR = mask;
-	}
-	abcdsr = pio->PIO_ABCDSR[0];
-	pio->PIO_ABCDSR[0] = (mask | abcdsr);
-	abcdsr = pio->PIO_ABCDSR[1];
-	pio->PIO_ABCDSR[1] = (mask | abcdsr);
-	pio->PIO_PDR = mask;
-}
-
-/**
- * \brief Configures one or more pin(s) or a PIO controller as
- * inputs. Optionally, the corresponding internal pull-up(s) and
- * glitch filter(s) can be enabled.
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask indicating which pin(s) to configure as input(s).
- * \param enablePullUp  Indicates if the internal pull-up(s) must be enabled.
- * \param enableFilter  Indicates if the glitch filter(s) must be enabled.
- */
-static void pio_set_input(Pio * pio, uint32_t mask, uint8_t attribute)
-{
-	/* Disable interrupts */
-	pio->PIO_IDR = mask;
-	/* Enable pull-up(s) if necessary */
-	if (attribute & PIO_PULLUP) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		pio->PIO_PUDR = mask;
-	}
-	/* Enable Input Filter if necessary */
-	if (attribute & (PIO_DEGLITCH | PIO_DEBOUNCE))
-		pio->PIO_IFER = mask;
+	if (group == PIO_GROUP_A)
+		id = ID_PIOA;
+	else if (group == PIO_GROUP_B)
+		id = ID_PIOB;
+	else if (group == PIO_GROUP_C)
+		id = ID_PIOC;
+	else if (group == PIO_GROUP_D)
+		id = ID_PIOD;
+	else if (group == PIO_GROUP_E)
+		id = ID_PIOE;
 	else
-		pio->PIO_IFDR = mask;
-	/* Enable de-glitch or de-bounce if necessary */
-	if (attribute & PIO_DEGLITCH) {
-		pio->PIO_IFSCDR = mask;
-	} else if (attribute & PIO_DEBOUNCE) {
-		pio->PIO_IFSCER = mask;
-	}
-	/* Configure pin as input */
-	pio->PIO_ODR = mask;
-	pio->PIO_PER = mask;
-}
-
-/**
- * \brief Configures one or more pin(s) of a PIO controller as outputs, with the
- * given default value. Optionally, the multi-drive feature can be enabled
- * on the pin(s).
- *
- * \param pio  Pointer to a PIO controller.
- * \param mask  Bitmask indicating which pin(s) to configure.
- * \param defaultValue  Default level on the pin(s).
- * \param enableMultiDrive  Indicates if the pin(s) shall be configured as
- *                          open-drain.
- * \param enablePullUp  Indicates if the pin shall have its pull-up activated.
- */
-static void pio_set_output(Pio * pio, uint32_t mask, uint8_t defaultValue,
-			   uint8_t enableMultiDrive, uint8_t enablePullUp)
-{
-	/* Disable interrupts */
-	pio->PIO_IDR = mask;
-
-	/* Enable pull-up(s) if necessary */
-	if (enablePullUp) {
-		pio->PIO_PPDDR = mask;
-		pio->PIO_PUER = mask;
-	} else {
-		pio->PIO_PUDR = mask;
-	}
-	/* Enable multi-drive if necessary */
-	if (enableMultiDrive) {
-		pio->PIO_MDER = mask;
-	} else {
-
-		pio->PIO_MDDR = mask;
-	}
-	/* Set default value */
-	if (defaultValue) {
-
-		pio->PIO_SODR = mask;
-	} else {
-
-		pio->PIO_CODR = mask;
-	}
-	/* Configure pin(s) as output(s) */
-	pio->PIO_OER = mask;
-	pio->PIO_PER = mask;
+		trace_fatal("Invalid PIO group!");
+	return id;
 }
 
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-uint8_t pio_configure(const struct _pin *list, uint32_t size)
+uint8_t pio_configure(const struct _pin *pin, uint32_t size)
 {
-	/* Configure pins */
-	while (size > 0) {
-		Pio* pio = _pio_get_instance(list->group);
-		switch (list->type) {
+	Pio* pio = NULL;
+
+	for ( ; size != 0; size--, pin++) {
+		pio = _pio_get_instance(pin->group);
+		assert(pio);
+
+		/* Disable interrupts */
+		pio->PIO_IDR = pin->mask;
+		/* The PIO input logic requires the peripheral clock */
+		if (pin->type == PIO_INPUT)
+			pmc_enable_peripheral(pin->group);
+		/* Enable pull-up or pull-down resistors as requested */
+		if (pin->attribute & PIO_PULLDOWN) {
+			pio->PIO_PUDR = pin->mask;
+			pio->PIO_PPDER = pin->mask;
+		} else if (pin->attribute & PIO_PULLUP) {
+			pio->PIO_PPDDR = pin->mask;
+			pio->PIO_PUER = pin->mask;
+		} else {
+			pio->PIO_PUDR = pin->mask;
+			pio->PIO_PPDDR = pin->mask;
+		}
+		/* Select push-pull or multi-driver (open-drain) output stage */
+		if (pin->attribute & PIO_OPENDRAIN)
+			pio->PIO_MDER = pin->mask;
+		else
+			pio->PIO_MDDR = pin->mask;
+		/* Enable the input filter if requested */
+		if (pin->attribute & (PIO_DEGLITCH | PIO_DEBOUNCE))
+			pio->PIO_IFER = pin->mask;
+		else
+			pio->PIO_IFDR = pin->mask;
+		/* The de-bounce input filter depends on the slow clock */
+		if (pin->attribute & PIO_DEBOUNCE)
+			pio->PIO_IFSCER = pin->mask;
+		else
+			pio->PIO_IFSCDR = pin->mask;
+
+		switch (pin->type) {
 
 		case PIO_PERIPH_A:
-			pio_set_peripheralA(pio, list->mask,
-					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+			/* Give control of the pin(s) to the specified
+			 * peripheral */
+			pio->PIO_ABCDSR[0] &= ~pin->mask;
+			pio->PIO_ABCDSR[1] &= ~pin->mask;
+			pio->PIO_PDR = pin->mask;
 			break;
 
 		case PIO_PERIPH_B:
-			pio_set_peripheralB(pio, list->mask,
-					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+			pio->PIO_ABCDSR[0] |= pin->mask;
+			pio->PIO_ABCDSR[1] &= ~pin->mask;
+			pio->PIO_PDR = pin->mask;
 			break;
 
 		case PIO_PERIPH_C:
-			pio_set_peripheralC(pio, list->mask,
-					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+			pio->PIO_ABCDSR[0] &= ~pin->mask;
+			pio->PIO_ABCDSR[1] |= pin->mask;
+			pio->PIO_PDR = pin->mask;
 			break;
 
 		case PIO_PERIPH_D:
-			pio_set_peripheralD(pio, list->mask,
-					   (list->attribute & PIO_PULLUP) ? 1 : 0);
+			pio->PIO_ABCDSR[0] |= pin->mask;
+			pio->PIO_ABCDSR[1] |= pin->mask;
+			pio->PIO_PDR = pin->mask;
 			break;
+
 		case PIO_INPUT:
-			pmc_enable_peripheral(list->group);
-			pio_set_input(pio, list->mask, list->attribute);
+			/* Give control of the pin(s) to the PIO (vs to the
+			 * peripheral), and disable the output stage */
+			pio->PIO_ODR = pin->mask;
+			pio->PIO_PER = pin->mask;
 			break;
 
 		case PIO_OUTPUT_0:
 		case PIO_OUTPUT_1:
-			pio_set_output(pio, list->mask,
-				      (list->type == PIO_OUTPUT_1),
-				      (list->attribute & PIO_OPENDRAIN) ? 1 : 0,
-				      (list->attribute & PIO_PULLUP) ? 1 : 0);
+			/* Select the logic level to be driven */
+			if (pin->type == PIO_OUTPUT_1)
+				pio->PIO_SODR = pin->mask;
+			else
+				pio->PIO_CODR = pin->mask;
+			/* Give control of the pin(s) to the PIO (vs to the
+			 * peripheral), and enable the output stage */
+			pio->PIO_OER = pin->mask;
+			pio->PIO_PER = pin->mask;
 			break;
 
 		default:
 			return 0;
 		}
-		list++;
-		size--;
 	}
 	return 1;
 }
