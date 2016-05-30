@@ -32,8 +32,6 @@ TOP := ../..
 
 BINNAME = usb_cdc_serial
 
-CFLAGS_OPT = -O0
-
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_CDC = y
 
