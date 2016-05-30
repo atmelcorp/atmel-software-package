@@ -27,15 +27,11 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the GMAC UIP Webserver example
-AVAILABLE_VARIANTS = ddram
-
 TOP := ../..
 
 CONFIG_HAVE_GMAC = y
 
 BINNAME = gmac_uip_webserver
-
-VARIANT ?= ddram
 
 CONFIG_LIB_UIP = y
 CONFIG_LIB_UIP_WEBSERVER = y

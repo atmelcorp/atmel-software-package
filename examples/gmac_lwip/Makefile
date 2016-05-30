@@ -27,11 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the GMAC LWIP example
-AVAILABLE_VARIANTS = ddram
-
 TOP := ../..
-
-VARIANT ?= ddram
 
 CONFIG_HAVE_GMAC = y
 
