@@ -34,6 +34,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "compiler.h"
 
 #include "nand_flash_spare_scheme.h"
 
@@ -44,133 +45,123 @@
  *        Exported variables
  *----------------------------------------------------------------------------*/
 
+static const uint8_t nand_spare_scheme256_ecc_bytes_pos[] = {
+	0, 1, 2
+};
+
+static const uint8_t nand_spare_scheme256_extra_bytes_pos[] = {
+	3, 4, 6, 7
+};
+
 /** Spare area placement scheme for 256 byte pages. */
 const struct _nand_spare_scheme nand_spare_scheme256 = {
+	.bad_block_marker_position = 5,
+	.num_ecc_bytes = ARRAY_SIZE(nand_spare_scheme256_ecc_bytes_pos),
+	.ecc_bytes_positions = nand_spare_scheme256_ecc_bytes_pos,
+	.num_extra_bytes = ARRAY_SIZE(nand_spare_scheme256_extra_bytes_pos),
+	.extra_bytes_positions = nand_spare_scheme256_extra_bytes_pos,
+};
 
-	/** Bad block marker is at position #5 */
-	5,
-	/** 3 ECC bytes */
-	3,
-	/** ECC bytes positions */
-	{
-		0, 1, 2
-	},
-	/** 4 extra bytes */
-	4,
-	/** Extra bytes positions */
-	{
-		3, 4, 6, 7
-	}
+static const uint8_t nand_spare_scheme512_ecc_bytes_pos[] = {
+	0, 1, 2, 3, 6, 7
+};
+
+static const uint8_t nand_spare_scheme512_extra_bytes_pos[] = {
+	8, 9, 10, 11, 12, 13, 14, 15
 };
 
 /** Spare area placement scheme for 512 byte pages. */
 const struct _nand_spare_scheme nand_spare_scheme512 = {
+	.bad_block_marker_position = 5,
+	.num_ecc_bytes = ARRAY_SIZE(nand_spare_scheme512_ecc_bytes_pos),
+	.ecc_bytes_positions = nand_spare_scheme512_ecc_bytes_pos,
+	.num_extra_bytes = ARRAY_SIZE(nand_spare_scheme512_extra_bytes_pos),
+	.extra_bytes_positions = nand_spare_scheme512_extra_bytes_pos,
+};
 
-	/** Bad block marker is at position #5 */
-	5,
-	/** 6 ECC bytes */
-	6,
-	/** ECC bytes positions */
-	{
-		0, 1, 2, 3, 6, 7
-	},
-	/** 8 extra bytes */
-	8,
-	/** Extra bytes positions */
-	{
-		8, 9, 10, 11, 12, 13, 14, 15
-	}
+static const uint8_t nand_spare_scheme2048_ecc_bytes_pos[] = {
+	40, 41, 42, 43, 44, 45, 46, 47,
+	48, 49, 50, 51, 52, 53, 54, 55,
+	56, 57, 58, 59, 60, 61, 62, 63
+};
+
+static const uint8_t nand_spare_scheme2048_extra_bytes_pos[] = {
+	2,  3,  4,  5,  6,  7,  8,  9,
+	10, 11, 12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23, 24, 25,
+	26, 27, 28, 29, 30, 31, 32, 33,
+	34, 35, 36, 37, 38, 39
 };
 
 /** Spare area placement scheme for 2048 byte pages. */
 const struct _nand_spare_scheme nand_spare_scheme2048 = {
+	.bad_block_marker_position = 0,
+	.num_ecc_bytes = ARRAY_SIZE(nand_spare_scheme2048_ecc_bytes_pos),
+	.ecc_bytes_positions = nand_spare_scheme2048_ecc_bytes_pos,
+	.num_extra_bytes = ARRAY_SIZE(nand_spare_scheme2048_extra_bytes_pos),
+	.extra_bytes_positions = nand_spare_scheme2048_extra_bytes_pos,
+};
 
-	/** Bad block marker is at position #0 */
-	0,
-	/** 24 ECC bytes */
-	24,
-	/** ECC bytes positions */
-	{
-		40, 41, 42, 43, 44, 45, 46, 47,
-		48, 49, 50, 51, 52, 53, 54, 55,
-		56, 57, 58, 59, 60, 61, 62, 63
-	},
-	// 38 extra bytes
-	38,
-	/** Extra bytes positions */
-	{
-		2,  3,  4,  5,  6,  7,  8,  9,
-		10, 11, 12, 13, 14, 15, 16, 17,
-		18, 19, 20, 21, 22, 23, 24, 25,
-		26, 27, 28, 29, 30, 31, 32, 33,
-		34, 35, 36, 37, 38, 39
-	}
+static const uint8_t nand_spare_scheme4096_ecc_bytes_pos[] = {
+	80,  81,  82,  83,  84,  85,  86,  87,
+	88,  89,  90,  91,  92,  93,  94,  95,
+	96,  97,  98,  99,  100, 101, 102, 103,
+	104, 105, 106, 107, 108, 109, 110, 111,
+	112, 113, 114, 115, 116, 117, 118, 119,
+	120, 121, 122, 123, 124, 125, 126, 127
+};
+
+static const uint8_t nand_spare_scheme4096_extra_bytes_pos[] = {
+	2,  3,  4,  5,  6,  7,  8,  9,
+	10, 11, 12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23, 24, 25,
+	26, 27, 28, 29, 30, 31, 32, 33,
+	34, 35, 36, 37, 38, 39, 40, 41,
+	42, 43, 44, 45, 46, 47, 48, 49,
+	50, 51, 52, 53, 54, 55, 56, 57,
+	58, 59, 60, 61, 62, 63, 64, 65,
+	66, 67, 68, 69, 70, 71, 72, 73,
+	74, 75, 76, 77, 78, 79
 };
 
 /** Spare area placement scheme for 4096 byte pages. */
 const struct _nand_spare_scheme nand_spare_scheme4096 = {
-
-	/** Bad block marker is at position #0 */
-	0,
-	// 48 ECC bytes
-	48,
-	/** ECC bytes positions */
-	{
-		80,  81,  82,  83,  84,  85,  86,  87,
-		88,  89,  90,  91,  92,  93,  94,  95,
-		96,  97,  98,  99,  100, 101, 102, 103,
-		104, 105, 106, 107, 108, 109, 110, 111,
-		112, 113, 114, 115, 116, 117, 118, 119,
-		120, 121, 122, 123, 124, 125, 126, 127
-	},
-	/** 78 extra bytes */
-	78,
-	/** Extra bytes positions */
-	{
-		2,  3,  4,  5,  6,  7,  8,  9,
-		10, 11, 12, 13, 14, 15, 16, 17,
-		18, 19, 20, 21, 22, 23, 24, 25,
-		26, 27, 28, 29, 30, 31, 32, 33,
-		34, 35, 36, 37, 38, 39, 40, 41,
-		42, 43, 44, 45, 46, 47, 48, 49,
-		50, 51, 52, 53, 54, 55, 56, 57,
-		58, 59, 60, 61, 62, 63, 64, 65,
-		66, 67, 68, 69, 70, 71, 72, 73,
-		74, 75, 76, 77, 78, 79
-	}
+	.bad_block_marker_position = 0,
+	.num_ecc_bytes = ARRAY_SIZE(nand_spare_scheme4096_ecc_bytes_pos),
+	.ecc_bytes_positions = nand_spare_scheme4096_ecc_bytes_pos,
+	.num_extra_bytes = ARRAY_SIZE(nand_spare_scheme4096_extra_bytes_pos),
+	.extra_bytes_positions = nand_spare_scheme4096_extra_bytes_pos,
 };
 
+static const uint8_t nand_spare_scheme8192_ecc_bytes_pos[] = {
+	80,  81,  82,  83,  84,  85,  86,  87,
+	88,  89,  90,  91,  92,  93,  94,  95,
+	96,  97,  98,  99,  100, 101, 102, 103,
+	104, 105, 106, 107, 108, 109, 110, 111,
+	112, 113, 114, 115, 116, 117, 118, 119,
+	120, 121, 122, 123, 124, 125, 126, 127
+};
+
+static const uint8_t nand_spare_scheme8192_extra_bytes_pos[] = {
+	2,  3,  4,  5,  6,  7,  8,  9,
+	10, 11, 12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23, 24, 25,
+	26, 27, 28, 29, 30, 31, 32, 33,
+	34, 35, 36, 37, 38, 39, 40, 41,
+	42, 43, 44, 45, 46, 47, 48, 49,
+	50, 51, 52, 53, 54, 55, 56, 57,
+	58, 59, 60, 61, 62, 63, 64, 65,
+	66, 67, 68, 69, 70, 71, 72, 73,
+	74, 75, 76, 77, 78, 79
+};
 
 /** Spare area placement scheme for 8192 byte pages. */
 const struct _nand_spare_scheme nand_spare_scheme8192 = {
-	/** Bad block marker is at position #0 */
-	0,
-	/* 56 ecc bytes */
-	48,
-	/** ECC bytes positions */
-	{
-		80,  81,  82,  83,  84,  85,  86,  87,
-		88,  89,  90,  91,  92,  93,  94,  95,
-		96,  97,  98,  99,  100, 101, 102, 103,
-		104, 105, 106, 107, 108, 109, 110, 111,
-		112, 113, 114, 115, 116, 117, 118, 119,
-		120, 121, 122, 123, 124, 125, 126, 127
-	},
-	/** 78 extra bytes */
-	78,
-	/** Extra bytes positions */
-	{
-		2,  3,  4,  5,  6,  7,  8,  9,
-		10, 11, 12, 13, 14, 15, 16, 17,
-		18, 19, 20, 21, 22, 23, 24, 25,
-		26, 27, 28, 29, 30, 31, 32, 33,
-		34, 35, 36, 37, 38, 39, 40, 41,
-		42, 43, 44, 45, 46, 47, 48, 49,
-		50, 51, 52, 53, 54, 55, 56, 57,
-		58, 59, 60, 61, 62, 63, 64, 65,
-		66, 67, 68, 69, 70, 71, 72, 73,
-		74, 75, 76, 77, 78, 79
-	}
+	.bad_block_marker_position = 0,
+	.num_ecc_bytes = ARRAY_SIZE(nand_spare_scheme8192_ecc_bytes_pos),
+	.ecc_bytes_positions = nand_spare_scheme8192_ecc_bytes_pos,
+	.num_extra_bytes = ARRAY_SIZE(nand_spare_scheme8192_extra_bytes_pos),
+	.extra_bytes_positions = nand_spare_scheme8192_extra_bytes_pos,
 };
 
 /*----------------------------------------------------------------------------
@@ -281,33 +272,3 @@ void nand_spare_scheme_write_extra( const struct _nand_spare_scheme *scheme,
 			((uint8_t*)extra)[i];
 	}
 }
-
-/**
- * \brief Build a scheme instance for 4096 page size NANDFLASH
- * \param scheme  Pointer to a _nand_spare_scheme instance.
- * \param spare_size Size of spare area.
- * \param ecc_offset  Index where to write the first extra byte.
- * \return 0 if successful; otherwise returns an error code.
-*/
-uint8_t nand_spare_scheme_build_4096(struct _nand_spare_scheme *scheme,
-		uint16_t spare_size, uint8_t ecc_offset)
-{
-	uint8_t num_ecc_bytes = nand_spare_scheme4096.num_ecc_bytes;
-	uint16_t i;
-
-	if ((ecc_offset + num_ecc_bytes) > spare_size)
-		return 1;
-
-	scheme->bad_block_marker_position =
-		nand_spare_scheme4096.bad_block_marker_position;
-
-	scheme->num_ecc_bytes = num_ecc_bytes;
-	for (i = 0; i < num_ecc_bytes; i++)
-		scheme->ecc_bytes_positions[i] = ecc_offset + i;
-
-	scheme->num_extra_bytes = spare_size - num_ecc_bytes - 2;
-	for (i = 0; i < scheme->num_extra_bytes ; i++)
-		scheme->extra_bytes_positions[i] = 2 + i;
-
-	return 0;
-};

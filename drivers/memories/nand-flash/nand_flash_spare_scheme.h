@@ -68,9 +68,9 @@
 struct _nand_spare_scheme {
 	uint8_t bad_block_marker_position;
 	uint8_t num_ecc_bytes;
-	uint8_t ecc_bytes_positions[NAND_MAX_SPARE_ECC_BYTES];
+	const uint8_t *ecc_bytes_positions;
 	uint8_t num_extra_bytes;
-	uint8_t extra_bytes_positions[NAND_MAX_SPARE_EXTRA_BYTES];
+	const uint8_t *extra_bytes_positions;
 };
 
 /*------------------------------------------------------------------------------ */
@@ -120,10 +120,5 @@ extern void nand_spare_scheme_write_extra(
 		const void *extra,
 		uint8_t size,
 		uint8_t offset);
-
-extern uint8_t nand_spare_scheme_build_4096(
-		struct _nand_spare_scheme *scheme,
-		uint16_t spare_size,
-		uint8_t ecc_offset);
 
 #endif /* NAND_FLASH_SPARE_SCHEME_H */
