@@ -37,11 +37,14 @@
  *------------------------------------------------------------------------------*/
 
 #include "trace.h"
+#include "misc/cache.h"
 
 #include "usb/device/hid/hidd_function.h"
 #include "usb/device/hid/hidd_mouse_driver.h"
 #include "usb/device/usbd_driver.h"
 #include "usb/device/usbd.h"
+
+#include <string.h>
 
 /*------------------------------------------------------------------------------
  *         Internal Defines
@@ -111,7 +114,7 @@ typedef struct _HIDDMouseDriver {
 static HIDDMouseDriver hidd_mouse_driver;
 
 /** Input report */
-static HIDDMouseReport hidd_input_report;
+CACHE_ALIGNED static HIDDMouseReport hidd_input_report;
 
 /** Report descriptor used by the driver. */
 static const uint8_t hidd_report_descriptor[] = {
@@ -170,6 +173,7 @@ void hidd_mouse_driver_initialize(const USBDDriverDescriptors *descriptors)
 	p_mouse->inputReports[0] = (HIDDReport*)&hidd_input_report;
 	hidd_function_initialize_report(p_mouse->inputReports[0],
 			HIDDMouseDriver_REPORTDESCRIPTORSIZE, 0, 0, 0);
+	memset(&hidd_input_report.report, 0, sizeof hidd_input_report.report);
 
 	/* Initialize USBD Driver instance */
 	usbd_driver_initialize(descriptors, 0);

@@ -144,6 +144,7 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "peripherals/aic.h"
@@ -188,9 +189,9 @@ extern const USBDDriverDescriptors dual_cdcd_driver_descriptors;
  *---------------------------------------------------------------------------*/
 
 /** Buffer for storing incoming USB data for serial port 0. */
-ALIGNED(L1_CACHE_BYTES) static uint8_t usb_serial_buffer0[DATABUFFERSIZE];
+CACHE_ALIGNED static uint8_t usb_serial_buffer0[DATABUFFERSIZE];
 /** Buffer for storing incoming USB data for serial port 1. */
-ALIGNED(L1_CACHE_BYTES) static uint8_t usb_serial_buffer1[DATABUFFERSIZE];
+CACHE_ALIGNED static uint8_t usb_serial_buffer1[DATABUFFERSIZE];
 
 /** Usart openned */
 static uint8_t is_usart_on = 0;

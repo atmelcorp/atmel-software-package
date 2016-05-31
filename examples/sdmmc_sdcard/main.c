@@ -139,7 +139,7 @@
 #  define DMADL_CNT_MAX               512u
 #else
 #  define BLOCK_CNT_MAX               24u
-#  define DMADL_CNT_MAX               1u
+#  define DMADL_CNT_MAX               4u
 #endif
 
 #define BLOCK_CNT                     3u
@@ -192,21 +192,26 @@ static struct hsmci_set drv1 = { 0 };
 
 /* Library instance data (a.k.a. SDCard driver instance) */
 #if USE_EXT_RAM
-SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
 #endif
-ALIGNED(L1_CACHE_BYTES) static sSdCard lib0 = { .pDrv = 0 };
+static sSdCard lib0;
 #if USE_EXT_RAM
-SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
 #endif
-ALIGNED(L1_CACHE_BYTES) static sSdCard lib1 = { .pDrv = 0 };
+static sSdCard lib1;
 
 /* Buffer dedicated to the driver, refer to the driver API. Aligning it on
  * cache lines is optional. */
 #ifdef CONFIG_HAVE_SDMMC
-#  if USE_EXT_RAM
-SECTION(".region_ddr")
-#  endif
-ALIGNED(L1_CACHE_BYTES)
+#if USE_EXT_RAM
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
+#endif
 static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 #endif
 
@@ -220,10 +225,11 @@ static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
  * Alternatively, we might consider allocating this buffer from a
  * non-cacheable memory region. */
 #if USE_EXT_RAM
-SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
 #endif
-ALIGNED(L1_CACHE_BYTES) static uint8_t data_buf[
-    ROUND_UP_MULT(BLOCK_CNT_MAX * 512ul, (unsigned long)L1_CACHE_BYTES)];
+static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
 
 /* File system object.
  * Similarly to the main data buffer above, we need to align FATFS::win[] on
@@ -232,18 +238,22 @@ ALIGNED(L1_CACHE_BYTES) static uint8_t data_buf[
  * packing kept disabled. Proper alignment is checked at runtime, anyway. */
 struct padded_fatfs { uint8_t padding[16]; FATFS fs; };
 #if USE_EXT_RAM
-SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
 #endif
-ALIGNED(L1_CACHE_BYTES) static struct padded_fatfs fs_header;
+static struct padded_fatfs fs_header;
 
 /* File object.
  * Similarly to the main data buffer above, we need to align FIL::buf[] on
  * data cache lines. */
 struct padded_fil { uint8_t padding[28]; FIL file; };
 #if USE_EXT_RAM
-SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
 #endif
-ALIGNED(L1_CACHE_BYTES) static struct padded_fil f_header;
+static struct padded_fil f_header;
 
 static struct sha_set sha = { .count = 0 };
 static uint8_t slot;

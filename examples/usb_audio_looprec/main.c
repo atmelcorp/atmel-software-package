@@ -107,6 +107,7 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "misc/led.h"
 
@@ -132,8 +133,7 @@
 #define BUFFER_NUMBER 8
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerPhoneDriver_BYTESPERFRAME, \
-                L1_CACHE_BYTES)
+#define BUFFER_SIZE  AUDDSpeakerPhoneDriver_BYTESPERFRAME
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -147,8 +147,7 @@ extern const USBDDriverDescriptors audd_speaker_phone_driver_descriptors;
  *----------------------------------------------------------------------------*/
 
 /**  Data buffers for receiving audio frames from the USB host. */
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 
 /**  Next buffer in which USB data can be stored. */
 static volatile uint32_t in_buffer_index = 0;

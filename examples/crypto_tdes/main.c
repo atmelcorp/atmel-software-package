@@ -167,23 +167,19 @@ char example_text[DATA_LEN_INBYTE] = "\
  * between these buffers and the variables placed on a same cache line.
  * Alternatively, we might consider allocating these buffers from a
  * non-cacheable memory region. */
-ALIGNED(L1_CACHE_BYTES)
-static uint32_t msg_in_clear[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
-ALIGNED(L1_CACHE_BYTES)
-static uint32_t msg_encrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
-ALIGNED(L1_CACHE_BYTES)
-static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
+CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
+CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
+CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
 
 static uint32_t algo, op_mode, start_mode, key_mode;
 static volatile bool data_ready = false;
 
 #ifdef CONFIG_HAVE_XDMAC
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
+
 /* DMA linked lists */
-ALIGNED(L1_CACHE_BYTES)
-static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
-ALIGNED(L1_CACHE_BYTES)
-static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
+CACHE_ALIGNED static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
+CACHE_ALIGNED static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
 #endif
 
 /*----------------------------------------------------------------------------

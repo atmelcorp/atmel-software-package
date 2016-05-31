@@ -113,6 +113,7 @@
 #include "trace.h"
 
 #include "memories/at24.h"
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
@@ -179,20 +180,16 @@ static uint8_t _dest_ip[4] = { 192, 168, 1, 2 };
 static struct _gmacd _gmacd;
 
 /** TX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc _tx_desc[TX_BUFFERS];
+ALIGNED(8) NOT_CACHED_DDR static struct _gmac_desc _tx_desc[TX_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc _rx_desc[RX_BUFFERS];
+ALIGNED(8) NOT_CACHED_DDR static struct _gmac_desc _rx_desc[RX_BUFFERS];
 
 /** TX Buffers (must be aligned on a cache line) */
-ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
-static uint8_t _tx_buffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
+CACHE_ALIGNED_DDR static uint8_t _tx_buffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
 
 /** RX Buffers (must be aligned on a cache line) */
-ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
-static uint8_t _rx_buffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
+CACHE_ALIGNED_DDR static uint8_t _rx_buffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
 
 /** Buffer for Ethernet packets */
 static uint8_t _eth_buffer[GMAC_MAX_FRAME_LENGTH];

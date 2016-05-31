@@ -41,12 +41,15 @@
 #include "chip.h"
 #include "compiler.h"
 
+#include "misc/cache.h"
+
 #include "usb/common/msd/msd_descriptors.h"
 #include "usb/device/msd/msd_driver.h"
 #include "usb/device/usbd_driver.h"
 #include "usb/device/usbd.h"
 
 #include <assert.h>
+#include <string.h>
 
 /*-----------------------------------------------------------------------------
  *         Internal Types
@@ -74,7 +77,7 @@ typedef struct _MSDParseData {
  * data would be lost at the time the dirty and shared cache lines were
  * invalidated.
  */
-ALIGNED(L1_CACHE_BYTES) static MSDDriver msd_function;
+CACHE_ALIGNED static MSDDriver msd_function;
 
 /*-----------------------------------------------------------------------------
  *      Internal functions
@@ -164,6 +167,8 @@ void msd_function_initialize(uint8_t bInterfaceNb,
 #endif
 
 	LIBUSB_TRACE("MSDFunInit ");
+
+	memset(&msd_function, 0, sizeof msd_function);
 
 	/* Verify that all fields that may receive data from the DMA are aligned
 	 * on data cache lines.

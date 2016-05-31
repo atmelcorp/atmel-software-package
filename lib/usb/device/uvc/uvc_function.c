@@ -33,6 +33,7 @@
 #include "chip.h"
 
 #include "trace.h"
+#include "misc/cache.h"
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
 #include "usb/device/usbd_driver.h"
@@ -40,36 +41,31 @@
 #include "usb/device/usbd_hal.h"
 #include "usb/device/uvc/uvc_function.h"
 
-/** Pad struct _USBVideoProbeCommitData to a multiple of cache line size */
-union _PaddedUSBVideoProbeCommitData {
-	struct _USBVideoProbeCommitData video_probe_data;
-	uint8_t dummy[ROUND_UP_MULT(sizeof(struct _USBVideoProbeCommitData), L1_CACHE_BYTES)];
-};
+#include <string.h>
 
 /** Probe & Commit Controls */
 
-ALIGNED(L1_CACHE_BYTES)
-static union _PaddedUSBVideoProbeCommitData vidd_probe_data =
+static const struct _USBVideoProbeCommitData vidd_probe_data_init =
 {
-	.video_probe_data = {
-		0, /* bmHint: All parameters fixed: sent by host */
-		0x01,   /* bFormatIndex: Format #1 */
-		0x01,   /* bFrameIndex: Frame #1 */
-		FRAME_INTERVALC(4), /* dwFrameInterval: in 100ns */
-		0, /* wKeyFrameRate: not used */
-		0, /* wPFrameRate: not used */
-		10000, /* wCompQuality: highest */
-		0, /* wCompWindowSize: ?K */
-		100, /* wDelay: Internal VS latency in ms */
-		FRAME_BUFFER_SIZEC(800, 600), /* dwMaxVideoFrameSize: in bytes */
-		FRAME_PACKET_SIZE_FS, /* dwMaxPayloadTransferSize: in bytes */
-		0, /* dwClockFrequency */
-		3, /* bmFramingInfo */
-		0, /* bPreferedVersion */
-		0, /* bMinVersion */
-		0 /* bMaxVersion */
-	}
+	0, /* bmHint: All parameters fixed: sent by host */
+	0x01,   /* bFormatIndex: Format #1 */
+	0x01,   /* bFrameIndex: Frame #1 */
+	FRAME_INTERVALC(4), /* dwFrameInterval: in 100ns */
+	0, /* wKeyFrameRate: not used */
+	0, /* wPFrameRate: not used */
+	10000, /* wCompQuality: highest */
+	0, /* wCompWindowSize: ?K */
+	100, /* wDelay: Internal VS latency in ms */
+	FRAME_BUFFER_SIZEC(800, 600), /* dwMaxVideoFrameSize: in bytes */
+	FRAME_PACKET_SIZE_FS, /* dwMaxPayloadTransferSize: in bytes */
+	0, /* dwClockFrequency */
+	3, /* bmFramingInfo */
+	0, /* bPreferedVersion */
+	0, /* bMinVersion */
+	0 /* bMaxVersion */
 };
+
+CACHE_ALIGNED static struct _USBVideoProbeCommitData vidd_probe_data;
 
 /*-----------------------------------------------------------------------------
  *         Internal variables
@@ -84,10 +80,9 @@ static uint32_t frm_max_pkt_size = FRAME_PACKET_SIZE_HS * (ISO_HIGH_BW_MODE + 1)
 static volatile uint32_t delay;
 
 /** Buffer for USB requests data */
-ALIGNED(L1_CACHE_BYTES) static uint8_t p_control_buffer[64];
+CACHE_ALIGNED static uint8_t p_control_buffer[64];
 
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t p_xfr_buffer[ROUND_UP_MULT((FRAME_PACKET_SIZE_HS * (ISO_HIGH_BW_MODE + 1)), L1_CACHE_BYTES)];
+CACHE_ALIGNED static uint8_t p_header_buffer[FRAME_PACKET_SIZE_HS * (ISO_HIGH_BW_MODE + 1)];
 
 static struct _uvc_driver *uvc_driver;
 
@@ -129,12 +124,13 @@ static void vidd_status_stage(void *arg, uint8_t status,
 {
 	USBVideoProbeData *pProbe = (USBVideoProbeData *)p_control_buffer;
 
-	vidd_probe_data.video_probe_data.bFormatIndex = pProbe->bFormatIndex;
-	vidd_probe_data.video_probe_data.bFrameIndex = pProbe->bFrameIndex;
+	memcpy(&vidd_probe_data, &vidd_probe_data_init, sizeof(vidd_probe_data));
+	vidd_probe_data.bFormatIndex = pProbe->bFormatIndex;
+	vidd_probe_data.bFrameIndex = pProbe->bFrameIndex;
 	if (pProbe->dwFrameInterval > FRAME_INTERVALC(30))
-		vidd_probe_data.video_probe_data.dwFrameInterval = FRAME_INTERVALC(30);
+		vidd_probe_data.dwFrameInterval = FRAME_INTERVALC(30);
 	else
-		vidd_probe_data.video_probe_data.dwFrameInterval = pProbe->dwFrameInterval;
+		vidd_probe_data.dwFrameInterval = pProbe->dwFrameInterval;
 
 	uvc_driver->frm_format = pProbe->bFrameIndex;
 	switch (pProbe->bFrameIndex) {
@@ -282,7 +278,7 @@ void uvc_function_payload_sent(void *arg, uint8_t state,
 		uint32_t transferred, uint32_t remaining)
 {
 	uint32_t pktSize;
-	uint8_t *px = p_xfr_buffer;
+	uint8_t *px = p_header_buffer;
 	uint32_t frmSize = FRAME_BUFFER_SIZEC(frm_width, frm_height);
 	uint8_t *p_video = (uint8_t*)uvc_driver->buf;
 	USBVideoPayloadHeader *p_hdr = (USBVideoPayloadHeader*)px;

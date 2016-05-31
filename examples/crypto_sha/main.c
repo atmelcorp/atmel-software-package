@@ -120,7 +120,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#define DDR_RESERVED_LEN    0x01000000
 #define MSG_MAX_LEN         0x00100000
 #define DMA_DESC_MAX_COUNT  (LEN_MSG_LONG / 4 / 16 + 1)
 
@@ -290,11 +289,8 @@ static const uint32_t ref_digests_224[3][7] = {
 	  0x1948b2ee, 0x4ee7ad67 }
 };
 
-#ifndef VARIANT_DDRAM
-static uint32_t * const message = (uint32_t*)(DDR_CS_ADDR + DDR_RESERVED_LEN);
-#else
-static uint32_t message[MSG_MAX_LEN];
-#endif
+CACHE_ALIGNED_DDR static uint32_t message[MSG_MAX_LEN];
+
 static uint32_t digest[MAX_DIGEST_SIZE_INWORD];
 static uint32_t op_mode, start_mode, block_mode;
 static volatile bool digest_ready = false;
@@ -303,18 +299,15 @@ static volatile bool digest_ready = false;
 /* Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_cfg dma_cfg = { 0 };
 static struct _xdmad_channel *dma_chan = NULL;
+
 /* DMA linked list */
-#ifndef VARIANT_DDRAM
-static struct _xdmad_desc_view1 * const dma_dlist = (struct _xdmad_desc_view1*)
-	(DDR_CS_ADDR + DDR_RESERVED_LEN + MSG_MAX_LEN);
-#else
-static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
-#endif
+CACHE_ALIGNED_DDR static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
 #endif /* CONFIG_HAVE_XDMAC */
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
 #ifdef CONFIG_HAVE_XDMAC
 /**
  * \brief Prepare XDMA channel.

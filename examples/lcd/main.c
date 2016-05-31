@@ -144,40 +144,33 @@
 #define abs(x)  (((x) > 0)?(x):(-(x)))
 
 /** Size of base image buffer */
-#define SIZE_LCD_BUFFER_BASE \
-	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
+#define SIZE_LCD_BUFFER_BASE (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 /** Size of Overlay 1 buffer */
-#define SIZE_LCD_BUFFER_OVR1 \
-	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
+#define SIZE_LCD_BUFFER_OVR1 (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 /** Size of Overlay 2 buffer */
-#define SIZE_LCD_BUFFER_OVR2 \
-	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
+#define SIZE_LCD_BUFFER_OVR2 (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 /** Size of High End Overlay buffer */
-#define SIZE_LCD_BUFFER_HEO \
-	ROUND_UP_MULT((BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4), L1_CACHE_BYTES)
+#define SIZE_LCD_BUFFER_HEO  (BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 4)
 
 /** Width for OVR1 */
-#define OVR1_W      (BOARD_LCD_WIDTH*5/6)
+#define OVR1_W      (BOARD_LCD_WIDTH * 5 / 6)
 /** Height for OVR1 */
-#define OVR1_H      (BOARD_LCD_HEIGHT*5/6)
+#define OVR1_H      (BOARD_LCD_HEIGHT * 5/ 6)
 /** Background color for OVR1 */
 #define OVR1_BG      0xFFFFFF
 /** OVR1 draw step */
 #define OVR1_STEP    15
 
 /** Width for HEO */
-#define HEO_W       (BOARD_LCD_WIDTH*2/3)
+#define HEO_W       (BOARD_LCD_WIDTH * 2 / 3)
 /** Height for HEO */
-#define HEO_H       (BOARD_LCD_HEIGHT*2/3)
+#define HEO_H       (BOARD_LCD_HEIGHT * 2 /3)
 
 /** Number of blocks in vertical */
 #define N_BLK_VERT    4
 /** Number of blocks in horizontal */
 #define N_BLK_HOR     6
 
-/*----------------------------------------------------------------------------
- *        Local constants
- *----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -185,30 +178,19 @@
 
 /** LCD BASE buffer */
 
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
+CACHE_ALIGNED_DDR static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
 /** Overlay 1 buffer */
 
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
+CACHE_ALIGNED_DDR static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
 
 /** Overlay 2 buffer */
 
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
+CACHE_ALIGNED_DDR static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 
 /** High End Overlay buffer */
 
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
-
-/** Pins for LCDC */
-static const struct _pin pins_lcd[] = BOARD_LCD_PINS;
+CACHE_ALIGNED_DDR static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
 
 /** Test pattern source */
 static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {

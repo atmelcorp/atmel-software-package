@@ -40,6 +40,7 @@
 #include "trace.h"
 
 #include "chip.h"
+#include "misc/cache.h"
 #include "usb/common/usb_requests.h"
 #include "usb/common/hid/hid_descriptors.h"
 #include "usb/common/hid/hid_reports.h"
@@ -124,20 +125,16 @@ typedef struct _HIDDKeyboard {
  *------------------------------------------------------------------------------*/
 
 /** HIDD Keyboard Input Report Instance */
-ALIGNED(L1_CACHE_BYTES)
-static KBDInputReport input_report;
+CACHE_ALIGNED static KBDInputReport input_report;
 
 /** HIDD Keyboard Output Report Instance */
-ALIGNED(L1_CACHE_BYTES)
-static KBDOutputReport output_report;
+CACHE_ALIGNED static KBDOutputReport output_report;
 
 /** Static instance of the HIDD keyboard device driver. */
-ALIGNED(L1_CACHE_BYTES)
 static HIDDKeyboard hidd_keyboard;
 
 /** Report descriptor used by the driver. */
-ALIGNED(L1_CACHE_BYTES)
-const uint8_t hidd_keyboard_report_descriptor[] = {
+static const uint8_t hidd_keyboard_report_descriptor[] = {
 
 	HIDReport_GLOBAL_USAGEPAGE + 1, HIDGenericDesktop_PAGEID,
 	HIDReport_LOCAL_USAGE + 1, HIDGenericDesktop_KEYBOARD,
@@ -226,6 +223,7 @@ void hidd_keyboard_initialize(uint8_t bInterfaceNb)
 			0,
 			NULL,
 			NULL);
+	hidd_keyboard_input_report_initialize(&input_report.sReport);
 
 	/* output report */
 	hidd_function_initialize_report((HIDDReport*)&output_report,
@@ -233,6 +231,7 @@ void hidd_keyboard_initialize(uint8_t bInterfaceNb)
 			0,
 			(HIDDReportEventCallback)hidd_keyboard_report_received,
 			NULL);
+	hidd_keyboard_output_report_initialize(&output_report.sReport);
 
 	/* Function initialize */
 	p_keyboard->input_reports[0] = (HIDDReport*)&input_report;

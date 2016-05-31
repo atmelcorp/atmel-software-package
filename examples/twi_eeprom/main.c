@@ -102,6 +102,7 @@
 
 #include "memories/at24.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "memories/at25.h"
@@ -140,8 +141,8 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static const struct _pin at24_pins[] = AT24_PINS;
 
-ALIGNED(L1_CACHE_BYTES) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-ALIGNED(L1_CACHE_BYTES) static uint8_t read_buffer[READ_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 static _parser _cmd_parser;
 static uint32_t cmd_index = 0;

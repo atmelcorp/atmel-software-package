@@ -194,9 +194,7 @@ struct _adc_sample
 };
 
 #ifdef CONFIG_HAVE_XDMAC
-#define _DMA_BUFFER_NUM ROUND_UP_MULT(NUM_CHANNELS * sizeof(uint16_t), L1_CACHE_BYTES) / sizeof(uint16_t)
-ALIGNED(L1_CACHE_BYTES)
-static uint16_t _dma_buffer[_DMA_BUFFER_NUM];
+CACHE_ALIGNED static uint16_t _dma_buffer[NUM_CHANNELS];
 #endif
 
 bool modif_config = false;
@@ -253,7 +251,7 @@ static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
 
 	/* Only keep sample value, discard channel number */
 	int i, j, chan, value;
-	for (i = 0; i < ARRAY_SIZE(_dma_buffer); ++i) {
+	for (i = 0; i < NUM_CHANNELS; ++i) {
 		chan = _dma_buffer[i] >> ADC_LCDR_CHNB_Pos;
 		value = _dma_buffer[i] & ADC_LCDR_LDATA_Msk;
 

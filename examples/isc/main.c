@@ -179,13 +179,9 @@ static const sensor_profile_t *sensor_profiles[6] = {
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = ISC_TWI_PINS;
 
-/** Descriptor view 0 is used when the pixel or data stream is packed */
-ALIGNED(L1_CACHE_BYTES)
-static struct _isc_dma_view0 dma_descs[ROUND_UP_MULT(ROUND_UP_MULT((ISC_MAX_NUM_FRAME_BUFFER + 1) * sizeof(struct _isc_dma_view0), L1_CACHE_BYTES), sizeof(struct _isc_dma_view0)) / sizeof(struct _isc_dma_view0)];
+CACHE_ALIGNED struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
-/** Descriptor view 2 is used for YCbCr planar pixel stream. */
-ALIGNED(L1_CACHE_BYTES)
-static struct _isc_dma_view2 dma_descs2[ROUND_UP_MULT(ROUND_UP_MULT((ISC_MAX_NUM_FRAME_BUFFER + 1) * sizeof(struct _isc_dma_view2), L1_CACHE_BYTES), sizeof(struct _isc_dma_view2)) / sizeof(struct _isc_dma_view2)];
+CACHE_ALIGNED struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {

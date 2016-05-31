@@ -128,19 +128,19 @@
  *----------------------------------------------------------------------------*/
 
 /** DMA Linked List */
-ALIGNED(L1_CACHE_BYTES) static struct _xdmad_desc_view0 xdmad_desc_view0[MAX_LL_SIZE];
-ALIGNED(L1_CACHE_BYTES) static struct _xdmad_desc_view1 xdmad_desc_view1[MAX_LL_SIZE];
-ALIGNED(L1_CACHE_BYTES) static struct _xdmad_desc_view2 xdmad_desc_view2[MAX_LL_SIZE];
-ALIGNED(L1_CACHE_BYTES) static struct _xdmad_desc_view3 xdmad_desc_view3[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmad_desc_view0 xdmad_desc_view0[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmad_desc_view1 xdmad_desc_view1[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmad_desc_view2 xdmad_desc_view2[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmad_desc_view3 xdmad_desc_view3[MAX_LL_SIZE];
 
 /** DMA channel */
 static struct _xdmad_channel *xdmad_channel;
 
 /** Source buffer */
-ALIGNED(L1_CACHE_BYTES) static uint8_t src_buf[BUFFER_LEN];
+CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
 
 /** Destination buffer */
-ALIGNED(L1_CACHE_BYTES) static uint8_t dest_buf[BUFFER_LEN];
+CACHE_ALIGNED static uint8_t dest_buf[BUFFER_LEN];
 
 /* Current Programming DMA mode for Multiple Buffer Transfers */
 static uint8_t dma_mode = 0;

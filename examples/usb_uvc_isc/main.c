@@ -157,10 +157,7 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 const struct _pin pins_twi[] = ISC_TWI_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
-ALIGNED(L1_CACHE_BYTES) static union {
-	struct _isc_dma_view0 view0;
-	uint8_t padding[ROUND_UP_MULT(sizeof(struct _isc_dma_view0), L1_CACHE_BYTES)];
-} dma_desc;
+CACHE_ALIGNED static struct _isc_dma_view0 dma_desc;
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -195,9 +192,7 @@ static const sensor_profile_t *sensor_profiles[6] = {
 };
 
 /** Video buffers */
-ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
-static uint8_t stream_buffers[ROUND_UP_MULT(FRAME_BUFFER_SIZEC(800, 600),
-		L1_CACHE_BYTES)];
+CACHE_ALIGNED_DDR static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(800, 600)];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -221,10 +216,10 @@ static void configure_twi(void)
  */
 static void configure_dma_linklist(void)
 {
-	dma_desc.view0.ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
-	dma_desc.view0.next_desc = (uint32_t)&dma_desc.view0;
-	dma_desc.view0.addr = (uint32_t)stream_buffers;
-	dma_desc.view0.stride = 0;
+	dma_desc.ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
+	dma_desc.next_desc = (uint32_t)&dma_desc;
+	dma_desc.addr = (uint32_t)stream_buffers;
+	dma_desc.stride = 0;
 	cache_clean_region(&dma_desc, sizeof(dma_desc));
 }
 
@@ -276,7 +271,7 @@ static void configure_isc(void)
 	/* Set DAM for 8-bit packaged stream with descriptor view 0 used
 	   for the data stream is packed*/
 	isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
-	isc_dma_configure_desc_entry((uint32_t)&dma_desc.view0);
+	isc_dma_configure_desc_entry((uint32_t)&dma_desc);
 	isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
 	isc_dma_adderss(0, (uint32_t)stream_buffers, 0);
 

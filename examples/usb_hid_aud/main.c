@@ -196,7 +196,7 @@
 /**  Number of available audio buffers. */
 #define BUFFER_NUMBER       (128)
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE     ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME, L1_CACHE_BYTES)
+#define BUFFER_SIZE     AUDDSpeakerDriver_BYTESPERFRAME
 
 /**  Delay in ms for starting the DAC transmission
      after a frame has been received. */
@@ -234,9 +234,7 @@ static uint8_t key_status[NUM_KEYS];
 /*- Audio */
 
 /**  Data buffers for receiving audio frames from the USB host. */
-ALIGNED(L1_CACHE_BYTES)
-SECTION(".region_ddr")
-static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 /**  Number of samples stored in each data buffer. */
 static uint32_t buffer_sizes[BUFFER_NUMBER];
 /**  Next buffer in which USB data can be stored. */

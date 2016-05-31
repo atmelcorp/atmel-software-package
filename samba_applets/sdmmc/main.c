@@ -98,7 +98,7 @@ static uint32_t mem_size;
 static struct sdmmc_set drv = { 0 };
 
 /* Library instance data (a.k.a. SDCard driver instance) */
-ALIGNED(L1_CACHE_BYTES) static sSdCard lib = { .pDrv = 0 };
+CACHE_ALIGNED static sSdCard lib;
 
 /*----------------------------------------------------------------------------
  *         Local functions

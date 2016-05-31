@@ -119,6 +119,7 @@
 
 #include "compiler.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include <string.h>
@@ -148,9 +149,7 @@
  *----------------------------------------------------------------------------*/
 static uint32_t _start_tick;
 
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint16_t _sound_buffer[ROUND_UP_MULT(SAMPLE_COUNT * sizeof(uint16_t), L1_CACHE_BYTES)];
+CACHE_ALIGNED_DDR static uint16_t _sound_buffer[SAMPLE_COUNT];
 
 static volatile bool _sound_recorded = false;
 

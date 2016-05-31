@@ -136,24 +136,18 @@
 #define BITS_BY_SLOT            (16)
 
 /** DMA Descriptor */
-#define TOTAL_BUFFERS \
-	ROUND_UP_MULT( \
-		ROUND_UP_MULT(10 * sizeof(struct _xdmad_desc_view1), L1_CACHE_BYTES), \
-		sizeof(struct _xdmad_desc_view1)) / sizeof(struct _xdmad_desc_view1)
+#define TOTAL_BUFFERS            10
 
 #define DMA_TRANSFER_LEN    (0xFFFF)
 
-#define AUDIO_BUFFER_LEN \
-	ROUND_UP_MULT( \
-		TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8), L1_CACHE_BYTES)
+#define AUDIO_BUFFER_LEN    TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8)
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
 /* Audio buffer */
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) uint16_t audio_buffer[AUDIO_BUFFER_LEN];
+CACHE_ALIGNED_DDR uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
 /** List of pins to configure. */
 static const struct _pin pins_twi[] = PINS_TWI0;
@@ -166,11 +160,8 @@ static struct _xdmad_channel *ssc_dma_rx_channel;
 /** DMA channel for TX */
 static struct _xdmad_channel *ssc_dma_tx_channel;
 
-ALIGNED(L1_CACHE_BYTES) 
-static struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
-
-ALIGNED(L1_CACHE_BYTES) 
-static struct _xdmad_desc_view1 dma_read_link_list[TOTAL_BUFFERS];
+CACHE_ALIGNED struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
+CACHE_ALIGNED struct _xdmad_desc_view1 dma_read_link_list[TOTAL_BUFFERS];
 
 /** Twi instance*/
 static struct _twi_desc wm8904_twid = {

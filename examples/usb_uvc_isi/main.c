@@ -149,11 +149,7 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 /** PIO pins to configured for ISI */
 const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
 
-/** ISI frame buffer descriptor */
-ALIGNED(L1_CACHE_BYTES) union {
-	struct _isi_dma_desc preview_path;
-	uint8_t padding[ROUND_UP_MULT(sizeof(struct _isi_dma_desc), L1_CACHE_BYTES)];
-} fb_desc;
+CACHE_ALIGNED static struct _isi_dma_desc preview_path_desc;
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -187,9 +183,7 @@ static const sensor_profile_t *sensor_profiles[6] = {
 };
 
 /** Video buffers */
-ALIGNED(L1_CACHE_BYTES) SECTION(".region_ddr")
-static uint8_t stream_buffers[ROUND_UP_MULT(FRAME_BUFFER_SIZEC(800, 600),
-		L1_CACHE_BYTES)];
+CACHE_ALIGNED_DDR static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(800, 600)];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -213,10 +207,10 @@ static void configure_twi(void)
  */
 static void configure_dma_linklist(void)
 {
-	fb_desc.preview_path.address = (uint32_t)stream_buffers;
-	fb_desc.preview_path.control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
-	fb_desc.preview_path.next = (uint32_t)&fb_desc.preview_path;
-	cache_clean_region(&fb_desc, sizeof(fb_desc));
+	preview_path_desc.address = (uint32_t)stream_buffers;
+	preview_path_desc.control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
+	preview_path_desc.next = (uint32_t)&preview_path_desc;
+	cache_clean_region(&preview_path_desc, sizeof(preview_path_desc));
 }
 
 /**
@@ -239,7 +233,7 @@ static void configure_isi(void)
 	isi_rgb_pixel_mapping(ISI_CFG2_RGB_CFG_MODE3);
 	isi_ycrcb_format(ISI_CFG2_YCC_SWAP_MODE3);
 	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)&fb_desc.preview_path,
+	isi_set_dma_preview_path((uint32_t)&preview_path_desc,
 			ISI_DMA_P_CTRL_P_FETCH, (uint32_t)stream_buffers);
 	isi_reset();
 	isi_disable_interrupt(-1);

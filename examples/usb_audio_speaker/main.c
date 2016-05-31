@@ -111,6 +111,7 @@
 #include "compiler.h"
 #include "mutex.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "misc/led.h"
 
@@ -144,7 +145,7 @@
 #define BUFFER_NUMBER (128)
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE   ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME, L1_CACHE_BYTES)
+#define BUFFER_SIZE   AUDDSpeakerDriver_BYTESPERFRAME
 
 /**  Delay (in number of buffers) before starting the DAC transmission
      after data has been received. */
@@ -163,8 +164,7 @@ extern const USBDDriverDescriptors audd_speaker_driver_descriptors;
  *----------------------------------------------------------------------------*/
 
 /**  Data buffers for receiving audio frames from the USB host. */
-ALIGNED(L1_CACHE_BYTES) 
-static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
 
 /**  Number of samples stored in each data buffer. */
 static uint32_t buffer_sizes[BUFFER_NUMBER];

@@ -123,6 +123,7 @@
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 #include "misc/led.h"
 
@@ -153,11 +154,9 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-ALIGNED(L1_CACHE_BYTES) 
-uint8_t  in_buffer[BUFFER_SIZE];
-ALIGNED(L1_CACHE_BYTES) 
-uint8_t  out_buffer[BUFFER_SIZE] = {0x80};
 
+CACHE_ALIGNED uint8_t in_buffer[BUFFER_SIZE];
+CACHE_ALIGNED uint8_t out_buffer[BUFFER_SIZE];
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -304,6 +303,8 @@ int main( void )
 
 	/* connect if needed */
 	usb_vbus_configure();
+
+	memset(out_buffer, 0x80, sizeof out_buffer);
 
 	/* Infinite loop */
 	while (1) {

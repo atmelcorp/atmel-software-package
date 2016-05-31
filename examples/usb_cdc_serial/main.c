@@ -115,6 +115,7 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "peripherals/aic.h"
@@ -185,8 +186,7 @@ extern const USBDDriverDescriptors cdcd_serial_driver_descriptors;
 static const struct _pin usart_pins[] = USART_PINS;
 
 /** Buffer for storing incoming USB data. */
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t usb_buffer[DATABUFFERSIZE];
+CACHE_ALIGNED static uint8_t usb_buffer[DATABUFFERSIZE];
 
 /** Serial Port ON/OFF */
 static uint8_t is_cdc_serial_on = 0;
@@ -197,8 +197,7 @@ static uint8_t is_cdc_echo_on = 0;
 /** USB Tx flag */
 static volatile uint8_t tx_done_flag = 0;
 /** Test buffer */
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t test_buffer[TEST_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t test_buffer[TEST_BUFFER_SIZE];
 
 static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,

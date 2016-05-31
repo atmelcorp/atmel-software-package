@@ -39,6 +39,7 @@
 #include "trace.h"
 
 #include "chip.h"
+#include "misc/cache.h"
 #include "usb/common/usb_requests.h"
 #include "usb/common/hid/hid_descriptors.h"
 #include "usb/device/hid/hidd_function.h"
@@ -122,13 +123,13 @@ typedef struct _HIDDTransferDriver {
  *------------------------------------------------------------------------------*/
 
 /** Input report buffers */
-ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport input_report;
+CACHE_ALIGNED static HIDDTransferReport input_report;
 
 /** Output report buffers */
-ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport output_report;
+CACHE_ALIGNED static HIDDTransferReport output_report;
 
 /** Feature report buffers */
-ALIGNED(L1_CACHE_BYTES) static HIDDTransferReport feature_report;
+CACHE_ALIGNED static HIDDTransferReport feature_report;
 
 /** Static instance of the HID Transfer device driver. */
 static HIDDTransferDriver hidd_transfer_driver;
@@ -312,16 +313,19 @@ void hidd_transfer_driver_initialize(const USBDDriverDescriptors *descriptors)
 	p_drv->inputReports[0] = (HIDDReport*)&input_report;
 	hidd_function_initialize_report((HIDDReport *)p_drv->inputReports[0],
 			HIDDTransferDriver_REPORTSIZE, 0, 0, 0);
+	memset(&input_report.bData, 0, sizeof input_report.bData);
 
 	/* One output report */
 	p_drv->outputReports[0] = (HIDDReport*)&output_report;
 	hidd_function_initialize_report((HIDDReport *)p_drv->outputReports[0],
 			HIDDTransferDriver_REPORTSIZE, 0, 0, 0); 
+	memset(&output_report.bData, 0, sizeof output_report.bData);
 
 	/* One feature report */
 	p_drv->featureReports[0] = (HIDDReport*)&feature_report;
 	hidd_function_initialize_report((HIDDReport *)p_drv->featureReports[0],
 			HIDDTransferDriver_REPORTSIZE, 0, 0, 0);
+	memset(&feature_report.bData, 0, sizeof feature_report.bData);
 
 	/* Initialize USBD Driver instance */
 	usbd_driver_initialize(descriptors, 0);

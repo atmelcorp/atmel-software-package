@@ -101,6 +101,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include <stdio.h>
@@ -119,9 +120,9 @@
 
 static const struct _pin usart_pins[] = EXAMPLE_USART_PINS;
 
-ALIGNED(L1_CACHE_BYTES)
-static const char test_data [] = "-- Write FIFO test PADDING PADDING PADDING \
-PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING -- \r\n";
+CACHE_ALIGNED_CONST static const char test_data [] = "-- Write FIFO test PADDING \
+PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING PADDING \
+PADDING PADDING -- \r\n";
 
 /** Usart Echo back ON/OFF */
 static volatile uint8_t is_usart_echo_on = 0;

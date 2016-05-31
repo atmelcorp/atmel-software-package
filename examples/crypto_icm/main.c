@@ -101,6 +101,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -111,6 +112,8 @@
 #define ID_REGION3      0x08
 
 #define HASH_REGION1_OFFSET 8
+
+#define MSG_LEN_WORDS   16
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -121,21 +124,25 @@ ALIGNED(128) static uint32_t hash_addr[64];
     the data structure (64 bytes).*/
 ALIGNED(64) static struct _icm_region_desc mainlist[4];
 
-/* 512 bits Message Memory Mapping for region 0 sha1 */
-static uint32_t message_region0_sha1[] =
+static const uint32_t message_ref0[MSG_LEN_WORDS] =
 	{ 0x11111111, 0x22222222, 0x33333333, 0x44444444,
 	  0x55555555, 0x66666666, 0x77777777, 0x88888888,
 	  0x99999999, 0xaaaaaaaa, 0xbbbbbbbb, 0xcccccccc,
 	  0xdddddddd, 0xeeeeeeee, 0xffffffff, 0x00000000
 	};
 
-/* 512 bits Message Memory Mapping for region 1 sha1 */
-static uint32_t message_region1_sha1[] =
+/* 512 bits Message Memory Mapping for region 0 sha1 */
+CACHE_ALIGNED static uint32_t message_region0_sha1[MSG_LEN_WORDS];
+
+static const uint32_t message_ref1[MSG_LEN_WORDS] =
 	{ 0x80636261, 0x00000000, 0x00000000, 0x00000000,
 	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	  0x00000000, 0x00000000, 0x00000000, 0x18000000
 	};
+
+/* 512 bits Message Memory Mapping for region 1 sha1 */
+CACHE_ALIGNED static uint32_t message_region1_sha1[MSG_LEN_WORDS];
 
 /* Result of  SHA-160 Message Digest Memory Mapping */
 const uint32_t hash_sha1[] =
@@ -144,12 +151,7 @@ const uint32_t hash_sha1[] =
 	};
 
 /* 512 bits Message Memory Mapping for region 2 sha224 */
-static uint32_t message_region2_sha224[] =
-	{ 0x80636261, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x18000000
-	};
+CACHE_ALIGNED static uint32_t message_region2_sha224[MSG_LEN_WORDS];
 
 /* Result of  SHA-224 Message Digest Memory Mapping */
 const uint32_t hash_sha224[] =
@@ -157,12 +159,7 @@ const uint32_t hash_sha224[] =
 	  0xe4bcad2a, 0xf7b3a0bd, 0xa79d6ce3, 0x00000000 };
 
 /* 512 bits Message Memory Mapping for region 3 sha256 */
-static uint32_t message_region3_sha256[] =
-	{ 0x80636261, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	  0x00000000, 0x00000000, 0x00000000, 0x18000000
-	};
+CACHE_ALIGNED static uint32_t message_region3_sha256[MSG_LEN_WORDS];
 
 /* Result of  SHA-256 Message Digest Memory Mapping */
 const uint32_t hash_sha256[] =
@@ -219,24 +216,32 @@ int main( void )
 	pmc_enable_peripheral(ID_ICM);
 
 	printf("\n\r-I- Configure region 0 with SHA1 algorithm (free message)\n\r");
+	memcpy((uint8_t*)message_region0_sha1, message_ref0,
+		sizeof message_region0_sha1);
 	mainlist[0].icm_raddr = (uint32_t)message_region0_sha1;
 	mainlist[0].icm_rcfg =  ICM_RCFG_ALGO_SHA1;
 	mainlist[0].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */
 	mainlist[0].icm_rnext = 0;
 
 	printf("-I- Configure region 1 with SHA1 algorithm (example message in DataSheet) \n\r");
+	memcpy((uint8_t*)message_region1_sha1, message_ref1,
+		sizeof message_region1_sha1);
 	mainlist[1].icm_raddr = (uint32_t)message_region1_sha1;
 	mainlist[1].icm_rcfg = ICM_RCFG_ALGO_SHA1;
 	mainlist[1].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */
 	mainlist[1].icm_rnext = 0;
 
 	printf("-I- Configure region 2 with SHA224 algorithm (example message in DataSheet)\n\r");
+	memcpy((uint8_t*)message_region2_sha224, message_ref1,
+		sizeof message_region2_sha224);
 	mainlist[2].icm_raddr = (uint32_t)message_region2_sha224;
 	mainlist[2].icm_rcfg = ICM_RCFG_ALGO_SHA224;
 	mainlist[2].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */
 	mainlist[2].icm_rnext = 0;
 
 	printf("-I- Configure region 3 with SHA256 algorithm (example message in DataSheet)\n\r");
+	memcpy((uint8_t*)message_region3_sha256, message_ref1,
+		sizeof message_region3_sha256);
 	mainlist[3].icm_raddr = (uint32_t)message_region3_sha256;
 	mainlist[3].icm_rcfg = ICM_RCFG_EOM | ICM_RCFG_ALGO_SHA256;
 	mainlist[3].icm_rctrl = 0; /* The formula is : (TRSIZE+1) blocks of 512 bits. */

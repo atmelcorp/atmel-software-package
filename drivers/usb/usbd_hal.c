@@ -238,8 +238,7 @@ static struct _endpoint endpoints[CHIP_USB_ENDPOINTS];
 static bool force_full_speed = false;
 
 /** DMA link list */
-ALIGNED(16)
-static struct _udphs_dma_desc dma_desc[4];
+CACHE_ALIGNED static struct _udphs_dma_desc dma_desc[4];
 
 /*---------------------------------------------------------------------------
  *      Internal Functions
@@ -1489,6 +1488,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 		dma_desc[0].ctrl = UDPHS_DMACONTROL_CHANN_ENB
 			| UDPHS_DMACONTROL_BUFF_LENGTH(header_len)
 			| UDPHS_DMACONTROL_LDNXT_DSC;
+		dma_desc[0].reserved = 0;
 
 		/* High bandwidth ISO EP, max size n*ep_size */
 		if (nb_trans > 1) {
@@ -1511,6 +1511,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 					UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
 					UDPHS_DMACONTROL_END_B_EN |
 					UDPHS_DMACONTROL_END_BUFFIT;
+				dma_desc[1].reserved = 0;
 			} else {
 				dma_desc[1].next = &dma_desc[2];
 				dma_desc[1].addr = data_ptr;
@@ -1519,6 +1520,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 					UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
 					UDPHS_DMACONTROL_END_B_EN |
 					UDPHS_DMACONTROL_LDNXT_DSC;
+				dma_desc[1].reserved = 0;
 				data_len -= pkt_len;
 				data_ptr += pkt_len;
 
@@ -1532,6 +1534,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 						UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
 						UDPHS_DMACONTROL_END_B_EN |
 						UDPHS_DMACONTROL_END_BUFFIT;
+					dma_desc[2].reserved = 0;
 				} else {
 					dma_desc[2].next = &dma_desc[3];
 					dma_desc[2].addr = data_ptr;
@@ -1540,6 +1543,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 						UDPHS_DMACONTROL_BUFF_LENGTH(pkt_len) |
 						UDPHS_DMACONTROL_END_B_EN |
 						UDPHS_DMACONTROL_LDNXT_DSC;
+					dma_desc[2].reserved = 0;
 					data_len -= pkt_len;
 					data_ptr += pkt_len;
 
@@ -1551,6 +1555,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 						UDPHS_DMACONTROL_BUFF_LENGTH(data_len) |
 						UDPHS_DMACONTROL_END_B_EN |
 						UDPHS_DMACONTROL_END_BUFFIT;
+					dma_desc[3].reserved = 0;
 				}
 			}
 		} else {
@@ -1563,6 +1568,7 @@ uint8_t usbd_hal_write_with_header(uint8_t ep,
 				| UDPHS_DMACONTROL_BUFF_LENGTH(data_len)
 				| UDPHS_DMACONTROL_END_B_EN
 				| UDPHS_DMACONTROL_END_BUFFIT;
+			dma_desc[1].reserved = 0;
 		}
 
 		/* Flush DMA descriptors */

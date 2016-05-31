@@ -160,12 +160,11 @@ static const sensor_profile_t *sensor_profiles[6] = {
 /** PIO pins to configured. */
 const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
 
-/** ISI frame buffer descriptor */
-ALIGNED(L1_CACHE_BYTES)
-struct _isi_dma_desc preview_path_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIEW_BUFFER, L1_CACHE_BYTES)];
+/* ISI frame buffer descriptors */
 
-ALIGNED(L1_CACHE_BYTES)
-struct _isi_dma_desc codec_path_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIEW_BUFFER, L1_CACHE_BYTES)];
+CACHE_ALIGNED struct _isi_dma_desc preview_path_desc[ISI_MAX_NUM_PREVIEW_BUFFER + 1];
+
+CACHE_ALIGNED struct _isi_dma_desc codec_path_desc[ISI_MAX_NUM_PREVIEW_BUFFER + 1];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {

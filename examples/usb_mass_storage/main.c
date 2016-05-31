@@ -101,6 +101,7 @@
 #include "board.h"
 #include "trace.h"
 #include "misc/console.h"
+#include "misc/cache.h"
 #include "peripherals/pmc.h"
 
 #ifdef CONFIG_HAVE_SDMMC
@@ -200,34 +201,26 @@ static struct hsmci_set sd_drv[BOARD_NUM_SDMMC];
 #endif
 
 /* Library instance data (a.k.a. SDCard library instance) */
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib0;
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) static sSdCard sd_lib1;
+CACHE_ALIGNED_DDR static sSdCard sd_lib0;
+CACHE_ALIGNED_DDR static sSdCard sd_lib1;
 static sSdCard * sd_lib[BOARD_NUM_SDMMC] = { &sd_lib0, &sd_lib1 };
 
 /** Device LUNs. */
 static MSDLun luns[MAX_LUNS];
 
 /** LUN read/write buffer. */
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES)
-static uint8_t ram_buffer[MSD_BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t ram_buffer[MSD_BUFFER_SIZE];
 
 /** LUN read/write buffer. */
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) static uint8_t sd_buffer0[MSD_BUFFER_SIZE];
-SECTION(".region_ddr")
-ALIGNED(L1_CACHE_BYTES) static uint8_t sd_buffer1[MSD_BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t sd_buffer0[MSD_BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t sd_buffer1[MSD_BUFFER_SIZE];
 static uint8_t * sd_buffer[BOARD_NUM_SDMMC] = { sd_buffer0, sd_buffer1 };
 
 /* Buffers dedicated to the SDMMC Driver, refer to sdmmc_initialize(). Aligning
  * them on cache lines is optional. */
 #ifdef CONFIG_HAVE_SDMMC
-SECTION(".region_ddr") ALIGNED(L1_CACHE_BYTES)
-static uint32_t sd_dma_table0[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
-SECTION(".region_ddr") ALIGNED(L1_CACHE_BYTES)
-static uint32_t sd_dma_table1[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+CACHE_ALIGNED_DDR static uint32_t sd_dma_table0[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+CACHE_ALIGNED_DDR static uint32_t sd_dma_table1[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 #endif
 
 /** Total data write to disk */
