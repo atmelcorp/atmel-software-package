@@ -40,6 +40,11 @@ obj-y += samba_applets/common/applet_legacy.o
 gnu-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.icf
+
+gnu-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/sram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/sram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/sram.icf
+
 gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.icf

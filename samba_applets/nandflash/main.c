@@ -66,7 +66,7 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#if !defined(CONFIG_SOC_SAMA5D2) && !defined(CONFIG_SOC_SAMA5D4)
+#if !defined(CONFIG_SOC_SAMA5D2) && !defined(CONFIG_SOC_SAMA5D3) && !defined(CONFIG_SOC_SAMA5D4)
 #error Unsupported SOC!
 #endif
 
