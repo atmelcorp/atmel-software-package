@@ -238,8 +238,6 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 		    ID_SHA);
 		if (!set->dma_ch)
 			trace_error("Couldn't allocate xDMA channel\n\r");
-		else
-			xdmad_prepare_channel(set->dma_ch);
 	}
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);

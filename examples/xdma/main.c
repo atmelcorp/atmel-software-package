@@ -494,7 +494,6 @@ extern int main(void)
 		printf("-E- Can't allocate XDMA channel\n\r");
 		return 0;
 	}
-	xdmad_prepare_channel(xdmad_channel);
 
 	/* Display menu */
 	_display_menu();

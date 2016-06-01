@@ -109,7 +109,6 @@ static void _twid_init_dma_read_channel(const struct _twi_desc* desc,
 	memset(cfg, 0x0, sizeof(*cfg));
 	*channel = xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
 	assert(*channel);
-	xdmad_prepare_channel(*channel);
 	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_PER2MEM
 		| XDMAC_CC_MEMSET_NORMAL_MODE
@@ -150,7 +149,6 @@ static void _twid_init_dma_write_channel(struct _twi_desc* desc,
 	memset(cfg, 0x0, sizeof(*cfg));
 	*channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
 	assert(*channel);
-	xdmad_prepare_channel(*channel);
 	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_DSYNC_MEM2PER
 		| XDMAC_CC_MEMSET_NORMAL_MODE

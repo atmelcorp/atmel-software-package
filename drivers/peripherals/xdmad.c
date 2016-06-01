@@ -104,6 +104,12 @@ static struct _xdmad _xdmad;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+/**
+ * \brief Enable clock of the DMA peripheral, Enable the peripheral,
+ * setup configuration register for transfer.
+ * \param channel Channel pointer
+ */
+static uint32_t xdmad_prepare_channel(struct _xdmad_channel *channel);
 
 static inline struct _xdmad_channel *_xdmad_channel(uint32_t controller, uint32_t channel)
 {
@@ -241,6 +247,8 @@ struct _xdmad_channel *xdmad_allocate_channel(uint8_t src, uint8_t dest)
 			channel->dest_txif = get_peripheral_xdma_channel(dest, xdmac, true);
 			channel->dest_rxif = get_peripheral_xdma_channel(dest, xdmac, false);
 
+			xdmad_prepare_channel(channel);
+
 			return channel;
 		}
 	}
@@ -274,7 +282,7 @@ uint32_t xdmad_set_callback(struct _xdmad_channel *channel,
 	return XDMAD_OK;
 }
 
-uint32_t xdmad_prepare_channel(struct _xdmad_channel *channel)
+static uint32_t xdmad_prepare_channel(struct _xdmad_channel *channel)
 {
 	Xdmac *xdmac = channel->xdmac;
 

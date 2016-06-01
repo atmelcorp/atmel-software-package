@@ -212,9 +212,6 @@ static void init_dma(void)
 	if (!dma_wr_chan || !dma_rd_chan)
 		printf("-E- Can't allocate XDMA channel\n\r");
 	else {
-		xdmad_prepare_channel(dma_wr_chan);
-		xdmad_prepare_channel(dma_rd_chan);
-
 		xdmad_set_callback(dma_wr_chan, dma_wr_callback, NULL);
 		xdmad_set_callback(dma_rd_chan, dma_rd_callback, NULL);
 	}

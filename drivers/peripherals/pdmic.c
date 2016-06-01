@@ -227,9 +227,7 @@ static void pdmic_dma_init(void)
 	/* Allocate DMA TX channels for pdmic */
 	pdmic_dma_channel = xdmad_allocate_channel(ID_PDMIC, XDMAD_PERIPH_MEMORY);
 
-	if (pdmic_dma_channel) {
-		xdmad_prepare_channel(pdmic_dma_channel);
-	} else {
+	if (!pdmic_dma_channel) {
 		trace_info("PDMIC DMA channel allocation error\n\r");
 	}
 }

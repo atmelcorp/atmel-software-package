@@ -835,7 +835,6 @@ extern int main(void)
 		printf("-E- Can't allocate XDMA channel\n\r");
 		return 0;
 	}
-	xdmad_prepare_channel(xdmad_channel);
 
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)

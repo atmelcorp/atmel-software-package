@@ -292,7 +292,6 @@ static void _start_dma(void)
 	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
 	struct _xdmad_channel* dma_channel =
 	xdmad_allocate_channel(ID_ADC, XDMAD_PERIPH_MEMORY);
-	xdmad_prepare_channel(dma_channel);
 	struct _xdmad_cfg dma_cfg;
 	memset(&dma_cfg, 0, sizeof(dma_cfg));
 	dma_cfg.ubc = NUM_CHANNELS;

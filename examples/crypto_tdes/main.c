@@ -199,10 +199,6 @@ static void init_dma(void)
 	dma_rd_chan = xdmad_allocate_channel(ID_TDES, XDMAD_PERIPH_MEMORY);
 	if (!dma_wr_chan || !dma_rd_chan)
 		printf("-E- Can't allocate XDMA channel\n\r");
-	else {
-		xdmad_prepare_channel(dma_wr_chan);
-		xdmad_prepare_channel(dma_rd_chan);
-	}
 }
 
 /**

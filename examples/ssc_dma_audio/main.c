@@ -224,9 +224,6 @@ static void dma_configure(void)
 
 		while(1);
 	}
-
-	xdmad_prepare_channel(ssc_dma_tx_channel);
-	xdmad_prepare_channel(ssc_dma_rx_channel);
 }
 
 

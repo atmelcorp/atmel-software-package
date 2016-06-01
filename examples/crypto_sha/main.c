@@ -322,8 +322,6 @@ static void init_dma(void)
 	dma_chan = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_SHA);
 	if (!dma_chan)
 		printf("-E- Can't allocate XDMA channel\n\r");
-	else
-		xdmad_prepare_channel(dma_chan);
 }
 
 /**

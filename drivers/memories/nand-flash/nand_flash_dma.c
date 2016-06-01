@@ -79,13 +79,11 @@ uint8_t nand_dma_configure( void)
 								XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
 	assert(nand_dma_rx_channel);
 	xdmad_set_callback(nand_dma_rx_channel, _nand_dma_callback, NULL);
-	xdmad_prepare_channel(nand_dma_rx_channel);
 
 	/* Allocate a DMA channel for NAND TX. */
 	nand_dma_tx_channel = xdmad_allocate_channel(
 								XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
 	assert(nand_dma_tx_channel);
-	xdmad_prepare_channel(nand_dma_tx_channel);
 	xdmad_set_callback(nand_dma_tx_channel, _nand_dma_callback, NULL);
 	return 0;
 }

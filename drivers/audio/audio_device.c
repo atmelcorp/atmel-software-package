@@ -221,8 +221,6 @@ void audio_play_configure(struct _audio_desc *desc)
 	audio_dma_tx_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, audio_id);
 	if (!audio_dma_tx_channel) {
 		printf("xDMA channel allocation error\n\r");
-	} else {
-		xdmad_prepare_channel(audio_dma_tx_channel);
 	}
 }
 /**

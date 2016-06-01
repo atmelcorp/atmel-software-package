@@ -266,8 +266,6 @@ void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
 	assert(dma_channel);
 
-	xdmad_prepare_channel(dma_channel);
-
 	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
 		| XDMAC_CC_MBSIZE_SINGLE
 		| XDMAC_CC_DSYNC_MEM2PER

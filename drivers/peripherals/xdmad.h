@@ -200,13 +200,6 @@ extern uint32_t xdmad_set_callback(struct _xdmad_channel *channel,
 		xdmad_callback_t callback, void *user_arg);
 
 /**
- * \brief Enable clock of the DMA peripheral, Enable the peripheral,
- * setup configuration register for transfer.
- * \param channel Channel pointer
- */
-extern uint32_t xdmad_prepare_channel(struct _xdmad_channel *channel);
-
-/**
  * \brief Configure DMA for a single transfer.
  * \param channel Channel pointer
  * \param cfg DMA transfer configuration

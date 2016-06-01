@@ -205,10 +205,8 @@ static void _initialize_dma(void)
 {
 	/* Allocate DMA TX channels for CLASSD */
 	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_CLASSD);
-	if (dma_channel)
-	{
+	if (dma_channel) {
 		printf("DMA channel allocated\n\r");
-		xdmad_prepare_channel(dma_channel);
 	} else {
 		printf("DMA channel allocation error\n\r");
 	}
