@@ -109,8 +109,6 @@ static void _usartd_dma_read(const struct _usart_desc* desc,
 	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cache_clean_region(desc->region_start, desc->region_length);
-
 	xdmad_start_transfer(channel);
 }
 

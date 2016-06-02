@@ -133,7 +133,6 @@ static void _twid_dma_read(const struct _twi_desc* desc,
 	cfg.bc = 0;
 	xdmad_configure_transfer(channel, &cfg, 0, 0);
 	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
-	cache_clean_region(desc->region_start, desc->region_length);
 	xdmad_start_transfer(channel);
 }
 

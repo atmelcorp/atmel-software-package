@@ -226,8 +226,6 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
 			   (void*)desc);
 
-	cache_clean_region(desc->region_start, desc->region_length);
-
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
 }
