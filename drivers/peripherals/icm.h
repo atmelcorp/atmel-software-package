@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _ICM_
-#define _ICM_
+#ifndef ICM_H_
+#define ICM_H_
 
 #ifdef CONFIG_HAVE_ICM
 
@@ -65,7 +65,7 @@
 /*------------------------------------------------------------------------------*/
 
 /** \brief Structure ICM region descriptor area. */
-typedef struct _icm_region_linked_list_descripor {
+struct _icm_region_desc {
 	/** the first byte address of the Region. */
 	uint32_t icm_raddr;
 	/** Configuration Structure Member. */
@@ -74,7 +74,7 @@ typedef struct _icm_region_linked_list_descripor {
 	uint32_t icm_rctrl;
 	/** Next Address Structure Member. */
 	uint32_t icm_rnext;
-} icm_region_linked_list_descripor;
+};
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
@@ -98,4 +98,4 @@ extern void icm_set_init_hash(uint8_t field, uint32_t val);
 
 #endif /* CONFIG_HAVE_ICM */
 
-#endif				/* #ifndef _ICM_ */
+#endif /* ICM_H_ */

@@ -119,7 +119,7 @@ ALIGNED(128) static uint32_t hash_addr[64];
 
 /* ICM region descriptor, the start address is a multiple of the total size of
     the data structure (64 bytes).*/
-ALIGNED(64) static icm_region_linked_list_descripor mainlist[4];
+ALIGNED(64) static struct _icm_region_desc mainlist[4];
 
 /* 512 bits Message Memory Mapping for region 0 sha1 */
 static uint32_t message_region0_sha1[] =
