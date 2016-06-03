@@ -45,8 +45,8 @@
  */
 /**@}*/
 
-#ifndef ISI_H
-#define ISI_H
+#ifndef ISI_H_
+#define ISI_H_
 
 #ifdef CONFIG_HAVE_ISI
 
@@ -68,21 +68,18 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-/** Frame Buffer Descriptors */
-typedef struct
-{
-	/** Address of the Current FrameBuffer */
+/** ISI DMA Frame Buffer Descriptors */
+struct _isi_dma_desc {
+	/** Address of the Current Frame Buffer */
 	uint32_t address;
-	/** Address of the Control */
+	/** Control Information */
 	uint32_t control;
-	/** Address of the Next FrameBuffer */
+	/** Address of the Next Frame Buffer Descriptor */
 	uint32_t next;
-}isi_frame_buffer_desc_t;
-
+};
 
 /** ISI Matrix Color Space Conversion YCrCb to RGB */
-typedef struct
-{
+struct _isi_yuv2rgb {
 	/** Color Space Conversion Matrix Coefficient C0*/
 	uint8_t c0;
 	/** Color Space Conversion Matrix Coefficient C1 */
@@ -91,7 +88,7 @@ typedef struct
 	uint8_t c2;
 	/** Color Space Conversion Matrix Coefficient C3 */
 	uint8_t c3;
-   /** Color Space Conversion Red Chrominance Default Offset */
+	/** Color Space Conversion Red Chrominance Default Offset */
 	uint8_t croff;
 	/** Color Space Conversion Blue Chrominance Default Offset */
 	uint8_t cboff;
@@ -99,11 +96,10 @@ typedef struct
 	uint8_t yoff;
 	 /** Color Space Conversion Matrix Coefficient C4 */
 	uint16_t c4;
-}isi_yuv2rgb_t;
+};
 
 /** ISI Matrix Color Space Conversion RGB to YCrCb */
-typedef struct
-{
+struct _isi_rgb2yuv {
 	/** Color Space Conversion Matrix Coefficient C0*/
 	uint8_t c0;
 	/** Color Space Conversion Matrix Coefficient C1 */
@@ -128,11 +124,12 @@ typedef struct
 	uint8_t c8;
 	/** Color Space Conversion Blue Component Offset */
 	uint8_t boff;
-}isi_rgb2yuv_t;
+};
 
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
+
 extern void isi_enable(void);
 
 extern void isi_disable(void);
@@ -184,17 +181,15 @@ extern void isi_set_preview_size(uint32_t horizontal_size, uint32_t vertical_siz
 extern void isi_calc_scaler_factor( void );
 
 extern void isi_set_dma_preview_path(uint32_t descriptor_address,
-									 uint32_t descriptor_dma_control,
-									 uint32_t frame_buffer_address);
+		uint32_t descriptor_dma_control, uint32_t frame_buffer_address);
 
 extern void isi_set_dma_codec_path(uint32_t descriptor_address,
-									 uint32_t descriptor_dma_control,
-									 uint32_t frame_buffer_address);
+		uint32_t descriptor_dma_control, uint32_t frame_buffer_address);
 
-extern void isi_set_matrix_yuv2rgb (isi_yuv2rgb_t* yuv2rgb);
-extern void isi_set_matrix_rgb2yuv (isi_rgb2yuv_t* rgb2yuv);
+extern void isi_set_matrix_yuv2rgb(struct _isi_yuv2rgb *yuv2rgb);
+extern void isi_set_matrix_rgb2yuv(struct _isi_rgb2yuv *rgb2yuv);
 
 #endif /* CONFIG_HAVE_ISI */
 
-#endif //#ifndef ISI_H
+#endif /* ISI_H_ */
 

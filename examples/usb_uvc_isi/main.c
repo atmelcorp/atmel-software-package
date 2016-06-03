@@ -151,8 +151,8 @@ const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
 
 /** ISI frame buffer descriptor */
 ALIGNED(L1_CACHE_BYTES) union {
-	isi_frame_buffer_desc_t preview_path;
-	uint8_t padding[ROUND_UP_MULT(sizeof(isi_frame_buffer_desc_t), L1_CACHE_BYTES)];
+	struct _isi_dma_desc preview_path;
+	uint8_t padding[ROUND_UP_MULT(sizeof(struct _isi_dma_desc), L1_CACHE_BYTES)];
 } fb_desc;
 
 /** TWI driver instance.*/

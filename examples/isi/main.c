@@ -114,34 +114,34 @@
  *----------------------------------------------------------------------------*/
 
 /** Frame buffer base address in preview path */
-#define ISI_PREVIEW_PATH_BASE_ADDRESS  (DDR_CS_ADDR + 16* 1024 * 1024)
+#define ISI_PREVIEW_PATH_BASE_ADDRESS (DDR_CS_ADDR + 16* 1024 * 1024)
 
 /** Maximum number of preview buffer */
-#define ISI_MAX_NUM_PREVIVEW_BUFFER    2
+#define ISI_MAX_NUM_PREVIEW_BUFFER 2
 
 /** Maximum image size (YUV)*/
-#define ISI_MAX_IMAGE_SIZE            (1600 * 1200 * 2)
+#define ISI_MAX_IMAGE_SIZE (1600 * 1200 * 2)
 
 /** LCD buffer start address for preview mode (same address for ISI preview buffer) */
-#define LCD_PREVIEW_BASE_ADDRESS      ISI_PREVIEW_PATH_BASE_ADDRESS
+#define LCD_PREVIEW_BASE_ADDRESS ISI_PREVIEW_PATH_BASE_ADDRESS
 
 /** Frame buffer base address in codec path */
-#define ISI_CODEC_PATH_BASE_ADDRESS   (ISI_PREVIEW_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE * ISI_MAX_NUM_PREVIVEW_BUFFER)
+#define ISI_CODEC_PATH_BASE_ADDRESS (ISI_PREVIEW_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE * ISI_MAX_NUM_PREVIEW_BUFFER)
 
 /** LCD buffer start address for captured image (same address for ISI codec buffer) */
-#define LCD_CAPTURED_BASE_ADDRESS      ISI_CODEC_PATH_BASE_ADDRESS
+#define LCD_CAPTURED_BASE_ADDRESS ISI_CODEC_PATH_BASE_ADDRESS
 
-#define ISI_DMA_DESC_PREV_ADDR        (ISI_CODEC_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE)
-#define ISI_DMA_DESC_CODEC_ADDR       (ISI_DMA_DESC_PREV_ADDR + 0x1000)
+#define ISI_DMA_DESC_PREV_ADDR (ISI_CODEC_PATH_BASE_ADDRESS + ISI_MAX_IMAGE_SIZE)
+#define ISI_DMA_DESC_CODEC_ADDR (ISI_DMA_DESC_PREV_ADDR + 0x1000)
 
 /** TWI clock frequency in Hz. */
-#define TWCK                400000
+#define TWCK 400000
 
 /** LCDD_OVR1 layer use for preview frame display in RGB output */
-#define LCD_PREVIEW_LAYER  LCDD_OVR1
+#define LCD_PREVIEW_LAYER LCDD_OVR1
 
 /** LCDD_HEO layer use for display captured image in YUV output */
-#define LCD_CAPTURE_LAYER  LCDD_HEO
+#define LCD_CAPTURE_LAYER LCDD_HEO
 
 /*----------------------------------------------------------------------------
  *        Local variables/constants
@@ -162,10 +162,10 @@ const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
 
 /** ISI frame buffer descriptor */
 ALIGNED(L1_CACHE_BYTES)
-isi_frame_buffer_desc_t preview_path_fb_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIVEW_BUFFER, L1_CACHE_BYTES)];
+struct _isi_dma_desc preview_path_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIEW_BUFFER, L1_CACHE_BYTES)];
 
 ALIGNED(L1_CACHE_BYTES)
-isi_frame_buffer_desc_t codec_path_fb_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIVEW_BUFFER, L1_CACHE_BYTES)];
+struct _isi_dma_desc codec_path_desc[ROUND_UP_MULT(ISI_MAX_NUM_PREVIEW_BUFFER, L1_CACHE_BYTES)];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -187,7 +187,8 @@ static sensor_output_format_t image_format;
 /* Image output bit width */
 static sensor_output_bit_t sensor_bit_width;
 
-static isi_yuv2rgb_t y2r = {0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC,};
+static struct _isi_yuv2rgb y2r = { 0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC };
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -211,23 +212,23 @@ static void configure_twi(void)
 static void configure_frame_buffer(void)
 {
 	uint32_t i;
-	for(i = 0; i < ISI_MAX_NUM_PREVIVEW_BUFFER; i++) {
-		preview_path_fb_desc[i].address = (uint32_t)ISI_PREVIEW_PATH_BASE_ADDRESS ;
-		preview_path_fb_desc[i].control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
-		preview_path_fb_desc[i].next    = (uint32_t)&preview_path_fb_desc[i + 1];
+	for(i = 0; i < ISI_MAX_NUM_PREVIEW_BUFFER; i++) {
+		preview_path_desc[i].address = (uint32_t)ISI_PREVIEW_PATH_BASE_ADDRESS ;
+		preview_path_desc[i].control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
+		preview_path_desc[i].next    = (uint32_t)&preview_path_desc[i + 1];
 	}
 	/* Wrapping to first FBD */
-	preview_path_fb_desc[i-1].next = (uint32_t)preview_path_fb_desc;
+	preview_path_desc[i-1].next = (uint32_t)preview_path_desc;
 
-	for(i = 0; i < ISI_MAX_NUM_PREVIVEW_BUFFER; i++) {
-		codec_path_fb_desc[i].address = (uint32_t)ISI_CODEC_PATH_BASE_ADDRESS;
-		codec_path_fb_desc[i].control = ISI_DMA_C_CTRL_C_FETCH | ISI_DMA_C_CTRL_C_WB;
-		codec_path_fb_desc[i].next    = (uint32_t)&codec_path_fb_desc[ i + 1];
+	for(i = 0; i < ISI_MAX_NUM_PREVIEW_BUFFER; i++) {
+		codec_path_desc[i].address = (uint32_t)ISI_CODEC_PATH_BASE_ADDRESS;
+		codec_path_desc[i].control = ISI_DMA_C_CTRL_C_FETCH | ISI_DMA_C_CTRL_C_WB;
+		codec_path_desc[i].next    = (uint32_t)&codec_path_desc[ i + 1];
 	}
 	/* Wrapping to first FBD */
-	codec_path_fb_desc[i-1].next = (uint32_t)codec_path_fb_desc;
-	cache_clean_region(preview_path_fb_desc, sizeof(preview_path_fb_desc));
-	cache_clean_region(codec_path_fb_desc, sizeof(codec_path_fb_desc));
+	codec_path_desc[i-1].next = (uint32_t)codec_path_desc;
+	cache_clean_region(preview_path_desc, sizeof(preview_path_desc));
+	cache_clean_region(codec_path_desc, sizeof(codec_path_desc));
 }
 
 /**
@@ -266,12 +267,12 @@ static void configure_isi(void)
 	isi_set_matrix_yuv2rgb(&y2r);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)preview_path_fb_desc,
+	isi_set_dma_preview_path((uint32_t)preview_path_desc,
 							ISI_DMA_P_CTRL_P_FETCH,
 							(uint32_t)ISI_PREVIEW_PATH_BASE_ADDRESS);
 
 	/* Configure DMA for preview path. */
-	isi_set_dma_codec_path((uint32_t)codec_path_fb_desc,
+	isi_set_dma_codec_path((uint32_t)codec_path_desc,
 							ISI_DMA_C_CTRL_C_FETCH,
 							(uint32_t)ISI_CODEC_PATH_BASE_ADDRESS);
 

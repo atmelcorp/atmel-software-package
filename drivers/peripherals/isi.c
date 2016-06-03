@@ -386,7 +386,7 @@ void isi_set_dma_codec_path(uint32_t descriptor_address,
  * \brief ISI set matrix for YUV to RGB color space for preview path.
  * \param yuv2rgb structure of YUV to RBG parameters.
  */
-void isi_set_matrix_yuv2rgb(isi_yuv2rgb_t* yuv2rgb)
+void isi_set_matrix_yuv2rgb(struct _isi_yuv2rgb *yuv2rgb)
 {
 	ISI->ISI_Y2R_SET0 = ISI_Y2R_SET0_C0(yuv2rgb->c0)
 	                  | ISI_Y2R_SET0_C1(yuv2rgb->c1)
@@ -403,7 +403,7 @@ void isi_set_matrix_yuv2rgb(isi_yuv2rgb_t* yuv2rgb)
  * \brief ISI set matrix for RGB to YUV color space for codec path.
  * \param rgb2yuv structure of RGB to YUV parameters.
  */
-void isi_set_matrix_rgb2yuv(isi_rgb2yuv_t* rgb2yuv)
+void isi_set_matrix_rgb2yuv(struct _isi_rgb2yuv *rgb2yuv)
 {
 	ISI->ISI_R2Y_SET0 = ISI_R2Y_SET0_C0(rgb2yuv->c0)
 	                  | ISI_R2Y_SET0_C1(rgb2yuv->c1)
