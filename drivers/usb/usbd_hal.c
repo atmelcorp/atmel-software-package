@@ -1864,11 +1864,15 @@ bool usbd_hal_halt(uint8_t ep)
 
 /**
  * Clear the HALT state on the endpoint.
- * In HALT state, the endpoint should keep stalling any packet.
+ * Clearing the Halt feature results in the endpoint no longer returning
+ * a STALL. 
+ * For endpoints using data toggle, regardless of whether an
+ * endpoint has the Halt feature set, a ClearFeature(ENDPOINT_HALT) request 
+ * always results in the data toggle being reinitialized to DATA0.
+ *
  * \param ep Endpoint number.
- * \return endpoint halt status.
  */
-bool usbd_hal_unhalt(uint8_t ep)
+void usbd_hal_unhalt(uint8_t ep)
 {
 	UdphsEpt *ept = &UDPHS->UDPHS_EPT[ep];
 
@@ -1880,14 +1884,13 @@ bool usbd_hal_unhalt(uint8_t ep)
 		endpoints[ep].state = UDPHS_ENDPOINT_IDLE;
 
 		/* Clear FORCESTALL flag */
-		ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_TOGGLESQ |
-			UDPHS_EPTCLRSTA_FRCESTALL;
-
-		/* Reset Endpoint Fifos */
-		UDPHS->UDPHS_EPTRST = 1 << ep;
+		ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_FRCESTALL;
 	}
-
-	return 1;
+	
+	if (CHIP_USB_ENDPOINT_BANKS(ep) > 1) {
+		/* Clear data toggle sequence */
+		ept->UDPHS_EPTCLRSTA = UDPHS_EPTCLRSTA_TOGGLESQ;
+	}
 }
 
 /**

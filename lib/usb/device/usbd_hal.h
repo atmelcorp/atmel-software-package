@@ -119,7 +119,7 @@ extern uint8_t usbd_hal_stall(uint8_t endpoint);
 
 extern bool usbd_hal_halt(uint8_t endpoint);
 
-extern bool usbd_hal_unhalt(uint8_t endpoint);
+extern void usbd_hal_unhalt(uint8_t endpoint);
 
 extern bool usbd_hal_is_halted(uint8_t endpoint);
 
