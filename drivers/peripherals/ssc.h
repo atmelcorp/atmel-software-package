@@ -55,7 +55,7 @@ extern "C" {
 #define I2S_SLAVE_TX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
                              (SSC_TCMR_CKS_TK) |\
                              (SSC_TCMR_CKO_NONE) |\
-							(SSC_TCMR_START_TF_EDGE) |\
+							(SSC_TCMR_START_TF_FALLING) |\
                              (SSC_TCMR_STTDLY(1)) |\
                              (SSC_TCMR_PERIOD(0)))
 /* Send 1 data each time */
@@ -66,7 +66,7 @@ extern "C" {
                                  (SSC_TFMR_FSOS_NONE))
 /* Read data on Frame changes */
 #define I2S_SLAVE_RX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
-                            (SSC_TCMR_CKS_TK) |\
+                            (SSC_RCMR_CKS_TK) |\
                             (SSC_RCMR_CKO_NONE) |\
 							  (SSC_RCMR_CKI) |\
                             (SSC_RCMR_START_RF_FALLING) |\
