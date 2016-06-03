@@ -5,6 +5,7 @@
 
 /** Audio device instance*/
 static struct _audio_desc audio_device = {
+	.direction = AUDIO_DEVICE_PLAY,
 	.type = AUDIO_DEVICE_CLASSD,
 	.device = {
 		.classd = {

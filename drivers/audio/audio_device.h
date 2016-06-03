@@ -30,7 +30,9 @@
 #ifndef AUDIO_DEVICE_API_H
 #define AUDIO_DEVICE_API_H
 
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 #include "peripherals/pio.h"
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
@@ -58,9 +60,18 @@ enum audio_device_type {
 #if defined(CONFIG_HAVE_SSC)
 	AUDIO_DEVICE_SSC,
 #endif
+#if defined(CONFIG_HAVE_PDMIC)
+	AUDIO_DEVICE_PDMIC,
+#endif
+};
+
+enum audio_device_direction {
+	AUDIO_DEVICE_PLAY,
+	AUDIO_DEVICE_RECORD,
 };
 
 struct _audio_desc {
+	enum audio_device_direction direction;
 	enum audio_device_type type;
 	union {
 #if defined(CONFIG_HAVE_CLASSD)
@@ -75,7 +86,19 @@ struct _audio_desc {
 			struct codec_desc* codec_chip;
 		} ssc;
 #endif
+#if defined(CONFIG_HAVE_PDMIC)
+		struct {
+			Pdmic *addr;
+		} pdmic;
+#endif
 	} device;
+#ifdef CONFIG_HAVE_XDMAC
+	struct {
+		struct _xdmad_channel *channel;
+		struct _xdmad_cfg cfg;
+		bool configured;
+	} dma;
+#endif
 
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
@@ -89,12 +112,12 @@ struct _audio_desc {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern void audio_play_configure(struct _audio_desc *desc);
-extern void audio_play_enable(struct _audio_desc *desc, bool enable);
+extern void audio_configure(struct _audio_desc *desc);
+extern void audio_enable(struct _audio_desc *desc, bool enable);
 extern void audio_play_mute(struct _audio_desc *desc, bool mute);
 extern void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol);
-extern void audio_play_stop(struct _audio_desc *desc);
+extern void audio_dma_stop(struct _audio_desc *desc);
 extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer,
-									uint16_t size, audio_callback_t cb);
+									uint32_t size, audio_callback_t cb);
 
 #endif /* AUDIO_DEVICE_API_H */

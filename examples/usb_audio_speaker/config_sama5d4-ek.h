@@ -34,6 +34,7 @@ static struct codec_desc wm8904_codec = {
 
 /** Audio device instance*/
 static struct _audio_desc audio_device = {
+	.direction = AUDIO_DEVICE_PLAY,
 	.type = AUDIO_DEVICE_SSC,
 	.device = {
 		.ssc = {

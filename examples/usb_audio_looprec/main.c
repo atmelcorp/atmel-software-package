@@ -113,8 +113,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/xdmad.h"
-#include "peripherals/classd.h"
 
 #include "usb/device/audio/audd_speaker_phone_driver.h"
 

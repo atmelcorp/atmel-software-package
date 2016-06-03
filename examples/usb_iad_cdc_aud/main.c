@@ -240,8 +240,8 @@ static volatile bool is_audio_playing = false;
 /**
  *  \brief DMA TX callback
  */
-void audio_tx_finish_callback(struct _xdmad_channel *channel, void* p_arg);
-void audio_tx_finish_callback(struct _xdmad_channel *channel, void* p_arg)
+void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg);
+void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 
@@ -249,7 +249,7 @@ void audio_tx_finish_callback(struct _xdmad_channel *channel, void* p_arg)
 		/* End of transmission */
 		is_audio_playing = false;
 		is_first_frame = true;
-		audio_play_enable(&audio_device, false);
+		audio_enable(&audio_device, false);
 		return;
 	}
 
@@ -258,7 +258,7 @@ void audio_tx_finish_callback(struct _xdmad_channel *channel, void* p_arg)
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-						buffer_sizes[out_buffer_index], audio_tx_finish_callback);
+						buffer_sizes[out_buffer_index], audio_play_finish_callback);
 
 }
 
@@ -277,12 +277,12 @@ static void frame_received(void *arg, uint8_t status,
 		/* Start DAC transmission if necessary */
 		if (is_first_frame && num_buffers_to_send > DAC_DELAY) {
 			is_first_frame = false;
-			audio_play_enable(&audio_device, true);
+			audio_enable(&audio_device, true);
 			is_audio_playing = true;
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
 			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-							buffer_sizes[out_buffer_index], audio_tx_finish_callback);
+							buffer_sizes[out_buffer_index], audio_play_finish_callback);
 
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
@@ -405,7 +405,7 @@ void audd_function_stream_setting_changed(uint8_t mic, uint8_t new_setting)
 	if (!mic) {
 		if (new_setting) {
 			led_set(LED_BLUE);
-			audio_play_stop(&audio_device);
+			audio_dma_stop(&audio_device);
 			num_buffers_to_send = 0;
 		} else {
 			led_clear(LED_BLUE);
@@ -438,7 +438,7 @@ int main(void)
 	usb_power_configure();
 
 	/* Configure Audio */
-	audio_play_configure(&audio_device);
+	audio_configure(&audio_device);
 
 	/* USB audio driver initialization */
 	cdc_audd_driver_initialize(&cdc_audd_driver_descriptors);
