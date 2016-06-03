@@ -58,12 +58,16 @@ endif
 ifeq ($(VARIANT),qspi0)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi0.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi0.icf
+iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
+iar-flashloader-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/flash_loader/sama5d2-xplained_qspi0.board
 endif
 
 # QSPI1 variant
 ifeq ($(VARIANT),qspi1)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi1.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi1.icf
+iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
+iar-flashloader-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/flash_loader/sama5d2-xplained_qspi1.board
 endif
 
 chip-family = sama5d2

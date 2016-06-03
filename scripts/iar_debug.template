@@ -97,7 +97,7 @@
         </option>
         <option>
           <name>UseFlashLoader</name>
-          <state>0</state>
+          <state>__REPLACE_FLASH_LOADER__</state>
         </option>
         <option>
           <name>CLowLevel</name>
@@ -117,7 +117,7 @@
         </option>
         <option>
           <name>FlashLoadersV3</name>
-          <state></state>
+          <state>__REPLACE_FLASH_LOADER_V3__</state>
         </option>
         <option>
           <name>OCImagesSuppressCheck1</name>
@@ -145,7 +145,7 @@
         </option>
         <option>
           <name>OverrideDefFlashBoard</name>
-          <state>0</state>
+          <state>__REPLACE_FLASH_LOADER__</state>
         </option>
         <option>
           <name>OCImagesOffset1</name>
@@ -1464,7 +1464,7 @@
         </option>
         <option>
           <name>UseFlashLoader</name>
-          <state>0</state>
+          <state>__REPLACE_FLASH_LOADER__</state>
         </option>
         <option>
           <name>CLowLevel</name>
@@ -1484,7 +1484,7 @@
         </option>
         <option>
           <name>FlashLoadersV3</name>
-          <state></state>
+          <state>__REPLACE_FLASH_LOADER_V3__</state>
         </option>
         <option>
           <name>OCImagesSuppressCheck1</name>
@@ -1512,7 +1512,7 @@
         </option>
         <option>
           <name>OverrideDefFlashBoard</name>
-          <state>0</state>
+          <state>__REPLACE_FLASH_LOADER__</state>
         </option>
         <option>
           <name>OCImagesOffset1</name>

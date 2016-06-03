@@ -45,6 +45,7 @@ iar-env:
 	$(Q)echo CFLAGS_INC=\"$(CFLAGS_INC)\"                 >> .env-$(VARIANT).sh
 	$(Q)echo iar_linker_script_y=\"$(iar-linker-script-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo iar_debug_script_y=\"$(iar-debug-script-y)\" >> .env-$(VARIANT).sh
+	$(Q)echo iar_flashloader_script_y=\"$(iar-flashloader-script-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo target_y=\"$(target-y) $(iar-cstartup-y)\"   >> .env-$(VARIANT).sh
 	$(Q)echo utils_y=\"$(utils-y)\"                       >> .env-$(VARIANT).sh
 	$(Q)echo drivers_y=\"$(drivers-y)\"                   >> .env-$(VARIANT).sh
