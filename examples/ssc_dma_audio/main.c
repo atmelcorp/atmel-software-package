@@ -126,6 +126,7 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
 /** TWI clock */
 #define TWI_CLOCK               (400000)
 
@@ -149,6 +150,7 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
 /* Audio buffer */
 SECTION(".region_ddr")
 ALIGNED(L1_CACHE_BYTES) uint16_t audio_buffer[AUDIO_BUFFER_LEN];
@@ -158,14 +160,12 @@ static const struct _pin  pins_ssc[] = PINS_SSC_CODEC;
 static const struct _pin  pins_twi[] = PINS_TWI0;
 static const struct _pin  pins_pck2[] = PIN_PCK2_ALT1;
 
-/** Global DMA driver for all transfer */
+/* Global DMA driver for all transfer */
+
 /** DMA channel for RX */
 static struct _xdmad_channel *ssc_dma_rx_channel;
 /** DMA channel for TX */
 static struct _xdmad_channel *ssc_dma_tx_channel;
-
-struct _xdmad_cfg xdmad_cfg;
-
 
 ALIGNED(L1_CACHE_BYTES) 
 static struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
@@ -173,16 +173,15 @@ static struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
 ALIGNED(L1_CACHE_BYTES) 
 static struct _xdmad_desc_view1 dma_read_link_list[TOTAL_BUFFERS];
 
-
 /** Twi instance*/
-struct _twi_desc wm8904_twid = {
+static struct _twi_desc wm8904_twid = {
 	.addr = TWI0,
 	.freq = TWI_CLOCK,
 	.transfert_mode = TWID_MODE_POLLING
 };
 
 /** SSC instance*/
-struct _ssc_desc ssc_dev = {
+static struct _ssc_desc ssc_dev_desc = {
 	.addr = SSC0,
 	.bit_rate = 0,
 	.sample_rate = SAMPLE_RATE,
@@ -191,6 +190,7 @@ struct _ssc_desc ssc_dev = {
 	.rx_auto_cfg = true,
 	.tx_auto_cfg = true,
 };
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -226,7 +226,6 @@ static void dma_configure(void)
 	}
 }
 
-
 /**
  * \brief Play recording.
  */
@@ -235,6 +234,7 @@ static void play_recording(void)
 	uint16_t* src;
 	uint8_t i;
 	uint32_t xdma_cndc;
+	struct _xdmad_cfg xdmad_cfg;
 
 	src = audio_buffer;
 	memset(audio_buffer, 0x00, sizeof(audio_buffer));
@@ -244,7 +244,7 @@ static void play_recording(void)
 		                              | XDMA_UBC_NDE_FETCH_EN
 		                              | XDMA_UBC_NSEN_UPDATED
 		                              | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
-		dma_read_link_list[i].mbr_sa = (uint32_t *)&(ssc_dev.addr->SSC_RHR);
+		dma_read_link_list[i].mbr_sa = (uint32_t *)&(ssc_dev_desc.addr->SSC_RHR);
 		dma_read_link_list[i].mbr_da = (uint32_t *)(src);
 
 		if (i == (TOTAL_BUFFERS - 1))
@@ -283,7 +283,7 @@ static void play_recording(void)
 		                               | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
 
 		dma_write_link_list[i].mbr_sa = (uint32_t *)(src);
-		dma_write_link_list[i].mbr_da = (uint32_t *)&(ssc_dev.addr->SSC_THR);
+		dma_write_link_list[i].mbr_da = (uint32_t *)&(ssc_dev_desc.addr->SSC_THR);
 
 		if (i == (TOTAL_BUFFERS - 1 ))
 			dma_write_link_list[i].mbr_nda = &dma_write_link_list[0];
@@ -312,13 +312,13 @@ static void play_recording(void)
 
 	cache_clean_region(dma_write_link_list, sizeof(dma_write_link_list));
 	xdmad_start_transfer(ssc_dma_rx_channel);
-	ssc_enable_receiver(&ssc_dev);
+	ssc_enable_receiver(&ssc_dev_desc);
 
 	timer_wait(300);
 
 	/* Enable playback(SSC TX) */
 	xdmad_start_transfer(ssc_dma_tx_channel);
-	ssc_enable_transmitter(&ssc_dev);
+	ssc_enable_transmitter(&ssc_dev_desc);
 
 }
 
@@ -332,6 +332,7 @@ static void _set_volume(uint8_t vol)
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
+
 /**
  * \brief Application entry point for tc_capture_waveform example.
  *
@@ -352,9 +353,9 @@ extern int main( void )
 	pio_configure(pins_pck2, ARRAY_SIZE(pins_pck2));
 
 	/* Configure SSC */
-	ssc_configure(&ssc_dev);
-	ssc_disable_receiver(&ssc_dev);
-	ssc_disable_transmitter(&ssc_dev);
+	ssc_configure(&ssc_dev_desc);
+	ssc_disable_receiver(&ssc_dev_desc);
+	ssc_disable_transmitter(&ssc_dev_desc);
 
 	/* Configure DMA */
 	dma_configure();
