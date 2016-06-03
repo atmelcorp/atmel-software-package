@@ -40,8 +40,9 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMV71 Xplained Ultra board or SAME70 Xplained board
- * This package can be used with all Atmel Xplained board that have USB interface
+ * This package is compatible with the evaluation boards listed below:
+ * - SAMA5D2-VB
+ * - SAMA5D2-XULT
  *
  * \section Description
  *
@@ -77,9 +78,7 @@
  * -# You can find the new disk on host, and to create/write file to it.
  *
  * \section References
- * - usb_massstorage/main.c
- * - pio.h
- * - pio_it.h
+ * - usb_mass_storage/main.c
  * - memories: Storage Media interface for MSD
  * - usb: USB Framework, USB MSD driver and UDP interface driver
  *    - \ref usbd_framework
@@ -101,10 +100,17 @@
 
 #include "board.h"
 #include "trace.h"
-
-#include "peripherals/pio.h"
+#include "misc/console.h"
 #include "peripherals/pmc.h"
-#include "peripherals/sdmmc.h"
+
+#ifdef CONFIG_HAVE_SDMMC
+#  include "peripherals/sdmmc.h"
+#elif defined(CONFIG_HAVE_HSMCI)
+#  include "peripherals/hsmcic.h"
+#  include "peripherals/hsmcid.h"
+#else
+#  error No peripheral for SD/MMC devices
+#endif
 
 #include "libsdmmc/libsdmmc.h"
 
@@ -114,18 +120,15 @@
 #include "libstoragemedia/media_sdcard.h"
 
 #include "usb/device/msd/msd_driver.h"
-
 #include "usb/device/msd/msd_lun.h"
-
 #include "../usb_common/main_usb_common.h"
-
-#include "misc/console.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -179,8 +182,22 @@ SECTION(".region_ddr")
 ALIGNED(BLOCK_SIZE)
 static uint8_t ramdisk_reserved[RAMDISK_SIZE];
 
+#ifdef CONFIG_HAVE_SDMMC
+#  define HOST0_ID                    ID_SDMMC0
+#  define HOST0_REGS                  SDMMC0
+#  define HOST1_ID                    ID_SDMMC1
+#  define HOST1_REGS                  SDMMC1
 /* Driver instance data (a.k.a. SDCard driver instance) */
 static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC];
+
+#elif defined(CONFIG_HAVE_HSMCI)
+#  define HOST0_ID                    ID_HSMCI0
+#  define HOST0_REGS                  HSMCI0
+#  define HOST1_ID                    ID_HSMCI1
+#  define HOST1_REGS                  HSMCI1
+/* MCI driver instance data (a.k.a. SDCard driver instance) */
+static struct hsmci_set sd_drv[BOARD_NUM_SDMMC];
+#endif
 
 /* Library instance data (a.k.a. SDCard library instance) */
 SECTION(".region_ddr")
@@ -204,15 +221,14 @@ SECTION(".region_ddr")
 ALIGNED(L1_CACHE_BYTES) static uint8_t sd_buffer1[MSD_BUFFER_SIZE];
 static uint8_t * sd_buffer[BOARD_NUM_SDMMC] = { sd_buffer0, sd_buffer1 };
 
-
-static bool use_dma;
-
-/* Buffers dedicated to the SDMMC Driver. Refer to sdmmc_initialize(). */
-SECTION(".region_ddr")
+/* Buffers dedicated to the SDMMC Driver, refer to sdmmc_initialize(). Aligning
+ * them on cache lines is optional. */
+#ifdef CONFIG_HAVE_SDMMC
+SECTION(".region_ddr") ALIGNED(L1_CACHE_BYTES)
 static uint32_t sd_dma_table0[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
-SECTION(".region_ddr")
+SECTION(".region_ddr") ALIGNED(L1_CACHE_BYTES)
 static uint32_t sd_dma_table1[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
-
+#endif
 
 /** Total data write to disk */
 static uint32_t msd_write_total = 0;
@@ -274,29 +290,39 @@ static void msd_callbacks_data(uint8_t flow_direction, uint32_t data_length,
  */
 static void sd_driver_configure(void)
 {
+#ifdef CONFIG_HAVE_SDMMC
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
-		.qdpmc = 0,
+		.div = 3,
+		.qdaudio = 24,
 	};
+#endif
 	uint8_t rc;
 
 	pmc_enable_peripheral(TIMER0_MODULE);
 #if TIMER1_MODULE != TIMER0_MODULE
 	pmc_enable_peripheral(TIMER1_MODULE);
 #endif
-	
-	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
-	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
-	 * The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
+
+	/* The HSMCI peripherals are clocked by the Master Clock (at least on
+	 * SAMA5D4x).
+	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
+	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
+	pmc_enable_peripheral(HOST0_ID);
+	pmc_enable_peripheral(HOST1_ID);
+
+#ifdef CONFIG_HAVE_SDMMC
+	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
 	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
-	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz. */
+	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz.
+	 * And set AUDIOPLLCK frequency to 624 / (5 + 1) = 104 MHz. */
 	audio_pll_cfg.nd = 51;
+	audio_pll_cfg.qdpmc = 5;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-	pmc_configure_gck(ID_SDMMC0, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC0);
-	pmc_enable_peripheral(ID_SDMMC0);
+	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
+	pmc_enable_gck(HOST0_ID);
 
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
@@ -304,23 +330,27 @@ static void sd_driver_configure(void)
 	 * mode @ 50 MHz.
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
-	pmc_configure_gck(ID_SDMMC1, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
-	pmc_enable_gck(ID_SDMMC1);
-	pmc_enable_peripheral(ID_SDMMC1);
+	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
+	pmc_enable_gck(HOST1_ID);
+#endif
 
-	rc = board_cfg_sdmmc(ID_SDMMC0) ? 1 : 0;
-	rc &= board_cfg_sdmmc(ID_SDMMC1) ? 1 : 0;
+	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;
+	rc &= board_cfg_sdmmc(HOST1_ID) ? 1 : 0;
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
-	use_dma = true;
-	
-	sdmmc_initialize(&sd_drv[0], SDMMC0, ID_SDMMC0, TIMER0_MODULE,
-	    TIMER0_CHANNEL, use_dma ? sd_dma_table0 : NULL,
-	    use_dma ? ARRAY_SIZE(sd_dma_table0) : 0);
-	sdmmc_initialize(&sd_drv[1], SDMMC1, ID_SDMMC1, TIMER1_MODULE,
-	    TIMER1_CHANNEL, use_dma ? sd_dma_table1 : NULL,
-	    use_dma ? ARRAY_SIZE(sd_dma_table1) : 0);
+#ifdef CONFIG_HAVE_SDMMC
+	sdmmc_initialize(&sd_drv[0], HOST0_REGS, HOST0_ID, TIMER0_MODULE,
+	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0));
+	sdmmc_initialize(&sd_drv[1], HOST1_REGS, HOST1_ID, TIMER1_MODULE,
+	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1));
+#elif defined(CONFIG_HAVE_HSMCI)
+	hsmci_initialize(&sd_drv[0], HOST0_REGS, HOST0_ID,
+		TIMER0_MODULE, TIMER0_CHANNEL);
+	hsmci_set_slot(HOST0_REGS, BOARD_HSMCI0_SLOT);
+	hsmci_initialize(&sd_drv[1], HOST1_REGS, HOST1_ID,
+		TIMER1_MODULE, TIMER1_CHANNEL);
+#endif
 
 	/* As of writing, libsdmmc ignores the slot number */
 	SDD_InitializeSdmmcMode(&sd_lib0, &sd_drv[0], 0);
@@ -356,7 +386,7 @@ static bool card_init(uint8_t num)
 {
 	sSdCard *pSd = sd_lib[num];
 	uint8_t rc;
-	
+
 	trace_info("\n\r==========================================\n\r");
 
 	rc = SD_Init(pSd);
@@ -373,7 +403,7 @@ static bool card_init(uint8_t num)
  */
 static void sddisk_init(void)
 {
-	uint8_t rc, i, sd_connected[BOARD_NUM_SDMMC]; 
+	uint8_t rc, i, sd_connected[BOARD_NUM_SDMMC];
 	sSdCard *pSd;
 	/* Infinite loop */
 	for (i = 0; i < BOARD_NUM_SDMMC; i ++) sd_connected[i]=0;
@@ -388,7 +418,7 @@ static void sddisk_init(void)
 					pSd = sd_lib[i];
 					media_sdusb_initialize(&medias[current_lun_num], pSd);
 					lun_init(&(luns[current_lun_num]), &(medias[current_lun_num]),
-								sd_buffer[i], MSD_BUFFER_SIZE, 0, 0, 0, 0, 
+								sd_buffer[i], MSD_BUFFER_SIZE, 0, 0, 0, 0,
 								msd_callbacks_data);
 					current_lun_num++;
 				}
