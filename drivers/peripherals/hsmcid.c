@@ -750,7 +750,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	else if (!has_data) {
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
 		hsmci_cfg_xfer(regs, 0, 0);
-		set->nxt_evts = HSMCI_IER_CMDRDY;
+		set->nxt_evts = HSMCI_IER_XFRDONE;
 		ier = set->nxt_evts | STATUS_ERRORS_RESP;
 	}
 	/* Command with data */
@@ -788,7 +788,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		set->nxt_evts = HSMCI_IER_XFRDONE;
 		/* Let's ensure the DMA transfer has completed, before enabling
 		 * the XFRDONE interrupt that will close the request. */
-		ier = STATUS_ERRORS_DATA;
+		ier = STATUS_ERRORS_RESP | STATUS_ERRORS_DATA;
 	}
 
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND)) {
@@ -818,17 +818,24 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 				break;
 		}
 		switch (cmd->cmdOp.bmBits.respType) {
-			case 3: case 4:
-				/* ignore CRC error */
+			case 3:
+				/* The R3 response misses the CRC */
 				ier &= ~(uint32_t)HSMCI_IER_RCRCE;
+			case 4:
+				if (cmd->cmdOp.bmBits.respType == 4
+					&& cmd->cmdOp.bmBits.ioCmd)
+					/* SDIO R4 response misses the CRC */
+					ier &= ~(uint32_t)HSMCI_IER_RCRCE;
 			case 1: case 5: case 6: case 7:
-				cmdr |= HSMCI_CMDR_RSPTYP_48_BIT;
+				cmdr |= cmd->cmdOp.bmBits.checkBsy
+					? HSMCI_CMDR_RSPTYP_R1B
+					: HSMCI_CMDR_RSPTYP_48_BIT;
 				break;
 			case 2:
 				cmdr |= HSMCI_CMDR_RSPTYP_136_BIT;
 				break;
-			/* No response, ignore RTOE */
 			default:
+				/* No response, ignore Response Time-out */
 				ier &= ~(uint32_t)HSMCI_IER_RTOE;
 				break;
 		}
