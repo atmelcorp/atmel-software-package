@@ -156,6 +156,8 @@
 #define ID_SDMMC0_TIMER (71) /**< \brief  (SDMMC0_TIMER) */
 #define ID_SDMMC1_TIMER (72) /**< \brief  (SDMMC1_TIMER) */
 #define ID_SYSC         (74) /**< \brief System Controller Interrupt, RTC, RSTC, PMC (SYSC) */
+#define ID_RTC          (74) /**< \brief Real Time Clock (RTC) */
+#define ID_RSTC         (74) /**< \brief Reset Controller (RSTC) */
 #define ID_ACC          (75) /**< \brief Analog Comparator (ACC) */
 #define ID_RXLP         (76) /**< \brief Uart Low Power (RXLP) */
 #define ID_CHIPID       (78) /**< \brief Chip ID (CHIPID) */

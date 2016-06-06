@@ -1,0 +1,82 @@
+SAM9XX5_TARGETS = sam9g15-generic sam9g25-generic sam9g35-generic \
+                  sam9x25-generic sam9x35-generic \
+                  sam9g15-ek sam9g25-ek sam9g35-ek \
+                  sam9x25-ek sam9x35-ek
+
+ifneq ($(strip $(foreach board,$(SAM9XX5_TARGETS),$(if $(call eq,$(TARGET),$(board)),$(board)))),)
+
+COMPATIBLE_VARIANTS = sram ddram
+
+CONFIG_CORE_ARM926 = y
+CONFIG_SOC_SAM9XX5 = y
+CONFIG_HAVE_AIC2 = y
+CONFIG_HAVE_DBGU = y
+CONFIG_HAVE_DMAC = y
+CONFIG_HAVE_LCDC = y
+CONFIG_HAVE_MPDDRC = y
+CONFIG_HAVE_MPDDRC_DDR2 = y
+CONFIG_HAVE_PIO3 = y
+CONFIG_HAVE_PMECC = y
+CONFIG_HAVE_SMC = y
+CONFIG_HAVE_USART_SPI_MODE = y
+CONFIG_HAVE_RSTC_EXTERNAL_RESET = y
+CONFIG_HAVE_RSTC_INDEPENDENT_RESET = y
+
+ifeq ($(TARGET),sam9g15-generic)
+CONFIG_SOC_SAM9G15 = y
+CONFIG_BOARD_SAM9G15_GENERIC = y
+endif
+
+ifeq ($(TARGET),sam9g25-generic)
+CONFIG_SOC_SAM9G25 = y
+CONFIG_BOARD_SAM9G25_GENERIC = y
+endif
+
+ifeq ($(TARGET),sam9g35-generic)
+CONFIG_SOC_SAM9G35 = y
+CONFIG_BOARD_SAM9G35_GENERIC = y
+endif
+
+ifeq ($(TARGET),sam9x25-generic)
+CONFIG_SOC_SAM9X25 = y
+CONFIG_BOARD_SAM9X25_GENERIC = y
+endif
+
+ifeq ($(TARGET),sam9x35-generic)
+CONFIG_SOC_SAM9X35 = y
+CONFIG_BOARD_SAM9X35_GENERIC = y
+endif
+
+ifeq ($(TARGET),sam9g15-ek)
+CONFIG_SOC_SAM9G15 = y
+CONFIG_BOARD_SAM9G15_EK = y
+CONFIG_HAVE_DDR2_MT47H64M16 = y
+endif
+
+ifeq ($(TARGET),sam9g25-ek)
+CONFIG_SOC_SAM9G25 = y
+CONFIG_BOARD_SAM9G25_EK = y
+CONFIG_HAVE_DDR2_MT47H64M16 = y
+endif
+
+ifeq ($(TARGET),sam9g35-ek)
+CONFIG_SOC_SAM9G35 = y
+CONFIG_BOARD_SAM9G35_EK = y
+CONFIG_HAVE_DDR2_MT47H64M16 = y
+endif
+
+ifeq ($(TARGET),sam9x25-ek)
+CONFIG_SOC_SAM9X25 = y
+CONFIG_BOARD_SAM9X25_EK = y
+CONFIG_HAVE_DDR2_MT47H64M16 = y
+endif
+
+ifeq ($(TARGET),sam9x35-ek)
+CONFIG_SOC_SAM9X35 = y
+CONFIG_BOARD_SAM9X35_EK = y
+CONFIG_HAVE_DDR2_MT47H64M16 = y
+endif
+
+CFLAGS_CPU += -mcpu=arm926ej-s -mfloat-abi=soft
+
+endif

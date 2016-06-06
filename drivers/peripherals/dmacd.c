@@ -68,6 +68,13 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_SOC_SAM9XX5
+#define DMAC_CFG_SRC_PER_MSB_Msk 0
+#define DMAC_CFG_DST_PER_MSB_Msk 0
+#define DMAC_CFG_SRC_PER_MSB(x) 0
+#define DMAC_CFG_DST_PER_MSB(x) 0
+#endif
+
 #define DMACD_CHANNELS (DMAC_CONTROLLERS * DMAC_CHANNELS)
 
 /** DMA state for channel */

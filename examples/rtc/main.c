@@ -565,8 +565,8 @@ int main(void)
 
 	/* Configure RTC interrupts */
 	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
-	aic_set_source_vector(ID_SYSC, sysc_handler);
-	aic_enable(ID_SYSC);
+	aic_set_source_vector(ID_RTC, sysc_handler);
+	aic_enable(ID_RTC);
 
 	/* Refresh display once */
 	_RefreshDisplay();

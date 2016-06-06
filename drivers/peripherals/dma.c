@@ -265,9 +265,15 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 				   | (cfg->chunk_size << DMAC_CTRLA_SCSIZE_Pos)
 				   | (cfg->chunk_size << DMAC_CTRLA_DCSIZE_Pos);
 
-	dma_regs.ctrlb = (src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2: DMAC_CTRLB_SIF_AHB_IF0)
-					 | (dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2: DMAC_CTRLB_DIF_AHB_IF0);
-
+#if defined(CONFIG_SOC_SAMA5D3)
+	dma_regs.ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2 : DMAC_CTRLB_SIF_AHB_IF0;
+	dma_regs.ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2 : DMAC_CTRLB_DIF_AHB_IF0;
+#elif defined(CONFIG_SOC_SAM9XX5)
+	dma_regs.ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF1 : DMAC_CTRLB_SIF_AHB_IF0;
+	dma_regs.ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF1 : DMAC_CTRLB_DIF_AHB_IF0;
+#else
+#error Unknown SoC!
+#endif
 	dma_regs.ctrlb |= ((src_is_periph) ? DMAC_CTRLB_FC_PER2MEM_DMA_FC :
 					   ((dst_is_periph) ? DMAC_CTRLB_FC_MEM2PER_DMA_FC :
 					   DMAC_CTRLB_FC_MEM2MEM_DMA_FC));
@@ -324,8 +330,15 @@ uint32_t dma_prepare_item(struct dma_channel *channel,
 		  | (tmpl->chunk_size << DMAC_CTRLA_DCSIZE_Pos)
 		  | tmpl->blk_size ;
 
-	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2: DMAC_CTRLB_SIF_AHB_IF0;
-	ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2: DMAC_CTRLB_DIF_AHB_IF0;
+#if defined(CONFIG_SOC_SAMA5D3)
+	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2 : DMAC_CTRLB_SIF_AHB_IF0;
+	ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2 : DMAC_CTRLB_DIF_AHB_IF0;
+#elif defined(CONFIG_SOC_SAM9XX5)
+	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF1 : DMAC_CTRLB_SIF_AHB_IF0;
+	ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF1 : DMAC_CTRLB_DIF_AHB_IF0;
+#else
+#error Unknown SoC!
+#endif
 	ctrlb |= ((src_is_periph) ? DMAC_CTRLB_FC_PER2MEM_DMA_FC :
 		    ((dst_is_periph) ? DMAC_CTRLB_FC_MEM2PER_DMA_FC :  DMAC_CTRLB_FC_MEM2MEM_DMA_FC));
 	ctrlb |= (tmpl->upd_sa_per_data ? DMAC_CTRLB_SRC_INCR_INCREMENTING:

@@ -65,6 +65,9 @@
 /*@{*/
 
 #define ID_SYSC         ( 1) /**< \brief System Controller Interrupt, RTC, RSTC, PMC (SYSC) */
+#define ID_RTC          ( 1) /**< \brief Real Time Controller (RTC) */
+#define ID_RSTC         ( 1) /**< \brief Reset Controller (RSTC) */
+#define ID_SHDWC        ( 1) /**< \brief Shutdown Controller (SHDWC) */
 #define ID_ARM          ( 2) /**< \brief Performance Monitor Unit (ARM) */
 #define ID_PIT          ( 3) /**< \brief Periodic Interval Timer Interrupt (PIT) */
 #define ID_WDT          ( 4) /**< \brief Watchdog timer Interrupt (WDT) */
