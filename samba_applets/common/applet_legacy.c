@@ -152,7 +152,7 @@ uint32_t applet_emulate_legacy_command(uint32_t cmd, uint32_t *args)
 		}
 
 		/* get maximum supported erase size */
-		length = 1 << (31 - __builtin_clz(erase_support));
+		length = 1 << (31 - CLZ(erase_support));
 
 		if (mbx->erase_in.offset & (page_size - 1)) {
 			trace_error("Un-aligned offset\r\n");
