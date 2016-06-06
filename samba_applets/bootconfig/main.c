@@ -79,9 +79,6 @@ union write_bootcfg_mailbox
 		/** Configuration value */
 		uint32_t value;
 	} in;
-
-	struct {
-	} out;
 };
 
 #define FUSE_BOOTCONFIG_WORD_POS   16
