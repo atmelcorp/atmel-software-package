@@ -1,0 +1,45 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_1.xml" */
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_IROM1_start__ = 0x0;
+define symbol __ICFEDIT_region_IROM1_end__   = 0x0;
+define symbol __ICFEDIT_region_IROM2_start__ = 0x0;
+define symbol __ICFEDIT_region_IROM2_end__   = 0x0;
+define symbol __ICFEDIT_region_EROM1_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM1_end__   = 0x0;
+define symbol __ICFEDIT_region_EROM2_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM2_end__   = 0x0;
+define symbol __ICFEDIT_region_EROM3_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM3_end__   = 0x0;
+define symbol __ICFEDIT_region_IRAM1_start__ = 0x220000;
+define symbol __ICFEDIT_region_IRAM1_end__   = 0x23FFFF;
+define symbol __ICFEDIT_region_IRAM2_start__ = 0x0;
+define symbol __ICFEDIT_region_IRAM2_end__   = 0x0;
+define symbol __ICFEDIT_region_ERAM1_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM1_end__   = 0x0;
+define symbol __ICFEDIT_region_ERAM2_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM2_end__   = 0x0;
+define symbol __ICFEDIT_region_ERAM3_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM3_end__   = 0x0;
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__   = 0x1000;
+define symbol __ICFEDIT_size_heap__     = 0x200;
+/**** End of ICF editor section. ###ICF###*/
+
+define memory mem with size = 4G;
+define region RAM_region = mem:[from __ICFEDIT_region_IRAM1_start__ to __ICFEDIT_region_IRAM1_end__];
+
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP      with alignment = 4, size = __ICFEDIT_size_heap__     { };
+
+initialize by copy with packing=none { readwrite };
+do not initialize  { readonly section .noinit };
+
+place at start of RAM_region { section .cstartup };
+place in RAM_region { readonly };
+/* CSTACK must be the last section in RAM_region: its end marks the start of the applet buffer */
+place in RAM_region { readwrite, block HEAP, block CSTACK };
+
+define symbol __buffer_end__ = end(RAM_region);
+export symbol __buffer_end__;

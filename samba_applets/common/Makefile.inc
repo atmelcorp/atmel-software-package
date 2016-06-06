@@ -39,8 +39,15 @@ obj-y += samba_applets/common/applet_legacy.o
 
 gnu-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.icf
 gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.gdb
-gnu-cstartup-y = samba_applets/common/cstartup.S
+iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.icf
+
+gnu-cstartup-y = samba_applets/common/cstartup_gnu.S
+iar-cstartup-y = samba_applets/common/cstartup_iar.s
+
+iar-debug-script-y =
+iar-flashloader-script-y =
 
 endif
