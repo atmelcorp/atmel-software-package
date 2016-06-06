@@ -74,4 +74,14 @@ WEAK void board_init(void)
 	/* Configure camera interface */
 	board_cfg_isc();
 #endif
+
+#ifdef CONFIG_HAVE_PDMIC
+	/* Configure PDMIC interface */
+	board_cfg_pdmic();
+#endif
+
+#ifdef CONFIG_HAVE_CLASSD
+	/* Configure PDMIC interface */
+	board_cfg_classd();
+#endif
 }

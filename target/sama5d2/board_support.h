@@ -142,8 +142,28 @@ extern void board_cfg_isc(void);
 extern void board_cfg_lcd(void);
 #endif
 
+/**
+ * \brief Configures LEDs for the board.
+ */
 extern void board_cfg_led(void);
 
+/**
+ * \brief Configures CLASSD for the board.
+ */
+#ifdef CONFIG_HAVE_CLASSD
+void board_cfg_classd(void);
+#endif
+
+/**
+ * \brief Configures PDMIC for the board.
+ */
+#ifdef CONFIG_HAVE_PDMIC
+void board_cfg_pdmic(void);
+#endif
+
+/**
+ * \brief Configures the board.
+ */
 extern void board_init(void);
 
 #endif  /* BOARD_MEMORIES_H */

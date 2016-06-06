@@ -55,4 +55,14 @@ WEAK void board_init(void)
 
 	/* Configure LEDs */
 	board_cfg_led();
+
+#ifdef CONFIG_HAVE_PDMIC
+	/* Configure PDMIC interface */
+	board_cfg_pdmic();
+#endif
+
+#ifdef CONFIG_HAVE_CLASSD
+	/* Configure CLASSD interface */
+	board_cfg_classd();
+#endif
 }

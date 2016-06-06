@@ -371,17 +371,10 @@ int main(void)
 	/* Output example information */
 	console_example_info("PDMIC Example");
 
-	/* configure PIO muxing for ClassD */
-	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));
-
-	/* configure PIO muxing for pdmic */
-	pio_configure(pdmic_pins, ARRAY_SIZE(pdmic_pins));
-
 	if (pdmic_init(&pdmic_desc))
 		printf("PDMIC configured\r\n");
 	else
 		printf("PDMIC configuration failed!\r\n");
-
 
 	while (1) {
 		_display_menu();

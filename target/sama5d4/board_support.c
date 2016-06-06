@@ -759,3 +759,25 @@ bool board_power_sdmmc_device(uint32_t periph_id, bool on)
 	}
 	return true;
 }
+
+#ifdef CONFIG_HAVE_SSC
+void board_cfg_ssc(uint8_t instance)
+{
+	const struct _pin pins_ssc0[] = BOARD_SSC0_PINS;
+#ifdef ID_SSC1
+	const struct _pin pins_ssc1[] = BOARD_SSC1_PINS;
+#endif
+
+	switch (instance) {
+	case ID_SSC0:
+		pio_configure(pins_ssc0, ARRAY_SIZE(pins_ssc0));
+		break;
+#ifdef ID_SSC1
+	case ID_SSC1:
+		pio_configure(pins_ssc1, ARRAY_SIZE(pins_ssc1));
+		break;
+#endif
+	}
+}
+#endif
+
