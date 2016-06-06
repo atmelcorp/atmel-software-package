@@ -3,9 +3,6 @@
 
 #include "audio/audio_device.h"
 
-/** List of pins to configure. */
-static  struct _pin  pins_audio[] = BOARD_CLASSD_PINS;
-
 /** Audio device instance*/
 static struct _audio_desc audio_device = {
 	.type = AUDIO_DEVICE_CLASSD,
@@ -14,8 +11,6 @@ static struct _audio_desc audio_device = {
 			.addr = CLASSD,
 		},
 	},
-	.audio_pin = pins_audio,
-	.audio_pin_size = ARRAY_SIZE(pins_audio),
 	.sample_rate = AUDDevice_SAMPLERATE,
 	.num_channels = AUDDevice_NUMCHANNELS,
 	.bits_per_sample = AUDDevice_BYTESPERSAMPLE * 8,

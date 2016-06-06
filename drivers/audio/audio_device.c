@@ -175,8 +175,6 @@ static void _audio_dma_start_transfer(void *src_address, void *dest_address, uin
 
 static void _configure_audio_device(struct _audio_desc *desc)
 {
-	/* configure PIO muxing for audio play device */
-	pio_configure(desc->audio_pin, desc->audio_pin_size);
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 	case AUDIO_DEVICE_CLASSD:

@@ -156,9 +156,8 @@ SECTION(".region_ddr")
 ALIGNED(L1_CACHE_BYTES) uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
 /** List of pins to configure. */
-static const struct _pin  pins_ssc[] = PINS_SSC_CODEC;
-static const struct _pin  pins_twi[] = PINS_TWI0;
-static const struct _pin  pins_pck2[] = PIN_PCK2_ALT1;
+static const struct _pin pins_twi[] = PINS_TWI0;
+static const struct _pin pins_clk[] = PIN_PCK2_ALT1; /* DAC Master Clock */
 
 /* Global DMA driver for all transfer */
 
@@ -348,9 +347,8 @@ extern int main( void )
 	console_example_info("SSC DMA Audio Example");
 
 	/* Configure all pins */
-	pio_configure(pins_ssc, ARRAY_SIZE(pins_ssc));
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
-	pio_configure(pins_pck2, ARRAY_SIZE(pins_pck2));
+	pio_configure(pins_clk, ARRAY_SIZE(pins_clk));
 
 	/* Configure SSC */
 	ssc_configure(&ssc_dev_desc);

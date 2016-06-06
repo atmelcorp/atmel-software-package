@@ -77,8 +77,6 @@ struct _audio_desc {
 #endif
 	} device;
 
-	struct _pin* audio_pin;
-	uint32_t audio_pin_size;
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
 	/* Mono = 1, Stereo = 2, etc. */

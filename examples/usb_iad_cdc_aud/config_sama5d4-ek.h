@@ -17,8 +17,6 @@ static struct _twi_desc wm8904_twid = {
 };
 
 /** List of pins to configure. */
-static struct _pin  pins_audio[] = PINS_SSC_CODEC;
-
 static struct _pin  pins_clk[] = PIN_PCK2_ALT1;
 
 static struct _pin  pins_twi[] = PINS_TWI0;
@@ -43,8 +41,6 @@ static struct _audio_desc audio_device = {
 			.codec_chip = &wm8904_codec,
 		},
 	},
-	.audio_pin = pins_audio,
-	.audio_pin_size = ARRAY_SIZE(pins_audio),
 	.sample_rate = AUDDevice_SAMPLERATE,
 	.num_channels = AUDDevice_NUMCHANNELS,
 	.bits_per_sample = AUDDevice_BYTESPERSAMPLE * 8,
