@@ -391,7 +391,8 @@ static bool is_valid_pmecc_param(void)
 {
 	uint32_t mm, ecc_size_bytes, sector_size_per_page;
 
-	if (correctability < onfi_ecc_correctability) {
+	if (correctability < onfi_ecc_correctability
+			&& onfi_ecc_correctability != 0xff) {
 		printf("-W- Number of bits of ECC correction <%d> " \
 				"do not satisfy ONFI ECC correctability <%d>",
 				correctability, onfi_ecc_correctability);
