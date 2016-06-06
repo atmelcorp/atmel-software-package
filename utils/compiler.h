@@ -34,6 +34,15 @@
 	#error Unknown compiler!
 #endif
 
+#if defined(__ICCARM__)
+	#include "intrinsics.h"
+	#define CLZ __CLZ
+#elif defined(__GNUC__)
+	#define CLZ __builtin_clz
+#else
+	#error Unknown compiler!
+#endif
+
 #ifndef NULL
 	#define NULL ((void*)0)
 #endif
