@@ -63,15 +63,13 @@ void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 {
 	assert(dbgu == DBGU);
 
-	uint32_t clock = pmc_get_peripheral_clock(ID_DBGU);
-
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
 	dbgu->DBGU_IDR = 0xFFFFFFFF;
 	dbgu->DBGU_CR = DBGU_CR_RXDIS | DBGU_CR_TXDIS;
 
 	/* Configure baudrate */
-	dbgu->DBGU_BRGR = (clock / baudrate) / 16;
+	dbgu->DBGU_BRGR = (pmc_get_peripheral_clock(ID_DBGU) / baudrate) / 16;
 
 	/* Enable receiver and transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RXEN | DBGU_CR_TXEN;
@@ -87,7 +85,7 @@ void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 void dbgu_put_char(Dbgu* dbgu, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */
-	while ((dbgu->DBGU_SR & DBGU_SR_TXEMPTY) == 0);
+	while ((dbgu->DBGU_SR & DBGU_SR_TXRDY) == 0);
 
 	/* Send character */
 	dbgu->DBGU_THR = c;
