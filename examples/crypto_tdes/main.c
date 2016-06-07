@@ -115,7 +115,9 @@
 #include "peripherals/tdes.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -175,17 +177,19 @@ static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
 static uint32_t algo, op_mode, start_mode, key_mode;
 static volatile bool data_ready = false;
 
+#ifdef CONFIG_HAVE_XDMAC
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
 /* DMA linked lists */
 ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
 ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
+#ifdef CONFIG_HAVE_XDMAC
 /**
  * \brief xDMA init.
  */
@@ -264,6 +268,7 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED, dma_rd_dlist);
 }
+#endif /* CONFIG_HAVE_XDMAC */
 
 /**
  * \brief TDES interrupt hander.
@@ -285,8 +290,11 @@ static void handle_tdes_irq(void)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
+#ifdef CONFIG_HAVE_XDMAC
 	const bool use_dma = start_mode == TDES_MR_SMOD_IDATAR0_START;
-	uint32_t rc = 0, i;
+	uint32_t rc = 0;
+#endif
+	uint32_t i;
 
 	tdes_configure((encrypt ?
 		TDES_MR_CIPHER_ENCRYPT : TDES_MR_CIPHER_DECRYPT)
@@ -302,6 +310,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	/* The Initialization Vector Registers apply to all modes except ECB. */
 	if (op_mode != TDES_MR_OPMOD_ECB)
 		tdes_set_vector(TDES_VECTOR_0, TDES_VECTOR_1);
+#ifdef CONFIG_HAVE_XDMAC
 	if (use_dma) {
 		init_dma();
 		if (encrypt)
@@ -323,6 +332,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
 		cache_invalidate_region(out, DATA_LEN_INBYTE);
 	} else
+#endif /* CONFIG_HAVE_XDMAC */
 		/* Iterate per 64-bit data block */
 		for (i = 0; i < DATA_LEN_INWORD; i += 2) {
 			data_ready = false;
@@ -408,12 +418,21 @@ static void display_menu(void)
 	printf("   1: Cipher Block Chaining   [%c]\n\r", chk_box[1]);
 	printf("   2: Output Feedback         [%c]\n\r", chk_box[2]);
 	printf("   3: Cipher Feedback         [%c]\n\r", chk_box[3]);
+#ifdef CONFIG_HAVE_XDMAC
 	printf("Press [m|a|d] to set Start Mode\n\r");
+#else
+	printf("Press [m|a] to set Start Mode\n\r");
+#endif
 	chk_box[0] = (start_mode == TDES_MR_SMOD_MANUAL_START) ? 'X' : ' ';
 	chk_box[1] = (start_mode == TDES_MR_SMOD_AUTO_START) ? 'X' : ' ';
+#ifdef CONFIG_HAVE_XDMAC
 	chk_box[2] = (start_mode == TDES_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
 	       chk_box[0], chk_box[1], chk_box[2]);
+#else
+	printf("   m: MANUAL_START[%c] a: AUTO_START[%c]\n\r",
+	       chk_box[0], chk_box[1]);
+#endif
 	printf("   p: Begin the encryption/decryption process\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
@@ -476,10 +495,16 @@ int main(void)
 			break;
 		case 'm':
 		case 'a':
+#ifdef CONFIG_HAVE_XDMAC
 		case 'd':
+#endif
 			start_mode = user_key == 'a' ? TDES_MR_SMOD_AUTO_START :
+#ifdef CONFIG_HAVE_XDMAC
 			            (user_key == 'd' ? TDES_MR_SMOD_IDATAR0_START :
-			                               TDES_MR_SMOD_MANUAL_START);
+#else
+						(
+#endif
+						 TDES_MR_SMOD_MANUAL_START);
 		case 'h':
 			display_menu();
 			break;

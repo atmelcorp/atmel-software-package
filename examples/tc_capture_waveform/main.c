@@ -135,8 +135,9 @@
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/tc.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
-
+#endif
 #include "misc/console.h"
 
 
@@ -154,6 +155,8 @@
 	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 	#include "config_sama5d4-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+	#include "config_sama5d3-ek.h"
 #else
 	#error Unsupported board!
 #endif

@@ -96,7 +96,9 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/twid.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "memories/at24.h"
 
@@ -129,8 +131,10 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
+#ifndef CONFIG_SOC_SAMA5D3
 static uint8_t _device = 0; // Used to determine if the master communicate
                             // with the emulator or the real device
+#endif
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
@@ -332,29 +336,36 @@ static void print_menu(void)
 	case TWID_MODE_ASYNC:
 		printf("ASYNC \r\n");
 		break;
+#ifdef CONFIG_HAVE_XDMAC		
 	case TWID_MODE_DMA:
 		printf("DMA \r\n");
 		break;
+#endif
 	}
 	printf("twi eeprom example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
+#ifndef CONFIG_SOC_SAMA5D3
 	       "| a serial                                              |\r\n"
 	       "|      Query device serial number                       |\r\n"
 	       "| a mac                                                 |\r\n"
 	       "|      Query device mac addr                            |\r\n"
+#endif
 	       "| r addr size                                           |\r\n"
 	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
 	       "| w addr str                                            |\r\n"
 	       "|      Write 'str' to address 'addr'                    |\r\n"
+#ifndef CONFIG_SOC_SAMA5D3
 	       "| s device (default)                                    |\r\n"
 	       "|      Select at24 device                               |\r\n"
 	       "| s emulator                                            |\r\n"
 	       "|      Select to TWI slave device emulating at24        |\r\n"
+#endif
 	       "| m                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");
 }
 
+#ifndef CONFIG_SOC_SAMA5D3
 /*
  *
  */
@@ -401,7 +412,6 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 {
 	const char *emulator_lbl = "emulator";
 	const char *device_lbl = "device";
-
 	if (!strncmp((char*)buffer, emulator_lbl, 8)) {
 		_device = AT24_EMULATOR;
 		at24_drv.addr = TWI_SLAVE_EEP_ADDR;
@@ -412,6 +422,7 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 		printf("Use AT24 device\r\n");
 	}
 }
+#endif /* CONFIG_BOARD_SAMA5D3_XPLAINED */
 
 static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
@@ -431,12 +442,14 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'w':
 		_eeprom_write_arg_parser(buffer+2, len-2);
 		break;
+#ifndef CONFIG_SOC_SAMA5D3
 	case 'a':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;
 	case 's':
 		_eeprom_toggle_device_arg_parser(buffer+2, len-2);
 		break;
+#endif
 	default:
 		printf("Command %c unknown\r\n", *buffer);
 	}

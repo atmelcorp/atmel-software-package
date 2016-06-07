@@ -152,6 +152,8 @@ struct _tc_desc {
 	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 	#include "config_sama5d4-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+	#include "config_sama5d3-ek.h"
 #else
 #error Unsupported board!
 #endif
@@ -159,7 +161,7 @@ struct _tc_desc {
 #ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer length for synchronous channels */
 #define DUTY_BUFFER_LENGTH 100
-#endif
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -175,7 +177,7 @@ static const struct _pin pins_pwm[] = { PIN_PWM };
 #ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer synchronous channels */
 static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
-#endif
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 /** PIOs for TC capture, waveform */
 static const struct _pin pins_tc[] = { PIN_TC_CAPTURE_IN };
@@ -209,7 +211,7 @@ static void _display_menu(void)
 	printf("  a: PWM operations for asynchronous channels \n\r");
 #ifdef CONFIG_HAVE_PWM_DMA
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
-#endif
+#endif /* CONFIG_HAVE_PWM_DMA */
 	printf("  f: PWM fault mode initialize \n\r");
 	printf("  F: PWM fault mode clear and disable \n\r");
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
@@ -358,6 +360,8 @@ static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
 	}
 }
 
+#ifdef CONFIG_HAVE_PWM_DMA
+
 /**
  * \brief PWM call-back routine for DMA operations
  */
@@ -366,7 +370,6 @@ static void _pwmc_callback(void* args)
 	trace_debug("PWM DMA Transfer Finished\r\n");
 }
 
-#ifdef CONFIG_HAVE_PWM_DMA
 /**
  * \brief Configure DMA operation for PWM synchronous channel
  */
@@ -393,7 +396,8 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd, uint32_t clock)
 	pwmc_set_dma_finished_callback(_pwmc_callback, 0);
 	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
-#endif
+
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -458,12 +462,15 @@ int main(void)
 				pwm_channel = CHANNEL_PWM;
 				_pwm_demo_dma(pwm_channel, cprd, clock);
 				break;
-#endif
+#endif /* CONFIG_HAVE_PWM_DMA */
 			case 'f':
 				pwmc_set_fault_mode(PWM,
 					PWM_FMR_FPOL(1 << PWM_FAULT_INPUT_TIMER0)
 					| PWM_FMR_FMOD(0) | PWM_FMR_FFIL(0));
-				pwmc_set_fault_protection(PWM, PWM_FPV1_FPVH2 | PWM_FPV1_FPVL2, 0);
+				pwmc_set_fault_protection(PWM, PWM_FPV1_FPVH2 | PWM_FPV1_FPVL2);
+#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
+				pwmc_set_fault_protection_to_hiz(PWM, 0);
+#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
 				pwmc_enable_fault_protection(PWM, pwm_channel, PWM_FAULT_INPUT_TIMER0);
 				aic_set_source_vector(ID_PWM, _pwm_handler);
 				pwmc_enable_it(PWM, PWM_IER1_FCHID0, 0);
@@ -517,7 +524,9 @@ int main(void)
 				pwmc_disable_channel(PWM, pwm_channel);
 				/* no PWM synchronous channels */
 				pwmc_configure_sync_channels(PWM, 0);
+#ifdef CONFIG_HAVE_PWM_DMA
 				pwmc_set_dma_finished_callback(NULL, 0);
+#endif /* CONFIG_HAVE_PWM_DMA */
 				pwmc_configure_stepper_motor_mode(PWM, 0);
 				_display_menu();
 				break;

@@ -130,6 +130,12 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_SOC_SAMA5D3
+#define _PMC_IPLL_PLLA PMC_IPLL_PLLA(3)
+#else
+#define _PMC_IPLL_PLLA 0
+#endif
+
 #define MENU_NB_OPTIONS      17
 #define MENU_STRING_LENGTH   200
 char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
@@ -375,7 +381,7 @@ int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(33)  |
-				CKGR_PLLAR_DIVA_BYPASS, 0);
+				CKGR_PLLAR_DIVA_BYPASS, _PMC_IPLL_PLLA);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -388,7 +394,7 @@ int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(49)  |
-				CKGR_PLLAR_DIVA_BYPASS, 0);
+				CKGR_PLLAR_DIVA_BYPASS, _PMC_IPLL_PLLA);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -402,7 +408,7 @@ int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(65)  |
-				CKGR_PLLAR_DIVA_BYPASS, 0);
+				CKGR_PLLAR_DIVA_BYPASS, _PMC_IPLL_PLLA);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -416,7 +422,7 @@ int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(82)  |
-				CKGR_PLLAR_DIVA_BYPASS, 0);
+				CKGR_PLLAR_DIVA_BYPASS, _PMC_IPLL_PLLA);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -430,7 +436,7 @@ int main(void)
 				CKGR_PLLAR_OUTA(0x0) |
 				CKGR_PLLAR_DIVA(1)   |
 				CKGR_PLLAR_MULA(99)  |
-				CKGR_PLLAR_DIVA_BYPASS, 0);
+				CKGR_PLLAR_DIVA_BYPASS, _PMC_IPLL_PLLA);
 
 			MenuChoice = 0;
 			_print_menu();

@@ -42,7 +42,9 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "misc/console.h"
 
@@ -78,7 +80,11 @@ static struct _spi_desc spi_at25_desc = {
 	.dlybct         = AT25_DLYCT,
 	.chip_select    = AT25_CS,
 	.spi_mode       = AT25_SPI_MODE,
+#ifdef CONFIG_SOC_SAMA5D3
+	.transfert_mode = SPID_MODE_POLLING,
+#else
 	.transfert_mode = SPID_MODE_DMA,
+#endif
 };
 
 static struct _at25 at25drv;

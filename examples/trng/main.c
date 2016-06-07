@@ -92,7 +92,6 @@
 
 #include "misc/console.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/trng.h"
 
 #include <stdio.h>

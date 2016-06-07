@@ -63,6 +63,20 @@ extern struct _twi_desc at24_twid;
 /** TWI slave address definition */
 #define TWI_SLAVE_ADDR ((Twi*)TWI1)
 
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+/* twi_slave examples mimics a serial memory with TWI interface. */
+/** TWI slave pins definition **/
+#define TWI_SLAVE_PINS PINS_TWI1
+/** TWI slave address definition */
+#define TWI_SLAVE_ADDR ((Twi*)TWI1)
+
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+/* twi_slave examples mimics a serial memory with TWI interface. */
+/** TWI slave pins definition **/
+#define TWI_SLAVE_PINS PINS_TWI1
+/** TWI slave address definition */
+#define TWI_SLAVE_ADDR ((Twi*)TWI1)
+
 #else
 #error Unsupported board...
 #endif

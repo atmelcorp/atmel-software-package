@@ -49,6 +49,10 @@ Connect USBC_EN5V_PE12 (J19 pin 44) and MCI1_PWR_PE15 (J19 pin 47) on the board.
 ----------------
 Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
 
+### SAMA5D3-EK
+----------------
+Connect PE27 (J22 pin 11) and PC12 (J2 pin 29) on the board.
+
 
 ## Start the application (SAMA5D2-XPLAINED)
 -------------------------------------------

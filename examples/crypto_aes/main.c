@@ -101,7 +101,9 @@
 #include "peripherals/aes.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -174,6 +176,7 @@ static uint32_t msg_decrypted[ROUND_UP_MULT(DATA_LEN_INWORD, L1_CACHE_WORDS)];
 static uint32_t op_mode, start_mode, key_id, key_byte_len;
 static volatile bool data_ready = false;
 
+#ifdef CONFIG_HAVE_XDMAC
 /** Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
 /* DMA linked lists */
@@ -181,6 +184,7 @@ ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
 ALIGNED(L1_CACHE_BYTES)
 static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
+#endif
 
 static volatile bool dma_rd_complete = false;
 
@@ -198,6 +202,7 @@ static void dma_wr_callback(struct _xdmad_channel *channel, void *arg)
 	printf("-I- xdma: write completed\r\n");
 }
 
+#ifdef CONFIG_HAVE_XDMAC
 /**
  * \brief xDMA init.
  */
@@ -296,6 +301,7 @@ static void configure_dma_read(uint32_t *buf, uint32_t len)
 		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
 		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED, dma_rd_dlist);
 }
+#endif
 
 /**
  * \brief AES interrupt hander.
@@ -317,8 +323,11 @@ static void handle_aes_irq(void)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
+#ifdef CONFIG_HAVE_XDMAC
 	const bool use_dma = start_mode == AES_MR_SMOD_IDATAR0_START;
-	uint32_t rc = 0, i;
+	uint32_t rc = 0;
+#endif
+	uint32_t i;
 
 	aes_configure((encrypt ? AES_MR_CIPHER_ENCRYPT : AES_MR_CIPHER_DECRYPT)
 		| start_mode | key_id | op_mode);
@@ -328,6 +337,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	 * ECB. */
 	if (op_mode != AES_MR_OPMOD_ECB)
 		aes_set_vector(aes_vectors);
+#ifdef CONFIG_HAVE_XDMAC
 	if (use_dma) {
 		init_dma();
 		aes_set_data_len(DATA_LEN_INBYTE);
@@ -352,6 +362,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
 		cache_invalidate_region(out, DATA_LEN_INBYTE);
 	} else
+#endif
 		/* Iterate per 128-bit data block */
 		for (i = 0; i < DATA_LEN_INWORD; i += 4) {
 			data_ready = false;
@@ -433,8 +444,13 @@ static void display_menu(void)
 	chk_box[0] = (start_mode == AES_MR_SMOD_MANUAL_START) ? 'X' : ' ';
 	chk_box[1] = (start_mode == AES_MR_SMOD_AUTO_START) ? 'X' : ' ';
 	chk_box[2] = (start_mode == AES_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
+#ifdef CONFIG_HAVE_XDMAC
 	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]  d: DMA[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
+#else
+	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]\n\r",
+		chk_box[0], chk_box[1]);
+#endif
 	printf("   p: Begin the encryption/decryption process\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
@@ -483,9 +499,15 @@ int main(void)
 			break;
 		case 'm':
 		case 'a':
+#ifdef CONFIG_HAVE_XDMAC
 		case 'd':
+#endif
 			start_mode = user_key == 'a' ? AES_MR_SMOD_AUTO_START :
-				   (user_key == 'd' ? AES_MR_SMOD_IDATAR0_START :
+#ifdef CONFIG_HAVE_XDMAC
+			             (user_key == 'd' ? AES_MR_SMOD_IDATAR0_START :
+#else
+			             (
+#endif
 						      AES_MR_SMOD_MANUAL_START);
 		case 'h':
 			display_menu();

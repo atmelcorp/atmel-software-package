@@ -42,6 +42,8 @@
  *  -# SAMA5D2-XPLAINED: Connect PB9 to PD31 (ADTRG)
  *  -# SAMA5D4-XPLAINED: Connect PE23 to PE31 (ADTRG)
  *  -# SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
+ *  -# SAMA5D3-XPLAINED: Connect PD15 (pin 8 on J21) to PD19 (ADTRG) (pin 6 on J21)
+ *  -# SAMA5D3-EK: Connect to PD15 (pin 32 on J3) to PD19 (ADTRG) (pin 34 on J3)
  *
  *  \section Description
  *
@@ -119,7 +121,9 @@
 #include "misc/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "misc/led.h"
 #include "misc/console.h"
@@ -133,13 +137,15 @@
  *----------------------------------------------------------------------------*/
 
 /** ADC clock */
-#define BOARD_ADC_FREQ (300000)
+#define ADC_FREQ (300000)
 
 /** ADC slected channels */
 static uint8_t adc_channel_used[] =
 {
 	ADC_CHANNEL_3,
+#ifndef CONFIG_BOARD_SAMA5D3_XPLAINED
 	ADC_CHANNEL_4,
+#endif
 	ADC_CHANNEL_0,
 	ADC_CHANNEL_1,
 	ADC_CHANNEL_2,
@@ -155,7 +161,7 @@ static uint8_t adc_channel_used[] =
 #define BOARD_ADC_VREF (3300)
 
 /** MAXIMUM DIGITAL VALUE */
-#define DIGITAL_MAX    (1 << 12)
+#define DIGITAL_MAX    ((1 << 12) - 1)
 
 /*----------------------------------------------------------------------------
  *        Local types
@@ -187,9 +193,11 @@ struct _adc_sample
 	uint16_t done;
 };
 
+#ifdef CONFIG_HAVE_XDMAC
 #define _DMA_BUFFER_NUM ROUND_UP_MULT(NUM_CHANNELS * sizeof(uint16_t), L1_CACHE_BYTES) / sizeof(uint16_t)
 ALIGNED(L1_CACHE_BYTES)
 static uint16_t _dma_buffer[_DMA_BUFFER_NUM];
+#endif
 
 bool modif_config = false;
 unsigned count = 0;
@@ -218,6 +226,14 @@ struct _pin pin_tioa0 = { PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C , PIO_DEFAU
 struct _pin pin_trig = { PIO_GROUP_B, PIO_PB9,  PIO_OUTPUT_0, PIO_DEFAULT };
 struct _pin pin_tioa0 = { PIO_GROUP_A, PIO_PA19D_TIOA0, PIO_PERIPH_D , PIO_DEFAULT };
 
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+struct _pin pin_trig = { PIO_GROUP_D, PIO_PD15,  PIO_OUTPUT_0, PIO_DEFAULT };
+struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAULT };
+
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+struct _pin pin_trig = { PIO_GROUP_E, PIO_PD15,  PIO_OUTPUT_0, PIO_DEFAULT };
+struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAULT };
+
 #else
 #error Unsupported target...
 #endif
@@ -228,6 +244,7 @@ mutex_t lock = 0;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_XDMAC
 static void _start_dma(void);
 
 static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
@@ -253,6 +270,35 @@ static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
 	if (_test_mode.dma_enabled)
 		_start_dma();
 }
+
+/**
+ *  \brief Configure xDMA and start to transfer.
+ */
+static void _start_dma(void)
+{
+	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
+	struct _xdmad_channel* dma_channel =
+	xdmad_allocate_channel(ID_ADC, XDMAD_PERIPH_MEMORY);
+	struct _xdmad_cfg dma_cfg;
+	memset(&dma_cfg, 0, sizeof(dma_cfg));
+	dma_cfg.ubc = NUM_CHANNELS;
+	dma_cfg.sa = (void*)&ADC->ADC_LCDR;
+	dma_cfg.da = (void*)_dma_buffer;
+	dma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
+		| XDMAC_CC_DSYNC_PER2MEM
+		| XDMAC_CC_MEMSET_NORMAL_MODE
+		| XDMAC_CC_CSIZE_CHK_1
+		| XDMAC_CC_DWIDTH_HALFWORD
+		| XDMAC_CC_SIF_AHB_IF1
+		| XDMAC_CC_DIF_AHB_IF0
+		| XDMAC_CC_SAM_FIXED_AM
+		| XDMAC_CC_DAM_INCREMENTED_AM;
+	dma_cfg.bc = 0;
+	xdmad_configure_transfer(dma_channel, &dma_cfg, 0, 0);
+	xdmad_set_callback(dma_channel, _adc_dma_callback, NULL);
+	xdmad_start_transfer(dma_channel);
+}
+#endif /* CONFIG_HAVE_XDMAC */
 
 /**
  * \brief Interrupt handler for the ADC.
@@ -285,34 +331,6 @@ static void adc_irq_handler(void)
 }
 
 /**
- *  \brief Configure xDMA and start to transfer.
- */
-static void _start_dma(void)
-{
-	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
-	struct _xdmad_channel* dma_channel =
-	xdmad_allocate_channel(ID_ADC, XDMAD_PERIPH_MEMORY);
-	struct _xdmad_cfg dma_cfg;
-	memset(&dma_cfg, 0, sizeof(dma_cfg));
-	dma_cfg.ubc = NUM_CHANNELS;
-	dma_cfg.sa = (void*)&ADC->ADC_LCDR;
-	dma_cfg.da = (void*)_dma_buffer;
-	dma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_HALFWORD
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
-	dma_cfg.bc = 0;
-	xdmad_configure_transfer(dma_channel, &dma_cfg, 0, 0);
-	xdmad_set_callback(dma_channel, _adc_dma_callback, NULL);
-	xdmad_start_transfer(dma_channel);
-}
-
-/**
  * \brief Display ADC configuration menu.
  */
 static void _display_menu(void)
@@ -333,8 +351,10 @@ static void _display_menu(void)
 	printf("[%c] 3: Set ADC trigger mode: ADC Internal Timer.\n\r", tmp);
 	tmp = (_test_mode.sequence_enabled ) ? 'E' : 'D';
 	printf("[%c] S: Enable/Disable sequencer.\n\r", tmp);
+#ifdef CONFIG_HAVE_XDMAC
 	tmp = (_test_mode.dma_enabled) ? 'E' : 'D';
 	printf("[%c] D: Enable/Disable to tranfer with DMA.\n\r", tmp);
+#endif
 	tmp = (_test_mode.power_save_enabled) ? 'E' : 'D';
 	printf("[%c] P: Enable/Disable ADC power save mode.\n\r", tmp);
 	printf("=========================================================\n\r");
@@ -365,12 +385,13 @@ static void console_handler(uint8_t key)
 		if (_test_mode.sequence_enabled) _test_mode.sequence_enabled = 0;
 		else _test_mode.sequence_enabled = 1;
 		break;
-
+#ifdef CONFIG_HAVE_XDMAC
 	case 'd' :
 	case 'D' :
 		if (_test_mode.dma_enabled) _test_mode.dma_enabled = 0;
 		else _test_mode.dma_enabled = 1;
 		break;
+#endif
 	case 'p' :
 	case 'P' :
 		if (_test_mode.power_save_enabled) _test_mode.power_save_enabled = 0;
@@ -419,7 +440,7 @@ static void _initialize_adc(void)
 	 *     ADCClock = 64 / ((4+1) * 2) = 6.4MHz;
 	 */
 	/* Set ADC clock */
-	adc_set_clock(BOARD_ADC_FREQ);
+	adc_set_clock(ADC_FREQ);
 
 	/* Formula:
 	 *     Startup  Time = startup value / ADCClock
@@ -527,12 +548,12 @@ static void _configure_adc(void)
 	    default :
 			break;
 	}
-
+#ifdef CONFIG_HAVE_XDMAC
 	if (_test_mode.dma_enabled) {
 		_start_dma();
-	} else {
+	} else
+#endif
 		aic_enable(ID_ADC);
-	}
 }
 
 /**
@@ -625,6 +646,5 @@ int main(void)
 		if (modif_config) {
 			_set_adc_configuration();
 		}
-
 	}
 }

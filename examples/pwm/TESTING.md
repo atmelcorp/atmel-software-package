@@ -26,6 +26,13 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
+
+
+### SAMA5D3-EK
+----------------
+Connect PA22 (J1 pin 18) and PC12 (J2 pin 29) on the board.
+
+
 * Start the application.
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):

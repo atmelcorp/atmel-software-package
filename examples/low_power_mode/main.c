@@ -149,12 +149,12 @@ char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
 /* "====================MAXLENGTH==================== */
 	" 0 -> Select clock setting\n\r",
 	" 1 -> Enter BackUp mode\n\r",
-#if defined(CONFIG_SOC_SAMA5D2)
+#ifdef CONFIG_SOC_SAMA5D2
 	" 2 -> Enter Ultra Low Power mode 0\n\r",
 	" 3 -> Enter Ultra Low Power mode 1\n\r",
-#elif defined(CONFIG_SOC_SAMA5D4)
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
 	" 2 -> Enter Ultra Low Power mode\n\r",
-#endif
+#endif	
 	" 4 -> Enter Idle mode\n\r",
 	" A -> Init DDR\n\r",
 	" B -> Write data in DDR\n\r",
@@ -514,9 +514,11 @@ static void menu_ulp1(void)
 	_start_rtc_timer_for_wakeup(30);
 
 	/* config wake up sources and active polarity */
+#ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 	pmc_set_fast_startup_polarity(0, PMC_FSPR_FSTP0);
 	pmc_set_fast_startup_mode(PMC_FSMR_FSTT0 | PMC_FSMR_FSTT2 |
 		PMC_FSMR_RTCAL | PMC_FSMR_LPM);
+#endif
 	/* enter ULP1 */
 	asm("WFE");
 	asm("WFE");
@@ -540,7 +542,7 @@ static void menu_ulp1(void)
 
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
 }
-#elif defined(CONFIG_SOC_SAMA5D4)
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
 static void menu_ulp(void)
 {
 	unsigned int  read_reg[4];
@@ -724,9 +726,11 @@ int main(void)
 	/* Enable L2 cache clock gating */
 	board_cfg_l2cc();
 
+#ifdef CONFIG_HAVE_L2CC
 	/* Disable L2 cache */
 	l2cc_disable();
-
+#endif
+	
 	/* Set the I/Os to an appropriate state */
 	board_restore_pio_reset_state();
 
@@ -761,6 +765,7 @@ int main(void)
 #if defined(CONFIG_SOC_SAMA5D2)
 		case '2':
 			printf("2");
+#ifdef CONFIG_SOC_SAMA5D2
 			menu_ulp0();
 			MenuChoice = 0;
 			_print_menu();
@@ -768,6 +773,9 @@ int main(void)
 		case '3':
 			printf("3");
 			menu_ulp1();
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SAMA5D4)
+			menu_ulp();
+#endif
 			MenuChoice = 0;
 			_print_menu();
 			break;

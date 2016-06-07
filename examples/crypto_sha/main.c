@@ -103,7 +103,9 @@
 #include "peripherals/sha.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -297,6 +299,7 @@ static uint32_t digest[MAX_DIGEST_SIZE_INWORD];
 static uint32_t op_mode, start_mode, block_mode;
 static volatile bool digest_ready = false;
 
+#ifdef CONFIG_HAVE_XDMAC
 /* Global DMA driver instance for all DMA transfers in application. */
 static struct _xdmad_cfg dma_cfg = { 0 };
 static struct _xdmad_channel *dma_chan = NULL;
@@ -307,11 +310,12 @@ static struct _xdmad_desc_view1 * const dma_dlist = (struct _xdmad_desc_view1*)
 #else
 static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
 #endif
+#endif /* CONFIG_HAVE_XDMAC */
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
+#ifdef CONFIG_HAVE_XDMAC
 /**
  * \brief Prepare XDMA channel.
  */
@@ -361,6 +365,7 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED,
 		dma_dlist);
 }
+#endif /* CONFIG_HAVE_XDMAC */
 
 /**
  * \brief SHA interrupt handler.
@@ -430,8 +435,10 @@ static void start_sha(void)
 	uint32_t rc = 0, i, blk_cnt = 0, val, ref = 0;
 
 	sha_get_status();
+#ifdef CONFIG_HAVE_XDMAC
 	if (start_mode == SHA_MR_SMOD_IDATAR0_START)
 		init_dma();
+#endif
 	switch (op_mode) {
 		case SHA_1:
 			if (block_mode == SHA_ONE_BLOCK) {
@@ -526,6 +533,7 @@ static void start_sha(void)
 	 * setting the corresponding bit of the Control Register (SHA_CR). For
 	 * the other blocks, there is nothing to write in this Control Register. */
 	sha_first_block();
+#ifdef CONFIG_HAVE_XDMAC
 	if (start_mode == SHA_MR_SMOD_IDATAR0_START) {
 		configure_dma_write(message, blk_cnt);
 		rc = xdmad_start_transfer(dma_chan);
@@ -534,7 +542,9 @@ static void start_sha(void)
 				xdmad_poll();
 			xdmad_stop_transfer(dma_chan);
 		}
-	} else {
+	} else
+#endif /* CONFIG_HAVE_XDMAC */
+	{
 		for (p = message, i = 0; i < blk_cnt;
 		     i++, p+= algo_desc[op_mode].block_len_words) {
 			digest_ready = false;
@@ -605,10 +615,14 @@ static void display_menu(void)
 	printf("Press [m|a|d] to set Start Mode \n\r");
 	chk_box[0] = (start_mode == SHA_MR_SMOD_MANUAL_START) ? 'X' : ' ';
 	chk_box[1] = (start_mode == SHA_MR_SMOD_AUTO_START) ? 'X' : ' ';
+#ifdef CONFIG_HAVE_XDMAC
 	chk_box[2] = (start_mode == SHA_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
 	       chk_box[0], chk_box[1], chk_box[2]);
-
+#else
+	printf("   m: MANUAL_START[%c] a: AUTO_START[%c]\n\r",
+	       chk_box[0], chk_box[1]);
+#endif
 	printf("   p: Start hash algorithm process \n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
@@ -661,10 +675,16 @@ int main(void)
 				break;
 			case 'm':
 			case 'a':
+#ifdef CONFIG_HAVE_XDMAC
 			case 'd':
+#endif
 				start_mode = user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
+#ifdef CONFIG_HAVE_XDMAC
 				            (user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
-				                               SHA_MR_SMOD_MANUAL_START);
+#else
+							(
+#endif
+							 SHA_MR_SMOD_MANUAL_START);
 				display_menu();
 				break;
 			case 'h':
