@@ -43,7 +43,6 @@
 #include "libsdmmc.h"
 #include "ffconf.h"
 #include "fatfs/src/diskio.h"
-#include "fatfs/src/ff.h"   /* Only for get_fattime() prototype */
 
 #include <string.h>
 #include <stdio.h>
@@ -273,9 +272,9 @@ DRESULT disk_ioctl(BYTE slot, BYTE cmd, void* buff)
 		res = RES_OK;
 		break;
 
-	case CTRL_ERASE_SECTOR:
+	case CTRL_TRIM:
 		/* This TRIM-like command is not implemented.
-		 * It would be required if _USE_ERASE was enabled. */
+		 * It would be required if _USE_TRIM was enabled. */
 		res = RES_PARERR;
 		break;
 
@@ -285,21 +284,3 @@ DRESULT disk_ioctl(BYTE slot, BYTE cmd, void* buff)
 	}
 	return res;
 }
-
-#if !_FS_READONLY
-DWORD get_fattime(void)
-{
-	DWORD time = 0;
-
-	/* TODO in the example instanciate the RTC Driver, and here call
-	 * rtc_get_date() and rtc_get_time() */
-
-	time |= (2015 - 1980) << 25;	/* Year */
-	time |= 10 << 21;		/* Month */
-	time |= 1 << 16;		/* Day of the month */
-	time |= 14 << 11;		/* Hour */
-	time |= 0 << 5;			/* Minute */
-	time |= 0 << 0;			/* Seconds divided by 2 */
-	return time;
-}
-#endif
