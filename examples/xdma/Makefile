@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Getting Started example
+AVAILABLE_TARGETS = sama5d2* sama5d4*
 
 TOP := ../..
 
