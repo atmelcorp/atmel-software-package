@@ -41,10 +41,17 @@
  *---------------------------------------------------------------------------*/
 
 extern void rstc_configure_mode(uint32_t rmr);
+#ifndef CONFIG_SOC_SAMA5D3
 extern void rstc_set_user_reset_enable(uint8_t enable);
 extern void rstc_set_user_reset_interrupt_enable(uint8_t enable);
+#else
+extern void rstc_set_ext_reset_length(uint8_t length);
+#endif
+extern void rstc_processor_and_peripheral_reset(void);
+#ifndef CONFIG_SOC_SAMA5D2
 extern void rstc_processor_reset(void);
 extern void rstc_peripheral_reset(void);
+#endif
 extern uint8_t rstc_get_nrst_level(void);
 extern uint8_t rstc_is_user_reset_detected(void);
 extern uint8_t rstc_is_busy(void);

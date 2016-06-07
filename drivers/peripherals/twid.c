@@ -39,7 +39,9 @@
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -53,7 +55,9 @@
  *        Definition
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_XDMAC
 #define TWID_DMA_THRESHOLD      16
+#endif
 #define TWID_TIMEOUT            100
 
 #define MAX_ADESC               8
@@ -83,6 +87,7 @@ static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 	return TWID_SUCCESS;
 }
 
+#ifdef CONFIG_HAVE_XDMAC
 static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 					   void* args)
 {
@@ -174,6 +179,7 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 	cache_clean_region(desc->region_start, desc->region_length);
 	xdmad_start_transfer(channel);
 }
+#endif /* CONFIG_HAVE_XDMAC */
 
 /*
  *
@@ -329,7 +335,7 @@ void twid_configure(struct _twi_desc* desc)
  *
  */
 
-#ifdef CONFIG_SOC_SAMA5D4
+#if defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
 
 static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
@@ -392,7 +398,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 	return _twid_wait_twi_transfer(desc);
 }
 
-#else /* not a CONFIG_SOC_SAMA5D4 */
+#else /* CONFIG_SOC_SAMA5D3 || CONFIG_SOC_SAMA5D4 */
 
 static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
@@ -525,6 +531,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 		mutex_free(&desc->mutex);
 		break;
 
+#ifdef CONFIG_HAVE_XDMAC
 	case TWID_MODE_DMA:
 		if (!(rx != NULL || tx != NULL)) {
 			status = TWID_ERROR_DUPLEX;
@@ -583,6 +590,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 		}
 		else ;
 		break;
+#endif /* CONFIG_HAVE_XDMAC*/
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	case TWID_MODE_FIFO:

@@ -232,6 +232,8 @@ extern void pwmc_set_sync_channels_update_period(Pwm *pwm,
  */
 extern void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period);
 
+#ifdef CONFIG_HAVE_PWM_DMA
+
 /**
  * \brief Sets the update period of the synchronous channels.
  *
@@ -247,6 +249,8 @@ extern void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args);
  * \param size size of duties to be transfered.
  */
 extern void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size);
+
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 /**
  * \brief Set override output.
@@ -314,10 +318,21 @@ extern void pwmc_fault_clear(Pwm *pwm, uint32_t fault);
  * \brief Set PWM fault protections.
  *
  * \param pwm Pointer to a Pwm instance.
- * \param value1 Bitwise OR for PWM_FPV1.
- * \param value2 Bitwise OR for PWM_FPV2.
+ * \param value Bitwise OR for PWM_FPV1.
  */
-extern void pwmc_set_fault_protection(Pwm *pwm, uint32_t value1, uint32_t value2);
+extern void pwmc_set_fault_protection(Pwm *pwm, uint32_t value);
+
+#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
+
+/**
+ * \brief Set PWM fault protections to Hi-Z
+ *
+ * \param pwm Pointer to a Pwm instance.
+ * \param value Bitwise OR for PWM_FPV2.
+ */
+extern void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value);
+
+#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
 
 /**
  * \brief Enable PWM fault protection.
@@ -337,6 +352,8 @@ extern void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
  */
 extern void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value);
 
+#ifdef CONFIG_HAVE_PWM_SPREAD_SPECTRUM
+
 /**
  * \brief Configure spread spectrum mode.
  *
@@ -344,6 +361,8 @@ extern void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value);
  * \param mode Bitwise OR for SSPR
  */
 extern void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value);
+
+#endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
 
 /**
  * \brief Configure stepper motor mode.

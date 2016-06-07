@@ -37,13 +37,16 @@ void matrix_configure_slave_sec(Matrix* mtx, uint8_t slave_id,
 				uint8_t sel_mask, uint8_t read_mask,
 				uint8_t write_mask)
 {
+#ifdef CONFIG_HAVE_SECURE_MATRIX
 	mtx->MATRIX_SSR[slave_id] = sel_mask | (read_mask << 8) |
 		(write_mask << 16);
+#endif
 }
 
 void matrix_set_slave_split_addr(Matrix* mtx, uint8_t slave_id,
 				 uint8_t area_size, uint8_t mask)
 {
+#ifdef CONFIG_HAVE_SECURE_MATRIX
 	uint8_t i = mask, j = 0;
 	uint32_t value = 0;
 	for (i = 1; (i <= mask) && (j < 32); i <<= 1, j += 4) {
@@ -51,11 +54,13 @@ void matrix_set_slave_split_addr(Matrix* mtx, uint8_t slave_id,
 			value |= area_size << j;
 	}
 	mtx->MATRIX_SASSR[slave_id] = value;
+#endif
 }
 
 void matrix_set_slave_region_size(Matrix* mtx, uint8_t slave_id,
 				  uint8_t area_size, uint8_t mask)
 {
+#ifdef CONFIG_HAVE_SECURE_MATRIX
 	assert(slave_id != 0);
 	uint8_t i = mask, j = 0;
 	uint32_t value = 0;
@@ -64,13 +69,17 @@ void matrix_set_slave_region_size(Matrix* mtx, uint8_t slave_id,
 			value |= area_size << j;
 	}
 	mtx->MATRIX_SRTSR[slave_id] = value;
+#endif
 }
 
 uint8_t matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id)
 {
+#ifdef CONFIG_HAVE_SECURE_MATRIX
 	if (mtx->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
 		return 0;
-	} else {
+	} else
+#endif
+	{
 		return 1;
 	}
 }
@@ -87,6 +96,9 @@ void matrix_remove_write_protection(Matrix* mtx)
 void matrix_remap_rom(void)
 {
 	volatile int i;
+#ifdef CONFIG_SOC_SAMA5D3
+	MATRIX->MATRIX_MRCR = MATRIX_MRCR_RCB0;
+#endif
 	AXIMX->AXIMX_REMAP = 0;
 	for (i = 200; i--; ) {}
 	cp15_icache_invalidate();
@@ -103,6 +115,9 @@ void matrix_remap_rom(void)
 void matrix_remap_ram(void)
 {
 	volatile int i;
+#ifdef CONFIG_SOC_SAMA5D3
+	MATRIX->MATRIX_MRCR = MATRIX_MRCR_RCB0;
+#endif
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 	for (i = 200; i--; ) {}
 	cp15_icache_invalidate();

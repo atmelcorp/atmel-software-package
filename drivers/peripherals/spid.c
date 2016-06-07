@@ -35,8 +35,10 @@
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
 #include "peripherals/spi.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmac.h"
 #include "peripherals/xdmad.h"
+#endif
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -49,6 +51,7 @@
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR | SPI_MR_WDRBT)
 #define SPID_DMA_THRESHOLD      16
 
+#ifdef CONFIG_HAVE_XDMAC
 static uint32_t _garbage = 0;
 
 static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
@@ -72,6 +75,7 @@ static void _spid_xdmad_cleanup_callback(struct _xdmad_channel *channel,
 {
 	xdmad_free_channel(channel);
 }
+#endif /* CONFIG_HAVE_XDMAC */
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void spid_fifo_error(void)
@@ -119,6 +123,7 @@ void spid_begin_transfert(struct _spi_desc* desc)
 	spi_configure_cs_mode(desc->addr, desc->chip_select, SPI_KEEP_CS_OW);
 }
 
+#ifdef CONFIG_HAVE_XDMAC
 static void _spid_init_dma_write_channel(const struct _spi_desc* desc,
 					 struct _xdmad_channel** channel,
 					 struct _xdmad_cfg* cfg)
@@ -229,6 +234,7 @@ static void _spid_dma_read(const struct _spi_desc* desc,
 	xdmad_start_transfer(w_channel);
 	xdmad_start_transfer(r_channel);
 }
+#endif
 
 uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			struct _buffer* tx, spid_callback_t cb,
@@ -260,6 +266,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 		if (cb)
 			cb(desc, user_args);
 		break;
+#ifdef CONFIG_HAVE_XDMAC
 	case SPID_MODE_DMA:
 		if (tx) {
 			if (tx->size < SPID_DMA_THRESHOLD) {
@@ -296,6 +303,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			}
 		}
 		break;
+#endif /* CONFIG_HAVE_XDMAC */
 #ifdef CONFIG_HAVE_SPI_FIFO
 	case SPID_MODE_FIFO:
 		if (tx) {
@@ -312,7 +320,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 		break;
 #endif
 	default:
-		trace_debug("Unkown mode");
+		trace_debug("Unknown mode");
 	}
 
 	return SPID_SUCCESS;

@@ -33,8 +33,11 @@
  *        Headers
  *------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 
+#include "nand_flash_common.h"
 #include "nand_flash_dma.h"
 
 #include <assert.h>
@@ -44,6 +47,8 @@
  *        Local Variables
  *------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_XDMAC
+
 /* DMA driver instance */
 static struct _xdmad_channel *nand_dma_rx_channel;
 static struct _xdmad_channel *nand_dma_tx_channel;
@@ -51,9 +56,13 @@ static struct _xdmad_channel *nand_dma_tx_channel;
 /** DMA transfer completion notifier */
 static volatile bool transfer_complete = false;
 
+#endif
+
 /*-------------------------------------------------------------------------
  *        Local functions
  *------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_XDMAC
 
 /**
  * \brief Callback function called when DMA transfer is completed
@@ -62,6 +71,8 @@ static void _nand_dma_callback(struct _xdmad_channel *channel, void *arg)
 {
 	transfer_complete = true;
 }
+
+#endif
 
 /*--------------------------------------------------------------------------
  *        Exported functions
@@ -72,20 +83,26 @@ static void _nand_dma_callback(struct _xdmad_channel *channel, void *arg)
  * \returns 0 if the DMA channel configuration successfully; otherwise returns
  * NandCommon_ERROR_XXX.
  */
-uint8_t nand_dma_configure( void)
+uint8_t nand_dma_configure(void)
 {
+#ifdef CONFIG_HAVE_XDMAC
 	/* Allocate a DMA channel for NAND RX. */
 	nand_dma_rx_channel = xdmad_allocate_channel(
-								XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
+			XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
 	assert(nand_dma_rx_channel);
 	xdmad_set_callback(nand_dma_rx_channel, _nand_dma_callback, NULL);
 
 	/* Allocate a DMA channel for NAND TX. */
 	nand_dma_tx_channel = xdmad_allocate_channel(
-								XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
+			XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
 	assert(nand_dma_tx_channel);
 	xdmad_set_callback(nand_dma_tx_channel, _nand_dma_callback, NULL);
 	return 0;
+#else
+	// TODO add implementation for DMAC or using common DMA API
+	assert(0);
+	return NAND_ERROR_DMA;
+#endif
 }
 
 /**
@@ -96,10 +113,10 @@ uint8_t nand_dma_configure( void)
  * \returns 0 if the DMA channel configuration and transfer successfully;
  * otherwise returns NandCommon_ERROR_XXX.
  */
-uint8_t nand_dma_write(uint32_t src_address,
-						uint32_t dest_address,
-						uint32_t size)
+uint8_t nand_dma_write(uint32_t src_address, uint32_t dest_address,
+		uint32_t size)
 {
+#ifdef CONFIG_HAVE_XDMAC
 	struct _xdmad_cfg xdmadCfg;
 
 	xdmadCfg.ubc = size;
@@ -129,6 +146,11 @@ uint8_t nand_dma_write(uint32_t src_address,
 		xdmad_poll();
 	}
 	return 0;
+#else
+	// TODO add implementation for DMAC or using common DMA API
+	assert(0);
+	return NAND_ERROR_DMA;
+#endif
 }
 
 /**
@@ -139,10 +161,10 @@ uint8_t nand_dma_write(uint32_t src_address,
  * \returns 0 if the DMA channel configuration and transfer successfully;
  * otherwise returns NandCommon_ERROR_XXX.
  */
-uint8_t nand_dma_read(uint32_t src_address,
-						uint32_t dest_address,
-						uint32_t size)
+uint8_t nand_dma_read(uint32_t src_address, uint32_t dest_address,
+		uint32_t size)
 {
+#ifdef CONFIG_HAVE_XDMAC
 	struct _xdmad_cfg xdmadCfg;
 
 	xdmadCfg.ubc = size;
@@ -172,14 +194,24 @@ uint8_t nand_dma_read(uint32_t src_address,
 		xdmad_poll();
 	}
 	return 0;
+#else
+	// TODO add implementation for DMAC or using common DMA API
+	assert(0);
+	return NAND_ERROR_DMA;
+#endif
 }
 
 /**
  * \brief Free the NAND DMA RX and TX channel.
  */
-void nand_dma_free( void )
+void nand_dma_free(void)
 {
-	while(xdmad_free_channel(nand_dma_rx_channel ));
-	while(xdmad_free_channel(nand_dma_tx_channel ));
+#ifdef CONFIG_HAVE_XDMAC
+	xdmad_free_channel(nand_dma_rx_channel);
+	xdmad_free_channel(nand_dma_tx_channel);
+#else
+	// TODO add implementation for DMAC or using common DMA API
+	assert(0);
+#endif
 }
 

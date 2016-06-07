@@ -217,6 +217,7 @@ extern void rtc_clear_sccr(uint32_t mask);
  */
 extern uint32_t rtc_get_sr(uint32_t mask);
 
+#ifndef CONFIG_SOC_SAMA5D3
 /**
  * \brief Get the RTC tamper time value.
  *
@@ -271,6 +272,7 @@ extern uint32_t rtc_get_tamper_event_counter(void);
  *         0 - The system is different from backup mode.
  */
 extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num);
+#endif /* ! CONFIG_SOC_SAMA5D3 */
 
 /**
  * \brief Convert number of second (count) to HMS format.

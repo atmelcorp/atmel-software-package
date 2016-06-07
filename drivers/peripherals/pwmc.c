@@ -82,7 +82,9 @@
 
 #include "chip.h"
 #include "peripherals/pwmc.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmad.h"
+#endif
 #include "misc/cache.h"
 #include "trace.h"
 
@@ -92,8 +94,13 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+#ifdef CONFIG_HAVE_PWM_DMA
+
 static pwmc_callback_t pwmc_cb = NULL;
 static void *pwmc_cb_user_args;
+
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -149,8 +156,11 @@ uint32_t pwmc_get_it_status2(Pwm *pwm)
 void pwmc_configure_channel(Pwm *pwm, uint8_t channel, uint32_t mode)
 {
 	assert(channel < PWMCH_NUM_NUMBER);
+
 	trace_debug("pwm: set channel %u with mode 0x%08x\n\r", \
 			(unsigned)channel, (unsigned)mode);
+
+#ifdef PWM_CMUPD0_CPOLUP
 	if ((pwm->PWM_SR & (1 << channel)) == 0)
 		pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
 	else {
@@ -170,6 +180,9 @@ void pwmc_configure_channel(Pwm *pwm, uint8_t channel, uint32_t mode)
 				break;
 		}
 	}
+#else
+	pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+#endif
 }
 
 void pwmc_set_period(Pwm *pwm, uint8_t channel, uint16_t period)
@@ -203,12 +216,18 @@ void pwmc_configure_sync_channels(Pwm *pwm, uint32_t mode)
 #ifndef NDEBUG
 	uint32_t sync_bits = mode & (PWM_SCM_SYNC0 | PWM_SCM_SYNC1 \
 				| PWM_SCM_SYNC2 | PWM_SCM_SYNC3);
+#ifdef CONFIG_HAVE_PWM_DMA
 	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " \
 			"DMA Request Mode %u, Request Comparison Selection %u\n\r",
 			(unsigned)sync_bits,
 			(unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos), \
 			(unsigned)(0 != (mode & PWM_SCM_PTRM)), \
 			(unsigned)((mode & PWM_SCM_PTRCS_Msk) >> PWM_SCM_PTRCS_Pos));
+#else
+	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " ,
+			(unsigned)sync_bits,
+			(unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos));
+#endif
 
 	/* Defining a channel as a synchronous channel while it is an asynchronous
 	channel (by writing the bit SYNCx to '1' while it was at '0') is allowed
@@ -220,6 +239,10 @@ void pwmc_configure_sync_channels(Pwm *pwm, uint32_t mode)
 	assert((pwm_sr & (pwm->PWM_SCM ^ sync_bits)) == 0);
 	/* Mode3 does not exist */
 	assert(((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos) != 3);
+#ifndef CONFIG_HAVE_PWM_DMA
+	/* Mode2 does not exist if PWM does not support DMA */
+	assert(((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos) != 2);
+#endif
 #endif
 	pwm->PWM_SCM = mode;
 }
@@ -239,6 +262,12 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 {
 	pwm->PWM_SCUPUPD = PWM_SCUPUPD_UPRUPD(period);
 }
+
+#ifdef CONFIG_HAVE_PWM_DMA
+
+#ifndef CONFIG_HAVE_XDMAC
+#error PWM DMA is enabled without XDMAC, this configuration is unsupported.
+#endif
 
 static void _pwm_xdmad_callback_wrapper(struct _xdmad_channel *dma_channel,
 		void *arg)
@@ -291,6 +320,8 @@ void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 	cache_clean_region(duty, size);
 	xdmad_start_transfer(dma_channel);
 }
+
+#endif /* CONFIG_HAVE_PWM_DMA */
 
 void pwmc_output_override(Pwm *pwm, uint8_t channel,
 		uint8_t is_pwmh, uint8_t level, uint8_t sync)
@@ -384,11 +415,19 @@ void pwmc_fault_clear(Pwm *pwm, uint32_t fault)
 	pwm->PWM_FCR = fault;
 }
 
-void pwmc_set_fault_protection(Pwm *pwm, uint32_t value1, uint32_t value2)
+void pwmc_set_fault_protection(Pwm *pwm, uint32_t value)
 {
-	pwm->PWM_FPV1 = value1;
-	pwm->PWM_FPV2 = value2;
+	pwm->PWM_FPV1 = value;
 }
+
+#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
+
+void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value)
+{
+	pwm->PWM_FPV2 = value;
+}
+
+#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
 
 void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 		uint8_t fault_inputs)
@@ -405,6 +444,8 @@ void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value)
 	pwm->PWM_ELMR[0] = value;
 }
 
+#ifdef CONFIG_HAVE_PWM_SPREAD_SPECTRUM
+
 void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value)
 {
 	/* If channel 0 is disabled, write to SSPR */
@@ -414,6 +455,8 @@ void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value)
 	else
 		pwm->PWM_SSPUP = PWM_SSPUP_SPRDUP(value);
 }
+
+#endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
 
 void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value)
 {

@@ -122,6 +122,7 @@ struct rtc_ppm_lookup {
 //         Local constants
 //------------------------------------------------------------------------------
 
+#ifndef CONFIG_SOC_SAMA5D3
 static const struct rtc_ppm_lookup ppm_lookup[] = {
 	{-40, -168, 0, 1, 22},
 	{-39, -163, 0, 1, 23},
@@ -250,6 +251,7 @@ static const struct rtc_ppm_lookup ppm_lookup[] = {
 	{84, -138, 0, 1, 27},
 	{85, -143, 0, 1, 26}
 };
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -435,6 +437,7 @@ uint32_t rtc_get_sr(uint32_t mask)
 	return (RTC->RTC_SR) & mask;
 }
 
+#ifndef CONFIG_SOC_SAMA5D3
 void rtc_get_tamper_time(struct _time *time,  uint8_t reg_num)
 {
 	uint32_t ltime, temp;
@@ -509,6 +512,7 @@ uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num)
 		return 0;
 	}
 }
+#endif /* ! CONFIG_SOC_SAMA5D3 */
 
 void rtc_convert_time_to_hms(struct _time *time, uint32_t count)
 {
@@ -521,6 +525,7 @@ void rtc_convert_time_to_hms(struct _time *time, uint32_t count)
 
 void rtc_calibration(int32_t current_tempr)
 {
+#ifndef CONFIG_SOC_SAMA5D3
 	uint32_t i, mr;
 	for (i = 0; i < ARRAY_SIZE(ppm_lookup); i++) {
 		if (ppm_lookup[i].tempr == current_tempr) {
@@ -531,6 +536,7 @@ void rtc_calibration(int32_t current_tempr)
 			break;
 		}
 	}
+#endif
 }
 
 uint32_t rtc_set_time_event (uint32_t mask)

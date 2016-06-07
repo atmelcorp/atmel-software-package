@@ -119,7 +119,10 @@ static bool _twi_wait_status(Twi *twi, uint32_t status, uint32_t timeout)
  */
 void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 {
-	uint32_t ck_div, cl_div, hold, ok, clock;
+	uint32_t ck_div, cl_div, ok, clock;
+#ifdef TWI_CWGR_HOLD
+	uint32_t hold;
+#endif
 	uint32_t id = get_twi_id_from_addr(pTwi);
 
 	trace_debug("twi_configure_master(%u)\n\r", (unsigned)twi_clock);
@@ -155,14 +158,19 @@ void twi_configure_master(Twi * pTwi, uint32_t twi_clock)
 		    (unsigned)ck_div, (unsigned)cl_div, (unsigned)twi_clock);
 
 	/* Compute holding time (I2C spec requires 300ns) */
+#ifdef TWI_CWGR_HOLD
 	hold = ROUND_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3;
 	trace_debug("twi: HOLD=%u -> Holding Time %uns\n\r",
 		    (unsigned)hold, (unsigned)((1000000 * (hold + 3)) / (clock / 1000)));
+#endif
 
 	/* Configure clock */
 	pTwi->TWI_CWGR = 0;
 	pTwi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div) | TWI_CWGR_CHDIV(cl_div) |
-		TWI_CWGR_CLDIV(cl_div) | TWI_CWGR_HOLD(hold);
+#ifdef TWI_CWGR_HOLD
+		TWI_CWGR_HOLD(hold) |
+#endif
+		TWI_CWGR_CLDIV(cl_div);
 
 	/* Set master mode */
 	pTwi->TWI_CR = TWI_CR_MSEN;

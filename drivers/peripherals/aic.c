@@ -231,6 +231,7 @@ void aic_initialize(void)
 
 	/* Set default vectors */
 	_aic_initialize(AIC);
+#ifdef CONFIG_HAVE_SAIC
 	_aic_initialize(SAIC);
 
 	/* Redirect all interrupts to Non-secure AIC */
@@ -242,6 +243,7 @@ void aic_initialize(void)
 	aicredir ^= SFR->SFR_SN1;
 #endif
 	SFR->SFR_AICREDIR = aicredir | SFR_AICREDIR_NSAIC;
+#endif /* CONFIG_HAVE_SAIC */
 
 	/* Enable IRQ and FIQ at core level */
 	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
@@ -254,17 +256,16 @@ void aic_initialize(void)
  */
 void aic_enable(uint32_t source)
 {
-	if (SFR->SFR_AICREDIR) {
-		_aic_enable_it(AIC, source);
-		return;
-	}
+	Aic *aic = AIC;
 
-	Matrix* matrix = get_peripheral_matrix(source);
-	if (!matrix_is_peripheral_secured(matrix, source)) {
-		_aic_enable_it(AIC, source);
-	} else {
-		_aic_enable_it(SAIC, source);
+#ifdef CONFIG_HAVE_SAIC
+	if (SFR->SFR_AICREDIR == 0) {
+		Matrix* matrix = get_peripheral_matrix(source);
+		if (matrix_is_peripheral_secured(matrix, source))
+			aic = SAIC;
 	}
+#endif
+	_aic_enable_it(aic, source);
 }
 
 /**
@@ -274,17 +275,16 @@ void aic_enable(uint32_t source)
  */
 void aic_disable(uint32_t source)
 {
-	if (SFR->SFR_AICREDIR) {
-		_aic_disable_it(AIC, source);
-		return;
-	}
+	Aic *aic = AIC;
 
-	Matrix* matrix = get_peripheral_matrix(source);
-	if (!matrix_is_peripheral_secured(matrix, source)) {
-		_aic_disable_it(AIC, source);
-	} else {
-		_aic_disable_it(SAIC, source);
+#ifdef CONFIG_HAVE_SAIC	
+	if (SFR->SFR_AICREDIR == 0) {
+		Matrix* matrix = get_peripheral_matrix(source);
+		if (matrix_is_peripheral_secured(matrix, source))
+			aic = SAIC;
 	}
+#endif
+	_aic_disable_it(aic, source);
 }
 
 /**
@@ -295,17 +295,7 @@ void aic_disable(uint32_t source)
  */
 void aic_configure(uint32_t source, uint8_t mode)
 {
-	if (SFR->SFR_AICREDIR) {
-		_aic_configure_it(source, mode);
-		return;
-	}
-
-	Matrix* matrix = get_peripheral_matrix(source);
-	if (!matrix_is_peripheral_secured(matrix, source)) {
-		_aic_configure_it(source, mode);
-	} else {
-		// Does not apply for SAIC
-	}
+	_aic_configure_it(source, mode);
 }
 
 /**
@@ -318,11 +308,13 @@ void aic_set_source_vector(uint32_t source, void (*handler)(void))
 {
 	Aic *aic = AIC;
 
+#ifdef CONFIG_HAVE_SAIC
 	if (SFR->SFR_AICREDIR == 0) {
 		Matrix* matrix = get_peripheral_matrix(source);
 		if (matrix_is_peripheral_secured(matrix, source))
 			aic = SAIC;
 	}
+#endif
 	_aic_set_source_vector(aic, source, handler);
 }
 
@@ -335,10 +327,11 @@ void aic_set_spurious_vector(void (*handler)(void))
 {
 	Aic *aic = AIC;
 
+#ifdef CONFIG_HAVE_SAIC
 	if (SFR->SFR_AICREDIR == 0) {
 		aic = SAIC;
 	}
-
+#endif
 	_aic_set_spurious_vector(aic, handler);
 }
 
@@ -352,12 +345,14 @@ void aic_set_or_clear(uint32_t source, uint8_t set)
 {
 	Aic *aic = AIC;
 
+#ifdef CONFIG_HAVE_SAIC
 	if (SFR->SFR_AICREDIR == 0) {
 		Matrix* matrix = get_peripheral_matrix(source);
 		if (matrix_is_peripheral_secured(matrix, source))
 			aic = SAIC;
 	}
-
+#endif
+	
 	if (set) {
 		_aic_set_it(aic, source);
 	} else {

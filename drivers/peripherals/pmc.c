@@ -360,18 +360,30 @@ uint32_t pmc_get_processor_clock(void)
 void pmc_select_external_crystal(void)
 {
 	int return_to_sclock = 0;
+	volatile int count;
 
 	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
 		pmc_switch_mck_to_main();
 		return_to_sclock = 1;
 	}
 
+#ifdef SCKC_CR_OSC32EN
+    /* enable external OSC 32 kHz */
+	SCKC->SCKC_CR |= SCKC_CR_OSC32EN;
+    /* Wait 32,768 Hz Startup Time for clock stabilization (software loop) */
+	for (count = 0; count < 0x1000; count++);
+#endif
+
 	/* switch from internal RC 32kHz to external OSC 32 kHz */
 	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
 
 	/* Wait 5 slow clock cycles for internal resynchronization */
-	volatile int count;
 	for (count = 0; count < 0x1000; count++);
+
+#ifdef SCKC_CR_RCEN
+	if ((SCKC->SCKC_CR & SCKC_CR_RCEN) == SCKC_CR_RCEN)
+		SCKC->SCKC_CR &= ~SCKC_CR_RCEN;
+#endif
 
 	/* Switch to slow clock again if needed */
 	if (return_to_sclock)
@@ -381,19 +393,31 @@ void pmc_select_external_crystal(void)
 void pmc_select_internal_crystal(void)
 {
 	int return_to_sclock = 0;
+	volatile int count;
 
 	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
 		pmc_switch_mck_to_main();
 		return_to_sclock = 1;
 	}
 
+#ifdef SCKC_CR_RCEN
+    /* enable external OSC 32 kHz */
+	SCKC->SCKC_CR |= SCKC_CR_RCEN;
+    /* Wait 32,768 Hz Startup Time for clock stabilization (software loop) */
+	for (count = 0; count < 0x1000; count++);
+#endif
+
 	/* switch from extenal OSC 32kHz to internal RC 32 kHz */
 	/* switch slow clock source to internal OSC 32 kHz */
 	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
 
 	/* Wait 5 slow clock cycles for internal resynchronization */
-	volatile int count;
 	for (count = 0; count < 0x1000; count++);
+
+#ifdef SCKC_CR_OSC32EN
+	if ((SCKC->SCKC_CR & SCKC_CR_OSC32EN) == SCKC_CR_OSC32EN)
+		SCKC->SCKC_CR &= ~SCKC_CR_OSC32EN;
+#endif
 
 	/* Switch to slow clock again if needed */
 	if (return_to_sclock)
@@ -427,6 +451,10 @@ void pmc_select_external_osc(void)
 	/* wait MAIN clock status change for external OSC 12 MHz selection */
 	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS));
 
+	/* in case where MCK is running on MAIN CLK */
+	if ((PMC->PMC_MCKR & PMC_MCKR_CSS_PLLA_CLK) || (PMC->PMC_MCKR & PMC_MCKR_CSS_MAIN_CLK))
+		while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+
 	/* disable internal RC 12 MHz to save power */
 	pmc_disable_internal_osc();
 }
@@ -455,7 +483,8 @@ void pmc_select_internal_osc(void)
 	    | CKGR_MOR_KEY_PASSWD;
 
 	/* in case where MCK is running on MAIN CLK */
-	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	if ((PMC->PMC_MCKR & PMC_MCKR_CSS_PLLA_CLK) || (PMC->PMC_MCKR & PMC_MCKR_CSS_MAIN_CLK))
+		while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
 	/* disable external OSC 12 MHz to save power*/
 	pmc_disable_external_osc();
@@ -531,6 +560,7 @@ void pmc_set_mck_plla_div(uint32_t divider)
 
 void pmc_set_mck_h32mxdiv(uint32_t divider)
 {
+#ifdef PMC_MCKR_H32MXDIV
 	if ((PMC->PMC_MCKR & PMC_MCKR_H32MXDIV) == PMC_MCKR_H32MXDIV_H32MXDIV2) {
 		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV1) {
 			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_H32MXDIV);
@@ -541,6 +571,7 @@ void pmc_set_mck_h32mxdiv(uint32_t divider)
 		}
 	}
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+#endif
 }
 
 void pmc_set_mck_divider(uint32_t divider)
@@ -624,16 +655,22 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 			CKGR_PLLAR_OUTA(0x0) |
 			CKGR_PLLAR_MULA(cfg->plla_mul) |
 			CKGR_PLLAR_DIVA(cfg->plla_div);
+#ifdef CONFIG_SOC_SAMA5D3
+		pmc_set_plla(tmp, PMC_PLLICPR_IPLL_PLLA(0x3));
+#else
 		pmc_set_plla(tmp, 0);
+#endif
 	}
 
 	pmc_set_mck_prescaler(cfg->pck_pres);
 	pmc_set_mck_divider(cfg->mck_div);
 
+#ifdef PMC_MCKR_H32MXDIV
 	if (cfg->h32mxdiv2)
 		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
 	else
 		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV1);
+#endif
 
 	switch (cfg->pck_input) {
 	case PMC_MCKR_CSS_PLLA_CLK:
@@ -658,13 +695,33 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 
 void pmc_enable_peripheral(uint32_t id)
 {
+	uint32_t div = 0;
+
 	assert(id > 1 && id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 
-	// enable it but keep previous configuration
-	PMC->PMC_PCR = PMC->PMC_PCR | PMC_PCR_CMD | PMC_PCR_EN;
+	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD;
+#ifdef PMC_PCR_DIV
+	{
+		volatile uint32_t i;
+		uint32_t clk_max;
+
+		clk_max = get_peripheral_clock_max_freq(id);
+		for (i = 0 ; i < 4 ; i++)
+			if ((pmc_get_master_clock() >> i) <= clk_max)
+				break;
+
+		if (i == 4)
+			i = 3; /* 4 is not a valid value */
+		div = PMC_PCR_DIV(i);
+	}
+#endif
+
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+	PMC->PMC_PCR = pcr | div | PMC_PCR_CMD | PMC_PCR_EN;
 }
 
 void pmc_disable_peripheral(uint32_t id)
@@ -693,6 +750,12 @@ uint32_t pmc_get_peripheral_clock(uint32_t id)
 	assert(id > 1 && id < ID_PERIPH_COUNT);
 
 	uint32_t div = get_peripheral_clock_divider(id);
+#ifdef PMC_PCR_DIV
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+	volatile uint32_t pcr = PMC->PMC_PCR;
+	div *= (1 << ((pcr & PMC_PCR_DIV_Msk) >> PMC_PCR_DIV_Pos));
+#endif
+	
 	if (div)
 		return pmc_get_master_clock() / div;
 

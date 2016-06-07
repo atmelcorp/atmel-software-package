@@ -35,8 +35,10 @@
 #include "peripherals/pmc.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
+#ifdef CONFIG_HAVE_XDMAC
 #include "peripherals/xdmac.h"
 #include "peripherals/xdmad.h"
+#endif
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -49,6 +51,7 @@
 #define USARTD_ATTRIBUTE_MASK     (0)
 #define USARTD_DMA_THRESHOLD      16
 
+#ifdef CONFIG_HAVE_XDMAC
 static void _usartd_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 					   void* args)
 {
@@ -159,6 +162,7 @@ static void _usartd_dma_write(const struct _usart_desc* desc,
 
 	xdmad_start_transfer(channel);
 }
+#endif /* ! CONFIG_SOC_XDMAC */
 
 void usartd_configure(struct _usart_desc* desc)
 {
@@ -215,6 +219,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 		if (cb)
 			cb(desc, user_args);
 		break;
+#ifdef CONFIG_HAVE_XDMAC
 	case USARTD_MODE_DMA:
 		if (!(rx || tx)) {
 			return USARTD_ERROR_DUPLEX;
@@ -250,6 +255,8 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 			mutex_free(&desc->mutex);
 		}
 		break;
+#endif /* ! CONFIG_HAVE_XDMAC */
+
 #ifdef CONFIG_HAVE_USART_FIFO
 	case USARTD_MODE_FIFO:
 		if (tx) {

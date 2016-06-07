@@ -49,6 +49,7 @@ void rstc_configure_mode(uint32_t mr)
 	RSTC->RSTC_MR = (mr & ~RSTC_MR_KEY_Msk) | RSTC_MR_KEY_PASSWD;
 }
 
+#ifndef CONFIG_SOC_SAMA5D3
 /**
  * Enable/Disable the detection of a low level on the pin NRST as User Reset
  * \param enable 1 to enable & 0 to disable.
@@ -79,7 +80,27 @@ void rstc_set_user_reset_interrupt_enable(uint8_t enable)
 	}
 	RSTC->RSTC_MR = mr | RSTC_MR_KEY_PASSWD;
 }
+#else
+extern void rstc_set_ext_reset_length(uint8_t length)
+{
+	uint32_t mr = RSTC->RSTC_MR;
+	RSTC->RSTC_MR = mr | RSTC_MR_ERSTL(length) | RSTC_MR_KEY_PASSWD;
+}
+#endif
 
+/**
+ * Resets the processor.
+ */
+void rstc_processor_and_peripheral_reset(void)
+{
+#ifdef CONFIG_SOC_SAMA5D2
+	RSTC->RSTC_CR = RSTC_CR_PROCRST | RSTC_MR_KEY_PASSWD;
+#else
+	RSTC->RSTC_CR = RSTC_CR_PERRST | RSTC_CR_PROCRST | RSTC_MR_KEY_PASSWD;
+#endif
+}
+
+#ifndef CONFIG_SOC_SAMA5D2
 /**
  * Resets the processor.
  */
@@ -95,6 +116,7 @@ void rstc_peripheral_reset(void)
 {
 	RSTC->RSTC_CR = RSTC_CR_PERRST | RSTC_MR_KEY_PASSWD;
 }
+#endif
 
 /**
  * Return NRST pin level ( 1 or 0 ).
