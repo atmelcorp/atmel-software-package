@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------/
-/  FatFs - FAT file system module configuration file  R0.10c (C)ChaN, 2014
+/  FatFs - FAT file system module configuration file  R0.11 (C)ChaN, 2015
 /---------------------------------------------------------------------------*/
 
-#define _FFCONF 80376	/* Revision ID */
+#define _FFCONF 32020	/* Revision ID */
 
 /*---------------------------------------------------------------------------/
 / Functions and Buffer Configurations
@@ -18,13 +18,13 @@
 
 #define _FS_READONLY	0
 /* This option switches read-only configuration. (0:Read/Write or 1:Read-only)
-/  Read-only configuration removes basic writing API functions, f_write(),
-/  f_sync(), f_unlink(), f_mkdir(), f_chmod(), f_rename(), f_truncate(),
-/  f_getfree() and optional writing functions as well. */
+/  Read-only configuration removes writing API functions, f_write(), f_sync(),
+/  f_unlink(), f_mkdir(), f_chmod(), f_rename(), f_truncate(), f_getfree()
+/  and optional writing functions as well. */
 
 
 #define _FS_MINIMIZE	0
-/* This option defines minimization level to remove some API functions.
+/* This option defines minimization level to remove some basic API functions.
 /
 /   0: All basic functions are enabled.
 /   1: f_stat(), f_getfree(), f_unlink(), f_mkdir(), f_chmod(), f_utime(),
@@ -42,9 +42,13 @@
 /  2: Enable with LF-CRLF conversion. */
 
 
+#define _USE_FIND		0
+/* This option switches filtered directory read feature and related functions,
+/  f_findfirst() and f_findnext(). (0:Disable or 1:Enable) */
+
+
 #define	_USE_MKFS		0
-/* This option switches f_mkfs() function. (0:Disable or 1:Enable)
-/  To enable it, also _FS_READONLY need to be set to 0. */
+/* This option switches f_mkfs() function. (0:Disable or 1:Enable) */
 
 
 #define	_USE_FASTSEEK	0
@@ -57,8 +61,8 @@
 
 
 #define	_USE_FORWARD	0
-/* This option switches f_forward() function. (0:Disable or 1:Enable) */
-/* To enable it, also _FS_TINY need to be set to 1. */
+/* This option switches f_forward() function. (0:Disable or 1:Enable)
+/  To enable it, also _FS_TINY need to be set to 1. */
 
 
 /*---------------------------------------------------------------------------/
@@ -69,32 +73,24 @@
 /* This option specifies the OEM code page to be used on the target system.
 /  Incorrect setting of the code page can cause a file open failure.
 /
-/   932  - Japanese Shift_JIS (DBCS, OEM, Windows)
-/   936  - Simplified Chinese GBK (DBCS, OEM, Windows)
-/   949  - Korean (DBCS, OEM, Windows)
-/   950  - Traditional Chinese Big5 (DBCS, OEM, Windows)
-/   1250 - Central Europe (Windows)
-/   1251 - Cyrillic (Windows)
-/   1252 - Latin 1 (Windows)
-/   1253 - Greek (Windows)
-/   1254 - Turkish (Windows)
-/   1255 - Hebrew (Windows)
-/   1256 - Arabic (Windows)
-/   1257 - Baltic (Windows)
-/   1258 - Vietnam (OEM, Windows)
-/   437  - U.S. (OEM)
-/   720  - Arabic (OEM)
-/   737  - Greek (OEM)
-/   775  - Baltic (OEM)
-/   850  - Multilingual Latin 1 (OEM)
-/   858  - Multilingual Latin 1 + Euro (OEM)
-/   852  - Latin 2 (OEM)
-/   855  - Cyrillic (OEM)
-/   866  - Russian (OEM)
-/   857  - Turkish (OEM)
-/   862  - Hebrew (OEM)
-/   874  - Thai (OEM, Windows)
-/   1    - ASCII (No extended character. Valid for only non-LFN configuration.) */
+/   1    - ASCII (No extended character. Non-LFN cfg. only)
+/   437  - U.S.
+/   720  - Arabic
+/   737  - Greek
+/   775  - Baltic
+/   850  - Multilingual Latin 1
+/   852  - Latin 2
+/   855  - Cyrillic
+/   857  - Turkish
+/   858  - Multilingual Latin 1 + Euro
+/   862  - Hebrew
+/   866  - Russian
+/   874  - Thai
+/   932  - Japanese Shift_JIS (DBCS)
+/   936  - Simplified Chinese GBK (DBCS)
+/   949  - Korean (DBCS)
+/   950  - Traditional Chinese Big5 (DBCS)
+*/
 
 
 #define	_USE_LFN	0
@@ -163,7 +159,7 @@
 /  number is bound to the same physical drive number and only an FAT volume found on
 /  the physical drive will be mounted. When multi-partition feature is enabled (1),
 /  each logical drive number is bound to arbitrary physical drive and partition
-/  listed in the VolToPart[]. Also f_fdisk() funciton will be enabled. */
+/  listed in the VolToPart[]. Also f_fdisk() funciton will be available. */
 
 
 #define	_MIN_SS		512
@@ -200,9 +196,9 @@
 /---------------------------------------------------------------------------*/
 
 #define _FS_NORTC	0
-#define _NORTC_MON	11
-#define _NORTC_MDAY	9
-#define _NORTC_YEAR	2014
+#define _NORTC_MON	2
+#define _NORTC_MDAY	1
+#define _NORTC_YEAR	2015
 /* The _FS_NORTC option switches timestamp feature. If the system does not have
 /  an RTC function or valid timestamp is not needed, set _FS_NORTC to 1 to disable
 /  the timestamp feature. All objects modified by FatFs will have a fixed timestamp
@@ -242,7 +238,8 @@
 /
 /  The _FS_TIMEOUT defines timeout period in unit of time tick.
 /  The _SYNC_t defines O/S dependent sync object type. e.g. HANDLE, ID, OS_EVENT*,
-/  SemaphoreHandle_t and etc.. */
+/  SemaphoreHandle_t and etc.. A header file for O/S definitions needs to be
+/  included somewhere in the scope of ff.c. */
 
 
 #define _WORD_ACCESS	0
@@ -258,13 +255,17 @@
 /  If it is the case, _WORD_ACCESS can also be set to 1 to reduce code size.
 /  Following table shows allowable settings of some processor types.
 /
-/   ARM7TDMI    0           ColdFire    0           V850E       0
-/   Cortex-M3   0           Z80         0/1         V850ES      0/1
-/   Cortex-M0   0           x86         0/1         TLCS-870    0/1
-/   AVR         0/1         RX600(LE)   0/1         TLCS-900    0/1
-/   AVR32       0           RL78        0           R32C        0
-/   PIC18       0/1         SH-2        0           M16C        0/1
-/   PIC24       0           H8S         0           MSP430      0
-/   PIC32       0           H8/300H     0           8051        0/1
+/  ARM7TDMI   0   *2          ColdFire   0    *1         V850E      0    *2
+/  Cortex-M3  0   *3          Z80        0/1             V850ES     0/1
+/  Cortex-M0  0   *2          x86        0/1             TLCS-870   0/1
+/  AVR        0/1             RX600(LE)  0/1             TLCS-900   0/1
+/  AVR32      0   *1          RL78       0    *2         R32C       0    *2
+/  PIC18      0/1             SH-2       0    *1         M16C       0/1
+/  PIC24      0   *2          H8S        0    *1         MSP430     0    *2
+/  PIC32      0   *1          H8/300H    0    *1         8051       0/1
+/
+/  *1:Big-endian.
+/  *2:Unaligned memory access is not supported.
+/  *3:Some compilers generate LDM/STM for mem_cpy function.
 */
 
