@@ -6,6 +6,10 @@
 <link rel="up" title="FatFs" href="../00index_j.html">
 <link rel="alternate" hreflang="en" title="English" href="../en/config.html">
 <link rel="stylesheet" href="../css_j.css" type="text/css" media="screen" title="ELM Default">
+<style type="text/css" media="screen" title="ELM Default">
+div.doc h3 {margin-top: 4em }
+div.doc h4 {margin-top: 2em }
+</style>
 <title>FatFs - 構成オプション</title>
 </head>
 
@@ -60,26 +64,31 @@
 <h3>名前空間とロケールの設定</h3>
 
 <h4 id="code_page">_CODE_PAGE</h4>
-<p>パス名等の文字列データのコード ページを指定します。不適切な設定は、ファイル オープン エラーの原因になる可能性があります。</p>
+<p>パス名等の文字列データのコード ページを指定します。不適切な設定は、ファイル オープン エラーの原因になる可能性があります。拡張文字が全く使われない場合は、どれを選んでも同じです。</p>
 <table class="lst1">
 <tr><th>値</th><th>解説</th></tr>
-<tr><td>1</td><td>ASCII (非LFN構成のみ)</td></tr>
-<tr><td>437</td><td>英語</td></tr>
+<tr><td>1</td><td>ASCII (非LFN構成でのみ有効)</td></tr>
+<tr><td>437</td><td>U.S.</td></tr>
 <tr><td>720</td><td>Arabic</td></tr>
 <tr><td>737</td><td>Greek</td></tr>
+<tr><td>771</td><td>KBL</td></tr>
 <tr><td>775</td><td>Baltic</td></tr>
-<tr><td>850</td><td>Multilingual Latin 1</td></tr>
+<tr><td>850</td><td>Latin 1</td></tr>
 <tr><td>852</td><td>Latin 2</td></tr>
 <tr><td>855</td><td>Cyrillic</td></tr>
 <tr><td>857</td><td>Turkish</td></tr>
-<tr><td>858</td><td>Multilingual Latin 1 + Euro</td></tr>
+<tr><td>860</td><td>Portuguese</td></tr>
+<tr><td>861</td><td>Icelandic</td></tr>
 <tr><td>862</td><td>Hebrew</td></tr>
+<tr><td>863</td><td>Canadian French</td></tr>
+<tr><td>864</td><td>Arabic</td></tr>
+<tr><td>865</td><td>Nordic</td></tr>
 <tr><td>866</td><td>Russian</td></tr>
-<tr><td>874</td><td>Thai</td></tr>
-<tr><td>932</td><td>日本語 Shift_JIS (DBCS)</td></tr>
-<tr><td>936</td><td>簡体字中国語 GBK (DBCS)</td></tr>
+<tr><td>869</td><td>Greek 2</td></tr>
+<tr><td>932</td><td>日本語 (DBCS)</td></tr>
+<tr><td>936</td><td>簡体字中国語 (DBCS)</td></tr>
 <tr><td>949</td><td>韓国語 (DBCS)</td></tr>
-<tr><td>950</td><td>繁体字中国語 Big5 (DBCS)</td></tr>
+<tr><td>950</td><td>繁体字中国語 (DBCS)</td></tr>
 </table>
 
 <h4 id="use_lfn">_USE_LFN</h4>
@@ -176,7 +185,7 @@
 </table>
 
 <h4 id="fs_reentrant">_FS_REENTRANT</h4>
-<p>リエントランシーの設定(0:無効 または 1:有効)。このオプションは、FatFsモジュール自体のリエントランシー(スレッド セーフ)の設定をします。異なるボリュームに対するファイル アクセスはこのオプションに関係なく常にリエントラントで、<tt>f_mount</tt>、<tt>f_mkfs</tt>、<tt>f_fdisk</tt>などのボリューム操作関数はこのオプションに関係なく常にリエントラントではありません。同じボリュームに対するファイル アクセスのみがこのオプションの制御下にあります。このオプションを有効にしたときは、同期関数である<tt>ff_req_grant</tt>、<tt>ff_rel_grant</tt>、<tt>ff_del_syncobj</tt>、<tt>ff_cre_syncobj</tt>をプロジェクトに追加する必要があります。サンプルが<tt>option/syscall.c</tt>にあります。</p>
+<p>リエントランシーの設定(0:無効 または 1:有効)。このオプションは、FatFsモジュール自体のリエントランシー(スレッド セーフ)の設定をします。異なるボリュームに対するファイル アクセスはこのオプションに関係なく常にリエントラントで、<tt>f_mount</tt>、<tt>f_mkfs</tt>、<tt>f_fdisk</tt>などのボリューム操作関数はこのオプションに関係なく常にリエントラントではありません。同じボリュームに対するファイル アクセス(つまり、ファイル システム オブジェクトの排他使用)のみがこのオプションの制御下にあります。このオプションを有効にしたときは、同期関数である<tt>ff_req_grant</tt>、<tt>ff_rel_grant</tt>、<tt>ff_del_syncobj</tt>、<tt>ff_cre_syncobj</tt>をプロジェクトに追加する必要があります。サンプルが<tt>option/syscall.c</tt>にあります。</p>
 
 <h4 id="fs_timeout">_FS_TIMEOUT</h4>
 <p>タイムアウト時間の設定。待ち合わせ時間が長いときに<tt>FR_TIMEOUT</tt>でファイル関数をアボートする時間を設定します。<tt>_FS_REENTRANT</tt>が0のときは意味を持ちません。</p>

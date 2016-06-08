@@ -60,26 +60,31 @@
 <h3>Namespace and Locale Configurations</h3>
 
 <h4 id="code_page">_CODE_PAGE</h4>
-<p>This option specifies the OEM code page to be used on the target system. Incorrect setting of the code page can cause a file open failure.</p>
+<p>This option specifies the OEM code page to be used on the target system. Incorrect setting of the code page can cause a file open failure. If any extended character is not used at all, there is no difference between any code pages.</p>
 <table class="lst1">
 <tr><th>Value</th><th>Description</th></tr>
-<tr><td>1</td><td>ASCII (No extended character. Valid at Non-LFN configuration only)</td></tr>
-<tr><td>437</td><td>United States</td></tr>
+<tr><td>1</td><td>ASCII (valid at non-LFN cfg.)</td></tr>
+<tr><td>437</td><td>U.S.</td></tr>
 <tr><td>720</td><td>Arabic</td></tr>
 <tr><td>737</td><td>Greek</td></tr>
+<tr><td>771</td><td>KBL</td></tr>
 <tr><td>775</td><td>Baltic</td></tr>
-<tr><td>850</td><td>Multilingual Latin 1</td></tr>
+<tr><td>850</td><td>Latin 1</td></tr>
 <tr><td>852</td><td>Latin 2</td></tr>
 <tr><td>855</td><td>Cyrillic</td></tr>
 <tr><td>857</td><td>Turkish</td></tr>
-<tr><td>858</td><td>Multilingual Latin 1 + Euro</td></tr>
+<tr><td>860</td><td>Portuguese</td></tr>
+<tr><td>861</td><td>Icelandic</td></tr>
 <tr><td>862</td><td>Hebrew</td></tr>
+<tr><td>863</td><td>Canadian French</td></tr>
+<tr><td>864</td><td>Arabic</td></tr>
+<tr><td>865</td><td>Nordic</td></tr>
 <tr><td>866</td><td>Russian</td></tr>
-<tr><td>874</td><td>Thai</td></tr>
-<tr><td>932</td><td>Japanese Shift_JIS (DBCS)</td></tr>
-<tr><td>936</td><td>Simplified Chinese GBK (DBCS)</td></tr>
+<tr><td>869</td><td>Greek 2</td></tr>
+<tr><td>932</td><td>Japanese (DBCS)</td></tr>
+<tr><td>936</td><td>Simplified Chinese (DBCS)</td></tr>
 <tr><td>949</td><td>Korean (DBCS)</td></tr>
-<tr><td>950</td><td>Traditional Chinese Big5 (DBCS)</td></tr>
+<tr><td>950</td><td>Traditional Chinese (DBCS)</td></tr>
 </table>
 
 <h4 id="use_lfn">_USE_LFN</h4>
@@ -99,7 +104,7 @@
 <p>ANSI/OEM(0) or Unicode(1). This option switches character encoding on the API. To use Unicode (UTF16) string for the path name, enable LFN feature and set this option to 1. This option also affects behavior of string I/O functions. When LFN feature is disabled, this option must be 0. For more information, read <a href="filename.html#uni">here</a>.</p>
 
 <h4 id="strf_encode">_STRF_ENCODE</h4>
-<p>When Unicode API is selected by <tt>_LFN_UNICODE</tt>, this option selects the character encoding on the file to be read/written via string I/O functions, <tt>f_gets</tt>, <tt>f_putc</tt>, <tt>f_puts</tt> and <tt>f_printf</tt>. This option has no effect when <tt>_LFN_UNICODE == 0</tt>.</p>
+<p>When Unicode API is selected by <tt>_LFN_UNICODE</tt>, this option defines the assumption of character encoding on the file to be read/written via string I/O functions, <tt>f_gets</tt>, <tt>f_putc</tt>, <tt>f_puts</tt> and <tt>f_printf</tt>. This option has no effect when <tt>_LFN_UNICODE == 0</tt>.</p>
 <table class="lst1">
 <tr><th>Value</th><th>Description</th></tr>
 <tr><td>0</td><td>ANSI/OEM</td></tr>
@@ -135,7 +140,7 @@
 <h4 id="multi_partition">_MULTI_PARTITION</h4>
 <p>Disable(0) or Enable(1). This option switches multi-partition feature. By default (0), each logical drive number is bound to the same physical drive number and only an FAT volume each physical drive are mounted. When enabled, each logical drive is bound to the partition on the physical drive listed in the user defined partition resolution table <tt>VolToPart[]</tt>. Also <tt>f_fdisk</tt> funciton will be enabled. For more information, read <a href="filename.html#vol">here</a>.</p>
 
-<h4 id="max_ss">_MIN_SS and _MAX_SS</h4>
+<h4 id="max_ss">_MIN_SS, _MAX_SS</h4>
 <p>This set of options defines size of sector on the low level disk I/O interface, <tt>disk_read</tt> and <tt>disk_write</tt> function. Valid numbers are 512, 1024, 2048 and 4096. <tt>_MIN_SS</tt> defines minimum size of sector and <tt>_MAX_SS</tt> defines the maximum size of sector. Always set both 512 for all type of memory cards and harddisk. But a larger value may be required for on-board flash memory and some type of optical media. When <tt>_MAX_SS &gt; _MIN_SS</tt>, FatFs is configured to variable sector size and <tt>GET_SECTOR_SIZE</tt> command must be implemented to the <tt>disk_ioctl</tt> function.</p>
 
 <h4 id="use_trim">_USE_TRIM</h4>
@@ -163,7 +168,7 @@
 <h4 id="fs_nortc">_FS_NORTC</h4>
 <p>Use RTC(0) or Do not use RTC(1). This option controls timestamp feature. If the system does not have an RTC function or valid timestamp is not needed, set <tt>_FS_NORTC</tt> to 1 to disable the timestamp feature. Any object modified by FatFs will have a fixed timestamp value defined by <tt>_NORTC_MON</tt>, <tt>_NORTC_MDAY</tt> and <tt>_NORTC_YEAR</tt>. To use the timestamp feature, set <tt>_FS_NORTC</tt> to 0 and add <tt>get_fattime</tt> function to the project to get the current time form RTC. This option has no effect at read-only configuration.</p>
 
-<h4 id="nortc_time">_NORTC_MON, _NORTC_MDAY and _NORTC_YEAR</h4>
+<h4 id="nortc_time">_NORTC_MON, _NORTC_MDAY, _NORTC_YEAR</h4>
 <p>This set of options defines default timestamp to be used at no RTC systems. This option has no effect at read-only configuration or <tt>_FS_NORTC == 0</tt>.</p>
 
 <h4 id="fs_lock">_FS_LOCK</h4>
@@ -175,7 +180,7 @@
 </table>
 
 <h4 id="fs_reentrant">_FS_REENTRANT</h4>
-<p>Disable(0) or Enable(1). This option switches the re-entrancy (thread safe) of the FatFs module itself. Note that file/directory access to different volume is always re-entrant and it can work simultaneously regardless of this option but volume control functions, <tt>f_mount</tt>, <tt>f_mkfs</tt> and <tt>f_fdisk</tt>, are always not re-entrant. Only file/directory access to the same volume, in other words, exclusive use of each file system object, is under control of this feature. To enable this feature, also user provided synchronization handlers, <tt>ff_req_grant</tt>, <tt>ff_rel_grant</tt>, <tt>ff_del_syncobj</tt> and <tt>ff_cre_syncobj</tt>, must be added to the project. Samples are available in <tt>option/syscall.c</tt>.</p>
+<p>Disable(0) or Enable(1). This option switches the re-entrancy (thread safe) of the FatFs module itself. Note that file/directory access to the different volume is always re-entrant and it can work simultaneously regardless of this option but volume control functions, <tt>f_mount</tt>, <tt>f_mkfs</tt> and <tt>f_fdisk</tt>, are always not re-entrant. Only file/directory access to the same volume, in other words, exclusive use of each file system object, is under control of this feature. To enable this feature, also user provided synchronization handlers, <tt>ff_req_grant</tt>, <tt>ff_rel_grant</tt>, <tt>ff_del_syncobj</tt> and <tt>ff_cre_syncobj</tt>, must be added to the project. Samples are available in <tt>option/syscall.c</tt>.</p>
 
 <h4 id="fs_timeout">_FS_TIMEOUT</h4>
 <p>Number of time ticks to abort the file function with <tt>FR_TIMEOUT</tt> when wait time is too long. This option has no effect when <tt>_FS_REENTRANT == 0</tt>.</p>

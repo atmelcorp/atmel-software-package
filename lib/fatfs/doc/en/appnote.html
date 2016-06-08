@@ -46,7 +46,7 @@ The FatFs module assumes that size of char/short/long are 8/16/32 bit and int is
 <p><img src="../img/funcs.png" width="680" height="420" alt="functional diagram"></p>
 
 <h4>Which function is required?</h4>
-<p>You need to provide only low level disk I/O functions that required by FatFs module and nothing else. If a working disk module for the target system is already existing, you need to write only glue functions to attach it to the FatFs module. If not, you need to port any other disk module or write it from scratch. Most of defined functions are not that always required. For example, disk write function is not required at read-only configuration. Following table shows which function is required depends onthe configuration options.</p>
+<p>You need to provide only low level disk I/O functions that required by FatFs module and nothing else. If a working disk module for the target system is already existing, you need to write only glue functions to attach it to the FatFs module. If not, you need to port any other disk module or write it from scratch. Most of defined functions are not that always required. For example, disk write function is not required at read-only configuration. Following table shows which function is required depends on the configuration options.</p>
 <table class="lst2">
 <tr><th>Function</th><th>Required when</th><th>Note</th></tr>
 <tr><td>disk_status<br>disk_initialize<br>disk_read</td><td>Always</td><td rowspan="5">Disk I/O functions.<br>Samples available in ffsample.zip.<br>There are many implementations on the web.</td></tr>
@@ -54,7 +54,7 @@ The FatFs module assumes that size of char/short/long are 8/16/32 bit and int is
 <tr><td>disk_ioctl (GET_SECTOR_COUNT)<br>disk_ioctl (GET_BLOCK_SIZE)</td><td>_USE_MKFS == 1</td></tr>
 <tr><td>disk_ioctl (GET_SECTOR_SIZE)</td><td>_MAX_SS != _MIN_SS</td></tr>
 <tr><td>disk_ioctl (CTRL_TRIM)</td><td>_USE_TRIM == 1</td></tr>
-<tr><td>ff_convert<br>ff_wtoupper</td><td>_USE_LFN &gt;= 1</td><td>Unicode support functions.<br>Available in option/unicode.c.</td></tr>
+<tr><td>ff_convert<br>ff_wtoupper</td><td>_USE_LFN != 0</td><td>Unicode support functions.<br>Just add option/unicode.c to the project.</td></tr>
 <tr><td>ff_cre_syncobj<br>ff_del_syncobj<br>ff_req_grant<br>ff_rel_grant</td><td>_FS_REENTRANT == 1</td><td rowspan="2">O/S dependent functions.<br>Samples available in option/syscall.c.</td></tr>
 <tr><td>ff_mem_alloc<br>ff_mem_free</td><td>_USE_LFN == 3</td></tr>
 </table>
@@ -75,7 +75,7 @@ The FatFs module assumes that size of char/short/long are 8/16/32 bit and int is
 
 <div class="para doc" id="memory">
 <h3>Memory Usage</h3>
-<p>The memory usege varies depends on the <a href="config.html">configuration options</a>.</p>
+<p>The memory usage varies depends on the <a href="config.html">configuration options</a>.</p>
 <table class="lst2">
 <tr><th></th><th>ARM7<small><br>32bit</small></th><th>ARM7<small><br>Thumb</small></th><th>CM3<small><br>Thumb-2</small></th><th>AVR</th><th>H8/300H</th><th>PIC24</th><th>RL78</th><th>V850ES</th><th>SH-2A</th><th>RX600</th><th>IA-32</th></tr>
 <tr class="cal">     <td>Compiler</td><td>GCC</td><td>GCC</td><td>GCC</td><td>GCC</td><td>CH38</td><td>C30</td><td>CC78K0R</td><td>CA850</td><td>SHC</td><td>RXC</td><td>VC6</td></tr>
@@ -142,15 +142,15 @@ _WORD_ACCESS   0 or 1 (Set for 1 if possible)
 
 <div class="para doc" id="lfn">
 <h3>Long File Name</h3>
-<p>FatFs module supports LFN (long file name). The two different file names, SFN (short file name) and LFN, of a file is transparent on the API except for <tt>f_readdir</tt> function. The LFN feature is disabled by default. To enable it, set <tt><a href="config.html#use_lfn">_USE_LFN</a></tt> to 1, 2 or 3, and add <tt>option/unicode.c</tt> to the project. The LFN feature requiers a certain working buffer in addition. The buffer size can be configured by <tt><a href="config.html#max_lfn">_MAX_LFN</a></tt> according to the available memory. The length of an LFN will reach up to 255 characters, so that the <tt>_MAX_LFN</tt> should be set to 255 for full featured LFN operation. If the size of working buffer is insufficient for the input file name, the file function fails with <tt>FR_INVALID_NAME</tt>. When enable the LFN feature under re-entrant configuration, <tt>_USE_LFN</tt> must be set to 2 or 3. In this case, the file function allocates the working buffer on the stack or heap. The working buffer occupies <tt>(_MAX_LFN + 1) * 2</tt> bytes.</p>
+<p>FatFs module supports LFN (long file name). The two different file names, SFN (short file name) and LFN, of a file is transparent on the API except for <tt>f_readdir</tt> function. The LFN feature is disabled by default. To enable it, set <tt><a href="config.html#use_lfn">_USE_LFN</a></tt> to 1, 2 or 3, and add <tt>option/unicode.c</tt> to the project. The LFN feature requiers a certain working buffer in addition. The buffer size can be configured by <tt><a href="config.html#max_lfn">_MAX_LFN</a></tt> according to the available memory. The length of an LFN will reach up to 255 characters, so that the <tt>_MAX_LFN</tt> should be set to 255 for full featured LFN operation. If the size of working buffer is insufficient for the input file name, the file function fails with <tt>FR_INVALID_NAME</tt>. When use any re-entry to the API with the LFN feature, <tt>_USE_LFN</tt> must be set to 2 or 3. In this case, the file function allocates the working buffer on the stack or heap. The working buffer occupies <tt>(_MAX_LFN + 1) * 2</tt> bytes.</p>
 <table class="lst2 rset">
-<caption>LFN cfg. at CM3</caption>
-<tr><th><tt>_CODE_PAGE</tt></th><th>Extra code</th></tr>
+<caption>LFN cfg. at CM3/gcc</caption>
+<tr><th><tt>_CODE_PAGE</tt></th><th>Code size</th></tr>
 <tr><td>SBCS</td><td>+2.8K</td></tr>
-<tr><td>932(Shift_JIS)</td><td>+62.6k</td></tr>
-<tr><td>936(GBK)</td><td>+177k</td></tr>
+<tr><td>932(Japanese)</td><td>+62.6k</td></tr>
+<tr><td>936(Simplified Chinese)</td><td>+177k</td></tr>
 <tr><td>949(Korean)</td><td>+139k</td></tr>
-<tr><td>950(Big5)</td><td>+111k</td></tr>
+<tr><td>950(Traditional Chinese)</td><td>+111k</td></tr>
 </table>
 <p>When the LFN feature is enabled, the module size will be increased depends on the configured code page. Right table shows how much code size increased when LFN feature is enabled with some code pages. Especially, in the CJK region, tens of thousands of characters are being used. Unfortunately, it requires a huge OEM-Unicode bidirectional conversion table and the module size will be drastically increased as shown in the table. As the result, the FatFs with LFN feature with those code pages will not able to be implemented to most 8-bit microcontrollers.</p>
 <p>Note that the LFN feature on the FAT file system is a patent of Microsoft Corporation. This is not the case on FAT32 but most FAT32 drivers come with the LFN feature. FatFs can swich the LFN feature on/off by configuration option. When enable LFN feature on the commercial products, a license from Microsoft may be required depends on the final destination.</p>
@@ -165,8 +165,8 @@ _WORD_ACCESS   0 or 1 (Set for 1 if possible)
 <h3>Re-entrancy</h3>
 <p>The file operations to the different volume is always re-entrant regardless of configurations and it can work simultaneously without any mutual exclusion.</p>
 <p>The file operations to the same volume is not re-entrant but it can also be configured to thread-safe by <tt><a href="config.html#fs_reentrant">_FS_REENTRANT</a></tt> option. It enables to control exclusive use of each file system object. In this case, also the OS dependent synchronization object control functions, <tt>ff_cre_syncobj/ff_del_syncobj/ff_req_grant/ff_rel_grant</tt>, needed to be added to the project. There are some examples in the <tt>option/syscall.c</tt>.</p>
-<p>When a file function is called while the volume is being accessed by any other task, the file function is suspended until that task leaves the file function. If the wait time exceeded a period defined by <tt>_TIMEOUT</tt>, the file function will abort with <tt>FR_TIMEOUT</tt>. The timeout feature might not be supported on some RTOS.</p>
-<p>There is an exception for <tt>f_mount/f_mkfs/f_fdisk</tt> function. These volume control functions are not re-entrant to the same volume and corresponding physical drive. When use these functions, all other tasks need to avoid to use the volume.</p>
+<p>When a file function is called while the volume is being accessed by any other task, the file function to the volume will be suspended until that task leaves the file function. If the wait time exceeded a period defined by <tt>_TIMEOUT</tt>, the file function will abort with <tt>FR_TIMEOUT</tt>. The timeout feature might not be supported on the some RTOSs.</p>
+<p>There is an exception on the re-entrancy for <tt>f_mount/f_mkfs/f_fdisk</tt> function. These volume control functions are not re-entrant to the same volume and corresponding physical drive. When use these functions, any other tasks need to avoid to access the volume.</p>
 <p>Note that this section describes on the re-entrancy of the FatFs module itself. The low level disk I/O layer must be thread-safe when any FatFs API is re-entered.</p>
 </div>
 

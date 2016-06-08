@@ -54,7 +54,7 @@ FatFsモジュールはANSI C(C89)準拠で記述されているので、普通�
 <tr><td>disk_ioctl (GET_SECTOR_COUNT)<br>disk_ioctl (GET_BLOCK_SIZE)</td><td>_USE_MKFS == 1</td></tr>
 <tr><td>disk_ioctl (GET_SECTOR_SIZE)</td><td>_MAX_SS != _MIN_SS</td></tr>
 <tr><td>disk_ioctl (CTRL_TRIM)</td><td>_USE_TRIM == 1</td></tr>
-<tr><td>ff_convert<br>ff_wtoupper</td><td>_USE_LFN &gt;= 1</td><td>option/unicode.c</td></tr>
+<tr><td>ff_convert<br>ff_wtoupper</td><td>_USE_LFN != 0</td><td>option/unicode.cをプロジェクトに<br>加えればよい</td></tr>
 <tr><td>ff_cre_syncobj<br>ff_rel_grant<br>ff_req_grant<br>ff_del_syncobj</td><td>_FS_REENTRANT == 1</td><td rowspan="2">option/syscall.c (サンプル)</td></tr>
 <tr><td>ff_mem_alloc<br>ff_mem_free</td><td>_USE_LFN == 3</td></tr>
 </table>
