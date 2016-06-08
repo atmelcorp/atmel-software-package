@@ -32,6 +32,19 @@
  *
  * Interface for cache maintenance.
  *
+ * Several macros are provided to place variables in specific section depending
+ * on their caching/alignment requirements.
+ *
+ * NOT_CACHED_DDR will place the variable in the ".region_ddr_nocache" section.
+ * This section in located in DDRAM and its MMU attributes makr it as
+ * non-cacheable.
+ *
+ * CACHE_ALIGNED_DDR (resp. CACHE_ALIGNED_SRAM) will place the variable in the
+ * ".region_ddr_cache_aligned" section (resp. ".region_ddr_cache_aligned"
+ * section) and align the variable start address on a cache line.  Since these
+ * sections will contain only cache aligned variables, we can be certain that
+ * flushing/invalidating any variable in these regions will not
+ * flush/invalidate more than expected.
  */
 
 #ifndef CACHE_H_
@@ -41,7 +54,42 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "chip.h"
+#include "compiler.h"
+
 #include <stdint.h>
+
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
+/** Place variable in DDRAM not-cached section
+ * Note: this section is *not* initialized at all */
+#define NOT_CACHED_DDR \
+	SECTION(".region_ddr_nocache")
+
+/** Place variable in default cache-aligned section
+ * Note: this section is *not* initialized at all */
+#define CACHE_ALIGNED \
+	ALIGNED(L1_CACHE_BYTES) \
+	SECTION(".region_cache_aligned")
+
+/** Place constant in default cache-aligned section
+ * Note: this section is initialized but may be placed in a read-only memory */
+#define CACHE_ALIGNED_CONST \
+	ALIGNED(L1_CACHE_BYTES) \
+	SECTION(".region_cache_aligned_const")
+
+/** Place variable in DRAM cache-aligned section
+ * Note: this section is *not* initialized at all */
+#ifdef VARIANT_DDRAM
+#define CACHE_ALIGNED_DDR \
+	CACHE_ALIGNED
+#else
+#define CACHE_ALIGNED_DDR \
+	ALIGNED(L1_CACHE_BYTES) \
+	SECTION(".region_ddr_cache_aligned")
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions

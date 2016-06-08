@@ -111,6 +111,15 @@ SECTIONS
 		_erelocate = .;
 	} >sram
 
+	/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
+
+	.region_cache_aligned_const :
+	{
+		. = ALIGN(32);
+		*(.region_cache_aligned_const)
+		. = ALIGN(32);
+	} >sram
+
 	/* .ARM.exidx is sorted, so has to go in its own output section.  */
 	PROVIDE_HIDDEN (__exidx_start = .);
 	.ARM.exidx :
@@ -150,6 +159,22 @@ SECTIONS
 		. = ALIGN(4);
 		_ezero = .;
 	} >sram
+
+	/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
+
+	.region_cache_aligned (NOLOAD) :
+	{
+		. = ALIGN(32);
+		*(.region_cache_aligned)
+		. = ALIGN(32);
+	} >sram
+
+	.region_ddr_cache_aligned (NOLOAD) :
+	{
+		. = ALIGN(32);
+		*(.region_ddr_cache_aligned)
+		. = ALIGN(32);
+	} >ddr
 
 	.heap (NOLOAD) :
 	{

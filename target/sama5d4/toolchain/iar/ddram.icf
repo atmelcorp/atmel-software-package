@@ -16,12 +16,16 @@ define block BSS with alignment = 32 { zi };
 define block SRAM  with alignment = 32 { section .region_sram  };
 define block DDRAM with alignment = 32 { section .region_ddr };
 
+/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
 define block DDR_NO_CACHE { section .region_ddr_nocache };
+define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
+define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };
 
 initialize by copy with packing=none { section .vectors };
 do not initialize { section .region_sram };
 do not initialize { section .region_ddr };
 do not initialize { section .region_ddr_nocache };
+do not initialize { section .region_cache_aligned };
 
 place at start of RAM_region { section .vectors };
 place in RAM_region { block SRAM };
@@ -29,6 +33,8 @@ place in RAM_region { block SRAM };
 place in DDRAM_region { section .cstartup };
 place in DDRAM_region { ro };
 place in DDRAM_region { rw };
+place in DDRAM_region { block CACHE_ALIGNED_CONST };
+place in DDRAM_region { block CACHE_ALIGNED };
 place in DDRAM_region { block DDRAM };
 place in DDRAM_region { block BSS };
 place in DDRAM_region { block HEAP };
