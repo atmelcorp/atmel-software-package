@@ -236,13 +236,7 @@ void aic_initialize(void)
 
 	/* Redirect all interrupts to Non-secure AIC */
 	uint32_t aicredir = SFR_AICREDIR_AICREDIRKEY((uint32_t)(AICREDIR_KEY));
-
-#ifdef CONFIG_SOC_SAMA5D4
-	aicredir |= SFR->SFR_SN1;
-#else
-	aicredir ^= SFR->SFR_SN1;
-#endif
-	SFR->SFR_AICREDIR = aicredir | SFR_AICREDIR_NSAIC;
+	SFR->SFR_AICREDIR = (aicredir ^ SFR->SFR_SN1) | SFR_AICREDIR_NSAIC;
 #endif /* CONFIG_HAVE_SAIC */
 
 	/* Enable IRQ and FIQ at core level */

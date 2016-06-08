@@ -200,7 +200,7 @@
 #define MAIN_CLOCK_INT_OSC 12000000
 
 /** AIC redirection unlock key */
-#define AICREDIR_KEY 0x5F67B102
+#define AICREDIR_KEY 0x2fb3d881u
 
 /** Indicates chip has an UDP High Speed. */
 #define CHIP_USB_UDPHS
