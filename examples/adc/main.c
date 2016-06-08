@@ -40,8 +40,8 @@
  *  SAMA5D4-XULT. Refer to \ref adc_adc12_requirement for detail.
  *  
  *  -# SAMA5D2-XPLAINED: Connect PB9 to PD31 (ADTRG)
- *  -# SAMA5D4-XPLAINED: Connect PE23 to PE31 (ADTRG)
- *  -# SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
+ *  -# SAMA5D4-XPLAINED: Connect PE23 (pin 1 on J18) to PE31 (ADTRG) (pin 34 on J15)
+ *  -# SAMA5D4-EK: Connect to PE23 (pin on J) to PE31 (ADTRG)
  *  -# SAMA5D3-XPLAINED: Connect PD15 (pin 8 on J21) to PD19 (ADTRG) (pin 6 on J21)
  *  -# SAMA5D3-EK: Connect to PD15 (pin 32 on J3) to PD19 (ADTRG) (pin 34 on J3)
  *
@@ -142,13 +142,10 @@
 /** ADC slected channels */
 static uint8_t adc_channel_used[] =
 {
-	ADC_CHANNEL_3,
-#ifndef CONFIG_BOARD_SAMA5D3_XPLAINED
-	ADC_CHANNEL_4,
-#endif
-	ADC_CHANNEL_0,
-	ADC_CHANNEL_1,
-	ADC_CHANNEL_2,
+	3,
+	0,
+	1,
+	2,
 };
 
 /** Total number of ADC channels in use */
@@ -161,8 +158,7 @@ static uint8_t adc_channel_used[] =
 #define BOARD_ADC_VREF (3300)
 
 /** MAXIMUM DIGITAL VALUE */
-#define DIGITAL_MAX    ((1 << 12) - 1)
-
+#define DIGITAL_MAX    ((1 << adc_get_resolution()) - 1)
 /*----------------------------------------------------------------------------
  *        Local types
  *----------------------------------------------------------------------------*/
@@ -312,7 +308,7 @@ static void adc_irq_handler(void)
 
 	/* check at least one EOCn flag set */
 	if( status & 0x00000FFF ) {
-		for (i=0; i < adc_num_channels(); i++) {
+		for (i=0; i < adc_get_num_channels(); i++) {
 			value = adc_get_converted_data(i);
 			/* Check ISR "End of Conversion" corresponding bit */
 			if ((status & (1u<<i))) {

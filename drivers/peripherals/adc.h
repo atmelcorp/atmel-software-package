@@ -67,20 +67,6 @@
 /* Max. fast ADC startup time (us) */
 #define ADC_STARTUP_FAST_MAX       12
 
-/* Definitions for ADC channels */
-#define ADC_CHANNEL_0  0
-#define ADC_CHANNEL_1  1
-#define ADC_CHANNEL_2  2
-#define ADC_CHANNEL_3  3
-#define ADC_CHANNEL_4  4
-#define ADC_CHANNEL_5  5
-#define ADC_CHANNEL_6  6
-#define ADC_CHANNEL_7  7
-#define ADC_CHANNEL_8  8
-#define ADC_CHANNEL_9  9
-#define ADC_CHANNEL_10 10
-#define ADC_CHANNEL_11 11
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -134,8 +120,13 @@ extern "C" {
 /**
  * \brief Returns the number of ADC channels
  */
-extern uint32_t adc_num_channels(void);
+extern uint32_t adc_get_num_channels(void);
 
+/**
+ * \brief Returns the resolution of ADC channels (bits)
+ */
+extern uint32_t adc_get_resolution(void);
+	
 /**
  * \brief Initialize the ADC controller
  */

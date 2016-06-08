@@ -112,9 +112,18 @@ static uint32_t _adc_clock = 0;
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-uint32_t adc_num_channels(void)
+uint32_t adc_get_num_channels(void)
 {
 	return ARRAY_SIZE(ADC->ADC_CDR);
+}
+
+uint32_t adc_get_resolution(void)
+{
+#ifdef CONFIG_SOC_SAMA5D4
+	return (ADC->ADC_MR & ADC_MR_LOWRES_BITS_8) ? 8 : 10;
+#else
+	return 12;
+#endif
 }
 
 /**
@@ -131,7 +140,6 @@ void adc_initialize(void)
 
 	/* Reset Mode Register */
 	ADC->ADC_MR = 0;
-
 }
 
 /**
@@ -274,7 +282,7 @@ void adc_set_sequence(uint32_t seq1, uint32_t seq2)
  * \param len  Number of channels in list.
  */
 
-void adc_set_sequence_by_list(uint8_t channel_list[], uint8_t len)
+void adc_set_sequence_by_list(uint8_t *channel_list, uint8_t len)
 {
 	uint8_t i;
 	uint8_t shift;
@@ -318,9 +326,9 @@ void adc_set_tag_enable(uint8_t enable)
  */
 void adc_set_compare_channel(uint32_t channel)
 {
-	assert(channel <= adc_num_channels());
+	assert(channel <= adc_get_num_channels());
 
-	if (channel < adc_num_channels()) {
+	if (channel < adc_get_num_channels()) {
 		ADC->ADC_EMR &= ~(ADC_EMR_CMPALL);
 		ADC->ADC_EMR &= ~(ADC_EMR_CMPSEL_Msk);
 		ADC->ADC_EMR |= (channel << ADC_EMR_CMPSEL_Pos);
@@ -368,9 +376,9 @@ uint8_t adc_check_configuration(void)
 
 uint32_t adc_get_converted_data(uint32_t channel)
 {
-	assert(channel < adc_num_channels());
+	assert(channel < adc_get_num_channels());
 
-	if (channel < adc_num_channels()) {
+	if (channel < adc_get_num_channels()) {
 		return ADC->ADC_CDR[channel];
 	} else {
 		return 0;
@@ -626,3 +634,4 @@ void adc_set_low_resolution(uint8_t enable)
 	}
 }
 #endif
+
