@@ -236,7 +236,7 @@ static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
  * data cache lines.
  * Padding implemented below is valid as of FatFs Module R0.10b, with structure
  * packing kept disabled. Proper alignment is checked at runtime, anyway. */
-struct padded_fatfs { uint8_t padding[16]; FATFS fs; };
+struct padded_fatfs { uint8_t padding[9]; FATFS fs; };
 #if USE_EXT_RAM
 CACHE_ALIGNED_DDR
 #else
@@ -247,7 +247,7 @@ static struct padded_fatfs fs_header;
 /* File object.
  * Similarly to the main data buffer above, we need to align FIL::buf[] on
  * data cache lines. */
-struct padded_fil { uint8_t padding[28]; FIL file; };
+struct padded_fil { uint8_t padding[18]; FIL file; };
 #if USE_EXT_RAM
 CACHE_ALIGNED_DDR
 #else
@@ -373,14 +373,9 @@ static bool show_device_info(sSdCard *pSd)
 
 static bool mount_volume(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 {
-	char lfn[_MAX_LFN * 2 + 1];
-	char *fn;
 	const TCHAR drive_path[] = { '0' + slot_ix, ':', '\0' };
-	DIR dir = { 0 };
-	FILINFO fno = {
-		.lfname = lfn,
-		.lfsize = sizeof(lfn),
-	};
+	DIR dir = { .sect = 0 };
+	FILINFO fno = { 0 };
 	FRESULT res;
 	bool is_dir, rc = true;
 
@@ -406,8 +401,8 @@ static bool mount_volume(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 		if (fno.fname[0] == '\0')
 			break;
 		is_dir = fno.fattrib & AM_DIR ? true : false;
-		fn = fno.lfname[0] != '\0' ? fno.lfname : fno.fname;
-		printf("    %s%s%c\n\r", is_dir ? "[" : "", fn, is_dir ? ']' : ' ');
+		printf("    %s%s%c\n\r", is_dir ? "[" : "", fno.fname,
+		    is_dir ? ']' : ' ');
 	}
 
 	res = f_closedir(&dir);

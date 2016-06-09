@@ -30,9 +30,4 @@ CFLAGS_INC += -I$(TOP)/lib/fatfs/src
 
 libfatfs-y += lib/fatfs/src/ff.o
 
-$(BUILDDIR)/lib/fatfs/src/ff.o: lib/fatfs/src/ff.c
-	@mkdir -p $(dir $@)
-	$(ECHO) CC $<
-	$(Q)$(CC) $(filter-out -Wmissing-prototypes -Wmissing-declarations,$(CFLAGS)) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
-
 include $(TOP)/lib/fatfs/src/option/Makefile.inc
