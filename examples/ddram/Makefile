@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the DDRAM example
-AVAILABLE_VARIANTS = sram
+AVAILABLE_VARIANTS = sram qspi0 qspi1
 
 TOP := ../..
 
