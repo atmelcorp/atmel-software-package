@@ -90,14 +90,18 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include "cortex-a/cp15.h"
+#include "cortex-a/cpsr.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
+#include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 
 #include "memories/qspiflash.h"
 #include "misc/console.h"
-
+#include "misc/cache.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -123,8 +127,36 @@ static struct _pin pins_qspi[] = QSPIFLASH_PINS;
 static struct _qspiflash flash;
 
 /*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static void run_xip_program(void* qspi_mem_addr)
+{
+	void (*xip_startup_fn)(void);
+
+	printf("\n\r");
+	printf("Running code from QSPI flash\n\r");
+	printf("============================\n\r");
+
+	/* Disable MMU, cache and interrupts */
+	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	cp15_disable_mmu();
+	pit_disable();
+
+	xip_startup_fn = (void(*)(void))qspi_mem_addr;
+	xip_startup_fn();
+}
+
+/*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
+
+/* override default board init */
+void board_init()
+{
+	board_cfg_lowlevel(false, false);
+	board_cfg_console(0);
+}
 
 /**
  *  \brief QSPI_XIP Application entry point.
@@ -135,7 +167,6 @@ int main(void)
 {
 	bool verify_failed = 0;
 	uint32_t baudrate, idx;
-	void (*xip_startup_fn)(void);
 	void* qspi_mem_addr = get_qspi_mem_from_addr(QSPIFLASH_ADDR);
 	uint32_t buffer[4];
 	uint8_t *ptr;
@@ -146,24 +177,25 @@ int main(void)
 	/* Initialize the QSPI and serial flash */
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
 
-	trace_debug("Initializing QSPI drivers...\n\r");
+	printf("Initializing QSPI drivers...\n\r");
 	qspi_initialize(QSPIFLASH_ADDR);
-	trace_debug("QSPI drivers initialized.\n\r");
+	printf("QSPI drivers initialized.\n\r");
 
 	baudrate = qspi_set_baudrate(QSPIFLASH_ADDR, QSPIFLASH_BAUDRATE);
-	trace_debug("QSPI baudrate set to %uHz\r\n", (unsigned)baudrate);
+	printf("QSPI baudrate set to %uHz\r\n", (unsigned)baudrate);
 
-	trace_debug("Configuring QSPI Flash...\n\r");
+	printf("Configuring QSPI Flash...\n\r");
 	if (!qspiflash_configure(&flash, QSPIFLASH_ADDR)) {
 		trace_fatal("Configure QSPI Flash failed!\n\r");
 	}
-	trace_debug("QSPI Flash configured.\n\r");
+	printf("QSPI Flash configured.\n\r");
 
 	/* get the code at the beginning of QSPI, run the code directly if it's valid */
 	if (!qspiflash_read(&flash, 0, buffer, sizeof(buffer))) {
 		trace_fatal("Read the code from QSPI Flash failed!\n\r");
 	}
-	printf("-I- Data at the beginning of QSPI: %08x %08x %08x %08x\n\r",
+
+	printf("Data at the beginning of QSPI: %08x %08x %08x %08x\n\r",
 		(unsigned int)buffer[0], (unsigned int)buffer[1],
 		(unsigned int)buffer[2], (unsigned int)buffer[3]);
 
@@ -173,34 +205,34 @@ int main(void)
 			((buffer[0] & 0xFF000000) == (buffer[1] & 0xFF000000)) &&
 			((buffer[0] & 0xFF000000) == (buffer[2] & 0xFF000000)) &&
 			((buffer[0] & 0xFF000000) == (buffer[3] & 0xFF000000)) ) {
-		printf("-I- Valid application already in QSPI, will run it using QSPI XIP\n\r");
-		printf("-I- Starting continuous read mode to enter in XIP mode\n\r");
+		printf("Valid application already in QSPI, will run it using QSPI XIP\n\r");
+		printf("Starting continuous read mode to enter in XIP mode\n\r");
 		if (!qspiflash_read(&flash, 0, NULL, 0)) {
 			trace_fatal("Read the code from QSPI Flash failed!\n\r");
 		}
-		xip_startup_fn = (void(*)(void))qspi_mem_addr;
-		xip_startup_fn();
+		run_xip_program(qspi_mem_addr);
 	} else {
-		printf("-I- No valid application found in QSPI, will one program first\n\r");
+		printf("No valid application found in QSPI, will one program first\n\r");
 	}
 
-	printf("Erasing 16x4KB at beginning of memory...\n\r");
-	for (idx = 0; idx < 16; idx++) {
+	printf("Erasing beginning of memory...\n\r");
+	for (idx = 0; idx * 4096 < sizeof(xip_program); idx++) {
 		if (!qspiflash_erase_block(&flash, idx * 4096, 4096)) {
 			trace_fatal("QSPI Flash block erase failed!\n\r");
 		}
 	}
-	printf("Erase done.\n\r");
+	printf("Erase done (%u bytes).\n\r", (unsigned)(idx * 4096));
 
 	/* Flash the code to QSPI flash */
 	printf("Writing to QSPI...\n\r");
 	if (!qspiflash_write(&flash, 0, xip_program, sizeof(xip_program))) {
 		trace_fatal("QSPI Flash writing failed!\n\r");
 	}
-	printf("Example code written to memory (0x%x bytes).\n\r", sizeof(xip_program));
+	printf("Example code written to memory (%d bytes).\n\r", sizeof(xip_program));
 	printf("Verifying...\n\r");
 
 	/* Start continuous read mode to enter in XIP mode*/
+	printf("Starting continuous read mode to enter in XIP mode\n\r");
 	if (!qspiflash_read(&flash, 0, NULL, 0)) {
 		trace_fatal("QSPI Flash read failed!\n\r");
 	}
@@ -210,19 +242,15 @@ int main(void)
 	for (idx = 0; idx < sizeof(xip_program); idx++, ptr++) {
 		if (*ptr != xip_program[idx]) {
 			verify_failed = true;
-			printf("-E- Data does not match at 0x%x (0x%02x != 0x%02x)\n\r",
+			trace_fatal("Data does not match at 0x%x (0x%02x != 0x%02x)\n\r",
 					(unsigned)ptr, *ptr, xip_program[idx]);
 			break;
 		}
 	}
 
 	if (!verify_failed) {
-		printf("Everything is OK \n\r");
-		printf("\n\r Running code from QSPI flash \n\r");
-		printf("========================================================= \n\r");
-
-		xip_startup_fn = (void(*)(void))qspi_mem_addr;
-		xip_startup_fn();
+		printf("Verification OK\n\r");
+		run_xip_program(qspi_mem_addr);
 	}
 
 	while (1);
