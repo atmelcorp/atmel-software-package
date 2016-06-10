@@ -75,6 +75,5 @@
  * \brief initializes the MMU
  */
 extern void mmu_initialize(void);
-extern void mmu_update_ddr_attr(bool cacheable);
 
 #endif  /* #ifndef _MMU_ */

@@ -40,6 +40,7 @@
 #include "peripherals/mpddrc.h"
 #include "peripherals/pmc.h"
 
+#include "cortex-a/cp15.h"
 #include "cortex-a/mmu.h"
 
 /*------------------------------------------------------------------------------
@@ -351,7 +352,20 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 
 void ddram_configure(struct _mpddrc_desc* desc)
 {
-	mmu_update_ddr_attr(false);
+	bool mmu = cp15_is_mmu_enabled();
+	bool dcache = cp15_is_dcache_enabled();
+	bool icache = cp15_is_icache_enabled();
+
+	if (mmu)
+		cp15_disable_mmu();
+
 	mpddrc_configure(desc);
-	mmu_update_ddr_attr(true);
+
+	if (mmu) {
+		cp15_enable_mmu();
+		if (dcache)
+			cp15_enable_dcache();
+		if (icache)
+			cp15_enable_icache();
+	}
 }
