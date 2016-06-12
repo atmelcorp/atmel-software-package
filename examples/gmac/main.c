@@ -116,7 +116,10 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 #include "peripherals/aic.h"
+#if defined(CONFIG_HAVE_EMAC)
+#elif defined(CONFIG_HAVE_GMAC)
 #include "peripherals/gmacd.h"
+#endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 
@@ -146,6 +149,13 @@
 /** Interval between ARP requests (in milliseconds) */
 #define ARP_INTERVAL     250
 
+#if defined(CONFIG_HAVE_EMAC)
+#elif defined(CONFIG_HAVE_GMAC)
+#   define ETH_ADDR GMAC0_ADDR
+#   define ETH_PHY_ADDR GMAC0_PHY_ADDR
+#   define ETH_PHY_IF PHY_IF_GMAC
+#endif
+
 /*---------------------------------------------------------------------------
  *         Local variables
  *---------------------------------------------------------------------------*/
@@ -167,6 +177,13 @@ struct _twi_desc at24_twid = {
         .transfert_mode = TWID_MODE_DMA
 };
 #endif
+
+const struct _phy_desc phy_desc = {
+		.addr = ETH_ADDR,
+		.phy_if = ETH_PHY_IF,
+		.retries = PHY_DEFAULT_RETRIES,
+		.phy_addr = ETH_PHY_ADDR
+	};
 
 /** The MAC address used for demo */
 static uint8_t _mac_addr[6] = { 0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54 };
@@ -461,11 +478,6 @@ int main(void)
 	gmacd_start(&_gmacd);
 
 	/* Init PHY */
-	struct _phy_desc phy_desc = {
-		.addr = GMAC0_ADDR,
-		.retries = GMAC0_PHY_RETRIES,
-		.phy_addr = GMAC0_PHY_ADDR
-	};
 	struct _phy phy = {
 		.desc = &phy_desc
 	};

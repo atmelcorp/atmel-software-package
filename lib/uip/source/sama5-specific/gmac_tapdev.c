@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -57,6 +57,13 @@
 /* Number of buffer for TX */
 #define TX_BUFFERS  8
 
+#if defined(CONFIG_HAVE_EMAC)
+#elif defined(CONFIG_HAVE_GMAC)
+#   define ETH_ADDR GMAC0_ADDR
+#   define ETH_PHY_ADDR GMAC0_PHY_ADDR
+#   define ETH_PHY_IF PHY_IF_GMAC
+#endif
+
 /*----------------------------------------------------------------------------
  *        Variables
  *----------------------------------------------------------------------------*/
@@ -66,9 +73,10 @@ static struct _gmacd _gmacd;
 
 /* The PHY driver config */
 static const struct _phy_desc _phy_desc = {
-	.addr = GMAC0_ADDR,
-	.retries = GMAC0_PHY_RETRIES,
-	.phy_addr = GMAC0_PHY_ADDR
+	.addr = ETH_ADDR,
+	.phy_if = ETH_PHY_IF,
+	.retries = PHY_DEFAULT_RETRIES,
+	.phy_addr = ETH_PHY_ADDR
 };
 
 /* The PHY driver instance */

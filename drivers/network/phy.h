@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2012-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -53,7 +53,7 @@
 #ifndef _PHY_H
 #define _PHY_H
 
-#ifdef CONFIG_HAVE_GMAC
+#ifdef CONFIG_HAVE_ETH
 
 /*---------------------------------------------------------------------------
  *         Headers
@@ -68,19 +68,41 @@
 /** Default max retry count */
 #define PHY_DEFAULT_RETRIES 300000
 
+enum _phy_if_eth {
+	PHY_IF_GMAC,
+};
+
 /*---------------------------------------------------------------------------
  *         Types
  *---------------------------------------------------------------------------*/
 
 struct _phy_desc {
-	Gmac* addr;       /**< GMAC instance */
+	void* addr;       /**< ETH instance (GMAC/EMAC) */
+	enum _phy_if_eth phy_if;
 	uint32_t retries; /**< max retries / timeout */
 	uint8_t phy_addr; /**< PHY address (configured) */
+};
+
+typedef void (*eth_enable_mdio)(void* eth);
+typedef void (*eth_disable_mdio)(void* eth);
+typedef bool (*eth_phy_read)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t* data, uint32_t retries);
+typedef bool (*eth_phy_write)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t data, uint32_t retries);
+typedef void (*eth_enable_rmii)(void* eth, enum _gmac_speed speed, enum _gmac_duplex duplex);
+
+struct _eth_phy_op {
+	eth_phy_read phy_read;
+	eth_phy_write phy_write;
+	eth_enable_mdio enable_mido;
+	eth_disable_mdio disable_mido;
+	eth_enable_rmii enable_rmii;
 };
 
 struct _phy {
 	const struct _phy_desc* desc;
 	uint8_t phy_addr; /**< PHY address (actual) */
+	const struct _eth_phy_op* op;
 };
 
 /*---------------------------------------------------------------------------
@@ -106,6 +128,6 @@ extern void phy_dump_registers(const struct _phy* phy);
 }
 #endif
 
-#endif /* CONFIG_HAVE_GMAC */
+#endif /* CONFIG_HAVE_ETH */
 
 #endif /* _PHY_H_ */
