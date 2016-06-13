@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -39,7 +39,7 @@
  *  \section Requirements
  *
  *  - SAMA5D4x microcontrollers with GMAC feature.
- *  - On-board ethernet interface. 
+ *  - On-board ethernet interface.
  *
  *  \section Description
  *
@@ -264,8 +264,8 @@ int main(void)
 #endif
 
 	/* System devices initialize */
-	gmac_tapdev_setmac((uint8_t *)MacAddress.addr);
-	gmac_tapdev_init();
+	eth_tapdev_setmac((uint8_t *)MacAddress.addr);
+	eth_tapdev_init();
 	clock_init();
 	timer_start_timeout(&periodic_timer, timer_get_resolution() / 2);
 	timer_start_timeout(&arp_timer, timer_get_resolution() * 10);
@@ -300,7 +300,7 @@ int main(void)
 	_app_init();
 
 	while(1) {
-		uip_len = gmac_tapdev_read();
+		uip_len = eth_tapdev_read();
 		if(uip_len > 0) {
 			if(BUF->type == htons(UIP_ETHTYPE_IP)) {
 				uip_arp_ipin();
@@ -310,7 +310,7 @@ int main(void)
 				uip_len is set to a value > 0. */
 				if(uip_len > 0) {
 					uip_arp_out();
-					gmac_tapdev_send();
+					eth_tapdev_send();
 				}
 			} else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
 				uip_arp_arpin();
@@ -318,7 +318,7 @@ int main(void)
 				should be sent out on the network, the global variable
 				uip_len is set to a value > 0. */
 				if(uip_len > 0) {
-					gmac_tapdev_send();
+					eth_tapdev_send();
 				}
 			}
 		} else if(timer_timeout_reached(&periodic_timer)) {
@@ -330,7 +330,7 @@ int main(void)
 				   uip_len is set to a value > 0. */
 				if(uip_len > 0) {
 					uip_arp_out();
-					gmac_tapdev_send();
+					eth_tapdev_send();
 				}
 			}
 #if UIP_UDP
@@ -341,7 +341,7 @@ int main(void)
 				   uip_len is set to a value > 0. */
 				if(uip_len > 0) {
 					uip_arp_out();
-					gmac_tapdev_send();
+					eth_tapdev_send();
 				}
 			}
 #endif /* UIP_UDP */

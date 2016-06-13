@@ -151,6 +151,8 @@
 
 #if defined(CONFIG_HAVE_EMAC)
 #elif defined(CONFIG_HAVE_GMAC)
+#   define ETH_PINS GMAC0_PINS
+#   define ETH_TYPE ETH_TYPE_GMAC
 #   define ETH_ADDR GMAC0_ADDR
 #   define ETH_PHY_ADDR GMAC0_PHY_ADDR
 #   define ETH_PHY_IF PHY_IF_GMAC
@@ -178,6 +180,7 @@ struct _twi_desc at24_twid = {
 };
 #endif
 
+const struct _pin eth_pins[] = ETH_PINS;
 const struct _phy_desc phy_desc = {
 		.addr = ETH_ADDR,
 		.phy_if = ETH_PHY_IF,
@@ -193,23 +196,23 @@ static uint8_t _src_ip_initialized = 1;
 static uint8_t _src_ip[4] = { 192, 168, 1, 3 };
 static uint8_t _dest_ip[4] = { 192, 168, 1, 2 };
 
-/** The GMAC driver instance */
-static struct _gmacd _gmacd;
+/** The ETH driver instance */
+static struct _ethd _ethd;
 
 /** TX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR static struct _gmac_desc _tx_desc[TX_BUFFERS];
+ALIGNED(8) NOT_CACHED_DDR static struct _eth_desc _tx_desc[TX_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR static struct _gmac_desc _rx_desc[RX_BUFFERS];
+ALIGNED(8) NOT_CACHED_DDR static struct _eth_desc _rx_desc[RX_BUFFERS];
 
 /** TX Buffers (must be aligned on a cache line) */
-CACHE_ALIGNED_DDR static uint8_t _tx_buffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
+CACHE_ALIGNED_DDR static uint8_t _tx_buffer[TX_BUFFERS * ETH_TX_UNITSIZE];
 
 /** RX Buffers (must be aligned on a cache line) */
-CACHE_ALIGNED_DDR static uint8_t _rx_buffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
+CACHE_ALIGNED_DDR static uint8_t _rx_buffer[RX_BUFFERS * ETH_RX_UNITSIZE];
 
 /** Buffer for Ethernet packets */
-static uint8_t _eth_buffer[GMAC_MAX_FRAME_LENGTH];
+static uint8_t _eth_buffer[ETH_MAX_FRAME_LENGTH];
 
 static uint8_t _arp_request_count;
 static uint8_t _arp_reply_count;
@@ -278,8 +281,8 @@ static void _arp_create_and_send_request(uint8_t* src_mac, uint8_t* src_ip, uint
 		pkt.arp.ar_spa[i] = src_ip[i];
 	}
 
-	rc = gmacd_send(&_gmacd, 0, &pkt, 42, NULL);
-	if (rc == GMACD_OK) {
+	rc = ethd_send(&_ethd, 0, &pkt, 42, NULL);
+	if (rc == ETH_OK) {
 		_arp_request_count++;
 	} else {
 		trace_error("ARP_REQUEST Send - 0x%x\n\r", rc);
@@ -316,8 +319,8 @@ static void _arp_process_packet(struct _eth_packet *pkt,
 			pkt->arp.ar_spa[i] = src_ip[i];
 		}
 
-		rc = gmacd_send(&_gmacd, 0, pkt, 42, NULL);
-		if (rc != GMACD_OK) {
+		rc = ethd_send(&_ethd, 0, pkt, 42, NULL);
+		if (rc != ETH_OK) {
 			trace_error("ARP_REPLY Send - 0x%x\n\r", rc);
 		}
 
@@ -349,7 +352,7 @@ static void _ip_process_packet(struct _eth_packet* pkt)
 {
 	uint32_t i;
 	uint32_t icmp_len;
-	uint32_t gmac_rc = GMACD_OK;
+	uint32_t rc = ETH_OK;
 
 	switch (pkt->ip.ip_p) {
 	case IP_PROT_ICMP:
@@ -384,9 +387,9 @@ static void _ip_process_packet(struct _eth_packet* pkt)
 			}
 
 			/* send the echo_reply */
-			gmac_rc = gmacd_send(&_gmacd, 0, pkt, SWAP16(pkt->ip.ip_len) + 14, NULL);
-			if (gmac_rc != GMACD_OK) {
-				printf("-E- ICMP Send - 0x%x\n\r", (unsigned int) gmac_rc);
+			rc = ethd_send(&_ethd, 0, pkt, SWAP16(pkt->ip.ip_len) + 14, NULL);
+			if (rc != ETH_OK) {
+				printf("-E- ICMP Send - 0x%x\n\r", (unsigned int)rc);
 			}
 		}
 		break;
@@ -397,7 +400,7 @@ static void _ip_process_packet(struct _eth_packet* pkt)
 }
 
 /**
- * Process the received GMAC packet
+ * Process the received ETH packet
  */
 static void _eth_process_packet(struct _eth_packet* pkt, uint32_t size)
 {
@@ -431,7 +434,7 @@ static void _eth_process_packet(struct _eth_packet* pkt, uint32_t size)
 	}
 }
 
-static void _gmac_rx_callback(uint8_t queue, uint32_t status)
+static void _eth_rx_callback(uint8_t queue, uint32_t status)
 {
 }
 
@@ -469,13 +472,12 @@ int main(void)
 		_dest_ip[0], _dest_ip[1], _dest_ip[2], _dest_ip[3]);
 
 	/* Init GMAC */
-	const struct _pin gmac_pins[] = GMAC0_PINS;
-	pio_configure(gmac_pins, ARRAY_SIZE(gmac_pins));
-	gmacd_configure(&_gmacd, GMAC0_ADDR, 1, 0);
-	gmacd_setup_queue(&_gmacd, 0, RX_BUFFERS, _rx_buffer, _rx_desc, TX_BUFFERS, _tx_buffer, _tx_desc, NULL);
-	gmacd_set_rx_callback(&_gmacd, 0, _gmac_rx_callback);
-	gmac_set_mac_addr(_gmacd.gmac, 0, _mac_addr);
-	gmacd_start(&_gmacd);
+	pio_configure(eth_pins, ARRAY_SIZE(eth_pins));
+	ethd_configure(&_ethd, ETH_TYPE, ETH_ADDR, 1, 0);
+	ethd_setup_queue(&_ethd, 0, RX_BUFFERS, _rx_buffer, _rx_desc, TX_BUFFERS, _tx_buffer, _tx_desc, NULL);
+	ethd_set_rx_callback(&_ethd, 0, _eth_rx_callback);
+	ethd_set_mac_addr(&_ethd, 0, _mac_addr);
+	ethd_start(&_ethd);
 
 	/* Init PHY */
 	struct _phy phy = {
@@ -505,7 +507,7 @@ int main(void)
 
 		/* Process packets */
 		uint32_t length = 0;
-		while (gmacd_poll(&_gmacd, 0, (uint8_t*)pkt, pkt_max_size, &length) == GMACD_OK) {
+		while (ethd_poll(&_ethd, 0, (uint8_t*)pkt, pkt_max_size, &length) == ETH_OK) {
 			if (length > 0) {
 				_eth_process_packet(pkt, length);
 			}

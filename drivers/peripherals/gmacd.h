@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -34,16 +34,13 @@
  * Implement GMAC data transfer and PHY management functions.
  *
  * \section Usage
- * -# Implement GMAC interrupt handler, which must invoke GMACD_Handler()
- *    to handle GMAC interrupt events.
- * -# Implement struct _gmacd instance in application.
- * -# Initialize the instance with GMACD_Init() and GMACD_InitTransfer(),
+ * -# Initialize the instance with gmacd_configure() and gmacd_setup_queue(),
  *    so that GMAC data can be transmitted/received.
- * -# Some management callbacks can be set by GMACD_SetRxCallback()
- *    and GMACD_SetTxWakeupCallback().
- * -# Send ethernet packets using GMACD_Send(), GMACD_TxLoad() is used
- *    to check the free space in TX queue.
- * -# Check and obtain received ethernet packets via GMACD_Poll().
+ * -# Some management callbacks can be set by gmacd_set_rx_callback()
+ *    and ethd_set_tx_wakeup_callback().
+ * -# Send ethernet packets using ethd_send(), ethd_get_tx_load() is used
+ *    to get the free space in TX queue.
+ * -# Check and obtain received ethernet packets via ethd_poll().
  *
  * \sa \ref gmacb_module, \ref gmac_module
  *
@@ -66,33 +63,12 @@
  *---------------------------------------------------------------------------*/
 
 #include "peripherals/gmac.h"
-#include <stdint.h>
 
 /*---------------------------------------------------------------------------
  *         Definitions
  *---------------------------------------------------------------------------*/
 /** \addtogroup gmacd_defines
     @{*/
-
-/** \addtogroup gmacd_buf_size GMACD Default Buffer Size
-        @{*/
-#define GMAC_RX_UNITSIZE            128  /**< RX buffer size, must be 128 */
-#define GMAC_TX_UNITSIZE            1536 /**< TX buffer size, must be multiple
-					   of 32 (cache line) */
-/**     @}*/
-
-/** \addtogroup gmacd_rc GMACD Return Codes
-        @{*/
-#define GMACD_OK                0   /**< Operation OK */
-#define GMACD_TX_BUSY           1   /**< TX in progress */
-#define GMACD_RX_NULL           1   /**< No data received */
-/** Buffer size not enough */
-#define GMACD_SIZE_TOO_SMALL    2
-/** Parameter error, TX packet invalid or RX size too small */
-#define GMACD_PARAM             3
-/** Transter is not initialized */
-#define GMACD_NOT_INITIALIZED   4
-/**     @}*/
 
 /** @}*/
 
@@ -102,52 +78,13 @@
 /** \addtogroup gmacd_types
     @{*/
 
-/** RX/TX callback */
-typedef void (*gmacd_callback_t)(uint8_t queue, uint32_t status);
-
-/** TX Wakeup callback */
-typedef void (*gmacd_wakeup_cb_t)(uint8_t queue);
-
-/** GMAC scatter-gather entry */
-struct _gmac_sg {
-	uint32_t         size;
-	void            *buffer;
-	struct _gmac_sg *next;
-};
-
-/** GMAC scatter-gather list */
-struct _gmac_sg_list {
-	uint32_t         size;
-	struct _gmac_sg *entries;
-};
-
-struct _gmacd_queue {
-	uint8_t           *rx_buffer;
-	struct _gmac_desc *rx_desc;
-	uint16_t           rx_size;
-	uint16_t           rx_head;
-	gmacd_callback_t   rx_callback;
-
-	uint8_t           *tx_buffer;
-	struct _gmac_desc *tx_desc;
-	uint16_t           tx_size;
-	uint16_t           tx_head;
-	uint16_t           tx_tail;
-	gmacd_callback_t  *tx_callbacks;
-
-	gmacd_wakeup_cb_t  tx_wakeup_callback;
-	uint16_t           tx_wakeup_threshold;
-};
-
-/**
- * GMAC driver struct.
- */
-struct _gmacd {
-	Gmac* gmac; /**< GMAC instance */
-	struct _gmacd_queue queues[GMAC_NUM_QUEUES];
-};
-
 /** @}*/
+
+/*---------------------------------------------------------------------------
+ *         GMAC Exported variables
+ *---------------------------------------------------------------------------*/
+
+extern const struct _ethd_op _gmac_op;
 
 /** \addtogroup gmacd_functions
     @{*/
@@ -156,36 +93,40 @@ struct _gmacd {
  *         GMAC Exported functions
  *---------------------------------------------------------------------------*/
 
-extern void gmacd_configure(struct _gmacd* gmacd, Gmac *pHw, uint8_t enableCAF, uint8_t enableNBC);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern uint8_t gmacd_setup_queue(struct _gmacd* gmacd, uint8_t queue,
-		uint16_t rx_size, uint8_t* rx_buffer, struct _gmac_desc* rx_desc,
-		uint16_t tx_size, uint8_t* tx_buffer, struct _gmac_desc* tx_desc,
-		gmacd_callback_t *tx_callbacks);
+extern void gmacd_configure(struct _ethd* gmacd, Gmac *pHw, uint8_t enableCAF, uint8_t enableNBC);
 
-extern void gmacd_start(struct _gmacd* gmacd);
+extern uint8_t gmacd_setup_queue(struct _ethd* gmacd, uint8_t queue,
+		uint16_t rx_size, uint8_t* rx_buffer, struct _eth_desc* rx_desc,
+		uint16_t tx_size, uint8_t* tx_buffer, struct _eth_desc* tx_desc,
+		ethd_callback_t *tx_callbacks);
 
-extern void gmacd_reset(struct _gmacd* gmacd);
+extern void gmacd_start(struct _ethd* gmacd);
 
-extern uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
-		const struct _gmac_sg_list* sgl, gmacd_callback_t callback);
+extern void gmacd_reset(struct _ethd* gmacd);
 
-extern uint8_t gmacd_send(struct _gmacd* gmacd, uint8_t queue, void *buffer,
-		uint32_t size, gmacd_callback_t callback);
+extern uint8_t gmacd_send_sg(struct _ethd* gmacd, uint8_t queue,
+		const struct _eth_sg_list* sgl, ethd_callback_t callback);
 
-extern uint32_t gmacd_get_tx_load(struct _gmacd* gmacd, uint8_t queue);
+extern uint8_t gmacd_send(struct _ethd* gmacd, uint8_t queue, void *buffer,
+		uint32_t size, ethd_callback_t callback);
 
-extern uint8_t gmacd_poll(struct _gmacd* gmacd, uint8_t queue,
+extern uint32_t gmacd_get_tx_load(struct _ethd* gmacd, uint8_t queue);
+
+extern uint8_t gmacd_poll(struct _ethd* gmacd, uint8_t queue,
 		uint8_t* buffer, uint32_t buffer_size, uint32_t* recv_size);
 
-extern void gmacd_set_rx_callback(struct _gmacd *gmacd, uint8_t queue,
-		gmacd_callback_t callback);
-
-extern uint8_t gmacd_set_tx_wakeup_callback(struct _gmacd *gmacd,
-		uint8_t queue, gmacd_wakeup_cb_t wakeup_callback,
-		uint16_t threshold);
+extern void gmacd_set_rx_callback(struct _ethd *gmacd, uint8_t queue,
+		ethd_callback_t callback);
 
 /** @}*/
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CONFIG_HAVE_GMAC */
 

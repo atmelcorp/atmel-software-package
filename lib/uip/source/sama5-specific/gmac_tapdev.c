@@ -34,8 +34,10 @@
 #include "chip.h"
 #include "board.h"
 #include "trace.h"
-
+#if defined(CONFIG_HAVE_EMAC)
+#elif defined(CONFIG_HAVE_GMAC)
 #include "peripherals/gmacd.h"
+#endif
 #include "peripherals/pio.h"
 #include "network/phy.h"
 
@@ -59,6 +61,8 @@
 
 #if defined(CONFIG_HAVE_EMAC)
 #elif defined(CONFIG_HAVE_GMAC)
+#   define ETH_PINS GMAC0_PINS
+#   define ETH_TYPE ETH_TYPE_GMAC
 #   define ETH_ADDR GMAC0_ADDR
 #   define ETH_PHY_ADDR GMAC0_PHY_ADDR
 #   define ETH_PHY_IF PHY_IF_GMAC
@@ -68,8 +72,10 @@
  *        Variables
  *----------------------------------------------------------------------------*/
 
-/* The GMAC driver instance */
-static struct _gmacd _gmacd;
+/* The ETH driver instance */
+static struct _ethd _ethd;
+
+const struct _pin eth_pins[] = ETH_PINS;
 
 /* The PHY driver config */
 static const struct _phy_desc _phy_desc = {
@@ -86,22 +92,22 @@ static struct _phy _phy = {
 
 /** TX descriptors list */
 ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc gGTxDs[TX_BUFFERS];
+static struct _eth_desc gGTxDs[TX_BUFFERS];
 
 /** RX descriptors list */
 ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc gGRxDs[RX_BUFFERS];
+static struct _eth_desc gGRxDs[RX_BUFFERS];
 
 /** TX Buffers */
 ALIGNED(32) SECTION(".region_ddr")
-static uint8_t pGTxBuffer[TX_BUFFERS * GMAC_TX_UNITSIZE];
+static uint8_t pGTxBuffer[TX_BUFFERS * ETH_TX_UNITSIZE];
 
 /** RX Buffers */
 ALIGNED(32) SECTION(".region_ddr")
-static uint8_t pGRxBuffer[RX_BUFFERS * GMAC_RX_UNITSIZE];
+static uint8_t pGRxBuffer[RX_BUFFERS * ETH_RX_UNITSIZE];
 
 /* MAC address used for demo */
-static uint8_t gGMacAddress[6] = {0x00, 0x45, 0x56, 0x78, 0x9a, 0xbc};
+static uint8_t gEthMacAddress[6] = {0x00, 0x45, 0x56, 0x78, 0x9a, 0xbc};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -111,14 +117,14 @@ static uint8_t gGMacAddress[6] = {0x00, 0x45, 0x56, 0x78, 0x9a, 0xbc};
  * Set the MAC address of the system.
  * Should only be called before tapdev_init is called.
  */
-void gmac_tapdev_setmac(u8_t *addr)
+void eth_tapdev_setmac(u8_t *addr)
 {
-	gGMacAddress[0] = addr[0];
-	gGMacAddress[1] = addr[1];
-	gGMacAddress[2] = addr[2];
-	gGMacAddress[3] = addr[3];
-	gGMacAddress[4] = addr[4];
-	gGMacAddress[5] = addr[5];
+	gEthMacAddress[0] = addr[0];
+	gEthMacAddress[1] = addr[1];
+	gEthMacAddress[2] = addr[2];
+	gEthMacAddress[3] = addr[3];
+	gEthMacAddress[4] = addr[4];
+	gEthMacAddress[5] = addr[5];
 }
 
 /**
@@ -126,16 +132,15 @@ void gmac_tapdev_setmac(u8_t *addr)
  * Should be called at the beginning of the program to set up the
  * network interface.
  */
-void gmac_tapdev_init(void)
+void eth_tapdev_init(void)
 {
 	/* Init GMAC */
-	const struct _pin gmac_pins[] = GMAC0_PINS;
-	pio_configure(gmac_pins, ARRAY_SIZE(gmac_pins));
-	gmacd_configure(&_gmacd, GMAC0_ADDR, 1, 0);
-	gmacd_setup_queue(&_gmacd, 0, RX_BUFFERS, pGRxBuffer, gGRxDs,
+	pio_configure(eth_pins, ARRAY_SIZE(eth_pins));
+	ethd_configure(&_ethd, ETH_TYPE, ETH_ADDR, 1, 0);
+	ethd_setup_queue(&_ethd, 0, RX_BUFFERS, pGRxBuffer, gGRxDs,
 			TX_BUFFERS, pGTxBuffer, gGTxDs, NULL);
-	gmac_set_mac_addr(_gmacd.gmac, 0, gGMacAddress);
-	gmacd_start(&_gmacd);
+	ethd_set_mac_addr(&_ethd, 0, gEthMacAddress);
+	ethd_start(&_ethd);
 
 	/* Init PHY */
 	phy_configure(&_phy);
@@ -147,25 +152,25 @@ void gmac_tapdev_init(void)
 }
 
 /**
- * Read for GMAC device.
+ * Read for ETH device.
  */
-uint32_t gmac_tapdev_read(void)
+uint32_t eth_tapdev_read(void)
 {
 	uint32_t pkt_len = 0;
-	uint8_t rc = gmacd_poll(&_gmacd, 0, (uint8_t*)uip_buf,
+	uint8_t rc = ethd_poll(&_ethd, 0, (uint8_t*)uip_buf,
 			UIP_CONF_BUFFER_SIZE, &pkt_len);
-	if (rc != GMACD_OK)
+	if (rc != ETH_OK)
 		return 0;
 	return pkt_len;
 }
 
 /**
- * Send to GMAC device
+ * Send to ETH device
  */
-void gmac_tapdev_send(void)
+void eth_tapdev_send(void)
 {
-	uint8_t rc = gmacd_send(&_gmacd, 0, (void*)uip_buf, uip_len, NULL);
-	if (rc != GMACD_OK)
+	uint8_t rc = ethd_send(&_ethd, 0, (void*)uip_buf, uip_len, NULL);
+	if (rc != ETH_OK)
 	{
 		trace_error("E: Send, rc 0x%x\n\r", rc);
 	}

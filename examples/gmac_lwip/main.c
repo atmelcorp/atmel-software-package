@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -273,7 +273,7 @@ int main(void)
 	lwip_init();
 
 	/* Initialize net interface for lwIP */
-	gmacif_setmac((u8_t*)gMacAddress);
+	ethif_setmac((u8_t*)gMacAddress);
 
 #if !LWIP_DHCP
 	IP4_ADDR(&gw, gGateWay[0], gGateWay[1], gGateWay[2], gGateWay[3]);
@@ -284,7 +284,7 @@ int main(void)
 	IP4_ADDR(&ipaddr, 0, 0, 0, 0);
 	IP4_ADDR(&netmask, 0, 0, 0, 0);
 #endif
-	netif = netif_add(&NetIf, &ipaddr, &netmask, &gw, NULL, gmacif_init, ip_input);
+	netif = netif_add(&NetIf, &ipaddr, &netmask, &gw, NULL, ethif_init, ip_input);
 	netif_set_default(netif);
 	netif_set_up(netif);
 	/* Initialize http server application */
@@ -300,6 +300,6 @@ int main(void)
 		timers_update();
 
 		/* Run polling tasks */
-		gmacif_poll(netif);
+		ethif_poll(netif);
 	}
 }

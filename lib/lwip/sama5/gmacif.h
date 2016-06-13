@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -43,20 +43,20 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-/** Configuration information for gmac instance */
-typedef struct gmacif {
+/** Configuration information for eth instance */
+typedef struct ethif {
 
     struct eth_addr ethaddr;
 
-} Gmacif, *PGmacif;
+} Ethif, *PEthif;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void gmacif_setmac(u8_t * addr);
-err_t gmacif_init(struct netif * netif);
-void gmacif_poll(struct netif * netif);
+void ethif_setmac(u8_t * addr);
+err_t ethif_init(struct netif * netif);
+void ethif_poll(struct netif * netif);
 
 #endif  /* _GMACIF_H */
 

@@ -297,22 +297,22 @@ bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 		/* Setup the GMAC link speed */
 		if (value & GMII_TX_FDX) {
 			trace_debug("PHY Auto-Negotiation complete -> 100M/Full-Duplex\r\n");
-			phy->op->enable_rmii(phy->desc->addr, GMAC_SPEED_100M, GMAC_DUPLEX_FULL);
+			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_100M, ETH_DUPLEX_FULL);
 			rc = true;
 			break;
 		} else if (value & GMII_10_FDX) {
 			trace_debug("PHY Auto-Negotiation complete -> 10M/Full-Duplex\r\n");
-			phy->op->enable_rmii(phy->desc->addr, GMAC_SPEED_10M, GMAC_DUPLEX_FULL);
+			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_10M, ETH_DUPLEX_FULL);
 			rc = true;
 			break;
 		} else if (value & GMII_TX_HDX) {
 			trace_debug("PHY Auto-Negotiation complete -> 100M/Half-Duplex\r\n");
-			phy->op->enable_rmii(phy->desc->addr, GMAC_SPEED_100M, GMAC_DUPLEX_HALF);
+			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_100M, ETH_DUPLEX_HALF);
 			rc = true;
 			break;
 		} else if (value & GMII_10_HDX) {
 			trace_debug("PHY Auto-Negotiation complete -> 10M/Half-Duplex\r\n");
-			phy->op->enable_rmii(phy->desc->addr, GMAC_SPEED_10M, GMAC_DUPLEX_HALF);
+			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_10M, ETH_DUPLEX_HALF);
 			rc = true;
 			break;
 		}

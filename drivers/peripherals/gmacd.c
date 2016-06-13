@@ -37,16 +37,15 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/gmacd.h"
-#include "peripherals/gmac.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 
 #include <string.h>
 #include <assert.h>
 
-//------------------------------------------------------------------------------
-//         Definitions
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
+ *         Definitions
+ *----------------------------------------------------------------------------*/
 
 // Interrupt bits
 #define GMAC_INT_RX_BITS     (GMAC_IER_RCOMP | GMAC_IER_RXUBR | GMAC_IER_ROVR)
@@ -59,7 +58,7 @@
 
 struct _gmacd_irq_handler {
 	Gmac*           addr;
-	struct _gmacd** gmacd;
+	struct _ethd** gmacd;
 	uint32_t        irq;
 	aic_handler_t   handler;
 };
@@ -68,18 +67,22 @@ struct _gmacd_irq_handler {
  *         IRQ Handlers
  *---------------------------------------------------------------------------*/
 
+#if ETH_NUM_QUEUES < GMAC_NUM_QUEUES
+#error The number of queues for ETH is too small for GMAC!
+#endif
+
 #ifdef CONFIG_HAVE_GMAC_QUEUES
 #if GMAC_NUM_QUEUES != 3
 #error This driver assumes that GMAC_NUM_QUEUES is 3
 #endif
 #endif
 
-static struct _gmacd* _gmacd0;
+static struct _ethd* _gmacd0;
 #ifdef GMAC1
-static struct _gmacd* _gmacd1;
+static struct _ethd* _gmacd1;
 #endif
 
-static void _gmacd_handler(struct _gmacd* gmacd, uint8_t queue);
+static void _gmacd_handler(struct _ethd* gmacd, uint8_t queue);
 
 static void _gmacd_gmac0_irq_handler(void)
 {
@@ -141,11 +144,11 @@ static const struct _gmacd_irq_handler _gmacd_irq_handlers[] = {
 
 /** TX descriptors list */
 ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc dummy_tx_desc[DUMMY_BUFFERS];
+static struct _eth_desc dummy_tx_desc[DUMMY_BUFFERS];
 
 /** RX descriptors list */
 ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _gmac_desc dummy_rx_desc[DUMMY_BUFFERS];
+static struct _eth_desc dummy_rx_desc[DUMMY_BUFFERS];
 
 /** Send Buffer */
 ALIGNED(32)
@@ -159,9 +162,9 @@ static uint8_t dummy_buffer[DUMMY_BUFFERS * DUMMY_UNITSIZE];
  *  \brief Disable TX & reset registers and descriptor list
  *  \param gmacd Pointer to GMAC Driver instance.
  */
-static void _gmacd_reset_tx(struct _gmacd* gmacd, uint8_t queue)
+static void _gmacd_reset_tx(struct _ethd* gmacd, uint8_t queue)
 {
-	struct _gmacd_queue* q = &gmacd->queues[queue];
+	struct _ethd_queue* q = &gmacd->queues[queue];
 	uint32_t addr = (uint32_t)q->tx_buffer;
 	uint32_t i;
 
@@ -173,10 +176,10 @@ static void _gmacd_reset_tx(struct _gmacd* gmacd, uint8_t queue)
 	for (i = 0; i < q->tx_size; i++) {
 		q->tx_desc[i].addr = addr;
 		dsb();
-		q->tx_desc[i].status = GMAC_TX_STATUS_USED;
-		addr += GMAC_TX_UNITSIZE;
+		q->tx_desc[i].status = ETH_TX_STATUS_USED;
+		addr += ETH_TX_UNITSIZE;
 	}
-	q->tx_desc[q->tx_size - 1].status |= GMAC_TX_STATUS_WRAP;
+	q->tx_desc[q->tx_size - 1].status |= ETH_TX_STATUS_WRAP;
 
 	/* Transmit Buffer Queue Pointer Register */
 	gmac_set_tx_desc(gmacd->gmac, queue, q->tx_desc);
@@ -186,9 +189,9 @@ static void _gmacd_reset_tx(struct _gmacd* gmacd, uint8_t queue)
  *  \brief Disable RX & reset registers and descriptor list
  *  \param gmacd Pointer to GMAC Driver instance.
  */
-static void _gmacd_reset_rx(struct _gmacd* gmacd, uint8_t queue)
+static void _gmacd_reset_rx(struct _ethd* gmacd, uint8_t queue)
 {
-	struct _gmacd_queue* q = &gmacd->queues[queue];
+	struct _ethd_queue* q = &gmacd->queues[queue];
 	uint32_t addr = (uint32_t)q->rx_buffer;
 	uint32_t i;
 
@@ -198,12 +201,12 @@ static void _gmacd_reset_rx(struct _gmacd* gmacd, uint8_t queue)
 	/* Setup the RX descriptors */
 	q->rx_head = 0;
 	for (i = 0; i < q->rx_size; i++) {
-		q->rx_desc[i].addr = addr & GMAC_RX_ADDR_MASK;
+		q->rx_desc[i].addr = addr & ETH_RX_ADDR_MASK;
 		dsb();
 		q->rx_desc[i].status = 0;
-		addr += GMAC_RX_UNITSIZE;
+		addr += ETH_RX_UNITSIZE;
 	}
-	q->rx_desc[q->rx_size - 1].addr |= GMAC_RX_ADDR_WRAP;
+	q->rx_desc[q->rx_size - 1].addr |= ETH_RX_ADDR_WRAP;
 
 	/* Receive Buffer Queue Pointer Register */
 	gmac_set_rx_desc(gmacd->gmac, queue, q->rx_desc);
@@ -213,12 +216,12 @@ static void _gmacd_reset_rx(struct _gmacd* gmacd, uint8_t queue)
  *  \brief Process successfully sent packets
  *  \param gmacd Pointer to GMAC Driver instance.
  */
-static void _gmacd_tx_complete_handler(struct _gmacd* gmacd, uint8_t queue)
+static void _gmacd_tx_complete_handler(struct _ethd* gmacd, uint8_t queue)
 {
 	Gmac* gmac = gmacd->gmac;
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	struct _gmac_desc *desc;
-	gmacd_callback_t callback;
+	struct _ethd_queue* q = &gmacd->queues[queue];
+	struct _eth_desc *desc;
+	ethd_callback_t callback;
 	uint32_t tsr;
 
 	//printf("<TX>\r\n");
@@ -236,11 +239,11 @@ static void _gmacd_tx_complete_handler(struct _gmacd* gmacd, uint8_t queue)
 		 * Otherwise it updates this descriptor with status error bits.
 		 * This is the descriptor writeback.
 		 */
-		if ((desc->status & GMAC_TX_STATUS_USED) == 0)
+		if ((desc->status & ETH_TX_STATUS_USED) == 0)
 			break;
 
 		/* Process all buffers of the current transmitted frame */
-		while ((desc->status & GMAC_TX_STATUS_LASTBUF) == 0) {
+		while ((desc->status & ETH_TX_STATUS_LASTBUF) == 0) {
 			RING_INC(q->tx_tail, q->tx_size);
 			desc = &q->tx_desc[q->tx_tail];
 		}
@@ -270,12 +273,12 @@ static void _gmacd_tx_complete_handler(struct _gmacd* gmacd, uint8_t queue)
  *  \brief Reset TX queue when errors are detected
  *  \param gmacd Pointer to GMAC Driver instance.
  */
-static void _gmacd_tx_error_handler(struct _gmacd* gmacd, uint8_t queue)
+static void _gmacd_tx_error_handler(struct _ethd* gmacd, uint8_t queue)
 {
 	Gmac *gmac = gmacd->gmac;
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	struct _gmac_desc* desc;
-	gmacd_callback_t callback;
+	struct _ethd_queue* q = &gmacd->queues[queue];
+	struct _eth_desc* desc;
+	ethd_callback_t callback;
 	uint32_t tsr;
 
 	printf("<TXERR>\r\n");
@@ -293,7 +296,7 @@ static void _gmacd_tx_error_handler(struct _gmacd* gmacd, uint8_t queue)
 	 * too many retries or transmit under run.
 	 * However it would become mandatory if the call of this function
 	 * were scheduled as a task by the IRQ handler (this is how Linux
-	 * driver works). Then this function might compete with GMACD_Send().
+	 * driver works). Then this function might compete with ethd_send().
 	 *
 	 * Setting bit 10, tx_halt, of the Network Control Register is not enough:
 	 * We should wait for bit 3, tx_go, of the Transmit Status Register to
@@ -310,11 +313,11 @@ static void _gmacd_tx_error_handler(struct _gmacd* gmacd, uint8_t queue)
 		/* Check USED bit on the very first buffer descriptor to validate
 		 * TX completion.
 		 */
-		if (desc->status & GMAC_TX_STATUS_USED)
+		if (desc->status & ETH_TX_STATUS_USED)
 			tx_completed = 1;
 
 		/* Go to the last buffer descriptor of the frame */
-		while ((desc->status & GMAC_TX_STATUS_LASTBUF) == 0) {
+		while ((desc->status & ETH_TX_STATUS_LASTBUF) == 0) {
 			RING_INC(q->tx_tail, q->tx_size);
 			desc = &q->tx_desc[q->tx_tail];
 		}
@@ -352,10 +355,10 @@ static void _gmacd_tx_error_handler(struct _gmacd* gmacd, uint8_t queue)
  *  \brief GMAC Interrupt handler
  *  \param gmacd Pointer to GMAC Driver instance.
  */
-static void _gmacd_handler(struct _gmacd * gmacd, uint8_t queue)
+static void _gmacd_handler(struct _ethd * gmacd, uint8_t queue)
 {
 	Gmac *gmac = gmacd->gmac;
-	struct _gmacd_queue* q = &gmacd->queues[queue];
+	struct _ethd_queue* q = &gmacd->queues[queue];
 	uint32_t isr;
 	uint32_t rsr;
 
@@ -397,7 +400,7 @@ static void _gmacd_handler(struct _gmacd * gmacd, uint8_t queue)
  *  \param enableCAF    Enable/Disable CopyAllFrame.
  *  \param enableNBC    Enable/Disable NoBroadCast.
  */
-void gmacd_configure(struct _gmacd * gmacd,
+void gmacd_configure(struct _ethd * gmacd,
 	   Gmac * gmac, uint8_t enableCAF, uint8_t enableNBC)
 {
 	uint32_t ncfgr;
@@ -440,35 +443,33 @@ void gmacd_configure(struct _gmacd * gmacd,
 
 /**
  * Initialize necessary allocated buffer lists for GMAC Driver to transfer data.
- * Must be invoked after GMACD_Init() but before RX/TX start.
+ * Must be invoked after gmacd_configure() but before RX/TX start.
  * \param gmacd Pointer to GMAC Driver instance.
  * \param rx_buffer Pointer to allocated buffer for RX. The address should
  *                  be 8-byte aligned and the size should be
- *                  GMAC_RX_UNITSIZE * wRxSize.
+ *                  ETH_RX_UNITSIZE * wRxSize.
  * \param rx_desc      Pointer to allocated RX descriptor list.
  * \param wRxSize   RX size, in number of registered units (RX descriptors).
  * \param tx_buffer Pointer to allocated buffer for TX. The address should
  *                  be 8-byte aligned and the size should be
- *                  GMAC_TX_UNITSIZE * wTxSize.
+ *                  ETH_TX_UNITSIZE * wTxSize.
  * \param tx_desc      Pointer to allocated TX descriptor list.
  * \param pTxCb     Pointer to allocated TX callback list.
  * \param wTxSize   TX size, in number of registered units (TX descriptors).
- * \return GMACD_OK or GMACD_PARAM.
+ * \return ETH_OK or ETH_PARAM.
  * \note If input address is not 8-byte aligned the address is automatically
  *       adjusted and the list size is reduced by one.
  */
-
-
-uint8_t gmacd_setup_queue(struct _gmacd* gmacd, uint8_t queue,
-		uint16_t rx_size, uint8_t* rx_buffer, struct _gmac_desc* rx_desc,
-		uint16_t tx_size, uint8_t* tx_buffer, struct _gmac_desc* tx_desc,
-		gmacd_callback_t *tx_callbacks)
+uint8_t gmacd_setup_queue(struct _ethd* gmacd, uint8_t queue,
+		uint16_t rx_size, uint8_t* rx_buffer, struct _eth_desc* rx_desc,
+		uint16_t tx_size, uint8_t* tx_buffer, struct _eth_desc* tx_desc,
+		ethd_callback_t *tx_callbacks)
 {
 	Gmac *gmac = gmacd->gmac;
-	struct _gmacd_queue* q = &gmacd->queues[queue];
+	struct _ethd_queue* q = &gmacd->queues[queue];
 
 	if (rx_size <= 1 || tx_size <= 1)
-		return GMACD_PARAM;
+		return ETH_PARAM;
 
 	/* Assign RX buffers */
 	if (((uint32_t)rx_buffer & 0x7)
@@ -477,7 +478,7 @@ uint8_t gmacd_setup_queue(struct _gmacd* gmacd, uint8_t queue,
 		trace_debug("RX list address adjusted\n\r");
 	}
 	q->rx_buffer = (uint8_t*)((uint32_t)rx_buffer & 0xFFFFFFF8);
-	q->rx_desc = (struct _gmac_desc *)((uint32_t)rx_desc & 0xFFFFFFF8);
+	q->rx_desc = (struct _eth_desc *)((uint32_t)rx_desc & 0xFFFFFFF8);
 	q->rx_size = rx_size;
 	q->rx_callback = NULL;
 
@@ -488,7 +489,7 @@ uint8_t gmacd_setup_queue(struct _gmacd* gmacd, uint8_t queue,
 		trace_debug("TX list address adjusted\n\r");
 	}
 	q->tx_buffer = (uint8_t*)((uint32_t)tx_buffer & 0xFFFFFFF8);
-	q->tx_desc = (struct _gmac_desc*)((uint32_t)tx_desc & 0xFFFFFFF8);
+	q->tx_desc = (struct _eth_desc*)((uint32_t)tx_desc & 0xFFFFFFF8);
 	q->tx_size = tx_size;
 	q->tx_callbacks = tx_callbacks;
 	q->tx_wakeup_callback = NULL;
@@ -500,10 +501,10 @@ uint8_t gmacd_setup_queue(struct _gmacd* gmacd, uint8_t queue,
 	/* Setup the interrupts for RX/TX completion (and errors) */
 	gmac_enable_it(gmac, queue, GMAC_INT_RX_BITS | GMAC_INT_TX_BITS | GMAC_IER_HRESP);
 
-	return GMACD_OK;
+	return ETH_OK;
 }
 
-void gmacd_start(struct _gmacd * gmacd)
+void gmacd_start(struct _ethd * gmacd)
 {
 	/* Enable Rx and Tx, plus the stats register. */
 	gmac_transmit_enable(gmacd->gmac, true);
@@ -515,7 +516,7 @@ void gmacd_start(struct _gmacd * gmacd)
  * Reset TX & RX queue & statistics
  * \param gmacd Pointer to GMAC Driver instance.
  */
-void gmacd_reset(struct _gmacd* gmacd)
+void gmacd_reset(struct _ethd* gmacd)
 {
 	int i;
 	for (i = 0; i < GMAC_NUM_QUEUES; i++) {
@@ -528,253 +529,18 @@ void gmacd_reset(struct _gmacd* gmacd)
 }
 
 /**
- * \brief Send a frame splitted into buffers. If the frame size is larger than transfer buffer size
- * error returned. If frame transfer status is monitored, specify callback for each frame.
- *  \param gmacd Pointer to GMAC Driver instance.
- *  \param sgl Pointer to a scatter-gather list describing the buffers of the ethernet frame.
- *  \param fTxCb Pointer to callback function.
- */
-uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
-		const struct _gmac_sg_list* sgl, gmacd_callback_t callback)
-{
-	Gmac* gmac = gmacd->gmac;
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	struct _gmac_desc* desc;
-	uint16_t idx, tx_head;
-	int i;
-
-	if (callback && !q->tx_callbacks) {
-		trace_error("Cannot set send callback, no tx_callbacks "\
-				"buffer configured for queue %u", queue);
-	}
-
-	/* Check parameter */
-	if (!sgl->size) {
-		trace_error("gmacd_send_sg: ethernet frame is empty.\r\n");
-		return GMACD_PARAM;
-	}
-	if (sgl->size >= q->tx_size) {
-		trace_error("gmacd_send_sg: ethernet frame has too many buffers.\r\n");
-		return GMACD_PARAM;
-	}
-
-	/* Check available space */
-	if (RING_SPACE(q->tx_head, q->tx_tail, q->tx_size) < sgl->size) {
-		trace_error("gmacd_send_sg: not enough free buffers in TX queue.\r\n");
-		return GMACD_TX_BUSY;
-	}
-
-	/* Tag end of TX queue */
-	tx_head = fixed_mod(q->tx_head + sgl->size, q->tx_size);
-	idx = tx_head;
-	if (q->tx_callbacks)
-		q->tx_callbacks[idx] = NULL;
-	desc = &q->tx_desc[idx];
-	desc->status |= GMAC_TX_STATUS_USED;
-
-	/* Update buffer descriptors in reverse order to avoid a race
-	 * condition with hardware.
-	 */
-	for (i = sgl->size - 1; i >= 0; i--) {
-		const struct _gmac_sg *sg = &sgl->entries[i];
-		uint32_t status;
-
-		if (sg->size > GMAC_TX_UNITSIZE) {
-			trace_error("gmacd_send_sg: buffer size is too big.\r\n");
-			return GMACD_PARAM;
-		}
-
-		RING_DEC(idx, q->tx_size);
-
-		/* Reset TX callback */
-		if (q->tx_callbacks)
-			q->tx_callbacks[idx] = NULL;
-
-		desc = &q->tx_desc[idx];
-
-		/* Copy data into transmittion buffer */
-		if (sg->buffer && sg->size) {
-			memcpy((void*)desc->addr, sg->buffer, sg->size);
-			cache_clean_region((void*)desc->addr, sg->size);
-		}
-
-		/* Compute buffer descriptor status word */
-		status = sg->size & GMAC_RX_STATUS_LENGTH_MASK;
-		if (i == (sgl->size - 1)) {
-			status |= GMAC_TX_STATUS_LASTBUF;
-			if (q->tx_callbacks)
-				q->tx_callbacks[idx] = callback;
-		}
-		if (idx == (q->tx_size - 1)) {
-			status |= GMAC_TX_STATUS_WRAP;
-		}
-
-		/* Update buffer descriptor status word: clear USED bit */
-		desc->status = status;
-		dsb();
-	}
-
-	/* Update TX ring buffer pointers */
-	q->tx_head = tx_head;
-
-	/* Now start to transmit if it is not already done */
-	gmac_start_transmission(gmac);
-
-	return GMACD_OK;
-}
-
-/**
- * \brief Send a packet with GMAC. If the packet size is larger than transfer buffer size
- * error returned. If packet transfer status is monitored, specify callback for each packet.
- *  \param gmacd Pointer to GMAC Driver instance.
- *  \param pBuffer   The buffer to be send
- *  \param size     The size of buffer to be send
- *  \param fTxCb Threshold Wakeup callback
- *  \return         OK, Busy or invalid packet
- */
-uint8_t gmacd_send(struct _gmacd* gmacd, uint8_t queue, void *buffer,
-		uint32_t size, gmacd_callback_t callback)
-{
-	struct _gmac_sg sg;
-	struct _gmac_sg_list sgl;
-
-	/* Init single entry scatter-gather list */
-	sg.size = size;
-	sg.buffer = buffer;
-	sgl.size = 1;
-	sgl.entries = &sg;
-
-	return gmacd_send_sg(gmacd, queue, &sgl, callback);
-}
-
-/**
- * Return current load of TX.
- * \param gmacd   Pointer to GMAC Driver instance.
- */
-uint32_t gmacd_get_tx_load(struct _gmacd* gmacd, uint8_t queue)
-{
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	return RING_CNT(q->tx_head, q->tx_tail, q->tx_size);
-}
-
-/**
- * \brief Receive a packet with GMAC.
- * If not enough buffer for the packet, the remaining data is lost but right
- * frame length is returned.
- *  \param gmacd Pointer to GMAC Driver instance.
- *  \param pFrame           Buffer to store the frame
- *  \param frameSize        Size of the frame
- *  \param pRcvSize         Received size
- *  \return                 OK, no data, or frame too small
- */
-uint8_t gmacd_poll(struct _gmacd* gmacd, uint8_t queue,
-	uint8_t* buffer, uint32_t buffer_size, uint32_t* recv_size)
-{
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	struct _gmac_desc *desc;
-	uint32_t idx;
-	uint32_t cur_frame_size = 0;
-	uint8_t *cur_frame = 0;
-
-	if (!buffer)
-		return GMACD_PARAM;
-
-	/* Set the default return value */
-	*recv_size = 0;
-
-	/* Process RX descriptors */
-	idx = q->rx_head;
-	desc = &q->rx_desc[idx];
-	while (desc->addr & GMAC_RX_ADDR_OWN) {
-		/* A start of frame has been received, discard previous fragments */
-		if (desc->status & GMAC_RX_STATUS_SOF) {
-			/* Skip previous fragment */
-			while (idx != q->rx_head) {
-				desc = &q->rx_desc[q->rx_head];
-				desc->addr &= ~GMAC_RX_ADDR_OWN;
-				RING_INC(q->rx_head, q->rx_size);
-			}
-			cur_frame = buffer;
-			cur_frame_size = 0;
-		}
-
-		/* Increment the index */
-		RING_INC(idx, q->rx_size);
-
-		/* Copy data in the frame buffer */
-		if (cur_frame) {
-			if (idx == q->rx_head) {
-				trace_info("no EOF (buffers probably too small)\r\n");
-
-				do {
-					desc = &q->rx_desc[q->rx_head];
-					desc->addr &= ~GMAC_RX_ADDR_OWN;
-					RING_INC(q->rx_head, q->rx_size);
-				} while (idx != q->rx_head);
-				return GMACD_RX_NULL;
-			}
-
-			/* Copy the buffer into the application frame */
-			uint32_t length = GMAC_RX_UNITSIZE;
-			if ((cur_frame_size + length) > buffer_size) {
-				length = buffer_size - cur_frame_size;
-			}
-
-			void* addr = (void*)(desc->addr & GMAC_RX_ADDR_MASK);
-			cache_invalidate_region(addr, length);
-			memcpy(cur_frame, addr, length);
-			cur_frame += length;
-			cur_frame_size += length;
-
-			/* An end of frame has been received, return the data */
-			if (desc->status & GMAC_RX_STATUS_EOF) {
-				/* Frame size from the GMAC */
-				*recv_size = desc->status & GMAC_RX_STATUS_LENGTH_MASK;
-
-				/* Application frame buffer is too small all
-				 * data have not been copied */
-				if (cur_frame_size < *recv_size) {
-					return GMACD_SIZE_TOO_SMALL;
-				}
-
-				/* All data have been copied in the application
-				 * frame buffer => release descriptors */
-				while (q->rx_head != idx) {
-					desc = &q->rx_desc[q->rx_head];
-					desc->addr &= ~GMAC_RX_ADDR_OWN;
-					RING_INC(q->rx_head, q->rx_size);
-				}
-
-				return GMACD_OK;
-			}
-		}
-
-		/* SOF has not been detected, skip the fragment */
-		else {
-			desc->addr &= ~GMAC_RX_ADDR_OWN;
-			q->rx_head = idx;
-		}
-
-		/* Process the next buffer */
-		desc = &q->rx_desc[idx];
-	}
-	return GMACD_RX_NULL;
-}
-
-/**
  * \brief Registers pRxCb callback. Callback will be invoked after the next received
- * frame. When GMAC_Poll() returns GMAC_RX_NO_DATA the application task call GMAC_Set_RxCb()
- * to register pRxCb() callback and enters suspend state. The callback is in charge
- * to resume the task once a new frame has been received. The next time GMAC_Poll()
- * is called, it will be successful.
+ * frame. When ethd_poll() returns GMAC_RX_NO_DATA the application task call
+ * ethd_set_rx_callback() to register pRxCb() callback and enters suspend state.
+ * The callback is in charge to resume the task once a new frame has been received.
+ * The next time ethd_poll() is called, it will be successful.
  *  \param gmacd Pointer to GMAC Driver instance.
  *  \param fRxCb   Pointer to callback function
  *  \return        OK, no data, or frame too small
  */
-
-void gmacd_set_rx_callback(struct _gmacd* gmacd, uint8_t queue, gmacd_callback_t callback)
+void gmacd_set_rx_callback(struct _ethd* gmacd, uint8_t queue, ethd_callback_t callback)
 {
-	struct _gmacd_queue* q = &gmacd->queues[queue];
+	struct _ethd_queue* q = &gmacd->queues[queue];
 	if (!callback) {
 		gmac_disable_it(gmacd->gmac, queue, GMAC_IDR_RCOMP);
 		q->rx_callback = NULL;
@@ -784,40 +550,18 @@ void gmacd_set_rx_callback(struct _gmacd* gmacd, uint8_t queue, gmacd_callback_t
 	}
 }
 
-/**
- * Register/Clear TX wakeup callback.
- *
- * When GMACD_Send() returns GMACD_TX_BUSY (all TD busy) the application
- * task calls GMACD_SetTxWakeupCallback() to register fWakeup() callback and
- * enters suspend state. The callback is in charge to resume the task once
- * several TD have been released. The next time GMACD_Send() will be called,
- * it shall be successful.
- *
- * This function is usually invoked with NULL callback from the TX wakeup
- * callback itself, to unregister. Once the callback has resumed the
- * application task, there is no need to invoke the callback again.
- *
- * \param gmacd   Pointer to GMAC Driver instance.
- * \param fWakeup     Wakeup callback.
- * \param bThreshold  Number of free TD before wakeup callback invoked.
- * \return GMACD_OK, GMACD_PARAM on parameter error.
- */
-uint8_t gmacd_set_tx_wakeup_callback(struct _gmacd* gmacd, uint8_t queue,
-			  gmacd_wakeup_cb_t callback, uint16_t threshold)
-{
-	struct _gmacd_queue* q = &gmacd->queues[queue];
-	if (!callback) {
-		q->tx_wakeup_callback = NULL;
-	} else {
-		if (threshold <= q->tx_size) {
-			q->tx_wakeup_callback = callback;
-			q->tx_wakeup_threshold = threshold;
-		} else {
-			return GMACD_PARAM;
-		}
-	}
-
-	return GMACD_OK;
-}
-
-/**@}*/
+const struct _ethd_op _gmac_op = {
+	.configure = (_ethd_configure)gmacd_configure,
+	.setup_queue = (_ethd_setup_queue)gmacd_setup_queue,
+	.start = (_ethd_start)gmacd_start,
+	.reset = (_ethd_reset)gmacd_reset,
+	.set_mac_addr = (_eth_set_mac_addr)gmac_set_mac_addr,
+	.set_mac_addr32 = (_eth_set_mac_addr32)gmac_set_mac_addr32,
+	.set_mac_addr64 = (_eth_set_mac_addr64)gmac_set_mac_addr64,
+	.start_transmission =(_eth_start_transmission)gmac_start_transmission,
+	.send_sg = (_ethd_send_sg)ethd_send_sg,
+	.send = (_ethd_send)ethd_send,
+	.poll = (_ethd_poll)ethd_poll,
+	.set_rx_callback = (_ethd_set_rx_callback)gmacd_set_rx_callback,
+	.set_tx_wakeup_callback = (_ethd_set_tx_wakeup_callback)ethd_set_tx_wakeup_callback,
+};

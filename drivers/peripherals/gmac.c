@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -104,14 +104,14 @@ static bool _gmac_phy_wait_idle(Gmac* gmac, uint32_t retries)
 	return true;
 }
 
-static void _gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+static void _gmac_set_link_speed(Gmac* gmac, enum _eth_speed speed, enum _eth_duplex duplex)
 {
 	/* Configure duplex */
 	switch (duplex) {
-	case GMAC_DUPLEX_HALF:
+	case ETH_DUPLEX_HALF:
 		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_FD;
 		break;
-	case GMAC_DUPLEX_FULL:
+	case ETH_DUPLEX_FULL:
 		gmac->GMAC_NCFGR |= GMAC_NCFGR_FD;
 		break;
 	default:
@@ -121,10 +121,10 @@ static void _gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed, enum _gmac_
 
 	/* Configure speed */
 	switch (speed) {
-	case GMAC_SPEED_10M:
+	case ETH_SPEED_10M:
 		gmac->GMAC_NCFGR &= ~GMAC_NCFGR_SPD;
 		break;
-	case GMAC_SPEED_100M:
+	case ETH_SPEED_100M:
 		gmac->GMAC_NCFGR |= GMAC_NCFGR_SPD;
 		break;
 	default:
@@ -271,7 +271,7 @@ void gmac_enable_mii(Gmac* gmac)
 	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 }
 
-void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+void gmac_enable_rmii(Gmac* gmac, enum _eth_speed speed, enum _eth_duplex duplex)
 {
 	/* Disable RX/TX */
 	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
@@ -286,7 +286,7 @@ void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex dupl
 	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 }
 
-void gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed, enum _gmac_duplex duplex)
+void gmac_set_link_speed(Gmac* gmac, enum _eth_speed speed, enum _eth_duplex duplex)
 {
 	/* Disable RX/TX */
 	gmac->GMAC_NCR &= ~(GMAC_NCR_RXEN | GMAC_NCR_TXEN);
@@ -344,7 +344,7 @@ void gmac_transmit_enable(Gmac* gmac, bool enable)
 		gmac->GMAC_NCR &= ~GMAC_NCR_TXEN;
 }
 
-void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
+void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc)
 {
 	if (queue == 0) {
 		gmac->GMAC_RBQB = ((uint32_t)desc) & GMAC_RBQB_ADDR_Msk;
@@ -359,14 +359,14 @@ void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
 	}
 }
 
-struct _gmac_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue)
+struct _eth_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue)
 {
 	if (queue == 0) {
-		return (struct _gmac_desc*)(gmac->GMAC_RBQB & GMAC_RBQB_ADDR_Msk);
+		return (struct _eth_desc*)(gmac->GMAC_RBQB & GMAC_RBQB_ADDR_Msk);
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
 	else if (queue <= GMAC_NUM_QUEUES) {
-		return (struct _gmac_desc*)(gmac->GMAC_RBQBAPQ[queue - 1] & GMAC_RBQBAPQ_RXBQBA_Msk);
+		return (struct _eth_desc*)(gmac->GMAC_RBQBAPQ[queue - 1] & GMAC_RBQBAPQ_RXBQBA_Msk);
 	}
 #endif
 	else {
@@ -375,7 +375,7 @@ struct _gmac_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue)
 	}
 }
 
-void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
+void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc)
 {
 	if (queue == 0) {
 		gmac->GMAC_TBQB = ((uint32_t)desc) & GMAC_TBQB_ADDR_Msk;
@@ -390,14 +390,14 @@ void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc)
 	}
 }
 
-struct _gmac_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue)
+struct _eth_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue)
 {
 	if (queue == 0) {
-		return (struct _gmac_desc*)(gmac->GMAC_TBQB & GMAC_TBQB_ADDR_Msk);
+		return (struct _eth_desc*)(gmac->GMAC_TBQB & GMAC_TBQB_ADDR_Msk);
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
 	else if (queue <= GMAC_NUM_QUEUES) {
-		return (struct _gmac_desc*)(gmac->GMAC_TBQBAPQ[queue - 1] & GMAC_TBQBAPQ_TXBQBA_Msk);
+		return (struct _eth_desc*)(gmac->GMAC_TBQBAPQ[queue - 1] & GMAC_TBQBAPQ_TXBQBA_Msk);
 	}
 #endif
 	else {

@@ -31,6 +31,7 @@ drivers-$(CONFIG_HAVE_AESB) += drivers/peripherals/aesb.o
 drivers-$(CONFIG_HAVE_AES) += drivers/peripherals/aes.o
 drivers-$(CONFIG_HAVE_AIC5) += drivers/peripherals/aic5.o
 drivers-$(CONFIG_HAVE_SFC) += drivers/peripherals/sfc.o
+drivers-$(CONFIG_HAVE_ETH) += drivers/peripherals/ethd.o
 drivers-$(CONFIG_HAVE_GMAC) += drivers/peripherals/gmacd.o
 drivers-$(CONFIG_HAVE_GMAC) += drivers/peripherals/gmac.o
 drivers-$(CONFIG_HAVE_ICM) += drivers/peripherals/icm.o

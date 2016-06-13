@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -30,9 +30,9 @@
 #ifndef __GTAPDEV_H__
 #define __GTAPDEV_H__
 
-void gmac_tapdev_setmac(u8_t *addr);
-void gmac_tapdev_init(void);
-uint32_t gmac_tapdev_read(void);
-void gmac_tapdev_send(void);
+void eth_tapdev_setmac(u8_t *addr);
+void eth_tapdev_init(void);
+uint32_t eth_tapdev_read(void);
+void eth_tapdev_send(void);
 
 #endif /* __GTAPDEV_H__ */

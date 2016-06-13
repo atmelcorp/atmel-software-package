@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -37,32 +37,24 @@
  * - Configure Gmac::GMAC_NCFG with gmac_configure(), some of related controls
  *   are also available, such as:
  *   - gmac_set_link_speed(): Setup GMAC working clock.
- *   - gmac_full_duplex_enable(): Working in full duplex or not.
- *   - gmac_cpy_all_enable(): Copying all valid frames (\ref GMAC_NCFG_CAF).
  *   - ...
  * - Setup Gmac::GMAC_NCR with gmac_network_control(), more related controls
  *   can modify with:
  *   - gmac_receive_enable(): Enable/Disable Rx.
  *   - gmac_transmit_enable(): Enable/Disable Tx.
- *   - gmac_broadcast_disable(): Enable/Disable broadcast receiving.
  *   - ...
- * - Manage GMAC interrupts with GMAC_EnableIt(), gmac_disable_it(),
+ * - Manage GMAC interrupts with gmac_enable_it(), gmac_disable_it(),
  *   gmac_get_it_mask() and gmac_get_it_status().
  * - Manage GMAC Tx/Rx status with gmac_get_tx_status(), gmac_get_rx_status()
  *   gmac_clear_tx_status() and gmac_clear_rx_status().
- * - Manage GMAC Queue with gmac_set_tx_queue(), GMAC_GetTxQueue(),
- *   gmac_set_rx_queue() and GMAC_GetRxQueue(), the queue descriptor can define
- *   by \ref _gmac_rx_descriptor and \ref _gmac_tx_descriptor.
  * - Manage PHY through GMAC is performed by
- *   - gmac_management_enable(): Enable/Disable PHY management.
- *   - gmac_phy_maintain(): Execute PHY management commands.
- *   - gmac_phy_data(): Return PHY management data.
- *   - gmac_is_idle(): Check if PHY is idle.
+ *   - gmac_phy_read(): Read data from PHY.
+ *   - gmac_phy_read(): Read data from PHY.
+ *   - gmac_enable_mdio(): Enable management port.
+ *   - gmac_disable_mdio(): Disable management port.
  * - Setup GMAC parameters with following functions:
- *   - gmac_set_hash(): Set Hash value.
- *   - gmac_set_address(): Set MAC address.
- * - Enable/Disable GMAC transceiver clock via GMAC_TransceiverClockEnable()
- * - Switch GMAC MII/RMII mode through gmac_enable_rgmii()
+ *   - gmac_set_mac_addr(), gmac_set_mac_addr32(), gmac_set_mac_addr64(): Set MAC address.
+ * - Switch GMAC MII/RMII mode through gmac_enable_rmii()
  *
  * For more accurate information, please look at the GMAC section of the
  * Datasheet.
@@ -88,10 +80,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-#include <stdbool.h>
-#include <stdint.h>
+#include "peripherals/ethd.h"
 
 /*----------------------------------------------------------------------------
  *        Defines
@@ -106,33 +95,7 @@
 #define GMAC_NUM_QUEUES 1
 #endif
 
-#define GMAC_MAX_FRAME_LENGTH       1536
 #define GMAC_MAX_JUMBO_FRAME_LENGTH 10240
-
-enum _gmac_duplex {
-	GMAC_DUPLEX_HALF = 0,
-	GMAC_DUPLEX_FULL = 1,
-};
-
-enum _gmac_speed {
-	GMAC_SPEED_10M   = 0,
-	GMAC_SPEED_100M  = 1,
-};
-
-/* Bits contained in struct _gmac_desc addr when used for RX*/
-#define GMAC_RX_ADDR_OWN  (1u << 0)
-#define GMAC_RX_ADDR_WRAP (1u << 1)
-#define GMAC_RX_ADDR_MASK 0xfffffffcu
-
-/* Bits contained in struct _gmac_desc status when used for RX */
-#define GMAC_RX_STATUS_LENGTH_MASK 0x3fffu
-#define GMAC_RX_STATUS_SOF         (1u << 14)
-#define GMAC_RX_STATUS_EOF         (1u << 15)
-
-/* Bits contained in struct _gmac_desc status when used for TX */
-#define GMAC_TX_STATUS_LASTBUF (1u << 15)
-#define GMAC_TX_STATUS_WRAP    (1u << 30)
-#define GMAC_TX_STATUS_USED    (1u << 31)
 
 /**@}*/
 
@@ -142,12 +105,6 @@ enum _gmac_speed {
 
 /** \addtogroup gmac_structs
 	@{*/
-
-/** Transmit/Receive buffer descriptor struct */
-struct _gmac_desc {
-	uint32_t addr;
-	uint32_t status;
-};
 
 /**     @}*/
 
@@ -221,8 +178,8 @@ extern void gmac_enable_mii(Gmac* gmac);
  *  \param duplex: 1 full duplex 0 half duplex
  *  \param speed: 0 10M 1 100M
  */
-extern void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed,
-		enum _gmac_duplex duplex);
+extern void gmac_enable_rmii(Gmac* gmac, enum _eth_speed speed,
+		enum _eth_duplex duplex);
 
 /**
  *  \brief Setup the GMAC for the link : speed 100M/10M and Full/Half duplex
@@ -230,8 +187,8 @@ extern void gmac_enable_rmii(Gmac* gmac, enum _gmac_speed speed,
  *  \param speed Link speed, 0 for 10M, 1 for 100M
  *  \param fullduplex 1 for Full Duplex mode
  */
-extern void gmac_set_link_speed(Gmac* gmac, enum _gmac_speed speed,
-		enum _gmac_duplex duplex);
+extern void gmac_set_link_speed(Gmac* gmac, enum _eth_speed speed,
+		enum _eth_duplex duplex);
 
 /**
  *  \brief Enable local loop back
@@ -278,22 +235,22 @@ extern void gmac_transmit_enable(Gmac* gmac, bool enable);
 /**
  *  \brief Set RX descriptor address
  */
-void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc);
+void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc);
 
 /**
  *  \brief Get RX descriptor address
  */
-struct _gmac_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue);
+struct _eth_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue);
 
 /**
  *  \brief Set TX descriptor address
  */
-void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _gmac_desc* desc);
+void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc);
 
 /**
  *  \brief Get TX descriptor address
  */
-struct _gmac_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue);
+struct _eth_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue);
 
 /**
  *  \brief Return interrupt mask.

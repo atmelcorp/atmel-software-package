@@ -89,7 +89,7 @@ typedef bool (*eth_phy_read)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
 		uint16_t* data, uint32_t retries);
 typedef bool (*eth_phy_write)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
 		uint16_t data, uint32_t retries);
-typedef void (*eth_enable_rmii)(void* eth, enum _gmac_speed speed, enum _gmac_duplex duplex);
+typedef void (*eth_enable_rmii)(void* eth, enum _eth_speed speed, enum _eth_duplex duplex);
 
 struct _eth_phy_op {
 	eth_phy_read phy_read;
