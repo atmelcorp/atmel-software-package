@@ -32,6 +32,7 @@
 #define _CP15_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
  *        Definition
@@ -293,17 +294,17 @@ extern void cp15_flush_dcache_for_dma(uint32_t start, uint32_t end);
 /*------------------------------------------------------------------------------ */
 
 /** MMU (Status/Enable/Disable) */
-extern unsigned int cp15_is_mmu_enabled(void);
+extern bool cp15_is_mmu_enabled(void);
 extern void cp15_enable_mmu(void);
 extern void cp15_disable_mmu(void);
 
 /** I cache (Status/Enable/Disable) */
-extern unsigned int cp15_is_icached_enabled(void);
+extern bool cp15_is_icache_enabled(void);
 extern void cp15_enable_icache(void);
 extern void cp15_disable_icache(void);
 
 /** D cache (Status/Enable/Disable) */
-extern unsigned int cp15_is_dcache_enabled(void);
+extern bool cp15_is_dcache_enabled(void);
 extern void cp15_enable_dcache(void);
 extern void cp15_disable_dcache(void);
 

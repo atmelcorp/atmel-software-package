@@ -126,6 +126,7 @@
 #include "trace.h"
 
 #include <assert.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -133,9 +134,9 @@
 
 /**
  * \brief Check Instruction cache
- * \return 0 if I_cache disable, 1 if I_cache enable
+ * \return false if I_cache disable, true if I_cache enable
  */
-unsigned int cp15_is_icached_enabled(void)
+bool cp15_is_icache_enabled(void)
 {
 	unsigned int control;
 	control = cp15_read_control();
@@ -154,10 +155,6 @@ void cp15_enable_icache(void)
 		cp15_icache_invalidate();
 		control |= (1 << CP15_I_BIT);
 		cp15_write_control(control);
-		trace_info("I cache enabled.\n\r");
-	} else {
-
-		trace_info("I cache is already enabled.\n\r");
 	}
 }
 
@@ -170,13 +167,9 @@ void cp15_disable_icache(void)
 	control = cp15_read_control();
 	// Check if cache is enabled
 	if ((control & (1 << CP15_I_BIT)) != 0) {
-
 		control &= ~(1ul << CP15_I_BIT);
 		cp15_write_control(control);
-		trace_info("I cache disabled.\n\r");
-	} else {
-
-		trace_info("I cache is already disabled.\n\r");
+		cp15_icache_invalidate();
 	}
 }
 
@@ -184,7 +177,7 @@ void cp15_disable_icache(void)
  * \brief  Check MMU
  * \return  0 if MMU disable, 1 if MMU enable
  */
-unsigned int cp15_is_mmu_enabled(void)
+bool cp15_is_mmu_enabled(void)
 {
 	unsigned int control;
 	control = cp15_read_control();
@@ -200,12 +193,8 @@ void cp15_enable_mmu(void)
 	control = cp15_read_control();
 	// Check if MMU is disabled
 	if ((control & (1 << CP15_M_BIT)) == 0) {
-
 		control |= (1 << CP15_M_BIT);
 		cp15_write_control(control);
-		trace_info("MMU enabled.\n\r");
-	} else {
-		trace_info("MMU is already enabled.\n\r");
 	}
 }
 
@@ -218,13 +207,13 @@ void cp15_disable_mmu(void)
 	control = cp15_read_control();
 	// Check if MMU is enabled
 	if ((control & (1 << CP15_M_BIT)) != 0) {
-
+		cp15_dcache_clean();
+		control &= ~(1ul << CP15_I_BIT);
 		control &= ~(1ul << CP15_M_BIT);
 		control &= ~(1ul << CP15_C_BIT);
 		cp15_write_control(control);
-		trace_info("MMU disabled.\n\r");
-	} else {
-		trace_info("MMU is already disabled.\n\r");
+		cp15_dcache_invalidate();
+		cp15_icache_invalidate();
 	}
 }
 
@@ -232,7 +221,7 @@ void cp15_disable_mmu(void)
  * \brief  Check D_cache
  * \return  0 if D_cache disable, 1 if D_cache enable (with MMU of course)
  */
-unsigned int cp15_is_dcache_enabled(void)
+bool cp15_is_dcache_enabled(void)
 {
 	unsigned int control;
 	control = cp15_read_control();
@@ -247,17 +236,12 @@ void cp15_enable_dcache(void)
 {
 	unsigned int control;
 	control = cp15_read_control();
-	if (!cp15_is_mmu_enabled()) {
-		trace_error("Do nothing: MMU not enabled\n\r");
-	} else {
+	if (cp15_is_mmu_enabled()) {
 		// Check if cache is disabled
 		if ((control & (1 << CP15_C_BIT)) == 0) {
 			cp15_dcache_invalidate();
 			control |= (1 << CP15_C_BIT);
 			cp15_write_control(control);
-			trace_info("D cache enabled.\n\r");
-		} else {
-			trace_info("D cache is already enabled.\n\r");
 		}
 	}
 }
@@ -271,13 +255,10 @@ void cp15_disable_dcache(void)
 	control = cp15_read_control();
 	// Check if cache is enabled
 	if ((control & (1 << CP15_C_BIT)) != 0) {
-
+		cp15_dcache_clean();
 		control &= ~(1ul << CP15_C_BIT);
 		cp15_write_control(control);
-		trace_info("D cache disabled.\n\r");
-	} else {
-
-		trace_info("D cache is already disabled.\n\r");
+		cp15_icache_invalidate();
 	}
 }
 
