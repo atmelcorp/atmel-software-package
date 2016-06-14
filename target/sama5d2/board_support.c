@@ -500,7 +500,7 @@ void board_cfg_mmu(void)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
 	                  | TTB_SECT_EXEC
-	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_CACHEABLE_WB
 	                  | TTB_TYPE_SECT;
 
 	/* 0xf0000000: Internal Peripherals */
