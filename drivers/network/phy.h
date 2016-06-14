@@ -69,6 +69,7 @@
 #define PHY_DEFAULT_RETRIES 300000
 
 enum _phy_if_eth {
+	PHY_IF_EMAC,
 	PHY_IF_GMAC,
 };
 

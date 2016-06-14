@@ -37,6 +37,9 @@
 #include "trace.h"
 #include "timer.h"
 
+#ifdef CONFIG_HAVE_EMAC
+#include "peripherals/emac.h"
+#endif
 #ifdef CONFIG_HAVE_GMAC
 #include "peripherals/gmac.h"
 #endif
@@ -56,9 +59,20 @@ struct _phy_dev {
 };
 
 static const struct _phy_dev _phy_devices[] = {
+	{ "Micrel KSZ8051", 0x0022, 0x1550 },
 	{ "Micrel KSZ8081", 0x0022, 0x1560 },
 	{ "Micrel KSZ8061", 0x0022, 0x1570 },
 };
+
+#ifdef CONFIG_HAVE_EMAC
+static const struct _eth_phy_op _emac_op = {
+	.phy_write = (eth_phy_write)emac_phy_write,
+	.phy_read = (eth_phy_read)emac_phy_read,
+	.enable_mido = (eth_enable_mdio)emac_enable_mdio,
+	.disable_mido = (eth_disable_mdio)emac_disable_mdio,
+	.enable_rmii = (eth_enable_rmii)emac_enable_rmii,
+};
+#endif
 
 #ifdef CONFIG_HAVE_GMAC
 static const struct _eth_phy_op _gmac_op = {
@@ -138,6 +152,10 @@ static bool _phy_find_addr(struct _phy* phy)
 bool phy_configure(struct _phy* phy)
 {
 	phy->op = NULL;
+#ifdef CONFIG_HAVE_EMAC
+	if (PHY_IF_EMAC == phy->desc->phy_if)
+		phy->op = &_emac_op;
+#endif
 #ifdef CONFIG_HAVE_GMAC
 	if (PHY_IF_GMAC == phy->desc->phy_if)
 		phy->op = &_gmac_op;

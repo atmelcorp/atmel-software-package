@@ -117,6 +117,7 @@ enum _eth_speed {
 #define ETH_NOT_INITIALIZED   4
 
 enum _eth_type {
+	ETH_TYPE_EMAC,
 	ETH_TYPE_GMAC,
 };
 
@@ -235,6 +236,9 @@ struct _ethd_queue {
 struct _ethd {
 	union {
 		void *addr;       /**< ETH instance (GMAC/EMAC) */
+#if defined(CONFIG_HAVE_EMAC)
+		Emac *emac;       /**< EMAC instance */
+#endif
 #if defined(CONFIG_HAVE_GMAC)
 		Gmac *gmac;       /**< GMAC instance */
 #endif

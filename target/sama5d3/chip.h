@@ -208,6 +208,11 @@
 /** NAND EBI Chip Select */
 #define NAND_EBI_CS 3
 
+#define GMAC_UR_RMII GMAC_UR_RGMII
+#define ID_GMAC0 ID_GMAC
+#define GMAC GMAC0
+#define EMAC EMAC0
+
 #ifdef __cplusplus
 extern "C" {
 #endif

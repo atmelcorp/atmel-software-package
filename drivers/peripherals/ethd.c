@@ -71,6 +71,10 @@ bool ethd_configure(struct _ethd * ethd, enum _eth_type eth_type, void * addr, u
 	ethd->addr = addr;
 	ethd->op = NULL;
 
+#ifdef CONFIG_HAVE_EMAC
+	if (ETH_TYPE_EMAC == eth_type)
+		ethd->op = &_emac_op;
+#endif
 #ifdef CONFIG_HAVE_GMAC
 	if (ETH_TYPE_GMAC == eth_type)
 		ethd->op = &_gmac_op;

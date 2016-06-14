@@ -146,19 +146,20 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
-/* =================== AT24 device definition =================== */
-#define AT24_PINS       PINS_TWI0;
-#define AT24_ADDR       ((Twi*)TWI0)
-#define AT24_FREQ       400000
-#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
-
 /* =================== GMAC/PHY definition =================== */
 
-#define GMAC0_ADDR        GMAC
+#define GMAC0_ADDR        GMAC0
 #define GMAC0_PINS        PINS_GMAC0_RGMII
 #define GMAC0_PHY_ADDR    1
 #define GMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB10, PIO_INPUT, PIO_PULLUP }
 #define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
+
+/* =================== EMAC/PHY definition =================== */
+
+#define EMAC0_ADDR        EMAC0
+#define EMAC0_PINS        PINS_EMAC0
+#define EMAC0_PHY_ADDR    1
+#define EMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB12, PIO_INPUT, PIO_PULLUP }
 
 /* =================== NANDFLASH device definition =================== */
 

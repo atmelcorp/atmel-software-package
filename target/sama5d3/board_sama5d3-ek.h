@@ -146,6 +146,13 @@
 #define GMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB25, PIO_INPUT, PIO_PULLUP }
 #define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
 
+/* =================== EMAC/PHY definition =================== */
+
+#define EMAC0_ADDR        EMAC0
+#define EMAC0_PINS        PINS_EMAC0
+#define EMAC0_PHY_ADDR    1
+#define EMAC0_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE30, PIO_INPUT, PIO_PULLUP }
+
 /* =================== NANDFLASH device definition =================== */
 
 #define BOARD_NANDFLASH_PINS      PINS_NAND8

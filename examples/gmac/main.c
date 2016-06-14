@@ -117,6 +117,7 @@
 #include "misc/console.h"
 #include "peripherals/aic.h"
 #if defined(CONFIG_HAVE_EMAC)
+#include "peripherals/emacd.h"
 #elif defined(CONFIG_HAVE_GMAC)
 #include "peripherals/gmacd.h"
 #endif
@@ -150,6 +151,11 @@
 #define ARP_INTERVAL     250
 
 #if defined(CONFIG_HAVE_EMAC)
+#   define ETH_PINS EMAC0_PINS
+#   define ETH_TYPE ETH_TYPE_EMAC
+#   define ETH_ADDR EMAC0_ADDR
+#   define ETH_PHY_ADDR EMAC0_PHY_ADDR
+#   define ETH_PHY_IF PHY_IF_EMAC
 #elif defined(CONFIG_HAVE_GMAC)
 #   define ETH_PINS GMAC0_PINS
 #   define ETH_TYPE ETH_TYPE_GMAC
@@ -450,7 +456,7 @@ int main(void)
 	uint32_t tick_start;
 
 	/* Output example information */
-	console_example_info("GMAC Example");
+	console_example_info("ETH (GMAC/EMAC) Example");
 
 #ifdef AT24_PINS
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

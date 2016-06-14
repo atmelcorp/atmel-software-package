@@ -301,6 +301,11 @@
 /** GMAC0 RGMII pin list */
 #define PINS_GMAC0_RGMII { { PIO_GROUP_B, 0x00072BFF, PIO_PERIPH_A, PIO_DEFAULT } }
 
+/* ========== Pio PIN definition for EMAC0 peripheral ========== */
+
+/** EMAC pin list */
+#define PINS_EMAC0  { { PIO_GROUP_C, 0x000003FF, PIO_PERIPH_A, PIO_DEFAULT } }
+
 /* ========== Pio PIN definition for NAND peripheral ========== */
 
 /* 8-bit NAND: NANDALE, NANDCLE (other I/O are not muxed by PIO controller ) */
