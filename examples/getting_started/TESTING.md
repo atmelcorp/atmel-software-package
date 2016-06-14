@@ -51,7 +51,7 @@ Press 'b' | Turn on all light | PASSED | PASSED
 
 ## Current version
 --------
- - v1.3
+ - v2.1
 
 ## History
 --------

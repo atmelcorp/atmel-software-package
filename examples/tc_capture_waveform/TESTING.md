@@ -97,7 +97,7 @@ Press 'h' | Print the menu | Display the menu | PASSED
 -----
 ## Current version
 ------------------
- - v1.3
+ - v2.1
 
 ## History
 ----------
