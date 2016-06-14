@@ -35,7 +35,7 @@
  *  Interface for configuring and using Timer Counter (TC) peripherals.
  *
  *  \section Usage
- *  -# Optionally, use tc_find_mck_divisor() to let the program find the best
+ *  -# Optionally, use tc_find_best_clock_source() to let the program find the best
  *     TCCLKS field value automatically.
  *  -# Configure a Timer Counter in the desired mode using tc_configure().
  *  -# Start or stop the timer clock using tc_start() and tc_stop().
@@ -64,7 +64,7 @@ extern void tc_configure (Tc* pTc, uint32_t channel, uint32_t mode);
 extern void tc_start (Tc * pTc, uint32_t channel);
 extern void tc_stop (Tc * pTc, uint32_t channel);
 extern void tc_enable_it(Tc* tc, uint32_t channel, uint32_t mask);
-extern uint32_t tc_find_mck_divisor (uint32_t freq, uint32_t* div, uint32_t * tc_clks);
+extern uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq);
 extern uint32_t tc_get_status(Tc* tc, uint32_t channel_num);
 extern void tc_trigger_on_freq(Tc* tc, uint32_t channel_num, uint32_t freq);
 extern uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks);

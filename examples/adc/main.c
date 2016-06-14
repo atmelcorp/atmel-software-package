@@ -405,7 +405,6 @@ static void console_handler(uint8_t key)
  */
 static void _configure_tc_trigger(void)
 {
-	uint32_t div = 0;
 	uint32_t tcclks = 0;
 	uint32_t ra, rc;
 	
@@ -413,7 +412,7 @@ static void _configure_tc_trigger(void)
 	/* Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
 	/* Configure TC for a 10Hz frequency and trigger on RC compare. */
-	tc_find_mck_divisor(10, &div, &tcclks);
+	tcclks = tc_find_best_clock_source(TC0, 10);
 	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET | TC_CMR_ACPC_CLEAR | TC_CMR_CPCTRG);
 	rc = tc_get_available_freq(TC0, tcclks) / 10;
 	ra = 50 * rc / 100;

@@ -261,8 +261,8 @@ static void configure_tc(void)
 	tc_trigger_on_freq(TC0, 0, 4);
 
 	/* Configure and enable interrupt on RC compare */
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
 	aic_enable(ID_TC0);
+	tc_enable_it(TC0, 0, TC_IER_CPCS);
 
 	/* Start the counter if LED1 is enabled. */
 	if (led_status[1]) {
@@ -290,10 +290,6 @@ int main(void)
 
 	console_example_info("Getting Started Example");
 
-	/* Configure TC */
-	printf("Configure TC.\n\r");
-	configure_tc();
-
 	printf("Configure buttons with debouncing.\n\r");
 	configure_buttons();
 
@@ -305,6 +301,10 @@ int main(void)
 	printf("Press the number of the led to make it "
 	       "start or stop blinking.\n\r");
 	printf("Press 's' to stop the TC and 'b' to start it\r\n");
+
+	/* Configure TC */
+	printf("Configure TC.\n\r");
+	configure_tc();
 
 	while (1) {
 
