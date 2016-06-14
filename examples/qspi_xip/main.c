@@ -106,7 +106,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "getting_started_hex.h"
+#include "getting-started_sama5d2-xplained_qspi0.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
