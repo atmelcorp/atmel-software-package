@@ -39,6 +39,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "compiler.h"
 
 #include "peripherals/dbgu.h"
 #include "peripherals/pio.h"
@@ -66,10 +67,13 @@ void dbgu_configure(Dbgu* dbgu, uint32_t mode, uint32_t baudrate)
 	/* Reset and disable receiver & transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RSTRX | DBGU_CR_RSTTX;
 	dbgu->DBGU_IDR = 0xFFFFFFFF;
-	dbgu->DBGU_CR = DBGU_CR_RXDIS | DBGU_CR_TXDIS;
+	dbgu->DBGU_SR;
+
+	/* Configure mode */
+	dbgu->DBGU_MR = mode;
 
 	/* Configure baudrate */
-	dbgu->DBGU_BRGR = (pmc_get_peripheral_clock(ID_DBGU) / baudrate) / 16;
+	dbgu->DBGU_BRGR = ROUND_INT_DIV(pmc_get_peripheral_clock(ID_DBGU) / 16, baudrate);
 
 	/* Enable receiver and transmitter */
 	dbgu->DBGU_CR = DBGU_CR_RXEN | DBGU_CR_TXEN;
