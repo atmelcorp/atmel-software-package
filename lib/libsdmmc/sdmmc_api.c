@@ -200,15 +200,6 @@ struct stringEntry_s
 /** Return SD/MMC card block size (Default size now, 512B) */
 #define BLOCK_SIZE(pSd)         (pSd->wCurrBlockLen)
 
-/** Convert block address to SD/MMC command parameter */
-#define SD_ADDRESS(pSd, address) \
-    ( ((pSd)->dwTotalSize >= 0xFFFFFFFF) ? \
-                            (address):((address) << 9) )
-
-#define MMC_ADDRESS(pSd, address) \
-    ( ((pSd)->dwTotalSize >= 0x7FFFFFFF) ? \
-                            (address):((address) << 9) )
-
 /** Check if SD Spec version 1.10 or later */
 #define SD_IsVer1_10(pSd) \
     ( SD_SCR_SD_SPEC(pSd->SCR) >= SD_SCR_SD_SPEC_1_10 )
@@ -1757,22 +1748,26 @@ _WaitUntilReady(sSdCard * pSd, uint32_t last_dev_status)
 }
 
 /**
- * Perform single block transfer
+ * Transfer a single data block.
+ * The device shall be in its Transfer State already.
+ * \param pSd      Pointer to a SD card driver instance.
+ * \param address  Address of the block to transfer.
+ * \param pData    Data buffer, whose size is at least one block size.
+ * \param isRead   Either 1 to read data from the device or 0 to write data.
+ * \return a \ref sdmmc_rc result code.
  */
 static uint8_t
 PerformSingleTransfer(sSdCard * pSd,
 		      uint32_t address, uint8_t * pData, uint8_t isRead)
 {
 	uint8_t result = SDMMC_OK, error;
-	uint8_t sd, mmc;
 	uint32_t sdmmc_address, status;
 
-	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
-	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
-	if (mmc)
-		sdmmc_address = MMC_ADDRESS(pSd, address);
-	else if (sd)
-		sdmmc_address = SD_ADDRESS(pSd, address);
+	/* Convert block address into device-expected unit */
+	if (pSd->bCardType & CARD_TYPE_bmHC)
+		sdmmc_address = address;
+	else if (address <= 0xfffffffful / pSd->wCurrBlockLen)
+		sdmmc_address = address * pSd->wCurrBlockLen;
 	else
 		return SDMMC_PARAM;
 	if (isRead)
@@ -1826,18 +1821,16 @@ MoveToTransferState(sSdCard * pSd,
 		    uint16_t * nbBlocks, uint8_t * pData, uint8_t isRead)
 {
 	uint8_t result = SDMMC_OK, error;
-	uint8_t sd, mmc;
 	uint32_t sdmmc_address, state, status;
 
 	assert(pSd != NULL);
 	assert(nbBlocks != NULL);
 
-	sd = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmSD);
-	mmc = ((pSd->bCardType & CARD_TYPE_bmSDMMC) == CARD_TYPE_bmMMC);
-	if (mmc)
-		sdmmc_address = MMC_ADDRESS(pSd, address);
-	else if (sd)
-		sdmmc_address = SD_ADDRESS(pSd, address);
+	/* Convert block address into device-expected unit */
+	if (pSd->bCardType & CARD_TYPE_bmHC)
+		sdmmc_address = address;
+	else if (address <= 0xfffffffful / pSd->wCurrBlockLen)
+		sdmmc_address = address * pSd->wCurrBlockLen;
 	else
 		return SDMMC_PARAM;
 	if (pSd->bSetBlkCnt) {
