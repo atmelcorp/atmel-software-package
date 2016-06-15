@@ -66,6 +66,8 @@ drivers-y += drivers/peripherals/usart.o
 drivers-y += drivers/peripherals/wdt.o
 drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmac.o
 drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmad.o
+drivers-$(CONFIG_HAVE_DMAC) += drivers/peripherals/dmac.o
+drivers-$(CONFIG_HAVE_DMAC) += drivers/peripherals/dmacd.o
 
 drivers-$(CONFIG_HAVE_DBGU) += drivers/peripherals/dbgu.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o

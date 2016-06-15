@@ -37,6 +37,7 @@
 
 #include "peripherals/pio.h"
 #include "peripherals/wdt.h"
+#include "peripherals/dmacd.h"
 
 #include "board_support.h"
 
@@ -63,6 +64,9 @@ WEAK void board_init(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+
+	/* DMAC Driver init */
+	dmacd_initialize(false);
 
 	/* Configure PMIC */
 	board_cfg_pmic();
