@@ -39,6 +39,7 @@
 
 #include "pin_defs.h"
 #include "misc/console.h"
+#include "misc/cache.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
@@ -280,9 +281,9 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	 * Configure GCLKx = <PLLA clock> divided by 1
 	 * As of writing, the PLLA clock runs at 498 MHz */
 	sdmmc_id = get_sdmmc_id_from_addr(instance_def->addr);
+	pmc_enable_peripheral(sdmmc_id);
 	pmc_configure_gck(sdmmc_id, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
 	pmc_enable_gck(sdmmc_id);
-	pmc_enable_peripheral(sdmmc_id);
 
 	// set SDMMC controller capabilities
 	caps0 = SDMMC_CA0R_SLTYPE_EMBEDDED;
