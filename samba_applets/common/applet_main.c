@@ -38,6 +38,11 @@
 
 #include <string.h>
 
+extern int __buffer_end__;
+#if defined(__GNUC__)
+extern int __buffer_start__;
+#endif
+
 static bool applet_initialized = false;
 static uint32_t _comm_type;
 
@@ -50,15 +55,14 @@ uint32_t applet_buffer_size;
 
 static void init_applet_buffer(void)
 {
-	extern int __buffer_end__;
-
 #if defined(__ICCARM__)
 	/* Rely on the fact that CSTACK is the last section in RAM region */
 	#pragma section = "CSTACK"
 	applet_buffer = __section_end("CSTACK");
-#elif defined(__GNUCC__)
-	extern int __buffer_start__;
+#elif defined(__GNUC__)
 	applet_buffer = (uint8_t*)&__buffer_start__;
+#else
+#error Unknown compiler!
 #endif
 	applet_buffer_size = (uint32_t)&__buffer_end__ - (uint32_t)applet_buffer;
 }
