@@ -545,8 +545,6 @@ static void _draws(void)
 		lcdd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	}
-	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
-
 	wLastW = w;
 	wLastH = h;
 
@@ -574,6 +572,8 @@ static void _draws(void)
 			" This example shows the \n"
 			"graphic functionnalities\n"
 			"       on a SAMA5", COLOR_BLACK);
+
+	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 }
 
 /**
