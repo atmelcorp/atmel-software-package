@@ -31,3 +31,4 @@ drivers-y += drivers/misc/led.o
 drivers-y += drivers/misc/cache.o
 
 drivers-$(CONFIG_SOC_SAMA5D2) += drivers/misc/bmp280.o
+drivers-$(CONFIG_HAVE_IS31FL3728) += drivers/misc/is31fl3728.o
