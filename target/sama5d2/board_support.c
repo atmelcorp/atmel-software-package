@@ -88,7 +88,7 @@ struct _console_cfg {
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _l2cc_control l2cc_cfg = {
+static const struct _l2cc_config l2cc_cfg = {
 	.instruct_prefetch = true,	// Instruction prefetch enable
 	.data_prefetch = true,	// Data prefetch enable
 	.double_linefill = true,
@@ -96,7 +96,7 @@ static const struct _l2cc_control l2cc_cfg = {
 	/* Disable Write back (enables write through, Use this setting
 	   if DDR2 mem is not write-back) */
 	//cfg.no_write_back = true,
-	.force_write_alloc = FWA_NO_ALLOCATE,
+	.force_write_alloc = L2CC_FWA_NO_ALLOCATE,
 	.offset = 31,
 	.prefetch_drop = true,
 	.standby_mode = true,

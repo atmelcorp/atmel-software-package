@@ -47,8 +47,8 @@
  * \ref l2cc.c\n
  */
 
-#ifndef _L2CC_H
-#define _L2CC_H
+#ifndef L2CC_H_
+#define L2CC_H_
 
 #ifdef CONFIG_HAVE_L2CC
 
@@ -67,42 +67,23 @@
 extern "C" {
 #endif
 
-#define OFFSET_BIT      5
-#define INDEX_BIT       9
-#define TAG_BIT         18
-
-#define L2CC_RESET_EVCOUNTER0        0
-#define L2CC_RESET_EVCOUNTER1        1
-#define L2CC_RESET_BOTH_COUNTER      3
-
-#define FWA_DEFAULT             0u
-#define FWA_NO_ALLOCATE         1u
-#define FWA_FORCE_ALLOCATE      2u
-#define FWA_INTERNALLY_MAPPED   3u
+#define L2CC_FWA_DEFAULT            0
+#define L2CC_FWA_NO_ALLOCATE        1
+#define L2CC_FWA_FORCE_ALLOCATE     2
+#define L2CC_FWA_INTERNALLY_MAPPED  3
 
 /*----------------------------------------------------------------------------
 *        Types
 *----------------------------------------------------------------------------*/
 
-enum _maint_op {
-	L2CC_DCACHE_CLEAN,
-	L2CC_DCACHE_INVAL,
-	L2CC_DCACHE_FLUSH
-};
-
-struct _latency {
+struct _l2cc_ram_latency {
 	uint8_t setup;
 	uint8_t read;
 	uint8_t write;
 };
 
-struct _ram_latency_control {
-	struct _latency tag;
-	struct _latency data;
-};
-
 /** L2CC structure */
-struct _l2cc_control {
+struct _l2cc_config {
 	/** High Priority for SO and Dev Reads Enable */
 	uint32_t high_prior_so:    1,
 	/** Store Buffer Device Limitation Enable */
@@ -155,7 +136,7 @@ struct _l2cc_control {
 /**
  * \brief Check if Level 2 cache is enable.
  */
-extern uint32_t l2cc_is_enabled(void);
+extern bool l2cc_is_enabled(void);
 
 /**
  * \brief Enable Level 2 cache.
@@ -169,22 +150,32 @@ extern void l2cc_disable(void);
 
 /**
  * \brief Configures Level 2 cache as exclusive cache.
- * \param Enable Enable/disable exclusive cache.
  */
-extern void l2cc_exclusive_cache(uint8_t enable);
+extern void l2cc_exclusive_cache(void);
 
 /**
- * \brief Configures Level 2 cache RAM Latency (Tag and Data).
- * \param latencies  Structure containing RAM Tag and Data latencies
+ * \brief Configures Level 2 cache as non-exclusive cache.
  */
-extern void l2cc_config_lat_ram(struct _ram_latency_control * latencies);
+extern void l2cc_non_exclusive_cache(void);
+
+/**
+ * \brief Configures Level 2 cache Tag RAM Latency
+ * \param latency  Structure containing Tag RAM latency
+ */
+extern void l2cc_set_tag_ram_latency(const struct _l2cc_ram_latency *latency);
+
+/**
+ * \brief Configures Level 2 cache Data RAM Latency
+ * \param latency  Structure containing Data RAM latency
+ */
+extern void l2cc_set_data_ram_latency(const struct _l2cc_ram_latency *latency);
 
 /**
  * \brief Configures Level 2 cache.
  * \param cfg  Configuration values to put in Auxiliary, prefetch,
  * debug and powercontrol registers.
  */
-extern void l2cc_set_config(const struct _l2cc_control* cfg);
+extern void l2cc_set_config(const struct _l2cc_config* cfg);
 
 /**
  * \brief Enables Data prefetch on L2
@@ -200,7 +191,7 @@ extern void l2cc_inst_prefetch_enable(void);
  * \brief Enables instruction prefetch on L2
  * \param event_counter Counter of the events.
  */
-extern void l2cc_enable_reset_counter(uint8_t event_counter);
+extern void l2cc_enable_event_counter(uint8_t event_counter);
 
 /**
  * \brief Configures Event of Level 2 cache.
@@ -221,36 +212,36 @@ extern uint32_t l2cc_event_counter_value(uint8_t event_counter);
  * \brief Enable interrupts
  * \param sources  Interrupt source
  */
-extern void l2cc_enable_it(uint16_t sources);
+extern void l2cc_enable_it(uint32_t sources);
 
 /**
  * \brief Disable interrupts
  * \param sources  Interrupt source
  */
-extern void l2cc_disable_it(uint16_t sources);
+extern void l2cc_disable_it(uint32_t sources);
 
 /**
- * \brief Enabled interrupt's raw status
+ * \brief Enabled interrupt's status
  * \param sources  Interrupt source
  */
-extern uint16_t l2cc_it_status_raw(uint16_t sources);
+extern uint32_t l2cc_it_status(uint32_t sources);
 
 /**
  * \brief Status of masked interrupts
  * \param sources  Interrupt source
  */
-extern uint16_t l2cc_it_status_mask(uint16_t sources);
+extern uint32_t l2cc_it_status_mask(uint32_t sources);
 
 /**
  * \brief Clear interrupts
  * \param sources  Interrupt source
  */
-extern void l2cc_it_clear(uint16_t sources);
+extern void l2cc_it_clear(uint32_t sources);
 
 /**
- * \brief Poll SPNIDEN signal
+ * \brief Get SPNIDEN signal value
  */
-extern uint8_t l2cc_poll_spniden(void);
+extern bool l2cc_get_spniden(void);
 
 /**
  * \brief Synchronizes the L2 cache
@@ -270,22 +261,28 @@ extern void l2cc_invalidate_way(uint8_t way);
 extern void l2cc_clean_way(uint8_t way);
 
 /**
- * \brief Invalidate cache by Physical addersse
- * \param phys_addr  Physical addresse
+ * \brief Clean & Invalidate cache by way
+ * \param way  way number
+ */
+extern void l2cc_clean_invalidate_way(uint8_t way);
+
+/**
+ * \brief Invalidate cache by Physical Address
+ * \param phys_addr  Physical Address
  */
 extern void l2cc_invalidate_pal(uint32_t phys_addr);
 
 /**
- * \brief Clean cache by Physical addersse
- * \param phys_addr  Physical addresse
+ * \brief Clean cache by Physical Address
+ * \param phys_addr  Physical Address
  */
 extern void l2cc_clean_pal(uint32_t phys_addr);
 
 /**
- * \brief Clean index cache by Physical addersse
- * \param phys_addr  Physical addresse
+ * \brief Clean & invalidate index cache by Physical Address
+ * \param phys_addr  Physical Address
  */
-extern void l2cc_clean_ix(uint32_t phys_addr);
+extern void l2cc_clean_invalidate_pal(uint32_t phys_addr);
 
 /**
  * \brief Clean cache by Index
@@ -314,11 +311,19 @@ extern void l2cc_data_lockdown(uint8_t way);
 extern void l2cc_instruction_lockdown(uint8_t way);
 
 /**
- *  \brief L2 DCache maintenance (clean/invalidate/flush)
- *
- *  \param maintenance Maintenance operation to apply: \sa #_maint_op
+ *  \brief Clean L2 DCache
  */
-extern void l2cc_cache_maintenance(enum _maint_op maintenance);
+extern void l2cc_clean(void);
+
+/**
+ *  \brief Invalidate L2 DCache
+ */
+extern void l2cc_invalidate(void);
+
+/**
+ *  \brief Clean & Invalidate L2 DCache
+ */
+extern void l2cc_clean_invalidate(void);
 
 /**
  *  \brief Invalidate cache lines corresponding to a memory region
@@ -337,15 +342,16 @@ extern void l2cc_invalidate_region(uint32_t start, uint32_t end);
 extern void l2cc_clean_region(uint32_t start, uint32_t end);
 
 /**
- *  \brief Enable level two cache controller (L2CC)
+ *  \brief configure and enable L2 cache controller (L2CC)
  *
- *  \param cfg configuration to apply: \sa #_l2cc_control
+ *  \param cfg configuration to apply: \sa #_l2cc_config
  */
-extern void l2cc_configure(const struct _l2cc_control* cfg);
+extern void l2cc_configure(const struct _l2cc_config* cfg);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* CONFIG_HAVE_L2CC */
-#endif				/* #ifndef _L2CC_ */
+
+#endif /* L2CC_H_ */
