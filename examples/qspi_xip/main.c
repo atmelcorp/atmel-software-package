@@ -139,8 +139,8 @@ static void run_xip_program(void* qspi_mem_addr)
 	printf("============================\n\r");
 
 	/* Disable MMU, cache and interrupts */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
-	cp15_disable_mmu();
+	cpsr_set_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	cp15_mmu_disable();
 	pit_disable();
 
 	xip_startup_fn = (void(*)(void))qspi_mem_addr;

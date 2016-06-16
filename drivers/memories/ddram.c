@@ -352,20 +352,17 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 
 void ddram_configure(struct _mpddrc_desc* desc)
 {
-	bool mmu = cp15_is_mmu_enabled();
-	bool dcache = cp15_is_dcache_enabled();
-	bool icache = cp15_is_icache_enabled();
+	bool mmu = cp15_mmu_is_enabled();
+	bool dcache = cp15_dcache_is_enabled();
 
 	if (mmu)
-		cp15_disable_mmu();
+		cp15_mmu_disable();
 
 	mpddrc_configure(desc);
 
 	if (mmu) {
-		cp15_enable_mmu();
+		cp15_mmu_enable();
 		if (dcache)
-			cp15_enable_dcache();
-		if (icache)
-			cp15_enable_icache();
+			cp15_dcache_enable();
 	}
 }

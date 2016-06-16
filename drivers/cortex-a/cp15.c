@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2015-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,103 +27,14 @@
  * ----------------------------------------------------------------------------
  */
 
-//-----------------------------------------------------------------------------
-// Reg Reads                    Writes
-//----------------------------------------------------------------------------
-// 0   ID code                  Unpredictable
-// 0   cache type               Unpredictable
-// 0   TCM status               Unpredictable
-// 1   Control                  Control
-// 2   Translation table base   Translation table base
-// 3   Domain access control    Domain access control
-// 4                                                       (Reserved)
-// 5   Data fault status        Data fault status
-// 5   Instruction fault status Instruction fault status
-// 6   Fault address            Fault address
-// 7   cache operations         cache operations
-// 8   Unpredictable            TLB operations
-// 9   cache lockdown           cache lockdown
-// 9   TCM region               TCM region
-// 10  TLB lockdown             TLB lockdown
-// 11                                                      (Reserved)
-// 12                                                      (Reserved)
-// 13  FCSE PID                 FCSE PID
-// 13  Context ID               Context ID
-// 14                                                      (Reserved)
-// 15  Test configuration       Test configuration
-//-----------------------------------------------------------------------------
-
-/** \page cp15_f CP15 Functions
- *
- * \section CP15 function Usage
- *
- * Methods to manage the Coprocessor 15. Coprocessor 15, or System Control
- * Coprocessor CP15, is used to configure and control all the items in the
- * list below:
- * <ul>
- * <li> ARM core
- * <li> caches (Icache, Dcache and write buffer)
- * <li> TCM
- * <li> MMU
- * <li> Other system options
- * </ul>
- * \section Usage
- *
- * -# Enable or disable D cache with cp15_enable_dcache() and cp15_disable_dcache()
- * -# Enable or disable I cache with cp15_enable_icache() and cp15_disable_icache()
- *
- * Related files:\n
- * \ref cp15.h\n
- * \ref cp15.c\n
- */
-
-/** \file */
-
-/**
- * \addtogroup cp15_cache L1 Cache Operations
- * \ingroup cache_module
- *
- * \section Usage
- *
- * They are performed as MCR instructions and only operate on a level 1 cache associated with
- * ATM v7 processor.
- * The supported operations are:
- * <ul>
- * <li> Any of these operations can be applied to
- *  -# any data cache
- *  -# any unified cache.
- * <li> Invalidate by MVA
- *   Performs an invalidate of a data or unified cache line based on the address it contains.
- * <li> Invalidate by set/way
- *   Performs an invalidate of a data or unified cache line based on its location in the cache hierarchy.
- * <li> Clean by MVA
- *   Performs a clean of a data or unified cache line based on the address it contains.
- * <li> Clean by set/way
- *   Performs a clean of a data or unified cache line based on its location in the cache hierarchy.
- * <li> Clean and Invalidate by MVA
- *   Performs a clean and invalidate of a data or unified cache line based on the address it contains.
- * <li> Clean and Invalidate by set/way
- *   Performs a clean and invalidate of a data or unified cache line based on its location in the cache hierarchy.
- * </ul>
- *
- * Related files:\n
- * \ref cp15.h\n
- * \ref cp15_asm_gcc.S \n
- * \ref cp15_asm_iar.s \n
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "compiler.h"
 
-#if defined(__ICCARM__)
-	#include <intrinsics.h>
-#endif
-
-#include "cortex-a/cp15.h"
-#include "trace.h"
+#include "cp15.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -132,201 +43,213 @@
  *        Global functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Check Instruction cache
- * \return false if I_cache disable, true if I_cache enable
- */
-bool cp15_is_icache_enabled(void)
+uint32_t cp15_read_control(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	return ((control & (1 << CP15_I_BIT)) != 0);
+	uint32_t control;
+	asm("mrc p15, 0, %0, c1, c0, 0" : "=r"(control));
+	return control;
 }
 
-/**
- * \brief  Enable Instruction cache
- */
-void cp15_enable_icache(void)
+void cp15_write_control(uint32_t value)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	// Check if cache is disabled
-	if ((control & (1 << CP15_I_BIT)) == 0) {
-		cp15_icache_invalidate();
-		control |= (1 << CP15_I_BIT);
-		cp15_write_control(control);
-	}
+	asm("mcr p15, 0, %0, c1, c0, 0" :: "r"(value));
 }
 
-/**
- * \brief  Disable Instruction cache
- */
-void cp15_disable_icache(void)
+bool cp15_mmu_is_enabled(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	// Check if cache is enabled
-	if ((control & (1 << CP15_I_BIT)) != 0) {
-		control &= ~(1ul << CP15_I_BIT);
-		cp15_write_control(control);
-		cp15_icache_invalidate();
-	}
+	return (cp15_read_control() & CP15_M_BIT) != 0;
 }
 
-/**
- * \brief  Check MMU
- * \return  0 if MMU disable, 1 if MMU enable
- */
-bool cp15_is_mmu_enabled(void)
+void cp15_mmu_enable(void)
 {
-	unsigned int control;
+	uint32_t control;
+
 	control = cp15_read_control();
-	return ((control & (1 << CP15_M_BIT)) != 0);
+	if ((control & CP15_M_BIT) == 0)
+		cp15_write_control(control | CP15_M_BIT);
 }
 
-/**
- * \brief  Enable MMU
- */
-void cp15_enable_mmu(void)
+void cp15_mmu_disable(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	// Check if MMU is disabled
-	if ((control & (1 << CP15_M_BIT)) == 0) {
-		control |= (1 << CP15_M_BIT);
-		cp15_write_control(control);
-	}
-}
+	uint32_t control;
 
-/**
- * \brief  Disable MMU
- */
-void cp15_disable_mmu(void)
-{
-	unsigned int control;
 	control = cp15_read_control();
-	// Check if MMU is enabled
-	if ((control & (1 << CP15_M_BIT)) != 0) {
+	if (control & CP15_M_BIT) {
 		cp15_dcache_clean();
-		control &= ~(1ul << CP15_I_BIT);
-		control &= ~(1ul << CP15_M_BIT);
-		control &= ~(1ul << CP15_C_BIT);
+		control &= ~(CP15_M_BIT | CP15_C_BIT);
 		cp15_write_control(control);
 		cp15_dcache_invalidate();
+	}
+}
+
+void cp15_write_domain_access_control(uint32_t value)
+{
+	/* write DACR */
+	asm("mcr p15, 0, %0, c3, c0, 0" :: "r"(value));
+}
+
+void cp15_write_ttb(uint32_t value)
+{
+	/* write TTBR */
+	asm("mcr p15, 0, %0, c2, c0, 0" :: "r"(value));
+}
+
+void cp15_cache_set_exclusive(void)
+{
+	uint32_t actlr;
+	asm("mrc p15, 0, %0, c1, c0, 1" : "=r"(actlr));
+	actlr |= 0x80;
+	asm("mcr p15, 0, %0, c1, c0, 1" :: "r"(actlr));
+}
+
+void cp15_cache_set_non_exclusive(void)
+{
+	uint32_t actlr;
+	asm("mrc p15, 0, %0, c1, c0, 1" : "=r"(actlr));
+	actlr &= ~0x80;
+	asm("mcr p15, 0, %0, c1, c0, 1" :: "r"(actlr));
+}
+
+void cp15_icache_invalidate(void)
+{
+	/* ICIALLU - Invalidate I-cache */
+	asm("mcr p15, 0, %0, c7, c5, 0" :: "r"(0));
+	ISB();
+}
+
+bool cp15_icache_is_enabled(void)
+{
+	return (cp15_read_control() & CP15_I_BIT) != 0;
+}
+
+void cp15_icache_enable(void)
+{
+	uint32_t control = cp15_read_control();
+	if ((control & CP15_I_BIT) == 0) {
+		cp15_icache_invalidate();
+		cp15_write_control(control | CP15_I_BIT);
+	}
+}
+
+void cp15_icache_disable(void)
+{
+	uint32_t control = cp15_read_control();
+	if (control & CP15_I_BIT) {
+		cp15_write_control(control & ~CP15_I_BIT);
 		cp15_icache_invalidate();
 	}
 }
 
-/**
- * \brief  Check D_cache
- * \return  0 if D_cache disable, 1 if D_cache enable (with MMU of course)
- */
-bool cp15_is_dcache_enabled(void)
+bool cp15_dcache_is_enabled(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	return ((control & (1 << CP15_C_BIT)) != 0) &&
-		((control & (1 << CP15_M_BIT)) != 0);
+	return (cp15_read_control() & (CP15_C_BIT | CP15_M_BIT)) ==
+		(CP15_C_BIT | CP15_M_BIT);
 }
 
-/**
- * \brief  Enable Data cache
- */
-void cp15_enable_dcache(void)
+void cp15_dcache_enable(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	if (cp15_is_mmu_enabled()) {
-		// Check if cache is disabled
-		if ((control & (1 << CP15_C_BIT)) == 0) {
+	uint32_t control = cp15_read_control();
+	if (control & CP15_M_BIT) {
+		if ((control & CP15_C_BIT) == 0) {
 			cp15_dcache_invalidate();
-			control |= (1 << CP15_C_BIT);
-			cp15_write_control(control);
+			cp15_write_control(control | CP15_C_BIT);
 		}
 	}
 }
 
-/**
- * \brief  Disable Data cache
- */
-void cp15_disable_dcache(void)
+void cp15_dcache_disable(void)
 {
-	unsigned int control;
-	control = cp15_read_control();
-	// Check if cache is enabled
-	if ((control & (1 << CP15_C_BIT)) != 0) {
+	uint32_t control = cp15_read_control();
+	if (control & CP15_C_BIT) {
 		cp15_dcache_clean();
-		control &= ~(1ul << CP15_C_BIT);
-		cp15_write_control(control);
-		cp15_icache_invalidate();
+		cp15_write_control(control & ~CP15_C_BIT);
+		cp15_dcache_invalidate();
 	}
 }
 
-/**
- * \brief  Clean Data cache
- */
 void cp15_dcache_clean(void)
 {
-	cp15_select_dcache();
-	cp15_clean_dcache_by_set_way();
-	asm("DSB");
+	uint32_t set, way;
+
+	for (way = 0; way < L1_CACHE_WAYS; way++) {
+		for (set = 0; set < L1_CACHE_SETS; set++) {
+			uint32_t setway = (set << 5) | (way << L1_CACHE_WAY_OFFSET);
+			/* DCCSW */
+			asm("mcr p15, 0, %0, c7, c10, 2" :: "r"(setway));
+		}
+	}
+
+	DSB();
 }
 
-/**
- * \brief  Invalidate Icache
- */
-void cp15_icache_invalidate(void)
-{
-	cp15_select_icache();
-	cp15_invalid_icache_inner_sharable();
-	asm ("ISB");
-}
-
-/**
- * \brief  Invalidate Dcache
- */
 void cp15_dcache_invalidate(void)
 {
-	cp15_select_dcache();
-	cp15_invalid_dcache_by_set_way();
-	asm ("DSB");
+	uint32_t set, way;
+
+	for (way = 0; way < L1_CACHE_WAYS; way++) {
+		for (set = 0; set < L1_CACHE_SETS; set++) {
+			uint32_t setway = (set << 5) | (way << L1_CACHE_WAY_OFFSET);
+			/* DCISW */
+			asm("mcr p15, 0, %0, c7, c6, 2" :: "r"(setway));
+		}
+	}
+
+	DSB();
 }
 
-/**
- * \brief  Flush(Clean and invalidate) Data cache
- */
-void cp15_dcache_flush(void)
+void cp15_dcache_clean_invalidate(void)
 {
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_set_way();
-	asm("DSB");
+	uint32_t set, way;
 
+	for (way = 0; way < L1_CACHE_WAYS; way++) {
+		for (set = 0; set < L1_CACHE_SETS; set++) {
+			uint32_t setway = (set << 5) | (way << L1_CACHE_WAY_OFFSET);
+			/* DCCISW */
+			asm("mcr p15, 0, %0, c7, c14, 2" :: "r"(setway));
+		}
+	}
+
+	DSB();
 }
 
-/**
- * \brief  Invalidate Data cache by address
- */
-void cp15_invalid_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
 {
-	cp15_select_dcache();
-	cp15_invalid_dcache_by_mva(S_Add, E_Add);
+	uint32_t mva;
+
+	assert(start < end);
+
+	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+		/* DCIMVAC */
+		asm("mcr p15, 0, %0, c7, c6, 1" :: "r"(mva));
+	}
+
+	DSB();
 }
 
-/**
- * \brief  Clean Data cache by address
- */
-void cp15_clean_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+void cp15_dcache_clean_region(uint32_t start, uint32_t end)
 {
-	cp15_select_dcache();
-	cp15_clean_dcache_by_mva(S_Add, E_Add);
+	uint32_t mva;
+
+	assert(start < end);
+
+	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+		/* DCCMVAC */
+		asm("mcr p15, 0, %0, c7, c10, 1" :: "r"(mva));
+	}
+
+	DSB();
 }
 
-/**
- * \brief  Flush Data cache by address
- */
-
-void cp15_flush_dcache_by_va(uint32_t S_Add, uint32_t E_Add)
+void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end)
 {
-	cp15_select_dcache();
-	cp15_clean_invalid_dcache_by_mva(S_Add, E_Add);
+	uint32_t mva;
+
+	assert(start < end);
+
+	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+		/* DCCIMVAC */
+		asm("mcr p15, 0, %0, c7, c14, 1" :: "r"(mva));
+	}
+
+	DSB();
 }

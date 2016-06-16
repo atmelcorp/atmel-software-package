@@ -227,7 +227,7 @@ static void _aic_set_it(Aic * aic, uint32_t source)
 void aic_initialize(void)
 {
 	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	cpsr_set_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 
 	/* Set default vectors */
 	_aic_initialize(AIC);
@@ -240,7 +240,7 @@ void aic_initialize(void)
 #endif /* CONFIG_HAVE_SAIC */
 
 	/* Enable IRQ and FIQ at core level */
-	v_arm_clr_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	cpsr_clear_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
 }
 
 /**

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,37 +27,34 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
-	MODULE  ?cpsr
-
-	/* Forward declaration of sections. */
-	SECTION IRQ_STACK:DATA:NOROOT(2)
-	SECTION CSTACK:DATA:NOROOT(3)
-
 /*----------------------------------------------------------------------------
- *        Functions to access CPSR
+ *        Headers
  *----------------------------------------------------------------------------*/
 
-	SECTION .v_arm_clr_cpsr_bits:CODE:NOROOT(2)
-	PUBLIC v_arm_clr_cpsr_bits
-v_arm_clr_cpsr_bits:
-	push	{r1}
-	mrs	r1, cpsr
-	mvn	r0, r0
-	and	r1, r1,r0
-	msr	CPSR_c, r1
-	pop	{r1}
-	bx	lr
+#include "chip.h"
+#include "compiler.h"
 
-	SECTION .v_arm_set_cpsr_bits:CODE:NOROOT(2)
-	PUBLIC v_arm_set_cpsr_bits
-v_arm_set_cpsr_bits:
-	push	{r1}
-	mrs	r1, cpsr
-	orr	r1, r1, r0
-	msr	cpsr_c, r1
-	pop	{r1}
-	bx	lr
+#include "cpsr.h"
 
-	END
+#include <assert.h>
+#include <stdbool.h>
+
+/*----------------------------------------------------------------------------
+ *        Global functions
+ *----------------------------------------------------------------------------*/
+
+void cpsr_clear_bits(uint32_t mask)
+{
+	uint32_t cpsr;
+	asm("mrs %0, cpsr" : "=r"(cpsr));
+	cpsr &= ~mask;
+	asm("msr cpsr_c, %0" :: "r"(cpsr));
+}
+
+void cpsr_set_bits(uint32_t mask)
+{
+	uint32_t cpsr;
+	asm("mrs %0, cpsr" : "=r"(cpsr));
+	cpsr |= mask;
+	asm("msr cpsr_c, %0" :: "r"(cpsr));
+}

@@ -45,8 +45,8 @@ int main(void)
 {
 	console_example_info("DDRAM Bootstrap");
 
-	/* Disable IRQ and FIQ at core level */
-	v_arm_set_cpsr_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	/* Disable IRQ at core level */
+	cpsr_set_bits(CPSR_MASK_IRQ);
 
 	asm("BKPT");
 

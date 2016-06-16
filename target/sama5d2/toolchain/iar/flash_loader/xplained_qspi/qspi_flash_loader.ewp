@@ -1005,13 +1005,10 @@
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cp15.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cp15_asm_iar.s</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cp15_pmu.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cpsr_iar.s</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cpsr.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\peripherals\flexcom.c</name>

@@ -77,17 +77,17 @@ void l2cc_disable(void)
 	ISB();
 }
 
-void l2cc_exclusive_cache(void)
+void l2cc_set_exclusive(void)
 {
 	assert(!l2cc_is_enabled());
-	cp15_exclusive_cache();
+	cp15_cache_set_exclusive();
 	L2CC->L2CC_ACR |= L2CC_ACR_EXCC;
 }
 
-void l2cc_non_exclusive_cache(void)
+void l2cc_set_non_exclusive(void)
 {
 	assert(!l2cc_is_enabled());
-	cp15_non_exclusive_cache();
+	cp15_cache_set_non_exclusive();
 	L2CC->L2CC_ACR &= ~L2CC_ACR_EXCC;
 }
 
@@ -405,7 +405,7 @@ void l2cc_configure(const struct _l2cc_config* cfg)
 	l2cc_it_clear(0xFF);
 
 	/* Set exclusive mode */
-	l2cc_exclusive_cache();
+	l2cc_set_exclusive();
 
 	/* Enable L2CC */
 	l2cc_enable();

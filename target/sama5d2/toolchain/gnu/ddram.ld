@@ -63,7 +63,6 @@ SECTIONS
 		*(.textEntry)
 		*(.text .text.* .gnu.linkonce.t.*)
 		*(.glue_7t) *(.glue_7)
-		*(.cp15_*)
 		*(.rodata .rodata* .gnu.linkonce.r.*)
 		*(.ARM.extab* .gnu.linkonce.armextab.*)
 

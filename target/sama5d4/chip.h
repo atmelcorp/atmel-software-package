@@ -189,9 +189,20 @@
 
 #include "chip_pins.h"
 
-/** Size of Cortex-A5 L1 cache line */
-#define L1_CACHE_WORDS (8u)
-#define L1_CACHE_BYTES (32u)
+/** L1 data cache line size in bytes */
+#define L1_CACHE_BYTES      (32u)
+
+/** L1 data cache line size in words */
+#define L1_CACHE_WORDS      (L1_CACHE_BYTES / sizeof(uint32_t))
+
+/** Number of ways of L1 data cache */
+#define L1_CACHE_WAYS       (4)
+
+/** Offset of way in Set/Way parameter for cache operations */
+#define L1_CACHE_WAY_OFFSET (30)
+
+/** Number of sets of L1 data cache */
+#define L1_CACHE_SETS       (256)
 
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000

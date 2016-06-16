@@ -304,7 +304,7 @@ void board_cfg_mmu(void)
 {
 	uint32_t addr;
 
-	if (cp15_is_mmu_enabled())
+	if (cp15_mmu_is_enabled())
 		return;
 
 	/* TODO: some peripherals are configured TTB_SECT_STRONGLY_ORDERED
@@ -529,9 +529,9 @@ void board_cfg_mmu(void)
 
 	/* Enable MMU, I-Cache and D-Cache */
 	mmu_configure(tlb);
-	cp15_enable_icache();
-	cp15_enable_mmu();
-	cp15_enable_dcache();
+	cp15_icache_enable();
+	cp15_mmu_enable();
+	cp15_dcache_enable();
 }
 
 void board_cfg_l2cc(void)

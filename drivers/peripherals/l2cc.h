@@ -151,12 +151,12 @@ extern void l2cc_disable(void);
 /**
  * \brief Configures Level 2 cache as exclusive cache.
  */
-extern void l2cc_exclusive_cache(void);
+extern void l2cc_set_exclusive(void);
 
 /**
  * \brief Configures Level 2 cache as non-exclusive cache.
  */
-extern void l2cc_non_exclusive_cache(void);
+extern void l2cc_set_non_exclusive(void);
 
 /**
  * \brief Configures Level 2 cache Tag RAM Latency

@@ -28,16 +28,16 @@
  */
 
 
-#ifndef CPSR_HEARDER_
-#define CPSR_HEARDER_
+#ifndef CPSR_H_
+#define CPSR_H_
 
 #include <stdint.h>
 
 #define CPSR_MASK_IRQ 0x00000080
 #define CPSR_MASK_FIQ 0x00000040
 
-extern void v_arm_clr_cpsr_bits(uint32_t mask);
+extern void cpsr_clear_bits(uint32_t mask);
 
-extern void v_arm_set_cpsr_bits(uint32_t mask);
+extern void cpsr_set_bits(uint32_t mask);
 
-#endif
+#endif /* CPSR_H_ */

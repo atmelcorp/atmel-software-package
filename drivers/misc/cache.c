@@ -48,8 +48,8 @@ void cache_invalidate_region(void *start, uint32_t length)
 	uint32_t start_addr = (uint32_t)start;
 	uint32_t end_addr = start_addr + length;
 
-	if (cp15_is_dcache_enabled()) {
-		cp15_invalidate_dcache_for_dma(start_addr, end_addr);
+	if (cp15_dcache_is_enabled()) {
+		cp15_dcache_invalidate_region(start_addr, end_addr);
 #ifdef CONFIG_HAVE_L2CC
 		if (l2cc_is_enabled())
 			l2cc_invalidate_region(start_addr, end_addr);
@@ -62,8 +62,8 @@ void cache_clean_region(const void *start, uint32_t length)
 	uint32_t start_addr = (uint32_t)start;
 	uint32_t end_addr = start_addr + length;
 
-	if (cp15_is_dcache_enabled()) {
-		cp15_clean_dcache_for_dma(start_addr, end_addr);
+	if (cp15_dcache_is_enabled()) {
+		cp15_dcache_clean_region(start_addr, end_addr);
 #ifdef CONFIG_HAVE_L2CC
 		if (l2cc_is_enabled())
 			l2cc_clean_region(start_addr, end_addr);
