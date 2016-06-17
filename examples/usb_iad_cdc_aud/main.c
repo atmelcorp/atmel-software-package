@@ -222,7 +222,7 @@ static uint32_t buffer_sizes[BUFFER_NUMBER];
 /**  Next buffer in which USB data can be stored. */
 static volatile uint32_t in_buffer_index = 0;
 /**  Next buffer which should be sent to the DAC. */
-static volatile uint32_t out_buffer_index = 0;
+static uint32_t out_buffer_index = 0;
 /**  Number of buffers that can be sent to the DAC. */
 static volatile uint32_t num_buffers_to_send = 0;
 
