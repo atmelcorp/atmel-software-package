@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,8 +26,8 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/cortex-a/cortexa5_interrupts.o
-drivers-y += drivers/cortex-a/cp15.o
-drivers-y += drivers/cortex-a/cp15_pmu.o
-drivers-y += drivers/cortex-a/cpsr.o
-drivers-y += drivers/cortex-a/mmu.o
+drivers-y += drivers/core/arm_interrupts.o
+drivers-y += drivers/core/arm_cp15.o
+drivers-y += drivers/core/arm_cp15_pmu.o
+drivers-y += drivers/core/arm_cpsr.o
+drivers-y += drivers/core/arm_mmu.o

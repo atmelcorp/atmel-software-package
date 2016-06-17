@@ -27,8 +27,10 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "chip.h"
+
 #include "peripherals/matrix.h"
-#include "cortex-a/cp15.h"
+
 #include "misc/cache.h"
 
 #include <assert.h>

@@ -40,9 +40,6 @@
 #include "peripherals/mpddrc.h"
 #include "peripherals/pmc.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/mmu.h"
-
 /*------------------------------------------------------------------------------
  *        Macro
  *----------------------------------------------------------------------------*/

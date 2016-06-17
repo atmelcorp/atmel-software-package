@@ -33,7 +33,7 @@ lib-y += drivers/drivers.a
 drivers-y :=
 
 include $(TOP)/drivers/audio/Makefile.inc
-include $(TOP)/drivers/cortex-a/Makefile.inc
+include $(TOP)/drivers/core/Makefile.inc
 include $(TOP)/drivers/memories/Makefile.inc
 include $(TOP)/drivers/misc/Makefile.inc
 include $(TOP)/drivers/network/Makefile.inc

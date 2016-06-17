@@ -442,7 +442,7 @@ static void udphs_write_fifo_multi(uint8_t ep)
 	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
 	for (; size; size--)
 		*(fifo++) = *(pBytes++);
-	DMB();
+	dmb();
 }
 
 /**
@@ -470,7 +470,7 @@ static void udphs_write_fifo_single(uint8_t ep)
 	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
 	for (; size; size--)
 		*(fifo++) = *(xfer->data++);
-	DMB();
+	dmb();
 }
 
 /**
@@ -496,7 +496,7 @@ static void udphs_read_fifo_single(uint8_t ep, uint32_t size)
 
 	/* Retrieve packet */
 	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
-	DMB();
+	dmb();
 	for (; size; size--)
 		*(xfer->data++) = *(fifo++);
 }
@@ -509,7 +509,7 @@ static void udphs_read_request(USBGenericRequest *request)
 {
 	uint32_t *data = (uint32_t*)request;
 	volatile uint32_t *fifo = (volatile uint32_t*)UDPHS_RAM_ADDR;
-	DMB();
+	dmb();
 	*data++ = *fifo++;
 	*data = *fifo;
 }

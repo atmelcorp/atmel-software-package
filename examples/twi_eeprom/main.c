@@ -506,8 +506,7 @@ int main (void)
 
 	print_menu();
 	while (1) {
-		asm volatile ("cpsie I");
-		asm ("wfi");
+		irq_wait();
 		if (mutex_try_lock(&lock)) {
 			continue;
 		}

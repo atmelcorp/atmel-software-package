@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _CP15_PMU_H
-#define _CP15_PMU_H
+#ifndef ARM_CP15_PMU_H
+#define ARM_CP15_PMU_H
 
 /*----------------------------------------------------------------------------
  *        Definition
@@ -103,4 +103,4 @@ extern void cp15_enable_interrupt(uint8_t Enable, uint8_t Counter);
 extern void cp15_disable_interrupt(uint8_t Disable, uint8_t Counter);
 extern void cp15_init_perf_counter(PerfEventType Event, uint8_t Counter);
 
-#endif
+#endif /* ARM_CP15_PMU_H */

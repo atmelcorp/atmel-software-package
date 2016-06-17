@@ -999,16 +999,16 @@
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\misc\cache.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cortexa5_interrupts.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\core\arm_interrupts.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cp15.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\core\arm_cp15.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cp15_pmu.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\core\arm_cp15_pmu.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\cpsr.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\core\arm_cpsr.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\peripherals\flexcom.c</name>
@@ -1020,7 +1020,7 @@
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\peripherals\matrix.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\cortex-a\mmu.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\core\arm_mmu.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\..\..\drivers\peripherals\pio4.c</name>

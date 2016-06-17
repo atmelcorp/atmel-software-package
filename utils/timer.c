@@ -119,18 +119,13 @@ uint8_t timer_timeout_reached(struct _timeout* timeout)
 
 void timer_wait(uint32_t count)
 {
-#ifdef CONFIG_TIMER_POLLING
 	struct _timeout timeout;
-	timer_start_timeout(&timeout, count);
-	while (!timer_timeout_reached(&timeout)) {}
-#else
-	struct _timeout timeout;
-	asm("CPSIE   I");
 	timer_start_timeout(&timeout, count);
 	while (!timer_timeout_reached(&timeout)) {
-		asm("WFI");
-	}
+#ifndef CONFIG_TIMER_POLLING
+		irq_wait();
 #endif
+	}
 }
 
 void timer_sleep(uint32_t count)

@@ -28,8 +28,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef CP15_H_
-#define CP15_H_
+#ifndef ARM_CP15_H_
+#define ARM_CP15_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -233,4 +233,4 @@ extern void cp15_dcache_clean_region(uint32_t start, uint32_t end);
  */
 extern void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end);
 
-#endif /* CP15_H_ */
+#endif /* ARM_CP15_H_ */

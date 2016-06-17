@@ -48,7 +48,7 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count)
 {
 	while (count--) {
 		*dst++ = *src++;
-		DSB();
+		dsb();
 	}
 }
 

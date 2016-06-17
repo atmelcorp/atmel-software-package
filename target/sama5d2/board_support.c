@@ -41,9 +41,6 @@
 #include "board.h"
 #include "trace.h"
 
-#include "cortex-a/mmu.h"
-#include "cortex-a/cp15.h"
-
 #include "peripherals/aic.h"
 #include "peripherals/hsmc.h"
 #ifdef CONFIG_HAVE_ISC

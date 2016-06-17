@@ -343,8 +343,6 @@ bool mcan_initialize(struct mcan_set *set, const struct mcan_config *cfg)
 	mcan->MCAN_CCCR = regVal32 | MCAN_CCCR_PXHD | MCAN_CCCR_BRSE_DISABLED
 	    | MCAN_CCCR_FDOE_DISABLED;
 
-	DSB();
-	ISB();
 	return true;
 }
 

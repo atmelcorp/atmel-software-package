@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "cp15.h"
+#include "arm_cp15.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -114,7 +114,7 @@ void cp15_icache_invalidate(void)
 {
 	/* ICIALLU - Invalidate I-cache */
 	asm("mcr p15, 0, %0, c7, c5, 0" :: "r"(0));
-	ISB();
+	isb();
 }
 
 bool cp15_icache_is_enabled(void)
@@ -179,7 +179,7 @@ void cp15_dcache_clean(void)
 		}
 	}
 
-	DSB();
+	dsb();
 }
 
 void cp15_dcache_invalidate(void)
@@ -194,7 +194,7 @@ void cp15_dcache_invalidate(void)
 		}
 	}
 
-	DSB();
+	dsb();
 }
 
 void cp15_dcache_clean_invalidate(void)
@@ -209,7 +209,7 @@ void cp15_dcache_clean_invalidate(void)
 		}
 	}
 
-	DSB();
+	dsb();
 }
 
 void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
@@ -223,7 +223,7 @@ void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
 		asm("mcr p15, 0, %0, c7, c6, 1" :: "r"(mva));
 	}
 
-	DSB();
+	dsb();
 }
 
 void cp15_dcache_clean_region(uint32_t start, uint32_t end)
@@ -237,7 +237,7 @@ void cp15_dcache_clean_region(uint32_t start, uint32_t end)
 		asm("mcr p15, 0, %0, c7, c10, 1" :: "r"(mva));
 	}
 
-	DSB();
+	dsb();
 }
 
 void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end)
@@ -251,5 +251,5 @@ void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end)
 		asm("mcr p15, 0, %0, c7, c14, 1" :: "r"(mva));
 	}
 
-	DSB();
+	dsb();
 }

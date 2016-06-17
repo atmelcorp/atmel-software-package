@@ -27,34 +27,77 @@
  * ----------------------------------------------------------------------------
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
+/**
+ * \file
+ *
+ * ARM core utility functions
+ *
+ */
 
-#include "chip.h"
+#ifndef ARM_H
+#define ARM_H
+
 #include "compiler.h"
-
-#include "cpsr.h"
-
-#include <assert.h>
-#include <stdbool.h>
+#include "arm_cp15.h"
+#include "arm_cpsr.h"
+#include "arm_mmu.h"
 
 /*----------------------------------------------------------------------------
- *        Global functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void cpsr_clear_bits(uint32_t mask)
+static inline void irq_enable(void)
 {
-	uint32_t cpsr;
-	asm("mrs %0, cpsr" : "=r"(cpsr));
-	cpsr &= ~mask;
-	asm("msr cpsr_c, %0" :: "r"(cpsr));
+#if defined(__ICCARM__) || defined(__GNUC__)
+        asm volatile ("cpsie i");
+#else
+#error Unsupported compiler!
+#endif
 }
 
-void cpsr_set_bits(uint32_t mask)
+static inline void irq_disable(void)
 {
-	uint32_t cpsr;
-	asm("mrs %0, cpsr" : "=r"(cpsr));
-	cpsr |= mask;
-	asm("msr cpsr_c, %0" :: "r"(cpsr));
+#if defined(__ICCARM__) || defined(__GNUC__)
+        asm volatile ("cpsid i");
+#else
+#error Unsupported compiler!
+#endif
 }
+
+static inline void irq_wait(void)
+{
+#if defined(__ICCARM__) || defined(__GNUC__)
+        asm volatile ("wfi");
+#else
+#error Unsupported compiler!
+#endif
+}
+
+static inline void dmb(void)
+{
+#if defined(__ICCARM__) || defined(__GNUC__)
+	asm volatile ("dmb" ::: "memory");
+#else
+#error Unsupported compiler!
+#endif
+}
+
+static inline void dsb(void)
+{
+#if defined(__ICCARM__) || defined(__GNUC__)
+	asm volatile ("dsb" ::: "memory");
+#else
+#error Unsupported compiler!
+#endif
+}
+
+static inline void isb(void)
+{
+#if defined(__ICCARM__) || defined(__GNUC__)
+	asm volatile ("isb" ::: "memory");
+#else
+#error Unsupported compiler!
+#endif
+}
+
+#endif /* ARM_H */

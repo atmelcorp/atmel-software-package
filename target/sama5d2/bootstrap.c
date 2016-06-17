@@ -29,9 +29,6 @@
 
 #include "board.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/cpsr.h"
-
 #include "misc/console.h"
 
 /* override default board init */

@@ -20,16 +20,8 @@
 	#error Unknown compiler!
 #endif
 
-#if defined(__ICCARM__)
-	#define DMB()  asm("dmb")
-	#define DSB()  asm("dsb")
-	#define ISB()  asm("isb")
-	#define COMPILER_BARRIER()
-#elif defined(__GNUC__)
-	#define DMB()  asm volatile ("dmb":::"memory")
-	#define DSB()  asm volatile ("dsb":::"memory")
-	#define ISB()  asm volatile ("isb":::"memory")
-	#define COMPILER_BARRIER()  asm volatile ("":::"memory")
+#if defined(__ICCARM__) || defined(__GNUC__)
+	#define COMPILER_BARRIER() asm volatile ("":::"memory")
 #else
 	#error Unknown compiler!
 #endif

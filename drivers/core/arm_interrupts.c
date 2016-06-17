@@ -30,7 +30,7 @@
 /**
  * \file
  *
- * Provides the low-level initialization function that called on chip startup.
+ * Provides the handlers for ARM core interrupts.
  */
 
 /*----------------------------------------------------------------------------
@@ -39,13 +39,18 @@
 
 #include "chip.h"
 #include "compiler.h"
+
 #include "peripherals/aic.h"
-#include "cortexa5_interrupts.h"
+
+#include "arm_interrupts.h"
+
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------
  *        Constants
  *----------------------------------------------------------------------------*/
+
+#ifndef NDEBUG
 
 /* IFSR status */
 static const char* _prefetch_abort_status[32] = {
@@ -94,19 +99,7 @@ static const char* _data_abort_status[32] = {
 	"asynchronous external abort"
 };
 
-/*----------------------------------------------------------------------------
- *        Functions Prototypes
- *----------------------------------------------------------------------------*/
-
-void default_undefined_instruction_irq_handler(void);
-void default_software_interrupt_irq_handler(void);
-void default_data_abort_irq_handler(void);
-void default_prefetch_abort_irq_handler(void);
-
-#pragma weak undefined_instruction_irq_handler=default_undefined_instruction_irq_handler
-#pragma weak software_interrupt_irq_handler=default_software_interrupt_irq_handler
-#pragma weak data_abort_irq_handler=default_data_abort_irq_handler
-#pragma weak prefetch_abort_irq_handler=default_prefetch_abort_irq_handler
+#endif /* !NDEBUG */
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -115,14 +108,16 @@ void default_prefetch_abort_irq_handler(void);
 /**
  * \brief Default handler for "Undefined Instruction" exception
  */
-void default_undefined_instruction_irq_handler(void)
+WEAK void undefined_instruction_irq_handler(void)
 {
+#ifndef NDEBUG
 	printf("\n\r");
 	printf("#####################\n\r");
 	printf("Undefined Instruction\n\r");
 	printf("#####################\n\r");
 
 	asm("bkpt #0");
+#endif
 	while(1);
 }
 
@@ -130,22 +125,25 @@ void default_undefined_instruction_irq_handler(void)
 /**
  * \brief Default handler for "Software Interrupt" exception
  */
-void default_software_interrupt_irq_handler(void)
+WEAK void software_interrupt_irq_handler(void)
 {
+#ifndef NDEBUG
 	printf("\n\r");
 	printf("##################\n\r");
 	printf("Software Interrupt\n\r");
 	printf("##################\n\r");
 
 	asm("bkpt #0");
+#endif
 	while(1);
 }
 
 /**
  * \brief Default handler for "Data Abort" exception
  */
-void default_data_abort_irq_handler(void)
+WEAK void data_abort_irq_handler(void)
 {
+#ifndef NDEBUG
 	uint32_t v1, v2, dfsr;
 
 	asm("mrc p15, 0, %0, c5, c0, 0" : "=r"(v1));
@@ -165,14 +163,16 @@ void default_data_abort_irq_handler(void)
 	printf("####################\n\r");
 
 	asm("bkpt #0");
+#endif
 	while(1);
 }
 
 /**
  * \brief Default handler for "Prefetch Abort" exception
  */
-void default_prefetch_abort_irq_handler(void)
+WEAK void prefetch_abort_irq_handler(void)
 {
+#ifndef NDEBUG
 	uint32_t v1, v2, ifsr;
 
 	asm("mrc p15, 0, %0, c5, c0, 1" : "=r"(v1));
@@ -190,5 +190,6 @@ void default_prefetch_abort_irq_handler(void)
 	printf("####################\n\r");
 
 	asm("bkpt #0");
+#endif
 	while(1);
 }

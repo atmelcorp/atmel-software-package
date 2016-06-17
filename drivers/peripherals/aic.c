@@ -60,9 +60,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+
 #include "peripherals/aic.h"
 #include "peripherals/matrix.h"
-#include "cortex-a/cpsr.h"
 
 #include <stdint.h>
 #include <assert.h>

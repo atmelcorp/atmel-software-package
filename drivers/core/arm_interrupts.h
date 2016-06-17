@@ -27,17 +27,23 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * \file
+ *
+ * ARM core interrupt handlers
+ *
+ */
 
-#ifndef CPSR_H_
-#define CPSR_H_
+#ifndef ARM_INTERRUPTS_H
+#define ARM_INTERRUPTS_H
 
-#include <stdint.h>
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
-#define CPSR_MASK_IRQ 0x00000080
-#define CPSR_MASK_FIQ 0x00000040
+WEAK extern void undefined_instruction_irq_handler(void);
+WEAK extern void software_interrupt_irq_handler(void);
+WEAK extern void prefetch_abort_irq_handler(void);
+WEAK extern void data_abort_irq_handler(void);
 
-extern void cpsr_clear_bits(uint32_t mask);
-
-extern void cpsr_set_bits(uint32_t mask);
-
-#endif /* CPSR_H_ */
+#endif /* ARM_INTERRUPTS_H */

@@ -36,8 +36,6 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "cortex-a/cp15.h"
-
 #include "peripherals/l2cc.h"
 
 #include <assert.h>
@@ -66,15 +64,15 @@ void l2cc_enable(void)
 	SFR->SFR_L2CC_HRAMC = SFR_L2CC_HRAMC_SRAM_SEL;
 #endif
 	L2CC->L2CC_CR |= L2CC_CR_L2CEN;
-	DSB();
-	ISB();
+	dsb();
+	isb();
 }
 
 void l2cc_disable(void)
 {
 	L2CC->L2CC_CR &= ~L2CC_CR_L2CEN;
-	DSB();
-	ISB();
+	dsb();
+	isb();
 }
 
 void l2cc_set_exclusive(void)

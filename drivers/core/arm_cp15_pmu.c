@@ -35,11 +35,7 @@
 
 #include "chip.h"
 
-#if defined(__ICCARM__)
-#include <intrinsics.h>
-#endif
-
-#include "cortex-a/cp15_pmu.h"
+#include "arm_cp15_pmu.h"
 
 #include <assert.h>
 

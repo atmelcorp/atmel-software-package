@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,48 +27,53 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
+#ifndef ARM_MMU_H_
+#define ARM_MMU_H_
 
 /*----------------------------------------------------------------------------
- *        Headers
+ *        Exported definitions
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+/* TTB descriptor type for Section descriptor */
+#define TTB_TYPE_SECT              (2 << 0)
 
-#include "misc/cache.h"
+/* TTB Section Descriptor: Buffered/Non-Buffered (B) */
+#define TTB_SECT_WRITE_THROUGH     (0 << 2)
+#define TTB_SECT_WRITE_BACK        (1 << 2)
 
-#include "peripherals/l2cc.h"
+/* TTB Section Descriptor: Cacheable/Non-Cacheable (C) */
+#define TTB_SECT_NON_CACHEABLE     (0 << 3)
+#define TTB_SECT_CACHEABLE         (1 << 3)
 
-#include <assert.h>
+#define TTB_SECT_STRONGLY_ORDERED  (TTB_SECT_NON_CACHEABLE | TTB_SECT_WRITE_THROUGH)
+#define TTB_SECT_SHAREABLE_DEVICE  (TTB_SECT_NON_CACHEABLE | TTB_SECT_WRITE_BACK)
+#define TTB_SECT_CACHEABLE_WT      (TTB_SECT_CACHEABLE | TTB_SECT_WRITE_THROUGH)
+#define TTB_SECT_CACHEABLE_WB      (TTB_SECT_CACHEABLE | TTB_SECT_WRITE_BACK)
+
+/* TTB Section Descriptor: Domain */
+#define TTB_SECT_DOMAIN(x)         (((x) & 15) << 5)
+
+/* TTB Section Descriptor: Execute/Execute-Never (XN) */
+#define TTB_SECT_EXEC              (0 << 4)
+#define TTB_SECT_EXEC_NEVER        (1 << 4)
+
+/* TTB Section Descriptor: Access Privilege (AP) */
+#define TTB_SECT_AP_PRIV_ONLY      ((0 << 15) | (1 << 10))
+#define TTB_SECT_AP_NO_USER_WRITE  ((0 << 15) | (2 << 10))
+#define TTB_SECT_AP_FULL_ACCESS    ((0 << 15) | (3 << 10))
+#define TTB_SECT_AP_PRIV_READ_ONLY ((1 << 15) | (1 << 10))
+#define TTB_SECT_AP_READ_ONLY      ((1 << 15) | (2 << 10))
+
+/* TTB Section Descriptor: Section Base Address */
+#define TTB_SECT_ADDR(x)           ((x) & 0xFFF00000)
 
 /*----------------------------------------------------------------------------
- *        Functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void cache_invalidate_region(void *start, uint32_t length)
-{
-	uint32_t start_addr = (uint32_t)start;
-	uint32_t end_addr = start_addr + length;
+/**
+ * \brief Configure the MMU
+ */
+extern void mmu_configure(uint32_t *tlb);
 
-	if (cp15_dcache_is_enabled()) {
-		cp15_dcache_invalidate_region(start_addr, end_addr);
-#ifdef CONFIG_HAVE_L2CC
-		if (l2cc_is_enabled())
-			l2cc_invalidate_region(start_addr, end_addr);
-#endif
-	}
-}
-
-void cache_clean_region(const void *start, uint32_t length)
-{
-	uint32_t start_addr = (uint32_t)start;
-	uint32_t end_addr = start_addr + length;
-
-	if (cp15_dcache_is_enabled()) {
-		cp15_dcache_clean_region(start_addr, end_addr);
-#ifdef CONFIG_HAVE_L2CC
-		if (l2cc_is_enabled())
-			l2cc_clean_region(start_addr, end_addr);
-#endif
-	}
-}
+#endif  /* ARM_MMU_H_ */

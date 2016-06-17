@@ -27,23 +27,17 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Cortex-A5 core interrupt handlers
- *
- */
 
-#ifndef INTERRUPTS_CORTEXA5_H
-#define INTERRUPTS_CORTEXA5_H
+#ifndef ARM_CPSR_H_
+#define ARM_CPSR_H_
 
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
+#include <stdint.h>
 
-WEAK extern void undefined_instruction_irq_handler(void);
-WEAK extern void software_interrupt_irq_handler(void);
-WEAK extern void prefetch_abort_irq_handler(void);
-WEAK extern void data_abort_irq_handler(void);
+#define CPSR_MASK_IRQ 0x00000080
+#define CPSR_MASK_FIQ 0x00000040
 
-#endif /* INTERRUPTS_CORTEXA5_H */
+extern void cpsr_clear_bits(uint32_t mask);
+
+extern void cpsr_set_bits(uint32_t mask);
+
+#endif /* ARM_CPSR_H_ */

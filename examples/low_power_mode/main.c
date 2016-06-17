@@ -467,7 +467,7 @@ static void menu_ulp0(void)
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 	/* enter IDLE mode */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK);
-	asm("wfi");
+	irq_wait();
 
 	/* Restore default PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);
@@ -574,7 +574,7 @@ static void menu_ulp(void)
 	_start_rtc_timer_for_wakeup(30);
 
 	/* enter ULP */
-	asm("wfi");
+	irq_wait();
 
 	/* wait for the PMC_SR.MCKRDY bit to be set. */
 	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
@@ -618,7 +618,7 @@ static void menu_idle(void)
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 	/* enter IDLE mode */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK);
-	asm("wfi");
+	irq_wait();
 
 	/* Restore default PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);

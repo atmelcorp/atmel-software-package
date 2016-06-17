@@ -172,7 +172,7 @@ static void _gmacd_reset_tx(struct _gmacd* gmacd, uint8_t queue)
 	RING_CLEAR(q->tx_head, q->tx_tail);
 	for (i = 0; i < q->tx_size; i++) {
 		q->tx_desc[i].addr = addr;
-		DSB();
+		dsb();
 		q->tx_desc[i].status = GMAC_TX_STATUS_USED;
 		addr += GMAC_TX_UNITSIZE;
 	}
@@ -199,7 +199,7 @@ static void _gmacd_reset_rx(struct _gmacd* gmacd, uint8_t queue)
 	q->rx_head = 0;
 	for (i = 0; i < q->rx_size; i++) {
 		q->rx_desc[i].addr = addr & GMAC_RX_ADDR_MASK;
-		DSB();
+		dsb();
 		q->rx_desc[i].status = 0;
 		addr += GMAC_RX_UNITSIZE;
 	}
@@ -611,7 +611,7 @@ uint8_t gmacd_send_sg(struct _gmacd* gmacd, uint8_t queue,
 
 		/* Update buffer descriptor status word: clear USED bit */
 		desc->status = status;
-		DSB();
+		dsb();
 	}
 
 	/* Update TX ring buffer pointers */

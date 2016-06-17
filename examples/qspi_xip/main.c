@@ -90,9 +90,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/cpsr.h"
-
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"

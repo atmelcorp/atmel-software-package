@@ -42,9 +42,6 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/mmu.h"
-
 #include "peripherals/aic.h"
 #include "peripherals/hsmc.h"
 #include "peripherals/matrix.h"

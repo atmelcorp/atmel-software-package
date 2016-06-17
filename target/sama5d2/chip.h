@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "core/arm.h"
+
 #ifdef __cplusplus
 #define __I  volatile	    /**< Defines 'read-only'  permissions */
 #else

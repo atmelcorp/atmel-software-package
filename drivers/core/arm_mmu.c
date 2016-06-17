@@ -61,8 +61,8 @@
 
 #include "compiler.h"
 
-#include "cortex-a/cp15.h"
-#include "cortex-a/mmu.h"
+#include "arm.h"
+#include "arm_mmu.h"
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
@@ -74,6 +74,6 @@ void mmu_configure(uint32_t *tlb)
 	/* Program the domain access register */
 	/* only domain 15: access are not checked */
 	cp15_write_domain_access_control(0xC0000000);
-	DSB();
-	ISB();
+	dsb();
+	isb();
 }
