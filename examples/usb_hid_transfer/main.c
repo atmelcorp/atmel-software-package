@@ -178,7 +178,6 @@ static struct _pin pins_buttons[] = {PINS_PUSHBUTTONS};
 /* Only used to get the number of available leds */
 static const struct _pin pins_leds[] = PINS_LEDS;
 /** Number of available leds */
-static const uint32_t num_leds = ARRAY_SIZE(pins_leds);
 volatile bool led_status[MAX_LEDS];
 
 #ifndef NO_PUSHBUTTON
