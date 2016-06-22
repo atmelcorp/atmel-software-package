@@ -107,7 +107,7 @@ void board_cfg_clocks(void)
 	pmc_switch_mck_to_pll();
 }
 
-void board_cfg_lowlevel(bool ddram, bool mmu)
+void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 {
 	/* Disable Watchdog */
 	wdt_disable();
@@ -115,10 +115,10 @@ void board_cfg_lowlevel(bool ddram, bool mmu)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
-#ifdef VARIANT_SRAM
-	/* Configure clocking if code is not in external mem */
-	board_cfg_clocks();
-#endif
+	if (clocks) {
+		/* Configure system clocks */
+		board_cfg_clocks();
+	}
 
 	/* Setup default interrupt handlers */
 	aic_initialize();

@@ -50,8 +50,14 @@ WEAK void board_init(void)
 	bool ddram = true;
 #endif
 
+#ifdef VARIANT_SRAM
+	bool clocks = true;
+#else
+	bool clocks = false;
+#endif
+
 	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(ddram, true);
+	board_cfg_lowlevel(clocks, ddram, true);
 
 	/* Configure console */
 	board_cfg_console(0);

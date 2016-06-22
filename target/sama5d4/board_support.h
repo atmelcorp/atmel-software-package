@@ -58,7 +58,7 @@ extern void board_cfg_clocks(void);
  *
  * This includes watchdog, master clock, AIC, timer, DDRAM and MMU.
  */
-extern void board_cfg_lowlevel(bool ddram, bool mmu);
+extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu);
 
 /**
  * \brief Configure the board console if any

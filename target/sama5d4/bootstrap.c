@@ -34,7 +34,7 @@
 /* override default board init */
 void board_init()
 {
-	board_cfg_lowlevel(true, false);
+	board_cfg_lowlevel(true, true, false);
 	board_cfg_console(0);
 }
 

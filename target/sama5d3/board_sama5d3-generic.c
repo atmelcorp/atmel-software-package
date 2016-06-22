@@ -46,8 +46,14 @@
 
 WEAK void board_init(void)
 {
+#ifdef VARIANT_SRAM
+	bool clocks = true;
+#else
+	bool clocks = false;
+#endif
+
 	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(false, true);
+	board_cfg_lowlevel(clocks, false, true);
 
 	/* Configure console */
 	board_cfg_console(0);

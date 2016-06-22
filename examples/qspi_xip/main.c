@@ -151,7 +151,12 @@ static void run_xip_program(void* qspi_mem_addr)
 /* override default board init */
 void board_init()
 {
-	board_cfg_lowlevel(false, false);
+#ifdef VARIANT_SRAM
+	bool clocks = true;
+#else
+	bool clocks = false;
+#endif
+	board_cfg_lowlevel(clocks, false, false);
 	board_cfg_console(0);
 }
 
