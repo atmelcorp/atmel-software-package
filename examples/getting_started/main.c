@@ -164,6 +164,8 @@ static void process_button_evt(uint8_t bt)
 	}
 }
 
+#ifdef PINS_PUSHBUTTONS
+
 /**
  *  \brief Handler for Buttons rising edge interrupt.
  *
@@ -179,22 +181,6 @@ static void pio_handler(uint32_t mask, uint32_t status, void* user_arg)
 	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		if (status & button_pins[i].mask)
 			process_button_evt(i);
-	}
-}
-
-/**
- *  \brief Handler for DBGU input.
- *
- *  Handle process LED1 or LED2 status change.
- */
-static void console_handler(uint8_t key)
-{
-	if (key >= '0' && key <= '9') {
-		process_button_evt(key - '0');
-	} else if (key == 's') {
-		tc_stop(TC0, 0);
-	} else if (key == 'b') {
-		tc_start(TC0, 0);
 	}
 }
 
@@ -223,6 +209,24 @@ static void configure_buttons(void)
 
 		/* Enable PIO line interrupts. */
 		pio_enable_it(button_pins);
+	}
+}
+
+#endif /* PINS_PUSHBUTTONS */
+
+/**
+ *  \brief Handler for DBGU input.
+ *
+ *  Handle process LED1 or LED2 status change.
+ */
+static void console_handler(uint8_t key)
+{
+	if (key >= '0' && key <= '9') {
+		process_button_evt(key - '0');
+	} else if (key == 's') {
+		tc_stop(TC0, 0);
+	} else if (key == 'b') {
+		tc_start(TC0, 0);
 	}
 }
 
@@ -290,14 +294,18 @@ int main(void)
 
 	console_example_info("Getting Started Example");
 
-	printf("Configure buttons with debouncing.\n\r");
-	configure_buttons();
-
 	printf("Initializing console interrupts\r\n");
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 
-	printf("use push buttons or console key 0 to 9.\n\r");
+#ifdef PINS_PUSHBUTTONS
+	printf("Configure buttons with debouncing.\n\r");
+	configure_buttons();
+	printf("Use push buttons or console key 0 to 9.\n\r");
+#else
+	printf("Use console key 0 to 9.\n\r");
+#endif /* PINS_PUSHBUTTONS */
+
 	printf("Press the number of the led to make it "
 	       "start or stop blinking.\n\r");
 	printf("Press 's' to stop the TC and 'b' to start it\r\n");
