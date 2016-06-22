@@ -51,12 +51,12 @@ static struct _uvc_driver uvc_driver;
  *-----------------------------------------------------------------------------*/
 
 
-void uvc_driver_initialize(const USBDDriverDescriptors *descriptors, uint32_t buff_addr)
+void uvc_driver_initialize(const USBDDriverDescriptors *descriptors, uint32_t buff_addr, uint8_t multi_buffers)
 {
-	uvc_driver.frm_index = 0;
+	uvc_driver.frm_offset = 0;
 	uvc_driver.is_frame_xfring = 0;
-	uvc_driver.frm_index = 0;
-	uvc_driver.buf = buff_addr;
+	uvc_driver.buf_start_addr = buff_addr;
+	uvc_driver.multi_buffers = multi_buffers;
 
 	/* Initialize USBD Driver instance */
 	usbd_driver_initialize(descriptors, uvc_driver.alternate_interfaces);
@@ -130,7 +130,7 @@ void uvc_driver_interface_setting_changed_handler(uint8_t interface,
 	if (setting) {
 		uvc_driver.is_video_on = 1;
 		uvc_driver.frm_count = 0;
-		uvc_driver.frm_index = 0;
+		uvc_driver.frm_offset = 0;
 	} else {
 		uvc_driver.is_video_on = 0;
 		uvc_driver.is_frame_xfring = 0;

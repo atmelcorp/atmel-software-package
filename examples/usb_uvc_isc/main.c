@@ -143,6 +143,8 @@
 /** TWI clock frequency in Hz. */
 #define TWCK 400000
 
+#define NUM_FRAME_BUFFER     4
+
 /*----------------------------------------------------------------------------
  *          External variables
  *----------------------------------------------------------------------------*/
@@ -157,7 +159,7 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 const struct _pin pins_twi[] = ISC_TWI_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
-CACHE_ALIGNED static struct _isc_dma_view0 dma_desc;
+CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -181,6 +183,8 @@ static uint32_t image_width, image_height;
 
 static uint8_t frame_format;
 
+static volatile uint32_t frame_idx = 0;
+
 /** Supported sensor profiles */
 static const sensor_profile_t *sensor_profiles[6] = {
 	&ov2640_profile,
@@ -192,7 +196,8 @@ static const sensor_profile_t *sensor_profiles[6] = {
 };
 
 /** Video buffers */
-CACHE_ALIGNED_DDR static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(800, 600)];
+CACHE_ALIGNED_DDR
+static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -216,11 +221,16 @@ static void configure_twi(void)
  */
 static void configure_dma_linklist(void)
 {
-	dma_desc.ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
-	dma_desc.next_desc = (uint32_t)&dma_desc;
-	dma_desc.addr = (uint32_t)stream_buffers;
-	dma_desc.stride = 0;
-	cache_clean_region(&dma_desc, sizeof(dma_desc));
+	uint8_t i;
+
+	for(i = 0; i < NUM_FRAME_BUFFER; i++) {
+		isc_dma_desc[i].ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
+		isc_dma_desc[i].next_desc = (uint32_t)&isc_dma_desc[i + 1];
+		isc_dma_desc[i].addr = (uint32_t)stream_buffers + i * FRAME_BUFFER_SIZEC(image_width, image_height);
+		isc_dma_desc[i].stride = 0;
+	}
+	isc_dma_desc[i - 1].next_desc = (uint32_t)&isc_dma_desc[0];
+	cache_clean_region(&isc_dma_desc, sizeof(isc_dma_desc));
 }
 
 /**
@@ -236,6 +246,8 @@ static void isc_handler(void)
 			capture_started = true;
 			printf("CapS\r\n");
 		}
+		frame_idx = (frame_idx == (NUM_FRAME_BUFFER - 1)) ? 0 : (frame_idx + 1);
+		uvc_function_update_frame_idx(frame_idx);
 	}
 }
 
@@ -271,19 +283,14 @@ static void configure_isc(void)
 	/* Set DAM for 8-bit packaged stream with descriptor view 0 used
 	   for the data stream is packed*/
 	isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
-	isc_dma_configure_desc_entry((uint32_t)&dma_desc);
+	isc_dma_configure_desc_entry((uint32_t)&isc_dma_desc);
 	isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
 	isc_dma_adderss(0, (uint32_t)stream_buffers, 0);
 
 	isc_update_profile();
 	aic_set_source_vector(ID_ISC, isc_handler);
 	isc_interrupt_status();
-	isc_enable_interrupt(ISC_INTEN_VD |
-			ISC_INTEN_DDONE |
-			ISC_INTEN_LDONE |
-			ISC_INTEN_HDTO |
-			ISC_INTEN_VDTO);
-	isc_interrupt_status();
+	isc_enable_interrupt(ISC_INTEN_VD);
 	capture_started = false;
 	aic_enable(ID_ISC);
 }
@@ -367,14 +374,12 @@ extern int main( void )
 
 	usb_power_configure();
 
-	uvc_driver_initialize(&usbdDriverDescriptors, (uint32_t)stream_buffers);
+	uvc_driver_initialize(&usbdDriverDescriptors, (uint32_t)stream_buffers, NUM_FRAME_BUFFER);
 
 	/* connect if needed */
 	usb_vbus_configure();
 
 	/* clear video buffer */
-	memset(stream_buffers, 0, sizeof(stream_buffers));
-	cache_clean_region(stream_buffers, sizeof(stream_buffers));
 
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
@@ -385,10 +390,11 @@ extern int main( void )
 			if (!uvc_function_is_video_on()) {
 				is_usb_vid_on = false;
 				isc_stop_capture();
-				//aic_disable(ID_ISC);
+				isc_disable_interrupt(-1);
 				capture_started = false;
 				printf("CapE\r\n");
 				printf("vidE\r\n");
+				frame_idx = 0;
 			}
 		} else {
 			if (uvc_function_is_video_on()) {
@@ -403,6 +409,8 @@ extern int main( void )
 					printf ("-I- Only support VGA and QVGA format\r\n");
 					image_resolution = QVGA;
 				}
+				memset(stream_buffers, 0, sizeof(stream_buffers));
+				cache_clean_region(stream_buffers, sizeof(stream_buffers));
 				start_preview();
 				uvc_function_payload_sent(NULL, USBD_STATUS_SUCCESS, 0, 0);
 				printf("vidS\r\n");

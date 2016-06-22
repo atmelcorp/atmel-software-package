@@ -58,9 +58,10 @@ struct _uvc_driver {
 	volatile uint8_t is_frame_xfring; //=0 default
 	uint32_t frm_format;
 	uint32_t frm_count;
-	uint32_t frm_index;
-	uint32_t buf;
-
+	uint32_t frm_offset;
+	uint32_t stream_frm_index;
+	uint32_t buf_start_addr;
+	uint8_t  multi_buffers;
 	/** Array for storing the current setting of each interface */
 	uint8_t alternate_interfaces[4];
 };
@@ -70,7 +71,7 @@ struct _uvc_driver {
  *---------------------------------------------------------------------------*/
 
 extern void uvc_driver_initialize(const USBDDriverDescriptors *descriptors,
-		uint32_t buff_addr);
+		uint32_t buff_addr, uint8_t multi_buffers);
 
 extern void uvc_driver_configuration_changed_handler(uint8_t cfgnum);
 

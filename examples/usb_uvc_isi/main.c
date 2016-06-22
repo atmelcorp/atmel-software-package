@@ -136,6 +136,8 @@
 /** TWI clock frequency in Hz. */
 #define TWCK 400000
 
+#define NUM_FRAME_BUFFER     4
+
 /*----------------------------------------------------------------------------
  *          External variables
  *----------------------------------------------------------------------------*/
@@ -149,7 +151,7 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 /** PIO pins to configured for ISI */
 const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
 
-CACHE_ALIGNED static struct _isi_dma_desc preview_path_desc;
+CACHE_ALIGNED static struct _isi_dma_desc dma_desc[NUM_FRAME_BUFFER];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
@@ -159,7 +161,6 @@ static struct _twi_desc twid = {
 };
 
 static uint8_t sensor_idx;
-static volatile bool capture_started = false;
 
 /* Image output bit width */
 static sensor_output_bit_t sensor_output_bit_width;
@@ -172,6 +173,8 @@ static uint32_t image_width, image_height;
 
 static uint8_t frame_format;
 
+static volatile uint32_t frame_idx = 0;
+
 /** Supported sensor profiles */
 static const sensor_profile_t *sensor_profiles[6] = {
 	&ov2640_profile,
@@ -183,11 +186,25 @@ static const sensor_profile_t *sensor_profiles[6] = {
 };
 
 /** Video buffers */
-CACHE_ALIGNED_DDR static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(800, 600)];
+CACHE_ALIGNED_DDR
+static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * \brief ISi interrupt handler.
+ */
+static void isi_handler(void)
+{
+	uint32_t status = isi_get_status();
+
+	if ((status & ISI_SR_PXFR_DONE) == ISI_SR_PXFR_DONE) {
+		frame_idx = (frame_idx == (NUM_FRAME_BUFFER - 1)) ? 0 : (frame_idx + 1);
+		uvc_function_update_frame_idx(frame_idx);
+	}
+}
 
 /**
  * \brief TWI initialization.
@@ -207,10 +224,15 @@ static void configure_twi(void)
  */
 static void configure_dma_linklist(void)
 {
-	preview_path_desc.address = (uint32_t)stream_buffers;
-	preview_path_desc.control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
-	preview_path_desc.next = (uint32_t)&preview_path_desc;
-	cache_clean_region(&preview_path_desc, sizeof(preview_path_desc));
+	uint8_t i;
+
+	for(i = 0; i < NUM_FRAME_BUFFER; i++) {
+		dma_desc[i].address = (uint32_t)stream_buffers + i * FRAME_BUFFER_SIZEC(image_width, image_height);
+		dma_desc[i].control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
+		dma_desc[i].next = (uint32_t)&dma_desc[i + 1];
+	}
+	dma_desc[i - 1].next = (uint32_t)&dma_desc[0];
+	cache_clean_region(&dma_desc, sizeof(dma_desc));
 }
 
 /**
@@ -233,13 +255,12 @@ static void configure_isi(void)
 	isi_rgb_pixel_mapping(ISI_CFG2_RGB_CFG_MODE3);
 	isi_ycrcb_format(ISI_CFG2_YCC_SWAP_MODE3);
 	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)&preview_path_desc,
+	isi_set_dma_preview_path((uint32_t)&dma_desc,
 			ISI_DMA_P_CTRL_P_FETCH, (uint32_t)stream_buffers);
 	isi_reset();
 	isi_disable_interrupt(-1);
-	isi_enable();
-	isi_dma_codec_channel_enabled(0);
-	isi_dma_preview_channel_enabled(1);
+	aic_set_source_vector(ID_ISI, isi_handler);
+	isi_enable_interrupt(ISI_IER_PXFR_DONE);
 }
 
 static void start_preview(void)
@@ -258,10 +279,14 @@ static void start_preview(void)
 	printf("-I- Bit width = %d, Image Width = %d, Image Height=%d \n\r",
 			(unsigned)(sensor_output_bit_width + 8),
 			(unsigned)image_width, (unsigned)image_height);
-	
+
 	/* Set up Frame Buffer Descriptors(FBD) for preview path. */
 	configure_dma_linklist();
 	configure_isi();
+	isi_enable();
+	isi_dma_codec_channel_enabled(0);
+	isi_dma_preview_channel_enabled(1);
+	aic_enable(ID_ISI);
 }
 
 /**
@@ -320,14 +345,10 @@ extern int main( void )
 
 	usb_power_configure();
 
-	uvc_driver_initialize(&usbdDriverDescriptors, (uint32_t)stream_buffers);
+	uvc_driver_initialize(&usbdDriverDescriptors, (uint32_t)stream_buffers, NUM_FRAME_BUFFER);
 
 	/* connect if needed */
 	usb_vbus_configure();
-
-	/* clear video buffer */
-	memset(stream_buffers, 0, sizeof(stream_buffers));
-	cache_clean_region(stream_buffers, sizeof(stream_buffers));
 
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
@@ -337,8 +358,10 @@ extern int main( void )
 		if (is_usb_vid_on) {
 			if (!uvc_function_is_video_on()) {
 				is_usb_vid_on = false;
+				isi_disable_interrupt(ISI_IDR_PXFR_DONE);
+				isi_dma_preview_channel_enabled(0);
 				isi_disable();
-				capture_started = false;
+				frame_idx = 0;
 				printf("CapE\r\n");
 				printf("vidE\r\n");
 			}
@@ -355,6 +378,9 @@ extern int main( void )
 					printf ("-I- Only support VGA and QVGA format\r\n");
 					image_resolution = QVGA;
 				}
+					/* clear video buffer */
+				memset(stream_buffers, 0, sizeof(stream_buffers));
+				cache_clean_region(stream_buffers, sizeof(stream_buffers));
 				start_preview();
 				uvc_function_payload_sent(NULL, USBD_STATUS_SUCCESS, 0, 0);
 				printf("vidS\r\n");

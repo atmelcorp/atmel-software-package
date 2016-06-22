@@ -50,14 +50,14 @@ static const struct _USBVideoProbeCommitData vidd_probe_data_init =
 	0, /* bmHint: All parameters fixed: sent by host */
 	0x01,   /* bFormatIndex: Format #1 */
 	0x01,   /* bFrameIndex: Frame #1 */
-	FRAME_INTERVALC(4), /* dwFrameInterval: in 100ns */
+	FRAME_INTERVALC(30), /* dwFrameInterval: in 100ns */
 	0, /* wKeyFrameRate: not used */
 	0, /* wPFrameRate: not used */
 	10000, /* wCompQuality: highest */
 	0, /* wCompWindowSize: ?K */
 	100, /* wDelay: Internal VS latency in ms */
-	FRAME_BUFFER_SIZEC(800, 600), /* dwMaxVideoFrameSize: in bytes */
-	FRAME_PACKET_SIZE_FS, /* dwMaxPayloadTransferSize: in bytes */
+	FRAME_BUFFER_SIZEC(320, 240), /* dwMaxVideoFrameSize: in bytes */
+	FRAME_PACKET_SIZE_HS, /* dwMaxPayloadTransferSize: in bytes */
 	0, /* dwClockFrequency */
 	3, /* bmFramingInfo */
 	0, /* bPreferedVersion */
@@ -65,11 +65,11 @@ static const struct _USBVideoProbeCommitData vidd_probe_data_init =
 	0 /* bMaxVersion */
 };
 
-CACHE_ALIGNED static struct _USBVideoProbeCommitData vidd_probe_data;
-
 /*-----------------------------------------------------------------------------
  *         Internal variables
  *-----------------------------------------------------------------------------*/
+
+CACHE_ALIGNED static struct _USBVideoProbeCommitData vidd_probe_data;
 
 /** Frame size: Width, Height */
 static uint32_t frm_width = 320, frm_height = 240;
@@ -77,14 +77,14 @@ static uint32_t frm_width = 320, frm_height = 240;
 /** Xfr Maximum packet size */
 static uint32_t frm_max_pkt_size = FRAME_PACKET_SIZE_HS * (ISO_HIGH_BW_MODE + 1);
 
-static volatile uint32_t delay;
-
 /** Buffer for USB requests data */
-CACHE_ALIGNED static uint8_t p_control_buffer[64];
+CACHE_ALIGNED static uint8_t control_buffer[64];
 
-CACHE_ALIGNED static uint8_t p_header_buffer[FRAME_PACKET_SIZE_HS * (ISO_HIGH_BW_MODE + 1)];
+CACHE_ALIGNED static uint8_t stream_header[32];
 
 static struct _uvc_driver *uvc_driver;
+
+static volatile uint32_t frame_buffer_addr;
 
 /*-----------------------------------------------------------------------------
  *      Exported functions
@@ -122,17 +122,8 @@ static void vidd_update_high_bw_max_packetsize(void)
 static void vidd_status_stage(void *arg, uint8_t status,
 		uint32_t transferred, uint32_t remaining)
 {
-	USBVideoProbeData *pProbe = (USBVideoProbeData *)p_control_buffer;
+	USBVideoProbeData *pProbe = (USBVideoProbeData *)control_buffer;
 
-	memcpy(&vidd_probe_data, &vidd_probe_data_init, sizeof(vidd_probe_data));
-	vidd_probe_data.bFormatIndex = pProbe->bFormatIndex;
-	vidd_probe_data.bFrameIndex = pProbe->bFrameIndex;
-	if (pProbe->dwFrameInterval > FRAME_INTERVALC(30))
-		vidd_probe_data.dwFrameInterval = FRAME_INTERVALC(30);
-	else
-		vidd_probe_data.dwFrameInterval = pProbe->dwFrameInterval;
-
-	uvc_driver->frm_format = pProbe->bFrameIndex;
 	switch (pProbe->bFrameIndex) {
 	case 1:
 		frm_width = VIDCAMD_FW_1;
@@ -148,7 +139,14 @@ static void vidd_status_stage(void *arg, uint8_t status,
 		break;
 	}
 
+	memcpy(&vidd_probe_data, &vidd_probe_data_init, sizeof(vidd_probe_data));
 	vidd_update_high_bw_max_packetsize();
+	vidd_probe_data.bFormatIndex = pProbe->bFormatIndex;
+	vidd_probe_data.bFrameIndex = pProbe->bFrameIndex;
+	vidd_probe_data.wCompQuality = 0;
+	vidd_probe_data.wDelay = 0;
+	vidd_probe_data.dwMaxVideoFrameSize = FRAME_BUFFER_SIZEC(frm_width, frm_height);
+	uvc_driver->frm_format = pProbe->bFrameIndex;
 	usbd_write(0, NULL, 0, NULL, NULL);
 }
 
@@ -160,31 +158,31 @@ void uvc_function_set_cur(const USBGenericRequest *request)
 	uint8_t b_cs = USBVideoRequest_GetControlSelector(request);
 	uint32_t len;
 
-	trace_info_wp("SetCUR(%d) ", request->wLength);
+	trace_debug_wp("SetCUR(%d) ", request->wLength);
 	if (request->wIndex == VIDCAMD_StreamInterfaceNum) {
-		trace_info_wp("VS ");
+		trace_debug_wp("VS ");
 		switch(b_cs) {
 		case VS_PROBE_CONTROL:
-			trace_info_wp("PROBE ");
+			trace_debug_wp("PROBE ");
 			len = sizeof(USBVideoProbeData);
 			if (request->wLength < len)
 				len = request->wLength;
-			usbd_read(0, p_control_buffer, len,
+			usbd_read(0, control_buffer, len,
 					vidd_status_stage, NULL);
 			break;
 		case VS_COMMIT_CONTROL:
-			trace_info_wp("COMMIT ");
+			trace_debug_wp("COMMIT ");
 			len = sizeof(USBVideoProbeData);
 			if (request->wLength < len)
 				len = request->wLength;
-			usbd_read(0, p_control_buffer, len,
+			usbd_read(0, control_buffer, len,
 					vidd_status_stage, NULL);
 			break;
 		default:
 			usbd_stall(0);
 		}
 	} else if (request->wIndex == VIDCAMD_ControlInterfaceNum) {
-		trace_info_wp("VC ");
+		trace_debug_wp("VC ");
 	}
 	else {
 		usbd_stall(0);
@@ -199,19 +197,19 @@ void uvc_function_get_cur(const USBGenericRequest *request)
 	uint8_t b_cs = USBVideoRequest_GetControlSelector(request);
 	uint32_t len;
 
-	trace_info_wp("GetCUR(%d) ", request->wLength);
+	trace_debug_wp("GetCUR(%d) ", request->wLength);
 	if (request->wIndex == VIDCAMD_StreamInterfaceNum) {
-		trace_info_wp("VS ");
+		trace_debug_wp("VS ");
 		switch(b_cs) {
 		case VS_PROBE_CONTROL:
-			trace_info_wp("PROBE ");
+			trace_debug_wp("PROBE ");
 			len = sizeof(USBVideoProbeData);
 			if (request->wLength < len) len = request->wLength;
 			usbd_write(0, &vidd_probe_data, len,
 					NULL, NULL);
 			break;
 		case VS_COMMIT_CONTROL: /* Returns current state of VS I/F */
-			trace_info_wp("COMMIT ");
+			trace_debug_wp("COMMIT ");
 			usbd_write(0, &(uvc_driver->alternate_interfaces[VIDCAMD_StreamInterfaceNum]), 1,
 					NULL, NULL);
 			break;
@@ -219,7 +217,7 @@ void uvc_function_get_cur(const USBGenericRequest *request)
 			usbd_stall(0);
 		}
 	} else if (request->wIndex == VIDCAMD_ControlInterfaceNum) {
-		trace_info_wp("VC ");
+		trace_debug_wp("VC ");
 	}
 	else {
 		usbd_stall(0);
@@ -231,7 +229,7 @@ void uvc_function_get_cur(const USBGenericRequest *request)
  */
 void uvc_function_get_def(const USBGenericRequest *request)
 {
-	printf("GetDEF(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
+	trace_debug_wp("GetDEF(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
 	usbd_stall(0);
 }
 
@@ -240,7 +238,7 @@ void uvc_function_get_def(const USBGenericRequest *request)
  */
 void uvc_function_get_info(const USBGenericRequest *request)
 {
-	printf("GetINFO(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
+	trace_debug_wp("GetINFO(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
 	usbd_stall(0);
 }
 
@@ -249,7 +247,7 @@ void uvc_function_get_info(const USBGenericRequest *request)
  */
 void uvc_function_get_min(const USBGenericRequest *request)
 {
-	printf("GetMin(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
+	trace_debug_wp("GetMin(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
 	uvc_function_get_cur(request);
 }
 
@@ -258,7 +256,7 @@ void uvc_function_get_min(const USBGenericRequest *request)
  */
 void uvc_function_get_max(const USBGenericRequest *request)
 {
-	printf("GetMax(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
+	trace_debug_wp("GetMax(%x,%x,%d)\n\r", request->wIndex, request->wValue, request->wLength);
 	uvc_function_get_cur(request);
 }
 
@@ -267,7 +265,7 @@ void uvc_function_get_max(const USBGenericRequest *request)
  */
 void uvc_function_get_res(const USBGenericRequest *request)
 {
-	printf("GetRES(%x,%x,%d) ", request->wIndex, request->wValue, request->wLength);
+	trace_debug_wp("GetRES(%x,%x,%d) ", request->wIndex, request->wValue, request->wLength);
 	usbd_stall(0);
 }
 
@@ -277,50 +275,46 @@ void uvc_function_get_res(const USBGenericRequest *request)
 void uvc_function_payload_sent(void *arg, uint8_t state,
 		uint32_t transferred, uint32_t remaining)
 {
-	uint32_t pktSize;
-	uint8_t *px = p_header_buffer;
-	uint32_t frmSize = FRAME_BUFFER_SIZEC(frm_width, frm_height);
-	uint8_t *p_video = (uint8_t*)uvc_driver->buf;
-	USBVideoPayloadHeader *p_hdr = (USBVideoPayloadHeader*)px;
+	uint32_t dma_transfer_size;
+	uint32_t frame_size = FRAME_BUFFER_SIZEC(frm_width, frm_height);
+	uint8_t *uncompressed_stream = (uint8_t*)(uvc_driver->buf_start_addr +
+									frame_buffer_addr * FRAME_BUFFER_SIZEC(frm_width, frm_height));
+	USBVideoPayloadHeader *header = (USBVideoPayloadHeader*)stream_header;
 	uint32_t max_pkt_size = usbd_is_high_speed() ? frm_max_pkt_size : FRAME_PACKET_SIZE_FS;
+	if (remaining){
 
-	if (remaining)
 		return;
-	pktSize = frmSize - uvc_driver->frm_index;
-	p_hdr->bHeaderLength = FRAME_PAYLOAD_HDR_SIZE;
-	p_hdr->bmHeaderInfo.B = 0;
-	if (pktSize > max_pkt_size - p_hdr->bHeaderLength)
-		pktSize = max_pkt_size - p_hdr->bHeaderLength;
-	p_video = &p_video[uvc_driver->frm_index];
-	uvc_driver->frm_index += pktSize;
-	p_hdr->bmHeaderInfo.bm.FID = (uvc_driver->frm_count & 1);
-	if (uvc_driver->frm_index >= frmSize) {
-		uvc_driver->frm_count ++;
-		uvc_driver->frm_index = 0;
-		p_hdr->bmHeaderInfo.bm.EoF = 1;
-
-		if (uvc_driver->is_frame_xfring) {
-			uvc_driver->is_frame_xfring = 0;
-		}
-	} else {
-		p_hdr->bmHeaderInfo.bm.EoF = 0;
-
-		if (uvc_driver->is_frame_xfring == 0) {
-			uvc_driver->is_frame_xfring = 1;
-			for (delay = 0; delay < 2000; delay++);
-		}
 	}
-	p_hdr->bmHeaderInfo.bm.EOH =  1;
+	dma_transfer_size = frame_size - uvc_driver->frm_offset;
+	header->bHeaderLength = FRAME_PAYLOAD_HDR_SIZE;
+	header->bmHeaderInfo.B = 0;
+	if (dma_transfer_size > max_pkt_size - header->bHeaderLength)
+		dma_transfer_size = max_pkt_size - header->bHeaderLength;
+	uncompressed_stream = &uncompressed_stream[uvc_driver->frm_offset];
+	uvc_driver->frm_offset += dma_transfer_size;
+	header->bmHeaderInfo.bm.FID = (uvc_driver->frm_count & 1);
+	if (uvc_driver->frm_offset >= frame_size) {
+		uvc_driver->frm_count++;
+		uvc_driver->frm_offset = 0;
+		header->bmHeaderInfo.bm.EoF = 1;
+		frame_buffer_addr = uvc_driver ->stream_frm_index;
+		frame_buffer_addr = (frame_buffer_addr == 0) ?
+							(uvc_driver->multi_buffers - 1): (frame_buffer_addr -1);
+		if (uvc_driver->is_frame_xfring)
+			uvc_driver->is_frame_xfring = 0;
+	} else {
+		header->bmHeaderInfo.bm.EoF = 0;
+	}
+	header->bmHeaderInfo.bm.EOH =  1;
 
-	usbd_hal_set_transfer_callback(VIDCAMD_IsoInEndpointNum,
-			uvc_function_payload_sent, NULL);
-	usbd_hal_write_with_header(VIDCAMD_IsoInEndpointNum,
-			p_hdr, p_hdr->bHeaderLength, p_video, pktSize);
+	usbd_hal_write_with_header(VIDCAMD_IsoInEndpointNum, header,
+		header->bHeaderLength, uncompressed_stream, dma_transfer_size);
 }
 
 void uvc_function_initialize(struct _uvc_driver* uvc_drv)
 {
 	uvc_driver = uvc_drv;
+	usbd_hal_set_transfer_callback(VIDCAMD_IsoInEndpointNum, uvc_function_payload_sent, NULL);
 }
 
 uint8_t uvc_function_is_video_on(void)
@@ -331,6 +325,11 @@ uint8_t uvc_function_is_video_on(void)
 uint8_t uvc_function_get_frame_format(void)
 {
 	return (uint8_t)uvc_driver->frm_format;
+}
+
+void uvc_function_update_frame_idx(uint32_t idx)
+{
+	uvc_driver->stream_frm_index = idx;
 }
 
 /**@}*/
