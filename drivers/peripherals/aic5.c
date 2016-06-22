@@ -31,7 +31,7 @@
  *
  * \section Purpose
  * The Advanced Interrupt Controller (AIC) is an 8-level priority, individually
- * maskable, vectored interrupt controller, providing handling of up to thirty-two interrupt sources.
+ * maskable, vectored interrupt controller, providing handling of up to 128 interrupt sources.
  *
  * \section Usage
  * <ul>
@@ -42,7 +42,7 @@
  * Datasheet.
  *
  * Related files :\n
- * \ref aic.c\n
+ * \ref aic5.c\n
  * \ref aic.h\n
  */
 /*@{*/
@@ -100,7 +100,7 @@ static void _aic_initialize(Aic* aic)
 		aic->AIC_ICCR = AIC_ICCR_INTCLR;
 	}
 
-	/* Perform 8 IT acknowledge (write any value in EOICR) (VPy) */
+	/* Perform 8 IT acknowledge (write any value in EOICR) */
 	for (i = 0; i < 8; i++)
 		aic->AIC_EOICR = 0;
 
@@ -128,7 +128,7 @@ static void _aic_initialize(Aic* aic)
  * \param handler  Interrupt handler function.
  */
 
-static void _aic_configure_it(uint32_t source, uint8_t mode)
+static void _aic_configure_it(uint32_t source, uint32_t mode)
 {
 	AIC->AIC_SSR = source;
 	/* Disable the interrupt first */
@@ -173,7 +173,7 @@ static void _aic_disable_it(Aic * aic, uint32_t source)
 static void _aic_set_source_vector(Aic * aic, uint32_t source, void (*handler)(void))
 {
 	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
-		aic_write_protection(aic, 1);
+		aic_write_protection(aic, false);
 	}
 	aic->AIC_SSR = AIC_SSR_INTSEL(source);
 	aic->AIC_SVR = (uint32_t)handler;
@@ -188,7 +188,7 @@ static void _aic_set_source_vector(Aic * aic, uint32_t source, void (*handler)(v
 static void _aic_set_spurious_vector(Aic * aic, void (*handler)(void))
 {
 	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
-		aic_write_protection(aic, 1);
+		aic_write_protection(aic, false);
 	}
 	aic->AIC_SPU = (uint32_t)handler;
 }
@@ -287,7 +287,7 @@ void aic_disable(uint32_t source)
  * \param source  Interrupt source to configure.
  * \param mode    mode combined of priority level and interrupt source type.
  */
-void aic_configure(uint32_t source, uint8_t mode)
+void aic_configure(uint32_t source, uint32_t mode)
 {
 	_aic_configure_it(source, mode);
 }
@@ -335,7 +335,7 @@ void aic_set_spurious_vector(void (*handler)(void))
  * \param source  Interrupt source to configure.
  * \param mode    mode combined of priority level and interrupt source type.
  */
-void aic_set_or_clear(uint32_t source, uint8_t set)
+void aic_set_or_clear(uint32_t source, bool set)
 {
 	Aic *aic = AIC;
 
@@ -394,7 +394,7 @@ uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask)
  * \param aic     AIC instance.
  * \param enable  Enable/Disable AIC write protection mode.
  */
-void aic_write_protection(Aic * aic, uint32_t enable)
+void aic_write_protection(Aic * aic, bool enable)
 {
 	if (enable) {
 		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD | AIC_WPMR_WPEN;
