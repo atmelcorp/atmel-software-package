@@ -28,22 +28,22 @@
  */
 
 /**
- *  \page gmac GMAC Example
+ *  \page eth ETH Example
  *
  *  \section Purpose
  *
- *  This example uses the Gigabit Ethernet MAC (GMAC) and the on-board Ethernet
- *  transceiver available on Atmel SAMA5D4-EK or SAMA5D4-XULT. It enables the device to
+ *  This example uses the Ethrenet MAC (EMAC) / Gigabit Ethernet MAC (GMAC) and
+ *  the on-board Ethernet transceiver available on Atmel SAMA5D3-EK, SAMA5D3-XULT,
+ *  SAMA5D4-EK, SAMA5D4-XULT or SAMA5D2-Xplained. It enables the device to
  *  respond to a ping command sent by a host computer.
  *
  *  \section Requirements
  *
- *  - SAMA5D4x microcontrollers with GMAC feature.
  *  - On-board ethernet interface.
  *
  *  \section Description
  *
- *  Upon startup, the program will configure the GMAC with a default IP and
+ *  Upon startup, the program will configure the EMAC/GMAC with a default IP and
  *  MAC address and then ask the transceiver to auto-negotiate the best mode
  *  of operation. Once this is done, it will start to monitor incoming packets
  *  and processing them whenever appropriate.
@@ -79,7 +79,7 @@
  *      with the board.
  *  -# Start the application. It will display the following message on the DBGU:
  *     \code
- *      -- GMAC Example xxx --
+ *      -- ETH Example xxx --
  *      -- SAMxxxxx-xx
  *      -- Compiled: xxx xx xxxx xx:xx:xx --
  *      MAC 3a 1f 34 08 54 54
@@ -92,15 +92,14 @@
  *  Make sure the IP adress of the device(the board) and the computer are in the same network.
  *
  *  \section References
- *  - gmac/main.c
- *  - gmacb.h
- *  - gmacd.h
- *  - gmac.h
+ *  - eth/main.c
+ *  - ethd.c
+ *  - ethd.h
  */
 
 /** \file
  *
- *  This file contains all the specific code for the gmac example.
+ *  This file contains all the specific code for the ETH example.
  *
  */
 
@@ -168,7 +167,7 @@
  *         Local variables
  *---------------------------------------------------------------------------*/
 
-/** if AT24 is available on the board, it will be used to setup the MAC addr */ 
+/** if AT24 is available on the board, it will be used to setup the MAC addr */
 #ifdef AT24_PINS
 static const struct _pin at24_pins[] = AT24_PINS;
 

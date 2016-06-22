@@ -26,17 +26,16 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the GMAC LWIP example
+# Makefile for compiling the ETH UIP Webserver example
 TOP := ../..
 
 CONFIG_HAVE_GMAC = y
 
-BINNAME = gmac_lwip
+BINNAME = eth_uip_webserver
 
-CONFIG_LIB_LWIP = y
-CONFIG_LIB_LWIP_IPV4 = y
+CONFIG_LIB_UIP = y
+CONFIG_LIB_UIP_WEBSERVER = y
 
-obj-y += examples/gmac_lwip/main.o
-obj-y += examples/gmac_lwip/httpd.o
+obj-y += examples/eth_uip_webserver/main.o
 
 include $(TOP)/scripts/Makefile.rules

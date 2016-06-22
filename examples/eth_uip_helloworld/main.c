@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *		 SAM Software Package License
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
  *
@@ -28,22 +28,20 @@
  */
 
 /**
- *  \page gmac_uip_telnetd GMAC Telnetd Example
+ *  \page eth_uip_helloworld ETH uIP Hello World Example
  *
  *  \section Purpose
  *
- *  This project implements a telnet server example of the uIP TCP/IP stack.
- *  It enables the device to act as a simple telnetd server.
+ *  This project implements a telnet hello-world example of the uIP stack.
+ *  It makes the device to respond to telnet connections on port 1000.
  *
  *  \section Requirements
- *
- *  - SAMA5D4x microcontrollers with GMAC feature.
  *  - On-board ethernet interface.
  *
  *  \section Description
  *
  * Please refer to the uIP documentation for more information
- * about the TCP/IP stack, the telnetd example.
+ * about the TCP/IP stack, the hello-world example.
  *
  * By default, the example does not use DHCP.
  * If you want to use DHCP, please:
@@ -72,10 +70,10 @@
  *  -# Connect an Ethernet cable between the evaluation board and the network.
  *      The board may be connected directly to a computer; in this case,
  *      make sure to use a cross/twisted wired cable such as the one provided
- *      with SAMA5D4-EK / SAMA5D4-XULT.
+ *      with SAMA5D2-XPLAINED / SAMA5D3-EK / SAMA5D3-XULT / SAMA5D4-EK / SAMA5D4-XULT.
  *  -# Start the application. It will display the following message on the terminal:
  *    \code
- *    -- GMAC uIP Telnetd Example xxx --
+ *    -- ETH uIP Hello World Example xxx --
  *    -- xxxxxx-xx
  *    -- Compiled: xxx xx xxxx xx:xx:xx --
  *    - MAC 3a:1f:34:08:54:05
@@ -83,28 +81,27 @@
  *    - Router IP 192.168.1.1
  *    - Net Mask 255.255.255.0
  *    \endcode
- *  -# Connect to the %device IP address using telnet on port 23:
+ * -# Connect to the device IP address using telnet on port 1000:
  *    \code
- *    telnet 192.168.1.3 23
+ *    telnet 192.168.1.3 1000
  *    \endcode
- *    A telnet terminal will appear:
+ *    A greeting message will appear:
  *    \code
- *    uIP command shell
- *    Type '?' and return for help
- *    uIP 1.0>
+ *    Hello. What is your name?
  *    \endcode
+ *
  * \note
- * Make sure the IP adress of the device(the board) and the computer are in the same network.
+ * Make sure the IP adress of the device( the  board) and the computer are in the same network.
  */
 
 /** \file
  *
- *  This file contains all the specific code for the gmac_uip_telnetd example.
+ *  This file contains all the specific code for the eth_uip_helloworld example.
  *
  */
 
 /*----------------------------------------------------------------------------
- *		Headers
+ *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
@@ -114,12 +111,13 @@
 #include "memories/at24.h"
 #include "misc/console.h"
 #include "peripherals/pio.h"
+#include "peripherals/xdmad.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
 #include "uip/clock.h"
-#include "gmac_tapdev.h"
-#include "telnetd.h"
+#include "eth_tapdev.h"
+#include "hello-world.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -170,8 +168,8 @@ static const uint8_t NetMask[4] = {255, 255, 255, 0};
  */
 static void _app_init(void)
 {
-	printf("P: telnetd application init\n\r");
-	telnetd_init();
+	printf("P: hello-world application init\n\r");
+	hello_world_init();
 
 #ifdef __DHCPC_H__
 	printf("P: DHCPC Init\n\r");
@@ -230,7 +228,7 @@ void dhcpc_configured(const struct dhcpc_state *s)
 #endif
 
 /**
- *  \brief gmac_uip_telnetd example entry point.
+ *  \brief gmac_uip_helloworld example entry point.
  *
  *  \return Unused (ANSI-C compatibility).
  */
@@ -241,7 +239,7 @@ int main(void)
 	uint32_t i;
 
 	/* Output example information */
-	console_example_info("GMAC uIP Telnetd Example");
+	console_example_info("ETH uIP Hello World Example");
 
 #ifdef AT24_PINS
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

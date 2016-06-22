@@ -26,16 +26,14 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the GMAC UIP Webserver example
+# Makefile for compiling the ETH example
 TOP := ../..
 
 CONFIG_HAVE_GMAC = y
 
-BINNAME = gmac_uip_webserver
+BINNAME = eth
 
-CONFIG_LIB_UIP = y
-CONFIG_LIB_UIP_WEBSERVER = y
-
-obj-y += examples/gmac_uip_webserver/main.o
+obj-y += examples/eth/main.o
+obj-y += examples/eth/mini_ip.o
 
 include $(TOP)/scripts/Makefile.rules

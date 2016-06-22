@@ -28,5 +28,5 @@
 
 CFLAGS_INC += -I$(TOP)/lib/lwip/sama5
 
-lwip-y += lib/lwip/sama5/gmacif.o
+lwip-y += lib/lwip/sama5/ethif.o
 lwip-y += lib/lwip/sama5/arch/sys_arch.o

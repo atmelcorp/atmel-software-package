@@ -45,7 +45,7 @@
 #include "uip.h"
 #include "uip_arp.h"
 
-#include "gmac_tapdev.h"
+#include "eth_tapdev.h"
 
 #include <string.h>
 #include <stdio.h>

@@ -26,16 +26,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the GMAC UIP Telnetd example
+# Makefile for compiling the ETH UIP HelloWorld example
+
 TOP := ../..
 
 CONFIG_HAVE_GMAC = y
 
-BINNAME = gmac_uip_telnetd
+BINNAME = eth_uip_helloworld
 
 CONFIG_LIB_UIP = y
-CONFIG_LIB_UIP_TELNETD = y
+CONFIG_LIB_UIP_HELLOWORLD = y
 
-obj-y += examples/gmac_uip_telnetd/main.o
+obj-y += examples/eth_uip_helloworld/main.o
 
 include $(TOP)/scripts/Makefile.rules

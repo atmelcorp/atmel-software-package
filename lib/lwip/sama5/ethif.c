@@ -52,7 +52,7 @@
 #include "network/phy.h"
 
 #include "lwip/opt.h"
-#include "gmacif.h"
+#include "ethif.h"
 #include "lwip/def.h"
 #include "lwip/mem.h"
 #include "lwip/pbuf.h"

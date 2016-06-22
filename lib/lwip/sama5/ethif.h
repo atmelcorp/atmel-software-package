@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _GMACIF_H
-#define _GMACIF_H
+#ifndef _ETHIF_H
+#define _ETHIF_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -58,5 +58,5 @@ void ethif_setmac(u8_t * addr);
 err_t ethif_init(struct netif * netif);
 void ethif_poll(struct netif * netif);
 
-#endif  /* _GMACIF_H */
+#endif  /* _ETHIF_H */
 

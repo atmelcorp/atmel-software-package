@@ -13,7 +13,7 @@
 /*
  * drivers
  */
- 
+
 #include "src/include/lwip/opt.h"
 #include "src/include/lwip/tcp.h"
 #include "src/include/lwip/init.h"
@@ -21,6 +21,6 @@
 #include "src/include/lwip/udp.h"
 #include "src/include/lwip/dhcp.h"
 #include "sama5/arch/sys_arch.h"
-#include "sama5/gmacif.h"
+#include "sama5/ethif.h"
 
 #endif /* _LIB_LWIP_H */

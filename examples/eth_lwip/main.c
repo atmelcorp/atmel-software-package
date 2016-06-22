@@ -28,7 +28,7 @@
  */
 
 /**
- *  \page gmac_lwip GMAC lwIP Example
+ *  \page eth_lwip ETH lwIP Example
  *
  *  \section Purpose
  *
@@ -38,7 +38,6 @@
  *
  *  \section Requirements
  *
- * - SAMA5D4X microcontrollers with GMAC feature.
  * - On-board ethernet interface.
  *
  *  \section Description
@@ -74,7 +73,7 @@
  *      with SAMA5D4-EK / SAMA5D4-XULT.
  *  -# Start the application. It will display the following message on the terminal:
  *    \code
- *    -- GMAC lwIP Example xxx --
+ *    -- ETH lwIP Example xxx --
  *    -- xxxxxx-xx
  *    -- Compiled: xxx xx xxxx xx:xx:xx --
  *      MAC 3a:1f:34:08:54:54
@@ -98,7 +97,7 @@
 
 /** \file
  *
- *  This file contains all the specific code for the gmac_lwip example.
+ *  This file contains all the specific code for the eth_lwip example.
  *
  */
 
@@ -240,7 +239,7 @@ int main(void)
 #endif
 
 	/* Output example information */
-	console_example_info("GMAC lwIP Example");
+	console_example_info("ETH lwIP Example");
 
 #ifdef AT24_PINS
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));

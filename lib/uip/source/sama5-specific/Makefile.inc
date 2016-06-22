@@ -29,4 +29,4 @@
 CFLAGS_INC += -I$(TOP)/lib/uip/source/sama5-specific
 
 uip-y += lib/uip/source/sama5-specific/clock-arch.o
-uip-y += lib/uip/source/sama5-specific/gmac_tapdev.o
+uip-y += lib/uip/source/sama5-specific/eth_tapdev.o
