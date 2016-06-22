@@ -136,6 +136,7 @@
 #include "clk-config.h"
 
 #include "trace.h"
+#include "timer.h"
 #include "compiler.h"
 
 /*----------------------------------------------------------------------------
@@ -699,11 +700,11 @@ static void menu_out_of_self_refresh(void)
 /* override default board_init */
 void board_init(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
+	/* Configure system clocks */
+	pmc_set_custom_pck_mck(&clock_test_setting[0]);
 
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
+	/* Configure low-level peripherals */
+	board_cfg_lowlevel(false, false, false);
 
 	/* Configure console */
 	board_cfg_console(0);
@@ -722,11 +723,11 @@ int main(void)
 	/* Output example information */
 	console_example_info("Low Power Mode Example");
 
+#ifdef CONFIG_HAVE_L2CC
 	/* set a default state at the beginning to save power */
 	/* Enable L2 cache clock gating */
 	board_cfg_l2cc();
 
-#ifdef CONFIG_HAVE_L2CC
 	/* Disable L2 cache */
 	l2cc_disable();
 #endif

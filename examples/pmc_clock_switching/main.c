@@ -193,11 +193,8 @@ static void _print_menu(void)
 /* override default board_init */
 void board_init(void)
 {
-	/* Disable watchdog */
-	wdt_disable();
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
+	/* Configure low-level peripherals */
+	board_cfg_lowlevel(false, false, false);
 
 	/* Configure console */
 	board_cfg_console(0);

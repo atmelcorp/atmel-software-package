@@ -27,10 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the pmc_clock_switching example
+AVAILABLE_VARIANTS = sram
 
 TOP := ../..
 
 BINNAME = pmc_clock_switching
+
+VARIANT ?= sram
 
 obj-y += examples/pmc_clock_switching/main.o
 obj-y += examples/pmc_clock_switching/clk-config_$(chip-family).o
