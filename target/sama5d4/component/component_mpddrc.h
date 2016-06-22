@@ -63,8 +63,7 @@ typedef struct {
 	__I uint32_t MPDDRC_BDW_PORT_0123;   /**< \brief (Mpddrc Offset: 0x54) MPDDRC Bandwidth Port 0/1/2/3 Register */
 	__I uint32_t MPDDRC_BDW_PORT_4567;   /**< \brief (Mpddrc Offset: 0x58) MPDDRC Bandwidth Port 4/5/6/7 Register */
 	__IO uint32_t MPDDRC_RD_DATA_PATH;   /**< \brief (Mpddrc Offset: 0x5C) MPDDRC Read Datapath Register */
-	__IO uint32_t MPDDRC_SAW[4];	     /**< \brief (Mpddrc Offset: 0x60) MPDDRC Smart Adaptation Wrapper 0 Register */
-	__I uint32_t Reserved3[29];
+	__I uint32_t Reserved3[33];
 	__IO uint32_t MPDDRC_WPMR;	     /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
 	__I uint32_t MPDDRC_WPSR;	     /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
 	__I uint32_t Reserved4[5];
@@ -108,10 +107,14 @@ typedef struct {
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
-#define   MPDDRC_CR_NC_DDR9_MDDR8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns */
-#define   MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns */
-#define   MPDDRC_CR_NC_DDR11_MDDR10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns */
-#define   MPDDRC_CR_NC_DDR12_MDDR11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns */
+#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits for DDR */
+#define   MPDDRC_CR_NC_LPDDR1_8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 8-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 9-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 10-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 11-bit for low-power DDR1-SDRAM */
 #define MPDDRC_CR_NR_Pos 2
 #define MPDDRC_CR_NR_Msk (0x3u << MPDDRC_CR_NR_Pos) /**< \brief (MPDDRC_CR) Number of Row Bits */
 #define MPDDRC_CR_NR(value) ((MPDDRC_CR_NR_Msk & ((value) << MPDDRC_CR_NR_Pos)))
@@ -122,18 +125,18 @@ typedef struct {
 #define MPDDRC_CR_CAS_Pos 4
 #define MPDDRC_CR_CAS_Msk (0x7u << MPDDRC_CR_CAS_Pos) /**< \brief (MPDDRC_CR) CAS Latency */
 #define MPDDRC_CR_CAS(value) ((MPDDRC_CR_CAS_Msk & ((value) << MPDDRC_CR_CAS_Pos)))
-#define   MPDDRC_CR_CAS_DDR_CAS2 (0x2u << 4) /**< \brief (MPDDRC_CR) LPDDR1 CAS Latency 2 */
-#define   MPDDRC_CR_CAS_DDR_CAS3 (0x3u << 4) /**< \brief (MPDDRC_CR) DDR2/LPDDR2/LPDDR1 CAS Latency 3 */
-#define   MPDDRC_CR_CAS_DDR_CAS4 (0x4u << 4) /**< \brief (MPDDRC_CR) DDR2/LPDDR2 CAS Latency 4 */
-#define   MPDDRC_CR_CAS_DDR_CAS5 (0x5u << 4) /**< \brief (MPDDRC_CR) DDR2/LPDDR2 CAS Latency 5 */
-#define   MPDDRC_CR_CAS_DDR_CAS6 (0x6u << 4) /**< \brief (MPDDRC_CR) DDR2 CAS Latency 6 */
+#define   MPDDRC_CR_CAS_DDR_CAS2 (0x2u << 4) /**< \brief (MPDDRC_CR) CAS Latency 2 */
+#define   MPDDRC_CR_CAS_DDR_CAS3 (0x3u << 4) /**< \brief (MPDDRC_CR) CAS Latency 3 */
+#define   MPDDRC_CR_CAS_DDR_CAS4 (0x4u << 4) /**< \brief (MPDDRC_CR) CAS Latency 4 */
+#define   MPDDRC_CR_CAS_DDR_CAS5 (0x5u << 4) /**< \brief (MPDDRC_CR) CAS Latency 5 */
+#define   MPDDRC_CR_CAS_DDR_CAS6 (0x6u << 4) /**< \brief (MPDDRC_CR) CAS Latency 6 */
 #define MPDDRC_CR_DLL (0x1u << 7) /**< \brief (MPDDRC_CR) Reset DLL */
 #define   MPDDRC_CR_DLL_RESET_DISABLED (0x0u << 7) /**< \brief (MPDDRC_CR) Disable DLL reset */
 #define   MPDDRC_CR_DLL_RESET_ENABLED (0x1u << 7) /**< \brief (MPDDRC_CR) Enable DLL reset */
 #define MPDDRC_CR_DIC_DS (0x1u << 8) /**< \brief (MPDDRC_CR) Output Driver Impedance Control (Drive Strength) */
-#define   MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH (0x0u << 8) /**< \brief (MPDDRC_CR) Normal driver strength */
-#define   MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH (0x1u << 8) /**< \brief (MPDDRC_CR) Weak driver strength */
-#define MPDDRC_CR_DIS_DLL (0x1u << 9) /**< \brief (MPDDRC_CR) DISABLE DLL */
+#define   MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH (0x0u << 8) /**< \brief (MPDDRC_CR) Normal driver strength (DDR2) */
+#define   MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH (0x1u << 8) /**< \brief (MPDDRC_CR) Weak driver strength (DDR2) */
+#define MPDDRC_CR_DIS_DLL (0x1u << 9) /**< \brief (MPDDRC_CR) Disable DLL */
 #define MPDDRC_CR_ZQ_Pos 10
 #define MPDDRC_CR_ZQ_Msk (0x3u << MPDDRC_CR_ZQ_Pos) /**< \brief (MPDDRC_CR) ZQ Calibration */
 #define MPDDRC_CR_ZQ(value) ((MPDDRC_CR_ZQ_Msk & ((value) << MPDDRC_CR_ZQ_Pos)))
@@ -154,10 +157,10 @@ typedef struct {
 #define   MPDDRC_CR_ENRDM_ON (0x1u << 17) /**< \brief (MPDDRC_CR) DQS/DDR_DATA phase error correction is enabled */
 #define MPDDRC_CR_LC_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost Low-power DDR1 */
 #define   MPDDRC_CR_LC_LPDDR1_NOT_2_BANKS (0x0u << 19) /**< \brief (MPDDRC_CR) Any type of memory devices except of low cost, low density Low Power DDR1. */
-#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. These devices have a density of 32 Mbits and are organized as two internal banks. To use this feature, the user has to define the type of memory and the data bus width (see "MPDDRC Memory Device Register" on page 55).The 16-bit memory device is organized as 2 banks, 9 columns and 11 rows. */
+#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. */
 #define MPDDRC_CR_NB (0x1u << 20) /**< \brief (MPDDRC_CR) Number of Banks */
-#define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4 banks memory devices */
-#define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks. Only possible when using the DDR2-SDRAM and low-power DDR2-SDRAM devices. */
+#define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4 banks */
+#define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks */
 #define MPDDRC_CR_NDQS (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS */
 #define   MPDDRC_CR_NDQS_ENABLED (0x0u << 21) /**< \brief (MPDDRC_CR) Not DQS is enabled */
 #define   MPDDRC_CR_NDQS_DISABLED (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS is disabled */
@@ -197,7 +200,7 @@ typedef struct {
 #define MPDDRC_TPR1_TRFC_Msk (0x7fu << MPDDRC_TPR1_TRFC_Pos) /**< \brief (MPDDRC_TPR1) Row Cycle Delay */
 #define MPDDRC_TPR1_TRFC(value) ((MPDDRC_TPR1_TRFC_Msk & ((value) << MPDDRC_TPR1_TRFC_Pos)))
 #define MPDDRC_TPR1_TXSNR_Pos 8
-#define MPDDRC_TPR1_TXSNR_Msk (0xffu << MPDDRC_TPR1_TXSNR_Pos) /**< \brief (MPDDRC_TPR1) Exit Self-refresh Delay to Non Read Command */
+#define MPDDRC_TPR1_TXSNR_Msk (0xffu << MPDDRC_TPR1_TXSNR_Pos) /**< \brief (MPDDRC_TPR1) Exit Self-refresh Delay to Non-Read Command */
 #define MPDDRC_TPR1_TXSNR(value) ((MPDDRC_TPR1_TXSNR_Msk & ((value) << MPDDRC_TPR1_TXSNR_Pos)))
 #define MPDDRC_TPR1_TXSRD_Pos 16
 #define MPDDRC_TPR1_TXSRD_Msk (0xffu << MPDDRC_TPR1_TXSRD_Pos) /**< \brief (MPDDRC_TPR1) Exit Self-refresh Delay to Read Command */
@@ -230,7 +233,7 @@ typedef struct {
 #define   MPDDRC_LPR_LPCB_POWERDOWN (0x2u << 0)	/**< \brief (MPDDRC_LPR) The MPDDRC issues a Power-down command to the DDR-SDRAM device after each access, the CKE signal is set low. The DDR-SDRAM device leaves the power-down mode when accessed and reenters it after the access. */
 #define   MPDDRC_LPR_LPCB_DEEPPOWERDOWN (0x3u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Deep Power-down command to the low-power DDR-SDRAM device. */
 #define MPDDRC_LPR_CLK_FR (0x1u << 2) /**< \brief (MPDDRC_LPR) Clock Frozen Command Bit */
-#define   MPDDRC_LPR_CLK_FR_DISABLED (0x0u << 2) /**< \brief (MPDDRC_LPR) Clock(s) is/are not frozen */
+#define   MPDDRC_LPR_CLK_FR_DISABLED (0x0u << 2) /**< \brief (MPDDRC_LPR) Clock(s) is/are not frozen. */
 #define   MPDDRC_LPR_CLK_FR_ENABLED (0x1u << 2)	/**< \brief (MPDDRC_LPR) Clock(s) is/are frozen. */
 #define MPDDRC_LPR_LPDDR2_PWOFF (0x1u << 3) /**< \brief (MPDDRC_LPR) LPDDR2 Power Off Bit */
 #define   MPDDRC_LPR_LPDDR2_PWOFF_DISABLED (0x0u << 3) /**< \brief (MPDDRC_LPR) No power off sequence applied to LPDDR2. */
@@ -242,20 +245,20 @@ typedef struct {
 #define MPDDRC_LPR_DS_Msk (0x7u << MPDDRC_LPR_DS_Pos) /**< \brief (MPDDRC_LPR) Drive Strength */
 #define MPDDRC_LPR_DS(value) ((MPDDRC_LPR_DS_Msk & ((value) << MPDDRC_LPR_DS_Pos)))
 #define MPDDRC_LPR_TIMEOUT_Pos 12
-#define MPDDRC_LPR_TIMEOUT_Msk (0x3u << MPDDRC_LPR_TIMEOUT_Pos)	/**< \brief (MPDDRC_LPR) Time Between Last Transfer and Low Power Mode */
+#define MPDDRC_LPR_TIMEOUT_Msk (0x3u << MPDDRC_LPR_TIMEOUT_Pos)	/**< \brief (MPDDRC_LPR) Time Between Last Transfer and Low-Power Mode */
 #define MPDDRC_LPR_TIMEOUT(value) ((MPDDRC_LPR_TIMEOUT_Msk & ((value) << MPDDRC_LPR_TIMEOUT_Pos)))
 #define   MPDDRC_LPR_TIMEOUT_NONE (0x0u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated immediately after the end of the last transfer. */
 #define   MPDDRC_LPR_TIMEOUT_DELAY_64_CLK (0x1u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 64 clock cycles after the end of the last transfer. */
 #define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12)	/**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
 #define MPDDRC_LPR_APDE (0x1u << 16) /**< \brief (MPDDRC_LPR) Active Power Down Exit Time */
-#define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. DDR2-SDRAM devices only. */
-#define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. DDR2-SDRAM devices only. */
+#define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. */
+#define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. */
 #define MPDDRC_LPR_UPD_MR_Pos 20
 #define MPDDRC_LPR_UPD_MR_Msk (0x3u << MPDDRC_LPR_UPD_MR_Pos) /**< \brief (MPDDRC_LPR) Update Load Mode Register and Extended Mode Register */
 #define MPDDRC_LPR_UPD_MR(value) ((MPDDRC_LPR_UPD_MR_Msk & ((value) << MPDDRC_LPR_UPD_MR_Pos)))
 #define   MPDDRC_LPR_UPD_MR_NO_UPDATE (0x0u << 20) /**< \brief (MPDDRC_LPR) Update of Load Mode and Extended Mode registers is disabled. */
 #define   MPDDRC_LPR_UPD_MR_UPDATE_SHAREDBUS (0x1u << 20) /**< \brief (MPDDRC_LPR) MPDDRC shares an external bus. Automatic update is done during a refresh command and a pending read or write access in the SDRAM device. */
-#define   MPDDRC_LPR_UPD_MR_UPDATE_NOSHAREDBUS (0x2u << 20) /**< \brief (MPDDRC_LPR) MPDDRC does not share an external bus. Automatic update is done before entering in self-refresh mode. */
+#define   MPDDRC_LPR_UPD_MR_UPDATE_NOSHAREDBUS (0x2u << 20) /**< \brief (MPDDRC_LPR) MPDDRC does not share an external bus. Automatic update is done before entering Self-refresh mode. */
 /* -------- MPDDRC_MD : (MPDDRC Offset: 0x20) MPDDRC Memory Device Register -------- */
 #define MPDDRC_MD_MD_Pos 0
 #define MPDDRC_MD_MD_Msk (0x7u << MPDDRC_MD_MD_Pos) /**< \brief (MPDDRC_MD) Memory Device */
@@ -265,7 +268,7 @@ typedef struct {
 #define   MPDDRC_MD_MD_LPDDR2_SDRAM (0x7u << 0)	/**< \brief (MPDDRC_MD) Low-power DDR2-SDRAM */
 #define MPDDRC_MD_DBW (0x1u << 4) /**< \brief (MPDDRC_MD) Data Bus Width */
 #define   MPDDRC_MD_DBW_DBW_32_BITS (0x0u << 4)	/**< \brief (MPDDRC_MD) Data bus width is 32 bits */
-#define   MPDDRC_MD_DBW_DBW_16_BITS (0x1u << 4)	/**< \brief (MPDDRC_MD) Data bus width is 16 bits. */
+#define   MPDDRC_MD_DBW_DBW_16_BITS (0x1u << 4)	/**< \brief (MPDDRC_MD) Data bus width is 16 bits */
 /* -------- MPDDRC_LPDDR2_LPR : (MPDDRC Offset: 0x28) MPDDRC LPDDR2 Low-power Register -------- */
 #define MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Pos 0
 #define MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Msk (0xffu << MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Pos) /**< \brief (MPDDRC_LPDDR2_LPR) Bank Mask Bit/PASR */
@@ -291,13 +294,7 @@ typedef struct {
 #define MPDDRC_IO_CALIBR_RDIV_Pos 0
 #define MPDDRC_IO_CALIBR_RDIV_Msk (0x7u << MPDDRC_IO_CALIBR_RDIV_Pos) /**< \brief (MPDDRC_IO_CALIBR) Resistor Divider, Output Driver Impedance */
 #define MPDDRC_IO_CALIBR_RDIV(value) ((MPDDRC_IO_CALIBR_RDIV_Msk & ((value) << MPDDRC_IO_CALIBR_RDIV_Pos)))
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_34 (0x1u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2 RZQ = 34.3 ohms, DDR2/LPDDR1: Not applicable */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_40_RZQ_33_3 (0x2u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 40 ohms, DDR2/LPDDR1: RZQ = 33.3 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_48_RZQ_40 (0x3u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 48 ohms, DDR2/LPDDR1: RZQ = 40 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 60 ohms, DDR2/LPDDR1: RZQ = 50 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_80_RZQ_66_7 (0x6u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2: RZQ = 80 ohms, DDR2/LPDDR1: RZQ = 66.7 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_120_RZQ_100 (0x7u << 0) /**< \brief (MPDDRC_IO_CALIBR) LPDDR2:RZQ = 120 ohms, DDR2/LPDDR1: RZQ = 100 ohms */
-#define MPDDRC_IO_CALIBR_EN_CALIB (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Enable of the Calibration */
+#define MPDDRC_IO_CALIBR_EN_CALIB (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Enable Calibration */
 #define   MPDDRC_IO_CALIBR_EN_CALIB_DISABLE_CALIBRATION (0x0u << 4) /**< \brief (MPDDRC_IO_CALIBR) Calibration is disabled. */
 #define   MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Calibration is enabled. */
 #define MPDDRC_IO_CALIBR_TZQIO_Pos 8
@@ -343,9 +340,14 @@ typedef struct {
 #define MPDDRC_CONF_ARBITER_MA_PR_P5 (0x1u << 21) /**< \brief (MPDDRC_CONF_ARBITER) Master or Software Provide Information */
 #define MPDDRC_CONF_ARBITER_MA_PR_P6 (0x1u << 22) /**< \brief (MPDDRC_CONF_ARBITER) Master or Software Provide Information */
 #define MPDDRC_CONF_ARBITER_MA_PR_P7 (0x1u << 23) /**< \brief (MPDDRC_CONF_ARBITER) Master or Software Provide Information */
-#define MPDDRC_CONF_ARBITER_BDW_BURST_P7_Pos 24
-#define MPDDRC_CONF_ARBITER_BDW_BURST_P7_Msk (0xffu << MPDDRC_CONF_ARBITER_BDW_BURST_P7_Pos) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on Port X */
-#define MPDDRC_CONF_ARBITER_BDW_BURST_P7(value) ((MPDDRC_CONF_ARBITER_BDW_BURST_P7_Msk & ((value) << MPDDRC_CONF_ARBITER_BDW_BURST_P7_Pos)))
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P0 (0x1u << 24) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P1 (0x1u << 25) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P2 (0x1u << 26) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P3 (0x1u << 27) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P4 (0x1u << 28) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P5 (0x1u << 29) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P6 (0x1u << 30) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
+#define MPDDRC_CONF_ARBITER_BDW_BURST_P7 (0x1u << 31) /**< \brief (MPDDRC_CONF_ARBITER) Bandwidth is Reached or Bandwidth and Current Burst Access is Ended on port X */
 /* -------- MPDDRC_TIMEOUT : (MPDDRC Offset: 0x48) MPDDRC Time-out Port 0/1/2/3 Register -------- */
 #define MPDDRC_TIMEOUT_TIMEOUT_P0_Pos 0
 #define MPDDRC_TIMEOUT_TIMEOUT_P0_Msk (0xfu << MPDDRC_TIMEOUT_TIMEOUT_P0_Pos) /**< \brief (MPDDRC_TIMEOUT) Time-out for Ports 0, 1, 2, 3, 4, 5, 6 and 7 */
@@ -422,26 +424,7 @@ typedef struct {
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_NO_SHIFT (0x0u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Initial sampling point. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE (0x1u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by one cycle. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES (0x2u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by two cycles. */
-#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by three cycles, unique for LPDDR2.Not applicable for the DDR2 and LPDDR1devices. */
-/* -------- MPDDRC_SAW[4] : (MPDDRC Offset: 0x60) MPDDRC Smart Adaptation Wrapper 0 Register -------- */
-#define MPDDRC_SAW_FLUSH_MAX_Pos 0
-#define MPDDRC_SAW_FLUSH_MAX_Msk (0xffu << MPDDRC_SAW_FLUSH_MAX_Pos) /**< \brief (MPDDRC_SAW[4]) Clears FIFO Content */
-#define MPDDRC_SAW_FLUSH_MAX(value) ((MPDDRC_SAW_FLUSH_MAX_Msk & ((value) << MPDDRC_SAW_FLUSH_MAX_Pos)))
-#define MPDDRC_SAW_INCR_THRESH_Pos 8
-#define MPDDRC_SAW_INCR_THRESH_Msk (0x3fu << MPDDRC_SAW_INCR_THRESH_Pos) /**< \brief (MPDDRC_SAW[4]) Incremental Threshold */
-#define MPDDRC_SAW_INCR_THRESH(value) ((MPDDRC_SAW_INCR_THRESH_Msk & ((value) << MPDDRC_SAW_INCR_THRESH_Pos)))
-#define   MPDDRC_SAW_INCR_THRESH_1_WORD (0x1u << 8) /**< \brief (MPDDRC_SAW[4]) 1 word/dword max */
-#define   MPDDRC_SAW_INCR_THRESH_2_WORDS (0x2u << 8) /**< \brief (MPDDRC_SAW[4]) 2 word/dword max */
-#define   MPDDRC_SAW_INCR_THRESH_4_WORDS (0x4u << 8) /**< \brief (MPDDRC_SAW[4]) 4 word/dword max */
-#define   MPDDRC_SAW_INCR_THRESH_8_WORDS (0x8u << 8) /**< \brief (MPDDRC_SAW[4]) 8 word/dword max */
-#define   MPDDRC_SAW_INCR_THRESH_16_WORDS (0x10u << 8) /**< \brief (MPDDRC_SAW[4]) 16 word/dword max */
-#define   MPDDRC_SAW_INCR_THRESH_32_WORDS (0x20u << 8) /**< \brief (MPDDRC_SAW[4]) 32 word/dword max */
-#define MPDDRC_SAW_PFCH_THRESH_Pos 16
-#define MPDDRC_SAW_PFCH_THRESH_Msk (0x3fu << MPDDRC_SAW_PFCH_THRESH_Pos) /**< \brief (MPDDRC_SAW[4]) Prefetch Threshold */
-#define MPDDRC_SAW_PFCH_THRESH(value) ((MPDDRC_SAW_PFCH_THRESH_Msk & ((value) << MPDDRC_SAW_PFCH_THRESH_Pos)))
-#define   MPDDRC_SAW_PFCH_THRESH_2_WORDS (0x2u << 16) /**< \brief (MPDDRC_SAW[4]) 2 word/dword max */
-#define   MPDDRC_SAW_PFCH_THRESH_4_WORDS (0x4u << 16) /**< \brief (MPDDRC_SAW[4]) 4 word/dword max */
-#define   MPDDRC_SAW_PFCH_THRESH_8_WORDS (0x8u << 16) /**< \brief (MPDDRC_SAW[4]) 8 word/dword max */
+#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by three cycles. */
 /* -------- MPDDRC_WPMR : (MPDDRC Offset: 0xE4) MPDDRC Write Protection Mode Register -------- */
 #define MPDDRC_WPMR_WPEN (0x1u << 0) /**< \brief (MPDDRC_WPMR) Write Protection Enable */
 #define MPDDRC_WPMR_WPKEY_Pos 8
@@ -449,7 +432,7 @@ typedef struct {
 #define MPDDRC_WPMR_WPKEY(value) ((MPDDRC_WPMR_WPKEY_Msk & ((value) << MPDDRC_WPMR_WPKEY_Pos)))
 #define   MPDDRC_WPMR_WPKEY_PASSWD (0x444452u << 8) /**< \brief (MPDDRC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
 /* -------- MPDDRC_WPSR : (MPDDRC Offset: 0xE8) MPDDRC Write Protection Status Register -------- */
-#define MPDDRC_WPSR_WPVS (0x1u << 0) /**< \brief (MPDDRC_WPSR) Write Protection Enable */
+#define MPDDRC_WPSR_WPVS (0x1u << 0) /**< \brief (MPDDRC_WPSR) Write Protection Violation Status */
 #define MPDDRC_WPSR_WPVSRC_Pos 8
 #define MPDDRC_WPSR_WPVSRC_Msk (0xffffu << MPDDRC_WPSR_WPVSRC_Pos) /**< \brief (MPDDRC_WPSR) Write Protection Violation Source */
 /* -------- MPDDRC_DLL_OS : (MPDDRC Offset: 0x100) MPDDRC DLL Offset Selection Register -------- */
@@ -526,4 +509,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_MPDDRC_COMPONENT_ */
+#endif /* _SAMA5D4_MPDDRC_COMPONENT_ */

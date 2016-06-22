@@ -33,12 +33,28 @@
 #include "peripherals/mpddrc.h"
 
 enum _ddram_devices {
+#ifdef CONFIG_HAVE_MPDDRC_DDR2
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
 	MT47H128M8CF,  /* DDR2 */
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	MT47H128M16,   /* DDR2 */
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR2
+  #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	MT42L128M16,   /* LPDDR2 */
-#ifdef CONFIG_HAVE_DDR3
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_DDR3
+  #ifdef CONFIG_HAVE_DDR3_MT41K128M16
 	MT41K128M16,   /* DDR3 512 MB */
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR3
+  #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 	EDF8164A3MA,   /* LPDDR3 512MB */
+  #endif
 #endif
 };
 

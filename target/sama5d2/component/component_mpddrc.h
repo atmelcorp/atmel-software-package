@@ -49,9 +49,9 @@ typedef struct {
   __IO uint32_t MPDDRC_LPR;             /**< \brief (Mpddrc Offset: 0x1C) MPDDRC Low-power Register */
   __IO uint32_t MPDDRC_MD;              /**< \brief (Mpddrc Offset: 0x20) MPDDRC Memory Device Register */
   __I  uint32_t Reserved2[1];
-  __IO uint32_t MPDDRC_LPDDR23_LPR;     /**< \brief (Mpddrc Offset: 0x28) MPDDRC LPDDR2-LPDDR3 Low-power Register */
-  __IO uint32_t MPDDRC_LPDDR23_CAL_MR4; /**< \brief (Mpddrc Offset: 0x2C) MPDDRC LPDDR2-LPDDR3 Calibration and MR4 Register */
-  __IO uint32_t MPDDRC_LPDDR23_TIM_CAL; /**< \brief (Mpddrc Offset: 0x30) MPDDRC LPDDR2-LPDDR3 Timing Calibration Register */
+  __IO uint32_t MPDDRC_LPDDR2_LPR;      /**< \brief (Mpddrc Offset: 0x28) MPDDRC LPDDR2 Low-power Register */
+  __IO uint32_t MPDDRC_LPDDR2_CAL_MR4;  /**< \brief (Mpddrc Offset: 0x2C) MPDDRC LPDDR2 Calibration and MR4 Register */
+  __IO uint32_t MPDDRC_LPDDR2_TIM_CAL;  /**< \brief (Mpddrc Offset: 0x30) MPDDRC LPDDR2 Timing Calibration Register */
   __IO uint32_t MPDDRC_IO_CALIBR;       /**< \brief (Mpddrc Offset: 0x34) MPDDRC IO Calibration */
   __IO uint32_t MPDDRC_OCMS;            /**< \brief (Mpddrc Offset: 0x38) MPDDRC OCMS Register */
   __O  uint32_t MPDDRC_OCMS_KEY1;       /**< \brief (Mpddrc Offset: 0x3C) MPDDRC OCMS KEY1 Register */
@@ -83,18 +83,6 @@ typedef struct {
   __I  uint32_t Reserved3[16];
   __IO uint32_t MPDDRC_WPMR;            /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
   __I  uint32_t MPDDRC_WPSR;            /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
-  __I  uint32_t Reserved4[4];
-  __I  uint32_t MPDDRC_VERSION;         /**< \brief (Mpddrc Offset: 0xFC) MPDDRC Version Register */
-  __IO uint32_t MPDDRC_DLL_OS;          /**< \brief (Mpddrc Offset: 0x100) MPDDRC DLL Offset Selection Register */
-  __IO uint32_t MPDDRC_DLL_MAO;         /**< \brief (Mpddrc Offset: 0x104) MPDDRC DLL MASTER Offset Register */
-  __IO uint32_t MPDDRC_DLL_SO0;         /**< \brief (Mpddrc Offset: 0x108) MPDDRC DLL SLAVE Offset 0 Register */
-  __IO uint32_t MPDDRC_DLL_SO1;         /**< \brief (Mpddrc Offset: 0x10C) MPDDRC DLL SLAVE Offset 1 Register */
-  __IO uint32_t MPDDRC_DLL_WRO;         /**< \brief (Mpddrc Offset: 0x110) MPDDRC DLL CLKWR Offset Register */
-  __IO uint32_t MPDDRC_DLL_ADO;         /**< \brief (Mpddrc Offset: 0x114) MPDDRC DLL CLKAD Offset Register */
-  __I  uint32_t MPDDRC_DLL_SM[4];       /**< \brief (Mpddrc Offset: 0x118) MPDDRC DLL Status MASTER0 Register */
-  __I  uint32_t MPDDRC_DLL_SSL[8];      /**< \brief (Mpddrc Offset: 0x128) MPDDRC DLL Status SLAVE0 Register */
-  __I  uint32_t MPDDRC_DLL_SWR[4];      /**< \brief (Mpddrc Offset: 0x148) MPDDRC DLL Status CLKWR0 Register */
-  __I  uint32_t MPDDRC_DLL_SAD;         /**< \brief (Mpddrc Offset: 0x158) MPDDRC DLL Status CLKAD Register */
 } Mpddrc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MPDDRC_MR : (MPDDRC Offset: 0x00) MPDDRC Mode Register -------- */
@@ -107,13 +95,15 @@ typedef struct {
 #define   MPDDRC_MR_MODE_LMR_CMD (0x3u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues a Load Mode Register command when the DDR-SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
 #define   MPDDRC_MR_MODE_RFSH_CMD (0x4u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an Auto-Refresh command when the DDR-SDRAM device is accessed regardless of the cycle. Previously, an All Banks Precharge command must be issued. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
 #define   MPDDRC_MR_MODE_EXT_LMR_CMD (0x5u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an Extended Load Mode Register command when the SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. The write in the DDR-SDRAM must be done in the appropriate bank. */
-#define   MPDDRC_MR_MODE_DEEP_CALIB_MD (0x6u << 0) /**< \brief (MPDDRC_MR) Deep Power mode: Access to Deep Power-down modeCalibration command: to calibrate RTT and RON values for the Process Voltage Temperature (PVT) (DDR3-SDRAM device) */
-#define   MPDDRC_MR_MODE_LPDDR2_LPDDR3_CMD (0x7u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR2/LPDDR3 Mode Register command when the device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR2-SDRAM or to the low-power DDR3-SDRAM. */
+#define   MPDDRC_MR_MODE_DEEP_CMD (0x6u << 0) /**< \brief (MPDDRC_MR) Deep power mode: Access to deep power-down mode */
+#define   MPDDRC_MR_MODE_CALIB_CMD (0x6u << 0) /**< \brief (MPDDRC_MR) Calibration command: to calibrate RTT and RON values for the Process Voltage Temperature (PVT) (DDR3-SDRAM device) */
+#define   MPDDRC_MR_MODE_LPDDR2_CMD (0x7u << 0)	/**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR2 Mode Register command when the low-power DDR2-SDRAM device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR2-SDRAM. */
+#define   MPDDRC_MR_MODE_LPDDR3_CMD (0x7u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR3 Mode Register command when the low-power DDR3-SDRAM device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR3-SDRAM. */
 #define MPDDRC_MR_DAI (0x1u << 4) /**< \brief (MPDDRC_MR) Device Auto-Initialization Status */
 #define   MPDDRC_MR_DAI_DAI_COMPLETE (0x0u << 4) /**< \brief (MPDDRC_MR) DAI complete */
 #define   MPDDRC_MR_DAI_DAI_IN_PROGESSS (0x1u << 4) /**< \brief (MPDDRC_MR) DAI still in progress */
 #define MPDDRC_MR_MRS_Pos 8
-#define MPDDRC_MR_MRS_Msk (0xffu << MPDDRC_MR_MRS_Pos) /**< \brief (MPDDRC_MR) Mode Register Select LPDDR2/LPDDR3 */
+#define MPDDRC_MR_MRS_Msk (0xffu << MPDDRC_MR_MRS_Pos) /**< \brief (MPDDRC_MR) Mode Register Select LPDDR2 */
 #define MPDDRC_MR_MRS(value) ((MPDDRC_MR_MRS_Msk & ((value) << MPDDRC_MR_MRS_Pos)))
 /* -------- MPDDRC_RTR : (MPDDRC Offset: 0x04) MPDDRC Refresh Timer Register -------- */
 #define MPDDRC_RTR_COUNT_Pos 0
@@ -128,10 +118,14 @@ typedef struct {
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
-#define   MPDDRC_CR_NC_DDR9_MDDR8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits for DDR, 8-bit for low-power DDR1-SDRAM */
-#define   MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR, 9-bit for low-power DDR1-SDRAM */
-#define   MPDDRC_CR_NC_DDR11_MDDR10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits for DDR, 10-bit for low-power DDR1-SDRAM */
-#define   MPDDRC_CR_NC_DDR12_MDDR11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits for DDR, 11-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits for DDR */
+#define   MPDDRC_CR_NC_LPDDR1_8_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 8-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_9_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 9-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_10_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 10-bit for low-power DDR1-SDRAM */
+#define   MPDDRC_CR_NC_LPDDR1_11_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 11-bit for low-power DDR1-SDRAM */
 #define MPDDRC_CR_NR_Pos 2
 #define MPDDRC_CR_NR_Msk (0x3u << MPDDRC_CR_NR_Pos) /**< \brief (MPDDRC_CR) Number of Row Bits */
 #define MPDDRC_CR_NR(value) ((MPDDRC_CR_NR_Msk & ((value) << MPDDRC_CR_NR_Pos)))
@@ -142,17 +136,19 @@ typedef struct {
 #define MPDDRC_CR_CAS_Pos 4
 #define MPDDRC_CR_CAS_Msk (0x7u << MPDDRC_CR_CAS_Pos) /**< \brief (MPDDRC_CR) CAS Latency */
 #define MPDDRC_CR_CAS(value) ((MPDDRC_CR_CAS_Msk & ((value) << MPDDRC_CR_CAS_Pos)))
-#define   MPDDRC_CR_CAS_DDR_CAS2 (0x2u << 4) /**< \brief (MPDDRC_CR) LPDDR1 CAS Latency 2 */
-#define   MPDDRC_CR_CAS_DDR_CAS3 (0x3u << 4) /**< \brief (MPDDRC_CR) LPDDR3/DDR2/LPDDR2/LPDDR1 CAS Latency 3 */
-#define   MPDDRC_CR_CAS_DDR_CAS5 (0x5u << 4) /**< \brief (MPDDRC_CR) DDR3 CAS Latency 5 */
-#define   MPDDRC_CR_CAS_DDR_CAS6 (0x6u << 4) /**< \brief (MPDDRC_CR) DDR3LPDDR3 CAS Latency 6 */
+#define   MPDDRC_CR_CAS_DDR_CAS2 (0x2u << 4) /**< \brief (MPDDRC_CR) CAS Latency 2 */
+#define   MPDDRC_CR_CAS_DDR_CAS3 (0x3u << 4) /**< \brief (MPDDRC_CR) CAS Latency 3 */
+#define   MPDDRC_CR_CAS_DDR_CAS5 (0x5u << 4) /**< \brief (MPDDRC_CR) CAS Latency 5 */
+#define   MPDDRC_CR_CAS_DDR_CAS6 (0x6u << 4) /**< \brief (MPDDRC_CR) CAS Latency 6 */
 #define MPDDRC_CR_DLL (0x1u << 7) /**< \brief (MPDDRC_CR) Reset DLL */
 #define   MPDDRC_CR_DLL_RESET_DISABLED (0x0u << 7) /**< \brief (MPDDRC_CR) Disable DLL reset */
 #define   MPDDRC_CR_DLL_RESET_ENABLED (0x1u << 7) /**< \brief (MPDDRC_CR) Enable DLL reset */
 #define MPDDRC_CR_DIC_DS (0x1u << 8) /**< \brief (MPDDRC_CR) Output Driver Impedance Control (Drive Strength) */
-#define   MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH_DDR3_RZQ6 (0x0u << 8) /**< \brief (MPDDRC_CR) Normal driver strength (DDR2) - RZQ/6 (40 [NOM], DDR3) */
-#define   MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH_DDR3_RZQ7 (0x1u << 8) /**< \brief (MPDDRC_CR) Weak driver strength (DDR2) - RZQ/7 (34 [NOM], DDR3) */
-#define MPDDRC_CR_DIS_DLL (0x1u << 9) /**< \brief (MPDDRC_CR) DISABLE DLL */
+#define   MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH (0x0u << 8) /**< \brief (MPDDRC_CR) Normal driver strength (DDR2) */
+#define   MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH (0x1u << 8) /**< \brief (MPDDRC_CR) Weak driver strength (DDR2) */
+#define   MPDDRC_CR_DIC_DS_DDR3_RZQ6 (0x0u << 8) /**< \brief (MPDDRC_CR) RZQ/6 (40 [NOM], DDR3) */
+#define   MPDDRC_CR_DIC_DS_DDR3_RZQ7 (0x1u << 8) /**< \brief (MPDDRC_CR) RZQ/7 (34 [NOM], DDR3) */
+#define MPDDRC_CR_DIS_DLL (0x1u << 9) /**< \brief (MPDDRC_CR) Disable DLL */
 #define MPDDRC_CR_ZQ_Pos 10
 #define MPDDRC_CR_ZQ_Msk (0x3u << MPDDRC_CR_ZQ_Pos) /**< \brief (MPDDRC_CR) ZQ Calibration */
 #define MPDDRC_CR_ZQ(value) ((MPDDRC_CR_ZQ_Msk & ((value) << MPDDRC_CR_ZQ_Pos)))
@@ -163,7 +159,7 @@ typedef struct {
 #define MPDDRC_CR_OCD_Pos 12
 #define MPDDRC_CR_OCD_Msk (0x7u << MPDDRC_CR_OCD_Pos) /**< \brief (MPDDRC_CR) Off-chip Driver */
 #define MPDDRC_CR_OCD(value) ((MPDDRC_CR_OCD_Msk & ((value) << MPDDRC_CR_OCD_Pos)))
-#define   MPDDRC_CR_OCD_DDR2_EXITCALIB (0x0u << 12) /**< \brief (MPDDRC_CR) Exit from OCD Calibration mode and maintain settings */
+#define   MPDDRC_CR_OCD_DDR2_EXITCALIB (0x0u << 12) /**< \brief (MPDDRC_CR) Exit from OCD calibration mode and maintain settings */
 #define   MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB (0x7u << 12) /**< \brief (MPDDRC_CR) OCD calibration default */
 #define MPDDRC_CR_DQMS (0x1u << 16) /**< \brief (MPDDRC_CR) Mask Data is Shared */
 #define   MPDDRC_CR_DQMS_NOT_SHARED (0x0u << 16) /**< \brief (MPDDRC_CR) DQM is not shared with another controller */
@@ -173,10 +169,10 @@ typedef struct {
 #define   MPDDRC_CR_ENRDM_ON (0x1u << 17) /**< \brief (MPDDRC_CR) DQS/DDR_DATA phase error correction is enabled */
 #define MPDDRC_CR_LC_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost Low-power DDR1 */
 #define   MPDDRC_CR_LC_LPDDR1_NOT_2_BANKS (0x0u << 19) /**< \brief (MPDDRC_CR) Any type of memory devices except of low cost, low density Low Power DDR1. */
-#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. These devices have a density of 32 Mbits and are organized as two internal banks. To use this feature, the user has to define the type of memory and the data bus width (see Section 8.8 "MPDDRC Memory Device Register").The 16-bit memory device is organized as 2 banks, 9 columns and 11 rows.The 32-bit memory device is organized as 2 banks, 8 columns and 11 rows.It is impossible to use two 16-bit memory devices (2 x 32 Mbits) for creating one 32-bit memory device (64 Mbits). In this case, it is recommended to use one 32-bit memory device which embeds four internal banks. */
+#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. */
 #define MPDDRC_CR_NB (0x1u << 20) /**< \brief (MPDDRC_CR) Number of Banks */
-#define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4-bank memory devices */
-#define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks. Only possible when using the DDR2-SDRAM and low-power DDR2-SDRAM and DDR3-SDRAM and low-power DDR3-SDRAM devices. */
+#define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4 banks */
+#define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks */
 #define MPDDRC_CR_NDQS (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS */
 #define   MPDDRC_CR_NDQS_ENABLED (0x0u << 21) /**< \brief (MPDDRC_CR) Not DQS is enabled */
 #define   MPDDRC_CR_NDQS_DISABLED (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS is disabled */
@@ -244,16 +240,16 @@ typedef struct {
 #define MPDDRC_LPR_LPCB_Pos 0
 #define MPDDRC_LPR_LPCB_Msk (0x3u << MPDDRC_LPR_LPCB_Pos) /**< \brief (MPDDRC_LPR) Low-power Command Bit */
 #define MPDDRC_LPR_LPCB(value) ((MPDDRC_LPR_LPCB_Msk & ((value) << MPDDRC_LPR_LPCB_Pos)))
-#define   MPDDRC_LPR_LPCB_NOLOWPOWER (0x0u << 0) /**< \brief (MPDDRC_LPR) Low-power feature is inhibited. No Power-down, Self-refresh and Deep-power modes are issued to the DDR-SDRAM device. */
-#define   MPDDRC_LPR_LPCB_SELFREFRESH (0x1u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a self-refresh command to the DDR-SDRAM device, the clock(s) is/are deactivated and the CKE signal is set low. The DDR-SDRAM device leaves the Self-refresh mode when accessed and reenters it after the access. */
-#define   MPDDRC_LPR_LPCB_POWERDOWN (0x2u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Power-down command to the DDR-SDRAM device after each access, the CKE signal is set low. The DDR-SDRAM device leaves the Power-down mode when accessed and reenters it after the access. */
+#define   MPDDRC_LPR_LPCB_NOLOWPOWER (0x0u << 0) /**< \brief (MPDDRC_LPR) Low-power feature is inhibited. No power-down, self-refresh and deep-power modes are issued to the DDR-SDRAM device. */
+#define   MPDDRC_LPR_LPCB_SELFREFRESH (0x1u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a self-refresh command to the DDR-SDRAM device, the clock(s) is/are deactivated and the CKE signal is set low. The DDR-SDRAM device leaves the self-refresh mode when accessed and reenters it after the access. */
+#define   MPDDRC_LPR_LPCB_POWERDOWN (0x2u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Power-down command to the DDR-SDRAM device after each access, the CKE signal is set low. The DDR-SDRAM device leaves the power-down mode when accessed and reenters it after the access. */
 #define   MPDDRC_LPR_LPCB_DEEPPOWERDOWN (0x3u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Deep Power-down command to the low-power DDR-SDRAM device. */
 #define MPDDRC_LPR_CLK_FR (0x1u << 2) /**< \brief (MPDDRC_LPR) Clock Frozen Command Bit */
 #define   MPDDRC_LPR_CLK_FR_DISABLED (0x0u << 2) /**< \brief (MPDDRC_LPR) Clock(s) is/are not frozen. */
 #define   MPDDRC_LPR_CLK_FR_ENABLED (0x1u << 2) /**< \brief (MPDDRC_LPR) Clock(s) is/are frozen. */
-#define MPDDRC_LPR_LPDDR2_LPDDR3_PWOFF (0x1u << 3) /**< \brief (MPDDRC_LPR) LPDDR2 - LPDDR3 Power Off Bit */
-#define   MPDDRC_LPR_LPDDR2_LPDDR3_PWOFF_DISABLED (0x0u << 3) /**< \brief (MPDDRC_LPR) No power-off sequence applied to LPDDR2/LPDDR3. */
-#define   MPDDRC_LPR_LPDDR2_LPDDR3_PWOFF_ENABLED (0x1u << 3) /**< \brief (MPDDRC_LPR) A power-off sequence is applied to the LPDDR2/LPDDR3 device. CKE is forced low. */
+#define MPDDRC_LPR_LPDDR2_PWOFF (0x1u << 3) /**< \brief (MPDDRC_LPR) LPDDR2 Power Off Bit */
+#define   MPDDRC_LPR_LPDDR2_PWOFF_DISABLED (0x0u << 3) /**< \brief (MPDDRC_LPR) No power off sequence applied to LPDDR2. */
+#define   MPDDRC_LPR_LPDDR2_PWOFF_ENABLED (0x1u << 3) /**< \brief (MPDDRC_LPR) A power off sequence is applied to the LPDDR2 device. CKE is forced low. */
 #define MPDDRC_LPR_PASR_Pos 4
 #define MPDDRC_LPR_PASR_Msk (0x7u << MPDDRC_LPR_PASR_Pos) /**< \brief (MPDDRC_LPR) Partial Array Self-refresh */
 #define MPDDRC_LPR_PASR(value) ((MPDDRC_LPR_PASR_Msk & ((value) << MPDDRC_LPR_PASR_Pos)))
@@ -263,12 +259,12 @@ typedef struct {
 #define MPDDRC_LPR_TIMEOUT_Pos 12
 #define MPDDRC_LPR_TIMEOUT_Msk (0x3u << MPDDRC_LPR_TIMEOUT_Pos) /**< \brief (MPDDRC_LPR) Time Between Last Transfer and Low-Power Mode */
 #define MPDDRC_LPR_TIMEOUT(value) ((MPDDRC_LPR_TIMEOUT_Msk & ((value) << MPDDRC_LPR_TIMEOUT_Pos)))
-#define   MPDDRC_LPR_TIMEOUT_NONE (0x0u << 12) /**< \brief (MPDDRC_LPR) SDRAM Low-power mode is activated immediately after the end of the last transfer. */
-#define   MPDDRC_LPR_TIMEOUT_DELAY_64_CLK (0x1u << 12) /**< \brief (MPDDRC_LPR) SDRAM Low-power mode is activated 64 clock cycles after the end of the last transfer. */
-#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12) /**< \brief (MPDDRC_LPR) SDRAM Low-power mode is activated 128 clock cycles after the end of the last transfer. */
+#define   MPDDRC_LPR_TIMEOUT_NONE (0x0u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated immediately after the end of the last transfer. */
+#define   MPDDRC_LPR_TIMEOUT_DELAY_64_CLK (0x1u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 64 clock cycles after the end of the last transfer. */
+#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12)        /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
 #define MPDDRC_LPR_APDE (0x1u << 16) /**< \brief (MPDDRC_LPR) Active Power Down Exit Time */
-#define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. DDR2-SDRAM and DDR3-SDRAM devices only. */
-#define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. DDR2-SDRAM and DDR3-SDRAM devices only. */
+#define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. */
+#define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. */
 #define MPDDRC_LPR_UPD_MR_Pos 20
 #define MPDDRC_LPR_UPD_MR_Msk (0x3u << MPDDRC_LPR_UPD_MR_Pos) /**< \brief (MPDDRC_LPR) Update Load Mode Register and Extended Mode Register */
 #define MPDDRC_LPR_UPD_MR(value) ((MPDDRC_LPR_UPD_MR_Msk & ((value) << MPDDRC_LPR_UPD_MR_Pos)))
@@ -288,7 +284,7 @@ typedef struct {
 #define   MPDDRC_MD_MD_LPDDR2_SDRAM (0x7u << 0) /**< \brief (MPDDRC_MD) Low-power DDR2-SDRAM */
 #define MPDDRC_MD_DBW (0x1u << 4) /**< \brief (MPDDRC_MD) Data Bus Width */
 #define   MPDDRC_MD_DBW_DBW_32_BITS (0x0u << 4) /**< \brief (MPDDRC_MD) Data bus width is 32 bits */
-#define   MPDDRC_MD_DBW_DBW_16_BITS (0x1u << 4) /**< \brief (MPDDRC_MD) Data bus width is 16 bits. */
+#define   MPDDRC_MD_DBW_DBW_16_BITS (0x1u << 4) /**< \brief (MPDDRC_MD) Data bus width is 16 bits */
 #define MPDDRC_MD_WL (0x1u << 5) /**< \brief (MPDDRC_MD) Write Latency */
 #define   MPDDRC_MD_WL_WL_SETA (0x0u << 5) /**< \brief (MPDDRC_MD) Write Latency Set A */
 #define   MPDDRC_MD_WL_WL_SETB (0x1u << 5) /**< \brief (MPDDRC_MD) Write Latency Set B */
@@ -328,44 +324,38 @@ typedef struct {
 #define   MPDDRC_MD_IO_WIDTH_WIDTH_16 (0x1u << 30) /**< \brief (MPDDRC_MD) The data bus width is 16 bits. */
 #define   MPDDRC_MD_IO_WIDTH_WIDTH_8 (0x2u << 30) /**< \brief (MPDDRC_MD) The data bus width is 8 bits. */
 #define   MPDDRC_MD_IO_WIDTH_NOT_USED (0x3u << 30) /**< \brief (MPDDRC_MD) - */
-/* -------- MPDDRC_LPDDR23_LPR : (MPDDRC Offset: 0x28) MPDDRC LPDDR2-LPDDR3 Low-power Register -------- */
-#define MPDDRC_LPDDR23_LPR_BK_MASK_PASR_Pos 0
-#define MPDDRC_LPDDR23_LPR_BK_MASK_PASR_Msk (0xffu << MPDDRC_LPDDR23_LPR_BK_MASK_PASR_Pos) /**< \brief (MPDDRC_LPDDR23_LPR) Bank Mask Bit/PASR */
-#define MPDDRC_LPDDR23_LPR_BK_MASK_PASR(value) ((MPDDRC_LPDDR23_LPR_BK_MASK_PASR_Msk & ((value) << MPDDRC_LPDDR23_LPR_BK_MASK_PASR_Pos)))
-#define MPDDRC_LPDDR23_LPR_SEG_MASK_Pos 8
-#define MPDDRC_LPDDR23_LPR_SEG_MASK_Msk (0xffffu << MPDDRC_LPDDR23_LPR_SEG_MASK_Pos) /**< \brief (MPDDRC_LPDDR23_LPR) Segment Mask Bit */
-#define MPDDRC_LPDDR23_LPR_SEG_MASK(value) ((MPDDRC_LPDDR23_LPR_SEG_MASK_Msk & ((value) << MPDDRC_LPDDR23_LPR_SEG_MASK_Pos)))
-#define MPDDRC_LPDDR23_LPR_DS_Pos 24
-#define MPDDRC_LPDDR23_LPR_DS_Msk (0xfu << MPDDRC_LPDDR23_LPR_DS_Pos) /**< \brief (MPDDRC_LPDDR23_LPR) Drive Strength */
-#define MPDDRC_LPDDR23_LPR_DS(value) ((MPDDRC_LPDDR23_LPR_DS_Msk & ((value) << MPDDRC_LPDDR23_LPR_DS_Pos)))
-/* -------- MPDDRC_LPDDR23_CAL_MR4 : (MPDDRC Offset: 0x2C) MPDDRC LPDDR2-LPDDR3 Calibration and MR4 Register -------- */
-#define MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL_Pos 0
-#define MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL_Msk (0xffffu << MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL_Pos) /**< \brief (MPDDRC_LPDDR23_CAL_MR4) LPDDR2 and LPDDR3 Calibration Timer Count */
-#define MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL(value) ((MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL_Msk & ((value) << MPDDRC_LPDDR23_CAL_MR4_COUNT_CAL_Pos)))
-#define MPDDRC_LPDDR23_CAL_MR4_MR4_READ_Pos 16
-#define MPDDRC_LPDDR23_CAL_MR4_MR4_READ_Msk (0xffffu << MPDDRC_LPDDR23_CAL_MR4_MR4_READ_Pos) /**< \brief (MPDDRC_LPDDR23_CAL_MR4) Mode Register 4 Read Interval */
-#define MPDDRC_LPDDR23_CAL_MR4_MR4_READ(value) ((MPDDRC_LPDDR23_CAL_MR4_MR4_READ_Msk & ((value) << MPDDRC_LPDDR23_CAL_MR4_MR4_READ_Pos)))
-/* -------- MPDDRC_LPDDR23_TIM_CAL : (MPDDRC Offset: 0x30) MPDDRC LPDDR2-LPDDR3 Timing Calibration Register -------- */
-#define MPDDRC_LPDDR23_TIM_CAL_ZQCS_Pos 0
-#define MPDDRC_LPDDR23_TIM_CAL_ZQCS_Msk (0xffu << MPDDRC_LPDDR23_TIM_CAL_ZQCS_Pos) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) ZQ Calibration Short */
-#define MPDDRC_LPDDR23_TIM_CAL_ZQCS(value) ((MPDDRC_LPDDR23_TIM_CAL_ZQCS_Msk & ((value) << MPDDRC_LPDDR23_TIM_CAL_ZQCS_Pos)))
-#define MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos 16
-#define MPDDRC_LPDDR23_TIM_CAL_RZQI_Msk (0x3u << MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) Built-in Self-Test for RZQ Information */
-#define MPDDRC_LPDDR23_TIM_CAL_RZQI(value) ((MPDDRC_LPDDR23_TIM_CAL_RZQI_Msk & ((value) << MPDDRC_LPDDR23_TIM_CAL_RZQI_Pos)))
-#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_RZQ_NOT_SUPPORTED (0x0u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) RZQ self test not supported */
-#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_VDDCA_FLOAT (0x1u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) The ZQ pin can be connected to VDDCA or left floating. */
-#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_SHORTED_GROUND (0x2u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) The ZQ pin can be shorted to ground. */
-#define   MPDDRC_LPDDR23_TIM_CAL_RZQI_ZQ_SELF_TEST_OK (0x3u << 16) /**< \brief (MPDDRC_LPDDR23_TIM_CAL) ZQ pin self test complete; no error condition detected */
+/* -------- MPDDRC_LPDDR2_LPR : (MPDDRC Offset: 0x28) MPDDRC LPDDR2 Low-power Register -------- */
+#define MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Pos 0
+#define MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Msk (0xffu << MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Pos) /**< \brief (MPDDRC_LPDDR2_LPR) Bank Mask Bit/PASR */
+#define MPDDRC_LPDDR2_LPR_BK_MASK_PASR(value) ((MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Msk & ((value) << MPDDRC_LPDDR2_LPR_BK_MASK_PASR_Pos)))
+#define MPDDRC_LPDDR2_LPR_SEG_MASK_Pos 8
+#define MPDDRC_LPDDR2_LPR_SEG_MASK_Msk (0xffffu << MPDDRC_LPDDR2_LPR_SEG_MASK_Pos) /**< \brief (MPDDRC_LPDDR2_LPR) Segment Mask Bit */
+#define MPDDRC_LPDDR2_LPR_SEG_MASK(value) ((MPDDRC_LPDDR2_LPR_SEG_MASK_Msk & ((value) << MPDDRC_LPDDR2_LPR_SEG_MASK_Pos)))
+#define MPDDRC_LPDDR2_LPR_DS_Pos 24
+#define MPDDRC_LPDDR2_LPR_DS_Msk (0xfu << MPDDRC_LPDDR2_LPR_DS_Pos) /**< \brief (MPDDRC_LPDDR2_LPR) Drive Strength */
+#define MPDDRC_LPDDR2_LPR_DS(value) ((MPDDRC_LPDDR2_LPR_DS_Msk & ((value) << MPDDRC_LPDDR2_LPR_DS_Pos)))
+/* -------- MPDDRC_LPDDR2_CAL_MR4 : (MPDDRC Offset: 0x2C) MPDDRC LPDDR2 Calibration and MR4 Register -------- */
+#define MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL_Pos 0
+#define MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL_Msk (0xffffu << MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL_Pos) /**< \brief (MPDDRC_LPDDR2_CAL_MR4) LPDDR2 Calibration Timer Count */
+#define MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL(value) ((MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL_Msk & ((value) << MPDDRC_LPDDR2_CAL_MR4_COUNT_CAL_Pos)))
+#define MPDDRC_LPDDR2_CAL_MR4_MR4_READ_Pos 16
+#define MPDDRC_LPDDR2_CAL_MR4_MR4_READ_Msk (0xffffu << MPDDRC_LPDDR2_CAL_MR4_MR4_READ_Pos) /**< \brief (MPDDRC_LPDDR2_CAL_MR4) Mode Register 4 Read Interval */
+#define MPDDRC_LPDDR2_CAL_MR4_MR4_READ(value) ((MPDDRC_LPDDR2_CAL_MR4_MR4_READ_Msk & ((value) << MPDDRC_LPDDR2_CAL_MR4_MR4_READ_Pos)))
+/* -------- MPDDRC_LPDDR2_TIM_CAL : (MPDDRC Offset: 0x30) MPDDRC LPDDR2 Timing Calibration Register -------- */
+#define MPDDRC_LPDDR2_TIM_CAL_ZQCS_Pos 0
+#define MPDDRC_LPDDR2_TIM_CAL_ZQCS_Msk (0xffu << MPDDRC_LPDDR2_TIM_CAL_ZQCS_Pos) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) ZQ Calibration Short */
+#define MPDDRC_LPDDR2_TIM_CAL_ZQCS(value) ((MPDDRC_LPDDR2_TIM_CAL_ZQCS_Msk & ((value) << MPDDRC_LPDDR2_TIM_CAL_ZQCS_Pos)))
+#define MPDDRC_LPDDR2_TIM_CAL_RZQI_Pos 16
+#define MPDDRC_LPDDR2_TIM_CAL_RZQI_Msk (0x3u << MPDDRC_LPDDR2_TIM_CAL_RZQI_Pos) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) Built-in Self-Test for RZQ Information */
+#define MPDDRC_LPDDR2_TIM_CAL_RZQI(value) ((MPDDRC_LPDDR2_TIM_CAL_RZQI_Msk & ((value) << MPDDRC_LPDDR2_TIM_CAL_RZQI_Pos)))
+#define   MPDDRC_LPDDR2_TIM_CAL_RZQI_RZQ_NOT_SUPPORTED (0x0u << 16) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) RZQ self test not supported */
+#define   MPDDRC_LPDDR2_TIM_CAL_RZQI_ZQ_VDDCA_FLOAT (0x1u << 16) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) The ZQ pin can be connected to VDDCA or left floating. */
+#define   MPDDRC_LPDDR2_TIM_CAL_RZQI_ZQ_SHORTED_GROUND (0x2u << 16) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) The ZQ pin can be shorted to ground. */
+#define   MPDDRC_LPDDR2_TIM_CAL_RZQI_ZQ_SELF_TEST_OK (0x3u << 16) /**< \brief (MPDDRC_LPDDR2_TIM_CAL) ZQ pin self test complete; no error condition detected */
 /* -------- MPDDRC_IO_CALIBR : (MPDDRC Offset: 0x34) MPDDRC IO Calibration -------- */
 #define MPDDRC_IO_CALIBR_RDIV_Pos 0
 #define MPDDRC_IO_CALIBR_RDIV_Msk (0x7u << MPDDRC_IO_CALIBR_RDIV_Pos) /**< \brief (MPDDRC_IO_CALIBR) Resistor Divider, Output Driver Impedance */
 #define MPDDRC_IO_CALIBR_RDIV(value) ((MPDDRC_IO_CALIBR_RDIV_Msk & ((value) << MPDDRC_IO_CALIBR_RDIV_Pos)))
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_34 (0x1u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 34.3 ohms,DDR2/LP-DDR1 serial impedance line: Not applicable */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_40_RZQ_38_RZQ_37_RZQ_35 (0x2u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 40 ohms,LP-DDR3 serial impedance line = 38 ohms,DDR3 serial impedance line = 37 ohms,DDR2/LP-DDR1 serial impedance line = 35 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_48_RZQ_46_RZQ_44_RZQ_43 (0x3u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 48 ohms,LP-DDR3 serial impedance line = 46 ohms,DDR3 serial impedance line = 44 ohms,DDR2/LP-DDR1 serial impedance line = 43 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_60 (0x4u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 60 ohms,LP-DDR3 serial impedance line = 57 ohms,DDR3 serial impedance line = 55 ohms,DDR2/LP-DDR1 serial impedance line = 52 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_80_RZQ_77_RZQ_73_RZQ_70 (0x6u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 80 ohms,LP-DDR3 serial impedance line = 77 ohms,DDR3 serial impedance line = 73 ohms,DDR2/LP-DDR1 serial impedance line = 70 ohms */
-#define   MPDDRC_IO_CALIBR_RDIV_RZQ_120_RZQ_115_RZQ_110_RZQ_105 (0x7u << 0) /**< \brief (MPDDRC_IO_CALIBR) LP-DDR2 serial impedance line = 120 ohms,LP-DDR3 serial impedance line = 115 ohms,DDR3 serial impedance line = 110 ohms,DDR2/LP-DDR1 serial impedance line = 105 ohms */
 #define MPDDRC_IO_CALIBR_EN_CALIB (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Enable Calibration */
 #define   MPDDRC_IO_CALIBR_EN_CALIB_DISABLE_CALIBRATION (0x0u << 4) /**< \brief (MPDDRC_IO_CALIBR) Calibration is disabled. */
 #define   MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION (0x1u << 4) /**< \brief (MPDDRC_IO_CALIBR) Calibration is enabled. */
@@ -496,7 +486,7 @@ typedef struct {
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_NO_SHIFT (0x0u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Initial sampling point. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE (0x1u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by one cycle. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES (0x2u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by two cycles. */
-#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by three cycles, unique for LPDDR2 and DDR3 and LPDDR3.Not applicable for DDR2 and LPDDR1 devices. */
+#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by three cycles. */
 /* -------- MPDDRC_MCFGR : (MPDDRC Offset: 0x60) MPDDRC Monitor Configuration -------- */
 #define MPDDRC_MCFGR_EN_MONI (0x1u << 0) /**< \brief (MPDDRC_MCFGR) Enable Monitor */
 #define MPDDRC_MCFGR_SOFT_RESET (0x1u << 1) /**< \brief (MPDDRC_MCFGR) Soft Reset */
@@ -769,87 +759,10 @@ typedef struct {
 #define MPDDRC_WPMR_WPKEY(value) ((MPDDRC_WPMR_WPKEY_Msk & ((value) << MPDDRC_WPMR_WPKEY_Pos)))
 #define   MPDDRC_WPMR_WPKEY_PASSWD (0x444452u << 8) /**< \brief (MPDDRC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
 /* -------- MPDDRC_WPSR : (MPDDRC Offset: 0xE8) MPDDRC Write Protection Status Register -------- */
-#define MPDDRC_WPSR_WPVS (0x1u << 0) /**< \brief (MPDDRC_WPSR) Write Protection Enable */
+#define MPDDRC_WPSR_WPVS (0x1u << 0) /**< \brief (MPDDRC_WPSR) Write Protection Violation Status */
 #define MPDDRC_WPSR_WPVSRC_Pos 8
 #define MPDDRC_WPSR_WPVSRC_Msk (0xffffu << MPDDRC_WPSR_WPVSRC_Pos) /**< \brief (MPDDRC_WPSR) Write Protection Violation Source */
-/* -------- MPDDRC_VERSION : (MPDDRC Offset: 0xFC) MPDDRC Version Register -------- */
-#define MPDDRC_VERSION_VERSION_Pos 0
-#define MPDDRC_VERSION_VERSION_Msk (0xffffu << MPDDRC_VERSION_VERSION_Pos) /**< \brief (MPDDRC_VERSION) Version of the Hardware Module */
-#define MPDDRC_VERSION_MFN_Pos 16
-#define MPDDRC_VERSION_MFN_Msk (0xfu << MPDDRC_VERSION_MFN_Pos) /**< \brief (MPDDRC_VERSION) Metal Fix Number */
-/* -------- MPDDRC_DLL_OS : (MPDDRC Offset: 0x100) MPDDRC DLL Offset Selection Register -------- */
-#define MPDDRC_DLL_OS_SELOFF (0x1u << 0) /**< \brief (MPDDRC_DLL_OS) Offset Selection */
-/* -------- MPDDRC_DLL_MAO : (MPDDRC Offset: 0x104) MPDDRC DLL MASTER Offset Register -------- */
-#define MPDDRC_DLL_MAO_MAOFF_Pos 0
-#define MPDDRC_DLL_MAO_MAOFF_Msk (0xffu << MPDDRC_DLL_MAO_MAOFF_Pos) /**< \brief (MPDDRC_DLL_MAO) Master Delay Line Offset */
-#define MPDDRC_DLL_MAO_MAOFF(value) ((MPDDRC_DLL_MAO_MAOFF_Msk & ((value) << MPDDRC_DLL_MAO_MAOFF_Pos)))
-/* -------- MPDDRC_DLL_SO0 : (MPDDRC Offset: 0x108) MPDDRC DLL SLAVE Offset 0 Register -------- */
-#define MPDDRC_DLL_SO0_S0OFF_Pos 0
-#define MPDDRC_DLL_SO0_S0OFF_Msk (0xffu << MPDDRC_DLL_SO0_S0OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S0OFF(value) ((MPDDRC_DLL_SO0_S0OFF_Msk & ((value) << MPDDRC_DLL_SO0_S0OFF_Pos)))
-#define MPDDRC_DLL_SO0_S1OFF_Pos 8
-#define MPDDRC_DLL_SO0_S1OFF_Msk (0xffu << MPDDRC_DLL_SO0_S1OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S1OFF(value) ((MPDDRC_DLL_SO0_S1OFF_Msk & ((value) << MPDDRC_DLL_SO0_S1OFF_Pos)))
-#define MPDDRC_DLL_SO0_S2OFF_Pos 16
-#define MPDDRC_DLL_SO0_S2OFF_Msk (0xffu << MPDDRC_DLL_SO0_S2OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S2OFF(value) ((MPDDRC_DLL_SO0_S2OFF_Msk & ((value) << MPDDRC_DLL_SO0_S2OFF_Pos)))
-#define MPDDRC_DLL_SO0_S3OFF_Pos 24
-#define MPDDRC_DLL_SO0_S3OFF_Msk (0xffu << MPDDRC_DLL_SO0_S3OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S3OFF(value) ((MPDDRC_DLL_SO0_S3OFF_Msk & ((value) << MPDDRC_DLL_SO0_S3OFF_Pos)))
-/* -------- MPDDRC_DLL_SO1 : (MPDDRC Offset: 0x10C) MPDDRC DLL SLAVE Offset 1 Register -------- */
-#define MPDDRC_DLL_SO1_S4OFF_Pos 0
-#define MPDDRC_DLL_SO1_S4OFF_Msk (0xffu << MPDDRC_DLL_SO1_S4OFF_Pos) /**< \brief (MPDDRC_DLL_SO1) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO1_S4OFF(value) ((MPDDRC_DLL_SO1_S4OFF_Msk & ((value) << MPDDRC_DLL_SO1_S4OFF_Pos)))
-#define MPDDRC_DLL_SO1_S5OFF_Pos 8
-#define MPDDRC_DLL_SO1_S5OFF_Msk (0xffu << MPDDRC_DLL_SO1_S5OFF_Pos) /**< \brief (MPDDRC_DLL_SO1) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO1_S5OFF(value) ((MPDDRC_DLL_SO1_S5OFF_Msk & ((value) << MPDDRC_DLL_SO1_S5OFF_Pos)))
-#define MPDDRC_DLL_SO1_S6OFF_Pos 16
-#define MPDDRC_DLL_SO1_S6OFF_Msk (0xffu << MPDDRC_DLL_SO1_S6OFF_Pos) /**< \brief (MPDDRC_DLL_SO1) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO1_S6OFF(value) ((MPDDRC_DLL_SO1_S6OFF_Msk & ((value) << MPDDRC_DLL_SO1_S6OFF_Pos)))
-#define MPDDRC_DLL_SO1_S7OFF_Pos 24
-#define MPDDRC_DLL_SO1_S7OFF_Msk (0xffu << MPDDRC_DLL_SO1_S7OFF_Pos) /**< \brief (MPDDRC_DLL_SO1) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO1_S7OFF(value) ((MPDDRC_DLL_SO1_S7OFF_Msk & ((value) << MPDDRC_DLL_SO1_S7OFF_Pos)))
-/* -------- MPDDRC_DLL_WRO : (MPDDRC Offset: 0x110) MPDDRC DLL CLKWR Offset Register -------- */
-#define MPDDRC_DLL_WRO_WR0OFF_Pos 0
-#define MPDDRC_DLL_WRO_WR0OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR0OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR0OFF(value) ((MPDDRC_DLL_WRO_WR0OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR0OFF_Pos)))
-#define MPDDRC_DLL_WRO_WR1OFF_Pos 8
-#define MPDDRC_DLL_WRO_WR1OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR1OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR1OFF(value) ((MPDDRC_DLL_WRO_WR1OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR1OFF_Pos)))
-#define MPDDRC_DLL_WRO_WR2OFF_Pos 16
-#define MPDDRC_DLL_WRO_WR2OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR2OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR2OFF(value) ((MPDDRC_DLL_WRO_WR2OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR2OFF_Pos)))
-#define MPDDRC_DLL_WRO_WR3OFF_Pos 24
-#define MPDDRC_DLL_WRO_WR3OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR3OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR3OFF(value) ((MPDDRC_DLL_WRO_WR3OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR3OFF_Pos)))
-/* -------- MPDDRC_DLL_ADO : (MPDDRC Offset: 0x114) MPDDRC DLL CLKAD Offset Register -------- */
-#define MPDDRC_DLL_ADO_ADOFF_Pos 0
-#define MPDDRC_DLL_ADO_ADOFF_Msk (0xffu << MPDDRC_DLL_ADO_ADOFF_Pos) /**< \brief (MPDDRC_DLL_ADO) CLKAD Delay Line Offset */
-#define MPDDRC_DLL_ADO_ADOFF(value) ((MPDDRC_DLL_ADO_ADOFF_Msk & ((value) << MPDDRC_DLL_ADO_ADOFF_Pos)))
-/* -------- MPDDRC_DLL_SM[4] : (MPDDRC Offset: 0x118) MPDDRC DLL Status MASTER0 Register -------- */
-#define MPDDRC_DLL_SM_MDINC (0x1u << 0) /**< \brief (MPDDRC_DLL_SM[4]) MASTERx Delay Increment */
-#define MPDDRC_DLL_SM_MDDEC (0x1u << 1) /**< \brief (MPDDRC_DLL_SM[4]) MASTERx Delay Decrement */
-#define MPDDRC_DLL_SM_MDOVF (0x1u << 2) /**< \brief (MPDDRC_DLL_SM[4]) MASTERx Delay Overflow Flag */
-#define MPDDRC_DLL_SM_MDLVAL_Pos 8
-#define MPDDRC_DLL_SM_MDLVAL_Msk (0xffu << MPDDRC_DLL_SM_MDLVAL_Pos) /**< \brief (MPDDRC_DLL_SM[4]) MASTERx Delay Lock Value */
-#define MPDDRC_DLL_SM_MDCNT_Pos 20
-#define MPDDRC_DLL_SM_MDCNT_Msk (0xffu << MPDDRC_DLL_SM_MDCNT_Pos) /**< \brief (MPDDRC_DLL_SM[4]) MASTERx Delay Counter Value */
-/* -------- MPDDRC_DLL_SSL[8] : (MPDDRC Offset: 0x128) MPDDRC DLL Status SLAVE0 Register -------- */
-#define MPDDRC_DLL_SSL_SDCOVF (0x1u << 0) /**< \brief (MPDDRC_DLL_SSL[8]) SLAVEx Delay Correction Overflow Flag */
-#define MPDDRC_DLL_SSL_SDCUDF (0x1u << 1) /**< \brief (MPDDRC_DLL_SSL[8]) SLAVEx Delay Correction Underflow Flag */
-#define MPDDRC_DLL_SSL_SDERF (0x1u << 2) /**< \brief (MPDDRC_DLL_SSL[8]) SLAVEx Delay Correction Error Flag */
-#define MPDDRC_DLL_SSL_SDCNT_Pos 8
-#define MPDDRC_DLL_SSL_SDCNT_Msk (0xffu << MPDDRC_DLL_SSL_SDCNT_Pos) /**< \brief (MPDDRC_DLL_SSL[8]) SLAVEx Delay Counter Value */
-#define MPDDRC_DLL_SSL_SDCVAL_Pos 20
-#define MPDDRC_DLL_SSL_SDCVAL_Msk (0xffu << MPDDRC_DLL_SSL_SDCVAL_Pos) /**< \brief (MPDDRC_DLL_SSL[8]) SLAVEx Delay Correction Value */
-/* -------- MPDDRC_DLL_SWR[4] : (MPDDRC Offset: 0x148) MPDDRC DLL Status CLKWR0 Register -------- */
-#define MPDDRC_DLL_SWR_WRDCNT_Pos 0
-#define MPDDRC_DLL_SWR_WRDCNT_Msk (0xffu << MPDDRC_DLL_SWR_WRDCNT_Pos) /**< \brief (MPDDRC_DLL_SWR[4]) CLKWRx Delay Counter Value */
-/* -------- MPDDRC_DLL_SAD : (MPDDRC Offset: 0x158) MPDDRC DLL Status CLKAD Register -------- */
-#define MPDDRC_DLL_SAD_ADDCNT_Pos 0
-#define MPDDRC_DLL_SAD_ADDCNT_Msk (0xffu << MPDDRC_DLL_SAD_ADDCNT_Pos) /**< \brief (MPDDRC_DLL_SAD) CLKAD Delay Counter Value */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_MPDDRC_COMPONENT_ */

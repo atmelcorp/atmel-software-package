@@ -51,12 +51,21 @@
 /* Convert nanoseconds to clock cycles for given master clock in MHz */
 #define NS2CYCLES(ns, clk) ((((ns) * (clk)) + 999) / 1000)
 
+/* For compatibility with older DDR controller IP */
+#ifndef MPDDRC_CR_NDQS_DISABLED
+#define MPDDRC_CR_NDQS_DISABLED 0
+#endif
+#ifndef MPDDRC_CR_UNAL_SUPPORTED
+#define MPDDRC_CR_UNAL_SUPPORTED 0
+#endif
+
 /*------------------------------------------------------------------------------
  *        Exported Functions
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_DDR3
+#ifdef CONFIG_HAVE_MPDDRC_DDR3
 
+#ifdef CONFIG_HAVE_DDR3_MT41K128M16
 static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
@@ -65,21 +74,23 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM;
 
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
 #endif
 
-	desc->control = MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
+	desc->control = MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS5
 	              | MPDDRC_CR_DIS_DLL
 	              | MPDDRC_CR_NB_8_BANKS
-	              | MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH_DDR3_RZQ7
+	              | MPDDRC_CR_DIC_DS_DDR3_RZQ7
 	              | MPDDRC_CR_DECOD_INTERLEAVED
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(100);
+#endif
 
 	/* timings */
 
@@ -105,30 +116,36 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
+#endif /* CONFIG_HAVE_DDR3_MT41K128M16 */
 
+#endif /* CONFIG_HAVE_MPDDRC_DDR3 */
+
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR3
+
+#ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
 
 	desc->type = MPDDRC_TYPE_LPDDR3;
 
-	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM ;
+	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM;
 
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
 #endif
 
-	desc->control = MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
+	desc->control = MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
-	              | MPDDRC_CR_DLL_RESET_DISABLED
 	              | MPDDRC_CR_NB_8_BANKS
-	              | MPDDRC_CR_DIC_DS_DDR2_NORMALSTRENGTH_DDR3_RZQ6
-	              | MPDDRC_CR_NDQS_ENABLED
+	              | MPDDRC_CR_DIC_DS_DDR3_RZQ6
 	              | MPDDRC_CR_DECOD_SEQUENTIAL
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 
 	/* timings */
 
@@ -154,9 +171,13 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
+#endif /* CONFIG_HAVE_LPDDR3_EDF8164A3MA */
 
-#endif /* CONFIG_HAVE_DDR3 */
+#endif /* CONFIG_HAVE_MPDDRC_LPDDR3 */
 
+#ifdef CONFIG_HAVE_MPDDRC_DDR2
+
+#ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
 static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
@@ -168,26 +189,24 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
-	              | MPDDRC_CR_DLL_RESET_DISABLED
-	              | MPDDRC_CR_DQMS_NOT_SHARED
-	              | MPDDRC_CR_ENRDM_OFF
 	              | MPDDRC_CR_NB_8_BANKS
 	              | MPDDRC_CR_NDQS_DISABLED
-	              | MPDDRC_CR_UNAL_SUPPORTED
-	              | MPDDRC_CR_OCD_DDR2_EXITCALIB;
+	              | MPDDRC_CR_UNAL_SUPPORTED;
 
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
 	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV_RZQ_60
+	                | MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(5)
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
 
 	/* timings */
 
@@ -213,7 +232,9 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
+#endif /* CONFIG_HAVE_DDR2_MT47H128M8CF */
 
+#ifdef CONFIG_HAVE_DDR2_MT47H128M16
 static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
@@ -225,26 +246,24 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
-	              | MPDDRC_CR_DLL_RESET_DISABLED
-	              | MPDDRC_CR_DQMS_NOT_SHARED
-	              | MPDDRC_CR_ENRDM_OFF
 	              | MPDDRC_CR_NB_8_BANKS
 	              | MPDDRC_CR_NDQS_DISABLED
-	              | MPDDRC_CR_UNAL_SUPPORTED
-	              | MPDDRC_CR_OCD_DDR2_EXITCALIB;
+	              | MPDDRC_CR_UNAL_SUPPORTED;
 
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
 	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV_RZQ_60
+	                | MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(5)
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
 
 	/* timings */
 
@@ -270,7 +289,13 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
+#endif /* CONFIG_HAVE_DDR2_MT47H128M16 */
 
+#endif /* CONFIG_HAVE_MPDDRC_DDR2 */
+
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR2
+
+#ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
@@ -282,18 +307,19 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 	desc->mode = MPDDRC_MD_MD_LPDDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
-	              | MPDDRC_CR_NC_DDR10_MDDR9_COL_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
-	              | MPDDRC_CR_ENRDM_OFF
 	              | MPDDRC_CR_NB_8_BANKS
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV_RZQ_60;
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 
 	/* timings */
 
@@ -319,28 +345,47 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
+#endif /* CONFIG_HAVE_LPDDR2_MT42L128M16 */
+
+#endif /* CONFIG_HAVE_MPDDRC_LPDDR2 */
 
 void ddram_init_descriptor(struct _mpddrc_desc* desc,
 			   enum _ddram_devices device)
 {
 	switch(device) {
+#ifdef CONFIG_HAVE_MPDDRC_DDR2
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
 	case MT47H128M8CF:
 		_init_mt47h128m8cf(desc);
 		break;
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	case MT47H128M16:
 		_init_mt47h128m16(desc);
 		break;
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR2
+  #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	case MT42L128M16:
 		_init_mt42l128m16(desc);
 		break;
-#ifdef CONFIG_HAVE_DDR3
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_DDR3
+  #ifdef CONFIG_HAVE_DDR3_MT41K128M16
 	case MT41K128M16:
 		_init_mt41k128m16(desc);
 		break;
+  #endif
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR3
+  #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 	case EDF8164A3MA:
 		_init_edf8164a3ma(desc);
 		break;
-#endif /* CONFIG_HAVE_DDR3 */
+  #endif
+#endif
 	default:
 		trace_fatal("Unsupported DDRAM type\r\n");
 		break;

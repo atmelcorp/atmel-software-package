@@ -34,18 +34,26 @@
 #include <peripherals/mpddrc.h>
 
 enum _ram_type {
+#ifdef CONFIG_HAVE_MPDDRC_DDR2
 	MPDDRC_TYPE_DDR2,
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR2
 	MPDDRC_TYPE_LPDDR2,
-#ifdef CONFIG_HAVE_DDR3
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_DDR3
 	MPDDRC_TYPE_DDR3,
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR3
 	MPDDRC_TYPE_LPDDR3,
 #endif
 };
 
 struct _mpddrc_desc {
 	enum _ram_type type;
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	uint32_t io_calibr;
-#ifdef MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	uint32_t data_path;
 #endif
 	uint32_t mode;

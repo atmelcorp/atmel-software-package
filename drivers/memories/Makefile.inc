@@ -28,7 +28,7 @@
 
 drivers-y += drivers/memories/at24.o
 drivers-y += drivers/memories/at25.o
-drivers-y += drivers/memories/ddram.o
+drivers-$(CONFIG_HAVE_MPDDRC) += drivers/memories/ddram.o
 drivers-$(CONFIG_HAVE_QSPI) += drivers/memories/qspiflash.o
 drivers-y += drivers/memories/spi-nor.o
 ifeq ($(CONFIG_HAVE_NAND_FLASH),y)
