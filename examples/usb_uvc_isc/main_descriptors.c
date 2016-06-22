@@ -220,14 +220,14 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsFS =
 				0, /* Still image not supported */
 				VIDCAMD_FW_1, /* wWidth */
 				VIDCAMD_FH_1, /* wHeight */
-				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 4), /* Min bitrate */
-				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 4), /* Max bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 30), /* Min bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 30), /* Max bitrate */
 				FRAME_BUFFER_SIZEC(VIDCAMD_FW_1, VIDCAMD_FH_1),
 				/* maxFrameBufferSize: 320*240*2 */
-				FRAME_INTERVALC(4), /* Default interval: 4F/s */
+				FRAME_INTERVALC(30), /* Default interval: 4F/s */
 				1, /* 1 Interval setting */
 				{
-					FRAME_INTERVALC(4), /* 4F/s, 614.4KB/s */
+					FRAME_INTERVALC(30), /* 4F/s, 614.4KB/s */
 				},
 			},
 			/* Frame format 640x480 */
@@ -235,18 +235,18 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsFS =
 				sizeof(USBVideoUncompressedFrameDescriptor1),
 				VIDGenericDescriptor_INTERFACE, /* CS_INTERFACE */
 				VIDStreamingInterfaceDescriptor_FRM_UNCOMPRESSED, /* VS_FRAME_UNCOMPRESSED */
-				2, /* Frame index #4 */
+				2, /* Frame index #2 */
 				0, /* Still image not supported */
 				VIDCAMD_FW_2, /* wWidth */
 				VIDCAMD_FH_2, /* wHeight */
-				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 1), /* Min bitrate */
-				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 1), /* Max bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 15), /* Min bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 15), /* Max bitrate */
 				FRAME_BUFFER_SIZEC(VIDCAMD_FW_2, VIDCAMD_FH_2),
 				/* maxFrameBufferSize: 640*480*2 */
-				FRAME_INTERVALC(1), /* Default interval: 1F/s */
+				FRAME_INTERVALC(15), /* Default interval: 1F/s */
 				1, /* 1 Interval setting */
 				{
-					FRAME_INTERVALC(1), /* 1F/s, 614.4KB/s */
+					FRAME_INTERVALC(15), /* 1F/s, 614.4KB/s */
 				},
 			},
 			/* Frame format 176x144 */
@@ -255,18 +255,18 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsFS =
 				VIDGenericDescriptor_INTERFACE, /* CS_INTERFACE */
 				VIDStreamingInterfaceDescriptor_FRM_UNCOMPRESSED,
 				/* VS_FRAME_UNCOMPRESSED */
-				3, /* Frame index #1 */
+				3, /* Frame index #3 */
 				0, /* Still image not supported */
 				VIDCAMD_FW_3, /* wWidth */
 				VIDCAMD_FH_3, /* wHeight */
-				FRAME_BITRATEC(VIDCAMD_FW_3, VIDCAMD_FH_3, 4), /* Min bitrate */
-				FRAME_BITRATEC(VIDCAMD_FW_3, VIDCAMD_FH_3, 4), /* Max bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_3, VIDCAMD_FH_3, 30), /* Min bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_3, VIDCAMD_FH_3, 30), /* Max bitrate */
 				FRAME_BUFFER_SIZEC(VIDCAMD_FW_3, VIDCAMD_FH_3),
 				/* maxFrameBufferSize: 176*144*2 = 50688 */
-				FRAME_INTERVALC(12), /* Default interval: 12F/s */
+				FRAME_INTERVALC(30), /* Default interval: 12F/s */
 				1, /* 1 Interval setting */
 				{
-					FRAME_INTERVALC(12), /* 12F/s, 608.256KB/s */
+					FRAME_INTERVALC(30), /* 12F/s, 608.256KB/s */
 				},
 			},
 			/* Color format Uncompressed */
@@ -439,14 +439,14 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsHS =
 				0, /* Still image not supported */
 				VIDCAMD_FW_1, /* wWidth */
 				VIDCAMD_FH_1, /* wHeight */
-				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 30), /* Min bitrate */
-				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 30), /* Max bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 1), /* Min bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_1, VIDCAMD_FH_1, 1), /* Max bitrate */
 				FRAME_BUFFER_SIZEC(VIDCAMD_FW_1, VIDCAMD_FH_1),
 				/* maxFrameBufferSize: 320*240*2 */
-				FRAME_INTERVALC(30), /* Default interval: 30F/s */
+				FRAME_INTERVALC(1), /* Default interval: 30F/s */
 				1, /* 1 Interval setting */
 				{
-					FRAME_INTERVALC(30), /* 30F/s, 4608KB/s */
+					FRAME_INTERVALC(1), /* 30F/s, 4608KB/s */
 				},
 			},
 			/* Frame format 640x480 */
@@ -459,14 +459,14 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsHS =
 				0, /* Still image not supported */
 				VIDCAMD_FW_2, /* wWidth */
 				VIDCAMD_FH_2, /* wHeight */
-				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 15), /* Min bitrate */
-				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 15), /* Max bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 1), /* Min bitrate */
+				FRAME_BITRATEC(VIDCAMD_FW_2, VIDCAMD_FH_2, 1), /* Max bitrate */
 				FRAME_BUFFER_SIZEC(VIDCAMD_FW_2, VIDCAMD_FH_2),
 				/* maxFrameBufferSize: 640*480*2 */
-				FRAME_INTERVALC(15), /* Default interval: 12F/s */
+				FRAME_INTERVALC(1), /* Default interval: 12F/s */
 				1, /* 1 Interval setting */
 				{
-					FRAME_INTERVALC(15), /* 12F/s, 7372.8KB/s */
+					FRAME_INTERVALC(1), /* 12F/s, 7372.8KB/s */
 				},
 			},
 			/* Frame format 176x144 */
@@ -512,7 +512,7 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsHS =
 		VIDStreamingInterfaceDescriptor_PROTOCOL,
 		0  /* No string */
 	},
-	/* ISO IN EP 6 Descriptor */
+	/* ISO IN EP 2 Descriptor */
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -520,7 +520,7 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsHS =
 		(USBEndpointDescriptor_ISOCHRONOUS ),
 		//|USBEndpointDescriptor_Asynchronous_ISOCHRONOUS),
 		VIDCAMD_EpDesc_MaxPacketSize,
-		2
+		1
 	}
 };
 
