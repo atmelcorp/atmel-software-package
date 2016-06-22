@@ -236,8 +236,18 @@ void console_example_info(const char *example_name)
 	console_reset_cursor();
 
 	/* Output example information */
-	printf("-- %s %s --\n\r", example_name, SOFTPACK_VERSION);
-	printf("-- %s (%s)\n\r", get_board_name(), get_chip_name());
+	printf("-- %s --\r\n", example_name);
+#ifndef NDEBUG
+	printf("Softpack v%s\r\n", SOFTPACK_VERSION);
+	printf("Built for %s\r\n", get_board_name());
+	printf("Processor: %s\r\n", get_chip_name());
+	printf("Processor clock: %u MHz\r\n", (unsigned)(pmc_get_processor_clock() / 1000000));
+	printf("Master clock: %u MHz\r\n", (unsigned)(pmc_get_master_clock() / 1000000));
+	printf("MMU is %s\r\n", cp15_mmu_is_enabled() ? "enabled" : "disabled");
+	printf("I-Cache is %s\r\n", cp15_icache_is_enabled() ? "enabled" : "disabled");
+	printf("D-Cache is %s\r\n", cp15_dcache_is_enabled() ? "enabled" : "disabled");
+#endif
+	printf("\r\n");
 }
 
 void console_dump_frame(uint8_t *frame, uint32_t size)
