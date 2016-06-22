@@ -53,7 +53,6 @@
 #include "rand.h"
 #include "trace.h"
 
-#include "misc/cache.h"
 #include "misc/console.h"
 
 #include <stdbool.h>
@@ -64,14 +63,14 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/* size of the random data buffer (in uint32_t)*/
-#define BUFFER_SIZE (1024*8)
+/* size of the random data buffer (in bytes) */
+#define BUFFER_SIZE (4096)
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-static uint32_t random_buffer[BUFFER_SIZE];
+static uint8_t random_buffer[BUFFER_SIZE];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -80,42 +79,37 @@ static uint32_t random_buffer[BUFFER_SIZE];
 /**
  * \brief Test DDRAM access
  * \param baseAddr Base address of DDRAM
- * \param size  Size of memory in byte
+ * \param size  Size of memory in bytes
  * \return 1: OK, 0: Error
  */
-static uint32_t _ddram_access(uint32_t baseAddr, uint32_t size)
+static bool _ddram_access(uint32_t baseAddr, uint32_t size)
 {
-	int i, count;
-	uint32_t offset, value;
-	uint32_t *ptr = (uint32_t *)baseAddr;
-	uint32_t ret = 1;
+	uint32_t offset, count;
+	uint8_t *ptr = (uint8_t*)baseAddr;
 	int percent, percent_old;
 
 	percent_old = -1;
-	for (offset = 0; offset < (size/4); offset += count) {
-		count = (size/4) - offset;
-		if (count > BUFFER_SIZE)
-			count = BUFFER_SIZE;
+	for (offset = 0; offset < size; offset += count) {
+		count = BUFFER_SIZE;
+		if (count > (size - offset))
+			count = size - offset;
 
-		memcpy(ptr + offset, random_buffer, count*4);
-		cache_clean_region(ptr + offset, count);
-		cache_invalidate_region(ptr + offset, count);
+		memcpy(ptr + offset, random_buffer, count);
 
-		for (i = 0; i < count; i++) {
-			value = ptr[offset + i];
-			if (value != random_buffer[i]) {
-				ret = 0;
-			}
+		if (memcmp(ptr + offset, random_buffer, count)) {
+			printf("Error in range 0x%x-0x%x\r\n", (unsigned)(ptr + offset),
+					(unsigned)(ptr + offset + count));
+			return false;
 		}
 
-		percent =  offset / (size / (4 * 100));
+		percent =  offset / (size / 100);
 		if (percent != percent_old) {
 			percent_old = percent;
 			printf("%d%%\r", percent);
 		}
 	}
 
-	return ret;
+	return true;
 }
 
 static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
@@ -125,8 +119,8 @@ static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
 	passed = 0;
 	failed = 0;
 	while (1) {
-		for (i = 0; i < BUFFER_SIZE; i++)
-			random_buffer[i] = rand();
+		for (i = 0; i < BUFFER_SIZE/4; i++)
+			((uint32_t*)random_buffer)[i] = rand();
 
 		if (_ddram_access(baseAddr, size)) {
 			passed++;
@@ -141,6 +135,17 @@ static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+void board_init(void)
+{
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(true, true, false);
+	cp15_icache_enable();
+
+	/* Configure console */
+	board_cfg_console(0);
+}
+
 /**
  *  \brief getting-started Application entry point.
  *
@@ -154,9 +159,10 @@ int main(void)
 	console_example_info("DDRAM Example");
 
 	/* Full test DDRAM  */
-	trace_info("Starting memory validation of External DDRAM \n\r");
-	trace_info("Buffer: %u bytes at 0x%08x\r\n", BUFFER_SIZE*4,
-		   (unsigned int)random_buffer);
+	trace_info("Starting memory validation of External DDRAM (%u MB)\n\r",
+	           (unsigned)(BOARD_DDR_MEMORY_SIZE/(1024*1024)));
+	trace_info("Buffer: %u bytes at 0x%08x\r\n", BUFFER_SIZE,
+	           (unsigned)random_buffer);
 
 	_ddram_test_loop(DDR_CS_ADDR, BOARD_DDR_MEMORY_SIZE);
 	return 0;
