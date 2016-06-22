@@ -89,6 +89,8 @@ WEAK void board_init(void)
 #endif
 
 #ifdef CONFIG_HAVE_SSC
+#ifndef CONFIG_HAVE_ISI
 	board_cfg_ssc(ID_SSC0);
+#endif
 #endif
 }
