@@ -400,8 +400,6 @@ void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 
 void pwmc_set_fault_mode(Pwm *pwm, uint32_t mode)
 {
-	trace_debug("pwm: set fault mode 0x%08x\n\r",
-			(unsigned)mode);
 	pwm->PWM_FMR = mode;
 }
 
@@ -435,8 +433,8 @@ void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 	volatile uint32_t tmp;
 	assert(channel < PWMCH_NUM_NUMBER);
 	tmp = pwm->PWM_FPE;
-	tmp &= ~(PWM_FPE_FPE0_Msk << channel);
-	pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << channel);
+	tmp &= ~(PWM_FPE_FPE0_Msk << (8 * channel));
+	pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << (8 * channel));
 }
 
 void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value)

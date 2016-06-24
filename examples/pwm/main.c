@@ -63,7 +63,7 @@
  * <li>PWM outputs can also be watched with the help of an oscillator.
  * <li>PWM asynchronous channel operations. 'a' to configure the channel.
  * <li>PWM DMA operations for synchronous channels. 'd' to start DMA.
- * <li>PWM fault mode test. 'f' to lunch the fault from TC0, 'F' to clear it.
+ * <li>PWM fault mode test. 'f' to launch the fault from TC, 'F' to clear it.
  * <li>PWM output overide/dead-time test. 'o' to configure the parameters.
  * </ul>
  *
@@ -164,15 +164,14 @@ struct _tc_desc {
 #endif /* CONFIG_HAVE_PWM_DMA */
 
 /*----------------------------------------------------------------------------
- *        Local variables
+ *        Local variables / constants
  *----------------------------------------------------------------------------*/
-
-
-/** Global timestamp in milliseconds since start of application */
-volatile uint32_t dwTimeStamp = 0;
 
 /** Pio pins to configure. */
 static const struct _pin pins_pwm[] = { PIN_PWM };
+
+/** PWM channel to use */
+static const uint8_t pwm_channel = CHANNEL_PWM;
 
 #ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer synchronous channels */
@@ -180,22 +179,31 @@ static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
 #endif /* CONFIG_HAVE_PWM_DMA */
 
 /** PIOs for TC capture, waveform */
-static const struct _pin pins_tc[] = { PIN_TC_CAPTURE_IN };
+static const struct _pin pins_tc_capture[] = { PIN_TC_CAPTURE_IN };
 
 /** define Timer Counter descriptor for capture */
-static struct _tc_desc tc_capture = {
+static const struct _tc_desc tc_capture = {
 	.addr = TC0,
 	.channel = CHANNEL_TC_CAPTURE_IN,
 };
 
 /** Clock selection for capture channel */
-static uint8_t capture_clock_sel = TC_CMR_TCCLKS_TIMER_CLOCK4;
+static const uint8_t capture_clock_sel = TC_CMR_TCCLKS_TIMER_CLOCK4;
 
 /** capture index */
 static uint32_t captured_pulses = TC_CAPTURE_IDLE;
 
 /** capturing buffer */
 static uint32_t captured_rarb[MAX_CAPTURES][2];
+
+/** define Timer Counter descriptor for fault mode */
+static const struct _tc_desc tc_fault = {
+	.addr = TC1,
+	.channel = 0,
+};
+
+/** Fault input for PWM, must be in sync with tc_fault */
+static const uint32_t pwm_fault_input = PWM_FAULT_INPUT_TIMER1;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -242,7 +250,7 @@ static void _tc_capture_handler(void)
 /**
  * \brief Configure a TC channel as capture operating mode.
  */
-static void _tc_capture_initialize(struct _tc_desc *tcd)
+static void _tc_capture_initialize(void)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
 
@@ -254,8 +262,12 @@ static void _tc_capture_initialize(struct _tc_desc *tcd)
 
 	pmc_enable_peripheral(tc_id);
 
-	tc_configure(tcd->addr, tcd->channel, mode);
+	/* disable all channels to avoid spurious interrupts */
+	tc_stop(tc_capture.addr, 0);
+	tc_stop(tc_capture.addr, 1);
+	tc_stop(tc_capture.addr, 2);
 
+	tc_configure(tc_capture.addr, tc_capture.channel, mode);
 	aic_set_source_vector(tc_id, _tc_capture_handler);
 	aic_enable(tc_id);
 }
@@ -270,9 +282,9 @@ static void _start_capture(void)
 		return;
 	}
 	printf("Start capture, result will be dumped to console when finished.\n\r");
-	tc_enable_it(tc_capture.addr, tc_capture.channel, TC_IER_LDRBS);
 	captured_pulses = 0;
 	/* Reset and enable the timer counter for TC capture channel */
+	tc_enable_it(tc_capture.addr, tc_capture.channel, TC_IER_LDRBS);
 	tc_start(tc_capture.addr, tc_capture.channel);
 }
 
@@ -307,6 +319,56 @@ static void _show_captured_results(void)
 }
 
 /**
+ * \brief Interrupt handler for the TC fault.
+ */
+static void _tc_fault_handler(void)
+{
+	uint32_t status = tc_get_status(tc_fault.addr, tc_fault.channel);
+
+	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
+		printf("TC fault triggered, press 'F' to clear fault\r\n");
+}
+
+
+/**
+ * \brief Configure a TC channel to trigger faults
+ */
+static void _tc_fault_initialize(void)
+{
+	uint32_t tc_id = get_tc_id_from_addr(tc_fault.addr);
+
+	uint32_t mode = TC_CMR_TCCLKS(4)
+	              | TC_CMR_CPCSTOP
+	              //| TC_CMR_WAVSEL_UP_RC
+	              | TC_CMR_WAVE;
+
+	uint32_t rc = 2 * pmc_get_slow_clock();
+
+	pmc_enable_peripheral(tc_id);
+
+	/* disable all channels to avoid spurious interrupts */
+	tc_stop(tc_capture.addr, 0);
+	tc_stop(tc_capture.addr, 1);
+	tc_stop(tc_capture.addr, 2);
+
+	tc_configure(tc_fault.addr, tc_fault.channel, mode);
+	tc_set_fault_mode(tc_fault.addr, TC_FMR_ENCF0 << tc_fault.channel);
+	tc_set_ra_rb_rc(tc_fault.addr, tc_fault.channel, NULL, NULL, &rc);
+
+	tc_enable_it(tc_fault.addr, tc_fault.channel, TC_IER_CPCS);
+	aic_set_source_vector(tc_id, _tc_fault_handler);
+	aic_enable(tc_id);
+}
+
+/**
+ * \brief start TC for fault
+ */
+static void _tc_fault_start(void)
+{
+	tc_start(tc_fault.addr, tc_fault.channel);
+}
+
+/**
  * \brief Interrupt handler for the PWM.
  */
 static void _pwm_handler(void)
@@ -321,8 +383,7 @@ static void _pwm_handler(void)
 /**
  * \brief Configure outputs for a PWM asynchronous channel
  */
-static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
-		uint32_t cprd, uint32_t clock)
+static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t cprd)
 {
 	static uint32_t duty_cycle;
 	static bool duty_cycle_inc;
@@ -342,7 +403,7 @@ static void _pwm_demo_asynchronous_channel(uint32_t init, uint8_t channel,
 	printf("-- PWM Channel %u Duty cycle: %lu%% Signal Period: %lu ms--\n\r",
 			(unsigned)channel,
 			(unsigned)(duty_cycle*100)/cprd,
-			(unsigned)((2*cprd*1024*32))/(clock/1000));
+			(unsigned)((2*cprd*1024*32))/(pmc_get_peripheral_clock(ID_PWM)/1000));
 
 	pwmc_set_duty_cycle(PWM, channel, duty_cycle);
 	timer_wait(50);
@@ -373,7 +434,7 @@ static void _pwmc_callback(void* args)
 /**
  * \brief Configure DMA operation for PWM synchronous channel
  */
-static void _pwm_demo_dma(uint8_t channel, uint32_t cprd, uint32_t clock)
+static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 {
 	int i;
 	bool flag = false;
@@ -411,21 +472,19 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd, uint32_t clock)
 int main(void)
 {
 	uint8_t key;
-	uint32_t mode, cprd;
-	uint32_t clock;
-	uint32_t pwm_channel;
+	uint32_t cprd;
 	uint8_t current_demo = 'h';
 
 	/* Output example information */
 	console_example_info("PWM Example");
 
-	/* Configure PIO Pins for TC0 */
-	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));
+	/* Configure PIO Pins for TC capture */
+	pio_configure(pins_tc_capture, ARRAY_SIZE(pins_tc_capture));
 
 	/* Configure one TC channel as capture operating mode */
 	printf("Configure TC channel %d as capture operating mode \n\r",
 		tc_capture.channel);
-	_tc_capture_initialize(&tc_capture);
+	_tc_capture_initialize();
 
 	/* PIO configuration */
 	pio_configure(pins_pwm, ARRAY_SIZE(pins_pwm));
@@ -433,15 +492,17 @@ int main(void)
 	/* Enable PWM peripheral clock */
 	pmc_enable_peripheral(ID_PWM);
 
+	/* Enable PWM interrupt */
+	aic_set_source_vector(ID_PWM, _pwm_handler);
+	aic_enable(ID_PWM);
+
 	/* Set clock A and clock B */
 	/* CLKA clock is clock selected by PREA : 0x0A Peripheral clock/1024 */
 	/* divided by DIVB factor : 32 */
-	mode = PWM_CLK_PREB_CLK_DIV1024 | (PWM_CLK_DIVB(32)) |
-			PWM_CLK_PREA_CLK_DIV1024 | (PWM_CLK_DIVA(32));
-	pwmc_configure_clocks(PWM, mode);
-	clock = pmc_get_peripheral_clock(ID_PWM);
+	pwmc_configure_clocks(PWM, PWM_CLK_PREB_CLK_DIV1024 | PWM_CLK_DIVB(32) |
+	                           PWM_CLK_PREA_CLK_DIV1024 | PWM_CLK_DIVA(32));
 	printf("-- PWM Peripheral Clock: %u MHz --\n\r",
-			(unsigned)(clock/1000000));
+			(unsigned)(pmc_get_peripheral_clock(ID_PWM)/1000000));
 
 	cprd = 26;
 
@@ -453,42 +514,34 @@ int main(void)
 			switch (key) {
 			case 'a':
 				current_demo = key;
-				pwm_channel = CHANNEL_PWM;
-				_pwm_demo_asynchronous_channel(1, pwm_channel, cprd, clock);
+				_pwm_demo_asynchronous_channel(true, pwm_channel, cprd);
 				break;
 #ifdef CONFIG_HAVE_PWM_DMA
 			case 'd':
 				current_demo = key;
-				pwm_channel = CHANNEL_PWM;
-				_pwm_demo_dma(pwm_channel, cprd, clock);
+				_pwm_demo_dma(pwm_channel, cprd);
 				break;
 #endif /* CONFIG_HAVE_PWM_DMA */
 			case 'f':
-				pwmc_set_fault_mode(PWM,
-					PWM_FMR_FPOL(1 << PWM_FAULT_INPUT_TIMER0)
-					| PWM_FMR_FMOD(0) | PWM_FMR_FFIL(0));
-				pwmc_set_fault_protection(PWM, PWM_FPV1_FPVH2 | PWM_FPV1_FPVL2);
+				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
+				                         PWM_FMR_FMOD(0));
+				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
+				                         PWM_FMR_FMOD(1 << pwm_fault_input));
+				pwmc_set_fault_protection(PWM, (PWM_FPV1_FPVH0 << pwm_channel) |
+				                               (PWM_FPV1_FPVL0 << pwm_channel));
 #ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
 				pwmc_set_fault_protection_to_hiz(PWM, 0);
 #endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
-				pwmc_enable_fault_protection(PWM, pwm_channel, PWM_FAULT_INPUT_TIMER0);
-				aic_set_source_vector(ID_PWM, _pwm_handler);
-				pwmc_enable_it(PWM, PWM_IER1_FCHID0, 0);
-				aic_enable(ID_PWM);
-
-				pmc_enable_peripheral(ID_TC0);
-				tc_configure(TC0, 0,
-					TC_CMR_TCCLKS(4) | TC_CMR_WAVE | TC_CMR_CPCTRG);
-				tc_set_fault_mode(TC0, TC_FMR_ENCF0);
-				{
-					uint32_t rc = 0x10000;
-					tc_set_ra_rb_rc(TC0, 0, NULL, NULL, &rc);
-				}
-				tc_start(TC0, 0);
+				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
+				pwmc_enable_fault_protection(PWM, pwm_channel, 1 << pwm_fault_input);
+				pwmc_enable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
+				_tc_fault_initialize();
+				_tc_fault_start();
 				break;
 			case 'F':
-				pwmc_fault_clear(PWM, PWM_FAULT_INPUT_TIMER0);
-				tc_set_fault_mode(TC0, 0);
+				pwmc_enable_fault_protection(PWM, pwm_channel, 0);
+				pwmc_disable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
+				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
 				break;
 			case 'm':
 				pwmc_configure_stepper_motor_mode(PWM,
@@ -519,7 +572,7 @@ int main(void)
 				break;
 			case 'h':
 			default:
-				current_demo = key;
+				current_demo = 0;
 				pwmc_disable_channel(PWM, 0);
 				pwmc_disable_channel(PWM, pwm_channel);
 				/* no PWM synchronous channels */
@@ -534,7 +587,7 @@ int main(void)
 		}
 		_show_captured_results();
 		if ('a' == current_demo)
-			_pwm_demo_asynchronous_channel(0, pwm_channel, cprd, clock);
+			_pwm_demo_asynchronous_channel(false, pwm_channel, cprd);
 	}
 }
 
