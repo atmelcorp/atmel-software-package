@@ -196,6 +196,7 @@ static uint32_t captured_pulses = TC_CAPTURE_IDLE;
 /** capturing buffer */
 static uint32_t captured_rarb[MAX_CAPTURES][2];
 
+#ifdef CONFIG_HAVE_TC_FAULT_MODE
 /** define Timer Counter descriptor for fault mode */
 static const struct _tc_desc tc_fault = {
 	.addr = TC1,
@@ -204,6 +205,7 @@ static const struct _tc_desc tc_fault = {
 
 /** Fault input for PWM, must be in sync with tc_fault */
 static const uint32_t pwm_fault_input = PWM_FAULT_INPUT_TIMER1;
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -220,8 +222,10 @@ static void _display_menu(void)
 #ifdef CONFIG_HAVE_PWM_DMA
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
 #endif /* CONFIG_HAVE_PWM_DMA */
+#ifdef CONFIG_HAVE_TC_FAULT_MODE
 	printf("  f: PWM fault mode initialize \n\r");
 	printf("  F: PWM fault mode clear and disable \n\r");
+#endif /* CONFIG_HAVE_TC_FAULT_MODE */
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
 	printf("  o: PWM output override / dead time settings \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
@@ -318,6 +322,8 @@ static void _show_captured_results(void)
 	captured_pulses = TC_CAPTURE_IDLE;
 }
 
+#ifdef CONFIG_HAVE_TC_FAULT_MODE
+
 /**
  * \brief Interrupt handler for the TC fault.
  */
@@ -367,6 +373,8 @@ static void _tc_fault_start(void)
 {
 	tc_start(tc_fault.addr, tc_fault.channel);
 }
+
+#endif /* CONFIG_HAVE_TC_FAULT_MODE */
 
 /**
  * \brief Interrupt handler for the PWM.
@@ -522,6 +530,7 @@ int main(void)
 				_pwm_demo_dma(pwm_channel, cprd);
 				break;
 #endif /* CONFIG_HAVE_PWM_DMA */
+#ifdef CONFIG_HAVE_TC_FAULT_MODE
 			case 'f':
 				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
 				                         PWM_FMR_FMOD(0));
@@ -543,6 +552,7 @@ int main(void)
 				pwmc_disable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
 				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
 				break;
+#endif /* CONFIG_HAVE_TC_FAULT_MODE */
 			case 'm':
 				pwmc_configure_stepper_motor_mode(PWM,
 					PWM_SMMR_GCEN0 | PWM_SMMR_GCEN1 | PWM_SMMR_DOWN0);

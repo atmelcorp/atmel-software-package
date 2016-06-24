@@ -82,100 +82,71 @@
  *         Global functions
  *------------------------------------------------------------------------------*/
 
-/**
- * \brief Configures a Timer Counter Channel
- *
- * Configures a Timer Counter to operate in the given mode. Timer is stopped
- * after configuration and must be restarted with tc_start(). All the
- * interrupts of the timer are also disabled.
- *
- * \param tc  Pointer to a Tc instance.
- * \param channel Channel number.
- * \param mode  Operating mode (TC_CMR value).
- */
 void tc_configure(Tc *tc, uint32_t channel, uint32_t mode)
 {
-	volatile TcChannel *tc_channel;
+	TcChannel *ch;
 
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
-	tc_channel = tc->TC_CHANNEL + channel;
+	ch = &tc->TC_CHANNEL[channel];
 
 	/*  Disable TC clock */
-	tc_channel->TC_CCR = TC_CCR_CLKDIS;
+	ch->TC_CCR = TC_CCR_CLKDIS;
 
 	/*  Disable interrupts */
-	tc_channel->TC_IDR = 0xFFFFFFFF;
+	ch->TC_IDR = ch->TC_IMR;
 
 	/*  Clear status register */
-	tc_channel->TC_SR;
+	ch->TC_SR;
 
 	/*  Set mode */
-	tc_channel->TC_CMR = mode;
+	ch->TC_CMR = mode;
 }
 
-/**
- * \brief Reset and Start the TC Channel
- *
- * Enables the timer clock and performs a software reset to start the counting.
- *
- * \param tc  Pointer to a Tc instance.
- * \param channel Channel number.
- */
 void tc_start(Tc *tc, uint32_t channel)
 {
-	volatile TcChannel *tc_channel;
+	TcChannel *ch;
 
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
-	tc_channel = tc->TC_CHANNEL + channel;
-	tc_channel->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
-	tc_channel->TC_IER = TC_IER_COVFS;
+	ch = &tc->TC_CHANNEL[channel];
+
+	ch->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 }
 
-/**
- * \brief Stop TC Channel
- *
- * Disables the timer clock, stopping the counting.
- *
- * \param tc     Pointer to a Tc instance.
- * \param channel Channel number.
- */
 void tc_stop(Tc *tc, uint32_t channel)
 {
-	volatile TcChannel *tc_channel;
+	TcChannel *ch;
 
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
-	tc_channel = tc->TC_CHANNEL + channel;
-	tc_channel->TC_CCR = TC_CCR_CLKDIS;
-	tc_channel->TC_IDR = TC_IER_COVFS;
+	ch = &tc->TC_CHANNEL[channel];
+
+	ch->TC_CCR = TC_CCR_CLKDIS;
 }
 
-/**
- * \brief Enables TC channel interrupts
- *
- * \param tc Pointer to Tc instance
- * \param channel Channel number
- * \param mask mask of interrupts to enable
- */
 void tc_enable_it(Tc *tc, uint32_t channel, uint32_t mask)
 {
+	TcChannel *ch;
+
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
-	tc->TC_CHANNEL[channel].TC_IER = mask;
+	ch = &tc->TC_CHANNEL[channel];
+
+	ch->TC_IER = mask;
 }
 
-/**
- * \brief Find the best clock source for the required frequency
- *
- * Finds the best clock source 
- *
- * \param tc    TC instance.
- * \param freq  Desired timer freq.
- *
- * \return The clock source index
- */
+void tc_disable_it(Tc *tc, uint32_t channel, uint32_t mask)
+{
+	TcChannel *ch;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	ch = &tc->TC_CHANNEL[channel];
+
+	ch->TC_IDR = mask;
+}
+
 uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq)
 {
 	uint32_t i;
@@ -190,30 +161,29 @@ uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq)
 	return i;
 }
 
-uint32_t tc_get_status(Tc *tc, uint32_t channel_num)
+uint32_t tc_get_status(Tc *tc, uint32_t channel)
 {
-	return tc->TC_CHANNEL[channel_num].TC_SR;
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	return tc->TC_CHANNEL[channel].TC_SR;
 }
 
-
-void tc_trigger_on_freq(Tc *tc, uint32_t channel_num, uint32_t freq)
+void tc_trigger_on_freq(Tc *tc, uint32_t channel, uint32_t freq)
 {
-	uint32_t tcclks = 0;
-	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+	uint32_t tcclks, rc;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
 	tcclks = tc_find_best_clock_source(tc, freq);
-	tc_configure(tc, channel_num, tcclks | TC_CMR_CPCTRG);
-	channel->TC_RC = tc_get_available_freq(tc, tcclks) / freq;
+	tc_configure(tc, channel, tcclks | TC_CMR_CPCTRG);
+	rc = tc_get_available_freq(tc, tcclks) / freq;
+	tc_set_ra_rb_rc(tc, channel, NULL, NULL, &rc);
 }
 
-/**
- * \brief Get available frequency of Timer Counter according to clock selection
- * \param tc Pointer to Tc instance
- * \param tc_clks TC_CMR_TCCLKS_TIMER_CLOCKx field value for clock selection.
- * \return TC frequency
- */
 uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
 {
+	assert(tc_clks <= TC_CMR_TCCLKS_TIMER_CLOCK5);
+
 	switch (tc_clks) {
 	case TC_CMR_TCCLKS_TIMER_CLOCK1:
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
@@ -230,63 +200,51 @@ uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
 	case TC_CMR_TCCLKS_TIMER_CLOCK5:
 		return pmc_get_slow_clock();
 	default:
-		assert(tc_clks <= TC_CMR_TCCLKS_TIMER_CLOCK5);
 		return 0;
 	}
 }
 
-/**
- * \brief Set RA, RB, RC for Timer Counter
- * \param tc Pointer to Tc instance
- * \param channel_num channel number of the Timer Counter
- * \param ra Pointer to the value to set into RA
- * \param rb Pointer to the value to set into RB
- * \param rc Pointer to the value to set into RC
- */
-void tc_set_ra_rb_rc(Tc *tc, uint32_t channel_num,
+void tc_set_ra_rb_rc(Tc *tc, uint32_t channel,
 	uint32_t *ra, uint32_t *rb, uint32_t *rc)
 {
-	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+	TcChannel* ch;
 
-	if (ra) {
-		assert(TC_CMR_WAVE == (channel->TC_CMR & TC_CMR_WAVE));
-		channel->TC_RA = *ra;
-	}
-	if (rb) {
-		assert(TC_CMR_WAVE == (channel->TC_CMR & TC_CMR_WAVE));
-		channel->TC_RB = *rb;
-	}
-	if (rc)
-		channel->TC_RC = *rc;
-}
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
-/**
- * \brief Get RA, RB, RC from Timer Counter
- * \param tc Pointer to Tc instance
- * \param channel_num channel number of the Timer Counter
- * \param ra Pointer to the address to store RA
- * \param rb Pointer to the address to store RB
- * \param rc Pointer to the address to store RC
- */
-void tc_get_ra_rb_rc(Tc *tc, uint32_t channel_num,
-	uint32_t *ra, uint32_t *rb, uint32_t *rc)
-{
-	TcChannel* channel = &tc->TC_CHANNEL[channel_num];
+	ch = &tc->TC_CHANNEL[channel];
+
+	assert(!(ra && rb) || (ch->TC_CMR & TC_CMR_WAVE));
 
 	if (ra)
-		*ra = channel->TC_RA;
+		ch->TC_RA = *ra;
 	if (rb)
-		*rb = channel->TC_RB;
+		ch->TC_RB = *rb;
 	if (rc)
-		*rc = channel->TC_RC;
+		ch->TC_RC = *rc;
 }
 
-/**
- * \brief Set Timer Counter Fault Mode
- * \param tc Pointer to Tc instance
- * \param mode fault mode
- */
+void tc_get_ra_rb_rc(Tc *tc, uint32_t channel,
+	uint32_t *ra, uint32_t *rb, uint32_t *rc)
+{
+	TcChannel* ch;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	ch = &tc->TC_CHANNEL[channel];
+
+	if (ra)
+		*ra = ch->TC_RA;
+	if (rb)
+		*rb = ch->TC_RB;
+	if (rc)
+		*rc = ch->TC_RC;
+}
+
+#ifdef CONFIG_HAVE_TC_FAULT_MODE
+
 void tc_set_fault_mode(Tc *tc, uint32_t mode)
 {
 	tc->TC_FMR = mode;
 }
+
+#endif /* CONFIG_HAVE_TC_FAULT_MODE */

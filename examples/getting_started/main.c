@@ -235,17 +235,18 @@ static void console_handler(uint8_t key)
  */
 static void tc_handler(void)
 {
-	uint32_t dummy, i;
+	uint32_t status, i;
 
-	/* Clear status bit to acknowledge interrupt */
-	dummy = tc_get_status(TC0, 0);
-	(void) dummy;
+	/* Get status to acknowledge interrupt */
+	status = tc_get_status(TC0, 0);
 
-	/** Toggle LEDs state. */
-	for (i = 1; i < NUM_LEDS; ++i) {
-		if (led_status[i]) {
-			led_toggle(i);
-			printf("%i ", (unsigned int)i);
+	if (status & TC_SR_CPCS) {
+		/** Toggle LEDs state. */
+		for (i = 1; i < NUM_LEDS; ++i) {
+			if (led_status[i]) {
+				led_toggle(i);
+				printf("%i ", (unsigned int)i);
+			}
 		}
 	}
 }
