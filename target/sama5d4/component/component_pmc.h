@@ -85,7 +85,6 @@ typedef struct {
 #define PMC_SCER_PCK1 (0x1u << 9) /**< \brief (PMC_SCER) Programmable Clock 1 Output Enable */
 #define PMC_SCER_PCK2 (0x1u << 10) /**< \brief (PMC_SCER) Programmable Clock 2 Output Enable */
 /* -------- PMC_SCDR : (PMC Offset: 0x0004) System Clock Disable Register -------- */
-#define PMC_SCDR_PCK (0x1u << 0) /**< \brief (PMC_SCDR) Processor Clock Disable */
 #define PMC_SCDR_DDRCK (0x1u << 2) /**< \brief (PMC_SCDR) DDR Clock Disable */
 #define PMC_SCDR_LCDCK (0x1u << 3) /**< \brief (PMC_SCDR) LCD2x Clock Disable */
 #define PMC_SCDR_SMDCK (0x1u << 4) /**< \brief (PMC_SCDR) SMD Clock Disable */
@@ -95,7 +94,6 @@ typedef struct {
 #define PMC_SCDR_PCK1 (0x1u << 9) /**< \brief (PMC_SCDR) Programmable Clock 1 Output Disable */
 #define PMC_SCDR_PCK2 (0x1u << 10) /**< \brief (PMC_SCDR) Programmable Clock 2 Output Disable */
 /* -------- PMC_SCSR : (PMC Offset: 0x0008) System Clock Status Register -------- */
-#define PMC_SCSR_PCK (0x1u << 0) /**< \brief (PMC_SCSR) Processor Clock Status */
 #define PMC_SCSR_DDRCK (0x1u << 2) /**< \brief (PMC_SCSR) DDR Clock Status */
 #define PMC_SCSR_LCDCK (0x1u << 3) /**< \brief (PMC_SCSR) LCD2x Clock Status */
 #define PMC_SCSR_SMDCK (0x1u << 4) /**< \brief (PMC_SCSR) SMD Clock Status */

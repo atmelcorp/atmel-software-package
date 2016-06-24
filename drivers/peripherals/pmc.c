@@ -195,13 +195,6 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 
 	switch (clock)
 	{
-#ifdef PMC_SCDR_PCK
-	case PMC_SYSTEM_CLOCK_PCK:
-		e = 0;
-		d = PMC_SCDR_PCK;
-		s = PMC_SCSR_PCK;
-		break;
-#endif
 	case PMC_SYSTEM_CLOCK_DDR:
 		e = PMC_SCER_DDRCK;
 		d = PMC_SCDR_DDRCK;
