@@ -382,26 +382,6 @@ static int get_new_date(void)
 }
 
 /**
- *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
- */
-static void tc_handler(void)
-{
-	uint32_t dummy;
-
-	/* Clear status bit to acknowledge interrupt */
-	dummy = tc_get_status(TC0, 0);
-	(void) dummy;
-
-	if (CountDownTimer >= 240)	// Recalibrate at every 1 minute
-	{
-		rtc_calibration(Temperature);
-		trace_info("RTC has been re-calibrated \r\n");
-		CountDownTimer = 0;
-	}
-	CountDownTimer++;
-}
-
-/**
  * \brief Displays the user interface on the terminal.
  */
 static void _RefreshDisplay(void)
@@ -413,8 +393,7 @@ static void _RefreshDisplay(void)
 	/* unsigned char month, day, week; */
 
 	/* not in menu display mode, in set mode */
-	if (bState != STATE_MENU) {
-	} else {
+	if (bState == STATE_MENU) {
 		/* Retrieve date and time */
 		rtc_get_time(&current_time);
 		rtc_get_date(&current_date);
@@ -426,7 +405,9 @@ static void _RefreshDisplay(void)
 			printf("  d - Set date\r\n");
 			printf("  i - Set time alarm\r\n");
 			printf("  m - Set date alarm\r\n");
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
 			printf("  p - PPM calibration of RTC\r\n");
+#endif
 
 			if (alarmTriggered) {
 				printf("  c - Clear alarm notification\r\n");
@@ -486,19 +467,38 @@ static void sysc_handler(void)
 	}
 }
 
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
+
+/**
+ *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
+ */
+static void calibration_tc_handler(void)
+{
+	/* Clear status bit to acknowledge interrupt */
+	tc_get_status(TC0, 0);
+
+	 // Recalibrate at every 1 minute
+	if (CountDownTimer >= 60) {
+		rtc_calibration(Temperature);
+		trace_info("RTC has been re-calibrated \r\n");
+		CountDownTimer = 0;
+	}
+	CountDownTimer++;
+}
+
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
  */
-static void configure_tc(void)
+static void configure_calibration_tc(void)
 {
 	/** Enable peripheral clock. */
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc_handler);
+	aic_set_source_vector(ID_TC0, calibration_tc_handler);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, 0, 4);
+	tc_trigger_on_freq(TC0, 0, 1);
 
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, 0, TC_IER_CPCS);
@@ -507,6 +507,24 @@ static void configure_tc(void)
 	/* Start the counter */
 	tc_start(TC0, 0);
 }
+
+static void disable_calibration_tc(void)
+{
+	tc_stop(TC0, 0);
+}
+
+static void enable_calibration_tc(void)
+{
+	CountDownTimer = 0;
+	tc_start(TC0, 0);
+}
+
+#else /* CONFIG_HAVE_RTC_CALIBRATION */
+
+static void disable_calibration_tc(void) { }
+static void enable_calibration_tc(void) { }
+
+#endif /* !CONFIG_HAVE_RTC_CALIBRATION */
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -528,9 +546,6 @@ int main(void)
 	// put 25 °C as a default temp, if there is no temprature sensor
 	Temperature = 25;
 
-	printf("Configure TC.\r\n");
-	configure_tc();
-
 	/* Default RTC configuration */
 	rtc_set_hour_mode(0);	/* 24-hour mode */
 	struct _time empty_time = {0,0,0};
@@ -541,6 +556,12 @@ int main(void)
 	if (rtc_set_date_alarm(&empty_date)) {
 		printf("\r\n Disable date alarm fail!");
 	}
+
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
+	printf("Configuring TC for periodic re-calibration.\r\n");
+	configure_calibration_tc();
+	rtc_calibration(Temperature);
+#endif
 
 	/* Configure RTC interrupts */
 	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
@@ -555,7 +576,6 @@ int main(void)
 	rtc_set_time_alarm(&new_time);
 	bMenuShown = 0;
 	alarmTriggered = 0;
-	rtc_calibration(Temperature);
 
 	/* Handle keypresses */
 	while (1) {
@@ -564,7 +584,7 @@ int main(void)
 		/* set time */
 		if (ucKey == 't') {
 			bState = STATE_SET_TIME;
-			aic_disable(ID_TC0);
+			disable_calibration_tc();
 
 			do {
 				printf("\r\n\r\n Set time(hh:mm:ss): ");
@@ -581,10 +601,10 @@ int main(void)
 			bState = STATE_MENU;
 			bMenuShown = 0;
 			_RefreshDisplay();
-			CountDownTimer = 0;
-			aic_enable(ID_TC0);
+			enable_calibration_tc();
 		}
 
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
 		/* clock calibration */
 		else if (ucKey == 'p') {
 
@@ -594,6 +614,7 @@ int main(void)
 			bMenuShown = 0;
 			_RefreshDisplay();
 		}
+#endif /* CONFIG_HAVE_RTC_CALIBRATION */
 
 		/* set date */
 		else if (ucKey == 'd') {

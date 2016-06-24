@@ -101,10 +101,6 @@ struct _date
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * \brief Sets the RTC in either 12 or 24 hour mode.
  *
@@ -217,7 +213,8 @@ extern void rtc_clear_sccr(uint32_t mask);
  */
 extern uint32_t rtc_get_sr(uint32_t mask);
 
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef CONFIG_HAVE_RTC_TAMPER
+
 /**
  * \brief Get the RTC tamper time value.
  *
@@ -272,7 +269,8 @@ extern uint32_t rtc_get_tamper_event_counter(void);
  *         0 - The system is different from backup mode.
  */
 extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num);
-#endif /* ! CONFIG_SOC_SAMA5D3 */
+
+#endif /* CONFIG_HAVE_RTC_TAMPER */
 
 /**
  * \brief Convert number of second (count) to HMS format.
@@ -280,10 +278,14 @@ extern uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num);
  */
 extern void rtc_convert_time_to_hms (struct _time *time, uint32_t count);
 
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
+
 /**
  * \brief RTC calibration for Temperature or PPM drift
  */
 extern void rtc_calibration(int32_t current_tempr);
+
+#endif /* CONFIG_HAVE_RTC_CALIBRATION */
 
 /**
  * \brief Set calendar event selection.
@@ -301,7 +303,4 @@ extern uint32_t rtc_set_calendar_event (uint32_t mask);
  */
 extern uint32_t rtc_set_time_event (uint32_t maskask);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* _RTC_H_ */

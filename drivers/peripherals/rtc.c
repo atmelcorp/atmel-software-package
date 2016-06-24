@@ -113,8 +113,8 @@
 struct rtc_ppm_lookup {
 	int8_t   tempr;
 	int16_t  ppm;
-	uint8_t  negppm;
-	uint8_t  highppm;
+	bool     negppm;
+	bool     highppm;
 	uint16_t correction;
 };
 
@@ -122,136 +122,138 @@ struct rtc_ppm_lookup {
 //         Local constants
 //------------------------------------------------------------------------------
 
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
+
 static const struct rtc_ppm_lookup ppm_lookup[] = {
-	{-40, -168, 0, 1, 22},
-	{-39, -163, 0, 1, 23},
-	{-38, -158, 0, 1, 24},
-	{-37, -153, 0, 1, 25},
-	{-36, -148, 0, 1, 25},
-	{-35, -143, 0, 1, 26},
-	{-34, -138, 0, 1, 27},
-	{-33, -134, 0, 1, 28},
-	{-32, -129, 0, 1, 29},
-	{-31, -124, 0, 1, 31},
-	{-30, -120, 0, 1, 32},
-	{-29, -116, 0, 1, 33},
-	{-28, -111, 0, 1, 34},
-	{-27, -107, 0, 1, 36},
-	{-26, -103, 0, 1, 37},
-	{-25, -99, 0, 1, 38},
-	{-24, -95, 0, 1, 40},
-	{-23, -91, 0, 1, 42},
-	{-22, -87, 0, 1, 44},
-	{-21, -84, 0, 1, 45},
-	{-20, -80, 0, 1, 48},
-	{-19, -76, 0, 1, 50},
-	{-18, -73, 0, 1, 53},
-	{-17, -70, 0, 1, 55},
-	{-16, -66, 0, 1, 58},
-	{-15, -63, 0, 1, 61},
-	{-14, -60, 0, 1, 64},
-	{-13, -57, 0, 1, 68},
-	{-12, -54, 0, 1, 71},
-	{-11, -51, 0, 1, 76},
-	{-10, -48, 0, 1, 80},
-	{-9, -45, 0, 1, 86},
-	{-8, -43, 0, 1, 90},
-	{-7, -40, 0, 1, 97},
-	{-6, -37, 0, 1, 105},
-	{-5, -35, 0, 1, 111},
-	{-4, -33, 0, 1, 117},
-	{-3, -30, 0, 0, 6},
-	{-2, -28, 0, 0, 6},
-	{-1, -26, 0, 0, 7},
-	{0, -24, 0, 0, 7},
-	{1, -22, 0, 0, 8},
-	{2, -20, 0, 0, 9},
-	{3, -18, 0, 0, 10},
-	{4, -17, 0, 0, 10},
-	{5, -15, 0, 0, 12},
-	{6, -13, 0, 0, 14},
-	{7, -12, 0, 0, 15},
-	{8, -11, 0, 0, 17},
-	{9, -9, 0, 0, 21},
-	{10, -8, 0, 0, 23},
-	{11, -7, 0, 0, 27},
-	{12, -6, 0, 0, 32},
-	{13, -5, 0, 0, 38},
-	{14, -4, 0, 0, 48},
-	{15, -3, 0, 0, 64},
-	{16, -2, 0, 0, 97},
-	{17, -2, 0, 0, 97},
-	{18, -1, 0, 0, 127},
-	{19, 0, 1, 0, 0},
-	{20, 0, 1, 0, 0},
-	{21, 0, 1, 0, 0},
-	{22, 1, 1, 0, 127},
-	{23, 1, 1, 0, 127},
-	{24, 1, 1, 0, 127},
-	{25, 1, 1, 0, 127},
-	{26, 1, 1, 0, 127},
-	{27, 1, 1, 0, 127},
-	{28, 1, 1, 0, 127},
-	{29, 0, 1, 0, 0},
-	{30, 0, 1, 0, 0},
-	{31, 0, 1, 0, 0},
-	{32, -1, 0, 0, 127},
-	{33, -2, 0, 0, 97},
-	{34, -2, 0, 0, 97},
-	{35, -3, 0, 0, 64},
-	{36, -4, 0, 0, 48},
-	{37, -5, 0, 0, 38},
-	{38, -6, 0, 0, 32},
-	{39, -7, 0, 0, 27},
-	{40, -8, 0, 0, 23},
-	{41, -9, 0, 0, 21},
-	{42, -11, 0, 0, 17},
-	{43, -12, 0, 0, 15},
-	{44, -13, 0, 0, 14},
-	{45, -15, 0, 0, 12},
-	{46, -17, 0, 0, 10},
-	{47, -18, 0, 0, 10},
-	{48, -20, 0, 0, 9},
-	{49, -22, 0, 0, 8},
-	{50, -24, 0, 0, 7},
-	{51, -26, 0, 0, 7},
-	{52, -28, 0, 0, 6},
-	{53, -30, 0, 0, 6},
-	{54, -33, 0, 1, 117},
-	{55, -35, 0, 1, 111},
-	{56, -37, 0, 1, 105},
-	{57, -40, 0, 1, 97},
-	{58, -43, 0, 1, 90},
-	{59, -45, 0, 1, 86},
-	{60, -48, 0, 1, 80},
-	{61, -51, 0, 1, 76},
-	{62, -54, 0, 1, 71},
-	{63, -57, 0, 1, 68},
-	{64, -60, 0, 1, 64},
-	{65, -63, 0, 1, 61},
-	{66, -66, 0, 1, 58},
-	{67, -70, 0, 1, 55},
-	{68, -73, 0, 1, 53},
-	{69, -76, 0, 1, 50},
-	{70, -80, 0, 1, 48},
-	{71, -84, 0, 1, 45},
-	{72, -87, 0, 1, 44},
-	{73, -91, 0, 1, 42},
-	{74, -95, 0, 1, 40},
-	{75, -99, 0, 1, 38},
-	{76, -103, 0, 1, 37},
-	{77, -107, 0, 1, 36},
-	{78, -111, 0, 1, 34},
-	{79, -116, 0, 1, 33},
-	{80, -120, 0, 1, 32},
-	{81, -124, 0, 1, 31},
-	{82, -129, 0, 1, 29},
-	{83, -134, 0, 1, 28},
-	{84, -138, 0, 1, 27},
-	{85, -143, 0, 1, 26}
+	{ -40, -168, false,  true,  22 },
+	{ -39, -163, false,  true,  23 },
+	{ -38, -158, false,  true,  24 },
+	{ -37, -153, false,  true,  25 },
+	{ -36, -148, false,  true,  25 },
+	{ -35, -143, false,  true,  26 },
+	{ -34, -138, false,  true,  27 },
+	{ -33, -134, false,  true,  28 },
+	{ -32, -129, false,  true,  29 },
+	{ -31, -124, false,  true,  31 },
+	{ -30, -120, false,  true,  32 },
+	{ -29, -116, false,  true,  33 },
+	{ -28, -111, false,  true,  34 },
+	{ -27, -107, false,  true,  36 },
+	{ -26, -103, false,  true,  37 },
+	{ -25,  -99, false,  true,  38 },
+	{ -24,  -95, false,  true,  40 },
+	{ -23,  -91, false,  true,  42 },
+	{ -22,  -87, false,  true,  44 },
+	{ -21,  -84, false,  true,  45 },
+	{ -20,  -80, false,  true,  48 },
+	{ -19,  -76, false,  true,  50 },
+	{ -18,  -73, false,  true,  53 },
+	{ -17,  -70, false,  true,  55 },
+	{ -16,  -66, false,  true,  58 },
+	{ -15,  -63, false,  true,  61 },
+	{ -14,  -60, false,  true,  64 },
+	{ -13,  -57, false,  true,  68 },
+	{ -12,  -54, false,  true,  71 },
+	{ -11,  -51, false,  true,  76 },
+	{ -10,  -48, false,  true,  80 },
+	{  -9,  -45, false,  true,  86 },
+	{  -8,  -43, false,  true,  90 },
+	{  -7,  -40, false,  true,  97 },
+	{  -6,  -37, false,  true, 105 },
+	{  -5,  -35, false,  true, 111 },
+	{  -4,  -33, false,  true, 117 },
+	{  -3,  -30, false, false,   6 },
+	{  -2,  -28, false, false,   6 },
+	{  -1,  -26, false, false,   7 },
+	{   0,  -24, false, false,   7 },
+	{   1,  -22, false, false,   8 },
+	{   2,  -20, false, false,   9 },
+	{   3,  -18, false, false,  10 },
+	{   4,  -17, false, false,  10 },
+	{   5,  -15, false, false,  12 },
+	{   6,  -13, false, false,  14 },
+	{   7,  -12, false, false,  15 },
+	{   8,  -11, false, false,  17 },
+	{   9,   -9, false, false,  21 },
+	{  10,   -8, false, false,  23 },
+	{  11,   -7, false, false,  27 },
+	{  12,   -6, false, false,  32 },
+	{  13,   -5, false, false,  38 },
+	{  14,   -4, false, false,  48 },
+	{  15,   -3, false, false,  64 },
+	{  16,   -2, false, false,  97 },
+	{  17,   -2, false, false,  97 },
+	{  18,   -1, false, false, 127 },
+	{  19,    0,  true, false,   0 },
+	{  20,    0,  true, false,   0 },
+	{  21,    0,  true, false,   0 },
+	{  22,    1,  true, false, 127 },
+	{  23,    1,  true, false, 127 },
+	{  24,    1,  true, false, 127 },
+	{  25,    1,  true, false, 127 },
+	{  26,    1,  true, false, 127 },
+	{  27,    1,  true, false, 127 },
+	{  28,    1,  true, false, 127 },
+	{  29,    0,  true, false,   0 },
+	{  30,    0,  true, false,   0 },
+	{  31,    0,  true, false,   0 },
+	{  32,   -1, false, false, 127 },
+	{  33,   -2, false, false,  97 },
+	{  34,   -2, false, false,  97 },
+	{  35,   -3, false, false,  64 },
+	{  36,   -4, false, false,  48 },
+	{  37,   -5, false, false,  38 },
+	{  38,   -6, false, false,  32 },
+	{  39,   -7, false, false,  27 },
+	{  40,   -8, false, false,  23 },
+	{  41,   -9, false, false,  21 },
+	{  42,  -11, false, false,  17 },
+	{  43,  -12, false, false,  15 },
+	{  44,  -13, false, false,  14 },
+	{  45,  -15, false, false,  12 },
+	{  46,  -17, false, false,  10 },
+	{  47,  -18, false, false,  10 },
+	{  48,  -20, false, false,   9 },
+	{  49,  -22, false, false,   8 },
+	{  50,  -24, false, false,   7 },
+	{  51,  -26, false, false,   7 },
+	{  52,  -28, false, false,   6 },
+	{  53,  -30, false, false,   6 },
+	{  54,  -33, false,  true, 117 },
+	{  55,  -35, false,  true, 111 },
+	{  56,  -37, false,  true, 105 },
+	{  57,  -40, false,  true,  97 },
+	{  58,  -43, false,  true,  90 },
+	{  59,  -45, false,  true,  86 },
+	{  60,  -48, false,  true,  80 },
+	{  61,  -51, false,  true,  76 },
+	{  62,  -54, false,  true,  71 },
+	{  63,  -57, false,  true,  68 },
+	{  64,  -60, false,  true,  64 },
+	{  65,  -63, false,  true,  61 },
+	{  66,  -66, false,  true,  58 },
+	{  67,  -70, false,  true,  55 },
+	{  68,  -73, false,  true,  53 },
+	{  69,  -76, false,  true,  50 },
+	{  70,  -80, false,  true,  48 },
+	{  71,  -84, false,  true,  45 },
+	{  72,  -87, false,  true,  44 },
+	{  73,  -91, false,  true,  42 },
+	{  74,  -95, false,  true,  40 },
+	{  75,  -99, false,  true,  38 },
+	{  76, -103, false,  true,  37 },
+	{  77, -107, false,  true,  36 },
+	{  78, -111, false,  true,  34 },
+	{  79, -116, false,  true,  33 },
+	{  80, -120, false,  true,  32 },
+	{  81, -124, false,  true,  31 },
+	{  82, -129, false,  true,  29 },
+	{  83, -134, false,  true,  28 },
+	{  84, -138, false,  true,  27 },
+	{  85, -143, false,  true,  26 }
 };
-#endif
+
+#endif /* CONFIG_HAVE_RTC_CALIBRATION */
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -437,7 +439,8 @@ uint32_t rtc_get_sr(uint32_t mask)
 	return (RTC->RTC_SR) & mask;
 }
 
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef CONFIG_HAVE_RTC_TAMPER
+
 void rtc_get_tamper_time(struct _time *time,  uint8_t reg_num)
 {
 	uint32_t ltime, temp;
@@ -512,7 +515,8 @@ uint8_t rtc_is_tamper_occur_in_backup_mode(uint8_t reg_num)
 		return 0;
 	}
 }
-#endif /* ! CONFIG_SOC_SAMA5D3 */
+
+#endif /* CONFIG_HAVE_RTC_TAMPER */
 
 void rtc_convert_time_to_hms(struct _time *time, uint32_t count)
 {
@@ -523,21 +527,29 @@ void rtc_convert_time_to_hms(struct _time *time, uint32_t count)
 	time->sec = count % 60;
 }
 
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
+
 void rtc_calibration(int32_t current_tempr)
 {
-#ifndef CONFIG_SOC_SAMA5D3
-	uint32_t i, mr;
+	int i;
+	uint32_t mr;
+
 	for (i = 0; i < ARRAY_SIZE(ppm_lookup); i++) {
 		if (ppm_lookup[i].tempr == current_tempr) {
-			mr = RTC_MR_CORRECTION(ppm_lookup[i].correction);
-			mr |= (ppm_lookup[i].highppm << 15);
-			mr |= (ppm_lookup[i].negppm << 4);
-			RTC->RTC_MR = mr; // update the calibration value
+			/* update the calibration value */
+			mr = RTC->RTC_MR & ~(RTC_MR_CORRECTION_Msk | RTC_MR_HIGHPPM | RTC_MR_NEGPPM);
+			mr |= RTC_MR_CORRECTION(ppm_lookup[i].correction);
+			if (ppm_lookup[i].highppm)
+				mr |= RTC_MR_HIGHPPM;
+			if (ppm_lookup[i].negppm)
+				mr |= RTC_MR_NEGPPM;
+			RTC->RTC_MR = mr;
 			break;
 		}
 	}
-#endif
 }
+
+#endif /* CONFIG_HAVE_RTC_CALIBRATION */
 
 uint32_t rtc_set_time_event (uint32_t mask)
 {
