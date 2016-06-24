@@ -364,6 +364,8 @@ extern void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value);
 
 #endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
 
+#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+
 /**
  * \brief Configure stepper motor mode.
  *
@@ -371,6 +373,8 @@ extern void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value);
  * \param mode Bitwise OR for SMMR
  */
 extern void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value);
+
+#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
 
 /**
  * \brief Set write protection.

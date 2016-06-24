@@ -226,7 +226,9 @@ static void _display_menu(void)
 	printf("  f: PWM fault mode initialize \n\r");
 	printf("  F: PWM fault mode clear and disable \n\r");
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
+#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
+#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR  */
 	printf("  o: PWM output override / dead time settings \n\r");
 	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
@@ -553,10 +555,12 @@ int main(void)
 				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
 				break;
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
+#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
 			case 'm':
 				pwmc_configure_stepper_motor_mode(PWM,
 					PWM_SMMR_GCEN0 | PWM_SMMR_GCEN1 | PWM_SMMR_DOWN0);
 				break;
+#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
 			case 'o':
 				printf("\n\r  ---- Input options: ----\r\n");
 				printf("  0/1: override to 0/1\n\r  others: set dead-time\n\r");
@@ -589,8 +593,10 @@ int main(void)
 				pwmc_configure_sync_channels(PWM, 0);
 #ifdef CONFIG_HAVE_PWM_DMA
 				pwmc_set_dma_finished_callback(NULL, 0);
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif
+#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
 				pwmc_configure_stepper_motor_mode(PWM, 0);
+#endif
 				_display_menu();
 				break;
 			}

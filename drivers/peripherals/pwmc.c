@@ -456,6 +456,8 @@ void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value)
 
 #endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
 
+#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+
 void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value)
 {
 	trace_debug("pwm: CH0-1 Gray Count %s %s, CH2-3 Gray Count %s %s\n\r", \
@@ -465,6 +467,8 @@ void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value)
 			(0 != (value & PWM_SMMR_GCEN1)) ? "Enable" : "Disable");
 	pwm->PWM_SMMR = value;
 }
+
+#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
 
 void pwmc_set_write_protection_control(Pwm *pwm, uint32_t value)
 {
