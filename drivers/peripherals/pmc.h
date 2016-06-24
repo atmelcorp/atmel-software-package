@@ -77,16 +77,21 @@ struct pck_mck_cfg {
  * \brief System clock identifiers, used for pmc_{enable,disable}_system_clock
  */
 enum _pmc_system_clock {
-	PMC_SYSTEM_CLOCK_PCK,
 	PMC_SYSTEM_CLOCK_DDR,
 	PMC_SYSTEM_CLOCK_LCD,
+#ifdef CONFIG_HAVE_SMD
 	PMC_SYSTEM_CLOCK_SMD,
+#endif
 	PMC_SYSTEM_CLOCK_UHP,
 	PMC_SYSTEM_CLOCK_UDP,
 	PMC_SYSTEM_CLOCK_PCK0,
 	PMC_SYSTEM_CLOCK_PCK1,
+#ifdef CONFIG_HAVE_PMC_PCK2
 	PMC_SYSTEM_CLOCK_PCK2,
+#endif
+#ifdef CONFIG_HAVE_ISC
 	PMC_SYSTEM_CLOCK_ISC,
+#endif
 };
 
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
@@ -297,79 +302,33 @@ extern uint32_t pmc_get_peripheral_clock(uint32_t id);
 extern void pmc_disable_all_peripherals(void);
 
 /**
- * \brief Configure programmable clock 0 (PCK0) with the given master clock
+ * \brief Configure programmable clock x (PCKx) with the given master clock
  * source and clock prescaler
+ * \param index index of the PCK
  * \param clock_source clock source selection (one of the PMC_PCK_CSS_xxx_CLK
  * constants)
  * \param prescaler prescaler
  */
-extern void pmc_configure_pck0(uint32_t clock_source, uint32_t prescaler);
+extern void pmc_configure_pck(uint32_t index, uint32_t clock_source, uint32_t prescaler);
 
 /**
- * \brief Enable programmable clock 0 (PCK0)
+ * \brief Enable programmable clock x (PCKx)
+ * \param index index of the PCK
  */
-extern void pmc_enable_pck0(void);
+extern void pmc_enable_pck(uint32_t index);
 
 /**
- * \brief Disable programmable clock 0 (PCK0)
+ * \brief Disable programmable clock x (PCKx)
+ * \param index index of the PCK
  */
-extern void pmc_disable_pck0(void);
+extern void pmc_disable_pck(uint32_t index);
 
 /**
- * \brief Get the frequency of the programmable clock 0 (PCK0)
- * \return PCK0 frequency in Hz
+ * \brief Get the frequency of the programmable clock x (PCKx)
+ * \param index index of the PCK
+ * \return PCK frequency in Hz
  */
-extern uint32_t pmc_get_pck0_clock(void);
-
-/**
- * \brief Configure programmable clock 1 (PCK1) with the given master clock
- * source and clock prescaler
- * \param clock_source Clock source selection (one of the PMC_PCK_CSS_xxx_CLK
- * constants)
- * \param prescaler Prescaler value
- */
-extern void pmc_configure_pck1(uint32_t clock_source, uint32_t prescaler);
-
-/**
- * \brief Enable programmable clock 1 (PCK1)
- */
-extern void pmc_enable_pck1(void);
-
-/**
- * \brief Disable programmable clock 1 (PCK1)
- */
-extern void pmc_disable_pck1(void);
-
-/**
- * \brief Get the frequency of the programmable clock 1 (PCK1)
- * \return PCK1 Frequency in Hz
- */
-extern uint32_t pmc_get_pck1_clock(void);
-
-/**
- * \brief Configure programmable clock 2 (PCK2) with the given master clock
- * source and clock prescaler
- * \param clock_source Clock source selection (one of the PMC_PCK_CSS_xxx_CLK
- * constants)
- * \param prescaler Prescaler value
- */
-extern void pmc_configure_pck2(uint32_t clock_source, uint32_t prescaler);
-
-/**
- * \brief Enable programmable clock 2 (PCK2)
- */
-extern void pmc_enable_pck2(void);
-
-/**
- * \brief Disable programmable clock 2 (PCK2)
- */
-extern void pmc_disable_pck2(void);
-
-/**
- * \brief Get the frequency of the programmable clock 2 (PCK2)
- * \return PCK2 Frequency in Hz
- */
-extern uint32_t pmc_get_pck2_clock(void);
+extern uint32_t pmc_get_pck_clock(uint32_t index);
 
 /**
  * \brief Enable the UPLL clock

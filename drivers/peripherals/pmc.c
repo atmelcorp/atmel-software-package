@@ -205,7 +205,7 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		d = PMC_SCDR_LCDCK;
 		s = PMC_SCSR_LCDCK;
 		break;
-#ifdef PMC_SCER_SMDCK
+#ifdef CONFIG_HAVE_SMD
 	case PMC_SYSTEM_CLOCK_SMD:
 		e = PMC_SCER_SMDCK;
 		d = PMC_SCDR_SMDCK;
@@ -232,12 +232,14 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		d = PMC_SCDR_PCK1;
 		s = PMC_SCSR_PCK1;
 		break;
+#ifdef CONFIG_HAVE_PMC_PCK2
 	case PMC_SYSTEM_CLOCK_PCK2:
 		e = PMC_SCER_PCK2;
 		d = PMC_SCDR_PCK2;
 		s = PMC_SCSR_PCK2;
 		break;
-#ifdef PMC_SCER_ISCCK
+#endif
+#ifdef CONFIG_HAVE_ISC
 	case PMC_SYSTEM_CLOCK_ISC:
 		e = PMC_SCER_ISCCK;
 		d = PMC_SCDR_ISCCK;
@@ -763,85 +765,71 @@ void pmc_disable_all_peripherals(void)
 }
 
 /*----------------------------------------------------------------------------
- *        Exported functions (PCK0-2)
+ *        Exported functions (PCK)
  *----------------------------------------------------------------------------*/
 
-void pmc_configure_pck0(uint32_t clock_source, uint32_t prescaler)
+void pmc_configure_pck(uint32_t index, uint32_t clock_source, uint32_t prescaler)
 {
+	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
 	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
 	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
 
-	pmc_disable_pck0();
-	PMC->PMC_PCK[0] = clock_source | PMC_PCK_PRES(prescaler);
+	pmc_disable_pck(index);
+	PMC->PMC_PCK[index] = clock_source | PMC_PCK_PRES(prescaler);
 }
 
-void pmc_enable_pck0(void)
+void pmc_enable_pck(uint32_t index)
 {
-	PMC->PMC_SCER = PMC_SCER_PCK0;
-	while (!(PMC->PMC_SR & PMC_SR_PCKRDY0));
+	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
+
+	switch (index) {
+	case 0:
+		PMC->PMC_SCER = PMC_SCER_PCK0;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY0));
+		break;
+	case 1:
+		PMC->PMC_SCER = PMC_SCER_PCK1;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY1));
+		break;
+#ifdef CONFIG_HAVE_PMC_PCK2
+	case 2:
+		PMC->PMC_SCER = PMC_SCER_PCK2;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY2));
+		break;
+#endif /* CONFIG_HAVE_PMC_PCK2 */
+	default:
+		assert(0);
+	}
 }
 
-void pmc_disable_pck0(void)
+void pmc_disable_pck(uint32_t index)
 {
-	PMC->PMC_SCDR = PMC_SCDR_PCK0;
-	while (PMC->PMC_SCSR & PMC_SCSR_PCK0);
+	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
+
+	switch (index) {
+	case 0:
+		PMC->PMC_SCDR = PMC_SCDR_PCK0;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK0);
+		break;
+	case 1:
+		PMC->PMC_SCDR = PMC_SCDR_PCK1;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK1);
+		break;
+#ifdef CONFIG_HAVE_PMC_PCK2
+	case 2:
+		PMC->PMC_SCDR = PMC_SCDR_PCK2;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK2);
+		break;
+#endif /* CONFIG_HAVE_PMC_PCK2 */
+	default:
+		assert(0);
+	}
 }
 
-uint32_t pmc_get_pck0_clock(void)
+uint32_t pmc_get_pck_clock(uint32_t index)
 {
-	return _pmc_get_pck_clock(0);
-}
-
-void pmc_configure_pck1(uint32_t clock_source, uint32_t prescaler)
-{
-	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
-	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
-
-	pmc_disable_pck1();
-	PMC->PMC_PCK[1] = clock_source | PMC_PCK_PRES(prescaler);
-}
-
-void pmc_enable_pck1(void)
-{
-	PMC->PMC_SCER = PMC_SCER_PCK1;
-	while (!(PMC->PMC_SR & PMC_SR_PCKRDY1));
-}
-
-void pmc_disable_pck1(void)
-{
-	PMC->PMC_SCDR = PMC_SCDR_PCK1;
-	while (PMC->PMC_SCSR & PMC_SCSR_PCK1);
-}
-
-uint32_t pmc_get_pck1_clock(void)
-{
-	return _pmc_get_pck_clock(1);
-}
-
-void pmc_configure_pck2(uint32_t clock_source, uint32_t prescaler)
-{
-	assert(!(clock_source & ~PMC_PCK_CSS_Msk));
-	assert(!(prescaler << PMC_PCK_PRES_Pos & ~PMC_PCK_PRES_Msk));
-
-	pmc_disable_pck2();
-	PMC->PMC_PCK[2] = clock_source | PMC_PCK_PRES(prescaler);
-}
-
-void pmc_enable_pck2(void)
-{
-	PMC->PMC_SCER = PMC_SCER_PCK2;
-	while (!(PMC->PMC_SR & PMC_SR_PCKRDY2));
-}
-
-void pmc_disable_pck2(void)
-{
-	PMC->PMC_SCDR = PMC_SCDR_PCK2;
-	while (PMC->PMC_SCSR & PMC_SCSR_PCK2);
-}
-
-uint32_t pmc_get_pck2_clock(void)
-{
-	return _pmc_get_pck_clock(2);
+	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
+	return _pmc_get_pck_clock(index);
 }
 
 /*----------------------------------------------------------------------------

@@ -281,13 +281,14 @@ void board_save_misc_power(void)
 	/* disable system clocks */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_SMD);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UHP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK0);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK1);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK2);
+#ifdef CONFIG_HAVE_ISC
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+#endif
 
 	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
 	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {

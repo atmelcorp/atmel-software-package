@@ -247,13 +247,17 @@ void board_save_misc_power(void)
 	/* disable system clocks */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
+#ifdef CONFIG_HAVE_SMD
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_SMD);
+#endif
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UHP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK0);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK1);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK2);
+#ifdef CONFIG_HAVE_ISC
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+#endif
 
 	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
 	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
@@ -604,9 +608,9 @@ void board_cfg_isi(void)
 	/* Configure ISI pins */
 	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
 
-	/* Configure PMC programmable clock(PCK0) */
-	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
-	pmc_enable_pck1();
+	/* Configure PMC programmable clock (PCK1) */
+	pmc_configure_pck(1, PMC_PCK_CSS_MCK_CLK, 3);
+	pmc_enable_pck(1);
 
 	/* Reset sensor */
 	pio_configure(&pin_rst,1);
