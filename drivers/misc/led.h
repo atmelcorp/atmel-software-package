@@ -66,9 +66,8 @@
  *  not exist on the board, the function does nothing.
  *  \param leds   Array of led pins (led driver keep a pointer to leds array)
  *  \param count  Number of the LED to configure.
- *  \return a bitfield of initialiased LEDs
  */
-extern uint32_t led_configure(struct _pin *leds, uint32_t count);
+extern void led_configure(struct _pin *leds, uint32_t count);
 
 /**
  *  Turns the given LED on if it exists; otherwise does nothing.

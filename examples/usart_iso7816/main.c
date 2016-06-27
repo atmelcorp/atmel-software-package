@@ -242,15 +242,16 @@ static void push_button_handler(uint32_t mask, uint32_t status, void* user_arg)
  */
 static void _configure_buttons(void)
 {
-	int i = 0;
+	int i;
+
+	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
+	pio_set_debounce_filter(10);
+
 	for (i = 0; i <  ARRAY_SIZE(button_pins); ++i)
 	{
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);
-		/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
-		pio_set_debounce_filter(&button_pins[i], 10);
 		/* Initialize pios interrupt with its handlers */
-		pio_configure_it(&button_pins[i]);
 		pio_add_handler_to_group(button_pins[i].group,
 					 button_pins[i].mask,
 					 push_button_handler,

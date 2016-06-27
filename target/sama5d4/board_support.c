@@ -133,7 +133,8 @@ static bool board_cfg_sd_dev_pins(uint32_t periph_id, bool down, bool up)
 		dev_pins[pin_ix].type = up ? PIO_OUTPUT_1 : PIO_OUTPUT_0;
 		dev_pins[pin_ix].attribute = PIO_DEFAULT;
 	}
-	return pio_configure(dev_pins, count) ? true : false;
+	pio_configure(dev_pins, count);
+	return true;
 }
 
 /*----------------------------------------------------------------------------
@@ -668,7 +669,8 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		const struct _pin pins[] = BOARD_HSMCI0_PINS;
 
 		/* Configure HSMCI0 pins */
-		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
 #else
 		trace_fatal("Target board misses HSMCI0 pins");
 		return false;
@@ -680,7 +682,8 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		const struct _pin pins[] = BOARD_HSMCI1_PINS;
 
 		/* Configure HSMCI1 pins */
-		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
 #else
 		trace_fatal("Target board misses HSMCI1 pins");
 		return false;

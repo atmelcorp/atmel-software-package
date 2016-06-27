@@ -188,11 +188,12 @@ volatile unsigned int MenuChoice;
  *
  *  Handle process led1 status change.
  */
-static void _pio_handler(uint32_t mask, uint32_t status, void *user_arg)
+static void _pio_handler(uint32_t group, uint32_t status, void *user_arg)
 {
 	int i = 0;
 
 	/* unused */
+	(void)group;
 	(void)user_arg;
 
 	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
@@ -230,18 +231,17 @@ static void _restore_console(void)
  */
 static void _configure_buttons(void)
 {
-	int i = 0;
+	int i;
+
+	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
+	pio_set_debounce_filter(10);
 
 	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);
 
-		/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
-		pio_set_debounce_filter(&button_pins[i], 10);
-
 		/* Initialize pios interrupt with its handlers, see */
 		/* PIO definition in board.h. */
-		pio_configure_it(&button_pins[i]);
 		pio_add_handler_to_group(button_pins[i].group,
 			button_pins[i].mask, _pio_handler, NULL);
 		/* Enable PIO line interrupts. */
@@ -528,7 +528,7 @@ static void menu_ulp1(void)
 	/* To capture wakeup time, we need to write the register */
 	/* directly instead of calling C function */
 	/* led_set(0); pio_clear(&pinsLeds[led]);*/
-	PIOA->PIO_PIO_[1].S_PIO_CODR = PIO_PB6;
+	PIOA->PIO_IO[1].PIO_CODR = PIO_PB6;
 
 	/* Restore default PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);

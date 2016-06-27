@@ -137,13 +137,17 @@ static volatile int _pio_event;
  *
  *  Handle process led1 status change.
  */
-static void pio_handler(uint32_t mask, uint32_t status, void* user_arg)
+static void pio_handler(uint32_t group, uint32_t status, void* user_arg)
 {
 	/* unused */
+	(void)group;
 	(void)user_arg;
 
-	if (status & pio_input.mask) {
+	if (group == pio_input.group && (status & pio_input.mask)) {
 		_pio_event++;
+		/* disable interrupt after too many occurences */
+		if (_pio_event > 5)
+			pio_disable_it(&pio_input);
 	}
 }
 
@@ -171,29 +175,25 @@ int main(void)
 
 	/* Configure PIO for input acquisition */
 	pio_configure(&pio_input, 1);
-	pio_set_debounce_filter(&pio_input, 100);
+	pio_set_debounce_filter(100);
 
 	/* Initialize pios interrupt with its handlers, see
 	 * PIO definition in board.h. */
-	pio_configure_it(&pio_input);
 	pio_add_handler_to_group(pio_input.group, pio_input.mask, pio_handler, NULL);
 
 	/* Configure PIO for output generation */
 	pio_configure(&pio_output, 1);
 
-	/* Reset event counts */
-	_pio_event = 0;
 	printf("    </system-out>\r\n");
 	printf("  </testcase>\r\n");
 
 	printf("<testsuite>\r\n");
 	printf("  <testcase classname=\"pio.level.low\" name='PIO: Set/Get PIO LOW LEVEL'>\r\n");
 	printf("    <system-out>\r\n");
-	_pio_event = 0;
 	pio_clear(&pio_output);
 	timer_wait(10);
 	printf("    </system-out>\r\n");
-	if (!(pio_get(&pio_input) == 0) || !(pio_get(&pio_output) == 0)) {
+	if ((pio_get(&pio_input) != 0) || (pio_get(&pio_output) != 0)) {
 		test_fail++;
 		printf("    <error type=\"error\" />\r\n");
 	}
@@ -201,12 +201,11 @@ int main(void)
 	printf("  </testcase>\r\n");
 	
 	printf("  <testcase classname=\"pio.level.high\" name=\"PIO: Get PIO HIGH LEVEL\">\r\n");
-    printf("    <system-out>\r\n");
-	_pio_event = 0;
+	printf("    <system-out>\r\n");
 	pio_set(&pio_output);
 	timer_wait(10);
 	printf("    </system-out>\r\n");
-	if (!(pio_get(&pio_input) == 1) || !(pio_get(&pio_output) == 1)) {
+	if ((pio_get(&pio_input) != pio_input.mask) || (pio_get(&pio_output) != pio_output.mask)) {
 		test_fail++;
 		printf("    <error type=\"error\" />\r\n");
 	}
@@ -214,7 +213,7 @@ int main(void)
 	printf("  </testcase>\r\n");
 	
 	printf("  <testcase classname=\"pio.irq.edge.falling\" name=\"PIO: Get PIO IRQ FALLING EDGE\">\r\n");
-    printf("    <system-out>\r\n");
+	printf("    <system-out>\r\n");
 	_pio_event = 0;
 	pio_set(&pio_output);
 
@@ -227,14 +226,15 @@ int main(void)
 	printf("    </system-out>\r\n");
 	if (_pio_event != 1) {
 		test_fail++;
-		printf("    <error type=\"error\" />\r\n");
+		printf("    <error error=\"error\">event(s): %d</error>\r\n", _pio_event);
 	}
 	tests++;
 	pio_input.attribute &= ~PIO_IT_FALL_EDGE;
+	pio_disable_it(&pio_input);
 	printf("  </test>\r\n");
 	
 	printf("  <testcase classname=\"pio.irq.edge.rising\" name=\"PIO: Get PIO IRQ RISING EDGE\">\r\n");
-    printf("    <system-out>\r\n");
+	printf("    <system-out>\r\n");
 	_pio_event = 0;
 	pio_clear(&pio_output);
 
@@ -251,11 +251,12 @@ int main(void)
 	}
 	tests++;
 	pio_input.attribute &= ~PIO_IT_RISE_EDGE;
+	pio_disable_it(&pio_input);
 	printf("  </test>\r\n");
 	
 	printf("  <testcase classname=\"pio.irq.edge.both\" name=\"PIO: Get PIO IRQ BOTH EDGE\">\r\n");
 #ifdef PIO_IT_BOTH_EDGE
-    printf("    <system-out>\r\n");
+	printf("    <system-out>\r\n");
 	_pio_event = 0;
 	pio_set(&pio_output);
 
@@ -271,17 +272,18 @@ int main(void)
 	printf("    </system-out>\r\n");
 	if (_pio_event != 2) {
 		test_fail++;
-		printf("    <error type=\"error\" />\r\n");
+		printf("    <error error=\"error\">event(s): %d</error>\r\n", _pio_event);
 	}
 	tests++;
 	pio_input.attribute &= ~PIO_IT_BOTH_EDGE;
+	pio_disable_it(&pio_input);
 #else
 	printf("    <skip />\r\n");
 #endif	
 	printf("  </testcase>\r\n");
 	
 	printf("  <testcase classname=\"pio.irq.level.low\" name=\"PIO: Get PIO IRQ LEVEL LOW\">\r\n");
-    printf("    <system-out>\r\n");
+	printf("    <system-out>\r\n");
 	pio_set(&pio_output);
 
 	pio_input.attribute |= PIO_IT_LOW_LEVEL;
@@ -295,14 +297,15 @@ int main(void)
 	printf("    </system-out>\r\n");
 	if (_pio_event < 1) {
 		test_fail++;
-		printf("    <error type=\"error\" />\r\n");
+		printf("    <error error=\"error\">event(s): %d</error>\r\n", _pio_event);
 	}
 	tests++;
 	pio_input.attribute &= ~PIO_IT_LOW_LEVEL;
+	pio_disable_it(&pio_input);
 	printf("  </testcase>\r\n");
 	
 	printf("  <testcase classname=\"pio.irq.level.high\" name=\"PIO: Get PIO IRQ LEVEL HIGH\">\r\n");
-    printf("    <system-out>\r\n");
+	printf("    <system-out>\r\n");
 	_pio_event = 0;
 	pio_clear(&pio_output);
 
@@ -315,10 +318,11 @@ int main(void)
 	printf("    </system-out>\r\n");
 	if (_pio_event < 1) {
 		test_fail++;
-		printf("    <error type=\"error\" />\r\n");
+		printf("    <error error=\"error\">event(s): %d</error>\r\n", _pio_event);
 	}
 	tests++;
 	pio_input.attribute &= ~PIO_IT_HIGH_LEVEL;
+	pio_disable_it(&pio_input);
 	printf("  </test>\r\n");
 	
 	printf("  <testcase classname=\"pio.mode.pull.up\" name=\"PIO: Get PIO PULL UP\">\r\n");
@@ -330,7 +334,7 @@ int main(void)
 	pio_configure(&pio_input, 1);
 
 	printf("    </system-out>\r\n");
-	if (pio_get(&pio_input) != 1) {
+	if (pio_get(&pio_input) != pio_input.mask) {
 		test_fail++;
 		printf("   <error type=\"error\" />\r\n");
 	}
@@ -340,7 +344,7 @@ int main(void)
 	pio_configure(&pio_output, 1);
 	printf("  </testcase>\r\n");
 
-    printf("  <statistics>\r\n");
+	printf("  <statistics>\r\n");
 	printf("    <failures>%d</failures>\r\n", test_fail);
 	printf("    <tests>%d</tests>\r\n", tests);
 	printf("  </statistics>\r\n");

@@ -366,7 +366,6 @@ static void _act8945a_lbo_handler(uint32_t group, uint32_t status, void* user_ar
 static void _act8945a_enable_interrupt_handlers(struct _act8945a *act8945a)
 {
 	/* Configure PMIC line interrupts. */
-	pio_configure_it(&act8945a->desc.pin_irq);
 	pio_add_handler_to_group(act8945a->desc.pin_irq.group,
 				 act8945a->desc.pin_irq.mask,
 				 &_act8945a_irq_handler,
@@ -375,7 +374,6 @@ static void _act8945a_enable_interrupt_handlers(struct _act8945a *act8945a)
 
 	/* Configure LBO line interrupts. */
 	act8945a->lbo_count = 0;
-	pio_configure_it(&act8945a->desc.pin_lbo);
 	pio_add_handler_to_group(act8945a->desc.pin_lbo.group,
 				 act8945a->desc.pin_lbo.mask,
 				 &_act8945a_lbo_handler,

@@ -204,9 +204,8 @@ static void configure_wake_up( void )
 	trace_info("Wake-up configuration\n\r");
 
 	/* Configure PIO */
+	pio_set_debounce_filter(DEBOUNCE_TIME);
 	pio_configure(&pin_wake_up, 1);
-	pio_set_debounce_filter(&pin_wake_up, DEBOUNCE_TIME);
-	pio_configure_it(&pin_wake_up, wake_up_handler);
 	pio_enable_it(&pin_wake_up);
 }
 #endif

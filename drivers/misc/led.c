@@ -55,20 +55,12 @@ static uint32_t led_count = 0;
  *         Global Functions
  *------------------------------------------------------------------------------*/
 
-extern uint32_t led_configure(struct _pin *leds, uint32_t count)
+extern void led_configure(struct _pin *leds, uint32_t count)
 {
-	uint32_t status = 0;
-	uint32_t led;
-
 	// Configure LED
 	led_count = count;
 	pins_leds = leds;
-
-	for (led = 0 ; led < led_count ; led++)
-		if (pio_configure(&pins_leds[led], 1) == 1)
-			status |= (1 << led);
-
-	return status;
+	pio_configure(pins_leds, led_count);
 }
 
 extern uint32_t led_set(uint32_t led)

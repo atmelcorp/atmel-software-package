@@ -681,7 +681,8 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		sdmmc_set_capabilities(SDMMC0, caps0, CAPS0_MASK, 0, 0);
 
 		/* Configure SDMMC0 pins */
-		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
 #else
 		trace_fatal("Cannot configure SDMMC0: target board has no SDMMC0 definitions!");
 		return false;
@@ -698,7 +699,8 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		sdmmc_set_capabilities(SDMMC1, caps0, CAPS0_MASK, 0, 0);
 
 		/* Configure SDMMC1 pins */
-		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
 #else
 		trace_fatal("Cannot configure SDMMC1: target board has no SDMMC1 definitions!");
 		return false;
@@ -719,8 +721,8 @@ void board_cfg_pmic(void)
 	if (act8945a_initialized)
 		return;
 
-	if (!pio_configure(pins, ARRAY_SIZE(pins)))
-		goto Fail;
+	pio_configure(pins, ARRAY_SIZE(pins));
+
 	if (!act8945a_configure(&act8945a, &act8945a_twid))
 		goto Fail;
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED) || defined(CONFIG_BOARD_SAMA5D2_PTC_ENGI)

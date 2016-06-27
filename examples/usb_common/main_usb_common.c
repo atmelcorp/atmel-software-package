@@ -110,7 +110,6 @@ void usb_vbus_configure(void)
 	pio_configure(&pin_vbus, 1);
 
 	/* Initialize pios interrupt with its handlers */
-	pio_configure_it(&pin_vbus);
 	pio_add_handler_to_group(pin_vbus.group,
 			pin_vbus.mask, vbus_pio_handler, NULL);
 
