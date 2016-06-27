@@ -2,6 +2,7 @@ ifeq ("y",$(TARGET:sama5d2-%="y"))
 
 COMPATIBLE_VARIANTS = sram ddram qspi0 qspi1
 
+CONFIG_CORE_CORTEXA5 = y
 CONFIG_SOC_SAMA5 = y
 CONFIG_SOC_SAMA5D2 = y
 CONFIG_HAVE_AIC5 = y

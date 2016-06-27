@@ -64,6 +64,26 @@ static inline void irq_disable(void)
 #endif
 }
 
+#if defined(CONFIG_CORE_ARM926)
+
+static inline void irq_wait(void)
+{
+}
+
+static inline void dmb(void)
+{
+}
+
+static inline void dsb(void)
+{
+}
+
+static inline void isb(void)
+{
+}
+
+#elif defined(CONFIG_CORE_CORTEXA5)
+
 static inline void irq_wait(void)
 {
 #if defined(__ICCARM__) || defined(__GNUC__)
@@ -99,5 +119,9 @@ static inline void isb(void)
 #error Unsupported compiler!
 #endif
 }
+
+#else
+#error Unknown CPU core!
+#endif /* CONFIG_CORE_xxx */
 
 #endif /* ARM_H */
