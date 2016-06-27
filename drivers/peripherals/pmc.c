@@ -692,7 +692,7 @@ void pmc_enable_peripheral(uint32_t id)
 {
 	uint32_t div = 0;
 
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
@@ -721,7 +721,7 @@ void pmc_enable_peripheral(uint32_t id)
 
 void pmc_disable_peripheral(uint32_t id)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
@@ -732,7 +732,7 @@ void pmc_disable_peripheral(uint32_t id)
 
 uint32_t pmc_is_peripheral_enabled(uint32_t id)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
@@ -742,7 +742,7 @@ uint32_t pmc_is_peripheral_enabled(uint32_t id)
 
 uint32_t pmc_get_peripheral_clock(uint32_t id)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	uint32_t div = get_peripheral_clock_divider(id);
 #ifdef PMC_PCR_DIV
@@ -885,7 +885,7 @@ void pmc_disable_upll_bias(void)
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 	assert(!(clock_source & ~PMC_PCR_GCKCSS_Msk));
 	assert(!(div << PMC_PCR_GCKDIV_Pos & ~PMC_PCR_GCKDIV_Msk));
 
@@ -898,7 +898,7 @@ void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
 
 void pmc_enable_gck(uint32_t id)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
@@ -908,7 +908,7 @@ void pmc_enable_gck(uint32_t id)
 
 void pmc_disable_gck(uint32_t id)
 {
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
@@ -918,7 +918,7 @@ void pmc_disable_gck(uint32_t id)
 uint32_t pmc_get_gck_clock(uint32_t id)
 {
 	uint32_t clk = 0;
-	assert(id > 1 && id < ID_PERIPH_COUNT);
+	assert(id < ID_PERIPH_COUNT);
 
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
