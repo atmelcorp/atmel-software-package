@@ -64,7 +64,7 @@ struct _mpddrc_desc {
 	uint32_t tpr2;
 };
 
-extern void mpddrc_configure(struct _mpddrc_desc* desc);
+extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch);
 
 /**
  * \brief Issue a Low-Power Command to the DDR-SDRAM device.

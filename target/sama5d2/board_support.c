@@ -581,7 +581,7 @@ void board_cfg_ddram(void)
 	board_cfg_matrix_for_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
-	ddram_configure(&desc);
+	ddram_configure(&desc, ID_TC0, 0);
 #endif
 }
 

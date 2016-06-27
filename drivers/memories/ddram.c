@@ -454,7 +454,7 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 	}
 }
 
-void ddram_configure(struct _mpddrc_desc* desc)
+void ddram_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch)
 {
 	bool mmu = cp15_mmu_is_enabled();
 	bool dcache = cp15_dcache_is_enabled();
@@ -462,7 +462,7 @@ void ddram_configure(struct _mpddrc_desc* desc)
 	if (mmu)
 		cp15_mmu_disable();
 
-	mpddrc_configure(desc);
+	mpddrc_configure(desc, tc_id, tc_ch);
 
 	if (mmu) {
 		cp15_mmu_enable();
