@@ -117,8 +117,21 @@ extern void board_cfg_nor_flash(void);
  */
 extern void board_cfg_pmic(void);
 
+/**
+ * \brief Configures LCD for the board.
+ */
+#ifdef CONFIG_HAVE_LCDD
+extern void board_cfg_lcd(void);
+#endif
+
+/**
+ * \brief Configures LEDs for the board.
+ */
 extern void board_cfg_led(void);
 
+/**
+ * \brief Configures the board.
+ */
 extern void board_init(void);
 
 #endif /* #ifndef BOARD_SUPPORT_H */

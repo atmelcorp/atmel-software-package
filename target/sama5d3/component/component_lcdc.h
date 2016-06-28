@@ -991,12 +991,12 @@ typedef struct {
 #define LCDC_HEOCFG3_YSIZE_Msk (0x7ffu << LCDC_HEOCFG3_YSIZE_Pos) /**< \brief (LCDC_HEOCFG3) Vertical Window Size */
 #define LCDC_HEOCFG3_YSIZE(value) ((LCDC_HEOCFG3_YSIZE_Msk & ((value) << LCDC_HEOCFG3_YSIZE_Pos)))
 /* -------- LCDC_HEOCFG4 : (LCDC Offset: 0x0000039C) High-End Overlay Configuration Register 4 -------- */
-#define LCDC_HEOCFG4_XMEM_SIZE_Pos 0
-#define LCDC_HEOCFG4_XMEM_SIZE_Msk (0x7ffu << LCDC_HEOCFG4_XMEM_SIZE_Pos) /**< \brief (LCDC_HEOCFG4) Horizontal image Size in Memory */
-#define LCDC_HEOCFG4_XMEM_SIZE(value) ((LCDC_HEOCFG4_XMEM_SIZE_Msk & ((value) << LCDC_HEOCFG4_XMEM_SIZE_Pos)))
-#define LCDC_HEOCFG4_YMEM_SIZE_Pos 16
-#define LCDC_HEOCFG4_YMEM_SIZE_Msk (0x7ffu << LCDC_HEOCFG4_YMEM_SIZE_Pos) /**< \brief (LCDC_HEOCFG4) Vertical image Size in Memory */
-#define LCDC_HEOCFG4_YMEM_SIZE(value) ((LCDC_HEOCFG4_YMEM_SIZE_Msk & ((value) << LCDC_HEOCFG4_YMEM_SIZE_Pos)))
+#define LCDC_HEOCFG4_XMEMSIZE_Pos 0
+#define LCDC_HEOCFG4_XMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_XMEMSIZE_Pos) /**< \brief (LCDC_HEOCFG4) Horizontal image Size in Memory */
+#define LCDC_HEOCFG4_XMEMSIZE(value) ((LCDC_HEOCFG4_XMEMSIZE_Msk & ((value) << LCDC_HEOCFG4_XMEMSIZE_Pos)))
+#define LCDC_HEOCFG4_YMEMSIZE_Pos 16
+#define LCDC_HEOCFG4_YMEMSIZE_Msk (0x7ffu << LCDC_HEOCFG4_YMEMSIZE_Pos) /**< \brief (LCDC_HEOCFG4) Vertical image Size in Memory */
+#define LCDC_HEOCFG4_YMEMSIZE(value) ((LCDC_HEOCFG4_YMEMSIZE_Msk & ((value) << LCDC_HEOCFG4_YMEMSIZE_Pos)))
 /* -------- LCDC_HEOCFG5 : (LCDC Offset: 0x000003A0) High-End Overlay Configuration Register 5 -------- */
 #define LCDC_HEOCFG5_XSTRIDE_Pos 0
 #define LCDC_HEOCFG5_XSTRIDE_Msk (0xffffffffu << LCDC_HEOCFG5_XSTRIDE_Pos) /**< \brief (LCDC_HEOCFG5) Horizontal Stride */
