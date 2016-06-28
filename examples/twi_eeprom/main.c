@@ -122,32 +122,47 @@
  *         Defines
  *------------------------------------------------------------------------------*/
 
+#define AT24_DEVICE   0
 #define AT24_EMULATOR 1
-#define PIT_PERIOD        1000
 
-#define CMD_BUFFER_SIZE  256
+#define CMD_BUFFER_SIZE   256
 #define READ_BUFFER_SIZE  256
 
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-#ifndef CONFIG_SOC_SAMA5D3
-static uint8_t _device = 0; // Used to determine if the master communicate
-                            // with the emulator or the real device
+#ifdef AT24_EEP_ADDR
+static uint8_t _device = AT24_DEVICE;
+#else
+static uint8_t _device = AT24_EMULATOR;
 #endif
+static const struct _pin at24_pins[] = AT24_PINS;
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
-
-static const struct _pin at24_pins[] = AT24_PINS;
 
 CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 static _parser _cmd_parser;
-static uint32_t cmd_index = 0;
 
-mutex_t lock = 0;
+struct _at24 at24_drv = {
+	.desc = AT24_DESC,
+#ifdef AT24_EEP_ADDR
+	.addr = AT24_EEP_ADDR,
+	.sn_addr = AT24_SN_ADDR,
+	.sn_offset = AT24_SN_OFFSET,
+	.eui_offset = AT24_EUI48_OFFSET,
+#endif
+};
+struct _twi_desc at24_twid = {
+	.addr = AT24_ADDR,
+	.freq = AT24_FREQ,
+	.transfert_mode = TWID_MODE_DMA
+};
+
+static volatile uint32_t cmd_length = 0;
+static volatile bool cmd_complete = false;
 
 /*----------------------------------------------------------------------------
  *        Slave definitions
@@ -240,32 +255,30 @@ static void twi_slave_handler(void)
 
 static void console_handler(uint8_t key)
 {
-	static uint32_t index = 0;
-	if (mutex_try_lock(&lock))
-		return;
-	if (index >= CMD_BUFFER_SIZE) {
-		printf("\r\nWARNING! command buffer size exceeded, "
-		       "reseting\r\n");
-		index = 0;
-	}
-	console_echo(key);
 	switch (key) {
 	case 0x7E:
 	case '\r':
 	case '\n':
-		cmd_buffer[index]='\0';
-		cmd_index = index;
-		index = 0;
+		console_echo(key);
+		cmd_buffer[cmd_length] = '\0';
+		cmd_complete = true;
 		break;
 	case 0x7F:
 	case '\b':
-		cmd_buffer[--index]='\0';
+		if (cmd_length > 0) {
+			console_echo(key);
+			cmd_length--;
+			cmd_buffer[cmd_length] = '\0';
+		}
 		break;
 	default:
-		cmd_buffer[index++]=key;
+		if (cmd_length < (ARRAY_SIZE(cmd_buffer) - 1)) {
+			console_echo(key);
+			cmd_buffer[cmd_length] = key;
+			cmd_length++;
+		}
 		break;
 	}
-	mutex_free(&lock);
 }
 
 /*
@@ -345,7 +358,7 @@ static void print_menu(void)
 	}
 	printf("twi eeprom example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef AT24_EEP_ADDR
 	       "| a serial                                              |\r\n"
 	       "|      Query device serial number                       |\r\n"
 	       "| a mac                                                 |\r\n"
@@ -355,7 +368,7 @@ static void print_menu(void)
 	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
 	       "| w addr str                                            |\r\n"
 	       "|      Write 'str' to address 'addr'                    |\r\n"
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef AT24_EEP_ADDR
 	       "| s device (default)                                    |\r\n"
 	       "|      Select at24 device                               |\r\n"
 	       "| s emulator                                            |\r\n"
@@ -366,14 +379,12 @@ static void print_menu(void)
 	       "|=======================================================|\r\n");
 }
 
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef AT24_EEP_ADDR
 /*
  *
  */
 static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 {
-	const char *serial_lbl = "serial";
-	const char *mac_lbl = "mac";
 	uint8_t status;
 	int i = 0;
 
@@ -381,7 +392,7 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 		printf("Serial feature not emulated...\r\n");
 		return;
 	}
-	if (!strncmp((char*)buffer, serial_lbl, 6)) {
+	if (!strncmp((char*)buffer, "serial", 6)) {
 		status = at24_get_serial_number(&at24_drv);
 		if (status == TWID_SUCCESS) {
 			printf("serial number: ");
@@ -392,7 +403,7 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 			printf("--E-- Error twi ");
 		}
 		printf("\r\n");
-	} else if (!strncmp((char*)buffer, mac_lbl, 3)) {
+	} else if (!strncmp((char*)buffer, "mac", 3)) {
 		status = at24_get_mac_address(&at24_drv);
 		if (status == TWID_SUCCESS) {
 			printf("MAC addr: ");
@@ -411,19 +422,18 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 
 static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len)
 {
-	const char *emulator_lbl = "emulator";
-	const char *device_lbl = "device";
-	if (!strncmp((char*)buffer, emulator_lbl, 8)) {
+	if (!strncmp((char*)buffer, "emulator", 8)) {
 		_device = AT24_EMULATOR;
 		at24_drv.addr = TWI_SLAVE_EEP_ADDR;
 		printf("Use AT24 emulator\r\n");
-	} else if (!strncmp((char*)buffer, device_lbl, 8)) {
-		_device = 0;
+	}
+	else if (!strncmp((char*)buffer, "device", 8)) {
+		_device = AT24_DEVICE;
 		at24_drv.addr = AT24_EEP_ADDR;
 		printf("Use AT24 device\r\n");
 	}
 }
-#endif /* CONFIG_BOARD_SAMA5D3_XPLAINED */
+#endif /* AT24_EEP_ADDR */
 
 static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
@@ -443,7 +453,7 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'w':
 		_eeprom_write_arg_parser(buffer+2, len-2);
 		break;
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef AT24_EEP_ADDR
 	case 'a':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;
@@ -507,13 +517,10 @@ int main (void)
 	print_menu();
 	while (1) {
 		irq_wait();
-		if (mutex_try_lock(&lock)) {
-			continue;
-		}
-		if (cmd_index > 0) {
-			_cmd_parser(cmd_buffer, cmd_index);
-			cmd_index = 0;
-		}
-		mutex_free(&lock);
+		if (cmd_complete && cmd_length > 0) {
+			_cmd_parser(cmd_buffer, cmd_length);
+			cmd_length = 0;
+			cmd_complete = false;
+ 		}
 	}
 }

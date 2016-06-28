@@ -27,13 +27,12 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the twi_eeprom example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d4-xplained sama5d3-xplained sama5d3-ek
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-xplained sama5d3-xplained
 
 TOP := ../..
 
 BINNAME = twi_eeprom
 
 obj-y += examples/twi_eeprom/main.o
-obj-y += examples/twi_eeprom/twi_eeprom-config_$(TARGET).o
 
 include $(TOP)/scripts/Makefile.rules

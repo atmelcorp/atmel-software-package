@@ -1,5 +1,5 @@
 TWI_EEPROM EXAMPLE
-============
+==================
 
 # Objectives
 ------------
@@ -85,14 +85,3 @@ Press 'w 0 abcd' | Print `Write done.` on screen | PASSED | PASSED
 Press 'r 0 4' | Print `61 62 63 64` on screen | PASSED | PASSED
 Press 'w 0 1234' | Print `Write done.` on screen | PASSED | PASSED
 Press 'r 0 4' | Print `31 32 33 34` on screen | PASSED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

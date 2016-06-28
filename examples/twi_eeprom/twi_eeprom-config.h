@@ -40,9 +40,6 @@
 /** TWI slave serial memory page size (example AT24C02)*/
 #define TWI_SLAVE_EEP_PAGE_SIZE 16
 
-extern struct _at24 at24_drv;
-extern struct _twi_desc at24_twid;
-
 /* =================== TWI slave device definition ============== */
 /* twi_slave examples mimics a serial memory with TWI interface. */
 #if   defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
@@ -57,20 +54,7 @@ extern struct _twi_desc at24_twid;
 /** TWI slave address definition */
 #define TWI_SLAVE_ADDR ((Twi*)TWI1)
 
-#elif defined(CONFIG_BOARD_SAMA5D4_EK)
-/** TWI slave pins definition **/
-#define TWI_SLAVE_PINS PINS_TWI1
-/** TWI slave address definition */
-#define TWI_SLAVE_ADDR ((Twi*)TWI1)
-
 #elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
-/* twi_slave examples mimics a serial memory with TWI interface. */
-/** TWI slave pins definition **/
-#define TWI_SLAVE_PINS PINS_TWI1
-/** TWI slave address definition */
-#define TWI_SLAVE_ADDR ((Twi*)TWI1)
-
-#elif defined(CONFIG_BOARD_SAMA5D3_EK)
 /* twi_slave examples mimics a serial memory with TWI interface. */
 /** TWI slave pins definition **/
 #define TWI_SLAVE_PINS PINS_TWI1
