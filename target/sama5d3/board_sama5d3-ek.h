@@ -193,5 +193,16 @@
 #define AT24_SN_OFFSET      0x80        // 0x80-0x8F
 #define AT24_EUI48_OFFSET   0x9A        // 0x9A-0x9F
 
+/* =================== AT25 device definition =================== */
+
+#define AT25_PINS     PINS_SPI0_NPCS0
+#define AT25_ADDR     SPI0
+#define AT25_CS       0
+#define AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define AT25_FREQ     40000 /* (value in KHz) */
+#define AT25_LOW_FREQ 20000 /* (value in KHz) */
+#define AT25_DLYBS    0
+#define AT25_DLYCT    0
+#define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 #endif /* _BOARD_SAMA5D3_EK_H */

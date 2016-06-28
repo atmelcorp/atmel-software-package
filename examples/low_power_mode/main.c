@@ -467,7 +467,6 @@ static void menu_ulp0(void)
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 	/* enter IDLE mode */
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK);
 	irq_wait();
 
 	/* Restore default PCK and MCK */
@@ -617,8 +616,6 @@ static void menu_idle(void)
 	printf("=========== Enter Idle mode ===========\n\r");
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
-	/* enter IDLE mode */
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK);
 	irq_wait();
 
 	/* Restore default PCK and MCK */
