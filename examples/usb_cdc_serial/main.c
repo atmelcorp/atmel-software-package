@@ -169,6 +169,11 @@
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 #define USART_ADDR USART4
 #define USART_PINS PINS_USART4
+
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+#define USART_ADDR USART3
+#define USART_PINS PINS_USART3
+
 #else
 #error Unsupported SoC!
 #endif
