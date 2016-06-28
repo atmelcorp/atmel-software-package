@@ -36,6 +36,7 @@
 
 #include <stdint.h>
 #include "peripherals/twid.h"
+#include "mutex.h"
 
 /*----------------------------------------------------------------------------
  *         Global definitions
@@ -80,6 +81,8 @@ struct _at24 {
 
 	uint8_t serial_number[AT24_SN_SIZE];
 	uint8_t mac_addr_48[AT24_EUI48_SIZE];
+
+	mutex_t mutex;
 };
 
 /*----------------------------------------------------------------------------

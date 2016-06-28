@@ -199,7 +199,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 	desc->callback = cb;
 	desc->cb_args = user_args;
 
-	if (mutex_try_lock(&desc->mutex)) {
+	if (!mutex_try_lock(&desc->mutex)) {
 		return USARTD_ERROR_LOCK;
 	}
 
@@ -215,7 +215,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 				rx->data[i] = usart_get_char(desc->addr);
 			}
 		}
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
@@ -232,7 +232,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 				}
 				if (cb)
 					cb(desc, user_args);
-				mutex_free(&desc->mutex);
+				mutex_unlock(&desc->mutex);
 			} else {
 				desc->region_start = tx->data;
 				desc->region_length = tx->size;
@@ -245,14 +245,14 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 				}
 				if (cb)
 					cb(desc, user_args);
-				mutex_free(&desc->mutex);
+				mutex_unlock(&desc->mutex);
 			} else {
 				desc->region_start = rx->data;
 				desc->region_length = rx->size;
 				_usartd_dma_read(desc, rx);
 			}
 		} else {
-			mutex_free(&desc->mutex);
+			mutex_unlock(&desc->mutex);
 		}
 		break;
 #endif /* ! CONFIG_HAVE_XDMAC */
@@ -265,7 +265,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 		if (rx) {
 			usart_read_stream(desc->addr, rx->data, rx->size);
 		}
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
@@ -286,7 +286,7 @@ void usartd_finish_transfert_callback(struct _usart_desc* desc,
 
 void usartd_finish_transfert(struct _usart_desc* desc)
 {
-	mutex_free(&desc->mutex);
+	mutex_unlock(&desc->mutex);
 }
 
 uint32_t usartd_is_busy(const struct _usart_desc* desc)

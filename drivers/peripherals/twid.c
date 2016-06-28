@@ -99,7 +99,6 @@ static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
 	}
 	if (twid && twid->callback)
 		twid->callback(twid, twid->cb_args);
-
 }
 
 static void _twid_init_dma_read_channel(const struct _twi_desc* desc,
@@ -329,6 +328,8 @@ void twid_configure(struct _twi_desc* desc)
 				   TWI_FMR_RXRDYM_ONE_DATA | TWI_FMR_TXRDYM_ONE_DATA);
 	}
 #endif
+
+	desc->mutex = 0;
 }
 
 /*
@@ -460,12 +461,11 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 	uint32_t id;
 	uint8_t tmode;
 
-	desc->callback = cb;
-	desc->cb_args = user_args;
-
-	if (mutex_try_lock(&desc->mutex)) {
+	if (!mutex_try_lock(&desc->mutex)) {
 		return TWID_ERROR_LOCK;
 	}
+	desc->callback = cb;
+	desc->cb_args = user_args;
 
 	tmode = desc->transfert_mode;
 	/* Check if only one car to send or receive */
@@ -517,18 +517,16 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 
 	case TWID_MODE_POLLING:
 		if (tx != NULL) {
-			twi_enable_it(desc->addr, TWI_IER_TXRDY);
 			status = _twid_poll_write(desc, tx);
 			if (status != TWID_SUCCESS) break;
 		}
 		else if (rx != NULL) {
-			twi_enable_it(desc->addr, TWI_IER_RXRDY);
 			status = _twid_poll_read(desc, rx);
 			if (status!= TWID_SUCCESS) break;
 		}
 		else ;
 		if (cb) cb(desc, user_args);
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 		break;
 
 #ifdef CONFIG_HAVE_XDMAC
@@ -542,7 +540,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 				status = _twid_poll_write(desc, tx);
 				if (status) break;
 				if (cb) cb(desc, user_args);
-				mutex_free(&desc->mutex);
+				mutex_unlock(&desc->mutex);
 			} else {
 
 				#ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
@@ -565,7 +563,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 				status = _twid_poll_read(desc, rx);
 				if (status) break;
 				if (cb) cb(desc, user_args);
-				mutex_free(&desc->mutex);
+				mutex_unlock(&desc->mutex);
 			} else {
 
 				#ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
@@ -581,7 +579,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 				desc->region_start = rx->data;
 				desc->region_length = rx->size;
 				if(twi_get_status(desc->addr) & TWI_SR_NACK) {
-					trace_error("twid: Acknolegment " "Error\r\n");
+					trace_error("twid: Acknowledgment " "Error\r\n");
 					status = TWID_ERROR_ACK;
 					break;
 				}
@@ -617,7 +615,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 				break;
 		}
 		if (cb != NULL) cb(desc, user_args);
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 		break;
 #endif
 
@@ -626,7 +624,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 	}
 
 	if (status)
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 
 	return status;
 }
@@ -639,7 +637,7 @@ void twid_finish_transfert_callback(struct _twi_desc* desc, void* user_args)
 
 void twid_finish_transfert(struct _twi_desc* desc)
 {
-	mutex_free(&desc->mutex);
+	mutex_unlock(&desc->mutex);
 }
 
 uint32_t twid_is_busy(const struct _twi_desc* desc)
@@ -649,5 +647,5 @@ uint32_t twid_is_busy(const struct _twi_desc* desc)
 
 void twid_wait_transfert(const struct _twi_desc* desc)
 {
-	while (mutex_is_locked(&desc->mutex));
+	while (twid_is_busy(desc));
 }

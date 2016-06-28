@@ -404,12 +404,9 @@ void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 	twi->TWI_CR = TWI_CR_MSDIS;
 	twi->TWI_CR = TWI_CR_MSEN;
 	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
-	twi->TWI_ACR = 0;
 	twi->TWI_ACR = TWI_ACR_DATAL(len);
-	twi->TWI_MMR = 0;
 	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_IADRSZ(isize);
 	/* Set internal address bytes. */
-	twi->TWI_IADR = 0;
 	twi->TWI_IADR = iaddress;
 }
 
@@ -418,12 +415,9 @@ void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 {
 	twi->TWI_RHR;
 	twi->TWI_CR = TWI_CR_MSEN | TWI_CR_SVDIS | TWI_CR_ACMEN;
-	twi->TWI_ACR = 0;
 	twi->TWI_ACR = TWI_ACR_DATAL(len) | TWI_ACR_DIR;
-	twi->TWI_MMR = 0;
 	twi->TWI_MMR = TWI_MMR_DADR(addr) | TWI_MMR_MREAD | TWI_MMR_IADRSZ(isize);
 	/* Set internal address bytes. */
-	twi->TWI_IADR = 0;
 	twi->TWI_IADR = iaddress;
 	twi->TWI_CR = TWI_CR_START;
 	while(twi->TWI_SR & TWI_SR_TXCOMP);

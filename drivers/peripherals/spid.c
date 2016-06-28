@@ -246,7 +246,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 	desc->callback = cb;
 	desc->cb_args = user_args;
 
-	if (mutex_try_lock(&desc->mutex)) {
+	if (!mutex_try_lock(&desc->mutex)) {
 		return SPID_ERROR_LOCK;
 	}
 
@@ -262,7 +262,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 				rx->data[i] = spi_read(spi, desc->chip_select);
 			}
 		}
-		mutex_free(&desc->mutex);
+		mutex_unlock(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
@@ -276,7 +276,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 				if (!rx) {
 					if (cb)
 						cb(desc, user_args);
-					mutex_free(&desc->mutex);
+					mutex_unlock(&desc->mutex);
 				}
 			} else {
 				desc->region_start = tx->data;
@@ -295,7 +295,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 				}
 				if (cb)
 					cb(desc, user_args);
-				mutex_free(&desc->mutex);
+				mutex_unlock(&desc->mutex);
 			} else {
 				desc->region_start = rx->data;
 				desc->region_length = rx->size;
@@ -314,9 +314,9 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			spi_read_stream(spi, desc->chip_select,
 					rx->data, rx->size);
 		}
-		mutex_free(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
+		mutex_unlock(&desc->mutex);
 		break;
 #endif
 	default:
@@ -335,7 +335,7 @@ void spid_finish_transfert_callback(struct _spi_desc* desc, void* user_args)
 void spid_finish_transfert(struct _spi_desc* desc)
 {
 	spi_release_cs(desc->addr);
-	mutex_free(&desc->mutex);
+	mutex_unlock(&desc->mutex);
 }
 
 void spid_close(const struct _spi_desc* desc)
@@ -357,5 +357,5 @@ uint32_t spid_is_busy(const struct _spi_desc* desc)
 
 void spid_wait_transfert(const struct _spi_desc* desc)
 {
-	while (mutex_is_locked(&desc->mutex));
+	while (spid_is_busy(desc)) {}
 }

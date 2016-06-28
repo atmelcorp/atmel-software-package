@@ -95,7 +95,7 @@ static struct _usart_desc usart_desc = {
 static void console_handler(uint8_t key)
 {
 	static uint32_t index = 0;
-	if (mutex_try_lock(&lock))
+	if (!mutex_try_lock(&lock))
 		return;
 	if (index >= CMD_BUFFER_SIZE) {
 		printf("\r\nWARNING! command buffer size exeeded, "
@@ -118,7 +118,7 @@ static void console_handler(uint8_t key)
 		cmd_buffer[index++]=key;
 		break;
 	}
-	mutex_free(&lock);
+	mutex_unlock(&lock);
 }
 
 static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -210,13 +210,13 @@ int main (void)
 
 	while (1) {
 		irq_wait();
-		if (mutex_try_lock(&lock)) {
+		if (!mutex_try_lock(&lock)) {
 			continue;
 		}
 		if (cmd_index > 0) {
 			_cmd_parser(cmd_buffer, cmd_index);
 			cmd_index = 0;
 		}
-		mutex_free(&lock);
+		mutex_unlock(&lock);
 	}
 }
