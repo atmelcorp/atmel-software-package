@@ -86,7 +86,11 @@
 #define XDMAC_CHANNELS (XDMACCHID_NUMBER)
 
 /** Max DMA single transfer size */
-#define XDMAC_MAX_BT_SIZE 0xFFFF
+#define XDMAC_MAX_BT_SIZE 0xFFFFFF
+
+/** Max DMA length of the block  */
+#define XDMAC_MAX_BLOCK_LEN 0xFFF
+
 
 /**     @}*/
 
