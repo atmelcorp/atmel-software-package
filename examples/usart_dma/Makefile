@@ -26,13 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the USART XDMA example
-AVAILABLE_TARGETS = sama5d2* sama5d4*
+# Makefile for compiling the USART DMA example
+AVAILABLE_TARGETS = sama5d2* sama5d4* sama5d3-xplained
 
 TOP := ../..
 
-BINNAME = usart_xdma
+BINNAME = usart_dma
 
-obj-y += examples/usart_xdma/main.o
+obj-y += examples/usart_dma/main.o
 
 include $(TOP)/scripts/Makefile.rules

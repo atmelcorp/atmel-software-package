@@ -1,14 +1,14 @@
-XDMA_USART EXAMPLE
-============
+USART_DMA EXAMPLE
+=================
 
 # Objectives
 ------------
-This example aims to perform peripheral data transfer with XDMA peripheral.
+This example aims to perform peripheral data transfer with DMA peripheral.
 
 # Example Description
 ---------------------
 The example handles the transfer between two USART peripherals,
-transfer/receive data to/from USART each other with XDMA.
+transfer/receive data to/from USART each other with DMA.
 
 # Test
 ------
@@ -23,20 +23,24 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-Connect USART with on board J21
-XPRO_PD12 TXD
-XPRO_PD13 RXD
+### sama5d2-xplained
+--------------------
+Connect USART4
 
-On the computer, open and configure a terminal application
-(e.g. HyperTerminal on Microsoft Windows) with these settings:
- - 115200 bauds
- - 8 bits of data
- - No parity
- - 1 stop bit
- - No flow control
+### sama5d4-xplained
+--------------------
+Connect USART4
 
-## Start the application (SAMA5D2-xPlained)
--------------------------------------------
+### sama5d4-ek
+--------------
+Connect USART4
+
+### sama5d3-xplained
+--------------------
+Connect USART3 (pin 1 on J20 and pin 2 on J20)
+
+## Start the application
+------------------------
 
 r size
       Wait to recieve 'size' characters from usart and
@@ -57,12 +61,3 @@ Press 'w 11223344' | write string throught usart1 | receive "11223344" in usart4
 Press 'r 200' | Receive 100 characters from usart4 | Waiting... | PASSED
 Send text file from usart4|Send string | Receive 100 characters from usart4 | PASSED
 
-# Log
-------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

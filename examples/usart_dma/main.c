@@ -39,6 +39,7 @@
 #include "peripherals/usart.h"
 #include "peripherals/xdmad.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include "memories/at25.h"
@@ -69,14 +70,18 @@
 #define USART_ADDR USART4
 #define USART_PINS PINS_USART4
 
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+#define USART_ADDR USART3
+#define USART_PINS PINS_USART3
+
 #else
 #error Unsupported SoC!
 #endif
 
 static const struct _pin usart_pins[] = USART_PINS;
 
-ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
@@ -194,7 +199,7 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 int main (void)
 {
 	/* Output example information */
-	console_example_info("USART XDMA Example");
+	console_example_info("USART DMA Example");
 
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
