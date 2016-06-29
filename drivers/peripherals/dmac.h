@@ -282,6 +282,24 @@ extern void dmac_set_src_addr(Dmac *dmac, uint8_t channel, void *addr);
 extern void dmac_set_dest_addr(Dmac *dmac, uint8_t channel, void *addr);
 
 /**
+ * \brief Get source address for the relevant channel of given DMA.
+ *
+ * \param dmac Pointer to the DMAC instance.
+ * \param channel Particular channel number.
+ * \return source address
+ */
+extern uint32_t dmac_get_channel_src_addr(Dmac *dmac, uint8_t channel);
+
+/**
+ * \brief Get destination address for the relevant channel of given DMA.
+ *
+ * \param dmac Pointer to the DMAC instance.
+ * \param channel Particular channel number.
+ * \return destination address
+ */
+extern uint32_t dmac_get_channel_dest_addr(Dmac *dmac, uint8_t channel);
+
+/**
  * \brief Set next descriptor's address & interface for the relevant channel of given DMA.
  *
  * \param dmac Pointer to the DMAC instance.

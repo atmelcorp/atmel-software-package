@@ -64,6 +64,7 @@ drivers-y += drivers/peripherals/usartd.o
 drivers-y += drivers/peripherals/usart_iso7816_4.o
 drivers-y += drivers/peripherals/usart.o
 drivers-y += drivers/peripherals/wdt.o
+drivers-y += drivers/peripherals/dma.o
 drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmac.o
 drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmad.o
 drivers-$(CONFIG_HAVE_DMAC) += drivers/peripherals/dmac.o
