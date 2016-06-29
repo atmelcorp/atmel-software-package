@@ -29,7 +29,7 @@ On the computer, open and configure a terminal application
  - No flow control
 
 ## Start the application (SAMA5D2-XPLAINED)
---------
+-------------------------------------------
 
 Tested with IAR and GCC (sram and ddram configuration)
 
@@ -52,13 +52,3 @@ Press '1','7','d','p' |  Cipher Block Chaining, 256bit, dma| PASSED | PASSED
 Press '2','7','d','p' | Output Feedback, 256bit, dma| PASSED | PASSED
 Press '3','7','d','p' | Cipher Feedback, 256bit, dma| PASSED | PASSED
 Press '4','7','d','p' | 16-bit internal Counter, 256bit, dma| PASSED | PASSED
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

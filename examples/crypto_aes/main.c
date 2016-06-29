@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -101,9 +101,7 @@
 #include "peripherals/aes.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -173,130 +171,101 @@ CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
 static uint32_t op_mode, start_mode, key_id, key_byte_len;
 static volatile bool data_ready = false;
 
-#ifdef CONFIG_HAVE_XDMAC
-/** Global DMA driver instance for all DMA transfers in application. */
-static struct _xdmad_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
+static struct dma_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
 /* DMA linked lists */
-CACHE_ALIGNED static struct _xdmad_desc_view1 dma_wr_dlist[DATA_LEN_INWORD];
-CACHE_ALIGNED static struct _xdmad_desc_view1 dma_rd_dlist[DATA_LEN_INWORD];
-#endif
+CACHE_ALIGNED static struct dma_xfer_item dma_wr_dlist[DATA_LEN_INWORD];
+CACHE_ALIGNED static struct dma_xfer_item dma_rd_dlist[DATA_LEN_INWORD];
 
 static volatile bool dma_rd_complete = false;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-static void dma_rd_callback(struct _xdmad_channel *channel, void *arg)
+static void dma_rd_callback(struct dma_channel *channel, void *arg)
 {
-	printf("-I- xdma: read completed\r\n");
+	printf("-I- dma: read completed\r\n");
 	dma_rd_complete = true;
 }
 
-static void dma_wr_callback(struct _xdmad_channel *channel, void *arg)
+static void dma_wr_callback(struct dma_channel *channel, void *arg)
 {
-	printf("-I- xdma: write completed\r\n");
+	printf("-I- dma: write completed\r\n");
 }
 
-#ifdef CONFIG_HAVE_XDMAC
 /**
- * \brief xDMA init.
+ * \brief DMA init.
  */
 static void init_dma(void)
 {
-	/* Initialize XDMA driver instance with polling mode */
-	/* Allocate XDMA channels:
+	/* Initialize DMA driver instance with polling mode */
+	/* Allocate DMA channels:
 	 * 1. Write accesses into AES_IDATARx
 	 * 2. Read accesses into AES_ODATARx */
-	dma_wr_chan = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_AES);
-	dma_rd_chan = xdmad_allocate_channel(ID_AES, XDMAD_PERIPH_MEMORY);
+	dma_wr_chan = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_AES);
+	dma_rd_chan = dma_allocate_channel(ID_AES, DMA_PERIPH_MEMORY);
 	if (!dma_wr_chan || !dma_rd_chan)
-		printf("-E- Can't allocate XDMA channel\n\r");
+		printf("-E- Can't allocate DMA channel\n\r");
 	else {
-		xdmad_set_callback(dma_wr_chan, dma_wr_callback, NULL);
-		xdmad_set_callback(dma_rd_chan, dma_rd_callback, NULL);
+		dma_set_callback(dma_wr_chan, dma_wr_callback, NULL);
+		dma_set_callback(dma_rd_chan, dma_rd_callback, NULL);
 	}
 }
 
 /**
- * \brief Configure xDMA write linker list for AES transfer.
+ * \brief Configure DMA write linker list for AES transfer.
  * \param buf  Pointer to data buffer.
  * \param len  Count of 128-bit data blocks.
  */
 static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
-	struct _xdmad_cfg dma_cfg = {
-		.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_MBSIZE_SINGLE 
-		| XDMAC_CC_CSIZE_CHK_4
-		| XDMAC_CC_DWIDTH_WORD
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_FIXED_AM,
-	};
+	static struct dma_xfer_item_tmpl cfg;
 
 	for (i = 0; i < len; i++) {
-		dma_wr_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-			| XDMA_UBC_NDE_FETCH_EN
-			| XDMA_UBC_NSEN_UPDATED
-			| XDMA_UBC_UBLEN(4);
-		dma_wr_dlist[i].mbr_sa = &buf[i * 4];
-		dma_wr_dlist[i].mbr_da = (void *)AES->AES_IDATAR;
-		dma_wr_dlist[i].mbr_nda = &dma_wr_dlist[i + 1];
+		cfg.sa = &buf[i * 4];
+		cfg.da = (void *)AES->AES_IDATAR;
+		cfg.upd_sa_per_data = 1;
+		cfg.upd_da_per_data = 0;
+		cfg.upd_sa_per_blk  = 1;
+		cfg.upd_da_per_blk  = 0;
+		cfg.data_width = DMA_DATA_WIDTH_WORD;
+		cfg.chunk_size = DMA_CHUNK_SIZE_4;
+		cfg.blk_size = 4;
+		dma_prepare_item(dma_wr_chan, &cfg, &dma_wr_dlist[i]);
+		dma_link_item(dma_wr_chan, &dma_wr_dlist[i], &dma_wr_dlist[i + 1]);
 	}
-	dma_wr_dlist[len - 1].mbr_nda = 0;
-	dma_wr_dlist[len - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-
-	cache_clean_region(dma_wr_dlist, sizeof(*dma_wr_dlist) * len);
-	xdmad_configure_transfer(dma_wr_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
-		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
-		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
-		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED, dma_wr_dlist);
+	dma_link_item(dma_wr_chan, &dma_wr_dlist[i - 1], NULL);
+	cache_clean_region(dma_wr_dlist, sizeof(dma_wr_dlist));
+	dma_configure_sg_transfer(dma_wr_chan, &cfg, dma_wr_dlist);
 }
 
 /**
- * \brief Configure xDMA read linker list for AES transfer.
+ * \brief Configure DMA read linker list for AES transfer.
  * \param buf  Pointer to data buffer.
  * \param len  Count of 128-bit data blocks.
  */
 static void configure_dma_read(uint32_t *buf, uint32_t len)
 {
 	uint32_t i;
-	struct _xdmad_cfg dma_cfg = {
-		.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_MBSIZE_SINGLE
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_CSIZE_CHK_4
-		| XDMAC_CC_DWIDTH_WORD
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM,
-	};
+	static struct dma_xfer_item_tmpl cfg;
 
 	for (i = 0; i < len; i++) {
-		dma_rd_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-			| XDMA_UBC_NDE_FETCH_EN
-			| XDMA_UBC_NDEN_UPDATED
-			| XDMA_UBC_UBLEN(4);
-		dma_rd_dlist[i].mbr_sa = (void *)AES->AES_ODATAR;
-		dma_rd_dlist[i].mbr_da = &buf[i * 4];
-		dma_rd_dlist[i].mbr_nda = &dma_rd_dlist[i + 1];
+		cfg.sa = (void *)AES->AES_ODATAR;
+		cfg.da = &buf[i * 4];
+		cfg.upd_sa_per_data = 0;
+		cfg.upd_da_per_data = 1;
+		cfg.upd_sa_per_blk  = 0;
+		cfg.upd_da_per_blk  = 1;
+		cfg.data_width = DMA_DATA_WIDTH_WORD;
+		cfg.chunk_size = DMA_CHUNK_SIZE_4;
+		cfg.blk_size = 4;
+		dma_prepare_item(dma_rd_chan, &cfg, &dma_rd_dlist[i]);
+		dma_link_item(dma_rd_chan, &dma_rd_dlist[i], &dma_rd_dlist[i + 1]);
 	}
-	dma_rd_dlist[len - 1].mbr_nda = 0;
-	dma_rd_dlist[len - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-
-	cache_clean_region(dma_rd_dlist, sizeof(*dma_rd_dlist) * len);
-	xdmad_configure_transfer(dma_rd_chan, &dma_cfg, XDMAC_CNDC_NDVIEW_NDV1 |
-		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
-		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
-		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED, dma_rd_dlist);
+	dma_link_item(dma_rd_chan, &dma_rd_dlist[i - 1], NULL);
+	cache_clean_region(dma_rd_dlist, sizeof(dma_rd_dlist));
+	dma_configure_sg_transfer(dma_rd_chan, &cfg, dma_rd_dlist);
 }
-#endif
 
 /**
  * \brief AES interrupt hander.
@@ -318,10 +287,8 @@ static void handle_aes_irq(void)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
-#ifdef CONFIG_HAVE_XDMAC
 	const bool use_dma = start_mode == AES_MR_SMOD_IDATAR0_START;
 	uint32_t rc = 0;
-#endif
 	uint32_t i;
 
 	aes_configure((encrypt ? AES_MR_CIPHER_ENCRYPT : AES_MR_CIPHER_DECRYPT)
@@ -332,7 +299,6 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	 * ECB. */
 	if (op_mode != AES_MR_OPMOD_ECB)
 		aes_set_vector(aes_vectors);
-#ifdef CONFIG_HAVE_XDMAC
 	if (use_dma) {
 		init_dma();
 		aes_set_data_len(DATA_LEN_INBYTE);
@@ -343,21 +309,21 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 		printf("-I- AES %scryption, starting dual DMA transfer"
 			   "\n\r", encrypt ? "en" : "de");
 		dma_rd_complete = false;
-		rc = xdmad_start_transfer(dma_wr_chan);
-		if (rc == XDMAD_OK)
-			rc = xdmad_start_transfer(dma_rd_chan);
-		if (rc == XDMAD_OK) {
+		rc = dma_start_transfer(dma_wr_chan);
+		if (rc == DMA_OK)
+			rc = dma_start_transfer(dma_rd_chan);
+		if (rc == DMA_OK) {
 			while (!dma_rd_complete)
-				xdmad_poll();
+				dma_poll();
 
-			xdmad_stop_transfer(dma_rd_chan);
-			xdmad_stop_transfer(dma_wr_chan);
+			dma_stop_transfer(dma_rd_chan);
+			dma_stop_transfer(dma_wr_chan);
 		}
-		xdmad_free_channel(dma_rd_chan); dma_rd_chan = NULL;
-		xdmad_free_channel(dma_wr_chan); dma_wr_chan = NULL;
+		dma_free_channel(dma_rd_chan); dma_rd_chan = NULL;
+		dma_free_channel(dma_wr_chan); dma_wr_chan = NULL;
 		cache_invalidate_region(out, DATA_LEN_INBYTE);
 	} else
-#endif
+
 		/* Iterate per 128-bit data block */
 		for (i = 0; i < DATA_LEN_INWORD; i += 4) {
 			data_ready = false;
@@ -439,13 +405,8 @@ static void display_menu(void)
 	chk_box[0] = (start_mode == AES_MR_SMOD_MANUAL_START) ? 'X' : ' ';
 	chk_box[1] = (start_mode == AES_MR_SMOD_AUTO_START) ? 'X' : ' ';
 	chk_box[2] = (start_mode == AES_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
-#ifdef CONFIG_HAVE_XDMAC
 	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]  d: DMA[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
-#else
-	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]\n\r",
-		chk_box[0], chk_box[1]);
-#endif
 	printf("   p: Begin the encryption/decryption process\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
@@ -494,16 +455,10 @@ int main(void)
 			break;
 		case 'm':
 		case 'a':
-#ifdef CONFIG_HAVE_XDMAC
 		case 'd':
-#endif
 			start_mode = user_key == 'a' ? AES_MR_SMOD_AUTO_START :
-#ifdef CONFIG_HAVE_XDMAC
-			             (user_key == 'd' ? AES_MR_SMOD_IDATAR0_START :
-#else
-			             (
-#endif
-						      AES_MR_SMOD_MANUAL_START);
+						(user_key == 'd' ? AES_MR_SMOD_IDATAR0_START :
+						AES_MR_SMOD_MANUAL_START);
 		case 'h':
 			display_menu();
 			break;
