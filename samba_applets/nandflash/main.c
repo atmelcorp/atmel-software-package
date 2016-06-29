@@ -336,9 +336,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	/* Get device parameters */
 	page_size = nand_model_get_page_data_size(&nand.model);
 	block_size = nand_model_get_block_size_in_pages(&nand.model);
+	nand_set_dma_enabled(false);
+#ifdef CONFIG_HAVE_NFC
 	nand_set_nfc_enabled(false);
 	nand_set_nfc_sram_enabled(false);
-	nand_set_dma_enabled(false);
+#endif
 
 	/* Initialize PMECC */
 	if (header == 0) {

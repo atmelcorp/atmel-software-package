@@ -125,6 +125,8 @@ static void _write_row_address(const struct _nand_flash *nand,
 	}
 }
 
+#ifdef CONFIG_HAVE_NFC
+
 /**
  * \brief Translates the given column and row address into address cycles.
  * \param nand         Pointer to a struct _nand_flash instance.
@@ -175,6 +177,8 @@ static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
 	return num_cycles;
 }
 
+#endif /* CONFIG_HAVE_NFC */
+
 /**
  * \brief NAND flash send ALE CLE.
  * \param nand Pointer to a struct _nand_flash instance.
@@ -188,22 +192,12 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 		uint8_t mode, uint32_t cmd1, uint32_t cmd2,
 		uint32_t col_address, uint32_t row_address)
 {
-	/* Issue CLE and ALE through EBI */
-	if (!nand_is_nfc_enabled()) {
-		nand_write_command(nand, cmd1);
-
-		if ((mode & ALE_COL_EN) == ALE_COL_EN)
-			_write_column_address(nand, col_address);
-
-		if ((mode & ALE_ROW_EN) == ALE_ROW_EN)
-			_write_row_address(nand, row_address);
-
-		/* When set to true, the CMD2 field is issued after the address cycle.*/
-		if ((mode & CLE_VCMD2_EN) == CLE_VCMD2_EN)
-			nand_write_command(nand, cmd2);
-	} else { /* Issue CLE and ALE using NFC */
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
 		uint32_t nfc_command;
 		uint8_t cycle_bytes[5];
+
+		/* Issue CLE and ALE using NFC */
 
 		nfc_command = NFCADDR_CMD_CMD1(cmd1) |
 		              NFCADDR_CMD_CSID_3;
@@ -229,6 +223,22 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 			nfc_command |= NFCADDR_CMD_DATAEN;
 
 		nfc_send_cmd(nfc_command, cycle_bytes);
+	} else
+#endif
+	{
+		/* Issue CLE and ALE through EBI */
+
+		nand_write_command(nand, cmd1);
+
+		if ((mode & ALE_COL_EN) == ALE_COL_EN)
+			_write_column_address(nand, col_address);
+
+		if ((mode & ALE_ROW_EN) == ALE_ROW_EN)
+			_write_row_address(nand, row_address);
+
+		/* When set to true, the CMD2 field is issued after the address cycle.*/
+		if ((mode & CLE_VCMD2_EN) == CLE_VCMD2_EN)
+			nand_write_command(nand, cmd2);
 	}
 }
 
@@ -241,15 +251,15 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 static void _data_array_in(const struct _nand_flash *nand, bool nfc_sram,
 		uint8_t *buffer, uint32_t size)
 {
-	uint32_t address;
+	uint32_t address = nand->data_addr;
 	uint32_t i;
 
+#ifdef CONFIG_HAVE_NFC
 	if (nfc_sram) {
 		address = NFC_RAM_ADDR;
 		nfc_wait_xfr_done();
-	} else {
-		address = nand->data_addr;
 	}
+#endif
 
 	if (nand_is_dma_enabled()) {
 		nand_dma_read(address, (uint32_t)buffer, size);
@@ -288,14 +298,13 @@ static void _data_array_in(const struct _nand_flash *nand, bool nfc_sram,
 static void _data_array_out(const struct _nand_flash *nand, bool nfc_sram,
 		uint8_t *buffer, uint32_t size, uint32_t offset)
 {
-	uint32_t address;
+	uint32_t address = nand->data_addr;
 	uint32_t i;
 
-	if (nfc_sram) {
+#ifdef CONFIG_HAVE_NFC
+	if (nfc_sram)
 		address = NFC_RAM_ADDR;
-	} else {
-		address = nand->data_addr;
-	}
+#endif
 	address += offset;
 
 	if (nand_is_dma_enabled()) {
@@ -413,36 +422,54 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	/* at least one area must be read */
 	assert(data || spare);
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_enabled())
 		nfc_configure(data_size, spare_size, spare != NULL, false);
+#endif
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 	col_address = data ? 0 : data_size;
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_sram_enabled()) {
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, col_address, row_address);
-	} else {
+	} else
+#endif
+	{
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, col_address, row_address);
 	}
 
-	if (!nand_is_nfc_enabled()) {
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
+		nfc_wait_rb_busy();
+	} else
+#endif
+	{
 		/* Wait for the nand to be ready */
 		_status_ready_pass(nand);
 		_send_cle_ale(nand, CLE_DATA_EN, NAND_CMD_READ_1, 0, 0, 0);
-	} else {
-		nfc_wait_rb_busy();
 	}
 
 	/* Read data area */
-	if (data)
+	if (data) {
+#ifdef CONFIG_HAVE_NFC
 		_data_array_in(nand, nand_is_nfc_sram_enabled(), data, data_size);
+#else
+		_data_array_in(nand, false, data, data_size);
+#endif
+	}
 
 	/* Read spare area */
-	if (spare)
+	if (spare) {
+#ifdef CONFIG_HAVE_NFC
 		_data_array_in(nand, nand_is_nfc_sram_enabled(), spare, spare_size);
+#else
+		_data_array_in(nand, false, spare, spare_size);
+#endif
+	}
 
 	return 0;
 }
@@ -462,7 +489,6 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	uint16_t block, uint16_t page, uint8_t *data)
 {
 	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
 
 	NAND_TRACE("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
@@ -470,8 +496,12 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	/* at least one area must be read */
 	assert(data);
 
-	if (nand_is_nfc_enabled())
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
+		uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 		nfc_configure(data_size, spare_size, true, false);
+	}
+#endif
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -482,22 +512,28 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	if (!pmecc_auto_spare_en())
 		pmecc_auto_enable();
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_sram_enabled()){
 		pmecc_start_data_phase();
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
-	} else {
+	} else
+#endif
+	{
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	}
 
-	if (!nand_is_nfc_enabled()){
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
+		if (!nand_is_nfc_sram_enabled())
+			nfc_wait_rb_busy();
+	} else
+#endif
+	{
 		/* Wait for the nand to be ready */
 		_nand_wait_ready(nand);
 		_send_cle_ale(nand, 0, NAND_CMD_READ_1, 0, 0, 0);
-	} else {
-		if (!nand_is_nfc_sram_enabled())
-			nfc_wait_rb_busy();
 	}
 
 	/* Reset the ECC module */
@@ -505,8 +541,13 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Start a Data Phase */
 	pmecc_start_data_phase();
+#ifdef CONFIG_HAVE_NFC
 	_data_array_in(nand, nand_is_nfc_sram_enabled(),
 	               data, data_size + pmecc_get_ecc_end_address());
+#else
+	_data_array_in(nand, false,
+	               data, data_size + pmecc_get_ecc_end_address());
+#endif
 
 	/* Wait until the kernel of the PMECC is not busy */
 	pmecc_wait_ready();
@@ -533,8 +574,10 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 
 	NAND_TRACE("_write_page(B#%d:P#%d)\r\n", block, page);
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_enabled())
 		nfc_configure(data_size, spare_size, false, spare != NULL);
+#endif
 
 	/* Calculate physical address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -542,6 +585,7 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 	/* Write data area if needed */
 	if (data) {
 		/* Start a Data Phase */
+#ifdef CONFIG_HAVE_NFC
 		if (nand_is_nfc_sram_enabled()) {
 			_data_array_out(nand, true, data, data_size, 0);
 			if (spare)
@@ -551,7 +595,9 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 			nfc_wait_xfr_done();
-		} else {
+		} else
+#endif
+		{
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
 			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
@@ -571,8 +617,12 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 
 	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
-	if (nand_is_nfc_enabled() && !nand_is_nfc_sram_enabled())
-		nfc_wait_rb_busy();
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
+		if (!nand_is_nfc_sram_enabled())
+			nfc_wait_rb_busy();
+	}
+#endif
 
 	if (_status_ready_pass(nand)) {
 			trace_error("write_page_no_ecc: Failed writing data area.\r\n");
@@ -596,7 +646,6 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 {
 	uint8_t error = 0;
 	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
 	uint32_t ecc_start_addr;
 	uint32_t ecc_bytes_per_sector;
@@ -607,8 +656,12 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	assert(data);
 
-	if (nand_is_nfc_enabled())
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_nfc_enabled()) {
+		uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 		nfc_configure(data_size, spare_size, false, false);
+	}
+#endif
 
 	ecc_start_addr = data_size + pmecc_get_ecc_start_address();
 
@@ -622,6 +675,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	/* Start a Data Phase */
 	pmecc_start_data_phase();
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_sram_enabled()) {
 		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
 
@@ -629,7 +683,9 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 		nfc_wait_xfr_done();
-	} else {
+	} else
+#endif
+	{
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
 		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
@@ -652,10 +708,12 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	_data_array_out(nand, false, ecc_table, pmecc_get_ecc_bytes_per_page(), 0);
 	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
+#ifdef CONFIG_HAVE_NFC
 	if (nand_is_nfc_enabled()) {
 		if (!nand_is_nfc_sram_enabled())
 			nfc_wait_rb_busy();
 	}
+#endif
 
 	if (_nand_wait_ready(nand)) {
 		trace_error("write_page_pmecc: Failed writing.\r\n");

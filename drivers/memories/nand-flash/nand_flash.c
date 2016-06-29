@@ -33,6 +33,7 @@
 /*         Headers                                                      */
 /*--------------------------------------------------------------------- */
 
+#include "chip.h"
 #include "trace.h"
 
 #include "peripherals/nfc.h"
@@ -172,6 +173,8 @@ bool nand_is_using_no_ecc(void)
 	return nand_cfg.ecc_type == ECC_NO;
 }
 
+#ifdef CONFIG_HAVE_NFC
+
 /**
  * \brief Enable or Disable use of NFC
  */
@@ -198,8 +201,10 @@ bool nand_is_nfc_enabled(void)
  */
 void nand_set_nfc_sram_enabled(bool enabled)
 {
-	if (enabled && !nand_cfg.nfc_enabled)
+	if (enabled && !nand_cfg.nfc_enabled) {
 		trace_warning("Cannot enable NFC SRAM because NFC is disabled\r\n");
+		return;
+	}
 
 	nand_cfg.nfc_sram_enabled = enabled;
 }
@@ -211,6 +216,8 @@ bool nand_is_nfc_sram_enabled(void)
 {
 	return nand_cfg.nfc_sram_enabled;
 }
+
+#endif /* CONFIG_HAVE_NFC */
 
 /**
  * \brief Enable or Disable use of DMA

@@ -134,9 +134,11 @@
 #define PATTERN_SIZE        32
 
 enum {
-	CONF_NFC = 0,
-	CONF_HOST_SRAM,
-	CONF_DMA
+	CONF_DMA,
+#ifdef CONFIG_HAVE_NFC
+	CONF_NFC,
+	CONF_NFC_SRAM,
+#endif /* CONFIG_HAVE_NFC */
 };
 
 /*-------------------------------------------------------------------------
@@ -155,10 +157,12 @@ static struct _nand_flash nand;
 /** Nandflash device structure. */
 static struct _nand_flash_model model_from_onfi;
 
+static uint8_t ecc_type = ECC_PMECC;
+static bool dma_enabled = false;
+#ifdef CONFIG_HAVE_NFC
 static bool nfc_enabled = false;
 static bool nfc_sram_enabled = false;
-static bool dma_enabled = false;
-static uint8_t ecc_type = ECC_PMECC;
+#endif /* CONFIG_HAVE_NFC */
 
 /** Number of bits of ECC correction */
 static uint8_t onfi_ecc_correctability = 0xFF;
@@ -198,6 +202,18 @@ static void _dump_smc_configuration(void)
 	printf("SMC software configuration :\n\r");
 	printf("------\n\r");
 
+	if (ecc_type == ECC_NO)
+		printf("-I- ECC is disabled.\n\r");
+	else if (ecc_type == ECC_PMECC)
+		printf("-I- PMECC is enabled.\n\r");
+
+	if (dma_enabled)
+		printf("-I- DMA is enabled,the DATA phase of the " \
+				"transfer can be DMA-assisted.\n\r");
+	else
+		printf("-I- DMA is disabled.\n\r");
+
+#ifdef CONFIG_HAVE_NFC
 	if (nfc_enabled)
 		printf("-I- SMC NFC is enabled, NFC handles cmd, " \
 				"address and data sequences.\n\r");
@@ -211,17 +227,7 @@ static void _dump_smc_configuration(void)
 				"when data is transferred.\n\r");
 	else
 		printf("-I- SMC NFC Host SRAM is disabled.\n\r");
-
-	if (dma_enabled)
-		printf("-I- DMA is enabled,the DATA phase of the " \
-				"transfer can be DMA-assisted.\n\r");
-	else
-		printf("-I- DMA is disabled.\n\r");
-
-	if (ecc_type == ECC_NO)
-		printf("-I- ECC is disabled.\n\r");
-	else if (ecc_type == ECC_PMECC)
-		printf("-I- PMECC is enabled.\n\r");
+#endif /* CONFIG_HAVE_NFC */
 }
 
 /**
@@ -231,6 +237,20 @@ static void _dump_smc_configuration(void)
 static void _smc_configure(uint8_t mode)
 {
 	switch (mode) {
+	case CONF_DMA:
+		if (dma_enabled == true)
+			dma_enabled = false;
+		else
+			dma_enabled = true;
+#ifdef CONFIG_SOC_SAMA5D3
+		if (dma_enabled) {
+			printf("-W- DMA cannot be used with NFC SRAM on SAMA5D3, disabling NFC SRAM.\r\n");
+			nfc_sram_enabled = false;
+		}
+#endif
+		break;
+
+#ifdef CONFIG_HAVE_NFC
 	case CONF_NFC:
 		if (nfc_enabled == true) {
 			nfc_enabled = false;
@@ -240,7 +260,7 @@ static void _smc_configure(uint8_t mode)
 		}
 		break;
 
-	case CONF_HOST_SRAM:
+	case CONF_NFC_SRAM:
 		if (nfc_enabled == true) {
 			if (nfc_sram_enabled == true)
 				nfc_sram_enabled = false;
@@ -254,25 +274,15 @@ static void _smc_configure(uint8_t mode)
 		}
 #endif
 		break;
-
-	case CONF_DMA:
-		if (dma_enabled == true)
-			dma_enabled = false;
-		else
-			dma_enabled = true;
-#ifdef CONFIG_SOC_SAMA5D3
-		if (dma_enabled) {
-			printf("-W- DMA cannot be used with NFC SRAM on SAMA5D3, disabling NFC SRAM.\r\n");
-			nfc_sram_enabled = false;
-		}
-#endif
-		break;
+#endif /* CONFIG_HAVE_NFC */
 	}
 
 	nand_set_ecc_type(ecc_type);
+	nand_set_dma_enabled(dma_enabled);
+#ifdef CONFIG_HAVE_NFC
 	nand_set_nfc_enabled(nfc_enabled);
 	nand_set_nfc_sram_enabled(nfc_sram_enabled);
-	nand_set_dma_enabled(dma_enabled);
+#endif /* CONFIG_HAVE_NFC */
 }
 
 /**
@@ -507,16 +517,18 @@ static void _display_menu(uint8_t menu_idx)
 		return;
 	}
 
-	printf(" --- NFC Configuration\n\r");
+	printf(" --- NAND Configuration\n\r");
 
+	x = dma_enabled ? 'X' : ' ';
+	printf("[%c] d: DMA\n\r", x);
+
+#ifdef CONFIG_HAVE_NFC
 	x = nfc_enabled ? 'X' : ' ';
 	printf("[%c] n: NFC \n\r", x);
 
 	x = nfc_sram_enabled ? 'X' : ' ';
 	printf("[%c] h: NFC host sram\n\r", x);
-
-	x = dma_enabled ? 'X' : ' ';
-	printf("[%c] d: DMA\n\r", x);
+#endif /* CONFIG_HAVE_NFC */
 
 	printf("\n\r");
 	if (menu_idx == 1) {
@@ -567,6 +579,12 @@ static void _loop_pmecc(void)
 	for (;;) {
 		key = console_get_char();
 		switch (key) {
+		case 'd':
+		case 'D':
+			_smc_configure(CONF_DMA);
+			_display_menu(3);
+			break;
+#ifdef CONFIG_HAVE_NFC
 		case 'n':
 		case 'N':
 			_smc_configure(CONF_NFC);
@@ -574,14 +592,10 @@ static void _loop_pmecc(void)
 			break;
 		case 'h':
 		case 'H':
-			_smc_configure(CONF_HOST_SRAM);
+			_smc_configure(CONF_NFC_SRAM);
 			_display_menu(3);
 			break;
-		case 'd':
-		case 'D':
-			_smc_configure(CONF_DMA);
-			_display_menu(3);
-			break;
+#endif /* CONFIG_HAVE_NFC */
 		case '0':
 		case '1':
 		case '2':
@@ -650,6 +664,12 @@ static void _loop_raw(void)
 	for (;;) {
 		key = console_get_char();
 		switch (key) {
+		case 'd':
+		case 'D':
+			_smc_configure(CONF_DMA);
+			_display_menu(1);
+			break;
+#ifdef CONFIG_HAVE_NFC
 		case 'n':
 		case 'N':
 			_smc_configure(CONF_NFC);
@@ -657,14 +677,10 @@ static void _loop_raw(void)
 			break;
 		case 'h':
 		case 'H':
-			_smc_configure(CONF_HOST_SRAM);
+			_smc_configure(CONF_NFC_SRAM);
 			_display_menu(1);
 			break;
-		case 'd':
-		case 'D':
-			_smc_configure(CONF_DMA);
-			_display_menu(1);
-			break;
+#endif /* CONFIG_HAVE_NFC */
 		case 'p':
 		case 'P':
 			_page_access();
@@ -793,10 +809,12 @@ int main(void)
 	page_size = nand_model_get_page_data_size(&nand.model);
 	spare_size = nand_model_get_page_spare_size(&nand.model);
 
+	ecc_type = 0;
+	dma_enabled = false;
+#ifdef CONFIG_HAVE_NFC
 	nfc_enabled = false;
 	nfc_sram_enabled = false;
-	dma_enabled = false;
-	ecc_type = 0;
+#endif /* CONFIG_HAVE_NFC */
 	sector_idx = 0;
 
 	printf("-I- Size of the data area of a page in bytes: 0x%x\n\r",

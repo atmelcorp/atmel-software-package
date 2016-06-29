@@ -107,6 +107,8 @@ extern bool nand_is_using_hsiao_ecc(void);
 
 extern bool nand_is_using_no_ecc(void);
 
+#ifdef CONFIG_HAVE_NFC
+
 extern void nand_set_nfc_enabled(bool enabled);
 
 extern bool nand_is_nfc_enabled(void);
@@ -114,6 +116,8 @@ extern bool nand_is_nfc_enabled(void);
 extern void nand_set_nfc_sram_enabled(bool enabled);
 
 extern bool nand_is_nfc_sram_enabled(void);
+
+#endif /* CONFIG_HAVE_NFC */
 
 extern void nand_set_dma_enabled(bool enabled);
 
