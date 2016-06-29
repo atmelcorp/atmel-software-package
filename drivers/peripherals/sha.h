@@ -38,6 +38,18 @@
 
 #include "chip.h"
 
+/*------------------------------------------------------------------------------
+ *         Constants
+ *----------------------------------------------------------------------------*/
+
+#define SHA_1    0
+#define SHA_256  1
+#define SHA_384  2
+#define SHA_512  3
+#define SHA_224  4
+
+#define SHA_MODE_COUNT 5
+
 /*----------------------------------------------------------------------------*/
 /*         Exported functions                                                 */
 /*----------------------------------------------------------------------------*/
@@ -91,11 +103,18 @@ extern uint32_t sha_get_status(void);
 extern void sha_set_input(const uint32_t * data, uint8_t len);
 
 /**
- * \brief Getread the resulting message digest and to write the second part of the message block when the
+ * \brief Read the resulting message digest and to write the second part of the message block when the
 * SHA algorithm is SHA-384 or SHA-512.
  * \param data pointer to the word that has been encrypted/decrypted..
  */
 extern void sha_get_output(uint32_t * data);
+
+/**
+ * \brief Get the valid dma chunk size to be used during dma transfer
+ * \param mode  SHA operating mode: SHA1..SHA512
+ * \return  DMA chunk size to use
+ */
+extern uint8_t sha_get_dma_chunk_size(uint8_t mode);
 
 #endif /* CONFIG_HAVE_SHA */
 

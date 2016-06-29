@@ -76,8 +76,27 @@
 #include "compiler.h"
 #include "chip.h"
 #include "peripherals/sha.h"
+#include "peripherals/dma.h"
 
 #include <assert.h>
+
+#if defined(CONFIG_SOC_SAMA5D3)
+static uint8_t _sha_dma_chunk_size[] = {
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_32,
+	DMA_CHUNK_SIZE_32,
+	DMA_CHUNK_SIZE_16
+};
+#elif defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+static uint8_t _sha_dma_chunk_size[] = {
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_16,
+	DMA_CHUNK_SIZE_16
+};
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -148,4 +167,11 @@ void sha_get_output(uint32_t * data)
 
 	for (i = 0; i < words; i++)
 		data[i] = SHA->SHA_IODATAR[i];
+}
+
+uint8_t sha_get_dma_chunk_size(uint8_t mode)
+{
+	if (mode >= SHA_MODE_COUNT)
+		return 0;
+	return _sha_dma_chunk_size[mode];
 }

@@ -25,8 +25,8 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
---------
+## Start the application
+------------------------
 
 Tested with IAR and GCC (sram and ddram configuration)
 
@@ -49,14 +49,3 @@ Press '1','l','d','p' | SHA256, long-msg, dma | PASSED | PASSED
 Press '2','l','d','p' | SHA384, long-msg, dma | PASSED | PASSED
 Press '3','l','d','p' | SHA512, long-msg, dma | PASSED | PASSED
 Press '4','l','d','p' | SHA224, long-msg, dma | PASSED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

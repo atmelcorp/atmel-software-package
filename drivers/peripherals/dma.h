@@ -82,6 +82,10 @@
 #define DMA_CHUNK_SIZE_4   1
 #define DMA_CHUNK_SIZE_8   2
 #define DMA_CHUNK_SIZE_16  3
+#define DMA_CHUNK_SIZE_32  4
+#define DMA_CHUNK_SIZE_64  5
+#define DMA_CHUNK_SIZE_128 6
+#define DMA_CHUNK_SIZE_256 7
 
 #endif
 

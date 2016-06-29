@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -44,7 +44,9 @@
  * - SAMA5D2-XULT
  * - SAMA5D4-EK
  * - SAMA5D4-XULT
- *
+ * - SAMA5D3-EK
+ * - SAMA5D3-XULT
+ 
  * \section Description
  *
  * \section Usage
@@ -103,9 +105,7 @@
 #include "peripherals/sha.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -122,12 +122,6 @@
 
 #define MSG_MAX_LEN         0x00100000
 #define DMA_DESC_MAX_COUNT  (LEN_MSG_LONG / 4 / 16 + 1)
-
-#define SHA_1    0
-#define SHA_256  1
-#define SHA_384  2
-#define SHA_512  3
-#define SHA_224  4
 
 #define SHA_ONE_BLOCK    0
 #define SHA_MULTI_BLOCK  1
@@ -295,34 +289,31 @@ static uint32_t digest[MAX_DIGEST_SIZE_INWORD];
 static uint32_t op_mode, start_mode, block_mode;
 static volatile bool digest_ready = false;
 
-#ifdef CONFIG_HAVE_XDMAC
 /* Global DMA driver instance for all DMA transfers in application. */
-static struct _xdmad_cfg dma_cfg = { 0 };
-static struct _xdmad_channel *dma_chan = NULL;
+static struct dma_channel *dma_chan = NULL;
 
 /* DMA linked list */
-CACHE_ALIGNED_DDR static struct _xdmad_desc_view1 dma_dlist[DMA_DESC_MAX_COUNT];
-#endif /* CONFIG_HAVE_XDMAC */
+CACHE_ALIGNED_DDR static struct dma_xfer_item dma_dlist[DMA_DESC_MAX_COUNT];
+
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_XDMAC
 /**
- * \brief Prepare XDMA channel.
+ * \brief Prepare DMA channel.
  */
 static void init_dma(void)
 {
-	/* Initialize XDMA driver instance with polling mode */
-	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
-	dma_chan = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_SHA);
+	/* Initialize DMA driver instance with polling mode */
+	/* Allocate a DMA channel, Write accesses into SHA_IDATARx */
+	dma_chan = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SHA);
 	if (!dma_chan)
-		printf("-E- Can't allocate XDMA channel\n\r");
+		printf("-E- Can't allocate DMA channel\n\r");
 }
 
 /**
- * \brief Configure XDMA channel for SHA transfer.
+ * \brief Configure DMA channel for SHA transfer.
  * \param buf  Pointer to data buffer.
  * \param len  Count of data blocks.
  */
@@ -330,35 +321,27 @@ static void configure_dma_write(uint32_t *buf, uint32_t len)
 {
 	const uint32_t words = algo_desc[op_mode].block_len_words;
 	uint32_t i;
-
-	dma_cfg.cfg =
-		XDMAC_CC_TYPE_PER_TRAN |
-		XDMAC_CC_MBSIZE_SINGLE |
-		XDMAC_CC_DSYNC_MEM2PER |
-		XDMAC_CC_CSIZE_CHK_16 |
-		XDMAC_CC_DWIDTH_WORD |
-		XDMAC_CC_SIF_AHB_IF0 |
-		XDMAC_CC_DIF_AHB_IF1 |
-		XDMAC_CC_SAM_INCREMENTED_AM |
-		XDMAC_CC_DAM_FIXED_AM;
+	static struct dma_xfer_item_tmpl cfg;
+	
 	for (i = 0; i < len; i++) {
 		cache_clean_region(&buf[i * words], words * 4);
-		dma_dlist[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1 |
-			(i == len - 1 ? 0 : XDMA_UBC_NDE_FETCH_EN) |
-			XDMA_UBC_NSEN_UPDATED | words;
-		dma_dlist[i].mbr_sa = &buf[i * words];
-		dma_dlist[i].mbr_da = (void*)&SHA->SHA_IDATAR[0];
-		dma_dlist[i].mbr_nda = i == len - 1 ? NULL : &dma_dlist[i + 1];
+		cfg.sa = &buf[i * words];
+		cfg.da = (void*)&SHA->SHA_IDATAR[0];
+		cfg.upd_sa_per_data = 1;
+		cfg.upd_da_per_data = 0;
+		cfg.upd_sa_per_blk  = 1;
+		cfg.upd_da_per_blk  = 0;
+		cfg.data_width = DMA_DATA_WIDTH_WORD;
+		cfg.chunk_size = sha_get_dma_chunk_size(op_mode);
+		cfg.blk_size = words;
+		dma_prepare_item(dma_chan, &cfg, &dma_dlist[i]);
+		dma_link_item(dma_chan, &dma_dlist[i], &dma_dlist[i + 1]);
 	}
+	dma_link_item(dma_chan, &dma_dlist[i - 1], NULL);
 	cache_clean_region(dma_dlist, sizeof(*dma_dlist) * len);
-	xdmad_configure_transfer(dma_chan, &dma_cfg,
-		XDMAC_CNDC_NDVIEW_NDV1 |
-		XDMAC_CNDC_NDE_DSCR_FETCH_EN |
-		XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED |
-		XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED,
-		dma_dlist);
+	dma_configure_sg_transfer(dma_chan, &cfg, dma_dlist);
+	
 }
-#endif /* CONFIG_HAVE_XDMAC */
 
 /**
  * \brief SHA interrupt handler.
@@ -428,10 +411,9 @@ static void start_sha(void)
 	uint32_t rc = 0, i, blk_cnt = 0, val, ref = 0;
 
 	sha_get_status();
-#ifdef CONFIG_HAVE_XDMAC
 	if (start_mode == SHA_MR_SMOD_IDATAR0_START)
 		init_dma();
-#endif
+
 	switch (op_mode) {
 		case SHA_1:
 			if (block_mode == SHA_ONE_BLOCK) {
@@ -526,18 +508,16 @@ static void start_sha(void)
 	 * setting the corresponding bit of the Control Register (SHA_CR). For
 	 * the other blocks, there is nothing to write in this Control Register. */
 	sha_first_block();
-#ifdef CONFIG_HAVE_XDMAC
+
 	if (start_mode == SHA_MR_SMOD_IDATAR0_START) {
 		configure_dma_write(message, blk_cnt);
-		rc = xdmad_start_transfer(dma_chan);
-		if (rc == XDMAD_OK) {
-			while (!xdmad_is_transfer_done(dma_chan))
-				xdmad_poll();
-			xdmad_stop_transfer(dma_chan);
+		rc = dma_start_transfer(dma_chan);
+		if (rc == DMA_OK) {
+			while (!dma_is_transfer_done(dma_chan))
+				dma_poll();
+			dma_stop_transfer(dma_chan);
 		}
-	} else
-#endif /* CONFIG_HAVE_XDMAC */
-	{
+	} else {
 		for (p = message, i = 0; i < blk_cnt;
 		     i++, p+= algo_desc[op_mode].block_len_words) {
 			digest_ready = false;
@@ -608,14 +588,9 @@ static void display_menu(void)
 	printf("Press [m|a|d] to set Start Mode \n\r");
 	chk_box[0] = (start_mode == SHA_MR_SMOD_MANUAL_START) ? 'X' : ' ';
 	chk_box[1] = (start_mode == SHA_MR_SMOD_AUTO_START) ? 'X' : ' ';
-#ifdef CONFIG_HAVE_XDMAC
 	chk_box[2] = (start_mode == SHA_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
-	       chk_box[0], chk_box[1], chk_box[2]);
-#else
-	printf("   m: MANUAL_START[%c] a: AUTO_START[%c]\n\r",
-	       chk_box[0], chk_box[1]);
-#endif
+			chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Start hash algorithm process \n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
@@ -668,15 +643,9 @@ int main(void)
 				break;
 			case 'm':
 			case 'a':
-#ifdef CONFIG_HAVE_XDMAC
 			case 'd':
-#endif
 				start_mode = user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
-#ifdef CONFIG_HAVE_XDMAC
-				            (user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
-#else
-							(
-#endif
+							(user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
 							 SHA_MR_SMOD_MANUAL_START);
 				display_menu();
 				break;
