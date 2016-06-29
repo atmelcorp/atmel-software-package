@@ -35,10 +35,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmac.h"
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -51,118 +48,68 @@
 #define USARTD_ATTRIBUTE_MASK     (0)
 #define USARTD_DMA_THRESHOLD      16
 
-#ifdef CONFIG_HAVE_XDMAC
-static void _usartd_xdmad_callback_wrapper(struct _xdmad_channel* channel,
-					   void* args)
+static void _usartd_dma_callback_wrapper(struct dma_channel* channel, void* args)
 {
 	trace_debug("USARTD DMA Transfert Finished\r\n");
 	struct _usart_desc* usartd = (struct _usart_desc*) args;
 
-	xdmad_free_channel(channel);
+	dma_free_channel(channel);
 
-	if (usartd->region_start && usartd->region_length) {
-		cache_invalidate_region(usartd->region_start,
-				       usartd->region_length);
-	}
+	if (usartd->region_start && usartd->region_length)
+		cache_invalidate_region(usartd->region_start, usartd->region_length);
 
 	if (usartd && usartd->callback)
 		usartd->callback(usartd, usartd->cb_args);
 }
 
-static void _usartd_init_dma_read_channel(const struct _usart_desc* desc,
-					  struct _xdmad_channel** channel,
-					  struct _xdmad_cfg* cfg)
+static void _usartd_dma_read(const struct _usart_desc* desc, struct _buffer* buffer)
 {
-	assert(cfg);
-	assert(channel);
-
+	struct dma_channel* channel = NULL;
+	struct dma_xfer_cfg cfg;
 	uint32_t id = get_usart_id_from_addr(desc->addr);
 
-	memset(cfg, 0x0, sizeof(*cfg));
+	memset(&cfg, 0x0, sizeof(cfg));
 
-	*channel =
-		xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
-	assert(*channel);
+	channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(channel);
 
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
-
-	cfg->sa = (void*)&desc->addr->US_RHR;
-}
-
-static void _usartd_dma_read(const struct _usart_desc* desc,
-			   struct _buffer* buffer)
-{
-	struct _xdmad_channel* channel = NULL;
-	struct _xdmad_cfg cfg;
-
-	_usartd_init_dma_read_channel(desc, &channel, &cfg);
-
+	cfg.sa = (void *)&desc->addr->US_RHR;
 	cfg.da = buffer->data;
-	cfg.ubc = buffer->size;
-	cfg.bc = 0;
-	xdmad_configure_transfer(channel, &cfg, 0, 0);
-	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
-			   (void*)desc);
+	cfg.upd_sa_per_data = 0;
+	cfg.upd_da_per_data = 1;
+	cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	cfg.len = buffer->size;
+	dma_configure_transfer(channel, &cfg);
 
-	xdmad_start_transfer(channel);
+	dma_set_callback(channel, _usartd_dma_callback_wrapper, (void*)desc);
+	dma_start_transfer(channel);
 }
 
-static void _usartd_init_dma_write_channel(const struct _usart_desc* desc,
-					  struct _xdmad_channel** channel,
-					  struct _xdmad_cfg* cfg)
+static void _usartd_dma_write(const struct _usart_desc* desc, struct _buffer* buffer)
 {
-	assert(cfg);
-	assert(channel);
-
+	struct dma_channel *channel = NULL;
+	struct dma_xfer_cfg cfg;
 	uint32_t id = get_usart_id_from_addr(desc->addr);
 
-	memset(cfg, 0x0, sizeof(*cfg));
+	memset(&cfg, 0x0, sizeof(cfg));
 
-	*channel =
-		xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
-	assert(*channel);
-
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_FIXED_AM;
-
-	cfg->da = (void*)&desc->addr->US_THR;
-}
-
-static void _usartd_dma_write(const struct _usart_desc* desc,
-			   struct _buffer* buffer)
-{
-	struct _xdmad_channel* channel = NULL;
-	struct _xdmad_cfg cfg;
-
-	_usartd_init_dma_write_channel(desc, &channel, &cfg);
+	channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(channel);
 
 	cfg.sa = buffer->data;
-	cfg.ubc = buffer->size;
-	cfg.bc = 0;
-	xdmad_configure_transfer(channel, &cfg, 0, 0);
-	xdmad_set_callback(channel, _usartd_xdmad_callback_wrapper,
-			   (void*)desc);
+	cfg.da = (void *)&desc->addr->US_THR;
+	cfg.upd_sa_per_data = 1;
+	cfg.upd_da_per_data = 0;
+	cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	cfg.len =  buffer->size;
+	dma_configure_transfer(channel, &cfg);
 
+	dma_set_callback(channel, _usartd_dma_callback_wrapper, (void*)desc);
 	cache_clean_region(desc->region_start, desc->region_length);
-
-	xdmad_start_transfer(channel);
+	dma_start_transfer(channel);
 }
-#endif /* ! CONFIG_SOC_XDMAC */
 
 void usartd_configure(struct _usart_desc* desc)
 {
@@ -219,7 +166,6 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 		if (cb)
 			cb(desc, user_args);
 		break;
-#ifdef CONFIG_HAVE_XDMAC
 	case USARTD_MODE_DMA:
 		if (!(rx || tx)) {
 			return USARTD_ERROR_DUPLEX;
@@ -255,7 +201,6 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 			mutex_unlock(&desc->mutex);
 		}
 		break;
-#endif /* ! CONFIG_HAVE_XDMAC */
 
 #ifdef CONFIG_HAVE_USART_FIFO
 	case USARTD_MODE_FIFO:
