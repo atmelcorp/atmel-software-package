@@ -47,30 +47,29 @@
 #endif
 
 #include "misc/console.h"
+#include "misc/cache.h"
 
 #include "memories/at25.h"
 
-#include "mutex.h"
 #include "compiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define CMD_BUFFER_SIZE   16*1024*1024
-#define READ_BUFFER_SIZE  16*1024*1024
+#define CMD_BUFFER_SIZE   (1024)
+#define READ_BUFFER_SIZE  (4*1024)
 
 static const struct _pin at25_pins[] = AT25_PINS;
 
-SECTION(".region_ddr") ALIGNED(32) static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-SECTION(".region_ddr") ALIGNED(32) static uint8_t read_buffer[READ_BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+CACHE_ALIGNED_DDR static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static _parser _cmd_parser;
-static uint32_t cmd_index = 0;
-
-mutex_t lock = 0;
+static volatile uint32_t cmd_length = 0;
+static volatile bool cmd_complete = false;
 
 static struct _spi_desc spi_at25_desc = {
 	.addr           = AT25_ADDR,
@@ -80,7 +79,7 @@ static struct _spi_desc spi_at25_desc = {
 	.dlybct         = AT25_DLYCT,
 	.chip_select    = AT25_CS,
 	.spi_mode       = AT25_SPI_MODE,
-#ifdef CONFIG_SOC_SAMA5D3
+#ifndef CONFIG_HAVE_XDMAC
 	.transfert_mode = SPID_MODE_POLLING,
 #else
 	.transfert_mode = SPID_MODE_DMA,
@@ -91,31 +90,34 @@ static struct _at25 at25drv;
 
 static void console_handler(uint8_t key)
 {
-	static uint32_t index = 0;
-	if (mutex_try_lock(&lock))
-		return;
-	if (index >= CMD_BUFFER_SIZE) {
-		printf("\r\nWARNING! command buffer size exeeded, "
-		       "reseting\r\n");
-		index = 0;
-	}
-	console_echo(key);
+	/* already processing a command: ignore input */
+	if (cmd_complete)
+	       return;
+
 	switch (key) {
 	case '\r':
 	case '\n':
-		cmd_buffer[index]='\0';
-		cmd_index = index;
-		index = 0;
+		console_echo(key);
+		cmd_buffer[cmd_length] = '\0';
+		cmd_complete = true;
 		break;
 	case 0x7F:
 	case '\b':
-		cmd_buffer[--index]='\0';
+		if (cmd_length > 0) {
+			console_echo(key);
+			cmd_length--;
+			cmd_buffer[cmd_length] = '\0';
+		}
 		break;
 	default:
-		cmd_buffer[index++]=key;
+		if (cmd_length < (ARRAY_SIZE(cmd_buffer) - 1)) {
+			console_echo(key);
+			cmd_buffer[cmd_length] = key;
+			cmd_length++;
+		}
 		break;
 	}
-	mutex_free(&lock);
+
 }
 
 static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -178,13 +180,14 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 {
-	const char *dev_lbl = "device";
-	const char *status_lbl = "status";
-	uint32_t status = 0;
-	if (!strncmp((char*)buffer, dev_lbl, 6)) {
-		at25_print_device_info(&at25drv);
-	} else if (!strncmp((char*)buffer, status_lbl, 6)) {
-		status = at25_read_status(&at25drv);
+	if (!strncmp((char*)buffer, "device", 6)) {
+		if (at25drv.desc) {
+			at25_print_device_info(&at25drv);
+		} else {
+			printf("No device detected!\r\n");
+		}
+	} else if (!strncmp((char*)buffer, "status", 6)) {
+		uint32_t status = at25_read_status(&at25drv);
 		printf("AT25 chip status:\r\n"
 		       "\t- Busy: %s\r\n"
 		       "\t- Write Enabled: %s\r\n"
@@ -199,7 +202,7 @@ static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 		       status & AT25_STATUS_WPP ? "inactive":"active",
 		       status & AT25_STATUS_EPE ? "yes":"no",
 		       status & AT25_STATUS_SPRL ? "locked":"unlocked",
-		       (unsigned int)status);
+		       (unsigned)status);
 	}
 }
 
@@ -313,20 +316,18 @@ int main (void)
 		printf("Device NOT supported!\r\n");
 	else if (rc != AT25_SUCCESS)
 		printf("Initialization error!\r\n");
-	if(at25_unprotect(&at25drv))
+	if (at25_unprotect(&at25drv))
 		printf("Protection desactivation FAILED!\r\n");
 
 	print_menu();
 
 	while (1) {
 		irq_wait();
-		if (mutex_try_lock(&lock)) {
-			continue;
+
+		if (cmd_complete && cmd_length > 0) {
+			_cmd_parser(cmd_buffer, cmd_length);
+			cmd_length = 0;
+			cmd_complete = false;
 		}
-		if (cmd_index > 0) {
-			_cmd_parser(cmd_buffer, cmd_index);
-			cmd_index = 0;
-		}
-		mutex_free(&lock);
 	}
 }
