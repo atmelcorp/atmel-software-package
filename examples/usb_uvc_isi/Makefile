@@ -28,14 +28,13 @@
 
 # Makefile for compiling the USB UVC isi example
 AVAILABLE_TARGETS = sama5d4-ek
-AVAILABLE_VARIANTS = ddram
-
-VARIANT ?= ddram
 
 TOP := ../..
 
 BINNAME = usb_uvc_isi
 
+CONFIG_HAVE_SSC = n
+CONFIG_HAVE_AUDIO = n
 CONFIG_HAVE_ISI = y
 CONFIG_HAVE_IMAGE_SENSOR = y
 CONFIG_HAVE_LCDD = y
