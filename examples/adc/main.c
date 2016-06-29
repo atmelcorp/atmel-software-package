@@ -110,7 +110,6 @@
 #include "board.h"
 #include "chip.h"
 #include "timer.h"
-#include "mutex.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
@@ -231,8 +230,6 @@ struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAUL
 #else
 #error Unsupported target...
 #endif
-
-mutex_t lock = 0;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -356,9 +353,6 @@ static void _display_menu(void)
 
 static void console_handler(uint8_t key)
 {
-	if (mutex_try_lock(&lock))
-		return;
-
 	switch (key) {
 	case '0' :
 		_test_mode.trigger_mode = TRIGGER_MODE_SOFTWARE;
@@ -397,7 +391,6 @@ static void console_handler(uint8_t key)
 	}
 	modif_config = true; /* indicate config ADC change */
 	_display_menu();
-	mutex_free(&lock);
 }
 
 /**

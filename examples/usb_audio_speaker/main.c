@@ -109,7 +109,6 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "mutex.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -188,7 +187,6 @@ static volatile bool is_audio_playing = false;
 /** audio playing volume */
 static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 
-mutex_t lock = 0;
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
@@ -262,9 +260,6 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 
 static void console_handler(uint8_t key)
 {
-	if (mutex_try_lock(&lock))
-		return;
-
 	switch (key) {
 	case '+':
 		if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
@@ -292,8 +287,6 @@ static void console_handler(uint8_t key)
 	default:
 		break;
 	}
-
-	mutex_free(&lock);
 }
 
 /*----------------------------------------------------------------------------

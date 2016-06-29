@@ -98,7 +98,6 @@
 
 #include "board.h"
 #include "chip.h"
-#include "mutex.h"
 #include "timer.h"
 
 #include "peripherals/aic.h"
