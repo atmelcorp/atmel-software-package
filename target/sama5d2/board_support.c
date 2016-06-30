@@ -498,7 +498,7 @@ void board_cfg_mmu(void)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
 	                  | TTB_SECT_EXEC
-	                  | TTB_SECT_CACHEABLE_WB
+	                  | TTB_SECT_STRONGLY_ORDERED
 	                  | TTB_TYPE_SECT;
 
 	/* 0xf0000000: Internal Peripherals */
@@ -794,7 +794,7 @@ void board_cfg_pdmic(void)
 {
 	const struct _pin pins_pdmic[] = PINS_PDMIC_IOS1;
 
-	pio_configure(pins_pdmic, ARRAY_SIZE(pins_pdmic));	
+	pio_configure(pins_pdmic, ARRAY_SIZE(pins_pdmic));
 }
 #endif
 
@@ -803,6 +803,6 @@ void board_cfg_classd(void)
 {
 	const struct _pin pins_classd[] = BOARD_CLASSD_PINS;
 
-	pio_configure(pins_classd, ARRAY_SIZE(pins_classd));	
+	pio_configure(pins_classd, ARRAY_SIZE(pins_classd));
 }
 #endif
