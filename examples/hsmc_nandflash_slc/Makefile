@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the hsmc_nandflash_slc example
-AVAILABLE_TARGETS = sama5d2-ptc-engi sama5d4-xplained
+AVAILABLE_TARGETS = sama5d2-ptc-engi sama5d4-xplained sama5d4-ek
 AVAILABLE_VARIANTS = ddram
 
 VARIANT ?= ddram
