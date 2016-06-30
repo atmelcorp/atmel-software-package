@@ -466,9 +466,23 @@
 #define SD_SWITCH_ST_FUN_GRP6_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 480, 16)
 #define SD_SWITCH_ST_FUN_GRP5_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 464, 16)
 #define SD_SWITCH_ST_FUN_GRP4_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 448, 16)
+#define     SD_SWITCH_ST_MAX_PWR_0_72W        0x0
+#define     SD_SWITCH_ST_MAX_PWR_1_44W        0x1
+#define     SD_SWITCH_ST_MAX_PWR_2_16W        0x2
+#define     SD_SWITCH_ST_MAX_PWR_2_88W        0x3
+#define     SD_SWITCH_ST_MAX_PWR_1_80W        0x4
 #define SD_SWITCH_ST_FUN_GRP3_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 432, 16)
+#define     SD_SWITCH_ST_OUT_DRV_B            0x0
+#define     SD_SWITCH_ST_OUT_DRV_A            0x1
+#define     SD_SWITCH_ST_OUT_DRV_C            0x2
+#define     SD_SWITCH_ST_OUT_DRV_D            0x3
 #define SD_SWITCH_ST_FUN_GRP2_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 416, 16)
 #define SD_SWITCH_ST_FUN_GRP1_INFO(p)         (uint16_t)SD_SWITCH_ST(p, 400, 16)
+#define     SD_SWITCH_ST_ACC_DS               0x0
+#define     SD_SWITCH_ST_ACC_HS               0x1
+#define     SD_SWITCH_ST_ACC_SDR50            0x2
+#define     SD_SWITCH_ST_ACC_SDR104           0x3
+#define     SD_SWITCH_ST_ACC_DDR50            0x4
 #define SD_SWITCH_ST_FUN_GRP6_RC(p)           (uint8_t) SD_SWITCH_ST(p, 396, 4)
 #define SD_SWITCH_ST_FUN_GRP5_RC(p)           (uint8_t) SD_SWITCH_ST(p, 392, 4)
 #define SD_SWITCH_ST_FUN_GRP4_RC(p)           (uint8_t) SD_SWITCH_ST(p, 388, 4)

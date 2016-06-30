@@ -115,6 +115,15 @@
 /**     @}*/
 
 /**
+ *  \addtogroup sdmmc_powermode SD/MMC power supply modes
+ *  Here we list the voltage level configurations we may apply when supplying
+ *  power to the device.
+ *      @{*/
+#define SDMMC_PWR_OFF            (0)
+#define SDMMC_PWR_STD            (1)
+#define SDMMC_PWR_STD_VDD_LOW_IO (2)
+
+/**
  *  \addtogroup sdmmc_speedmode SD/MMC Bus speed modes
  *  Here lists the MMC, e.MMC and SD bus speed modes.
  *      @{*/
@@ -432,17 +441,17 @@ typedef struct _SdCard {
 
 	sSdmmcCommand sdCmd;	/**< Command instance for underlying driver */
 
-	uint32_t dwTranSpeed;	/**< Max supported transfer speed */
 	uint32_t dwTotalSize;	/**< Card total size
                                 (0xffffffff to see number of blocks */
 	uint32_t dwNbBlocks;	/**< Card total number of blocks */
 	uint16_t wBlockSize;	/**< Card block size reported */
 
 	uint16_t wCurrBlockLen;	/**< Block length used */
-	uint32_t dwCurrSpeed;	/**< Transfer speed used */
+	uint32_t dwCurrSpeed;	/**< Device clock frequency used, in Hz */
 	uint16_t wAddress;	/**< Current card address */
 	uint8_t bCardType;	/**< SD/MMC/SDIO card type \sa sdmmc_cardtype */
-	uint8_t bCardSigLevel;	/**< low/high signaling level used by the card */
+	uint8_t bCardSigLevel;	/**< 0/1/2 for low/ready_for_low/high signaling
+				 * level used by the card, respectively. */
 	uint8_t bSpeedMode;	/**< Timing mode */
 	uint8_t bBusMode;	/**< 1/4/8 bit data bus mode */
 	uint8_t bSlot;		/**< Card access slot */
@@ -475,14 +484,14 @@ typedef struct _MmcCmd6Arg {
  * Argument for SD CMD6
  */
 typedef struct _SdCmd6Arg {
-	uint32_t accessMode:4,	/**< [ 3: 0] function group 1, access mode */
-	 command:4,		/**< [ 7: 4] function group 2, command system */
-	 reserveFG3:4,		/**< [11: 8] function group 3, 0xF or 0x0 */
-	 reserveFG4:4,		/**< [15:12] function group 4, 0xF or 0x0 */
-	 reserveFG5:4,		/**< [19:16] function group 5, 0xF or 0x0 */
-	 reserveFG6:4,		/**< [23:20] function group 6, 0xF or 0x0 */
+	uint32_t acc_mode:4,	/**< [ 3: 0] function group 1, access mode */
+	 cmd_sys:4,		/**< [ 7: 4] function group 2, command system */
+	 drv_strgth:4,		/**< [11: 8] function group 3, driver strength */
+	 pwr_limit:4,		/**< [15:12] function group 4, power limit */
+	 func_grp5:4,		/**< [19:16] function group 5, 0xF or 0x0 */
+	 func_grp6:4,		/**< [23:20] function group 6, 0xF or 0x0 */
 	 reserved:7,		/**< [30:24] reserved 0 */
-	 mode:1;		/**< [31   ] Mode, 0: Check, 1: Switch */
+	 set:1;			/**< [31   ] operation: 0 to check or 1 to set */
 } SdCmd6Arg, SdSwitchArg;
 
 /**
