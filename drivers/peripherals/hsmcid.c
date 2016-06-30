@@ -54,8 +54,7 @@
 #include "peripherals/tc.h"
 #include "peripherals/hsmcic.h"
 #include "peripherals/hsmcid.h"
-#include "peripherals/xdmac.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"
 #include "misc/cache.h"
@@ -193,7 +192,7 @@ static void hsmci_handler(struct hsmci_set *set)
 	}
 
 	if (set->use_polling)
-		xdmad_poll();
+		dma_poll();
 
 	/* Read status */
 	dwSr = hsmci_get_status(regs);
@@ -297,7 +296,7 @@ static uint8_t hsmci_cancel_command(struct hsmci_set *set)
 	return SDMMC_OK;
 }
 
-static void _hsmci_xdmad_callback_wrapper(struct _xdmad_channel *channel,
+static void _hsmci_dma_callback_wrapper(struct dma_channel *channel,
 	void *arg)
 {
 	struct hsmci_set *set = (struct hsmci_set*) arg;
@@ -322,13 +321,13 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 
 	if (set->dma_channel == NULL)
 		return SDMMC_ERROR_STATE;
-	rc = xdmad_stop_transfer(set->dma_channel);
-	if (rc != XDMAD_OK) {
+	rc = dma_stop_transfer(set->dma_channel);
+	if (rc != DMA_OK) {
 		trace_error("Error halting DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
-	rc = xdmad_free_channel(set->dma_channel);
-	if (rc != XDMAD_OK) {
+	rc = dma_free_channel(set->dma_channel);
+	if (rc != DMA_OK) {
 		trace_error("Couldn't free DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
@@ -346,14 +345,14 @@ static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
 
 	assert(set);
 
-	set->dma_channel = xdmad_allocate_channel(
-		bRd ? set->id : XDMAD_PERIPH_MEMORY,
-		bRd ? XDMAD_PERIPH_MEMORY : set->id);
+	set->dma_channel = dma_allocate_channel(
+		bRd ? set->id : DMA_PERIPH_MEMORY,
+		bRd ? DMA_PERIPH_MEMORY : set->id);
 	if (NULL == set->dma_channel)
 		return SDMMC_ERROR_BUSY;
-	rc = xdmad_set_callback(set->dma_channel, _hsmci_xdmad_callback_wrapper,
+	rc = dma_set_callback(set->dma_channel, _hsmci_dma_callback_wrapper,
 		set);
-	if (rc != XDMAD_OK) {
+	if (rc != DMA_OK) {
 		hsmci_release_dma(set);
 		return SDMMC_ERROR_STATE;
 	}
@@ -372,28 +371,22 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	assert(cmd);
 	assert(cmd->wBlockSize != 0 && cmd->wNbBlocks != 0);
 
-	const uint32_t ubl_len_max = XDMAC_CUBC_UBLEN_Msk
-		>> XDMAC_CUBC_UBLEN_Pos;
-	const uint32_t ubl_cnt_max = (XDMAC_CBC_BLEN_Msk >> XDMAC_CBC_BLEN_Pos)
-		+ 1ul;
+	const uint32_t ubl_len_max = DMA_MAX_BT_SIZE;
+	const uint32_t ubl_cnt_max = (DMA_MAX_BLOCK_LEN + 1ul);
 	const uint8_t unit = cmd->wBlockSize & 0x3 ? 1 : 4;
 	uint32_t rc, ubl_len, ubl_cnt, quot;
 	uint8_t shift, fail;
-	struct _xdmad_cfg xdma_cfg = {
-		.cfg = XDMAC_CC_TYPE_PER_TRAN
-			| XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_MEMSET_NORMAL_MODE
-			| XDMAC_CC_CSIZE_CHK_1 | (unit == 1
-			? XDMAC_CC_DWIDTH_BYTE : XDMAC_CC_DWIDTH_WORD),
-	};
+	struct dma_xfer_cfg dma_cfg;
 
-	if (bRd)
-		xdma_cfg.cfg |= XDMAC_CC_DSYNC_PER2MEM
-			| XDMAC_CC_SIF_AHB_IF1 | XDMAC_CC_DIF_AHB_IF0
-			| XDMAC_CC_SAM_FIXED_AM | XDMAC_CC_DAM_INCREMENTED_AM;
-	else
-		xdma_cfg.cfg |= XDMAC_CC_DSYNC_MEM2PER
-			| XDMAC_CC_SIF_AHB_IF0 | XDMAC_CC_DIF_AHB_IF1
-			| XDMAC_CC_SAM_INCREMENTED_AM | XDMAC_CC_DAM_FIXED_AM;
+	dma_cfg.chunk_size = XDMAC_CC_CSIZE_CHK_1;
+	dma_cfg.data_width = (unit == 1) ? DMA_DATA_WIDTH_BYTE : DMA_DATA_WIDTH_WORD;
+	if (bRd) {
+		dma_cfg.upd_sa_per_data = 0;
+		dma_cfg.upd_da_per_data = 1;
+	} else {
+		dma_cfg.upd_sa_per_data = 1;
+		dma_cfg.upd_da_per_data = 0;
+	}
 	/* Configure data count per microblock */
 	ubl_len = (cmd->wBlockSize / unit) * (uint32_t)cmd->wNbBlocks;
 	/* Configure microblock count per block */
@@ -428,16 +421,15 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 			ubl_cnt = 2ul << shift;
 		}
 	}
-	xdma_cfg.ubc = ubl_len;
-	xdma_cfg.bc = ubl_cnt - 1;
+	dma_cfg.blk_size = ubl_len;
+	dma_cfg.len = ubl_cnt - 1;
 	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
 	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
-	xdma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
-	xdma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
+	dma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
+	dma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
 	/* Configure a single block per master transfer, i.e. no linked list */
-	rc = xdmad_configure_transfer(set->dma_channel, &xdma_cfg,
-		XDMAC_CNDC_NDE_DSCR_FETCH_DIS, NULL);
-	if (rc != XDMAD_OK)
+	rc = dma_configure_transfer(set->dma_channel, &dma_cfg);
+	if (rc != DMA_OK)
 		return SDMMC_ERROR_BUSY;
 	if (bRd)
 		/* Invalidate the corresponding data cache lines now, so this
@@ -453,8 +445,8 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	else
 		cache_clean_region(cmd->pData, cmd->wBlockSize
 			* (uint32_t)cmd->wNbBlocks);
-	rc = xdmad_start_transfer(set->dma_channel);
-	return rc == XDMAD_OK ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
+	rc = dma_start_transfer(set->dma_channel);
+	return rc == DMA_OK ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
 static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus)

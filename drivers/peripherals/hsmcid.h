@@ -62,7 +62,7 @@
 extern "C" {
 #endif
 
-struct _xdmad_channel;
+struct dma_channel;
 struct _SdmmcCommand;
 
 /*----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ struct hsmci_set
 	Hsmci *regs;                  /* set of HSMCI hardware registers */
 	uint32_t tc_id;               /* Timer/Counter peripheral ID (ID_TCx) */
 	TcChannel *timer;             /* set of TC channel hardware registers */
-	struct _xdmad_channel *dma_channel;
+	struct dma_channel *dma_channel;
 	uint32_t nxt_evts;            /* HSMCI IRQs we're still waiting for */
 	uint32_t dwXfrNdx;            /* DMA transferred data index (bytes) */
 	uint32_t dwXSize;             /* DMA transfer size (bytes) */
