@@ -229,6 +229,9 @@
                             PIN_SDMMC0_CMD_IOS1, PIN_SDMMC0_RSTN_IOS1,\
                             PIN_SDMMC0_VDDSEL_IOS1, PINS_SDMMC0_DATA8B_IOS1 }
 
+/* Deviation from the SD Host Controller Specification: we use the Voltage
+ * Support capabilities to indicate the supported signaling levels (VCCQ),
+ * rather than the power supply voltage (VCC). */
 #define BOARD_SDMMC0_CAPS0 (SDMMC_CA0R_V33VSUP | \
                             SDMMC_CA0R_V18VSUP | \
                             SDMMC_CA0R_SLTYPE_EMBEDDED | \
