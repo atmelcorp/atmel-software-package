@@ -75,8 +75,7 @@
  * - ssc.c
  * - twi.c
  * - twid.c
- * - xdmac.c
- * - xdmad.c
+ * - dma.c
  */
 
 /**
@@ -102,7 +101,7 @@
 #include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 #include "peripherals/ssc.h"
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
@@ -138,7 +137,7 @@
 /** DMA Descriptor */
 #define TOTAL_BUFFERS            10
 
-#define DMA_TRANSFER_LEN    (0xFFFF)
+#define DMA_TRANSFER_LEN    (0xFFFE)
 
 #define AUDIO_BUFFER_LEN    TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8)
 
@@ -156,12 +155,12 @@ static const struct _pin pins_clk[] = PIN_PCK2_ALT1; /* DAC Master Clock */
 /* Global DMA driver for all transfer */
 
 /** DMA channel for RX */
-static struct _xdmad_channel *ssc_dma_rx_channel;
+static struct dma_channel *ssc_dma_rx_channel;
 /** DMA channel for TX */
-static struct _xdmad_channel *ssc_dma_tx_channel;
+static struct dma_channel *ssc_dma_tx_channel;
 
-CACHE_ALIGNED struct _xdmad_desc_view1 dma_write_link_list[TOTAL_BUFFERS];
-CACHE_ALIGNED struct _xdmad_desc_view1 dma_read_link_list[TOTAL_BUFFERS];
+CACHE_ALIGNED struct dma_xfer_item dma_write_link_list[TOTAL_BUFFERS];
+CACHE_ALIGNED struct dma_xfer_item dma_read_link_list[TOTAL_BUFFERS];
 
 /** Twi instance*/
 static struct _twi_desc wm8904_twid = {
@@ -206,11 +205,11 @@ static void dma_configure(void)
 {
 	/* Driver initialize */
 	/* Allocate DMA channels for SSC */
-	ssc_dma_tx_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_SSC0);
-	ssc_dma_rx_channel = xdmad_allocate_channel(ID_SSC0, XDMAD_PERIPH_MEMORY);
+	ssc_dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SSC0);
+	ssc_dma_rx_channel = dma_allocate_channel(ID_SSC0, DMA_PERIPH_MEMORY);
 
 	if (!ssc_dma_tx_channel || !ssc_dma_rx_channel) {
-		printf("xDMA channel allocation error\n\r");
+		printf("DMA channel allocation error\n\r");
 
 		while(1);
 	}
@@ -223,91 +222,60 @@ static void play_recording(void)
 {
 	uint16_t* src;
 	uint8_t i;
-	uint32_t xdma_cndc;
-	struct _xdmad_cfg xdmad_cfg;
+	struct dma_xfer_item_tmpl dma_cfg;
 
 	src = audio_buffer;
 	memset(audio_buffer, 0x00, sizeof(audio_buffer));
 
 	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_read_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-		                              | XDMA_UBC_NDE_FETCH_EN
-		                              | XDMA_UBC_NSEN_UPDATED
-		                              | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
-		dma_read_link_list[i].mbr_sa = (uint32_t *)&(ssc_dev_desc.addr->SSC_RHR);
-		dma_read_link_list[i].mbr_da = (uint32_t *)(src);
-
+		dma_cfg.sa = (uint32_t *)&(ssc_dev_desc.addr->SSC_RHR);
+		dma_cfg.da = (uint32_t *)(src);
+		dma_cfg.upd_sa_per_data = 0;
+		dma_cfg.upd_da_per_data = 1;
+		dma_cfg.upd_sa_per_blk  = 0;
+		dma_cfg.upd_da_per_blk  = 1;
+		dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+		dma_cfg.blk_size = DMA_TRANSFER_LEN;
+		dma_prepare_item(ssc_dma_rx_channel, &dma_cfg, &dma_read_link_list[i]);
 		if (i == (TOTAL_BUFFERS - 1))
-			dma_read_link_list[i].mbr_nda = &dma_read_link_list[0];
+			dma_link_item(ssc_dma_rx_channel, &dma_read_link_list[i], &dma_read_link_list[0]);
 		else
-			dma_read_link_list[i].mbr_nda = &dma_read_link_list[i + 1];
-
+			dma_link_item(ssc_dma_rx_channel, &dma_read_link_list[i], &dma_read_link_list[i + 1]);
 		src += DMA_TRANSFER_LEN;
 	}
-
-	xdmad_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-	              | XDMAC_CC_MBSIZE_SINGLE
-	              | XDMAC_CC_DSYNC_PER2MEM
-	              | XDMAC_CC_CSIZE_CHK_1
-	              | XDMAC_CC_DWIDTH_HALFWORD
-	              | XDMAC_CC_SIF_AHB_IF1
-	              | XDMAC_CC_DIF_AHB_IF0
-	              | XDMAC_CC_SAM_FIXED_AM
-	              | XDMAC_CC_DAM_INCREMENTED_AM;
-
-	xdma_cndc = XDMAC_CNDC_NDVIEW_NDV1
-	          | XDMAC_CNDC_NDE_DSCR_FETCH_EN
-	          | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-	          | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-
 	cache_clean_region(dma_read_link_list, sizeof(dma_read_link_list));
+	dma_configure_sg_transfer(ssc_dma_rx_channel, &dma_cfg, dma_read_link_list);
 
-	xdmad_configure_transfer(ssc_dma_rx_channel, &xdmad_cfg, xdma_cndc,
-							&dma_read_link_list[0]);
 	src = audio_buffer;
-
 	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_write_link_list[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
-		                               | XDMA_UBC_NDE_FETCH_EN
-		                               | XDMA_UBC_NSEN_UPDATED
-		                               | XDMAC_CUBC_UBLEN(DMA_TRANSFER_LEN);
-
-		dma_write_link_list[i].mbr_sa = (uint32_t *)(src);
-		dma_write_link_list[i].mbr_da = (uint32_t *)&(ssc_dev_desc.addr->SSC_THR);
-
-		if (i == (TOTAL_BUFFERS - 1 ))
-			dma_write_link_list[i].mbr_nda = &dma_write_link_list[0];
+		dma_cfg.sa = (uint32_t *)(src);
+		dma_cfg.da = (uint32_t *)&(ssc_dev_desc.addr->SSC_THR);
+		dma_cfg.upd_sa_per_data = 1;
+		dma_cfg.upd_da_per_data = 0;
+		dma_cfg.upd_sa_per_blk  = 1;
+		dma_cfg.upd_da_per_blk  = 0;
+		dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+		dma_cfg.blk_size = DMA_TRANSFER_LEN;
+		dma_prepare_item(ssc_dma_tx_channel, &dma_cfg, &dma_write_link_list[i]);
+		if (i == (TOTAL_BUFFERS - 1))
+			dma_link_item(ssc_dma_tx_channel, &dma_write_link_list[i], &dma_write_link_list[0]);
 		else
-			dma_write_link_list[i].mbr_nda = &dma_write_link_list[i + 1];
-
+			dma_link_item(ssc_dma_tx_channel, &dma_write_link_list[i], &dma_write_link_list[i + 1]);
 		src += DMA_TRANSFER_LEN;
 	}
-
-	xdmad_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-	              | XDMAC_CC_MBSIZE_SINGLE
-	              | XDMAC_CC_DSYNC_MEM2PER
-	              | XDMAC_CC_CSIZE_CHK_1
-	              | XDMAC_CC_DWIDTH_HALFWORD
-	              | XDMAC_CC_SIF_AHB_IF0
-	              | XDMAC_CC_DIF_AHB_IF1
-	              | XDMAC_CC_SAM_INCREMENTED_AM
-	              | XDMAC_CC_DAM_FIXED_AM;
-
-	xdma_cndc = XDMAC_CNDC_NDVIEW_NDV1
-	          | XDMAC_CNDC_NDE_DSCR_FETCH_EN
-	          | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-	          | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-	xdmad_configure_transfer(ssc_dma_tx_channel, &xdmad_cfg, xdma_cndc,
-							&dma_write_link_list[0]);
 
 	cache_clean_region(dma_write_link_list, sizeof(dma_write_link_list));
-	xdmad_start_transfer(ssc_dma_rx_channel);
+	dma_configure_sg_transfer(ssc_dma_tx_channel, &dma_cfg, dma_write_link_list);
+
+	dma_start_transfer(ssc_dma_rx_channel);
 	ssc_enable_receiver(&ssc_dev_desc);
 
 	timer_wait(300);
 
 	/* Enable playback(SSC TX) */
-	xdmad_start_transfer(ssc_dma_tx_channel);
+	dma_start_transfer(ssc_dma_tx_channel);
 	ssc_enable_transmitter(&ssc_dev_desc);
 
 }
@@ -364,7 +332,7 @@ extern int main( void )
 	wm8904_init(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK);
 
 	/* Enable the DAC master clock */
-	pmc_select_internal_crystal();
+	pmc_select_external_crystal();
 	pmc_disable_pck(2);
 	pmc_configure_pck(2, PMC_PCK_CSS_SLOW_CLK, 0);
 	pmc_enable_pck(2);

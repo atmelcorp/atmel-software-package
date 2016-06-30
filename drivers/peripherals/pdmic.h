@@ -34,7 +34,7 @@
  *         Includes
  *---------------------------------------------------------------------------*/
 
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -94,6 +94,6 @@ extern bool pdmic_init(struct _pdmic_desc *desc);
 extern bool pdmic_data_ready(void);
 
 extern void pdmic_dma_transfer(void *buffer, uint32_t size,
-		xdmad_callback_t callback, void *user_arg);
+		dma_callback_t callback, void *user_arg);
 
 #endif /* _PDMIC_H */

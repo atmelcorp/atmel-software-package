@@ -39,9 +39,7 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 #include "audio_device.h"
@@ -195,9 +193,9 @@ static void _audio_dma_start_transfer(struct _audio_desc *desc, void *src_addres
 	desc->dma.cfg.sa = (uint32_t*)src_address;
 	desc->dma.cfg.da = (uint32_t*)dest_address;
 
-	xdmad_configure_transfer(desc->dma.channel, &desc->dma.cfg, 0, 0);
-	xdmad_set_callback(desc->dma.channel, cb, NULL);
-	xdmad_start_transfer(desc->dma.channel);
+	dma_configure_transfer(desc->dma.channel, &desc->dma.cfg);
+	dma_set_callback(desc->dma.channel, cb, NULL);
+	dma_start_transfer(desc->dma.channel);
 }
 
 static void _configure_audio_device(struct _audio_desc *desc)
@@ -258,16 +256,16 @@ void audio_configure(struct _audio_desc *desc)
 	switch (desc->direction) {
 	case AUDIO_DEVICE_PLAY:
 		/* Allocate DMA TX channels for Audio play device */
-		desc->dma.channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, audio_id);
+		desc->dma.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, audio_id);
 		break;
 
 	case AUDIO_DEVICE_RECORD:
 		/* Allocate DMA RX channels for Audio record device */
-		desc->dma.channel = xdmad_allocate_channel(audio_id, XDMAD_PERIPH_MEMORY);
+		desc->dma.channel = dma_allocate_channel(audio_id, DMA_PERIPH_MEMORY);
 		break;
 	}
 	if (!desc->dma.channel) {
-		printf("xDMA channel allocation error\n\r");
+		printf("DMA channel allocation error\n\r");
 	}
 }
 
@@ -412,7 +410,7 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 void audio_dma_stop(struct _audio_desc *desc)
 {
 	if (desc->dma.channel)
-		xdmad_stop_transfer(desc->dma.channel);
+		dma_stop_transfer(desc->dma.channel);
 }
 
 void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
@@ -420,7 +418,7 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 {
 	uint32_t *src_addr = NULL;
 	uint32_t *dst_addr = NULL;
-	uint32_t dma_data_width = XDMAC_CC_DWIDTH_HALFWORD;
+	uint32_t dma_data_width = DMA_DATA_WIDTH_HALF_WORD;
 
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
@@ -429,11 +427,13 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		case AUDIO_DEVICE_PLAY:
 			src_addr = buffer;
 			dst_addr = (uint32_t*)&((desc->device.classd.addr)->CLASSD_THR);
+			desc->dma.cfg.upd_sa_per_data = 1;
+			desc->dma.cfg.upd_da_per_data = 0;
 			if(desc->num_channels > 1)
-				dma_data_width =  XDMAC_CC_DWIDTH_WORD;
+				dma_data_width =  DMA_DATA_WIDTH_WORD;
 			break;
 		case AUDIO_DEVICE_RECORD:
-			// Error
+			/* Do not supported */
 			return;
 		}
 		break;
@@ -444,11 +444,15 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		case AUDIO_DEVICE_PLAY:
 			src_addr = buffer;
 			dst_addr = (uint32_t*)&((desc->device.ssc.addr)->SSC_THR);
+			desc->dma.cfg.upd_sa_per_data = 1;
+			desc->dma.cfg.upd_da_per_data = 0;
 			break;
 
 		case AUDIO_DEVICE_RECORD:
 			src_addr = (uint32_t*)&((desc->device.ssc.addr)->SSC_RHR);
 			dst_addr = buffer;
+			desc->dma.cfg.upd_sa_per_data = 0;
+			desc->dma.cfg.upd_da_per_data = 1;
 			break;
 		}
 		break;
@@ -458,7 +462,7 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 	case AUDIO_DEVICE_PDMIC:
 		switch (desc->direction) {
 		case AUDIO_DEVICE_PLAY:
-			// Error
+			/* Do not supported */
 			return;
 
 		case AUDIO_DEVICE_RECORD:
@@ -472,32 +476,17 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		/* No audio device */
 		return;
 	}
+
 	if (!desc->dma.configured) {
-		desc->dma.cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
-			XDMAC_CC_MBSIZE_SINGLE |
-			XDMAC_CC_DSYNC_MEM2PER |
-			XDMAC_CC_CSIZE_CHK_1 |
-			dma_data_width |
-			XDMAC_CC_SAM_INCREMENTED_AM |
-			XDMAC_CC_DAM_FIXED_AM;
-
-		switch (desc->direction) {
-		case AUDIO_DEVICE_PLAY:
-			desc->dma.cfg.cfg |= XDMAC_CC_SIF_AHB_IF0 |	XDMAC_CC_DIF_AHB_IF1;
-			break;
-
-		case AUDIO_DEVICE_RECORD:
-			desc->dma.cfg.cfg |= XDMAC_CC_SIF_AHB_IF1 |	XDMAC_CC_DIF_AHB_IF0;
-			break;
-		}
-
-		desc->dma.cfg.bc = 0;
+		desc->dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+		desc->dma.cfg.data_width = dma_data_width;
+		desc->dma.cfg.blk_size = 0;
 		desc->dma.configured = true;
 	}
-	if (dma_data_width == XDMAC_CC_DWIDTH_WORD) {
-		desc->dma.cfg.ubc = size / 4;
-	} else if (dma_data_width  == XDMAC_CC_DWIDTH_HALFWORD) {
-		desc->dma.cfg.ubc = size / 2;
+	if (dma_data_width == DMA_DATA_WIDTH_WORD) {
+		desc->dma.cfg.len = size / 4;
+	} else if (dma_data_width  == DMA_DATA_WIDTH_HALF_WORD) {
+		desc->dma.cfg.len = size / 2;
 	}
 
 	if (dst_addr)

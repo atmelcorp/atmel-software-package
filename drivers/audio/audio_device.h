@@ -30,16 +30,14 @@
 #ifndef AUDIO_DEVICE_API_H
 #define AUDIO_DEVICE_API_H
 
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 #include "peripherals/pio.h"
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
-typedef void (*audio_callback_t)(struct _xdmad_channel *channel, void* args);
+typedef void (*audio_callback_t)(struct dma_channel *channel, void* args);
 
 struct codec_desc {
 	/* master clock supply pin */
@@ -92,13 +90,11 @@ struct _audio_desc {
 		} pdmic;
 #endif
 	} device;
-#ifdef CONFIG_HAVE_XDMAC
 	struct {
-		struct _xdmad_channel *channel;
-		struct _xdmad_cfg cfg;
+		struct dma_channel *channel;
+		struct dma_xfer_cfg cfg;
 		bool configured;
 	} dma;
-#endif
 
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
@@ -112,12 +108,46 @@ struct _audio_desc {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+/**
+ * \brief Configure audio descriptor
+ * \param desc     Audio descriptor
+ */
 extern void audio_configure(struct _audio_desc *desc);
+
+/**
+ * \brief Enable/Disable the audio channel
+ * \param desc     Audio descriptor
+ * \param enable   Enable/Disable the channel
+ */
 extern void audio_enable(struct _audio_desc *desc, bool enable);
+
+/**
+ * \brief Un/Mute the channel configured in the audio descriptor
+ * \param desc     Audio descriptor
+ * \param mute     Un/mute the audio channel
+ */
 extern void audio_play_mute(struct _audio_desc *desc, bool mute);
+
+/**
+ * \brief Set volume for specific audio descriptor
+ * \param desc     Audio descriptor
+ * \param vol      Volume level
+ */
 extern void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol);
+
+/**
+ * \brief Audio stop DMA trasnfer
+ * \param desc     Audio descriptor
+ */
 extern void audio_dma_stop(struct _audio_desc *desc);
-extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer,
-									uint32_t size, audio_callback_t cb);
+
+/**
+ * \brief Start the DMA trasnfer and 
+ * \param desc     Audio descriptor
+ * \param buffer   Data buffer (input/output according to configuration in descriptor)
+ * \param size     Data buffer size
+ * \param cb       Callback at end of DMA transfer
+ */
+extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, audio_callback_t cb);
 
 #endif /* AUDIO_DEVICE_API_H */

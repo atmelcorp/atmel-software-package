@@ -38,7 +38,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pdmic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,7 +47,7 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _xdmad_channel *pdmic_dma_channel;
+static struct dma_channel *pdmic_dma_channel;
 
 static uint8_t pdmic_dsp_size = PDMIC_DSPR0_SIZE_16;
 
@@ -221,11 +221,8 @@ void pdmic_stream_convert(bool flag)
  */
 static void pdmic_dma_init(void)
 {
-	/* Driver initialize */
-	xdmad_initialize(false);
-
 	/* Allocate DMA TX channels for pdmic */
-	pdmic_dma_channel = xdmad_allocate_channel(ID_PDMIC, XDMAD_PERIPH_MEMORY);
+	pdmic_dma_channel = dma_allocate_channel(ID_PDMIC, DMA_PERIPH_MEMORY);
 
 	if (!pdmic_dma_channel) {
 		trace_info("PDMIC DMA channel allocation error\n\r");
@@ -263,43 +260,27 @@ bool pdmic_data_ready(void)
 }
 
 void pdmic_dma_transfer(void *buffer, uint32_t size,
-		xdmad_callback_t callback, void *user_arg)
+		dma_callback_t callback, void *user_arg)
 {
-	struct _xdmad_cfg cfg;
-
+	struct dma_xfer_cfg cfg;
 	/* Configure PDMIC DMA transfer */
-	cfg.bc = 0;
-	cfg.ds = 0;
-	cfg.sus = 0;
-	cfg.dus = 0;
+	
 	cfg.sa = (void *)&PDMIC->PDMIC_CDR;
 	cfg.da = buffer;
+	cfg.upd_sa_per_data = 0;
+	cfg.upd_da_per_data = 1;
+	cfg.blk_size = 0;
+	cfg.chunk_size = DMA_CHUNK_SIZE_1;
 
 	if (pdmic_dsp_size == PDMIC_DSPR0_SIZE_32) {
-		cfg.ubc = size / 4;
-		cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
-		          XDMAC_CC_MBSIZE_SINGLE |
-		          XDMAC_CC_DSYNC_PER2MEM |
-		          XDMAC_CC_CSIZE_CHK_1 |
-		          XDMAC_CC_DWIDTH_WORD |
-		          XDMAC_CC_SIF_AHB_IF1 |
-		          XDMAC_CC_DIF_AHB_IF0 |
-		          XDMAC_CC_SAM_INCREMENTED_AM |
-		          XDMAC_CC_DAM_FIXED_AM;
+		cfg.len = size / 4;
+		cfg.data_width = DMA_DATA_WIDTH_WORD;
 	} else {
-		cfg.ubc = size / 2;
-		cfg.cfg = XDMAC_CC_TYPE_PER_TRAN |
-		          XDMAC_CC_MBSIZE_SINGLE |
-		          XDMAC_CC_DSYNC_PER2MEM |
-		          XDMAC_CC_CSIZE_CHK_1 |
-		          XDMAC_CC_DWIDTH_HALFWORD |
-		          XDMAC_CC_SIF_AHB_IF1 |
-		          XDMAC_CC_DIF_AHB_IF0 |
-		          XDMAC_CC_SAM_FIXED_AM |
-		          XDMAC_CC_DAM_INCREMENTED_AM;
+		cfg.len = size / 2;
+		cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	}
 
-	xdmad_configure_transfer(pdmic_dma_channel, &cfg, 0, NULL);
-	xdmad_set_callback(pdmic_dma_channel, callback, user_arg);
-	xdmad_start_transfer(pdmic_dma_channel);
+	dma_configure_transfer(pdmic_dma_channel, &cfg);
+	dma_set_callback(pdmic_dma_channel, callback, user_arg);
+	dma_start_transfer(pdmic_dma_channel);
 }
