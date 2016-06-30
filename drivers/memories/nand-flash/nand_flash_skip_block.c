@@ -40,8 +40,16 @@
 #include "nand_flash_spare_scheme.h"
 #include "nand_flash_raw.h"
 #include "nand_flash_ecc.h"
+#include "misc/cache.h"
 
 #include <string.h>
+
+
+/*---------------------------------------------------------------------- */
+/*         Local variables                                               */
+/*---------------------------------------------------------------------- */
+
+CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -58,7 +66,6 @@
 uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block)
 {
-	uint8_t spare[NAND_MAX_PAGE_SPARE_SIZE];
 	uint8_t error;
 	uint8_t marker;
 	const struct _nand_spare_scheme *scheme;
@@ -67,24 +74,24 @@ uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 	scheme = nand_model_get_scheme(&nand->model);
 
 	/* Read spare area of first page of block */
-	error = nand_raw_read_page(nand, block, 0, NULL, spare);
+	error = nand_raw_read_page(nand, block, 0, NULL, spare_buf);
 	if (error) {
 		trace_error("nand_skipblock_check_block: "
 				"Cannot read page #0 of block #%d\r\n", block);
 		return error;
 	}
-	nand_spare_scheme_read_bad_block_marker(scheme, spare, &marker);
+	nand_spare_scheme_read_bad_block_marker(scheme, spare_buf, &marker);
 	if (marker != 0xff)
 		return BADBLOCK;
 
 	/* Read spare area of second page of block */
-	error = nand_raw_read_page(nand, block, 1, NULL, spare);
+	error = nand_raw_read_page(nand, block, 1, NULL, spare_buf);
 	if (error) {
 		trace_error("nand_skipblock_check_block: "
 				"Cannot read page #1 of block #%d\r\n", block);
 		return error;
 	}
-	nand_spare_scheme_read_bad_block_marker(scheme, spare, &marker);
+	nand_spare_scheme_read_bad_block_marker(scheme, spare_buf, &marker);
 	if (marker != 0xff)
 		return BADBLOCK;
 
@@ -141,7 +148,6 @@ uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
 {
 	uint8_t error;
 	const struct _nand_spare_scheme *scheme;
-	uint8_t spare[NAND_MAX_PAGE_SPARE_SIZE];
 
 	if (erase_type != SCRUB_ERASE) {
 		/* Check block status */
@@ -160,9 +166,9 @@ uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
 		/* Retrieve model scheme */
 		scheme = nand_model_get_scheme(&nand->model);
 
-		memset(spare, 0xff, sizeof(spare));
-		nand_spare_scheme_write_bad_block_marker(scheme, spare, NANDBLOCK_STATUS_BAD);
-		return nand_raw_write_page(nand, block, 0, 0, spare);
+		memset(spare_buf, 0xff, sizeof(spare_buf));
+		nand_spare_scheme_write_bad_block_marker(scheme, spare_buf, NANDBLOCK_STATUS_BAD);
+		return nand_raw_write_page(nand, block, 0, 0, spare_buf);
 	}
 
 	return 0;

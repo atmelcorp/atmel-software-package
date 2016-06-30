@@ -37,6 +37,8 @@
 #include "peripherals/hsmc.h"
 #include "peripherals/pmecc.h"
 
+#include "misc/cache.h"
+
 #include "nand_flash.h"
 #include "nand_flash_common.h"
 #include "nand_flash_spare_scheme.h"
@@ -47,6 +49,13 @@
 
 #include <assert.h>
 #include <string.h>
+
+
+/*---------------------------------------------------------------------- */
+/*         Local variables                                               */
+/*---------------------------------------------------------------------- */
+
+CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
 
 /*---------------------------------------------------------------------- */
 /*         Local functions                                               */
@@ -67,14 +76,13 @@
 static uint8_t ecc_read_page_with_swecc(const struct _nand_flash *nand,
 		uint16_t block, uint16_t page, void *data, void *spare)
 {
-	uint8_t tmp_spare[NAND_MAX_PAGE_SPARE_SIZE];
 	uint8_t error;
 	uint8_t hamming[NAND_MAX_SPARE_ECC_BYTES];
 	uint16_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint8_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 
 	/* Start by reading the spare data */
-	error = nand_raw_read_page(nand, block, page, NULL, tmp_spare);
+	error = nand_raw_read_page(nand, block, page, NULL, spare_buf);
 	if (error) {
 		trace_error("nand_ecc_read_page: Failed to read page\r\n");
 		return error;
@@ -89,7 +97,7 @@ static uint8_t ecc_read_page_with_swecc(const struct _nand_flash *nand,
 
 	/* Retrieve ECC information from page and verify the data */
 	nand_spare_scheme_read_ecc(nand_model_get_scheme(&nand->model),
-					tmp_spare, hamming);
+					spare_buf, hamming);
 	error = hamming_verify_256x(data, page_data_size, hamming);
 	if (error && (error != HAMMING_ERROR_SINGLEBIT)) {
 		trace_error("nand_ecc_read_page: at B%d.P%d Unrecoverable data\r\n",
@@ -97,7 +105,7 @@ static uint8_t ecc_read_page_with_swecc(const struct _nand_flash *nand,
 		return NAND_ERROR_CORRUPTEDDATA;
 	}
 	if (spare) {
-		memcpy(spare, tmp_spare, page_spare_size);
+		memcpy(spare, spare_buf, page_spare_size);
 	}
 	return 0;
 }
@@ -118,7 +126,6 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	volatile uint32_t pmecc_status;
 	uint8_t error;
 	uint16_t i;
-	uint8_t tmp_spare[NAND_MAX_PAGE_SPARE_SIZE];
 	uint16_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 
 	if (!data)
@@ -133,9 +140,9 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	pmecc_status = hsmc_pmecc_error_status();
 	if (pmecc_status) {
 		/* Check if the spare area was erased */
-		nand_raw_read_page(nand, block, page, NULL, tmp_spare);
+		nand_raw_read_page(nand, block, page, NULL, spare_buf);
 		for (i = 0 ; i < page_spare_size; i++) {
-			if (tmp_spare[i] != 0xff)
+			if (spare_buf[i] != 0xff)
 				break;
 		}
 		if (i == page_spare_size)
@@ -173,7 +180,6 @@ static uint8_t ecc_write_page_with_swecc(const struct _nand_flash *nand,
 		uint16_t block, uint16_t page, void *data, void *spare)
 {
 	uint8_t error;
-	uint8_t tmp_spare[NAND_MAX_PAGE_SPARE_SIZE];
 	uint8_t hamming[NAND_MAX_SPARE_ECC_BYTES];
 	uint16_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint16_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
@@ -188,7 +194,7 @@ static uint8_t ecc_write_page_with_swecc(const struct _nand_flash *nand,
 
 	/* Store code in spare buffer (if no buffer provided, use a temp. one) */
 	if (!spare) {
-		spare = tmp_spare;
+		spare = spare_buf;
 		memset(spare, 0xFF, page_spare_size);
 	}
 	nand_spare_scheme_write_ecc(nand_model_get_scheme(&nand->model),

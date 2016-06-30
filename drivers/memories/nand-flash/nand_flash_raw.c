@@ -32,12 +32,14 @@
 /*-----------------------------------------------------------------------*/
 /*            Headers                                                    */
 /*-----------------------------------------------------------------------*/
+
 #include "chip.h"
 #include "trace.h"
 
 #include "peripherals/hsmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmecc.h"
+#include "misc/cache.h"
 
 #include "nand_flash.h"
 #include "nand_flash_raw.h"
@@ -46,6 +48,12 @@
 
 #include <assert.h>
 #include <string.h>
+
+/*---------------------------------------------------------------------- */
+/*         Local variables                                               */
+/*---------------------------------------------------------------------- */
+
+CACHE_ALIGNED static uint8_t ecc_table[NAND_MAX_PMECC_BYTE_SIZE];
 
 /*------------------------------------------------------------------------*/
 /*        Local Functions                                                 */
@@ -673,7 +681,6 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	uint16_t block, uint16_t page, void *data, void *spare)
 {
-	uint8_t ecc_table[NAND_MAX_PMECC_BYTE_SIZE];
 	uint8_t error = 0;
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
@@ -760,7 +767,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 			ecc_table[pmecc_sector_index * bytes_per_sector + byte_index] =
 				pmecc[pmecc_sector_index][byte_index];
 	}
-	_data_array_out(nand, bus_width, false, (uint8_t*)ecc_table,
+	_data_array_out(nand, bus_width, false, ecc_table,
 			pmecc_sector_number * bytes_per_sector, 0);
 	_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
 
