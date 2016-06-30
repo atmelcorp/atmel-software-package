@@ -172,31 +172,14 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 	    | SDMMC_ACR_BMAX_INCR16;
 }
 
-static void sdmmc_power_device(struct sdmmc_set *set, bool on)
+static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 {
 	assert(set);
 
 	Sdmmc *regs = set->regs;
-	uint32_t caps, timer_res_prv, usec = 0;
-	uint8_t mc1r, pcr;
+	uint32_t timer_res_prv, usec = 0;
+	uint8_t mc1r;
 
-	if ((on && set->state != MCID_OFF) || (!on && set->state == MCID_OFF))
-		return;
-	if (on) {
-		trace_debug("Power the device on\n\r");
-		/* Power the signals to/from the device */
-		pcr = regs->SDMMC_PCR & ~SDMMC_PCR_SDBVSEL_Msk;
-		caps = regs->SDMMC_CA0R;
-		if (caps & SDMMC_CA0R_V33VSUP)
-			pcr |= SDMMC_PCR_SDBVSEL_33V;
-		else if (caps & SDMMC_CA0R_V30VSUP)
-			pcr |= SDMMC_PCR_SDBVSEL_30V;
-		else if (caps & SDMMC_CA0R_V18VSUP)
-			pcr |= SDMMC_PCR_SDBVSEL_18V;
-		regs->SDMMC_PCR = pcr | SDMMC_PCR_SDBPWR;
-		set->state = MCID_IDLE;
-		return;
-	}
 	trace_debug("Release and power the device off\n\r");
 	if (set->state == MCID_CMD)
 		sdmmc_cancel_command(set);
@@ -232,6 +215,7 @@ static void sdmmc_power_device(struct sdmmc_set *set, bool on)
 	sdmmc_reset_peripheral(set);
 
 	set->state = MCID_OFF;
+	return SDMMC_SUCCESS;
 }
 
 static void sdmmc_calibrate_zout(struct sdmmc_set *set)
@@ -239,6 +223,9 @@ static void sdmmc_calibrate_zout(struct sdmmc_set *set)
 	assert(set);
 
 	uint32_t calcr;
+
+	/* FIXME find out if this operation should be carried with PCR:SDBPWR
+	 * set and/or the device clock started. */
 
 	/* CALCR:CNTVAL has been configured by sdmmc_initialize() */
 	set->regs->SDMMC_CALCR |= SDMMC_CALCR_EN;
@@ -277,6 +264,9 @@ static uint8_t sdmmc_set_bus_width(struct sdmmc_set *set, uint8_t bits)
 		trace_error("This slot doesn't support an 8-bit data bus\n\r");
 		return SDMMC_PARAM;
 	}
+	/* TODO in case of SD slots, rely on platform code to get the width of
+	 * the data bus actually implemented on the board. In the meantime we
+	 * assume DAT[3:0] are all effectively connected to the device. */
 
 	hc1r = hc1r_prv = regs->SDMMC_HC1R;
 	if (bits == 8 && hc1r & SDMMC_HC1R_EXTDW)
@@ -296,17 +286,41 @@ static uint8_t sdmmc_set_bus_width(struct sdmmc_set *set, uint8_t bits)
 	return SDMMC_OK;
 }
 
-static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
+/**
+ * \brief Switch to the specified timing mode
+ * \note Since HC2R:VS18EN and HC2R:UHSMS fields depend on each other, this
+ * function simultaneously updates the timing mode and the electrical state of
+ * host I/Os.
+ * \param set  Pointer to the driver instance data
+ * \param mode  The new timing mode
+ * \param verify  When switching from high to low signaling level, expect
+ * the host input levels driven by the device to conform to the VOLTAGE_SWITCH
+ * standard sequence.
+ * \return A \ref sdmmc_rc result code
+ */
+static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
+    bool verify)
 {
 	assert(set);
 
 	Sdmmc *regs = set->regs;
+	const uint32_t caps = regs->SDMMC_CA0R;
+	/* Deviation from the SD Host Controller Specification: we use the
+	 * Voltage Support capabilities to indicate the supported signaling
+	 * levels (VCCQ), rather than the power supply voltage (VCC). */
+	const bool perm_low_sig = (caps & (SDMMC_CA0R_V18VSUP
+	    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP)) == SDMMC_CA0R_V18VSUP;
+	uint32_t timer_res_prv, usec = 0;
 	uint16_t hc2r_prv, hc2r;
-	uint8_t hc1r_prv, hc1r, mc1r_prv, mc1r, rc = SDMMC_OK;
-	bool enable_dev_clock;
+	uint8_t rc = SDMMC_OK, hc1r_prv, hc1r, mc1r_prv, mc1r, pcr_prv, pcr;
+	bool toggle_sig_lvl, low_sig, dev_clk_on;
 
 	if ((mode > SDMMC_TIM_MMC_HS200 && mode < SDMMC_TIM_SD_DS)
 	    || mode > SDMMC_TIM_SD_SDR104)
+		return SDMMC_ERROR_PARAM;
+	if ((mode == SDMMC_TIM_MMC_HS200
+	    || (mode >= SDMMC_TIM_SD_SDR12 && mode <= SDMMC_TIM_SD_SDR104))
+	    && !(caps & SDMMC_CA0R_V18VSUP))
 		return SDMMC_ERROR_PARAM;
 
 #ifndef NDEBUG
@@ -319,14 +333,18 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 		return SDMMC_ERROR_STATE;
 	}
 #endif
+
+	set->state = set->state == MCID_OFF ? MCID_IDLE : set->state;
 	mc1r = mc1r_prv = regs->SDMMC_MC1R;
 	hc1r = hc1r_prv = regs->SDMMC_HC1R;
 	hc2r = hc2r_prv = regs->SDMMC_HC2R;
+	pcr = pcr_prv = regs->SDMMC_PCR;
 	mc1r = (mc1r & ~SDMMC_MC1R_DDR)
 	    | (mode == SDMMC_TIM_MMC_HS_DDR ? SDMMC_MC1R_DDR : 0);
 	hc1r = (hc1r & ~SDMMC_HC1R_HSEN) | (mode == SDMMC_TIM_MMC_HS_SDR
 	    || mode == SDMMC_TIM_SD_HS ? SDMMC_HC1R_HSEN : 0);
-	hc2r = hc2r & ~SDMMC_HC2R_VS18EN & ~SDMMC_HC2R_UHSMS_Msk;
+	hc2r = hc2r & ~SDMMC_HC2R_DRVSEL_Msk & ~SDMMC_HC2R_VS18EN
+	    & ~SDMMC_HC2R_UHSMS_Msk;
 	if (mode == SDMMC_TIM_MMC_HS200
 	    || (mode >= SDMMC_TIM_SD_SDR12 && mode <= SDMMC_TIM_SD_SDR104))
 		hc2r |= SDMMC_HC2R_VS18EN;
@@ -340,22 +358,63 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 		hc2r |= SDMMC_HC2R_UHSMS_SDR50;
 	else if (mode == SDMMC_TIM_SD_DDR50)
 		hc2r |= SDMMC_HC2R_UHSMS_DDR50;
-	/* The default value of HC2R:DRVSEL selects Driver Type B, i.e. 50 ohm
-	 * nominal output impedance.
-	 * TODO select the optimal host output Driver Type. That depends on
-	 * board design. Use an oscilloscope to observe signal integrity, and
-	 * among the driver types that meet rise and fall time requirements,
-	 * select the weakest. */
+	/* Use the fixed clock when sampling data. Except if we keep using
+	 * a 100+ MHz device clock. */
+	if (set->dev_freq <= 95000000ul || (mode != SDMMC_TIM_MMC_HS200
+	    && mode != SDMMC_TIM_SD_SDR104 && (mode != SDMMC_TIM_SD_SDR50
+	    || !(regs->SDMMC_CA1R & SDMMC_CA1R_TSDR50))))
+		hc2r &= ~SDMMC_HC2R_SCLKSEL;
+	/* On SAMA5D2-XULT when using 1.8V signaling, on host outputs choose
+	 * Driver Type C, i.e. 66 ohm nominal output impedance.
+	 * FIXME rely on platform code to retrieve the optimal host output
+	 * Driver Type. It depends on board design. An oscilloscope should be
+	 * set up to observe signal integrity, then among the driver types that
+	 * meet rise and fall time requirements, the weakest should be selected.
+	 */
+	if (hc2r & SDMMC_HC2R_VS18EN)
+		hc2r |= SDMMC_HC2R_DRVSEL_TYPEC;
+	pcr = (pcr & ~SDMMC_PCR_SDBVSEL_Msk) | SDMMC_PCR_SDBPWR;
+	low_sig = perm_low_sig || hc2r & SDMMC_HC2R_VS18EN;
+	if (low_sig)
+		pcr |= SDMMC_PCR_SDBVSEL_18V;
+	else
+		pcr |= caps & SDMMC_CA0R_V30VSUP ? SDMMC_PCR_SDBVSEL_30V
+		    : SDMMC_PCR_SDBVSEL_33V;
 
-	if (hc2r == hc2r_prv && hc1r == hc1r_prv && mc1r == mc1r_prv) {
-		set->tim_mode = mode;
-		return SDMMC_OK;
+	if (hc2r == hc2r_prv && hc1r == hc1r_prv && mc1r == mc1r_prv
+	    && pcr == pcr_prv)
+		goto End;
+	toggle_sig_lvl = pcr_prv & SDMMC_PCR_SDBPWR
+	    && (pcr ^ pcr_prv) & SDMMC_PCR_SDBVSEL_Msk;
+	if (!(pcr_prv & SDMMC_PCR_SDBPWR))
+		trace_debug("Power the device on\n\r");
+	else if (toggle_sig_lvl)
+		trace_debug("Signaling level going %s\n\r",
+		    hc2r & SDMMC_HC2R_VS18EN ? "low" : "high");
+	if (verify && toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
+		/* Expect this call to follow the VOLTAGE_SWITCH command;
+		 * allow 2 device clock periods before the device pulls the CMD
+		 * and DAT[3:0] lines down */
+		timer_res_prv = timer_get_resolution();
+		timer_configure(10);
+		if (set->dev_freq != 0)
+			usec = ROUND_INT_DIV(2 * 1000000UL / 10UL, set->dev_freq);
+		usec = max_u32(usec, 1);
+		timer_sleep(usec);
+		timer_configure(timer_res_prv);
+		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
+			rc = SDMMC_ERROR_STATE;
 	}
 	/* Avoid generating glitches on the device clock */
-	enable_dev_clock = (hc2r_prv & SDMMC_HC2R_PVALEN || hc2r != hc2r_prv)
-	    && regs->SDMMC_CCR & SDMMC_CCR_SDCLKEN;
-	if (enable_dev_clock)
+	dev_clk_on = regs->SDMMC_CCR & SDMMC_CCR_SDCLKEN
+	    && (toggle_sig_lvl || hc2r_prv & SDMMC_HC2R_PVALEN
+	    || hc2r != hc2r_prv);
+	if (dev_clk_on)
 		regs->SDMMC_CCR &= ~SDMMC_CCR_SDCLKEN;
+	if (toggle_sig_lvl)
+		/* Drive the device clock low, turn CMD and DATx high-Z */
+		regs->SDMMC_PCR = pcr & ~SDMMC_PCR_SDBPWR;
+
 	/* Now change the timing mode */
 	if (mc1r != mc1r_prv)
 		regs->SDMMC_MC1R = mc1r;
@@ -363,27 +422,46 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode)
 		regs->SDMMC_HC1R = hc1r;
 	if (hc2r != hc2r_prv)
 		regs->SDMMC_HC2R = hc2r;
-	if ((hc2r ^ hc2r_prv) & SDMMC_HC2R_VS18EN) {
-		/* Changing the signaling level. Allow 5 ms - which equals
-		 * 5 system ticks - for the lines to stabilize.
+	if (toggle_sig_lvl) {
+		/* Changing the signaling level. The SD Host Controller
+		 * Specification requires the HW to stabilize the electrical
+		 * levels within 5 ms, which equals 5 system ticks.
 		 * Alternative: wait for tPRUL = 25 ms */
 		timer_sleep(5);
 		if (hc2r & SDMMC_HC2R_VS18EN
 		    && !(regs->SDMMC_HC2R & SDMMC_HC2R_VS18EN))
 			rc = SDMMC_ERROR;
 	}
-	if (enable_dev_clock)
-		regs->SDMMC_CCR |= SDMMC_CCR_SDCLKEN;
-
-	/* Perform the output calibration sequence, if required */
-	if (hc2r & SDMMC_HC2R_VS18EN) {
-		regs->SDMMC_CALCR |= SDMMC_CALCR_ALWYSON;
-		sdmmc_calibrate_zout(set);
-		/* TODO in SDR12-50/DDR50 mode, setup periodic re-calibration */
+	if (pcr != pcr_prv)
+		regs->SDMMC_PCR = pcr;
+	if (verify && toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
+		timer_sleep(1);
+		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
+			rc = SDMMC_ERROR_STATE;
 	}
-	else
-		regs->SDMMC_CALCR &= ~SDMMC_CALCR_ALWYSON;
+	if (dev_clk_on || (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN))
+		/* FIXME verify that current dev clock freq is 400 kHz */
+		regs->SDMMC_CCR |= SDMMC_CCR_SDCLKEN;
+	if (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
+		/* Expect the device to release the CMD and DAT[3:0] lines
+		 * within 1 ms */
+		timer_sleep(1);
+		if ((regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
+		    != (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk) && verify)
+			rc = SDMMC_ERROR_STATE;
+		if (!dev_clk_on)
+			regs->SDMMC_CCR &= ~SDMMC_CCR_SDCLKEN;
+	}
+	trace_debug("Using timing mode 0x%02x\n\r", mode);
 
+	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_ALWYSON)
+	    | (low_sig ? SDMMC_CALCR_ALWYSON : 0);
+	if (low_sig || pcr != pcr_prv)
+		/* Perform the output calibration sequence */
+		sdmmc_calibrate_zout(set);
+		/* TODO in SDR12-50/DDR50 mode, schedule periodic re-calibration */
+
+End:
 	if (rc == SDMMC_OK)
 		set->tim_mode = mode;
 	return rc;
@@ -940,6 +1018,12 @@ End:
 		regs->SDMMC_SRR |= SDMMC_SRR_SWRSTDAT | SDMMC_SRR_SWRSTCMD;
 		while (regs->SDMMC_SRR & (SDMMC_SRR_SWRSTDAT
 		    | SDMMC_SRR_SWRSTCMD)) ;
+	} else if (cmd->bCmd == 0 || (cmd->bCmd == 6
+	    && cmd->dwArg & 1ul << 31 && !cmd->cmdOp.bmBits.checkBsy)) {
+		/* Currently in the function switching period, wait for the
+		 * delay preconfigured in sdmmc_send_command(). */
+		set->timer->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
+		while (set->timer->TC_SR & TC_SR_CLKSTA) ;
 	}
 	/* Release this command */
 	set->cmd = NULL;
@@ -1048,6 +1132,7 @@ static uint8_t sdmmc_tune_sampling(struct sdmmc_set *set)
 		.wBlockSize = 128,
 		.wNbBlocks = 1,
 		.pResp = &response,
+		.dwArg = 0,
 		.cmdOp.wVal = SDMMC_CMD_CDATARX(1),
 		.bCmd = 21,
 	};
@@ -1175,12 +1260,42 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 	case SDMMC_IOCTL_POWER:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		sdmmc_power_device(set, *param_u32 ? true : false);
+		if (*param_u32 > SDMMC_PWR_STD_VDD_LOW_IO)
+			return SDMMC_ERROR_PARAM;
+		if (*param_u32 == SDMMC_PWR_OFF)
+			rc = sdmmc_unplug_device(set);
+		else if (*param_u32 == SDMMC_PWR_STD_VDD_LOW_IO
+		    && !(set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP))
+			return SDMMC_ERROR_PARAM;
+		else {
+			/* Power the device on, or change signaling level.
+			 * This can't be done without configuring the timing
+			 * mode at the same time. */
+			byte = set->tim_mode;
+			if ((set->regs->SDMMC_CA0R & (SDMMC_CA0R_V18VSUP
+			    | SDMMC_CA0R_V30VSUP
+			    | SDMMC_CA0R_V33VSUP)) != SDMMC_CA0R_V18VSUP) {
+				if (*param_u32 == SDMMC_PWR_STD_VDD_LOW_IO) {
+					if (byte < SDMMC_TIM_SD_DS)
+						byte = SDMMC_TIM_MMC_HS200;
+					else if (byte < SDMMC_TIM_SD_SDR12)
+						byte = SDMMC_TIM_SD_SDR12;
+				}
+				else {
+					if (byte > SDMMC_TIM_SD_HS)
+						byte = SDMMC_TIM_SD_DS;
+					else if (byte > SDMMC_TIM_MMC_HS_DDR
+					    && byte < SDMMC_TIM_SD_DS)
+						byte = SDMMC_TIM_MMC_BC;
+				}
+			}
+			rc = sdmmc_set_speed_mode(set, byte, true);
+		}
 		break;
 
 	case SDMMC_IOCTL_RESET:
 		/* Release the device. The device may have been removed. */
-		sdmmc_power_device(set, false);
+		rc = sdmmc_unplug_device(set);
 		break;
 
 	case SDMMC_IOCTL_GET_BUSMODE:
@@ -1220,6 +1335,9 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    && set->regs->SDMMC_CA1R & (SDMMC_CA1R_SDR50SUP
 		    | SDMMC_CA1R_DDR50SUP | SDMMC_CA1R_SDR104SUP))
 			*param_u32 = 1;
+		/* TODO rely on platform code to get the data bus width to the
+		 * SD slot, and deny UHS-I timing modes if the DAT[3:0] signals
+		 * are not all routed. */
 		else if ((byte == SDMMC_TIM_SD_SDR12
 		    || byte == SDMMC_TIM_SD_SDR25)
 		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
@@ -1247,9 +1365,8 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		if (*param_u32 > 0xff)
 			return SDMMC_ERROR_PARAM;
-		rc = sdmmc_set_speed_mode(set, (uint8_t)*param_u32);
+		rc = sdmmc_set_speed_mode(set, (uint8_t)*param_u32, false);
 		*param_u32 = set->tim_mode;
-		trace_debug("Using timing mode 0x%02x\n\r", set->tim_mode);
 		break;
 
 	case SDMMC_IOCTL_SET_CLOCK:
@@ -1259,10 +1376,11 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		sdmmc_set_device_clock(set, *param_u32);
 		trace_debug("Clocking the device at %lu Hz\n\r", set->dev_freq);
-		if (set->tim_mode == SDMMC_TIM_MMC_HS200
+		if (set->dev_freq > 95000000ul
+		    && (set->tim_mode == SDMMC_TIM_MMC_HS200
 		    || set->tim_mode == SDMMC_TIM_SD_SDR104
 		    || (set->tim_mode == SDMMC_TIM_SD_SDR50
-		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_TSDR50))
+		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_TSDR50)))
 			rc = sdmmc_tune_sampling(set);
 			/* TODO setup periodic re-tuning */
 		if (set->dev_freq != *param_u32) {
@@ -1345,6 +1463,8 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	const bool use_dma = set->table != NULL
 	    && (cmd->bCmd != 21 || set->tim_mode >= SDMMC_TIM_SD_DS)
 	    && (cmd->bCmd != 19 || set->tim_mode < SDMMC_TIM_SD_DS);
+	const bool wait_switch = cmd->bCmd == 0 || (cmd->bCmd == 6
+	    && cmd->dwArg & 1ul << 31 && !cmd->cmdOp.bmBits.checkBsy);
 	const bool multiple_xfer = cmd->bCmd == 18 || cmd->bCmd == 25;
 	const bool blk_count_prefix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && set->use_set_blk_cnt;
@@ -1555,6 +1675,15 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		cycles = pmc_get_peripheral_clock(set->tc_id)
 		    / (set->dev_freq / (2ul + 64ul + 48ul));
 		/* The Timer operates with RC >= 1 */
+		set->timer->TC_RC = max_u32(cycles, 1);
+	}
+	/* With SD devices, the 8-cycle function switching period will apply,
+	 * further to both SWITCH_FUNC and GO_IDLE_STATE commands.
+	 * Note that MMC devices don't require this fixed delay, but regarding
+	 * GO_IDLE_STATE we have no mean to filter the MMC requests out. */
+	else if (wait_switch) {
+		cycles = pmc_get_peripheral_clock(set->tc_id)
+		    / (set->dev_freq / 8ul);
 		set->timer->TC_RC = max_u32(cycles, 1);
 	}
 
