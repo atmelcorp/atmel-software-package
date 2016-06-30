@@ -35,10 +35,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
 #include "peripherals/spi.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmac.h"
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -51,31 +48,28 @@
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR | SPI_MR_WDRBT)
 #define SPID_DMA_THRESHOLD      16
 
-#ifdef CONFIG_HAVE_XDMAC
 static uint32_t _garbage = 0;
 
-static void _spid_xdmad_callback_wrapper(struct _xdmad_channel *channel,
+static void _spid_dma_callback_wrapper(struct dma_channel *channel,
 					 void *arg)
 {
 	trace_debug("SPID DMA Transfert Finished\r\n");
 	struct _spi_desc* spid = (struct _spi_desc*) arg;
 
-	xdmad_free_channel(channel);
+	dma_free_channel(channel);
 
-	if (spid->region_start && spid->region_length) {
+	if (spid->region_start && spid->region_length)
 		cache_invalidate_region(spid->region_start, spid->region_length);
-	}
 
 	if (spid && spid->callback)
 		spid->callback(spid, spid->cb_args);
 }
 
-static void _spid_xdmad_cleanup_callback(struct _xdmad_channel *channel,
+static void _spid_dma_cleanup_callback(struct dma_channel *channel,
 					 void *arg)
 {
-	xdmad_free_channel(channel);
+	dma_free_channel(channel);
 }
-#endif /* CONFIG_HAVE_XDMAC */
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void spid_fifo_error(void)
@@ -123,118 +117,96 @@ void spid_begin_transfert(struct _spi_desc* desc)
 	spi_configure_cs_mode(desc->addr, desc->chip_select, SPI_KEEP_CS_OW);
 }
 
-#ifdef CONFIG_HAVE_XDMAC
-static void _spid_init_dma_write_channel(const struct _spi_desc* desc,
-					 struct _xdmad_channel** channel,
-					 struct _xdmad_cfg* cfg)
+static void _spid_dma_write(const struct _spi_desc* desc, const struct _buffer* buffer)
 {
-	assert(cfg);
-	assert(channel);
-
+	struct dma_channel* w_channel = NULL;
+	struct dma_channel* r_channel = NULL;
+	struct dma_xfer_cfg w_cfg;
+	struct dma_xfer_cfg r_cfg;
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 
-	memset(cfg, 0x0, sizeof(*cfg));
+	memset(&w_cfg, 0x0, sizeof(w_cfg));
 
-	*channel =
-		xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
-	assert(*channel);
+	w_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(w_channel);
 
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_FIXED_AM;
-
-	cfg->da = (void*)&desc->addr->SPI_TDR;
-}
-
-static void _spid_init_dma_read_channel(const struct _spi_desc* desc,
-					 struct _xdmad_channel** channel,
-					 struct _xdmad_cfg* cfg)
-{
-	assert(cfg);
-	assert(channel);
-
-	uint32_t id = get_spi_id_from_addr(desc->addr);
-
-	memset(cfg, 0x0, sizeof(*cfg));
-
-	*channel =
-		xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
-	assert(*channel);
-
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
-
-	cfg->sa = (void*)&desc->addr->SPI_RDR;
-}
-
-static void _spid_dma_write(const struct _spi_desc* desc,
-			   const struct _buffer* buffer)
-{
-	struct _xdmad_channel* w_channel = NULL;
-	struct _xdmad_channel* r_channel = NULL;
-	struct _xdmad_cfg w_cfg;
-	struct _xdmad_cfg r_cfg;
-
-	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
+	w_cfg.da = (void*)&desc->addr->SPI_TDR;
 	w_cfg.sa = buffer->data;
-	w_cfg.ubc = buffer->size;
-	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
-	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback,
-			   NULL);
+	w_cfg.upd_sa_per_data = 1;
+	w_cfg.upd_da_per_data = 0;
+	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	w_cfg.blk_size = 0;
+	w_cfg.len = buffer->size;
+	dma_configure_transfer(w_channel, &w_cfg);
+	dma_set_callback(w_channel, _spid_dma_cleanup_callback, NULL);
 
-	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
+	memset(&r_cfg, 0x0, sizeof(r_cfg));
+
+	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(r_channel);
+	
+	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
 	r_cfg.da = &_garbage;
-	r_cfg.ubc = buffer->size;
-	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
-	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
-			   (void*)desc);
+	r_cfg.upd_sa_per_data = 0;
+	r_cfg.upd_da_per_data = 1;
+	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	r_cfg.blk_size = 0;
+	r_cfg.len = buffer->size;
+	dma_configure_transfer(r_channel, &r_cfg);
+	dma_set_callback(r_channel, _spid_dma_callback_wrapper, (void*)desc);
 
 	cache_clean_region(desc->region_start, desc->region_length);
 
-	xdmad_start_transfer(w_channel);
-	xdmad_start_transfer(r_channel);
+	dma_start_transfer(w_channel);
+	dma_start_transfer(r_channel);
 }
 
-static void _spid_dma_read(const struct _spi_desc* desc,
-			   struct _buffer* buffer)
+static void _spid_dma_read(const struct _spi_desc* desc, struct _buffer* buffer)
 {
-	struct _xdmad_channel* w_channel = NULL;
-	struct _xdmad_channel* r_channel = NULL;
-	struct _xdmad_cfg w_cfg;
-	struct _xdmad_cfg r_cfg;
+	struct dma_channel* w_channel = NULL;
+	struct dma_channel* r_channel = NULL;
+	struct dma_xfer_cfg w_cfg;
+	struct dma_xfer_cfg r_cfg;
+	uint32_t id = get_spi_id_from_addr(desc->addr);
 
-	_spid_init_dma_write_channel(desc, &w_channel, &w_cfg);
+	memset(&w_cfg, 0x0, sizeof(w_cfg));
 
+	w_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(w_channel);
+
+	w_cfg.da = (void*)&desc->addr->SPI_TDR;
 	w_cfg.sa = buffer->data;
-	w_cfg.ubc = buffer->size;
-	w_cfg.bc = 0;
-	xdmad_configure_transfer(w_channel, &w_cfg, 0, 0);
-	xdmad_set_callback(w_channel, _spid_xdmad_cleanup_callback, NULL);
+	w_cfg.upd_sa_per_data = 1;
+	w_cfg.upd_da_per_data = 0;
+	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	w_cfg.blk_size = 0;
+	w_cfg.len = buffer->size;
+	dma_configure_transfer(w_channel, &w_cfg);
+	dma_set_callback(w_channel, _spid_dma_cleanup_callback, NULL);
 
-	_spid_init_dma_read_channel(desc, &r_channel, &r_cfg);
-	r_cfg.da = buffer->data;
-	r_cfg.ubc = buffer->size;
-	xdmad_configure_transfer(r_channel, &r_cfg, 0, 0);
-	xdmad_set_callback(r_channel, _spid_xdmad_callback_wrapper,
+	memset(&r_cfg, 0x0, sizeof(r_cfg));
+
+	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(r_channel);
+	
+	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
+	r_cfg.da = &_garbage;
+	r_cfg.upd_sa_per_data = 0;
+	r_cfg.upd_da_per_data = 1;
+	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	r_cfg.blk_size = 0;
+	r_cfg.len = buffer->size;
+	dma_configure_transfer(r_channel, &r_cfg);
+	dma_set_callback(r_channel, _spid_dma_callback_wrapper,
 			   (void*)desc);
 
-	xdmad_start_transfer(w_channel);
-	xdmad_start_transfer(r_channel);
+	dma_start_transfer(w_channel);
+	dma_start_transfer(r_channel);
 }
-#endif
 
 uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			struct _buffer* tx, spid_callback_t cb,
@@ -266,7 +238,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 		if (cb)
 			cb(desc, user_args);
 		break;
-#ifdef CONFIG_HAVE_XDMAC
+
 	case SPID_MODE_DMA:
 		if (tx) {
 			if (tx->size < SPID_DMA_THRESHOLD) {
@@ -303,7 +275,7 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 			}
 		}
 		break;
-#endif /* CONFIG_HAVE_XDMAC */
+
 #ifdef CONFIG_HAVE_SPI_FIFO
 	case SPID_MODE_FIFO:
 		if (tx) {
