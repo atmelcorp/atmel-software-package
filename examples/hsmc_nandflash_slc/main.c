@@ -123,6 +123,7 @@
 #include "memories/nand-flash/nand_flash_raw.h"
 
 #include "misc/console.h"
+#include "misc/cache.h"
 #include "misc/led.h"
 
 #include <stdbool.h>
@@ -175,10 +176,10 @@ static uint16_t page;
 static uint8_t pattern_buffer[NAND_MAX_PAGE_DATA_SIZE];
 
 /** page buffer */
-static uint8_t page_buffer[NAND_MAX_PAGE_DATA_SIZE + NAND_MAX_PAGE_SPARE_SIZE];
+CACHE_ALIGNED_DDR static uint8_t page_buffer[NAND_MAX_PAGE_DATA_SIZE + NAND_MAX_PAGE_SPARE_SIZE];
 
 /** spare buffer */
-static uint8_t spare_buffer[NAND_MAX_PAGE_SPARE_SIZE];
+CACHE_ALIGNED_DDR static uint8_t spare_buffer[NAND_MAX_PAGE_SPARE_SIZE];
 
 /** pattern buffer */
 const uint8_t pattern[PATTERN_SIZE] = {

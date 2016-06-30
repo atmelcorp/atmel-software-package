@@ -110,7 +110,7 @@
 #include "peripherals/pmecc.h"
 #include "peripherals/pmecc_gf_1024.h"
 #include "peripherals/pmecc_gf_512.h"
-#include "peripherals/xdmad.h"
+#include "misc/cache.h"
 
 #include "memories/nand-flash/nand_flash.h"
 #include "memories/nand-flash/nand_flash_skip_block.h"
@@ -175,7 +175,7 @@ static uint16_t page;
 static uint8_t pattern_buffer[NAND_MAX_PAGE_DATA_SIZE];
 
 /** page buffer */
-static uint8_t page_buffer[NAND_MAX_PAGE_DATA_SIZE + NAND_MAX_PAGE_SPARE_SIZE];
+CACHE_ALIGNED_DDR static uint8_t page_buffer[NAND_MAX_PAGE_DATA_SIZE + NAND_MAX_PAGE_SPARE_SIZE];
 
 /** pattern buffer */
 const uint8_t pattern[PATTERN_SIZE] = {
