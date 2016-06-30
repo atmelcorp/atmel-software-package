@@ -72,6 +72,8 @@
 #define CMD_FAST_READ_1_4_4  0xeb /* Fast Read (1-4-4) */
 #define CMD_ENTER_ADDR4_MODE 0xb7 /* Enter 4-byte address mode */
 
+#define CMD_QUAD_PAGE_PROGRAM 0x32
+
 /** QSPI Commands (Micron) */
 #define CMD_MICRON_READ_EVCR  0x65 /* Read Enhanced Volatile Configuration Register */
 #define CMD_MICRON_WRITE_EVCR 0x61 /* Write Enhanced Volatile Configuration Register */
@@ -80,6 +82,8 @@
 
 /* QSPI Commands (Macronix) */
 #define CMD_MACRONIX_READ_CONFIG 0x15 /* Read Configuration Register */
+#define CMD_QUAD_PAGE_PROGRAM_MX 0x38
+#define CMD_QUAD_PAGE_PROGRAM_MX_4B 0x3e
 
 /* QSPI Commands (Spansion) */
 #define CMD_SPANSION_QPP 0x32 /* Quad Page Programming */
@@ -98,6 +102,23 @@
 /* Micron Enhanced Volatile Configuration Register  */
 #define EVCR_DUAL_ENABLE (1 << 6)
 #define EVCR_QUAD_ENABLE (1 << 7)
+
+/*
+ * 4byte address commands:
+ * MUST be named as the associated 3byte address command with the _4B suffix.
+ */
+#define CMD_READ_4B                 0x13
+#define CMD_FAST_READ_4B            0x0c
+#define CMD_FAST_READ_1_1_2_4B      0x3c
+#define CMD_FAST_READ_1_1_4_4B      0x6c
+#define CMD_FAST_READ_1_2_2_4B      0xbc
+#define CMD_FAST_READ_1_4_4_4B      0xec
+
+#define CMD_PAGE_PROGRAM_4B         0x12
+#define CMD_QUAD_PAGE_PROGRAM_4B    0x34
+#define CMD_SECTOR_ERASE_4B         0x21
+#define CMD_BLOCK_ERASE_32K_4B      0x5c
+#define CMD_BLOCK_ERASE_4B          0xdc
 
 /*----------------------------------------------------------------------------
  *        Local Types
@@ -181,17 +202,60 @@ static bool _qspiflash_write_enable(const struct _qspiflash *flash)
 	return _qspiflash_write_reg(flash, CMD_WRITE_ENABLE, NULL, 0);
 }
 
-static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
-{
-	if (!_qspiflash_write_enable(flash))
-		return false;
+/*----------------------------------------------------------------------------
+ *        Local Functions (convert opcode to its 4-byte address version)
+ *----------------------------------------------------------------------------*/
 
-	if (_qspiflash_write_reg(flash, CMD_ENTER_ADDR4_MODE, NULL, 0)) {
-		flash->mode_addr4 = true;
-		return true;
+struct address_entry {
+	unsigned char	src_opcode;
+	unsigned char	dst_opcode;
+};
+
+static unsigned char qspi_flash_convert_opcode(unsigned char opcode,
+			const struct address_entry *entries,
+			int num_entries)
+{
+	int b, e;
+
+	b = 0;
+	e = num_entries - 1;
+	while (b <= e) {
+		int m = (b + e) >> 1;
+		const struct address_entry *entry = &entries[m];
+
+		if (opcode == entry->src_opcode)
+			return entry->dst_opcode;
+
+		if (opcode < entry->src_opcode)
+			e = m - 1;
+		else
+			b = m + 1;
 	}
 
-	return false;
+	/* No convertion found */
+	return opcode;
+}
+
+static unsigned char qspi_flash_3to4_opcode(unsigned char opcode)
+{
+	/* MUST be sorted by 3byte opcode */
+#define ENTRY_3TO4(_opcode) { _opcode, _opcode##_4B }
+	static const struct address_entry qspi_flash_3to4_table[] = {
+		ENTRY_3TO4(CMD_PAGE_PROGRAM),         /* 0x02 */
+		ENTRY_3TO4(CMD_READ),                 /* 0x03 */
+		ENTRY_3TO4(CMD_FAST_READ),            /* 0x0b */
+		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM),    /* 0x32 */
+		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM_MX), /* 0x38 */
+		ENTRY_3TO4(CMD_FAST_READ_1_1_2),      /* 0x3b */
+		ENTRY_3TO4(CMD_FAST_READ_1_1_4),      /* 0x6b */
+		ENTRY_3TO4(CMD_FAST_READ_1_2_2),      /* 0xbb */
+		ENTRY_3TO4(CMD_FAST_READ_1_4_4),      /* 0xeb */
+	};
+#undef ENTRY_3TO4
+
+	return qspi_flash_convert_opcode(opcode,
+					qspi_flash_3to4_table,
+					ARRAY_SIZE(qspi_flash_3to4_table));
 }
 
 /*----------------------------------------------------------------------------
@@ -669,12 +733,11 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 		}
 	}
 
-	/* Enter 4-byte addressig mode if size > 16MB */
+	/* Convert opcodes to their 4byte address version for >16MB memories */
 	if (flash->desc.size > 16 * 1024 * 1024) {
-		if (!_qspiflash_enter_addr4_mode(flash)) {
-			trace_warning("Could not switch QSPI memory to 4-byte address mode\r\n");
-			return false;
-		}
+		flash->mode_addr4 = true;
+		flash->opcode_read = qspi_flash_3to4_opcode(flash->opcode_read);
+		flash->opcode_page_program = qspi_flash_3to4_opcode(flash->opcode_page_program);
 	}
 
 	return true;
@@ -782,7 +845,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 	switch (length) {
 	case 256 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_256K) {
-			instr = CMD_BLOCK_ERASE;
+			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_4B : CMD_BLOCK_ERASE;
 		} else {
 			trace_error("qspiflash: 256K Erase not supported\r\n");
 			return false;
@@ -790,7 +853,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 64 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_64K) {
-			instr = CMD_BLOCK_ERASE;
+			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_4B : CMD_BLOCK_ERASE;
 		} else {
 			trace_error("qspiflash: 64K Erase not supported\r\n");
 			return false;
@@ -798,7 +861,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 32 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_32K) {
-			instr = CMD_BLOCK_ERASE_32K;
+			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_32K_4B : CMD_BLOCK_ERASE_32K;
 		} else {
 			trace_error("qspiflash: 32K Erase not supported\r\n");
 			return false;
@@ -806,7 +869,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 4 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_4K) {
-			instr = CMD_SECTOR_ERASE;
+			instr = flash->mode_addr4 ? CMD_SECTOR_ERASE_4B : CMD_SECTOR_ERASE;
 		} else {
 			trace_error("qspiflash: 4K Erase not supported\r\n");
 			return false;
