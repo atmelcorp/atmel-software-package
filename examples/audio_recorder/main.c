@@ -116,6 +116,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
+#include "peripherals/dma.h"
 
 #include "compiler.h"
 
@@ -165,7 +166,7 @@ static volatile bool playback_done = false;
 /**
  *  \brief DMA TX callback
  */
-static void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg)
+static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 
@@ -175,7 +176,7 @@ static void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_a
 /**
  *  \brief DMA RX callback
  */
-static void audio_record_finish_callback(struct _xdmad_channel *channel, void* p_arg)
+static void audio_record_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 

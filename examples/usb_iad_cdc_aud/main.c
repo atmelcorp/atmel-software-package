@@ -150,7 +150,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 
 #include "usb/device/audio/audd_function.h"
 #include "usb/device/cdc/cdcd_serial.h"
@@ -239,8 +239,8 @@ static volatile bool is_audio_playing = false;
 /**
  *  \brief DMA TX callback
  */
-void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg);
-void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg)
+void audio_play_finish_callback(struct dma_channel *channel, void* p_arg);
+void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 

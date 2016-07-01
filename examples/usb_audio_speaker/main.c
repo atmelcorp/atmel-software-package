@@ -114,7 +114,7 @@
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 
 #include "usb/device/audio/audd_speaker_driver.h"
 
@@ -194,8 +194,8 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 /**
  *  \brief DMA TX callback
  */
-void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg);
-void audio_play_finish_callback(struct _xdmad_channel *channel, void* p_arg)
+void audio_play_finish_callback(struct dma_channel *channel, void* p_arg);
+void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 

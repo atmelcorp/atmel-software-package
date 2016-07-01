@@ -106,7 +106,7 @@
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-
+#include "peripherals/dma.h"
 
 #include "misc/console.h"
 
@@ -279,7 +279,7 @@ static void _play_stop(void)
 /**
  *  \brief DMA callback
  */
-static void _pdmic_dma_callback(struct _xdmad_channel *channel, void *arg)
+static void _pdmic_dma_callback(struct dma_channel *channel, void *arg)
 {
 	bool *done = arg;
 	*done = true;
