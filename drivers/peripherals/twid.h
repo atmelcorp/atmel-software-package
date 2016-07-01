@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "peripherals/twi.h"
+#include "peripherals/dma.h"
 #include "mutex.h"
 #include "io.h"
 
@@ -80,6 +81,17 @@ struct _twi_desc
 	uint32_t region_length;
 	twid_callback_t callback;
 	void*   cb_args;
+
+	struct {
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} rx;
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} tx;
+	} dma;
 };
 
 /** \brief twi asynchronous transfer descriptor.*/

@@ -39,9 +39,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"
@@ -55,9 +53,7 @@
  *        Definition
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_XDMAC
 #define TWID_DMA_THRESHOLD      16
-#endif
 #define TWID_TIMEOUT            100
 
 #define MAX_ADESC               8
@@ -87,98 +83,61 @@ static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 	return TWID_SUCCESS;
 }
 
-#ifdef CONFIG_HAVE_XDMAC
-static void _twid_xdmad_callback_wrapper(struct _xdmad_channel* channel,
-					   void* args)
+static void _twid_dma_callback_wrapper(struct dma_channel* channel, void* args)
 {
 	trace_debug("TWID DMA Transfert Finished\r\n");
-	struct _twi_desc* twid = (struct _twi_desc*) args;
-	xdmad_free_channel(channel);
-	if (twid->region_start && twid->region_length) {
+	struct _twi_desc *twid = (struct _twi_desc *)args;
+
+	dma_free_channel(channel);
+	if (twid->region_start && twid->region_length)
 		cache_invalidate_region(twid->region_start, twid->region_length);
-	}
+
 	if (twid && twid->callback)
 		twid->callback(twid, twid->cb_args);
 }
 
-static void _twid_init_dma_read_channel(const struct _twi_desc* desc,
-					  struct _xdmad_channel** channel,
-					  struct _xdmad_cfg* cfg)
+static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
-	assert(cfg);
-	assert(channel);
-
 	uint32_t id = get_twi_id_from_addr(desc->addr);
+
 	assert(id < ID_PERIPH_COUNT);
-	memset(cfg, 0x0, sizeof(*cfg));
-	*channel = xdmad_allocate_channel(id, XDMAD_PERIPH_MEMORY);
-	assert(*channel);
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
-	cfg->sa = (void*)&desc->addr->TWI_RHR;
-}
 
-static void _twid_dma_read(const struct _twi_desc* desc,
-			   struct _buffer* buffer)
-{
-	struct _xdmad_channel* channel = NULL;
-	struct _xdmad_cfg cfg;
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	_twid_init_dma_read_channel(desc, &channel, &cfg);
-	cfg.da = buffer->data;
-	cfg.ubc = buffer->size;
-	cfg.bc = 0;
-	xdmad_configure_transfer(channel, &cfg, 0, 0);
-	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
-	xdmad_start_transfer(channel);
-}
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
-static void _twid_init_dma_write_channel(struct _twi_desc* desc,
-					 struct _xdmad_channel** channel,
-					 struct _xdmad_cfg* cfg)
-{
-	assert(cfg);
-	assert(channel);
-
-	uint32_t id = get_twi_id_from_addr(desc->addr);
-	assert(id < ID_PERIPH_COUNT);
-	memset(cfg, 0x0, sizeof(*cfg));
-	*channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
-	assert(*channel);
-	cfg->cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_BYTE
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_FIXED_AM;
-	cfg->da = (void*)&desc->addr->TWI_THR;
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->TWI_RHR;
+	desc->dma.rx.cfg.da = buffer->data;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.len = buffer->size;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, _twid_dma_callback_wrapper, (void*)desc);
+	dma_start_transfer(desc->dma.rx.channel);
 }
 
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
-	struct _xdmad_channel* channel = NULL;
-	struct _xdmad_cfg cfg;
+	uint32_t id = get_twi_id_from_addr(desc->addr);
 
-	_twid_init_dma_write_channel(desc, &channel, &cfg);
-	cfg.sa = buffer->data;
-	cfg.ubc = buffer->size;
-	cfg.bc = 0;
-	xdmad_configure_transfer(channel, &cfg, 0, 0);
-	xdmad_set_callback(channel, _twid_xdmad_callback_wrapper, (void*)desc);
+	assert(id < ID_PERIPH_COUNT);
+
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
+
+	desc->dma.tx.cfg.sa = buffer->data;
+	desc->dma.tx.cfg.da = (void*)&desc->addr->TWI_THR;
+	desc->dma.tx.cfg.len = buffer->size;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, _twid_dma_callback_wrapper, (void*)desc);
 	cache_clean_region(desc->region_start, desc->region_length);
-	xdmad_start_transfer(channel);
+	dma_start_transfer(desc->dma.tx.channel);
 }
-#endif /* CONFIG_HAVE_XDMAC */
 
 /*
  *
@@ -529,7 +488,6 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 		mutex_unlock(&desc->mutex);
 		break;
 
-#ifdef CONFIG_HAVE_XDMAC
 	case TWID_MODE_DMA:
 		if (!(rx != NULL || tx != NULL)) {
 			status = TWID_ERROR_DUPLEX;
@@ -588,7 +546,6 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 		}
 		else ;
 		break;
-#endif /* CONFIG_HAVE_XDMAC*/
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	case TWID_MODE_FIFO:
