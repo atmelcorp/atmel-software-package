@@ -39,11 +39,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions
  *----------------------------------------------------------------------------*/
+
+struct dma_xfer {
+	struct dma_xfer_item dma_item;
+	uint32_t blk_size;   /**< Size */
+	void *src_addr;      /**< Source Address */
+};
 
 /* This structure is private to the SHA plug-in.
  * Allocate it but ignore its members. */
@@ -53,10 +59,10 @@ struct sha_set
 	uint32_t count;               /* Number of bytes processed */
 	uint8_t pending;              /* Number of excess bytes */
 
-	struct _xdmad_channel *dma_ch;
+	struct dma_channel *dma_ch;
 				      /* xDMA instance, or NULL when DMA is not
 				       * used */
-	struct _xdmad_desc_view1 dma_dlist[2];
+	struct dma_xfer dma_dlist[2];
 				      /* xDMA linked list of xfer descriptors,
 				       * stored contiguously as a table */
 	uint32_t dlist_len;           /* Count of descriptors added to the xDMA

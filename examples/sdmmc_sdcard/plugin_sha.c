@@ -37,7 +37,7 @@
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/dma.h"
 #include "peripherals/sha.h"
 
 #include <assert.h>
@@ -88,18 +88,24 @@ static uint8_t pad_message(uint8_t *data, uint32_t length)
  */
 static void run_dma_xfer(struct sha_set *set)
 {
-	struct _xdmad_cfg dma_cfg = {
-		/* Configure a single microblock per block */
-		.bc = 0,
-		/* Configure 4 bytes per data, and 16 data per chunk */
-		.cfg = XDMAC_CC_TYPE_PER_TRAN
-		    | XDMAC_CC_MBSIZE_SINGLE | XDMAC_CC_DSYNC_MEM2PER
-		    | XDMAC_CC_MEMSET_NORMAL_MODE | XDMAC_CC_CSIZE_CHK_16
-		    | XDMAC_CC_DWIDTH_WORD | XDMAC_CC_SIF_AHB_IF0
-		    | XDMAC_CC_DIF_AHB_IF1 | XDMAC_CC_SAM_INCREMENTED_AM
-		    | XDMAC_CC_DAM_FIXED_AM,
+	struct dma_xfer_cfg dma_cfg = {
+			.upd_sa_per_data = 1,
+			.upd_da_per_data = 0,
+			.da = (void*)&SHA->SHA_IDATAR[0],
+			.data_width = DMA_DATA_WIDTH_WORD,
+			.chunk_size = DMA_CHUNK_SIZE_16,
+			.len = 1,
 	};
-	struct _xdmad_desc_view1 *desc = NULL, *last_desc = NULL;
+	struct dma_xfer_item_tmpl dma_item_tmpl = {
+		.da = (void*)&SHA->SHA_IDATAR[0],
+		.data_width = DMA_DATA_WIDTH_WORD,
+		.chunk_size = DMA_CHUNK_SIZE_16,
+		.upd_sa_per_data = 1,
+		.upd_da_per_data = 0,
+		.upd_sa_per_blk	= 1,
+		.upd_da_per_blk	= 0,
+	};
+	struct dma_xfer *desc = NULL, *last_desc = NULL;
 	uint32_t rc;
 
 	assert(set->dma_ch);
@@ -108,27 +114,24 @@ static void run_dma_xfer(struct sha_set *set)
 		return;
 	if (set->dlist_len == 1) {
 		desc = set->dma_dlist;
-		/* Configure data count per microblock */
-		dma_cfg.ubc = desc->mbr_ubc;
-		/* Configure source and destination addresses */
-		dma_cfg.sa = desc->mbr_sa;
-		dma_cfg.da = (void*)&SHA->SHA_IDATAR[0];
+		dma_cfg.blk_size = desc->blk_size;
+		/* Configure source addresses */
+		dma_cfg.sa = desc->src_addr;
 		/* Configure a single block per master transfer, i.e. no linked
 		 * list */
-		xdmad_configure_transfer(set->dma_ch, &dma_cfg,
-		    XDMAC_CNDC_NDE_DSCR_FETCH_DIS, NULL);
+		dma_configure_transfer(set->dma_ch, &dma_cfg);
 	}
 	else {
 		last_desc = set->dma_dlist + (set->dlist_len - 1);
 		for (desc = set->dma_dlist; desc <= last_desc; desc++) {
 			/* Complete descriptor contents */
-			desc->mbr_ubc = (desc == last_desc
-			    ? XDMA_UBC_NDE_FETCH_DIS
-			    : XDMA_UBC_NVIEW_NDV1 | XDMA_UBC_NDEN_UNCHANGED
-			    | XDMA_UBC_NSEN_UPDATED | XDMA_UBC_NDE_FETCH_EN)
-			    | XDMA_UBC_UBLEN(desc->mbr_ubc);
-			desc->mbr_da = (void*)&SHA->SHA_IDATAR[0];
-			desc->mbr_nda = desc == last_desc ? NULL : desc + 1;
+			dma_item_tmpl.sa = desc->src_addr;
+			dma_item_tmpl.blk_size = desc->blk_size;
+			if (desc == last_desc)
+				desc->blk_size = 0;
+			dma_prepare_item(set->dma_ch, &dma_item_tmpl, &desc[0].dma_item);
+			dma_link_item(set->dma_ch, &desc[0].dma_item,
+					desc == last_desc ? NULL : &desc[1].dma_item);
 		}
 		/* Clean the underlying cache lines, to ensure the DMA gets our
 		 * descriptors when it reads from RAM.
@@ -136,17 +139,14 @@ static void run_dma_xfer(struct sha_set *set)
 		 * read-only, hence there is no need to invalidate. */
 		cache_clean_region(set->dma_dlist, sizeof(*last_desc)
 				* (uint32_t)set->dlist_len);
-		xdmad_configure_transfer(set->dma_ch, &dma_cfg,
-		    XDMAC_CNDC_NDVIEW_NDV1 | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED
-		    | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-		    | XDMAC_CNDC_NDE_DSCR_FETCH_EN, set->dma_dlist);
+		dma_configure_sg_transfer(set->dma_ch, &dma_item_tmpl, &set->dma_dlist[0].dma_item);
 	}
 
-	rc = xdmad_start_transfer(set->dma_ch);
-	if (rc == XDMAD_OK) {
-		while (!xdmad_is_transfer_done(set->dma_ch))
-			xdmad_poll();
-		xdmad_stop_transfer(set->dma_ch);
+	rc = dma_start_transfer(set->dma_ch);
+	if (rc == DMA_OK) {
+		while (!dma_is_transfer_done(set->dma_ch))
+			dma_poll();
+		dma_stop_transfer(set->dma_ch);
 	}
 	else
 		trace_error("Couldn't start xDMA transfer\n\r");
@@ -164,9 +164,8 @@ static void run_dma_xfer(struct sha_set *set)
 static void write_blocks(struct sha_set *set, const uint32_t *data,
     uint32_t blocks)
 {
-	struct _xdmad_desc_view1 *desc = NULL;
-	const uint32_t ubl_len_max = min_u32(XDMAC_CUBC_UBLEN_Msk
-	    >> XDMAC_CUBC_UBLEN_Pos, XDMA_UBC_UBLEN_Msk >> XDMA_UBC_UBLEN_Pos);
+	struct dma_xfer *desc = NULL;
+	const uint32_t ubl_len_max = 0xFFFFFF;
 	uint32_t ix, limited;
 
 	assert(set);
@@ -184,8 +183,8 @@ static void write_blocks(struct sha_set *set, const uint32_t *data,
 			limited = min_u32(blocks - ix, ubl_len_max / 16ul);
 			desc = set->dma_dlist + set->dlist_len;
 			/* Configure data count per microblock */
-			desc->mbr_ubc = limited * 16ul;
-			desc->mbr_sa = (void*)(data + ix * 16ul);
+			desc->blk_size = limited * 16ul;
+			desc->src_addr = (void*)(data + ix * 16ul);
 			/* The other parameters in the descriptor will be
 			 * configured by run_dma_xfer() */
 			set->dlist_len++;
@@ -232,9 +231,9 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 	memset(set, 0, sizeof(*set));
 	if (use_dma) {
 		/* Initialize xDMA driver instance with polling mode */
-		xdmad_initialize(true);
+		dma_initialize(true);
 		/* Allocate a xDMA channel, Write accesses into SHA_IDATARx */
-		set->dma_ch = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY,
+		set->dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY,
 		    ID_SHA);
 		if (!set->dma_ch)
 			trace_error("Couldn't allocate xDMA channel\n\r");
