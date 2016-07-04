@@ -38,6 +38,7 @@
  *
  *  This package can be used with:
  *  -# SAMA5D2-XULT
+ *  -# SAMA5D3-XULT
  *  -# SAMA5D4-EK
  *  -# SAMA5D4-XULT
  *
@@ -112,6 +113,9 @@
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 static struct _pin pio_output = { PIO_GROUP_C, PIO_PC10, PIO_OUTPUT_0, PIO_DEFAULT };
 static struct _pin pio_input = { PIO_GROUP_C, PIO_PC11, PIO_INPUT, PIO_DEFAULT };
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+static struct _pin pio_output = { PIO_GROUP_D, PIO_PD14, PIO_OUTPUT_0, PIO_DEFAULT };
+static struct _pin pio_input = { PIO_GROUP_D, PIO_PD15, PIO_INPUT, PIO_DEFAULT };
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 static struct _pin pio_output = { PIO_GROUP_B, PIO_PB14, PIO_OUTPUT_0, PIO_DEFAULT };
 static struct _pin pio_input = { PIO_GROUP_B, PIO_PB15, PIO_INPUT, PIO_DEFAULT };

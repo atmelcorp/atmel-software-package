@@ -33,15 +33,11 @@ Step needed to set up the example.
 __Pins for SAMA5D2 Xplained Ultra:__
 Connect CANTX0 (PC10 / pin 8 on J9) to CANRX0 PC11/pin 7 on J9)
 
+__Pins for SAMA5D3 Xplained Ultra:__
+Connect CANTX0 (PD15 / pin 8 on J21) to CANRX0 PD14/pin 7 on J21)
+
 __Pins for SAMA5D4 Xplained Ultra:__
 Connect PB15 (pin 8 on J8) to PB14 (pin 7 on J8)
 
 __Pins for SAMA5D4 Evaluation Kit:__
 Connect PE26 (pin 59 on EXPJ19) to PE27 (pin 60 on EXPJ19)
-
-
-# Log
------
-
-## History
-----------

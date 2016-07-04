@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the test-pio example
+AVAILABLE_TARGETS = sama5d2-xplained sama5d3-xplained sama5d4-xplained sama5d4-ek
 
 TOP := ../..
 
