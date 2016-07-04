@@ -136,9 +136,11 @@ static const struct _pin at24_pins[] = AT24_PINS;
 
 struct _at24 at24_drv = {
 	.desc = AT24_DESC,
+#ifdef AT24_SN_ADDR
 	.sn_addr = AT24_SN_ADDR,
 	.sn_offset = AT24_SN_OFFSET,
 	.eui_offset = AT24_EUI48_OFFSET,
+#endif
 };
 
 struct _twi_desc at24_twid = {
@@ -242,15 +244,16 @@ int main(void)
 	/* Output example information */
 	console_example_info("ETH uIP Telnetd Example");
 
-#ifdef AT24_PINS
+#ifdef AT24_SN_ADDR
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
 	at24_configure(&at24_drv, &at24_twid);
 	if (at24_get_mac_address(&at24_drv)) {
 		printf("Failed reading MAC address from AT24 EEPROM");
-	} else {
+	} else
+#endif
+	{
 		memcpy(MacAddress.addr, at24_drv.mac_addr_48, 6);
 	}
-#endif
 
 	/* Display MAC & IP settings */
 	printf(" - MAC %02x:%02x:%02x:%02x:%02x:%02x\n\r",

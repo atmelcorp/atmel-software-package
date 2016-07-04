@@ -185,6 +185,7 @@
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 /* =================== AT24 device definition =================== */
+
 #define AT24_PINS       PINS_TWI0;
 #define AT24_ADDR       TWI0
 #define AT24_FREQ       400000

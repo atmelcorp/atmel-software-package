@@ -199,6 +199,13 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* =================== AT24 device definition =================== */
+
+#define AT24_PINS       PINS_TWI0;
+#define AT24_ADDR       TWI0
+#define AT24_FREQ       400000
+#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
+
 /* =================== GMAC/PHY definition =================== */
 
 #define GMAC0_ADDR        GMAC0
