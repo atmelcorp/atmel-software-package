@@ -10,7 +10,17 @@ static struct _audio_desc audio_device = {
 	.device = {
 		.classd = {
 			.addr = CLASSD,
+			.desc = {
+				.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
+				.mode = BOARD_CLASSD_MODE,
+				.non_ovr = CLASSD_NONOVR_10NS,
+				.mono = BOARD_CLASSD_MONO,
+				.mono_mode = BOARD_CLASSD_MONO_MODE
+			},
 		},
+	},
+	.dma = {
+			.configured = false,
 	},
 	.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
 	.num_channels = AUDDSpeakerDriver_NUMCHANNELS,

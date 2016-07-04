@@ -30,6 +30,7 @@ static struct codec_desc wm8904_codec = {
 	.codec_twid = &wm8904_twid,
 	.codec_twid_pin = pins_twi,
 	.codec_twid_pin_size = ARRAY_SIZE(pins_twi),
+	.input_path = WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN1R,
 };
 
 /** Audio device instance*/
@@ -39,8 +40,17 @@ static struct _audio_desc audio_device = {
 	.device = {
 		.ssc = {
 			.addr = SSC0,
+			.desc = {
+				.bit_rate = 0,
+				.rx_auto_cfg = true,
+				.tx_auto_cfg = true,
+			},
 			.codec_chip = &wm8904_codec,
+			.pck = 2,
 		},
+	},
+	.dma = {
+		.configured = false,
 	},
 	.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
 	.num_channels = AUDDSpeakerDriver_NUMCHANNELS,

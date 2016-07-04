@@ -72,7 +72,6 @@
 #include "peripherals/ssc.h"
 #include "peripherals/pmc.h"
 
-
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
@@ -95,26 +94,45 @@ void ssc_configure(struct _ssc_desc* desc)
 
 	/* Configure clock frequency */
 	if (desc->bit_rate != 0) {
-
 		desc->addr->SSC_CMR = clock / (2 * desc->bit_rate);
 	} else {
-
 		desc->addr->SSC_CMR = 0;
 	}
 
-	if(desc->rx_auto_cfg)
-		ssc_configure_receiver(desc, 
-						I2S_SLAVE_RX_SETTING(desc->slot_length, desc->slot_num), 
-						I2S_SLAVE_RX_FRM_SETTING(desc->slot_length, desc->slot_num));
-	else
-		ssc_disable_receiver(desc);
+	if (desc->rx_auto_cfg) {
+		uint32_t rcmr = SSC_RCMR_CKS_RK |
+		                SSC_RCMR_CKO_NONE |
+		                SSC_RCMR_CKI |
+		                SSC_RCMR_START_RF_EDGE |
+		                SSC_RCMR_STTDLY(1) |
+		                SSC_RCMR_PERIOD(0);
 
-	if(desc->tx_auto_cfg)
-		ssc_configure_transmitter(desc, 
-						I2S_SLAVE_TX_SETTING(desc->slot_length, desc->slot_num), 
-						I2S_SLAVE_TX_FRM_SETTING(desc->slot_length, desc->slot_num));
-	else
+		uint32_t rfmr = SSC_RFMR_DATLEN(desc->slot_length - 1) |
+		                SSC_RFMR_MSBF |
+		                SSC_RFMR_DATNB(desc->slot_num - 1) |
+		                SSC_RFMR_FSOS_NONE;
+
+		ssc_configure_receiver(desc, rcmr, rfmr);
+	} else {
+		ssc_disable_receiver(desc);
+	}
+
+	if (desc->tx_auto_cfg) {
+		uint32_t tcmr = SSC_TCMR_CKS_TK |
+		                SSC_TCMR_CKO_NONE |
+		                SSC_TCMR_START_TF_EDGE |
+		                SSC_TCMR_STTDLY(1) |
+		                SSC_TCMR_PERIOD(0);
+
+		uint32_t tfmr = SSC_TFMR_DATLEN(desc->slot_length - 1) |
+		                SSC_TFMR_MSBF |
+		                SSC_TFMR_DATNB(desc->slot_num - 1) |
+		                SSC_TFMR_FSOS_NONE;
+
+		ssc_configure_transmitter(desc, tcmr, tfmr);
+	} else {
 		ssc_disable_transmitter(desc);
+	}
 
 	/* Enable SSC peripheral clock */
 	pmc_enable_peripheral(id);

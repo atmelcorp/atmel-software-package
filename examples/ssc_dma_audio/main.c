@@ -76,6 +76,8 @@
  * - twi.c
  * - twid.c
  * - dma.c
+ * - xdmad.c
+ * - dmacd.c
  */
 
 /**
@@ -115,6 +117,13 @@
 #include <string.h>
 #include <assert.h>
 
+#if defined(CONFIG_BOARD_SAMA5D3_EK)
+	#include "config_sama5d3-ek.h"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	#include "config_sama5d4-ek.h"
+#else
+#error Unsupported board!
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local macros
@@ -126,8 +135,7 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** TWI clock */
-#define TWI_CLOCK               (400000)
+
 
 /** Wav feature. */
 #define SAMPLE_RATE             (48000)
@@ -148,10 +156,6 @@
 /* Audio buffer */
 CACHE_ALIGNED_DDR uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
-/** List of pins to configure. */
-static const struct _pin pins_twi[] = PINS_TWI0;
-static const struct _pin pins_clk[] = PIN_PCK2_ALT1; /* DAC Master Clock */
-
 /* Global DMA driver for all transfer */
 
 /** DMA channel for RX */
@@ -161,13 +165,6 @@ static struct dma_channel *ssc_dma_tx_channel;
 
 CACHE_ALIGNED struct dma_xfer_item dma_write_link_list[TOTAL_BUFFERS];
 CACHE_ALIGNED struct dma_xfer_item dma_read_link_list[TOTAL_BUFFERS];
-
-/** Twi instance*/
-static struct _twi_desc wm8904_twid = {
-	.addr = TWI0,
-	.freq = TWI_CLOCK,
-	.transfert_mode = TWID_MODE_POLLING
-};
 
 /** SSC instance*/
 static struct _ssc_desc ssc_dev_desc = {
@@ -258,6 +255,7 @@ static void play_recording(void)
 		dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 		dma_cfg.blk_size = DMA_TRANSFER_LEN;
+
 		dma_prepare_item(ssc_dma_tx_channel, &dma_cfg, &dma_write_link_list[i]);
 		if (i == (TOTAL_BUFFERS - 1))
 			dma_link_item(ssc_dma_tx_channel, &dma_write_link_list[i], &dma_write_link_list[0]);
@@ -301,6 +299,7 @@ extern int main( void )
 	uint16_t data = 0;
 	uint8_t vol = 30;
 	uint8_t key;
+	uint8_t input_path = 0;
 
 	/* Output example information */
 	console_example_info("SSC DMA Audio Example");
@@ -329,13 +328,18 @@ extern int main( void )
 	}
 
 	/* Initialize the audio DAC */
-	wm8904_init(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK);
+#if   defined(CONFIG_BOARD_SAMA5D3_EK)
+	input_path = WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R;
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+	input_path = WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN1R;
+#endif
+	wm8904_init(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK, input_path);
 
 	/* Enable the DAC master clock */
 	pmc_select_external_crystal();
-	pmc_disable_pck(2);
-	pmc_configure_pck(2, PMC_PCK_CSS_SLOW_CLK, 0);
-	pmc_enable_pck(2);
+	pmc_disable_pck(pck_index);
+	pmc_configure_pck(pck_index, PMC_PCK_CSS_SLOW_CLK, 0);
+	pmc_enable_pck(pck_index);
 
 	_set_volume(vol);
 	play_recording();

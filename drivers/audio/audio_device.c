@@ -32,7 +32,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h"
 
 #include "peripherals/l2cc.h"
 #include "peripherals/pio.h"
@@ -51,46 +50,22 @@
 #include "misc/cache.h"
 
 #if defined(CONFIG_HAVE_CLASSD)
-#include "peripherals/classd.h"
-#endif
-
-#if defined(CONFIG_HAVE_PDMIC)
-#include "peripherals/pdmic.h"
-#endif
-
-#if defined(CONFIG_HAVE_SSC)
-#include "peripherals/ssc.h"
-#ifdef CONFIG_HAVE_AUDIO_WM8904
-#include "audio/wm8904.h"
-#endif
-#endif
-
-#include "misc/cache.h"
-
-#if defined(CONFIG_HAVE_CLASSD)
 /**
  * Configure the CLASSD for audio output.
  */
 static void _configure_classd(struct _audio_desc* desc)
 {
 	/* Configure Class D */
-	struct _classd_desc classd_desc = {
-		.sample_rate = desc->sample_rate,
-		.mode = BOARD_CLASSD_MODE,
-		.non_ovr = CLASSD_NONOVR_10NS,
-		.mono = BOARD_CLASSD_MONO,
-		.mono_mode = BOARD_CLASSD_MONO_MODE
-	};
 	if(desc->num_channels == 1) {
-		classd_desc.swap_channels = true,
-		classd_desc.left_enable = false;
-		classd_desc.right_enable = true;
-	}else {
-		classd_desc.swap_channels = false;
-		classd_desc.left_enable = true;
-		classd_desc.right_enable = true;
+		desc->device.classd.desc.swap_channels = true,
+		desc->device.classd.desc.left_enable = false;
+		desc->device.classd.desc.right_enable = true;
+	} else {
+		desc->device.classd.desc.swap_channels = false;
+		desc->device.classd.desc.left_enable = true;
+		desc->device.classd.desc.right_enable = true;
 	}
-	classd_configure(&classd_desc);
+	classd_configure(&desc->device.classd.desc);
 	classd_set_left_attenuation(30);
 	classd_set_right_attenuation(30);
 	classd_volume_unmute(true, true);
@@ -99,12 +74,6 @@ static void _configure_classd(struct _audio_desc* desc)
 #endif
 
 #if defined(CONFIG_HAVE_SSC)
-/** SSC instance*/
-static struct _ssc_desc ssc_desc = {
-	.bit_rate = 0,
-	.rx_auto_cfg = true,
-	.tx_auto_cfg = true,
-};
 /**
  * Configure the SSC for audio output.
  */
@@ -114,14 +83,14 @@ static void _configure_ssc(struct _audio_desc *desc)
 	pio_configure(desc->device.ssc.codec_chip->clk_pin, 
 						desc->device.ssc.codec_chip->clk_pin_size);
 
-	ssc_desc.addr = desc->device.ssc.addr;
-	ssc_desc.sample_rate = desc->sample_rate;
-	ssc_desc.slot_num = desc->num_channels;
-	ssc_desc.slot_length = desc->bits_per_sample;
+	desc->device.ssc.desc.addr = desc->device.ssc.addr;
+	desc->device.ssc.desc.sample_rate = desc->sample_rate;
+	desc->device.ssc.desc.slot_num = desc->num_channels;
+	desc->device.ssc.desc.slot_length = desc->bits_per_sample;
 
-	ssc_configure(&ssc_desc);
-	ssc_disable_transmitter(&ssc_desc);
-	ssc_disable_receiver(&ssc_desc);
+	ssc_configure(&desc->device.ssc.desc);
+	ssc_disable_transmitter(&desc->device.ssc.desc);
+	ssc_disable_receiver(&desc->device.ssc.desc);
 
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 	/* Configure TWI pins. */
@@ -140,13 +109,16 @@ static void _configure_ssc(struct _audio_desc *desc)
 		while(1);
 	}
 
-	wm8904_init(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK);
+	wm8904_init(desc->device.ssc.codec_chip->codec_twid,
+				WM8904_SLAVE_ADDRESS,
+				PMC_MCKR_CSS_SLOW_CLK,
+				desc->device.ssc.codec_chip->input_path);
 #endif
 
 	pmc_select_internal_crystal();
-	pmc_disable_pck(2);
-	pmc_configure_pck(2, PMC_PCK_CSS_SLOW_CLK, 0);
-	pmc_enable_pck(2);
+	pmc_disable_pck(desc->device.ssc.pck);
+	pmc_configure_pck(desc->device.ssc.pck, PMC_PCK_CSS_SLOW_CLK, 0);
+	pmc_enable_pck(desc->device.ssc.pck);
 
 	/* Mute */
 	audio_enable(desc, false);
@@ -155,30 +127,14 @@ static void _configure_ssc(struct _audio_desc *desc)
 #endif
 
 #if defined(CONFIG_HAVE_PDMIC)
-/** pdmic Configuration */
-static struct _pdmic_desc pdmic_desc = {
-
-	.dsp_osr = PDMIC_OVER_SAMPLING_RATIO_64,
-	.dsp_hpfbyp = PDMIC_DSP_HIGH_PASS_FILTER_ON,
-	.dsp_sinbyp = PDMIC_DSP_SINCC_PASS_FILTER_ON,
-	/* while shift = 0 offset = 0
-	 * dgain = 1 scale = 0, gain = 0(dB)
-	 */
-	.dsp_shift = 0,
-	.dsp_offset = 0,
-	.dsp_dgain = 1,
-	.dsp_scale = 0,
-
-};
-
 static void _configure_pdmic(struct _audio_desc *desc)
 {
 	/* configure PIO muxing for pdmic */
-	pdmic_desc.sample_rate = desc->sample_rate;
-	pdmic_desc.channels = desc->num_channels;
-	pdmic_desc.dsp_size = desc->bits_per_sample;
+	desc->device.pdmic.desc.sample_rate = desc->sample_rate;
+	desc->device.pdmic.desc.channels = desc->num_channels;
+	desc->device.pdmic.desc.dsp_size = desc->bits_per_sample;
 
-	pdmic_init(&pdmic_desc);
+	pdmic_init(&desc->device.pdmic.desc);
 }
 #endif
 /**
@@ -294,15 +250,15 @@ void audio_enable(struct _audio_desc *desc, bool enable)
 		switch (desc->direction) {
 		case AUDIO_DEVICE_PLAY:
 			if (enable)
-				ssc_enable_transmitter(&ssc_desc);
+				ssc_enable_transmitter(&desc->device.ssc.desc);
 			else
-				ssc_disable_transmitter(&ssc_desc);
+				ssc_disable_transmitter(&desc->device.ssc.desc);
 			break;
 		case AUDIO_DEVICE_RECORD:
 			if (enable)
-				ssc_enable_receiver(&ssc_desc);
+				ssc_enable_receiver(&desc->device.ssc.desc);
 			else
-				ssc_disable_receiver(&ssc_desc);
+				ssc_disable_receiver(&desc->device.ssc.desc);
 			break;;
 		}
 		break;

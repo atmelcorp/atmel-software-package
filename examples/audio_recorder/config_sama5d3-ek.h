@@ -1,8 +1,7 @@
-#ifndef __CONFIG_SAMA5D4_EK_H__
-#define __CONFIG_SAMA5D4_EK_H__
+#ifndef __CONFIG_SAMA5D3_EK_H__
+#define __CONFIG_SAMA5D3_EK_H__
 
 #include "audio/audio_device.h"
-#include "audio/wm8904.h"
 #include "peripherals/twid.h"
 
 
@@ -18,7 +17,7 @@ static struct _twi_desc wm8904_twid = {
 };
 
 /** List of pins to configure. */
-static struct _pin  pins_clk[] = PIN_PCK2_ALT1;
+static struct _pin  pins_clk[] = PIN_PCK0;
 
 static struct _pin  pins_twi[] = PINS_TWI0;
 
@@ -31,8 +30,7 @@ static struct codec_desc wm8904_codec = {
 	.codec_twid = &wm8904_twid,
 	.codec_twid_pin = pins_twi,
 	.codec_twid_pin_size = ARRAY_SIZE(pins_twi),
-
-	.input_path = WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN1R,
+	.input_path = WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R,
 };
 
 /** Audio device instance*/
@@ -48,7 +46,7 @@ static struct _audio_desc audio_play_device = {
 				.tx_auto_cfg = true,
 			},
 			.codec_chip = &wm8904_codec,
-			.pck = 2,
+			.pck = 0,
 		},
 	},
 	.dma = {
@@ -71,7 +69,7 @@ static struct _audio_desc audio_record_device = {
 				.tx_auto_cfg = true,
 			},
 			.codec_chip = &wm8904_codec,
-			.pck = 2,
+			.pck = 0,
 		},
 	},
 	.dma = {

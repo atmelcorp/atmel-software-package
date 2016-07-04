@@ -277,6 +277,12 @@ extern Tc* get_tc_addr_from_id(const uint32_t id);
 extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
 
 /**
+ * \brief retrieve SSC ID from its base address
+ * \return SSC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
+
+/**
  * \brief retrieve GMAC ID from its base address
  * \return GMAC ID on success, ID_PERIPH_COUNT otherwise
  */

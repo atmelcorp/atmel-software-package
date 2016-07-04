@@ -1,0 +1,23 @@
+#ifndef __CONFIG_SAMA5D3_EK_H__
+#define __CONFIG_SAMA5D3_EK_H__
+
+#include "peripherals/twid.h"
+
+/** TWI clock */
+#define TWI_CLOCK               (400000)
+
+/** List of pins to configure. */
+static const struct _pin pins_twi[] = PINS_TWI0;
+
+static const struct _pin pins_clk[] = PIN_PCK0; /* DAC Master Clock */
+
+static uint32_t pck_index = 0;
+
+/** Twi instance*/
+static struct _twi_desc wm8904_twid = {
+	.addr = TWI0,
+	.freq = TWI_CLOCK,
+	.transfert_mode = TWID_MODE_POLLING
+};
+
+#endif

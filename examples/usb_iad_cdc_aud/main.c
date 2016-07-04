@@ -167,6 +167,8 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+	#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
 #else

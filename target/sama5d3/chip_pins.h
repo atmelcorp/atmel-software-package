@@ -286,19 +286,48 @@
 
 /* ========== Pio PIN definition for SSC0 peripheral ========== */
 
-#define SSC0_TX (PIO_PC16A_TK0 | PIO_PC17A_TF0 | PIO_PC18A_TD0)
-#define SSC0_RX (PIO_PC21A_RD0 | PIO_PC19A_RK0 | PIO_PC20A_RF0)
-#define PINS_SSC0 {\
-	{ PIO_GROUP_C, SSC0_TX | SSC0_RX, PIO_PERIPH_A, PIO_DEFAULT },\
-}
+/** SSC pin Transmitter Data (TD) */
+#define PIN_SSC_TD0 { PIO_GROUP_C, PIO_PC18A_TD0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SSC pin Transmitter Clock (TK) */
+#define PIN_SSC_TK0 { PIO_GROUP_C, PIO_PC16A_TK0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SSC pin Transmitter FrameSync (TF) */
+#define PIN_SSC_TF0 { PIO_GROUP_C, PIO_PC17A_TF0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SSC pin RD */
+#define PIN_SSC_RD0 { PIO_GROUP_C, PIO_PC21A_RD0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SSC pin RK */
+#define PIN_SSC_RK0 { PIO_GROUP_C, PIO_PC19A_RK0, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** SSC pin RF */
+#define PIN_SSC_RF0 { PIO_GROUP_C, PIO_PC20A_RF0, PIO_PERIPH_A, PIO_DEFAULT }
 
 /* ========== Pio PIN definition for SSC1 peripheral ========== */
 
-#define SSC1_TX (PIO_PB2B_TK1 | PIO_PB3B_TF1 | PIO_PB6B_TD1)
-#define SSC1_RX (PIO_PB11B_RD1 | PIO_PB7B_RK1 | PIO_PB10B_RF1)
-#define PINS_SSC1 {\
-	{ PIO_GROUP_B, SSC1_TX | SSC1_RX, PIO_PERIPH_B, PIO_DEFAULT },\
-}
+/** SSC pin Transmitter Data (TD) */
+#define PIN_SSC_TD1 { PIO_GROUP_B, PIO_PB6, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pin Transmitter Clock (TK) */
+#define PIN_SSC_TK1 { PIO_GROUP_B, PIO_PB2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pin Transmitter FrameSync (TF) */
+#define PIN_SSC_TF1 { PIO_GROUP_B, PIO_PB3, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pin RD */
+#define PIN_SSC_RD1 { PIO_GROUP_B, PIO_PB11, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pin RK */
+#define PIN_SSC_RK1 { PIO_GROUP_B, PIO_PB7, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pin RF */
+#define PIN_SSC_RF1 { PIO_GROUP_B, PIO_PB10, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC pins definition for codec. */
+#define PINS_SSC0 { PIN_SSC_TD0,  PIN_SSC_TK0, PIN_SSC_TF0, PIN_SSC_RD0, PIN_SSC_RK0, PIN_SSC_RF0 }
+
+#define PINS_SSC1 { PIN_SSC_TD1,  PIN_SSC_TK1, PIN_SSC_TF1, PIN_SSC_RD1, PIN_SSC_RK1, PIN_SSC_RF1 }
 
 /* ========== Pio PIN definition for LCDC peripheral ========== */
 

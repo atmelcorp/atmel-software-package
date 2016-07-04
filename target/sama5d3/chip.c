@@ -264,6 +264,18 @@ Tc* get_tc_addr_from_id(const uint32_t id)
 	else return (void*)0;
 }
 
+uint32_t get_ssc_id_from_addr(const Ssc* addr)
+{
+	if (addr == SSC0)
+		return ID_SSC0;
+#ifdef ID_SSC1
+	else if (addr == SSC1)
+		return ID_SSC1;
+#endif
+	else
+		return ID_PERIPH_COUNT;
+}
+
 uint32_t get_ebi_addr_from_cs(uint32_t cs)
 {
 	switch (cs) {

@@ -33,6 +33,21 @@
 #include "peripherals/dma.h"
 #include "peripherals/pio.h"
 
+#if defined(CONFIG_HAVE_CLASSD)
+#include "peripherals/classd.h"
+#endif
+
+#if defined(CONFIG_HAVE_PDMIC)
+#include "peripherals/pdmic.h"
+#endif
+
+#if defined(CONFIG_HAVE_SSC)
+#include "peripherals/ssc.h"
+#ifdef CONFIG_HAVE_AUDIO_WM8904
+#include "audio/wm8904.h"
+#endif
+#endif
+
 #define AUDIO_PLAY_MAX_VOLUME    (100)
 /*------------------------------------------------------------------------------
  *        Types
@@ -48,6 +63,7 @@ struct codec_desc {
 	struct _twi_desc* codec_twid;
 	struct _pin* codec_twid_pin;
 	uint32_t codec_twid_pin_size;
+	uint8_t input_path;
 };
 
 
@@ -75,18 +91,21 @@ struct _audio_desc {
 #if defined(CONFIG_HAVE_CLASSD)
 		struct {
 			Classd *addr;
+			struct _classd_desc desc;
 		} classd;
 #endif
 #if defined(CONFIG_HAVE_SSC)
 		struct {
 			Ssc *addr;
-			/* pointer to the codec*/
-			struct codec_desc* codec_chip;
+			struct _ssc_desc desc;
+			struct codec_desc* codec_chip; /* pointer to the codec*/
+			uint8_t pck;
 		} ssc;
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 		struct {
 			Pdmic *addr;
+			struct _pdmic_desc desc;
 		} pdmic;
 #endif
 	} device;

@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SSC dma audio example
-AVAILABLE_TARGETS = sama5d4-ek
+AVAILABLE_TARGETS = sama5d4-ek sama5d3-ek
 
 TOP := ../..
 

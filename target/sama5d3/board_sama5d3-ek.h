@@ -202,4 +202,9 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* ================== SSC definition ====================== */
+
+#define BOARD_SSC0_PINS PINS_SSC0
+#define BOARD_SSC1_PINS PINS_SSC1
+
 #endif /* _BOARD_SAMA5D3_EK_H */

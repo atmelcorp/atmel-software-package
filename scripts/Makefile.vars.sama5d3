@@ -29,6 +29,9 @@ ifeq ("y",$(TARGET:%-ek="y"))
 CONFIG_SOC_SAMA5D36 = y
 CONFIG_BOARD_SAMA5D3_EK = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y
+CONFIG_HAVE_SSC ?= y
+CONFIG_HAVE_AUDIO ?= y
+CONFIG_HAVE_AUDIO_WM8904 ?= y
 endif
 
 ifeq ("y",$(TARGET:%-generic="y"))

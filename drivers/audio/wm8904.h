@@ -42,6 +42,11 @@
 /*----------------------------------------------------------------------------
  *         Definitions
  *----------------------------------------------------------------------------*/
+#define WM8904_INPUT_PATH_IN1L 0x01
+#define WM8904_INPUT_PATH_IN1R 0x02
+#define WM8904_INPUT_PATH_IN2L 0x04
+#define WM8904_INPUT_PATH_IN2R 0x08
+
 #define WM8904_CSB_STATE            (0x0 << 0)
 
 /** Slave address */
@@ -157,9 +162,8 @@
  *----------------------------------------------------------------------------*/
 
 extern uint16_t wm8904_read(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr);
-extern void wm8904_write(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr,
-				uint16_t data);
-extern uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK);
+extern void wm8904_write(struct _twi_desc* twid, uint32_t device, uint32_t reg_addr, uint16_t data);
+extern uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK, uint8_t input_path);
 extern void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device);
 extern void wm8904_set_left_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);
 extern void wm8904_set_right_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);

@@ -194,7 +194,7 @@ static wm8904_para wm8904_access_main[] = {
 	{0x55AA, 255}    /** end */
 };
 
-uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK)
+uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK, uint8_t input_path)
 {
 	uint8_t count;
 	uint16_t data = 0;
@@ -225,6 +225,14 @@ uint8_t wm8904_init(struct _twi_desc* twid, uint32_t device, uint32_t PCK)
 					(wm8904_access_slow[count].value == 0x00B9))) {
 				timer_wait(100);
 			}
+		}
+		if (input_path & WM8904_INPUT_PATH_IN2L) {
+			/* IN2L */
+			wm8904_write(twid, device, WM8904_REG_ANALOGUE_LIN1, 0x0010);
+		}
+		if (input_path & WM8904_INPUT_PATH_IN2R) {
+			/* IN2R*/
+			wm8904_write(twid, device, WM8904_REG_ANALOGUE_RIN1, 0x0010);
 		}
 	} else if (PMC_MCKR_CSS_MAIN_CLK == PCK) {
 		for (count = 0; count < ARRAY_SIZE(wm8904_access_main); count++)

@@ -88,4 +88,8 @@ WEAK void board_init(void)
 	/* Configure NAND flash */
 	board_cfg_nand_flash();
 #endif
+
+#ifdef CONFIG_HAVE_SSC
+	board_cfg_ssc(ID_SSC0);
+#endif
 }

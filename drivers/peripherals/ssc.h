@@ -48,36 +48,6 @@
 extern "C" {
 #endif
 
-/*----------------------------------------------------------------------------
- *        Define
- *----------------------------------------------------------------------------*/
-/* Send data on Frame changes */
-#define I2S_SLAVE_TX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
-                             (SSC_TCMR_CKS_TK) |\
-                             (SSC_TCMR_CKO_NONE) |\
-							(SSC_TCMR_START_TF_FALLING) |\
-                             (SSC_TCMR_STTDLY(1)) |\
-                             (SSC_TCMR_PERIOD(0)))
-/* Send 1 data each time */
-#define I2S_SLAVE_TX_FRM_SETTING(nb_bit_by_slot, nb_slot_by_frame)( \
-                                 (SSC_TFMR_DATLEN(nb_bit_by_slot - 1)) |\
-                                 (SSC_TFMR_MSBF) |\
-                                 (SSC_TFMR_DATNB(nb_slot_by_frame - 1)) |\
-                                 (SSC_TFMR_FSOS_NONE))
-/* Read data on Frame changes */
-#define I2S_SLAVE_RX_SETTING(nb_bit_by_slot, nb_slot_by_frame)(\
-                            (SSC_RCMR_CKS_TK) |\
-                            (SSC_RCMR_CKO_NONE) |\
-							  (SSC_RCMR_CKI) |\
-                            (SSC_RCMR_START_RF_FALLING) |\
-                            (SSC_RCMR_STTDLY(1)) |\
-                            (SSC_RCMR_PERIOD(0)))
-/* Read 1 data each time */
-#define I2S_SLAVE_RX_FRM_SETTING(nb_bit_by_slot, nb_slot_by_frame)( \
-                                 (SSC_RFMR_DATLEN(nb_bit_by_slot - 1)) |\
-                                 (SSC_RFMR_MSBF) |\
-                                 (SSC_RFMR_DATNB(nb_slot_by_frame - 1)) |\
-                                 (SSC_RFMR_FSOS_NONE))
 
 /*------------------------------------------------------------------------------
  *        Types

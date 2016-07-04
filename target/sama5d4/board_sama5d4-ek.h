@@ -267,8 +267,8 @@
 	{ PIO_GROUP_E, PIO_PE0, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 
 /* ================== SSC definition ====================== */
-#define BOARD_SSC0_PINS PINS_SSC0
 
+#define BOARD_SSC0_PINS PINS_SSC0
 #define BOARD_SSC1_PINS PINS_SSC1
 
 

@@ -10,6 +10,13 @@ static struct _audio_desc audio_play_device = {
 	.device = {
 		.classd = {
 			.addr = CLASSD,
+			.desc = {
+				.sample_rate = 48000,
+				.mode = BOARD_CLASSD_MODE,
+				.non_ovr = CLASSD_NONOVR_10NS,
+				.mono = BOARD_CLASSD_MONO,
+				.mono_mode = BOARD_CLASSD_MONO_MODE
+			},
 		},
 	},
 	.dma = {
@@ -27,6 +34,18 @@ static struct _audio_desc audio_record_device = {
 	.device = {
 		.pdmic = {
 			.addr = PDMIC,
+			.desc = {
+				.dsp_osr = PDMIC_OVER_SAMPLING_RATIO_64,
+				.dsp_hpfbyp = PDMIC_DSP_HIGH_PASS_FILTER_ON,
+				.dsp_sinbyp = PDMIC_DSP_SINCC_PASS_FILTER_ON,
+				/* while shift = 0 offset = 0
+				 * dgain = 1 scale = 0, gain = 0(dB)
+				 */
+				.dsp_shift = 0,
+				.dsp_offset = 0,
+				.dsp_dgain = 1,
+				.dsp_scale = 0,
+			},
 		},
 	},
 	.dma = {
