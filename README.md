@@ -1,5 +1,5 @@
-Atmel SAMA5D2x/SAMA5D4x Software Package
-----------------------------------------
+Atmel SAMA5 Software Package
+----------------------------
 
 # Overview
 
@@ -9,8 +9,7 @@ change.
 Each software module is provided with full source code, example of usage, and
 ready-to-use projects.
 
-This softpack is hosted on GitHub:
-https://github.com/atmelcorp/atmel-software-package
+This softpack is hosted on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
 ## Supported Platforms
 
@@ -60,31 +59,29 @@ Dependencies:
 
 # List of examples
 
-The examples are listed in [SAMA5D2 README](examples/README.SAMA5D2.md) and
-[SAMA5D4 README](examples/README.SAMA5D4.md).
+The examples are listed in [softpack.md](softpack.md).
 
 # Usage (GCC ARM Embedded)
 
 ## Environment Variable
 
 TARGET: Name of the wanted target (sama5d2-xplained for SAMA5D2 XPLAINED ULTRA
-boards). This variable is always mandatory.
+boards).
+
+VARIANT: Build variant, for example "sram" or "ddram".
 
 DEBUG: Build with debug flags (default).
 
-TRACE_LEVEL: The wanted log level, 5 correspond to full, 0 to none (default to 5)
+TRACE_LEVEL: Log level, 5 correspond to full, 0 to none (default to 5)
 
-RELEASE: Build with the release flags
+RELEASE: Build for release, otherwise build for debug.
 
-only TARGET must be provided or set at each make invocation.
+All these variables are optional except for TARGET that must be provided or set
+at each make invocation.
 
 ## Build
 
 Run:
-
-``make``
-
-or if TARGET is not set:
 
 ``make TARGET=wanted_target``
 
@@ -95,10 +92,6 @@ for each platform at http://www.segger.com
 
 A make target is provided to launch the test with the correct gdb command
 arguments, run:
-
-``make debug``
-
-or if TARGET is not set:
 
 ``make TARGET=wanted_target debug``
 
@@ -113,10 +106,6 @@ and must be installed manually.
 ## IAR Project generation
 
 An IAR project can be generated with GNU make, run in the example directory:
-
-``make iar``
-
-or if TARGET is not set:
 
 ``make TARGET=wanted_target iar``
 

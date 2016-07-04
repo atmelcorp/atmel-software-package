@@ -1,5 +1,49 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.3 - 2016-07
+
+### New drivers/examples
+
+- New EMAC driver for SAMA5D3
+- New ETH driver to support both EMAC and GMAC driver
+- New DMA driver which provides a generic DMA API to handle XDMAC and DMAC
+- New IS31FL3728 LED driver (ATQT6 XPRO SURFACE extension board)
+
+### Changes
+
+- Rename AIC driver from iac.c to aic5.c
+- Rename usart_xdma to usart_dma
+- Port drivers to use the newly generic DMA API
+
+### Enhancements
+
+- Improve uvc_driver, usb_uvc_isi, and usb_uvc_isc example to support multiple
+  buffering
+- Add ISI support for SAMA5D3
+- Add LCD support for SAMA5D3
+- Add support for MT47H64M16 DDR2 DDRAM
+- Reworked DDRAM driver to prepare for inclusion of older SAM devices and use
+  TC instead of PIT for initialization delays
+- Improve L2CC driver and cache maintainance operation
+- Add Ultra High Speed mode to SDMMC driver
+- Add support for SAMA5D3 for several examples
+- Implemented AE/AWB for ISC example
+- Fix PWM issues with fault mode
+- Update QSPI driver to handle >16MB memories without switching to 4-byte
+  addressing mode
+
+### Fixes
+
+- Fixes in PWM driver and example
+- Fixes in mutex implementation
+- Fix SSC0 pin definition for SAMA5D4
+- Fix MMU configuration for QSPI
+- Several fixes for audio device driver and examples
+- Fixed mutex use in TWID and SPID drivers
+- Fix NANDFlash examples for SAMA5D4-EK
+- Fix VGA subsample for OV2643
+
+
 ## Version 2.2 - 2016-06
 
 ### New drivers/examples
@@ -8,6 +52,8 @@
 - New audio_recorder example.
 - Add QSPI XIP IAR flashloader for sama5d2-xplained board.
 - Initial support for SAMA5D3 SOC family in the softpack (DMA is not yet supported.)
+- Add DMAC driver for SAMA5D3
+- Add DMAC example to demonstrte the DMAC features
 
 ### Changes
 
@@ -27,6 +73,7 @@
 - SAM-BA applets can now compile with IAR.
 - Improve the libsdmmc.
 - Caching is enabled on the QSPI memory region.
+- Rework clock API and PCK clocks
 
 ### Fixes
 
