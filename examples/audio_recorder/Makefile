@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the AUDIO Recorder example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 sama5d2-ptc-engi sama5d4-ek
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d3-ek
 
 TOP := ../..
 
