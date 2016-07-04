@@ -33,7 +33,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application
 --------
 The following menu will be displayed in the terminal window.
 
@@ -61,13 +61,6 @@ Press 'S' | Enable/Disable sequencer, continuous converted value will be printed
 Press 'D' | Enable/Disable to tranfer with DMA, continuous converted value will be printed if triggered | PASSED | PASSED
 Press 'P' | Enable/Disable ADC power save mode, continuous converted value will be printed if triggered | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
 
 ## History
 --------

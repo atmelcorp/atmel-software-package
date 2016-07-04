@@ -120,9 +120,7 @@
 #include "misc/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
+#include "peripherals/dma.h"
 
 #include "misc/led.h"
 #include "misc/console.h"
@@ -188,9 +186,7 @@ struct _adc_sample
 	uint16_t done;
 };
 
-#ifdef CONFIG_HAVE_XDMAC
 CACHE_ALIGNED static uint16_t _dma_buffer[NUM_CHANNELS];
-#endif
 
 bool modif_config = false;
 unsigned count = 0;
@@ -235,10 +231,9 @@ struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAUL
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_XDMAC
 static void _start_dma(void);
 
-static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
+static void _adc_dma_callback(struct dma_channel *channel, void *arg)
 {
 	cache_invalidate_region(_dma_buffer, sizeof(_dma_buffer));
 
@@ -257,39 +252,36 @@ static void _adc_dma_callback(struct _xdmad_channel *channel, void *arg)
 				}
 			}
 	}
-	xdmad_free_channel(channel);
+	dma_free_channel(channel);
 	if (_test_mode.dma_enabled)
 		_start_dma();
 }
 
 /**
- *  \brief Configure xDMA and start to transfer.
+ *  \brief Configure DMA and start to transfer.
  */
 static void _start_dma(void)
 {
-	/* Allocate a XDMA channel, Write accesses into SHA_IDATARx */
-	struct _xdmad_channel* dma_channel =
-	xdmad_allocate_channel(ID_ADC, XDMAD_PERIPH_MEMORY);
-	struct _xdmad_cfg dma_cfg;
+	/* Allocate a DMA channel, Write accesses into SHA_IDATARx */
+	struct dma_channel* dma_channel =
+	dma_allocate_channel(ID_ADC, DMA_PERIPH_MEMORY);
+	struct dma_xfer_cfg dma_cfg;
+
 	memset(&dma_cfg, 0, sizeof(dma_cfg));
-	dma_cfg.ubc = NUM_CHANNELS;
+
 	dma_cfg.sa = (void*)&ADC->ADC_LCDR;
 	dma_cfg.da = (void*)_dma_buffer;
-	dma_cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_DSYNC_PER2MEM
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_HALFWORD
-		| XDMAC_CC_SIF_AHB_IF1
-		| XDMAC_CC_DIF_AHB_IF0
-		| XDMAC_CC_SAM_FIXED_AM
-		| XDMAC_CC_DAM_INCREMENTED_AM;
-	dma_cfg.bc = 0;
-	xdmad_configure_transfer(dma_channel, &dma_cfg, 0, 0);
-	xdmad_set_callback(dma_channel, _adc_dma_callback, NULL);
-	xdmad_start_transfer(dma_channel);
+	dma_cfg.upd_sa_per_data = 0;
+	dma_cfg.upd_da_per_data = 1;
+	dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_cfg.blk_size = 0;
+	dma_cfg.len = NUM_CHANNELS;
+	dma_configure_transfer(dma_channel, &dma_cfg);
+
+	dma_set_callback(dma_channel, _adc_dma_callback, NULL);
+	dma_start_transfer(dma_channel);
 }
-#endif /* CONFIG_HAVE_XDMAC */
 
 /**
  * \brief Interrupt handler for the ADC.
@@ -342,10 +334,8 @@ static void _display_menu(void)
 	printf("[%c] 3: Set ADC trigger mode: ADC Internal Timer.\n\r", tmp);
 	tmp = (_test_mode.sequence_enabled ) ? 'E' : 'D';
 	printf("[%c] S: Enable/Disable sequencer.\n\r", tmp);
-#ifdef CONFIG_HAVE_XDMAC
 	tmp = (_test_mode.dma_enabled) ? 'E' : 'D';
 	printf("[%c] D: Enable/Disable to tranfer with DMA.\n\r", tmp);
-#endif
 	tmp = (_test_mode.power_save_enabled) ? 'E' : 'D';
 	printf("[%c] P: Enable/Disable ADC power save mode.\n\r", tmp);
 	printf("=========================================================\n\r");
@@ -373,13 +363,11 @@ static void console_handler(uint8_t key)
 		if (_test_mode.sequence_enabled) _test_mode.sequence_enabled = 0;
 		else _test_mode.sequence_enabled = 1;
 		break;
-#ifdef CONFIG_HAVE_XDMAC
 	case 'd' :
 	case 'D' :
 		if (_test_mode.dma_enabled) _test_mode.dma_enabled = 0;
 		else _test_mode.dma_enabled = 1;
 		break;
-#endif
 	case 'p' :
 	case 'P' :
 		if (_test_mode.power_save_enabled) _test_mode.power_save_enabled = 0;
@@ -534,11 +522,9 @@ static void _configure_adc(void)
 	    default :
 			break;
 	}
-#ifdef CONFIG_HAVE_XDMAC
 	if (_test_mode.dma_enabled) {
 		_start_dma();
 	} else
-#endif
 		aic_enable(ID_ADC);
 }
 
