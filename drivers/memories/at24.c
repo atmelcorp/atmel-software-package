@@ -38,11 +38,13 @@
 #include "trace.h"
 
 #include "memories/at24.h"
+
+#include "misc/cache.h"
+
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
-
 
 #include <stdio.h>
 #include <stdint.h>
@@ -50,8 +52,16 @@
 #include <assert.h>
 
 /*------------------------------------------------------------------------------
+ *         Local variables
+ *----------------------------------------------------------------------------*/
+
+/** Temporary buffer used by at24_get_serial_number and at24_get_mac_address */
+CACHE_ALIGNED static uint8_t at24_buffer[16];
+
+/*------------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
+
 void at24_free_mutex(struct _twi_desc* twi, void* arg);
 void at24_free_mutex(struct _twi_desc* twi, void* arg)
 {
@@ -92,6 +102,8 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0x0;
 
+	assert(sizeof(at24->serial_number) <= sizeof(at24_buffer));
+
 	at24->twid->slave_addr = at24->sn_addr;
 	at24->twid->iaddr = at24->sn_offset;
 	at24->twid->isize = 1;
@@ -104,9 +116,10 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 		return status;
 	at24->twid->iaddr = 0;
 	at24->twid->isize = 0;
-	/* // Now read bytes from that memory address */
-	status = _at24_read(at24, at24->serial_number, sizeof(at24->serial_number), &at24->mutex);
+	// Now read bytes from that memory address
+	status = _at24_read(at24, at24_buffer, sizeof(at24->serial_number), &at24->mutex);
 	while (mutex_is_locked(&at24->mutex));
+	memcpy(at24->serial_number, at24_buffer, sizeof(at24->serial_number));
 
 	return status;
 }
@@ -122,6 +135,8 @@ uint8_t at24_get_mac_address(struct _at24* at24)
 	uint8_t status = TWID_SUCCESS;
 	uint8_t dummy = 0x0;
 
+	assert(sizeof(at24->mac_addr_48) <= sizeof(at24_buffer));
+
 	at24->twid->slave_addr = at24->sn_addr;
 	at24->twid->iaddr = at24->eui_offset;
 	at24->twid->isize = 1;
@@ -134,8 +149,9 @@ uint8_t at24_get_mac_address(struct _at24* at24)
 		return status;
 	at24->twid->iaddr = 0;
 	at24->twid->isize = 0;
-	status = _at24_read(at24, at24->mac_addr_48, sizeof(at24->mac_addr_48), &at24->mutex);
+	status = _at24_read(at24, at24_buffer, sizeof(at24->mac_addr_48), &at24->mutex);
 	while (mutex_is_locked(&at24->mutex));
+	memcpy(at24->mac_addr_48, at24_buffer, sizeof(at24->mac_addr_48));
 
 	return status;
 }
