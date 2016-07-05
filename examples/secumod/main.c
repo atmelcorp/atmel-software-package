@@ -693,6 +693,7 @@ int main(void)
 
 	/* reconfigure PCK=354MHz, MCK=177MHz */
 	pmc_set_custom_pck_mck(&clock_setting);
+	board_cfg_console(0);
 
 	/* Output example information */
 	console_example_info("SECUMOD Example");
