@@ -171,7 +171,7 @@ int main(void)
 	uint32_t baudrate, idx;
 	void* qspi_mem_addr = get_qspi_mem_from_addr(QSPIFLASH_ADDR);
 	uint32_t buffer[4];
-	uint8_t *ptr;
+	uint8_t *ptr, cmd;
 
 	/* Output example information */
 	console_example_info("QSPI XIP Example");
@@ -208,11 +208,20 @@ int main(void)
 			((buffer[0] & 0xFF000000) == (buffer[2] & 0xFF000000)) &&
 			((buffer[0] & 0xFF000000) == (buffer[3] & 0xFF000000)) ) {
 		printf("Valid application already in QSPI, will run it using QSPI XIP\n\r");
-		printf("Starting continuous read mode to enter in XIP mode\n\r");
-		if (!qspiflash_read(&flash, 0, NULL, 0)) {
-			trace_fatal("Read the code from QSPI Flash failed!\n\r");
+
+		printf("\r\nDo you want to Run it or Flash a new one (R/F): ");
+		do {
+			cmd = console_get_char();
+		} while (cmd != 'R' && cmd != 'r' && cmd != 'F' && cmd != 'f');
+		printf("%c\r\n", cmd);
+
+		if (cmd == 'R' || cmd == 'r') {
+			printf("Starting continuous read mode to enter in XIP mode\n\r");
+			if (!qspiflash_read(&flash, 0, NULL, 0)) {
+				trace_fatal("Read the code from QSPI Flash failed!\n\r");
+			}
+			run_xip_program(qspi_mem_addr);
 		}
-		run_xip_program(qspi_mem_addr);
 	} else {
 		printf("No valid application found in QSPI, will one program first\n\r");
 	}
