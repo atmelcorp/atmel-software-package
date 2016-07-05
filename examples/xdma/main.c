@@ -148,7 +148,7 @@ static uint8_t dma_data_width = 0;
 static uint8_t dma_src_addr_mode = 0;
 static uint8_t dma_dest_addr_mode = 0;
 static uint8_t dma_memset = 0;
-static uint8_t dma_view = 0;
+static uint8_t dma_view = 1;
 
 /** DMA transfer completion notifier */
 static volatile bool transfer_complete = false;
@@ -510,10 +510,18 @@ extern int main(void)
 			_display_menu();
 		} else if (key >= '8' && key <= '9') {
 			dma_memset = key - '8';
+			if (dma_memset == 0 && dma_view == 0) {
+				printf("-I- DMA View 0 cannot be used when MEMSET is in NORMAL mode, selecting DMA View 1 instead.\r\n");
+				dma_view = 1;
+			}
 			_display_menu();
 		}
 		else if (key >= 'e' && key <= 'h') {
 			dma_view = key - 'e';
+			if (dma_view == 0 && dma_memset == 0) {
+				printf("-I- DMA View 0 can only be used when MEMSET is in HW mode, enabling HW mode.\r\n");
+				dma_memset = 1;
+			}
 			_display_menu();
 		} else if (key == 'S' || key == 's') {
 			dma_mode = 1;
