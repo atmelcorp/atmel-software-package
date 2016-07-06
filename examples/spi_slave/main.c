@@ -47,13 +47,13 @@
  * - SPI0_MISO  (EXP_PA16 on J8 pin 1)  - SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
  * - SPI0_SPCK  (EXP_PA14 on J17 pin 4) - SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
  *
- * Requirements when running on SAMA5D4-EK:
+ * Requirements when running on SAMA5D3-EK:
  * We need to connect the SPI pins on the board before running the example.
- * - <b>  SPI1 (MASTER)                        - SPI2 (SLAVE)</b>
- * - SPI1_NPCS2(LCD_SPI1_CS2 on J10 pin 34) - SPI2_NPCS0 (XPRO_PD17 on J11 XPRO pin 14)
- * - SPI1_MOSI (LCD_SPI1_SI  on J10 pin 32) - SPI2_MOSI  (XPRO_PD13 on J11 XPRO pin 16)
- * - SPI1_MISO (LCD_SPI1_SO  on J10 pin 31) - SPI2_MISO  (XPRO_PD11 on J11 XPRO pin 17)
- * - SPI1_SPCK (LCD_SPI1_CLK on J10 pin 33) - SPI2_SPCK  (XPRO_PD15 on J11 XPRO pin 18)
+ * - <b>  SPI0 (MASTER)                        - SPI1 (SLAVE)</b>
+ * - SPI0_MISO (PC22 on J10 pin 22) - SPI1_MISO  (PD10 on J3 pin 22)
+ * - SPI0_MOSI (PC23 on J10 pin 24) - SPI1_MOSI  (PD11 on J3 pin 24)
+ * - SPI0_SPCK (PC24 on J10 pin 26) - SPI1_SPCK  (PD12 on J3 pin 26)
+ * - SPI0_NPCS0(PC25 on J10 pin 28) - SPI1_NPCS0 (PD13 on J3 pin 28)
  *
  * Requirements when running on SAMA5D4-XULT:
  * We need to connect the SPI pins on the board before running the example.
@@ -62,6 +62,14 @@
  * - SPI2_MOSI  (EXP/XPRO_PD13 on J19 pin 5)  - SPI1_MOSI  (EXP/XPRO_PB19 on J17 pin 4)
  * - SPI2_MISO  (EXP/XPRO_PD11 on J15 pin 30) - SPI1_MISO  (EXP/XPRO_PB18 on J17 pin 5)
  * - SPI2_SPCK  (EXP/XPRO_PD15 on J15 pin 8)  - SPI1_SPCK  (EXP/XPRO_PB20 on J17 pin 6)
+ *
+ * Requirements when running on SAMA5D4-EK:
+ * We need to connect the SPI pins on the board before running the example.
+ * - <b>  SPI1 (MASTER)                        - SPI2 (SLAVE)</b>
+ * - SPI1_NPCS2(LCD_SPI1_CS2 on J10 pin 34) - SPI2_NPCS0 (XPRO_PD17 on J11 XPRO pin 14)
+ * - SPI1_MOSI (LCD_SPI1_SI  on J10 pin 32) - SPI2_MOSI  (XPRO_PD13 on J11 XPRO pin 16)
+ * - SPI1_MISO (LCD_SPI1_SO  on J10 pin 31) - SPI2_MISO  (XPRO_PD11 on J11 XPRO pin 17)
+ * - SPI1_SPCK (LCD_SPI1_CLK on J10 pin 33) - SPI2_SPCK  (XPRO_PD15 on J11 XPRO pin 18)
  *
  * \section Descriptions
  *
@@ -126,12 +134,10 @@
 #include "compiler.h"
 
 #include "peripherals/pio.h"
-#include "peripherals/twid.h"
 #include "peripherals/spid.h"
-#include "peripherals/xdmad.h"
 
 #include "misc/console.h"
-
+#include "misc/cache.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -145,6 +151,8 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+	#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
@@ -159,10 +167,10 @@
 
 
 /** data buffer for SPI master's receive */
-static uint8_t spi_buffer_master_rx[DMA_TRANS_SIZE];
+CACHE_ALIGNED static uint8_t spi_buffer_master_rx[DMA_TRANS_SIZE];
 
 /** data buffer for SPI slave's transfer */
-static uint8_t spi_buffer_slave_tx[DMA_TRANS_SIZE];
+CACHE_ALIGNED static uint8_t spi_buffer_slave_tx[DMA_TRANS_SIZE];
 
 /** Pio pins for SPI master */
 static const struct _pin pins_spi_master[] = SPI_MASTER_PINS;
@@ -179,7 +187,7 @@ static struct _spi_desc spi_master_desc = {
 	.dlybct         = 0,
 	.chip_select    = SPI_MASTER_CS,
 	.spi_mode       = (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT),
-	.transfert_mode = SPID_MODE_DMA,
+	.transfert_mode = SPID_MODE_POLLING,
 };
 
 /** descriptor for SPI slave */
@@ -199,6 +207,10 @@ static const uint32_t clock_configurations[3] = { 500, 1000, 5000 };
 
 /** SPI Clock setting (KHz) */
 static uint32_t spi_clock = 500;
+
+static volatile bool master_rx_done;
+static volatile bool slave_tx_done;
+
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -250,8 +262,6 @@ static void _spi_transfer(void)
 {
 	int i;
 	uint32_t status;
-	volatile bool master_rx_done;
-	volatile bool slave_tx_done;
 
 	struct _buffer master_in = {
 		.data = spi_buffer_master_rx,
@@ -272,9 +282,8 @@ static void _spi_transfer(void)
 	spid_configure(&spi_slave_desc);
 
 	printf("Slave sending, Master receiving... \r\n");
-	for (i = 0; i < DMA_TRANS_SIZE; i++) {
-		spi_buffer_slave_tx[i] = 0xFF - i;
-	}
+	for (i = 0; i < DMA_TRANS_SIZE; i++)
+		spi_buffer_slave_tx[i] = i;
 	memset(spi_buffer_master_rx, 0x0, DMA_TRANS_SIZE);
 
 	spid_begin_transfert(&spi_slave_desc);
