@@ -19,8 +19,8 @@ Users can select different mode by configuration menu in the terminal.
 ## Setup
 --------
 On the board:
- - SAMA5D2-XPLAINED: Connect PB9 to PD31 (ADTRG)
- - SAMA5D4-XPLAINED: Connect PE23 to PE31 (ADTRG)
+ - SAMA5D2-XPLAINED: Connect PB9 (pin 1 on J21) to PD31 (ADTRG) (pin 33 on J17)
+ - SAMA5D4-XPLAINED: Connect PE23 (pin 1 on J18) to PE31 (ADTRG) (pin 34 on J15) 
  - SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
  - SAMA5D3-XPLAINED: Connect PD15 (pin 8 on J21) to PD19 (ADTRG) (pin 6 on J21)
  - SAMA5D3-EK: Connect to PD15 (pin 32 on J3) to PD19 (ADTRG) (pin 34 on J3)
