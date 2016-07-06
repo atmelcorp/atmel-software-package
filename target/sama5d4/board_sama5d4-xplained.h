@@ -215,9 +215,9 @@
 #define BOARD_LCD_PINS              PINS_LCD
 
 /** Display width in pixels. */
-#define BOARD_LCD_WIDTH             800
+#define BOARD_LCD_WIDTH             480
 /** Display height in pixels. */
-#define BOARD_LCD_HEIGHT            480
+#define BOARD_LCD_HEIGHT            272
 /** Frame rate in Hz. */
 #define BOARD_LCD_FRAMERATE         40
 
