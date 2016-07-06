@@ -331,8 +331,19 @@
 
 /* ========== Pio PIN definition for LCDC peripheral ========== */
 
+/** LCD pin list. */
+
 /* LCD 24 bits */
-#define PINS_LCD { { PIO_GROUP_A, 0x3FFFFFFF, PIO_PERIPH_A, PIO_DEFAULT } }
+#define PINS_LCD {\
+	{ PIO_GROUP_A, 0x3FFFFFFF, PIO_PERIPH_A, PIO_DEFAULT }\
+}
+
+/* LCD 24 bits (alternate configuration) */
+#define PINS_LCD_ALT {\
+	{ PIO_GROUP_A, 0x3F00FFFF, PIO_PERIPH_A, PIO_DEFAULT},\
+	{ PIO_GROUP_C, 0x0000FC00, PIO_PERIPH_C, PIO_DEFAULT},\
+	{ PIO_GROUP_E, 0x18000000, PIO_PERIPH_C, PIO_DEFAULT},\
+}
 
 /* ========== Pio PIN definition for ADC peripheral ========== */
 
