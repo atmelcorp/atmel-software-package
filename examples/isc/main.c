@@ -100,7 +100,6 @@
 #include "peripherals/twid.h"
 #include "peripherals/isc.h"
 
-
 #include "video/lcdd.h"
 #include "video/image_sensor_inf.h"
 #include "timer.h"
@@ -149,6 +148,8 @@
 
 #define HIST_ENTRIES   512
 #define HIST_RGGB_BAYER  5
+
+#define AE_TUNING
 
 /*----------------------------------------------------------------------------
  *        Local Type
@@ -224,6 +225,7 @@ static uint32_t histogram_idx_isc;
 
 volatile static bool histogram_done;
 volatile static bool histogram_read;
+volatile static bool ae_awb;
 
 /* Color space matrix setting */
 static struct _color_space cs = {
@@ -280,6 +282,7 @@ const uint32_t gamma_table[GAMMA_ENTRIES] = {
  */
 static void _dma_callback(struct _xdmad_channel *channel, void *arg)
 {
+	cache_invalidate_region((uint32_t*)ISC_HIS_BASE_ADDRESS, HIST_ENTRIES * sizeof(uint32_t));
 	histogram_read = true;
 }
 
@@ -610,7 +613,6 @@ static void configure_isc(void)
 	isc_interrupt_status();
 	capture_started = 0;
 	aic_enable(ID_ISC);
-
 }
 
 /**
@@ -685,7 +687,6 @@ static void awb_update(void)
 	gain_049[HISTOGRAM_GR] = float2hex(0, 4, 9, gain[HISTOGRAM_GR]);
 	gain_049[HISTOGRAM_B] = float2hex(0, 4, 9, gain[HISTOGRAM_B]);
 	gain_049[HISTOGRAM_R] = float2hex(0, 4, 9, gain[HISTOGRAM_R]);
-
 	isc_wb_adjust_bayer_color(0, 0, 0, 0,
 					gain_049[HISTOGRAM_R],
 					gain_049[HISTOGRAM_GR],
@@ -703,28 +704,30 @@ static void ae_update(void)
 	uint16_t i;
 	float ygain, offset;
 	uint32_t ycount;
-	uint16_t dart_threshold, bright_threshold;
-	uint32_t gain_110,offset_138;
+	uint16_t dark_threshold, bright_threshold;
+	uint32_t gain_110, offset_138;
 
 	ycount = 0;
-	for(i = 0; i < HIST_ENTRIES; i++){
+	dark_threshold = 0;
+	for (i = 0; i < HIST_ENTRIES; i++) {
 		ycount += histogram_y[i];
-		if (ycount >= histogram_count[HISTOGRAM_Y] * 5 / 100){
-			dart_threshold = i;
+		if (ycount >= histogram_count[HISTOGRAM_Y] * 5 / 100) {
+			dark_threshold = i;
 			break;
 		}
 	}
 
 	ycount = 0;
-	for(i = HIST_ENTRIES - 1; i > 1; i--){
+	bright_threshold = i;
+	for (i = HIST_ENTRIES - 1; i > 1; i--) {
 		ycount += histogram_y[i];
-		if (ycount >= histogram_count[HISTOGRAM_Y]){
+		if (ycount >= histogram_count[HISTOGRAM_Y]) {
 			bright_threshold = i;
 			break;
 		}
 	}
-	//printf("<%d, %d> ",bright_threshold,dart_threshold);
-	ygain = 512.0/ ((float)(bright_threshold - dart_threshold));
+	//printf("<%d, %d> ", bright_threshold, dark_threshold);
+	ygain = 512.0/ ((float)(bright_threshold - dark_threshold));
 	offset = (512.0 / ygain) - (float)bright_threshold;
 	//printf("<%f, %f> ",ygain,offset);
 	gain_110 = float2hex(1, 10, 0, ygain);
@@ -732,7 +735,7 @@ static void ae_update(void)
 
 	isc_cbc_configure(0, 0, gain_110, offset_138);
 	isc_update_profile();
-	//printf("<%x, %x> ",gain_110,offset_138);
+	//printf("<%x, %x> ", gain_110, offset_138);
 }
 #endif
 
@@ -743,6 +746,7 @@ static void histogram_count_up(void)
 {
 	uint32_t *v;
 	uint32_t i;
+	
 	v = (uint32_t *)ISC_HIS_BASE_ADDRESS;
 	histogram_count[histogram_idx_isc] = 0;
 	for (i = 0; i < HIST_ENTRIES; i++){
@@ -914,22 +918,29 @@ restart_sensor:
 	configure_dma_linklist();
 	configure_isc();
 	awb_status_machine = AWB_INIT;
+	ae_awb = false;
 	printf("-I- Preview start. \n\r");
 	printf("-I- press 'S' or 's' to switch ISC mode. \n\r");
 	if (sensor_mode == RAW_BAYER) {
 		printf("-I- press 'A' or 'a' to start auto white balance & AE. \n\r");
 	}
+	
 	for(;;) {
-		key = console_get_char();
-		if ((key == 'S') || (key == 's')) {
-			isc_stop_capture();
-			break;
-		}
-		if (sensor_mode == RAW_BAYER) {
-			if ((key == 'A') || (key == 'a')) {
-				auto_white_balance();
+		if (console_is_rx_ready()) {
+			key = console_get_char();
+			if ((key == 'S') || (key == 's')) {
+				isc_stop_capture();
+				break;
+			}
+			if (sensor_mode == RAW_BAYER) {
+				if ((key == 'A') || (key == 'a')) {
+					ae_awb = true;
+					auto_white_balance();
+				}
 			}
 		}
+		if (ae_awb)
+			auto_white_balance();
 	}
 	goto restart_sensor;
 }
