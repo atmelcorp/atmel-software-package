@@ -28,7 +28,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -91,14 +91,3 @@ Press '1' | Print `Next SPI master transfer will use 1000kHz clock.` on screen |
 Press 's' | Print `Slave sending, Master receiving...` ... `Received data matched.` on screen | PASSED | PASSED
 Press '2' | Print `Next SPI master transfer will use 5000kHz clock.` on screen | PASSED | PASSED
 Press 's' | Print `Slave sending, Master receiving...` ... `Received data matched.` on screen | PASSED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

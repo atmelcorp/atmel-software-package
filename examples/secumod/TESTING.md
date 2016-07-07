@@ -111,13 +111,3 @@ Press 'p' | Print `-I- SECURAM erased.` on screen | PASSED | PASSED
 Press 's' | Print `-I- Current Scrambling Key is:` ... on screen then test functions with the new scrambling key | PASSED | PASSED
 Press 'm' | Print ... `Enter in Backup Mode` ... on screen then test functions in the backup mode | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

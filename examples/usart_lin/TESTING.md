@@ -26,7 +26,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application (SAMA5D2-XPLAINED)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -54,13 +54,3 @@ Press 's' | Print `S: [X] Run Master SUBSCRIBER to Slave PUBLISHER`, `Rx Frame .
 Press 'i' | Print ... `I: [X] Master and Slave mode IGNORE` ... on screen | PASSED | PASSED
 Press 'q' | Print `End of demo` on screen | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

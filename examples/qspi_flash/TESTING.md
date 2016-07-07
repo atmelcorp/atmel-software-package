@@ -26,7 +26,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application (SAMA5D2-XPLAINED)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -42,14 +42,3 @@ In order to test this example, the process is the following:
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Run this example | Print ... `configure returns true` ... `erase returns true` ... `read returns true` ... `write returns true` ... `read returns true` ... on screen | PASSED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

@@ -47,12 +47,3 @@ Press 's'.'p' | ISO 11898-7 CAN FD, 64-byte data, 2 Mbps data bit| PASSED | PASS
 Press 'l'.'p' | toggle the integrated MCAN loop-back off| FAILED | PASSED
 Press 'l' | toggle the integrated MCAN loop-back on| PASSED | PASSED
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

@@ -23,7 +23,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-This package can be used with SAMA5D2-XULT with QSPI memory onboard.
+This package can be used with SAMA5D2-XPLAINED with QSPI memory onboard.
 
 ## Start the application (SAMA5D2-XPLAINED)
 -------------------------------------------
@@ -59,10 +59,10 @@ Erase done.
 Writing to QSPI...
 Example code written to memory (0x7ae0 bytes).
 Verifying...
-Everything is OK 
+Everything is OK
 
- Running code from QSPI flash 
-========================================================= 
+ Running code from QSPI flash
+=========================================================
 -- Getting Started Example xxx --
 (...)
 ```
@@ -107,13 +107,3 @@ First run | Execute the qspi_xip example, it should display a log similar to "Fi
 Reset | Reset the board (to ensure the QSPI memory leaves the XIP mode) | N/A | N/A
 Second run | Execute the qspi_xip example gain, it should display a log similar to "Subsequent runs" | PASSED | PASSED
 
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

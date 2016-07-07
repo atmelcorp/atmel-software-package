@@ -30,7 +30,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -86,13 +86,3 @@ Press 'a' | Print `PLLA = 792 MHz` on screen | PASSED | PASSED
 Press 'b' | Print `PLLA = 996 MHz` on screen | PASSED | PASSED
 Press 'c' | Print `PLLA = 1200 MHz` on screen | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------
