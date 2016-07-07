@@ -16,7 +16,7 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 
 ## Setup
 --------
-Step needed to set up the example.
+
 
 * Build the program and download it inside the evaluation board.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
@@ -26,7 +26,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -46,7 +46,7 @@ Step needed to set up the example.
 ```
 `Note: while running out of DDR, changing clock is not permitted.`
 
-Tested with IAR and GCC (sram and ddram configurations)
+Tested with IAR and GCC (sram configuration)
 
 In order to test this example, the process is the following:
 
@@ -57,13 +57,3 @@ Press '2' | Print `MCK = 160 Mhz`, `PLLA = 0 Mhz`, `Processor clock = 480 Mhz` o
 Press '3' | Print `witch to main clock`, `MCK = 12 Mhz`, `PLLA = 0 Mhz`, `Processor clock = 12 Mhz` on screen | PASSED | PASSED
 Press '4' | Print `witch to slow clock`, `It is too slow to output info on serial port`, `So stay at this speed for a moment only`, `Go back to fast clock and continue`, `MCK = 166 Mhz`, `PLLA = 498 Mhz`, `Processor clock = 498 Mhz` on screen | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

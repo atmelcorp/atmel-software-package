@@ -28,12 +28,23 @@ Step needed to set up the example.
 	- No flow control
 
 
+### SAMA5D2-XPLAINED 
+----------------
+Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board.
+
 ### SAMA5D3-EK
 ----------------
 Connect PA22 (J1 pin 18) and PC12 (J2 pin 29) on the board.
 
+### SAMA5D4-EK
+----------------
+Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44) on the board. 
 
-* Start the application.
+### SAMA5D4-XPLAINED
+----------------
+Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board.
+
+* Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -59,7 +70,6 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Connect for capture | `sama5d2-xplained board:` Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6); `sama5d4-ek board:` Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44); `sama5d4-xplained board:` Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) | N/A | N/A
 Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
 Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
@@ -78,12 +88,3 @@ Press 'x' | test dead-time | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
 
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

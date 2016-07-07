@@ -28,7 +28,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application.
+* Start the application(SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -58,12 +58,3 @@ Press 'p' | do calibration | PASSED | PASSED
 Press 'q' | Print `Software Interrupt` on screen | PASSED | PASSED
 
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

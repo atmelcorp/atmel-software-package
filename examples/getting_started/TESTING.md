@@ -26,7 +26,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-EK,SAMA5D4-XPLAINED)
 --------
 Two/three LEDs should start blinking on the board. In the terminal window, "0 1 2 0 1 2 ..."
 
@@ -45,13 +45,3 @@ Press '2' | Turn on 'blue' light | PASSED | PASSED
 Press 's' | Turn off all light | PASSED | PASSED
 Press 'b' | Turn on all light | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v2.1
-
-## History
---------

@@ -54,7 +54,7 @@ Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
 Connect PE27 (J22 pin 11) and PC12 (J2 pin 29) on the board.
 
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 -------------------------------------------
 In the terminal window, the following text should appear (values depend on the
 board and chip used):
@@ -93,11 +93,3 @@ Press '3' 'c' 's' | Capture waveform | Captured wave frequency = 500 Hz, Duty cy
 Press '4' 'c' 's' | Capture waveform | Captured wave frequency = 2000 Hz, Duty cycle = 55% | PASSED
 Press 'h' | Print the menu | Display the menu | PASSED
 
-# Log
------
-## Current version
-------------------
- - v2.1
-
-## History
-----------

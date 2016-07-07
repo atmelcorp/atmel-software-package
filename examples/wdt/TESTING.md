@@ -42,7 +42,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 -------------------------------------------
 
  - Press 1 to generate WatchDog Underflow error
@@ -61,12 +61,3 @@ Press '2' | WDT has been Reset after 5s| PASSED | PASSED
 Press '3' | WDT will be reset every 2 seconds | PASSED | PASSED
 Press '4' | System will be restarted by WDT after 16 seconds| PASSED | PASSED
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
-----------
