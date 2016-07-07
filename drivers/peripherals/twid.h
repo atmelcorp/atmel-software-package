@@ -114,11 +114,6 @@ extern uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
                                struct _buffer* tx, twid_callback_t cb,
                                void* user_args);
 
-extern void twid_finish_transfert_callback(struct _twi_desc* desc,
-                                           void* user_args);
-
-extern void twid_finish_transfert(struct _twi_desc* desc);
-
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 
 extern void twid_wait_transfert(const struct _twi_desc* desc);

@@ -158,7 +158,7 @@ struct _at24 at24_drv = {
 struct _twi_desc at24_twid = {
 	.addr = AT24_ADDR,
 	.freq = AT24_FREQ,
-	.transfert_mode = TWID_MODE_DMA
+	.transfert_mode = TWID_MODE_ASYNC
 };
 
 static volatile uint32_t cmd_length = 0;
@@ -521,6 +521,6 @@ int main (void)
 			_cmd_parser(cmd_buffer, cmd_length);
 			cmd_length = 0;
 			cmd_complete = false;
- 		}
+		}
 	}
 }

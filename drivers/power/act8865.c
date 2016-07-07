@@ -65,16 +65,14 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint32_t iaddr,
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
 
-	status = twid_transfert(act8865->twid, &in, 0,
-			twid_finish_transfert_callback, 0);
+	status = twid_transfert(act8865->twid, &in, 0, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfert(act8865->twid);
 	return true;
 }
 
-static bool _act8865_write_reg(struct _act8865* act8865, uint32_t iaddr,
-		uint8_t value)
+static bool _act8865_write_reg(struct _act8865* act8865, uint32_t iaddr, uint8_t value)
 {
 	uint32_t status;
 	struct _buffer out = {
@@ -84,8 +82,7 @@ static bool _act8865_write_reg(struct _act8865* act8865, uint32_t iaddr,
 	act8865->twid->slave_addr = ACT8865_TWI_ADDRESS;
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
-	status = twid_transfert(act8865->twid, 0, &out,
-			twid_finish_transfert_callback, 0);
+	status = twid_transfert(act8865->twid, 0, &out, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfert(act8865->twid);

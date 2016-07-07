@@ -62,10 +62,8 @@ CACHE_ALIGNED static uint8_t at24_buffer[16];
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-void at24_free_mutex(struct _twi_desc* twi, void* arg);
-void at24_free_mutex(struct _twi_desc* twi, void* arg)
+static void at24_free_mutex(struct _twi_desc* twi, void* arg)
 {
-	twid_finish_transfert(twi);
 	if (arg)
 		mutex_unlock((mutex_t*)(arg));
 }
@@ -180,7 +178,7 @@ uint8_t at24_read_eep(struct _at24* at24, uint8_t addr,
 	if (status)
 		return status;
 	status = _at24_read(at24, data, length, &at24->mutex);
-	while (mutex_is_locked(&at24->mutex)) ;
+	while (mutex_is_locked(&at24->mutex));
 	return status;
 }
 
@@ -215,7 +213,7 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 		write_size = min_u32(length, page_size - (addr % page_size));
 		at24->twid->iaddr = addr;
 		status |= _at24_write(at24, data, write_size, &at24->mutex);
-		while (mutex_is_locked(&at24->mutex)) ;
+		while (mutex_is_locked(&at24->mutex));
 		length -= write_size;
 		addr += write_size;
 		data += write_size;

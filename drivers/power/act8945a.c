@@ -282,8 +282,7 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint32_t iaddr,
 	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
-	status = twid_transfert(act8945a->twid, &in, 0,
-			twid_finish_transfert_callback, 0);
+	status = twid_transfert(act8945a->twid, &in, 0, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfert(act8945a->twid);
@@ -301,8 +300,7 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint32_t iaddr,
 	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
-	status = twid_transfert(act8945a->twid, 0, &out,
-			twid_finish_transfert_callback, 0);
+	status = twid_transfert(act8945a->twid, 0, &out, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfert(act8945a->twid);

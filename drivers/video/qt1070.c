@@ -73,7 +73,7 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 		.data = &data,
 		.size = 1
 	};
-	twid_transfert(qt1070->twid, &in, 0, twid_finish_transfert_callback, 0);
+	twid_transfert(qt1070->twid, &in, 0, NULL, 0);
 	return data;
 }
 
@@ -96,7 +96,7 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
 	qt1070->twid->iaddr = reg_addr;
 	qt1070->twid->isize = 1;
-	twid_transfert(qt1070->twid, 0, &out, twid_finish_transfert_callback, 0);
+	twid_transfert(qt1070->twid, 0, &out, NULL, 0);
 }
 
 /*----------------------------------------------------------------------------
