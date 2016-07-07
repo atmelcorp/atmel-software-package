@@ -23,7 +23,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED,SAMA5D4-EK))
 -------------------------------------------
 
 xDMA Menu :
@@ -62,13 +62,3 @@ Press 'a','l','t' | BYTE, linker_list| PASSED | PASSED
 Press 'b','l','t' | HALFWORD,linker_list| PASSED | PASSED
 Press 'c','l','t' | WORD, linker_list| PASSED | PASSED
 Press 'd','l','t' | DWORD,linker_list| PASSED | PASSED
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

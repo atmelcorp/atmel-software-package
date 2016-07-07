@@ -34,7 +34,7 @@ Connect LCD with on board J2 LCD interface.
 ## Start the application (SAMA5D2-XPLAINED)
 --------
 
-Tested with IAR and GCC (sram ddram configration)
+Tested with IAR and GCC (ddram configration)
 In order to test this example, the process is the following:
 
  - 'Y' Test YUV mode input
@@ -62,13 +62,3 @@ Press 'S' | Switch mode | PASSED | PASSED
 Press '3' | Test YC420P output | video output with YC420P | PASSED
 Press 'S' | Switch mode | PASSED | PASSED
 Press '4' | Test YC420SP output | video output with YC420SP | PASSED
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

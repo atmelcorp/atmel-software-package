@@ -26,7 +26,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED,SAMA5D4-EK)
 --------
 
 Tested with IAR and GCC (sram and ddram configuration)
@@ -39,13 +39,3 @@ Transfer data to address of AESB IP scope | the data is ciphered on-the-fly | PA
 Read data from address of AESB IP scope | the data is deciphered on-the-fly | PASSED | PASSED
 Read data from address outside of AESB IP scope | the data can not be deciphered | FAILED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

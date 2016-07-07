@@ -38,14 +38,3 @@ Step | Description | Expected Result | Result
 Transfer data to address of AESB IP scope | the data is ciphered on-the-fly | PASSED | PASSED
 Read data from address of AESB IP scope | the data is deciphered on-the-fly | PASSED | PASSED
 Read data from address outside of AESB IP scope | the data can not be deciphered | FAILED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v1.4
-
-## History
---------

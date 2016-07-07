@@ -23,7 +23,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D3-EK)
+## Start the application (SAMA5D3-EK,SAMA5D3-XPLAINED)
 -------------------------------------------
 
 Menu :
@@ -59,14 +59,3 @@ Press '8', | Multi Buffer transfer with BTSIZE reloaded and contiguous SADDR | P
 Press '9', | Automatic mode channel is stalling BTsize is reloaded | PASSED | PASSED
 Press 'A', | Automatic mode BTSIZE, SADDR and DADDR reloaded | PASSED | PASSED
 Press 'B', | Automatic mode BTSIZE, SADDR reloaded and DADDR contiguous | PASSED | PASSED
-
-
-# Log
-------
-
-## Current version
---------
- - v2.3
-
-## History
---------

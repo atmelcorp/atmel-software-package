@@ -31,7 +31,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application
+## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 --------
 
 Tested with IAR and GCC (sram and ddram configuration)
@@ -52,6 +52,3 @@ Press '0','x','d','p' | Electronic Code Book, XTEA, dma | PASSED | PASSED
 Press '1','x','d','p' | Cipher Block Chaining, XTEA, dma | PASSED | PASSED
 Press '2','x','d','p' | Output Feedback, XTEA, dma | PASSED | PASSED
 Press '3','x','a','p' | Cipher Feedback, XTEA, dma | PASSED | PASSED
-
-## History
---------

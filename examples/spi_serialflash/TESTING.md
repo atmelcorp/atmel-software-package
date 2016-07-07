@@ -50,6 +50,7 @@ Step needed to set up the example.
  |      Print this menu                                  |
  |=======================================================|
 ```
+## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 
 Tested with IAR and GCC (sram and ddram configurations)
 
@@ -68,13 +69,3 @@ Press 'r 0 8' | Print `at address: 0x00000000`, `31 32 33 34 35 36 37 38` on scr
 Press 'd 0 32k' | erase the flash | PASSED | PASSED
 Press 'd 0 64k' | erase the flash | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

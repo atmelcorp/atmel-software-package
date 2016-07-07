@@ -1,4 +1,4 @@
-ISI EXAMPLE
+USB_UVC_IS1 EXAMPLE
 ============
 
 # Objectives
@@ -26,8 +26,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-Connect OV7740 image sensor with on board J15 ISI.
-Connect LCD with on board J9 LCD interface.
+Connect image sensor with on board J15 ISI.
 
 ## Start the application (SAMA5D4-EK,SAMA5D4-XPLAINED)
 --------
@@ -35,21 +34,20 @@ Connect LCD with on board J9 LCD interface.
 Tested with IAR and GCC (ddram configration)
 In order to test this example, the process is the following:
 
-Press [0|1|2|3|4][5] to select supported sensor
-- '0' omnivision 2640
-- '1' omnivision 2643
-- '2' omnivision 5640
-- '3' omnivision 7740
-- '4' omnivision 9740
+
+Image Sensor Selection:
+- '1' OV2640
+- '2' OV2643
+- '3' OV5640
+- '4' OV7670
+- '5' OV7740
+- '6' OV9740
+Press [1..6] to select supported sensor
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press '3'| Select Image sensor 7740 | Video output in YUV | PASSED
+Press '5'| Select Image sensor 7740 | Video output in YUV | PASSED
 
--I- Press 'C' to capture image, press 'P' back to preview mode
+Open USB camera application on Host PC, preview start...
 
-Step | Description | Expected Result | Result
------|-------------|-----------------|-------
-Press 'C' | Capture image | PASSED | PASSED
-Press 'P' | Preview mode  | PASSED | PASSED
 
