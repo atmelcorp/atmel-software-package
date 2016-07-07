@@ -98,33 +98,33 @@ static struct _lcdd_desc lcdd_config;         /**< Current LCD configuration */
 
 static struct _lcdd_layer lcdd_canvas;        /**< Current selected canvas */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
 
 static struct _layer_data lcdd_base;         /**< Base Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc ovr1_dma_desc;  /**< DMA desc. for OVR1 Layer */
 
 static struct _layer_data lcdd_ovr1;         /**< OVR1 Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc ovr2_dma_desc;  /**< DMA desc. for OVR2 Layer */
 
 static struct _layer_data lcdd_ovr2;         /**< OVR2 Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc heo_dma_desc;   /**< DMA desc. for HEO Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc heo_dma_u_desc; /**< DMA desc. for HEO U-UV Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc heo_dma_v_desc; /**< DMA desc. for HEO V Layer */
 
 static struct _layer_data lcdd_heo;          /**< HEO Layer */
 
-CACHE_ALIGNED
+CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc hcc_dma_desc;   /**< DMA desc. for HCC Layer */
 
 static struct _layer_data lcdd_hcc;          /**< HCC Layer */
