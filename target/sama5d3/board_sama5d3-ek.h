@@ -183,6 +183,14 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* =================== ISI device definition =================== */
+
+#define BOARD_ISI_TWI_ADDR ((Twi*)TWI1)
+#define BOARD_ISI_TWI_PINS PINS_TWI1
+#define BOARD_ISI_PINS     PINS_ISI
+#define BOARD_ISI_RST_PIN  { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN  { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
+
 /* =================== AT24 device definition =================== */
 
 #define AT24_PINS       PINS_TWI0;
