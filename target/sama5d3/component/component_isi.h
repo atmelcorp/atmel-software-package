@@ -104,9 +104,17 @@ typedef struct {
 #define ISI_CFG2_YCC_SWAP_Pos 28
 #define ISI_CFG2_YCC_SWAP_Msk (0x3u << ISI_CFG2_YCC_SWAP_Pos) /**< \brief (ISI_CFG2) Defines the YCC Image Data */
 #define ISI_CFG2_YCC_SWAP(value) ((ISI_CFG2_YCC_SWAP_Msk & ((value) << ISI_CFG2_YCC_SWAP_Pos)))
+#define   ISI_CFG2_YCC_SWAP_DEFAULT (0x0u << 28) /**< \brief (ISI_CFG2) Byte 0 Cb(i)Byte 1 Y(i)Byte 2 Cr(i)Byte 3 Y(i+1) */
+#define   ISI_CFG2_YCC_SWAP_MODE1 (0x1u << 28) /**< \brief (ISI_CFG2) Byte 0 Cr(i)Byte 1 Y(i)Byte 2 Cb(i)Byte 3 Y(i+1) */
+#define   ISI_CFG2_YCC_SWAP_MODE2 (0x2u << 28) /**< \brief (ISI_CFG2) Byte 0 Y(i)Byte 1 Cb(i)Byte 2 Y(i+1)Byte 3 Cr(i) */
+#define   ISI_CFG2_YCC_SWAP_MODE3 (0x3u << 28) /**< \brief (ISI_CFG2) Byte 0 Y(i)Byte 1 Cr(i)Byte 2 Y(i+1)Byte 3 Cb(i) */
 #define ISI_CFG2_RGB_CFG_Pos 30
 #define ISI_CFG2_RGB_CFG_Msk (0x3u << ISI_CFG2_RGB_CFG_Pos) /**< \brief (ISI_CFG2) Defines RGB Pattern when RGB_MODE is set to 1 */
 #define ISI_CFG2_RGB_CFG(value) ((ISI_CFG2_RGB_CFG_Msk & ((value) << ISI_CFG2_RGB_CFG_Pos)))
+#define   ISI_CFG2_RGB_CFG_DEFAULT (0x0u << 30)	/**< \brief (ISI_CFG2) Byte 0 R/G(MSB)Byte 1 G(LSB)/BByte 2 R/G(MSB)Byte 3 G(LSB)/B */
+#define   ISI_CFG2_RGB_CFG_MODE1 (0x1u << 30) /**< \brief (ISI_CFG2) Byte 0 B/G(MSB)Byte 1 G(LSB)/RByte 2 B/G(MSB)Byte 3 G(LSB)/R */
+#define   ISI_CFG2_RGB_CFG_MODE2 (0x2u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/RByte 1 B/G(MSB)Byte 2 G(LSB)/RByte 3 B/G(MSB) */
+#define   ISI_CFG2_RGB_CFG_MODE3 (0x3u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/BByte 1 R/G(MSB)Byte 2 G(LSB)/BByte 3 R/G(MSB) */
 /* -------- ISI_PSIZE : (ISI Offset: 0x08) ISI Preview Size Register -------- */
 #define ISI_PSIZE_PREV_VSIZE_Pos 0
 #define ISI_PSIZE_PREV_VSIZE_Msk (0x3ffu << ISI_PSIZE_PREV_VSIZE_Pos) /**< \brief (ISI_PSIZE) Vertical Size for the Preview Path */
