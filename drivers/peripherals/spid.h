@@ -48,8 +48,6 @@
 #define SPID_INVALID_BITRATE (2)
 #define SPID_ERROR_LOCK      (3)
 
-#define SPID_NO_CALLBACK     ((spid_callback_t)0)
-
 struct _spi_desc;
 
 typedef void (*spid_callback_t)(struct _spi_desc* spid, void* args);
@@ -71,12 +69,13 @@ struct _spi_desc
 	uint8_t         chip_select;
 	uint8_t         spi_mode;
 	uint8_t         transfert_mode;
-	/* implicit internal padding is mandatory here */
-	spid_callback_t callback;
-	void*           cb_args;
+	/* following fields are used internally */
 	mutex_t         mutex;
-	void*           region_start;
-	uint32_t        region_length;
+	spid_callback_t dma_callback;
+	void*           dma_callback_args;
+	bool            dma_unlocks_mutex;
+	void*           dma_region_start;
+	uint32_t        dma_region_length;
 };
 
 /*------------------------------------------------------------------------------

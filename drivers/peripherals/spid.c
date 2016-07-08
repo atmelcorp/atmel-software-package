@@ -50,27 +50,6 @@
 
 static uint32_t _garbage = 0;
 
-static void _spid_dma_callback_wrapper(struct dma_channel *channel,
-					 void *arg)
-{
-	trace_debug("SPID DMA Transfert Finished\r\n");
-	struct _spi_desc* spid = (struct _spi_desc*) arg;
-
-	dma_free_channel(channel);
-
-	if (spid->region_start && spid->region_length)
-		cache_invalidate_region(spid->region_start, spid->region_length);
-
-	if (spid && spid->callback)
-		spid->callback(spid, spid->cb_args);
-}
-
-static void _spid_dma_cleanup_callback(struct dma_channel *channel,
-					 void *arg)
-{
-	dma_free_channel(channel);
-}
-
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void spid_fifo_error(void)
 {
@@ -84,9 +63,8 @@ void spid_configure(struct _spi_desc* desc)
 
 #ifdef CONFIG_HAVE_FLEXCOM
 	Flexcom* flexcom = get_flexcom_addr_from_id(id);
-	if (flexcom) {
+	if (flexcom)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
-	}
 #endif
 	/* Enable SPI early otherwise FIFO configuration won't be applied */
 	pmc_enable_peripheral(id);
@@ -117,7 +95,24 @@ void spid_begin_transfert(struct _spi_desc* desc)
 	spi_configure_cs_mode(desc->addr, desc->chip_select, SPI_KEEP_CS_OW);
 }
 
-static void _spid_dma_write(const struct _spi_desc* desc, const struct _buffer* buffer)
+static void _spid_dma_finish(struct dma_channel *channel, struct _spi_desc* desc)
+{
+	dma_free_channel(channel);
+
+	if (desc->dma_callback)
+		desc->dma_callback(desc, desc->dma_callback_args);
+
+	if (desc->dma_unlocks_mutex)
+		mutex_unlock(&desc->mutex);
+}
+
+static void _spid_dma_write_callback(struct dma_channel *channel, void *arg)
+{
+	struct _spi_desc* desc = (struct _spi_desc*)arg;
+	_spid_dma_finish(channel, desc);
+}
+
+static void _spid_dma_write(struct _spi_desc* desc, bool wait_completion)
 {
 	struct dma_channel* w_channel = NULL;
 	struct dma_channel* r_channel = NULL;
@@ -125,45 +120,56 @@ static void _spid_dma_write(const struct _spi_desc* desc, const struct _buffer* 
 	struct dma_xfer_cfg r_cfg;
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 
+	cache_clean_region(desc->dma_region_start, desc->dma_region_length);
+
 	memset(&w_cfg, 0x0, sizeof(w_cfg));
 
 	w_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
 	assert(w_channel);
 
 	w_cfg.da = (void*)&desc->addr->SPI_TDR;
-	w_cfg.sa = buffer->data;
+	w_cfg.sa = desc->dma_region_start;
 	w_cfg.upd_sa_per_data = 1;
 	w_cfg.upd_da_per_data = 0;
 	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
 	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	w_cfg.blk_size = 0;
-	w_cfg.len = buffer->size;
+	w_cfg.len = desc->dma_region_length;
 	dma_configure_transfer(w_channel, &w_cfg);
-	dma_set_callback(w_channel, _spid_dma_cleanup_callback, NULL);
+	dma_set_callback(w_channel, _spid_dma_write_callback, (void*)desc);
 
 	memset(&r_cfg, 0x0, sizeof(r_cfg));
 
 	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 	assert(r_channel);
-	
+
 	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
 	r_cfg.da = &_garbage;
 	r_cfg.upd_sa_per_data = 0;
-	r_cfg.upd_da_per_data = 1;
+	r_cfg.upd_da_per_data = 0;
 	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
 	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	r_cfg.blk_size = 0;
-	r_cfg.len = buffer->size;
+	r_cfg.len = desc->dma_region_length;
 	dma_configure_transfer(r_channel, &r_cfg);
-	dma_set_callback(r_channel, _spid_dma_callback_wrapper, (void*)desc);
-
-	cache_clean_region(desc->region_start, desc->region_length);
+	dma_set_callback(r_channel, NULL, NULL);
 
 	dma_start_transfer(w_channel);
 	dma_start_transfer(r_channel);
+
+	if (wait_completion) {
+		while (!dma_is_transfer_done(w_channel));
+	}
 }
 
-static void _spid_dma_read(const struct _spi_desc* desc, struct _buffer* buffer)
+static void _spid_dma_read_callback(struct dma_channel *channel, void *arg)
+{
+	struct _spi_desc* desc = (struct _spi_desc*) arg;
+	cache_invalidate_region(desc->dma_region_start, desc->dma_region_length);
+	_spid_dma_finish(channel, desc);
+}
+
+static void _spid_dma_read(const struct _spi_desc* desc)
 {
 	struct dma_channel* w_channel = NULL;
 	struct dma_channel* r_channel = NULL;
@@ -177,32 +183,31 @@ static void _spid_dma_read(const struct _spi_desc* desc, struct _buffer* buffer)
 	assert(w_channel);
 
 	w_cfg.da = (void*)&desc->addr->SPI_TDR;
-	w_cfg.sa = buffer->data;
-	w_cfg.upd_sa_per_data = 1;
+	w_cfg.sa = &_garbage;
+	w_cfg.upd_sa_per_data = 0;
 	w_cfg.upd_da_per_data = 0;
 	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
 	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	w_cfg.blk_size = 0;
-	w_cfg.len = buffer->size;
+	w_cfg.len = desc->dma_region_length;
 	dma_configure_transfer(w_channel, &w_cfg);
-	dma_set_callback(w_channel, _spid_dma_cleanup_callback, NULL);
+	dma_set_callback(r_channel, NULL, NULL);
 
 	memset(&r_cfg, 0x0, sizeof(r_cfg));
 
 	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 	assert(r_channel);
-	
+
 	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
-	r_cfg.da = &_garbage;
+	r_cfg.da = desc->dma_region_start;
 	r_cfg.upd_sa_per_data = 0;
 	r_cfg.upd_da_per_data = 1;
 	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
 	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	r_cfg.blk_size = 0;
-	r_cfg.len = buffer->size;
+	r_cfg.len = desc->dma_region_length;
 	dma_configure_transfer(r_channel, &r_cfg);
-	dma_set_callback(r_channel, _spid_dma_callback_wrapper,
-			   (void*)desc);
+	dma_set_callback(r_channel, _spid_dma_read_callback, (void*)desc);
 
 	dma_start_transfer(w_channel);
 	dma_start_transfer(r_channel);
@@ -215,80 +220,99 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
 
-	desc->callback = cb;
-	desc->cb_args = user_args;
-
-	if (!mutex_try_lock(&desc->mutex)) {
-		return SPID_ERROR_LOCK;
-	}
-
 	switch (desc->transfert_mode) {
 	case SPID_MODE_POLLING:
+		if (!mutex_try_lock(&desc->mutex)) {
+			trace_error("SPID mutex already locked!\r\n");
+			return SPID_ERROR_LOCK;
+		}
+
 		if (tx) {
-			for (i = 0; i < tx->size; ++i) {
+			for (i = 0; i < tx->size; ++i)
 				spi_write(spi, desc->chip_select, tx->data[i]);
-			}
 		}
+
 		if (rx) {
-			for (i = 0; i < rx->size; ++i) {
+			for (i = 0; i < rx->size; ++i)
 				rx->data[i] = spi_read(spi, desc->chip_select);
-			}
 		}
-		mutex_unlock(&desc->mutex);
+
 		if (cb)
 			cb(desc, user_args);
+
+		mutex_unlock(&desc->mutex);
+
 		break;
 
 	case SPID_MODE_DMA:
+		if (!mutex_try_lock(&desc->mutex)) {
+			trace_error("SPID mutex already locked!\r\n");
+			return SPID_ERROR_LOCK;
+		}
+
 		if (tx) {
 			if (tx->size < SPID_DMA_THRESHOLD) {
-				for (i = 0; i < tx->size; ++i) {
+				for (i = 0; i < tx->size; ++i)
 					spi_write(spi, desc->chip_select, tx->data[i]);
-				}
 				if (!rx) {
 					if (cb)
 						cb(desc, user_args);
 					mutex_unlock(&desc->mutex);
 				}
 			} else {
-				desc->region_start = tx->data;
-				desc->region_length = tx->size;
-				_spid_dma_write(desc, tx);
+				desc->dma_region_start = tx->data;
+				desc->dma_region_length = tx->size;
 				if (rx) {
-					spid_wait_transfert(desc);
-					mutex_lock(&desc->mutex);
+					desc->dma_unlocks_mutex = false;
+					desc->dma_callback = NULL;
+					desc->dma_callback_args = NULL;
+					_spid_dma_write(desc, true);
+				} else {
+					desc->dma_unlocks_mutex = true;
+					desc->dma_callback = cb;
+					desc->dma_callback_args = user_args;
+					_spid_dma_write(desc, false);
 				}
 			}
 		}
+
 		if (rx) {
 			if (rx->size < SPID_DMA_THRESHOLD) {
-				for (i = 0; i < rx->size; ++i) {
+				for (i = 0; i < rx->size; ++i)
 					rx->data[i] = spi_read(spi, desc->chip_select);
-				}
 				if (cb)
 					cb(desc, user_args);
 				mutex_unlock(&desc->mutex);
 			} else {
-				desc->region_start = rx->data;
-				desc->region_length = rx->size;
-				_spid_dma_read(desc, rx);
+				desc->dma_region_start = rx->data;
+				desc->dma_region_length = rx->size;
+				desc->dma_unlocks_mutex = true;
+				desc->dma_callback = cb;
+				desc->dma_callback_args = user_args;
+				_spid_dma_read(desc);
 			}
 		}
+
 		break;
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 	case SPID_MODE_FIFO:
-		if (tx) {
-			spi_write_stream(spi, desc->chip_select,
-					 tx->data, tx->size);
+		if (!mutex_try_lock(&desc->mutex)) {
+			trace_error("SPID mutex already locked!\r\n");
+			return SPID_ERROR_LOCK;
 		}
-		if (rx) {
-			spi_read_stream(spi, desc->chip_select,
-					rx->data, rx->size);
-		}
+
+		if (tx)
+			spi_write_stream(spi, desc->chip_select, tx->data, tx->size);
+
+		if (rx)
+			spi_read_stream(spi, desc->chip_select, rx->data, rx->size);
+
 		if (cb)
 			cb(desc, user_args);
+
 		mutex_unlock(&desc->mutex);
+
 		break;
 #endif
 	default:
@@ -307,7 +331,6 @@ void spid_finish_transfert_callback(struct _spi_desc* desc, void* user_args)
 void spid_finish_transfert(struct _spi_desc* desc)
 {
 	spi_release_cs(desc->addr);
-	mutex_unlock(&desc->mutex);
 }
 
 void spid_close(const struct _spi_desc* desc)

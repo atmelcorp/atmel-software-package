@@ -139,7 +139,7 @@ static void _at25_send_write_cmd(struct _at25* at25, uint32_t addr)
 	}
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 	out.size += dummy_byte ? 1 : 0;
-	spid_transfert(at25->spid, 0, &out, SPID_NO_CALLBACK, 0);
+	spid_transfert(at25->spid, 0, &out, NULL, 0);
 }
 
 static uint32_t _at25_check_writable(struct _at25* at25)
