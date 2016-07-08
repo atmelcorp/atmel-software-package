@@ -1405,7 +1405,7 @@ uint8_t usbd_hal_setup_multi_transfer(uint8_t ep,
  */
 uint8_t usbd_hal_write(uint8_t ep, const void *data, uint32_t data_len)
 {
-	if (data_len)
+	if (CHIP_USB_ENDPOINT_HAS_DMA(ep) && data_len)
 		cache_clean_region(data, data_len);
 
 	if (endpoints[ep].transfer.use_multi)
