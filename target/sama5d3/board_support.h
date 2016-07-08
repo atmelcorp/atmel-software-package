@@ -118,6 +118,13 @@ extern void board_cfg_nor_flash(void);
 extern void board_cfg_pmic(void);
 
 /**
+ * \brief Configures ISI for the board
+ */
+#ifdef CONFIG_HAVE_ISI
+extern void board_cfg_isi(void);
+#endif
+
+/**
  * \brief Configures LCD for the board.
  */
 #ifdef CONFIG_HAVE_LCDD
