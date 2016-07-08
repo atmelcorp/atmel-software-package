@@ -55,6 +55,8 @@
 
 #include <stdint.h>
 
+#include "chip.h"
+
 #include "usb/device/msd/msd_io_fifo.h"
 #include "usb/device/msd/sbc.h"
 #include "usb/device/usbd.h"
@@ -115,6 +117,11 @@ extern uint8_t med_flush(void* pMed);
 /** Media of LUN is ready */
 #define LUN_READY                   0x11
 
+#define MSD_LUN_DATA_BUFFER_SIZE (L1_CACHE_BYTES +\
+	ROUND_UP_MULT(sizeof(SBCRequestSenseData), L1_CACHE_BYTES) +\
+	ROUND_UP_MULT(sizeof(SBCReadCapacity10Data), L1_CACHE_BYTES) +\
+	ROUND_UP_MULT(sizeof(SBCInquiryData), L1_CACHE_BYTES))
+
 /*------------------------------------------------------------------------------
  *      Types
  *------------------------------------------------------------------------------*/
@@ -137,9 +144,6 @@ typedef void(*MSDLunDataMonitorFunction)(uint8_t  flowDirection,
 
 /** \brief LUN structure */
 typedef struct {
-
-	/** Pointer to a SBCInquiryData instance. */
-	SBCInquiryData        *inquiryData;
 	/** Fifo for USB transfer, must be assigned. */
 	MSDIOFifo             ioFifo;
 	/** Pointer to Media instance for the LUN. */
@@ -166,16 +170,19 @@ typedef struct {
 	/** The LUN status (Ejected/Changed/) */
 	uint8_t               status;
 
-	/** Data for the RequestSense command. */
-	SBCRequestSenseData   requestSenseData;
-	/** Data for the ReadCapacity command. */
-	SBCReadCapacity10Data readCapacityData;
-
+	uint8_t               dataBuffer[MSD_LUN_DATA_BUFFER_SIZE];
+	/** Pointer to a SBCRequestSenseData instance. */
+	SBCRequestSenseData   *requestSenseData;
+	/** Pointer to a SBCReadCapacity10Data instance. */
+	SBCReadCapacity10Data *readCapacityData;
+	/** Pointer to a SBCInquiryData instance. */
+	SBCInquiryData        *inquiryData;
 } MSDLun;
 
 /*------------------------------------------------------------------------------
  *      Exported functions
  *------------------------------------------------------------------------------*/
+
 extern void lun_init(MSDLun        *lun,
 					 void          *media,
 					 uint8_t *ioBuffer,

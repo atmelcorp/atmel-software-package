@@ -288,7 +288,7 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 			cbw->pCommand[0]);
 
 		/* Update sense data */
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_ILLEGAL_REQUEST,
 				SBC_ASC_INVALID_FIELD_IN_CDB, 0);
 
@@ -314,7 +314,7 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 				   (unsigned)command_state->cbw.pCommand[0]);
 
 		/* Update sense data */
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_MEDIUM_ERROR,
 				SBC_ASC_INVALID_FIELD_IN_CDB, 0);
 
@@ -330,14 +330,14 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 		command_complete = false;
 
 		/* Update sense data */
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_NO_SENSE, 0, 0);
 
 		break;
 
 	case MSDD_STATUS_SUCCESS:
 		/* Update sense data */
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_NO_SENSE, 0, 0);
 
 		break;

@@ -45,7 +45,7 @@
 #include "usb/device/msd/msd_io_fifo.h"
 #include "usb/device/msd/sbc_methods.h"
 #include "usb/device/usbd.h"
-
+#include "misc/cache.h"
 /*------------------------------------------------------------------------------
  *      Constants
  *------------------------------------------------------------------------------*/
@@ -54,6 +54,7 @@
  * \brief  Header for the mode pages data
  * \see    SBCModeParameterHeader6
  */
+CACHE_ALIGNED_CONST
 static const SBCModeParameterHeader6 mode_parameter_header6 = {
 	sizeof(SBCModeParameterHeader6) - 1,        /*! Length is 0x03 */
 	SBC_MEDIUM_TYPE_DIRECT_ACCESS_BLOCK_DEVICE, /*! Direct-access block device */
@@ -97,12 +98,12 @@ static bool sbc_lun_is_ready(MSDLun *lun)
 
 	if (lun->media == 0 || lun->status < LUN_CHANGED) {
 		trace_warning("sbc_lun_is_ready: Not Present!\n\r");
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_NOT_READY,
 				SBC_ASC_MEDIUM_NOT_PRESENT, 0);
 	} else if (lun->status < LUN_READY) {
 		trace_warning("sbc_lun_is_ready: Changing!\n\r");
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_UNIT_ATTENTION,
 				SBC_ASC_NOT_READY_TO_READY_CHANGE, 0);
 		lun->status = LUN_READY;
@@ -128,7 +129,7 @@ static bool sbc_lun_can_be_written(MSDLun *lun)
 	} else if (lun->protected) {
 		trace_warning("sbc_lun_can_be_written: Protected!\n\r");
 
-		sbc_update_sense_data(&(lun->requestSenseData),
+		sbc_update_sense_data(lun->requestSenseData,
 				SBC_SENSE_KEY_DATA_PROTECT,
 				SBC_ASC_WRITE_PROTECTED, 0);
 	} else {
@@ -262,7 +263,7 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check operation result code */
 		if (status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Write10: Failed to start receiving\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_HARDWARE_ERROR, 0, 0);
 			result = MSDD_STATUS_ERROR;
 		} else {
@@ -287,7 +288,7 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check the result code of the write operation */
 		if (transfer->status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Write10: Failed to received\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_HARDWARE_ERROR, 0, 0);
 			result = MSDD_STATUS_ERROR;
 		} else {
@@ -373,7 +374,7 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 			trace_warning("RBC_Write10: Failed to start write - ");
 
 			if (!sbc_lun_can_be_written(lun)) {
-				sbc_update_sense_data(&(lun->requestSenseData),
+				sbc_update_sense_data(lun->requestSenseData,
 						SBC_SENSE_KEY_NOT_READY, 0, 0);
 			}
 
@@ -399,7 +400,7 @@ static uint8_t sbc_write10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check operation result code */
 		if (transfer->status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Write10: Failed to write\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_RECOVERED_ERROR,
 					SBC_ASC_TOO_MUCH_WRITE_DATA, 0);
 			result = MSDD_STATUS_ERROR;
@@ -577,11 +578,11 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 		if (status != LUN_STATUS_SUCCESS) {
 			trace_warning("RBC_Read10: Failed to start reading\n\r");
 			if (sbc_lun_is_ready(lun))
-				sbc_update_sense_data(&(lun->requestSenseData),
+				sbc_update_sense_data(lun->requestSenseData,
 						SBC_SENSE_KEY_RECOVERED_ERROR,
 						SBC_ASC_LOGICAL_BLOCK_ADDRESS_OUT_OF_RANGE, 0);
 			else
-				sbc_update_sense_data(&(lun->requestSenseData),
+				sbc_update_sense_data(lun->requestSenseData,
 						SBC_SENSE_KEY_NOT_READY,
 						SBC_ASC_LOGICAL_UNIT_NOT_READY, 0);
 			fifo->inputState = MSDIO_ERROR;
@@ -606,7 +607,7 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check the operation result code */
 		if (disktransfer->status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Read10: Failed to read media\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_RECOVERED_ERROR,
 					SBC_ASC_LOGICAL_BLOCK_ADDRESS_OUT_OF_RANGE, 0);
 			result = MSDD_STATUS_ERROR;
@@ -712,7 +713,7 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check operation result code */
 		if (status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Read10: Failed to start to send\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_HARDWARE_ERROR, 0, 0);
 			result = MSDD_STATUS_ERROR;
 		} else {
@@ -736,7 +737,7 @@ static uint8_t sbc_read10(MSDLun *lun, MSDCommandState *command_state)
 		/* Check operation result code */
 		if (transfer->status != USBD_STATUS_SUCCESS) {
 			trace_warning("RBC_Read10: Failed to send data\n\r");
-			sbc_update_sense_data(&(lun->requestSenseData),
+			sbc_update_sense_data(lun->requestSenseData,
 					SBC_SENSE_KEY_HARDWARE_ERROR, 0, 0);
 			result = MSDD_STATUS_ERROR;
 		} else {
@@ -818,7 +819,7 @@ static uint8_t sbc_read_capacity10(MSDLun *lun, MSDCommandState *command_state)
 	case SBC_STATE_WRITE:
 		/* Start the write operation */
 		status = usbd_write(command_state->pipeIN,
-				&(lun->readCapacityData), command_state->length,
+				lun->readCapacityData, command_state->length,
 				msd_driver_callback, transfer);
 
 		/* Check operation result code */
@@ -961,7 +962,7 @@ static uint8_t sbc_request_sense(MSDLun *lun, MSDCommandState *command_state)
 	case SBC_STATE_WRITE:
 		/* Start transfer */
 		status = usbd_write(command_state->pipeIN,
-				&(lun->requestSenseData), command_state->length,
+				lun->requestSenseData, command_state->length,
 				msd_driver_callback, transfer);
 
 		/* Check result code */
@@ -1113,7 +1114,7 @@ static uint8_t sbc_test_unit_ready(MSDLun *lun)
 		}
 	}
 
-	sbc_update_sense_data(&(lun->requestSenseData),
+	sbc_update_sense_data(lun->requestSenseData,
 			sense_key, add_sense_code, add_sense_code_qual);
 
 	return result;

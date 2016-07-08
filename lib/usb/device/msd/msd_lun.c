@@ -42,6 +42,11 @@
 #include "usb/device/msd/msd_lun.h"
 #include "usb/device/usbd.h"
 
+#include "misc/cache.h"
+
+#include <assert.h>
+#include <string.h>
+
 /*------------------------------------------------------------------------------
  *         Constants
  *------------------------------------------------------------------------------*/
@@ -53,9 +58,8 @@
  *         Internal variables
  *------------------------------------------------------------------------------*/
 
-/** Inquiry data to return to the host for the Lun. */
-static SBCInquiryData inquiry_data = {
-
+/** Inquiry data to return to the host for the Lun. (initialization data) */
+static const SBCInquiryData inquiry_data_init = {
 	SBC_DIRECT_ACCESS_BLOCK_DEVICE, /* Direct-access block device */
 	SBC_PERIPHERAL_DEVICE_CONNECTED,/* Peripheral device is connected */
 	0x00,                           /* Reserved bits */
@@ -133,39 +137,51 @@ void lun_init(MSDLun    *lun,
 								  uint32_t  fifo_null_count,
 								  uint32_t  fifo_full_count))
 {
+	uint8_t *data_buffer;
 	uint32_t logicalBlockAddress;
 	trace_info("LUN init\n\r");
 
+	/* Initialize pointers for cache-aligned buffers */
+
+	data_buffer = (uint8_t*)ROUND_UP_MULT((uint32_t)lun->dataBuffer, L1_CACHE_BYTES);
+	lun->requestSenseData = (SBCRequestSenseData*)data_buffer;
+	data_buffer += ROUND_UP_MULT(sizeof(SBCRequestSenseData), L1_CACHE_BYTES);
+	lun->readCapacityData = (SBCReadCapacity10Data*)data_buffer;
+	data_buffer += ROUND_UP_MULT(sizeof(SBCReadCapacity10Data), L1_CACHE_BYTES);
+	lun->inquiryData = (SBCInquiryData*)data_buffer;
+	data_buffer += ROUND_UP_MULT(sizeof(SBCInquiryData), L1_CACHE_BYTES);
+	/* overflow check */
+	assert(lun->dataBuffer + sizeof(lun->dataBuffer) >= data_buffer);
+
 	/* Initialize inquiry data */
 
-	lun->inquiryData = &inquiry_data;
+	memcpy(lun->inquiryData, &inquiry_data_init, sizeof(SBCInquiryData));
 
 	/* Initialize request sense data */
 
-	lun->requestSenseData.bResponseCode = SBC_SENSE_DATA_FIXED_CURRENT;
-	lun->requestSenseData.isValid = 1;
-	lun->requestSenseData.bObsolete1 = 0;
-	lun->requestSenseData.bSenseKey = SBC_SENSE_KEY_NO_SENSE;
-	lun->requestSenseData.bReserved1 = 0;
-	lun->requestSenseData.isILI = 0;
-	lun->requestSenseData.isEOM = 0;
-	lun->requestSenseData.isFilemark = 0;
-	lun->requestSenseData.pInformation[0] = 0;
-	lun->requestSenseData.pInformation[1] = 0;
-	lun->requestSenseData.pInformation[2] = 0;
-	lun->requestSenseData.pInformation[3] = 0;
-	lun->requestSenseData.bAdditionalSenseLength
-		= sizeof(SBCRequestSenseData) - 8;
-	lun->requestSenseData.bAdditionalSenseCode = 0;
-	lun->requestSenseData.bAdditionalSenseCodeQualifier = 0;
-	lun->requestSenseData.bFieldReplaceableUnitCode = 0;
-	lun->requestSenseData.bSenseKeySpecific = 0;
-	lun->requestSenseData.pSenseKeySpecific[0] = 0;
-	lun->requestSenseData.pSenseKeySpecific[0] = 0;
-	lun->requestSenseData.isSKSV = 0;
+	lun->requestSenseData->bResponseCode = SBC_SENSE_DATA_FIXED_CURRENT;
+	lun->requestSenseData->isValid = 1;
+	lun->requestSenseData->bObsolete1 = 0;
+	lun->requestSenseData->bSenseKey = SBC_SENSE_KEY_NO_SENSE;
+	lun->requestSenseData->bReserved1 = 0;
+	lun->requestSenseData->isILI = 0;
+	lun->requestSenseData->isEOM = 0;
+	lun->requestSenseData->isFilemark = 0;
+	lun->requestSenseData->pInformation[0] = 0;
+	lun->requestSenseData->pInformation[1] = 0;
+	lun->requestSenseData->pInformation[2] = 0;
+	lun->requestSenseData->pInformation[3] = 0;
+	lun->requestSenseData->bAdditionalSenseLength = sizeof(SBCRequestSenseData) - 8;
+	lun->requestSenseData->bAdditionalSenseCode = 0;
+	lun->requestSenseData->bAdditionalSenseCodeQualifier = 0;
+	lun->requestSenseData->bFieldReplaceableUnitCode = 0;
+	lun->requestSenseData->bSenseKeySpecific = 0;
+	lun->requestSenseData->pSenseKeySpecific[0] = 0;
+	lun->requestSenseData->pSenseKeySpecific[0] = 0;
+	lun->requestSenseData->isSKSV = 0;
 
-	STORE_DWORDB(0, lun->readCapacityData.pLogicalBlockAddress);
-	STORE_DWORDB(0, lun->readCapacityData.pLogicalBlockLength);
+	STORE_DWORDB(0, lun->readCapacityData->pLogicalBlockAddress);
+	STORE_DWORDB(0, lun->readCapacityData->pLogicalBlockLength);
 
 	/* Initialize LUN */
 
@@ -209,9 +225,9 @@ void lun_init(MSDLun    *lun,
 
 	logicalBlockAddress = lun->size / lun->blockSize - 1;
 	STORE_DWORDB(logicalBlockAddress,
-				 lun->readCapacityData.pLogicalBlockAddress);
+				 lun->readCapacityData->pLogicalBlockAddress);
 	STORE_DWORDB(lun->blockSize * media_get_block_size(media),
-				 lun->readCapacityData.pLogicalBlockLength);
+				 lun->readCapacityData->pLogicalBlockLength);
 
 	/* Indicate media change */
 
