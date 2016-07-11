@@ -152,8 +152,7 @@ static uint32_t _at25_check_writable(struct _at25* at25)
 		return AT25_ERROR_BUSY;
 	}
 	if (status & AT25_STATUS_SWP) {
-		trace_error("at25: Device %s is write protected\r\n",
-			    at25->desc->name);
+		trace_error("at25: Device %s is write protected\r\n", at25->desc->name);
 		return AT25_ERROR_PROTECTED;
 	}
 	return AT25_SUCCESS;
@@ -193,8 +192,7 @@ static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 	_at25_enable_write(at25);
 
 	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, 0, &out,
-				spid_finish_transfert_callback, 0);
+	status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
 	_at25_disable_write(at25);
 	if (status) {
 		return AT25_ERROR_SPI;
@@ -248,9 +246,9 @@ static void _at25_set_addressing(struct _at25* at25)
 uint32_t at25_check_status(struct _at25* at25, uint32_t mask)
 {
 	uint32_t status = at25_read_status(at25);
-	if (status & mask) {
+	if (status & mask)
 		return status & mask;
-	}
+
 	return AT25_SUCCESS;
 }
 
@@ -269,9 +267,9 @@ uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
 	uint32_t jedec_id = at25_read_jedec_id(at25);
 	trace_debug("at25: read JEDEC ID 0x%08x.\r\n", (unsigned)jedec_id);
 	at25->desc = spi_nor_find(jedec_id);
-	if (!at25->desc) {
+	if (!at25->desc)
 		return AT25_DEVICE_NOT_SUPPORTED;
-	}
+
 	_at25_set_addressing(at25);
 	return AT25_SUCCESS;
 }
@@ -292,8 +290,7 @@ uint32_t at25_read_jedec_id(struct _at25* at25)
 	};
 
 	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, &in, &out,
-		       spid_finish_transfert_callback, 0);
+	spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
 
 	return (jedec[2] << 16) | (jedec[1] << 8) | jedec[0];
@@ -315,8 +312,7 @@ uint32_t at25_read_status(struct _at25* at25)
 	};
 
 	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, &in, &out,
-		       spid_finish_transfert_callback, 0);
+	spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
 
 	return status;
@@ -339,21 +335,18 @@ uint32_t at25_unprotect(struct _at25* at25)
 
 	/* Get the status register value to check the current protection */
 	uint32_t status = at25_read_status(at25);
-	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE) {
+	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE)
 		return 0;
-	}
 
 	/* Perform a global unprotect command */
 	_at25_write_status(at25, 0x0);
 
 	_at25_disable_write(at25);
 	/* Check the new status */
-	if (at25_check_status(at25, AT25_STATUS_SPRL | AT25_STATUS_SWP)) {
+	if (at25_check_status(at25, AT25_STATUS_SPRL | AT25_STATUS_SWP))
 		return AT25_ERROR_PROTECTED;
-	}
-	else {
+	else
 		return AT25_SUCCESS;
-	}
 }
 
 void at25_print_device_info(struct _at25* at25)
@@ -397,12 +390,10 @@ uint32_t at25_is_busy(struct _at25* at25)
 	return at25_check_status(at25, AT25_STATUS_RDYBSY_BUSY);
 }
 
-uint32_t at25_read(struct _at25* at25, uint32_t addr,
-		   uint8_t* data, uint32_t length)
+uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length)
 {
-	if (addr > at25->desc->size) {
+	if (addr > at25->desc->size)
 		return AT25_ADDR_OOB;
-	}
 
 	trace_debug("at25: Start flash read at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -412,9 +403,8 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr,
 
 	uint32_t status = 0;
 
-	if (at25_is_busy(at25)) {
+	if (at25_is_busy(at25))
 		return AT25_ERROR_BUSY;
-	}
 
 	uint8_t cmd[6];
 	struct _buffer out = {
@@ -431,12 +421,11 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr,
 	out.size += 1; /* one dummy byte */
 
 	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, &in, &out,
-				spid_finish_transfert_callback, 0);
+	status = spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
-	if(status) {
+	if (status)
 		return AT25_ERROR_SPI;
-	}
+
 	return AT25_SUCCESS;
 }
 
@@ -448,9 +437,9 @@ uint32_t at25_erase_chip(struct _at25* at25)
 	assert(at25->spid);
 
 	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	if (status)
 		return status;
-	}
+
 
 	uint8_t cmd = CMD_CHIP_ERASE_1;
 	struct _buffer out = {
@@ -460,18 +449,16 @@ uint32_t at25_erase_chip(struct _at25* at25)
 
 	_at25_enable_write(at25);
 	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, 0, &out,
-		       spid_finish_transfert_callback, 0);
+	status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
-	if (status) {
+	if (status)
 		return AT25_ERROR_SPI;
-	}
+
 	_at25_disable_write(at25);
 	return AT25_SUCCESS;
 }
 
-uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
-			  uint32_t length)
+uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 {
 	trace_debug("at25: Start flash erase at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -479,14 +466,12 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	assert(at25);
 	assert(at25->spid);
 
-	if ((addr + length) > at25->desc->size) {
+	if ((addr + length) > at25->desc->size)
 		return AT25_ADDR_OOB;
-	}
 
 	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	if (status)
 		return status;
-	}
 
 	uint8_t cmd[5];
 
@@ -542,28 +527,24 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr,
 	cmd[0] = command;
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 
-	trace_debug("at25: Clearing block at addr 0x%x\r\n",
-		    (unsigned int)addr);
+	trace_debug("at25: Clearing block at addr 0x%x\r\n", (unsigned int)addr);
 
 	_at25_enable_write(at25);
 	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, 0, &out,
-		       spid_finish_transfert_callback, 0);
+	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
-	if (at25_check_status(at25, AT25_STATUS_EPE)) {
+	if (at25_check_status(at25, AT25_STATUS_EPE))
 		return AT25_ERROR_PROGRAM;
-	}
+
 	at25_wait(at25);
 	_at25_disable_write(at25);
 	return AT25_SUCCESS;
 }
 
-uint32_t at25_write(struct _at25* at25, uint32_t addr,
-		    const uint8_t* data, uint32_t length)
+uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length)
 {
-	if (addr > at25->desc->size) {
+	if (addr > at25->desc->size)
 		return AT25_ADDR_OOB;
-	}
 
 	trace_debug("at25: Start flash write at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -572,9 +553,8 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 	assert(data);
 
 	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	if (status)
 		return status;
-	}
 
 	/* Retrieve device page size */
 	uint32_t page_size = at25->desc->page_size;
@@ -596,15 +576,13 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr,
 		spid_begin_transfert(at25->spid);
 		_at25_send_write_cmd(at25, addr);
 		out.size = write_size;
-		status = spid_transfert(at25->spid, 0, &out,
-					spid_finish_transfert_callback, 0);
-		if (status) {
+		status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+		if (status)
 			return AT25_ERROR_SPI;
-		}
+
 		spid_wait_transfert(at25->spid);
-		if (at25_check_status(at25, AT25_STATUS_EPE)) {
+		if (at25_check_status(at25, AT25_STATUS_EPE))
 			return AT25_ERROR_PROGRAM;
-		}
 
 		length -= write_size;
 		out.data += write_size;
