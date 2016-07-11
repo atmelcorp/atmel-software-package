@@ -421,24 +421,20 @@ void pmc_select_internal_crystal(void)
 
 void pmc_select_external_osc(void)
 {
-	uint32_t cgmor = PMC->CKGR_MOR;
-
 	/* Return if external osc had been selected */
-	if ((cgmor & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
 		return;
 
-	/* Enable external osc 12 MHz when needed */
-	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
-		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
-		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN
-		    | CKGR_MOR_KEY_PASSWD;
-		PMC->CKGR_MOR = cgmor;
-		/* Wait Main Oscillator ready */
-		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
-	}
-
+	/*
+	 * When switching the source of the main clock between the RC oscillator and the crystal
+	 * oscillator, both oscillators must be enabled. After completion of the switch, the
+	 * unused oscillator can be disabled.
+	 */
+	pmc_enable_internal_osc();
+	pmc_enable_external_osc();
+	
 	/* switch MAIN clock to external OSC 12 MHz */
-	PMC->CKGR_MOR = (cgmor & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCSEL
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCSEL
 	    | CKGR_MOR_KEY_PASSWD;
 	/* wait for the command to be taken into account */
 	while ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) != CKGR_MOR_MOSCSEL);
@@ -454,28 +450,44 @@ void pmc_select_external_osc(void)
 	pmc_disable_internal_osc();
 }
 
+void pmc_enable_external_osc(void)
+{
+	uint32_t cgmor = PMC->CKGR_MOR;
+
+#ifdef CKGR_MOR_MOSCRCEN
+	/* Enable external osc 12 MHz when needed */
+	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
+		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
+		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCRCEN | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+		PMC->CKGR_MOR = cgmor;
+		/* Wait Main Oscillator ready */
+		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
+	}
+#else
+	/* Enable external osc 12 MHz when needed */
+	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
+		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk) 
+		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
+		PMC->CKGR_MOR = cgmor;
+		/* Wait Main Oscillator ready */
+		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
+	}
+#endif
+}
+
 void pmc_disable_external_osc(void)
 {
 	/* disable external OSC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN
-	    & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
 }
 
 void pmc_select_internal_osc(void)
 {
-#ifdef CKGR_MOR_MOSCRCEN
-	/* Enable internal RC 12 MHz when needed */
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
-		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk)
-		    | CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
-		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
-		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
-	}
-#endif
-
+	pmc_enable_internal_osc();
+	
 	/* switch MAIN clock to internal RC 12 MHz */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL & ~CKGR_MOR_KEY_Msk)
-	    | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
 
 	/* in case where MCK is running on MAIN CLK */
 	if ((PMC->PMC_MCKR & PMC_MCKR_CSS_PLLA_CLK) || (PMC->PMC_MCKR & PMC_MCKR_CSS_MAIN_CLK))
@@ -485,12 +497,23 @@ void pmc_select_internal_osc(void)
 	pmc_disable_external_osc();
 }
 
+void pmc_enable_internal_osc(void)
+{
+#ifdef CKGR_MOR_MOSCRCEN
+	/* Enable internal RC 12 MHz when needed */
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
+		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
+		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
+		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
+	}
+#endif
+}
+
 void pmc_disable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
 	/* disable internal RC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN & ~CKGR_MOR_KEY_Msk)
-	    | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
 #endif
 }
 
