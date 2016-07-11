@@ -62,42 +62,6 @@
 #include "usb/device/usbd.h"
 
 /*------------------------------------------------------------------------------
- *         External Media Definitions
- *------------------------------------------------------------------------------*/
-#if !defined(_MEDIA_)
-#define MED_STATUS_SUCCESS      0x00
-#define MED_STATE_READY         0x00    /// Media is ready for access
-#define MED_STATE_BUSY          0x01    /// Media is busy
-
-typedef void (*fMEDCallback)(void      *pArg,
-							 uint8_t    bStatus,
-							 uint32_t   dwTransferred,
-							 uint32_t   dwRemaining);
-
-extern uint8_t  med_is_mapped_rd_supported(void* pMed);
-extern uint8_t  med_is_mapped_wr_supported(void* pMed);
-extern uint32_t med_get_mapped_address(void* pMed, uint32_t dwBlk);
-
-extern uint8_t  med_is_busy(void* pMed);
-extern uint8_t  med_is_protected(void* pMed);
-extern uint8_t  med_get_state(void* pMed);
-extern uint32_t med_get_block_size(void* pMed);
-extern uint32_t med_get_size(void* pMed);
-extern uint8_t  med_write(void* pMed,
-						  uint32_t dwAddr,
-						  void* pData,
-						  uint32_t dwLen,
-						  fMEDCallback fCallback,
-						  void* pArg);
-extern uint8_t  med_read(void* pMed,
-						 uint32_t dwAddr,
-						 void* pData,
-						 uint32_t dwLen,
-						 fMEDCallback fCallback,
-						 void* pArg);
-extern uint8_t med_flush(void* pMed);
-#endif
-/*------------------------------------------------------------------------------
  *      Definitions
  *------------------------------------------------------------------------------*/
 
