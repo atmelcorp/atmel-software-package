@@ -54,13 +54,13 @@ SPI0_MOSI  (EXP_PA15 on J17 pin 5) | SPI1_MOSI  (EXP/XPRO_PD26 on J20 pin 4)
 SPI0_MISO  (EXP_PA16 on J8 pin 1) | SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
 SPI0_SPCK  (EXP_PA14 on J17 pin 4) | SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
 
-__Connection for SAMA5D2 Xplained Ultra:__
-SPI0 IOSET1 (MASTER) | SPI1 IOSET3 (SLAVE)
+__Connection for SAMA5D3 EK:__
+SPI1 (MASTER) | SPI0 (SLAVE)
 ------------ | -------------
-SPI0_MISO (PC22 on J10 pin 22) | SPI1_MISO  (PD10 on J3 pin 22)
-SPI0_MOSI (PC23 on J10 pin 24) | SPI1_MOSI  (PD11 on J3 pin 24)
-SPI0_SPCK (PC24 on J10 pin 26) | SPI1_SPCK  (PD12 on J3 pin 26)
-SPI0_NPCS0(PC25 on J10 pin 28) | SPI1_NPCS0 (PD13 on J3 pin 28)
+SPI1_MISO (PC22 on J2 pin 18) | SPI0_MISO  (PD10 on J3 pin 22)
+SPI1_MOSI (PC23 on J2 pin 20) | SPI0_MOSI  (PD11 on J3 pin 24)
+SPI1_SPCK (PC24 on J2 pin 22) | SPI0_SPCK  (PD12 on J3 pin 26)
+SPI1_NPCS0(PC25 on J2 pin 24) | SPI0_NPCS2 (PD13 on J3 pin 32)
 
 __Connection for SAMA5D4 EK:__
 SPI1 (MASTER) | SPI2 (SLAVE)

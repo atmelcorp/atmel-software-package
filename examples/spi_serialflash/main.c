@@ -42,9 +42,6 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
 
 #include "misc/console.h"
 #include "misc/cache.h"
@@ -79,11 +76,7 @@ static struct _spi_desc spi_at25_desc = {
 	.dlybct         = AT25_DLYCT,
 	.chip_select    = AT25_CS,
 	.spi_mode       = AT25_SPI_MODE,
-#ifndef CONFIG_HAVE_XDMAC
-	.transfert_mode = SPID_MODE_POLLING,
-#else
 	.transfert_mode = SPID_MODE_DMA,
-#endif
 };
 
 static struct _at25 at25drv;
@@ -141,19 +134,15 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	int offset = 0;
 	while (length > READ_BUFFER_SIZE) {
-		spid_wait_transfert(at25drv.spid);
-		if(at25_read(&at25drv, addr+offset, read_buffer,
-			      READ_BUFFER_SIZE)) {
+		if(at25_read(&at25drv, addr+offset, read_buffer, READ_BUFFER_SIZE)) {
 			/* Read failed, no need to dump anything */
 			return;
 		}
 		offset += READ_BUFFER_SIZE;
 		length -= READ_BUFFER_SIZE;
 		console_dump_frame(read_buffer, READ_BUFFER_SIZE);
-
 	}
-	at25_read(&at25drv, addr+offset, read_buffer,
-			length);
+	at25_read(&at25drv, addr+offset, read_buffer, length);
 	console_dump_frame(read_buffer, length);
 }
 

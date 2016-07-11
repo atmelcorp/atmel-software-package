@@ -47,13 +47,13 @@
  * - SPI0_MISO  (EXP_PA16 on J8 pin 1)  - SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
  * - SPI0_SPCK  (EXP_PA14 on J17 pin 4) - SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
  *
- * Requirements when running on SAMA5D3-EK:
+ * Requirements when running on SAMA5D3-EK (REV. E):
  * We need to connect the SPI pins on the board before running the example.
- * - <b>  SPI0 (MASTER)                        - SPI1 (SLAVE)</b>
- * - SPI0_MISO (PC22 on J10 pin 22) - SPI1_MISO  (PD10 on J3 pin 22)
- * - SPI0_MOSI (PC23 on J10 pin 24) - SPI1_MOSI  (PD11 on J3 pin 24)
- * - SPI0_SPCK (PC24 on J10 pin 26) - SPI1_SPCK  (PD12 on J3 pin 26)
- * - SPI0_NPCS0(PC25 on J10 pin 28) - SPI1_NPCS0 (PD13 on J3 pin 28)
+ * - <b>  SPI1 (MASTER)                        - SPI0 (SLAVE)</b>
+ * - SPI1_MISO (PC22 on J2 pin 18) - SPI0_MISO  (PD10 on J3 pin 22)
+ * - SPI1_MOSI (PC23 on J2 pin 20) - SPI0_MOSI  (PD11 on J3 pin 24)
+ * - SPI1_SPCK (PC24 on J2 pin 22) - SPI0_SPCK  (PD12 on J3 pin 26)
+ * - SPI1_NPCS0(PC25 on J2 pin 24) - SPI0_NPCS2 (PD15 on J3 pin 32)
  *
  * Requirements when running on SAMA5D4-XULT:
  * We need to connect the SPI pins on the board before running the example.
@@ -208,24 +208,9 @@ static const uint32_t clock_configurations[3] = { 500, 1000, 5000 };
 /** SPI Clock setting (KHz) */
 static uint32_t spi_clock = 500;
 
-static volatile bool master_rx_done;
-static volatile bool slave_tx_done;
-
-
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
-/**
- * \brief Callback function for SPI.
- * Will set the boolean pointer to by user_args to true.
- */
-static void _spi_callback(struct _spi_desc* desc, void* user_args)
-{
-	volatile bool *done = (volatile bool*)user_args;
-	(void)desc;
-	*done = true;
-}
 
 /**
  * \brief Displays the user menu.
@@ -272,9 +257,6 @@ static void _spi_transfer(void)
 		.size = DMA_TRANS_SIZE
 	};
 
-	slave_tx_done = false;
-	master_rx_done = false;
-
 	spi_master_desc.bitrate = spi_clock;
 	spi_slave_desc.bitrate = spi_clock;
 
@@ -287,22 +269,20 @@ static void _spi_transfer(void)
 	memset(spi_buffer_master_rx, 0x0, DMA_TRANS_SIZE);
 
 	spid_begin_transfert(&spi_slave_desc);
-	status = spid_transfert(&spi_slave_desc, 0, &slave_out,
-				_spi_callback, (void*)&slave_tx_done);
+	status = spid_transfert(&spi_slave_desc, 0, &slave_out, NULL, NULL);
 	if (SPID_SUCCESS != status) {
 		printf("Error: SPI slave transfer failed.\r\n");
 		return;
 	}
 
 	spid_begin_transfert(&spi_master_desc);
-	status = spid_transfert(&spi_master_desc, &master_in, 0,
-				_spi_callback, (void*)&master_rx_done);
+	status = spid_transfert(&spi_master_desc, &master_in, 0, NULL, NULL);
 	if (SPID_SUCCESS != status) {
 		printf("Error: SPI master transfer failed.\r\n");
 		return;
 	}
 
-	while (!slave_tx_done || !master_rx_done);
+	while (spid_is_busy(&spi_master_desc) || spid_is_busy(&spi_slave_desc));
 
 	spid_finish_transfert(&spi_master_desc);
 	spid_finish_transfert(&spi_slave_desc);
