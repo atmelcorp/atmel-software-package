@@ -67,7 +67,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.plla_div2 = false,
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-		.h32mxdiv2 = true,
+		.h32mxdiv2 = false,
 	},
 	/* PCK = MCK = 32 kHz */
 	/* slow clock EXT12M EXT32K MULA=0 DIV2ON=0 PRES=0 MDIV=0 */
@@ -80,6 +80,6 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.plla_div2 = false,
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-		.h32mxdiv2 = true,
+		.h32mxdiv2 = false,
 	},
 };
