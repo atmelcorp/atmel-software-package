@@ -285,12 +285,12 @@ typedef struct {
 #define MPDDRC_MD_DBW (0x1u << 4) /**< \brief (MPDDRC_MD) Data Bus Width */
 #define   MPDDRC_MD_DBW_DBW_32_BITS (0x0u << 4) /**< \brief (MPDDRC_MD) Data bus width is 32 bits */
 #define   MPDDRC_MD_DBW_DBW_16_BITS (0x1u << 4) /**< \brief (MPDDRC_MD) Data bus width is 16 bits */
-#define MPDDRC_MD_WL (0x1u << 5) /**< \brief (MPDDRC_MD) Write Latency */
-#define   MPDDRC_MD_WL_WL_SETA (0x0u << 5) /**< \brief (MPDDRC_MD) Write Latency Set A */
-#define   MPDDRC_MD_WL_WL_SETB (0x1u << 5) /**< \brief (MPDDRC_MD) Write Latency Set B */
-#define MPDDRC_MD_RL3 (0x1u << 6) /**< \brief (MPDDRC_MD) Read Latency 3 Option Support */
-#define   MPDDRC_MD_RL3_RL3_SUPPORT (0x0u << 6) /**< \brief (MPDDRC_MD) Read latency of 3 is supported */
-#define   MPDDRC_MD_RL3_RL3_NOT_SUPPORTED (0x1u << 6) /**< \brief (MPDDRC_MD) Read latency 0f 3 is not supported */
+#define MPDDRC_MD_WL (0x1u << 6) /**< \brief (MPDDRC_MD) Write Latency */
+#define   MPDDRC_MD_WL_WL_SETA (0x0u << 6) /**< \brief (MPDDRC_MD) Write Latency Set A */
+#define   MPDDRC_MD_WL_WL_SETB (0x1u << 6) /**< \brief (MPDDRC_MD) Write Latency Set B */
+#define MPDDRC_MD_RL3 (0x1u << 7) /**< \brief (MPDDRC_MD) Read Latency 3 Option Support */
+#define   MPDDRC_MD_RL3_RL3_SUPPORT (0x0u << 7) /**< \brief (MPDDRC_MD) Read latency of 3 is supported */
+#define   MPDDRC_MD_RL3_RL3_NOT_SUPPORTED (0x1u << 7) /**< \brief (MPDDRC_MD) Read latency of 3 is not supported */
 #define MPDDRC_MD_MANU_ID_Pos 8
 #define MPDDRC_MD_MANU_ID_Msk (0xffu << MPDDRC_MD_MANU_ID_Pos) /**< \brief (MPDDRC_MD) Manufacturer Identification */
 #define MPDDRC_MD_MANU_ID(value) ((MPDDRC_MD_MANU_ID_Msk & ((value) << MPDDRC_MD_MANU_ID_Pos)))
