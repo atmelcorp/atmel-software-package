@@ -6,7 +6,7 @@
 /** define the CS signal of SPI master */
 #define SPI_MASTER_CS 2
 /** define the pins of SPI master */
-#define SPI_MASTER_PINS PINS_SPI1_NPCS2
+#define SPI_MASTER_PINS PINS_SPI1_NPCS2_ALT
 
 /** define the address of SPI slave */
 #define SPI_SLAVE_ADDR SPI2
