@@ -155,18 +155,39 @@ extern void audio_play_mute(struct _audio_desc *desc, bool mute);
 extern void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol);
 
 /**
- * \brief Audio stop DMA trasnfer
+ * \brief Audio stop DMA transfer
  * \param desc     Audio descriptor
  */
 extern void audio_dma_stop(struct _audio_desc *desc);
 
 /**
- * \brief Start the DMA trasnfer and 
+ * \brief Configure and start the DMA transfer
  * \param desc     Audio descriptor
  * \param buffer   Data buffer (input/output according to configuration in descriptor)
  * \param size     Data buffer size
  * \param cb       Callback at end of DMA transfer
  */
 extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, audio_callback_t cb);
+
+/**
+ * \brief Check the DMA transfer status
+ * \param desc     Audio descriptor
+ */
+extern bool audio_dma_transfer_is_done(struct _audio_desc *desc);
+
+/**
+ * \brief Set the DMA transfer callback function
+ * \param desc     Audio descriptor
+ * \param cb       Callback at end of DMA transfer
+ * \param arg      Callback function argu
+ */
+extern void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void* arg);
+
+/**
+ * \brief Increase or decrease CODEC clock
+ * \param desc     Audio descriptor
+ * \param adjust   faster or slower the speed of codec
+ */
+extern void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust);
 
 #endif /* AUDIO_DEVICE_API_H */

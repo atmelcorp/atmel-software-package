@@ -150,7 +150,8 @@ static void _audio_dma_start_transfer(struct _audio_desc *desc, void *src_addres
 	desc->dma.cfg.da = (uint32_t*)dest_address;
 
 	dma_configure_transfer(desc->dma.channel, &desc->dma.cfg);
-	dma_set_callback(desc->dma.channel, cb, NULL);
+	if(cb)
+		dma_set_callback(desc->dma.channel, cb, NULL);
 	dma_start_transfer(desc->dma.channel);
 }
 
@@ -447,4 +448,38 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 
 	if (dst_addr)
 		_audio_dma_start_transfer(desc, src_addr, (void*)dst_addr, size, cb);
+}
+
+bool audio_dma_transfer_is_done(struct _audio_desc *desc)
+{
+	if (desc->dma.channel)
+		return dma_is_transfer_done(desc->dma.channel);
+	return false;
+}
+
+void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void* arg)
+{
+	dma_set_callback(desc->dma.channel, cb, arg);
+}
+
+void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust)
+{
+#if defined(CONFIG_HAVE_SSC)
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
+	if (adjust > 0) {
+		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
+		wm8904_write(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3, 0xFF00);
+	} else if (adjust < 0) {
+		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
+		wm8904_write(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3, 0x5000);
+	} else {
+		/* Default: 32K -> 48K*256, FLL: 32768*187.5/16/8 */
+		/* FLL_FRATIO=4 (/16), FLL_OUTDIV= 7 (/8) */
+		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
+		wm8904_write(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3,
+				 0x8000 + 0x3000);
+	}
+	return;
+#endif
+#endif
 }

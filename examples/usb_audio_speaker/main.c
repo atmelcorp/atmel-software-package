@@ -150,8 +150,7 @@
 
 /**  Delay (in number of buffers) before starting the DAC transmission
      after data has been received. */
-#define DAC_DELAY     (10)
-
+#define DAC_DELAY     (2)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -179,12 +178,11 @@ static volatile uint32_t out_buffer_index = 0;
 /**  Number of buffers that can be sent to the DAC. */
 static volatile uint32_t num_buffers_to_send = 0;
 
+/**  Number of buffers to wait for before the DAC starts to transmit data. */
+static volatile uint8_t  dac_delay;
 
-/** First USB frame flag */
-static volatile bool is_first_frame = true;
-
-/** audio playing flag */
-static volatile bool is_audio_playing = false;
+/**  Current state of the DAC transmission. */
+static volatile bool is_dac_active = false;
 
 /** audio playing volume */
 static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
@@ -196,26 +194,21 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 /**
  *  \brief DMA TX callback
  */
-void audio_play_finish_callback(struct dma_channel *channel, void* p_arg);
-void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
-		is_audio_playing = false;
-		is_first_frame = true;
-		audio_enable(&audio_device, false);
+		is_dac_active = false;
 		return;
 	}
 
-
-	/* Load next buffer */
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
+	/* Load next buffer */
 	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-			buffer_sizes[out_buffer_index], audio_play_finish_callback);
-
+			buffer_sizes[out_buffer_index], NULL);
 }
 
 
@@ -234,18 +227,26 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 
 	if (status == USBD_STATUS_SUCCESS) {
 		assert(transferred <= BUFFER_SIZE);
+
 		buffer_sizes[in_buffer_index] = transferred;
 		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
 		num_buffers_to_send++;
-		/* Start DAC transmission if necessary */
-		if (is_first_frame && num_buffers_to_send > DAC_DELAY) {
-			is_first_frame = false;
+
+		/* Start DAc transmission if necessary */
+		if (!is_dac_active)  {
+			dac_delay = DAC_DELAY;
+			is_dac_active = true;
+		} else if (dac_delay > 0) {
+			/* Wait until a few buffers have been received */
+			dac_delay--;
+		} else if (audio_dma_transfer_is_done(&audio_device)) {
+			/* Start DAC transmission if necessary */
+			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
+					buffer_sizes[out_buffer_index], NULL);
 			audio_enable(&audio_device, true);
-			is_audio_playing = true;
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
-			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-					buffer_sizes[out_buffer_index], audio_play_finish_callback);
+
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
@@ -259,6 +260,7 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 			AUDDSpeakerDriver_BYTESPERFRAME,
 			frame_received, 0);
 }
+
 
 static void console_handler(uint8_t key)
 {
@@ -372,6 +374,10 @@ int main(void)
 	bool usb_conn = false;
 	bool audio_on = false;
 
+	uint32_t num = 0;
+	int32_t  num_diff = 0, prev_diff = 0;
+	int8_t   clock_adjust = 0;
+
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 
@@ -380,12 +386,14 @@ int main(void)
 
 	/* Initialize all USB power (off) */
 	usb_power_configure();
-		
+
 	/* Configure Audio */
 	audio_configure(&audio_device);
 
 	/* Configure audio play volume */
 	audio_play_set_volume(&audio_device, play_vol);
+
+	audio_set_dma_callback(&audio_device, audio_play_finish_callback, NULL);
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
@@ -403,27 +411,52 @@ int main(void)
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
 			usb_conn = false;
 			continue;
-		} else if (!usb_conn) {
-			trace_info("USB connected\r\n");
+		}
 
+		if (audio_on) {
+			if (!is_dac_active) {
+				audio_enable(&audio_device, false);
+				//printf("End ");
+				audio_on = false;
+			}
+			else {
+
+				if (num != num_buffers_to_send) {
+					num = num_buffers_to_send;
+                }
+				num_diff = num_buffers_to_send - DAC_DELAY;
+
+				if (prev_diff != num_diff) {
+					prev_diff = num_diff;
+					if (num_diff > 0 && clock_adjust != 1) {
+						/* USB too fast or SSC too slow: faster clock */
+						clock_adjust = 1;
+						audio_sync_adjust(&audio_device, clock_adjust);
+					}
+					if (num_diff < 0 && clock_adjust != -1) {
+						/* USB too slow or SSC too fast: slower clock */
+						clock_adjust = -1;
+						audio_sync_adjust(&audio_device, clock_adjust);
+					}
+					if (num_diff == 0 && clock_adjust != 0) {
+						clock_adjust = 0;
+						audio_sync_adjust(&audio_device, clock_adjust);
+					}
+				}
+			}
+		} else if(is_dac_active) {
+			//printf("Start ");
+			audio_on = true;
+		}
+
+		if (!usb_conn) {
+			trace_info("USB connected\r\n");
 			/* Start Reading the incoming audio stream */
 			audd_speaker_driver_read(buffers[in_buffer_index],
 					AUDDSpeakerDriver_BYTESPERFRAME,
 					frame_received, 0);
 
 			usb_conn = true;
-		}
-
-		if (audio_on) {
-			if (!is_audio_playing) {
-				//printf("<stop_playing> ");
-				audio_on = false;
-			}
-		} else {
-			if (is_audio_playing) {
-				//printf("<start_playing> ");
-				audio_on = true;
-			}
 		}
 	}
 }
