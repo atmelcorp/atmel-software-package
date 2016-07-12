@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include "memories/spi-nor.h"
 #include "peripherals/spid.h"
+#include "mutex.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -101,6 +102,7 @@ struct _at25 {
 	struct _spi_desc* spid;
 	const struct _spi_nor_desc* desc;
 	uint32_t addressing;
+	mutex_t mutex;
 };
 
 #ifdef __cplusplus

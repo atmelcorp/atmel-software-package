@@ -262,15 +262,25 @@ void at25_wait(struct _at25* at25)
 
 uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid)
 {
+	at25->mutex = 0;
+
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
+
 	at25->spid = spid;
 	spid_configure(spid);
 	uint32_t jedec_id = at25_read_jedec_id(at25);
 	trace_debug("at25: read JEDEC ID 0x%08x.\r\n", (unsigned)jedec_id);
 	at25->desc = spi_nor_find(jedec_id);
-	if (!at25->desc)
+	if (!at25->desc) {
+		mutex_unlock(&at25->mutex);
 		return AT25_DEVICE_NOT_SUPPORTED;
+	}
 
 	_at25_set_addressing(at25);
+
+	mutex_unlock(&at25->mutex);
+
 	return AT25_SUCCESS;
 }
 
@@ -323,8 +333,14 @@ uint32_t at25_protect(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
+
 	/* Perform a global protect command */
-	_at25_write_status(at25, 0x7F);
+	_at25_write_status(at25, 0x7F);	
+
+	mutex_unlock(&at25->mutex);
+
 	return AT25_SUCCESS;
 }
 
@@ -333,17 +349,26 @@ uint32_t at25_unprotect(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
+
 	/* Get the status register value to check the current protection */
 	uint32_t status = at25_read_status(at25);
-	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE)
+	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE) {
+		mutex_unlock(&at25->mutex);
 		return 0;
+	}
 
 	/* Perform a global unprotect command */
 	_at25_write_status(at25, 0x0);
 
 	_at25_disable_write(at25);
 	/* Check the new status */
-	if (at25_check_status(at25, AT25_STATUS_SPRL | AT25_STATUS_SWP))
+	status = at25_check_status(at25, AT25_STATUS_SPRL | AT25_STATUS_SWP);
+
+	mutex_unlock(&at25->mutex);
+
+	if (status)
 		return AT25_ERROR_PROTECTED;
 	else
 		return AT25_SUCCESS;
@@ -403,8 +428,13 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t le
 
 	uint32_t status = 0;
 
-	if (at25_is_busy(at25))
+	if (!mutex_try_lock(&at25->mutex))
 		return AT25_ERROR_BUSY;
+
+	if (at25_is_busy(at25)) {
+		mutex_unlock(&at25->mutex);
+		return AT25_ERROR_BUSY;
+	}
 
 	uint8_t cmd[6];
 	struct _buffer out = {
@@ -423,6 +453,9 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t le
 	spid_begin_transfert(at25->spid);
 	status = spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
+
+	mutex_unlock(&at25->mutex);
+
 	if (status)
 		return AT25_ERROR_SPI;
 
@@ -436,10 +469,14 @@ uint32_t at25_erase_chip(struct _at25* at25)
 	assert(at25);
 	assert(at25->spid);
 
-	uint32_t status = _at25_check_writable(at25);
-	if (status)
-		return status;
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
 
+	uint32_t status = _at25_check_writable(at25);
+	if (status) {
+		mutex_unlock(&at25->mutex);
+		return status;
+	}
 
 	uint8_t cmd = CMD_CHIP_ERASE_1;
 	struct _buffer out = {
@@ -451,10 +488,15 @@ uint32_t at25_erase_chip(struct _at25* at25)
 	spid_begin_transfert(at25->spid);
 	status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
-	if (status)
+	if (status) {
+		mutex_unlock(&at25->mutex);
 		return AT25_ERROR_SPI;
+	}
 
 	_at25_disable_write(at25);
+
+	mutex_unlock(&at25->mutex);
+
 	return AT25_SUCCESS;
 }
 
@@ -469,9 +511,14 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	if ((addr + length) > at25->desc->size)
 		return AT25_ADDR_OOB;
 
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
+
 	uint32_t status = _at25_check_writable(at25);
-	if (status)
+	if (status) {
+		mutex_unlock(&at25->mutex);
 		return status;
+	}
 
 	uint8_t cmd[5];
 
@@ -483,14 +530,14 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	uint8_t command;
 	uint32_t flags = at25->desc->flags;
 
-	switch(length) {
+	switch (length) {
 	case 256 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_256K) {
 			command = CMD_BLOCK_ERASE_64K_256K;
 			trace_debug("at25: Will apply 256K erase\r\n");
 		} else {
 			trace_error("at25: 256K Erase not supported\r\n");
-			return AT25_ERROR_PROGRAM;
+			status = AT25_ERROR_PROGRAM;
 		}
 		break;
 	case 64 * 1024:
@@ -499,7 +546,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 64K erase\r\n");
 		} else {
 			trace_error("at25: 64K Erase not supported\r\n");
-			return AT25_ERROR_PROGRAM;
+			status = AT25_ERROR_PROGRAM;
 		}
 		break;
 	case 32 * 1024:
@@ -508,7 +555,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 32K erase\r\n");
 		} else {
 			trace_error("at25: 32K Erase not supported\r\n");
-			return AT25_ERROR_PROGRAM;
+			status = AT25_ERROR_PROGRAM;
 		}
 		break;
 	case 4 * 1024:
@@ -517,13 +564,17 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 4K erase\r\n");
 		} else {
 			trace_error("at25: 4K Erase not supported\r\n");
-			return AT25_ERROR_PROGRAM;
+			status = AT25_ERROR_PROGRAM;
 		}
 		break;
 	default:
-		return AT25_ERROR_PROGRAM;
+		status = AT25_ERROR_PROGRAM;
 	}
 
+	if (status) {
+		mutex_unlock(&at25->mutex);
+		return status;
+	}
 	cmd[0] = command;
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 
@@ -533,11 +584,16 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	spid_begin_transfert(at25->spid);
 	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
 	spid_wait_transfert(at25->spid);
-	if (at25_check_status(at25, AT25_STATUS_EPE))
+	if (at25_check_status(at25, AT25_STATUS_EPE)) {
+		mutex_unlock(&at25->mutex);
 		return AT25_ERROR_PROGRAM;
+	}
 
 	at25_wait(at25);
 	_at25_disable_write(at25);
+
+	mutex_unlock(&at25->mutex);
+
 	return AT25_SUCCESS;
 }
 
@@ -552,9 +608,14 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 	assert(at25->spid);
 	assert(data);
 
+	if (!mutex_try_lock(&at25->mutex))
+		return AT25_ERROR_BUSY;
+
 	uint32_t status = _at25_check_writable(at25);
-	if (status)
+	if (status) {
+		mutex_unlock(&at25->mutex);
 		return status;
+	}
 
 	/* Retrieve device page size */
 	uint32_t page_size = at25->desc->page_size;
@@ -577,12 +638,16 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 		_at25_send_write_cmd(at25, addr);
 		out.size = write_size;
 		status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
-		if (status)
+		if (status) {
+			mutex_unlock(&at25->mutex);
 			return AT25_ERROR_SPI;
+		}
 
 		spid_wait_transfert(at25->spid);
-		if (at25_check_status(at25, AT25_STATUS_EPE))
+		if (at25_check_status(at25, AT25_STATUS_EPE)) {
+			mutex_unlock(&at25->mutex);
 			return AT25_ERROR_PROGRAM;
+		}
 
 		length -= write_size;
 		out.data += write_size;
@@ -590,6 +655,8 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 	}
 
 	_at25_disable_write(at25);
+
+	mutex_unlock(&at25->mutex);
 
 	return AT25_SUCCESS;
 }
