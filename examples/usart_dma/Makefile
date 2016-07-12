@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USART DMA example
-AVAILABLE_TARGETS = sama5d2* sama5d4* sama5d3-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-xplained sama5d4-ek sama5d3-xplained sama5d3-ek
 
 TOP := ../..
 
