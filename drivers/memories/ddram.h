@@ -30,33 +30,35 @@
 #ifndef DDRAM_HEADER
 #define DDRAM_HEADER
 
+#include <stdint.h>
+
 #include "peripherals/mpddrc.h"
 
 enum _ddram_devices {
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
   #ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
-	MT47H128M8CF,  /* DDR2 */
+	MT47H128M8CF,  /* DDR2 2x256MB */
   #endif
   #ifdef CONFIG_HAVE_DDR2_MT47H64M16
-	MT47H64M16,    /* DDR2 */
+	MT47H64M16,    /* DDR2 128MB */
   #endif
   #ifdef CONFIG_HAVE_DDR2_MT47H128M16
-	MT47H128M16,   /* DDR2 */
+	MT47H128M16,   /* DDR2 2*256MB */
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2
   #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
-	MT42L128M16,   /* LPDDR2 */
+	MT42L128M16,   /* LPDDR2 2*256MB */
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
   #ifdef CONFIG_HAVE_DDR3_MT41K128M16
-	MT41K128M16,   /* DDR3 512 MB */
+	MT41K128M16,   /* DDR3 2*256MB */
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR3
   #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
-	EDF8164A3MA,   /* LPDDR3 512MB */
+	EDF8164A3MA,   /* LPDDR3 2*256MB */
   #endif
 #endif
 };

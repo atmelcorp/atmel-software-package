@@ -72,7 +72,8 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_DDR3;
 
-	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM;
+	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM
+	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
 #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
@@ -129,7 +130,8 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_LPDDR3;
 
-	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM;
+	desc->mode = MPDDRC_MD_MD_LPDDR3_SDRAM
+	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
 #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
@@ -184,8 +186,6 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_DDR2;
 
-	/* DBW = 0 (32 bits bus wide);
-	 * Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
@@ -241,8 +241,6 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_DDR2;
 
-	/* DBW = 0 (32 bits bus wide);
-	 * Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_16_BITS;
 
@@ -298,8 +296,6 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_DDR2;
 
-	/* DBW = 0 (32 bits bus wide);
-	 * Memory Device = 6 = DDR2-SDRAM = 0x00000006 */
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
@@ -359,8 +355,6 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 
 	desc->type = MPDDRC_TYPE_LPDDR2;
 
-	/* DBW = 0 (32 bits bus wide);
-	 * Memory Device = 7 = LPDDR2-SDRAM = 0x00000007 */
 	desc->mode = MPDDRC_MD_MD_LPDDR2_SDRAM
 	           | MPDDRC_MD_DBW_DBW_32_BITS;
 
