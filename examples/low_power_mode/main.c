@@ -462,7 +462,7 @@ static void menu_ulp0(void)
 	pmc_enable_peripheral(ID_AIC);
 
 	/* config a led for indicator to capture wake-up time*/
-	led_configure(0);
+	board_cfg_leds();
 
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
@@ -504,7 +504,7 @@ static void menu_ulp1(void)
 	board_save_misc_power();
 
 	/* config a led for indicator to capture wake-up time*/
-	led_configure(0);
+	board_cfg_leds();
 
 	/* ultra low power mode 1, RC12 is selected for Main Clock */
 	/* Disable the PLLs and the main oscillator */
@@ -564,7 +564,7 @@ static void menu_ulp(void)
 	board_save_misc_power();
 
 	/* config a led for indicator to capture wake-up time*/
-	led_configure(0);
+	board_cfg_leds(0);
 
 	/* ultra low power mode 1, RC12 is selected for Main Clock */
 	/* Disable the PLLs and the main oscillator */
@@ -611,7 +611,7 @@ static void menu_idle(void)
 
 	/* config a led for indicator to capture wake-up time*/
 	printf("Configure led for wakeup indicator.\n\r");
-	led_configure(0);
+	board_cfg_leds();
 
 	printf("=========== Enter Idle mode ===========\n\r");
 	/* config PCK and MCK */

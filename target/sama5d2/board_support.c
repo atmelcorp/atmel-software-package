@@ -100,6 +100,10 @@ static const struct _l2cc_config l2cc_cfg = {
 	.dyn_clock_gating = true
 };
 
+#ifdef PINS_LEDS
+static struct _pin pins_leds[] = PINS_LEDS;
+#endif
+
 static const char* board_name = BOARD_NAME;
 
 /*----------------------------------------------------------------------------
@@ -783,12 +787,8 @@ void board_cfg_lcd(void)
 
 void board_cfg_led(void)
 {
-#ifdef NUM_LEDS
-	uint8_t i;
-
-	for (i = 0 ; i < NUM_LEDS ; ++i) {
-		led_configure(i);
-	}
+#ifdef PINS_LEDS
+	led_configure(pins_leds, ARRAY_SIZE(pins_leds));
 #endif
 }
 

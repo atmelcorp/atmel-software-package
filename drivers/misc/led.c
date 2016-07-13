@@ -35,7 +35,6 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "compiler.h"
 
 #include "misc/led.h"
@@ -46,107 +45,73 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-#ifdef PINS_LEDS
-static const struct _pin pinsLeds[] = PINS_LEDS;
+/* Pins list asociated to LEDs */
+static struct _pin *pins_leds;
 
-static const uint32_t numLeds = ARRAY_SIZE(pinsLeds);
-#endif
+/* Number of LEDs */
+static uint32_t led_count = 0;
 
 /*------------------------------------------------------------------------------
  *         Global Functions
  *------------------------------------------------------------------------------*/
 
-/**
- *  Configures the pin associated with the given LED number. If the LED does
- *  not exist on the board, the function does nothing.
- *  \param dwLed  Number of the LED to configure.
- *  \return 1 if the LED exists and has been configured; otherwise 0.
- */
-extern uint32_t led_configure (uint32_t led)
+extern uint32_t led_configure(struct _pin *leds, uint32_t count)
 {
-#ifdef PINS_LEDS
-	// Check that LED exists
-	if (led >= numLeds) {
-		return 0;
-	}
+	uint32_t status = 0;
+	uint32_t led;
+
 	// Configure LED
-	return pio_configure(&pinsLeds[led], 1);
-#else
-	return 0;
-#endif
+	led_count = count;
+	pins_leds = leds;
+
+	for (led = 0 ; led < led_count ; led++)
+		if (pio_configure(&pins_leds[led], 1) == 1)
+			status |= (1 << led);
+
+	return status;
 }
 
-/**
- *  Turns the given LED on if it exists; otherwise does nothing.
- *  \param dwLed  Number of the LED to turn on.
- *  \return 1 if the LED has been turned on; 0 otherwise.
- */
 extern uint32_t led_set(uint32_t led)
 {
-#ifdef PINS_LEDS
 	/* Check if LED exists */
-	if (led >= numLeds) {
+	if (led >= led_count)
 		return 0;
-	}
 
 	/* Turn LED on */
-	if (pinsLeds[led].type == PIO_OUTPUT_0) {
-		pio_set(&pinsLeds[led]);
-	} else {
-		pio_clear(&pinsLeds[led]);
-	}
+	if (pins_leds[led].type == PIO_OUTPUT_0)
+		pio_set(&pins_leds[led]);
+	else
+		pio_clear(&pins_leds[led]);
+
 	return 1;
-#else
-	return 0;
-#endif
 }
 
-/**
- *  Turns a LED off.
- *
- *  \param dwLed  Number of the LED to turn off.
- *  \return 1 if the LED has been turned off; 0 otherwise.
- */
 extern uint32_t led_clear (uint32_t led)
 {
-#ifdef PINS_LEDS
 	/* Check if LED exists */
-	if (led >= numLeds) {
+	if (led >= led_count)
 		return 0;
-	}
+
 	/* Turn LED off */
-	if (pinsLeds[led].type == PIO_OUTPUT_0) {
-		pio_clear(&pinsLeds[led]);
-	} else {
-		pio_set(&pinsLeds[led]);
-	}
+	if (pins_leds[led].type == PIO_OUTPUT_0)
+		pio_clear(&pins_leds[led]);
+	else
+		pio_set(&pins_leds[led]);
+
 	return 1;
-#else
-	return 0;
-#endif
 }
 
-/**
- *  Toggles the current state of a LED.
- *
- *  \param dwLed  Number of the LED to toggle.
- *  \return 1 if the LED has been toggled; otherwise 0.
- */
 extern uint32_t led_toggle(uint32_t led)
 {
-#ifdef PINS_LEDS
 	/* Check if LED exists */
-	if (led >= numLeds) {
+	if (led >= led_count)
 		return 0;
-	}
+
 	/* Toggle LED */
-	if (pio_get_output_data_status(&pinsLeds[led])) {
-		pio_clear(&pinsLeds[led]);
-	} else {
-		pio_set(&pinsLeds[led]);
-	}
+	if (pio_get_output_data_status(&pins_leds[led]))
+		pio_clear(&pins_leds[led]);
+	else
+		pio_set(&pins_leds[led]);
+
 	return 1;
-#else
-	return 0;
-#endif
 }

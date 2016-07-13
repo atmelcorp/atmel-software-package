@@ -55,14 +55,42 @@
 #define _LED_
 
 #include <stdint.h>
+#include "peripherals/pio.h"
 
 //------------------------------------------------------------------------------
 //         Global Functions
 //------------------------------------------------------------------------------
 
-extern uint32_t led_configure(uint32_t led);
+/**
+ *  Configures the pin associated with the given LED number. If the LED does
+ *  not exist on the board, the function does nothing.
+ *  \param leds   Array of led pins (led driver keep a pointer to leds array)
+ *  \param count  Number of the LED to configure.
+ *  \return a bitfield of initialiased LEDs
+ */
+extern uint32_t led_configure(struct _pin *leds, uint32_t count);
+
+/**
+ *  Turns the given LED on if it exists; otherwise does nothing.
+ *  \param dwLed  Number of the LED to turn on.
+ *  \return 1 if the LED has been turned on; 0 otherwise.
+ */
 extern uint32_t led_set(uint32_t led);
+
+/**
+ *  Turns a LED off.
+ *
+ *  \param dwLed  Number of the LED to turn off.
+ *  \return 1 if the LED has been turned off; 0 otherwise.
+ */
 extern uint32_t led_clear(uint32_t led);
+
+/**
+ *  Toggles the current state of a LED.
+ *
+ *  \param dwLed  Number of the LED to toggle.
+ *  \return 1 if the LED has been toggled; otherwise 0.
+ */
 extern uint32_t led_toggle(uint32_t led);
 
 #endif				/* #ifndef LED_H */
