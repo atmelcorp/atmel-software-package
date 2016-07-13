@@ -59,26 +59,6 @@ CACHE_ALIGNED static uint8_t ecc_table[NAND_MAX_PMECC_BYTE_SIZE];
 /*        Local Functions                                                 */
 /*------------------------------------------------------------------------*/
 
-static uint32_t _hsmc_cfg_pagesize(uint32_t page_data_size)
-{
-	switch (page_data_size) {
-	case 512:
-		return HSMC_CFG_PAGESIZE_PS512;
-	case 1024:
-		return HSMC_CFG_PAGESIZE_PS1024;
-	case 2048:
-		return HSMC_CFG_PAGESIZE_PS2048;
-	case 4096:
-		return HSMC_CFG_PAGESIZE_PS4096;
-#ifdef HSMC_CFG_PAGESIZE_PS8192
-	case 8192:
-		return HSMC_CFG_PAGESIZE_PS8192;
-#endif
-	default:
-		return HSMC_CFG_PAGESIZE_PS2048;
-	}
-}
-
 /**
  * \brief Sends the column address to the NandFlash chip.
  *
@@ -445,7 +425,7 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
-	uint32_t col_address, row_address, smc_ecc_page_size;
+	uint32_t col_address, row_address;
 	uint32_t smc_mode;
 
 	NAND_TRACE("_read_page(B#%d:P#%d)\r\n", block, page);
@@ -453,16 +433,8 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	/* at least one area must be read */
 	assert(data || spare);
 
-	if (nand_is_nfc_enabled()) {
-		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
-		hsmc_nfc_configure(
-				HSMC_CFG_NFCSPARESIZE((page_spare_size - 1) >> 2) |
-				HSMC_CFG_DTOCYC(0xF) |
-				HSMC_CFG_DTOMUL_X1048576 |
-				HSMC_CFG_RBEDGE |
-				0 << 8 |
-				smc_ecc_page_size);
-	}
+	if (nand_is_nfc_enabled())
+		hsmc_nfc_configure(page_data_size, page_spare_size, spare != NULL, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -516,29 +488,20 @@ static uint8_t _read_page(const struct _nand_flash *nand,
  * \return 0 if the operation has been successful; otherwise returns 1.
  */
 static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data, void *spare)
+	uint16_t block, uint16_t page, void *data)
 {
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
-	uint32_t row_address, smc_ecc_page_size;
+	uint32_t row_address;
 	uint32_t smc_mode;
 
 	NAND_TRACE("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
 	/* at least one area must be read */
-	assert(data || spare);
+	assert(data);
 
-	if (nand_is_nfc_enabled()) {
-		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
-		hsmc_nfc_configure(
-				HSMC_CFG_NFCSPARESIZE((page_spare_size - 1) >> 2) |
-				HSMC_CFG_DTOCYC(0xF) |
-				HSMC_CFG_DTOMUL_X1048576 |
-				HSMC_CFG_RBEDGE |
-				0 << 8 |
-				1 << 9 |
-				smc_ecc_page_size);
-	}
+	if (nand_is_nfc_enabled())
+		hsmc_nfc_configure(page_data_size, page_spare_size, true, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -594,20 +557,13 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 	uint8_t error = 0;
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
-	uint32_t row_address,smc_ecc_page_size;
+	uint32_t row_address;
 	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 
 	NAND_TRACE("_write_page(B#%d:P#%d)\r\n", block, page);
 
-	if (nand_is_nfc_enabled()) {
-		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
-		hsmc_nfc_configure(HSMC_CFG_NFCSPARESIZE((page_spare_size - 1) >> 2) |
-							HSMC_CFG_DTOCYC(0xF) |
-							HSMC_CFG_DTOMUL_X1048576 |
-							HSMC_CFG_RBEDGE |
-							(spare ? (1 << 8) : 0) |
-							smc_ecc_page_size);
-	}
+	if (nand_is_nfc_enabled())
+		hsmc_nfc_configure(page_data_size, page_spare_size, false, spare != NULL);
 
 	/* Calculate physical address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -674,13 +630,12 @@ static uint8_t _write_page(const struct _nand_flash *nand,
  * \return 0 if the write operation is successful; otherwise returns 1.
 */
 static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data, void *spare)
+	uint16_t block, uint16_t page, void *data)
 {
 	uint8_t error = 0;
 	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
 	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
-	uint32_t smc_ecc_page_size;
 	uint32_t ecc_start_addr;
 	uint32_t bytes_per_sector;
 	uint32_t pmecc_sector_number;
@@ -693,16 +648,9 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	NAND_TRACE("_write_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
-	if (nand_is_nfc_enabled()) {
-		smc_ecc_page_size = _hsmc_cfg_pagesize(page_data_size);
-		hsmc_nfc_configure(
-				HSMC_CFG_NFCSPARESIZE((page_spare_size - 1) >> 2) |
-				HSMC_CFG_DTOCYC(0xF) |
-				HSMC_CFG_DTOMUL_X1048576 |
-				HSMC_CFG_RBEDGE |
-				(spare ? (1 << 8) : 0) |
-				smc_ecc_page_size);
-	}
+	if (nand_is_nfc_enabled())
+		hsmc_nfc_configure(page_data_size, page_spare_size, false, false);
+
 	ecc_start_addr = page_data_size + pmecc_get_ecc_start_address();
 
 	/* Calculate physical address of the page */
@@ -903,7 +851,7 @@ uint8_t nand_raw_read_page(const struct _nand_flash *nand,
 		return _read_page(nand, block, page, data, spare);
 
 	if (nand_is_using_pmecc())
-		return _read_page_with_pmecc(nand, block, page, data, 0);
+		return _read_page_with_pmecc(nand, block, page, data);
 
 	return NAND_ERROR_ECC_NOT_COMPATIBLE;
 }
@@ -925,11 +873,11 @@ uint8_t nand_raw_write_page(const struct _nand_flash *nand,
 {
 	NAND_TRACE("nand_raw_write_page(B#%d:P#%d)\r\n", block, page);
 
-	if (!nand_is_using_pmecc())
+	if (!nand_is_using_pmecc() || spare)
 		return _write_page(nand, block, page, data, spare);
 
 	if (nand_is_using_pmecc())
-		return _write_page_with_pmecc(nand, block, page, data, spare);
+		return _write_page_with_pmecc(nand, block, page, data);
 
 	return NAND_ERROR_ECC_NOT_COMPATIBLE;
 }

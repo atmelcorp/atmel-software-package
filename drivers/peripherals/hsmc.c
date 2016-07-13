@@ -38,9 +38,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "trace.h"
 
 #include "peripherals/pmc.h"
 #include "peripherals/hsmc.h"
+
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -133,6 +136,51 @@ void hsmc_nor_configure(uint8_t cs, uint8_t bus_width)
 		(bus_width == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
 		HSMC_MODE_EXNW_MODE_DISABLED |
 		HSMC_MODE_TDF_CYCLES(1);
+}
+
+void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
+		bool read_spare, bool write_spare)
+{
+	uint32_t cfg;
+
+	/* cannot read and write spare at the same time */
+	assert(!read_spare || !write_spare);
+
+	cfg = HSMC_CFG_NFCSPARESIZE((spare_size - 1) >> 2) |
+	      HSMC_CFG_DTOCYC(0xF) |
+	      HSMC_CFG_DTOMUL_X1048576 |
+	      HSMC_CFG_RBEDGE;
+
+	if (read_spare)
+		cfg |= HSMC_CFG_RSPARE;
+
+	if (write_spare)
+		cfg |= HSMC_CFG_WSPARE;
+
+	switch (data_size) {
+	case 512:
+		cfg |= HSMC_CFG_PAGESIZE_PS512;
+		break;
+	case 1024:
+		cfg |= HSMC_CFG_PAGESIZE_PS1024;
+		break;
+	case 2048:
+		cfg |= HSMC_CFG_PAGESIZE_PS2048;
+		break;
+	case 4096:
+		cfg |= HSMC_CFG_PAGESIZE_PS4096;
+		break;
+#ifdef HSMC_CFG_PAGESIZE_PS8192
+	case 8192:
+		cfg |= HSMC_CFG_PAGESIZE_PS8192;
+		break;
+#endif
+	default:
+		trace_fatal("Data size %d unsupported!\r\n",
+				(unsigned)data_size);
+	}
+
+	HSMC->HSMC_CFG = cfg;
 }
 
 /**

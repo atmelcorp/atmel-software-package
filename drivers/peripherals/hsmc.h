@@ -49,7 +49,6 @@
  *         Macros
  *----------------------------------------------------------------------------*/
 
-#define hsmc_nfc_configure(mode)       {HSMC->HSMC_CFG = mode ;}
 #define hsmc_nfc_enable()              {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCEN;}
 #define hsmc_nfc_disable()             {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCDIS;}
 #define hsmc_nfc_get_status()          {HSMC->HSMC_SR;}
@@ -113,6 +112,9 @@
 extern void hsmc_nand_configure(uint8_t bus_width);
 
 extern void hsmc_nor_configure(uint8_t cs, uint8_t bus_width);
+
+extern void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
+		bool read_spare, bool write_spare);
 
 extern void hsmc_nfc_reset(void);
 
