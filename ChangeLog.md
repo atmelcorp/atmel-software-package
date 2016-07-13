@@ -1,5 +1,12 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.3.1 - 2016-07
+
+### Fixes
+
+- Fix build of generic targets (used for SAM-BA applets)
+
+
 ## Version 2.3 - 2016-07
 
 ### New drivers/examples
