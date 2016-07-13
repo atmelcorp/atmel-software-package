@@ -62,62 +62,6 @@
 
 #include "nand_flash.h"
 
-/*----------------------------------------------------------------------------
- *        Definitions
- *----------------------------------------------------------------------------*/
-
-/** NANDFLASH commands */
-
-#define COMMAND_READ_1                  0x00
-#define COMMAND_READ_2                  0x30
-#define COMMAND_COPYBACK_READ_1         0x00
-#define COMMAND_COPYBACK_READ_2         0x35
-#define COMMAND_COPYBACK_PROGRAM_1      0x85
-#define COMMAND_COPYBACK_PROGRAM_2      0x10
-#define COMMAND_RANDOM_OUT              0x05
-#define COMMAND_RANDOM_OUT_2            0xE0
-#define COMMAND_RANDOM_IN               0x85
-#define COMMAND_READID                  0x90
-#define COMMAND_WRITE_1                 0x80
-#define COMMAND_WRITE_2                 0x10
-#define COMMAND_ERASE_1                 0x60
-#define COMMAND_ERASE_2                 0xD0
-#define COMMAND_STATUS                  0x70
-#define COMMAND_RESET                   0xFF
-
-/** NANDFLASH commands (small blocks) */
-#define COMMAND_READ_A                  0x00
-#define COMMAND_READ_C                  0x50
-
-#define ENABLE_CE(raw)
-#define DISABLE_CE(raw)
-
-/** Number of tries for erasing a block */
-#define NUMERASETRIES 2
-
-/** Number of tries for writing a block */
-#define NUMWRITETRIES 2
-
-/** Number of tries for copying a block */
-#define NUMCOPYTRIES  2
-
-/** NANDFLASH status bit mask */
-#define STATUS_BIT_0 0x01
-#define STATUS_BIT_1 0x02
-#define STATUS_BIT_5 0x20
-#define STATUS_BIT_6 0x40
-
-#define READ_STATUS_TIMEOUT 0xFFFF
-
-/*
- * NFC ALE CLE command parameter
- */
-#define ALE_COL_EN   (1 << 0)
-#define ALE_ROW_EN   (1 << 1)
-#define CLE_WRITE_EN (1 << 2)
-#define CLE_DATA_EN  (1 << 3)
-#define CLE_VCMD2_EN (1 << 4)
-
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
 /*------------------------------------------------------------------------------ */

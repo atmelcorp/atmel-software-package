@@ -45,9 +45,28 @@
 #include "nand_flash_raw.h"
 #include "nand_flash_dma.h"
 #include "nand_flash_model_list.h"
+#include "nand_flash_commands.h"
 
 #include <assert.h>
 #include <string.h>
+
+/*---------------------------------------------------------------------- */
+/*         Local definitions                                             */
+/*---------------------------------------------------------------------- */
+
+/** Number of tries for erasing a block */
+#define ERASE_RETRIES 2
+
+#define READ_STATUS_RETRIES 0xFFFF
+
+/*
+ * NFC ALE CLE command parameter
+ */
+#define ALE_COL_EN   (1 << 0)
+#define ALE_ROW_EN   (1 << 1)
+#define CLE_WRITE_EN (1 << 2)
+#define CLE_DATA_EN  (1 << 3)
+#define CLE_VCMD2_EN (1 << 4)
 
 /*---------------------------------------------------------------------- */
 /*         Local variables                                               */
@@ -305,31 +324,30 @@ static void _data_array_out(const struct _nand_flash *nand, bool nfc_sram,
 }
 
 /**
- * \brief NAND Flash devices have an 8-bit status register that the software can read during
-    device operation..
+ * \brief Use STATUS command to determine if the last issued command was successful.
  * \param nand  Pointer to a struct _nand_flash instance.
- * \param status status to be checked.
+ * \return 0 if the last command issued was successful, NAND_ERROR_STATUS otherwise
  */
 static uint8_t _status_ready_pass(const struct _nand_flash *nand)
 {
-	uint8_t status;
-	uint16_t count;
+	int i;
 
-	_send_cle_ale(nand, 0, COMMAND_STATUS, 0, 0, 0);
+	/* Issue STATUS command */
+	_send_cle_ale(nand, 0, NAND_CMD_STATUS, 0, 0, 0);
 
-	for (count = 0; count < READ_STATUS_TIMEOUT; count++) {
+	for (i = 0; i < READ_STATUS_RETRIES; i++) {
 		/* Read status byte */
-		status = nand_read_data(nand);
+		uint8_t status = nand_read_data(nand);
 
-		/* Check status */
-		/* If status bit 6 = 1 device is ready */
-		if ((status & STATUS_BIT_6) == STATUS_BIT_6) {
-			/* If status bit 0 = 0 the last operation was successful */
-			if ((status & STATUS_BIT_0) == 0)
-				return 0;
-			else
-				return NAND_ERROR_STATUS;
-		}
+		/* Check if device is ready */
+		if ((status & NAND_STATUS_RDY) == 0)
+			continue;
+
+		/* Check if last command was successful */
+		if ((status & NAND_STATUS_FAIL) == 0)
+			return 0;
+		else
+			return NAND_ERROR_STATUS;
 	}
 
 	return NAND_ERROR_STATUS;
@@ -360,7 +378,7 @@ static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model);
 
 	_send_cle_ale(nand, CLE_VCMD2_EN | ALE_ROW_EN,
-	              COMMAND_ERASE_1, COMMAND_ERASE_2, 0, row_address);
+	              NAND_CMD_ERASE_1, NAND_CMD_ERASE_2, 0, row_address);
 
 	if (_nand_wait_ready(nand)) {
 		trace_error("_erase_block: Could not erase block %d.\r\n", block);
@@ -402,16 +420,16 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 
 	if (nand_is_nfc_sram_enabled()) {
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
-		              COMMAND_READ_1, COMMAND_READ_2, col_address, row_address);
+		              NAND_CMD_READ_1, NAND_CMD_READ_2, col_address, row_address);
 	} else {
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
-		              COMMAND_READ_1, COMMAND_READ_2, col_address, row_address);
+		              NAND_CMD_READ_1, NAND_CMD_READ_2, col_address, row_address);
 	}
 
 	if (!nand_is_nfc_enabled()) {
 		/* Wait for the nand to be ready */
 		_status_ready_pass(nand);
-		_send_cle_ale(nand, CLE_DATA_EN, COMMAND_READ_1, 0, 0, 0);
+		_send_cle_ale(nand, CLE_DATA_EN, NAND_CMD_READ_1, 0, 0, 0);
 	} else {
 		hsmc_nfc_wait_rb_busy();
 	}
@@ -465,16 +483,16 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	if (nand_is_nfc_sram_enabled()){
 		hsmc_pmecc_data_phase();
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
-		              COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
+		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	} else {
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
-		              COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
+		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	}
 
 	if (!nand_is_nfc_enabled()){
 		/* Wait for the nand to be ready */
 		_nand_wait_ready(nand);
-		_send_cle_ale(nand, 0, COMMAND_READ_1, 0, 0, 0);
+		_send_cle_ale(nand, 0, NAND_CMD_READ_1, 0, 0, 0);
 	} else {
 		if (!nand_is_nfc_sram_enabled())
 			hsmc_nfc_wait_rb_busy();
@@ -528,12 +546,12 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 				_data_array_out(nand, true, spare, spare_size, data_size);
 
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
-			              COMMAND_WRITE_1, 0, 0, row_address);
+			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 			hsmc_nfc_wait_xfr_done();
 		} else {
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-			              COMMAND_WRITE_1, 0, 0, row_address);
+			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 			_data_array_out(nand, false, data, data_size, 0);
 			if (spare)
@@ -543,13 +561,13 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 		/* Write spare area alone if needed */
 		if (spare) {
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-			              COMMAND_WRITE_1, 0, data_size, row_address);
+			              NAND_CMD_WRITE_1, 0, data_size, row_address);
 
 			_data_array_out(nand, false, spare, spare_size, 0);
 		}
 	}
 
-	_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
+	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
 	if (nand_is_nfc_enabled() && !nand_is_nfc_sram_enabled())
 		hsmc_nfc_wait_rb_busy();
@@ -629,18 +647,18 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
 
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
-		              COMMAND_WRITE_1, 0, 0, row_address);
+		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 		hsmc_nfc_wait_xfr_done();
 	} else {
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-		              COMMAND_WRITE_1, 0, 0, row_address);
+		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 		_data_array_out(nand, false, (uint8_t *)data, data_size, 0);
 	}
 
 	_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN,
-	              COMMAND_RANDOM_IN, 0, ecc_start_addr, 0);
+	              NAND_CMD_RANDOM_IN, 0, ecc_start_addr, 0);
 
 	/* Wait until the kernel of the PMECC is not busy */
 	hsmc_pmecc_wait_ready();
@@ -657,7 +675,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	_data_array_out(nand, false, ecc_table,
 			pmecc_sector_number * bytes_per_sector, 0);
 
-	_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
+	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
 	if (nand_is_nfc_enabled()) {
 		if (!nand_is_nfc_sram_enabled())
@@ -716,7 +734,7 @@ void nand_raw_reset(const struct _nand_flash *nand)
 {
 	NAND_TRACE("nand_raw_reset()\r\n");
 
-	_send_cle_ale(nand, 0, COMMAND_RESET, 0, 0, 0);
+	_send_cle_ale(nand, 0, NAND_CMD_RESET, 0, 0, 0);
 	_nand_wait_ready(nand);
 }
 
@@ -731,8 +749,7 @@ uint32_t nand_raw_read_id(const struct _nand_flash *nand)
 
 	NAND_TRACE("nand_raw_read_id()\r\n");
 
-	//_send_cle_ale(nand, ALE_ROW_EN, COMMAND_READID, 0, 0, 0);
-	nand_write_command(nand, COMMAND_READID);
+	nand_write_command(nand, NAND_CMD_READID);
 	nand_write_address(nand, 0);
 	chip_id  = nand_read_data(nand);
 	chip_id |= nand_read_data(nand) << 8;
@@ -760,7 +777,7 @@ uint32_t nand_raw_read_id(const struct _nand_flash *nand)
  */
 uint8_t nand_raw_erase_block(const struct _nand_flash *nand, uint16_t block)
 {
-	uint8_t retry = NUMERASETRIES;
+	uint8_t retry = ERASE_RETRIES;
 
 	NAND_TRACE("nand_raw_erase_block(B#%d)\r\n", block);
 
@@ -772,7 +789,7 @@ uint8_t nand_raw_erase_block(const struct _nand_flash *nand, uint16_t block)
 	}
 
 	trace_error("nand_raw_erase_block: Failed to erase %d after %d tries\r\n",
-			block, NUMERASETRIES);
+			block, ERASE_RETRIES);
 	return NAND_ERROR_BADBLOCK;
 }
 

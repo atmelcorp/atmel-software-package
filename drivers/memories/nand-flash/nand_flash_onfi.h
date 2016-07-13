@@ -46,19 +46,6 @@
 #define NAND_IO_RC_FAIL    1
 #define NAND_IO_RC_TIMEOUT 2
 
-#define NAND_MFR_MICRON    0x2c
-
-/** NANDFLASH commands */
-#define NAND_CMD_RESET           0xFF
-#define NAND_CMD_READ0           0x00
-#define NAND_CMD_READID          0x90
-#define NAND_CMD_STATUS          0x70
-#define NAND_CMD_READ_PARAM_PAGE 0xEC
-#define NAND_CMD_SET_FEATURE     0xEF
-
-#define EBICSA_NAND_D0_ON_D16 (1 << 24)
-#define EBICSA_EBI_DBPDC      (1 << 9)
-
 /** Describes memory organization block information in ONFI parameter page */
 struct _onfi_page_param {
 	/** ONFI compatible */

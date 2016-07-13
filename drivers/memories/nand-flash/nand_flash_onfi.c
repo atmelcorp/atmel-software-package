@@ -40,6 +40,7 @@
 #include "nand_flash_raw.h"
 #include "nand_flash_model.h"
 #include "nand_flash_onfi.h"
+#include "nand_flash_commands.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -49,6 +50,8 @@
 
 /** Not all 256 bytes are useful */
 #define ONFI_PARAM_TABLE_SIZE 116
+
+#define NAND_MFR_MICRON    0x2c
 
 /*---------------------------------------------------------------------- */
 /*                   Variables                                           */
@@ -62,37 +65,34 @@ static struct _onfi_page_param onfi_parameter;
  *------------------------------------------------------------------------*/
 
 /**
- * \brief This function Reads the status register of the NAND device by
- * issuing a 0x70 command.
- * \return  NAND_IO_RC_PASS     =0 : The function completes operation successfully.
- *          NAND_IO_RC_FAIL     =1 : The function does not complete operation successfully.
- *          NAND_IO_RC_TIMEOUT  =2 : The function times out before operation completes.
-*/
+ * \brief This function reads the status register of the NAND device.
+ * \return  NAND_IO_RC_PASS     = 0 : The function completes operation successfully.
+ *          NAND_IO_RC_FAIL     = 1 : The function does not complete operation successfully.
+ *          NAND_IO_RC_TIMEOUT  = 2 : The function times out before operation completes.
+ */
 static uint32_t onfi_read_status(const struct _nand_flash *nand)
 {
-	uint8_t status;
-	int retry;
+	int i;
 
 	/* Issue command */
 	nand_write_command(nand, NAND_CMD_STATUS);
-	for (retry = 0; retry < MAX_READ_STATUS_COUNT; retry++) {
-		/* Read status byte */
-		status = nand_read_data(nand);
 
-		/* Check status */
-		/* If status bit 6 = 1 device is ready */
-		if ((status & STATUS_BIT_6) == STATUS_BIT_6) {
-			/* If status bit 0 = 0 the last operation was successful */
-			if ((status & STATUS_BIT_0) == 0)
-				return NAND_IO_RC_PASS;
-			else
-				return NAND_IO_RC_FAIL;
-		}
+	for (i = 0; i < MAX_READ_STATUS_COUNT; i++) {
+		uint8_t status = nand_read_data(nand);
+
+		/* Check that device is ready */
+		if (!(status & NAND_STATUS_RDY))
+			continue;
+
+		/* Check that last command was successful */
+		if ((status & NAND_STATUS_FAIL) == 0)
+			return NAND_IO_RC_PASS;
+		else
+			return NAND_IO_RC_FAIL;
 	}
 
 	return NAND_IO_RC_TIMEOUT;
 }
-
 
 /**
  * \brief This function retrieves the data structure that describes the target's
@@ -118,7 +118,7 @@ static bool nand_onfi_retrieve_param(const struct _nand_flash *nand)
 		onfi_read_status(nand);
 
 		/* Re-enable data output mode required after Read Status command */
-		nand_write_command(nand, NAND_CMD_READ0);
+		nand_write_command(nand, NAND_CMD_READ_1);
 
 		/* Read the parameter table */
 		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
