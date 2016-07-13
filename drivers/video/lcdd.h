@@ -30,7 +30,7 @@
 /** \file */
 
 /**
- * \ingroup lib_board
+ * \ingroup drivers/video
  * \addtogroup lcdd_module LCD Driver
  *
  * \section Purpose
