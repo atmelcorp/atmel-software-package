@@ -515,7 +515,7 @@ int main(void)
 
 	/* Configure HSMC for Nandflash accesses */
 	nand_dma_configure();
-	nand_initialize(&nand, NULL);
+	nand_initialize(&nand);
 
 	if (!nand_onfi_device_detect(&nand)) {
 		printf("\tDevice Unknown\n\r");

@@ -398,12 +398,7 @@ static uint8_t _status_ready_pass(const struct _nand_flash *nand)
  */
 static uint8_t _nand_wait_ready(const struct _nand_flash *nand)
 {
-	if (nand->pin_ready_busy.mask) {
-		while (!pio_get(&(nand->pin_ready_busy)));
-	} else {
-		return _status_ready_pass(nand);
-	}
-	return 0;
+	return _status_ready_pass(nand);
 }
 
 /**

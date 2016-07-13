@@ -278,7 +278,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	nand_initialize(&nand, NULL);
+	nand_initialize(&nand);
 
 	if (!nand_onfi_device_detect(&nand)) {
 		trace_error_wp("Can't detect device\r\n");

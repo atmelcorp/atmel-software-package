@@ -64,11 +64,9 @@ static struct _nand_cfg nand_cfg;
 /**
  * \brief Initializes a _nand_flash instance based on the given physicalinterface.
  * \param nand  Pointer to a _nand_flash instance.
- * \param pin_ready_busy Pin used to monitor the ready/busy signal of the NANDFLASH.
  * \returns 0 if initialization is successful; otherwise returns non-zero
  */
-uint8_t nand_initialize(struct _nand_flash *nand,
-		const struct _pin *pin_ready_busy)
+uint8_t nand_initialize(struct _nand_flash *nand)
 {
 	/* Initialize fields */
 	nand->data_addr = get_ebi_addr_from_cs(NAND_EBI_CS);
@@ -77,11 +75,6 @@ uint8_t nand_initialize(struct _nand_flash *nand,
 				NAND_EBI_CS);
 		return NAND_ERROR_INVALID_ARG;
 	}
-
-	if (pin_ready_busy)
-		nand->pin_ready_busy = *pin_ready_busy;
-	else
-		memset(&nand->pin_ready_busy, 0, sizeof(nand->pin_ready_busy));
 
 	memset(&nand->model, 0, sizeof(nand->model));
 	return 0;

@@ -67,16 +67,13 @@ struct _nand_flash {
 
 	/** Address for sending data to the NandFlash. */
 	uint32_t data_addr;
-
-	/** Pin used to monitor the ready/busy signal from the NandFlash. */
-	struct _pin pin_ready_busy;
 };
+
 /*--------------------------------------------------------------------------
 *                        Export functions
 *-------------------------------------------------------------------------*/
 
-extern uint8_t nand_initialize(struct _nand_flash *nand,
-		const struct _pin *pin_ready_busy);
+extern uint8_t nand_initialize(struct _nand_flash *nand);
 
 extern void nand_write_command(const struct _nand_flash *nand,
 		uint8_t command);
