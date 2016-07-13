@@ -38,7 +38,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include "chip.h"
 #include "math.h"
 #include "misc/bmp280.h"
