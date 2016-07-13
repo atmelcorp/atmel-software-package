@@ -38,8 +38,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-
 #include "peripherals/twi.h"
 #include "peripherals/twid.h"
 
@@ -66,7 +64,7 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 {
 	uint8_t data;
 
-	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
+	qt1070->twid->slave_addr = qt1070->addr;
 	qt1070->twid->iaddr = reg_addr;
 	qt1070->twid->isize = 1;
 	struct _buffer in = {
@@ -93,7 +91,7 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 		.data = &ldata,
 		.size = 1
 	};
-	qt1070->twid->slave_addr = QT1070_SLAVE_ADDRESS;
+	qt1070->twid->slave_addr = qt1070->addr;
 	qt1070->twid->iaddr = reg_addr;
 	qt1070->twid->isize = 1;
 	twid_transfer(qt1070->twid, 0, &out, NULL, 0);
@@ -126,10 +124,8 @@ uint8_t qt1070_get_key_status(struct _qt1070* qt1070)
 uint16_t qt1070_get_key_signal(struct _qt1070* qt1070, uint8_t key)
 {
 	uint8_t data[2];
-	data[0] = _qt1070_read_reg(qt1070,
-				   QT1070_REG_KEY0_SIGNAL_MSB + key * 2);
-	data[1] = _qt1070_read_reg(qt1070,
-				   QT1070_REG_KEY0_SIGNAL_LSB + key * 2);
+	data[0] = _qt1070_read_reg(qt1070, QT1070_REG_KEY0_SIGNAL_MSB + key * 2);
+	data[1] = _qt1070_read_reg(qt1070, QT1070_REG_KEY0_SIGNAL_LSB + key * 2);
 	return (data[0] << 8) | data[1];
 }
 

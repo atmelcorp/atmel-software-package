@@ -155,6 +155,8 @@
  *----------------------------------------------------------------------------*/
 
 struct _qt1070_desc {
+	uint8_t     addr;
+	
 	const char* name;
 	uint8_t     size;
 	uint8_t     page_size;
