@@ -68,17 +68,33 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "board.h" // for BOARD_{SLOW,MAIN}_CLOCK_EXT_OSC
 #include "timer.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+struct _pmc_osc {
+	struct {
+		uint32_t slow;
+		uint32_t main;
+	} internal, external;
+};
+
+/*----------------------------------------------------------------------------
  *        Variables
  *----------------------------------------------------------------------------*/
 
 static uint32_t _pmc_mck = 0;
+static struct _pmc_osc _pmc_oscillators = {
+	.internal = {
+		.slow = SLOW_CLOCK_INT_OSC,
+		.main = MAIN_CLOCK_INT_OSC,
+	},
+};
 
 /*----------------------------------------------------------------------------
  *        Private functions
@@ -278,6 +294,12 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
 
+void pmc_set_oscillators(uint32_t external_slow, uint32_t external_main)
+{
+	_pmc_oscillators.external.slow = external_slow;
+	_pmc_oscillators.external.main = external_main;
+}
+
 uint32_t pmc_get_master_clock(void)
 {
 	if (!_pmc_mck) {
@@ -289,17 +311,17 @@ uint32_t pmc_get_master_clock(void)
 uint32_t pmc_get_slow_clock(void)
 {
 	if (SCKC->SCKC_CR & SCKC_CR_OSCSEL)
-		return SLOW_CLOCK_INT_OSC; /* on-chip slow clock RC */
+		return _pmc_oscillators.internal.slow; /* on-chip slow clock RC */
 	else
-		return BOARD_SLOW_CLOCK_EXT_OSC; /* external crystal */
+		return _pmc_oscillators.external.slow; /* external crystal */
 }
 
 uint32_t pmc_get_main_clock(void)
 {
 	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-		return MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+		return _pmc_oscillators.internal.main; /* on-chip main clock RC */
 	else
-		return BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		return _pmc_oscillators.external.main; /* external crystal */
 }
 
 uint32_t pmc_get_plla_clock(void)
@@ -307,9 +329,9 @@ uint32_t pmc_get_plla_clock(void)
 	uint32_t pllaclk, pllar, pllmula, plldiva;
 
 	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-		pllaclk = MAIN_CLOCK_INT_OSC; /* on-chip main clock RC */
+		pllaclk = _pmc_oscillators.internal.main; /* on-chip main clock RC */
 	else
-		pllaclk = BOARD_MAIN_CLOCK_EXT_OSC; /* external crystal */
+		pllaclk = _pmc_oscillators.external.main; /* external crystal */
 
 	pllar = PMC->CKGR_PLLAR;
 	pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
@@ -882,14 +904,14 @@ uint32_t pmc_get_upll_clock(void)
 	uint32_t clktrim = SFR->SFR_UTMICKTRIM & SFR_UTMICKTRIM_FREQ_Msk;
 	switch (clktrim) {
 		case SFR_UTMICKTRIM_FREQ_16:
-			return 30 * BOARD_MAIN_CLOCK_EXT_OSC;
+			return 30 * _pmc_oscillators.external.main;
 		case SFR_UTMICKTRIM_FREQ_24:
-			return 20 * BOARD_MAIN_CLOCK_EXT_OSC;
+			return 20 * _pmc_oscillators.external.main;
 		default:
-			return 40 * BOARD_MAIN_CLOCK_EXT_OSC;
+			return 40 * _pmc_oscillators.external.main;
 	}
 #else
-	return 40 * BOARD_MAIN_CLOCK_EXT_OSC;
+	return 40 * _pmc_oscillators.external.main;
 #endif
 }
 
@@ -1036,7 +1058,7 @@ uint32_t pmc_get_audio_pmc_clock(void)
 	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
 	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
 
-	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	uint64_t clk = _pmc_oscillators.external.main;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= qdpmc + 1;
@@ -1058,11 +1080,10 @@ uint32_t pmc_get_audio_pad_clock(void)
 	if (div != 2 && div != 3)
 		return 0;
 
-	uint64_t clk = BOARD_MAIN_CLOCK_EXT_OSC;
+	uint64_t clk = _pmc_oscillators.external.main;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= div * qdaudio;
 	return (uint32_t)clk;
 }
 #endif /* CONFIG_HAVE_PMC_AUDIO_CLOCK */
-

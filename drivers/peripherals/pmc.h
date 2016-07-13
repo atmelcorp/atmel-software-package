@@ -119,6 +119,11 @@ extern "C" {
 #endif
 
 /**
+ * \brief Set the external oscillator frequencies (in Hz)
+ */
+extern void pmc_set_oscillators(uint32_t external_slow, uint32_t external_main);
+
+/**
  * \brief Configure PCK and MCK with custom setting
  */
 extern void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg);

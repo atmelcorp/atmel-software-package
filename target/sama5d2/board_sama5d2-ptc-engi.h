@@ -66,11 +66,6 @@
 #define BOARD_NAME "sama5d2-ptc-engi"
 
 /*----------------------------------------------------------------------------*/
-/**
- *  \page sama5d2_ptc_engi_opfreq "sama5d2-PTC-ENGI - Operating frequencies"
- *  This page lists several definition related to the board operating frequency
- *  (when using the initialization done by board_lowlevel.c).
- */
 
 /** Frequency of the board slow clock oscillator */
 #define BOARD_SLOW_CLOCK_EXT_OSC 32768

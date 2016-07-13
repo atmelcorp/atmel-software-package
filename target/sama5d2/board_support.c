@@ -162,6 +162,9 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
+	/* Set the external clock values */
+	pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
+
 	if (clocks) {
 		/* Configure system clocks */
 		board_cfg_clocks();

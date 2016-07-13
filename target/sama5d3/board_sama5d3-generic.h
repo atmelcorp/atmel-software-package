@@ -54,11 +54,6 @@
 #define BOARD_NAME "sama5d3-gneric"
 
 /*----------------------------------------------------------------------------*/
-/**
- *  \page sama5d3_generic_opfreq "sama5d3-generic - Operating Frequencies"
- *  This page lists several definition related to the board operating frequency
- *  (when using the initialization done by board_lowlevel.c).
- */
 
 /** Frequency of the board slow clock oscillator */
 #define BOARD_SLOW_CLOCK_EXT_OSC 32768

@@ -66,11 +66,6 @@
 #define BOARD_NAME "sama5d2-vb-bga196"
 
 /*----------------------------------------------------------------------------*/
-/**
- *  \page sama5d2_xult_opfreq "sama5d2-XULT - Operating frequencies"
- *  This page lists several definition related to the board operating frequency
- *  (when using the initialization done by board_lowlevel.c).
- */
 
 /** Frequency of the board slow clock oscillator */
 #define BOARD_SLOW_CLOCK_EXT_OSC 32768

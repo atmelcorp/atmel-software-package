@@ -33,6 +33,7 @@
 #include "applet_legacy.h"
 #include "trace.h"
 #include "peripherals/pio.h"
+#include "peripherals/pmc.h"
 #include "peripherals/sfc.h"
 #include "misc/console.h"
 
@@ -107,6 +108,8 @@ void applet_main(struct applet_mailbox *mailbox)
 	if (!applet_buffer) {
 		init_applet_buffer();
 	}
+
+	pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
 
 	/* set default status */
 	mailbox->status = APPLET_FAIL;
