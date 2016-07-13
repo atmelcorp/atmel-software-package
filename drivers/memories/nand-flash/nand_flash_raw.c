@@ -68,21 +68,18 @@ CACHE_ALIGNED static uint8_t ecc_table[NAND_MAX_PMECC_BYTE_SIZE];
 static void _write_column_address(const struct _nand_flash *nand,
 		uint16_t column_address)
 {
-	uint16_t page_data_size = nand_model_get_page_data_size(&nand->model);
+	uint16_t data_size = nand_model_get_page_data_size(&nand->model);
 
 	/* Check the data bus width of the NandFlash */
-	if (nand_model_get_data_bus(&nand->model) == 16) {
-		/* Div 2 is because we address in word and not in byte */
-		column_address >>= 1;
-	}
-	/* Send single column address byte for small block devices, or two column address bytes for large block devices*/
-	while (page_data_size > 2) {
-		if (nand_model_get_data_bus(&nand->model) == 16) {
+	if (nand_model_get_data_bus(&nand->model) == 16)
+		column_address >>= 1; /* addr div 2 is because of 16-bit addressing */
+
+	while (data_size > 2) {
+		if (nand_model_get_data_bus(&nand->model) == 16)
 			nand_write_address16(nand, column_address & 0xFF);
-		} else {
+		else
 			nand_write_address(nand, column_address & 0xFF);
-		}
-		page_data_size >>= 8;
+		data_size >>= 8;
 		column_address >>= 8;
 	}
 }
@@ -98,11 +95,10 @@ static void _write_row_address(const struct _nand_flash *nand,
 	uint32_t num_pages = nand_model_get_device_size_in_pages(&nand->model);
 
 	while (num_pages > 0) {
-		if (nand_model_get_data_bus(&nand->model) == 16) {
+		if (nand_model_get_data_bus(&nand->model) == 16)
 			nand_write_address16(nand, row_address & 0xFF);
-		} else {
+		else
 			nand_write_address(nand, row_address & 0xFF);
-		}
 		num_pages >>= 8;
 		row_address >>= 8;
 	}
@@ -160,12 +156,12 @@ static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
 
 /**
  * \brief NAND flash send ALE CLE.
- * \param nand  Pointer to a struct _nand_flash instance.
- * \param mode SMC ALE CLE mode parameter.
- * \param cmd1 First command to be sent.
- * \param cmd2 Second command to be sent.
- * \param col_address Column address.
- * \param row_address Row address.
+ * \param nand Pointer to a struct _nand_flash instance.
+ * \param mode SMC ALE CLE mode parameter
+ * \param cmd1 First command to be sent
+ * \param cmd2 Second command to be sent
+ * \param col_address Column address
+ * \param row_address Row address
  */
 static void _send_cle_ale(const struct _nand_flash *nand,
 		uint8_t mode, uint32_t cmd1, uint32_t cmd2,
@@ -217,19 +213,17 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 
 /**
  * \brief Transfer data from NAND to the provided buffer.
- * \param bus_width  NAND flash data bus width
- * \param host_sram  Set to true to enable NFC Host SRAM
- * \param buffer  Buffer where the data will be stored or sent.
- * \param size  Number of bytes that will be read
+ * \param nfc_sram True if the NFC SRAM is to be used, false otherwise
+ * \param buffer   Buffer from which the data will be read
+ * \param size     Number of bytes that will be read
  */
-static void _data_array_in(const struct _nand_flash *nand,
-		uint8_t bus_width, bool host_sram,
+static void _data_array_in(const struct _nand_flash *nand, bool nfc_sram,
 		uint8_t *buffer, uint32_t size)
 {
 	uint32_t address;
 	uint32_t i;
 
-	if (host_sram) {
+	if (nfc_sram) {
 		address = NFC_RAM_ADDR;
 		hsmc_nfc_wait_xfr_done();
 	} else {
@@ -239,15 +233,15 @@ static void _data_array_in(const struct _nand_flash *nand,
 	if (nand_is_dma_enabled()) {
 		nand_dma_read(address, (uint32_t)buffer, size);
 	} else {
+		uint32_t bus_width = nand_model_get_data_bus(&nand->model);
+
 		/* Check the data bus width of the NandFlash */
-		if (bus_width == 16 && !host_sram) {
+		if (bus_width == 16 && !nfc_sram) {
 			uint16_t *buff16 = (uint16_t*)buffer;
 			volatile uint16_t *data16 = (volatile uint16_t*)address;
 			size = (size + 1) >> 1;
 			for (i = size; i != 0; i--) {
 				*buff16 = *data16;
-				if (host_sram)
-					data16++;
 				buff16++;
 			}
 		} else {
@@ -255,7 +249,7 @@ static void _data_array_in(const struct _nand_flash *nand,
 			volatile uint8_t *data8 = (volatile uint8_t*)address;
 			for(i = size; i != 0; i--) {
 				*buff8 = *data8;
-				if (host_sram)
+				if (nfc_sram)
 					data8++;
 				buff8++;
 			}
@@ -265,35 +259,36 @@ static void _data_array_in(const struct _nand_flash *nand,
 
 /**
  * \brief Transfer data to NANDFLASH from the provided buffer.
- * \param bus_width  NANDFLASH data bus width
- * \param host_sram  Set to true to enable NFC Host SRAM
- * \param buffer  Buffer where the data will be stored or sent.
- * \param size  Number of bytes that will be read
- * \param offset Offset in bytes.
+ * \param nfc_sram True if the NFC SRAM is to be used, false otherwise
+ * \param buffer   Buffer where the data will be written
+ * \param size     Number of bytes that will be written
+ * \param offset   Offset in bytes
  */
-
-static void _data_array_out(const struct _nand_flash *nand,
-		uint8_t bus_width, bool host_sram,
+static void _data_array_out(const struct _nand_flash *nand, bool nfc_sram,
 		uint8_t *buffer, uint32_t size, uint32_t offset)
 {
 	uint32_t address;
 	uint32_t i;
 
-	address = host_sram ? NFC_RAM_ADDR : nand->data_addr;
+	if (nfc_sram) {
+		address = NFC_RAM_ADDR;
+	} else {
+		address = nand->data_addr;
+	}
 	address += offset;
 
 	if (nand_is_dma_enabled()) {
 		nand_dma_write((uint32_t)buffer, address, size);
 	} else {
+		uint32_t bus_width = nand_model_get_data_bus(&nand->model);
+
 		/* Check the data bus width of the NandFlash */
-		if (bus_width == 16 && !host_sram) {
+		if (bus_width == 16 && !nfc_sram) {
 			uint16_t *buff16 = (uint16_t*)buffer;
 			volatile uint16_t *data16 = (volatile uint16_t*)address;
 			size = (size + 1) >> 1;
 			for (i = size; i != 0; i--) {
 				*data16 = *buff16;
-				if (host_sram)
-					data16++;
 				buff16++;
 			}
 		} else {
@@ -301,7 +296,7 @@ static void _data_array_out(const struct _nand_flash *nand,
 			volatile uint8_t *data8 = (volatile uint8_t*)address;
 			for (i = size; i != 0; i--) {
 				*data8 = *buff8;
-				if (host_sram)
+				if (nfc_sram)
 					data8++;
 				buff8++;
 			}
@@ -365,11 +360,10 @@ static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model);
 
 	_send_cle_ale(nand, CLE_VCMD2_EN | ALE_ROW_EN,
-			COMMAND_ERASE_1, COMMAND_ERASE_2, 0, row_address);
+	              COMMAND_ERASE_1, COMMAND_ERASE_2, 0, row_address);
 
 	if (_nand_wait_ready(nand)) {
-		trace_error( "_erase_block: Could not erase block %d.\r\n",
-				block);
+		trace_error("_erase_block: Could not erase block %d.\r\n", block);
 		return NAND_ERROR_CANNOTERASE;
 	}
 
@@ -388,13 +382,11 @@ static uint8_t _erase_block(const struct _nand_flash *nand, uint16_t block)
  * \return 0 if the operation has been successful; otherwise returns 1.
  */
 static uint8_t _read_page(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data, void *spare)
+	uint16_t block, uint16_t page, uint8_t *data, uint8_t *spare)
 {
-	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
-	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
+	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
+	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t col_address, row_address;
-	uint32_t smc_mode;
 
 	NAND_TRACE("_read_page(B#%d:P#%d)\r\n", block, page);
 
@@ -402,23 +394,18 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	assert(data || spare);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(page_data_size, page_spare_size, spare != NULL, false);
+		hsmc_nfc_configure(data_size, spare_size, spare != NULL, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
-	if (data)
-		col_address = 0;
-	else
-		col_address = page_data_size;
+	col_address = data ? 0 : data_size;
 
 	if (nand_is_nfc_sram_enabled()) {
-		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN;
-		_send_cle_ale(nand, smc_mode, COMMAND_READ_1,
-					COMMAND_READ_2, col_address, row_address);
+		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
+		              COMMAND_READ_1, COMMAND_READ_2, col_address, row_address);
 	} else {
-		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN;
-		_send_cle_ale(nand, smc_mode, COMMAND_READ_1,
-					COMMAND_READ_2, col_address, row_address);
+		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
+		              COMMAND_READ_1, COMMAND_READ_2, col_address, row_address);
 	}
 
 	if (!nand_is_nfc_enabled()) {
@@ -430,16 +417,12 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	}
 
 	/* Read data area */
-	if (data) {
-		_data_array_in(nand, bus_width, nand_is_nfc_sram_enabled(),
-				(uint8_t*)data, page_data_size);
-	}
+	if (data)
+		_data_array_in(nand, nand_is_nfc_sram_enabled(), data, data_size);
 
 	/* Read spare area */
-	if (spare) {
-		_data_array_in(nand, bus_width, nand_is_nfc_sram_enabled(),
-				(uint8_t*)spare, page_spare_size);
-	}
+	if (spare)
+		_data_array_in(nand, nand_is_nfc_sram_enabled(), spare, spare_size);
 
 	return 0;
 }
@@ -456,12 +439,11 @@ static uint8_t _read_page(const struct _nand_flash *nand,
  * \return 0 if the operation has been successful; otherwise returns 1.
  */
 static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data)
+	uint16_t block, uint16_t page, uint8_t *data)
 {
-	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
+	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
+	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
-	uint32_t smc_mode;
 
 	NAND_TRACE("_read_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
@@ -469,23 +451,26 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	assert(data);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(page_data_size, page_spare_size, true, false);
+		hsmc_nfc_configure(data_size, spare_size, true, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
 	hsmc_pmecc_reset();
 	hsmc_pmecc_enable();
+
 	if (!hsmc_pmecc_auto_apare_en())
 		hsmc_pmecc_auto_enable();
-	if(nand_is_nfc_sram_enabled()){
-		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN;
+
+	if (nand_is_nfc_sram_enabled()){
 		hsmc_pmecc_data_phase();
-		_send_cle_ale(nand, smc_mode, COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
+		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
+		              COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
 	} else {
-		smc_mode = ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN;
-		_send_cle_ale(nand, smc_mode, COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
+		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN,
+		              COMMAND_READ_1, COMMAND_READ_2, 0, row_address);
 	}
+
 	if (!nand_is_nfc_enabled()){
 		/* Wait for the nand to be ready */
 		_nand_wait_ready(nand);
@@ -500,8 +485,8 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Start a Data Phase */
 	hsmc_pmecc_data_phase();
-	_data_array_in(nand, nand_model_get_data_bus(&nand->model), nand_is_nfc_sram_enabled(),
-			(uint8_t*)data, page_data_size + pmecc_get_ecc_end_address());
+	_data_array_in(nand, nand_is_nfc_sram_enabled(),
+	               data, data_size + pmecc_get_ecc_end_address());
 
 	/* Wait until the kernel of the PMECC is not busy */
 	hsmc_pmecc_wait_ready();
@@ -518,73 +503,62 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
  * \param data  Buffer containing the data area.
  * \return 0 if the write operation is successful; otherwise returns 1.
 */
-
 static uint8_t _write_page(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data, void *spare)
+	uint16_t block, uint16_t page, uint8_t *data, uint8_t *spare)
 {
 	uint8_t error = 0;
-	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
+	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
+	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
-	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 
 	NAND_TRACE("_write_page(B#%d:P#%d)\r\n", block, page);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(page_data_size, page_spare_size, false, spare != NULL);
+		hsmc_nfc_configure(data_size, spare_size, false, spare != NULL);
 
 	/* Calculate physical address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled() && data) {
-		_data_array_out(nand, bus_width, true,
-		(uint8_t *)data, page_data_size, 0);
-	}
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled() && spare && data) {
-		_data_array_out(nand, bus_width, true,
-		(uint8_t *)spare, page_spare_size, page_data_size);
-	}
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled() && spare && !data) {
-		_data_array_out(nand, bus_width, true,
-					(uint8_t *)spare, page_spare_size, 0);
-	}
 	/* Write data area if needed */
 	if (data) {
 		/* Start a Data Phase */
-		if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled()) {
-			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN |
-			CLE_DATA_EN, COMMAND_WRITE_1, 0, 0, row_address);
+		if (nand_is_nfc_sram_enabled()) {
+			_data_array_out(nand, true, data, data_size, 0);
+			if (spare)
+				_data_array_out(nand, true, spare, spare_size, data_size);
+
+			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
+			              COMMAND_WRITE_1, 0, 0, row_address);
+
 			hsmc_nfc_wait_xfr_done();
-		} else
+		} else {
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-						COMMAND_WRITE_1, 0, 0, row_address);
-		if (!nand_is_nfc_sram_enabled())
-			_data_array_out(nand, bus_width, false, (uint8_t *)data, page_data_size, 0);
-		if (!nand_is_nfc_sram_enabled() && spare && data)
-			_data_array_out(nand, bus_width, false, (uint8_t *)spare,
-					page_spare_size, page_data_size);
-		if (!nand_is_nfc_sram_enabled() && spare && !data)
-			_data_array_out(nand, bus_width, false, (uint8_t *)spare, page_spare_size, 0);
-		_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
+			              COMMAND_WRITE_1, 0, 0, row_address);
 
-		hsmc_nfc_wait_rb_busy();
-		if (_status_ready_pass(nand)) {
-			trace_error("write_page_no_ecc: Failed writing data area.\r\n");
-			error = NAND_ERROR_CANNOTWRITE;
+			_data_array_out(nand, false, data, data_size, 0);
+			if (spare)
+				_data_array_out(nand, false, spare, spare_size, data_size);
 		}
+	} else {
 		/* Write spare area alone if needed */
-		if (spare && !data) {
+		if (spare) {
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-				COMMAND_WRITE_1, 0, page_data_size, row_address);
-			_data_array_out(nand, bus_width, false, (uint8_t *)spare, page_spare_size, 0);
-			_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2,0, 0, 0);
+			              COMMAND_WRITE_1, 0, data_size, row_address);
 
-			if (_nand_wait_ready(nand)) {
-				trace_error("write_page_no_ecc: Failed writing data area.\r\n");
-				error = NAND_ERROR_CANNOTWRITE;
-			}
+			_data_array_out(nand, false, spare, spare_size, 0);
 		}
 	}
+
+	_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
+
+	if (nand_is_nfc_enabled() && !nand_is_nfc_sram_enabled())
+		hsmc_nfc_wait_rb_busy();
+
+	if (_status_ready_pass(nand)) {
+			trace_error("write_page_no_ecc: Failed writing data area.\r\n");
+			error = NAND_ERROR_CANNOTWRITE;
+	}
+
 	return error;
 }
 
@@ -598,34 +572,32 @@ static uint8_t _write_page(const struct _nand_flash *nand,
  * \return 0 if the write operation is successful; otherwise returns 1.
 */
 static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
-	uint16_t block, uint16_t page, void *data)
+	uint16_t block, uint16_t page, uint8_t *data)
 {
 	uint8_t error = 0;
-	uint32_t page_data_size = nand_model_get_page_data_size(&nand->model);
-	uint32_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
+	uint32_t data_size = nand_model_get_page_data_size(&nand->model);
+	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
 	uint32_t ecc_start_addr;
 	uint32_t bytes_per_sector;
 	uint32_t pmecc_sector_number;
 	uint32_t pmecc_sector_index;
 	uint32_t byte_index;
-	uint8_t *pmecc[8];
+	volatile uint8_t *pmecc[8];
 	uint8_t i;
 	uint8_t nb_sectors_per_page;
-	uint32_t bus_width = nand_model_get_data_bus(&nand->model);
 
 	NAND_TRACE("_write_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
-	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(page_data_size, page_spare_size, false, false);
+	assert(data);
 
-	ecc_start_addr = page_data_size + pmecc_get_ecc_start_address();
+	if (nand_is_nfc_enabled())
+		hsmc_nfc_configure(data_size, spare_size, false, false);
+
+	ecc_start_addr = data_size + pmecc_get_ecc_start_address();
 
 	/* Calculate physical address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
-
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled() && data)
-		_data_array_out(nand, bus_width, true, (uint8_t*)data, page_data_size, 0);
 
 	/* Write data area if needed */
 	switch (pmecc_get_page_size()) {
@@ -648,38 +620,43 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	hsmc_pmecc_reset();
 	hsmc_pmecc_enable();
 	for (i = 0; i < 8; i++)
-		pmecc[i] = (uint8_t *)(&hsmc_pmecc(i));
+		pmecc[i] = (volatile uint8_t *)&hsmc_pmecc(i);
 
 	/* Start a Data Phase */
 	hsmc_pmecc_data_phase();
 	hsmc_pmecc_enable_write();
-	if (nand_is_nfc_enabled() && nand_is_nfc_sram_enabled()) {
+	if (nand_is_nfc_sram_enabled()) {
+		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
+
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
-				COMMAND_WRITE_1, 0, 0, row_address);
+		              COMMAND_WRITE_1, 0, 0, row_address);
+
 		hsmc_nfc_wait_xfr_done();
 	} else {
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
-				COMMAND_WRITE_1, 0, 0, row_address);
+		              COMMAND_WRITE_1, 0, 0, row_address);
+
+		_data_array_out(nand, false, (uint8_t *)data, data_size, 0);
 	}
-	if (!nand_is_nfc_sram_enabled())
-		_data_array_out(nand, bus_width, false, (uint8_t *)data, page_data_size, 0);
-	_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN, COMMAND_RANDOM_IN, 0, ecc_start_addr, 0);
+
+	_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN,
+	              COMMAND_RANDOM_IN, 0, ecc_start_addr, 0);
 
 	/* Wait until the kernel of the PMECC is not busy */
 	hsmc_pmecc_wait_ready();
-	bytes_per_sector = (pmecc_get_ecc_bytes()) / nb_sectors_per_page;
+	bytes_per_sector = pmecc_get_ecc_bytes() / nb_sectors_per_page;
 	pmecc_sector_number = 1 << ((pmecc_get_page_size() >> 8) & 0x3);
 
 	/* Read all ECC registers */
-	for (pmecc_sector_index = 0;
-			pmecc_sector_index < pmecc_sector_number;
-			pmecc_sector_index++) {
+	for (pmecc_sector_index = 0; pmecc_sector_index < pmecc_sector_number; pmecc_sector_index++) {
 		for (byte_index = 0; byte_index < bytes_per_sector; byte_index++)
 			ecc_table[pmecc_sector_index * bytes_per_sector + byte_index] =
 				pmecc[pmecc_sector_index][byte_index];
 	}
-	_data_array_out(nand, bus_width, false, ecc_table,
+
+	_data_array_out(nand, false, ecc_table,
 			pmecc_sector_number * bytes_per_sector, 0);
+
 	_send_cle_ale(nand, CLE_WRITE_EN, COMMAND_WRITE_2, 0, 0, 0);
 
 	if (nand_is_nfc_enabled()) {
@@ -688,7 +665,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	}
 
 	if (_nand_wait_ready(nand)) {
-		trace_error("write_page_pmecc: Failed writing data area.\r\n");
+		trace_error("write_page_pmecc: Failed writing.\r\n");
 		error = NAND_ERROR_CANNOTWRITE;
 	}
 
