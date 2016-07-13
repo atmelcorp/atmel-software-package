@@ -49,9 +49,11 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static uint32_t _nfc_read_cmd(uint32_t cmd)
+/* Reading the NFC Command Register (to any address) will give the status of
+ * the NFC. */
+static uint32_t _nfc_read_status(void)
 {
-	return *(volatile uint32_t*)(NFC_ADDR + cmd);
+	return *(volatile uint32_t*)(NFC_ADDR);
 }
 
 static void _nfc_write_cmd(uint32_t cmd, uint32_t value)
@@ -232,7 +234,7 @@ bool hsmc_nfc_is_nfc_busy(void)
  */
 static bool smc_nfc_is_host_busy(void)
 {
-	return (_nfc_read_cmd(NFCADDR_CMD_NFCCMD) & 0x8000000) == 0x8000000;
+	return (_nfc_read_status() & NFCDATA_STATUS_NFCBUSY) == NFCDATA_STATUS_NFCBUSY;
 }
 
 /**
@@ -285,13 +287,40 @@ void hsmc_pmecc_wait_ready(void)
  * \param address_cycle address cycle when command access id decoded.
  * \param cycle0 address at first cycle.
  */
-void hsmc_nfc_send_cmd(uint32_t cmd, uint32_t address_cycle, uint32_t cycle0)
+void hsmc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
 {
+	int cycle_offset = 0;
+	uint32_t nfcdata_addr = 0;
+
 	/* Wait until host controller is not busy. */
 	while (smc_nfc_is_host_busy());
 
-	/* Send the command plus the ADDR_CYCLE */
-	HSMC->HSMC_ADDR = cycle0;
-	_nfc_write_cmd(cmd, address_cycle);
+	/* Send the command */
+	switch (cmd & NFCADDR_CMD_ACYCLE_Msk) {
+	case NFCADDR_CMD_ACYCLE_FIVE:
+		HSMC->HSMC_ADDR = cycle_bytes[0];
+		cycle_offset = 1;
+		// fall-through
+	case NFCADDR_CMD_ACYCLE_FOUR:
+		nfcdata_addr |= NFCDATA_ADDR_ACYCLE4(cycle_bytes[cycle_offset + 3]);
+		// fall-through
+	case NFCADDR_CMD_ACYCLE_THREE:
+		nfcdata_addr |= NFCDATA_ADDR_ACYCLE3(cycle_bytes[cycle_offset + 2]);
+		// fall-through
+	case NFCADDR_CMD_ACYCLE_TWO:
+		nfcdata_addr |= NFCDATA_ADDR_ACYCLE2(cycle_bytes[cycle_offset + 1]);
+		// fall-through
+	case NFCADDR_CMD_ACYCLE_ONE:
+		nfcdata_addr |= NFCDATA_ADDR_ACYCLE1(cycle_bytes[cycle_offset + 0]);
+		break;
+	case NFCADDR_CMD_ACYCLE_NONE:
+		break;
+	default:
+		assert(0);
+		break;
+	}
+	_nfc_write_cmd(cmd, nfcdata_addr);
+
+	/* Wait for command completion */
 	hsmc_nfc_wait_cmd_done();
 }

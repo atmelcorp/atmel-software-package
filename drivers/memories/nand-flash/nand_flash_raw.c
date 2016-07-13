@@ -109,20 +109,18 @@ static void _write_row_address(const struct _nand_flash *nand,
 }
 
 /**
- * \brief Translates the given column and row address into first and other (1-4) address
- *  cycles. The resulting values are stored in the provided variables if they are not null.
- * \param nand  Pointer to a struct _nand_flash instance.
- * \param column_address  Column address to translate.
- * \param row_address  Row address to translate.
- * \param p_address_cycle0    First address cycle.
- * \param p_address_cycle_1234 Four address cycles.
- * \param row_only           Only ROW address is used.
- * \return Number of address cycles converted.
+ * \brief Translates the given column and row address into address cycles.
+ * \param nand         Pointer to a struct _nand_flash instance.
+ * \param col_address  Column address to translate
+ * \param row_address  Row address to translate
+ * \param cycle_bytes  Array of at least 5 bytes to hold the address cycle bytes
+ * \param row_only     Only ROW address is output
+ * \param col_only     Only COL address is output
+ * \return Number of address cycles converted
  */
 static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
-		uint16_t column_address, uint32_t row_address,
-		uint32_t *p_address_cycle0, uint32_t *p_address_cycle_1234,
-		uint8_t row_only, uint8_t col_only)
+		uint16_t col_address, uint32_t row_address,
+		uint8_t *cycle_bytes, uint8_t row_only, uint8_t col_only)
 {
 	uint16_t max_data_size =
 		nand_model_get_page_data_size(&nand->model) +
@@ -130,53 +128,33 @@ static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
 	uint32_t max_page_num  =
 		nand_model_get_device_size_in_pages(&nand->model) - 1;
 	uint8_t num_cycles = 0;
-	uint32_t address_cycle0 = 0;
-	uint32_t address_cycle1234 = 0;
-	uint8_t cycle_bytes[8], cycle_idx, byte_position;
 
 	/* Check the data bus width of the NandFlash */
 	if (nand_model_get_data_bus(&nand->model) == 16) {
 		/* Div 2 is because we address in word and not in byte */
-		column_address >>= 1;
+		col_address >>= 1;
 	}
+
 	/* Convert column address */
 	if (!row_only) {
 		/* Send single column address byte for small block devices,
 		   or two column address bytes for large block devices */
 		while (max_data_size > 2) {
-			cycle_bytes[num_cycles++] = column_address & 0xFF;
+			cycle_bytes[num_cycles++] = col_address & 0xFF;
 			max_data_size >>= 8;
-			column_address >>= 8;
+			col_address >>= 8;
 		}
 	}
+
+	/* Convert row address */
 	if (!col_only) {
-		/* Convert row address */
 		while (max_page_num > 0) {
 			cycle_bytes[num_cycles++] = row_address & 0xFF;
 			max_page_num >>= 8;
 			row_address >>= 8;
 		}
 	}
-	/* build address_cycle0 & address_cycle1234 */
-	cycle_idx = 0;
-	/* If more than 4 cycles, address_cycle0 is used */
-	if (num_cycles > 4) {
-		for (byte_position = 0; cycle_idx < num_cycles - 4; cycle_idx++) {
-			address_cycle0 += cycle_bytes[cycle_idx] << byte_position;
-			byte_position += 8;
-		}
-	}
-	/* address_cycle1234 */
-	for (byte_position = 0; cycle_idx < num_cycles; cycle_idx++) {
-		address_cycle1234 += cycle_bytes[cycle_idx] << byte_position;
-		byte_position += 8;
-	}
 
-	/* Store values*/
-	if (p_address_cycle0)
-		*p_address_cycle0 = address_cycle0;
-	if (p_address_cycle_1234)
-		*p_address_cycle_1234 = address_cycle1234;
 	return num_cycles;
 }
 
@@ -193,13 +171,6 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 		uint8_t mode, uint32_t cmd1, uint32_t cmd2,
 		uint32_t col_address, uint32_t row_address)
 {
-	uint32_t nfc_command;
-	uint32_t nfc_data;
-	uint32_t nfc_rw;
-	uint32_t cycles;
-	uint32_t address_cycle0 = 0;
-	uint32_t address_cycle1234 = 0;
-
 	/* Issue CLE and ALE through EBI */
 	if (!nand_is_nfc_enabled()) {
 		nand_write_command(nand, cmd1);
@@ -214,36 +185,33 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 		if ((mode & CLE_VCMD2_EN) == CLE_VCMD2_EN)
 			nand_write_command(nand, cmd2);
 	} else { /* Issue CLE and ALE using NFC */
-		if ((mode & CLE_WRITE_EN) == CLE_WRITE_EN)
-			nfc_rw = NFCADDR_CMD_NFCWR;
-		else
-			nfc_rw = NFCADDR_CMD_NFCRD;
+		uint32_t nfc_command;
+		uint8_t cycle_bytes[5];
 
-		if ((mode & CLE_DATA_EN) == CLE_DATA_EN
-				&& nand_is_nfc_sram_enabled())
-			nfc_data = NFCADDR_CMD_DATAEN;
-		else
-			nfc_data = NFCADDR_CMD_DATADIS;
+		nfc_command = NFCADDR_CMD_CMD1(cmd1) |
+		              NFCADDR_CMD_CSID_3;
 
-		if ((mode & ALE_COL_EN) == ALE_COL_EN ||
-			(mode & ALE_ROW_EN) == ALE_ROW_EN) {
-			cycles = _nfc_translate_address(nand, col_address, row_address,
-					&address_cycle0, &address_cycle1234,
-					(((mode & ALE_COL_EN) == 0) &&
-					 ((mode & ALE_ROW_EN) == ALE_ROW_EN)) ? 1 : 0,
-					(((mode & ALE_COL_EN) == ALE_COL_EN) &&
-					 ((mode & ALE_ROW_EN) == 0)) ? 1 : 0);
-		} else {
-			cycles = 0;
+		if ((mode & CLE_VCMD2_EN) == CLE_VCMD2_EN) {
+			nfc_command |= NFCADDR_CMD_VCMD2 |
+			               NFCADDR_CMD_CMD2(cmd2);
 		}
-		nfc_command = nfc_rw |
-			nfc_data |
-			NFCADDR_CMD_CSID_3 |
-			cycles << 19 |
-			(((mode & CLE_VCMD2_EN) == CLE_VCMD2_EN) ? NFCADDR_CMD_VCMD2 : 0) |
-			(cmd1 << 2) |
-			(cmd2 << 10);
-		hsmc_nfc_send_cmd(nfc_command, address_cycle1234, address_cycle0);
+
+		if (mode & (ALE_COL_EN | ALE_ROW_EN)) {
+			bool col_en = (mode & ALE_COL_EN) == ALE_COL_EN;
+			bool row_en = (mode & ALE_ROW_EN) == ALE_ROW_EN;
+			uint32_t cycles = _nfc_translate_address(nand,
+					col_address, row_address, cycle_bytes,
+					row_en && !col_en, col_en && !row_en);
+			nfc_command |= NFCADDR_CMD_ACYCLE(cycles);
+		}
+
+		if ((mode & CLE_WRITE_EN) == CLE_WRITE_EN)
+			nfc_command |= NFCADDR_CMD_NFCWR;
+
+		if ((mode & CLE_DATA_EN) == CLE_DATA_EN && nand_is_nfc_sram_enabled())
+			nfc_command |= NFCADDR_CMD_DATAEN;
+
+		hsmc_nfc_send_cmd(nfc_command, cycle_bytes);
 	}
 }
 
