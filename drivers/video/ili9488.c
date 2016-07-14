@@ -93,7 +93,7 @@ static struct _spi_desc spi_ili9488_desc = {
 	.dlybct         = ILI9488_DLYCT,
 	.chip_select    = ILI9488_CS,
 	.spi_mode       = ILI9488_SPI_MODE,
-	.transfert_mode = SPID_MODE_POLLING,
+	.transfer_mode = SPID_MODE_POLLING,
 };
 
 /*----------------------------------------------------------------------------

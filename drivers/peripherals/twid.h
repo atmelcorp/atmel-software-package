@@ -73,7 +73,7 @@ struct _twi_desc
 	uint32_t slave_addr;
 	uint32_t iaddr;
 	uint32_t isize;
-	uint8_t transfert_mode;
+	uint8_t transfer_mode;
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
@@ -110,12 +110,12 @@ struct _async_desc
 
 extern void twid_configure(struct _twi_desc* desc);
 
-extern uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx,
+extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx,
                                struct _buffer* tx, twid_callback_t cb,
                                void* user_args);
 
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 
-extern void twid_wait_transfert(const struct _twi_desc* desc);
+extern void twid_wait_transfer(const struct _twi_desc* desc);
 
 #endif /* TWID_H_ */

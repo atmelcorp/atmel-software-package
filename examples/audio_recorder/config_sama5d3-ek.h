@@ -13,7 +13,7 @@
 static struct _twi_desc wm8904_twid = {
 	.addr = TWI0,
 	.freq = TWI_CLOCK,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 /** List of pins to configure. */

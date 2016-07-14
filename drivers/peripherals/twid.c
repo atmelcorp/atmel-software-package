@@ -71,7 +71,7 @@ static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 	timer_start_timeout(&timeout, desc->timeout);
 	while (!twi_is_transfer_complete(desc->addr)) {
 		if (timer_timeout_reached(&timeout)) {
-			trace_error("twid: Unable to complete transfert!\r\n");
+			trace_error("twid: Unable to complete transfer!\r\n");
 			twid_configure(desc);
 			return TWID_ERROR_TRANSFER;
 		}
@@ -287,7 +287,7 @@ void twid_configure(struct _twi_desc* desc)
 	twi_configure_master(desc->addr, desc->freq);
 
 #ifdef CONFIG_HAVE_TWI_FIFO
-	if (desc->transfert_mode == TWID_MODE_FIFO) {
+	if (desc->transfer_mode == TWID_MODE_FIFO) {
 		uint32_t fifo_depth = get_peripheral_fifo_depth(desc->addr);
 		twi_fifo_configure(desc->addr, fifo_depth/2, fifo_depth/2,
 		                   TWI_FMR_RXRDYM_ONE_DATA | TWI_FMR_TXRDYM_ONE_DATA);
@@ -329,7 +329,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	if (_check_rx_time_out(desc) != TWID_SUCCESS)
 		return TWID_ERROR_TIMEOUT;
 	buffer->data[i] = twi_read_byte(addr);
-	/* wait transfert to be finished */
+	/* wait transfer to be finished */
 	return _twid_wait_twi_transfer(desc);
 }
 
@@ -359,7 +359,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 	if (buffer->size != 1)
 		twi_send_stop_condition(addr);
 
-	/* wait transfert to be finished */
+	/* wait transfer to be finished */
 	return _twid_wait_twi_transfer(desc);
 }
 
@@ -370,7 +370,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	int i = 0;
 	Twi* addr = desc->addr;
 
-	twi_init_read_transfert(desc->addr, desc->slave_addr, desc->iaddr,
+	twi_init_read_transfer(desc->addr, desc->slave_addr, desc->iaddr,
 	                        desc->isize, buffer->size);
 
 	if (_check_nack(addr) != TWID_SUCCESS)
@@ -384,7 +384,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 			return TWID_ERROR_ACK;
 	}
 
-	/* wait for transfert to finish */
+	/* wait for transfer to finish */
 	return _twid_wait_twi_transfer(desc);
 }
 
@@ -393,7 +393,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 	int i = 0;
 	Twi* addr = desc->addr;
 
-	twi_init_write_transfert(desc->addr, desc->slave_addr, desc->iaddr,
+	twi_init_write_transfer(desc->addr, desc->slave_addr, desc->iaddr,
 	                         desc->isize, buffer->size);
 
 	if (_check_nack(addr) != TWID_SUCCESS)
@@ -407,7 +407,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 			return TWID_ERROR_ACK;
 	}
 
-	/* wait for transfert to finish */
+	/* wait for transfer to finish */
 	return _twid_wait_twi_transfer(desc);
 }
 
@@ -416,7 +416,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 /*
  *
  */
-uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buffer* tx, twid_callback_t cb, void* user_args)
+uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx, struct _buffer* tx, twid_callback_t cb, void* user_args)
 {
 	uint32_t status = TWID_SUCCESS;
 	uint32_t id;
@@ -431,7 +431,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 	desc->callback = cb;
 	desc->cb_args = user_args;
 
-	tmode = desc->transfert_mode;
+	tmode = desc->transfer_mode;
 
 	/* Check if only one char to send or receive */
 	if (tmode == TWID_MODE_ASYNC) {
@@ -495,7 +495,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 				mutex_unlock(&desc->mutex);
 			} else {
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
-				twi_init_write_transfert(desc->addr,
+				twi_init_write_transfer(desc->addr,
 							 desc->slave_addr,
 							 desc->iaddr,
 							 desc->isize,
@@ -514,7 +514,7 @@ uint32_t twid_transfert(struct _twi_desc* desc, struct _buffer* rx, struct _buff
 			} else {
 
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
-				twi_init_read_transfert(desc->addr,
+				twi_init_read_transfer(desc->addr,
 							desc->slave_addr,
 							desc->iaddr,
 							desc->isize,
@@ -573,7 +573,7 @@ uint32_t twid_is_busy(const struct _twi_desc* desc)
 	return mutex_is_locked(&desc->mutex);
 }
 
-void twid_wait_transfert(const struct _twi_desc* desc)
+void twid_wait_transfer(const struct _twi_desc* desc)
 {
 	while (twid_is_busy(desc));
 }

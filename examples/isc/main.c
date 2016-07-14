@@ -188,7 +188,7 @@ CACHE_ALIGNED struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 static struct _twi_desc twid = {
 	.addr = ISC_TWI_ADDR,
 	.freq = TWCK,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 static awb_status_t awb_status_machine;

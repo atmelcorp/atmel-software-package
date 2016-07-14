@@ -76,7 +76,7 @@ static struct _spi_desc spi_at25_desc = {
 	.dlybct         = AT25_DLYCT,
 	.chip_select    = AT25_CS,
 	.spi_mode       = AT25_SPI_MODE,
-	.transfert_mode = SPID_MODE_DMA,
+	.transfer_mode = SPID_MODE_DMA,
 };
 
 static struct _at25 at25drv;

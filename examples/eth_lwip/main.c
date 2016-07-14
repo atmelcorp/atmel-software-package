@@ -162,7 +162,7 @@ struct _at24 at24_drv = {
 struct _twi_desc at24_twid = {
         .addr = AT24_ADDR,
         .freq = AT24_FREQ,
-        .transfert_mode = TWID_MODE_DMA
+        .transfer_mode = TWID_MODE_DMA
 };
 
 /* The MAC address used for demo */

@@ -139,7 +139,7 @@ static void _at25_send_write_cmd(struct _at25* at25, uint32_t addr)
 	}
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 	out.size += dummy_byte ? 1 : 0;
-	spid_transfert(at25->spid, 0, &out, NULL, 0);
+	spid_transfer(at25->spid, 0, &out, NULL, 0);
 }
 
 static uint32_t _at25_check_writable(struct _at25* at25)
@@ -160,24 +160,24 @@ static uint32_t _at25_check_writable(struct _at25* at25)
 
 static void _at25_enable_write(struct _at25* at25)
 {
-	spid_begin_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
 	uint8_t opcode = CMD_WRITE_ENABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
 	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 }
 
 static void _at25_disable_write(struct _at25* at25)
 {
-	spid_begin_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
 	uint8_t opcode = CMD_WRITE_DISABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
 	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 }
 
 static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
@@ -191,8 +191,8 @@ static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 
 	_at25_enable_write(at25);
 
-	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	spid_begin_transfer(at25->spid);
+	status = spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 	_at25_disable_write(at25);
 	if (status) {
 		return AT25_ERROR_SPI;
@@ -204,13 +204,13 @@ static void _at25_enter_4addr_mode(struct _at25* at25)
 {
 	_at25_enable_write(at25);
 
-	spid_begin_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
 	uint8_t opcode = CMD_ENTER_4ADDR_MODE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
 	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 	at25->addressing = AT25_ADDRESS_4_BYTES;
 }
 
@@ -218,13 +218,13 @@ static void _at25_exit_4addr_mode(struct _at25* at25)
 {
 	_at25_enable_write(at25);
 
-	spid_begin_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
 	uint8_t opcode = CMD_EXIT_4ADDR_MODE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1
 	};
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+	spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 	at25->addressing = AT25_ADDRESS_3_BYTES;
 }
 
@@ -299,9 +299,9 @@ uint32_t at25_read_jedec_id(struct _at25* at25)
 		.size = sizeof(opcode)
 	};
 
-	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
-	spid_wait_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
+	spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	spid_wait_transfer(at25->spid);
 
 	return (jedec[2] << 16) | (jedec[1] << 8) | jedec[0];
 }
@@ -321,9 +321,9 @@ uint32_t at25_read_status(struct _at25* at25)
 		.size = sizeof(opcode)
 	};
 
-	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
-	spid_wait_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
+	spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	spid_wait_transfer(at25->spid);
 
 	return status;
 }
@@ -450,9 +450,9 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t le
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 	out.size += 1; /* one dummy byte */
 
-	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, &in, &out, spid_finish_transfert_callback, 0);
-	spid_wait_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
+	status = spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	spid_wait_transfer(at25->spid);
 
 	mutex_unlock(&at25->mutex);
 
@@ -485,9 +485,9 @@ uint32_t at25_erase_chip(struct _at25* at25)
 	};
 
 	_at25_enable_write(at25);
-	spid_begin_transfert(at25->spid);
-	status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
-	spid_wait_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
+	status = spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
+	spid_wait_transfer(at25->spid);
 	if (status) {
 		mutex_unlock(&at25->mutex);
 		return AT25_ERROR_SPI;
@@ -581,9 +581,9 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	trace_debug("at25: Clearing block at addr 0x%x\r\n", (unsigned int)addr);
 
 	_at25_enable_write(at25);
-	spid_begin_transfert(at25->spid);
-	spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
-	spid_wait_transfert(at25->spid);
+	spid_begin_transfer(at25->spid);
+	spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
+	spid_wait_transfer(at25->spid);
 	if (at25_check_status(at25, AT25_STATUS_EPE)) {
 		mutex_unlock(&at25->mutex);
 		return AT25_ERROR_PROGRAM;
@@ -634,16 +634,16 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 
 		_at25_enable_write(at25);
 
-		spid_begin_transfert(at25->spid);
+		spid_begin_transfer(at25->spid);
 		_at25_send_write_cmd(at25, addr);
 		out.size = write_size;
-		status = spid_transfert(at25->spid, 0, &out, spid_finish_transfert_callback, 0);
+		status = spid_transfer(at25->spid, 0, &out, spid_finish_transfer_callback, 0);
 		if (status) {
 			mutex_unlock(&at25->mutex);
 			return AT25_ERROR_SPI;
 		}
 
-		spid_wait_transfert(at25->spid);
+		spid_wait_transfer(at25->spid);
 		if (at25_check_status(at25, AT25_STATUS_EPE)) {
 			mutex_unlock(&at25->mutex);
 			return AT25_ERROR_PROGRAM;

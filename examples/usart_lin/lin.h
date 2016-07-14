@@ -56,7 +56,7 @@ enum enum_lin_cmd {
 	IGNORE     /* The node is not concerned by the response, it doesn't send or receive */
 } ;
 
-struct _transfert_packet {
+struct _transfer_packet {
 	uint32_t addr; /* Start address of the transfer packet data */
 	uint32_t size; /* Transfer packet size (in units of the peripheral data width) */
 };

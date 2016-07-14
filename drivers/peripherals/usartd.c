@@ -50,7 +50,7 @@
 
 static void _usartd_dma_callback_wrapper(struct dma_channel* channel, void* args)
 {
-	trace_debug("USARTD DMA Transfert Finished\r\n");
+	trace_debug("USARTD DMA transfer Finished\r\n");
 	struct _usart_desc* usartd = (struct _usart_desc*) args;
 
 	dma_free_channel(channel);
@@ -126,7 +126,7 @@ void usartd_configure(struct _usart_desc* desc)
 	usart_configure(desc->addr, desc->mode, desc->baudrate);
 
 #ifdef CONFIG_HAVE_USART_FIFO
-	if (desc->transfert_mode == USARTD_MODE_FIFO) {
+	if (desc->transfer_mode == USARTD_MODE_FIFO) {
 		uint32_t fifo_size = get_peripheral_fifo_depth(desc->addr);
 		uint32_t tx_thres = fifo_size >> 1;
 		uint32_t rx_thres1 = (fifo_size >> 1) + (fifo_size >> 2);
@@ -137,7 +137,7 @@ void usartd_configure(struct _usart_desc* desc)
 #endif
 }
 
-uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
+uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* rx,
 			  struct _buffer* tx, usartd_callback_t cb,
 			  void* user_args)
 {
@@ -150,7 +150,7 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 		return USARTD_ERROR_LOCK;
 	}
 
-	switch (desc->transfert_mode) {
+	switch (desc->transfer_mode) {
 	case USARTD_MODE_POLLING:
 		if (tx) {
 			for (i = 0; i < tx->size; ++i) {
@@ -222,14 +222,14 @@ uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
 	return USARTD_SUCCESS;
 }
 
-void usartd_finish_transfert_callback(struct _usart_desc* desc,
+void usartd_finish_transfer_callback(struct _usart_desc* desc,
 				      void* user_args)
 {
 	(void)user_args;
-	usartd_finish_transfert(desc);
+	usartd_finish_transfer(desc);
 }
 
-void usartd_finish_transfert(struct _usart_desc* desc)
+void usartd_finish_transfer(struct _usart_desc* desc)
 {
 	mutex_unlock(&desc->mutex);
 }
@@ -239,7 +239,7 @@ uint32_t usartd_is_busy(const struct _usart_desc* desc)
 	return mutex_is_locked(&desc->mutex);
 }
 
-void usartd_wait_transfert(const struct _usart_desc* desc)
+void usartd_wait_transfer(const struct _usart_desc* desc)
 {
 	while (mutex_is_locked(&desc->mutex));
 }

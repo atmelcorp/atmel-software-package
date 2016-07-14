@@ -157,7 +157,7 @@ CACHE_ALIGNED static struct _isi_dma_desc dma_desc[NUM_FRAME_BUFFER];
 static struct _twi_desc twid = {
 	.addr = BOARD_ISI_TWI_ADDR,
 	.freq = TWCK,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 static uint8_t sensor_idx;

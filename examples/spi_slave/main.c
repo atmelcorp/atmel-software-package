@@ -187,7 +187,7 @@ static struct _spi_desc spi_master_desc = {
 	.dlybct         = 0,
 	.chip_select    = SPI_MASTER_CS,
 	.spi_mode       = (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT),
-	.transfert_mode = SPID_MODE_POLLING,
+	.transfer_mode = SPID_MODE_POLLING,
 };
 
 /** descriptor for SPI slave */
@@ -199,7 +199,7 @@ static struct _spi_desc spi_slave_desc = {
 	.dlybct         = 0,
 	.chip_select    = SPI_SLAVE_CS,
 	.spi_mode       = (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT),
-	.transfert_mode = SPID_MODE_DMA,
+	.transfer_mode = SPID_MODE_DMA,
 };
 
 /** SPI clock configuration (KHz) */
@@ -268,15 +268,15 @@ static void _spi_transfer(void)
 		spi_buffer_slave_tx[i] = i;
 	memset(spi_buffer_master_rx, 0x0, DMA_TRANS_SIZE);
 
-	spid_begin_transfert(&spi_slave_desc);
-	status = spid_transfert(&spi_slave_desc, 0, &slave_out, NULL, NULL);
+	spid_begin_transfer(&spi_slave_desc);
+	status = spid_transfer(&spi_slave_desc, 0, &slave_out, NULL, NULL);
 	if (SPID_SUCCESS != status) {
 		printf("Error: SPI slave transfer failed.\r\n");
 		return;
 	}
 
-	spid_begin_transfert(&spi_master_desc);
-	status = spid_transfert(&spi_master_desc, &master_in, 0, NULL, NULL);
+	spid_begin_transfer(&spi_master_desc);
+	status = spid_transfer(&spi_master_desc, &master_in, 0, NULL, NULL);
 	if (SPID_SUCCESS != status) {
 		printf("Error: SPI master transfer failed.\r\n");
 		return;
@@ -284,8 +284,8 @@ static void _spi_transfer(void)
 
 	while (spid_is_busy(&spi_master_desc) || spid_is_busy(&spi_slave_desc));
 
-	spid_finish_transfert(&spi_master_desc);
-	spid_finish_transfert(&spi_slave_desc);
+	spid_finish_transfer(&spi_master_desc);
+	spid_finish_transfer(&spi_slave_desc);
 
 	spid_close(&spi_master_desc);
 	spid_close(&spi_slave_desc);

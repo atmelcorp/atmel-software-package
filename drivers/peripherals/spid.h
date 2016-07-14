@@ -68,7 +68,7 @@ struct _spi_desc
 	uint8_t         dlybct;
 	uint8_t         chip_select;
 	uint8_t         spi_mode;
-	uint8_t         transfert_mode;
+	uint8_t         transfer_mode;
 	/* following fields are used internally */
 	mutex_t         mutex;
 	spid_callback_t dma_callback;
@@ -84,17 +84,17 @@ struct _spi_desc
 
 extern void spid_configure(struct _spi_desc* desc);
 
-extern void spid_begin_transfert(struct _spi_desc* desc);
+extern void spid_begin_transfer(struct _spi_desc* desc);
 
-extern uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
+extern uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 			       struct _buffer* tx, spid_callback_t cb,
 			       void* user_args);
-extern void spid_finish_transfert(struct _spi_desc* desc);
-extern void spid_finish_transfert_callback(struct _spi_desc* desc,
+extern void spid_finish_transfer(struct _spi_desc* desc);
+extern void spid_finish_transfer_callback(struct _spi_desc* desc,
 					   void* user_arg);
 extern void spid_close(const struct _spi_desc* desc);
 
 extern uint32_t spid_is_busy(const struct _spi_desc* desc);
-extern void spid_wait_transfert(const struct _spi_desc* desc);
+extern void spid_wait_transfer(const struct _spi_desc* desc);
 
 #endif /* SPID_HEADER__ */

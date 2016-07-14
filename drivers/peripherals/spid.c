@@ -68,7 +68,7 @@ void spid_configure(struct _spi_desc* desc)
 #endif
 	/* Enable SPI early otherwise FIFO configuration won't be applied */
 	pmc_enable_peripheral(id);
-	if (desc->transfert_mode == SPID_MODE_FIFO) {
+	if (desc->transfer_mode == SPID_MODE_FIFO) {
 		desc->attributes &= ~SPI_MR_WDRBT;
 	}
 	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK));
@@ -76,7 +76,7 @@ void spid_configure(struct _spi_desc* desc)
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode, 0);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	if (desc->transfert_mode == SPID_MODE_FIFO) {
+	if (desc->transfer_mode == SPID_MODE_FIFO) {
 		spi_fifo_configure(desc->addr, SPI_FIFO_DEPTH, SPI_FIFO_DEPTH,
 				   SPI_FMR_TXRDYM_ONE_DATA | SPI_FMR_RXRDYM_ONE_DATA);
 		spi_enable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
@@ -89,7 +89,7 @@ void spid_configure(struct _spi_desc* desc)
 	spi_enable(desc->addr);
 }
 
-void spid_begin_transfert(struct _spi_desc* desc)
+void spid_begin_transfer(struct _spi_desc* desc)
 {
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs_mode(desc->addr, desc->chip_select, SPI_KEEP_CS_OW);
@@ -213,14 +213,14 @@ static void _spid_dma_read(const struct _spi_desc* desc)
 	dma_start_transfer(r_channel);
 }
 
-uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
+uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 			struct _buffer* tx, spid_callback_t cb,
 			void* user_args)
 {
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
 
-	switch (desc->transfert_mode) {
+	switch (desc->transfer_mode) {
 	case SPID_MODE_POLLING:
 		if (!mutex_try_lock(&desc->mutex)) {
 			trace_error("SPID mutex already locked!\r\n");
@@ -322,13 +322,13 @@ uint32_t spid_transfert(struct _spi_desc* desc, struct _buffer* rx,
 	return SPID_SUCCESS;
 }
 
-void spid_finish_transfert_callback(struct _spi_desc* desc, void* user_args)
+void spid_finish_transfer_callback(struct _spi_desc* desc, void* user_args)
 {
 	(void)user_args;
-	spid_finish_transfert(desc);
+	spid_finish_transfer(desc);
 }
 
-void spid_finish_transfert(struct _spi_desc* desc)
+void spid_finish_transfer(struct _spi_desc* desc)
 {
 	spi_release_cs(desc->addr);
 }
@@ -350,7 +350,7 @@ uint32_t spid_is_busy(const struct _spi_desc* desc)
 	return mutex_is_locked(&desc->mutex);
 }
 
-void spid_wait_transfert(const struct _spi_desc* desc)
+void spid_wait_transfer(const struct _spi_desc* desc)
 {
 	while (spid_is_busy(desc)) {}
 }

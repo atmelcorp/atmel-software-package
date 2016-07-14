@@ -70,7 +70,7 @@ This release contains the following examples:
 * usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
 * usart_iso7816: Example of USART configured for ISO7816
 * usart_lin: Example of USART configured for LIN
-* usart_dma: Bidirectionnal Usart-memory DMA transfert example
+* usart_dma: Bidirectionnal Usart-memory DMA transfer example
 * usb_audio_looprec: Set up a SAMA5D2x as a USB Audio Device to record sounds
 * usb_audio_speaker: Set up a SAMA5D2x as a USB Audio Speaker
 * usb_cdc_serial: Example of Virtual COM Port
@@ -87,7 +87,7 @@ This release contains the following examples:
 * usb_usv_isi: Example of SAMA5D4x configured as a USB Video Device
 * usb_usv_isc: Example of SAMA5D2x configured as a USB Video Device
 * wdt: Example using watchdog timer
-* xdma: Memory-to-memory DMA transfert example
+* xdma: Memory-to-memory DMA transfer example
 
 # Compatibility
 

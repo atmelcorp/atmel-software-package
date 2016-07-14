@@ -170,7 +170,7 @@ CACHE_ALIGNED struct _isi_dma_desc codec_path_desc[ISI_MAX_NUM_PREVIEW_BUFFER + 
 static struct _twi_desc twid = {
 	.addr = BOARD_ISI_TWI_ADDR,
 	.freq = TWCK,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 /** LCD buffer.*/

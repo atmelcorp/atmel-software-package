@@ -48,7 +48,7 @@ struct _usart_desc
 	Usart*  addr;
 	uint32_t mode;
 	uint32_t baudrate;
-	uint8_t transfert_mode;
+	uint8_t transfer_mode;
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
 	void* region_start;
@@ -65,13 +65,13 @@ enum _usartd_trans_mode
 };
 
 extern void usartd_configure(struct _usart_desc* desc);
-extern uint32_t usartd_transfert(struct _usart_desc* desc, struct _buffer* rx,
+extern uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* rx,
 			  struct _buffer* tx, usartd_callback_t cb,
 			  void* user_args);
-extern void usartd_finish_transfert_callback(struct _usart_desc* desc,
+extern void usartd_finish_transfer_callback(struct _usart_desc* desc,
 				      void* user_args);
-extern void usartd_finish_transfert(struct _usart_desc* desc);
+extern void usartd_finish_transfer(struct _usart_desc* desc);
 extern uint32_t usartd_is_busy(const struct _usart_desc* desc);
-extern void usartd_wait_transfert(const struct _usart_desc* desc);
+extern void usartd_wait_transfer(const struct _usart_desc* desc);
 
 #endif /* USARTD_HEADER__ */

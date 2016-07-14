@@ -176,7 +176,7 @@ static void iso7816_icc_power_on(const struct _pin* pinrst)
 
 
 /**
- * Transfert Block TPDU T=0
+ * transfer Block TPDU T=0
  * \param pAPDU    APDU buffer
  * \param pMessage Message buffer
  * \param length  Block length

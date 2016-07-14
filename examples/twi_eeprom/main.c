@@ -158,7 +158,7 @@ struct _at24 at24_drv = {
 struct _twi_desc at24_twid = {
 	.addr = AT24_ADDR,
 	.freq = AT24_FREQ,
-	.transfert_mode = TWID_MODE_ASYNC
+	.transfer_mode = TWID_MODE_ASYNC
 };
 
 static volatile uint32_t cmd_length = 0;
@@ -340,7 +340,7 @@ static void _eeprom_read_arg_parser(const uint8_t* buffer, uint32_t len)
 static void print_menu(void)
 {
 	printf("\r\n\r\n Twi mode ");
-	switch(at24_twid.transfert_mode) {
+	switch(at24_twid.transfer_mode) {
 	case TWID_MODE_POLLING:
 		printf("POLLING \r\n");
 		break;

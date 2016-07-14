@@ -397,7 +397,7 @@ void twi_send_stop_condition(Twi * pTwi)
 
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
 
-void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+void twi_init_write_transfer(Twi * twi, uint8_t addr, uint32_t iaddress,
 		     uint8_t isize, uint8_t len)
 {
 	twi->TWI_RHR;
@@ -410,7 +410,7 @@ void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
 	twi->TWI_IADR = iaddress;
 }
 
-void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+void twi_init_read_transfer(Twi * twi, uint8_t addr, uint32_t iaddress,
 		     uint8_t isize, uint8_t len)
 {
 	twi->TWI_RHR;
@@ -456,7 +456,7 @@ uint32_t twi_read_stream(Twi *twi, uint32_t addr,
 	const uint8_t* buffer = stream;
 	uint8_t left = len;
 
-	twi_init_read_transfert(twi, addr, iaddr, isize, len);
+	twi_init_read_transfer(twi, addr, iaddr, isize, len);
 	if (twi_get_status(twi) & TWI_SR_NACK) {
 		trace_error("twid2: command NACK!\r\n");
 		return 0;
@@ -499,7 +499,7 @@ uint32_t twi_write_stream(Twi *twi, uint32_t addr,
 	if (fifo_size < 0)
 		return 0;
 
-	twi_init_write_transfert(twi, addr, iaddr, isize, len);
+	twi_init_write_transfer(twi, addr, iaddr, isize, len);
 	if (twi_get_status(twi) & TWI_SR_NACK) {
 		trace_error("twid2: command NACK!\r\n");
 		return 0;

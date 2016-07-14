@@ -78,7 +78,7 @@ uint16_t wm8904_read(struct _twi_desc * twid, uint32_t device, uint32_t reg_addr
 	twid->iaddr = reg_addr;
 	twid->isize = 1;
 
-	twid_transfert(twid, &in, NULL, NULL, NULL);
+	twid_transfer(twid, &in, NULL, NULL, NULL);
 	while (twid_is_busy(twid));
 
 	bits_data_register = (temp_data[0] << 8) | temp_data[1];
@@ -108,7 +108,7 @@ void wm8904_write(struct _twi_desc * twid, uint32_t device,
 
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
-	twid_transfert(twid, NULL, &out, NULL, NULL);
+	twid_transfer(twid, NULL, &out, NULL, NULL);
 	while (twid_is_busy(twid));
 }
 

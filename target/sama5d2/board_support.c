@@ -112,7 +112,7 @@ ALIGNED(16384) static uint32_t tlb[4096];
 static struct _twi_desc act8945a_twid = {
 	.addr = ACT8945A_ADDR,
 	.freq = ACT8945A_FREQ,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 static struct _act8945a act8945a = {

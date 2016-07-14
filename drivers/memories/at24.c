@@ -74,7 +74,7 @@ static uint32_t _at24_read(struct _at24* at24, uint8_t* buffer, uint32_t len, mu
 		.data = buffer,
 		.size = len
 	};
-	return twid_transfert(at24->twid, &in, NULL, at24_free_mutex, (void *)mutex);
+	return twid_transfer(at24->twid, &in, NULL, at24_free_mutex, (void *)mutex);
 }
 
 static uint32_t _at24_write(struct _at24* at24, const uint8_t* buffer, uint32_t len, mutex_t *mutex)
@@ -83,7 +83,7 @@ static uint32_t _at24_write(struct _at24* at24, const uint8_t* buffer, uint32_t 
 		.data = (uint8_t*)buffer,
 		.size = len
 	};
-	return twid_transfert(at24->twid, NULL, &out, at24_free_mutex, (void *)mutex);
+	return twid_transfer(at24->twid, NULL, &out, at24_free_mutex, (void *)mutex);
 }
 
 //------------------------------------------------------------------------------

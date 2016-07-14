@@ -260,7 +260,7 @@ static void _process_button_evt(void)
 		lin_msg_slave.dlc = sizeof(lin_data_slave);
 		lin_msg_slave.lin_cmd = PUBLISH;
 		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 1, &lin_msg_slave);
-		/* Interrupt Master, wait transfert complete */
+		/* Interrupt Master, wait transfer complete */
 		aic_enable(id);
 		memcpy(&lin_data_slave, "87654321", sizeof(lin_data_slave));
 		break;

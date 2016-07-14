@@ -165,7 +165,7 @@ CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
 static struct _twi_desc twid = {
 	.addr = ISC_TWI_ADDR,
 	.freq = TWCK,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 static volatile bool capture_started = false;

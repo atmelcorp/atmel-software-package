@@ -99,7 +99,7 @@ uint8_t lin_rx_buffer_node[LIN_NODE_NUM][LIN_BUFF_SIZE];
 Usart *usart_lin_node[LIN_NODE_NUM];
 
 /** PDC data packet. */
-struct _transfert_packet transfert_packet[LIN_NODE_NUM];
+struct _transfer_packet transfer_packet[LIN_NODE_NUM];
 
 /*----------------------------------------------------------------------------
  *        Local functions

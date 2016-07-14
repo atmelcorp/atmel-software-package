@@ -137,7 +137,7 @@ static struct _usart_desc irda_desc = {
 	.mode           = US_MR_USART_MODE_IRDA | US_MR_CHMODE_NORMAL |
 	                  US_MR_PAR_NO | US_MR_CHRL_8_BIT |
 	                  US_MR_NBSTOP_1_BIT,
-	.transfert_mode = USARTD_MODE_POLLING,
+	.transfer_mode = USARTD_MODE_POLLING,
 };
 
 /** define receive/transmit status for IrDA */
@@ -248,8 +248,8 @@ extern int main( void )
 				.data = (unsigned char*)buffer_tx,
 				.size = sizeof(buffer_tx)
 			};
-			usartd_transfert(&irda_desc, 0, &tx,
-					 usartd_finish_transfert_callback, 0);
+			usartd_transfer(&irda_desc, 0, &tx,
+					 usartd_finish_transfer_callback, 0);
 			timer_wait(200);
 		}
 	}

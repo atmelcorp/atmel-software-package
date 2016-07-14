@@ -208,7 +208,7 @@ static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
-	.transfert_mode = USARTD_MODE_DMA,
+	.transfer_mode = USARTD_MODE_DMA,
 };
 
 static volatile bool usart_rx_flag = false;
@@ -273,7 +273,7 @@ static void _us_dma_tx_callback(struct _usart_desc* desc,
 						 void* user_args)
 {
 	(void)user_args;
-	usartd_finish_transfert(desc);
+	usartd_finish_transfer(desc);
 }
 
 /**
@@ -286,7 +286,7 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 		.data = (unsigned char*)buffer,
 		.size = len
 	};
-	usartd_transfert(&usart_desc, 0, &tx,
+	usartd_transfer(&usart_desc, 0, &tx,
 				_us_dma_tx_callback, 0);
 
 }

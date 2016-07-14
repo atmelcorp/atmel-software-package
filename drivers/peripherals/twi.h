@@ -84,9 +84,9 @@ extern uint32_t twi_get_masked_status(Twi * pTwi);
 extern void twi_send_stop_condition(Twi * pTwi);
 
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
-extern void twi_init_write_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+extern void twi_init_write_transfer(Twi * twi, uint8_t addr, uint32_t iaddress,
 				     uint8_t isize, uint8_t len);
-extern void twi_init_read_transfert(Twi * twi, uint8_t addr, uint32_t iaddress,
+extern void twi_init_read_transfer(Twi * twi, uint8_t addr, uint32_t iaddress,
 				    uint8_t isize, uint8_t len);
 #endif
 

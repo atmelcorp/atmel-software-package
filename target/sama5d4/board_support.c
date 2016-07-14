@@ -93,7 +93,7 @@ static const char* board_name = BOARD_NAME;
 static struct _twi_desc act8865_twid = {
 	.addr = ACT8865_ADDR,
 	.freq = ACT8865_FREQ,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 static struct _act8865 pmic = {

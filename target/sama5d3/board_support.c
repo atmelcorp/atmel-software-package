@@ -72,7 +72,7 @@
 struct _twi_desc act8865_twid = {
 	.addr = BOARD_ACT8865_ADDR,
 	.freq = BOARD_ACT8865_FREQ,
-	.transfert_mode = TWID_MODE_POLLING
+	.transfer_mode = TWID_MODE_POLLING
 };
 
 struct _act8865 pmic = {

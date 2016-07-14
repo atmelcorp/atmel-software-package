@@ -75,38 +75,38 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* p_twid,
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
 		out.data = reg8 + 1;
 		out.size = 1;
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 
         timer_wait(10);
 
 		in.data = p_data;
 		in.size = 1;
-		status|= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		status|= twid_transfer(p_twid, &in, NULL, NULL, NULL);
 		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
 		out.data = reg8;
 		out.size = 2;
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 
 		in.data = p_data;
 		in.size = 1;
-		status |= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		status |= twid_transfer(p_twid, &in, NULL, NULL, NULL);
 		while (twid_is_busy(p_twid));
 		break;
 
 	case SENSOR_TWI_REG_BYTE_DATA_2BYTE:
 		out.data = reg8 + 1;
 		out.size = 1;
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 
 		in.data = p_data;
 		in.size = 2;
-		status |= twid_transfert(p_twid, &in, NULL, NULL, NULL);
+		status |= twid_transfer(p_twid, &in, NULL, NULL, NULL);
 		while (twid_is_busy(p_twid));
 
 		break;
@@ -141,7 +141,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* p_twid,
 		out.size = 1;
 		p_twid->isize = 1;
 
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 		break;
 
@@ -149,7 +149,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* p_twid,
 		out.size = 1;
 		p_twid->isize = 2;
 
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 		break;
 
@@ -157,7 +157,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* p_twid,
 		out.size = 2;
 		p_twid->isize = 1;
 
-		status = twid_transfert(p_twid, NULL, &out, NULL, NULL);
+		status = twid_transfer(p_twid, NULL, &out, NULL, NULL);
 		while (twid_is_busy(p_twid));
 		break;
 

@@ -67,9 +67,9 @@ static struct _spi_desc spi_at25_desc = {
 	.mutex          = 1,
 	.spi_mode       = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT,
 #if defined(CONFIG_HAVE_SPI_FIFO)
-	.transfert_mode = SPID_MODE_FIFO,
+	.transfer_mode = SPID_MODE_FIFO,
 #else
-	.transfert_mode = SPID_MODE_POLLING,
+	.transfer_mode = SPID_MODE_POLLING,
 #endif
 };
 

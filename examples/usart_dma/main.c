@@ -94,7 +94,7 @@ static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
-	.transfert_mode = USARTD_MODE_DMA,
+	.transfer_mode = USARTD_MODE_DMA,
 };
 
 static void console_handler(uint8_t key)
@@ -142,9 +142,9 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		.data = (unsigned char*)read_buffer,
 		.size = size
 	};
-	usartd_transfert(&usart_desc, &rx, 0,
-			 usartd_finish_transfert_callback, 0);
-	usartd_wait_transfert(&usart_desc);
+	usartd_transfer(&usart_desc, &rx, 0,
+			 usartd_finish_transfer_callback, 0);
+	usartd_wait_transfer(&usart_desc);
 	printf("%s\r\n", read_buffer);
 }
 
@@ -154,8 +154,8 @@ static void _usart_write_arg_parser(const uint8_t* buffer, uint32_t len)
 		.data = (unsigned char*)buffer,
 		.size = len
 	};
-	usartd_transfert(&usart_desc, 0, &tx,
-			 usartd_finish_transfert_callback, 0);
+	usartd_transfer(&usart_desc, 0, &tx,
+			 usartd_finish_transfer_callback, 0);
 }
 
 static void print_menu(void)
