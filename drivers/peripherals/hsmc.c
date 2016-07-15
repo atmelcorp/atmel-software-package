@@ -147,7 +147,7 @@ void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
 	/* cannot read and write spare at the same time */
 	assert(!read_spare || !write_spare);
 
-	cfg = HSMC_CFG_NFCSPARESIZE((spare_size - 1) >> 2) |
+	cfg = HSMC_CFG_NFCSPARESIZE(ROUND_INT_DIV(spare_size, 4) - 1) |
 	      HSMC_CFG_DTOCYC(0xF) |
 	      HSMC_CFG_DTOMUL_X1048576 |
 	      HSMC_CFG_RBEDGE;
