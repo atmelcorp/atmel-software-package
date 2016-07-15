@@ -35,17 +35,53 @@
 #include "chip.h"
 #include "timer.h"
 #include "trace.h"
+#ifdef CONFIG_HAVE_QSPI_DMA
+#include "peripherals/dma.h"
+#include "misc/cache.h"
+#endif
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include <stdint.h>
 #include <string.h>
 
+#ifdef CONFIG_HAVE_QSPI_DMA
+static struct dma_channel *dma_ch = NULL;
+static struct dma_xfer_cfg dma_cfg = {
+	.upd_sa_per_data = 1,
+	.upd_da_per_data = 1,
+	.data_width = DMA_DATA_WIDTH_BYTE,
+	.chunk_size = DMA_CHUNK_SIZE_1,
+	.blk_size = 0,
+};
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count)
+static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dma)
 {
+	uint32_t rc;
+#ifdef CONFIG_HAVE_QSPI_DMA
+	if (use_dma) {
+		dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
+		if (!dma_ch)
+			trace_fatal("Couldn't allocate XDMA channel\n\r");
+		dma_cfg.da = (void *)dst;
+		dma_cfg.sa = (void *)src;
+		dma_cfg.len = count;
+		dma_configure_transfer(dma_ch, &dma_cfg);
+		rc = dma_start_transfer(dma_ch);
+		if (rc != DMA_OK)
+			trace_fatal("Couldn't start xDMA transfer\n\r");
+		while (!dma_is_transfer_done(dma_ch))
+			dma_poll();
+		dma_stop_transfer(dma_ch);
+		dma_free_channel(dma_ch);
+		dma_ch = NULL;
+		dsb();
+	} else
+#endif
 	while (count--) {
 		*dst++ = *src++;
 		dsb();
@@ -101,6 +137,7 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 	uint32_t iar, icr, ifr;
 	uint32_t offset;
 	uint8_t *ptr;
+	bool use_dma = false;
 
 	iar = 0;
 	icr = 0;
@@ -204,6 +241,16 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 	/* Dummy read of QSPI_IFR to synchronize APB and AHB accesses */
 	(void)qspi->QSPI_IFR;
 
+#ifdef CONFIG_HAVE_QSPI_DMA
+	if (((QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY == cmd->ifr_type) &&
+		 IS_CACHE_ALIGNED(cmd->tx_buffer) &&
+		 IS_CACHE_ALIGNED(cmd->buffer_len)) ||
+		((QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY == cmd->ifr_type) &&
+		 IS_CACHE_ALIGNED(cmd->rx_buffer) &&
+		 IS_CACHE_ALIGNED(cmd->buffer_len)))
+		use_dma = true;
+#endif
+
 	/* Send/Receive data */
 	if (cmd->tx_buffer) {
 		/* Write data */
@@ -214,7 +261,11 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 #endif
 			ptr = (uint8_t*)get_qspi_mem_from_addr(qspi);
 
-		qspi_memcpy(ptr + offset, cmd->tx_buffer, cmd->buffer_len);
+#ifdef CONFIG_HAVE_QSPI_DMA
+		if (use_dma)
+			cache_clean_region(cmd->tx_buffer, cmd->buffer_len);
+#endif
+		qspi_memcpy(ptr + offset, cmd->tx_buffer, cmd->buffer_len, use_dma);
 	} else if (cmd->rx_buffer) {
 		/* Read data */
 #ifdef CONFIG_HAVE_AESB
@@ -224,7 +275,11 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 #endif
 			ptr = (uint8_t*)get_qspi_mem_from_addr(qspi);
 
-		qspi_memcpy(cmd->rx_buffer, ptr + offset, cmd->buffer_len);
+		qspi_memcpy(cmd->rx_buffer, ptr + offset, cmd->buffer_len, use_dma);
+#ifdef CONFIG_HAVE_QSPI_DMA
+		if (use_dma)
+			cache_invalidate_region(cmd->rx_buffer, cmd->buffer_len);
+#endif
 	} else {
 		/* Stop here for continuous read */
 		return true;

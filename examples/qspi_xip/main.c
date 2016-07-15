@@ -91,6 +91,9 @@
 #include "compiler.h"
 
 #include "peripherals/aic.h"
+#ifdef CONFIG_HAVE_QSPI_DMA
+#include "peripherals/dma.h"
+#endif
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -158,6 +161,9 @@ void board_init()
 #endif
 	board_cfg_lowlevel(clocks, false, false);
 	board_cfg_console(0);
+#ifdef CONFIG_HAVE_QSPI_DMA
+	dma_initialize(false);
+#endif
 }
 
 /**

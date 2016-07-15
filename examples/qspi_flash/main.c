@@ -14,11 +14,14 @@
 #include "peripherals/trng.h"
 
 #include "memories/qspiflash.h"
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+CACHE_ALIGNED static uint8_t buf[768];
 
 static void _display_buf(uint8_t *buffer, uint32_t size)
 {
@@ -58,8 +61,6 @@ int main(void)
 	printf("configure returns %s\r\n", rc ? "true" : "false");
 
 	uint32_t start = 0x280000;
-
-	uint8_t buf[768];
 
 	printf("erasing block at 0x%08x\r\n", (int)start);
 	rc = qspiflash_erase_block(&flash, start, 64 * 1024);
