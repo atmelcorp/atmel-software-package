@@ -133,7 +133,6 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 								const struct dma_xfer_cfg *cfg)
 {
 	bool src_is_periph, dst_is_periph;
-	uint32_t i;
 	uint32_t divisor;
 
 #if defined(CONFIG_HAVE_XDMAC)
@@ -162,17 +161,16 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 			/* If blk_size is zero and len exceeds 16,777,215, split the transfer in
 				multiple blocks (microblocks), calculating and using the greatest block
 				size possible for this transfer. */
-			for (i = 2; i < DMA_MAX_BT_SIZE; i++) {
-				divisor = DMA_MAX_BT_SIZE / i;
+			for (divisor = DMA_MAX_BT_SIZE; divisor > 1; divisor--) {
 				if (cfg->len % divisor)
 					continue;
 				if ((cfg->len / divisor) <= XDMAC_MAX_BLOCK_LEN) {
-					xdma_cfg.ubc = i;
+					xdma_cfg.ubc = divisor;
 					xdma_cfg.bc = (cfg->len / divisor) - 1;
 					break;
 				}
 			}
-			if (i == DMA_MAX_BT_SIZE)
+			if (divisor == 1)
 				return DMA_ERROR;
 		}
 	} else {
@@ -185,7 +183,6 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 	}
 	xdma_cfg.sa = cfg->sa;
 	xdma_cfg.da = cfg->da;
-
 	xdma_cfg.cfg = (src_is_periph | dst_is_periph) ?
 					XDMAC_CC_TYPE_PER_TRAN : XDMAC_CC_TYPE_MEM_TRAN;
 	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_DSYNC_PER2MEM:
@@ -229,33 +226,33 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 			/* If blk_size is zero and len is <= 65535, the driver will transfer a
 			single block, those size will be len data elements. */
 			dma_regs.ctrla = cfg->len;
-
 		} else {
 			/* If blk_size is zero and len exceeds 16,777,215, split the transfer in
 				multiple blocks (microblocks), calculating and using the greatest block
 				size possible for this transfer. */
-			for (i = 2; i < DMA_MAX_BT_SIZE; i++) {
-				divisor = DMA_MAX_BT_SIZE / i;
+			for (divisor = DMA_MAX_BT_SIZE; divisor > 1; divisor--) {
 				if (cfg->len % divisor)
 					continue;
 				if ((cfg->len / divisor ) <= DMA_MAX_BLOCK_LEN) {
-					dma_regs.ctrla = i;
-					dma_cfg.blocks = cfg->len - 1;
+					dma_regs.ctrla = divisor;
+					dma_cfg.blocks = (cfg->len / divisor) - 1;
 					dma_cfg.trans_auto = 1;
 					dma_cfg.sa_rep = src_is_periph ? 1 : 0 ;
 					dma_cfg.da_rep = dst_is_periph ? 1 : 0 ;
 					break;
 				}
 			}
-			if (i == DMA_MAX_BT_SIZE)
-				return DMA_ERROR;
+		if (divisor == 1)
+			return DMA_ERROR;
 		}
 	} else {
 		dma_regs.ctrla = cfg->blk_size;
 		dma_cfg.blocks = cfg->len - 1;
 		dma_cfg.trans_auto = dma_cfg.blocks ? 1 : 0;
-		dma_cfg.sa_rep = src_is_periph ? 1 : 0 ;
-		dma_cfg.da_rep = dst_is_periph ? 1 : 0 ;
+		if (dma_cfg.blocks) {
+			dma_cfg.sa_rep = src_is_periph ? 1 : 0 ;
+			dma_cfg.da_rep = dst_is_periph ? 1 : 0 ;
+		}
 	}
 	dma_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
 	dma_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
