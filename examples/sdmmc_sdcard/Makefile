@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Secure Digital Memory Card example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d4-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d4-xplained sama5d3-ek
 AVAILABLE_VARIANTS = ddram
 VARIANT ?= ddram
 

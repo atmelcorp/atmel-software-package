@@ -160,6 +160,9 @@
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 #  define SLOT0_TAG                   "(SD/MMC)"
 #  define SLOT1_TAG                   "(microSD)"
+#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_TAG                   "(microSD)"
 #else
 #  define SLOT0_TAG                   ""
 #  define SLOT1_TAG                   ""
