@@ -141,19 +141,17 @@ static void dmacd_handler(void)
 			channel = _dmacd_channel(cont, chan);
 			if (channel->state == DMACD_STATE_FREE)
 				continue;
-			if (dmac_get_global_it_mask(dmac) & (DMAC_EBCIMR_CBTC0 << chan)) {
-				if (gis & (DMAC_EBCISR_CBTC0 << chan)) {
-					if (channel->rep_count) {
-						if (channel->rep_count == 1) {
-							dmac_auto_clear(dmac, chan);
-						}
-						dmac_resume_channel(dmac, chan);
-						channel->rep_count--;
-
-					} else {
-						channel->state = DMACD_STATE_DONE;
-						exec = 1;
+			if (gis & (DMAC_EBCISR_CBTC0 << chan)) {
+				if (channel->rep_count) {
+					if (channel->rep_count == 1) {
+						dmac_auto_clear(dmac, chan);
 					}
+					dmac_resume_channel(dmac, chan);
+					channel->rep_count--;
+
+				} else {
+					channel->state = DMACD_STATE_DONE;
+					exec = 1;
 				}
 			}
 			/* Execute callback */
