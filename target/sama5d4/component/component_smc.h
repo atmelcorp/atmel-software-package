@@ -154,7 +154,7 @@ typedef struct {
 #define HSMC_SR_UNDEF (0x1u << 21) /**< \brief (HSMC_SR) Undefined Area Error */
 #define HSMC_SR_AWB (0x1u << 22) /**< \brief (HSMC_SR) Accessing While Busy */
 #define HSMC_SR_NFCASE (0x1u << 23) /**< \brief (HSMC_SR) NFC Access Size Error */
-#define HSMC_SR_RB_EDGE3 (0x1u << 27) /**< \brief (HSMC_SR) Ready/Busy Line 3 Edge Detected */
+#define HSMC_SR_RB_EDGE0 (0x1u << 24) /**< \brief (HSMC_SR) Ready/Busy Line 0 Edge Detected */
 /* -------- HSMC_IER : (SMC Offset: 0x00C) HSMC NFC Interrupt Enable Register -------- */
 #define HSMC_IER_RB_RISE (0x1u << 4) /**< \brief (HSMC_IER) Ready Busy Rising Edge Detection Interrupt Enable */
 #define HSMC_IER_RB_FALL (0x1u << 5) /**< \brief (HSMC_IER) Ready Busy Falling Edge Detection Interrupt Enable */
@@ -164,7 +164,7 @@ typedef struct {
 #define HSMC_IER_UNDEF (0x1u << 21) /**< \brief (HSMC_IER) Undefined Area Access Interrupt Enable */
 #define HSMC_IER_AWB (0x1u << 22) /**< \brief (HSMC_IER) Accessing While Busy Interrupt Enable */
 #define HSMC_IER_NFCASE (0x1u << 23) /**< \brief (HSMC_IER) NFC Access Size Error Interrupt Enable */
-#define HSMC_IER_RB_EDGE3 (0x1u << 27) /**< \brief (HSMC_IER) Ready/Busy Line 3 Interrupt Enable */
+#define HSMC_IER_RB_EDGE0 (0x1u << 24) /**< \brief (HSMC_IER) Ready/Busy Line 0 Interrupt Enable */
 /* -------- HSMC_IDR : (SMC Offset: 0x010) HSMC NFC Interrupt Disable Register -------- */
 #define HSMC_IDR_RB_RISE (0x1u << 4) /**< \brief (HSMC_IDR) Ready Busy Rising Edge Detection Interrupt Disable */
 #define HSMC_IDR_RB_FALL (0x1u << 5) /**< \brief (HSMC_IDR) Ready Busy Falling Edge Detection Interrupt Disable */
@@ -174,7 +174,7 @@ typedef struct {
 #define HSMC_IDR_UNDEF (0x1u << 21) /**< \brief (HSMC_IDR) Undefined Area Access Interrupt Disable */
 #define HSMC_IDR_AWB (0x1u << 22) /**< \brief (HSMC_IDR) Accessing While Busy Interrupt Disable */
 #define HSMC_IDR_NFCASE (0x1u << 23) /**< \brief (HSMC_IDR) NFC Access Size Error Interrupt Disable */
-#define HSMC_IDR_RB_EDGE3 (0x1u << 27) /**< \brief (HSMC_IDR) Ready/Busy Line 3 Interrupt Disable */
+#define HSMC_IDR_RB_EDGE0 (0x1u << 24) /**< \brief (HSMC_IDR) Ready/Busy Line 0 Interrupt Disable */
 /* -------- HSMC_IMR : (SMC Offset: 0x014) HSMC NFC Interrupt Mask Register -------- */
 #define HSMC_IMR_RB_RISE (0x1u << 4) /**< \brief (HSMC_IMR) Ready Busy Rising Edge Detection Interrupt Mask */
 #define HSMC_IMR_RB_FALL (0x1u << 5) /**< \brief (HSMC_IMR) Ready Busy Falling Edge Detection Interrupt Mask */
@@ -184,7 +184,7 @@ typedef struct {
 #define HSMC_IMR_UNDEF (0x1u << 21) /**< \brief (HSMC_IMR) Undefined Area Access Interrupt Mask5 */
 #define HSMC_IMR_AWB (0x1u << 22) /**< \brief (HSMC_IMR) Accessing While Busy Interrupt Mask */
 #define HSMC_IMR_NFCASE (0x1u << 23) /**< \brief (HSMC_IMR) NFC Access Size Error Interrupt Mask */
-#define HSMC_IMR_RB_EDGE3 (0x1u << 27) /**< \brief (HSMC_IMR) Ready/Busy Line 3 Interrupt Mask */
+#define HSMC_IMR_RB_EDGE0 (0x1u << 24) /**< \brief (HSMC_IMR) Ready/Busy Line 0 Interrupt Mask */
 /* -------- HSMC_ADDR : (SMC Offset: 0x018) HSMC NFC Address Cycle Zero Register -------- */
 #define HSMC_ADDR_ADDR_CYCLE0_Pos 0
 #define HSMC_ADDR_ADDR_CYCLE0_Msk (0xffu << HSMC_ADDR_ADDR_CYCLE0_Pos) /**< \brief (HSMC_ADDR) NAND Flash Array Address Cycle 0 */

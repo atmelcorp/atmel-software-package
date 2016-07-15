@@ -76,8 +76,6 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
-#define HSMC_SR_RB_EDGE0     (0x1u << 24)
-
 /* -------- NFCADDR_CMD : NFC Address Command -------- */
 
 #define NFCADDR_CMD_CMD1_Pos 2

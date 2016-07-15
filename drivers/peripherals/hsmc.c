@@ -95,7 +95,6 @@ void hsmc_nand_configure(uint8_t bus_width)
 		HSMC_TIMINGS_TAR(3) |
 		HSMC_TIMINGS_TRR(6) |
 		HSMC_TIMINGS_TWB(5) |
-		HSMC_TIMINGS_RBNSEL(3) |
 		HSMC_TIMINGS_NFSEL;
 
 	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_MODE =
@@ -266,7 +265,7 @@ void hsmc_nfc_wait_xfr_done(void)
 }
 
 /**
- * \brief Wait for NFC Ready/Busy Line 3 Edge Detected.
+ * \brief Wait for NFC Ready/Busy Line 0 Edge Detected.
  */
 void hsmc_nfc_wait_rb_busy(void)
 {
