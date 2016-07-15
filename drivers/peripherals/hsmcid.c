@@ -378,7 +378,7 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	uint8_t shift, fail;
 	struct dma_xfer_cfg dma_cfg;
 
-	dma_cfg.chunk_size = XDMAC_CC_CSIZE_CHK_1;
+	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_cfg.data_width = (unit == 1) ? DMA_DATA_WIDTH_BYTE : DMA_DATA_WIDTH_WORD;
 	if (bRd) {
 		dma_cfg.upd_sa_per_data = 0;
@@ -422,7 +422,7 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		}
 	}
 	dma_cfg.blk_size = ubl_len;
-	dma_cfg.len = ubl_cnt - 1;
+	dma_cfg.len = ubl_cnt;
 	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
 	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
 	dma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
@@ -852,8 +852,9 @@ bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs, uint32_t periph_id,
 	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
 		| TC_CMR_CPCDIS | TC_CMR_BURST_NONE
 		| TC_CMR_TCCLKS_TIMER_CLOCK2);
+#if defined(TC_EMR_NODIVCLK)
 	set->timer->TC_EMR |= TC_EMR_NODIVCLK;
-
+#endif
 	hsmci_disable_it(regs, ~0ul);
 	hsmci_reset(set->regs, false);
 	hsmci_disable_it(regs, ~0ul);
