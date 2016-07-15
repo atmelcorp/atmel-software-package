@@ -131,7 +131,7 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	if (!data)
 		return NAND_ERROR_ECC_NOT_COMPATIBLE;
 
-	/* Start by reading the spare data */
+	/* Start by reading the data */
 	error = nand_raw_read_page(nand, block, page, data, NULL);
 	if (error) {
 		trace_error("nand_ecc_read_page: Failed to read page\r\n");
