@@ -271,8 +271,6 @@ static void _hsmc_configure(uint8_t mode)
  */
 static void _page_access(void)
 {
-	uint32_t i;
-
 	if (ecc_type == ECC_PMECC) {
 		pmecc_initialize(sector_idx, correctability,
 				page_size, spare_size, 0, 0);
@@ -280,17 +278,17 @@ static void _page_access(void)
 
 	printf("-I- Erase block\n\r");
 	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
+
+	printf("-I- Write block\n\r");
 	memcpy(page_buffer, pattern_buffer, page_size);
 	nand_skipblock_write_page(&nand, block, page, page_buffer, 0);
 
+	printf("-I- Read block\n\r");
 	memset(page_buffer, 0, page_size);
-
 	nand_skipblock_read_page(&nand, block, page, page_buffer, 0);
-	for (i = 0; i < page_size; i++) {
-		if (pattern_buffer[i] != page_buffer[i])
-			break;
-	}
-	if (i > page_size) {
+
+	/* Test if the read contains expected data */
+	if (memcmp(pattern_buffer, page_buffer, page_size)) {
 		printf("-I- Read data is different from buffer, test failed\n\r");
 	} else {
 		printf("-I- Read data matches buffer.\n\r");
@@ -329,28 +327,28 @@ static void _simulate_error_bits(uint8_t *buffer)
  */
 static void _write_page_with_simulated_error_bits(void)
 {
-	if (ecc_type == ECC_PMECC) {
-		pmecc_initialize(sector_idx, correctability,
-				page_size, spare_size, 0, 0);
-	}
+	nand_set_ecc_type(ECC_PMECC);
+	pmecc_initialize(sector_idx, correctability,
+			page_size, spare_size, 0, 0);
 
 	printf("-I- Erase block %d\n\r", block);
 	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
-	memcpy(page_buffer, pattern_buffer, page_size);
 
-	printf("-I- Write original page of data, ecc has been generated...\n\r");
+	printf("-I- Write a page of data, ECC values will be generated\n\r");
+	memcpy(page_buffer, pattern_buffer, page_size);
 	nand_skipblock_write_page(&nand, block,
 			page, page_buffer, 0);
 
+	printf("-I- Read spare area which contains ECC values\n\r");
 	pmecc_disable();
 	nand_set_ecc_type(ECC_NO);
-	printf("-I- Disable ecc and read spare area which contains redundancy code\n\r");
 	nand_raw_read_page(&nand, block, page, 0, spare_buffer);
 
+	printf("-I- Erase page\n\r");
 	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
-	_simulate_error_bits(page_buffer);
 
-	printf("-I- Write a page of data with simulated error bits\n\r");
+	printf("-I- Write a page of data with injected errors and previously computed ECC values\n\r");
+	_simulate_error_bits(page_buffer);
 	nand_raw_write_page(&nand, block, page, page_buffer, spare_buffer);
 }
 
@@ -359,25 +357,17 @@ static void _write_page_with_simulated_error_bits(void)
  */
 static void _read_page_with_simulated_error_bits(void)
 {
-	uint32_t i;
+	nand_set_ecc_type(ECC_PMECC);
+	pmecc_initialize(sector_idx, correctability,
+			page_size, spare_size, 0, 0);
 
-	if (ecc_type == ECC_PMECC) {
-		pmecc_initialize(sector_idx, correctability,
-				page_size, spare_size, 0, 0);
-	}
-
+	printf("-I- Read page of data with ECC enabled\n\r");
 	memset(page_buffer, 0, page_size);
-
-	printf("-I- Read page of data with ecc configuration\n\r");
 	nand_skipblock_read_page(&nand, block,
 			page, page_buffer, 0);
 
-	/* Test if the read buffer is the same as SRAM buffer */
-	for (i = 0; i < page_size; i++) {
-		if (pattern_buffer[i] != page_buffer[i])
-			break;
-	}
-	if (i < page_size) {
+	/* Test if the read contains expected data */
+	if (memcmp(pattern_buffer, page_buffer, page_size)) {
 		printf("-I- Read data is different from buffer, test failed.\n\r");
 	} else {
 		printf("-I- Read data matches buffer.\n\r");
@@ -616,7 +606,6 @@ static void _loop_pmecc(void)
 			break;
 		case 'r':
 		case 'R':
-			nand_set_ecc_type(ECC_PMECC);
 			_read_page_with_simulated_error_bits();
 			break;
 		case 'c':

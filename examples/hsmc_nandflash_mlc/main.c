@@ -264,8 +264,6 @@ static void _hsmc_configure(uint8_t mode)
  */
 static void _page_access(void)
 {
-	uint32_t i;
-
 	pmecc_initialize(sector_idx,correctability,
 			page_size, spare_size, 0, 0);
 
@@ -280,11 +278,8 @@ static void _page_access(void)
 	memset(page_buffer, 0, page_size);
 	nand_skipblock_read_page(&nand, block, page, page_buffer, 0);
 
-	for (i = 0; i < page_size; i++) {
-		if (pattern_buffer[i] != page_buffer[i])
-			break;
-	}
-	if (i > page_size) {
+	/* Test is read buffer contains expected data */
+	if (memcmp(page_buffer, pattern_buffer, page_size)) {
 		printf("-I- Read data is different from buffer, test failed\n\r");
 	} else {
 		printf("-I- Read data matches buffer.\n\r");
