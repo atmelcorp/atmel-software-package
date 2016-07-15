@@ -434,7 +434,6 @@ void board_cfg_matrix_for_nand(void)
 	/* N/A on SAMA5D3x */
 }
 
-
 void board_cfg_ddram(void)
 {
 #ifdef BOARD_DDRAM_TYPE
@@ -546,6 +545,82 @@ void board_cfg_lcd(void)
 	lcdd_configure(&lcd_desc);
 }
 #endif
+
+bool board_cfg_sdmmc(uint32_t periph_id)
+{
+	switch (periph_id) {
+	case ID_HSMCI0:
+	{
+#ifdef BOARD_HSMCI0_PINS
+		const struct _pin pins[] = BOARD_HSMCI0_PINS;
+
+		/* Configure HSMCI0 pins */
+		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+#else
+		trace_fatal("Target board misses HSMCI0 pins");
+		return false;
+#endif
+	}
+	case ID_HSMCI1:
+	{
+#ifdef BOARD_HSMCI1_PINS
+		const struct _pin pins[] = BOARD_HSMCI1_PINS;
+
+		/* Configure HSMCI1 pins */
+		return pio_configure(pins, ARRAY_SIZE(pins)) ? true : false;
+#else
+		trace_fatal("Target board misses HSMCI1 pins");
+		return false;
+#endif
+	}
+	default:
+		return false;
+	}
+}
+
+bool board_is_sdmmc_inserted(uint32_t periph_id)
+{
+	const struct _pin *cd_input = NULL;
+	bool res;
+#ifdef BOARD_HSMCI0_PIN_CD
+	const struct _pin cd0_input = BOARD_HSMCI0_PIN_CD;
+	cd_input = periph_id == ID_HSMCI0 ? &cd0_input : cd_input;
+#endif
+#ifdef BOARD_HSMCI1_PIN_CD
+	const struct _pin cd1_input = BOARD_HSMCI1_PIN_CD;
+	cd_input = periph_id == ID_HSMCI1 ? &cd1_input : cd_input;
+#endif
+
+	if (!cd_input)
+		return false;
+	res = pio_get(cd_input) ? false : true;
+	return res;
+}
+
+bool board_power_sdmmc_device(uint32_t periph_id, bool on)
+{
+	const struct _pin *pwr_ctrl = NULL;
+#ifdef BOARD_HSMCI0_PIN_POWER
+	const struct _pin pwr0_ctrl = BOARD_HSMCI0_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI0 ? &pwr0_ctrl : pwr_ctrl;
+#endif
+#ifdef BOARD_HSMCI1_PIN_POWER
+	const struct _pin pwr1_ctrl = BOARD_HSMCI1_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI1 ? &pwr1_ctrl : pwr_ctrl;
+#endif
+
+	if (periph_id != ID_HSMCI0 && periph_id != ID_HSMCI1)
+		return false;
+	if (!pwr_ctrl)
+		/* This slot doesn't support switching VDD off */
+		return on;
+	if (on) {
+		pio_clear(pwr_ctrl);
+	} else {
+		pio_set(pwr_ctrl);
+	}
+	return true;
+}
 
 #ifdef CONFIG_HAVE_SSC
 void board_cfg_ssc(uint8_t instance)

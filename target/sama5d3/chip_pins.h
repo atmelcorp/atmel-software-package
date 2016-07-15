@@ -390,8 +390,7 @@
 /* 16-bit NAND: NANDALE, NANDCLE (other I/O are not muxed by PIO controller ) */
 #define PINS_NAND16 { { PIO_GROUP_E, PIO_PE21 | PIO_PE22, PIO_PERIPH_A, PIO_DEFAULT } }
 
-//=============================================================================
-
+/* ========== Pio PIN definition for ISI peripheral ========== */
 
 /** Image Sensor Interface vertical sync. */
 #define PIN_ISI_VSYNC { PIO_GROUP_A, PIO_PA30C_ISI_VSYNC, PIO_PERIPH_C, PIO_DEFAULT }
@@ -411,5 +410,38 @@
 
 /** Image Sensor Interface pin list. */
 #define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
+
+/* ========== Pio PIN definition for HSMCI0 peripheral ========== */
+
+/** HSMCI0 pin Card Command slot A (CDA) */
+#define PIN_HSMCI0_CDA {PIO_GROUP_D, PIO_PD0A_MCI0_CDA, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI0 pin Card Clock (CK) */
+#define PIN_HSMCI0_CK {PIO_GROUP_D, PIO_PD9A_MCI0_CK, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI0 pin 8-bit Data slot A (DA0-7) */
+#define PINS_HSMCI0_DA {PIO_GROUP_D, 0x000001FE, PIO_PERIPH_A, PIO_DEFAULT}
+
+/* ========== Pio PIN definition for HSMCI1 peripheral ========== */
+
+/** HSMCI1 pin Card Command slot A (CDA) */
+#define PIN_HSMCI1_CDA {PIO_GROUP_B, PIO_PB19A_MCI1_CDA, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI1 pin Card Clock (CK) */
+#define PIN_HSMCI1_CK {PIO_GROUP_B, PIO_PB24A_MCI1_CK, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI1 pin 4-bit Data slot A (DA0-3) */
+#define PINS_HSMCI1_DA {PIO_GROUP_B, 0x00F00000, PIO_PERIPH_A, PIO_DEFAULT}
+
+/* ========== Pio PIN definition for HSMCI2 peripheral ========== */
+
+/** HSMCI2 pin Card Command slot A (CDA) */
+#define PIN_HSMCI2_CDA {PIO_GROUP_C, PIO_PC10A_MCI2_CDA, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI2 pin Card Clock (CK) */
+#define PIN_HSMCI2_CK {PIO_GROUP_C, PIO_PC15A_MCI2_CK, PIO_PERIPH_A, PIO_DEFAULT}
+
+/** HSMCI2 pin 4-bit Data slot A (DA0-3) */
+#define PINS_HSMCI2_DA {PIO_GROUP_C, 0x00007800, PIO_PERIPH_A, PIO_DEFAULT}
 
 #endif /* _CHIP_PINS_H_ */
