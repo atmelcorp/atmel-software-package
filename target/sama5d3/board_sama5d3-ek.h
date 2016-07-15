@@ -133,6 +133,45 @@
 #define BOARD_USB_BMATTRIBUTES \
 	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
+/* =================== HSMCI device definition ==================== */
+
+/** HSMCI1 power control definition */
+#define BOARD_HSMCI0_PIN_POWER \
+	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** HSMCI0 Card detect pin definition */
+#define BOARD_HSMCI0_PIN_CD \
+	{ PIO_GROUP_D, PIO_PD17, PIO_INPUT, PIO_PULLUP }
+
+/** HSMCI0 device interface pin set definition */
+#define BOARD_HSMCI0_DEV_PINS \
+	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA}
+
+/** HSMCI0 pin set definition */
+#define BOARD_HSMCI0_PINS \
+	{ BOARD_HSMCI0_PIN_POWER, PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA,\
+	  BOARD_HSMCI0_PIN_CD }
+
+/** HSMCI0 slot definition */
+#define BOARD_HSMCI0_SLOT HSMCI_SDCR_SDCSEL_SLOTA
+
+/** HSMCI1 power control definition */
+#define BOARD_HSMCI1_PIN_POWER \
+	{ PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** HSMCI1 Card detect pin definition */
+#define BOARD_HSMCI1_PIN_CD \
+	{ PIO_GROUP_D, PIO_PD18, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI1 device interface pin set definition */
+#define BOARD_HSMCI1_DEV_PINS \
+	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA }
+
+/** HSMCI1 pin set definition */
+#define BOARD_HSMCI1_PINS \
+	{ BOARD_HSMCI1_PIN_POWER, PIN_HSMCI1_CDA, \
+	  PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
+
 /* =================== GMAC/PHY definition =================== */
 
 #define GMAC0_ADDR        GMAC0
