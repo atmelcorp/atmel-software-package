@@ -135,15 +135,8 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-
-
-/** Wav feature. */
-#define SAMPLE_RATE             (48000)
-#define SLOT_BY_FRAME           (1)
-#define BITS_BY_SLOT            (16)
-
 /** DMA Descriptor */
-#define TOTAL_BUFFERS            10
+#define TOTAL_BUFFERS            (10)
 
 #define DMA_TRANSFER_LEN    (0xFFFE)
 
@@ -165,17 +158,6 @@ static struct dma_channel *ssc_dma_tx_channel;
 
 CACHE_ALIGNED struct dma_xfer_item dma_write_link_list[TOTAL_BUFFERS];
 CACHE_ALIGNED struct dma_xfer_item dma_read_link_list[TOTAL_BUFFERS];
-
-/** SSC instance*/
-static struct _ssc_desc ssc_dev_desc = {
-	.addr = SSC0,
-	.bit_rate = 0,
-	.sample_rate = SAMPLE_RATE,
-	.slot_num = SLOT_BY_FRAME,
-	.slot_length = BITS_BY_SLOT,
-	.rx_auto_cfg = true,
-	.tx_auto_cfg = true,
-};
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -222,7 +204,6 @@ static void play_recording(void)
 	struct dma_xfer_item_tmpl dma_cfg;
 
 	src = audio_buffer;
-	memset(audio_buffer, 0x00, sizeof(audio_buffer));
 
 	for (i = 0; i < TOTAL_BUFFERS; i++) {
 		dma_cfg.sa = (uint32_t *)&(ssc_dev_desc.addr->SSC_RHR);
@@ -328,11 +309,6 @@ extern int main( void )
 	}
 
 	/* Initialize the audio DAC */
-#if   defined(CONFIG_BOARD_SAMA5D3_EK)
-	input_path = WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R;
-#elif defined(CONFIG_BOARD_SAMA5D4_EK)
-	input_path = WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN1R;
-#endif
 	wm8904_init(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK, input_path);
 
 	/* Enable the DAC master clock */

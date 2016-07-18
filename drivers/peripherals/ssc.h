@@ -66,10 +66,10 @@ struct _ssc_desc {
  	uint8_t  slot_length;
 	/* Number of slot per frame */
  	uint8_t  slot_num;
-	/* tx channel enable */
-	bool tx_auto_cfg;
-	/* rx channel enable */
-	bool rx_auto_cfg;
+	/* Transmit Clock Selection */
+	bool tx_cfg_cks_tk;
+	/* Receive Clock Selection */
+	bool rx_cfg_cks_rk;
 
 };
 

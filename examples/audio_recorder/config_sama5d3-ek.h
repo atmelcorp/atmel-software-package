@@ -4,8 +4,6 @@
 #include "audio/audio_device.h"
 #include "peripherals/twid.h"
 
-
-
 /** TWI clock */
 #define TWI_CLOCK               (400000)
 
@@ -42,8 +40,9 @@ static struct _audio_desc audio_play_device = {
 			.addr = SSC0,
 			.desc = {
 				.bit_rate = 0,
-				.rx_auto_cfg = true,
-				.tx_auto_cfg = true,
+				/* Select RK pin as transmit and receive clock */
+				.rx_cfg_cks_rk = true,
+				.tx_cfg_cks_tk = false,
 			},
 			.codec_chip = &wm8904_codec,
 			.pck = 0,
@@ -65,8 +64,9 @@ static struct _audio_desc audio_record_device = {
 			.addr = SSC0,
 			.desc = {
 				.bit_rate = 0,
-				.rx_auto_cfg = true,
-				.tx_auto_cfg = true,
+				/* Select RK pin as transmit and receive clock */
+				.rx_cfg_cks_rk = true,
+				.tx_cfg_cks_tk = false,
 			},
 			.codec_chip = &wm8904_codec,
 			.pck = 0,

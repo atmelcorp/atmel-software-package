@@ -86,6 +86,7 @@ void ssc_configure(struct _ssc_desc* desc)
 {
 	uint32_t id;
 	uint32_t clock;
+	uint32_t rcmr, rfmr, tcmr, tfmr;
 	id = (desc->addr == SSC0) ? ID_SSC0 : ID_SSC1;
 	clock = pmc_get_peripheral_clock(id);
 
@@ -99,40 +100,50 @@ void ssc_configure(struct _ssc_desc* desc)
 		desc->addr->SSC_CMR = 0;
 	}
 
-	if (desc->rx_auto_cfg) {
-		uint32_t rcmr = SSC_RCMR_CKS_RK |
-		                SSC_RCMR_CKO_NONE |
-		                SSC_RCMR_CKI |
-		                SSC_RCMR_START_RF_EDGE |
-		                SSC_RCMR_STTDLY(1) |
-		                SSC_RCMR_PERIOD(0);
-
-		uint32_t rfmr = SSC_RFMR_DATLEN(desc->slot_length - 1) |
-		                SSC_RFMR_MSBF |
-		                SSC_RFMR_DATNB(desc->slot_num - 1) |
-		                SSC_RFMR_FSOS_NONE;
-
-		ssc_configure_receiver(desc, rcmr, rfmr);
+	if (desc->rx_cfg_cks_rk) {
+		rcmr = SSC_RCMR_CKS_RK |
+		       SSC_RCMR_CKO_NONE |
+		       SSC_RCMR_CKI |
+		       SSC_RCMR_START_RF_EDGE |
+		       SSC_RCMR_STTDLY(1) |
+		       SSC_RCMR_PERIOD(0);
 	} else {
-		ssc_disable_receiver(desc);
+		rcmr = SSC_RCMR_CKS_TK |
+		       SSC_RCMR_CKO_NONE |
+		       SSC_RCMR_CKI |
+		       SSC_RCMR_START_RF_EDGE |
+		       SSC_RCMR_STTDLY(1) |
+		       SSC_RCMR_PERIOD(0);
 	}
 
-	if (desc->tx_auto_cfg) {
-		uint32_t tcmr = SSC_TCMR_CKS_TK |
-		                SSC_TCMR_CKO_NONE |
-		                SSC_TCMR_START_TF_EDGE |
-		                SSC_TCMR_STTDLY(1) |
-		                SSC_TCMR_PERIOD(0);
+	rfmr = SSC_RFMR_DATLEN(desc->slot_length - 1) |
+	       SSC_RFMR_MSBF |
+	       SSC_RFMR_DATNB(desc->slot_num - 1) |
+	       SSC_RFMR_FSOS_NONE;
 
-		uint32_t tfmr = SSC_TFMR_DATLEN(desc->slot_length - 1) |
-		                SSC_TFMR_MSBF |
-		                SSC_TFMR_DATNB(desc->slot_num - 1) |
-		                SSC_TFMR_FSOS_NONE;
+	ssc_configure_receiver(desc, rcmr, rfmr);
 
-		ssc_configure_transmitter(desc, tcmr, tfmr);
+	if (desc->tx_cfg_cks_tk) {
+		tcmr = SSC_TCMR_CKS_TK |
+		       SSC_TCMR_CKO_NONE |
+		       SSC_TCMR_START_TF_EDGE |
+		       SSC_TCMR_STTDLY(1) |
+		       SSC_TCMR_PERIOD(0);
+
 	} else {
-		ssc_disable_transmitter(desc);
+		tcmr = SSC_TCMR_CKS_RK |
+		       SSC_TCMR_CKO_NONE |
+		       SSC_TCMR_START_TF_EDGE |
+		       SSC_TCMR_STTDLY(1) |
+		       SSC_TCMR_PERIOD(0);
 	}
+
+	tfmr = SSC_TFMR_DATLEN(desc->slot_length - 1) |
+	       SSC_TFMR_MSBF |
+	       SSC_TFMR_DATNB(desc->slot_num - 1) |
+	       SSC_TFMR_FSOS_NONE;
+
+	ssc_configure_transmitter(desc, tcmr, tfmr);
 
 	/* Enable SSC peripheral clock */
 	pmc_enable_peripheral(id);
