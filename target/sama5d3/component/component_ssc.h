@@ -86,9 +86,9 @@ typedef struct {
 #define SSC_RCMR_CKI (0x1u << 5) /**< \brief (SSC_RCMR) Receive Clock Inversion */
 #define SSC_RCMR_CKG_Pos 6
 #define SSC_RCMR_CKG_Msk (0x3u << SSC_RCMR_CKG_Pos) /**< \brief (SSC_RCMR) Receive Clock Gating Selection */
-#define   SSC_RCMR_CKG_NONE (0x0u << 6) /**< \brief (SSC_RCMR) None */
-#define   SSC_RCMR_CKG_CONTINUOUS (0x1u << 6) /**< \brief (SSC_RCMR) Continuous Receive Clock */
-#define   SSC_RCMR_CKG_TRANSFER (0x2u << 6) /**< \brief (SSC_RCMR) Receive Clock only during data transfers */
+#define   SSC_RCMR_CKG_CONTINUOUS (0x0u << 6) /**< \brief (SSC_RCMR) None */
+#define   SSC_RCMR_CKG_EN_RF_LOW (0x1u << 6) /**< \brief (SSC_RCMR) Receive Clock enabled only if RF Low */
+#define   SSC_RCMR_CKG_EN_RF_HIGH (0x2u << 6) /**< \brief (SSC_RCMR) Receive Clock enabled only if RF High */
 #define SSC_RCMR_START_Pos 8
 #define SSC_RCMR_START_Msk (0xfu << SSC_RCMR_START_Pos) /**< \brief (SSC_RCMR) Receive Start Selection */
 #define   SSC_RCMR_START_CONTINUOUS (0x0u << 8) /**< \brief (SSC_RCMR) Continuous, as soon as the receiver is enabled, and immediately after the end of transfer of the previous data. */
@@ -137,8 +137,8 @@ typedef struct {
 #define SSC_TCMR_CKS_Pos 0
 #define SSC_TCMR_CKS_Msk (0x3u << SSC_TCMR_CKS_Pos) /**< \brief (SSC_TCMR) Transmit Clock Selection */
 #define   SSC_TCMR_CKS_MCK (0x0u << 0) /**< \brief (SSC_TCMR) Divided Clock */
-#define   SSC_TCMR_CKS_TK (0x1u << 0) /**< \brief (SSC_TCMR) TK Clock signal */
-#define   SSC_TCMR_CKS_RK (0x2u << 0) /**< \brief (SSC_TCMR) RK pin */
+#define   SSC_TCMR_CKS_RK (0x1u << 0) /**< \brief (SSC_TCMR) RK pin */
+#define   SSC_TCMR_CKS_TK (0x2u << 0) /**< \brief (SSC_TCMR) TK Clock signal */
 #define SSC_TCMR_CKO_Pos 2
 #define SSC_TCMR_CKO_Msk (0x7u << SSC_TCMR_CKO_Pos) /**< \brief (SSC_TCMR) Transmit Clock Output Mode Selection */
 #define   SSC_TCMR_CKO_NONE (0x0u << 2) /**< \brief (SSC_TCMR) None */
@@ -160,7 +160,6 @@ typedef struct {
 #define   SSC_TCMR_START_TF_RISING (0x5u << 8) /**< \brief (SSC_TCMR) Detection of a rising edge on TF signal */
 #define   SSC_TCMR_START_TF_LEVEL (0x6u << 8) /**< \brief (SSC_TCMR) Detection of any level change on TF signal */
 #define   SSC_TCMR_START_TF_EDGE (0x7u << 8) /**< \brief (SSC_TCMR) Detection of any edge on TF signal */
-#define   SSC_TCMR_START_CMP_0 (0x8u << 8) /**< \brief (SSC_TCMR) Compare 0 */
 #define SSC_TCMR_STTDLY_Pos 16
 #define SSC_TCMR_STTDLY_Msk (0xffu << SSC_TCMR_STTDLY_Pos) /**< \brief (SSC_TCMR) Transmit Start Delay */
 #define SSC_TCMR_STTDLY(value) ((SSC_TCMR_STTDLY_Msk & ((value) << SSC_TCMR_STTDLY_Pos)))
