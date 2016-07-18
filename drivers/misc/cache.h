@@ -63,25 +63,33 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
-/** Place variable in DDRAM not-cached section
- * Note: this section is *not* initialized at all */
+/**
+ * Place variable in DDRAM not-cached section
+ * Note: this section is *not* initialized at all
+ */
 #define NOT_CACHED_DDR \
 	SECTION(".region_ddr_nocache")
 
-/** Place variable in default cache-aligned section
- * Note: this section is *not* initialized at all */
+/**
+ * Place variable in default cache-aligned section
+ * Note: this section is *not* initialized at all
+ */
 #define CACHE_ALIGNED \
 	ALIGNED(L1_CACHE_BYTES) \
 	SECTION(".region_cache_aligned")
 
-/** Place constant in default cache-aligned section
- * Note: this section is initialized but may be placed in a read-only memory */
+/**
+ * Place constant in default cache-aligned section
+ * Note: this section is initialized but may be placed in a read-only memory
+ */
 #define CACHE_ALIGNED_CONST \
 	ALIGNED(L1_CACHE_BYTES) \
 	SECTION(".region_cache_aligned_const")
 
-/** Place variable in DRAM cache-aligned section
- * Note: this section is *not* initialized at all */
+/**
+ * Place variable in DRAM cache-aligned section
+ * Note: this section is *not* initialized at all
+ */
 #ifdef VARIANT_DDRAM
 #define CACHE_ALIGNED_DDR \
 	CACHE_ALIGNED
@@ -90,6 +98,11 @@
 	ALIGNED(L1_CACHE_BYTES) \
 	SECTION(".region_ddr_cache_aligned")
 #endif
+
+/**
+ * Is x is aligned on a cache line?
+ */
+#define IS_CACHE_ALIGNED(x) ((((uint32_t)(x)) & (L1_CACHE_BYTES - 1)) == 0)
 
 /*----------------------------------------------------------------------------
  *        Exported functions

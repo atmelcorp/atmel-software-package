@@ -589,16 +589,16 @@ int main(void)
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
-	if ((uint32_t)&data_buf % L1_CACHE_BYTES
-	    || sizeof(data_buf) % L1_CACHE_BYTES
-	    || (uint32_t)&lib0.EXT % L1_CACHE_BYTES
-	    || sizeof(lib0.EXT) % L1_CACHE_BYTES
-	    || (uint32_t)&lib1.EXT % L1_CACHE_BYTES
-	    || sizeof(lib1.EXT) % L1_CACHE_BYTES
-	    || (uint32_t)&fs_header.fs.win % L1_CACHE_BYTES
-	    || sizeof(fs_header.fs.win) % L1_CACHE_BYTES
-	    || (uint32_t)&f_header.file.buf % L1_CACHE_BYTES
-	    || sizeof(f_header.file.buf) % L1_CACHE_BYTES) {
+	if (IS_CACHE_ALIGNED(&data_buf)
+	    && IS_CACHE_ALIGNED(sizeof(data_buf))
+	    && IS_CACHE_ALIGNED(&lib0.EXT)
+	    && IS_CACHE_ALIGNED(sizeof(lib0.EXT))
+	    && IS_CACHE_ALIGNED(&lib1.EXT)
+	    && IS_CACHE_ALIGNED(sizeof(lib1.EXT))
+	    && IS_CACHE_ALIGNED(&fs_header.fs.win)
+	    && IS_CACHE_ALIGNED(sizeof(fs_header.fs.win))
+	    && IS_CACHE_ALIGNED(&f_header.file.buf)
+	    && IS_CACHE_ALIGNED(sizeof(f_header.file.buf)) == 0) {
 		trace_error("WARNING: buffers are not aligned on data cache "
 		    "lines. Please fix this before enabling DMA.\n\r");
 		use_dma = false;
