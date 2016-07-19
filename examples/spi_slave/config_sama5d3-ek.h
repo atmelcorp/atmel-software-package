@@ -11,8 +11,8 @@
 /** define the address of SPI slave */
 #define SPI_SLAVE_ADDR SPI0
 /** define the CS signal of SPI slave */
-#define SPI_SLAVE_CS 2
+#define SPI_SLAVE_CS 0
 /** define the pins of SPI slave */
-#define SPI_SLAVE_PINS PINS_SPI0_NPCS2
+#define SPI_SLAVE_PINS PINS_SPI0_NPCS0
 
 #endif

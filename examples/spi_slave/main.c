@@ -53,7 +53,8 @@
  * - SPI1_MISO (PC22 on J2 pin 18) - SPI0_MISO  (PD10 on J3 pin 22)
  * - SPI1_MOSI (PC23 on J2 pin 20) - SPI0_MOSI  (PD11 on J3 pin 24)
  * - SPI1_SPCK (PC24 on J2 pin 22) - SPI0_SPCK  (PD12 on J3 pin 26)
- * - SPI1_NPCS0(PC25 on J2 pin 24) - SPI0_NPCS2 (PD15 on J3 pin 32)
+ * - SPI1_NPCS0(PC25 on J2 pin 24) - SPI0_NPCS0 (PD13 on J3 pin 28)
+ * Also remember to mount the following resisters: R6, R50, R51 and R120.
  *
  * Requirements when running on SAMA5D4-XULT:
  * We need to connect the SPI pins on the board before running the example.
