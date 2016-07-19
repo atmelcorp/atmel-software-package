@@ -227,7 +227,6 @@ static uint8_t ecc_write_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Perform write operation */
 	error = nand_raw_write_page(nand, block, page, data, NULL);
-	pmecc_disable();
 	if (error) {
 		trace_error("nand_ecc_write_page: Failed to write page\r\n");
 		return error;

@@ -628,7 +628,6 @@ static void _loop_raw(void)
 {
 	uint8_t key;
 
-	pmecc_disable();
 	ecc_type = ECC_NO;
 	nand_set_ecc_type(ecc_type);
 

@@ -39,6 +39,9 @@
 #include "peripherals/pmecc_gf_512.h"
 #include "peripherals/pmecc_gf_1024.h"
 
+#include <assert.h>
+#include <string.h>
+
 /*--------------------------------------------------------------------------- */
 /*         Local definitions                                                  */
 /*--------------------------------------------------------------------------- */
@@ -51,43 +54,15 @@
 /*--------------------------------------------------------------------------- */
 
 /** PMECC configuration descriptor */
-struct _pmecc_descriptor {
-	/** Number of Sectors in one Page */
-	uint32_t page_size;
-
-	/** The spare area size is equal to (SPARESIZE+1) bytes */
-	uint32_t spare_size;
-
-	/** 0 for 512, 1 for 1024 bytes, like in PMECCFG register */
-	uint32_t sector_size;
-
-	/** Coded value of ECC bit number correction
-	  * 0 (2 bits), 1 (4 bits), 2 (8 bits), 3 (12 bits), 4 (24 bits), 5 (NU)) */
-	uint32_t err_bit_nbr_capability;
-
-	/** Real size in bytes of ECC in spare */
-	uint32_t ecc_size_byte;
+struct _pmecc_desc {
+	/** Configuration register (PMECC_CFG) */
+	uint32_t cfg;
 
 	/** The first byte address of the ECC area */
-	uint32_t ecc_start_address;
+	uint32_t ecc_start;
 
-	/** The last byte address of the ECC area */
-	uint32_t ecc_end_address;
-
-	/** NAND Write Access*/
-	uint32_t nand_wr;
-
-	/** Spare Enable */
-	uint32_t spare_ena;
-
-	/** Automatic Mode */
-	uint32_t mode_auto;
-
-	/** The PMECC Module data path Setup Time is set to CLKCTRL+1. */
-	uint32_t clk_ctrl;
-
-	/** */
-	uint32_t interrupt;
+	/** Real size in bytes of ECC in spare */
+	uint32_t ecc_size;
 
 	/** defines the error correcting capability selected at encoding/decoding time */
 	int32_t tt;
@@ -105,10 +80,10 @@ struct _pmecc_descriptor {
 	const int16_t *index_of;
 
 	/** */
-	int16_t partial_syn[100];
+	int16_t partial_syn[2 * PMECC_NB_ERROR_MAX];
 
 	/** Holds the current syndrome value, an element of that table belongs to the field.*/
-	int16_t si[100];
+	int16_t si[2 * PMECC_NB_ERROR_MAX];
 
 	/** sigma table */
 	int16_t smu[PMECC_NB_ERROR_MAX + 2][2 * PMECC_NB_ERROR_MAX + 1];
@@ -122,7 +97,7 @@ struct _pmecc_descriptor {
 /*--------------------------------------------------------------------------- */
 
 /** Pmecc decriptor instance */
-static struct _pmecc_descriptor pmecc_desc;
+static struct _pmecc_desc pmecc_desc;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -132,16 +107,16 @@ static struct _pmecc_descriptor pmecc_desc;
  * \brief Build the pseudo syndromes table
  * \param sector Targetted sector.
  */
-static void gen_syn(uint32_t sector)
+static void gen_partial_syndromes(uint32_t sector)
 {
-	int16_t *remainer;
-	uint32_t index;
+	uint32_t i;
+	volatile int16_t *remainder;
 
-	remainer = (int16_t*)&PMECC->PMECC_REM[sector];
-	for (index = 0; index < pmecc_desc.tt; index++) {
-		/* Fill odd syndromes */
-		pmecc_desc.partial_syn[1 + (2 * index)] = remainer[index];
-	}
+	remainder = (volatile int16_t*)&PMECC->PMECC_REM[sector];
+
+	/* Fill odd syndromes */
+	for (i = 0; i < pmecc_desc.tt; i++)
+		pmecc_desc.partial_syn[1 + (2 * i)] = remainder[i];
 }
 
 /**
@@ -152,22 +127,20 @@ static uint32_t substitute(void)
 {
 	int32_t i, j;
 	int16_t *si;
-	int16_t *p_partial_syn = pmecc_desc.partial_syn;
+	int16_t *partial_syn = pmecc_desc.partial_syn;
 	const int16_t *alpha_to = pmecc_desc.alpha_to;
 	const int16_t *index_of = pmecc_desc.index_of;
 
 	/* si[] is a table that holds the current syndrome value, an element of that table belongs to the field.*/
+	memset(pmecc_desc.si, 0, sizeof(pmecc_desc.si));
 	si = pmecc_desc.si;
-
-	for (i = 1; i < 2 * PMECC_NB_ERROR_MAX; i++)
-		si[i] = 0;
 
 	/* Computation 2t syndromes based on S(x) */
 	/* Odd syndromes */
 	for (i = 1; i <= 2 * pmecc_desc.tt - 1; i = i + 2) {
 		si[i] = 0;
 		for (j = 0; j < pmecc_desc.mm; j++) {
-			if (p_partial_syn[i] & ((uint16_t)0x1 << j))
+			if (partial_syn[i] & ((uint16_t)0x1 << j))
 				si[i] = alpha_to[(i * j)] ^ si[i];
 		}
 	}
@@ -195,9 +168,9 @@ static uint32_t get_sigma(void)
 	int16_t *si = pmecc_desc.si;
 	int16_t tt = pmecc_desc.tt;
 
-	int32_t mu[PMECC_NB_ERROR_MAX+1]; /* mu */
-	int32_t dmu[PMECC_NB_ERROR_MAX+1]; /* discrepancy */
-	int32_t delta[PMECC_NB_ERROR_MAX+1]; /* delta order */
+	int32_t mu[PMECC_NB_ERROR_MAX + 1]; /* mu */
+	int32_t dmu[PMECC_NB_ERROR_MAX + 1]; /* discrepancy */
+	int32_t delta[PMECC_NB_ERROR_MAX + 1]; /* delta order */
 	int32_t ro; /* index of largest delta */
 	int32_t largest;
 	int32_t diff;
@@ -250,12 +223,12 @@ static uint32_t get_sigma(void)
 	for (i = 1; i <= tt; i++) {
 		mu[i+1] = i << 1;
 
-		/* Compute Sigma (Mu+1)             */
-		/* And L(mu)                        */
+		/* Compute Sigma (Mu+1) */
+		/* And L(mu) */
 		/* check if discrepancy is set to 0 */
 		if ( dmu[i] == 0) {
 			dmu_0_count++;
-			if (( tt - (lmu[i] >> 1) - 1) & 0x1) {
+			if ((tt - (lmu[i] >> 1) - 1) & 0x1) {
 				if (dmu_0_count == (uint32_t)((tt - (lmu[i] >> 1) - 1) / 2) + 2) {
 					for (j = 0; j <= (lmu[i] >> 1) + 1; j++)
 						pmecc_desc.smu[tt+1][j] = pmecc_desc.smu[i][j];
@@ -342,34 +315,30 @@ static uint32_t get_sigma(void)
  * \param sector_size_in_bits Size of the sector in bits.
  * \return Number of errors
  */
-static int32_t error_location (uint32_t sector_size_in_bits)
+static int32_t error_location(uint32_t sector_size_in_bits)
 {
-	uint32_t alphax;
-	volatile uint32_t *sigma;
+	uint32_t i;
 	uint32_t error_number;
 	uint32_t nbr_of_roots;
 
 	/* Disable PMECC Error Location IP */
-	PMERRLOC->PMERRLOC_DIS |= 0xFFFFFFFF;
-	error_number = 0;
+	PMERRLOC->PMERRLOC_DIS = ~0u;
 
-	sigma = PMERRLOC->PMERRLOC_SIGMA;
+	error_number = pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1;
+	for (i = 0; i <= error_number; i++)
+		PMERRLOC->PMERRLOC_SIGMA[i] = pmecc_desc.smu[pmecc_desc.tt + 1][i];
 
-	for (alphax = 0; alphax <= (uint32_t)(pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1); alphax++) {
-		*sigma++ = pmecc_desc.smu[pmecc_desc.tt + 1][alphax];
-		error_number++;
-	}
-
-	/* Enable error location process */
-	PMERRLOC->PMERRLOC_CFG |= ((error_number - 1) << 16);
+	/* Configure and enable error location process */
+	PMERRLOC->PMERRLOC_CFG = (PMERRLOC->PMERRLOC_CFG & ~PMERRLOC_CFG_ERRNUM_Msk) |
+	                         PMERRLOC_CFG_ERRNUM(error_number);
 	PMERRLOC->PMERRLOC_EN = sector_size_in_bits;
 
 	while ((PMERRLOC->PMERRLOC_ISR & PMERRLOC_ISR_DONE) == 0);
 
-	nbr_of_roots = (PMERRLOC->PMERRLOC_ISR & PMERRLOC_ISR_ERR_CNT_Msk) >> 8;
+	nbr_of_roots = (PMERRLOC->PMERRLOC_ISR & PMERRLOC_ISR_ERR_CNT_Msk) >> PMERRLOC_ISR_ERR_CNT_Pos;
 	/* Number of roots == degree of smu hence <= tt */
 	if (nbr_of_roots == (uint32_t)(pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1))
-		return (error_number - 1);
+		return error_number;
 
 	/* Number of roots not match the degree of smu ==> unable to correct error */
 	return -1;
@@ -378,84 +347,59 @@ static int32_t error_location (uint32_t sector_size_in_bits)
 /**
  * \brief Correct errors indicated in the PMECCEL error location registers.
  * \param sector_base_address Base address of the sector.
- * \param extra_bytes Number of extra bytes of the sector.(encoded Spare Area, only for the last sector)
  * \param error_nbr Number of error to correct
  * \return Number of errors
  */
-static uint32_t error_correction(uint32_t sector_base_address, uint32_t extra_bytes, uint32_t error_nbr)
+static void error_correction(uint32_t sector_base_address, uint32_t error_nbr)
 {
-	volatile const uint32_t *error_pos;
-	uint32_t byte_pos;
-	uint32_t bit_pos;
 	uint32_t sector_size;
-	uint32_t ecc_size;
-	uint32_t ecc_end_addr;
+	uint32_t i;
 
-	error_pos = PMERRLOC->PMERRLOC_EL;
+	sector_size = pmecc_get_sector_size();
 
-	sector_size = 512 * (((PMECC->PMECC_CFG & PMECC_CFG_SECTORSZ) >> 4) + 1);
+	for (i = 0; i < error_nbr; i++) {
+		uint32_t error_pos = PMERRLOC->PMERRLOC_EL[i];
+		uint32_t byte_pos = (error_pos - 1) >> 3;
+		uint32_t bit_pos = (error_pos - 1) & 7;
 
-	/* Get number of ECC bytes */
-	ecc_end_addr = PMECC->PMECC_EADDR;
-	ecc_size = (ecc_end_addr - PMECC->PMECC_SADDR) + 1;
+		/* If error is located in the data area (not in ECC) */
+		if (byte_pos < sector_size) {
+			uint8_t *data_ptr = (uint8_t*)(sector_base_address + byte_pos);
 
-	while (error_nbr) {
-		byte_pos = (*error_pos - 1) / 8;
-		bit_pos = (*error_pos - 1) % 8;
-
-		/* If error is located in the data area(not in ECC) */
-		if ( byte_pos < (sector_size + extra_bytes)) {
-			uint8_t *data_ptr = NULL;
-
-			/* If the error position is before ECC area */
-			if ( byte_pos < sector_size + PMECC->PMECC_SADDR) {
-				data_ptr = (uint8_t*)(sector_base_address + byte_pos);
-			} else {
-				data_ptr = (uint8_t*)(sector_base_address + byte_pos + ecc_size);
-			}
-
-			trace_info("Correct error bit @[#Byte %u,Bit# %u]\n\r",
+			trace_debug("Fixing incorrect bit @[Byte %u, Bit %u]\n\r",
 					(unsigned)byte_pos, (unsigned)bit_pos);
 
 			if (*data_ptr & (1 << bit_pos))
-				*data_ptr &= (0xFF ^ (1 << bit_pos));
+				*data_ptr &= (0xff ^ (1 << bit_pos));
 			else
 				*data_ptr |= (1 << bit_pos);
 		}
-		error_pos++;
-		error_nbr--;
 	}
-	return 0;
 }
 
 /**
- * \brief Configure the PMECC peripheral
- * \param pPmeccDescriptor Pointer to a PmeccDescriptor instance.
+ * \brief Reset and configure the PMECC peripheral with settings from pmecc_desc
  */
-static void _pmecc_configure(void)
+void pmecc_reset(void)
 {
 	/* Disable ECC module */
-	PMECC->PMECC_CTRL |= PMECC_CTRL_DISABLE;
+	pmecc_disable();
 
 	/* Reset the ECC module */
 	PMECC->PMECC_CTRL = PMECC_CTRL_RST;
-	PMECC->PMECC_CFG = pmecc_desc.err_bit_nbr_capability |
-		pmecc_desc.sector_size |
-		pmecc_desc.page_size |
-		pmecc_desc.nand_wr |
-		pmecc_desc.spare_ena |
-		pmecc_desc.mode_auto;
-	PMECC->PMECC_SAREA = pmecc_desc.spare_size - 1;
-	PMECC->PMECC_SADDR = pmecc_desc.ecc_start_address;
-	PMECC->PMECC_EADDR = pmecc_desc.ecc_end_address - 1;
+
+	/* Configure ECC module */
+	PMECC->PMECC_CFG = pmecc_desc.cfg;
+	PMECC->PMECC_SAREA = pmecc_desc.ecc_start + pmecc_desc.ecc_size - 1;
+	PMECC->PMECC_SADDR = pmecc_desc.ecc_start;
+	PMECC->PMECC_EADDR = pmecc_desc.ecc_start + pmecc_desc.ecc_size - 1;
 
 	/* Disable all interrupts */
-	PMECC->PMECC_IDR = 0xFF;
+	PMECC->PMECC_IDR = ~0u;
 
 	/* Enable ECC module */
-	PMECC->PMECC_CTRL |= PMECC_CTRL_ENABLE;
+	pmecc_enable();
 }
-
 
 /*----------------------------------------------------------------------------
  *        Export functions
@@ -464,8 +408,8 @@ static void _pmecc_configure(void)
 /**
  * \brief This function is able to build Galois Field.
  * \param mm degree of the remainders.
- * \param index_of Pointer to a buffer for index_of table.
- * \param alpha_to Pointer to a buffer for alpha_to table.
+ * \param index_of Pointer to a buffer for index_of table (size 2^mm).
+ * \param alpha_to Pointer to a buffer for alpha_to table (size 2^mm).
  */
 void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 {
@@ -475,6 +419,7 @@ void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 	uint32_t p[15];
 
 	nn = (1 << mm) - 1;
+
 	/* set default value */
 	for (i = 1; i < mm; i++)
 		p[i] = 0;
@@ -484,44 +429,60 @@ void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 	p[mm] = 1;
 
 	/*  others  */
-	if (mm == 3)
+	switch (mm) {
+	case 3:
 		p[1] = 1;
-	else if (mm == 4)
+		break;
+	case 4:
 		p[1] = 1;
-	else if (mm == 5)
+		break;
+	case 5:
 		p[2] = 1;
-	else if (mm == 6)
+		break;
+	case 6:
 		p[1] = 1;
-	else if (mm == 7)
+		break;
+	case 7:
 		p[3] = 1;
-	else if (mm == 8)
+		break;
+	case 8:
 		p[2] = p[3] = p[4] = 1;
-	else if (mm == 9)
+		break;
+	case 9:
 		p[4] = 1;
-	else if (mm == 10)
+		break;
+	case 10:
 		p[3] = 1;
-	else if (mm == 11)
+		break;
+	case 11:
 		p[2] = 1;
-	else if (mm == 12)
+		break;
+	case 12:
 		p[1] = p[4] = p[6] = 1;
-	else if (mm == 13)
+		break;
+	case 13:
 		p[1] = p[3] = p[4] = 1;
-	else if (mm == 14)
+		break;
+	case 14:
 		p[1] = p[6] = p[10] = 1;
-	else if (mm == 15)
+		break;
+	case 15:
 		p[1] = 1;
+		break;
+	default:
+		assert(false);
+	}
 
 	/*-- First of All */
-	/*-- build alpha ^ mm it will help to generate the field (primitiv) */
+	/*-- build alpha ^ mm it will help to generate the field (primitive) */
 	alpha_to[mm] = 0;
 	for (i = 0; i < mm; i++)
 		if (p[i])
 			alpha_to[mm] |= 1 << i;
 
-	/* Secondly */
-	/* Build elements from 0 to mm - 1 */
-	/* very easy because degree is less than mm so it is */
-	/* just a logical shift ! (only the remainder) */
+	/* Secondly, build elements from 0 to mm - 1 */
+	/* Very easy because degree is less than mm so it is just a logical
+	 * shift (only the remainder) */
 	mask = 1;
 	for (i = 0; i < mm; i++) {
 		alpha_to[i] = mask;
@@ -531,23 +492,23 @@ void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 
 	index_of[alpha_to[mm]] = mm;
 
-	/* use a mask to select the MSB bit of the */
-	/* LFSR ! */
-	mask >>= 1; /* previous value moust be decremented */
+	/* use a mask to select the MSB bit of the LFSR */
+	mask >>= 1; /* previous value must be decremented */
 
-	/* then finish the building */
+	/* then finish building the tables */
 	for (i = mm + 1; i <= nn; i++) {
-		/* check if the msb bit of the lfsr is set */
-		if (alpha_to[i-1] & mask)
+		/* check if MSB bit of the LFSR is set */
+		if (alpha_to[i - 1] & mask) {
 			/* feedback loop is set */
-			alpha_to[i] = alpha_to[mm] ^ ((alpha_to[i-1] ^ mask) << 1);
-		else
+			alpha_to[i] = alpha_to[mm] ^ ((alpha_to[i - 1] ^ mask) << 1);
+		} else {
 			/*  only shift is enabled */
-			alpha_to[i] = alpha_to[i-1] << 1;
+			alpha_to[i] = alpha_to[i - 1] << 1;
+		}
 		/*  lookup table */
-		//index_of[alpha_to[i]] = i ;
-		index_of[alpha_to[i]] = i%nn ;
+		index_of[alpha_to[i]] = i % nn;
 	}
+
 	/* of course index of 0 is undefined in a multiplicative field */
 	index_of[0] = -1;
 }
@@ -555,24 +516,26 @@ void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 /**
  * \brief Initialize the PMECC peripheral
  * \param sector_size 0 for 512, 1 for 1024.
- * \param ecc_errors_per_sector Coded value of ECC bit number correction(2,4,8,12,24).
+ * \param ecc_errors_per_sector Coded value of ECC bit number correction(2,4,8,12,24[,32]).
  * \param page_data_size Data area size in byte.
  * \param page_spare_size Spare area size in byte.
  * \param ecc_offset_in_spare offset of the first ecc byte in spare zone.
  * \param spare_protected 1: The spare area is protected with the last sector of data.
- *                       0: The spare area is skipped in read or write mode.
+ *                        0: The spare area is skipped in read or write mode.
  * \return 0 if successful; otherwise returns 1.
  */
-uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
+uint8_t pmecc_initialize(uint8_t sector_size, uint8_t ecc_errors_per_sector,
 		uint32_t page_data_size, uint32_t page_spare_size,
 		uint16_t ecc_offset_in_spare, uint8_t spare_protected)
 {
 	uint8_t nb_sectors_per_page = 0;
 
+	memset(&pmecc_desc, 0, sizeof(pmecc_desc));
+
 	if (ecc_errors_per_sector == 0xFF) {
-		/* ONFI 2.2 : a value of 0xff indaicate we must apply a correction on sector > 512 bytes,
-		   so we set at the maximum allowed by PMECC 24 bits on 1024 sectors. */
-		ecc_errors_per_sector = 24;
+		/* ONFI 2.2 : a value of 0xff indicates that we must apply a correction on sector > 512 bytes,
+		   so we set at the maximum allowed by PMECC (24/32 bits on 1024 sectors). */
+		ecc_errors_per_sector = PMECC_NB_ERROR_MAX - 1;
 		sector_size = 1;  /* 1 for 1024 bytes per sector */
 	}
 
@@ -580,7 +543,6 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 	switch (sector_size) {
 	/* 512 bytes per sector */
 	case 0:
-		pmecc_desc.sector_size = 0;
 		nb_sectors_per_page = page_data_size / 512;
 		pmecc_desc.mm = 13;
 		pmecc_get_gf_512_tables(&pmecc_desc.alpha_to, &pmecc_desc.index_of);
@@ -588,106 +550,183 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 
 	/* 1024 bytes per sector */
 	case 1:
-		pmecc_desc.sector_size = PMECC_CFG_SECTORSZ;
+		pmecc_desc.cfg |= PMECC_CFG_SECTORSZ;
 		nb_sectors_per_page = page_data_size / 1024;
 		pmecc_desc.mm = 14;
 		pmecc_get_gf_1024_tables(&pmecc_desc.alpha_to, &pmecc_desc.index_of);
 		break;
-	}
-
-	switch (nb_sectors_per_page) {
-	case 1:
-		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_1SEC;
-		break;
-	case 2:
-		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_2SEC;
-		break;
-	case 4:
-		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_4SEC;
-		break;
-	case 8:
-		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_8SEC;
-		break;
-	default :
-		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_1SEC;
-		break;
+	default:
+		assert(false);
 	}
 
 	pmecc_desc.nn = (1 << pmecc_desc.mm) - 1;
 
-	/* Coded value of ECC bit number correction (0 (2 bits), 1 (4 bits), 2 (8 bits), 3 (12 bits), 4 (24 bits), 5 (NU)) */
-	switch (ecc_errors_per_sector) {
+	switch (nb_sectors_per_page) {
+	case 1:
+		pmecc_desc.cfg |= PMECC_CFG_PAGESIZE_PAGESIZE_1SEC;
+		break;
 	case 2:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR2;
+		pmecc_desc.cfg |= PMECC_CFG_PAGESIZE_PAGESIZE_2SEC;
 		break;
 	case 4:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR4;
+		pmecc_desc.cfg |= PMECC_CFG_PAGESIZE_PAGESIZE_4SEC;
 		break;
 	case 8:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR8;
+		pmecc_desc.cfg |= PMECC_CFG_PAGESIZE_PAGESIZE_8SEC;
+		break;
+	default :
+		assert(false);
+	}
+
+	/* Coded value of ECC bit number correction */
+	switch (ecc_errors_per_sector) {
+	case 2:
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR2;
+		break;
+	case 4:
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR4;
+		break;
+	case 8:
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR8;
 		break;
 	case 12:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR12;
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR12;
 		break;
 	case 24:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR24;
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR24;
 		break;
+#ifdef PMECC_CFG_BCH_ERR_BCH_ERR32
+	case 32:
+		pmecc_desc.cfg |= PMECC_CFG_BCH_ERR_BCH_ERR32;
+		break;
+#endif
 	default:
-		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR2;
-		ecc_errors_per_sector = 2;
-		break;
+		assert(false);
 	}
 
-	/* Real value of ECC bit number correction (2, 4, 8, 12, 24) */
+	/* Real value of ECC bit number correction (2, 4, 8, 12, 24, 32) */
 	pmecc_desc.tt = ecc_errors_per_sector;
-	if (((pmecc_desc.mm * ecc_errors_per_sector ) % 8 ) == 0) {
-		pmecc_desc.ecc_size_byte = ((pmecc_desc.mm * ecc_errors_per_sector ) / 8) * nb_sectors_per_page;
-	} else  {
-		pmecc_desc.ecc_size_byte = (((pmecc_desc.mm * ecc_errors_per_sector ) / 8 ) + 1 ) * nb_sectors_per_page;
-	}
-	if (ecc_offset_in_spare <= 2) {
-		pmecc_desc.ecc_start_address = PMECC_ECC_DEFAULT_START_ADDR;
-	} else {
-		pmecc_desc.ecc_start_address = ecc_offset_in_spare;
-	}
-	pmecc_desc.ecc_end_address = pmecc_desc.ecc_start_address + pmecc_desc.ecc_size_byte;
-	if (pmecc_desc.ecc_end_address > page_spare_size) {
-		return 1;
-	}
-	pmecc_desc.spare_size = pmecc_desc.ecc_end_address;
+	pmecc_desc.ecc_size = ROUND_INT_DIV(pmecc_desc.mm * ecc_errors_per_sector, 8) * nb_sectors_per_page;
 
-	//pmecc_desc.nand_wr = PMECC_CFG_NANDWR;  /* NAND write access */
-	pmecc_desc.nand_wr = 0;  /* NAND Read access */
-	if (spare_protected) {
-		pmecc_desc.spare_ena = PMECC_CFG_SPAREEN;
+	if (ecc_offset_in_spare < 2) {
+		pmecc_desc.ecc_start = PMECC_ECC_DEFAULT_START_ADDR;
 	} else {
-		pmecc_desc.spare_ena = 0;
+		pmecc_desc.ecc_start = ecc_offset_in_spare;
 	}
-	/* PMECC_CFG_AUTO indicates that the spare is error protected. In this case, the ECC computation takes into account the whole spare area
-	   minus the ECC area in the ECC computation operation */
-	pmecc_desc.mode_auto = 0;
-	/* At 133 Mhz, this field must be programmed with 2,
-	   indicating that the setup time is 3 clock cycles.*/
-	pmecc_desc.clk_ctrl = 2;
-	pmecc_desc.interrupt = 0;
-	_pmecc_configure();
+
+	if (pmecc_desc.ecc_start + pmecc_desc.ecc_size > page_spare_size)
+		return 1;
+
+	if (spare_protected)
+		pmecc_desc.cfg |= PMECC_CFG_SPAREEN;
+
+	pmecc_reset();
+
 	return 0;
 }
 
-/**
- * \brief Return PMECC page size.
- */
-uint32_t pmecc_get_page_size(void)
+void pmecc_start_data_phase(void)
 {
-	return pmecc_desc.page_size;
+	PMECC->PMECC_CTRL = PMECC_CTRL_DATA;
+}
+
+void pmecc_enable_write(void)
+{
+	pmecc_desc.cfg |= PMECC_CFG_NANDWR;
+	PMECC->PMECC_CFG = pmecc_desc.cfg;
+}
+
+void pmecc_enable_read(void)
+{
+	pmecc_desc.cfg &= ~PMECC_CFG_NANDWR;
+	PMECC->PMECC_CFG = pmecc_desc.cfg;
+}
+
+uint32_t pmecc_error_status(void)
+{
+	return PMECC->PMECC_ISR;
+}
+
+void pmecc_enable(void)
+{
+	PMECC->PMECC_CTRL = PMECC_CTRL_ENABLE;
 }
 
 /**
- * \brief Return PMECC ecc size.
+ * \brief Disable pmecc.
  */
-uint32_t pmecc_get_ecc_bytes(void)
+void pmecc_disable(void)
 {
-	return pmecc_desc.ecc_size_byte;
+	PMECC->PMECC_CTRL = PMECC_CTRL_DISABLE;
+}
+
+void pmecc_auto_enable(void)
+{
+	pmecc_desc.cfg |= PMECC_CFG_AUTO;
+	PMECC->PMECC_CFG = pmecc_desc.cfg;
+}
+
+void pmecc_auto_disable(void)
+{
+	pmecc_desc.cfg &= ~PMECC_CFG_AUTO;
+	PMECC->PMECC_CFG = pmecc_desc.cfg;
+}
+
+bool pmecc_auto_spare_en(void)
+{
+	return (PMECC->PMECC_CFG & PMECC_CFG_SPAREEN) == PMECC_CFG_SPAREEN;
+}
+
+uint8_t pmecc_value(uint32_t sector_index, uint32_t byte_index)
+{
+	return ((volatile uint8_t *)PMECC->PMECC_ECC[sector_index].PMECC_ECC)[byte_index];
+}
+
+/**
+ * \brief Wait for PMECC ready.
+ */
+void pmecc_wait_ready(void)
+{
+	while (PMECC->PMECC_SR & PMECC_SR_BUSY);
+}
+
+/**
+ * \brief Return PMECC sector size in bytes
+ */
+uint32_t pmecc_get_sector_size(void)
+{
+	if ((pmecc_desc.cfg & PMECC_CFG_SECTORSZ) == 0)
+		return 512;
+	else
+		return 1024;
+}
+
+/**
+ * \brief Return PMECC page size in sectors
+ */
+uint32_t pmecc_get_sectors_per_page(void)
+{
+	switch (pmecc_desc.cfg & PMECC_CFG_PAGESIZE_Msk) {
+	case PMECC_CFG_PAGESIZE_PAGESIZE_1SEC:
+		return 1;
+	case PMECC_CFG_PAGESIZE_PAGESIZE_2SEC:
+		return 2;
+	case PMECC_CFG_PAGESIZE_PAGESIZE_4SEC:
+		return 4;
+	case PMECC_CFG_PAGESIZE_PAGESIZE_8SEC:
+		return 8;
+	default :
+		assert(false);
+		return 0;
+	}
+}
+
+/**
+ * \brief Return PMECC ECC size in bytes per page
+ */
+uint32_t pmecc_get_ecc_bytes_per_page(void)
+{
+	return pmecc_get_ecc_end_address() - pmecc_get_ecc_start_address() + 1;
 }
 
 /**
@@ -695,7 +734,7 @@ uint32_t pmecc_get_ecc_bytes(void)
  */
 uint32_t pmecc_get_ecc_start_address(void)
 {
-	return pmecc_desc.ecc_start_address;
+	return pmecc_desc.ecc_start;
 }
 
 /**
@@ -703,9 +742,8 @@ uint32_t pmecc_get_ecc_start_address(void)
  */
 uint32_t pmecc_get_ecc_end_address(void)
 {
-	return pmecc_desc.ecc_end_address;
+	return pmecc_desc.ecc_start + pmecc_desc.ecc_size;
 }
-
 
 /**
  * \brief Launch error detection functions and correct corrupted bits.
@@ -715,46 +753,30 @@ uint32_t pmecc_get_ecc_end_address(void)
  */
 uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer)
 {
-	uint32_t sector_number = 0;
+	uint32_t sector, sector_count, sector_size;
 	uint32_t sector_base_address;
-	volatile int32_t error_nbr;
+	int32_t error_nbr;
+
+	sector_size = pmecc_get_sector_size();
+	sector_count = pmecc_get_sectors_per_page();
 
 	/* Set the sector size (512 or 1024 bytes) */
-	PMERRLOC->PMERRLOC_CFG = pmecc_desc.sector_size >> 4;
+	PMERRLOC->PMERRLOC_CFG = sector_size == 1024 ? PMERRLOC_CFG_SECTORSZ : 0;
 
-	while (sector_number < (uint32_t)((1 << ((PMECC->PMECC_CFG & PMECC_CFG_PAGESIZE_Msk) >> 8)))) {
-		if (pmecc_status & 0x1) {
-			sector_base_address = page_buffer + (sector_number * ((pmecc_desc.sector_size >> 4) + 1) * 512);
-			gen_syn(sector_number);
+	for (sector = 0; sector < sector_count; sector++) {
+		if (pmecc_status & 1) {
+			sector_base_address = page_buffer + sector * sector_size;
+			gen_partial_syndromes(sector);
 			substitute();
 			get_sigma();
-			error_nbr = error_location((((pmecc_desc.sector_size >> 4) + 1) * 512 * 8) +
-					(pmecc_desc.tt * (13 + (pmecc_desc.sector_size >> 4)))); /* number of bits of the sector + ecc */
-
+			error_nbr = error_location(sector_size * 8 + pmecc_desc.tt * pmecc_desc.mm); /* number of bits of the sector + ecc */
 			if (error_nbr == -1)
 				return 1;
 			else
-				error_correction(sector_base_address, 0, error_nbr); /* Extra byte is 0 */
+				error_correction(sector_base_address, error_nbr);
 		}
-		sector_number++;
 		pmecc_status = pmecc_status >> 1;
 	}
+
 	return 0;
-}
-
-/**
- * \brief Disable pmecc.
- */
-void pmecc_disable(void)
-{
-	/* Disable ECC module */
-	PMECC->PMECC_CTRL |= PMECC_CTRL_DISABLE;
-}
-
-/**
- * \brief Wait for PMECC ready.
- */
-void pmecc_wait_ready(void)
-{
-	while((PMECC->PMECC_SR) & PMECC_SR_BUSY);
 }

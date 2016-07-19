@@ -477,13 +477,13 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
 	pmecc_reset();
-	pmecc_enable();
+	pmecc_enable_read();
 
-	if (!pmecc_auto_apare_en())
+	if (!pmecc_auto_spare_en())
 		pmecc_auto_enable();
 
 	if (nand_is_nfc_sram_enabled()){
-		pmecc_data_phase();
+		pmecc_start_data_phase();
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	} else {
@@ -500,11 +500,11 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 			nfc_wait_rb_busy();
 	}
 
-	/* Reset the ECC module*/
+	/* Reset the ECC module */
 	pmecc_reset();
 
 	/* Start a Data Phase */
-	pmecc_data_phase();
+	pmecc_start_data_phase();
 	_data_array_in(nand, nand_is_nfc_sram_enabled(),
 	               data, data_size + pmecc_get_ecc_end_address());
 
@@ -599,13 +599,9 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 	uint32_t row_address;
 	uint32_t ecc_start_addr;
-	uint32_t bytes_per_sector;
-	uint32_t pmecc_sector_number;
-	uint32_t pmecc_sector_index;
-	uint32_t byte_index;
-	volatile uint8_t *pmecc[8];
-	uint8_t i;
+	uint32_t ecc_bytes_per_sector;
 	uint8_t nb_sectors_per_page;
+	uint32_t i, j;
 
 	NAND_TRACE("_write_page_with_pmecc(B#%d:P#%d)\r\n", block, page);
 
@@ -620,31 +616,12 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
 	/* Write data area if needed */
-	switch (pmecc_get_page_size()) {
-		case PMECC_CFG_PAGESIZE_PAGESIZE_1SEC:
-			nb_sectors_per_page = 1;
-			break;
-		case PMECC_CFG_PAGESIZE_PAGESIZE_2SEC:
-			nb_sectors_per_page = 2;
-			break;
-		case PMECC_CFG_PAGESIZE_PAGESIZE_4SEC:
-			nb_sectors_per_page = 4;
-			break;
-		case PMECC_CFG_PAGESIZE_PAGESIZE_8SEC:
-			nb_sectors_per_page = 8;
-			break;
-		default:
-			nb_sectors_per_page = 1;
-			break;
-	}
 	pmecc_reset();
-	pmecc_enable();
-	for (i = 0; i < 8; i++)
-		pmecc[i] = (volatile uint8_t *)&pmecc_value(i);
+	pmecc_enable_write();
 
 	/* Start a Data Phase */
-	pmecc_data_phase();
-	pmecc_enable_write();
+	pmecc_start_data_phase();
+
 	if (nand_is_nfc_sram_enabled()) {
 		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
 
@@ -664,19 +641,15 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Wait until the kernel of the PMECC is not busy */
 	pmecc_wait_ready();
-	bytes_per_sector = pmecc_get_ecc_bytes() / nb_sectors_per_page;
-	pmecc_sector_number = 1 << ((pmecc_get_page_size() >> 8) & 0x3);
+	nb_sectors_per_page = pmecc_get_sectors_per_page();
+	ecc_bytes_per_sector = pmecc_get_ecc_bytes_per_page() / nb_sectors_per_page;
 
 	/* Read all ECC registers */
-	for (pmecc_sector_index = 0; pmecc_sector_index < pmecc_sector_number; pmecc_sector_index++) {
-		for (byte_index = 0; byte_index < bytes_per_sector; byte_index++)
-			ecc_table[pmecc_sector_index * bytes_per_sector + byte_index] =
-				pmecc[pmecc_sector_index][byte_index];
-	}
+	for (i = 0; i < nb_sectors_per_page; i++)
+		for (j = 0; j < ecc_bytes_per_sector; j++)
+			ecc_table[i * ecc_bytes_per_sector + j] = pmecc_value(i, j);
 
-	_data_array_out(nand, false, ecc_table,
-			pmecc_sector_number * bytes_per_sector, 0);
-
+	_data_array_out(nand, false, ecc_table, pmecc_get_ecc_bytes_per_page(), 0);
 	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
 	if (nand_is_nfc_enabled()) {
@@ -688,6 +661,8 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 		trace_error("write_page_pmecc: Failed writing.\r\n");
 		error = NAND_ERROR_CANNOTWRITE;
 	}
+
+	pmecc_disable();
 
 	return error;
 }

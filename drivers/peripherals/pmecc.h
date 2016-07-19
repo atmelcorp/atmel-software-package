@@ -31,28 +31,13 @@
 #define PMECC_H
 
 #ifdef CONFIG_HAVE_PMECC
+
 /*----------------------------------------------------------------------- */
 /*         Definition                                                     */
 /*----------------------------------------------------------------------- */
 
 /** Start address of ECC cvalue in spare zone, this must not be 0 since Bad block tag are at 0. */
 #define PMECC_ECC_DEFAULT_START_ADDR   0x02
-
-/*----------------------------------------------------------------------------
- *         Macros
- *----------------------------------------------------------------------------*/
-
-#define pmecc_reset()             {PMECC->PMECC_CTRL = PMECC_CTRL_RST; }
-#define pmecc_data_phase()        {PMECC->PMECC_CTRL = PMECC_CTRL_DATA; }
-#define pmecc_enable_write()      {PMECC->PMECC_CFG |= PMECC_CFG_NANDWR;}
-#define pmecc_enable_read()       {PMECC->PMECC_CFG &= (~PMECC_CFG_NANDWR);}
- 
-#define pmecc_error_status()      (PMECC->PMECC_ISR )
-#define pmecc_enable()            {PMECC->PMECC_CTRL = PMECC_CTRL_ENABLE;}
-#define pmecc_auto_enable()       {PMECC->PMECC_CFG |= PMECC_CFG_AUTO;}
-#define pmecc_auto_disable()      {PMECC->PMECC_CFG &= (~PMECC_CFG_AUTO);}
-#define pmecc_auto_apare_en()     ((PMECC->PMECC_CFG & PMECC_CFG_SPAREEN) == PMECC_CFG_SPAREEN) 
-#define pmecc_value(i)            (PMECC->PMECC_ECC[i])
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
@@ -65,9 +50,35 @@ extern uint8_t pmecc_initialize(uint8_t sector_size,
 		uint16_t ecc_offset_in_spare,
 		uint8_t spare_protected);
 
-extern uint32_t pmecc_get_page_size(void);
+extern void pmecc_reset(void);
 
-extern uint32_t pmecc_get_ecc_bytes(void);
+extern void pmecc_start_data_phase(void);
+
+extern void pmecc_enable_write(void);
+
+extern void pmecc_enable_read(void);
+
+extern uint32_t pmecc_error_status(void);
+
+extern void pmecc_enable(void);
+
+extern void pmecc_disable(void);
+
+extern void pmecc_auto_enable(void);
+
+extern void pmecc_auto_disable(void);
+
+extern bool pmecc_auto_spare_en(void);
+
+extern uint8_t pmecc_value(uint32_t sector_index, uint32_t byte_index);
+
+extern void pmecc_wait_ready(void);
+
+extern uint32_t pmecc_get_sector_size(void);
+
+extern uint32_t pmecc_get_sectors_per_page(void);
+
+extern uint32_t pmecc_get_ecc_bytes_per_page(void);
 
 extern uint32_t pmecc_get_ecc_start_address(void);
 
@@ -77,11 +88,6 @@ extern uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer);
 
 extern void pmecc_build_gf(uint32_t mm, int32_t *index_of, int32_t *alpha_to);
 
-extern void pmecc_disable(void);
-
-extern void pmecc_wait_ready(void);
-
 #endif /* CONFIG_HAVE_PMECC */
 
-#endif /* PMECC_H */
-
+#endif /* SMC_PMECC_H */
