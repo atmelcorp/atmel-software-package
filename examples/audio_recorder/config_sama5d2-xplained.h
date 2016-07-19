@@ -39,11 +39,11 @@ static struct _audio_desc audio_record_device = {
 				.dsp_hpfbyp = PDMIC_DSP_HIGH_PASS_FILTER_ON,
 				.dsp_sinbyp = PDMIC_DSP_SINCC_PASS_FILTER_ON,
 				/* while shift = 0 offset = 0
-				 * dgain = 1 scale = 0, gain = 0(dB)
+				 * dgain = 100 scale = 0, gain = 40(dB)
 				 */
 				.dsp_shift = 0,
 				.dsp_offset = 0,
-				.dsp_dgain = 1,
+				.dsp_dgain = 100,
 				.dsp_scale = 0,
 			},
 		},
