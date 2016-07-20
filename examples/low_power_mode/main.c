@@ -461,8 +461,8 @@ static void menu_ulp0(void)
 	_configure_buttons();
 	pmc_enable_peripheral(ID_AIC);
 
-	/* config a led for indicator to capture wake-up time*/
-	board_cfg_leds();
+	/* config a led for indicator to capture wake-up time */
+	board_cfg_led();
 
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
@@ -503,8 +503,8 @@ static void menu_ulp1(void)
 	/* Disable the USB transceivers and all peripheral clocks */
 	board_save_misc_power();
 
-	/* config a led for indicator to capture wake-up time*/
-	board_cfg_leds();
+	/* config a led for indicator to capture wake-up time */
+	board_cfg_led();
 
 	/* ultra low power mode 1, RC12 is selected for Main Clock */
 	/* Disable the PLLs and the main oscillator */
@@ -563,8 +563,8 @@ static void menu_ulp(void)
 	/* Disable the USB transceivers and all peripheral clocks */
 	board_save_misc_power();
 
-	/* config a led for indicator to capture wake-up time*/
-	board_cfg_leds(0);
+	/* config a led for indicator to capture wake-up time */
+	board_cfg_led();
 
 	/* ultra low power mode 1, RC12 is selected for Main Clock */
 	/* Disable the PLLs and the main oscillator */
@@ -609,9 +609,9 @@ static void menu_idle(void)
 	printf("Configure button with debouncing.\n\r");
 	_configure_buttons();
 
-	/* config a led for indicator to capture wake-up time*/
+	/* config a led for indicator to capture wake-up time */
 	printf("Configure led for wakeup indicator.\n\r");
-	board_cfg_leds();
+	board_cfg_led();
 
 	printf("=========== Enter Idle mode ===========\n\r");
 	/* config PCK and MCK */
