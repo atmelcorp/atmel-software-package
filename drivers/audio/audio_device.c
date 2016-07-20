@@ -40,8 +40,6 @@
 #include "peripherals/pmc.h"
 
 #include "peripherals/dma.h"
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
 #include "audio_device.h"
 
 #include <stdbool.h>
@@ -95,12 +93,6 @@ static void _configure_ssc(struct _audio_desc *desc)
 		break;
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 	case AUDIO_CODEC_WM8904:
-		/* Configure TWI pins */
-		pio_configure(desc->device.ssc.codec->codec_twid_pin,
-		              desc->device.ssc.codec->codec_twid_pin_size);
-
-		/* Initialize codec */
-		twid_configure(&desc->device.ssc.codec->wm8904.twi.twid);
 		wm8904_configure(&desc->device.ssc.codec->wm8904);
 		break;
 #endif

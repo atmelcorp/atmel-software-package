@@ -73,8 +73,7 @@
  * \section References
  * - ssc_dma_audio/main.c
  * - ssc.c
- * - twi.c
- * - twid.c
+ * - wm8904.c
  * - dma.c
  * - xdmad.c
  * - dmacd.c
@@ -105,11 +104,11 @@
 #include "peripherals/pit.h"
 #include "peripherals/dma.h"
 #include "peripherals/ssc.h"
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
 #include "peripherals/pmc.h"
 
 #include "audio/wm8904.h"
+
+#include "trace.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -147,7 +146,7 @@
  *----------------------------------------------------------------------------*/
 
 /* Audio buffer */
-CACHE_ALIGNED_DDR uint16_t audio_buffer[AUDIO_BUFFER_LEN];
+static CACHE_ALIGNED_DDR uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
 /* Global DMA driver for all transfer */
 
@@ -284,7 +283,6 @@ extern int main( void )
 	console_example_info("SSC DMA Audio Example");
 
 	/* Configure all pins */
-	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
 
 	/* Configure SSC */
 	ssc_configure(&ssc_dev_desc);
@@ -293,9 +291,6 @@ extern int main( void )
 
 	/* Configure DMA */
 	dma_configure();
-
-	/* Configure and enable the TWI (required for accessing the DAC) */
-	twid_configure(&wm8904.twi.twid);
 
 	/* Initialize the audio DAC */
 	wm8904_configure(&wm8904);
@@ -323,7 +318,7 @@ extern int main( void )
 			}
 		} else if (key == 'm') {
 			wm8904_volume_mute(&wm8904, true, true);
-		} else if(key == 'u') {
+		} else if (key == 'u') {
 			wm8904_volume_mute(&wm8904, false, false);
 		}
 	};

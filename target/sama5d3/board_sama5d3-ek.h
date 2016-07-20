@@ -217,20 +217,27 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== TWI bus definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI0
+#define BOARD_TWI_BUS0_FREQ 400000
+#define BOARD_TWI_BUS0_PINS PINS_TWI0
+
+#define BOARD_TWI_BUS1      TWI1
+#define BOARD_TWI_BUS1_FREQ 400000
+#define BOARD_TWI_BUS1_PINS PINS_TWI1
+
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_ADDR ((Twi*)TWI1)
-#define BOARD_ISI_TWI_PINS PINS_TWI1
+#define BOARD_ISI_TWI_BUS  1
 #define BOARD_ISI_PINS     PINS_ISI
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_PINS       PINS_TWI0;
-#define BOARD_AT24_ADDR       TWI0
-#define BOARD_AT24_FREQ       400000
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_DESC    {"AT24MAC402", 0xFF, 16}
 
 /* =================== AT25 device definition =================== */
 
@@ -250,9 +257,7 @@
 
 /* ================== WM8904 definition ====================== */
 
-#define BOARD_WM8904_PINS         PINS_TWI0
-#define BOARD_WM8904_ADDR         TWI0
-#define BOARD_WM8904_FREQ         400000
+#define BOARD_WM8904_TWI_BUS      0
 #define BOARD_WM8904_SLAVE_ADDR   0x1a
 #define BOARD_WM8904_INPUT_PATH   (WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R)
 #define BOARD_WM8904_MCLK_PCK     0

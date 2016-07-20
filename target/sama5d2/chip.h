@@ -264,6 +264,9 @@
 /** TWI FIFO depth */
 #define TWI_FIFO_DEPTH (16u)
 
+/** TWI Interface max */
+#define TWI_IFACE_COUNT (7)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 

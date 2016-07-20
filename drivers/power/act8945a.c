@@ -36,7 +36,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/flexcom.h"
-#include "peripherals/twi.h"
+#include "bus/twi-bus.h"
 #include "peripherals/twid.h"
 
 #include "power/act8945a.h"
@@ -284,12 +284,17 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_
 		},
 	};
 
-	act8945a->twid->slave_addr = act8945a->addr;
+	while (twi_bus_transaction_pending(act8945a->bus));
+	twi_bus_start_transaction(act8945a->bus);
 
-	status = twid_transfer(act8945a->twid, buf, 2, NULL, NULL);
-	if (status != TWID_SUCCESS)
+	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 2, NULL, NULL);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(act8945a->bus);
 		return false;
-	twid_wait_transfer(act8945a->twid);
+	}
+
+	twi_bus_wait_transfer(act8945a->bus);
+	twi_bus_stop_transaction(act8945a->bus);
 	return true;
 }
 
@@ -305,12 +310,17 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8
 		}
 	};
 
-	act8945a->twid->slave_addr = act8945a->addr;
+	while (twi_bus_transaction_pending(act8945a->bus));
+	twi_bus_start_transaction(act8945a->bus);
 
-	status = twid_transfer(act8945a->twid, buf, 1, NULL, NULL);
-	if (status != TWID_SUCCESS)
+	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 1, NULL, 0);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(act8945a->bus);
 		return false;
-	twid_wait_transfer(act8945a->twid);
+	}
+
+	twi_bus_wait_transfer(act8945a->bus);
+	twi_bus_stop_transaction(act8945a->bus);
 	return true;
 }
 
@@ -407,12 +417,9 @@ static uint16_t _act8945a_convert_voltage_setting(uint8_t setting)
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-bool act8945a_configure(struct _act8945a *act8945a, struct _twi_desc *twid)
+bool act8945a_configure(struct _act8945a *act8945a)
 {
 	uint8_t data = 0;
-
-	act8945a->twid = twid;
-	twid_configure(twid);
 
 	pio_configure(&act8945a->desc.pin_chglev, 1);
 	pio_configure(&act8945a->desc.pin_irq, 1);

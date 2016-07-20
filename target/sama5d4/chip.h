@@ -212,6 +212,9 @@
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
+/** TWI Interface max */
+#define TWI_IFACE_COUNT (3)
+
 /** AIC redirection unlock key */
 #define AICREDIR_KEY 0x2fb3d881u
 

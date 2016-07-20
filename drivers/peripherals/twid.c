@@ -260,7 +260,7 @@ static void _twid_dma_write_callback(struct dma_channel* channel, void* args)
 	mutex_unlock(&desc->mutex);
 }
 
-static void _twid_dma_write(struct _twi_desc *desc, struct _buffer *buffer)
+static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	uint32_t id = get_twi_id_from_addr(desc->addr);
 
@@ -640,7 +640,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 		else if (buf->size < TWID_POLLING_THRESHOLD)
 			tmode = TWID_MODE_POLLING;
 	}
-	
+
 	if (desc->flags & TWID_BUF_ATTR_START) {
 		if (desc->flags & TWID_BUF_ATTR_WRITE) {
 			twi_init_write(desc->addr, desc->slave_addr, 0, 0);

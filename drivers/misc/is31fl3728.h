@@ -116,8 +116,10 @@ struct _is31fl3728_desc {
 };
 
 struct _is31fl3728 {
-	uint8_t addr;
-	struct _twi_desc *twid;
+	struct {
+		uint8_t bus;
+		uint8_t addr;
+	} twi;
 	struct _is31fl3728_desc desc;
 
 	struct {
@@ -135,12 +137,10 @@ struct _is31fl3728 {
 /**
  * Configure the LED driver
  * @param is31fl3728      Control structure
- * @param twid            TWI descriptor to use to send/receive data from IS31FL3728
- * @param addr            TWI address of the component
  * @param fb              Framebuffer to hold the LED status
  * @return Success
  */
-uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb);
+uint8_t is31fl3728_configure (struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb);
 
 /**
  * Refresh the framebuffer. It updates the IS31FL3728 to drive the LED to the framebuffer state

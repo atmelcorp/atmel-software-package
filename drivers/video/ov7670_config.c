@@ -766,6 +766,7 @@ const sensor_profile_t ov7670_profile =
 	"OV7670",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
+	SENSOR_TWI_BUS,                  /* TWI bus */
 	OV7670_SLAVE_ADDRESS,            /* TWI slave address */
 	OV7670_PIDH_ADDRESS,             /* Register address for product ID high byte */
 	OV7670_PIDL_ADDRESS,             /* Register address for product ID low byte*/

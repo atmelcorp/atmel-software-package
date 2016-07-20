@@ -71,7 +71,7 @@ struct _at24_desc {
 };
 
 struct _at24 {
-	struct _twi_desc* twid;
+	uint8_t bus;
 	struct _at24_desc desc;
 
 	uint8_t addr;
@@ -91,8 +91,8 @@ struct _at24 {
 
 extern uint8_t at24_get_serial_number(struct _at24* at24);
 extern uint8_t at24_get_mac_address(struct _at24* at24);
-extern uint8_t at24_read_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint8_t length);
-extern uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint8_t length);
-extern uint8_t at24_configure(struct _at24* at24, struct _twi_desc* twid);
+extern uint8_t at24_read_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint16_t length);
+extern uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, const uint8_t* data, uint16_t length);
+extern uint8_t at24_configure(struct _at24* at24);
 
 #endif //#ifndef AT24MAC402_H

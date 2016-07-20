@@ -374,11 +374,12 @@ struct _bmp280_calib_par
 // This structure holds BMP280 initialization parameters
 struct _bmp280
 {
-	struct _twi_desc* twid;
+	uint8_t bus;                        /**< TWI bus ID*/
+	uint8_t addr;                       /**< device address of the sensor*/
+
 
 	struct _bmp280_calib_par calpar;	/**<calibration data*/
 	uint8_t chip_id;                    /**< chip id of the sensor*/
-	uint8_t dev_addr;                   /**< device address of the sensor*/
 	uint8_t overs_temp;                 /**< temperature over sampling*/
 	uint8_t overs_pres;                 /**< pressure over sampling*/
 	void(*delay_msec)(uint16_t);        /**< delay function pointer*/

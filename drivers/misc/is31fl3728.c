@@ -41,8 +41,8 @@
 #include "chip.h"
 
 #include "peripherals/pio.h"
-#include "peripherals/twi.h"
 #include "peripherals/twid.h"
+#include "bus/twi-bus.h"
 
 #include "timer.h"
 
@@ -64,7 +64,7 @@
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _is31fl3728_write_reg(struct _is31fl3728 *is31fl3728, uint8_t iaddr, uint8_t data)
+static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
 {
 	uint8_t tmp[2] = { iaddr, data };
 	struct _buffer buf[1] = {
@@ -75,11 +75,19 @@ static void _is31fl3728_write_reg(struct _is31fl3728 *is31fl3728, uint8_t iaddr,
 		},
 	};
 
-	is31fl3728->twid->slave_addr = is31fl3728->addr;
+	while (twi_bus_transaction_pending(is31fl3728->twi.bus));
+	twi_bus_start_transaction(act8865a->bus);
 
-	twid_transfer(is31fl3728->twid, buf, 1, NULL, NULL);
-	twid_wait_transfer(is31fl3728->twid);
+	status = twi_bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL, NULL);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(is31fl3728->twi.bus);
+		return false;
+	}
+
+	twi_bus_wait_transfer(is31fl3728->twi.bus);
+	twi_bus_stop_transaction(is31fl3728->twi.bus);
 }
+	
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -116,14 +124,12 @@ void is31fl3728_refresh(struct _is31fl3728 *is31fl3728)
 	_is31fl3728_write_reg(is31fl3728, IS31FL3728_REG_UPDATE_COLUMN, 0xFF);
 }
 
-
-uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb)
+uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb)
 {
 	uint8_t status = TWID_SUCCESS;
 
-	is31fl3728->twid = twid;
 	is31fl3728->addr = addr;
-	twid_configure(is31fl3728->twid);
+
 	is31fl3728->fb = fb;
 
 	_is31fl3728_write_reg(is31fl3728, IS31FL3728_REG_CONFIGURATION, is31fl3728->settings.config);

@@ -43,7 +43,7 @@
 
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twi.h"
+#include "bus/twi-bus.h"
 #include "peripherals/twid.h"
 
 #include <stdio.h>
@@ -62,7 +62,7 @@ CACHE_ALIGNED static uint8_t at24_buffer[16];
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static void at24_callback(struct _twi_desc* twi, void* arg)
+static void at24_callback(void* arg)
 {
 	struct _at24 *at24 = (struct _at24 *)arg;
 	
@@ -94,17 +94,28 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
 		},
 	};
-
+	
 	assert(sizeof(at24->serial_number) <= sizeof(at24_buffer));
 
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
 
-	at24->twid->slave_addr = at24->sn_addr;
+	while (twi_bus_transaction_pending(at24->bus));
+	twi_bus_start_transaction(at24->bus);
 
 	// Tell the EEPROM where we would like to read from
-	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
+	status = twi_bus_transfer(at24->bus, at24->sn_addr, buf, 2, at24_callback, (void *)at24);
+	if (status) {
+		mutex_unlock(&at24->mutex);
+		twi_bus_stop_transaction(at24->bus);
+		return status;
+	}
+
+	while (twi_bus_is_busy(at24->bus));
+	twi_bus_stop_transaction(at24->bus);
+
 	while (mutex_is_locked(&at24->mutex));
+
 	memcpy(at24->serial_number, at24_buffer, sizeof(at24->serial_number));
 
 	return status;
@@ -137,14 +148,23 @@ uint8_t at24_get_mac_address(struct _at24* at24)
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
 
-	at24->twid->slave_addr = at24->sn_addr;
+	while (twi_bus_transaction_pending(at24->bus));
+	twi_bus_start_transaction(at24->bus);
 
 	// Tell the EEPROM where we would like to read from
-	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
-	if (status)
+	status = twi_bus_transfer(at24->bus, at24->sn_addr, buf, 2, at24_callback, (void *)at24); // Location of the serial number
+	if (status) {
 		mutex_unlock(&at24->mutex);
+		twi_bus_stop_transaction(at24->bus);
+		return status;
+	}
+	while (twi_bus_is_busy(at24->bus));
+	twi_bus_stop_transaction(at24->bus);
+
 	while (mutex_is_locked(&at24->mutex));
+
 	memcpy(at24->mac_addr_48, at24_buffer, sizeof(at24->mac_addr_48));
+
 
 	return status;
 }
@@ -156,8 +176,7 @@ uint8_t at24_get_mac_address(struct _at24* at24)
  * Len: data to be read
  * pDataBuf: a pointer to memory buffer
  */
-uint8_t at24_read_eep(struct _at24* at24, uint8_t addr,
-		      uint8_t* data, uint8_t length)
+uint8_t at24_read_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint16_t length)
 {
 	uint8_t status = TWID_SUCCESS;
 	struct _buffer buf[2] = {
@@ -177,68 +196,86 @@ uint8_t at24_read_eep(struct _at24* at24, uint8_t addr,
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
 
-	at24->twid->slave_addr = at24->addr;
+	while (twi_bus_transaction_pending(at24->bus));
+	twi_bus_start_transaction(at24->bus);
 
-	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
+	// Tell the EEPROM where we would like to read from
+	status = twi_bus_transfer(at24->bus, at24->addr, buf, 2, at24_callback, (void *)at24);
+	if (status) {
+		mutex_unlock(&at24->mutex);
+		twi_bus_stop_transaction(at24->bus);
+		return status;
+	}
+	while (twi_bus_is_busy(at24->bus));
+	twi_bus_stop_transaction(at24->bus);
+
 	while (mutex_is_locked(&at24->mutex));
+
 	return status;
 }
 
 /* Function to write to the AT24MAC402 EEPROM
  *
  * BitA0ToA2: the 3-bit address assigned to the EEPROM (using the A0 A1 A2 pins)
- * add: add to the data
- * Len: data to be read
- * pDataBuf: a pointer to data to write in EEP
+ * addr: offset of data in the EEPROM
+ * length: Length of data to be read
+ * data: a pointer to data to write in EEP
  */
-uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint8_t length)
+uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, const uint8_t* data, uint16_t length)
 {
 	uint8_t status = TWID_SUCCESS;
 	uint8_t page_size = at24->desc.page_size;
 	struct _buffer buf[2] = {
 		{
+			/* .data = addr; */
 			.size = 1,
 			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
 		},
 		{
+			/* .data = data; */
+			/* .size = write_size, */
 			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 		},
 	};
-
+	
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
 
-	at24->twid->slave_addr = at24->addr;
-	
+	while (twi_bus_transaction_pending(at24->bus));
+	twi_bus_start_transaction(at24->bus);
+
 	while (length) {
 		/* Compute number of bytes to program in page */
 		uint8_t write_size;
 		write_size = min_u32(length, page_size - (addr % page_size));
 		buf[0].data = &addr;
-		buf[1].data = data;
+		buf[1].data = (uint8_t *)data;
 		buf[1].size = write_size;
-		status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
+		status = twi_bus_transfer(at24->bus, at24->addr, buf, 2, at24_callback, (void *)at24);
 		if (status != TWID_SUCCESS) {
+			twi_bus_stop_transaction(at24->bus);
 			mutex_unlock(&at24->mutex);
 			return status;
 		}
-		while (mutex_is_locked(&at24->mutex));
+		while (twi_bus_is_busy(at24->bus));
 		length -= write_size;
 		addr += write_size;
 		data += write_size;
 		timer_sleep(10); /* Wait at least 10 ms */
 	};
+
+	twi_bus_stop_transaction(at24->bus);
+
+	while (mutex_is_locked(&at24->mutex));
+
 	return status;
 }
 
 /* Function to configuer the twi AT24MAC402 EEPROM
  * Return status always SUCCES
  */
-uint8_t at24_configure(struct _at24* at24, struct _twi_desc* twid)
+uint8_t at24_configure(struct _at24* at24)
 {
-	uint8_t status = TWID_SUCCESS;
-	at24->twid = twid;
-	twid_configure(twid);
 	at24->mutex = 0;
-	return status;
+	return TWID_SUCCESS;
 }

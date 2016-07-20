@@ -43,7 +43,7 @@
 #include "misc/bmp280.h"
 #include "peripherals/pio.h"
 #include "peripherals/twid.h"
-#include "peripherals/twi.h"
+#include "bus/twi-bus.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -75,10 +75,17 @@ static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buff
 		},
 	};
 
-	status = twid_transfer(bmp280->twid, buf, 2, NULL, NULL);
-	twid_wait_transfer(bmp280->twid);
+	while (twi_bus_transaction_pending(bmp280->bus));
+	twi_bus_start_transaction(bmp280->bus);
 
-	return status;
+	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL, NULL);
+	if (status) {
+		twi_bus_stop_transaction(bmp280->bus);
+		return status;
+	}
+	twi_bus_stop_transaction(bmp280->bus);
+
+	return TWID_SUCCESS;
 }
 
 static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_t* buffer, uint32_t len)
@@ -87,7 +94,7 @@ static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
-			.size = 1,
+			.size = len,
 			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
 		},
 		{
@@ -97,10 +104,18 @@ static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_
 		},
 	};
 
-	status = twid_transfer(bmp280->twid, buf, 2, NULL, NULL);
-	twid_wait_transfer(bmp280->twid);
+	while (twi_bus_transaction_pending(bmp280->bus));
+	twi_bus_start_transaction(bmp280->bus);
 
-	return status;
+	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL, NULL);
+	if (status) {
+		twi_bus_stop_transaction(bmp280->bus);
+		return status;
+	}
+	while (twi_bus_is_busy(bmp280->bus));
+	twi_bus_stop_transaction(bmp280->bus);
+
+	return TWID_SUCCESS;
 }
 
 /*------------------------------------------------------------------------------
@@ -125,9 +140,8 @@ uint8_t bmp280_write_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pda
 	/* check the bmp280 struct pointer as NULL*/
 	if (bmp280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
-	else {
+	else
 		com_rslt = _bmp280_write(bmp280, addr, pdata, len);
-	}
 	return com_rslt;
 }
 
@@ -149,9 +163,8 @@ uint8_t bmp280_read_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdat
 	/* check the bmp280 struct pointer as NULL*/
 	if (bmp280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
-	else {
+	else
 		com_rslt = _bmp280_read(bmp280, addr, pdata, len);
-	}
 	return com_rslt;
 }
 

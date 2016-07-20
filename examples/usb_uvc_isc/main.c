@@ -118,7 +118,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 
 #include "video/image_sensor_inf.h"
 
@@ -140,9 +139,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** TWI clock frequency in Hz. */
-#define TWCK 400000
-
 #define NUM_FRAME_BUFFER     4
 
 /*----------------------------------------------------------------------------
@@ -155,18 +151,8 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** PIO pins to configured for ISC */
-const struct _pin pins_twi[] = BOARD_ISC_TWI_PINS;
-
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
-
-/** TWI driver instance.*/
-static struct _twi_desc twid = {
-	.addr = BOARD_ISC_TWI_ADDR,
-	.freq = TWCK,
-	.transfer_mode = TWID_MODE_POLLING
-};
 
 static volatile bool capture_started = false;
 
@@ -202,19 +188,6 @@ static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
-/**
- * \brief TWI initialization.
- */
-static void configure_twi(void)
-{
-	/* Configure TWI pins. */
-	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
-	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISC_TWI_ADDR));
-	/* Configure TWI */
-	twid_configure(&twid);
-}
 
 /**
  * \brief Set up DMA Descriptors.
@@ -300,7 +273,7 @@ static void start_preview(void)
 	sensor_output_format_t sensor_mode = YUV_422;
 
 	/* Re-configure sensor with giving resolution */
-	if (sensor_setup(&twid, sensor_profiles[sensor_idx], image_resolution, sensor_mode) != SENSOR_OK) {
+	if (sensor_setup(sensor_profiles[sensor_idx], image_resolution, sensor_mode) != SENSOR_OK) {
 		printf("-E- Sensor setup failed.");
 		while (1);
 	}
@@ -355,9 +328,6 @@ extern int main( void )
 
 	/* Output example information */
 	console_example_info("USB UVC ISC Example");
-
-	/* TWI Initialize */
-	configure_twi();
 
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)

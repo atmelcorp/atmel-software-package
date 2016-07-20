@@ -68,6 +68,9 @@ WEAK void board_init(void)
 	/* DMAC Driver init */
 	dmacd_initialize(false);
 
+	/* Configure TWI bus */
+	board_cfg_twi_bus();
+	
 	/* Configure PMIC */
 	board_cfg_pmic();
 

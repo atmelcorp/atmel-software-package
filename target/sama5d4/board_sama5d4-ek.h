@@ -199,12 +199,16 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* ================== TWI bus definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI0
+#define BOARD_TWI_BUS0_FREQ 400000
+#define BOARD_TWI_BUS0_PINS PINS_TWI0
+
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_PINS       PINS_TWI0;
-#define BOARD_AT24_ADDR       TWI0
-#define BOARD_AT24_FREQ       400000
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_TWI_BUS  0
+#define BOARD_AT24_DESC     {"AT24MAC402", 0xFF, 16}
 
 /* =================== GMAC/PHY definition =================== */
 
@@ -252,17 +256,14 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_ADDR ((Twi*)TWI0)
-#define BOARD_ISI_TWI_PINS PINS_TWI0
+#define BOARD_ISI_TWI_BUS  0
 #define BOARD_ISI_PINS     PINS_ISI
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* ================== ACT8865 PMIC definition ====================== */
 
-#define BOARD_ACT8865_PINS     PINS_TWI0
-#define BOARD_ACT8865_ADDR     TWI0
-#define BOARD_ACT8865_FREQ     400000
+#define BOARD_ACT8865_TWI_BUS  0
 #define BOARD_ACT8865_TWI_ADDR 0x5b
 #define BOARD_ACT8865_PIN_IRQ  { PIO_GROUP_E, PIO_PE0, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 
@@ -272,9 +273,7 @@
 
 /* ================== WM8904 definition ====================== */
 
-#define BOARD_WM8904_PINS         PINS_TWI0
-#define BOARD_WM8904_ADDR         TWI0
-#define BOARD_WM8904_FREQ         400000
+#define BOARD_WM8904_TWI_BUS      0
 #define BOARD_WM8904_SLAVE_ADDR   0x1a
 #define BOARD_WM8904_INPUT_PATH   (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN1R)
 #define BOARD_WM8904_MCLK_PCK     2

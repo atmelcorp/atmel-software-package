@@ -34,8 +34,8 @@
  *
  */
 
-#ifndef BOARD_MEMORIES_H
-#define BOARD_MEMORIES_H
+#ifndef BOARD_SUPPORT_H
+#define BOARD_SUPPORT_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -46,7 +46,6 @@
 /*----------------------------------------------------------------------------
  *        Functions
  *----------------------------------------------------------------------------*/
-
 /* \brief Return a string containing the board name
  * \return the board name
  */
@@ -162,8 +161,13 @@ void board_cfg_pdmic(void);
 #endif
 
 /**
+ * \brief Configures TWIx bus for the board
+ */
+void board_cfg_twi_bus(void);
+
+/**
  * \brief Configures the board.
  */
 extern void board_init(void);
 
-#endif  /* BOARD_MEMORIES_H */
+#endif  /* BOARD_SUPPORT_H */

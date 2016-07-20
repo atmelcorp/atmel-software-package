@@ -30,10 +30,11 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "chip.h"
 
 #include "video/image_sensor_inf.h"
-#include "peripherals/twi.h"
+#include "bus/twi-bus.h"
 #include "peripherals/twid.h"
 
 #include <stdbool.h>
@@ -41,8 +42,9 @@
  
 #include "timer.h"
 #include "trace.h"
+
 /*----------------------------------------------------------------------------
- *        Local variable
+ *        Local variables
  *----------------------------------------------------------------------------*/
 
 static const sensor_profile_t *sensor;
@@ -50,23 +52,31 @@ static const sensor_profile_t *sensor;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
 /**
  * \brief Read value from a register in an dedicated sensor device.
- * \param twid TWI interface
+ * \param bus  TWI bus
+ * \param addr Sensor TWI addr
  * \param reg Register to be read
  * \param data Data read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg, uint8_t *data)
+static sensor_status_t sensor_twi_read_reg(uint8_t bus, uint8_t addr, uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
 	uint8_t reg8[2];
 	struct _buffer buf[2] = {
-		{ .attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP },
-		{ .attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP },
+		{
+			/* .data */
+			/* .size */
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
+		{
+			/* .data */
+			/* .size */
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+		},
 	};
-
-	twid->slave_addr = sensor->twi_slave_addr;
 
 	reg8[0] = reg >> 8;
 	reg8[1] = reg & 0xff;
@@ -91,27 +101,35 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 		buf[1].data = data;
 		buf[1].size = 2;
 		break;
+
 	default:
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, buf, 2, NULL, NULL);
-	while (twid_is_busy(twid));
+	while (twi_bus_transaction_pending(bus));
+	twi_bus_start_transaction(bus);
 
-	if (status)
+	status = twi_bus_transfer(bus, addr, buf, 2, NULL, 0);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;
+	}
+
+	twi_bus_wait_transfer(bus);
+	twi_bus_stop_transaction(bus);
 
 	return SENSOR_OK;
 }
 
 /**
  * \brief  Write a value to a register in an dedicated sensor device.
- * \param twid TWI interface
+ * \param bus  TWI bus
+ * \param addr Sensor TWI addr
  * \param reg Register to be written
  * \param data Data written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg, uint8_t *data)
+static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
 	struct _buffer buf[2] = {
@@ -126,8 +144,6 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg
 			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 		},
 	};
-
-	twid->slave_addr = sensor->twi_slave_addr;
 
 	switch (sensor->twi_inf_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
@@ -149,25 +165,32 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, buf, 2, NULL, NULL);
-	while (twid_is_busy(twid));
+	while (twi_bus_transaction_pending(bus));
+	twi_bus_start_transaction(bus);
 
-	if (status)
+	status = twi_bus_transfer(bus, addr, buf, 2, NULL, 0);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;
+	}
+
+	twi_bus_wait_transfer(bus);
+	twi_bus_stop_transaction(bus);
 
 	return SENSOR_OK;
 }
 
 /**
  * \brief Read and check sensor product ID.
- * \param twid TWI interface
+ * \param bus  TWI bus
+ * \param addr Sensor TWI addr
  * \param reg_h Register address for product ID high byte.
  * \param reg_l Register address for product ID low byte.
  * \param pid Product ID to be compared.
  * \param ver_mask version mask.
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_check_pid(struct _twi_desc *twid,
+static sensor_status_t sensor_check_pid(const sensor_profile_t *sensor_profile,
 						uint16_t reg_h,
 						uint16_t reg_l,
 						uint16_t pid,
@@ -177,16 +200,16 @@ static sensor_status_t sensor_check_pid(struct _twi_desc *twid,
 	uint32_t pid_high = 0;
 	uint32_t pid_low = 0;
 
-	if (sensor_twi_read_reg(twid, reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
+	if (sensor_twi_read_reg(sensor_profile->bus, sensor_profile->addr,
+	                        reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
 	pid_high &= 0xff;
-
-	if (sensor_twi_read_reg(twid, reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
+	if (sensor_twi_read_reg(sensor_profile->bus, sensor_profile->addr,
+	                        reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
 	pid_low &= 0xff;
 	
-	trace_debug_wp("SENSOR PID = <%x, %x>\n\r",
-	               (unsigned)pid_high, (unsigned)pid_low);
+	trace_debug_wp("SENSOR PID = <%x, %x>\n\r", (unsigned)pid_high, (unsigned)pid_low);
 	
 	if ((pid & ver_mask) == (((pid_high << 8) | pid_low) & ver_mask))
 		return SENSOR_OK;
@@ -194,68 +217,42 @@ static sensor_status_t sensor_check_pid(struct _twi_desc *twid,
 		return SENSOR_ID_ERROR;
 }
 
+/**
+ * \brief  Initialize a list of registers.
+ * The list of registers is terminated by the pair of values
+ * \param sensor_profile   Sensor private profile
+ * \param reglist Register list to be written
+ * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
+ */
+static sensor_status_t sensor_twi_write_regs(const sensor_profile_t *sensor_profile, const sensor_reg_t *reglist)
+{
+	sensor_status_t status;
+	const sensor_reg_t *next = reglist;
+
+	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
+		status = sensor_twi_write_reg(sensor_profile->bus, sensor_profile->addr,
+		                              next->reg, (uint8_t *)(&next->val));
+		timer_wait(2);
+		if (status)
+			return SENSOR_TWI_ERROR;
+		next++;
+	}
+
+	return SENSOR_OK;
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief  Initialize a list of registers.
- * The list of registers is terminated by the pair of values
- * \param twid TWI interface
- * \param reglist Register list to be written
- * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
- */
-sensor_status_t sensor_twi_write_regs(struct _twi_desc *twid, const sensor_reg_t *reglist)
-{
-	sensor_status_t status;
-	const sensor_reg_t *next = reglist;
-
-	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
-		status = sensor_twi_write_reg( twid, next->reg, (uint8_t *)(&next->val));
-		timer_wait(10);
-		if (status)
-			return SENSOR_TWI_ERROR;
-		next++;
-	}
-	return SENSOR_OK;
-}
-
-/**
- * \brief  read list of registers.
- * The list of registers is terminated by the pair of values
- * \param twid TWI interface
- * \param reglist Register list to be read
- * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
- */
-sensor_status_t sensor_twi_read_regs(struct _twi_desc *twid, const sensor_reg_t *reglist)
-{
-	sensor_status_t status;
-	const sensor_reg_t *next = reglist;
-	uint8_t val;
-	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
-		status = sensor_twi_read_reg( twid, next->reg, (uint8_t *)&val);
-		timer_wait(10);
-		if (status)
-			return SENSOR_TWI_ERROR;
-		next++;
-	}
-	return SENSOR_OK;
-}
-
-/**
- * \brief Load and configure sensor setting with giving profile.
- * \param sensor_profile pointer to a profile instance.
- * \param resolution resolution request
- * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
- */
-sensor_status_t sensor_setup(struct _twi_desc* twid,
-				const sensor_profile_t *sensor_profile,
+sensor_status_t sensor_setup(const sensor_profile_t *sensor_profile,
 				sensor_output_resolution_t resolution,
 				sensor_output_format_t format)
 {
 	uint8_t i;
 	uint8_t found = 0;
 	sensor_status_t status = SENSOR_OK;
+
 	for (i = 0; i < SENSOR_SUPPORTED_OUTPUTS; i++) {
 		if (sensor_profile->output_conf[i]->supported){
 			if (sensor_profile->output_conf[i]->output_resolution == resolution) {
@@ -270,14 +267,13 @@ sensor_status_t sensor_setup(struct _twi_desc* twid,
 		return SENSOR_RESOLUTION_NOT_SUPPORTED;
 	sensor = sensor_profile;
 
-	status = sensor_check_pid(twid, sensor->pid_high_reg, sensor->pid_low_reg,
+	status = sensor_check_pid(sensor_profile, sensor->pid_high_reg, sensor->pid_low_reg,
 	                          (sensor->pid_high) << 8 | sensor->pid_low, sensor->version_mask);
 	if (status != SENSOR_OK)
 		return SENSOR_ID_ERROR;
 	else 
-		return sensor_twi_write_regs(twid, sensor->output_conf[i]->output_setting);
+		return sensor_twi_write_regs(sensor_profile, sensor->output_conf[i]->output_setting);
 }
-
 
 /**
  * \brief Retrieves sensor output bit width and size for giving resolution and format.

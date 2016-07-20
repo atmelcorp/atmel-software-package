@@ -33,9 +33,10 @@
 
 #include "chip.h"
 
+#include "bus/twi-bus.h"
+
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twi.h"
 #include "peripherals/twid.h"
 
 #include "power/act8865.h"
@@ -68,12 +69,17 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* 
 		},
 	};
 
-	act8865->twid->slave_addr = act8865->addr;
+	while (twi_bus_transaction_pending(act8865->bus));
+	twi_bus_start_transaction(act8865->bus);
 
-	status = twid_transfer(act8865->twid, buf, 2, NULL, NULL);
-	if (status != TWID_SUCCESS)
+	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 2, NULL, NULL);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(act8865->bus);
 		return false;
-	twid_wait_transfer(act8865->twid);
+	}
+
+	twi_bus_wait_transfer(act8865->bus);
+	twi_bus_stop_transaction(act8865->bus);
 	return true;
 }
 
@@ -89,12 +95,17 @@ static bool _act8865_write_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t 
 		}
 	};
 
-	act8865->twid->slave_addr = act8865->addr;
+	while (twi_bus_transaction_pending(act8865->bus));
+	twi_bus_start_transaction(act8865->bus);
 
-	status = twid_transfer(act8865->twid, buf, 1, NULL, NULL);
-	if (status != TWID_SUCCESS)
+	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 1, NULL, 0);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(act8865->bus);
 		return false;
-	twid_wait_transfer(act8865->twid);
+	}
+
+	twi_bus_wait_transfer(act8865->bus);
+	twi_bus_stop_transaction(act8865->bus);
 	return true;
 }
 

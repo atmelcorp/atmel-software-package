@@ -71,8 +71,6 @@
  *
  * \section References
  * - lcdc.c
- * - twi.c
- * - twid.c
  * - isi.c
  */
 
@@ -94,8 +92,6 @@
 #include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
-#include "peripherals/twi.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -157,21 +153,11 @@ static const sensor_profile_t *sensor_profiles[6] = {
 	&ov9740_profile
 };
 
-/** PIO pins to configured. */
-const struct _pin pins_twi[] = BOARD_ISI_TWI_PINS;
-
 /* ISI frame buffer descriptors */
 
 CACHE_ALIGNED struct _isi_dma_desc preview_path_desc[ISI_MAX_NUM_PREVIEW_BUFFER + 1];
 
 CACHE_ALIGNED struct _isi_dma_desc codec_path_desc[ISI_MAX_NUM_PREVIEW_BUFFER + 1];
-
-/** TWI driver instance.*/
-static struct _twi_desc twid = {
-	.addr = BOARD_ISI_TWI_ADDR,
-	.freq = TWCK,
-	.transfer_mode = TWID_MODE_POLLING
-};
 
 /** LCD buffer.*/
 static uint8_t *pOvr1Buffer = (uint8_t*)LCD_PREVIEW_BASE_ADDRESS;
@@ -191,19 +177,6 @@ static struct _isi_yuv2rgb y2r = { 0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC };
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
-/**
- * \brief TWI initialization.
- */
-static void configure_twi(void)
-{
-	/* Configure TWI pins. */
-	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
-	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISI_TWI_ADDR));
-	/* Configure TWI */
-	twid_configure(&twid);
-}
 
 /**
  * \brief Set up Frame Buffer Descriptors(FBD) for preview path.
@@ -316,9 +289,6 @@ extern int main( void )
 	/* Configure LCD */
 	configure_lcd();
 
-	/* TWI Initialize */
-	configure_twi();
-
 	printf("Image Sensor Selection:\n\r");
 	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
 		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
@@ -327,7 +297,7 @@ extern int main( void )
 			ARRAY_SIZE(sensor_profiles));
 		key = console_get_char();
 		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
-			if (sensor_setup(&twid, sensor_profiles[key - '1'], VGA, YUV_422) != SENSOR_OK){
+			if (sensor_setup(sensor_profiles[key - '1'], VGA, YUV_422) != SENSOR_OK){
 				printf("-E- Sensor setup failed.");
 				while (1);
 			} else {

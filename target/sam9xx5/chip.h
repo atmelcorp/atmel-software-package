@@ -178,6 +178,9 @@
 /** Number of sets of L1 data cache */
 #define L1_CACHE_SETS       (128)
 
+/** TWI Interface max */
+#define TWI_IFACE_COUNT (3)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 

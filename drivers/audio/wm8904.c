@@ -40,6 +40,7 @@
 
 #include "trace.h"
 #include "audio/wm8904.h"
+#include "bus/twi-bus.h"
 #include "peripherals/twid.h"
 #include "peripherals/pmc.h"
 
@@ -237,13 +238,13 @@ static const struct _wm8904_para wm8904_access_main[] = {
 /**
  * \brief Read data from WM8904 Register.
  *
- * \param twid   Pointer to twi driver structure
- * \param device  Twi slave address.
+ * \param wm8904   Descriptor of WM8904
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
 static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 {
+	uint16_t status;
 	uint8_t temp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
@@ -258,24 +259,30 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 		},
 	};
 
-	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
+	while (twi_bus_transaction_pending(wm8904->twi.bus));
+	twi_bus_start_transaction(wm8904->twi.bus);
 
-	twid_transfer(&wm8904->twi.twid, buf, 2, NULL, NULL);
-	twid_wait_transfer(&wm8904->twi.twid);
+	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL, NULL);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(wm8904->twi.bus);
+		return status;
+	}
+
+	twi_bus_wait_transfer(wm8904->twi.bus);
+	twi_bus_stop_transaction(wm8904->twi.bus);
 
 	return (temp_data[0] << 8) | temp_data[1];
 }
 
 /**
  * \brief  Write data to WM8904 Register.
- *
- * \param twid   Pointer to twi driver structure
- * \param device  Twi slave address.
+ * \param wm8904   Descriptor of WM8904
  * \param reg_addr Register address to read.
  * \param data    Data to write
  */
 static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
 {
+	uint32_t status = TWID_SUCCESS;
 	uint8_t tmp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
@@ -290,12 +297,20 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
 		},
 	};
 
-	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
-
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
-	twid_transfer(&wm8904->twi.twid, buf, 2, NULL, NULL);
-	while (twid_is_busy(&wm8904->twi.twid));
+
+	while (twi_bus_transaction_pending(wm8904->twi.bus));
+	twi_bus_start_transaction(wm8904->twi.bus);
+
+	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL, NULL);
+	if (status != TWID_SUCCESS) {
+		twi_bus_stop_transaction(wm8904->twi.bus);
+		return;
+	}
+
+	twi_bus_wait_transfer(wm8904->twi.bus);
+	twi_bus_stop_transaction(wm8904->twi.bus);
 }
 
 /*----------------------------------------------------------------------------
@@ -416,7 +431,6 @@ void wm8904_volume_mute(struct _wm8904_desc *wm8904, bool left, bool right)
 		/** R58 (0x3a) Analogue OUT1 Right Unmute */
 		wm8904_write(wm8904, 0x3a, WM8904_HPOUT_VU | right_val);
 	}
-
 }
 
 bool wm8904_detect(struct _wm8904_desc *wm8904)

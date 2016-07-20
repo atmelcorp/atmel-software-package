@@ -61,7 +61,7 @@
 
 struct _wm8904_desc {
 	struct {
-		struct _twi_desc twid; /* TWI descriptor */
+		uint8_t bus;           /* TWI bus */
 		uint8_t addr;          /* TWI address of the WM8904 */
 	} twi;
 

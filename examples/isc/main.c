@@ -95,8 +95,6 @@
 #include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
-#include "peripherals/twi.h"
 #include "peripherals/xdmad.h"
 
 #include "misc/cache.h"
@@ -177,19 +175,9 @@ static const sensor_profile_t *sensor_profiles[6] = {
 	&ov9740_profile
 };
 
-/** PIO pins to configured. */
-const struct _pin pins_twi[] = BOARD_ISC_TWI_PINS;
-
 CACHE_ALIGNED struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 CACHE_ALIGNED struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
-
-/** TWI driver instance.*/
-static struct _twi_desc twid = {
-	.addr = BOARD_ISC_TWI_ADDR,
-	.freq = TWCK,
-	.transfer_mode = TWID_MODE_POLLING
-};
 
 static awb_status_t awb_status_machine;
 
@@ -363,19 +351,6 @@ static void isc_handler(void)
 
 	if ((status & ISC_INTSR_LDONE) == ISC_INTSR_LDONE) {
 	}
-}
-
-/**
- * \brief TWI initialization.
- */
-static void configure_twi(void)
-{
-	/* Configure TWI pins. */
-	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
-	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISC_TWI_ADDR));
-	/* Configure TWI */
-	twid_configure(&twid);
 }
 
 /**
@@ -825,9 +800,6 @@ extern int main(void)
 	/* Output example information */
 	console_example_info("ISC Example");
 
-	/* TWI Initialize */
-	configure_twi();
-
 	/* Allocate a XDMA channel. */
 	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
 
@@ -868,9 +840,8 @@ restart_sensor:
 		}
 	}
 
-	if (sensor_setup(&twid, sensor_profiles[sensor_idx], QVGA, sensor_mode) != SENSOR_OK){
-		printf("-E- Sensor setup failed.");
-		while (1);
+	if (sensor_setup(sensor_profiles[sensor_idx], QVGA, sensor_mode) != SENSOR_OK){
+		trace_fatal("-E- Sensor setup failed.");
 	}
 
 	/* Retrieve sensor output format and size */

@@ -33,21 +33,14 @@
 #include "audio/audio_device.h"
 #include "audio/wm8904.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
-
-/** List of pins to configure. */
-static struct _pin  pins_twi[] = BOARD_WM8904_PINS;
+#include "board.h"
 
 static struct codec_desc wm8904_codec = {
 	/* codec control interface */
 	.type = AUDIO_CODEC_WM8904,
 	.wm8904 = {
 		.twi = {
-			.twid = {
-				.addr = BOARD_WM8904_ADDR,
-				.freq = BOARD_WM8904_FREQ,
-				.transfer_mode = TWID_MODE_POLLING
-			},
+			.bus = BOARD_WM8904_TWI_BUS,
 			.addr = BOARD_WM8904_SLAVE_ADDR,
 		},
 		.input_path = BOARD_WM8904_INPUT_PATH,
@@ -55,8 +48,6 @@ static struct codec_desc wm8904_codec = {
 		.mclk_pck_src = BOARD_WM8904_MCLK_PCK_SRC,
 		.mclk_pin = BOARD_WM8904_MCLK_PIN,
 	},
-	.codec_twid_pin = pins_twi,
-	.codec_twid_pin_size = ARRAY_SIZE(pins_twi),
 };
 
 /** Audio device instance*/

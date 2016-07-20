@@ -156,19 +156,27 @@
 /** Push button index. */
 #define PUSHBUTTON_BP1 0
 
+/* ================== TWI bus definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI4
+#define BOARD_TWI_BUS0_FREQ 400000
+#define BOARD_TWI_BUS0_PINS PINS_FLEXCOM4_TWI_IOS3
+
+#define BOARD_TWI_BUS1      ((Twi*)TWIHS1)
+#define BOARD_TWI_BUS1_FREQ 400000
+#define BOARD_TWI_BUS1_PINS PINS_TWI1_IOS2
+
 /* ================== ACT8945A PMIC definition ====================== */
 
-#define BOARD_ACT8945A_PINS PINS_FLEXCOM4_TWI_IOS3
-#define BOARD_ACT8945A_ADDR TWI4
-#define BOARD_ACT8945A_FREQ 400000
-#define BOARD_ACT8945A_TWI_ADDR 0x5b
+#define BOARD_ACT8945A_TWI_BUS    0
+#define BOARD_ACT8945A_TWI_ADDR   0x5b
 #define BOARD_ACT8945A_PIN_CHGLEV { PIO_GROUP_A, PIO_PA12, PIO_OUTPUT_0, PIO_PULLUP }
-#define BOARD_ACT8945A_PIN_IRQ { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#define BOARD_ACT8945A_PIN_IRQ    { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 #ifndef CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO
-#define BOARD_ACT8945A_PIN_LBO { PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#define BOARD_ACT8945A_PIN_LBO    { PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 #else
 /* on prototype board, ACT8945A_LBO shares a pin with ACT8945A_IRQ */
-#define BOARD_ACT8945A_PIN_LBO { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#define BOARD_ACT8945A_PIN_LBO    { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 #endif
 
 /* ================== PIN USB definition ======================= */
@@ -201,8 +209,7 @@
 
 /* =================== PIN ISC definition ======================= */
 
-#define BOARD_ISC_TWI_ADDR ((Twi*)TWIHS1)
-#define BOARD_ISC_TWI_PINS PINS_TWI1_IOS2
+#define BOARD_ISC_TWI_BUS  1
 #define BOARD_ISC_PINS     PINS_ISC_IOS3
 #define BOARD_ISC_PIN_RST  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISC_PIN_PWD  { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -249,10 +256,8 @@
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_PINS       PINS_TWI1_IOS2;
-#define BOARD_AT24_ADDR       ((Twi*)TWIHS1)
-#define BOARD_AT24_FREQ       400000
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_TWI_BUS        1
+#define BOARD_AT24_DESC           {"AT24MAC402", 0xFF, 16}
 #define BOARD_AT24_EEP_ADDR       (0x50 | 0x4)
 #define BOARD_AT24_SN_ADDR        (0x58 | 0x4)
 #define BOARD_AT24_SN_OFFSET      0x80        // 0x80-0x8F

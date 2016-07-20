@@ -113,7 +113,6 @@
 #include "peripherals/aic.h"
 #include "peripherals/rtc.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 #include "peripherals/l2cc.h"
@@ -122,6 +121,7 @@
 #include "peripherals/sfrbu.h"
 #endif
 #include "peripherals/mpddrc.h"
+#include "bus/twi-bus.h"
 
 #include "misc/led.h"
 
@@ -705,6 +705,9 @@ void board_init(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+
+	/* Configure TWI bus */
+	board_cfg_twi_bus();
 
 	/* Configure PMIC */
 	board_cfg_pmic();

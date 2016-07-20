@@ -50,6 +50,8 @@
 #include "peripherals/smc.h"
 #include "peripherals/wdt.h"
 
+#include "bus/twi-bus.h"
+
 #include "memories/ddram.h"
 
 #include "misc/cache.h"
@@ -67,14 +69,8 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-struct _twi_desc act8865_twid = {
-	.addr = BOARD_ACT8865_ADDR,
-	.freq = BOARD_ACT8865_FREQ,
-	.transfer_mode = TWID_MODE_POLLING
-};
-
 struct _act8865 pmic = {
-	.twid = &act8865_twid,
+	.bus = BOARD_ACT8865_TWI_BUS,
 	.addr = BOARD_ACT8865_TWI_ADDR,
 };
 #endif
@@ -504,12 +500,6 @@ void board_cfg_nor_flash(void)
 void board_cfg_pmic(void)
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-	struct _pin act8865_pins[] = BOARD_ACT8865_PINS;
-
-	/* configure and enable the PMIC TWI */
-	pio_configure(act8865_pins, ARRAY_SIZE(act8865_pins));
-	twid_configure(pmic.twid);
-
 	/* check PMIC chip presence */
 	if (act8865_check_twi_status(&pmic)) {
 #if defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
@@ -687,3 +677,22 @@ void board_cfg_ssc(void)
 #endif
 }
 #endif /* CONFIG_HAVE_SSC */
+
+void board_cfg_twi_bus(void)
+{
+#ifdef BOARD_TWI_BUS0
+	const struct _pin pins_twi_bus0[] = BOARD_TWI_BUS0_PINS;
+	pio_configure(pins_twi_bus0, ARRAY_SIZE(pins_twi_bus0));
+	twi_bus_configure(0, BOARD_TWI_BUS0, BOARD_TWI_BUS0_FREQ, TWID_MODE_POLLING);
+#endif
+#ifdef BOARD_TWI_BUS1
+	const struct _pin pins_twi_bus1[] = BOARD_TWI_BUS1_PINS;
+	pio_configure(pins_twi_bus1, ARRAY_SIZE(pins_twi_bus1));
+	twi_bus_configure(1, BOARD_TWI_BUS1, BOARD_TWI_BUS1_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS2
+	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
+	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
+	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, TWID_MODE_DMA);
+#endif
+}

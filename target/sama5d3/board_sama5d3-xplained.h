@@ -129,13 +129,6 @@
 #define BOARD_USB_BMATTRIBUTES \
 	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
-/* =================== AT24 device definition =================== */
-
-#define BOARD_AT24_PINS       PINS_TWI0;
-#define BOARD_AT24_ADDR       TWI0
-#define BOARD_AT24_FREQ       400000
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
-
 /* =================== AT25 device definition =================== */
 
 #define AT25_PINS     PINS_SPI0_NPCS0
@@ -147,7 +140,6 @@
 #define AT25_DLYBS    0
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
-
 
 /* =================== HSMCI device definition ==================== */
 
@@ -221,10 +213,24 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== TWI bus definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI0
+#define BOARD_TWI_BUS0_FREQ 400000
+#define BOARD_TWI_BUS0_PINS PINS_TWI0
+
+#define BOARD_TWI_BUS1      TWI1
+#define BOARD_TWI_BUS1_FREQ 400000
+#define BOARD_TWI_BUS1_PINS PINS_TWI1
+
+/* =================== AT24 device definition =================== */
+
+#define BOARD_AT24_TWI_BUS    0
+#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+
 /* ================== ACT8865 PMIC definition ====================== */
 
-#define BOARD_ACT8865_PINS     PINS_TWI1
-#define BOARD_ACT8865_ADDR     TWI1
+#define BOARD_ACT8865_TWI_BUS  1
 #define BOARD_ACT8865_FREQ     400000
 #define BOARD_ACT8865_TWI_ADDR 0x5b
 #define BOARD_ACT8865_PIN_IRQ { PIO_GROUP_C, PIO_PC31, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }

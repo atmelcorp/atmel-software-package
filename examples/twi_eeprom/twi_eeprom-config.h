@@ -29,10 +29,6 @@
 #ifndef TWI_EEPROM_CONFIG
 #define TWI_EEPROM_CONFIG
 
-#include "peripherals/twid.h"
-#include "memories/at24.h"
-
-
 /** Slave address of the device on TWI bus. */
 #define TWI_SLAVE_EEP_ADDR 0x53
 /** TWI slave serial memory pages (example AT24C02)*/

@@ -95,8 +95,11 @@
 #define ACT8865_MODE_FIX_FREQ      0x01
 #define ACT8865_MODE_POWER_SAVING  0x02
 
+/*
+ * ACT8865 Device Slave Address
+ */
 struct _act8865 {
-	struct _twi_desc* twid;
+	uint8_t bus;
 	uint8_t addr; /* Slave address */
 };
 

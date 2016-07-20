@@ -1231,6 +1231,7 @@ const sensor_profile_t ov2643_profile =
 	"OV2643",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_BYTE,   /* TWI interface mode  */
+	SENSOR_TWI_BUS,                  /* TWI bus */
 	OV2643_SLAVE_ADDRESS,            /* TWI slave address */
 	OV2643_PIDH_ADDRESS,             /* Register address for product ID high byte */
 	OV2643_PIDL_ADDRESS,             /* Register address for product ID low byte*/

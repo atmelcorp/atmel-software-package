@@ -111,7 +111,6 @@
 #include "memories/at24.h"
 #include "misc/console.h"
 #include "peripherals/pio.h"
-#include "peripherals/xdmad.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -130,21 +129,14 @@
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 /** if AT24 is available on the board, it will be used to setup the MAC addr */
-static const struct _pin at24_pins[] = BOARD_AT24_PINS;
-
 struct _at24 at24_drv = {
+	.bus = BOARD_AT24_TWI_BUS,
 	.desc = BOARD_AT24_DESC,
 #ifdef BOARD_AT24_SN_ADDR
 	.sn_addr = BOARD_AT24_SN_ADDR,
 	.sn_offset = BOARD_AT24_SN_OFFSET,
 	.eui_offset = BOARD_AT24_EUI48_OFFSET,
 #endif
-};
-
-struct _twi_desc at24_twid = {
-        .addr = BOARD_AT24_ADDR,
-        .freq = BOARD_AT24_FREQ,
-        .transfer_mode = TWID_MODE_DMA
 };
 
 /* The MAC address used for demo */
@@ -242,8 +234,7 @@ int main(void)
 	console_example_info("ETH uIP Hello World Example");
 
 #ifdef BOARD_AT24_SN_ADDR
-	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
-	at24_configure(&at24_drv, &at24_twid);
+	at24_configure(&at24_drv);
 	if (at24_get_mac_address(&at24_drv)) {
 		printf("Failed reading MAC address from AT24 EEPROM");
 	} else

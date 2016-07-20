@@ -131,10 +131,8 @@
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 /** if AT24 is available on the board, it will be used to setup the MAC addr */
-#ifdef BOARD_AT24_PINS
-static const struct _pin at24_pins[] = BOARD_AT24_PINS;
-
 struct _at24 at24_drv = {
+	.bus = BOARD_AT24_TWI_BUS,
 	.desc = BOARD_AT24_DESC,
 #ifdef BOARD_AT24_SN_ADDR
 	.sn_addr = BOARD_AT24_SN_ADDR,
@@ -142,13 +140,6 @@ struct _at24 at24_drv = {
 	.eui_offset = BOARD_AT24_EUI48_OFFSET,
 #endif
 };
-
-struct _twi_desc at24_twid = {
-        .addr = BOARD_AT24_ADDR,
-        .freq = BOARD_AT24_FREQ,
-        .transfer_mode = TWID_MODE_DMA
-};
-#endif
 
 /* The MAC address used for demo */
 static struct uip_eth_addr MacAddress = {{0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54}};
@@ -245,8 +236,7 @@ int main(void)
 	console_example_info("ETH uIP Telnetd Example");
 
 #ifdef BOARD_AT24_SN_ADDR
-	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
-	at24_configure(&at24_drv, &at24_twid);
+	at24_configure(&at24_drv);
 	if (at24_get_mac_address(&at24_drv)) {
 		printf("Failed reading MAC address from AT24 EEPROM");
 	} else

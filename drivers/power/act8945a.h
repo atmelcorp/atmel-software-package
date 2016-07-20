@@ -64,10 +64,10 @@ struct _act8945a_desc {
 };
 
 struct _act8945a {
-	struct _twi_desc* twid;
+	uint8_t bus;
+	uint8_t addr;
 	struct _act8945a_desc desc;
 
-	uint8_t addr;
 	uint8_t sys0;
 	uint8_t apch78;
 	uint8_t apch79;
@@ -79,38 +79,31 @@ struct _act8945a {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern bool act8945a_configure(struct _act8945a *act8945a,
-		struct _twi_desc *twid);
+extern bool act8945a_configure(struct _act8945a *act8945a);
 
-extern void act8945a_set_charge_level(struct _act8945a *act8945a,
-		enum _act8945a_charge_level level);
+extern void act8945a_set_charge_level(struct _act8945a *act8945a, enum _act8945a_charge_level level);
 
 extern bool act8945a_configure_apch_interrupt(struct _act8945a *act8945a,
-		enum _act8945a_interrupt interrupt, bool enable);
+											  enum _act8945a_interrupt interrupt, bool enable);
 
 extern bool act8945a_disable_all_apch_interrupts(struct _act8945a *act8945a);
 
 // Set the Programmable System Voltage Monitor
 // Input: Value in mv from 2300mv to 3800mv
-extern bool act8945a_set_system_voltage_detect_threshold(struct _act8945a *act8945a,
-		uint16_t threshold);
+extern bool act8945a_set_system_voltage_detect_threshold(struct _act8945a *act8945a, uint16_t threshold);
 
 // System Voltage Level Interrupt Mask. SYSLEV interrupt is masked by default,
 // set to 1 to unmask this interrupt.
-extern bool act8945a_enable_system_voltage_level_interrupt(
-		struct _act8945a *act8945a, bool enable);
+extern bool act8945a_enable_system_voltage_level_interrupt(struct _act8945a *act8945a, bool enable);
 
-extern bool act8945a_set_regulator_voltage(struct _act8945a *act8945a,
-		uint8_t reg, uint16_t vout);
+extern bool act8945a_set_regulator_voltage(struct _act8945a *act8945a, uint8_t reg, uint16_t vout);
 
-extern bool act8945a_enable_regulator(struct _act8945a *act8945a,
-		uint8_t reg, bool enable);
+extern bool act8945a_enable_regulator(struct _act8945a *act8945a, uint8_t reg, bool enable);
 
 // Regulator Fault Mask Control.
 // Set bit to 1 enable fault-interrupts, clear bit to 0 to disable fault-interrupts
 // Input: regulator (1-7)
-bool act8945a_enable_regulator_fault_interrupt(struct _act8945a *act8945a,
-		uint8_t reg, bool enable);
+bool act8945a_enable_regulator_fault_interrupt(struct _act8945a *act8945a, uint8_t reg, bool enable);
 
 extern bool act8945a_get_lbo_pin_state(struct _act8945a *act8945a);
 

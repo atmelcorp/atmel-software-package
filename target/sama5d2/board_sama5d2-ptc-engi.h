@@ -124,15 +124,26 @@
 /** Push button index. */
 #define PUSHBUTTON_BP1 0
 
+/* ================== TWI BUS definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI4
+#define BOARD_TWI_BUS0_PINS PINS_FLEXCOM4_TWI_IOS3
+#define BOARD_TWI_BUS0_FREQ 400000
+
+#define BOARD_TWI_BUS1      ((Twi*)TWIHS1)
+#define BOARD_TWI_BUS1_PINS PINS_TWI1_IOS1;
+#define BOARD_TWI_BUS1_FREQ 400000
+
 /* ================== ACT8945A PMIC definition ====================== */
 
-#define BOARD_ACT8945A_PINS PINS_FLEXCOM4_TWI_IOS3
-#define BOARD_ACT8945A_ADDR TWI4
-#define BOARD_ACT8945A_FREQ 400000
-#define BOARD_ACT8945A_TWI_ADDR 0x5b
-#define BOARD_ACT8945A_PIN_CHGLEV { PIO_GROUP_A, PIO_PA22, PIO_OUTPUT_0, PIO_PULLUP }
-#define BOARD_ACT8945A_PIN_IRQ { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
-#define BOARD_ACT8945A_PIN_LBO { PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP }
+#define BOARD_ACT8945A_TWI_BUS     0
+#define BOARD_ACT8945A_TWI_ADDR    0x5b
+#define BOARD_ACT8945A_PINS        PINS_FLEXCOM4_TWI_IOS3
+#define BOARD_ACT8945A_ADDR        TWI4
+#define BOARD_ACT8945A_FREQ        400000
+#define BOARD_ACT8945A_PIN_CHGLEV  { PIO_GROUP_A, PIO_PA22, PIO_OUTPUT_0, PIO_PULLUP }
+#define BOARD_ACT8945A_PIN_IRQ     { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#define BOARD_ACT8945A_PIN_LBO     { PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP }
 
 /* ================== PIN USB definition ======================= */
 
@@ -165,9 +176,7 @@
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_PINS       PINS_TWI1_IOS1;
-#define BOARD_AT24_ADDR       ((Twi*)TWIHS1)
-#define BOARD_AT24_FREQ       400000
+#define BOARD_AT24_TWI_BUS    0
 #define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
 
 /* =================== GMAC/PHY definition =================== */

@@ -37,10 +37,12 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include "board.h"
 
 /*---------------------------------------------------------------------------
- *         Definition
+ *         Definitions
  *---------------------------------------------------------------------------*/
+
 #define SENSOR_SUPPORTED_OUTPUTS 7
 
 /** terminating list entry for register in configuration file */
@@ -48,11 +50,18 @@
 /** terminating list entry for value in configuration file */
 #define SENSOR_VAL_TERM         0xFF
 
+/** TWI BUS definition */
+#if defined(BOARD_ISC_TWI_BUS)
+#define SENSOR_TWI_BUS BOARD_ISC_TWI_BUS
+#elif defined(BOARD_ISI_TWI_BUS)
+#define SENSOR_TWI_BUS BOARD_ISI_TWI_BUS
+#else
+#error Unknown bus!
+#endif
+
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
-
-struct _twi_desc;
 
 /** Sensor type */
 typedef enum _sensor_type {
@@ -126,7 +135,8 @@ typedef struct _sensor_profile {
 	const char* name;             /** Sensor name */
 	sensor_type_t cmos_ccd;       /** Sensor type for CMOS sensor or CCD */
 	sensor_twi_mode_t twi_inf_mode; /** TWI interface mode  */
-	uint32_t twi_slave_addr;      /** TWI slave address */
+	uint8_t  bus;                 /** TWI bus */
+	uint8_t  addr;                /** TWI slave address */
 	uint16_t pid_high_reg;        /** Register address for product ID high byte */
 	uint16_t pid_low_reg;         /** Register address for product ID low byte*/
 	uint16_t pid_high;            /** product ID high byte */
@@ -150,22 +160,20 @@ extern const sensor_profile_t ov9740_profile;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-extern sensor_status_t sensor_twi_write_regs(struct _twi_desc *p_twid,
-						const sensor_reg_t *p_reglist);
-
-extern sensor_status_t sensor_twi_read_regs(struct _twi_desc *p_twid,
-						const sensor_reg_t *p_reglist);
-
-extern sensor_status_t sensor_setup(struct _twi_desc *p_twid,
-						const sensor_profile_t *sensor_profile,
-						sensor_output_resolution_t resolution,
-						sensor_output_format_t format);
+/**
+ * \brief Load and configure sensor setting with giving profile.
+ * \param sensor_profile pointer to a profile instance.
+ * \param resolution resolution request
+ * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
+ */
+extern sensor_status_t sensor_setup(const sensor_profile_t *sensor_profile,
+                                    sensor_output_resolution_t resolution,
+                                    sensor_output_format_t format);
 
 extern sensor_status_t sensor_get_output(sensor_output_resolution_t resolution,
-						sensor_output_format_t format,
-						sensor_output_bit_t *bits,
-						uint32_t *width,
-						uint32_t *height);
+                                         sensor_output_format_t format,
+                                         sensor_output_bit_t *bits,
+                                         uint32_t *width, uint32_t *height);
 
 #endif /* CONFIG_HAVE_IMAGE_SENSOR */
 

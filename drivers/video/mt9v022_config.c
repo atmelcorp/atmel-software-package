@@ -229,6 +229,7 @@ const sensor_profile_t mt9v022_profile = {
 	"MT9V022",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_BYTE_DATA_2BYTE,  /* TWI interface mode  */
+	SENSOR_TWI_BUS,                  /* TWI bus */
 	MT9V022_SLAVE_ADDRESS,           /* TWI slave address */
 	MT9V022_PIDH_ADDRESS,            /* Register address for product ID high byte */
 	MT9V022_PIDL_ADDRESS,            /* Register address for product ID low byte*/

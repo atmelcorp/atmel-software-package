@@ -72,10 +72,6 @@ struct codec_desc {
 		struct _wm8904_desc wm8904;
 #endif
 	};
-
-	/* codec TWI control interface */
-	struct _pin* codec_twid_pin;
-	uint32_t codec_twid_pin_size;
 };
 
 enum audio_device_type {

@@ -64,6 +64,7 @@
 
 #include "board_support.h"
 
+#include "bus/twi-bus.h"
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 #include "peripherals/twid.h"
 #include "power/act8945a.h"
@@ -110,13 +111,8 @@ static const char* board_name = BOARD_NAME;
 ALIGNED(16384) static uint32_t tlb[4096];
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-static struct _twi_desc act8945a_twid = {
-	.addr = BOARD_ACT8945A_ADDR,
-	.freq = BOARD_ACT8945A_FREQ,
-	.transfer_mode = TWID_MODE_POLLING,
-};
-
 static struct _act8945a act8945a = {
+	.bus = BOARD_ACT8945A_TWI_BUS,
 	.addr = BOARD_ACT8945A_TWI_ADDR,
 	.desc = {
 		.pin_chglev = BOARD_ACT8945A_PIN_CHGLEV,
@@ -131,7 +127,6 @@ static bool act8945a_initialized = false;
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-
 const char* get_board_name(void)
 {
 	return board_name;
@@ -717,14 +712,10 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 void board_cfg_pmic(void)
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	const struct _pin pins[] = BOARD_ACT8945A_PINS;
-
 	if (act8945a_initialized)
 		return;
 
-	pio_configure(pins, ARRAY_SIZE(pins));
-
-	if (!act8945a_configure(&act8945a, &act8945a_twid))
+	if (!act8945a_configure(&act8945a))
 		goto Fail;
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED) || defined(CONFIG_BOARD_SAMA5D2_PTC_ENGI)
 	/* Set PMIC output 6 to 2.5V (VDD_LED) */
@@ -819,3 +810,42 @@ void board_cfg_classd(void)
 	pio_configure(pins_classd, ARRAY_SIZE(pins_classd));
 }
 #endif
+
+void board_cfg_twi_bus(void)
+{
+#ifdef BOARD_TWI_BUS0
+	const struct _pin pins_twi_bus0[] = BOARD_TWI_BUS0_PINS;
+	pio_configure(pins_twi_bus0, ARRAY_SIZE(pins_twi_bus0));
+	twi_bus_configure(0, BOARD_TWI_BUS0, BOARD_TWI_BUS0_FREQ, TWID_MODE_POLLING);
+#endif
+#ifdef BOARD_TWI_BUS1
+	const struct _pin pins_twi_bus1[] = BOARD_TWI_BUS1_PINS;
+	pio_configure(pins_twi_bus1, ARRAY_SIZE(pins_twi_bus1));
+	twi_bus_configure(1, BOARD_TWI_BUS1, BOARD_TWI_BUS1_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS2
+	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
+	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
+	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS3
+	const struct _pin pins_twi_bus3[] = BOARD_TWI_BUS3_PINS;
+	pio_configure(pins_twi_bus3, ARRAY_SIZE(pins_twi_bus3));
+	twi_bus_configure(3, BOARD_TWI_BUS3, BOARD_TWI_BUS3_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS4
+	const struct _pin pins_twi_bus4[] = BOARD_TWI_BUS4_PINS;
+	pio_configure(pins_twi_bus4, ARRAY_SIZE(pins_twi_bus4));
+	twi_bus_configure(4, BOARD_TWI_BUS4, BOARD_TWI_BUS4_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS5
+	const struct _pin pins_twi_bus5[] = BOARD_TWI_BUS5_PINS;
+	pio_configure(pins_twi_bus5, ARRAY_SIZE(pins_twi_bus2));
+	twi_bus_configure(5, BOARD_TWI_BUS5, BOARD_TWI_BUS5_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS6
+	const struct _pin pins_twi_bus6[] = BOARD_TWI_BUS6_PINS;
+	pio_configure(pins_twi_bus6, ARRAY_SIZE(pins_twi_bus6));
+	twi_bus_configure(6, BOARD_TWI_BUS6, BOARD_TWI_BUS6_FREQ, TWID_MODE_DMA);
+#endif
+}

@@ -30,17 +30,15 @@
 #ifndef __CONFIG_SAMA5D4_EK_H__
 #define __CONFIG_SAMA5D4_EK_H__
 
+#include "audio/audio_device.h"
 #include "audio/wm8904.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
+#include "board.h"
 
 /** Wav feature. */
 #define SAMPLE_RATE             (48000)
 #define SLOT_BY_FRAME           (1)
 #define BITS_BY_SLOT            (16)
-
-/** List of pins to configure. */
-static const struct _pin pins_twi[] = BOARD_WM8904_PINS;
 
 /** SSC instance*/
 static struct _ssc_desc ssc_dev_desc = {

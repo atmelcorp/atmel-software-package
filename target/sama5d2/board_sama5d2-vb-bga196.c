@@ -59,6 +59,9 @@ WEAK void board_init(void)
 	/* XDMAC Driver init */
 	xdmad_initialize(false);
 
+	/* Configure TWI bus */
+	board_cfg_twi_bus();
+	
 	/* Configure LEDs */
 	board_cfg_led();
 
