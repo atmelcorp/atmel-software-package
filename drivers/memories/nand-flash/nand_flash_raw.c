@@ -620,16 +620,16 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Write data area if needed */
 	switch (pmecc_get_page_size()) {
-		case SMC_PMECCFG_PAGESIZE_PAGESIZE_1SEC:
+		case PMECC_CFG_PAGESIZE_PAGESIZE_1SEC:
 			nb_sectors_per_page = 1;
 			break;
-		case SMC_PMECCFG_PAGESIZE_PAGESIZE_2SEC:
+		case PMECC_CFG_PAGESIZE_PAGESIZE_2SEC:
 			nb_sectors_per_page = 2;
 			break;
-		case SMC_PMECCFG_PAGESIZE_PAGESIZE_4SEC:
+		case PMECC_CFG_PAGESIZE_PAGESIZE_4SEC:
 			nb_sectors_per_page = 4;
 			break;
-		case SMC_PMECCFG_PAGESIZE_PAGESIZE_8SEC:
+		case PMECC_CFG_PAGESIZE_PAGESIZE_8SEC:
 			nb_sectors_per_page = 8;
 			break;
 		default:

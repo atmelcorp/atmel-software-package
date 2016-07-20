@@ -130,7 +130,7 @@ static void gen_syn(uint32_t sector)
 	int16_t *remainer;
 	uint32_t index;
 
-	remainer = (int16_t*)&SMC->SMC_REM[sector];
+	remainer = (int16_t*)&PMECC->PMECC_REM[sector];
 	for (index = 0; index < pmecc_desc.tt; index++) {
 		/* Fill odd syndromes */
 		pmecc_desc.partial_syn[1 + (2 * index)] = remainer[index];
@@ -343,10 +343,10 @@ static int32_t error_location (uint32_t sector_size_in_bits)
 	uint32_t nbr_of_roots;
 
 	/* Disable PMECC Error Location IP */
-	SMC->SMC_ELDIS |= 0xFFFFFFFF;
+	PMERRLOC->PMERRLOC_DIS |= 0xFFFFFFFF;
 	error_number = 0;
 
-	sigma = SMC->SMC_SIGMA;
+	sigma = PMERRLOC->PMERRLOC_SIGMA;
 
 	for (alphax = 0; alphax <= (uint32_t)(pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1); alphax++) {
 		*sigma++ = pmecc_desc.smu[pmecc_desc.tt + 1][alphax];
@@ -354,12 +354,12 @@ static int32_t error_location (uint32_t sector_size_in_bits)
 	}
 
 	/* Enable error location process */
-	SMC->SMC_ELCFG |= ((error_number - 1) << 16);
-	SMC->SMC_ELEN = sector_size_in_bits;
+	PMERRLOC->PMERRLOC_CFG |= ((error_number - 1) << 16);
+	PMERRLOC->PMERRLOC_EN = sector_size_in_bits;
 
-	while ((SMC->SMC_ELISR & SMC_ELISR_DONE) == 0);
+	while ((PMERRLOC->PMERRLOC_ISR & PMERRLOC_ISR_DONE) == 0);
 
-	nbr_of_roots = (SMC->SMC_ELISR & SMC_ELISR_ERR_CNT_Msk) >> 8;
+	nbr_of_roots = (PMERRLOC->PMERRLOC_ISR & PMERRLOC_ISR_ERR_CNT_Msk) >> 8;
 	/* Number of roots == degree of smu hence <= tt */
 	if (nbr_of_roots == (uint32_t)(pmecc_desc.lmu[pmecc_desc.tt + 1] >> 1))
 		return (error_number - 1);
@@ -384,13 +384,13 @@ static uint32_t error_correction(uint32_t sector_base_address, uint32_t extra_by
 	uint32_t ecc_size;
 	uint32_t ecc_end_addr;
 
-	error_pos = SMC->SMC_ERRLOC;
+	error_pos = PMERRLOC->PMERRLOC_EL;
 
-	sector_size = 512 * (((SMC->SMC_PMECCFG & SMC_PMECCFG_SECTORSZ) >> 4) + 1);
+	sector_size = 512 * (((PMECC->PMECC_CFG & PMECC_CFG_SECTORSZ) >> 4) + 1);
 
 	/* Get number of ECC bytes */
-	ecc_end_addr = SMC->SMC_PMECCEADDR;
-	ecc_size = (ecc_end_addr - SMC->SMC_PMECCSADDR) + 1;
+	ecc_end_addr = PMECC->PMECC_EADDR;
+	ecc_size = (ecc_end_addr - PMECC->PMECC_SADDR) + 1;
 
 	while (error_nbr) {
 		byte_pos = (*error_pos - 1) / 8;
@@ -401,7 +401,7 @@ static uint32_t error_correction(uint32_t sector_base_address, uint32_t extra_by
 			uint8_t *data_ptr = NULL;
 
 			/* If the error position is before ECC area */
-			if ( byte_pos < sector_size + SMC->SMC_PMECCSADDR) {
+			if ( byte_pos < sector_size + PMECC->PMECC_SADDR) {
 				data_ptr = (uint8_t*)(sector_base_address + byte_pos);
 			} else {
 				data_ptr = (uint8_t*)(sector_base_address + byte_pos + ecc_size);
@@ -428,25 +428,25 @@ static uint32_t error_correction(uint32_t sector_base_address, uint32_t extra_by
 static void _pmecc_configure(void)
 {
 	/* Disable ECC module */
-	SMC->SMC_PMECCTRL |= SMC_PMECCTRL_DISABLE;
+	PMECC->PMECC_CTRL |= PMECC_CTRL_DISABLE;
 
 	/* Reset the ECC module */
-	SMC->SMC_PMECCTRL = SMC_PMECCTRL_RST;
-	SMC->SMC_PMECCFG = pmecc_desc.err_bit_nbr_capability |
+	PMECC->PMECC_CTRL = PMECC_CTRL_RST;
+	PMECC->PMECC_CFG = pmecc_desc.err_bit_nbr_capability |
 		pmecc_desc.sector_size |
 		pmecc_desc.page_size |
 		pmecc_desc.nand_wr |
 		pmecc_desc.spare_ena |
 		pmecc_desc.mode_auto;
-	SMC->SMC_PMECCSAREA = pmecc_desc.spare_size - 1;
-	SMC->SMC_PMECCSADDR = pmecc_desc.ecc_start_address;
-	SMC->SMC_PMECCEADDR = pmecc_desc.ecc_end_address - 1;
+	PMECC->PMECC_SAREA = pmecc_desc.spare_size - 1;
+	PMECC->PMECC_SADDR = pmecc_desc.ecc_start_address;
+	PMECC->PMECC_EADDR = pmecc_desc.ecc_end_address - 1;
 
 	/* Disable all interrupts */
-	SMC->SMC_PMECCIDR = 0xFF;
+	PMECC->PMECC_IDR = 0xFF;
 
 	/* Enable ECC module */
-	SMC->SMC_PMECCTRL |= SMC_PMECCTRL_ENABLE;
+	PMECC->PMECC_CTRL |= PMECC_CTRL_ENABLE;
 }
 
 
@@ -581,7 +581,7 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 
 	/* 1024 bytes per sector */
 	case 1:
-		pmecc_desc.sector_size = SMC_PMECCFG_SECTORSZ;
+		pmecc_desc.sector_size = PMECC_CFG_SECTORSZ;
 		nb_sectors_per_page = page_data_size / 1024;
 		pmecc_desc.mm = 14;
 		pmecc_get_gf_1024_tables(&pmecc_desc.alpha_to, &pmecc_desc.index_of);
@@ -590,19 +590,19 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 
 	switch (nb_sectors_per_page) {
 	case 1:
-		pmecc_desc.page_size = SMC_PMECCFG_PAGESIZE_PAGESIZE_1SEC;
+		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_1SEC;
 		break;
 	case 2:
-		pmecc_desc.page_size = SMC_PMECCFG_PAGESIZE_PAGESIZE_2SEC;
+		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_2SEC;
 		break;
 	case 4:
-		pmecc_desc.page_size = SMC_PMECCFG_PAGESIZE_PAGESIZE_4SEC;
+		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_4SEC;
 		break;
 	case 8:
-		pmecc_desc.page_size = SMC_PMECCFG_PAGESIZE_PAGESIZE_8SEC;
+		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_8SEC;
 		break;
 	default :
-		pmecc_desc.page_size = SMC_PMECCFG_PAGESIZE_PAGESIZE_1SEC;
+		pmecc_desc.page_size = PMECC_CFG_PAGESIZE_PAGESIZE_1SEC;
 		break;
 	}
 
@@ -611,22 +611,22 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 	/* Coded value of ECC bit number correction (0 (2 bits), 1 (4 bits), 2 (8 bits), 3 (12 bits), 4 (24 bits), 5 (NU)) */
 	switch (ecc_errors_per_sector) {
 	case 2:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR2;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR2;
 		break;
 	case 4:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR4;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR4;
 		break;
 	case 8:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR8;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR8;
 		break;
 	case 12:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR12;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR12;
 		break;
 	case 24:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR24;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR24;
 		break;
 	default:
-		pmecc_desc.err_bit_nbr_capability = SMC_PMECCFG_BCH_ERR_BCH_ERR2;
+		pmecc_desc.err_bit_nbr_capability = PMECC_CFG_BCH_ERR_BCH_ERR2;
 		ecc_errors_per_sector = 2;
 		break;
 	}
@@ -652,7 +652,7 @@ uint8_t pmecc_initialize(uint8_t sector_size , uint8_t ecc_errors_per_sector,
 	//pmecc_desc.nand_wr = PMECC_CFG_NANDWR;  /* NAND write access */
 	pmecc_desc.nand_wr = 0;  /* NAND Read access */
 	if (spare_protected) {
-		pmecc_desc.spare_ena = SMC_PMECCFG_SPAREEN;
+		pmecc_desc.spare_ena = PMECC_CFG_SPAREEN;
 	} else {
 		pmecc_desc.spare_ena = 0;
 	}
@@ -715,9 +715,9 @@ uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer)
 	volatile int32_t error_nbr;
 
 	/* Set the sector size (512 or 1024 bytes) */
-	SMC->SMC_ELCFG = pmecc_desc.sector_size >> 4;
+	PMERRLOC->PMERRLOC_CFG = pmecc_desc.sector_size >> 4;
 
-	while (sector_number < (uint32_t)((1 << ((SMC->SMC_PMECCFG & SMC_PMECCFG_PAGESIZE_Msk) >> 8)))) {
+	while (sector_number < (uint32_t)((1 << ((PMECC->PMECC_CFG & PMECC_CFG_PAGESIZE_Msk) >> 8)))) {
 		if (pmecc_status & 0x1) {
 			sector_base_address = page_buffer + (sector_number * ((pmecc_desc.sector_size >> 4) + 1) * 512);
 			gen_syn(sector_number);
@@ -743,5 +743,5 @@ uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer)
 void pmecc_disable(void)
 {
 	/* Disable ECC module */
-	SMC->SMC_PMECCTRL |= SMC_PMECCTRL_DISABLE;
+	PMECC->PMECC_CTRL |= PMECC_CTRL_DISABLE;
 }

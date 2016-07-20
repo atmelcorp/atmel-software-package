@@ -67,9 +67,12 @@ extern "C" {
 #include "component/component_lcdc.h"
 #include "component/component_matrix.h"
 #include "component/component_mpddrc.h"
+#include "component/component_nfc.h"
 #include "component/component_pio.h"
 #include "component/component_pit.h"
 #include "component/component_pmc.h"
+#include "component/component_pmecc.h"
+#include "component/component_pmerrloc.h"
 #include "component/component_pwm.h"
 #include "component/component_rstc.h"
 #include "component/component_rtc.h"
@@ -100,69 +103,72 @@ extern "C" {
 /** \addtogroup SAMA5D44_base Peripheral Base Address Definitions */
 /*@{*/
 
-#define VDEC    ((Vdec    *)0x00300000U) /**< \brief (VDEC   ) Base Address */
-#define AXIMX   ((Aximx   *)0x00700000U) /**< \brief (AXIMX  ) Base Address */
-#define SMD     ((Smd     *)0x00900000U) /**< \brief (SMD    ) Base Address */
-#define L2CC    ((L2cc    *)0x00A00000U) /**< \brief (L2CC   ) Base Address */
-#define LCDC    ((Lcdc    *)0xF0000000U) /**< \brief (LCDC   ) Base Address */
-#define XDMAC1  ((Xdmac   *)0xF0004000U) /**< \brief (XDMAC1 ) Base Address */
-#define ISI     ((Isi     *)0xF0008000U) /**< \brief (ISI    ) Base Address */
-#define MPDDRC  ((Mpddrc  *)0xF0010000U) /**< \brief (MPDDRC ) Base Address */
-#define XDMAC0  ((Xdmac   *)0xF0014000U) /**< \brief (XDMAC0 ) Base Address */
-#define PMC     ((Pmc     *)0xF0018000U) /**< \brief (PMC    ) Base Address */
-#define MATRIX0 ((Matrix  *)0xF001C000U) /**< \brief (MATRIX0) Base Address */
-#define AESB    ((Aesb    *)0xF0020000U) /**< \brief (AESB   ) Base Address */
-#define HSMCI0  ((Hsmci   *)0xF8000000U) /**< \brief (HSMCI0 ) Base Address */
-#define UART0   ((Uart    *)0xF8004000U) /**< \brief (UART0  ) Base Address */
-#define SSC0    ((Ssc     *)0xF8008000U) /**< \brief (SSC0   ) Base Address */
-#define PWM     ((Pwm     *)0xF800C000U) /**< \brief (PWM    ) Base Address */
-#define SPI0    ((Spi     *)0xF8010000U) /**< \brief (SPI0   ) Base Address */
-#define TWI0    ((Twi     *)0xF8014000U) /**< \brief (TWI0   ) Base Address */
-#define TWI1    ((Twi     *)0xF8018000U) /**< \brief (TWI1   ) Base Address */
-#define TC0     ((Tc      *)0xF801C000U) /**< \brief (TC0    ) Base Address */
-#define GMAC0   ((Gmac    *)0xF8020000U) /**< \brief (GMAC0  ) Base Address */
-#define TWI2    ((Twi     *)0xF8024000U) /**< \brief (TWI2   ) Base Address */
-#define SFR     ((Sfr     *)0xF8028000U) /**< \brief (SFR    ) Base Address */
-#define USART0  ((Usart   *)0xF802C000U) /**< \brief (USART0 ) Base Address */
-#define USART1  ((Usart   *)0xF8030000U) /**< \brief (USART1 ) Base Address */
-#define HSMCI1  ((Hsmci   *)0xFC000000U) /**< \brief (HSMCI1 ) Base Address */
-#define UART1   ((Uart    *)0xFC004000U) /**< \brief (UART1  ) Base Address */
-#define USART2  ((Usart   *)0xFC008000U) /**< \brief (USART2 ) Base Address */
-#define USART3  ((Usart   *)0xFC00C000U) /**< \brief (USART3 ) Base Address */
-#define USART4  ((Usart   *)0xFC010000U) /**< \brief (USART4 ) Base Address */
-#define SSC1    ((Ssc     *)0xFC014000U) /**< \brief (SSC1   ) Base Address */
-#define SPI1    ((Spi     *)0xFC018000U) /**< \brief (SPI1   ) Base Address */
-#define SPI2    ((Spi     *)0xFC01C000U) /**< \brief (SPI2   ) Base Address */
-#define TC1     ((Tc      *)0xFC020000U) /**< \brief (TC1    ) Base Address */
-#define TC2     ((Tc      *)0xFC024000U) /**< \brief (TC2    ) Base Address */
-#define GMAC1   ((Gmac    *)0xFC028000U) /**< \brief (GMAC1  ) Base Address */
-#define UDPHS   ((Udphs   *)0xFC02C000U) /**< \brief (UDPHS  ) Base Address */
-#define TRNG    ((Trng    *)0xFC030000U) /**< \brief (TRNG   ) Base Address */
-#define ADC     ((Adc     *)0xFC034000U) /**< \brief (ADC    ) Base Address */
-#define TWI3    ((Twi     *)0xFC038000U) /**< \brief (TWI3   ) Base Address */
-#define ICM     ((Icm     *)0xFC040000U) /**< \brief (ICM    ) Base Address */
-#define AES     ((Aes     *)0xFC044000U) /**< \brief (AES    ) Base Address */
-#define TDES    ((Tdes    *)0xFC04C000U) /**< \brief (TDES   ) Base Address */
-#define SHA     ((Sha     *)0xFC050000U) /**< \brief (SHA    ) Base Address */
-#define MATRIX1 ((Matrix  *)0xFC054000U) /**< \brief (MATRIX1) Base Address */
-#define SECURAM ((Securam *)0xFC058000U) /**< \brief (SECURAM) Base Address */
-#define SMC     ((Smc     *)0xFC05C000U) /**< \brief (SMC    ) Base Address */
-#define SFC     ((Sfc     *)0xFC060000U) /**< \brief (SFC    ) Base Address */
-#define PIOD    ((Pio     *)0xFC068000U) /**< \brief (PIOD   ) Base Address */
-#define SECUMOD ((Secumod *)0xFC068200U) /**< \brief (SECUMOD) Base Address */
-#define SAIC    ((Aic     *)0xFC068400U) /**< \brief (SAIC   ) Base Address */
-#define RSTC    ((Rstc    *)0xFC068600U) /**< \brief (RSTC   ) Base Address */
-#define SHDWC   ((Shdwc   *)0xFC068610U) /**< \brief (SHDWC  ) Base Address */
-#define PIT     ((Pit     *)0xFC068630U) /**< \brief (PIT    ) Base Address */
-#define WDT     ((Wdt     *)0xFC068640U) /**< \brief (WDT    ) Base Address */
-#define SCKC    ((Sckc    *)0xFC068650U) /**< \brief (SCKC   ) Base Address */
-#define RTC     ((Rtc     *)0xFC0686B0U) /**< \brief (RTC    ) Base Address */
-#define DBGU    ((Dbgu    *)0xFC069000U) /**< \brief (DBGU   ) Base Address */
-#define PIOA    ((Pio     *)0xFC06A000U) /**< \brief (PIOA   ) Base Address */
-#define PIOB    ((Pio     *)0xFC06B000U) /**< \brief (PIOB   ) Base Address */
-#define PIOC    ((Pio     *)0xFC06C000U) /**< \brief (PIOC   ) Base Address */
-#define PIOE    ((Pio     *)0xFC06D000U) /**< \brief (PIOE   ) Base Address */
-#define AIC     ((Aic     *)0xFC06E000U) /**< \brief (AIC    ) Base Address */
+#define VDEC     ((Vdec     *)0x00300000U) /**< \brief (VDEC    ) Base Address */
+#define AXIMX    ((Aximx    *)0x00700000U) /**< \brief (AXIMX   ) Base Address */
+#define SMD      ((Smd      *)0x00900000U) /**< \brief (SMD     ) Base Address */
+#define L2CC     ((L2cc     *)0x00A00000U) /**< \brief (L2CC    ) Base Address */
+#define LCDC     ((Lcdc     *)0xF0000000U) /**< \brief (LCDC    ) Base Address */
+#define XDMAC1   ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1  ) Base Address */
+#define ISI      ((Isi      *)0xF0008000U) /**< \brief (ISI     ) Base Address */
+#define MPDDRC   ((Mpddrc   *)0xF0010000U) /**< \brief (MPDDRC  ) Base Address */
+#define XDMAC0   ((Xdmac    *)0xF0014000U) /**< \brief (XDMAC0  ) Base Address */
+#define PMC      ((Pmc      *)0xF0018000U) /**< \brief (PMC     ) Base Address */
+#define MATRIX0  ((Matrix   *)0xF001C000U) /**< \brief (MATRIX0 ) Base Address */
+#define AESB     ((Aesb     *)0xF0020000U) /**< \brief (AESB    ) Base Address */
+#define HSMCI0   ((Hsmci    *)0xF8000000U) /**< \brief (HSMCI0  ) Base Address */
+#define UART0    ((Uart     *)0xF8004000U) /**< \brief (UART0   ) Base Address */
+#define SSC0     ((Ssc      *)0xF8008000U) /**< \brief (SSC0    ) Base Address */
+#define PWM      ((Pwm      *)0xF800C000U) /**< \brief (PWM     ) Base Address */
+#define SPI0     ((Spi      *)0xF8010000U) /**< \brief (SPI0    ) Base Address */
+#define TWI0     ((Twi      *)0xF8014000U) /**< \brief (TWI0    ) Base Address */
+#define TWI1     ((Twi      *)0xF8018000U) /**< \brief (TWI1    ) Base Address */
+#define TC0      ((Tc       *)0xF801C000U) /**< \brief (TC0     ) Base Address */
+#define GMAC0    ((Gmac     *)0xF8020000U) /**< \brief (GMAC0   ) Base Address */
+#define TWI2     ((Twi      *)0xF8024000U) /**< \brief (TWI2    ) Base Address */
+#define SFR      ((Sfr      *)0xF8028000U) /**< \brief (SFR     ) Base Address */
+#define USART0   ((Usart    *)0xF802C000U) /**< \brief (USART0  ) Base Address */
+#define USART1   ((Usart    *)0xF8030000U) /**< \brief (USART1  ) Base Address */
+#define HSMCI1   ((Hsmci    *)0xFC000000U) /**< \brief (HSMCI1  ) Base Address */
+#define UART1    ((Uart     *)0xFC004000U) /**< \brief (UART1   ) Base Address */
+#define USART2   ((Usart    *)0xFC008000U) /**< \brief (USART2  ) Base Address */
+#define USART3   ((Usart    *)0xFC00C000U) /**< \brief (USART3  ) Base Address */
+#define USART4   ((Usart    *)0xFC010000U) /**< \brief (USART4  ) Base Address */
+#define SSC1     ((Ssc      *)0xFC014000U) /**< \brief (SSC1    ) Base Address */
+#define SPI1     ((Spi      *)0xFC018000U) /**< \brief (SPI1    ) Base Address */
+#define SPI2     ((Spi      *)0xFC01C000U) /**< \brief (SPI2    ) Base Address */
+#define TC1      ((Tc       *)0xFC020000U) /**< \brief (TC1     ) Base Address */
+#define TC2      ((Tc       *)0xFC024000U) /**< \brief (TC2     ) Base Address */
+#define GMAC1    ((Gmac     *)0xFC028000U) /**< \brief (GMAC1   ) Base Address */
+#define UDPHS    ((Udphs    *)0xFC02C000U) /**< \brief (UDPHS   ) Base Address */
+#define TRNG     ((Trng     *)0xFC030000U) /**< \brief (TRNG    ) Base Address */
+#define ADC      ((Adc      *)0xFC034000U) /**< \brief (ADC     ) Base Address */
+#define TWI3     ((Twi      *)0xFC038000U) /**< \brief (TWI3    ) Base Address */
+#define ICM      ((Icm      *)0xFC040000U) /**< \brief (ICM     ) Base Address */
+#define AES      ((Aes      *)0xFC044000U) /**< \brief (AES     ) Base Address */
+#define TDES     ((Tdes     *)0xFC04C000U) /**< \brief (TDES    ) Base Address */
+#define SHA      ((Sha      *)0xFC050000U) /**< \brief (SHA     ) Base Address */
+#define MATRIX1  ((Matrix   *)0xFC054000U) /**< \brief (MATRIX1 ) Base Address */
+#define SECURAM  ((Securam  *)0xFC058000U) /**< \brief (SECURAM ) Base Address */
+#define NFC      ((Nfc      *)0xFC05C000U) /**< \brief (NFC     ) Base Address */
+#define PMECC    ((Pmecc    *)0xFC05C070U) /**< \brief (PMECC   ) Base Address */
+#define PMERRLOC ((Pmerrloc *)0xFC05C500U) /**< \brief (PMERRLOC) Base Address */
+#define SMC      ((Smc      *)0xFC05C600U) /**< \brief (SMC     ) Base Address */
+#define SFC      ((Sfc      *)0xFC060000U) /**< \brief (SFC     ) Base Address */
+#define PIOD     ((Pio      *)0xFC068000U) /**< \brief (PIOD    ) Base Address */
+#define SECUMOD  ((Secumod  *)0xFC068200U) /**< \brief (SECUMOD ) Base Address */
+#define SAIC     ((Aic      *)0xFC068400U) /**< \brief (SAIC    ) Base Address */
+#define RSTC     ((Rstc     *)0xFC068600U) /**< \brief (RSTC    ) Base Address */
+#define SHDWC    ((Shdwc    *)0xFC068610U) /**< \brief (SHDWC   ) Base Address */
+#define PIT      ((Pit      *)0xFC068630U) /**< \brief (PIT     ) Base Address */
+#define WDT      ((Wdt      *)0xFC068640U) /**< \brief (WDT     ) Base Address */
+#define SCKC     ((Sckc     *)0xFC068650U) /**< \brief (SCKC    ) Base Address */
+#define RTC      ((Rtc      *)0xFC0686B0U) /**< \brief (RTC     ) Base Address */
+#define DBGU     ((Dbgu     *)0xFC069000U) /**< \brief (DBGU    ) Base Address */
+#define PIOA     ((Pio      *)0xFC06A000U) /**< \brief (PIOA    ) Base Address */
+#define PIOB     ((Pio      *)0xFC06B000U) /**< \brief (PIOB    ) Base Address */
+#define PIOC     ((Pio      *)0xFC06C000U) /**< \brief (PIOC    ) Base Address */
+#define PIOE     ((Pio      *)0xFC06D000U) /**< \brief (PIOE    ) Base Address */
+#define AIC      ((Aic      *)0xFC06E000U) /**< \brief (AIC     ) Base Address */
 
 /*@}*/
 

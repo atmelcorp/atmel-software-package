@@ -173,11 +173,11 @@ static bool pmecc_set_header(uint32_t header)
 		return false;
 	}
 	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
-	if (ecc_correction > (ARRAY_SIZE(SMC->SMC_ERRLOC))) {
+	if (ecc_correction > ARRAY_SIZE(PMERRLOC->PMERRLOC_EL)) {
 		trace_error_wp("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
-				ARRAY_SIZE(SMC->SMC_ERRLOC));
+				ARRAY_SIZE(PMERRLOC->PMERRLOC_EL));
 		return false;
 	}
 	if (ecc_correction < nand_onfi_get_ecc_correctability() &&

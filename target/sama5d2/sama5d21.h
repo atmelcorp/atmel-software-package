@@ -70,10 +70,13 @@
 #include "component/component_lcdc.h"
 #include "component/component_matrix.h"
 #include "component/component_mpddrc.h"
+#include "component/component_nfc.h"
 #include "component/component_pdmic.h"
 #include "component/component_pio.h"
 #include "component/component_pit.h"
 #include "component/component_pmc.h"
+#include "component/component_pmecc.h"
+#include "component/component_pmerrloc.h"
 #include "component/component_pwm.h"
 #include "component/component_qspi.h"
 #include "component/component_rstc.h"
@@ -129,7 +132,10 @@
 #define GMAC0    ((Gmac     *)0xF8008000U) /**< \brief (GMAC0   ) Base Address */
 #define TC0      ((Tc       *)0xF800C000U) /**< \brief (TC0     ) Base Address */
 #define TC1      ((Tc       *)0xF8010000U) /**< \brief (TC1     ) Base Address */
-#define SMC      ((Smc      *)0xF8014000U) /**< \brief (SMC     ) Base Address */
+#define NFC      ((Nfc      *)0xF8014000U) /**< \brief (NFC     ) Base Address */
+#define PMECC    ((Pmecc    *)0xF8014070U) /**< \brief (PMECC   ) Base Address */
+#define PMERRLOC ((Pmerrloc *)0xF8014500U) /**< \brief (PMERRLOC) Base Address */
+#define SMC      ((Smc      *)0xF8014700U) /**< \brief (SMC     ) Base Address */
 #define PDMIC    ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC   ) Base Address */
 #define UART0    ((Uart     *)0xF801C000U) /**< \brief (UART0   ) Base Address */
 #define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */

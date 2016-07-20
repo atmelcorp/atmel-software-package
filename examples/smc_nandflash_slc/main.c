@@ -635,9 +635,9 @@ static void _loop_raw(void)
 	ecc_type = ECC_NO;
 	nand_set_ecc_type(ecc_type);
 
-	SMC->SMC_PMECCTRL = SMC_PMECCTRL_RST;
-	SMC->SMC_PMECCTRL = SMC_PMECCTRL_DISABLE;
-	SMC->SMC_PMECCFG = 0;
+	PMECC->PMECC_CTRL = PMECC_CTRL_RST;
+	PMECC->PMECC_CTRL = PMECC_CTRL_DISABLE;
+	PMECC->PMECC_CFG = 0;
 
 	for (;;) {
 		key = console_get_char();
