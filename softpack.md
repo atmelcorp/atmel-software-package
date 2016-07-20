@@ -45,8 +45,6 @@ This release contains the following examples:
 * eth_uip_helloworld: GMAC/EMAC example using UIP stack (UIP helloworld example)
 * eth_uip_telnetd: GMAC/EMAC example using UIP stack (UIP telnetd example)
 * eth_uip_webserver: GMAC/EMAC example using UIP stack (UIP webserver example)
-* hsmc_nandflash_mlc: Example of NAND Flash MLC
-* hsmc_nandflash_slc: Example of NAND Flash SLC
 * isi: Example using ISI controller
 * isc: Example using ISC controller
 * lcd: Example using LCD controller
@@ -60,6 +58,8 @@ This release contains the following examples:
 * rtc: RTC Example
 * sdmmc_sdcard: Example of Read/Write access from/to SD Cards, MMC Cards, e.MMC devices
 * secumod: Example of Security Module
+* smc_nandflash_mlc: Example of NAND Flash MLC
+* smc_nandflash_slc: Example of NAND Flash SLC
 * spi_serialflash: Read/Write/Delete commands to an SPI serial flash
 * spi_slave: Set up the SAMA5D2 as a SPI slave
 * ssc_dma_audio: Example of SSC to play sound
@@ -111,8 +111,6 @@ eth_lwip               | X                | X                | X          | X   
 eth_uip_helloworld     | X                | X                | X          | X                | X
 eth_uip_telnetd        | X                | X                | X          | X                | X
 eth_uip_webserver      | X                | X                | X          | X                | X
-hsmc_nandflash_mlc     | X                | X                | X          | X                | X
-hsmc_nandflash_slc     | X                | X                | X          | X                | X
 isc                    | X                | N/A              | N/A        | N/A              | N/A
 isi                    | N/A              | X                | X          | X                | X
 lcd                    | X                | X                | X          | X                | X
@@ -126,6 +124,8 @@ qspi_xip               | X                | N/A              | N/A        | N/A 
 rtc                    | X                | X                | X          | X                | X
 sdmmc_sdcard           | X                | TODO             | TODO       | X                | X
 secumod                | X                | N/A              | N/A        | X                | X
+smc_nandflash_mlc      | X                | X                | X          | X                | X
+smc_nandflash_slc      | X                | X                | X          | X                | X
 spi_serialflash        | X                | X                | X          | X                | X
 spi_slave              | X                | N/A              | TODO       | X                | X
 ssc_dma_audio          | TODO             | X                | X          | X                | X

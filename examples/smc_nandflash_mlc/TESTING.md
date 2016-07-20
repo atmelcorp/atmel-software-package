@@ -1,4 +1,4 @@
-HSMC_NANDFLASH_MLC EXAMPLE
+SMC_NANDFLASH_MLC EXAMPLE
 ============
 
 # Objectives
@@ -8,7 +8,7 @@ Controller).
 
 # Example Description
 ---------------------
-The example read and write data from/to a nandflash connected to the HSMC,
+The example read and write data from/to a nandflash connected to the SMC,
 taking ECC and Bad Block marking into account.
 
 # Test

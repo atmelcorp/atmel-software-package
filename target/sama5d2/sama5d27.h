@@ -131,7 +131,7 @@
 #define GMAC0    ((Gmac     *)0xF8008000U) /**< \brief (GMAC0   ) Base Address */
 #define TC0      ((Tc       *)0xF800C000U) /**< \brief (TC0     ) Base Address */
 #define TC1      ((Tc       *)0xF8010000U) /**< \brief (TC1     ) Base Address */
-#define HSMC     ((Smc      *)0xF8014000U) /**< \brief (HSMC    ) Base Address */
+#define SMC      ((Smc      *)0xF8014000U) /**< \brief (SMC     ) Base Address */
 #define PDMIC    ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC   ) Base Address */
 #define UART0    ((Uart     *)0xF801C000U) /**< \brief (UART0   ) Base Address */
 #define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */

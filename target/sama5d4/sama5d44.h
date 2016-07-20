@@ -146,7 +146,7 @@ extern "C" {
 #define SHA     ((Sha     *)0xFC050000U) /**< \brief (SHA    ) Base Address */
 #define MATRIX1 ((Matrix  *)0xFC054000U) /**< \brief (MATRIX1) Base Address */
 #define SECURAM ((Securam *)0xFC058000U) /**< \brief (SECURAM) Base Address */
-#define HSMC    ((Smc     *)0xFC05C000U) /**< \brief (HSMC   ) Base Address */
+#define SMC     ((Smc     *)0xFC05C000U) /**< \brief (SMC    ) Base Address */
 #define SFC     ((Sfc     *)0xFC060000U) /**< \brief (SFC    ) Base Address */
 #define PIOD    ((Pio     *)0xFC068000U) /**< \brief (PIOD   ) Base Address */
 #define SECUMOD ((Secumod *)0xFC068200U) /**< \brief (SECUMOD) Base Address */

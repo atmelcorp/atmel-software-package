@@ -54,7 +54,7 @@
 #define ID_DBGU   ( 2) /**< \brief Debug Unit Interrupt (DBGU) */
 #define ID_PIT    ( 3) /**< \brief Periodic Interval Timer Interrupt (PIT) */
 #define ID_WDT    ( 4) /**< \brief Watchdog timer Interrupt (WDT) */
-#define ID_HSMC   ( 5) /**< \brief Multi-bit ECC Interrupt (HSMC) */
+#define ID_SMC    ( 5) /**< \brief Static Memory Controller (SMC) */
 #define ID_PIOA   ( 6) /**< \brief Parallel I/O Controller A (PIOA) */
 #define ID_PIOB   ( 7) /**< \brief Parallel I/O Controller B (PIOB) */
 #define ID_PIOC   ( 8) /**< \brief Parallel I/O Controller C (PIOC) */

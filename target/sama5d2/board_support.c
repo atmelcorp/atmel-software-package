@@ -42,7 +42,6 @@
 #include "trace.h"
 
 #include "peripherals/aic.h"
-#include "peripherals/hsmc.h"
 #ifdef CONFIG_HAVE_ISC
 #include "peripherals/isc.h"
 #endif
@@ -52,6 +51,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/sfc.h"
+#include "peripherals/smc.h"
 #include "peripherals/wdt.h"
 
 #ifdef CONFIG_HAVE_LCDD
@@ -599,7 +599,7 @@ void board_cfg_nand_flash(void)
 	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
 	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
 	board_cfg_matrix_for_nand();
-	hsmc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
+	smc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
 #else
 	trace_fatal("Cannot configure NAND: target board has no NAND definitions!");
 #endif

@@ -43,10 +43,10 @@
 #include "timer.h"
 
 #include "peripherals/aic.h"
-#include "peripherals/hsmc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
+#include "peripherals/smc.h"
 #include "peripherals/wdt.h"
 
 #include "memories/ddram.h"
@@ -454,7 +454,7 @@ void board_cfg_nand_flash(void)
 	board_cfg_matrix_for_nand();
 	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
 	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
-	hsmc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
+	smc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
 #else
 	trace_fatal("Cannot configure NAND: target board have no NAND definitions!");
 #endif
@@ -463,7 +463,7 @@ void board_cfg_nand_flash(void)
 void board_cfg_nor_flash(void)
 {
 #if defined(BOARD_NORFLASH_CS) && defined(BOARD_NORFLASH_BUS_WIDTH)
-	hsmc_nor_configure(BOARD_NORFLASH_CS, BOARD_NORFLASH_BUS_WIDTH);
+	smc_nor_configure(BOARD_NORFLASH_CS, BOARD_NORFLASH_BUS_WIDTH);
 #else
 	trace_fatal("Cannot configure NOR: target board have no NOR definitions!");
 #endif

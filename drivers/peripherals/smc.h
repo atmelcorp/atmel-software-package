@@ -33,8 +33,8 @@
 *  Definitions and function prototype for smc module
 */
 
-#ifndef _HSMC_
-#define _HSMC_
+#ifndef SMC_H_
+#define SMC_H_
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -49,28 +49,28 @@
  *         Macros
  *----------------------------------------------------------------------------*/
 
-#define hsmc_nfc_enable()              {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCEN;}
-#define hsmc_nfc_disable()             {HSMC->HSMC_CTRL |= HSMC_CTRL_NFCDIS;}
-#define hsmc_nfc_get_status()          {HSMC->HSMC_SR;}
+#define smc_nfc_enable()              {SMC->SMC_CTRL |= SMC_CTRL_NFCEN;}
+#define smc_nfc_disable()             {SMC->SMC_CTRL |= SMC_CTRL_NFCDIS;}
+#define smc_nfc_get_status()          {SMC->SMC_SR;}
 
-#define hsmc_nfc_enable_spare_read()   {HSMC->HSMC_CFG |= HSMC_CFG_RSPARE;}
-#define hsmc_nfc_disable_spare_read()  {HSMC->HSMC_CFG &= (~HSMC_CFG_RSPARE);}
-#define hsmc_nfc_enable_spare_write()  {HSMC->HSMC_CFG |= HSMC_CFG_WSPARE;}
-#define hsmc_nfc_disable_spare_write() {HSMC->HSMC_CFG &= (~HSMC_CFG_WSPARE);}
+#define smc_nfc_enable_spare_read()   {SMC->SMC_CFG |= SMC_CFG_RSPARE;}
+#define smc_nfc_disable_spare_read()  {SMC->SMC_CFG &= (~SMC_CFG_RSPARE);}
+#define smc_nfc_enable_spare_write()  {SMC->SMC_CFG |= SMC_CFG_WSPARE;}
+#define smc_nfc_disable_spare_write() {SMC->SMC_CFG &= (~SMC_CFG_WSPARE);}
 
-#define hsmc_pmecc_reset()             {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_RST; }
-#define hsmc_pmecc_or_reset()          {HSMC->HSMC_PMECCTRL |= HSMC_PMECCTRL_RST; }
-#define hsmc_pmecc_data_phase()        {HSMC->HSMC_PMECCTRL |= HSMC_PMECCTRL_DATA; }
-#define hsmc_pmecc_enable_write()      {HSMC->HSMC_PMECCFG |= HSMC_PMECCFG_NANDWR;}
-#define hsmc_pmecc_enable_read()       {HSMC->HSMC_PMECCFG &= (~HSMC_PMECCFG_NANDWR);}
+#define smc_pmecc_reset()             {SMC->SMC_PMECCTRL = SMC_PMECCTRL_RST; }
+#define smc_pmecc_or_reset()          {SMC->SMC_PMECCTRL |= SMC_PMECCTRL_RST; }
+#define smc_pmecc_data_phase()        {SMC->SMC_PMECCTRL |= SMC_PMECCTRL_DATA; }
+#define smc_pmecc_enable_write()      {SMC->SMC_PMECCFG |= SMC_PMECCFG_NANDWR;}
+#define smc_pmecc_enable_read()       {SMC->SMC_PMECCFG &= (~SMC_PMECCFG_NANDWR);}
  
-#define hsmc_pmecc_error_status()      (HSMC->HSMC_PMECCISR )
-#define hsmc_pmecc_enable()            {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_ENABLE;}
-#define hsmc_pmecc_disable()           {HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_DISABLE;}
-#define hsmc_pmecc_auto_enable()       {HSMC->HSMC_PMECCFG |= HSMC_PMECCFG_AUTO;}
-#define hsmc_pmecc_auto_disable()      {HSMC->HSMC_PMECCFG &= (~HSMC_PMECCFG_AUTO);}
-#define hsmc_pmecc_auto_apare_en()     ((HSMC->HSMC_PMECCFG & HSMC_PMECCFG_SPAREEN) == HSMC_PMECCFG_SPAREEN) 
-#define hsmc_pmecc(i)                  (HSMC->SMC_PMECC[i])
+#define smc_pmecc_error_status()      (SMC->SMC_PMECCISR )
+#define smc_pmecc_enable()            {SMC->SMC_PMECCTRL = SMC_PMECCTRL_ENABLE;}
+#define smc_pmecc_disable()           {SMC->SMC_PMECCTRL = SMC_PMECCTRL_DISABLE;}
+#define smc_pmecc_auto_enable()       {SMC->SMC_PMECCFG |= SMC_PMECCFG_AUTO;}
+#define smc_pmecc_auto_disable()      {SMC->SMC_PMECCFG &= (~SMC_PMECCFG_AUTO);}
+#define smc_pmecc_auto_apare_en()     ((SMC->SMC_PMECCFG & SMC_PMECCFG_SPAREEN) == SMC_PMECCFG_SPAREEN) 
+#define smc_pmecc(i)                  (SMC->SMC_PMECC[i])
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -160,33 +160,33 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void hsmc_nand_configure(uint8_t bus_width);
+extern void smc_nand_configure(uint8_t bus_width);
 
-extern void hsmc_nor_configure(uint8_t cs, uint8_t bus_width);
+extern void smc_nor_configure(uint8_t cs, uint8_t bus_width);
 
-extern void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
+extern void smc_nfc_configure(uint32_t data_size, uint32_t spare_size,
 		bool read_spare, bool write_spare);
 
-extern void hsmc_nfc_reset(void);
+extern void smc_nfc_reset(void);
 
-extern bool hsmc_nfc_is_spare_read_enabled(void);
+extern bool smc_nfc_is_spare_read_enabled(void);
 
-extern bool hsmc_nfc_is_spare_write_enabled(void);
+extern bool smc_nfc_is_spare_write_enabled(void);
 
-extern bool hsmc_nfc_is_nfc_busy(void);
+extern bool smc_nfc_is_nfc_busy(void);
 
-extern void hsmc_wait_rb(void);
+extern void smc_wait_rb(void);
 
-extern void hsmc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes);
+extern void smc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes);
 
-extern void hsmc_nfc_wait_cmd_done(void);
+extern void smc_nfc_wait_cmd_done(void);
 
-extern void hsmc_nfc_wait_xfr_done(void);
+extern void smc_nfc_wait_xfr_done(void);
 
-extern void hsmc_nfc_wait_rb_busy(void);
+extern void smc_nfc_wait_rb_busy(void);
 
-extern void hsmc_nfc_wait_hamming_ready(void);
+extern void smc_nfc_wait_hamming_ready(void);
 
-extern void hsmc_pmecc_wait_ready(void);
+extern void smc_pmecc_wait_ready(void);
 
-#endif /* _HSMC_ */
+#endif /* SMC_H_ */

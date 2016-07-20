@@ -28,12 +28,12 @@
  */
 
 /**
- * \page hsmc_nandflash_slc HSMC NAND Flash SLC Example
+ * \page smc_nandflash_mlc SMC NAND Flash MLC Example
  *
  * \section Purpose
  *
  * This basic nandflash example shall show how to read and write data from/to
- * a nandflash connected to the HSMC, taking ECC and Bad Block marking into account.
+ * a nandflash connected to the SMC, taking ECC and Bad Block marking into account.
  *
  * \section Requirements
  *
@@ -43,7 +43,7 @@
  *
  * The required steps are:
  * <ul>
- * <li> Configure the HSMC to interface with the NAND Flash. </li>
+ * <li> Configure the SMC to interface with the NAND Flash. </li>
  * <li> Measure throughtput for RAW data write/read with or without DMA
  * enabled </li>
  * <li> Measure throughtput for write/read with or without DMA enabled
@@ -69,7 +69,7 @@
  * -# Start the application.
  * -# In the terminal window, the following text should appear:
  *     \code
- *     -- HSMC NandFlash SLC Example xxx --
+ *     -- SMC NandFlash MLC Example xxx --
  *     -- SAMxxxxx-xx
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *     =========================================================
@@ -88,7 +88,7 @@
 /**
  * \file
  *
- * This file contains all the specific code for hsmc_nand_slc example.
+ * This file contains all the specific code for smc_nand_mlc example.
  */
 
 /*-------------------------------------------------------------------------
@@ -110,7 +110,7 @@
 #include "peripherals/pmecc.h"
 #include "peripherals/pmecc_gf_1024.h"
 #include "peripherals/pmecc_gf_512.h"
-#include "peripherals/xdmad.h"
+#include "misc/cache.h"
 
 #include "memories/nand-flash/nand_flash.h"
 #include "memories/nand-flash/nand_flash_skip_block.h"
@@ -123,7 +123,6 @@
 #include "memories/nand-flash/nand_flash_raw.h"
 
 #include "misc/console.h"
-#include "misc/cache.h"
 #include "misc/led.h"
 
 #include <stdbool.h>
@@ -178,9 +177,6 @@ static uint8_t pattern_buffer[NAND_MAX_PAGE_DATA_SIZE];
 /** page buffer */
 CACHE_ALIGNED_DDR static uint8_t page_buffer[NAND_MAX_PAGE_DATA_SIZE + NAND_MAX_PAGE_SPARE_SIZE];
 
-/** spare buffer */
-CACHE_ALIGNED_DDR static uint8_t spare_buffer[NAND_MAX_PAGE_SPARE_SIZE];
-
 /** pattern buffer */
 const uint8_t pattern[PATTERN_SIZE] = {
 	0x01, 0x2c, 0x00, 0xed, 0xfc, 0xdb, 0x00, 0x43,
@@ -221,17 +217,14 @@ static void _dump_hmc_configuration(void)
 	else
 		printf("-I- DMA is disabled.\n\r");
 
-	if (ecc_type == ECC_NO)
-		printf("-I- ECC is disabled.\n\r");
-	else if (ecc_type == ECC_PMECC)
-		printf("-I- PMECC is enabled.\n\r");
+	printf("-I- PMECC is enabled.\n\r");
 }
 
 /**
  * \brief SMC software configuration.
  * \prarm mode Mode to be configured.
  */
-static void _hsmc_configure(uint8_t mode)
+static void _smc_configure(uint8_t mode)
 {
 	switch (mode) {
 	case CONF_NFC:
@@ -271,104 +264,23 @@ static void _hsmc_configure(uint8_t mode)
  */
 static void _page_access(void)
 {
-	if (ecc_type == ECC_PMECC) {
-		pmecc_initialize(sector_idx, correctability,
-				page_size, spare_size, 0, 0);
-	}
+	pmecc_initialize(sector_idx,correctability,
+			page_size, spare_size, 0, 0);
 
-	printf("-I- Erase block\n\r");
+	printf("-I- Erase block %u\n\r", block);
 	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
 
-	printf("-I- Write block\n\r");
+	printf("-I- Write block %u page %u\n\r", block, page);
 	memcpy(page_buffer, pattern_buffer, page_size);
 	nand_skipblock_write_page(&nand, block, page, page_buffer, 0);
 
-	printf("-I- Read block\n\r");
+	printf("-I- Read block %u page %u\n\r", block, page);
 	memset(page_buffer, 0, page_size);
 	nand_skipblock_read_page(&nand, block, page, page_buffer, 0);
 
-	/* Test if the read contains expected data */
-	if (memcmp(pattern_buffer, page_buffer, page_size)) {
+	/* Test is read buffer contains expected data */
+	if (memcmp(page_buffer, pattern_buffer, page_size)) {
 		printf("-I- Read data is different from buffer, test failed\n\r");
-	} else {
-		printf("-I- Read data matches buffer.\n\r");
-	}
-}
-
-/**
- * \brief Generate some error bit for error correction.
- */
-static void _simulate_error_bits(uint8_t *buffer)
-{
-	uint32_t sectors, byte_pos, i, j;
-	uint8_t tmp, bit_pos;
-
-	sectors = page_size / sector_size;
-
-	for (i = 0; i < sectors; i++) {
-		for (j = 0; j < correctability; j++) {
-			byte_pos = i * sector_size + j * (sector_size / correctability);
-			bit_pos = (i * 32 + j) % 8;
-			tmp = buffer[byte_pos];
-
-			/* Inverse Bit  */
-			buffer[byte_pos] = tmp ^ ((uint8_t)(1 << bit_pos));
-			printf("Generate error  <%x,%x > %u, @[#Sector %u,#Byte %u,Bit# %u]\n\r",
-				  (unsigned)tmp, buffer[byte_pos],
-				  (unsigned)byte_pos, (unsigned)i,
-				  (unsigned)(byte_pos % sector_size),
-				  (unsigned)bit_pos);
-		}
-	}
-}
-
-/**
- * \brief Write Nand flash page with simulated error bits.
- */
-static void _write_page_with_simulated_error_bits(void)
-{
-	nand_set_ecc_type(ECC_PMECC);
-	pmecc_initialize(sector_idx, correctability,
-			page_size, spare_size, 0, 0);
-
-	printf("-I- Erase block %d\n\r", block);
-	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
-
-	printf("-I- Write a page of data, ECC values will be generated\n\r");
-	memcpy(page_buffer, pattern_buffer, page_size);
-	nand_skipblock_write_page(&nand, block,
-			page, page_buffer, 0);
-
-	printf("-I- Read spare area which contains ECC values\n\r");
-	pmecc_disable();
-	nand_set_ecc_type(ECC_NO);
-	nand_raw_read_page(&nand, block, page, 0, spare_buffer);
-
-	printf("-I- Erase page\n\r");
-	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
-
-	printf("-I- Write a page of data with injected errors and previously computed ECC values\n\r");
-	_simulate_error_bits(page_buffer);
-	nand_raw_write_page(&nand, block, page, page_buffer, spare_buffer);
-}
-
-/**
- * \brief Read Nand flash page to correct simulated error bits.
- */
-static void _read_page_with_simulated_error_bits(void)
-{
-	nand_set_ecc_type(ECC_PMECC);
-	pmecc_initialize(sector_idx, correctability,
-			page_size, spare_size, 0, 0);
-
-	printf("-I- Read page of data with ECC enabled\n\r");
-	memset(page_buffer, 0, page_size);
-	nand_skipblock_read_page(&nand, block,
-			page, page_buffer, 0);
-
-	/* Test if the read contains expected data */
-	if (memcmp(pattern_buffer, page_buffer, page_size)) {
-		printf("-I- Read data is different from buffer, test failed.\n\r");
 	} else {
 		printf("-I- Read data matches buffer.\n\r");
 	}
@@ -481,22 +393,9 @@ static uint32_t _configure_correction(uint8_t mode)
 /**
  * \brief Display menu.
  */
-static void _display_menu(uint8_t menu_idx)
+static void _display_menu(void)
 {
 	uint8_t x;
-
-	if (menu_idx == 0) {
-		printf("\n\r");
-		printf("=========================================================\n\r");
-		printf("Menu: press a key to select test mode.\n\r");
-		printf("---------------------------------------------------------\n\r");
-		printf(" r: Raw data \n\r");
-		printf(" p: PMECC\n\r");
-		printf(" c: Display current configuration\n\r");
-		printf(" m: Display menu\n\r");
-		printf("=========================================================\n\r\n\r");
-		return;
-	}
 
 	printf(" --- NFC Configuration\n\r");
 
@@ -509,45 +408,30 @@ static void _display_menu(uint8_t menu_idx)
 	x = dma_enabled ? 'X' : ' ';
 	printf("[%c] d: DMA\n\r", x);
 
-	printf("\n\r");
-	if (menu_idx == 1) {
-		printf("Access NAND flash with raw data only:\n\r");
-		printf("------\n\r");
-	} else if (menu_idx == 2) {
-		printf("PMECC Menu:\n\r");
-		printf("------\n\r");
-		printf(" 0-9: Configure correction parameter\n\r");
-		printf("    0:  512 bytes per sector,    2 errors per sector\n\r");
-		printf("    1:  512 bytes per sector,    4 errors per sector\n\r");
-		printf("    2:  512 bytes per sector,    8 errors per sector\n\r");
-		printf("    3:  512 bytes per sector,   12 errors per sector\n\r");
-		printf("    4:  512 bytes per sector,   24 errors per sector\n\r");
-		printf("    -------------------------------------------------\n\r");
-		printf("    5: 1024 bytes per sector,    2 errors per sector\n\r");
-		printf("    6: 1024 bytes per sector,    4 errors per sector\n\r");
-		printf("    7: 1024 bytes per sector,    8 errors per sector\n\r");
-		printf("    8: 1024 bytes per sector,   12 errors per sector\n\r");
-		printf("    9: 1024 bytes per sector,   24 errors per sector\n\r");
-		printf("    a: 1024 bytes per sector,   32 errors per sector\n\r");
-	}
-	
-
+	printf("PMECC Menu:\n\r");
+	printf("------\n\r");
+	printf(" 0-9: Configure correction parameter\n\r");
+	printf("    0:  512 bytes per sector,    2 errors per sector\n\r");
+	printf("    1:  512 bytes per sector,    4 errors per sector\n\r");
+	printf("    2:  512 bytes per sector,    8 errors per sector\n\r");
+	printf("    3:  512 bytes per sector,   12 errors per sector\n\r");
+	printf("    4:  512 bytes per sector,   24 errors per sector\n\r");
+	printf("    -------------------------------------------------\n\r");
+	printf("    5: 1024 bytes per sector,    2 errors per sector\n\r");
+	printf("    6: 1024 bytes per sector,    4 errors per sector\n\r");
+	printf("    7: 1024 bytes per sector,    8 errors per sector\n\r");
+	printf("    8: 1024 bytes per sector,   12 errors per sector\n\r");
+	printf("    9: 1024 bytes per sector,   24 errors per sector\n\r");
+	printf("    a: 1024 bytes per sector,   32 errors per sector\n\r");
+	printf("    -------------------------------------------------\n\r");
 	printf(" p: Erase/Write/Read\n\r");
-
-	if (menu_idx == 2) {
-		printf(" w: Write page with simulated error bit(s)\n\r");
-		printf(" r: Read page to correct simulated error bit(s)\n\r");
-	}
-
 	printf(" c: Display current configuration\n\r");
-	printf(" m: Display menu\n\r");
-	printf(" b: Back to main menu\n\r");
 }
 
 /**
  * \brief Test Pmecc.
  */
-static void _loop_pmecc(void)
+static void _loop_main(void)
 {
 	uint8_t key;
 
@@ -560,18 +444,18 @@ static void _loop_pmecc(void)
 		switch (key) {
 		case 'n':
 		case 'N':
-			_hsmc_configure(CONF_NFC);
-			_display_menu(3);
+			_smc_configure(CONF_NFC);
+			_display_menu();
 			break;
 		case 'h':
 		case 'H':
-			_hsmc_configure(CONF_HOST_SRAM);
-			_display_menu(3);
+			_smc_configure(CONF_HOST_SRAM);
+			_display_menu();
 			break;
 		case 'd':
 		case 'D':
-			_hsmc_configure(CONF_DMA);
-			_display_menu(3);
+			_smc_configure(CONF_DMA);
+			_display_menu();
 			break;
 		case '0':
 		case '1':
@@ -585,135 +469,34 @@ static void _loop_pmecc(void)
 		case '9':
 			/* Config correction parameter. */
 			if (_configure_correction((key - '0')))
-				printf("-I- Press 'w' to write page with simulated %d error bits per sector\n\r",
-						correctability);
+				printf("-I- Press 'p' for page access\n\r");
 			break;
 		case 'a':
 		case 'A':
 			if (_configure_correction(10))
-				printf("-I- Press 'w' to write page with simulated %d error bits per sector\n\r",
-						correctability);
+				printf("-I- Press 'p' for page access\n\r");
 			break;
 		case 'p':
 		case 'P':
 			_page_access();
 			printf("\n\r");
 			break;
-		case 'w':
-		case 'W':
-			_write_page_with_simulated_error_bits();
-			printf("\n\r-I- Press 'r' to read page to correct simulated error bit(s)\n\r");
-			break;
-		case 'r':
-		case 'R':
-			_read_page_with_simulated_error_bits();
-			break;
 		case 'c':
 		case 'C':
 			_dump_hmc_configuration();
 			break;
 		case 'm':
 		case 'M':
-			_display_menu(3);
-			break;
-		case 'b':
-		case 'B':
-			_display_menu(0);
-			return;
-		}
-	}
-}
-
-/**
- * \brief Test NAND flash with RAW data.
- */
-static void _loop_raw(void)
-{
-	uint8_t key;
-
-	pmecc_disable();
-	ecc_type = ECC_NO;
-	nand_set_ecc_type(ecc_type);
-
-	HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_RST;
-	HSMC->HSMC_PMECCTRL = HSMC_PMECCTRL_DISABLE;
-	HSMC->HSMC_PMECCFG = 0;
-
-	for (;;) {
-		key = console_get_char();
-		switch (key) {
-		case 'n':
-		case 'N':
-			_hsmc_configure(CONF_NFC);
-			_display_menu(1);
-			break;
-		case 'h':
-		case 'H':
-			_hsmc_configure(CONF_HOST_SRAM);
-			_display_menu(1);
-			break;
-		case 'd':
-		case 'D':
-			_hsmc_configure(CONF_DMA);
-			_display_menu(1);
-			break;
-		case 'p':
-		case 'P':
-			_page_access();
-			break;
-		case 'c':
-		case 'C':
-			_dump_hmc_configuration();
-			break;
-		case 'm':
-		case 'M':
-			_display_menu(1);
-			break;
-		case 'b':
-		case 'B':
-			_display_menu(0);
-			return;
-		}
-	}
-}
-
-/**
- * \brief Access NAND flash through SMC.
- */
-static void _loop_main(void)
-{
-	uint8_t key;
-
-	for (;;) {
-		key = console_get_char();
-		switch (key) {
-		case 'r':
-		case 'R':
-			_display_menu(1);
-			_loop_raw();
-			break;
-		case 'p':
-		case 'P':
-			_display_menu(2);
-			_loop_pmecc();
-			break;
-		case 'c':
-		case 'C':
-			_dump_hmc_configuration();
-			break;
-		case 'm':
-		case 'M':
-			_display_menu(0);
+			_display_menu();
 			break;
 		}
 	}
 }
 
-/*-------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *         Global functions
- *-----------------------------------------------------------------------*/
-
- /**
+ *----------------------------------------------------------------------------*/
+/**
  * \brief Application entry point for test pmecc example.
  * \return Unused (ANSI-C compatibility).
  */
@@ -723,9 +506,9 @@ int main(void)
 	bool onficompatible = false;
 
 	/* Output example information */
-	console_example_info("HSMC NandFlash SLC Example");
+	console_example_info("SMC NandFlash MLC Example");
 
-	/* Configure HSMC for Nandflash accesses */
+	/* Configure SMC for Nandflash accesses */
 	nand_dma_configure();
 	nand_initialize(&nand);
 
@@ -736,21 +519,30 @@ int main(void)
 
 	if (nand_onfi_check_compatibility(&nand)) {
 		printf("\tOpen NAND Flash Interface (ONFI)-compliant\n\r");
+
 		model_from_onfi.device_id =
 			nand_onfi_get_manufacturer_id();
+
 		model_from_onfi.options =
 			nand_onfi_get_bus_width() ? NANDFLASHMODEL_DATABUS16 : NANDFLASHMODEL_DATABUS8;
+
 		model_from_onfi.page_size_in_bytes =
 			nand_onfi_get_page_size();
+
 		model_from_onfi.spare_size_in_bytes =
 			nand_onfi_get_spare_size();
+
 		model_from_onfi.device_size_in_mega_bytes =
 			((nand_onfi_get_pages_per_block() * nand_onfi_get_blocks_per_lun()) / 1024) *
 			nand_onfi_get_page_size() / 1024;
+
 		model_from_onfi.block_size_in_kbytes =
 			(nand_onfi_get_pages_per_block() * nand_onfi_get_page_size()) / 1024;
-		onfi_ecc_correctability = nand_onfi_get_ecc_correctability();
-		onfi_ecc_correctability = 0xFF ? 2 : onfi_ecc_correctability;
+
+		onfi_ecc_correctability =
+			nand_onfi_get_ecc_correctability();
+		onfi_ecc_correctability =
+			onfi_ecc_correctability == 0xFF ? 32 : onfi_ecc_correctability;
 
 		switch (nand_onfi_get_page_size()) {
 		case 256:
@@ -784,19 +576,12 @@ int main(void)
 	/* Get device parameters */
 	page_size = nand_model_get_page_data_size(&nand.model);
 	spare_size = nand_model_get_page_spare_size(&nand.model);
-
-	nfc_enabled = false;
-	nfc_sram_enabled = false;
-	dma_enabled = false;
-	ecc_type = 0;
-	sector_idx = 0;
-
 	printf("-I- Size of the data area of a page in bytes: 0x%x\n\r",
 			(unsigned)page_size);
 
+	/* Generate page of pattern data to be test */
 	block = 3;
 	page = 0;
-	/* Generate page of pattern data to be test */
 	for (i = 0; i < page_size / PATTERN_SIZE; i++) {
 		for (j = 0; j < PATTERN_SIZE; j++)
 			pattern_buffer[i * PATTERN_SIZE + j] =
@@ -804,10 +589,10 @@ int main(void)
 	}
 
 	/* setup using current configuration */
-	_hsmc_configure(-1);
+	_smc_configure(-1);
 
 	/* Display menu */
-	_display_menu(0);
+	_display_menu();
 
 	/* Enter test mode */
 	_loop_main();

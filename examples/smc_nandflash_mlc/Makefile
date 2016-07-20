@@ -26,7 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the hsmc_nandflash_mlc example
+# Makefile for compiling the smc_nandflash_mlc example
 AVAILABLE_TARGETS = sama5d2-ptc-engi sama5d4-xplained sama5d4-ek
 AVAILABLE_VARIANTS = ddram
 
@@ -36,8 +36,8 @@ TOP := ../..
 
 CONFIG_HAVE_NAND_FLASH = y
 
-BINNAME = hsmc_nandflash_mlc
+BINNAME = smc_nandflash_mlc
 
-obj-y += examples/hsmc_nandflash_mlc/main.o
+obj-y += examples/smc_nandflash_mlc/main.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -33,8 +33,9 @@
 /*         Headers                                                      */
 /*--------------------------------------------------------------------- */
 
-#include "peripherals/hsmc.h"
 #include "trace.h"
+
+#include "peripherals/smc.h"
 
 #include "nand_flash.h"
 
@@ -178,9 +179,9 @@ void nand_set_nfc_enabled(bool enabled)
 	nand_cfg.nfc_enabled = enabled;
 
 	if (nand_cfg.nfc_enabled)
-		hsmc_nfc_enable()
+		smc_nfc_enable()
 	else
-		hsmc_nfc_disable()
+		smc_nfc_disable()
 }
 
 /**

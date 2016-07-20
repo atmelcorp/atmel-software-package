@@ -149,7 +149,7 @@
 #define AES    ((Aes    *)0xF8038000U) /**< \brief (AES   ) Base Address */
 #define TDES   ((Tdes   *)0xF803C000U) /**< \brief (TDES  ) Base Address */
 #define TRNG   ((Trng   *)0xF8040000U) /**< \brief (TRNG  ) Base Address */
-#define HSMC   ((Smc    *)0xFFFFC000U) /**< \brief (HSMC  ) Base Address */
+#define SMC    ((Smc    *)0xFFFFC000U) /**< \brief (SMC   ) Base Address */
 #define FUSE   ((Fuse   *)0xFFFFE400U) /**< \brief (FUSE  ) Base Address */
 #define DMAC0  ((Dmac   *)0xFFFFE600U) /**< \brief (DMAC0 ) Base Address */
 #define DMAC1  ((Dmac   *)0xFFFFE800U) /**< \brief (DMAC1 ) Base Address */

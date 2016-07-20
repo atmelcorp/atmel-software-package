@@ -87,7 +87,7 @@
 #define ID_MATRIX1      (14) /**< \brief H32MX, 32-bit AHB Matrix (MATRIX1) */
 #define ID_MATRIX0      (15) /**< \brief H64MX, 64-bit AHB Matrix (MATRIX0) */
 #define ID_SECUMOD      (16) /**< \brief Secure Module (SECUMOD) */
-#define ID_HSMC         (17) /**< \brief Multi-bit ECC Interrupt (HSMC) */
+#define ID_SMC          (17) /**< \brief Static Memory Controller (SMC) */
 #define ID_PIOA         (18) /**< \brief Parallel I/O Controller (PIOA) */
 #define ID_FLEXCOM0     (19) /**< \brief FLEXCOM 0 (FLEXCOM0) */
 #define ID_USART0       (19) /**< \brief USART (USART0) from FLEXCOM0 */

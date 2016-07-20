@@ -84,7 +84,7 @@
 #define ID_VDEC         (19) /**< \brief Video Decoder (VDEC) */
 #define ID_SECUMOD      (20) /**< \brief Security Module (SECUMOD) */
 #define ID_MSADCC       (21) /**< \brief Magnetic Stripe converter Controller (MSADCC) */
-#define ID_HSMC         (22) /**< \brief Multi-bit ECC Interrupt (HSMC) */
+#define ID_SMC          (22) /**< \brief Static Memory Controller (SMC) */
 #define ID_PIOA         (23) /**< \brief Parallel I/O Controller A (PIOA) */
 #define ID_PIOB         (24) /**< \brief Parallel I/O Controller B (PIOB) */
 #define ID_PIOC         (25) /**< \brief Parallel I/O Controller C (PIOC) */

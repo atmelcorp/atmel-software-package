@@ -36,9 +36,10 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/hsmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmecc.h"
+#include "peripherals/smc.h"
+
 #include "misc/cache.h"
 
 #include "nand_flash.h"
@@ -226,7 +227,7 @@ static void _send_cle_ale(const struct _nand_flash *nand,
 		if ((mode & CLE_DATA_EN) == CLE_DATA_EN && nand_is_nfc_sram_enabled())
 			nfc_command |= NFCADDR_CMD_DATAEN;
 
-		hsmc_nfc_send_cmd(nfc_command, cycle_bytes);
+		smc_nfc_send_cmd(nfc_command, cycle_bytes);
 	}
 }
 
@@ -244,7 +245,7 @@ static void _data_array_in(const struct _nand_flash *nand, bool nfc_sram,
 
 	if (nfc_sram) {
 		address = NFC_RAM_ADDR;
-		hsmc_nfc_wait_xfr_done();
+		smc_nfc_wait_xfr_done();
 	} else {
 		address = nand->data_addr;
 	}
@@ -412,7 +413,7 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 	assert(data || spare);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(data_size, spare_size, spare != NULL, false);
+		smc_nfc_configure(data_size, spare_size, spare != NULL, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -431,7 +432,7 @@ static uint8_t _read_page(const struct _nand_flash *nand,
 		_status_ready_pass(nand);
 		_send_cle_ale(nand, CLE_DATA_EN, NAND_CMD_READ_1, 0, 0, 0);
 	} else {
-		hsmc_nfc_wait_rb_busy();
+		smc_nfc_wait_rb_busy();
 	}
 
 	/* Read data area */
@@ -469,19 +470,19 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	assert(data);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(data_size, spare_size, true, false);
+		smc_nfc_configure(data_size, spare_size, true, false);
 
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
-	hsmc_pmecc_reset();
-	hsmc_pmecc_enable();
+	smc_pmecc_reset();
+	smc_pmecc_enable();
 
-	if (!hsmc_pmecc_auto_apare_en())
-		hsmc_pmecc_auto_enable();
+	if (!smc_pmecc_auto_apare_en())
+		smc_pmecc_auto_enable();
 
 	if (nand_is_nfc_sram_enabled()){
-		hsmc_pmecc_data_phase();
+		smc_pmecc_data_phase();
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	} else {
@@ -495,20 +496,20 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 		_send_cle_ale(nand, 0, NAND_CMD_READ_1, 0, 0, 0);
 	} else {
 		if (!nand_is_nfc_sram_enabled())
-			hsmc_nfc_wait_rb_busy();
+			smc_nfc_wait_rb_busy();
 	}
 
 	/* Reset the ECC module*/
-	hsmc_pmecc_or_reset();
+	smc_pmecc_or_reset();
 
 	/* Start a Data Phase */
-	hsmc_pmecc_data_phase();
+	smc_pmecc_data_phase();
 	_data_array_in(nand, nand_is_nfc_sram_enabled(),
 	               data, data_size + pmecc_get_ecc_end_address());
 
 	/* Wait until the kernel of the PMECC is not busy */
-	hsmc_pmecc_wait_ready();
-	hsmc_pmecc_auto_disable();
+	smc_pmecc_wait_ready();
+	smc_pmecc_auto_disable();
 	return 0;
 }
 
@@ -532,7 +533,7 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 	NAND_TRACE("_write_page(B#%d:P#%d)\r\n", block, page);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(data_size, spare_size, false, spare != NULL);
+		smc_nfc_configure(data_size, spare_size, false, spare != NULL);
 
 	/* Calculate physical address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
@@ -548,7 +549,7 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
 			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
-			hsmc_nfc_wait_xfr_done();
+			smc_nfc_wait_xfr_done();
 		} else {
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
 			              NAND_CMD_WRITE_1, 0, 0, row_address);
@@ -570,7 +571,7 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 	_send_cle_ale(nand, CLE_WRITE_EN, NAND_CMD_WRITE_2, 0, 0, 0);
 
 	if (nand_is_nfc_enabled() && !nand_is_nfc_sram_enabled())
-		hsmc_nfc_wait_rb_busy();
+		smc_nfc_wait_rb_busy();
 
 	if (_status_ready_pass(nand)) {
 			trace_error("write_page_no_ecc: Failed writing data area.\r\n");
@@ -610,7 +611,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	assert(data);
 
 	if (nand_is_nfc_enabled())
-		hsmc_nfc_configure(data_size, spare_size, false, false);
+		smc_nfc_configure(data_size, spare_size, false, false);
 
 	ecc_start_addr = data_size + pmecc_get_ecc_start_address();
 
@@ -619,37 +620,37 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Write data area if needed */
 	switch (pmecc_get_page_size()) {
-		case HSMC_PMECCFG_PAGESIZE_PAGESIZE_1SEC:
+		case SMC_PMECCFG_PAGESIZE_PAGESIZE_1SEC:
 			nb_sectors_per_page = 1;
 			break;
-		case HSMC_PMECCFG_PAGESIZE_PAGESIZE_2SEC:
+		case SMC_PMECCFG_PAGESIZE_PAGESIZE_2SEC:
 			nb_sectors_per_page = 2;
 			break;
-		case HSMC_PMECCFG_PAGESIZE_PAGESIZE_4SEC:
+		case SMC_PMECCFG_PAGESIZE_PAGESIZE_4SEC:
 			nb_sectors_per_page = 4;
 			break;
-		case HSMC_PMECCFG_PAGESIZE_PAGESIZE_8SEC:
+		case SMC_PMECCFG_PAGESIZE_PAGESIZE_8SEC:
 			nb_sectors_per_page = 8;
 			break;
 		default:
 			nb_sectors_per_page = 1;
 			break;
 	}
-	hsmc_pmecc_reset();
-	hsmc_pmecc_enable();
+	smc_pmecc_reset();
+	smc_pmecc_enable();
 	for (i = 0; i < 8; i++)
-		pmecc[i] = (volatile uint8_t *)&hsmc_pmecc(i);
+		pmecc[i] = (volatile uint8_t *)&smc_pmecc(i);
 
 	/* Start a Data Phase */
-	hsmc_pmecc_data_phase();
-	hsmc_pmecc_enable_write();
+	smc_pmecc_data_phase();
+	smc_pmecc_enable_write();
 	if (nand_is_nfc_sram_enabled()) {
 		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
 
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
 		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
-		hsmc_nfc_wait_xfr_done();
+		smc_nfc_wait_xfr_done();
 	} else {
 		_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN,
 		              NAND_CMD_WRITE_1, 0, 0, row_address);
@@ -661,7 +662,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	              NAND_CMD_RANDOM_IN, 0, ecc_start_addr, 0);
 
 	/* Wait until the kernel of the PMECC is not busy */
-	hsmc_pmecc_wait_ready();
+	smc_pmecc_wait_ready();
 	bytes_per_sector = pmecc_get_ecc_bytes() / nb_sectors_per_page;
 	pmecc_sector_number = 1 << ((pmecc_get_page_size() >> 8) & 0x3);
 
@@ -679,7 +680,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 
 	if (nand_is_nfc_enabled()) {
 		if (!nand_is_nfc_sram_enabled())
-			hsmc_nfc_wait_rb_busy();
+			smc_nfc_wait_rb_busy();
 	}
 
 	if (_nand_wait_ready(nand)) {

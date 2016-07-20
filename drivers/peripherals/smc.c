@@ -30,7 +30,7 @@
 /**
   *  \file
   *
-  *  Implementation of HSMC functions.
+  *  Implementation of SMC functions.
   */
 
 /*----------------------------------------------------------------------------
@@ -41,7 +41,7 @@
 #include "trace.h"
 
 #include "peripherals/pmc.h"
-#include "peripherals/hsmc.h"
+#include "peripherals/smc.h"
 
 #include <assert.h>
 
@@ -69,39 +69,39 @@ static void _nfc_write_cmd(uint32_t cmd, uint32_t value)
  * \brief Sets SMC timing for NAND FLASH.
  * \param bus_width  bus width 8/16.
  */
-void hsmc_nand_configure(uint8_t bus_width)
+void smc_nand_configure(uint8_t bus_width)
 {
-	pmc_enable_peripheral(ID_HSMC);
+	pmc_enable_peripheral(ID_SMC);
 
-	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_SETUP =
-		HSMC_SETUP_NWE_SETUP(2) |
-		HSMC_SETUP_NCS_WR_SETUP(2) |
-		HSMC_SETUP_NRD_SETUP(2) |
-		HSMC_SETUP_NCS_RD_SETUP(2);
+	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_SETUP =
+		SMC_SETUP_NWE_SETUP(2) |
+		SMC_SETUP_NCS_WR_SETUP(2) |
+		SMC_SETUP_NRD_SETUP(2) |
+		SMC_SETUP_NCS_RD_SETUP(2);
 
-	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_PULSE =
-		HSMC_PULSE_NWE_PULSE(7) |
-		HSMC_PULSE_NCS_WR_PULSE(7) |
-		HSMC_PULSE_NRD_PULSE(7) |
-		HSMC_PULSE_NCS_RD_PULSE(7);
+	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_PULSE =
+		SMC_PULSE_NWE_PULSE(7) |
+		SMC_PULSE_NCS_WR_PULSE(7) |
+		SMC_PULSE_NRD_PULSE(7) |
+		SMC_PULSE_NCS_RD_PULSE(7);
 
-	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_CYCLE =
-		HSMC_CYCLE_NWE_CYCLE(13) |
-		HSMC_CYCLE_NRD_CYCLE(13);
+	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_CYCLE =
+		SMC_CYCLE_NWE_CYCLE(13) |
+		SMC_CYCLE_NRD_CYCLE(13);
 
-	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_TIMINGS =
-		HSMC_TIMINGS_TCLR(3) |
-		HSMC_TIMINGS_TADL(27) |
-		HSMC_TIMINGS_TAR(3) |
-		HSMC_TIMINGS_TRR(6) |
-		HSMC_TIMINGS_TWB(5) |
-		HSMC_TIMINGS_NFSEL;
+	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_TIMINGS =
+		SMC_TIMINGS_TCLR(3) |
+		SMC_TIMINGS_TADL(27) |
+		SMC_TIMINGS_TAR(3) |
+		SMC_TIMINGS_TRR(6) |
+		SMC_TIMINGS_TWB(5) |
+		SMC_TIMINGS_NFSEL;
 
-	HSMC->SMC_CS_NUMBER[NAND_EBI_CS].HSMC_MODE =
-		HSMC_MODE_READ_MODE |
-		HSMC_MODE_WRITE_MODE |
-		((bus_width == 8 ) ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
-		HSMC_MODE_TDF_CYCLES(1);
+	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_MODE =
+		SMC_MODE_READ_MODE |
+		SMC_MODE_WRITE_MODE |
+		((bus_width == 8 ) ? SMC_MODE_DBW_BIT_8 : SMC_MODE_DBW_BIT_16) |
+		SMC_MODE_TDF_CYCLES(1);
 }
 
 /**
@@ -109,37 +109,37 @@ void hsmc_nand_configure(uint8_t bus_width)
  * \param cs  chip select.
  * \param bus_width  bus width 8/16.
  */
-void hsmc_nor_configure(uint8_t cs, uint8_t bus_width)
+void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 {
-	pmc_enable_peripheral(ID_HSMC);
+	pmc_enable_peripheral(ID_SMC);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_SETUP =
-		HSMC_SETUP_NWE_SETUP(1) |
-		HSMC_SETUP_NCS_WR_SETUP(0) |
-		HSMC_SETUP_NRD_SETUP(2) |
-		HSMC_SETUP_NCS_RD_SETUP(0);
+	SMC->SMC_CS_NUMBER[cs].SMC_SETUP =
+		SMC_SETUP_NWE_SETUP(1) |
+		SMC_SETUP_NCS_WR_SETUP(0) |
+		SMC_SETUP_NRD_SETUP(2) |
+		SMC_SETUP_NCS_RD_SETUP(0);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_PULSE =
-		HSMC_PULSE_NWE_PULSE(10) |
-		HSMC_PULSE_NCS_WR_PULSE(10) |
-		HSMC_PULSE_NRD_PULSE(11) |
-		HSMC_PULSE_NCS_RD_PULSE(11);
+	SMC->SMC_CS_NUMBER[cs].SMC_PULSE =
+		SMC_PULSE_NWE_PULSE(10) |
+		SMC_PULSE_NCS_WR_PULSE(10) |
+		SMC_PULSE_NRD_PULSE(11) |
+		SMC_PULSE_NCS_RD_PULSE(11);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_CYCLE =
-		HSMC_CYCLE_NWE_CYCLE(11) |
-		HSMC_CYCLE_NRD_CYCLE(14);
+	SMC->SMC_CS_NUMBER[cs].SMC_CYCLE =
+		SMC_CYCLE_NWE_CYCLE(11) |
+		SMC_CYCLE_NRD_CYCLE(14);
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_TIMINGS = 0;
+	SMC->SMC_CS_NUMBER[cs].SMC_TIMINGS = 0;
 
-	HSMC->SMC_CS_NUMBER[cs].HSMC_MODE =
-		HSMC_MODE_READ_MODE |
-		HSMC_MODE_WRITE_MODE |
-		(bus_width == 8 ? HSMC_MODE_DBW_BIT_8 : HSMC_MODE_DBW_BIT_16) |
-		HSMC_MODE_EXNW_MODE_DISABLED |
-		HSMC_MODE_TDF_CYCLES(1);
+	SMC->SMC_CS_NUMBER[cs].SMC_MODE =
+		SMC_MODE_READ_MODE |
+		SMC_MODE_WRITE_MODE |
+		(bus_width == 8 ? SMC_MODE_DBW_BIT_8 : SMC_MODE_DBW_BIT_16) |
+		SMC_MODE_EXNW_MODE_DISABLED |
+		SMC_MODE_TDF_CYCLES(1);
 }
 
-void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
+void smc_nfc_configure(uint32_t data_size, uint32_t spare_size,
 		bool read_spare, bool write_spare)
 {
 	uint32_t cfg;
@@ -147,33 +147,33 @@ void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
 	/* cannot read and write spare at the same time */
 	assert(!read_spare || !write_spare);
 
-	cfg = HSMC_CFG_NFCSPARESIZE(ROUND_INT_DIV(spare_size, 4) - 1) |
-	      HSMC_CFG_DTOCYC(0xF) |
-	      HSMC_CFG_DTOMUL_X1048576 |
-	      HSMC_CFG_RBEDGE;
+	cfg = SMC_CFG_NFCSPARESIZE(ROUND_INT_DIV(spare_size, 4) - 1) |
+	      SMC_CFG_DTOCYC(0xF) |
+	      SMC_CFG_DTOMUL_X1048576 |
+	      SMC_CFG_RBEDGE;
 
 	if (read_spare)
-		cfg |= HSMC_CFG_RSPARE;
+		cfg |= SMC_CFG_RSPARE;
 
 	if (write_spare)
-		cfg |= HSMC_CFG_WSPARE;
+		cfg |= SMC_CFG_WSPARE;
 
 	switch (data_size) {
 	case 512:
-		cfg |= HSMC_CFG_PAGESIZE_PS512;
+		cfg |= SMC_CFG_PAGESIZE_PS512;
 		break;
 	case 1024:
-		cfg |= HSMC_CFG_PAGESIZE_PS1024;
+		cfg |= SMC_CFG_PAGESIZE_PS1024;
 		break;
 	case 2048:
-		cfg |= HSMC_CFG_PAGESIZE_PS2048;
+		cfg |= SMC_CFG_PAGESIZE_PS2048;
 		break;
 	case 4096:
-		cfg |= HSMC_CFG_PAGESIZE_PS4096;
+		cfg |= SMC_CFG_PAGESIZE_PS4096;
 		break;
-#ifdef HSMC_CFG_PAGESIZE_PS8192
+#ifdef SMC_CFG_PAGESIZE_PS8192
 	case 8192:
-		cfg |= HSMC_CFG_PAGESIZE_PS8192;
+		cfg |= SMC_CFG_PAGESIZE_PS8192;
 		break;
 #endif
 	default:
@@ -181,17 +181,17 @@ void hsmc_nfc_configure(uint32_t data_size, uint32_t spare_size,
 				(unsigned)data_size);
 	}
 
-	HSMC->HSMC_CFG = cfg;
+	SMC->SMC_CFG = cfg;
 }
 
 /**
  * \brief Reset NFC controller.
  */
-void hsmc_nfc_reset(void)
+void smc_nfc_reset(void)
 {
 	/* Disable all the SMC NFC interrupts */
-	HSMC->HSMC_IDR = 0xFFFFFFFF;
-	HSMC->HSMC_CTRL = 0;
+	SMC->SMC_IDR = 0xFFFFFFFF;
+	SMC->SMC_CTRL = 0;
 }
 
 /**
@@ -200,9 +200,9 @@ void hsmc_nfc_reset(void)
  * \return Returns true if NFC controller reads both main and spare area in
  *         read mode, otherwise returns false.
  */
-bool hsmc_nfc_is_spare_read_enabled(void)
+bool smc_nfc_is_spare_read_enabled(void)
 {
-	return (((HSMC->HSMC_CFG) >> 9) & 0x1) != 0;
+	return (((SMC->SMC_CFG) >> 9) & 0x1) != 0;
 }
 
 /**
@@ -211,9 +211,9 @@ bool hsmc_nfc_is_spare_read_enabled(void)
  * \return Returns true if NFC controller writes both main and spare area in
  *         write mode, otherwise returns false.
  */
-bool hsmc_nfc_is_spare_write_enabled(void)
+bool smc_nfc_is_spare_write_enabled(void)
 {
-	return (((HSMC->HSMC_CFG) >> 8) & 0x1) != 0;
+	return (((SMC->SMC_CFG) >> 8) & 0x1) != 0;
 }
 
 /**
@@ -222,9 +222,9 @@ bool hsmc_nfc_is_spare_write_enabled(void)
  * \return Returns 1 if NFC Controller is activated and accesses the memory device,
  *         otherwise returns 0.
  */
-bool hsmc_nfc_is_nfc_busy(void)
+bool smc_nfc_is_nfc_busy(void)
 {
-	return ((HSMC->HSMC_SR & HSMC_SR_NFCBUSY) == HSMC_SR_NFCBUSY);
+	return ((SMC->SMC_SR & SMC_SR_NFCBUSY) == SMC_SR_NFCBUSY);
 }
 
 /**
@@ -239,45 +239,45 @@ static bool smc_nfc_is_host_busy(void)
 /**
  * \brief Wait for Ready-busy pin falling and then rising.
  */
-void hsmc_wait_rb(void)
+void smc_wait_rb(void)
 {
 	/* Wait for RB pin falling */
-	while ((HSMC->HSMC_SR & HSMC_SR_RB_FALL) != HSMC_SR_RB_FALL);
+	while ((SMC->SMC_SR & SMC_SR_RB_FALL) != SMC_SR_RB_FALL);
 
 	/* Wait for RB pin rising */
-	while ((HSMC->HSMC_SR & HSMC_SR_RB_RISE) != HSMC_SR_RB_RISE);
+	while ((SMC->SMC_SR & SMC_SR_RB_RISE) != SMC_SR_RB_RISE);
 }
 
 /**
  * \brief Wait for NFC command has done.
  */
-void hsmc_nfc_wait_cmd_done(void)
+void smc_nfc_wait_cmd_done(void)
 {
-	while ((HSMC->HSMC_SR & HSMC_SR_CMDDONE) != HSMC_SR_CMDDONE);
+	while ((SMC->SMC_SR & SMC_SR_CMDDONE) != SMC_SR_CMDDONE);
 }
 
 /**
  * \brief Wait for NFC Data Transfer Terminated.
  */
-void hsmc_nfc_wait_xfr_done(void)
+void smc_nfc_wait_xfr_done(void)
 {
-	while ((HSMC->HSMC_SR & HSMC_SR_XFRDONE) != HSMC_SR_XFRDONE);
+	while ((SMC->SMC_SR & SMC_SR_XFRDONE) != SMC_SR_XFRDONE);
 }
 
 /**
  * \brief Wait for NFC Ready/Busy Line 0 Edge Detected.
  */
-void hsmc_nfc_wait_rb_busy(void)
+void smc_nfc_wait_rb_busy(void)
 {
-	while ((HSMC->HSMC_SR & HSMC_SR_RB_EDGE0) != HSMC_SR_RB_EDGE0);
+	while ((SMC->SMC_SR & SMC_SR_RB_EDGE0) != SMC_SR_RB_EDGE0);
 }
 
 /**
  * \brief Wait for PMECC ready.
  */
-void hsmc_pmecc_wait_ready(void)
+void smc_pmecc_wait_ready(void)
 {
-	while((HSMC->HSMC_PMECCSR) & HSMC_PMECCSR_BUSY);
+	while((SMC->SMC_PMECCSR) & SMC_PMECCSR_BUSY);
 }
 
 /**
@@ -286,7 +286,7 @@ void hsmc_pmecc_wait_ready(void)
  * \param address_cycle address cycle when command access id decoded.
  * \param cycle0 address at first cycle.
  */
-void hsmc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
+void smc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
 {
 	int cycle_offset = 0;
 	uint32_t nfcdata_addr = 0;
@@ -297,7 +297,7 @@ void hsmc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
 	/* Send the command */
 	switch (cmd & NFCADDR_CMD_ACYCLE_Msk) {
 	case NFCADDR_CMD_ACYCLE_FIVE:
-		HSMC->HSMC_ADDR = cycle_bytes[0];
+		SMC->SMC_ADDR = cycle_bytes[0];
 		cycle_offset = 1;
 		// fall-through
 	case NFCADDR_CMD_ACYCLE_FOUR:
@@ -321,5 +321,5 @@ void hsmc_nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
 	_nfc_write_cmd(cmd, nfcdata_addr);
 
 	/* Wait for command completion */
-	hsmc_nfc_wait_cmd_done();
+	smc_nfc_wait_cmd_done();
 }

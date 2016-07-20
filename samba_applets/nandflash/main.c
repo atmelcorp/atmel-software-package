@@ -38,10 +38,10 @@
 #include "intmath.h"
 
 #include "peripherals/pio.h"
-#include "peripherals/hsmc.h"
 #include "peripherals/pmecc.h"
 #include "peripherals/pmecc_gf_1024.h"
 #include "peripherals/pmecc_gf_512.h"
+#include "peripherals/smc.h"
 
 #include "memories/nand-flash/nand_flash.h"
 #include "memories/nand-flash/nand_flash_skip_block.h"
@@ -173,11 +173,11 @@ static bool pmecc_set_header(uint32_t header)
 		return false;
 	}
 	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
-	if (ecc_correction > (sizeof(HSMC->HSMC_ERRLOC) / sizeof(uint32_t))) {
+	if (ecc_correction > (ARRAY_SIZE(SMC->SMC_ERRLOC))) {
 		trace_error_wp("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
-				sizeof(HSMC->HSMC_ERRLOC) / sizeof(uint32_t));
+				ARRAY_SIZE(SMC->SMC_ERRLOC));
 		return false;
 	}
 	if (ecc_correction < nand_onfi_get_ecc_correctability() &&
@@ -270,7 +270,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	board_cfg_matrix_for_nand();
-	hsmc_nand_configure(bus_width);
+	smc_nand_configure(bus_width);
 
 	if (!configure_instance_pio(ioset)) {
 		trace_error_wp("Invalid configuration: NFC ioSet%u\r\n",
