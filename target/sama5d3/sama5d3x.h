@@ -199,7 +199,7 @@
 #define EBI_CS2_ADDR   (0x50000000u) /**< EBI Chip Select 2 base address */
 #define EBI_CS3_ADDR   (0x60000000u) /**< EBI Chip Select 3 base address */
 #define EBI_NF_ADDR    (0x60000000u) /**< NAND Flash on EBI Chip Select 3 base address */
-#define NFC_ADDR       (0x70000000u) /**< NAND Flash Controller Command base address */
+#define NFC_CMD_ADDR   (0x70000000u) /**< NAND Flash Controller Command base address */
 #define IROM_ADDR      (0x00100000u) /**< Internal ROM base address */
 #define NFC_RAM_ADDR   (0x00200000u) /**< NAND Flash Controller RAM base address */
 #define IRAM0_ADDR     (0x00300000u) /**< Internal RAM 0 base address */

@@ -219,7 +219,7 @@
 #define QSPI_AES1_ADDR  (0x98000000u) /**< QPSI Memory crypted with AES 1 base address */
 #define SDMMC0_ADDR     (0xA0000000u) /**< SDMMC 0 base address */
 #define SDMMC1_ADDR     (0xB0000000u) /**< SDMMC 1 base address */
-#define NFC_ADDR        (0xC0000000u) /**< NAND Flash Controller Command base address */
+#define NFC_CMD_ADDR    (0xC0000000u) /**< NAND Flash Controller Command base address */
 #define QSPIMEM0_ADDR   (0xD0000000u) /**< QSPI Memory 0 base address */
 #define QSPIMEM1_ADDR   (0xD8000000u) /**< QSPI Memory 1 base address */
 #define IROM_ADDR       (0x00000000u) /**< Internal ROM base address */

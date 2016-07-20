@@ -53,12 +53,12 @@
  * the NFC. */
 static uint32_t _nfc_read_status(void)
 {
-	return *(volatile uint32_t*)(NFC_ADDR);
+	return *(volatile uint32_t*)(NFC_CMD_ADDR);
 }
 
 static void _nfc_write_cmd(uint32_t cmd, uint32_t value)
 {
-	*(volatile uint32_t*)(NFC_ADDR + cmd) = value;
+	*(volatile uint32_t*)(NFC_CMD_ADDR + cmd) = value;
 }
 
 /*----------------------------------------------------------------------------

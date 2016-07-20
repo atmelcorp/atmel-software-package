@@ -189,7 +189,7 @@ extern "C" {
 #define EBI_CS1_ADDR    (0x60000000u) /**< EBI Chip Select 1 base address */
 #define EBI_CS2_ADDR    (0x70000000u) /**< EBI Chip Select 2 base address */
 #define EBI_CS3_ADDR    (0x80000000u) /**< EBI Chip Select 3 base address */
-#define NFC_ADDR        (0x90000000u) /**< NAND Flash Controller Command base address */
+#define NFC_CMD_ADDR    (0x90000000u) /**< NAND Flash Controller Command base address */
 #define IROM_ADDR       (0x00000000u) /**< Internal ROM base address */
 #define NFC_RAM_ADDR    (0x00100000u) /**< NAND Flash Controller RAM base address */
 #define IRAM_ADDR       (0x00200000u) /**< Internal RAM base address */
