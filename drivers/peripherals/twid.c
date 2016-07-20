@@ -53,7 +53,7 @@
  *        Definition
  *----------------------------------------------------------------------------*/
 
-#define TWID_DMA_THRESHOLD      16
+#define TWID_POLLING_THRESHOLD  16
 #define TWID_TIMEOUT            100
 
 #define MAX_ADESC               8
@@ -434,8 +434,8 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx, struct _buffe
 	tmode = desc->transfer_mode;
 
 	/* Check if only one char to send or receive */
-	if (tmode == TWID_MODE_ASYNC) {
-		if ((tx && tx->size == 1) || (rx && rx->size == 1))
+	if (tmode != TWID_MODE_POLLING) {
+		if ((tx && tx->size < TWID_POLLING_THRESHOLD) || (rx && rx->size < TWID_POLLING_THRESHOLD))
 			tmode = TWID_MODE_POLLING;
 	}
 
@@ -488,47 +488,32 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx, struct _buffe
 
 	case TWID_MODE_DMA:
 		if (tx) {
-			if (tx->size < TWID_DMA_THRESHOLD) {
-				status = _twid_poll_write(desc, tx);
-				if (status == TWID_SUCCESS && cb)
-					cb(desc, user_args);
-				mutex_unlock(&desc->mutex);
-			} else {
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
-				twi_init_write_transfer(desc->addr,
-							 desc->slave_addr,
-							 desc->iaddr,
-							 desc->isize,
-							 tx->size);
+			twi_init_write_transfer(desc->addr,
+									desc->slave_addr,
+									desc->iaddr,
+									desc->isize,
+									tx->size);
 #endif
-				desc->region_start = tx->data;
-				desc->region_length = tx->size;
-				_twid_dma_write(desc, tx);
-			}
+			desc->region_start = tx->data;
+			desc->region_length = tx->size;
+			_twid_dma_write(desc, tx);
 		} else {
-			if (rx->size < TWID_DMA_THRESHOLD) {
-				status = _twid_poll_read(desc, rx);
-				if (status == TWID_SUCCESS && cb)
-					cb(desc, user_args);
-				mutex_unlock(&desc->mutex);
-			} else {
-
 #ifdef CONFIG_HAVE_TWI_ALTERNATE_CMD
-				twi_init_read_transfer(desc->addr,
-							desc->slave_addr,
-							desc->iaddr,
-							desc->isize,
-							rx->size);
+			twi_init_read_transfer(desc->addr,
+								   desc->slave_addr,
+								   desc->iaddr,
+								   desc->isize,
+								   rx->size);
 #endif
-				desc->region_start = rx->data;
-				desc->region_length = rx->size;
-				status = _check_nack(desc->addr);
-				if (status != TWID_SUCCESS) {
-					mutex_unlock(&desc->mutex);
-					break;
-				}
-				_twid_dma_read(desc, rx);
+			desc->region_start = rx->data;
+			desc->region_length = rx->size;
+			status = _check_nack(desc->addr);
+			if (status != TWID_SUCCESS) {
+				mutex_unlock(&desc->mutex);
+				break;
 			}
+			_twid_dma_read(desc, rx);
 		}
 		break;
 
@@ -536,8 +521,8 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx, struct _buffe
 	case TWID_MODE_FIFO:
 		if (tx) {
 			status = twi_write_stream(desc->addr, desc->slave_addr,
-						  desc->iaddr, desc->isize,
-						  tx->data, tx->size, desc->timeout);
+									  desc->iaddr, desc->isize,
+									  tx->data, tx->size, desc->timeout);
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
 			if (status)
 				break;
@@ -546,8 +531,8 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx, struct _buffe
 				break;
 		} else {
 			status = twi_read_stream(desc->addr, desc->slave_addr,
-						 desc->iaddr, desc->isize,
-						 rx->data, rx->size, desc->timeout);
+									 desc->iaddr, desc->isize,
+									 rx->data, rx->size, desc->timeout);
 			status = status ? TWID_SUCCESS : TWID_ERROR_ACK;
 			if (status)
 				break;
