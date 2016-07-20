@@ -139,7 +139,6 @@ static const struct _pin at24_pins[] = BOARD_AT24_PINS;
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
 CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 static _parser _cmd_parser;
 
@@ -300,7 +299,8 @@ static void _eeprom_write_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 	len -= (end_addr+1) - (char*)buffer;
-	status = at24_write_eep(&at24_drv, addr, (uint8_t*)end_addr+1, len);
+	memmove(cmd_buffer, (uint8_t*)end_addr+1, len);
+	status = at24_write_eep(&at24_drv, addr, cmd_buffer, len);
 	if(!status) printf("Write done.\r\n");;
 }
 
@@ -327,8 +327,8 @@ static void _eeprom_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		       (unsigned int)addr);
 		return;
 	}
-	at24_read_eep(&at24_drv, addr, read_buffer, length);
-	console_dump_frame(read_buffer, length);
+	at24_read_eep(&at24_drv, addr, cmd_buffer, length);
+	console_dump_frame(cmd_buffer, length);
 }
 
 /*
@@ -341,9 +341,6 @@ static void print_menu(void)
 	case TWID_MODE_POLLING:
 		printf("POLLING \r\n");
 		break;
-	case TWID_MODE_FIFO:
-		printf("FIFO \r\n");
-		break;
 	case TWID_MODE_ASYNC:
 		printf("ASYNC \r\n");
 		break;
@@ -351,6 +348,10 @@ static void print_menu(void)
 		printf("DMA \r\n");
 		break;
 	}
+#ifdef CONFIG_HAVE_TWI_FIFO
+	printf("FIFO: %s\r\n", at24_twid.use_fifo ? "enabled" : "disabled");
+#endif
+	printf("\r\n");
 	printf("twi eeprom example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
 #ifdef BOARD_AT24_EEP_ADDR
@@ -369,7 +370,15 @@ static void print_menu(void)
 	       "| s emulator                                            |\r\n"
 	       "|      Select to TWI slave device emulating at24        |\r\n"
 #endif
-	       "| m                                                     |\r\n"
+		   "| m polling                                             |\r\n"
+	       "| m async                                               |\r\n"
+		   "| m dma                                                 |\r\n"
+	       "|      Select mode                                      |\r\n"
+#if defined(CONFIG_HAVE_TWI_FIFO)
+		   "| f fifo                                                |\r\n"
+	       "|      Toggle TWI feature                               |\r\n"
+#endif
+	       "| h                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");
 }
@@ -430,9 +439,41 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 }
 #endif /* BOARD_AT24_EEP_ADDR */
 
+static void _eeprom_toggle_mode_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "polling", 7)) {
+		at24_twid.transfer_mode = TWID_MODE_POLLING;
+		printf("Use POLLING mode\r\n");
+	}
+	else if (!strncmp((char*)buffer, "async", 5)) {
+		at24_twid.transfer_mode = TWID_MODE_ASYNC;
+		printf("Use ASYNC mode\r\n");
+	}
+	else if (!strncmp((char*)buffer, "dma", 3)) {
+		at24_twid.transfer_mode = TWID_MODE_DMA;
+		printf("Use DMA mode\r\n");
+	}
+}
+
+#if defined(CONFIG_HAVE_TWI_FIFO)
+static void _eeprom_toggle_feature_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "fifo", 4)) {
+		at24_twid.use_fifo = !at24_twid.use_fifo;
+		if (at24_twid.use_fifo) {
+			twi_fifo_enable(at24_twid.addr, true);
+			printf("Enable FIFO\r\n");
+		} else {
+			twi_fifo_disable(at24_twid.addr, true);
+			printf("Disable FIFO\r\n");
+		}
+	}
+}
+#endif
+
 static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
-	if (*buffer == 'm') {
+	if (*buffer == 'h' || *buffer == 'H') {
 		print_menu();
 		return;
 	}
@@ -443,17 +484,31 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	}
 	switch(*buffer) {
 	case 'r':
+	case 'R':
 		_eeprom_read_arg_parser(buffer+2, len-2);
 		break;
 	case 'w':
+	case 'W':
 		_eeprom_write_arg_parser(buffer+2, len-2);
 		break;
 #ifdef BOARD_AT24_EEP_ADDR
 	case 'a':
+	case 'A':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;
 	case 's':
+	case 'S':
 		_eeprom_toggle_device_arg_parser(buffer+2, len-2);
+		break;
+#endif
+	case 'm':
+	case 'M':
+		_eeprom_toggle_mode_arg_parser(buffer+2, len-2);
+		break;
+#if defined(CONFIG_HAVE_TWI_FIFO)
+	case 'f':
+	case 'F':
+		_eeprom_toggle_feature_arg_parser(buffer+2, len-2);
 		break;
 #endif
 	default:

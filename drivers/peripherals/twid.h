@@ -64,9 +64,8 @@ enum _twid_buf_attr {
 enum _twid_trans_mode
 {
 	TWID_MODE_POLLING,
-	TWID_MODE_FIFO,
 	TWID_MODE_DMA,
-	TWID_MODE_ASYNC
+	TWID_MODE_ASYNC,
 };
 
 struct _twi_desc;
@@ -80,14 +79,23 @@ struct _twi_desc
 	uint32_t slave_addr;
 	uint32_t iaddr;
 	uint32_t isize;
-	uint8_t transfer_mode;
+	enum _twid_trans_mode transfer_mode;
+	uint32_t flags;
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
-	void* region_start;
-	uint32_t region_length;
 	twid_callback_t callback;
 	void*   cb_args;
+
+#ifdef CONFIG_HAVE_TWI_FIFO
+	bool use_fifo;
+	struct {
+		struct {
+			uint16_t size;
+			uint16_t threshold;
+		} rx, tx;
+	} fifo;
+#endif
 
 	struct {
 		struct {
@@ -104,10 +112,9 @@ struct _twi_desc
 /** \brief twi asynchronous transfer descriptor.*/
 struct _async_desc
 {
-	struct _twi_desc twi_desc;
+	struct _twi_desc *twi_desc;
 	uint32_t twi_id;
-	uint8_t *pdata; /**< Pointer to the data buffer. */
-	uint32_t size; /**< Total number of bytes to transfer. */
+	struct _buffer buf;
 	uint32_t transferred; /**< Number of already transferred bytes. */
 };
 

@@ -92,6 +92,8 @@ typedef struct {
 #define TWI_CR_ACMEN (0x1u << 16) /**< \brief (TWI_CR) Alternative Command Mode Enable */
 #define TWI_CR_ACMDIS (0x1u << 17) /**< \brief (TWI_CR) Alternative Command Mode Disable */
 #define TWI_CR_THRCLR (0x1u << 24) /**< \brief (TWI_CR) Transmit Holding Register Clear */
+#define TWI_CR_TXFCLR (0x1u << 24) /**< \brief (TWI_CR) Transmit FIFO Clear */
+#define TWI_CR_RXFCLR (0x1u << 25) /**< \brief (TWI_CR) Receive FIFO Clear */
 #define TWI_CR_LOCKCLR (0x1u << 26) /**< \brief (TWI_CR) Lock Clear */
 #define TWI_CR_FIFOEN (0x1u << 28) /**< \brief (TWI_CR) FIFO Enable */
 #define TWI_CR_FIFODIS (0x1u << 29) /**< \brief (TWI_CR) FIFO Disable */

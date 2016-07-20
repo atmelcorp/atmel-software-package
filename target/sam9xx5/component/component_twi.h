@@ -68,6 +68,7 @@ typedef struct {
 /* -------- TWI_MMR : (TWI Offset: 0x04) Master Mode Register -------- */
 #define TWI_MMR_IADRSZ_Pos 8
 #define TWI_MMR_IADRSZ_Msk (0x3u << TWI_MMR_IADRSZ_Pos) /**< \brief (TWI_MMR) Internal Device Address Size */
+#define TWI_MMR_IADRSZ(value) ((TWI_MMR_IADRSZ_Msk & ((value) << TWI_MMR_IADRSZ_Pos)))
 #define   TWI_MMR_IADRSZ_NONE (0x0u << 8) /**< \brief (TWI_MMR) No internal device address */
 #define   TWI_MMR_IADRSZ_1_BYTE (0x1u << 8) /**< \brief (TWI_MMR) One-byte internal device address */
 #define   TWI_MMR_IADRSZ_2_BYTE (0x2u << 8) /**< \brief (TWI_MMR) Two-byte internal device address */
