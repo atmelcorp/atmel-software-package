@@ -54,6 +54,13 @@
 
 #define TWID_TRANSFER_IN_PROGRESS  (0x80)
 
+enum _twid_buf_attr {
+	TWID_BUF_ATTR_START  = 0x01,
+	TWID_BUF_ATTR_STOP   = 0x02,
+	TWID_BUF_ATTR_READ   = 0x04,
+	TWID_BUF_ATTR_WRITE  = 0x08,
+};
+
 enum _twid_trans_mode
 {
 	TWID_MODE_POLLING,
@@ -110,9 +117,7 @@ struct _async_desc
 
 extern void twid_configure(struct _twi_desc* desc);
 
-extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* rx,
-                               struct _buffer* tx, twid_callback_t cb,
-                               void* user_args);
+extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callback_t cb, void* user_args);
 
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 

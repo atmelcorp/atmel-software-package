@@ -34,8 +34,9 @@
 
 struct _buffer
 {
-	uint8_t* data;
-	uint32_t size;
+	uint8_t* data; /* Data addr*/
+	uint32_t size; /* data length */
+	uint32_t attr; /* Attribute on buffer (depending of the peripheral) */
 };
 
 static inline void writeb(volatile void* reg, uint8_t value)

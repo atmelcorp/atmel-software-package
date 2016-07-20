@@ -61,7 +61,10 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 {
 	uint8_t status;
 	uint8_t reg8[2];
-	struct _buffer buf[2];
+	struct _buffer buf[2] = {
+		{ .attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP },
+		{ .attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP },
+	};
 
 	twid->slave_addr = sensor->twi_slave_addr;
 	twid->iaddr = 0;
@@ -94,13 +97,13 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, NULL, &buf[0], NULL, NULL);
+	status = twid_transfer(twid, &buf[0], NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)
 		return SENSOR_TWI_ERROR;
 
-	status = twid_transfer(twid, &buf[1], NULL, NULL, NULL);
+	status = twid_transfer(twid, &buf[1], NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)
@@ -121,6 +124,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg
 	uint8_t status;
 	struct _buffer out = {
 		.data = data,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_STOP | TWID_BUF_ATTR_WRITE,
 	};
 
 	twid->slave_addr = sensor->twi_slave_addr;
@@ -146,7 +150,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, NULL, &out, NULL, NULL);
+	status = twid_transfer(twid, &out, NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)

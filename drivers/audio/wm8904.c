@@ -248,13 +248,14 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 	struct _buffer in = {
 		.data = temp_data,
 		.size = 2,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
 	};
 
 	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
 	wm8904->twi.twid.iaddr = reg_addr;
 	wm8904->twi.twid.isize = 1;
 
-	twid_transfer(&wm8904->twi.twid, &in, NULL, NULL, NULL);
+	twid_transfer(&wm8904->twi.twid, &in, NULL, NULL);
 	while (twid_is_busy(&wm8904->twi.twid));
 
 	return (temp_data[0] << 8) | temp_data[1];
@@ -274,6 +275,7 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
 	struct _buffer out = {
 		.data = tmp_data,
 		.size = 2,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 	};
 
 	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
@@ -282,7 +284,7 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
 
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
-	twid_transfer(&wm8904->twi.twid, NULL, &out, NULL, NULL);
+	twid_transfer(&wm8904->twi.twid, &out, NULL, NULL);
 	while (twid_is_busy(&wm8904->twi.twid));
 }
 

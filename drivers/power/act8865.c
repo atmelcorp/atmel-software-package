@@ -58,14 +58,15 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint32_t iaddr,
 	uint32_t status;
 	struct _buffer in = {
 		.data = value,
-		.size = 1
+		.size = 1,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
 	};
 
 	act8865->twid->slave_addr = act8865->addr;
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
 
-	status = twid_transfer(act8865->twid, &in, 0, NULL, 0);
+	status = twid_transfer(act8865->twid, &in, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8865->twid);
@@ -77,12 +78,13 @@ static bool _act8865_write_reg(struct _act8865* act8865, uint32_t iaddr, uint8_t
 	uint32_t status;
 	struct _buffer out = {
 		.data = (uint8_t*)&value,
-		.size = 1
+		.size = 1,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 	};
 	act8865->twid->slave_addr = act8865->addr;
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
-	status = twid_transfer(act8865->twid, 0, &out, NULL, 0);
+	status = twid_transfer(act8865->twid, &out, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8865->twid);

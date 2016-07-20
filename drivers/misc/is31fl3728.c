@@ -69,11 +69,12 @@ static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr,
 	struct _buffer out = {
 		.data = &data,
 		.size = 1,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 	};
 	is31fl3728->twid->slave_addr = is31fl3728->addr;
 	is31fl3728->twid->iaddr = iaddr;
 	is31fl3728->twid->isize = 1;
-	twid_transfer(is31fl3728->twid, NULL, &out, NULL, NULL);
+	twid_transfer(is31fl3728->twid, &out, NULL, 0);
 	twid_wait_transfer(is31fl3728->twid);
 }
 

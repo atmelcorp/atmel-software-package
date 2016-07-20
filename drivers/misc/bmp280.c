@@ -63,18 +63,20 @@ static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t* buffer, uint32_t le
 {
 	struct _buffer in = {
 		.data = buffer,
-		.size = len
+		.size = len,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
 	};
-	return (uint8_t)twid_transfer(bmp280->twid, &in, 0, NULL, 0);
+	return (uint8_t)twid_transfer(bmp280->twid, &in, NULL, 0);
 }
 
 static uint8_t _bmp280_write(struct _bmp280* bmp280, const uint8_t* buffer, uint32_t len)
 {
 	struct _buffer out = {
 		.data = (uint8_t*)buffer,
-		.size = len
+		.size = len,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 	};
-	return (uint8_t)twid_transfer(bmp280->twid, 0, &out, NULL, 0);
+	return (uint8_t)twid_transfer(bmp280->twid, &out, NULL, 0);
 }
 
 /*------------------------------------------------------------------------------

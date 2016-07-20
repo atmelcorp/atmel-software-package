@@ -274,12 +274,13 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint32_t iaddr,
 	uint32_t status;
 	struct _buffer in = {
 		.data = value,
-		.size = 1
+		.size = 1,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
 	};
 	act8945a->twid->slave_addr = act8945a->addr;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
-	status = twid_transfer(act8945a->twid, &in, 0, NULL, 0);
+	status = twid_transfer(act8945a->twid, &in, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8945a->twid);
@@ -292,12 +293,13 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint32_t iaddr,
 	uint32_t status;
 	struct _buffer out = {
 		.data = (uint8_t*)&value,
-		.size = 1
+		.size = 1,
+		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
 	};
 	act8945a->twid->slave_addr = act8945a->addr;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
-	status = twid_transfer(act8945a->twid, 0, &out, NULL, 0);
+	status = twid_transfer(act8945a->twid, &out, NULL, 0);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8945a->twid);
