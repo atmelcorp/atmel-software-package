@@ -30,7 +30,7 @@
 /**
 *  \file
 *
-*  Definitions and function prototype for smc module
+*  Definitions and function prototype for SMC module
 */
 
 #ifndef SMC_H_
@@ -39,8 +39,6 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
-#include "chip.h"
 
 #include <stdint.h>
 

@@ -43,8 +43,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/smc.h"
 
-#include <assert.h>
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -55,7 +53,9 @@
  */
 void smc_nand_configure(uint8_t bus_width)
 {
+#ifdef ID_SMC
 	pmc_enable_peripheral(ID_SMC);
+#endif
 
 	SMC->SMC_CS[NAND_EBI_CS].SMC_SETUP =
 		SMC_SETUP_NWE_SETUP(2) |
@@ -73,6 +73,7 @@ void smc_nand_configure(uint8_t bus_width)
 		SMC_CYCLE_NWE_CYCLE(13) |
 		SMC_CYCLE_NRD_CYCLE(13);
 
+#ifdef SMC_TIMINGS_NFSEL
 	SMC->SMC_CS[NAND_EBI_CS].SMC_TIMINGS =
 		SMC_TIMINGS_TCLR(3) |
 		SMC_TIMINGS_TADL(27) |
@@ -80,6 +81,7 @@ void smc_nand_configure(uint8_t bus_width)
 		SMC_TIMINGS_TRR(6) |
 		SMC_TIMINGS_TWB(5) |
 		SMC_TIMINGS_NFSEL;
+#endif
 
 	SMC->SMC_CS[NAND_EBI_CS].SMC_MODE =
 		SMC_MODE_READ_MODE |
@@ -95,7 +97,9 @@ void smc_nand_configure(uint8_t bus_width)
  */
 void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 {
+#ifdef ID_SMC
 	pmc_enable_peripheral(ID_SMC);
+#endif
 
 	SMC->SMC_CS[cs].SMC_SETUP =
 		SMC_SETUP_NWE_SETUP(1) |
@@ -113,7 +117,9 @@ void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 		SMC_CYCLE_NWE_CYCLE(11) |
 		SMC_CYCLE_NRD_CYCLE(14);
 
+#ifdef SMC_TIMINGS_NFSEL
 	SMC->SMC_CS[cs].SMC_TIMINGS = 0;
+#endif
 
 	SMC->SMC_CS[cs].SMC_MODE =
 		SMC_MODE_READ_MODE |
