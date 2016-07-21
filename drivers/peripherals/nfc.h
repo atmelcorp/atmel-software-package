@@ -30,11 +30,13 @@
 /**
 *  \file
 *
-*  Definitions and function prototype for smc module
+*  Definitions and function prototype for SMC NFC module
 */
 
-#ifndef SMC_H_
-#define SMC_H_
+#ifndef NFC_H_
+#define NFC_H_
+
+#ifdef CONFIG_HAVE_NFC
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -46,31 +48,26 @@
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *         Macros
- *----------------------------------------------------------------------------*/
-
-#define smc_pmecc_reset()             {PMECC->PMECC_CTRL = PMECC_CTRL_RST; }
-#define smc_pmecc_or_reset()          {PMECC->PMECC_CTRL |= PMECC_CTRL_RST; }
-#define smc_pmecc_data_phase()        {PMECC->PMECC_CTRL |= PMECC_CTRL_DATA; }
-#define smc_pmecc_enable_write()      {PMECC->PMECC_CFG |= PMECC_CFG_NANDWR;}
-#define smc_pmecc_enable_read()       {PMECC->PMECC_CFG &= (~PMECC_CFG_NANDWR);}
- 
-#define smc_pmecc_error_status()      (PMECC->PMECC_ISR )
-#define smc_pmecc_enable()            {PMECC->PMECC_CTRL = PMECC_CTRL_ENABLE;}
-#define smc_pmecc_disable()           {PMECC->PMECC_CTRL = PMECC_CTRL_DISABLE;}
-#define smc_pmecc_auto_enable()       {PMECC->PMECC_CFG |= PMECC_CFG_AUTO;}
-#define smc_pmecc_auto_disable()      {PMECC->PMECC_CFG &= (~PMECC_CFG_AUTO);}
-#define smc_pmecc_auto_apare_en()     ((PMECC->PMECC_CFG & PMECC_CFG_SPAREEN) == PMECC_CFG_SPAREEN) 
-#define smc_pmecc(i)                  (PMECC->PMECC_ECC[i])
-
-/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void smc_nand_configure(uint8_t bus_width);
+extern void nfc_configure(uint32_t data_size, uint32_t spare_size,
+		bool read_spare, bool write_spare);
 
-extern void smc_nor_configure(uint8_t cs, uint8_t bus_width);
+extern void nfc_enable(void);
 
-extern void smc_pmecc_wait_ready(void);
+extern void nfc_disable(void);
 
-#endif /* SMC_H_ */
+extern uint32_t nfc_get_status(void);
+
+extern void nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes);
+
+extern void nfc_wait_cmd_done(void);
+
+extern void nfc_wait_xfr_done(void);
+
+extern void nfc_wait_rb_busy(void);
+
+#endif /* CONFIG_HAVE_NFC */
+
+#endif /* NFC_H_ */

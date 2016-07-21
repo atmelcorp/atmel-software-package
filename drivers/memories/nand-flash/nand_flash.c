@@ -35,6 +35,7 @@
 
 #include "trace.h"
 
+#include "peripherals/nfc.h"
 #include "peripherals/smc.h"
 
 #include "nand_flash.h"
@@ -179,9 +180,9 @@ void nand_set_nfc_enabled(bool enabled)
 	nand_cfg.nfc_enabled = enabled;
 
 	if (nand_cfg.nfc_enabled)
-		smc_nfc_enable()
+		nfc_enable();
 	else
-		smc_nfc_disable()
+		nfc_disable();
 }
 
 /**
