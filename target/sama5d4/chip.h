@@ -169,9 +169,6 @@
 /** \addtogroup SAMA5D4x_pmecc PMECC Definitions */
 /*@{*/
 
-/** defines the maximum value of the error correcting capability */
-#define PMECC_NB_ERROR_MAX (25)
-
 /** Address of Galois Field Table 512 mapping in ROM. */
 #define GALOIS_TABLE_512_ROM_MAPPING (0x8000)
 
