@@ -106,12 +106,12 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(160, mck))  // 160ns
 	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(170, mck)) // tRFC+10ns
-	           | MPDDRC_TPR1_TXSRD(0)
+	           | MPDDRC_TPR1_TXSRD(0)                   // 0 for DDL Off mode
 	           | MPDDRC_TPR1_TXP(10);                   // greater of 10CK or or 24ns
 
-	desc->tpr2 = MPDDRC_TPR2_TXARD(0)
-	           | MPDDRC_TPR2_TXARDS(0)
-	           | MPDDRC_TPR2_TRPA(0)
+	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                  // only for DDR2
+	           | MPDDRC_TPR2_TXARDS(0)                 // only for DDR2
+	           | MPDDRC_TPR2_TRPA(0)                   // only for DDR2
 	           | MPDDRC_TPR2_TRTP(4)                   // greater of 4CK or 7.5ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(40, mck)); // 40ns
 
@@ -162,12 +162,12 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck))       // 130ns
 	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck))      // 140ns
-	           | MPDDRC_TPR1_TXSRD(NS2CYCLES(140, mck))      // max(tRFCab + 10ns, 2ck)
+	           | MPDDRC_TPR1_TXSRD(0)                        // Only for DDR2/3
 	           | MPDDRC_TPR1_TXP(MAX(NS2CYCLES(8, mck), 2)); // max(7.5ns, 2ck)
 
-	desc->tpr2 = MPDDRC_TPR2_TXARD(0)
-	           | MPDDRC_TPR2_TXARDS(0)
-	           | MPDDRC_TPR2_TRPA(0)
+	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                          // Only for DDR2
+	           | MPDDRC_TPR2_TXARDS(0)                         // Only for DDR2
+	           | MPDDRC_TPR2_TRPA(0)                           // Only for DDR2
 	           | MPDDRC_TPR2_TRTP(MAX(NS2CYCLES(8, mck), 4))   // max(7.5ns, 4ck)
 	           | MPDDRC_TPR2_TFAW(MAX(NS2CYCLES(50, mck), 8)); // max(50ns, 8ck)
 
@@ -384,12 +384,12 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 
 	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck))  // 130ns
 	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck)) // 140ns
-	           | MPDDRC_TPR1_TXSRD(200)                 // 200ck
+	           | MPDDRC_TPR1_TXSRD(0)                   // Only for DDR2/3
 	           | MPDDRC_TPR1_TXP(2);                    // 2ck
 
-	desc->tpr2 = MPDDRC_TPR2_TXARD(2)                  // 2ck
-	           | MPDDRC_TPR2_TXARDS(2)                 // 2ck
-	           | MPDDRC_TPR2_TRPA(NS2CYCLES(18, mck))  // 18ns
+	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                  // Only for DDR2
+	           | MPDDRC_TPR2_TXARDS(0)                 // Only for DDR2
+	           | MPDDRC_TPR2_TRPA(0)                   // Only for DDR2
 	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(50, mck)); // 50ns
 
