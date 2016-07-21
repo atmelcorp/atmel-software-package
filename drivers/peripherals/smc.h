@@ -42,26 +42,7 @@
 
 #include "chip.h"
 
-#include <stdbool.h>
 #include <stdint.h>
-
-/*----------------------------------------------------------------------------
- *         Macros
- *----------------------------------------------------------------------------*/
-
-#define smc_pmecc_reset()             {PMECC->PMECC_CTRL = PMECC_CTRL_RST; }
-#define smc_pmecc_or_reset()          {PMECC->PMECC_CTRL |= PMECC_CTRL_RST; }
-#define smc_pmecc_data_phase()        {PMECC->PMECC_CTRL |= PMECC_CTRL_DATA; }
-#define smc_pmecc_enable_write()      {PMECC->PMECC_CFG |= PMECC_CFG_NANDWR;}
-#define smc_pmecc_enable_read()       {PMECC->PMECC_CFG &= (~PMECC_CFG_NANDWR);}
- 
-#define smc_pmecc_error_status()      (PMECC->PMECC_ISR )
-#define smc_pmecc_enable()            {PMECC->PMECC_CTRL = PMECC_CTRL_ENABLE;}
-#define smc_pmecc_disable()           {PMECC->PMECC_CTRL = PMECC_CTRL_DISABLE;}
-#define smc_pmecc_auto_enable()       {PMECC->PMECC_CFG |= PMECC_CFG_AUTO;}
-#define smc_pmecc_auto_disable()      {PMECC->PMECC_CFG &= (~PMECC_CFG_AUTO);}
-#define smc_pmecc_auto_apare_en()     ((PMECC->PMECC_CFG & PMECC_CFG_SPAREEN) == PMECC_CFG_SPAREEN) 
-#define smc_pmecc(i)                  (PMECC->PMECC_ECC[i])
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -70,7 +51,5 @@
 extern void smc_nand_configure(uint8_t bus_width);
 
 extern void smc_nor_configure(uint8_t cs, uint8_t bus_width);
-
-extern void smc_pmecc_wait_ready(void);
 
 #endif /* SMC_H_ */

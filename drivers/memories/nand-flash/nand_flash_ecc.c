@@ -137,7 +137,7 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 		trace_error("nand_ecc_read_page: Failed to read page\r\n");
 		return error;
 	}
-	pmecc_status = smc_pmecc_error_status();
+	pmecc_status = pmecc_error_status();
 	if (pmecc_status) {
 		/* Check if the spare area was erased */
 		nand_raw_read_page(nand, block, page, NULL, spare_buf);
@@ -151,15 +151,15 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* bit correction will be done directly in destination buffer. */
 	if (pmecc_correction(pmecc_status, (uint32_t)data)) {
-		smc_pmecc_auto_disable();
-		smc_pmecc_disable();
+		pmecc_auto_disable();
+		pmecc_disable();
 		trace_error("nand_ecc_read_page: at B%d.P%d Unrecoverable data\r\n",
 				block, page);
 		return NAND_ERROR_CORRUPTEDDATA;
 	}
 
-	smc_pmecc_auto_disable();
-	smc_pmecc_disable();
+	pmecc_auto_disable();
+	pmecc_disable();
 	return 0;
 }
 
@@ -227,7 +227,7 @@ static uint8_t ecc_write_page_with_pmecc(const struct _nand_flash *nand,
 
 	/* Perform write operation */
 	error = nand_raw_write_page(nand, block, page, data, NULL);
-	smc_pmecc_disable();
+	pmecc_disable();
 	if (error) {
 		trace_error("nand_ecc_write_page: Failed to write page\r\n");
 		return error;

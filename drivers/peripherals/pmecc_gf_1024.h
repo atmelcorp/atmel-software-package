@@ -29,7 +29,7 @@
 #ifndef PMECC_GF_1024_H
 #define PMECC_GF_1024_H
 
-#ifdef CONFIG_HAVE_NAND_FLASH
+#ifdef CONFIG_HAVE_PMECC
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -50,6 +50,6 @@
 /** \brief Get the addresses of Galois Field tables for 1024 bytes sectors */
 void pmecc_get_gf_1024_tables(const int16_t **alpha_to, const int16_t **index_of);
 
-#endif /* CONFIG_HAVE_NAND_FLASH */
+#endif /* CONFIG_HAVE_PMECC */
 
 #endif /* PMECC_GF_1024_H */

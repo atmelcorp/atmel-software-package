@@ -104,12 +104,10 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
+#include "peripherals/pmecc.h"
 #include "peripherals/tc.h"
 #include "peripherals/twid.h"
 
-#include "peripherals/pmecc.h"
-#include "peripherals/pmecc_gf_1024.h"
-#include "peripherals/pmecc_gf_512.h"
 #include "misc/cache.h"
 
 #include "memories/nand-flash/nand_flash.h"

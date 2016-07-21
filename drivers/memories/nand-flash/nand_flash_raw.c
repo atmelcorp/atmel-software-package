@@ -476,14 +476,14 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	/* Calculate actual address of the page */
 	row_address = block * nand_model_get_block_size_in_pages(&nand->model) + page;
 
-	smc_pmecc_reset();
-	smc_pmecc_enable();
+	pmecc_reset();
+	pmecc_enable();
 
-	if (!smc_pmecc_auto_apare_en())
-		smc_pmecc_auto_enable();
+	if (!pmecc_auto_apare_en())
+		pmecc_auto_enable();
 
 	if (nand_is_nfc_sram_enabled()){
-		smc_pmecc_data_phase();
+		pmecc_data_phase();
 		_send_cle_ale(nand, ALE_COL_EN | ALE_ROW_EN | CLE_VCMD2_EN | CLE_DATA_EN,
 		              NAND_CMD_READ_1, NAND_CMD_READ_2, 0, row_address);
 	} else {
@@ -501,16 +501,16 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	}
 
 	/* Reset the ECC module*/
-	smc_pmecc_or_reset();
+	pmecc_reset();
 
 	/* Start a Data Phase */
-	smc_pmecc_data_phase();
+	pmecc_data_phase();
 	_data_array_in(nand, nand_is_nfc_sram_enabled(),
 	               data, data_size + pmecc_get_ecc_end_address());
 
 	/* Wait until the kernel of the PMECC is not busy */
-	smc_pmecc_wait_ready();
-	smc_pmecc_auto_disable();
+	pmecc_wait_ready();
+	pmecc_auto_disable();
 	return 0;
 }
 
@@ -637,14 +637,14 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 			nb_sectors_per_page = 1;
 			break;
 	}
-	smc_pmecc_reset();
-	smc_pmecc_enable();
+	pmecc_reset();
+	pmecc_enable();
 	for (i = 0; i < 8; i++)
-		pmecc[i] = (volatile uint8_t *)&smc_pmecc(i);
+		pmecc[i] = (volatile uint8_t *)&pmecc_value(i);
 
 	/* Start a Data Phase */
-	smc_pmecc_data_phase();
-	smc_pmecc_enable_write();
+	pmecc_data_phase();
+	pmecc_enable_write();
 	if (nand_is_nfc_sram_enabled()) {
 		_data_array_out(nand, true, (uint8_t*)data, data_size, 0);
 
@@ -663,7 +663,7 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	              NAND_CMD_RANDOM_IN, 0, ecc_start_addr, 0);
 
 	/* Wait until the kernel of the PMECC is not busy */
-	smc_pmecc_wait_ready();
+	pmecc_wait_ready();
 	bytes_per_sector = pmecc_get_ecc_bytes() / nb_sectors_per_page;
 	pmecc_sector_number = 1 << ((pmecc_get_page_size() >> 8) & 0x3);
 

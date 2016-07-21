@@ -122,11 +122,3 @@ void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 		SMC_MODE_EXNW_MODE_DISABLED |
 		SMC_MODE_TDF_CYCLES(1);
 }
-
-/**
- * \brief Wait for PMECC ready.
- */
-void smc_pmecc_wait_ready(void)
-{
-	while((PMECC->PMECC_SR) & PMECC_SR_BUSY);
-}

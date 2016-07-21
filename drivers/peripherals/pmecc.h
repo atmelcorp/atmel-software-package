@@ -30,13 +30,29 @@
 #ifndef PMECC_H
 #define PMECC_H
 
-#ifdef CONFIG_HAVE_NAND_FLASH
+#ifdef CONFIG_HAVE_PMECC
 /*----------------------------------------------------------------------- */
 /*         Definition                                                     */
 /*----------------------------------------------------------------------- */
 
 /** Start address of ECC cvalue in spare zone, this must not be 0 since Bad block tag are at 0. */
 #define PMECC_ECC_DEFAULT_START_ADDR   0x02
+
+/*----------------------------------------------------------------------------
+ *         Macros
+ *----------------------------------------------------------------------------*/
+
+#define pmecc_reset()             {PMECC->PMECC_CTRL = PMECC_CTRL_RST; }
+#define pmecc_data_phase()        {PMECC->PMECC_CTRL = PMECC_CTRL_DATA; }
+#define pmecc_enable_write()      {PMECC->PMECC_CFG |= PMECC_CFG_NANDWR;}
+#define pmecc_enable_read()       {PMECC->PMECC_CFG &= (~PMECC_CFG_NANDWR);}
+ 
+#define pmecc_error_status()      (PMECC->PMECC_ISR )
+#define pmecc_enable()            {PMECC->PMECC_CTRL = PMECC_CTRL_ENABLE;}
+#define pmecc_auto_enable()       {PMECC->PMECC_CFG |= PMECC_CFG_AUTO;}
+#define pmecc_auto_disable()      {PMECC->PMECC_CFG &= (~PMECC_CFG_AUTO);}
+#define pmecc_auto_apare_en()     ((PMECC->PMECC_CFG & PMECC_CFG_SPAREEN) == PMECC_CFG_SPAREEN) 
+#define pmecc_value(i)            (PMECC->PMECC_ECC[i])
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
@@ -59,11 +75,13 @@ extern uint32_t pmecc_get_ecc_end_address(void);
 
 extern uint32_t pmecc_correction(uint32_t pmecc_status, uint32_t page_buffer);
 
-extern void build_gf(uint32_t mm, int32_t *index_of, int32_t *alpha_to);
+extern void pmecc_build_gf(uint32_t mm, int32_t *index_of, int32_t *alpha_to);
 
 extern void pmecc_disable(void);
 
-#endif /* CONFIG_HAVE_NAND_FLASH */
+extern void pmecc_wait_ready(void);
 
-#endif
+#endif /* CONFIG_HAVE_PMECC */
+
+#endif /* PMECC_H */
 

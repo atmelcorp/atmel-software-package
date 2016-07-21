@@ -460,7 +460,7 @@ static void _pmecc_configure(void)
  * \param index_of Pointer to a buffer for index_of table.
  * \param alpha_to Pointer to a buffer for alpha_to table.
  */
-void build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
+void pmecc_build_gf(uint32_t mm, int32_t* index_of, int32_t* alpha_to)
 {
 	uint32_t i;
 	uint32_t mask;
@@ -700,8 +700,6 @@ uint32_t pmecc_get_ecc_end_address(void)
 }
 
 
-typedef uint32_t (*pmecc_correction_algo_t)(Smc *, struct _pmecc_descriptor *, uint32_t, uint32_t);
-
 /**
  * \brief Launch error detection functions and correct corrupted bits.
  * \param pmecc_status Value of the PMECC status register.
@@ -744,4 +742,12 @@ void pmecc_disable(void)
 {
 	/* Disable ECC module */
 	PMECC->PMECC_CTRL |= PMECC_CTRL_DISABLE;
+}
+
+/**
+ * \brief Wait for PMECC ready.
+ */
+void pmecc_wait_ready(void)
+{
+	while((PMECC->PMECC_SR) & PMECC_SR_BUSY);
 }
