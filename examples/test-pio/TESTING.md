@@ -41,3 +41,6 @@ Connect PB15 (pin 8 on J8) to PB14 (pin 7 on J8)
 
 __Pins for SAMA5D4 Evaluation Kit:__
 Connect PE26 (pin 59 on EXPJ19) to PE27 (pin 60 on EXPJ19)
+
+__Pins for SAM9X5 Evaluation Kit:__
+Connect PD16 (pin 37 on J22) to PD17 (pin 38 on J22)
