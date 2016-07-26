@@ -212,7 +212,11 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr,
 		uint8_t write_size;
 		write_size = min_u32(length, page_size - (addr % page_size));
 		at24->twid->iaddr = addr;
-		status |= _at24_write(at24, data, write_size, &at24->mutex);
+		status = _at24_write(at24, data, write_size, &at24->mutex);
+		if (status != TWID_SUCCESS) {
+			mutex_unlock(&at24->mutex);
+			return status;
+		}
 		while (mutex_is_locked(&at24->mutex));
 		length -= write_size;
 		addr += write_size;
