@@ -319,7 +319,6 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 #endif
 
 	/* timings */
-
 	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck)) // 45ns
 	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
 	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
@@ -329,16 +328,16 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck)) // 10ns
 	           | MPDDRC_TPR0_TMRD(NS2CYCLES(8, mck)); // 8ns
 
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(198, mck))  // 198ns
+	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(186, mck))  // 186ns
 	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(208, mck)) // (tRFC)+10 = 208ns
-	           | MPDDRC_TPR1_TXSRD(200)                 // 200ck
-	           | MPDDRC_TPR1_TXP(2);                    // 2ck
+	           | MPDDRC_TPR1_TXSRD(202)                 // 202ck
+	           | MPDDRC_TPR1_TXP(3);                    // 3ck
 
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)                  // 8ck
-	           | MPDDRC_TPR2_TXARDS(2)                 // 2ck
-	           | MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck)); // 45ns
+	desc->tpr2 = MPDDRC_TPR2_TXARD(3)                   // 3ck
+	           | MPDDRC_TPR2_TXARDS(10)                 // 10ck
+	           | MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))   // 15ns
+	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))    // 8ns
+	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck));  // 45ns
 
 	desc->bank = 8192;
 }
