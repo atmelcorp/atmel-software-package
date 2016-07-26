@@ -85,29 +85,29 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "board.h"
 #include "chip.h"
 
 #include "peripherals/aic.h"
-#include "peripherals/pmc.h"
-#include "peripherals/pio.h"
-#include "misc/cache.h"
-
-#include "misc/console.h"
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
 #include "peripherals/isi.h"
+#include "peripherals/lcdc.h"
+#include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+#include "peripherals/twid.h"
+#include "peripherals/twi.h"
 
-#include "video/lcdd.h"
+#include "misc/cache.h"
+#include "misc/console.h"
+
 #include "video/image_sensor_inf.h"
-#include "compiler.h"
 
+#include "compiler.h"
 #include "trace.h"
 #include "timer.h"
 
 #include <stdbool.h>
 #include <stdio.h>
-
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -137,11 +137,11 @@
 /** TWI clock frequency in Hz. */
 #define TWCK 400000
 
-/** LCDD_OVR1 layer use for preview frame display in RGB output */
-#define LCD_PREVIEW_LAYER LCDD_OVR1
+/** LCDC_OVR1 layer use for preview frame display in RGB output */
+#define LCD_PREVIEW_LAYER LCDC_OVR1
 
-/** LCDD_HEO layer use for display captured image in YUV output */
-#define LCD_CAPTURE_LAYER LCDD_HEO
+/** LCDC_HEO layer use for display captured image in YUV output */
+#define LCD_CAPTURE_LAYER LCDC_HEO
 
 /*----------------------------------------------------------------------------
  *        Local variables/constants
@@ -235,8 +235,8 @@ static void configure_frame_buffer(void)
  */
 static void configure_lcd(void)
 {
-	lcdd_configure_input_mode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
-	lcdd_configure_input_mode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
+	lcdc_configure_input_mode(LCD_PREVIEW_LAYER, LCDC_BASECFG1_RGBMODE_16BPP_RGB_565);
+	lcdc_configure_input_mode(LCD_CAPTURE_LAYER, LCDC_HEOCFG1_YUVEN |
 							LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE3);
 	printf("- LCD display on\n\r");
 }
@@ -275,14 +275,14 @@ static void configure_isi(void)
 							ISI_DMA_C_CTRL_C_FETCH,
 							(uint32_t)ISI_CODEC_PATH_BASE_ADDRESS);
 
-	lcdd_create_canvas(LCD_PREVIEW_LAYER,
+	lcdc_create_canvas(LCD_PREVIEW_LAYER,
 						pOvr1Buffer,
 						16,
 						(BOARD_LCD_WIDTH -image_width)/2,
 						(BOARD_LCD_HEIGHT -image_height)/2,
 						image_width,
 						image_height);
-	lcdd_create_canvas(LCD_CAPTURE_LAYER,
+	lcdc_create_canvas(LCD_CAPTURE_LAYER,
 						pHeoBuffer,
 						16,
 						(BOARD_LCD_WIDTH -image_width)/2,
@@ -353,7 +353,7 @@ extern int main( void )
 		switch(key){
 		case 'c': case 'C':
 			printf("Capture image from CODEC path in YUV mode\n\r");
-			lcdd_enable_layer(LCD_PREVIEW_LAYER, 0);
+			lcdc_enable_layer(LCD_PREVIEW_LAYER, 0);
 			isi_dma_preview_channel_enabled(0);
 			isi_dma_codec_channel_enabled(1);
 			for (delay = 0; delay < 0xffff; delay++);
@@ -361,7 +361,7 @@ extern int main( void )
 			isi_codec_wait_dma_completed();
 			printf("-I- Capture done \r\n");
 			for (delay = 0; delay < 0x5ffff; delay++);
-			lcdd_put_image_rotated(LCD_CAPTURE_LAYER,
+			lcdc_put_image_rotated(LCD_CAPTURE_LAYER,
 								NULL,
 								16,
 								(BOARD_LCD_WIDTH - image_width)/2,
@@ -371,14 +371,14 @@ extern int main( void )
 								image_width,
 								image_height,
 								0);
-			lcdd_enable_layer(LCD_CAPTURE_LAYER, 1);
+			lcdc_enable_layer(LCD_CAPTURE_LAYER, 1);
 			break;
 		case 'p': case 'P':
 			printf("preivew in RGB 565 mode\n\r");
 			isi_dma_codec_channel_enabled(0);
 			isi_dma_preview_channel_enabled(1);
-			lcdd_enable_layer(LCD_CAPTURE_LAYER, 0);
-			lcdd_enable_layer(LCD_PREVIEW_LAYER, 1);
+			lcdc_enable_layer(LCD_CAPTURE_LAYER, 0);
+			lcdc_enable_layer(LCD_PREVIEW_LAYER, 1);
 			break;
 		}
 	}

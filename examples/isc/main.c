@@ -86,25 +86,25 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include "board.h"
 #include "chip.h"
 
-#include "misc/cache.h"
 #include "peripherals/aic.h"
-#include "peripherals/pmc.h"
+#include "peripherals/isc.h"
+#include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
+#include "peripherals/pmc.h"
+#include "peripherals/twid.h"
+#include "peripherals/twi.h"
 #include "peripherals/xdmad.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
-#include "peripherals/isc.h"
 
-#include "video/lcdd.h"
 #include "video/image_sensor_inf.h"
 #include "timer.h"
 
-#include "lcd_draw.h"
 #include "trace.h"
 
 #include <stdbool.h>
@@ -383,11 +383,11 @@ static void configure_twi(void)
  */
 static void configure_lcd(void)
 {
-	lcdd_enable_layer(LCDD_HEO, 0);
+	lcdc_enable_layer(LCDC_HEO, 0);
 
 	if (sensor_mode == YUV_422) {
-		lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV);
-		lcdd_create_canvas(LCDD_HEO,
+		lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_YUV);
+		lcdc_create_canvas(LCDC_HEO,
 				   pHeoBuffer,
 				   16,
 				   0,
@@ -396,9 +396,9 @@ static void configure_lcd(void)
 				   image_height);
 	} else {
 		if (lcd_mode == LCD_MODE_YUV422_PLANAR){
-			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV422_PLANAR);
-			lcdd_create_canvas_yuv_planar(
-										LCDD_HEO,
+			lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_YUV422_PLANAR);
+			lcdc_create_canvas_yuv_planar(
+										LCDC_HEO,
 										pHeoBuffer,
 										pHeoBuffer1,
 										pHeoBuffer2,
@@ -408,9 +408,9 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV422_SEMIPLANAR){
-			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV422_SEMIPLANAR);
-			lcdd_create_canvas_yuv_semiplanar(
-										LCDD_HEO,
+			lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_YUV422_SEMIPLANAR);
+			lcdc_create_canvas_yuv_semiplanar(
+										LCDC_HEO,
 										pHeoBuffer,
 										pHeoBuffer1,
 										16,
@@ -419,9 +419,9 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_PLANAR){
-			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV420_PLANAR);
-			lcdd_create_canvas_yuv_planar(
-										LCDD_HEO,
+			lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_YUV420_PLANAR);
+			lcdc_create_canvas_yuv_planar(
+										LCDC_HEO,
 										pHeoBuffer,
 										pHeoBuffer1,
 										pHeoBuffer2,
@@ -431,9 +431,9 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR){
-			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_YUV420_SEMIPLANAR);
-			lcdd_create_canvas_yuv_semiplanar(
-										LCDD_HEO,
+			lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_YUV420_SEMIPLANAR);
+			lcdc_create_canvas_yuv_semiplanar(
+										LCDC_HEO,
 										pHeoBuffer,
 										pHeoBuffer1,
 										12,
@@ -442,8 +442,8 @@ static void configure_lcd(void)
 										image_width,
 										image_height);
 		} else if (lcd_mode == LCD_MODE_RGB565){
-			lcdd_configure_input_mode(LCDD_HEO, LCD_MODE_RGB565);
-			lcdd_create_canvas(LCDD_HEO,
+			lcdc_configure_input_mode(LCDC_HEO, LCD_MODE_RGB565);
+			lcdc_create_canvas(LCDC_HEO,
 					   pHeoBuffer,
 					   16,
 					   0,
@@ -452,7 +452,7 @@ static void configure_lcd(void)
 					   image_height);
 		}
 	}
-	lcdd_enable_layer(LCDD_HEO, 1);
+	lcdc_enable_layer(LCDC_HEO, 1);
 }
 
 /**

@@ -40,10 +40,6 @@ utils-y += utils/timer.o
 utils-y += utils/mutex.o
 utils-$(CONFIG_CORE_ARM926) += utils/mutex_armv5_gcc.o
 utils-$(CONFIG_CORE_CORTEXA5) += utils/mutex_armv7_gcc.o
-utils-y += utils/font.o
-utils-$(CONFIG_HAVE_LCDD) += utils/widget.o
-utils-$(CONFIG_HAVE_LCDD) += utils/lcd_draw.o
-utils-$(CONFIG_HAVE_LCDD) += utils/lcd_font.o
 utils-y += utils/wav.o
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))

@@ -29,32 +29,32 @@
 
 /** \file */
 
-/** \addtogroup lcdd_draw Drawing On LCD
+/** \addtogroup lcdc_draw Drawing On LCD
  *
  * Interface for drawing function on LCD.
  *
  * \note Before drawing, <b>canvas</b> should be selected via
- *       lcdd_select_canvas(), or created by lcdd_create_canvas().
+ *       lcdc_select_canvas(), or created by lcdc_create_canvas().
  *
  * Following functions can use:
  * - Simple drawing:
- *   - lcdd_fill()
- *   - lcdd_draw_pixel()
- *   - lcdd_read_pixel()
- *   - lcdd_draw_line()
- *   - lcdd_draw_rectangle(), lcdd_draw_filled_rectangle()
- *   - lcdd_draw_circle(), lcdd_draw_filled_circle()
- *   - lcdd_draw_image()
+ *   - lcdc_fill()
+ *   - lcdc_draw_pixel()
+ *   - lcdc_read_pixel()
+ *   - lcdc_draw_line()
+ *   - lcdc_draw_rectangle(), lcdc_draw_filled_rectangle()
+ *   - lcdc_draw_circle(), lcdc_draw_filled_circle()
+ *   - lcdc_draw_image()
  * - String related:
- *   - lcdd_draw_string()
- *   - lcdd_get_string_size()
+ *   - lcdc_draw_string()
+ *   - lcdc_get_string_size()
  *
- * \sa \ref lcdd_module, \ref lcdd_font
+ * \sa \ref lcdc_module, \ref lcdc_font
  */
 
 #ifndef DRAW_H
 #define DRAW_H
-/** \addtogroup lcdd_draw
+/** \addtogroup lcdc_draw
  *@{
  */
 
@@ -72,53 +72,53 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-	 /** \addtogroup lcdd_draw_func LCD Drawing Functions */
+	 /** \addtogroup lcdc_draw_func LCD Drawing Functions */
 /** @{*/
-extern void lcdd_fill_white(void);
+extern void lcd_fill_white(void);
 
-extern void lcdd_fill(uint32_t color);
+extern void lcd_fill(uint32_t color);
 
-extern void lcdd_draw_pixel(uint32_t x, uint32_t y, uint32_t c);
+extern void lcd_draw_pixel(uint32_t x, uint32_t y, uint32_t c);
 
-extern uint32_t lcdd_read_pixel(uint32_t x, uint32_t y);
+extern uint32_t lcd_read_pixel(uint32_t x, uint32_t y);
 
-extern void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
+extern void lcd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 			  uint32_t color);
 
-extern void lcdd_draw_rectangle(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
+extern void lcd_draw_rectangle(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 								uint32_t dwHeight, uint32_t dwColor);
 
-extern void lcdd_draw_filled_rectangle(uint32_t dwX1, uint32_t dwY1,
+extern void lcd_draw_filled_rectangle(uint32_t dwX1, uint32_t dwY1,
 										uint32_t dwX2, uint32_t dwY2, uint32_t dwColor);
 
-extern void lcdd_draw_circle(uint32_t x, uint32_t y, uint32_t r, uint32_t color);
-extern void lcdd_draw_filled_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
+extern void lcd_draw_circle(uint32_t x, uint32_t y, uint32_t r, uint32_t color);
+extern void lcd_draw_filled_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
 									uint32_t dwColor);
 
-extern void lcdd_draw_string(uint32_t x, uint32_t y, const char *pString,
+extern void lcd_draw_string(uint32_t x, uint32_t y, const char *pString,
 			    uint32_t color);
 
-extern void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
+extern void lcd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
 				       const char *pString, uint32_t fontColor,
 				       uint32_t bgColor);
 
-extern void lcdd_get_string_size(const char *pString, uint32_t * pWidth,
+extern void lcd_get_string_size(const char *pString, uint32_t * pWidth,
 			       uint32_t * pHeight);
 
-extern void lcdd_draw_image(uint32_t x, uint32_t y, const uint8_t * pImage,
+extern void lcd_draw_image(uint32_t x, uint32_t y, const uint8_t * pImage,
 			   uint32_t width, uint32_t height);
 
-extern void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
+extern void lcd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t dwWidth,
 								uint32_t dwHeight, uint32_t dwColor);
 
 
-extern void lcdd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
+extern void lcd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
 
-extern void lcdd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
+extern void lcd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color);
 
 
-extern void lcdd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color);
-extern void lcdd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color);
+extern void lcd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color);
+extern void lcd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color);
 
 /** @}*/
 /**@}*/

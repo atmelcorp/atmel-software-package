@@ -30,10 +30,11 @@
 
 TOP := ../..
 
-CONFIG_HAVE_LCDD = y
-
 BINNAME = lcd
 
 obj-y += examples/lcd/main.o
+obj-y += examples/lcd/font.o
+obj-y += examples/lcd/lcd_draw.o
+obj-y += examples/lcd/lcd_font.o
 
 include $(TOP)/scripts/Makefile.rules

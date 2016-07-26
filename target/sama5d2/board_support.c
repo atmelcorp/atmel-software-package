@@ -46,6 +46,7 @@
 #include "peripherals/isc.h"
 #endif
 #include "peripherals/l2cc.h"
+#include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
@@ -53,10 +54,6 @@
 #include "peripherals/sfc.h"
 #include "peripherals/smc.h"
 #include "peripherals/wdt.h"
-
-#ifdef CONFIG_HAVE_LCDD
-#include "video/lcdd.h"
-#endif
 
 #include "timer.h"
 #include "memories/ddram.h"
@@ -764,11 +761,12 @@ void board_cfg_isc(void)
 }
 #endif
 
-#ifdef CONFIG_HAVE_LCDD
+#ifdef CONFIG_HAVE_LCDC
 void board_cfg_lcd(void)
 {
+#ifdef BOARD_LCD_PINS
 	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
-	const struct _lcdd_desc lcd_desc = {
+	const struct _lcdc_desc lcd_desc = {
 		.width = BOARD_LCD_WIDTH,
 		.height = BOARD_LCD_HEIGHT,
 		.framerate = BOARD_LCD_FRAMERATE,
@@ -781,7 +779,8 @@ void board_cfg_lcd(void)
 	};
 
 	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdd_configure(&lcd_desc);
+	lcdc_configure(&lcd_desc);
+#endif
 }
 #endif
 

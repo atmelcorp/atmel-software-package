@@ -27,7 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup lcdd_draw
+/** \addtogroup lcd_draw
  *
  * Implementation of draw function on LCD, Include draw text, image
  * and basic shapes (line, rectangle, circle).
@@ -43,7 +43,7 @@
 #include "board.h"
 #include "compiler.h"
 
-#include "video/lcdd.h"
+#include "peripherals/lcdc.h"
 
 #include "lcd_draw.h"
 #include "lcd_font.h"
@@ -69,7 +69,7 @@ static uint32_t front_color;
  */
 static void _hide_canvas(void)
 {
-	//lcdd_enable_layer(lcdd_get_canvas()->layer_id, false);
+	//lcdc_enable_layer(lcdc_get_canvas()->layer_id, false);
 }
 
 /**
@@ -77,7 +77,7 @@ static void _hide_canvas(void)
  */
 static void _show_canvas(void)
 {
-	//lcdd_enable_layer(lcdd_get_canvas()->layer_id, true);
+	//lcdc_enable_layer(lcdc_get_canvas()->layer_id, true);
 }
 
 /**
@@ -97,7 +97,7 @@ static void _set_front_color(uint32_t color)
  */
 static void _draw_pixel(uint32_t dwX, uint32_t dwY)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	uint8_t *buffer = pDisp->buffer;
 	uint16_t w = pDisp->width;
 	//uint16_t h = pDisp->height;
@@ -141,7 +141,7 @@ static void _draw_pixel(uint32_t dwX, uint32_t dwY)
  */
 static void _fill_rect(uint32_t dwX1, uint32_t dwY1, uint32_t dwX2, uint32_t dwY2)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	uint16_t w = pDisp->width;
 	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = w * cw;	/* row width in bytes */
@@ -286,18 +286,18 @@ static uint32_t _draw_line_bresenham (uint32_t dwX1, uint32_t dwY1, uint32_t dwX
  *
  * \param color  Fill color.
  */
-void lcdd_fill(uint32_t color)
+void lcd_fill(uint32_t color)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	_set_front_color(color);
 	_hide_canvas();
 	_fill_rect(0, 0, pDisp->width, pDisp->height);
 	_show_canvas();
 }
 
-void lcdd_fill_white(void)
+void lcd_fill_white(void)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	_hide_canvas();
 	_set_front_color(0x0000FF);
 	_fill_rect(0, 0, pDisp->width / 3, pDisp->height);
@@ -315,7 +315,7 @@ void lcdd_fill_white(void)
  * \param y  Y-coordinate of pixel.
  * \param color  Pixel color.
  */
-void lcdd_draw_pixel(uint32_t x, uint32_t y, uint32_t color)
+void lcd_draw_pixel(uint32_t x, uint32_t y, uint32_t color)
 {
 	_set_front_color(color);
 	_hide_canvas();
@@ -331,9 +331,9 @@ void lcdd_draw_pixel(uint32_t x, uint32_t y, uint32_t color)
  *
  * \return color  Readed pixel color.
  */
-extern uint32_t lcdd_read_pixel(uint32_t x, uint32_t y)
+extern uint32_t lcd_read_pixel(uint32_t x, uint32_t y)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	uint8_t *buffer = pDisp->buffer;
 	uint16_t w = pDisp->width;
 	//uint16_t h = pDisp->height;
@@ -374,7 +374,7 @@ extern uint32_t lcdd_read_pixel(uint32_t x, uint32_t y)
  * \param y2        Y-coordinate of line end.
  * \param color     Pixel color.
  */
-void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
+void lcd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 		    uint32_t color)
 {
 	_set_front_color(color);
@@ -387,7 +387,7 @@ void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
 	}
 
 	if ((x1 == x2) || (y1 == y2)) {
-		lcdd_draw_filled_rectangle(x1, y1, x2, y2, color);
+		lcd_draw_filled_rectangle(x1, y1, x2, y2, color);
 	} else {
 		_hide_canvas();
 		_draw_line_bresenham(x1, y1, x2, y2);
@@ -404,7 +404,7 @@ void lcdd_draw_line(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2,
  * \param height  Rectangle height in pixels.
  * \param color  Rectangle color.
  */
-void lcdd_draw_rectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+void lcd_draw_rectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
 			 uint32_t color)
 {
 	uint32_t x1 = x + width - 1;
@@ -428,7 +428,7 @@ void lcdd_draw_rectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height
  * \param dwY2   Y-coordinate of down-right rectangle corner.
  * \param color Rectangle color.
  */
-void lcdd_draw_filled_rectangle(uint32_t dwX1, uint32_t dwY1,
+void lcd_draw_filled_rectangle(uint32_t dwX1, uint32_t dwY1,
 				uint32_t dwX2, uint32_t dwY2, uint32_t color)
 {
 	_set_front_color(color);
@@ -445,7 +445,7 @@ void lcdd_draw_filled_rectangle(uint32_t dwX1, uint32_t dwY1,
  * \param dwR     circle radius.
  * \param color circle color.
  */
-void lcdd_draw_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t color)
+void lcd_draw_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t color)
 {
 	int32_t d;		/* Decision Variable */
 	uint32_t curX;		/* Current X Value */
@@ -489,7 +489,7 @@ void lcdd_draw_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR, uint32_t color)
  * \param dwR     circle radius.
  * \param color circle color.
  */
-void lcdd_draw_filled_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
+void lcd_draw_filled_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
 			     uint32_t color)
 {
 	signed int d;		// Decision Variable
@@ -537,10 +537,10 @@ void lcdd_draw_filled_circle(uint32_t dwX, uint32_t dwY, uint32_t dwR,
  * \param p_string  String to display.
  * \param color    String color.
  */
-void lcdd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t color)
+void lcd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t color)
 {
 	uint32_t xorg = x;
-	uint8_t font_sel = lcdd_get_selected_font();
+	uint8_t font_sel = lcd_get_selected_font();
 	uint8_t width = font_param[font_sel].width ;
 	uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
@@ -556,7 +556,7 @@ void lcdd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t col
 			y += height + char_space;
 			x = xorg;
 		} else {
-			lcdd_draw_char(x, y, *p_string, color);
+			lcd_draw_char(x, y, *p_string, color);
 			x += width + char_space;
 		}
 		p_string++;
@@ -573,13 +573,13 @@ void lcdd_draw_string(uint32_t x, uint32_t y, const char *p_string, uint32_t col
  * \param fontColor String color.
  * \param bgColor   Background color.
  */
-void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
+void lcd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
 								   const char *p_string,
 								   uint32_t fontColor,
 								   uint32_t bgColor)
 {
 	uint32_t xorg = x;
-	uint8_t font_sel = lcdd_get_selected_font();
+	uint8_t font_sel = lcd_get_selected_font();
 	uint8_t width = font_param[font_sel].width ;
 	uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
@@ -595,7 +595,7 @@ void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
 			y += height + char_space;;
 			x = xorg;
 		} else {
-			lcdd_draw_char_with_bgcolor(x, y, *p_string, fontColor, bgColor);
+			lcd_draw_char_with_bgcolor(x, y, *p_string, fontColor, bgColor);
 			x += width + char_space;;
 		}
 		p_string++;
@@ -604,7 +604,7 @@ void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
 
 /**
  * \brief Returns the width & height in pixels that a string will occupy on the screen
- * if drawn using lcdd_draw_string.
+ * if drawn using lcd_draw_string.
  *
  * \param p_string  String.
  * \param p_width   Pointer for storing the string width (optional).
@@ -612,9 +612,9 @@ void lcdd_draw_string_with_bgcolor(uint32_t x, uint32_t y,
  *
  * \return String width in pixels.
  */
-void lcdd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p_height)
+void lcd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p_height)
 {
-	uint8_t font_sel = lcdd_get_selected_font();
+	uint8_t font_sel = lcd_get_selected_font();
 	uint8_t width = font_param[font_sel].width;
 	uint8_t height = font_param[font_sel].height;
 	uint8_t char_space = font_param[font_sel].char_space;
@@ -651,10 +651,10 @@ void lcdd_get_string_size(const char *p_string, uint32_t * p_width, uint32_t * p
  * \param width     Image width.
  * \param height    Image height.
  */
-void lcdd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
+void lcd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
 		     uint32_t width, uint32_t height)
 {
-	struct _lcdd_layer *pDisp = lcdd_get_canvas();
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
 	uint16_t cw = pDisp->bpp / 8;	/* color width */
 	uint32_t rw = pDisp->width * cw;	/* Row width in bytes */
 	uint32_t rws = width * cw;	/* Source Row Width */
@@ -683,7 +683,7 @@ void lcdd_draw_image(uint32_t dwX, uint32_t dwY, const uint8_t * pImage,
  * \param height    window height.
  * \param color     background color
  */
-void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t width,
+void lcd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t width,
 		       uint32_t height, uint32_t color)
 {
 	_set_front_color(color);
@@ -699,29 +699,29 @@ void lcdd_clear_window(uint32_t dwX, uint32_t dwY, uint32_t width,
 /**
  * Draw fast vertical line
  */
-void lcdd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
+void lcd_draw_fast_vline (uint32_t x, uint32_t y, uint32_t h, uint32_t color)
 {
-	lcdd_draw_line(x, y, x, y+h-1, color);
+	lcd_draw_line(x, y, x, y+h-1, color);
 }
 /**
  * Draw fast horizontal line
  */
-void lcdd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
+void lcd_draw_fast_hline (uint32_t x, uint32_t y, uint32_t w, uint32_t color)
 {
-	lcdd_draw_line(x, y, x+w-1, y, color);
+	lcd_draw_line(x, y, x+w-1, y, color);
 }
 /**
  * Fill rectangle with color
  */
-static void _lcdd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
+static void _lcd_fill_rectangle (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t color)
 {
 	uint32_t i;
-	for (i=x; i<x+w; i++) lcdd_draw_fast_vline(i, y, h, color);
+	for (i=x; i<x+w; i++) lcd_draw_fast_vline(i, y, h, color);
 }
 /**
  * Draw a circle
  */
-static void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
+static void _lcd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
@@ -760,7 +760,7 @@ static void _lcdd_draw_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t cor
 /**
  * Fill a circle
  */
-static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
+static void _lcd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t corner, uint32_t delta, uint32_t color)
 {
 	int32_t f = 1 - r;
 	int32_t ddF_x = 1;
@@ -779,12 +779,12 @@ static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t cor
 		f += ddF_x;
 
 		if (corner & 0x1) {
-			lcdd_draw_fast_vline(x0+x, y0-y, 2*y+1+delta, color);
-			lcdd_draw_fast_vline(x0+y, y0-x, 2*x+1+delta, color);
+			lcd_draw_fast_vline(x0+x, y0-y, 2*y+1+delta, color);
+			lcd_draw_fast_vline(x0+y, y0-x, 2*x+1+delta, color);
 		}
 		if (corner & 0x2) {
-			lcdd_draw_fast_vline(x0-x, y0-y, 2*y+1+delta, color);
-			lcdd_draw_fast_vline(x0-y, y0-x, 2*x+1+delta, color);
+			lcd_draw_fast_vline(x0-x, y0-y, 2*y+1+delta, color);
+			lcd_draw_fast_vline(x0-y, y0-x, 2*x+1+delta, color);
 		}
 	}
 }
@@ -796,34 +796,34 @@ static void _lcdd_fill_circle (uint32_t x0, uint32_t y0, uint32_t r, uint8_t cor
 /**
  * Draw a rectangle with rounded corners
  */
-void lcdd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color)
+void lcd_draw_rounded_rect (uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color)
 {
 	_set_front_color(color);
 	_hide_canvas();
 	// smarter version
-	lcdd_draw_fast_hline(x+r, y, w-2*r, color); // Top
-	lcdd_draw_fast_hline(x+r, y+h-1, w-2*r, color); // Bottom
-	lcdd_draw_fast_vline(x, y+r, h-2*r, color); // Left
-	lcdd_draw_fast_vline(x+w-1, y+r, h-2*r, color); // Right
+	lcd_draw_fast_hline(x+r, y, w-2*r, color); // Top
+	lcd_draw_fast_hline(x+r, y+h-1, w-2*r, color); // Bottom
+	lcd_draw_fast_vline(x, y+r, h-2*r, color); // Left
+	lcd_draw_fast_vline(x+w-1, y+r, h-2*r, color); // Right
 	// draw four corners
-	_lcdd_draw_circle(x+r, y+r, r, 1, color);
-	_lcdd_draw_circle(x+w-r-1, y+r, r, 2, color);
-	_lcdd_draw_circle(x+w-r-1, y+h-r-1, r, 4, color);
-	_lcdd_draw_circle(x+r, y+h-r-1, r, 8, color);
+	_lcd_draw_circle(x+r, y+r, r, 1, color);
+	_lcd_draw_circle(x+w-r-1, y+r, r, 2, color);
+	_lcd_draw_circle(x+w-r-1, y+h-r-1, r, 4, color);
+	_lcd_draw_circle(x+r, y+h-r-1, r, 8, color);
 	_show_canvas();
 }
 /**
  * Fill a rectangle with rounded corners
  */
-void lcdd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color)
+void lcd_fill_rounded_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t r, uint32_t color)
 {
 	_set_front_color(color);
 	_hide_canvas();
 	if (w>(2*r)) {
-		_lcdd_fill_rectangle(x+r, y, w-(2*r), h, color);
+		_lcd_fill_rectangle(x+r, y, w-(2*r), h, color);
 		// draw four corners
-		_lcdd_fill_circle(x+w-r-1, y+r, r, 1, h-2*r-1, color);
-		_lcdd_fill_circle(x+r, y+r, r, 2, h-2*r-1, color);
+		_lcd_fill_circle(x+w-r-1, y+r, r, 1, h-2*r-1, color);
+		_lcd_fill_circle(x+r, y+r, r, 2, h-2*r-1, color);
 	}
 	_show_canvas();
 }

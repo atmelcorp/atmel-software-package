@@ -57,18 +57,18 @@ static uint8_t font_sel = FONT10x14;
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-struct _font_parameters* lcdd_select_font (_FONT_enum font)
+struct _font_parameters* lcd_select_font (_FONT_enum font)
 {
 	font_sel = font;
 	return &font_param[font];
 }
 
-uint8_t lcdd_get_selected_font (void)
+uint8_t lcd_get_selected_font (void)
 {
 	return font_sel;
 }
 
-void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
+void lcd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 {
 	uint32_t row, col;
 	uint8_t Ch;
@@ -84,11 +84,11 @@ void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
         for (col=0 ; col < width ; col++ ) {
           for (row=0 ; row<8 ; row++ ) {
             Ch = (pfont[((c - 0x20) * 20) + col * 2] >> (7 - row)) & 0x1;
-            if (Ch) lcdd_draw_pixel( x+col, y+row, color) ;
+            if (Ch) lcd_draw_pixel( x+col, y+row, color) ;
           }
           for (row=0; row<6; row++ ) {
             Ch = (pfont[((c - 0x20) * 20) + col * 2 + 1] >> (7 - row)) & 0x1;
-            if (Ch) lcdd_draw_pixel( x+col, y+row+8, color) ;
+            if (Ch) lcd_draw_pixel( x+col, y+row+8, color) ;
           }
         }
         break;
@@ -99,7 +99,7 @@ void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
 		  if (Ch) {
             for (row=0 ; row < height; row++ ) {
               if ((Ch>>row)&0x1) {
-                  lcdd_draw_pixel( x+(height-row), y+col, color) ;
+                  lcd_draw_pixel( x+(height-row), y+col, color) ;
               }
             }
           }
@@ -114,9 +114,9 @@ void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
             for (row=0 ; row < height; row++ ) {
               if ((Ch>>row)&0x1)  {
                 if (font_sel == FONT8x8)
-                  lcdd_draw_pixel( x+row, y+col, color) ;
+                  lcd_draw_pixel( x+row, y+col, color) ;
                 else
-                  lcdd_draw_pixel( x+col, y+row, color) ;
+                  lcd_draw_pixel( x+col, y+row, color) ;
               }
             }
           }
@@ -134,7 +134,7 @@ void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color)
  * \param fontColor  Character color.
  * \param bgColor    Background color.
  */
-void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
+void lcd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fontColor,
 			 uint32_t bgColor)
 {
 	uint32_t row, col;
@@ -151,13 +151,13 @@ void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fon
         for (col=0 ; col < width ; col++ ) {
           for (row=0 ; row<8 ; row++ ) {
             Ch = (pfont[((c - 0x20) * 20) + col * 2] >> (7 - row)) & 0x1;
-            if (Ch) lcdd_draw_pixel( x+col, y+row, fontColor) ;
-			else lcdd_draw_pixel( x+col, y+row, bgColor) ;
+            if (Ch) lcd_draw_pixel( x+col, y+row, fontColor) ;
+			else lcd_draw_pixel( x+col, y+row, bgColor) ;
           }
           for (row=0; row<6; row++ ) {
             Ch = (pfont[((c - 0x20) * 20) + col * 2 + 1] >> (7 - row)) & 0x1;
-            if (Ch) lcdd_draw_pixel( x+col, y+row+8, fontColor) ;
-			else lcdd_draw_pixel( x+col, y+row+8, bgColor) ;
+            if (Ch) lcd_draw_pixel( x+col, y+row+8, fontColor) ;
+			else lcd_draw_pixel( x+col, y+row+8, bgColor) ;
           }
         }
         break;
@@ -168,10 +168,10 @@ void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fon
 		  if (Ch) {
             for (row=0 ; row < height; row++ ) {
               if ((Ch>>row)&0x1) {
-                  lcdd_draw_pixel( x+(height-row), y+col, fontColor) ;
+                  lcd_draw_pixel( x+(height-row), y+col, fontColor) ;
 			  }
 			  else {
-				  lcdd_draw_pixel( x+(height-row), y+col, bgColor) ;
+				  lcd_draw_pixel( x+(height-row), y+col, bgColor) ;
 			  }
             }
           }
@@ -186,15 +186,15 @@ void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c, uint32_t fon
             for (row=0 ; row < height; row++ ) {
               if ((Ch>>row)&0x1)  {
                 if (font_sel == FONT8x8)
-                  lcdd_draw_pixel( x+row, y+col, fontColor) ;
+                  lcd_draw_pixel( x+row, y+col, fontColor) ;
                 else
-                  lcdd_draw_pixel( x+col, y+row, fontColor) ;
+                  lcd_draw_pixel( x+col, y+row, fontColor) ;
               }
 			  else {
 				  if (font_sel == FONT8x8)
-                  lcdd_draw_pixel( x+row, y+col, bgColor) ;
+                  lcd_draw_pixel( x+row, y+col, bgColor) ;
                 else
-                  lcdd_draw_pixel( x+col, y+row, bgColor) ;
+                  lcd_draw_pixel( x+col, y+row, bgColor) ;
 			  }
             }
           }

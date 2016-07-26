@@ -31,7 +31,7 @@
 
 /**
  * \ingroup drivers/video
- * \addtogroup lcdd_module LCD Driver
+ * \addtogroup lcdc_module LCD Driver
  *
  * \section Purpose
  *
@@ -41,57 +41,56 @@
  * - Implement simple drawing functions.
  * - Implement string display functions.
  *
- * \section lcdd_base_usage Usage
+ * \section lcdc_base_usage Usage
  *
  * Uses following functions for LCD basic configuration and displaying:
- * -# Uses lcdd_initialize() to initialize the controller and LCD.
- * -# lcdd_on() and lcdd_off() is used to turn LCD ON/OFF.
- * -# lcdd_set_backlight() is used to change LCD backlight level.
- * -# To display a image (BMP format) on LCD, lcdd_put_image_rotated()
- *    lcdd_put_image_scaled() and lcdd_put_image() can be used.
+ * -# Uses lcdc_initialize() to initialize the controller and LCD.
+ * -# lcdc_on() and lcdc_off() is used to turn LCD ON/OFF.
+ * -# lcdc_set_backlight() is used to change LCD backlight level.
+ * -# To display a image (BMP format) on LCD, lcdc_put_image_rotated()
+ *    lcdc_put_image_scaled() and lcdc_put_image() can be used.
  * -# To change configuration for an overlay layer, the following functions
  *    can use:
- *    -# lcdd_enable_layer(), lcdd_is_layer_on(): Turn ON/OFF layer, check status.
- *    -# lcdd_set_position(), lcdd_set_priority(), lcdd_enable_alpha(),
- *       lcdd_set_alpha(), lcdd_set_color_keying(): Change display options.
+ *    -# lcdc_enable_layer(), lcdc_is_layer_on(): Turn ON/OFF layer, check status.
+ *    -# lcdc_set_position(), lcdc_set_priority(), lcdc_enable_alpha(),
+ *       lcdc_set_alpha(), lcdc_set_color_keying(): Change display options.
  * -# Shortcuts for layer display are as following:
- *    -# lcdd_show_base(), lcdd_stop_base()
- *    -# lcdd_show_ovr1(), lcdd_stop_ovr1()
- *    -# lcdd_show_heo(), lcdd_stop_heo()
- *    -# lcdd_show_hcr(), lcdd_stop_hcr()
+ *    -# lcdc_show_base(), lcdc_stop_base()
+ *    -# lcdc_show_ovr1(), lcdc_stop_ovr1()
+ *    -# lcdc_show_heo(), lcdc_stop_heo()
  * -# Drawing supporting functions, for drawing canvas:
- *    -# lcdd_create_canvas(): Create blank canvas on specified layer for
+ *    -# lcdc_create_canvas(): Create blank canvas on specified layer for
  *                            drawing on
- *    -# lcdd_select_canvas(): Select a displayer as canvas to drawing on
- *    -# lcdd_get_canvas():    Get current selected canvas layer
+ *    -# lcdc_select_canvas(): Select a displayer as canvas to drawing on
+ *    -# lcdc_get_canvas():    Get current selected canvas layer
  *
- * For LCD drawing functions, refer to \ref lcdd_draw.
+ * For LCD drawing functions, refer to \ref lcdc_draw.
  *
- * For LCD string display, refer to \ref lcdd_font.
+ * For LCD string display, refer to \ref lcdc_font.
  *
  * @{
- *   \defgroup lcdd_base LCD Driver General Operations
+ *   \defgroup lcdc_base LCD Driver General Operations
  *   @{
  *     Implementation of LCD driver, Include LCD initialization,
  *     LCD on/off and LCD backlight control.
  *
- *     \sa \ref lcdd_base_usage "LCD Driver General Usage"
+ *     \sa \ref lcdc_base_usage "LCD Driver General Usage"
  *   @}
- *   \defgroup lcdd_draw LCD Driver Simple Drawing
+ *   \defgroup lcdc_draw LCD Driver Simple Drawing
  *   @{
  *   @}
- *   \defgroup lcdd_font LCD Driver Font Display
+ *   \defgroup lcdc_font LCD Driver Font Display
  *   @{
  *   @}
  * @}
  */
 
-#ifndef LCDD_H
-#define LCDD_H
+#ifndef LCDC_H_
+#define LCDC_H_
 
-#ifdef CONFIG_HAVE_LCDD
+#ifdef CONFIG_HAVE_LCDC
 
-/** \addtogroup lcdd_base
+/** \addtogroup lcdc_base
  *  @{
  */
 
@@ -99,21 +98,18 @@
  *        Defines
  *----------------------------------------------------------------------------*/
 
-/** \addtogroup lcdd_disp_id LCD display layers IDs
+/** \addtogroup lcdc_disp_id LCD display layers IDs
  *      @{
  */
-/** LCD controller ID, no display, configuration ONLY */
-#define LCDD_CONTROLLER     0
-/** LCD base layer, display fixed size image */
-#define LCDD_BASE           1
-/** LCD Overlay 1 */
-#define LCDD_OVR1           2
-/** LCD Overlay 2 */
-#define LCDD_OVR2           4
-/** LCD HighEndOverlay, support resize */
-#define LCDD_HEO            3
-/** LCD Cursor, max size 128x128 */
-#define LCDD_CUR            6
+enum {
+	LCDC_CONTROLLER = 0, /**< LCD controller, no display, config. only */
+	LCDC_BASE = 1,       /**< Base Layer */
+	LCDC_OVR1 = 2,       /**< Overlay 1 */
+	LCDC_HEO = 3,        /**< High-End Overlay */
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	LCDC_OVR2 = 4,       /**< Overlay 2 */
+#endif
+};
 /**     @}*/
 
 #include <stdint.h>
@@ -123,10 +119,8 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-struct _pin;
-
 /** LCD display layer information */
-struct _lcdd_layer {
+struct _lcdc_layer {
 	void    *buffer;   /**< Display image buffer */
 	uint16_t width;    /**< Display image width */
 	uint16_t height;   /**< Display image height */
@@ -135,7 +129,7 @@ struct _lcdd_layer {
 };
 
 /** LCD configuration information */
-struct _lcdd_desc {
+struct _lcdc_desc {
 	uint16_t width;    /**< Display image width */
 	uint16_t height;   /**< Display image height */
 	uint8_t  framerate; /**< Frame rate in Hz */
@@ -152,93 +146,88 @@ struct _lcdd_desc {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void lcdd_configure(const struct _lcdd_desc *desc);
+extern void lcdc_configure(const struct _lcdc_desc *desc);
 
-extern uint8_t lcdd_is_layer_on(uint8_t layer);
+extern uint8_t lcdc_is_layer_on(uint8_t layer);
 
-extern void lcdd_enable_layer(uint8_t layer, bool enable);
+extern void lcdc_enable_layer(uint8_t layer, bool enable);
 
-extern void lcdd_refresh(uint8_t layer);
+extern void lcdc_refresh(uint8_t layer);
 
-extern void lcdd_set_position(uint8_t layer, uint32_t x, uint32_t y);
+extern void lcdc_set_position(uint8_t layer, uint32_t x, uint32_t y);
 
-extern void lcdd_set_priority(uint8_t layer, uint8_t priority);
+extern void lcdc_set_priority(uint8_t layer, uint8_t priority);
 
-extern uint8_t lcdd_get_priority(uint8_t layer);
+extern uint8_t lcdc_get_priority(uint8_t layer);
 
-extern void lcdd_enable_alpha(uint8_t layer, bool enable_local,
+extern void lcdc_enable_alpha(uint8_t layer, bool enable_local,
 		bool enable_global);
 
-extern void lcdd_set_alpha(uint8_t layer, bool reverse, uint8_t alpha);
+extern void lcdc_set_alpha(uint8_t layer, bool reverse, uint8_t alpha);
 
-extern uint8_t lcdd_get_alpha(uint8_t layer);
+extern uint8_t lcdc_get_alpha(uint8_t layer);
 
-extern void lcdd_set_color_keying(uint8_t layer, bool dest_keying,
+extern void lcdc_set_color_keying(uint8_t layer, bool dest_keying,
 				uint32_t color, uint32_t mask);
 
-extern void lcdd_disable_color_keying(uint8_t layer);
+extern void lcdc_disable_color_keying(uint8_t layer);
 
-extern void lcdd_set_color_lut(uint8_t layer, uint32_t *clut, uint8_t bpp,
+extern void lcdc_set_color_lut(uint8_t layer, uint32_t *clut, uint8_t bpp,
 		uint8_t num_colors);
 
-extern void *lcdd_put_image_rotated(uint8_t layer, void *buffer, uint8_t bpp,
+extern void *lcdc_put_image_rotated(uint8_t layer, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h,
 		uint32_t img_w, uint32_t img_h, int16_t rotation);
 
-extern void *lcdd_put_image_scaled(uint8_t layer, void *buffer, uint8_t bpp,
+extern void *lcdc_put_image_scaled(uint8_t layer, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h,
 		uint32_t img_w, uint32_t img_h);
 
-extern void *lcdd_put_image(uint8_t layer, void *buffer, uint8_t bpp,
+extern void *lcdc_put_image(uint8_t layer, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h);
 
-extern void *lcdd_show_base(void *buffer, uint8_t bpp, bool bottom_up);
+extern void *lcdc_show_base(void *buffer, uint8_t bpp, bool bottom_up);
 
-extern void lcdd_stop_base(void);
+extern void lcdc_stop_base(void);
 
-extern void *lcdd_show_ovr1(void *buffer, uint8_t bpp,
+extern void *lcdc_show_ovr1(void *buffer, uint8_t bpp,
 			   uint32_t x, uint32_t y, int32_t w, int32_t h);
 
-extern void lcdd_stop_ovr1(void);
+extern void lcdc_stop_ovr1(void);
 
-extern void *lcdd_show_heo(void *buffer, uint8_t bpp,
+extern void *lcdc_show_heo(void *buffer, uint8_t bpp,
 			  uint32_t x, uint32_t y, int32_t w, int32_t h,
 			  uint32_t memW, uint32_t memH);
 
-extern void lcdd_stop_heo(void);
+extern void lcdc_stop_heo(void);
 
-extern void lcdd_on(void);
+extern void lcdc_on(void);
 
-extern void lcdd_off(void);
+extern void lcdc_off(void);
 
-extern void lcdd_set_backlight(uint32_t step);
+extern void lcdc_set_backlight(uint32_t step);
 
-extern void *lcdd_show_hcr(void *buffer, uint8_t bpp,
-		uint32_t x, uint32_t y, int32_t w, int32_t h);
+extern struct _lcdc_layer *lcdc_get_canvas(void);
 
-extern void lcdd_stop_hcr(void);
+extern uint8_t lcdc_select_canvas(uint8_t layer);
 
-extern struct _lcdd_layer *lcdd_get_canvas(void);
-
-extern uint8_t lcdd_select_canvas(uint8_t layer);
-
-extern void *lcdd_create_canvas(uint8_t layer, void *buffer, uint8_t bpp,
+extern void *lcdc_create_canvas(uint8_t layer, void *buffer, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
-extern void lcdd_flush_canvas(void);
+extern void lcdc_flush_canvas(void);
 
-extern void lcdd_configure_input_mode(uint8_t layer, uint32_t input_mode);
+extern void lcdc_configure_input_mode(uint8_t layer, uint32_t input_mode);
 
-extern void *lcdd_create_canvas_yuv_planar(uint8_t layer,
+extern void *lcdc_create_canvas_yuv_planar(uint8_t layer,
 		void *buffer_y, void *buffer_u, void *buffer_v, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
-extern void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer,
+extern void *lcdc_create_canvas_yuv_semiplanar(uint8_t layer,
 		void *buffer_y, void *buffer_uv, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 /**  @}*/
 
-#endif /* CONFIG_HAVE_LCDD */
+#endif /* CONFIG_HAVE_LCDC */
 
-#endif /* #ifndef LCDD_H */
+#endif /* #ifndef LCDC_H_ */

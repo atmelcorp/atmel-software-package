@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "video/lcdd.h"
+#include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "misc/cache.h"
@@ -45,7 +45,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/** \addtogroup lcdd_base
+/** \addtogroup lcdc_base
  * Implementation of LCD driver, Include LCD initialization,
  * LCD on/off and LCD backlight control.
  */
@@ -94,24 +94,26 @@ struct _layer_data {
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _lcdd_desc lcdd_config;         /**< Current LCD configuration */
+static struct _lcdc_desc lcdc_config;         /**< Current LCD configuration */
 
-static struct _lcdd_layer lcdd_canvas;        /**< Current selected canvas */
+static struct _lcdc_layer lcdc_canvas;        /**< Current selected canvas */
 
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
 
-static struct _layer_data lcdd_base;         /**< Base Layer */
+static struct _layer_data lcdc_base;         /**< Base Layer */
 
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc ovr1_dma_desc;  /**< DMA desc. for OVR1 Layer */
 
-static struct _layer_data lcdd_ovr1;         /**< OVR1 Layer */
+static struct _layer_data lcdc_ovr1;         /**< OVR1 Layer */
 
+#ifdef CONFIG_HAVE_LCDC_OVR2
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc ovr2_dma_desc;  /**< DMA desc. for OVR2 Layer */
 
-static struct _layer_data lcdd_ovr2;         /**< OVR2 Layer */
+static struct _layer_data lcdc_ovr2;         /**< OVR2 Layer */
+#endif
 
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc heo_dma_desc;   /**< DMA desc. for HEO Layer */
@@ -122,12 +124,7 @@ static struct _lcdc_dma_desc heo_dma_u_desc; /**< DMA desc. for HEO U-UV Layer *
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc heo_dma_v_desc; /**< DMA desc. for HEO V Layer */
 
-static struct _layer_data lcdd_heo;          /**< HEO Layer */
-
-CACHE_ALIGNED_DDR
-static struct _lcdc_dma_desc hcc_dma_desc;   /**< DMA desc. for HCC Layer */
-
-static struct _layer_data lcdd_hcc;          /**< HCC Layer */
+static struct _layer_data lcdc_heo;          /**< HEO Layer */
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -135,15 +132,15 @@ static struct _layer_data lcdd_hcc;          /**< HCC Layer */
 
 /** Information about layers, order must match value of LCDC_XXX constants in
  * ldcd.h */
-static const struct _layer_info lcdd_layers[] = {
-	/* 0: LCDD_CONTROLLER */
+static const struct _layer_info lcdc_layers[] = {
+	/* 0: LCDC_CONTROLLER */
 	{
 		.stride_supported = false,
 		.reg_enable = &LCDC->LCDC_LCDEN,
 	},
-	/* 1: LCDD_BASE */
+	/* 1: LCDC_BASE */
 	{
-		.data = &lcdd_base,
+		.data = &lcdc_base,
 		.stride_supported = false,
 		.reg_enable = &LCDC->LCDC_BASECHER,
 		.reg_blender = &LCDC->LCDC_BASECFG4,
@@ -153,9 +150,9 @@ static const struct _layer_info lcdd_layers[] = {
 		.reg_color = &LCDC->LCDC_BASECFG3,
 		.reg_clut = &LCDC->LCDC_BASECLUT[0]
 	},
-	/* 2: LCDD_OVR1 */
+	/* 2: LCDC_OVR1 */
 	{
-		.data = &lcdd_ovr1,
+		.data = &lcdc_ovr1,
 		.stride_supported = true,
 		.reg_enable = &LCDC->LCDC_OVR1CHER,
 		.reg_blender = &LCDC->LCDC_OVR1CFG9,
@@ -166,9 +163,9 @@ static const struct _layer_info lcdd_layers[] = {
 		.reg_color = &LCDC->LCDC_OVR1CFG6,
 		.reg_clut = &LCDC->LCDC_OVR1CLUT[0],
 	},
-	/* 3: LCDD_HEO */
+	/* 3: LCDC_HEO */
 	{
-		.data = &lcdd_heo,
+		.data = &lcdc_heo,
 		.stride_supported = true,
 		.reg_enable = &LCDC->LCDC_HEOCHER,
 		.reg_blender = &LCDC->LCDC_HEOCFG12,
@@ -182,9 +179,10 @@ static const struct _layer_info lcdd_layers[] = {
 		.reg_scale = &LCDC->LCDC_HEOCFG13,
 		.reg_clut = &LCDC->LCDC_HEOCLUT[0],
 	},
-	/* 4: LCDD_OVR2 */
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	/* 4: LCDC_OVR2 */
 	{
-		.data = &lcdd_ovr2,
+		.data = &lcdc_ovr2,
 		.stride_supported = true,
 		.reg_enable = &LCDC->LCDC_OVR2CHER,
 		.reg_blender = &LCDC->LCDC_OVR2CFG9,
@@ -195,15 +193,12 @@ static const struct _layer_info lcdd_layers[] = {
 		.reg_color = &LCDC->LCDC_OVR2CFG6,
 		.reg_clut = &LCDC->LCDC_OVR2CLUT[0],
 	},
-	/* 5: N/A */
+#else
+	/* 4: N/A */
 	{
 		.data = NULL,
 	},
-	/* 6: LCDD_CUR */
-	{
-		.data = &lcdd_hcc,
-		.stride_supported = false,
-	},
+#endif
 };
 
 /*----------------------------------------------------------------------------
@@ -227,7 +222,7 @@ static uint32_t _get_bits_per_pixel(uint32_t mode_reg)
 	case LCDC_HEOCFG1_RGBMODE_16BPP_TRGB_1555:
 		return 2 * 8;
 
-	case LCDC_HEOCFG1_RGBMODE_18BPP_RGB_666PACKED:
+	case LCDC_HEOCFG1_RGBMODE_18BPP_RGB_666_PACKED:
 	case LCDC_HEOCFG1_RGBMODE_19BPP_TRGB_PACKED:
 	case LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED:
 		return 3 * 8;
@@ -242,13 +237,13 @@ static uint32_t _get_bits_per_pixel(uint32_t mode_reg)
 
 	/* CLUT modes */
 
-	case LCDC_HEOCFG1_CLUTMODE_CLUT_1BPP | LCDC_HEOCFG1_CLUTEN:
+	case LCDC_HEOCFG1_CLUTMODE_1BPP | LCDC_HEOCFG1_CLUTEN:
 		return 1;
-	case LCDC_HEOCFG1_CLUTMODE_CLUT_2BPP | LCDC_HEOCFG1_CLUTEN:
+	case LCDC_HEOCFG1_CLUTMODE_2BPP | LCDC_HEOCFG1_CLUTEN:
 		return 2;
-	case LCDC_HEOCFG1_CLUTMODE_CLUT_4BPP | LCDC_HEOCFG1_CLUTEN:
+	case LCDC_HEOCFG1_CLUTMODE_4BPP | LCDC_HEOCFG1_CLUTEN:
 		return 4;
-	case LCDC_HEOCFG1_CLUTMODE_CLUT_8BPP | LCDC_HEOCFG1_CLUTEN:
+	case LCDC_HEOCFG1_CLUTMODE_8BPP | LCDC_HEOCFG1_CLUTEN:
 		return 8;
 
 	/* YUV modes */
@@ -373,32 +368,31 @@ static void _build_color_lut1(volatile uint32_t *clut)
  * \brief Initializes the LCD controller.
  * Configure SMC to access LCD controller at 64MHz MCK.
  */
-void lcdd_configure(const struct _lcdd_desc *desc)
+void lcdc_configure(const struct _lcdc_desc *desc)
 {
-	lcdd_config = *desc;
-	lcdd_off();
+	lcdc_config = *desc;
+	lcdc_off();
 
 	/* Reset layer information */
-	lcdd_base.bpp = 0;
-	lcdd_ovr1.bpp = 0;
-	lcdd_ovr2.bpp = 0;
-	lcdd_heo.bpp = 0;
-	lcdd_hcc.bpp = 0;
-	lcdd_base.buffer = NULL;
-	lcdd_ovr1.buffer = NULL;
-	lcdd_ovr2.buffer = NULL;
-	lcdd_heo.buffer = NULL;
-	lcdd_hcc.buffer = NULL;
-	lcdd_base.dma_desc = &base_dma_desc;
-	lcdd_ovr1.dma_desc = &ovr1_dma_desc;
-	lcdd_ovr2.dma_desc = &ovr2_dma_desc;
-	lcdd_heo.dma_desc = &heo_dma_desc;
-	lcdd_heo.dma_u_desc = &heo_dma_u_desc;
-	lcdd_heo.dma_v_desc = &heo_dma_v_desc;
-	lcdd_hcc.dma_desc = &hcc_dma_desc;
+	lcdc_base.bpp = 0;
+	lcdc_base.buffer = NULL;
+	lcdc_base.dma_desc = &base_dma_desc;
+	lcdc_ovr1.bpp = 0;
+	lcdc_ovr1.buffer = NULL;
+	lcdc_ovr1.dma_desc = &ovr1_dma_desc;
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	lcdc_ovr2.bpp = 0;
+	lcdc_ovr2.buffer = NULL;
+	lcdc_ovr2.dma_desc = &ovr2_dma_desc;
+#endif
+	lcdc_heo.bpp = 0;
+	lcdc_heo.buffer = NULL;
+	lcdc_heo.dma_desc = &heo_dma_desc;
+	lcdc_heo.dma_u_desc = &heo_dma_u_desc;
+	lcdc_heo.dma_v_desc = &heo_dma_v_desc;
 
 	/* No canvas selected */
-	lcdd_canvas.buffer = NULL;
+	lcdc_canvas.buffer = NULL;
 
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_LCDC);
@@ -412,39 +406,50 @@ void lcdd_configure(const struct _lcdd_desc *desc)
 	/* Configure channels */
 
 	/* Base */
-	LCDC->LCDC_BASECFG0 = LCDC_BASECFG0_DLBO | LCDC_BASECFG0_BLEN_AHB_INCR16;
+	LCDC->LCDC_BASECFG0 = LCDC_BASECFG0_DLBO |
+	                      LCDC_BASECFG0_BLEN_AHB_INCR16;
 	LCDC->LCDC_BASECFG1 = LCDC_BASECFG1_RGBMODE_24BPP_RGB_888_PACKED;
 
 	/* Overlay 1, GA 0xFF */
-	LCDC->LCDC_OVR1CFG0 =
-		LCDC_OVR1CFG0_DLBO | LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR16 |
-		LCDC_OVR1CFG0_ROTDIS;
+	LCDC->LCDC_OVR1CFG0 = LCDC_OVR1CFG0_DLBO |
+	                      LCDC_OVR1CFG0_BLEN_AHB_INCR16 |
+	                      LCDC_OVR1CFG0_ROTDIS;
 	LCDC->LCDC_OVR1CFG1 = LCDC_OVR1CFG1_RGBMODE_24BPP_RGB_888_PACKED;
-	LCDC->LCDC_OVR1CFG9 = LCDC_OVR1CFG9_GA(0xFF) | LCDC_OVR1CFG9_GAEN;
+	LCDC->LCDC_OVR1CFG9 = LCDC_OVR1CFG9_GA(0xFF) |
+	                      LCDC_OVR1CFG9_GAEN;
 
+#ifdef CONFIG_HAVE_LCDC_OVR2
 	/* Overlay 2, GA 0xFF */
-	LCDC->LCDC_OVR2CFG0 = LCDC_OVR2CFG0_DLBO | LCDC_OVR2CFG0_BLEN_AHB_INCR16
-		| LCDC_OVR2CFG0_ROTDIS;
+	LCDC->LCDC_OVR2CFG0 = LCDC_OVR2CFG0_DLBO |
+	                      LCDC_OVR2CFG0_BLEN_AHB_INCR16 |
+	                      LCDC_OVR2CFG0_ROTDIS;
 	LCDC->LCDC_OVR2CFG1 = LCDC_OVR2CFG1_RGBMODE_24BPP_RGB_888_PACKED;
-	LCDC->LCDC_OVR2CFG9 = LCDC_OVR2CFG9_GA(0xFF) | LCDC_OVR2CFG9_GAEN;
+	LCDC->LCDC_OVR2CFG9 = LCDC_OVR2CFG9_GA(0xFF) |
+	                      LCDC_OVR2CFG9_GAEN;
+#endif
 
 	/* High End Overlay, GA 0xFF */
-	LCDC->LCDC_HEOCFG0 =
-		LCDC_HEOCFG0_DLBO | LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 |
-		LCDC_HEOCFG0_ROTDIS;
+	LCDC->LCDC_HEOCFG0 = LCDC_HEOCFG0_DLBO |
+	                     LCDC_HEOCFG0_BLEN_AHB_INCR16 |
+	                     LCDC_HEOCFG0_ROTDIS;
 	LCDC->LCDC_HEOCFG1 = LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888_PACKED;
-	LCDC->LCDC_HEOCFG12 = LCDC_HEOCFG12_GA(0xFF) | LCDC_HEOCFG12_GAEN;
+	LCDC->LCDC_HEOCFG12 = LCDC_HEOCFG12_GA(0xFF) |
+	                      LCDC_HEOCFG12_GAEN;
 
-	LCDC->LCDC_HEOCFG14 = LCDC_HEOCFG14_CSCRY(0x94)
-		| LCDC_HEOCFG14_CSCRU(0xCC) | LCDC_HEOCFG14_CSCRV(0)
-		| LCDC_HEOCFG14_CSCYOFF;
-	LCDC->LCDC_HEOCFG15 = LCDC_HEOCFG15_CSCGY(0x94)
-		| LCDC_HEOCFG15_CSCGU(0x387) | LCDC_HEOCFG15_CSCGV(0x3CD)
-		| LCDC_HEOCFG15_CSCUOFF;
-	LCDC->LCDC_HEOCFG16 = LCDC_HEOCFG16_CSCBY(0x94)| LCDC_HEOCFG16_CSCBU(0)
-		| LCDC_HEOCFG16_CSCBV(0x102) | LCDC_HEOCFG16_CSCVOFF;
+	LCDC->LCDC_HEOCFG14 = LCDC_HEOCFG14_CSCRY(0x94) |
+	                      LCDC_HEOCFG14_CSCRU(0xCC) |
+	                      LCDC_HEOCFG14_CSCRV(0) |
+	                      LCDC_HEOCFG14_CSCYOFF;
+	LCDC->LCDC_HEOCFG15 = LCDC_HEOCFG15_CSCGY(0x94) |
+	                      LCDC_HEOCFG15_CSCGU(0x387) |
+	                      LCDC_HEOCFG15_CSCGV(0x3CD) |
+	                      LCDC_HEOCFG15_CSCUOFF;
+	LCDC->LCDC_HEOCFG16 = LCDC_HEOCFG16_CSCBY(0x94)|
+	                      LCDC_HEOCFG16_CSCBU(0) |
+	                      LCDC_HEOCFG16_CSCBV(0x102) |
+	                      LCDC_HEOCFG16_CSCVOFF;
 
-	lcdd_on();
+	lcdc_on();
 }
 
 /**
@@ -452,9 +457,9 @@ void lcdd_configure(const struct _lcdd_desc *desc)
  * \param layer Layer ID.
  * \return 1 if layer is on.
  */
-uint8_t lcdd_is_layer_on(uint8_t layer_id)
+uint8_t lcdc_is_layer_on(uint8_t layer_id)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_enable)
 		return 0;
@@ -467,9 +472,9 @@ uint8_t lcdd_is_layer_on(uint8_t layer_id)
  * \param layer_id Layer ID.
  * \param bEnDis Enable/Disable.
  */
-void lcdd_enable_layer(uint8_t layer_id, bool enable)
+void lcdc_enable_layer(uint8_t layer_id, bool enable)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_enable || !layer->reg_blender)
 		return;
@@ -487,9 +492,9 @@ void lcdd_enable_layer(uint8_t layer_id, bool enable)
  * Refresh layer
  * \param layer_id Layer ID.
  */
-void lcdd_refresh(uint8_t layer_id)
+void lcdc_refresh(uint8_t layer_id)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_enable || !layer->reg_blender)
 		return;
@@ -506,9 +511,9 @@ void lcdd_refresh(uint8_t layer_id)
  * \param x X position.
  * \param y Y position.
  */
-void lcdd_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
+void lcdc_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	uint32_t w, h;
 
 	if (!layer->reg_enable || !layer->reg_win)
@@ -517,10 +522,10 @@ void lcdd_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
 	w = (layer->reg_win[1] & LCDC_OVR1CFG3_XSIZE_Msk) >> LCDC_OVR1CFG3_XSIZE_Pos;
 	h = (layer->reg_win[1] & LCDC_OVR1CFG3_YSIZE_Msk) >> LCDC_OVR1CFG3_YSIZE_Pos;
 
-	if (x + w >= lcdd_config.width)
-		x = lcdd_config.width - w;
-	if (y + h >= lcdd_config.height)
-		y = lcdd_config.height - h;
+	if (x + w >= lcdc_config.width)
+		x = lcdc_config.width - w;
+	if (y + h >= lcdc_config.height)
+		y = lcdc_config.height - h;
 
 	layer->reg_win[0] = LCDC_OVR1CFG2_XPOS(x) | LCDC_OVR1CFG2_YPOS(y);
 	if (layer->reg_enable[2] & LCDC_OVR1CHSR_CHSR)
@@ -532,9 +537,9 @@ void lcdd_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
  * \param layer_id Layer ID
  * \param priority Priority value.
  */
-void lcdd_set_priority(uint8_t layer_id, uint8_t priority)
+void lcdc_set_priority(uint8_t layer_id, uint8_t priority)
 {
-	if (layer_id != LCDD_HEO)
+	if (layer_id != LCDC_HEO)
 		return;
 
 	if (priority)
@@ -548,9 +553,9 @@ void lcdd_set_priority(uint8_t layer_id, uint8_t priority)
  * Return Priority of layer (only for HEO now).
  * \param layer_id Layer ID.
  */
-uint8_t lcdd_get_priority(uint8_t layer_id)
+uint8_t lcdc_get_priority(uint8_t layer_id)
 {
-	if (layer_id != LCDD_HEO)
+	if (layer_id != LCDC_HEO)
 		return 0;
 
 	return (LCDC->LCDC_HEOCFG12 & LCDC_HEOCFG12_VIDPRI) > 0;
@@ -562,9 +567,9 @@ uint8_t lcdd_get_priority(uint8_t layer_id)
  * \param bEnDisLA Enable/Disable local  alpha.
  * \param bEnDisGA Enable/Disable global alpha.
  */
-void lcdd_enable_alpha(uint8_t layer_id, bool enable_local, bool enable_global)
+void lcdc_enable_alpha(uint8_t layer_id, bool enable_local, bool enable_global)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	uint32_t cfg;
 
 	if (!layer->reg_enable || !layer->reg_blender)
@@ -581,13 +586,13 @@ void lcdd_enable_alpha(uint8_t layer_id, bool enable_local, bool enable_global)
 
 /**
  * Set alpha value
- * \param layer_id Layer ID (OVR1, HEO or CUR).
+ * \param layer_id Layer ID (OVR1 or HEOR).
  * \param bReverse Reverse alpha (alpha -> 1 - alpha).
  * \param bAlpha   Global alpha value.
  */
-void lcdd_set_alpha(uint8_t layer_id, bool reverse, uint8_t alpha)
+void lcdc_set_alpha(uint8_t layer_id, bool reverse, uint8_t alpha)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	uint32_t cfg;
 
 	if (!layer->reg_enable || !layer->reg_blender)
@@ -602,11 +607,11 @@ void lcdd_set_alpha(uint8_t layer_id, bool reverse, uint8_t alpha)
 
 /**
  * Get alpha value
- * \param layer_id Layer ID (OVR1, HEO or CUR).
+ * \param layer_id Layer ID (OVR1 or HEO).
  */
-uint8_t lcdd_get_alpha(uint8_t layer_id)
+uint8_t lcdc_get_alpha(uint8_t layer_id)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_blender)
 		return 0;
@@ -616,15 +621,15 @@ uint8_t lcdd_get_alpha(uint8_t layer_id)
 
 /**
  * Enable and Set Color Keying
- * \param layer_id  Layer ID (OVR1, HEO or CUR).
+ * \param layer_id  Layer ID (OVR1 or HEO).
  * \param dest_keying Destination/Source keying.
  * \param color Color to matching.
  * \param mask  Color bit mask.
  */
-void lcdd_set_color_keying(uint8_t layer_id, bool dest_keying,
+void lcdc_set_color_keying(uint8_t layer_id, bool dest_keying,
 			   uint32_t color, uint32_t mask)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_enable || !layer->reg_blender || !layer->reg_color)
 		return;
@@ -648,11 +653,11 @@ void lcdd_set_color_keying(uint8_t layer_id, bool dest_keying,
 
 /**
  * Disable Color Keying
- * \param layer_id  Layer ID (OVR1, HEO or CUR).
+ * \param layer_id  Layer ID (OVR1 or HEO).
  */
-void lcdd_disable_color_keying(uint8_t layer_id)
+void lcdc_disable_color_keying(uint8_t layer_id)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_enable || !layer->reg_blender || !layer->reg_color)
 		return;
@@ -666,14 +671,14 @@ void lcdd_disable_color_keying(uint8_t layer_id)
 
 /**
  * Set Color Lookup Table
- * \param layer_id   Layer ID (OVR1, HEO or CUR).
+ * \param layer_id   Layer ID (OVR1 or HEO).
  * \param pCLUT    Pointer to color lookup table.
  * \param bpp      Bits Per Pixel (1, 2, 4, 8).
  * \param nbColors Number of colors indexed in table.
  */
-void lcdd_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t num_colors)
+void lcdc_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t num_colors)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	struct _layer_data *data = layer->data;
 
 	if (!layer->reg_clut || !data)
@@ -714,9 +719,9 @@ void lcdd_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t n
  * Display an image on specified layer.
  * (Image scan origion: Left -> Right, Top -> Bottom.)
  * \note w & h should be the rotated result.
- * \note for LCDD_BASE: x, y don't care. w always > 0.
- * \note for LCDD_HEO:imgW & imgH is used.
- * \param layer_id  Layer ID (OVR1, HEO or CUR).
+ * \note for LCDC_BASE: x, y don't care. w always > 0.
+ * \note for LCDC_HEO:imgW & imgH is used.
+ * \param layer_id  Layer ID (OVR1 or HEO).
  * \param buffer Pointer to image data.
  * \param bpp     Bits Per Pixel.
  *                - 16: TRGB 1555
@@ -730,13 +735,13 @@ void lcdd_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t n
  * \param imgH    Source image height.
  * \param wRotate Rotation (clockwise, 0, 90, 180, 270 accepted).
  */
-void * lcdd_put_image_rotated(uint8_t layer_id,
+void * lcdc_put_image_rotated(uint8_t layer_id,
 			     void *buffer, uint8_t bpp,
 			     uint32_t x, uint32_t y,
 			     int32_t w, int32_t h,
 			     uint32_t img_w, uint32_t img_h, int16_t rotation)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	struct _layer_data *data = layer->data;
 
 	uint8_t bottom_up = (h < 0);
@@ -776,13 +781,13 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 		h = -h;
 	if (w < 0)
 		w = -w;
-	if (x + w > lcdd_config.width) {
-		//printf("! w %d -> %d\n\r", w, lcdd_config.width-x);
-		w = lcdd_config.width - x;
+	if (x + w > lcdc_config.width) {
+		//printf("! w %d -> %d\n\r", w, lcdc_config.width-x);
+		w = lcdc_config.width - x;
 	}
-	if (y + h > lcdd_config.height) {
-		//printf("! h %d -> %d\n\r", h, lcdd_config.height-y);
-		h = lcdd_config.height - y;
+	if (y + h > lcdc_config.height) {
+		//printf("! h %d -> %d\n\r", h, lcdc_config.height-y);
+		h = lcdc_config.height - y;
 	}
 	if (w == 0)
 		w++;
@@ -1003,7 +1008,7 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
 /**
  * Display an image on specified layer.
  * (Image scan: Left -> Right, Top -> Bottom.)
- * \param layer_id  Layer ID (OVR1, HEO or CUR).
+ * \param layer_id  Layer ID (OVR1 or HEO).
  * \param buffer Pointer to image data.
  * \param bpp     Bits Per Pixel.
  *                - 16: TRGB 1555
@@ -1017,18 +1022,18 @@ void * lcdd_put_image_rotated(uint8_t layer_id,
  * \param imgH    Source image height.
  * \return Pointer to old display image data.
  */
-void * lcdd_put_image_scaled(uint8_t layer_id, void *buffer, uint8_t bpp,
+void * lcdc_put_image_scaled(uint8_t layer_id, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h,
 		uint32_t img_w, uint32_t img_h)
 {
-	return lcdd_put_image_rotated(layer_id, buffer, bpp, x, y, w, h, img_w,
+	return lcdc_put_image_rotated(layer_id, buffer, bpp, x, y, w, h, img_w,
 			img_h, 0);
 }
 
 /**
  * Display an image on specified layer.
  * (Image scan: Left -> Right, Top -> Bottom.)
- * \param layer_id  Layer ID (OVR1, HEO or CUR).
+ * \param layer_id  Layer ID (OVR1 or HEO).
  * \param buffer Pointer to image data.
  * \param bpp     Bits Per Pixel.
  *                - 16: TRGB 1555
@@ -1040,10 +1045,10 @@ void * lcdd_put_image_scaled(uint8_t layer_id, void *buffer, uint8_t bpp,
  * \param h       Height (<0 means Bottom -> Top data).
  * \return Pointer to old display image data.
  */
-void * lcdd_put_image(uint8_t layer_id, void *buffer, uint8_t bpp,
+void * lcdc_put_image(uint8_t layer_id, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h)
 {
-	return lcdd_put_image_rotated(layer_id, buffer, bpp, x, y, w, h, w,
+	return lcdc_put_image_rotated(layer_id, buffer, bpp, x, y, w, h, w,
 			h < 0 ? -h : h, 0);
 }
 
@@ -1054,16 +1059,16 @@ void * lcdd_put_image(uint8_t layer_id, void *buffer, uint8_t bpp,
  * \param bBottomUp Scan from bottom to top.
  * \return Pointer to old display image data.
  */
-void * lcdd_show_base(void *buffer, uint8_t bpp, bool bottom_up)
+void * lcdc_show_base(void *buffer, uint8_t bpp, bool bottom_up)
 {
-	return lcdd_put_image(LCDD_BASE, buffer, bpp, 0, 0, lcdd_config.width,
-			bottom_up ? -lcdd_config.height : lcdd_config.height);
+	return lcdc_put_image(LCDC_BASE, buffer, bpp, 0, 0, lcdc_config.width,
+			bottom_up ? -lcdc_config.height : lcdc_config.height);
 }
 
 /**
  * Stop display on base layer
  */
-void lcdd_stop_base(void)
+void lcdc_stop_base(void)
 {
 	if (!(LCDC->LCDC_BASECHSR & LCDC_BASECHSR_CHSR))
 		return;
@@ -1072,7 +1077,7 @@ void lcdd_stop_base(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdd_base.dma_desc, &LCDC->LCDC_BASEADDR);
+	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1089,16 +1094,16 @@ void lcdd_stop_base(void)
 /**
  * Start display on overlay 1 layer
  */
-void *lcdd_show_ovr1(void *buffer, uint8_t bpp, uint32_t x, uint32_t y,
+void *lcdc_show_ovr1(void *buffer, uint8_t bpp, uint32_t x, uint32_t y,
 		int32_t w, int32_t h)
 {
-	return lcdd_put_image(LCDD_OVR1, buffer, bpp, x, y, w, h);
+	return lcdc_put_image(LCDC_OVR1, buffer, bpp, x, y, w, h);
 }
 
 /**
  * Stop display on overlay 1 layer
  */
-void lcdd_stop_ovr1(void)
+void lcdc_stop_ovr1(void)
 {
 	if (!(LCDC->LCDC_OVR1CHSR & LCDC_OVR1CHSR_CHSR))
 		return;
@@ -1107,7 +1112,7 @@ void lcdd_stop_ovr1(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdd_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
+	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1124,17 +1129,17 @@ void lcdd_stop_ovr1(void)
 /**
  * Start display on High End Overlay layer
  */
-void *lcdd_show_heo(void *buffer, uint8_t bpp, uint32_t x, uint32_t y,
+void *lcdc_show_heo(void *buffer, uint8_t bpp, uint32_t x, uint32_t y,
 		int32_t w, int32_t h, uint32_t img_w, uint32_t img_h)
 {
-	return lcdd_put_image_rotated(LCDD_HEO, buffer, bpp, x, y, w, h,
+	return lcdc_put_image_rotated(LCDC_HEO, buffer, bpp, x, y, w, h,
 			img_w, img_h, 0);
 }
 
 /**
  * Stop display on High End Overlay layer
  */
-void lcdd_stop_heo(void)
+void lcdc_stop_heo(void)
 {
 	if (!(LCDC->LCDC_HEOCHSR & LCDC_HEOCHSR_CHSR))
 		return;
@@ -1143,9 +1148,9 @@ void lcdd_stop_heo(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdd_heo.dma_desc, &LCDC->LCDC_HEOADDR);
-	_clear_dma_desc(lcdd_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
-	_clear_dma_desc(lcdd_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
+	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOADDR);
+	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
+	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1160,65 +1165,61 @@ void lcdd_stop_heo(void)
 }
 
 /**
- * Start display on Hardware Cursor layer
- * (Default transparent color is set to #000000, black)
- */
-void *lcdd_show_hcr(void *buffer, uint8_t bpp, uint32_t x, uint32_t y,
-		int32_t w, int32_t h)
-{
-	// TODO
-	return 0;
-}
-
-/**
- * Stop display on Hardware Cursor layer
- */
-void lcdd_stop_hcr(void)
-{
-	// TODO
-}
-
-/**
  * \brief Turn on the LCD.
  */
-void lcdd_on(void)
+void lcdc_on(void)
 {
-	uint32_t pixel_clock = lcdd_config.framerate;
-	pixel_clock *= lcdd_config.timing_hpw + lcdd_config.timing_hbp +
-		lcdd_config.width + lcdd_config.timing_hfp;
-	pixel_clock *= lcdd_config.timing_vpw + lcdd_config.timing_vbp +
-		lcdd_config.height + lcdd_config.timing_vfp;
+	uint32_t cfg0;
+	uint32_t pixel_clock = lcdc_config.framerate;
+	pixel_clock *= lcdc_config.timing_hpw + lcdc_config.timing_hbp +
+		lcdc_config.width + lcdc_config.timing_hfp;
+	pixel_clock *= lcdc_config.timing_vpw + lcdc_config.timing_vbp +
+		lcdc_config.height + lcdc_config.timing_vfp;
 
 	/* Enable peripheral clock and ISC system clock */
 	pmc_enable_peripheral(ID_LCDC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
-	LCDC->LCDC_LCDCFG0 =
-		LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / pixel_clock - 2)
-		| LCDC_LCDCFG0_CGDISHEO | LCDC_LCDCFG0_CGDISOVR1
-		| LCDC_LCDCFG0_CGDISOVR2 | LCDC_LCDCFG0_CGDISBASE
-		| LCDC_LCDCFG0_CLKPWMSEL | LCDC_LCDCFG0_CLKSEL;
+	cfg0 = LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / pixel_clock - 2) |
+	       LCDC_LCDCFG0_CGDISBASE |
+	       LCDC_LCDCFG0_CGDISOVR1 |
+	       LCDC_LCDCFG0_CGDISHEO |
+	       LCDC_LCDCFG0_CLKPWMSEL |
+	       LCDC_LCDCFG0_CLKSEL;
+#ifdef LCDC_LCDCFG0_CGDISOVR2
+	cfg0 |= LCDC_LCDCFG0_CGDISOVR2;
+#endif
+#ifdef LCDC_LCDCFG0_CGDISHCR
+	cfg0 |= LCDC_LCDCFG0_CGDISHCR;
+#endif
+#ifdef LCDC_LCDCFG0_CGDISPP
+	cfg0 |= LCDC_LCDCFG0_CGDISPP;
+#endif
+	LCDC->LCDC_LCDCFG0 = cfg0;
 
-	LCDC->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(lcdd_config.timing_vpw - 1)
-		| LCDC_LCDCFG1_HSPW(lcdd_config.timing_hpw - 1);
+	LCDC->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(lcdc_config.timing_vpw - 1) |
+	                     LCDC_LCDCFG1_HSPW(lcdc_config.timing_hpw - 1);
 
-	LCDC->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(lcdd_config.timing_vbp)
-		| LCDC_LCDCFG2_VFPW(lcdd_config.timing_vfp - 1);
+	LCDC->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(lcdc_config.timing_vbp) |
+	                     LCDC_LCDCFG2_VFPW(lcdc_config.timing_vfp - 1);
 
-	LCDC->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(lcdd_config.timing_hbp - 1)
-		| LCDC_LCDCFG3_HFPW(lcdd_config.timing_hfp - 1);
+	LCDC->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(lcdc_config.timing_hbp - 1) |
+	                     LCDC_LCDCFG3_HFPW(lcdc_config.timing_hfp - 1);
 
-	LCDC->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(lcdd_config.height - 1)
-		| LCDC_LCDCFG4_PPL(lcdd_config.width - 1);
+	LCDC->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(lcdc_config.height - 1) |
+	                     LCDC_LCDCFG4_PPL(lcdc_config.width - 1);
 
-	LCDC->LCDC_LCDCFG5 = LCDC_LCDCFG5_GUARDTIME(30)
-		| LCDC_LCDCFG5_MODE_OUTPUT_24BPP
-		| LCDC_LCDCFG5_DISPDLY
-		| LCDC_LCDCFG5_VSPDLYS | LCDC_LCDCFG5_VSPOL | LCDC_LCDCFG5_HSPOL;
+	LCDC->LCDC_LCDCFG5 = LCDC_LCDCFG5_GUARDTIME(30) |
+	                     LCDC_LCDCFG5_MODE_OUTPUT_24BPP |
+	                     LCDC_LCDCFG5_DISPDLY |
+	                     LCDC_LCDCFG5_VSPDLYS |
+	                     LCDC_LCDCFG5_VSPOL |
+	                     LCDC_LCDCFG5_HSPOL;
 
-	LCDC->LCDC_LCDCFG6 = LCDC_LCDCFG6_PWMCVAL(0xF0)
-		| LCDC_LCDCFG6_PWMPOL | LCDC_LCDCFG6_PWMPS(6);
+	LCDC->LCDC_LCDCFG6 = LCDC_LCDCFG6_PWMCVAL(0xF0) |
+	                     LCDC_LCDCFG6_PWMPOL |
+	                     LCDC_LCDCFG6_PWMPS(6);
 
 	/* 2. Enable the Pixel Clock by writing one to the CLKEN field of the
 	   LCDC_LCDEN register. */
@@ -1251,7 +1252,7 @@ void lcdd_on(void)
 /**
  * \brief Turn off the LCD.
  */
-void lcdd_off(void)
+void lcdc_off(void)
 {
 	/* 1. Clear the DFETCH bit in the DSCR.CHXCTRL field of the DSCR structure
 	   will disable the channel at the end of the frame. */
@@ -1260,12 +1261,14 @@ void lcdd_off(void)
 	   channel at the end of the frame. */
 
 	/* Disable all DMA channel descriptors */
-	_clear_dma_desc(lcdd_base.dma_desc, &LCDC->LCDC_BASEADDR);
-	_clear_dma_desc(lcdd_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
-	_clear_dma_desc(lcdd_ovr2.dma_desc, &LCDC->LCDC_OVR2ADDR);
-	_clear_dma_desc(lcdd_heo.dma_desc, &LCDC->LCDC_HEOADDR);
-	_clear_dma_desc(lcdd_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
-	_clear_dma_desc(lcdd_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
+	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEADDR);
+	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	_clear_dma_desc(lcdc_ovr2.dma_desc, &LCDC->LCDC_OVR2ADDR);
+#endif
+	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOADDR);
+	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
+	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1327,29 +1330,29 @@ void lcdd_off(void)
  * \param level   Backlight brightness level [1..255],
  *                255 means maximum brightness.
  */
-void lcdd_set_backlight(uint32_t level)
+void lcdc_set_backlight(uint32_t level)
 {
 	uint32_t cfg = LCDC->LCDC_LCDCFG6 & ~LCDC_LCDCFG6_PWMCVAL_Msk;
 	LCDC->LCDC_LCDCFG6 = cfg | LCDC_LCDCFG6_PWMCVAL(level);
 }
 
 /**
- * Get canvas layer for LCDD_Draw*
+ * Get canvas layer for LCDC_Draw*
  * \return Layer information pointer.
  */
-struct _lcdd_layer *lcdd_get_canvas(void)
+struct _lcdc_layer *lcdc_get_canvas(void)
 {
-	return &lcdd_canvas;
+	return &lcdc_canvas;
 }
 
 /**
  * Flush the current canvas layer*
  */
-void lcdd_flush_canvas(void)
+void lcdc_flush_canvas(void)
 {
-	struct _lcdd_layer *layer;
+	struct _lcdc_layer *layer;
 
-	layer = lcdd_get_canvas();
+	layer = lcdc_get_canvas();
 	cache_clean_region(layer->buffer, layer->height * layer->width * 4);
 }
 
@@ -1361,23 +1364,23 @@ void lcdd_flush_canvas(void)
  *       selection fails.
  * \param layer_id Layer ID.
  */
-uint8_t lcdd_select_canvas(uint8_t layer_id)
+uint8_t lcdc_select_canvas(uint8_t layer_id)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
 	if (!layer->reg_cfg || !layer->data)
 		return 0;
 
-	lcdd_canvas.buffer = (void *)layer->data->buffer;
+	lcdc_canvas.buffer = (void *)layer->data->buffer;
 	if (layer->reg_win) {
-		lcdd_canvas.width = (layer->reg_win[1] & LCDC_HEOCFG3_XSIZE_Msk) >> LCDC_HEOCFG3_XSIZE_Pos;
-		lcdd_canvas.height = (layer->reg_win[1] & LCDC_HEOCFG3_YSIZE_Msk) >> LCDC_HEOCFG3_YSIZE_Pos;
+		lcdc_canvas.width = (layer->reg_win[1] & LCDC_HEOCFG3_XSIZE_Msk) >> LCDC_HEOCFG3_XSIZE_Pos;
+		lcdc_canvas.height = (layer->reg_win[1] & LCDC_HEOCFG3_YSIZE_Msk) >> LCDC_HEOCFG3_YSIZE_Pos;
 	} else {
-		lcdd_canvas.width = lcdd_config.width;
-		lcdd_canvas.height = lcdd_config.height;
+		lcdc_canvas.width = lcdc_config.width;
+		lcdc_canvas.height = lcdc_config.height;
 	}
-	lcdd_canvas.bpp = _get_bits_per_pixel(layer->reg_cfg[1] & LCDC_HEOCFG1_RGBMODE_Msk);
-	lcdd_canvas.layer_id = layer_id;
+	lcdc_canvas.bpp = _get_bits_per_pixel(layer->reg_cfg[1] & LCDC_HEOCFG1_RGBMODE_Msk);
+	lcdc_canvas.layer_id = layer_id;
 
 	return 1;
 }
@@ -1393,29 +1396,26 @@ uint8_t lcdd_select_canvas(uint8_t layer_id)
  * \param h        Canvas height.
  * \note The content in buffer is destroied.
  */
-void * lcdd_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
+void * lcdc_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
 			  uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	uint32_t max_w = lcdd_config.width;
-	uint32_t max_h = lcdd_config.height;
+	uint32_t max_w = lcdc_config.width;
+	uint32_t max_h = lcdc_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 	void *old_buffer;
 
 	switch (layer_id) {
-	case LCDD_BASE:
+	case LCDC_BASE:
 		x = 0;
 		y = 0;
 		break;
-	case LCDD_CUR:
-		if (w > 128 || h > 128)
-			return NULL;
-		max_w = max_h = 128;
-		/* fall through */
-	case LCDD_OVR1:
-	case LCDD_OVR2:
-	case LCDD_HEO:
+	case LCDC_OVR1:
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	case LCDC_OVR2:
+#endif
+	case LCDC_HEO:
 		/* Size check */
-		if (x + w > lcdd_config.width || y + h > lcdd_config.height)
+		if (x + w > lcdc_config.width || y + h > lcdc_config.height)
 			return NULL;
 		break;
 	}
@@ -1429,14 +1429,14 @@ void * lcdd_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
 	bytes_per_row = (bits_per_row & 0x7) ? (bits_per_row / 8 + 1) : (bits_per_row / 8);
 	memset(buffer, 0, bytes_per_row * h);
 
-	old_buffer = lcdd_put_image_rotated(layer_id, buffer, bpp,
+	old_buffer = lcdc_put_image_rotated(layer_id, buffer, bpp,
 			x, y, w, h, w, h, 0);
 
-	lcdd_canvas.layer_id = layer_id;
-	lcdd_canvas.bpp = bpp;
-	lcdd_canvas.buffer = buffer;
-	lcdd_canvas.width = w;
-	lcdd_canvas.height = h;
+	lcdc_canvas.layer_id = layer_id;
+	lcdc_canvas.bpp = bpp;
+	lcdc_canvas.buffer = buffer;
+	lcdc_canvas.width = w;
+	lcdc_canvas.height = h;
 
 	return old_buffer;
 }
@@ -1453,21 +1453,21 @@ void * lcdd_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
  * \param w        Canvas width.
  * \param h        Canvas height.
  */
-void *lcdd_create_canvas_yuv_planar(uint8_t layer_id,
+void *lcdc_create_canvas_yuv_planar(uint8_t layer_id,
 		void *buffer_y, void *buffer_u, void *buffer_v, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
-	uint32_t max_w = lcdd_config.width;
-	uint32_t max_h = lcdd_config.height;
+	uint32_t max_w = lcdc_config.width;
+	uint32_t max_h = lcdc_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 
 	if (!layer->reg_dma_u_head || !layer->reg_dma_v_head)
 		return NULL;
 
 	/* Size check */
-	if (x + w > lcdd_config.width || y + h > lcdd_config.height)
+	if (x + w > lcdc_config.width || y + h > lcdc_config.height)
 		return NULL;
 	if (w == 0)
 		w = max_w - x;
@@ -1504,21 +1504,21 @@ void *lcdd_create_canvas_yuv_planar(uint8_t layer_id,
  * \param w         Canvas width.
  * \param h         Canvas height.
  */
-void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer_id,
+void *lcdc_create_canvas_yuv_semiplanar(uint8_t layer_id,
 		void *buffer_y, void *buffer_uv, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 
-	uint32_t max_w = lcdd_config.width;
-	uint32_t max_h = lcdd_config.height;
+	uint32_t max_w = lcdc_config.width;
+	uint32_t max_h = lcdc_config.height;
 	uint32_t bits_per_row, bytes_per_row;
 
 	if (!layer->reg_dma_u_head || !layer->reg_dma_v_head)
 		return NULL;
 
 	/* Size check */
-	if (x + w > lcdd_config.width || y + h > lcdd_config.height)
+	if (x + w > lcdc_config.width || y + h > lcdc_config.height)
 		return NULL;
 	if (w == 0)
 		w = max_w - x;
@@ -1547,9 +1547,9 @@ void *lcdd_create_canvas_yuv_semiplanar(uint8_t layer_id,
  * \param layer_id   Layer ID.
  * \param input_mode RGB Input Mode Selection.
  */
-void lcdd_configure_input_mode(uint8_t layer_id, uint32_t input_mode)
+void lcdc_configure_input_mode(uint8_t layer_id, uint32_t input_mode)
 {
-	const struct _layer_info *layer = &lcdd_layers[layer_id];
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	layer->reg_cfg[1] = input_mode;
 }
 

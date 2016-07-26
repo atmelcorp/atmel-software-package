@@ -35,35 +35,35 @@
  */
 
 /**
- * \addtogroup lcdd_font LCD Font Drawing
+ * \addtogroup lcd_font LCD Font Drawing
  *
  * \section Purpose
  *
- * The lcd_font.h files declares a font structure and a LCDD_DrawChar() function
+ * The lcd_font.h files declares a font structure and a lcd_draw_char() function
  * that must be implemented by a font definition file to be used with the
- * lcdd_draw_string() method of draw.h.
+ * lcd_draw_string() method of draw.h.
  *
  * The font10x14.c implements the necessary variable and function for a 10x14
  * font.
  *
  * \note Before drawing fonts, <b>canvas</b> should be selected via
- *       LCDD_SelectCanvas(), or created by LCDD_CreateCanvas().
+ *       lcdc_select_canvas(), or created by lcdc_create_canvas().
  *
  * \section Usage
  *
  * -# Declare a gFont global variable with the necessary Font information.
- * -# Implement an LCDD_DrawChar() function which displays the specified
+ * -# Implement an lcd_draw_char() function which displays the specified
  *    character on the LCD.
- * -# Select or create canvas via LCDD_SelectCanvas() or LCDD_CreateCanvas().
- * -# Use the lcdd_draw_string() method defined in draw.h to display a complete
+ * -# Select or create canvas via lcdc_select_canvas() or lcdc_create_canvas().
+ * -# Use the lcd_draw_string() method defined in draw.h to display a complete
  *    string.
  *
- * \sa \ref lcdd_module, \ref lcdd_draw.
+ * \sa \ref lcd_module, \ref lcd_draw.
  */
 
 #ifndef _LCD_FONT_
 #define _LCD_FONT_
-/** \addtogroup lcdd_font
+/** \addtogroup lcd_font
  *@{
  */
 
@@ -96,16 +96,16 @@ struct _font {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-/** \addtogroup lcdd_font_func Font Functions */
+/** \addtogroup lcd_font_func Font Functions */
 /** @{*/
 
-extern struct _font_parameters* lcdd_select_font (_FONT_enum font);
+extern struct _font_parameters* lcd_select_font (_FONT_enum font);
 
-extern uint8_t lcdd_get_selected_font (void);
+extern uint8_t lcd_get_selected_font (void);
 
-extern void lcdd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
+extern void lcd_draw_char(uint32_t x, uint32_t y, uint8_t c, uint32_t color);
 
-extern void lcdd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c,
+extern void lcd_draw_char_with_bgcolor(uint32_t x, uint32_t y, uint8_t c,
 				     uint32_t fontColor, uint32_t bgColor);
 /** @}*/
 /**@}*/

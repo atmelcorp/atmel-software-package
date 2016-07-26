@@ -73,7 +73,7 @@ WEAK void board_init(void)
 	/* Configure LEDs */
 	board_cfg_led();
 
-#ifdef CONFIG_HAVE_LCDD
+#ifdef CONFIG_HAVE_LCDC
 	/* Configure LCD controller/display */
 	board_cfg_lcd();
 #endif
