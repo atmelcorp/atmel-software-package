@@ -55,14 +55,14 @@ struct dma_xfer {
  * Allocate it but ignore its members. */
 struct sha_set
 {
-	uint8_t pending_data[128];    /* Excess data not processed yet */
+	uint8_t *pending_data;    /* Excess data not processed yet */
 	uint32_t count;               /* Number of bytes processed */
 	uint8_t pending;              /* Number of excess bytes */
 
 	struct dma_channel *dma_ch;
 				      /* xDMA instance, or NULL when DMA is not
 				       * used */
-	struct dma_xfer dma_dlist[2];
+	struct dma_xfer *dma_dlist;
 				      /* xDMA linked list of xfer descriptors,
 				       * stored contiguously as a table */
 	uint32_t dlist_len;           /* Count of descriptors added to the xDMA

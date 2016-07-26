@@ -258,7 +258,25 @@ CACHE_ALIGNED_SRAM
 #endif
 static struct padded_fil f_header;
 
-static struct sha_set sha = { .count = 0 };
+#if USE_EXT_RAM
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
+#endif
+static uint8_t _sha_pending_data[128];
+
+#if USE_EXT_RAM
+CACHE_ALIGNED_DDR
+#else
+CACHE_ALIGNED_SRAM
+#endif
+static struct dma_xfer _sha_dma_dlist[2];
+
+static struct sha_set sha = {
+	.pending_data = _sha_pending_data,
+	.count = 0,
+	.dma_dlist = _sha_dma_dlist,
+};
 static uint8_t slot;
 static bool use_dma;
 
