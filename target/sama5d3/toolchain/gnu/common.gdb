@@ -4,9 +4,6 @@ define jlink_connect
 end
 
 define reset_peripherals
-  # Reset target
-  mon reset
-
   # Disable all interrupts and go to supervisor mode
   mon reg cpsr = 0xd3
 
