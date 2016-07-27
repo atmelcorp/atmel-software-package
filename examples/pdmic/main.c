@@ -128,10 +128,6 @@
 
 #define INITIAL_ATTENUATION (10)
 
-static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
-
-static const struct _pin pdmic_pins[] = PINS_PDMIC_IOS1;
-
 static const struct {
 	int8_t gain;
 	uint16_t dgain;
