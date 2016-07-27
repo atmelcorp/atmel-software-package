@@ -173,7 +173,6 @@ void board_init()
  */
 int main(void)
 {
-	bool verify_failed = 0;
 	uint32_t baudrate, idx;
 	void* qspi_mem_addr = get_qspi_mem_from_addr(QSPIFLASH_ADDR);
 	uint32_t buffer[4];
@@ -255,20 +254,15 @@ int main(void)
 	}
 
 	ptr = (uint8_t*)qspi_mem_addr;
-	verify_failed = false;
 	for (idx = 0; idx < sizeof(xip_program); idx++, ptr++) {
 		if (*ptr != xip_program[idx]) {
-			verify_failed = true;
 			trace_fatal("Data does not match at 0x%x (0x%02x != 0x%02x)\n\r",
 					(unsigned)ptr, *ptr, xip_program[idx]);
-			break;
 		}
 	}
 
-	if (!verify_failed) {
-		printf("Verification OK\n\r");
-		run_xip_program(qspi_mem_addr);
-	}
+	printf("Verification OK\n\r");
+	run_xip_program(qspi_mem_addr);
 
 	while (1);
 }
