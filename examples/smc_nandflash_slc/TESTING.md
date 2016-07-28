@@ -24,7 +24,15 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-PTC-ENGI)
+## Supported Targets
+--------
+sama5d2-ptc-engi
+sama5d3-ek
+sama5d3-xplained
+sama5d4-ek
+sama5d4-xplained
+
+## Start the application
 --------
 
 ONFI manufacturerId 2c
@@ -66,7 +74,7 @@ PMECC Menu:
  r: Read page to correct simulated error bit(s)
  c: Display current configuration
 
-Tested with IAR and GCC (sram ddram configration)
+Tested with IAR and GCC (ddram configration)
 
 
 In order to test this example, the process is the following:
@@ -94,12 +102,3 @@ Press 'p' | Erase/Write/Read | PASSED | PASSED
 Press 'w' | Write page with simulated error bit(s) | PASSED | PASSED
 Press 'r' | Read page to correct simulated error bit(s) | PASSED | PASSED
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

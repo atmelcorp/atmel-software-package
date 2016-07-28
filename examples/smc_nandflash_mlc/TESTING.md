@@ -24,7 +24,15 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-PTC-ENGI)
+## Supported Targets
+--------
+sama5d2-ptc-engi
+sama5d3-ek
+sama5d3-xplained
+sama5d4-ek
+sama5d4-xplained
+
+## Start the application
 --------
 
 ONFI manufacturerId 2c
@@ -58,7 +66,7 @@ PMECC Menu:
  c: Display current configuration
 -I- 512 bytes per sector, 4 errors per sector
 
-Tested with IAR and GCC (sram ddram configration)
+Tested with IAR and GCC (ddram configration)
 
 In order to test this example, the process is the following:
 
@@ -69,13 +77,3 @@ Press 'p'| Erase/Write/Read| PASSED | PASSED
 Press 'n','p' | NFC enable, Erase/Write/Read | PASSED | PASSED
 Press 'h','p' | NFC enable, Host sram enable, Erase/Write/Read | PASSED | PASSED
 Press 'd','p' | NFC enable, Host sram enable, dma ennable, Erase/Write/Read | PASSED | PASSED
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------

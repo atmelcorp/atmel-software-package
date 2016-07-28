@@ -247,6 +247,12 @@ static void _smc_configure(uint8_t mode)
 			else
 				nfc_sram_enabled = true;
 		}
+#ifdef CONFIG_SOC_SAMA5D3
+		if (nfc_sram_enabled) {
+			printf("-W- NFC SRAM cannot be used with DMA on SAMA5D3, disabling DMA.\r\n");
+			dma_enabled = false;
+		}
+#endif
 		break;
 
 	case CONF_DMA:
@@ -254,6 +260,12 @@ static void _smc_configure(uint8_t mode)
 			dma_enabled = false;
 		else
 			dma_enabled = true;
+#ifdef CONFIG_SOC_SAMA5D3
+		if (dma_enabled) {
+			printf("-W- DMA cannot be used with NFC SRAM on SAMA5D3, disabling NFC SRAM.\r\n");
+			nfc_sram_enabled = false;
+		}
+#endif
 		break;
 	}
 
