@@ -98,22 +98,19 @@ static uint32_t _at24_write(struct _at24* at24, const uint8_t* buffer, uint32_t 
 uint8_t at24_get_serial_number(struct _at24* at24)
 {
 	uint8_t status = TWID_SUCCESS;
-	uint8_t dummy = 0x0;
 
 	assert(sizeof(at24->serial_number) <= sizeof(at24_buffer));
 
-	at24->twid->slave_addr = at24->sn_addr;
-	at24->twid->iaddr = at24->sn_offset;
-	at24->twid->isize = 1;
-
-	// Tell the EEPROM where we would like to read from
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
-	status = _at24_read(at24, &dummy, 1, NULL); // Location of the serial number
-	if (status)
-		return status;
+	at24->twid->slave_addr = at24->sn_addr;
 	at24->twid->iaddr = 0;
 	at24->twid->isize = 0;
+
+	// Tell the EEPROM where we would like to read from
+	status = _at24_write(at24, &at24->sn_offset, 1, NULL); // Location of the serial number
+	if (status)
+		return status;
 	// Now read bytes from that memory address
 	status = _at24_read(at24, at24_buffer, sizeof(at24->serial_number), &at24->mutex);
 	while (mutex_is_locked(&at24->mutex));
@@ -131,22 +128,20 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 uint8_t at24_get_mac_address(struct _at24* at24)
 {
 	uint8_t status = TWID_SUCCESS;
-	uint8_t dummy = 0x0;
 
 	assert(sizeof(at24->mac_addr_48) <= sizeof(at24_buffer));
 
-	at24->twid->slave_addr = at24->sn_addr;
-	at24->twid->iaddr = at24->eui_offset;
-	at24->twid->isize = 1;
-
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
-	// Tell the EEPROM where we would like to read from
-	status = _at24_read(at24, &dummy, 1, NULL); // Location of the EUI-48
-	if (status)
-		return status;
+
+	at24->twid->slave_addr = at24->sn_addr;
 	at24->twid->iaddr = 0;
 	at24->twid->isize = 0;
+
+	// Tell the EEPROM where we would like to read from
+	status = _at24_write(at24, &at24->eui_offset, 1, NULL); // Location of the EUI-48
+	if (status)
+		return status;
 	status = _at24_read(at24, at24_buffer, sizeof(at24->mac_addr_48), &at24->mutex);
 	while (mutex_is_locked(&at24->mutex));
 	memcpy(at24->mac_addr_48, at24_buffer, sizeof(at24->mac_addr_48));
