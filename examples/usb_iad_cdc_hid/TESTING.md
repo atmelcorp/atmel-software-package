@@ -45,7 +45,7 @@ Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Open serial | Open serial through host software (e.g. HyperTerminal on Microsoft Windows | PASSED | PASSED
 Press any character except '1' and '2' | The character input print in console | PASSED | PASSED
-Press '1' and then again | Print `Key 0 pressed aaaaaaa` then Print `Key 0 released` | PASSED | PASSED
+Press '1' and then again | Print `Key 0 pressed uuuuuuuuu ` then Print `Key 0 released` | PASSED | PASSED
 Press '2' and then again | Print `Key 1 pressed` then Print `Key 1 released` | PASSED | PASSED
 
 # Log

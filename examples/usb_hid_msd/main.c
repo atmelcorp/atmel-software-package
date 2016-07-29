@@ -177,22 +177,14 @@
  *      Definitions
  *---------------------------------------------------------------------------*/
 
-#define NO_PUSHBUTTON
-
 /** Master clock frequency in Hz */
-#define MCK                         BOARD_MCK
+#define MCK                 BOARD_MCK
 
 /** Number of keys used in the example. */
-#define NUM_KEYS                    2
-
-/** Number of non-modifiers keys. */
-#define NUM_NORMAL_KEYS             1
-
-/** Number of modifier keys. */
-#define NUM_MODIFIER_KEYS           (NUM_KEYS - NUM_NORMAL_KEYS)
+#define NUM_KEYS            3
 
 /** Num lock LED index. */
-#define LED_NUMLOCK                 LED_BLUE
+#define LED_NUMLOCK         LED_BLUE
 
 
 /** Maximum number of LUNs which can be defined. */
@@ -230,15 +222,15 @@ extern const USBDDriverDescriptors hid_msdd_driver_descriptors;
 
 /*- HID */
 
-#ifdef NO_PUSHBUTTON
-#else
-/** List of pins_push_buttons to configure for the applicatino. */
-static struct _pin pins_push_buttons[] = {PINS_PUSHBUTTONS};
+#ifdef PIN_PUSHBUTTON_1
+/** Push button pin to configure for the application. */
+static struct _pin pin_push_button = PIN_PUSHBUTTON_1;
 #endif
 
 /** Array of key codes produced by each button. */
 static uint8_t key_codes[NUM_KEYS] = {
-	HIDKeypad_A,
+	HIDKeypad_T,
+	HIDKeypad_U,
 	HIDKeypad_NUMLOCK,
 };
 
@@ -247,7 +239,7 @@ ALIGNED(BLOCK_SIZE)
 static uint8_t ramdisk_reserved[RAMDISK_SIZE];
 
 /** Current status (pressed or not) for each key. */
-static uint8_t key_status[NUM_KEYS];
+static bool key_status[NUM_KEYS];
 
 /*- MSD */
 /** Available medias. */
@@ -351,62 +343,51 @@ static void hidd_keyboard_process_keys(void)
 	uint8_t released_keys_size = 0;
 
 	/* Monitor buttons */
-#ifdef NO_PUSHBUTTON
-
 	if (console_is_rx_ready()) {
 		uint8_t key = console_get_char();
 
 		switch (key) {
 		case '1':
 		case '2':
-			i = key - '1';
-
+			i = key - '1' + 1;
+			key_status[i] = !key_status[i];
 			if (key_status[i]) {
 				/* Key press simulation */
-				trace_info("Key %u pressed\n\r", (unsigned int)i);
-				key_status[i] = 0;
+				trace_info("Key %u pressed\n\r", (unsigned)i);
 				pressed_keys[pressed_keys_size] = key_codes[i];
 				pressed_keys_size++;
 				hidd_keyboard_remote_wakeup();
 			} else {
 				/* Key release simulation */
-				trace_info("Key %u released\n\r", (unsigned int)i);
-				key_status[i] = 1;
+				trace_info("Key %u released\n\r", (unsigned)i);
 				released_keys[released_keys_size] = key_codes[i];
 				released_keys_size++;
 			}
-
 			break;
-
-		default: console_put_char(key);
+		default:
+			console_put_char(key);
 		}
 	}
 
-#else
-
-	for (i = 0; i < ARRAY_SIZE(pins_push_buttons); i++) {
-		/* Check if button state has changed */
-		uint8_t is_button_pressed = pio_get(&(pins_push_buttons[i]));
-
-		if (is_button_pressed != key_status[i]) {
-			/* Update button state */
-			if (!is_button_pressed) {
-				/* Key has been pressed */
-				trace_info("Key %u has been pressed\n\r", i);
-				key_status[i] = 0;
-				pressed_keys[pressed_keys_size] = key_codes[i];
-				pressed_keys_size++;
-				hidd_keyboard_driver_remote_wakeup();
-			} else {
-				/* Key has been released */
-				trace_info("Key %u has been released\n\r", i);
-				key_status[i] = 1;
-				released_keys[released_keys_size] = key_codes[i];
-				released_keys_size++;
-			}
+#ifdef PIN_PUSHBUTTON_1
+	/* Check if button state has changed */
+	uint8_t is_button_pressed = !pio_get(&pin_push_button);
+	if (is_button_pressed != key_status[0]) {
+		/* Update button state */
+		key_status[0] = !key_status[0];
+		if (!is_button_pressed) {
+			/* Key has been pressed */
+			trace_info("BP has been pressed\n\r");
+			pressed_keys[pressed_keys_size] = key_codes[0];
+			pressed_keys_size++;
+			hidd_keyboard_driver_remote_wakeup();
+		} else {
+			/* Key has been released */
+			trace_info("BP has been released\n\r");
+			released_keys[released_keys_size] = key_codes[0];
+			released_keys_size++;
 		}
 	}
-
 #endif
 
 	/* Update key status in the HID driver if necessary */
@@ -480,14 +461,15 @@ int main(void)
 	usb_power_configure();
 
 	/* ----- HID Function Initialize */
-#ifdef NO_PUSHBUTTON
 	printf("-- : DBG key 1 2 used as buttons\n\r");
 	printf("-- : 1st press to push, 2nd press to release\n\r");
-#else
+
+#ifdef PIN_PUSHBUTTON_1
 	/* Initialize key statuses and configure push buttons */
-	pio_configure(pins_push_buttons, ARRAY_SIZE(pins_push_buttons));
+	pio_configure(&pin_push_button, 1);
 #endif
-	memset(key_status, 1, NUM_KEYS);
+
+	memset(key_status, 0, sizeof(key_status));
 
 	_memories_initialize();
 
