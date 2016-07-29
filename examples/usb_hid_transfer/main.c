@@ -175,11 +175,6 @@ extern USBDDriverDescriptors hidd_transfer_driver_descriptors;
 static struct _pin pins_buttons[] = {PINS_PUSHBUTTONS};
 #endif
 
-/* Only used to get the number of available leds */
-static const struct _pin pins_leds[] = PINS_LEDS;
-/** Number of available leds */
-volatile bool led_status[MAX_LEDS];
-
 #ifndef NO_PUSHBUTTON
 /**
  *  Remote wake-up support (optional)
