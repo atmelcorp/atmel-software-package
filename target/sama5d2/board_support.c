@@ -463,7 +463,11 @@ void board_cfg_mmu(void)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
 	                  | TTB_SECT_EXEC
+#if defined(VARIANT_QSPI0) || defined(VARIANT_QSPI1)
+	                  | TTB_SECT_CACHEABLE_WB
+#else
 	                  | TTB_SECT_STRONGLY_ORDERED
+#endif
 	                  | TTB_TYPE_SECT;
 
 	/* 0xa0000000: SDMMC0 */
@@ -502,7 +506,11 @@ void board_cfg_mmu(void)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
 	                  | TTB_SECT_EXEC
+#if defined(VARIANT_QSPI0) || defined(VARIANT_QSPI1)
+	                  | TTB_SECT_CACHEABLE_WB
+#else
 	                  | TTB_SECT_STRONGLY_ORDERED
+#endif
 	                  | TTB_TYPE_SECT;
 
 	/* 0xf0000000: Internal Peripherals */
