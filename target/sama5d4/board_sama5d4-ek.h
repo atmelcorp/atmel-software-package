@@ -67,7 +67,7 @@
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
 /** /def Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE         MT47H128M8CF
+#define BOARD_DDRAM_TYPE         MT47H128M8
 
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    512*1024*1024

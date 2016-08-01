@@ -179,8 +179,8 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 
-#ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
-static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
+#ifdef CONFIG_HAVE_DDR2_MT47H128M8
+static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
 
@@ -232,7 +232,7 @@ static void _init_mt47h128m8cf(struct _mpddrc_desc* desc)
 
 	desc->bank = 8192;
 }
-#endif /* CONFIG_HAVE_DDR2_MT47H128M8CF */
+#endif /* CONFIG_HAVE_DDR2_MT47H128M8 */
 
 #ifdef CONFIG_HAVE_DDR2_MT47H64M16
 static void _init_mt47h64m16(struct _mpddrc_desc* desc)
@@ -404,9 +404,9 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 {
 	switch(device) {
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
-  #ifdef CONFIG_HAVE_DDR2_MT47H128M8CF
-	case MT47H128M8CF:
-		_init_mt47h128m8cf(desc);
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M8
+	case MT47H128M8:
+		_init_mt47h128m8(desc);
 		break;
   #endif
   #ifdef CONFIG_HAVE_DDR2_MT47H64M16
