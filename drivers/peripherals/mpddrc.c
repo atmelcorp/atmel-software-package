@@ -437,9 +437,9 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t
 	}
 
 	/* Last step: Write the refresh rate */
-	/* Refresh Timer is (64ms / (bank_size)) * master_clock */
-	uint32_t master_clock = pmc_get_master_clock() / 1000000;
-	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(64000 * master_clock / desc->bank);
+	/* Refresh Timer is (refresh_window / refresh_cycles) * master_clock */
+	uint32_t master_clock = pmc_get_master_clock() / 1000;
+	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(desc->refresh_window * master_clock / desc->refresh_cycles);
 
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
 	if (sfrbu_is_ddr_backup_enabled()) {

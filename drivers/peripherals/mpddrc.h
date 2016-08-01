@@ -58,10 +58,11 @@ struct _mpddrc_desc {
 #endif
 	uint32_t mode;
 	uint32_t control;
-	uint32_t bank;
 	uint32_t tpr0;
 	uint32_t tpr1;
 	uint32_t tpr2;
+	uint32_t refresh_window; /* in ms */
+	uint32_t refresh_cycles;
 };
 
 extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch);

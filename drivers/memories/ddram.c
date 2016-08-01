@@ -115,7 +115,8 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(4)                   // greater of 4CK or 7.5ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(40, mck)); // 40ns
 
-	desc->bank = 8192;
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR3_MT41K128M16 */
 
@@ -171,7 +172,8 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(MAX(NS2CYCLES(8, mck), 4))   // max(7.5ns, 4ck)
 	           | MPDDRC_TPR2_TFAW(MAX(NS2CYCLES(50, mck), 8)); // max(50ns, 8ck)
 
-	desc->bank = 8192;
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_LPDDR3_EDF8164A3MA */
 
@@ -230,7 +232,8 @@ static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 7.5ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(35, mck)); // 35ns
 
-	desc->bank = 8192;
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR2_MT47H128M8 */
 
@@ -265,6 +268,7 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 #endif
 
 	/* timings */
+
 	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck)) // 45ns
 	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
 	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
@@ -285,7 +289,8 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck)); // 45ns
 
-	desc->bank = 8192;
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR2_MT47H64M16 */
 
@@ -319,6 +324,7 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 #endif
 
 	/* timings */
+
 	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck)) // 45ns
 	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
 	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
@@ -339,7 +345,8 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))    // 8ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck));  // 45ns
 
-	desc->bank = 8192;
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR2_MT47H128M16 */
 
@@ -393,7 +400,8 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
 	           | MPDDRC_TPR2_TFAW(NS2CYCLES(50, mck)); // 50ns
 
-	desc->bank = 8192;
+	desc->refresh_window = 32;
+	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_LPDDR2_MT42L128M16 */
 
