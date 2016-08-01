@@ -97,13 +97,7 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, &buf[0], NULL, NULL);
-	while (twid_is_busy(twid));
-
-	if (status)
-		return SENSOR_TWI_ERROR;
-
-	status = twid_transfer(twid, &buf[1], NULL, NULL);
+	status = twid_transfer(twid, buf, 2, NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)
@@ -150,7 +144,7 @@ static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, &out, NULL, NULL);
+	status = twid_transfer(twid, &out, 1, NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)

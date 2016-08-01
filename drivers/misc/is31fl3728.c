@@ -74,7 +74,7 @@ static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr,
 	is31fl3728->twid->slave_addr = is31fl3728->addr;
 	is31fl3728->twid->iaddr = iaddr;
 	is31fl3728->twid->isize = 1;
-	twid_transfer(is31fl3728->twid, &out, NULL, 0);
+	twid_transfer(is31fl3728->twid, &out, 1, NULL, NULL);
 	twid_wait_transfer(is31fl3728->twid);
 }
 

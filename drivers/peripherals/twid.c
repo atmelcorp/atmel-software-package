@@ -619,19 +619,11 @@ void twid_configure(struct _twi_desc* desc)
 /*
  *
  */
-uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callback_t cb, void* user_args)
+static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callback_t cb, void* user_args)
 {
 	uint32_t status = TWID_SUCCESS;
 	uint32_t id;
 	uint8_t tmode;
-
-	if (buf == NULL)
-		return TWID_ERROR_TRANSFER;
-
-	if ((buf->attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == 0)
-		return TWID_ERROR_TRANSFER;
-	if ((buf->attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ))
-		return TWID_ERROR_DUPLEX;
 
 	if (!mutex_try_lock(&desc->mutex))
 		return TWID_ERROR_LOCK;
@@ -737,6 +729,34 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callbac
 	}
 
 	return status;
+}
+
+uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
+					   twid_callback_t cb, void* user_args)
+{
+	int b;
+	uint32_t status;
+
+	if (buf == NULL)
+		return TWID_ERROR_TRANSFER;
+
+	for (b = 0 ; b < buffers ; b++) {
+		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == 0)
+			return TWID_ERROR_TRANSFER;
+
+		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ))
+			return TWID_ERROR_DUPLEX;
+
+		if (b == (buffers - 1))
+			status = _twid_transfer(desc, &buf[b], cb, user_args);
+		else
+			status = _twid_transfer(desc, &buf[b], NULL, NULL);
+		if (status)
+			return status;
+		twid_wait_transfer(desc);
+	}
+
+	return TWID_SUCCESS;
 }
 
 uint32_t twid_is_busy(const struct _twi_desc* desc)

@@ -124,7 +124,8 @@ struct _async_desc
 
 extern void twid_configure(struct _twi_desc* desc);
 
-extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callback_t cb, void* user_args);
+extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
+                              twid_callback_t cb, void* user_args);
 
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 
