@@ -86,14 +86,13 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef CdcHidDriverConfigurationDescriptors
  * \brief Configuration descriptor list for a device implementing a
  *        composite driver.
  */
-typedef struct _CdcHidDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _CdcHidDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -128,7 +127,6 @@ typedef struct _CdcHidDriverConfigurationDescriptors {
 
 } CdcHidDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

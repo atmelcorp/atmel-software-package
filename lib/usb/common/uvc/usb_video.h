@@ -391,10 +391,9 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /** GUID */
-typedef struct _sGDID {
+typedef PACKED_STRUCT _sGDID {
 	uint32_t data1;
 	uint16_t data2;
 	uint16_t data3;
@@ -405,14 +404,14 @@ typedef struct _sGDID {
 /**
  * Status packet header
  */
-typedef struct _USBVideoStatusHdr {
+typedef PACKED_STRUCT _USBVideoStatusHdr {
 	uint8_t bStatusType; /**< Originator VideoControl(1) or VideoStreaming(2) */
 	uint8_t bOriginator; /**< ID of the Terminal, Unit or Interface */
 }  USBVideoStatusHdr; /* GCC */
 /**
  * Status packet for VideoControl Interface
  */
-typedef struct _USBVideoStatusVC {
+typedef PACKED_STRUCT _USBVideoStatusVC {
 	uint8_t bStatusType; /**< Originator: VideoControl(1) */
 	uint8_t bOriginator; /**< ID of the Terminal, Unit or Interface */
 	uint8_t bEvent;      /**< 0x00: Control Change */
@@ -423,7 +422,7 @@ typedef struct _USBVideoStatusVC {
 /**
  * Status packet for VideoStreaming Interface
  */
-typedef struct _USBVideoStatusVS {
+typedef PACKED_STRUCT _USBVideoStatusVS {
 	uint8_t bStatusType; /**< Originator VideoStreaming(2) */
 	uint8_t bOriginator; /**< ID of the Terminal, Unit or Interface */
 	uint8_t bEvent;      /**< 0x00: Button Press, others: Stream Error */
@@ -434,7 +433,7 @@ typedef struct _USBVideoStatusVS {
 /**
  * Payload Header
  */
-typedef struct _USBVideoPayloadHeader {
+typedef PACKED_STRUCT _USBVideoPayloadHeader {
 	uint8_t bHeaderLength; /**< Length of header including this field */
 	union _USBVideoHeaderInfo {
 		uint8_t B;
@@ -453,7 +452,7 @@ typedef struct _USBVideoPayloadHeader {
 /**
  * Payload header with extended fields
  */
-typedef struct _USBVideoPayloadHdrExt {
+typedef PACKED_STRUCT _USBVideoPayloadHdrExt {
 	uint8_t  bHeaderLength; /**< Length of header including this field */
 	uint8_t  bmHeaderInfo;  /**< Information on the sample data following header */
 	uint32_t dwPresentationTime; /**< Source Clock Time in native device clock units when the raw frame capture begins */
@@ -469,7 +468,7 @@ typedef struct _USBVideoPayloadHdrExt {
  * Class-specific VideoControl Interface Header Descriptor
  * (With 1 streaming interface).
  */
-typedef struct _USBVideoControlInterfaceDescriptor {
+typedef PACKED_STRUCT _USBVideoControlInterfaceDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 12 + 1 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_HEADER descriptor subtype */
@@ -483,7 +482,7 @@ typedef struct _USBVideoControlInterfaceDescriptor {
  * Input Terminal Descriptor (ITD)
  * (With no additional fields depending on the Terminal Type)
  */
-typedef struct _USBVideoInputTerminalDescriptor {
+typedef PACKED_STRUCT _USBVideoInputTerminalDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 8 + 0 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_INPUTTERMINAL descriptor subtype */
@@ -496,7 +495,7 @@ typedef struct _USBVideoInputTerminalDescriptor {
  * Output Terminal Descriptor (OTD)
  * (With no additional fields depending on the Terminal Type)
  */
-typedef struct _USBVideoOutputTerminalDescriptor {
+typedef PACKED_STRUCT _USBVideoOutputTerminalDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 9 + 0 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_OUTPUT_TERMINAL descriptor subtype */
@@ -509,7 +508,7 @@ typedef struct _USBVideoOutputTerminalDescriptor {
 /**
  * Camera Terminal Descriptor
  */
-typedef struct _USBVideoCameraTerminalDescriptor {
+typedef PACKED_STRUCT _USBVideoCameraTerminalDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 15 + 3 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_INPUT_TERMINAL descriptor subtype */
@@ -527,7 +526,7 @@ typedef struct _USBVideoCameraTerminalDescriptor {
  * Selector Unit Descriptor (SUD)
  * (with 1 input pin)
  */
-typedef struct _USBVideoSelectorUnitDescriptor {
+typedef PACKED_STRUCT _USBVideoSelectorUnitDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 6 + 1 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_SELECTOR_UNIT descriptor subtype */
@@ -539,7 +538,7 @@ typedef struct _USBVideoSelectorUnitDescriptor {
 /**
  * Processing Unit Descriptor (PUD)
  */
-typedef struct _USBVideoProcessingUnitDescriptor {
+typedef PACKED_STRUCT _USBVideoProcessingUnitDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 9 + 2 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_PROCESSING_UNIT descriptor subtype */
@@ -554,7 +553,7 @@ typedef struct _USBVideoProcessingUnitDescriptor {
  * Extension Unit Descriptor (XUD)
  * (with 1 input pin)
  */
-typedef struct _USBVideoExtensionUnitDescriptor {
+typedef PACKED_STRUCT _USBVideoExtensionUnitDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 24 + 1 + 1 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VC_EXTENSION_UNIT descriptor subtype */
@@ -572,7 +571,7 @@ typedef struct _USBVideoExtensionUnitDescriptor {
 /**
  * Class-specific VC Interrupt Endpoint Descriptor
  */
-typedef struct _USBVideoControlInterruptEndpointDescriptor {
+typedef PACKED_STRUCT _USBVideoControlInterruptEndpointDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 5 bytes */
 	uint8_t  bDescriptorType; /**< CS_ENDPOINT descriptor type */
 	uint8_t  bDescriptorSubType; /**< EP_INTERRUPT descriptor subtype */
@@ -584,7 +583,7 @@ typedef struct _USBVideoControlInterruptEndpointDescriptor {
  * Class-specific VS Interface Input Header Descriptor
  * (with 1 format)
  */
-typedef struct _USBVideoStreamingInputHeaderDescriptor {
+typedef PACKED_STRUCT _USBVideoStreamingInputHeaderDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 13 + (1*1) bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_INPUT_HEADER descriptor subtype */
@@ -602,7 +601,7 @@ typedef struct _USBVideoStreamingInputHeaderDescriptor {
 /**
  * Class-specific VS Interface Output Header Descriptor
  */
-typedef struct _USBVideoStreamingOutputHeaderDescriptor {
+typedef PACKED_STRUCT _USBVideoStreamingOutputHeaderDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 8 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_OUTPUT_HEADER descriptor subtype */
@@ -626,7 +625,7 @@ typedef USBVideoPayloadHdrExt USBVideoUncompressedStreamHeaderExt;
 /**
  * Uncompressed Video Format Descriptor
  */
-typedef struct _USBVideoUncompressedFormatDescriptor {
+typedef PACKED_STRUCT _USBVideoUncompressedFormatDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 27 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_FORMAT_UNCOMPRESSED descriptor subtype */
@@ -644,7 +643,7 @@ typedef struct _USBVideoUncompressedFormatDescriptor {
  * Uncompressed Video Frame Descriptor
  * (bFrameIntervalType is 0, continuous)
  */
-typedef struct _USBVideoUncompressedFrameDescriptor {
+typedef PACKED_STRUCT _USBVideoUncompressedFrameDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 27 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_FRAME_UNCOMPRESSED descriptor subtype */
@@ -666,7 +665,7 @@ typedef struct _USBVideoUncompressedFrameDescriptor {
  * Uncompressed Video Frame Descriptor
  * (with 1 interval setting)
  */
-typedef struct _USBVideoUncompressedFrameDescriptor1 {
+typedef PACKED_STRUCT _USBVideoUncompressedFrameDescriptor1 {
 	uint8_t  bLength; /**< Size of descriptor: 26 + 4*1 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_FRAME_UNCOMPRESSED descriptor subtype */
@@ -688,7 +687,7 @@ typedef struct _USBVideoUncompressedFrameDescriptor1 {
  * Still Image Frame Descriptor
  * (with 1 size and 1 compression format)
  */
-typedef struct _USBVideoStillImageFrameDescriptor {
+typedef PACKED_STRUCT _USBVideoStillImageFrameDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 10 + 4*1-4 + 1 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_STILL_IMAGE_FRAME descriptor subtype */
@@ -704,7 +703,7 @@ typedef struct _USBVideoStillImageFrameDescriptor {
 /**
  * Color Matching Descriptor
  */
-typedef struct _USBVideoColorMatchingDescriptor {
+typedef PACKED_STRUCT _USBVideoColorMatchingDescriptor {
 	uint8_t  bLength; /**< Size of descriptor: 6 bytes */
 	uint8_t  bDescriptorType; /**< CS_INTERFACE descriptor type */
 	uint8_t  bDescriptorSubType; /**< VS_COLORFORMAT descriptor subtype */
@@ -717,7 +716,7 @@ typedef struct _USBVideoColorMatchingDescriptor {
 /**
  * Video Probe and Commit Control Data
  */
-typedef struct _USBVideoProbeCommitData {
+typedef PACKED_STRUCT _USBVideoProbeCommitData {
 	uint16_t bmHint; /**< Parameters shall be kept fixed */
 	uint8_t  bFormatIndex; /**< Video format index from a format descriptor */
 	uint8_t  bFrameIndex; /**< Video frame index from a frame descriptor */
@@ -736,7 +735,6 @@ typedef struct _USBVideoProbeCommitData {
 	uint8_t  bMaxVersion; /**< The maximum payload format version supported by the device for the specified bFormatIndex value */
 } USBVideoProbeData, USBVideoCommitData;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

@@ -73,10 +73,9 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /** Structure of audio header descriptor*/
-typedef struct _AUDHeaderDescriptor1{
+typedef PACKED_STRUCT _AUDHeaderDescriptor1{
 
 	/** Header descriptor.*/
 	AUDHeaderDescriptor header;
@@ -88,7 +87,7 @@ typedef struct _AUDHeaderDescriptor1{
 /**
  * Feature unit descriptor with 3 channel controls (master, right, left).
  */
-typedef struct _AUDFeatureUnitDescriptor3{
+typedef PACKED_STRUCT _AUDFeatureUnitDescriptor3{
 
 	/** Feature unit descriptor.*/
 	AUDFeatureUnitDescriptor feature;
@@ -103,7 +102,7 @@ typedef struct _AUDFeatureUnitDescriptor3{
  * List of descriptors for detailing the audio control interface of a
  * device using a USB audio speaker driver.
  */
-typedef struct _AUDDSpeakerDriverAudioControlDescriptors{
+typedef PACKED_STRUCT _AUDDSpeakerDriverAudioControlDescriptors{
 
 	/** Header descriptor (with one slave interface).*/
 	AUDHeaderDescriptor1 header;
@@ -119,7 +118,7 @@ typedef struct _AUDDSpeakerDriverAudioControlDescriptors{
 /**
  * Format type I descriptor with one discrete sampling frequency.
  */
-typedef struct _AUDFormatTypeOneDescriptor1{
+typedef PACKED_STRUCT _AUDFormatTypeOneDescriptor1{
 
 	/** Format type I descriptor.*/
 	AUDFormatTypeOneDescriptor formatType;
@@ -133,7 +132,7 @@ typedef struct _AUDFormatTypeOneDescriptor1{
  * \brief Configuration descriptor list for a device implementing a
  *        composite HID (Keyboard) + Audio (Speaker) driver.
  */
-typedef struct _HidAuddDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _HidAuddDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -171,7 +170,6 @@ typedef struct _HidAuddDriverConfigurationDescriptors {
 
 } HidAuddDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

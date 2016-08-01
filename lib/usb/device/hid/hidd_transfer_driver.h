@@ -80,14 +80,13 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef HIDDTransferDriverConfigurationDescriptors
  * \brief List of descriptors that make up the configuration descriptors of a
  *        device using the HID Transfer driver.
  */
-typedef struct _HIDDTransferDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _HIDDTransferDriverConfigurationDescriptors {
 
 	/** Configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -102,7 +101,6 @@ typedef struct _HIDDTransferDriverConfigurationDescriptors {
 
 } HIDDTransferDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *         Exported functions

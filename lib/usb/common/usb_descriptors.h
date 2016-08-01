@@ -466,13 +466,12 @@ typedef uint32_t (*USBDescriptorParseFunction)(void *descriptor, void *parseArg)
  *          Descriptor structs types
  */
 
-PACK_SET(1)
 
 /**
  \typedef USBGenericDescriptor
  \brief Holds the few fields shared by all USB descriptors.
  */
-typedef struct _USBGenericDescriptor {
+typedef PACKED_STRUCT _USBGenericDescriptor {
 	/**  Length of the descriptor in bytes. */
 	uint8_t bLength;
 
@@ -484,7 +483,7 @@ typedef struct _USBGenericDescriptor {
  * \typedef USBDeviceDescriptor
  * \brief USB standard device descriptor structure.
  */
-typedef struct _USBDeviceDescriptor {
+typedef PACKED_STRUCT _USBDeviceDescriptor {
 	/**  Size of this descriptor in bytes. */
 	uint8_t bLength;
 
@@ -532,7 +531,7 @@ typedef struct _USBDeviceDescriptor {
  * \typedef USBOtgDescriptor
  * \brief USB On-The-Go descriptor struct.
  */
-typedef struct _USBOtgDescriptor {
+typedef PACKED_STRUCT _USBOtgDescriptor {
    /** Size of this descriptor in bytes. */
    uint8_t bLength;
 
@@ -550,7 +549,7 @@ typedef struct _USBOtgDescriptor {
  *        currently in full-speed. Only relevant for devices supporting the
  *        high-speed mode.
  */
-typedef struct _USBDeviceQualifierDescriptor {
+typedef PACKED_STRUCT _USBDeviceQualifierDescriptor {
    /** Size of the descriptor in bytes. */
    uint8_t bLength;
 
@@ -583,7 +582,7 @@ typedef struct _USBDeviceQualifierDescriptor {
  * \typedef USBConfigurationDescriptor
  * \brief USB standard configuration descriptor structure.
  */
-typedef struct _USBConfigurationDescriptor {
+typedef PACKED_STRUCT _USBConfigurationDescriptor {
    /** Size of the descriptor in bytes. */
    uint8_t bLength;
 
@@ -624,7 +623,7 @@ typedef struct _USBConfigurationDescriptor {
  * The host accesses this descriptor using the get_descriptor() request.
  * The descriptor type in the get_descriptor() request is set to BOS.
  */
-typedef struct _USBDeviceBOSDescriptor{
+typedef PACKED_STRUCT _USBDeviceBOSDescriptor{
 	uint8_t     bLength;
 	uint8_t     bDescriptorType;
 	uint16_t    wTotalLength;
@@ -637,7 +636,7 @@ typedef struct _USBDeviceBOSDescriptor{
  *
  * Defines the set of USB 1.1-specific device level capabilities.
  */
-typedef struct _USBDeviceCapabilities{
+typedef PACKED_STRUCT _USBDeviceCapabilities{
 	uint8_t bLength;
 	uint8_t bDescriptorType;
 	uint8_t bDevCapabilityType;
@@ -649,7 +648,7 @@ typedef struct _USBDeviceCapabilities{
  *
  * The BOS descriptor and capabilities descriptors for LPM.
  */
-typedef struct _USB_DeviceLPMDescriptor{
+typedef PACKED_STRUCT _USB_DeviceLPMDescriptor{
 	USBDeviceBOSDescriptor bos;
 	USBDeviceCapabilities capa_ext;
 } USB_DeviceLPMDescriptor;
@@ -658,7 +657,7 @@ typedef struct _USB_DeviceLPMDescriptor{
  * \typedef USBInterfaceAssociationDescriptor
  * \brief
  */
-typedef struct _USBInterfaceAssociationDescriptor {
+typedef PACKED_STRUCT _USBInterfaceAssociationDescriptor {
 	/** Size of the descriptor in bytes. */
 	uint8_t bLength;
 
@@ -688,7 +687,7 @@ typedef struct _USBInterfaceAssociationDescriptor {
  * \typedef USBInterfaceDescriptor
  * \brief USB standard interface descriptor structure.
  */
-typedef struct _USBInterfaceDescriptor {
+typedef PACKED_STRUCT _USBInterfaceDescriptor {
    /** Size of the descriptor in bytes. */
    uint8_t bLength;
 
@@ -721,7 +720,7 @@ typedef struct _USBInterfaceDescriptor {
  * \typedef USBEndpointDescriptor
  * \brief USB standard endpoint descriptor structure.
  */
-typedef struct _USBEndpointDescriptor {
+typedef PACKED_STRUCT _USBEndpointDescriptor {
    /**  Size of the descriptor in bytes. */
    uint8_t bLength;
 
@@ -745,17 +744,16 @@ typedef struct _USBEndpointDescriptor {
 /**
  * \brief A standard USB string descriptor structure
  */
-typedef struct {
+typedef PACKED_STRUCT {
 	uint8_t bLength;
 	uint8_t bDescriptorType;
 } USBStringDescriptor;
 
-typedef struct {
+typedef PACKED_STRUCT {
 	USBStringDescriptor desc;
 	uint16_t string[1];
 } USBStringLangIdDescriptor;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *      Exported Functions

@@ -34,6 +34,7 @@
  *  Utility for BMP
  *
  */
+#include <chip.h>
 
 #ifndef BMP_H
 #define BMP_H
@@ -48,15 +49,9 @@
  *         Exported types
  *------------------------------------------------------------------------------*/
 
-/*
- * In case of IAR EWARM use, we define an empty macro to turn useless GCC and MDK __attribute__ keyword
- */
-#if defined __ICCARM__ || defined __CC_ARM || defined __GNUC__
-#pragma pack( 1 )
-#endif
 
 /** BMP (Windows) File Header Format */
-typedef struct _BMPFileHeader {
+typedef PACKED_STRUCT _BMPFileHeader {
 	/** signature, must be 4D42 hex */
 	uint16_t type;
 	/** size of BMP file in bytes (unreliable) */
@@ -70,7 +65,7 @@ typedef struct _BMPFileHeader {
 } BMPFileHeader;
 
 /** BMP (Windows 2.x) Header */
-typedef struct _BMP2XHeader {
+typedef PACKED_STRUCT _BMP2XHeader {
 	/** size of this header in bytes */
 	uint32_t size;
 	/** image width in pixels */
@@ -84,7 +79,7 @@ typedef struct _BMP2XHeader {
 } BMP2XHeader;
 
 /** BMP (Windows 3.x) Header, 40 bytes */
-typedef struct _BMP3XHeader {
+typedef PACKED_STRUCT _BMP3XHeader {
 	/** size of this header in bytes */
 	uint32_t size;
 	/** image width in pixels */
@@ -110,7 +105,7 @@ typedef struct _BMP3XHeader {
 } BMP3XHeader;
 
 /** BMP (Windows 95, V4) Header, 108 bytes */
-typedef struct _BMP4Header {
+typedef PACKED_STRUCT _BMP4Header {
 	/** size of this header in bytes */
 	uint32_t size;
 	/** image width in pixels */
@@ -171,7 +166,7 @@ typedef struct _BMP4Header {
 } BMP4Header;
 
 /** BMP (Windows) Header Format */
-typedef struct _BMPHeader {
+typedef PACKED_STRUCT _BMPHeader {
 	/*  signature, must be 4D42 hex */
 	uint16_t type;
 	/*  size of BMP file in bytes (unreliable) */
@@ -205,11 +200,7 @@ typedef struct _BMPHeader {
 	/*  number of important colors, or zero */
 	uint32_t importantcolours;
 
-} BMPHeader;			// GCC
-
-#if defined __ICCARM__ || defined __CC_ARM || defined __GNUC__
-#pragma pack()
-#endif
+} BMPHeader;
 
 /*------------------------------------------------------------------------------
  *         Exported functions

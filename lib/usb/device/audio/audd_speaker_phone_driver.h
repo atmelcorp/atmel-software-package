@@ -150,7 +150,6 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /*------------------------------------------------------------------------------
  *  Audio control header descriptor with one slave interface.
@@ -160,7 +159,7 @@ PACK_SET(1)
  * \typedef AUDHeaderDescriptor2
  * \brief Header descriptor with 1 interface.
  */
-typedef struct _AUDHeaderDescriptor2 {
+typedef PACKED_STRUCT _AUDHeaderDescriptor2 {
 
 	/** Header descriptor. */
 	AUDHeaderDescriptor header;
@@ -175,7 +174,7 @@ typedef struct _AUDHeaderDescriptor2 {
  * \typedef AUDFeatureUnitDescriptor3
  * \brief Feature unit descriptor with 3 channel controls (master, right, left).
  */
-typedef struct _AUDFeatureUnitDescriptor3 {
+typedef PACKED_STRUCT _AUDFeatureUnitDescriptor3 {
 
 	/** Feature unit descriptor. */
 	AUDFeatureUnitDescriptor feature;
@@ -191,7 +190,7 @@ typedef struct _AUDFeatureUnitDescriptor3 {
  * \brief List of descriptors for detailing the audio control interface of a
  *        device using a USB Audio Speakerphoneer driver.
  */
-typedef struct _AUDDSpeakerPhoneDriverAudioControlDescriptors {
+typedef PACKED_STRUCT _AUDDSpeakerPhoneDriverAudioControlDescriptors {
 
 	/** Header descriptor (with one slave interface). */
 	AUDHeaderDescriptor2 header;
@@ -214,7 +213,7 @@ typedef struct _AUDDSpeakerPhoneDriverAudioControlDescriptors {
  * \typedef AUDFormatTypeOneDescriptor1
  * \brief Format type I descriptor with one discrete sampling frequency.
  */
-typedef struct _AUDFormatTypeOneDescriptor1 {
+typedef PACKED_STRUCT _AUDFormatTypeOneDescriptor1 {
 
 	/** Format type I descriptor. */
 	AUDFormatTypeOneDescriptor formatType;
@@ -228,7 +227,7 @@ typedef struct _AUDFormatTypeOneDescriptor1 {
  * \brief Holds a list of descriptors returned as part of the configuration of
  *        a USB Audio Speakerphone device.
  */
-typedef struct _AUDDSpeakerPhoneDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _AUDDSpeakerPhoneDriverConfigurationDescriptors {
 
 	/** Standard configuration. */
 	USBConfigurationDescriptor configuration;
@@ -265,7 +264,6 @@ typedef struct _AUDDSpeakerPhoneDriverConfigurationDescriptors {
 
 } AUDDSpeakerPhoneDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *         Exported functions

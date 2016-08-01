@@ -87,14 +87,13 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef HidMsdDriverConfigurationDescriptors
  * \brief Configuration descriptor list for a device implementing a
  *        HID MSD composite driver.
  */
-typedef struct _HidMsdDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _HidMsdDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -114,8 +113,6 @@ typedef struct _HidMsdDriverConfigurationDescriptors {
 	USBEndpointDescriptor msdBulkIn;
 
 } HidMsdDriverConfigurationDescriptors;
-
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

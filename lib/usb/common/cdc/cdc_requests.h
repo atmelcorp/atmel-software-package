@@ -135,13 +135,12 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef CDCLineCoding
  * \brief Format of the data returned when a GetLineCoding request is received.
  */
-typedef struct _CDCLineCoding {
+typedef PACKED_STRUCT _CDCLineCoding {
 
 	/** Data terminal rate in bits per second. */
 	uint32_t dwDTERate;
@@ -156,7 +155,6 @@ typedef struct _CDCLineCoding {
 
 } CDCLineCoding;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

@@ -99,12 +99,11 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * VideoControl Interface with 1 streaming interface
  */
-typedef struct _UsbVideoControlInterfaceHeader1 {
+typedef PACKED_STRUCT _UsbVideoControlInterfaceHeader1 {
 	uint8_t     bLength;
 	uint8_t     bDescriptorType;
 	uint8_t     bDescriptorSubType;
@@ -118,7 +117,7 @@ typedef struct _UsbVideoControlInterfaceHeader1 {
 /**
  * Input header descriptor (with 1 format)
  */
-typedef struct _UsbVideoInputHeaderDescriptor1 {
+typedef PACKED_STRUCT _UsbVideoInputHeaderDescriptor1 {
 	uint8_t     bLength;
 	uint8_t     bDescriptorType;
 	uint8_t     bDescriptorSubType;
@@ -137,14 +136,14 @@ typedef struct _UsbVideoInputHeaderDescriptor1 {
 /**
  * Class-specific USB VideoControl Interface descriptor list
  */
-typedef struct _UsbVideoControlInterfaceDescriptor {
+typedef PACKED_STRUCT _UsbVideoControlInterfaceDescriptor {
 	UsbVideoControlInterfaceHeader1 header;
 	USBVideoCameraTerminalDescriptor it;
 	USBVideoOutputTerminalDescriptor ot;
 } UsbVideoControlInterfaceDescriptor;
 
 /** USB Video Format with 1 frame, 1 compression, without STI */
-typedef struct _UsbVideoFormatDescriptor {
+typedef PACKED_STRUCT _UsbVideoFormatDescriptor {
 	USBVideoUncompressedFormatDescriptor payload;
 	USBVideoUncompressedFrameDescriptor1 frame320x240; /* 153.6K/f,  4f/s */
 	USBVideoUncompressedFrameDescriptor1 frame640x480; /* 614.4K/f,  1f/s */
@@ -152,12 +151,12 @@ typedef struct _UsbVideoFormatDescriptor {
 	USBVideoColorMatchingDescriptor colorUncompressed;
 } UsbVideoFormatDescriptor;
 
-typedef struct _UsbVideoStreamingInterfaceDescriptor {
+typedef PACKED_STRUCT _UsbVideoStreamingInterfaceDescriptor {
 	UsbVideoInputHeaderDescriptor1 inHeader;
 	UsbVideoFormatDescriptor format;
 } UsbVideoStreamingInterfaceDescriptor;
 
-struct UsbVideoCamConfigurationDescriptors {
+PACKED_STRUCT UsbVideoCamConfigurationDescriptors {
 	/* Configuration descriptor */
 	USBConfigurationDescriptor configuration;
 	/* IAD */
@@ -176,7 +175,6 @@ struct UsbVideoCamConfigurationDescriptors {
 	USBEndpointDescriptor ep11;
 };
 
-PACK_RESET()
 
 /**@}*/
 #endif /* _VIDEODESCRIPTORS_H_ */

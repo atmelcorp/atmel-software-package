@@ -80,10 +80,9 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /** USB CDC SerialState struct (bitmap) */
-typedef struct _CDCSerialState {
+typedef PACKED_STRUCT _CDCSerialState {
 	uint16_t bRxCarrier:1,  /**< State of receive carrier detection (V2.4 signal
 								 109 and RS-232 signal DCD) */
 			 bTxCarrier:1,  /**< State of transmission carrier */
@@ -95,7 +94,6 @@ typedef struct _CDCSerialState {
 			 reserved:9;    /**< Reserved */
 } CDCSerialState;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

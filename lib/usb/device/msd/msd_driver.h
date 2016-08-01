@@ -69,13 +69,12 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef MSDConfigurationDescriptors
  * \brief List of configuration descriptors used by a Mass Storage device driver.
  */
-typedef struct _MSDConfigurationDescriptors {
+typedef PACKED_STRUCT _MSDConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -93,7 +92,7 @@ typedef struct _MSDConfigurationDescriptors {
  * \brief List of configuration descriptors used by a
  *        Mass Storage device driver, with OTG support.
  */
-typedef struct _MSDConfigurationDescriptorsOTG {
+typedef PACKED_STRUCT _MSDConfigurationDescriptorsOTG {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -108,7 +107,6 @@ typedef struct _MSDConfigurationDescriptorsOTG {
 
 } MSDConfigurationDescriptorsOTG;
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *      Global functions

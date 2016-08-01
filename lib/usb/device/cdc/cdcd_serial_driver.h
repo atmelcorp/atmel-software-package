@@ -84,14 +84,13 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef CDCDSerialDriverConfigurationDescriptors
  * \brief Configuration descriptor list for a device implementing a
  *        CDC serial driver.
  */
-typedef struct _CDCDSerialDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _CDCDSerialDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -121,7 +120,7 @@ typedef struct _CDCDSerialDriverConfigurationDescriptors {
  * \brief Configuration descriptor list for a device implementing a
  *        CDC serial OTG driver.
  */
-typedef struct _CDCDSerialDriverConfigurationDescriptorsOTG {
+typedef PACKED_STRUCT _CDCDSerialDriverConfigurationDescriptorsOTG {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -148,7 +147,6 @@ typedef struct _CDCDSerialDriverConfigurationDescriptorsOTG {
 
 } CDCDSerialDriverConfigurationDescriptorsOTG;
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *      Exported functions

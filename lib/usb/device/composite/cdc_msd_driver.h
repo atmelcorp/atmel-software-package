@@ -88,14 +88,13 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef CDCMSDDriverConfigurationDescriptors
  * \brief Configuration descriptor list for a device implementing
  *        a CDCMSD driver.
  */
-typedef struct _CDCMSDDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _CDCMSDDriverConfigurationDescriptors {
 
 	/**  Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -132,7 +131,6 @@ typedef struct _CDCMSDDriverConfigurationDescriptors {
 
 } CDCMSDDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

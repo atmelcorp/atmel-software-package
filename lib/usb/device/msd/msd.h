@@ -186,7 +186,6 @@
  *      Structures
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /*------------------------------------------------------------------------------
  * Command Block Wrapper (CBW),
@@ -195,7 +194,7 @@ PACK_SET(1)
  * The CBW shall start on a packet boundary and shall end as a
  * short packet with exactly 31 (1Fh) bytes transferred.
  *------------------------------------------------------------------------------*/
-typedef struct {
+typedef PACKED_STRUCT {
 
 	/** 'USBC' 0x43425355 (little endian) */
 	uint32_t  dCBWSignature;
@@ -223,7 +222,7 @@ typedef struct {
  * Command Status Wrapper (CSW),
  * See Table 5.2, USB Mass Storage Class Bulk-Only Transport.
  *------------------------------------------------------------------------------*/
-typedef struct
+typedef PACKED_STRUCT
 {
 	/** 'USBS' 0x53425355 (little endian) */
 	uint32_t  dCSWSignature;
@@ -245,7 +244,6 @@ typedef struct
 
 } MSCsw;
 
-PACK_RESET()
 
 /**@}*/
 #endif /*#ifndef MSD_H */

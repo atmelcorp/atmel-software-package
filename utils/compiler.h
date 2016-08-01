@@ -3,9 +3,6 @@
 
 #define _CC_PRAGMA(x) _Pragma(#x)
 
-#define PACK_SET(alignment) _CC_PRAGMA(pack(alignment))
-#define PACK_RESET()        _CC_PRAGMA(pack())
-
 #if defined(__ICCARM__)
 	#define WEAK __weak
 	#define CONSTRUCTOR
@@ -16,6 +13,28 @@
 	#define CONSTRUCTOR __attribute__((constructor))
 	#define SECTION(a) __attribute__((__section__(a)))
 	#define ALIGNED(a) __attribute__((__aligned__(a)))
+#else
+	#error Unknown compiler!
+#endif
+
+/* For packing structures */
+#if defined (__ICCARM__)
+    /* Setup PACKing macros for EWARM Tools */
+    #define PACKED_STRUCT __packed struct
+#elif defined (__GNUC__)
+    /* Setup PACKing macros for GCC Tools */
+    #define PACKED_STRUCT struct __attribute__((packed))
+#else
+	#error Unknown compiler!
+#endif
+
+/* For packing union */
+#if defined (__ICCARM__)
+    /* Setup PACKing macros for EWARM Tools */
+    #define PACKED_UNION __packed union
+#elif defined (__GNUC__)
+    /* Setup PACKing macros for GCC Tools */
+    #define PACKED_UNION union __attribute__((packed))
 #else
 	#error Unknown compiler!
 #endif

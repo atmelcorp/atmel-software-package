@@ -317,14 +317,13 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef AUDStreamingInterfaceDescriptor
  * \brief Provides additional information about an audio streaming interface to
  *        the USB host.
  */
-typedef struct _AUDStreamingInterfaceDescriptor {
+typedef PACKED_STRUCT _AUDStreamingInterfaceDescriptor {
 
 	/** Size of descriptor in bytes.*/
 	uint8_t bLength;
@@ -346,7 +345,7 @@ typedef struct _AUDStreamingInterfaceDescriptor {
  *  \brief Modified endpoint descriptor with two additional fields, with are
  *         USB audio specific.
  */
-typedef struct _AUDEndpointDescriptor {
+typedef PACKED_STRUCT _AUDEndpointDescriptor {
 
    /** Size of the descriptor in bytes. */
    uint8_t bLength;
@@ -372,7 +371,7 @@ typedef struct _AUDEndpointDescriptor {
  * \brief Gives additional information about an USB endpoint used to transmit audio
  *        data to or from the host.
  */
-typedef struct _AUDDataEndpointDescriptor {
+typedef PACKED_STRUCT _AUDDataEndpointDescriptor {
 
 	/** Size of descriptor in bytes. */
 	uint8_t bLength;
@@ -398,7 +397,7 @@ typedef struct _AUDDataEndpointDescriptor {
  *        the USB host. Subclass this structure to add a particular number of
  *        slave interface descriptors.
  */
-typedef struct _AUDHeaderDescriptor {
+typedef PACKED_STRUCT _AUDHeaderDescriptor {
 
 	/** Size of descriptor in bytes.*/
 	uint8_t bLength;
@@ -420,7 +419,7 @@ typedef struct _AUDHeaderDescriptor {
  * \typedef AUDInputTerminalDescriptor
  * \brief Describes an input of a USB audio device.
  */
-typedef struct _AUDInputTerminalDescriptor {
+typedef PACKED_STRUCT _AUDInputTerminalDescriptor {
 
 	/** Size of descriptor in bytes.*/
 	uint8_t bLength;
@@ -451,7 +450,7 @@ typedef struct _AUDInputTerminalDescriptor {
  * \typedef AUDOutputTerminalDescriptor
  * \brief Describes an output of the USB audio function.
  */
-typedef struct _AUDOutputTerminalDescriptor {
+typedef PACKED_STRUCT _AUDOutputTerminalDescriptor {
 
 	/** Size of descriptor in bytes.*/
 	uint8_t bLength;
@@ -482,7 +481,7 @@ typedef struct _AUDOutputTerminalDescriptor {
  * This type must be augmented with the relevant number
  * of bmaControls fields and the iFeature field.
  **/
-typedef struct _AUDFeatureUnitDescriptor {
+typedef PACKED_STRUCT _AUDFeatureUnitDescriptor {
 
 	/** Size of descriptor in bytes.*/
 	uint8_t bLength;
@@ -508,7 +507,7 @@ typedef struct _AUDFeatureUnitDescriptor {
  * (if bSamFreqType = <\ref AUDFormatTypeOneDescriptor_CONTINUOUS>)
  * or with an array containing the possible discrete frequencies.
  */
-typedef struct _AUDFormatTypeOneDescriptor {
+typedef PACKED_STRUCT _AUDFormatTypeOneDescriptor {
 
 	/** Size of descriptor in bytes. */
 	uint8_t bLength;
@@ -529,8 +528,6 @@ typedef struct _AUDFormatTypeOneDescriptor {
 	uint8_t bSamFreqType;
 
 } AUDFormatTypeOneDescriptor;
-
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

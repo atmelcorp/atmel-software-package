@@ -257,34 +257,32 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /** HID Short Item Header, followed by bSize bytes of data */
-typedef struct _HIDShortItem {
+typedef PACKED_STRUCT _HIDShortItem {
 	uint8_t bSize:2,    /**< data size (0, 1, 2 or 4) */
 			bType:2,    /**< fundamental type */
 			bTag:4;     /**< item type */
 } HIDShortItem;
 
 /** HID Long Item Header, followed by bDataSize bytes of data */
-typedef struct _HIDLongItem {
+typedef PACKED_STRUCT _HIDLongItem {
 	uint8_t  bPrefix;       /**< Prefix, 0xFE */
 	uint8_t  bDataSize;     /**< data size */
 	uint16_t bLongItemTag;  /**< item type */
 } HIDLongItem;
 
 /** HID Report without ID (with one byte data) */
-typedef struct _HIDReportNoID {
+typedef PACKED_STRUCT _HIDReportNoID {
 	uint8_t  bData[1];      /**< First report data byte */
 } HIDReportNoID;
 
 /** HID Report with ID (with one byte data) */
-typedef struct _HIDReport {
+typedef PACKED_STRUCT _HIDReport {
 	uint8_t  bID;           /**< Report ID */
 	uint8_t  bData[1];      /**< First report data byte */
 } HIDReport;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

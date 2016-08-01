@@ -256,12 +256,11 @@
  *          Descriptor structs types
  */
 
-PACK_SET(1)
 
 /**
  *  Generic USB SETUP request sent over Control endpoints.
  */
-typedef struct {
+typedef PACKED_STRUCT {
 	/**  Type of request
 	 *  \sa usb_request_recipient "USB Request Recipients"
 	 *  \sa usb_request_type "USB Request Types"
@@ -281,8 +280,6 @@ typedef struct {
 	/**  Expected length (in bytes) of the data phase. */
 	uint16_t wLength:16;
 } USBGenericRequest;
-
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *      Exported Functions

@@ -75,10 +75,9 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /** Audio header descriptor with 1 interface */
-typedef struct _AUDHeaderDescriptor1{
+typedef PACKED_STRUCT _AUDHeaderDescriptor1{
 
 	/** Header descriptor.*/
 	AUDHeaderDescriptor header;
@@ -88,7 +87,7 @@ typedef struct _AUDHeaderDescriptor1{
 } AUDHeaderDescriptor1;
 
 /** Audio header descriptor with 2 interface */
-typedef struct _AUDHeaderDescriptor2 {
+typedef PACKED_STRUCT _AUDHeaderDescriptor2 {
 
 	/** Header descriptor. */
 	AUDHeaderDescriptor header;
@@ -102,7 +101,7 @@ typedef struct _AUDHeaderDescriptor2 {
 /**
  * Feature unit descriptor with 3 channel controls (master, right, left).
  */
-typedef struct _AUDFeatureUnitDescriptor3{
+typedef PACKED_STRUCT _AUDFeatureUnitDescriptor3{
 
 	/** Feature unit descriptor.*/
 	AUDFeatureUnitDescriptor feature;
@@ -117,7 +116,7 @@ typedef struct _AUDFeatureUnitDescriptor3{
  * List of descriptors for detailing the audio control interface of a
  * device using a USB audio speaker function.
  */
-typedef struct _AUDDSpeakerAcDescriptors{
+typedef PACKED_STRUCT _AUDDSpeakerAcDescriptors{
 
 	/** Header descriptor (with one slave interface).*/
 	AUDHeaderDescriptor1 header;
@@ -134,7 +133,7 @@ typedef struct _AUDDSpeakerAcDescriptors{
  * List of descriptors for detailing the audio control interface of a
  * device using a USB Audio Speakerphoneer function.
  */
-typedef struct _AUDDSpeakerPhoneAcDescriptors {
+typedef PACKED_STRUCT _AUDDSpeakerPhoneAcDescriptors {
 
 	/** Header descriptor (with one slave interface). */
 	AUDHeaderDescriptor2 header;
@@ -156,7 +155,7 @@ typedef struct _AUDDSpeakerPhoneAcDescriptors {
 /**
  * Format type I descriptor with one discrete sampling frequency.
  */
-typedef struct _AUDFormatTypeOneDescriptor1{
+typedef PACKED_STRUCT _AUDFormatTypeOneDescriptor1{
 
 	/** Format type I descriptor.*/
 	AUDFormatTypeOneDescriptor formatType;
@@ -169,7 +168,7 @@ typedef struct _AUDFormatTypeOneDescriptor1{
  * Configuration descriptor list for a device implementing
  * CDC(Serial) + Audio(Speaker) composite driver.
  */
-typedef struct _CdcAudspkdDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _CdcAudspkdDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -223,7 +222,7 @@ typedef struct _CdcAudspkdDriverConfigurationDescriptors {
  * Configuration descriptor list for a device implementing
  * CDC(Serial) + Audio(SpeakerPhone) composite driver.
  */
-typedef struct _CdcAuddDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _CdcAuddDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -286,7 +285,6 @@ typedef struct _CdcAuddDriverConfigurationDescriptors {
 
 } CdcAuddDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

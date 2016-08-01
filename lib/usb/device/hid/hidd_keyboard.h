@@ -103,7 +103,6 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef HIDDKeyboardOutputReport
@@ -113,7 +112,7 @@ PACK_SET(1)
  * Only the first three bits are relevant, the other 5 are used as
  * padding bits.
  */
-typedef struct _HIDDKeyboardOutputReport {
+typedef PACKED_STRUCT _HIDDKeyboardOutputReport {
 
 	uint8_t numLockStatus:1,      /** State of the num. lock LED. */
 				  capsLockStatus:1,     /** State of the caps lock LED. */
@@ -130,7 +129,7 @@ typedef struct _HIDDKeyboardOutputReport {
  * The first byte is used to report the state of modifier keys. The
  * other three contains the keycodes of the currently pressed keys.
  */
-typedef struct _HIDDKeyboardInputReport {
+typedef PACKED_STRUCT _HIDDKeyboardInputReport {
 
 	/** State of modifier keys. */
 	uint8_t bmModifierKeys:8;
@@ -144,7 +143,7 @@ typedef struct _HIDDKeyboardInputReport {
  * \brief List of descriptors that make up the configuration descriptors of a
  *        device using the HID keyboard driver.
  */
-typedef struct _HIDDKeyboardDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _HIDDKeyboardDriverConfigurationDescriptors {
 
 	/** Configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -159,7 +158,6 @@ typedef struct _HIDDKeyboardDriverConfigurationDescriptors {
 
 } HIDDKeyboardDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *         Exported functions

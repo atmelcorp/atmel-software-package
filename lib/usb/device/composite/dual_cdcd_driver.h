@@ -73,14 +73,13 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef DualCdcDriverConfigurationDescriptors
  * \brief Configuration descriptor list for a device implementing a
  *        dual CDC serial composite driver.
  */
-typedef struct _DualCdcDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _DualCdcDriverConfigurationDescriptors {
 
 	/** Standard configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -131,7 +130,6 @@ typedef struct _DualCdcDriverConfigurationDescriptors {
 
 } DualCdcDriverConfigurationDescriptors;
 
-PACK_RESET()
 
 /*---------------------------------------------------------------------------
  *         Exported functions

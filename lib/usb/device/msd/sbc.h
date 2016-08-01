@@ -354,14 +354,13 @@
  *      Structures
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef SBCInquiry
  * \brief  Structure for the INQUIRY command
  * \see    spc4r06.pdf - Section 6.4.1 - Table 81
  */
-typedef struct _SBCInquiry {
+typedef PACKED_STRUCT _SBCInquiry {
 
 	uint8_t bOperationCode;       /*!< 0x12 : SBC_INQUIRY */
 	uint8_t isEVPD:1,             /*!< Type of requested data */
@@ -377,7 +376,7 @@ typedef struct _SBCInquiry {
  * \brief  Standard INQUIRY data format returned by the device
  * \see    spc4r06.pdf - Section 6.4.2 - Table 82
  */
-typedef struct _SBCInquiryData {
+typedef PACKED_STRUCT _SBCInquiryData {
 
 	uint8_t  bPeripheralDeviceType:5, /*!< Peripheral device type */
 				   bPeripheralQualifier :3; /*!< Peripheral qualifier */
@@ -420,7 +419,7 @@ typedef struct _SBCInquiryData {
  * \brief  Data structure for the READ (10) command
  * \see    sbc3r07.pdf - Section 5.7 - Table 34
  */
-typedef struct _SBCRead10 {
+typedef PACKED_STRUCT _SBCRead10 {
 
 	uint8_t bOperationCode;          /*!< 0x28 : SBC_READ_10 */
 	uint8_t bObsolete1:1,            /*!< Obsolete bit */
@@ -442,7 +441,7 @@ typedef struct _SBCRead10 {
  * \brief  Structure for the READ CAPACITY (10) command
  * \see    sbc3r07.pdf - Section 5.11.1 - Table 40
  */
-typedef struct _SBCReadCapacity10 {
+typedef PACKED_STRUCT _SBCReadCapacity10 {
 
 	uint8_t bOperationCode;          /*!< 0x25 : RBC_READ_CAPACITY */
 	uint8_t bObsolete1:1,            /*!< Obsolete bit */
@@ -459,7 +458,7 @@ typedef struct _SBCReadCapacity10 {
  * \brief  Data returned by the device after a READ CAPACITY (10) command
  * \see    sbc3r07.pdf - Section 5.11.2 - Table 41
  *------------------------------------------------------------------------------*/
-typedef struct {
+typedef PACKED_STRUCT {
 
 	uint8_t pLogicalBlockAddress[4]; /*!< Address of last logical block */
 	uint8_t pLogicalBlockLength[4];  /*!< Length of each logical block */
@@ -470,7 +469,7 @@ typedef struct {
  * \brief  Structure for the REQUEST SENSE command
  * \see    spc4r06.pdf - Section 6.26 - Table 170
  *------------------------------------------------------------------------------*/
-typedef struct {
+typedef PACKED_STRUCT {
 
 	uint8_t bOperationCode;    /*!< 0x03 : SBC_REQUEST_SENSE */
 	uint8_t isDesc    :1,      /*!< Type of information expected */
@@ -486,7 +485,7 @@ typedef struct {
  *         been received with a DESC bit cleared.
  * \see    spc4r06.pdf - Section 4.5.3 - Table 26
  *------------------------------------------------------------------------------*/
-typedef struct {
+typedef PACKED_STRUCT {
 
 	uint8_t bResponseCode:7,                /*!< Sense data format */
 				  isValid      :1;                /*!< Information field is standard */
@@ -513,7 +512,7 @@ typedef struct {
  *         Data structure for the TEST UNIT READY command
  * \see    spc4r06.pdf - Section 6.34 - Table 192
  */
-typedef struct _SBCTestUnitReady {
+typedef PACKED_STRUCT _SBCTestUnitReady {
 
 	uint8_t bOperationCode; /*!< 0x00 : SBC_TEST_UNIT_READY */
 	uint8_t pReserved1[4];  /*!< Reserved bits */
@@ -526,7 +525,7 @@ typedef struct _SBCTestUnitReady {
  * \brief  Structure for the WRITE (10) command
  * \see    sbc3r07.pdf - Section 5.26 - Table 70
  */
-typedef struct _SBCWrite10 {
+typedef PACKED_STRUCT _SBCWrite10 {
 
 	uint8_t bOperationCode;          /*!< 0x2A : SBC_WRITE_10 */
 	uint8_t bObsolete1:1,            /*!< Obsolete bit */
@@ -548,7 +547,7 @@ typedef struct _SBCWrite10 {
  * \brief  Structure for the PREVENT/ALLOW MEDIUM REMOVAL command
  * \see    sbc3r07.pdf - Section 5.5 - Table 30
  */
-typedef struct _SBCMediumRemoval {
+typedef PACKED_STRUCT _SBCMediumRemoval {
 
 	uint8_t bOperationCode; /*!< 0x1E : SBC_PREVENT_ALLOW_MEDIUM_REMOVAL */
 	uint8_t pReserved1[3];  /*!< Reserved bytes */
@@ -563,7 +562,7 @@ typedef struct _SBCMediumRemoval {
  * \brief  Structure for the MODE SENSE (6) command
  * \see    spc4r06 - Section 6.9.1 - Table 98
  */
-typedef struct _SBCModeSense6 {
+typedef PACKED_STRUCT _SBCModeSense6 {
 
 	uint8_t bOperationCode;    /*!< 0x1A : SBC_MODE_SENSE_6 */
 	uint8_t bReserved1:3,      /*!< Reserved bits */
@@ -582,7 +581,7 @@ typedef struct _SBCModeSense6 {
  * \brief  Header for the data returned after a MODE SENSE (6) command
  * \see    spc4r06.pdf - Section 7.4.3 - Table 268
  */
-typedef struct _SBCModeParameterHeader6 {
+typedef PACKED_STRUCT _SBCModeParameterHeader6 {
 
 	uint8_t bModeDataLength;          /*!< Length of mode data to follow */
 	uint8_t bMediumType;              /*!< Type of medium (SBC_MEDIUM_TYPE_DIRECT_ACCESS_BLOCK_DEVICE) */
@@ -599,7 +598,7 @@ typedef struct _SBCModeParameterHeader6 {
  * \brief  Informational exceptions control mode page
  * \see    spc4r06.pdf - Section 7.4.11 - Table 285
  */
-typedef struct _SBCInformationalExceptionsControl {
+typedef PACKED_STRUCT _SBCInformationalExceptionsControl {
 
 	uint8_t bPageCode:6,       /*!< 0x1C : SBC_PAGE_INFORMATIONAL_EXCEPTIONS_CONTROL */
 				  isSPF:1,           /*!< Page or subpage data format */
@@ -625,7 +624,7 @@ typedef struct _SBCInformationalExceptionsControl {
  * \brief  Read/write error recovery mode page
  * \see    sbc3r07.pdf - Section 6.3.5 - Table 122
  */
-typedef struct _SBCReadWriteErrorRecovery {
+typedef PACKED_STRUCT _SBCReadWriteErrorRecovery {
 
 	uint8_t bPageCode:6,           /*!< 0x01 : SBC_PAGE_READ_WRITE_ERROR_RECOVERY */
 				  isSPF:1,               /*!< Page or subpage data format */
@@ -660,7 +659,7 @@ typedef struct _SBCReadWriteErrorRecovery {
  * \see    SBCMediumRemoval
  * \see    SBCModeSense6
  */
-typedef union _SBCCommand {
+typedef PACKED_UNION _SBCCommand {
 
 	uint8_t     bOperationCode; /*!< Operation code of the command */
 	SBCInquiry        inquiry;        /*!< INQUIRY command */
@@ -673,8 +672,6 @@ typedef union _SBCCommand {
 	SBCModeSense6     modeSense6;     /*!< MODE SENSE (6) command */
 
 } SBCCommand;
-
-PACK_RESET()
 
 /**@}*/
 

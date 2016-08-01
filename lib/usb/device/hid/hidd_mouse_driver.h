@@ -90,14 +90,13 @@
  *         Types
  *------------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef HIDDMouseDriverConfigurationDescriptors
  * \brief List of descriptors that make up the configuration descriptors of a
  *        device using the HID Mouse driver.
  */
-typedef struct _HIDDMouseDriverConfigurationDescriptors {
+typedef PACKED_STRUCT _HIDDMouseDriverConfigurationDescriptors {
 
 	/** Configuration descriptor. */
 	USBConfigurationDescriptor configuration;
@@ -115,14 +114,13 @@ typedef struct _HIDDMouseDriverConfigurationDescriptors {
  * \brief HID input report data struct used by the Mouse driver to notify the
  *        host of pressed keys.
  */
-typedef struct _HIDDMouseInputReport {
+typedef PACKED_STRUCT _HIDDMouseInputReport {
 
 	uint8_t bmButtons;          /**< Bitmap state of three mouse buttons. */
 	int8_t  bX;                 /**< Pointer displacement along the X axis. */
 	int8_t  bY;                 /**< Pointer displacement along the Y axis. */
 } HIDDMouseInputReport; /* GCC */
 
-PACK_RESET()
 
 /*------------------------------------------------------------------------------
  *         Exported functions

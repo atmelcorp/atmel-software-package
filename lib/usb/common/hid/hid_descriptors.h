@@ -131,14 +131,13 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef HIDDescriptor
  * \brief Identifies the length of type of subordinate descriptors of a HID
  *        device. This particular type has no subordinate descriptor.
  */
-typedef struct _HIDDescriptor {
+typedef PACKED_STRUCT _HIDDescriptor {
 
 	/** Size of descriptor in bytes. */
 	uint8_t  bLength;
@@ -158,7 +157,7 @@ typedef struct _HIDDescriptor {
  * \brief Identifies the length of type of subordinate descriptors of a HID
  *        device. This particular type only supports one subordinate descriptor.
  */
-typedef struct _HIDDescriptor1 {
+typedef PACKED_STRUCT _HIDDescriptor1 {
 
 	/** Size of descriptor in bytes. */
 	uint8_t  bLength;
@@ -181,7 +180,7 @@ typedef struct _HIDDescriptor1 {
  * HID Physical Descriptor set 0: specifies the number of additional
  * descriptor sets.
  */
-typedef struct _HIDPhysicalDescriptor0 {
+typedef PACKED_STRUCT _HIDPhysicalDescriptor0 {
 	/** Numeric expression specifying the number of Physical Descriptor sets
 		Physical Descriptor 0 itself not included */
 	uint8_t   bNumber;
@@ -192,7 +191,7 @@ typedef struct _HIDPhysicalDescriptor0 {
 /**
  * HID Physical information
  */
-typedef union _HIDPhysicalInfo {
+typedef PACKED_UNION _HIDPhysicalInfo {
 	/** Bits specifying physical information: 7..5 Bias, 4..0 Preference */
 	uint8_t bData;
 	struct {
@@ -205,7 +204,7 @@ typedef union _HIDPhysicalInfo {
 /**
  * HID Physical Descriptor
  */
-typedef struct _HIDPhysicalDescriptor {
+typedef PACKED_STRUCT _HIDPhysicalDescriptor {
 	/** Designator: indicates which part of the body affects the item */
 	uint8_t bDesignator;
 	/** Bits specifying flags:
@@ -214,7 +213,6 @@ typedef struct _HIDPhysicalDescriptor {
 	uint8_t bFlags;
 } HIDPhysicalDescriptor;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions

@@ -35,6 +35,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <chip.h>
 
 /*---------------------------------------------------------------------------
  *         Define
@@ -109,17 +110,16 @@
  *         Types
  *---------------------------------------------------------------------------*/
 
-#pragma pack(1)
 
 /** Ethernet header structure */
-struct _eth_hdr {
+PACKED_STRUCT _eth_hdr {
 	uint8_t et_dest[6];   /**< Destination node */
 	uint8_t et_src[6];    /**< Source node */
 	uint16_t et_protlen;  /**< Protocol or length */
 };
 
 /** ARP header structure */
-struct _arp_hdr {
+PACKED_STRUCT _arp_hdr {
 	uint16_t ar_hrd;      /**< Format of hardware address */
 	uint16_t ar_pro;      /**< Format of protocol address */
 	uint8_t ar_hln;	      /**< Length of hardware address */
@@ -132,7 +132,7 @@ struct _arp_hdr {
 };
 
 /** IP Header structure */
-struct _ip_hdr {
+PACKED_STRUCT _ip_hdr {
 	uint8_t ip_hl_v;      /**< header length and version */
 	uint8_t ip_tos;	      /**< type of service */
 	uint16_t ip_len;      /**< total length */
@@ -146,20 +146,20 @@ struct _ip_hdr {
 };
 
 /** ICMP header structure */
-struct _icmp_hdr {
+PACKED_STRUCT _icmp_hdr {
 	uint8_t type;	      /**< type of message */
 	uint8_t code;	      /**< type subcode */
 	uint16_t cksum;	      /**< ones complement cksum of struct */
 };
 
 /** ICMP ECHO header structure */
-struct _icmp_echo_hdr {
+PACKED_STRUCT _icmp_echo_hdr {
 	uint16_t id;	      /**< identifier */
 	uint16_t seq;	      /**< sequence number */
 };
 
 /** UDP Header structure */
-struct _udp_hdr {
+PACKED_STRUCT _udp_hdr {
 	uint16_t udp_src;     /**< UDP source port */
 	uint16_t udp_dst;     /**< UDP destination port */
 	uint16_t udp_len;     /**< Length of UDP packet */
@@ -167,7 +167,7 @@ struct _udp_hdr {
 };
 
 /** Ethernet packet structure */
-struct _eth_packet {
+PACKED_STRUCT _eth_packet {
 	struct _eth_hdr eth;
 	union {
 		struct _arp_hdr arp;
@@ -184,7 +184,6 @@ struct _eth_packet {
 	};
 };
 
-#pragma pack()
 
 /*----------------------------------------------------------------------------
  *         Global functions

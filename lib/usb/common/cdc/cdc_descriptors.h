@@ -223,14 +223,13 @@
  *         Types
  *----------------------------------------------------------------------------*/
 
-PACK_SET(1)
 
 /**
  * \typedef CDCHeaderDescriptor
  * \brief Marks the beginning of the concatenated set of functional descriptors
  *        for the interface.
  */
-typedef struct _CDCHeaderDescriptor {
+typedef PACKED_STRUCT _CDCHeaderDescriptor {
 
 	/** Size of this descriptor in bytes. */
 	uint8_t bFunctionLength;
@@ -248,7 +247,7 @@ typedef struct _CDCHeaderDescriptor {
  * \brief Describes the relationship between a group of interfaces that can
  *        be considered to form a functional unit.
  */
-typedef struct _CDCUnionDescriptor {
+typedef PACKED_STRUCT _CDCUnionDescriptor {
 
 	/** Size of the descriptor in bytes. */
 	uint8_t bFunctionLength;
@@ -268,7 +267,7 @@ typedef struct _CDCUnionDescriptor {
  * \brief Describes the processing of calls for the communication class
  *        interface.
  */
-typedef struct _CDCCallManagementDescriptor {
+typedef PACKED_STRUCT _CDCCallManagementDescriptor {
 
 	/** Size of this descriptor in bytes. */
 	uint8_t bFunctionLength;
@@ -290,7 +289,7 @@ typedef struct _CDCCallManagementDescriptor {
  * \brief Describes the command supported by the communication interface class
  *        with the Abstract Control Model subclass code.
  */
-typedef struct _CDCAbstractControlManagementDescriptor {
+typedef PACKED_STRUCT _CDCAbstractControlManagementDescriptor {
 
 	/** Size of this descriptor in bytes. */
 	uint8_t bFunctionLength;
@@ -304,7 +303,6 @@ typedef struct _CDCAbstractControlManagementDescriptor {
 
 } CDCAbstractControlManagementDescriptor;
 
-PACK_RESET()
 
 /*----------------------------------------------------------------------------
  *         Functions
