@@ -743,9 +743,9 @@ Fail:
 #ifdef CONFIG_HAVE_ISC
 void board_cfg_isc(void)
 {
-	const struct _pin pins_isc[]= ISC_PINS;
-	const struct _pin pin_rst = ISC_PIN_RST;
-	const struct _pin pin_pwd = ISC_PIN_PWD;
+	const struct _pin pins_isc[]= BOARD_ISC_PINS;
+	const struct _pin pin_rst = BOARD_ISC_PIN_RST;
+	const struct _pin pin_pwd = BOARD_ISC_PIN_PWD;
 
 	/* Configure ISC pins */
 	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));

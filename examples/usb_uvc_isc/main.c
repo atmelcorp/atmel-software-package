@@ -156,14 +156,14 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
  *----------------------------------------------------------------------------*/
 
 /** PIO pins to configured for ISC */
-const struct _pin pins_twi[] = ISC_TWI_PINS;
+const struct _pin pins_twi[] = BOARD_ISC_TWI_PINS;
 
 /** Descriptor view 0 is used when the pixel or data stream is packed */
 CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
-	.addr = ISC_TWI_ADDR,
+	.addr = BOARD_ISC_TWI_ADDR,
 	.freq = TWCK,
 	.transfer_mode = TWID_MODE_POLLING
 };
@@ -211,7 +211,7 @@ static void configure_twi(void)
 	/* Configure TWI pins. */
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
 	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
+	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISC_TWI_ADDR));
 	/* Configure TWI */
 	twid_configure(&twid);
 }

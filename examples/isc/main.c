@@ -178,7 +178,7 @@ static const sensor_profile_t *sensor_profiles[6] = {
 };
 
 /** PIO pins to configured. */
-const struct _pin pins_twi[] = ISC_TWI_PINS;
+const struct _pin pins_twi[] = BOARD_ISC_TWI_PINS;
 
 CACHE_ALIGNED struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
@@ -186,7 +186,7 @@ CACHE_ALIGNED struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 /** TWI driver instance.*/
 static struct _twi_desc twid = {
-	.addr = ISC_TWI_ADDR,
+	.addr = BOARD_ISC_TWI_ADDR,
 	.freq = TWCK,
 	.transfer_mode = TWID_MODE_POLLING
 };
@@ -373,7 +373,7 @@ static void configure_twi(void)
 	/* Configure TWI pins. */
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
 	/* Enable TWI peripheral clock */
-	pmc_enable_peripheral(get_twi_id_from_addr(ISC_TWI_ADDR));
+	pmc_enable_peripheral(get_twi_id_from_addr(BOARD_ISC_TWI_ADDR));
 	/* Configure TWI */
 	twid_configure(&twid);
 }
