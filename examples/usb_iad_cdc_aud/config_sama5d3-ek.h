@@ -37,22 +37,23 @@
 #include "peripherals/twid.h"
 
 /** List of pins to configure. */
-static struct _pin  pins_twi[] = PINS_TWI0;
+static struct _pin  pins_twi[] = BOARD_WM8904_PINS;
 
 static struct codec_desc wm8904_codec = {
 	/* codec control interface */
 	.wm8904 = {
 		.twi = {
 			.twid = {
-				.addr = TWI0,
-				.freq = 400000,
+				.addr = BOARD_WM8904_ADDR,
+				.freq = BOARD_WM8904_FREQ,
 				.transfer_mode = TWID_MODE_POLLING
 			},
+			.addr = BOARD_WM8904_SLAVE_ADDR,
 		},
-		.input_path = WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R,
-		.mclk_pck = 0,
-		.mclk_pck_src = PMC_PCK_CSS_SLOW_CLK,
-		.mclk_pin = PIN_PCK0,
+		.input_path = BOARD_WM8904_INPUT_PATH,
+		.mclk_pck = BOARD_WM8904_MCLK_PCK,
+		.mclk_pck_src = BOARD_WM8904_MCLK_PCK_SRC,
+		.mclk_pin = BOARD_WM8904_MCLK_PIN,
 	},
 	.codec_twid_pin = pins_twi,
 	.codec_twid_pin_size = ARRAY_SIZE(pins_twi),

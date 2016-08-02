@@ -40,7 +40,7 @@
 #define BITS_BY_SLOT            (16)
 
 /** List of pins to configure. */
-static const struct _pin pins_twi[] = PINS_TWI0;
+static const struct _pin pins_twi[] = BOARD_WM8904_PINS;
 
 /** SSC instance*/
 static struct _ssc_desc ssc_dev_desc = {
@@ -57,15 +57,16 @@ static struct _ssc_desc ssc_dev_desc = {
 static struct _wm8904_desc wm8904 = {
 	.twi = {
 		.twid = {
-			.addr = TWI0,
-			.freq = 400000,
+			.addr = BOARD_WM8904_ADDR,
+			.freq = BOARD_WM8904_FREQ,
 			.transfer_mode = TWID_MODE_POLLING
 		},
+		.addr = BOARD_WM8904_SLAVE_ADDR,
 	},
-	.input_path = WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R,
-	.mclk_pck = 0,
-	.mclk_pck_src = PMC_PCK_CSS_SLOW_CLK,
-	.mclk_pin = PIN_PCK0,
+	.input_path = BOARD_WM8904_INPUT_PATH,
+	.mclk_pck = BOARD_WM8904_MCLK_PCK,
+	.mclk_pck_src = BOARD_WM8904_MCLK_PCK_SRC,
+	.mclk_pin = BOARD_WM8904_MCLK_PIN,
 };
 
 #endif

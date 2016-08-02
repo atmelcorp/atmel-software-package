@@ -290,7 +290,7 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void wm8904_configure(struct _wm8904_desc *wm8904, uint8_t device)
+void wm8904_configure(struct _wm8904_desc *wm8904)
 {
 	const struct _wm8904_para *params;
 	uint8_t i, count;
@@ -300,9 +300,6 @@ void wm8904_configure(struct _wm8904_desc *wm8904, uint8_t device)
 	pmc_configure_pck(wm8904->mclk_pck, wm8904->mclk_pck_src, 0);
 	pmc_enable_pck(wm8904->mclk_pck);
 	pio_configure(&wm8904->mclk_pin, 1);
-
-	/* Initialize TWI address */
-	wm8904->addr = device;
 
 	/* check that WM8904 is present */
 	if (!wm8904_detect(wm8904))

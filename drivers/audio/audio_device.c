@@ -95,8 +95,7 @@ static void _configure_ssc(struct _audio_desc *desc)
 
 	/* -- WM8904 Initialize -- */
 	twid_configure(&desc->device.ssc.codec_chip->wm8904.twi.twid);
-
-	wm8904_configure(&desc->device.ssc.codec_chip->wm8904, WM8904_SLAVE_ADDRESS);
+	wm8904_configure(&desc->device.ssc.codec_chip->wm8904);
 #endif
 
 	/* Mute */
