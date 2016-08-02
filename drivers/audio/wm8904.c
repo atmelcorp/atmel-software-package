@@ -242,7 +242,7 @@ static const struct _wm8904_para wm8904_access_main[] = {
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
-static uint16_t wm8904_read(struct _twi_desc * twid, uint32_t device, uint8_t reg_addr)
+static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 {
 	uint8_t temp_data[2] = { 0, 0 };
 	struct _buffer in = {
@@ -250,12 +250,12 @@ static uint16_t wm8904_read(struct _twi_desc * twid, uint32_t device, uint8_t re
 		.size = 2,
 	};
 
-	twid->slave_addr = device;
-	twid->iaddr = reg_addr;
-	twid->isize = 1;
+	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
+	wm8904->twi.twid.iaddr = reg_addr;
+	wm8904->twi.twid.isize = 1;
 
-	twid_transfer(twid, &in, NULL, NULL, NULL);
-	while (twid_is_busy(twid));
+	twid_transfer(&wm8904->twi.twid, &in, NULL, NULL, NULL);
+	while (twid_is_busy(&wm8904->twi.twid));
 
 	return (temp_data[0] << 8) | temp_data[1];
 }
@@ -268,7 +268,7 @@ static uint16_t wm8904_read(struct _twi_desc * twid, uint32_t device, uint8_t re
  * \param reg_addr Register address to read.
  * \param data    Data to write
  */
-static void wm8904_write(struct _twi_desc * twid, uint32_t device, uint8_t reg_addr, uint16_t data)
+static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
 {
 	uint8_t tmp_data[2] = { 0, 0 };
 	struct _buffer out = {
@@ -276,39 +276,47 @@ static void wm8904_write(struct _twi_desc * twid, uint32_t device, uint8_t reg_a
 		.size = 2,
 	};
 
-	twid->slave_addr = device;
-	twid->iaddr = reg_addr;
-	twid->isize = 1;
+	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
+	wm8904->twi.twid.iaddr = reg_addr;
+	wm8904->twi.twid.isize = 1;
 
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
-	twid_transfer(twid, NULL, &out, NULL, NULL);
-	while (twid_is_busy(twid));
+	twid_transfer(&wm8904->twi.twid, NULL, &out, NULL, NULL);
+	while (twid_is_busy(&wm8904->twi.twid));
 }
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void wm8904_configure(struct _twi_desc* twid, uint32_t device, uint32_t pck, uint8_t input_path)
+void wm8904_configure(struct _wm8904_desc *wm8904, uint8_t device)
 {
-	struct _wm8904_para params;
+	const struct _wm8904_para *params;
 	uint8_t i, count;
-	uint16_t data = 0;
+
+	/* configure codec master clock */
+	pmc_disable_pck(wm8904->mclk_pck);
+	pmc_configure_pck(wm8904->mclk_pck, wm8904->mclk_pck_src, 0);
+	pmc_enable_pck(wm8904->mclk_pck);
+	pio_configure(&wm8904->mclk_pin, 1);
+
+	/* Initialize TWI address */
+	wm8904->addr = device;
 
 	/* check that WM8904 is present */
-	if (!wm8904_detect(twid, device))
+	if (!wm8904_detect(wm8904))
 		trace_fatal("wm8904: device not detected!\r\n");
 
-	wm8904_reset(twid, device);
+	wm8904_reset(wm8904);
 
-	switch (pck) {
-	case PMC_MCKR_CSS_SLOW_CLK:
+	switch (wm8904->mclk_pck_src) {
+	case PMC_PCK_CSS_SLOW_CLK:
 		params = wm8904_access_slow;
 		count = ARRAY_SIZE(wm8904_access_slow);
 		break;
 
-	case PMC_MCKR_CSS_MAIN_CLK:
+	case PMC_PCK_CSS_MAIN_CLK:
 		params = wm8904_access_main;
 		count = ARRAY_SIZE(wm8904_access_main);
 		break;
@@ -318,118 +326,117 @@ void wm8904_configure(struct _twi_desc* twid, uint32_t device, uint32_t pck, uin
 	}
 
 	for (i = 0; i < count; i++) {
-		wm8904_write(twid, device, params[i].address, params[i].value);
+		wm8904_write(wm8904, params[i].address, params[i].value);
 		if (params[i].delay > 0)
 			timer_wait(params[i].delay);
 	}
 
-	if ((input_path & (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L)) == (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L))
+	if ((wm8904->input_path & (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L)) == (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L))
 		trace_fatal("wm8904: invalid left input path\r\n");
 
-	if (input_path & WM8904_INPUT_PATH_IN1L) {
+	if (wm8904->input_path & WM8904_INPUT_PATH_IN1L) {
 		/* IN1L */
-		wm8904_write(twid, device, WM8904_REG_ANALOGUE_LIN1, 0x0000);
+		wm8904_write(wm8904, WM8904_REG_ANALOGUE_LIN1, 0x0000);
 	} else {
 		/* IN2L */
-		wm8904_write(twid, device, WM8904_REG_ANALOGUE_LIN1, 0x0010);
+		wm8904_write(wm8904, WM8904_REG_ANALOGUE_LIN1, 0x0010);
 	}
 
-	if ((input_path & (WM8904_INPUT_PATH_IN1R | WM8904_INPUT_PATH_IN2R)) == (WM8904_INPUT_PATH_IN1R | WM8904_INPUT_PATH_IN2R))
+	if ((wm8904->input_path & (WM8904_INPUT_PATH_IN1R | WM8904_INPUT_PATH_IN2R)) == (WM8904_INPUT_PATH_IN1R | WM8904_INPUT_PATH_IN2R))
 		trace_fatal("wm8904: invalid right input path\r\n");
 
-	if (input_path & WM8904_INPUT_PATH_IN1R) {
+	if (wm8904->input_path & WM8904_INPUT_PATH_IN1R) {
 		/* IN1R*/
-		wm8904_write(twid, device, WM8904_REG_ANALOGUE_RIN1, 0x0000);
+		wm8904_write(wm8904, WM8904_REG_ANALOGUE_RIN1, 0x0000);
 	} else {
 		/* IN2R*/
-		wm8904_write(twid, device, WM8904_REG_ANALOGUE_RIN1, 0x0010);
+		wm8904_write(wm8904, WM8904_REG_ANALOGUE_RIN1, 0x0010);
 	}
 }
 
-void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device)
+void wm8904_in2r_in1l(struct _wm8904_desc *wm8904)
 {
 	/** R44  - Analogue Left Input 0 */
-	wm8904_write(twid, device, 0x2C, 0x0008);
+	wm8904_write(wm8904, 0x2C, 0x0008);
 
 	/** R45  - Analogue Right Input 0 */
-	wm8904_write(twid, device, 0x2D, 0x0005);
+	wm8904_write(wm8904, 0x2D, 0x0005);
 
 	/** R46  - Analogue Left Input 1 */
-	wm8904_write(twid, device, 0x2E, 0x0000);
+	wm8904_write(wm8904, 0x2E, 0x0000);
 
 	/** R47  - Analogue Right Input 1 */
-	wm8904_write(twid, device, 0x2F, 0x0010);
+	wm8904_write(wm8904, 0x2F, 0x0010);
 }
 
-void wm8904_set_left_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol)
+void wm8904_set_left_volume(struct _wm8904_desc *wm8904, uint8_t vol)
 {
-	if(vol > WM8904_HPOUT_MAX_VOLUME)
+	if (vol > WM8904_HPOUT_MAX_VOLUME)
 		return;
 	/** R57 (0x39) - Analogue OUT1 Left */
-	wm8904_write(twid, device, 0x39, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
+	wm8904_write(wm8904, 0x39, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
 }
 
-void wm8904_set_right_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol)
+void wm8904_set_right_volume(struct _wm8904_desc *wm8904, uint8_t vol)
 {
-	if(vol > WM8904_HPOUT_MAX_VOLUME)
+	if (vol > WM8904_HPOUT_MAX_VOLUME)
 		return;
 	/** R58 (0x3a) Analogue OUT1 Right */
-	wm8904_write(twid, device, 0x3a, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
+	wm8904_write(wm8904, 0x3a, WM8904_HPOUT_VU | WM8904_HPOUTZC | vol);
 }
 
-void wm8904_volume_mute(struct _twi_desc* twid, uint32_t device, bool left, bool right)
+void wm8904_volume_mute(struct _wm8904_desc *wm8904, bool left, bool right)
 {
-	uint16_t left_val = wm8904_read(twid, device, 0x39);
-	uint16_t right_val = wm8904_read(twid, device, 0x3a);
+	uint16_t left_val = wm8904_read(wm8904, 0x39);
+	uint16_t right_val = wm8904_read(wm8904, 0x3a);
 
-	if(left) {
+	if (left) {
 		/** R57 (0x39) - Analogue OUT1 Left Mute */
-		wm8904_write(twid, device, 0x39, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | left_val);
+		wm8904_write(wm8904, 0x39, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | left_val);
 	} else {
 		left_val &= ~WM8904_HPOUT_MUTE;
 		/** R57 (0x39) - Analogue OUT1 Left Unmute */
-		wm8904_write(twid, device, 0x39, WM8904_HPOUT_VU |  left_val);
+		wm8904_write(wm8904, 0x39, WM8904_HPOUT_VU | left_val);
 	}
 
-	if(right) {
+	if (right) {
 		/** R58 (0x3a) Analogue OUT1 Right Mute */
-		wm8904_write(twid, device, 0x3a, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | right_val);
+		wm8904_write(wm8904, 0x3a, WM8904_HPOUT_MUTE | WM8904_HPOUT_VU | right_val);
 	} else {
 		right_val &= ~WM8904_HPOUT_MUTE;
 		/** R58 (0x3a) Analogue OUT1 Right Unmute */
-		wm8904_write(twid, device, 0x3a, WM8904_HPOUT_VU | right_val);
+		wm8904_write(wm8904, 0x3a, WM8904_HPOUT_VU | right_val);
 	}
 
 }
 
-bool wm8904_detect(struct _twi_desc* twid, uint32_t device)
+bool wm8904_detect(struct _wm8904_desc *wm8904)
 {
 	/* Check that WM8904 is there */
-	wm8904_write(twid, device, 22, 0);
-	return (wm8904_read(twid, device, 0) == 0x8904);
+	wm8904_write(wm8904, 22, 0);
+	return (wm8904_read(wm8904, 0) == 0x8904);
 }
 
-void wm8904_reset(struct _twi_desc* twid, uint32_t device)
+void wm8904_reset(struct _wm8904_desc *wm8904)
 {
-	/* Reset */
-	wm8904_write(twid, device, WM8904_REG_RESET, 0xFFFF);
+	wm8904_write(wm8904, WM8904_REG_RESET, 0xFFFF);
 	timer_wait(10);
 	/* Wait until codec is ready */
-	while (wm8904_read(twid, device, 0) != 0x8904);
+	while (wm8904_read(wm8904, 0) != 0x8904);
 }
 
-void wm8904_sync(struct _twi_desc* twid, uint32_t device, int32_t adjust)
+void wm8904_sync(struct _wm8904_desc *wm8904, int32_t adjust)
 {
 	if (adjust > 0) {
 		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(twid, device, WM8904_REG_FLL_CRTL3, 0xFF00);
+		wm8904_write(wm8904, WM8904_REG_FLL_CRTL3, 0xFF00);
 	} else if (adjust < 0) {
 		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(twid, device, WM8904_REG_FLL_CRTL3, 0x5000);
+		wm8904_write(wm8904, WM8904_REG_FLL_CRTL3, 0x5000);
 	} else {
 		/* Default: 32K -> 48K*256, FLL: 32768*187.5/16/8 */
 		/* FLL_FRATIO=4 (/16), FLL_OUTDIV= 7 (/8) */
 		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(twid, device, WM8904_REG_FLL_CRTL3, 0x8000 + 0x3000);
+		wm8904_write(wm8904, WM8904_REG_FLL_CRTL3, 0x8000 + 0x3000);
 	}
 }

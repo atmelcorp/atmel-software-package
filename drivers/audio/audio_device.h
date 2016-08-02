@@ -54,16 +54,13 @@
  *----------------------------------------------------------------------------*/
 typedef void (*audio_callback_t)(struct dma_channel *channel, void* args);
 
+/* codec control interface */
 struct codec_desc {
-	/* master clock supply pin */
-	struct _pin* clk_pin;
-	uint32_t clk_pin_size;
-
-	/* codec control interface */
-	struct _twi_desc* codec_twid;
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
+	struct _wm8904_desc wm8904;
+#endif
 	struct _pin* codec_twid_pin;
 	uint32_t codec_twid_pin_size;
-	uint8_t input_path;
 };
 
 

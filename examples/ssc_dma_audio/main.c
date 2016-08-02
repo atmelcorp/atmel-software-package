@@ -262,8 +262,8 @@ static void play_recording(void)
 static void _set_volume(uint8_t vol)
 {
 	printf("Setting volume to %ddB\r\n", (signed)(vol-57));
-	wm8904_set_left_volume(&wm8904_twid, WM8904_SLAVE_ADDRESS, vol);
-	wm8904_set_right_volume(&wm8904_twid, WM8904_SLAVE_ADDRESS, vol);
+	wm8904_set_left_volume(&wm8904, vol);
+	wm8904_set_right_volume(&wm8904, vol);
 }
 
 /*----------------------------------------------------------------------------
@@ -277,17 +277,14 @@ static void _set_volume(uint8_t vol)
  */
 extern int main( void )
 {
-	uint16_t data = 0;
 	uint8_t vol = 30;
 	uint8_t key;
-	uint8_t input_path = 0;
 
 	/* Output example information */
 	console_example_info("SSC DMA Audio Example");
 
 	/* Configure all pins */
 	pio_configure(pins_twi, ARRAY_SIZE(pins_twi));
-	pio_configure(pins_clk, ARRAY_SIZE(pins_clk));
 
 	/* Configure SSC */
 	ssc_configure(&ssc_dev_desc);
@@ -298,16 +295,10 @@ extern int main( void )
 	dma_configure();
 
 	/* Configure and enable the TWI (required for accessing the DAC) */
-	twid_configure(&wm8904_twid);
+	twid_configure(&wm8904.twi.twid);
 
 	/* Initialize the audio DAC */
-	wm8904_configure(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK, input_path);
-
-	/* Enable the DAC master clock */
-	pmc_select_external_crystal();
-	pmc_disable_pck(pck_index);
-	pmc_configure_pck(pck_index, PMC_PCK_CSS_SLOW_CLK, 0);
-	pmc_enable_pck(pck_index);
+	wm8904_configure(&wm8904);
 
 	_set_volume(vol);
 	play_recording();
@@ -331,9 +322,9 @@ extern int main( void )
 				printf("Volume is already at min (-57dB)\r\n");
 			}
 		} else if (key == 'm') {
-			wm8904_volume_mute(&wm8904_twid, WM8904_SLAVE_ADDRESS, true, true);
+			wm8904_volume_mute(&wm8904, true, true);
 		} else if(key == 'u') {
-			wm8904_volume_mute(&wm8904_twid, WM8904_SLAVE_ADDRESS, false, false);
+			wm8904_volume_mute(&wm8904, false, false);
 		}
 	};
 }

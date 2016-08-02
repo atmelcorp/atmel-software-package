@@ -37,6 +37,7 @@
 #ifndef WM8904_H
 #define WM8904_H
 
+#include <peripherals/pio.h>
 #include <peripherals/twid.h>
 
 #include <stdint.h>
@@ -55,16 +56,32 @@
 #define WM8904_INPUT_PATH_IN2R 0x08
 
 /*----------------------------------------------------------------------------
+ *         Types
+ *----------------------------------------------------------------------------*/
+
+struct _wm8904_desc {
+	struct {
+		struct _twi_desc twid; /* TWI descriptor */
+		uint8_t addr;          /* TWI address of the WM8904 */
+	} twi;
+
+	uint8_t input_path;
+	uint32_t mclk_pck;
+	uint32_t mclk_pck_src;
+	const struct _pin mclk_pin;
+};
+
+/*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void wm8904_configure(struct _twi_desc* twid, uint32_t device, uint32_t pck, uint8_t input_path);
-extern void wm8904_in2r_in1l(struct _twi_desc* twid, uint32_t device);
-extern void wm8904_set_left_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);
-extern void wm8904_set_right_volume(struct _twi_desc* twid, uint32_t device, uint8_t vol);
-extern void wm8904_volume_mute(struct _twi_desc* twid, uint32_t device, bool left, bool right);
-extern bool wm8904_detect(struct _twi_desc* twid, uint32_t device);
-extern void wm8904_reset(struct _twi_desc* twid, uint32_t device);
-extern void wm8904_sync(struct _twi_desc* twid, uint32_t device, int32_t adjust);
+extern void wm8904_configure(struct _wm8904_desc *wm8904, uint8_t device);
+extern void wm8904_in2r_in1l(struct _wm8904_desc *wm8904);
+extern void wm8904_set_left_volume(struct _wm8904_desc *wm8904, uint8_t vol);
+extern void wm8904_set_right_volume(struct _wm8904_desc *wm8904, uint8_t vol);
+extern void wm8904_volume_mute(struct _wm8904_desc *wm8904, bool left, bool right);
+extern bool wm8904_detect(struct _wm8904_desc *wm8904);
+extern void wm8904_reset(struct _wm8904_desc *wm8904);
+extern void wm8904_sync(struct _wm8904_desc *wm8904, int32_t adjust);
 
 #endif

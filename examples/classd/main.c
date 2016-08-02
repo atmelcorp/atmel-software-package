@@ -304,7 +304,7 @@ static void _configure_classd(void)
 
 static void _output_audio_pmc_clock_to_pck1(void)
 {
-	struct _pin pck1_pins[] = PINS_PCK1_IOS2;
+	struct _pin pck1_pins[] = { PINS_PCK1_IOS2 };
 	pio_configure(pck1_pins, ARRAY_SIZE(pck1_pins));
 	pmc_configure_pck(1, PMC_PCK_CSS_AUDIO_CLK, 0);
 	pmc_enable_pck(1);

@@ -56,7 +56,7 @@
 static void _configure_classd(struct _audio_desc* desc)
 {
 	/* Configure Class D */
-	if(desc->num_channels == 1) {
+	if (desc->num_channels == 1) {
 		desc->device.classd.desc.swap_channels = true,
 		desc->device.classd.desc.left_enable = false;
 		desc->device.classd.desc.right_enable = true;
@@ -79,10 +79,6 @@ static void _configure_classd(struct _audio_desc* desc)
  */
 static void _configure_ssc(struct _audio_desc *desc)
 {
-	/* configure codec clock supply pin */
-	pio_configure(desc->device.ssc.codec_chip->clk_pin, 
-						desc->device.ssc.codec_chip->clk_pin_size);
-
 	desc->device.ssc.desc.addr = desc->device.ssc.addr;
 	desc->device.ssc.desc.sample_rate = desc->sample_rate;
 	desc->device.ssc.desc.slot_num = desc->num_channels;
@@ -98,18 +94,10 @@ static void _configure_ssc(struct _audio_desc *desc)
 						desc->device.ssc.codec_chip->codec_twid_pin_size);
 
 	/* -- WM8904 Initialize -- */
-	twid_configure(desc->device.ssc.codec_chip->codec_twid);
+	twid_configure(&desc->device.ssc.codec_chip->wm8904.twi.twid);
 
-	wm8904_configure(desc->device.ssc.codec_chip->codec_twid,
-					 WM8904_SLAVE_ADDRESS,
-					 PMC_MCKR_CSS_SLOW_CLK,
-					 desc->device.ssc.codec_chip->input_path);
+	wm8904_configure(&desc->device.ssc.codec_chip->wm8904, WM8904_SLAVE_ADDRESS);
 #endif
-
-	pmc_select_internal_crystal();
-	pmc_disable_pck(desc->device.ssc.pck);
-	pmc_configure_pck(desc->device.ssc.pck, PMC_PCK_CSS_SLOW_CLK, 0);
-	pmc_enable_pck(desc->device.ssc.pck);
 
 	/* Mute */
 	audio_enable(desc, false);
@@ -286,8 +274,7 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-			wm8904_volume_mute(desc->device.ssc.codec_chip->codec_twid,
-							WM8904_SLAVE_ADDRESS, true, true);
+			wm8904_volume_mute(&desc->device.ssc.codec_chip->wm8904, true, true);
 #endif
 			break;
 #endif
@@ -304,8 +291,7 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-			wm8904_volume_mute(desc->device.ssc.codec_chip->codec_twid,
-							WM8904_SLAVE_ADDRESS, false, false);
+			wm8904_volume_mute(&desc->device.ssc.codec_chip->wm8904, false, false);
 #endif
 			break;
 #endif			
@@ -339,10 +325,8 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 			/* wm8904 heardphone output volume range -57db~6db */
 			val = (vol*63)/AUDIO_PLAY_MAX_VOLUME;
-			wm8904_set_left_volume(desc->device.ssc.codec_chip->codec_twid,
-							WM8904_SLAVE_ADDRESS, val);
-			wm8904_set_right_volume(desc->device.ssc.codec_chip->codec_twid,
-							WM8904_SLAVE_ADDRESS, val);
+			wm8904_set_left_volume(&desc->device.ssc.codec_chip->wm8904, val);
+			wm8904_set_right_volume(&desc->device.ssc.codec_chip->wm8904, val);
 #endif
 			break;
 #endif
@@ -457,7 +441,7 @@ void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust)
 {
 #if defined(CONFIG_HAVE_SSC)
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
-	wm8904_sync(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, adjust);
+	wm8904_sync(&desc->device.ssc.codec_chip->wm8904, adjust);
 #endif
 #endif
 }
