@@ -51,6 +51,7 @@
 #include "intmath.h"
 #include "timer.h"
 #include "peripherals/pmc.h"
+#include "peripherals/aic.h"
 #include "peripherals/tc.h"
 #include "peripherals/hsmci.h"
 #include "peripherals/hsmcid.h"
@@ -75,16 +76,16 @@
 
 /** Bit mask for status register errors. */
 #define STATUS_ERRORS ((uint32_t)(HSMCI_SR_UNRE  \
-                       | HSMCI_SR_OVRE \
-                       | HSMCI_SR_ACKRCVE \
-                       | HSMCI_SR_CSTOE \
-                       | HSMCI_SR_DTOE \
-                       | HSMCI_SR_DCRCE \
-                       | HSMCI_SR_RTOE \
-                       | HSMCI_SR_RENDE \
-                       | HSMCI_SR_RCRCE \
-                       | HSMCI_SR_RDIRE \
-                       | HSMCI_SR_RINDE))
+					   | HSMCI_SR_OVRE \
+					   | HSMCI_SR_ACKRCVE \
+					   | HSMCI_SR_CSTOE \
+					   | HSMCI_SR_DTOE \
+					   | HSMCI_SR_DCRCE \
+					   | HSMCI_SR_RTOE \
+					   | HSMCI_SR_RENDE \
+					   | HSMCI_SR_RCRCE \
+					   | HSMCI_SR_RDIRE \
+					   | HSMCI_SR_RINDE))
 
 /** Bit mask for response errors */
 #define STATUS_ERRORS_RESP ((uint32_t)(HSMCI_SR_CSTOE \
@@ -99,6 +100,13 @@
 							| HSMCI_SR_OVRE \
 							| HSMCI_SR_DTOE \
 							| HSMCI_SR_DCRCE))
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+static struct hsmci_set *hsmci0_set;
+static struct hsmci_set *hsmci1_set;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -191,8 +199,10 @@ static void hsmci_handler(struct hsmci_set *set)
 		return;
 	}
 
-	if (set->use_polling)
-		dma_poll();
+	while (mutex_is_locked(&set->dma_unlocks_mutex)) {
+		if (set->use_polling)
+			dma_poll();
+	}
 
 	/* Read status */
 	dwSr = hsmci_get_status(regs);
@@ -234,8 +244,6 @@ static void hsmci_handler(struct hsmci_set *set)
 
 	/* All none error mask done, complete the command */
 	if (set->nxt_evts == 0 || set->state == MCID_ERROR) {
-		/* Disable interrupts */
-		hsmci_disable_it(regs, ~0ul);
 		/* Halt the DMA (if used) */
 		hsmci_release_dma(set);
 		/* Error reset */
@@ -261,9 +269,21 @@ static void hsmci_handler(struct hsmci_set *set)
 						hsmci_get_response(regs);
 			}
 		}
+		/* Disable interrupts */
+		hsmci_disable_it(regs, ~0ul);
 		/* Command is finished */
 		hsmci_finish_cmd(set, pCmd->bStatus);
 	}
+}
+
+static void hsmci0_handler(void)
+{
+	hsmci_handler(hsmci0_set);
+}
+
+static void hsmci1_handler(void)
+{
+	hsmci_handler(hsmci1_set);
 }
 
 /**
@@ -276,6 +296,8 @@ static bool hsmci_is_busy(struct hsmci_set *set)
 	if (set->use_polling)
 		hsmci_handler(set);
 	if (set->state == MCID_CMD)
+		return true;
+	if (set->cmd)
 		return true;
 	return false;
 }
@@ -304,7 +326,7 @@ static void _hsmci_dma_callback_wrapper(struct dma_channel *channel,
 	(void) channel;
 	assert(set);
 	assert(set->regs);
-
+	mutex_unlock(&set->dma_unlocks_mutex);
 	hsmci_enable_it(set->regs, HSMCI_IER_XFRDONE);
 }
 
@@ -679,7 +701,6 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	uint8_t rc, is_read, blk_io = 0;
 	const uint8_t has_data = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
 		|| cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX;
-
 	if (has_data && (cmd->wBlockSize == 0 || cmd->wNbBlocks == 0
 		|| cmd->pData == NULL))
 		return SDMMC_ERROR_PARAM;
@@ -746,6 +767,8 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
 
 		is_read = (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX) ? 0 : 1;
+		if (!mutex_try_lock(&set->dma_unlocks_mutex))
+			return SDMMC_ERROR_LOCKED;
 		rc = hsmci_prepare_dma(set, is_read);
 		if (rc == SDMMC_SUCCESS)
 			rc = hsmci_configure_dma(set, is_read);
@@ -760,7 +783,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		 * the XFRDONE interrupt that will close the request. */
 		ier = STATUS_ERRORS_RESP | STATUS_ERRORS_DATA;
 	}
-
+	hsmci_enable(regs);
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND)) {
 		cmdr = cmd->bCmd;
 		if (cmd->cmdOp.bmBits.powerON)
@@ -811,10 +834,10 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		}
 	}
 
-	hsmci_enable(regs);
-	hsmci_enable_it(regs, ier);
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND))
 		hsmci_send_cmd(regs, cmdr, cmd->dwArg);
+	hsmci_enable_it(regs, ier);
+
 	return SDMMC_OK;
 }
 
@@ -829,24 +852,31 @@ static sSdHalFunctions sdHal = {
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs, uint32_t periph_id,
+bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 	uint32_t tc_id, uint32_t tc_ch)
 {
 	assert(set);
-	assert(regs);
 	assert(periph_id <= 0xff);
 	assert(tc_ch < TCCHANNEL_NUMBER);
 
 	Tc * const tc_module = get_tc_addr_from_id(tc_id);
-
 	assert(tc_module);
+
+	Hsmci* regs = get_hsmci_addr_from_id(periph_id);
+	assert(regs);
+
 	memset(set, 0, sizeof(*set));
 	set->id = periph_id;
 	set->regs = regs;
+
 	set->tc_id = tc_id;
 	set->timer = &tc_module->TC_CHANNEL[tc_ch];
-	set->use_polling = true;
+	set->use_polling = false;
 	set->state = MCID_OFF;
+	set->dma_unlocks_mutex = 0;
+
+	/* Initialize DMA driver instance with interrupt mode */
+	dma_initialize(false);
 
 	/* Prepare our Timer/Counter */
 	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
@@ -866,6 +896,23 @@ bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs, uint32_t periph_id,
 		| HSMCI_DTOR_DTOMUL_1048576);
 	hsmci_cfg_compl_timeout(regs, HSMCI_CSTOR_CSTOCYC_Msk
 		| HSMCI_CSTOR_CSTOMUL_1048576);
+
+	if (periph_id == ID_HSMCI0) {
+		hsmci0_set = set;
+		if (!set->use_polling) {
+			/* enable HSMCI0 interrupt */
+			aic_set_source_vector(periph_id, hsmci0_handler);
+			aic_enable(periph_id);
+		}
+	}
+	if (periph_id == ID_HSMCI1) {
+		hsmci1_set = set;
+		if (!set->use_polling) {
+			/* enable HSMCI1 interrupt */
+			aic_set_source_vector(periph_id, hsmci1_handler);
+			aic_enable(periph_id);
+		}
+	}
 	return true;
 }
 

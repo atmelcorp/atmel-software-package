@@ -81,7 +81,6 @@ struct sdmmc_set
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-
 /**
  * \brief Set the values of the capabilities registers (SDMMC_CA0R &
  * SDMMC_CA1R)
@@ -113,7 +112,6 @@ extern void sdmmc_set_capabilities(Sdmmc* regs,
  * \brief Initialize the specified driver instance and the associated SDMMC 
  * peripheral.
  * \param set  Pointer to uninitialized driver instance data.
- * \param regs  Base address of registers of the SDMMC peripheral.
  * \param sdmmc_id  SDMMC peripheral ID (ID_SDMMCx).
  * \param tc_id  TC peripheral ID (ID_TCx).
  * \note The application shall have enabled the clock assigned to this
@@ -126,11 +124,13 @@ extern void sdmmc_set_capabilities(Sdmmc* regs,
  * the buffer is, the greater throughput we achieve. Up to 4 KiB. Shall be
  * word-aligned. NULL to have the CPU read/write data, word by word.
  * \param dma_buf_size  Size of the dma_buf buffer, in words.
+ * \param use_polling  Use interrupts if false, otherwise only use polling
  * \return true if successful, false if a parameter is assigned an unsupported
  * value.
  */
-extern bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t sdmmc_id,
-    uint32_t tc_id, uint32_t tc_ch, uint32_t *dma_buf, uint32_t dma_buf_size);
+extern bool sdmmc_initialize(struct sdmmc_set *set, uint32_t sdmmc_id,
+		uint32_t tc_id, uint32_t tc_ch,
+		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling);
 
 #ifdef __cplusplus
 }

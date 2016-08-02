@@ -176,18 +176,16 @@ const char test_file_path[] = "test_data.bin";
 
 #ifdef CONFIG_HAVE_SDMMC
 #  define HOST0_ID                    ID_SDMMC0
-#  define HOST0_REGS                  SDMMC0
 #  define HOST1_ID                    ID_SDMMC1
-#  define HOST1_REGS                  SDMMC1
+
 /* Driver instance data (a.k.a. MCI driver instance) */
 static struct sdmmc_set drv0 = { 0 };
 static struct sdmmc_set drv1 = { 0 };
 
 #elif defined(CONFIG_HAVE_HSMCI)
 #  define HOST0_ID                    ID_HSMCI0
-#  define HOST0_REGS                  HSMCI0
 #  define HOST1_ID                    ID_HSMCI1
-#  define HOST1_REGS                  HSMCI1
+
 /* MCI driver instance data */
 static struct hsmci_set drv0 = { 0 };
 static struct hsmci_set drv1 = { 0 };
@@ -234,29 +232,8 @@ CACHE_ALIGNED_SRAM
 #endif
 static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
 
-/* File system object.
- * Similarly to the main data buffer above, we need to align FATFS::win[] on
- * data cache lines.
- * Padding implemented below is valid as of FatFs Module R0.10b, with structure
- * packing kept disabled. Proper alignment is checked at runtime, anyway. */
-struct padded_fatfs { uint8_t padding[9]; FATFS fs; };
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static struct padded_fatfs fs_header;
-
-/* File object.
- * Similarly to the main data buffer above, we need to align FIL::buf[] on
- * data cache lines. */
-struct padded_fil { uint8_t padding[18]; FIL file; };
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static struct padded_fil f_header;
+NOT_CACHED_DDR static FATFS fs_header;
+NOT_CACHED_DDR static FIL f_header;
 
 #if USE_EXT_RAM
 CACHE_ALIGNED_DDR
@@ -276,6 +253,8 @@ static struct sha_set sha = {
 	.pending_data = _sha_pending_data,
 	.count = 0,
 	.dma_dlist = _sha_dma_dlist,
+	.dma_polling = false,
+	.dma_unlocks_mutex = 0,
 };
 static uint8_t slot;
 static bool use_dma;
@@ -283,7 +262,6 @@ static bool use_dma;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
 /**
  * \brief Trace buffer contents in hex.
  */
@@ -327,19 +305,22 @@ static void initialize(void)
 {
 	/* As long as we do not transfer from/to the two peripherals at the same
 	 * time, we can have the two instances sharing a single DMA buffer. */
+
 #ifdef CONFIG_HAVE_SDMMC
-	sdmmc_initialize(&drv0, HOST0_REGS, HOST0_ID,
+	sdmmc_initialize(&drv0, HOST0_ID,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
-	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
-	sdmmc_initialize(&drv1, HOST1_REGS, HOST1_ID,
+	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
+	sdmmc_initialize(&drv1, HOST1_ID,
 	    TIMER1_MODULE, TIMER1_CHANNEL,
-	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0);
+	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
+
 #elif defined(CONFIG_HAVE_HSMCI)
-	hsmci_initialize(&drv0, HOST0_REGS, HOST0_ID,
-	    TIMER0_MODULE, TIMER0_CHANNEL);
-	hsmci_set_slot(HOST0_REGS, BOARD_HSMCI0_SLOT);
-	hsmci_initialize(&drv1, HOST1_REGS, HOST1_ID,
-	    TIMER1_MODULE, TIMER1_CHANNEL);
+
+	hsmci_initialize(&drv0, HOST0_ID, TIMER0_MODULE, TIMER0_CHANNEL);
+	Hsmci* mci = get_hsmci_addr_from_id(HOST0_ID);
+	hsmci_set_slot(mci, BOARD_HSMCI0_SLOT);
+	hsmci_initialize(&drv1, HOST1_ID, TIMER1_MODULE, TIMER1_CHANNEL);
+
 #endif
 	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
@@ -455,14 +436,14 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	}
 	strcpy(file_path, drive_path);
 	strcat(file_path, test_file_path);
-	res = f_open(&f_header.file, file_path, FA_OPEN_EXISTING | FA_READ);
+	res = f_open(&f_header, file_path, FA_OPEN_EXISTING | FA_READ);
 	if (res != FR_OK) {
 		printf("Failed to open \"%s\", error %d\n\r", file_path, res);
 		return false;
 	}
 	for (file_size = 0, len = buf_size; res == FR_OK && len == buf_size;
 	    file_size += len) {
-		res = f_read(&f_header.file, data_buf, buf_size, &len);
+		res = f_read(&f_header, data_buf, buf_size, &len);
 		if (res == FR_OK) {
 			cache_clean_region(data_buf, len);
 			sha_plugin_feed(&sha, file_size == 0, len != buf_size,
@@ -470,7 +451,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 		}
 		else
 			printf("Error %d while attempting to read file\n\r",
-			    res);
+				res);
 	}
 	if (res == FR_OK) {
 		sha_plugin_get_hash(&sha, hash);
@@ -479,7 +460,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 		    hash[4]);
 	}
 
-	res = f_close(&f_header.file);
+	res = f_close(&f_header);
 	if (res != FR_OK) {
 		trace_error("Failed to close file, error %d\n\r", res);
 		return false;
@@ -612,11 +593,7 @@ int main(void)
 	    && IS_CACHE_ALIGNED(&lib0.EXT)
 	    && IS_CACHE_ALIGNED(sizeof(lib0.EXT))
 	    && IS_CACHE_ALIGNED(&lib1.EXT)
-	    && IS_CACHE_ALIGNED(sizeof(lib1.EXT))
-	    && IS_CACHE_ALIGNED(&fs_header.fs.win)
-	    && IS_CACHE_ALIGNED(sizeof(fs_header.fs.win))
-	    && IS_CACHE_ALIGNED(&f_header.file.buf)
-	    && IS_CACHE_ALIGNED(sizeof(f_header.file.buf)) == 0) {
+	    && IS_CACHE_ALIGNED(sizeof(lib1.EXT)) == 0) {
 		trace_error("WARNING: buffers are not aligned on data cache "
 		    "lines. Please fix this before enabling DMA.\n\r");
 		use_dma = false;
@@ -662,7 +639,7 @@ int main(void)
 				printf("Device not detected.\n\r");
 				break;
 			}
-			mount_volume(slot, lib, &fs_header.fs);
+			mount_volume(slot, lib, &fs_header);
 			unmount_volume(slot, lib);
 			break;
 		case 'r':
@@ -671,7 +648,7 @@ int main(void)
 				printf("Device not detected.\n\r");
 				break;
 			}
-			read_file(slot, lib, &fs_header.fs);
+			read_file(slot, lib, &fs_header);
 			unmount_volume(slot, lib);
 			break;
 		case 'w':

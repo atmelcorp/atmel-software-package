@@ -39,6 +39,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "mutex.h"
 #include "peripherals/dma.h"
 
 /*----------------------------------------------------------------------------
@@ -56,17 +57,18 @@ struct dma_xfer {
 struct sha_set
 {
 	uint8_t *pending_data;    /* Excess data not processed yet */
-	uint32_t count;               /* Number of bytes processed */
-	uint8_t pending;              /* Number of excess bytes */
-
+	uint32_t count;           /* Number of bytes processed */
+	uint8_t pending;          /* Number of excess bytes */
 	struct dma_channel *dma_ch;
 				      /* xDMA instance, or NULL when DMA is not
 				       * used */
 	struct dma_xfer *dma_dlist;
 				      /* xDMA linked list of xfer descriptors,
 				       * stored contiguously as a table */
-	uint32_t dlist_len;           /* Count of descriptors added to the xDMA
-				       * linked list */
+	uint32_t dlist_len; /* Count of descriptors added to the xDMA
+				            linked list */
+	bool dma_polling;  /* use dma polling mode */
+	mutex_t dma_unlocks_mutex;
 };
 
 /*----------------------------------------------------------------------------*/

@@ -54,6 +54,17 @@ static volatile bool busy = false;
  *----------------------------------------------------------------------------*/
 
 /**
+ * \brief DMA callback for sha transfer.
+ */
+static void sha_dma_callback(struct dma_channel *channel, void *arg)
+{
+	struct sha_set *set = (struct sha_set*) arg;
+	(void) channel;
+	assert(set);
+	mutex_unlock(&set->dma_unlocks_mutex);
+}
+
+/**
  * \brief Pad message data as per FIPS requirement.
  * \param data  Output data buffer ready to receive padding data, up to 72
  * bytes. It should point to the end of message data.
@@ -109,9 +120,11 @@ static void run_dma_xfer(struct sha_set *set)
 	uint32_t rc;
 
 	assert(set->dma_ch);
-	assert(set->dlist_len <= ARRAY_SIZE(set->dma_dlist));
+	assert(set->dlist_len <= sizeof (struct dma_xfer) * 2);
 	if (set->dlist_len == 0)
 		return;
+	if (!mutex_try_lock(&set->dma_unlocks_mutex))
+		return ;
 	if (set->dlist_len == 1) {
 		desc = set->dma_dlist;
 		dma_cfg.blk_size = desc->blk_size;
@@ -144,12 +157,14 @@ static void run_dma_xfer(struct sha_set *set)
 
 	rc = dma_start_transfer(set->dma_ch);
 	if (rc == DMA_OK) {
-		while (!dma_is_transfer_done(set->dma_ch))
+		while (mutex_is_locked(&set->dma_unlocks_mutex)) {
+		if (set->dma_polling)
 			dma_poll();
+		}
 		dma_stop_transfer(set->dma_ch);
 	}
 	else
-		trace_error("Couldn't start xDMA transfer\n\r");
+		trace_error("Couldn't start DMA transfer\n\r");
 	set->dlist_len = 0;
 }
 
@@ -228,15 +243,14 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 	assert(set);
 	assert(!((uint32_t)&set->pending_data & 0x3));
 
-	memset(set, 0, sizeof(*set));
+	memset(set->pending_data, 0, 128);
 	if (use_dma) {
-		/* Initialize xDMA driver instance with polling mode */
-		dma_initialize(true);
-		/* Allocate a xDMA channel, Write accesses into SHA_IDATARx */
+		/* Allocate a DMA channel, Write accesses into SHA_IDATARx */
 		set->dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY,
 		    ID_SHA);
 		if (!set->dma_ch)
-			trace_error("Couldn't allocate xDMA channel\n\r");
+			trace_error("Couldn't allocate DMA channel\n\r");
+		dma_set_callback(set->dma_ch, sha_dma_callback, set);
 	}
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);

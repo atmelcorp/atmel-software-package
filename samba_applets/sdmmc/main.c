@@ -298,8 +298,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	sdmmc_set_capabilities(instance_def->addr,
 			caps0, CAPS0_MASK, 0, 0);
 
-	sdmmc_initialize(&drv, instance_def->addr, sdmmc_id,
-			TIMER0_MODULE, TIMER0_CHANNEL, NULL, 0);
+	sdmmc_initialize(&drv, sdmmc_id, TIMER0_MODULE, TIMER0_CHANNEL,
+			NULL, 0, true);
 
 	SDD_InitializeSdmmcMode(&lib, &drv, 0);
 	if (SD_GetStatus(&lib) == SDMMC_NOT_SUPPORTED) {

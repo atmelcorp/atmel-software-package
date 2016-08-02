@@ -103,6 +103,7 @@
 #include "misc/console.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
+#include "peripherals/aic.h"
 
 #ifdef CONFIG_HAVE_SDMMC
 #  include "peripherals/sdmmc.h"
@@ -185,17 +186,14 @@ static uint8_t ramdisk_reserved[RAMDISK_SIZE];
 
 #ifdef CONFIG_HAVE_SDMMC
 #  define HOST0_ID                    ID_SDMMC0
-#  define HOST0_REGS                  SDMMC0
 #  define HOST1_ID                    ID_SDMMC1
-#  define HOST1_REGS                  SDMMC1
 /* Driver instance data (a.k.a. SDCard driver instance) */
 static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC];
 
 #elif defined(CONFIG_HAVE_HSMCI)
 #  define HOST0_ID                    ID_HSMCI0
-#  define HOST0_REGS                  HSMCI0
 #  define HOST1_ID                    ID_HSMCI1
-#  define HOST1_REGS                  HSMCI1
+
 /* MCI driver instance data (a.k.a. SDCard driver instance) */
 static struct hsmci_set sd_drv[BOARD_NUM_SDMMC];
 #endif
@@ -233,7 +231,6 @@ static uint8_t current_lun_num = 0;
 /*-----------------------------------------------------------------------------
  *         Callback re-implementation
  *-----------------------------------------------------------------------------*/
-
 /**
  * Invoked when a new SETUP request is received from the host. Forwards the
  * request to the Mass Storage device driver handler function.
@@ -333,15 +330,16 @@ static void sd_driver_configure(void)
 		trace_error("Failed to cfg cells\n\r");
 
 #ifdef CONFIG_HAVE_SDMMC
-	sdmmc_initialize(&sd_drv[0], HOST0_REGS, HOST0_ID, TIMER0_MODULE,
+	sdmmc_initialize(&sd_drv[0], HOST0_ID, TIMER0_MODULE,
 	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0));
-	sdmmc_initialize(&sd_drv[1], HOST1_REGS, HOST1_ID, TIMER1_MODULE,
+	sdmmc_initialize(&sd_drv[1], HOST1_ID, TIMER1_MODULE,
 	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1));
 #elif defined(CONFIG_HAVE_HSMCI)
-	hsmci_initialize(&sd_drv[0], HOST0_REGS, HOST0_ID,
+	hsmci_initialize(&sd_drv[0], HOST0_ID,
 		TIMER0_MODULE, TIMER0_CHANNEL);
-	hsmci_set_slot(HOST0_REGS, BOARD_HSMCI0_SLOT);
-	hsmci_initialize(&sd_drv[1], HOST1_REGS, HOST1_ID,
+	Hsmci* mci = get_hsmci_addr_from_id(HOST0_ID);
+	hsmci_set_slot(mci, BOARD_HSMCI0_SLOT);
+	hsmci_initialize(&sd_drv[1], HOST1_ID,
 		TIMER1_MODULE, TIMER1_CHANNEL);
 #endif
 
@@ -423,7 +421,6 @@ static void sddisk_init(void)
 	}
 
 }
-
 
 /**
  * Initialize MSD Media & LUNs

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -70,6 +70,7 @@
 #include "timer.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
+#include "peripherals/aic.h"
 #include "misc/cache.h"
 #include "peripherals/sdmmc.h"
 #include "libsdmmc/sdmmc_hal.h"
@@ -126,6 +127,13 @@ union uint32_u {
 	uint32_t word;
 	uint8_t bytes[4];
 };
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+static struct sdmmc_set *sdmmc0_set;
+static struct sdmmc_set *sdmmc1_set;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -735,8 +743,15 @@ static void sdmmc_poll(struct sdmmc_set *set)
 Fetch:
 	/* Fetch normal events */
 	events = regs->SDMMC_NISTR;
-	if (set->expect_auto_end && !(set->timer->TC_SR & TC_SR_CLKSTA))
-		events |= SDMMC_NISTR_CUSTOM_EVT;
+	if (set->use_polling) {
+		if (set->expect_auto_end && !(set->timer->TC_SR & TC_SR_CLKSTA))
+			events |= SDMMC_NISTR_CUSTOM_EVT;
+	} else {
+		if (set->expect_auto_end) {
+			while (set->timer->TC_SR & TC_SR_CLKSTA);
+			events |= SDMMC_NISTR_CUSTOM_EVT;
+		}
+	}
 	if (!events)
 		return;
 
@@ -1037,6 +1052,16 @@ End:
 		(cmd->fCallback)(cmd->bStatus, cmd->pArg);
 }
 
+static void sdmmc0_handler(void)
+{
+	sdmmc_poll(sdmmc0_set);
+}
+
+static void sdmmc1_handler(void)
+{
+	sdmmc_poll(sdmmc1_set);
+}
+
 /**
  * \brief Check if the command is finished.
  */
@@ -1096,7 +1121,8 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 			timer_configure(10);
 			for (usec = 0; set->state == MCID_CMD && usec < 500000; usec+= 10) {
 				timer_sleep(1);
-				sdmmc_poll(set);
+				if (set->use_polling)
+					sdmmc_poll(set);
 			}
 			timer_configure(timer_res_prv);
 		}
@@ -1625,6 +1651,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    | SDMMC_NISTER_TRFC | SDMMC_NISTER_CMDC;
 	assert(!(regs->SDMMC_NISTER & SDMMC_NISTR_CUSTOM_EVT));
 	/* Enable error interrupts */
+	
 	regs->SDMMC_EISTER = eister;
 	/* Clear all interrupt status flags */
 	regs->SDMMC_NISTR = SDMMC_NISTR_ERRINT | SDMMC_NISTR_BOOTAR
@@ -1686,7 +1713,11 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 		    / (set->dev_freq / 8ul);
 		set->timer->TC_RC = max_u32(cycles, 1);
 	}
-
+	if (!set->use_polling) {
+		regs->SDMMC_NISIER |= SDMMC_NISIER_BRDRDY | SDMMC_NISIER_BWRRDY
+			| SDMMC_NISIER_TRFC | SDMMC_NISIER_CMDC | SDMMC_NISIER_CINT;
+		regs->SDMMC_EISIER = eister;
+	}
 	return SDMMC_OK;
 }
 
@@ -1720,13 +1751,16 @@ void sdmmc_set_capabilities(Sdmmc* regs,
 }
 
 
-bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
-    uint32_t tc_id, uint32_t tc_ch, uint32_t *dma_buf, uint32_t dma_buf_size)
+bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
+		uint32_t tc_id, uint32_t tc_ch,
+		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling)
 {
 	assert(set);
-	assert(regs);
 	assert(periph_id <= 0xff);
 	assert(tc_ch < TCCHANNEL_NUMBER);
+
+	Sdmmc* regs = get_sdmmc_addr_from_id(periph_id);
+	assert(regs);
 
 	Tc * const tc_module = get_tc_addr_from_id(tc_id);
 	uint32_t base_freq, power, val;
@@ -1741,7 +1775,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	set->timer = &tc_module->TC_CHANNEL[tc_ch];
 	set->table_size = dma_buf ? dma_buf_size / SDMMC_DMADL_SIZE : 0;
 	set->table = set->table_size ? dma_buf : NULL;
-	set->use_polling = true;
+	set->use_polling = use_polling;
 	set->use_set_blk_cnt = false;
 	set->state = MCID_OFF;
 
@@ -1798,6 +1832,22 @@ bool sdmmc_initialize(struct sdmmc_set *set, Sdmmc *regs, uint32_t periph_id,
 	else
 		regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
 
+	if (periph_id == ID_SDMMC0) {
+		sdmmc0_set = set;
+		if (!set->use_polling) {
+			/* enable SDMMC0 interrupt */
+			aic_set_source_vector(periph_id, sdmmc0_handler);
+			aic_enable(periph_id);
+		}
+	}
+	if (periph_id == ID_SDMMC1) {
+		sdmmc1_set = set;
+		if (!set->use_polling) {
+			/* enable SDMMC1 interrupt */
+			aic_set_source_vector(periph_id, sdmmc1_handler);
+			aic_enable(periph_id);
+		}
+	}
 	return true;
 }
 

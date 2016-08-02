@@ -57,6 +57,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "mutex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +94,7 @@ struct hsmci_set
 	uint8_t resp_len;             /* size of the response, once retrieved,
 	                               * in the context of the command being
 	                               * executed, expressed in 32-bit words */
+	mutex_t dma_unlocks_mutex;
 };
 
 /*----------------------------------------------------------------------------
@@ -106,7 +108,6 @@ struct hsmci_set
  * \brief Initialize the specified driver instance and the associated HSMCI
  * peripheral.
  * \param set		Pointer to uninitialized driver instance data.
- * \param regs		Base address of registers of the HSMCI peripheral.
  * \param periph_id	HSMCI peripheral ID (ID_HSMCIx).
  * \param tc_id		Timer/Counter peripheral ID (ID_TCx).
  * \note The application shall have enabled the clock assigned to this
@@ -117,10 +118,11 @@ struct hsmci_set
  * \return true if successful, false if a parameter is assigned an unsupported
  * value.
  */
-extern bool hsmci_initialize(struct hsmci_set *set, Hsmci *regs,
-	uint32_t periph_id, uint32_t tc_id, uint32_t tc_ch);
+extern bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
+	uint32_t tc_id, uint32_t tc_ch);
 
 /**     @} */
+
 
 #ifdef __cplusplus
 }
