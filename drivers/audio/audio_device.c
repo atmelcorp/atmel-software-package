@@ -99,20 +99,11 @@ static void _configure_ssc(struct _audio_desc *desc)
 
 	/* -- WM8904 Initialize -- */
 	twid_configure(desc->device.ssc.codec_chip->codec_twid);
-	/* check that WM8904 is present */
-	wm8904_write(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, 22, 0);
 
-	wm8904_write(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, WM8904_REG_RESET, 0);
-	/* WM8904 as master */
-	if(wm8904_read(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, 0)!=0x8904){
-		printf("WM8904 not found!\n\r");
-		while(1);
-	}
-
-	wm8904_init(desc->device.ssc.codec_chip->codec_twid,
-				WM8904_SLAVE_ADDRESS,
-				PMC_MCKR_CSS_SLOW_CLK,
-				desc->device.ssc.codec_chip->input_path);
+	wm8904_configure(desc->device.ssc.codec_chip->codec_twid,
+					 WM8904_SLAVE_ADDRESS,
+					 PMC_MCKR_CSS_SLOW_CLK,
+					 desc->device.ssc.codec_chip->input_path);
 #endif
 
 	pmc_select_internal_crystal();
@@ -466,20 +457,7 @@ void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust)
 {
 #if defined(CONFIG_HAVE_SSC)
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
-	if (adjust > 0) {
-		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3, 0xFF00);
-	} else if (adjust < 0) {
-		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3, 0x5000);
-	} else {
-		/* Default: 32K -> 48K*256, FLL: 32768*187.5/16/8 */
-		/* FLL_FRATIO=4 (/16), FLL_OUTDIV= 7 (/8) */
-		/* Fractional multiply for FLL_K, Fref = 0x8000 (1/2) */
-		wm8904_write(desc->device.ssc.codec_chip->codec_twid, WM8904_SLAVE_ADDRESS, WM8904_REG_FLL_CRTL3,
-				 0x8000 + 0x3000);
-	}
-	return;
+	wm8904_sync(desc->device.ssc.codec_chip->codec_twid,  WM8904_SLAVE_ADDRESS, adjust);
 #endif
 #endif
 }

@@ -299,17 +299,9 @@ extern int main( void )
 
 	/* Configure and enable the TWI (required for accessing the DAC) */
 	twid_configure(&wm8904_twid);
-	/* check that WM8904 is present */
-	wm8904_write(&wm8904_twid, WM8904_SLAVE_ADDRESS, 22, 0);
-	data = wm8904_read(&wm8904_twid, WM8904_SLAVE_ADDRESS, 0);
-
-	if ( data != 0x8904) {
-		printf("WM8904 not found!\n\r");
-		while(1);
-	}
 
 	/* Initialize the audio DAC */
-	wm8904_init(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK, input_path);
+	wm8904_configure(&wm8904_twid, WM8904_SLAVE_ADDRESS, PMC_MCKR_CSS_SLOW_CLK, input_path);
 
 	/* Enable the DAC master clock */
 	pmc_select_external_crystal();
