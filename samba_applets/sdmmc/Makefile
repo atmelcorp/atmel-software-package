@@ -27,14 +27,17 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SD/MMC SAM-BA applet
+
 AVAILABLE_TARGETS = sama5d2-generic
-AVAILABLE_VARIANTS = sram
+
+AVAILABLE_VARIANTS = sram ddram
+
+VARIANT ?= sram
 
 TOP := ../..
 
 BINNAME = applet-sdmmc
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 CONFIG_LIB_SDMMC = y
 

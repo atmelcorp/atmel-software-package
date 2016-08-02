@@ -27,14 +27,19 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the SPI SerialFlash SAM-BA applet
-AVAILABLE_TARGETS = sama5d2-generic sama5d3-generic sama5d4-generic
-AVAILABLE_VARIANTS = sram
+
+AVAILABLE_TARGETS = sama5d2-generic \
+                    sama5d3-generic \
+                    sama5d4-generic
+
+AVAILABLE_VARIANTS = sram ddram
+
+VARIANT ?= sram
 
 TOP := ../..
 
 BINNAME = applet-serialflash
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/serialflash/main.o

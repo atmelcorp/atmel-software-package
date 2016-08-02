@@ -27,14 +27,17 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the QSPI Flash SAM-BA applet
+
 AVAILABLE_TARGETS = sama5d2-generic
-AVAILABLE_VARIANTS = sram
+
+AVAILABLE_VARIANTS = sram ddram
+
+VARIANT ?= sram
 
 TOP := ../..
 
 BINNAME = applet-qspiflash
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/qspiflash/main.o

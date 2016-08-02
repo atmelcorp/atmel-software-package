@@ -27,14 +27,18 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the NandFlash SAM-BA applet
-AVAILABLE_TARGETS = sama5d2-generic sama5d3-generic sama5d4-generic
-AVAILABLE_VARIANTS = sram
+AVAILABLE_TARGETS = sama5d2-generic \
+                    sama5d3-generic \
+                    sama5d4-generic
+
+AVAILABLE_VARIANTS = sram ddram
+
+VARIANT ?= sram
 
 TOP := ../..
 
 BINNAME = applet-nandflash
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 CONFIG_HAVE_NAND_FLASH = y
 CONFIG_USE_ROM_GALOIS_TABLE = y

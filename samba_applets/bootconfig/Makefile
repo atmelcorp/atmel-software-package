@@ -27,14 +27,17 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the BootConfig applet
+
 AVAILABLE_TARGETS = sama5d2-generic
+
 AVAILABLE_VARIANTS = sram
+
+VARIANT = sram
 
 TOP := ../..
 
 BINNAME = applet-bootconfig
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/bootconfig/main.o

@@ -37,6 +37,7 @@ CFLAGS += -mno-unaligned-access
 obj-y += samba_applets/common/applet_main.o
 obj-y += samba_applets/common/applet_legacy.o
 
+ifeq ($(VARIANT),sram)
 gnu-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/sram.icf
@@ -48,6 +49,21 @@ iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/sr
 gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.icf
+endif
+
+ifeq ($(VARIANT),ddram)
+gnu-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/ddram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/ddram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/samba_applets/common/sama5d2/ddram.icf
+
+gnu-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/ddram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/ddram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/ddram.icf
+
+gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.icf
+endif
 
 gnu-cstartup-y = samba_applets/common/cstartup_gnu.S
 iar-cstartup-y = samba_applets/common/cstartup_iar.s

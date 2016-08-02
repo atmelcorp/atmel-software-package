@@ -27,14 +27,19 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Low-level initialization SAM-BA applet
-AVAILABLE_TARGETS = sama5d2-generic sama5d3-generic sama5d4-generic
+
+AVAILABLE_TARGETS = sama5d2-generic \
+                    sama5d3-generic \
+                    sama5d4-generic
+
 AVAILABLE_VARIANTS = sram
+
+VARIANT = sram
 
 TOP := ../..
 
 BINNAME = applet-lowlevel
 
-VARIANT ?= sram
 CONFIG_SAMBA_APPLET = y
 
 obj-y += samba_applets/lowlevel/main.o
