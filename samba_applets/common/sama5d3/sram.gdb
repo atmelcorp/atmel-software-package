@@ -1,4 +1,3 @@
-#*************************************************
 #
 #  Connect to J-Link and debug application in sram.
 #

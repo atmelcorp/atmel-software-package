@@ -39,7 +39,7 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-	sram       (W!RX) : ORIGIN = 0x220000, LENGTH = 128K /* sram, 128K */
+	ram (W!RX) : ORIGIN = 0x220000, LENGTH = 128K /* SRAM, 128K */
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
@@ -96,18 +96,25 @@ SECTIONS
 		*(.data .data.*);
 		. = ALIGN(4);
 		_efixed = .;            /* End of text section */
-	} > sram
+	} > ram
 
-	. = ALIGN(4);
-	_etext = .;
+	.region_cache_aligned_const :
+	{
+		. = ALIGN(32);
+		*(.region_cache_aligned_const)
+		. = ALIGN(32);
+	} > ram
 
 	/* .ARM.exidx is sorted, so has to go in its own output section.  */
 	PROVIDE_HIDDEN (__exidx_start = .);
 	.ARM.exidx :
 	{
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > sram
+	} > ram
 	PROVIDE_HIDDEN (__exidx_end = .);
+
+	. = ALIGN(4);
+	_etext = .;
 
 	/* .bss section which is used for uninitialized data */
 	.bss (NOLOAD) :
@@ -118,7 +125,14 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(4);
 		_ezero = .;
-	} > sram
+	} > ram
+
+	.region_cache_aligned (NOLOAD) :
+	{
+		. = ALIGN(32);
+		*(.region_cache_aligned)
+		. = ALIGN(32);
+	} > ram
 
 	.heap (NOLOAD) :
 	{
@@ -126,20 +140,20 @@ SECTIONS
 		__heap_start__ = .;
 		. += HEAP_SIZE;
 		__heap_end__ = .;
-	} > sram
+	} > ram
 
 	.stack (NOLOAD) :
 	{
 		. += C_STACK_SIZE;
 		. = ALIGN(8);
 		_cstack = .;
-	} > sram
+	} > ram
 
 	.buffer (NOLOAD) :
 	{
 		. = ALIGN(4);
 		__buffer_start__ = .;
-		. = ORIGIN(sram) + LENGTH(sram) - 1;
+		. = ORIGIN(ram) + LENGTH(ram) - 1;
 		__buffer_end__ = .;
-	} > sram
+	} > ram
 }
