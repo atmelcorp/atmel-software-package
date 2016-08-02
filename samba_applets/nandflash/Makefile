@@ -29,7 +29,9 @@
 # Makefile for compiling the NandFlash SAM-BA applet
 AVAILABLE_TARGETS = sama5d2-generic \
                     sama5d3-generic \
-                    sama5d4-generic
+                    sama5d4-generic \
+                    sam9g15-generic sam9g25-generic sam9g35-generic \
+                    sam9x25-generic sam9x35-generic
 
 AVAILABLE_VARIANTS = sram ddram
 
