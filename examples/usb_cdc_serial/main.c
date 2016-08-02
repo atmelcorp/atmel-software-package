@@ -123,8 +123,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/twid.h"
-#include "peripherals/xdmad.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
 

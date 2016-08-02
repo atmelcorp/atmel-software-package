@@ -94,7 +94,6 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 
 #include "misc/console.h"
 

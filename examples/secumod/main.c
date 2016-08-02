@@ -165,7 +165,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 #include "peripherals/rtc.h"
 #include "peripherals/secumod.h"
 #include "peripherals/shdwc.h"

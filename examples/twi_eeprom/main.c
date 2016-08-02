@@ -96,9 +96,6 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/twid.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
 
 #include "memories/at24.h"
 
@@ -350,7 +347,7 @@ static void print_menu(void)
 	case TWID_MODE_ASYNC:
 		printf("ASYNC \r\n");
 		break;
-#ifdef CONFIG_HAVE_XDMAC		
+#ifdef CONFIG_HAVE_XDMAC
 	case TWID_MODE_DMA:
 		printf("DMA \r\n");
 		break;

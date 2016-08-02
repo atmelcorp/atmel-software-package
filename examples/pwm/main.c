@@ -116,7 +116,6 @@
 #include "peripherals/pit.h"
 #include "peripherals/pio.h"
 #include "peripherals/tc.h"
-#include "peripherals/xdmad.h"
 
 #include "misc/console.h"
 

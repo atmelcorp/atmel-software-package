@@ -106,8 +106,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/pmecc.h"
 #include "peripherals/tc.h"
-#include "peripherals/twid.h"
-#include "peripherals/xdmad.h"
 
 #include "memories/nand-flash/nand_flash.h"
 #include "memories/nand-flash/nand_flash_skip_block.h"

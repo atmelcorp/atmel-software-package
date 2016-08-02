@@ -133,13 +133,8 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 #include "peripherals/tc.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
-#endif
 #include "misc/console.h"
-
 
 #include <stdbool.h>
 #include <stdio.h>

@@ -108,7 +108,6 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/twid.h"
 
 #include "misc/console.h"
 #include "misc/led.h"

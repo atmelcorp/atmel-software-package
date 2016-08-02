@@ -111,7 +111,6 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pio.h"
 

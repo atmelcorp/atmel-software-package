@@ -106,7 +106,6 @@
 #include "peripherals/pmc.h"
 #include "peripherals/pmecc.h"
 #include "peripherals/tc.h"
-#include "peripherals/twid.h"
 
 #include "misc/cache.h"
 
