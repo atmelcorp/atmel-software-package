@@ -67,6 +67,7 @@ struct _act8945a {
 	struct _twi_desc* twid;
 	struct _act8945a_desc desc;
 
+	uint8_t addr;
 	uint8_t sys0;
 	uint8_t apch78;
 	uint8_t apch79;

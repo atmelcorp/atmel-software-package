@@ -198,9 +198,6 @@ union _apch_7a {
  *        Constants
  *----------------------------------------------------------------------------*/
 
-/// Slave address
-#define ACT8945A_TWI_ADDRESS 0x5B
-
 #define NUM_REGULATORS 7
 
 #define IADDR_SYS0   0x00
@@ -279,7 +276,7 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint32_t iaddr,
 		.data = value,
 		.size = 1
 	};
-	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
+	act8945a->twid->slave_addr = act8945a->addr;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
 	status = twid_transfer(act8945a->twid, &in, 0, NULL, 0);
@@ -297,7 +294,7 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint32_t iaddr,
 		.data = (uint8_t*)&value,
 		.size = 1
 	};
-	act8945a->twid->slave_addr = ACT8945A_TWI_ADDRESS;
+	act8945a->twid->slave_addr = act8945a->addr;
 	act8945a->twid->iaddr = iaddr;
 	act8945a->twid->isize = 1;
 	status = twid_transfer(act8945a->twid, 0, &out, NULL, 0);

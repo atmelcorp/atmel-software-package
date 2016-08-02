@@ -111,16 +111,17 @@ ALIGNED(16384) static uint32_t tlb[4096];
 
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 static struct _twi_desc act8945a_twid = {
-	.addr = ACT8945A_ADDR,
-	.freq = ACT8945A_FREQ,
-	.transfer_mode = TWID_MODE_POLLING
+	.addr = BOARD_ACT8945A_ADDR,
+	.freq = BOARD_ACT8945A_FREQ,
+	.transfer_mode = TWID_MODE_POLLING,
 };
 
 static struct _act8945a act8945a = {
+	.addr = BOARD_ACT8945A_TWI_ADDR,
 	.desc = {
-		.pin_chglev = ACT8945A_PIN_CHGLEV,
-		.pin_irq = ACT8945A_PIN_IRQ,
-		.pin_lbo = ACT8945A_PIN_LBO
+		.pin_chglev = BOARD_ACT8945A_PIN_CHGLEV,
+		.pin_irq = BOARD_ACT8945A_PIN_IRQ,
+		.pin_lbo = BOARD_ACT8945A_PIN_LBO
 	}
 };
 
@@ -716,7 +717,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 void board_cfg_pmic(void)
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-	const struct _pin pins[] = ACT8945A_PINS;
+	const struct _pin pins[] = BOARD_ACT8945A_PINS;
 
 	if (act8945a_initialized)
 		return;
