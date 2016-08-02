@@ -34,4 +34,3 @@ drivers-$(CONFIG_HAVE_IMAGE_SENSOR) += drivers/video/ov5640_config.o
 drivers-$(CONFIG_HAVE_IMAGE_SENSOR) += drivers/video/ov7740_config.o
 drivers-$(CONFIG_HAVE_IMAGE_SENSOR) += drivers/video/ov7670_config.o
 drivers-$(CONFIG_HAVE_IMAGE_SENSOR) += drivers/video/ov9740_config.o
-drivers-$(CONFIG_HAVE_QT1070) += drivers/video/qt1070.o
