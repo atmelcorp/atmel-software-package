@@ -245,18 +245,23 @@ static const struct _wm8904_para wm8904_access_main[] = {
 static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 {
 	uint8_t temp_data[2] = { 0, 0 };
-	struct _buffer in = {
-		.data = temp_data,
-		.size = 2,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+	struct _buffer buf[2] = {
+		{
+			.data = &reg_addr,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
+		{
+			.data = temp_data,
+			.size = 2,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+		},
 	};
 
 	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
-	wm8904->twi.twid.iaddr = reg_addr;
-	wm8904->twi.twid.isize = 1;
 
-	twid_transfer(&wm8904->twi.twid, &in, 1, NULL, NULL);
-	while (twid_is_busy(&wm8904->twi.twid));
+	twid_transfer(&wm8904->twi.twid, buf, 2, NULL, NULL);
+	twid_wait_transfer(&wm8904->twi.twid);
 
 	return (temp_data[0] << 8) | temp_data[1];
 }
@@ -272,19 +277,24 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
 {
 	uint8_t tmp_data[2] = { 0, 0 };
-	struct _buffer out = {
-		.data = tmp_data,
-		.size = 2,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+	struct _buffer buf[2] = {
+		{
+			.data = &reg_addr,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+		},
+		{
+			.data = tmp_data,
+			.size = 2,
+			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
 	};
 
 	wm8904->twi.twid.slave_addr = wm8904->twi.addr;
-	wm8904->twi.twid.iaddr = reg_addr;
-	wm8904->twi.twid.isize = 1;
 
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
-	twid_transfer(&wm8904->twi.twid, &out, 1, NULL, NULL);
+	twid_transfer(&wm8904->twi.twid, buf, 2, NULL, NULL);
 	while (twid_is_busy(&wm8904->twi.twid));
 }
 

@@ -268,38 +268,46 @@ static const char *_ovp_setting[4] = {
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static bool _act8945a_read_reg(struct _act8945a* act8945a, uint32_t iaddr,
-		uint8_t* value)
+static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_t* value)
 {
 	uint32_t status;
-	struct _buffer in = {
-		.data = value,
-		.size = 1,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+	struct _buffer buf[2] = {
+		{
+			.data = &iaddr,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
+		{
+			.data = value,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+		},
 	};
+
 	act8945a->twid->slave_addr = act8945a->addr;
-	act8945a->twid->iaddr = iaddr;
-	act8945a->twid->isize = 1;
-	status = twid_transfer(act8945a->twid, &in, 1, NULL, NULL);
+
+	status = twid_transfer(act8945a->twid, buf, 2, NULL, NULL);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8945a->twid);
 	return true;
 }
 
-static bool _act8945a_write_reg(struct _act8945a* act8945a, uint32_t iaddr,
-		uint8_t value)
+static bool _act8945a_write_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_t value)
 {
 	uint32_t status;
-	struct _buffer out = {
-		.data = (uint8_t*)&value,
-		.size = 1,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+	uint8_t _data[2] = { iaddr , value };
+	struct _buffer buf[1] = {
+		{
+			.data = _data,
+			.size = 2,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		}
 	};
+
 	act8945a->twid->slave_addr = act8945a->addr;
-	act8945a->twid->iaddr = iaddr;
-	act8945a->twid->isize = 1;
-	status = twid_transfer(act8945a->twid, &out, 1, NULL, NULL);
+
+	status = twid_transfer(act8945a->twid, buf, 1, NULL, NULL);
 	if (status != TWID_SUCCESS)
 		return false;
 	twid_wait_transfer(act8945a->twid);

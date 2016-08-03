@@ -64,17 +64,20 @@
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
+static void _is31fl3728_write_reg(struct _is31fl3728 *is31fl3728, uint8_t iaddr, uint8_t data)
 {
-	struct _buffer out = {
-		.data = &data,
-		.size = 1,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+	uint8_t tmp[2] = { iaddr, data };
+	struct _buffer buf[1] = {
+		{
+			.data = tmp,
+			.size = 2,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
 	};
+
 	is31fl3728->twid->slave_addr = is31fl3728->addr;
-	is31fl3728->twid->iaddr = iaddr;
-	is31fl3728->twid->isize = 1;
-	twid_transfer(is31fl3728->twid, &out, 1, NULL, NULL);
+
+	twid_transfer(is31fl3728->twid, buf, 1, NULL, NULL);
 	twid_wait_transfer(is31fl3728->twid);
 }
 

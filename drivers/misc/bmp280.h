@@ -388,16 +388,13 @@ struct _bmp280
 /**\name	FUNCTION DECLARATIONS                         */
 /**************************************************************/
 
-static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t* buffer, uint32_t len);
-static uint8_t _bmp280_write(struct _bmp280* bmp280, const uint8_t* buffer, uint32_t len);
-
 uint8_t bmp280_write_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdata, uint8_t len);
 uint8_t bmp280_read_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdata, uint8_t len);
 
 uint8_t bmp280_read_uncompensed_temperature (struct _bmp280* bmp280, int32_t* uncT);
 int32_t bmp280_compensate_temperatureC (struct _bmp280* bmp280, int32_t uncT);
 uint8_t bmp280_read_uncompensed_pressure (struct _bmp280* bmp280, int32_t* uncP);
-uint32_t  bmp280_compensate_pressureP (struct _bmp280* bmp280, int32_t uncP);
+uint32_t bmp280_compensate_pressureP (struct _bmp280* bmp280, int32_t uncP);
 uint8_t bmp280_read_uncompensed_pressure_temperature (struct _bmp280* bmp280, int32_t* uncP, int32_t* uncT);
 uint8_t bmp280_read_pressure_temperature (struct _bmp280* bmp280, uint32_t* pressure, int32_t* temperature);
 uint8_t bmp280_get_calpar (struct _bmp280* bmp280);

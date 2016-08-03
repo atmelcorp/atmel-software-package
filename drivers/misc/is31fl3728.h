@@ -140,7 +140,7 @@ struct _is31fl3728 {
  * @param fb              Framebuffer to hold the LED status
  * @return Success
  */
-uint8_t is31fl3728_configure (struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb);
+uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb);
 
 /**
  * Refresh the framebuffer. It updates the IS31FL3728 to drive the LED to the framebuffer state

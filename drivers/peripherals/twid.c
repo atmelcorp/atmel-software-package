@@ -643,13 +643,13 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 	
 	if (desc->flags & TWID_BUF_ATTR_START) {
 		if (desc->flags & TWID_BUF_ATTR_WRITE) {
-			twi_init_write(desc->addr, desc->slave_addr, desc->iaddr, desc->isize);
+			twi_init_write(desc->addr, desc->slave_addr, 0, 0);
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
 				twi_fifo_flush_tx(desc->addr);
 #endif
 		} else {
-			twi_init_read(desc->addr, desc->slave_addr, desc->iaddr, desc->isize);
+			twi_init_read(desc->addr, desc->slave_addr, 0, 0);
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
 				twi_fifo_flush_rx(desc->addr);

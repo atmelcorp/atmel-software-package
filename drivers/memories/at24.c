@@ -99,8 +99,8 @@ uint8_t at24_get_serial_number(struct _at24* at24)
 
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
+
 	at24->twid->slave_addr = at24->sn_addr;
-	at24->twid->isize = 0;
 
 	// Tell the EEPROM where we would like to read from
 	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
@@ -138,7 +138,6 @@ uint8_t at24_get_mac_address(struct _at24* at24)
 		return TWID_ERROR_LOCK;
 
 	at24->twid->slave_addr = at24->sn_addr;
-	at24->twid->isize = 0;
 
 	// Tell the EEPROM where we would like to read from
 	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
@@ -174,12 +173,12 @@ uint8_t at24_read_eep(struct _at24* at24, uint8_t addr,
 		},
 	};
 
-	at24->twid->slave_addr = at24->addr;
-	at24->twid->isize = 0;
-
 	// Tell the EEPROM where we would like to read from
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
+
+	at24->twid->slave_addr = at24->addr;
+
 	status = twid_transfer(at24->twid, buf, 2, at24_callback, at24);
 	while (mutex_is_locked(&at24->mutex));
 	return status;
@@ -206,12 +205,11 @@ uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint8_t 
 		},
 	};
 
-	at24->twid->slave_addr = at24->addr;
-	at24->twid->isize = 0;
-
 	if (!mutex_try_lock(&at24->mutex))
 		return TWID_ERROR_LOCK;
 
+	at24->twid->slave_addr = at24->addr;
+	
 	while (length) {
 		/* Compute number of bytes to program in page */
 		uint8_t write_size;

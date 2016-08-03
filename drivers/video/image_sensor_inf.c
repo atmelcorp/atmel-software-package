@@ -67,8 +67,6 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 	};
 
 	twid->slave_addr = sensor->twi_slave_addr;
-	twid->iaddr = 0;
-	twid->isize = 0;
 
 	reg8[0] = reg >> 8;
 	reg8[1] = reg & 0xff;
@@ -116,35 +114,42 @@ static sensor_status_t sensor_twi_read_reg(struct _twi_desc* twid, uint16_t reg,
 static sensor_status_t sensor_twi_write_reg(struct _twi_desc* twid, uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
-	struct _buffer out = {
-		.data = data,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_STOP | TWID_BUF_ATTR_WRITE,
+	struct _buffer buf[2] = {
+		{
+			.data = (uint8_t *)&reg,
+			/* .size */
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+		},
+		{
+			.data = data,
+			/* .size */
+			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
 	};
 
 	twid->slave_addr = sensor->twi_slave_addr;
-	twid->iaddr = reg;
 
 	switch (sensor->twi_inf_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
-		out.size = 1;
-		twid->isize = 1;
+		buf[0].size = 1;
+		buf[1].size = 1;
 		break;
 
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
-		out.size = 1;
-		twid->isize = 2;
+		buf[0].size = 2;
+		buf[1].size = 1;
 		break;
 
 	case SENSOR_TWI_REG_BYTE_DATA_2BYTE:
-		out.size = 2;
-		twid->isize = 1;
+		buf[0].size = 1;
+		buf[1].size = 2;
 		break;
 
 	default:
 		return SENSOR_TWI_ERROR;
 	}
 
-	status = twid_transfer(twid, &out, 1, NULL, NULL);
+	status = twid_transfer(twid, buf, 2, NULL, NULL);
 	while (twid_is_busy(twid));
 
 	if (status)

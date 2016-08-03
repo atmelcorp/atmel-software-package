@@ -77,8 +77,6 @@ struct _twi_desc
 	Twi*  addr;
 	uint32_t freq;
 	uint32_t slave_addr;
-	uint32_t iaddr;
-	uint32_t isize;
 	enum _twid_trans_mode transfer_mode;
 	uint32_t flags;
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */

@@ -59,24 +59,48 @@
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t* buffer, uint32_t len)
+static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buffer, uint32_t len)
 {
-	struct _buffer in = {
-		.data = buffer,
-		.size = len,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+	uint8_t status;
+	struct _buffer buf[2] = {
+		{
+			.data = &iaddr,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
+		{
+			.data = buffer,
+			.size = len,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+		},
 	};
-	return (uint8_t)twid_transfer(bmp280->twid, &in, 1, NULL, NULL);
+
+	status = twid_transfer(bmp280->twid, buf, 2, NULL, NULL);
+	twid_wait_transfer(bmp280->twid);
+
+	return status;
 }
 
-static uint8_t _bmp280_write(struct _bmp280* bmp280, const uint8_t* buffer, uint32_t len)
+static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_t* buffer, uint32_t len)
 {
-	struct _buffer out = {
-		.data = buffer,
-		.size = len,
-		.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+	uint8_t status;
+	struct _buffer buf[2] = {
+		{
+			.data = &iaddr,
+			.size = 1,
+			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+		},
+		{
+			.data = (uint8_t*)buffer,
+			.size = len,
+			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+		},
 	};
-	return (uint8_t)twid_transfer(bmp280->twid, &out, 1, NULL, NULL);
+
+	status = twid_transfer(bmp280->twid, buf, 2, NULL, NULL);
+	twid_wait_transfer(bmp280->twid);
+
+	return status;
 }
 
 /*------------------------------------------------------------------------------
@@ -102,9 +126,7 @@ uint8_t bmp280_write_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pda
 	if (bmp280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = addr;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_write(bmp280, pdata, len);
+		com_rslt = _bmp280_write(bmp280, addr, pdata, len);
 	}
 	return com_rslt;
 }
@@ -128,9 +150,7 @@ uint8_t bmp280_read_register(struct _bmp280* bmp280, uint8_t addr, uint8_t* pdat
 	if (bmp280 == BMP280_NULL)
 		return E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = addr;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, pdata, len);
+		com_rslt = _bmp280_read(bmp280, addr, pdata, len);
 	}
 	return com_rslt;
 }
@@ -164,9 +184,7 @@ uint8_t bmp280_read_uncompensed_temperature (struct _bmp280* bmp280, int32_t* un
 		return E_BMP280_NULL_PTR;
 	else {
 		/* read temperature data */
-		bmp280->twid->iaddr = BMP280_TEMPERATURE_MSB_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &dt[0], 3);
+		com_rslt = _bmp280_read(bmp280, BMP280_TEMPERATURE_MSB_REG, &dt[0], 3);
 		*uncT = (int32_t)((((uint32_t) (dt[0])) << 12) |
 				  (((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
 	}
@@ -226,9 +244,7 @@ uint8_t bmp280_read_uncompensed_pressure (struct _bmp280* bmp280, int32_t* uncP)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_PRESSURE_MSB_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &dt[0], 3);
+		com_rslt = _bmp280_read(bmp280, BMP280_PRESSURE_MSB_REG, &dt[0], 3);
 		*uncP = (int32_t)((((uint32_t)(dt[0])) << 12) |
 				  (((uint32_t)(dt[1])) << 4) | ((uint32_t)dt[2] >> 4));
 	}
@@ -312,9 +328,7 @@ uint8_t bmp280_read_uncompensed_pressure_temperature (struct _bmp280* bmp280, in
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_PRESSURE_MSB_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &dt[0], 6);
+		com_rslt = _bmp280_read(bmp280, BMP280_PRESSURE_MSB_REG, &dt[0], 6);
 		/*Pressure*/
 		*uncP = (int32_t)((((uint32_t)(dt[0]))<<12) | (((uint32_t)(dt[1]))<<4) | ((uint32_t)dt[2]>>4));
 		/* Temperature */
@@ -386,9 +400,7 @@ uint8_t bmp280_get_calpar (struct _bmp280* bmp280)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_DIG_T1_LSB_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &dt[0], 24);
+		com_rslt = _bmp280_read(bmp280, BMP280_DIG_T1_LSB_REG, &dt[0], 24);
 		/* read calibration values*/
 		bmp280->calpar.dig_T1 = (uint16_t)((((uint16_t)((uint8_t)dt[1])) << 8) | dt[0]);
 		bmp280->calpar.dig_T2 = (int16_t)((((int16_t)((int8_t)dt[3])) << 8) | dt[2]);
@@ -435,9 +447,7 @@ uint8_t bmp280_get_overs_temp (struct _bmp280* bmp280, uint8_t* value)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* read temperature over sampling*/
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG, &data, 1);
 		*value = BMP280_GET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_TEMP);
 		/* assign temperature oversampling*/
 		bmp280->overs_temp = *value;
@@ -473,15 +483,11 @@ uint8_t bmp280_set_overs_temp (struct _bmp280* bmp280, uint8_t value)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG, &data, 1);
 		if (com_rslt == SUCCESS) {
 			/* write over sampling*/
 			data = BMP280_SET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_TEMP, value);
-			bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &data, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CTRL_MEAS_REG_OVRS_TEMP__REG, &data, 1);
 			bmp280->overs_temp = value;
 		}
 	}
@@ -517,9 +523,7 @@ uint8_t bmp280_get_overs_pres (struct _bmp280* bmp280, uint8_t* value)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* read pressure over sampling */
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_PRES__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG_OVRS_PRES__REG, &data, 1);
 		*value = BMP280_GET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_PRES);
 		bmp280->overs_pres = *value;
 	}
@@ -554,15 +558,11 @@ uint8_t bmp280_set_overs_pres (struct _bmp280* bmp280, uint8_t value)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_PRES__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG_OVRS_PRES__REG, &data, 1);
 		if (com_rslt == SUCCESS) {
 			/* write pressure over sampling */
 			data = BMP280_SET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_PRES, value);
-			bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_OVRS_PRES__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &data, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CTRL_MEAS_REG_OVRS_PRES__REG, &data, 1);
 			bmp280->overs_pres = value;
 		}
 	}
@@ -593,9 +593,7 @@ uint8_t bmp280_get_power_mode(struct _bmp280* bmp280, uint8_t* power_mode)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* read the power mode*/
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_POWER_MODE__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &mode, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG_POWER_MODE__REG, &mode, 1);
 		*power_mode = BMP280_GET_BITSLICE(mode, BMP280_CTRL_MEAS_REG_POWER_MODE);
 	}
 	return com_rslt;
@@ -628,9 +626,7 @@ uint8_t bmp280_set_power_mode (struct _bmp280* bmp280, uint8_t power_mode)
 		if (power_mode < 4) {
 			/* write the power mode*/
 			mode = (bmp280->overs_temp << 5) + (bmp280->overs_pres << 2) + power_mode;
-			bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG_POWER_MODE__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &mode, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CTRL_MEAS_REG_POWER_MODE__REG, &mode, 1);
 		}
 		else {
 			com_rslt = E_BMP280_OUT_OF_RANGE;
@@ -660,9 +656,7 @@ uint8_t bmp280_set_soft_rst (struct _bmp280* bmp280)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* write soft reset */
-		bmp280->twid->iaddr = BMP280_RST_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_write(bmp280, &data, 1);
+		com_rslt = _bmp280_write(bmp280, BMP280_RST_REG, &data, 1);
 	}
 	return com_rslt;
 }
@@ -689,9 +683,7 @@ uint8_t bmp280_get_spi3 (struct _bmp280* bmp280, uint8_t* enable_disable)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_SPI3_ENABLE__REG, &data, 1);
 		*enable_disable = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE);
 	}
 	return com_rslt;
@@ -719,14 +711,10 @@ uint8_t bmp280_set_spi3 (struct _bmp280* bmp280, uint8_t enable_disable)
 	if (bmp280 == BMP280_NULL)
 		return  E_BMP280_NULL_PTR;
 	else {
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_SPI3_ENABLE__REG, &data, 1);
 		if (com_rslt == SUCCESS) {
 			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_SPI3_ENABLE, enable_disable);
-			bmp280->twid->iaddr = BMP280_CONFIG_REG_SPI3_ENABLE__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &data, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CONFIG_REG_SPI3_ENABLE__REG, &data, 1);
 		}
 	}
 	return com_rslt;
@@ -758,9 +746,7 @@ uint8_t bmp280_get_filter (struct _bmp280* bmp280, uint8_t *value)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* read filter*/
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_FILTER__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_FILTER__REG, &data, 1);
 		*value = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_FILTER);
 	}
 	return com_rslt;
@@ -791,14 +777,10 @@ uint8_t bmp280_set_filter (struct _bmp280* bmp280, uint8_t value)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* write filter*/
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_FILTER__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_FILTER__REG, &data, 1);
 		if (com_rslt == SUCCESS) {
 			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_FILTER, value);
-			bmp280->twid->iaddr = BMP280_CONFIG_REG_FILTER__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &data, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CONFIG_REG_FILTER__REG, &data, 1);
 		}
 	}
 	return com_rslt;
@@ -833,9 +815,7 @@ uint8_t bmp280_get_standby_durn(struct _bmp280* bmp280, uint8_t* standby_durn)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* read the standby duration*/
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_STANDBY_DURN__REG, &data, 1);
 		*standby_durn = BMP280_GET_BITSLICE(data, BMP280_CONFIG_REG_STANDBY_DURN);
 	}
 	return com_rslt;
@@ -876,14 +856,10 @@ uint8_t bmp280_set_standby_durn (struct _bmp280* bmp280, uint8_t standby_durn)
 		return  E_BMP280_NULL_PTR;
 	else {
 		/* write the standby duration*/
-		bmp280->twid->iaddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_read(bmp280, &data, 1);
+		com_rslt = _bmp280_read(bmp280, BMP280_CONFIG_REG_STANDBY_DURN__REG, &data, 1);
 		if (com_rslt == SUCCESS) {
 			data = BMP280_SET_BITSLICE(data, BMP280_CONFIG_REG_STANDBY_DURN, standby_durn);
-			bmp280->twid->iaddr = BMP280_CONFIG_REG_STANDBY_DURN__REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_write(bmp280, &data, 1);
+			com_rslt = _bmp280_write(bmp280, BMP280_CONFIG_REG_STANDBY_DURN__REG, &data, 1);
 		}
 	}
 	return com_rslt;
@@ -915,9 +891,7 @@ uint8_t bmp280_set_work_mode (struct _bmp280* bmp280, uint8_t work_mode)
 		return  E_BMP280_NULL_PTR;
 	else {
 		if (work_mode <= 4) {
-			bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG;
-			bmp280->twid->isize = 1;
-			com_rslt = _bmp280_read(bmp280, &data, 1);
+			com_rslt = _bmp280_read(bmp280, BMP280_CTRL_MEAS_REG, &data, 1);
 			if (com_rslt == SUCCESS)
 			{
 				switch (work_mode) {
@@ -945,9 +919,7 @@ uint8_t bmp280_set_work_mode (struct _bmp280* bmp280, uint8_t work_mode)
 				}
 				data = BMP280_SET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_TEMP, bmp280->overs_temp);
 				data = BMP280_SET_BITSLICE(data, BMP280_CTRL_MEAS_REG_OVRS_PRES, bmp280->overs_pres);
-				bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG;
-				bmp280->twid->isize = 1;
-				com_rslt = _bmp280_write(bmp280, &data, 1);
+				com_rslt = _bmp280_write(bmp280, BMP280_CTRL_MEAS_REG, &data, 1);
 			}
 		}
 		else {
@@ -979,9 +951,7 @@ uint8_t bmp280_get_forced_uncP_temperature(struct _bmp280* bmp280, int32_t* uncP
 	else {
 		/* read pressure and temperature*/
 		data = (bmp280->overs_temp << 5) + (bmp280->overs_pres << 2) + BMP280_FORCED_MODE;
-		bmp280->twid->iaddr = BMP280_CTRL_MEAS_REG;
-		bmp280->twid->isize = 1;
-		com_rslt = _bmp280_write(bmp280, &data, 1);
+		com_rslt = _bmp280_write(bmp280, BMP280_CTRL_MEAS_REG, &data, 1);
 		bmp280_compute_wait_time(bmp280, &waittime);
 		bmp280->delay_msec(waittime);
 		com_rslt += bmp280_read_uncompensed_pressure_temperature(bmp280, uncP, uncT);
@@ -1144,9 +1114,7 @@ uint8_t bmp280_read_id_get_calib_param (struct _bmp280* bmp280)
 	uint8_t data = 0;
 
 	/* read chip id */
-	bmp280->twid->iaddr = BMP280_CHIP_ID_REG;
-	bmp280->twid->isize = 1;
-	com_rslt = _bmp280_read(bmp280, &data, 1);
+	com_rslt = _bmp280_read(bmp280, BMP280_CHIP_ID_REG, &data, 1);
 	bmp280->chip_id = data;
 	if ( data != BMP280_CHIP_ID ) {
 		printf(" -E- Error Chip ID : 0x%x \n\r", data);
