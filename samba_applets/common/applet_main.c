@@ -40,6 +40,9 @@
 
 #include <string.h>
 
+/* define this to enable debug display of mailbox content */
+#undef APPLET_MAILBOX_DEBUG
+
 extern int __buffer_end__;
 #if defined(__GNUC__)
 extern int __buffer_start__;
@@ -67,6 +70,19 @@ static void init_applet_buffer(void)
 #error Unknown compiler!
 #endif
 	applet_buffer_size = (uint32_t)&__buffer_end__ - (uint32_t)applet_buffer;
+}
+
+static void debug_display_mailbox(struct applet_mailbox *mailbox)
+{
+#ifdef APPLET_MAILBOX_DEBUG
+	int i;
+	trace_debug_wp("--------\r\n");
+	trace_debug_wp("TICK=0x%08x\r\n", (unsigned)timer_get_tick());
+	trace_debug_wp("CMD=0x%08x\r\n", (unsigned)mailbox->command);
+	trace_debug_wp("STATUS=0x%08x\r\n", (unsigned)mailbox->status);
+	for (i = 0; i < 16; i++)
+		trace_debug_wp("[%02d]=0x%08x%s", i, (unsigned)mailbox->data[i], (i & 3) == 3 ? "\r\n" : " ");
+#endif
 }
 
 /*----------------------------------------------------------------------------
@@ -113,6 +129,9 @@ void applet_main(struct applet_mailbox *mailbox)
 		timer_configure(0);
 	}
 
+	/* display mailbox content before command processing */
+	debug_display_mailbox(mailbox);
+
 	/* set default status */
 	mailbox->status = APPLET_FAIL;
 
@@ -138,6 +157,9 @@ void applet_main(struct applet_mailbox *mailbox)
 		trace_error_wp("Unsupported applet command 0x%08x\r\n",
 				(unsigned)mailbox->command);
 	}
+
+	/* display mailbox content after command processing */
+	debug_display_mailbox(mailbox);
 
 	/* notify the host application of the end of the command processing */
 	mailbox->command = ~(mailbox->command);
