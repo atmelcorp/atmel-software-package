@@ -308,7 +308,7 @@ extern void pmc_disable_peripheral(uint32_t id);
  *
  * \param id  Peripheral ID (ID_xxx).
  */
-extern uint32_t pmc_is_peripheral_enabled(uint32_t id);
+extern bool pmc_is_peripheral_enabled(uint32_t id);
 
 /**
  * \brief Get current frequency clock for the given peripheral ID.

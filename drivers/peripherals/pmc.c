@@ -785,14 +785,14 @@ void pmc_disable_peripheral(uint32_t id)
 	PMC->PMC_PCR = (PMC->PMC_PCR & ~PMC_PCR_EN) | PMC_PCR_CMD;
 }
 
-uint32_t pmc_is_peripheral_enabled(uint32_t id)
+bool pmc_is_peripheral_enabled(uint32_t id)
 {
 	assert(id < ID_PERIPH_COUNT);
 
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
 
-	return !!(pcr & PMC_PCR_EN);
+	return (pcr & PMC_PCR_EN) != 0;
 }
 
 uint32_t pmc_get_peripheral_clock(uint32_t id)
