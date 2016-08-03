@@ -227,10 +227,10 @@
 
 /* =================== AT24 device definition =================== */
 
-#define AT24_PINS       PINS_TWI0;
-#define AT24_ADDR       TWI0
-#define AT24_FREQ       400000
-#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_PINS       PINS_TWI0;
+#define BOARD_AT24_ADDR       TWI0
+#define BOARD_AT24_FREQ       400000
+#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
 
 /* =================== AT25 device definition =================== */
 

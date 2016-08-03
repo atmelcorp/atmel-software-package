@@ -129,12 +129,12 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-#ifdef AT24_EEP_ADDR
+#ifdef BOARD_AT24_EEP_ADDR
 static uint8_t _device = AT24_DEVICE;
 #else
 static uint8_t _device = AT24_EMULATOR;
 #endif
-static const struct _pin at24_pins[] = AT24_PINS;
+static const struct _pin at24_pins[] = BOARD_AT24_PINS;
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
@@ -144,18 +144,18 @@ CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 static _parser _cmd_parser;
 
 struct _at24 at24_drv = {
-	.desc = AT24_DESC,
-#ifdef AT24_EEP_ADDR
-	.addr = AT24_EEP_ADDR,
-	.sn_addr = AT24_SN_ADDR,
-	.sn_offset = AT24_SN_OFFSET,
-	.eui_offset = AT24_EUI48_OFFSET,
+	.desc = BOARD_AT24_DESC,
+#ifdef BOARD_AT24_EEP_ADDR
+	.addr = BOARD_AT24_EEP_ADDR,
+	.sn_addr = BOARD_AT24_SN_ADDR,
+	.sn_offset = BOARD_AT24_SN_OFFSET,
+	.eui_offset = BOARD_AT24_EUI48_OFFSET,
 #endif
 };
 struct _twi_desc at24_twid = {
-	.addr = AT24_ADDR,
-	.freq = AT24_FREQ,
-	.transfer_mode = TWID_MODE_ASYNC
+	.addr = BOARD_AT24_ADDR,
+	.freq = BOARD_AT24_FREQ,
+	.transfer_mode = TWID_MODE_POLLING,
 };
 
 static volatile uint32_t cmd_length = 0;
@@ -355,7 +355,7 @@ static void print_menu(void)
 	}
 	printf("twi eeprom example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
-#ifdef AT24_EEP_ADDR
+#ifdef BOARD_AT24_EEP_ADDR
 	       "| a serial                                              |\r\n"
 	       "|      Query device serial number                       |\r\n"
 	       "| a mac                                                 |\r\n"
@@ -365,7 +365,7 @@ static void print_menu(void)
 	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
 	       "| w addr str                                            |\r\n"
 	       "|      Write 'str' to address 'addr'                    |\r\n"
-#ifdef AT24_EEP_ADDR
+#ifdef BOARD_AT24_EEP_ADDR
 	       "| s device (default)                                    |\r\n"
 	       "|      Select at24 device                               |\r\n"
 	       "| s emulator                                            |\r\n"
@@ -376,7 +376,7 @@ static void print_menu(void)
 	       "|=======================================================|\r\n");
 }
 
-#ifdef AT24_EEP_ADDR
+#ifdef BOARD_AT24_EEP_ADDR
 /*
  *
  */
@@ -426,11 +426,11 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 	}
 	else if (!strncmp((char*)buffer, "device", 8)) {
 		_device = AT24_DEVICE;
-		at24_drv.addr = AT24_EEP_ADDR;
+		at24_drv.addr = BOARD_AT24_EEP_ADDR;
 		printf("Use AT24 device\r\n");
 	}
 }
-#endif /* AT24_EEP_ADDR */
+#endif /* BOARD_AT24_EEP_ADDR */
 
 static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
@@ -450,7 +450,7 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'w':
 		_eeprom_write_arg_parser(buffer+2, len-2);
 		break;
-#ifdef AT24_EEP_ADDR
+#ifdef BOARD_AT24_EEP_ADDR
 	case 'a':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;

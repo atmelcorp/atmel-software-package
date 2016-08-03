@@ -251,14 +251,15 @@
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 /* =================== AT24 device definition =================== */
-#define AT24_PINS       PINS_TWI1_IOS2;
-#define AT24_ADDR       ((Twi*)TWIHS1)
-#define AT24_FREQ       400000
-#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
-#define AT24_EEP_ADDR       (0x50 | 0x4)
-#define AT24_SN_ADDR        (0x58 | 0x4)
-#define AT24_SN_OFFSET      0x80        // 0x80-0x8F
-#define AT24_EUI48_OFFSET   0x9A        // 0x9A-0x9F
+
+#define BOARD_AT24_PINS       PINS_TWI1_IOS2;
+#define BOARD_AT24_ADDR       ((Twi*)TWIHS1)
+#define BOARD_AT24_FREQ       400000
+#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_EEP_ADDR       (0x50 | 0x4)
+#define BOARD_AT24_SN_ADDR        (0x58 | 0x4)
+#define BOARD_AT24_SN_OFFSET      0x80        // 0x80-0x8F
+#define BOARD_AT24_EUI48_OFFSET   0x9A        // 0x9A-0x9F
 
 /* =================== QSPI serial flashdevice definition ======= */
 

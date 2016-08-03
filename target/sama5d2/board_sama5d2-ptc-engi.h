@@ -166,10 +166,11 @@
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 /* =================== AT24 device definition =================== */
-#define AT24_PINS       PINS_TWI1_IOS1;
-#define AT24_ADDR       ((Twi*)TWIHS1)
-#define AT24_FREQ       400000
-#define AT24_DESC       {"AT24MAC402", 0xFF, 16}
+
+#define BOARD_AT24_PINS       PINS_TWI1_IOS1;
+#define BOARD_AT24_ADDR       ((Twi*)TWIHS1)
+#define BOARD_AT24_FREQ       400000
+#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
 
 /* =================== GMAC/PHY definition =================== */
 

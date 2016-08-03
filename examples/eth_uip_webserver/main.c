@@ -128,20 +128,20 @@
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 /** if AT24 is available on the board, it will be used to setup the MAC addr */
-static const struct _pin at24_pins[] = AT24_PINS;
+static const struct _pin at24_pins[] = BOARD_AT24_PINS;
 
 struct _at24 at24_drv = {
-	.desc = AT24_DESC,
-#ifdef AT24_SN_ADDR
-	.sn_addr = AT24_SN_ADDR,
-	.sn_offset = AT24_SN_OFFSET,
-	.eui_offset = AT24_EUI48_OFFSET,
+	.desc = BOARD_AT24_DESC,
+#ifdef BOARD_AT24_SN_ADDR
+	.sn_addr = BOARD_AT24_SN_ADDR,
+	.sn_offset = BOARD_AT24_SN_OFFSET,
+	.eui_offset = BOARD_AT24_EUI48_OFFSET,
 #endif
 };
 
 struct _twi_desc at24_twid = {
-        .addr = AT24_ADDR,
-        .freq = AT24_FREQ,
+        .addr = BOARD_AT24_ADDR,
+        .freq = BOARD_AT24_FREQ,
         .transfer_mode = TWID_MODE_DMA
 };
 
@@ -239,7 +239,7 @@ int main(void)
 	/* Output example information */
 	console_example_info("ETH uIP Web Server Example");
 
-#ifdef AT24_SN_ADDR
+#ifdef BOARD_AT24_SN_ADDR
 	pio_configure(at24_pins, ARRAY_SIZE(at24_pins));
 	at24_configure(&at24_drv, &at24_twid);
 	if (at24_get_mac_address(&at24_drv)) {
