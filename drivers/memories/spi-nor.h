@@ -59,6 +59,8 @@
 #define SPINOR_FLAG_ERASE_256K      (0x00000008u)
 #define SPINOR_FLAG_QUAD            (0x00000010u)
 #define SPINOR_FLAG_QPP             (0x00000020u) /* Quad Page Programming */
+#define SPINOR_FLAG_FSR             (0x00000040u) /* Device has FLAG STATUS REGUSTER */
+#define SPINOR_FLAG_ENTER_4B_MODE   (0x00000080u) /* Put device in 4-byte mode */
 
 /** Describes SPI NOR flash device parameters */
 struct _spi_nor_desc {
