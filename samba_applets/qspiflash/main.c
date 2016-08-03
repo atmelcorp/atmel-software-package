@@ -34,6 +34,7 @@
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
+#include "timer.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
@@ -118,6 +119,9 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)freq);
+
+        /* initialize the timer so we can support timeouts */
+        timer_configure(0);
 
 	/* initialize the QSPI */
 	qspi_initialize(addr);
