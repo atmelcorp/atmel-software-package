@@ -658,6 +658,14 @@ void pmc_disable_system_clock(enum _pmc_system_clock clock)
 	while (PMC->PMC_SCSR & scsr);
 }
 
+bool pmc_is_system_clock_enabled(enum _pmc_system_clock clock)
+{
+	uint32_t scsr;
+	if (!_pmc_get_system_clock_bits(clock, NULL, NULL, &scsr))
+		return false;
+	return (PMC->PMC_SCSR & scsr) == scsr;
+}
+
 #ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 void pmc_set_fast_startup_mode(uint32_t startup_mode)
 {

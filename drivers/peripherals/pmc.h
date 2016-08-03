@@ -266,6 +266,12 @@ extern void pmc_enable_system_clock(enum _pmc_system_clock clock);
  */
 extern void pmc_disable_system_clock(enum _pmc_system_clock clock);
 
+/**
+ * \brief Get the status of a system clock
+ * \param clock system clock to check
+ */
+extern bool pmc_is_system_clock_enabled(enum _pmc_system_clock clock);
+
 #ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 /**
  * \brief Set up fast startup mode
