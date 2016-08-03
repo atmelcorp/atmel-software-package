@@ -74,7 +74,8 @@ struct _twi_desc act8865_twid = {
 };
 
 struct _act8865 pmic = {
-	.twid = &act8865_twid
+	.twid = &act8865_twid,
+	.addr = BOARD_ACT8865_TWI_ADDR,
 };
 #endif
 

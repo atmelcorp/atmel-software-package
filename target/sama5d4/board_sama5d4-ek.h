@@ -260,11 +260,11 @@
 
 /* ================== ACT8865 PMIC definition ====================== */
 
-#define ACT8865_PINS PINS_TWI0
-#define ACT8865_ADDR TWI0
-#define ACT8865_FREQ 400000
-#define ACT8865_PIN_IRQ \
-	{ PIO_GROUP_E, PIO_PE0, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
+#define BOARD_ACT8865_PINS     PINS_TWI0
+#define BOARD_ACT8865_ADDR     TWI0
+#define BOARD_ACT8865_FREQ     400000
+#define BOARD_ACT8865_TWI_ADDR 0x5b
+#define BOARD_ACT8865_PIN_IRQ  { PIO_GROUP_E, PIO_PE0, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 
 /* ================== SSC definition ====================== */
 

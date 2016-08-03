@@ -92,13 +92,14 @@ static const char* board_name = BOARD_NAME;
 
 #ifdef CONFIG_HAVE_PMIC_ACT8865
 static struct _twi_desc act8865_twid = {
-	.addr = ACT8865_ADDR,
-	.freq = ACT8865_FREQ,
+	.addr = BOARD_ACT8865_ADDR,
+	.freq = BOARD_ACT8865_FREQ,
 	.transfer_mode = TWID_MODE_POLLING
 };
 
 static struct _act8865 pmic = {
-	.twid = &act8865_twid
+	.twid = &act8865_twid,
+	.addr = BOARD_ACT8865_TWI_ADDR,
 };
 #endif
 
@@ -579,7 +580,7 @@ void board_cfg_nor_flash(void)
 void board_cfg_pmic()
 {
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-	struct _pin act8865_pins[] = ACT8865_PINS;
+	struct _pin act8865_pins[] = BOARD_ACT8865_PINS;
 
 	/* configure and enable the PMIC TWI */
 	pio_configure(act8865_pins, ARRAY_SIZE(act8865_pins));

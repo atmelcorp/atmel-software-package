@@ -61,7 +61,7 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint32_t iaddr,
 		.size = 1
 	};
 
-	act8865->twid->slave_addr = ACT8865_TWI_ADDRESS;
+	act8865->twid->slave_addr = act8865->addr;
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
 
@@ -79,7 +79,7 @@ static bool _act8865_write_reg(struct _act8865* act8865, uint32_t iaddr, uint8_t
 		.data = (uint8_t*)&value,
 		.size = 1
 	};
-	act8865->twid->slave_addr = ACT8865_TWI_ADDRESS;
+	act8865->twid->slave_addr = act8865->addr;
 	act8865->twid->iaddr = iaddr;
 	act8865->twid->isize = 1;
 	status = twid_transfer(act8865->twid, 0, &out, NULL, 0);
