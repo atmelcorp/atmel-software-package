@@ -64,6 +64,7 @@
 #define CMD_FAST_READ_1_1_2  0x3b /* Fast Read (1-1-2) */
 #define CMD_BLOCK_ERASE_32K  0x52 /* 32KB Block Erase */
 #define CMD_FAST_READ_1_1_4  0x6b /* Fast Read (1-1-4) */
+#define CMD_READ_FLAG_STATUS 0x70 /* Read Flag Status Register */
 #define CMD_READ_ID          0x9f /* Read JEDEC ID */
 #define CMD_MULTI_IO_READ_ID 0xaf /* Read JEDEC ID (multiple IO) */
 #define CMD_FAST_READ_1_2_2  0xbb /* Fast Read (1-2-2) */
@@ -79,6 +80,9 @@
 #define CMD_MICRON_WRITE_EVCR 0x61 /* Write Enhanced Volatile Configuration Register */
 #define CMD_MICRON_READ_VCR   0x85 /* Read Volatile Configuration Register */
 #define CMD_MICRON_WRITE_VCR  0x81 /* Write Volatile Configuration  Register */
+
+/* FLAG STATUS REGISTER BITS */
+#define FSR_NBUSY 0x80
 
 /* QSPI Commands (Macronix) */
 #define CMD_MACRONIX_READ_CONFIG 0x15 /* Read Configuration Register */
@@ -200,6 +204,29 @@ static bool _qspiflash_write_reg(const struct _qspiflash *flash, uint8_t code, c
 static bool _qspiflash_write_enable(const struct _qspiflash *flash)
 {
 	return _qspiflash_write_reg(flash, CMD_WRITE_ENABLE, NULL, 0);
+}
+
+static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
+{
+	if (!_qspiflash_write_enable(flash))
+		return false;
+
+	if (_qspiflash_write_reg(flash, CMD_ENTER_ADDR4_MODE, NULL, 0)) {
+		flash->mode_addr4 = true;
+		return true;
+	}
+
+	return false;
+}
+
+static bool qspiflash_read_flag_status(const struct _qspiflash *flash, uint8_t *status)
+{
+	if (flash->desc.flags & SPINOR_FLAG_FSR)
+		return _qspiflash_read_reg(flash, CMD_READ_FLAG_STATUS, status, 1);
+	else {
+		*status = FSR_NBUSY; /* Not busy */
+		return true;
+	}
 }
 
 /*----------------------------------------------------------------------------
@@ -741,12 +768,19 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 
 	/* Convert opcodes to their 4byte address version for >16MB memories */
 	if (flash->desc.size > 16 * 1024 * 1024) {
-		flash->mode_addr4 = true;
-		flash->opcode_read = qspi_flash_3to4_opcode(flash->opcode_read);
-		flash->opcode_page_program = qspi_flash_3to4_opcode(flash->opcode_page_program);
-		flash->opcode_sector_erase = qspi_flash_3to4_opcode(flash->opcode_sector_erase);
-		flash->opcode_block_erase = qspi_flash_3to4_opcode(flash->opcode_block_erase);
-		flash->opcode_block_erase_32k = qspi_flash_3to4_opcode(flash->opcode_block_erase_32k);
+		if (flash->desc.flags & SPINOR_FLAG_ENTER_4B_MODE) {
+			if (!_qspiflash_enter_addr4_mode(flash)) {
+				trace_warning("Could not switch QSPI memory to 4-byte address mode\r\n");
+				return false;
+			}
+		} else {
+			flash->mode_addr4 = true;
+			flash->opcode_read = qspi_flash_3to4_opcode(flash->opcode_read);
+			flash->opcode_page_program = qspi_flash_3to4_opcode(flash->opcode_page_program);
+			flash->opcode_sector_erase = qspi_flash_3to4_opcode(flash->opcode_sector_erase);
+			flash->opcode_block_erase = qspi_flash_3to4_opcode(flash->opcode_block_erase);
+			flash->opcode_block_erase_32k = qspi_flash_3to4_opcode(flash->opcode_block_erase_32k);
+		}
 	}
 
 	return true;
@@ -769,12 +803,14 @@ bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout)
 	struct _timeout to;
 	timer_start_timeout(&to, timeout);
 	do {
-		uint8_t status;
+		uint8_t status, flag_status;
 
+                if (!qspiflash_read_flag_status(flash, &flag_status))
+			return false;
 		if (!qspiflash_read_status(flash, &status))
 			return false;
 
-		if ((status & SR_WIP) == 0)
+		if (((status & SR_WIP) == 0) && ((flag_status & FSR_NBUSY) != 0))
 			return true;
 	} while (!timer_timeout_reached(&to));
 
