@@ -32,6 +32,7 @@
 #include "applet.h"
 #include "applet_legacy.h"
 #include "trace.h"
+#include "timer.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sfc.h"
@@ -84,7 +85,6 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
 		/* cannot display any trace */
 		trace_level = 0;
 	}
-
 }
 
 applet_command_handler_t get_applet_command_handler(uint8_t cmd)
@@ -106,10 +106,12 @@ void applet_main(struct applet_mailbox *mailbox)
 	applet_command_handler_t handler;
 
 	if (!applet_buffer) {
+		/* Applet buffer is not set, this is the first call to the applet */
+		/* Let's do some setup */
 		init_applet_buffer();
+		pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
+		timer_configure(0);
 	}
-
-	pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
 
 	/* set default status */
 	mailbox->status = APPLET_FAIL;
@@ -117,11 +119,11 @@ void applet_main(struct applet_mailbox *mailbox)
 	/* look for handler and call it */
 	handler = get_applet_command_handler(mailbox->command);
 	if (handler) {
-		if (applet_initialized) {
-			mailbox->status = handler(mailbox->command, mailbox->data);
-		} else if (mailbox->command == APPLET_CMD_INITIALIZE) {
+		if (mailbox->command == APPLET_CMD_INITIALIZE) {
 			mailbox->status = handler(mailbox->command, mailbox->data);
 			applet_initialized = (mailbox->status == APPLET_SUCCESS);
+		} else if (applet_initialized) {
+			mailbox->status = handler(mailbox->command, mailbox->data);
 		} else {
 			trace_error_wp("Applet not initialized!\r\n");
 		}
