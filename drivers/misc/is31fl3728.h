@@ -116,6 +116,7 @@ struct _is31fl3728_desc {
 };
 
 struct _is31fl3728 {
+	uint8_t addr;
 	struct _twi_desc *twid;
 	struct _is31fl3728_desc desc;
 

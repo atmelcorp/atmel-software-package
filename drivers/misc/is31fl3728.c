@@ -64,17 +64,17 @@
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint32_t reg_addr, uint8_t data);
-static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint32_t reg_addr, uint8_t data)
+static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
 {
-	uint8_t ldata = data;
 	struct _buffer out = {
-		.data = &ldata,
-		.size = 1
+		.data = &data,
+		.size = 1,
 	};
-	is31fl3728->twid->iaddr = reg_addr;
+	is31fl3728->twid->slave_addr = is31fl3728->addr;
+	is31fl3728->twid->iaddr = iaddr;
 	is31fl3728->twid->isize = 1;
-	twid_transfer(is31fl3728->twid, 0, &out, NULL, 0);
+	twid_transfer(is31fl3728->twid, NULL, &out, NULL, NULL);
+	twid_wait_transfer(is31fl3728->twid);
 }
 
 /*----------------------------------------------------------------------------
@@ -113,12 +113,12 @@ void is31fl3728_refresh(struct _is31fl3728 *is31fl3728)
 }
 
 
-uint8_t is31fl3728_configure (struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb)
+uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, struct _twi_desc *twid, uint8_t addr, uint8_t *fb)
 {
 	uint8_t status = TWID_SUCCESS;
 
 	is31fl3728->twid = twid;
-	is31fl3728->twid->slave_addr = addr;
+	is31fl3728->addr = addr;
 	twid_configure(is31fl3728->twid);
 	is31fl3728->fb = fb;
 
