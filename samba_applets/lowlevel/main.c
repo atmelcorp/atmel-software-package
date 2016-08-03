@@ -39,12 +39,29 @@
 #include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------
+ *         Private definitions
+ *----------------------------------------------------------------------------*/
+
+#if defined(CONFIG_SOC_SAM9XX5)
+#define EXPECTED_PROC_CLOCK 399
+#elif defined(CONFIG_SOC_SAMA5D2)
+#define EXPECTED_PROC_CLOCK 498
+#elif defined(CONFIG_SOC_SAMA5D3)
+#define EXPECTED_PROC_CLOCK 528
+#elif defined(CONFIG_SOC_SAMA5D4)
+#define EXPECTED_PROC_CLOCK 528
+#else
+#error Unsupported SoC!
+#endif
+
+/*----------------------------------------------------------------------------
  *         Private functions
  *----------------------------------------------------------------------------*/
 
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 {
 	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
+	uint32_t pck;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -52,16 +69,22 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	trace_info_wp("\r\nApplet 'Low-Level' from softpack " SOFTPACK_VERSION ".\r\n");
 
-	trace_info_wp("Current processor clock: %dHz\r\n",
-			(unsigned)pmc_get_processor_clock());
-	board_cfg_clocks();
+	pck = pmc_get_processor_clock() / 1000000;
+	trace_info_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
 
-	/* re-inititialize console after clock setup */
-	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
+	if (pck >= EXPECTED_PROC_CLOCK) {
+		trace_info_wp("Clocks are already configured.\r\n");
+	} else {
+		/* setup clocks */
+		board_cfg_clocks();
 
-	trace_info_wp("Low-Level initialization complete.\r\n");
-	trace_info_wp("Processor clock: %dHz\r\n",
-			(unsigned)pmc_get_processor_clock());
+		/* re-inititialize console after clock setup */
+		applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
+
+		/* display new processor clock */
+		pck = pmc_get_processor_clock() / 1000000;
+		trace_info_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
+	}
 
 	mbx->out.buf_addr = 0;
 	mbx->out.buf_size = 0;
