@@ -64,7 +64,7 @@ static struct _spi_desc spi_at25_desc = {
 	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
 	.dlybs          = 0,
 	.dlybct         = 0,
-	.mutex          = 1,
+	.mutex          = 0,
 	.spi_mode       = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT,
 #if defined(CONFIG_HAVE_SPI_FIFO)
 	.transfer_mode = SPID_MODE_FIFO,
