@@ -347,11 +347,9 @@ static void print_menu(void)
 	case TWID_MODE_ASYNC:
 		printf("ASYNC \r\n");
 		break;
-#ifdef CONFIG_HAVE_XDMAC
 	case TWID_MODE_DMA:
 		printf("DMA \r\n");
 		break;
-#endif
 	}
 	printf("twi eeprom example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
