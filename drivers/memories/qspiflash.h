@@ -54,6 +54,9 @@ struct _qspiflash {
 	uint32_t ifr_width_erase;
 	uint8_t opcode_read;
 	uint8_t opcode_page_program;
+	uint8_t opcode_sector_erase;
+	uint8_t opcode_block_erase;
+	uint8_t opcode_block_erase_32k;
 	bool mode_addr4;
 #ifdef CONFIG_HAVE_AESB
 	bool use_aesb;

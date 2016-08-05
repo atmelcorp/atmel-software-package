@@ -244,11 +244,14 @@ static unsigned char qspi_flash_3to4_opcode(unsigned char opcode)
 		ENTRY_3TO4(CMD_PAGE_PROGRAM),         /* 0x02 */
 		ENTRY_3TO4(CMD_READ),                 /* 0x03 */
 		ENTRY_3TO4(CMD_FAST_READ),            /* 0x0b */
+		ENTRY_3TO4(CMD_SECTOR_ERASE),         /* 0x20 */
 		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM),    /* 0x32 */
 		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM_MX), /* 0x38 */
 		ENTRY_3TO4(CMD_FAST_READ_1_1_2),      /* 0x3b */
+		ENTRY_3TO4(CMD_BLOCK_ERASE_32K),      /* 0x52 */
 		ENTRY_3TO4(CMD_FAST_READ_1_1_4),      /* 0x6b */
 		ENTRY_3TO4(CMD_FAST_READ_1_2_2),      /* 0xbb */
+		ENTRY_3TO4(CMD_BLOCK_ERASE),          /* 0xd8 */
 		ENTRY_3TO4(CMD_FAST_READ_1_4_4),      /* 0xeb */
 	};
 #undef ENTRY_3TO4
@@ -716,6 +719,9 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	/* Set default settings */
 	flash->opcode_read = CMD_FAST_READ;
 	flash->opcode_page_program = CMD_PAGE_PROGRAM;
+	flash->opcode_sector_erase = CMD_SECTOR_ERASE;
+	flash->opcode_block_erase = CMD_BLOCK_ERASE;
+	flash->opcode_block_erase_32k = CMD_BLOCK_ERASE_32K;
 	flash->mode_addr4 = false;
 #ifdef CONFIG_HAVE_AESB
 	flash->use_aesb = false;
@@ -738,6 +744,9 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 		flash->mode_addr4 = true;
 		flash->opcode_read = qspi_flash_3to4_opcode(flash->opcode_read);
 		flash->opcode_page_program = qspi_flash_3to4_opcode(flash->opcode_page_program);
+		flash->opcode_sector_erase = qspi_flash_3to4_opcode(flash->opcode_sector_erase);
+		flash->opcode_block_erase = qspi_flash_3to4_opcode(flash->opcode_block_erase);
+		flash->opcode_block_erase_32k = qspi_flash_3to4_opcode(flash->opcode_block_erase_32k);
 	}
 
 	return true;
@@ -845,7 +854,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 	switch (length) {
 	case 256 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_256K) {
-			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_4B : CMD_BLOCK_ERASE;
+			instr = flash->opcode_block_erase;
 		} else {
 			trace_error("qspiflash: 256K Erase not supported\r\n");
 			return false;
@@ -853,7 +862,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 64 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_64K) {
-			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_4B : CMD_BLOCK_ERASE;
+			instr = flash->opcode_block_erase;
 		} else {
 			trace_error("qspiflash: 64K Erase not supported\r\n");
 			return false;
@@ -861,7 +870,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 32 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_32K) {
-			instr = flash->mode_addr4 ? CMD_BLOCK_ERASE_32K_4B : CMD_BLOCK_ERASE_32K;
+			instr = flash->opcode_block_erase_32k;
 		} else {
 			trace_error("qspiflash: 32K Erase not supported\r\n");
 			return false;
@@ -869,7 +878,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 		break;
 	case 4 * 1024:
 		if (flags & SPINOR_FLAG_ERASE_4K) {
-			instr = flash->mode_addr4 ? CMD_SECTOR_ERASE_4B : CMD_SECTOR_ERASE;
+			instr = flash->opcode_sector_erase;
 		} else {
 			trace_error("qspiflash: 4K Erase not supported\r\n");
 			return false;
