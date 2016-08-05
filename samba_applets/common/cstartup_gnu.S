@@ -48,10 +48,23 @@ mailbox:
 is_initialized:
 	.word   0
 
+romcode_sp:
+	.word   0
+
 init:
-	stmdb   sp!, {r0-r4,lr}
-	mov     r4, sp
+	/*
+	 * On older devices (SAM9), the romcode would not reset its stack
+	 * pointer correctly between applet calls.
+	 * As a workaround, we save the first romcode SP we see and use it to
+	 * restore the stack on each applet call.
+	 */
+	ldr     r0, romcode_sp
+	cmp     r0, #0
+	bne     skip_sp_save
+	str     sp, romcode_sp
+skip_sp_save:
 	ldr     sp, =_cstack
+	stmdb   sp!, {r0-r4,lr}
 
 	/* Clear the zero segment only the first time the applet is loaded */
 
@@ -92,6 +105,6 @@ run_main:
 
 	/* Jump back to romcode */
 applet_end:
-	mov     sp, r4
 	ldmfd   sp!, {r0-r4,lr}
+	ldr     sp, romcode_sp
 	bx      lr
