@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2015-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -26,6 +26,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
+
+//------------------------------------------------------------------------------
+//         Startup routine
+//------------------------------------------------------------------------------
 
 	MODULE  ?cstartup
 
@@ -63,12 +67,12 @@ init:
 
 	/* Check the is_initialized flag  */
 
-	ldr     r0, [pc, #-(8+.-is_initialized)]
-	mov     r1, #0
+	mov     r0, #0
+	ldr     r1, is_initialized
 	cmp     r0, r1
-	bne     skip_init
+	bne     run_main
 
-	; Execute relocations & zero BSS
+	/* Clear the zero segment */
 
 	FUNCALL __iar_program_start, __iar_data_init3
 	bl      __iar_data_init3
@@ -76,18 +80,17 @@ init:
 	/* Update the is_initialized flag */
 
 	mov     r1, #1
-	ADR     r2, is_initialized
-	str     r1, [r2]
+	str     r1, is_initialized
 
 	/* Branch to main */
-skip_init:
+run_main:
 	ADR     r0, mailbox
 	ldr     r3, =applet_main
 	push    {r4}
 	blx     r3
 	pop     {r4}
 
-	/* Jump back to SAM-BA */
+	/* Jump back to romcode */
 applet_end:
 	mov     sp, r4
 	ldmfd   sp!, {r0-r4,lr}

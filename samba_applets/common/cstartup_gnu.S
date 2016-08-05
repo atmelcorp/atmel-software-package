@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2015-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -57,20 +57,20 @@ init:
 
 	/* Check the is_initialized flag  */
 
-	ldr     r0, [pc, #-(8+.-is_initialized)]
-	mov     r1, #0
+	mov     r0, #0
+	ldr     r1, is_initialized
 	cmp     r0, r1
-	bne     2f
+	bne     run_main
 
 	/* Clear the zero segment */
 
 	ldr     r0, =_szero
 	ldr     r1, =_ezero
 	mov     r2, #0
-1:
+zero_loop:
 	cmp     r0, r1
 	strcc   r2, [r0], #4
-	bcc     1b
+	bcc     zero_loop
 
 	/* Initialize the C library */
 
@@ -80,18 +80,17 @@ init:
 	/* Update the is_initialized flag */
 
 	mov     r1, #1
-	mov     r2, #-(12+.-is_initialized)
-	str     r1, [pc,r2]
+	str     r1, is_initialized
 
 	/* Branch to main */
-2:
+run_main:
 	add     r0, pc, #-(8+.-mailbox)
 	ldr     r3, =applet_main
 	push    {r4}
 	blx     r3
 	pop     {r4}
 
-	/* Jump back to SAM-BA */
+	/* Jump back to romcode */
 applet_end:
 	mov     sp, r4
 	ldmfd   sp!, {r0-r4,lr}
