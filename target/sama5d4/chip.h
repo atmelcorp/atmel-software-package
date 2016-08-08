@@ -331,7 +331,13 @@ extern uint32_t get_gmac_id_from_addr(const Gmac* addr);
  * \brief retrieve HSMCI ID from its base address
  * \return HSMCI ID upon success, ID_PERIPH_COUNT otherwise
  */
-extern uint32_t get_mci_id_from_addr(const Hsmci* addr);
+extern uint32_t get_hsmci_id_from_addr(const Hsmci* addr);
+
+/**
+ * \brief retrieve HSMCI base address from its ID
+ * \return HSMCI base address on success, 0 otherwise
+ */
+extern Hsmci* get_hsmci_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve SSC ID from its base address

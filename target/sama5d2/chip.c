@@ -510,14 +510,28 @@ uint32_t get_gmac_id_from_addr(const Gmac* addr)
 
 uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr)
 {
-	if (addr == SDMMC1)
-		return ID_SDMMC1;
 #ifdef SDMMC0
-	else if (addr == SDMMC0)
+	if (addr == SDMMC0)
 		return ID_SDMMC0;
 #endif
-	else
-		return ID_PERIPH_COUNT;
+#ifdef SDMMC1
+	if (addr == SDMMC1)
+		return ID_SDMMC1;
+#endif
+	return ID_PERIPH_COUNT;
+}
+
+Sdmmc* get_sdmmc_addr_from_id(uint32_t id)
+{
+#ifdef SDMMC0
+	if (id == ID_SDMMC0)
+		return SDMMC0;
+#endif
+#ifdef SDMMC1
+	if (id == ID_SDMMC1)
+		return SDMMC1;
+#endif
+	return NULL;
 }
 
 uint32_t get_classd_id_from_addr(const Classd* addr)

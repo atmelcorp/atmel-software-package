@@ -422,6 +422,11 @@ extern uint32_t get_gmac_id_from_addr(const Gmac* addr);
 extern uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr);
 
 /**
+ * \brief retrieve SDMMC base address from its ID
+ * \return SDMMC base address on success, 0 otherwise
+ */
+extern Sdmmc* get_sdmmc_addr_from_id(uint32_t id);
+/**
  * \brief retrieve CLASSD ID from its base address
  * \return CLASSD ID on success, ID_PERIPH_COUNT otherwise
  */
