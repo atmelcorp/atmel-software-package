@@ -52,6 +52,8 @@ static struct _ssc_desc ssc_dev_desc = {
 	/* Select RK pin as transmit and receive clock */
 	.rx_cfg_cks_rk = true,
 	.tx_cfg_cks_tk = false,
+	.tx_start_selection = SSC_TCMR_START_TF_EDGE,
+	.rx_start_selection = SSC_RCMR_START_RF_EDGE,
 };
 
 static struct _wm8904_desc wm8904 = {

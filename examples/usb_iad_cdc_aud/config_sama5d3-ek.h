@@ -72,6 +72,8 @@ static struct _audio_desc audio_device = {
 				/* Select RK pin as transmit and receive clock */
 				.rx_cfg_cks_rk = true,
 				.tx_cfg_cks_tk = false,
+				.tx_start_selection = SSC_TCMR_START_TF_EDGE,
+				.rx_start_selection = SSC_RCMR_START_RF_EDGE,
 			},
 			.codec = &wm8904_codec,
 		},

@@ -70,7 +70,10 @@ struct _ssc_desc {
 	bool tx_cfg_cks_tk;
 	/* Receive Clock Selection */
 	bool rx_cfg_cks_rk;
-
+	/* Transmit Start Selection */
+	uint16_t tx_start_selection;
+	/* Receive Start Selection */
+	uint16_t rx_start_selection;
 };
 
 /*----------------------------------------------------------------------------

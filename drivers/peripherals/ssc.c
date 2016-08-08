@@ -104,14 +104,14 @@ void ssc_configure(struct _ssc_desc* desc)
 		rcmr = SSC_RCMR_CKS_RK |
 		       SSC_RCMR_CKO_NONE |
 		       SSC_RCMR_CKI |
-		       SSC_RCMR_START_RF_EDGE |
+		       desc->rx_start_selection |
 		       SSC_RCMR_STTDLY(1) |
 		       SSC_RCMR_PERIOD(0);
 	} else {
 		rcmr = SSC_RCMR_CKS_TK |
 		       SSC_RCMR_CKO_NONE |
 		       SSC_RCMR_CKI |
-		       SSC_RCMR_START_RF_EDGE |
+		       desc->rx_start_selection |
 		       SSC_RCMR_STTDLY(1) |
 		       SSC_RCMR_PERIOD(0);
 	}
@@ -126,14 +126,14 @@ void ssc_configure(struct _ssc_desc* desc)
 	if (desc->tx_cfg_cks_tk) {
 		tcmr = SSC_TCMR_CKS_TK |
 		       SSC_TCMR_CKO_NONE |
-		       SSC_TCMR_START_TF_EDGE |
+		       desc->tx_start_selection |
 		       SSC_TCMR_STTDLY(1) |
 		       SSC_TCMR_PERIOD(0);
 
 	} else {
 		tcmr = SSC_TCMR_CKS_RK |
 		       SSC_TCMR_CKO_NONE |
-		       SSC_TCMR_START_TF_EDGE |
+		       desc->tx_start_selection |
 		       SSC_TCMR_STTDLY(1) |
 		       SSC_TCMR_PERIOD(0);
 	}
