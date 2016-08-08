@@ -64,6 +64,7 @@ This release contains the following examples:
 * spi_slave: Set up the SAMA5D2 as a SPI slave
 * ssc_dma_audio: Example of SSC to play sound
 * tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an external signal
+* test-pio: Simple example to test PIO features
 * trng: Example using hardware RNG (interrupt mode)
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 * usart_fifo: Test Flexcom USART FIFO
@@ -91,67 +92,68 @@ This release contains the following examples:
 
 # Compatibility
 
-Examples               | sama5d2-xplained | sama5d3-xplained | sama5d3-ek | sama5d4-xplained | sama5d4-ek
----------------------- | ---------------- | ---------------- | ---------- | ---------------- | ----------
-adc                    | X                | X                | X          | X                | X
-audio_recorder         | X                | N/A              | BROKEN     | N/A              | BROKEN
-can                    | X                | N/A              | N/A        | N/A              | N/A
-classd                 | X                | N/A              | N/A        | N/A              | N/A
-crypto_aes             | X                | X                | X          | X                | X
-crypto_aesb            | X                | N/A              | N/A        | X                | X
-crypto_icm             | X                | N/A              | N/A        | X                | X
-crypto_qspi_aesb       | X                | N/A              | N/A        | N/A              | N/A
-crypto_sha             | X                | X                | X          | X                | X
-crypto_tdes            | X                | X                | X          | X                | X
-ddram                  | X                | X                | X          | X                | X
-dmac                   | N/A              | X                | X          | N/A              | N/A
-gettting-started       | X                | X                | X          | X                | X
-eth                    | X                | X                | X          | X                | X
-eth_lwip               | X                | X                | X          | X                | X
-eth_uip_helloworld     | X                | X                | X          | X                | X
-eth_uip_telnetd        | X                | X                | X          | X                | X
-eth_uip_webserver      | X                | X                | X          | X                | X
-isc                    | X                | N/A              | N/A        | N/A              | N/A
-isi                    | N/A              | X                | X          | X                | X
-lcd                    | X                | X                | X          | X                | X
-low_power_mode         | X                | X                | X          | X                | X
-pdmic                  | X                | N/A              | N/A        | N/A              | N/A
-pmc_clock_switching    | X                | X                | X          | X                | X
-power_consumption_pll  | X                | X                | X          | X                | X
-pwm                    | X                | N/A              | X          | X                | X
-qspi_flash             | X                | N/A              | N/A        | N/A              | N/A
-qspi_xip               | X                | N/A              | N/A        | N/A              | N/A
-rtc                    | X                | X                | X          | X                | X
-sdmmc_sdcard           | X                | TODO             | TODO       | X                | X
-secumod                | X                | N/A              | N/A        | X                | X
-smc_nandflash_mlc      | X                | X                | X          | X                | X
-smc_nandflash_slc      | X                | X                | X          | X                | X
-spi_serialflash        | X                | X                | X          | X                | X
-spi_slave              | X                | N/A              | TODO       | X                | X
-ssc_dma_audio          | TODO             | X                | X          | X                | X
-tc_capture_waveform    | X                | X                | X          | X                | X
-trng                   | X                | X                | X          | X                | X
-twi_eeprom             | X                | X                | X          | X                | X
-usart_fifo             | X                | N/A              | N/A        | N/A              | N/A
-usart_irda             | X                | TODO             | TODO       | X                | X
-usart_iso7816          | X                | TODO             | TODO       | X                | X
-usart_lin              | X                | N/A              | N/A        | N/A              | N/A
-usart_dma              | X                | X                | TODO       | X                | X
-usb_audio_looprec      | X                | X                | X          | X                | X
-usb_audio_speaker      | X                | N/A              | X          | N/A              | X
-usb_cdc_serial         | X                | X                | X          | X                | X
-usb_hid_aud            | X                | N/A              | X          | N/A              | X
-usb_hid_keyboard       | X                | X                | X          | X                | X
-usb_hid_mouse          | X                | X                | X          | X                | X
-usb_hid_msd            | X                | X                | X          | X                | X
-usb_hid_transfer       | X                | X                | X          | X                | X
-usb_iad_cdc_aud        | X                | N/A              | X          | N/A              | X
-usb_iad_cdc_cdc        | X                | X                | X          | X                | X
-usb_iad_cdc_hid        | X                | X                | X          | X                | X
-usb_iad_cdc_msd        | X                | X                | X          | X                | X
-usb_mass_storage       | X                | TODO             | TODO       | TODO             | TODO
-usb_usv_isc            | X                | N/A              | N/A        | N/A              | N/A
-usb_usv_isi            | N/A              | N/A              | X          | N/A              | X
-wdt                    | X                | X                | X          | X                | X
-xdma                   | X                | N/A              | N/A        | X                | X
+Examples               | sama5d2-xplained | sama5d3-xplained | sama5d3-ek | sama5d4-xplained | sama5d4-ek | sam9xx5-ek
+---------------------- | ---------------- | ---------------- | ---------- | ---------------- | ---------- | ----------
+adc                    | X                | X                | X          | X                | X          | TODO
+audio_recorder         | X                | N/A              | BROKEN     | N/A              | BROKEN     | TODO
+can                    | X                | N/A              | N/A        | N/A              | N/A        | N/A
+classd                 | X                | N/A              | N/A        | N/A              | N/A        | N/A
+crypto_aes             | X                | X                | X          | X                | X          | N/A
+crypto_aesb            | X                | N/A              | N/A        | X                | X          | N/A
+crypto_icm             | X                | N/A              | N/A        | X                | X          | N/A
+crypto_qspi_aesb       | X                | N/A              | N/A        | N/A              | N/A        | N/A
+crypto_sha             | X                | X                | X          | X                | X          | N/A
+crypto_tdes            | X                | X                | X          | X                | X          | N/A
+ddram                  | X                | X                | X          | X                | X          | TODO
+dmac                   | N/A              | X                | X          | N/A              | N/A        | TODO
+gettting-started       | X                | X                | X          | X                | X          | X
+eth                    | X                | X                | X          | X                | X          | TODO
+eth_lwip               | X                | X                | X          | X                | X          | TODO
+eth_uip_helloworld     | X                | X                | X          | X                | X          | TODO
+eth_uip_telnetd        | X                | X                | X          | X                | X          | TODO
+eth_uip_webserver      | X                | X                | X          | X                | X          | TODO
+isc                    | X                | N/A              | N/A        | N/A              | N/A        | N/A
+isi                    | N/A              | X                | X          | X                | X          | TODO
+lcd                    | X                | X                | X          | X                | X          | TODO
+low_power_mode         | X                | X                | X          | X                | X          | TODO
+pdmic                  | X                | N/A              | N/A        | N/A              | N/A        | N/A
+pmc_clock_switching    | X                | X                | X          | X                | X          | TODO
+power_consumption_pll  | X                | X                | X          | X                | X          | TODO
+pwm                    | X                | N/A              | X          | X                | X          | TODO
+qspi_flash             | X                | N/A              | N/A        | N/A              | N/A        | N/A
+qspi_xip               | X                | N/A              | N/A        | N/A              | N/A        | N/A
+rtc                    | X                | X                | X          | X                | X          | TODO
+sdmmc_sdcard           | X                | TODO             | TODO       | X                | X          | TODO
+secumod                | X                | N/A              | N/A        | X                | X          | N/A
+smc_nandflash_mlc      | X                | X                | X          | X                | X          | X
+smc_nandflash_slc      | X                | X                | X          | X                | X          | X
+spi_serialflash        | X                | X                | X          | X                | X          | TODO
+spi_slave              | X                | N/A              | TODO       | X                | X          | TODO
+ssc_dma_audio          | TODO             | X                | X          | X                | X          | TODO
+tc_capture_waveform    | X                | X                | X          | X                | X          | TODO
+test-pio               | X                | X                | TODO       | X                | X          | X
+trng                   | X                | X                | X          | X                | X          | N/A
+twi_eeprom             | X                | X                | X          | X                | X          | TODO
+usart_fifo             | X                | N/A              | N/A        | N/A              | N/A        | N/A
+usart_irda             | X                | TODO             | TODO       | X                | X          | TODO
+usart_iso7816          | X                | TODO             | TODO       | X                | X          | TODO
+usart_lin              | X                | N/A              | N/A        | N/A              | N/A        | N/A
+usart_dma              | X                | X                | TODO       | X                | X          | TODO
+usb_audio_looprec      | X                | X                | X          | X                | X          | TODO
+usb_audio_speaker      | X                | N/A              | X          | N/A              | X          | TODO
+usb_cdc_serial         | X                | X                | X          | X                | X          | TODO
+usb_hid_aud            | X                | N/A              | X          | N/A              | X          | TODO
+usb_hid_keyboard       | X                | X                | X          | X                | X          | TODO
+usb_hid_mouse          | X                | X                | X          | X                | X          | TODO
+usb_hid_msd            | X                | X                | X          | X                | X          | TODO
+usb_hid_transfer       | X                | X                | X          | X                | X          | TODO
+usb_iad_cdc_aud        | X                | N/A              | X          | N/A              | X          | TODO
+usb_iad_cdc_cdc        | X                | X                | X          | X                | X          | TODO
+usb_iad_cdc_hid        | X                | X                | X          | X                | X          | TODO
+usb_iad_cdc_msd        | X                | X                | X          | X                | X          | TODO
+usb_mass_storage       | X                | TODO             | TODO       | TODO             | TODO       | TODO
+usb_usv_isc            | X                | N/A              | N/A        | N/A              | N/A        | N/A
+usb_usv_isi            | N/A              | N/A              | X          | N/A              | X          | TODO
+wdt                    | X                | X                | X          | X                | X          | TODO
+xdma                   | X                | N/A              | N/A        | X                | X          | N/A
 
