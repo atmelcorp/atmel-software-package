@@ -152,7 +152,7 @@ extern bool board_cfg_sdmmc(uint32_t hsmci_id);
  * \brief Configures SSC for the board
  */
 #ifdef CONFIG_HAVE_SSC
-extern void board_cfg_ssc(uint8_t instance);
+extern void board_cfg_ssc(void);
 #endif
 
 /**

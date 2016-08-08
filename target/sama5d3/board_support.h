@@ -135,7 +135,7 @@ extern void board_cfg_lcd(void);
  * \brief Configures SSC for the board
  */
 #ifdef CONFIG_HAVE_SSC
-extern void board_cfg_ssc(uint8_t instance);
+extern void board_cfg_ssc(void);
 #endif
 
 /**

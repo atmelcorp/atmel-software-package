@@ -247,7 +247,6 @@
 /* ================== SSC definition ====================== */
 
 #define BOARD_SSC0_PINS PINS_SSC0
-#define BOARD_SSC1_PINS PINS_SSC1
 
 /* ================== WM8904 definition ====================== */
 
