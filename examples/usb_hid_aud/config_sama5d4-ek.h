@@ -40,6 +40,7 @@ static struct _pin  pins_twi[] = BOARD_WM8904_PINS;
 
 static struct codec_desc wm8904_codec = {
 	/* codec control interface */
+	.type = AUDIO_CODEC_WM8904,
 	.wm8904 = {
 		.twi = {
 			.twid = {
@@ -71,7 +72,7 @@ static struct _audio_desc audio_device = {
 				.rx_cfg_cks_rk = false,
 				.tx_cfg_cks_tk = true,
 			},
-			.codec_chip = &wm8904_codec,
+			.codec = &wm8904_codec,
 		},
 	},
 	.dma = {

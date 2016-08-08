@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "trace.h"
 
 #include "peripherals/l2cc.h"
 #include "peripherals/pio.h"
@@ -88,15 +89,24 @@ static void _configure_ssc(struct _audio_desc *desc)
 	ssc_disable_transmitter(&desc->device.ssc.desc);
 	ssc_disable_receiver(&desc->device.ssc.desc);
 
+	switch (desc->device.ssc.codec->type) {
+	case AUDIO_CODEC_NONE:
+		trace_warning("SSC: no codec defined\r\n");
+		break;
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-	/* Configure TWI pins. */
-	pio_configure(desc->device.ssc.codec_chip->codec_twid_pin, 
-						desc->device.ssc.codec_chip->codec_twid_pin_size);
+	case AUDIO_CODEC_WM8904:
+		/* Configure TWI pins */
+		pio_configure(desc->device.ssc.codec->codec_twid_pin,
+		              desc->device.ssc.codec->codec_twid_pin_size);
 
-	/* -- WM8904 Initialize -- */
-	twid_configure(&desc->device.ssc.codec_chip->wm8904.twi.twid);
-	wm8904_configure(&desc->device.ssc.codec_chip->wm8904);
+		/* Initialize codec */
+		twid_configure(&desc->device.ssc.codec->wm8904.twi.twid);
+		wm8904_configure(&desc->device.ssc.codec->wm8904);
+		break;
 #endif
+	default:
+		trace_fatal("SSC: no supported codec defined\r\n");
+	}
 
 	/* Mute */
 	audio_enable(desc, false);
@@ -272,9 +282,15 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #endif
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
+			switch (desc->device.ssc.codec->type) {
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-			wm8904_volume_mute(&desc->device.ssc.codec_chip->wm8904, true, true);
+			case AUDIO_CODEC_WM8904:
+				wm8904_volume_mute(&desc->device.ssc.codec->wm8904, true, true);
+				break;
 #endif
+			default:
+				return;
+			};
 			break;
 #endif
 		default:
@@ -289,11 +305,17 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 #endif
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
+			switch (desc->device.ssc.codec->type) {
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-			wm8904_volume_mute(&desc->device.ssc.codec_chip->wm8904, false, false);
+			case AUDIO_CODEC_WM8904:
+				wm8904_volume_mute(&desc->device.ssc.codec->wm8904, false, false);
+				break;
 #endif
+			default:
+				return;
+			};
 			break;
-#endif			
+#endif
 		default:
 			return;
 		}
@@ -321,12 +343,18 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 
 #if defined(CONFIG_HAVE_SSC)
 		case AUDIO_DEVICE_SSC:
+			switch (desc->device.ssc.codec->type) {
 #ifdef CONFIG_HAVE_AUDIO_WM8904
-			/* wm8904 heardphone output volume range -57db~6db */
-			val = (vol*63)/AUDIO_PLAY_MAX_VOLUME;
-			wm8904_set_left_volume(&desc->device.ssc.codec_chip->wm8904, val);
-			wm8904_set_right_volume(&desc->device.ssc.codec_chip->wm8904, val);
+			case AUDIO_CODEC_WM8904:
+				/* wm8904 heardphone output volume range -57db~6db */
+				val = (vol*63)/AUDIO_PLAY_MAX_VOLUME;
+				wm8904_set_left_volume(&desc->device.ssc.codec->wm8904, val);
+				wm8904_set_right_volume(&desc->device.ssc.codec->wm8904, val);
+				break;
 #endif
+			default:
+				return;
+			};
 			break;
 #endif
 		default:
@@ -369,7 +397,7 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		}
 		break;
 #endif
-#if  defined(CONFIG_HAVE_SSC)
+#if defined(CONFIG_HAVE_SSC)
 	case AUDIO_DEVICE_SSC:
 		switch (desc->direction) {
 		case AUDIO_DEVICE_PLAY:
@@ -388,7 +416,6 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		}
 		break;
 #endif
-
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
 		switch (desc->direction) {
@@ -402,7 +429,6 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 		}
 		break;
 #endif
-
 	default:
 		/* No audio device */
 		return;
@@ -440,7 +466,7 @@ void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust)
 {
 #if defined(CONFIG_HAVE_SSC)
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
-	wm8904_sync(&desc->device.ssc.codec_chip->wm8904, adjust);
+	wm8904_sync(&desc->device.ssc.codec->wm8904, adjust);
 #endif
 #endif
 }

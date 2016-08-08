@@ -49,20 +49,34 @@
 #endif
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
+
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
+
 typedef void (*audio_callback_t)(struct dma_channel *channel, void* args);
+
+enum audio_codec_type {
+	AUDIO_CODEC_NONE,
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
+	AUDIO_CODEC_WM8904,
+#endif
+};
 
 /* codec control interface */
 struct codec_desc {
+	enum audio_codec_type type;
+	union {
+		uint8_t dummy; /* avoid a warning with IAR compiler */
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
-	struct _wm8904_desc wm8904;
+		struct _wm8904_desc wm8904;
 #endif
+	};
+
+	/* codec TWI control interface */
 	struct _pin* codec_twid_pin;
 	uint32_t codec_twid_pin_size;
 };
-
 
 enum audio_device_type {
 #if defined(CONFIG_HAVE_CLASSD)
@@ -95,8 +109,7 @@ struct _audio_desc {
 		struct {
 			Ssc *addr;
 			struct _ssc_desc desc;
-			struct codec_desc* codec_chip; /* pointer to the codec*/
-			uint8_t pck;
+			struct codec_desc* codec;
 		} ssc;
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
@@ -111,7 +124,6 @@ struct _audio_desc {
 		struct dma_xfer_cfg cfg;
 		bool configured;
 	} dma;
-
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
 	/* Mono = 1, Stereo = 2, etc. */
