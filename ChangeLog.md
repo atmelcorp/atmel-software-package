@@ -1,5 +1,37 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.4 - 2016-08
+
+### New drivers/examples
+
+- Added initial support for SAM9 5 series chips (SAM9G15, SAM9G25, SAM9G35,
+  SAM9X25 and SAM9X35.)  The chip family is called "sam9xx5" in the softpack
+  and the targets are "sam9g15-ek", "sam9g25-ek", "sam9g35-ek", "sam9x25-ek"
+  and "sam9x35-ek".  Supported examples include: getting-started,
+  smc_nandflash_mlc, smc_nandflash_slc and test-pio.
+- Added SAM-BA applet support for SAM9 5 series chips (SPI serialflash, NAND).
+
+### Changes
+
+- Remove untested QT1070 driver for now. Will be added again later with proper
+  validation.
+- TWI driver interface changed to correctly support all modes
+  (polling/interrupt/dma, with/without FIFOs.)  Also added scatter-gather to
+  TWI API.
+- HSMC driver split into several smaller drivers for each peripheral part (SMC,
+  NFC, PMECC, PMERRLOC)
+
+### Enhancements
+
+- Add DMA support to QSPI driver
+- Enable caching of QSPI region when running in XIP mode
+- Removed all use of board-specific constants from drivers
+- Several clean-ups in drivers using TWI
+- HSMCI support on SAMA5D3
+- NAND Flash examples validated for SAMA5D3
+- Added support for N25Q512A
+
+
 ## Version 2.3.1 - 2016-07
 
 ### Fixes

@@ -31,17 +31,11 @@ Dependencies:
 
 ## Directory Architecture
 
-- target/sama5d2
-  All sama5d2 chip and board specific source files
+- target/_xxx_
+  All chip and board specific source files for _xxx_ devices
 
-- target/sama5d2/toolchain/
-  Linker and debugger scripts for sama5d2
-
-- target/sama5d4
-  All sama5d4 chip and board specific source files
-
-- target/sama5d4/toolchain/
-  Linker and debugger scripts for sama5d4
+- target/_xxx_/toolchain/
+  Linker and debugger scripts for _xxx_ devices
 
 - scripts/
   generators and build script templates (Makefiles)
