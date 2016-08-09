@@ -84,14 +84,14 @@ static uint8_t ecc_read_page_with_swecc(const struct _nand_flash *nand,
 	/* Start by reading the spare data */
 	error = nand_raw_read_page(nand, block, page, NULL, spare_buf);
 	if (error) {
-		trace_error("nand_ecc_read_page: Failed to read page\r\n");
+		trace_error("ecc_read_page_with_swecc: Failed to read page\r\n");
 		return error;
 	}
 
 	/* Then reading the data */
 	error = nand_raw_read_page(nand, block, page, data, NULL);
 	if (error) {
-		trace_error("nand_ecc_read_page: Failed to read page\r\n");
+		trace_error("ecc_read_page_with_swecc: Failed to read page\r\n");
 		return error;
 	}
 
@@ -100,7 +100,7 @@ static uint8_t ecc_read_page_with_swecc(const struct _nand_flash *nand,
 					spare_buf, hamming);
 	error = hamming_verify_256x(data, page_data_size, hamming);
 	if (error && (error != HAMMING_ERROR_SINGLEBIT)) {
-		trace_error("nand_ecc_read_page: at B%d.P%d Unrecoverable data\r\n",
+		trace_error("ecc_read_page_with_swecc: at B%d.P%d Unrecoverable data\r\n",
 					block, page);
 		return NAND_ERROR_CORRUPTEDDATA;
 	}
@@ -134,7 +134,7 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	/* Start by reading the data */
 	error = nand_raw_read_page(nand, block, page, data, NULL);
 	if (error) {
-		trace_error("nand_ecc_read_page: Failed to read page\r\n");
+		trace_error("ecc_read_page_with_pmecc: Failed to read page\r\n");
 		return error;
 	}
 	pmecc_status = pmecc_error_status();
@@ -150,10 +150,10 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	}
 
 	/* bit correction will be done directly in destination buffer. */
-	if (pmecc_correction(pmecc_status, (uint32_t)data)) {
+	if (pmecc_status && pmecc_correction(pmecc_status, (uint32_t)data)) {
 		pmecc_auto_disable();
 		pmecc_disable();
-		trace_error("nand_ecc_read_page: at B%d.P%d Unrecoverable data\r\n",
+		trace_error("ecc_read_page_with_pmecc: at B%d.P%d Unrecoverable data\r\n",
 				block, page);
 		return NAND_ERROR_CORRUPTEDDATA;
 	}
@@ -203,7 +203,7 @@ static uint8_t ecc_write_page_with_swecc(const struct _nand_flash *nand,
 	/* Perform write operation */
 	error = nand_raw_write_page(nand, block, page, data, spare);
 	if (error) {
-		trace_error("nand_ecc_write_page: Failed to write page\r\n");
+		trace_error("ecc_write_page_with_swecc: Failed to write page\r\n");
 		return error;
 	}
 
@@ -228,7 +228,7 @@ static uint8_t ecc_write_page_with_pmecc(const struct _nand_flash *nand,
 	/* Perform write operation */
 	error = nand_raw_write_page(nand, block, page, data, NULL);
 	if (error) {
-		trace_error("nand_ecc_write_page: Failed to write page\r\n");
+		trace_error("ecc_write_page_with_pmecc: Failed to write page\r\n");
 		return error;
 	}
 
