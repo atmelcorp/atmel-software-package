@@ -47,6 +47,7 @@
 #define SPID_INVALID_ID      (1)
 #define SPID_INVALID_BITRATE (2)
 #define SPID_ERROR_LOCK      (3)
+#define SPID_ERROR_INVALID   (4)
 
 struct _spi_desc;
 

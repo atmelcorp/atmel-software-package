@@ -300,7 +300,9 @@ uint32_t at25_read_jedec_id(struct _at25* at25)
 	};
 
 	spid_begin_transfer(at25->spid);
-	spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	spid_transfer(at25->spid, NULL, &out, NULL, 0);
+	spid_wait_transfer(at25->spid);
+	spid_transfer(at25->spid, &in, NULL, spid_finish_transfer_callback, 0);
 	spid_wait_transfer(at25->spid);
 
 	return (jedec[2] << 16) | (jedec[1] << 8) | jedec[0];
@@ -322,7 +324,9 @@ uint32_t at25_read_status(struct _at25* at25)
 	};
 
 	spid_begin_transfer(at25->spid);
-	spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	spid_transfer(at25->spid, NULL, &out, NULL, 0);
+	spid_wait_transfer(at25->spid);
+	spid_transfer(at25->spid, &in, NULL, spid_finish_transfer_callback, 0);
 	spid_wait_transfer(at25->spid);
 
 	return status;
@@ -451,7 +455,9 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t le
 	out.size += 1; /* one dummy byte */
 
 	spid_begin_transfer(at25->spid);
-	status = spid_transfer(at25->spid, &in, &out, spid_finish_transfer_callback, 0);
+	status = spid_transfer(at25->spid, NULL, &out, NULL, 0);
+	spid_wait_transfer(at25->spid);
+	status = spid_transfer(at25->spid, &in, NULL, spid_finish_transfer_callback, 0);
 	spid_wait_transfer(at25->spid);
 
 	mutex_unlock(&at25->mutex);

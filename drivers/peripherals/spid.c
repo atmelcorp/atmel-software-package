@@ -220,6 +220,11 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
 
+	if (rx && tx) {
+		trace_error("SPID Full duplex not supported!\r\n");
+		return SPID_ERROR_INVALID;
+	}
+
 	if (!mutex_try_lock(&desc->mutex)) {
 		trace_error("SPID mutex already locked!\r\n");
 		return SPID_ERROR_LOCK;
