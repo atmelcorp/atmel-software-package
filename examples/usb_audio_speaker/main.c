@@ -194,9 +194,13 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 /**
  *  \brief DMA TX callback
  */
-static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
 {
-	p_arg = p_arg; /* dummy */
+	uint32_t index;
+
+	/* unused */
+	(void)channel;
+	(void)arg;
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
@@ -207,8 +211,8 @@ static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 	/* Load next buffer */
-	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-			buffer_sizes[out_buffer_index], NULL);
+	index = out_buffer_index;
+	audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], NULL);
 }
 
 
@@ -221,6 +225,8 @@ static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
  */
 static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
+	uint32_t index;
+
 	/* unused */
 	(void)arg;
 	(void)remaining;
@@ -241,8 +247,9 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 			dac_delay--;
 		} else if (audio_dma_transfer_is_done(&audio_device)) {
 			/* Start DAC transmission if necessary */
-			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-					buffer_sizes[out_buffer_index], NULL);
+			index = out_buffer_index;
+			audio_dma_transfer(&audio_device, buffers[index],
+			                   buffer_sizes[index], NULL);
 			audio_enable(&audio_device, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
