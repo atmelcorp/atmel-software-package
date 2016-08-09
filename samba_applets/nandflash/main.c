@@ -134,15 +134,16 @@ static int pmecc_get_ecc_bit_req(uint8_t ecc_correctability) {
 	return ARRAY_SIZE(ecc_bit_req_2_tt) - 1;
 }
 
-static uint32_t pmecc_get_default_header(void)
+static uint32_t pmecc_get_default_header(uint32_t data_size, uint32_t spare_size,
+                                         uint32_t min_correctability)
 {
 	union _nand_header hdr;
 	hdr.bitfield.use_pmecc = 1;
-	hdr.bitfield.nb_sector_per_page = nand_onfi_get_page_size() >> 9;
-	hdr.bitfield.spare_size = nand_onfi_get_spare_size();
-	hdr.bitfield.ecc_bit_req = pmecc_get_ecc_bit_req(nand_onfi_get_ecc_correctability());
+	hdr.bitfield.nb_sector_per_page = 31 - CLZ(data_size >> 9); /* 512-byte sectors */
+	hdr.bitfield.spare_size = spare_size;
+	hdr.bitfield.ecc_bit_req = pmecc_get_ecc_bit_req(min_correctability);
 	hdr.bitfield.sector_size = 0; // 512 bytes
-	hdr.bitfield.ecc_offset = 2;
+	hdr.bitfield.ecc_offset = PMECC_ECC_DEFAULT_START_ADDR;
 	hdr.bitfield.reserved = 0;
 	hdr.bitfield.key = NAND_HEADER_KEY;
 	return *(uint32_t*)&hdr;
@@ -252,7 +253,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	uint32_t ioset = mbx->in.parameters[0];
 	uint32_t bus_width = mbx->in.parameters[1];
 	uint32_t header = mbx->in.parameters[2];
-	bool onfi_compatible = false;
 	struct _nand_flash_model model_from_onfi;
 	uint8_t correctability = 0;
 
@@ -323,14 +323,12 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			model_from_onfi.scheme = &nand_spare_scheme8192;
 			break;
 		}
-		onfi_compatible = true;
 	}
 
 	nand_onfi_disable_internal_ecc(&nand);
 
-	if (nand_raw_initialize(&nand,
-				onfi_compatible ? &model_from_onfi : NULL)) {
-		trace_error_wp("Device Unknown\r\n");
+	if (nand_raw_initialize(&nand, &model_from_onfi)) {
+		trace_error_wp("Can't initialize device\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -345,7 +343,9 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	/* Initialize PMECC */
 	if (header == 0) {
-		header = pmecc_get_default_header();
+		header = pmecc_get_default_header(nand_onfi_get_page_size(),
+		                                  nand_onfi_get_spare_size(),
+		                                  correctability);
 		trace_info_wp("Using default PMECC configuration\r\n");
 	}
 	if (pmecc_set_header(header)) {
