@@ -34,7 +34,7 @@
  *
  * \section Purpose
  *
- * The HSMCIC driver is a C wrapper to the User Interface of the HSMCI
+ * The HSMCI driver is a C wrapper to the User Interface of the HSMCI
  * peripheral.
  *
  * \section Usage
@@ -66,12 +66,12 @@
  * \sa \ref mcid_module
  *
  * Related files:\n
- * \ref hsmcic.h\n
- * \ref hsmcic.c.\n
+ * \ref hsmci.h\n
+ * \ref hsmci.c.\n
  */
 
-#ifndef _HSMCIC_PERIPH_H_
-#define _HSMCIC_PERIPH_H_
+#ifndef _HSMCI_PERIPH_H_
+#define _HSMCI_PERIPH_H_
 /** \addtogroup hsmci_module
  * @{
  */
@@ -364,4 +364,4 @@ extern uint32_t hsmci_get_wp_status(const Hsmci * regs);
 
 /** @} */
 
-#endif /* #ifndef _HSMCIC_PERIPH_H_ */
+#endif /* #ifndef _HSMCI_PERIPH_H_ */

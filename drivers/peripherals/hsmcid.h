@@ -42,8 +42,8 @@
  * Related files:\n
  * \ref hsmcid.h\n
  * \ref hsmcid.c\n
- * \ref hsmcic.h\n
- * \ref hsmcic.c.\n
+ * \ref hsmci.h\n
+ * \ref hsmci.c.\n
  */
 
 #ifndef _HSMCID_PERIPH_H_

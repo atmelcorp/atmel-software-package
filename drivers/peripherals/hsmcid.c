@@ -52,7 +52,7 @@
 #include "timer.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/hsmcic.h"
+#include "peripherals/hsmci.h"
 #include "peripherals/hsmcid.h"
 #include "peripherals/dma.h"
 #include "libsdmmc/sdmmc_hal.h"

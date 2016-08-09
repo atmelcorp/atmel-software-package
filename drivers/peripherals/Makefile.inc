@@ -88,7 +88,7 @@ drivers-$(CONFIG_HAVE_ISC) += drivers/peripherals/isc.o
 drivers-$(CONFIG_HAVE_PDMIC) += drivers/peripherals/pdmic.o
 drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
 
-drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmcic.o
+drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmci.o
 drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmcid.o
 drivers-$(CONFIG_HAVE_ISI) += drivers/peripherals/isi.o
 drivers-$(CONFIG_HAVE_SSC) += drivers/peripherals/ssc.o
