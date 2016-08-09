@@ -220,13 +220,13 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
 
+	if (!mutex_try_lock(&desc->mutex)) {
+		trace_error("SPID mutex already locked!\r\n");
+		return SPID_ERROR_LOCK;
+	}
+
 	switch (desc->transfer_mode) {
 	case SPID_MODE_POLLING:
-		if (!mutex_try_lock(&desc->mutex)) {
-			trace_error("SPID mutex already locked!\r\n");
-			return SPID_ERROR_LOCK;
-		}
-
 		if (tx) {
 			for (i = 0; i < tx->size; ++i)
 				spi_write(spi, desc->chip_select, tx->data[i]);
@@ -245,11 +245,6 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 		break;
 
 	case SPID_MODE_DMA:
-		if (!mutex_try_lock(&desc->mutex)) {
-			trace_error("SPID mutex already locked!\r\n");
-			return SPID_ERROR_LOCK;
-		}
-
 		if (tx) {
 			if (tx->size < SPID_DMA_THRESHOLD) {
 				for (i = 0; i < tx->size; ++i)
@@ -297,11 +292,6 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 	case SPID_MODE_FIFO:
-		if (!mutex_try_lock(&desc->mutex)) {
-			trace_error("SPID mutex already locked!\r\n");
-			return SPID_ERROR_LOCK;
-		}
-
 		if (tx)
 			spi_write_stream(spi, desc->chip_select, tx->data, tx->size);
 
