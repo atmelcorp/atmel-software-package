@@ -75,8 +75,6 @@
  * - ssc.c
  * - wm8904.c
  * - dma.c
- * - xdmad.c
- * - dmacd.c
  */
 
 /**

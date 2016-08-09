@@ -38,7 +38,7 @@
 
 
 #if defined(CONFIG_HAVE_XDMAC)
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 #elif defined(CONFIG_HAVE_DMAC)
 #include "peripherals/dmacd.h"
 #else

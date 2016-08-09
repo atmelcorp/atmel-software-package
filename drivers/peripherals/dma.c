@@ -58,7 +58,7 @@ struct dma_channel
 	uint32_t id;				/* Channel ID */
 
 #if defined(CONFIG_HAVE_XDMAC)
-	xdmad_callback_t callback;	/* Callback */
+	xdmacd_callback_t callback;	/* Callback */
 #elif defined(CONFIG_HAVE_DMAC)
 	dmacd_callback_t callback;	/* Callback */
 #endif
@@ -93,7 +93,7 @@ static inline bool is_dest_periph(struct dma_channel *channel)
 void dma_initialize(bool polling)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	xdmad_initialize(polling);
+	xdmacd_initialize(polling);
 #elif defined(CONFIG_HAVE_DMAC)
 	dmacd_initialize(polling);
 #endif
@@ -102,7 +102,7 @@ void dma_initialize(bool polling)
 struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return (struct dma_channel *)xdmad_allocate_channel(src, dest);
+	return (struct dma_channel *)xdmacd_allocate_channel(src, dest);
 #elif defined(CONFIG_HAVE_DMAC)
 	return (struct dma_channel *)dmacd_allocate_channel(src, dest);
 #endif
@@ -111,7 +111,7 @@ struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest)
 uint32_t dma_free_channel(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmad_free_channel((struct _xdmad_channel *)channel);
+	return xdmacd_free_channel((struct _xdmacd_channel *)channel);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_free_channel((struct _dmacd_channel *)channel);
 #endif
@@ -121,8 +121,8 @@ uint32_t dma_set_callback(struct dma_channel *channel,
 		dma_callback_t callback, void *user_arg)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmad_set_callback((struct _xdmad_channel *)channel,
-	(xdmad_callback_t)callback, user_arg);
+	return xdmacd_set_callback((struct _xdmacd_channel *)channel,
+	(xdmacd_callback_t)callback, user_arg);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_set_callback((struct _dmacd_channel *)channel,
 	(dmacd_callback_t)callback, user_arg);
@@ -136,7 +136,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 	uint32_t divisor;
 
 #if defined(CONFIG_HAVE_XDMAC)
-	struct _xdmad_cfg xdma_cfg;
+	struct _xdmacd_cfg xdma_cfg;
 #elif defined(CONFIG_HAVE_DMAC)
 	struct _dmacd_cfg dma_cfg;
 	struct _dma_desc dma_regs;
@@ -203,7 +203,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 	xdma_cfg.sus = 0;
 	xdma_cfg.dus = 0;
 
-	return xdmad_configure_transfer((struct _xdmad_channel *)channel, &xdma_cfg, 0, 0);
+	return xdmacd_configure_transfer((struct _xdmacd_channel *)channel, &xdma_cfg, 0, 0);
 
 #elif defined(CONFIG_HAVE_DMAC)
 
@@ -384,7 +384,7 @@ uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 				struct dma_xfer_item *desc_list)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	struct _xdmad_cfg xdma_cfg;
+	struct _xdmacd_cfg xdma_cfg;
 	bool src_is_periph, dst_is_periph;
 	uint32_t desc_cntrl;
 
@@ -421,7 +421,7 @@ uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
 				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
 
-	return xdmad_configure_transfer((struct _xdmad_channel *)channel, &xdma_cfg, desc_cntrl, (void *)desc_list);
+	return xdmacd_configure_transfer((struct _xdmacd_channel *)channel, &xdma_cfg, desc_cntrl, (void *)desc_list);
 #elif defined(CONFIG_HAVE_DMAC)
 
 	bool src_is_periph, dst_is_periph;
@@ -448,7 +448,7 @@ uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 uint32_t dma_start_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmad_start_transfer((struct _xdmad_channel *)channel);
+	return xdmacd_start_transfer((struct _xdmacd_channel *)channel);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_start_transfer((struct _dmacd_channel *)channel);
 #endif
@@ -457,7 +457,7 @@ uint32_t dma_start_transfer(struct dma_channel *channel)
 bool dma_is_transfer_done(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmad_is_transfer_done((struct _xdmad_channel *)channel);
+	return xdmacd_is_transfer_done((struct _xdmacd_channel *)channel);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_is_transfer_done((struct _dmacd_channel *)channel);
 #endif
@@ -466,7 +466,7 @@ bool dma_is_transfer_done(struct dma_channel *channel)
 uint32_t dma_stop_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmad_stop_transfer((struct _xdmad_channel *)channel);
+	return xdmacd_stop_transfer((struct _xdmacd_channel *)channel);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_stop_transfer((struct _dmacd_channel *)channel);
 #endif
@@ -475,7 +475,7 @@ uint32_t dma_stop_transfer(struct dma_channel *channel)
 void dma_poll(void)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	xdmad_poll();
+	xdmacd_poll();
 #elif defined(CONFIG_HAVE_DMAC)
 	dmacd_poll();
 #endif

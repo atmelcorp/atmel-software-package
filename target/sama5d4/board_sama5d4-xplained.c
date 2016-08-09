@@ -36,7 +36,7 @@
 #include "compiler.h"
 
 #include "peripherals/pio.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 #include "peripherals/wdt.h"
 
 #include "board_support.h"
@@ -66,7 +66,7 @@ WEAK void board_init(void)
 	board_cfg_console(0);
 
 	/* XDMAC Driver init */
-	xdmad_initialize(false);
+	xdmacd_initialize(false);
 
 	/* Configure TWI bus */
 	board_cfg_twi_bus();

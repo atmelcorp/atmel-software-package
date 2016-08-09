@@ -106,7 +106,7 @@
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 
 #include "misc/console.h"
 
@@ -129,7 +129,7 @@ static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
  *----------------------------------------------------------------------------*/
 
 /** DMA channel for TX */
-static struct _xdmad_channel*  dma_channel;
+static struct _xdmacd_channel*  dma_channel;
 
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
@@ -204,7 +204,7 @@ static void _playback_stop(void)
 static void _initialize_dma(void)
 {
 	/* Allocate DMA TX channels for CLASSD */
-	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, ID_CLASSD);
+	dma_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, ID_CLASSD);
 	if (dma_channel) {
 		printf("DMA channel allocated\n\r");
 	} else {
@@ -217,7 +217,7 @@ static void _initialize_dma(void)
  */
 static void _setup_dma_transfer(void* buffer, uint32_t size)
 {
-	struct _xdmad_cfg cfg;
+	struct _xdmacd_cfg cfg;
 
 	cfg.ubc = size / 4;
 	cfg.bc = 0;
@@ -236,16 +236,16 @@ static void _setup_dma_transfer(void* buffer, uint32_t size)
 		| XDMAC_CC_SAM_INCREMENTED_AM
 		| XDMAC_CC_DAM_FIXED_AM;
 
-	xdmad_configure_transfer(dma_channel, &cfg, 0, NULL);
+	xdmacd_configure_transfer(dma_channel, &cfg, 0, NULL);
 }
 
 /**
  *  \brief DMA callback
  */
-static void _dma_callback(struct _xdmad_channel *channel, void* arg)
+static void _dma_callback(struct _xdmacd_channel *channel, void* arg)
 {
 	bool *done = arg;
-	if (xdmad_is_transfer_done(channel))
+	if (xdmacd_is_transfer_done(channel))
 		*done = true;
 }
 
@@ -260,8 +260,8 @@ static void _playback_with_dma(uint8_t attn)
 
 	_playback_start();
 	_setup_dma_transfer(audio, audio_length);
-	xdmad_set_callback(dma_channel, _dma_callback, (void *)&done);
-	xdmad_start_transfer(dma_channel);
+	xdmacd_set_callback(dma_channel, _dma_callback, (void *)&done);
+	xdmacd_start_transfer(dma_channel);
 	while (!done);
 	_playback_stop();
 }

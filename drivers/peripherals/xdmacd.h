@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _XDMAD_H_
-#define _XDMAD_H_
+#ifndef _XDMACD_H_
+#define _XDMACD_H_
 
 #ifdef CONFIG_HAVE_XDMAC
 /*----------------------------------------------------------------------------
@@ -48,7 +48,7 @@
         @{*/
 
 /** Pseudo Peripheral ID for memory transfers */
-#define XDMAD_PERIPH_MEMORY 0xFF
+#define XDMACD_PERIPH_MEMORY 0xFF
 
 /* XDMA_MBR_UBC */
 
@@ -87,21 +87,21 @@
 
 /** DMA status or return code */
 enum {
-	XDMAD_OK = 0,	     /**< Operation is sucessful */
-	XDMAD_PARTIAL_DONE,
-	XDMAD_DONE,
-	XDMAD_BUSY,	     /**< Channel occupied or transfer not finished */
-	XDMAD_ERROR,	     /**< Operation failed */
-	XDMAD_CANCELED	     /**< Operation canceled */
+	XDMACD_OK = 0,	     /**< Operation is sucessful */
+	XDMACD_PARTIAL_DONE,
+	XDMACD_DONE,
+	XDMACD_BUSY,	     /**< Channel occupied or transfer not finished */
+	XDMACD_ERROR,	     /**< Operation failed */
+	XDMACD_CANCELED	     /**< Operation canceled */
 };
 
 /** DMA channel */
-struct _xdmad_channel;
+struct _xdmacd_channel;
 
 /** DMA transfer callback */
-typedef void (*xdmad_callback_t)(struct _xdmad_channel *channel, void *arg);
+typedef void (*xdmacd_callback_t)(struct _xdmacd_channel *channel, void *arg);
 
-struct _xdmad_cfg {
+struct _xdmacd_cfg {
 	uint32_t  ubc;      /**< Microblock Size */
 	uint32_t  bc;       /**< Block Control */
 	uint32_t  ds;       /**< Data Stride */
@@ -114,7 +114,7 @@ struct _xdmad_cfg {
 
 /** Structure for storing parameters for DMA view0 that can be performed by the
  * DMA Master transfer.*/
-struct _xdmad_desc_view0 {
+struct _xdmacd_desc_view0 {
 	void    *mbr_nda;     /**< Next Descriptor Address */
 	uint32_t mbr_ubc;     /**< Microblock Control */
 	void    *mbr_ta;      /**< Transfer Address */
@@ -122,7 +122,7 @@ struct _xdmad_desc_view0 {
 
 /** Structure for storing parameters for DMA view1 that can be performed by the
  * DMA Master transfer.*/
-struct _xdmad_desc_view1 {
+struct _xdmacd_desc_view1 {
 	void    *mbr_nda;   /**< Next Descriptor Address */
 	uint32_t mbr_ubc;   /**< Microblock Control */
 	void    *mbr_sa;    /**< Source Address */
@@ -131,7 +131,7 @@ struct _xdmad_desc_view1 {
 
 /** Structure for storing parameters for DMA view2 that can be performed by the
  * DMA Master transfer.*/
-struct _xdmad_desc_view2 {
+struct _xdmacd_desc_view2 {
 	void    *mbr_nda;   /**< Next Descriptor Address */
 	uint32_t mbr_ubc;   /**< Microblock Control */
 	void    *mbr_sa;    /**< Source Address */
@@ -141,7 +141,7 @@ struct _xdmad_desc_view2 {
 
 /** Structure for storing parameters for DMA view3 that can be performed by the
  * DMA Master transfer.*/
-struct _xdmad_desc_view3 {
+struct _xdmacd_desc_view3 {
 	void    *mbr_nda;  /**< Next Descriptor Address */
 	uint32_t mbr_ubc;  /**< Microblock Control */
 	void    *mbr_sa;   /**< Source Address */
@@ -163,32 +163,32 @@ struct _xdmad_desc_view3 {
 
 /**
  * \brief Initialize DMA driver instance.
- * \param polling if true, interrupts will not be configured and xdmad_poll
+ * \param polling if true, interrupts will not be configured and xdmacd_poll
  * must be called to poll for transfer completion
  */
-extern void xdmad_initialize(bool polling);
+extern void xdmacd_initialize(bool polling);
 
 /**
  * \brief Poll for transfers completion.
  * If polling mode is enabled, this function will call callbacks for completed
  * transfers.  If interrupt mode is enabled, this function will do nothing.
  */
-extern void xdmad_poll(void);
+extern void xdmacd_poll(void);
 
 /**
  * \brief Allocate an DMA channel
- * \param src Source peripheral ID, XDMAD_PERIPH_MEMORY for memory.
- * \param dest Destination peripheral ID, XDMAD_PERIPH_MEMORY for memory.
+ * \param src Source peripheral ID, XDMACD_PERIPH_MEMORY for memory.
+ * \param dest Destination peripheral ID, XDMACD_PERIPH_MEMORY for memory.
  * \return Channel pointer if allocation successful, or NULL if channel
  * allocation failed.
  */
-extern struct _xdmad_channel *xdmad_allocate_channel(uint8_t src, uint8_t dest);
+extern struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest);
 
 /**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
-extern uint32_t xdmad_free_channel(struct _xdmad_channel *channel);
+extern uint32_t xdmacd_free_channel(struct _xdmacd_channel *channel);
 
 /**
  * \brief Set the callback function for an DMA channel transfer.
@@ -196,8 +196,8 @@ extern uint32_t xdmad_free_channel(struct _xdmad_channel *channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern uint32_t xdmad_set_callback(struct _xdmad_channel *channel,
-		xdmad_callback_t callback, void *user_arg);
+extern uint32_t xdmacd_set_callback(struct _xdmacd_channel *channel,
+		xdmacd_callback_t callback, void *user_arg);
 
 /**
  * \brief Configure DMA for a single transfer.
@@ -206,26 +206,26 @@ extern uint32_t xdmad_set_callback(struct _xdmad_channel *channel,
  * \param desc_cntrl optional descriptor control
  * \param desc_addr optional descriptor address
  */
-extern uint32_t xdmad_configure_transfer(struct _xdmad_channel *channel,
-		struct _xdmad_cfg *cfg, uint32_t desc_cntrl, void *desc_addr);
+extern uint32_t xdmacd_configure_transfer(struct _xdmacd_channel *channel,
+		struct _xdmacd_cfg *cfg, uint32_t desc_cntrl, void *desc_addr);
 
 /**
  * \brief Start DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t xdmad_start_transfer(struct _xdmad_channel *channel);
+extern uint32_t xdmacd_start_transfer(struct _xdmacd_channel *channel);
 
 /**
  * \brief Check if DMA transfer is finished.
  * \param channel Channel pointer
  */
-extern bool xdmad_is_transfer_done(struct _xdmad_channel *channel);
+extern bool xdmacd_is_transfer_done(struct _xdmacd_channel *channel);
 
 /**
  * \brief Stop DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t xdmad_stop_transfer(struct _xdmad_channel *channel);
+extern uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel);
 
 /**     @}*/
 
@@ -233,4 +233,4 @@ extern uint32_t xdmad_stop_transfer(struct _xdmad_channel *channel);
 
 #endif /* CONFIG_HAVE_XDMAC */
 
-#endif /* _XDMAD_H_ */
+#endif /* _XDMACD_H_ */

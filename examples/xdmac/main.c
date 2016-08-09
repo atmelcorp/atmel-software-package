@@ -77,7 +77,7 @@
  * \section References
  * - xdma/main.c
  * - xdmac.h
- * - xdmad.h
+ * - xdmacd.h
  */
 
 /** \file
@@ -95,7 +95,7 @@
 
 #include "misc/cache.h"
 #include "peripherals/aic.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 #include "misc/console.h"
 
 #include <string.h>
@@ -128,13 +128,13 @@
  *----------------------------------------------------------------------------*/
 
 /** DMA Linked List */
-CACHE_ALIGNED static struct _xdmad_desc_view0 xdmad_desc_view0[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmad_desc_view1 xdmad_desc_view1[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmad_desc_view2 xdmad_desc_view2[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmad_desc_view3 xdmad_desc_view3[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmacd_desc_view0 xdmacd_desc_view0[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmacd_desc_view1 xdmacd_desc_view1[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmacd_desc_view2 xdmacd_desc_view2[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmacd_desc_view3 xdmacd_desc_view3[MAX_LL_SIZE];
 
 /** DMA channel */
-static struct _xdmad_channel *xdmad_channel;
+static struct _xdmacd_channel *xdmacd_channel;
 
 /** Source buffer */
 CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
@@ -226,7 +226,7 @@ static void _display_menu(void)
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static void _dma_callback(struct _xdmad_channel *channel, void *arg)
+static void _dma_callback(struct _xdmacd_channel *channel, void *arg)
 {
 	printf("-I- DMA transfer complete\n\r");
 	transfer_complete = true;
@@ -235,8 +235,8 @@ static void _dma_callback(struct _xdmad_channel *channel, void *arg)
 /**
  * \brief Configure View0-View4 for linked list
  */
-static uint32_t _configure_view(void **xdmad_view, uint32_t *desc_cntrl,
-		struct _xdmad_cfg *xdmad_cfg)
+static uint32_t _configure_view(void **xdmacd_view, uint32_t *desc_cntrl,
+		struct _xdmacd_cfg *xdmacd_cfg)
 {
 	uint32_t desc_size = 0;
 	uint32_t i = 0;
@@ -248,94 +248,94 @@ static uint32_t _configure_view(void **xdmad_view, uint32_t *desc_cntrl,
 	switch(dma_view) {
 	case 0:
 		for (i = 0 ; i < MAX_LL_SIZE; i++) {
-			xdmad_desc_view0[i].mbr_ubc = XDMA_UBC_NVIEW_NDV0
+			xdmacd_desc_view0[i].mbr_ubc = XDMA_UBC_NVIEW_NDV0
 			                            | XDMA_UBC_NSEN_UPDATED
 			                            | XDMA_UBC_NDEN_UPDATED
 			                            | XDMA_UBC_NDE_FETCH_EN
 			                            | MICROBLOCK_LEN;
-			xdmad_desc_view0[i].mbr_nda = &xdmad_desc_view0[i + 1];
-			xdmad_desc_view0[i].mbr_ta = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view0[i].mbr_nda = &xdmacd_desc_view0[i + 1];
+			xdmacd_desc_view0[i].mbr_ta = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
 		}
 
 		/* last list element */
-		xdmad_desc_view0[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		xdmad_desc_view0[MAX_LL_SIZE - 1].mbr_nda = 0;
+		xdmacd_desc_view0[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		xdmacd_desc_view0[MAX_LL_SIZE - 1].mbr_nda = 0;
 
-		xdmad_cfg->sa = src_buf;
-		xdmad_cfg->da = dest_buf;
+		xdmacd_cfg->sa = src_buf;
+		xdmacd_cfg->da = dest_buf;
 
-		desc_size = sizeof(xdmad_desc_view0);
+		desc_size = sizeof(xdmacd_desc_view0);
 		*desc_cntrl |= XDMAC_CNDC_NDVIEW_NDV0;
-		*xdmad_view = &xdmad_desc_view0;
+		*xdmacd_view = &xdmacd_desc_view0;
 		break;
 
 	case 1:
 		for (i = 0; i < MAX_LL_SIZE; i++) {
-			xdmad_desc_view1[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
+			xdmacd_desc_view1[i].mbr_ubc = XDMA_UBC_NVIEW_NDV1
 			                            | XDMA_UBC_NSEN_UPDATED
 			                            | XDMA_UBC_NDEN_UPDATED
 			                            | XDMA_UBC_NDE_FETCH_EN
 			                            | MICROBLOCK_LEN;
-			xdmad_desc_view1[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view1[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view1[i].mbr_nda = &xdmad_desc_view1[i + 1];
+			xdmacd_desc_view1[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view1[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view1[i].mbr_nda = &xdmacd_desc_view1[i + 1];
 		}
 
 		/* last list element */
-		xdmad_desc_view1[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		xdmad_desc_view1[MAX_LL_SIZE - 1].mbr_nda = 0;
+		xdmacd_desc_view1[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		xdmacd_desc_view1[MAX_LL_SIZE - 1].mbr_nda = 0;
 
-		desc_size = sizeof(xdmad_desc_view1);
+		desc_size = sizeof(xdmacd_desc_view1);
 		*desc_cntrl |= XDMAC_CNDC_NDVIEW_NDV1;
-		*xdmad_view = &xdmad_desc_view1;
+		*xdmacd_view = &xdmacd_desc_view1;
 		break;
 
 	case 2:
 		for (i = 0 ; i < MAX_LL_SIZE ; i++) {
-			xdmad_desc_view2[i].mbr_ubc = XDMA_UBC_NVIEW_NDV2
+			xdmacd_desc_view2[i].mbr_ubc = XDMA_UBC_NVIEW_NDV2
 			                            | XDMA_UBC_NSEN_UPDATED
 			                            | XDMA_UBC_NDEN_UPDATED
 			                            | XDMA_UBC_NDE_FETCH_EN
 			                            | MICROBLOCK_LEN;
-			xdmad_desc_view2[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view2[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view2[i].mbr_cfg = xdmad_cfg->cfg;
-			xdmad_desc_view2[i].mbr_nda = &xdmad_desc_view2[i + 1];
+			xdmacd_desc_view2[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view2[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view2[i].mbr_cfg = xdmacd_cfg->cfg;
+			xdmacd_desc_view2[i].mbr_nda = &xdmacd_desc_view2[i + 1];
 		}
 
 		/* last list element */
-		xdmad_desc_view2[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		xdmad_desc_view2[MAX_LL_SIZE - 1].mbr_nda = 0;
+		xdmacd_desc_view2[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		xdmacd_desc_view2[MAX_LL_SIZE - 1].mbr_nda = 0;
 
-		desc_size = sizeof(xdmad_desc_view2);
+		desc_size = sizeof(xdmacd_desc_view2);
 		*desc_cntrl |= XDMAC_CNDC_NDVIEW_NDV2;
-		*xdmad_view = &xdmad_desc_view2;
+		*xdmacd_view = &xdmacd_desc_view2;
 		break;
 
 	case 3:
 		for (i = 0 ; i < MAX_LL_SIZE ; i++) {
-			xdmad_desc_view3[i].mbr_ubc = XDMA_UBC_NVIEW_NDV3
+			xdmacd_desc_view3[i].mbr_ubc = XDMA_UBC_NVIEW_NDV3
 			                            | XDMA_UBC_NSEN_UPDATED
 			                            | XDMA_UBC_NDEN_UPDATED
 			                            | XDMA_UBC_NDE_FETCH_EN
 			                            | MICROBLOCK_LEN;
-			xdmad_desc_view3[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view3[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			xdmad_desc_view3[i].mbr_cfg = xdmad_cfg->cfg;
-			xdmad_desc_view3[i].mbr_nda = &xdmad_desc_view3[i + 1];
-			xdmad_desc_view3[i].mbr_bc = 0;
-			xdmad_desc_view3[i].mbr_ds = 0;
-			xdmad_desc_view3[i].mbr_sus = 0;
-			xdmad_desc_view3[i].mbr_dus = 0;
+			xdmacd_desc_view3[i].mbr_sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view3[i].mbr_da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			xdmacd_desc_view3[i].mbr_cfg = xdmacd_cfg->cfg;
+			xdmacd_desc_view3[i].mbr_nda = &xdmacd_desc_view3[i + 1];
+			xdmacd_desc_view3[i].mbr_bc = 0;
+			xdmacd_desc_view3[i].mbr_ds = 0;
+			xdmacd_desc_view3[i].mbr_sus = 0;
+			xdmacd_desc_view3[i].mbr_dus = 0;
 		}
 
 		/* last list element */
-		xdmad_desc_view3[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		xdmad_desc_view3[MAX_LL_SIZE - 1].mbr_nda = 0;
+		xdmacd_desc_view3[MAX_LL_SIZE - 1].mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		xdmacd_desc_view3[MAX_LL_SIZE - 1].mbr_nda = 0;
 
-		desc_size = sizeof(xdmad_desc_view3);
+		desc_size = sizeof(xdmacd_desc_view3);
 		*desc_cntrl |= XDMAC_CNDC_NDVIEW_NDV3;
-		*xdmad_view = &xdmad_desc_view3;
+		*xdmacd_view = &xdmacd_desc_view3;
 		break;
 	}
 
@@ -347,15 +347,15 @@ static uint32_t _configure_view(void **xdmad_view, uint32_t *desc_cntrl,
  */
 static void _configure_transfer(void)
 {
-	struct _xdmad_cfg xdmad_cfg;
-	void* xdmad_desc = NULL;
+	struct _xdmacd_cfg xdmacd_cfg;
+	void* xdmacd_desc = NULL;
 	uint32_t desc_size;
 
 	if (dma_mode != XDMA_LL) {
-		xdmad_cfg.ubc = MICROBLOCK_LEN;
-		xdmad_cfg.sa = src_buf;
-		xdmad_cfg.da = dest_buf;
-		xdmad_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
+		xdmacd_cfg.ubc = MICROBLOCK_LEN;
+		xdmacd_cfg.sa = src_buf;
+		xdmacd_cfg.da = dest_buf;
+		xdmacd_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
 			XDMA_GET_CC_MEMSET(dma_memset) |
 			XDMAC_CC_MBSIZE_SINGLE |
 			XDMAC_CC_CSIZE_CHK_1 |
@@ -364,33 +364,33 @@ static void _configure_transfer(void)
 			XDMAC_CC_DIF_AHB_IF0 |
 			XDMA_GET_CC_SAM(dma_src_addr_mode) |
 			XDMA_GET_CC_DAM(dma_dest_addr_mode);
-		xdmad_cfg.bc = (dma_mode == XDMA_SINGLE) ? 0 : 1;
-		xdmad_cfg.ds = 0;
-		xdmad_cfg.sus = 0;
-		xdmad_cfg.dus = 0;
+		xdmacd_cfg.bc = (dma_mode == XDMA_SINGLE) ? 0 : 1;
+		xdmacd_cfg.ds = 0;
+		xdmacd_cfg.sus = 0;
+		xdmacd_cfg.dus = 0;
 
-		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, 0, 0);
+		xdmacd_configure_transfer(xdmacd_channel, &xdmacd_cfg, 0, 0);
 
 		printf("- Microblock length: %u\n\r",
-				(unsigned int)xdmad_cfg.ubc);
+				(unsigned int)xdmacd_cfg.ubc);
 		printf("- Block length: %u\n\r",
-				(unsigned int)xdmad_cfg.bc);
+				(unsigned int)xdmacd_cfg.bc);
 		printf("- Data Stride/Pattern: %u\n\r",
-				(unsigned int)xdmad_cfg.ds);
+				(unsigned int)xdmacd_cfg.ds);
 		printf("- Source Microblock Stride: %u\n\r",
-				(unsigned int)xdmad_cfg.sus);
+				(unsigned int)xdmacd_cfg.sus);
 		printf("- Destination  Microblock Stride: %u\n\r",
-				(unsigned int)xdmad_cfg.dus);
+				(unsigned int)xdmacd_cfg.dus);
 	} else {
 		uint32_t desc_cntrl;
 
-		xdmad_cfg.bc = 0;
-		xdmad_cfg.ds = 0;
-		xdmad_cfg.sus = 0;
-		xdmad_cfg.dus = 0;
+		xdmacd_cfg.bc = 0;
+		xdmacd_cfg.ds = 0;
+		xdmacd_cfg.sus = 0;
+		xdmacd_cfg.dus = 0;
 		switch (dma_view) {
 		case 0:
-			xdmad_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
+			xdmacd_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
 				XDMA_GET_CC_MEMSET(dma_memset) |
 				XDMAC_CC_MBSIZE_SINGLE |
 				XDMAC_CC_CSIZE_CHK_1 |
@@ -401,7 +401,7 @@ static void _configure_transfer(void)
 				XDMA_GET_CC_DAM(dma_dest_addr_mode);
 			break;
 		case 1:
-			xdmad_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
+			xdmacd_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
 				XDMA_GET_CC_MEMSET(dma_memset) |
 				XDMAC_CC_MBSIZE_SINGLE |
 				XDMAC_CC_CSIZE_CHK_1 |
@@ -413,7 +413,7 @@ static void _configure_transfer(void)
 			break;
 		case 2:
 		case 3:
-			xdmad_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
+			xdmacd_cfg.cfg = XDMAC_CC_TYPE_MEM_TRAN |
 				XDMA_GET_CC_MEMSET(dma_memset) |
 				XDMAC_CC_MBSIZE_SINGLE |
 				XDMAC_CC_CSIZE_CHK_1 |
@@ -424,14 +424,14 @@ static void _configure_transfer(void)
 				XDMA_GET_CC_DAM(dma_dest_addr_mode);
 			break;
 		}
-		desc_size = _configure_view(&xdmad_desc, &desc_cntrl, &xdmad_cfg);
+		desc_size = _configure_view(&xdmacd_desc, &desc_cntrl, &xdmacd_cfg);
 
-		cache_clean_region(xdmad_desc, desc_size);
-		xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, desc_cntrl,
-				xdmad_desc);
+		cache_clean_region(xdmacd_desc, desc_size);
+		xdmacd_configure_transfer(xdmacd_channel, &xdmacd_cfg, desc_cntrl,
+				xdmacd_desc);
 	}
 
-	xdmad_set_callback(xdmad_channel, _dma_callback, NULL);
+	xdmacd_set_callback(xdmacd_channel, _dma_callback, NULL);
 
 	printf("- Press 't' to perform xDMA transfer...\n\r");
 }
@@ -456,13 +456,13 @@ static uint8_t _start_dma_transfer(void)
 	transfer_complete = false;
 	cache_clean_region(src_buf, BUFFER_LEN);
 	cache_clean_region(dest_buf, BUFFER_LEN);
-	xdmad_start_transfer(xdmad_channel);
+	xdmacd_start_transfer(xdmacd_channel);
 
 	/* Wait for completion */
 	while (!transfer_complete) {
-		/* always call xdmad_poll, it will do nothing if polling mode
+		/* always call xdmacd_poll, it will do nothing if polling mode
 		 * is disabled */
-		xdmad_poll();
+		xdmacd_poll();
 	}
 
 	printf("-I- The Destination Buffer content after transfer\n\r");
@@ -489,8 +489,8 @@ extern int main(void)
 	console_example_info("XDMA Example");
 
 	/* Allocate a XDMA channel. */
-	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
-	if (!xdmad_channel) {
+	xdmacd_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
+	if (!xdmacd_channel) {
 		printf("-E- Can't allocate XDMA channel\n\r");
 		return 0;
 	}

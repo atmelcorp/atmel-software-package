@@ -95,7 +95,7 @@
 #include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -201,7 +201,7 @@ static sensor_output_format_t sensor_mode;
 static uint32_t lcd_mode;
 
 /** DMA channel */
-static struct _xdmad_channel *xdmad_channel;
+static struct _xdmacd_channel *xdmacd_channel;
 
 volatile static uint32_t capture_started = 0;
 
@@ -268,7 +268,7 @@ const uint32_t gamma_table[GAMMA_ENTRIES] = {
 /**
  * \brief Callback entry for histogram DMA transfer done.
  */
-static void _dma_callback(struct _xdmad_channel *channel, void *arg)
+static void _dma_callback(struct _xdmacd_channel *channel, void *arg)
 {
 	cache_invalidate_region((uint32_t*)ISC_HIS_BASE_ADDRESS, HIST_ENTRIES * sizeof(uint32_t));
 	histogram_read = true;
@@ -279,11 +279,11 @@ static void _dma_callback(struct _xdmad_channel *channel, void *arg)
  */
 static void xdma_read_histogram(uint32_t buf)
 {
-	struct _xdmad_cfg xdmad_cfg;
-	xdmad_cfg.ubc = HIST_ENTRIES;
-	xdmad_cfg.sa = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
-	xdmad_cfg.da =  (uint32_t* )buf;
-	xdmad_cfg.cfg = XDMAC_CC_MBSIZE_SINGLE
+	struct _xdmacd_cfg xdmacd_cfg;
+	xdmacd_cfg.ubc = HIST_ENTRIES;
+	xdmacd_cfg.sa = (uint32_t *)(&(ISC->ISC_HIS_ENTRY[0]));
+	xdmacd_cfg.da =  (uint32_t* )buf;
+	xdmacd_cfg.cfg = XDMAC_CC_MBSIZE_SINGLE
 	              | XDMAC_CC_TYPE_MEM_TRAN
 	              | XDMAC_CC_CSIZE_CHK_1
 	              | XDMAC_CC_DWIDTH_WORD
@@ -291,13 +291,13 @@ static void xdma_read_histogram(uint32_t buf)
 	              | XDMAC_CC_DIF_AHB_IF0
 	              | XDMAC_CC_SAM_INCREMENTED_AM
 	              | XDMAC_CC_DAM_INCREMENTED_AM;
-	xdmad_cfg.bc = 0;
-	xdmad_cfg.ds = 0;
-	xdmad_cfg.sus = 0;
-	xdmad_cfg.dus = 0;
-	xdmad_configure_transfer(xdmad_channel, &xdmad_cfg, 0, 0);
-	xdmad_set_callback(xdmad_channel, _dma_callback, NULL);
-	xdmad_start_transfer(xdmad_channel);
+	xdmacd_cfg.bc = 0;
+	xdmacd_cfg.ds = 0;
+	xdmacd_cfg.sus = 0;
+	xdmacd_cfg.dus = 0;
+	xdmacd_configure_transfer(xdmacd_channel, &xdmacd_cfg, 0, 0);
+	xdmacd_set_callback(xdmacd_channel, _dma_callback, NULL);
+	xdmacd_start_transfer(xdmacd_channel);
 }
 
 /**
@@ -801,9 +801,9 @@ extern int main(void)
 	console_example_info("ISC Example");
 
 	/* Allocate a XDMA channel. */
-	xdmad_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, XDMAD_PERIPH_MEMORY);
+	xdmacd_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
 
-	if (!xdmad_channel) {
+	if (!xdmacd_channel) {
 		printf("-E- Can't allocate XDMA channel\n\r");
 		return 0;
 	}

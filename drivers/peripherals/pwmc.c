@@ -83,7 +83,7 @@
 #include "chip.h"
 #include "peripherals/pwmc.h"
 #ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmad.h"
+#include "peripherals/xdmacd.h"
 #endif
 #include "misc/cache.h"
 #include "trace.h"
@@ -269,12 +269,12 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 #error PWM DMA is enabled without XDMAC, this configuration is unsupported.
 #endif
 
-static void _pwm_xdmad_callback_wrapper(struct _xdmad_channel *dma_channel,
+static void _pwm_xdmacd_callback_wrapper(struct _xdmacd_channel *dma_channel,
 		void *arg)
 {
 	(void)arg;
-	if (xdmad_is_transfer_done(dma_channel)) {
-		xdmad_free_channel(dma_channel);
+	if (xdmacd_is_transfer_done(dma_channel)) {
+		xdmacd_free_channel(dma_channel);
 		if (pwmc_cb)
 			pwmc_cb(pwmc_cb_user_args);
 	}
@@ -288,11 +288,11 @@ void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args)
 
 void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 {
-	struct _xdmad_channel *dma_channel;
-	struct _xdmad_cfg cfg;
+	struct _xdmacd_channel *dma_channel;
+	struct _xdmacd_cfg cfg;
 	uint32_t id = get_pwm_id_from_addr(pwm);
 
-	dma_channel = xdmad_allocate_channel(XDMAD_PERIPH_MEMORY, id);
+	dma_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, id);
 	assert(dma_channel);
 
 	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
@@ -314,11 +314,11 @@ void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 	cfg.sa = (void*)duty;
 	cfg.da = (void*)&pwm->PWM_DMAR;
 
-	xdmad_configure_transfer(dma_channel, &cfg, 0, 0);
-	xdmad_set_callback(dma_channel, _pwm_xdmad_callback_wrapper, NULL);
+	xdmacd_configure_transfer(dma_channel, &cfg, 0, 0);
+	xdmacd_set_callback(dma_channel, _pwm_xdmacd_callback_wrapper, NULL);
 
 	cache_clean_region(duty, size);
-	xdmad_start_transfer(dma_channel);
+	xdmacd_start_transfer(dma_channel);
 }
 
 #endif /* CONFIG_HAVE_PWM_DMA */
