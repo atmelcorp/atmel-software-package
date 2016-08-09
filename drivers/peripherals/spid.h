@@ -39,6 +39,8 @@
 #include "mutex.h"
 #include "io.h"
 
+#include "peripherals/dma.h"
+
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
@@ -69,14 +71,24 @@ struct _spi_desc
 	uint8_t         dlybct;
 	uint8_t         chip_select;
 	uint8_t         spi_mode;
-	uint8_t         transfer_mode;
+	enum _spid_trans_mode transfer_mode;
 	/* following fields are used internally */
 	mutex_t         mutex;
-	spid_callback_t dma_callback;
-	void*           dma_callback_args;
+	spid_callback_t callback;
+	void*           cb_args;
+
 	bool            dma_unlocks_mutex;
-	void*           dma_region_start;
-	uint32_t        dma_region_length;
+
+	struct {
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} rx;
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} tx;
+	} dma;
 };
 
 /*------------------------------------------------------------------------------

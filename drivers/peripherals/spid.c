@@ -48,7 +48,7 @@
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR | SPI_MR_WDRBT)
 #define SPID_DMA_THRESHOLD      16
 
-static uint32_t _garbage = 0;
+static uint32_t _garbage = ~0u;
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void spid_fifo_error(void)
@@ -99,8 +99,8 @@ static void _spid_dma_finish(struct dma_channel *channel, struct _spi_desc* desc
 {
 	dma_free_channel(channel);
 
-	if (desc->dma_callback)
-		desc->dma_callback(desc, desc->dma_callback_args);
+	if (desc->callback)
+		desc->callback(desc, desc->cb_args);
 
 	if (desc->dma_unlocks_mutex)
 		mutex_unlock(&desc->mutex);
@@ -112,105 +112,97 @@ static void _spid_dma_write_callback(struct dma_channel *channel, void *arg)
 	_spid_dma_finish(channel, desc);
 }
 
-static void _spid_dma_write(struct _spi_desc* desc, bool wait_completion)
+static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint16_t len, bool wait_completion)
 {
-	struct dma_channel* w_channel = NULL;
-	struct dma_channel* r_channel = NULL;
-	struct dma_xfer_cfg w_cfg;
-	struct dma_xfer_cfg r_cfg;
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 
-	cache_clean_region(desc->dma_region_start, desc->dma_region_length);
+	cache_clean_region(buf, len);
 
-	memset(&w_cfg, 0x0, sizeof(w_cfg));
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	w_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(w_channel);
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
 
-	w_cfg.da = (void*)&desc->addr->SPI_TDR;
-	w_cfg.sa = desc->dma_region_start;
-	w_cfg.upd_sa_per_data = 1;
-	w_cfg.upd_da_per_data = 0;
-	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	w_cfg.blk_size = 0;
-	w_cfg.len = desc->dma_region_length;
-	dma_configure_transfer(w_channel, &w_cfg);
-	dma_set_callback(w_channel, _spid_dma_write_callback, (void*)desc);
+	desc->dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
+	desc->dma.tx.cfg.sa = buf;
+	desc->dma.tx.cfg.upd_sa_per_data = 1;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.tx.cfg.blk_size = 0;
+	desc->dma.tx.cfg.len = len;
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, _spid_dma_write_callback, (void*)desc);
 
-	memset(&r_cfg, 0x0, sizeof(r_cfg));
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(r_channel);
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
-	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
-	r_cfg.da = &_garbage;
-	r_cfg.upd_sa_per_data = 0;
-	r_cfg.upd_da_per_data = 0;
-	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	r_cfg.blk_size = 0;
-	r_cfg.len = desc->dma_region_length;
-	dma_configure_transfer(r_channel, &r_cfg);
-	dma_set_callback(r_channel, NULL, NULL);
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
+	desc->dma.rx.cfg.da = &_garbage;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 0;
+	desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.rx.cfg.blk_size = 0;
+	desc->dma.rx.cfg.len = len;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, NULL, NULL);
 
-	dma_start_transfer(w_channel);
-	dma_start_transfer(r_channel);
+	dma_start_transfer(desc->dma.rx.channel);
+	dma_start_transfer(desc->dma.tx.channel);
 
 	if (wait_completion) {
-		while (!dma_is_transfer_done(w_channel));
+		while (!dma_is_transfer_done(desc->dma.tx.channel));
 	}
 }
 
 static void _spid_dma_read_callback(struct dma_channel *channel, void *arg)
 {
 	struct _spi_desc* desc = (struct _spi_desc*) arg;
-	cache_invalidate_region(desc->dma_region_start, desc->dma_region_length);
+	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
 	_spid_dma_finish(channel, desc);
 }
 
-static void _spid_dma_read(const struct _spi_desc* desc)
+static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint16_t len)
 {
-	struct dma_channel* w_channel = NULL;
-	struct dma_channel* r_channel = NULL;
-	struct dma_xfer_cfg w_cfg;
-	struct dma_xfer_cfg r_cfg;
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 
-	memset(&w_cfg, 0x0, sizeof(w_cfg));
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	w_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(w_channel);
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
 
-	w_cfg.da = (void*)&desc->addr->SPI_TDR;
-	w_cfg.sa = &_garbage;
-	w_cfg.upd_sa_per_data = 0;
-	w_cfg.upd_da_per_data = 0;
-	w_cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	w_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	w_cfg.blk_size = 0;
-	w_cfg.len = desc->dma_region_length;
-	dma_configure_transfer(w_channel, &w_cfg);
-	dma_set_callback(r_channel, NULL, NULL);
+	desc->dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
+	desc->dma.tx.cfg.sa = &_garbage;
+	desc->dma.tx.cfg.upd_sa_per_data = 0;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.tx.cfg.blk_size = 0;
+	desc->dma.tx.cfg.len = len;
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, NULL, NULL);
 
-	memset(&r_cfg, 0x0, sizeof(r_cfg));
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	r_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(r_channel);
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
-	r_cfg.sa = (void*)&desc->addr->SPI_RDR;
-	r_cfg.da = desc->dma_region_start;
-	r_cfg.upd_sa_per_data = 0;
-	r_cfg.upd_da_per_data = 1;
-	r_cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	r_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	r_cfg.blk_size = 0;
-	r_cfg.len = desc->dma_region_length;
-	dma_configure_transfer(r_channel, &r_cfg);
-	dma_set_callback(r_channel, _spid_dma_read_callback, (void*)desc);
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
+	desc->dma.rx.cfg.da = buf;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.rx.cfg.blk_size = 0;
+	desc->dma.rx.cfg.len = len;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, _spid_dma_read_callback, (void*)desc);
 
-	dma_start_transfer(w_channel);
-	dma_start_transfer(r_channel);
+	dma_start_transfer(desc->dma.rx.channel);
+	dma_start_transfer(desc->dma.tx.channel);
 }
 
 uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
@@ -260,19 +252,16 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 					mutex_unlock(&desc->mutex);
 				}
 			} else {
-				desc->dma_region_start = tx->data;
-				desc->dma_region_length = tx->size;
 				if (rx) {
 					desc->dma_unlocks_mutex = false;
-					desc->dma_callback = NULL;
-					desc->dma_callback_args = NULL;
-					_spid_dma_write(desc, true);
+					desc->callback = NULL;
+					desc->cb_args = NULL;
 				} else {
 					desc->dma_unlocks_mutex = true;
-					desc->dma_callback = cb;
-					desc->dma_callback_args = user_args;
-					_spid_dma_write(desc, false);
+					desc->callback = cb;
+					desc->cb_args = user_args;
 				}
+				_spid_dma_write(desc, tx->data, tx->size, desc->dma_unlocks_mutex);
 			}
 		}
 
@@ -284,12 +273,10 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 					cb(desc, user_args);
 				mutex_unlock(&desc->mutex);
 			} else {
-				desc->dma_region_start = rx->data;
-				desc->dma_region_length = rx->size;
 				desc->dma_unlocks_mutex = true;
-				desc->dma_callback = cb;
-				desc->dma_callback_args = user_args;
-				_spid_dma_read(desc);
+				desc->callback = cb;
+				desc->cb_args = user_args;
+				_spid_dma_read(desc, rx->data, rx->size);
 			}
 		}
 
