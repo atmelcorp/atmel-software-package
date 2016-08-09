@@ -334,8 +334,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	nand_skipblock_initialize(&nand);
-
 	/* Get device parameters */
 	page_size = nand_model_get_page_data_size(&nand.model);
 	block_size = nand_model_get_block_size_in_pages(&nand.model);

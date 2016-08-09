@@ -84,8 +84,6 @@
 /*         Exported functions                                            */
 /*---------------------------------------------------------------------- */
 
-extern void nand_skipblock_initialize(struct _nand_flash *nand);
-
 extern uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block);
 

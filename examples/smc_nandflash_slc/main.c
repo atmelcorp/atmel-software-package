@@ -801,8 +801,6 @@ int main(void)
 		return 0;
 	}
 
-	nand_skipblock_initialize(&nand);
-
 	/* Get device parameters */
 	page_size = nand_model_get_page_data_size(&nand.model);
 	spare_size = nand_model_get_page_spare_size(&nand.model);

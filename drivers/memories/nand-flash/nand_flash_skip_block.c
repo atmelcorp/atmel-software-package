@@ -99,44 +99,6 @@ uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 }
 
 /**
- * \brief Initializes a _raw_nand_flash instance. Scans the device to retrieve or
- * create block status information.
- * \param nand  Pointer to a _raw_nand_flash instance.
- */
-
-void nand_skipblock_initialize(struct _nand_flash *nand)
-{
-	uint8_t error;
-	uint32_t num_blocks;
-	uint32_t block;
-
-	NAND_TRACE("nand_skipblock_initialize()\r\n");
-
-	/* Retrieve model information */
-	num_blocks = nand_model_get_device_size_in_blocks(&nand->model);
-
-	/* Initialize block statuses */
-	NAND_TRACE("Retrieving bad block information ...\r\n");
-
-	/* Retrieve block status from their first page spare area */
-	for (block = 0; block < num_blocks; block++) {
-		/* Read spare of first page */
-		error = nand_skipblock_check_block(nand, block);
-		if (error != GOODBLOCK) {
-			if (error == BADBLOCK) {
-				NAND_TRACE("Block #%d is bad\r\n",
-						(unsigned int)block);
-			} else {
-				trace_error("nand_skipblock_initialize: "
-						"Cannot retrieve info from block #%u\r\n",
-						(unsigned int)block);
-			}
-		}
-	}
-}
-
-
-/**
  * \brief Erases a block of a SkipBlock NandFlash.
  * \param nand  Pointer to a _raw_nand_flash instance.
  * \param block  Number of block to erase.
