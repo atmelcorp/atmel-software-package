@@ -358,7 +358,7 @@ static const CdcHidDriverConfigurationDescriptors configurationDescriptorsHS =
 		USBEndpointDescriptor_ADDRESS(USBEndpointDescriptor_IN, CDCD_Descriptors_NOTIFICATION0),
 		USBEndpointDescriptor_INTERRUPT,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCD_Descriptors_NOTIFICATION0),
--			CDCDSerialPort_INTERRUPT_MAXPACKETSIZE),
+			CDCDSerialPort_INTERRUPT_MAXPACKETSIZE),
 		CDCDSerialPort_INTERRUPT_INTERVAL_HS
 	},
 	/* Data class interface standard descriptor */
