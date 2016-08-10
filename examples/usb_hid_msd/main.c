@@ -371,7 +371,7 @@ static void hidd_keyboard_process_keys(void)
 
 #ifdef PIN_PUSHBUTTON_1
 	/* Check if button state has changed */
-	uint8_t is_button_pressed = !pio_get(&pin_push_button);
+	bool is_button_pressed = !pio_get(&pin_push_button);
 	if (is_button_pressed != key_status[0]) {
 		/* Update button state */
 		key_status[0] = !key_status[0];
