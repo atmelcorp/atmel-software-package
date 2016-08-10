@@ -251,10 +251,13 @@ static volatile bool is_audio_playing = false;
 /**
  *  \brief DMA TX callback
  */
-void audio_play_finish_callback(struct dma_channel *channel, void* p_arg);
-void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
 {
-	p_arg = p_arg; /* dummy */
+	uint32_t index;
+
+	/* unused */
+	(void)channel;
+	(void)arg;
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
@@ -268,8 +271,9 @@ void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 	/* Load next buffer */
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
-	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-						buffer_sizes[out_buffer_index], audio_play_finish_callback);
+	index = out_buffer_index;
+	audio_dma_transfer(&audio_device, buffers[index],
+	                   buffer_sizes[index], audio_play_finish_callback);
 
 }
 
@@ -312,7 +316,7 @@ static void hidd_keyboard_process_keys(void)
 
 #ifdef PIN_PUSHBUTTON_1
 	/* Check if button state has changed */
-	uint8_t is_button_pressed = !pio_get(&pin_push_button);
+	bool is_button_pressed = !pio_get(&pin_push_button);
 	if (is_button_pressed != key_status[0]) {
 		/* Update button state */
 		key_status[0] = !key_status[0];
@@ -350,6 +354,8 @@ static void hidd_keyboard_process_keys(void)
 static void frame_received(void *arg, uint8_t status,
 		uint32_t transferred, uint32_t remaining)
 {
+	uint32_t index;
+
 	if (status == USBD_STATUS_SUCCESS) {
 		buffer_sizes[in_buffer_index] = transferred;
 		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
@@ -362,8 +368,9 @@ static void frame_received(void *arg, uint8_t status,
 			is_audio_playing = true;
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
-			audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-							buffer_sizes[out_buffer_index], audio_play_finish_callback);
+			index = out_buffer_index;
+			audio_dma_transfer(&audio_device, buffers[index],
+			                   buffer_sizes[index], audio_play_finish_callback);
 
 		}
 
