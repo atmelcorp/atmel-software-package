@@ -43,13 +43,6 @@
 
 #include "chip.h"
 
-/*----------------------------------------------------------------------------
- *        Macros
- *----------------------------------------------------------------------------*/
-
-#define SPI_KEEP_CS_OW    (0)
-#define SPI_RELEASE_CS_OW (1)
-
 /*------------------------------------------------------------------------------ */
 
 #ifdef __cplusplus
@@ -101,20 +94,12 @@ extern void spi_disable_it(Spi * spi, uint32_t dwSources);
 extern void spi_configure(Spi * spi, uint32_t configuration);
 
 /**
- * \brief Configures SPI Mode Register.
- *
- * \param spi  Pointer to an Spi instance.
- * \param dwConfiguration  Value of the SPI mode register.
- */
-extern void spi_set_mode(Spi * spi, uint32_t dwConfiguration);
-
-/**
  * \brief Configures SPI chip select.
  *
  * \param spi  Pointer to an Spi instance.
- * \param cS  Chip select of NPSCx.
+ * \param cs  Chip select of NPSCx.
  */
-extern void spi_chip_select(Spi * spi, uint8_t cS);
+extern void spi_chip_select(Spi * spi, uint8_t cs);
 
 /**
  * \brief Configures SPI to release last used CS line.
@@ -132,43 +117,38 @@ extern void spi_release_cs(Spi * spi);
  * \param delay_dlybs
  * \param delay_dlybct
  * \param spi_mode
- * \param release_on_last
  */
-extern void spi_configure_cs(Spi * spi, uint32_t cs,uint32_t bitrate,
+extern void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
 			     uint32_t delay_dlybs, uint32_t delay_dlybct,
-			     uint32_t spi_mode, uint32_t release_on_last);
+			     uint32_t spi_mode);
 
 /**
- * \brief Configures a chip select active mode of a SPI peripheral.
- *
- * \param spi   Pointer to an Spi instance.
- * \param cs  Chip select to configure (0, 1, 2 or 3).
- * \param release_on_last CS controlled by last transfer.
- *                       spi_release_cs() is used to deactive CS.
- */
-extern void spi_configure_cs_mode(Spi * spi, uint32_t cs,
-				uint32_t release_on_last);
-
-/**
- * \brief Reads one data from SPI peripheral with a dummy write.
+ * \brief Write one data from SPI peripheral.
  *
  * \param spi Pointer to an Spi instance.
  *
  * \return readed data.
  */
-
-extern uint16_t spi_read(Spi * spi, uint8_t cs);
+extern void spi_write(Spi *spi, uint16_t tx);
 
 /**
- * \brief Sends data through a SPI peripheral consuming reads.
+ * \brief Read one data from SPI peripheral.
  *
+ * \param spi Pointer to an Spi instance.
  *
- * \param spi   Pointer to an Spi instance.
- * \param cs  Chip select of the component to address (0, 1, 2 or 3).
- * \param data  Word of data to send.
+ * \return read data.
  */
-extern void spi_write(Spi * spi, uint32_t cs, uint16_t data);
-extern void spi_write_last(Spi * spi, uint32_t cs, uint16_t data);
+extern uint16_t spi_read(Spi *spi);
+
+/**
+ * \brief Write and Read one data from SPI peripheral.
+ *
+ * \param spi Pointer to an Spi instance.
+ * \param tx  Data to write
+ *
+ * \return read data.
+ */
+extern uint16_t spi_transfer(Spi *spi, uint16_t tx);
 
 /**
  * \brief Get the current status register of the given SPI peripheral.
@@ -187,11 +167,11 @@ extern uint32_t spi_get_status(Spi * spi);
  *
  * \param spi  Pointer to an Spi instance.
  *
- * \return Returns 1 if there is no pending write operation on the SPI;
- * otherwise returns 0.
+ * \return Returns true if there is no pending write operation on the SPI;
+ * otherwise returns false.
  */
 
-extern uint32_t spi_is_finished(Spi * spi);
+extern bool spi_is_tx_finished(Spi * spi);
 
 #ifdef __cplusplus
 }

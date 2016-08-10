@@ -203,7 +203,7 @@
 #define BOARD_AT25_PINS     PINS_SPI0_NPCS0
 #define BOARD_AT25_ADDR     SPI0
 #define BOARD_AT25_CS       0
-#define BOARD_AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define BOARD_AT25_ATTRS    (SPI_MR_MSTR)
 #define BOARD_AT25_FREQ     40000 /* (value in KHz) */
 #define BOARD_AT25_DLYBS    0
 #define BOARD_AT25_DLYCT    0

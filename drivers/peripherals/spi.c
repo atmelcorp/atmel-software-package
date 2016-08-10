@@ -112,37 +112,6 @@ static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t periph_id)
 	return SPI_CSR_DLYBCT(dlybct);
 }
 
-static inline uint32_t _spi_is_master(Spi* spi)
-{
-	return (spi->SPI_MR & SPI_MR_MSTR);
-}
-
-static inline uint32_t _spi_is_variable_ps(Spi* spi)
-{
-	return (spi->SPI_MR & SPI_MR_PS);
-}
-
-static void _spi_write_dummy(Spi* spi)
-{
-	if (_spi_is_master(spi)) {
-		writehw(&spi->SPI_TDR, 0xFF);
-	}
-}
-
-static void _spi_consume_read(Spi* spi, uint32_t cs)
-{
-	if (_spi_is_master(spi)) {
-		while(!(spi->SPI_SR & SPI_SR_RDRF));
-		uint16_t value;
-		if ((spi->SPI_CSR[cs] & SPI_CSR_BITS_Msk) < SPI_CSR_BITS_9_BIT) {
-			readb(&spi->SPI_RDR, (uint8_t*)&value);
-		} else {
-			readhw(&spi->SPI_RDR, &value);
-		}
-		(void)value;
-	}
-}
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -169,26 +138,19 @@ void spi_disable_it(Spi * spi, uint32_t dwSources)
 
 void spi_configure(Spi * spi, uint32_t configuration)
 {
-	/* Execute a software reset of the SPI twice */
-	spi->SPI_CR = SPI_CR_SWRST;
+	spi->SPI_CR = SPI_CR_SPIDIS;
+
 	spi->SPI_CR = SPI_CR_SWRST;
 
-	uint32_t control_reg = SPI_CR_SPIDIS;
-	/* Apply */
-	spi->SPI_CR = control_reg;
-
-	spi->SPI_MR = configuration;
+	spi->SPI_MR = SPI_MR_WDRBT | SPI_MR_MODFDIS | configuration;
 }
 
-void spi_chip_select(Spi * spi, uint8_t cS)
+void spi_chip_select(Spi * spi, uint8_t cs)
 {
-	spi->SPI_MR &= ~SPI_MR_PCS_Msk;
-	spi->SPI_MR |= SPI_PCS(cS);
-}
+	uint32_t mr;
 
-void spi_set_mode(Spi * spi, uint32_t dwConfiguration)
-{
-	spi->SPI_MR = dwConfiguration;
+	mr = (spi->SPI_MR & ~SPI_MR_PCS_Msk) | SPI_MR_PCS((1 << cs) - 1);
+	spi->SPI_MR = mr;
 }
 
 void spi_release_cs(Spi * spi)
@@ -198,28 +160,20 @@ void spi_release_cs(Spi * spi)
 
 void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
 		      uint32_t delay_dlybs, uint32_t delay_dlybct,
-		      uint32_t spi_mode, uint32_t release_on_last)
+		      uint32_t spi_mode)
 {
+	uint32_t csr = 0;
 	trace_debug("Spi: configuring chip select %u\r\n", (unsigned int)cs);
 	uint32_t id = get_spi_id_from_addr(spi);
 	assert(id < ID_PERIPH_COUNT);
 
-	bitrate = _spi_compute_scbr(bitrate, id);
-	delay_dlybs = _spi_compute_dlybs(delay_dlybs, id);
-	delay_dlybct = _spi_compute_dlybct(delay_dlybct, id);
-	release_on_last = release_on_last ? SPI_CSR_CSAAT : 0;
+	csr |= _spi_compute_scbr(bitrate, id);
+	csr |= _spi_compute_dlybs(delay_dlybs, id);
+	csr |= _spi_compute_dlybct(delay_dlybct, id);
+	csr |= spi_mode & (SPI_CSR_CPOL | SPI_CSR_NCPHA);
+	csr |= SPI_CSR_CSAAT;
 
-	spi->SPI_CSR[cs] = bitrate | delay_dlybs | delay_dlybct
-		| release_on_last | spi_mode;
-}
-
-void spi_configure_cs_mode(Spi * spi, uint32_t cs, uint32_t release_on_last)
-{
-	if (!release_on_last) {
-		spi->SPI_CSR[cs] |= SPI_CSR_CSAAT;
-	} else {
-		spi->SPI_CSR[cs] &= ~SPI_CSR_CSAAT;
-	}
+	spi->SPI_CSR[cs] = csr;
 }
 
 uint32_t spi_get_status(Spi * spi)
@@ -227,59 +181,28 @@ uint32_t spi_get_status(Spi * spi)
 	return spi->SPI_SR;
 }
 
-uint16_t spi_read(Spi * spi, uint8_t cs)
+void spi_write(Spi *spi, uint16_t tx)
 {
-	_spi_write_dummy(spi);
-	while ((spi->SPI_SR & SPI_SR_RDRF) == 0) ;
-	uint16_t value;
-	if ((spi->SPI_CSR[cs] & SPI_CSR_BITS_Msk) < SPI_CSR_BITS_9_BIT) {
-		readb(&spi->SPI_RDR, (uint8_t*)&value);
-	} else {
-		readhw(&spi->SPI_RDR, &value);
-	}
-	return value;
+	while ((spi->SPI_SR & SPI_SR_TDRE) == 0);
+
+	writehw(&spi->SPI_TDR, SPI_TDR_TD(tx));
 }
 
-/**
- * \details If the SPI is configured to use a fixed peripheral select,
- * the npcs value is meaningless. Otherwise, it identifies the
- * component which shall be addressed.
- */
-void spi_write(Spi * spi, uint32_t cs, uint16_t data)
+uint16_t spi_read(Spi *spi)
 {
-	/* Send data */
-	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0);
-	if (_spi_is_variable_ps(spi)) {
-		spi->SPI_TDR = data | SPI_PCS(cs);
-	} else {
-		writehw(&spi->SPI_TDR, data);
-	}
-	/* Consume write */
-	_spi_consume_read(spi, cs);
+	while ((spi->SPI_SR & SPI_SR_RDRF) == 0);
+
+	return (spi->SPI_RDR & SPI_RDR_RD_Msk);
 }
 
-/**
- * \brief Sends last data through a SPI peripheral.
- *
- * \details If the SPI is configured to use a fixed peripheral select,
- * the npcs value is meaningless. Otherwise, it identifies the
- * component which shall be addressed.
- *
- * \param spi   Pointer to an Spi instance.
- * \param dwNpcs  Chip select of the component to address (0, 1, 2 or 3).
- * \param wData  Word of data to send.
- */
-void spi_write_last(Spi * spi, uint32_t cs, uint16_t data)
+uint16_t spi_transfer(Spi *spi, uint16_t tx)
 {
-	/* Send data */
-	while ((spi->SPI_SR & SPI_SR_TXEMPTY) == 0) ;
-	spi->SPI_TDR = data | SPI_PCS(cs) | SPI_TDR_LASTXFER;
-	/* Consume write to not corrupt FIFO if present (dummy
-	 * function if CONFIG_HAV_SPI_FIFO not defined) */
-	_spi_consume_read(spi, cs);
+	spi_write(spi, tx);
+
+	return spi_read(spi);
 }
 
-uint32_t spi_is_finished(Spi * spi)
+bool spi_is_tx_finished(Spi * spi)
 {
 	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
 }
