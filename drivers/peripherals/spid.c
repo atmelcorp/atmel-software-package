@@ -50,13 +50,6 @@
 
 static uint32_t _garbage = ~0u;
 
-#ifdef CONFIG_HAVE_SPI_FIFO
-static void spid_fifo_error(void)
-{
-	trace_error("Fifo pointer error encountered !!\r\n");
-}
-#endif
-
 void spid_configure(struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
@@ -66,24 +59,11 @@ void spid_configure(struct _spi_desc* desc)
 	if (flexcom)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
 #endif
-	/* Enable SPI early otherwise FIFO configuration won't be applied */
 	pmc_enable_peripheral(id);
-	if (desc->transfer_mode == SPID_MODE_FIFO) {
-		desc->attributes &= ~SPI_MR_WDRBT;
-	}
 	spi_configure(desc->addr, (desc->attributes & SPID_ATTRIBUTE_MASK));
 	spi_chip_select(desc->addr, desc->chip_select);
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode, 0);
-#ifdef CONFIG_HAVE_SPI_FIFO
-	if (desc->transfer_mode == SPID_MODE_FIFO) {
-		spi_fifo_configure(desc->addr, SPI_FIFO_DEPTH, SPI_FIFO_DEPTH,
-				   SPI_FMR_TXRDYM_ONE_DATA | SPI_FMR_RXRDYM_ONE_DATA);
-		spi_enable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
-		aic_set_source_vector(id, spid_fifo_error);
-		aic_enable(id);
-	}
-#endif
 	(void)spi_get_status(desc->addr);
 
 	spi_enable(desc->addr);
@@ -282,21 +262,6 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 
 		break;
 
-#ifdef CONFIG_HAVE_SPI_FIFO
-	case SPID_MODE_FIFO:
-		if (tx)
-			spi_write_stream(spi, desc->chip_select, tx->data, tx->size);
-
-		if (rx)
-			spi_read_stream(spi, desc->chip_select, rx->data, rx->size);
-
-		if (cb)
-			cb(desc, user_args);
-
-		mutex_unlock(&desc->mutex);
-
-		break;
-#endif
 	default:
 		trace_debug("Unknown mode");
 	}
@@ -318,11 +283,6 @@ void spid_finish_transfer(struct _spi_desc* desc)
 void spid_close(const struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
-#ifdef CONFIG_HAVE_SPI_FIFO
-	spi_fifo_disable(desc->addr);
-	spi_disable_it(desc->addr, SPI_IER_TXFPTEF | SPI_IER_RXFPTEF);
-	aic_disable(id);
-#endif
 	spi_disable(desc->addr);
 	pmc_disable_peripheral(id);
 }

@@ -58,7 +58,6 @@ typedef void (*spid_callback_t)(struct _spi_desc* spid, void* args);
 enum _spid_trans_mode
 {
 	SPID_MODE_POLLING,
-	SPID_MODE_FIFO,
 	SPID_MODE_DMA
 };
 

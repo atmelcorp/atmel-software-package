@@ -34,8 +34,8 @@
  *
  */
 
-#ifndef _SPI_
-#define _SPI_
+#ifndef _SPI_H
+#define _SPI_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -193,22 +193,7 @@ extern uint32_t spi_get_status(Spi * spi);
 
 extern uint32_t spi_is_finished(Spi * spi);
 
-#ifdef CONFIG_HAVE_SPI_FIFO
-extern void spi_fifo_configure(Spi* spi, uint8_t tx_thres,
-			uint8_t rx_thres,
-			uint32_t ready_modes);
-extern void spi_fifo_disable(Spi* spi);
-
-extern uint32_t spi_fifo_rx_size(Spi *spi);
-extern uint32_t spi_fifo_tx_size(Spi *spi);
-
-extern uint32_t spi_read_stream(Spi *spi, uint32_t chip_select,
-				void *stream, uint32_t len);
-extern uint32_t spi_write_stream(Spi *spi, uint32_t chip_select,
-			  const void *stream, uint32_t len);
-#endif
-
 #ifdef __cplusplus
 }
 #endif
-#endif  /* #ifndef _SPI_ */
+#endif  /* #ifndef _SPI_H */
