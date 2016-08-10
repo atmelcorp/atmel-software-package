@@ -100,7 +100,6 @@
 #include "compiler.h"
 #include "trace.h"
 #include "timer.h"
-#include "wav.h"
 
 #include "peripherals/aic.h"
 #include "peripherals/classd.h"
@@ -108,6 +107,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/xdmacd.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
 
 #include <string.h>
@@ -155,23 +155,12 @@ static void _display_menu(void)
 	printf("\n\r");
 	printf("Select an option:\n\r");
 	printf("-----------------\n\r");
-	printf("1 -> Display Demo Audio Information \n\r");
-	printf("2 -> Play the Demo Audio without DMA\n\r");
-	printf("3 -> Play the Demo Audio with DMA\n\r");
-	printf("4 -> Output Audio PMC Clock to PCK1 IOS2\n\r");
+	printf("1 -> Play the Demo Audio without DMA\n\r");
+	printf("2 -> Play the Demo Audio with DMA\n\r");
+	printf("3 -> Output Audio PMC Clock to PCK1 IOS2\n\r");
 	printf("+ -> Increase the volume (attenuation reduced by 3dB)\n\r");
 	printf("- -> Decrease the volume (attenuation increased by 3dB)\n\r");
 	printf("=>");
-}
-
-/**
- * \brief Display demonstration audio music information.
- */
-static void _display_audio_info(const struct _wav_header *audio_data)
-{
-	if (audio_data && wav_is_valid(audio_data)) {
-		wav_display_info(audio_data);
-	}
 }
 
 static void _set_attenuation(uint8_t attn)
@@ -219,7 +208,7 @@ static void _setup_dma_transfer(void* buffer, uint32_t size)
 {
 	struct _xdmacd_cfg cfg;
 
-	cfg.ubc = size / 4;
+	cfg.ubc = size;
 	cfg.bc = 0;
 	cfg.ds = 0;
 	cfg.sus = 0;
@@ -254,8 +243,8 @@ static void _dma_callback(struct _xdmacd_channel *channel, void* arg)
  */
 static void _playback_with_dma(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)(music_data + sizeof(struct _wav_header));
-	uint32_t  audio_length = ((struct _wav_header*)music_data)->subchunk2_size;
+	uint32_t* audio = (uint32_t*)music_data;
+	uint32_t  audio_length = ARRAY_SIZE(music_data) / sizeof(uint32_t);
 	volatile bool done = false;
 
 	_playback_start();
@@ -272,9 +261,9 @@ static void _playback_with_dma(uint8_t attn)
  */
 static void _playback_without_dma(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)(music_data + sizeof(struct _wav_header));
-	uint32_t  audio_length = ((struct _wav_header*)music_data)->subchunk2_size;
-	uint32_t* audio_end = audio + audio_length / 4;
+	uint32_t* audio = (uint32_t*)music_data;
+	uint32_t  audio_length = ARRAY_SIZE(music_data) / sizeof(uint32_t);
+	uint32_t* audio_end = audio + audio_length;
 
 	_playback_start();
 	while (1) {
@@ -291,7 +280,6 @@ static void _playback_without_dma(uint8_t attn)
 
 static void _configure_classd(void)
 {
-	classd_desc.sample_rate = ((struct _wav_header*)music_data)->sample_rate;
 	printf("Configuring ClassD: Full H-Bridge at %uHz\n\r",
 			(unsigned)classd_desc.sample_rate);
 	if (classd_configure(&classd_desc)) {
@@ -304,8 +292,8 @@ static void _configure_classd(void)
 
 static void _output_audio_pmc_clock_to_pck1(void)
 {
-	struct _pin pck1_pins[] = { PINS_PCK1_IOS2 };
-	pio_configure(pck1_pins, ARRAY_SIZE(pck1_pins));
+	struct _pin pck1_pin = PINS_PCK1_IOS2;
+	pio_configure(&pck1_pin, 1);
 	pmc_configure_pck(1, PMC_PCK_CSS_AUDIO_CLK, 0);
 	pmc_enable_pck(1);
 }
@@ -341,12 +329,10 @@ extern int main(void)
 		key = console_get_char();
 		printf("%c\r\n", key);
 		if (key == '1') {
-			_display_audio_info((const struct _wav_header *)music_data);
-		} else if (key == '2') {
 			_playback_without_dma(attn);
-		} else if (key == '3') {
+		} else if (key == '2') {
 			_playback_with_dma(attn);
-		} else if (key == '4') {
+		} else if (key == '3') {
 			_output_audio_pmc_clock_to_pck1();
 		} else if (key == '+') {
 			if (attn > 1) {
