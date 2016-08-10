@@ -55,6 +55,11 @@ struct _spi_desc;
 
 typedef void (*spid_callback_t)(struct _spi_desc* spid, void* args);
 
+enum _spid_buf_attr {
+	SPID_BUF_ATTR_READ   = 0x01,
+	SPID_BUF_ATTR_WRITE  = 0x02,
+};
+
 enum _spid_trans_mode
 {
 	SPID_MODE_POLLING,
@@ -98,9 +103,7 @@ extern void spid_configure(struct _spi_desc* desc);
 
 extern void spid_begin_transfer(struct _spi_desc* desc);
 
-extern uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
-			       struct _buffer* tx, spid_callback_t cb,
-			       void* user_args);
+extern uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid_callback_t cb, void* user_args);
 extern void spid_finish_transfer(struct _spi_desc* desc);
 extern void spid_finish_transfer_callback(struct _spi_desc* desc,
 					   void* user_arg);

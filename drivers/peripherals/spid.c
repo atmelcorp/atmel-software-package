@@ -46,7 +46,7 @@
 #include <string.h>
 
 #define SPID_ATTRIBUTE_MASK     (SPI_MR_PS | SPI_MR_MODFDIS | SPI_MR_MSTR | SPI_MR_WDRBT)
-#define SPID_DMA_THRESHOLD      16
+#define SPID_POLLING_THRESHOLD      16
 
 static uint32_t _garbage = ~0u;
 
@@ -185,14 +185,18 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint16_t len)
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
-uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
-			struct _buffer* tx, spid_callback_t cb,
-			void* user_args)
+uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid_callback_t cb, void* user_args)
 {
 	Spi* spi = desc->addr;
 	uint32_t i = 0;
+	enum _spid_trans_mode tmode = desc->transfer_mode;
+	
+	if ((buf->attr & (SPID_BUF_ATTR_READ | SPID_BUF_ATTR_WRITE)) == 0) {
+		trace_error("SPID no operation specified!\r\n");
+		return SPID_ERROR_INVALID;
+	}
 
-	if (rx && tx) {
+	if ((buf->attr & (SPID_BUF_ATTR_READ | SPID_BUF_ATTR_WRITE)) == (SPID_BUF_ATTR_READ | SPID_BUF_ATTR_WRITE)) {
 		trace_error("SPID Full duplex not supported!\r\n");
 		return SPID_ERROR_INVALID;
 	}
@@ -202,16 +206,17 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 		return SPID_ERROR_LOCK;
 	}
 
-	switch (desc->transfer_mode) {
+	if (buf->size < SPID_POLLING_THRESHOLD)
+		tmode = SPID_MODE_POLLING;
+	
+	switch (tmode) {
 	case SPID_MODE_POLLING:
-		if (tx) {
-			for (i = 0; i < tx->size; ++i)
-				spi_write(spi, desc->chip_select, tx->data[i]);
-		}
-
-		if (rx) {
-			for (i = 0; i < rx->size; ++i)
-				rx->data[i] = spi_read(spi, desc->chip_select);
+		if (buf->attr & SPID_BUF_ATTR_WRITE) {
+			for (i = 0; i < buf->size; ++i)
+				spi_write(spi, desc->chip_select, buf->data[i]);
+		} else {
+			for (i = 0; i < buf->size; ++i)
+				buf->data[i] = spi_read(spi, desc->chip_select);
 		}
 
 		if (cb)
@@ -222,42 +227,16 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* rx,
 		break;
 
 	case SPID_MODE_DMA:
-		if (tx) {
-			if (tx->size < SPID_DMA_THRESHOLD) {
-				for (i = 0; i < tx->size; ++i)
-					spi_write(spi, desc->chip_select, tx->data[i]);
-				if (!rx) {
-					if (cb)
-						cb(desc, user_args);
-					mutex_unlock(&desc->mutex);
-				}
-			} else {
-				if (rx) {
-					desc->dma_unlocks_mutex = false;
-					desc->callback = NULL;
-					desc->cb_args = NULL;
-				} else {
-					desc->dma_unlocks_mutex = true;
-					desc->callback = cb;
-					desc->cb_args = user_args;
-				}
-				_spid_dma_write(desc, tx->data, tx->size, desc->dma_unlocks_mutex);
-			}
-		}
-
-		if (rx) {
-			if (rx->size < SPID_DMA_THRESHOLD) {
-				for (i = 0; i < rx->size; ++i)
-					rx->data[i] = spi_read(spi, desc->chip_select);
-				if (cb)
-					cb(desc, user_args);
-				mutex_unlock(&desc->mutex);
-			} else {
-				desc->dma_unlocks_mutex = true;
-				desc->callback = cb;
-				desc->cb_args = user_args;
-				_spid_dma_read(desc, rx->data, rx->size);
-			}
+		if (buf->attr & SPID_BUF_ATTR_WRITE) {
+			desc->dma_unlocks_mutex = true;
+			desc->callback = cb;
+			desc->cb_args = user_args;
+			_spid_dma_write(desc, buf->data, buf->size, desc->dma_unlocks_mutex);
+		} else {
+			desc->dma_unlocks_mutex = true;
+			desc->callback = cb;
+			desc->cb_args = user_args;
+			_spid_dma_read(desc, buf->data, buf->size);
 		}
 
 		break;
