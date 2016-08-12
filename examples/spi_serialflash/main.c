@@ -57,7 +57,7 @@
 #define CMD_BUFFER_SIZE   (1024)
 #define READ_BUFFER_SIZE  (4*1024)
 
-static const struct _pin at25_pins[] = AT25_PINS;
+static const struct _pin at25_pins[] = BOARD_AT25_PINS;
 
 CACHE_ALIGNED_DDR static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 CACHE_ALIGNED_DDR static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -69,13 +69,13 @@ static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 
 static struct _spi_desc spi_at25_desc = {
-	.addr           = AT25_ADDR,
-	.bitrate        = AT25_FREQ,
-	.attributes     = AT25_ATTRS,
-	.dlybs          = AT25_DLYBS,
-	.dlybct         = AT25_DLYCT,
-	.chip_select    = AT25_CS,
-	.spi_mode       = AT25_SPI_MODE,
+	.addr           = BOARD_AT25_ADDR,
+	.bitrate        = BOARD_AT25_FREQ,
+	.attributes     = BOARD_AT25_ATTRS,
+	.dlybs          = BOARD_AT25_DLYBS,
+	.dlybct         = BOARD_AT25_DLYCT,
+	.chip_select    = BOARD_AT25_CS,
+	.spi_mode       = BOARD_AT25_SPI_MODE,
 	.transfer_mode = SPID_MODE_DMA,
 };
 

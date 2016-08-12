@@ -145,6 +145,22 @@
 #define BOARD_ACT8945A_PIN_IRQ     { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 #define BOARD_ACT8945A_PIN_LBO     { PIO_GROUP_C, PIO_PC8, PIO_INPUT, PIO_PULLUP }
 
+/* =================== AT24 device definition =================== */
+
+#define BOARD_AT24_TWI_BUS    0
+#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+
+/* =================== AT25 device definition =================== */
+
+#define BOARD_AT25_PINS     PINS_SPI0_NPCS0_IOS1
+#define BOARD_AT25_ADDR     SPI0
+#define BOARD_AT25_CS       0
+#define BOARD_AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define BOARD_AT25_FREQ     40000 /* (value in KHz) */
+#define BOARD_AT25_DLYBS    0
+#define BOARD_AT25_DLYCT    0
+#define BOARD_AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
+
 /* ================== PIN USB definition ======================= */
 
 /** USB VBus pin */
@@ -168,23 +184,6 @@
  */
 #define BOARD_USB_BMATTRIBUTES \
 	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
-
-/* =================== AT25 device definition =================== */
-
-#define AT25_PINS     PINS_SPI0_NPCS0_IOS1
-#define AT25_ADDR     SPI0
-#define AT25_CS       0
-#define AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
-#define AT25_FREQ     40000 /* (value in KHz) */
-#define AT25_LOW_FREQ 20000 /* (value in KHz) */
-#define AT25_DLYBS    0
-#define AT25_DLYCT    0
-#define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
-
-/* =================== AT24 device definition =================== */
-
-#define BOARD_AT24_TWI_BUS    0
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
 
 /* =================== GMAC/PHY definition =================== */
 

@@ -187,18 +187,6 @@
 	{ BOARD_HSMCI1_PIN_POWER, PIN_HSMCI1_CDA, \
 	  PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
 
-/* =================== AT25 device definition =================== */
-
-#define AT25_PINS     PINS_SPI0_NPCS0
-#define AT25_ADDR     SPI0
-#define AT25_CS       0
-#define AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
-#define AT25_FREQ     40000 /* (value in KHz) */
-#define AT25_LOW_FREQ 20000 /* (value in KHz) */
-#define AT25_DLYBS    0
-#define AT25_DLYCT    0
-#define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
-
 /* ================== TWI bus definition ====================== */
 
 #define BOARD_TWI_BUS0      TWI0
@@ -209,6 +197,17 @@
 
 #define BOARD_AT24_TWI_BUS  0
 #define BOARD_AT24_DESC     {"AT24MAC402", 0xFF, 16}
+
+/* =================== AT25 device definition =================== */
+
+#define BOARD_AT25_PINS     PINS_SPI0_NPCS0
+#define BOARD_AT25_ADDR     SPI0
+#define BOARD_AT25_CS       0
+#define BOARD_AT25_ATTRS    (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR)
+#define BOARD_AT25_FREQ     40000 /* (value in KHz) */
+#define BOARD_AT25_DLYBS    0
+#define BOARD_AT25_DLYCT    0
+#define BOARD_AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
 /* =================== GMAC/PHY definition =================== */
 
