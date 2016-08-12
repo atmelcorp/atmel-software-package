@@ -55,12 +55,12 @@
 #include <string.h>
 
 #define CMD_BUFFER_SIZE   (1024)
-#define READ_BUFFER_SIZE  (4*1024)
+#define READ_BUFFER_SIZE  (1024)
 
 static const struct _pin at25_pins[] = BOARD_AT25_PINS;
 
-CACHE_ALIGNED_DDR static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-CACHE_ALIGNED_DDR static uint8_t read_buffer[READ_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
@@ -235,10 +235,53 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 	at25_erase_block(&at25drv, addr, erase_length);
 }
 
+static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "polling", 7)) {
+		spi_at25_desc.transfer_mode = SPID_MODE_POLLING;
+		printf("Use POLLING mode\r\n");
+	} else if (!strncmp((char*)buffer, "async", 5)) {
+		spi_at25_desc.transfer_mode = SPID_MODE_ASYNC;
+		printf("Use ASYNC mode\r\n");
+	} else if (!strncmp((char*)buffer, "dma", 3)) {
+		spi_at25_desc.transfer_mode = SPID_MODE_DMA;
+		printf("Use DMA mode\r\n");
+	} else {
+		printf("Args: %s\r\n"
+			   "Invalid mode (polling, async, dma)\r\n", buffer);
+	}
+}
+
 static void print_menu(void)
 {
-	printf("Spi serial flash example mini-console:\r\n\r\n"
-	       "|===========        Commands        ====================|\r\n"
+	const char* mode_str;
+
+	printf("\r\n");
+
+	printf("|=============== SPI SerialFlash Example ===============|\r\n");
+
+	printf("| Device: %-46s|\r\n", at25drv.desc ? at25drv.desc->name : "N/A");
+	switch (spi_at25_desc.transfer_mode) {
+	case SPID_MODE_POLLING:
+		mode_str = "polling";
+		break;
+	case SPID_MODE_ASYNC:
+		mode_str = "async";
+		break;
+	case SPID_MODE_DMA:
+		mode_str = "DMA";
+		break;
+	default:
+		mode_str = "unknown";
+		break;
+	}
+	printf("| Mode: %-48s|\r\n", mode_str);
+
+	printf("|====================== Commands =======================|\r\n"
+	       "| m polling                                             |\r\n"
+	       "| m async                                               |\r\n"
+	       "| m dma                                                 |\r\n"
+	       "|      Select transfer mode                             |\r\n"
 	       "| a status                                              |\r\n"
 	       "|      Query device status                              |\r\n"
 	       "| a device                                              |\r\n"
@@ -250,14 +293,14 @@ static void print_menu(void)
 	       "| d addr [4k|32k|64k|256k]                              |\r\n"
 	       "|      Erase block containing the address 'addr'        |\r\n"
 	       "|      The erase can be 4k, 32k, 64k or 256k            |\r\n"
-	       "| m                                                     |\r\n"
+	       "| h                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");
 }
 
 static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
-	if (*buffer == 'm') {
+	if (*buffer == 'h'||*buffer=='H') {
 		print_menu();
 		return;
 	}
@@ -278,6 +321,9 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 		break;
 	case 'd':
 		_flash_delete_arg_parser(buffer+2, len-2);
+		break;
+	case 'm':
+		_flash_mode_arg_parser(buffer+2, len-2);
 		break;
 	default:
 		printf("Command %c unknown\r\n", *buffer);

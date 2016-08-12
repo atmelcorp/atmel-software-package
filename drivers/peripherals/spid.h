@@ -64,6 +64,7 @@ enum _spid_buf_attr {
 enum _spid_trans_mode
 {
 	SPID_MODE_POLLING,
+	SPID_MODE_ASYNC,
 	SPID_MODE_DMA
 };
 

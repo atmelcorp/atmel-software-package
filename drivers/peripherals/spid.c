@@ -45,10 +45,49 @@
 #include <assert.h>
 #include <string.h>
 
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
 #define SPID_ATTRIBUTE_MASK         SPI_MR_MSTR
 #define SPID_POLLING_THRESHOLD      16
 
+#define MAX_ADESC               8
+
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+struct _async_desc
+{
+	struct _spi_desc* spi_desc;
+	uint32_t spi_id;
+	struct {
+		struct _buffer *buf;
+		uint32_t transferred;
+	} rx;
+	struct {
+		struct _buffer *buf;
+		uint32_t transferred;
+	} tx;
+
+	spid_callback_t callback;
+	void* callback_args;
+};
+
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
+static struct _async_desc async_desc[MAX_ADESC];
+static uint8_t adesc_index = 0;
+
 static uint32_t _garbage = ~0u;
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
 
 static void _spid_dma_finish(struct dma_channel *channel, struct _spi_desc* desc)
 {
@@ -164,6 +203,68 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint16_t len)
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
+static void _spid_handler(void)
+{
+	int i;
+	uint32_t status = 0;
+	Spi* addr;
+	uint32_t id = aic_get_current_interrupt_identifier();
+
+	for (i = 0; i != MAX_ADESC; i++) {
+		if (async_desc[i].spi_id == id) {
+			status = 1;
+			break;
+		}
+	}
+
+	if (!status) {
+		/* async descriptor not found, disable interrupt */
+		addr = get_spi_addr_from_id(id);
+		spi_disable_it(addr, SPI_IDR_RDRF | SPI_IDR_TDRE | SPI_IDR_TXEMPTY);
+		return;
+	}
+
+	struct _async_desc *adesc = &async_desc[i];
+	addr = adesc->spi_desc->addr;
+
+	status = spi_get_masked_status(addr);
+
+	if (SPI_STATUS_RDRF(status)) {
+		adesc->rx.buf->data[adesc->rx.transferred] = spi_read(addr);
+		adesc->rx.transferred++;
+
+		if (adesc->rx.transferred >= adesc->rx.buf->size) {
+			spi_disable_it(addr, SPI_IDR_RDRF);
+			spi_enable_it(addr, SPI_IER_TXEMPTY);
+		} else {
+			/* Dumy write */
+			spi_write(addr, 0xffff);
+		}
+
+	} else if (SPI_STATUS_TDRE(status)) {
+		spi_transfer(addr, adesc->tx.buf->data[adesc->tx.transferred]);
+		adesc->tx.transferred++;
+
+		if (adesc->tx.transferred >= adesc->tx.buf->size) {
+			spi_disable_it(addr, SPI_IDR_TDRE);
+			spi_enable_it(addr, SPI_IER_TXEMPTY);
+		}
+
+	} else if (SPI_STATUS_TXEMPTY(status)) {
+		aic_disable(adesc->spi_id);
+		spi_disable_it(addr, SPI_IDR_TXEMPTY);
+		adesc->spi_id = 0;
+
+		if (adesc->spi_desc->flags & SPID_BUF_ATTR_RELEASE_CS)
+			spi_release_cs(addr);
+
+		if (adesc->callback)
+			adesc->spi_desc->callback(adesc->spi_desc->cb_args);
+
+		mutex_unlock(&adesc->spi_desc->mutex);
+	}
+}
+
 static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid_callback_t cb, void* user_args)
 {
 	Spi* spi = desc->addr;
@@ -179,6 +280,8 @@ static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid
 		tmode = SPID_MODE_POLLING;
 
 	desc->flags = buf->attr;
+	desc->callback = cb;
+	desc->cb_args = user_args;
 
 	switch (tmode) {
 	case SPID_MODE_POLLING:
@@ -195,15 +298,41 @@ static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid
 		if (desc->flags & SPID_BUF_ATTR_RELEASE_CS)
 			spi_release_cs(desc->addr);
 
-		if (cb)
-			cb(user_args);
+		if (desc->callback)
+			desc->callback(desc->cb_args);
 
 		mutex_unlock(&desc->mutex);
 		break;
 
+	case SPID_MODE_ASYNC:
+		memset(&async_desc[adesc_index], 0, sizeof(async_desc[adesc_index]));
+
+		async_desc[adesc_index].spi_desc = desc;
+		async_desc[adesc_index].spi_id = get_spi_id_from_addr(desc->addr);
+
+		aic_set_source_vector(async_desc[adesc_index].spi_id, _spid_handler);
+
+		spi_disable_it(desc->addr, 0xffffffff);
+		aic_enable(async_desc[adesc_index].spi_id);
+
+		/* Start spi with send first byte */
+		if (desc->flags & SPID_BUF_ATTR_WRITE) {
+			async_desc[adesc_index].tx.buf = buf;
+
+			spi_enable_it(desc->addr, SPI_IER_TDRE);
+		} else {
+			async_desc[adesc_index].rx.buf = buf;
+
+			/* Trigger the IT */
+			spi_enable_it(desc->addr, SPI_IER_RDRF);
+			spi_get_status(desc->addr);
+			spi_write(desc->addr, 0xffff);
+		}
+
+		adesc_index = (adesc_index + 1) % MAX_ADESC;
+		break;
+
 	case SPID_MODE_DMA:
-		desc->callback = cb;
-		desc->cb_args = user_args;
 		if (buf->attr & SPID_BUF_ATTR_WRITE)
 			_spid_dma_write(desc, buf->data, buf->size);
 		else
@@ -216,6 +345,10 @@ static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid
 
 	return SPID_SUCCESS;
 }
+
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
 
 uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, int buffers,
 					   spid_callback_t cb, void* user_args)

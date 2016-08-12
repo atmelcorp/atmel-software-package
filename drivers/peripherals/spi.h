@@ -43,7 +43,18 @@
 
 #include "chip.h"
 
-/*------------------------------------------------------------------------------ */
+/*----------------------------------------------------------------------------
+ *        Macros
+ *----------------------------------------------------------------------------*/
+
+/* Returns 1 if the TDRE bit (ready to transmit data) is set in the given status register value.*/
+#define SPI_STATUS_TDRE(status) ((status & SPI_SR_TDRE) == SPI_SR_TDRE)
+
+/* Returns 1 if the RDRF bit (ready to receive data) is set in the given status register value.*/
+#define SPI_STATUS_RDRF(status) ((status & SPI_SR_RDRF) == SPI_SR_RDRF)
+
+/* Returns 1 if the TXEMPTY bit is set in the given status register value.*/
+#define SPI_STATUS_TXEMPTY(status) ((status & SPI_SR_TXEMPTY) == SPI_SR_TXEMPTY)
 
 #ifdef __cplusplus
 extern "C" {
@@ -161,6 +172,16 @@ extern uint16_t spi_transfer(Spi *spi, uint16_t tx);
  */
 extern uint32_t spi_get_status(Spi * spi);
 
+/**
+ * \brief Returns the current status register of the given SPI peripheral, but
+ * masking interrupt sources which are not currently enabled.
+ *
+ * \note This resets the internal value of the status register, so further
+ * read may yield different values.
+ *
+ * \param spi  Pointer to an Spi instance.
+ */
+extern uint32_t spi_get_masked_status(Spi *spi);
 
 /**
  * \brief Check if SPI transfer finish.

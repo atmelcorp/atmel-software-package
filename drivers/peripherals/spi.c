@@ -181,6 +181,15 @@ uint32_t spi_get_status(Spi * spi)
 	return spi->SPI_SR;
 }
 
+uint32_t spi_get_masked_status(Spi *spi)
+{
+	uint32_t status;
+	assert(spi != NULL);
+	status = spi->SPI_SR;
+	status &= spi->SPI_IMR;
+	return status;
+}
+
 void spi_write(Spi *spi, uint16_t tx)
 {
 	while ((spi->SPI_SR & SPI_SR_TDRE) == 0);
