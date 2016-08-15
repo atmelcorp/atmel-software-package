@@ -55,6 +55,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #define CMD_BUFFER_SIZE   (1024)
 #define READ_BUFFER_SIZE  (4 * 1024)
@@ -123,9 +124,12 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	int offset = 0;
 	while (length > 0) {
+		int rc;
 		int chunk_size = length < READ_BUFFER_SIZE ? length : READ_BUFFER_SIZE;
 
-		if(at25_read(at25drv, addr+offset, read_buffer, chunk_size)) {
+		rc = at25_read(at25drv, addr+offset, read_buffer, chunk_size);
+		if (rc < 0) {
+			printf("Read failed (errno=%d)\r\n", rc);
 			/* Read failed, no need to dump anything */
 			return;
 		}
@@ -137,6 +141,7 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 
 static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 {
+	int rc;
 	char* end_addr = NULL;
 	unsigned int addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
@@ -153,7 +158,9 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	len -= (end_addr+1) - (char*)buffer;
 
-	at25_write(at25drv, addr, (uint8_t*)end_addr+1, len);
+	rc = at25_write(at25drv, addr, (uint8_t*)end_addr+1, len);
+	if (rc < 0)
+		printf("Write failed (errno=%d)\r\n", rc);
 }
 
 static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -165,27 +172,17 @@ static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 			printf("No device detected!\r\n");
 		}
 	} else if (!strncmp((char*)buffer, "status", 6)) {
-		uint32_t status = at25_read_status(at25drv);
-		printf("AT25 chip status:\r\n"
-		       "\t- Busy: %s\r\n"
-		       "\t- Write Enabled: %s\r\n"
-		       "\t- Software protection: %s\r\n"
-		       "\t- Write protect pin: %s\r\n"
-		       "\t- Erase/Program error: %s\r\n"
-		       "\t- Sector Protection Register: %s\r\n"
-		       "\t- Raw register value: 0x%X\r\n",
-		       status & AT25_STATUS_RDYBSY_BUSY ? "yes":"no",
-		       status & AT25_STATUS_WEL ? "yes":"no",
-		       status & AT25_STATUS_SWP ? "Some/all":"none",
-		       status & AT25_STATUS_WPP ? "inactive":"active",
-		       status & AT25_STATUS_EPE ? "yes":"no",
-		       status & AT25_STATUS_SPRL ? "locked":"unlocked",
-		       (unsigned)status);
+		if (at25drv->desc) {
+			at25_print_device_status(at25drv);
+		} else {
+			printf("No device detected!\r\n");
+		}
 	}
 }
 
 static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 {
+	int rc;
 	char* end_addr = NULL;
 	char* erase_type_str = NULL;
 	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
@@ -221,7 +218,10 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		       buffer);
 		return;
 	}
-	at25_erase_block(at25drv, addr, erase_length);
+
+	rc = at25_erase_block(at25drv, addr, erase_length);
+	if (rc < 0)
+		printf("Erase failed (errno=%d)\r\n", rc);
 }
 
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)

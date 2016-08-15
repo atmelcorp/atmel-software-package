@@ -40,6 +40,8 @@
 
 #include "memories/at25.h"
 
+#include <errno.h>
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -102,16 +104,16 @@ void board_cfg_at25(void)
 {
 	/* Open serial flash device */
 	int rc = at25_configure(&at25);
-	if (rc == AT25_DEVICE_NOT_SUPPORTED)
+	if (rc == -ENODEV)
 		trace_error("AT25: Device not supported!\r\n");
-	else if (rc != AT25_SUCCESS)
+	else if (rc < 0)
 		trace_error("AT25: Initialization error!\r\n");
 
-	if (at25_unprotect(&at25))
+	if (at25_set_protection(&at25, false) < 0)
 		trace_error("AT25: Protection desactivation failed!\r\n");
 }
 
-struct _at25 * board_get_at25(void)
+struct _at25* board_get_at25(void)
 {
 	return &at25;
 }

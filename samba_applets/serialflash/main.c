@@ -149,7 +149,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			(unsigned)chip_select, (unsigned)freq);
 
 	/* initialize the SPI and serial flash */
-	if (at25_configure(&at25drv) != AT25_SUCCESS) {
+	if (at25_configure(&at25drv) < 0) {
 		trace_info_wp("Error while detecting AT25 chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
@@ -187,7 +187,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			erase_support |= (256 * 1024) / page_size;
 		}
 
-		if (at25_unprotect(&at25drv) != AT25_SUCCESS) {
+		if (at25_set_protection(&at25drv, false) < 0) {
 			return APPLET_UNPROTECT_FAIL;
 		}
 
@@ -253,7 +253,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the write operation */
-	if (at25_write(&at25drv, offset, buffer, length) != AT25_SUCCESS) {
+	if (at25_write(&at25drv, offset, buffer, length) < 0) {
 		trace_error("Write error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_WRITE_FAIL;
@@ -284,7 +284,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the read operation */
-	if (at25_read(&at25drv, offset, buffer, length) != AT25_SUCCESS) {
+	if (at25_read(&at25drv, offset, buffer, length) < 0) {
 		trace_error("Read error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
@@ -328,7 +328,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (at25_erase_block(&at25drv, offset, length) != AT25_SUCCESS) {
+	if (at25_erase_block(&at25drv, offset, length) < 0) {
 		trace_error("Erase failed at offset 0x%08x\r\n",
 				(unsigned)offset);
 		return APPLET_ERASE_FAIL;

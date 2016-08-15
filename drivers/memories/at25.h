@@ -46,15 +46,6 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/** Device is protected, operation cannot be carried out. */
-#define AT25_ERROR_PROTECTED        1
-/** Device is busy executing a command. */
-#define AT25_ERROR_BUSY             2
-/** There was a problem while trying to program page data. */
-#define AT25_ERROR_PROGRAM          3
-/** There was an SPI communication error. */
-#define AT25_ERROR_SPI              4
-
 /** Device ready/busy status bit. */
 #define AT25_STATUS_RDYBSY          (1 << 0)
 /** Device is ready. */
@@ -97,10 +88,6 @@
 #define AT25_ADDRESS_4_BYTES      0x4Bu
 #define AT25_ADDRESS_3_BYTES      0x3Bu
 
-#define AT25_SUCCESS              0x0u
-#define AT25_DEVICE_NOT_SUPPORTED 0xFu
-#define AT25_ADDR_OOB             0xBu
-
 struct _at25 {
 	struct _spi_dev_desc dev;
 
@@ -112,20 +99,18 @@ struct _at25 {
 extern "C" {
 #endif
 
-extern uint32_t at25_check_status(struct _at25* at25, uint32_t mask);
 extern void at25_wait(struct _at25* at25);
-extern uint32_t at25_configure(struct _at25* at25);
-extern const struct _at25_desc* at25_find_device(struct _at25* at25, uint32_t jedec_id);
-extern uint32_t at25_read_jedec_id(struct _at25* at25);
-extern uint32_t at25_read_status(struct _at25* at25);
-extern uint32_t at25_protect(struct _at25* at25);
-extern uint32_t at25_unprotect(struct _at25* at25);
+extern int at25_configure(struct _at25* at25);
+extern int at25_read_jedec_id(struct _at25* at25, uint32_t *jedec_id);
+extern uint8_t at25_read_status(struct _at25* at25);
+extern int at25_set_protection(struct _at25* at25, bool enable);
 extern void at25_print_device_info(struct _at25* at25);
 extern bool at25_is_busy(struct _at25* at25);
-extern uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length);
-extern uint32_t at25_erase_chip(struct _at25* at25);
-extern uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length);
-extern uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length);
+extern void at25_print_device_status(struct _at25* at25);
+extern int at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length);
+extern int at25_erase_chip(struct _at25* at25);
+extern int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length);
+extern int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length);
 
 #ifdef __cplusplus
 }

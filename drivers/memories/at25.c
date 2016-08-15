@@ -41,6 +41,7 @@
 #include "bus/spi-bus.h"
 #include <stdio.h>
 #include <assert.h>
+#include <errno.h>
 
 /*----------------------------------------------------------------------------
  *        Local Constants
@@ -120,7 +121,7 @@ static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
 	}
 }
 
-static uint32_t _at25_read_status(struct _at25* at25)
+static uint8_t _at25_read_status(struct _at25* at25)
 {
 	assert(at25);
 	uint8_t at25_status;
@@ -153,21 +154,21 @@ static void _at25_wait(struct _at25* at25)
 	}
 }
 
-static uint32_t _at25_check_writable(struct _at25* at25)
+static int _at25_check_writable(struct _at25* at25)
 {
 	assert(at25);
 
-	uint32_t status;
+	uint8_t status;
 	status = _at25_read_status(at25) & (AT25_STATUS_RDYBSY_BUSY | AT25_STATUS_SWP);
 	if (status & AT25_STATUS_RDYBSY_BUSY) {
 		trace_debug("at25: Device %s is busy\r\n", at25->desc->name);
-		return AT25_ERROR_BUSY;
+		return -EBUSY;
 	}
 	if (status & AT25_STATUS_SWP) {
 		trace_error("at25: Device %s is write protected\r\n", at25->desc->name);
-		return AT25_ERROR_PROTECTED;
+		return -EPERM;
 	}
-	return AT25_SUCCESS;
+	return 0;
 }
 
 static void _at25_enable_write(struct _at25* at25)
@@ -200,7 +201,7 @@ static void _at25_disable_write(struct _at25* at25)
 	spi_bus_wait_transfer(at25->dev.bus);
 }
 
-static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
+static void _at25_write_status(struct _at25* at25, uint8_t value)
 {
 	assert(at25);
 
@@ -217,8 +218,6 @@ static uint32_t _at25_write_status(struct _at25* at25, uint8_t value)
 	spi_bus_wait_transfer(at25->dev.bus);
 
 	_at25_disable_write(at25);
-
-	return AT25_SUCCESS;
 }
 
 static void _at25_enter_4addr_mode(struct _at25* at25)
@@ -295,15 +294,6 @@ static uint32_t _at25_read_jedec_id(struct _at25* at25)
  *        Public Functions
  *----------------------------------------------------------------------------*/
 
-uint32_t at25_check_status(struct _at25* at25, uint32_t mask)
-{
-	uint32_t status = _at25_read_status(at25);
-	if (status & mask)
-		return (status & mask);
-
-	return AT25_SUCCESS;
-}
-
 void at25_wait(struct _at25* at25)
 {
 	while (spi_bus_transaction_pending(at25->dev.bus));
@@ -314,7 +304,7 @@ void at25_wait(struct _at25* at25)
 	spi_bus_stop_transaction(at25->dev.bus);
 }
 
-uint32_t at25_configure(struct _at25* at25)
+int at25_configure(struct _at25* at25)
 {
 	uint32_t jedec_id;
 
@@ -330,32 +320,31 @@ uint32_t at25_configure(struct _at25* at25)
 	at25->desc = spi_nor_find(jedec_id);
 	if (!at25->desc) {
 		spi_bus_stop_transaction(at25->dev.bus);
-		return AT25_DEVICE_NOT_SUPPORTED;
+		return -ENODEV;
 	}
 
 	_at25_set_addressing(at25);
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return AT25_SUCCESS;
+	return 0;
 }
 
-uint32_t at25_read_jedec_id(struct _at25* at25)
+int at25_read_jedec_id(struct _at25* at25, uint32_t *jedec_id)
 {
-	uint32_t jedec_id;
 	assert(at25);
 
 	while (spi_bus_transaction_pending(at25->dev.bus));
 	spi_bus_start_transaction(at25->dev.bus);
 
-	jedec_id = _at25_read_jedec_id(at25);
+	*jedec_id = _at25_read_jedec_id(at25);
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return jedec_id;
+	return 0;
 }
 
-uint32_t at25_read_status(struct _at25* at25)
+uint8_t at25_read_status(struct _at25* at25)
 {
 	assert(at25);
 	uint8_t status;
@@ -385,48 +374,36 @@ uint32_t at25_read_status(struct _at25* at25)
 	return at25_status;
 }
 
-uint32_t at25_protect(struct _at25* at25)
+int at25_set_protection(struct _at25* at25, bool enable)
 {
 	assert(at25);
 
 	while (spi_bus_transaction_pending(at25->dev.bus));
 	spi_bus_start_transaction(at25->dev.bus);
 
-	/* Perform a global protect command */
-	_at25_write_status(at25, 0x7F);
+	if (enable) {
+		/* Perform a global protect command */
+		_at25_write_status(at25, 0x7F);
+	} else {
+		/* Get the status register value to check the current protection */
+		if ((_at25_read_status(at25) & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE) {
+			spi_bus_stop_transaction(at25->dev.bus);
+			return 0;
+		}
 
-	spi_bus_stop_transaction(at25->dev.bus);
+		/* Perform a global unprotect command */
+		_at25_write_status(at25, 0x0);
+		_at25_disable_write(at25);
 
-	return AT25_SUCCESS;
-}
-
-uint32_t at25_unprotect(struct _at25* at25)
-{
-	assert(at25);
-
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
-
-	/* Get the status register value to check the current protection */
-	uint32_t status = _at25_read_status(at25);
-	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE) {
-		spi_bus_stop_transaction(at25->dev.bus);
-		return 0;
+		/* Check the new status */
+		if (_at25_read_status(at25) & (AT25_STATUS_SPRL | AT25_STATUS_SWP)) {
+			spi_bus_stop_transaction(at25->dev.bus);
+			return -EPERM;
+		}
 	}
-
-	/* Perform a global unprotect command */
-	_at25_write_status(at25, 0x0);
-
-	_at25_disable_write(at25);
-	/* Check the new status */
-
-	status = _at25_read_status(at25) & (AT25_STATUS_SPRL | AT25_STATUS_SWP);
-	if (status)
-		status = AT25_ERROR_PROTECTED;
-
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return status;
+	return 0;
 }
 
 void at25_print_device_info(struct _at25* at25)
@@ -464,6 +441,26 @@ void at25_print_device_info(struct _at25* at25)
 	printf("\r\n");
 }
 
+void at25_print_device_status(struct _at25* at25)
+{
+	uint32_t status = at25_read_status(at25);
+	printf("AT25 chip status:\r\n"
+		   "\t- Busy: %s\r\n"
+		   "\t- Write Enabled: %s\r\n"
+		   "\t- Software protection: %s\r\n"
+		   "\t- Write protect pin: %s\r\n"
+		   "\t- Erase/Program error: %s\r\n"
+		   "\t- Sector Protection Register: %s\r\n"
+		   "\t- Raw register value: 0x%X\r\n",
+		   status & AT25_STATUS_RDYBSY_BUSY ? "yes":"no",
+		   status & AT25_STATUS_WEL ? "yes":"no",
+		   status & AT25_STATUS_SWP ? "Some/all":"none",
+		   status & AT25_STATUS_WPP ? "inactive":"active",
+		   status & AT25_STATUS_EPE ? "yes":"no",
+		   status & AT25_STATUS_SPRL ? "locked":"unlocked",
+		   (unsigned)status);
+}
+
 bool at25_is_busy(struct _at25* at25)
 {
 	bool busy;
@@ -478,10 +475,10 @@ bool at25_is_busy(struct _at25* at25)
 	return busy;
 }
 
-uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length)
+int at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length)
 {
 	if (addr > at25->desc->size)
-		return AT25_ADDR_OOB;
+		return -EINVAL;
 
 	trace_debug("at25: Start flash read at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -514,10 +511,10 @@ uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t le
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return AT25_SUCCESS;
+	return 0;
 }
 
-uint32_t at25_erase_chip(struct _at25* at25)
+int at25_erase_chip(struct _at25* at25)
 {
 	trace_debug("at25: Start flash reset all block will be erased\r\n");
 
@@ -526,8 +523,8 @@ uint32_t at25_erase_chip(struct _at25* at25)
 	while (spi_bus_transaction_pending(at25->dev.bus));
 	spi_bus_start_transaction(at25->dev.bus);
 
-	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	int status = _at25_check_writable(at25);
+	if (status < 0) {
 		spi_bus_stop_transaction(at25->dev.bus);
 		return status;
 	}
@@ -548,10 +545,10 @@ uint32_t at25_erase_chip(struct _at25* at25)
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return AT25_SUCCESS;
+	return 0;
 }
 
-uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
+int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 {
 	trace_debug("at25: Start flash erase at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -559,13 +556,13 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	assert(at25);
 
 	if ((addr + length) > at25->desc->size)
-		return AT25_ADDR_OOB;
+		return -EINVAL;
 
 	while (spi_bus_transaction_pending(at25->dev.bus));
 	spi_bus_start_transaction(at25->dev.bus);
 
-	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	int status = _at25_check_writable(at25);
+	if (status < 0) {
 		spi_bus_stop_transaction(at25->dev.bus);
 		return status;
 	}
@@ -588,7 +585,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 256K erase\r\n");
 		} else {
 			trace_error("at25: 256K Erase not supported\r\n");
-			status = AT25_ERROR_PROGRAM;
+			status = -EINVAL;
 		}
 		break;
 	case 64 * 1024:
@@ -597,7 +594,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 64K erase\r\n");
 		} else {
 			trace_error("at25: 64K Erase not supported\r\n");
-			status = AT25_ERROR_PROGRAM;
+			status = -EINVAL;
 		}
 		break;
 	case 32 * 1024:
@@ -606,7 +603,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 32K erase\r\n");
 		} else {
 			trace_error("at25: 32K Erase not supported\r\n");
-			status = AT25_ERROR_PROGRAM;
+			status = -EINVAL;
 		}
 		break;
 	case 4 * 1024:
@@ -615,17 +612,18 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 			trace_debug("at25: Will apply 4K erase\r\n");
 		} else {
 			trace_error("at25: 4K Erase not supported\r\n");
-			status = AT25_ERROR_PROGRAM;
+			status = -EINVAL;
 		}
 		break;
 	default:
-		status = AT25_ERROR_PROGRAM;
+		status = -EINVAL;
 	}
 
-	if (status) {
+	if (status < 0) {
 		spi_bus_stop_transaction(at25->dev.bus);
 		return status;
 	}
+
 	cmd[0] = command;
 	out.size += _at25_compute_addr(at25, &cmd[1], addr);
 
@@ -638,7 +636,7 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 
 	if (_at25_read_status(at25) & AT25_STATUS_EPE) {
 		spi_bus_stop_transaction(at25->dev.bus);
-		return AT25_ERROR_PROGRAM;
+		return -EIO;
 	}
 
 	_at25_wait(at25);
@@ -646,15 +644,15 @@ uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return AT25_SUCCESS;
+	return 0;
 }
 
-uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length)
+int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length)
 {
 	uint8_t cmd[6];
 
 	if (addr > at25->desc->size)
-		return AT25_ADDR_OOB;
+		return -EINVAL;
 
 	trace_debug("at25: Start flash write at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
@@ -664,8 +662,8 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 	while (spi_bus_transaction_pending(at25->dev.bus));
 	spi_bus_start_transaction(at25->dev.bus);
 
-	uint32_t status = _at25_check_writable(at25);
-	if (status) {
+	int status = _at25_check_writable(at25);
+	if  (status < 0) {
 		spi_bus_stop_transaction(at25->dev.bus);
 		return status;
 	}
@@ -709,7 +707,7 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 
 		if (_at25_read_status(at25) & AT25_STATUS_EPE) {
 			spi_bus_stop_transaction(at25->dev.bus);
-			return AT25_ERROR_PROGRAM;
+			return -EIO;
 		}
 
 		length -= write_size;
@@ -722,5 +720,5 @@ uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint
 
 	spi_bus_stop_transaction(at25->dev.bus);
 
-	return AT25_SUCCESS;
+	return 0;
 }
