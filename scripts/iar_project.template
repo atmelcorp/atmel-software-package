@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>AT__REPLACE_SOC__	Atmel __REPLACE_SOC__</state>
+          <state>__REPLACE_SOC__	Atmel __REPLACE_SOC__</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>

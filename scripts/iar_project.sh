@@ -189,10 +189,15 @@ tpl-set-soc() {
     local soc=
 
     for flag in $CFLAGS_DEFS; do
-        if [ "$soc" \< "$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')" ]; then
-            soc=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')
+        socflag=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')
+        if [ ${#soc} -le ${#socflag} ]; then
+            soc=$socflag
         fi
     done
+
+    # Add IAR prefix
+    soc=${soc/SAM9/AT91SAM9}
+    soc=${soc/SAMA5/ATSAMA5}
 
     echo "SET SOC=$soc"
     sed -i "s/__REPLACE_SOC__/$soc/g" "$tpl"
