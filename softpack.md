@@ -41,7 +41,7 @@ This release contains the following examples:
 * crypto_tdes: Triple-DES hardware computation (with and without DMA)
 * ddram: Example of DDRAM usage
 * dmac: Example of DMAC usage
-* gettting-started: LED blink (uses PIT and PIO)
+* getting_started: LED blink (uses PIT, TC and PIO)
 * eth: GMAC/EMAC example using a simple IP stack
 * eth_lwip: GMAC/EMAC example using LWIP stack
 * eth_uip_helloworld: GMAC/EMAC example using UIP stack (UIP helloworld example)
@@ -94,7 +94,7 @@ This release contains the following examples:
 
 # Compatibility
 
-Examples               | sama5d2-xplained | sama5d3-xplained | sama5d3-ek | sama5d4-xplained | sama5d4-ek | sam9xx5-ek
+Examples               | sama5d2 xplained | sama5d3 xplained | sama5d3 ek | sama5d4 xplained | sama5d4 ek | sam9xx5 ek
 ---------------------- | ---------------- | ---------------- | ---------- | ---------------- | ---------- | ----------
 adc                    | OK               | OK               | OK         | OK               | OK         | TODO
 audio_recorder         | OK               | x                | OK         | x                | OK         | TODO
@@ -108,7 +108,7 @@ crypto_sha             | OK               | OK               | OK         | OK  
 crypto_tdes            | OK               | OK               | OK         | OK               | OK         | x
 ddram                  | OK               | OK               | OK         | OK               | OK         | TODO
 dmac                   | x                | OK               | OK         | x                | x          | TODO
-getttingxstarted       | OK               | OK               | OK         | OK               | OK         | OK
+getting_started        | OK               | OK               | OK         | OK               | OK         | OK
 eth                    | OK               | OK               | OK         | OK               | OK         | TODO
 eth_lwip               | OK               | OK               | OK         | OK               | OK         | TODO
 eth_uip_helloworld     | OK               | OK               | OK         | OK               | OK         | TODO
@@ -133,7 +133,7 @@ spi_serialflash        | OK               | OK               | OK         | OK  
 spi_slave              | OK               | x                | TODO       | OK               | OK         | TODO
 ssc_dma_audio          | TODO             | OK               | OK         | OK               | OK         | TODO
 tc_capture_waveform    | OK               | OK               | OK         | OK               | OK         | TODO
-testxpio               | OK               | OK               | TODO       | OK               | OK         | OK
+test-pio               | OK               | OK               | TODO       | OK               | OK         | OK
 trng                   | OK               | OK               | OK         | OK               | OK         | x
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | TODO
 usart_fifo             | OK               | x                | x          | x                | x          | x
