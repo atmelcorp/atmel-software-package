@@ -124,7 +124,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	qspi_set_baudrate(addr, freq);
 
 	/* initialize the QSPI flash */
-	if (!qspiflash_configure(&flash, addr)) {
+	if (qspiflash_configure(&flash, addr) < 0) {
 		trace_error_wp("Error while detecting QSPI flash chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
@@ -217,7 +217,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the write operation */
-	if (!qspiflash_write(&flash, offset, buffer, length)) {
+	if (qspiflash_write(&flash, offset, buffer, length) < 0) {
 		trace_error("Write error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_WRITE_FAIL;
@@ -248,7 +248,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the read operation */
-	if (!qspiflash_read(&flash, offset, buffer, length)) {
+	if (qspiflash_read(&flash, offset, buffer, length) < 0) {
 		trace_error("Read error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
@@ -293,7 +293,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (!qspiflash_erase_block(&flash, offset, length)) {
+	if (qspiflash_erase_block(&flash, offset, length) < 0) {
 		trace_error("Erase failed at offset 0x%lx\r\n", offset);
 		return APPLET_ERASE_FAIL;
 	}

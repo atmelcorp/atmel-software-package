@@ -188,15 +188,13 @@ int main(void)
 	printf("QSPI baudrate set to %uHz\r\n", (unsigned)baudrate);
 
 	printf("Configuring QSPI Flash...\n\r");
-	if (!qspiflash_configure(&flash, QSPIFLASH_ADDR)) {
+	if (qspiflash_configure(&flash, QSPIFLASH_ADDR) < 0)
 		trace_fatal("Configure QSPI Flash failed!\n\r");
-	}
 	printf("QSPI Flash configured.\n\r");
 
 	/* get the code at the beginning of QSPI, run the code directly if it's valid */
-	if (!qspiflash_read(&flash, 0, buffer, sizeof(buffer))) {
+	if (qspiflash_read(&flash, 0, buffer, sizeof(buffer)) < 0)
 		trace_fatal("Read the code from QSPI Flash failed!\n\r");
-	}
 
 	printf("Data at the beginning of QSPI: %08x %08x %08x %08x\n\r",
 		(unsigned int)buffer[0], (unsigned int)buffer[1],
@@ -218,9 +216,8 @@ int main(void)
 
 		if (cmd == 'R' || cmd == 'r') {
 			printf("Starting continuous read mode to enter in XIP mode\n\r");
-			if (!qspiflash_read(&flash, 0, NULL, 0)) {
+			if (qspiflash_read(&flash, 0, NULL, 0) < 0)
 				trace_fatal("Read the code from QSPI Flash failed!\n\r");
-			}
 			run_xip_program(qspi_mem_addr);
 		}
 	} else {
@@ -228,34 +225,28 @@ int main(void)
 	}
 
 	printf("Erasing beginning of memory...\n\r");
-	for (idx = 0; idx * 4096 < sizeof(xip_program); idx++) {
-		if (!qspiflash_erase_block(&flash, idx * 4096, 4096)) {
+	for (idx = 0; idx * 4096 < sizeof(xip_program); idx++)
+		if (qspiflash_erase_block(&flash, idx * 4096, 4096) < 0)
 			trace_fatal("QSPI Flash block erase failed!\n\r");
-		}
-	}
 	printf("Erase done (%u bytes).\n\r", (unsigned)(idx * 4096));
 
 	/* Flash the code to QSPI flash */
 	printf("Writing to QSPI...\n\r");
-	if (!qspiflash_write(&flash, 0, xip_program, sizeof(xip_program))) {
+	if (qspiflash_write(&flash, 0, xip_program, sizeof(xip_program)) < 0)
 		trace_fatal("QSPI Flash writing failed!\n\r");
-	}
 	printf("Example code written to memory (%d bytes).\n\r", sizeof(xip_program));
 	printf("Verifying...\n\r");
 
 	/* Start continuous read mode to enter in XIP mode*/
 	printf("Starting continuous read mode to enter in XIP mode\n\r");
-	if (!qspiflash_read(&flash, 0, NULL, 0)) {
+	if (qspiflash_read(&flash, 0, NULL, 0) < 0)
 		trace_fatal("QSPI Flash read failed!\n\r");
-	}
 
 	ptr = (uint8_t*)qspi_mem_addr;
-	for (idx = 0; idx < sizeof(xip_program); idx++, ptr++) {
-		if (*ptr != xip_program[idx]) {
+	for (idx = 0; idx < sizeof(xip_program); idx++, ptr++)
+		if (*ptr != xip_program[idx])
 			trace_fatal("Data does not match at 0x%x (0x%02x != 0x%02x)\n\r",
 					(unsigned)ptr, *ptr, xip_program[idx]);
-		}
-	}
 
 	printf("Verification OK\n\r");
 	run_xip_program(qspi_mem_addr);

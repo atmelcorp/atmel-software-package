@@ -43,7 +43,7 @@
  *
  * This example shows how to configure AESB to protect electronic data. The
  * Automatic Bridge mode, when the AESB block is connected between the system bus
- * and QSPI, provides automatic encryption/decryption to/from QSPI without 
+ * and QSPI, provides automatic encryption/decryption to/from QSPI without
  * any action on the part of the user.
  *
  * \section Usage
@@ -159,7 +159,7 @@ int main(void)
 	trace_debug("QSPI baudrate set to %uHz\r\n", (unsigned)baudrate);
 
 	printf("Configuring QSPI Flash...\n\r");
-	if (!qspiflash_configure(&flash, QSPIFLASH_ADDR)) {
+	if (qspiflash_configure(&flash, QSPIFLASH_ADDR) < 0) {
 		trace_fatal("Configure QSPI Flash failed!\n\r");
 	}
 	printf("QSPI Flash configured.\n\r");
@@ -172,18 +172,18 @@ int main(void)
 		buffer[idx] = 1 << (idx % 8);
 	}
 
-	if (!qspiflash_erase_block(&flash, 0, 4096)) {
+	if (qspiflash_erase_block(&flash, 0, 4096) < 0) {
 		trace_fatal("QSPI Flash block erase failed!\n\r");
 	}
 
 	printf("-I- Writing to address of QSPI AESB IP scope, the data is encrypted automatically\n\r");
-	if (!qspiflash_write(&flash, 0, buffer, ARRAY_SIZE(buffer))) {
+	if (qspiflash_write(&flash, 0, buffer, ARRAY_SIZE(buffer)) < 0) {
 		trace_fatal("QSPI Flash writing failed!\n\r");
 	}
 
 	printf("-I- Read from address of QSPI AESB IP scope\n\r");
 	memset(buffer_read, 0, ARRAY_SIZE(buffer_read));
-	if (!qspiflash_read(&flash, 0, buffer_read, ARRAY_SIZE(buffer_read))) {
+	if (qspiflash_read(&flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0) {
 			trace_fatal("Read the code from QSPI Flash failed!\n\r");
 	}
 	verify_failed = false;
@@ -199,17 +199,17 @@ int main(void)
 	if (!verify_failed) {
 		printf("\r\n-I- As expected, it automatically decrypts the data read from the target slave before putting it on the system bus\r\n");
 	}
-	
+
 	printf("\r\n-I- Read data from address outside of AESB IP scope. This test is expeted to fail.\r\n");
-	
+
 	qspiflash_use_aesb(&flash, false);
 
 	printf("-I- Read buffer without using AESB IP scope\n\r");
 	memset(buffer_read, 0, ARRAY_SIZE(buffer_read));
-	if (!qspiflash_read(&flash, 0, buffer_read, ARRAY_SIZE(buffer_read))) {
+	if (qspiflash_read(&flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0) {
 			trace_fatal("Read the code from QSPI Flash failed!\n\r");
 	}
-	
+
 	verify_failed = false;
 	printf("-I- Read and verify data from address 0xD00000000 \r\n");
 	for (idx = 0; idx < ARRAY_SIZE(buffer_read); idx++) {

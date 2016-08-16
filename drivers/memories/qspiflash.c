@@ -40,6 +40,7 @@
 #include "peripherals/qspi.h"
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 /*----------------------------------------------------------------------------
  *        Local Definitions
@@ -138,17 +139,17 @@ struct _read_id_config {
 
 struct _flash_init {
 	uint8_t manuf_id;
-	bool (*init)(struct _qspiflash *);
+	int (*init)(struct _qspiflash *);
 };
 
 /*----------------------------------------------------------------------------
  *        Local Forward Function Declarations
  *----------------------------------------------------------------------------*/
 
-static bool _qspiflash_init_micron(struct _qspiflash *flash);
-static bool _qspiflash_init_macronix(struct _qspiflash *flash);
-static bool _qspiflash_init_spansion(struct _qspiflash *flash);
-static bool _qspiflash_init_sst(struct _qspiflash *flash);
+static int _qspiflash_init_micron(struct _qspiflash *flash);
+static int _qspiflash_init_macronix(struct _qspiflash *flash);
+static int _qspiflash_init_spansion(struct _qspiflash *flash);
+static int _qspiflash_init_sst(struct _qspiflash *flash);
 
 /*----------------------------------------------------------------------------
  *        Local Constants
@@ -176,7 +177,7 @@ static const struct _flash_init flash_inits[] = {
  *        Local Functions
  *----------------------------------------------------------------------------*/
 
-static bool _qspiflash_read_reg(const struct _qspiflash *flash, uint8_t code, void *value, uint32_t length)
+static int _qspiflash_read_reg(const struct _qspiflash *flash, uint8_t code, void *value, uint32_t length)
 {
 	struct _qspi_cmd cmd;
 	memset(&cmd, 0, sizeof(cmd));
@@ -188,10 +189,12 @@ static bool _qspiflash_read_reg(const struct _qspiflash *flash, uint8_t code, vo
 	cmd.rx_buffer = value;
 	cmd.buffer_len = length;
 	cmd.timeout = TIMEOUT_DEFAULT;
-	return qspi_perform_command(flash->qspi, &cmd);
+	if (!qspi_perform_command(flash->qspi, &cmd))
+		return -EIO;
+	return 0;
 }
 
-static bool _qspiflash_write_reg(const struct _qspiflash *flash, uint8_t code, const void *value, uint32_t length)
+static int _qspiflash_write_reg(const struct _qspiflash *flash, uint8_t code, const void *value, uint32_t length)
 {
 	struct _qspi_cmd cmd;
 	memset(&cmd, 0, sizeof(cmd));
@@ -203,34 +206,39 @@ static bool _qspiflash_write_reg(const struct _qspiflash *flash, uint8_t code, c
 	cmd.tx_buffer = value;
 	cmd.buffer_len = length;
 	cmd.timeout = TIMEOUT_DEFAULT;
-	return qspi_perform_command(flash->qspi, &cmd);
+	if (!qspi_perform_command(flash->qspi, &cmd))
+		return -EIO;
+	return 0;
 }
 
-static bool _qspiflash_write_enable(const struct _qspiflash *flash)
+static int _qspiflash_write_enable(const struct _qspiflash *flash)
 {
 	return _qspiflash_write_reg(flash, CMD_WRITE_ENABLE, NULL, 0);
 }
 
-static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
+static int _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
 {
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	int ret;
 
-	if (_qspiflash_write_reg(flash, CMD_ENTER_ADDR4_MODE, NULL, 0)) {
-		flash->mode_addr4 = true;
-		return true;
-	}
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
-	return false;
+	ret = _qspiflash_write_reg(flash, CMD_ENTER_ADDR4_MODE, NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	flash->mode_addr4 = true;
+	return 0;
 }
 
-static bool qspiflash_read_flag_status(const struct _qspiflash *flash, uint8_t *status)
+static int _qspiflash_read_flag_status(const struct _qspiflash *flash, uint8_t *status)
 {
 	if (flash->desc->flags & SPINOR_FLAG_FSR)
 		return _qspiflash_read_reg(flash, CMD_READ_FLAG_STATUS, status, 1);
 	else {
 		*status = FSR_NBUSY; /* Not busy */
-		return true;
+		return 0;
 	}
 }
 
@@ -297,62 +305,72 @@ static unsigned char qspi_flash_3to4_opcode(unsigned char opcode)
  *        Local Functions (Micron support)
  *----------------------------------------------------------------------------*/
 
-static bool _micron_set_protocol(struct _qspiflash *flash,
+static int _micron_set_protocol(struct _qspiflash *flash,
 		uint8_t mask, uint8_t val, uint32_t ifr_width)
 {
+	int ret;
 	uint8_t evcr;
 
 	/* Read the Enhanced Volatile Configuration Register (EVCR). */
-	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1);
+	if (ret < 0)
+		return ret;
 
 	/* Check whether we need to update the protocol bits. */
 	if ((evcr & mask) == val) {
 		trace_debug("QSPI Flash: Micron Quad mode already enabled\r\n");
-		return true;
+		return 0;
 	}
 
 	trace_debug("QSPI Flash: Micron Quad mode disabled, will enable it\r\n");
 
 	/* Set EVCR protocol bits. */
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 	evcr = (evcr & ~mask) | val;
-	if (!_qspiflash_write_reg(flash, CMD_MICRON_WRITE_EVCR, &evcr, 1))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_MICRON_WRITE_EVCR, &evcr, 1);
+	if (ret < 0)
+		return ret;
 
 	/* Switch reg protocol now before accessing any other registers. */
 	flash->ifr_width_reg = ifr_width;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
 	/* Read EVCR and check it. */
-	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MICRON_READ_EVCR, &evcr, 1);
+	if (ret < 0)
+		return ret;
 	if ((evcr & mask) != val)
-		return false;
+		return -EIO;
 
-	return true;
+	return 0;
 }
 
-static bool _micron_set_quad_spi_protocol(struct _qspiflash *flash)
+static int _micron_set_quad_spi_protocol(struct _qspiflash *flash)
 {
+	int ret;
+
 	/* Set Quad/Dual bits to 0_ to select the Quad SPI mode. */
-	if (!_micron_set_protocol(flash, EVCR_QUAD_ENABLE, 0,
-				QSPI_IFR_WIDTH_QUAD_CMD))
-		return false;
+	ret = _micron_set_protocol(flash, EVCR_QUAD_ENABLE, 0,
+				QSPI_IFR_WIDTH_QUAD_CMD);
+	if (ret < 0)
+		return ret;
 
 	flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_CMD;
 	flash->ifr_width_program = QSPI_IFR_WIDTH_QUAD_CMD;
 	flash->ifr_width_erase = QSPI_IFR_WIDTH_QUAD_CMD;
 
-	return true;
+	return 0;
 }
 
-static bool _micron_set_dummy_cycles(struct _qspiflash *flash,
+static int _micron_set_dummy_cycles(struct _qspiflash *flash,
 		uint8_t num_dummy_cycles)
 {
+	int ret;
 	uint8_t vcr, val, mask;
 
 	/* Clear bit3 (XIP) to enable the Continuoues Read mode. */
@@ -360,28 +378,33 @@ static bool _micron_set_dummy_cycles(struct _qspiflash *flash,
 	val = (num_dummy_cycles << 4) & mask;
 
 	/* Read the Volatile Configuration Register (VCR). */
-	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1);
+	if (ret < 0)
+		return ret;
 
 	/* Check whether we need to update the number of dummy cycles. */
 	if ((vcr & mask) == val)
 		goto updated;
 
 	/* Update the number of dummy into the VCR. */
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 	vcr = (vcr & ~mask) | val;
-	if (!_qspiflash_write_reg(flash, CMD_MICRON_WRITE_VCR, &vcr, 1))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_MICRON_WRITE_VCR, &vcr, 1);
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
 	/* Read VCR and check it. */
-	if (!_qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MICRON_READ_VCR, &vcr, 1);
+	if (ret < 0)
+		return ret;
 	if ((vcr & mask) != val)
-		return false;
+		return -EIO;
 
 updated:
 	/* Save the number of mode/dummy cycles to use with Fast Read commands. */
@@ -397,62 +420,72 @@ updated:
 	flash->normal_read_mode = 0x01;
 	flash->continuous_read_mode = 0x00;
 
-	return true;
+	return 0;
 }
 
-static bool _qspiflash_init_micron(struct _qspiflash *flash)
+static int _qspiflash_init_micron(struct _qspiflash *flash)
 {
+	int ret;
+
 	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
-		if (!_micron_set_quad_spi_protocol(flash))
-			return false;
+		ret = _micron_set_quad_spi_protocol(flash);
+		if (ret < 0)
+			return ret;
 
 		flash->opcode_read = CMD_FAST_READ_1_4_4;
 	}
 
-	if (!_micron_set_dummy_cycles(flash, 8))
-		return false;
+	ret = _micron_set_dummy_cycles(flash, 8);
+	if (ret < 0)
+		return ret;
 
-	return true;
+	return 0;
 }
 
 /*----------------------------------------------------------------------------
  *        Local Functions (Macronix support)
  *----------------------------------------------------------------------------*/
 
-static bool _macronix_quad_enable(struct _qspiflash *flash)
+static int _macronix_quad_enable(struct _qspiflash *flash)
 {
+	int ret;
 	uint8_t status;
 
-	if (!qspiflash_read_status(flash, &status))
-		return false;
+	ret = qspiflash_read_status(flash, &status);
+	if (ret < 0)
+		return ret;
 
 	if (status & SR_MACRONIX_QUAD_EN) {
 		trace_debug("QSPI Flash: Macronix Quad mode already enabled\r\n");
-		return true;
+		return 0;
 	}
 
 	trace_debug("QSPI Flash: Macronix Quad mode disabled, will enable it\r\n");
 
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
 	status |= SR_MACRONIX_QUAD_EN;
-	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, &status, 1))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_WRITE_STATUS, &status, 1);
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_read_status(flash, &status))
-		return false;
+	ret = qspiflash_read_status(flash, &status);
+	if (ret < 0)
+		return ret;
 
 	if ((status & SR_MACRONIX_QUAD_EN) == 0)
-		return false;
+		return -EIO;
 
-	return true;
+	return 0;
 }
 
-static bool _macronix_dummy2code(uint8_t read_opcode,
+static int _macronix_dummy2code(uint8_t read_opcode,
 		uint8_t num_dummy_cycles, uint8_t *dc)
 {
 	switch (read_opcode) {
@@ -473,7 +506,7 @@ static bool _macronix_dummy2code(uint8_t read_opcode,
 			*dc = 3;
 			break;
 		default:
-			return false;
+			return -EINVAL;
 		}
 		break;
 
@@ -491,56 +524,64 @@ static bool _macronix_dummy2code(uint8_t read_opcode,
 		case 10:
 			*dc = 3;
 		default:
-			return false;
+			return -EINVAL;
 		}
 		break;
 
 	default:
-		return false;
+		return -EINVAL;
 	}
 
-	return true;
+	return 0;
 }
 
-static bool _macronix_set_dummy_cycles(struct _qspiflash *flash,
+static int _macronix_set_dummy_cycles(struct _qspiflash *flash,
 		uint8_t num_dummy_cycles)
 {
+	int ret;
 	uint8_t mask, val, dc;
 	uint8_t cr, sr, sr_cr[2];
 
 	/* Convert the number of dummy cycles into Macronix DC volatile bits. */
-	if (!_macronix_dummy2code(flash->opcode_read, num_dummy_cycles, &dc))
-		return false;
+	ret = _macronix_dummy2code(flash->opcode_read, num_dummy_cycles, &dc);
+	if (ret < 0)
+		return ret;
 
 	mask = 0xc0;
 	val = (dc << 6) & mask;
 
-	if (!_qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1);
+	if (ret < 0)
+		return ret;
 
 	if ((cr & mask) == val)
 		goto updated;
 
-	if (!qspiflash_read_status(flash, &sr))
-		return false;
+	ret = qspiflash_read_status(flash, &sr);
+	if (ret < 0)
+		return ret;
 
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
 	cr = (cr & ~mask) | val;
 	sr_cr[0] = sr & 0xff;
 	sr_cr[1] = cr & 0xff;
-	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS, sr_cr, 2))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_WRITE_STATUS, sr_cr, 2);
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
-	if (!_qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_MACRONIX_READ_CONFIG, &cr, 1);
+	if (ret < 0)
+		return ret;
 
 	if ((cr & mask) != val)
-		return false;
+		return -EIO;
 
 updated:
 	if (num_dummy_cycles) {
@@ -555,10 +596,10 @@ updated:
 	flash->normal_read_mode = 0x00;
 	flash->continuous_read_mode = 0xf0;
 
-	return true;
+	return 0;
 }
 
-static bool _qspiflash_init_macronix(struct _qspiflash *flash)
+static int _qspiflash_init_macronix(struct _qspiflash *flash)
 {
 	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
 		/*
@@ -576,8 +617,9 @@ static bool _qspiflash_init_macronix(struct _qspiflash *flash)
 		 * we MUST set the QE bit before using any Quad SPI command.
 		 */
 		if (flash->ifr_width_read != QSPI_IFR_WIDTH_QUAD_CMD) {
-			if (!_macronix_quad_enable(flash))
-				return false;
+			int ret = _macronix_quad_enable(flash);
+			if (ret < 0)
+				return ret;
 
 			flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
 		}
@@ -590,19 +632,22 @@ static bool _qspiflash_init_macronix(struct _qspiflash *flash)
  *        Local Functions (Spansion support)
  *----------------------------------------------------------------------------*/
 
-static bool _spansion_set_protocol(struct _qspiflash *flash,
+static int _spansion_set_protocol(struct _qspiflash *flash,
 		uint8_t mask, uint8_t val)
 {
+	int ret;
 	bool need_update = false;
 	uint8_t wrr_val[2];
 
 	/* Read the Status Register. */
-	if (!qspiflash_read_status(flash, &wrr_val[0]))
-		return false;
+	ret = qspiflash_read_status(flash, &wrr_val[0]);
+	if (ret < 0)
+		return ret;
 
 	/* Read the Configuration Register. */
-	if (!_qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1);
+	if (ret < 0)
+		return ret;
 
 	/* Check whether block protect is enabled and disable it */
 	if (wrr_val[0] & (SR_SPANSION_BP0 | SR_SPANSION_BP1 | SR_SPANSION_BP2)) {
@@ -623,30 +668,33 @@ static bool _spansion_set_protocol(struct _qspiflash *flash,
 	}
 
 	if (!need_update)
-		return true;
+		return 0;
 
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
 	/* Write the Status and Config Registers. */
-	if (!_qspiflash_write_reg(flash, CMD_WRITE_STATUS,
-			wrr_val, sizeof(wrr_val)))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_WRITE_STATUS, wrr_val, sizeof(wrr_val));
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
 	/* Read the Configuration Register and check it. */
-	if (!_qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1))
-		return false;
+	ret = _qspiflash_read_reg(flash, CMD_READ_CONFIG, &wrr_val[1], 1);
+	if (ret < 0)
+		return ret;
 
 	if ((wrr_val[1] & mask) != val)
-		return false;
+		return -EIO;
 
-	return true;
+	return 0;
 }
 
-static bool _spansion_set_dummy_cycles(struct _qspiflash *flash,
+static int _spansion_set_dummy_cycles(struct _qspiflash *flash,
 		uint8_t num_dummy_cycles)
 {
 	/* Save the number of mode/dummy cycles to use with Fast Read commands. */
@@ -668,15 +716,18 @@ static bool _spansion_set_dummy_cycles(struct _qspiflash *flash,
 	flash->normal_read_mode = 0x00;
 	flash->continuous_read_mode = 0xA0;
 
-	return true;
+	return 0;
 }
 
-static bool _qspiflash_init_spansion(struct _qspiflash *flash)
+static int _qspiflash_init_spansion(struct _qspiflash *flash)
 {
+	int ret;
+
 	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
 		/* Puts the device into Quad I/O mode */
-		if (!_spansion_set_protocol(flash, CR_SPANSION_QUAD, CR_SPANSION_QUAD))
-			return false;
+		ret = _spansion_set_protocol(flash, CR_SPANSION_QUAD, CR_SPANSION_QUAD);
+		if (ret < 0)
+			return ret;
 
 		flash->opcode_read = CMD_FAST_READ_1_4_4;
 		flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
@@ -687,17 +738,18 @@ static bool _qspiflash_init_spansion(struct _qspiflash *flash)
 		}
 	}
 
-	if (!_spansion_set_dummy_cycles(flash, 6))
-		return false;
+	ret = _spansion_set_dummy_cycles(flash, 6);
+	if (ret < 0)
+		return ret;
 
-	return true;
+	return 0;
 }
 
 /*----------------------------------------------------------------------------
  *        Local Functions (SST/Microchip support)
  *----------------------------------------------------------------------------*/
 
-static bool _qspiflash_init_sst(struct _qspiflash *flash)
+static int _qspiflash_init_sst(struct _qspiflash *flash)
 {
 	return _qspiflash_write_reg(flash, CMD_SST_ULBPR, NULL, 0);
 }
@@ -707,9 +759,9 @@ static bool _qspiflash_init_sst(struct _qspiflash *flash)
  *        Public Functions
  *----------------------------------------------------------------------------*/
 
-bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
+int qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 {
-	int i;
+	int i, ret;
 
 	memset(flash, 0, sizeof(*flash));
 	flash->qspi = qspi;
@@ -728,7 +780,7 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 
 		/* Read JEDEC ID */
 		jedec_id = 0;
-		if (!_qspiflash_read_reg(flash, configs[i].opcode, &jedec_id, 3))
+		if (_qspiflash_read_reg(flash, configs[i].opcode, &jedec_id, 3) < 0)
 			continue;
 
 		if (jedec_id != 0xffffff) {
@@ -746,7 +798,7 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	/* Not found */
 	if (!flash->desc) {
 		trace_debug("No supported memory found.\r\n");
-		return false;
+		return -ENODEV;
 	} else {
 		trace_debug("Found supported memory with JEDEC ID 0x%08x (%s).\r\n",
 				(unsigned)jedec_id, flash->desc->name);
@@ -768,9 +820,10 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	/* Initialize */
 	for (i = 0;  i < ARRAY_SIZE(flash_inits); i++) {
 		if ((jedec_id & 0xff) == flash_inits[i].manuf_id) {
-			if (!flash_inits[i].init(flash)) {
+			ret = flash_inits[i].init(flash);
+			if (ret < 0) {
 				trace_warning("Could not initialize QSPI memory\r\n");
-				return false;
+				return ret;
 			}
 		}
 	}
@@ -778,9 +831,10 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	/* Convert opcodes to their 4byte address version for >16MB memories */
 	if (flash->desc->size > 16 * 1024 * 1024) {
 		if (flash->desc->flags & SPINOR_FLAG_ENTER_4B_MODE) {
-			if (!_qspiflash_enter_addr4_mode(flash)) {
+			ret = !_qspiflash_enter_addr4_mode(flash);
+			if (ret < 0) {
 				trace_warning("Could not switch QSPI memory to 4-byte address mode\r\n");
-				return false;
+				return ret;
 			}
 		} else {
 			flash->mode_addr4 = true;
@@ -792,7 +846,7 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 		}
 	}
 
-	return true;
+	return 0;
 }
 
 #ifdef CONFIG_HAVE_AESB
@@ -802,53 +856,59 @@ void qspiflash_use_aesb(struct _qspiflash *flash, bool enable)
 }
 #endif
 
-bool qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status)
+int qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status)
 {
 	return _qspiflash_read_reg(flash, CMD_READ_STATUS, status, 1);
 }
 
-bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout)
+int qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout)
 {
 	struct _timeout to;
 	timer_start_timeout(&to, timeout);
 	do {
+		int ret;
 		uint8_t status, flag_status;
 
-                if (!qspiflash_read_flag_status(flash, &flag_status))
-			return false;
-		if (!qspiflash_read_status(flash, &status))
-			return false;
+		ret = _qspiflash_read_flag_status(flash, &flag_status);
+		if (ret < 0)
+			return ret;
+		ret = qspiflash_read_status(flash, &status);
+		if (ret < 0)
+			return ret;
 
 		if (((status & SR_WIP) == 0) && ((flag_status & FSR_NBUSY) != 0))
-			return true;
+			return 0;
 	} while (!timer_timeout_reached(&to));
 
 	trace_debug("qspiflash_wait_ready timeout reached\r\n");
 
 	/* Timed out */
-	return false;
+	return -EBUSY;
 }
 
-bool qspiflash_read_jedec_id(const struct _qspiflash *flash,
+int qspiflash_read_jedec_id(const struct _qspiflash *flash,
 		uint32_t *jedec_id)
 {
+	int ret;
 	uint32_t cmd = flash->ifr_width_reg == QSPI_IFR_WIDTH_SINGLE_BIT_SPI ? CMD_READ_ID : CMD_MULTI_IO_READ_ID;
 	uint32_t id = 0;
-	if (_qspiflash_read_reg(flash, cmd, &id, 3)) {
-		*jedec_id = id;
-		return true;
-	}
-	return false;
+	ret = _qspiflash_read_reg(flash, cmd, &id, 3);
+	if (ret < 0)
+		return ret;
+	*jedec_id = id;
+	return 0;
 }
 
-bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
+int qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
 		uint32_t length)
 {
+	int ret;
 	uint8_t mode = data ? flash->normal_read_mode : flash->continuous_read_mode;
 	struct _qspi_cmd cmd;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY;
@@ -869,29 +929,38 @@ bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data,
 	cmd.rx_buffer = data;
 	cmd.buffer_len = length;
 	cmd.timeout = TIMEOUT_DEFAULT;
-	return qspi_perform_command(flash->qspi, &cmd);
+	if (!qspi_perform_command(flash->qspi, &cmd))
+	       return -EIO;
+	return 0;
 }
 
-bool qspiflash_erase_chip(const struct _qspiflash *flash)
+int qspiflash_erase_chip(const struct _qspiflash *flash)
 {
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	int ret;
 
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
-	if (!_qspiflash_write_reg(flash, CMD_BULK_ERASE, NULL, 0))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_ERASE_CHIP))
-		return false;
+	ret = _qspiflash_write_reg(flash, CMD_BULK_ERASE, NULL, 0);
+	if (ret < 0)
+		return ret;
 
-	return true;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_ERASE_CHIP);
+	if (ret < 0)
+		return ret;
+
+	return 0;
 }
 
-bool qspiflash_erase_block(const struct _qspiflash *flash,
+int qspiflash_erase_block(const struct _qspiflash *flash,
 		uint32_t addr, uint32_t length)
 {
+	int ret;
 	uint32_t flags = flash->desc->flags;
 	struct _qspi_cmd cmd;
 	uint8_t instr;
@@ -902,7 +971,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 			instr = flash->opcode_block_erase;
 		} else {
 			trace_error("qspiflash: 256K Erase not supported\r\n");
-			return false;
+			return -EINVAL;
 		}
 		break;
 	case 64 * 1024:
@@ -910,7 +979,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 			instr = flash->opcode_block_erase;
 		} else {
 			trace_error("qspiflash: 64K Erase not supported\r\n");
-			return false;
+			return -EINVAL;
 		}
 		break;
 	case 32 * 1024:
@@ -918,7 +987,7 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 			instr = flash->opcode_block_erase_32k;
 		} else {
 			trace_error("qspiflash: 32K Erase not supported\r\n");
-			return false;
+			return -EINVAL;
 		}
 		break;
 	case 4 * 1024:
@@ -926,20 +995,22 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 			instr = flash->opcode_sector_erase;
 		} else {
 			trace_error("qspiflash: 4K Erase not supported\r\n");
-			return false;
+			return -EINVAL;
 		}
 		break;
 	default:
 		trace_error("qspiflash: unsupported erase length (%u)\r\n",
 				(unsigned)length);
-		return false;
+		return -EINVAL;
 	}
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
-	if (!_qspiflash_write_enable(flash))
-		return false;
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE;
@@ -953,23 +1024,26 @@ bool qspiflash_erase_block(const struct _qspiflash *flash,
 	cmd.address = addr;
 	cmd.timeout = TIMEOUT_DEFAULT;
 	if (!qspi_perform_command(flash->qspi, &cmd))
-		return false;
+		return -EIO;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_ERASE))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_ERASE);
+	if (ret < 0)
+		return ret;
 
-	return true;
+	return 0;
 }
 
-bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
+int qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		const void *data, uint32_t length)
 {
+	int ret;
 	struct _qspi_cmd cmd;
 	uint32_t written = 0;
 	const uint8_t *ptr = data;
 
-	if (!qspiflash_wait_ready(flash, TIMEOUT_DEFAULT))
-		return false;
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
 
 	while (written < length) {
 		/* remaining size in current page */
@@ -978,8 +1052,9 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		/* number of bytes to write this round */
 		uint32_t count = min_u32(length - written, remaining);
 
-		if (!_qspiflash_write_enable(flash))
-			return false;
+		ret = _qspiflash_write_enable(flash);
+		if (ret < 0)
+			return ret;
 
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.ifr_type = QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY;
@@ -997,15 +1072,16 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 		cmd.timeout = TIMEOUT_DEFAULT;
 
 		if (!qspi_perform_command(flash->qspi, &cmd))
-			return false;
+			return -EIO;
 
-		if (!qspiflash_wait_ready(flash, TIMEOUT_WRITE))
-			return false;
+		ret = qspiflash_wait_ready(flash, TIMEOUT_WRITE);
+		if (ret < 0)
+			return ret;
 
 		written += count;
 		addr += count;
 		ptr += count;
 	}
 
-	return true;
+	return 0;
 }

@@ -56,19 +56,19 @@ int main(void)
 	printf("set baudrate to %u\r\n", (unsigned)baudrate);
 
 	struct _qspiflash flash;
-	bool rc = qspiflash_configure(&flash, QSPIFLASH_ADDR);
-	printf("configure returns %s\r\n", rc ? "true" : "false");
+	int rc = qspiflash_configure(&flash, QSPIFLASH_ADDR);
+	printf("configure returns %d\r\n", rc);
 
 	uint32_t start = 0x280000;
 
 	printf("erasing block at 0x%08x\r\n", (int)start);
 	rc = qspiflash_erase_block(&flash, start, 64 * 1024);
-	printf("erase returns %s\r\n", rc ? "true" : "false");
+	printf("erase returns %d\r\n", rc);
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
 	memset(buf, 0, sizeof(buf));
 	rc = qspiflash_read(&flash, start, buf, sizeof(buf));
-	printf("read returns %s\r\n", rc ? "true" : "false");
+	printf("read returns %d\r\n", rc);
 	_display_buf(buf, sizeof(buf));
 
 	printf("preparing write buffer\r\n");
@@ -82,12 +82,12 @@ int main(void)
 
 	printf("writing %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
 	rc = qspiflash_write(&flash, start, buf, sizeof(buf));
-	printf("write returns %s\r\n", rc ? "true" : "false");
+	printf("write returns %d\r\n", rc);
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
 	memset(buf, 0, sizeof(buf));
 	rc = qspiflash_read(&flash, start, buf, sizeof(buf));
-	printf("read returns %s\r\n", rc ? "true" : "false");
+	printf("read returns %d\r\n", rc);
 	_display_buf(buf, sizeof(buf));
 
 	while (1) { }

@@ -37,7 +37,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "memories/spi-nor.h"
-#include "peripherals/qspi.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -75,17 +74,17 @@ struct _qspiflash {
 extern "C" {
 #endif
 
-extern bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi);
+extern int qspiflash_configure(struct _qspiflash *flash, Qspi *qspi);
 #ifdef CONFIG_HAVE_AESB
 extern void qspiflash_use_aesb(struct _qspiflash *flash, bool enable);
 #endif
-extern bool qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status);
-extern bool qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout);
-extern bool qspiflash_read_jedec_id(const struct _qspiflash *flash, uint32_t *jedec_id);
-extern bool qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data, uint32_t length);
-extern bool qspiflash_erase_chip(const struct _qspiflash *flash);
-extern bool qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr, uint32_t length);
-extern bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr, const void *data, uint32_t length);
+extern int qspiflash_read_status(const struct _qspiflash *flash, uint8_t *status);
+extern int qspiflash_wait_ready(const struct _qspiflash *flash, uint32_t timeout);
+extern int qspiflash_read_jedec_id(const struct _qspiflash *flash, uint32_t *jedec_id);
+extern int qspiflash_read(const struct _qspiflash *flash, uint32_t addr, void *data, uint32_t length);
+extern int qspiflash_erase_chip(const struct _qspiflash *flash);
+extern int qspiflash_erase_block(const struct _qspiflash *flash, uint32_t addr, uint32_t length);
+extern int qspiflash_write(const struct _qspiflash *flash, uint32_t addr, const void *data, uint32_t length);
 
 #ifdef __cplusplus
 }

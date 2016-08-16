@@ -149,7 +149,7 @@ uint32_t FlashInit(void *base_of_flash,
 
 	for (i = 0; i < (0x200000 / (64*1024)); i++)
 		SectorErased[i] = 0;
-    
+
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
@@ -165,7 +165,7 @@ uint32_t FlashInit(void *base_of_flash,
 
 	arg = findOption("--freq", 1, argc, argv);
 	freq = strtoul(arg, 0, 0);
-	
+
 	uint32_t max_freq = pmc_get_peripheral_clock(ID_QSPI0);
 	if (freq == 0 || (freq * 1000000) > max_freq) {
 		trace_error_wp("Invalid configuration: frequency must be " \
@@ -173,7 +173,7 @@ uint32_t FlashInit(void *base_of_flash,
 				(unsigned)max_freq, (unsigned)freq * 1000000);
 		return RESULT_ERROR;
 	}
-	
+
 	if (!configure_instance_pio(instance, ioset, &addr))
 		return RESULT_ERROR;
 
@@ -184,9 +184,10 @@ uint32_t FlashInit(void *base_of_flash,
 	(void)qspi_set_baudrate(addr, freq * 1000000);
 
 	trace_debug("Configure QSPI Flash...\n\r");
-	if (!qspiflash_configure(&flash, addr)) {
+	int rc = qspiflash_configure(&flash, addr);
+	if (rc < 0) {
 		trace_debug("Configure QSPI Flash failed!\n\r");
-		return RESULT_ERROR;
+		return rc;
 	}
 	if (!flash.desc->jedec_id) {
 		trace_debug("Device Unknown\r\n");
@@ -212,7 +213,7 @@ uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t coun
 {
 	printf("-I- Write arguments: address 0x%08x,  offset 0x%x of 0x%x Bytes\n\r",
 		(uint32_t)block_start, offset_into_block, count);
-	if (true != qspiflash_write(&flash, (uint32_t)block_start + offset_into_block - base_address, buffer, count))
+	if (qspiflash_write(&flash, (uint32_t)block_start + offset_into_block - base_address, buffer, count) < 0)
 	{
 	// Write data
 		printf("-E- Failed to write!\n\r");
@@ -223,7 +224,7 @@ uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t coun
 	if (sizeWritten >= sizeTobeWritten) {
 		printf("-I- Enter to XIP mode!\n\r");
 		/* Start continuous read mode to enter in XIP mode*/
-		if (!qspiflash_read(&flash, 0, NULL, 0)) {
+		if (qspiflash_read(&flash, 0, NULL, 0) < 0) {
 			trace_debug("Read the code from QSPI Flash failed!\n\r");
 			return RESULT_ERROR;
 		}
