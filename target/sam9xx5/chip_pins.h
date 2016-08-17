@@ -78,6 +78,15 @@
 /** USART0 SCK pin definition. */
 #define PIN_USART0_SCK { PIO_GROUP_A, PIO_PA4A_SCK0, PIO_PERIPH_A, PIO_DEFAULT }
 
+/** USART0 pins definition. */
+#define PINS_USART0 {\
+	PIN_USART0_TXD,\
+	PIN_USART0_RXD,\
+	PIN_USART0_RTS,\
+	PIN_USART0_CTS,\
+	PIN_USART0_SCK,\
+}
+
 /** USART1 TXD pin definition. */
 #define PIN_USART1_TXD { PIO_GROUP_A, PIO_PA5A_TXD1, PIO_PERIPH_A, PIO_DEFAULT }
 
@@ -92,6 +101,15 @@
 
 /** USART1 SCK pin definition. */
 #define PIN_USART1_SCK { PIO_GROUP_C, PIO_PC29C_SCK1, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** USART1 pins definition. */
+#define PINS_USART1 {\
+	PIN_USART1_TXD,\
+	PIN_USART1_RXD,\
+	PIN_USART1_RTS,\
+	PIN_USART1_CTS,\
+	PIN_USART1_SCK,\
+}
 
 /** USART2 TXD pin definition. */
 #define PIN_USART2_TXD { PIO_GROUP_A, PIO_PA7A_TXD2, PIO_PERIPH_A, PIO_DEFAULT }
@@ -108,6 +126,15 @@
 /** USART2 SCK pin definition. */
 #define PIN_USART2_SCK { PIO_GROUP_B, PIO_PB2B_SCK2, PIO_PERIPH_B, PIO_DEFAULT }
 
+/** USART2 pins definition. */
+#define PINS_USART2 {\
+	PIN_USART2_TXD,\
+	PIN_USART2_RXD,\
+	PIN_USART2_RTS,\
+	PIN_USART2_CTS,\
+	PIN_USART2_SCK,\
+}
+
 /** USART3 TXD pin definition. */
 #define PIN_USART3_TXD { PIO_GROUP_C, PIO_PC22B_TXD3, PIO_PERIPH_B, PIO_DEFAULT }
 
@@ -122,6 +149,15 @@
 
 /** USART3 SCK pin definition. */
 #define PIN_USART3_SCK { PIO_GROUP_C, PIO_PC26B_SCK3, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** USART3 pins definition. */
+#define PINS_USART3 {\
+	PIN_USART3_TXD,\
+	PIN_USART3_RXD,\
+	PIN_USART3_RTS,\
+	PIN_USART3_CTS,\
+	PIN_USART3_SCK,\
+}
 
 /* ========== Pio PIN definition for TWI peripheral ========== */
 
