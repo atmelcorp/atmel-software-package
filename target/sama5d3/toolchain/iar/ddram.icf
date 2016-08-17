@@ -10,10 +10,8 @@ define block UND_STACK with alignment = 8, size = 0x40   { };
 define block SYS_STACK with alignment = 8, size = 0x40   { };
 define block HEAP      with alignment = 4, size = 0x200 { };
 
-define block BSS with alignment = 32 { zi };
-
-define block SRAM  with alignment = 32 { section .region_sram  };
-define block DDRAM with alignment = 32 { section .region_ddr };
+define block SRAM { section .region_sram  };
+define block DDRAM { section .region_ddr };
 
 /* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
 define block DDR_NO_CACHE { section .region_ddr_nocache };
@@ -35,7 +33,7 @@ place in DDRAM_region { rw };
 place in DDRAM_region { block CACHE_ALIGNED_CONST };
 place in DDRAM_region { block CACHE_ALIGNED };
 place in DDRAM_region { block DDRAM };
-place in DDRAM_region { block BSS };
+place in DDRAM_region { zi };
 place in DDRAM_region { block HEAP };
 place in DDRAM_region { block IRQ_STACK };
 place in DDRAM_region { block ABT_STACK };
