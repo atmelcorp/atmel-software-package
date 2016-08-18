@@ -33,13 +33,13 @@ definitions according to the hardware used.
      - No flow control
 
  - Connect the smart card to the board.
- Smart Card  | Board |  SAMA5D2-XPLAINED | SAMA5D4-XPLAINED |    SAMA5D4-EK   |
- ------|-------------|-------------------|------------------|-----------------|
-C1 (Vcc)   | 7816_3V5V|PB29 (J17 pin 13 )|PD16 (J19 pin 4 ) |PD16(J11 pin 13 )|
-C2 (Reset) | 7816_RST |PC0  (J17 pin 8)  |PD15 (J15 pin 8 ) |PD15(J11 pin 18 )|
-C3 (Clock) | 7816_CLK |PB30 (J17 pin 6)  |PD29 (J15 pin 6 ) |PD29(J11 pin 9 ) |
-C5 (GND)   | GND      |------------------|------------------|-----------------|
-C7 (I/O)   | 7816_IO  |PB28 (J17 pin 14) |PD17(J19 pin 3 )  |PD17(J11 pin 14 )|
+Smart Card | Board     | SAMA5D2-XPLAINED  | SAMA5D4-XPLAINED | SAMA5D4-EK        | SAM9XX5-EK       |
+-----------|-----------|-------------------|------------------|-------------------|------------------|
+C1 (Vcc)   | 7816_3V5V | PB29 (J17 pin 13) | PD16 (J19 pin 4) | PD16 (J11 pin 13) | PA1A (J1 pin 7)  |
+C2 (Reset) | 7816_RST  | PC0  (J17 pin 8)  | PD15 (J15 pin 8) | PD15 (J11 pin 18) | PA2A (J1 pin 9)  |
+C3 (Clock) | 7816_CLK  | PB30 (J17 pin 6)  | PD29 (J15 pin 6) | PD29 (J11 pin 9)  | PA4A (J1 pin 13) |
+C5 (GND)   | GND       | GND               | GND              | GND               | GND              |
+C7 (I/O)   | 7816_IO   | PB28 (J17 pin 14) | PD17 (J19 pin 3) | PD17 (J11 pin 14) | PA0A (J1 pin 5)  |
 C6 (Vpp)   |
 C4 (RFU)   |
 C8 (RFU)   |
@@ -47,7 +47,7 @@ C8 (RFU)   |
 If necessary, another pin can be connected on the card reader for detecting the
 insertion and removal: 7816_IRQ.
 
-## Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED,SAMA5D4-EK)
+## Start the application
 --------
 ISO7816 driver will be configured and initialized, then the ATR will be gained and decoded.
 Tested with IAR and GCC (sram and ddram configuration)
@@ -58,5 +58,4 @@ Step | Description | Expected Result | Result
 Press "1" | Non-zero value will be answered | PASSED | PASSED
 Press "2" | Non-zero value will be answered | PASSED | PASSED
 Press "3" | Non-zero value will be answered | PASSED | PASSED
-
 

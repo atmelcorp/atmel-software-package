@@ -146,6 +146,16 @@
 	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 	#include "config_sama5d4-xplained.h"
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+	#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
@@ -206,6 +216,8 @@ uint8_t smartcard = 0;
  *         Internal functions
  *------------------------------------------------------------------------------*/
 
+#ifdef PINS_PUSHBUTTONS
+
 /**
  *  \brief Process Buttons Events
  *
@@ -219,6 +231,7 @@ static void process_button_evt(uint8_t bt)
 	}
 	smartcard = ~smartcard;
 }
+
 
 /**
  *  \brief Handler for Buttons rising edge interrupt.
@@ -259,6 +272,8 @@ static void _configure_buttons(void)
 		pio_enable_it(button_pins);
 	}
 }
+
+#endif /* PINS_PUSHBUTTONS */
 
 /*------------------------------------------------------------------------------
  *         Optional smartcard detection
@@ -368,9 +383,11 @@ extern int main( void )
 	led_clear(LED_BLUE);
 	led_status[LED_BLUE] = 1;
 
+#ifdef PINS_PUSHBUTTONS
 	/* PIO configuration for Button, use to simulate card detection. */
 	printf("Configure buttons with debouncing.\n\r");
 	_configure_buttons();
+#endif
 
 	/* Configure Pios usart*/
 	pio_configure(&pins_com2[0], ARRAY_SIZE(pins_com2));
