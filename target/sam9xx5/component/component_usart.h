@@ -58,7 +58,8 @@ typedef struct {
   __IO uint32_t US_MAN;        /**< \brief (Usart Offset: 0x0050) Manchester Encoder Decoder Register */
   __IO uint32_t US_LINMR;      /**< \brief (Usart Offset: 0x0054) LIN Mode Register */
   __IO uint32_t US_LINIR;      /**< \brief (Usart Offset: 0x0058) LIN Identifier Register */
-  __I  uint32_t Reserved3[34];
+  __I  uint32_t US_LINBRR;
+  __I  uint32_t Reserved3[33];
   __IO uint32_t US_WPMR;       /**< \brief (Usart Offset: 0xE4) Write Protect Mode Register */
   __I  uint32_t US_WPSR;       /**< \brief (Usart Offset: 0xE8) Write Protect Status Register */
 } Usart;
