@@ -158,10 +158,15 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== TWI bus definition ====================== */
+
+#define BOARD_TWI_BUS0      TWI0
+#define BOARD_TWI_BUS0_FREQ 400000
+#define BOARD_TWI_BUS0_PINS PINS_TWI0
+
 /* =================== AT24 device definition =================== */
-#define AT24_PINS       PINS_TWI0;
-#define AT24_ADDR       ((Twi*)TWI0)
-#define AT24_FREQ       400000
-#define AT24_DESC       {"AT24C512", 0xFF, 16}
+
+#define BOARD_AT24_TWI_BUS  0
+#define BOARD_AT24_DESC     {"AT24C512", 0xFF, 16}
 
 #endif /* BOARD_SAM9XX5_EK_H_ */

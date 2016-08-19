@@ -43,10 +43,11 @@
 
 #include "peripherals/aic.h"
 #include "peripherals/smc.h"
-//#include "peripherals/matrix.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
+
+#include "bus/twi-bus.h"
 
 #include "memories/ddram.h"
 
@@ -482,5 +483,24 @@ void board_cfg_led(void)
 {
 #ifdef PINS_LEDS
 	led_configure(pins_leds, ARRAY_SIZE(pins_leds));
+#endif
+}
+
+void board_cfg_twi_bus(void)
+{
+#ifdef BOARD_TWI_BUS0
+	const struct _pin pins_twi_bus0[] = BOARD_TWI_BUS0_PINS;
+	pio_configure(pins_twi_bus0, ARRAY_SIZE(pins_twi_bus0));
+	twi_bus_configure(0, BOARD_TWI_BUS0, BOARD_TWI_BUS0_FREQ, TWID_MODE_POLLING);
+#endif
+#ifdef BOARD_TWI_BUS1
+	const struct _pin pins_twi_bus1[] = BOARD_TWI_BUS1_PINS;
+	pio_configure(pins_twi_bus1, ARRAY_SIZE(pins_twi_bus1));
+	twi_bus_configure(1, BOARD_TWI_BUS1, BOARD_TWI_BUS1_FREQ, TWID_MODE_DMA);
+#endif
+#ifdef BOARD_TWI_BUS2
+	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
+	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
+	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, TWID_MODE_DMA);
 #endif
 }

@@ -132,8 +132,19 @@ extern void board_cfg_isi(void);
 extern void board_cfg_lcd(void);
 #endif
 
+/**
+ * \brief Configures LEDs for the board.
+ */
 extern void board_cfg_led(void);
 
+/**
+ * \brief Configures the board.
+ */
 extern void board_init(void);
+
+/**
+ * \brief Configures TWIx bus for the board
+ */
+extern void board_cfg_twi_bus(void);
 
 #endif  /* BOARD_MEMORIES_H */
