@@ -119,6 +119,26 @@
 #define IRDA_USART USART4
 #define IRDA_PINS  PINS_USART4
 
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+#define IRDA_USART USART0
+#define IRDA_PINS  PINS_USART0
+
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+#define IRDA_USART USART0
+#define IRDA_PINS  PINS_USART0
+
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+#define IRDA_USART USART0
+#define IRDA_PINS  PINS_USART0
+
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+#define IRDA_USART USART0
+#define IRDA_PINS  PINS_USART0
+
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+#define IRDA_USART USART0
+#define IRDA_PINS  PINS_USART0
+
 #else
 #error Unsupported SoC!
 #endif
