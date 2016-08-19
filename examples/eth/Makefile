@@ -29,8 +29,6 @@
 # Makefile for compiling the ETH example
 TOP := ../..
 
-CONFIG_HAVE_GMAC = y
-
 BINNAME = eth
 
 obj-y += examples/eth/main.o

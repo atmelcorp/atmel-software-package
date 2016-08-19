@@ -29,8 +29,6 @@
 # Makefile for compiling the ETH LWIP example
 TOP := ../..
 
-CONFIG_HAVE_GMAC = y
-
 BINNAME = eth_lwip
 
 CONFIG_LIB_LWIP = y

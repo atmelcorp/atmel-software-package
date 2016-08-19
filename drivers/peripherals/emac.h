@@ -175,7 +175,7 @@ extern void emac_enable_rmii(Emac* emac, enum _eth_speed speed,
 		enum _eth_duplex duplex);
 
 /**
- *  \brief Setup the GMAC for the link : speed 100M/10M and Full/Half duplex
+ *  \brief Setup the EMAC for the link : speed 100M/10M and Full/Half duplex
  *  \param emac Pointer to an Emac instance.
  *  \param speed Link speed, 0 for 10M, 1 for 100M
  *  \param fullduplex 1 for Full Duplex mode
@@ -220,12 +220,12 @@ extern uint32_t emac_get_rx_status(Emac* emac);
 extern void emac_clear_rx_status(Emac* emac, uint32_t mask);
 
 /**
- *  \brief Enable/Disable GMAC receive.
+ *  \brief Enable/Disable EMAC receive.
  */
 extern void emac_receive_enable(Emac* emac, bool enable);
 
 /**
- *  \brief Enable/Disable GMAC transmit.
+ *  \brief Enable/Disable EMAC transmit.
  */
 extern void emac_transmit_enable(Emac* emac, bool enable);
 

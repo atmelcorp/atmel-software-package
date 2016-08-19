@@ -85,8 +85,8 @@
 #define ID_DMAC1  (31) /**< \brief DMA Controller 1 (DMAC1) */
 #define ID_UHPHS  (32) /**< \brief USB Host High Speed (UHPHS) */
 #define ID_UDPHS  (33) /**< \brief USB Device High Speed (UDPHS) */
-#define ID_GMAC   (34) /**< \brief Gigabit Ethernet MAC (GMAC) */
-#define ID_EMAC   (35) /**< \brief Ethernet MAC (EMAC) */
+#define ID_GMAC0  (34) /**< \brief Gigabit Ethernet MAC (GMAC) */
+#define ID_EMAC0  (35) /**< \brief Ethernet MAC (EMAC) */
 #define ID_LCDC   (36) /**< \brief LCD Controller (LCDC) */
 #define ID_ISI    (37) /**< \brief Image Sensor Interface (ISI) */
 #define ID_SSC0   (38) /**< \brief Synchronous Serial Controller 0 (SSC0) */
@@ -211,9 +211,6 @@
 #define NAND_EBI_CS 3
 
 #define GMAC_UR_RMII GMAC_UR_RGMII
-#define ID_GMAC0 ID_GMAC
-#define GMAC GMAC0
-#define EMAC EMAC0
 
 #ifdef __cplusplus
 extern "C" {

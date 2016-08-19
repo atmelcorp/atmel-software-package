@@ -26,4 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_HAVE_GMAC) += drivers/network/phy.o
+drivers-$(CONFIG_HAVE_ETH) += drivers/network/phy.o

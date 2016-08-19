@@ -30,8 +30,6 @@
 
 TOP := ../..
 
-CONFIG_HAVE_GMAC = y
-
 BINNAME = eth_uip_helloworld
 
 CONFIG_LIB_UIP = y

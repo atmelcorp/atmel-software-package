@@ -29,8 +29,6 @@
 # Makefile for compiling the ETH UIP Webserver example
 TOP := ../..
 
-CONFIG_HAVE_GMAC = y
-
 BINNAME = eth_uip_webserver
 
 CONFIG_LIB_UIP = y

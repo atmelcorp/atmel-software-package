@@ -160,7 +160,7 @@ typedef void (*ethd_callback_t)(uint8_t queue, uint32_t status);
 /** TX Wakeup callback */
 typedef void (*ethd_wakeup_cb_t)(uint8_t queue);
 
-typedef void (*_ethd_configure)(void* ethd, Gmac *pHw, uint8_t enable_caf, uint8_t enable_nbc);
+typedef void (*_ethd_configure)(void* ethd, void *pHw, uint8_t enable_caf, uint8_t enable_nbc);
 
 typedef uint8_t (*_ethd_setup_queue)(void* ethd, uint8_t queue,
 		uint16_t rx_size, uint8_t* rx_buffer, struct _eth_desc* rx_desc,

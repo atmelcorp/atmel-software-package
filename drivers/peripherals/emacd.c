@@ -50,7 +50,7 @@
 // Interrupt bits
 #define EMAC_INT_RX_BITS (EMAC_IER_RCOMP | EMAC_IER_RXUBR | EMAC_IER_ROVR)
 #define EMAC_INT_TX_ERR_BITS (EMAC_IER_TUND | EMAC_IER_RLE | EMAC_IER_TXERR)
-#define EMAC_INT_TX_BITS (EMAC_INT_TX_ERR_BITS | GMAC_IER_TCOMP)
+#define EMAC_INT_TX_BITS (EMAC_INT_TX_ERR_BITS | EMAC_IER_TCOMP)
 
 /*---------------------------------------------------------------------------
  *         Types
@@ -81,7 +81,7 @@ static void _emacd_emac_irq_handler(void)
 }
 
 static const struct _emacd_irq_handler _emacd_irq_handlers[] = {
-	{ EMAC, &_emacd, ID_EMAC,    _emacd_emac_irq_handler },
+	{ EMAC0, &_emacd, ID_EMAC0,    _emacd_emac_irq_handler },
 };
 
 /*---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ static void _emacd_tx_complete_handler(struct _ethd* emacd, uint8_t queue)
 		desc = &q->tx_desc[q->tx_tail];
 
 		/* Exit if frame has not been sent yet:
-		 * On TX completion, the GMAC set the USED bit only into the
+		 * On TX completion, the EMAC set the USED bit only into the
 		 * very first buffer descriptor of the sent frame.
 		 * Otherwise it updates this descriptor with status error bits.
 		 * This is the descriptor writeback.
@@ -301,8 +301,8 @@ static void _emacd_tx_error_handler(struct _ethd* emacd, uint8_t queue)
  *---------------------------------------------------------------------------*/
 
 /**
- *  \brief GMAC Interrupt handler
- *  \param gmacd Pointer to GMAC Driver instance.
+ *  \brief EMAC Interrupt handler
+ *  \param gmacd Pointer to EMAC Driver instance.
  */
 static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
 {
@@ -343,8 +343,8 @@ static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
 }
 
 /**
- * \brief Initialize the GMAC with the Gmac controller address
- *  \param gmacd Pointer to GMAC Driver instance.
+ * \brief Initialize the EMAC with the Gmac controller address
+ *  \param gmacd Pointer to EMAC Driver instance.
  *  \param gmac    Pointer to HW address for registers.
  *  \param enableCAF    Enable/Disable CopyAllFrame.
  *  \param enableNBC    Enable/Disable NoBroadCast.
@@ -447,7 +447,7 @@ uint8_t emacd_setup_queue(struct _ethd* emacd, uint8_t queue,
 	_emacd_reset_tx(emacd);
 
 	/* Setup the interrupts for RX/TX completion (and errors) */
-	emac_enable_it(emac, EMAC_INT_RX_BITS | EMAC_INT_TX_BITS | GMAC_IER_HRESP);
+	emac_enable_it(emac, EMAC_INT_RX_BITS | EMAC_INT_TX_BITS | EMAC_IER_HRESP);
 
 	return ETH_OK;
 }
@@ -475,7 +475,7 @@ void emacd_reset(struct _ethd* emacd)
 
 /**
  * \brief Registers pRxCb callback. Callback will be invoked after the next received
- * frame. When ethd_poll() returns GMAC_RX_NO_DATA the application task call
+ * frame. When ethd_poll() returns EMAC_RX_NO_DATA the application task call
  * ethd_set_rx_callback() to register pRxCb() callback and enters suspend state.
  * The callback is in charge to resume the task once a new frame has been received.
  * The next time ethd_poll() is called, it will be successful.

@@ -29,8 +29,6 @@
 # Makefile for compiling the ETH UIP Telnetd example
 TOP := ../..
 
-CONFIG_HAVE_GMAC = y
-
 BINNAME = eth_uip_telnetd
 
 CONFIG_LIB_UIP = y

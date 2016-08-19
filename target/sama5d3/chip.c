@@ -320,13 +320,13 @@ uint32_t get_ebi_addr_from_cs(uint32_t cs)
 
 uint32_t get_gmac_id_from_addr(const Gmac* addr)
 {
-	if (addr == GMAC) return ID_GMAC;
+	if (addr == GMAC0) return ID_GMAC0;
 	else return ID_PERIPH_COUNT;
 }
 
 uint32_t get_emac_id_from_addr(const Emac* addr)
 {
-	if (addr == EMAC) return ID_EMAC;
+	if (addr == EMAC0) return ID_EMAC0;
 	else return ID_PERIPH_COUNT;
 }
 
