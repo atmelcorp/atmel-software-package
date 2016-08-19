@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Isi hardware registers */
 typedef struct {
-	__IO uint32_t ISI_CFG1;	      /**< \brief (Isi Offset: 0x00) ISI Configuration 1 Register */
-	__IO uint32_t ISI_CFG2;	      /**< \brief (Isi Offset: 0x04) ISI Configuration 2 Register */
+	__IO uint32_t ISI_CFG1;       /**< \brief (Isi Offset: 0x00) ISI Configuration 1 Register */
+	__IO uint32_t ISI_CFG2;       /**< \brief (Isi Offset: 0x04) ISI Configuration 2 Register */
 	__IO uint32_t ISI_PSIZE;      /**< \brief (Isi Offset: 0x08) ISI Preview Size Register */
 	__IO uint32_t ISI_PDECF;      /**< \brief (Isi Offset: 0x0C) ISI Preview Decimation Factor Register */
 	__IO uint32_t ISI_Y2R_SET0;   /**< \brief (Isi Offset: 0x10) ISI Color Space Conversion YCrCb To RGB Set 0 Register */
@@ -48,33 +48,33 @@ typedef struct {
 	__IO uint32_t ISI_R2Y_SET0;   /**< \brief (Isi Offset: 0x18) ISI Color Space Conversion RGB To YCrCb Set 0 Register */
 	__IO uint32_t ISI_R2Y_SET1;   /**< \brief (Isi Offset: 0x1C) ISI Color Space Conversion RGB To YCrCb Set 1 Register */
 	__IO uint32_t ISI_R2Y_SET2;   /**< \brief (Isi Offset: 0x20) ISI Color Space Conversion RGB To YCrCb Set 2 Register */
-	__O uint32_t ISI_CR;	      /**< \brief (Isi Offset: 0x24) ISI Control Register */
-	__I uint32_t ISI_SR;	      /**< \brief (Isi Offset: 0x28) ISI Status Register */
-	__O uint32_t ISI_IER;	      /**< \brief (Isi Offset: 0x2C) ISI Interrupt Enable Register */
-	__O uint32_t ISI_IDR;	      /**< \brief (Isi Offset: 0x30) ISI Interrupt Disable Register */
-	__I uint32_t ISI_IMR;	      /**< \brief (Isi Offset: 0x34) ISI Interrupt Mask Register */
-	__O uint32_t ISI_DMA_CHER;    /**< \brief (Isi Offset: 0x38) DMA Channel Enable Register */
-	__O uint32_t ISI_DMA_CHDR;    /**< \brief (Isi Offset: 0x3C) DMA Channel Disable Register */
-	__I uint32_t ISI_DMA_CHSR;    /**< \brief (Isi Offset: 0x40) DMA Channel Status Register */
+	__O  uint32_t ISI_CR;         /**< \brief (Isi Offset: 0x24) ISI Control Register */
+	__I  uint32_t ISI_SR;         /**< \brief (Isi Offset: 0x28) ISI Status Register */
+	__O  uint32_t ISI_IER;        /**< \brief (Isi Offset: 0x2C) ISI Interrupt Enable Register */
+	__O  uint32_t ISI_IDR;        /**< \brief (Isi Offset: 0x30) ISI Interrupt Disable Register */
+	__I  uint32_t ISI_IMR;        /**< \brief (Isi Offset: 0x34) ISI Interrupt Mask Register */
+	__O  uint32_t ISI_DMA_CHER;   /**< \brief (Isi Offset: 0x38) DMA Channel Enable Register */
+	__O  uint32_t ISI_DMA_CHDR;   /**< \brief (Isi Offset: 0x3C) DMA Channel Disable Register */
+	__I  uint32_t ISI_DMA_CHSR;   /**< \brief (Isi Offset: 0x40) DMA Channel Status Register */
 	__IO uint32_t ISI_DMA_P_ADDR; /**< \brief (Isi Offset: 0x44) DMA Preview Base Address Register */
 	__IO uint32_t ISI_DMA_P_CTRL; /**< \brief (Isi Offset: 0x48) DMA Preview Control Register */
 	__IO uint32_t ISI_DMA_P_DSCR; /**< \brief (Isi Offset: 0x4C) DMA Preview Descriptor Address Register */
 	__IO uint32_t ISI_DMA_C_ADDR; /**< \brief (Isi Offset: 0x50) DMA Codec Base Address Register */
 	__IO uint32_t ISI_DMA_C_CTRL; /**< \brief (Isi Offset: 0x54) DMA Codec Control Register */
 	__IO uint32_t ISI_DMA_C_DSCR; /**< \brief (Isi Offset: 0x58) DMA Codec Descriptor Address Register */
-	__I uint32_t Reserved1[34];
-	__IO uint32_t ISI_WPMR;	      /**< \brief (Isi Offset: 0xE4) Write Protection Mode Register */
-	__I uint32_t ISI_WPSR;	      /**< \brief (Isi Offset: 0xE8) Write Protection Status Register */
+	__I  uint32_t Reserved1[34];
+	__IO uint32_t ISI_WPMR;       /**< \brief (Isi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t ISI_WPSR;       /**< \brief (Isi Offset: 0xE8) Write Protection Status Register */
 } Isi;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ISI_CFG1 : (ISI Offset: 0x00) ISI Configuration 1 Register -------- */
 #define ISI_CFG1_HSYNC_POL (0x1u << 2) /**< \brief (ISI_CFG1) Horizontal Synchronization Polarity */
 #define ISI_CFG1_VSYNC_POL (0x1u << 3) /**< \brief (ISI_CFG1) Vertical Synchronization Polarity */
-#define ISI_CFG1_PIXCLK_POL (0x1u << 4)	/**< \brief (ISI_CFG1) Pixel Clock Polarity */
+#define ISI_CFG1_PIXCLK_POL (0x1u << 4) /**< \brief (ISI_CFG1) Pixel Clock Polarity */
 #define ISI_CFG1_EMB_SYNC (0x1u << 6) /**< \brief (ISI_CFG1) Embedded Synchronization */
 #define ISI_CFG1_CRC_SYNC (0x1u << 7) /**< \brief (ISI_CFG1) Embedded Synchronization Correction */
 #define ISI_CFG1_FRATE_Pos 8
-#define ISI_CFG1_FRATE_Msk (0x7u << ISI_CFG1_FRATE_Pos)	/**< \brief (ISI_CFG1) Frame Rate [0..7] */
+#define ISI_CFG1_FRATE_Msk (0x7u << ISI_CFG1_FRATE_Pos) /**< \brief (ISI_CFG1) Frame Rate [0..7] */
 #define ISI_CFG1_FRATE(value) ((ISI_CFG1_FRATE_Msk & ((value) << ISI_CFG1_FRATE_Pos)))
 #define ISI_CFG1_DISCR (0x1u << 11) /**< \brief (ISI_CFG1) Disable Codec Request */
 #define ISI_CFG1_FULL (0x1u << 12) /**< \brief (ISI_CFG1) Full Mode is Allowed */
@@ -83,7 +83,7 @@ typedef struct {
 #define ISI_CFG1_THMASK(value) ((ISI_CFG1_THMASK_Msk & ((value) << ISI_CFG1_THMASK_Pos)))
 #define   ISI_CFG1_THMASK_BEATS_4 (0x0u << 13) /**< \brief (ISI_CFG1) Only 4 beats AHB burst allowed */
 #define   ISI_CFG1_THMASK_BEATS_8 (0x1u << 13) /**< \brief (ISI_CFG1) Only 4 and 8 beats AHB burst allowed */
-#define   ISI_CFG1_THMASK_BEATS_16 (0x2u << 13)	/**< \brief (ISI_CFG1) 4, 8 and 16 beats AHB burst allowed */
+#define   ISI_CFG1_THMASK_BEATS_16 (0x2u << 13) /**< \brief (ISI_CFG1) 4, 8 and 16 beats AHB burst allowed */
 #define ISI_CFG1_SLD_Pos 16
 #define ISI_CFG1_SLD_Msk (0xffu << ISI_CFG1_SLD_Pos) /**< \brief (ISI_CFG1) Start of Line Delay */
 #define ISI_CFG1_SLD(value) ((ISI_CFG1_SLD_Msk & ((value) << ISI_CFG1_SLD_Pos)))
@@ -92,15 +92,15 @@ typedef struct {
 #define ISI_CFG1_SFD(value) ((ISI_CFG1_SFD_Msk & ((value) << ISI_CFG1_SFD_Pos)))
 /* -------- ISI_CFG2 : (ISI Offset: 0x04) ISI Configuration 2 Register -------- */
 #define ISI_CFG2_IM_VSIZE_Pos 0
-#define ISI_CFG2_IM_VSIZE_Msk (0x7ffu << ISI_CFG2_IM_VSIZE_Pos)	/**< \brief (ISI_CFG2) Vertical Size of the Image Sensor [0..2047] */
+#define ISI_CFG2_IM_VSIZE_Msk (0x7ffu << ISI_CFG2_IM_VSIZE_Pos) /**< \brief (ISI_CFG2) Vertical Size of the Image Sensor [0..2047] */
 #define ISI_CFG2_IM_VSIZE(value) ((ISI_CFG2_IM_VSIZE_Msk & ((value) << ISI_CFG2_IM_VSIZE_Pos)))
 #define ISI_CFG2_GS_MODE (0x1u << 11) /**< \brief (ISI_CFG2) Grayscale Pixel Format Mode */
 #define ISI_CFG2_RGB_MODE (0x1u << 12) /**< \brief (ISI_CFG2) RGB Input Mode */
-#define ISI_CFG2_GRAYSCALE (0x1u << 13)	/**< \brief (ISI_CFG2) Grayscale Mode Format Enable */
+#define ISI_CFG2_GRAYSCALE (0x1u << 13) /**< \brief (ISI_CFG2) Grayscale Mode Format Enable */
 #define ISI_CFG2_RGB_SWAP (0x1u << 14) /**< \brief (ISI_CFG2) RGB Format Swap Mode */
-#define ISI_CFG2_COL_SPACE (0x1u << 15)	/**< \brief (ISI_CFG2) Color Space for the Image Data */
+#define ISI_CFG2_COL_SPACE (0x1u << 15) /**< \brief (ISI_CFG2) Color Space for the Image Data */
 #define ISI_CFG2_IM_HSIZE_Pos 16
-#define ISI_CFG2_IM_HSIZE_Msk (0x7ffu << ISI_CFG2_IM_HSIZE_Pos)	/**< \brief (ISI_CFG2) Horizontal Size of the Image Sensor [0..2047] */
+#define ISI_CFG2_IM_HSIZE_Msk (0x7ffu << ISI_CFG2_IM_HSIZE_Pos) /**< \brief (ISI_CFG2) Horizontal Size of the Image Sensor [0..2047] */
 #define ISI_CFG2_IM_HSIZE(value) ((ISI_CFG2_IM_HSIZE_Msk & ((value) << ISI_CFG2_IM_HSIZE_Pos)))
 #define ISI_CFG2_YCC_SWAP_Pos 28
 #define ISI_CFG2_YCC_SWAP_Msk (0x3u << ISI_CFG2_YCC_SWAP_Pos) /**< \brief (ISI_CFG2) YCrCb Format Swap Mode */
@@ -145,8 +145,8 @@ typedef struct {
 #define ISI_Y2R_SET1_C4_Msk (0x1ffu << ISI_Y2R_SET1_C4_Pos) /**< \brief (ISI_Y2R_SET1) Color Space Conversion Matrix Coefficient C4 */
 #define ISI_Y2R_SET1_C4(value) ((ISI_Y2R_SET1_C4_Msk & ((value) << ISI_Y2R_SET1_C4_Pos)))
 #define ISI_Y2R_SET1_Yoff (0x1u << 12) /**< \brief (ISI_Y2R_SET1) Color Space Conversion Luminance Default Offset */
-#define ISI_Y2R_SET1_Croff (0x1u << 13)	/**< \brief (ISI_Y2R_SET1) Color Space Conversion Red Chrominance Default Offset */
-#define ISI_Y2R_SET1_Cboff (0x1u << 14)	/**< \brief (ISI_Y2R_SET1) Color Space Conversion Blue Chrominance Default Offset */
+#define ISI_Y2R_SET1_Croff (0x1u << 13) /**< \brief (ISI_Y2R_SET1) Color Space Conversion Red Chrominance Default Offset */
+#define ISI_Y2R_SET1_Cboff (0x1u << 14) /**< \brief (ISI_Y2R_SET1) Color Space Conversion Blue Chrominance Default Offset */
 /* -------- ISI_R2Y_SET0 : (ISI Offset: 0x18) ISI Color Space Conversion RGB To YCrCb Set 0 Register -------- */
 #define ISI_R2Y_SET0_C0_Pos 0
 #define ISI_R2Y_SET0_C0_Msk (0x7fu << ISI_R2Y_SET0_C0_Pos) /**< \brief (ISI_R2Y_SET0) Color Space Conversion Matrix Coefficient C0 */
@@ -188,12 +188,12 @@ typedef struct {
 /* -------- ISI_SR : (ISI Offset: 0x28) ISI Status Register -------- */
 #define ISI_SR_ENABLE (0x1u << 0) /**< \brief (ISI_SR) Module Enable */
 #define ISI_SR_DIS_DONE (0x1u << 1) /**< \brief (ISI_SR) Module Disable Request has Terminated */
-#define ISI_SR_SRST (0x1u << 2)	/**< \brief (ISI_SR) Module Software Reset Request has Terminated */
+#define ISI_SR_SRST (0x1u << 2) /**< \brief (ISI_SR) Module Software Reset Request has Terminated */
 #define ISI_SR_CDC_PND (0x1u << 8) /**< \brief (ISI_SR) Pending Codec Request */
 #define ISI_SR_VSYNC (0x1u << 10) /**< \brief (ISI_SR) Vertical Synchronization */
 #define ISI_SR_PXFR_DONE (0x1u << 16) /**< \brief (ISI_SR) Preview DMA Transfer has Terminated */
 #define ISI_SR_CXFR_DONE (0x1u << 17) /**< \brief (ISI_SR) Codec DMA Transfer has Terminated */
-#define ISI_SR_SIP (0x1u << 19)	/**< \brief (ISI_SR) Synchronization in Progress */
+#define ISI_SR_SIP (0x1u << 19) /**< \brief (ISI_SR) Synchronization in Progress */
 #define ISI_SR_P_OVR (0x1u << 24) /**< \brief (ISI_SR) Preview Datapath Overflow */
 #define ISI_SR_C_OVR (0x1u << 25) /**< \brief (ISI_SR) Codec Datapath Overflow */
 #define ISI_SR_CRC_ERR (0x1u << 26) /**< \brief (ISI_SR) CRC Synchronization Error */
@@ -235,15 +235,15 @@ typedef struct {
 #define ISI_DMA_CHDR_P_CH_DIS (0x1u << 0) /**< \brief (ISI_DMA_CHDR) Preview Channel Disable Request */
 #define ISI_DMA_CHDR_C_CH_DIS (0x1u << 1) /**< \brief (ISI_DMA_CHDR) Codec Channel Disable Request */
 /* -------- ISI_DMA_CHSR : (ISI Offset: 0x40) DMA Channel Status Register -------- */
-#define ISI_DMA_CHSR_P_CH_S (0x1u << 0)	/**< \brief (ISI_DMA_CHSR) Preview DMA Channel Status */
-#define ISI_DMA_CHSR_C_CH_S (0x1u << 1)	/**< \brief (ISI_DMA_CHSR) Code DMA Channel Status */
+#define ISI_DMA_CHSR_P_CH_S (0x1u << 0) /**< \brief (ISI_DMA_CHSR) Preview DMA Channel Status */
+#define ISI_DMA_CHSR_C_CH_S (0x1u << 1) /**< \brief (ISI_DMA_CHSR) Code DMA Channel Status */
 /* -------- ISI_DMA_P_ADDR : (ISI Offset: 0x44) DMA Preview Base Address Register -------- */
 #define ISI_DMA_P_ADDR_P_ADDR_Pos 2
 #define ISI_DMA_P_ADDR_P_ADDR_Msk (0x3fffffffu << ISI_DMA_P_ADDR_P_ADDR_Pos) /**< \brief (ISI_DMA_P_ADDR) Preview Image Base Address */
 #define ISI_DMA_P_ADDR_P_ADDR(value) ((ISI_DMA_P_ADDR_P_ADDR_Msk & ((value) << ISI_DMA_P_ADDR_P_ADDR_Pos)))
 /* -------- ISI_DMA_P_CTRL : (ISI Offset: 0x48) DMA Preview Control Register -------- */
 #define ISI_DMA_P_CTRL_P_FETCH (0x1u << 0) /**< \brief (ISI_DMA_P_CTRL) Descriptor Fetch Control Bit */
-#define ISI_DMA_P_CTRL_P_WB (0x1u << 1)	/**< \brief (ISI_DMA_P_CTRL) Descriptor Writeback Control Bit */
+#define ISI_DMA_P_CTRL_P_WB (0x1u << 1) /**< \brief (ISI_DMA_P_CTRL) Descriptor Writeback Control Bit */
 #define ISI_DMA_P_CTRL_P_IEN (0x1u << 2) /**< \brief (ISI_DMA_P_CTRL) Transfer Done Flag Control */
 #define ISI_DMA_P_CTRL_P_DONE (0x1u << 3) /**< \brief (ISI_DMA_P_CTRL) Preview Transfer Done */
 /* -------- ISI_DMA_P_DSCR : (ISI Offset: 0x4C) DMA Preview Descriptor Address Register -------- */
@@ -256,7 +256,7 @@ typedef struct {
 #define ISI_DMA_C_ADDR_C_ADDR(value) ((ISI_DMA_C_ADDR_C_ADDR_Msk & ((value) << ISI_DMA_C_ADDR_C_ADDR_Pos)))
 /* -------- ISI_DMA_C_CTRL : (ISI Offset: 0x54) DMA Codec Control Register -------- */
 #define ISI_DMA_C_CTRL_C_FETCH (0x1u << 0) /**< \brief (ISI_DMA_C_CTRL) Descriptor Fetch Control Bit */
-#define ISI_DMA_C_CTRL_C_WB (0x1u << 1)	/**< \brief (ISI_DMA_C_CTRL) Descriptor Writeback Control Bit */
+#define ISI_DMA_C_CTRL_C_WB (0x1u << 1) /**< \brief (ISI_DMA_C_CTRL) Descriptor Writeback Control Bit */
 #define ISI_DMA_C_CTRL_C_IEN (0x1u << 2) /**< \brief (ISI_DMA_C_CTRL) Transfer Done Flag Control */
 #define ISI_DMA_C_CTRL_C_DONE (0x1u << 3) /**< \brief (ISI_DMA_C_CTRL) Codec Transfer Done */
 /* -------- ISI_DMA_C_DSCR : (ISI Offset: 0x58) DMA Codec Descriptor Address Register -------- */
