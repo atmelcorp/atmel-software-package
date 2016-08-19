@@ -221,13 +221,13 @@
 #define PIO_PC16B_E1_RXER    (1u << 16) /**< \brief Emac signal: E1_RXER */
 #define PIO_PC18B_E1_TX0     (1u << 18) /**< \brief Emac signal: E1_TX0 */
 #define PIO_PC19B_E1_TX1     (1u << 19) /**< \brief Emac signal: E1_TX1 */
-#define PIO_PC20B_E1_RX0     (1u << 18) /**< \brief Emac signal: E1_RX0 */
-#define PIO_PC21B_E1_RX1     (1u << 18) /**< \brief Emac signal: E1_RX1 */
+#define PIO_PC20B_E1_RX0     (1u << 20) /**< \brief Emac signal: E1_RX0 */
+#define PIO_PC21B_E1_RX1     (1u << 21) /**< \brief Emac signal: E1_RX1 */
 #define PIO_PC27B_E1_TXEN    (1u << 27) /**< \brief Emac signal: E1_TXEN */
 #define PIO_PC28B_E1_CRSDV   (1u << 28) /**< \brief Emac signal: E1_CRSDV */
-#define PIO_PC29B_E1_TXCK    (1u << 28) /**< \brief Emac signal: E1_TXCK */
-#define PIO_PC30B_E1_MDC     (1u << 28) /**< \brief Emac signal: E1_MDC */
-#define PIO_PC31B_E1_MDIO    (1u << 28) /**< \brief Emac signal: E1_MDIO */
+#define PIO_PC29B_E1_TXCK    (1u << 29) /**< \brief Emac signal: E1_TXCK */
+#define PIO_PC30B_E1_MDC     (1u << 30) /**< \brief Emac signal: E1_MDC */
+#define PIO_PC31B_E1_MDIO    (1u << 31) /**< \brief Emac signal: E1_MDIO */
 /* ========== Pio definition for HSMCI0 peripheral ========== */
 #define PIO_PA15A_MCI0_DA0   (1u << 15) /**< \brief Hsmci0 signal: MCI0_DA0 */
 #define PIO_PA16A_MCI0_CDA   (1u << 16) /**< \brief Hsmci0 signal: MCI0_CDA */

@@ -292,6 +292,23 @@ uint32_t get_ebi_addr_from_cs(uint32_t cs)
 	}
 }
 
+#ifdef CONFIG_HAVE_EMAC
+
+uint32_t get_emac_id_from_addr(const Emac* addr)
+{
+#ifdef EMAC0
+	if (addr == EMAC0)
+		return ID_EMAC0;
+#endif
+#ifdef EMAC1
+	if (addr == EMAC1)
+		return ID_EMAC1;
+#endif
+	return ID_PERIPH_COUNT;
+}
+
+#endif /* CONFIG_HAVE_EMAC */
+
 Matrix* get_peripheral_matrix(uint32_t id)
 {
 	return MATRIX; // AHB matrix

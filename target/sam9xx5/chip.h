@@ -305,6 +305,16 @@ extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
  */
 extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
 
+#ifdef CONFIG_HAVE_EMAC
+
+/**
+ * \brief retrieve EMAC ID from its base address
+ * \return EMAC ID on success, ID_PERIPH_COUNT otherwise
+ */
+uint32_t get_emac_id_from_addr(const Emac* addr);
+
+#endif /* CONFIG_HAVE_EMAC */
+
 /** \brief Returns the matrix on which the given peripheral is connected
  *
  * \param id the Peripheral ID

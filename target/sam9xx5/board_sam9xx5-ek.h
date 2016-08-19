@@ -128,6 +128,20 @@
 #define AT25_DLYCT    0
 #define AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
 
+/* =================== EMAC0/PHY definition =================== */
+
+#define EMAC0_ADDR        EMAC0
+#define EMAC0_PINS        PINS_EMAC0_RMII
+#define EMAC0_PHY_ADDR    0
+#define EMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_PULLUP }
+
+/* =================== EMAC1/PHY definition =================== */
+
+#define EMAC1_ADDR        EMAC1
+#define EMAC1_PINS        PINS_EMAC1_RMII
+#define EMAC1_PHY_ADDR    0
+#define EMAC1_PHY_IRQ_PIN { PIO_GROUP_C, PIO_PC26, PIO_INPUT, PIO_PULLUP }
+
 /* =================== NANDFLASH device definition =================== */
 
 #define BOARD_NANDFLASH_PINS      PINS_NAND8
@@ -157,6 +171,13 @@
 #define BOARD_LCD_TIMING_HBP        64
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
+
+/* =================== ISI device definition =================== */
+
+#define BOARD_ISI_TWI_BUS  0
+#define BOARD_ISI_PINS     PINS_ISI
+#define BOARD_ISI_RST_PIN  { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN  { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* ================== TWI bus definition ====================== */
 

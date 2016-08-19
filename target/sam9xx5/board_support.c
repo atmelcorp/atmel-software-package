@@ -429,7 +429,6 @@ void board_cfg_nand_flash(void)
 }
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
-#if 0
 #ifdef CONFIG_HAVE_ISI
 void board_cfg_isi(void)
 {
@@ -439,10 +438,6 @@ void board_cfg_isi(void)
 
 	/* Configure ISI pins */
 	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-
-	/* Configure PMC programmable clock(PCK0) */
-	pmc_configure_pck1(PMC_PCK_CSS_MCK_CLK, 3);
-	pmc_enable_pck1();
 
 	/* Reset sensor */
 	pio_configure(&pin_rst,1);
@@ -456,7 +451,6 @@ void board_cfg_isi(void)
 	pmc_enable_peripheral(ID_ISI);
 }
 #endif
-#endif /* 0 */
 
 #ifdef CONFIG_HAVE_LCDD
 void board_cfg_lcd(void)

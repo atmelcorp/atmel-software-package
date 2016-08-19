@@ -297,10 +297,41 @@
 /* LCD 24 bits */
 #define PINS_LCD { { PIO_GROUP_C, 0x7DFFFFFF, PIO_PERIPH_A, PIO_DEFAULT } }
 
+/* ========== Pio PIN definition for ISI peripheral ========== */
+
+/** Image Sensor Interface vertical sync. */
+#define PIN_ISI_VSYNC { PIO_GROUP_C, PIO_PC13B_ISI_VSYNC, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** Image Sensor Interface horizontal sync. */
+#define PIN_ISI_HSYNC { PIO_GROUP_C, PIO_PC14B_ISI_HSYNC, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** Image Sensor Interface data clock. */
+#define PIN_ISI_PCK { PIO_GROUP_C, PIO_PC12B_ISI_PCK, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** Image Sensor Interface MCK. */
+#define PIN_ISI_MCK { PIO_GROUP_C, PIO_PC15B_ISI_MCK, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** Image Sensor Interface data pins. */
+#define PINS_ISI_DATA { PIO_GROUP_C, 0x00000FFF, PIO_PERIPH_B, PIO_DEFAULT } // pc0-11
+
+/** Image Sensor Interface pin list. */
+#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
+
 /* ========== Pio PIN definition for ADC peripheral ========== */
 
 /** ADC ADTRG pin (PD19). */
 #define PIN_ADTRG { PIO_GROUP_B, PIO_PB18B_ADTRG, PIO_PERIPH_B, PIO_PULLUP }
+
+/* ========== Pio PIN definition for EMAC peripheral ========== */
+
+/** EMAC0 pin list (MII) */
+#define PINS_EMAC0_MII  { { PIO_GROUP_B, 0x0003FFFF, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/** EMAC0 pin list (RMII) */
+#define PINS_EMAC0_RMII  { { PIO_GROUP_B, 0x000006FF, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/** EMAC1 pin list (RMII) */
+#define PINS_EMAC1_RMII  { { PIO_GROUP_C, 0xF83D0000, PIO_PERIPH_B, PIO_DEFAULT } }
 
 /* ========== Pio PIN definition for NAND peripheral ========== */
 
