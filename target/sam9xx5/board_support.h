@@ -128,7 +128,7 @@ extern void board_cfg_isi(void);
 /**
  * \brief Configures LCD for the board.
  */
-#ifdef CONFIG_HAVE_LCDD
+#ifdef CONFIG_HAVE_LCDC
 extern void board_cfg_lcd(void);
 #endif
 
