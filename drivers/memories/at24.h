@@ -66,7 +66,7 @@
 
 struct _at24_desc {
 	const char* name;
-	uint8_t     size;
+	uint16_t    size;
 	uint8_t     page_size;
 };
 
