@@ -194,6 +194,47 @@ extern uint32_t spi_get_masked_status(Spi *spi);
 
 extern bool spi_is_tx_finished(Spi * spi);
 
+#ifdef CONFIG_HAVE_SPI_FIFO
+/**
+ * \brief  Configure FIFO
+ * \param spi       Pointer to an Spi instance.
+ * \param tx_thres  TX threshold
+ * \param rx_thres  RX threshold
+ */
+extern void spi_fifo_configure(Spi *spi, uint8_t tx_thres, uint8_t rx_thres);
+
+/**
+ * \brief  Enable FIFO
+ * \param spi  Pointer to an Spi instance.
+ */
+extern void spi_fifo_enable(Spi *spi);
+
+/**
+ * \brief  Disable FIFO
+ * \param spi  Pointer to an Spi instance.
+ */
+extern void spi_fifo_disable(Spi *spi);
+
+/**
+ * \brief  Get RX FIFO size
+ * \param spi       Pointer to an Spi instance.
+ * \return the number of bytes in the FIFO
+ */
+extern uint32_t spi_fifo_get_rx_size(Spi *spi);
+
+/**
+ * \brief  Get TX FIFO size
+ * \param spi       Pointer to an Spi instance.
+ * \return the number of bytes in the FIFO
+ */
+extern uint32_t spi_fifo_get_tx_size(Spi *spi);
+
+extern void spi_fifo_flush_rx(Spi *spi);
+
+extern void spi_fifo_flush_tx(Spi *spi);
+
+#endif /* CONFIG_HAVE_SPI_FIFO */
+
 #ifdef __cplusplus
 }
 #endif

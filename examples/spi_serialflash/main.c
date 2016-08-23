@@ -42,6 +42,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
+#include "peripherals/spi.h"
 
 #include "misc/console.h"
 #include "misc/cache.h"
@@ -252,6 +253,23 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 }
 
+#ifdef CONFIG_HAVE_SPI_FIFO
+static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "fifo", 4)) {
+		if (!spi_at25_desc.use_fifo) {
+			spi_at25_desc.use_fifo = true;
+			spi_fifo_enable(spi_at25_desc.addr);
+			printf("Enable FIFO\r\n");
+		} else {
+			spi_at25_desc.use_fifo = false;
+			spi_fifo_disable(spi_at25_desc.addr);
+			printf("Disable FIFO\r\n");
+		}
+	}
+}
+#endif /* CONFIG_HAVE_SPI_FIFO */
+
 static void print_menu(void)
 {
 	const char* mode_str;
@@ -276,12 +294,19 @@ static void print_menu(void)
 		break;
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
+#ifdef CONFIG_HAVE_SPI_FIFO
+	printf("| FIFO: %-48s|\r\n", spi_at25_desc.use_fifo ? "enabled" : "disabled");
+#endif
 
 	printf("|====================== Commands =======================|\r\n"
 	       "| m polling                                             |\r\n"
 	       "| m async                                               |\r\n"
 	       "| m dma                                                 |\r\n"
 	       "|      Select transfer mode                             |\r\n"
+#ifdef CONFIG_HAVE_SPI_FIFO
+	       "| f fifo                                                |\r\n"
+	       "|      Enable/disable FIFO                              |\r\n"
+#endif
 	       "| a status                                              |\r\n"
 	       "|      Query device status                              |\r\n"
 	       "| a device                                              |\r\n"
@@ -325,6 +350,11 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'm':
 		_flash_mode_arg_parser(buffer+2, len-2);
 		break;
+#ifdef CONFIG_HAVE_SPI_FIFO
+	case 'f':
+		_flash_feature_arg_parser(buffer+2, len-2);
+		break;
+#endif
 	default:
 		printf("Command %c unknown\r\n", *buffer);
 	}

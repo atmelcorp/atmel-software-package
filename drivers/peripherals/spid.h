@@ -85,6 +85,16 @@ struct _spi_desc
 
 	uint32_t        flags;
 
+#ifdef CONFIG_HAVE_SPI_FIFO
+	bool use_fifo;
+	struct {
+		struct {
+			uint16_t size;
+			uint16_t threshold;
+		} rx, tx;
+	} fifo;
+#endif
+
 	struct {
 		struct {
 			struct dma_channel *channel;

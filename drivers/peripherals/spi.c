@@ -215,3 +215,61 @@ bool spi_is_tx_finished(Spi * spi)
 {
 	return ((spi->SPI_SR & SPI_SR_TXEMPTY) != 0);
 }
+
+#ifdef CONFIG_HAVE_SPI_FIFO
+void spi_fifo_configure(Spi *spi, uint8_t tx_thres, uint8_t rx_thres)
+{
+	assert(spi != NULL);
+
+	/* Configure FIFO */
+	spi->SPI_FMR = SPI_FMR_TXFTHRES(tx_thres) | SPI_FMR_RXFTHRES(rx_thres)
+		| SPI_FMR_RXRDYM_ONE_DATA | SPI_FMR_TXRDYM_ONE_DATA;
+}
+
+void spi_fifo_enable(Spi *spi)
+{
+	assert(spi != NULL);
+
+	spi->SPI_CR = SPI_CR_SPIDIS;
+	spi->SPI_CR = SPI_CR_FIFOEN | SPI_CR_TXFCLR | SPI_CR_RXFCLR;
+
+	spi->SPI_CR = SPI_CR_SPIEN;
+}
+
+void spi_fifo_disable(Spi *spi)
+{
+	assert(spi != NULL);
+
+	spi->SPI_CR = SPI_CR_SPIDIS;
+	spi->SPI_CR = SPI_CR_FIFODIS | SPI_CR_TXFCLR | SPI_CR_RXFCLR;
+
+	spi->SPI_CR = SPI_CR_SPIEN;
+}
+
+uint32_t spi_fifo_get_rx_size(Spi *spi)
+{
+	assert(spi != NULL);
+
+	return (spi->SPI_FLR & SPI_FLR_RXFL_Msk) >> SPI_FLR_RXFL_Pos;
+}
+
+uint32_t spi_fifo_get_tx_size(Spi *spi)
+{
+	assert(spi != NULL);
+
+	return (spi->SPI_FLR & SPI_FLR_TXFL_Msk) >> SPI_FLR_TXFL_Pos;
+}
+
+void spi_fifo_flush_rx(Spi *spi)
+{
+	assert(spi != NULL);
+	spi->SPI_CR = SPI_CR_RXFCLR;
+}
+
+void spi_fifo_flush_tx(Spi *spi)
+{
+	assert(spi != NULL);
+	spi->SPI_CR = SPI_CR_TXFCLR;
+}
+
+#endif /* CONFIG_HAVE_SPI_FIFO */

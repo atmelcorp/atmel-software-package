@@ -89,6 +89,25 @@ static uint32_t _garbage = ~0u;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_SPI_FIFO
+
+static void _spid_fifo_configure(struct _spi_desc *desc)
+{
+	desc->fifo.rx.size = get_peripheral_fifo_depth(desc->addr);
+	desc->fifo.rx.threshold = desc->fifo.rx.size / 2;
+	desc->fifo.tx.size = get_peripheral_fifo_depth(desc->addr);
+	desc->fifo.tx.threshold = desc->fifo.tx.size / 2;
+	spi_fifo_configure(desc->addr, desc->fifo.tx.threshold, desc->fifo.rx.threshold);
+}
+
+static void _spid_wait_tx_fifo_not_full(struct _spi_desc* desc)
+{
+	if (desc->use_fifo)
+		while (desc->addr->SPI_SR & SPI_SR_TXFFF);
+}
+
+#endif /* CONFIG_HAVE_SPI_FIFO */
+
 static void _spid_dma_finish(struct dma_channel *channel, struct _spi_desc* desc)
 {
 	dma_free_channel(channel);
@@ -230,6 +249,10 @@ static void _spid_handler(void)
 	status = spi_get_masked_status(addr);
 
 	if (SPI_STATUS_RDRF(status)) {
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_spid_wait_tx_fifo_not_full(adesc->spi_desc);
+#endif /* CONFIG_HAVE_SPI_FIFO */
+
 		adesc->rx.buf->data[adesc->rx.transferred] = spi_read(addr);
 		adesc->rx.transferred++;
 
@@ -242,6 +265,10 @@ static void _spid_handler(void)
 		}
 
 	} else if (SPI_STATUS_TDRE(status)) {
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_spid_wait_tx_fifo_not_full(adesc->spi_desc);
+#endif /* CONFIG_HAVE_SPI_FIFO */
+
 		spi_transfer(addr, adesc->tx.buf->data[adesc->tx.transferred]);
 		adesc->tx.transferred++;
 
@@ -265,10 +292,37 @@ static void _spid_handler(void)
 	}
 }
 
+static uint32_t _spid_poll_write(struct _spi_desc* desc, struct _buffer* buffer)
+{
+	int i;
+
+	for (i = 0; i < buffer->size; ++i) {
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_spid_wait_tx_fifo_not_full(desc);
+#endif /* CONFIG_HAVE_SPI_FIFO */
+		spi_transfer(desc->addr, buffer->data[i]);
+	}
+
+	return SPID_SUCCESS;
+}
+
+static uint32_t _spid_poll_read(struct _spi_desc* desc, struct _buffer* buffer)
+{
+	int i;
+
+	for (i = 0; i < buffer->size; ++i) {
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_spid_wait_tx_fifo_not_full(desc);
+#endif /* CONFIG_HAVE_SPI_FIFO */
+		buffer->data[i] = spi_transfer(desc->addr, 0xff);
+	}
+
+	return SPID_SUCCESS;
+}
+
 static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid_callback_t cb, void* user_args)
 {
 	Spi* spi = desc->addr;
-	uint32_t i = 0;
 	enum _spid_trans_mode tmode = desc->transfer_mode;
 
 	if (!mutex_try_lock(&desc->mutex)) {
@@ -285,13 +339,10 @@ static uint32_t _spid_transfer(struct _spi_desc* desc, struct _buffer* buf, spid
 
 	switch (tmode) {
 	case SPID_MODE_POLLING:
-		if (desc->flags & SPID_BUF_ATTR_WRITE) {
-			for (i = 0; i < buf->size; ++i)
-				spi_transfer(spi, buf->data[i]);
-		} else {
-			for (i = 0; i < buf->size; ++i)
-				buf->data[i] = spi_transfer(spi, 0xff);
-		}
+		if (desc->flags & SPID_BUF_ATTR_WRITE)
+			_spid_poll_write(desc, buf);
+		else
+			_spid_poll_read(desc, buf);
 
 		while (!spi_is_tx_finished(spi));
 
@@ -409,6 +460,11 @@ void spid_configure(struct _spi_desc* desc)
 #endif
 	pmc_enable_peripheral(id);
 	spi_configure(desc->addr, (desc->attributes & SPI_MR_MSTR));
+#ifdef CONFIG_HAVE_SPI_FIFO
+	_spid_fifo_configure(desc);
+	if (desc->use_fifo)
+		spi_fifo_enable(desc->addr);
+#endif
 	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
 			 desc->dlybs, desc->dlybct, desc->spi_mode);
 
