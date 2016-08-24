@@ -580,7 +580,7 @@ static void twid_fifo_configure(struct _twi_desc *desc)
 	desc->fifo.rx.threshold = desc->fifo.rx.size / 2;
 	desc->fifo.tx.size = get_peripheral_fifo_depth(desc->addr);
 	desc->fifo.tx.threshold = desc->fifo.tx.size / 2;
-	twi_fifo_configure(desc->addr, desc->fifo.rx.threshold, desc->fifo.tx.threshold,
+	twi_fifo_configure(desc->addr, desc->fifo.tx.threshold, desc->fifo.rx.threshold,
 	                   TWI_FMR_RXRDYM_FOUR_DATA | TWI_FMR_TXRDYM_FOUR_DATA);
 }
 
