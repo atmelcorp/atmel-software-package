@@ -32,17 +32,20 @@
  * \section Purpose
  *
  * This example indicates how to use the TWI with AT24 driver in order to
- * access data on a AT24 device.
+ * access data on a real AT24 device and on an emulated AT24 using a TWI slave
+ * port.
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XPLAINED, SAMA5D4-XPLAINED and
- * SAM9xx5-EK.
+ * This package can be used with SAMA5D2-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED
+ * and SAM9xx5-EK.
  *
  * \section Descriptions
  *
- * This example shows how to configure the TWI in master mode.
- * In master mode, the example can read or write from an AT24.
+ * This example shows how to configure the TWI in master and slave mode.
+ * In master mode, the example can read or write from 2 devices: one real AT24
+ * and one emulated AT24.
+ * In slave mode, this example implements an emulated AT24C02 EEPROM.
  *
  * \section Usage
  *
@@ -98,10 +101,21 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
+#include "at24_emulator.h"
+#include "config.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*------------------------------------------------------------------------------
+ *         Defines
+ *------------------------------------------------------------------------------*/
+
+#ifdef BOARD_AT24_TWI_BUS
+#define HAVE_AT24_DEVICE
+#endif
 
 /*------------------------------------------------------------------------------
  *         Local Types
@@ -113,10 +127,18 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
  *         Local Constants
  *------------------------------------------------------------------------------*/
 
+#ifdef HAVE_AT24_DEVICE
 static const struct _at24_config at24_device_cfg = {
 	.bus = BOARD_AT24_TWI_BUS,
 	.addr = BOARD_AT24_ADDR,
 	.model = BOARD_AT24_MODEL,
+};
+#endif
+
+static const struct _at24_config at24_emulator_cfg = {
+	.bus = AT24_EMU_MASTER_BUS,
+	.addr = AT24_EMU_ADDR,
+	.model = AT24_EMULATED_MODEL,
 };
 
 /*------------------------------------------------------------------------------
@@ -128,7 +150,10 @@ static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 CACHE_ALIGNED static uint8_t cmd_buffer[256];
 
+#ifdef HAVE_AT24_DEVICE
 static struct _at24 at24_device;
+#endif
+static struct _at24 at24_emulator;
 static struct _at24 *at24;
 
 /*------------------------------------------------------------------------------
@@ -163,6 +188,7 @@ static void print_menu(void)
 		mode_str = "unknown";
 		break;
 	}
+	printf("| Emulated: %-44s|\r\n", at24 == &at24_emulator ? "yes" : "no");
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_TWI_FIFO
 	printf("| FIFO: %-48s|\r\n",
@@ -177,6 +203,12 @@ static void print_menu(void)
 #ifdef CONFIG_HAVE_TWI_FIFO
 	       "| f fifo                                                |\r\n"
 	       "|      Toggle feature                                   |\r\n"
+#endif
+#ifdef HAVE_AT24_DEVICE
+	       "| d device                                              |\r\n"
+	       "|      Select real AT24 device                          |\r\n"
+	       "| d emulator                                            |\r\n"
+	       "|      Select emulated AT24 device on TWI slave         |\r\n"
 #endif
 	       "| r addr size                                           |\r\n"
 	       "|      Read 'size' bytes starting at address 'addr'     |\r\n"
@@ -340,6 +372,27 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	printf("Invalid advanced command!\r\n");
 }
 
+#ifdef HAVE_AT24_DEVICE
+static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "emulator", 8)) {
+		at24 = &at24_emulator;
+		printf("Using AT24 emulator\r\n");
+		print_menu();
+		return;
+	}
+
+	if (!strncmp((char*)buffer, "device", 8)) {
+		at24 = &at24_device;
+		printf("Using AT24 device\r\n");
+		print_menu();
+		return;
+	}
+
+	printf("Invalid switch command!\r\n");
+}
+#endif
+
 static void _eeprom_toggle_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
@@ -405,6 +458,12 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'A':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;
+#ifdef HAVE_AT24_DEVICE
+	case 'd':
+	case 'D':
+		_eeprom_toggle_device_arg_parser(buffer+2, len-2);
+		break;
+#endif /* HAVE_AT24_DEVICE */
 	case 'm':
 	case 'M':
 		_eeprom_toggle_mode_arg_parser(buffer+2, len-2);
@@ -416,6 +475,14 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	default:
 		printf("Command '%c' unknown\r\n", *buffer);
 	}
+}
+
+static void _configure_emulator(void)
+{
+	static struct _pin pins[] = AT24_EMU_PINS;
+
+	pio_configure(pins, ARRAY_SIZE(pins));
+	at24_emulator_initialize(AT24_EMU_DEV, AT24_EMU_ADDR);
 }
 
 /*------------------------------------------------------------------------------
@@ -433,8 +500,18 @@ int main (void)
 
 	_cmd_parser = _eeprom_cmd_parser;
 
+	/* configure AT24 driver (master) */
+	at24_configure(&at24_emulator, &at24_emulator_cfg);
+
+	/* Configure AT24 emulator (slave) */
+	_configure_emulator();
+
+#ifdef HAVE_AT24_DEVICE
 	at24_configure(&at24_device, &at24_device_cfg);
 	at24 = &at24_device;
+#else
+	at24 = &at24_emulator;
+#endif
 
 	print_menu();
 	while (1) {

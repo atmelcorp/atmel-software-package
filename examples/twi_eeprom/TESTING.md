@@ -15,6 +15,14 @@ access data on a AT24 device.
 # Test
 ------
 
+## Supported targets
+--------------------
+
+* SAMA5D2-XPLAINED
+* SAMA5D4-XPLAINED
+* SAMA5D4-EK
+* SAM9XX5-EK
+
 ## Setup
 --------
 Step needed to set up the example.
@@ -27,7 +35,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED, SAM9xx5-EK)
+* Start the application
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -46,6 +54,10 @@ Step needed to set up the example.
  |      Select mode                                      |
  | f fifo                                                |
  |      Toggle feature                                   |
+ | d device                                              |
+ |      Select real AT24 device                          |
+ | d emulator                                            |
+ |      Select emulated AT24 device on TWI slave         |
  | r addr size                                           |
  |      Read 'size' bytes starting at address 'addr'     |
  | w addr str                                            |
@@ -59,6 +71,26 @@ Step needed to set up the example.
  |=======================================================|
 ```
 
+__Pins for SAMA5D2 Xplained Ultra:__
+Master SCL                 | Master SDA                | Slave SCL                         | Slave SDA
+-------------------------- | ------------------------- | --------------------------------- | ---------------------------------
+EXP_TWCK1_PD5 on J22 pin 8 | EXP_TWD1_PD4 on J22 pin 7 | ISC_D5/EXP/XPRO_PB31 on J20 pin 9 | ISC_D6/EXP/XPRO_PC0 on J20 pin 10
+
+__Pins for SAMA5D4 EK:__
+Master SCL                  | Master SDA                 | Slave SCL            | Slave SDA
+--------------------------- | -------------------------- | -------------------- | --------------------
+ISI_TWCK0_PA31 on J15 pin 7 | ISI_TWD0_PA30 on J15 pin 8 | ISI_D7 on J15 pin 25 | ISI_D6 on J15 pin 24
+
+__Pins for SAMA5D4 Xplained Ultra:__
+Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
+--------------------------- | -------------------------- | --------------------------- | --------------------------
+EXP_TWCK0_PA31 on J19 pin 8 | EXP_TWD0_PA30 on J19 pin 7 | EXP/XPRO_PE30 on J17 pin 10 | EXP/XPRO_PE29 on J17 pin 9
+
+__Pins for SAM9xx5 EK:__
+Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
+--------------------------- | -------------------------- | --------------------------- | --------------------------
+TWCK0 on J21 pin 7          | TWD0 on J21 pin 8          | TWCK1/PC1 on J2 pin 7       | TWD1/PC0 on J2 pin 5
+
 Tested with IAR and GCC (sram and ddram configurations)
 
 In order to test this example, the process is the following:
@@ -69,6 +101,12 @@ Press 'm' | Print the menu on screen | PASSED | PASSED
 Press 'd device' | Print `Use AT24 device` on screen | PASSED | PASSED
 Press 'a serial' | Print `serial number: ` ... on screen | PASSED | PASSED
 Press 'a mac' | Print `MAC addr: ` ... on screen | PASSED | PASSED
+Press 'w 0 abcd' | Print `Write done.` on screen | PASSED | PASSED
+Press 'r 0 4' | Print `61 62 63 64` on screen | PASSED | PASSED
+Press 'w 0 1234' | Print `Write done.` on screen | PASSED | PASSED
+Press 'r 0 4' | Print `31 32 33 34` on screen | PASSED | PASSED
+Connect wires from TWI master to TWI slave for testing the emulated AT24 EEPROM | | N/A | N/A
+Press 'd emulator' | Print `Use AT24 emulator` on screen | PASSED | PASSED
 Press 'w 0 abcd' | Print `Write done.` on screen | PASSED | PASSED
 Press 'r 0 4' | Print `61 62 63 64` on screen | PASSED | PASSED
 Press 'w 0 1234' | Print `Write done.` on screen | PASSED | PASSED
