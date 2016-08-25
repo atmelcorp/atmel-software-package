@@ -31,20 +31,18 @@
  *
  * \section Purpose
  *
- * This example indicates how to use the TWI with AT24MAC driver in order to
- * access data on a real AT24MAC device and on an emulated ST24MAC using a
- * TWI slave port.
+ * This example indicates how to use the TWI with AT24 driver in order to
+ * access data on a AT24 device.
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XULT and SAMA5D4-XULT.
+ * This package can be used with SAMA5D2-XPLAINED, SAMA5D4-XPLAINED and
+ * SAM9xx5-EK.
  *
  * \section Descriptions
  *
- * This example shows how to configure the TWI in master and slave mode.
- * In master mode, the example can read or write from 2 devices: one real AT24MAC
- * and one emulated AT24MAC.
- * In slave mode, this example implements an emulated AT24MAC EEPROM.
+ * This example shows how to configure the TWI in master mode.
+ * In master mode, the example can read or write from an AT24.
  *
  * \section Usage
  *
@@ -87,15 +85,12 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
-#include <stdint.h>
-
 #include "board.h"
-#include "chip.h"
+#include "trace.h"
 
-#include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/twid.h"
+
 #include "bus/twi-bus.h"
 
 #include "memories/at24.h"
@@ -103,146 +98,106 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "memories/at25.h"
-
-#include "twi_eeprom-config.h"
-
-#include "trace.h"
-#include "mutex.h"
-#include "timer.h"
-#include "compiler.h"
-
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 /*------------------------------------------------------------------------------
- *         Defines
+ *         Local Types
  *------------------------------------------------------------------------------*/
 
-#define AT24_DEVICE   0
-#define AT24_EMULATOR 1
+typedef void (*_parser)(const uint8_t*, uint32_t);
 
-#define CMD_BUFFER_SIZE   256
-#define READ_BUFFER_SIZE  256
+/*------------------------------------------------------------------------------
+ *         Local Constants
+ *------------------------------------------------------------------------------*/
+
+static const struct _at24_config at24_device_cfg = {
+	.bus = BOARD_AT24_TWI_BUS,
+	.addr = BOARD_AT24_ADDR,
+	.model = BOARD_AT24_MODEL,
+};
 
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-#ifdef BOARD_AT24_EEP_ADDR
-static uint8_t _device = AT24_DEVICE;
-#else
-static uint8_t _device = AT24_EMULATOR;
-#endif
-
-typedef void (*_parser)(const uint8_t*, uint32_t);
-
-CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
-
 static _parser _cmd_parser;
-
-struct _at24 at24_drv = {
-	.bus = BOARD_AT24_TWI_BUS,
-	.desc = BOARD_AT24_DESC,
-#ifdef BOARD_AT24_EEP_ADDR
-	.addr = BOARD_AT24_EEP_ADDR,
-	.sn_addr = BOARD_AT24_SN_ADDR,
-	.sn_offset = BOARD_AT24_SN_OFFSET,
-	.eui_offset = BOARD_AT24_EUI48_OFFSET,
-#endif
-};
-
 static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
+CACHE_ALIGNED static uint8_t cmd_buffer[256];
 
-/*----------------------------------------------------------------------------
- *        Slave definitions
- *----------------------------------------------------------------------------*/
+static struct _at24 at24_device;
+static struct _at24 *at24;
 
-/** The slave device instance*/
-struct _slave_device_driver
-{
-	/** Page address of the slave device*/
-	uint16_t page_addr;
-	/** Offset of the memory access*/
-	uint16_t offset;
-	/** Read address of the request*/
-	uint8_t acquire_addr;
-	/** Memory buffer*/
-	uint8_t memory[TWI_SLAVE_EEP_PAGE_SIZE * TWI_SLAVE_EEP_PAGES];
-};
+/*------------------------------------------------------------------------------
+ *         Local Functions
+ *------------------------------------------------------------------------------*/
 
-static const struct _pin twi_slave_pins[] = TWI_SLAVE_PINS;
-
-/** instance of TWI slave device */
-static struct _slave_device_driver emulate_driver;
-
-/*----------------------------------------------------------------------------
- *        Local Slave functions
- *----------------------------------------------------------------------------*/
-
-/**
- *  \brief Handler for TWI slave interrupt.
+/*
  *
- *  Handle process TWI master's requests.
  */
-static void twi_slave_handler(void)
+static void print_menu(void)
 {
-	uint32_t status;
-	Twi *twi = TWI_SLAVE_ADDR;
+	const char* mode_str;
 
-	status = twi_get_status(twi);
+	printf("\r\n");
 
-	if ((status & TWI_SR_SVACC) == TWI_SR_SVACC) {
-		if (emulate_driver.acquire_addr == 0) {
-			twi_disable_it(twi, TWI_IDR_SVACC);
-			twi_enable_it(twi, TWI_IER_RXRDY |
-					TWI_IER_EOSACC |
-					TWI_IER_SCL_WS);
-			emulate_driver.acquire_addr++;
-			emulate_driver.page_addr = 0;
-			emulate_driver.offset = 0;
-		}
+	printf("|================= TWI EEPROM Example ==================|\r\n");
 
-		if ((status & TWI_SR_GACC) == TWI_SR_GACC) {
-			trace_debug("General Call Treatment, not treated\r\n");
-		} else if ((status & TWI_SR_SVREAD) == TWI_SR_SVREAD) {
-			/*Slave Read */
-			if ((status & (TWI_SR_TXRDY | TWI_SR_NACK)) == TWI_SR_TXRDY) {
-				if (emulate_driver.acquire_addr == 2) {
-					/* Write one byte of data from slave to master device */
-					twi_write_byte(twi, emulate_driver.memory[emulate_driver.page_addr + emulate_driver.offset]);
-					emulate_driver.offset++;
-				}
-			}
-		} else {
-			/*Slave Write*/
-			if ((status & TWI_SR_RXRDY) == TWI_SR_RXRDY) {
-				if (emulate_driver.acquire_addr == 1) {
-					/* Acquire MSB address */
-					emulate_driver.page_addr = twi_read_byte(twi);
-					emulate_driver.acquire_addr++;
-				} else {
-					/* Read one byte of data from master to slave device */
-					emulate_driver.memory[emulate_driver.page_addr + emulate_driver.offset] = twi_read_byte(twi);
-					emulate_driver.offset++;
-				}
-			}
-		}
-	} else {
-		if ((status & (TWI_SR_EOSACC | TWI_SR_TXCOMP)) ==
-				(TWI_SR_EOSACC | TWI_SR_TXCOMP)) {
-			/* End of transfer, end of slave access */
-			emulate_driver.offset = 0;
-			emulate_driver.acquire_addr = 0;
-			emulate_driver.page_addr = 0;
-			twi_enable_it(twi, TWI_SR_SVACC);
-			twi_disable_it(twi, TWI_IDR_RXRDY |
-					TWI_IDR_EOSACC |
-					TWI_IDR_SCL_WS);
-		}
+	printf("| I2C Address: 0x%02x                                     |\r\n",
+	       at24->addr);
+	printf("| Device: %-46s|\r\n", at24->desc->name);
+	switch (twi_bus_get_transfer_mode(at24->bus)) {
+	case TWID_MODE_POLLING:
+		mode_str = "polling";
+		break;
+	case TWID_MODE_ASYNC:
+		mode_str = "async";
+		break;
+	case TWID_MODE_DMA:
+		mode_str = "DMA";
+		break;
+	default:
+		mode_str = "unknown";
+		break;
 	}
+	printf("| Mode: %-48s|\r\n", mode_str);
+#ifdef CONFIG_HAVE_TWI_FIFO
+	printf("| FIFO: %-48s|\r\n",
+	       twi_bus_fifo_is_enabled(at24->bus) ? "enabled" : "disabled");
+#endif
+
+	printf("|====================== Commands =======================|\r\n"
+	       "| m polling                                             |\r\n"
+	       "| m async                                               |\r\n"
+	       "| m dma                                                 |\r\n"
+	       "|      Select mode                                      |\r\n"
+#ifdef CONFIG_HAVE_TWI_FIFO
+	       "| f fifo                                                |\r\n"
+	       "|      Toggle feature                                   |\r\n"
+#endif
+	       "| r addr size                                           |\r\n"
+	       "|      Read 'size' bytes starting at address 'addr'     |\r\n"
+	       "| w addr str                                            |\r\n"
+	       "|      Write 'str' to address 'addr'                    |\r\n");
+
+	if (at24_has_serial(at24))
+		printf("| a serial                                              |\r\n"
+		       "|      Query device serial number                       |\r\n");
+
+	if (at24_has_eui48(at24))
+		printf("| a eui48                                               |\r\n"
+		       "|      Query device EUI48                               |\r\n");
+
+	if (at24_has_eui64(at24))
+		printf("| a eui64                                               |\r\n"
+		       "|      Query device EUI64                               |\r\n");
+
+	printf("| h                                                     |\r\n"
+	       "|      Print this menu                                  |\r\n"
+	       "|=======================================================|\r\n");
 }
 
 static void console_handler(uint8_t key)
@@ -278,7 +233,6 @@ static void console_handler(uint8_t key)
  */
 static void _eeprom_write_arg_parser(const uint8_t* buffer, uint32_t len)
 {
-	uint8_t status;
 	char* end_addr = NULL;
 	unsigned int addr = strtol((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
@@ -296,8 +250,10 @@ static void _eeprom_write_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 	len -= (end_addr+1) - (char*)buffer;
 	memmove(cmd_buffer, (uint8_t*)end_addr+1, len);
-	status = at24_write_eep(&at24_drv, addr, cmd_buffer, len);
-	if(!status) printf("Write done.\r\n");;
+	if (at24_write(at24, addr, cmd_buffer, len))
+		printf("Write done.\r\n");
+	else
+		printf("Write failed!\r\n");
 }
 
 /*
@@ -323,158 +279,119 @@ static void _eeprom_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		       (unsigned int)addr);
 		return;
 	}
-	at24_read_eep(&at24_drv, addr, cmd_buffer, length);
-	console_dump_frame(cmd_buffer, length);
+	if (at24_read(at24, addr, cmd_buffer, length))
+		console_dump_frame(cmd_buffer, length);
+	else
+		printf("Read failed!\r\n");
 }
 
-/*
- *
- */
-static void print_menu(void)
-{
-	printf("\r\n\r\n TWI Bus mode ");
-	switch (twi_bus_get_transfer_mode(at24_drv.bus)) {
-	case TWID_MODE_POLLING:
-		printf("POLLING \r\n");
-		break;
-	case TWID_MODE_ASYNC:
-		printf("ASYNC \r\n");
-		break;
-	case TWID_MODE_DMA:
-		printf("DMA \r\n");
-		break;
-	}
-	printf("FIFO: %s\r\n", twi_bus_fifo_is_enabled(at24_drv.bus) ? "enabled" : "disabled");
-	printf("\r\n");
-	printf("twi eeprom example mini-console:\r\n\r\n"
-	       "|===========        Commands        ====================|\r\n"
-#ifdef BOARD_AT24_EEP_ADDR
-	       "| a serial                                              |\r\n"
-	       "|      Query device serial number                       |\r\n"
-	       "| a mac                                                 |\r\n"
-	       "|      Query device mac addr                            |\r\n"
-#endif
-	       "| r addr size                                           |\r\n"
-	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
-	       "| w addr str                                            |\r\n"
-	       "|      Write 'str' to address 'addr'                    |\r\n"
-#ifdef BOARD_AT24_EEP_ADDR
-	       "| s device (default)                                    |\r\n"
-	       "|      Select at24 device                               |\r\n"
-	       "| s emulator                                            |\r\n"
-	       "|      Select to TWI slave device emulating at24        |\r\n"
-#endif
-		   "| m polling                                             |\r\n"
-	       "| m async                                               |\r\n"
-		   "| m dma                                                 |\r\n"
-	       "|      Select mode                                      |\r\n"
-#if defined(CONFIG_HAVE_TWI_FIFO)
-		   "| f fifo                                                |\r\n"
-	       "|      Toggle TWI feature                               |\r\n"
-#endif
-	       "| h                                                     |\r\n"
-	       "|      Print this menu                                  |\r\n"
-	       "|=======================================================|\r\n");
-}
-
-#ifdef BOARD_AT24_EEP_ADDR
 /*
  *
  */
 static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 {
-	uint8_t status;
 	int i = 0;
 
-	if (_device == AT24_EMULATOR) {
-		printf("Serial feature not emulated...\r\n");
+	if (!strncmp((char*)buffer, "serial", 6)) {
+		uint8_t serial[AT24_SERIAL_LENGTH];
+		if (at24_read_serial(at24, serial)) {
+			printf("serial: ");
+			for (i = 0; i < AT24_SERIAL_LENGTH; i++)
+				printf("%02x", (unsigned)serial[i]);
+			printf("\r\n");
+		} else {
+			printf("Error while reading serial\r\n");
+		}
 		return;
 	}
-	if (!strncmp((char*)buffer, "serial", 6)) {
-		status = at24_get_serial_number(&at24_drv);
-		if (status == TWID_SUCCESS) {
-			printf("serial number: ");
-			for (i = 0; i < sizeof(at24_drv.serial_number); ++i) {
-				printf("%u", (unsigned char)at24_drv.serial_number[i]);
-			}
-		} else {
-			printf("--E-- Error twi ");
-		}
-		printf("\r\n");
-	} else if (!strncmp((char*)buffer, "mac", 3)) {
-		status = at24_get_mac_address(&at24_drv);
-		if (status == TWID_SUCCESS) {
-			printf("MAC addr: ");
-			for (i = 0; i < sizeof(at24_drv.mac_addr_48); i+=2) {
-				printf("%s%02X:%02X",
-					   (i != 0 ? ":" : ""),
-					   (unsigned int)at24_drv.mac_addr_48[i],
-					   (unsigned int)at24_drv.mac_addr_48[i+1]);
-			}
-		} else {
-			printf("--E-- Error twi ");
-		}
-			printf("\r\n");
-	}
-}
 
-static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len)
-{
-	if (!strncmp((char*)buffer, "emulator", 8)) {
-		_device = AT24_EMULATOR;
-		at24_drv.addr = TWI_SLAVE_EEP_ADDR;
-		printf("Use AT24 emulator\r\n");
+	if (!strncmp((char*)buffer, "eui48", 5)) {
+		uint8_t eui48[AT24_EUI48_LENGTH];
+		if (at24_read_eui48(at24, eui48)) {
+			printf("EUI48: ");
+			for (i = 0; i < AT24_EUI48_LENGTH; i++) {
+				if (i > 0)
+					printf(":");
+				printf("%02x", (unsigned)eui48[i]);
+			}
+			printf("\r\n");
+		} else {
+			printf("Error while reading EUI48\r\n");
+		}
+		return;
 	}
-	else if (!strncmp((char*)buffer, "device", 8)) {
-		_device = AT24_DEVICE;
-		at24_drv.addr = BOARD_AT24_EEP_ADDR;
-		printf("Use AT24 device\r\n");
+
+	if (!strncmp((char*)buffer, "eui64", 5)) {
+		uint8_t eui64[AT24_EUI64_LENGTH];
+		if (at24_read_eui64(at24, eui64)) {
+			printf("EUI64: ");
+			for (i = 0; i < AT24_EUI64_LENGTH; i++) {
+				if (i > 0)
+					printf(":");
+				printf("%02x", (unsigned)eui64[i]);
+			}
+			printf("\r\n");
+		} else {
+			printf("Error while reading EUI64\r\n");
+		}
+		return;
 	}
+
+	printf("Invalid advanced command!\r\n");
 }
-#endif /* BOARD_AT24_EEP_ADDR */
 
 static void _eeprom_toggle_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		twi_bus_set_transfer_mode(at24_drv.bus, TWID_MODE_POLLING);
-		printf("Use POLLING mode\r\n");
+		twi_bus_set_transfer_mode(at24->bus, TWID_MODE_POLLING);
+		printf("Using polling mode.\r\n");
+		return;
 	}
-	else if (!strncmp((char*)buffer, "async", 5)) {
-		twi_bus_set_transfer_mode(at24_drv.bus, TWID_MODE_ASYNC);
-		printf("Use ASYNC mode\r\n");
+
+	if (!strncmp((char*)buffer, "async", 5)) {
+		twi_bus_set_transfer_mode(at24->bus, TWID_MODE_ASYNC);
+		printf("Using async mode.\r\n");
+		return;
 	}
-	else if (!strncmp((char*)buffer, "dma", 3)) {
-		twi_bus_set_transfer_mode(at24_drv.bus, TWID_MODE_DMA);
-		printf("Use DMA mode\r\n");
+
+	if (!strncmp((char*)buffer, "dma", 3)) {
+		twi_bus_set_transfer_mode(at24->bus, TWID_MODE_DMA);
+		printf("Using DMA mode.\r\n");
+		return;
 	}
+
+	printf("Invalid mode command!\r\n");
 }
 
-#if defined(CONFIG_HAVE_TWI_FIFO)
 static void _eeprom_toggle_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
+#ifdef CONFIG_HAVE_TWI_FIFO
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!twi_bus_fifo_is_enabled(at24_drv.bus)) {
-			twi_bus_fifo_enable(at24_drv.bus);
-			printf("Enable FIFO\r\n");
+		if (!twi_bus_fifo_is_enabled(at24->bus)) {
+			twi_bus_fifo_enable(at24->bus);
+			printf("Enable FIFO use.\r\n");
 		} else {
-			twi_bus_fifo_disable(at24_drv.bus);
-			printf("Disable FIFO\r\n");
+			twi_bus_fifo_disable(at24->bus);
+			printf("Disable FIFO use.\r\n");
 		}
+		return;
 	}
-}
 #endif
+
+	printf("Invalid feature command!\r\n");
+}
 
 static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
-	if (*buffer == 'h' || *buffer == 'H') {
+	if (*buffer == 'h' || *buffer == 'H' || *buffer == '?') {
 		print_menu();
 		return;
 	}
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
-		printf("%c%c\r\n", *buffer, *(buffer+1));
 		return;
 	}
+
 	switch(*buffer) {
 	case 'r':
 	case 'R':
@@ -484,28 +401,20 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'W':
 		_eeprom_write_arg_parser(buffer+2, len-2);
 		break;
-#ifdef BOARD_AT24_EEP_ADDR
 	case 'a':
 	case 'A':
 		_eeprom_query_arg_parser(buffer+2, len-2);
 		break;
-	case 's':
-	case 'S':
-		_eeprom_toggle_device_arg_parser(buffer+2, len-2);
-		break;
-#endif
 	case 'm':
 	case 'M':
 		_eeprom_toggle_mode_arg_parser(buffer+2, len-2);
 		break;
-#if defined(CONFIG_HAVE_TWI_FIFO)
 	case 'f':
 	case 'F':
 		_eeprom_toggle_feature_arg_parser(buffer+2, len-2);
 		break;
-#endif
 	default:
-		printf("Command %c unknown\r\n", *buffer);
+		printf("Command '%c' unknown\r\n", *buffer);
 	}
 }
 
@@ -515,9 +424,6 @@ static void _eeprom_cmd_parser(const uint8_t* buffer, uint32_t len)
 
 int main (void)
 {
-	uint32_t i;
-	uint32_t twi_id;
-
 	/* Output example information */
 	console_example_info("TWI EEPROM Example");
 
@@ -527,34 +433,8 @@ int main (void)
 
 	_cmd_parser = _eeprom_cmd_parser;
 
-	/* configure twi flash pins */
-	at24_configure(&at24_drv);
-
-	/* Configure TWI as slave */
-	for (i=0 ; i < sizeof(emulate_driver.memory) ; i++)
-		emulate_driver.memory[i] = i;
-	emulate_driver.offset = 0;
-	emulate_driver.acquire_addr = 0;
-	emulate_driver.page_addr = 0;
-
-	pio_configure(twi_slave_pins, ARRAY_SIZE(twi_slave_pins));
-
-	twi_id = get_twi_id_from_addr(TWI_SLAVE_ADDR);
-	pmc_enable_peripheral(twi_id);
-
-	/* Configure TWI as slave */
-	twi_configure_slave(TWI_SLAVE_ADDR, TWI_SLAVE_EEP_ADDR);
-	trace_debug("TWI is in slave mode\n\r");
-
-	/* Clear receipt buffer */
-	(void)twi_read_byte(TWI_SLAVE_ADDR);
-
-	aic_set_source_vector(twi_id, twi_slave_handler);
-	twi_enable_it(TWI_SLAVE_ADDR, TWI_SR_SVACC);
-	aic_enable(twi_id);
-
-	trace_debug("Device act as a serial memory with TWI interface." \
-		" (Device address: 0x%02x)\n\r", TWI_SLAVE_EEP_ADDR);
+	at24_configure(&at24_device, &at24_device_cfg);
+	at24 = &at24_device;
 
 	print_menu();
 	while (1) {

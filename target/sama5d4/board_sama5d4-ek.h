@@ -200,11 +200,6 @@
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
 #define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
 
-/* =================== AT24 device definition =================== */
-
-#define BOARD_AT24_TWI_BUS  0
-#define BOARD_AT24_DESC     {"AT24MAC402", 0xFF, 16}
-
 /* =================== AT25 device definition =================== */
 
 #define BOARD_AT25_BUS         0

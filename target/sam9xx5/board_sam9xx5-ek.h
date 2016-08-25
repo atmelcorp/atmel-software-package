@@ -244,9 +244,9 @@
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS  0
-#define BOARD_AT24_DESC     {"AT24C512", 0xFFFF, 16}
-#define BOARD_AT24_EEP_ADDR (0x50 | 0x1)
+#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_ADDR    0x51
+#define BOARD_AT24_MODEL   AT24C512
 
 /* =================== AT25 device definition =================== */
 

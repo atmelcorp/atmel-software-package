@@ -242,11 +242,6 @@
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
 
-/* =================== AT24 device definition =================== */
-
-#define BOARD_AT24_TWI_BUS 0
-#define BOARD_AT24_DESC    {"AT24MAC402", 0xFF, 16}
-
 /* =================== AT25 device definition =================== */
 
 #define BOARD_AT25_BUS         0

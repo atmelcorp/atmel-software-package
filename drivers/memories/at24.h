@@ -27,72 +27,84 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef AT24MAC402_H
-#define AT24MAC402_H
+#ifndef AT24_H_
+#define AT24_H_
 
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "peripherals/twid.h"
-#include "mutex.h"
 
 /*----------------------------------------------------------------------------
  *         Global definitions
  *----------------------------------------------------------------------------*/
 
+#define AT24_SERIAL_LENGTH 16
+#define AT24_EUI48_LENGTH  6
+#define AT24_EUI64_LENGTH  8
 
+enum _at24_model {
+	AT24C01,
+	AT24C02,
+	AT24C04,
+	AT24C08,
+	AT24C16,
+	AT24C32,
+	AT24C64,
+	AT24C128,
+	AT24C256,
+	AT24C512,
+	AT24C1024,
+	AT24CM01,
+	AT24CM02,
+	AT24CS01,
+	AT24CS02,
+	AT24CS04,
+	AT24CS08,
+	AT24MAC402,
+	AT24MAC602,
+};
 
-/** Internal Register Address Allocation */
-#define AT24_FIRST_MEM_ADDR     0x00
-#define AT24_SECOND_MEM_ADDR    0x80
-#define AT24_EUI64_VALUE_ADDR   0x98        // 0x98-0x9F
-#define AT24_DUMMY_ADDR         0x00
-
-#define AT24_NUM_PAGE           2
-#define AT24_PAGE_SIZE          128
-#define AT24_BLOCK_SIZE         16
-#define AT24_NUM_BLOCK          (AT24_PAGE_SIZE / AT24_BLOCK_SIZE)
-#define AT24_MEM_SIZE           (AT24_PAGE_SIZE * AT24_NUM_PAGE)
-
-#define AT24_SN_SIZE            ((0x8F-0x80)+1)
-#define AT24_EUI48_SIZE         ((0x9F-0x9A)+1)
-#define AT24_EUI64_SIZE         ((0x9F-0x98)+1)
-
-#define AT24_INFO_ADDR          (AT24_SECOND_MEM_ADDR + \
-				 ((AT24_NUM_BLOCK-2)* AT24_BLOCK_SIZE))
-#define AT24_INFO_SIZE          (AT24_BLOCK_SIZE*2)
+enum _at24_family {
+	AT24C,
+	AT24CS,
+	AT24MAC4,
+	AT24MAC6,
+};
 
 struct _at24_desc {
-	const char* name;
-	uint16_t    size;
-	uint8_t     page_size;
+	uint8_t model;      /* from enum _at24_model */
+	const char *name;   /* device name */
+	uint8_t family;     /* from enum _at24_family */
+	uint8_t size;       /* total size, in power-of-2 bytes (8 => 2**8 = 256 bytes) */
+	uint16_t page_size; /* write page size, in bytes */
+};
+
+struct _at24_config {
+	uint8_t bus;
+	uint8_t addr;
+	enum _at24_model model;
 };
 
 struct _at24 {
 	uint8_t bus;
-	struct _at24_desc desc;
-
 	uint8_t addr;
-	uint8_t sn_addr;
-	uint8_t sn_offset;
-	uint8_t eui_offset;
-
-	uint8_t serial_number[AT24_SN_SIZE];
-	uint8_t mac_addr_48[AT24_EUI48_SIZE];
-
-	mutex_t mutex;
+	const struct _at24_desc *desc;
 };
 
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint8_t at24_get_serial_number(struct _at24* at24);
-extern uint8_t at24_get_mac_address(struct _at24* at24);
-extern uint8_t at24_read_eep(struct _at24* at24, uint8_t addr, uint8_t* data, uint16_t length);
-extern uint8_t at24_write_eep(struct _at24* at24, uint8_t addr, const uint8_t* data, uint16_t length);
-extern uint8_t at24_configure(struct _at24* at24);
+extern bool at24_configure(struct _at24* at24, const struct _at24_config* cfg);
+extern bool at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t length);
+extern bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length);
+extern bool at24_has_serial(const struct _at24* at24);
+extern bool at24_read_serial(const struct _at24* at24, uint8_t* serial);
+extern bool at24_has_eui48(const struct _at24* at24);
+extern bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48);
+extern bool at24_has_eui64(const struct _at24* at24);
+extern bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64);
 
-#endif //#ifndef AT24MAC402_H
+#endif /* AT24_H_ */

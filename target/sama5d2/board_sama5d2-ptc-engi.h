@@ -155,8 +155,9 @@
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS    0
-#define BOARD_AT24_DESC       {"AT24MAC402", 0xFF, 16}
+#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_ADDR    0x54
+#define BOARD_AT24_MODEL   AT24MAC402
 
 /* =================== AT25 device definition =================== */
 

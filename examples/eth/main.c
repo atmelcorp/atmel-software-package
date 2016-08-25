@@ -167,16 +167,6 @@
  *         Local variables
  *---------------------------------------------------------------------------*/
 
-struct _at24 at24_drv = {
-	.bus = BOARD_AT24_TWI_BUS,
-	.desc = BOARD_AT24_DESC,
-#ifdef BOARD_AT24_SN_ADDR
-	.sn_addr = BOARD_AT24_SN_ADDR,
-	.sn_offset = BOARD_AT24_SN_OFFSET,
-	.eui_offset = BOARD_AT24_EUI48_OFFSET,
-#endif
-};
-
 const struct _pin eth_pins[] = ETH_PINS;
 const struct _phy_desc phy_desc = {
 		.addr = ETH_ADDR,
@@ -217,6 +207,36 @@ static uint8_t _arp_reply_count;
 /*---------------------------------------------------------------------------
  *         Local functions
  *---------------------------------------------------------------------------*/
+
+static void configure_mac_address(void)
+{
+	bool default_addr = true;
+
+#ifdef BOARD_AT24_MODEL
+	struct _at24 at24;
+	struct _at24_config config = {
+		.bus = BOARD_AT24_TWI_BUS,
+		.addr = BOARD_AT24_ADDR,
+		.model = BOARD_AT24_MODEL,
+	};
+	if (at24_configure(&at24, &config)) {
+		if (at24_has_eui48(&at24)) {
+			if (at24_read_eui48(&at24, _mac_addr)) {
+				printf("MAC address initialized using AT24 EEPROM\r\n");
+				default_addr = false;
+			} else {
+				printf("Failed reading MAC address from AT24 EEPROM\r\n");
+			}
+		} else {
+			printf("AT24 EEPROM does not support EUI48 feature\r\n");
+		}
+	} else {
+		printf("Could not configure AT24 EEPROM\r\n");
+	}
+#endif
+	if (default_addr)
+		printf("Using default MAC address\r\n");
+}
 
 /**
  * initialize the Ip address of the board if not yet initialized
@@ -449,15 +469,8 @@ int main(void)
 	/* Output example information */
 	console_example_info("ETH (GMAC/EMAC) Example");
 
-#ifdef BOARD_AT24_SN_ADDR
-	at24_configure(&at24_drv);
-	if (at24_get_mac_address(&at24_drv)) {
-		printf("Failed reading MAC address from AT24 EEPROM");
-	} else
-#endif
-	{
-		memcpy(_mac_addr, at24_drv.mac_addr_48, 6);
-	}
+	/* Retrieve MAC address from EEPROM if possible */
+	configure_mac_address();
 
 	/* Display MAC & IP settings */
 	printf("-- MAC %02x:%02x:%02x:%02x:%02x:%02x\n\r",
