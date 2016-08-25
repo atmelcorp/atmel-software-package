@@ -186,6 +186,9 @@
 /** TWI Interface max */
 #define TWI_IFACE_COUNT (3)
 
+/** SPI Interface max */
+#define SPI_IFACE_COUNT (2)
+
 /** Indicates chip has an UDP High Speed. */
 #define CHIP_USB_UDPHS
 

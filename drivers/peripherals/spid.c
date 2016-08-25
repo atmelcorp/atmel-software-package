@@ -459,14 +459,12 @@ void spid_configure(struct _spi_desc* desc)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
 #endif
 	pmc_enable_peripheral(id);
-	spi_configure(desc->addr, (desc->attributes & SPI_MR_MSTR));
+	spi_configure(desc->addr, SPI_MR_MSTR);
 #ifdef CONFIG_HAVE_SPI_FIFO
 	_spid_fifo_configure(desc);
 	if (desc->use_fifo)
 		spi_fifo_enable(desc->addr);
 #endif
-	spi_configure_cs(desc->addr, desc->chip_select, desc->bitrate,
-			 desc->dlybs, desc->dlybct, desc->spi_mode);
 
 	spi_enable(desc->addr);
 }

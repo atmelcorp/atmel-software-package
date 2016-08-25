@@ -211,6 +211,12 @@
 #define BOARD_TWI_BUS1_FREQ 400000
 #define BOARD_TWI_BUS1_PINS PINS_TWI1
 
+/* ================== SPI bus definition ====================== */
+
+#define BOARD_SPI_BUS0       SPI0
+#define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
+#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+
 /* =================== AT24 device definition =================== */
 
 #define BOARD_AT24_TWI_BUS    0
@@ -218,14 +224,12 @@
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_PINS     PINS_SPI0_NPCS0
-#define BOARD_AT25_ADDR     SPI0
-#define BOARD_AT25_CS       0
-#define BOARD_AT25_ATTRS    (SPI_MR_MSTR)
-#define BOARD_AT25_FREQ     40000 /* (value in KHz) */
-#define BOARD_AT25_DLYBS    0
-#define BOARD_AT25_DLYCT    0
-#define BOARD_AT25_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT)
+#define BOARD_AT25_BUS         0
+#define BOARD_AT25_CHIP_SELECT 0
+#define BOARD_AT25_BITRATE     40000
+#define BOARD_AT25_DLYBS       0
+#define BOARD_AT25_DLYBCT      0
+#define BOARD_AT25_SPI_MODE    SPID_MODE_0
 
 /* ================== ACT8865 PMIC definition ====================== */
 

@@ -27,15 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for memories configuration on board.
- *
- */
-
-#ifndef BOARD_MEMORIES_H
-#define BOARD_MEMORIES_H
+#ifndef BOARD_SUPPORT_H
+#define BOARD_SUPPORT_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -147,4 +140,9 @@ extern void board_init(void);
  */
 extern void board_cfg_twi_bus(void);
 
-#endif  /* BOARD_MEMORIES_H */
+/**
+ * \brief Configures SPIx bus for the board
+ */
+extern void board_cfg_spi_bus(void);
+
+#endif  /* BOARD_SUPPORT_H */

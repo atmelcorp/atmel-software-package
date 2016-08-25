@@ -38,11 +38,12 @@
 #include "board.h"
 #include "chip.h"
 
+#include "bus/spi-bus.h"
+
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
-#include "peripherals/spi.h"
 
 #include "misc/console.h"
 #include "misc/cache.h"
@@ -56,9 +57,7 @@
 #include <string.h>
 
 #define CMD_BUFFER_SIZE   (1024)
-#define READ_BUFFER_SIZE  (1024)
-
-static const struct _pin at25_pins[] = BOARD_AT25_PINS;
+#define READ_BUFFER_SIZE  (4 * 1024)
 
 CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -69,18 +68,16 @@ static _parser _cmd_parser;
 static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 
-static struct _spi_desc spi_at25_desc = {
-	.addr           = BOARD_AT25_ADDR,
-	.bitrate        = BOARD_AT25_FREQ,
-	.attributes     = BOARD_AT25_ATTRS,
-	.dlybs          = BOARD_AT25_DLYBS,
-	.dlybct         = BOARD_AT25_DLYCT,
-	.chip_select    = BOARD_AT25_CS,
-	.spi_mode       = BOARD_AT25_SPI_MODE,
-	.transfer_mode = SPID_MODE_DMA,
+static struct _at25 at25drv = {
+	.bus = BOARD_AT25_BUS,
+	.chip_select = BOARD_AT25_CHIP_SELECT,
+	.bitrate = BOARD_AT25_BITRATE,
+	.delay = {
+		.bs = BOARD_AT25_DLYBS,
+		.bct = BOARD_AT25_DLYBCT,
+	},
+	.spi_mode = BOARD_AT25_SPI_MODE,
 };
-
-static struct _at25 at25drv;
 
 static void console_handler(uint8_t key)
 {
@@ -239,13 +236,13 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		spi_at25_desc.transfer_mode = SPID_MODE_POLLING;
+		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_POLLING);
 		printf("Use POLLING mode\r\n");
 	} else if (!strncmp((char*)buffer, "async", 5)) {
-		spi_at25_desc.transfer_mode = SPID_MODE_ASYNC;
+		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_ASYNC);
 		printf("Use ASYNC mode\r\n");
 	} else if (!strncmp((char*)buffer, "dma", 3)) {
-		spi_at25_desc.transfer_mode = SPID_MODE_DMA;
+		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_DMA);
 		printf("Use DMA mode\r\n");
 	} else {
 		printf("Args: %s\r\n"
@@ -257,13 +254,11 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!spi_at25_desc.use_fifo) {
-			spi_at25_desc.use_fifo = true;
-			spi_fifo_enable(spi_at25_desc.addr);
+		if (!spi_bus_fifo_is_enabled(at25drv.bus)) {
+			spi_bus_fifo_enable(at25drv.bus);
 			printf("Enable FIFO\r\n");
 		} else {
-			spi_at25_desc.use_fifo = false;
-			spi_fifo_disable(spi_at25_desc.addr);
+			spi_bus_fifo_disable(at25drv.bus);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -279,7 +274,7 @@ static void print_menu(void)
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
 	printf("| Device: %-46s|\r\n", at25drv.desc ? at25drv.desc->name : "N/A");
-	switch (spi_at25_desc.transfer_mode) {
+	switch (spi_bus_get_transfer_mode(at25drv.bus)) {
 	case SPID_MODE_POLLING:
 		mode_str = "polling";
 		break;
@@ -295,7 +290,7 @@ static void print_menu(void)
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	printf("| FIFO: %-48s|\r\n", spi_at25_desc.use_fifo ? "enabled" : "disabled");
+	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv.bus) ? "enabled" : "disabled");
 #endif
 
 	printf("|====================== Commands =======================|\r\n"
@@ -312,7 +307,7 @@ static void print_menu(void)
 	       "| a device                                              |\r\n"
 	       "|      Query serial flash JEDEC info                    |\r\n"
 	       "| r addr size                                           |\r\n"
-	       "|      Read 'size' octets starting from address 'addr'  |\r\n"
+	       "|      Read 'size' bytes starting at address 'addr'     |\r\n"
 	       "| w addr str                                            |\r\n"
 	       "|      Write 'str' to address 'addr'                    |\r\n"
 	       "| d addr [4k|32k|64k|256k]                              |\r\n"
@@ -372,11 +367,8 @@ int main (void)
 	/* Output example information */
 	console_example_info("SPI Flash Example");
 
-	/* configure spi serial flash pins */
-	pio_configure(at25_pins, ARRAY_SIZE(at25_pins));
-
 	/* Open serial flash device */
-	rc = at25_configure(&at25drv, &spi_at25_desc);
+	rc = at25_configure(&at25drv);
 	if (rc == AT25_DEVICE_NOT_SUPPORTED)
 		printf("Device NOT supported!\r\n");
 	else if (rc != AT25_SUCCESS)

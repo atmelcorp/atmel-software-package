@@ -129,7 +129,7 @@ extern void spi_release_cs(Spi * spi);
  * \param delay_dlybct
  * \param spi_mode
  */
-extern void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
+extern void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 			     uint32_t delay_dlybs, uint32_t delay_dlybct,
 			     uint32_t spi_mode);
 

@@ -50,6 +50,7 @@
 #include "peripherals/smc.h"
 #include "peripherals/wdt.h"
 
+#include "bus/spi-bus.h"
 #include "bus/twi-bus.h"
 
 #include "memories/ddram.h"
@@ -497,5 +498,19 @@ void board_cfg_twi_bus(void)
 	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
 	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
 	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, TWID_MODE_DMA);
+#endif
+}
+
+void board_cfg_spi_bus(void)
+{
+#ifdef BOARD_SPI_BUS0
+	const struct _pin pins_spi_bus0[] = BOARD_SPI_BUS0_PINS;
+	pio_configure(pins_spi_bus0, ARRAY_SIZE(pins_spi_bus0));
+	spi_bus_configure(0, BOARD_SPI_BUS0, BOARD_SPI_BUS0_MODE);
+#endif
+#ifdef BOARD_SPI_BUS1
+	const struct _pin pins_spi_bus1[] = BOARD_SPI_BUS1_PINS;
+	pio_configure(pins_spi_bus1, ARRAY_SIZE(pins_spi_bus1));
+	spi_bus_configure(1, BOARD_SPI_BUS1, BOARD_SPI_BUS1_MODE);
 #endif
 }

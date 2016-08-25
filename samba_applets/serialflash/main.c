@@ -35,6 +35,7 @@
 #include "board.h"
 #include "chip.h"
 #include "memories/at25.h"
+#include "bus/spi-bus.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
@@ -61,19 +62,15 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _at25 at25drv;
-
-static struct _spi_desc spi_at25_desc = {
-	.attributes     = SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR,
-	.dlybs          = 0,
-	.dlybct         = 0,
-	.mutex          = 0,
-	.spi_mode       = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT,
-#if defined(CONFIG_HAVE_SPI_FIFO)
-	.transfer_mode = SPID_MODE_FIFO,
-#else
-	.transfer_mode = SPID_MODE_POLLING,
-#endif
+static struct _at25 at25drv = {
+	.bus = 0,
+	/* .chip_select */
+	/* .bitrate */
+	.delay = {
+		.bs = 0,
+		.bct = 0,
+	},
+	.spi_mode = SPID_MODE_0,
 };
 
 static uint8_t *buffer;
@@ -113,6 +110,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	uint32_t ioset = mbx->in.parameters[1];
 	uint32_t chip_select = mbx->in.parameters[2];
 	uint32_t freq = mbx->in.parameters[3];
+	Spi* spi;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -129,23 +127,27 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (!configure_instance_pio(instance, ioset, chip_select,
-				&spi_at25_desc.addr)) {
+	if (!configure_instance_pio(instance, ioset, chip_select, &spi)) {
 		trace_error_wp("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select);
 		return APPLET_FAIL;
 	}
 
-	spi_at25_desc.bitrate = ROUND_INT_DIV(freq, 1000);
-	spi_at25_desc.chip_select = chip_select;
+	spi_bus_configure(0, spi, SPID_MODE_DMA);
+#ifdef CONFIG_HAVE_SPI_FIFO
+	spi_bus_fifo_enable(true);
+#endif
+
+	at25drv.bitrate = ROUND_INT_DIV(freq, 1000);
+	at25drv.chip_select = chip_select;
 
 	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select, (unsigned)freq);
 
 	/* initialize the SPI and serial flash */
-	if (at25_configure(&at25drv, &spi_at25_desc) != AT25_SUCCESS) {
+	if (at25_configure(&at25drv) != AT25_SUCCESS) {
 		trace_info_wp("Error while detecting AT25 chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}

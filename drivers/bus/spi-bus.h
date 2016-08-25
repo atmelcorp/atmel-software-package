@@ -27,66 +27,51 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
+#ifndef SPI_BUS_H
+#define SPI_BUS_H
 
-#include "chip.h"
-#include "board.h"
-#include "compiler.h"
+#include "peripherals/spid.h"
+#include "mutex.h"
 
-#include "peripherals/pio.h"
-#include "peripherals/xdmacd.h"
-#include "peripherals/wdt.h"
+typedef void (*spi_bus_callback_t)(void* args);
 
-#include "board_support.h"
+struct _spi_bus_desc {
+	struct _spi_desc spid;
 
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
+	spi_bus_callback_t callback;
+	void *cb_args;
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+	mutex_t mutex;
+	mutex_t transaction;
+};
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
+int32_t spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode);
 
-	/* Configure console */
-	board_cfg_console(0);
+void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t dlybs, uint32_t dlybct,
+						  enum _spid_mode mode);
 
-	/* XDMAC Driver init */
-	xdmacd_initialize(false);
+int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
+						 spi_bus_callback_t cb, void *user_args);
 
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
+int32_t spi_bus_start_transaction(const uint8_t bus_id);
 
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
+int32_t spi_bus_stop_transaction(const uint8_t bus_id);
 
-	/* Configure PMIC */
-	board_cfg_pmic();
+bool spi_bus_transaction_pending(const uint8_t bus_id);
 
-	/* Configure LEDs */
-	board_cfg_led();
+bool spi_bus_is_busy(const uint8_t bus_id);
 
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
+void spi_bus_wait_transfer(const uint8_t bus_id);
 
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-}
+enum _spid_trans_mode spi_bus_get_transfer_mode(const uint8_t bus_id);
+
+void spi_bus_set_transfer_mode(const uint8_t bus_id, enum _spid_trans_mode mode);
+
+void spi_bus_fifo_enable(const uint8_t bus_id);
+
+void spi_bus_fifo_disable(const uint8_t bus_id);
+
+bool spi_bus_fifo_is_enabled(const uint8_t bus_id);
+
+#endif /* ! SPI_BUS_H */

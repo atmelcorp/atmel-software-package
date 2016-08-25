@@ -99,11 +99,17 @@
 #define AT25_ADDR_OOB             0xBu
 
 struct _at25 {
-	struct _spi_desc* spid;
+	uint8_t bus;
+	uint8_t chip_select;
+	uint32_t bitrate;
+	struct {
+		uint32_t bs;
+		uint32_t bct;
+	} delay;
+	enum _spid_mode spi_mode;
+
 	const struct _spi_nor_desc* desc;
 	uint32_t addressing;
-	mutex_t mutex;
-	uint8_t jedec[3];
 };
 
 #ifdef __cplusplus
@@ -112,14 +118,14 @@ extern "C" {
 
 extern uint32_t at25_check_status(struct _at25* at25, uint32_t mask);
 extern void at25_wait(struct _at25* at25);
-extern uint32_t at25_configure(struct _at25* at25, struct _spi_desc* spid);
+extern uint32_t at25_configure(struct _at25* at25);
 extern const struct _at25_desc* at25_find_device(struct _at25* at25, uint32_t jedec_id);
 extern uint32_t at25_read_jedec_id(struct _at25* at25);
 extern uint32_t at25_read_status(struct _at25* at25);
 extern uint32_t at25_protect(struct _at25* at25);
 extern uint32_t at25_unprotect(struct _at25* at25);
 extern void at25_print_device_info(struct _at25* at25);
-extern uint32_t at25_is_busy(struct _at25* at25);
+extern bool at25_is_busy(struct _at25* at25);
 extern uint32_t at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length);
 extern uint32_t at25_erase_chip(struct _at25* at25);
 extern uint32_t at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length);

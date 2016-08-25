@@ -166,6 +166,11 @@ void board_cfg_pdmic(void);
 void board_cfg_twi_bus(void);
 
 /**
+ * \brief Configures SPIx bus for the board
+ */
+void board_cfg_spi_bus(void);
+
+/**
  * \brief Configures the board.
  */
 extern void board_init(void);

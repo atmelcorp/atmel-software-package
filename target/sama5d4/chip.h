@@ -216,6 +216,9 @@
 /** TWI Interface max */
 #define TWI_IFACE_COUNT (3)
 
+/** SPI Interface max */
+#define SPI_IFACE_COUNT (3)
+
 /** AIC redirection unlock key */
 #define AICREDIR_KEY 0x2fb3d881u
 

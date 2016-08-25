@@ -68,15 +68,17 @@ enum _spid_trans_mode
 	SPID_MODE_DMA
 };
 
+enum _spid_mode {
+	SPID_MODE_0 = 0x00, // POL=0, CPHA=0
+	SPID_MODE_1 = 0x01, // POL=0, CPHA=1
+	SPID_MODE_2 = 0x02, // POL=1, CPHA=0
+	SPID_MODE_3 = 0x03, // POL=1, CPHA=1
+};
+
 struct _spi_desc
 {
 	Spi*            addr;
-	uint32_t        bitrate;
-	uint32_t        attributes;
-	uint8_t         dlybs;
-	uint8_t         dlybct;
 	uint8_t         chip_select;
-	uint8_t         spi_mode;
 	enum _spid_trans_mode transfer_mode;
 	/* following fields are used internally */
 	mutex_t         mutex;

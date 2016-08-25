@@ -143,6 +143,8 @@ void spi_configure(Spi * spi, uint32_t configuration)
 	spi->SPI_CR = SPI_CR_SWRST;
 
 	spi->SPI_MR = SPI_MR_WDRBT | SPI_MR_MODFDIS | configuration;
+
+	spi->SPI_RDR;
 }
 
 void spi_chip_select(Spi * spi, uint8_t cs)
@@ -158,7 +160,7 @@ void spi_release_cs(Spi * spi)
 	spi->SPI_CR = SPI_CR_LASTXFER;
 }
 
-void spi_configure_cs(Spi * spi, uint32_t cs, uint32_t bitrate,
+void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 		      uint32_t delay_dlybs, uint32_t delay_dlybct,
 		      uint32_t spi_mode)
 {

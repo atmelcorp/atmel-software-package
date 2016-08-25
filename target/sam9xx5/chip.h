@@ -181,6 +181,9 @@
 /** TWI Interface max */
 #define TWI_IFACE_COUNT (3)
 
+/** SPI Interface max */
+#define SPI_IFACE_COUNT (2)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 
