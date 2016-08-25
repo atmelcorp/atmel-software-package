@@ -33,6 +33,7 @@
 #include "applet_legacy.h"
 #include "trace.h"
 #include "timer.h"
+#include "peripherals/dma.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sfc.h"
@@ -127,6 +128,7 @@ void applet_main(struct applet_mailbox *mailbox)
 		init_applet_buffer();
 		pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
 		timer_configure(0);
+		dma_initialize(true);
 	}
 
 	/* display mailbox content before command processing */
