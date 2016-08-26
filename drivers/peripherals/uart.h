@@ -64,6 +64,8 @@ extern bool uart_is_tx_ready(Uart* uart);
 extern void uart_put_char(Uart* uart, uint8_t c);
 extern bool uart_is_rx_ready(Uart* uart);
 extern uint8_t uart_get_char(Uart* uart);
+extern uint32_t uart_get_status(Uart *uart);
+extern uint32_t uart_get_masked_status(Uart *uart);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

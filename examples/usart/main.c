@@ -41,8 +41,6 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "memories/at25.h"
-
 #include "mutex.h"
 
 #include <stdio.h>
@@ -58,8 +56,8 @@
 #endif
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-#define USART_ADDR USART4
-#define USART_PINS PINS_FLEXCOM4_USART_IOS2
+#define USART_ADDR USART0
+#define USART_PINS PINS_FLEXCOM0_USART_IOS1
 
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 #define USART_ADDR USART4
@@ -117,7 +115,7 @@ static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
-	.transfer_mode = USARTD_MODE_DMA,
+	.transfer_mode  = USARTD_MODE_ASYNC,
 };
 
 static void console_handler(uint8_t key)
@@ -183,6 +181,18 @@ static void _usart_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 static void print_menu(void)
 {
+	printf("\r\n\r\nUSART transfer mode: ");
+	switch (usart_desc.transfer_mode) {
+	case USARTD_MODE_POLLING:
+		printf("POLLING\r\n");
+		break;
+	case USARTD_MODE_ASYNC:
+		printf("ASYNC\r\n");
+		break;
+	case USARTD_MODE_DMA:
+		printf("DMA\r\n");
+		break;
+	}
 	printf("Usart example mini-console:\r\n\r\n"
 	       "|===========        Commands        ====================|\r\n"
 	       "| r size                                                |\r\n"
@@ -190,14 +200,34 @@ static void print_menu(void)
 	       "|      print the result string (block call)             |\r\n"
 	       "| w str                                                 |\r\n"
 	       "|      Write 'str' throught usart                       |\r\n"
-	       "| m                                                     |\r\n"
+	       "| m polling                                             |\r\n"
+	       "| m async                                               |\r\n"
+	       "| m dma                                                 |\r\n"
+	       "|      Select transfer mode                             |\r\n"
+	       "| h                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");
 }
 
+static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
+{
+	if (!strncmp((char*)buffer, "polling", 7)) {
+		usart_desc.transfer_mode = USARTD_MODE_POLLING;
+		printf("Use POLLING mode\r\n");
+	}
+	else if (!strncmp((char*)buffer, "async", 5)) {
+		usart_desc.transfer_mode = USARTD_MODE_ASYNC;
+		printf("Use ASYNC mode\r\n");
+	}
+	else if (!strncmp((char*)buffer, "dma", 3)) {
+		usart_desc.transfer_mode = USARTD_MODE_DMA;
+		printf("Use DMA mode\r\n");
+	}
+}
+
 static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
-	if (*buffer == 'm') {
+	if ((*buffer == 'h') || (*buffer == 'H')) {
 		print_menu();
 		return;
 	}
@@ -212,6 +242,9 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		break;
 	case 'r':
 		_usart_read_arg_parser(buffer+2, len-2);
+		break;
+	case 'm':
+		_usart_mode_arg_parser(buffer+2, len-2);
 		break;
 	default:
 		printf("Command %c unknown\r\n", *buffer);

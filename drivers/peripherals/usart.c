@@ -807,3 +807,12 @@ uint32_t usart_write_stream(Usart *usart, const void *stream, uint32_t len)
 }
 
 #endif
+
+uint32_t usart_get_masked_status(Usart *usart)
+{
+	uint32_t status;
+	assert(usart != NULL);
+	status = usart->US_CSR;
+	status &= usart->US_IMR;
+	return status;
+}

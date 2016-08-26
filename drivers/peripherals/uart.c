@@ -34,6 +34,7 @@
 #include "chip.h"
 #include "peripherals/uart.h"
 #include "peripherals/pmc.h"
+#include <assert.h>
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -142,4 +143,19 @@ uint8_t uart_get_char(Uart* uart)
 
 	/* Read charecter */
 	return uart->UART_RHR;
+}
+
+uint32_t uart_get_status(Uart *uart)
+{
+	assert(uart != NULL);
+	return uart->UART_SR;
+}
+
+uint32_t uart_get_masked_status(Uart *uart)
+{
+	uint32_t status;
+	assert(uart != NULL);
+	status = uart->UART_SR;
+	status &= uart->UART_IMR;
+	return status;
 }

@@ -34,8 +34,8 @@ AVAILABLE_TARGETS = sama5d2-xplained \
 
 TOP := ../..
 
-BINNAME = usart_dma
+BINNAME = usart
 
-obj-y += examples/usart_dma/main.o
+obj-y += examples/usart/main.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -59,6 +59,8 @@ struct _usart_desc
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
 
+	uint32_t flags;
+	
 	usartd_callback_t callback;
 	void*   cb_args;
 
@@ -77,8 +79,9 @@ struct _usart_desc
 enum _usartd_trans_mode
 {
 	USARTD_MODE_POLLING,
+	USARTD_MODE_ASYNC,
+	USARTD_MODE_DMA,
 	USARTD_MODE_FIFO,
-	USARTD_MODE_DMA
 };
 
 extern void usartd_configure(struct _usart_desc* desc);

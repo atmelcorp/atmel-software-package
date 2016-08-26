@@ -56,8 +56,23 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include "chip.h"
+
 #include <stdbool.h>
 #include <stdint.h>
+
+/*----------------------------------------------------------------------------
+ *        Macros
+ *----------------------------------------------------------------------------*/
+
+/* Returns 1 if the TXRDY bit (ready to transmit data) is set in the given status register value.*/
+#define USART_STATUS_TXRDY(status) ((status & US_CSR_TXRDY) == US_CSR_TXRDY)
+
+/* Returns 1 if the RXRDY bit (ready to receive data) is set in the given status register value.*/
+#define USART_STATUS_RXRDY(status) ((status & US_CSR_RXRDY) == US_CSR_RXRDY)
+
+/* Returns 1 if the TXEMPTY bit (end of transmit) is set in the given status register value.*/
+#define USART_STATUS_TXEMPTY(status) ((status & US_CSR_TXEMPTY) == US_CSR_TXEMPTY)
 
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
@@ -76,6 +91,7 @@ extern uint32_t usart_get_it_mask(Usart *usart);
 extern void usart_set_transmitter_enabled(Usart *usart, uint8_t enabled);
 extern void usart_set_receiver_enabled(Usart *usart, uint8_t enabled);
 extern void usart_set_rts_enabled(Usart *usart, uint8_t enabled);
+extern uint32_t usart_get_masked_status(Usart *usart);
 
 extern void usart_reset_tx(Usart *usart);
 extern void usart_set_tx_timeguard(Usart *usart, uint32_t timeguard);

@@ -69,11 +69,11 @@ This release contains the following examples:
 * test-pio: Simple example to test PIO features
 * trng: Example using hardware RNG (interrupt mode)
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
+* usart: Example of communication over USART
 * usart_fifo: Test Flexcom USART FIFO
 * usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
 * usart_iso7816: Example of USART configured for ISO7816
 * usart_lin: Example of USART configured for LIN
-* usart_dma: Bidirectionnal Usart-memory DMA transfer example
 * usb_audio_looprec: Set up a SAMA5D2x as a USB Audio Device to record sounds
 * usb_audio_speaker: Set up a SAMA5D2x as a USB Audio Speaker
 * usb_cdc_serial: Example of Virtual COM Port
@@ -136,11 +136,11 @@ tc_capture_waveform    | OK               | OK               | OK         | OK  
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK
 trng                   | OK               | OK               | OK         | OK               | OK         | x
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | TODO
+usart                  | OK               | OK               | TODO       | OK               | OK         | TODO
 usart_fifo             | OK               | x                | x          | x                | x          | x
 usart_irda             | OK               | TODO             | TODO       | OK               | OK         | TODO
 usart_iso7816          | OK               | TODO             | TODO       | OK               | OK         | TODO
 usart_lin              | OK               | x                | x          | x                | x          | x
-usart_dma              | OK               | OK               | TODO       | OK               | OK         | TODO
 usb_audio_looprec      | OK               | OK               | OK         | OK               | OK         | TODO
 usb_audio_speaker      | OK               | x                | OK         | x                | OK         | TODO
 usb_cdc_serial         | OK               | OK               | OK         | OK               | OK         | TODO

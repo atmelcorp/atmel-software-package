@@ -1,14 +1,14 @@
-USART_DMA EXAMPLE
-=================
+USART EXAMPLE
+=============
 
 # Objectives
 ------------
-This example aims to perform peripheral data transfer with DMA peripheral.
+This example aims to perform peripheral data transfer over USART.
 
 # Example Description
 ---------------------
 The example handles the transfer between two USART peripherals,
-transfer/receive data to/from USART each other with DMA.
+transfer/receive data to/from USART each other with polling mode, using IRQs, or DMA.
 
 # Test
 ------
@@ -25,7 +25,7 @@ On the computer, open and configure a terminal application
 
 ### sama5d2-xplained
 --------------------
-Connect USART4
+Connect USART0 (RX on J22:3, TX on J22:4)
 
 ### sama5d4-xplained
 --------------------
