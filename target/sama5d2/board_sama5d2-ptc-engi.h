@@ -162,6 +162,13 @@
 	{ PIO_GROUP_A, PIO_PBA28, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
+/**
+ * USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup)
+ */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
+
 /* =================== AT25 device definition =================== */
 
 #define AT25_PINS     PINS_SPI0_NPCS0_IOS1

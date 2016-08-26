@@ -147,19 +147,12 @@
 	{ PIO_GROUP_D, PIO_PD0, PIO_OUTPUT_0, PIO_DEFAULT },\
 }
 
-/* ================= PIN LCD IRQ definition ===================== */
-
-#define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
-
-#define PIN_QT1070_IRQ {\
-	{ PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
-#define PIN_MXT336S_IRQ {\
-	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
-#define PIN_MXT768E_IRQ	{\
-	{ PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ },\
-}
+/**
+ * USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup)
+ */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
 /* =================== PIN ISC definition ======================= */
 

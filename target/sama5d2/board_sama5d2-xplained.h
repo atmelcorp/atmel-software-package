@@ -197,15 +197,12 @@
 #define PIN_USB_POWER_ENB \
 	{ PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_0, PIO_DEFAULT }
 
-/* ================= PIN LCD IRQ definition ===================== */
-
-#define PIO_CFG_LCD_IRQ  (PIO_PULLUP | PIO_IT_FALL_EDGE)
-
-#define PIN_QT1070_IRQ { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_CFG_LCD_IRQ }
-
-#define PIN_MXT_IRQ { PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_PULLUP | PIO_IT_LOW_LEVEL }
-
-//#define PIN_MXT_IRQ { PIO_GROUP_B, PIO_PB7, PIO_INPUT, PIO_PULLUP }
+/**
+ * USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup)
+ */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
 /* =================== PIN ISC definition ======================= */
 
@@ -287,29 +284,6 @@
 #define GMAC0_PHY_IRQ_PIN PIN_GTSUCOM_IOS1
 #define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
 
-/* =================== ILI9488 device definition =================== */
-/* Connected on board A5D2, XPRO EXT2 connector */
-
-/* ILI9488 ID code */
-#define ILI9488_DEVICE_CODE    0x2810
-
-#define ILI9488_PINS    PINS_SPI1_NPCS1_IOS3
-#define ILI9488_ADDR    SPI1
-#define ILI9488_CS      1
-#define ILI9488_ATTRS   (SPI_MR_MODFDIS | SPI_MR_MSTR) // | SPI_MR_WDRBT
-#define ILI9488_FREQ    40000 /* (value in KHz) */
-#define ILI9488_DLYBS   100
-#define ILI9488_DLYCT   100
-//#define ILI9488_SPI_MODE (SPI_CSR_NCPHA | SPI_CSR_BITS_9_BIT)
-#define ILI9488_SPI_MODE (SPI_CSR_CPOL | SPI_CSR_BITS_9_BIT)
-
-#define MXTX_RESET_PIN  {\
-		{PIO_GROUP_D, PIO_PD28, PIO_OUTPUT_1, PIO_DEFAULT}	\
-	}
-#define MXTX_BACKLIGHT_PIN  {\
-		{PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_DEFAULT} \
-	}
-
 /* ======================== LCD definition ======================== */
 
 /** PIO pins for LCD */
@@ -334,24 +308,5 @@
 #define BOARD_LCD_TIMING_HBP        64
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
-
-/* =================== QT1070 device definition =================== */
-#define QT1070_PINS       PINS_TWI1_IOS2;
-#define QT1070_ADDR       ((Twi*)TWIHS1)
-#define QT1070_FREQ       400000
-#define QT1070_DESC       {"QT1070", 0x00, 00}
-
-/* =================== MXTxxx device definition =================== */
-#define MXT_PINS       	PINS_TWI1_IOS2;
-#define MXT_ADDR       	((Twi*)TWIHS1)
-#define MXT_FREQ       	400000
-#define MXT_DESC       	{"MXT", 0x00, 00}
-
-/**
- * USB attributes configuration descriptor (bus or self powered,
- * remote wakeup)
- */
-#define BOARD_USB_BMATTRIBUTES \
-	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
 #endif /* #ifndef _BOARD_D2_H */
