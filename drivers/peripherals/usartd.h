@@ -64,6 +64,16 @@ struct _usart_desc
 	usartd_callback_t callback;
 	void*   cb_args;
 
+#ifdef CONFIG_HAVE_USART_FIFO
+	bool use_fifo;
+	struct {
+		struct {
+			uint16_t size;
+			uint16_t threshold;
+		} rx, tx;
+	} fifo;
+#endif
+
 	struct {
 		struct {
 			struct dma_channel *channel;

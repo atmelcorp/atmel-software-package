@@ -326,7 +326,7 @@ uint32_t usart_lin_read_stream(Usart *usart, uint8_t *stream, uint32_t len)
 		if ((usart->US_CSR & (US_CSR_RXRDY | US_CSR_LINTC)) == 0) continue;
 
 		/* Get FIFO size (in octets) and clamp it */
-		uint32_t buf_size = usart_fifo_rx_size(usart);
+		uint32_t buf_size = usart_fifo_get_rx_size(usart);
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the buffer with data received */
@@ -369,7 +369,7 @@ uint32_t usart_lin_write_stream(Usart *usart, uint8_t *stream, uint32_t len)
 		if ((usart->US_CSR & US_CSR_TXRDY) == 0) continue;
 
 		/* Get FIFO free size (int octet) and clamp it */
-		uint32_t buf_size = fifo_size - usart_fifo_tx_size(usart);
+		uint32_t buf_size = fifo_size - usart_fifo_get_tx_size(usart);
 		buf_size = buf_size > left ? left : buf_size;
 
 		/* Fill the FIFO with data to send */

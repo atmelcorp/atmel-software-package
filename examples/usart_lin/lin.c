@@ -249,7 +249,7 @@ uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node)
 	usart_configure(lin_desc->addr, lin_desc->mode, lin_desc->baudrate);
 
 	/* Mode fifo */
-	usart_fifo_configure(lin_desc->addr, 16, 16, 16, US_FMR_TXRDYM_ONE_DATA | US_FMR_RXRDYM_ONE_DATA);
+	usart_fifo_configure(lin_desc->addr, 16, 16, 16);
 
 	return 0;
 }
@@ -314,7 +314,7 @@ void lin_slave_usart_handler(uint8_t node)
 			lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGTH - 1))] \
 				= ((((uint16_t)handle) <<8) | (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET);
 			lin_error_number_node[node]++;
-			_lin_display_info (lin_status, node, handle, usart_fifo_rx_size(usart));
+			_lin_display_info (lin_status, node, handle, usart_fifo_get_rx_size(usart));
 		}
 		/* Here the communication go on only in case no error is detected!!! */
 		else {
@@ -465,11 +465,11 @@ void lin_master_usart_handler(uint8_t node)
 		lin_last_errors_node[node][(((uint8_t) lin_error_number_node[node]) &(LIN_LAST_ERR_LENGTH - 1))] \
 			= ((((uint16_t)handle) <<8) | (lin_status & US_CSR_LIN_ERROR) >> USART_LIN_ERROR_OFFSET);
 		lin_error_number_node[node]++;
-		_lin_display_info (lin_status, node, handle, usart_fifo_rx_size(usart));
+		_lin_display_info (lin_status, node, handle, usart_fifo_get_rx_size(usart));
 	}
 	/* Here the communication go on only in case no error is detected */
 	else {
-		rx_len = usart_fifo_rx_size(usart);
+		rx_len = usart_fifo_get_rx_size(usart);
 		rx_len = _lin_rx_frame(usart, node, rx_len);
 		if (rx_len) {
 			lin_rx_frame_counter[node]++;

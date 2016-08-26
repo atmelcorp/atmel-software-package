@@ -218,6 +218,14 @@ void usartd_configure(struct _usart_desc* desc)
 #endif
 	pmc_enable_peripheral(id);
 	usart_configure(desc->addr, desc->mode, desc->baudrate);
+#ifdef CONFIG_HAVE_USART_FIFO
+	desc->fifo.rx.size = get_peripheral_fifo_depth(desc->addr);
+	desc->fifo.tx.size = get_peripheral_fifo_depth(desc->addr);
+	usart_fifo_configure(desc->addr, desc->fifo.tx.threshold,
+						 desc->fifo.rx.threshold, desc->fifo.rx.threshold);
+	if (desc->use_fifo)
+		usart_fifo_enable(desc->addr);
+#endif
 }
 
 uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
@@ -248,11 +256,55 @@ uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 
 	switch (tmode) {
 	case USARTD_MODE_POLLING:
-		for (i = 0; i < buf->size; ++i) {
-			if (buf->attr == USARTD_BUF_ATTR_WRITE)
-				usart_put_char(desc->addr, buf->data[i]);
-			else
-				buf->data[i] = usart_get_char(desc->addr);
+		i = 0;
+		while (i < buf->size) {
+			if (buf->attr == USARTD_BUF_ATTR_WRITE) {
+				if (desc->use_fifo) {
+#ifdef CONFIG_HAVE_USART_FIFO
+					if ((desc->fifo.tx.size - usart_fifo_get_tx_size(desc->addr)) > 0) {
+						if ((buf->size - i) >= 4) {
+							writew(&desc->addr->US_THR, *(uint32_t*)&buf->data[i]);
+							i += 4;
+						} else if ((buf->size - i) >= 2) {
+							writehw(&desc->addr->US_THR, *(uint16_t*)&buf->data[i]);
+							i += 2;
+						} else {
+							writeb(&desc->addr->US_THR, *(uint8_t*)&buf->data[i]);
+							i += 1;
+						}
+					}
+#endif
+				} else	{
+					/* Wait for the transmitter to be ready */
+					while (!USART_STATUS_TXRDY(desc->addr->US_CSR));
+
+					writeb(&desc->addr->US_THR, buf->data[i]);
+					i++;
+				}
+			} else {
+				if (desc->use_fifo) {
+#ifdef CONFIG_HAVE_USART_FIFO
+					if ((desc->fifo.tx.size - usart_fifo_get_tx_size(desc->addr)) > 0) {
+						if (usart_fifo_get_rx_size(desc->addr) >= 4) {
+							readw(&desc->addr->US_RHR, (uint32_t*)&buf->data[i]);
+							i += 4;
+						} else if (usart_fifo_get_rx_size(desc->addr) >= 2) {
+							readhw(&desc->addr->US_RHR, (uint16_t*)&buf->data[i]);
+							i += 2;
+						} else {
+							readb(&desc->addr->US_RHR, (uint8_t*)&buf->data[i]);
+							i += 1;
+						}
+					}
+#endif
+				} else {
+					/* Wait for the transmitter to be ready */
+					while (USART_STATUS_RXRDY(desc->addr->US_CSR) == 0);
+
+					readb(&desc->addr->US_RHR, &buf->data[i]);
+					i++;
+				}
+			}
 		}
 		mutex_unlock(&desc->mutex);
 		if (cb)

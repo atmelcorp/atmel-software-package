@@ -70,7 +70,6 @@ This release contains the following examples:
 * trng: Example using hardware RNG (interrupt mode)
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 * usart: Example of communication over USART
-* usart_fifo: Test Flexcom USART FIFO
 * usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
 * usart_iso7816: Example of USART configured for ISO7816
 * usart_lin: Example of USART configured for LIN
@@ -137,7 +136,6 @@ test-pio               | OK               | OK               | TODO       | OK  
 trng                   | OK               | OK               | OK         | OK               | OK         | x
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | TODO
 usart                  | OK               | OK               | TODO       | OK               | OK         | TODO
-usart_fifo             | OK               | x                | x          | x                | x          | x
 usart_irda             | OK               | TODO             | TODO       | OK               | OK         | TODO
 usart_iso7816          | OK               | TODO             | TODO       | OK               | OK         | TODO
 usart_lin              | OK               | x                | x          | x                | x          | x
