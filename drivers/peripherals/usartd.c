@@ -46,69 +46,77 @@
 #include <stdint.h>
 
 #define USARTD_ATTRIBUTE_MASK     (0)
-#define USARTD_DMA_THRESHOLD      16
+#define USARTD_POLLING_THRESHOLD  16
 
-static void _usartd_dma_callback_wrapper(struct dma_channel* channel, void* args)
+static void _usartd_write_dma_callback(struct dma_channel* channel, void* args)
 {
-	trace_debug("USARTD DMA transfer Finished\r\n");
-	struct _usart_desc* usartd = (struct _usart_desc*) args;
+	struct _usart_desc* usartd = (struct _usart_desc*)args;
 
 	dma_free_channel(channel);
 
-	if (usartd->region_start && usartd->region_length)
-		cache_invalidate_region(usartd->region_start, usartd->region_length);
+	if (usartd && usartd->callback)
+		usartd->callback(usartd, usartd->cb_args);
+
+	mutex_unlock(usartd->mutex);
+}
+
+static void _usartd_read_dma_callback(struct dma_channel* channel, void* args)
+{
+	struct _usart_desc* usartd = (struct _usart_desc*)args;
+
+	dma_free_channel(channel);
+
+	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
 
 	if (usartd && usartd->callback)
 		usartd->callback(usartd, usartd->cb_args);
+
+	mutex_unlock(usartd->mutex);
 }
 
 static void _usartd_dma_read(const struct _usart_desc* desc, struct _buffer* buffer)
 {
-	struct dma_channel* channel = NULL;
-	struct dma_xfer_cfg cfg;
 	uint32_t id = get_usart_id_from_addr(desc->addr);
 
-	memset(&cfg, 0x0, sizeof(cfg));
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(channel);
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
-	cfg.sa = (void *)&desc->addr->US_RHR;
-	cfg.da = buffer->data;
-	cfg.upd_sa_per_data = 0;
-	cfg.upd_da_per_data = 1;
-	cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.len = buffer->size;
-	dma_configure_transfer(channel, &cfg);
+	desc->dma.rx.cfg.sa = (void *)&desc->addr->US_RHR;
+	desc->dma.rx.cfg.da = buffer->data;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.rx.cfg.len = buffer->size;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
 
-	dma_set_callback(channel, _usartd_dma_callback_wrapper, (void*)desc);
-	dma_start_transfer(channel);
+	dma_set_callback(desc->dma.rx.channel, _usartd_dma_read_callback, (void*)desc);
+	dma_start_transfer(desc->dma.rx.channel);
 }
 
 static void _usartd_dma_write(const struct _usart_desc* desc, struct _buffer* buffer)
 {
-	struct dma_channel *channel = NULL;
-	struct dma_xfer_cfg cfg;
 	uint32_t id = get_usart_id_from_addr(desc->addr);
 
-	memset(&cfg, 0x0, sizeof(cfg));
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(channel);
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
 
-	cfg.sa = buffer->data;
-	cfg.da = (void *)&desc->addr->US_THR;
-	cfg.upd_sa_per_data = 1;
-	cfg.upd_da_per_data = 0;
-	cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.len =  buffer->size;
-	dma_configure_transfer(channel, &cfg);
+	desc->dma.tx.cfg.sa = buffer->data;
+	desc->dma.tx.cfg.da = (void *)&desc->addr->US_THR;
+	desc->dma.tx.cfg.upd_sa_per_data = 1;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.tx.cfg.len = buffer->size;
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
 
-	dma_set_callback(channel, _usartd_dma_callback_wrapper, (void*)desc);
-	cache_clean_region(desc->region_start, desc->region_length);
-	dma_start_transfer(channel);
+	dma_set_callback(desc->dma.tx.channel, _usartd_dma_write_callback, (void*)desc);
+	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	dma_start_transfer(desc->dma.tx.channel);
 }
 
 void usartd_configure(struct _usart_desc* desc)
@@ -137,93 +145,71 @@ void usartd_configure(struct _usart_desc* desc)
 #endif
 }
 
-uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* rx,
-			  struct _buffer* tx, usartd_callback_t cb,
-			  void* user_args)
+uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
+						 usartd_callback_t cb, void* user_args)
 {
 	uint32_t i = 0;
+	uint8_t tmode;
+	struct _buffer *buf = NULL;
+
+	if ((buf->attr & USARTD_BUF_ATTR_READ) && (buf->attr & USARTD_BUF_ATTR_WRITE))
+		return USARTD_ERROR_DUPLEX;
+	
+	if ((buf == NULL) || (buf->size == 0))
+		return USARTD_SUCCESS;
+
+	if (!mutex_try_lock(&desc->mutex))
+		return USARTD_ERROR_LOCK;
 
 	desc->callback = cb;
 	desc->cb_args = user_args;
+	tmode = desc->transfer_mode;
 
-	if (!mutex_try_lock(&desc->mutex)) {
-		return USARTD_ERROR_LOCK;
-	}
+	/* If short transfer detected, use POLLING mode */
+	if (tmode != USARTD_MODE_POLLING)
+		if (buf->size < USARTD_POLLING_THRESHOLD)
+			tmode = USARTD_MODE_POLLING;
 
-	switch (desc->transfer_mode) {
+	switch (tmode) {
 	case USARTD_MODE_POLLING:
-		if (tx) {
-			for (i = 0; i < tx->size; ++i) {
-				usart_put_char(desc->addr, tx->data[i]);
-			}
-		}
-		if (rx) {
-			for (i = 0; i < rx->size; ++i) {
-				rx->data[i] = usart_get_char(desc->addr);
-			}
+		for (i = 0; i < buf->size; ++i) {
+			if (buf->attr == USARTD_BUF_ATTR_WRITE)
+				usart_put_char(desc->addr, buf->data[i]);
+			else
+				buf->data[i] = usart_get_char(desc->addr);
 		}
 		mutex_unlock(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
-	case USARTD_MODE_DMA:
-		if (!(rx || tx)) {
-			return USARTD_ERROR_DUPLEX;
-		}
 
-		if (tx) {
-			if (tx->size < USARTD_DMA_THRESHOLD) {
-				for (i = 0; i < tx->size; ++i) {
-					usart_put_char(desc->addr, tx->data[i]);
-				}
-				if (cb)
-					cb(desc, user_args);
-				mutex_unlock(&desc->mutex);
-			} else {
-				desc->region_start = tx->data;
-				desc->region_length = tx->size;
-				_usartd_dma_write(desc, tx);
-			}
-		} else if (rx) {
-			if (rx->size < USARTD_DMA_THRESHOLD) {
-				for (i = 0; i < rx->size; ++i) {
-					rx->data[i] = usart_get_char(desc->addr);
-				}
-				if (cb)
-					cb(desc, user_args);
-				mutex_unlock(&desc->mutex);
-			} else {
-				desc->region_start = rx->data;
-				desc->region_length = rx->size;
-				_usartd_dma_read(desc, rx);
-			}
-		} else {
-			mutex_unlock(&desc->mutex);
-		}
+	case USARTD_MODE_DMA:
+		if (buf->attr == USARTD_BUF_ATTR_WRITE)
+			_usartd_dma_write(desc, tx);
+		else
+			_usartd_dma_read(desc, rx);
 		break;
 
 #ifdef CONFIG_HAVE_USART_FIFO
 	case USARTD_MODE_FIFO:
-		if (tx) {
+		if (buf->attr == USARTD_BUF_ATTR_WRITE)
 			usart_write_stream(desc->addr, tx->data, tx->size);
-		}
-		if (rx) {
+		else
 			usart_read_stream(desc->addr, rx->data, rx->size);
-		}
 		mutex_unlock(&desc->mutex);
 		if (cb)
 			cb(desc, user_args);
 		break;
 #endif
+
 	default:
-		trace_debug("Unkown mode");
+		trace_fatal("Unknown Usart mode!\r\n");
 	}
 
 	return USARTD_SUCCESS;
 }
 
-void usartd_finish_transfer_callback(struct _usart_desc* desc,
-				      void* user_args)
+void usartd_finish_transfer_callback(struct _usart_desc* desc, void* user_args)
 {
 	(void)user_args;
 	usartd_finish_transfer(desc);

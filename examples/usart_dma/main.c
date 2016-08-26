@@ -163,10 +163,10 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	struct _buffer rx = {
 		.data = (unsigned char*)read_buffer,
-		.size = size
+		.size = size,
+		.attr = USARTD_BUF_ATTR_READ,
 	};
-	usartd_transfer(&usart_desc, &rx, 0,
-			 usartd_finish_transfer_callback, 0);
+	usartd_transfer(&usart_desc, &rx, usartd_finish_transfer_callback, 0);
 	usartd_wait_transfer(&usart_desc);
 	printf("%s\r\n", read_buffer);
 }
@@ -175,10 +175,10 @@ static void _usart_write_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	struct _buffer tx = {
 		.data = (unsigned char*)buffer,
-		.size = len
+		.size = len,
+		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, 0, &tx,
-			 usartd_finish_transfer_callback, 0);
+	usartd_transfer(&usart_desc, &tx, usartd_finish_transfer_callback, 0);
 }
 
 static void print_menu(void)

@@ -306,10 +306,10 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 
 	struct _buffer tx = {
 		.data = (unsigned char*)buffer,
-		.size = len
+		.size = len,
+		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, 0, &tx,
-				_us_dma_tx_callback, 0);
+	usartd_transfer(&usart_desc, &tx, _us_dma_tx_callback, 0);
 
 }
 

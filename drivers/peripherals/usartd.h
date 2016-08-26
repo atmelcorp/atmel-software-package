@@ -30,6 +30,8 @@
 #ifndef USARTD_HEADER__
 #define USARTD_HEADER__
 
+#include "peripherals/usart.h"
+#include "peripherals/dma.h"
 #include "mutex.h"
 #include "io.h"
 
@@ -39,9 +41,14 @@
 #define USARTD_ERROR_LOCK      (3)
 #define USARTD_ERROR_DUPLEX    (4)
 
+enum _usartd_buf_attr {
+	USARTD_BUF_ATTR_WRITE = 0x01,
+	USARTD_BUF_ATTR_READ  = 0x02,
+};
+
 struct _usart_desc;
 
-typedef void (*usartd_callback_t)(struct _usart_desc* spid, void* args);
+typedef void (*usartd_callback_t)(struct _usart_desc* usartd, void* args);
 
 struct _usart_desc
 {
@@ -51,10 +58,20 @@ struct _usart_desc
 	uint8_t transfer_mode;
 	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
-	void* region_start;
-	uint32_t region_length;
+
 	usartd_callback_t callback;
 	void*   cb_args;
+
+	struct {
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} rx;
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} tx;
+	} dma;
 };
 
 enum _usartd_trans_mode
@@ -65,11 +82,9 @@ enum _usartd_trans_mode
 };
 
 extern void usartd_configure(struct _usart_desc* desc);
-extern uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* rx,
-			  struct _buffer* tx, usartd_callback_t cb,
-			  void* user_args);
-extern void usartd_finish_transfer_callback(struct _usart_desc* desc,
-				      void* user_args);
+extern uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
+			  usartd_callback_t cb, void* user_args);
+extern void usartd_finish_transfer_callback(struct _usart_desc* desc, void* user_args);
 extern void usartd_finish_transfer(struct _usart_desc* desc);
 extern uint32_t usartd_is_busy(const struct _usart_desc* desc);
 extern void usartd_wait_transfer(const struct _usart_desc* desc);

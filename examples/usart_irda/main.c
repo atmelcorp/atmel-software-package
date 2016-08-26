@@ -266,10 +266,10 @@ extern int main( void )
 		if (!receiving) {
 			struct _buffer tx = {
 				.data = (unsigned char*)buffer_tx,
-				.size = sizeof(buffer_tx)
+				.size = sizeof(buffer_tx),
+				.attr = USARTD_BUF_ATTR_WRITE,
 			};
-			usartd_transfer(&irda_desc, 0, &tx,
-					 usartd_finish_transfer_callback, 0);
+			usartd_transfer(&irda_desc, &tx, usartd_finish_transfer_callback, 0);
 			timer_wait(200);
 		}
 	}
