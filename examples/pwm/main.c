@@ -117,8 +117,8 @@
 #include "peripherals/pio.h"
 #include "peripherals/tc.h"
 
+#include "misc/cache.h"
 #include "misc/console.h"
-
 
 #include "timer.h"
 #include "trace.h"
@@ -153,14 +153,22 @@ struct _tc_desc {
 	#include "config_sama5d4-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
 	#include "config_sama5d3-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+	#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
 
-#ifdef CONFIG_HAVE_PWM_DMA
 /** Duty cycle buffer length for synchronous channels */
 #define DUTY_BUFFER_LENGTH 100
-#endif /* CONFIG_HAVE_PWM_DMA */
 
 /*----------------------------------------------------------------------------
  *        Local variables / constants
@@ -172,10 +180,12 @@ static const struct _pin pins_pwm[] = { PIN_PWM };
 /** PWM channel to use */
 static const uint8_t pwm_channel = CHANNEL_PWM;
 
-#ifdef CONFIG_HAVE_PWM_DMA
+#ifdef CONFIG_HAVE_PWMC_DMA
+
 /** Duty cycle buffer synchronous channels */
-static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
-#endif /* CONFIG_HAVE_PWM_DMA */
+CACHE_ALIGNED static uint16_t duty_buffer[DUTY_BUFFER_LENGTH];
+
+#endif /* CONFIG_HAVE_PWMC_DMA */
 
 /** PIOs for TC capture, waveform */
 static const struct _pin pins_tc_capture[] = { PIN_TC_CAPTURE_IN };
@@ -196,6 +206,7 @@ static uint32_t captured_pulses = TC_CAPTURE_IDLE;
 static uint32_t captured_rarb[MAX_CAPTURES][2];
 
 #ifdef CONFIG_HAVE_TC_FAULT_MODE
+
 /** define Timer Counter descriptor for fault mode */
 static const struct _tc_desc tc_fault = {
 	.addr = TC1,
@@ -204,7 +215,8 @@ static const struct _tc_desc tc_fault = {
 
 /** Fault input for PWM, must be in sync with tc_fault */
 static const uint32_t pwm_fault_input = PWM_FAULT_INPUT_TIMER1;
-#endif
+
+#endif /* CONFIG_HAVE_TC_FAULT_MODE */
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -218,17 +230,19 @@ static void _display_menu(void)
 	printf("\n\rMenu :\n\r");
 	printf("  -------------------------------------------\n\r");
 	printf("  a: PWM operations for asynchronous channels \n\r");
-#ifdef CONFIG_HAVE_PWM_DMA
+#ifdef CONFIG_HAVE_PWMC_DMA
 	printf("  d: PWM DMA operations with synchronous channels \n\r");
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 #ifdef CONFIG_HAVE_TC_FAULT_MODE
 	printf("  f: PWM fault mode initialize \n\r");
 	printf("  F: PWM fault mode clear and disable \n\r");
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
-#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+#ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 	printf("  m: PWM 2-bit Gray Up/Down Counter for Stepper Motor \n\r");
-#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR  */
+#endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR  */
+#ifdef CONFIG_HAVE_PWMC_DTIME
 	printf("  o: PWM output override / dead time settings \n\r");
+#endif /* CONFIG_HAVE_PWMC_DTIME */
 	printf("  c: Capture waveform from TC capture channel \n\r");
 	printf("  h: Display menu \n\r");
 	printf("  -------------------------------------------\n\r\n\r");
@@ -382,11 +396,16 @@ static void _tc_fault_start(void)
  */
 static void _pwm_handler(void)
 {
+#ifdef CONFIG_HAVE_PWMC_FMODE
 	trace_debug("PWM handler, interrupt status 0x%08x 0x%08x, "
 		"fault status 0x%08x\r\n",
 		(unsigned)pwmc_get_it_status1(PWM),
 		(unsigned)pwmc_get_it_status2(PWM),
 		(unsigned)pwmc_get_fault_status(PWM));
+#else
+	trace_debug("PWM handler, interrupt status 0x%08x ",
+		(unsigned)pwmc_get_it_status1(PWM));
+#endif
 }
 
 /**
@@ -430,7 +449,7 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 	}
 }
 
-#ifdef CONFIG_HAVE_PWM_DMA
+#ifdef CONFIG_HAVE_PWMC_DMA
 
 /**
  * \brief PWM call-back routine for DMA operations
@@ -467,7 +486,7 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
 
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 
 /*----------------------------------------------------------------------------
  *         Global functions
@@ -525,13 +544,14 @@ int main(void)
 				current_demo = key;
 				_pwm_demo_asynchronous_channel(true, pwm_channel, cprd);
 				break;
-#ifdef CONFIG_HAVE_PWM_DMA
+#ifdef CONFIG_HAVE_PWMC_DMA
 			case 'd':
 				current_demo = key;
 				_pwm_demo_dma(pwm_channel, cprd);
 				break;
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 #ifdef CONFIG_HAVE_TC_FAULT_MODE
+#ifdef CONFIG_HAVE_PWMC_FMODE
 			case 'f':
 				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
 				                         PWM_FMR_FMOD(0));
@@ -539,9 +559,9 @@ int main(void)
 				                         PWM_FMR_FMOD(1 << pwm_fault_input));
 				pwmc_set_fault_protection(PWM, (PWM_FPV1_FPVH0 << pwm_channel) |
 				                               (PWM_FPV1_FPVL0 << pwm_channel));
-#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
+#ifdef CONFIG_HAVE_PWMC_FAULT_PROT_HIZ
 				pwmc_set_fault_protection_to_hiz(PWM, 0);
-#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
+#endif /* CONFIG_HAVE_PWMC_FAULT_PROT_HIZ */
 				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
 				pwmc_enable_fault_protection(PWM, pwm_channel, 1 << pwm_fault_input);
 				pwmc_enable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
@@ -553,13 +573,15 @@ int main(void)
 				pwmc_disable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
 				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
 				break;
+#endif /* CONFIG_HAVE_PWMC_FMODE */
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
-#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+#ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 			case 'm':
 				pwmc_configure_stepper_motor_mode(PWM,
 					PWM_SMMR_GCEN0 | PWM_SMMR_GCEN1 | PWM_SMMR_DOWN0);
 				break;
-#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
+#endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
+#ifdef CONFIG_HAVE_PWMC_OOV
 			case 'o':
 				printf("\n\r  ---- Input options: ----\r\n");
 				printf("  0/1: override to 0/1\n\r  others: set dead-time\n\r");
@@ -580,6 +602,7 @@ int main(void)
 					break;
 				}
 				break;
+#endif/* CONFIG_HAVE_PWMC_OOV */
 			case 'c':
 				_start_capture();
 				break;
@@ -588,14 +611,16 @@ int main(void)
 				current_demo = 0;
 				pwmc_disable_channel(PWM, 0);
 				pwmc_disable_channel(PWM, pwm_channel);
+#ifdef CONFIG_HAVE_PWMC_SYNC_MODE
 				/* no PWM synchronous channels */
 				pwmc_configure_sync_channels(PWM, 0);
-#ifdef CONFIG_HAVE_PWM_DMA
+#endif/* CONFIG_HAVE_PWMC_SYNC_MODE */
+#ifdef CONFIG_HAVE_PWMC_DMA
 				pwmc_set_dma_finished_callback(NULL, 0);
-#endif
-#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+#endif /* CONFIG_HAVE_PWMC_DMA */
+#ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 				pwmc_configure_stepper_motor_mode(PWM, 0);
-#endif
+#endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
 				_display_menu();
 				break;
 			}

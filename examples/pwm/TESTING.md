@@ -44,6 +44,10 @@ Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44) on the board.
 ----------------
 Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board.
 
+### SAM9XX5-EK
+----------------
+Connect PC11 (J2 pin 27) and PA22 (J1 pin 18) on the board.
+
 * Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):

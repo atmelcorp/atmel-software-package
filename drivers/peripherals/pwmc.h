@@ -156,11 +156,24 @@ extern void pwmc_enable_it(Pwm *pwm, uint32_t sources1, uint32_t sources2);
  */
 extern void pwmc_disable_it(Pwm *pwm, uint32_t sources1, uint32_t sources2);
 
+#ifdef CONFIG_HAVE_PWMC_CMP_UNIT
 /**
  * \brief Return PWM Interrupt Status2 Register
  * \param pwm Pointer to a Pwm instance.
  */
 extern uint32_t pwmc_get_it_status2(Pwm *pwm);
+
+/**
+ * \brief Configure comparison unit.
+ *
+ * \param x comparison x index
+ * \param value comparison x value.
+ * \param mode comparison x mode
+ */
+extern void pwmc_configure_comparison_unit(Pwm *pwm, uint32_t x,
+		uint32_t value, uint32_t mode);
+
+#endif /* CONFIG_HAVE_PWMC_CMP_UNIT */
 
 /**
  * \brief Configures a PWM channel with the given parameters, basic configure
@@ -202,6 +215,7 @@ extern void pwmc_set_period(Pwm *pwm, uint8_t channel, uint16_t period);
  */
 extern void pwmc_set_duty_cycle(Pwm *pwm, uint8_t channel, uint16_t duty);
 
+#ifdef CONFIG_HAVE_PWMC_SYNC_MODE
 /**
  * \brief Set PWM synchronous channels mode.
  *
@@ -232,7 +246,9 @@ extern void pwmc_set_sync_channels_update_period(Pwm *pwm,
  */
 extern void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period);
 
-#ifdef CONFIG_HAVE_PWM_DMA
+#endif /* CONFIG_HAVE_PWMC_SYNC_MODE */
+
+#ifdef CONFIG_HAVE_PWMC_DMA
 
 /**
  * \brief Sets the update period of the synchronous channels.
@@ -250,8 +266,9 @@ extern void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args);
  */
 extern void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size);
 
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 
+#ifdef CONFIG_HAVE_PWMC_OOV
 /**
  * \brief Set override output.
  *
@@ -275,6 +292,11 @@ extern void pwmc_output_override(Pwm *pwm, uint8_t channel,
 extern void pwmc_disable_output_override(Pwm *pwm, uint8_t channel,
 		uint8_t is_pwmh, uint8_t sync);
 
+#endif /* CONFIG_HAVE_PWMC_OOV */
+
+
+#ifdef CONFIG_HAVE_PWMC_DTIME
+
 /**
  * \brief Sets the dead time used by a PWM channel.
  * This function writes directly to the DT register if the channel is disabled;
@@ -290,6 +312,9 @@ extern void pwmc_disable_output_override(Pwm *pwm, uint8_t channel,
 extern void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 		uint16_t time_h, uint16_t time_l);
 
+#endif /* CONFIG_HAVE_PWMC_DTIME */
+
+#ifdef CONFIG_HAVE_PWMC_FMODE
 /**
  * \brief Set PWM fault mode.
  *
@@ -322,18 +347,6 @@ extern void pwmc_fault_clear(Pwm *pwm, uint32_t fault);
  */
 extern void pwmc_set_fault_protection(Pwm *pwm, uint32_t value);
 
-#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
-
-/**
- * \brief Set PWM fault protections to Hi-Z
- *
- * \param pwm Pointer to a Pwm instance.
- * \param value Bitwise OR for PWM_FPV2.
- */
-extern void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value);
-
-#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
-
 /**
  * \brief Enable PWM fault protection.
  *
@@ -344,6 +357,22 @@ extern void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value);
 extern void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 		uint8_t fault_inputs);
 
+#endif /* CONFIG_HAVE_PWMC_FMODE */
+
+#ifdef CONFIG_HAVE_PWMC_FAULT_PROT_HIZ
+
+/**
+ * \brief Set PWM fault protections to Hi-Z
+ *
+ * \param pwm Pointer to a Pwm instance.
+ * \param value Bitwise OR for PWM_FPV2.
+ */
+extern void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value);
+
+#endif /* CONFIG_HAVE_PWMC_FAULT_PROT_HIZ */
+
+#ifdef CONFIG_HAVE_PWMC_ELINE
+
 /**
  * \brief Configure event line mode.
  *
@@ -352,7 +381,9 @@ extern void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
  */
 extern void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value);
 
-#ifdef CONFIG_HAVE_PWM_SPREAD_SPECTRUM
+#endif /* CONFIG_HAVE_PWMC_ELINE */
+
+#ifdef CONFIG_HAVE_PWMC_SPREAD_SPECTRUM
 
 /**
  * \brief Configure spread spectrum mode.
@@ -362,9 +393,9 @@ extern void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value);
  */
 extern void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value);
 
-#endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
+#endif /* CONFIG_HAVE_PWMC_SPREAD_SPECTRUM */
 
-#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
+#ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 
 /**
  * \brief Configure stepper motor mode.
@@ -374,8 +405,10 @@ extern void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value);
  */
 extern void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value);
 
-#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
+#endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
 
+
+#ifdef CONFIG_HAVE_PWMC_WP
 /**
  * \brief Set write protection.
  *
@@ -392,17 +425,9 @@ extern void pwmc_set_write_protection_control(Pwm *pwm, uint32_t value);
  */
 extern uint32_t pwmc_get_write_protection_status(Pwm *pwm);
 
-/**
- * \brief Configure comparison unit.
- *
- * \param x comparison x index
- * \param value comparison x value.
- * \param mode comparison x mode
- */
-extern void pwmc_configure_comparison_unit(Pwm *pwm, uint32_t x,
-		uint32_t value, uint32_t mode);
+#endif /* CONFIG_HAVE_PWMC_WP */
 
-#ifdef CONFIG_HAVE_PWM_EXTERNAL_TRIGGER
+#ifdef CONFIG_HAVE_PWMC_EXTERNAL_TRIGGER
 
 /**
  * \brief Configure external trigger.
@@ -424,7 +449,7 @@ extern void pwmc_configure_external_trigger(Pwm *pwm,
 extern void pwmc_configure_leading_edge_blanking(Pwm *pwm,
 		uint32_t channel, uint32_t value);
 
-#endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */
+#endif /* CONFIG_HAVE_PWMC_EXTERNAL_TRIGGER */
 
 #ifdef __cplusplus
 }

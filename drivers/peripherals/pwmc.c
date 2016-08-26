@@ -95,12 +95,11 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_PWM_DMA
-
+#ifdef CONFIG_HAVE_PWMC_DMA
 static pwmc_callback_t pwmc_cb = NULL;
 static void *pwmc_cb_user_args;
 
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -139,19 +138,42 @@ uint32_t pwmc_get_it_status1(Pwm *pwm)
 void pwmc_enable_it(Pwm *pwm, uint32_t sources1, uint32_t sources2)
 {
 	pwm->PWM_IER1 = sources1;
+#ifdef CONFIG_HAVE_PWMC_CMP_UNIT
 	pwm->PWM_IER2 = sources2;
+#endif
 }
 
 void pwmc_disable_it(Pwm *pwm, uint32_t sources1, uint32_t sources2)
 {
 	pwm->PWM_IDR1 = sources1;
+#ifdef CONFIG_HAVE_PWMC_CMP_UNIT
 	pwm->PWM_IDR2 = sources2;
+#endif
 }
 
+#ifdef CONFIG_HAVE_PWMC_CMP_UNIT
 uint32_t pwmc_get_it_status2(Pwm *pwm)
 {
 	return pwm->PWM_ISR2;
 }
+
+void pwmc_configure_comparison_unit(Pwm *pwm, uint32_t x,
+		uint32_t value, uint32_t mode)
+{
+	assert(x < 8);
+
+	/* If channel is disabled, write to CMPxM & CMPxV */
+	if ((pwm->PWM_SR & (1 << 0)) == 0) {
+		pwm->PWM_CMP[x].PWM_CMPM = mode;
+		pwm->PWM_CMP[x].PWM_CMPV = value;
+	} else {
+		/* Otherwise use update register */
+		pwm->PWM_CMP[x].PWM_CMPMUPD = mode;
+		pwm->PWM_CMP[x].PWM_CMPVUPD = value;
+	}
+}
+
+#endif /* CONFIG_HAVE_PWMC_CMP_UNIT */
 
 void pwmc_configure_channel(Pwm *pwm, uint8_t channel, uint32_t mode)
 {
@@ -195,7 +217,12 @@ void pwmc_set_period(Pwm *pwm, uint8_t channel, uint16_t period)
 	}
 	/* Otherwise use update register */
 	else {
+#ifdef PWM_CMR_CPD
+		pwm->PWM_CH[channel].PWM_CMR |= PWM_CMR_CPD;
+		pwm->PWM_CH[channel].PWM_CUPD = period;
+#else
 		pwm->PWM_CH[channel].PWM_CPRDUPD = period;
+#endif
 	}
 }
 
@@ -210,16 +237,22 @@ void pwmc_set_duty_cycle(Pwm *pwm, uint8_t channel, uint16_t duty)
 	}
 	/* Otherwise use update register */
 	else {
+#ifdef PWM_CMR_CPD
+		pwm->PWM_CH[channel].PWM_CMR &= ~PWM_CMR_CPD;
+		pwm->PWM_CH[channel].PWM_CUPD = duty;
+#else
 		pwm->PWM_CH[channel].PWM_CDTYUPD = duty;
+#endif
 	}
 }
 
+#ifdef CONFIG_HAVE_PWMC_SYNC_MODE
 void pwmc_configure_sync_channels(Pwm *pwm, uint32_t mode)
 {
 #ifndef NDEBUG
 	uint32_t sync_bits = mode & (PWM_SCM_SYNC0 | PWM_SCM_SYNC1 \
 				| PWM_SCM_SYNC2 | PWM_SCM_SYNC3);
-#ifdef CONFIG_HAVE_PWM_DMA
+#ifdef CONFIG_HAVE_PWMC_DMA
 	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " \
 			"DMA Request Mode %u, Request Comparison Selection %u\n\r",
 			(unsigned)sync_bits,
@@ -242,7 +275,7 @@ void pwmc_configure_sync_channels(Pwm *pwm, uint32_t mode)
 	assert((pwm_sr & (pwm->PWM_SCM ^ sync_bits)) == 0);
 	/* Mode3 does not exist */
 	assert(((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos) != 3);
-#ifndef CONFIG_HAVE_PWM_DMA
+#ifndef CONFIG_HAVE_PWMC_DMA
 	/* Mode2 does not exist if PWM does not support DMA */
 	assert(((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos) != 2);
 #endif
@@ -265,9 +298,9 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 {
 	pwm->PWM_SCUPUPD = PWM_SCUPUPD_UPRUPD(period);
 }
+#endif /* CONFIG_HAVE_PWMC_SYNC_MODE */
 
-#ifdef CONFIG_HAVE_PWM_DMA
-
+#ifdef CONFIG_HAVE_PWMC_DMA
 #ifndef CONFIG_HAVE_XDMAC
 #error PWM DMA is enabled without XDMAC, this configuration is unsupported.
 #endif
@@ -324,8 +357,9 @@ void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 	xdmacd_start_transfer(dma_channel);
 }
 
-#endif /* CONFIG_HAVE_PWM_DMA */
+#endif /* CONFIG_HAVE_PWMC_DMA */
 
+#ifdef CONFIG_HAVE_PWMC_OOV
 void pwmc_output_override(Pwm *pwm, uint8_t channel,
 		uint8_t is_pwmh, uint8_t level, uint8_t sync)
 {
@@ -380,6 +414,9 @@ void pwmc_disable_output_override(Pwm *pwm, uint8_t channel,
 		pwm->PWM_OSCUPD = mask;
 }
 
+#endif /* CONFIG_HAVE_PWMC_OOV */
+
+#ifdef CONFIG_HAVE_PWMC_DTIME
 void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 		uint16_t time_h, uint16_t time_l)
 {
@@ -407,6 +444,9 @@ void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 		pwm->PWM_CH[channel].PWM_DTUPD = dead_time;
 }
 
+#endif /* CONFIG_HAVE_PWMC_DTIME */
+
+#ifdef CONFIG_HAVE_PWMC_FMODE
 void pwmc_set_fault_mode(Pwm *pwm, uint32_t mode)
 {
 	pwm->PWM_FMR = mode;
@@ -427,15 +467,6 @@ void pwmc_set_fault_protection(Pwm *pwm, uint32_t value)
 	pwm->PWM_FPV1 = value;
 }
 
-#ifdef CONFIG_HAVE_PWM_FAULT_PROT_HIZ
-
-void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value)
-{
-	pwm->PWM_FPV2 = value;
-}
-
-#endif /* CONFIG_HAVE_PWM_FAULT_PROT_HIZ */
-
 void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 		uint8_t fault_inputs)
 {
@@ -446,13 +477,24 @@ void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 	pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << (8 * channel));
 }
 
+#endif /* CONFIG_HAVE_PWMC_FMODE */
+
+#ifdef CONFIG_HAVE_PWMC_FAULT_PROT_HIZ
+void pwmc_set_fault_protection_to_hiz(Pwm *pwm, uint32_t value)
+{
+	pwm->PWM_FPV2 = value;
+}
+
+#endif /* CONFIG_HAVE_PWMC_FAULT_PROT_HIZ */
+
+#ifdef CONFIG_HAVE_PWMC_ELINE
 void pwmc_configure_event_line_mode(Pwm *pwm, uint32_t value)
 {
 	pwm->PWM_ELMR[0] = value;
 }
+#endif /* CONFIG_HAVE_PWMC_ELINE */
 
-#ifdef CONFIG_HAVE_PWM_SPREAD_SPECTRUM
-
+#ifdef CONFIG_HAVE_PWMC_SPREAD_SPECTRUM
 void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value)
 {
 	/* If channel 0 is disabled, write to SSPR */
@@ -463,10 +505,9 @@ void pwmc_configure_spread_spectrum_mode(Pwm *pwm, uint32_t value)
 		pwm->PWM_SSPUP = PWM_SSPUP_SPRDUP(value);
 }
 
-#endif /* CONFIG_HAVE_PWM_SPREAD_SPECTRUM */
+#endif /* CONFIG_HAVE_PWMC_SPREAD_SPECTRUM */
 
-#ifdef CONFIG_HAVE_PWM_STEPPER_MOTOR
-
+#ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value)
 {
 	trace_debug("pwm: CH0-1 Gray Count %s %s, CH2-3 Gray Count %s %s\n\r", \
@@ -476,9 +517,9 @@ void pwmc_configure_stepper_motor_mode(Pwm *pwm, uint32_t value)
 			(0 != (value & PWM_SMMR_GCEN1)) ? "Enable" : "Disable");
 	pwm->PWM_SMMR = value;
 }
+#endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
 
-#endif /* CONFIG_HAVE_PWM_STEPPER_MOTOR */
-
+#ifdef CONFIG_HAVE_PWMC_WP
 void pwmc_set_write_protection_control(Pwm *pwm, uint32_t value)
 {
 	pwm->PWM_WPCR = value;
@@ -488,25 +529,9 @@ uint32_t pwmc_get_write_protection_status(Pwm *pwm)
 {
 	return pwm->PWM_WPSR;
 }
+#endif /* CONFIG_HAVE_PWMC_WP */
 
-void pwmc_configure_comparison_unit(Pwm *pwm, uint32_t x,
-		uint32_t value, uint32_t mode)
-{
-	assert(x < 8);
-
-	/* If channel is disabled, write to CMPxM & CMPxV */
-	if ((pwm->PWM_SR & (1 << 0)) == 0) {
-		pwm->PWM_CMP[x].PWM_CMPM = mode;
-		pwm->PWM_CMP[x].PWM_CMPV = value;
-	} else {
-		/* Otherwise use update register */
-		pwm->PWM_CMP[x].PWM_CMPMUPD = mode;
-		pwm->PWM_CMP[x].PWM_CMPVUPD = value;
-	}
-}
-
-#ifdef CONFIG_HAVE_PWM_EXTERNAL_TRIGGER
-
+#ifdef CONFIG_HAVE_PWMC_EXTERNAL_TRIGGER
 void pwmc_configure_external_trigger(Pwm *pwm,
 		uint32_t channel, uint32_t value)
 {
@@ -542,5 +567,4 @@ void pwmc_configure_leading_edge_blanking(Pwm *pwm,
 		break;
 	}
 }
-
-#endif /* CONFIG_HAVE_PWM_EXTERNAL_TRIGGER */
+#endif /* CONFIG_HAVE_PWMC_EXTERNAL_TRIGGER */
