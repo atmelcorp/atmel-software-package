@@ -36,14 +36,15 @@
  *
  *  \section Requirements
  *
- *  This package can be used with SAMA5D2-XPLAINED, SAMA5D4-EK and
- *  SAMA5D4-XULT. Refer to \ref adc_adc12_requirement for detail.
- *  
+ *  This package can be used with SAMA5D2-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED,
+ *  SAMA5D3-EK, SAMA5D3-XPLAINED, SAM9XX5-EK.
+ *
  *  -# SAMA5D2-XPLAINED: Connect PB9 (pin 1 on J21) to PD31 (ADTRG) (pin 33 on J17)
  *  -# SAMA5D4-XPLAINED: Connect PE23 (pin 1 on J18) to PE31 (ADTRG) (pin 34 on J15)
  *  -# SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
  *  -# SAMA5D3-XPLAINED: Connect PD15 (pin 8 on J21) to PD19 (ADTRG) (pin 6 on J21)
  *  -# SAMA5D3-EK: Connect to PD15 (pin 32 on J3) to PD19 (ADTRG) (pin 34 on J3)
+ *  -# SAM9XX5-EK: Connect to PA8 (pin 21 on J1) to PB18 (ADTRG) (pin 10 on J3)
  *
  *  \section Description
  *
@@ -132,6 +133,11 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
+/* check availability of ADC trigger 1 (trigger on TIOA0) */
+#ifdef ADC_MR_TRGSEL_ADC_TRIG1
+#define ADC_TRIG_TIOA0
+#endif
 
 /** ADC clock */
 #define ADC_FREQ (300000)
@@ -222,6 +228,14 @@ struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAUL
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
 struct _pin pin_trig = { PIO_GROUP_E, PIO_PD15,  PIO_OUTPUT_0, PIO_DEFAULT };
 struct _pin pin_tioa0 = { PIO_GROUP_D, PIO_PD5B_TIOA0, PIO_PERIPH_B , PIO_DEFAULT };
+
+#elif defined(CONFIG_BOARD_SAM9G15_EK) || \
+      defined(CONFIG_BOARD_SAM9G25_EK) || \
+      defined(CONFIG_BOARD_SAM9G35_EK) || \
+      defined(CONFIG_BOARD_SAM9X25_EK) || \
+      defined(CONFIG_BOARD_SAM9X35_EK)
+struct _pin pin_trig = { PIO_GROUP_A, PIO_PA8,  PIO_OUTPUT_0, PIO_DEFAULT };
+struct _pin pin_tioa0 = { PIO_GROUP_A, PIO_PA21A_TIOA0, PIO_PERIPH_A , PIO_DEFAULT };
 
 #else
 #error Unsupported target...
@@ -328,8 +342,10 @@ static void _display_menu(void)
 	printf("[%c] 0: Set ADC trigger mode: Software.\n\r", tmp);
 	tmp = (_test_mode.trigger_mode == TRIGGER_MODE_ADTRG) ? 'X' : ' ';
 	printf("[%c] 1: Set ADC trigger mode: ADTRG.\n\r", tmp);
+#ifdef ADC_TRIG_TIOA0
 	tmp = (_test_mode.trigger_mode == TRIGGER_MODE_TIMER) ? 'X' : ' ';
 	printf("[%c] 2: Set ADC trigger mode: Timer TIOA.\n\r", tmp);
+#endif /* ADC_TRIG_TIOA0 */
 	tmp = (_test_mode.trigger_mode == TRIGGER_MODE_ADC_TIMER) ? 'X' : ' ';
 	printf("[%c] 3: Set ADC trigger mode: ADC Internal Timer.\n\r", tmp);
 	tmp = (_test_mode.sequence_enabled ) ? 'E' : 'D';
@@ -350,9 +366,11 @@ static void console_handler(uint8_t key)
 	case '1' :
 		_test_mode.trigger_mode = TRIGGER_MODE_ADTRG;
 		break;
+#ifdef ADC_TRIG_TIOA0
 	case '2' :
 		_test_mode.trigger_mode = TRIGGER_MODE_TIMER;
 		break;
+#endif /* ADC_TRIG_TIOA0 */
 	case '3' :
 		_test_mode.trigger_mode = TRIGGER_MODE_ADC_TIMER;
 		break;
@@ -381,6 +399,7 @@ static void console_handler(uint8_t key)
 	_display_menu();
 }
 
+#ifdef ADC_TRIG_TIOA0
 /**
  * \brief Configure to trigger ADC by TIOA output of timer.
  */
@@ -401,7 +420,7 @@ static void _configure_tc_trigger(void)
 	/* Start the Timer */
 	tc_start(TC0, 0);
 }
-
+#endif /* ADC_TRIG_TIOA0 */
 
 static void _initialize_adc(void)
 {
@@ -493,28 +512,28 @@ static void _configure_adc(void)
 	/* Configure trigger mode and start convention */
 	switch (_test_mode.trigger_mode) {
 		case TRIGGER_MODE_SOFTWARE:
-			/* Disable hardware trigger */
-			adc_set_trigger(0);
 			/* No trigger, only software trigger can start conversions */
+			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_NO_TRIGGER);
 			break;
 
-	    case TRIGGER_MODE_ADTRG:
+		case TRIGGER_MODE_ADTRG:
+			/* Trigger on ADTRG pin */
 			pio_clear(&pin_trig);
 			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_ANY);
 			break;
-			
+#ifdef ADC_TRIG_TIOA0
 		case TRIGGER_MODE_TIMER :
-			/* Trigger timer*/
-			/* Configure Timer TC0 */
+			/* Trigger on TC0 timer*/
 			_configure_tc_trigger();
 			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG1);
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_RISE);
 			break;
-
+#endif /* ADC_TRIG_TIOA0 */
 		case TRIGGER_MODE_ADC_TIMER :
-			/* Trigger timer*/
+			/* Trigger on internal ADC timer */
+			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_PERIOD_TRIG);
 			adc_set_trigger_period(250);
 			break;

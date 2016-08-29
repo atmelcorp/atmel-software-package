@@ -24,6 +24,7 @@ On the board:
  - SAMA5D4-EK: Connect to PE23 to PE31 (ADTRG)
  - SAMA5D3-XPLAINED: Connect PD15 (pin 8 on J21) to PD19 (ADTRG) (pin 6 on J21)
  - SAMA5D3-EK: Connect to PD15 (pin 32 on J3) to PD19 (ADTRG) (pin 34 on J3)
+ - SAM9XX5-EK: Connect to PA8 (pin 21 on J1) to PB18 (ADTRG) (pin 10 on J3)
 
 On the computer, open and configure a terminal application
 (e.g. HyperTerminal on Microsoft Windows) with these settings:
