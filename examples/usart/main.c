@@ -115,7 +115,7 @@ static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
-	.transfer_mode  = USARTD_MODE_ASYNC,
+	.transfer_mode  = USARTD_MODE_POLLING,
 };
 
 static void console_handler(uint8_t key)
@@ -152,6 +152,7 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	memset(read_buffer, 0x0, sizeof(read_buffer));
 	char* end_addr = NULL;
 	unsigned int size = strtoul((char*)buffer, &end_addr, 0);
+	unsigned int _len = 0;
 	if (end_addr == (char*)buffer) {
 		printf("Args: %s\r\n"
 		       "Invalid address\r\n",
@@ -164,8 +165,8 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		.size = size,
 		.attr = USARTD_BUF_ATTR_READ,
 	};
-	usartd_transfer(&usart_desc, &rx, usartd_finish_transfer_callback, 0);
-	usartd_wait_transfer(&usart_desc);
+	usartd_transfer(&usart_desc, &rx, usartd_finish_rx_transfer_callback, 0);
+	usartd_wait_rx_transfer(&usart_desc);
 	printf("%s\r\n", read_buffer);
 }
 
@@ -176,7 +177,8 @@ static void _usart_write_arg_parser(const uint8_t* buffer, uint32_t len)
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, &tx, usartd_finish_transfer_callback, 0);
+	usartd_transfer(&usart_desc, &tx, usartd_finish_tx_transfer_callback, 0);
+	usartd_wait_tx_transfer(&usart_desc);
 }
 
 static void print_menu(void)

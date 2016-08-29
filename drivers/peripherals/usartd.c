@@ -61,8 +61,6 @@ struct _async_desc
 {
 	struct _usart_desc *usart_desc;
 	uint32_t usart_id;
-	struct _buffer buf;
-	uint32_t transferred; /**< Number of already transferred bytes. */
 };
 
 static struct _async_desc async_desc[MAX_ADESC];
@@ -72,92 +70,33 @@ static uint8_t adesc_index = 0;
  *        Internal functions
  *----------------------------------------------------------------------------*/
 
-static void _usartd_handler(void)
-{
-	int i;
-	uint32_t status = 0;
-	Usart* addr;
-	uint32_t id = aic_get_current_interrupt_identifier();
-	bool _rx_stop = true;
-	bool _tx_stop = true;
-	
-	for (i = 0; i != MAX_ADESC; i++) {
-		if (async_desc[i].usart_id == id) {
-			status = 1;
-			break;
-		}
-	}
-
-	if (!status) {
-		/* async descriptor not found, disable interrupt */
-		addr = get_usart_addr_from_id(id);
-		usart_disable_it(addr, US_IDR_RXRDY | US_IDR_TXRDY);
-		return;
-	}
-
-	struct _async_desc* adesc = &async_desc[i];
-	addr = adesc->usart_desc->addr;
-	status = usart_get_masked_status(addr);
-
-	if (USART_STATUS_RXRDY(status)) {
-		if (adesc->buf.attr & USARTD_BUF_ATTR_READ) {
-			adesc->buf.data[adesc->transferred] = usart_get_char(addr);
-			adesc->transferred++;
-
-			if (adesc->transferred == adesc->buf.size)
-				usart_disable_it(addr, US_IDR_RXRDY);
-			else
-				_rx_stop = false;
-		}
-	}
-
-	if (USART_STATUS_TXRDY(status)) {
-		if (adesc->buf.attr & USARTD_BUF_ATTR_WRITE) {
-			usart_put_char(addr, adesc->buf.data[adesc->transferred]);
-			adesc->transferred++;
-
-			if (adesc->transferred >= adesc->buf.size) {
-				usart_disable_it(addr, US_IDR_TXRDY);
-				usart_enable_it(addr, US_IDR_TXEMPTY);
-			}
-			_tx_stop = false;
-		}
-	} else if (USART_STATUS_TXEMPTY(status)) {
-		usart_disable_it(addr, US_IDR_TXEMPTY);
-	}
-
-	if (_rx_stop && _tx_stop) {
-		adesc->usart_id = 0;
-		aic_disable(id);
-
-		mutex_unlock(&adesc->usart_desc->mutex);
-	}
-}
-
-static void _usartd_write_dma_callback(struct dma_channel* channel, void* args)
+static void _usartd_dma_write_callback(struct dma_channel* channel, void* args)
 {
 	struct _usart_desc* usartd = (struct _usart_desc*)args;
 
 	dma_free_channel(channel);
 
-	if (usartd && usartd->callback)
-		usartd->callback(usartd, usartd->cb_args);
+	if (usartd && usartd->tx.callback)
+		usartd->tx.callback(usartd, usartd->tx.cb_args);
 
-	mutex_unlock(&usartd->mutex);
+	mutex_unlock(&usartd->tx.mutex);
 }
 
-static void _usartd_read_dma_callback(struct dma_channel* channel, void* args)
+static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
 {
 	struct _usart_desc* usartd = (struct _usart_desc*)args;
 
+	usartd->rx.transferred = usartd->dma.rx.cfg.len;
+	if (usartd->rx.transferred != usartd->dma.rx.cfg.len)
+		dma_stop_transfer(channel);
 	dma_free_channel(channel);
 
-	cache_invalidate_region(usartd->dma.rx.cfg.da, usartd->dma.rx.cfg.len);
+	cache_invalidate_region(usartd->dma.rx.cfg.da, usartd->rx.transferred);
 
-	if (usartd && usartd->callback)
-		usartd->callback(usartd, usartd->cb_args);
+	if (usartd && usartd->rx.callback)
+		usartd->rx.callback(usartd, usartd->rx.cb_args);
 
-	mutex_unlock(&usartd->mutex);
+	mutex_unlock(&usartd->rx.mutex);
 }
 
 static void _usartd_dma_read(struct _usart_desc* desc, struct _buffer* buffer)
@@ -178,7 +117,7 @@ static void _usartd_dma_read(struct _usart_desc* desc, struct _buffer* buffer)
 	desc->dma.rx.cfg.len = buffer->size;
 	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
 
-	dma_set_callback(desc->dma.rx.channel, _usartd_read_dma_callback, (void*)desc);
+	dma_set_callback(desc->dma.rx.channel, _usartd_dma_read_callback, (void*)desc);
 	dma_start_transfer(desc->dma.rx.channel);
 }
 
@@ -200,9 +139,77 @@ static void _usartd_dma_write(struct _usart_desc* desc, struct _buffer* buffer)
 	desc->dma.tx.cfg.len = buffer->size;
 	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
 
-	dma_set_callback(desc->dma.tx.channel, _usartd_write_dma_callback, (void*)desc);
+	dma_set_callback(desc->dma.tx.channel, _usartd_dma_write_callback, (void*)desc);
 	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
 	dma_start_transfer(desc->dma.tx.channel);
+}
+
+static void _usartd_handler(void)
+{
+	int i;
+	uint32_t status = 0;
+	Usart* addr;
+	uint32_t id = aic_get_current_interrupt_identifier();
+	bool _rx_stop = true;
+	bool _tx_stop = true;
+
+	for (i = 0; i != MAX_ADESC; i++) {
+		if (async_desc[i].usart_id == id) {
+			status = 1;
+			break;
+		}
+	}
+
+	if (!status) {
+		/* async descriptor not found, disable interrupt */
+		addr = get_usart_addr_from_id(id);
+		usart_disable_it(addr, US_IDR_RXRDY | US_IDR_TXRDY);
+		return;
+	}
+
+	struct _async_desc* adesc = &async_desc[i];
+	addr = adesc->usart_desc->addr;
+	status = usart_get_masked_status(addr);
+
+	if (USART_STATUS_RXRDY(status)) {
+		if (adesc->usart_desc->rx.buffer.size) {
+			adesc->usart_desc->rx.buffer.data[adesc->usart_desc->rx.transferred] = usart_get_char(addr);
+			adesc->usart_desc->rx.transferred++;
+
+			if (adesc->usart_desc->rx.transferred == adesc->usart_desc->rx.buffer.size)
+				usart_disable_it(addr, US_IDR_RXRDY);
+			else
+				_rx_stop = false;
+		}
+	}
+
+	if (USART_STATUS_TXRDY(status)) {
+		if (adesc->usart_desc->tx.buffer.size) {
+			usart_put_char(addr, adesc->usart_desc->tx.buffer.data[adesc->usart_desc->tx.transferred]);
+			adesc->usart_desc->tx.transferred++;
+
+			if (adesc->usart_desc->tx.transferred >= adesc->usart_desc->tx.buffer.size) {
+				usart_disable_it(addr, US_IDR_TXRDY);
+				usart_enable_it(addr, US_IDR_TXEMPTY);
+			}
+			_tx_stop = false;
+		}
+	} else if (USART_STATUS_TXEMPTY(status)) {
+		usart_disable_it(addr, US_IDR_TXEMPTY);
+	}
+
+	if (_rx_stop && _tx_stop) {
+		adesc->usart_id = 0;
+
+		if (_rx_stop) {
+			adesc->usart_desc->rx.buffer.size = 0;
+			mutex_unlock(&adesc->usart_desc->rx.mutex);
+		}
+		if (_tx_stop) {
+			adesc->usart_desc->tx.buffer.size = 0;
+			mutex_unlock(&adesc->usart_desc->tx.mutex);
+		}
+	}
 }
 
 void usartd_configure(struct _usart_desc* desc)
@@ -218,6 +225,7 @@ void usartd_configure(struct _usart_desc* desc)
 #endif
 	pmc_enable_peripheral(id);
 	usart_configure(desc->addr, desc->mode, desc->baudrate);
+	aic_set_source_vector(get_usart_id_from_addr(desc->addr), _usartd_handler);
 #ifdef CONFIG_HAVE_USART_FIFO
 	desc->fifo.rx.size = get_peripheral_fifo_depth(desc->addr);
 	desc->fifo.tx.size = get_peripheral_fifo_depth(desc->addr);
@@ -234,42 +242,71 @@ uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 	uint32_t i = 0;
 	uint32_t id;
 	uint8_t tmode;
+	uint8_t _adesc_idx;
+	uint32_t csr;
 
-	if ((buf->attr & USARTD_BUF_ATTR_READ) && (buf->attr & USARTD_BUF_ATTR_WRITE))
-		return USARTD_ERROR_DUPLEX;
-	
 	if ((buf == NULL) || (buf->size == 0))
 		return USARTD_SUCCESS;
 
-	if (!mutex_try_lock(&desc->mutex))
-		return USARTD_ERROR_LOCK;
+	if (buf->attr & USARTD_BUF_ATTR_READ) {
+		if (!mutex_try_lock(&desc->rx.mutex))
+			return USARTD_ERROR_LOCK;
 
-	desc->callback = cb;
-	desc->cb_args = user_args;
+		desc->rx.buffer.data = buf->data;
+		desc->rx.buffer.size = buf->size;
+		desc->rx.buffer.attr = buf->attr;
+		desc->rx.callback = cb;
+		desc->rx.cb_args = user_args;
+	}
+
+	if (buf->attr & USARTD_BUF_ATTR_WRITE) {
+		if (!mutex_try_lock(&desc->tx.mutex))
+			return USARTD_ERROR_LOCK;
+
+		desc->tx.buffer.data = buf->data;
+		desc->tx.buffer.size = buf->size;
+		desc->tx.buffer.attr = buf->attr;
+		desc->tx.callback = cb;
+		desc->tx.cb_args = user_args;
+	}
+
 	tmode = desc->transfer_mode;
-	desc->flags = buf->attr;
 
 	/* If short transfer detected, use POLLING mode */
 	if (tmode != USARTD_MODE_POLLING)
 		if (buf->size < USARTD_POLLING_THRESHOLD)
 			tmode = USARTD_MODE_POLLING;
 
+	id = get_usart_id_from_addr(desc->addr);
+	for (_adesc_idx = 0 ; _adesc_idx < MAX_ADESC ; _adesc_idx++)
+		if (async_desc[_adesc_idx].usart_id == id)
+			break;
+
+	if (_adesc_idx >= MAX_ADESC) {
+		_adesc_idx = adesc_index;
+		adesc_index = (adesc_index + 1) % MAX_ADESC;
+		/* Copy descriptor to async descriptor */
+		async_desc[_adesc_idx].usart_desc = desc;
+		async_desc[_adesc_idx].usart_id = id;
+	}
+
 	switch (tmode) {
 	case USARTD_MODE_POLLING:
 		i = 0;
+
 		while (i < buf->size) {
-			if (buf->attr == USARTD_BUF_ATTR_WRITE) {
+			if (i < desc->tx.buffer.size) {
 				if (desc->use_fifo) {
 #ifdef CONFIG_HAVE_USART_FIFO
 					if ((desc->fifo.tx.size - usart_fifo_get_tx_size(desc->addr)) > 0) {
-						if ((buf->size - i) >= 4) {
-							writew(&desc->addr->US_THR, *(uint32_t*)&buf->data[i]);
+						if ((desc->tx.buffer.size - i) >= 4) {
+							writew(&desc->addr->US_THR, *(uint32_t*)&desc->tx.buffer.data[i]);
 							i += 4;
-						} else if ((buf->size - i) >= 2) {
-							writehw(&desc->addr->US_THR, *(uint16_t*)&buf->data[i]);
+						} else if ((desc->tx.buffer.size - i) >= 2) {
+							writehw(&desc->addr->US_THR, *(uint16_t*)&desc->tx.buffer.data[i]);
 							i += 2;
 						} else {
-							writeb(&desc->addr->US_THR, *(uint8_t*)&buf->data[i]);
+							writeb(&desc->addr->US_THR, *(uint8_t*)&desc->tx.buffer.data[i]);
 							i += 1;
 						}
 					}
@@ -278,47 +315,58 @@ uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 					/* Wait for the transmitter to be ready */
 					while (!USART_STATUS_TXRDY(desc->addr->US_CSR));
 
-					writeb(&desc->addr->US_THR, buf->data[i]);
+					writeb(&desc->addr->US_THR, desc->tx.buffer.data[i]);
 					i++;
 				}
-			} else {
+				desc->tx.transferred = i;
+
+				if (desc->tx.transferred >= desc->tx.buffer.size) {
+					if (desc->tx.callback)
+						desc->tx.callback(desc, desc->tx.cb_args);
+					mutex_unlock(&desc->tx.mutex);
+				}
+			}
+			if (i < desc->rx.buffer.size) {
 				if (desc->use_fifo) {
 #ifdef CONFIG_HAVE_USART_FIFO
-					if ((desc->fifo.tx.size - usart_fifo_get_tx_size(desc->addr)) > 0) {
-						if (usart_fifo_get_rx_size(desc->addr) >= 4) {
-							readw(&desc->addr->US_RHR, (uint32_t*)&buf->data[i]);
+					if ((desc->fifo.rx.size - usart_fifo_get_rx_size(desc->addr)) > 0) {
+						if ((desc->rx.buffer.size - i) >= 4) {
+							readw(&desc->addr->US_RHR, (uint32_t*)&desc->rx.buffer.data[i]);
 							i += 4;
 						} else if (usart_fifo_get_rx_size(desc->addr) >= 2) {
-							readhw(&desc->addr->US_RHR, (uint16_t*)&buf->data[i]);
+							readhw(&desc->addr->US_RHR, (uint16_t*)&desc->rx.buffer.data[i]);
 							i += 2;
 						} else {
-							readb(&desc->addr->US_RHR, (uint8_t*)&buf->data[i]);
+							readb(&desc->addr->US_RHR, (uint8_t*)&desc->rx.buffer.data[i]);
 							i += 1;
 						}
 					}
 #endif
 				} else {
 					/* Wait for the transmitter to be ready */
-					while (USART_STATUS_RXRDY(desc->addr->US_CSR) == 0);
+					csr = desc->addr->US_CSR;
+					while (!USART_STATUS_RXRDY(csr)) {
+						csr = desc->addr->US_CSR;
+					}
 
-					readb(&desc->addr->US_RHR, &buf->data[i]);
+					readb(&desc->addr->US_RHR, &desc->rx.buffer.data[i]);
 					i++;
+				}
+				desc->rx.transferred = i;
+
+				if (desc->rx.transferred >= desc->rx.buffer.size) {
+					if (desc->rx.callback)
+						desc->rx.callback(desc, desc->rx.cb_args);
+					mutex_unlock(&desc->rx.mutex);
 				}
 			}
 		}
-		mutex_unlock(&desc->mutex);
-		if (cb)
-			cb(desc, user_args);
 		break;
 
 	case USARTD_MODE_ASYNC:
 		/* Copy descriptor to async descriptor */
 		async_desc[adesc_index].usart_desc = desc;
 		/* Init param used by interrupt handler */
-		async_desc[adesc_index].transferred = 0;
-		async_desc[adesc_index].buf.data = buf->data;
-		async_desc[adesc_index].buf.size = buf->size;
-		async_desc[adesc_index].buf.attr = buf->attr;
 		id = get_usart_id_from_addr(desc->addr);
 		async_desc[adesc_index].usart_id = id;
 		adesc_index = (adesc_index + 1) % MAX_ADESC;
@@ -328,11 +376,15 @@ uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 		/* Enable USART interrupt */
 		aic_enable(id);
 
-		if (desc->flags & USARTD_BUF_ATTR_WRITE)
+		if (buf->attr & USARTD_BUF_ATTR_WRITE) {
+			async_desc[adesc_index].usart_desc->tx.transferred = 0;
 			usart_enable_it(desc->addr, US_IER_TXRDY);
+		}
 
-		if (desc->flags & USARTD_BUF_ATTR_READ)
+		if (buf->attr & USARTD_BUF_ATTR_READ) {
+			async_desc[adesc_index].usart_desc->rx.transferred = 0;
 			usart_enable_it(desc->addr, US_IER_RXRDY);
+		}
 		break;
 
 	case USARTD_MODE_DMA:
@@ -349,23 +401,44 @@ uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 	return USARTD_SUCCESS;
 }
 
-void usartd_finish_transfer_callback(struct _usart_desc* desc, void* user_args)
+void usartd_finish_rx_transfer_callback(struct _usart_desc* desc, void* user_args)
 {
 	(void)user_args;
-	usartd_finish_transfer(desc);
+	usartd_finish_rx_transfer(desc);
 }
 
-void usartd_finish_transfer(struct _usart_desc* desc)
+void usartd_finish_tx_transfer_callback(struct _usart_desc* desc, void* user_args)
 {
-	mutex_unlock(&desc->mutex);
+	(void)user_args;
+	usartd_finish_tx_transfer(desc);
 }
 
-uint32_t usartd_is_busy(const struct _usart_desc* desc)
+void usartd_finish_rx_transfer(struct _usart_desc* desc)
 {
-	return mutex_is_locked(&desc->mutex);
+	mutex_unlock(&desc->rx.mutex);
 }
 
-void usartd_wait_transfer(const struct _usart_desc* desc)
+void usartd_finish_tx_transfer(struct _usart_desc* desc)
 {
-	while (mutex_is_locked(&desc->mutex));
+	mutex_unlock(&desc->tx.mutex);
+}
+
+uint32_t usartd_rx_is_busy(const struct _usart_desc* desc)
+{
+	return mutex_is_locked(&desc->rx.mutex);
+}
+
+uint32_t usartd_tx_is_busy(const struct _usart_desc* desc)
+{
+	return mutex_is_locked(&desc->tx.mutex);
+}
+
+void usartd_wait_rx_transfer(const struct _usart_desc* desc)
+{
+	while (mutex_is_locked(&desc->rx.mutex));
+}
+
+void usartd_wait_tx_transfer(const struct _usart_desc* desc)
+{
+	while (mutex_is_locked(&desc->tx.mutex));
 }

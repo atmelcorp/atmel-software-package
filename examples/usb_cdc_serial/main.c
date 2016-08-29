@@ -289,16 +289,6 @@ void usbd_callbacks_request_received(const USBGenericRequest *request)
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief DMA TX callback function
- */
-static void _us_dma_tx_callback(struct _usart_desc* desc,
-						 void* user_args)
-{
-	(void)user_args;
-	usartd_finish_transfer(desc);
-}
-
-/**
  *  \brief Send single buffer data through DMA
  */
 static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
@@ -309,7 +299,7 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, &tx, _us_dma_tx_callback, 0);
+	usartd_transfer(&usart_desc, &tx, usartd_finish_tx_transfer_callback, 0);
 
 }
 

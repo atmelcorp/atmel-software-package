@@ -57,12 +57,15 @@ struct _usart_desc
 	uint32_t baudrate;
 	uint8_t transfer_mode;
 	/* implicit internal padding is mandatory here */
-	mutex_t mutex;
+	struct {
+		mutex_t mutex;
 
-	uint32_t flags;
-	
-	usartd_callback_t callback;
-	void*   cb_args;
+		struct _buffer buffer;
+		uint16_t transferred;
+		
+		usartd_callback_t callback;
+		void*   cb_args;
+	} rx, tx;
 
 #ifdef CONFIG_HAVE_USART_FIFO
 	bool use_fifo;
@@ -97,9 +100,13 @@ enum _usartd_trans_mode
 extern void usartd_configure(struct _usart_desc* desc);
 extern uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
 			  usartd_callback_t cb, void* user_args);
-extern void usartd_finish_transfer_callback(struct _usart_desc* desc, void* user_args);
-extern void usartd_finish_transfer(struct _usart_desc* desc);
-extern uint32_t usartd_is_busy(const struct _usart_desc* desc);
-extern void usartd_wait_transfer(const struct _usart_desc* desc);
+extern void usartd_finish_rx_transfer_callback(struct _usart_desc* desc, void* user_args);
+extern void usartd_finish_rx_transfer(struct _usart_desc* desc);
+extern uint32_t usartd_rx_is_busy(const struct _usart_desc* desc);
+extern void usartd_wait_rx_transfer(const struct _usart_desc* desc);
+extern void usartd_finish_tx_transfer_callback(struct _usart_desc* desc, void* user_args);
+extern void usartd_finish_tx_transfer(struct _usart_desc* desc);
+extern uint32_t usartd_tx_is_busy(const struct _usart_desc* desc);
+extern void usartd_wait_tx_transfer(const struct _usart_desc* desc);
 
 #endif /* USARTD_HEADER__ */

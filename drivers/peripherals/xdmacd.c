@@ -303,7 +303,7 @@ static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
 	xdmac_get_channel_isr(xdmac, channel->id);
 
 	/* Disables XDMAC interrupt for the given channel */
-	xdmac_disable_global_it(xdmac, -1);
+	xdmac_disable_global_it(xdmac, 1 << channel->id);
 	xdmac_disable_channel_it(xdmac, channel->id, -1);
 
 	/* Disable the given dma channel */
