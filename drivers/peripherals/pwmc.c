@@ -155,14 +155,14 @@ uint32_t pwmc_get_it_status2(Pwm *pwm)
 
 void pwmc_configure_channel(Pwm *pwm, uint8_t channel, uint32_t mode)
 {
-	assert(channel < PWMCH_NUM_NUMBER);
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
 
 	trace_debug("pwm: set channel %u with mode 0x%08x\n\r", \
 			(unsigned)channel, (unsigned)mode);
 
 #ifdef PWM_CMUPD0_CPOLUP
 	if ((pwm->PWM_SR & (1 << channel)) == 0)
-		pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+		pwm->PWM_CH[channel].PWM_CMR = mode;
 	else {
 		switch (channel) {
 			case 0:
@@ -181,33 +181,36 @@ void pwmc_configure_channel(Pwm *pwm, uint8_t channel, uint32_t mode)
 		}
 	}
 #else
-	pwm->PWM_CH_NUM[channel].PWM_CMR = mode;
+	pwm->PWM_CH[channel].PWM_CMR = mode;
 #endif
 }
 
 void pwmc_set_period(Pwm *pwm, uint8_t channel, uint16_t period)
 {
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
+
 	/* If channel is disabled, write to CPRD */
 	if ((pwm->PWM_SR & (1 << channel)) == 0) {
-		pwm->PWM_CH_NUM[channel].PWM_CPRD = period;
+		pwm->PWM_CH[channel].PWM_CPRD = period;
 	}
 	/* Otherwise use update register */
 	else {
-		pwm->PWM_CH_NUM[channel].PWM_CPRDUPD = period;
+		pwm->PWM_CH[channel].PWM_CPRDUPD = period;
 	}
 }
 
 void pwmc_set_duty_cycle(Pwm *pwm, uint8_t channel, uint16_t duty)
 {
-	assert(pwm->PWM_CH_NUM[channel].PWM_CPRD >= duty);
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
+	assert(pwm->PWM_CH[channel].PWM_CPRD >= duty);
 
 	/* If channel is disabled, write to CDTY */
 	if ((pwm->PWM_SR & (1 << channel)) == 0) {
-		pwm->PWM_CH_NUM[channel].PWM_CDTY = duty;
+		pwm->PWM_CH[channel].PWM_CDTY = duty;
 	}
 	/* Otherwise use update register */
 	else {
-		pwm->PWM_CH_NUM[channel].PWM_CDTYUPD = duty;
+		pwm->PWM_CH[channel].PWM_CDTYUPD = duty;
 	}
 }
 
@@ -329,6 +332,8 @@ void pwmc_output_override(Pwm *pwm, uint8_t channel,
 	volatile uint32_t tmp;
 	uint32_t mask;
 
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
+
 	trace_debug("pwm: CH%u PWM%c output overridden to %u\n\r",
 			(unsigned)channel, (0 != is_pwmh) ? 'H' : 'L', (unsigned)level);
 
@@ -357,6 +362,8 @@ void pwmc_disable_output_override(Pwm *pwm, uint8_t channel,
 {
 	uint32_t mask;
 
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
+
 	trace_debug("pwm: CH%u PWM%c output override disabled\n\r",
 			(unsigned)channel, (0 != is_pwmh) ? 'H' : 'L');
 
@@ -378,12 +385,14 @@ void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 {
 	uint32_t dead_time;
 
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
+
 	trace_debug("pwm: CH%u output dead time H: %u, L: %u\n\r",
 			(unsigned)channel, (unsigned)time_h, (unsigned)time_l);
 
 #ifndef NDEBUG
-	uint32_t pwm_cprd = pwm->PWM_CH_NUM[channel].PWM_CPRD;
-	uint32_t pwm_cdty = pwm->PWM_CH_NUM[channel].PWM_CDTY;
+	uint32_t pwm_cprd = pwm->PWM_CH[channel].PWM_CPRD;
+	uint32_t pwm_cdty = pwm->PWM_CH[channel].PWM_CDTY;
 	assert(pwm_cprd - pwm_cdty >= time_h);
 	assert(pwm_cdty >= time_l);
 #endif
@@ -392,10 +401,10 @@ void pwmc_output_dead_time(Pwm *pwm, uint8_t channel,
 
 	/* If channel is disabled, write to DT */
 	if ((pwm->PWM_SR & (1 << channel)) == 0)
-		pwm->PWM_CH_NUM[channel].PWM_DT = dead_time;
+		pwm->PWM_CH[channel].PWM_DT = dead_time;
 	/* Otherwise use update register */
 	else
-		pwm->PWM_CH_NUM[channel].PWM_DTUPD = dead_time;
+		pwm->PWM_CH[channel].PWM_DTUPD = dead_time;
 }
 
 void pwmc_set_fault_mode(Pwm *pwm, uint32_t mode)
@@ -431,7 +440,7 @@ void pwmc_enable_fault_protection(Pwm *pwm, uint8_t channel,
 		uint8_t fault_inputs)
 {
 	volatile uint32_t tmp;
-	assert(channel < PWMCH_NUM_NUMBER);
+	assert(channel < ARRAY_SIZE(pwm->PWM_CH));
 	tmp = pwm->PWM_FPE;
 	tmp &= ~(PWM_FPE_FPE0_Msk << (8 * channel));
 	pwm->PWM_FPE = tmp | ((uint32_t)fault_inputs << (8 * channel));
