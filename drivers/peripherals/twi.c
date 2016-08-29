@@ -357,7 +357,7 @@ uint8_t twi_fifo_write(Twi *twi, uint8_t *data, uint8_t size)
 	uint8_t i;
 
 	assert(twi != NULL);
-	
+
 	for (i = 0 ; i < size ; ) {
 		if ((size - i) >= 4) {
 			writew(&twi->TWI_THR,  *(uint32_t*)&data[i]);
@@ -379,7 +379,7 @@ uint8_t twi_fifo_read(Twi *twi, uint8_t *data, uint8_t size)
 	uint8_t i;
 
 	assert(twi != NULL);
-	
+
 	for (i = 0 ; i < size ; ) {
 		if ((size - i) >= 4) {
 			readw(&twi->TWI_RHR, (uint32_t*)&data[i]);
