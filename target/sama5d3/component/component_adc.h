@@ -31,45 +31,45 @@
 #define _SAMA5D3_ADC_COMPONENT_
 
 /* ============================================================================= */
-/**  SOFTWARE API DEFINITION FOR Analog-to-digital Converter */
+/**  SOFTWARE API DEFINITION FOR Analog-to-Digital Converter */
 /* ============================================================================= */
-/** \addtogroup SAMA5D3_ADC Analog-to-digital Converter */
+/** \addtogroup SAMA5D3_ADC Analog-to-Digital Converter */
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Adc hardware registers */
 typedef struct {
-  __O   uint32_t ADC_CR;       /**< \brief (Adc Offset: 0x00) Control Register */
-  __IO  uint32_t ADC_MR;       /**< \brief (Adc Offset: 0x04) Mode Register */
-  __IO  uint32_t ADC_SEQR1;    /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
-  __IO  uint32_t ADC_SEQR2;    /**< \brief (Adc Offset: 0x0C) Channel Sequence Register 2 */
-  __O   uint32_t ADC_CHER;     /**< \brief (Adc Offset: 0x10) Channel Enable Register */
-  __O   uint32_t ADC_CHDR;     /**< \brief (Adc Offset: 0x14) Channel Disable Register */
-  __I   uint32_t ADC_CHSR;     /**< \brief (Adc Offset: 0x18) Channel Status Register */
-  __I   uint32_t Reserved1[1];
-  __I   uint32_t ADC_LCDR;     /**< \brief (Adc Offset: 0x20) Last Converted Data Register */
-  __O   uint32_t ADC_IER;      /**< \brief (Adc Offset: 0x24) Interrupt Enable Register */
-  __O   uint32_t ADC_IDR;      /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
-  __I   uint32_t ADC_IMR;      /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
-  __I   uint32_t ADC_ISR;      /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
-  __I   uint32_t Reserved2[2];
-  __I   uint32_t ADC_OVER;     /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
-  __IO  uint32_t ADC_EMR;      /**< \brief (Adc Offset: 0x40) Extended Mode Register */
-  __IO  uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
-  __IO  uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
-  __IO  uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
-  __I   uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Register */
-  __I   uint32_t Reserved3[5];
-  __IO  uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
-  __I   uint32_t Reserved4[6];
-  __IO  uint32_t ADC_TSMR;     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
-  __I   uint32_t ADC_XPOSR;    /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
-  __I   uint32_t ADC_YPOSR;    /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
-  __I   uint32_t ADC_PRESSR;   /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
-  __IO  uint32_t ADC_TRGR;     /**< \brief (Adc Offset: 0xC0) Trigger Register */
-  __I   uint32_t Reserved5[8];
-  __IO  uint32_t ADC_WPMR;     /**< \brief (Adc Offset: 0xE4) Write Protect Mode Register */
-  __I   uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protect Status Register */
+	__O  uint32_t ADC_CR;       /**< \brief (Adc Offset: 0x00) Control Register */
+	__IO uint32_t ADC_MR;       /**< \brief (Adc Offset: 0x04) Mode Register */
+	__IO uint32_t ADC_SEQR1;    /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
+	__IO uint32_t ADC_SEQR2;    /**< \brief (Adc Offset: 0x0C) Channel Sequence Register 2 */
+	__O  uint32_t ADC_CHER;     /**< \brief (Adc Offset: 0x10) Channel Enable Register */
+	__O  uint32_t ADC_CHDR;     /**< \brief (Adc Offset: 0x14) Channel Disable Register */
+	__I  uint32_t ADC_CHSR;     /**< \brief (Adc Offset: 0x18) Channel Status Register */
+	__I  uint32_t Reserved1[1];
+	__I  uint32_t ADC_LCDR;     /**< \brief (Adc Offset: 0x20) Last Converted Data Register */
+	__O  uint32_t ADC_IER;      /**< \brief (Adc Offset: 0x24) Interrupt Enable Register */
+	__O  uint32_t ADC_IDR;      /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
+	__I  uint32_t ADC_IMR;      /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
+	__I  uint32_t ADC_ISR;      /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
+	__I  uint32_t Reserved2[2];
+	__I  uint32_t ADC_OVER;     /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
+	__IO uint32_t ADC_EMR;      /**< \brief (Adc Offset: 0x40) Extended Mode Register */
+	__IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
+	__IO uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
+	__IO uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
+	__I  uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Registers */
+	__I  uint32_t Reserved3[5];
+	__IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
+	__I  uint32_t Reserved4[6];
+	__IO uint32_t ADC_TSMR;     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
+	__I  uint32_t ADC_XPOSR;    /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
+	__I  uint32_t ADC_YPOSR;    /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
+	__I  uint32_t ADC_PRESSR;   /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
+	__IO uint32_t ADC_TRGR;     /**< \brief (Adc Offset: 0xC0) Trigger Register */
+	__I  uint32_t Reserved5[8];
+	__IO uint32_t ADC_WPMR;     /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
 } Adc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ADC_CR : (ADC Offset: 0x00) Control Register -------- */
@@ -80,6 +80,7 @@ typedef struct {
 /* -------- ADC_MR : (ADC Offset: 0x04) Mode Register -------- */
 #define ADC_MR_TRGSEL_Pos 1
 #define ADC_MR_TRGSEL_Msk (0x7u << ADC_MR_TRGSEL_Pos) /**< \brief (ADC_MR) Trigger Selection */
+#define ADC_MR_TRGSEL(value) ((ADC_MR_TRGSEL_Msk & ((value) << ADC_MR_TRGSEL_Pos)))
 #define   ADC_MR_TRGSEL_ADC_TRIG0 (0x0u << 1) /**< \brief (ADC_MR) ADTRG */
 #define   ADC_MR_TRGSEL_ADC_TRIG1 (0x1u << 1) /**< \brief (ADC_MR) TIOA0 */
 #define   ADC_MR_TRGSEL_ADC_TRIG2 (0x2u << 1) /**< \brief (ADC_MR) TIOA1 */
@@ -93,13 +94,13 @@ typedef struct {
 #define   ADC_MR_SLEEP_NORMAL (0x0u << 5) /**< \brief (ADC_MR) Normal Mode: The ADC Core and reference voltage circuitry are kept ON between conversions */
 #define   ADC_MR_SLEEP_SLEEP (0x1u << 5) /**< \brief (ADC_MR) Sleep Mode: The ADC Core and reference voltage circuitry are OFF between conversions */
 #define ADC_MR_FWUP (0x1u << 6) /**< \brief (ADC_MR) Fast Wake Up */
-#define   ADC_MR_FWUP_OFF (0x0u << 6) /**< \brief (ADC_MR) Normal Sleep Mode: The sleep mode is defined by the SLEEP bit */
-#define   ADC_MR_FWUP_ON (0x1u << 6) /**< \brief (ADC_MR) Fast Wake Up Sleep Mode: The Voltage reference is ON between conversions and ADC Core is OFF */
+#define   ADC_MR_FWUP_OFF (0x0u << 6) /**< \brief (ADC_MR) Normal Sleep Mode */
+#define   ADC_MR_FWUP_ON (0x1u << 6) /**< \brief (ADC_MR) Fast Wake-up Sleep Mode */
 #define ADC_MR_PRESCAL_Pos 8
 #define ADC_MR_PRESCAL_Msk (0xffu << ADC_MR_PRESCAL_Pos) /**< \brief (ADC_MR) Prescaler Rate Selection */
 #define ADC_MR_PRESCAL(value) ((ADC_MR_PRESCAL_Msk & ((value) << ADC_MR_PRESCAL_Pos)))
 #define ADC_MR_STARTUP_Pos 16
-#define ADC_MR_STARTUP_Msk (0xfu << ADC_MR_STARTUP_Pos) /**< \brief (ADC_MR) Start Up Time */
+#define ADC_MR_STARTUP_Msk (0xfu << ADC_MR_STARTUP_Pos) /**< \brief (ADC_MR) Startup Time */
 #define ADC_MR_STARTUP(value) ((ADC_MR_STARTUP_Msk & ((value) << ADC_MR_STARTUP_Pos)))
 #define   ADC_MR_STARTUP_SUT0 (0x0u << 16) /**< \brief (ADC_MR) 0 periods of ADCClock */
 #define   ADC_MR_STARTUP_SUT8 (0x1u << 16) /**< \brief (ADC_MR) 8 periods of ADCClock */
@@ -134,8 +135,8 @@ typedef struct {
 #define ADC_MR_TRANSFER_Msk (0x3u << ADC_MR_TRANSFER_Pos) /**< \brief (ADC_MR) Hold Time */
 #define ADC_MR_TRANSFER(value) ((ADC_MR_TRANSFER_Msk & ((value) << ADC_MR_TRANSFER_Pos)))
 #define ADC_MR_USEQ (0x1u << 31) /**< \brief (ADC_MR) Use Sequence Enable */
-#define   ADC_MR_USEQ_NUM_ORDER (0x0u << 31) /**< \brief (ADC_MR) Normal Mode: The controller converts channels in a simple numeric order depending only on the channel index. */
-#define   ADC_MR_USEQ_REG_ORDER (0x1u << 31) /**< \brief (ADC_MR) User Sequence Mode: The sequence respects what is defined in ADC_SEQR1 and ADC_SEQR2 registers and can be used to convert several times the same channel. */
+#define   ADC_MR_USEQ_NUM_ORDER (0x0u << 31) /**< \brief (ADC_MR) Normal Mode */
+#define   ADC_MR_USEQ_REG_ORDER (0x1u << 31) /**< \brief (ADC_MR) User Sequence Mode */
 /* -------- ADC_SEQR1 : (ADC Offset: 0x08) Channel Sequence Register 1 -------- */
 #define ADC_SEQR1_USCH1_Pos 0
 #define ADC_SEQR1_USCH1_Msk (0xfu << ADC_SEQR1_USCH1_Pos) /**< \brief (ADC_SEQR1) User Sequence Number 1 */
@@ -171,21 +172,6 @@ typedef struct {
 #define ADC_SEQR2_USCH11_Pos 8
 #define ADC_SEQR2_USCH11_Msk (0xfu << ADC_SEQR2_USCH11_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 11 */
 #define ADC_SEQR2_USCH11(value) ((ADC_SEQR2_USCH11_Msk & ((value) << ADC_SEQR2_USCH11_Pos)))
-#define ADC_SEQR2_USCH12_Pos 12
-#define ADC_SEQR2_USCH12_Msk (0xfu << ADC_SEQR2_USCH12_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 12 */
-#define ADC_SEQR2_USCH12(value) ((ADC_SEQR2_USCH12_Msk & ((value) << ADC_SEQR2_USCH12_Pos)))
-#define ADC_SEQR2_USCH13_Pos 16
-#define ADC_SEQR2_USCH13_Msk (0xfu << ADC_SEQR2_USCH13_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 13 */
-#define ADC_SEQR2_USCH13(value) ((ADC_SEQR2_USCH13_Msk & ((value) << ADC_SEQR2_USCH13_Pos)))
-#define ADC_SEQR2_USCH14_Pos 20
-#define ADC_SEQR2_USCH14_Msk (0xfu << ADC_SEQR2_USCH14_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 14 */
-#define ADC_SEQR2_USCH14(value) ((ADC_SEQR2_USCH14_Msk & ((value) << ADC_SEQR2_USCH14_Pos)))
-#define ADC_SEQR2_USCH15_Pos 24
-#define ADC_SEQR2_USCH15_Msk (0xfu << ADC_SEQR2_USCH15_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 15 */
-#define ADC_SEQR2_USCH15(value) ((ADC_SEQR2_USCH15_Msk & ((value) << ADC_SEQR2_USCH15_Pos)))
-#define ADC_SEQR2_USCH16_Pos 28
-#define ADC_SEQR2_USCH16_Msk (0xfu << ADC_SEQR2_USCH16_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 16 */
-#define ADC_SEQR2_USCH16(value) ((ADC_SEQR2_USCH16_Msk & ((value) << ADC_SEQR2_USCH16_Pos)))
 /* -------- ADC_CHER : (ADC Offset: 0x10) Channel Enable Register -------- */
 #define ADC_CHER_CH0 (0x1u << 0) /**< \brief (ADC_CHER) Channel 0 Enable */
 #define ADC_CHER_CH1 (0x1u << 1) /**< \brief (ADC_CHER) Channel 1 Enable */
@@ -315,10 +301,10 @@ typedef struct {
 #define ADC_ISR_EOCAL (0x1u << 23) /**< \brief (ADC_ISR) End of Calibration Sequence */
 #define ADC_ISR_DRDY (0x1u << 24) /**< \brief (ADC_ISR) Data Ready */
 #define ADC_ISR_GOVRE (0x1u << 25) /**< \brief (ADC_ISR) General Overrun Error */
-#define ADC_ISR_COMPE (0x1u << 26) /**< \brief (ADC_ISR) Comparison Error */
+#define ADC_ISR_COMPE (0x1u << 26) /**< \brief (ADC_ISR) Comparison Event */
 #define ADC_ISR_PEN (0x1u << 29) /**< \brief (ADC_ISR) Pen contact */
-#define ADC_ISR_NOPEN (0x1u << 30) /**< \brief (ADC_ISR) No Pen contact */
-#define ADC_ISR_PENS (0x1u << 31) /**< \brief (ADC_ISR) Pen detect Status */
+#define ADC_ISR_NOPEN (0x1u << 30) /**< \brief (ADC_ISR) No Pen Contact */
+#define ADC_ISR_PENS (0x1u << 31) /**< \brief (ADC_ISR) Pen Detect Status */
 /* -------- ADC_OVER : (ADC Offset: 0x3C) Overrun Status Register -------- */
 #define ADC_OVER_OVRE0 (0x1u << 0) /**< \brief (ADC_OVER) Overrun Error 0 */
 #define ADC_OVER_OVRE1 (0x1u << 1) /**< \brief (ADC_OVER) Overrun Error 1 */
@@ -335,6 +321,7 @@ typedef struct {
 /* -------- ADC_EMR : (ADC Offset: 0x40) Extended Mode Register -------- */
 #define ADC_EMR_CMPMODE_Pos 0
 #define ADC_EMR_CMPMODE_Msk (0x3u << ADC_EMR_CMPMODE_Pos) /**< \brief (ADC_EMR) Comparison Mode */
+#define ADC_EMR_CMPMODE(value) ((ADC_EMR_CMPMODE_Msk & ((value) << ADC_EMR_CMPMODE_Pos)))
 #define   ADC_EMR_CMPMODE_LOW (0x0u << 0) /**< \brief (ADC_EMR) Generates an event when the converted data is lower than the low threshold of the window. */
 #define   ADC_EMR_CMPMODE_HIGH (0x1u << 0) /**< \brief (ADC_EMR) Generates an event when the converted data is higher than the high threshold of the window. */
 #define   ADC_EMR_CMPMODE_IN (0x2u << 0) /**< \brief (ADC_EMR) Generates an event when the converted data is in the comparison window. */
@@ -346,7 +333,7 @@ typedef struct {
 #define ADC_EMR_CMPFILTER_Pos 12
 #define ADC_EMR_CMPFILTER_Msk (0x3u << ADC_EMR_CMPFILTER_Pos) /**< \brief (ADC_EMR) Compare Event Filtering */
 #define ADC_EMR_CMPFILTER(value) ((ADC_EMR_CMPFILTER_Msk & ((value) << ADC_EMR_CMPFILTER_Pos)))
-#define ADC_EMR_TAG (0x1u << 24) /**< \brief (ADC_EMR) TAG of the ADC_LDCR register */
+#define ADC_EMR_TAG (0x1u << 24) /**< \brief (ADC_EMR) Tag of the ADC_LCDR register */
 /* -------- ADC_CWR : (ADC Offset: 0x44) Compare Window Register -------- */
 #define ADC_CWR_LOWTHRES_Pos 0
 #define ADC_CWR_LOWTHRES_Msk (0xfffu << ADC_CWR_LOWTHRES_Pos) /**< \brief (ADC_CWR) Low Threshold */
@@ -358,39 +345,87 @@ typedef struct {
 #define ADC_CGR_GAIN0_Pos 0
 #define ADC_CGR_GAIN0_Msk (0x3u << ADC_CGR_GAIN0_Pos) /**< \brief (ADC_CGR) Gain for channel 0 */
 #define ADC_CGR_GAIN0(value) ((ADC_CGR_GAIN0_Msk & ((value) << ADC_CGR_GAIN0_Pos)))
+#define   ADC_CGR_GAIN0_SE1_DIFF0_5 (0x0u << 0) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN0_SE1_DIFF1 (0x1u << 0) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN0_SE2_DIFF2 (0x2u << 0) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN0_SE4_DIFF2 (0x3u << 0) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN1_Pos 2
 #define ADC_CGR_GAIN1_Msk (0x3u << ADC_CGR_GAIN1_Pos) /**< \brief (ADC_CGR) Gain for channel 1 */
 #define ADC_CGR_GAIN1(value) ((ADC_CGR_GAIN1_Msk & ((value) << ADC_CGR_GAIN1_Pos)))
+#define   ADC_CGR_GAIN1_SE1_DIFF0_5 (0x0u << 2) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN1_SE1_DIFF1 (0x1u << 2) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN1_SE2_DIFF2 (0x2u << 2) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN1_SE4_DIFF2 (0x3u << 2) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN2_Pos 4
 #define ADC_CGR_GAIN2_Msk (0x3u << ADC_CGR_GAIN2_Pos) /**< \brief (ADC_CGR) Gain for channel 2 */
 #define ADC_CGR_GAIN2(value) ((ADC_CGR_GAIN2_Msk & ((value) << ADC_CGR_GAIN2_Pos)))
+#define   ADC_CGR_GAIN2_SE1_DIFF0_5 (0x0u << 4) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN2_SE1_DIFF1 (0x1u << 4) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN2_SE2_DIFF2 (0x2u << 4) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN2_SE4_DIFF2 (0x3u << 4) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN3_Pos 6
 #define ADC_CGR_GAIN3_Msk (0x3u << ADC_CGR_GAIN3_Pos) /**< \brief (ADC_CGR) Gain for channel 3 */
 #define ADC_CGR_GAIN3(value) ((ADC_CGR_GAIN3_Msk & ((value) << ADC_CGR_GAIN3_Pos)))
+#define   ADC_CGR_GAIN3_SE1_DIFF0_5 (0x0u << 6) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN3_SE1_DIFF1 (0x1u << 6) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN3_SE2_DIFF2 (0x2u << 6) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN3_SE4_DIFF2 (0x3u << 6) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN4_Pos 8
 #define ADC_CGR_GAIN4_Msk (0x3u << ADC_CGR_GAIN4_Pos) /**< \brief (ADC_CGR) Gain for channel 4 */
 #define ADC_CGR_GAIN4(value) ((ADC_CGR_GAIN4_Msk & ((value) << ADC_CGR_GAIN4_Pos)))
+#define   ADC_CGR_GAIN4_SE1_DIFF0_5 (0x0u << 8) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN4_SE1_DIFF1 (0x1u << 8) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN4_SE2_DIFF2 (0x2u << 8) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN4_SE4_DIFF2 (0x3u << 8) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN5_Pos 10
 #define ADC_CGR_GAIN5_Msk (0x3u << ADC_CGR_GAIN5_Pos) /**< \brief (ADC_CGR) Gain for channel 5 */
 #define ADC_CGR_GAIN5(value) ((ADC_CGR_GAIN5_Msk & ((value) << ADC_CGR_GAIN5_Pos)))
+#define   ADC_CGR_GAIN5_SE1_DIFF0_5 (0x0u << 10) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN5_SE1_DIFF1 (0x1u << 10) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN5_SE2_DIFF2 (0x2u << 10) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN5_SE4_DIFF2 (0x3u << 10) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN6_Pos 12
 #define ADC_CGR_GAIN6_Msk (0x3u << ADC_CGR_GAIN6_Pos) /**< \brief (ADC_CGR) Gain for channel 6 */
 #define ADC_CGR_GAIN6(value) ((ADC_CGR_GAIN6_Msk & ((value) << ADC_CGR_GAIN6_Pos)))
+#define   ADC_CGR_GAIN6_SE1_DIFF0_5 (0x0u << 12) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN6_SE1_DIFF1 (0x1u << 12) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN6_SE2_DIFF2 (0x2u << 12) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN6_SE4_DIFF2 (0x3u << 12) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN7_Pos 14
 #define ADC_CGR_GAIN7_Msk (0x3u << ADC_CGR_GAIN7_Pos) /**< \brief (ADC_CGR) Gain for channel 7 */
 #define ADC_CGR_GAIN7(value) ((ADC_CGR_GAIN7_Msk & ((value) << ADC_CGR_GAIN7_Pos)))
+#define   ADC_CGR_GAIN7_SE1_DIFF0_5 (0x0u << 14) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN7_SE1_DIFF1 (0x1u << 14) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN7_SE2_DIFF2 (0x2u << 14) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN7_SE4_DIFF2 (0x3u << 14) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN8_Pos 16
 #define ADC_CGR_GAIN8_Msk (0x3u << ADC_CGR_GAIN8_Pos) /**< \brief (ADC_CGR) Gain for channel 8 */
 #define ADC_CGR_GAIN8(value) ((ADC_CGR_GAIN8_Msk & ((value) << ADC_CGR_GAIN8_Pos)))
+#define   ADC_CGR_GAIN8_SE1_DIFF0_5 (0x0u << 16) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN8_SE1_DIFF1 (0x1u << 16) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN8_SE2_DIFF2 (0x2u << 16) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN8_SE4_DIFF2 (0x3u << 16) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN9_Pos 18
 #define ADC_CGR_GAIN9_Msk (0x3u << ADC_CGR_GAIN9_Pos) /**< \brief (ADC_CGR) Gain for channel 9 */
 #define ADC_CGR_GAIN9(value) ((ADC_CGR_GAIN9_Msk & ((value) << ADC_CGR_GAIN9_Pos)))
+#define   ADC_CGR_GAIN9_SE1_DIFF0_5 (0x0u << 18) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN9_SE1_DIFF1 (0x1u << 18) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN9_SE2_DIFF2 (0x2u << 18) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN9_SE4_DIFF2 (0x3u << 18) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN10_Pos 20
 #define ADC_CGR_GAIN10_Msk (0x3u << ADC_CGR_GAIN10_Pos) /**< \brief (ADC_CGR) Gain for channel 10 */
 #define ADC_CGR_GAIN10(value) ((ADC_CGR_GAIN10_Msk & ((value) << ADC_CGR_GAIN10_Pos)))
+#define   ADC_CGR_GAIN10_SE1_DIFF0_5 (0x0u << 20) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN10_SE1_DIFF1 (0x1u << 20) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN10_SE2_DIFF2 (0x2u << 20) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN10_SE4_DIFF2 (0x3u << 20) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 #define ADC_CGR_GAIN11_Pos 22
 #define ADC_CGR_GAIN11_Msk (0x3u << ADC_CGR_GAIN11_Pos) /**< \brief (ADC_CGR) Gain for channel 11 */
 #define ADC_CGR_GAIN11(value) ((ADC_CGR_GAIN11_Msk & ((value) << ADC_CGR_GAIN11_Pos)))
+#define   ADC_CGR_GAIN11_SE1_DIFF0_5 (0x0u << 22) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN11_SE1_DIFF1 (0x1u << 22) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN11_SE2_DIFF2 (0x2u << 22) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
+#define   ADC_CGR_GAIN11_SE4_DIFF2 (0x3u << 22) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 /* -------- ADC_COR : (ADC Offset: 0x4C) Channel Offset Register -------- */
 #define ADC_COR_OFF0 (0x1u << 0) /**< \brief (ADC_COR) Offset for channel 0 */
 #define ADC_COR_OFF1 (0x1u << 1) /**< \brief (ADC_COR) Offset for channel 1 */
@@ -416,7 +451,7 @@ typedef struct {
 #define ADC_COR_DIFF9 (0x1u << 25) /**< \brief (ADC_COR) Differential inputs for channel 9 */
 #define ADC_COR_DIFF10 (0x1u << 26) /**< \brief (ADC_COR) Differential inputs for channel 10 */
 #define ADC_COR_DIFF11 (0x1u << 27) /**< \brief (ADC_COR) Differential inputs for channel 11 */
-/* -------- ADC_CDR[12] : (ADC Offset: 0x50) Channel Data Register -------- */
+/* -------- ADC_CDR[12] : (ADC Offset: 0x50) Channel Data Registers -------- */
 #define ADC_CDR_DATA_Pos 0
 #define ADC_CDR_DATA_Msk (0xfffu << ADC_CDR_DATA_Pos) /**< \brief (ADC_CDR[12]) Converted Data */
 /* -------- ADC_ACR : (ADC Offset: 0x94) Analog Control Register -------- */
@@ -429,12 +464,14 @@ typedef struct {
 /* -------- ADC_TSMR : (ADC Offset: 0xB0) Touchscreen Mode Register -------- */
 #define ADC_TSMR_TSMODE_Pos 0
 #define ADC_TSMR_TSMODE_Msk (0x3u << ADC_TSMR_TSMODE_Pos) /**< \brief (ADC_TSMR) Touchscreen Mode */
+#define ADC_TSMR_TSMODE(value) ((ADC_TSMR_TSMODE_Msk & ((value) << ADC_TSMR_TSMODE_Pos)))
 #define   ADC_TSMR_TSMODE_NONE (0x0u << 0) /**< \brief (ADC_TSMR) No Touchscreen */
 #define   ADC_TSMR_TSMODE_4_WIRE_NO_PM (0x1u << 0) /**< \brief (ADC_TSMR) 4-wire Touchscreen without pressure measurement */
 #define   ADC_TSMR_TSMODE_4_WIRE (0x2u << 0) /**< \brief (ADC_TSMR) 4-wire Touchscreen with pressure measurement */
 #define   ADC_TSMR_TSMODE_5_WIRE (0x3u << 0) /**< \brief (ADC_TSMR) 5-wire Touchscreen */
 #define ADC_TSMR_TSAV_Pos 4
 #define ADC_TSMR_TSAV_Msk (0x3u << ADC_TSMR_TSAV_Pos) /**< \brief (ADC_TSMR) Touchscreen Average */
+#define ADC_TSMR_TSAV(value) ((ADC_TSMR_TSAV_Msk & ((value) << ADC_TSMR_TSAV_Pos)))
 #define   ADC_TSMR_TSAV_NO_FILTER (0x0u << 4) /**< \brief (ADC_TSMR) No Filtering. Only one ADC conversion per measure */
 #define   ADC_TSMR_TSAV_AVG2CONV (0x1u << 4) /**< \brief (ADC_TSMR) Averages 2 ADC conversions */
 #define   ADC_TSMR_TSAV_AVG4CONV (0x2u << 4) /**< \brief (ADC_TSMR) Averages 4 ADC conversions */
@@ -468,27 +505,28 @@ typedef struct {
 /* -------- ADC_TRGR : (ADC Offset: 0xC0) Trigger Register -------- */
 #define ADC_TRGR_TRGMOD_Pos 0
 #define ADC_TRGR_TRGMOD_Msk (0x7u << ADC_TRGR_TRGMOD_Pos) /**< \brief (ADC_TRGR) Trigger Mode */
+#define ADC_TRGR_TRGMOD(value) ((ADC_TRGR_TRGMOD_Msk & ((value) << ADC_TRGR_TRGMOD_Pos)))
 #define   ADC_TRGR_TRGMOD_NO_TRIGGER (0x0u << 0) /**< \brief (ADC_TRGR) No trigger, only software trigger can start conversions */
 #define   ADC_TRGR_TRGMOD_EXT_TRIG_RISE (0x1u << 0) /**< \brief (ADC_TRGR) External Trigger Rising Edge */
 #define   ADC_TRGR_TRGMOD_EXT_TRIG_FALL (0x2u << 0) /**< \brief (ADC_TRGR) External Trigger Falling Edge */
 #define   ADC_TRGR_TRGMOD_EXT_TRIG_ANY (0x3u << 0) /**< \brief (ADC_TRGR) External Trigger Any Edge */
 #define   ADC_TRGR_TRGMOD_PEN_TRIG (0x4u << 0) /**< \brief (ADC_TRGR) Pen Detect Trigger (shall be selected only if PENDET is set and TSAMOD = Touchscreen only mode) */
-#define   ADC_TRGR_TRGMOD_PERIOD_TRIG (0x5u << 0) /**< \brief (ADC_TRGR) Periodic Trigger (TRGPER shall be initiated appropriately) */
+#define   ADC_TRGR_TRGMOD_PERIOD_TRIG (0x5u << 0) /**< \brief (ADC_TRGR) ADC Internal Periodic Trigger (see field TRGPER) */
 #define   ADC_TRGR_TRGMOD_CONTINUOUS (0x6u << 0) /**< \brief (ADC_TRGR) Continuous Mode */
 #define ADC_TRGR_TRGPER_Pos 16
 #define ADC_TRGR_TRGPER_Msk (0xffffu << ADC_TRGR_TRGPER_Pos) /**< \brief (ADC_TRGR) Trigger Period */
 #define ADC_TRGR_TRGPER(value) ((ADC_TRGR_TRGPER_Msk & ((value) << ADC_TRGR_TRGPER_Pos)))
-/* -------- ADC_WPMR : (ADC Offset: 0xE4) Write Protect Mode Register -------- */
-#define ADC_WPMR_WPEN (0x1u << 0) /**< \brief (ADC_WPMR) Write Protect Enable */
+/* -------- ADC_WPMR : (ADC Offset: 0xE4) Write Protection Mode Register -------- */
+#define ADC_WPMR_WPEN (0x1u << 0) /**< \brief (ADC_WPMR) Write Protection Enable */
 #define ADC_WPMR_WPKEY_Pos 8
-#define ADC_WPMR_WPKEY_Msk (0xffffffu << ADC_WPMR_WPKEY_Pos) /**< \brief (ADC_WPMR) Write Protect KEY */
+#define ADC_WPMR_WPKEY_Msk (0xffffffu << ADC_WPMR_WPKEY_Pos) /**< \brief (ADC_WPMR) Write Protection Key */
 #define ADC_WPMR_WPKEY(value) ((ADC_WPMR_WPKEY_Msk & ((value) << ADC_WPMR_WPKEY_Pos)))
-/* -------- ADC_WPSR : (ADC Offset: 0xE8) Write Protect Status Register -------- */
-#define ADC_WPSR_WPVS (0x1u << 0) /**< \brief (ADC_WPSR) Write Protect Violation Status */
+#define   ADC_WPMR_WPKEY_PASSWD (0x414443u << 8) /**< \brief (ADC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0 */
+/* -------- ADC_WPSR : (ADC Offset: 0xE8) Write Protection Status Register -------- */
+#define ADC_WPSR_WPVS (0x1u << 0) /**< \brief (ADC_WPSR) Write Protection Violation Status */
 #define ADC_WPSR_WPVSRC_Pos 8
-#define ADC_WPSR_WPVSRC_Msk (0xffffu << ADC_WPSR_WPVSRC_Pos) /**< \brief (ADC_WPSR) Write Protect Violation Source */
+#define ADC_WPSR_WPVSRC_Msk (0xffffu << ADC_WPSR_WPVSRC_Pos) /**< \brief (ADC_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_ADC_COMPONENT_ */
