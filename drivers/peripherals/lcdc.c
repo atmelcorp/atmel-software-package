@@ -303,7 +303,7 @@ static void _clear_dma_desc(struct _lcdc_dma_desc *desc,
  */
 static uint32_t _calc_scale_factor(uint32_t target_width, uint32_t width)
 {
-	return 2048 * (width + 1) / (target_width + 1);
+	return LCDC_SCALER_FACTOR * width / target_width;
 }
 
 /**
