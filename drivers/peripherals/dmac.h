@@ -87,6 +87,9 @@
 /** Max DMA single transfer size */
 #define DMAC_MAX_BT_SIZE 0xFFFF
 
+/** Max DMA length of the block  */
+#define DMAC_MAX_BLOCK_LEN 0xFFFF
+
 /**     @}*/
 
 /*----------------------------------------------------------------------------

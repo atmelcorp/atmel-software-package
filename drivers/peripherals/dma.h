@@ -53,14 +53,12 @@
 #define DMA_PERIPH_MEMORY  0xFF
 
 #ifdef CONFIG_HAVE_XDMAC
-/* Max DMA single transfer size */
 #define DMA_MAX_BT_SIZE    XDMAC_MAX_BT_SIZE
 #define DMA_MAX_BLOCK_LEN  XDMAC_MAX_BLOCK_LEN
 
 #elif defined(CONFIG_HAVE_DMAC)
-/* Max DMA single transfer size */
 #define DMA_MAX_BT_SIZE    DMAC_MAX_BT_SIZE
-#define DMA_MAX_BLOCK_LEN  0xFFFF
+#define DMA_MAX_BLOCK_LEN  DMAC_MAX_BLOCK_LEN
 #endif
 
 #define DMA_DATA_WIDTH_BYTE        0
