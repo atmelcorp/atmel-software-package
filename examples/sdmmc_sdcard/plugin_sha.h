@@ -33,6 +33,8 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifdef CONFIG_HAVE_SHA
+
 #ifndef _SHA_PLUG_IN_
 #define _SHA_PLUG_IN_
 
@@ -111,4 +113,7 @@ extern void sha_plugin_feed(struct sha_set *set, bool open, bool close,
  */
 extern void sha_plugin_get_hash(struct sha_set *set, uint32_t hash[5]);
 
-#endif
+#endif /* !_SHA_PLUG_IN_ */
+
+#endif /* CONFIG_HAVE_SHA */
+

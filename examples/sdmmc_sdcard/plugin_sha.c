@@ -27,6 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifdef CONFIG_HAVE_SHA
+
 #include <stdint.h>
 
 #include "chip.h"
@@ -359,3 +361,6 @@ void sha_plugin_get_hash(struct sha_set *set, uint32_t hash[5])
 		hash[ix] = val << 16 | val >> 16;
 	}
 }
+
+#endif /* CONFIG_HAVE_SHA */
+

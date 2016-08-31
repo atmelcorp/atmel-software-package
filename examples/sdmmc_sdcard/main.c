@@ -235,6 +235,7 @@ static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
 NOT_CACHED_DDR static FATFS fs_header;
 NOT_CACHED_DDR static FIL f_header;
 
+#ifdef CONFIG_HAVE_SHA
 #if USE_EXT_RAM
 CACHE_ALIGNED_DDR
 #else
@@ -256,6 +257,7 @@ static struct sha_set sha = {
 	.dma_polling = false,
 	.dma_unlocks_mutex = 0,
 };
+#endif
 static uint8_t slot;
 static bool use_dma;
 
@@ -306,7 +308,7 @@ static void initialize(void)
 	/* As long as we do not transfer from/to the two peripherals at the same
 	 * time, we can have the two instances sharing a single DMA buffer. */
 
-#ifdef CONFIG_HAVE_SDMMC
+#if defined(CONFIG_HAVE_SDMMC)
 	sdmmc_initialize(&drv0, HOST0_ID,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
@@ -324,7 +326,10 @@ static void initialize(void)
 #endif
 	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
+
+#ifdef CONFIG_HAVE_SHA
 	sha_plugin_initialize(&sha, use_dma);
+#endif
 }
 
 static bool open_device(sSdCard *pSd)
@@ -421,7 +426,9 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 {
 	const TCHAR drive_path[] = { '0' + slot_ix, ':', '\0' };
 	const UINT buf_size = BLOCK_CNT_MAX * 512ul;
+#ifdef CONFIG_HAVE_SHA
 	uint32_t hash[5] = { 0 };
+#endif
 	TCHAR file_path[sizeof(drive_path) + sizeof(test_file_path)];
 	uint32_t file_size;
 	UINT len;
@@ -446,20 +453,23 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 		res = f_read(&f_header, data_buf, buf_size, &len);
 		if (res == FR_OK) {
 			cache_clean_region(data_buf, len);
+#ifdef CONFIG_HAVE_SHA
 			sha_plugin_feed(&sha, file_size == 0, len != buf_size,
 			    data_buf, len);
+#endif
 		}
 		else
 			printf("Error %d while attempting to read file\n\r",
 				res);
 	}
+#ifdef CONFIG_HAVE_SHA
 	if (res == FR_OK) {
 		sha_plugin_get_hash(&sha, hash);
 		printf("Read %lu bytes. Their SHA-1 was %08lx%08lx%08lx%08lx"
 		    "%08lx.\n\r", file_size, hash[0], hash[1], hash[2], hash[3],
 		    hash[4]);
 	}
-
+#endif
 	res = f_close(&f_header);
 	if (res != FR_OK) {
 		trace_error("Failed to close file, error %d\n\r", res);
