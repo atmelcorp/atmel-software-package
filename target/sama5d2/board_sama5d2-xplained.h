@@ -161,10 +161,12 @@
 #define BOARD_TWI_BUS0      TWI4
 #define BOARD_TWI_BUS0_FREQ 400000
 #define BOARD_TWI_BUS0_PINS PINS_FLEXCOM4_TWI_IOS3
+#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
 
-#define BOARD_TWI_BUS1      ((Twi*)TWIHS1)
+#define BOARD_TWI_BUS1      TWIHS1
 #define BOARD_TWI_BUS1_FREQ 400000
 #define BOARD_TWI_BUS1_PINS PINS_TWI1_IOS2
+#define BOARD_TWI_BUS1_MODE TWID_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
