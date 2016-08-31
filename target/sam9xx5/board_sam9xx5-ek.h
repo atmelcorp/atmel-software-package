@@ -143,6 +143,37 @@
 #define BOARD_USB_BMATTRIBUTES \
 	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
 
+/* =================== HSMCI device definition ==================== */
+
+/** HSMCI0 power control: none, always powered on */
+
+/** HSMCI0 Card detect pin definition */
+#define BOARD_HSMCI0_PIN_CD \
+	{ PIO_GROUP_D, PIO_PD15, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI0 device interface pin set definition */
+#define BOARD_HSMCI0_DEV_PINS \
+	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA }
+
+/** HSMCI0 pin set definition */
+#define BOARD_HSMCI0_PINS \
+	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA, BOARD_HSMCI0_PIN_CD }
+
+/** HSMCI0 slot definition */
+#define BOARD_HSMCI0_SLOT HSMCI_SDCR_SDCSEL_SLOTA
+
+/** HSMCI1 Card detect pin definition */
+#define BOARD_HSMCI1_PIN_CD \
+	{ PIO_GROUP_D, PIO_PD14, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI1 device interface pin set definition */
+#define BOARD_HSMCI1_DEV_PINS \
+	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA }
+
+/** HSMCI1 pin set definition */
+#define BOARD_HSMCI1_PINS \
+	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
+
 /* =================== EMAC0/PHY definition =================== */
 
 #define EMAC0_ADDR        EMAC0

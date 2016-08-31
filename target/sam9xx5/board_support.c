@@ -429,6 +429,61 @@ void board_cfg_nand_flash(void)
 }
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
+
+bool board_cfg_sdmmc(uint32_t periph_id)
+{
+	switch (periph_id) {
+	case ID_HSMCI0:
+	{
+#ifdef BOARD_HSMCI0_PINS
+		const struct _pin pins[] = BOARD_HSMCI0_PINS;
+
+		/* Configure HSMCI0 pins */
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
+#else
+		trace_fatal("Target board misses HSMCI0 pins");
+#endif
+	}
+	case ID_HSMCI1:
+	{
+#ifdef BOARD_HSMCI1_PINS
+		const struct _pin pins[] = BOARD_HSMCI1_PINS;
+
+		/* Configure HSMCI1 pins */
+		pio_configure(pins, ARRAY_SIZE(pins));
+		return true;
+#else
+		trace_fatal("Target board misses HSMCI1 pins");
+#endif
+	}
+	default:
+		return false;
+	}
+}
+
+bool board_is_sdmmc_inserted(uint32_t periph_id)
+{
+	const struct _pin *cd_input = NULL;
+#ifdef BOARD_HSMCI0_PIN_CD
+	const struct _pin cd0_input = BOARD_HSMCI0_PIN_CD;
+	cd_input = periph_id == ID_HSMCI0 ? &cd0_input : cd_input;
+#endif
+#ifdef BOARD_HSMCI1_PIN_CD
+	const struct _pin cd1_input = BOARD_HSMCI1_PIN_CD;
+	cd_input = periph_id == ID_HSMCI1 ? &cd1_input : cd_input;
+#endif
+
+	if (!cd_input)
+		return false;
+	return true;
+}
+
+bool board_power_sdmmc_device(uint32_t periph_id, bool on)
+{
+	return true;
+}
+
 #ifdef CONFIG_HAVE_ISI
 void board_cfg_isi(void)
 {
