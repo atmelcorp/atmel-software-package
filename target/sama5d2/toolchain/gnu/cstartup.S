@@ -185,7 +185,7 @@ entry:
 	ldr     pc, =resetHandler
 	ldr     pc, =resetHandler
 	ldr     pc, =resetHandler
-	ldr     pc, =resetHandler
+	.word   0
 	ldr     pc, =resetHandler
 	ldr     pc, =resetHandler
 

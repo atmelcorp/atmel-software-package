@@ -224,7 +224,7 @@ irqHandler:
         ldr     pc, =__iar_program_start
         ldr     pc, =__iar_program_start
         ldr     pc, =__iar_program_start
-        ldr     pc, =__iar_program_start
+        DCD     0
         ldr     pc, =__iar_program_start
         ldr     pc, =__iar_program_start
 
