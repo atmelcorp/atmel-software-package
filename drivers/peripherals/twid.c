@@ -493,7 +493,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	if (desc->flags & TWID_BUF_ATTR_STOP)
 		twi_send_stop_condition(addr);
 
-	if ((size == buffer->size - 1) || (size == 0)) {
+	if ((size == (buffer->size - 1)) || (size == 0)) {
 		if (_check_rx_timeout(desc))
 			return TWID_ERROR_TIMEOUT;
 		buffer->data[i] = twi_read_byte(addr);
@@ -560,9 +560,9 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		if (desc->flags & TWID_BUF_ATTR_STOP)
 			twi_send_stop_condition(desc->addr);
 
-	if (size == buffer->size - 1) {
+	if (size == (buffer->size - 1)) {
 		if (_check_tx_timeout(desc))
-			return TWID_TIMEOUT;
+			return TWID_ERROR_TIMEOUT;
 		twi_write_byte(desc->addr, buffer->data[i]);
 	}
 
@@ -678,7 +678,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 			if (_check_tx_timeout(desc)) {
 				twi_disable_it(desc->addr, TWI_IER_TXRDY);
 				aic_disable(id);
-				return TWID_TIMEOUT;
+				return TWID_ERROR_TIMEOUT;
 			}
 
 #ifdef CONFIG_HAVE_TWI_FIFO
@@ -747,10 +747,11 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
 		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ))
 			return TWID_ERROR_DUPLEX;
 
-		if (b == (buffers - 1))
+		if (b == (buffers - 1)) {
 			status = _twid_transfer(desc, &buf[b], cb, user_args);
-		else
+		} else {
 			status = _twid_transfer(desc, &buf[b], NULL, NULL);
+		}
 		if (status)
 			return status;
 		twid_wait_transfer(desc);

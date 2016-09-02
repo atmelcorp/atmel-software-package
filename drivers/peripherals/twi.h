@@ -48,6 +48,7 @@
 /*----------------------------------------------------------------------------
  *        Macros
  *----------------------------------------------------------------------------*/
+
 /* Returns 1 if the TXRDY bit (ready to transmit data) is set in the given status register value.*/
 #define TWI_STATUS_TXRDY(status) ((status & TWI_SR_TXRDY) == TWI_SR_TXRDY)
 
@@ -56,6 +57,21 @@
 
 /* Returns 1 if the TXCOMP bit (transfer complete) is set in the given status register value.*/
 #define TWI_STATUS_TXCOMP(status) ((status & TWI_SR_TXCOMP) == TWI_SR_TXCOMP)
+
+/* Returns 1 if the GACC bit (General Call access) is set in the given status register value.*/
+#define TWI_STATUS_GACC(status) ((status & TWI_SR_GACC) == TWI_SR_GACC)
+
+/* Returns 1 if the SVREAD bit (slave read) is set in the given status register value.*/
+#define TWI_STATUS_SVREAD(status) ((status & TWI_SR_SVREAD) == TWI_SR_SVREAD)
+
+/* Returns 1 if the SVACC bit (slave access) is set in the given status register value.*/
+#define TWI_STATUS_SVACC(status) ((status & TWI_SR_SVACC) == TWI_SR_SVACC)
+
+/* Returns 1 if the EOSACC bit (end of slave access) is set in the given status register value.*/
+#define TWI_STATUS_EOSACC(status) ((status & TWI_SR_EOSACC) == TWI_SR_EOSACC)
+
+/* Returns 1 if the NACK bit (NACK) is set in the given status register value.*/
+#define TWI_STATUS_NACK(status) ((status & TWI_SR_NACK) == TWI_SR_NACK)
 
 #ifdef __cplusplus
 extern "C" {
