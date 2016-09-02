@@ -750,6 +750,11 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
 		if (b == (buffers - 1)) {
 			status = _twid_transfer(desc, &buf[b], cb, user_args);
 		} else {
+#if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAMA5D3)
+			/* workaround for IP versions that do not support manual restart */
+			if (buf[b + 1].attr & TWID_BUF_ATTR_START)
+				buf[b].attr |= TWID_BUF_ATTR_STOP;
+#endif
 			status = _twid_transfer(desc, &buf[b], NULL, NULL);
 		}
 		if (status)
