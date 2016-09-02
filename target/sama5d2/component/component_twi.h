@@ -31,47 +31,46 @@
 #define _SAMA5D2_TWI_COMPONENT_
 
 /* ============================================================================= */
-/**  SOFTWARE API DEFINITION FOR Two-wire Interface High Speed */
+/**  SOFTWARE API DEFINITION FOR Two-wire Interface */
 /* ============================================================================= */
-/** \addtogroup SAMA5D2_TWI Two-wire Interface High Speed */
+/** \addtogroup SAMA5D2_TWI Two-wire Interface */
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Twi hardware registers */
 typedef struct {
-  __O  uint32_t TWI_CR;      /**< \brief (Twi Offset: 0x00) Control Register */
-  __IO uint32_t TWI_MMR;     /**< \brief (Twi Offset: 0x04) Master Mode Register */
-  __IO uint32_t TWI_SMR;     /**< \brief (Twi Offset: 0x08) Slave Mode Register */
-  __IO uint32_t TWI_IADR;    /**< \brief (Twi Offset: 0x0C) Internal Address Register */
-  __IO uint32_t TWI_CWGR;    /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
-  __I  uint32_t Reserved1[3];
-  __I  uint32_t TWI_SR;      /**< \brief (Twi Offset: 0x20) Status Register */
-  __O  uint32_t TWI_IER;     /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
-  __O  uint32_t TWI_IDR;     /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
-  __I  uint32_t TWI_IMR;     /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
-  __I  uint32_t TWI_RHR;     /**< \brief (Twi Offset: 0x30) Receive Holding Register */
-  __O  uint32_t TWI_THR;     /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
-  __IO uint32_t TWI_SMBTR;   /**< \brief (Twi Offset: 0x38) SMBus Timing Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t TWI_ACR;     /**< \brief (Twi Offset: 0x40) Alternative Command Register */
-  __IO uint32_t TWI_FILTR;   /**< \brief (Twi Offset: 0x44) Filter Register */
-  __I  uint32_t Reserved3[1];
-  __IO uint32_t TWI_SWMR;    /**< \brief (Twi Offset: 0x4C) SleepWalking Matching Register */
-  __IO uint32_t TWI_FMR;     /**< \brief (Twi Offset: 0x50) FIFO Mode Register */
-  __I  uint32_t TWI_FLR;     /**< \brief (Twi Offset: 0x54) FIFO Level Register */
-  __I  uint32_t Reserved4[2];
-  __I  uint32_t TWI_FSR;     /**< \brief (Twi Offset: 0x60) FIFO Status Register */
-  __O  uint32_t TWI_FIER;    /**< \brief (Twi Offset: 0x64) FIFO Interrupt Enable Register */
-  __O  uint32_t TWI_FIDR;    /**< \brief (Twi Offset: 0x68) FIFO Interrupt Disable Register */
-  __I  uint32_t TWI_FIMR;    /**< \brief (Twi Offset: 0x6C) FIFO Interrupt Mask Register */
-  __I  uint32_t Reserved5[24];
-  __I  uint32_t TWI_DR;      /**< \brief (Twi Offset: 0xD0) Debug Register */
-  __I  uint32_t Reserved6[4];
-  __IO uint32_t TWI_WPMR;    /**< \brief (Twi Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t TWI_WPSR;    /**< \brief (Twi Offset: 0xE8) Write Protection Status Register */
+	__O  uint32_t TWI_CR;    /**< \brief (Twi Offset: 0x00) Control Register */
+	__IO uint32_t TWI_MMR;   /**< \brief (Twi Offset: 0x04) Master Mode Register */
+	__IO uint32_t TWI_SMR;   /**< \brief (Twi Offset: 0x08) Slave Mode Register */
+	__IO uint32_t TWI_IADR;  /**< \brief (Twi Offset: 0x0C) Internal Address Register */
+	__IO uint32_t TWI_CWGR;  /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
+	__I  uint32_t Reserved1[3];
+	__I  uint32_t TWI_SR;    /**< \brief (Twi Offset: 0x20) Status Register */
+	__O  uint32_t TWI_IER;   /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
+	__O  uint32_t TWI_IDR;   /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
+	__I  uint32_t TWI_IMR;   /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
+	__I  uint32_t TWI_RHR;   /**< \brief (Twi Offset: 0x30) Receive Holding Register */
+	__O  uint32_t TWI_THR;   /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
+	__IO uint32_t TWI_SMBTR; /**< \brief (Twi Offset: 0x38) SMBus Timing Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t TWI_ACR;   /**< \brief (Twi Offset: 0x40) Alternative Command Register */
+	__IO uint32_t TWI_FILTR; /**< \brief (Twi Offset: 0x44) Filter Register */
+	__I  uint32_t Reserved3[1];
+	__IO uint32_t TWI_SWMR;  /**< \brief (Twi Offset: 0x4C) SleepWalking Matching Register */
+	__IO uint32_t TWI_FMR;   /**< \brief (Twi Offset: 0x50) FIFO Mode Register */
+	__I  uint32_t TWI_FLR;   /**< \brief (Twi Offset: 0x54) FIFO Level Register */
+	__I  uint32_t Reserved4[2];
+	__I  uint32_t TWI_FSR;   /**< \brief (Twi Offset: 0x60) FIFO Status Register */
+	__O  uint32_t TWI_FIER;  /**< \brief (Twi Offset: 0x64) FIFO Interrupt Enable Register */
+	__O  uint32_t TWI_FIDR;  /**< \brief (Twi Offset: 0x68) FIFO Interrupt Disable Register */
+	__I  uint32_t TWI_FIMR;  /**< \brief (Twi Offset: 0x6C) FIFO Interrupt Mask Register */
+	__I  uint32_t Reserved5[24];
+	__I  uint32_t TWI_DR;    /**< \brief (Twi Offset: 0xD0) Debug Register */
+	__I  uint32_t Reserved6[4];
+	__IO uint32_t TWI_WPMR;  /**< \brief (Twi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t TWI_WPSR;  /**< \brief (Twi Offset: 0xE8) Write Protection Status Register */
 } Twi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-
 /* -------- TWI_CR : (TWI Offset: 0x00) Control Register -------- */
 #define TWI_CR_START (0x1u << 0) /**< \brief (TWI_CR) Send a START Condition */
 #define TWI_CR_STOP (0x1u << 1) /**< \brief (TWI_CR) Send a STOP Condition */
@@ -145,24 +144,24 @@ typedef struct {
 #define TWI_CWGR_HOLD_Msk (0x1fu << TWI_CWGR_HOLD_Pos) /**< \brief (TWI_CWGR) TWD Hold Time Versus TWCK Falling */
 #define TWI_CWGR_HOLD(value) ((TWI_CWGR_HOLD_Msk & ((value) << TWI_CWGR_HOLD_Pos)))
 /* -------- TWI_SR : (TWI Offset: 0x20) Status Register -------- */
-#define TWI_SR_TXCOMP (0x1u << 0) /**< \brief (TWI_SR) Transmission Completed (cleared by writing TWI_THR) */
-#define TWI_SR_RXRDY (0x1u << 1) /**< \brief (TWI_SR) Receive Holding Register Ready (cleared by reading TWI_RHR) */
-#define TWI_SR_TXRDY (0x1u << 2) /**< \brief (TWI_SR) Transmit Holding Register Ready (cleared by writing TWI_THR) */
+#define TWI_SR_TXCOMP (0x1u << 0) /**< \brief (TWI_SR) Transmission Completed */
+#define TWI_SR_RXRDY (0x1u << 1) /**< \brief (TWI_SR) Receive Holding Register Ready */
+#define TWI_SR_TXRDY (0x1u << 2) /**< \brief (TWI_SR) Transmit Holding Register Ready */
 #define TWI_SR_SVREAD (0x1u << 3) /**< \brief (TWI_SR) Slave Read */
 #define TWI_SR_SVACC (0x1u << 4) /**< \brief (TWI_SR) Slave Access */
-#define TWI_SR_GACC (0x1u << 5) /**< \brief (TWI_SR) General Call Access (cleared on read) */
-#define TWI_SR_OVRE (0x1u << 6) /**< \brief (TWI_SR) Overrun Error (cleared on read) */
-#define TWI_SR_UNRE (0x1u << 7) /**< \brief (TWI_SR) Underrun Error (cleared on read) */
-#define TWI_SR_NACK (0x1u << 8) /**< \brief (TWI_SR) Not Acknowledged (cleared on read) */
-#define TWI_SR_ARBLST (0x1u << 9) /**< \brief (TWI_SR) Arbitration Lost (cleared on read) */
+#define TWI_SR_GACC (0x1u << 5) /**< \brief (TWI_SR) General Call Access */
+#define TWI_SR_OVRE (0x1u << 6) /**< \brief (TWI_SR) Overrun Error */
+#define TWI_SR_UNRE (0x1u << 7) /**< \brief (TWI_SR) Underrun Error */
+#define TWI_SR_NACK (0x1u << 8) /**< \brief (TWI_SR) Not Acknowledged */
+#define TWI_SR_ARBLST (0x1u << 9) /**< \brief (TWI_SR) Arbitration Lost */
 #define TWI_SR_SCLWS (0x1u << 10) /**< \brief (TWI_SR) Clock Wait State */
-#define TWI_SR_EOSACC (0x1u << 11) /**< \brief (TWI_SR) End Of Slave Access (cleared on read) */
-#define TWI_SR_MCACK (0x1u << 16) /**< \brief (TWI_SR) Master Code Acknowledge (cleared on read) */
-#define TWI_SR_TOUT (0x1u << 18) /**< \brief (TWI_SR) Timeout Error (cleared on read) */
-#define TWI_SR_PECERR (0x1u << 19) /**< \brief (TWI_SR) PEC Error (cleared on read) */
-#define TWI_SR_SMBDAM (0x1u << 20) /**< \brief (TWI_SR) SMBus Default Address Match (cleared on read) */
-#define TWI_SR_SMBHHM (0x1u << 21) /**< \brief (TWI_SR) SMBus Host Header Address Match (cleared on read) */
-#define TWI_SR_LOCK (0x1u << 23) /**< \brief (TWI_SR) TWI Lock due to Frame Errors (cleared by writing a one to bit LOCKCLR in TWI_CR) */
+#define TWI_SR_EOSACC (0x1u << 11) /**< \brief (TWI_SR) End Of Slave Access */
+#define TWI_SR_MCACK (0x1u << 16) /**< \brief (TWI_SR) Master Code Acknowledge */
+#define TWI_SR_TOUT (0x1u << 18) /**< \brief (TWI_SR) Timeout Error */
+#define TWI_SR_PECERR (0x1u << 19) /**< \brief (TWI_SR) PEC Error */
+#define TWI_SR_SMBDAM (0x1u << 20) /**< \brief (TWI_SR) SMBus Default Address Match */
+#define TWI_SR_SMBHHM (0x1u << 21) /**< \brief (TWI_SR) SMBus Host Header Address Match */
+#define TWI_SR_LOCK (0x1u << 23) /**< \brief (TWI_SR) TWI Lock due to Frame Errors */
 #define TWI_SR_SCL (0x1u << 24) /**< \brief (TWI_SR) SCL Line Value */
 #define TWI_SR_SDA (0x1u << 25) /**< \brief (TWI_SR) SDA Line Value */
 /* -------- TWI_IER : (TWI Offset: 0x24) Interrupt Enable Register -------- */
@@ -376,6 +375,5 @@ typedef struct {
 #define TWI_WPSR_WPVSRC_Msk (0xffffffu << TWI_WPSR_WPVSRC_Pos) /**< \brief (TWI_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_TWI_COMPONENT_ */

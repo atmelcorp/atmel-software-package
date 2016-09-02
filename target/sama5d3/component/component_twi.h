@@ -39,21 +39,21 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Twi hardware registers */
 typedef struct {
-  __O   uint32_t TWI_CR;           /**< \brief (Twi Offset: 0x00) Control Register */
-  __IO  uint32_t TWI_MMR;          /**< \brief (Twi Offset: 0x04) Master Mode Register */
-  __IO  uint32_t TWI_SMR;          /**< \brief (Twi Offset: 0x08) Slave Mode Register */
-  __IO  uint32_t TWI_IADR;         /**< \brief (Twi Offset: 0x0C) Internal Address Register */
-  __IO  uint32_t TWI_CWGR;         /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
-  __I   uint32_t Reserved1[3];
-  __I   uint32_t TWI_SR;           /**< \brief (Twi Offset: 0x20) Status Register */
-  __O   uint32_t TWI_IER;          /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
-  __O   uint32_t TWI_IDR;          /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
-  __I   uint32_t TWI_IMR;          /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
-  __I   uint32_t TWI_RHR;          /**< \brief (Twi Offset: 0x30) Receive Holding Register */
-  __O   uint32_t TWI_THR;          /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
-  __I   uint32_t Reserved2[43];
-  __IO  uint32_t TWI_WPROT_MODE;   /**< \brief (Twi Offset: 0xE4) Protection Mode Register */
-  __I   uint32_t TWI_WPROT_STATUS; /**< \brief (Twi Offset: 0xE8) Protection Status Register */
+	__O  uint32_t TWI_CR;    /**< \brief (Twi Offset: 0x00) Control Register */
+	__IO uint32_t TWI_MMR;   /**< \brief (Twi Offset: 0x04) Master Mode Register */
+	__IO uint32_t TWI_SMR;   /**< \brief (Twi Offset: 0x08) Slave Mode Register */
+	__IO uint32_t TWI_IADR;  /**< \brief (Twi Offset: 0x0C) Internal Address Register */
+	__IO uint32_t TWI_CWGR;  /**< \brief (Twi Offset: 0x10) Clock Waveform Generator Register */
+	__I  uint32_t Reserved1[3];
+	__I  uint32_t TWI_SR;    /**< \brief (Twi Offset: 0x20) Status Register */
+	__O  uint32_t TWI_IER;   /**< \brief (Twi Offset: 0x24) Interrupt Enable Register */
+	__O  uint32_t TWI_IDR;   /**< \brief (Twi Offset: 0x28) Interrupt Disable Register */
+	__I  uint32_t TWI_IMR;   /**< \brief (Twi Offset: 0x2C) Interrupt Mask Register */
+	__I  uint32_t TWI_RHR;   /**< \brief (Twi Offset: 0x30) Receive Holding Register */
+	__O  uint32_t TWI_THR;   /**< \brief (Twi Offset: 0x34) Transmit Holding Register */
+	__I  uint32_t Reserved2[43];
+	__IO uint32_t TWI_WPMR;  /**< \brief (Twi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t TWI_WPSR;  /**< \brief (Twi Offset: 0xE8) Write Protection Status Register */
 } Twi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TWI_CR : (TWI Offset: 0x00) Control Register -------- */
@@ -96,17 +96,17 @@ typedef struct {
 #define TWI_CWGR_CKDIV_Msk (0x7u << TWI_CWGR_CKDIV_Pos) /**< \brief (TWI_CWGR) Clock Divider */
 #define TWI_CWGR_CKDIV(value) ((TWI_CWGR_CKDIV_Msk & ((value) << TWI_CWGR_CKDIV_Pos)))
 /* -------- TWI_SR : (TWI Offset: 0x20) Status Register -------- */
-#define TWI_SR_TXCOMP (0x1u << 0) /**< \brief (TWI_SR) Transmission Completed (automatically set / reset) */
-#define TWI_SR_RXRDY (0x1u << 1) /**< \brief (TWI_SR) Receive Holding Register Ready (automatically set / reset) */
-#define TWI_SR_TXRDY (0x1u << 2) /**< \brief (TWI_SR) Transmit Holding Register Ready (automatically set / reset) */
-#define TWI_SR_SVREAD (0x1u << 3) /**< \brief (TWI_SR) Slave Read (automatically set / reset) */
-#define TWI_SR_SVACC (0x1u << 4) /**< \brief (TWI_SR) Slave Access (automatically set / reset) */
-#define TWI_SR_GACC (0x1u << 5) /**< \brief (TWI_SR) General Call Access (clear on read) */
-#define TWI_SR_OVRE (0x1u << 6) /**< \brief (TWI_SR) Overrun Error (clear on read) */
-#define TWI_SR_NACK (0x1u << 8) /**< \brief (TWI_SR) Not Acknowledged (clear on read) */
-#define TWI_SR_ARBLST (0x1u << 9) /**< \brief (TWI_SR) Arbitration Lost (clear on read) */
-#define TWI_SR_SCLWS (0x1u << 10) /**< \brief (TWI_SR) Clock Wait State (automatically set / reset) */
-#define TWI_SR_EOSACC (0x1u << 11) /**< \brief (TWI_SR) End Of Slave Access (clear on read) */
+#define TWI_SR_TXCOMP (0x1u << 0) /**< \brief (TWI_SR) Transmission Completed */
+#define TWI_SR_RXRDY (0x1u << 1) /**< \brief (TWI_SR) Receive Holding Register Ready */
+#define TWI_SR_TXRDY (0x1u << 2) /**< \brief (TWI_SR) Transmit Holding Register Ready */
+#define TWI_SR_SVREAD (0x1u << 3) /**< \brief (TWI_SR) Slave Read */
+#define TWI_SR_SVACC (0x1u << 4) /**< \brief (TWI_SR) Slave Access */
+#define TWI_SR_GACC (0x1u << 5) /**< \brief (TWI_SR) General Call Access */
+#define TWI_SR_OVRE (0x1u << 6) /**< \brief (TWI_SR) Overrun Error */
+#define TWI_SR_NACK (0x1u << 8) /**< \brief (TWI_SR) Not Acknowledged */
+#define TWI_SR_ARBLST (0x1u << 9) /**< \brief (TWI_SR) Arbitration Lost */
+#define TWI_SR_SCLWS (0x1u << 10) /**< \brief (TWI_SR) Clock Wait State */
+#define TWI_SR_EOSACC (0x1u << 11) /**< \brief (TWI_SR) End Of Slave Access */
 /* -------- TWI_IER : (TWI Offset: 0x24) Interrupt Enable Register -------- */
 #define TWI_IER_TXCOMP (0x1u << 0) /**< \brief (TWI_IER) Transmission Completed Interrupt Enable */
 #define TWI_IER_RXRDY (0x1u << 1) /**< \brief (TWI_IER) Receive Holding Register Ready Interrupt Enable */
@@ -147,17 +147,17 @@ typedef struct {
 #define TWI_THR_TXDATA_Pos 0
 #define TWI_THR_TXDATA_Msk (0xffu << TWI_THR_TXDATA_Pos) /**< \brief (TWI_THR) Master or Slave Transmit Holding Data */
 #define TWI_THR_TXDATA(value) ((TWI_THR_TXDATA_Msk & ((value) << TWI_THR_TXDATA_Pos)))
-/* -------- TWI_WPROT_MODE : (TWI Offset: 0xE4) Protection Mode Register -------- */
-#define TWI_WPROT_MODE_WPROT (0x1u << 0) /**< \brief (TWI_WPROT_MODE) Write protection bit */
-#define TWI_WPROT_MODE_SECURITY_CODE_Pos 8
-#define TWI_WPROT_MODE_SECURITY_CODE_Msk (0xffffffu << TWI_WPROT_MODE_SECURITY_CODE_Pos) /**< \brief (TWI_WPROT_MODE) Write protection mode security code */
-#define TWI_WPROT_MODE_SECURITY_CODE(value) ((TWI_WPROT_MODE_SECURITY_CODE_Msk & ((value) << TWI_WPROT_MODE_SECURITY_CODE_Pos)))
-/* -------- TWI_WPROT_STATUS : (TWI Offset: 0xE8) Protection Status Register -------- */
-#define TWI_WPROT_STATUS_WPROTERR (0x1u << 0) /**< \brief (TWI_WPROT_STATUS) Write Protection Error */
-#define TWI_WPROT_STATUS_WPROTADDR_Pos 8
-#define TWI_WPROT_STATUS_WPROTADDR_Msk (0xffffffu << TWI_WPROT_STATUS_WPROTADDR_Pos) /**< \brief (TWI_WPROT_STATUS) Write Protection Error Address */
+/* -------- TWI_WPMR : (TWI Offset: 0xE4) Write Protection Mode Register -------- */
+#define TWI_WPMR_WPEN (0x1u << 0) /**< \brief (TWI_WPMR) Write Protection Enable */
+#define TWI_WPMR_WPKEY_Pos 8
+#define TWI_WPMR_WPKEY_Msk (0xffffffu << TWI_WPMR_WPKEY_Pos) /**< \brief (TWI_WPMR) Write Protection Key */
+#define TWI_WPMR_WPKEY(value) ((TWI_WPMR_WPKEY_Msk & ((value) << TWI_WPMR_WPKEY_Pos)))
+#define   TWI_WPMR_WPKEY_PASSWD (0x545749u << 8) /**< \brief (TWI_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0 */
+/* -------- TWI_WPSR : (TWI Offset: 0xE8) Write Protection Status Register -------- */
+#define TWI_WPSR_WPVS (0x1u << 0) /**< \brief (TWI_WPSR) Write Protection Violation Status */
+#define TWI_WPSR_WPVSRC_Pos 8
+#define TWI_WPSR_WPVSRC_Msk (0xffffffu << TWI_WPSR_WPVSRC_Pos) /**< \brief (TWI_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_TWI_COMPONENT_ */
