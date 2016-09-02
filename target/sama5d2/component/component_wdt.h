@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Wdt hardware registers */
 typedef struct {
-  __O  uint32_t WDT_CR; /**< \brief (Wdt Offset: 0x00) Control Register */
-  __IO uint32_t WDT_MR; /**< \brief (Wdt Offset: 0x04) Mode Register */
-  __I  uint32_t WDT_SR; /**< \brief (Wdt Offset: 0x08) Status Register */
+	__O  uint32_t WDT_CR; /**< \brief (Wdt Offset: 0x00) Control Register */
+	__IO uint32_t WDT_MR; /**< \brief (Wdt Offset: 0x04) Mode Register */
+	__I  uint32_t WDT_SR; /**< \brief (Wdt Offset: 0x08) Status Register */
 } Wdt;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- WDT_CR : (WDT Offset: 0x00) Control Register -------- */
@@ -65,10 +65,9 @@ typedef struct {
 #define WDT_MR_WDDBGHLT (0x1u << 28) /**< \brief (WDT_MR) Watchdog Debug Halt */
 #define WDT_MR_WDIDLEHLT (0x1u << 29) /**< \brief (WDT_MR) Watchdog Idle Halt */
 /* -------- WDT_SR : (WDT Offset: 0x08) Status Register -------- */
-#define WDT_SR_WDUNF (0x1u << 0) /**< \brief (WDT_SR) Watchdog Underflow (cleared on read) */
-#define WDT_SR_WDERR (0x1u << 1) /**< \brief (WDT_SR) Watchdog Error (cleared on read) */
+#define WDT_SR_WDUNF (0x1u << 0) /**< \brief (WDT_SR) Watchdog Underflow */
+#define WDT_SR_WDERR (0x1u << 1) /**< \brief (WDT_SR) Watchdog Error */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_WDT_COMPONENT_ */

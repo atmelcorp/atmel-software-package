@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Wdt hardware registers */
 typedef struct {
-  __O   uint32_t WDT_CR; /**< \brief (Wdt Offset: 0x00) Control Register */
-  __IO  uint32_t WDT_MR; /**< \brief (Wdt Offset: 0x04) Mode Register */
-  __I   uint32_t WDT_SR; /**< \brief (Wdt Offset: 0x08) Status Register */
+	__O  uint32_t WDT_CR; /**< \brief (Wdt Offset: 0x00) Control Register */
+	__IO uint32_t WDT_MR; /**< \brief (Wdt Offset: 0x04) Mode Register */
+	__I  uint32_t WDT_SR; /**< \brief (Wdt Offset: 0x08) Status Register */
 } Wdt;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- WDT_CR : (WDT Offset: 0x00) Control Register -------- */
@@ -68,6 +68,5 @@ typedef struct {
 #define WDT_SR_WDERR (0x1u << 1) /**< \brief (WDT_SR) Watchdog Error */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_WDT_COMPONENT_ */

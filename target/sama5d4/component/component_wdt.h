@@ -39,15 +39,15 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Wdt hardware registers */
 typedef struct {
-	__O uint32_t WDT_CR;  /**< \brief (Wdt Offset: 0x00) Control Register */
+	__O  uint32_t WDT_CR; /**< \brief (Wdt Offset: 0x00) Control Register */
 	__IO uint32_t WDT_MR; /**< \brief (Wdt Offset: 0x04) Mode Register */
-	__I uint32_t WDT_SR;  /**< \brief (Wdt Offset: 0x08) Status Register */
+	__I  uint32_t WDT_SR; /**< \brief (Wdt Offset: 0x08) Status Register */
 } Wdt;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- WDT_CR : (WDT Offset: 0x00) Control Register -------- */
 #define WDT_CR_WDRSTT (0x1u << 0) /**< \brief (WDT_CR) Watchdog Restart */
 #define WDT_CR_KEY_Pos 24
-#define WDT_CR_KEY_Msk (0xffu << WDT_CR_KEY_Pos) /**< \brief (WDT_CR) Password. */
+#define WDT_CR_KEY_Msk (0xffu << WDT_CR_KEY_Pos) /**< \brief (WDT_CR) Password */
 #define WDT_CR_KEY(value) ((WDT_CR_KEY_Msk & ((value) << WDT_CR_KEY_Pos)))
 #define   WDT_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (WDT_CR) Writing any other value in this field aborts the write operation. */
 /* -------- WDT_MR : (WDT Offset: 0x04) Mode Register -------- */
@@ -68,4 +68,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_WDT_COMPONENT_ */
+#endif /* _SAMA5D4_WDT_COMPONENT_ */
