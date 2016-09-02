@@ -1744,7 +1744,6 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 {
 	assert(set);
 	assert(periph_id <= 0xff);
-	assert(tc_ch < TCCHANNEL_NUMBER);
 
 	Sdmmc* regs = get_sdmmc_addr_from_id(periph_id);
 	assert(regs);

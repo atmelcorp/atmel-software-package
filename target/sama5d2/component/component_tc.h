@@ -39,36 +39,33 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief TcChannel hardware registers */
 typedef struct {
-  __O  uint32_t TC_CCR;       /**< \brief (TcChannel Offset: 0x0) Channel Control Register */
-  __IO uint32_t TC_CMR;       /**< \brief (TcChannel Offset: 0x4) Channel Mode Register */
-  __IO uint32_t TC_SMMR;      /**< \brief (TcChannel Offset: 0x8) Stepper Motor Mode Register */
-  __I  uint32_t TC_RAB;       /**< \brief (TcChannel Offset: 0xC) Register AB */
-  __I  uint32_t TC_CV;        /**< \brief (TcChannel Offset: 0x10) Counter Value */
-  __IO uint32_t TC_RA;        /**< \brief (TcChannel Offset: 0x14) Register A */
-  __IO uint32_t TC_RB;        /**< \brief (TcChannel Offset: 0x18) Register B */
-  __IO uint32_t TC_RC;        /**< \brief (TcChannel Offset: 0x1C) Register C */
-  __I  uint32_t TC_SR;        /**< \brief (TcChannel Offset: 0x20) Status Register */
-  __O  uint32_t TC_IER;       /**< \brief (TcChannel Offset: 0x24) Interrupt Enable Register */
-  __O  uint32_t TC_IDR;       /**< \brief (TcChannel Offset: 0x28) Interrupt Disable Register */
-  __I  uint32_t TC_IMR;       /**< \brief (TcChannel Offset: 0x2C) Interrupt Mask Register */
-  __IO uint32_t TC_EMR;       /**< \brief (TcChannel Offset: 0x30) Extended Mode Register */
-  __I  uint32_t Reserved1[3];
+	__O  uint32_t TC_CCR;       /**< \brief (TcChannel Offset: 0x0) Channel Control Register */
+	__IO uint32_t TC_CMR;       /**< \brief (TcChannel Offset: 0x4) Channel Mode Register */
+	__IO uint32_t TC_SMMR;      /**< \brief (TcChannel Offset: 0x8) Stepper Motor Mode Register */
+	__I  uint32_t TC_RAB;       /**< \brief (TcChannel Offset: 0xC) Register AB */
+	__I  uint32_t TC_CV;        /**< \brief (TcChannel Offset: 0x10) Counter Value */
+	__IO uint32_t TC_RA;        /**< \brief (TcChannel Offset: 0x14) Register A */
+	__IO uint32_t TC_RB;        /**< \brief (TcChannel Offset: 0x18) Register B */
+	__IO uint32_t TC_RC;        /**< \brief (TcChannel Offset: 0x1C) Register C */
+	__I  uint32_t TC_SR;        /**< \brief (TcChannel Offset: 0x20) Status Register */
+	__O  uint32_t TC_IER;       /**< \brief (TcChannel Offset: 0x24) Interrupt Enable Register */
+	__O  uint32_t TC_IDR;       /**< \brief (TcChannel Offset: 0x28) Interrupt Disable Register */
+	__I  uint32_t TC_IMR;       /**< \brief (TcChannel Offset: 0x2C) Interrupt Mask Register */
+	__IO uint32_t TC_EMR;       /**< \brief (TcChannel Offset: 0x30) Extended Mode Register */
+	__I  uint32_t Reserved1[3];
 } TcChannel;
 /** \brief Tc hardware registers */
-#define TCCHANNEL_NUMBER 3
 typedef struct {
-       TcChannel TC_CHANNEL[TCCHANNEL_NUMBER]; /**< \brief (Tc Offset: 0x0) channel = 0 .. 2 */
-  __O  uint32_t  TC_BCR;                       /**< \brief (Tc Offset: 0xC0) Block Control Register */
-  __IO uint32_t  TC_BMR;                       /**< \brief (Tc Offset: 0xC4) Block Mode Register */
-  __O  uint32_t  TC_QIER;                      /**< \brief (Tc Offset: 0xC8) QDEC Interrupt Enable Register */
-  __O  uint32_t  TC_QIDR;                      /**< \brief (Tc Offset: 0xCC) QDEC Interrupt Disable Register */
-  __I  uint32_t  TC_QIMR;                      /**< \brief (Tc Offset: 0xD0) QDEC Interrupt Mask Register */
-  __I  uint32_t  TC_QISR;                      /**< \brief (Tc Offset: 0xD4) QDEC Interrupt Status Register */
-  __IO uint32_t  TC_FMR;                       /**< \brief (Tc Offset: 0xD8) Fault Mode Register */
-  __I  uint32_t  Reserved1[2];
-  __IO uint32_t  TC_WPMR;                      /**< \brief (Tc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t  Reserved2[5];
-  __I  uint32_t  TC_VER;                       /**< \brief (Tc Offset: 0xFC) Version Register */
+	     TcChannel TC_CHANNEL[3]; /**< \brief (Tc Offset: 0x0) channel = 0 .. 2 */
+	__O  uint32_t  TC_BCR;        /**< \brief (Tc Offset: 0xC0) Block Control Register */
+	__IO uint32_t  TC_BMR;        /**< \brief (Tc Offset: 0xC4) Block Mode Register */
+	__O  uint32_t  TC_QIER;       /**< \brief (Tc Offset: 0xC8) QDEC Interrupt Enable Register */
+	__O  uint32_t  TC_QIDR;       /**< \brief (Tc Offset: 0xCC) QDEC Interrupt Disable Register */
+	__I  uint32_t  TC_QIMR;       /**< \brief (Tc Offset: 0xD0) QDEC Interrupt Mask Register */
+	__I  uint32_t  TC_QISR;       /**< \brief (Tc Offset: 0xD4) QDEC Interrupt Status Register */
+	__IO uint32_t  TC_FMR;        /**< \brief (Tc Offset: 0xD8) Fault Mode Register */
+	__I  uint32_t  Reserved1[2];
+	__IO uint32_t  TC_WPMR;       /**< \brief (Tc Offset: 0xE4) Write Protection Mode Register */
 } Tc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TC_CCR : (TC Offset: N/A) Channel Control Register -------- */
@@ -79,11 +76,11 @@ typedef struct {
 #define TC_CMR_TCCLKS_Pos 0
 #define TC_CMR_TCCLKS_Msk (0x7u << TC_CMR_TCCLKS_Pos) /**< \brief (TC_CMR) Clock Selection */
 #define TC_CMR_TCCLKS(value) ((TC_CMR_TCCLKS_Msk & ((value) << TC_CMR_TCCLKS_Pos)))
-#define   TC_CMR_TCCLKS_TIMER_CLOCK1 (0x0u << 0) /**< \brief (TC_CMR) Clock selected: internal GCLK [TC_ID] clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK2 (0x1u << 0) /**< \brief (TC_CMR) Clock selected: internal div8 clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK3 (0x2u << 0) /**< \brief (TC_CMR) Clock selected: internal div32 clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK4 (0x3u << 0) /**< \brief (TC_CMR) Clock selected: internal div128 clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK5 (0x4u << 0) /**< \brief (TC_CMR) Clock selected: internal slow_clock clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK1 (0x0u << 0) /**< \brief (TC_CMR) Clock selected: internal TIMER_CLOCK1 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK2 (0x1u << 0) /**< \brief (TC_CMR) Clock selected: internal TIMER_CLOCK2 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK3 (0x2u << 0) /**< \brief (TC_CMR) Clock selected: internal TIMER_CLOCK3 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK4 (0x3u << 0) /**< \brief (TC_CMR) Clock selected: internal TIMER_CLOCK4 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK5 (0x4u << 0) /**< \brief (TC_CMR) Clock selected: internal TIMER_CLOCK5 clock signal (from PMC) */
 #define   TC_CMR_TCCLKS_XC0 (0x5u << 0) /**< \brief (TC_CMR) Clock selected: XC0 */
 #define   TC_CMR_TCCLKS_XC1 (0x6u << 0) /**< \brief (TC_CMR) Clock selected: XC1 */
 #define   TC_CMR_TCCLKS_XC2 (0x7u << 0) /**< \brief (TC_CMR) Clock selected: XC2 */
@@ -231,14 +228,14 @@ typedef struct {
 #define TC_RC_RC_Msk (0xffffffffu << TC_RC_RC_Pos) /**< \brief (TC_RC) Register C */
 #define TC_RC_RC(value) ((TC_RC_RC_Msk & ((value) << TC_RC_RC_Pos)))
 /* -------- TC_SR : (TC Offset: N/A) Status Register -------- */
-#define TC_SR_COVFS (0x1u << 0) /**< \brief (TC_SR) Counter Overflow Status (cleared on read) */
-#define TC_SR_LOVRS (0x1u << 1) /**< \brief (TC_SR) Load Overrun Status (cleared on read) */
-#define TC_SR_CPAS (0x1u << 2) /**< \brief (TC_SR) RA Compare Status (cleared on read) */
-#define TC_SR_CPBS (0x1u << 3) /**< \brief (TC_SR) RB Compare Status (cleared on read) */
-#define TC_SR_CPCS (0x1u << 4) /**< \brief (TC_SR) RC Compare Status (cleared on read) */
-#define TC_SR_LDRAS (0x1u << 5) /**< \brief (TC_SR) RA Loading Status (cleared on read) */
-#define TC_SR_LDRBS (0x1u << 6) /**< \brief (TC_SR) RB Loading Status (cleared on read) */
-#define TC_SR_ETRGS (0x1u << 7) /**< \brief (TC_SR) External Trigger Status (cleared on read) */
+#define TC_SR_COVFS (0x1u << 0) /**< \brief (TC_SR) Counter Overflow Status */
+#define TC_SR_LOVRS (0x1u << 1) /**< \brief (TC_SR) Load Overrun Status */
+#define TC_SR_CPAS (0x1u << 2) /**< \brief (TC_SR) RA Compare Status */
+#define TC_SR_CPBS (0x1u << 3) /**< \brief (TC_SR) RB Compare Status */
+#define TC_SR_CPCS (0x1u << 4) /**< \brief (TC_SR) RC Compare Status */
+#define TC_SR_LDRAS (0x1u << 5) /**< \brief (TC_SR) RA Loading Status */
+#define TC_SR_LDRBS (0x1u << 6) /**< \brief (TC_SR) RB Loading Status */
+#define TC_SR_ETRGS (0x1u << 7) /**< \brief (TC_SR) External Trigger Status */
 #define TC_SR_CLKSTA (0x1u << 16) /**< \brief (TC_SR) Clock Enabling Status */
 #define TC_SR_MTIOA (0x1u << 17) /**< \brief (TC_SR) TIOA Mirror */
 #define TC_SR_MTIOB (0x1u << 18) /**< \brief (TC_SR) TIOB Mirror */
@@ -279,7 +276,7 @@ typedef struct {
 #define TC_EMR_TRIGSRCB_Msk (0x3u << TC_EMR_TRIGSRCB_Pos) /**< \brief (TC_EMR) Trigger Source for Input B */
 #define TC_EMR_TRIGSRCB(value) ((TC_EMR_TRIGSRCB_Msk & ((value) << TC_EMR_TRIGSRCB_Pos)))
 #define   TC_EMR_TRIGSRCB_EXTERNAL_TIOBx (0x0u << 4) /**< \brief (TC_EMR) The trigger/capture input B is driven by external pin TIOBx */
-#define   TC_EMR_TRIGSRCB_PWMx (0x1u << 4) /**< \brief (TC_EMR) For TC0 to TC10: The trigger/capture input B is driven internally by the comparator output (see Figure 7-16) of the PWMx.For TC11: The trigger/capture input B is driven internally by the GTSUCOMP singal of the Ethernet MAC (GMAC). */
+#define   TC_EMR_TRIGSRCB_PWMx (0x1u << 4) /**< \brief (TC_EMR) The trigger/capture input B is driven internally by PWMx */
 #define TC_EMR_NODIVCLK (0x1u << 8) /**< \brief (TC_EMR) No Divided Clock */
 /* -------- TC_BCR : (TC Offset: 0xC0) Block Control Register -------- */
 #define TC_BCR_SYNC (0x1u << 0) /**< \brief (TC_BCR) Synchro Command */
@@ -348,13 +345,7 @@ typedef struct {
 #define TC_WPMR_WPKEY_Msk (0xffffffu << TC_WPMR_WPKEY_Pos) /**< \brief (TC_WPMR) Write Protection Key */
 #define TC_WPMR_WPKEY(value) ((TC_WPMR_WPKEY_Msk & ((value) << TC_WPMR_WPKEY_Pos)))
 #define   TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- TC_VER : (TC Offset: 0xFC) Version Register -------- */
-#define TC_VER_VERSION_Pos 0
-#define TC_VER_VERSION_Msk (0xfffu << TC_VER_VERSION_Pos) /**< \brief (TC_VER) Version of the Hardware Module */
-#define TC_VER_MFN_Pos 16
-#define TC_VER_MFN_Msk (0x7u << TC_VER_MFN_Pos) /**< \brief (TC_VER) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_TC_COMPONENT_ */
