@@ -439,6 +439,10 @@ void board_cfg_isi(void)
 	/* Configure ISI pins */
 	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
 
+	/* Configure PMC programmable clock (PCK0) */
+	pmc_configure_pck(0, PMC_PCK_CSS_PLLA_CLK, 4);
+	pmc_enable_pck(0);
+
 	/* Reset sensor */
 	pio_configure(&pin_rst,1);
 	pio_configure(&pin_pwd,1);
