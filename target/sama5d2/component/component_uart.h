@@ -39,21 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Uart hardware registers */
 typedef struct {
-  __O  uint32_t UART_CR;       /**< \brief (Uart Offset: 0x0000) Control Register */
-  __IO uint32_t UART_MR;       /**< \brief (Uart Offset: 0x0004) Mode Register */
-  __O  uint32_t UART_IER;      /**< \brief (Uart Offset: 0x0008) Interrupt Enable Register */
-  __O  uint32_t UART_IDR;      /**< \brief (Uart Offset: 0x000C) Interrupt Disable Register */
-  __I  uint32_t UART_IMR;      /**< \brief (Uart Offset: 0x0010) Interrupt Mask Register */
-  __I  uint32_t UART_SR;       /**< \brief (Uart Offset: 0x0014) Status Register */
-  __I  uint32_t UART_RHR;      /**< \brief (Uart Offset: 0x0018) Receive Holding Register */
-  __O  uint32_t UART_THR;      /**< \brief (Uart Offset: 0x001C) Transmit Holding Register */
-  __IO uint32_t UART_BRGR;     /**< \brief (Uart Offset: 0x0020) Baud Rate Generator Register */
-  __IO uint32_t UART_CMPR;     /**< \brief (Uart Offset: 0x0024) Comparison Register */
-  __IO uint32_t UART_RTOR;     /**< \brief (Uart Offset: 0x0028) Receiver Time-out Register */
-  __I  uint32_t Reserved1[46];
-  __IO uint32_t UART_WPMR;     /**< \brief (Uart Offset: 0x00E4) Write Protection Mode Register */
-  __I  uint32_t Reserved2[5];
-  __I  uint32_t UART_VERSION;  /**< \brief (Uart Offset: 0x00FC) Version Register */
+	__O  uint32_t UART_CR;   /**< \brief (Uart Offset: 0x0000) Control Register */
+	__IO uint32_t UART_MR;   /**< \brief (Uart Offset: 0x0004) Mode Register */
+	__O  uint32_t UART_IER;  /**< \brief (Uart Offset: 0x0008) Interrupt Enable Register */
+	__O  uint32_t UART_IDR;  /**< \brief (Uart Offset: 0x000C) Interrupt Disable Register */
+	__I  uint32_t UART_IMR;  /**< \brief (Uart Offset: 0x0010) Interrupt Mask Register */
+	__I  uint32_t UART_SR;   /**< \brief (Uart Offset: 0x0014) Status Register */
+	__I  uint32_t UART_RHR;  /**< \brief (Uart Offset: 0x0018) Receive Holding Register */
+	__O  uint32_t UART_THR;  /**< \brief (Uart Offset: 0x001C) Transmit Holding Register */
+	__IO uint32_t UART_BRGR; /**< \brief (Uart Offset: 0x0020) Baud Rate Generator Register */
+	__IO uint32_t UART_CMPR; /**< \brief (Uart Offset: 0x0024) Comparison Register */
+	__IO uint32_t UART_RTOR; /**< \brief (Uart Offset: 0x0028) Receiver Time-out Register */
+	__I  uint32_t Reserved1[46];
+	__IO uint32_t UART_WPMR; /**< \brief (Uart Offset: 0x00E4) Write Protection Mode Register */
 } Uart;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- UART_CR : (UART Offset: 0x0000) Control Register -------- */
@@ -79,17 +77,17 @@ typedef struct {
 #define   UART_MR_PAR_ODD (0x1u << 9) /**< \brief (UART_MR) Odd Parity */
 #define   UART_MR_PAR_SPACE (0x2u << 9) /**< \brief (UART_MR) Space: parity forced to 0 */
 #define   UART_MR_PAR_MARK (0x3u << 9) /**< \brief (UART_MR) Mark: parity forced to 1 */
-#define   UART_MR_PAR_NO (0x4u << 9) /**< \brief (UART_MR) No parity */
+#define   UART_MR_PAR_NO (0x4u << 9) /**< \brief (UART_MR) No Parity */
 #define UART_MR_BRSRCCK (0x1u << 12) /**< \brief (UART_MR) Baud Rate Source Clock */
 #define   UART_MR_BRSRCCK_PERIPH_CLK (0x0u << 12) /**< \brief (UART_MR) The baud rate is driven by the peripheral clock */
-#define   UART_MR_BRSRCCK_PMC_PCK (0x1u << 12) /**< \brief (UART_MR) The baud rate is driven by a PMC programmable clock PCK (see section Power Management Controller (PMC)). */
+#define   UART_MR_BRSRCCK_PMC_PCK (0x1u << 12) /**< \brief (UART_MR) The baud rate is driven by a PMC programmable clock PCK */
 #define UART_MR_CHMODE_Pos 14
 #define UART_MR_CHMODE_Msk (0x3u << UART_MR_CHMODE_Pos) /**< \brief (UART_MR) Channel Mode */
 #define UART_MR_CHMODE(value) ((UART_MR_CHMODE_Msk & ((value) << UART_MR_CHMODE_Pos)))
-#define   UART_MR_CHMODE_NORMAL (0x0u << 14) /**< \brief (UART_MR) Normal mode */
-#define   UART_MR_CHMODE_AUTOMATIC (0x1u << 14) /**< \brief (UART_MR) Automatic echo */
-#define   UART_MR_CHMODE_LOCAL_LOOPBACK (0x2u << 14) /**< \brief (UART_MR) Local loopback */
-#define   UART_MR_CHMODE_REMOTE_LOOPBACK (0x3u << 14) /**< \brief (UART_MR) Remote loopback */
+#define   UART_MR_CHMODE_NORMAL (0x0u << 14) /**< \brief (UART_MR) Normal Mode */
+#define   UART_MR_CHMODE_AUTOMATIC (0x1u << 14) /**< \brief (UART_MR) Automatic Echo */
+#define   UART_MR_CHMODE_LOCAL_LOOPBACK (0x2u << 14) /**< \brief (UART_MR) Local Loopback */
+#define   UART_MR_CHMODE_REMOTE_LOOPBACK (0x3u << 14) /**< \brief (UART_MR) Remote Loopback */
 /* -------- UART_IER : (UART Offset: 0x0008) Interrupt Enable Register -------- */
 #define UART_IER_RXRDY (0x1u << 0) /**< \brief (UART_IER) Enable RXRDY Interrupt */
 #define UART_IER_TXRDY (0x1u << 1) /**< \brief (UART_IER) Enable TXRDY Interrupt */
@@ -161,13 +159,7 @@ typedef struct {
 #define UART_WPMR_WPKEY_Msk (0xffffffu << UART_WPMR_WPKEY_Pos) /**< \brief (UART_WPMR) Write Protection Key */
 #define UART_WPMR_WPKEY(value) ((UART_WPMR_WPKEY_Msk & ((value) << UART_WPMR_WPKEY_Pos)))
 #define   UART_WPMR_WPKEY_PASSWD (0x554152u << 8) /**< \brief (UART_WPMR) Writing any other value in this field aborts the write operation.Always reads as 0. */
-/* -------- UART_VERSION : (UART Offset: 0x00FC) Version Register -------- */
-#define UART_VERSION_VERSION_Pos 0
-#define UART_VERSION_VERSION_Msk (0xfffu << UART_VERSION_VERSION_Pos) /**< \brief (UART_VERSION) Hardware Module Version */
-#define UART_VERSION_MFN_Pos 16
-#define UART_VERSION_MFN_Msk (0x7u << UART_VERSION_MFN_Pos) /**< \brief (UART_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_UART_COMPONENT_ */

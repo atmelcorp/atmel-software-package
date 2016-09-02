@@ -39,15 +39,15 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Uart hardware registers */
 typedef struct {
-  __O  uint32_t UART_CR;   /**< \brief (Uart Offset: 0x0000) Control Register */
-  __IO uint32_t UART_MR;   /**< \brief (Uart Offset: 0x0004) Mode Register */
-  __O  uint32_t UART_IER;  /**< \brief (Uart Offset: 0x0008) Interrupt Enable Register */
-  __O  uint32_t UART_IDR;  /**< \brief (Uart Offset: 0x000C) Interrupt Disable Register */
-  __I  uint32_t UART_IMR;  /**< \brief (Uart Offset: 0x0010) Interrupt Mask Register */
-  __I  uint32_t UART_SR;   /**< \brief (Uart Offset: 0x0014) Status Register */
-  __I  uint32_t UART_RHR;  /**< \brief (Uart Offset: 0x0018) Receive Holding Register */
-  __O  uint32_t UART_THR;  /**< \brief (Uart Offset: 0x001C) Transmit Holding Register */
-  __IO uint32_t UART_BRGR; /**< \brief (Uart Offset: 0x0020) Baud Rate Generator Register */
+	__O  uint32_t UART_CR;   /**< \brief (Uart Offset: 0x0000) Control Register */
+	__IO uint32_t UART_MR;   /**< \brief (Uart Offset: 0x0004) Mode Register */
+	__O  uint32_t UART_IER;  /**< \brief (Uart Offset: 0x0008) Interrupt Enable Register */
+	__O  uint32_t UART_IDR;  /**< \brief (Uart Offset: 0x000C) Interrupt Disable Register */
+	__I  uint32_t UART_IMR;  /**< \brief (Uart Offset: 0x0010) Interrupt Mask Register */
+	__I  uint32_t UART_SR;   /**< \brief (Uart Offset: 0x0014) Status Register */
+	__I  uint32_t UART_RHR;  /**< \brief (Uart Offset: 0x0018) Receive Holding Register */
+	__O  uint32_t UART_THR;  /**< \brief (Uart Offset: 0x001C) Transmit Holding Register */
+	__IO uint32_t UART_BRGR; /**< \brief (Uart Offset: 0x0020) Baud Rate Generator Register */
 } Uart;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- UART_CR : (UART Offset: 0x0000) Control Register -------- */
@@ -57,10 +57,11 @@ typedef struct {
 #define UART_CR_RXDIS (0x1u << 5) /**< \brief (UART_CR) Receiver Disable */
 #define UART_CR_TXEN (0x1u << 6) /**< \brief (UART_CR) Transmitter Enable */
 #define UART_CR_TXDIS (0x1u << 7) /**< \brief (UART_CR) Transmitter Disable */
-#define UART_CR_RSTSTA (0x1u << 8) /**< \brief (UART_CR) Reset Status Bits */
+#define UART_CR_RSTSTA (0x1u << 8) /**< \brief (UART_CR) Reset Status */
 /* -------- UART_MR : (UART Offset: 0x0004) Mode Register -------- */
 #define UART_MR_PAR_Pos 9
 #define UART_MR_PAR_Msk (0x7u << UART_MR_PAR_Pos) /**< \brief (UART_MR) Parity Type */
+#define UART_MR_PAR(value) ((UART_MR_PAR_Msk & ((value) << UART_MR_PAR_Pos)))
 #define   UART_MR_PAR_EVEN (0x0u << 9) /**< \brief (UART_MR) Even Parity */
 #define   UART_MR_PAR_ODD (0x1u << 9) /**< \brief (UART_MR) Odd Parity */
 #define   UART_MR_PAR_SPACE (0x2u << 9) /**< \brief (UART_MR) Space: parity forced to 0 */
@@ -68,6 +69,7 @@ typedef struct {
 #define   UART_MR_PAR_NO (0x4u << 9) /**< \brief (UART_MR) No Parity */
 #define UART_MR_CHMODE_Pos 14
 #define UART_MR_CHMODE_Msk (0x3u << UART_MR_CHMODE_Pos) /**< \brief (UART_MR) Channel Mode */
+#define UART_MR_CHMODE(value) ((UART_MR_CHMODE_Msk & ((value) << UART_MR_CHMODE_Pos)))
 #define   UART_MR_CHMODE_NORMAL (0x0u << 14) /**< \brief (UART_MR) Normal Mode */
 #define   UART_MR_CHMODE_AUTOMATIC (0x1u << 14) /**< \brief (UART_MR) Automatic Echo */
 #define   UART_MR_CHMODE_LOCAL_LOOPBACK (0x2u << 14) /**< \brief (UART_MR) Local Loopback */
@@ -113,6 +115,5 @@ typedef struct {
 #define UART_BRGR_CD(value) ((UART_BRGR_CD_Msk & ((value) << UART_BRGR_CD_Pos)))
 
 /*@}*/
-
 
 #endif /* _SAM9X_UART_COMPONENT_ */
