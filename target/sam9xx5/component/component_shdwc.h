@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Shdwc hardware registers */
 typedef struct {
-  __O  uint32_t SHDW_CR; /**< \brief (Shdwc Offset: 0x00) Shutdown Control Register */
-  __IO uint32_t SHDW_MR; /**< \brief (Shdwc Offset: 0x04) Shutdown Mode Register */
-  __I  uint32_t SHDW_SR; /**< \brief (Shdwc Offset: 0x08) Shutdown Status Register */
+	__O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x00) Shutdown Control Register */
+	__IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x04) Shutdown Mode Register */
+	__I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x08) Shutdown Status Register */
 } Shdwc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHDW_CR : (SHDWC Offset: 0x00) Shutdown Control Register -------- */
@@ -54,12 +54,12 @@ typedef struct {
 #define SHDW_MR_WKMODE0_Pos 0
 #define SHDW_MR_WKMODE0_Msk (0x3u << SHDW_MR_WKMODE0_Pos) /**< \brief (SHDW_MR) Wake-up Mode 0 */
 #define SHDW_MR_WKMODE0(value) ((SHDW_MR_WKMODE0_Msk & ((value) << SHDW_MR_WKMODE0_Pos)))
-#define SHDW_MR_WKMODE0_NO_DETECTION (0x0u << 0) /**< \brief (SHDW_MR) No detection is performed on the wake-up input */
-#define SHDW_MR_WKMODE0_RISING_EDGE (0x1u << 0) /**< \brief (SHDW_MR) Low to high transition triggers the detection process */
-#define SHDW_MR_WKMODE0_FALLING_EDGE (0x2u << 0) /**< \brief (SHDW_MR) High to low level transition triggers the detection process */
-#define SHDW_MR_WKMODE0_ANY_EDGE (0x3u << 0) /**< \brief (SHDW_MR) Any edge on the wake-up input triggers the detection process */
+#define   SHDW_MR_WKMODE0_NO_DETECTION (0x0u << 0) /**< \brief (SHDW_MR) No detection is performed on the wake-up input */
+#define   SHDW_MR_WKMODE0_RISING_EDGE (0x1u << 0) /**< \brief (SHDW_MR) Low to high transition triggers the detection process */
+#define   SHDW_MR_WKMODE0_FALLING_EDGE (0x2u << 0) /**< \brief (SHDW_MR) High to low level transition triggers the detection process */
+#define   SHDW_MR_WKMODE0_ANY_EDGE (0x3u << 0) /**< \brief (SHDW_MR) Any edge on the wake-up input triggers the detection process */
 #define SHDW_MR_CPTWK0_Pos 4
-#define SHDW_MR_CPTWK0_Msk (0xfu << SHDW_MR_CPTWK0_Pos) /**< \brief (SHDW_MR) Counter on Wake-up 0 */
+#define SHDW_MR_CPTWK0_Msk (0xfu << SHDW_MR_CPTWK0_Pos) /**< \brief (SHDW_MR) Debounce Counter on Wake-up 0 */
 #define SHDW_MR_CPTWK0(value) ((SHDW_MR_CPTWK0_Msk & ((value) << SHDW_MR_CPTWK0_Pos)))
 #define SHDW_MR_RTCWKEN (0x1u << 17) /**< \brief (SHDW_MR) Real-time Clock Wake-up Enable */
 /* -------- SHDW_SR : (SHDWC Offset: 0x08) Shutdown Status Register -------- */
@@ -67,6 +67,5 @@ typedef struct {
 #define SHDW_SR_RTCWK (0x1u << 17) /**< \brief (SHDW_SR) Real-time Clock Wake-up */
 
 /*@}*/
-
 
 #endif /* _SAM9X_SHDWC_COMPONENT_ */

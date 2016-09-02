@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Shdwc hardware registers */
 typedef struct {
-  __O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x00) Shutdown Control Register */
-  __IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x04) Shutdown Mode Register */
-  __I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x08) Shutdown Status Register */
-  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0C) Shutdown Wake-up Inputs Register */
+	__O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x00) Shutdown Control Register */
+	__IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x04) Shutdown Mode Register */
+	__I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x08) Shutdown Status Register */
+	__IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0C) Shutdown Wake-up Inputs Register */
 } Shdwc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHDW_CR : (SHDWC Offset: 0x00) Shutdown Control Register -------- */
@@ -172,6 +172,5 @@ typedef struct {
 #define   SHDW_WUIR_WKUPT8_HIGH (0x1u << 24) /**< \brief (SHDW_WUIR) A rising edge followed by a high level, for a period defined by WKUPDBC, on the corresponding wake-up input forces the wake-up of the core power supply. */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SHDWC_COMPONENT_ */
