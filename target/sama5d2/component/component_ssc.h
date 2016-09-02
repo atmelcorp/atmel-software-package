@@ -39,29 +39,27 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Ssc hardware registers */
 typedef struct {
-  __O  uint32_t SSC_CR;        /**< \brief (Ssc Offset: 0x0) Control Register */
-  __IO uint32_t SSC_CMR;       /**< \brief (Ssc Offset: 0x4) Clock Mode Register */
-  __I  uint32_t Reserved1[2];
-  __IO uint32_t SSC_RCMR;      /**< \brief (Ssc Offset: 0x10) Receive Clock Mode Register */
-  __IO uint32_t SSC_RFMR;      /**< \brief (Ssc Offset: 0x14) Receive Frame Mode Register */
-  __IO uint32_t SSC_TCMR;      /**< \brief (Ssc Offset: 0x18) Transmit Clock Mode Register */
-  __IO uint32_t SSC_TFMR;      /**< \brief (Ssc Offset: 0x1C) Transmit Frame Mode Register */
-  __I  uint32_t SSC_RHR;       /**< \brief (Ssc Offset: 0x20) Receive Holding Register */
-  __O  uint32_t SSC_THR;       /**< \brief (Ssc Offset: 0x24) Transmit Holding Register */
-  __I  uint32_t Reserved2[2];
-  __I  uint32_t SSC_RSHR;      /**< \brief (Ssc Offset: 0x30) Receive Sync. Holding Register */
-  __IO uint32_t SSC_TSHR;      /**< \brief (Ssc Offset: 0x34) Transmit Sync. Holding Register */
-  __IO uint32_t SSC_RC0R;      /**< \brief (Ssc Offset: 0x38) Receive Compare 0 Register */
-  __IO uint32_t SSC_RC1R;      /**< \brief (Ssc Offset: 0x3C) Receive Compare 1 Register */
-  __I  uint32_t SSC_SR;        /**< \brief (Ssc Offset: 0x40) Status Register */
-  __O  uint32_t SSC_IER;       /**< \brief (Ssc Offset: 0x44) Interrupt Enable Register */
-  __O  uint32_t SSC_IDR;       /**< \brief (Ssc Offset: 0x48) Interrupt Disable Register */
-  __I  uint32_t SSC_IMR;       /**< \brief (Ssc Offset: 0x4C) Interrupt Mask Register */
-  __I  uint32_t Reserved3[37];
-  __IO uint32_t SSC_WPMR;      /**< \brief (Ssc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t SSC_WPSR;      /**< \brief (Ssc Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved4[4];
-  __I  uint32_t SSC_VERSION;   /**< \brief (Ssc Offset: 0xFC) Version Register */
+	__O  uint32_t SSC_CR;        /**< \brief (Ssc Offset: 0x0) Control Register */
+	__IO uint32_t SSC_CMR;       /**< \brief (Ssc Offset: 0x4) Clock Mode Register */
+	__I  uint32_t Reserved1[2];
+	__IO uint32_t SSC_RCMR;      /**< \brief (Ssc Offset: 0x10) Receive Clock Mode Register */
+	__IO uint32_t SSC_RFMR;      /**< \brief (Ssc Offset: 0x14) Receive Frame Mode Register */
+	__IO uint32_t SSC_TCMR;      /**< \brief (Ssc Offset: 0x18) Transmit Clock Mode Register */
+	__IO uint32_t SSC_TFMR;      /**< \brief (Ssc Offset: 0x1C) Transmit Frame Mode Register */
+	__I  uint32_t SSC_RHR;       /**< \brief (Ssc Offset: 0x20) Receive Holding Register */
+	__O  uint32_t SSC_THR;       /**< \brief (Ssc Offset: 0x24) Transmit Holding Register */
+	__I  uint32_t Reserved2[2];
+	__I  uint32_t SSC_RSHR;      /**< \brief (Ssc Offset: 0x30) Receive Sync. Holding Register */
+	__IO uint32_t SSC_TSHR;      /**< \brief (Ssc Offset: 0x34) Transmit Sync. Holding Register */
+	__IO uint32_t SSC_RC0R;      /**< \brief (Ssc Offset: 0x38) Receive Compare 0 Register */
+	__IO uint32_t SSC_RC1R;      /**< \brief (Ssc Offset: 0x3C) Receive Compare 1 Register */
+	__I  uint32_t SSC_SR;        /**< \brief (Ssc Offset: 0x40) Status Register */
+	__O  uint32_t SSC_IER;       /**< \brief (Ssc Offset: 0x44) Interrupt Enable Register */
+	__O  uint32_t SSC_IDR;       /**< \brief (Ssc Offset: 0x48) Interrupt Disable Register */
+	__I  uint32_t SSC_IMR;       /**< \brief (Ssc Offset: 0x4C) Interrupt Mask Register */
+	__I  uint32_t Reserved3[37];
+	__IO uint32_t SSC_WPMR;      /**< \brief (Ssc Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t SSC_WPSR;      /**< \brief (Ssc Offset: 0xE8) Write Protection Status Register */
 } Ssc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SSC_CR : (SSC Offset: 0x0) Control Register -------- */
@@ -275,13 +273,7 @@ typedef struct {
 #define SSC_WPSR_WPVS (0x1u << 0) /**< \brief (SSC_WPSR) Write Protection Violation Status */
 #define SSC_WPSR_WPVSRC_Pos 8
 #define SSC_WPSR_WPVSRC_Msk (0xffffu << SSC_WPSR_WPVSRC_Pos) /**< \brief (SSC_WPSR) Write Protect Violation Source */
-/* -------- SSC_VERSION : (SSC Offset: 0xFC) Version Register -------- */
-#define SSC_VERSION_VERSION_Pos 0
-#define SSC_VERSION_VERSION_Msk (0xffffu << SSC_VERSION_VERSION_Pos) /**< \brief (SSC_VERSION) Version of the Hardware Module */
-#define SSC_VERSION_MFN_Pos 16
-#define SSC_VERSION_MFN_Msk (0x7u << SSC_VERSION_MFN_Pos) /**< \brief (SSC_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SSC_COMPONENT_ */
