@@ -87,7 +87,8 @@ void ssc_configure(struct _ssc_desc* desc)
 	uint32_t id;
 	uint32_t clock;
 	uint32_t rcmr, rfmr, tcmr, tfmr;
-	id = (desc->addr == SSC0) ? ID_SSC0 : ID_SSC1;
+
+	id = get_ssc_id_from_addr(desc->addr);
 	clock = pmc_get_peripheral_clock(id);
 
 	/* Reset, disable receiver & transmitter */
