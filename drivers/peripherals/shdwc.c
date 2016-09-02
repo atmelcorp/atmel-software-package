@@ -102,7 +102,7 @@ void shdwc_configure_wakeup(void)
 #ifdef CONFIG_SOC_SAMA5D2
        shdwc_set_wakeup_input(SHDW_WUIR_WKUPEN0_ENABLE, SHDW_WUIR_WKUPT0_LOW);
        shdwc_configure_wakeup_mode(0);
-#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SAMA5D4)
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4) || defined(CONFIG_SOC_SAM9XX5)
        SHDWC->SHDW_MR = SHDW_MR_WKMODE0_FALLING_EDGE | SHDW_MR_CPTWK0(0x8);
 #endif
 }
