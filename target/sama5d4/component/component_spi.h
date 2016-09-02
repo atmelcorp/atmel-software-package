@@ -39,35 +39,35 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Spi hardware registers */
 typedef struct {
-	__O uint32_t SPI_CR;	     /**< \brief (Spi Offset: 0x00) Control Register */
-	__IO uint32_t SPI_MR;	     /**< \brief (Spi Offset: 0x04) Mode Register */
-	__I uint32_t SPI_RDR;	     /**< \brief (Spi Offset: 0x08) Receive Data Register */
-	__O uint32_t SPI_TDR;	     /**< \brief (Spi Offset: 0x0C) Transmit Data Register */
-	__I uint32_t SPI_SR;	     /**< \brief (Spi Offset: 0x10) Status Register */
-	__O uint32_t SPI_IER;	     /**< \brief (Spi Offset: 0x14) Interrupt Enable Register */
-	__O uint32_t SPI_IDR;	     /**< \brief (Spi Offset: 0x18) Interrupt Disable Register */
-	__I uint32_t SPI_IMR;	     /**< \brief (Spi Offset: 0x1C) Interrupt Mask Register */
-	__I uint32_t Reserved1[4];
+	__O  uint32_t SPI_CR;        /**< \brief (Spi Offset: 0x00) Control Register */
+	__IO uint32_t SPI_MR;        /**< \brief (Spi Offset: 0x04) Mode Register */
+	__I  uint32_t SPI_RDR;       /**< \brief (Spi Offset: 0x08) Receive Data Register */
+	__O  uint32_t SPI_TDR;       /**< \brief (Spi Offset: 0x0C) Transmit Data Register */
+	__I  uint32_t SPI_SR;        /**< \brief (Spi Offset: 0x10) Status Register */
+	__O  uint32_t SPI_IER;       /**< \brief (Spi Offset: 0x14) Interrupt Enable Register */
+	__O  uint32_t SPI_IDR;       /**< \brief (Spi Offset: 0x18) Interrupt Disable Register */
+	__I  uint32_t SPI_IMR;       /**< \brief (Spi Offset: 0x1C) Interrupt Mask Register */
+	__I  uint32_t Reserved1[4];
 	__IO uint32_t SPI_CSR[4];    /**< \brief (Spi Offset: 0x30) Chip Select Register */
-	__I uint32_t Reserved2[41];
-	__IO uint32_t SPI_WPMR;	     /**< \brief (Spi Offset: 0xE4) Write Protection Mode Register */
-	__I uint32_t SPI_WPSR;	     /**< \brief (Spi Offset: 0xE8) Write Protection Status Register */
+	__I  uint32_t Reserved2[41];
+	__IO uint32_t SPI_WPMR;      /**< \brief (Spi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t SPI_WPSR;      /**< \brief (Spi Offset: 0xE8) Write Protection Status Register */
 } Spi;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SPI_CR : (SPI Offset: 0x00) Control Register -------- */
 #define SPI_CR_SPIEN (0x1u << 0) /**< \brief (SPI_CR) SPI Enable */
 #define SPI_CR_SPIDIS (0x1u << 1) /**< \brief (SPI_CR) SPI Disable */
 #define SPI_CR_SWRST (0x1u << 7) /**< \brief (SPI_CR) SPI Software Reset */
 #define SPI_CR_LASTXFER (0x1u << 24) /**< \brief (SPI_CR) Last Transfer */
 /* -------- SPI_MR : (SPI Offset: 0x04) Mode Register -------- */
-#define SPI_MR_MSTR (0x1u << 0)	/**< \brief (SPI_MR) Master/Slave Mode */
+#define SPI_MR_MSTR (0x1u << 0) /**< \brief (SPI_MR) Master/Slave Mode */
 #define SPI_MR_PS (0x1u << 1) /**< \brief (SPI_MR) Peripheral Select */
 #define SPI_MR_PCSDEC (0x1u << 2) /**< \brief (SPI_MR) Chip Select Decode */
 #define SPI_MR_MODFDIS (0x1u << 4) /**< \brief (SPI_MR) Mode Fault Detection */
 #define SPI_MR_WDRBT (0x1u << 5) /**< \brief (SPI_MR) Wait Data Read Before Transfer */
 #define SPI_MR_LLB (0x1u << 7) /**< \brief (SPI_MR) Local Loopback Enable */
 #define SPI_MR_PCS_Pos 16
-#define SPI_MR_PCS_Msk (0xfu << SPI_MR_PCS_Pos)	/**< \brief (SPI_MR) Peripheral Chip Select */
+#define SPI_MR_PCS_Msk (0xfu << SPI_MR_PCS_Pos) /**< \brief (SPI_MR) Peripheral Chip Select */
 #define SPI_MR_PCS(value) ((SPI_MR_PCS_Msk & ((value) << SPI_MR_PCS_Pos)))
 #define SPI_MR_DLYBCS_Pos 24
 #define SPI_MR_DLYBCS_Msk (0xffu << SPI_MR_DLYBCS_Pos) /**< \brief (SPI_MR) Delay Between Chip Selects */
@@ -86,13 +86,13 @@ typedef struct {
 #define SPI_TDR_PCS(value) ((SPI_TDR_PCS_Msk & ((value) << SPI_TDR_PCS_Pos)))
 #define SPI_TDR_LASTXFER (0x1u << 24) /**< \brief (SPI_TDR) Last Transfer */
 /* -------- SPI_SR : (SPI Offset: 0x10) Status Register -------- */
-#define SPI_SR_RDRF (0x1u << 0)	/**< \brief (SPI_SR) Receive Data Register Full (automatically set / cleared) */
-#define SPI_SR_TDRE (0x1u << 1)	/**< \brief (SPI_SR) Transmit Data Register Empty (automatically set / cleared) */
-#define SPI_SR_MODF (0x1u << 2)	/**< \brief (SPI_SR) Mode Fault Error (cleared on read) */
-#define SPI_SR_OVRES (0x1u << 3) /**< \brief (SPI_SR) Overrun Error Status (cleared on read) */
-#define SPI_SR_NSSR (0x1u << 8)	/**< \brief (SPI_SR) NSS Rising (cleared on read) */
-#define SPI_SR_TXEMPTY (0x1u << 9) /**< \brief (SPI_SR) Transmission Registers Empty (automatically set / cleared) */
-#define SPI_SR_UNDES (0x1u << 10) /**< \brief (SPI_SR) Underrun Error Status (Slave mode only) (cleared on read) */
+#define SPI_SR_RDRF (0x1u << 0) /**< \brief (SPI_SR) Receive Data Register Full */
+#define SPI_SR_TDRE (0x1u << 1) /**< \brief (SPI_SR) Transmit Data Register Empty */
+#define SPI_SR_MODF (0x1u << 2) /**< \brief (SPI_SR) Mode Fault Error */
+#define SPI_SR_OVRES (0x1u << 3) /**< \brief (SPI_SR) Overrun Error Status */
+#define SPI_SR_NSSR (0x1u << 8) /**< \brief (SPI_SR) NSS Rising */
+#define SPI_SR_TXEMPTY (0x1u << 9) /**< \brief (SPI_SR) Transmission Registers Empty */
+#define SPI_SR_UNDES (0x1u << 10) /**< \brief (SPI_SR) Underrun Error Status (Slave Mode Only) */
 #define SPI_SR_SPIENS (0x1u << 16) /**< \brief (SPI_SR) SPI Enable Status */
 /* -------- SPI_IER : (SPI Offset: 0x14) Interrupt Enable Register -------- */
 #define SPI_IER_RDRF (0x1u << 0) /**< \brief (SPI_IER) Receive Data Register Full Interrupt Enable */
@@ -136,7 +136,7 @@ typedef struct {
 #define   SPI_CSR_BITS_15_BIT (0x7u << 4) /**< \brief (SPI_CSR[4]) 15 bits for transfer */
 #define   SPI_CSR_BITS_16_BIT (0x8u << 4) /**< \brief (SPI_CSR[4]) 16 bits for transfer */
 #define SPI_CSR_SCBR_Pos 8
-#define SPI_CSR_SCBR_Msk (0xffu << SPI_CSR_SCBR_Pos) /**< \brief (SPI_CSR[4]) Serial Clock Baud Rate */
+#define SPI_CSR_SCBR_Msk (0xffu << SPI_CSR_SCBR_Pos) /**< \brief (SPI_CSR[4]) Serial Clock Bit Rate */
 #define SPI_CSR_SCBR(value) ((SPI_CSR_SCBR_Msk & ((value) << SPI_CSR_SCBR_Pos)))
 #define SPI_CSR_DLYBS_Pos 16
 #define SPI_CSR_DLYBS_Msk (0xffu << SPI_CSR_DLYBS_Pos) /**< \brief (SPI_CSR[4]) Delay Before SPCK */
@@ -157,4 +157,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_SPI_COMPONENT_ */
+#endif /* _SAMA5D4_SPI_COMPONENT_ */

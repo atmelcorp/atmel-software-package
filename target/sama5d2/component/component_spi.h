@@ -39,22 +39,22 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Spi hardware registers */
 typedef struct {
-  __O  uint32_t SPI_CR;        /**< \brief (Spi Offset: 0x00) Control Register */
-  __IO uint32_t SPI_MR;        /**< \brief (Spi Offset: 0x04) Mode Register */
-  __I  uint32_t SPI_RDR;       /**< \brief (Spi Offset: 0x08) Receive Data Register */
-  __O  uint32_t SPI_TDR;       /**< \brief (Spi Offset: 0x0C) Transmit Data Register */
-  __I  uint32_t SPI_SR;        /**< \brief (Spi Offset: 0x10) Status Register */
-  __O  uint32_t SPI_IER;       /**< \brief (Spi Offset: 0x14) Interrupt Enable Register */
-  __O  uint32_t SPI_IDR;       /**< \brief (Spi Offset: 0x18) Interrupt Disable Register */
-  __I  uint32_t SPI_IMR;       /**< \brief (Spi Offset: 0x1C) Interrupt Mask Register */
-  __I  uint32_t Reserved1[4];
-  __IO uint32_t SPI_CSR[4];    /**< \brief (Spi Offset: 0x30) Chip Select Register */
-  __IO uint32_t SPI_FMR;       /**< \brief (Spi Offset: 0x40) FIFO Mode Register */
-  __I  uint32_t SPI_FLR;       /**< \brief (Spi Offset: 0x44) FIFO Level Register */
-  __IO uint32_t SPI_CMPR;      /**< \brief (Spi Offset: 0x48) Comparison Register */
-  __I  uint32_t Reserved2[38];
-  __IO uint32_t SPI_WPMR;      /**< \brief (Spi Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t SPI_WPSR;      /**< \brief (Spi Offset: 0xE8) Write Protection Status Register */
+	__O  uint32_t SPI_CR;        /**< \brief (Spi Offset: 0x00) Control Register */
+	__IO uint32_t SPI_MR;        /**< \brief (Spi Offset: 0x04) Mode Register */
+	__I  uint32_t SPI_RDR;       /**< \brief (Spi Offset: 0x08) Receive Data Register */
+	__O  uint32_t SPI_TDR;       /**< \brief (Spi Offset: 0x0C) Transmit Data Register */
+	__I  uint32_t SPI_SR;        /**< \brief (Spi Offset: 0x10) Status Register */
+	__O  uint32_t SPI_IER;       /**< \brief (Spi Offset: 0x14) Interrupt Enable Register */
+	__O  uint32_t SPI_IDR;       /**< \brief (Spi Offset: 0x18) Interrupt Disable Register */
+	__I  uint32_t SPI_IMR;       /**< \brief (Spi Offset: 0x1C) Interrupt Mask Register */
+	__I  uint32_t Reserved1[4];
+	__IO uint32_t SPI_CSR[4];    /**< \brief (Spi Offset: 0x30) Chip Select Register */
+	__IO uint32_t SPI_FMR;       /**< \brief (Spi Offset: 0x40) FIFO Mode Register */
+	__I  uint32_t SPI_FLR;       /**< \brief (Spi Offset: 0x44) FIFO Level Register */
+	__IO uint32_t SPI_CMPR;      /**< \brief (Spi Offset: 0x48) Comparison Register */
+	__I  uint32_t Reserved2[38];
+	__IO uint32_t SPI_WPMR;      /**< \brief (Spi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t SPI_WPSR;      /**< \brief (Spi Offset: 0xE8) Write Protection Status Register */
 } Spi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SPI_CR : (SPI Offset: 0x00) Control Register -------- */
@@ -118,18 +118,18 @@ typedef struct {
 #define SPI_TDR_TD1_Msk (0xffffu << SPI_TDR_TD1_Pos) /**< \brief (SPI_TDR) Transmit Data */
 #define SPI_TDR_TD1(value) ((SPI_TDR_TD1_Msk & ((value) << SPI_TDR_TD1_Pos)))
 /* -------- SPI_SR : (SPI Offset: 0x10) Status Register -------- */
-#define SPI_SR_RDRF (0x1u << 0) /**< \brief (SPI_SR) Receive Data Register Full (cleared by reading SPI_RDR) */
-#define SPI_SR_TDRE (0x1u << 1) /**< \brief (SPI_SR) Transmit Data Register Empty (cleared by writing SPI_TDR) */
-#define SPI_SR_MODF (0x1u << 2) /**< \brief (SPI_SR) Mode Fault Error (cleared on read) */
-#define SPI_SR_OVRES (0x1u << 3) /**< \brief (SPI_SR) Overrun Error Status (cleared on read) */
-#define SPI_SR_NSSR (0x1u << 8) /**< \brief (SPI_SR) NSS Rising (cleared on read) */
-#define SPI_SR_TXEMPTY (0x1u << 9) /**< \brief (SPI_SR) Transmission Registers Empty (cleared by writing SPI_TDR) */
-#define SPI_SR_UNDES (0x1u << 10) /**< \brief (SPI_SR) Underrun Error Status (Slave mode only) (cleared on read) */
-#define SPI_SR_CMP (0x1u << 11) /**< \brief (SPI_SR) Comparison Status (cleared on read) */
+#define SPI_SR_RDRF (0x1u << 0) /**< \brief (SPI_SR) Receive Data Register Full */
+#define SPI_SR_TDRE (0x1u << 1) /**< \brief (SPI_SR) Transmit Data Register Empty */
+#define SPI_SR_MODF (0x1u << 2) /**< \brief (SPI_SR) Mode Fault Error */
+#define SPI_SR_OVRES (0x1u << 3) /**< \brief (SPI_SR) Overrun Error Status */
+#define SPI_SR_NSSR (0x1u << 8) /**< \brief (SPI_SR) NSS Rising */
+#define SPI_SR_TXEMPTY (0x1u << 9) /**< \brief (SPI_SR) Transmission Registers Empty */
+#define SPI_SR_UNDES (0x1u << 10) /**< \brief (SPI_SR) Underrun Error Status (Slave Mode Only) */
+#define SPI_SR_CMP (0x1u << 11) /**< \brief (SPI_SR) Comparison Status */
 #define SPI_SR_SPIENS (0x1u << 16) /**< \brief (SPI_SR) SPI Enable Status */
-#define SPI_SR_TXFEF (0x1u << 24) /**< \brief (SPI_SR) Transmit FIFO Empty Flag (cleared on read) */
-#define SPI_SR_TXFFF (0x1u << 25) /**< \brief (SPI_SR) Transmit FIFO Full Flag (cleared on read) */
-#define SPI_SR_TXFTHF (0x1u << 26) /**< \brief (SPI_SR) Transmit FIFO Threshold Flag (cleared on read) */
+#define SPI_SR_TXFEF (0x1u << 24) /**< \brief (SPI_SR) Transmit FIFO Empty Flag */
+#define SPI_SR_TXFFF (0x1u << 25) /**< \brief (SPI_SR) Transmit FIFO Full Flag */
+#define SPI_SR_TXFTHF (0x1u << 26) /**< \brief (SPI_SR) Transmit FIFO Threshold Flag */
 #define SPI_SR_RXFEF (0x1u << 27) /**< \brief (SPI_SR) Receive FIFO Empty Flag */
 #define SPI_SR_RXFFF (0x1u << 28) /**< \brief (SPI_SR) Receive FIFO Full Flag */
 #define SPI_SR_RXFTHF (0x1u << 29) /**< \brief (SPI_SR) Receive FIFO Threshold Flag */
@@ -255,6 +255,5 @@ typedef struct {
 #define SPI_WPSR_WPVSRC_Msk (0xffu << SPI_WPSR_WPVSRC_Pos) /**< \brief (SPI_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SPI_COMPONENT_ */
