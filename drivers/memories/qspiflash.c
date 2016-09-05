@@ -92,6 +92,9 @@
 /* QSPI Commands (Spansion) */
 #define CMD_SPANSION_QPP 0x32 /* Quad Page Programming */
 
+/* QSPI Commands (SST) */
+#define CMD_SST_ULBPR 0x98 /* Unlock Block Protection */
+
 /** QSPI Status Register bits */
 #define SR_WIP              (1 << 0) /* Write In Progress */
 #define SR_MACRONIX_QUAD_EN (1 << 6) /* Quad-IO Enable */
@@ -145,6 +148,7 @@ struct _flash_init {
 static bool _qspiflash_init_micron(struct _qspiflash *flash);
 static bool _qspiflash_init_macronix(struct _qspiflash *flash);
 static bool _qspiflash_init_spansion(struct _qspiflash *flash);
+static bool _qspiflash_init_sst(struct _qspiflash *flash);
 
 /*----------------------------------------------------------------------------
  *        Local Constants
@@ -165,6 +169,7 @@ static const struct _flash_init flash_inits[] = {
 	{ SPINOR_MANUF_MICRON, _qspiflash_init_micron },
 	{ SPINOR_MANUF_MACRONIX, _qspiflash_init_macronix },
 	{ SPINOR_MANUF_SPANSION, _qspiflash_init_spansion },
+	{ SPINOR_MANUF_SST, _qspiflash_init_sst },
 };
 
 /*----------------------------------------------------------------------------
@@ -686,6 +691,15 @@ static bool _qspiflash_init_spansion(struct _qspiflash *flash)
 		return false;
 
 	return true;
+}
+
+/*----------------------------------------------------------------------------
+ *        Local Functions (SST/Microchip support)
+ *----------------------------------------------------------------------------*/
+
+static bool _qspiflash_init_sst(struct _qspiflash *flash)
+{
+	return _qspiflash_write_reg(flash, CMD_SST_ULBPR, NULL, 0);
 }
 
 
