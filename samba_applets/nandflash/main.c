@@ -304,7 +304,13 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			(nand_onfi_get_pages_per_block() * nand_onfi_get_page_size()) / 1024;
 
 		correctability = nand_onfi_get_ecc_correctability();
-		correctability = correctability == 0xFF ? 32 : correctability;
+		if (correctability != 0xFF) {
+			/* ONFI correctability is number of ECC bits per 512 bytes of data */
+			correctability = correctability * nand_onfi_get_page_size() / 512;
+		} else {
+			/* force maximum correctability */
+			correctability = 32;
+		}
 
 		switch (nand_onfi_get_page_size()) {
 		case 256:
