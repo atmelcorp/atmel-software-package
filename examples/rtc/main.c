@@ -563,11 +563,6 @@ int main(void)
 	rtc_calibration(Temperature);
 #endif
 
-	/* Configure RTC interrupts */
-	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
-	aic_set_source_vector(ID_RTC, sysc_handler);
-	aic_enable(ID_RTC);
-
 	/* Refresh display once */
 	_RefreshDisplay();
 	new_time.hour = 0;
@@ -576,6 +571,13 @@ int main(void)
 	rtc_set_time_alarm(&new_time);
 	bMenuShown = 0;
 	alarmTriggered = 0;
+
+	/* Configure RTC interrupts
+	 * on sam9xx5,system peripheral including pit, rtc, wdt, etc. 
+	 * System interrupt is enabled on the init phase */
+	aic_set_source_vector(ID_RTC, sysc_handler);
+	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
+	aic_enable(ID_RTC);
 
 	/* Handle keypresses */
 	while (1) {
