@@ -53,6 +53,10 @@ Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
 ----------------
 Connect PE27 (J22 pin 11) and PC12 (J2 pin 29) on the board.
 
+### SAMA9XX5-EK
+----------------
+Connect PA22 (J1 pin 18) and PA23 (J1 pin 20) on the board.
+
 
 ## Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
 -------------------------------------------
