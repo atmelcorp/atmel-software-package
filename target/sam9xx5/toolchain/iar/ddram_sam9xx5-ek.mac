@@ -350,22 +350,13 @@ __initDDRAM()
     __message "-------------------------------Configuring the DDRAM controller------------\n";
     __message "-------------------------------MICRON DDRAM configuration------------------\n";
 
-    // 0xFFFFE600 DDR2C Base Address
-
-     __writeMemory32(0x0102030A,0xFFFFDF20,"Memory");    /* Rev. B EK and VB */
+     __writeMemory32(0x020202,0xFFFFDF20,"Memory");
+    __writeMemory32(0x04, 0xFFFFE82C,"Memory");
 
     /* Enable DDR2 clock x2 in PMC  PMC->PMC_SCER = PMC_SCER_DDRCK; */
     __writeMemory32(0x04,0xFFFFFC00,"Memory");
 
     /* Configure the DDR controller */
-
-    // Disable anticipated read
-    //WRITE(pDdrc, HDDRSDRC2_HS, (READ(pDdrc, HDDRSDRC2_HS) | AT91C_DDRC2_NO_ANT));
-    tempVal = __readMemory32(0xFFFFE82C,"Memory");
-    tempVal |= 0x04;
-    __writeMemory32(tempVal,0xFFFFE82C,"Memory");
-
-
     // -----------------------Step 1-------------------
     // Program the memory device type
     // ------------------------------------------------
@@ -389,7 +380,7 @@ __initDDRAM()
                             | DDRSDRC_CR_CAS(3)            // CAS Latency 3
                             | (0x1 << 20);                 // (DDRSDRC) DDR2 8 bank
     */
-    __writeMemory32(0x0000B9,0xFFFFE808,"Memory");
+    __writeMemory32(0x100039,0xFFFFE808,"Memory");
 
     /* assume timings for 7.5ns min clock period */
     /*
@@ -430,7 +421,7 @@ __initDDRAM()
     __writeMemory32(0x0,0x20000000,"Memory");
 
     // A minimum pause of 200 μs is provided to precede any signal toggle.
-    __delay(200);
+    __delay(1);
 
     // Now clocks which drive DDR2-SDRAM device are enabled
 
@@ -440,8 +431,8 @@ __initDDRAM()
     __writeMemory32(0x1,0xFFFFE800,"Memory");
     __writeMemory32(0x0,0x20000000,"Memory");
     // wait 400 ns min
-    __delay(200);
-    // Now CKE is driven high.
+    __delay(1);
+
 
     // -----------------------Step 5-------------------
     // An all banks precharge command is issued to the
@@ -613,11 +604,6 @@ __initDDRAM()
     // -------------------------------------------------
     // HDDRSDRC2_RTR, 0x00000411
     __writeMemory32(0x00000411,0xFFFFE804,"Memory");
-
-    // Read optimization" shall be un-selected on this revision.
-    __writeMemory32(0x04,0xFFFFE82C,"Memory");
-
-    // OK now we are ready to work on the DDRSDR
 
     // wait for end of calibration
     __delay(1);
