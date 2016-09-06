@@ -164,15 +164,14 @@ void board_cfg_console(uint32_t baudrate)
 #endif
 }
 
-#if 0
 void board_restore_pio_reset_state(void)
 {
 	int i;
 
-	/* all pins, excluding JTAG and NTRST */
+	/* all pins */
 	struct _pin pins[] = {
-		{ PIO_GROUP_A, 0xFFFEFEFE, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_B, 0xFCFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_D, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 	};
@@ -204,17 +203,15 @@ void board_save_misc_power(void)
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK0);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK1);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_PCK2);
+#ifdef CONFIG_HAVE_ISC
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+#endif
 
-	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
-	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
-		if (i == ID_PIOA)
-			continue;
+	/* disable all peripheral clocks */
+	for (i = ID_PIOA; i < ID_PERIPH_COUNT; i++) {
 		pmc_disable_peripheral(i);
 	}
 }
-#endif
 
 void board_cfg_mmu(void)
 {
