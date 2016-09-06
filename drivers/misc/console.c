@@ -45,6 +45,9 @@
 #ifdef CONFIG_HAVE_DBGU
 #include "peripherals/dbgu.h"
 #endif
+#ifdef CONFIG_HAVE_L2CC
+#include "peripherals/l2cc.h"
+#endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/uart.h"
@@ -246,6 +249,9 @@ void console_example_info(const char *example_name)
 	printf("MMU is %s\r\n", cp15_mmu_is_enabled() ? "enabled" : "disabled");
 	printf("I-Cache is %s\r\n", cp15_icache_is_enabled() ? "enabled" : "disabled");
 	printf("D-Cache is %s\r\n", cp15_dcache_is_enabled() ? "enabled" : "disabled");
+#ifdef CONFIG_HAVE_L2CC
+	printf("L2-Cache is %s\r\n", l2cc_is_enabled() ? "enabled" : "disabled");
+#endif
 #endif
 	printf("\r\n");
 }
