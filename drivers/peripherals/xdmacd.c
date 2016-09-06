@@ -76,6 +76,7 @@ enum {
 	XDMACD_STATE_ALLOCATED, /**< Allocated to some peripheral */
 	XDMACD_STATE_STARTED,   /**< DMA started */
 	XDMACD_STATE_DONE,      /**< DMA transfer done */
+	XDMACD_STATE_SUSPENDED, /**< DMA suspended */
 };
 
 /** DMA driver channel */
@@ -425,6 +426,33 @@ uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel)
 	channel->state = XDMACD_STATE_ALLOCATED;
 
 	return XDMACD_OK;
+}
+
+uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	/* Disable channel */
+	xdmac_suspend_channel(xdmac, channel->id);
+
+	/* Change state to 'allocated' */
+	channel->state = XDMACD_STATE_SUSPENDED;
+
+	return XDMACD_OK;
+}
+
+uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	return xdmac_get_microblock_control(xdmac, channel->id);
+}
+
+void xdmacd_fifo_flush(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	xdmac_fifo_flush(xdmac, channel->id);
 }
 
 /**@}*/

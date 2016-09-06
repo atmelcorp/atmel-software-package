@@ -83,6 +83,7 @@ enum {
 	DMACD_STATE_ALLOCATED, /**< Allocated to some peripheral */
 	DMACD_STATE_STARTED,   /**< DMA started */
 	DMACD_STATE_DONE,      /**< DMA transfer done */
+	DMACD_STATE_SUSPENDED, /**< DMA suspended */
 };
 
 /** DMA driver channel */
@@ -411,5 +412,34 @@ uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel)
 
 	return DMACD_OK;
 }
+
+uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	/* Suspend channel */
+	dmac_suspend_channel(dmac, channel->id);
+
+	/* Change state to 'suspended' */
+	channel->state = DMACD_STATE_SUSPENDED;
+
+	return DMACD_OK;
+}
+
+void dmacd_fifo_flush(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	dmac_fifo_flush(dmac, channel->id);
+}
+
+
+uint32_t dmacd_get_remaining_data_len(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	return dmac_get_btsize(dmac, channel->id);
+}
+
 
 /**@}*/

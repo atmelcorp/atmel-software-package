@@ -92,7 +92,7 @@ enum {
 	XDMACD_DONE,
 	XDMACD_BUSY,	     /**< Channel occupied or transfer not finished */
 	XDMACD_ERROR,	     /**< Operation failed */
-	XDMACD_CANCELED	     /**< Operation canceled */
+	XDMACD_CANCELED      /**< Operation canceled */
 };
 
 /** DMA channel */
@@ -226,6 +226,25 @@ extern bool xdmacd_is_transfer_done(struct _xdmacd_channel *channel);
  * \param channel Channel pointer
  */
 extern uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel);
+
+/**
+ * \brief Suspend DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel);
+
+/**
+ * \brief Get size of remaining data to be transferred by DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel);
+
+/**
+ * \brief Flush the relevant channel's FIFO of given XDMAC.
+ *
+ * \param channel Channel pointer
+ */
+extern void xdmacd_fifo_flush(struct _xdmacd_channel *channel);
 
 /**     @}*/
 

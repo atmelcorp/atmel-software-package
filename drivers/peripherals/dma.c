@@ -472,12 +472,39 @@ uint32_t dma_stop_transfer(struct dma_channel *channel)
 #endif
 }
 
+uint32_t dma_suspend_transfer(struct dma_channel *channel)
+{
+#if defined(CONFIG_HAVE_XDMAC)
+	return xdmacd_suspend_transfer((struct _xdmacd_channel *)channel);
+#elif defined(CONFIG_HAVE_DMAC)
+	return dmacd_suspend_transfer((struct _dmacd_channel *)channel);
+#endif
+}
+
 void dma_poll(void)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	xdmacd_poll();
 #elif defined(CONFIG_HAVE_DMAC)
 	dmacd_poll();
+#endif
+}
+
+uint32_t dma_get_remaining_data_len(struct dma_channel *channel, uint8_t chunk_size)
+{
+#if defined(CONFIG_HAVE_XDMAC)
+	return xdmacd_get_remaining_data_len((struct _xdmacd_channel *)channel) * (1 << chunk_size);
+#elif defined(CONFIG_HAVE_DMAC)
+	return dmacd_get_remaining_data_len((struct _dmacd_channel *)channel) * ( 1 << chunk_size);
+#endif
+}
+
+void dma_fifo_flush(struct dma_channel *channel)
+{
+#if defined(CONFIG_HAVE_XDMAC)
+	xdmacd_fifo_flush((struct _xdmacd_channel *)channel);
+#elif defined(CONFIG_HAVE_DMAC)
+	dmacd_fifo_flush((struct _dmacd_channel *)channel);
 #endif
 }
 

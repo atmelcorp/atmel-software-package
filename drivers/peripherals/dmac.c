@@ -152,6 +152,14 @@ void dmac_disable_channel(Dmac *dmac, uint8_t channel)
 	dmac->DMAC_CHDR = DMAC_CHDR_DIS0 << channel;
 }
 
+void dmac_suspend_channel(Dmac *dmac, uint8_t channel)
+{
+	assert(dmac == DMAC0 || dmac == DMAC1);
+	assert(channel < DMAC_CHANNELS);
+
+	dmac->DMAC_CHER = DMAC_CHER_SUSP0 << channel;
+}
+
 void dmac_disable_channels(Dmac *dmac, uint8_t channel_mask)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
@@ -290,4 +298,19 @@ void dmac_set_des_pip(Dmac *dmac, uint8_t channel, uint32_t pip)
 	assert(channel < DMAC_CHANNELS);
 
 	dmac->DMAC_CH_NUM[channel].DMAC_DPIP = pip;
+}
+
+uint32_t dmac_get_btsize(Dmac *dmac, uint8_t channel)
+{
+	assert(dmac == DMAC0 || dmac == DMAC1);
+	assert(channel < DMAC_CHANNELS);
+	return (dmac->DMAC_CH_NUM[channel].DMAC_CTRLA & DMAC_CTRLA_BTSIZE_Msk);
+}
+
+void dmac_fifo_flush(Dmac *dmac, uint8_t channel)
+{
+	assert(dmac == DMAC0 || dmac == DMAC1);
+	assert(channel < DMAC_CHANNELS);
+
+	while ((dmac->DMAC_CHSR & (DMAC_CHSR_EMPT0 << channel)) == 0);
 }

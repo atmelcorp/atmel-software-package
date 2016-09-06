@@ -210,6 +210,14 @@ extern void dmac_enable_channels(Dmac *dmac, uint8_t channel_mask);
 extern void dmac_disable_channel(Dmac *dmac, uint8_t channel);
 
 /**
+ * \brief suspend the relevant channel of given DMAC.
+ *
+ * \param dmac Pointer to the DMAC instance.
+ * \param channel Particular channel number.
+ */
+extern void dmac_suspend_channel(Dmac *dmac, uint8_t channel);
+
+/**
  * \brief Disables the relevant channels of given DMAC.
  *
  * \param dmac Pointer to the DMAC instance.
@@ -368,6 +376,22 @@ extern void dmac_set_src_pip(Dmac *dmac, uint8_t channel,
 extern void dmac_set_des_pip(Dmac *dmac, uint8_t channel,
 			       uint32_t pip);
 
+/**
+ * \brief Get the buffer trasnfer length for the relevant channel of given DMA.
+ *
+ * \param dmac Pointer to the DMAC instance.
+ * \param channel Particular channel number.
+ * \return the remaining microblock length
+ */
+extern uint32_t dmac_get_btsize(Dmac *dmac, uint8_t channel);
+
+/**
+ * \brief Flush the relevant channel's FIFO of given DMA.
+ *
+ * \param dmac Pointer to the XDMAC instance.
+ * \param channel Particular channel number.
+ */
+extern void dmac_fifo_flush(Dmac *dmac, uint8_t channel);
 
 #ifdef __cplusplus
 }

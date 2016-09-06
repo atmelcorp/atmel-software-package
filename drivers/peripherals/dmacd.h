@@ -178,6 +178,24 @@ extern bool dmacd_is_transfer_done(struct _dmacd_channel *channel);
  */
 extern uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel);
 
+/**
+ * \brief Suspend DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel);
+
+/**
+ * \brief Flush the relevant channel's FIFO of given DMAC.
+ *
+ * \param channel Channel pointer
+ */
+extern void dmacd_fifo_flush(struct _dmacd_channel *channel);
+
+/**
+ * \brief Get size of remaining data to be transferred by DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t dmacd_get_remaining_data_len(struct _dmacd_channel *channel);
 
 /**     @}*/
 

@@ -276,6 +276,12 @@ extern uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 extern uint32_t dma_stop_transfer(struct dma_channel *channel);
 
 /**
+ * \brief Suspend DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t dma_suspend_transfer(struct dma_channel *channel);
+
+/**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
@@ -286,6 +292,21 @@ extern uint32_t dma_free_channel(struct dma_channel *channel);
  * \param channel Channel pointer
  */
 extern bool dma_is_transfer_done(struct dma_channel *channel);
+
+/**
+ * \brief Flush FIFO of DMA.
+ * \param channel Channel pointer
+ */
+extern void dma_fifo_flush(struct dma_channel *channel);
+
+/**
+ * \brief Remaining data to be transferred by DMA
+ * \param channel Channel pointer
+ * \param chunk_size Size of a data chunk
+ */
+extern uint32_t dma_get_remaining_data_len(struct dma_channel *channel, uint8_t chunk_size);
+
+
 /**     @}*/
 
 #endif /* _DMA_H_ */

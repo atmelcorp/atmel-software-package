@@ -217,6 +217,14 @@ extern void xdmac_enable_channels(Xdmac *xdmac, uint8_t channel_mask);
 extern void xdmac_disable_channel(Xdmac *xdmac, uint8_t channel);
 
 /**
+ * \brief Suspends the relevant channel of given XDMAC.
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ * \param channel Particular channel number.
+ */
+extern void xdmac_suspend_channel(Xdmac *xdmac, uint8_t channel);
+
+/**
  * \brief Disables the relevant channels of given XDMAC.
  *
  * \param xdmac Pointer to the XDMAC instance.
@@ -376,6 +384,15 @@ extern void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel, uint32_t
 extern void xdmac_set_microblock_control(Xdmac *xdmac, uint8_t channel, uint32_t ublen);
 
 /**
+ * \brief Get microblock length for the relevant channel of given XDMA.
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ * \param channel Particular channel number.
+ * \return the remaining microblock length
+ */
+extern uint32_t xdmac_get_microblock_control(Xdmac *xdmac, uint8_t channel);
+
+/**
  * \brief Set block length for the relevant channel of given XDMA.
  *
  * \param xdmac Pointer to the XDMAC instance.
@@ -437,6 +454,15 @@ extern void xdmac_set_dest_microblock_stride(Xdmac *xdmac, uint8_t channel, uint
  */
 extern uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel);
 
+/**
+ * \brief Flush the relevant channel's FIFO of given XDMA.
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ * \param channel Particular channel number.
+ */
+extern void xdmac_fifo_flush(Xdmac *xdmac, uint8_t channel);
+
+	
 #ifdef __cplusplus
 }
 #endif
