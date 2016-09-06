@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Rstc hardware registers */
 typedef struct {
-  __O  uint32_t RSTC_CR; /**< \brief (Rstc Offset: 0x00) Control Register */
-  __I  uint32_t RSTC_SR; /**< \brief (Rstc Offset: 0x04) Status Register */
-  __IO uint32_t RSTC_MR; /**< \brief (Rstc Offset: 0x08) Mode Register */
+	__O  uint32_t RSTC_CR; /**< \brief (Rstc Offset: 0x00) Control Register */
+	__I  uint32_t RSTC_SR; /**< \brief (Rstc Offset: 0x04) Status Register */
+	__IO uint32_t RSTC_MR; /**< \brief (Rstc Offset: 0x08) Mode Register */
 } Rstc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RSTC_CR : (RSTC Offset: 0x00) Control Register -------- */
@@ -71,6 +71,5 @@ typedef struct {
 #define   RSTC_MR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_MR) Writing any other value in this field aborts the write operation.Always reads as 0. */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_RSTC_COMPONENT_ */
