@@ -39,11 +39,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief PwmCh hardware registers */
 typedef struct {
-	__IO uint32_t PWM_CMR;      /**< \brief (PwmCh Offset: 0x0) PWM Channel Mode Register */
-	__IO uint32_t PWM_CDTY;     /**< \brief (PwmCh Offset: 0x4) PWM Channel Duty Cycle Register */
-	__IO uint32_t PWM_CPRD;     /**< \brief (PwmCh Offset: 0x8) PWM Channel Period Register */
-	__I  uint32_t PWM_CCNT;     /**< \brief (PwmCh Offset: 0xC) PWM Channel Counter Register */
-	__O  uint32_t PWM_CUPD;     /**< \brief (PwmCh Offset: 0x10) PWM Channel Update Register */
+	__IO uint32_t PWM_CMR;     /**< \brief (PwmCh Offset: 0x0) PWM Channel Mode Register */
+	__IO uint32_t PWM_CDTY;    /**< \brief (PwmCh Offset: 0x4) PWM Channel Duty Cycle Register */
+	__IO uint32_t PWM_CPRD;    /**< \brief (PwmCh Offset: 0x8) PWM Channel Period Register */
+	__I  uint32_t PWM_CCNT;    /**< \brief (PwmCh Offset: 0xC) PWM Channel Counter Register */
+	__O  uint32_t PWM_CUPD;    /**< \brief (PwmCh Offset: 0x10) PWM Channel Update Register */
 	__I  uint32_t Reserved1[3];
 } PwmCh;
 /** \brief Pwm hardware registers */

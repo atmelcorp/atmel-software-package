@@ -39,21 +39,21 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief PwmCh hardware registers */
 typedef struct {
-	__IO  uint32_t PWM_CMR;       /**< \brief (PwmCh_num Offset: 0x0) PWM Channel Mode Register */
-	__IO  uint32_t PWM_CDTY;      /**< \brief (PwmCh_num Offset: 0x4) PWM Channel Duty Cycle Register */
-	__O   uint32_t PWM_CDTYUPD;   /**< \brief (PwmCh_num Offset: 0x8) PWM Channel Duty Cycle Update Register */
-	__IO  uint32_t PWM_CPRD;      /**< \brief (PwmCh_num Offset: 0xC) PWM Channel Period Register */
-	__O   uint32_t PWM_CPRDUPD;   /**< \brief (PwmCh_num Offset: 0x10) PWM Channel Period Update Register */
-	__I   uint32_t PWM_CCNT;      /**< \brief (PwmCh_num Offset: 0x14) PWM Channel Counter Register */
-	__IO  uint32_t PWM_DT;        /**< \brief (PwmCh_num Offset: 0x18) PWM Channel Dead Time Register */
-	__O   uint32_t PWM_DTUPD;     /**< \brief (PwmCh_num Offset: 0x1C) PWM Channel Dead Time Update Register */
+	__IO uint32_t PWM_CMR;     /**< \brief (PwmCh Offset: 0x0) PWM Channel Mode Register */
+	__IO uint32_t PWM_CDTY;    /**< \brief (PwmCh Offset: 0x4) PWM Channel Duty Cycle Register */
+	__O  uint32_t PWM_CDTYUPD; /**< \brief (PwmCh Offset: 0x8) PWM Channel Duty Cycle Update Register */
+	__IO uint32_t PWM_CPRD;    /**< \brief (PwmCh Offset: 0xC) PWM Channel Period Register */
+	__O  uint32_t PWM_CPRDUPD; /**< \brief (PwmCh Offset: 0x10) PWM Channel Period Update Register */
+	__I  uint32_t PWM_CCNT;    /**< \brief (PwmCh Offset: 0x14) PWM Channel Counter Register */
+	__IO uint32_t PWM_DT;      /**< \brief (PwmCh Offset: 0x18) PWM Channel Dead Time Register */
+	__O  uint32_t PWM_DTUPD;   /**< \brief (PwmCh Offset: 0x1C) PWM Channel Dead Time Update Register */
 } PwmCh;
 /** \brief PwmCmp hardware registers */
 typedef struct {
-	__IO  uint32_t PWM_CMPV;    /**< \brief (PwmCmp Offset: 0x0) PWM Comparison 0 Value Register */
-	__O   uint32_t PWM_CMPVUPD; /**< \brief (PwmCmp Offset: 0x4) PWM Comparison 0 Value Update Register */
-	__IO  uint32_t PWM_CMPM;    /**< \brief (PwmCmp Offset: 0x8) PWM Comparison 0 Mode Register */
-	__O   uint32_t PWM_CMPMUPD; /**< \brief (PwmCmp Offset: 0xC) PWM Comparison 0 Mode Update Register */
+	__IO uint32_t PWM_CMPV;    /**< \brief (PwmCmp Offset: 0x0) PWM Comparison 0 Value Register */
+	__O  uint32_t PWM_CMPVUPD; /**< \brief (PwmCmp Offset: 0x4) PWM Comparison 0 Value Update Register */
+	__IO uint32_t PWM_CMPM;    /**< \brief (PwmCmp Offset: 0x8) PWM Comparison 0 Mode Register */
+	__O  uint32_t PWM_CMPMUPD; /**< \brief (PwmCmp Offset: 0xC) PWM Comparison 0 Mode Update Register */
 } PwmCmp;
 /** \brief Pwm hardware registers */
 typedef struct {
