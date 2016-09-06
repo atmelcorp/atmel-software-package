@@ -39,18 +39,18 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Rtc hardware registers */
 typedef struct {
-  __IO  uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
-  __IO  uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
-  __IO  uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
-  __IO  uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
-  __IO  uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
-  __IO  uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
-  __I   uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
-  __O   uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
-  __O   uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
-  __O   uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
-  __I   uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
-  __I   uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
+	__IO uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
+	__IO uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
+	__IO uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
+	__IO uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+	__IO uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
+	__IO uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
+	__I  uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
+	__O  uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
+	__O  uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
+	__O  uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
+	__I  uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
+	__I  uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
 } Rtc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RTC_CR : (RTC Offset: 0x00) Control Register -------- */
@@ -58,12 +58,14 @@ typedef struct {
 #define RTC_CR_UPDCAL (0x1u << 1) /**< \brief (RTC_CR) Update Request Calendar Register */
 #define RTC_CR_TIMEVSEL_Pos 8
 #define RTC_CR_TIMEVSEL_Msk (0x3u << RTC_CR_TIMEVSEL_Pos) /**< \brief (RTC_CR) Time Event Selection */
+#define RTC_CR_TIMEVSEL(value) ((RTC_CR_TIMEVSEL_Msk & ((value) << RTC_CR_TIMEVSEL_Pos)))
 #define   RTC_CR_TIMEVSEL_MINUTE (0x0u << 8) /**< \brief (RTC_CR) Minute change */
 #define   RTC_CR_TIMEVSEL_HOUR (0x1u << 8) /**< \brief (RTC_CR) Hour change */
 #define   RTC_CR_TIMEVSEL_MIDNIGHT (0x2u << 8) /**< \brief (RTC_CR) Every day at midnight */
 #define   RTC_CR_TIMEVSEL_NOON (0x3u << 8) /**< \brief (RTC_CR) Every day at noon */
 #define RTC_CR_CALEVSEL_Pos 16
 #define RTC_CR_CALEVSEL_Msk (0x3u << RTC_CR_CALEVSEL_Pos) /**< \brief (RTC_CR) Calendar Event Selection */
+#define RTC_CR_CALEVSEL(value) ((RTC_CR_CALEVSEL_Msk & ((value) << RTC_CR_CALEVSEL_Pos)))
 #define   RTC_CR_CALEVSEL_WEEK (0x0u << 16) /**< \brief (RTC_CR) Week change (every Monday at time 00:00:00) */
 #define   RTC_CR_CALEVSEL_MONTH (0x1u << 16) /**< \brief (RTC_CR) Month change (every 01 of each month at time 00:00:00) */
 #define   RTC_CR_CALEVSEL_YEAR (0x2u << 16) /**< \brief (RTC_CR) Year change (every January 1 at time 00:00:00) */
@@ -121,10 +123,20 @@ typedef struct {
 #define RTC_CALALR_DATEEN (0x1u << 31) /**< \brief (RTC_CALALR) Date Alarm Enable */
 /* -------- RTC_SR : (RTC Offset: 0x18) Status Register -------- */
 #define RTC_SR_ACKUPD (0x1u << 0) /**< \brief (RTC_SR) Acknowledge for Update */
+#define   RTC_SR_ACKUPD_FREERUN (0x0u << 0) /**< \brief (RTC_SR) Time and calendar registers cannot be updated. */
+#define   RTC_SR_ACKUPD_UPDATE (0x1u << 0) /**< \brief (RTC_SR) Time and calendar registers can be updated. */
 #define RTC_SR_ALARM (0x1u << 1) /**< \brief (RTC_SR) Alarm Flag */
+#define   RTC_SR_ALARM_NO_ALARMEVENT (0x0u << 1) /**< \brief (RTC_SR) No alarm matching condition occurred. */
+#define   RTC_SR_ALARM_ALARMEVENT (0x1u << 1) /**< \brief (RTC_SR) An alarm matching condition has occurred. */
 #define RTC_SR_SEC (0x1u << 2) /**< \brief (RTC_SR) Second Event */
+#define   RTC_SR_SEC_NO_SECEVENT (0x0u << 2) /**< \brief (RTC_SR) No second event has occurred since the last clear. */
+#define   RTC_SR_SEC_SECEVENT (0x1u << 2) /**< \brief (RTC_SR) At least one second event has occurred since the last clear. */
 #define RTC_SR_TIMEV (0x1u << 3) /**< \brief (RTC_SR) Time Event */
+#define   RTC_SR_TIMEV_NO_TIMEVENT (0x0u << 3) /**< \brief (RTC_SR) No time event has occurred since the last clear. */
+#define   RTC_SR_TIMEV_TIMEVENT (0x1u << 3) /**< \brief (RTC_SR) At least one time event has occurred since the last clear. */
 #define RTC_SR_CALEV (0x1u << 4) /**< \brief (RTC_SR) Calendar Event */
+#define   RTC_SR_CALEV_NO_CALEVENT (0x0u << 4) /**< \brief (RTC_SR) No calendar event has occurred since the last clear. */
+#define   RTC_SR_CALEV_CALEVENT (0x1u << 4) /**< \brief (RTC_SR) At least one calendar event has occurred since the last clear. */
 /* -------- RTC_SCCR : (RTC Offset: 0x1C) Status Clear Command Register -------- */
 #define RTC_SCCR_ACKCLR (0x1u << 0) /**< \brief (RTC_SCCR) Acknowledge Clear */
 #define RTC_SCCR_ALRCLR (0x1u << 1) /**< \brief (RTC_SCCR) Alarm Clear */
@@ -156,6 +168,5 @@ typedef struct {
 #define RTC_VER_NVCALALR (0x1u << 3) /**< \brief (RTC_VER) Non-valid Calendar Alarm */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_RTC_COMPONENT_ */

@@ -39,33 +39,30 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief RtcTs hardware registers */
 typedef struct {
-  __I uint32_t RTC_TSTR; /**< \brief (RtcTs Offset: 0x0) TimeStamp Time Register 0 */
-  __I uint32_t RTC_TSDR; /**< \brief (RtcTs Offset: 0x4) TimeStamp Date Register 0 */
-  __I uint32_t RTC_TSSR; /**< \brief (RtcTs Offset: 0x8) TimeStamp Source Register 0 */
+	__I uint32_t RTC_TSTR; /**< \brief (RtcTs Offset: 0x0) TimeStamp Time Register 0 */
+	__I uint32_t RTC_TSDR; /**< \brief (RtcTs Offset: 0x4) TimeStamp Date Register 0 */
+	__I uint32_t RTC_TSSR; /**< \brief (RtcTs Offset: 0x8) TimeStamp Source Register 0 */
 } RtcTs;
 /** \brief Rtc hardware registers */
-#define RTCTS_NUMBER 2
 typedef struct {
-  __IO uint32_t RTC_CR;               /**< \brief (Rtc Offset: 0x00) Control Register */
-  __IO uint32_t RTC_MR;               /**< \brief (Rtc Offset: 0x04) Mode Register */
-  __IO uint32_t RTC_TIMR;             /**< \brief (Rtc Offset: 0x08) Time Register */
-  __IO uint32_t RTC_CALR;             /**< \brief (Rtc Offset: 0x0C) Calendar Register */
-  __IO uint32_t RTC_TIMALR;           /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
-  __IO uint32_t RTC_CALALR;           /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
-  __I  uint32_t RTC_SR;               /**< \brief (Rtc Offset: 0x18) Status Register */
-  __O  uint32_t RTC_SCCR;             /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
-  __O  uint32_t RTC_IER;              /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
-  __O  uint32_t RTC_IDR;              /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
-  __I  uint32_t RTC_IMR;              /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
-  __I  uint32_t RTC_VER;              /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
-  __I  uint32_t Reserved1[32];
-       RtcTs    RTC_TS[RTCTS_NUMBER]; /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
-  __I  uint32_t Reserved2[2];
-  __I  uint32_t RTC_MSR;              /**< \brief (Rtc Offset: 0xD0) Milliseconds Register */
-  __I  uint32_t Reserved3[4];
-  __IO uint32_t RTC_WPMR;             /**< \brief (Rtc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t Reserved4[5];
-  __I  uint32_t RTC_VERSION;          /**< \brief (Rtc Offset: 0xFC) Version Register */
+	__IO uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
+	__IO uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
+	__IO uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
+	__IO uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+	__IO uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
+	__IO uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
+	__I  uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
+	__O  uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
+	__O  uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
+	__O  uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
+	__I  uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
+	__I  uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
+	__I  uint32_t Reserved1[32];
+	     RtcTs    RTC_TS[2];  /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
+	__I  uint32_t Reserved2[2];
+	__I  uint32_t RTC_MSR;    /**< \brief (Rtc Offset: 0xD0) Milliseconds Register */
+	__I  uint32_t Reserved3[4];
+	__IO uint32_t RTC_WPMR;   /**< \brief (Rtc Offset: 0xE4) Write Protection Mode Register */
 } Rtc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RTC_CR : (RTC Offset: 0x00) Control Register -------- */
@@ -278,13 +275,7 @@ typedef struct {
 #define RTC_WPMR_WPKEY_Msk (0xffffffu << RTC_WPMR_WPKEY_Pos) /**< \brief (RTC_WPMR) Write Protection Key */
 #define RTC_WPMR_WPKEY(value) ((RTC_WPMR_WPKEY_Msk & ((value) << RTC_WPMR_WPKEY_Pos)))
 #define   RTC_WPMR_WPKEY_PASSWD (0x525443u << 8) /**< \brief (RTC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- RTC_VERSION : (RTC Offset: 0xFC) Version Register -------- */
-#define RTC_VERSION_VERSION_Pos 0
-#define RTC_VERSION_VERSION_Msk (0xfffu << RTC_VERSION_VERSION_Pos) /**< \brief (RTC_VERSION) Version of the Hardware Module */
-#define RTC_VERSION_MFN_Pos 16
-#define RTC_VERSION_MFN_Msk (0x7u << RTC_VERSION_MFN_Pos) /**< \brief (RTC_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_RTC_COMPONENT_ */

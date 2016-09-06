@@ -44,24 +44,23 @@ typedef struct {
 	__I uint32_t RTC_TSSR; /**< \brief (RtcTs Offset: 0x8) TimeStamp Source Register 0 */
 } RtcTs;
 /** \brief Rtc hardware registers */
-#define RTCTS_NUMBER 2
 typedef struct {
-	__IO uint32_t RTC_CR;		    /**< \brief (Rtc Offset: 0x00) Control Register */
-	__IO uint32_t RTC_MR;		    /**< \brief (Rtc Offset: 0x04) Mode Register */
-	__IO uint32_t RTC_TIMR;		    /**< \brief (Rtc Offset: 0x08) Time Register */
-	__IO uint32_t RTC_CALR;		    /**< \brief (Rtc Offset: 0x0C) Calendar Register */
-	__IO uint32_t RTC_TIMALR;	    /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
-	__IO uint32_t RTC_CALALR;	    /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
-	__I uint32_t RTC_SR;		    /**< \brief (Rtc Offset: 0x18) Status Register */
-	__O uint32_t RTC_SCCR;		    /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
-	__O uint32_t RTC_IER;		    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
-	__O uint32_t RTC_IDR;		    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
-	__I uint32_t RTC_IMR;		    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
-	__I uint32_t RTC_VER;		    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
-	__I uint32_t Reserved1[32];
-	RtcTs RTC_TS[RTCTS_NUMBER];    /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
+	__IO uint32_t RTC_CR;     /**< \brief (Rtc Offset: 0x00) Control Register */
+	__IO uint32_t RTC_MR;     /**< \brief (Rtc Offset: 0x04) Mode Register */
+	__IO uint32_t RTC_TIMR;   /**< \brief (Rtc Offset: 0x08) Time Register */
+	__IO uint32_t RTC_CALR;   /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+	__IO uint32_t RTC_TIMALR; /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
+	__IO uint32_t RTC_CALALR; /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
+	__I  uint32_t RTC_SR;     /**< \brief (Rtc Offset: 0x18) Status Register */
+	__O  uint32_t RTC_SCCR;   /**< \brief (Rtc Offset: 0x1C) Status Clear Command Register */
+	__O  uint32_t RTC_IER;    /**< \brief (Rtc Offset: 0x20) Interrupt Enable Register */
+	__O  uint32_t RTC_IDR;    /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
+	__I  uint32_t RTC_IMR;    /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
+	__I  uint32_t RTC_VER;    /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
+	__I  uint32_t Reserved1[32];
+	     RtcTs    RTC_TS[2];  /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
 } Rtc;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RTC_CR : (RTC Offset: 0x00) Control Register -------- */
 #define RTC_CR_UPDTIM (0x1u << 0) /**< \brief (RTC_CR) Update Request Time Register */
 #define RTC_CR_UPDCAL (0x1u << 1) /**< \brief (RTC_CR) Update Request Calendar Register */
@@ -154,7 +153,7 @@ typedef struct {
 #define   RTC_SR_CALEV_CALEVENT (0x1u << 4) /**< \brief (RTC_SR) At least one calendar event has occurred since the last clear. */
 #define RTC_SR_TDERR (0x1u << 5) /**< \brief (RTC_SR) Time and/or Date Free Running Error */
 #define   RTC_SR_TDERR_CORRECT (0x0u << 5) /**< \brief (RTC_SR) The internal free running counters are carrying valid values since the last read of the Status Register (RTC_SR). */
-#define   RTC_SR_TDERR_ERR_TIMEDATE (0x1u << 5)	/**< \brief (RTC_SR) The internal free running counters have been corrupted (invalid date or time, non-BCD values) since the last read and/or they are still invalid. */
+#define   RTC_SR_TDERR_ERR_TIMEDATE (0x1u << 5) /**< \brief (RTC_SR) The internal free running counters have been corrupted (invalid date or time, non-BCD values) since the last read and/or they are still invalid. */
 /* -------- RTC_SCCR : (RTC Offset: 0x1C) Status Clear Command Register -------- */
 #define RTC_SCCR_ACKCLR (0x1u << 0) /**< \brief (RTC_SCCR) Acknowledge Clear */
 #define RTC_SCCR_ALRCLR (0x1u << 1) /**< \brief (RTC_SCCR) Alarm Clear */
@@ -177,11 +176,12 @@ typedef struct {
 #define RTC_IDR_CALDIS (0x1u << 4) /**< \brief (RTC_IDR) Calendar Event Interrupt Disable */
 #define RTC_IDR_TDERRDIS (0x1u << 5) /**< \brief (RTC_IDR) Time and/or Date Error Interrupt Disable */
 /* -------- RTC_IMR : (RTC Offset: 0x28) Interrupt Mask Register -------- */
-#define RTC_IMR_ACK (0x1u << 0)	/**< \brief (RTC_IMR) Acknowledge Update Interrupt Mask */
-#define RTC_IMR_ALR (0x1u << 1)	/**< \brief (RTC_IMR) Alarm Interrupt Mask */
-#define RTC_IMR_SEC (0x1u << 2)	/**< \brief (RTC_IMR) Second Event Interrupt Mask */
-#define RTC_IMR_TIM (0x1u << 3)	/**< \brief (RTC_IMR) Time Event Interrupt Mask */
-#define RTC_IMR_CAL (0x1u << 4)	/**< \brief (RTC_IMR) Calendar Event Interrupt Mask */
+#define RTC_IMR_ACK (0x1u << 0) /**< \brief (RTC_IMR) Acknowledge Update Interrupt Mask */
+#define RTC_IMR_ALR (0x1u << 1) /**< \brief (RTC_IMR) Alarm Interrupt Mask */
+#define RTC_IMR_SEC (0x1u << 2) /**< \brief (RTC_IMR) Second Event Interrupt Mask */
+#define RTC_IMR_TIM (0x1u << 3) /**< \brief (RTC_IMR) Time Event Interrupt Mask */
+#define RTC_IMR_CAL (0x1u << 4) /**< \brief (RTC_IMR) Calendar Event Interrupt Mask */
+#define RTC_IMR_TDERR (0x1u << 5) /**< \brief (RTC_IMR) Time and/or Date Error Mask */
 /* -------- RTC_VER : (RTC Offset: 0x2C) Valid Entry Register -------- */
 #define RTC_VER_NVTIM (0x1u << 0) /**< \brief (RTC_VER) Non-valid Time */
 #define RTC_VER_NVCAL (0x1u << 1) /**< \brief (RTC_VER) Non-valid Calendar */
@@ -245,4 +245,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_RTC_COMPONENT_ */
+#endif /* _SAMA5D4_RTC_COMPONENT_ */
