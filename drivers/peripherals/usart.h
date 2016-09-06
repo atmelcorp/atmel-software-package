@@ -74,6 +74,9 @@
 /* Returns 1 if the TXEMPTY bit (end of transmit) is set in the given status register value.*/
 #define USART_STATUS_TXEMPTY(status) ((status & US_CSR_TXEMPTY) == US_CSR_TXEMPTY)
 
+/* Returns 1 if the TIMEOUT bit (timeout) is set in the given status register value.*/
+#define USART_STATUS_TIMEOUT(status) ((status & US_CSR_TIMEOUT) == US_CSR_TIMEOUT)
+
 /*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
@@ -177,9 +180,10 @@ extern void usart_reset_rx(Usart *usart);
  * \brief Configure the receive timeout register.
  *
  * \param usart Pointer to a USART instance.
+ * \param baudrate The bitrate of the link
  * \param timeout The value of receive timeout.
  */
-extern void usart_set_rx_timeout(Usart *usart, uint32_t timeout);
+extern void usart_set_rx_timeout(Usart *usart, uint32_t baudrate, uint32_t timeout);
 
 /**
  * \brief Start transmission of a break.

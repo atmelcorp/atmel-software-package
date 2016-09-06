@@ -40,6 +40,7 @@
 #define USARTD_INVALID_BITRATE (2)
 #define USARTD_ERROR_LOCK      (3)
 #define USARTD_ERROR_DUPLEX    (4)
+#define USARTD_ERROR_TIMEOUT   (5)
 
 enum _usartd_buf_attr {
 	USARTD_BUF_ATTR_WRITE = 0x01,
@@ -56,13 +57,16 @@ struct _usart_desc
 	uint32_t mode;
 	uint32_t baudrate;
 	uint8_t transfer_mode;
+	uint32_t timeout; // ms
+
 	/* implicit internal padding is mandatory here */
 	struct {
 		mutex_t mutex;
 
 		struct _buffer buffer;
 		uint16_t transferred;
-		
+		bool has_timeout;
+
 		usartd_callback_t callback;
 		void*   cb_args;
 	} rx, tx;

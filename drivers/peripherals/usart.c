@@ -199,9 +199,12 @@ void usart_reset_rx(Usart *usart)
 	usart->US_CR = US_CR_RSTRX | US_CR_RXDIS;
 }
 
-void usart_set_rx_timeout(Usart *usart, uint32_t timeout)
+void usart_set_rx_timeout(Usart *usart, uint32_t baudrate, uint32_t timeout)
 {
-	usart->US_RTOR = timeout;
+	uint32_t to = ((timeout * 1000000) / ((1000000000 / baudrate) + 1));
+	if (to > US_RTOR_TO_Msk)
+		to = US_RTOR_TO_Msk;
+	usart->US_RTOR = US_RTOR_TO(to);
 }
 
 void usart_start_tx_break(Usart *usart)

@@ -116,6 +116,7 @@ static struct _usart_desc usart_desc = {
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfer_mode  = USARTD_MODE_POLLING,
+	.timeout        = 100, // unit: ms
 };
 
 static void console_handler(uint8_t key)
@@ -160,13 +161,16 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
-	struct _buffer rx = {
-		.data = (unsigned char*)read_buffer,
-		.size = size,
-		.attr = USARTD_BUF_ATTR_READ,
-	};
-	usartd_transfer(&usart_desc, &rx, usartd_finish_rx_transfer_callback, 0);
-	usartd_wait_rx_transfer(&usart_desc);
+	while (_len < size) {
+		struct _buffer rx = {
+			.data = (unsigned char*)read_buffer + _len,
+			.size = size - _len,
+			.attr = USARTD_BUF_ATTR_READ,
+		};
+		usartd_transfer(&usart_desc, &rx, usartd_finish_rx_transfer_callback, 0);
+		usartd_wait_rx_transfer(&usart_desc);
+		_len += usart_desc.rx.transferred;
+	}
 	printf("%s\r\n", read_buffer);
 }
 
