@@ -167,8 +167,8 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 			.size = size - _len,
 			.attr = USARTD_BUF_ATTR_READ,
 		};
-		usartd_transfer(&usart_desc, &rx, usartd_finish_rx_transfer_callback, 0);
-		usartd_wait_rx_transfer(&usart_desc);
+		usartd_transfer(0, &rx, usartd_finish_rx_transfer_callback, 0);
+		usartd_wait_rx_transfer(0);
 		_len += usart_desc.rx.transferred;
 	}
 	printf("%s\r\n", read_buffer);
@@ -181,8 +181,8 @@ static void _usart_write_arg_parser(const uint8_t* buffer, uint32_t len)
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, &tx, usartd_finish_tx_transfer_callback, 0);
-	usartd_wait_tx_transfer(&usart_desc);
+	usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
+	usartd_wait_tx_transfer(0);
 }
 
 static void print_menu(void)
@@ -293,7 +293,7 @@ int main (void)
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 
-	usartd_configure(&usart_desc);
+	usartd_configure(0, &usart_desc);
 	_cmd_parser = _usart_cmd_parser;
 
 	/* configure spi serial flash pins */

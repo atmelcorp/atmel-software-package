@@ -184,6 +184,9 @@
 /** SPI Interface max */
 #define SPI_IFACE_COUNT (2)
 
+/** USART Interface max */
+#define USART_IFACE_COUNT (4)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 

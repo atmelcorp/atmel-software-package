@@ -299,7 +299,7 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(&usart_desc, &tx, usartd_finish_tx_transfer_callback, 0);
+	usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
 
 }
 
@@ -365,7 +365,7 @@ static void _configure_usart(void)
 	Usart* usart = usart_desc.addr;
 	uint32_t id = get_usart_id_from_addr(usart);
 	/* Driver initialize */
-	usartd_configure(&usart_desc);
+	usartd_configure(0, &usart_desc);
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
 	usart_enable_it(usart, US_IER_RXRDY);
 	aic_set_source_vector(id, usart_irq_handler);

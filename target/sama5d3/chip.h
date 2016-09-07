@@ -189,6 +189,9 @@
 /** SPI Interface max */
 #define SPI_IFACE_COUNT (2)
 
+/** USART Interface max */
+#define USART_IFACE_COUNT (4)
+
 /** Indicates chip has an UDP High Speed. */
 #define CHIP_USB_UDPHS
 

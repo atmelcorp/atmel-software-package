@@ -49,7 +49,7 @@ enum _usartd_buf_attr {
 
 struct _usart_desc;
 
-typedef void (*usartd_callback_t)(struct _usart_desc* usartd, void* args);
+typedef void (*usartd_callback_t)(uint8_t iface, void* args);
 
 struct _usart_desc
 {
@@ -101,16 +101,16 @@ enum _usartd_trans_mode
 	USARTD_MODE_FIFO,
 };
 
-extern void usartd_configure(struct _usart_desc* desc);
-extern uint32_t usartd_transfer(struct _usart_desc* desc, struct _buffer* buf,
+extern void usartd_configure(uint8_t iface, struct _usart_desc* desc);
+extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf,
 			  usartd_callback_t cb, void* user_args);
-extern void usartd_finish_rx_transfer_callback(struct _usart_desc* desc, void* user_args);
-extern void usartd_finish_rx_transfer(struct _usart_desc* desc);
-extern uint32_t usartd_rx_is_busy(const struct _usart_desc* desc);
-extern void usartd_wait_rx_transfer(const struct _usart_desc* desc);
-extern void usartd_finish_tx_transfer_callback(struct _usart_desc* desc, void* user_args);
-extern void usartd_finish_tx_transfer(struct _usart_desc* desc);
-extern uint32_t usartd_tx_is_busy(const struct _usart_desc* desc);
-extern void usartd_wait_tx_transfer(const struct _usart_desc* desc);
+extern void usartd_finish_rx_transfer_callback(uint8_t iface, void* user_args);
+extern void usartd_finish_rx_transfer(uint8_t iface);
+extern uint32_t usartd_rx_is_busy(const uint8_t iface);
+extern void usartd_wait_rx_transfer(const uint8_t iface);
+extern void usartd_finish_tx_transfer_callback(uint8_t iface, void* user_args);
+extern void usartd_finish_tx_transfer(uint8_t iface);
+extern uint32_t usartd_tx_is_busy(const uint8_t iface);
+extern void usartd_wait_tx_transfer(const uint8_t iface);
 
 #endif /* USARTD_HEADER__ */

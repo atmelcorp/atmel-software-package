@@ -219,6 +219,9 @@
 /** SPI Interface max */
 #define SPI_IFACE_COUNT (3)
 
+/** USART Interface max */
+#define USART_IFACE_COUNT (5)
+
 /** AIC redirection unlock key */
 #define AICREDIR_KEY 0x2fb3d881u
 
