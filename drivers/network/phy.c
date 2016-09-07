@@ -62,6 +62,7 @@ static const struct _phy_dev _phy_devices[] = {
 	{ "Micrel KSZ8051", 0x0022, 0x1550 },
 	{ "Micrel KSZ8081", 0x0022, 0x1560 },
 	{ "Micrel KSZ8061", 0x0022, 0x1570 },
+	{ "Davicom DM9161AEP", 0x0181, 0xB8A0 },
 };
 
 #ifdef CONFIG_HAVE_EMAC
