@@ -281,18 +281,21 @@ void aic_end_interrupt(Aic * aic)
  *
  * \retval        0 - succeed.  1 - failed.
  */
-uint32_t aic_debug_config(Aic * aic, uint8_t protect, uint8_t mask)
+uint32_t aic_debug_config(Aic * aic, bool protect, bool mask)
 {
-	uint32_t tmp;
+	uint32_t dcr;
 
 	/* return in case the "Write Protection Mode" is enabled */
 	if (aic->AIC_WPMR & AIC_WPMR_WPEN)
 		return 1;
 
-	tmp = protect ? (1 << 1) : (0 << 1);
+	dcr = 0;
+	if (protect)
+		dcr |= AIC_DCR_PROT;
 	if (mask)
-		tmp++;
-	aic->AIC_DCR = tmp;
+		dcr |= AIC_DCR_GMSK;
+	aic->AIC_DCR = dcr;
+
 	return 0;
 }
 
