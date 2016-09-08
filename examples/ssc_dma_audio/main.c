@@ -32,17 +32,15 @@
  *
  * \section Purpose
  *
- * This example uses the Synchronous Serial Controller (SSC) of an SAMA5D4x
- * microcontroller to output an audio stream through the on-board WM8904 CODEC.
+ * This example uses the Synchronous Serial Controller (SSC) of SAMA5D3/4
+ * and SAM9XX5 microcontroller to output an audio stream through the on-board
+ * WM8904/WM8731 CODEC.
  *
  * \section Requirements
  *
- * This package can be used with SAMA5d4-EK with external
- * codec WM8904 components.
- *
  * \section Description
  * This program plays a WAV file from PC via Line-In. The audio stream is
- * sent through the SSC interface connected to the on-board WM8904, enabling
+ * sent through the SSC interface connected to the on-board audio codec, enabling
  * the sound to be audible using a pair of headphones.
  *
  * \section Usage
@@ -74,6 +72,7 @@
  * - ssc_dma_audio/main.c
  * - ssc.c
  * - wm8904.c
+ * - wm8731.c
  * - dma.c
  */
 
@@ -104,7 +103,11 @@
 #include "peripherals/ssc.h"
 #include "peripherals/pmc.h"
 
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
 #include "audio/wm8904.h"
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+#include "audio/wm8731.h"
+#endif
 
 #include "trace.h"
 
@@ -118,6 +121,16 @@
 	#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+	#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
@@ -126,7 +139,7 @@
  *        Local macros
  *----------------------------------------------------------------------------*/
 
-#define min( a, b ) (((a) < (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -144,7 +157,7 @@
  *----------------------------------------------------------------------------*/
 
 /* Audio buffer */
-static CACHE_ALIGNED_DDR uint16_t audio_buffer[AUDIO_BUFFER_LEN];
+CACHE_ALIGNED_DDR static uint16_t audio_buffer[AUDIO_BUFFER_LEN];
 
 /* Global DMA driver for all transfer */
 
@@ -186,7 +199,6 @@ static void dma_configure(void)
 
 	if (!ssc_dma_tx_channel || !ssc_dma_rx_channel) {
 		printf("DMA channel allocation error\n\r");
-
 		while(1);
 	}
 }
@@ -258,9 +270,15 @@ static void play_recording(void)
 
 static void _set_volume(uint8_t vol)
 {
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
 	printf("Setting volume to %ddB\r\n", (signed)(vol-57));
 	wm8904_set_left_volume(&wm8904, vol);
 	wm8904_set_right_volume(&wm8904, vol);
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+	printf("Setting volume to %ddB\r\n", (signed)(vol-73));
+	wm8731_set_left_volume(&wm8731, vol);
+	wm8731_set_right_volume(&wm8731, vol);
+#endif
 }
 
 /*----------------------------------------------------------------------------
@@ -291,7 +309,11 @@ extern int main( void )
 	dma_configure();
 
 	/* Initialize the audio DAC */
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
 	wm8904_configure(&wm8904);
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+	wm8731_configure(&wm8731);
+#endif
 
 	_set_volume(vol);
 	play_recording();
@@ -315,9 +337,17 @@ extern int main( void )
 				printf("Volume is already at min (-57dB)\r\n");
 			}
 		} else if (key == 'm') {
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
 			wm8904_volume_mute(&wm8904, true, true);
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+			wm8731_volume_mute(&wm8731, true);
+#endif
 		} else if (key == 'u') {
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
 			wm8904_volume_mute(&wm8904, false, false);
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+			wm8731_volume_mute(&wm8731, false);
+#endif
 		}
 	};
 }
