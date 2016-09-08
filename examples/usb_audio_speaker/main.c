@@ -134,6 +134,16 @@
 	#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+	#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
