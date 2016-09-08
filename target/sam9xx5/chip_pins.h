@@ -286,12 +286,12 @@
 
 /* ========== Pio PIN definition for SSC peripheral ========== */
 
-#define SSC0_TX (PIO_PA24B_TK0 | PIO_PA25B_TF0 | PIO_PA26B_TD0)
+#define SSC0_TX (PIO_PA24B_TK | PIO_PA25B_TF | PIO_PA26B_TD)
 
-#define SSC0_RX (PIO_PA27B_RD0 | PIO_PA28B_RK0 | PIO_PA29B_RF0)
+#define SSC0_RX (PIO_PA27B_RD | PIO_PA28B_RK | PIO_PA29B_RF)
 
 #define PINS_SSC0 {\
-	{ PIO_GROUP_C, SSC0_TX | SSC0_RX, PIO_PERIPH_A, PIO_DEFAULT },\
+	{ PIO_GROUP_A, SSC0_TX | SSC0_RX, PIO_PERIPH_B, PIO_DEFAULT },\
 }
 
 /* ========== Pio PIN definition for LCDC peripheral ========== */

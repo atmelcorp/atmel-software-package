@@ -511,6 +511,16 @@ void board_cfg_isi(void)
 }
 #endif
 
+#ifdef CONFIG_HAVE_SSC
+void board_cfg_ssc(void)
+{
+#ifdef BOARD_SSC0_PINS
+	const struct _pin pins_ssc0[] = BOARD_SSC0_PINS;
+	pio_configure(pins_ssc0, ARRAY_SIZE(pins_ssc0));
+#endif
+}
+#endif /* CONFIG_HAVE_SSC */
+
 #ifdef CONFIG_HAVE_LCDC
 void board_cfg_lcd(void)
 {

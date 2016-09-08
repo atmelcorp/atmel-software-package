@@ -176,4 +176,11 @@ extern bool board_is_sdmmc_inserted(uint32_t hsmci_id);
 */
 extern bool board_power_sdmmc_device(uint32_t hsmci_id, bool on);
 
+#ifdef CONFIG_HAVE_SSC
+/*
+ * \brief Configures SSC for the board
+ */
+extern void board_cfg_ssc(void);
+#endif
+
 #endif  /* BOARD_SUPPORT_H */

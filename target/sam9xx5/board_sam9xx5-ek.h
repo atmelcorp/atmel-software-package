@@ -218,6 +218,10 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== SSC definition ====================== */
+
+#define BOARD_SSC0_PINS PINS_SSC0
+
 /* =================== ISI device definition =================== */
 
 #define BOARD_ISI_TWI_BUS  0
@@ -252,5 +256,13 @@
 #define BOARD_AT25_DLYBS       0
 #define BOARD_AT25_DLYBCT      0
 #define BOARD_AT25_SPI_MODE    SPID_MODE_0
+
+/* ================== WM8731 definition ====================== */
+
+#define BOARD_WM8731_TWI_BUS      0
+#define BOARD_WM8731_SLAVE_ADDR   0x1a
+#define BOARD_WM8731_MCLK_PCK     0
+#define BOARD_WM8731_MCLK_PCK_SRC PMC_PCK_CSS_MAIN_CLK
+#define BOARD_WM8731_MCLK_PIN     PIN_PCK0
 
 #endif /* BOARD_SAM9XX5_EK_H_ */
