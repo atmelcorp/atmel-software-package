@@ -1,5 +1,32 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.5 - 2016-09
+
+### New drivers/examples
+
+- Added support for Microchip SST26 memories
+- Added support for DM9161AEP ethernet PHY
+- Added driver for wm8731 audio codec
+
+### Enhancements
+
+- Improved support for sam9xx5 targets in most drivers and examples
+- Added IAR support for sam9xx5-ek targets
+- Major SPI driver rework: better support for DMA/ASYNC modes and FIFOs.
+- Added a new SPI Bus API
+- Major USART driver rework: support for FIFOs, ASYNC mode and full-duplex.
+- Added interrupt support for HSMCI and SDMMC drivers
+- Major AT24 driver rework: driver now supports all AT24 variants
+- SAM-BA applets now use DMA where possible (SDMMC, NAND, QSPI/SPI Flash)
+
+### Fixes
+
+- Fixed issue with linker files that caused oversized binaries
+- Fixed issue that was causing non-bootable QSPI XIP binaries
+- Fixed automatic selection of ECC correctability value based on ONFI tables in SAM-BA NAND applet
+
+
+
 ## Version 2.4 - 2016-08
 
 ### New drivers/examples
