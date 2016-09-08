@@ -96,57 +96,49 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void twi_configure_master(Twi *twi, uint32_t twi_clock)
+uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 {
-	uint32_t ck_div, cl_div, ok, clock;
-#ifdef TWI_CWGR_HOLD
-	uint32_t hold;
-#endif
+	uint32_t ck_div, clh_div, ok, clock;
+	uint32_t hold = 0;
 	uint32_t id = get_twi_id_from_addr(twi);
 
 	assert(twi);
 	assert(id < ID_PERIPH_COUNT);
 
-	/* SVEN: TWI Slave Mode Enabled */
-	twi->TWI_CR = TWI_CR_SVEN;
-
-	/* Reset the TWI */
+	/* TWI software reset */
 	twi->TWI_CR = TWI_CR_SWRST;
-	twi->TWI_RHR;
-	timer_sleep(10);
 
-	/* TWI Slave Mode Disabled, TWI Master Mode Disabled. */
+	/* Configure dummy slave address */
 	twi->TWI_MMR = 0;
-	twi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
-	clock = pmc_get_peripheral_clock(id);
 
 	/* Compute clock */
+	clock = pmc_get_peripheral_clock(id);
 	ck_div = 0; ok = 0;
 	while (!ok) {
-		cl_div = ((clock / (2 * twi_clock)) - 3) >> ck_div;
-		if (cl_div <= 255)
+		clh_div = ((clock / (2 * twi_clock)) - 3) >> ck_div;
+		if (clh_div <= 255)
 			ok = 1;
 		else
 			ck_div++;
 	}
-	twi_clock = ROUND_INT_DIV(clock, (((cl_div * 2) << ck_div) + 3));
 	assert(ck_div < 8);
 
-	/* Compute holding time (I2C spec requires 300ns) */
 #ifdef TWI_CWGR_HOLD
-	hold = ROUND_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3;
+	/* Compute holding time (I2C spec requires 300ns) */
+	hold = TWI_CWGR_HOLD(ROUND_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3);
 #endif
 
 	/* Configure clock */
-	twi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div) | TWI_CWGR_CHDIV(cl_div) |
-#ifdef TWI_CWGR_HOLD
-		TWI_CWGR_HOLD(hold) |
-#endif
-		TWI_CWGR_CLDIV(cl_div);
+	twi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div)
+	              | TWI_CWGR_CHDIV(clh_div)
+	              | TWI_CWGR_CLDIV(clh_div)
+	              | hold;
 
 	/* Set master mode */
+	twi->TWI_CR = TWI_CR_SVDIS;
 	twi->TWI_CR = TWI_CR_MSEN;
-	timer_sleep(10);
+
+	return ROUND_INT_DIV(clock, (((clh_div * 2) << ck_div) + 3));
 }
 
 void twi_configure_slave(Twi *twi, uint8_t slave_address)
@@ -155,18 +147,13 @@ void twi_configure_slave(Twi *twi, uint8_t slave_address)
 
 	/* TWI software reset */
 	twi->TWI_CR = TWI_CR_SWRST;
-	twi->TWI_RHR;
-	timer_sleep(10);
-
-	/* TWI Slave Mode Disabled, TWI Master Mode Disabled */
-	twi->TWI_CR = TWI_CR_SVDIS | TWI_CR_MSDIS;
 
 	/* Configure slave address. */
 	twi->TWI_SMR = TWI_SMR_SADR(slave_address);
 
-	/* SVEN: TWI Slave Mode Enabled */
+	/* Set Slave Mode */
+	twi->TWI_CR = TWI_CR_MSDIS;
 	twi->TWI_CR = TWI_CR_SVEN;
-	timer_sleep(10);
 }
 
 void twi_stop(Twi *twi)

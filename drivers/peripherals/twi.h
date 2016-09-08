@@ -86,8 +86,9 @@ extern "C" {
  * frequency (in Hz). The duty cycle of the TWI clock is set to 50%.
  * \param twi  Pointer to an Twi instance.
  * \param twi_clock  Desired TWI clock frequency.
+ * \return the TWI clock frequency configured
  */
-extern void twi_configure_master(Twi *twi, uint32_t twck);
+extern uint32_t twi_configure_master(Twi *twi, uint32_t twck);
 
 /**
  * \brief Configures a TWI peripheral to operate in slave mode.
