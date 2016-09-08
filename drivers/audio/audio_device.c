@@ -96,6 +96,11 @@ static void _configure_ssc(struct _audio_desc *desc)
 		wm8904_configure(&desc->device.ssc.codec->wm8904);
 		break;
 #endif
+#ifdef CONFIG_HAVE_AUDIO_WM8731
+	case AUDIO_CODEC_WM8731:
+		wm8731_configure(&desc->device.ssc.codec->wm8731);
+		break;
+#endif
 	default:
 		trace_fatal("SSC: no supported codec defined\r\n");
 	}
@@ -240,7 +245,7 @@ void audio_enable(struct _audio_desc *desc, bool enable)
 				ssc_enable_receiver(&desc->device.ssc.desc);
 			else
 				ssc_disable_receiver(&desc->device.ssc.desc);
-			break;;
+			break;
 		}
 		break;
 #endif
@@ -280,6 +285,12 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 				wm8904_volume_mute(&desc->device.ssc.codec->wm8904, true, true);
 				break;
 #endif
+#ifdef CONFIG_HAVE_AUDIO_WM8731
+			case AUDIO_CODEC_WM8731:
+				wm8731_volume_mute(&desc->device.ssc.codec->wm8731, true);
+				break;
+#endif
+
 			default:
 				return;
 			};
@@ -303,6 +314,12 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 				wm8904_volume_mute(&desc->device.ssc.codec->wm8904, false, false);
 				break;
 #endif
+#ifdef CONFIG_HAVE_AUDIO_WM8731
+			case AUDIO_CODEC_WM8731:
+				wm8731_volume_mute(&desc->device.ssc.codec->wm8731, false);
+				break;
+#endif
+
 			default:
 				return;
 			};
@@ -327,7 +344,7 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 #if defined(CONFIG_HAVE_CLASSD)
 		case AUDIO_DEVICE_CLASSD:
 			/* classd attenuation range 0~-77db*/
-			val = (AUDIO_PLAY_MAX_VOLUME-vol)*77/AUDIO_PLAY_MAX_VOLUME;
+			val = (AUDIO_PLAY_MAX_VOLUME - vol) * 77 / AUDIO_PLAY_MAX_VOLUME;
 			classd_set_left_attenuation(val);
 			classd_set_right_attenuation(val);
 			break;
@@ -339,11 +356,20 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 			case AUDIO_CODEC_WM8904:
 				/* wm8904 heardphone output volume range -57db~6db */
-				val = (vol*63)/AUDIO_PLAY_MAX_VOLUME;
+				val = (vol * 63) / AUDIO_PLAY_MAX_VOLUME;
 				wm8904_set_left_volume(&desc->device.ssc.codec->wm8904, val);
 				wm8904_set_right_volume(&desc->device.ssc.codec->wm8904, val);
 				break;
 #endif
+#ifdef CONFIG_HAVE_AUDIO_WM8731
+			case AUDIO_CODEC_WM8731:
+				/* wm8904 heardphone output volume range -73~6db */
+				val = (vol * 79) / AUDIO_PLAY_MAX_VOLUME;
+				wm8731_set_left_volume(&desc->device.ssc.codec->wm8731, val);
+				wm8731_set_right_volume(&desc->device.ssc.codec->wm8731, val);
+				break;
+#endif
+
 			default:
 				return;
 			};

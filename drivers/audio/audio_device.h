@@ -46,6 +46,10 @@
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 #include "audio/wm8904.h"
 #endif
+#ifdef CONFIG_HAVE_AUDIO_WM8731
+#include "audio/wm8731.h"
+#endif
+
 #endif
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
@@ -61,6 +65,9 @@ enum audio_codec_type {
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
 	AUDIO_CODEC_WM8904,
 #endif
+#if defined(CONFIG_HAVE_AUDIO_WM8731)
+	AUDIO_CODEC_WM8731,
+#endif
 };
 
 /* codec control interface */
@@ -70,6 +77,9 @@ struct codec_desc {
 		uint8_t dummy; /* avoid a warning with IAR compiler */
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
 		struct _wm8904_desc wm8904;
+#endif
+#if defined(CONFIG_HAVE_AUDIO_WM8731)
+		struct _wm8731_desc wm8731;
 #endif
 	};
 };
