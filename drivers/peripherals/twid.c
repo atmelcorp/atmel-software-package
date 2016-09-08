@@ -76,6 +76,7 @@ static bool _check_nack(struct _twi_desc *desc)
 			twi_fifo_unlock(desc->addr);
 			twi_fifo_flush_tx(desc->addr);
 			trace_error("twid: command NACK\r\n");
+			twid_configure(desc);
 			return true;
 		}
 
@@ -85,6 +86,7 @@ static bool _check_nack(struct _twi_desc *desc)
 
 	if (twi_get_status(desc->addr) & TWI_SR_NACK) {
 		trace_error("twid: command NACK\r\n");
+		twid_configure(desc);
 		return true;
 	}
 
@@ -107,6 +109,7 @@ static bool _check_rx_timeout(struct _twi_desc* desc)
 	while (!twi_is_byte_received(desc->addr)) {
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Device doesn't answer (RX TIMEOUT)\r\n");
+			twid_configure(desc);
 			return true;
 		}
 	}
@@ -130,6 +133,7 @@ static bool _check_tx_timeout(struct _twi_desc* desc)
 	while (!twi_is_byte_sent(desc->addr)) {
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Device doesn't answer (TX TIMEOUT)\r\n");
+			twid_configure(desc);
 			return true;
 		}
 	}
