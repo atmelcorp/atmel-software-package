@@ -436,12 +436,12 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, int buffers,
 	return SPID_SUCCESS;
 }
 
-uint32_t spid_is_busy(const struct _spi_desc* desc)
+bool spid_is_busy(struct _spi_desc* desc)
 {
 	return mutex_is_locked(&desc->mutex);
 }
 
-void spid_wait_transfer(const struct _spi_desc* desc)
+void spid_wait_transfer(struct _spi_desc* desc)
 {
 	while (spid_is_busy(desc)) {
 		if (desc->transfer_mode == SPID_MODE_DMA)
@@ -467,4 +467,9 @@ void spid_configure(struct _spi_desc* desc)
 #endif
 
 	spi_enable(desc->addr);
+}
+
+void spid_set_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate)
+{
+	spi_set_bitrate(desc->addr, cs, bitrate);
 }

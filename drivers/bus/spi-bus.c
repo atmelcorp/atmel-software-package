@@ -171,6 +171,14 @@ void spi_bus_set_transfer_mode(const uint8_t bus_id, enum _spid_trans_mode mode)
 	_spi_bus[bus_id].spid.transfer_mode = mode;
 }
 
+void spi_bus_set_bitrate(const uint8_t bus_id, uint8_t cs, uint32_t bitrate)
+{
+	assert(bus_id < SPI_IFACE_COUNT);
+
+	spid_set_bitrate(&_spi_bus[bus_id].spid, cs, bitrate);
+}
+
+
 void spi_bus_fifo_enable(const uint8_t bus_id)
 {
 	assert(bus_id < SPI_IFACE_COUNT);

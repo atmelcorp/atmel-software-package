@@ -134,6 +134,15 @@ extern void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 			     uint32_t spi_mode);
 
 /**
+ * \brief Configures the current chip select bitrate
+ *
+ * \param spi Pointer to an Spi instance.
+ * \param cs Chip select to configure (0, 1, 2 or 3).
+ * \param bitrate
+ */
+extern void spi_set_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate);
+
+/**
  * \brief Write one data from SPI peripheral.
  *
  * \param spi Pointer to an Spi instance.

@@ -54,24 +54,26 @@ void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t
 int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
 						 spi_bus_callback_t cb, void *user_args);
 
-int32_t spi_bus_start_transaction(const uint8_t bus_id);
+int32_t spi_bus_start_transaction(uint8_t bus_id);
 
-int32_t spi_bus_stop_transaction(const uint8_t bus_id);
+int32_t spi_bus_stop_transaction(uint8_t bus_id);
 
-bool spi_bus_transaction_pending(const uint8_t bus_id);
+bool spi_bus_transaction_pending(uint8_t bus_id);
 
-bool spi_bus_is_busy(const uint8_t bus_id);
+bool spi_bus_is_busy(uint8_t bus_id);
 
-void spi_bus_wait_transfer(const uint8_t bus_id);
+void spi_bus_wait_transfer(uint8_t bus_id);
 
-enum _spid_trans_mode spi_bus_get_transfer_mode(const uint8_t bus_id);
+enum _spid_trans_mode spi_bus_get_transfer_mode(uint8_t bus_id);
 
-void spi_bus_set_transfer_mode(const uint8_t bus_id, enum _spid_trans_mode mode);
+void spi_bus_set_transfer_mode(uint8_t bus_id, enum _spid_trans_mode mode);
 
-void spi_bus_fifo_enable(const uint8_t bus_id);
+void spi_bus_set_bitrate(uint8_t bus_id, uint8_t cs, uint32_t bitrate);
 
-void spi_bus_fifo_disable(const uint8_t bus_id);
+void spi_bus_fifo_enable(uint8_t bus_id);
 
-bool spi_bus_fifo_is_enabled(const uint8_t bus_id);
+void spi_bus_fifo_disable(uint8_t bus_id);
+
+bool spi_bus_fifo_is_enabled(uint8_t bus_id);
 
 #endif /* ! SPI_BUS_H */

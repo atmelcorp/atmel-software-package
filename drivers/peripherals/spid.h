@@ -118,8 +118,10 @@ extern void spid_configure(struct _spi_desc* desc);
 extern uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, int buffers,
 							  spid_callback_t cb, void* user_args);
 
-extern uint32_t spid_is_busy(const struct _spi_desc* desc);
+extern bool spid_is_busy(struct _spi_desc* desc);
 
-extern void spid_wait_transfer(const struct _spi_desc* desc);
+extern void spid_wait_transfer(struct _spi_desc* desc);
+
+extern void spid_set_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate);
 
 #endif /* SPID_HEADER__ */

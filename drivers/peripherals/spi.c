@@ -178,6 +178,19 @@ void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 	spi->SPI_CSR[cs] = csr;
 }
 
+void spi_set_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate)
+{
+	uint32_t csr = spi->SPI_CSR[cs];
+	uint32_t id = get_spi_id_from_addr(spi);
+	assert(id < ID_PERIPH_COUNT);
+
+	csr &= ~SPI_CSR_SCBR_Msk;
+	csr |= _spi_compute_scbr(bitrate, id);
+
+	spi->SPI_CSR[cs] = csr;
+}
+
+
 uint32_t spi_get_status(Spi * spi)
 {
 	return spi->SPI_SR;
