@@ -171,6 +171,16 @@
 	#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G15_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9G35_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X25_EK)
+	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X35_EK)
+	#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
@@ -228,11 +238,11 @@ static uint32_t out_buffer_index = 0;
 /**  Number of buffers that can be sent to the DAC. */
 static volatile uint32_t num_buffers_to_send = 0;
 
-/** First USB frame flag */
-static volatile bool is_first_frame = true;
+/**  Number of buffers to wait for before the DAC starts to transmit data. */
+static volatile uint8_t dac_delay;
 
-/** audio playing flag */
-static volatile bool is_audio_playing = false;
+/**  Current state of the DAC transmission. */
+static volatile bool is_dac_active = false;
 
 /*----------------------------------------------------------------------------
  *         Internal functions
@@ -251,9 +261,7 @@ static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
-		is_audio_playing = false;
-		is_first_frame = true;
-		audio_enable(&audio_device, false);
+		is_dac_active = false;
 		return;
 	}
 
@@ -263,7 +271,7 @@ static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
 	num_buffers_to_send--;
 	index = out_buffer_index;
 	audio_dma_transfer(&audio_device, buffers[index],
-	                   buffer_sizes[index], audio_play_finish_callback);
+	                   buffer_sizes[index], NULL);
 
 }
 
@@ -281,16 +289,21 @@ static void frame_received(void *arg, uint8_t status,
 		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
 		num_buffers_to_send++;
 
-		/* Start DAC transmission if necessary */
-		if (is_first_frame && num_buffers_to_send > DAC_DELAY) {
-			is_first_frame = false;
-			audio_enable(&audio_device, true);
-			is_audio_playing = true;
-			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
-			num_buffers_to_send--;
+		/* Start DAc transmission if necessary */
+		if (!is_dac_active)  {
+			dac_delay = DAC_DELAY;
+			is_dac_active = true;
+		} else if (dac_delay > 0) {
+			/* Wait until a few buffers have been received */
+			dac_delay--;
+		} else if (audio_dma_transfer_is_done(&audio_device)) {
+			/* Start DAC transmission if necessary */
 			index = out_buffer_index;
 			audio_dma_transfer(&audio_device, buffers[index],
-			                   buffer_sizes[index], audio_play_finish_callback);
+			                   buffer_sizes[index], NULL);
+			audio_enable(&audio_device, true);
+			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
+			num_buffers_to_send--;
 
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
@@ -448,6 +461,8 @@ int main(void)
 	/* Configure Audio */
 	audio_configure(&audio_device);
 
+	audio_set_dma_callback(&audio_device, audio_play_finish_callback, NULL);
+
 	/* USB audio driver initialization */
 	cdc_audd_driver_initialize(&cdc_audd_driver_descriptors);
 
@@ -459,22 +474,16 @@ int main(void)
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
 			usb_conn = false;
 			continue;
-		} else if (!usb_conn) {
-			trace_info("USB connected\r\n");
-
-			/* Try to Start Reading the incoming audio stream */
-			audd_function_read(buffers[in_buffer_index], AUDDevice_BYTESPERFRAME,
-					frame_received, 0);
-			usb_conn = true;
 		}
 
 		if (audio_on) {
-			if (!is_audio_playing) {
+			if (!is_dac_active) {
+				audio_enable(&audio_device, false);
 				//printf("<stop_playing> ");
 				audio_on = false;
 			}
 		} else {
-			if (is_audio_playing) {
+			if (is_dac_active) {
 				//printf("<start_playing> ");
 				audio_on = true;
 			}
@@ -487,8 +496,16 @@ int main(void)
 					cdc_data_received, NULL);
 			serial_on = 1;
 		} else if (serial_on && !is_serial_port_on) {
-			printf("-I- SeriaoPort OFF\n\r");
+			printf("-I- SerialPort OFF\n\r");
 			serial_on = 0;
+		}
+		if (!usb_conn) {
+			trace_info("USB connected\r\n");
+
+			/* Try to Start Reading the incoming audio stream */
+			audd_function_read(buffers[in_buffer_index], AUDDevice_BYTESPERFRAME,
+					frame_received, 0);
+			usb_conn = true;
 		}
 	}
 }
