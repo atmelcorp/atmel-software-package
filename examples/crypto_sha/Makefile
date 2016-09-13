@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Secure Hash Algorithm example
+AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
 
 TOP := ../..
 
