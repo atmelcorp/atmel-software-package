@@ -14,6 +14,16 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 # Test
 ------
 
+## Supported targets
+--------------------
+
+* SAMA5D2-XPLAINED
+* SAMA5D3-XPLAINED
+* SAMA5D3-EK
+* SAMA5D4-XPLAINED
+* SAMA5D4-EK
+* SAM9XX5-EK
+
 ## Setup
 --------
 
@@ -21,12 +31,12 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 * Build the program and download it inside the evaluation board.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
  on Microsoft Windows) with these settings:
-	- 115200 bauds
+	- 38400 bauds
 	- 8 bits of data
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
+* Start the application
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
@@ -54,6 +64,6 @@ Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Press '1' | Print `Switch to PLLA`, `MCK = 166 Mhz`, `PLLA = 498 Mhz`, `Processor clock = 498 Mhz` on screen | PASSED | PASSED
 Press '2' | Print `MCK = 160 Mhz`, `PLLA = 0 Mhz`, `Processor clock = 480 Mhz` on screen | PASSED | PASSED
-Press '3' | Print `witch to main clock`, `MCK = 12 Mhz`, `PLLA = 0 Mhz`, `Processor clock = 12 Mhz` on screen | PASSED | PASSED
-Press '4' | Print `witch to slow clock`, `It is too slow to output info on serial port`, `So stay at this speed for a moment only`, `Go back to fast clock and continue`, `MCK = 166 Mhz`, `PLLA = 498 Mhz`, `Processor clock = 498 Mhz` on screen | PASSED | PASSED
+Press '3' | Print `Switch to main clock`, `MCK = 12 Mhz`, `PLLA = 0 Mhz`, `Processor clock = 12 Mhz` on screen | PASSED | PASSED
+Press '4' | Print `Switch to slow clock`, `It is too slow to output info on serial port`, `So stay at this speed for a moment only`, `Back to PLLA`, `MCK = 166 Mhz`, `PLLA = 498 Mhz`, `Processor clock = 498 Mhz` on screen | PASSED | PASSED
 

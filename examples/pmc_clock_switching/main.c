@@ -39,11 +39,11 @@
  *  This package can be used with SAMA5D2-XULT.
  *
  *  \section Note
- *  Using some frequency of peripheral clock would cause unreadable code on the
- *  console. (e.g. when console's target baudrate is 115200 bps, peripheral clock
- *  is 12MHz: the value of UART_BRGR will be 12000000/115200/16 = 6, and the
- *  actual baudrate of console would be 12000000/6/16 = 125000, that has a gap
- *  of 8.5% to the desired one, so the unreadable code occurs)
+ *  Using some frequency of peripheral clock would cause unreadable text on the
+ *  console. (e.g. when console's target baudrate is 38400 bps and peripheral
+ *  clock is 12MHz: the value of UART_BRGR will be 12000000/38400/16 ~= 19.53,
+ *  and the actual baudrate of console would be 12000000/20/16 = 37500, that has
+ *  a gap of 2.4% to the desired one, so unreadable text may occur)
  *
  *  \section Usage
  *  -# Build the program and download it inside the evaluation board. Please
@@ -92,8 +92,7 @@
 
 /*----------------------------------------------------------------------------
  *        Headers
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
 #include "board.h"
 #include "chip.h"
@@ -113,54 +112,37 @@
 #include "compiler.h"
 
 /*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------
- */
-
-#define MENU_STRING_LENGTH   200
-#define MENU_NB_OPTIONS      8
-char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
-	"###############################\n\r",
-	"1 -> Switch to PLLA\n\r",
-	"2 -> Switch to UPLL\n\r",
-	"3 -> Switch to main clock\n\r",
-	"4 -> Switch to slow clock\n\r",
-	"-------------------------------\n\r"};
-
-/*----------------------------------------------------------------------------
  *        Local variables
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
-volatile unsigned int MenuChoice;
+volatile uint8_t MenuChoice;
 
 /*----------------------------------------------------------------------------
  *        Local functions
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
-/**
- *  \brief Handler for DBGU input.
- */
 static void _console_handler(uint8_t c)
 {
 	MenuChoice = c;
 }
 
-static void _restore_console(void)
+static void _configure_console(void)
 {
-	board_cfg_console(0);
+	/* reconfigure console */
+	board_cfg_console(38400);
 
-	/* Initializing console interrupts */
+	/* Initialize console interrupts */
 	console_set_rx_handler(_console_handler);
 	console_enable_rx_interrupt();
 }
 
-/* ---------------------------------------------------------------------------
- * Function Name       : _print_clocks
- * Object              :
- * ---------------------------------------------------------------------------
- */
+static void _set_clock_setting(int index)
+{
+	while (!console_is_tx_empty());
+	pmc_set_custom_pck_mck(&clock_test_setting[index]);
+	_configure_console();
+}
+
 static void _print_clocks(void)
 {
 	printf("MCK = %d Mhz\r\n", (unsigned)(pmc_get_master_clock() / 1000000));
@@ -168,21 +150,22 @@ static void _print_clocks(void)
 	printf("Processor clock = %d Mhz\r\n", (unsigned)(pmc_get_processor_clock() / 1000000));
 }
 
-/* ---------------------------------------------------------------------------
- * Function Name       : _print_menu
- * Object              :
- * ---------------------------------------------------------------------------
- */
 static void _print_menu(void)
 {
-	int i;
+	printf("Select an option :\n\r"
+	       "###############################\n\r"
+	       "1 -> Switch to PLLA\n\r"
+	       "2 -> Switch to UPLL\n\r"
+	       "3 -> Switch to main clock\n\r"
+	       "4 -> Switch to slow clock\n\r"
+	       "-------------------------------\n\r"
+	       "=>");
+}
 
-	printf("Select an option :\n\r");
-
-	for (i = 0; i < MENU_NB_OPTIONS; ++i)
-		printf(menu_choice_msg[i]);
-
-	printf("=>");
+static void _wait_busyloop(int loops)
+{
+	volatile unsigned int delay;
+	for (delay = 0; delay < loops; delay++);
 }
 
 /*----------------------------------------------------------------------------
@@ -194,10 +177,9 @@ static void _print_menu(void)
 void board_init(void)
 {
 	/* Configure low-level peripherals */
-	board_cfg_lowlevel(false, false, false);
+	board_cfg_lowlevel(true, false, false);
 
-	/* Configure console */
-	board_cfg_console(0);
+	_configure_console();
 }
 
 /**
@@ -207,13 +189,8 @@ void board_init(void)
  */
 int main(void)
 {
-	volatile unsigned int delay;
-
 	/* Output example information */
 	console_example_info("Clock Switching Example");
-
-	pmc_set_custom_pck_mck(&clock_test_setting[0]);
-	_restore_console();
 
 	/* -------- Enable UTMI CLK ---------------------- */
 	pmc_enable_upll_clock();
@@ -225,49 +202,48 @@ int main(void)
 	while (1) {
 		switch (MenuChoice) {
 		case '1':
-			printf(" %c \r\n", MenuChoice);
+			printf(" %c\r\n", MenuChoice);
 			MenuChoice = 0;
 
 			printf("Switch to PLLA\r\n");
-			pmc_set_custom_pck_mck(&clock_test_setting[0]);
-			_restore_console();
+
+			_set_clock_setting(0);
 			_print_clocks();
 			_print_menu();
 			break;
 		case '2':
-			printf(" %c \r\n", MenuChoice);
+			printf(" %c\r\n", MenuChoice);
 			MenuChoice = 0;
 
 			printf("Switch to UPLL\r\n");
-			pmc_set_custom_pck_mck(&clock_test_setting[1]);
-			_restore_console();
+
+			_set_clock_setting(1);
 			_print_clocks();
 			_print_menu();
 			break;
 		case '3':
-			printf(" %c \r\n", MenuChoice);
+			printf(" %c\r\n", MenuChoice);
 			MenuChoice = 0;
 
 			printf("Switch to main clock\r\n");
-			pmc_set_custom_pck_mck(&clock_test_setting[2]);
-			_restore_console();
+
+			_set_clock_setting(2);
 			_print_clocks();
 			_print_menu();
 			break;
 		case '4':
-			printf(" %c \r\n", MenuChoice);
+			printf(" %c\r\n", MenuChoice);
 			MenuChoice = 0;
 
 			printf("Switch to slow clock\r\n");
 			printf("It is too slow to output info on serial port\r\n");
 			printf("So stay at this speed for a moment only\r\n");
-			for (delay = 0; delay < 1000; delay++);
-			pmc_set_custom_pck_mck(&clock_test_setting[3]);
 
-			for (delay = 0; delay < 1000; delay++);
-			pmc_set_custom_pck_mck(&clock_test_setting[0]);
-			_restore_console();
-			printf("Go back to fast clock and continue\r\n");
+			_set_clock_setting(3);
+			_wait_busyloop(1000);
+			_set_clock_setting(0);
+
+			printf("Back to PLLA\r\n");
 			_print_clocks();
 			_print_menu();
 			break;

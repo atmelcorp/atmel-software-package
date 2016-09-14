@@ -35,6 +35,8 @@ BINNAME = pmc_clock_switching
 
 VARIANT ?= sram
 
+CONFIG_TIMER_POLLING = y
+
 obj-y += examples/pmc_clock_switching/main.o
 obj-y += examples/pmc_clock_switching/clk-config_$(chip-family).o
 
