@@ -132,9 +132,10 @@ static sensor_status_t sensor_twi_read_reg(uint8_t bus, uint8_t addr, uint16_t r
 static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
+	uint8_t addr_buf[2];
 	struct _buffer buf[2] = {
 		{
-			.data = (uint8_t *)&reg,
+			.data = addr_buf,
 			/* .size */
 			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
 		},
@@ -149,16 +150,21 @@ static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t 
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
 		buf[0].size = 1;
 		buf[1].size = 1;
+		addr_buf[0] = reg & 0xff;
+
 		break;
 
 	case SENSOR_TWI_REG_2BYTE_DATA_BYTE:
 		buf[0].size = 2;
 		buf[1].size = 1;
+		addr_buf[0] = (reg >> 8) & 0xff;
+		addr_buf[1] = reg & 0xff;
 		break;
 
 	case SENSOR_TWI_REG_BYTE_DATA_2BYTE:
 		buf[0].size = 1;
 		buf[1].size = 2;
+		addr_buf[0] = reg & 0xff;
 		break;
 
 	default:
