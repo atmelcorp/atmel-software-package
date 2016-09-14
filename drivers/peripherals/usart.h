@@ -261,6 +261,12 @@ extern bool usart_is_rx_ready(Usart *usart);
 extern bool usart_is_tx_ready(Usart *usart);
 
 /**
+ * \brief   Return 1 if any pending character has been sent
+ * \param usart  Pointer to an USART peripheral.
+ */
+extern bool usart_is_tx_empty(Usart *usart);
+
+/**
  * \brief  Sends one packet of data through the specified USART peripheral. This
  * function operates synchronously, so it only returns when the data has been
  * actually sent.

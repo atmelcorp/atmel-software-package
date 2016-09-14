@@ -279,6 +279,11 @@ bool usart_is_tx_ready(Usart *usart)
 	return (usart->US_CSR & US_CSR_TXRDY) != 0;
 }
 
+bool usart_is_tx_empty(Usart *usart)
+{
+	return (usart->US_CSR & US_CSR_TXEMPTY) != 0;
+}
+
 void usart_put_char(Usart *usart, uint8_t c)
 {
 	/* Wait for the transmitter to be ready */

@@ -110,6 +110,14 @@ bool uart_is_tx_ready(Uart* uart)
 }
 
 /**
+ * Return true if any pending character has been sent
+ */
+bool uart_is_tx_empty(Uart* uart)
+{
+	return (uart->UART_SR & UART_SR_TXEMPTY) != 0;
+}
+
+/**
  * Outputs a character on the UART line.
  * \note This function is synchronous (i.e. uses polling).
  * \param c  Character to send.

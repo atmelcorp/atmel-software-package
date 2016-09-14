@@ -109,14 +109,23 @@ extern uint32_t dbgu_get_char(Dbgu* dbgu)
 }
 
 /**
+ * \brief Check is character has been sent
+ * \param dbgu  Pointer to the DBGU peripheral.
+ */
+bool dbgu_is_tx_empty(Dbgu* dbgu)
+{
+	return (dbgu->DBGU_SR & DBGU_SR_TXEMPTY) != 0;
+}
+
+/**
  * \brief Check if there is Input from DBGU line.
  *
  * \param  Pointer to the DBGU peripheral
  * \return true if there is Input.
  */
-extern uint32_t dbgu_is_rx_ready(Dbgu* dbgu)
+extern bool dbgu_is_rx_ready(Dbgu* dbgu)
 {
-	return (dbgu->DBGU_SR & DBGU_SR_RXRDY) > 0;
+	return (dbgu->DBGU_SR & DBGU_SR_RXRDY) != 0;
 }
 
 /**
