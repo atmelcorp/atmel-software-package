@@ -64,6 +64,7 @@
 
 typedef void (*init_handler_t)(void*, uint32_t, uint32_t);
 typedef void (*put_char_handler_t)(void*, uint8_t);
+typedef bool (*tx_empty_handler_t)(void*);
 typedef uint8_t (*get_char_handler_t)(void*);
 typedef bool (*rx_ready_handler_t)(void*);
 typedef void (*enable_it_handler_t)(void*, uint32_t);
@@ -74,6 +75,7 @@ struct _console {
 	uint32_t             rx_int_mask;
 	init_handler_t       init;
 	put_char_handler_t   put_char;
+	tx_empty_handler_t   tx_empty;
 	get_char_handler_t   get_char;
 	rx_ready_handler_t   rx_ready;
 	enable_it_handler_t  enable_it;
@@ -89,6 +91,7 @@ static const struct _console console_usart = {
 	.rx_int_mask = US_IER_RXRDY,
 	.init = (init_handler_t)usart_configure,
 	.put_char = (put_char_handler_t)usart_put_char,
+	.tx_empty = (tx_empty_handler_t)usart_is_tx_empty,
 	.get_char = (get_char_handler_t)usart_get_char,
 	.rx_ready = (rx_ready_handler_t)usart_is_rx_ready,
 	.enable_it = (enable_it_handler_t)usart_enable_it,
@@ -100,6 +103,7 @@ static const struct _console console_uart = {
 	.rx_int_mask = UART_IER_RXRDY,
 	.init = (init_handler_t)uart_configure,
 	.put_char = (put_char_handler_t)uart_put_char,
+	.tx_empty = (tx_empty_handler_t)uart_is_tx_empty,
 	.get_char = (get_char_handler_t)uart_get_char,
 	.rx_ready = (rx_ready_handler_t)uart_is_rx_ready,
 	.enable_it = (enable_it_handler_t)uart_enable_it,
@@ -112,6 +116,7 @@ static const struct _console console_dbgu = {
 	.rx_int_mask = DBGU_IER_RXRDY,
 	.init = (init_handler_t)dbgu_configure,
 	.put_char = (put_char_handler_t)dbgu_put_char,
+	.tx_empty = (tx_empty_handler_t)dbgu_is_tx_empty,
 	.get_char = (get_char_handler_t)dbgu_get_char,
 	.rx_ready = (rx_ready_handler_t)dbgu_is_rx_ready,
 	.enable_it = (enable_it_handler_t)dbgu_enable_it,
@@ -190,6 +195,15 @@ void console_put_char(uint8_t c)
 		return;
 
 	console->put_char(console_addr, c);
+}
+
+bool console_is_tx_empty(void)
+{
+	// if console is not initialized, do nothing
+	if (!console_initialized)
+		return true;
+
+	return console->tx_empty(console_addr);
 }
 
 uint8_t console_get_char(void)

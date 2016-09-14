@@ -65,6 +65,11 @@ extern void console_configure(void *addr, uint32_t baudrate);
 extern void console_put_char(uint8_t uc);
 
 /**
+ * \brief Check if any pending TX character has been sent
+ */
+extern bool console_is_tx_empty(void);
+
+/**
  * \brief Input a character from the CONSOLE line.
  *
  * \note This function is synchronous
