@@ -61,6 +61,7 @@ int32_t spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode
 	_spi_bus[bus_id].spid.transfer_mode = mode;
 
 	spid_configure(&_spi_bus[bus_id].spid);
+	spid_configure_master(&_spi_bus[bus_id].spid, true);
 
 	return 0;
 }
@@ -69,24 +70,7 @@ void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t
 						  enum _spid_mode mode)
 {
 	assert(bus_id < SPI_IFACE_COUNT);
-	uint32_t csr = SPI_CSR_BITS_8_BIT;
-
-	switch (mode) {
-	case SPID_MODE_0:
-		csr |= SPI_CSR_NCPHA;
-		break;
-	case SPID_MODE_1:
-		csr |= 0;
-		break;
-	case SPID_MODE_2:
-		csr |= SPI_CSR_CPOL | SPI_CSR_NCPHA;
-		break;
-	case SPID_MODE_3:
-		csr |= SPI_CSR_CPOL;
-		break;
-	}
-
-	spi_configure_cs(_spi_bus[bus_id].spid.addr, cs, bitrate, dlybs, dlybct, csr);
+	spid_configure_cs(&_spi_bus[bus_id].spid, cs, bitrate, dlybs, dlybct, mode);
 }
 
 int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
@@ -171,11 +155,11 @@ void spi_bus_set_transfer_mode(const uint8_t bus_id, enum _spid_trans_mode mode)
 	_spi_bus[bus_id].spid.transfer_mode = mode;
 }
 
-void spi_bus_set_bitrate(const uint8_t bus_id, uint8_t cs, uint32_t bitrate)
+void spi_bus_set_cs_bitrate(const uint8_t bus_id, uint8_t cs, uint32_t bitrate)
 {
 	assert(bus_id < SPI_IFACE_COUNT);
 
-	spid_set_bitrate(&_spi_bus[bus_id].spid, cs, bitrate);
+	spid_set_cs_bitrate(&_spi_bus[bus_id].spid, cs, bitrate);
 }
 
 

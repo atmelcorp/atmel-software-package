@@ -75,8 +75,7 @@ enum _spid_mode {
 	SPID_MODE_3 = 0x03, // POL=1, CPHA=1
 };
 
-struct _spi_desc
-{
+struct _spi_desc {
 	Spi*            addr;
 	uint8_t         chip_select;
 	enum _spid_trans_mode transfer_mode;
@@ -122,6 +121,14 @@ extern bool spid_is_busy(struct _spi_desc* desc);
 
 extern void spid_wait_transfer(struct _spi_desc* desc);
 
-extern void spid_set_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate);
+extern void spid_configure_cs(struct _spi_desc* desc, uint8_t cs,
+		uint32_t bitrate, uint32_t delay_dlybs, uint32_t delay_dlybct,
+		enum _spid_mode mode);
+
+extern void spid_set_cs_bitrate(struct _spi_desc* desc, uint8_t cs,
+		uint32_t bitrate);
+
+extern void spid_configure_master(struct _spi_desc* desc, bool master);
+
 
 #endif /* SPID_HEADER__ */

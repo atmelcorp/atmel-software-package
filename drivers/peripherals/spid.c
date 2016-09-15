@@ -413,7 +413,7 @@ uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, int buffers,
 	if (mutex_is_locked(&desc->mutex))
 		return SPID_ERROR_LOCK;
 
-	spi_chip_select(desc->addr, desc->chip_select);
+	spi_select_cs(desc->addr, desc->chip_select);
 
 	for (b = 0 ; b < buffers ; b++) {
 		if ((buf[b].attr & (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ)) == 0)
@@ -459,7 +459,8 @@ void spid_configure(struct _spi_desc* desc)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
 #endif
 	pmc_enable_peripheral(id);
-	spi_configure(desc->addr, SPI_MR_MSTR);
+	spi_configure(desc->addr);
+	spi_mode_master_enable(desc->addr, true);
 #ifdef CONFIG_HAVE_SPI_FIFO
 	_spid_fifo_configure(desc);
 	if (desc->use_fifo)
@@ -469,7 +470,36 @@ void spid_configure(struct _spi_desc* desc)
 	spi_enable(desc->addr);
 }
 
-void spid_set_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate)
+void spid_configure_cs(struct _spi_desc* desc, uint8_t cs,
+		uint32_t bitrate, uint32_t delay_dlybs, uint32_t delay_dlybct,
+		enum _spid_mode mode)
 {
-	spi_set_bitrate(desc->addr, cs, bitrate);
+	uint32_t csr = SPI_CSR_BITS_8_BIT | SPI_CSR_CSAAT;
+
+	switch (mode) {
+	case SPID_MODE_0:
+		csr |= SPI_CSR_NCPHA;
+		break;
+	case SPID_MODE_1:
+		csr |= 0;
+		break;
+	case SPID_MODE_2:
+		csr |= SPI_CSR_CPOL | SPI_CSR_NCPHA;
+		break;
+	case SPID_MODE_3:
+		csr |= SPI_CSR_CPOL;
+		break;
+	}
+
+	spi_configure_cs(desc->addr, cs, bitrate, delay_dlybs, delay_dlybct, csr);
+}
+
+void spid_set_cs_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate)
+{
+	spi_set_cs_bitrate(desc->addr, cs, bitrate);
+}
+
+void spid_configure_master(struct _spi_desc* desc, bool master)
+{
+	spi_mode_master_enable(desc->addr, master);
 }

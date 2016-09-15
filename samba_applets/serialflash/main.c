@@ -63,14 +63,16 @@
  *----------------------------------------------------------------------------*/
 
 static struct _at25 at25drv = {
-	.bus = 0,
-	/* .chip_select */
-	/* .bitrate */
-	.delay = {
-		.bs = 0,
-		.bct = 0,
-	},
-	.spi_mode = SPID_MODE_0,
+	.dev = {
+		.bus = 0,
+		/* .chip_select */
+		/* .bitrate */
+		.delay = {
+			.bs = 0,
+			.bct = 0,
+		},
+		.spi_mode = SPID_MODE_0,
+	}
 };
 
 static uint8_t *buffer;
@@ -139,8 +141,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	spi_bus_fifo_enable(true);
 #endif
 
-	at25drv.bitrate = ROUND_INT_DIV(freq, 1000);
-	at25drv.chip_select = chip_select;
+	at25drv.dev.bitrate = ROUND_INT_DIV(freq, 1000);
+	at25drv.dev.chip_select = chip_select;
 
 	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,

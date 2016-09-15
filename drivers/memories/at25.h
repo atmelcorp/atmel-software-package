@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include "memories/spi-nor.h"
 #include "peripherals/spid.h"
+#include "bus/spi-bus.h"
 #include "mutex.h"
 
 /*----------------------------------------------------------------------------
@@ -99,14 +100,7 @@
 #define AT25_ADDR_OOB             0xBu
 
 struct _at25 {
-	uint8_t bus;
-	uint8_t chip_select;
-	uint32_t bitrate;
-	struct {
-		uint32_t bs;
-		uint32_t bct;
-	} delay;
-	enum _spid_mode spi_mode;
+	struct _spi_dev_desc dev;
 
 	const struct _spi_nor_desc* desc;
 	uint32_t addressing;

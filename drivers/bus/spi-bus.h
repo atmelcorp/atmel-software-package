@@ -45,6 +45,16 @@ struct _spi_bus_desc {
 	mutex_t transaction;
 };
 
+struct _spi_dev_desc {
+	uint8_t bus;
+	uint8_t chip_select;
+	uint32_t bitrate;
+	struct {
+		uint32_t bs;
+		uint32_t bct;
+	} delay;
+	enum _spid_mode spi_mode;
+};
 
 int32_t spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode);
 
@@ -68,7 +78,7 @@ enum _spid_trans_mode spi_bus_get_transfer_mode(uint8_t bus_id);
 
 void spi_bus_set_transfer_mode(uint8_t bus_id, enum _spid_trans_mode mode);
 
-void spi_bus_set_bitrate(uint8_t bus_id, uint8_t cs, uint32_t bitrate);
+void spi_bus_set_cs_bitrate(uint8_t bus_id, uint8_t cs, uint32_t bitrate);
 
 void spi_bus_fifo_enable(uint8_t bus_id);
 

@@ -69,14 +69,16 @@ static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 
 static struct _at25 at25drv = {
-	.bus = BOARD_AT25_BUS,
-	.chip_select = BOARD_AT25_CHIP_SELECT,
-	.bitrate = BOARD_AT25_BITRATE,
-	.delay = {
-		.bs = BOARD_AT25_DLYBS,
-		.bct = BOARD_AT25_DLYBCT,
+	.dev = {
+		.bus = BOARD_AT25_BUS,
+		.chip_select = BOARD_AT25_CHIP_SELECT,
+		.bitrate = BOARD_AT25_BITRATE,
+		.delay = {
+			.bs = BOARD_AT25_DLYBS,
+			.bct = BOARD_AT25_DLYBCT,
+		},
+		.spi_mode = BOARD_AT25_SPI_MODE,
 	},
-	.spi_mode = BOARD_AT25_SPI_MODE,
 };
 
 static void console_handler(uint8_t key)
@@ -236,13 +238,13 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_POLLING);
+		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_POLLING);
 		printf("Use POLLING mode\r\n");
 	} else if (!strncmp((char*)buffer, "async", 5)) {
-		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_ASYNC);
+		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_ASYNC);
 		printf("Use ASYNC mode\r\n");
 	} else if (!strncmp((char*)buffer, "dma", 3)) {
-		spi_bus_set_transfer_mode(at25drv.bus, SPID_MODE_DMA);
+		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_DMA);
 		printf("Use DMA mode\r\n");
 	} else {
 		printf("Args: %s\r\n"
@@ -254,11 +256,11 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!spi_bus_fifo_is_enabled(at25drv.bus)) {
-			spi_bus_fifo_enable(at25drv.bus);
+		if (!spi_bus_fifo_is_enabled(at25drv.dev.bus)) {
+			spi_bus_fifo_enable(at25drv.dev.bus);
 			printf("Enable FIFO\r\n");
 		} else {
-			spi_bus_fifo_disable(at25drv.bus);
+			spi_bus_fifo_disable(at25drv.dev.bus);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -274,7 +276,7 @@ static void print_menu(void)
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
 	printf("| Device: %-46s|\r\n", at25drv.desc ? at25drv.desc->name : "N/A");
-	switch (spi_bus_get_transfer_mode(at25drv.bus)) {
+	switch (spi_bus_get_transfer_mode(at25drv.dev.bus)) {
 	case SPID_MODE_POLLING:
 		mode_str = "polling";
 		break;
@@ -290,7 +292,7 @@ static void print_menu(void)
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv.bus) ? "enabled" : "disabled");
+	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv.dev.bus) ? "enabled" : "disabled");
 #endif
 
 	printf("|====================== Commands =======================|\r\n"

@@ -100,24 +100,8 @@ extern void spi_disable_it(Spi * spi, uint32_t dwSources);
  * using several macros (see \ref spi_configuration_macros).
  *
  * \param spi  Pointer to an Spi instance.
- * \param dwConfiguration  Value of the SPI configuration register.
  */
-extern void spi_configure(Spi * spi, uint32_t configuration);
-
-/**
- * \brief Configures SPI chip select.
- *
- * \param spi  Pointer to an Spi instance.
- * \param cs  Chip select of NPSCx.
- */
-extern void spi_chip_select(Spi * spi, uint8_t cs);
-
-/**
- * \brief Configures SPI to release last used CS line.
- *
- * \param spi  Pointer to an Spi instance.
- */
-extern void spi_release_cs(Spi * spi);
+extern void spi_configure(Spi * spi);
 
 /**
  * \brief Configures a chip select of a SPI peripheral.
@@ -134,13 +118,36 @@ extern void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 			     uint32_t spi_mode);
 
 /**
+ * \brief Set SPI to master or slave mode
+ *
+ * \param spi  Pointer to an Spi instance.
+ * \param master  Configure as master if true, configure as slave otherwise.
+ */
+extern void spi_mode_master_enable(Spi *spi, bool master);
+
+/**
  * \brief Configures the current chip select bitrate
  *
  * \param spi Pointer to an Spi instance.
  * \param cs Chip select to configure (0, 1, 2 or 3).
  * \param bitrate
  */
-extern void spi_set_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate);
+extern void spi_set_cs_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate);
+
+/**
+ * \brief Configures SPI chip select.
+ *
+ * \param spi  Pointer to an Spi instance.
+ * \param cs  Chip select of NPSCx.
+ */
+extern void spi_select_cs(Spi * spi, uint8_t cs);
+
+/**
+ * \brief Configures SPI to release last used CS line.
+ *
+ * \param spi  Pointer to an Spi instance.
+ */
+extern void spi_release_cs(Spi * spi);
 
 /**
  * \brief Write one data from SPI peripheral.
@@ -200,7 +207,6 @@ extern uint32_t spi_get_masked_status(Spi *spi);
  * \return Returns true if there is no pending write operation on the SPI;
  * otherwise returns false.
  */
-
 extern bool spi_is_tx_finished(Spi * spi);
 
 #ifdef CONFIG_HAVE_SPI_FIFO

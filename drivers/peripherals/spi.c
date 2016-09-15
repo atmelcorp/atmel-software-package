@@ -91,24 +91,25 @@
  *        local functions
  *----------------------------------------------------------------------------*/
 
-static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t periph_id)
+static inline uint32_t _spi_compute_scbr(uint32_t bitrate, uint32_t id)
 {
-	assert(bitrate>0);
-	return SPI_CSR_SCBR(
-		pmc_get_peripheral_clock(periph_id) / (bitrate*1000));
+	uint32_t pclk = pmc_get_peripheral_clock(id);
+	if (bitrate == 0)
+		return 0;
+	return SPI_CSR_SCBR(pclk / (bitrate * 1000));
 }
 
-static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t periph_id)
+static inline uint32_t _spi_compute_dlybs(uint32_t delay, uint32_t id)
 {
-	uint32_t dlybs =
-		((pmc_get_peripheral_clock(periph_id)/1000000u) * delay) / 100;
+	uint32_t pclk = pmc_get_peripheral_clock(id);
+	uint32_t dlybs = ((pclk / 1000000u) * delay) / 100;
 	return SPI_CSR_DLYBS(dlybs);
 }
 
-static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t periph_id)
+static inline uint32_t _spi_compute_dlybct(uint32_t delay, uint32_t id)
 {
-	uint32_t dlybct =
-		((pmc_get_peripheral_clock(periph_id)/31250u) * delay) / 100;
+	uint32_t pclk = pmc_get_peripheral_clock(id);
+	uint32_t dlybct = ((pclk / 32000u) * delay) / 100;
 	return SPI_CSR_DLYBCT(dlybct);
 }
 
@@ -136,23 +137,29 @@ void spi_disable_it(Spi * spi, uint32_t dwSources)
 	spi->SPI_IDR = dwSources;
 }
 
-void spi_configure(Spi * spi, uint32_t configuration)
+void spi_configure(Spi * spi)
 {
 	spi->SPI_CR = SPI_CR_SPIDIS;
 
 	spi->SPI_CR = SPI_CR_SWRST;
 
-	spi->SPI_MR = SPI_MR_WDRBT | SPI_MR_MODFDIS | configuration;
+	spi->SPI_MR = SPI_MR_WDRBT | SPI_MR_MODFDIS;
 
 	spi->SPI_RDR;
 }
 
-void spi_chip_select(Spi * spi, uint8_t cs)
+void spi_mode_master_enable(Spi *spi, bool master)
 {
-	uint32_t mr;
+	if (master)
+		spi->SPI_MR |= SPI_MR_MSTR;
+	else
+		spi->SPI_MR = spi->SPI_MR & ~SPI_MR_MSTR;
+}
 
-	mr = (spi->SPI_MR & ~SPI_MR_PCS_Msk) | SPI_MR_PCS((1 << cs) - 1);
-	spi->SPI_MR = mr;
+void spi_select_cs(Spi * spi, uint8_t cs)
+{
+	uint32_t mr = spi->SPI_MR & ~SPI_MR_PCS_Msk;
+	spi->SPI_MR = mr | SPI_MR_PCS((1 << cs) - 1);
 }
 
 void spi_release_cs(Spi * spi)
@@ -172,13 +179,12 @@ void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,
 	csr |= _spi_compute_scbr(bitrate, id);
 	csr |= _spi_compute_dlybs(delay_dlybs, id);
 	csr |= _spi_compute_dlybct(delay_dlybct, id);
-	csr |= spi_mode & (SPI_CSR_CPOL | SPI_CSR_NCPHA);
-	csr |= SPI_CSR_CSAAT;
+	csr |= spi_mode & ~(SPI_CSR_SCBR_Msk | SPI_CSR_DLYBS_Msk | SPI_CSR_DLYBCT_Msk);
 
 	spi->SPI_CSR[cs] = csr;
 }
 
-void spi_set_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate)
+void spi_set_cs_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate)
 {
 	uint32_t csr = spi->SPI_CSR[cs];
 	uint32_t id = get_spi_id_from_addr(spi);
@@ -189,7 +195,6 @@ void spi_set_bitrate(Spi * spi, uint8_t cs, uint32_t bitrate)
 
 	spi->SPI_CSR[cs] = csr;
 }
-
 
 uint32_t spi_get_status(Spi * spi)
 {
