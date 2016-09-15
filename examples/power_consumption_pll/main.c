@@ -41,12 +41,10 @@
  *
  *  \section Note
  *  The default peripheral clock is 12MHz, and there might be some unreadable
- *  code on the console when console's baudrate is 115200 bps, the reason is:
- *  the value of UART_BRGR will be 12000000/115200/16 = 6, and the actual
- *  baudrate of console would be 12000000/6/16 = 125000, that has a gap of 8.5%
- *  to the desired one, so the unreadable code occurs)
- *  User can change the clock by replacing clock_test_setting[1] to
- *  clock_test_setting[0] in the main routine to avoid unreadable code.
+ *  text on the console when console's baudrate is 38400 bps, the reason is:
+ *  the value of UART_BRGR will be 12000000/38400/16 ~= 19.53, and the actual
+ *  baudrate of console would be 12000000/20/16 = 37500, that has a gap of 2.4%
+ *  to the desired one, so unreadable text may occur)
  *
  *  \section Usage
  *  -# Build the program and download it inside the evaluation board. Please
@@ -135,33 +133,9 @@
 #define _PMC_PLLICPR_IPLL_PLLA 0
 #endif
 
-#define MENU_NB_OPTIONS      17
-#define MENU_STRING_LENGTH   200
-char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
-#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
-	" ############################\n\r",
-	" 1 -> Disable AUDIOPLL\n\r",
-	" 2 -> AUDIOPLL 660 MHz\n\r",
-	" 3 -> AUDIOPLL 696 MHz\n\r",
-	" 4 -> AUDIOPLL 720 MHz\n\r",
-	" 5 -> AUDIOPLL 744 MHz\n\r",
-#endif
-	" ############################\n\r",
-	" 6 -> Disable UPLL\n\r",
-	" 7 -> Enable  UPLL\n\r",
-	" ############################\n\r",
-	" 8 -> Disable PLLA\n\r",
-	" 9 -> PLLA =   408 MHz\n\r",
-	" 0 -> PLLA =   600 MHz\n\r",
-	" a -> PLLA =   792 MHz\n\r",
-	" b -> PLLA =   996 MHz\n\r",
-	" c -> PLLA =  1200 MHz\n\r",
-	" ############################\n\r"};
-
 /*----------------------------------------------------------------------------
  *        Local variables
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
 unsigned char use_clock_setting = 0;
 
@@ -169,8 +143,7 @@ volatile unsigned int MenuChoice;
 
 /*----------------------------------------------------------------------------
  *        Local functions
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
 /**
  *  \brief Handler for DBGU input.
@@ -180,36 +153,43 @@ static void _console_handler(uint8_t c)
 	MenuChoice = c;
 }
 
-static void _restore_console(void)
+static void _configure_console(void)
 {
-	board_cfg_console(0);
+	board_cfg_console(38400);
 
 	/* Initializing console interrupts */
 	console_set_rx_handler(_console_handler);
 	console_enable_rx_interrupt();
 }
 
-/* ---------------------------------------------------------------------------
- * Function Name       : _print_menu
- * Object              :
- * ---------------------------------------------------------------------------
- */
 static void _print_menu(void)
 {
-	int i;
-
-	printf("\r\nSelect an option :\r\n");
-
-	for (i = 0; i < MENU_NB_OPTIONS; ++i)
-		printf(menu_choice_msg[i]);
-
-	printf("=>");
+	printf("\r\nSelect an option:\r\n"
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+	       " ############################\n\r"
+	       " 1 -> Disable AUDIOPLL\n\r"
+	       " 2 -> AUDIOPLL 660 MHz\n\r"
+	       " 3 -> AUDIOPLL 696 MHz\n\r"
+	       " 4 -> AUDIOPLL 720 MHz\n\r"
+	       " 5 -> AUDIOPLL 744 MHz\n\r"
+#endif
+	       " ############################\n\r"
+	       " 6 -> Disable UPLL\n\r"
+	       " 7 -> Enable  UPLL\n\r"
+	       " ############################\n\r"
+	       " 8 -> Disable PLLA\n\r"
+	       " 9 -> PLLA =   408 MHz\n\r"
+	       " 0 -> PLLA =   600 MHz\n\r"
+	       " a -> PLLA =   792 MHz\n\r"
+	       " b -> PLLA =   996 MHz\n\r"
+	       " c -> PLLA =  1200 MHz\n\r"
+	       " ############################\n\r"
+	       "=>");
 }
 
 /*----------------------------------------------------------------------------
  *        Global functions
- *----------------------------------------------------------------------------
- */
+ *----------------------------------------------------------------------------*/
 
 /* override default board_init */
 void board_init(void)
@@ -218,7 +198,7 @@ void board_init(void)
 	board_cfg_lowlevel(true, false, false);
 
 	/* Configure console */
-	board_cfg_console(0);
+	_configure_console();
 }
 
 /**
@@ -228,18 +208,18 @@ void board_init(void)
  */
 int main(void)
 {
-	/* Output example information */
-	console_example_info("PLL Consumption Measurement Example");
-
-	printf("Select main clock as MCK\r\n");
-	pmc_set_custom_pck_mck(&clock_test_setting[1]);
-
-	/* Initialize console */
-	_restore_console();
-
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	struct _pmc_audio_cfg audiopll_cfg;
 #endif
+
+	/* Output example information */
+	console_example_info("PLL Consumption Measurement Example");
+
+	/* Switch to main clock and reconfigure console */
+	printf("Select main clock as MCK\r\n");
+	while (!console_is_tx_empty());
+	pmc_set_custom_pck_mck(&clock_test_setting[0]);
+	_configure_console();
 
 	_print_menu();
 	MenuChoice = 0;
