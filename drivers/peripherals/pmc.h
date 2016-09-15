@@ -67,7 +67,7 @@ struct pck_mck_cfg {
 	/** Master Clock Division after Prescaler divider */
 	uint32_t mck_div;
 
-#ifndef CONFIG_SOC_SAMA5D3
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
 	/** true if the AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2 */
 	bool h32mxdiv2;
 #endif
@@ -237,11 +237,13 @@ extern void pmc_set_mck_prescaler(uint32_t prescaler);
  */
 extern void pmc_set_mck_divider(uint32_t divider);
 
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
 /**
  * \brief Configure MCK H32MXDIV.
  * \param divider divider value.
  */
 extern void pmc_set_mck_h32mxdiv(uint32_t divider);
+#endif /* CONFIG_HAVE_PMC_H32MXDIV */
 
 /**
  * \brief Configure MCK PLLA divider.

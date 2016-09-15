@@ -598,9 +598,9 @@ void pmc_set_mck_plla_div(uint32_t divider)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
 void pmc_set_mck_h32mxdiv(uint32_t divider)
 {
-#ifdef PMC_MCKR_H32MXDIV
 	if ((PMC->PMC_MCKR & PMC_MCKR_H32MXDIV) == PMC_MCKR_H32MXDIV_H32MXDIV2) {
 		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV1) {
 			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_H32MXDIV);
@@ -611,8 +611,8 @@ void pmc_set_mck_h32mxdiv(uint32_t divider)
 		}
 	}
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
-#endif
 }
+#endif /* CONFIG_HAVE_PMC_H32MXDIV */
 
 void pmc_set_mck_divider(uint32_t divider)
 {
@@ -713,7 +713,7 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 	pmc_set_mck_prescaler(cfg->pck_pres);
 	pmc_set_mck_divider(cfg->mck_div);
 
-#ifdef PMC_MCKR_H32MXDIV
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
 	if (cfg->h32mxdiv2)
 		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
 	else
