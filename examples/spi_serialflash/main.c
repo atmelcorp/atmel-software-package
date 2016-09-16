@@ -133,17 +133,17 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 	int offset = 0;
-	while (length > READ_BUFFER_SIZE) {
-		if(at25_read(&at25drv, addr+offset, read_buffer, READ_BUFFER_SIZE)) {
+	while (length > 0) {
+		int chunk_size = length < READ_BUFFER_SIZE ? length : READ_BUFFER_SIZE;
+
+		if(at25_read(&at25drv, addr+offset, read_buffer, chunk_size)) {
 			/* Read failed, no need to dump anything */
 			return;
 		}
-		offset += READ_BUFFER_SIZE;
-		length -= READ_BUFFER_SIZE;
-		console_dump_frame(read_buffer, READ_BUFFER_SIZE);
+		offset += chunk_size;
+		length -= chunk_size;
+		console_dump_frame(read_buffer, chunk_size);
 	}
-	at25_read(&at25drv, addr+offset, read_buffer, length);
-	console_dump_frame(read_buffer, length);
 }
 
 static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
