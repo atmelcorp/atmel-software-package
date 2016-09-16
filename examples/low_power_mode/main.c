@@ -140,31 +140,6 @@
 #include "compiler.h"
 
 /*----------------------------------------------------------------------------
- *        Local definitions
- *----------------------------------------------------------------------------
- */
-
-#define MENU_NB_OPTIONS 9
-#define MENU_STRING_LENGTH 200
-char menu_choice_msg[MENU_NB_OPTIONS][MENU_STRING_LENGTH] = {
-/* "====================MAXLENGTH==================== */
-	" 0 -> Select clock setting\n\r",
-	" 1 -> Enter BackUp mode\n\r",
-#ifdef CONFIG_SOC_SAMA5D2
-	" 2 -> Enter Ultra Low Power mode 0\n\r",
-	" 3 -> Enter Ultra Low Power mode 1\n\r",
-#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
-	" 2 -> Enter Ultra Low Power mode\n\r",
-#endif	
-	" 4 -> Enter Idle mode\n\r",
-	" A -> Init DDR\n\r",
-	" B -> Write data in DDR\n\r",
-	" C -> Check data in DDR\n\r",
-	" D -> Set DDR self-refresh mode and isolate Pads\n\r"
-	" E -> Reset DDR to normal mode and reconnect Pads\n\r"};
-/* "====================MAXLENGTH==================== */
-
-/*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------
  */
@@ -316,16 +291,23 @@ static uint32_t _sdram_check(uint32_t base_addr, uint32_t size)
  */
 static void _print_menu(void)
 {
-	int i;
-
-	printf(" ------------------------------------------\n\r");
-	printf("\n\r");
-	printf(" Select an option :\n\r");
-
-	for (i = 0; i < MENU_NB_OPTIONS; ++i)
-		printf(menu_choice_msg[i]);
-
-	printf(" =>");
+	printf(" ------------------------------------------\n\r"
+	       " Select an option :\n\r"
+	       " 0 -> Select clock setting\n\r"
+	       " 1 -> Enter BackUp mode\n\r"
+#ifdef CONFIG_SOC_SAMA5D2
+	       " 2 -> Enter Ultra Low Power mode 0\n\r"
+	       " 3 -> Enter Ultra Low Power mode 1\n\r"
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
+	       " 2 -> Enter Ultra Low Power mode\n\r"
+#endif
+	       " 4 -> Enter Idle mode\n\r"
+	       " A -> Init DDR\n\r"
+	       " B -> Write data in DDR\n\r"
+	       " C -> Check data in DDR\n\r"
+	       " D -> Set DDR self-refresh mode and isolate Pads\n\r"
+	       " E -> Reset DDR to normal mode and reconnect Pads\n\r"
+	       " =>");
 }
 
 static void menu_pck_mck(void)
@@ -362,6 +344,10 @@ static void menu_pck_mck(void)
 		break;
 	}
 }
+
+#if defined(CONFIG_SOC_SAMA5D2) ||\
+    defined(CONFIG_SOC_SAMA5D3) ||\
+    defined(CONFIG_SOC_SAMA5D4)
 
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
@@ -422,6 +408,8 @@ static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds)
 	rtc_set_time_alarm(&new_time);
 }
 
+#endif /* CONFIG_SOC_SAMA5D2 || CONFIG_SOC_SAMA5D3 || CONFIG_SOC_SAMA5D4 */
+
 static void menu_backup(void)
 {
 	printf("\n\r\n\r");
@@ -459,13 +447,13 @@ static void menu_ulp0(void)
 
 	/* Set the interrupts to wake up the system. */
 	_configure_buttons();
-	pmc_enable_peripheral(ID_AIC);
 
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
 
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
+
 	/* enter IDLE mode */
 	irq_wait();
 
@@ -514,14 +502,14 @@ static void menu_ulp1(void)
 	_start_rtc_timer_for_wakeup(30);
 
 	/* config wake up sources and active polarity */
-#ifdef CONFIG_HAVE_PMC_FAST_STARTUP
 	pmc_set_fast_startup_polarity(0, PMC_FSPR_FSTP0);
 	pmc_set_fast_startup_mode(PMC_FSMR_FSTT0 | PMC_FSMR_FSTT2 |
 		PMC_FSMR_RTCAL | PMC_FSMR_LPM);
-#endif
+
 	/* enter ULP1 */
 	asm("WFE");
 	asm("WFE");
+
 	/* wait for the PMC_SR.MCKRDY bit to be set. */
 	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
 
@@ -595,7 +583,7 @@ static void menu_ulp(void)
 
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
 }
-#endif
+#endif /* defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4) */
 
 static void menu_idle(void)
 {
@@ -631,8 +619,6 @@ static void menu_init_ddr(void)
 
 	/* init DDR Memory */
 	board_cfg_ddram();
-	/* During ddr init, PIT inturrupt is enabled. Disable it here*/
-	aic_disable(ID_PIT);
 #else
 	printf("\n\r\n\r");
 	printf("DDRAM already initialized\n\r");
@@ -766,7 +752,6 @@ int main(void)
 #if defined(CONFIG_SOC_SAMA5D2)
 		case '2':
 			printf("2");
-#ifdef CONFIG_SOC_SAMA5D2
 			menu_ulp0();
 			MenuChoice = 0;
 			_print_menu();
@@ -774,13 +759,10 @@ int main(void)
 		case '3':
 			printf("3");
 			menu_ulp1();
-#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SAMA5D4)
-			menu_ulp();
-#endif
 			MenuChoice = 0;
 			_print_menu();
 			break;
-#elif defined(CONFIG_SOC_SAMA5D4)
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SAMA5D4)
 		case '2':
 			printf("2");
 			menu_ulp();
