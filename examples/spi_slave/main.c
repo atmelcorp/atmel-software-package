@@ -49,20 +49,20 @@
  *
  * Requirements when running on SAMA5D3-EK (REV. E):
  * We need to connect the SPI pins on the board before running the example.
- * - <b>  SPI1 (MASTER)                        - SPI0 (SLAVE)</b>
- * - SPI1_MISO (PC22 on J2 pin 18) - SPI0_MISO  (PD10 on J3 pin 22)
- * - SPI1_MOSI (PC23 on J2 pin 20) - SPI0_MOSI  (PD11 on J3 pin 24)
- * - SPI1_SPCK (PC24 on J2 pin 22) - SPI0_SPCK  (PD12 on J3 pin 26)
- * - SPI1_NPCS0(PC25 on J2 pin 24) - SPI0_NPCS0 (PD13 on J3 pin 28)
- * Also remember to mount the following resisters: R6, R50, R51 and R120.
+ * - <b>  SPI0 (MASTER)                        - SPI1 (SLAVE)</b>
+ * - SPI0_MISO (PD10 on J3 pin 22) - SPI1_MISO  (PC22 on J2 pin 18)
+ * - SPI0_MOSI (PD11 on J3 pin 24) - SPI1_MOSI  (PC23 on J2 pin 20)
+ * - SPI0_SPCK (PD12 on J3 pin 26) - SPI1_SPCK  (PC24 on J2 pin 22)
+ * - SPI0_NPCS2(PD15 on J3 pin 32) - SPI1_NPCS0 (PC25 on J2 pin 24)
+ * Also remember to mount the following resisters: R6, R50, and R51.
  *
  * Requirements when running on SAMA5D4-XULT:
  * We need to connect the SPI pins on the board before running the example.
- * - <b>  SPI2 (MASTER)                          - SPI1 (SLAVE)</b>
- * - SPI2_NPCS0 (EXP/XPRO_PD17 on J19 pin 3)  - SPI1_NPCS0 (EXP/XPRO_PB21 on J17 pin 3)
- * - SPI2_MOSI  (EXP/XPRO_PD13 on J19 pin 5)  - SPI1_MOSI  (EXP/XPRO_PB19 on J17 pin 4)
- * - SPI2_MISO  (EXP/XPRO_PD11 on J15 pin 30) - SPI1_MISO  (EXP/XPRO_PB18 on J17 pin 5)
- * - SPI2_SPCK  (EXP/XPRO_PD15 on J15 pin 8)  - SPI1_SPCK  (EXP/XPRO_PB20 on J17 pin 6)
+ * - <b>  SPI1 (MASTER)                          - SPI2 (SLAVE)</b>
+ * - SPI1_NPCS3 (EXP/XPRO_PB27 on J15 pin 4)  - SPI2_NPCS0 (EXP/XPRO_PD17 on J19 pin 3)
+ * - SPI1_MOSI  (EXP/XPRO_PB19 on J17 pin 4)  - SPI2_MOSI  (EXP/XPRO_PD13 on J19 pin 5)
+ * - SPI1_MISO  (EXP/XPRO_PB18 on J17 pin 5)  - SPI2_MISO  (EXP/XPRO_PD11 on J15 pin 30)
+ * - SPI1_SPCK  (EXP/XPRO_PB20 on J17 pin 6)  - SPI2_SPCK  (EXP/XPRO_PD15 on J15 pin 8)
  *
  * Requirements when running on SAMA5D4-EK:
  * We need to connect the SPI pins on the board before running the example.
@@ -71,6 +71,14 @@
  * - SPI1_MOSI (LCD_SPI1_SI  on J10 pin 32) - SPI2_MOSI  (XPRO_PD13 on J11 XPRO pin 16)
  * - SPI1_MISO (LCD_SPI1_SO  on J10 pin 31) - SPI2_MISO  (XPRO_PD11 on J11 XPRO pin 17)
  * - SPI1_SPCK (LCD_SPI1_CLK on J10 pin 33) - SPI2_SPCK  (XPRO_PD15 on J11 XPRO pin 18)
+ *
+ * Requirements when running on SAM9XX5-EK:
+ * We need to connect the SPI pins on the board before running the example.
+ * - <b>  SPI0 (MASTER)                        - SPI1 (SLAVE)</b>
+ * - SPI0_MISO (PA11 on J1 pin 27) - SPI1_MISO (PA21 on J1 pin 16)
+ * - SPI0_MOSI (PA12 on J1 pin 29) - SPI1_MOSI (PA22 on J1 pin 18)
+ * - SPI0_SPCK (PA13 on J1 pin 31) - SPI1_SPCK (PA23 on J1 pin 20)
+ * - SPI0_NPCS1 (PA7 on J1 pin 19) - SPI1_NPCS0 (PA8 on J1 pin 21) 
  *
  * \section Descriptions
  *
@@ -137,6 +145,8 @@
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
 
+#include "bus/spi-bus.h"
+
 #include "misc/console.h"
 #include "misc/cache.h"
 
@@ -177,48 +187,35 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-
 /** data buffer for SPI master's receive */
-CACHE_ALIGNED static uint8_t spi_buffer_master_rx[DMA_TRANS_SIZE];
+CACHE_ALIGNED static uint8_t spi_buffer_master_tx[DMA_TRANS_SIZE];
 
 /** data buffer for SPI slave's transfer */
-CACHE_ALIGNED static uint8_t spi_buffer_slave_tx[DMA_TRANS_SIZE];
+CACHE_ALIGNED static uint8_t spi_buffer_slave_rx[DMA_TRANS_SIZE];
 
-/** Pio pins for SPI master */
+/** Pio pins for SPI master (CS only, the rest is configured by board support code) */
 static const struct _pin pins_spi_master[] = SPI_MASTER_PINS;
 
 /** Pio pins for SPI slave */
 static const struct _pin pins_spi_slave[] = SPI_SLAVE_PINS;
 
 /** descriptor for SPI master */
-static struct _spi_desc spi_master_desc = {
-	.addr           = SPI_MASTER_ADDR,
-	.bitrate        = 0,
-	.attributes     = (SPI_MR_MODFDIS | SPI_MR_WDRBT | SPI_MR_MSTR),
-	.dlybs          = 0,
-	.dlybct         = 0,
-	.chip_select    = SPI_MASTER_CS,
-	.spi_mode       = (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT),
-	.transfer_mode = SPID_MODE_POLLING,
+static const struct _spi_dev_desc spi_master_dev = {
+	.bus = SPI_MASTER_BUS,
+	.chip_select = SPI_MASTER_CS,
+	.bitrate = SPI_MASTER_BITRATE,
+	.delay = {
+		.bs = 0,
+		.bct = 0,
+	},
+	.spi_mode = SPID_MODE_0,
 };
 
-/** descriptor for SPI slave */
-static struct _spi_desc spi_slave_desc = {
-	.addr           = SPI_SLAVE_ADDR,
-	.bitrate        = 0,
-	.attributes     = (SPI_MR_MODFDIS | SPI_MR_WDRBT),
-	.dlybs          = 0,
-	.dlybct         = 0,
-	.chip_select    = SPI_SLAVE_CS,
-	.spi_mode       = (SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT),
+static struct _spi_desc spi_slave_dev = {
+	.addr = SPI_SLAVE_ADDR,
+	.chip_select = 0,
 	.transfer_mode = SPID_MODE_DMA,
 };
-
-/** SPI clock configuration (KHz) */
-static const uint32_t clock_configurations[3] = { 500, 1000, 5000 };
-
-/** SPI Clock setting (KHz) */
-static uint32_t spi_clock = 500;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -229,27 +226,15 @@ static uint32_t spi_clock = 500;
  */
 static void _display_menu(void)
 {
-	uint32_t i;
-
 	printf("\r\nMenu :\r\n");
 	printf("------\r\n");
-	for (i = 0 ; i < ARRAY_SIZE(clock_configurations) ; i++) {
-		printf("  %u: Set SPCK = %7u kHz\r\n",
-			(unsigned int)i, (unsigned int)clock_configurations[i]);
-	}
 	printf("  s: Perform SPI transfer start\r\n");
 	printf("  h: Display menu \r\n\r\n");
 }
 
-/**
- * \brief Sets the specified SPI clock configuration.
- * \param configuration  Index of the configuration to set.
- */
-static void _set_clock_configuration(uint8_t configuration)
+static void _spi_slave_transfer_callback(void* args)
 {
-	printf("Next SPI master transfer will use %ukHz clock.\r\n",
-		(unsigned int)clock_configurations[configuration]);
-	spi_clock = clock_configurations[configuration];
+	printf("Slave transfer complete\r\n");
 }
 
 /**
@@ -259,55 +244,47 @@ static void _spi_transfer(void)
 {
 	int i;
 	uint32_t status;
-
-	struct _buffer master_in = {
-		.data = spi_buffer_master_rx,
-		.size = DMA_TRANS_SIZE
+	struct _buffer master_buf = {
+		.data = spi_buffer_master_tx,
+		.size = DMA_TRANS_SIZE,
+		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
 	};
-	struct _buffer slave_out = {
-		.data = spi_buffer_slave_tx,
-		.size = DMA_TRANS_SIZE
+	struct _buffer slave_buf = {
+		.data = spi_buffer_slave_rx,
+		.size = DMA_TRANS_SIZE,
+		.attr = SPID_BUF_ATTR_READ,
 	};
 
-	spi_master_desc.bitrate = spi_clock;
-	spi_slave_desc.bitrate = spi_clock;
-
-	spid_configure(&spi_master_desc);
-	spid_configure(&spi_slave_desc);
-
-	printf("Slave sending, Master receiving... \r\n");
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
-		spi_buffer_slave_tx[i] = i;
-	memset(spi_buffer_master_rx, 0x0, DMA_TRANS_SIZE);
+		spi_buffer_master_tx[i] = i;
+	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
-	spid_begin_transfer(&spi_slave_desc);
-	status = spid_transfer(&spi_slave_desc, 0, &slave_out, NULL, NULL);
+	while (spi_bus_transaction_pending(spi_master_dev.bus));
+	spi_bus_start_transaction(spi_master_dev.bus);
+
+	printf("Slave receiving...\r\n");
+	status = spid_transfer(&spi_slave_dev, &slave_buf, 1, _spi_slave_transfer_callback, NULL);
 	if (SPID_SUCCESS != status) {
-		printf("Error: SPI slave transfer failed.\r\n");
+		trace_error("SPI: SLAVE: transfer failed.\r\n");
 		return;
 	}
 
-	spid_begin_transfer(&spi_master_desc);
-	status = spid_transfer(&spi_master_desc, &master_in, 0, NULL, NULL);
+	printf("Master sending...\r\n");
+	status = spi_bus_transfer(spi_master_dev.bus, spi_master_dev.chip_select, &master_buf, 1, NULL, NULL);
 	if (SPID_SUCCESS != status) {
-		printf("Error: SPI master transfer failed.\r\n");
+		trace_error("SPI: MASTER: transfer failed.\r\n");
 		return;
 	}
 
-	while (spid_is_busy(&spi_master_desc) || spid_is_busy(&spi_slave_desc));
-
-	spid_finish_transfer(&spi_master_desc);
-	spid_finish_transfer(&spi_slave_desc);
-
-	spid_close(&spi_master_desc);
-	spid_close(&spi_slave_desc);
-
-	for (i = 0; i < DMA_TRANS_SIZE; i ++) {
-		if (spi_buffer_slave_tx[i] != spi_buffer_master_rx[i]) {
-			printf("Error: received data does not match!\r\n");
-			return;
-		}
+	spi_bus_wait_transfer(spi_master_dev.bus);
+	spi_bus_stop_transaction(spi_master_dev.bus);
+	spid_wait_transfer(&spi_slave_dev);
+	
+	if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
+		trace_error("SPI: received data does not match!\r\n");
+		return;
 	}
+
 	printf("Received data matched.\r\n");
 }
 
@@ -327,10 +304,15 @@ int main(void)
 	/* Output example information */
 	console_example_info("SPI Slave Example");
 
-	/* Configure SPI pins */
-	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));
 	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
+	spid_configure(&spi_slave_dev);
+	spid_configure_master(&spi_slave_dev, false);
+	spid_configure_cs(&spi_slave_dev, 0, 0, 0, 0, SPID_MODE_0);
 
+	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));
+	spi_bus_configure_cs(spi_master_dev.bus, spi_master_dev.chip_select, spi_master_dev.bitrate,
+	                     spi_master_dev.delay.bs, spi_master_dev.delay.bct, spi_master_dev.spi_mode);
+	
 	_display_menu();
 
 	while (1) {
@@ -345,9 +327,6 @@ int main(void)
 			_spi_transfer();
 			break;
 		default:
-			/* Set SPI clock configuration #n */
-			if (key >= '0' && key <= '2')
-				_set_clock_configuration(key - '0');
 			break;
 		}
 	}

@@ -1,5 +1,5 @@
-Atmel SAMA5 Software Package
-----------------------------
+Atmel Software Package
+----------------------
 
 # Code
 
@@ -134,7 +134,7 @@ secumod                | OK               | x                | x          | OK  
 smc_nandflash_mlc      | OK               | OK               | OK         | OK               | OK         | OK
 smc_nandflash_slc      | OK               | OK               | OK         | OK               | OK         | OK
 spi_serialflash        | OK               | OK               | OK         | OK               | OK         | OK
-spi_slave              | BROKEN           | x                | TODO       | BROKEN           | BROKEN     | BROKEN
+spi_slave              | OK               | x                | OK         | OK               | OK         | OK
 ssc_dma_audio          | TODO             | OK               | OK         | OK               | OK         | OK
 tc_capture_waveform    | OK               | OK               | OK         | OK               | OK         | OK
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK

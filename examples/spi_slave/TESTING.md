@@ -57,14 +57,14 @@ SPI0_NPCS2 (EXP_PA19 on J9 pin 1) | SPI1_NPCS0 (EXP/XPRO_PD28 on J20 pin 3)
 
 __Connection for SAMA5D3 EK:__
 
-MASTER (SPI1)                  | SLAVE (SPI0)
+MASTER (SPI0)                  | SLAVE (SPI1)
 ------------------------------ | ------------------------------
-SPI1_MISO (PC22 on J2 pin 18)  | SPI0_MISO  (PD10 on J3 pin 22)
-SPI1_MOSI (PC23 on J2 pin 20)  | SPI0_MOSI  (PD11 on J3 pin 24)
-SPI1_SPCK (PC24 on J2 pin 22)  | SPI0_SPCK  (PD12 on J3 pin 26)
-SPI1_NPCS0 (PC25 on J2 pin 24) | SPI0_NPCS0 (PD13 on J3 pin 28)
+SPI0_MISO  (PD10 on J3 pin 22) | SPI1_MISO (PC22 on J2 pin 18)
+SPI0_MOSI  (PD11 on J3 pin 24) | SPI1_MOSI (PC23 on J2 pin 20)
+SPI0_SPCK  (PD12 on J3 pin 26) | SPI1_SPCK (PC24 on J2 pin 22)
+SPI0_NPCS2 (PD15 on J3 pin 32) | SPI1_NPCS0 (PC25 on J2 pin 24)
 
-`Also remember to mount the following resistors: R6, R50, R51 and R120.`
+`Also remember to mount the following resistors: R6, R50, and R51.`
 
 __Connection for SAMA5D4 EK:__
 
@@ -77,21 +77,21 @@ SPI1_NPCS2 (LCD_SPI1_CS2 on J10 pin 34) | SPI2_NPCS0 (XPRO_PD17 on J11 XPRO pin 
 
 __Connection for SAMA5D4 Xplained Ultra:__
 
-MASTER (SPI2)                           | SLAVE (SPI1)
+MASTER (SPI1)                           | SLAVE (SPI2)
 --------------------------------------- | ---------------------------------------
-SPI2_MOSI (EXP/XPRO_PD13 on J19 pin 5)  | SPI1_MOSI (EXP/XPRO_PB19 on J17 pin 4)
-SPI2_MISO (EXP/XPRO_PD11 on J15 pin 30) | SPI1_MISO (EXP/XPRO_PB18 on J17 pin 5)
-SPI2_SPCK (EXP/XPRO_PD15 on J15 pin 8)  | SPI1_SPCK (EXP/XPRO_PB20 on J17 pin 6)
-SPI2_NPCS0 (EXP/XPRO_PD17 on J19 pin 3) | SPI1_NPCS0 (EXP/XPRO_PB21 on J17 pin 3)
+SPI1_MOSI (EXP/XPRO_PB19 on J17 pin 4)  | SPI2_MOSI (EXP/XPRO_PD13 on J19 pin 5)
+SPI1_MISO (EXP/XPRO_PB18 on J17 pin 5)  | SPI2_MISO (EXP/XPRO_PD11 on J15 pin 30)
+SPI1_SPCK (EXP/XPRO_PB20 on J17 pin 6)  | SPI2_SPCK (EXP/XPRO_PD15 on J15 pin 8)
+SPI1_NPCS3(EXP/XPRO_PB27 on J15 pin 4)  | SPI2_NPCS0(EXP/XPRO_PD17 on J19 pin 3)
 
 __Connection for SAM9XX5 EK:__
 
-MASTER (SPI1)                 | SLAVE (SPI0)
+MASTER (SPI0)                 | SLAVE (SPI1)
 ----------------------------- | ------------------------------
-SPI1_MISO (PA21 on J2 pin 16) | SPI0_MISO (PA11 on J3 pin 27)
-SPI1_MOSI (PA22 on J2 pin 18) | SPI0_MOSI (PA12 on J3 pin 29)
-SPI1_SPCK (PA23 on J2 pin 20) | SPI0_SPCK (PA13 on J3 pin 31)
-SPI1_NPCS0 (PA8 on J2 pin 21) | SPI0_NPCS0 (PA14 on J3 pin 35)
+SPI0_MISO (PA11 on J1 pin 27) | SPI1_MISO (PA21 on J1 pin 16)
+SPI0_MOSI (PA12 on J1 pin 29) | SPI1_MOSI (PA22 on J1 pin 18)
+SPI0_SPCK (PA13 on J1 pin 31) | SPI1_SPCK (PA23 on J1 pin 20)
+SPI0_NPCS1 (PA7 on J1 pin 19) | SPI1_NPCS0 (PA8 on J1 pin 21) 
 
 Tested with IAR and GCC (sram and ddram configurations)
 

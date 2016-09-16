@@ -188,6 +188,11 @@
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
 #define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
 
+#define BOARD_SPI_BUS1       SPI1
+#define BOARD_SPI_BUS1_PINS  PINS_SPI1_NPCS0
+#define BOARD_SPI_BUS1_MODE  SPID_MODE_DMA
+
+
 /* =================== AT24 device definition =================== */
 
 #define BOARD_AT24_TWI_BUS 1

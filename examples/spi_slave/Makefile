@@ -38,4 +38,7 @@ BINNAME = spi_slave
 
 obj-y += examples/spi_slave/main.o
 
+CONFIG_HAVE_SSC=
+CONFIG_HAVE_ISI=
+
 include $(TOP)/scripts/Makefile.rules

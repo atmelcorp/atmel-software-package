@@ -89,28 +89,30 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc);
 static void _spid_dma_callback(struct dma_channel *channel, void *arg)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
-	struct dma_channel *other_channel;
 
-	if (channel == desc->xfer.dma.tx.channel)
-		other_channel = desc->xfer.dma.rx.channel;
-	else if (channel == desc->xfer.dma.rx.channel)
-		other_channel = desc->xfer.dma.tx.channel;
+	if (channel == desc->xfer.dma.rx.channel ||
+		channel == desc->xfer.dma.tx.channel)
+		/* free channel */
+		dma_free_channel(channel);
 	else
 		trace_fatal("Invalid DMA channel!\r\n");
-
-	/* free channel */
-	dma_free_channel(channel);
-
-	/* stop and free other channel */
-	dma_stop_transfer(other_channel);
-	dma_free_channel(other_channel);
-
+	
 	/* For read, invalidate region */
 	if (channel == desc->xfer.dma.rx.channel)
 		cache_invalidate_region(desc->xfer.dma.rx.cfg.da, desc->xfer.dma.rx.cfg.len);
 
 	/* process next buffer */
 	_spid_transfer_next_buffer(desc);
+}
+
+static void _spid_dma_free_callback(struct dma_channel *channel, void *arg)
+{
+	struct _spi_desc* desc = (struct _spi_desc*)arg;
+
+	if (channel == desc->xfer.dma.rx.channel ||
+		channel == desc->xfer.dma.tx.channel)
+		/* free channel */
+		dma_free_channel(channel);
 }
 
 static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
@@ -149,7 +151,7 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 	desc->xfer.dma.rx.cfg.blk_size = 0;
 	desc->xfer.dma.rx.cfg.len = len;
 	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg);
-	dma_set_callback(desc->xfer.dma.rx.channel, NULL, NULL);
+	dma_set_callback(desc->xfer.dma.rx.channel, _spid_dma_free_callback, (void*)desc);
 
 	dma_start_transfer(desc->xfer.dma.rx.channel);
 	dma_start_transfer(desc->xfer.dma.tx.channel);
@@ -173,7 +175,7 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 	desc->xfer.dma.tx.cfg.blk_size = 0;
 	desc->xfer.dma.tx.cfg.len = len;
 	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg);
-	dma_set_callback(desc->xfer.dma.tx.channel, NULL, NULL);
+	dma_set_callback(desc->xfer.dma.tx.channel, _spid_dma_free_callback, (void*)desc);
 
 	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
 
@@ -347,13 +349,14 @@ static void _spid_transfer_current_buffer(struct _spi_desc* desc)
 
 static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 {
-	if (desc->xfer.current->attr & SPID_BUF_ATTR_RELEASE_CS)
-		spi_release_cs(desc->addr);
-
 	if (desc->xfer.current < desc->xfer.last) {
 		desc->xfer.current++;
+
 		_spid_transfer_current_buffer(desc);
 	} else {
+		if (desc->xfer.current->attr & SPID_BUF_ATTR_RELEASE_CS)
+			spi_release_cs(desc->addr, desc->chip_select);
+
 		desc->xfer.current = NULL;
 		if (desc->xfer.callback)
 			desc->xfer.callback(desc->xfer.cb_args);
@@ -437,7 +440,7 @@ void spid_configure(struct _spi_desc* desc)
 	spi_enable(desc->addr);
 
 	/* TODO: check if desc->addr is already present in _desc */
-	assert(_desc_index < (ARRAY_SIZE(_desc) - 1));
+	assert(_desc_index < ARRAY_SIZE(_desc));
 	_desc[_desc_index++] = desc;
 }
 
@@ -472,5 +475,7 @@ void spid_set_cs_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate)
 
 void spid_configure_master(struct _spi_desc* desc, bool master)
 {
+	spi_disable(desc->addr);
 	spi_mode_master_enable(desc->addr, master);
+	spi_enable(desc->addr);
 }
