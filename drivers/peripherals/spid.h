@@ -81,10 +81,6 @@ struct _spi_desc {
 	enum _spid_trans_mode transfer_mode;
 	/* following fields are used internally */
 	mutex_t         mutex;
-	spid_callback_t callback;
-	void*           cb_args;
-
-	uint32_t        flags;
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 	bool use_fifo;
@@ -96,16 +92,21 @@ struct _spi_desc {
 	} fifo;
 #endif
 
+	/* structure to hold data about current transfer */
 	struct {
+		struct _buffer *current;     /*< Current buffer */
+		struct _buffer *last;        /*< Last buffer */
+		uint32_t        transferred; /*< Number of bytes transferred for current buffer */
+		spid_callback_t callback;
+		void*           cb_args;
+
 		struct {
-			struct dma_channel *channel;
-			struct dma_xfer_cfg cfg;
-		} rx;
-		struct {
-			struct dma_channel *channel;
-			struct dma_xfer_cfg cfg;
-		} tx;
-	} dma;
+			struct {
+				struct dma_channel *channel;
+				struct dma_xfer_cfg cfg;
+			} rx, tx;
+		} dma;
+	} xfer;
 };
 
 /*------------------------------------------------------------------------------
@@ -114,8 +115,9 @@ struct _spi_desc {
 
 extern void spid_configure(struct _spi_desc* desc);
 
-extern uint32_t spid_transfer(struct _spi_desc* desc, struct _buffer* buf, int buffers,
-							  spid_callback_t cb, void* user_args);
+extern uint32_t spid_transfer(struct _spi_desc* desc,
+		struct _buffer* buffers, int buffer_count,
+		spid_callback_t cb, void* user_args);
 
 extern bool spid_is_busy(struct _spi_desc* desc);
 
