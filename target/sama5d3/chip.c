@@ -246,6 +246,26 @@ uint32_t get_usart_id_from_addr(const Usart* addr)
 	else return ID_PERIPH_COUNT;
 }
 
+Usart* get_usart_addr_from_id(uint32_t id)
+{
+	if (id == ID_USART0)
+		return USART0;
+#ifdef USART1
+	else if (id == ID_USART1)
+		return USART1;
+#endif
+#ifdef USART2
+	else if (id == ID_USART2)
+		return USART2;
+#endif
+#ifdef USART3
+	else if (id == ID_USART3)
+		return USART3;
+#endif
+	else
+		return (void*)0;
+}
+
 uint32_t get_tc_id_from_addr(const Tc* addr)
 {
 	if (addr == TC0) return ID_TC0;

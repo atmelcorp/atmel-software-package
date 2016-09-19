@@ -265,6 +265,7 @@ extern Pwm* get_pwm_addr_from_id(const uint32_t id);
 extern uint32_t get_uart_id_from_addr(const Uart* addr);
 
 extern uint32_t get_usart_id_from_addr(const Usart* addr);
+extern Usart* get_usart_addr_from_id(uint32_t id);
 
 /**
  * \brief retrieve Timer/Counter ID from its base address
