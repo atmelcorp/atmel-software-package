@@ -107,9 +107,7 @@ CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
 typedef void (*_parser)(const uint8_t*, uint32_t);
 
 static _parser _cmd_parser;
-static uint32_t cmd_index = 0;
-
-mutex_t lock = 0;
+static volatile uint32_t cmd_index = 0;
 
 static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
@@ -122,8 +120,6 @@ static struct _usart_desc usart_desc = {
 static void console_handler(uint8_t key)
 {
 	static uint32_t index = 0;
-	if (!mutex_try_lock(&lock))
-		return;
 	if (index >= CMD_BUFFER_SIZE) {
 		printf("\r\nWARNING! command buffer size exeeded, "
 		       "reseting\r\n");
@@ -145,7 +141,6 @@ static void console_handler(uint8_t key)
 		cmd_buffer[index++]=key;
 		break;
 	}
-	mutex_unlock(&lock);
 }
 
 static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -303,13 +298,9 @@ int main (void)
 
 	while (1) {
 		irq_wait();
-		if (!mutex_try_lock(&lock)) {
-			continue;
-		}
 		if (cmd_index > 0) {
 			_cmd_parser(cmd_buffer, cmd_index);
 			cmd_index = 0;
 		}
-		mutex_unlock(&lock);
 	}
 }
