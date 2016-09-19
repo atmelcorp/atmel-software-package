@@ -52,7 +52,7 @@ void acc_init(Acc *p_acc, uint32_t select_plus, uint32_t select_minus,
               uint32_t edge_type, uint32_t invert)
 {
 	/* Reset the controller */
-	p_acc->ACC_CR |= ACC_CR_SWRST;
+	p_acc->ACC_CR = ACC_CR_SWRST;
 
 	/* Write to the MR register */
 	p_acc->ACC_MR = (((select_plus << ACC_MR_SELPLUS_Pos) & ACC_MR_SELPLUS_Msk) |
