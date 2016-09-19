@@ -26,7 +26,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED, SAM9G25-EK)
 -------------------------------------------
 When connecting USB cable to windows, the host reports a new USB device
 attachment and Disk installation. Then new "USB Mass Storage Device" and "ATMEL
@@ -51,12 +51,3 @@ SD card detect | Runing the program with sd card instert, SD card can appear as 
 Format disk | Format all disk | PASSED | PASSED
 Write and read disk | Create a file in disk, write some string to file and save, close the file and then read the content | PASSED | PASSED
 
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
