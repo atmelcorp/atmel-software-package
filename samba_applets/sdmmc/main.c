@@ -96,10 +96,13 @@ static uint32_t buffer_size;
 static uint32_t mem_size;
 
 /* Driver instance data (a.k.a. MCI driver instance) */
-static struct sdmmc_set drv = { 0 };
+static struct sdmmc_set drv;
 
 /* Library instance data (a.k.a. SDCard driver instance) */
 CACHE_ALIGNED static sSdCard lib;
+
+/* Reserved memory for SDMMC DMA descriptors */
+static uint32_t dma_table[32 * SDMMC_DMADL_SIZE];
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -299,7 +302,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			caps0, CAPS0_MASK, 0, 0);
 
 	sdmmc_initialize(&drv, sdmmc_id, TIMER0_MODULE, TIMER0_CHANNEL,
-			NULL, 0, true);
+			dma_table, ARRAY_SIZE(dma_table), true);
 
 	SDD_InitializeSdmmcMode(&lib, &drv, 0);
 	if (SD_GetStatus(&lib) == SDMMC_NOT_SUPPORTED) {
