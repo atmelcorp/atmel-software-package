@@ -46,7 +46,7 @@
  */
 void isi_enable(void)
 {
-	ISI->ISI_CR |= ISI_CR_ISI_EN;
+	ISI->ISI_CR = ISI_CR_ISI_EN;
 	while ((ISI->ISI_SR & ISI_SR_ENABLE) != ISI_SR_ENABLE);
 }
 
@@ -56,7 +56,7 @@ void isi_enable(void)
 void isi_disable(void)
 {
 	/* Write one to this field to disable the module */
-	ISI->ISI_CR |= ISI_CR_ISI_DIS;
+	ISI->ISI_CR = ISI_CR_ISI_DIS;
 	/* Software must poll DIS_DONE field in the ISI_STATUS register to verify that the command
 	has successfully completed.*/
 	while ((ISI->ISI_SR & ISI_SR_DIS_DONE) != ISI_SR_DIS_DONE);
