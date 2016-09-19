@@ -52,7 +52,7 @@
  *----------------------------------------------------------------------------*/
 
 #define USARTD_ATTRIBUTE_MASK     (0)
-#define USARTD_POLLING_THRESHOLD  1
+#define USARTD_POLLING_THRESHOLD  16
 
 static struct _usart_desc *_serial[USART_IFACE_COUNT];
 
@@ -162,7 +162,7 @@ static void _usartd_handler(void)
 
 	if (!status) {
 		/* async descriptor not found, disable interrupt */
-		usart_disable_it(addr, US_IDR_RXRDY | US_IDR_TXRDY | US_IDR_TIMEOUT);
+		usart_disable_it(addr, US_IDR_RXRDY | US_IDR_TXRDY | US_IDR_TXEMPTY | US_IDR_TIMEOUT);
 		return;
 	}
 
@@ -171,16 +171,16 @@ static void _usartd_handler(void)
 	desc->rx.has_timeout = false;
 
 	if (USART_STATUS_TIMEOUT(status)) {
-		usart_disable_it(addr, US_IDR_TIMEOUT);
+		usart_disable_it(addr, US_IDR_TIMEOUT | US_IDR_RXRDY);
 		desc->rx.has_timeout = true;
 	}
 
-	if (USART_STATUS_RXRDY(status) && !desc->rx.has_timeout) {
+	if (USART_STATUS_RXRDY(status)) {
 		if (desc->rx.buffer.size) {
 			desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
 			desc->rx.transferred++;
 
-			if (desc->rx.transferred > desc->rx.buffer.size)
+			if (desc->rx.transferred >= desc->rx.buffer.size)
 				usart_disable_it(addr, US_IDR_RXRDY);
 			else
 				_rx_stop = false;
@@ -194,7 +194,7 @@ static void _usartd_handler(void)
 
 			if (desc->tx.transferred > desc->tx.buffer.size) {
 				usart_disable_it(addr, US_IDR_TXRDY);
-				usart_enable_it(addr, US_IDR_TXEMPTY);
+				usart_enable_it(addr, US_IER_TXEMPTY);
 			}
 			_tx_stop = false;
 		}
