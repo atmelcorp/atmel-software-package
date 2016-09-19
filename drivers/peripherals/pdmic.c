@@ -59,14 +59,14 @@ void pdmic_enable(void)
 	pmc_enable_gck(ID_PDMIC);
 	pmc_enable_peripheral(ID_PDMIC);
 	/* Enable the overrun error interrupt */
-	PDMIC->PDMIC_IER |= PDMIC_IER_OVRE;
+	PDMIC->PDMIC_IER = PDMIC_IER_OVRE;
 }
 
 
 void pdmic_disable(void)
 {
 	/* Disable the overrun error interrupt */
-	PDMIC->PDMIC_IDR |= PDMIC_IDR_OVRE;
+	PDMIC->PDMIC_IDR = PDMIC_IDR_OVRE;
 	pmc_disable_gck(ID_PDMIC);
 	pmc_disable_peripheral(ID_PDMIC);
 }
@@ -80,7 +80,7 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 	uint32_t pclk_prescal, gclk_prescal;
 	uint32_t f_pdmic;
 
-	PDMIC -> PDMIC_CR = PDMIC_CR_SWRST;
+	PDMIC->PDMIC_CR = (PDMIC->PDMIC_CR & ~PDMIC_CR_ENPDM) | PDMIC_CR_SWRST;
 
 	if (desc->channels != 1) {
 		trace_error("only supports one channel\n");
