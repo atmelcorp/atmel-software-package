@@ -114,7 +114,7 @@ static struct _usart_desc usart_desc = {
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfer_mode  = USARTD_MODE_POLLING,
-	.timeout        = 100, // unit: ms
+	.timeout        = 0, // unit: ms
 };
 
 static void console_handler(uint8_t key)
