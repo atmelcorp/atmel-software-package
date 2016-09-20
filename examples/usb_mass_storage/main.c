@@ -331,9 +331,9 @@ static void sd_driver_configure(void)
 
 #ifdef CONFIG_HAVE_SDMMC
 	sdmmc_initialize(&sd_drv[0], HOST0_ID, TIMER0_MODULE,
-	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0));
+	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0), false);
 	sdmmc_initialize(&sd_drv[1], HOST1_ID, TIMER1_MODULE,
-	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1));
+	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1), false);
 #elif defined(CONFIG_HAVE_HSMCI)
 	hsmci_initialize(&sd_drv[0], HOST0_ID,
 		TIMER0_MODULE, TIMER0_CHANNEL);
