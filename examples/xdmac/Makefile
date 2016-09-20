@@ -26,13 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Getting Started example
+# Makefile for compiling the XDMAC example
 AVAILABLE_TARGETS = sama5d2* sama5d4*
 
 TOP := ../..
 
 BINNAME = xdma
 
-obj-y += examples/xdma/main.o
+obj-y += examples/xdmac/main.o
 
 include $(TOP)/scripts/Makefile.rules
