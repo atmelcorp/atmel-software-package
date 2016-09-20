@@ -269,7 +269,7 @@ extern int main( void )
 				.size = sizeof(buffer_tx),
 				.attr = USARTD_BUF_ATTR_WRITE,
 			};
-			usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback,, 0);
+			usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
 			timer_wait(200);
 		}
 	}
