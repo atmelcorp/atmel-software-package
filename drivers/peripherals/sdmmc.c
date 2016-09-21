@@ -123,6 +123,13 @@
 /** A software event, never raised by the hardware, specific to this driver */
 #define SDMMC_NISTR_CUSTOM_EVT        (0x1u << 13)
 
+static struct _timer __timer = {
+	.tc = BOARD_TIMER_TC,
+	.channel = BOARD_TIMER_CHANNEL,
+	.freq = BOARD_TIMER_FREQ,
+	.resolution = BOARD_TIMER_RESOLUTION,
+};
+
 union uint32_u {
 	uint32_t word;
 	uint8_t bytes[4];
@@ -185,7 +192,7 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 	assert(set);
 
 	Sdmmc *regs = set->regs;
-	uint32_t timer_res_prv, usec = 0;
+	uint32_t timer_freq_prv, usec = 0;
 	uint8_t mc1r;
 
 	trace_debug("Release and power the device off\n\r");
@@ -197,11 +204,12 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 	 * 1) the RST_n e.MMC input is wired to the SDMMCx_RSTN PIO, and
 	 * 2) the hardware reset functionality of the device has been
 	 *    enabled by software (!) Refer to ECSD register byte 162. */
-	timer_res_prv = timer_get_resolution();
+	timer_freq_prv = __timer.freq;
 	/* Generate a pulse on SDMMCx_RSTN. Satisfy tRSTW >= 1 usec.
 	 * The timer driver can't cope with periodic interrupts triggered as
 	 * frequently as one interrupt per microsecond. Extend to 10 usec. */
-	timer_configure(10);
+	__timer.freq = 100000;
+	timer_configure(&__timer);
 	mc1r = regs->SDMMC_MC1R;
 	regs->SDMMC_MC1R = mc1r | SDMMC_MC1R_RSTN;
 	timer_sleep(1);
@@ -212,7 +220,8 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 		usec = ROUND_INT_DIV(74 * 1000000UL / 10UL, set->dev_freq);
 	usec = max_u32(usec, 20);
 	timer_sleep(usec);
-	timer_configure(timer_res_prv);
+	__timer.freq = timer_freq_prv;
+	timer_configure(&__timer);
 
 	/* Stop both the output clock and the SDMMC internal clock */
 	regs->SDMMC_CCR &= ~(SDMMC_CCR_SDCLKEN | SDMMC_CCR_INTCLKEN);
@@ -318,7 +327,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	 * levels (VCCQ), rather than the power supply voltage (VCC). */
 	const bool perm_low_sig = (caps & (SDMMC_CA0R_V18VSUP
 	    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP)) == SDMMC_CA0R_V18VSUP;
-	uint32_t timer_res_prv, usec = 0;
+	uint32_t timer_freq_prv, usec = 0;
 	uint16_t hc2r_prv, hc2r;
 	uint8_t rc = SDMMC_OK, hc1r_prv, hc1r, mc1r_prv, mc1r, pcr_prv, pcr;
 	bool toggle_sig_lvl, low_sig, dev_clk_on;
@@ -403,13 +412,15 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		/* Expect this call to follow the VOLTAGE_SWITCH command;
 		 * allow 2 device clock periods before the device pulls the CMD
 		 * and DAT[3:0] lines down */
-		timer_res_prv = timer_get_resolution();
-		timer_configure(10);
+		timer_freq_prv = __timer.freq;
+		__timer.freq = 100000;
+		timer_configure(&__timer);
 		if (set->dev_freq != 0)
 			usec = ROUND_INT_DIV(2 * 1000000UL / 10UL, set->dev_freq);
 		usec = max_u32(usec, 1);
 		timer_sleep(usec);
-		timer_configure(timer_res_prv);
+		__timer.freq = timer_freq_prv;
+		timer_configure(&__timer);
 		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 			rc = SDMMC_ERROR_STATE;
 	}
@@ -1084,7 +1095,7 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 	Sdmmc *regs = set->regs;
 	sSdmmcCommand *cmd = set->cmd;
 	uint32_t response;   /* The R1 response is 32-bit long */
-	uint32_t timer_res_prv, usec, rc;
+	uint32_t timer_freq_prv, usec, rc;
 	sSdmmcCommand stop_cmd = {
 		.pResp = &response,
 		.cmdOp.wVal = SDMMC_CMD_CSTOP | SDMMC_CMD_bmBUSY,
@@ -1117,14 +1128,16 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 		set->expect_auto_end = false;
 		rc = sdmmc_send_command(set, &stop_cmd);
 		if (rc == SDMMC_OK) {
-			timer_res_prv = timer_get_resolution();
-			timer_configure(10);
+			timer_freq_prv = __timer.freq;
+			__timer.freq = 100000;
+			timer_configure(&__timer);
 			for (usec = 0; set->state == MCID_CMD && usec < 500000; usec+= 10) {
 				timer_sleep(1);
 				if (set->use_polling)
 					sdmmc_poll(set);
 			}
-			timer_configure(timer_res_prv);
+			__timer.freq = timer_freq_prv;
+			timer_configure(&__timer);
 		}
 	}
 	/* Reset CMD and DATn lines */
@@ -1496,7 +1509,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    && set->use_set_blk_cnt;
 	const bool stop_xfer_suffix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && !set->use_set_blk_cnt;
-	uint32_t timer_res_prv, usec, eister, mask, len, cycles;
+	uint32_t timer_freq_prv, usec, eister, mask, len, cycles;
 	uint16_t cr, tmr;
 	uint8_t rc = SDMMC_OK, mc1r;
 
@@ -1518,11 +1531,12 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 			trace_error("Shall enable the device clock first\n\r");
 			return SDMMC_ERROR_STATE;
 		}
-		timer_res_prv = timer_get_resolution();
-		usec = ROUND_INT_DIV(74 * 1000000UL, set->dev_freq);
-		timer_configure(max_u32(usec, 200));
-		timer_sleep(1);
-		timer_configure(timer_res_prv);
+		timer_freq_prv = __timer.freq;
+		__timer.freq = 10000;
+		timer_configure(&__timer);
+		timer_sleep(2);
+		__timer.freq = timer_freq_prv;
+		timer_configure(&__timer);
 		return SDMMC_OK;
 	}
 

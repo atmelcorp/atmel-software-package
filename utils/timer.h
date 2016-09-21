@@ -34,7 +34,7 @@
  *
  *  Methods and definitions for an internal timer.
  *
- *  Defines a common and simpliest use of timer to generate delays using PIT
+ *  Defines a common and simpliest use of timer to generate delays using TC
  *
  *  \par Usage
  *
@@ -57,8 +57,17 @@
 
 struct _timeout
 {
-	uint32_t start;
-	uint32_t count;
+	uint64_t start;
+	uint64_t count;
+};
+
+struct _timer {
+	Tc* tc;
+	uint8_t channel;
+	uint32_t freq;
+	uint32_t resolution;
+
+	volatile uint64_t tick;
 };
 
 /*----------------------------------------------------------------------------
@@ -68,43 +77,41 @@ struct _timeout
 /**
  * \brief Configures the timer and reset tick counter.
  *
- * If CONFIG_TIMER_POLLING is not defined, the PIT interrupt will be used to
+ * If CONFIG_TIMER_POLLING is not defined, the TC interrupt will be used to
  * increment the tick counter.  If CONFIG_TIMER_POLLING is defined, the tick
- * counter will be updated from the PIT when requested.
+ * counter will be updated from the TC when requested.
  *
- * \note PIT is enabled automatically in this function.
- * \warning If interrupts are used, this function also reconfigures the PIT
+ * \note TC is enabled automatically in this function.
+ * \warning If interrupts are used, this function also reconfigures the TC
  * handler in AIC.
  *
- * \param resolution initialize timer resolution (=PIT period, in nano seconds)
+ * \param timer Pointer to a struct _timer instance
  */
-extern void timer_configure(uint32_t resolution);
+extern void timer_configure(struct _timer *timer);
 
 /**
  * \brief Wait for count times the timer resolution
  *
  * If interrupts are enabled, the waiting loop will use WFI instructions to put
  * the core to sleep between timer ticks.  Otherwise, if polling is enabled, a
- * busy-loop is used to poll the PIT counter value.
+ * busy-loop is used to poll the TC counter value.
  */
-extern void timer_wait(uint32_t count);
+extern void timer_wait(uint64_t count);
 
 /**
  *  \brief Alias for timer_wait.
  */
-extern void timer_sleep(uint32_t count);
+extern void timer_sleep(uint64_t count);
 
 /**
- * \brief Retrieve current timer resolution.
- *
- * \return Current timer resolution (0 if not already configured)
+ * \brief Wait for count us
  */
-extern uint32_t timer_get_resolution(void);
+extern void timer_usleep(uint64_t count);
 
 /**
  *  \brief Initialize a timeout
  */
-extern void timer_start_timeout(struct _timeout* timeout, uint32_t count);
+extern void timer_start_timeout(struct _timeout* timeout, uint64_t count);
 
 /**
  *  \brief Reset the starting time of a timeout structure
@@ -123,11 +130,11 @@ extern uint8_t timer_timeout_reached(struct _timeout* timeout);
  * \param start Start tick point.
  * \param end End tick point.
  */
-extern uint32_t timer_get_interval(uint32_t start, uint32_t end);
+extern uint64_t timer_get_interval(uint64_t start, uint64_t end);
 
 /**
  * \brief Returns the current number of ticks
  */
-extern uint32_t timer_get_tick(void);
+extern uint64_t timer_get_tick(void);
 
 #endif /* TIMER_HEADER_ */

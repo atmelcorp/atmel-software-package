@@ -59,9 +59,14 @@ extern void board_cfg_clocks(void);
 /**
  * \brief Performs the low-level initialization of the chip.
  *
- * This includes watchdog, master clock, AIC, timer, DDRAM and MMU.
+ * This includes watchdog, master clock, AIC, DDRAM and MMU.
  */
 extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu);
+
+/**
+ * \brief Configure the system timer
+ */
+extern void board_cfg_timer(void);
 
 /**
  * \brief Configure the board console if any

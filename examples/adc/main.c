@@ -409,8 +409,6 @@ static void _configure_tc_trigger(void)
 	uint32_t ra, rc;
 	
 	pio_configure(&pin_tioa0, 1);
-	/* Enable peripheral clock. */
-	pmc_enable_peripheral(ID_TC0);
 	/* Configure TC for a 10Hz frequency and trigger on RC compare. */
 	tcclks = tc_find_best_clock_source(TC0, 10);
 	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET | TC_CMR_ACPC_CLEAR | TC_CMR_CPCTRG);

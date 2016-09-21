@@ -121,11 +121,18 @@ void applet_main(struct applet_mailbox *mailbox)
 	applet_command_handler_t handler;
 
 	if (!applet_buffer) {
+		struct _timer __timer = {
+			.tc = BOARD_TIMER_TC,
+			.channel = BOARD_TIMER_CHANNEL,
+			.freq = BOARD_TIMER_FREQ,
+			.resolution = BOARD_TIMER_RESOLUTION,
+		};
+
 		/* Applet buffer is not set, this is the first call to the applet */
 		/* Let's do some setup */
 		init_applet_buffer();
 		pmc_set_oscillators(BOARD_SLOW_CLOCK_EXT_OSC, BOARD_MAIN_CLOCK_EXT_OSC);
-		timer_configure(0);
+		timer_configure(&__timer);
 		dma_initialize(true);
 	}
 

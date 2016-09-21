@@ -230,6 +230,14 @@ struct stringEntry_s
  *         Local variables
  *----------------------------------------------------------------------------*/
 
+/** Local timer */
+static _timer __timer = {
+	.tc = BOARD_TIMER_TC,
+	.channel = BOARD_TIMER_CHANNEL,
+	.freq = BOARD_TIMER_FREQ,
+	.resolution = BOARD_TIMER_RESOLUTION,
+};
+
 /** SD/MMC transfer rate unit codes (10K) list */
 static const uint16_t sdmmcTransUnits[8] = {
 	10, 100, 1000, 10000,
@@ -2164,17 +2172,19 @@ SdGetExtInformation(sSdCard * pSd)
 static void
 SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
 {
-	uint32_t timer_res_prv;
+	uint32_t timer_freq_prv;
 	uint8_t error;
 
 	/* Update CSD for new TRAN_SPEED value */
 	if (csd) {
 		SdMmcSelect(pSd, 0, 1);
 		/* Wait for 14 usec (or more) */
-		timer_res_prv = timer_get_resolution();
-		timer_configure(10);
+		timer_freq_prv = __timer.freq;
+		__timer.freq = 100000;
+		timer_configure(&__timer);
 		timer_sleep(2);
-		timer_configure(timer_res_prv);
+		__timer.freq = timer_freq_prv;
+		timer_configure(&__timer);
 
 		error = Cmd9(pSd);
 		if (error)
@@ -2554,9 +2564,12 @@ SdMmcIdentify(sSdCard * pSd)
 	else {
 		/* No response to CMD8. Wait for 130 usec (or more). */
 		timer_res_prv = timer_get_resolution();
-		timer_configure(10);
+		timer_freq_prv = __timer.freq;
+		__timer.freq = 100000;
+		timer_configure(&__timer);
 		timer_sleep(13);
-		timer_configure(timer_res_prv);
+		__timer.freq = timer_freq_prv;
+		timer_configure(&__timer);
 	}
 
 #ifndef SDMMC_TRIM_SDIO

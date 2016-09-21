@@ -61,7 +61,10 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
-/** \def Board PIT tick resolution */
-#define BOARD_TIMER_RESOLUTION    1000
+/** \def Board System timer resolution */
+#define BOARD_TIMER_TC          TC1
+#define BOARD_TIMER_CHANNEL     0
+#define BOARD_TIMER_FREQ        1000     // IRQ fequency (1kHz)
+#define BOARD_TIMER_RESOLUTION	1000000  // Precision: 1MHz
 
 #endif /* _BOARD_SAMA5D3_GENERIC_H */

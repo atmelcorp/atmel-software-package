@@ -272,8 +272,8 @@ int main(void)
 	eth_tapdev_setmac((uint8_t *)MacAddress.addr);
 	eth_tapdev_init();
 	clock_init();
-	timer_start_timeout(&periodic_timer, timer_get_resolution() / 2);
-	timer_start_timeout(&arp_timer, timer_get_resolution() * 10);
+	timer_start_timeout(&periodic_timer, 500);
+	timer_start_timeout(&arp_timer, 10000);
 
 	/* Init uIP */
 	uip_init();

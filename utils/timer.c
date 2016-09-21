@@ -29,7 +29,7 @@
 
 /**
  *  \file
- *  Implement simple PIT usage as system tick.
+ *  Implement simple TC usage as system tick.
  */
 
 /*----------------------------------------------------------------------------
@@ -39,17 +39,17 @@
 #include "board.h"
 #include "timer.h"
 #include "peripherals/tc.h"
-#include "peripherals/pit.h"
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
+
+#include <string.h>
 
 /*----------------------------------------------------------------------------
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-/** Tick Counter */
-static volatile uint32_t _tick_counter = 0;
-static uint32_t _resolution = 0;
+/** System timer */
+static struct _timer _sys_timer;
 
 /*----------------------------------------------------------------------------
  *         Exported Functions
@@ -60,51 +60,57 @@ static uint32_t _resolution = 0;
  */
 static void timer_increment(void)
 {
-	/* Read the PIT status register */
-	if (pit_get_status() & PIT_SR_PITS) {
-		/* The Periodic Interval timer has reached PIV since the last
-		 * read of PIT_PIVR.
-		 * Read the PIVR to acknowledge interrupt and get number of
-		 * ticks.
-		 * Return the number of occurrences of periodic intervals
-		 * since the last read of PIT_PIVR. */
-		_tick_counter += pit_get_pivr() >> 20;
+	/* Read the TC status register */
+	uint32_t status = tc_get_status(_sys_timer.tc, _sys_timer.channel);
+
+	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
+		_sys_timer.tick++;
+}
+
+void timer_configure(struct _timer* timer)
+{
+	uint32_t rc = 0;
+	uint32_t tc_clks = 0;
+	uint32_t tc_id = get_tc_id_from_addr(timer->tc);
+
+	memcpy(&_sys_timer, timer, sizeof(_sys_timer));
+
+	// Select clock source, configure tc base on timer clock
+	tc_clks = tc_find_best_clock_source(timer->tc, timer->resolution);
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+	if (tc_clks == TC_CMR_TCCLKS_TIMER_CLOCK1) {
+		if (!pmc_is_gck_enabled(tc_id)) {
+			pmc_configure_gck(tc_id, PMC_PCR_GCKCSS_MAIN_CLK, 1);
+			pmc_enable_gck(tc_id);
+		}
 	}
-}
-
-void timer_configure(uint32_t resolution)
-{
-	_resolution = resolution ? resolution : BOARD_TIMER_RESOLUTION;
-	_tick_counter = 0;
-
-	pmc_enable_peripheral(ID_PIT);
-	pit_init(_resolution);
-#ifdef CONFIG_TIMER_POLLING
-	pit_disable_it();
-#else
-	aic_set_source_vector(ID_PIT, timer_increment);
-	aic_enable(ID_PIT);
-	pit_enable_it();
 #endif
-	pit_enable();
+
+	tc_configure(timer->tc, timer->channel, tc_clks | TC_CMR_CPCTRG);
+	rc = (tc_get_available_freq(timer->tc, tc_clks) * timer->freq) / timer->resolution;
+	tc_set_ra_rb_rc(timer->tc, timer->channel, 0, 0, &rc);
+
+#ifdef CONFIG_TIMER_POLLING
+	tc_disable_it(timer->tc, timer->channel, TC_IER_CPCS);
+#else
+	aic_set_source_vector(tc_id, timer_increment);
+	aic_enable(tc_id);
+	tc_enable_it(timer->tc, timer->channel, TC_IER_CPCS);
+#endif
+	tc_start(timer->tc, timer->channel);
 }
 
-uint32_t timer_get_resolution(void)
-{
-	return _resolution;
-}
-
-uint32_t timer_get_interval(uint32_t start, uint32_t end)
+uint64_t timer_get_interval(uint64_t start, uint64_t end)
 {
 	if (end >= start)
 		return (end - start);
-	return (end + (0xFFFFFFFF - start) + 1);
+	return (end + (0xFFFFFFFFFFFFFFFF - start) + 1);
 }
 
-void timer_start_timeout(struct _timeout* timeout, uint32_t count)
+void timer_start_timeout(struct _timeout* timeout, uint64_t count)
 {
 	timeout->start = timer_get_tick();
-	timeout->count = count;
+	timeout->count = count ;
 }
 
 void timer_reset_timeout(struct _timeout* timeout)
@@ -117,7 +123,7 @@ uint8_t timer_timeout_reached(struct _timeout* timeout)
 	return timer_get_interval(timeout->start, timer_get_tick()) >= timeout->count;
 }
 
-void timer_wait(uint32_t count)
+void timer_sleep(uint64_t count)
 {
 	struct _timeout timeout;
 	timer_start_timeout(&timeout, count);
@@ -128,15 +134,49 @@ void timer_wait(uint32_t count)
 	}
 }
 
-void timer_sleep(uint32_t count)
+void timer_usleep(uint64_t count)
 {
-	timer_wait(count);
+	uint32_t rc;
+	uint32_t t_start;
+
+	tc_get_ra_rb_rc(_sys_timer.tc, _sys_timer.channel, NULL, NULL, &rc);
+	uint32_t cv = ROUND_INT_DIV((count * rc), _sys_timer.freq);
+
+	t_start = tc_get_cv(_sys_timer.tc, _sys_timer.channel);
+
+	if ((t_start + cv) < rc)
+		while ((tc_get_cv(_sys_timer.tc, _sys_timer.channel) - t_start) < cv);
+	else
+		while (((rc + tc_get_cv(_sys_timer.tc, _sys_timer.channel) - t_start) % rc) < cv);
 }
 
-uint32_t timer_get_tick(void)
+uint64_t timer_get_tick(void)
 {
 #ifdef CONFIG_TIMER_POLLING
 	timer_increment();
 #endif
-	return _tick_counter;
+	return _sys_timer.tick;
+}
+
+void msleep(uint32_t count)
+{
+	timer_sleep(count);
+}
+
+void sleep(uint32_t count)
+{
+	timer_sleep(count * 1000);
+}
+
+void usleep(uint32_t count)
+{
+	uint32_t ms_count = count / 1000;
+
+	if (ms_count > 0)
+		timer_sleep(ms_count);
+
+	count = count % 1000;
+
+	if (count > 0)
+		timer_usleep(count);
 }

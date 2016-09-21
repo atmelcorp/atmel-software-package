@@ -197,6 +197,9 @@ void board_init(void)
 	/* Configure low-level peripherals */
 	board_cfg_lowlevel(true, false, false);
 
+	/* Configure system timer */
+	board_cfg_timer();
+
 	/* Configure console */
 	_configure_console();
 }
