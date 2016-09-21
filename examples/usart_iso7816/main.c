@@ -383,7 +383,7 @@ extern int main( void )
 	console_example_info("USART ISO7816 Example");
 
 	led_set(LED_BLUE);
-	timer_wait(500);
+	timer_sleep(500);
 	led_clear(LED_BLUE);
 	led_status[LED_BLUE] = 1;
 

@@ -435,7 +435,7 @@ int main(void)
 	} while (key != 'q' && key != 'Q');
 
 	tc_stop(TC0, TC_CHANNEL);
-	timer_wait(500);
+	timer_sleep(500);
 	printf("\n\rEnd of demo\n\r");
 	while (1);
 }

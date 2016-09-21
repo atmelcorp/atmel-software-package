@@ -307,5 +307,5 @@ void wm8731_volume_mute(struct _wm8731_desc *wm8731, bool mute)
 void wm8731_reset(struct _wm8731_desc *wm8731)
 {
 	wm8731_write(wm8731, WM8731_REG_RESET, 0);
-	timer_wait(10);
+	timer_sleep(10);
 }

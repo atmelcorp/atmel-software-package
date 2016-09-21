@@ -238,7 +238,7 @@ static sensor_status_t sensor_twi_write_regs(const sensor_profile_t *sensor_prof
 	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
 		status = sensor_twi_write_reg(sensor_profile->bus, sensor_profile->addr,
 		                              next->reg, (uint8_t *)(&next->val));
-		timer_wait(2);
+		timer_sleep(2);
 		if (status)
 			return SENSOR_TWI_ERROR;
 		next++;

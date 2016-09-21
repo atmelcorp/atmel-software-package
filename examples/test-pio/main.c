@@ -197,7 +197,7 @@ int main(void)
 	printf("  <testcase classname=\"pio.level.low\" name='PIO: Set/Get PIO LOW LEVEL'>\r\n");
 	printf("    <system-out>\r\n");
 	pio_clear(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	printf("    </system-out>\r\n");
 	if ((pio_get(&pio_input) != 0) || (pio_get(&pio_output) != 0)) {
 		test_fail++;
@@ -209,7 +209,7 @@ int main(void)
 	printf("  <testcase classname=\"pio.level.high\" name=\"PIO: Get PIO HIGH LEVEL\">\r\n");
 	printf("    <system-out>\r\n");
 	pio_set(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	printf("    </system-out>\r\n");
 	if ((pio_get(&pio_input) != pio_input.mask) || (pio_get(&pio_output) != pio_output.mask)) {
 		test_fail++;
@@ -228,7 +228,7 @@ int main(void)
 	pio_enable_it(&pio_input);
 
 	pio_clear(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	printf("    </system-out>\r\n");
 	if (_pio_event != 1) {
 		test_fail++;
@@ -249,7 +249,7 @@ int main(void)
 	pio_enable_it(&pio_input);
 
 	pio_set(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	printf("    </system-out>\r\n");
 	if (_pio_event != 1) {
 		test_fail++;
@@ -271,10 +271,10 @@ int main(void)
 	pio_enable_it(&pio_input);
 
 	pio_clear(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 
 	pio_set(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	printf("    </system-out>\r\n");
 	if (_pio_event != 2) {
 		test_fail++;
@@ -298,7 +298,7 @@ int main(void)
 
 	_pio_event = 0;
 	pio_clear(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	pio_set(&pio_output);
 	printf("    </system-out>\r\n");
 	if (_pio_event < 1) {
@@ -319,7 +319,7 @@ int main(void)
 	pio_configure(&pio_input, 1);
 	pio_enable_it(&pio_input);
 	pio_set(&pio_output);
-	timer_wait(10);
+	timer_sleep(10);
 	pio_clear(&pio_output);
 	printf("    </system-out>\r\n");
 	if (_pio_event < 1) {

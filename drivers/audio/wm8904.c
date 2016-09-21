@@ -352,7 +352,7 @@ void wm8904_configure(struct _wm8904_desc *wm8904)
 	for (i = 0; i < count; i++) {
 		wm8904_write(wm8904, params[i].address, params[i].value);
 		if (params[i].delay > 0)
-			timer_wait(params[i].delay);
+			timer_sleep(params[i].delay);
 	}
 
 	if ((wm8904->input_path & (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L)) == (WM8904_INPUT_PATH_IN1L | WM8904_INPUT_PATH_IN2L))
@@ -443,7 +443,7 @@ bool wm8904_detect(struct _wm8904_desc *wm8904)
 void wm8904_reset(struct _wm8904_desc *wm8904)
 {
 	wm8904_write(wm8904, WM8904_REG_RESET, 0xFFFF);
-	timer_wait(10);
+	timer_sleep(10);
 	/* Wait until codec is ready */
 	while (wm8904_read(wm8904, 0) != 0x8904);
 }

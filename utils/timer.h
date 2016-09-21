@@ -40,9 +40,7 @@
  *
  *  -# Configure the System Tick with timer_configure() when MCK changed
  *     \note
- *     Must be done before any invoke of timer_wait(), or timer_sleep()
- *  -# Uses timer_wait to actively wait according to your timer resolution.
- *  -# Uses timer_sleep to passively wait ccording to your timer resolution.
+ *     Must be done before any invoke of timer_sleep()
  *
  */
 
@@ -96,15 +94,12 @@ extern void timer_configure(struct _timer *timer);
  * the core to sleep between timer ticks.  Otherwise, if polling is enabled, a
  * busy-loop is used to poll the TC counter value.
  */
-extern void timer_wait(uint64_t count);
-
-/**
- *  \brief Alias for timer_wait.
- */
 extern void timer_sleep(uint64_t count);
 
 /**
- * \brief Wait for count us
+ * \brief Retrieve current timer resolution.
+ *
+ * \return Current timer resolution (0 if not already configured)
  */
 extern void timer_usleep(uint64_t count);
 
@@ -136,5 +131,20 @@ extern uint64_t timer_get_interval(uint64_t start, uint64_t end);
  * \brief Returns the current number of ticks
  */
 extern uint64_t timer_get_tick(void);
+
+/**
+ *  \brief Alias for timer_sleep.
+ */
+extern void msleep(uint32_t count);
+
+/**
+ *  \brief Wait for us.
+ */
+extern void usleep(uint32_t count);
+
+/**
+ *  \brief Wait for seconds.
+ */
+extern void sleep(uint32_t count);
 
 #endif /* TIMER_HEADER_ */

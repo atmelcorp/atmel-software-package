@@ -326,6 +326,6 @@ int main(void)
 		}
 
 		/* Wait for 250ms (4Hz) */
-		timer_wait(250);
+		timer_sleep(250);
 	}
 }

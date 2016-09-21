@@ -610,7 +610,7 @@ int main(void)
 			}
 		}
 		if (_test_mode.trigger_mode == TRIGGER_MODE_ADTRG) {
-			timer_wait(500);
+			timer_sleep(500);
 			if (pio_get(&pin_trig)) {
 				led_clear(LED_RED);
 				pio_clear(&pin_trig);

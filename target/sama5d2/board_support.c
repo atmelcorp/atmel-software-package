@@ -759,7 +759,7 @@ void board_cfg_isc(void)
 	pio_clear(&pin_pwd);
 	pio_clear(&pin_rst);
 	pio_set(&pin_rst);
-	timer_wait(10);
+	timer_sleep(10);
 
 	pmc_enable_peripheral(ID_ISC);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
