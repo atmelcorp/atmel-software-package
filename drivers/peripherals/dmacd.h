@@ -192,10 +192,10 @@ extern uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel);
 extern void dmacd_fifo_flush(struct _dmacd_channel *channel);
 
 /**
- * \brief Get size of remaining data to be transferred by DMA transfer.
+ * \brief Get size of already trasnferred data by DMA.
  * \param channel Channel pointer
  */
-extern uint32_t dmacd_get_remaining_data_len(struct _dmacd_channel *channel);
+extern uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel *channel);
 
 /**     @}*/
 

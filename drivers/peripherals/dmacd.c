@@ -433,13 +433,11 @@ void dmacd_fifo_flush(struct _dmacd_channel *channel)
 	dmac_fifo_flush(dmac, channel->id);
 }
 
-
-uint32_t dmacd_get_remaining_data_len(struct _dmacd_channel *channel)
+uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel *channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	return dmac_get_btsize(dmac, channel->id);
 }
-
 
 /**@}*/

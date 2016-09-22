@@ -79,8 +79,16 @@ static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc *desc = _serial[iface];
 
-	desc->rx.transferred = desc->dma.rx.cfg.len - dma_get_remaining_data_len(channel, desc->dma.rx.cfg.chunk_size);
+	if (desc->timeout > 0) {
+		desc->addr->US_CR = US_CR_STTTO;
+		usart_disable_it(desc->addr, US_IDR_TIMEOUT);
+	}
 
+	if (!dma_is_transfer_done(channel))
+		dma_stop_transfer(channel);
+	dma_fifo_flush(channel);
+
+	desc->rx.transferred = dma_get_transferred_data_len(channel, desc->dma.rx.cfg.chunk_size, desc->dma.rx.cfg.len);
 	dma_free_channel(channel);
 
 	if (desc->rx.transferred > 0) {
@@ -116,6 +124,8 @@ static void _usartd_dma_read(uint8_t iface)
 	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
 
 	dma_set_callback(desc->dma.rx.channel, _usartd_dma_read_callback, (void *)(uint32_t)iface);
+	usart_enable_it(desc->addr, US_IER_TIMEOUT);
+	usart_restart_rx_timeout(desc->addr);
 	dma_start_transfer(desc->dma.rx.channel);
 }
 
@@ -170,11 +180,6 @@ static void _usartd_handler(void)
 	status = usart_get_masked_status(addr);
 	desc->rx.has_timeout = false;
 
-	if (USART_STATUS_TIMEOUT(status)) {
-		usart_disable_it(addr, US_IDR_TIMEOUT | US_IDR_RXRDY);
-		desc->rx.has_timeout = true;
-	}
-
 	if (USART_STATUS_RXRDY(status)) {
 		if (desc->rx.buffer.size) {
 			desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
@@ -198,11 +203,34 @@ static void _usartd_handler(void)
 			}
 			_tx_stop = false;
 		}
-	} else if (USART_STATUS_TXEMPTY(status)) {
+	}
+
+	if (USART_STATUS_TIMEOUT(status)) {
+		switch (desc->transfer_mode) {
+		case USARTD_MODE_ASYNC:
+			desc->addr->US_CR = US_CR_STTTO;
+			usart_disable_it(addr, US_IDR_TIMEOUT);
+			break;
+		case USARTD_MODE_DMA:
+			_usartd_dma_read_callback(desc->dma.rx.channel, (void *)iface);
+			break;
+		}
+
+		if (desc->rx.buffer.size)
+			usart_disable_it(addr, US_IDR_RXRDY);
+
+		if (desc->tx.buffer.size)
+			usart_disable_it(addr, US_IDR_TXRDY | US_IDR_TXEMPTY);
+
+		desc->rx.has_timeout = true;
+	}
+
+	if (USART_STATUS_TXEMPTY(status)) {
 		usart_disable_it(addr, US_IDR_TXEMPTY);
 	}
 
 	if (_rx_stop) {
+		desc->addr->US_CR = US_CR_STTTO;
 		desc->rx.buffer.size = 0;
 		mutex_unlock(&desc->rx.mutex);
 	}
@@ -287,12 +315,6 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 		if (buf->size < USARTD_POLLING_THRESHOLD)
 			tmode = USARTD_MODE_POLLING;
 
-	if (tmode == USARTD_MODE_DMA) {
-		if (desc->timeout > 0) {
-			trace_fatal("Usart TIMEOUT not implemented for DMA transfer\r\n");
-		}
-	}
-
 	switch (tmode) {
 	case USARTD_MODE_POLLING:
 		i = 0;
@@ -358,6 +380,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 					csr = desc->addr->US_CSR;
 					while (!USART_STATUS_RXRDY(csr)) {
 						if (USART_STATUS_TIMEOUT(csr)) {
+							desc->addr->US_CR = US_CR_STTTO;
 							desc->rx.buffer.size = 0;
 							desc->rx.transferred = i;
 							mutex_unlock(&desc->rx.mutex);

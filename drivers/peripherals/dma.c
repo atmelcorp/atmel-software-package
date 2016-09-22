@@ -490,12 +490,12 @@ void dma_poll(void)
 #endif
 }
 
-uint32_t dma_get_remaining_data_len(struct dma_channel *channel, uint8_t chunk_size)
+uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk_size, uint32_t len)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmacd_get_remaining_data_len((struct _xdmacd_channel *)channel) * (1 << chunk_size);
+	return len - xdmacd_get_remaining_data_len((struct _xdmacd_channel *)channel) * (1 << chunk_size);
 #elif defined(CONFIG_HAVE_DMAC)
-	return dmacd_get_remaining_data_len((struct _dmacd_channel *)channel) * ( 1 << chunk_size);
+	return dmacd_get_transferred_data_len((struct _dmacd_channel *)channel) * (1 << chunk_size);
 #endif
 }
 

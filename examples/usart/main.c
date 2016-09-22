@@ -114,7 +114,7 @@ static struct _usart_desc usart_desc = {
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfer_mode  = USARTD_MODE_POLLING,
-	.timeout        = 0, // unit: ms
+	.timeout        = 500, // unit: ms
 };
 
 static void console_handler(uint8_t key)
@@ -156,6 +156,8 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
+	memset(read_buffer, 0, ARRAY_SIZE(read_buffer));
+	cache_clean_region(read_buffer, ARRAY_SIZE(read_buffer));
 	while (_len < size) {
 		struct _buffer rx = {
 			.data = (unsigned char*)read_buffer + _len,
@@ -282,7 +284,7 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 int main (void)
 {
 	/* Output example information */
-	console_example_info("USART DMA Example");
+	console_example_info("USART Example");
 
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);

@@ -300,11 +300,12 @@ extern bool dma_is_transfer_done(struct dma_channel *channel);
 extern void dma_fifo_flush(struct dma_channel *channel);
 
 /**
- * \brief Remaining data to be transferred by DMA
+ * \brief Transferred data by DMA
  * \param channel Channel pointer
  * \param chunk_size Size of a data chunk
+ * \param len Length of data to transfer
  */
-extern uint32_t dma_get_remaining_data_len(struct dma_channel *channel, uint8_t chunk_size);
+extern uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk_size, uint32_t len);
 
 
 /**     @}*/
