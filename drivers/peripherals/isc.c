@@ -416,7 +416,7 @@ void isc_cc_enabled(uint8_t enabled)
 	if (enabled)
 		ISC->ISC_CC_CTRL = ISC_CC_CTRL_ENABLE;
 	else
-		ISC->ISC_CFA_CTRL = 0;
+		ISC->ISC_CC_CTRL = 0;
 }
 
 /**
