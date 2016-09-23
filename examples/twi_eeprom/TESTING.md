@@ -19,6 +19,8 @@ access data on a AT24 device.
 --------------------
 
 * SAMA5D2-XPLAINED
+* SAMA5D3-XPLAINED
+* SAMA5D3-EK
 * SAMA5D4-XPLAINED
 * SAMA5D4-EK
 * SAM9XX5-EK
@@ -74,7 +76,22 @@ Step needed to set up the example.
 __Pins for SAMA5D2 Xplained Ultra:__
 Master SCL                 | Master SDA                | Slave SCL                         | Slave SDA
 -------------------------- | ------------------------- | --------------------------------- | ---------------------------------
-EXP_TWCK1_PD5 on J22 pin 8 | EXP_TWD1_PD4 on J22 pin 7 | ISC_D5/EXP/XPRO_PB31 on J20 pin 9 | ISC_D6/EXP/XPRO_PC0 on J20 pin 10
+EXP_TWCK1_PD5 on J22 pin 8 | EXP_TWD1_PD4 on J22 pin 7 |  ISC_D6/EXP/XPRO_PC0 on J20 pin 10| ISC_D5/EXP/XPRO_PB31 on J20 pin 9
+
+__Pins for SAMA5D3 EK:__
+Master SCL            | Master SDA           | Slave SCL              | Slave SDA
+--------------------- | -------------------- | ---------------------- | --------------------
+TWCK_ISI on J11 pin 7 | TWD_ISI on J11 pin 8 | ISI_D3 on J11 pin 21   | ISI_D2 on J11 pin 20
+
+__Pins for SAMA5D3 Xplained Ultra:__
+Master SCL            | Master SDA           | Slave SCL              | Slave SDA
+--------------------- | -------------------- | ---------------------- | --------------------
+TWCK_ISI on J20 pin 8 | TWD_ISI on J20 pin 7 | J15_TWCK on J15 pin 10 | J15_TWD on J15 pin 9
+
+__Pins for SAMA5D3 Xplained Ultra:__
+Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
+--------------------------- | -------------------------- | --------------------------- | --------------------------
+TWCK1/PC27 on J20 pin 8     | TWD1/PC26 on J20 pin 7     | TWCK0/PA31 on J15 pin 10    | TWD0/PA30 on J15 pin 9
 
 __Pins for SAMA5D4 EK:__
 Master SCL                  | Master SDA                 | Slave SCL            | Slave SDA
@@ -84,7 +101,7 @@ ISI_TWCK0_PA31 on J15 pin 7 | ISI_TWD0_PA30 on J15 pin 8 | ISI_D7 on J15 pin 25 
 __Pins for SAMA5D4 Xplained Ultra:__
 Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
 --------------------------- | -------------------------- | --------------------------- | --------------------------
-EXP_TWCK0_PA31 on J19 pin 8 | EXP_TWD0_PA30 on J19 pin 7 | EXP/XPRO_PE30 on J17 pin 10 | EXP/XPRO_PE29 on J17 pin 9
+EXP_TWCK0_PA31 on J19 pin 8 | EXP_TWD0_PA30 on J19 pin 7 | EXP/XPRO_PB30 on J8 pin 1 | EXP/XPRO_PB29 on J8 pin 2
 
 __Pins for SAM9xx5 EK:__
 Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA

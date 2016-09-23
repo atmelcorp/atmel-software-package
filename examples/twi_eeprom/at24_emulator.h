@@ -30,7 +30,7 @@
 #ifndef AT24_EMULATOR_H_
 #define AT24_EMULATOR_H_
 
-#include "peripherals/twi.h"
+#include "peripherals/twid.h"
 #include "memories/at24.h"
 
 #include <stdint.h>
@@ -45,6 +45,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void at24_emulator_initialize(Twi* twi, uint8_t addr);
+extern void at24_emulator_initialize(struct _twi_slave_desc* desc);
 
 #endif /* AT24_EMULATOR_H_ */

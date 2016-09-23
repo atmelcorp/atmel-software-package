@@ -37,8 +37,8 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED
- * and SAM9xx5-EK.
+ * This package can be used with SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED,
+ * SAMA5D4-EK, SAMA5D4-XPLAINED and SAM9xx5-EK.
  *
  * \section Descriptions
  *
@@ -134,6 +134,11 @@ static const struct _at24_config at24_emulator_cfg = {
 	.model = AT24_EMULATED_MODEL,
 };
 
+static struct _twi_slave_desc _slaved = {
+	.twi = AT24_EMU_DEV,
+	.addr = AT24_EMU_ADDR,
+};
+
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
@@ -143,6 +148,7 @@ static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 CACHE_ALIGNED static uint8_t cmd_buffer[256];
 
+int32_t _old_twid_bus_transfer_mode = -1;
 #ifdef HAVE_AT24_DEVICE
 static struct _at24* at24_device;
 #endif
@@ -371,6 +377,9 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 	if (!strncmp((char*)buffer, "emulator", 8)) {
 		at24 = &at24_emulator;
 		printf("Using AT24 emulator\r\n");
+		_old_twid_bus_transfer_mode = twi_bus_get_transfer_mode(at24->bus);
+		/* In TWI slave mode, only polling mode is supported */
+		twi_bus_set_transfer_mode(at24->bus, TWID_MODE_POLLING);
 		print_menu();
 		return;
 	}
@@ -378,6 +387,8 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 	if (!strncmp((char*)buffer, "device", 8)) {
 		at24 = at24_device;
 		printf("Using AT24 device\r\n");
+		if (_old_twid_bus_transfer_mode >= 0)
+			 _old_twid_bus_transfer_mode = twi_bus_get_transfer_mode(at24->bus);
 		print_menu();
 		return;
 	}
@@ -475,7 +486,7 @@ static void _configure_emulator(void)
 	static struct _pin pins[] = AT24_EMU_PINS;
 
 	pio_configure(pins, ARRAY_SIZE(pins));
-	at24_emulator_initialize(AT24_EMU_DEV, AT24_EMU_ADDR);
+	at24_emulator_initialize(&_slaved);
 }
 
 /*------------------------------------------------------------------------------
@@ -504,6 +515,8 @@ int main (void)
 	at24 = at24_device;
 #else
 	at24 = &at24_emulator;
+	/* TWI slave implementation support only polling mode */
+	twi_bus_set_transfer_mode(at24->bus, TWID_MODE_POLLING);
 #endif
 
 	print_menu();

@@ -27,16 +27,16 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef CONFIG_SAMA5D4_XPLAINED_H_
-#define CONFIG_SAMA5D4_XPLAINED_H_
+#ifndef CONFIG_SAMA5D3_XPLAINED_H_
+#define CONFIG_SAMA5D3_XPLAINED_H_
 
 /** TWI master bus used to communicate with emulator */
-#define AT24_EMU_MASTER_BUS 1
+#define AT24_EMU_MASTER_BUS 0
 /** TWI slave AT24 address */
 #define AT24_EMU_ADDR 0x53
 /** TWI slave pins definition **/
-#define AT24_EMU_PINS PINS_TWI2
+#define AT24_EMU_PINS PINS_TWI0
 /** TWI slave device definition */
-#define AT24_EMU_DEV TWI2
+#define AT24_EMU_DEV TWI0
 
-#endif /* CONFIG_SAMA5D4_XPLAINED_H_ */
+#endif /* CONFIG_SAMA5D3_XPLAINED_H_ */

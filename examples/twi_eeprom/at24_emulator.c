@@ -34,17 +34,10 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/irq.h"
-#include "peripherals/pmc.h"
 #include "peripherals/twid.h"
-#include "bus/twi-bus.h"
-
-#include "misc/cache.h"
-#include "misc/console.h"
 
 #include "at24_emulator.h"
 
-#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,16 +58,12 @@
  *----------------------------------------------------------------------------*/
 
 /** The slave device instance*/
-struct _slave_device_driver
+struct _at24_emulator_driver
 {
-	/** TWI slave address */
-	uint8_t addr;
-	/** TWI device */
-	Twi* twi;
 	/** Memory buffer */
 	uint8_t data[TWI_SLAVE_SIZE];
 	/** Offset of the memory access */
-	uint16_t offset;
+	uint8_t offset;
 	/** Read address of the request */
 	uint8_t state;
 };
@@ -84,93 +73,69 @@ struct _slave_device_driver
  *----------------------------------------------------------------------------*/
 
 /** instance of TWI slave device */
-static struct _slave_device_driver at24_emulator;
+static struct _at24_emulator_driver _at24_emulator;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-/**
- *  \brief Handler for TWI slave interrupt.
- *
- *  Handle process TWI master's requests.
- */
-static void twi_slave_handler(uint32_t source, void* user_arg)
+static void _at24_emulator_on_start(void)
 {
-	uint32_t status;
-	Twi *twi = at24_emulator.twi;
+	_at24_emulator.state = TWI_EEPROM_OFFSET;
+}
 
-	status = twi_get_status(twi);
+static int16_t _at24_emulator_on_read(uint8_t byte)
+{
+	int16_t ret = 1;
 
-	if (TWI_STATUS_SVACC(status)) {
-		/* Write to slave */
-		if (TWI_STATUS_RXRDY(status)) {
-			uint8_t data = twi_read_byte(twi);
-
-			switch (at24_emulator.state) {
-			case TWI_EEPROM_OFFSET:
-				/* Acquire address */
-				at24_emulator.offset = data;
-				at24_emulator.state = TWI_EEPROM_DATA;
-				break;
-			case TWI_EEPROM_DATA:
-				/* Read one byte of data from master to slave device */
-				at24_emulator.data[at24_emulator.offset] = data;
-				at24_emulator.offset = (at24_emulator.offset + 1) % TWI_SLAVE_SIZE;
-				break;
-			}
-		} else if (TWI_STATUS_SVREAD(status)) {
-			/* Read from slave */
-			if (TWI_STATUS_TXRDY(status)) {
-				/* Write one byte of data from slave to master device */
-				twi_write_byte(twi, at24_emulator.data[at24_emulator.offset]);
-				at24_emulator.offset = (at24_emulator.offset + 1) % TWI_SLAVE_SIZE;
-				twi_enable_it(twi, TWI_IER_TXCOMP);
-			}
-		}
-		twi_enable_it(twi, TWI_IER_EOSACC);
-	} else {
-		if (TWI_STATUS_EOSACC(status) && TWI_STATUS_TXCOMP(status)) {
-			at24_emulator.state = TWI_EEPROM_OFFSET;
-			twi_disable_it(twi, TWI_IDR_EOSACC | TWI_IDR_TXCOMP);
-
-			/* At the end of a read from the slave, we need to
-			 * clear an additionnal byte that may be pending in
-			 * TWI_THR register. */
-#ifdef TWI_CR_THRCLR
-			/* On SAMA5D2, writing TWI_CR_THRCLR to TWI_CR will
-			 * clear TWI_THR. */
-			twi->TWI_CR = TWI_CR_THRCLR;
-#else
-			/* On older versions of the TWI peripheral, we have to
-			 * trigger a software reset... */
-			twi_configure_slave(twi, at24_emulator.addr);
-			twi_enable_it(twi, TWI_IER_SVACC | TWI_IER_RXRDY);
-#endif
-		}
+	switch (_at24_emulator.state) {
+	case TWI_EEPROM_OFFSET:
+		/* Acquire address */
+		_at24_emulator.offset = byte;
+		_at24_emulator.state = TWI_EEPROM_DATA;
+		/* Send first data byte */
+		ret = _at24_emulator.data[_at24_emulator.offset];
+		break;
+	case TWI_EEPROM_DATA:
+		/* Read one byte of data from master to slave device */
+		_at24_emulator.data[_at24_emulator.offset] = byte;
+		_at24_emulator.offset = (_at24_emulator.offset + 1) % TWI_SLAVE_SIZE;
+		break;
+	default:
+		ret = -1;
 	}
+
+	return ret;
+}
+
+static int16_t _at24_emulator_on_write(void)
+{
+	int16_t ret = -1;
+
+	/* Send next data byte */
+	_at24_emulator.offset = (_at24_emulator.offset + 1) % TWI_SLAVE_SIZE;
+	ret = _at24_emulator.data[_at24_emulator.offset];
+
+	return ret;
 }
 
 /*------------------------------------------------------------------------------
-k *         Public functions
+ *         Public functions
  *------------------------------------------------------------------------------*/
 
-void at24_emulator_initialize(Twi* twi, uint8_t addr)
+static struct _twi_slave_ops _at24_emulator_ops = {
+	.on_start = _at24_emulator_on_start,
+	.on_stop = NULL,
+	.on_read = _at24_emulator_on_read,
+	.on_write = _at24_emulator_on_write,
+};
+
+void at24_emulator_initialize(struct _twi_slave_desc* desc)
 {
-	uint32_t twi_id;
-
 	/* Setup slave driver structure */
-	memset(at24_emulator.data, 0xff, ARRAY_SIZE(at24_emulator.data));
-	at24_emulator.addr = addr;
-	at24_emulator.twi = twi;
-	at24_emulator.offset = 0;
-	at24_emulator.state = TWI_EEPROM_OFFSET;
+	memset(_at24_emulator.data, 0xff, ARRAY_SIZE(_at24_emulator.data));
+	_at24_emulator.offset = 0;
+	_at24_emulator.state = TWI_EEPROM_OFFSET;
 
-	/* Configure TWI slave */
-	twi_id = get_twi_id_from_addr(twi);
-	pmc_enable_peripheral(twi_id);
-	twi_configure_slave(twi, addr);
-	irq_add_handler(twi_id, twi_slave_handler, NULL);
-	twi_enable_it(twi, TWI_IER_SVACC | TWI_IER_RXRDY);
-	irq_enable(twi_id);
+	twid_slave_configure(desc, &_at24_emulator_ops);
 }
