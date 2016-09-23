@@ -266,7 +266,7 @@
 
 #define QSPIFLASH_PINS     PINS_QSPI0_IOS3
 #define QSPIFLASH_ADDR     QSPI0
-#define QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
+#define QSPIFLASH_BAUDRATE 100000000 /* 50 MHz */
 
 /* =================== CAN device definition ==================== */
 /* Both ports are wired to the J9 connector:
