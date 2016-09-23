@@ -574,12 +574,12 @@ void isc_sub422_enabled(uint8_t enabled)
  */
 void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
 {
-   if (ccir656)
+	if (ccir656)
 		ISC->ISC_SUB422_CFG = ISC_SUB422_CFG_CCIR | byteOrder ;
 	else
 		ISC->ISC_SUB422_CFG = 0;
-   ISC->ISC_SUB422_CFG &= ~ISC_SUB422_CFG_FILTER_Msk;
-   ISC->ISC_SUB422_CFG |= lpf;
+	ISC->ISC_SUB422_CFG &= ~ISC_SUB422_CFG_FILTER_Msk;
+	ISC->ISC_SUB422_CFG |= lpf;
 }
 
 /**
