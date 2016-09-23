@@ -27,6 +27,11 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the ETH LWIP example
+
+AVAILABLE_VARIANTS = ddram
+
+VARIANT ?= ddram
+
 TOP := ../..
 
 BINNAME = eth_lwip

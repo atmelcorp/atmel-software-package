@@ -28,6 +28,10 @@
 
 # Makefile for compiling the ETH UIP HelloWorld example
 
+AVAILABLE_VARIANTS = ddram
+
+VARIANT ?= ddram
+
 TOP := ../..
 
 BINNAME = eth_uip_helloworld
