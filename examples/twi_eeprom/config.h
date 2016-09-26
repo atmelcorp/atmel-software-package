@@ -31,7 +31,7 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #include "config_sama5d2-xplained.h"
-#elif defined(CONFIG_BOARD_SAMA5D3_EK)
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
 #include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 #include "config_sama5d4-xplained.h"
