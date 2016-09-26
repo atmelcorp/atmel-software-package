@@ -1,5 +1,24 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.5.1 - 2016-09
+
+### Enhancements
+
+- Improved twi_eeprom example to include a slave device emulating an AT24C02.
+
+### Fixes
+
+- Fixed build issue for the following examples: usart_irda, usb_mass_storage,
+  xdmac
+- Fixed issue with ISC drivers resetting ISC_CFA_CTRL instead of ISC_CC_CTRL in
+  function isc_cc_enabled.
+- Fixed timeout handling in USART driver
+- Rebuilt getting-started binary included in qspi_xip example
+- Disable build of eth_lwip and eth_uip examples for SRAM variant, they do not
+  fit anymore
+
+
+
 ## Version 2.5 - 2016-09
 
 ### New drivers/examples
