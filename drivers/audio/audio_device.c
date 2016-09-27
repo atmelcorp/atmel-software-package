@@ -101,6 +101,18 @@ static void _configure_ssc(struct _audio_desc *desc)
 		wm8731_configure(&desc->device.ssc.codec->wm8731);
 		break;
 #endif
+#ifdef CONFIG_HAVE_AUDIO_AD1934
+	case AUDIO_CODEC_AD1934:
+		ad1934_configure(&desc->device.ssc.codec->ad1934);
+		ad1934_set_sample_rate(&desc->device.ssc.codec->ad1934,
+				desc->device.ssc.desc.sample_rate);
+		/* walk around setting */
+		ad1934_set_tdm_slot(&desc->device.ssc.codec->ad1934,
+				desc->device.ssc.desc.slot_num * 2);
+		ad1934_set_word_width(&desc->device.ssc.codec->ad1934,
+				desc->device.ssc.desc.slot_length);
+		break;
+#endif
 	default:
 		trace_fatal("SSC: no supported codec defined\r\n");
 	}
@@ -126,7 +138,7 @@ static void _configure_pdmic(struct _audio_desc *desc)
  *  \brief Start sending next buffer to audio play device using DMA.
  */
 static void _audio_dma_start_transfer(struct _audio_desc *desc, void *src_address, void *dest_address,
-									  uint32_t size, audio_callback_t cb)
+									uint32_t size, audio_callback_t cb)
 {
 	if (size)
 		cache_clean_region(src_address, size);
@@ -179,8 +191,9 @@ static uint32_t _get_audio_id_from_addr(struct _audio_desc *desc)
 	case AUDIO_DEVICE_PDMIC:
 		return ID_PDMIC;
 #endif
+	default:
+		return ID_PERIPH_COUNT;
 	}
-	return ID_PERIPH_COUNT;
 }
 
 /**
@@ -194,7 +207,7 @@ void audio_configure(struct _audio_desc *desc)
 		return;
 
 	_configure_audio_device(desc);
-	
+
 	switch (desc->direction) {
 	case AUDIO_DEVICE_PLAY:
 		/* Allocate DMA TX channels for Audio play device */
@@ -290,7 +303,11 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 				wm8731_volume_mute(&desc->device.ssc.codec->wm8731, true);
 				break;
 #endif
-
+#ifdef CONFIG_HAVE_AUDIO_AD1934
+			case AUDIO_CODEC_AD1934:
+				ad1934_master_volume_mute(&desc->device.ssc.codec->ad1934, true);
+				break;
+#endif
 			default:
 				return;
 			};
@@ -319,7 +336,11 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 				wm8731_volume_mute(&desc->device.ssc.codec->wm8731, false);
 				break;
 #endif
-
+#ifdef CONFIG_HAVE_AUDIO_AD1934
+			case AUDIO_CODEC_AD1934:
+				ad1934_master_volume_mute(&desc->device.ssc.codec->ad1934, false);
+				break;
+#endif
 			default:
 				return;
 			};
@@ -363,13 +384,20 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 #endif
 #ifdef CONFIG_HAVE_AUDIO_WM8731
 			case AUDIO_CODEC_WM8731:
-				/* wm8904 heardphone output volume range -73~6db */
+				/* wm8731 heardphone output volume range -73~6db */
 				val = (vol * 79) / AUDIO_PLAY_MAX_VOLUME;
 				wm8731_set_left_volume(&desc->device.ssc.codec->wm8731, val);
 				wm8731_set_right_volume(&desc->device.ssc.codec->wm8731, val);
 				break;
 #endif
-
+#ifdef CONFIG_HAVE_AUDIO_AD1934
+			case AUDIO_CODEC_AD1934:
+				/* AD1934 channel volume control, 1 to 254 -> -3/8dB per  step */
+				val = (AUDIO_PLAY_MAX_VOLUME-vol)*255/AUDIO_PLAY_MAX_VOLUME;
+				ad1934_set_channel_volume(&desc->device.ssc.codec->ad1934, AD1934_DAC_L1_CHANNEL, val);
+				ad1934_set_channel_volume(&desc->device.ssc.codec->ad1934, AD1934_DAC_R1_CHANNEL, val);
+				break;
+#endif
 			default:
 				return;
 			};
@@ -453,6 +481,14 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 	}
 
 	if (!desc->dma.configured) {
+#if defined(CONFIG_HAVE_SSC)
+		if (desc->device.ssc.desc.slot_length == 8)
+			dma_data_width = DMA_DATA_WIDTH_BYTE;
+		else if (desc->device.ssc.desc.slot_length == 16)
+			dma_data_width = DMA_DATA_WIDTH_HALF_WORD;
+		else if (desc->device.ssc.desc.slot_length == 32)
+			dma_data_width = DMA_DATA_WIDTH_WORD;
+#endif
 		desc->dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
 		desc->dma.cfg.data_width = dma_data_width;
 		desc->dma.cfg.blk_size = 0;
@@ -460,8 +496,10 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 	}
 	if (dma_data_width == DMA_DATA_WIDTH_WORD) {
 		desc->dma.cfg.len = size / 4;
-	} else if (dma_data_width  == DMA_DATA_WIDTH_HALF_WORD) {
+	} else if (dma_data_width == DMA_DATA_WIDTH_HALF_WORD) {
 		desc->dma.cfg.len = size / 2;
+	} else if (dma_data_width == DMA_DATA_WIDTH_BYTE) {
+		desc->dma.cfg.len = size;
 	}
 
 	if (dst_addr)

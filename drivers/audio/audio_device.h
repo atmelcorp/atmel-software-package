@@ -49,8 +49,10 @@
 #ifdef CONFIG_HAVE_AUDIO_WM8731
 #include "audio/wm8731.h"
 #endif
-
+#ifdef CONFIG_HAVE_AUDIO_AD1934
+#include "audio/ad1934.h"
 #endif
+#endif /* CONFIG_HAVE_SSC */
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
 
@@ -62,29 +64,40 @@ typedef void (*audio_callback_t)(struct dma_channel *channel, void* args);
 
 enum audio_codec_type {
 	AUDIO_CODEC_NONE,
+#if defined(CONFIG_HAVE_SSC)
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
 	AUDIO_CODEC_WM8904,
 #endif
 #if defined(CONFIG_HAVE_AUDIO_WM8731)
 	AUDIO_CODEC_WM8731,
 #endif
+#if defined(CONFIG_HAVE_AUDIO_AD1934)
+	AUDIO_CODEC_AD1934,
+#endif
+#endif /* CONFIG_HAVE_SSC */
 };
 
 /* codec control interface */
 struct codec_desc {
 	enum audio_codec_type type;
 	union {
-		uint8_t dummy; /* avoid a warning with IAR compiler */
+		uint8_t dummy; /* avoid an error with IAR compiler */
+#if defined(CONFIG_HAVE_SSC)
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
 		struct _wm8904_desc wm8904;
 #endif
 #if defined(CONFIG_HAVE_AUDIO_WM8731)
 		struct _wm8731_desc wm8731;
 #endif
+#if defined(CONFIG_HAVE_AUDIO_AD1934)
+		struct _ad1934_desc ad1934;
+#endif
+#endif /* CONFIG_HAVE_SSC */
 	};
 };
 
 enum audio_device_type {
+	AUDIO_DEVICE_NONE, /* avoid an error with IAR compiler */
 #if defined(CONFIG_HAVE_CLASSD)
 	AUDIO_DEVICE_CLASSD,
 #endif
@@ -105,6 +118,7 @@ struct _audio_desc {
 	enum audio_device_direction direction;
 	enum audio_device_type type;
 	union {
+		uint32_t dummy; /* avoid an error with IAR compiler */
 #if defined(CONFIG_HAVE_CLASSD)
 		struct {
 			Classd *addr;
