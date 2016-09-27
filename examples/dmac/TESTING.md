@@ -23,24 +23,22 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D3-EK,SAMA5D3-XPLAINED)
+## Start the application (SAMA5D3-EK,SAMA5D3-XPLAINED,SAM9XX5-EK)
 -------------------------------------------
+DMAC Menu :
+Channel Configuration
+| Press [a|b|c|d] to set Date width
+|   a: BYTE[ ] b: HALFWORD[X] c: WORD[ ] d: DWORD[ ]
+| Press [0|1] to set Source Addressing Mode
+|   0: FIXED[ ] 1: INCR[X]
+| Press [2|3] to set Destination Addressing Mode
+|   2: FIXED[ ] 3: INCR[X]
 
-Menu :
-------
-- 1-9, A, B: Programming DMAC for Multiple Buffer Transfers
-    1: Single Buffer or Last buffer of a multiple buffer transfer
-    2: Multi Buffer transfer with contiguous DADDR
-    3: Multi Buffer transfer with contiguous SADDR
-    4: Multi Buffer transfer with LLI support
-    5: Multi Buffer transfer with DADDR reloaded
-    6: Multi Buffer transfer with SADDR reloaded
-    7: Multi Buffer transfer with BTSIZE reloaded and contiguous DADDR
-    8: Multi Buffer transfer with BTSIZE reloaded and contiguous SADDR
-    9: Automatic mode channel is stalling BTsize is reloaded
-    A: Automatic mode BTSIZE, SADDR and DADDR reloaded
-    B: Automatic mode BTSIZE, SADDR reloaded and DADDR contiguous
-- h: Display this menu
+DMAC transfer type
+    S: Single Block with Single Microblock transfer
+    M: Single Block with Multiple Microblock transfer
+    L: Linked List Master transfer
+    h: Display this menu
 
 In order to test this example, the process is the following:
 
@@ -48,14 +46,24 @@ Tested with IAR and GCC (sram configration)
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press '1', | Single Buffer or Last buffer of a multiple buffer transfer | PASSED | PASSED
-Press '2', | Multi Buffer transfer with contiguous DADDR | PASSED | PASSED
-Press '3', | Multi Buffer transfer with contiguous SADDR | PASSED | PASSED
-Press '4', | Multi Buffer transfer with LLI support | PASSED | PASSED
-Press '5', | Multi Buffer transfer with DADDR reloaded | PASSED | PASSED
-Press '6', | Multi Buffer transfer with SADDR reloaded | PASSED | PASSED
-Press '7', | Multi Buffer transfer with BTSIZE reloaded and contiguous DADDR | PASSED | PASSED
-Press '8', | Multi Buffer transfer with BTSIZE reloaded and contiguous SADDR | PASSED | PASSED
-Press '9', | Automatic mode channel is stalling BTsize is reloaded | PASSED | PASSED
-Press 'A', | Automatic mode BTSIZE, SADDR and DADDR reloaded | PASSED | PASSED
-Press 'B', | Automatic mode BTSIZE, SADDR reloaded and DADDR contiguous | PASSED | PASSED
+Press 'a','0','1','s','t' | BYTE, FIXED_S, FIXD_D,Single block | PASSED | PASSED
+Press 'a','1','3','s','t' | BYTE, INC_S, INC_D,Single block | PASSED | PASSED
+Press 'b','1','3','s','t' | HALFWORD, INC_S, INC_D,Single block | PASSED | PASSED
+Press 'c','1','3','s','t' | WORD, INC_S, INC_D,Single block | PASSED | PASSED
+----- For SAMA5D3 ONLY ------
+Press 'd','1','3','s','t' | DWORD, INC_S, INC_D,Single block | PASSED | PASSED
+
+Press 'a','m','t' | BYTE, mulit block| PASSED | PASSED
+Press 'b','m','t' | HALFWORD,mulit block| PASSED | PASSED
+Press 'c','m','t' | WORD, mulit block| PASSED | PASSED
+
+----- For SAMA5D3 ONLY ------
+Press 'd','1','3','s','t' | DWORD, INC_S, INC_D,Single block | PASSED | PASSED
+Press 'd','m','t' | DWORD,mulit block| PASSED | PASSED
+
+Press 'a','l','t' | BYTE, linker_list| PASSED | PASSED
+Press 'b','l','t' | HALFWORD,linker_list| PASSED | PASSED
+Press 'c','l','t' | WORD, linker_list| PASSED | PASSED
+
+----- For SAMA5D3 ONLY ------
+Press 'd','l','t' | DWORD,linker_list| PASSED | PASSED

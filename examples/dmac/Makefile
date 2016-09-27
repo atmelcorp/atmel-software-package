@@ -32,7 +32,7 @@ AVAILABLE_TARGETS = sama5d3* \
 
 TOP := ../..
 
-BINNAME = dma
+BINNAME = dmac
 
 obj-y += examples/dmac/main.o
 
