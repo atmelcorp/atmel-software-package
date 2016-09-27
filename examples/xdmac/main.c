@@ -28,13 +28,13 @@
  */
 
 /**
- * \page xdma XDMA Example
+ * \page xdma XDMAC Example
  *
  * \section Purpose
  *
- * The XDMA example will help new users get familiar with Atmel's
+ * The XDMAC example will help new users get familiar with Atmel's
  * SAMA5D4X family of microcontrollers. This basic application shows the
- * XDMA transfer with single/multiple Microblock and LLI transfer.
+ * XDMAC transfer with single/multiple Microblock and LLI transfer.
  *
  * \section Requirements
  *
@@ -42,8 +42,8 @@
  *
  * \section Description
  *
- * The demonstration program evaluates the XDMA data transfer. The available
- * types of XDMA multiple buffers transfer can be switched by the corresponding
+ * The demonstration program evaluates the XDMAC data transfer. The available
+ * types of XDMAC multiple buffers transfer can be switched by the corresponding
  * buttons.
  *
  * \section Usage
@@ -68,14 +68,14 @@
  * -# Start the application.
  * -# In the terminal window, the following text should appear:
  *     \code
- *      -- XDMA Example xxx --
+ *      -- XDMAC Example xxx --
  *      -- SAMxxxxx-xx
  *      -- Compiled: xxx xx xxxx xx:xx:xx --
  *     \endcode
  * -# Press one of the keys listed in the menu to perform the corresponding action.
  *
  * \section References
- * - xdma/main.c
+ * - xdmac/main.c
  * - xdmac.h
  * - xdmacd.h
  */
@@ -102,6 +102,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "compiler.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *         Local constants
@@ -166,9 +167,9 @@ static void _dump_buffer(uint8_t *buf)
 	while (i < BUFFER_LEN) {
 		printf("%02x ", buf[i++]);
 		if (i % 16 == 0)
-			printf("\n\r");
+			printf("\r\n");
 	}
-	printf("\n\r");
+	printf("\r\n");
 }
 
 /**
@@ -178,49 +179,49 @@ static void _display_menu(void)
 {
 	uint8_t c[4];
 
-	printf("\n\rxDMA Menu :\n\r\n\r");
-	printf("|====== Channel Configuration ================================|\n\r");
-	printf("| Press [a|b|c|d] to set Date width                           |\n\r");
+	printf("\r\nxDMA Menu :\r\n\r\n");
+	printf("|====== Channel Configuration ================================|\r\n");
+	printf("| Press [a|b|c|d] to set Date width                           |\r\n");
 	c[0] = (dma_data_width == 0) ? 'X' : ' ';
 	c[1] = (dma_data_width == 1) ? 'X' : ' ';
 	c[2] = (dma_data_width == 2) ? 'X' : ' ';
 	c[3] = (dma_data_width == 3) ? 'X' : ' ';
-	printf("|   a: BYTE[%c] b: HALFWORD[%c] c: WORD[%c] d: DWORD[%c]          |\n\r",
+	printf("|   a: BYTE[%c] b: HALFWORD[%c] c: WORD[%c] d: DWORD[%c]          |\r\n",
 	       c[0], c[1], c[2], c[3]);
-	printf("| Press [0|1|2|3] to set Source Addressing Mode               |\n\r");
+	printf("| Press [0|1|2|3] to set Source Addressing Mode               |\r\n");
 	c[0] = (dma_src_addr_mode == 0) ? 'X' : ' ';
 	c[1] = (dma_src_addr_mode == 1) ? 'X' : ' ';
 	c[2] = (dma_src_addr_mode == 2) ? 'X' : ' ';
 	c[3] = (dma_src_addr_mode == 3) ? 'X' : ' ';
-	printf("|   0: FIXED[%c] 1: INCR[%c] 2: AM[%c] 3: DS_AM[%c]               |\n\r",
+	printf("|   0: FIXED[%c] 1: INCR[%c] 2: AM[%c] 3: DS_AM[%c]               |\r\n",
 	       c[0], c[1], c[2], c[3]);
-	printf("| Press [4|5|6|7] to set Destination Addressing Mode          |\n\r");
+	printf("| Press [4|5|6|7] to set Destination Addressing Mode          |\r\n");
 	c[0] = (dma_dest_addr_mode == 0) ? 'X' : ' ';
 	c[1] = (dma_dest_addr_mode == 1) ? 'X' : ' ';
 	c[2] = (dma_dest_addr_mode == 2) ? 'X' : ' ';
 	c[3] = (dma_dest_addr_mode == 3) ? 'X' : ' ';
-	printf("|   4: FIXED[%c] 5: INCR[%c] 6: AM[%c] 7: DS_AM[%c]               |\n\r",
+	printf("|   4: FIXED[%c] 5: INCR[%c] 6: AM[%c] 7: DS_AM[%c]               |\r\n",
 	       c[0], c[1], c[2], c[3]);
-	printf("| Press [8|9| to set MEMSET Mode                              |\n\r");
+	printf("| Press [8|9| to set MEMSET Mode                              |\r\n");
 	c[0] = (dma_memset == 0) ? 'X' : ' ';
 	c[1] = (dma_memset == 1) ? 'X' : ' ';
-	printf("|   8: NORMAL Mode[%c] 9: HW_MODE[%c]                           |\n\r",
+	printf("|   8: NORMAL Mode[%c] 9: HW_MODE[%c]                           |\r\n",
 	       c[0], c[1]);
-	printf("| Press [e|f|g|i] to set list view                            |\n\r");
+	printf("| Press [e|f|g|i] to set list view                            |\r\n");
 	c[0] = (dma_view == 0) ? 'X' : ' ';
 	c[1] = (dma_view == 1) ? 'X' : ' ';
 	c[2] = (dma_view == 2) ? 'X' : ' ';
 	c[3] = (dma_view == 3) ? 'X' : ' ';
-	printf("|   e: view0[%c] f: view1[%c] g: view2[%c] h: view3[%c]           |\n\r",
+	printf("|   e: view0[%c] f: view1[%c] g: view2[%c] h: view3[%c]           |\r\n",
 	       c[0], c[1], c[2], c[3]);
-	printf("|=============================================================|\n\r");
-	printf("\n\r");
-	printf("- xDMA transfer type\n\r");
-	printf("    S: Single Block with Single Microblock transfer\n\r");
-	printf("    M: Single Block with Multiple Microblock transfer\n\r");
-	printf("    L: Linked List Master transfer\n\r");
-	printf("- H: Display this menu\n\r");
-	printf("\n\r");
+	printf("|=============================================================|\r\n");
+	printf("\r\n");
+	printf("- xDMA transfer type\r\n");
+	printf("    S: Single Block with Single Microblock transfer\r\n");
+	printf("    M: Single Block with Multiple Microblock transfer\r\n");
+	printf("    L: Linked List Master transfer\r\n");
+	printf("- H: Display this menu\r\n");
+	printf("\r\n");
 }
 
 /**
@@ -228,7 +229,7 @@ static void _display_menu(void)
  */
 static void _dma_callback(struct _xdmacd_channel *channel, void *arg)
 {
-	printf("-I- DMA transfer complete\n\r");
+	trace_info("DMA transfer complete\r\n");
 	transfer_complete = true;
 }
 
@@ -371,15 +372,15 @@ static void _configure_transfer(void)
 
 		xdmacd_configure_transfer(xdmacd_channel, &xdmacd_cfg, 0, 0);
 
-		printf("- Microblock length: %u\n\r",
+		printf("- Microblock length: %u\r\n",
 				(unsigned int)xdmacd_cfg.ubc);
-		printf("- Block length: %u\n\r",
+		printf("- Block length: %u\r\n",
 				(unsigned int)xdmacd_cfg.bc);
-		printf("- Data Stride/Pattern: %u\n\r",
+		printf("- Data Stride/Pattern: %u\r\n",
 				(unsigned int)xdmacd_cfg.ds);
-		printf("- Source Microblock Stride: %u\n\r",
+		printf("- Source Microblock Stride: %u\r\n",
 				(unsigned int)xdmacd_cfg.sus);
-		printf("- Destination  Microblock Stride: %u\n\r",
+		printf("- Destination  Microblock Stride: %u\r\n",
 				(unsigned int)xdmacd_cfg.dus);
 	} else {
 		uint32_t desc_cntrl;
@@ -433,7 +434,7 @@ static void _configure_transfer(void)
 
 	xdmacd_set_callback(xdmacd_channel, _dma_callback, NULL);
 
-	printf("- Press 't' to perform xDMA transfer...\n\r");
+	printf("- Press 't' to perform xDMA transfer...\r\n");
 }
 
 /**
@@ -449,7 +450,7 @@ static uint8_t _start_dma_transfer(void)
 		dest_buf[i] = 0xFF;
 	}
 
-	printf("-I- The Source Buffer content before transfer\n\r");
+	trace_info("The Source Buffer content before transfer\r\n");
 	_dump_buffer(src_buf);
 
 	/* Start transfer */
@@ -465,7 +466,7 @@ static uint8_t _start_dma_transfer(void)
 		xdmacd_poll();
 	}
 
-	printf("-I- The Destination Buffer content after transfer\n\r");
+	trace_info("The Destination Buffer content after transfer\r\n");
 	cache_invalidate_region(dest_buf, BUFFER_LEN);
 	_dump_buffer(dest_buf);
 
@@ -486,12 +487,12 @@ extern int main(void)
 	bool configured = false;
 
 	/* Output example information */
-	console_example_info("XDMA Example");
+	console_example_info("XDMAC Example");
 
-	/* Allocate a XDMA channel. */
+	/* Allocate a XDMAC channel. */
 	xdmacd_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
 	if (!xdmacd_channel) {
-		printf("-E- Can't allocate XDMA channel\n\r");
+		trace_error("Can't allocate XDMAC channel\r\n");
 		return 0;
 	}
 
@@ -511,7 +512,7 @@ extern int main(void)
 		} else if (key >= '8' && key <= '9') {
 			dma_memset = key - '8';
 			if (dma_memset == 0 && dma_view == 0) {
-				printf("-I- DMA View 0 cannot be used when MEMSET is in NORMAL mode, selecting DMA View 1 instead.\r\n");
+				trace_info("XDMAC View 0 cannot be used when MEMSET is in NORMAL mode, selecting DMA View 1 instead.\r\n");
 				dma_view = 1;
 			}
 			_display_menu();
@@ -519,7 +520,7 @@ extern int main(void)
 		else if (key >= 'e' && key <= 'h') {
 			dma_view = key - 'e';
 			if (dma_view == 0 && dma_memset == 0) {
-				printf("-I- DMA View 0 can only be used when MEMSET is in HW mode, enabling HW mode.\r\n");
+				trace_info("XDMAC View 0 can only be used when MEMSET is in HW mode, enabling HW mode.\r\n");
 				dma_memset = 1;
 			}
 			_display_menu();
@@ -538,7 +539,7 @@ extern int main(void)
 		} else if (key == 'H') {
 			_display_menu();
 		} else if (configured && (key == 'T' || key == 't')) {
-			printf("-I- Start XDMA transfer\n\r");
+			trace_info("Start XDMAC transfer\r\n");
 			_start_dma_transfer();
 			configured = false;
 		}

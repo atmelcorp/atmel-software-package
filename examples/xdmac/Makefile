@@ -31,7 +31,7 @@ AVAILABLE_TARGETS = sama5d2* sama5d4*
 
 TOP := ../..
 
-BINNAME = xdma
+BINNAME = xdmac
 
 obj-y += examples/xdmac/main.o
 

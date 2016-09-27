@@ -1,14 +1,14 @@
-XDMA EXAMPLE
-============
+XDMAC EXAMPLE
+=============
 
 # Objectives
 ------------
-This example aims to help new users get familiar with XDMA peripherial.
+This example aims to help new users get familiar with XDMAC peripherial.
 
 # Example Description
 ---------------------
-This basic example evaluates the XDMA data transfer. The available types of
-XDMA multiple buffers transfer can be switched by the corresponding options.
+This basic example evaluates the XDMAC data transfer. The available types of
+XDMAC multiple buffers transfer can be switched by the corresponding options.
 
 # Test
 ------
@@ -26,7 +26,7 @@ On the computer, open and configure a terminal application
 ## Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED,SAMA5D4-EK))
 -------------------------------------------
 
-xDMA Menu :
+XDMAC Menu :
 Channel Configuration
 | Press [a|b|c|d] to set Date width
 |   a: BYTE[ ] b: HALFWORD[X] c: WORD[ ] d: DWORD[ ]
@@ -37,7 +37,7 @@ Channel Configuration
 | Press [8|9| to set MEMSET Mode
 |   8: NORMAL Mode[X] 9: HW_MODE[ ]
 
-xDMA transfer type
+XDMAC transfer type
     S: Single Block with Single Microblock transfer
     M: Single Block with Multiple Microblock transfer
     L: Linked List Master transfer
@@ -49,7 +49,7 @@ Tested with IAR and GCC (sram configration)
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press 'a','0','4','s','t' | BYTE, FIXED_S, FIXD_D,Single block | PASSED | PASSED
+Press 'a','0','4','s','t' | BYTE, FIXED_S, FIXED_D,Single block | PASSED | PASSED
 Press 'a','1','5','s','t' | BYTE, INC_S, INC_D,Single block | PASSED | PASSED
 Press 'b','1','5','s','t' | HALFWORD, INC_S, INC_D,Single block | PASSED | PASSED
 Press 'c','1','5','s','t' | WORD, INC_S, INC_D,Single block | PASSED | PASSED
