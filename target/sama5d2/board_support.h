@@ -160,6 +160,13 @@ void board_cfg_classd(void);
 void board_cfg_pdmic(void);
 #endif
 
+/*
+ * \brief Configures SSC for the board
+ */
+#ifdef CONFIG_HAVE_SSC
+extern void board_cfg_ssc(void);
+#endif
+
 /**
  * \brief Configures TWIx bus for the board
  */

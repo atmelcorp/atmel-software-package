@@ -96,4 +96,8 @@ WEAK void board_init(void)
 	/* Configure PDMIC interface */
 	board_cfg_classd();
 #endif
+
+#ifdef CONFIG_HAVE_SSC
+	board_cfg_ssc();
+#endif
 }

@@ -812,6 +812,20 @@ void board_cfg_classd(void)
 }
 #endif
 
+#ifdef CONFIG_HAVE_SSC
+void board_cfg_ssc(void)
+{
+#ifdef BOARD_SSC0_PINS
+	const struct _pin pins_ssc0[] = BOARD_SSC0_PINS;
+	pio_configure(pins_ssc0, ARRAY_SIZE(pins_ssc0));
+#endif
+#ifdef BOARD_SSC1_PINS
+	const struct _pin pins_ssc1[] = BOARD_SSC1_PINS;
+	pio_configure(pins_ssc1, ARRAY_SIZE(pins_ssc1));
+#endif
+}
+#endif /* CONFIG_HAVE_SSC */
+
 void board_cfg_twi_bus(void)
 {
 #ifdef BOARD_TWI_BUS0

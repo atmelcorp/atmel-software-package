@@ -227,6 +227,10 @@
 #define BOARD_CLASSD_MONO      true
 #define BOARD_CLASSD_MONO_MODE CLASSD_MONO_MIXED
 
+/* ================== SSC definition ====================== */
+
+#define BOARD_SSC1_PINS PINS_SSC1_IOS1
+
 /* =================== SDMMC device definition ==================== */
 
 #define BOARD_SDMMC0_PINS { PIN_SDMMC0_CD_IOS1, PIN_SDMMC0_CK_IOS1,\
