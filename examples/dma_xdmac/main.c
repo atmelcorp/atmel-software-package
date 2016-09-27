@@ -28,7 +28,7 @@
  */
 
 /**
- * \page xdma XDMAC Example
+ * \page xdmac DMA_XDMAC Example
  *
  * \section Purpose
  *
@@ -75,7 +75,7 @@
  * -# Press one of the keys listed in the menu to perform the corresponding action.
  *
  * \section References
- * - xdmac/main.c
+ * - dma_xdmac/main.c
  * - xdmac.h
  * - xdmacd.h
  */

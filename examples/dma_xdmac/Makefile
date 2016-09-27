@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,14 +26,13 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the DMA example
-AVAILABLE_TARGETS = sama5d3* \
-                    sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
+# Makefile for compiling the XDMAC example
+AVAILABLE_TARGETS = sama5d2* sama5d4*
 
 TOP := ../..
 
-BINNAME = dmac
+BINNAME = dma_xdmac
 
-obj-y += examples/dmac/main.o
+obj-y += examples/dma_xdmac/main.o
 
 include $(TOP)/scripts/Makefile.rules

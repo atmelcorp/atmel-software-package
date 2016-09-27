@@ -75,7 +75,7 @@
  * -# Press one of the keys listed in the menu to perform the corresponding action.
  *
  * \section References
- * - dmac/main.c
+ * - dma_dmac/main.c
  * - dmac.h
  * - dmacd.h
  */

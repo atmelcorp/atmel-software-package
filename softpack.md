@@ -40,7 +40,9 @@ This release contains the following examples:
 * crypto_sha: SHA hardware computation (with and without DMA)
 * crypto_tdes: Triple-DES hardware computation (with and without DMA)
 * ddram: Example of DDRAM usage
-* dmac: Example of DMAC usage
+* dma: Example of DMA usage with generic API
+* dma_dmac: Example of DMAC usage
+* dma_xdmac: Example of XDMAC usage
 * getting_started: LED blink (uses PIT, TC and PIO)
 * eth: GMAC/EMAC example using a simple IP stack
 * eth_lwip: GMAC/EMAC example using LWIP stack
@@ -89,7 +91,6 @@ This release contains the following examples:
 * usb_usv_isi: Example of SAMA5D4x configured as a USB Video Device
 * usb_usv_isc: Example of SAMA5D2x configured as a USB Video Device
 * wdt: Example using watchdog timer
-* xdma: Memory-to-memory DMA transfer example
 
 # Compatibility
 
@@ -106,7 +107,9 @@ crypto_qspi_aesb       | OK               | x                | x          | x   
 crypto_sha             | OK               | OK               | OK         | OK               | OK         | x
 crypto_tdes            | OK               | OK               | OK         | OK               | OK         | x
 ddram                  | OK               | OK               | OK         | OK               | OK         | OK
-dmac                   | x                | OK               | OK         | x                | x          | OK
+dma                    | OK               | OK               | OK         | OK               | OK         | OK
+dma_dmac               | x                | OK               | OK         | x                | x          | OK
+dma_xdmac              | OK               | x                | x          | OK               | OK         | x
 getting_started        | OK               | OK               | OK         | OK               | OK         | OK
 eth                    | OK               | OK               | OK         | OK               | OK         | OK
 eth_lwip               | OK               | OK               | OK         | OK               | OK         | OK
@@ -155,7 +158,6 @@ usb_mass_storage       | OK               | OK               | OK         | OK  
 usb_usv_isc            | OK               | x                | x          | x                | x          | x
 usb_usv_isi            | x                | x                | OK         | x                | OK         | OK
 wdt                    | OK               | x                | x          | OK               | OK         | x
-xdma                   | OK               | x                | x          | OK               | OK         | x
 
 Legend:
   * "x" means "Not Applicable"
