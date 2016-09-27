@@ -94,14 +94,12 @@ void applet_set_init_params(uint32_t comm, uint32_t trace)
 {
 	_comm_type = comm;
 
-	if (_comm_type  != COMM_TYPE_DBGU) {
-		trace_level = trace;
-		board_cfg_console(0);
-	} else {
-		/* We are communicating using the console UART so the applet */
-		/* cannot display any trace */
-		trace_level = 0;
-	}
+	/* If we are communicating using the console UART, the applet */
+	/* cannot display any trace. We still need to configure the */
+	/* console subsystem to send the acknowledge byte ater command */
+	/* execution. */
+	trace_level = _comm_type == COMM_TYPE_DBGU ? 0 : trace;
+	board_cfg_console(0);
 }
 
 applet_command_handler_t get_applet_command_handler(uint8_t cmd)
