@@ -28,4 +28,5 @@
 
 drivers-$(CONFIG_HAVE_AUDIO_WM8904) += drivers/audio/wm8904.o
 drivers-$(CONFIG_HAVE_AUDIO_WM8731) += drivers/audio/wm8731.o
+drivers-$(CONFIG_HAVE_AUDIO_AD1934) += drivers/audio/ad1934.o
 drivers-$(CONFIG_HAVE_AUDIO) += drivers/audio/audio_device.o

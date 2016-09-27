@@ -174,6 +174,10 @@
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0_IOS1
 #define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
 
+#define BOARD_SPI_BUS1       SPI1
+#define BOARD_SPI_BUS1_PINS  PINS_SPI1_NPCS1_IOS3
+#define BOARD_SPI_BUS1_MODE  SPID_MODE_DMA
+
 /* ================== ACT8945A PMIC definition ====================== */
 
 #define BOARD_ACT8945A_TWI_BUS    0
