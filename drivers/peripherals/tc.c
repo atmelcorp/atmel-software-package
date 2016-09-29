@@ -248,3 +248,15 @@ void tc_set_fault_mode(Tc *tc, uint32_t mode)
 }
 
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
+
+uint32_t tc_get_cv(Tc* tc, uint32_t channel)
+{
+	TcChannel* ch;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	ch = &tc->TC_CHANNEL[channel];
+
+	return ch->TC_CV;
+}
+

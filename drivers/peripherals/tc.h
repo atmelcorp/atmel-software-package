@@ -177,4 +177,12 @@ extern void tc_set_fault_mode(Tc* tc, uint32_t mode);
 
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
 
+/**
+ * \brief get count value from Timer Counter
+ * \param tc Pointer to Tc instance
+ * \param channel channel number of the Timer Counter.
+ * \return cv of TC
+ */
+extern uint32_t tc_get_cv(Tc* tc, uint32_t channel);
+
 #endif /* TC_H_ */
