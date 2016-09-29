@@ -185,6 +185,12 @@ extern uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel);
 extern uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel);
 
 /**
+ * \brief Resume DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t dmacd_resume_transfer(struct _dmacd_channel *channel);
+
+/**
  * \brief Flush the relevant channel's FIFO of given DMAC.
  *
  * \param channel Channel pointer

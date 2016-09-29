@@ -287,7 +287,6 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 #endif
 }
 
-
 uint32_t dma_prepare_item(struct dma_channel *channel,
 				const struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *item)
@@ -478,6 +477,15 @@ uint32_t dma_suspend_transfer(struct dma_channel *channel)
 	return xdmacd_suspend_transfer((struct _xdmacd_channel *)channel);
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_suspend_transfer((struct _dmacd_channel *)channel);
+#endif
+}
+
+uint32_t dma_resume_transfer(struct dma_channel *channel)
+{
+#if defined(CONFIG_HAVE_XDMAC)
+	return xdmacd_resume_transfer((struct _xdmacd_channel *)channel);
+#elif defined(CONFIG_HAVE_DMAC)
+	return dmacd_resume_transfer((struct _dmacd_channel *)channel);
 #endif
 }
 

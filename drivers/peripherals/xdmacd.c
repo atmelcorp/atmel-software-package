@@ -432,11 +432,24 @@ uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel)
 {
 	Xdmac *xdmac = channel->xdmac;
 
-	/* Disable channel */
+	/* suspend channel */
 	xdmac_suspend_channel(xdmac, channel->id);
 
-	/* Change state to 'allocated' */
+	/* Change state to 'suspended' */
 	channel->state = XDMACD_STATE_SUSPENDED;
+
+	return XDMACD_OK;
+}
+
+uint32_t xdmacd_resume_transfer(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	/* resume dedicated channel */
+	xdmac_resume_read_write_channel(xdmac, channel->id);
+
+	/* Change state to 'started' */
+	channel->state = XDMACD_STATE_STARTED;
 
 	return XDMACD_OK;
 }

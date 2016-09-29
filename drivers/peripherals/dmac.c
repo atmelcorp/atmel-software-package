@@ -171,7 +171,7 @@ void dmac_resume_channel(Dmac *dmac, uint8_t channel)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
-	dmac->DMAC_CHER = DMAC_CHER_KEEP0 << channel;
+	dmac->DMAC_CHDR = DMAC_CHDR_RES0 << channel;
 }
 
 uint32_t dmac_get_channel_status(Dmac *dmac)

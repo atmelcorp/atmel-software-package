@@ -284,6 +284,12 @@ extern uint32_t dma_stop_transfer(struct dma_channel *channel);
 extern uint32_t dma_suspend_transfer(struct dma_channel *channel);
 
 /**
+ * \brief Resume DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t dma_resume_transfer(struct dma_channel *channel);
+
+/**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */

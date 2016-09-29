@@ -236,7 +236,7 @@ extern uint32_t dmac_get_channel_status(Dmac *dmac);
  * \param dmac Pointer to the DMAC instance.
  * \param channel_mask Channels bitmap.
  */
- 
+
 /**
  * \brief Clear automatic bit of the relevant channel of given DMAC.
  * \param dmac Pointer to the DMAC instance.
@@ -372,7 +372,7 @@ extern void dmac_set_src_pip(Dmac *dmac, uint8_t channel,
  * \param dmac Pointer to the DMAC instance.
  * \param channel Particular channel number.
  * \param pip destination pip config.
- */ 
+ */
 extern void dmac_set_des_pip(Dmac *dmac, uint8_t channel,
 			       uint32_t pip);
 

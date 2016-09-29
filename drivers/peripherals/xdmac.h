@@ -462,7 +462,7 @@ extern uint32_t xdmac_get_channel_dest_addr(Xdmac *xdmac, uint8_t channel);
  */
 extern void xdmac_fifo_flush(Xdmac *xdmac, uint8_t channel);
 
-	
+
 #ifdef __cplusplus
 }
 #endif

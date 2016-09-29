@@ -426,6 +426,19 @@ uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel)
 	return DMACD_OK;
 }
 
+uint32_t dmacd_resume_transfer(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	/* Resume channel */
+	dmac_resume_channel(dmac, channel->id);
+
+	/* Change state to 'started */
+	channel->state = DMACD_STATE_STARTED;
+
+	return DMACD_OK;
+}
+
 void dmacd_fifo_flush(struct _dmacd_channel *channel)
 {
 	Dmac *dmac = channel->dmac;
