@@ -234,10 +234,22 @@ extern uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel);
 extern uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel);
 
 /**
+ * \brief Resume DMA transfer.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmacd_resume_transfer(struct _xdmacd_channel *channel);
+
+/**
  * \brief Get size of remaining data to be transferred by DMA transfer.
  * \param channel Channel pointer
  */
 extern uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel);
+
+/**
+ * \brief  Get next descriptor's address for the relevant channel of given XDMA.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmacd_get_desc_addr(struct _xdmacd_channel *channel);
 
 /**
  * \brief Flush the relevant channel's FIFO of given XDMAC.

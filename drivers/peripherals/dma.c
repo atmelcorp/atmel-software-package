@@ -362,6 +362,14 @@ uint32_t dma_link_item(struct dma_channel *channel,
 				struct dma_xfer_item *item,
 				struct dma_xfer_item *next_item)
 {
+	if (item == NULL) {
+		return DMA_ERROR;
+	}
+	if (!dma_is_transfer_done(channel)) {
+		/* DMA is being transmitted */
+		return DMA_CANCELED;
+	}
+
 #if defined(CONFIG_HAVE_XDMAC)
 	if (next_item == NULL) {
 		item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
@@ -374,6 +382,116 @@ uint32_t dma_link_item(struct dma_channel *channel,
 		item->dscr = 0;
 	else
 		item->dscr = next_item;
+#endif
+	return DMA_OK;
+}
+
+uint32_t dma_insert_item(struct dma_channel *channel,
+				struct dma_xfer_item *pre_item,
+				struct dma_xfer_item *item)
+{
+	struct dma_xfer_item* next;
+
+	if (item == NULL || pre_item == NULL) {
+		return DMA_ERROR;
+	}
+	if (dma_is_transfer_done(channel)) {
+		/* DMA was done*/
+		return DMA_CANCELED;
+	}
+	if (!(dma_get_desc_addr(channel))) {
+		/* LL transfer was done or it is a single transfer */
+		return DMA_CANCELED;
+	}
+
+#if defined(CONFIG_HAVE_XDMAC)
+	next =(struct dma_xfer_item*) pre_item->mbr_nda;
+	pre_item->mbr_nda = item;
+	item->mbr_nda = next;
+	if (next == NULL) {
+		pre_item->mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
+		item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		item->mbr_nda = 0;
+	}
+#elif defined(CONFIG_HAVE_DMAC)
+	next = (struct dma_xfer_item*)pre_item->dscr;
+	pre_item->dscr = item;
+	item->dscr = next;
+	if (next == NULL)
+		item->dscr = 0;
+#endif
+	return DMA_OK;
+}
+
+uint32_t dma_append_item(struct dma_channel *channel,
+				struct dma_xfer_item *item)
+{
+	struct dma_xfer_item* last;
+	struct dma_xfer_item* descriptor_addr;
+
+	if (item == NULL)
+		return DMA_ERROR;
+
+	if (dma_is_transfer_done(channel)) {
+		/* DMA was done*/
+		return DMA_CANCELED;
+	}
+	descriptor_addr = dma_get_desc_addr(channel);
+	if (descriptor_addr == NULL) {
+		/* LL transfer was done or it is a single transfer */
+		return DMA_CANCELED;
+	}
+	last = descriptor_addr;
+
+#if defined(CONFIG_HAVE_XDMAC)
+	while (last->mbr_nda)
+		last = (struct dma_xfer_item *)last->mbr_nda;
+	last->mbr_nda = item;
+	last->mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
+	item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+	item->mbr_nda = 0;
+
+#elif defined(CONFIG_HAVE_DMAC)
+	while (last->dscr)
+		last =(struct dma_xfer_item*)last->dscr;
+	last->dscr = item;
+	item->dscr = 0;
+#endif
+	return DMA_OK;
+}
+
+uint32_t dma_remove_last_item(struct dma_channel *channel)
+{
+	struct dma_xfer_item* last;
+	struct dma_xfer_item* descriptor_addr;
+
+	if (dma_is_transfer_done(channel)) {
+		/* DMA was done*/
+		return DMA_CANCELED;
+	}
+	descriptor_addr = dma_get_desc_addr(channel);
+	if (descriptor_addr == NULL) {
+		/* LL transfer was done or it is a single transfer */
+		return DMA_CANCELED;
+	}
+	last = descriptor_addr;
+
+#if defined(CONFIG_HAVE_XDMAC)
+	if (last->mbr_nda == NULL)
+		return DMA_OK;
+	while (((struct dma_xfer_item*)(last->mbr_nda))->mbr_nda) {
+		last =(struct dma_xfer_item*)last->mbr_nda;
+	}
+	last->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+	last->mbr_nda = 0;
+
+#elif defined(CONFIG_HAVE_DMAC)
+	if (last->dscr == NULL)
+		return DMA_OK;
+	while (((struct dma_xfer_item*)(last->dscr))->dscr) {
+		last =(struct dma_xfer_item*)last->dscr;
+	}
+	last->dscr = 0;
 #endif
 	return DMA_OK;
 }
@@ -505,6 +623,19 @@ uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk
 #elif defined(CONFIG_HAVE_DMAC)
 	return dmacd_get_transferred_data_len((struct _dmacd_channel *)channel) * (1 << chunk_size);
 #endif
+}
+
+struct dma_xfer_item* dma_get_desc_addr(struct dma_channel *channel)
+{
+	uint32_t _xfer_item = 0;
+
+#if defined(CONFIG_HAVE_XDMAC)
+	_xfer_item = xdmacd_get_desc_addr((struct _xdmacd_channel *)channel);
+#elif defined(CONFIG_HAVE_DMAC)
+	_xfer_item = dmacd_get_desc_addr((struct _dmacd_channel *)channel);
+#endif
+
+	return ((struct dma_xfer_item*)_xfer_item);
 }
 
 void dma_fifo_flush(struct dma_channel *channel)

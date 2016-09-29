@@ -295,6 +295,14 @@ void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, void *addr,
 	xdmac->XDMAC_CHID[channel].XDMAC_CNDA = (((uint32_t)addr) & 0xFFFFFFFC) | ndaif;
 }
 
+uint32_t xdmac_get_descriptor_addr(Xdmac *xdmac, uint8_t channel)
+{
+	assert(xdmac == XDMAC0 || xdmac == XDMAC1);
+	assert(channel < XDMAC_CHANNELS);
+
+	return xdmac->XDMAC_CHID[channel].XDMAC_CNDA & (~XDMAC_CNDA_NDAIF);
+}
+
 void xdmac_set_descriptor_control(Xdmac *xdmac, uint8_t channel,
 		uint32_t config)
 {

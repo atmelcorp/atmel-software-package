@@ -320,6 +320,13 @@ extern uint32_t dmac_get_channel_dest_addr(Dmac *dmac, uint8_t channel);
  */
 extern void dmac_set_descriptor_addr(Dmac *dmac, uint8_t channel, void *addr, uint32_t ndaif);
 
+/**
+ * \brief Get next descriptor's address for the relevant channel of given DMA.
+ *
+ * \param dmac Pointer to the DMAC instance.
+ * \param channel Particular channel number.
+ */
+extern uint32_t dmac_get_descriptor_addr(Dmac *dmac, uint8_t channel);
 
 /**
  * \brief Set control A register for the relevant channel of given DMA.

@@ -84,13 +84,14 @@ struct _xdmacd_channel
 {
 	Xdmac           *xdmac;     /**< XDMAC instance */
 	uint32_t         id;        /**< Channel ID */
-	xdmacd_callback_t callback;  /**< Callback */
+	xdmacd_callback_t callback; /**< Callback */
 	void            *user_arg;  /**< Callback argument */
 	uint8_t          src_txif;  /**< Source TX Interface ID */
 	uint8_t          src_rxif;  /**< Source RX Interface ID */
 	uint8_t          dest_txif; /**< Destination TX Interface ID */
 	uint8_t          dest_rxif; /**< Destination RX Interface ID */
 	volatile uint8_t state;     /**< Channel State */
+	char             dummy[4];  /** Aligned with dma_channel */
 };
 
 /** DMA driver instance */
@@ -320,7 +321,8 @@ static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
 
 bool xdmacd_is_transfer_done(struct _xdmacd_channel *channel)
 {
-	return channel->state != XDMACD_STATE_STARTED;
+	return ((channel->state != XDMACD_STATE_STARTED) 
+			&& (channel->state != XDMACD_STATE_SUSPENDED));
 }
 
 uint32_t xdmacd_configure_transfer(struct _xdmacd_channel *channel,
@@ -459,6 +461,13 @@ uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel)
 	Xdmac *xdmac = channel->xdmac;
 
 	return xdmac_get_microblock_control(xdmac, channel->id);
+}
+
+uint32_t xdmacd_get_desc_addr(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	return xdmac_get_descriptor_addr(xdmac, channel->id);
 }
 
 void xdmacd_fifo_flush(struct _xdmacd_channel *channel)

@@ -241,8 +241,8 @@ extern uint32_t dma_configure_transfer(struct dma_channel *channel,
  * \return result code
  */
 extern uint32_t dma_prepare_item(struct dma_channel *channel,
-				const struct dma_xfer_item_tmpl *tmpl,
-				struct dma_xfer_item *item);
+				 const struct dma_xfer_item_tmpl *tmpl,
+				 struct dma_xfer_item *item);
 
 /**
  * \brief Link the specified transfer descriptor to its successor in the list.
@@ -255,8 +255,49 @@ extern uint32_t dma_prepare_item(struct dma_channel *channel,
  * \return result code
  */
 extern uint32_t dma_link_item(struct dma_channel *channel,
-				struct dma_xfer_item *item,
-				struct dma_xfer_item *next_item);
+			      struct dma_xfer_item *item,
+			      struct dma_xfer_item *next_item);
+
+/**
+ * \brief insert the specified transfer descriptor to its successor in the list.
+ * \param channel Channel pointer
+ * \param pre_item Pointer to the previous transfer descriptor which to be linked
+ * with new transfer descriptor. NULL if item will end the list.
+ * \param item Pointer to the transfer descriptor to be inserted.
+ * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
+ * \note To insert a item at the end of linked list, the dma channel shall be
+   suspended using dma_suspend_transfer. Then the transfers descriptors pointed by
+   item shall have been properly initialized, using dma_prepare_item. Finally,
+   using dma_resume_transfer to continue dma transfer.
+ * \return result code
+ */
+extern uint32_t dma_insert_item(struct dma_channel *channel,
+				struct dma_xfer_item *pre_item,
+				struct dma_xfer_item *item);
+
+/**
+ * \brief insert the specified transfer descriptor at the end of its linked list.
+ * \param channel Channel pointer
+ * \param item Pointer to the transfer descriptor to be inserted.
+ * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
+ * \note To insert a item at the end of linked list, the dma channel shall be
+   suspended using dma_suspend_transfer. Then the transfers descriptors pointed by
+   item shall have been properly initialized, using dma_prepare_item. Finally,
+   using dma_resume_transfer to continue dma transfer.
+ * \return result code
+ */
+extern uint32_t dma_append_item(struct dma_channel *channel,
+				struct dma_xfer_item *item);
+
+/**
+ * \brief Delete the last transfer descriptor of its linked list.
+ * \param channel Channel pointer
+ * \note To delect the last item of linked list, the dma channel shall be
+   suspended using dma_suspend_transfer, and using dma_resume_transfer to 
+   continue dma transfer after the item was delected.
+ * \return result code
+ */
+extern uint32_t dma_remove_last_item(struct dma_channel *channel);
 
 /**
  * \brief Configure DMA for a transfer of scattered data, or a transfer of
@@ -268,8 +309,8 @@ extern uint32_t dma_link_item(struct dma_channel *channel,
  * \return result code
  */
 extern uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
-				struct dma_xfer_item_tmpl *tmpl,
-				struct dma_xfer_item *desc_list);
+					  struct dma_xfer_item_tmpl *tmpl,
+					  struct dma_xfer_item *desc_list);
 
 /**
  * \brief Stop DMA transfer.
@@ -315,6 +356,11 @@ extern void dma_fifo_flush(struct dma_channel *channel);
  */
 extern uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk_size, uint32_t len);
 
+/**
+ * \brief Get next descriptor's address for the relevant channel
+ * \param channel Channel pointer
+ */
+extern struct dma_xfer_item * dma_get_desc_addr(struct dma_channel *channel);
 
 /**     @}*/
 

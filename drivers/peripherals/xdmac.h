@@ -366,6 +366,14 @@ extern void xdmac_set_dest_addr(Xdmac *xdmac, uint8_t channel, void *addr);
 extern void xdmac_set_descriptor_addr(Xdmac *xdmac, uint8_t channel, void *addr, uint32_t ndaif);
 
 /**
+ * \brief Get next descriptor's address for the relevant channel of given XDMA.
+ *
+ * \param xdmac Pointer to the XDMAC instance.
+ * \param channel Particular channel number.
+ */
+extern uint32_t xdmac_get_descriptor_addr(Xdmac *xdmac, uint8_t channel);
+
+/**
  * \brief Set next descriptor's configuration for the relevant channel of given XDMA.
  *
  * \param xdmac Pointer to the XDMAC instance.

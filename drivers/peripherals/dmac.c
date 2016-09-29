@@ -237,6 +237,14 @@ void dmac_set_descriptor_addr(Dmac *dmac, uint8_t channel, void *addr,
 	dmac->DMAC_CH_NUM[channel].DMAC_DSCR = (((uint32_t)addr) & 0xFFFFFFFC) | ndaif;
 }
 
+uint32_t dmac_get_descriptor_addr(Dmac *dmac, uint8_t channel)
+{
+	assert(dmac == DMAC0 || dmac == DMAC1);
+	assert(channel < DMAC_CHANNELS);
+
+	return dmac->DMAC_CH_NUM[channel].DMAC_DSCR & (~DMAC_DSCR_DSCR_IF_Msk);
+}
+
 void dmac_set_control_a(Dmac *dmac, uint8_t channel,
 		uint32_t config)
 {

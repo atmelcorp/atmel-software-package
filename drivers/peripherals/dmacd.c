@@ -91,7 +91,7 @@ struct _dmacd_channel
 {
 	Dmac             *dmac;      /**< DMAC instance */
 	uint32_t         id;         /**< Channel ID */
-	dmacd_callback_t  callback;   /**< Callback */
+	dmacd_callback_t  callback;  /**< Callback */
 	void             *user_arg;  /**< Callback argument */
 	uint8_t          src_txif;   /**< Source TX Interface ID */
 	uint8_t          src_rxif;   /**< Source RX Interface ID */
@@ -99,6 +99,7 @@ struct _dmacd_channel
 	uint8_t          dest_rxif;  /**< Destination RX Interface ID */
 	volatile uint32_t rep_count; /**< repeat count in auto mode */
 	volatile uint8_t state;      /**< Channel State */
+	char             dummy[4];   /** Aligned with dma_channel */
 };
 
 /** DMA driver instance */
@@ -312,7 +313,8 @@ static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
 
 bool dmacd_is_transfer_done(struct _dmacd_channel *channel)
 {
-	return channel->state != DMACD_STATE_STARTED;
+	return ((channel->state != DMACD_STATE_STARTED) 
+			&& (channel->state != DMACD_STATE_SUSPENDED));
 }
 
 uint32_t dmacd_configure_transfer(struct _dmacd_channel *channel,
@@ -453,4 +455,10 @@ uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel *channel)
 	return dmac_get_btsize(dmac, channel->id);
 }
 
+uint32_t dmacd_get_desc_addr(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	return dmac_get_descriptor_addr(dmac, channel->id);
+}
 /**@}*/

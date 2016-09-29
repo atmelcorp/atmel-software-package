@@ -203,6 +203,11 @@ extern void dmacd_fifo_flush(struct _dmacd_channel *channel);
  */
 extern uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel *channel);
 
+/**
+ * \brief Get next descriptor's address for the relevant channel of given DMAC.
+ * \param channel Channel pointer
+ */
+extern uint32_t dmacd_get_desc_addr(struct _dmacd_channel *channel);
 /**     @}*/
 
 /**@}*/
