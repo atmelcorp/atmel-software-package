@@ -625,7 +625,7 @@ void board_cfg_isi(void)
 	pio_clear(&pin_pwd);
 	pio_clear(&pin_rst);
 	pio_set(&pin_rst);
-	timer_sleep(10);
+	msleep(10);
 
 	/* Enable ISI peripheral clock */
 	pmc_enable_peripheral(ID_ISI);
@@ -752,12 +752,12 @@ bool board_power_sdmmc_device(uint32_t periph_id, bool on)
 		 * flipping straight the VDD switch often causes the VCC_3V3
 		 * rail to drop and trigger reset upon under-voltage. */
 		board_cfg_sd_dev_pins(periph_id, false, true);
-		timer_sleep(100);
+		msleep(100);
 		pio_clear(pwr_ctrl);
 		/* Wait for the VDD rail to settle at nominal voltage */
-		timer_sleep(1);
+		msleep(1);
 		board_cfg_sd_dev_pins(periph_id, false, false);
-		timer_sleep(1);
+		msleep(1);
 	} else {
 		pio_set(pwr_ctrl);
 		/* Drive all device signals low, in an attempt to have VDD

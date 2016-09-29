@@ -202,14 +202,14 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 	 * frequently as one interrupt per microsecond. Extend to 10 usec. */
 	mc1r = regs->SDMMC_MC1R;
 	regs->SDMMC_MC1R = mc1r | SDMMC_MC1R_RSTN;
-	timer_usleep(10);
+	usleep(10);
 	regs->SDMMC_MC1R = mc1r;
 	/* Wait for either tRSCA = 200 usec or 74 device clock cycles, as per
 	 * the e.MMC Electrical Standard. */
 	if (set->dev_freq != 0)
 		usec = ROUND_INT_DIV(74 * 1000000UL, set->dev_freq);
 	usec = max_u32(usec, 200);
-	timer_usleep(usec);
+	usleep(usec);
 
 	/* Stop both the output clock and the SDMMC internal clock */
 	regs->SDMMC_CCR &= ~(SDMMC_CCR_SDCLKEN | SDMMC_CCR_INTCLKEN);
@@ -403,7 +403,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		if (set->dev_freq != 0)
 			usec = ROUND_INT_DIV(2 * 1000000UL, set->dev_freq);
 		usec = max_u32(usec, 10);
-		timer_usleep(usec);
+		usleep(usec);
 		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 			rc = SDMMC_ERROR_STATE;
 	}
@@ -429,7 +429,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		 * Specification requires the HW to stabilize the electrical
 		 * levels within 5 ms, which equals 5 system ticks.
 		 * Alternative: wait for tPRUL = 25 ms */
-		timer_sleep(5);
+		msleep(5);
 		if (hc2r & SDMMC_HC2R_VS18EN
 		    && !(regs->SDMMC_HC2R & SDMMC_HC2R_VS18EN))
 			rc = SDMMC_ERROR;
@@ -437,7 +437,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	if (pcr != pcr_prv)
 		regs->SDMMC_PCR = pcr;
 	if (verify && toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
-		timer_sleep(1);
+		msleep(1);
 		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 			rc = SDMMC_ERROR_STATE;
 	}
@@ -447,7 +447,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	if (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
 		/* Expect the device to release the CMD and DAT[3:0] lines
 		 * within 1 ms */
-		timer_sleep(1);
+		msleep(1);
 		if ((regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 		    != (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk) && verify)
 			rc = SDMMC_ERROR_STATE;
@@ -1112,7 +1112,7 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 		rc = sdmmc_send_command(set, &stop_cmd);
 		if (rc == SDMMC_OK) {
 			for (usec = 0; set->state == MCID_CMD && usec < 500000; usec+= 10) {
-				timer_usleep(10);
+				usleep(10);
 				if (set->use_polling)
 					sdmmc_poll(set);
 			}
@@ -1487,7 +1487,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    && set->use_set_blk_cnt;
 	const bool stop_xfer_suffix = (cmd->bCmd == 18 || cmd->bCmd == 25)
 	    && !set->use_set_blk_cnt;
-	uint32_t usec, eister, mask, len, cycles;
+	uint32_t eister, mask, len, cycles;
 	uint16_t cr, tmr;
 	uint8_t rc = SDMMC_OK, mc1r;
 
@@ -1509,7 +1509,7 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 			trace_error("Shall enable the device clock first\n\r");
 			return SDMMC_ERROR_STATE;
 		}
-		timer_usleep(200);
+		usleep(200);
 		return SDMMC_OK;
 	}
 

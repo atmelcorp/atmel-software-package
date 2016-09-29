@@ -249,7 +249,7 @@ bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, 
 		length -= chunk_size;
 
 		/* wait 10 ms for write cycle to complete */
-		timer_sleep(10);
+		msleep(10);
 	};
 
 	/* stop transaction */

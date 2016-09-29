@@ -1047,7 +1047,7 @@ void pmc_enable_audio(bool pmc_clock, bool pad_clock)
 	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~nbits) | bits;
 
 	/* Wait for the Audio PLL Startup Time (tSTART = 100 usec) */
-	timer_sleep(1);
+	msleep(1);
 }
 
 void pmc_disable_audio()

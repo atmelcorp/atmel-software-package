@@ -1785,7 +1785,7 @@ _StopCmd(sSdCard * pSd)
 		/* Wait until ready. Allow 30 ms. */
 		for (count = 0; count < 6; count++) {
 			/* Wait for about 5 ms - which equals 5 system ticks */
-			timer_sleep(5);
+			msleep(5);
 			err = Cmd13(pSd, &status);
 			if (err)
 				return err;
@@ -1823,7 +1823,7 @@ _WaitUntilReady(sSdCard * pSd, uint32_t last_dev_status)
 		    && state != STATUS_DATA && state != STATUS_RCV)
 			return SDMMC_ERROR_NOT_INITIALIZED;
 		/* Wait for about 10 ms - which equals 10 system ticks */
-		timer_sleep(10);
+		msleep(10);
 		err = Cmd13(pSd, &status);
 		if (err)
 			return err;
@@ -2170,7 +2170,7 @@ SdMmcUpdateInformation(sSdCard * pSd, bool csd, bool extData)
 	if (csd) {
 		SdMmcSelect(pSd, 0, 1);
 		/* Wait for 14 usec (or more) */
-		timer_usleep(20);
+		usleep(20);
 
 		error = Cmd9(pSd);
 		if (error)

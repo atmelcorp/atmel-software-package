@@ -434,7 +434,7 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 			(unsigned)((2*cprd*1024*32))/(pmc_get_peripheral_clock(ID_PWM)/1000));
 
 	pwmc_set_duty_cycle(PWM, channel, duty_cycle);
-	timer_sleep(50);
+	msleep(50);
 
 	if (duty_cycle_inc) {
 		if (duty_cycle < (cprd - 1))

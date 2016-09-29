@@ -260,7 +260,7 @@ static void play_recording(void)
 	dma_start_transfer(ssc_dma_rx_channel);
 	ssc_enable_receiver(&ssc_dev_desc);
 
-	timer_sleep(300);
+	msleep(300);
 
 	/* Enable playback(SSC TX) */
 	dma_start_transfer(ssc_dma_tx_channel);
