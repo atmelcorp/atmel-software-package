@@ -69,6 +69,7 @@ This release contains the following examples:
 * ssc_dma_audio: Example of SSC to play sound
 * tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an external signal
 * test-pio: Simple example to test PIO features
+* timer: Example of time function usage
 * trng: Example using hardware RNG (interrupt mode)
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 * usart: Example of communication over USART
@@ -136,6 +137,7 @@ spi_slave              | BROKEN           | x                | TODO       | BROK
 ssc_dma_audio          | TODO             | OK               | OK         | OK               | OK         | OK
 tc_capture_waveform    | OK               | OK               | OK         | OK               | OK         | OK
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK
+timer                  | OK               | OK               | OK         | OK               | OK         | OK
 trng                   | OK               | OK               | OK         | OK               | OK         | x
 twi_eeprom             | OK               | TODO             | TODO       | OK               | OK         | OK
 usart                  | OK               | OK               | TODO       | OK               | OK         | OK
