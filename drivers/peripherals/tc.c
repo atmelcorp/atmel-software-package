@@ -88,6 +88,8 @@ void tc_configure(Tc *tc, uint32_t channel, uint32_t mode)
 
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
+	pmc_enable_peripheral(get_tc_id_from_addr(tc));
+
 	ch = &tc->TC_CHANNEL[channel];
 
 	/*  Disable TC clock */
