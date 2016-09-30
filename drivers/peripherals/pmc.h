@@ -410,6 +410,14 @@ extern void pmc_disable_gck(uint32_t id);
  * \return GCK Frequency in Hz
  */
 extern uint32_t pmc_get_gck_clock(uint32_t id);
+
+/**
+ * \brief Get Gck Status for the given peripheral ID.
+ *
+ * \param id  Peripheral ID (ID_xxx).
+ */
+extern bool pmc_is_gck_enabled(uint32_t id);
+
 #endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
 
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK

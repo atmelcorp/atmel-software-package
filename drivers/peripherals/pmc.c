@@ -1004,6 +1004,16 @@ uint32_t pmc_get_gck_clock(uint32_t id)
 	uint32_t div = (pcr & PMC_PCR_GCKDIV_Msk) >> PMC_PCR_GCKDIV_Pos;
 	return ROUND_INT_DIV(clk, div + 1);
 }
+
+bool pmc_is_gck_enabled(uint32_t id)
+{
+	assert(id < ID_PERIPH_COUNT);
+
+	PMC->PMC_PCR = PMC_PCR_PID(id);
+
+	return (PMC->PMC_PCR & PMC_PCR_GCKEN) != 0;
+}
+
 #endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
 
 /*----------------------------------------------------------------------------
