@@ -56,6 +56,19 @@
 #define TWID_POLLING_THRESHOLD  16
 #define TWID_TIMEOUT            100
 
+/** \brief twi asynchronous transfer descriptor.*/
+struct _async_desc
+{
+	bool master;
+	union {
+		struct _twi_desc *twi_desc;
+		struct _twi_slave_desc *twi_slave_desc;
+	};
+	uint32_t twi_id;
+	struct _buffer buf;
+	uint32_t transferred; /**< Number of already transferred bytes. */
+};
+
 static struct _async_desc async_desc[TWI_IFACE_COUNT];
 static uint8_t adesc_index = 0;
 
@@ -572,6 +585,68 @@ static void twid_fifo_configure(struct _twi_desc *desc)
 
 #endif /* CONFIG_HAVE_TWI_FIFO */
 
+static void _twid_slave_handler(uint32_t source, void* user_arg)
+{
+	uint32_t status;
+	Twi* twi;
+	struct _twi_slave_desc *desc;
+	struct _async_desc* adesc = (struct _async_desc*)user_arg;
+
+	desc = adesc->twi_slave_desc;
+	twi = adesc->twi_slave_desc->twi;
+	status = twi_get_status(twi);
+
+	if (TWI_STATUS_GACC(status))
+		return;
+
+	if (TWI_STATUS_EOSACC(status) || TWI_STATUS_TXCOMP(status)) {
+		twi_disable_it(twi, TWI_IDR_RXRDY | TWI_IDR_TXRDY | TWI_IER_TXCOMP);
+
+		if (desc->state == TWID_SLAVE_STATE_STARTED) {
+			desc->state = TWID_SLAVE_STATE_STOPPED;
+			if (desc->ops->on_stop)
+				desc->ops->on_stop();
+		}
+
+		twi_enable_it(desc->twi, TWI_IER_SVACC);
+	}
+	else if (TWI_STATUS_SVACC(status)) {
+		if (desc->state == TWID_SLAVE_STATE_STOPPED) {
+			twi_disable_it(twi, TWI_IDR_SVACC);
+
+			desc->state = TWID_SLAVE_STATE_STARTED;
+
+			if (desc->ops->on_start)
+				desc->ops->on_start();
+		}
+
+		if (TWI_STATUS_SVREAD(status)) {
+			twi_disable_it(twi, TWI_IER_RXRDY);
+			twi_enable_it(twi, TWI_IER_TXRDY | TWI_IER_TXCOMP);
+
+			if (TWI_STATUS_TXRDY(status) && !TWI_STATUS_NACK(status)) {
+				int16_t err = -1;
+				if (desc->ops->on_write)
+					err = desc->ops->on_write();
+				if (err > 0)
+					twi_write_byte(twi, err);
+			}
+		} else {
+			twi_disable_it(twi, TWI_IER_TXRDY);
+			twi_enable_it(twi, TWI_IER_RXRDY | TWI_IER_TXCOMP);
+
+			if (TWI_STATUS_RXRDY(status)) {
+				int16_t err = -1;
+				if (desc->ops->on_read)
+					err = desc->ops->on_read(twi_read_byte(twi));
+				if (err > 0)
+					twi_write_byte(twi, err);
+			}
+		}
+	}
+
+}
+
 /*----------------------------------------------------------------------------
  *        External functions
  *----------------------------------------------------------------------------*/
@@ -600,6 +675,29 @@ void twid_configure(struct _twi_desc* desc)
 #endif
 
 	desc->mutex = 0;
+}
+
+void twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* ops)
+{
+	uint32_t twi_id = get_twi_id_from_addr(desc->twi);
+
+	irq_disable(twi_id);
+	twi_disable_it(desc->twi, 0xffffffff);
+
+	desc->ops = ops;
+	desc->state = TWID_SLAVE_STATE_STOPPED;
+
+	async_desc[adesc_index].twi_id = twi_id;
+	async_desc[adesc_index].twi_slave_desc = desc;
+
+	/* Configure TWI slave */
+	pmc_enable_peripheral(twi_id);
+	twi_configure_slave(desc->twi, desc->addr);
+	irq_add_handler(twi_id, _twid_slave_handler, &async_desc[adesc_index]);
+	twi_enable_it(desc->twi, TWI_IER_SVACC | TWI_IER_EOSACC);
+	irq_enable(twi_id);
+
+	adesc_index = (adesc_index + 1) % TWI_IFACE_COUNT;
 }
 
 /*

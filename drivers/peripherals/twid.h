@@ -107,13 +107,20 @@ struct _twi_desc
 	} dma;
 };
 
-/** \brief twi asynchronous transfer descriptor.*/
-struct _async_desc
-{
-	struct _twi_desc *twi_desc;
-	uint32_t twi_id;
-	struct _buffer buf;
-	uint32_t transferred; /**< Number of already transferred bytes. */
+struct _twi_slave_ops {
+	void (*on_start)(void);
+	void (*on_stop)(void);
+	int16_t (*on_read)(uint8_t byte);
+	int16_t (*on_write)(void);
+};
+
+struct _twi_slave_desc {
+	Twi* twi;
+	uint16_t addr;
+	uint8_t state;
+#define TWID_SLAVE_STATE_STOPPED 0
+#define TWID_SLAVE_STATE_STARTED 1
+	struct _twi_slave_ops* ops;
 };
 
 /*------------------------------------------------------------------------------
@@ -121,6 +128,8 @@ struct _async_desc
  *----------------------------------------------------------------------------*/
 
 extern void twid_configure(struct _twi_desc* desc);
+
+extern void twid_slave_configure(struct _twi_slave_desc* desc, struct _twi_slave_ops* ops);
 
 extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
                               twid_callback_t cb, void* user_args);
