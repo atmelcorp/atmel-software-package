@@ -747,11 +747,7 @@ void pmc_enable_peripheral(uint32_t id)
 
 	assert(id < ID_PERIPH_COUNT);
 
-	// select peripheral
-	PMC->PMC_PCR = PMC_PCR_PID(id);
-
 #ifdef PMC_PCR_DIV
-	PMC->PMC_PCR = (PMC->PMC_PCR & ~PMC_PCR_DIV_Msk) | PMC_PCR_CMD;
 	{
 		volatile uint32_t i;
 		uint32_t clk_max;
@@ -765,13 +761,9 @@ void pmc_enable_peripheral(uint32_t id)
 			i = 3; /* 4 is not a valid value */
 		div = PMC_PCR_DIV(i);
 	}
-#else
-	PMC->PMC_PCR = PMC->PMC_PCR | PMC_PCR_CMD;
 #endif
 
-	PMC->PMC_PCR = PMC_PCR_PID(id);
-	volatile uint32_t pcr = PMC->PMC_PCR;
-	PMC->PMC_PCR = pcr | div | PMC_PCR_CMD | PMC_PCR_EN;
+	PMC->PMC_PCR = PMC_PCR_PID(id) | PMC_PCR_CMD | div | PMC_PCR_EN;
 }
 
 void pmc_disable_peripheral(uint32_t id)
