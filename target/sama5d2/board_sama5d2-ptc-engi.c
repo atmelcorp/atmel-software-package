@@ -35,7 +35,7 @@
 #include "board.h"
 #include "compiler.h"
 
-#include "peripherals/xdmacd.h"
+#include "peripherals/dma.h"
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------

@@ -69,7 +69,6 @@
 #endif
 
 #ifdef CONFIG_HAVE_XDMAC
-
 #define DMA_CHUNK_SIZE_1   0
 #define DMA_CHUNK_SIZE_2   1
 #define DMA_CHUNK_SIZE_4   2
@@ -78,7 +77,6 @@
 
 #elif defined(CONFIG_HAVE_DMAC)
 #define DMA_CHUNK_SIZE_1   0
-#define DMA_CHUNK_SIZE_2   0
 #define DMA_CHUNK_SIZE_4   1
 #define DMA_CHUNK_SIZE_8   2
 #define DMA_CHUNK_SIZE_16  3
@@ -89,6 +87,11 @@
 
 #endif
 
+#ifndef DMA_LL_POOL_SIZE
+#define DMA_LL_POOL_SIZE   64
+#endif
+
+#define DMA_DATA_WIDTH_IN_BYTE(w)   (1 << w)
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -259,6 +262,17 @@ extern uint32_t dma_link_item(struct dma_channel *channel,
 			      struct dma_xfer_item *next_item);
 
 /**
+ * \brief Link the specified transfer descriptor at the end of current list.
+ * \param channel Channel pointer
+ * \param item Pointer to the transfer descriptor to be amended.
+ * \note The transfers descriptors pointed by item shall have
+ * been allocated from linked list pool.
+ * \return result code
+ */
+extern uint32_t dma_link_last_item(struct dma_channel *channel,
+		       struct dma_xfer_item *item);
+
+/**
  * \brief insert the specified transfer descriptor to its successor in the list.
  * \param channel Channel pointer
  * \param pre_item Pointer to the previous transfer descriptor which to be linked
@@ -306,6 +320,7 @@ extern uint32_t dma_remove_last_item(struct dma_channel *channel);
  * \param tmpl The parameters that were used to prepare the first transfer
  * descriptor in the list.
  * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
+ * NULL if the list was allocated from linked list pool.
  * \return result code
  */
 extern uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
@@ -362,6 +377,19 @@ extern uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_
  */
 extern struct dma_xfer_item * dma_get_desc_addr(struct dma_channel *channel);
 
+/**
+ * \brief Allocate a unused linked list emelment the relevant channel
+ * \param channel Channel pointer
+ * \return linked list pointer if allocation successful, or NULL if allocation 
+ * failed.
+ */
+extern struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel);
+
+/**
+ * \brief Free all linked list elements for the relevant channel
+ * \param channel Channel pointer
+ */
+extern void dma_free_item(struct dma_channel *channel);
 /**     @}*/
 
 #endif /* _DMA_H_ */

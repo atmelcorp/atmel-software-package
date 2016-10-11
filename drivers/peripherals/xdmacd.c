@@ -60,7 +60,7 @@
 #include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/xdmacd.h"
-
+#include "peripherals/dma.h"
 #include <assert.h>
 #include "compiler.h"
 
@@ -171,6 +171,7 @@ static void xdmacd_handler(void)
 			/* Execute callback */
 			if (exec && channel->callback) {
 				channel->callback(channel, channel->user_arg);
+				dma_free_item((struct dma_channel *)channel);
 			}
 		}
 	}
