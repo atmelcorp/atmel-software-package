@@ -35,7 +35,7 @@
 #include "board.h"
 #include "compiler.h"
 
-#include "peripherals/xdmacd.h"
+#include "peripherals/dma.h"
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------
@@ -59,8 +59,8 @@ WEAK void board_init(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-	/* XDMAC Driver init */
-	xdmacd_initialize(false);
+	/* DMA Driver init */
+	dma_initialize(false);
 
 	/* Configure SPI bus */
 	board_cfg_spi_bus();

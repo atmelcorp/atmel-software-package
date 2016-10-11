@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "board.h"
 
-#include "peripherals/dmacd.h"
+#include "peripherals/dma.h"
 #include "peripherals/pio.h"
 #include "peripherals/wdt.h"
 #include "board_support.h"
@@ -67,7 +67,7 @@ WEAK void board_init(void)
 	board_cfg_console(0);
 
 	/* DMAC Driver init */
-	dmacd_initialize(false);
+	dma_initialize(false);
 
 	/* Configure SPI bus */
 	board_cfg_spi_bus();
