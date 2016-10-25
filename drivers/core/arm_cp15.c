@@ -218,7 +218,7 @@ void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
 
 	assert(start < end);
 
-	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+	for (mva = start & ~(L1_CACHE_BYTES - 1); mva < end; mva += L1_CACHE_BYTES) {
 		/* DCIMVAC */
 		asm("mcr p15, 0, %0, c7, c6, 1" :: "r"(mva));
 	}
@@ -232,7 +232,7 @@ void cp15_dcache_clean_region(uint32_t start, uint32_t end)
 
 	assert(start < end);
 
-	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+	for (mva = start & ~(L1_CACHE_BYTES - 1); mva < end; mva += L1_CACHE_BYTES) {
 		/* DCCMVAC */
 		asm("mcr p15, 0, %0, c7, c10, 1" :: "r"(mva));
 	}
@@ -246,7 +246,7 @@ void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end)
 
 	assert(start < end);
 
-	for (mva = start & ~L1_CACHE_BYTES; mva < end; mva += L1_CACHE_BYTES) {
+	for (mva = start & ~(L1_CACHE_BYTES - 1); mva < end; mva += L1_CACHE_BYTES) {
 		/* DCCIMVAC */
 		asm("mcr p15, 0, %0, c7, c14, 1" :: "r"(mva));
 	}
