@@ -103,9 +103,9 @@
 #include "board.h"
 #include "chip.h"
 #include "peripherals/sha.h"
+#include "peripherals/shad.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aic.h"
-#include "peripherals/dma.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -121,13 +121,11 @@
  *----------------------------------------------------------------------------*/
 
 #define MSG_MAX_LEN         0x00100000
-#define DMA_DESC_MAX_COUNT  (LEN_MSG_LONG / 4 / 16 + 1)
 
 #define SHA_ONE_BLOCK    0
 #define SHA_MULTI_BLOCK  1
 #define SHA_LONG_MESSAGE 2
 
-#define MAX_MESSAGE_SIZE_INWORD   (64)
 #define MAX_DIGEST_SIZE_INWORD    (16)
 
 #define LEN_MSG_0      3
@@ -135,32 +133,9 @@
 #define LEN_MSG_2      112
 #define LEN_MSG_LONG   (1000000)
 
-struct _sha_algo
-{
-    uint8_t block_len_words;
-    uint8_t digest_len_words;
-};
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-/*
- * Algorithm | Block Size | Word Size | Message Digest Size (all in bits)
- * SHA-1     | 512        | 32        | 160
- * SHA-256   | 512        | 32        | 256
- * SHA-384   | 1024       | 64        | 384
- * SHA-512   | 1024       | 64        | 512
- * SHA-224   | 512        | 32        | 224
- */
-static const struct _sha_algo algo_desc[5] = {
-	{ 512 / 32,	160 / 32 },
-	{ 512 / 32,	256 / 32 },
-	{ 1024 / 32,	384 / 32 },
-	{ 1024 / 32,	512 / 32 },
-	{ 512 / 32,	224 / 32 }
-};
-
 /* A.1  SHA-1 Example (One-Block Message)
  * B.1  SHA-256 Example (One-Block Message)
  * C.1  SHA-512 Example (One-Block Message)
@@ -286,112 +261,14 @@ static const uint32_t ref_digests_224[3][7] = {
 CACHE_ALIGNED_DDR static uint32_t message[MSG_MAX_LEN];
 
 static uint32_t digest[MAX_DIGEST_SIZE_INWORD];
-static uint32_t op_mode, start_mode, block_mode;
-static volatile bool digest_ready = false;
+static uint32_t block_mode;
 
-/* Global DMA driver instance for all DMA transfers in application. */
-static struct dma_channel *dma_chan = NULL;
-
-/* DMA linked list */
-CACHE_ALIGNED_DDR static struct dma_xfer_item dma_dlist[DMA_DESC_MAX_COUNT];
-
+/* shad instance */
+static struct _shad_desc shad;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-
-/**
- * \brief Prepare DMA channel.
- */
-static void init_dma(void)
-{
-	/* Initialize DMA driver instance with polling mode */
-	/* Allocate a DMA channel, Write accesses into SHA_IDATARx */
-	dma_chan = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SHA);
-	if (!dma_chan)
-		printf("-E- Can't allocate DMA channel\n\r");
-}
-
-/**
- * \brief Configure DMA channel for SHA transfer.
- * \param buf  Pointer to data buffer.
- * \param len  Count of data blocks.
- */
-static void configure_dma_write(uint32_t *buf, uint32_t len)
-{
-	const uint32_t words = algo_desc[op_mode].block_len_words;
-	uint32_t i;
-	static struct dma_xfer_item_tmpl cfg;
-	
-	for (i = 0; i < len; i++) {
-		cache_clean_region(&buf[i * words], words * 4);
-		cfg.sa = &buf[i * words];
-		cfg.da = (void*)&SHA->SHA_IDATAR[0];
-		cfg.upd_sa_per_data = 1;
-		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = sha_get_dma_chunk_size(op_mode);
-		cfg.blk_size = words;
-		dma_prepare_item(dma_chan, &cfg, &dma_dlist[i]);
-		dma_link_item(dma_chan, &dma_dlist[i], &dma_dlist[i + 1]);
-	}
-	dma_link_item(dma_chan, &dma_dlist[i - 1], NULL);
-	cache_clean_region(dma_dlist, sizeof(*dma_dlist) * len);
-	dma_configure_sg_transfer(dma_chan, &cfg, dma_dlist);
-	
-}
-
-/**
- * \brief SHA interrupt handler.
- */
-static void handle_sha_irq(void)
-{
-	if ((sha_get_status() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
-		sha_disable_it(SHA_IER_DATRDY);
-		digest_ready = true;
-	}
-}
-
-/**
- * \brief Generate message for given ASCII string.
- * \param M pointer to string
- * \param length message length in byte.
- * \param longMsg true in case of long message.
- * \note Maximun length is 32bits only.
- */
-static void build_message(const uint8_t *M, uint32_t length, bool longMsg)
-{
-	uint32_t k, l = length * 8;
-	uint8_t *p = (uint8_t *)message;
-
-	if (algo_desc[op_mode].block_len_words == 1024 / 32)
-		k = (1024 + 896 - ((l % 1024) + 1)) % 1024;
-	else
-		k = (512 + 448 - ((l % 512) + 1)) % 512;
-	if (longMsg)
-		memset (p, *M, length);
-	else
-		memcpy (p, M, length);
-	p += length;
-	/* Append a bit "1" to the message */
-	*p++ = 0x80;
-	/* Followed by k zero bits */
-	memset(p, 0, (k - 7) / 8);
-	p += (k - 7) / 8;
-	if (algo_desc[op_mode].block_len_words == 1024 / 32) {
-		memset(p, 0, 8);
-		p += 8;
-	}
-	/* Then append the 64-bit block length */
-	memset(p, 0, 4);
-	p += 4;
-	*p++ = l >> 24 & 0xff;
-	*p++ = l >> 16 & 0xff;
-	*p++ = l >> 8 & 0xff;
-	*p++ = l & 0xff;
-}
 
 /**
  * \brief Byte swap unsigned int
@@ -407,150 +284,45 @@ static uint32_t swap_uint32(uint32_t val)
  */
 static void start_sha(void)
 {
-	uint32_t *p = NULL;
-	uint32_t rc = 0, i, blk_cnt = 0, val, ref = 0;
+	uint32_t rc = 0, i, val, ref = 0;
+	uint32_t len;
 
-	sha_get_status();
-	if (start_mode == SHA_MR_SMOD_IDATAR0_START)
-		init_dma();
-
-	switch (op_mode) {
-		case SHA_1:
-			if (block_mode == SHA_ONE_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX A.1 SHA-1 Example (One-Block Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				blk_cnt = 1;
-				build_message(msg0, LEN_MSG_0, false);
-			}
-			if (block_mode == SHA_MULTI_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX A.2 SHA-1 Example (Multi-Block Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				blk_cnt = 2;
-				build_message(msg1, LEN_MSG_1, false);
-			}
-			if (block_mode == SHA_LONG_MESSAGE) {
-				printf("-I- Testing FIPS APPENDIX A.3 SHA-1 Example (Long Message)\n\r-I- Get the final 160-bit message digest...\n\r");
-				blk_cnt = DMA_DESC_MAX_COUNT;
-				build_message(&msg_long_pattern, LEN_MSG_LONG, true);
-			}
-			break;
-		case SHA_256:
-			if (block_mode == SHA_ONE_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX B.1 SHA-256 Example (One-Block Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				blk_cnt = 1;
-				build_message(msg0, LEN_MSG_0, false);
-			}
-			if (block_mode == SHA_MULTI_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX B.2 SHA-256 Example (Multi-Block Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				blk_cnt = 2;
-				build_message(msg1, LEN_MSG_1, false);
-			}
-			if (block_mode == SHA_LONG_MESSAGE) {
-				printf("-I- Testing FIPS APPENDIX B.3 SHA-256 Example (Long Message)\n\r-I- Get the final 256-bit message digest...\n\r");
-				blk_cnt = DMA_DESC_MAX_COUNT;
-				build_message(&msg_long_pattern, LEN_MSG_LONG, true);
-			}
-			break;
-		case SHA_384:
-			if (block_mode == SHA_ONE_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX D.1 SHA-384 Example (One-Block Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				blk_cnt = 1;
-				build_message(msg0, LEN_MSG_0, false);
-			}
-			if (block_mode == SHA_MULTI_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX D.2 SHA-384 Example (Multi-Block Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				blk_cnt = 2;
-				build_message(msg2, LEN_MSG_2, false);
-			}
-			if (block_mode == SHA_LONG_MESSAGE) {
-				printf("-I- Testing FIPS APPENDIX D.3 SHA-384 Example (Long Message)\n\r-I- Get the final 384-bit message digest...\n\r");
-				blk_cnt = LEN_MSG_LONG / 4 / 32 + 1;
-				build_message(&msg_long_pattern, LEN_MSG_LONG, true);
-			}
-			break;
-		case SHA_512:
-			if (block_mode == SHA_ONE_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX C.1 SHA-512 Example (One-Block Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				blk_cnt = 1;
-				build_message(msg0, LEN_MSG_0 , false);
-			}
-			if (block_mode == SHA_MULTI_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX C.2 SHA-512 Example (Multi-Block Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				blk_cnt = 2;
-				build_message(msg2, LEN_MSG_2, false);
-			}
-			if (block_mode == SHA_LONG_MESSAGE) {
-				printf("-I- Testing FIPS APPENDIX C.3 SHA-512 Example (Long Message)\n\r-I- Get the final 512-bit message digest...\n\r");
-				blk_cnt = LEN_MSG_LONG / 4 / 32 + 1;
-				build_message(&msg_long_pattern, LEN_MSG_LONG, true);
-			}
-			break;
-		case SHA_224:
-			if (block_mode == SHA_ONE_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX 1 SHA-224 Example (One-Block Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				blk_cnt = 1;
-				build_message(msg0, LEN_MSG_0, false);
-			}
-			if (block_mode == SHA_MULTI_BLOCK) {
-				printf("-I- Testing FIPS APPENDIX 2 SHA-224 Example (Multi-Block Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				blk_cnt = 2;
-				build_message(msg1, LEN_MSG_1, false);
-			}
-			if (block_mode == SHA_LONG_MESSAGE) {
-				printf("-I- Testing FIPS APPENDIX 2 SHA-224 Example (Long Message)\n\r-I- Get the final 224-bit message digest...\n\r");
-				blk_cnt = DMA_DESC_MAX_COUNT;
-				build_message(&msg_long_pattern, LEN_MSG_LONG, true);
-			}
-			break;
-	}
-
-	sha_configure(start_mode | (op_mode << SHA_MR_ALGO_Pos) |
-		      SHA_MR_PROCDLY_LONGEST);
-	/* For the first block of a message, the FIRST command must be set by
-	 * setting the corresponding bit of the Control Register (SHA_CR). For
-	 * the other blocks, there is nothing to write in this Control Register. */
-	sha_first_block();
-
-	if (start_mode == SHA_MR_SMOD_IDATAR0_START) {
-		configure_dma_write(message, blk_cnt);
-		rc = dma_start_transfer(dma_chan);
-		if (rc == DMA_OK) {
-			while (!dma_is_transfer_done(dma_chan))
-				dma_poll();
-			dma_stop_transfer(dma_chan);
+	if (block_mode == SHA_ONE_BLOCK) {
+		memcpy ((uint8_t*)message, msg0, LEN_MSG_0);
+		len = shad_pad_message((uint8_t*)message, LEN_MSG_0, shad.cfg.mode);
+	} else if (block_mode == SHA_MULTI_BLOCK) {
+		if ((shad.cfg.mode == SHAD_MODE_SHA384) 
+			|| (shad.cfg.mode == SHAD_MODE_SHA512)) {
+			memcpy ((uint8_t*)message, msg2, LEN_MSG_2);
+			len = shad_pad_message((uint8_t*)message, LEN_MSG_2, shad.cfg.mode);
+		} else {
+			memcpy ((uint8_t*)message, msg1, LEN_MSG_1);
+			len = shad_pad_message((uint8_t*)message, LEN_MSG_1, shad.cfg.mode);
 		}
 	} else {
-		for (p = message, i = 0; i < blk_cnt;
-		     i++, p+= algo_desc[op_mode].block_len_words) {
-			digest_ready = false;
-			/* Write the block to be processed in the Input Data Registers */
-			sha_set_input(p, algo_desc[op_mode].block_len_words);
-			if (start_mode == SHA_MR_SMOD_MANUAL_START) {
-				/* Set the START bit in the SHA Control Register SHA_CR to begin the processing. */
-				sha_start();
-			}
-			/* Set the bit DATRDY (Data Ready) in the SHA Interrupt Enable Register (SHA_IER) */
-			sha_enable_it(SHA_IER_DATRDY);
-			/* When the processing completes, the bit DATRDY in the
-			 * SHA Interrupt Status Register (SHA_ISR) raises. If an
-			 * interrupt has been enabled by setting the bit DATRDY
-			 * in SHA_IER, the interrupt line of the SHA is activated. */
-			while (!digest_ready) ;
-			/* Repeat the write procedure for each block, start
-			 * procedure and wait for the interrupt procedure up to
-			 * the last block of the entire message. Each time the
-			 * start procedure is complete, the DATRDY flag is cleared. */
-		}
+		memset ((uint8_t*)message, msg_long_pattern, LEN_MSG_LONG);
+		len = shad_pad_message((uint8_t*)message, LEN_MSG_LONG, shad.cfg.mode);
 	}
 
-	sha_get_output(digest);
+	struct _buffer buf_in = {
+		.data = (uint8_t*)message,
+		.size = len,
+		};
+		struct _buffer buf_out = {
+		.data = (uint8_t*)digest,
+		.size = MAX_DIGEST_SIZE_INWORD,
+		};
+	shad_transfer(&shad, &buf_in, &buf_out, NULL, NULL);
+
 	printf("-I- Dump and compare digest result...\n\r");
-	for (rc = 0, i = 0; i < algo_desc[op_mode].digest_len_words; i++) {
+	for (rc = 0, i = 0; i < sha_get_output_words((uint8_t)shad.cfg.mode); i++) {
 		val = swap_uint32(digest[i]);
-		switch (op_mode) {
-		case SHA_1:   ref = ref_digests_one[block_mode][i]; break;
-		case SHA_256: ref = ref_digests_256[block_mode][i]; break;
-		case SHA_384: ref = ref_digests_384[block_mode][i]; break;
-		case SHA_512: ref = ref_digests_512[block_mode][i]; break;
-		case SHA_224: ref = ref_digests_224[block_mode][i]; break;
+		switch (shad.cfg.mode) {
+		case SHAD_MODE_SHA1:   ref = ref_digests_one[block_mode][i]; break;
+		case SHAD_MODE_SHA256: ref = ref_digests_256[block_mode][i]; break;
+		case SHAD_MODE_SHA384: ref = ref_digests_384[block_mode][i]; break;
+		case SHAD_MODE_SHA512: ref = ref_digests_512[block_mode][i]; break;
+		case SHAD_MODE_SHA224: ref = ref_digests_224[block_mode][i]; break;
 		}
 		if (val != ref) {
 			printf(" [X]");
@@ -575,7 +347,7 @@ static void display_menu(void)
 	printf("\n\rSHA Menu :\n\r");
 	printf("Press [0|1|2|3|4] to set SHA Algorithm \n\r");
 	memset(chk_box, ' ', sizeof(chk_box));
-	chk_box[op_mode] = 'X';
+	chk_box[shad.cfg.mode] = 'X';
 	printf("   0: SHA1[%c] 1: SHA256[%c] 2: SHA384[%c] 3: SHA512[%c] 4: SHA224[%c]\n\r",
 	       chk_box[0], chk_box[1], chk_box[2], chk_box[3], chk_box[4]);
 
@@ -586,9 +358,9 @@ static void display_menu(void)
 	       chk_box[0], chk_box[1], chk_box[2]);
 
 	printf("Press [m|a|d] to set Start Mode \n\r");
-	chk_box[0] = (start_mode == SHA_MR_SMOD_MANUAL_START) ? 'X' : ' ';
-	chk_box[1] = (start_mode == SHA_MR_SMOD_AUTO_START) ? 'X' : ' ';
-	chk_box[2] = (start_mode == SHA_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
+	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING_MANUAL) ? 'X' : ' ';
+	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING_AUTO) ? 'X' : ' ';
+	chk_box[2] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
 			chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Start hash algorithm process \n\r");
@@ -612,17 +384,13 @@ int main(void)
 	/* Output example information */
 	console_example_info("SHA Example");
 
-	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_SHA);
-	/* Perform a software-triggered hardware reset of the SHA interface */
-	sha_soft_reset();
-	aic_set_source_vector(ID_SHA, handle_sha_irq);
-	aic_enable(ID_SHA);
+	shad_init();
 
 	/* Display menu */
-	op_mode = SHA_1;
-	start_mode = SHA_MR_SMOD_MANUAL_START;
+	shad.cfg.mode = SHAD_MODE_SHA1;
+	shad.cfg.transfer_mode = SHAD_TRANS_POLLING_MANUAL;
 	block_mode = SHA_ONE_BLOCK;
+
 	display_menu();
 
 	/* Handle keypresses */
@@ -630,7 +398,7 @@ int main(void)
 		user_key = tolower(console_get_char());
 		switch (user_key) {
 			case '0': case '1': case '2': case '3': case '4':
-				op_mode = user_key - '0';
+				shad.cfg.mode = (enum _shad_mode)(user_key - '0');
 				display_menu();
 				break;
 			case 'o':
@@ -644,9 +412,10 @@ int main(void)
 			case 'm':
 			case 'a':
 			case 'd':
-				start_mode = user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
-							(user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
-							 SHA_MR_SMOD_MANUAL_START);
+				shad.cfg.transfer_mode = 
+					(enum _shad_trans_mode)(user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
+					(user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
+					SHA_MR_SMOD_MANUAL_START));
 				display_menu();
 				break;
 			case 'h':
