@@ -98,6 +98,14 @@ static uint8_t _sha_dma_chunk_size[] = {
 };
 #endif
 
+static uint32_t _sha_output_words[] = {
+	SHA_1_DIGEST_SIZE,
+	SHA_256_DIGEST_SIZE,
+	SHA_384_DIGEST_SIZE,
+	SHA_512_DIGEST_SIZE,
+	SHA_224_DIGEST_SIZE,
+};
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -174,4 +182,11 @@ uint8_t sha_get_dma_chunk_size(uint8_t mode)
 	if (mode >= SHA_MODE_COUNT)
 		return 0;
 	return _sha_dma_chunk_size[mode];
+}
+
+uint8_t sha_get_output_words(uint8_t mode)
+{
+	if (mode >= SHA_MODE_COUNT)
+		return 0;
+	return (_sha_output_words[mode] / 32);
 }

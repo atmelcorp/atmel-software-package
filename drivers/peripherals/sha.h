@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -49,6 +49,22 @@
 #define SHA_224  4
 
 #define SHA_MODE_COUNT 5
+
+/*
+ * Algorithm | Block Size | Word Size | Message Digest Size (all in bits)
+ * SHA-1     | 512        | 32        | 160
+ * SHA-256   | 512        | 32        | 256
+ * SHA-384   | 1024       | 64        | 384
+ * SHA-512   | 1024       | 64        | 512
+ * SHA-224   | 512        | 32        | 224
+ */
+
+#define SHA_1_DIGEST_SIZE    160
+#define SHA_256_DIGEST_SIZE  256
+#define SHA_384_DIGEST_SIZE  384
+#define SHA_512_DIGEST_SIZE  512
+#define SHA_224_DIGEST_SIZE  224
+
 
 /*----------------------------------------------------------------------------*/
 /*         Exported functions                                                 */
@@ -115,6 +131,13 @@ extern void sha_get_output(uint32_t * data);
  * \return  DMA chunk size to use
  */
 extern uint8_t sha_get_dma_chunk_size(uint8_t mode);
+
+/**
+ * \brief Get number of output digest in word.
+ * \param mode  SHA operating mode: SHA1..SHA512
+ * \return  number of output words
+ */
+extern uint8_t sha_get_output_words(uint8_t mode);
 
 #endif /* CONFIG_HAVE_SHA */
 
