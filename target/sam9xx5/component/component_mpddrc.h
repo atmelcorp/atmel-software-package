@@ -39,28 +39,28 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Mpddrc hardware registers */
 typedef struct {
-  __IO uint32_t MPDDRC_MR;    /**< \brief (Mpddrc Offset: 0x00) MPDDRC Mode Register */
-  __IO uint32_t MPDDRC_RTR;   /**< \brief (Mpddrc Offset: 0x04) MPDDRC Refresh Timer Register */
-  __IO uint32_t MPDDRC_CR;    /**< \brief (Mpddrc Offset: 0x08) MPDDRC Configuration Register */
-  __IO uint32_t MPDDRC_TPR0;  /**< \brief (Mpddrc Offset: 0x0C) MPDDRC Timing Parameter 0 Register */
-  __IO uint32_t MPDDRC_TPR1;  /**< \brief (Mpddrc Offset: 0x10) MPDDRC Timing Parameter 1 Register */
-  __IO uint32_t MPDDRC_TPR2;  /**< \brief (Mpddrc Offset: 0x14) MPDDRC Timing Parameter 2 Register */
-  __I  uint32_t Reserved1[1];
-  __IO uint32_t MPDDRC_LPR;   /**< \brief (Mpddrc Offset: 0x1C) MPDDRC Low-power Register */
-  __IO uint32_t MPDDRC_MD;    /**< \brief (Mpddrc Offset: 0x20) MPDDRC Memory Device Register */
-  __I  uint32_t MPDDRC_DLL;   /**< \brief (Mpddrc Offset: 0x24) MPDDRC DLL Information Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t MPDDRC_HS;    /**< \brief (Mpddrc Offset: 0x2C) MPDDRC High Speed Register */
-  __I  uint32_t Reserved3[45];
-  __IO uint32_t MPDDRC_WPMR;  /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
-  __I  uint32_t MPDDRC_WPSR;  /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
+	__IO uint32_t MPDDRC_MR;             /**< \brief (Mpddrc Offset: 0x00) MPDDRC Mode Register */
+	__IO uint32_t MPDDRC_RTR;            /**< \brief (Mpddrc Offset: 0x04) MPDDRC Refresh Timer Register */
+	__IO uint32_t MPDDRC_CR;             /**< \brief (Mpddrc Offset: 0x08) MPDDRC Configuration Register */
+	__IO uint32_t MPDDRC_TPR0;           /**< \brief (Mpddrc Offset: 0x0C) MPDDRC Timing Parameter 0 Register */
+	__IO uint32_t MPDDRC_TPR1;           /**< \brief (Mpddrc Offset: 0x10) MPDDRC Timing Parameter 1 Register */
+	__IO uint32_t MPDDRC_TPR2;           /**< \brief (Mpddrc Offset: 0x14) MPDDRC Timing Parameter 2 Register */
+	__I  uint32_t Reserved1[1];
+	__IO uint32_t MPDDRC_LPR;            /**< \brief (Mpddrc Offset: 0x1C) MPDDRC Low-power Register */
+	__IO uint32_t MPDDRC_MD;             /**< \brief (Mpddrc Offset: 0x20) MPDDRC Memory Device Register */
+	__I  uint32_t MPDDRC_DLL;            /**< \brief (Mpddrc Offset: 0x24) MPDDRC DLL Information Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t MPDDRC_HS;             /**< \brief (Mpddrc Offset: 0x2C) MPDDRC High Speed Register */
+	__I  uint32_t Reserved3[45];
+	__IO uint32_t MPDDRC_WPMR;           /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
+	__I  uint32_t MPDDRC_WPSR;           /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
 } Mpddrc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MPDDRC_MR : (MPDDRC Offset: 0x00) MPDDRC Mode Register -------- */
 #define MPDDRC_MR_MODE_Pos 0
 #define MPDDRC_MR_MODE_Msk (0x7u << MPDDRC_MR_MODE_Pos) /**< \brief (MPDDRC_MR) MPDDRC Command Mode */
 #define MPDDRC_MR_MODE(value) ((MPDDRC_MR_MODE_Msk & ((value) << MPDDRC_MR_MODE_Pos)))
-#define   MPDDRC_MR_MODE_NORMAL_CMD (0x0u << 0)        /**< \brief (MPDDRC_MR) Normal Mode. Any access to the MPDDRC is decoded normally. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
+#define   MPDDRC_MR_MODE_NORMAL_CMD (0x0u << 0) /**< \brief (MPDDRC_MR) Normal Mode. Any access to the MPDDRC is decoded normally. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
 #define   MPDDRC_MR_MODE_NOP_CMD (0x1u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues a NOP command when the DDR-SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
 #define   MPDDRC_MR_MODE_PRCGALL_CMD (0x2u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues the All Banks Precharge command when the DDR-SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the SDRAM. */
 #define   MPDDRC_MR_MODE_LMR_CMD (0x3u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues a Load Mode Register command when the DDR-SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
@@ -107,7 +107,7 @@ typedef struct {
 #define MPDDRC_CR_OCD_Msk (0x7u << MPDDRC_CR_OCD_Pos) /**< \brief (MPDDRC_CR) Off-chip Driver */
 #define MPDDRC_CR_OCD(value) ((MPDDRC_CR_OCD_Msk & ((value) << MPDDRC_CR_OCD_Pos)))
 #define   MPDDRC_CR_OCD_DDR2_EXITCALIB (0x0u << 12) /**< \brief (MPDDRC_CR) Exit from OCD calibration mode and maintain settings */
-#define   MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB (0x7u << 12)	/**< \brief (MPDDRC_CR) OCD calibration default */
+#define   MPDDRC_CR_OCD_DDR2_DEFAULT_CALIB (0x7u << 12) /**< \brief (MPDDRC_CR) OCD calibration default */
 #define MPDDRC_CR_DQMS (0x1u << 16) /**< \brief (MPDDRC_CR) Mask Data is Shared */
 #define   MPDDRC_CR_DQMS_NOT_SHARED (0x0u << 16) /**< \brief (MPDDRC_CR) DQM is not shared with another controller */
 #define   MPDDRC_CR_DQMS_SHARED (0x1u << 16) /**< \brief (MPDDRC_CR) DQM is shared with another controller */
@@ -179,7 +179,7 @@ typedef struct {
 #define MPDDRC_LPR_LPCB(value) ((MPDDRC_LPR_LPCB_Msk & ((value) << MPDDRC_LPR_LPCB_Pos)))
 #define   MPDDRC_LPR_LPCB_NOLOWPOWER (0x0u << 0) /**< \brief (MPDDRC_LPR) Low-power feature is inhibited. No power-down, self-refresh and deep-power modes are issued to the DDR-SDRAM device. */
 #define   MPDDRC_LPR_LPCB_SELFREFRESH (0x1u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a self-refresh command to the DDR-SDRAM device, the clock(s) is/are deactivated and the CKE signal is set low. The DDR-SDRAM device leaves the self-refresh mode when accessed and reenters it after the access. */
-#define   MPDDRC_LPR_LPCB_POWERDOWN (0x2u << 0)        /**< \brief (MPDDRC_LPR) The MPDDRC issues a Power-down command to the DDR-SDRAM device after each access, the CKE signal is set low. The DDR-SDRAM device leaves the power-down mode when accessed and reenters it after the access. */
+#define   MPDDRC_LPR_LPCB_POWERDOWN (0x2u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Power-down command to the DDR-SDRAM device after each access, the CKE signal is set low. The DDR-SDRAM device leaves the power-down mode when accessed and reenters it after the access. */
 #define   MPDDRC_LPR_LPCB_DEEPPOWERDOWN (0x3u << 0) /**< \brief (MPDDRC_LPR) The MPDDRC issues a Deep Power-down command to the low-power DDR-SDRAM device. */
 #define MPDDRC_LPR_CLK_FR (0x1u << 2) /**< \brief (MPDDRC_LPR) Clock Frozen Command Bit */
 #define   MPDDRC_LPR_CLK_FR_DISABLED (0x0u << 2) /**< \brief (MPDDRC_LPR) Clock(s) is/are not frozen. */
@@ -191,11 +191,11 @@ typedef struct {
 #define MPDDRC_LPR_DS_Msk (0x7u << MPDDRC_LPR_DS_Pos) /**< \brief (MPDDRC_LPR) Drive Strength */
 #define MPDDRC_LPR_DS(value) ((MPDDRC_LPR_DS_Msk & ((value) << MPDDRC_LPR_DS_Pos)))
 #define MPDDRC_LPR_TIMEOUT_Pos 12
-#define MPDDRC_LPR_TIMEOUT_Msk (0x3u << MPDDRC_LPR_TIMEOUT_Pos)        /**< \brief (MPDDRC_LPR) Time Between Last Transfer and Low-Power Mode */
+#define MPDDRC_LPR_TIMEOUT_Msk (0x3u << MPDDRC_LPR_TIMEOUT_Pos) /**< \brief (MPDDRC_LPR) Time Between Last Transfer and Low-Power Mode */
 #define MPDDRC_LPR_TIMEOUT(value) ((MPDDRC_LPR_TIMEOUT_Msk & ((value) << MPDDRC_LPR_TIMEOUT_Pos)))
 #define   MPDDRC_LPR_TIMEOUT_NONE (0x0u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated immediately after the end of the last transfer. */
 #define   MPDDRC_LPR_TIMEOUT_DELAY_64_CLK (0x1u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 64 clock cycles after the end of the last transfer. */
-#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12)        /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
+#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
 #define MPDDRC_LPR_APDE (0x1u << 16) /**< \brief (MPDDRC_LPR) Active Power Down Exit Time */
 #define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. */
 #define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. */
@@ -236,6 +236,5 @@ typedef struct {
 #define MPDDRC_WPSR_WPVSRC_Msk (0xffffu << MPDDRC_WPSR_WPVSRC_Pos) /**< \brief (MPDDRC_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAM9X_MPDDRC_COMPONENT_ */

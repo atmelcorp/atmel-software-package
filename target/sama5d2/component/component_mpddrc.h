@@ -39,50 +39,43 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Mpddrc hardware registers */
 typedef struct {
-  __IO uint32_t MPDDRC_MR;              /**< \brief (Mpddrc Offset: 0x00) MPDDRC Mode Register */
-  __IO uint32_t MPDDRC_RTR;             /**< \brief (Mpddrc Offset: 0x04) MPDDRC Refresh Timer Register */
-  __IO uint32_t MPDDRC_CR;              /**< \brief (Mpddrc Offset: 0x08) MPDDRC Configuration Register */
-  __IO uint32_t MPDDRC_TPR0;            /**< \brief (Mpddrc Offset: 0x0C) MPDDRC Timing Parameter 0 Register */
-  __IO uint32_t MPDDRC_TPR1;            /**< \brief (Mpddrc Offset: 0x10) MPDDRC Timing Parameter 1 Register */
-  __IO uint32_t MPDDRC_TPR2;            /**< \brief (Mpddrc Offset: 0x14) MPDDRC Timing Parameter 2 Register */
-  __I  uint32_t Reserved1[1];
-  __IO uint32_t MPDDRC_LPR;             /**< \brief (Mpddrc Offset: 0x1C) MPDDRC Low-power Register */
-  __IO uint32_t MPDDRC_MD;              /**< \brief (Mpddrc Offset: 0x20) MPDDRC Memory Device Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t MPDDRC_LPDDR2_LPR;      /**< \brief (Mpddrc Offset: 0x28) MPDDRC LPDDR2 Low-power Register */
-  __IO uint32_t MPDDRC_LPDDR2_CAL_MR4;  /**< \brief (Mpddrc Offset: 0x2C) MPDDRC LPDDR2 Calibration and MR4 Register */
-  __IO uint32_t MPDDRC_LPDDR2_TIM_CAL;  /**< \brief (Mpddrc Offset: 0x30) MPDDRC LPDDR2 Timing Calibration Register */
-  __IO uint32_t MPDDRC_IO_CALIBR;       /**< \brief (Mpddrc Offset: 0x34) MPDDRC IO Calibration */
-  __IO uint32_t MPDDRC_OCMS;            /**< \brief (Mpddrc Offset: 0x38) MPDDRC OCMS Register */
-  __O  uint32_t MPDDRC_OCMS_KEY1;       /**< \brief (Mpddrc Offset: 0x3C) MPDDRC OCMS KEY1 Register */
-  __O  uint32_t MPDDRC_OCMS_KEY2;       /**< \brief (Mpddrc Offset: 0x40) MPDDRC OCMS KEY2 Register */
-  __IO uint32_t MPDDRC_CONF_ARBITER;    /**< \brief (Mpddrc Offset: 0x44) MPDDRC Configuration Arbiter Register */
-  __IO uint32_t MPDDRC_TIMEOUT;         /**< \brief (Mpddrc Offset: 0x48) MPDDRC Time-out Port 0/1/2/3 Register */
-  __IO uint32_t MPDDRC_REQ_PORT_0123;   /**< \brief (Mpddrc Offset: 0x4C) MPDDRC Request Port 0/1/2/3 Register */
-  __IO uint32_t MPDDRC_REQ_PORT_4567;   /**< \brief (Mpddrc Offset: 0x50) MPDDRC Request Port 4/5/6/7 Register */
-  __I  uint32_t MPDDRC_BDW_PORT_0123;   /**< \brief (Mpddrc Offset: 0x54) MPDDRC Bandwidth Port 0/1/2/3 Register */
-  __I  uint32_t MPDDRC_BDW_PORT_4567;   /**< \brief (Mpddrc Offset: 0x58) MPDDRC Bandwidth Port 4/5/6/7 Register */
-  __IO uint32_t MPDDRC_RD_DATA_PATH;    /**< \brief (Mpddrc Offset: 0x5C) MPDDRC Read Datapath Register */
-  __IO uint32_t MPDDRC_MCFGR;           /**< \brief (Mpddrc Offset: 0x60) MPDDRC Monitor Configuration */
-  __IO uint32_t MPDDRC_MADDR0;          /**< \brief (Mpddrc Offset: 0x64) MPDDRC Monitor Address High/Low port 0 */
-  __IO uint32_t MPDDRC_MADDR1;          /**< \brief (Mpddrc Offset: 0x68) MPDDRC Monitor Address High/Low port 1 */
-  __IO uint32_t MPDDRC_MADDR2;          /**< \brief (Mpddrc Offset: 0x6C) MPDDRC Monitor Address High/Low port 2 */
-  __IO uint32_t MPDDRC_MADDR3;          /**< \brief (Mpddrc Offset: 0x70) MPDDRC Monitor Address High/Low port 3 */
-  __IO uint32_t MPDDRC_MADDR4;          /**< \brief (Mpddrc Offset: 0x74) MPDDRC Monitor Address High/Low port 4 */
-  __IO uint32_t MPDDRC_MADDR5;          /**< \brief (Mpddrc Offset: 0x78) MPDDRC Monitor Address High/Low port 5 */
-  __IO uint32_t MPDDRC_MADDR6;          /**< \brief (Mpddrc Offset: 0x7C) MPDDRC Monitor Address High/Low port 6 */
-  __IO uint32_t MPDDRC_MADDR7;          /**< \brief (Mpddrc Offset: 0x80) MPDDRC Monitor Address High/Low port 7 */
-  __I  uint32_t MPDDRC_MINFO0;          /**< \brief (Mpddrc Offset: 0x84) MPDDRC Monitor Information port 0 */
-  __I  uint32_t MPDDRC_MINFO1;          /**< \brief (Mpddrc Offset: 0x88) MPDDRC Monitor Information port 1 */
-  __I  uint32_t MPDDRC_MINFO2;          /**< \brief (Mpddrc Offset: 0x8C) MPDDRC Monitor Information port 2 */
-  __I  uint32_t MPDDRC_MINFO3;          /**< \brief (Mpddrc Offset: 0x90) MPDDRC Monitor Information port 3 */
-  __I  uint32_t MPDDRC_MINFO4;          /**< \brief (Mpddrc Offset: 0x94) MPDDRC Monitor Information port 4 */
-  __I  uint32_t MPDDRC_MINFO5;          /**< \brief (Mpddrc Offset: 0x98) MPDDRC Monitor Information port 5 */
-  __I  uint32_t MPDDRC_MINFO6;          /**< \brief (Mpddrc Offset: 0x9C) MPDDRC Monitor Information port 6 */
-  __I  uint32_t MPDDRC_MINFO7;          /**< \brief (Mpddrc Offset: 0xA0) MPDDRC Monitor Information port 7 */
-  __I  uint32_t Reserved3[16];
-  __IO uint32_t MPDDRC_WPMR;            /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
-  __I  uint32_t MPDDRC_WPSR;            /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
+	__IO uint32_t MPDDRC_MR;             /**< \brief (Mpddrc Offset: 0x00) MPDDRC Mode Register */
+	__IO uint32_t MPDDRC_RTR;            /**< \brief (Mpddrc Offset: 0x04) MPDDRC Refresh Timer Register */
+	__IO uint32_t MPDDRC_CR;             /**< \brief (Mpddrc Offset: 0x08) MPDDRC Configuration Register */
+	__IO uint32_t MPDDRC_TPR0;           /**< \brief (Mpddrc Offset: 0x0C) MPDDRC Timing Parameter 0 Register */
+	__IO uint32_t MPDDRC_TPR1;           /**< \brief (Mpddrc Offset: 0x10) MPDDRC Timing Parameter 1 Register */
+	__IO uint32_t MPDDRC_TPR2;           /**< \brief (Mpddrc Offset: 0x14) MPDDRC Timing Parameter 2 Register */
+	__I  uint32_t Reserved1[1];
+	__IO uint32_t MPDDRC_LPR;            /**< \brief (Mpddrc Offset: 0x1C) MPDDRC Low-power Register */
+	__IO uint32_t MPDDRC_MD;             /**< \brief (Mpddrc Offset: 0x20) MPDDRC Memory Device Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t MPDDRC_LPDDR2_LPR;     /**< \brief (Mpddrc Offset: 0x28) MPDDRC LPDDR2 Low-power Register */
+	__IO uint32_t MPDDRC_LPDDR2_CAL_MR4; /**< \brief (Mpddrc Offset: 0x2C) MPDDRC LPDDR2 Calibration and MR4 Register */
+	__IO uint32_t MPDDRC_LPDDR2_TIM_CAL; /**< \brief (Mpddrc Offset: 0x30) MPDDRC LPDDR2 Timing Calibration Register */
+	__IO uint32_t MPDDRC_IO_CALIBR;      /**< \brief (Mpddrc Offset: 0x34) MPDDRC IO Calibration */
+	__IO uint32_t MPDDRC_OCMS;           /**< \brief (Mpddrc Offset: 0x38) MPDDRC OCMS Register */
+	__O  uint32_t MPDDRC_OCMS_KEY1;      /**< \brief (Mpddrc Offset: 0x3C) MPDDRC OCMS KEY1 Register */
+	__O  uint32_t MPDDRC_OCMS_KEY2;      /**< \brief (Mpddrc Offset: 0x40) MPDDRC OCMS KEY2 Register */
+	__IO uint32_t MPDDRC_CONF_ARBITER;   /**< \brief (Mpddrc Offset: 0x44) MPDDRC Configuration Arbiter Register */
+	__IO uint32_t MPDDRC_TIMEOUT;        /**< \brief (Mpddrc Offset: 0x48) MPDDRC Time-out Port 0/1/2/3 Register */
+	__IO uint32_t MPDDRC_REQ_PORT_0123;  /**< \brief (Mpddrc Offset: 0x4C) MPDDRC Request Port 0/1/2/3 Register */
+	__IO uint32_t MPDDRC_REQ_PORT_4567;  /**< \brief (Mpddrc Offset: 0x50) MPDDRC Request Port 4/5/6/7 Register */
+	__I  uint32_t MPDDRC_BDW_PORT_0123;  /**< \brief (Mpddrc Offset: 0x54) MPDDRC Bandwidth Port 0/1/2/3 Register */
+	__I  uint32_t MPDDRC_BDW_PORT_4567;  /**< \brief (Mpddrc Offset: 0x58) MPDDRC Bandwidth Port 4/5/6/7 Register */
+	__IO uint32_t MPDDRC_RD_DATA_PATH;   /**< \brief (Mpddrc Offset: 0x5C) MPDDRC Read Datapath Register */
+	__IO uint32_t MPDDRC_MCFGR;          /**< \brief (Mpddrc Offset: 0x60) MPDDRC Monitor Configuration */
+	__IO uint32_t MPDDRC_MADDR0;         /**< \brief (Mpddrc Offset: 0x64) MPDDRC Monitor Address High/Low port 0 */
+	__IO uint32_t MPDDRC_MADDR1;         /**< \brief (Mpddrc Offset: 0x68) MPDDRC Monitor Address High/Low port 1 */
+	__IO uint32_t MPDDRC_MADDR2;         /**< \brief (Mpddrc Offset: 0x6C) MPDDRC Monitor Address High/Low port 2 */
+	__IO uint32_t MPDDRC_MADDR3;         /**< \brief (Mpddrc Offset: 0x70) MPDDRC Monitor Address High/Low port 3 */
+	__IO uint32_t MPDDRC_MADDR4;         /**< \brief (Mpddrc Offset: 0x74) MPDDRC Monitor Address High/Low port 4 */
+	__IO uint32_t MPDDRC_MADDR5;         /**< \brief (Mpddrc Offset: 0x78) MPDDRC Monitor Address High/Low port 5 */
+	__IO uint32_t MPDDRC_MADDR6;         /**< \brief (Mpddrc Offset: 0x7C) MPDDRC Monitor Address High/Low port 6 */
+	__IO uint32_t MPDDRC_MADDR7;         /**< \brief (Mpddrc Offset: 0x80) MPDDRC Monitor Address High/Low port 7 */
+	__I  uint32_t MPDDRC_MINFO[8];       /**< \brief (Mpddrc Offset: 0x84) MPDDRC Monitor Information port 0 */
+	__I  uint32_t Reserved3[16];
+	__IO uint32_t MPDDRC_WPMR;           /**< \brief (Mpddrc Offset: 0xE4) MPDDRC Write Protection Mode Register */
+	__I  uint32_t MPDDRC_WPSR;           /**< \brief (Mpddrc Offset: 0xE8) MPDDRC Write Protection Status Register */
 } Mpddrc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MPDDRC_MR : (MPDDRC Offset: 0x00) MPDDRC Mode Register -------- */
@@ -97,7 +90,7 @@ typedef struct {
 #define   MPDDRC_MR_MODE_EXT_LMR_CMD (0x5u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an Extended Load Mode Register command when the SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. The write in the DDR-SDRAM must be done in the appropriate bank. */
 #define   MPDDRC_MR_MODE_DEEP_CMD (0x6u << 0) /**< \brief (MPDDRC_MR) Deep power mode: Access to deep power-down mode */
 #define   MPDDRC_MR_MODE_CALIB_CMD (0x6u << 0) /**< \brief (MPDDRC_MR) Calibration command: to calibrate RTT and RON values for the Process Voltage Temperature (PVT) (DDR3-SDRAM device) */
-#define   MPDDRC_MR_MODE_LPDDR2_CMD (0x7u << 0)	/**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR2 Mode Register command when the low-power DDR2-SDRAM device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR2-SDRAM. */
+#define   MPDDRC_MR_MODE_LPDDR2_CMD (0x7u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR2 Mode Register command when the low-power DDR2-SDRAM device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR2-SDRAM. */
 #define   MPDDRC_MR_MODE_LPDDR3_CMD (0x7u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an LPDDR3 Mode Register command when the low-power DDR3-SDRAM device is accessed regardless of the cycle. To activate this mode, the Mode Register command must be followed by a write to the low-power DDR3-SDRAM. */
 #define MPDDRC_MR_DAI (0x1u << 4) /**< \brief (MPDDRC_MR) Device Auto-Initialization Status */
 #define   MPDDRC_MR_DAI_DAI_COMPLETE (0x0u << 4) /**< \brief (MPDDRC_MR) DAI complete */
@@ -261,7 +254,7 @@ typedef struct {
 #define MPDDRC_LPR_TIMEOUT(value) ((MPDDRC_LPR_TIMEOUT_Msk & ((value) << MPDDRC_LPR_TIMEOUT_Pos)))
 #define   MPDDRC_LPR_TIMEOUT_NONE (0x0u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated immediately after the end of the last transfer. */
 #define   MPDDRC_LPR_TIMEOUT_DELAY_64_CLK (0x1u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 64 clock cycles after the end of the last transfer. */
-#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12)        /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
+#define   MPDDRC_LPR_TIMEOUT_DELAY_128_CLK (0x2u << 12) /**< \brief (MPDDRC_LPR) SDRAM low-power mode is activated 128 clock cycles after the end of the last transfer. */
 #define MPDDRC_LPR_APDE (0x1u << 16) /**< \brief (MPDDRC_LPR) Active Power Down Exit Time */
 #define   MPDDRC_LPR_APDE_DDR2_FAST_EXIT (0x0u << 16) /**< \brief (MPDDRC_LPR) Fast Exit from Power Down. */
 #define   MPDDRC_LPR_APDE_DDR2_SLOW_EXIT (0x1u << 16) /**< \brief (MPDDRC_LPR) Slow Exit from Power Down. */
@@ -560,198 +553,30 @@ typedef struct {
 #define MPDDRC_MADDR7_ADDR_HIGH_PORT7_Pos 16
 #define MPDDRC_MADDR7_ADDR_HIGH_PORT7_Msk (0xffffu << MPDDRC_MADDR7_ADDR_HIGH_PORT7_Pos) /**< \brief (MPDDRC_MADDR7) Address High on Port x [x =0..7] */
 #define MPDDRC_MADDR7_ADDR_HIGH_PORT7(value) ((MPDDRC_MADDR7_ADDR_HIGH_PORT7_Msk & ((value) << MPDDRC_MADDR7_ADDR_HIGH_PORT7_Pos)))
-/* -------- MPDDRC_MINFO0 : (MPDDRC Offset: 0x84) MPDDRC Monitor Information port 0 -------- */
-#define MPDDRC_MINFO0_MAX_PORT0_WAITING_Pos 0
-#define MPDDRC_MINFO0_MAX_PORT0_WAITING_Msk (0xffffu << MPDDRC_MINFO0_MAX_PORT0_WAITING_Pos) /**< \brief (MPDDRC_MINFO0) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO0_BURST_Pos 16
-#define MPDDRC_MINFO0_BURST_Msk (0x7u << MPDDRC_MINFO0_BURST_Pos) /**< \brief (MPDDRC_MINFO0) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO0_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO0) Single transfer */
-#define   MPDDRC_MINFO0_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO0) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO0_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO0) 4-beat wrapping burst */
-#define   MPDDRC_MINFO0_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO0) 4-beat incrementing burst */
-#define   MPDDRC_MINFO0_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO0) 8-beat wrapping burst */
-#define   MPDDRC_MINFO0_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO0) 8-beat incrementing burst */
-#define   MPDDRC_MINFO0_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO0) 16-beat wrapping burst */
-#define   MPDDRC_MINFO0_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO0) 16-beat incrementing burst */
-#define MPDDRC_MINFO0_SIZE_Pos 20
-#define MPDDRC_MINFO0_SIZE_Msk (0x7u << MPDDRC_MINFO0_SIZE_Pos) /**< \brief (MPDDRC_MINFO0) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO0_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO0) Byte transfer */
-#define   MPDDRC_MINFO0_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO0) Halfword transfer */
-#define   MPDDRC_MINFO0_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO0) Word transfer */
-#define   MPDDRC_MINFO0_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO0) Dword transfer */
-#define MPDDRC_MINFO0_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO0) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO0_P0_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO0_P0_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO0_P0_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO0) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO1 : (MPDDRC Offset: 0x88) MPDDRC Monitor Information port 1 -------- */
-#define MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos 0
-#define MPDDRC_MINFO1_MAX_PORT1_WAITING_Msk (0xffffu << MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos) /**< \brief (MPDDRC_MINFO1) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO1_BURST_Pos 16
-#define MPDDRC_MINFO1_BURST_Msk (0x7u << MPDDRC_MINFO1_BURST_Pos) /**< \brief (MPDDRC_MINFO1) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO1_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO1) Single transfer */
-#define   MPDDRC_MINFO1_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO1) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO1_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO1) 4-beat wrapping burst */
-#define   MPDDRC_MINFO1_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO1) 4-beat incrementing burst */
-#define   MPDDRC_MINFO1_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO1) 8-beat wrapping burst */
-#define   MPDDRC_MINFO1_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO1) 8-beat incrementing burst */
-#define   MPDDRC_MINFO1_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO1) 16-beat wrapping burst */
-#define   MPDDRC_MINFO1_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO1) 16-beat incrementing burst */
-#define MPDDRC_MINFO1_SIZE_Pos 20
-#define MPDDRC_MINFO1_SIZE_Msk (0x7u << MPDDRC_MINFO1_SIZE_Pos) /**< \brief (MPDDRC_MINFO1) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO1_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO1) Byte transfer */
-#define   MPDDRC_MINFO1_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO1) Halfword transfer */
-#define   MPDDRC_MINFO1_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO1) Word transfer */
-#define   MPDDRC_MINFO1_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO1) Dword transfer */
-#define MPDDRC_MINFO1_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO1) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO1_P1_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO1_P1_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO1_P1_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO1) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO2 : (MPDDRC Offset: 0x8C) MPDDRC Monitor Information port 2 -------- */
-#define MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos 0
-#define MPDDRC_MINFO2_MAX_PORT2_WAITING_Msk (0xffffu << MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos) /**< \brief (MPDDRC_MINFO2) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO2_BURST_Pos 16
-#define MPDDRC_MINFO2_BURST_Msk (0x7u << MPDDRC_MINFO2_BURST_Pos) /**< \brief (MPDDRC_MINFO2) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO2_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO2) Single transfer */
-#define   MPDDRC_MINFO2_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO2) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO2_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO2) 4-beat wrapping burst */
-#define   MPDDRC_MINFO2_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO2) 4-beat incrementing burst */
-#define   MPDDRC_MINFO2_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO2) 8-beat wrapping burst */
-#define   MPDDRC_MINFO2_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO2) 8-beat incrementing burst */
-#define   MPDDRC_MINFO2_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO2) 16-beat wrapping burst */
-#define   MPDDRC_MINFO2_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO2) 16-beat incrementing burst */
-#define MPDDRC_MINFO2_SIZE_Pos 20
-#define MPDDRC_MINFO2_SIZE_Msk (0x7u << MPDDRC_MINFO2_SIZE_Pos) /**< \brief (MPDDRC_MINFO2) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO2_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO2) Byte transfer */
-#define   MPDDRC_MINFO2_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO2) Halfword transfer */
-#define   MPDDRC_MINFO2_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO2) Word transfer */
-#define   MPDDRC_MINFO2_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO2) Dword transfer */
-#define MPDDRC_MINFO2_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO2) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO2_P2_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO2_P2_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO2_P2_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO2) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO3 : (MPDDRC Offset: 0x90) MPDDRC Monitor Information port 3 -------- */
-#define MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos 0
-#define MPDDRC_MINFO3_MAX_PORT3_WAITING_Msk (0xffffu << MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos) /**< \brief (MPDDRC_MINFO3) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO3_BURST_Pos 16
-#define MPDDRC_MINFO3_BURST_Msk (0x7u << MPDDRC_MINFO3_BURST_Pos) /**< \brief (MPDDRC_MINFO3) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO3_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO3) Single transfer */
-#define   MPDDRC_MINFO3_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO3) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO3_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO3) 4-beat wrapping burst */
-#define   MPDDRC_MINFO3_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO3) 4-beat incrementing burst */
-#define   MPDDRC_MINFO3_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO3) 8-beat wrapping burst */
-#define   MPDDRC_MINFO3_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO3) 8-beat incrementing burst */
-#define   MPDDRC_MINFO3_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO3) 16-beat wrapping burst */
-#define   MPDDRC_MINFO3_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO3) 16-beat incrementing burst */
-#define MPDDRC_MINFO3_SIZE_Pos 20
-#define MPDDRC_MINFO3_SIZE_Msk (0x7u << MPDDRC_MINFO3_SIZE_Pos) /**< \brief (MPDDRC_MINFO3) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO3_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO3) Byte transfer */
-#define   MPDDRC_MINFO3_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO3) Halfword transfer */
-#define   MPDDRC_MINFO3_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO3) Word transfer */
-#define   MPDDRC_MINFO3_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO3) Dword transfer */
-#define MPDDRC_MINFO3_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO3) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO3_P3_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO3_P3_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO3_P3_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO3) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO4 : (MPDDRC Offset: 0x94) MPDDRC Monitor Information port 4 -------- */
-#define MPDDRC_MINFO4_MAX_PORT4_WAITING_Pos 0
-#define MPDDRC_MINFO4_MAX_PORT4_WAITING_Msk (0xffffu << MPDDRC_MINFO4_MAX_PORT4_WAITING_Pos) /**< \brief (MPDDRC_MINFO4) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO4_BURST_Pos 16
-#define MPDDRC_MINFO4_BURST_Msk (0x7u << MPDDRC_MINFO4_BURST_Pos) /**< \brief (MPDDRC_MINFO4) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO4_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO4) Single transfer */
-#define   MPDDRC_MINFO4_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO4) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO4_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO4) 4-beat wrapping burst */
-#define   MPDDRC_MINFO4_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO4) 4-beat incrementing burst */
-#define   MPDDRC_MINFO4_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO4) 8-beat wrapping burst */
-#define   MPDDRC_MINFO4_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO4) 8-beat incrementing burst */
-#define   MPDDRC_MINFO4_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO4) 16-beat wrapping burst */
-#define   MPDDRC_MINFO4_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO4) 16-beat incrementing burst */
-#define MPDDRC_MINFO4_SIZE_Pos 20
-#define MPDDRC_MINFO4_SIZE_Msk (0x7u << MPDDRC_MINFO4_SIZE_Pos) /**< \brief (MPDDRC_MINFO4) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO4_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO4) Byte transfer */
-#define   MPDDRC_MINFO4_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO4) Halfword transfer */
-#define   MPDDRC_MINFO4_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO4) Word transfer */
-#define   MPDDRC_MINFO4_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO4) Dword transfer */
-#define MPDDRC_MINFO4_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO4) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO4_P4_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO4_P4_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO4_P4_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO4) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO4_P4_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO4_P4_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO4_P4_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO4) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO5 : (MPDDRC Offset: 0x98) MPDDRC Monitor Information port 5 -------- */
-#define MPDDRC_MINFO5_MAX_PORT5_WAITING_Pos 0
-#define MPDDRC_MINFO5_MAX_PORT5_WAITING_Msk (0xffffu << MPDDRC_MINFO5_MAX_PORT5_WAITING_Pos) /**< \brief (MPDDRC_MINFO5) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO5_BURST_Pos 16
-#define MPDDRC_MINFO5_BURST_Msk (0x7u << MPDDRC_MINFO5_BURST_Pos) /**< \brief (MPDDRC_MINFO5) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO5_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO5) Single transfer */
-#define   MPDDRC_MINFO5_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO5) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO5_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO5) 4-beat wrapping burst */
-#define   MPDDRC_MINFO5_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO5) 4-beat incrementing burst */
-#define   MPDDRC_MINFO5_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO5) 8-beat wrapping burst */
-#define   MPDDRC_MINFO5_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO5) 8-beat incrementing burst */
-#define   MPDDRC_MINFO5_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO5) 16-beat wrapping burst */
-#define   MPDDRC_MINFO5_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO5) 16-beat incrementing burst */
-#define MPDDRC_MINFO5_SIZE_Pos 20
-#define MPDDRC_MINFO5_SIZE_Msk (0x7u << MPDDRC_MINFO5_SIZE_Pos) /**< \brief (MPDDRC_MINFO5) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO5_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO5) Byte transfer */
-#define   MPDDRC_MINFO5_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO5) Halfword transfer */
-#define   MPDDRC_MINFO5_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO5) Word transfer */
-#define   MPDDRC_MINFO5_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO5) Dword transfer */
-#define MPDDRC_MINFO5_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO5) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO5_P5_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO5_P5_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO5_P5_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO5) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO5_P5_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO5_P5_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO5_P5_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO5) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO6 : (MPDDRC Offset: 0x9C) MPDDRC Monitor Information port 6 -------- */
-#define MPDDRC_MINFO6_MAX_PORT6_WAITING_Pos 0
-#define MPDDRC_MINFO6_MAX_PORT6_WAITING_Msk (0xffffu << MPDDRC_MINFO6_MAX_PORT6_WAITING_Pos) /**< \brief (MPDDRC_MINFO6) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO6_BURST_Pos 16
-#define MPDDRC_MINFO6_BURST_Msk (0x7u << MPDDRC_MINFO6_BURST_Pos) /**< \brief (MPDDRC_MINFO6) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO6_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO6) Single transfer */
-#define   MPDDRC_MINFO6_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO6) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO6_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO6) 4-beat wrapping burst */
-#define   MPDDRC_MINFO6_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO6) 4-beat incrementing burst */
-#define   MPDDRC_MINFO6_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO6) 8-beat wrapping burst */
-#define   MPDDRC_MINFO6_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO6) 8-beat incrementing burst */
-#define   MPDDRC_MINFO6_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO6) 16-beat wrapping burst */
-#define   MPDDRC_MINFO6_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO6) 16-beat incrementing burst */
-#define MPDDRC_MINFO6_SIZE_Pos 20
-#define MPDDRC_MINFO6_SIZE_Msk (0x7u << MPDDRC_MINFO6_SIZE_Pos) /**< \brief (MPDDRC_MINFO6) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO6_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO6) Byte transfer */
-#define   MPDDRC_MINFO6_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO6) Halfword transfer */
-#define   MPDDRC_MINFO6_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO6) Word transfer */
-#define   MPDDRC_MINFO6_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO6) Dword transfer */
-#define MPDDRC_MINFO6_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO6) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO6_P6_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO6_P6_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO6_P6_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO6) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO6_P6_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO6_P6_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO6_P6_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO6) Total Latency on Port x [x =0..7] */
-/* -------- MPDDRC_MINFO7 : (MPDDRC Offset: 0xA0) MPDDRC Monitor Information port 7 -------- */
-#define MPDDRC_MINFO7_MAX_PORT7_WAITING_Pos 0
-#define MPDDRC_MINFO7_MAX_PORT7_WAITING_Msk (0xffffu << MPDDRC_MINFO7_MAX_PORT7_WAITING_Pos) /**< \brief (MPDDRC_MINFO7) Address High on Port x [x =0..7] */
-#define MPDDRC_MINFO7_BURST_Pos 16
-#define MPDDRC_MINFO7_BURST_Msk (0x7u << MPDDRC_MINFO7_BURST_Pos) /**< \brief (MPDDRC_MINFO7) Type of Burst on Port x [x =0..7] */
-#define   MPDDRC_MINFO7_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO7) Single transfer */
-#define   MPDDRC_MINFO7_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO7) Incrementing burst of unspecified length */
-#define   MPDDRC_MINFO7_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO7) 4-beat wrapping burst */
-#define   MPDDRC_MINFO7_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO7) 4-beat incrementing burst */
-#define   MPDDRC_MINFO7_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO7) 8-beat wrapping burst */
-#define   MPDDRC_MINFO7_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO7) 8-beat incrementing burst */
-#define   MPDDRC_MINFO7_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO7) 16-beat wrapping burst */
-#define   MPDDRC_MINFO7_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO7) 16-beat incrementing burst */
-#define MPDDRC_MINFO7_SIZE_Pos 20
-#define MPDDRC_MINFO7_SIZE_Msk (0x7u << MPDDRC_MINFO7_SIZE_Pos) /**< \brief (MPDDRC_MINFO7) Transfer Size on Port x [x =0..7] */
-#define   MPDDRC_MINFO7_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO7) Byte transfer */
-#define   MPDDRC_MINFO7_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO7) Halfword transfer */
-#define   MPDDRC_MINFO7_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO7) Word transfer */
-#define   MPDDRC_MINFO7_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO7) Dword transfer */
-#define MPDDRC_MINFO7_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO7) Read or Write Access on Port x [x =0..7] */
-#define MPDDRC_MINFO7_P7_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO7_P7_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO7_P7_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO7) Number of Transfers on Port x [x =0..7] */
-#define MPDDRC_MINFO7_P7_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO7_P7_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO7_P7_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO7) Total Latency on Port x [x =0..7] */
+/* -------- MPDDRC_MINFO[8] : (MPDDRC Offset: 0x84) MPDDRC Monitor Information port 0 -------- */
+#define MPDDRC_MINFO_MAX_PORT0_WAITING_Pos 0
+#define MPDDRC_MINFO_MAX_PORT0_WAITING_Msk (0xffffu << MPDDRC_MINFO_MAX_PORT0_WAITING_Pos) /**< \brief (MPDDRC_MINFO[8]) Address High on Port x [x =0..7] */
+#define MPDDRC_MINFO_BURST_Pos 16
+#define MPDDRC_MINFO_BURST_Msk (0x7u << MPDDRC_MINFO_BURST_Pos) /**< \brief (MPDDRC_MINFO[8]) Type of Burst on Port x [x =0..7] */
+#define   MPDDRC_MINFO_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO[8]) Single transfer */
+#define   MPDDRC_MINFO_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO[8]) Incrementing burst of unspecified length */
+#define   MPDDRC_MINFO_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO[8]) 4-beat wrapping burst */
+#define   MPDDRC_MINFO_BURST_INCR4 (0x3u << 16) /**< \brief (MPDDRC_MINFO[8]) 4-beat incrementing burst */
+#define   MPDDRC_MINFO_BURST_WRAP8 (0x4u << 16) /**< \brief (MPDDRC_MINFO[8]) 8-beat wrapping burst */
+#define   MPDDRC_MINFO_BURST_INCR8 (0x5u << 16) /**< \brief (MPDDRC_MINFO[8]) 8-beat incrementing burst */
+#define   MPDDRC_MINFO_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO[8]) 16-beat wrapping burst */
+#define   MPDDRC_MINFO_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO[8]) 16-beat incrementing burst */
+#define MPDDRC_MINFO_SIZE_Pos 20
+#define MPDDRC_MINFO_SIZE_Msk (0x7u << MPDDRC_MINFO_SIZE_Pos) /**< \brief (MPDDRC_MINFO[8]) Transfer Size on Port x [x =0..7] */
+#define   MPDDRC_MINFO_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO[8]) Byte transfer */
+#define   MPDDRC_MINFO_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO[8]) Halfword transfer */
+#define   MPDDRC_MINFO_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO[8]) Word transfer */
+#define   MPDDRC_MINFO_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO[8]) Dword transfer */
+#define MPDDRC_MINFO_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO[8]) Read or Write Access on Port x [x =0..7] */
+#define MPDDRC_MINFO_P0_NB_TRANSFERS_Pos 0
+#define MPDDRC_MINFO_P0_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO_P0_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO[8]) Number of Transfers on Port x [x =0..7] */
+#define MPDDRC_MINFO_P0_TOTAL_LATENCY_Pos 0
+#define MPDDRC_MINFO_P0_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO_P0_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO[8]) Total Latency on Port x [x =0..7] */
 /* -------- MPDDRC_WPMR : (MPDDRC Offset: 0xE4) MPDDRC Write Protection Mode Register -------- */
 #define MPDDRC_WPMR_WPEN (0x1u << 0) /**< \brief (MPDDRC_WPMR) Write Protection Enable */
 #define MPDDRC_WPMR_WPKEY_Pos 8
