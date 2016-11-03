@@ -59,6 +59,7 @@ drivers-y += drivers/peripherals/spid.o
 drivers-y += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/tc.o
 drivers-$(CONFIG_HAVE_TDES) += drivers/peripherals/tdes.o
+drivers-$(CONFIG_HAVE_TDES) += drivers/peripherals/tdesd.o
 drivers-$(CONFIG_HAVE_TRNG) += drivers/peripherals/trng.o
 drivers-y += drivers/peripherals/twi.o
 drivers-y += drivers/peripherals/twid.o
