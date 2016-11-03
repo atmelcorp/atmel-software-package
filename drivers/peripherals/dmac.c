@@ -201,7 +201,7 @@ void dmac_set_src_addr(Dmac *dmac, uint8_t channel, void *addr)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_SADDR = (uint32_t)addr;
+	dmac->DMAC_CH[channel].DMAC_SADDR = (uint32_t)addr;
 }
 
 void dmac_set_dest_addr(Dmac *dmac, uint8_t channel, void *addr)
@@ -209,7 +209,7 @@ void dmac_set_dest_addr(Dmac *dmac, uint8_t channel, void *addr)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_DADDR = (uint32_t)addr;
+	dmac->DMAC_CH[channel].DMAC_DADDR = (uint32_t)addr;
 }
 
 uint32_t dmac_get_channel_src_addr(Dmac *dmac, uint8_t channel)
@@ -217,7 +217,7 @@ uint32_t dmac_get_channel_src_addr(Dmac *dmac, uint8_t channel)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	return dmac->DMAC_CH_NUM[channel].DMAC_SADDR;
+	return dmac->DMAC_CH[channel].DMAC_SADDR;
 }
 
 uint32_t dmac_get_channel_dest_addr(Dmac *dmac, uint8_t channel)
@@ -225,7 +225,7 @@ uint32_t dmac_get_channel_dest_addr(Dmac *dmac, uint8_t channel)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	return dmac->DMAC_CH_NUM[channel].DMAC_DADDR;
+	return dmac->DMAC_CH[channel].DMAC_DADDR;
 }
 
 void dmac_set_descriptor_addr(Dmac *dmac, uint8_t channel, void *addr,
@@ -234,7 +234,7 @@ void dmac_set_descriptor_addr(Dmac *dmac, uint8_t channel, void *addr,
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_DSCR = (((uint32_t)addr) & 0xFFFFFFFC) | ndaif;
+	dmac->DMAC_CH[channel].DMAC_DSCR = (((uint32_t)addr) & 0xFFFFFFFC) | ndaif;
 }
 
 uint32_t dmac_get_descriptor_addr(Dmac *dmac, uint8_t channel)
@@ -242,7 +242,7 @@ uint32_t dmac_get_descriptor_addr(Dmac *dmac, uint8_t channel)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	return dmac->DMAC_CH_NUM[channel].DMAC_DSCR & (~DMAC_DSCR_DSCR_IF_Msk);
+	return dmac->DMAC_CH[channel].DMAC_DSCR & (~DMAC_DSCR_DSCR_IF_Msk);
 }
 
 void dmac_set_control_a(Dmac *dmac, uint8_t channel,
@@ -250,7 +250,7 @@ void dmac_set_control_a(Dmac *dmac, uint8_t channel,
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
-	dmac->DMAC_CH_NUM[channel].DMAC_CTRLA = config;
+	dmac->DMAC_CH[channel].DMAC_CTRLA = config;
 }
 
 void dmac_set_control_b(Dmac *dmac, uint8_t channel,
@@ -259,7 +259,7 @@ void dmac_set_control_b(Dmac *dmac, uint8_t channel,
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_CTRLB = config;
+	dmac->DMAC_CH[channel].DMAC_CTRLB = config;
 }
 
 void dmac_set_channel_config(Dmac *dmac, uint8_t channel, uint32_t config)
@@ -267,21 +267,21 @@ void dmac_set_channel_config(Dmac *dmac, uint8_t channel, uint32_t config)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_CFG = config;
+	dmac->DMAC_CH[channel].DMAC_CFG = config;
 }
 
 bool is_dmac_auto_transfer(Dmac *dmac, uint8_t channel)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
-	return (dmac->DMAC_CH_NUM[channel].DMAC_CTRLB & DMAC_CTRLB_AUTO_ENABLE);
+	return (dmac->DMAC_CH[channel].DMAC_CTRLB & DMAC_CTRLB_AUTO_ENABLE);
 }
 
 void dmac_auto_clear(Dmac *dmac, uint8_t channel)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
-	dmac->DMAC_CH_NUM[channel].DMAC_CTRLB &= ~DMAC_CTRLB_AUTO;
+	dmac->DMAC_CH[channel].DMAC_CTRLB &= ~DMAC_CTRLB_AUTO;
 }
 
 uint32_t dmac_get_channel_config(Dmac *dmac, uint8_t channel)
@@ -289,7 +289,7 @@ uint32_t dmac_get_channel_config(Dmac *dmac, uint8_t channel)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	return dmac->DMAC_CH_NUM[channel].DMAC_CFG;
+	return dmac->DMAC_CH[channel].DMAC_CFG;
 }
 
 void dmac_set_src_pip(Dmac *dmac, uint8_t channel, uint32_t pip)
@@ -297,7 +297,7 @@ void dmac_set_src_pip(Dmac *dmac, uint8_t channel, uint32_t pip)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_SPIP = pip;
+	dmac->DMAC_CH[channel].DMAC_SPIP = pip;
 }
 
 void dmac_set_des_pip(Dmac *dmac, uint8_t channel, uint32_t pip)
@@ -305,14 +305,14 @@ void dmac_set_des_pip(Dmac *dmac, uint8_t channel, uint32_t pip)
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
 
-	dmac->DMAC_CH_NUM[channel].DMAC_DPIP = pip;
+	dmac->DMAC_CH[channel].DMAC_DPIP = pip;
 }
 
 uint32_t dmac_get_btsize(Dmac *dmac, uint8_t channel)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);
-	return (dmac->DMAC_CH_NUM[channel].DMAC_CTRLA & DMAC_CTRLA_BTSIZE_Msk);
+	return (dmac->DMAC_CH[channel].DMAC_CTRLA & DMAC_CTRLA_BTSIZE_Msk);
 }
 
 void dmac_fifo_flush(Dmac *dmac, uint8_t channel)

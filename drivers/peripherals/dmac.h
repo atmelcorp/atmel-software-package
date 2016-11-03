@@ -82,7 +82,7 @@
 #define DMAC_CONTROLLERS 2
 
 /** Number of DMA channels */
-#define DMAC_CHANNELS (DMACCH_NUM_NUMBER)
+#define DMAC_CHANNELS FIELD_ARRAY_SIZE(Dmac, DMAC_CH)
 
 /** Max DMA single transfer size */
 #define DMAC_MAX_BT_SIZE 0xFFFF
