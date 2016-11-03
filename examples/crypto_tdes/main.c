@@ -46,7 +46,9 @@
  * - SAMA5D2-XULT
  * - SAMA5D4-EK
  * - SAMA5D4-XULT
- *
+ * - SAMA5D3-EK
+ * - SAMA5D3-XULT
+
  * \section Description
  * This example shows how to configure TDES in encryption and decryption modes.
  * In encryption mode, it encrypts plain text in one of the ECB/CBC/OFB/CFB
@@ -83,8 +85,8 @@
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *
  *     TDES menu:
- *     Press [s|t|x] to set algorithm for encryption/decryption
- *     Press [k] set key algorithm (three key or two key mode, no need for DES)
+ *     Press [s|t|x] to set tdesd.cfg.algorithm for encryption/decryption
+ *     Press [k] set key tdesd.cfg.algorithm (three key or two key mode, no need for DES)
  *     Press [0|1|2|3] to set the Mode of Operation
  *     Press [m|a|d] to set Start Mode
  *        p: Begin the encryption/decryption process
@@ -113,9 +115,7 @@
 #include "compiler.h"
 #include "chip.h"
 #include "peripherals/tdes.h"
-#include "peripherals/pmc.h"
-#include "peripherals/aic.h"
-#include "peripherals/dma.h"
+#include "peripherals/tdesd.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -165,103 +165,23 @@ char example_text[DATA_LEN_INBYTE] = "\
  * between these buffers and the variables placed on a same cache line.
  * Alternatively, we might consider allocating these buffers from a
  * non-cacheable memory region. */
+ 
 CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
 
-static uint32_t algo, op_mode, start_mode, key_mode;
-static volatile bool data_ready = false;
+static uint32_t  key_mode;
 
-static struct dma_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
-
-/* DMA linked lists */
-CACHE_ALIGNED static struct dma_xfer_item dma_wr_dlist[DATA_LEN_INWORD];
-CACHE_ALIGNED static struct dma_xfer_item dma_rd_dlist[DATA_LEN_INWORD];
-
+/* TDES driver instance */
+static struct _tdesd_desc tdesd;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-/**
- * \brief DMA init.
- */
-static void init_dma(void)
+
+static void tdes_callback(void* args)
 {
-	/* Initialize DMA driver instance with polling mode */
-	/* Allocate DMA channels:
-	 * 1. Write accesses into TDES_IDATARx
-	 * 2. Read accesses into TDES_ODATARx */
-	dma_wr_chan = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_TDES);
-	dma_rd_chan = dma_allocate_channel(ID_TDES, DMA_PERIPH_MEMORY);
-	if (!dma_wr_chan || !dma_rd_chan)
-		printf("-E- Can't allocate DMA channel\n\r");
-}
-
-/**
- * \brief Configure DMA write linker list for TDES transfer.
- * \param buf  Pointer to data buffer.
- * \param len  Count of 32-bit data blocks.
- */
-static void configure_dma_write(uint32_t *buf, uint32_t len)
-{
-	uint32_t i;
-	static struct dma_xfer_item_tmpl cfg;
-
-	for (i = 0; i < len; i++) {
-		cfg.sa = &buf[i];
-		cfg.da = (void*)&TDES->TDES_IDATAR[0];
-		cfg.upd_sa_per_data = 1;
-		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		cfg.blk_size = 1;
-		dma_prepare_item(dma_wr_chan, &cfg, &dma_wr_dlist[i]);
-		dma_link_item(dma_wr_chan, &dma_wr_dlist[i], &dma_wr_dlist[i + 1]);
-	}
-	dma_link_item(dma_wr_chan, &dma_wr_dlist[i - 1], NULL);
-	cache_clean_region(dma_wr_dlist, sizeof(dma_wr_dlist));
-	dma_configure_sg_transfer(dma_wr_chan, &cfg, dma_wr_dlist);
-}
-
-/**
- * \brief Configure DMA read linker list for TDES transfer.
- * \param buf  Pointer to data buffer.
- * \param len  Count of 32-bit data blocks.
- */
-static void configure_dma_read(uint32_t *buf, uint32_t len)
-{
-	uint32_t i;
-	static struct dma_xfer_item_tmpl cfg;
-
-	for (i = 0; i < len; i++) {
-		cfg.sa = (void*)&TDES->TDES_ODATAR[0];
-		cfg.da = &buf[i];
-		cfg.upd_sa_per_data = 0;
-		cfg.upd_da_per_data = 1;
-		cfg.upd_sa_per_blk  = 0;
-		cfg.upd_da_per_blk  = 1;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		cfg.blk_size = 1;
-		dma_prepare_item(dma_rd_chan, &cfg, &dma_rd_dlist[i]);
-		dma_link_item(dma_rd_chan, &dma_rd_dlist[i], &dma_rd_dlist[i + 1]);
-	}
-	dma_link_item(dma_rd_chan, &dma_rd_dlist[i - 1], NULL);
-	cache_clean_region(dma_rd_dlist, sizeof(dma_rd_dlist));
-	dma_configure_sg_transfer(dma_rd_chan, &cfg, dma_rd_dlist);
-}
-
-/**
- * \brief TDES interrupt hander.
- */
-static void handle_tdes_irq(void)
-{
-	if ((tdes_get_status() & TDES_ISR_DATRDY) == TDES_ISR_DATRDY) {
-		tdes_disable_it(TDES_IER_DATRDY);
-		data_ready = true;
-	}
+	printf("-I- transfer completed\r\n");
 }
 
 /**
@@ -273,63 +193,29 @@ static void handle_tdes_irq(void)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
-	const bool use_dma = start_mode == TDES_MR_SMOD_IDATAR0_START;
-	uint32_t rc = 0;
+	struct _buffer buf_in = {
+		.data = (uint8_t*)in,
+		.size = DATA_LEN_INBYTE,
+	};
+	struct _buffer buf_out = {
+		.data = (uint8_t*)out,
+		.size = DATA_LEN_INBYTE,
+	};
 
-	uint32_t i;
+	tdesd.cfg.encrypt = encrypt;
+	tdesd.cfg.key_mode = (enum _tdesd_key_mode)key_mode;
+	tdesd.cfg.key[0] = TDES_KEY1_0;
+	tdesd.cfg.key[1] = TDES_KEY1_1;
+	tdesd.cfg.key[2] = TDES_KEY2_0;
+	tdesd.cfg.key[3] = TDES_KEY2_1;
+	tdesd.cfg.key[4] = TDES_KEY3_0;
+	tdesd.cfg.key[5] = TDES_KEY3_1;
+	tdesd.cfg.vector[0] = TDES_VECTOR_0;
+	tdesd.cfg.vector[1] = TDES_VECTOR_1;
 
-	tdes_configure((encrypt ?
-		TDES_MR_CIPHER_ENCRYPT : TDES_MR_CIPHER_DECRYPT)
-		| algo | key_mode | start_mode | op_mode);
-	/* Write the 64-bit key(s) in the different Key Word Registers,
-	 * depending on whether one, two or three keys are required. */
-	tdes_write_key1(TDES_KEY1_0, TDES_KEY1_1);
-	tdes_write_key2(TDES_KEY2_0, TDES_KEY2_1);
-	if (key_mode == 0)
-		tdes_write_key3(TDES_KEY3_0, TDES_KEY3_1);
-	else
-		tdes_write_key3(0, 0);
-	/* The Initialization Vector Registers apply to all modes except ECB. */
-	if (op_mode != TDES_MR_OPMOD_ECB)
-		tdes_set_vector(TDES_VECTOR_0, TDES_VECTOR_1);
+	tdesd_configure_mode(&tdesd);
 
-	if (use_dma) {
-		init_dma();
-		if (encrypt)
-			cache_clean_region(in, DATA_LEN_INBYTE);
-		configure_dma_write(in, DATA_LEN_INWORD);
-		configure_dma_read(out, DATA_LEN_INWORD);
-		printf("-I- TDES %scryption, starting dual DMA transfer"
-			   "\n\r", encrypt ? "en" : "de");
-		rc = dma_start_transfer(dma_wr_chan);
-		if (rc == DMA_OK)
-			rc = dma_start_transfer(dma_rd_chan);
-		if (rc == DMA_OK) {
-			while (!dma_is_transfer_done(dma_rd_chan))
-				dma_poll();
-			dma_stop_transfer(dma_rd_chan);
-			dma_stop_transfer(dma_wr_chan);
-		}
-		dma_free_channel(dma_rd_chan); dma_rd_chan = NULL;
-		dma_free_channel(dma_wr_chan); dma_wr_chan = NULL;
-		cache_invalidate_region(out, DATA_LEN_INBYTE);
-	} else
-
-		/* Iterate per 64-bit data block */
-		for (i = 0; i < DATA_LEN_INWORD; i += 2) {
-			data_ready = false;
-			tdes_enable_it(TDES_IER_DATRDY);
-			/* Write one 64-bit input data block to the authorized
-			 * Input Data Registers */
-			tdes_set_input(in[i], in[i + 1]);
-			if (start_mode == TDES_MR_SMOD_MANUAL_START)
-				/* Set the START bit in the TDES Control
-				 * register to begin the encryption or
-				 * decryption process. */
-				tdes_start();
-			while (!data_ready) ;
-			tdes_get_output(&out[i], &out[i + 1]);
-		}
+	tdesd_transfer(&tdesd, &buf_in, &buf_out, tdes_callback, NULL);
 }
 
 /**
@@ -339,12 +225,6 @@ static void start_tdes(void)
 {
 	uint32_t i;
 	uint8_t c;
-
-	/* Perform a software-triggered hardware reset of the TDES interface */
-	tdes_soft_reset();
-
-	if (algo == TDES_MR_TDESMOD(2))
-		tdes_set_xtea_rounds(32);
 
 	memcpy((char*)msg_in_clear, example_text, sizeof(example_text));
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
@@ -380,35 +260,73 @@ static void display_menu(void)
 	uint8_t chk_box[4];
 
 	printf("\n\rTDES menu:\n\r");
-	printf("Press [s|t|x] to set algorithm for encryption/decryption\n\r");
-	chk_box[0] = (algo == TDES_MR_TDESMOD(0)) ? 'X' : ' ';
-	chk_box[1] = (algo == TDES_MR_TDESMOD(1)) ? 'X' : ' ';
-	chk_box[2] = (algo == TDES_MR_TDESMOD(2)) ? 'X' : ' ';
+	printf("Press [s|t|x] to set tdesd.cfg.algorithm for encryption/decryption\n\r");
+	chk_box[0] = (tdesd.cfg.algo == TDESD_ALGO_SINGLE) ? 'X' : ' ';
+	chk_box[1] = (tdesd.cfg.algo == TDESD_ALGO_TRIPLE) ? 'X' : ' ';
+	chk_box[2] = (tdesd.cfg.algo == TDESD_ALGO_XTEA) ? 'X' : ' ';
 	printf("   s: SINGLE[%c] t: TRIPLE[%c] x: XTEA[%c]\n\r", chk_box[0],
 	       chk_box[1], chk_box[2]);
 	printf("Press [k] set key algorithm (three key or two key mode, no need"
 	       " for DES)\n\r");
-	chk_box[0] = (key_mode == 0) ? 'X' : ' ';
-	chk_box[1] = (key_mode == TDES_MR_KEYMOD) ? 'X' : ' ';
+	chk_box[0] = (key_mode == TDESD_KEY_THREE) ? 'X' : ' ';
+	chk_box[1] = (key_mode == TDESD_KEY_TWO) ? 'X' : ' ';
 	printf("   Three key[%c] Two key[%c] \n\r", chk_box[0], chk_box[1]);
 	printf("Press [0|1|2|3] to set the Mode of Operation\n\r");
-	chk_box[0] = (op_mode == TDES_MR_OPMOD_ECB) ? 'X' : ' ';
-	chk_box[1] = (op_mode == TDES_MR_OPMOD_CBC) ? 'X' : ' ';
-	chk_box[2] = (op_mode == TDES_MR_OPMOD_OFB) ? 'X' : ' ';
-	chk_box[3] = (op_mode == TDES_MR_OPMOD_CFB) ? 'X' : ' ';
+	chk_box[0] = (tdesd.cfg.mode == TDESD_MODE_ECB) ? 'X' : ' ';
+	chk_box[1] = (tdesd.cfg.mode == TDESD_MODE_CBC) ? 'X' : ' ';
+	chk_box[2] = (tdesd.cfg.mode == TDESD_MODE_OFB) ? 'X' : ' ';
+	chk_box[3] = (tdesd.cfg.mode == TDESD_MODE_CFB) ? 'X' : ' ';
 	printf("   0: Electronic Code Book    [%c]\n\r", chk_box[0]);
 	printf("   1: Cipher Block Chaining   [%c]\n\r", chk_box[1]);
 	printf("   2: Output Feedback         [%c]\n\r", chk_box[2]);
 	printf("   3: Cipher Feedback         [%c]\n\r", chk_box[3]);
 	printf("Press [m|a|d] to set Start Mode\n\r");
-	chk_box[0] = (start_mode == TDES_MR_SMOD_MANUAL_START) ? 'X' : ' ';
-	chk_box[1] = (start_mode == TDES_MR_SMOD_AUTO_START) ? 'X' : ' ';
-	chk_box[2] = (start_mode == TDES_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
+	chk_box[0] = (tdesd.cfg.transfer_mode == TDESD_TRANS_POLLING_MANUAL) ? 'X' : ' ';
+	chk_box[1] = (tdesd.cfg.transfer_mode == TDESD_TRANS_POLLING_AUTO) ? 'X' : ' ';
+	chk_box[2] = (tdesd.cfg.transfer_mode == TDESD_TRANS_DMA) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
 	       chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Begin the encryption/decryption process\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
+}
+
+
+/**
+ * \brief Display sub menu for CFB mode.
+ */
+static void display_cipher_menu(void)
+{
+	uint8_t chk_box[4];
+
+	printf("\n\rAES Cipher Feedback Menu:\n\r");
+	printf("Press [0|1|2|3] to set the cipher data size\n\r");
+	chk_box[0] = (tdesd.cfg.cfbs == TDESD_CFBS_64) ? 'X' : ' ';
+	chk_box[1] = (tdesd.cfg.cfbs == TDESD_CFBS_32) ? 'X' : ' ';
+	chk_box[2] = (tdesd.cfg.cfbs == TDESD_CFBS_16) ? 'X' : ' ';
+	chk_box[3] = (tdesd.cfg.cfbs == TDESD_CFBS_8) ? 'X' : ' ';
+	printf("   0: 64 bits [%c]\n\r", chk_box[0]);
+	printf("   1: 32 bits [%c]\n\r", chk_box[1]);
+	printf("   2: 16 bits [%c]\n\r", chk_box[2]);
+	printf("   3: 8 bits [%c]\n\r", chk_box[3]);
+	printf("\n\r");
+}
+
+/**
+ * \brief Set cipher data size.
+ */
+static void set_cipher_size(void)
+{
+	uint8_t user_key;
+
+	while (true) {
+		user_key = tolower(console_get_char());
+		if (user_key >= '0' && user_key <= '3') {
+			tdesd.cfg.cfbs = (enum _tdesd_cipher_size)(user_key - '0');
+			break;
+		}
+	}
+	display_cipher_menu();
 }
 
 /*----------------------------------------------------------------------------
@@ -427,17 +345,15 @@ int main(void)
 	/* Output example information */
 	console_example_info("TDES Example");
 
-	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_TDES);
-	/* Enable peripheral interrupt */
-	aic_set_source_vector(ID_TDES, handle_tdes_irq);
-	aic_enable(ID_TDES);
+	tdesd_init();
 
 	/* Display menu */
-	algo = TDES_MR_TDESMOD(0);
-	op_mode = TDES_MR_OPMOD_ECB;
-	start_mode = TDES_MR_SMOD_MANUAL_START;
+	tdesd.cfg.algo = TDESD_ALGO_SINGLE;
+	tdesd.cfg.mode = TDESD_MODE_ECB;
+	tdesd.cfg.transfer_mode = TDESD_TRANS_POLLING_MANUAL;
+	tdesd.cfg.cfbs = TDESD_CFBS_64;
 	key_mode = 0;
+
 	display_menu();
 
 	while (true) {
@@ -446,32 +362,37 @@ int main(void)
 		case 's':
 		case 't':
 		case 'x':
-			algo = TDES_MR_TDESMOD(user_key == 'x' ? 2 :
-			                                user_key - 's');
-			key_mode = user_key == 'x' ? TDES_MR_KEYMOD : key_mode;
+			tdesd.cfg.algo = (enum _tdesd_algo)(user_key == 'x' ? 2 : user_key - 's');
+			key_mode = (user_key == 'x' ? TDESD_KEY_TWO : key_mode);
 			display_menu();
 			break;
 		case 'k':
-			key_mode = key_mode == 0 ? TDES_MR_KEYMOD : 0;
-			if (op_mode == TDES_MR_OPMOD_CFB
-			    || algo == TDES_MR_TDESMOD(2))
-				key_mode = TDES_MR_KEYMOD;
+			key_mode = (key_mode == TDESD_KEY_THREE ? TDESD_KEY_TWO : TDESD_KEY_THREE);
+			if (tdesd.cfg.mode == TDESD_MODE_CFB
+			    || tdesd.cfg.algo == TDESD_ALGO_XTEA)
+				key_mode = TDESD_KEY_TWO;
 			display_menu();
 			break;
 		case '0':
 		case '1':
 		case '2':
 		case '3':
-			op_mode = ((user_key - '0') << TDES_MR_OPMOD_Pos);
-			key_mode = user_key == '3' ? TDES_MR_KEYMOD : key_mode;
+			tdesd.cfg.mode = (enum _tdesd_mode)(user_key - '0');
+			key_mode = (user_key == '2') || (user_key == '3')
+						? TDESD_KEY_TWO : key_mode;
 			display_menu();
+			if (tdesd.cfg.mode == TDESD_MODE_CFB) {
+				display_cipher_menu();
+				set_cipher_size();
+				display_menu();
+			}
 			break;
 		case 'm':
 		case 'a':
 		case 'd':
-			start_mode = user_key == 'a' ? TDES_MR_SMOD_AUTO_START :
-						(user_key == 'd' ? TDES_MR_SMOD_IDATAR0_START :
-						 TDES_MR_SMOD_MANUAL_START);
+			tdesd.cfg.transfer_mode = user_key == 'a' ? TDESD_TRANS_POLLING_AUTO :
+						(user_key == 'd' ? TDESD_TRANS_DMA :
+						 TDESD_TRANS_POLLING_MANUAL);
 		case 'h':
 			display_menu();
 			break;

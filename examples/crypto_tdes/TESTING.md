@@ -43,12 +43,21 @@ Step | Description | Expected Result | Result
 Press '0','s','m','p' | Electronic Code Book, single, manual | PASSED | PASSED
 Press '1','s','m','p' | Cipher Block Chaining, single, manual | PASSED | PASSED
 Press '2','s','m','p' | Output Feedback, single, manual | PASSED | PASSED
-Press '3','s','m','p' | Cipher Feedback, single, manual | PASSED | PASSED
+Press '3','0, 's','m','p' | Cipher Feedback, 64bit, single, manual | PASSED | PASSED
+Press '3','1, 's','m','p' | Cipher Feedback, 32bit, single, manual | PASSED | PASSED
+Press '3','2, 's','m','p' | Cipher Feedback, 16bit, single, manual | PASSED | PASSED
+Press '3','3, 's','m','p' | Cipher Feedback, 8bit, single, manual | PASSED | PASSED
 Press '0','t','a','p' | Electronic Code Book, TRIPLE, auto | PASSED | PASSED
 Press '1','t','a','p' | Cipher Block Chaining, TRIPLE, auto | PASSED | PASSED
 Press '2','t','a','p' | Output Feedback, TRIPLE, auto | PASSED | PASSED
-Press '3','t','a','p' | Cipher Feedback, TRIPLE, auto | PASSED | PASSED
+Press '3','0','t','a','p' | Cipher Feedback, 64bit, TRIPLE, auto | PASSED | PASSED
+Press '3','1','t','a','p' | Cipher Feedback, 32bit, TRIPLE, auto | PASSED | PASSED
+Press '3','2','t','a','p' | Cipher Feedback, 16bit, TRIPLE, auto | PASSED | PASSED
+Press '3','3','t','a','p' | Cipher Feedback, 8bit, TRIPLE, auto | PASSED | PASSED
 Press '0','x','d','p' | Electronic Code Book, XTEA, dma | PASSED | PASSED
 Press '1','x','d','p' | Cipher Block Chaining, XTEA, dma | PASSED | PASSED
 Press '2','x','d','p' | Output Feedback, XTEA, dma | PASSED | PASSED
-Press '3','x','a','p' | Cipher Feedback, XTEA, dma | PASSED | PASSED
+Press '3','0','x','a','p' | Cipher Feedback, 64bit, XTEA, dma | PASSED | PASSED
+Press '3','1','x','a','p' | Cipher Feedback, 32bit, XTEA, dma | PASSED | PASSED
+Press '3','2','x','a','p' | Cipher Feedback, 16bit, XTEA, dma | PASSED | PASSED
+Press '3','3','x','a','p' | Cipher Feedback, 8bit, XTEA, dma | PASSED | PASSED
