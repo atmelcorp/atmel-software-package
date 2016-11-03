@@ -39,39 +39,39 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Aic hardware registers */
 typedef struct {
-  __IO  uint32_t AIC_SSR;       /**< \brief (Aic Offset: 0x00) Source Select Register */
-  __IO  uint32_t AIC_SMR;       /**< \brief (Aic Offset: 0x04) Source Mode Register */
-  __IO  uint32_t AIC_SVR;       /**< \brief (Aic Offset: 0x08) Source Vector Register */
-  __I   uint32_t Reserved1[1];
-  __I   uint32_t AIC_IVR;       /**< \brief (Aic Offset: 0x10) Interrupt Vector Register */
-  __I   uint32_t AIC_FVR;       /**< \brief (Aic Offset: 0x14) FIQ Interrupt Vector Register */
-  __I   uint32_t AIC_ISR;       /**< \brief (Aic Offset: 0x18) Interrupt Status Register */
-  __I   uint32_t Reserved2[1];
-  __I   uint32_t AIC_IPR0;      /**< \brief (Aic Offset: 0x20) Interrupt Pending Register 0 */
-  __I   uint32_t AIC_IPR1;      /**< \brief (Aic Offset: 0x24) Interrupt Pending Register 1 */
-  __I   uint32_t AIC_IPR2;      /**< \brief (Aic Offset: 0x28) Interrupt Pending Register 2 */
-  __I   uint32_t AIC_IPR3;      /**< \brief (Aic Offset: 0x2C) Interrupt Pending Register 3 */
-  __I   uint32_t AIC_IMR;       /**< \brief (Aic Offset: 0x30) Interrupt Mask Register */
-  __I   uint32_t AIC_CISR;      /**< \brief (Aic Offset: 0x34) Core Interrupt Status Register */
-  __O   uint32_t AIC_EOICR;     /**< \brief (Aic Offset: 0x38) End of Interrupt Command Register */
-  __IO  uint32_t AIC_SPU;       /**< \brief (Aic Offset: 0x3C) Spurious Interrupt Vector Register */
-  __O   uint32_t AIC_IECR;      /**< \brief (Aic Offset: 0x40) Interrupt Enable Command Register */
-  __O   uint32_t AIC_IDCR;      /**< \brief (Aic Offset: 0x44) Interrupt Disable Command Register */
-  __O   uint32_t AIC_ICCR;      /**< \brief (Aic Offset: 0x48) Interrupt Clear Command Register */
-  __O   uint32_t AIC_ISCR;      /**< \brief (Aic Offset: 0x4C) Interrupt Set Command Register */
-  __O   uint32_t AIC_FFER;      /**< \brief (Aic Offset: 0x50) Fast Forcing Enable Register */
-  __O   uint32_t AIC_FFDR;      /**< \brief (Aic Offset: 0x54) Fast Forcing Disable Register */
-  __I   uint32_t AIC_FFSR;      /**< \brief (Aic Offset: 0x58) Fast Forcing Status Register */
-  __I   uint32_t Reserved3[4];
-  __IO  uint32_t AIC_DCR;       /**< \brief (Aic Offset: 0x6C) Debug Control Register */
-  __I   uint32_t Reserved4[29];
-  __IO  uint32_t AIC_WPMR;      /**< \brief (Aic Offset: 0xE4) Write Protect Mode Register */
-  __I   uint32_t AIC_WPSR;      /**< \brief (Aic Offset: 0xE8) Write Protect Status Register */
+	__IO uint32_t AIC_SSR;    /**< \brief (Aic Offset: 0x00) Source Select Register */
+	__IO uint32_t AIC_SMR;    /**< \brief (Aic Offset: 0x04) Source Mode Register */
+	__IO uint32_t AIC_SVR;    /**< \brief (Aic Offset: 0x08) Source Vector Register */
+	__I  uint32_t Reserved1[1];
+	__I  uint32_t AIC_IVR;    /**< \brief (Aic Offset: 0x10) Interrupt Vector Register */
+	__I  uint32_t AIC_FVR;    /**< \brief (Aic Offset: 0x14) FIQ Interrupt Vector Register */
+	__I  uint32_t AIC_ISR;    /**< \brief (Aic Offset: 0x18) Interrupt Status Register */
+	__I  uint32_t Reserved2[1];
+	__I  uint32_t AIC_IPR0;   /**< \brief (Aic Offset: 0x20) Interrupt Pending Register 0 */
+	__I  uint32_t AIC_IPR1;   /**< \brief (Aic Offset: 0x24) Interrupt Pending Register 1 */
+	__I  uint32_t AIC_IPR2;   /**< \brief (Aic Offset: 0x28) Interrupt Pending Register 2 */
+	__I  uint32_t AIC_IPR3;   /**< \brief (Aic Offset: 0x2C) Interrupt Pending Register 3 */
+	__I  uint32_t AIC_IMR;    /**< \brief (Aic Offset: 0x30) Interrupt Mask Register */
+	__I  uint32_t AIC_CISR;   /**< \brief (Aic Offset: 0x34) Core Interrupt Status Register */
+	__O  uint32_t AIC_EOICR;  /**< \brief (Aic Offset: 0x38) End of Interrupt Command Register */
+	__IO uint32_t AIC_SPU;    /**< \brief (Aic Offset: 0x3C) Spurious Interrupt Vector Register */
+	__O  uint32_t AIC_IECR;   /**< \brief (Aic Offset: 0x40) Interrupt Enable Command Register */
+	__O  uint32_t AIC_IDCR;   /**< \brief (Aic Offset: 0x44) Interrupt Disable Command Register */
+	__O  uint32_t AIC_ICCR;   /**< \brief (Aic Offset: 0x48) Interrupt Clear Command Register */
+	__O  uint32_t AIC_ISCR;   /**< \brief (Aic Offset: 0x4C) Interrupt Set Command Register */
+	__O  uint32_t AIC_FFER;   /**< \brief (Aic Offset: 0x50) Fast Forcing Enable Register */
+	__O  uint32_t AIC_FFDR;   /**< \brief (Aic Offset: 0x54) Fast Forcing Disable Register */
+	__I  uint32_t AIC_FFSR;   /**< \brief (Aic Offset: 0x58) Fast Forcing Status Register */
+	__I  uint32_t Reserved3[4];
+	__IO uint32_t AIC_DCR;    /**< \brief (Aic Offset: 0x6C) Debug Control Register */
+	__I  uint32_t Reserved4[29];
+	__IO uint32_t AIC_WPMR;   /**< \brief (Aic Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t AIC_WPSR;   /**< \brief (Aic Offset: 0xE8) Write Protection Status Register */
 } Aic;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AIC_SSR : (AIC Offset: 0x00) Source Select Register -------- */
 #define AIC_SSR_INTSEL_Pos 0
-#define AIC_SSR_INTSEL_Msk (0x7fu << AIC_SSR_INTSEL_Pos) /**< \brief (AIC_SSR) Interrupt line Selection */
+#define AIC_SSR_INTSEL_Msk (0x7fu << AIC_SSR_INTSEL_Pos) /**< \brief (AIC_SSR) Interrupt Line Selection */
 #define AIC_SSR_INTSEL(value) ((AIC_SSR_INTSEL_Msk & ((value) << AIC_SSR_INTSEL_Pos)))
 /* -------- AIC_SMR : (AIC Offset: 0x04) Source Mode Register -------- */
 #define AIC_SMR_PRIOR_Pos 0
@@ -79,6 +79,7 @@ typedef struct {
 #define AIC_SMR_PRIOR(value) ((AIC_SMR_PRIOR_Msk & ((value) << AIC_SMR_PRIOR_Pos)))
 #define AIC_SMR_SRCTYPE_Pos 5
 #define AIC_SMR_SRCTYPE_Msk (0x3u << AIC_SMR_SRCTYPE_Pos) /**< \brief (AIC_SMR) Interrupt Source Type */
+#define AIC_SMR_SRCTYPE(value) ((AIC_SMR_SRCTYPE_Msk & ((value) << AIC_SMR_SRCTYPE_Pos)))
 #define   AIC_SMR_SRCTYPE_INT_LEVEL_SENSITIVE (0x0u << 5) /**< \brief (AIC_SMR) High level Sensitive for internal sourceLow level Sensitive for external source */
 #define   AIC_SMR_SRCTYPE_INT_EDGE_TRIGGERED (0x1u << 5) /**< \brief (AIC_SMR) Positive edge triggered for internal sourceNegative edge triggered for external source */
 #define   AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL (0x2u << 5) /**< \brief (AIC_SMR) High level Sensitive for internal sourceHigh level Sensitive for external source */
@@ -255,19 +256,18 @@ typedef struct {
 #define AIC_FFSR_FFS (0x1u << 0) /**< \brief (AIC_FFSR) Fast Forcing Status */
 /* -------- AIC_DCR : (AIC Offset: 0x6C) Debug Control Register -------- */
 #define AIC_DCR_PROT (0x1u << 0) /**< \brief (AIC_DCR) Protection Mode */
-#define AIC_DCR_GMSK (0x1u << 1) /**< \brief (AIC_DCR) General Mask */
-/* -------- AIC_WPMR : (AIC Offset: 0xE4) Write Protect Mode Register -------- */
-#define AIC_WPMR_WPEN (0x1u << 0) /**< \brief (AIC_WPMR) Write Protect Enable */
+#define AIC_DCR_GMSK (0x1u << 1) /**< \brief (AIC_DCR) General Interrupt Mask */
+/* -------- AIC_WPMR : (AIC Offset: 0xE4) Write Protection Mode Register -------- */
+#define AIC_WPMR_WPEN (0x1u << 0) /**< \brief (AIC_WPMR) Write Protection Enable */
 #define AIC_WPMR_WPKEY_Pos 8
-#define AIC_WPMR_WPKEY_Msk (0xffffffu << AIC_WPMR_WPKEY_Pos) /**< \brief (AIC_WPMR) Write Protect KEY */
+#define AIC_WPMR_WPKEY_Msk (0xffffffu << AIC_WPMR_WPKEY_Pos) /**< \brief (AIC_WPMR) Write Protection Key */
 #define AIC_WPMR_WPKEY(value) ((AIC_WPMR_WPKEY_Msk & ((value) << AIC_WPMR_WPKEY_Pos)))
-#define   AIC_WPMR_WPKEY_PASSWD (0x414943u << 8)  /**< \brief (AIC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- AIC_WPSR : (AIC Offset: 0xE8) Write Protect Status Register -------- */
-#define AIC_WPSR_WPVS (0x1u << 0) /**< \brief (AIC_WPSR) Write Protect Violation Status */
+#define   AIC_WPMR_WPKEY_PASSWD (0x414943u << 8) /**< \brief (AIC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
+/* -------- AIC_WPSR : (AIC Offset: 0xE8) Write Protection Status Register -------- */
+#define AIC_WPSR_WPVS (0x1u << 0) /**< \brief (AIC_WPSR) Write Protection Violation Status */
 #define AIC_WPSR_WPVSRC_Pos 8
-#define AIC_WPSR_WPVSRC_Msk (0xffffu << AIC_WPSR_WPVSRC_Pos) /**< \brief (AIC_WPSR) Write Protect Violation Source */
+#define AIC_WPSR_WPVSRC_Msk (0xffffu << AIC_WPSR_WPVSRC_Pos) /**< \brief (AIC_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_AIC_COMPONENT_ */
