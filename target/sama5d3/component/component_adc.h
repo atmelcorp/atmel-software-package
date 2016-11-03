@@ -58,7 +58,7 @@ typedef struct {
 	__IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
 	__IO uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
 	__IO uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
-	__I  uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Registers */
+	__I  uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Register */
 	__I  uint32_t Reserved3[5];
 	__IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
 	__I  uint32_t Reserved4[6];
@@ -451,7 +451,7 @@ typedef struct {
 #define ADC_COR_DIFF9 (0x1u << 25) /**< \brief (ADC_COR) Differential inputs for channel 9 */
 #define ADC_COR_DIFF10 (0x1u << 26) /**< \brief (ADC_COR) Differential inputs for channel 10 */
 #define ADC_COR_DIFF11 (0x1u << 27) /**< \brief (ADC_COR) Differential inputs for channel 11 */
-/* -------- ADC_CDR[12] : (ADC Offset: 0x50) Channel Data Registers -------- */
+/* -------- ADC_CDR[12] : (ADC Offset: 0x50) Channel Data Register -------- */
 #define ADC_CDR_DATA_Pos 0
 #define ADC_CDR_DATA_Msk (0xfffu << ADC_CDR_DATA_Pos) /**< \brief (ADC_CDR[12]) Converted Data */
 /* -------- ADC_ACR : (ADC Offset: 0x94) Analog Control Register -------- */

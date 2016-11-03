@@ -57,7 +57,7 @@ typedef struct {
 	__IO uint32_t ADC_EMR;      /**< \brief (Adc Offset: 0x40) Extended Mode Register */
 	__IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
 	__I  uint32_t Reserved4[2];
-	__I  uint32_t ADC_CDR[5];   /**< \brief (Adc Offset: 0x50) Channel Data Registers */
+	__I  uint32_t ADC_CDR[5];   /**< \brief (Adc Offset: 0x50) Channel Data Register */
 	__I  uint32_t Reserved5[12];
 	__IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
 	__I  uint32_t Reserved6[6];
@@ -250,7 +250,7 @@ typedef struct {
 #define ADC_CWR_HIGHTHRES_Pos 16
 #define ADC_CWR_HIGHTHRES_Msk (0xfffu << ADC_CWR_HIGHTHRES_Pos) /**< \brief (ADC_CWR) High Threshold */
 #define ADC_CWR_HIGHTHRES(value) ((ADC_CWR_HIGHTHRES_Msk & ((value) << ADC_CWR_HIGHTHRES_Pos)))
-/* -------- ADC_CDR[5] : (ADC Offset: 0x50) Channel Data Registers -------- */
+/* -------- ADC_CDR[5] : (ADC Offset: 0x50) Channel Data Register -------- */
 #define ADC_CDR_DATA_Pos 0
 #define ADC_CDR_DATA_Msk (0xfffu << ADC_CDR_DATA_Pos) /**< \brief (ADC_CDR[5]) Converted Data */
 /* -------- ADC_ACR : (ADC Offset: 0x94) Analog Control Register -------- */
