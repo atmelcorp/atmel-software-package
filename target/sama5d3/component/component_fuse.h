@@ -39,11 +39,11 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Fuse hardware registers */
 typedef struct {
-  __O   uint32_t FUSE_CR;    /**< \brief (Fuse Offset: 0x00) Fuse Control Register */
-  __O   uint32_t FUSE_MR;    /**< \brief (Fuse Offset: 0x04) Fuse Mode Register */
-  __IO  uint32_t FUSE_IR;    /**< \brief (Fuse Offset: 0x08) Fuse Index Register */
-  __IO  uint32_t FUSE_DR;    /**< \brief (Fuse Offset: 0x0C) Fuse Data Register */
-  __I   uint32_t FUSE_SR[8]; /**< \brief (Fuse Offset: 0x10) Fuse Status Register */
+	__O  uint32_t FUSE_CR;    /**< \brief (Fuse Offset: 0x00) Fuse Control Register */
+	__O  uint32_t FUSE_MR;    /**< \brief (Fuse Offset: 0x04) Fuse Mode Register */
+	__IO uint32_t FUSE_IR;    /**< \brief (Fuse Offset: 0x08) Fuse Index Register */
+	__IO uint32_t FUSE_DR;    /**< \brief (Fuse Offset: 0x0C) Fuse Data Register */
+	__I  uint32_t FUSE_SR[8]; /**< \brief (Fuse Offset: 0x10) Fuse Status Register */
 } Fuse;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- FUSE_CR : (FUSE Offset: 0x00) Fuse Control Register -------- */
@@ -69,6 +69,5 @@ typedef struct {
 #define FUSE_SR_FUSE_Msk (0xffffffffu << FUSE_SR_FUSE_Pos) /**< \brief (FUSE_SR[8]) Fuse Status */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_FUSE_COMPONENT_ */
