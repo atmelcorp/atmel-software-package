@@ -107,6 +107,38 @@ void tdes_configure(uint32_t mode)
 	TDES->TDES_MR = mode;
 }
 
+void tdes_set_start_mode(uint32_t mode)
+{
+	TDES->TDES_MR &= ~TDES_MR_SMOD_Msk;
+	TDES->TDES_MR |= mode << TDES_MR_SMOD_Pos;
+}
+
+void tdes_set_algo(uint32_t algo)
+{
+	TDES->TDES_MR &= ~TDES_MR_TDESMOD_Msk;
+	TDES->TDES_MR |= algo << TDES_MR_TDESMOD_Pos;
+}
+
+void tdes_set_op_mode(uint32_t mode)
+{
+	TDES->TDES_MR &= ~TDES_MR_OPMOD_Msk;
+	TDES->TDES_MR |= mode << TDES_MR_OPMOD_Pos;
+}
+
+void tdes_set_key_mode(uint32_t key_mode)
+{
+	AES->AES_MR &= ~TDES_MR_KEYMOD;
+	AES->AES_MR |= (key_mode == 0 ? 0 : TDES_MR_KEYMOD);
+}
+
+void tdes_encrypt_enable(bool encrypt)
+{
+	if (encrypt)
+		TDES->TDES_MR |= TDES_MR_CIPHER;
+	else
+		TDES->TDES_MR &= ~TDES_MR_CIPHER;
+}
+
 void tdes_enable_it(uint32_t sources)
 {
 	TDES->TDES_IER = sources;
@@ -140,16 +172,18 @@ void tdes_write_key3(uint32_t key_word0, uint32_t key_word1)
 	TDES->TDES_KEY3WR[1] = key_word1;
 }
 
-void tdes_set_input(uint32_t data0, uint32_t data1)
+void tdes_set_input(uint32_t* data0, uint32_t* data1)
 {
-	TDES->TDES_IDATAR[0] = data0;
-	TDES->TDES_IDATAR[1] = data1;
+	TDES->TDES_IDATAR[0] = *data0;
+	if (data1)
+		TDES->TDES_IDATAR[1] = *data1;
 }
 
 void tdes_get_output(uint32_t *data0, uint32_t *data1)
 {
 	*data0 = TDES->TDES_ODATAR[0];
-	*data1 = TDES->TDES_ODATAR[1];
+	if (data1)
+		*data1 = TDES->TDES_ODATAR[1];
 }
 
 void tdes_set_vector(uint32_t v0, uint32_t v1)
