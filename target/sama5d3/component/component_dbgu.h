@@ -39,19 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Dbgu hardware registers */
 typedef struct {
-  __O   uint32_t DBGU_CR;      /**< \brief (Dbgu Offset: 0x0000) Control Register */
-  __IO  uint32_t DBGU_MR;      /**< \brief (Dbgu Offset: 0x0004) Mode Register */
-  __O   uint32_t DBGU_IER;     /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
-  __O   uint32_t DBGU_IDR;     /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
-  __I   uint32_t DBGU_IMR;     /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
-  __I   uint32_t DBGU_SR;      /**< \brief (Dbgu Offset: 0x0014) Status Register */
-  __I   uint32_t DBGU_RHR;     /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
-  __O   uint32_t DBGU_THR;     /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
-  __IO  uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
-  __I   uint32_t Reserved1[7];
-  __I   uint32_t DBGU_CIDR;    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
-  __I   uint32_t DBGU_EXID;    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
-  __IO  uint32_t DBGU_FNR;     /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
+	__O  uint32_t DBGU_CR;      /**< \brief (Dbgu Offset: 0x0000) Control Register */
+	__IO uint32_t DBGU_MR;      /**< \brief (Dbgu Offset: 0x0004) Mode Register */
+	__O  uint32_t DBGU_IER;     /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
+	__O  uint32_t DBGU_IDR;     /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
+	__I  uint32_t DBGU_IMR;     /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
+	__I  uint32_t DBGU_SR;      /**< \brief (Dbgu Offset: 0x0014) Status Register */
+	__I  uint32_t DBGU_RHR;     /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
+	__O  uint32_t DBGU_THR;     /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
+	__IO uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
+	__I  uint32_t Reserved1[7];
+	__I  uint32_t DBGU_CIDR;    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
+	__I  uint32_t DBGU_EXID;    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
+	__IO uint32_t DBGU_FNR;     /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
 } Dbgu;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- DBGU_CR : (DBGU Offset: 0x0000) Control Register -------- */
@@ -65,6 +65,7 @@ typedef struct {
 /* -------- DBGU_MR : (DBGU Offset: 0x0004) Mode Register -------- */
 #define DBGU_MR_PAR_Pos 9
 #define DBGU_MR_PAR_Msk (0x7u << DBGU_MR_PAR_Pos) /**< \brief (DBGU_MR) Parity Type */
+#define DBGU_MR_PAR(value) ((DBGU_MR_PAR_Msk & ((value) << DBGU_MR_PAR_Pos)))
 #define   DBGU_MR_PAR_EVEN (0x0u << 9) /**< \brief (DBGU_MR) Even Parity */
 #define   DBGU_MR_PAR_ODD (0x1u << 9) /**< \brief (DBGU_MR) Odd Parity */
 #define   DBGU_MR_PAR_SPACE (0x2u << 9) /**< \brief (DBGU_MR) Space: Parity forced to 0 */
@@ -72,6 +73,7 @@ typedef struct {
 #define   DBGU_MR_PAR_NONE (0x4u << 9) /**< \brief (DBGU_MR) No Parity */
 #define DBGU_MR_CHMODE_Pos 14
 #define DBGU_MR_CHMODE_Msk (0x3u << DBGU_MR_CHMODE_Pos) /**< \brief (DBGU_MR) Channel Mode */
+#define DBGU_MR_CHMODE(value) ((DBGU_MR_CHMODE_Msk & ((value) << DBGU_MR_CHMODE_Pos)))
 #define   DBGU_MR_CHMODE_NORM (0x0u << 14) /**< \brief (DBGU_MR) Normal Mode */
 #define   DBGU_MR_CHMODE_AUTO (0x1u << 14) /**< \brief (DBGU_MR) Automatic Echo */
 #define   DBGU_MR_CHMODE_LOCLOOP (0x2u << 14) /**< \brief (DBGU_MR) Local Loopback */
@@ -122,8 +124,9 @@ typedef struct {
 /* -------- DBGU_BRGR : (DBGU Offset: 0x0020) Baud Rate Generator Register -------- */
 #define DBGU_BRGR_CD_Pos 0
 #define DBGU_BRGR_CD_Msk (0xffffu << DBGU_BRGR_CD_Pos) /**< \brief (DBGU_BRGR) Clock Divisor */
+#define DBGU_BRGR_CD(value) ((DBGU_BRGR_CD_Msk & ((value) << DBGU_BRGR_CD_Pos)))
 #define   DBGU_BRGR_CD_DISABLED (0x0u << 0) /**< \brief (DBGU_BRGR) DBGU Disabled */
-#define   DBGU_BRGR_CD_MCK (0x1u << 0) /**< \brief (DBGU_BRGR) MCK */
+#define   DBGU_BRGR_CD_MCK (0x1u << 0) /**< \brief (DBGU_BRGR) Peripheral clock */
 /* -------- DBGU_CIDR : (DBGU Offset: 0x0040) Chip ID Register -------- */
 #define DBGU_CIDR_VERSION_Pos 0
 #define DBGU_CIDR_VERSION_Msk (0x1fu << DBGU_CIDR_VERSION_Pos) /**< \brief (DBGU_CIDR) Version of the Device */
@@ -138,44 +141,44 @@ typedef struct {
 #define DBGU_CIDR_NVPSIZ_Pos 8
 #define DBGU_CIDR_NVPSIZ_Msk (0xfu << DBGU_CIDR_NVPSIZ_Pos) /**< \brief (DBGU_CIDR) Nonvolatile Program Memory Size */
 #define   DBGU_CIDR_NVPSIZ_NONE (0x0u << 8) /**< \brief (DBGU_CIDR) None */
-#define   DBGU_CIDR_NVPSIZ_8K (0x1u << 8) /**< \brief (DBGU_CIDR) 8K bytes */
-#define   DBGU_CIDR_NVPSIZ_16K (0x2u << 8) /**< \brief (DBGU_CIDR) 16K bytes */
-#define   DBGU_CIDR_NVPSIZ_32K (0x3u << 8) /**< \brief (DBGU_CIDR) 32K bytes */
-#define   DBGU_CIDR_NVPSIZ_64K (0x5u << 8) /**< \brief (DBGU_CIDR) 64K bytes */
-#define   DBGU_CIDR_NVPSIZ_128K (0x7u << 8) /**< \brief (DBGU_CIDR) 128K bytes */
-#define   DBGU_CIDR_NVPSIZ_256K (0x9u << 8) /**< \brief (DBGU_CIDR) 256K bytes */
-#define   DBGU_CIDR_NVPSIZ_512K (0xAu << 8) /**< \brief (DBGU_CIDR) 512K bytes */
-#define   DBGU_CIDR_NVPSIZ_1024K (0xCu << 8) /**< \brief (DBGU_CIDR) 1024K bytes */
-#define   DBGU_CIDR_NVPSIZ_2048K (0xEu << 8) /**< \brief (DBGU_CIDR) 2048K bytes */
+#define   DBGU_CIDR_NVPSIZ_8K (0x1u << 8) /**< \brief (DBGU_CIDR) 8 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_16K (0x2u << 8) /**< \brief (DBGU_CIDR) 16 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_32K (0x3u << 8) /**< \brief (DBGU_CIDR) 32 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_64K (0x5u << 8) /**< \brief (DBGU_CIDR) 64 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_128K (0x7u << 8) /**< \brief (DBGU_CIDR) 128 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_256K (0x9u << 8) /**< \brief (DBGU_CIDR) 256 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_512K (0xAu << 8) /**< \brief (DBGU_CIDR) 512 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_1024K (0xCu << 8) /**< \brief (DBGU_CIDR) 1024 Kbytes */
+#define   DBGU_CIDR_NVPSIZ_2048K (0xEu << 8) /**< \brief (DBGU_CIDR) 2048 Kbytes */
 #define DBGU_CIDR_NVPSIZ2_Pos 12
-#define DBGU_CIDR_NVPSIZ2_Msk (0xfu << DBGU_CIDR_NVPSIZ2_Pos) /**< \brief (DBGU_CIDR)  */
+#define DBGU_CIDR_NVPSIZ2_Msk (0xfu << DBGU_CIDR_NVPSIZ2_Pos) /**< \brief (DBGU_CIDR) Second Nonvolatile Program Memory Size */
 #define   DBGU_CIDR_NVPSIZ2_NONE (0x0u << 12) /**< \brief (DBGU_CIDR) None */
-#define   DBGU_CIDR_NVPSIZ2_8K (0x1u << 12) /**< \brief (DBGU_CIDR) 8K bytes */
-#define   DBGU_CIDR_NVPSIZ2_16K (0x2u << 12) /**< \brief (DBGU_CIDR) 16K bytes */
-#define   DBGU_CIDR_NVPSIZ2_32K (0x3u << 12) /**< \brief (DBGU_CIDR) 32K bytes */
-#define   DBGU_CIDR_NVPSIZ2_64K (0x5u << 12) /**< \brief (DBGU_CIDR) 64K bytes */
-#define   DBGU_CIDR_NVPSIZ2_128K (0x7u << 12) /**< \brief (DBGU_CIDR) 128K bytes */
-#define   DBGU_CIDR_NVPSIZ2_256K (0x9u << 12) /**< \brief (DBGU_CIDR) 256K bytes */
-#define   DBGU_CIDR_NVPSIZ2_512K (0xAu << 12) /**< \brief (DBGU_CIDR) 512K bytes */
-#define   DBGU_CIDR_NVPSIZ2_1024K (0xCu << 12) /**< \brief (DBGU_CIDR) 1024K bytes */
-#define   DBGU_CIDR_NVPSIZ2_2048K (0xEu << 12) /**< \brief (DBGU_CIDR) 2048K bytes */
+#define   DBGU_CIDR_NVPSIZ2_8K (0x1u << 12) /**< \brief (DBGU_CIDR) 8 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_16K (0x2u << 12) /**< \brief (DBGU_CIDR) 16 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_32K (0x3u << 12) /**< \brief (DBGU_CIDR) 32 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_64K (0x5u << 12) /**< \brief (DBGU_CIDR) 64 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_128K (0x7u << 12) /**< \brief (DBGU_CIDR) 128 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_256K (0x9u << 12) /**< \brief (DBGU_CIDR) 256 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_512K (0xAu << 12) /**< \brief (DBGU_CIDR) 512 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_1024K (0xCu << 12) /**< \brief (DBGU_CIDR) 1024 Kbytes */
+#define   DBGU_CIDR_NVPSIZ2_2048K (0xEu << 12) /**< \brief (DBGU_CIDR) 2048 Kbytes */
 #define DBGU_CIDR_SRAMSIZ_Pos 16
 #define DBGU_CIDR_SRAMSIZ_Msk (0xfu << DBGU_CIDR_SRAMSIZ_Pos) /**< \brief (DBGU_CIDR) Internal SRAM Size */
-#define   DBGU_CIDR_SRAMSIZ_1K (0x1u << 16) /**< \brief (DBGU_CIDR) 1K bytes */
-#define   DBGU_CIDR_SRAMSIZ_2K (0x2u << 16) /**< \brief (DBGU_CIDR) 2K bytes */
-#define   DBGU_CIDR_SRAMSIZ_6K (0x3u << 16) /**< \brief (DBGU_CIDR) 6K bytes */
-#define   DBGU_CIDR_SRAMSIZ_112K (0x4u << 16) /**< \brief (DBGU_CIDR) 112K bytes */
-#define   DBGU_CIDR_SRAMSIZ_4K (0x5u << 16) /**< \brief (DBGU_CIDR) 4K bytes */
-#define   DBGU_CIDR_SRAMSIZ_80K (0x6u << 16) /**< \brief (DBGU_CIDR) 80K bytes */
-#define   DBGU_CIDR_SRAMSIZ_160K (0x7u << 16) /**< \brief (DBGU_CIDR) 160K bytes */
-#define   DBGU_CIDR_SRAMSIZ_8K (0x8u << 16) /**< \brief (DBGU_CIDR) 8K bytes */
-#define   DBGU_CIDR_SRAMSIZ_16K (0x9u << 16) /**< \brief (DBGU_CIDR) 16K bytes */
-#define   DBGU_CIDR_SRAMSIZ_32K (0xAu << 16) /**< \brief (DBGU_CIDR) 32K bytes */
-#define   DBGU_CIDR_SRAMSIZ_64K (0xBu << 16) /**< \brief (DBGU_CIDR) 64K bytes */
-#define   DBGU_CIDR_SRAMSIZ_128K (0xCu << 16) /**< \brief (DBGU_CIDR) 128K bytes */
-#define   DBGU_CIDR_SRAMSIZ_256K (0xDu << 16) /**< \brief (DBGU_CIDR) 256K bytes */
-#define   DBGU_CIDR_SRAMSIZ_96K (0xEu << 16) /**< \brief (DBGU_CIDR) 96K bytes */
-#define   DBGU_CIDR_SRAMSIZ_512K (0xFu << 16) /**< \brief (DBGU_CIDR) 512K bytes */
+#define   DBGU_CIDR_SRAMSIZ_1K (0x1u << 16) /**< \brief (DBGU_CIDR) 1 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_2K (0x2u << 16) /**< \brief (DBGU_CIDR) 2 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_6K (0x3u << 16) /**< \brief (DBGU_CIDR) 6 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_112K (0x4u << 16) /**< \brief (DBGU_CIDR) 112 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_4K (0x5u << 16) /**< \brief (DBGU_CIDR) 4 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_80K (0x6u << 16) /**< \brief (DBGU_CIDR) 80 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_160K (0x7u << 16) /**< \brief (DBGU_CIDR) 160 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_8K (0x8u << 16) /**< \brief (DBGU_CIDR) 8 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_16K (0x9u << 16) /**< \brief (DBGU_CIDR) 16 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_32K (0xAu << 16) /**< \brief (DBGU_CIDR) 32 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_64K (0xBu << 16) /**< \brief (DBGU_CIDR) 64 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_128K (0xCu << 16) /**< \brief (DBGU_CIDR) 128 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_256K (0xDu << 16) /**< \brief (DBGU_CIDR) 256 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_96K (0xEu << 16) /**< \brief (DBGU_CIDR) 96 Kbytes */
+#define   DBGU_CIDR_SRAMSIZ_512K (0xFu << 16) /**< \brief (DBGU_CIDR) 512 Kbytes */
 #define DBGU_CIDR_ARCH_Pos 20
 #define DBGU_CIDR_ARCH_Msk (0xffu << DBGU_CIDR_ARCH_Pos) /**< \brief (DBGU_CIDR) Architecture Identifier */
 #define   DBGU_CIDR_ARCH_AT91SAM9xx (0x19u << 20) /**< \brief (DBGU_CIDR) AT91SAM9xx Series */
@@ -212,6 +215,7 @@ typedef struct {
 #define   DBGU_CIDR_ARCH_ATSAM3SDxA (0x98u << 20) /**< \brief (DBGU_CIDR) ATSAM3SDxA Series (48-pin version) */
 #define   DBGU_CIDR_ARCH_ATSAM3SDxB (0x99u << 20) /**< \brief (DBGU_CIDR) ATSAM3SDxB Series (64-pin version) */
 #define   DBGU_CIDR_ARCH_ATSAM3SDxC (0x9Au << 20) /**< \brief (DBGU_CIDR) ATSAM3SDxC Series (100-pin version) */
+#define   DBGU_CIDR_ARCH_ATSAMA5xx (0xA5u << 20) /**< \brief (DBGU_CIDR) ATSAMA5xx Series */
 #define   DBGU_CIDR_ARCH_AT75Cxx (0xF0u << 20) /**< \brief (DBGU_CIDR) AT75Cxx Series */
 #define DBGU_CIDR_NVPTYP_Pos 28
 #define DBGU_CIDR_NVPTYP_Msk (0x7u << DBGU_CIDR_NVPTYP_Pos) /**< \brief (DBGU_CIDR) Nonvolatile Program Memory Type */
@@ -228,6 +232,5 @@ typedef struct {
 #define DBGU_FNR_FNTRST (0x1u << 0) /**< \brief (DBGU_FNR) Force NTRST */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_DBGU_COMPONENT_ */

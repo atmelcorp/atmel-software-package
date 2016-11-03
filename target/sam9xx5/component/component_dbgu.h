@@ -39,19 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Dbgu hardware registers */
 typedef struct {
-  __O  uint32_t DBGU_CR;      /**< \brief (Dbgu Offset: 0x0000) Control Register */
-  __IO uint32_t DBGU_MR;      /**< \brief (Dbgu Offset: 0x0004) Mode Register */
-  __O  uint32_t DBGU_IER;     /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
-  __O  uint32_t DBGU_IDR;     /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
-  __I  uint32_t DBGU_IMR;     /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
-  __I  uint32_t DBGU_SR;      /**< \brief (Dbgu Offset: 0x0014) Status Register */
-  __I  uint32_t DBGU_RHR;     /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
-  __O  uint32_t DBGU_THR;     /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
-  __IO uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
-  __I  uint32_t Reserved1[7];
-  __I  uint32_t DBGU_CIDR;    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
-  __I  uint32_t DBGU_EXID;    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
-  __IO uint32_t DBGU_FNR;     /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
+	__O  uint32_t DBGU_CR;      /**< \brief (Dbgu Offset: 0x0000) Control Register */
+	__IO uint32_t DBGU_MR;      /**< \brief (Dbgu Offset: 0x0004) Mode Register */
+	__O  uint32_t DBGU_IER;     /**< \brief (Dbgu Offset: 0x0008) Interrupt Enable Register */
+	__O  uint32_t DBGU_IDR;     /**< \brief (Dbgu Offset: 0x000C) Interrupt Disable Register */
+	__I  uint32_t DBGU_IMR;     /**< \brief (Dbgu Offset: 0x0010) Interrupt Mask Register */
+	__I  uint32_t DBGU_SR;      /**< \brief (Dbgu Offset: 0x0014) Status Register */
+	__I  uint32_t DBGU_RHR;     /**< \brief (Dbgu Offset: 0x0018) Receive Holding Register */
+	__O  uint32_t DBGU_THR;     /**< \brief (Dbgu Offset: 0x001C) Transmit Holding Register */
+	__IO uint32_t DBGU_BRGR;    /**< \brief (Dbgu Offset: 0x0020) Baud Rate Generator Register */
+	__I  uint32_t Reserved1[7];
+	__I  uint32_t DBGU_CIDR;    /**< \brief (Dbgu Offset: 0x0040) Chip ID Register */
+	__I  uint32_t DBGU_EXID;    /**< \brief (Dbgu Offset: 0x0044) Chip ID Extension Register */
+	__IO uint32_t DBGU_FNR;     /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
 } Dbgu;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- DBGU_CR : (DBGU Offset: 0x0000) Control Register -------- */
@@ -228,6 +228,5 @@ typedef struct {
 #define DBGU_FNR_FNTRST (0x1u << 0) /**< \brief (DBGU_FNR) Force NTRST */
 
 /*@}*/
-
 
 #endif /* _SAM9X_DBGU_COMPONENT_ */
