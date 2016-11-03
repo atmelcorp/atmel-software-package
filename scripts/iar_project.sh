@@ -2,11 +2,11 @@
 # Generate IAR projects for examples for the available variants
 
 ### Arguments parsing
-DIR=$1
-TOP=$2
-BINNAME=$3
-TARGET=$4
-AVAILABLE_VARIANTS=$5
+DIR="$1"
+TOP="$2"
+BINNAME="$3"
+TARGET="$4"
+AVAILABLE_VARIANTS="$5"
 
 ### Templates
 tpl_project="iar_project.template"
@@ -14,18 +14,18 @@ tpl_workspace="iar_workspace.template"
 tpl_debug="iar_debug.template"
 
 ### Global variable
-SCRIPTS=$DIR/$TOP/scripts
+SCRIPTS="$DIR/$TOP/scripts"
 
 tpl-split() {
-    local template=$1
-    local head=$2
-    local tail=$3
-    local max=`sed -n '$=' $SCRIPTS/${template}`
+    local template="$1"
+    local head="$2"
+    local tail="$3"
+    local max=`sed -n '$=' "$SCRIPTS/${template}"`
 
     echo "SPLIT $template"
-    sed -n "1,${head}p" $SCRIPTS/${template} > $DIR/${template}.head
-    sed -n "`expr ${head} + 1`, `expr $max - ${tail}`p" $SCRIPTS/${template} > $DIR/${template}.body
-    sed "1,`expr $max - ${tail}`d" $SCRIPTS/${template} > $DIR/${template}.tail
+    sed -n "1,${head}p" "$SCRIPTS/${template}" > "$DIR/${template}.head"
+    sed -n "`expr ${head} + 1`, `expr $max - ${tail}`p" "$SCRIPTS/${template}" > "$DIR/${template}.body"
+    sed "1,`expr $max - ${tail}`d" "$SCRIPTS/${template}" > "$DIR/${template}.tail"
 }
 
 helper-use-windows-path() {
@@ -40,9 +40,9 @@ tpl-finalize() {
 }
 
 tpl-set-prj-files() {
-    local tpl=$1
-    local section=$2; shift; shift
-    local input=$*
+    local tpl="$1"
+    local section="$2"; shift; shift
+    local input="$*"
 
     local tmpxml=`mktemp -p "$DIR"`
 
@@ -51,13 +51,13 @@ tpl-set-prj-files() {
             path=${path//.o/.c}
             path=${path//_gcc.c/_iar.s}
 
-            if [ ! -f $DIR/$TOP/$path ]; then
+            if [ ! -f "$DIR/$TOP/$path" ]; then
                 echo File $path do not exists! 1>&2
                 rm -f "$tmpxml" 2>&1 > /dev/null
                 exit 3
             fi
 
-            local win_path=$(helper-use-windows-path $TOP/$path)
+            local win_path=$(helper-use-windows-path "$TOP/$path")
             echo -e "  <file><name>\$PROJ_DIR\$\\\\$win_path</name></file>"
         done
     ) > "$tmpxml"
@@ -69,7 +69,7 @@ tpl-set-prj-files() {
 
 tpl-set-deps() {
     local tpl="$1"
-    local section=$2; shift; shift
+    local section="$2"; shift; shift
     local input=$*
     local empty_group=true
     local tmpxml=`mktemp -p "$DIR"`
@@ -81,7 +81,7 @@ tpl-set-deps() {
             path=${path//.o/.c}
             path=${path//_gcc.c/_iar.s}
 
-            if [ ! -f $DIR/$TOP/$path ]; then
+            if [ ! -f "$DIR/$TOP/$path" ]; then
                 echo File $path do not exists! 1>&2
                 rm -f "$tmpxml" 2>&1 > /dev/null
                 exit 3
@@ -93,7 +93,7 @@ tpl-set-deps() {
                 echo -e "  <group>\n    <name>$section</name>"
             fi
 
-            local win_path=$(helper-use-windows-path $TOP/$path)
+            local win_path=$(helper-use-windows-path "$TOP/$path")
             echo -e "    <file><name>\$PROJ_DIR\$\\\\$win_path</name></file>"
         done
 
@@ -121,32 +121,32 @@ tpl-finalize() {
 
 tpl-set-defines() {
     local tpl="$1"
-    local tmpxml=`mktemp -p $DIR`
+    local tmpxml=`mktemp -p "$DIR"`
 
     for flag in $CFLAGS_DEFS; do
         flag=${flag//:/ }
         echo "          <state>${flag//-D/}</state>"
-    done > $tmpxml
+    done > "$tmpxml"
 
     sed -i -e "/__REPLACE_DEFINES__/r $tmpxml" "$tpl"
     sed -i -e "s/__REPLACE_DEFINES__//g" "$tpl"
 
-    rm -f $tmpxml 2>&1 > /dev/null
+    rm -f "$tmpxml" 2>&1 > /dev/null
 }
 
 tpl-set-includes() {
     local tpl="$1"
-    local tmpxml=`mktemp -p $DIR`
+    local tmpxml=`mktemp -p "$DIR"`
 
     for include in $CFLAGS_INC; do
-        local inc=$(helper-use-windows-path ${include//-I/})
+        local inc=$(helper-use-windows-path "${include//-I/}")
         echo -e "          <state>\$PROJ_DIR\$\\\\$inc</state>"
-    done > $tmpxml
+    done > "$tmpxml"
 
     sed -i -e "/__REPLACE_INCLUDES__/r $tmpxml" "$tpl"
     sed -i -e "s/__REPLACE_INCLUDES__//g" "$tpl"
 
-    rm -f $tmpxml 2>&1 > /dev/null
+    rm -f "$tmpxml" 2>&1 > /dev/null
 }
 
 tpl-set-linker-script() {
@@ -158,7 +158,7 @@ tpl-set-linker-script() {
         exit 3
     fi
 
-    local win_path=$(helper-use-windows-path $linker_script)
+    local win_path=$(helper-use-windows-path "$linker_script")
     sed -i -e "s%__REPLACE_LINK_SCRIPT__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
 }
 
@@ -189,15 +189,10 @@ tpl-set-soc() {
     local soc=
 
     for flag in $CFLAGS_DEFS; do
-        socflag=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')
-        if [ ${#soc} -le ${#socflag} ]; then
-            soc=$socflag
+        if [ "$soc" \< "$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')" ]; then
+            soc=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_/AT/')
         fi
     done
-
-    # Add IAR prefix
-    soc=${soc/SAM9/AT91SAM9}
-    soc=${soc/SAMA5/ATSAMA5}
 
     echo "SET SOC=$soc"
     sed -i "s/__REPLACE_SOC__/$soc/g" "$tpl"
@@ -206,12 +201,12 @@ tpl-set-soc() {
 
 generate-bodies-ewd() {
     local file="$1"
-    local variant=$2
-    local tpl=$DIR/${file}_$variant.ewd
+    local variant="$2"
+    local tpl="$DIR/${file}_$variant.ewd"
 
     echo "GEN temporary file ${file}_$variant.ewd"
 
-    cat $DIR/$tpl_debug.body > "$tpl"
+    cat "$DIR/$tpl_debug.body" > "$tpl"
     local win_path=$(helper-use-windows-path "$iar_debug_script_y")
     sed -i -e "s%__REPLACE_MACFILE__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
     sed -i -e "s%//%/%g" "$tpl"
@@ -232,11 +227,10 @@ generate-ewd() {
 
     tpl-split "$tpl_debug" 4 3
 
-    rm -f $DIR/$file.ewd.bodies
+    rm -f "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
-        if [ -f $DIR/.env-$variant.sh ]; then
-			. $DIR/.env-$variant.sh
-
+        if [ -f "$DIR/.env-$variant.sh" ]; then
+            . "$DIR/.env-$variant.sh"
             generate-bodies-ewd "$file" $variant
         fi
     done
@@ -245,31 +239,31 @@ generate-ewd() {
     rm -f "$DIR/$file.ewd.bodies"
     touch "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
-        cat $DIR/${file}_$variant.ewd >> $DIR/$file.ewd.bodies
-        rm -f $DIR/${file}_$variant.ewd
+        cat "$DIR/${file}_$variant.ewd" >> "$DIR/$file.ewd.bodies"
+        rm -f "$DIR/${file}_$variant.ewd"
     done
 
     tpl-set-soc "$DIR/$file.ewd.bodies"
 
     echo "GEN ${file}_$TARGET.ewd"
-    cat $DIR/$tpl_debug.head >  "$tpl"
-    rm -f $DIR/$tpl_debug.head
+    cat "$DIR/$tpl_debug.head" > "$tpl"
+    rm -f "$DIR/$tpl_debug.head"
 
-    cat $DIR/$file.ewd.bodies        >> "$tpl"
-    rm -f $tpl_debug.body
-    rm -f $DIR/$file.ewd.bodies
+    cat "$DIR/$file.ewd.bodies" >> "$tpl"
+    rm -f "$tpl_debug.body"
+    rm -f "$DIR/$file.ewd.bodies"
 
-    cat $DIR/$tpl_debug.tail >> "$tpl"
-    rm -f $DIR/$tpl_debug.tail
+    cat "$DIR/$tpl_debug.tail" >> "$tpl"
+    rm -f "$DIR/$tpl_debug.tail"
 }
 
 generate-bodies-ewp() {
     local file="$1"
     local variant="$2"
-    local tpl=$DIR/${file}_$variant.ewp
+    local tpl="$DIR/${file}_$variant.ewp"
 
     echo "GEN temporary file ${file}_$variant.ewp"
-    cat $DIR/$tpl_project.body > "$tpl"
+    cat "$DIR/$tpl_project.body" > "$tpl"
     tpl-set-defines       "$tpl"
     tpl-set-includes      "$tpl"
     tpl-set-linker-script "$tpl" "$iar_linker_script_y"
@@ -285,9 +279,8 @@ generate-ewp() {
 
     for variant in $AVAILABLE_VARIANTS; do
         echo "GEN ${file}_$variant.ewp"
-        if [ -f $DIR/.env-$variant.sh ]; then
-            . $DIR/.env-$variant.sh
-
+        if [ -f "$DIR/.env-$variant.sh" ]; then
+            . "$DIR/.env-$variant.sh"
             generate-bodies-ewp "$file" $variant
         fi
     done
@@ -295,20 +288,18 @@ generate-ewp() {
     rm -f "$DIR/$file.ewp.bodies"
     touch "$DIR/$file.ewp.bodies"
     for variant in $AVAILABLE_VARIANTS; do
-        cat $DIR/${file}_$variant.ewp >> $DIR/$file.ewp.bodies
-		rm -f $DIR/${file}_$variant.ewp
+        cat "$DIR/${file}_$variant.ewp" >> "$DIR/$file.ewp.bodies"
+        rm -f "$DIR/${file}_$variant.ewp"
     done
 
     echo "GEN ${file}_$TARGET.ewp"
-    cat $DIR/$tpl_project.head >  "$tpl"
-    rm -f $DIR/$tpl_project.head
-
-    cat $DIR/$file.ewp.bodies          >> "$tpl"
-    rm -f $DIR/$tpl_project.body
-    rm -f $DIR/$file.ewp.bodies
-
-    cat $DIR/$tpl_project.tail >> "$tpl"
-    rm -f $DIR/$tpl_project.tail
+    cat "$DIR/$tpl_project.head" > "$tpl"
+    rm -f "$DIR/$tpl_project.head"
+    cat "$DIR/$file.ewp.bodies" >> "$tpl"
+    rm -f "$DIR/$tpl_project.body"
+    rm -f "$DIR/$file.ewp.bodies"
+    cat "$DIR/$tpl_project.tail" >> "$tpl"
+    rm -f "$DIR/$tpl_project.tail"
 
     tpl-set-deps      "$tpl" "target"        "$target_y"
     tpl-set-deps      "$tpl" "utils"         "$utils_y"
@@ -333,7 +324,7 @@ generate-eww() {
 }
 
 for variant in $AVAILABLE_VARIANTS; do
-    make -C $DIR TARGET=$TARGET VARIANT=$variant iar-env
+    make -C "$DIR" TARGET=$TARGET VARIANT=$variant iar-env
 done
 
 generate-ewp $BINNAME
@@ -341,7 +332,7 @@ generate-eww $BINNAME
 generate-ewd $BINNAME
 
 for variant in $AVAILABLE_VARIANTS; do
-    rm -f $DIR/.env-$variant.sh
+    rm -f "$DIR/.env-$variant.sh"
 done
 
 exit 0

@@ -31,7 +31,7 @@ iar-workspace-template-y ?= $(TOP)/scripts/iar_workspace.template
 iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
 
 iar:
-	+$(Q)bash $(TOP)/scripts/iar_project.sh $(shell pwd) $(TOP) $(BINNAME) $(SELECTED_TARGET) '$(ALL_VARIANTS)'
+	+$(Q)bash $(TOP)/scripts/iar_project.sh "$(shell pwd)" "$(TOP)" "$(BINNAME)" "$(SELECTED_TARGET)" "$(ALL_VARIANTS)"
 
 clean-env:
 	rm -f .env-$(VARIANT).sh
