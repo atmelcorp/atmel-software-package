@@ -43,32 +43,31 @@ typedef struct {
 	__IO uint32_t MATRIX_PRBS; /**< \brief (MatrixPr Offset: 0x4) Priority Register B for Slave 0 */
 } MatrixPr;
 /** \brief Matrix hardware registers */
-#define MATRIXPR_NUMBER 13
 typedef struct {
-	__IO uint32_t MATRIX_MCFG[10];		  /**< \brief (Matrix Offset: 0x0000) Master Configuration Register */
-	__I uint32_t Reserved1[6];
-	__IO uint32_t MATRIX_SCFG[13];		  /**< \brief (Matrix Offset: 0x0040) Slave Configuration Register */
-	__I uint32_t Reserved2[3];
-	MatrixPr MATRIX_PR[MATRIXPR_NUMBER]; /**< \brief (Matrix Offset: 0x0080) 0 .. 12 */
-	__I uint32_t Reserved3[26];
-	__O uint32_t MATRIX_MEIER;		  /**< \brief (Matrix Offset: 0x0150) Master Error Interrupt Enable Register */
-	__O uint32_t MATRIX_MEIDR;		  /**< \brief (Matrix Offset: 0x0154) Master Error Interrupt Disable Register */
-	__I uint32_t MATRIX_MEIMR;		  /**< \brief (Matrix Offset: 0x0158) Master Error Interrupt Mask Register */
-	__I uint32_t MATRIX_MESR;		  /**< \brief (Matrix Offset: 0x015C) Master Error Status Register */
-	__I uint32_t MATRIX_MEAR[10];		  /**< \brief (Matrix Offset: 0x0160) Master 0 Error Address Register */
-	__I uint32_t Reserved4[23];
-	__IO uint32_t MATRIX_WPMR;		  /**< \brief (Matrix Offset: 0x01E4) Write Protection Mode Register */
-	__I uint32_t MATRIX_WPSR;		  /**< \brief (Matrix Offset: 0x01E8) Write Protection Status Register */
-	__I uint32_t Reserved5[5];
-	__IO uint32_t MATRIX_SSR[13];		  /**< \brief (Matrix Offset: 0x0200) Security Slave 0 Register */
-	__I uint32_t Reserved6[3];
-	__IO uint32_t MATRIX_SASSR[13];		  /**< \brief (Matrix Offset: 0x0240) Security Areas Split Slave 0 Register */
-	__I uint32_t Reserved7[3];
-	__IO uint32_t MATRIX_SRTSR[13];		  /**< \brief (Matrix Offset: 0x0284) Security Region Top Slave 1 Register */
-	__I uint32_t Reserved8[3];
-	__IO uint32_t MATRIX_SPSELR[3];		  /**< \brief (Matrix Offset: 0x02C0) Security Peripheral Select 1 Register */
+	__IO uint32_t MATRIX_MCFG[10];  /**< \brief (Matrix Offset: 0x0000) Master Configuration Register */
+	__I  uint32_t Reserved1[6];
+	__IO uint32_t MATRIX_SCFG[13];  /**< \brief (Matrix Offset: 0x0040) Slave Configuration Register */
+	__I  uint32_t Reserved2[3];
+	     MatrixPr MATRIX_PR[13];    /**< \brief (Matrix Offset: 0x0080) 0 .. 12 */
+	__I  uint32_t Reserved3[26];
+	__O  uint32_t MATRIX_MEIER;     /**< \brief (Matrix Offset: 0x0150) Master Error Interrupt Enable Register */
+	__O  uint32_t MATRIX_MEIDR;     /**< \brief (Matrix Offset: 0x0154) Master Error Interrupt Disable Register */
+	__I  uint32_t MATRIX_MEIMR;     /**< \brief (Matrix Offset: 0x0158) Master Error Interrupt Mask Register */
+	__I  uint32_t MATRIX_MESR;      /**< \brief (Matrix Offset: 0x015C) Master Error Status Register */
+	__I  uint32_t MATRIX_MEAR[10];  /**< \brief (Matrix Offset: 0x0160) Master 0 Error Address Register */
+	__I  uint32_t Reserved4[23];
+	__IO uint32_t MATRIX_WPMR;      /**< \brief (Matrix Offset: 0x01E4) Write Protection Mode Register */
+	__I  uint32_t MATRIX_WPSR;      /**< \brief (Matrix Offset: 0x01E8) Write Protection Status Register */
+	__I  uint32_t Reserved5[5];
+	__IO uint32_t MATRIX_SSR[13];   /**< \brief (Matrix Offset: 0x0200) Security Slave x Register */
+	__I  uint32_t Reserved6[3];
+	__IO uint32_t MATRIX_SASSR[13]; /**< \brief (Matrix Offset: 0x0240) Security Areas Split Slave x Register */
+	__I  uint32_t Reserved7[3];
+	__IO uint32_t MATRIX_SRTSR[13]; /**< \brief (Matrix Offset: 0x0284) Security Region Top Slave x Register */
+	__I  uint32_t Reserved8[3];
+	__IO uint32_t MATRIX_SPSELR[3]; /**< \brief (Matrix Offset: 0x02C0) Security Peripheral Select x Register */
 } Matrix;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MATRIX_MCFG[10] : (MATRIX Offset: 0x0000) Master Configuration Register -------- */
 #define MATRIX_MCFG_ULBT_Pos 0
 #define MATRIX_MCFG_ULBT_Msk (0x7u << MATRIX_MCFG_ULBT_Pos) /**< \brief (MATRIX_MCFG[10]) Undefined Length Burst Type */
@@ -80,7 +79,7 @@ typedef struct {
 #define   MATRIX_MCFG_ULBT_16_BEAT (0x4u << 0) /**< \brief (MATRIX_MCFG[10]) 16-beat Burst-The undefined length burst or bursts sequence is split into 16-beat bursts or less, allowing re-arbitration every 16 beats. */
 #define   MATRIX_MCFG_ULBT_32_BEAT (0x5u << 0) /**< \brief (MATRIX_MCFG[10]) 32-beat Burst-The undefined length burst or bursts sequence is split into 32-beat bursts or less, allowing re-arbitration every 32 beats. */
 #define   MATRIX_MCFG_ULBT_64_BEAT (0x6u << 0) /**< \brief (MATRIX_MCFG[10]) 64-beat Burst-The undefined length burst or bursts sequence is split into 64-beat bursts or less, allowing re-arbitration every 64 beats. */
-#define   MATRIX_MCFG_ULBT_128_BEAT (0x7u << 0)	/**< \brief (MATRIX_MCFG[10]) 128-beat Burst-The undefined length burst or bursts sequence is split into 128-beat bursts or less, allowing re-arbitration every 128 beats.Unless duly needed, the ULBT should be left at its default 0 value for power saving. */
+#define   MATRIX_MCFG_ULBT_128_BEAT (0x7u << 0) /**< \brief (MATRIX_MCFG[10]) 128-beat Burst-The undefined length burst or bursts sequence is split into 128-beat bursts or less, allowing re-arbitration every 128 beats.Unless duly needed, the ULBT should be left at its default 0 value for power saving. */
 /* -------- MATRIX_SCFG[13] : (MATRIX Offset: 0x0040) Slave Configuration Register -------- */
 #define MATRIX_SCFG_SLOT_CYCLE_Pos 0
 #define MATRIX_SCFG_SLOT_CYCLE_Msk (0x1ffu << MATRIX_SCFG_SLOT_CYCLE_Pos) /**< \brief (MATRIX_SCFG[13]) Maximum Bus Grant Duration for Masters */
@@ -184,16 +183,16 @@ typedef struct {
 #define MATRIX_WPSR_WPVSRC_Pos 8
 #define MATRIX_WPSR_WPVSRC_Msk (0xffffu << MATRIX_WPSR_WPVSRC_Pos) /**< \brief (MATRIX_WPSR) Write Protection Violation Source */
 /* -------- MATRIX_SSR[13] : (MATRIX Offset: 0x0200) Security Slave 0 Register -------- */
-#define MATRIX_SSR_LANSECH0 (0x1u << 0)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH1 (0x1u << 1)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH2 (0x1u << 2)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH3 (0x1u << 3)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH4 (0x1u << 4)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH5 (0x1u << 5)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH6 (0x1u << 6)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_LANSECH7 (0x1u << 7)	/**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
-#define MATRIX_SSR_RDNSECH0 (0x1u << 8)	/**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
-#define MATRIX_SSR_RDNSECH1 (0x1u << 9)	/**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
+#define MATRIX_SSR_LANSECH0 (0x1u << 0) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH1 (0x1u << 1) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH2 (0x1u << 2) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH3 (0x1u << 3) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH4 (0x1u << 4) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH5 (0x1u << 5) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH6 (0x1u << 6) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_LANSECH7 (0x1u << 7) /**< \brief (MATRIX_SSR[13]) Low Area Non-secured in HSELx Security Region */
+#define MATRIX_SSR_RDNSECH0 (0x1u << 8) /**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
+#define MATRIX_SSR_RDNSECH1 (0x1u << 9) /**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
 #define MATRIX_SSR_RDNSECH2 (0x1u << 10) /**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
 #define MATRIX_SSR_RDNSECH3 (0x1u << 11) /**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
 #define MATRIX_SSR_RDNSECH4 (0x1u << 12) /**< \brief (MATRIX_SSR[13]) Read Non-secured for HSELx Security Region */
@@ -294,4 +293,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_MATRIX_COMPONENT_ */
+#endif /* _SAMA5D4_MATRIX_COMPONENT_ */

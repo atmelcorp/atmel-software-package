@@ -39,27 +39,34 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief MatrixPr hardware registers */
 typedef struct {
-  __IO  uint32_t     MATRIX_PRAS;     /**< \brief (MatrixPr Offset: 0x0) Priority Register A for Slave 0 */
-  __IO  uint32_t     MATRIX_PRBS;     /**< \brief (MatrixPr Offset: 0x4) Priority Register B for Slave 0 */
+	__IO uint32_t MATRIX_PRAS; /**< \brief (MatrixPr Offset: 0x0) Priority Register A for Slave 0 */
+	__IO uint32_t MATRIX_PRBS; /**< \brief (MatrixPr Offset: 0x4) Priority Register B for Slave 0 */
 } MatrixPr;
 /** \brief Matrix hardware registers */
-#define MATRIXPR_NUMBER 16
 typedef struct {
-  __IO  uint32_t     MATRIX_MCFG[16]; /**< \brief (Matrix Offset: 0x0000) Master Configuration Register */
-  __IO  uint32_t     MATRIX_SCFG[16]; /**< \brief (Matrix Offset: 0x0040) Slave Configuration Register */
-  MatrixPr  MATRIX_PR[MATRIXPR_NUMBER]; /**< \brief (Matrix Offset: 0x0080) 0 .. 15 */
-  __IO  uint32_t     MATRIX_MRCR;     /**< \brief (Matrix Offset: 0x0100) Master Remap Control Register */
-  __I   uint32_t     Reserved1[3];
-  __IO  uint32_t     MATRIX_SFR[16];  /**< \brief (Matrix Offset: 0x0110) Special Function Register */
-  __I   uint32_t     Reserved2[37];
-  __IO  uint32_t     MATRIX_WPMR;     /**< \brief (Matrix Offset: 0x01E4) Write Protect Mode Register */
-  __I   uint32_t     MATRIX_WPSR;     /**< \brief (Matrix Offset: 0x01E8) Write Protect Status Register */
+	__IO uint32_t MATRIX_MCFG[16];  /**< \brief (Matrix Offset: 0x0000) Master Configuration Register */
+	__IO uint32_t MATRIX_SCFG[16];  /**< \brief (Matrix Offset: 0x0040) Slave Configuration Register */
+	     MatrixPr MATRIX_PR[16];    /**< \brief (Matrix Offset: 0x0080) 0 .. 15 */
+	__IO uint32_t MATRIX_MRCR;      /**< \brief (Matrix Offset: 0x0100) Master Remap Control Register */
+	__I  uint32_t Reserved1[3];
+	__IO uint32_t MATRIX_SFR[16];   /**< \brief (Matrix Offset: 0x0110) Special Function Register */
+	__I  uint32_t Reserved2[37];
+	__IO uint32_t MATRIX_WPMR;      /**< \brief (Matrix Offset: 0x01E4) Write Protection Mode Register */
+	__I  uint32_t MATRIX_WPSR;      /**< \brief (Matrix Offset: 0x01E8) Write Protection Status Register */
 } Matrix;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MATRIX_MCFG[16] : (MATRIX Offset: 0x0000) Master Configuration Register -------- */
 #define MATRIX_MCFG_ULBT_Pos 0
 #define MATRIX_MCFG_ULBT_Msk (0x7u << MATRIX_MCFG_ULBT_Pos) /**< \brief (MATRIX_MCFG[16]) Undefined Length Burst Type */
 #define MATRIX_MCFG_ULBT(value) ((MATRIX_MCFG_ULBT_Msk & ((value) << MATRIX_MCFG_ULBT_Pos)))
+#define   MATRIX_MCFG_ULBT_UNLIMITED (0x0u << 0) /**< \brief (MATRIX_MCFG[10]) Unlimited Length Burst-No predicted end of burst is generated, therefore INCR bursts coming from this master can only be broken if the Slave Slot Cycle Limit is reached. If the Slot Cycle Limit is not reached, the burst is normally completed by the master, at the latest, on the next AHB 1 Kbyte address boundary, allowing up to 256-beat word bursts or 128-beat double-word bursts.This value should not be used in the very particular case of a master capable of performing back-to-back undefined length bursts on a single slave, since this could indefinitely freeze the slave arbitration and thus prevent another master from accessing this slave. */
+#define   MATRIX_MCFG_ULBT_SINGLE (0x1u << 0) /**< \brief (MATRIX_MCFG[10]) Single Access-The undefined length burst is treated as a succession of single accesses, allowing re-arbitration at each beat of the INCR burst or bursts sequence. */
+#define   MATRIX_MCFG_ULBT_4_BEAT (0x2u << 0) /**< \brief (MATRIX_MCFG[10]) 4-beat Burst-The undefined length burst or bursts sequence is split into 4-beat bursts or less, allowing re-arbitration every 4 beats. */
+#define   MATRIX_MCFG_ULBT_8_BEAT (0x3u << 0) /**< \brief (MATRIX_MCFG[10]) 8-beat Burst-The undefined length burst or bursts sequence is split into 8-beat bursts or less, allowing re-arbitration every 8 beats. */
+#define   MATRIX_MCFG_ULBT_16_BEAT (0x4u << 0) /**< \brief (MATRIX_MCFG[10]) 16-beat Burst-The undefined length burst or bursts sequence is split into 16-beat bursts or less, allowing re-arbitration every 16 beats. */
+#define   MATRIX_MCFG_ULBT_32_BEAT (0x5u << 0) /**< \brief (MATRIX_MCFG[10]) 32-beat Burst-The undefined length burst or bursts sequence is split into 32-beat bursts or less, allowing re-arbitration every 32 beats. */
+#define   MATRIX_MCFG_ULBT_64_BEAT (0x6u << 0) /**< \brief (MATRIX_MCFG[10]) 64-beat Burst-The undefined length burst or bursts sequence is split into 64-beat bursts or less, allowing re-arbitration every 64 beats. */
+#define   MATRIX_MCFG_ULBT_128_BEAT (0x7u << 0)	/**< \brief (MATRIX_MCFG[10]) 128-beat Burst-The undefined length burst or bursts sequence is split into 128-beat bursts or less, allowing re-arbitration every 128 beats.Unless duly needed, the ULBT should be left at its default 0 value for power saving. */
 /* -------- MATRIX_SCFG[16] : (MATRIX Offset: 0x0040) Slave Configuration Register -------- */
 #define MATRIX_SCFG_SLOT_CYCLE_Pos 0
 #define MATRIX_SCFG_SLOT_CYCLE_Msk (0x1ffu << MATRIX_SCFG_SLOT_CYCLE_Pos) /**< \brief (MATRIX_SCFG[16]) Maximum Bus Grant Duration for Masters */
@@ -67,6 +74,9 @@ typedef struct {
 #define MATRIX_SCFG_DEFMSTR_TYPE_Pos 16
 #define MATRIX_SCFG_DEFMSTR_TYPE_Msk (0x3u << MATRIX_SCFG_DEFMSTR_TYPE_Pos) /**< \brief (MATRIX_SCFG[16]) Default Master Type */
 #define MATRIX_SCFG_DEFMSTR_TYPE(value) ((MATRIX_SCFG_DEFMSTR_TYPE_Msk & ((value) << MATRIX_SCFG_DEFMSTR_TYPE_Pos)))
+#define   MATRIX_SCFG_DEFMSTR_TYPE_NONE (0x0u << 16) /**< \brief (MATRIX_SCFG[13]) No Default Master-At the end of the current slave access, if no other master request is pending, the slave is disconnected from all masters.This results in a one clock cycle latency for the first access of a burst transfer or for a single access. */
+#define   MATRIX_SCFG_DEFMSTR_TYPE_LAST (0x1u << 16) /**< \brief (MATRIX_SCFG[13]) Last Default Master-At the end of the current slave access, if no other master request is pending, the slave stays connected to the last master having accessed it.This results in not having one clock cycle latency when the last master tries to access the slave again. */
+#define   MATRIX_SCFG_DEFMSTR_TYPE_FIXED (0x2u << 16) /**< \brief (MATRIX_SCFG[13]) Fixed Default Master-At the end of the current slave access, if no other master request is pending, the slave connects to the fixed master the number that has been written in the FIXED_DEFMSTR field.This results in not having one clock cycle latency when the fixed master tries to access the slave again. */
 #define MATRIX_SCFG_FIXED_DEFMSTR_Pos 18
 #define MATRIX_SCFG_FIXED_DEFMSTR_Msk (0xfu << MATRIX_SCFG_FIXED_DEFMSTR_Pos) /**< \brief (MATRIX_SCFG[16]) Fixed Default Master */
 #define MATRIX_SCFG_FIXED_DEFMSTR(value) ((MATRIX_SCFG_FIXED_DEFMSTR_Msk & ((value) << MATRIX_SCFG_FIXED_DEFMSTR_Pos)))
@@ -121,38 +131,37 @@ typedef struct {
 #define MATRIX_PRBS_M15PR_Msk (0x3u << MATRIX_PRBS_M15PR_Pos) /**< \brief (MATRIX_PRBS) Master 15 Priority */
 #define MATRIX_PRBS_M15PR(value) ((MATRIX_PRBS_M15PR_Msk & ((value) << MATRIX_PRBS_M15PR_Pos)))
 /* -------- MATRIX_MRCR : (MATRIX Offset: 0x0100) Master Remap Control Register -------- */
-#define MATRIX_MRCR_RCB0 (0x1u << 0) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB1 (0x1u << 1) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB2 (0x1u << 2) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB3 (0x1u << 3) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB4 (0x1u << 4) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB5 (0x1u << 5) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB6 (0x1u << 6) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB7 (0x1u << 7) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB8 (0x1u << 8) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB9 (0x1u << 9) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB10 (0x1u << 10) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB11 (0x1u << 11) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB12 (0x1u << 12) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB13 (0x1u << 13) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB14 (0x1u << 14) /**< \brief (MATRIX_MRCR)  */
-#define MATRIX_MRCR_RCB15 (0x1u << 15) /**< \brief (MATRIX_MRCR)  */
+#define MATRIX_MRCR_RCB0 (0x1u << 0) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 0 */
+#define MATRIX_MRCR_RCB1 (0x1u << 1) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 1 */
+#define MATRIX_MRCR_RCB2 (0x1u << 2) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 2 */
+#define MATRIX_MRCR_RCB3 (0x1u << 3) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 3 */
+#define MATRIX_MRCR_RCB4 (0x1u << 4) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 4 */
+#define MATRIX_MRCR_RCB5 (0x1u << 5) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 5 */
+#define MATRIX_MRCR_RCB6 (0x1u << 6) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 6 */
+#define MATRIX_MRCR_RCB7 (0x1u << 7) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 7 */
+#define MATRIX_MRCR_RCB8 (0x1u << 8) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 8 */
+#define MATRIX_MRCR_RCB9 (0x1u << 9) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 9 */
+#define MATRIX_MRCR_RCB10 (0x1u << 10) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 10 */
+#define MATRIX_MRCR_RCB11 (0x1u << 11) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 11 */
+#define MATRIX_MRCR_RCB12 (0x1u << 12) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 12  */
+#define MATRIX_MRCR_RCB13 (0x1u << 13) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 13 */
+#define MATRIX_MRCR_RCB14 (0x1u << 14) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 14 */
+#define MATRIX_MRCR_RCB15 (0x1u << 15) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 15 */
 /* -------- MATRIX_SFR[16] : (MATRIX Offset: 0x0110) Special Function Register -------- */
 #define MATRIX_SFR_SFR_Pos 0
 #define MATRIX_SFR_SFR_Msk (0xffffffffu << MATRIX_SFR_SFR_Pos) /**< \brief (MATRIX_SFR[16]) Special Function Register Fields */
 #define MATRIX_SFR_SFR(value) ((MATRIX_SFR_SFR_Msk & ((value) << MATRIX_SFR_SFR_Pos)))
 /* -------- MATRIX_WPMR : (MATRIX Offset: 0x01E4) Write Protect Mode Register -------- */
-#define MATRIX_WPMR_WPEN (0x1u << 0) /**< \brief (MATRIX_WPMR) Write Protect Enable */
+#define MATRIX_WPMR_WPEN (0x1u << 0) /**< \brief (MATRIX_WPMR) Write Protection Enable */
 #define MATRIX_WPMR_WPKEY_Pos 8
-#define MATRIX_WPMR_WPKEY_Msk (0xffffffu << MATRIX_WPMR_WPKEY_Pos) /**< \brief (MATRIX_WPMR) Write Protect KEY (Write-only) */
+#define MATRIX_WPMR_WPKEY_Msk (0xffffffu << MATRIX_WPMR_WPKEY_Pos) /**< \brief (MATRIX_WPMR) Write Protection Key (Write-only) */
 #define MATRIX_WPMR_WPKEY(value) ((MATRIX_WPMR_WPKEY_Msk & ((value) << MATRIX_WPMR_WPKEY_Pos)))
 #define   MATRIX_WPMR_WPKEY_PASSWD (0x4D4154u << 8) /**< \brief (MATRIX_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- MATRIX_WPSR : (MATRIX Offset: 0x01E8) Write Protect Status Register -------- */
-#define MATRIX_WPSR_WPVS (0x1u << 0) /**< \brief (MATRIX_WPSR) Write Protect Violation Status */
+/* -------- MATRIX_WPSR : (MATRIX Offset: 0x01E8) Write Protection Status Register -------- */
+#define MATRIX_WPSR_WPVS (0x1u << 0) /**< \brief (MATRIX_WPSR) Write Protection Violation Status */
 #define MATRIX_WPSR_WPVSRC_Pos 8
-#define MATRIX_WPSR_WPVSRC_Msk (0xffffu << MATRIX_WPSR_WPVSRC_Pos) /**< \brief (MATRIX_WPSR) Write Protect Violation Source */
+#define MATRIX_WPSR_WPVSRC_Msk (0xffffu << MATRIX_WPSR_WPVSRC_Pos) /**< \brief (MATRIX_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_MATRIX_COMPONENT_ */
