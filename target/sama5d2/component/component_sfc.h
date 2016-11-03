@@ -39,14 +39,14 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sfc hardware registers */
 typedef struct {
-  __O  uint32_t SFC_KR;        /**< \brief (Sfc Offset: 0x00) SFC Key Register */
-  __IO uint32_t SFC_MR;        /**< \brief (Sfc Offset: 0x04) SFC Mode Register */
-  __I  uint32_t Reserved1[2];
-  __IO uint32_t SFC_IER;       /**< \brief (Sfc Offset: 0x10) SFC Interrupt Enable Register */
-  __IO uint32_t SFC_IDR;       /**< \brief (Sfc Offset: 0x14) SFC Interrupt Disable Register */
-  __I  uint32_t SFC_IMR;       /**< \brief (Sfc Offset: 0x18) SFC Interrupt Mask Register */
-  __I  uint32_t SFC_SR;        /**< \brief (Sfc Offset: 0x1C) SFC Status Register */
-  __IO uint32_t SFC_DR[24];    /**< \brief (Sfc Offset: 0x20) SFC Data Register */
+	__O  uint32_t SFC_KR;     /**< \brief (Sfc Offset: 0x00) SFC Key Register */
+	__IO uint32_t SFC_MR;     /**< \brief (Sfc Offset: 0x04) SFC Mode Register */
+	__I  uint32_t Reserved1[2];
+	__IO uint32_t SFC_IER;    /**< \brief (Sfc Offset: 0x10) SFC Interrupt Enable Register */
+	__IO uint32_t SFC_IDR;    /**< \brief (Sfc Offset: 0x14) SFC Interrupt Disable Register */
+	__I  uint32_t SFC_IMR;    /**< \brief (Sfc Offset: 0x18) SFC Interrupt Mask Register */
+	__I  uint32_t SFC_SR;     /**< \brief (Sfc Offset: 0x1C) SFC Status Register */
+	__IO uint32_t SFC_DR[24];  /**< \brief (Sfc Offset: 0x20) SFC Data Register */
 } Sfc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SFC_KR : (SFC Offset: 0x00) SFC Key Register -------- */
@@ -83,6 +83,5 @@ typedef struct {
 #define SFC_DR_DATA(value) ((SFC_DR_DATA_Msk & ((value) << SFC_DR_DATA_Pos)))
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SFC_COMPONENT_ */
