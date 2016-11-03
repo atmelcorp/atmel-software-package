@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pit hardware registers */
 typedef struct {
-  __IO uint32_t PIT_MR;   /**< \brief (Pit Offset: 0x00) Mode Register */
-  __I  uint32_t PIT_SR;   /**< \brief (Pit Offset: 0x04) Status Register */
-  __I  uint32_t PIT_PIVR; /**< \brief (Pit Offset: 0x08) Periodic Interval Value Register */
-  __I  uint32_t PIT_PIIR; /**< \brief (Pit Offset: 0x0C) Periodic Interval Image Register */
+	__IO uint32_t PIT_MR;   /**< \brief (Pit Offset: 0x00) Mode Register */
+	__I  uint32_t PIT_SR;   /**< \brief (Pit Offset: 0x04) Status Register */
+	__I  uint32_t PIT_PIVR; /**< \brief (Pit Offset: 0x08) Periodic Interval Value Register */
+	__I  uint32_t PIT_PIIR; /**< \brief (Pit Offset: 0x0C) Periodic Interval Image Register */
 } Pit;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PIT_MR : (PIT Offset: 0x00) Mode Register -------- */
@@ -65,6 +65,5 @@ typedef struct {
 #define PIT_PIIR_PICNT_Msk (0xfffu << PIT_PIIR_PICNT_Pos) /**< \brief (PIT_PIIR) Periodic Interval Counter */
 
 /*@}*/
-
 
 #endif /* _SAM9X_PIT_COMPONENT_ */
