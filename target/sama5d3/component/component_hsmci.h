@@ -39,29 +39,29 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Hsmci hardware registers */
 typedef struct {
-  __O   uint32_t HSMCI_CR;        /**< \brief (Hsmci Offset: 0x00) Control Register */
-  __IO  uint32_t HSMCI_MR;        /**< \brief (Hsmci Offset: 0x04) Mode Register */
-  __IO  uint32_t HSMCI_DTOR;      /**< \brief (Hsmci Offset: 0x08) Data Timeout Register */
-  __IO  uint32_t HSMCI_SDCR;      /**< \brief (Hsmci Offset: 0x0C) SD/SDIO Card Register */
-  __IO  uint32_t HSMCI_ARGR;      /**< \brief (Hsmci Offset: 0x10) Argument Register */
-  __O   uint32_t HSMCI_CMDR;      /**< \brief (Hsmci Offset: 0x14) Command Register */
-  __IO  uint32_t HSMCI_BLKR;      /**< \brief (Hsmci Offset: 0x18) Block Register */
-  __IO  uint32_t HSMCI_CSTOR;     /**< \brief (Hsmci Offset: 0x1C) Completion Signal Timeout Register */
-  __I   uint32_t HSMCI_RSPR[4];   /**< \brief (Hsmci Offset: 0x20) Response Register */
-  __I   uint32_t HSMCI_RDR;       /**< \brief (Hsmci Offset: 0x30) Receive Data Register */
-  __O   uint32_t HSMCI_TDR;       /**< \brief (Hsmci Offset: 0x34) Transmit Data Register */
-  __I   uint32_t Reserved1[2];
-  __I   uint32_t HSMCI_SR;        /**< \brief (Hsmci Offset: 0x40) Status Register */
-  __O   uint32_t HSMCI_IER;       /**< \brief (Hsmci Offset: 0x44) Interrupt Enable Register */
-  __O   uint32_t HSMCI_IDR;       /**< \brief (Hsmci Offset: 0x48) Interrupt Disable Register */
-  __I   uint32_t HSMCI_IMR;       /**< \brief (Hsmci Offset: 0x4C) Interrupt Mask Register */
-  __IO  uint32_t HSMCI_DMA;       /**< \brief (Hsmci Offset: 0x50) DMA Configuration Register */
-  __IO  uint32_t HSMCI_CFG;       /**< \brief (Hsmci Offset: 0x54) Configuration Register */
-  __I   uint32_t Reserved2[35];
-  __IO  uint32_t HSMCI_WPMR;      /**< \brief (Hsmci Offset: 0xE4) Write Protection Mode Register */
-  __I   uint32_t HSMCI_WPSR;      /**< \brief (Hsmci Offset: 0xE8) Write Protection Status Register */
-  __I   uint32_t Reserved3[69];
-  __IO  uint32_t HSMCI_FIFO[256]; /**< \brief (Hsmci Offset: 0x200) FIFO Memory Aperture0 */
+	__O  uint32_t HSMCI_CR;        /**< \brief (Hsmci Offset: 0x00) Control Register */
+	__IO uint32_t HSMCI_MR;        /**< \brief (Hsmci Offset: 0x04) Mode Register */
+	__IO uint32_t HSMCI_DTOR;      /**< \brief (Hsmci Offset: 0x08) Data Timeout Register */
+	__IO uint32_t HSMCI_SDCR;      /**< \brief (Hsmci Offset: 0x0C) SD/SDIO Card Register */
+	__IO uint32_t HSMCI_ARGR;      /**< \brief (Hsmci Offset: 0x10) Argument Register */
+	__O  uint32_t HSMCI_CMDR;      /**< \brief (Hsmci Offset: 0x14) Command Register */
+	__IO uint32_t HSMCI_BLKR;      /**< \brief (Hsmci Offset: 0x18) Block Register */
+	__IO uint32_t HSMCI_CSTOR;     /**< \brief (Hsmci Offset: 0x1C) Completion Signal Timeout Register */
+	__I  uint32_t HSMCI_RSPR[4];   /**< \brief (Hsmci Offset: 0x20) Response Register */
+	__I  uint32_t HSMCI_RDR;       /**< \brief (Hsmci Offset: 0x30) Receive Data Register */
+	__O  uint32_t HSMCI_TDR;       /**< \brief (Hsmci Offset: 0x34) Transmit Data Register */
+	__I  uint32_t Reserved1[2];
+	__I  uint32_t HSMCI_SR;        /**< \brief (Hsmci Offset: 0x40) Status Register */
+	__O  uint32_t HSMCI_IER;       /**< \brief (Hsmci Offset: 0x44) Interrupt Enable Register */
+	__O  uint32_t HSMCI_IDR;       /**< \brief (Hsmci Offset: 0x48) Interrupt Disable Register */
+	__I  uint32_t HSMCI_IMR;       /**< \brief (Hsmci Offset: 0x4C) Interrupt Mask Register */
+	__IO uint32_t HSMCI_DMA;       /**< \brief (Hsmci Offset: 0x50) DMA Configuration Register */
+	__IO uint32_t HSMCI_CFG;       /**< \brief (Hsmci Offset: 0x54) Configuration Register */
+	__I  uint32_t Reserved2[35];
+	__IO uint32_t HSMCI_WPMR;      /**< \brief (Hsmci Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t HSMCI_WPSR;      /**< \brief (Hsmci Offset: 0xE8) Write Protection Status Register */
+	__I  uint32_t Reserved3[69];
+	__IO uint32_t HSMCI_FIFO[256]; /**< \brief (Hsmci Offset: 0x200) FIFO Memory Aperture0 */
 } Hsmci;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- HSMCI_CR : (HSMCI Offset: 0x00) Control Register -------- */
@@ -77,8 +77,8 @@ typedef struct {
 #define HSMCI_MR_PWSDIV_Pos 8
 #define HSMCI_MR_PWSDIV_Msk (0x7u << HSMCI_MR_PWSDIV_Pos) /**< \brief (HSMCI_MR) Power Saving Divider */
 #define HSMCI_MR_PWSDIV(value) ((HSMCI_MR_PWSDIV_Msk & ((value) << HSMCI_MR_PWSDIV_Pos)))
-#define HSMCI_MR_RDPROOF (0x1u << 11) /**< \brief (HSMCI_MR)  */
-#define HSMCI_MR_WRPROOF (0x1u << 12) /**< \brief (HSMCI_MR)  */
+#define HSMCI_MR_RDPROOF (0x1u << 11) /**< \brief (HSMCI_MR) Read Proof Enable */
+#define HSMCI_MR_WRPROOF (0x1u << 12) /**< \brief (HSMCI_MR) Write Proof Enable */
 #define HSMCI_MR_FBYTE (0x1u << 13) /**< \brief (HSMCI_MR) Force Byte Transfer */
 #define HSMCI_MR_PADV (0x1u << 14) /**< \brief (HSMCI_MR) Padding Value */
 #define HSMCI_MR_CLKODD (0x1u << 16) /**< \brief (HSMCI_MR) Clock divider is odd */
@@ -88,6 +88,7 @@ typedef struct {
 #define HSMCI_DTOR_DTOCYC(value) ((HSMCI_DTOR_DTOCYC_Msk & ((value) << HSMCI_DTOR_DTOCYC_Pos)))
 #define HSMCI_DTOR_DTOMUL_Pos 4
 #define HSMCI_DTOR_DTOMUL_Msk (0x7u << HSMCI_DTOR_DTOMUL_Pos) /**< \brief (HSMCI_DTOR) Data Timeout Multiplier */
+#define HSMCI_DTOR_DTOMUL(value) ((HSMCI_DTOR_DTOMUL_Msk & ((value) << HSMCI_DTOR_DTOMUL_Pos)))
 #define   HSMCI_DTOR_DTOMUL_1 (0x0u << 4) /**< \brief (HSMCI_DTOR) DTOCYC */
 #define   HSMCI_DTOR_DTOMUL_16 (0x1u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 16 */
 #define   HSMCI_DTOR_DTOMUL_128 (0x2u << 4) /**< \brief (HSMCI_DTOR) DTOCYC x 128 */
@@ -99,12 +100,14 @@ typedef struct {
 /* -------- HSMCI_SDCR : (HSMCI Offset: 0x0C) SD/SDIO Card Register -------- */
 #define HSMCI_SDCR_SDCSEL_Pos 0
 #define HSMCI_SDCR_SDCSEL_Msk (0x3u << HSMCI_SDCR_SDCSEL_Pos) /**< \brief (HSMCI_SDCR) SDCard/SDIO Slot */
+#define HSMCI_SDCR_SDCSEL(value) ((HSMCI_SDCR_SDCSEL_Msk & ((value) << HSMCI_SDCR_SDCSEL_Pos)))
 #define   HSMCI_SDCR_SDCSEL_SLOTA (0x0u << 0) /**< \brief (HSMCI_SDCR) Slot A is selected. */
 #define HSMCI_SDCR_SDCBUS_Pos 6
 #define HSMCI_SDCR_SDCBUS_Msk (0x3u << HSMCI_SDCR_SDCBUS_Pos) /**< \brief (HSMCI_SDCR) SDCard/SDIO Bus Width */
+#define HSMCI_SDCR_SDCBUS(value) ((HSMCI_SDCR_SDCBUS_Msk & ((value) << HSMCI_SDCR_SDCBUS_Pos)))
 #define   HSMCI_SDCR_SDCBUS_1 (0x0u << 6) /**< \brief (HSMCI_SDCR) 1 bit */
-#define   HSMCI_SDCR_SDCBUS_4 (0x2u << 6) /**< \brief (HSMCI_SDCR) 4 bit */
-#define   HSMCI_SDCR_SDCBUS_8 (0x3u << 6) /**< \brief (HSMCI_SDCR) 8 bit */
+#define   HSMCI_SDCR_SDCBUS_4 (0x2u << 6) /**< \brief (HSMCI_SDCR) 4 bits */
+#define   HSMCI_SDCR_SDCBUS_8 (0x3u << 6) /**< \brief (HSMCI_SDCR) 8 bits */
 /* -------- HSMCI_ARGR : (HSMCI Offset: 0x10) Argument Register -------- */
 #define HSMCI_ARGR_ARG_Pos 0
 #define HSMCI_ARGR_ARG_Msk (0xffffffffu << HSMCI_ARGR_ARG_Pos) /**< \brief (HSMCI_ARGR) Command Argument */
@@ -115,12 +118,14 @@ typedef struct {
 #define HSMCI_CMDR_CMDNB(value) ((HSMCI_CMDR_CMDNB_Msk & ((value) << HSMCI_CMDR_CMDNB_Pos)))
 #define HSMCI_CMDR_RSPTYP_Pos 6
 #define HSMCI_CMDR_RSPTYP_Msk (0x3u << HSMCI_CMDR_RSPTYP_Pos) /**< \brief (HSMCI_CMDR) Response Type */
-#define   HSMCI_CMDR_RSPTYP_NORESP (0x0u << 6) /**< \brief (HSMCI_CMDR) No response. */
-#define   HSMCI_CMDR_RSPTYP_48_BIT (0x1u << 6) /**< \brief (HSMCI_CMDR) 48-bit response. */
-#define   HSMCI_CMDR_RSPTYP_136_BIT (0x2u << 6) /**< \brief (HSMCI_CMDR) 136-bit response. */
+#define HSMCI_CMDR_RSPTYP(value) ((HSMCI_CMDR_RSPTYP_Msk & ((value) << HSMCI_CMDR_RSPTYP_Pos)))
+#define   HSMCI_CMDR_RSPTYP_NORESP (0x0u << 6) /**< \brief (HSMCI_CMDR) No response */
+#define   HSMCI_CMDR_RSPTYP_48_BIT (0x1u << 6) /**< \brief (HSMCI_CMDR) 48-bit response */
+#define   HSMCI_CMDR_RSPTYP_136_BIT (0x2u << 6) /**< \brief (HSMCI_CMDR) 136-bit response */
 #define   HSMCI_CMDR_RSPTYP_R1B (0x3u << 6) /**< \brief (HSMCI_CMDR) R1b response type */
 #define HSMCI_CMDR_SPCMD_Pos 8
 #define HSMCI_CMDR_SPCMD_Msk (0x7u << HSMCI_CMDR_SPCMD_Pos) /**< \brief (HSMCI_CMDR) Special Command */
+#define HSMCI_CMDR_SPCMD(value) ((HSMCI_CMDR_SPCMD_Msk & ((value) << HSMCI_CMDR_SPCMD_Pos)))
 #define   HSMCI_CMDR_SPCMD_STD (0x0u << 8) /**< \brief (HSMCI_CMDR) Not a special CMD. */
 #define   HSMCI_CMDR_SPCMD_INIT (0x1u << 8) /**< \brief (HSMCI_CMDR) Initialization CMD: 74 clock cycles for initialization sequence. */
 #define   HSMCI_CMDR_SPCMD_SYNC (0x2u << 8) /**< \brief (HSMCI_CMDR) Synchronized CMD: Wait for the end of the current data block transfer before sending the pending command. */
@@ -137,6 +142,7 @@ typedef struct {
 #define   HSMCI_CMDR_MAXLAT_64 (0x1u << 12) /**< \brief (HSMCI_CMDR) 64-cycle max latency. */
 #define HSMCI_CMDR_TRCMD_Pos 16
 #define HSMCI_CMDR_TRCMD_Msk (0x3u << HSMCI_CMDR_TRCMD_Pos) /**< \brief (HSMCI_CMDR) Transfer Command */
+#define HSMCI_CMDR_TRCMD(value) ((HSMCI_CMDR_TRCMD_Msk & ((value) << HSMCI_CMDR_TRCMD_Pos)))
 #define   HSMCI_CMDR_TRCMD_NO_DATA (0x0u << 16) /**< \brief (HSMCI_CMDR) No data transfer */
 #define   HSMCI_CMDR_TRCMD_START_DATA (0x1u << 16) /**< \brief (HSMCI_CMDR) Start data transfer */
 #define   HSMCI_CMDR_TRCMD_STOP_DATA (0x2u << 16) /**< \brief (HSMCI_CMDR) Stop data transfer */
@@ -145,6 +151,7 @@ typedef struct {
 #define   HSMCI_CMDR_TRDIR_READ (0x1u << 18) /**< \brief (HSMCI_CMDR) Read. */
 #define HSMCI_CMDR_TRTYP_Pos 19
 #define HSMCI_CMDR_TRTYP_Msk (0x7u << HSMCI_CMDR_TRTYP_Pos) /**< \brief (HSMCI_CMDR) Transfer Type */
+#define HSMCI_CMDR_TRTYP(value) ((HSMCI_CMDR_TRTYP_Msk & ((value) << HSMCI_CMDR_TRTYP_Pos)))
 #define   HSMCI_CMDR_TRTYP_SINGLE (0x0u << 19) /**< \brief (HSMCI_CMDR) MMC/SDCard Single Block */
 #define   HSMCI_CMDR_TRTYP_MULTIPLE (0x1u << 19) /**< \brief (HSMCI_CMDR) MMC/SDCard Multiple Block */
 #define   HSMCI_CMDR_TRTYP_STREAM (0x2u << 19) /**< \brief (HSMCI_CMDR) MMC Stream */
@@ -152,19 +159,18 @@ typedef struct {
 #define   HSMCI_CMDR_TRTYP_BLOCK (0x5u << 19) /**< \brief (HSMCI_CMDR) SDIO Block */
 #define HSMCI_CMDR_IOSPCMD_Pos 24
 #define HSMCI_CMDR_IOSPCMD_Msk (0x3u << HSMCI_CMDR_IOSPCMD_Pos) /**< \brief (HSMCI_CMDR) SDIO Special Command */
+#define HSMCI_CMDR_IOSPCMD(value) ((HSMCI_CMDR_IOSPCMD_Msk & ((value) << HSMCI_CMDR_IOSPCMD_Pos)))
 #define   HSMCI_CMDR_IOSPCMD_STD (0x0u << 24) /**< \brief (HSMCI_CMDR) Not an SDIO Special Command */
 #define   HSMCI_CMDR_IOSPCMD_SUSPEND (0x1u << 24) /**< \brief (HSMCI_CMDR) SDIO Suspend Command */
 #define   HSMCI_CMDR_IOSPCMD_RESUME (0x2u << 24) /**< \brief (HSMCI_CMDR) SDIO Resume Command */
 #define HSMCI_CMDR_ATACS (0x1u << 26) /**< \brief (HSMCI_CMDR) ATA with Command Completion Signal */
 #define   HSMCI_CMDR_ATACS_NORMAL (0x0u << 26) /**< \brief (HSMCI_CMDR) Normal operation mode. */
 #define   HSMCI_CMDR_ATACS_COMPLETION (0x1u << 26) /**< \brief (HSMCI_CMDR) This bit indicates that a completion signal is expected within a programmed amount of time (HSMCI_CSTOR). */
-#define HSMCI_CMDR_BOOT_ACK (0x1u << 27) /**< \brief (HSMCI_CMDR) Boot Operation Acknowledge. */
+#define HSMCI_CMDR_BOOT_ACK (0x1u << 27) /**< \brief (HSMCI_CMDR) Boot Operation Acknowledge */
 /* -------- HSMCI_BLKR : (HSMCI Offset: 0x18) Block Register -------- */
 #define HSMCI_BLKR_BCNT_Pos 0
 #define HSMCI_BLKR_BCNT_Msk (0xffffu << HSMCI_BLKR_BCNT_Pos) /**< \brief (HSMCI_BLKR) MMC/SDIO Block Count - SDIO Byte Count */
-#define   HSMCI_BLKR_BCNT_MULTIPLE (0x0u << 0) /**< \brief (HSMCI_BLKR) MMC/SDCARD Multiple BlockFrom 1 to 1: Value 0 corresponds to an infinite block transfer. */
-#define   HSMCI_BLKR_BCNT_BYTE (0x4u << 0) /**< \brief (HSMCI_BLKR) SDIO ByteFrom 1 to 512 bytes: Value 0 corresponds to a 512-byte transfer.Values from 0x200 to 0xFFFF are forbidden. */
-#define   HSMCI_BLKR_BCNT_BLOCK (0x5u << 0) /**< \brief (HSMCI_BLKR) SDIO BlockFrom 1 to 511 blocks: Value 0 corresponds to an infinite block transfer.Values from 0x200 to 0xFFFF are forbidden. */
+#define HSMCI_BLKR_BCNT(value) ((HSMCI_BLKR_BCNT_Msk & ((value) << HSMCI_BLKR_BCNT_Pos)))
 #define HSMCI_BLKR_BLKLEN_Pos 16
 #define HSMCI_BLKR_BLKLEN_Msk (0xffffu << HSMCI_BLKR_BLKLEN_Pos) /**< \brief (HSMCI_BLKR) Data Block Length */
 #define HSMCI_BLKR_BLKLEN(value) ((HSMCI_BLKR_BLKLEN_Msk & ((value) << HSMCI_BLKR_BLKLEN_Pos)))
@@ -174,6 +180,7 @@ typedef struct {
 #define HSMCI_CSTOR_CSTOCYC(value) ((HSMCI_CSTOR_CSTOCYC_Msk & ((value) << HSMCI_CSTOR_CSTOCYC_Pos)))
 #define HSMCI_CSTOR_CSTOMUL_Pos 4
 #define HSMCI_CSTOR_CSTOMUL_Msk (0x7u << HSMCI_CSTOR_CSTOMUL_Pos) /**< \brief (HSMCI_CSTOR) Completion Signal Timeout Multiplier */
+#define HSMCI_CSTOR_CSTOMUL(value) ((HSMCI_CSTOR_CSTOMUL_Msk & ((value) << HSMCI_CSTOR_CSTOMUL_Pos)))
 #define   HSMCI_CSTOR_CSTOMUL_1 (0x0u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 1 */
 #define   HSMCI_CSTOR_CSTOMUL_16 (0x1u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 16 */
 #define   HSMCI_CSTOR_CSTOMUL_128 (0x2u << 4) /**< \brief (HSMCI_CSTOR) CSTOCYC x 128 */
@@ -302,6 +309,7 @@ typedef struct {
 #define HSMCI_DMA_OFFSET(value) ((HSMCI_DMA_OFFSET_Msk & ((value) << HSMCI_DMA_OFFSET_Pos)))
 #define HSMCI_DMA_CHKSIZE_Pos 4
 #define HSMCI_DMA_CHKSIZE_Msk (0x7u << HSMCI_DMA_CHKSIZE_Pos) /**< \brief (HSMCI_DMA) DMA Channel Read and Write Chunk Size */
+#define HSMCI_DMA_CHKSIZE(value) ((HSMCI_DMA_CHKSIZE_Msk & ((value) << HSMCI_DMA_CHKSIZE_Pos)))
 #define   HSMCI_DMA_CHKSIZE_1 (0x0u << 4) /**< \brief (HSMCI_DMA) 1 data available */
 #define   HSMCI_DMA_CHKSIZE_4 (0x1u << 4) /**< \brief (HSMCI_DMA) 4 data available */
 #define   HSMCI_DMA_CHKSIZE_8 (0x2u << 4) /**< \brief (HSMCI_DMA) 8 data available */
@@ -315,25 +323,20 @@ typedef struct {
 #define HSMCI_CFG_HSMODE (0x1u << 8) /**< \brief (HSMCI_CFG) High Speed Mode */
 #define HSMCI_CFG_LSYNC (0x1u << 12) /**< \brief (HSMCI_CFG) Synchronize on the last block */
 /* -------- HSMCI_WPMR : (HSMCI Offset: 0xE4) Write Protection Mode Register -------- */
-#define HSMCI_WPMR_WP_EN (0x1u << 0) /**< \brief (HSMCI_WPMR) Write Protection Enable */
-#define HSMCI_WPMR_WP_KEY_Pos 8
-#define HSMCI_WPMR_WP_KEY_Msk (0xffffffu << HSMCI_WPMR_WP_KEY_Pos) /**< \brief (HSMCI_WPMR) Write Protection Key password */
-#define HSMCI_WPMR_WP_KEY(value) ((HSMCI_WPMR_WP_KEY_Msk & ((value) << HSMCI_WPMR_WP_KEY_Pos)))
+#define HSMCI_WPMR_WPEN (0x1u << 0) /**< \brief (HSMCI_WPMR) Write Protection Enable */
+#define HSMCI_WPMR_WPKEY_Pos 8
+#define HSMCI_WPMR_WPKEY_Msk (0xffffffu << HSMCI_WPMR_WPKEY_Pos) /**< \brief (HSMCI_WPMR) Write Protection Key */
+#define HSMCI_WPMR_WPKEY(value) ((HSMCI_WPMR_WPKEY_Msk & ((value) << HSMCI_WPMR_WPKEY_Pos)))
+#define   HSMCI_WPMR_WPKEY_PASSWD (0x4D4349u << 8) /**< \brief (HSMCI_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
 /* -------- HSMCI_WPSR : (HSMCI Offset: 0xE8) Write Protection Status Register -------- */
-#define HSMCI_WPSR_WP_VS_Pos 0
-#define HSMCI_WPSR_WP_VS_Msk (0xfu << HSMCI_WPSR_WP_VS_Pos) /**< \brief (HSMCI_WPSR) Write Protection Violation Status */
-#define   HSMCI_WPSR_WP_VS_NONE (0x0u << 0) /**< \brief (HSMCI_WPSR) No Write Protection Violation occurred since the last read of this register (WP_SR) */
-#define   HSMCI_WPSR_WP_VS_WRITE (0x1u << 0) /**< \brief (HSMCI_WPSR) Write Protection detected unauthorized attempt to write a control register had occurred (since the last read.) */
-#define   HSMCI_WPSR_WP_VS_RESET (0x2u << 0) /**< \brief (HSMCI_WPSR) Software reset had been performed while Write Protection was enabled (since the last read). */
-#define   HSMCI_WPSR_WP_VS_BOTH (0x3u << 0) /**< \brief (HSMCI_WPSR) Both Write Protection violation and software reset with Write Protection enabled have occurred since the last read. */
-#define HSMCI_WPSR_WP_VSRC_Pos 8
-#define HSMCI_WPSR_WP_VSRC_Msk (0xffffu << HSMCI_WPSR_WP_VSRC_Pos) /**< \brief (HSMCI_WPSR) Write Protection Violation SouRCe */
+#define HSMCI_WPSR_WPVS (0x1u << 0) /**< \brief (HSMCI_WPSR) Write Protection Violation Status */
+#define HSMCI_WPSR_WPVSRC_Pos 8
+#define HSMCI_WPSR_WPVSRC_Msk (0xffffu << HSMCI_WPSR_WPVSRC_Pos) /**< \brief (HSMCI_WPSR) Write Protection Violation Source */
 /* -------- HSMCI_FIFO[256] : (HSMCI Offset: 0x200) FIFO Memory Aperture0 -------- */
 #define HSMCI_FIFO_DATA_Pos 0
 #define HSMCI_FIFO_DATA_Msk (0xffffffffu << HSMCI_FIFO_DATA_Pos) /**< \brief (HSMCI_FIFO[256]) Data to Read or Data to Write */
 #define HSMCI_FIFO_DATA(value) ((HSMCI_FIFO_DATA_Msk & ((value) << HSMCI_FIFO_DATA_Pos)))
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_HSMCI_COMPONENT_ */
