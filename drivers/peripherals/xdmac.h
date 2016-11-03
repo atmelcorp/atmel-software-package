@@ -83,7 +83,7 @@
 #define XDMAC_CONTROLLERS 2
 
 /** Number of DMA channels */
-#define XDMAC_CHANNELS (XDMACCHID_NUMBER)
+#define XDMAC_CHANNELS FIELD_ARRAY_SIZE(Xdmac, XDMAC_CH)
 
 /** Max DMA single transfer size */
 #define XDMAC_MAX_BT_SIZE 0xFFFFFF

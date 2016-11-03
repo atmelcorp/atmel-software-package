@@ -37,48 +37,45 @@
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-/** \brief XdmacChid hardware registers */
+/** \brief XdmacCh hardware registers */
 typedef struct {
-  __O  uint32_t XDMAC_CIE;     /**< \brief (XdmacChid Offset: 0x0) Channel Interrupt Enable Register */
-  __O  uint32_t XDMAC_CID;     /**< \brief (XdmacChid Offset: 0x4) Channel Interrupt Disable Register */
-  __O  uint32_t XDMAC_CIM;     /**< \brief (XdmacChid Offset: 0x8) Channel Interrupt Mask Register */
-  __I  uint32_t XDMAC_CIS;     /**< \brief (XdmacChid Offset: 0xC) Channel Interrupt Status Register */
-  __IO uint32_t XDMAC_CSA;     /**< \brief (XdmacChid Offset: 0x10) Channel Source Address Register */
-  __IO uint32_t XDMAC_CDA;     /**< \brief (XdmacChid Offset: 0x14) Channel Destination Address Register */
-  __IO uint32_t XDMAC_CNDA;    /**< \brief (XdmacChid Offset: 0x18) Channel Next Descriptor Address Register */
-  __IO uint32_t XDMAC_CNDC;    /**< \brief (XdmacChid Offset: 0x1C) Channel Next Descriptor Control Register */
-  __IO uint32_t XDMAC_CUBC;    /**< \brief (XdmacChid Offset: 0x20) Channel Microblock Control Register */
-  __IO uint32_t XDMAC_CBC;     /**< \brief (XdmacChid Offset: 0x24) Channel Block Control Register */
-  __IO uint32_t XDMAC_CC;      /**< \brief (XdmacChid Offset: 0x28) Channel Configuration Register */
-  __IO uint32_t XDMAC_CDS_MSP; /**< \brief (XdmacChid Offset: 0x2C) Channel Data Stride Memory Set Pattern */
-  __IO uint32_t XDMAC_CSUS;    /**< \brief (XdmacChid Offset: 0x30) Channel Source Microblock Stride */
-  __IO uint32_t XDMAC_CDUS;    /**< \brief (XdmacChid Offset: 0x34) Channel Destination Microblock Stride */
-  __I  uint32_t Reserved1[2];
-} XdmacChid;
+	__O  uint32_t XDMAC_CIE;     /**< \brief (XdmacChid Offset: 0x0) Channel Interrupt Enable Register */
+	__O  uint32_t XDMAC_CID;     /**< \brief (XdmacChid Offset: 0x4) Channel Interrupt Disable Register */
+	__O  uint32_t XDMAC_CIM;     /**< \brief (XdmacChid Offset: 0x8) Channel Interrupt Mask Register */
+	__I  uint32_t XDMAC_CIS;     /**< \brief (XdmacChid Offset: 0xC) Channel Interrupt Status Register */
+	__IO uint32_t XDMAC_CSA;     /**< \brief (XdmacChid Offset: 0x10) Channel Source Address Register */
+	__IO uint32_t XDMAC_CDA;     /**< \brief (XdmacChid Offset: 0x14) Channel Destination Address Register */
+	__IO uint32_t XDMAC_CNDA;    /**< \brief (XdmacChid Offset: 0x18) Channel Next Descriptor Address Register */
+	__IO uint32_t XDMAC_CNDC;    /**< \brief (XdmacChid Offset: 0x1C) Channel Next Descriptor Control Register */
+	__IO uint32_t XDMAC_CUBC;    /**< \brief (XdmacChid Offset: 0x20) Channel Microblock Control Register */
+	__IO uint32_t XDMAC_CBC;     /**< \brief (XdmacChid Offset: 0x24) Channel Block Control Register */
+	__IO uint32_t XDMAC_CC;      /**< \brief (XdmacChid Offset: 0x28) Channel Configuration Register */
+	__IO uint32_t XDMAC_CDS_MSP; /**< \brief (XdmacChid Offset: 0x2C) Channel Data Stride Memory Set Pattern */
+	__IO uint32_t XDMAC_CSUS;    /**< \brief (XdmacChid Offset: 0x30) Channel Source Microblock Stride */
+	__IO uint32_t XDMAC_CDUS;    /**< \brief (XdmacChid Offset: 0x34) Channel Destination Microblock Stride */
+	__I  uint32_t Reserved1[2];
+} XdmacCh;
 /** \brief Xdmac hardware registers */
-#define XDMACCHID_NUMBER 16
 typedef struct {
-  __IO uint32_t  XDMAC_GTYPE;                  /**< \brief (Xdmac Offset: 0x00) Global Type Register */
-  __I  uint32_t  XDMAC_GCFG;                   /**< \brief (Xdmac Offset: 0x04) Global Configuration Register */
-  __IO uint32_t  XDMAC_GWAC;                   /**< \brief (Xdmac Offset: 0x08) Global Weighted Arbiter Configuration Register */
-  __O  uint32_t  XDMAC_GIE;                    /**< \brief (Xdmac Offset: 0x0C) Global Interrupt Enable Register */
-  __O  uint32_t  XDMAC_GID;                    /**< \brief (Xdmac Offset: 0x10) Global Interrupt Disable Register */
-  __I  uint32_t  XDMAC_GIM;                    /**< \brief (Xdmac Offset: 0x14) Global Interrupt Mask Register */
-  __I  uint32_t  XDMAC_GIS;                    /**< \brief (Xdmac Offset: 0x18) Global Interrupt Status Register */
-  __O  uint32_t  XDMAC_GE;                     /**< \brief (Xdmac Offset: 0x1C) Global Channel Enable Register */
-  __O  uint32_t  XDMAC_GD;                     /**< \brief (Xdmac Offset: 0x20) Global Channel Disable Register */
-  __I  uint32_t  XDMAC_GS;                     /**< \brief (Xdmac Offset: 0x24) Global Channel Status Register */
-  __IO uint32_t  XDMAC_GRS;                    /**< \brief (Xdmac Offset: 0x28) Global Channel Read Suspend Register */
-  __IO uint32_t  XDMAC_GWS;                    /**< \brief (Xdmac Offset: 0x2C) Global Channel Write Suspend Register */
-  __O  uint32_t  XDMAC_GRWS;                   /**< \brief (Xdmac Offset: 0x30) Global Channel Read Write Suspend Register */
-  __O  uint32_t  XDMAC_GRWR;                   /**< \brief (Xdmac Offset: 0x34) Global Channel Read Write Resume Register */
-  __O  uint32_t  XDMAC_GSWR;                   /**< \brief (Xdmac Offset: 0x38) Global Channel Software Request Register */
-  __I  uint32_t  XDMAC_GSWS;                   /**< \brief (Xdmac Offset: 0x3C) Global Channel Software Request Status Register */
-  __O  uint32_t  XDMAC_GSWF;                   /**< \brief (Xdmac Offset: 0x40) Global Channel Software Flush Request Register */
-  __I  uint32_t  Reserved1[3];
-       XdmacChid XDMAC_CHID[XDMACCHID_NUMBER]; /**< \brief (Xdmac Offset: 0x50) chid = 0 .. 15 */
-  __I  uint32_t  Reserved2[747];
-  __IO uint32_t  XDMAC_VERSION;                /**< \brief (Xdmac Offset: 0xFFC) XDMAC Version Register */
+	__IO uint32_t XDMAC_GTYPE;   /**< \brief (Xdmac Offset: 0x00) Global Type Register */
+	__I  uint32_t XDMAC_GCFG;    /**< \brief (Xdmac Offset: 0x04) Global Configuration Register */
+	__IO uint32_t XDMAC_GWAC;    /**< \brief (Xdmac Offset: 0x08) Global Weighted Arbiter Configuration Register */
+	__O  uint32_t XDMAC_GIE;     /**< \brief (Xdmac Offset: 0x0C) Global Interrupt Enable Register */
+	__O  uint32_t XDMAC_GID;     /**< \brief (Xdmac Offset: 0x10) Global Interrupt Disable Register */
+	__I  uint32_t XDMAC_GIM;     /**< \brief (Xdmac Offset: 0x14) Global Interrupt Mask Register */
+	__I  uint32_t XDMAC_GIS;     /**< \brief (Xdmac Offset: 0x18) Global Interrupt Status Register */
+	__O  uint32_t XDMAC_GE;      /**< \brief (Xdmac Offset: 0x1C) Global Channel Enable Register */
+	__O  uint32_t XDMAC_GD;      /**< \brief (Xdmac Offset: 0x20) Global Channel Disable Register */
+	__I  uint32_t XDMAC_GS;      /**< \brief (Xdmac Offset: 0x24) Global Channel Status Register */
+	__IO uint32_t XDMAC_GRS;     /**< \brief (Xdmac Offset: 0x28) Global Channel Read Suspend Register */
+	__IO uint32_t XDMAC_GWS;     /**< \brief (Xdmac Offset: 0x2C) Global Channel Write Suspend Register */
+	__O  uint32_t XDMAC_GRWS;    /**< \brief (Xdmac Offset: 0x30) Global Channel Read Write Suspend Register */
+	__O  uint32_t XDMAC_GRWR;    /**< \brief (Xdmac Offset: 0x34) Global Channel Read Write Resume Register */
+	__O  uint32_t XDMAC_GSWR;    /**< \brief (Xdmac Offset: 0x38) Global Channel Software Request Register */
+	__I  uint32_t XDMAC_GSWS;    /**< \brief (Xdmac Offset: 0x3C) Global Channel Software Request Status Register */
+	__O  uint32_t XDMAC_GSWF;    /**< \brief (Xdmac Offset: 0x40) Global Channel Software Flush Request Register */
+	__I  uint32_t Reserved1[3];
+	     XdmacCh  XDMAC_CH[16];  /**< \brief (Xdmac Offset: 0x50) chid = 0 .. 15 */
 } Xdmac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- XDMAC_GTYPE : (XDMAC Offset: 0x00) Global Type Register -------- */
@@ -113,6 +110,8 @@ typedef struct {
 /* -------- XDMAC_GIE : (XDMAC Offset: 0x0C) Global Interrupt Enable Register -------- */
 #define XDMAC_GIE_IE0 (0x1u << 0) /**< \brief (XDMAC_GIE) XDMAC Channel 0 Interrupt Enable Bit */
 #define XDMAC_GIE_IE1 (0x1u << 1) /**< \brief (XDMAC_GIE) XDMAC Channel 1 Interrupt Enable Bit */
+#define XDMAC_GIE_IE2 (0x1u << 2) /**< \brief (XDMAC_GIE) XDMAC Channel 2 Interrupt Enable Bit */
+#define XDMAC_GIE_IE3 (0x1u << 3) /**< \brief (XDMAC_GIE) XDMAC Channel 3 Interrupt Enable Bit */
 #define XDMAC_GIE_IE4 (0x1u << 4) /**< \brief (XDMAC_GIE) XDMAC Channel 4 Interrupt Enable Bit */
 #define XDMAC_GIE_IE5 (0x1u << 5) /**< \brief (XDMAC_GIE) XDMAC Channel 5 Interrupt Enable Bit */
 #define XDMAC_GIE_IE6 (0x1u << 6) /**< \brief (XDMAC_GIE) XDMAC Channel 6 Interrupt Enable Bit */
@@ -128,6 +127,8 @@ typedef struct {
 /* -------- XDMAC_GID : (XDMAC Offset: 0x10) Global Interrupt Disable Register -------- */
 #define XDMAC_GID_ID0 (0x1u << 0) /**< \brief (XDMAC_GID) XDMAC Channel 0 Interrupt Disable Bit */
 #define XDMAC_GID_ID1 (0x1u << 1) /**< \brief (XDMAC_GID) XDMAC Channel 1 Interrupt Disable Bit */
+#define XDMAC_GID_ID2 (0x1u << 2) /**< \brief (XDMAC_GID) XDMAC Channel 2 Interrupt Disable Bit */
+#define XDMAC_GID_ID3 (0x1u << 3) /**< \brief (XDMAC_GID) XDMAC Channel 3 Interrupt Disable Bit */
 #define XDMAC_GID_ID4 (0x1u << 4) /**< \brief (XDMAC_GID) XDMAC Channel 4 Interrupt Disable Bit */
 #define XDMAC_GID_ID5 (0x1u << 5) /**< \brief (XDMAC_GID) XDMAC Channel 5 Interrupt Disable Bit */
 #define XDMAC_GID_ID6 (0x1u << 6) /**< \brief (XDMAC_GID) XDMAC Channel 6 Interrupt Disable Bit */
@@ -143,6 +144,8 @@ typedef struct {
 /* -------- XDMAC_GIM : (XDMAC Offset: 0x14) Global Interrupt Mask Register -------- */
 #define XDMAC_GIM_IM0 (0x1u << 0) /**< \brief (XDMAC_GIM) XDMAC Channel 0 Interrupt Mask Bit */
 #define XDMAC_GIM_IM1 (0x1u << 1) /**< \brief (XDMAC_GIM) XDMAC Channel 1 Interrupt Mask Bit */
+#define XDMAC_GIM_IM2 (0x1u << 2) /**< \brief (XDMAC_GIM) XDMAC Channel 2 Interrupt Mask Bit */
+#define XDMAC_GIM_IM3 (0x1u << 3) /**< \brief (XDMAC_GIM) XDMAC Channel 3 Interrupt Mask Bit */
 #define XDMAC_GIM_IM4 (0x1u << 4) /**< \brief (XDMAC_GIM) XDMAC Channel 4 Interrupt Mask Bit */
 #define XDMAC_GIM_IM5 (0x1u << 5) /**< \brief (XDMAC_GIM) XDMAC Channel 5 Interrupt Mask Bit */
 #define XDMAC_GIM_IM6 (0x1u << 6) /**< \brief (XDMAC_GIM) XDMAC Channel 6 Interrupt Mask Bit */
@@ -158,6 +161,8 @@ typedef struct {
 /* -------- XDMAC_GIS : (XDMAC Offset: 0x18) Global Interrupt Status Register -------- */
 #define XDMAC_GIS_IS0 (0x1u << 0) /**< \brief (XDMAC_GIS) XDMAC Channel 0 Interrupt Status Bit */
 #define XDMAC_GIS_IS1 (0x1u << 1) /**< \brief (XDMAC_GIS) XDMAC Channel 1 Interrupt Status Bit */
+#define XDMAC_GIS_IS2 (0x1u << 2) /**< \brief (XDMAC_GIS) XDMAC Channel 2 Interrupt Status Bit */
+#define XDMAC_GIS_IS3 (0x1u << 3) /**< \brief (XDMAC_GIS) XDMAC Channel 3 Interrupt Status Bit */
 #define XDMAC_GIS_IS4 (0x1u << 4) /**< \brief (XDMAC_GIS) XDMAC Channel 4 Interrupt Status Bit */
 #define XDMAC_GIS_IS5 (0x1u << 5) /**< \brief (XDMAC_GIS) XDMAC Channel 5 Interrupt Status Bit */
 #define XDMAC_GIS_IS6 (0x1u << 6) /**< \brief (XDMAC_GIS) XDMAC Channel 6 Interrupt Status Bit */
@@ -173,6 +178,8 @@ typedef struct {
 /* -------- XDMAC_GE : (XDMAC Offset: 0x1C) Global Channel Enable Register -------- */
 #define XDMAC_GE_EN0 (0x1u << 0) /**< \brief (XDMAC_GE) XDMAC Channel 0 Enable Bit */
 #define XDMAC_GE_EN1 (0x1u << 1) /**< \brief (XDMAC_GE) XDMAC Channel 1 Enable Bit */
+#define XDMAC_GE_EN2 (0x1u << 2) /**< \brief (XDMAC_GE) XDMAC Channel 2 Enable Bit */
+#define XDMAC_GE_EN3 (0x1u << 3) /**< \brief (XDMAC_GE) XDMAC Channel 3 Enable Bit */
 #define XDMAC_GE_EN4 (0x1u << 4) /**< \brief (XDMAC_GE) XDMAC Channel 4 Enable Bit */
 #define XDMAC_GE_EN5 (0x1u << 5) /**< \brief (XDMAC_GE) XDMAC Channel 5 Enable Bit */
 #define XDMAC_GE_EN6 (0x1u << 6) /**< \brief (XDMAC_GE) XDMAC Channel 6 Enable Bit */
@@ -188,6 +195,8 @@ typedef struct {
 /* -------- XDMAC_GD : (XDMAC Offset: 0x20) Global Channel Disable Register -------- */
 #define XDMAC_GD_DI0 (0x1u << 0) /**< \brief (XDMAC_GD) XDMAC Channel 0 Disable Bit */
 #define XDMAC_GD_DI1 (0x1u << 1) /**< \brief (XDMAC_GD) XDMAC Channel 1 Disable Bit */
+#define XDMAC_GD_DI2 (0x1u << 2) /**< \brief (XDMAC_GD) XDMAC Channel 2 Disable Bit */
+#define XDMAC_GD_DI3 (0x1u << 3) /**< \brief (XDMAC_GD) XDMAC Channel 3 Disable Bit */
 #define XDMAC_GD_DI4 (0x1u << 4) /**< \brief (XDMAC_GD) XDMAC Channel 4 Disable Bit */
 #define XDMAC_GD_DI5 (0x1u << 5) /**< \brief (XDMAC_GD) XDMAC Channel 5 Disable Bit */
 #define XDMAC_GD_DI6 (0x1u << 6) /**< \brief (XDMAC_GD) XDMAC Channel 6 Disable Bit */
@@ -203,6 +212,8 @@ typedef struct {
 /* -------- XDMAC_GS : (XDMAC Offset: 0x24) Global Channel Status Register -------- */
 #define XDMAC_GS_ST0 (0x1u << 0) /**< \brief (XDMAC_GS) XDMAC Channel 0 Status Bit */
 #define XDMAC_GS_ST1 (0x1u << 1) /**< \brief (XDMAC_GS) XDMAC Channel 1 Status Bit */
+#define XDMAC_GS_ST2 (0x1u << 2) /**< \brief (XDMAC_GS) XDMAC Channel 2 Status Bit */
+#define XDMAC_GS_ST3 (0x1u << 3) /**< \brief (XDMAC_GS) XDMAC Channel 3 Status Bit */
 #define XDMAC_GS_ST4 (0x1u << 4) /**< \brief (XDMAC_GS) XDMAC Channel 4 Status Bit */
 #define XDMAC_GS_ST5 (0x1u << 5) /**< \brief (XDMAC_GS) XDMAC Channel 5 Status Bit */
 #define XDMAC_GS_ST6 (0x1u << 6) /**< \brief (XDMAC_GS) XDMAC Channel 6 Status Bit */
@@ -218,6 +229,8 @@ typedef struct {
 /* -------- XDMAC_GRS : (XDMAC Offset: 0x28) Global Channel Read Suspend Register -------- */
 #define XDMAC_GRS_RS0 (0x1u << 0) /**< \brief (XDMAC_GRS) XDMAC Channel 0 Read Suspend Bit */
 #define XDMAC_GRS_RS1 (0x1u << 1) /**< \brief (XDMAC_GRS) XDMAC Channel 1 Read Suspend Bit */
+#define XDMAC_GRS_RS2 (0x1u << 2) /**< \brief (XDMAC_GRS) XDMAC Channel 2 Read Suspend Bit */
+#define XDMAC_GRS_RS3 (0x1u << 3) /**< \brief (XDMAC_GRS) XDMAC Channel 3 Read Suspend Bit */
 #define XDMAC_GRS_RS4 (0x1u << 4) /**< \brief (XDMAC_GRS) XDMAC Channel 4 Read Suspend Bit */
 #define XDMAC_GRS_RS5 (0x1u << 5) /**< \brief (XDMAC_GRS) XDMAC Channel 5 Read Suspend Bit */
 #define XDMAC_GRS_RS6 (0x1u << 6) /**< \brief (XDMAC_GRS) XDMAC Channel 6 Read Suspend Bit */
@@ -233,6 +246,8 @@ typedef struct {
 /* -------- XDMAC_GWS : (XDMAC Offset: 0x2C) Global Channel Write Suspend Register -------- */
 #define XDMAC_GWS_WS0 (0x1u << 0) /**< \brief (XDMAC_GWS) XDMAC Channel 0 Write Suspend Bit */
 #define XDMAC_GWS_WS1 (0x1u << 1) /**< \brief (XDMAC_GWS) XDMAC Channel 1 Write Suspend Bit */
+#define XDMAC_GWS_WS2 (0x1u << 2) /**< \brief (XDMAC_GWS) XDMAC Channel 2 Write Suspend Bit */
+#define XDMAC_GWS_WS3 (0x1u << 3) /**< \brief (XDMAC_GWS) XDMAC Channel 3 Write Suspend Bit */
 #define XDMAC_GWS_WS4 (0x1u << 4) /**< \brief (XDMAC_GWS) XDMAC Channel 4 Write Suspend Bit */
 #define XDMAC_GWS_WS5 (0x1u << 5) /**< \brief (XDMAC_GWS) XDMAC Channel 5 Write Suspend Bit */
 #define XDMAC_GWS_WS6 (0x1u << 6) /**< \brief (XDMAC_GWS) XDMAC Channel 6 Write Suspend Bit */
@@ -248,6 +263,8 @@ typedef struct {
 /* -------- XDMAC_GRWS : (XDMAC Offset: 0x30) Global Channel Read Write Suspend Register -------- */
 #define XDMAC_GRWS_RWS0 (0x1u << 0) /**< \brief (XDMAC_GRWS) XDMAC Channel 0 Read Write Suspend Bit */
 #define XDMAC_GRWS_RWS1 (0x1u << 1) /**< \brief (XDMAC_GRWS) XDMAC Channel 1 Read Write Suspend Bit */
+#define XDMAC_GRWS_RWS2 (0x1u << 2) /**< \brief (XDMAC_GRWS) XDMAC Channel 2 Read Write Suspend Bit */
+#define XDMAC_GRWS_RWS3 (0x1u << 3) /**< \brief (XDMAC_GRWS) XDMAC Channel 3 Read Write Suspend Bit */
 #define XDMAC_GRWS_RWS4 (0x1u << 4) /**< \brief (XDMAC_GRWS) XDMAC Channel 4 Read Write Suspend Bit */
 #define XDMAC_GRWS_RWS5 (0x1u << 5) /**< \brief (XDMAC_GRWS) XDMAC Channel 5 Read Write Suspend Bit */
 #define XDMAC_GRWS_RWS6 (0x1u << 6) /**< \brief (XDMAC_GRWS) XDMAC Channel 6 Read Write Suspend Bit */
@@ -263,6 +280,8 @@ typedef struct {
 /* -------- XDMAC_GRWR : (XDMAC Offset: 0x34) Global Channel Read Write Resume Register -------- */
 #define XDMAC_GRWR_RWR0 (0x1u << 0) /**< \brief (XDMAC_GRWR) XDMAC Channel 0 Read Write Resume Bit */
 #define XDMAC_GRWR_RWR1 (0x1u << 1) /**< \brief (XDMAC_GRWR) XDMAC Channel 1 Read Write Resume Bit */
+#define XDMAC_GRWR_RWR2 (0x1u << 2) /**< \brief (XDMAC_GRWR) XDMAC Channel 2 Read Write Resume Bit */
+#define XDMAC_GRWR_RWR3 (0x1u << 3) /**< \brief (XDMAC_GRWR) XDMAC Channel 3 Read Write Resume Bit */
 #define XDMAC_GRWR_RWR4 (0x1u << 4) /**< \brief (XDMAC_GRWR) XDMAC Channel 4 Read Write Resume Bit */
 #define XDMAC_GRWR_RWR5 (0x1u << 5) /**< \brief (XDMAC_GRWR) XDMAC Channel 5 Read Write Resume Bit */
 #define XDMAC_GRWR_RWR6 (0x1u << 6) /**< \brief (XDMAC_GRWR) XDMAC Channel 6 Read Write Resume Bit */
@@ -278,6 +297,8 @@ typedef struct {
 /* -------- XDMAC_GSWR : (XDMAC Offset: 0x38) Global Channel Software Request Register -------- */
 #define XDMAC_GSWR_SWREQ0 (0x1u << 0) /**< \brief (XDMAC_GSWR) XDMAC Channel 0 Software Request Bit */
 #define XDMAC_GSWR_SWREQ1 (0x1u << 1) /**< \brief (XDMAC_GSWR) XDMAC Channel 1 Software Request Bit */
+#define XDMAC_GSWR_SWREQ2 (0x1u << 2) /**< \brief (XDMAC_GSWR) XDMAC Channel 2 Software Request Bit */
+#define XDMAC_GSWR_SWREQ3 (0x1u << 3) /**< \brief (XDMAC_GSWR) XDMAC Channel 3 Software Request Bit */
 #define XDMAC_GSWR_SWREQ4 (0x1u << 4) /**< \brief (XDMAC_GSWR) XDMAC Channel 4 Software Request Bit */
 #define XDMAC_GSWR_SWREQ5 (0x1u << 5) /**< \brief (XDMAC_GSWR) XDMAC Channel 5 Software Request Bit */
 #define XDMAC_GSWR_SWREQ6 (0x1u << 6) /**< \brief (XDMAC_GSWR) XDMAC Channel 6 Software Request Bit */
@@ -293,6 +314,8 @@ typedef struct {
 /* -------- XDMAC_GSWS : (XDMAC Offset: 0x3C) Global Channel Software Request Status Register -------- */
 #define XDMAC_GSWS_SWRS0 (0x1u << 0) /**< \brief (XDMAC_GSWS) XDMAC Channel 0 Software Request Status Bit */
 #define XDMAC_GSWS_SWRS1 (0x1u << 1) /**< \brief (XDMAC_GSWS) XDMAC Channel 1 Software Request Status Bit */
+#define XDMAC_GSWS_SWRS2 (0x1u << 2) /**< \brief (XDMAC_GSWS) XDMAC Channel 2 Software Request Status Bit */
+#define XDMAC_GSWS_SWRS3 (0x1u << 3) /**< \brief (XDMAC_GSWS) XDMAC Channel 3 Software Request Status Bit */
 #define XDMAC_GSWS_SWRS4 (0x1u << 4) /**< \brief (XDMAC_GSWS) XDMAC Channel 4 Software Request Status Bit */
 #define XDMAC_GSWS_SWRS5 (0x1u << 5) /**< \brief (XDMAC_GSWS) XDMAC Channel 5 Software Request Status Bit */
 #define XDMAC_GSWS_SWRS6 (0x1u << 6) /**< \brief (XDMAC_GSWS) XDMAC Channel 6 Software Request Status Bit */
@@ -308,6 +331,8 @@ typedef struct {
 /* -------- XDMAC_GSWF : (XDMAC Offset: 0x40) Global Channel Software Flush Request Register -------- */
 #define XDMAC_GSWF_SWF0 (0x1u << 0) /**< \brief (XDMAC_GSWF) XDMAC Channel 0 Software Flush Request Bit */
 #define XDMAC_GSWF_SWF1 (0x1u << 1) /**< \brief (XDMAC_GSWF) XDMAC Channel 1 Software Flush Request Bit */
+#define XDMAC_GSWF_SWF2 (0x1u << 2) /**< \brief (XDMAC_GSWF) XDMAC Channel 2 Software Flush Request Bit */
+#define XDMAC_GSWF_SWF3 (0x1u << 3) /**< \brief (XDMAC_GSWF) XDMAC Channel 3 Software Flush Request Bit */
 #define XDMAC_GSWF_SWF4 (0x1u << 4) /**< \brief (XDMAC_GSWF) XDMAC Channel 4 Software Flush Request Bit */
 #define XDMAC_GSWF_SWF5 (0x1u << 5) /**< \brief (XDMAC_GSWF) XDMAC Channel 5 Software Flush Request Bit */
 #define XDMAC_GSWF_SWF6 (0x1u << 6) /**< \brief (XDMAC_GSWF) XDMAC Channel 6 Software Flush Request Bit */
@@ -367,8 +392,8 @@ typedef struct {
 #define XDMAC_CNDA_NDA(value) ((XDMAC_CNDA_NDA_Msk & ((value) << XDMAC_CNDA_NDA_Pos)))
 /* -------- XDMAC_CNDC : (XDMAC Offset: N/A) Channel Next Descriptor Control Register -------- */
 #define XDMAC_CNDC_NDE (0x1u << 0) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor Enable */
-#define   XDMAC_CNDC_NDE_DSCR_FETCH_DIS (0x0u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is disabled. */
-#define   XDMAC_CNDC_NDE_DSCR_FETCH_EN (0x1u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is enabled. */
+#define   XDMAC_CNDC_NDE_DSCR_FETCH_DIS (0x0u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is disabled */
+#define   XDMAC_CNDC_NDE_DSCR_FETCH_EN (0x1u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is enabled */
 #define XDMAC_CNDC_NDSUP (0x1u << 1) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor Source Update */
 #define   XDMAC_CNDC_NDSUP_SRC_PARAMS_UNCHANGED (0x0u << 1) /**< \brief (XDMAC_CNDC) Source parameters remain unchanged. */
 #define   XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED (0x1u << 1) /**< \brief (XDMAC_CNDC) Source parameters are updated when the descriptor is retrieved. */
@@ -402,16 +427,16 @@ typedef struct {
 #define   XDMAC_CC_MBSIZE_EIGHT (0x2u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to eight. */
 #define   XDMAC_CC_MBSIZE_SIXTEEN (0x3u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to sixteen. */
 #define XDMAC_CC_DSYNC (0x1u << 4) /**< \brief (XDMAC_CC) Channel x Synchronization */
-#define   XDMAC_CC_DSYNC_PER2MEM (0x0u << 4) /**< \brief (XDMAC_CC) Peripheral to Memory transfer. */
-#define   XDMAC_CC_DSYNC_MEM2PER (0x1u << 4) /**< \brief (XDMAC_CC) Memory to Peripheral transfer. */
+#define   XDMAC_CC_DSYNC_PER2MEM (0x0u << 4) /**< \brief (XDMAC_CC) Peripheral to Memory transfer */
+#define   XDMAC_CC_DSYNC_MEM2PER (0x1u << 4) /**< \brief (XDMAC_CC) Memory to Peripheral transfer */
 #define XDMAC_CC_PROT (0x1u << 5) /**< \brief (XDMAC_CC) Channel x Protection */
-#define   XDMAC_CC_PROT_SEC (0x0u << 5) /**< \brief (XDMAC_CC) Channel is secured. */
-#define   XDMAC_CC_PROT_UNSEC (0x1u << 5) /**< \brief (XDMAC_CC) Channel is unsecured. */
+#define   XDMAC_CC_PROT_SEC (0x0u << 5) /**< \brief (XDMAC_CC) Channel is secured */
+#define   XDMAC_CC_PROT_UNSEC (0x1u << 5) /**< \brief (XDMAC_CC) Channel is unsecured */
 #define XDMAC_CC_SWREQ (0x1u << 6) /**< \brief (XDMAC_CC) Channel x Software Request Trigger */
 #define   XDMAC_CC_SWREQ_HWR_CONNECTED (0x0u << 6) /**< \brief (XDMAC_CC) Hardware request line is connected to the peripheral request line. */
 #define   XDMAC_CC_SWREQ_SWR_CONNECTED (0x1u << 6) /**< \brief (XDMAC_CC) Software request is connected to the peripheral request line. */
 #define XDMAC_CC_MEMSET (0x1u << 7) /**< \brief (XDMAC_CC) Channel x Fill Block of memory */
-#define   XDMAC_CC_MEMSET_NORMAL_MODE (0x0u << 7) /**< \brief (XDMAC_CC) Memset is not activated. */
+#define   XDMAC_CC_MEMSET_NORMAL_MODE (0x0u << 7) /**< \brief (XDMAC_CC) Memset is not activated */
 #define   XDMAC_CC_MEMSET_HW_MODE (0x1u << 7) /**< \brief (XDMAC_CC) Sets the block of memory pointed by DA field to the specified value. This operation is performed on 8, 16 or 32 bits basis. */
 #define XDMAC_CC_CSIZE_Pos 8
 #define XDMAC_CC_CSIZE_Msk (0x7u << XDMAC_CC_CSIZE_Pos) /**< \brief (XDMAC_CC) Channel x Chunk Size */
@@ -429,11 +454,11 @@ typedef struct {
 #define   XDMAC_CC_DWIDTH_WORD (0x2u << 11) /**< \brief (XDMAC_CC) The data size is set to 32 bits */
 #define   XDMAC_CC_DWIDTH_DWORD (0x3u << 11) /**< \brief (XDMAC_CC) The data size is set to 64 bits */
 #define XDMAC_CC_SIF (0x1u << 13) /**< \brief (XDMAC_CC) Channel x Source Interface Identifier */
-#define   XDMAC_CC_SIF_AHB_IF0 (0x0u << 13) /**< \brief (XDMAC_CC) The data is read through the system bus interface 0. */
-#define   XDMAC_CC_SIF_AHB_IF1 (0x1u << 13) /**< \brief (XDMAC_CC) The data is read through the system bus interface 1. */
+#define   XDMAC_CC_SIF_AHB_IF0 (0x0u << 13) /**< \brief (XDMAC_CC) The data is read through the system bus interface 0 */
+#define   XDMAC_CC_SIF_AHB_IF1 (0x1u << 13) /**< \brief (XDMAC_CC) The data is read through the system bus interface 1 */
 #define XDMAC_CC_DIF (0x1u << 14) /**< \brief (XDMAC_CC) Channel x Destination Interface Identifier */
-#define   XDMAC_CC_DIF_AHB_IF0 (0x0u << 14) /**< \brief (XDMAC_CC) The data is written through the system bus interface 0. */
-#define   XDMAC_CC_DIF_AHB_IF1 (0x1u << 14) /**< \brief (XDMAC_CC) The data is written though the system bus interface 1. */
+#define   XDMAC_CC_DIF_AHB_IF0 (0x0u << 14) /**< \brief (XDMAC_CC) The data is written through the system bus interface 0 */
+#define   XDMAC_CC_DIF_AHB_IF1 (0x1u << 14) /**< \brief (XDMAC_CC) The data is written though the system bus interface 1 */
 #define XDMAC_CC_SAM_Pos 16
 #define XDMAC_CC_SAM_Msk (0x3u << XDMAC_CC_SAM_Pos) /**< \brief (XDMAC_CC) Channel x Source Addressing Mode */
 #define XDMAC_CC_SAM(value) ((XDMAC_CC_SAM_Msk & ((value) << XDMAC_CC_SAM_Pos)))
@@ -475,15 +500,7 @@ typedef struct {
 #define XDMAC_CDUS_DUBS_Pos 0
 #define XDMAC_CDUS_DUBS_Msk (0xffffffu << XDMAC_CDUS_DUBS_Pos) /**< \brief (XDMAC_CDUS) Channel x Destination Microblock Stride */
 #define XDMAC_CDUS_DUBS(value) ((XDMAC_CDUS_DUBS_Msk & ((value) << XDMAC_CDUS_DUBS_Pos)))
-/* -------- XDMAC_VERSION : (XDMAC Offset: 0xFFC) XDMAC Version Register -------- */
-#define XDMAC_VERSION_VERSION_Pos 0
-#define XDMAC_VERSION_VERSION_Msk (0xfffu << XDMAC_VERSION_VERSION_Pos) /**< \brief (XDMAC_VERSION) Version of the Hardware Module */
-#define XDMAC_VERSION_VERSION(value) ((XDMAC_VERSION_VERSION_Msk & ((value) << XDMAC_VERSION_VERSION_Pos)))
-#define XDMAC_VERSION_MFN_Pos 16
-#define XDMAC_VERSION_MFN_Msk (0x7u << XDMAC_VERSION_MFN_Pos) /**< \brief (XDMAC_VERSION) Metal Fix Number */
-#define XDMAC_VERSION_MFN(value) ((XDMAC_VERSION_MFN_Msk & ((value) << XDMAC_VERSION_MFN_Pos)))
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_XDMAC_COMPONENT_ */
