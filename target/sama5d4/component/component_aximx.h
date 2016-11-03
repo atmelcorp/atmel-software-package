@@ -39,12 +39,12 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Aximx hardware registers */
 typedef struct {
-	__O uint32_t AXIMX_REMAP; /**< \brief (Aximx Offset: 0x00) AXI Matrix Remap Register */
+	__IO uint32_t AXIMX_REMAP; /**< \brief (Aximx Offset: 0x00) AXI Matrix Remap Register */
 } Aximx;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AXIMX_REMAP : (AXIMX Offset: 0x00) AXI Matrix Remap Register -------- */
 #define AXIMX_REMAP_REMAP0 (0x1u << 0) /**< \brief (AXIMX_REMAP) Remap State 0 */
 
 /*@}*/
 
-#endif				/* _SAMA5D4_AXIMX_COMPONENT_ */
+#endif /* _SAMA5D4_AXIMX_COMPONENT_ */
