@@ -39,53 +39,52 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief EmacSa hardware registers */
 typedef struct {
-  __IO uint32_t EMAC_SAxB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
-  __IO uint32_t EMAC_SAxT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
+	__IO uint32_t EMAC_SAxB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
+	__IO uint32_t EMAC_SAxT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
 } EmacSa;
 /** \brief Emac hardware registers */
-#define EMACSA_NUMBER 4
 typedef struct {
-  __IO uint32_t EMAC_NCR;               /**< \brief (Emac Offset: 0x00) Network Control Register */
-  __IO uint32_t EMAC_NCFGR;             /**< \brief (Emac Offset: 0x04) Network Configuration Register */
-  __I  uint32_t EMAC_NSR;               /**< \brief (Emac Offset: 0x08) Network Status Register */
-  __I  uint32_t Reserved1[2];
-  __IO uint32_t EMAC_TSR;               /**< \brief (Emac Offset: 0x14) Transmit Status Register */
-  __IO uint32_t EMAC_RBQP;              /**< \brief (Emac Offset: 0x18) Receive Buffer Queue Pointer Register */
-  __IO uint32_t EMAC_TBQP;              /**< \brief (Emac Offset: 0x1C) Transmit Buffer Queue Pointer Register */
-  __IO uint32_t EMAC_RSR;               /**< \brief (Emac Offset: 0x20) Receive Status Register */
-  __IO uint32_t EMAC_ISR;               /**< \brief (Emac Offset: 0x24) Interrupt Status Register */
-  __O  uint32_t EMAC_IER;               /**< \brief (Emac Offset: 0x28) Interrupt Enable Register */
-  __O  uint32_t EMAC_IDR;               /**< \brief (Emac Offset: 0x2C) Interrupt Disable Register */
-  __I  uint32_t EMAC_IMR;               /**< \brief (Emac Offset: 0x30) Interrupt Mask Register */
-  __IO uint32_t EMAC_MAN;               /**< \brief (Emac Offset: 0x34) Phy Maintenance Register */
-  __IO uint32_t EMAC_PTR;               /**< \brief (Emac Offset: 0x38) Pause Time Register */
-  __IO uint32_t EMAC_PFR;               /**< \brief (Emac Offset: 0x3C) Pause Frames Received Register */
-  __IO uint32_t EMAC_FTO;               /**< \brief (Emac Offset: 0x40) Frames Transmitted Ok Register */
-  __IO uint32_t EMAC_SCF;               /**< \brief (Emac Offset: 0x44) Single Collision Frames Register */
-  __IO uint32_t EMAC_MCF;               /**< \brief (Emac Offset: 0x48) Multiple Collision Frames Register */
-  __IO uint32_t EMAC_FRO;               /**< \brief (Emac Offset: 0x4C) Frames Received Ok Register */
-  __IO uint32_t EMAC_FCSE;              /**< \brief (Emac Offset: 0x50) Frame Check Sequence Errors Register */
-  __IO uint32_t EMAC_ALE;               /**< \brief (Emac Offset: 0x54) Alignment Errors Register */
-  __IO uint32_t EMAC_DTF;               /**< \brief (Emac Offset: 0x58) Deferred Transmission Frames Register */
-  __IO uint32_t EMAC_LCOL;              /**< \brief (Emac Offset: 0x5C) Late Collisions Register */
-  __IO uint32_t EMAC_ECOL;              /**< \brief (Emac Offset: 0x60) Excessive Collisions Register */
-  __IO uint32_t EMAC_TUND;              /**< \brief (Emac Offset: 0x64) Transmit Underrun Errors Register */
-  __IO uint32_t EMAC_CSE;               /**< \brief (Emac Offset: 0x68) Carrier Sense Errors Register */
-  __IO uint32_t EMAC_RRE;               /**< \brief (Emac Offset: 0x6C) Receive Resource Errors Register */
-  __IO uint32_t EMAC_ROV;               /**< \brief (Emac Offset: 0x70) Receive Overrun Errors Register */
-  __IO uint32_t EMAC_RSE;               /**< \brief (Emac Offset: 0x74) Receive Symbol Errors Register */
-  __IO uint32_t EMAC_ELE;               /**< \brief (Emac Offset: 0x78) Excessive Length Errors Register */
-  __IO uint32_t EMAC_RJA;               /**< \brief (Emac Offset: 0x7C) Receive Jabbers Register */
-  __IO uint32_t EMAC_USF;               /**< \brief (Emac Offset: 0x80) Undersize Frames Register */
-  __IO uint32_t EMAC_STE;               /**< \brief (Emac Offset: 0x84) SQE Test Errors Register */
-  __IO uint32_t EMAC_RLE;               /**< \brief (Emac Offset: 0x88) Received Length Field Mismatch Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t EMAC_HRB;               /**< \brief (Emac Offset: 0x90) Hash Register Bottom [31:0] Register */
-  __IO uint32_t EMAC_HRT;               /**< \brief (Emac Offset: 0x94) Hash Register Top [63:32] Register */
-       EmacSa   EMAC_SA[EMACSA_NUMBER]; /**< \brief (Emac Offset: 0x98) sa = 1 .. 4 */
-  __IO uint32_t EMAC_TID;               /**< \brief (Emac Offset: 0xB8) Type ID Checking Register */
-  __I  uint32_t Reserved3[1];
-  __IO uint32_t EMAC_USRIO;             /**< \brief (Emac Offset: 0xC0) User Input/Output Register */
+	__IO uint32_t EMAC_NCR;   /**< \brief (Emac Offset: 0x00) Network Control Register */
+	__IO uint32_t EMAC_NCFGR; /**< \brief (Emac Offset: 0x04) Network Configuration Register */
+	__I  uint32_t EMAC_NSR;   /**< \brief (Emac Offset: 0x08) Network Status Register */
+	__I  uint32_t Reserved1[2];
+	__IO uint32_t EMAC_TSR;   /**< \brief (Emac Offset: 0x14) Transmit Status Register */
+	__IO uint32_t EMAC_RBQP;  /**< \brief (Emac Offset: 0x18) Receive Buffer Queue Pointer Register */
+	__IO uint32_t EMAC_TBQP;  /**< \brief (Emac Offset: 0x1C) Transmit Buffer Queue Pointer Register */
+	__IO uint32_t EMAC_RSR;   /**< \brief (Emac Offset: 0x20) Receive Status Register */
+	__IO uint32_t EMAC_ISR;   /**< \brief (Emac Offset: 0x24) Interrupt Status Register */
+	__O  uint32_t EMAC_IER;   /**< \brief (Emac Offset: 0x28) Interrupt Enable Register */
+	__O  uint32_t EMAC_IDR;   /**< \brief (Emac Offset: 0x2C) Interrupt Disable Register */
+	__I  uint32_t EMAC_IMR;   /**< \brief (Emac Offset: 0x30) Interrupt Mask Register */
+	__IO uint32_t EMAC_MAN;   /**< \brief (Emac Offset: 0x34) Phy Maintenance Register */
+	__IO uint32_t EMAC_PTR;   /**< \brief (Emac Offset: 0x38) Pause Time Register */
+	__IO uint32_t EMAC_PFR;   /**< \brief (Emac Offset: 0x3C) Pause Frames Received Register */
+	__IO uint32_t EMAC_FTO;   /**< \brief (Emac Offset: 0x40) Frames Transmitted Ok Register */
+	__IO uint32_t EMAC_SCF;   /**< \brief (Emac Offset: 0x44) Single Collision Frames Register */
+	__IO uint32_t EMAC_MCF;   /**< \brief (Emac Offset: 0x48) Multiple Collision Frames Register */
+	__IO uint32_t EMAC_FRO;   /**< \brief (Emac Offset: 0x4C) Frames Received Ok Register */
+	__IO uint32_t EMAC_FCSE;  /**< \brief (Emac Offset: 0x50) Frame Check Sequence Errors Register */
+	__IO uint32_t EMAC_ALE;   /**< \brief (Emac Offset: 0x54) Alignment Errors Register */
+	__IO uint32_t EMAC_DTF;   /**< \brief (Emac Offset: 0x58) Deferred Transmission Frames Register */
+	__IO uint32_t EMAC_LCOL;  /**< \brief (Emac Offset: 0x5C) Late Collisions Register */
+	__IO uint32_t EMAC_ECOL;  /**< \brief (Emac Offset: 0x60) Excessive Collisions Register */
+	__IO uint32_t EMAC_TUND;  /**< \brief (Emac Offset: 0x64) Transmit Underrun Errors Register */
+	__IO uint32_t EMAC_CSE;   /**< \brief (Emac Offset: 0x68) Carrier Sense Errors Register */
+	__IO uint32_t EMAC_RRE;   /**< \brief (Emac Offset: 0x6C) Receive Resource Errors Register */
+	__IO uint32_t EMAC_ROV;   /**< \brief (Emac Offset: 0x70) Receive Overrun Errors Register */
+	__IO uint32_t EMAC_RSE;   /**< \brief (Emac Offset: 0x74) Receive Symbol Errors Register */
+	__IO uint32_t EMAC_ELE;   /**< \brief (Emac Offset: 0x78) Excessive Length Errors Register */
+	__IO uint32_t EMAC_RJA;   /**< \brief (Emac Offset: 0x7C) Receive Jabbers Register */
+	__IO uint32_t EMAC_USF;   /**< \brief (Emac Offset: 0x80) Undersize Frames Register */
+	__IO uint32_t EMAC_STE;   /**< \brief (Emac Offset: 0x84) SQE Test Errors Register */
+	__IO uint32_t EMAC_RLE;   /**< \brief (Emac Offset: 0x88) Received Length Field Mismatch Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t EMAC_HRB;   /**< \brief (Emac Offset: 0x90) Hash Register Bottom [31:0] Register */
+	__IO uint32_t EMAC_HRT;   /**< \brief (Emac Offset: 0x94) Hash Register Top [63:32] Register */
+	     EmacSa   EMAC_SA[4]; /**< \brief (Emac Offset: 0x98) sa = 1 .. 4 */
+	__IO uint32_t EMAC_TID;   /**< \brief (Emac Offset: 0xB8) Type ID Checking Register */
+	__I  uint32_t Reserved3[1];
+	__IO uint32_t EMAC_USRIO; /**< \brief (Emac Offset: 0xC0) User Input/Output Register */
 } Emac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- EMAC_NCR : (EMAC Offset: 0x00) Network Control Register -------- */
@@ -330,6 +329,5 @@ typedef struct {
 #define EMAC_USRIO_CLKEN (0x1u << 1) /**< \brief (EMAC_USRIO) Clock Enable */
 
 /*@}*/
-
 
 #endif /* _SAM9X_EMAC_COMPONENT_ */
