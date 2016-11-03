@@ -119,7 +119,7 @@ static const SBCInquiryData inquiry_data_init = {
  * \param  base_address  Base address of the LUN in number of media blocks
  * \param  size         Total size of the LUN in number of media blocks
  * \param  block_size    One block of the LUN in number of media blocks
- * \param  protected    The LUN area is forced to readonly even the media
+ * \param  readonly     The LUN area is forced to readonly even the media
  *                      is writable
  * \param  dataMonitor  Pointer to a Monitor Function to analyze the flow of
  *                      this LUN.
@@ -131,7 +131,7 @@ void lun_init(MSDLun    *lun,
 			  uint32_t   base_address,
 			  uint32_t   size,
 			  uint16_t   block_size,
-			  uint8_t    protected,
+			  uint8_t    readonly,
 			  void (*dataMonitor)(uint8_t flow_direction,
 								  uint32_t  data_length,
 								  uint32_t  fifo_null_count,
@@ -214,8 +214,8 @@ void lun_init(MSDLun    *lun,
 	}
 
 	trace_info("LUN: blkSize %d, size %d\n\r", (int)lun->blockSize, (int)lun->size);
-	if (protected) lun->protected = 1;
-	else           lun->protected = media_is_write_protected(media);
+	if (readonly) lun->readonly = 1;
+	else           lun->readonly = media_is_write_protected(media);
 
 	msd_io_fifo_init(&lun->ioFifo, io_buffer, io_buffer_size);
 
@@ -278,7 +278,7 @@ uint32_t lun_access(MSDLun        *lun,
 		return USBD_STATUS_INVALID_PARAMETER;
 	else if (lun->media == NULL || lun->status != LUN_READY)
 		return USBD_STATUS_LOCKED;
-	else if (write && lun->protected)
+	else if (write && lun->readonly)
 		return USBD_STATUS_ABORTED;
 	else
 		return USBD_STATUS_SUCCESS;
@@ -317,7 +317,7 @@ uint32_t lun_write(MSDLun        *lun,
 		trace_warning("lun_write: Media not ready\n\r");
 		status = USBD_STATUS_ABORTED;
 	}
-	else if (lun->protected) {
+	else if (lun->readonly) {
 		trace_warning("lun_write: LUN is readonly\n\r");
 		status = USBD_STATUS_ABORTED;
 	}

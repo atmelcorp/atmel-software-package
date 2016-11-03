@@ -126,7 +126,7 @@ static bool sbc_lun_can_be_written(MSDLun *lun)
 
 	if (!sbc_lun_is_ready(lun)) {
 		trace_warning("sbc_lun_can_be_written: Not Ready!\n\r");
-	} else if (lun->protected) {
+	} else if (lun->readonly) {
 		trace_warning("sbc_lun_can_be_written: Protected!\n\r");
 
 		sbc_update_sense_data(lun->requestSenseData,

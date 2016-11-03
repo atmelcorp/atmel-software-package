@@ -130,7 +130,7 @@ typedef struct {
 	/** Sector size of the media in number of media blocks */
 	uint16_t              blockSize;
 	/** The LUN can be read-only even the media is writeable */
-	uint8_t               protected;
+	uint8_t               readonly;
 	/** The LUN status (Ejected/Changed/) */
 	uint8_t               status;
 
