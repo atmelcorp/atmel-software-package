@@ -34,6 +34,7 @@
 
 #define AIC         0xFC020000
 #define SAIC        0xF803C000
+#define AIC_SMR     0x04
 #define AIC_IVR     0x10
 #define AIC_EOICR   0x38
 
@@ -138,6 +139,8 @@ irqHandler:
 	ldr     lr, =AIC
 	ldr     r0, [r14, #AIC_IVR]
 	str     lr, [r14, #AIC_IVR]
+	/* Dummy read to force AIC_IVR write completion */
+	ldr     lr, [r14, #AIC_SMR]
 
 	/* Branch to interrupt handler in Supervisor mode */
 

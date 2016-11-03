@@ -47,6 +47,7 @@
 //------------------------------------------------------------------------------
 
 AT91C_BASE_AIC  DEFINE 0xFFFFF000
+AIC_SMR0        DEFINE 0x000
 AIC_IVR         DEFINE 0x100
 AIC_EOICR       DEFINE 0x130
 
@@ -138,6 +139,8 @@ irqHandler:
         ldr         lr, =AT91C_BASE_AIC
         ldr         r0, [r14, #AIC_IVR]
         str         lr, [r14, #AIC_IVR]
+        ; Dummy read to force AIC_IVR write completion */ ;
+        ldr         lr, [r14, #AIC_SMR0]
 
         ; Branch to interrupt handler in Supervisor mode
 
