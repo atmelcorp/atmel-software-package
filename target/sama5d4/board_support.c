@@ -616,7 +616,7 @@ void board_cfg_isi(void)
 	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
 
 	/* Configure PMC programmable clock (PCK1) */
-	pmc_configure_pck(1, PMC_PCK_CSS_MCK_CLK, 3);
+	pmc_configure_pck(1, PMC_PCK_CSS_MCK, 3);
 	pmc_enable_pck(1);
 
 	/* Reset sensor */

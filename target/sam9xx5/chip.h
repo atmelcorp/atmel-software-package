@@ -350,6 +350,13 @@ extern Matrix* get_peripheral_matrix(uint32_t id);
  */
 extern uint32_t get_peripheral_clock_divider(uint32_t id);
 
+/** \brief Returns the max clock frequency for the given peripheral
+ *
+ * \param id the Peripheral ID
+ * \return the max clock frequency for the peripheral
+ */
+extern uint32_t get_peripheral_clock_max_freq(uint32_t id);
+
 /** \brief Returns the DMAC interface number for a given peripheral
  *
  * \param id the Peripheral ID

@@ -39,45 +39,45 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pmc hardware registers */
 typedef struct {
-	__O uint32_t PMC_SCER;	     /**< \brief (Pmc Offset: 0x0000) System Clock Enable Register */
-	__O uint32_t PMC_SCDR;	     /**< \brief (Pmc Offset: 0x0004) System Clock Disable Register */
-	__I uint32_t PMC_SCSR;	     /**< \brief (Pmc Offset: 0x0008) System Clock Status Register */
-	__I uint32_t Reserved1[1];
-	__O uint32_t PMC_PCER0;	     /**< \brief (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0 */
-	__O uint32_t PMC_PCDR0;	     /**< \brief (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0 */
-	__I uint32_t PMC_PCSR0;	     /**< \brief (Pmc Offset: 0x0018) Peripheral Clock Status Register 0 */
-	__IO uint32_t CKGR_UCKR;     /**< \brief (Pmc Offset: 0x001C) UTMI Clock Register */
-	__IO uint32_t CKGR_MOR;	     /**< \brief (Pmc Offset: 0x0020) Main Oscillator Register */
-	__IO uint32_t CKGR_MCFR;     /**< \brief (Pmc Offset: 0x0024) Main Clock Frequency Register */
-	__IO uint32_t CKGR_PLLAR;    /**< \brief (Pmc Offset: 0x0028) PLLA Register */
-	__I uint32_t Reserved2[1];
-	__IO uint32_t PMC_MCKR;	     /**< \brief (Pmc Offset: 0x0030) Master Clock Register */
-	__I uint32_t Reserved3[1];
-	__IO uint32_t PMC_USB;	     /**< \brief (Pmc Offset: 0x0038) USB Clock Register */
-	__IO uint32_t PMC_SMD;	     /**< \brief (Pmc Offset: 0x003C) Soft Modem Clock Register */
-	__IO uint32_t PMC_PCK[3];    /**< \brief (Pmc Offset: 0x0040) Programmable Clock 0 Register */
-	__I uint32_t Reserved4[5];
-	__O uint32_t PMC_IER;	     /**< \brief (Pmc Offset: 0x0060) Interrupt Enable Register */
-	__O uint32_t PMC_IDR;	     /**< \brief (Pmc Offset: 0x0064) Interrupt Disable Register */
-	__I uint32_t PMC_SR;	     /**< \brief (Pmc Offset: 0x0068) Status Register */
-	__I uint32_t PMC_IMR;	     /**< \brief (Pmc Offset: 0x006C) Interrupt Mask Register */
-	__I uint32_t Reserved5[2];
-	__O uint32_t PMC_FOCR;	     /**< \brief (Pmc Offset: 0x0078) Fault Output Clear Register */
-	__I uint32_t Reserved6[1];
-	__IO uint32_t PMC_PLLICPR;   /**< \brief (Pmc Offset: 0x0080) PLL Charge Pump Current Register */
-	__I uint32_t Reserved7[24];
-	__IO uint32_t PMC_WPMR;	     /**< \brief (Pmc Offset: 0x00E4) Write ProtectIon Mode Register */
-	__I uint32_t PMC_WPSR;	     /**< \brief (Pmc Offset: 0x00E8) Write Protection Status Register */
-	__I uint32_t Reserved8[5];
-	__O uint32_t PMC_PCER1;	     /**< \brief (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1 */
-	__O uint32_t PMC_PCDR1;	     /**< \brief (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1 */
-	__I uint32_t PMC_PCSR1;	     /**< \brief (Pmc Offset: 0x0108) Peripheral Clock Status Register 1 */
-	__IO uint32_t PMC_PCR;	     /**< \brief (Pmc Offset: 0x010C) Peripheral Control Register */
+	__O  uint32_t PMC_SCER;       /**< \brief (Pmc Offset: 0x0000) System Clock Enable Register */
+	__O  uint32_t PMC_SCDR;       /**< \brief (Pmc Offset: 0x0004) System Clock Disable Register */
+	__I  uint32_t PMC_SCSR;       /**< \brief (Pmc Offset: 0x0008) System Clock Status Register */
+	__I  uint32_t Reserved1[1];
+	__O  uint32_t PMC_PCER0;      /**< \brief (Pmc Offset: 0x0010) Peripheral Clock Enable Register 0 */
+	__O  uint32_t PMC_PCDR0;      /**< \brief (Pmc Offset: 0x0014) Peripheral Clock Disable Register 0 */
+	__I  uint32_t PMC_PCSR0;      /**< \brief (Pmc Offset: 0x0018) Peripheral Clock Status Register 0 */
+	__IO uint32_t CKGR_UCKR;      /**< \brief (Pmc Offset: 0x001C) UTMI Clock Register */
+	__IO uint32_t CKGR_MOR;       /**< \brief (Pmc Offset: 0x0020) Main Oscillator Register */
+	__IO uint32_t CKGR_MCFR;      /**< \brief (Pmc Offset: 0x0024) Main Clock Frequency Register */
+	__IO uint32_t CKGR_PLLAR;     /**< \brief (Pmc Offset: 0x0028) PLLA Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t PMC_MCKR;       /**< \brief (Pmc Offset: 0x0030) Master Clock Register */
+	__I  uint32_t Reserved3[1];
+	__IO uint32_t PMC_USB;        /**< \brief (Pmc Offset: 0x0038) USB Clock Register */
+	__IO uint32_t PMC_SMD;        /**< \brief (Pmc Offset: 0x003C) Soft Modem Clock Register */
+	__IO uint32_t PMC_PCK[3];     /**< \brief (Pmc Offset: 0x0040) Programmable Clock 0 Register */
+	__I  uint32_t Reserved4[5];
+	__O  uint32_t PMC_IER;        /**< \brief (Pmc Offset: 0x0060) Interrupt Enable Register */
+	__O  uint32_t PMC_IDR;        /**< \brief (Pmc Offset: 0x0064) Interrupt Disable Register */
+	__I  uint32_t PMC_SR;         /**< \brief (Pmc Offset: 0x0068) Status Register */
+	__I  uint32_t PMC_IMR;        /**< \brief (Pmc Offset: 0x006C) Interrupt Mask Register */
+	__I  uint32_t Reserved5[2];
+	__O  uint32_t PMC_FOCR;       /**< \brief (Pmc Offset: 0x0078) Fault Output Clear Register */
+	__I  uint32_t Reserved6[1];
+	__IO uint32_t PMC_PLLICPR;    /**< \brief (Pmc Offset: 0x0080) PLL Charge Pump Current Register */
+	__I  uint32_t Reserved7[24];
+	__IO uint32_t PMC_WPMR;       /**< \brief (Pmc Offset: 0x00E4) Write Protection Mode Register */
+	__I  uint32_t PMC_WPSR;       /**< \brief (Pmc Offset: 0x00E8) Write Protection Status Register */
+	__I  uint32_t Reserved8[5];
+	__O  uint32_t PMC_PCER1;      /**< \brief (Pmc Offset: 0x0100) Peripheral Clock Enable Register 1 */
+	__O  uint32_t PMC_PCDR1;      /**< \brief (Pmc Offset: 0x0104) Peripheral Clock Disable Register 1 */
+	__I  uint32_t PMC_PCSR1;      /**< \brief (Pmc Offset: 0x0108) Peripheral Clock Status Register 1 */
+	__IO uint32_t PMC_PCR;        /**< \brief (Pmc Offset: 0x010C) Peripheral Control Register */
 } Pmc;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PMC_SCER : (PMC Offset: 0x0000) System Clock Enable Register -------- */
 #define PMC_SCER_DDRCK (0x1u << 2) /**< \brief (PMC_SCER) DDR Clock Enable */
-#define PMC_SCER_LCDCK (0x1u << 3) /**< \brief (PMC_SCER) LCD2x Clock Enable */
+#define PMC_SCER_LCDCK (0x1u << 3) /**< \brief (PMC_SCER) LCD Clock Enable */
 #define PMC_SCER_SMDCK (0x1u << 4) /**< \brief (PMC_SCER) SMD Clock Enable */
 #define PMC_SCER_UHP (0x1u << 6) /**< \brief (PMC_SCER) USB Host OHCI Clocks Enable */
 #define PMC_SCER_UDP (0x1u << 7) /**< \brief (PMC_SCER) USB Device Clock Enable */
@@ -86,7 +86,7 @@ typedef struct {
 #define PMC_SCER_PCK2 (0x1u << 10) /**< \brief (PMC_SCER) Programmable Clock 2 Output Enable */
 /* -------- PMC_SCDR : (PMC Offset: 0x0004) System Clock Disable Register -------- */
 #define PMC_SCDR_DDRCK (0x1u << 2) /**< \brief (PMC_SCDR) DDR Clock Disable */
-#define PMC_SCDR_LCDCK (0x1u << 3) /**< \brief (PMC_SCDR) LCD2x Clock Disable */
+#define PMC_SCDR_LCDCK (0x1u << 3) /**< \brief (PMC_SCDR) LCD Clock Disable */
 #define PMC_SCDR_SMDCK (0x1u << 4) /**< \brief (PMC_SCDR) SMD Clock Disable */
 #define PMC_SCDR_UHP (0x1u << 6) /**< \brief (PMC_SCDR) USB Host OHCI Clock Disable */
 #define PMC_SCDR_UDP (0x1u << 7) /**< \brief (PMC_SCDR) USB Device Clock Enable */
@@ -95,7 +95,7 @@ typedef struct {
 #define PMC_SCDR_PCK2 (0x1u << 10) /**< \brief (PMC_SCDR) Programmable Clock 2 Output Disable */
 /* -------- PMC_SCSR : (PMC Offset: 0x0008) System Clock Status Register -------- */
 #define PMC_SCSR_DDRCK (0x1u << 2) /**< \brief (PMC_SCSR) DDR Clock Status */
-#define PMC_SCSR_LCDCK (0x1u << 3) /**< \brief (PMC_SCSR) LCD2x Clock Status */
+#define PMC_SCSR_LCDCK (0x1u << 3) /**< \brief (PMC_SCSR) LCD Clock Status */
 #define PMC_SCSR_SMDCK (0x1u << 4) /**< \brief (PMC_SCSR) SMD Clock Status */
 #define PMC_SCSR_UHP (0x1u << 6) /**< \brief (PMC_SCSR) USB Host Port Clock Status */
 #define PMC_SCSR_UDP (0x1u << 7) /**< \brief (PMC_SCSR) USB Device Port Clock Status */
@@ -208,27 +208,27 @@ typedef struct {
 #define CKGR_MOR_MOSCXTEN (0x1u << 0) /**< \brief (CKGR_MOR) Main Crystal Oscillator Enable */
 #define CKGR_MOR_MOSCXTBY (0x1u << 1) /**< \brief (CKGR_MOR) Main Crystal Oscillator Bypass */
 #define CKGR_MOR_MOSCXTST_Pos 8
-#define CKGR_MOR_MOSCXTST_Msk (0xffu << CKGR_MOR_MOSCXTST_Pos) /**< \brief (CKGR_MOR) Main Crystal Oscillator Startup Time */
+#define CKGR_MOR_MOSCXTST_Msk (0xffu << CKGR_MOR_MOSCXTST_Pos) /**< \brief (CKGR_MOR) Main Crystal Oscillator Start-up Time */
 #define CKGR_MOR_MOSCXTST(value) ((CKGR_MOR_MOSCXTST_Msk & ((value) << CKGR_MOR_MOSCXTST_Pos)))
 #define CKGR_MOR_KEY_Pos 16
-#define CKGR_MOR_KEY_Msk (0xffu << CKGR_MOR_KEY_Pos) /**< \brief (CKGR_MOR) Password */
+#define CKGR_MOR_KEY_Msk (0xffu << CKGR_MOR_KEY_Pos) /**< \brief (CKGR_MOR) Write Access Password */
 #define CKGR_MOR_KEY(value) ((CKGR_MOR_KEY_Msk & ((value) << CKGR_MOR_KEY_Pos)))
 #define   CKGR_MOR_KEY_PASSWD (0x37u << 16) /**< \brief (CKGR_MOR) Writing any other value in this field aborts the write operation. */
-#define CKGR_MOR_MOSCSEL (0x1u << 24) /**< \brief (CKGR_MOR) Main Oscillator Selection */
+#define CKGR_MOR_MOSCSEL (0x1u << 24) /**< \brief (CKGR_MOR) Main Clock Oscillator Selection */
 #define CKGR_MOR_CFDEN (0x1u << 25) /**< \brief (CKGR_MOR) Clock Failure Detector Enable */
 #define CKGR_MOR_XT32KFME (0x1u << 26) /**< \brief (CKGR_MOR) Slow Crystal Oscillator Frequency Monitoring Enable */
 /* -------- CKGR_MCFR : (PMC Offset: 0x0024) Main Clock Frequency Register -------- */
 #define CKGR_MCFR_MAINF_Pos 0
 #define CKGR_MCFR_MAINF_Msk (0xffffu << CKGR_MCFR_MAINF_Pos) /**< \brief (CKGR_MCFR) Main Clock Frequency */
 #define CKGR_MCFR_MAINF(value) ((CKGR_MCFR_MAINF_Msk & ((value) << CKGR_MCFR_MAINF_Pos)))
-#define CKGR_MCFR_MAINFRDY (0x1u << 16)	/**< \brief (CKGR_MCFR) Main Clock Ready */
+#define CKGR_MCFR_MAINFRDY (0x1u << 16) /**< \brief (CKGR_MCFR) Main Clock Frequency Measure Ready */
 #define CKGR_MCFR_RCMEAS (0x1u << 20) /**< \brief (CKGR_MCFR) RC Oscillator Frequency Measure (write-only) */
 /* -------- CKGR_PLLAR : (PMC Offset: 0x0028) PLLA Register -------- */
 #define CKGR_PLLAR_DIVA_Pos 0
-#define CKGR_PLLAR_DIVA_Msk (0x1u << CKGR_PLLAR_DIVA_Pos) /**< \brief (CKGR_PLLAR) Divider A */
+#define CKGR_PLLAR_DIVA_Msk (0x1u << CKGR_PLLAR_DIVA_Pos) /**< \brief (CKGR_PLLAR) PLLA Front End Divider */
 #define CKGR_PLLAR_DIVA(value) ((CKGR_PLLAR_DIVA_Msk & ((value) << CKGR_PLLAR_DIVA_Pos)))
-#define   CKGR_PLLAR_DIVA_0 (0x0u << 0) /**< \brief (CKGR_PLLAR) Divider output is 0 */
-#define   CKGR_PLLAR_DIVA_BYPASS (0x1u << 0) /**< \brief (CKGR_PLLAR) Divider is bypassed */
+#define   CKGR_PLLAR_DIVA_0 (0x0u << 0) /**< \brief (CKGR_PLLAR) Divider output is 0 and PLLA is disabled. */
+#define   CKGR_PLLAR_DIVA_BYPASS (0x1u << 0) /**< \brief (CKGR_PLLAR) Divider is bypassed (divide by 1) and PLLA is enabled. */
 #define CKGR_PLLAR_PLLACOUNT_Pos 8
 #define CKGR_PLLAR_PLLACOUNT_Msk (0x3fu << CKGR_PLLAR_PLLACOUNT_Pos) /**< \brief (CKGR_PLLAR) PLLA Counter */
 #define CKGR_PLLAR_PLLACOUNT(value) ((CKGR_PLLAR_PLLACOUNT_Msk & ((value) << CKGR_PLLAR_PLLACOUNT_Pos)))
@@ -245,7 +245,7 @@ typedef struct {
 #define PMC_MCKR_CSS(value) ((PMC_MCKR_CSS_Msk & ((value) << PMC_MCKR_CSS_Pos)))
 #define   PMC_MCKR_CSS_SLOW_CLK (0x0u << 0) /**< \brief (PMC_MCKR) Slow Clock is selected */
 #define   PMC_MCKR_CSS_MAIN_CLK (0x1u << 0) /**< \brief (PMC_MCKR) Main Clock is selected */
-#define   PMC_MCKR_CSS_PLLA_CLK (0x2u << 0) /**< \brief (PMC_MCKR) PLLACK is selected */
+#define   PMC_MCKR_CSS_PLLA_CLK (0x2u << 0) /**< \brief (PMC_MCKR) PLLA Clock is selected */
 #define   PMC_MCKR_CSS_UPLL_CLK (0x3u << 0) /**< \brief (PMC_MCKR) UPLL Clock is selected */
 #define PMC_MCKR_PRES_Pos 4
 #define PMC_MCKR_PRES_Msk (0x7u << PMC_MCKR_PRES_Pos) /**< \brief (PMC_MCKR) Master/Processor Clock Prescaler */
@@ -254,24 +254,26 @@ typedef struct {
 #define   PMC_MCKR_PRES_CLOCK_DIV2 (0x1u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 2 */
 #define   PMC_MCKR_PRES_CLOCK_DIV4 (0x2u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 4 */
 #define   PMC_MCKR_PRES_CLOCK_DIV8 (0x3u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 8 */
-#define   PMC_MCKR_PRES_CLOCK_DIV16 (0x4u << 4)	/**< \brief (PMC_MCKR) Selected clock divided by 16 */
-#define   PMC_MCKR_PRES_CLOCK_DIV32 (0x5u << 4)	/**< \brief (PMC_MCKR) Selected clock divided by 32 */
-#define   PMC_MCKR_PRES_CLOCK_DIV64 (0x6u << 4)	/**< \brief (PMC_MCKR) Selected clock divided by 64 */
+#define   PMC_MCKR_PRES_CLOCK_DIV16 (0x4u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 16 */
+#define   PMC_MCKR_PRES_CLOCK_DIV32 (0x5u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 32 */
+#define   PMC_MCKR_PRES_CLOCK_DIV64 (0x6u << 4) /**< \brief (PMC_MCKR) Selected clock divided by 64 */
 #define PMC_MCKR_MDIV_Pos 8
 #define PMC_MCKR_MDIV_Msk (0x3u << PMC_MCKR_MDIV_Pos) /**< \brief (PMC_MCKR) Master Clock Division */
 #define PMC_MCKR_MDIV(value) ((PMC_MCKR_MDIV_Msk & ((value) << PMC_MCKR_MDIV_Pos)))
-#define   PMC_MCKR_MDIV_EQ_PCK (0x0u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 1. WARNING: SysClk DDR and DDRCK are not available. */
-#define   PMC_MCKR_MDIV_PCK_DIV2 (0x1u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 2. SysClk DDR is equal to 2 x MCK. DDRCK is equal to MCK. */
-#define   PMC_MCKR_MDIV_PCK_DIV4 (0x2u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 4. SysClk DDR is equal to 2 x MCK. DDRCK is equal to MCK. */
-#define   PMC_MCKR_MDIV_PCK_DIV3 (0x3u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 3. SysClk DDR is equal to 2 x MCK. DDRCK is equal to MCK. */
+#define   PMC_MCKR_MDIV_EQ_PCK (0x0u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 1 */
+#define   PMC_MCKR_MDIV_PCK_DIV2 (0x1u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 2 */
+#define   PMC_MCKR_MDIV_PCK_DIV4 (0x2u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 4 */
+#define   PMC_MCKR_MDIV_PCK_DIV3 (0x3u << 8) /**< \brief (PMC_MCKR) Master Clock is Prescaler Output Clock divided by 3 */
 #define PMC_MCKR_PLLADIV2 (0x1u << 12) /**< \brief (PMC_MCKR) PLLA Divisor by 2 */
+#define   PMC_MCKR_PLLADIV2_NOT_DIV2 (0x0u << 12) /**< \brief (PMC_MCKR) PLLA clock frequency is divided by 1. */
+#define   PMC_MCKR_PLLADIV2_DIV2 (0x1u << 12) /**< \brief (PMC_MCKR) PLLA clock frequency is divided by 2. */
 #define PMC_MCKR_H32MXDIV (0x1u << 24) /**< \brief (PMC_MCKR) AHB 32-bit Matrix Divisor */
 #define   PMC_MCKR_H32MXDIV_H32MXDIV1 (0x0u << 24) /**< \brief (PMC_MCKR) The AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency. It is possible only if the AHB 64-bit Matrix frequency does not exceed 90 MHz. */
 #define   PMC_MCKR_H32MXDIV_H32MXDIV2 (0x1u << 24) /**< \brief (PMC_MCKR) The AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2. */
 /* -------- PMC_USB : (PMC Offset: 0x0038) USB Clock Register -------- */
-#define PMC_USB_USBS (0x1u << 0) /**< \brief (PMC_USB) USB OHCI Input clock selection */
+#define PMC_USB_USBS (0x1u << 0) /**< \brief (PMC_USB) USB Input Clock Selection */
 #define PMC_USB_USBDIV_Pos 8
-#define PMC_USB_USBDIV_Msk (0xfu << PMC_USB_USBDIV_Pos)	/**< \brief (PMC_USB) Divider for USB OHCI Clock. */
+#define PMC_USB_USBDIV_Msk (0xfu << PMC_USB_USBDIV_Pos) /**< \brief (PMC_USB) Divider for USB Clock */
 #define PMC_USB_USBDIV(value) ((PMC_USB_USBDIV_Msk & ((value) << PMC_USB_USBDIV_Pos)))
 /* -------- PMC_SMD : (PMC Offset: 0x003C) Soft Modem Clock Register -------- */
 #define PMC_SMD_SMDS (0x1u << 0) /**< \brief (PMC_SMD) SMD input clock selection */
@@ -284,9 +286,9 @@ typedef struct {
 #define PMC_PCK_CSS(value) ((PMC_PCK_CSS_Msk & ((value) << PMC_PCK_CSS_Pos)))
 #define   PMC_PCK_CSS_SLOW_CLK (0x0u << 0) /**< \brief (PMC_PCK[3]) Slow Clock is selected */
 #define   PMC_PCK_CSS_MAIN_CLK (0x1u << 0) /**< \brief (PMC_PCK[3]) Main Clock is selected */
-#define   PMC_PCK_CSS_PLLA_CLK (0x2u << 0) /**< \brief (PMC_PCK[3]) PLLACK is selected */
+#define   PMC_PCK_CSS_PLLA_CLK (0x2u << 0) /**< \brief (PMC_PCK[3]) PLLA Clock is selected */
 #define   PMC_PCK_CSS_UPLL_CLK (0x3u << 0) /**< \brief (PMC_PCK[3]) UPLL Clock is selected */
-#define   PMC_PCK_CSS_MCK_CLK (0x4u << 0) /**< \brief (PMC_PCK[3]) Master Clock is selected */
+#define   PMC_PCK_CSS_MCK (0x4u << 0) /**< \brief (PMC_PCK[3]) Master Clock is selected */
 #define PMC_PCK_PRES_Pos 4
 #define PMC_PCK_PRES_Msk (0x7u << PMC_PCK_PRES_Pos) /**< \brief (PMC_PCK[3]) Programmable Clock Prescaler */
 #define PMC_PCK_PRES(value) ((PMC_PCK_PRES_Msk & ((value) << PMC_PCK_PRES_Pos)))
@@ -305,7 +307,7 @@ typedef struct {
 #define PMC_IER_PCKRDY0 (0x1u << 8) /**< \brief (PMC_IER) Programmable Clock Ready 0 Interrupt Enable */
 #define PMC_IER_PCKRDY1 (0x1u << 9) /**< \brief (PMC_IER) Programmable Clock Ready 1 Interrupt Enable */
 #define PMC_IER_PCKRDY2 (0x1u << 10) /**< \brief (PMC_IER) Programmable Clock Ready 2 Interrupt Enable */
-#define PMC_IER_MOSCSELS (0x1u << 16) /**< \brief (PMC_IER) Main Oscillator Selection Status Interrupt Enable */
+#define PMC_IER_MOSCSELS (0x1u << 16) /**< \brief (PMC_IER) Main Clock Source Oscillator Selection Status Interrupt Enable */
 #define PMC_IER_MOSCRCS (0x1u << 17) /**< \brief (PMC_IER) Main On-Chip RC Status Interrupt Enable */
 #define PMC_IER_CFDEV (0x1u << 18) /**< \brief (PMC_IER) Clock Failure Detector Event Interrupt Enable */
 #define PMC_IER_XT32KERR (0x1u << 21) /**< \brief (PMC_IER) Slow Crystal Oscillator Error Interrupt Enable */
@@ -313,7 +315,7 @@ typedef struct {
 #define PMC_IDR_MOSCXTS (0x1u << 0) /**< \brief (PMC_IDR) Main Crystal Oscillator Status Interrupt Disable */
 #define PMC_IDR_LOCKA (0x1u << 1) /**< \brief (PMC_IDR) PLLA Lock Interrupt Disable */
 #define PMC_IDR_MCKRDY (0x1u << 3) /**< \brief (PMC_IDR) Master Clock Ready Interrupt Disable */
-#define PMC_IDR_LOCKU (0x1u << 6) /**< \brief (PMC_IDR) UTMI PLL Lock Interrupt Enable */
+#define PMC_IDR_LOCKU (0x1u << 6) /**< \brief (PMC_IDR) UTMI PLL Lock Interrupt Disable */
 #define PMC_IDR_PCKRDY0 (0x1u << 8) /**< \brief (PMC_IDR) Programmable Clock Ready 0 Interrupt Disable */
 #define PMC_IDR_PCKRDY1 (0x1u << 9) /**< \brief (PMC_IDR) Programmable Clock Ready 1 Interrupt Disable */
 #define PMC_IDR_PCKRDY2 (0x1u << 10) /**< \brief (PMC_IDR) Programmable Clock Ready 2 Interrupt Disable */
@@ -322,7 +324,7 @@ typedef struct {
 #define PMC_IDR_CFDEV (0x1u << 18) /**< \brief (PMC_IDR) Clock Failure Detector Event Interrupt Disable */
 #define PMC_IDR_XT32KERR (0x1u << 21) /**< \brief (PMC_IDR) Slow Crystal Oscillator Error Interrupt Disable */
 /* -------- PMC_SR : (PMC Offset: 0x0068) Status Register -------- */
-#define PMC_SR_MOSCXTS (0x1u << 0) /**< \brief (PMC_SR) Main XTAL Oscillator Status */
+#define PMC_SR_MOSCXTS (0x1u << 0) /**< \brief (PMC_SR) Main Crystal Oscillator Status */
 #define PMC_SR_LOCKA (0x1u << 1) /**< \brief (PMC_SR) PLLA Lock Status */
 #define PMC_SR_MCKRDY (0x1u << 3) /**< \brief (PMC_SR) Master Clock Status */
 #define PMC_SR_LOCKU (0x1u << 6) /**< \brief (PMC_SR) UPLL Clock Status */
@@ -333,7 +335,7 @@ typedef struct {
 #define PMC_SR_MOSCRCS (0x1u << 17) /**< \brief (PMC_SR) Main On-Chip RC Oscillator Status */
 #define PMC_SR_CFDEV (0x1u << 18) /**< \brief (PMC_SR) Clock Failure Detector Event */
 #define PMC_SR_CFDS (0x1u << 19) /**< \brief (PMC_SR) Clock Failure Detector Status */
-#define PMC_SR_FOS (0x1u << 20)	/**< \brief (PMC_SR) Clock Failure Detector Fault Output Status */
+#define PMC_SR_FOS (0x1u << 20) /**< \brief (PMC_SR) Clock Failure Detector Fault Output Status */
 #define PMC_SR_XT32KERR (0x1u << 21) /**< \brief (PMC_SR) Slow Crystal Oscillator Error */
 /* -------- PMC_IMR : (PMC Offset: 0x006C) Interrupt Mask Register -------- */
 #define PMC_IMR_MOSCXTS (0x1u << 0) /**< \brief (PMC_IMR) Main Crystal Oscillator Status Interrupt Mask */
@@ -361,7 +363,7 @@ typedef struct {
 #define PMC_PLLICPR_IVCO_PLLU_Pos 24
 #define PMC_PLLICPR_IVCO_PLLU_Msk (0x3u << PMC_PLLICPR_IVCO_PLLU_Pos) /**< \brief (PMC_PLLICPR) Voltage Control Output Current PLL UTMI */
 #define PMC_PLLICPR_IVCO_PLLU(value) ((PMC_PLLICPR_IVCO_PLLU_Msk & ((value) << PMC_PLLICPR_IVCO_PLLU_Pos)))
-/* -------- PMC_WPMR : (PMC Offset: 0x00E4) Write ProtectIon Mode Register -------- */
+/* -------- PMC_WPMR : (PMC Offset: 0x00E4) Write Protection Mode Register -------- */
 #define PMC_WPMR_WPEN (0x1u << 0) /**< \brief (PMC_WPMR) Write Protection Enable */
 #define PMC_WPMR_WPKEY_Pos 8
 #define PMC_WPMR_WPKEY_Msk (0xffffffu << PMC_WPMR_WPKEY_Pos) /**< \brief (PMC_WPMR) Write Protection Key */
@@ -475,8 +477,8 @@ typedef struct {
 #define PMC_PCR_PID_Msk (0x3fu << PMC_PCR_PID_Pos) /**< \brief (PMC_PCR) Peripheral ID */
 #define PMC_PCR_PID(value) ((PMC_PCR_PID_Msk & ((value) << PMC_PCR_PID_Pos)))
 #define PMC_PCR_CMD (0x1u << 12) /**< \brief (PMC_PCR) Command */
-#define PMC_PCR_EN (0x1u << 28)	/**< \brief (PMC_PCR) Enable */
+#define PMC_PCR_EN (0x1u << 28) /**< \brief (PMC_PCR) Enable */
 
 /*@}*/
 
-#endif				/* _SAMA5D4_PMC_COMPONENT_ */
+#endif /* _SAMA5D4_PMC_COMPONENT_ */

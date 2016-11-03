@@ -190,7 +190,7 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 	case PMC_PCK_CSS_UPLL_CLK:
 		clk = pmc_get_upll_clock();
 		break;
-	case PMC_PCK_CSS_MCK_CLK:
+	case PMC_PCK_CSS_MCK:
 		clk = pmc_get_master_clock();
 		break;
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK

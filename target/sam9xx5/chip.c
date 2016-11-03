@@ -34,6 +34,8 @@
 #include "chip.h"
 #include "compiler.h"
 
+#include "peripherals/pmc.h"
+
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
@@ -343,6 +345,11 @@ Matrix* get_peripheral_matrix(uint32_t id)
 uint32_t get_peripheral_clock_divider(uint32_t id)
 {
 	return 1;
+}
+
+uint32_t get_peripheral_clock_max_freq(uint32_t id)
+{
+	return pmc_get_master_clock();
 }
 
 uint8_t get_peripheral_dma_channel(uint32_t id, Dmac *dmac, bool transmit)
