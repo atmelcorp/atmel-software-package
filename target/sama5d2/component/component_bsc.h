@@ -39,22 +39,21 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Bsc hardware registers */
 typedef struct {
-  __IO uint32_t BSC_CR; /**< \brief (Bsc Offset: 0x0) Boot Sequence Control Configuration Register */
+	__IO uint32_t BSC_CR; /**< \brief (Bsc Offset: 0x0) Boot Sequence Control Configuration Register */
 } Bsc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- BSC_CR : (BSC Offset: 0x0) Boot Sequence Control Configuration Register -------- */
 #define BSC_CR_BUREG_INDEX_Pos 0
-#define BSC_CR_BUREG_INDEX_Msk (0x3u << BSC_CR_BUREG_INDEX_Pos)
+#define BSC_CR_BUREG_INDEX_Msk (0x3u << BSC_CR_BUREG_INDEX_Pos) /**< \brief (BSC_CR) Select the BUREG where the Boot Configuration data shall be read */
 #define BSC_CR_BUREG_INDEX(value) (BSC_CR_BUREG_INDEX_Msk & ((value) << BSC_CR_BUREG_INDEX_Pos)
-#define   BSC_CR_BUREG_0 (0x0u << 0)
-#define   BSC_CR_BUREG_1 (0x1u << 0)
-#define   BSC_CR_BUREG_2 (0x2u << 0)
-#define   BSC_CR_BUREG_3 (0x3u << 0)
-#define BSC_CR_BUREG_VALID (1 << 2)
+#define   BSC_CR_BUREG_0 (0x0u << 0) /**< \brief (BSC_CR) Use BUREG 0 value */
+#define   BSC_CR_BUREG_1 (0x1u << 0) /**< \brief (BSC_CR) Use BUREG 1 value */
+#define   BSC_CR_BUREG_2 (0x2u << 0) /**< \brief (BSC_CR) Use BUREG 2 value */
+#define   BSC_CR_BUREG_3 (0x3u << 0) /**< \brief (BSC_CR) Use BUREG 3 value */
+#define BSC_CR_BUREG_VALID (1 << 2) /**< \brief (BSC_CR) Validate the data in BUREG_INDEX field */
 #define BSC_CR_WPKEY_Pos 16
-#define BSC_CR_WPKEY_Msk (0xffffu << BSC_CR_WPKEY_Pos)
-#define BSC_CR_WPKEY (0x6683 << 16)
-
+#define BSC_CR_WPKEY_Msk (0xffffu << BSC_CR_WPKEY_Pos) /**< \brief (BSC_CR) Write Protect Key */
+#define   BSC_CR_WPKEY (0x6683u << 16) /**< \brief (BSC_CR) valid key to write BSC_CR register */
 /* -------- BCW : Boot Control Word -------- */
 #define BCW_QSPI_0_Pos 0
 #define BCW_QSPI_0_Msk (0x3u << BCW_QSPI_0_Pos)
@@ -119,6 +118,5 @@ typedef struct {
 #define BCW_SECURE_MODE (1 << 29)
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_BSC_COMPONENT_ */

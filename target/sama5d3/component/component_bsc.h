@@ -31,26 +31,25 @@
 #define _SAMA5D3_BSC_COMPONENT_
 
 /* ============================================================================= */
-/**  SOFTWARE API DEFINITION FOR Boot Sequence Controller */
+/**  SOFTWARE API DEFINITION FOR Boot Sequence Control */
 /* ============================================================================= */
-/** \addtogroup SAMA5D3_BSC Boot Sequence Controller */
+/** \addtogroup SAMA5D3_BSC Boot Sequence Control */
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Bsc hardware registers */
 typedef struct {
-  __IO  uint32_t BSC_CR; /**< \brief (Bsc Offset: 0x0) Boot Sequence Configuration Register */
+	__IO uint32_t BSC_CR; /**< \brief (Bsc Offset: 0x0) Boot Sequence Control Configuration Register */
 } Bsc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- BSC_CR : (BSC Offset: 0x0) Boot Sequence Configuration Register -------- */
 #define BSC_CR_BOOT_Pos 0
 #define BSC_CR_BOOT_Msk (0xffu << BSC_CR_BOOT_Pos) /**< \brief (BSC_CR) Boot media sequence */
 #define BSC_CR_BOOT(value) ((BSC_CR_BOOT_Msk & ((value) << BSC_CR_BOOT_Pos)))
-#define BSC_CR_BOOTKEY_Pos 16
-#define BSC_CR_BOOTKEY_Msk (0xffffu << BSC_CR_BOOTKEY_Pos) /**< \brief (BSC_CR)  */
-#define   BSC_CR_BOOTKEY_BSC_KEY (0x6683u << 16) /**< \brief (BSC_CR) valid key to write BSC_CR register; it needs to be written at the same time as the BOOT field. */
+#define BSC_CR_WPKEY_Pos 16
+#define BSC_CR_WPKEY_Msk (0xffffu << BSC_CR_WPKEY_Pos) /**< \brief (BSC_CR) Write Protect Key */
+#define   BSC_CR_WPKEY (0x6683u << 16) /**< \brief (BSC_CR) valid key to write BSC_CR register */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_BSC_COMPONENT_ */
