@@ -40,7 +40,7 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D4-EK and SAMA5D4-XULT.
+ * This package can be used with SAMA5DX-XULT, SAMA5DX-EK.
  *
  * \section Description
  *
@@ -83,7 +83,9 @@
  * \section References
  * - aes/main.c
  * - aes.c
- * - aes.h */
+ * - aes.h 
+ * - aesd.c
+ * - aesd.h */
 
 /** \file
  *
@@ -99,8 +101,8 @@
 #include "board.h"
 #include "chip.h"
 #include "peripherals/aes.h"
+#include "peripherals/aesd.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/dma.h"
 
 #include "misc/cache.h"
@@ -112,13 +114,14 @@
 #include <ctype.h>
 #include <string.h>
 
+static struct _aesd_desc aesd;
+
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
 #define DATA_LEN_INBYTE		640
 #define DATA_LEN_INWORD		(DATA_LEN_INBYTE / 4)
-#define DATA_LEN_INDWORD	(DATA_LEN_INBYTE / 8)
 
 #define AES_VECTOR_0		0x11223344
 #define AES_VECTOR_1		0x55667788
@@ -137,7 +140,6 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
 const char example_text[DATA_LEN_INBYTE] = "\
   The Advanced Encryption Standard (AES) is compliant with the A\
 merican FIPS (Federal Information Processing Standard) Publicati\
@@ -149,12 +151,6 @@ ion 80038A. It is compatible with all these modes via Peripheral\
 large buffer transfers.The 128-bit/192-bit/256-bit key is stored\
 in four/six/eight 32-bit registers (AES_KEYWRx) which are all wr\
 ite-only .......................................................";
-
-const uint32_t aes_vectors[4] = {
-	AES_VECTOR_0, AES_VECTOR_1, AES_VECTOR_2, AES_VECTOR_3 };
-const uint32_t aes_keys[8] = {
-	AES_KEY_0, AES_KEY_1, AES_KEY_2, AES_KEY_3, AES_KEY_4, AES_KEY_5,
-	AES_KEY_6, AES_KEY_7 };
 
 /* Buffers hereafter will receive data transferred by the DMA to/from the
  * peripheral. The data cache won't notice this memory update, hence we'll have
@@ -168,114 +164,14 @@ CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
 
-static uint32_t op_mode, start_mode, key_id, key_byte_len;
-static volatile bool data_ready = false;
-
-static struct dma_channel *dma_wr_chan = NULL, *dma_rd_chan = NULL;
-/* DMA linked lists */
-CACHE_ALIGNED static struct dma_xfer_item dma_wr_dlist[DATA_LEN_INWORD];
-CACHE_ALIGNED static struct dma_xfer_item dma_rd_dlist[DATA_LEN_INWORD];
-
 static volatile bool dma_rd_complete = false;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-static void dma_rd_callback(struct dma_channel *channel, void *arg)
+static void aes_callback(void* args)
 {
-	printf("-I- dma: read completed\r\n");
-	dma_rd_complete = true;
-}
-
-static void dma_wr_callback(struct dma_channel *channel, void *arg)
-{
-	printf("-I- dma: write completed\r\n");
-}
-
-/**
- * \brief DMA init.
- */
-static void init_dma(void)
-{
-	/* Initialize DMA driver instance with polling mode */
-	/* Allocate DMA channels:
-	 * 1. Write accesses into AES_IDATARx
-	 * 2. Read accesses into AES_ODATARx */
-	dma_wr_chan = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_AES);
-	dma_rd_chan = dma_allocate_channel(ID_AES, DMA_PERIPH_MEMORY);
-	if (!dma_wr_chan || !dma_rd_chan)
-		printf("-E- Can't allocate DMA channel\n\r");
-	else {
-		dma_set_callback(dma_wr_chan, dma_wr_callback, NULL);
-		dma_set_callback(dma_rd_chan, dma_rd_callback, NULL);
-	}
-}
-
-/**
- * \brief Configure DMA write linker list for AES transfer.
- * \param buf  Pointer to data buffer.
- * \param len  Count of 128-bit data blocks.
- */
-static void configure_dma_write(uint32_t *buf, uint32_t len)
-{
-	uint32_t i;
-	static struct dma_xfer_item_tmpl cfg;
-
-	for (i = 0; i < len; i++) {
-		cfg.sa = &buf[i * 4];
-		cfg.da = (void *)AES->AES_IDATAR;
-		cfg.upd_sa_per_data = 1;
-		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = DMA_CHUNK_SIZE_4;
-		cfg.blk_size = 4;
-		dma_prepare_item(dma_wr_chan, &cfg, &dma_wr_dlist[i]);
-		dma_link_item(dma_wr_chan, &dma_wr_dlist[i], &dma_wr_dlist[i + 1]);
-	}
-	dma_link_item(dma_wr_chan, &dma_wr_dlist[i - 1], NULL);
-	cache_clean_region(dma_wr_dlist, sizeof(dma_wr_dlist));
-	dma_configure_sg_transfer(dma_wr_chan, &cfg, dma_wr_dlist);
-}
-
-/**
- * \brief Configure DMA read linker list for AES transfer.
- * \param buf  Pointer to data buffer.
- * \param len  Count of 128-bit data blocks.
- */
-static void configure_dma_read(uint32_t *buf, uint32_t len)
-{
-	uint32_t i;
-	static struct dma_xfer_item_tmpl cfg;
-
-	for (i = 0; i < len; i++) {
-		cfg.sa = (void *)AES->AES_ODATAR;
-		cfg.da = &buf[i * 4];
-		cfg.upd_sa_per_data = 0;
-		cfg.upd_da_per_data = 1;
-		cfg.upd_sa_per_blk  = 0;
-		cfg.upd_da_per_blk  = 1;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = DMA_CHUNK_SIZE_4;
-		cfg.blk_size = 4;
-		dma_prepare_item(dma_rd_chan, &cfg, &dma_rd_dlist[i]);
-		dma_link_item(dma_rd_chan, &dma_rd_dlist[i], &dma_rd_dlist[i + 1]);
-	}
-	dma_link_item(dma_rd_chan, &dma_rd_dlist[i - 1], NULL);
-	cache_clean_region(dma_rd_dlist, sizeof(dma_rd_dlist));
-	dma_configure_sg_transfer(dma_rd_chan, &cfg, dma_rd_dlist);
-}
-
-/**
- * \brief AES interrupt hander.
- */
-static void handle_aes_irq(void)
-{
-	if ((aes_get_status() & AES_ISR_DATRDY) == AES_ISR_DATRDY) {
-		aes_disable_it(AES_IER_DATRDY);
-		data_ready = true;
-	}
+	printf("-I- transfer completed\r\n");
 }
 
 /**
@@ -287,57 +183,34 @@ static void handle_aes_irq(void)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
-	const bool use_dma = start_mode == AES_MR_SMOD_IDATAR0_START;
-	uint32_t rc = 0;
-	uint32_t i;
+	struct _buffer buf_in = {
+		.data = (uint8_t*)in,
+		.size = DATA_LEN_INBYTE,
+	};
+	struct _buffer buf_out = {
+		.data = (uint8_t*)out,
+		.size = DATA_LEN_INBYTE,
+	};
 
-	aes_configure((encrypt ? AES_MR_CIPHER_ENCRYPT : AES_MR_CIPHER_DECRYPT)
-		| start_mode | key_id | op_mode);
-	/* Write the 128-bit/192-bit/256-bit key in the Key Word Registers */
-	aes_write_key(aes_keys, key_byte_len);
-	/* The Initialization Vector Registers apply to all modes except
-	 * ECB. */
-	if (op_mode != AES_MR_OPMOD_ECB)
-		aes_set_vector(aes_vectors);
-	if (use_dma) {
-		init_dma();
-		aes_set_data_len(DATA_LEN_INBYTE);
-		if (encrypt)
-			cache_clean_region(in, DATA_LEN_INBYTE);
-		configure_dma_write(in, DATA_LEN_INWORD / 4);
-		configure_dma_read(out, DATA_LEN_INWORD / 4);
-		printf("-I- AES %scryption, starting dual DMA transfer"
-			   "\n\r", encrypt ? "en" : "de");
-		dma_rd_complete = false;
-		rc = dma_start_transfer(dma_wr_chan);
-		if (rc == DMA_OK)
-			rc = dma_start_transfer(dma_rd_chan);
-		if (rc == DMA_OK) {
-			while (!dma_rd_complete)
-				dma_poll();
+	/* Perform a software-triggered hardware reset of the AES interface */
+	aesd.cfg.encrypt = encrypt;
+	aesd.cfg.key[0] = AES_KEY_0;
+	aesd.cfg.key[1] = AES_KEY_1;
+	aesd.cfg.key[2] = AES_KEY_2;
+	aesd.cfg.key[3] = AES_KEY_3;
+	aesd.cfg.key[4] = AES_KEY_4;
+	aesd.cfg.key[5] = AES_KEY_5;
+	aesd.cfg.key[6] = AES_KEY_6;
+	aesd.cfg.key[7] = AES_KEY_7;
+	
+	aesd.cfg.vector[0] = AES_VECTOR_0;
+	aesd.cfg.vector[1] = AES_VECTOR_1;
+	aesd.cfg.vector[2] = AES_VECTOR_2;
+	aesd.cfg.vector[3] = AES_VECTOR_3;
 
-			dma_stop_transfer(dma_rd_chan);
-			dma_stop_transfer(dma_wr_chan);
-		}
-		dma_free_channel(dma_rd_chan); dma_rd_chan = NULL;
-		dma_free_channel(dma_wr_chan); dma_wr_chan = NULL;
-		cache_invalidate_region(out, DATA_LEN_INBYTE);
-	} else
+	aesd_configure_mode(&aesd);
 
-		/* Iterate per 128-bit data block */
-		for (i = 0; i < DATA_LEN_INWORD; i += 4) {
-			data_ready = false;
-			aes_enable_it(AES_IER_DATRDY);
-			/* Write one 128-bit input data block in the authorized
-			 * Input Data Registers */
-			aes_set_input(&in[i]);
-			if (start_mode == AES_MR_SMOD_MANUAL_START)
-				/* Set the START bit in the AES Control register
-				 * to begin the encrypt. or decrypt. process. */
-				aes_start();
-			while (!data_ready) ;
-			aes_get_output(&out[i]);
-		}
+	aesd_transfer(&aesd, &buf_in, &buf_out, aes_callback, NULL);
 }
 
 /**
@@ -347,9 +220,6 @@ static void start_aes(void)
 {
 	uint32_t i;
 	uint8_t c;
-
-	/* Perform a software-triggered hardware reset of the AES interface */
-	aes_soft_reset();
 
 	memcpy((char*)msg_in_clear, example_text, sizeof(example_text));
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
@@ -385,31 +255,70 @@ static void display_menu(void)
 	uint8_t chk_box[5];
 	printf("\n\rAES Menu:\n\r");
 	printf("Press [0|1|2|3|4] to set the Mode of Operation\n\r");
-	chk_box[0] = (op_mode == AES_MR_OPMOD_ECB) ? 'X' : ' ';
-	chk_box[1] = (op_mode == AES_MR_OPMOD_CBC) ? 'X' : ' ';
-	chk_box[2] = (op_mode == AES_MR_OPMOD_OFB) ? 'X' : ' ';
-	chk_box[3] = (op_mode == AES_MR_OPMOD_CFB) ? 'X' : ' ';
-	chk_box[4] = (op_mode == AES_MR_OPMOD_CTR) ? 'X' : ' ';
+	chk_box[0] = (aesd.cfg.mode == AESD_MODE_ECB) ? 'X' : ' ';
+	chk_box[1] = (aesd.cfg.mode == AESD_MODE_CBC) ? 'X' : ' ';
+	chk_box[2] = (aesd.cfg.mode == AESD_MODE_OFB) ? 'X' : ' ';
+	chk_box[3] = (aesd.cfg.mode == AESD_MODE_CFB) ? 'X' : ' ';
+	chk_box[4] = (aesd.cfg.mode == AESD_MODE_CTR) ? 'X' : ' ';
+
 	printf("   0: Electronic Code Book    [%c]\n\r", chk_box[0]);
 	printf("   1: Cipher Block Chaining   [%c]\n\r", chk_box[1]);
 	printf("   2: Output Feedback         [%c]\n\r", chk_box[2]);
 	printf("   3: Cipher Feedback         [%c]\n\r", chk_box[3]);
 	printf("   4: 16-bit internal Counter [%c]\n\r", chk_box[4]);
 	printf("Press [5|6|7] to select key size\n\r");
-	chk_box[0] = (key_id == AES_MR_KEYSIZE_AES128) ? 'X' : ' ';
-	chk_box[1] = (key_id == AES_MR_KEYSIZE_AES192) ? 'X' : ' ';
-	chk_box[2] = (key_id == AES_MR_KEYSIZE_AES256) ? 'X' : ' ';
+	chk_box[0] = (aesd.cfg.key_size == AESD_AES128) ? 'X' : ' ';
+	chk_box[1] = (aesd.cfg.key_size == AESD_AES192) ? 'X' : ' ';
+	chk_box[2] = (aesd.cfg.key_size == AESD_AES256) ? 'X' : ' ';
+
 	printf("   5: 128 bits[%c]  6: 192 bits[%c]  7: 256 bits[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
 	printf("Press [m|a|d] to set Start Mode \n\r");
-	chk_box[0] = (start_mode == AES_MR_SMOD_MANUAL_START) ? 'X' : ' ';
-	chk_box[1] = (start_mode == AES_MR_SMOD_AUTO_START) ? 'X' : ' ';
-	chk_box[2] = (start_mode == AES_MR_SMOD_IDATAR0_START) ? 'X' : ' ';
+	chk_box[0] = (aesd.cfg.transfer_mode == AESD_TRANS_POLLING_MANUAL) ? 'X' : ' ';
+	chk_box[1] = (aesd.cfg.transfer_mode == AESD_TRANS_POLLING_AUTO) ? 'X' : ' ';
+	chk_box[2] = (aesd.cfg.transfer_mode == AESD_TRANS_DMA) ? 'X' : ' ';
 	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]  d: DMA[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Begin the encryption/decryption process\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
+}
+
+/**
+ * \brief Display sub menu for CFB mode.
+ */
+static void display_cipher_menu(void)
+{
+	uint8_t chk_box[5];
+	printf("\n\rAES Cipher Feedback Menu:\n\r");
+	printf("Press [0|1|2|3|4] to set the cipher data size\n\r");
+	chk_box[0] = (aesd.cfg.cfbs == AESD_CFBS_128) ? 'X' : ' ';
+	chk_box[1] = (aesd.cfg.cfbs == AESD_CFBS_64) ? 'X' : ' ';
+	chk_box[2] = (aesd.cfg.cfbs == AESD_CFBS_32) ? 'X' : ' ';
+	chk_box[3] = (aesd.cfg.cfbs == AESD_CFBS_16) ? 'X' : ' ';
+	chk_box[4] = (aesd.cfg.cfbs == AESD_CFBS_8) ? 'X' : ' ';
+	printf("   0: 128 bits [%c]\n\r", chk_box[0]);
+	printf("   1: 64 bits [%c]\n\r", chk_box[1]);
+	printf("   2: 32 bits [%c]\n\r", chk_box[2]);
+	printf("   3: 16 bits [%c]\n\r", chk_box[3]);
+	printf("   4: 8 bits [%c]\n\r", chk_box[4]);
+	printf("\n\r");
+}
+
+/**
+ * \brief Set cipher data size.
+ */
+static void set_cipher_size(void)
+{
+	uint8_t user_key;
+	while (true) {
+		user_key = tolower(console_get_char());
+		if (user_key >= '0' && user_key <= '4') {
+			aesd.cfg.cfbs = (enum _aesd_cipher_size)(user_key - '0');
+			break;
+		}
+	}
+	display_cipher_menu();
 }
 
 /*----------------------------------------------------------------------------
@@ -428,37 +337,36 @@ int main(void)
 	/* Output example information */
 	console_example_info("AES Example");
 
-	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_AES);
-	/* Enable peripheral interrupt */
-	aic_set_source_vector(ID_AES, handle_aes_irq);
-	aic_enable(ID_AES);
+	aesd_init();
 
 	/* Display menu */
-	op_mode = AES_MR_OPMOD_ECB;
-	key_id = AES_MR_KEYSIZE_AES128;
-	key_byte_len = 128 / 8;
-	start_mode = AES_MR_SMOD_MANUAL_START;
+	aesd.cfg.mode = AESD_MODE_ECB;
+	aesd.cfg.key_size = AESD_AES128;
+	aesd.cfg.transfer_mode = AESD_TRANS_POLLING_MANUAL;
 	display_menu();
 
 	while (true) {
 		user_key = tolower(console_get_char());
 		switch (user_key) {
 		case '0': case '1': case '2': case '3': case '4':
-			op_mode = (user_key - '0') << AES_MR_OPMOD_Pos;
+			aesd.cfg.mode = (enum _aesd_mode)(user_key - '0');
 			display_menu();
+			if (aesd.cfg.mode == AESD_MODE_CFB) {
+				display_cipher_menu();
+				set_cipher_size();
+				display_menu();
+			}
 			break;
 		case '5': case '6': case '7':
-			key_byte_len = (user_key - '5' + 2) * 8;
-			key_id = (user_key - '5') << AES_MR_KEYSIZE_Pos;
+			aesd.cfg.key_size = (enum _aesd_key_size)(user_key - '5');
 			display_menu();
 			break;
 		case 'm':
 		case 'a':
 		case 'd':
-			start_mode = user_key == 'a' ? AES_MR_SMOD_AUTO_START :
-						(user_key == 'd' ? AES_MR_SMOD_IDATAR0_START :
-						AES_MR_SMOD_MANUAL_START);
+			aesd.cfg.transfer_mode = user_key == 'a' ? AESD_TRANS_POLLING_AUTO :
+						(user_key == 'd' ? AESD_TRANS_DMA :
+						AESD_TRANS_POLLING_MANUAL);
 		case 'h':
 			display_menu();
 			break;
