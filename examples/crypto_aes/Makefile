@@ -31,8 +31,6 @@ AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
 
 TOP := ../..
 
-CONFIG_HAVE_AES = y
-
 BINNAME = crypto-aes
 
 obj-y += examples/crypto_aes/main.o

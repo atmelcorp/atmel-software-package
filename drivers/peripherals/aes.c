@@ -105,9 +105,37 @@ void aes_soft_reset(void)
 	AES->AES_CR = AES_CR_SWRST;
 }
 
-void aes_configure(uint32_t mode)
+void aes_configure(uint32_t cfg)
 {
-	AES->AES_MR = mode;
+	AES->AES_MR = cfg | AES_MR_CKEY_PASSWD;
+}
+
+void aes_set_op_mode(uint32_t mode)
+{
+	AES->AES_MR |= AES_MR_OPMOD(mode) | AES_MR_CKEY_PASSWD;
+}
+
+void aes_set_start_mode(uint32_t mode)
+{
+	AES->AES_MR |= AES_MR_SMOD(mode) | AES_MR_CKEY_PASSWD;
+}
+
+void aes_set_key_size(uint32_t size)
+{
+	AES->AES_MR |= AES_MR_KEYSIZE(size) | AES_MR_CKEY_PASSWD;
+}
+
+void aes_set_cfbs(uint32_t size)
+{
+	AES->AES_MR |= AES_MR_CFBS(size) | AES_MR_CKEY_PASSWD;
+}
+
+void aes_encrypt_enable(bool encrypt)
+{
+	if (encrypt)
+		AES->AES_MR |= AES_MR_CIPHER;
+	else
+		AES->AES_MR &= ~AES_MR_CIPHER;
 }
 
 void aes_enable_it(uint32_t sources)
@@ -142,27 +170,45 @@ void aes_write_key(const uint32_t * key, uint32_t len)
 	}
 }
 
-void aes_set_input(uint32_t * data)
+void aes_set_input(uint32_t* data)
 {
 	uint8_t i;
-	for (i = 0; i < 4; i++)
+	uint8_t size = 4;
+	
+	if ((AES->AES_MR & AES_MR_OPMOD_Msk) == AES_MR_OPMOD_CFB) {
+		if ((AES->AES_MR & AES_MR_CFBS_Msk) ==
+			AES_MR_CFBS_SIZE_128BIT)
+			size = 4;
+		else if ((AES->AES_MR & AES_MR_CFBS_Msk) ==
+			AES_MR_CFBS_SIZE_64BIT)
+			size = 2;
+		else
+			size = 1;
+	}
+	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1, 
+	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to 
+	errors in processing. */
+	for (i = 0; i < size; i++)
 		AES->AES_IDATAR[i] = data[i];
 }
 
-void aes_get_output(uint32_t * data)
+void aes_get_output(uint32_t* data)
 {
 	uint8_t i;
+
 	for (i = 0; i < 4; i++)
 		data[i] = AES->AES_ODATAR[i];
 }
 
-void aes_set_vector(const uint32_t * vector)
+void aes_set_vector(const uint32_t* vector)
 {
 	AES->AES_IVR[0] = vector[0];
 	AES->AES_IVR[1] = vector[1];
 	AES->AES_IVR[2] = vector[2];
 	AES->AES_IVR[3] = vector[3];
 }
+
+#ifdef CONFIG_HAVE_AES_GCM
 
 void aes_set_aad_len(uint32_t len)
 {
@@ -174,28 +220,30 @@ void aes_set_data_len(uint32_t len)
 	AES->AES_CLENR = len;
 }
 
-void aes_set_gcm_hash(uint32_t * hash)
+void aes_set_gcm_hash(uint32_t* hash)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		AES->AES_GHASHR[i] = hash[i];
 }
 
-void aes_get_gcm_tag(uint32_t * tag)
+void aes_get_gcm_tag(uint32_t* tag)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		tag[i] = AES->AES_TAGR[i];
 }
 
-void aes_get_gcm_counter(uint32_t * counter)
+void aes_get_gcm_counter(uint32_t* counter)
 {
 	*counter = AES->AES_CTRR;
 }
 
-void aes_get_gcm_hash_subkey(uint32_t * h)
+void aes_get_gcm_hash_subkey(uint32_t* h)
 {
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		h[i] = AES->AES_GCMHR[i];
 }
+
+#endif /* CONFIG_HAVE_AES_GCM */

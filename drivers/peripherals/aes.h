@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _AES_
-#define _AES_
+#ifndef _AES_H_
+#define _AES_H_
 
 #ifdef CONFIG_HAVE_AES
 
@@ -39,30 +39,56 @@
 #include "chip.h"
 
 /*------------------------------------------------------------------------------*/
-/*         Definition                                                           */
-/*------------------------------------------------------------------------------*/
-#define AES_MR_CIPHER_ENCRYPT 1
-#define AES_MR_CIPHER_DECRYPT 0
-/*------------------------------------------------------------------------------*/
 /*         Exported functions                                                   */
 /*------------------------------------------------------------------------------*/
 
 /**
  * \brief Starts Manual encryption/decryption process.
  */
-void aes_start(void);
+extern void aes_start(void);
 
 /**
  * \brief Resets the AES.
  * A software triggered hardware reset of the AES interface is performed.
  */
-void aes_soft_reset(void);
+extern void aes_soft_reset(void);
 
 /**
  * \brief Configures an AES peripheral with the specified parameters.
  *  \param mode  Desired value for the AES mode register (see the datasheet).
  */
-void aes_configure(uint32_t mode);
+extern void aes_configure(uint32_t cfg);
+
+/**
+ * \brief Set AES operation mode.
+ *  \param mode  operation mode.
+ */
+extern void aes_set_op_mode(uint32_t mode);
+
+/**
+ * \brief Set AES key size.
+ *  \param size  Key size.
+ */
+extern void aes_set_key_size(uint32_t size);
+
+/**
+ * \brief Set AES aes_set_cfbs size.
+ *  \param size cfbs size.
+ */
+extern void aes_set_cfbs(uint32_t size);
+
+/**
+ * \brief Set AES start mode.
+ *  \param mode  Start mode.
+ */
+extern void aes_set_start_mode(uint32_t mode);
+
+/**
+ * \brief Set AES processing mode
+ *
+ * \param encryt  encrypt true, decrypt otherwise.
+ */
+extern void aes_encrypt_enable(bool encrypt);
 
 /**
  * \brief Enables the selected interrupts sources on a AES peripheral.
@@ -111,6 +137,8 @@ void aes_get_output(uint32_t * data);
  */
 void aes_set_vector(const uint32_t * vector);
 
+#ifdef CONFIG_HAVE_AES_GCM
+
 /**
  * \brief Set Length in bytes of the Additional Authenticated Data that are to
  * be processed.
@@ -154,6 +182,8 @@ void aes_get_gcm_counter(uint32_t * counter);
  */
 void aes_get_gcm_hash_subkey(uint32_t * h);
 
+#endif /* CONFIG_HAVE_AES_GCM */
+
 #endif /* CONFIG_HAVE_AES */
 
-#endif				/* #ifndef _AES_ */
+#endif /* _AES_H_ */
