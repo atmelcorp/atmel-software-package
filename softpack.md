@@ -78,20 +78,21 @@ This release contains the following examples:
 * usart_lin: Example of USART configured for LIN
 * usart_rs485: Example of RS485 transfer
 * usb_audio_looprec: Set up a USB Audio Device to record sounds
+* usb_audio_multi_channels: Set up a mutichannel USB Audio Device
 * usb_audio_speaker: Set up a USB Audio Speaker
 * usb_cdc_serial: Example of Virtual COM Port
 * usb_hid_aud: Example of USB Device Port (UDP) and Class-D for SAMA5D2x
-* usb_hid_keyboard: Example of usb HID keyboard device
-* usb_hid_mouse: Example of usb HID moude device
-* usb_hid_msd: Example of usb composite device: HID device and usb mass storage
+* usb_hid_keyboard: Example of USB HID keyboard device
+* usb_hid_mouse: Example of USB HID moude device
+* usb_hid_msd: Example of USB composite device: HID device and usb mass storage
 * usb_hid_transfer: Example of USB HID device
-* usb_iad_cdc_aud: Example of usb composite device: virtual com port and usb class-d device
-* usb_iad_cdc_cdc: Example of usb composite device: 2 virtual com ports
-* usb_iad_cdc_hid: Example of usb composite device: virtual com port and usb mass storage device
+* usb_iad_cdc_aud: Example of USB composite device: virtual com port and usb class-d device
+* usb_iad_cdc_cdc: Example of USB composite device: 2 virtual com ports
+* usb_iad_cdc_hid: Example of USB composite device: virtual com port and usb mass storage device
 * usb_iad_cdc_msd: Example of a CDC USB Mass Storage device
 * usb_mass_storage: Example of a USB Mass Storage device
-* usb_usv_isi: Example of SAMA5D4x configured as a USB Video Device
-* usb_usv_isc: Example of SAMA5D2x configured as a USB Video Device
+* usb_uvc_isi: Example of a USB Video Device
+* usb_uvc_isc: Example of a USB Video Device
 * wdt: Example using watchdog timer
 
 # Compatibility
@@ -147,6 +148,7 @@ usart_iso7816          | OK               | OK               | OK         | OK  
 usart_lin              | OK               | x                | x          | x                | x          | x
 usart_rs485            | OK               | OK               | OK         | OK               | OK         | TODO
 usb_audio_looprec      | OK               | OK               | OK         | OK               | OK         | TODO
+usb_audio_multi_channels | OK             | TODO             | TODO       | TODO             | TODO       | TODO
 usb_audio_speaker      | OK               | x                | OK         | x                | OK         | OK
 usb_cdc_serial         | OK               | OK               | OK         | OK               | OK         | OK
 usb_hid_aud            | OK               | x                | OK         | x                | OK         | OK
@@ -159,8 +161,8 @@ usb_iad_cdc_cdc        | OK               | OK               | OK         | OK  
 usb_iad_cdc_hid        | OK               | OK               | OK         | OK               | OK         | OK
 usb_iad_cdc_msd        | OK               | OK               | OK         | OK               | OK         | OK
 usb_mass_storage       | OK               | OK               | OK         | OK               | OK         | OK
-usb_usv_isc            | OK               | x                | x          | x                | x          | x
-usb_usv_isi            | x                | x                | OK         | x                | OK         | OK
+usb_uvc_isc            | OK               | x                | x          | x                | x          | x
+usb_uvc_isi            | x                | x                | OK         | x                | OK         | OK
 wdt                    | OK               | x                | x          | OK               | OK         | x
 
 Legend:

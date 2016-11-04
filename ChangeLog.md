@@ -1,5 +1,32 @@
 # Atmel SAMA5 Software Package
 
+## Version 2.6 - 2016-11
+
+### New drivers/examples
+
+- Added shad driver: handle configuration and DMA transfer on its own
+- Added tdesd driver: handle configuration and DMA transfer on its own
+- Added aesd driver: handle configuration and DMA transfer on its own
+- Added AD1934 driver and audio_device support
+- Added usb_audio_multi_channels example
+- Added usart_rs485 example
+
+### Enhancements
+
+- Use a TC instead of the PIT (fix sdmmc reuse of timer to get precise timing)
+- Add sleep(), mlseep(), usleep(): use the default system time counter
+- Video sensor auto-detection
+- Rework DMA examples to behave the same
+- DMA driver handles linked list dynamically using a static pool of elements
+- Reworked component headers for all supported devices to ease comparison
+
+### Fixes
+
+- Fixed an hardware bug in the protect mode of the AIC/SAIC
+- Renamed variables named 'protected'
+- Fix the spi_slave broken after the development of spi-bus
+
+
 ## Version 2.5.1 - 2016-09
 
 ### Enhancements
