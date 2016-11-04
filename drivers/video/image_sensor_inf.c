@@ -39,15 +39,22 @@
 
 #include <stdbool.h>
 #include <stdio.h>
- 
+
 #include "timer.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-static const sensor_profile_t *sensor;
+/** Supported sensor profiles */
+static const struct sensor_profile* sensor_profiles[SENSOR_SUPPORTED_NUMBER] = {
+	&ov2640_profile,
+	&ov2643_profile,
+	&ov5640_profile,
+	&ov7670_profile,
+	&ov7740_profile,
+	&ov9740_profile
+};
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -61,7 +68,8 @@ static const sensor_profile_t *sensor;
  * \param data Data read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_read_reg(uint8_t bus, uint8_t addr, uint16_t reg, uint8_t *data)
+static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
+									uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
 	uint8_t reg8[2];
@@ -80,7 +88,7 @@ static sensor_status_t sensor_twi_read_reg(uint8_t bus, uint8_t addr, uint16_t r
 
 	reg8[0] = reg >> 8;
 	reg8[1] = reg & 0xff;
-	switch (sensor->twi_inf_mode){
+	switch (twi_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
 		buf[0].data = reg8 + 1;
 		buf[0].size = 1;
@@ -129,7 +137,8 @@ static sensor_status_t sensor_twi_read_reg(uint8_t bus, uint8_t addr, uint16_t r
  * \param data Data written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t reg, uint8_t *data)
+static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
+									 uint16_t reg, uint8_t *data)
 {
 	uint8_t status;
 	uint8_t addr_buf[2];
@@ -146,7 +155,7 @@ static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t 
 		},
 	};
 
-	switch (sensor->twi_inf_mode){
+	switch (twi_mode){
 	case SENSOR_TWI_REG_BYTE_DATA_BYTE:
 		buf[0].size = 1;
 		buf[1].size = 1;
@@ -188,35 +197,34 @@ static sensor_status_t sensor_twi_write_reg(uint8_t bus, uint8_t addr, uint16_t 
 
 /**
  * \brief Read and check sensor product ID.
- * \param bus  TWI bus
- * \param addr Sensor TWI addr
- * \param reg_h Register address for product ID high byte.
- * \param reg_l Register address for product ID low byte.
- * \param pid Product ID to be compared.
- * \param ver_mask version mask.
+ * \param sensor_profile Sensor profile
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_check_pid(const sensor_profile_t *sensor_profile,
-						uint16_t reg_h,
-						uint16_t reg_l,
-						uint16_t pid,
-						uint16_t ver_mask)
+static uint32_t sensor_check_pid(struct sensor_profile* sensor_profile)
 {
 	/* use uint32_t to force 4-byte alignment */
 	uint32_t pid_high = 0;
 	uint32_t pid_low = 0;
+	uint16_t reg_h = sensor_profile->pid_high_reg;
+	uint16_t reg_l = sensor_profile->pid_low_reg;
+	uint16_t pid = (sensor_profile->pid_high) << 8 | sensor_profile->pid_low;
+	uint16_t ver_mask = sensor_profile->version_mask;
 
-	if (sensor_twi_read_reg(sensor_profile->bus, sensor_profile->addr,
-	                        reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
+	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
+							sensor_profile->bus,
+							sensor_profile->addr,
+							reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
 	pid_high &= 0xff;
-	if (sensor_twi_read_reg(sensor_profile->bus, sensor_profile->addr,
-	                        reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
+	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
+							sensor_profile->bus,
+							sensor_profile->addr,
+							reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
 	pid_low &= 0xff;
-	
+
 	trace_debug_wp("SENSOR PID = <%x, %x>\n\r", (unsigned)pid_high, (unsigned)pid_low);
-	
+
 	if ((pid & ver_mask) == (((pid_high << 8) | pid_low) & ver_mask))
 		return SENSOR_OK;
 	else
@@ -230,14 +238,18 @@ static sensor_status_t sensor_check_pid(const sensor_profile_t *sensor_profile,
  * \param reglist Register list to be written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static sensor_status_t sensor_twi_write_regs(const sensor_profile_t *sensor_profile, const sensor_reg_t *reglist)
+static uint32_t sensor_twi_write_regs(struct sensor_profile* sensor_profile,
+									  const struct sensor_reg* reglist)
 {
-	sensor_status_t status;
-	const sensor_reg_t *next = reglist;
+	uint32_t status;
+	const struct sensor_reg *next = reglist;
 
 	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
-		status = sensor_twi_write_reg(sensor_profile->bus, sensor_profile->addr,
-		                              next->reg, (uint8_t *)(&next->val));
+		status = sensor_twi_write_reg(sensor_profile->twi_inf_mode,
+									  sensor_profile->bus,
+									  sensor_profile->addr,
+									  next->reg,
+									  (uint8_t *)(&next->val));
 		msleep(2);
 		if (status)
 			return SENSOR_TWI_ERROR;
@@ -251,13 +263,12 @@ static sensor_status_t sensor_twi_write_regs(const sensor_profile_t *sensor_prof
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-sensor_status_t sensor_setup(const sensor_profile_t *sensor_profile,
-				sensor_output_resolution_t resolution,
-				sensor_output_format_t format)
+uint32_t sensor_setup(struct sensor_profile* sensor_profile,
+					  uint8_t resolution,
+					  uint8_t format)
 {
 	uint8_t i;
 	uint8_t found = 0;
-	sensor_status_t status = SENSOR_OK;
 
 	for (i = 0; i < SENSOR_SUPPORTED_OUTPUTS; i++) {
 		if (sensor_profile->output_conf[i]->supported){
@@ -271,14 +282,32 @@ sensor_status_t sensor_setup(const sensor_profile_t *sensor_profile,
 	}
 	if (found == 0)
 		return SENSOR_RESOLUTION_NOT_SUPPORTED;
-	sensor = sensor_profile;
 
-	status = sensor_check_pid(sensor_profile, sensor->pid_high_reg, sensor->pid_low_reg,
-	                          (sensor->pid_high) << 8 | sensor->pid_low, sensor->version_mask);
-	if (status != SENSOR_OK)
-		return SENSOR_ID_ERROR;
-	else 
-		return sensor_twi_write_regs(sensor_profile, sensor->output_conf[i]->output_setting);
+	return sensor_twi_write_regs(sensor_profile,
+								 sensor_profile->output_conf[i]->output_setting);
+}
+
+struct sensor_profile* sensor_detect(bool detect_auto, uint8_t id)
+{
+	uint8_t i;
+	struct sensor_profile *sensor;
+
+	if (!detect_auto) {
+		sensor = (struct sensor_profile*)sensor_profiles[id];
+		if (sensor_check_pid(sensor) == SENSOR_OK)
+			return sensor;
+		else
+			return NULL;
+	} else {
+		for (i = 0; i < SENSOR_SUPPORTED_NUMBER; i++) {
+			sensor = (struct sensor_profile*) sensor_profiles[i];
+			if (sensor_check_pid(sensor) == SENSOR_OK)
+				break;
+			else
+				sensor = NULL;
+		}
+		return sensor;
+	}
 }
 
 /**
@@ -290,9 +319,12 @@ sensor_status_t sensor_setup(const sensor_profile_t *sensor_profile,
  * \param height  pointer to image height to be read.
  * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
  */
-sensor_status_t sensor_get_output(sensor_output_resolution_t resolution,
-                                  sensor_output_format_t format, sensor_output_bit_t *bits,
-                                  uint32_t *width, uint32_t *height)
+uint32_t sensor_get_output(struct sensor_profile *sensor,
+						   uint8_t resolution,
+						   uint8_t format,
+						   uint8_t *bits,
+						   uint32_t *width,
+						   uint32_t *height)
 {
 	uint8_t i;
 	for (i = 0; i < SENSOR_SUPPORTED_OUTPUTS; i++) {

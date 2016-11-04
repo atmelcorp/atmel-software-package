@@ -156,13 +156,11 @@ CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
 
 static volatile bool capture_started = false;
 
-static uint8_t sensor_idx;
-
 /* Image output bit width */
-static sensor_output_bit_t sensor_output_bit_width;
+static uint8_t sensor_output_bit_width;
 
 /* Image resolution */
-static sensor_output_resolution_t image_resolution = QVGA;
+static uint8_t image_resolution = QVGA;
 
 /* Image size in preview mode */
 static uint32_t image_width, image_height;
@@ -171,15 +169,8 @@ static uint8_t frame_format;
 
 static volatile uint32_t frame_idx = 0;
 
-/** Supported sensor profiles */
-static const sensor_profile_t *sensor_profiles[6] = {
-	&ov2640_profile,
-	&ov2643_profile,
-	&ov5640_profile,
-	&ov7670_profile,
-	&ov7740_profile,
-	&ov9740_profile
-};
+/** Sensor profile */
+static struct sensor_profile *sensor;
 
 /** Video buffers */
 CACHE_ALIGNED_DDR
@@ -270,15 +261,15 @@ static void configure_isc(void)
 
 static void start_preview(void)
 {
-	sensor_output_format_t sensor_mode = YUV_422;
+	uint8_t sensor_mode = YUV_422;
 
 	/* Re-configure sensor with giving resolution */
-	if (sensor_setup(sensor_profiles[sensor_idx], image_resolution, sensor_mode) != SENSOR_OK) {
+	if (sensor_setup(sensor, image_resolution, sensor_mode) != SENSOR_OK) {
 		printf("-E- Sensor setup failed.");
 		while (1);
 	}
 	/* Retrieve sensor output format and size */
-	sensor_get_output(image_resolution, sensor_mode, &sensor_output_bit_width,
+	sensor_get_output(sensor, image_resolution, sensor_mode, &sensor_output_bit_width,
 			&image_width, &image_height);
 
 	printf("-I- Bit width = %d, Image Width = %d, Image Height=%d \n\r",
@@ -289,7 +280,6 @@ static void start_preview(void)
 	configure_dma_linklist();
 	configure_isc();
 }
-
 
 /**
  *  Invoked whenever a SETUP request is received from the host. Forwards the
@@ -322,24 +312,20 @@ void usbd_driver_callbacks_interface_setting_changed(uint8_t interface, uint8_t 
  */
 extern int main( void )
 {
-	int i;
-	uint8_t key;
 	bool is_usb_vid_on = false;
 
 	/* Output example information */
 	console_example_info("USB UVC ISC Example");
 
-	printf("Image Sensor Selection:\n\r");
-	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
-		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
-	for(;;) {
-		printf("Press [1..%d] to select sensor\n\r",
-			ARRAY_SIZE(sensor_profiles));
-		key = console_get_char();
-		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
-			sensor_idx = key - '1';
-			break;
+	printf("Image sensor detection:\n\r");
+	if ((sensor = sensor_detect(true, 0))) {
+		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+			printf("-E- Sensor setup failed.");
+			while (1);
 		}
+	} else {
+		printf("-E- Can't detect sensor connected to board");
+		while (1);
 	}
 
 	usb_power_configure();

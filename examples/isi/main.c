@@ -143,15 +143,8 @@
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
 
-/** Supported sensor profiles */
-static const sensor_profile_t *sensor_profiles[6] = {
-	&ov2640_profile,
-	&ov2643_profile,
-	&ov5640_profile,
-	&ov7670_profile,
-	&ov7740_profile,
-	&ov9740_profile
-};
+/** Sensor profile */
+static struct sensor_profile *sensor;
 
 /* ISI frame buffer descriptors */
 
@@ -166,11 +159,8 @@ static uint8_t *pHeoBuffer =  (uint8_t*)LCD_CAPTURED_BASE_ADDRESS;
 /* Image size in preview mode */
 static uint32_t image_width, image_height;
 
-/* Image output format */
-static sensor_output_format_t image_format;
-
 /* Image output bit width */
-static sensor_output_bit_t sensor_bit_width;
+static uint8_t sensor_bit_width;
 
 static struct _isi_yuv2rgb y2r = { 0x95, 0xFF, 0x68, 0x32, 1, 1, 1, 0xCC };
 
@@ -279,7 +269,6 @@ static void configure_isi(void)
  */
 extern int main( void )
 {
-	int i;
 	uint8_t key;
 	volatile uint32_t delay;
 
@@ -289,27 +278,21 @@ extern int main( void )
 	/* Configure LCD */
 	configure_lcd();
 
-	printf("Image Sensor Selection:\n\r");
-	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
-		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
-	for(;;) {
-		printf("Press [1..%d] to select supported sensor\n\r",
-			ARRAY_SIZE(sensor_profiles));
-		key = console_get_char();
-		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
-			if (sensor_setup(sensor_profiles[key - '1'], VGA, YUV_422) != SENSOR_OK){
-				printf("-E- Sensor setup failed.");
-				while (1);
-			} else {
-				break;
-			}
+	printf("Image sensor detection:\n\r");
+	if ((sensor = sensor_detect(true, 0))) {
+		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+			printf("-E- Sensor setup failed.");
+			while (1);
 		}
+	} else {
+		printf("-E- Can't detect sensor connected to board");
+		while (1);
 	}
 
 	/* Retrieve sensor output format and size */
-	sensor_get_output(VGA, YUV_422, &sensor_bit_width, &image_width, &image_height);
-	image_format = (sensor_output_format_t)YUV_INPUT;
-	printf("Image attributes : <%x, %u, %u>\n\r", image_format,
+	sensor_get_output(sensor, VGA, YUV_422, &sensor_bit_width, &image_width, &image_height);
+
+	printf("Image attributes : <%x, %u, %u>\n\r", YUV_INPUT,
 			(unsigned)image_width, (unsigned)image_height);
 	printf("preview in RGB 565 mode\n\r");
 

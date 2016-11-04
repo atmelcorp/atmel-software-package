@@ -154,32 +154,25 @@
  *----------------------------------------------------------------------------*/
 
 /** Sensor status or return code */
-typedef enum _awb_status {
+enum{
 	AWB_INIT = 0,
 	AWB_WAIT_HIS_READY,
 	AWB_WAIT_DMA_READY,
 	AWB_WAIT_ISC_PERFORMED,
-} awb_status_t;
+};
 
 /*----------------------------------------------------------------------------
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
 
 /** Supported sensor profiles */
-static const sensor_profile_t *sensor_profiles[6] = {
-	&ov2640_profile,
-	&ov2643_profile,
-	&ov5640_profile,
-	&ov7670_profile,
-	&ov7740_profile,
-	&ov9740_profile
-};
+static struct sensor_profile *sensor;
 
 CACHE_ALIGNED struct _isc_dma_view0 dma_descs[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
 CACHE_ALIGNED struct _isc_dma_view2 dma_descs2[ISC_MAX_NUM_FRAME_BUFFER + 1];
 
-static awb_status_t awb_status_machine;
+static uint8_t awb_status_machine;
 
 /** LCD buffer.*/
 static uint8_t *pHeoBuffer =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS;
@@ -189,13 +182,11 @@ static uint8_t *pHeoBuffer2 =  (uint8_t*)ISC_OUTPUT_BASE_ADDRESS2;
 /* Image size in preview mode */
 static uint32_t image_width, image_height;
 
-static uint8_t sensor_idx;
-
-/* Image output bit width */
-static sensor_output_bit_t sensor_output_bit_width;
+/* Image output bit width */ 
+static uint8_t sensor_output_bit_width;
 
 /* Sensor mode for YUV or RAW BAYER */
-static sensor_output_format_t sensor_mode;
+static uint8_t sensor_mode;
 
 /* LCD mode */
 static uint32_t lcd_mode;
@@ -794,7 +785,6 @@ static bool auto_white_balance(void)
  */
 extern int main(void)
 {
-	int i;
 	uint8_t key;
 
 	/* Output example information */
@@ -809,22 +799,20 @@ extern int main(void)
 	}
 
 	printf("Image Sensor Selection:\n\r");
-	for (i = 0; i < ARRAY_SIZE(sensor_profiles); i++)
-		printf("- '%d' %s\n\r", i + 1, sensor_profiles[i]->name);
-	for(;;) {
-		printf("Press [1..%d] to select supported sensor\n\r",
-			ARRAY_SIZE(sensor_profiles));
-		key = console_get_char();
-		if ((key >= '1') && (key <= ('1' + ARRAY_SIZE(sensor_profiles)))) {
-			sensor_idx = key - '1';
-			break;
+	if ((sensor = sensor_detect(true, 0))) {
+		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+			printf("-E- Sensor setup failed.");
+			while (1);
 		}
+	} else {
+		printf("-E- Can't detect sensor connected to board");
+		while (1);
 	}
 	
 restart_sensor:
 
 	printf("------------ %s -------------\n\r",
-		sensor_profiles[sensor_idx]->name);
+		sensor->name);
 	printf("- 'Y' Test YUV mode input       -\n\r");
 	printf("- 'B' Test RAW BAYER mode input -\n\r");
 	printf("---------------------------------\n\r");
@@ -840,12 +828,12 @@ restart_sensor:
 		}
 	}
 
-	if (sensor_setup(sensor_profiles[sensor_idx], QVGA, sensor_mode) != SENSOR_OK){
+	if (sensor_setup(sensor, QVGA, sensor_mode) != SENSOR_OK){
 		trace_fatal("-E- Sensor setup failed.");
 	}
 
 	/* Retrieve sensor output format and size */
-	sensor_get_output(QVGA, sensor_mode, &sensor_output_bit_width,
+	sensor_get_output(sensor, QVGA, sensor_mode, &sensor_output_bit_width,
 			  &image_width, &image_height);
 
 	if (sensor_mode == RAW_BAYER){
