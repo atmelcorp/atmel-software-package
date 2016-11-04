@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Chipid hardware registers */
 typedef struct {
-  __I uint32_t CHIPID_CIDR; /**< \brief (Chipid Offset: 0x0) Chip ID Register */
-  __I uint32_t CHIPID_EXID; /**< \brief (Chipid Offset: 0x4) Chip ID Extension Register */
+	__I  uint32_t CHIPID_CIDR; /**< \brief (Chipid Offset: 0x0) Chip ID Register */
+	__I  uint32_t CHIPID_EXID; /**< \brief (Chipid Offset: 0x4) Chip ID Extension Register */
 } Chipid;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- CHIPID_CIDR : (CHIPID Offset: 0x0) Chip ID Register -------- */
@@ -116,6 +116,5 @@ typedef struct {
 #define CHIPID_EXID_EXID_Msk (0xffffffffu << CHIPID_EXID_EXID_Pos) /**< \brief (CHIPID_EXID) Chip ID Extension */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_CHIPID_COMPONENT_ */
