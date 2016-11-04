@@ -39,72 +39,69 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief SDMMC hardware registers */
 typedef struct {
-  __IO uint32_t SDMMC_SSAR;         /**< \brief (SDMMC Offset: 0x000) SDMA System Address - Argument 2 Register */
-  __IO uint16_t SDMMC_BSR;          /**< \brief (SDMMC Offset: 0x004) Block Size Register */
-  __IO uint16_t SDMMC_BCR;          /**< \brief (SDMMC Offset: 0x006) Block Count Register */
-  __IO uint32_t SDMMC_ARG1R;        /**< \brief (SDMMC Offset: 0x008) Argument 1 Register */
-  __IO uint16_t SDMMC_TMR;          /**< \brief (SDMMC Offset: 0x00C) Transfer Mode Register */
-  __IO uint16_t SDMMC_CR;           /**< \brief (SDMMC Offset: 0x00E) Command Register */
-  __I  uint32_t SDMMC_RR[4];        /**< \brief (SDMMC Offset: 0x010) Response Register */
-  __IO uint32_t SDMMC_BDPR;         /**< \brief (SDMMC Offset: 0x020) Buffer Data Port Register */
-  __I  uint32_t SDMMC_PSR;          /**< \brief (SDMMC Offset: 0x024) Present State Register */
-  __IO uint8_t  SDMMC_HC1R;         /**< \brief (SDMMC Offset: 0x028) Host Control 1 Register */
-  __IO uint8_t  SDMMC_PCR;          /**< \brief (SDMMC Offset: 0x029) Power Control Register */
-  __IO uint8_t  SDMMC_BGCR;         /**< \brief (SDMMC Offset: 0x02A) Block Gap Control Register */
-  __IO uint8_t  SDMMC_WCR;          /**< \brief (SDMMC Offset: 0x02B) Wakeup Control Register */
-  __IO uint16_t SDMMC_CCR;          /**< \brief (SDMMC Offset: 0x02C) Clock Control Register */
-  __IO uint8_t  SDMMC_TCR;          /**< \brief (SDMMC Offset: 0x02E) Timeout Control Register */
-  __IO uint8_t  SDMMC_SRR;          /**< \brief (SDMMC Offset: 0x02F) Software Reset Register */
-  __IO uint16_t SDMMC_NISTR;        /**< \brief (SDMMC Offset: 0x030) Normal Interrupt Status Register */
-  __IO uint16_t SDMMC_EISTR;        /**< \brief (SDMMC Offset: 0x032) Error Interrupt Status Register */
-  __IO uint16_t SDMMC_NISTER;       /**< \brief (SDMMC Offset: 0x034) Normal Interrupt Status Enable Register */
-  __IO uint16_t SDMMC_EISTER;       /**< \brief (SDMMC Offset: 0x036) Error Interrupt Status Enable Register */
-  __IO uint16_t SDMMC_NISIER;       /**< \brief (SDMMC Offset: 0x038) Normal Interrupt Signal Enable Register */
-  __IO uint16_t SDMMC_EISIER;       /**< \brief (SDMMC Offset: 0x03A) Error Interrupt Signal Enable Register */
-  __I  uint16_t SDMMC_ACESR;        /**< \brief (SDMMC Offset: 0x03C) Auto CMD Error Status Register */
-  __IO uint16_t SDMMC_HC2R;         /**< \brief (SDMMC Offset: 0x03E) Host Control 2 Register */
-  __IO uint32_t SDMMC_CA0R;         /**< \brief (SDMMC Offset: 0x040) Capabilities Register */
-  __IO uint32_t SDMMC_CA1R;         /**< \brief (SDMMC Offset: 0x044) Capabilities Register */
-  __IO uint32_t SDMMC_MCCAR;        /**< \brief (SDMMC Offset: 0x048) Maximum Current Capabilities Register */
-  __I  uint32_t SDMMC_RSVD1;        /**< \brief (SDMMC Offset: 0x04C) Reserved */
-  __O  uint16_t SDMMC_FERACES;      /**< \brief (SDMMC Offset: 0x050) Force Event Register for Auto CMD Error Status */
-  __O  uint16_t SDMMC_FEREIS;       /**< \brief (SDMMC Offset: 0x052) Force Event Register for Error Interrupt Status */
-  __I  uint8_t  SDMMC_AESR;         /**< \brief (SDMMC Offset: 0x054) ADMA Error Status Register */
-  __I  uint8_t  SDMMC_RSVD2[3];     /**< \brief (SDMMC Offset: 0x055 - 0x57) Reserved */
-  __IO uint32_t SDMMC_ASA0R;        /**< \brief (SDMMC Offset: 0x058) ADMA System Address Register */
-  __I  uint32_t SDMMC_RSVD3[1];     /**< \brief (SDMMC Offset: 0x05C) Reserved */
-  __IO uint16_t SDMMC_PVR[8];       /**< \brief (SDMMC Offset: 0x060) Preset Value Register */
-  __I  uint32_t SDMMC_RSVD4[35];    /**< \brief (SDMMC Offset: 0x070 - 0xF8) Reserved */
-  __I  uint16_t SDMMC_SISR;         /**< \brief (SDMMC Offset: 0x0FC) Slot Interrupt Status Register */
-  __I  uint16_t SDMMC_HCVR;         /**< \brief (SDMMC Offset: 0x0FE) Host Controller Version Register */
-
-  __I  uint32_t SDMMC_RSVD5[64];    /**< \brief (SDMMC Offset: 0x100 - 0x1FC) Reserved */
-
-  __I  uint32_t SDMMC_APSR;         /**< \brief (SDMMC Offset: 0x200) Additionnal Present State Register */
-  __IO uint8_t  SDMMC_MC1R;         /**< \brief (SDMMC Offset: 0x204) MMC Control 1 Register */
-  __O  uint8_t  SDMMC_MC2R;         /**< \brief (SDMMC Offset: 0x205) MMC Control 2 Register */
-  __I  uint8_t  SDMMC_RSVD6[2];     /**< \brief (SDMMC Offset: 0x206 - 0x207) Reserved */
-  __IO uint32_t SDMMC_ACR;          /**< \brief (SDMMC Offset: 0x208) AHB Control Register */
-  __IO uint32_t SDMMC_CC2R;         /**< \brief (SDMMC Offset: 0x20C) Clock Control 2 Register */
-  __IO uint8_t  SDMMC_RTC1R;        /**< \brief (SDMMC Offset: 0x210) Retuning Timer Control 1 Register */
-  __O  uint8_t  SDMMC_RTC2R;        /**< \brief (SDMMC Offset: 0x211) Retuning Timer Control 2 Register */
-  __I  uint8_t  SDMMC_RSVD7[2];     /**< \brief (SDMMC Offset: 0x212 - 0x213) Reserved */
-  __IO uint32_t SDMMC_RTCVR;        /**< \brief (SDMMC Offset: 0x214) Retuning Timer Counter Value Register */
-  __IO uint8_t  SDMMC_RTISTER;      /**< \brief (SDMMC Offset: 0x218) Retuning Timer Interrupt Status Enable Register */
-  __IO uint8_t  SDMMC_RTISIER;      /**< \brief (SDMMC Offset: 0x219) Retuning Timer Interrupt Signal Enable Register */
-  __I  uint8_t  SDMMC_RSVD11[2];    /**< \brief (SDMMC Offset: 0x21A - 0x21B) Reserved */
-  __IO uint8_t  SDMMC_RTISTR;       /**< \brief (SDMMC Offset: 0x21C) Retuning Timer Interrupt Status Register */
-  __I  uint8_t  SDMMC_RTSSR;        /**< \brief (SDMMC Offset: 0x21D) Retuning Timer Status Slots Register */
-  __I  uint8_t  SDMMC_RSVD12[2];    /**< \brief (SDMMC Offset: 0x21E - 0x21F) Reserved */
-  __IO uint32_t SDMMC_TUNCR;        /**< \brief (SDMMC Offset: 0x220) Tuning Control Register */
-  __I  uint32_t SDMMC_RSVD8[3];     /**< \brief (SDMMC Offset: 0x224 - 0x22C) Reserved */
-  __IO uint32_t SDMMC_CACR;         /**< \brief (SDMMC Offset: 0x230) Capabilities Control Register */
-  __I  uint32_t SDMMC_RSVD9[3];     /**< \brief (SDMMC Offset: 0x234 - 0x23C) Reserved */
-  __IO uint32_t SDMMC_CALCR;        /**< \brief (SDMMC Offset: 0x240) Calibration Control Register */
-  __I  uint32_t SDMMC_RSVD10[47];   /**< \brief (SDMMC Offset: 0x244 - 0x2FC) Reserved */
+	__IO uint32_t SDMMC_SSAR;         /**< \brief (SDMMC Offset: 0x000) SDMA System Address - Argument 2 Register */
+	__IO uint16_t SDMMC_BSR;          /**< \brief (SDMMC Offset: 0x004) Block Size Register */
+	__IO uint16_t SDMMC_BCR;          /**< \brief (SDMMC Offset: 0x006) Block Count Register */
+	__IO uint32_t SDMMC_ARG1R;        /**< \brief (SDMMC Offset: 0x008) Argument 1 Register */
+	__IO uint16_t SDMMC_TMR;          /**< \brief (SDMMC Offset: 0x00C) Transfer Mode Register */
+	__IO uint16_t SDMMC_CR;           /**< \brief (SDMMC Offset: 0x00E) Command Register */
+	__I  uint32_t SDMMC_RR[4];        /**< \brief (SDMMC Offset: 0x010) Response Register */
+	__IO uint32_t SDMMC_BDPR;         /**< \brief (SDMMC Offset: 0x020) Buffer Data Port Register */
+	__I  uint32_t SDMMC_PSR;          /**< \brief (SDMMC Offset: 0x024) Present State Register */
+	__IO uint8_t  SDMMC_HC1R;         /**< \brief (SDMMC Offset: 0x028) Host Control 1 Register */
+	__IO uint8_t  SDMMC_PCR;          /**< \brief (SDMMC Offset: 0x029) Power Control Register */
+	__IO uint8_t  SDMMC_BGCR;         /**< \brief (SDMMC Offset: 0x02A) Block Gap Control Register */
+	__IO uint8_t  SDMMC_WCR;          /**< \brief (SDMMC Offset: 0x02B) Wakeup Control Register */
+	__IO uint16_t SDMMC_CCR;          /**< \brief (SDMMC Offset: 0x02C) Clock Control Register */
+	__IO uint8_t  SDMMC_TCR;          /**< \brief (SDMMC Offset: 0x02E) Timeout Control Register */
+	__IO uint8_t  SDMMC_SRR;          /**< \brief (SDMMC Offset: 0x02F) Software Reset Register */
+	__IO uint16_t SDMMC_NISTR;        /**< \brief (SDMMC Offset: 0x030) Normal Interrupt Status Register */
+	__IO uint16_t SDMMC_EISTR;        /**< \brief (SDMMC Offset: 0x032) Error Interrupt Status Register */
+	__IO uint16_t SDMMC_NISTER;       /**< \brief (SDMMC Offset: 0x034) Normal Interrupt Status Enable Register */
+	__IO uint16_t SDMMC_EISTER;       /**< \brief (SDMMC Offset: 0x036) Error Interrupt Status Enable Register */
+	__IO uint16_t SDMMC_NISIER;       /**< \brief (SDMMC Offset: 0x038) Normal Interrupt Signal Enable Register */
+	__IO uint16_t SDMMC_EISIER;       /**< \brief (SDMMC Offset: 0x03A) Error Interrupt Signal Enable Register */
+	__I  uint16_t SDMMC_ACESR;        /**< \brief (SDMMC Offset: 0x03C) Auto CMD Error Status Register */
+	__IO uint16_t SDMMC_HC2R;         /**< \brief (SDMMC Offset: 0x03E) Host Control 2 Register */
+	__IO uint32_t SDMMC_CA0R;         /**< \brief (SDMMC Offset: 0x040) Capabilities Register */
+	__IO uint32_t SDMMC_CA1R;         /**< \brief (SDMMC Offset: 0x044) Capabilities Register */
+	__IO uint32_t SDMMC_MCCAR;        /**< \brief (SDMMC Offset: 0x048) Maximum Current Capabilities Register */
+	__I  uint32_t Reserved1[1];       /**< \brief (SDMMC Offset: 0x04C) Reserved */
+	__O  uint16_t SDMMC_FERACES;      /**< \brief (SDMMC Offset: 0x050) Force Event Register for Auto CMD Error Status */
+	__O  uint16_t SDMMC_FEREIS;       /**< \brief (SDMMC Offset: 0x052) Force Event Register for Error Interrupt Status */
+	__I  uint8_t  SDMMC_AESR;         /**< \brief (SDMMC Offset: 0x054) ADMA Error Status Register */
+	__I  uint8_t  Reserved2[3];       /**< \brief (SDMMC Offset: 0x055 - 0x57) Reserved */
+	__IO uint32_t SDMMC_ASA0R;        /**< \brief (SDMMC Offset: 0x058) ADMA System Address Register */
+	__I  uint32_t Reserved3[1];       /**< \brief (SDMMC Offset: 0x05C) Reserved */
+	__IO uint16_t SDMMC_PVR[8];       /**< \brief (SDMMC Offset: 0x060) Preset Value Register */
+	__I  uint32_t Reserved4[35];      /**< \brief (SDMMC Offset: 0x070 - 0xF8) Reserved */
+	__I  uint16_t SDMMC_SISR;         /**< \brief (SDMMC Offset: 0x0FC) Slot Interrupt Status Register */
+	__I  uint16_t SDMMC_HCVR;         /**< \brief (SDMMC Offset: 0x0FE) Host Controller Version Register */
+	__I  uint32_t Reserved5[64];      /**< \brief (SDMMC Offset: 0x100 - 0x1FC) Reserved */
+	__I  uint32_t SDMMC_APSR;         /**< \brief (SDMMC Offset: 0x200) Additionnal Present State Register */
+	__IO uint8_t  SDMMC_MC1R;         /**< \brief (SDMMC Offset: 0x204) MMC Control 1 Register */
+	__O  uint8_t  SDMMC_MC2R;         /**< \brief (SDMMC Offset: 0x205) MMC Control 2 Register */
+	__I  uint8_t  Reserved6[2];       /**< \brief (SDMMC Offset: 0x206 - 0x207) Reserved */
+	__IO uint32_t SDMMC_ACR;          /**< \brief (SDMMC Offset: 0x208) AHB Control Register */
+	__IO uint32_t SDMMC_CC2R;         /**< \brief (SDMMC Offset: 0x20C) Clock Control 2 Register */
+	__IO uint8_t  SDMMC_RTC1R;        /**< \brief (SDMMC Offset: 0x210) Retuning Timer Control 1 Register */
+	__O  uint8_t  SDMMC_RTC2R;        /**< \brief (SDMMC Offset: 0x211) Retuning Timer Control 2 Register */
+	__I  uint8_t  Reserved7[2];       /**< \brief (SDMMC Offset: 0x212 - 0x213) Reserved */
+	__IO uint32_t SDMMC_RTCVR;        /**< \brief (SDMMC Offset: 0x214) Retuning Timer Counter Value Register */
+	__IO uint8_t  SDMMC_RTISTER;      /**< \brief (SDMMC Offset: 0x218) Retuning Timer Interrupt Status Enable Register */
+	__IO uint8_t  SDMMC_RTISIER;      /**< \brief (SDMMC Offset: 0x219) Retuning Timer Interrupt Signal Enable Register */
+	__I  uint8_t  Reserved8[2];       /**< \brief (SDMMC Offset: 0x21A - 0x21B) Reserved */
+	__IO uint8_t  SDMMC_RTISTR;       /**< \brief (SDMMC Offset: 0x21C) Retuning Timer Interrupt Status Register */
+	__I  uint8_t  SDMMC_RTSSR;        /**< \brief (SDMMC Offset: 0x21D) Retuning Timer Status Slots Register */
+	__I  uint8_t  Reserved9[2];       /**< \brief (SDMMC Offset: 0x21E - 0x21F) Reserved */
+	__IO uint32_t SDMMC_TUNCR;        /**< \brief (SDMMC Offset: 0x220) Tuning Control Register */
+	__I  uint32_t Reserved10[3];      /**< \brief (SDMMC Offset: 0x224 - 0x22C) Reserved */
+	__IO uint32_t SDMMC_CACR;         /**< \brief (SDMMC Offset: 0x230) Capabilities Control Register */
+	__I  uint32_t Reserved11[3];      /**< \brief (SDMMC Offset: 0x234 - 0x23C) Reserved */
+	__IO uint32_t SDMMC_CALCR;        /**< \brief (SDMMC Offset: 0x240) Calibration Control Register */
+	__I  uint32_t Reserved12[47];     /**< \brief (SDMMC Offset: 0x244 - 0x2FC) Reserved */
 } Sdmmc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-
 /* --------  SDMMC_SSAR (SDMMC Offset: 0x000) SDMA System Address - Argument 2 Register */
 #define SDMMC_SSAR_ADDR_Pos 0
 #define SDMMC_SSAR_ADDR_Msk (0xFFFFFFFFu << SDMMC_SSAR_ADDR_Pos)
