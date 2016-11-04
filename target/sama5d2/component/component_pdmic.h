@@ -39,22 +39,20 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pdmic hardware registers */
 typedef struct {
-  __IO uint32_t PDMIC_CR;      /**< \brief (Pdmic Offset: 0x00) Control Register */
-  __IO uint32_t PDMIC_MR;      /**< \brief (Pdmic Offset: 0x04) Mode Register */
-  __I  uint32_t Reserved1[3];
-  __I  uint32_t PDMIC_CDR;     /**< \brief (Pdmic Offset: 0x14) Converted Data Register */
-  __O  uint32_t PDMIC_IER;     /**< \brief (Pdmic Offset: 0x18) Interrupt Enable Register */
-  __O  uint32_t PDMIC_IDR;     /**< \brief (Pdmic Offset: 0x1C) Interrupt Disable Register */
-  __I  uint32_t PDMIC_IMR;     /**< \brief (Pdmic Offset: 0x20) Interrupt Mask Register */
-  __I  uint32_t PDMIC_ISR;     /**< \brief (Pdmic Offset: 0x24) Interrupt Status Register */
-  __I  uint32_t Reserved2[12];
-  __IO uint32_t PDMIC_DSPR0;   /**< \brief (Pdmic Offset: 0x58) DSP Configuration Register 0 */
-  __IO uint32_t PDMIC_DSPR1;   /**< \brief (Pdmic Offset: 0x5C) DSP Configuration Register 1 */
-  __I  uint32_t Reserved3[33];
-  __IO uint32_t PDMIC_WPMR;    /**< \brief (Pdmic Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t PDMIC_WPSR;    /**< \brief (Pdmic Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved4[4];
-  __I  uint32_t PDMIC_VERSION; /**< \brief (Pdmic Offset: 0xFC) Version Register */
+	__IO uint32_t PDMIC_CR;      /**< \brief (Pdmic Offset: 0x00) Control Register */
+	__IO uint32_t PDMIC_MR;      /**< \brief (Pdmic Offset: 0x04) Mode Register */
+	__I  uint32_t Reserved1[3];
+	__I  uint32_t PDMIC_CDR;     /**< \brief (Pdmic Offset: 0x14) Converted Data Register */
+	__O  uint32_t PDMIC_IER;     /**< \brief (Pdmic Offset: 0x18) Interrupt Enable Register */
+	__O  uint32_t PDMIC_IDR;     /**< \brief (Pdmic Offset: 0x1C) Interrupt Disable Register */
+	__I  uint32_t PDMIC_IMR;     /**< \brief (Pdmic Offset: 0x20) Interrupt Mask Register */
+	__I  uint32_t PDMIC_ISR;     /**< \brief (Pdmic Offset: 0x24) Interrupt Status Register */
+	__I  uint32_t Reserved2[12];
+	__IO uint32_t PDMIC_DSPR0;   /**< \brief (Pdmic Offset: 0x58) DSP Configuration Register 0 */
+	__IO uint32_t PDMIC_DSPR1;   /**< \brief (Pdmic Offset: 0x5C) DSP Configuration Register 1 */
+	__I  uint32_t Reserved3[33];
+	__IO uint32_t PDMIC_WPMR;    /**< \brief (Pdmic Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t PDMIC_WPSR;    /**< \brief (Pdmic Offset: 0xE8) Write Protection Status Register */
 } Pdmic;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PDMIC_CR : (PDMIC Offset: 0x00) Control Register -------- */
@@ -116,13 +114,7 @@ typedef struct {
 #define PDMIC_WPSR_WPVS (0x1u << 0) /**< \brief (PDMIC_WPSR) Write Protection Violation Status */
 #define PDMIC_WPSR_WPVSRC_Pos 8
 #define PDMIC_WPSR_WPVSRC_Msk (0xffffu << PDMIC_WPSR_WPVSRC_Pos) /**< \brief (PDMIC_WPSR) Write Protection Violation Source */
-/* -------- PDMIC_VERSION : (PDMIC Offset: 0xFC) Version Register -------- */
-#define PDMIC_VERSION_VERSION_Pos 0
-#define PDMIC_VERSION_VERSION_Msk (0xfffu << PDMIC_VERSION_VERSION_Pos) /**< \brief (PDMIC_VERSION) Version of the Hardware Module */
-#define PDMIC_VERSION_MFN_Pos 16
-#define PDMIC_VERSION_MFN_Msk (0x7u << PDMIC_VERSION_MFN_Pos) /**< \brief (PDMIC_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_PDMIC_COMPONENT_ */
