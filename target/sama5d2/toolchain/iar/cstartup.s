@@ -170,6 +170,8 @@ irqHandler:
         ldr         lr, =AT91C_BASE_AIC
         ldr         r0, [r14, #AIC_IVR]
         str         lr, [r14, #AIC_IVR]
+        ; Dummy read to force AIC_IVR write completion
+        ldr         lr, [r14, #AIC_SMR]
 
         ; Branch to interrupt handler in Supervisor mode
 
