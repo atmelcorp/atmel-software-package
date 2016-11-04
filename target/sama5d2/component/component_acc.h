@@ -39,18 +39,18 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Acc hardware registers */
 typedef struct {
-  __O  uint32_t ACC_CR;        /**< \brief (Acc Offset: 0x00) Control Register */
-  __IO uint32_t ACC_MR;        /**< \brief (Acc Offset: 0x04) Mode Register */
-  __I  uint32_t Reserved1[7];
-  __O  uint32_t ACC_IER;       /**< \brief (Acc Offset: 0x24) Interrupt Enable Register */
-  __O  uint32_t ACC_IDR;       /**< \brief (Acc Offset: 0x28) Interrupt Disable Register */
-  __I  uint32_t ACC_IMR;       /**< \brief (Acc Offset: 0x2C) Interrupt Mask Register */
-  __I  uint32_t ACC_ISR;       /**< \brief (Acc Offset: 0x30) Interrupt Status Register */
-  __I  uint32_t Reserved2[24];
-  __IO uint32_t ACC_ACR;       /**< \brief (Acc Offset: 0x94) Analog Control Register */
-  __I  uint32_t Reserved3[19];
-  __IO uint32_t ACC_WPMR;      /**< \brief (Acc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t ACC_WPSR;      /**< \brief (Acc Offset: 0xE8) Write Protection Status Register */
+	__O  uint32_t ACC_CR;        /**< \brief (Acc Offset: 0x00) Control Register */
+	__IO uint32_t ACC_MR;        /**< \brief (Acc Offset: 0x04) Mode Register */
+	__I  uint32_t Reserved1[7];
+	__O  uint32_t ACC_IER;       /**< \brief (Acc Offset: 0x24) Interrupt Enable Register */
+	__O  uint32_t ACC_IDR;       /**< \brief (Acc Offset: 0x28) Interrupt Disable Register */
+	__I  uint32_t ACC_IMR;       /**< \brief (Acc Offset: 0x2C) Interrupt Mask Register */
+	__I  uint32_t ACC_ISR;       /**< \brief (Acc Offset: 0x30) Interrupt Status Register */
+	__I  uint32_t Reserved2[24];
+	__IO uint32_t ACC_ACR;       /**< \brief (Acc Offset: 0x94) Analog Control Register */
+	__I  uint32_t Reserved3[19];
+	__IO uint32_t ACC_WPMR;      /**< \brief (Acc Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t ACC_WPSR;      /**< \brief (Acc Offset: 0xE8) Write Protection Status Register */
 } Acc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ACC_CR : (ACC Offset: 0x00) Control Register -------- */
