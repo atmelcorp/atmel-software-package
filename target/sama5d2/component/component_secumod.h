@@ -39,35 +39,35 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Secumod internal memory */
 typedef struct {
-  __IO uint32_t BUSRAM_LOWER[1024]; /**< \brief (Securam Offset: 0x0000) Lower 4KB auto-erased */
-  __IO uint32_t BUSRAM_HIGHER[256]; /**< \brief (Securam Offset: 0x1000) Higher 1KB not auto-erased */
-  __IO uint32_t BUREG[8];           /**< \brief (Securam Offset: 0x1400) BUREG 256 bits auto-erased */
+	__IO uint32_t BUSRAM_LOWER[1024]; /**< \brief (Securam Offset: 0x0000) Lower 4KB auto-erased */
+	__IO uint32_t BUSRAM_HIGHER[256]; /**< \brief (Securam Offset: 0x1000) Higher 1KB not auto-erased */
+	__IO uint32_t BUREG[8];           /**< \brief (Securam Offset: 0x1400) BUREG 256 bits auto-erased */
 } Securam;
 
 /** \brief Secumod hardware registers */
 typedef struct {
-  __O  uint32_t SECUMOD_CR;       /**< \brief (Secumod Offset: 0x0000) Control Register */
-  __IO uint32_t SECUMOD_SYSR;     /**< \brief (Secumod Offset: 0x0004) System Status Register */
-  __I  uint32_t SECUMOD_SR;       /**< \brief (Secumod Offset: 0x0008) Status Register */
-  __I  uint32_t SECUMOD_ASR;      /**< \brief (Secumod Offset: 0x000C) Auxiliary Status Register */
-  __O  uint32_t SECUMOD_SCR;      /**< \brief (Secumod Offset: 0x0010) Status Clear Register */
-  __I  uint32_t SECUMOD_RAMRDY;   /**< \brief (Secumod Offset: 0x0014) RAM Access Ready Register */
-  __IO uint32_t SECUMOD_PIOBU[8]; /**< \brief (Secumod Offset: 0x0018) PIO Backup Register */
-  __I  uint32_t Reserved1[8];
-  __IO uint32_t SECUMOD_VBUFR;    /**< \brief (Secumod Offset: 0x0058) VDDBU Filter Register */
-  __I  uint32_t Reserved2[2];
-  __IO uint32_t SECUMOD_VCOREFR;  /**< \brief (Secumod Offset: 0x0064) VDDCORE Filter Register */
-  __IO uint32_t SECUMOD_JTAGCR;   /**< \brief (Secumod Offset: 0x0068) JTAG Protection Control Register */
-  __IO uint32_t SECUMOD_DYSTUNE;  /**< \brief (Secumod Offset: 0x006C) Dynamic Signatures Tuning Register */
-  __IO uint32_t SECUMOD_SCRKEY;   /**< \brief (Secumod Offset: 0x0070) Scrambling Key Register */
-  __IO uint32_t SECUMOD_RAMACC;   /**< \brief (Secumod Offset: 0x0074) RAM Access Rights Register */
-  __IO uint32_t SECUMOD_RAMACCSR; /**< \brief (Secumod Offset: 0x0078) RAM Access Rights Status Register */
-  __IO uint32_t SECUMOD_BMPR;     /**< \brief (Secumod Offset: 0x007C) Backup Mode Protection Register */
-  __IO uint32_t SECUMOD_NMPR;     /**< \brief (Secumod Offset: 0x0080) Normal Mode Protection Register */
-  __O  uint32_t SECUMOD_NIEPR;    /**< \brief (Secumod Offset: 0x0084) Normal Interrupt Enable Protection Register */
-  __O  uint32_t SECUMOD_NIDPR;    /**< \brief (Secumod Offset: 0x0088) Normal Interrupt Disable Protection Register */
-  __I  uint32_t SECUMOD_NIMPR;    /**< \brief (Secumod Offset: 0x008C) Normal Interrupt Mask Protection Register */
-  __IO uint32_t SECUMOD_WKPR;     /**< \brief (Secumod Offset: 0x0090) Wake Up Protection Register */
+	__O  uint32_t SECUMOD_CR;       /**< \brief (Secumod Offset: 0x0000) Control Register */
+	__IO uint32_t SECUMOD_SYSR;     /**< \brief (Secumod Offset: 0x0004) System Status Register */
+	__I  uint32_t SECUMOD_SR;       /**< \brief (Secumod Offset: 0x0008) Status Register */
+	__I  uint32_t SECUMOD_ASR;      /**< \brief (Secumod Offset: 0x000C) Auxiliary Status Register */
+	__O  uint32_t SECUMOD_SCR;      /**< \brief (Secumod Offset: 0x0010) Status Clear Register */
+	__I  uint32_t SECUMOD_RAMRDY;   /**< \brief (Secumod Offset: 0x0014) RAM Access Ready Register */
+	__IO uint32_t SECUMOD_PIOBU[8]; /**< \brief (Secumod Offset: 0x0018) PIO Backup Register */
+	__I  uint32_t Reserved1[8];
+	__IO uint32_t SECUMOD_VBUFR;    /**< \brief (Secumod Offset: 0x0058) VDDBU Filter Register */
+	__I  uint32_t Reserved2[2];
+	__IO uint32_t SECUMOD_VCOREFR;  /**< \brief (Secumod Offset: 0x0064) VDDCORE Filter Register */
+	__IO uint32_t SECUMOD_JTAGCR;   /**< \brief (Secumod Offset: 0x0068) JTAG Protection Control Register */
+	__IO uint32_t SECUMOD_DYSTUNE;  /**< \brief (Secumod Offset: 0x006C) Dynamic Signatures Tuning Register */
+	__IO uint32_t SECUMOD_SCRKEY;   /**< \brief (Secumod Offset: 0x0070) Scrambling Key Register */
+	__IO uint32_t SECUMOD_RAMACC;   /**< \brief (Secumod Offset: 0x0074) RAM Access Rights Register */
+	__IO uint32_t SECUMOD_RAMACCSR; /**< \brief (Secumod Offset: 0x0078) RAM Access Rights Status Register */
+	__IO uint32_t SECUMOD_BMPR;     /**< \brief (Secumod Offset: 0x007C) Backup Mode Protection Register */
+	__IO uint32_t SECUMOD_NMPR;     /**< \brief (Secumod Offset: 0x0080) Normal Mode Protection Register */
+	__O  uint32_t SECUMOD_NIEPR;    /**< \brief (Secumod Offset: 0x0084) Normal Interrupt Enable Protection Register */
+	__O  uint32_t SECUMOD_NIDPR;    /**< \brief (Secumod Offset: 0x0088) Normal Interrupt Disable Protection Register */
+	__I  uint32_t SECUMOD_NIMPR;    /**< \brief (Secumod Offset: 0x008C) Normal Interrupt Mask Protection Register */
+	__IO uint32_t SECUMOD_WKPR;     /**< \brief (Secumod Offset: 0x0090) Wake Up Protection Register */
 } Secumod;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SECUMOD_CR : (SECUMOD Offset: 0x0000) Control Register -------- */
