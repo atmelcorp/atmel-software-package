@@ -39,20 +39,20 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Aesb hardware registers */
 typedef struct {
-	__O uint32_t AESB_CR;	      /**< \brief (Aesb Offset: 0x00) Control Register */
-	__IO uint32_t AESB_MR;	      /**< \brief (Aesb Offset: 0x04) Mode Register */
-	__I uint32_t Reserved1[2];
-	__O uint32_t AESB_IER;	      /**< \brief (Aesb Offset: 0x10) Interrupt Enable Register */
-	__O uint32_t AESB_IDR;	      /**< \brief (Aesb Offset: 0x14) Interrupt Disable Register */
-	__I uint32_t AESB_IMR;	      /**< \brief (Aesb Offset: 0x18) Interrupt Mask Register */
-	__I uint32_t AESB_ISR;	      /**< \brief (Aesb Offset: 0x1C) Interrupt Status Register */
-	__O uint32_t AESB_KEYWR[4];   /**< \brief (Aesb Offset: 0x20) Key Word Register */
-	__I uint32_t Reserved2[4];
-	__O uint32_t AESB_IDATAR[4];  /**< \brief (Aesb Offset: 0x40) Input Data Register */
-	__I uint32_t AESB_ODATAR[4];  /**< \brief (Aesb Offset: 0x50) Output Data Register */
-	__O uint32_t AESB_IVR[4];     /**< \brief (Aesb Offset: 0x60) Initialization Vector Register */
+	__O  uint32_t AESB_CR;        /**< \brief (Aesb Offset: 0x00) Control Register */
+	__IO uint32_t AESB_MR;        /**< \brief (Aesb Offset: 0x04) Mode Register */
+	__I  uint32_t Reserved1[2];
+	__O  uint32_t AESB_IER;       /**< \brief (Aesb Offset: 0x10) Interrupt Enable Register */
+	__O  uint32_t AESB_IDR;       /**< \brief (Aesb Offset: 0x14) Interrupt Disable Register */
+	__I  uint32_t AESB_IMR;       /**< \brief (Aesb Offset: 0x18) Interrupt Mask Register */
+	__I  uint32_t AESB_ISR;       /**< \brief (Aesb Offset: 0x1C) Interrupt Status Register */
+	__O  uint32_t AESB_KEYWR[4];  /**< \brief (Aesb Offset: 0x20) Key Word Register */
+	__I  uint32_t Reserved2[4];
+	__O  uint32_t AESB_IDATAR[4]; /**< \brief (Aesb Offset: 0x40) Input Data Register */
+	__I  uint32_t AESB_ODATAR[4]; /**< \brief (Aesb Offset: 0x50) Output Data Register */
+	__O  uint32_t AESB_IVR[4];    /**< \brief (Aesb Offset: 0x60) Initialization Vector Register */
 } Aesb;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AESB_CR : (AESB Offset: 0x00) Control Register -------- */
 #define AESB_CR_START (0x1u << 0) /**< \brief (AESB_CR) Start Processing */
 #define AESB_CR_SWRST (0x1u << 8) /**< \brief (AESB_CR) Software Reset */
@@ -60,7 +60,7 @@ typedef struct {
 #define AESB_MR_CIPHER (0x1u << 0) /**< \brief (AESB_MR) Processing Mode */
 #define AESB_MR_AAHB (0x1u << 2) /**< \brief (AESB_MR) Automatic Bridge Mode */
 #define AESB_MR_DUALBUFF (0x1u << 3) /**< \brief (AESB_MR) Dual Input Buffer */
-#define   AESB_MR_DUALBUFF_INACTIVE (0x0u << 3)	/**< \brief (AESB_MR) AESB_IDATARx cannot be written during processing of previous block. */
+#define   AESB_MR_DUALBUFF_INACTIVE (0x0u << 3) /**< \brief (AESB_MR) AESB_IDATARx cannot be written during processing of previous block. */
 #define   AESB_MR_DUALBUFF_ACTIVE (0x1u << 3) /**< \brief (AESB_MR) AESB_IDATARx can be written during processing of previous block when SMOD = 0x2. It speeds up the overall runtime of large files. */
 #define AESB_MR_PROCDLY_Pos 4
 #define AESB_MR_PROCDLY_Msk (0xfu << AESB_MR_PROCDLY_Pos) /**< \brief (AESB_MR) Processing Delay */
@@ -68,7 +68,7 @@ typedef struct {
 #define AESB_MR_SMOD_Pos 8
 #define AESB_MR_SMOD_Msk (0x3u << AESB_MR_SMOD_Pos) /**< \brief (AESB_MR) Start Mode */
 #define AESB_MR_SMOD(value) ((AESB_MR_SMOD_Msk & ((value) << AESB_MR_SMOD_Pos)))
-#define   AESB_MR_SMOD_MANUAL_START (0x0u << 8)	/**< \brief (AESB_MR) Manual Mode */
+#define   AESB_MR_SMOD_MANUAL_START (0x0u << 8) /**< \brief (AESB_MR) Manual Mode */
 #define   AESB_MR_SMOD_AUTO_START (0x1u << 8) /**< \brief (AESB_MR) Auto Mode */
 #define   AESB_MR_SMOD_IDATAR0_START (0x2u << 8) /**< \brief (AESB_MR) AESB_IDATAR0 access only Auto Mode */
 #define AESB_MR_OPMOD_Pos 12
@@ -79,9 +79,9 @@ typedef struct {
 #define   AESB_MR_OPMOD_CTR (0x4u << 12) /**< \brief (AESB_MR) Counter mode (16-bit internal counter) */
 #define AESB_MR_LOD (0x1u << 15) /**< \brief (AESB_MR) Last Output Data Mode */
 #define AESB_MR_CKEY_Pos 20
-#define AESB_MR_CKEY_Msk (0xfu << AESB_MR_CKEY_Pos) /**< \brief (AESB_MR) Key */
+#define AESB_MR_CKEY_Msk (0xfu << AESB_MR_CKEY_Pos) /**< \brief (AESB_MR) Countermeasure Key */
 #define AESB_MR_CKEY(value) ((AESB_MR_CKEY_Msk & ((value) << AESB_MR_CKEY_Pos)))
-#define   AESB_MR_CKEY_PASSWD (0xEu << 20) /**< \brief (AESB_MR) This field must be written with 0xE the first time that AES_MR is programmed. For subsequent programming of the AES_MR register, any value can be written, including that of 0xE.Always reads as 0. */
+#define   AESB_MR_CKEY_PASSWD (0xEu << 20) /**< \brief (AESB_MR) This field must be written with 0xE to allow CMTYPx fields change. Any other values will abort the write operation in CMTYPx fields.Always reads as 0. */
 /* -------- AESB_IER : (AESB Offset: 0x10) Interrupt Enable Register -------- */
 #define AESB_IER_DATRDY (0x1u << 0) /**< \brief (AESB_IER) Data Ready Interrupt Enable */
 #define AESB_IER_URAD (0x1u << 8) /**< \brief (AESB_IER) Unspecified Register Access Detection Interrupt Enable */
@@ -120,4 +120,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_AESB_COMPONENT_ */
+#endif /* _SAMA5D4_AESB_COMPONENT_ */
