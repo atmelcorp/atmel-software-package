@@ -39,16 +39,16 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sha hardware registers */
 typedef struct {
-  __O   uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x00) Control Register */
-  __IO  uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x04) Mode Register */
-  __I   uint32_t Reserved1[2];
-  __O   uint32_t SHA_IER;         /**< \brief (Sha Offset: 0x10) Interrupt Enable Register */
-  __O   uint32_t SHA_IDR;         /**< \brief (Sha Offset: 0x14) Interrupt Disable Register */
-  __I   uint32_t SHA_IMR;         /**< \brief (Sha Offset: 0x18) Interrupt Mask Register */
-  __I   uint32_t SHA_ISR;         /**< \brief (Sha Offset: 0x1C) Interrupt Status Register */
-  __I   uint32_t Reserved2[8];
-  __O   uint32_t SHA_IDATAR[16];  /**< \brief (Sha Offset: 0x40) Input Data 0 Register */
-  __IO  uint32_t SHA_IODATAR[16]; /**< \brief (Sha Offset: 0x80) Input/Output Data 0 Register */
+	__O  uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x00) Control Register */
+	__IO uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x04) Mode Register */
+	__I  uint32_t Reserved1[2];
+	__O  uint32_t SHA_IER;         /**< \brief (Sha Offset: 0x10) Interrupt Enable Register */
+	__O  uint32_t SHA_IDR;         /**< \brief (Sha Offset: 0x14) Interrupt Disable Register */
+	__I  uint32_t SHA_IMR;         /**< \brief (Sha Offset: 0x18) Interrupt Mask Register */
+	__I  uint32_t SHA_ISR;         /**< \brief (Sha Offset: 0x1C) Interrupt Status Register */
+	__I  uint32_t Reserved2[8];
+	__O  uint32_t SHA_IDATAR[16];  /**< \brief (Sha Offset: 0x40) Input Data 0 Register */
+	__IO uint32_t SHA_IODATAR[16]; /**< \brief (Sha Offset: 0x80) Input/Output Data 0 Register */
 } Sha;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHA_CR : (SHA Offset: 0x00) Control Register -------- */
@@ -58,6 +58,7 @@ typedef struct {
 /* -------- SHA_MR : (SHA Offset: 0x04) Mode Register -------- */
 #define SHA_MR_SMOD_Pos 0
 #define SHA_MR_SMOD_Msk (0x3u << SHA_MR_SMOD_Pos) /**< \brief (SHA_MR) Start Mode */
+#define SHA_MR_SMOD(value) ((SHA_MR_SMOD_Msk & ((value) << SHA_MR_SMOD_Pos)))
 #define   SHA_MR_SMOD_MANUAL_START (0x0u << 0) /**< \brief (SHA_MR) Manual Mode */
 #define   SHA_MR_SMOD_AUTO_START (0x1u << 0) /**< \brief (SHA_MR) Auto Mode */
 #define   SHA_MR_SMOD_IDATAR0_START (0x2u << 0) /**< \brief (SHA_MR) SHA_IDATAR0 access only Auto Mode */
@@ -65,15 +66,16 @@ typedef struct {
 #define   SHA_MR_PROCDLY_SHORTEST (0x0u << 4) /**< \brief (SHA_MR) SHA processing runtime is the shortest one */
 #define   SHA_MR_PROCDLY_LONGEST (0x1u << 4) /**< \brief (SHA_MR) SHA processing runtime is the longest one */
 #define SHA_MR_ALGO_Pos 8
-#define SHA_MR_ALGO_Msk (0x7u << SHA_MR_ALGO_Pos) /**< \brief (SHA_MR) SHA Algorithm. */
+#define SHA_MR_ALGO_Msk (0x7u << SHA_MR_ALGO_Pos) /**< \brief (SHA_MR) SHA Algorithm */
+#define SHA_MR_ALGO(value) ((SHA_MR_ALGO_Msk & ((value) << SHA_MR_ALGO_Pos)))
 #define   SHA_MR_ALGO_SHA1 (0x0u << 8) /**< \brief (SHA_MR) SHA1 algorithm processed */
 #define   SHA_MR_ALGO_SHA256 (0x1u << 8) /**< \brief (SHA_MR) SHA256 algorithm processed */
 #define   SHA_MR_ALGO_SHA384 (0x2u << 8) /**< \brief (SHA_MR) SHA384 algorithm processed */
 #define   SHA_MR_ALGO_SHA512 (0x3u << 8) /**< \brief (SHA_MR) SHA512 algorithm processed */
 #define   SHA_MR_ALGO_SHA224 (0x4u << 8) /**< \brief (SHA_MR) SHA224 algorithm processed */
-#define SHA_MR_DUALBUFF (0x1u << 16) /**< \brief (SHA_MR) Dual Input BUFFer */
+#define SHA_MR_DUALBUFF (0x1u << 16) /**< \brief (SHA_MR) Dual Input Buffer */
 #define   SHA_MR_DUALBUFF_INACTIVE (0x0u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx cannot be written during processing of previous block. */
-#define   SHA_MR_DUALBUFF_ACTIVE (0x1u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx can be written during processing of previous block when SMOD=0x2. It speeds up the overall runtime of large files. */
+#define   SHA_MR_DUALBUFF_ACTIVE (0x1u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx can be written during processing of previous block when SMOD = 2. It speeds up the overall runtime of large files. */
 /* -------- SHA_IER : (SHA Offset: 0x10) Interrupt Enable Register -------- */
 #define SHA_IER_DATRDY (0x1u << 0) /**< \brief (SHA_IER) Data Ready Interrupt Enable */
 #define SHA_IER_URAD (0x1u << 8) /**< \brief (SHA_IER) Unspecified Register Access Detection Interrupt Enable */
@@ -98,6 +100,5 @@ typedef struct {
 #define SHA_IODATAR_IODATA(value) ((SHA_IODATAR_IODATA_Msk & ((value) << SHA_IODATAR_IODATA_Pos)))
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_SHA_COMPONENT_ */

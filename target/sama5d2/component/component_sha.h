@@ -39,20 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sha hardware registers */
 typedef struct {
-  __O  uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x00) Control Register */
-  __IO uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x04) Mode Register */
-  __I  uint32_t Reserved1[2];
-  __O  uint32_t SHA_IER;         /**< \brief (Sha Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t SHA_IDR;         /**< \brief (Sha Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t SHA_IMR;         /**< \brief (Sha Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t SHA_ISR;         /**< \brief (Sha Offset: 0x1C) Interrupt Status Register */
-  __IO uint32_t SHA_MSR;         /**< \brief (Sha Offset: 0x20) Message Size Register */
-  __I  uint32_t Reserved2[3];
-  __IO uint32_t SHA_BCR;         /**< \brief (Sha Offset: 0x30) Bytes Count Register */
-  __I  uint32_t Reserved3[3];
-  __O  uint32_t SHA_IDATAR[16];  /**< \brief (Sha Offset: 0x40) Input Data 0 Register */
-  __IO uint32_t SHA_IODATAR[16]; /**< \brief (Sha Offset: 0x80) Input/Output Data 0 Register */
-  __I  uint32_t SHA_VERSION;     /**< \brief (Sha Offset: 0xFC) Version Register */
+	__O  uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x00) Control Register */
+	__IO uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x04) Mode Register */
+	__I  uint32_t Reserved1[2];
+	__O  uint32_t SHA_IER;         /**< \brief (Sha Offset: 0x10) Interrupt Enable Register */
+	__O  uint32_t SHA_IDR;         /**< \brief (Sha Offset: 0x14) Interrupt Disable Register */
+	__I  uint32_t SHA_IMR;         /**< \brief (Sha Offset: 0x18) Interrupt Mask Register */
+	__I  uint32_t SHA_ISR;         /**< \brief (Sha Offset: 0x1C) Interrupt Status Register */
+	__IO uint32_t SHA_MSR;         /**< \brief (Sha Offset: 0x20) Message Size Register */
+	__I  uint32_t Reserved2[3];
+	__IO uint32_t SHA_BCR;         /**< \brief (Sha Offset: 0x30) Bytes Count Register */
+	__I  uint32_t Reserved3[3];
+	__O  uint32_t SHA_IDATAR[16];  /**< \brief (Sha Offset: 0x40) Input Data 0 Register */
+	__IO uint32_t SHA_IODATAR[16]; /**< \brief (Sha Offset: 0x80) Input/Output Data 0 Register */
 } Sha;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHA_CR : (SHA Offset: 0x00) Control Register -------- */
@@ -70,7 +69,7 @@ typedef struct {
 #define   SHA_MR_SMOD_IDATAR0_START (0x2u << 0) /**< \brief (SHA_MR) SHA_IDATAR0 access only Auto Mode */
 #define SHA_MR_PROCDLY (0x1u << 4) /**< \brief (SHA_MR) Processing Delay */
 #define   SHA_MR_PROCDLY_SHORTEST (0x0u << 4) /**< \brief (SHA_MR) SHA processing runtime is the shortest one */
-#define   SHA_MR_PROCDLY_LONGEST (0x1u << 4) /**< \brief (SHA_MR) SHA processing runtime is the longest one (reduces the SHA bandwidth requirement, reduces the system bus overload) */
+#define   SHA_MR_PROCDLY_LONGEST (0x1u << 4) /**< \brief (SHA_MR) SHA processing runtime is the longest one */
 #define SHA_MR_UIHV (0x1u << 5) /**< \brief (SHA_MR) User Initial Hash Value Registers */
 #define SHA_MR_UIEHV (0x1u << 6) /**< \brief (SHA_MR) User Initial or Expected Hash Value Registers */
 #define SHA_MR_ALGO_Pos 8
@@ -88,7 +87,7 @@ typedef struct {
 #define   SHA_MR_ALGO_HMAC_SHA224 (0xCu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA224 Hash processed */
 #define SHA_MR_DUALBUFF (0x1u << 16) /**< \brief (SHA_MR) Dual Input Buffer */
 #define   SHA_MR_DUALBUFF_INACTIVE (0x0u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx cannot be written during processing of previous block. */
-#define   SHA_MR_DUALBUFF_ACTIVE (0x1u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx can be written during processing of previous block when SMOD value = 2. It speeds up the overall runtime of large files. */
+#define   SHA_MR_DUALBUFF_ACTIVE (0x1u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx can be written during processing of previous block when SMOD = 2. It speeds up the overall runtime of large files. */
 #define SHA_MR_CHECK_Pos 24
 #define SHA_MR_CHECK_Msk (0x3u << SHA_MR_CHECK_Pos) /**< \brief (SHA_MR) Hash Check */
 #define SHA_MR_CHECK(value) ((SHA_MR_CHECK_Msk & ((value) << SHA_MR_CHECK_Pos)))
@@ -111,14 +110,14 @@ typedef struct {
 #define SHA_IMR_URAD (0x1u << 8) /**< \brief (SHA_IMR) Unspecified Register Access Detection Interrupt Mask */
 #define SHA_IMR_CHECKF (0x1u << 16) /**< \brief (SHA_IMR) Check Done Interrupt Mask */
 /* -------- SHA_ISR : (SHA Offset: 0x1C) Interrupt Status Register -------- */
-#define SHA_ISR_DATRDY (0x1u << 0) /**< \brief (SHA_ISR) Data Ready (cleared by writing a 1 to bit SWRST or START in SHA_CR, or by reading SHA_IODATARx) */
+#define SHA_ISR_DATRDY (0x1u << 0) /**< \brief (SHA_ISR) Data Ready */
 #define SHA_ISR_WRDY (0x1u << 4) /**< \brief (SHA_ISR) Input Data Register Write Ready */
-#define SHA_ISR_URAD (0x1u << 8) /**< \brief (SHA_ISR) Unspecified Register Access Detection Status (cleared by writing a 1 to SWRST bit in SHA_CR) */
+#define SHA_ISR_URAD (0x1u << 8) /**< \brief (SHA_ISR) Unspecified Register Access Detection Status */
 #define SHA_ISR_URAT_Pos 12
-#define SHA_ISR_URAT_Msk (0x7u << SHA_ISR_URAT_Pos) /**< \brief (SHA_ISR) Unspecified Register Access Type (cleared by writing a 1 to SWRST bit in SHA_CR) */
-#define SHA_ISR_CHECKF (0x1u << 16) /**< \brief (SHA_ISR) Check Done Status (cleared by writing START or SWRST bits in SHA_CR or by reading SHA_IODATARx) */
+#define SHA_ISR_URAT_Msk (0x7u << SHA_ISR_URAT_Pos) /**< \brief (SHA_ISR) Unspecified Register Access Type */
+#define SHA_ISR_CHECKF (0x1u << 16) /**< \brief (SHA_ISR) Check Done Status */
 #define SHA_ISR_CHKST_Pos 20
-#define SHA_ISR_CHKST_Msk (0xfu << SHA_ISR_CHKST_Pos) /**< \brief (SHA_ISR) Check Status (cleared by writing START or SWRST bits in SHA_CR or by reading SHA_IODATARx) */
+#define SHA_ISR_CHKST_Msk (0xfu << SHA_ISR_CHKST_Pos) /**< \brief (SHA_ISR) Check Status */
 /* -------- SHA_MSR : (SHA Offset: 0x20) Message Size Register -------- */
 #define SHA_MSR_MSGSIZE_Pos 0
 #define SHA_MSR_MSGSIZE_Msk (0xffffffffu << SHA_MSR_MSGSIZE_Pos) /**< \brief (SHA_MSR) Message Size */
@@ -135,13 +134,7 @@ typedef struct {
 #define SHA_IODATAR_IODATA_Pos 0
 #define SHA_IODATAR_IODATA_Msk (0xffffffffu << SHA_IODATAR_IODATA_Pos) /**< \brief (SHA_IODATAR[16]) Input/Output Data */
 #define SHA_IODATAR_IODATA(value) ((SHA_IODATAR_IODATA_Msk & ((value) << SHA_IODATAR_IODATA_Pos)))
-/* -------- SHA_VERSION : (SHA Offset: 0xFC) Version Register -------- */
-#define SHA_VERSION_VERSION_Pos 0
-#define SHA_VERSION_VERSION_Msk (0xfffu << SHA_VERSION_VERSION_Pos) /**< \brief (SHA_VERSION) Version of the Hardware Module */
-#define SHA_VERSION_MFN_Pos 16
-#define SHA_VERSION_MFN_Msk (0x7u << SHA_VERSION_MFN_Pos) /**< \brief (SHA_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SHA_COMPONENT_ */
