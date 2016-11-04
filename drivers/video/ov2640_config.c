@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -47,14 +47,14 @@
 #define OV2640_PIDL_ADDRESS    0x0B
 #define OV2640_PIDH            0x26
 #define OV2640_PIDL            0x40
-#define OV2640_PID_VER_MASK    0xFFF0
+#define OV2640_PID_VER_MASK    0xFFFF
 
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
 /* 320*240 */
-static const sensor_reg_t ov2640_yuv_qvga[] = {
+static const struct sensor_reg ov2640_yuv_qvga[] = {
 	{0xff, 0x01},
 	{0x12, 0x80},
 	{0xff, 0x00},
@@ -284,7 +284,7 @@ static const sensor_reg_t ov2640_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2640_raw_qvga[] = {
+static const struct sensor_reg ov2640_raw_qvga[] = {
 	{0xff, 0x01},
 	{0x12, 0x80},
 	{0xff, 0x00},
@@ -514,7 +514,7 @@ static const sensor_reg_t ov2640_raw_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2640_yuv_vga[] = {
+static const struct sensor_reg ov2640_yuv_vga[] = {
 	{0xff, 0x01}, //dsp
 	{0x12, 0x80}, //reset
 	{0xff, 0x00}, //sensor
@@ -752,16 +752,16 @@ static const sensor_reg_t ov2640_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_output_t ov2640_output_qvga =
+static const struct sensor_output ov2640_output_qvga =
 { 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov2640_yuv_qvga };
 
-static const sensor_output_t ov2640_output_raw_qvga =
+static const struct sensor_output ov2640_output_raw_qvga =
 { 0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov2640_raw_qvga };
 
-static const sensor_output_t ov2640_output_vga =
+static const struct sensor_output ov2640_output_vga =
 { 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov2640_yuv_vga };
 
-const sensor_profile_t ov2640_profile =
+const struct sensor_profile ov2640_profile =
 {
 	"OV2640",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */

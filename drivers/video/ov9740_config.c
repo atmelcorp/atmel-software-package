@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -53,7 +53,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-static const sensor_reg_t ov9740_yuv_vga[] = {
+static const struct sensor_reg ov9740_yuv_vga[] = {
 
 	/* Software RESET */
 	{0x0103, 0x01},
@@ -423,7 +423,7 @@ static const sensor_reg_t ov9740_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov9740_yuv_wxga[] = {
+static const struct sensor_reg ov9740_yuv_wxga[] = {
 	/* WXGA 1280x720 YUV DVP 15FPS for card reader */
 	{0x0103, 0x01},
 	{0x3026, 0x00},
@@ -702,7 +702,7 @@ static const sensor_reg_t ov9740_yuv_wxga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov9740_raw_qvga[] = {
+static const struct sensor_reg ov9740_raw_qvga[] = {
 
 	/* Software RESET */
 	{0x0103, 0x01},
@@ -1149,7 +1149,7 @@ static const sensor_reg_t ov9740_raw_qvga[] = {
 };
 
 
-static const sensor_reg_t ov9740_yuv_qvga[] = {
+static const struct sensor_reg ov9740_yuv_qvga[] = {
 
 	/* Software RESET */
 	{0x0103, 0x01},
@@ -1519,19 +1519,19 @@ static const sensor_reg_t ov9740_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_output_t ov9740_output_vga =
+static const struct sensor_output ov9740_output_vga =
 { 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov9740_yuv_vga };
 
-static const sensor_output_t ov9740_output_wxga =
+static const struct sensor_output ov9740_output_wxga =
 { 0, WXGA, YUV_422, BIT_8, 1, 1280, 720, ov9740_yuv_wxga };
 
-static const sensor_output_t ov9740_output_qvga_raw =
+static const struct sensor_output ov9740_output_qvga_raw =
 { 0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov9740_raw_qvga };
 
-static const sensor_output_t ov9740_output_qvga_yuv =
+static const struct sensor_output ov9740_output_qvga_yuv =
 { 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov9740_yuv_qvga };
 
-const sensor_profile_t ov9740_profile =
+const struct sensor_profile ov9740_profile =
 {
 	"OV9740",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */

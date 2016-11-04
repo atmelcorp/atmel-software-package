@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -47,13 +47,13 @@
 #define OV2643_PIDL_ADDRESS    0x0B
 #define OV2643_PIDH            0x26
 #define OV2643_PIDL            0x43
-#define OV2643_PID_VER_MASK    0xFFF0
+#define OV2643_PID_VER_MASK    0xFFFF
 
 /*------------------------------------------------------------------------------
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-static const sensor_reg_t ov2643_yuv_uvga[] = {
+static const struct sensor_reg ov2643_yuv_uvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -338,7 +338,7 @@ static const sensor_reg_t ov2643_yuv_uvga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2643_yuv_svga[] = {
+static const struct sensor_reg ov2643_yuv_svga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -513,7 +513,7 @@ static const sensor_reg_t ov2643_yuv_svga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2643_yuv_vga[] = {
+static const struct sensor_reg ov2643_yuv_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -685,7 +685,7 @@ static const sensor_reg_t ov2643_yuv_vga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2643_raw_vga[] = {
+static const struct sensor_reg ov2643_raw_vga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -854,7 +854,7 @@ static const sensor_reg_t ov2643_raw_vga[] = {
 	{0xFF, 0xFF},
 };
 
-static const sensor_reg_t ov2643_yuv_qvga[] = {
+static const struct sensor_reg ov2643_yuv_qvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -1030,7 +1030,7 @@ static const sensor_reg_t ov2643_yuv_qvga[] = {
 	{0xFF, 0xFF}
 };
 
-static const sensor_reg_t ov2643_raw_qvga[] = {
+static const struct sensor_reg ov2643_raw_qvga[] = {
 	{0x12, 0x80},
 	{0xc3, 0x1f},
 	{0xc4, 0xff},
@@ -1208,25 +1208,25 @@ static const sensor_reg_t ov2643_raw_qvga[] = {
 };
 
 
-static const sensor_output_t ov2643_output_qvga =
+static const struct sensor_output ov2643_output_qvga =
 { 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov2643_yuv_qvga };
 
-static const sensor_output_t ov2643_output_qvga_raw =
+static const struct sensor_output ov2643_output_qvga_raw =
 { 0, QVGA, RAW_BAYER, BIT_8, 1, 320, 240, ov2643_raw_qvga };
 
-static const sensor_output_t ov2643_output_vga =
+static const struct sensor_output ov2643_output_vga =
 { 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov2643_yuv_vga };
 
-static const sensor_output_t ov2643_output_raw_vga =
+static const struct sensor_output ov2643_output_raw_vga =
 { 0, VGA, RAW_BAYER, BIT_8, 1, 640, 480, ov2643_raw_vga };
 
-static const sensor_output_t ov2643_output_svga =
+static const struct sensor_output ov2643_output_svga =
 { 0, SVGA, YUV_422, BIT_8, 1, 800, 600, ov2643_yuv_svga };
 
-static const sensor_output_t ov2643_output_uvga =
+static const struct sensor_output ov2643_output_uvga =
 { 0, UVGA, YUV_422, BIT_8, 1, 1600, 1200, ov2643_yuv_uvga };
 
-const sensor_profile_t ov2643_profile =
+const struct sensor_profile ov2643_profile =
 {
 	"OV2643",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */

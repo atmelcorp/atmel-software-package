@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -54,7 +54,7 @@
  *         Local Variables
  *------------------------------------------------------------------------------*/
 
-static const sensor_reg_t ov7740_yuv_vga[] = {
+static const struct sensor_reg ov7740_yuv_vga[] = {
 
 	{0x12, 0x80},
 	/* flag for soft reset delay */
@@ -202,7 +202,7 @@ static const sensor_reg_t ov7740_yuv_vga[] = {
  *  - 320*240 pixel by picture (QVGA)
  *  - pixel data in YUV
  */
-static const sensor_reg_t ov7740_qvga_yuv[] = {
+static const struct sensor_reg ov7740_qvga_yuv[] = {
 	{0x12, 0x80},
 	/* flag for soft reset delay */
 	{0x55 ,0x40},
@@ -356,7 +356,7 @@ static const sensor_reg_t ov7740_qvga_yuv[] = {
  *  - 320*240 pixel by picture (QVGA)
  *  - pixel data in YUV
  */
-static const sensor_reg_t ov7740_qvga_raw[] = {
+static const struct sensor_reg ov7740_qvga_raw[] = {
 	{0x12, 0x80},
 	/* flag for soft reset delay */
 	{0x55 ,0x40},
@@ -503,16 +503,16 @@ static const sensor_reg_t ov7740_qvga_raw[] = {
 	
 };
 
-static const sensor_output_t ov7740_output_vga =
+static const struct sensor_output ov7740_output_vga =
 { 0, VGA, YUV_422, BIT_8, 1, 640, 480, ov7740_yuv_vga };
 
-static const sensor_output_t ov7740_output_qvga =
+static const struct sensor_output ov7740_output_qvga =
 { 0, QVGA, YUV_422, BIT_8, 1, 320, 240, ov7740_qvga_yuv };
 
-static const sensor_output_t ov7740_output_qvga_raw =
+static const struct sensor_output ov7740_output_qvga_raw =
 { 0, QVGA, RAW_BAYER, BIT_10, 1, 320, 240, ov7740_qvga_raw };
 
-const sensor_profile_t ov7740_profile =
+const struct sensor_profile ov7740_profile =
 {
 	"OV7740",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
