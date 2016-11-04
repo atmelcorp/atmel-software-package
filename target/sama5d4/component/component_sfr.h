@@ -39,24 +39,24 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sfr hardware registers */
 typedef struct {
-	__I uint32_t Reserved0;
-	__IO uint32_t SFR_DDRCFG;   /**< \brief (Sfr Offset: 0x04) DDR Configuration Register */
-	__I uint32_t Reserved1[2];
-	__IO uint32_t SFR_OHCIICR;  /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
-	__I uint32_t SFR_OHCIISR;   /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
-	__I uint32_t Reserved2[4];
-	__IO uint32_t SFR_SECURE;   /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
-	__I uint32_t Reserved3[5];
-	__IO uint32_t SFR_EBICFG;   /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
-	__I uint32_t Reserved4[2];
-	__I uint32_t SFR_SN0;	    /**< \brief (Sfr Offset: 0x4C) Serial Number 0 Register */
-	__I uint32_t SFR_SN1;	    /**< \brief (Sfr Offset: 0x50) Seriel Number 1 Register */
-	__IO uint32_t SFR_AICREDIR; /**< \brief (Sfr Offset: 0x54) AIC interrupt Redirection Register */
+	__I  uint32_t Reserved1[1];
+	__IO uint32_t SFR_DDRCFG;     /**< \brief (Sfr Offset: 0x04) DDR Configuration Register */
+	__I  uint32_t Reserved2[2];
+	__IO uint32_t SFR_OHCIICR;    /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
+	__I  uint32_t SFR_OHCIISR;    /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
+	__I  uint32_t Reserved3[4];
+	__IO uint32_t SFR_SECURE;     /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
+	__I  uint32_t Reserved4[5];
+	__IO uint32_t SFR_EBICFG;     /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
+	__I  uint32_t Reserved5[2];
+	__I  uint32_t SFR_SN0;        /**< \brief (Sfr Offset: 0x4C) Serial Number 0 Register */
+	__I  uint32_t SFR_SN1;        /**< \brief (Sfr Offset: 0x50) Serial Number 1 Register */
+	__IO uint32_t SFR_AICREDIR;   /**< \brief (Sfr Offset: 0x54) AIC interrupt Redirection Register */
 } Sfr;
-#endif				/* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SFR_DDRCFG : (SFR Offset: 0x04) DDR Configuration Register -------- */
 #define SFR_DDRCFG_FDQIEN (0x1u << 16) /**< \brief (SFR_DDRCFG) Force DDR_DQ Input Buffer Always On */
-#define SFR_DDRCFG_FDQSIEN (0x1u << 17)	/**< \brief (SFR_DDRCFG) Force DDR_DQS Input Buffer Always On */
+#define SFR_DDRCFG_FDQSIEN (0x1u << 17) /**< \brief (SFR_DDRCFG) Force DDR_DQS Input Buffer Always On */
 /* -------- SFR_OHCIICR : (SFR Offset: 0x10) OHCI Interrupt Configuration Register -------- */
 #define SFR_OHCIICR_RES0 (0x1u << 0) /**< \brief (SFR_OHCIICR) USB PORTx RESET */
 #define SFR_OHCIICR_RES1 (0x1u << 1) /**< \brief (SFR_OHCIICR) USB PORTx RESET */
@@ -101,7 +101,7 @@ typedef struct {
 /* -------- SFR_SN0 : (SFR Offset: 0x4C) Serial Number 0 Register -------- */
 #define SFR_SN0_SN0_Pos 0
 #define SFR_SN0_SN0_Msk (0xffffffffu << SFR_SN0_SN0_Pos) /**< \brief (SFR_SN0) Serial Number 0 */
-/* -------- SFR_SN1 : (SFR Offset: 0x50) Seriel Number 1 Register -------- */
+/* -------- SFR_SN1 : (SFR Offset: 0x50) Serial Number 1 Register -------- */
 #define SFR_SN1_SN1_Pos 0
 #define SFR_SN1_SN1_Msk (0xffffffffu << SFR_SN1_SN1_Pos) /**< \brief (SFR_SN1) Serial Number 1 */
 /* -------- SFR_AICREDIR : (SFR Offset: 0x54) AIC interrupt Redirection Register -------- */
@@ -112,4 +112,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_SFR_COMPONENT_ */
+#endif /* _SAMA5D4_SFR_COMPONENT_ */

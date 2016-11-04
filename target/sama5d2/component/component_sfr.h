@@ -39,28 +39,28 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sfr hardware registers */
 typedef struct {
-  __I  uint32_t Reserved0[1];
-  __IO uint32_t SFR_DDRCFG;     /**< \brief (Sfr Offset: 0x04) DDR Configuration Register */
-  __I  uint32_t Reserved1[2];
-  __IO uint32_t SFR_OHCIICR;    /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
-  __I  uint32_t SFR_OHCIISR;    /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
-  __I  uint32_t Reserved2[4];
-  __IO uint32_t SFR_SECURE;     /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
-  __I  uint32_t Reserved3[1];
-  __IO uint32_t SFR_UTMICKTRIM; /**< \brief (Sfr Offset: 0x30) UTMI Clock Trimming Register */
-  __IO uint32_t SFR_UTMIHSTRIM; /**< \brief (Sfr Offset: 0x34) UTMI High Speed Trimming Register */
-  __IO uint32_t SFR_UTMIFSTRIM; /**< \brief (Sfr Offset: 0x38) UTMI Full Speed Trimming Register */
-  __IO uint32_t SFR_UTMISWAP;   /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
-  __IO uint32_t SFR_EBICFG;     /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
-  __I  uint32_t Reserved4[1];
-  __IO uint32_t SFR_CAN;        /**< \brief (Sfr Offset: 0x48) CAN Memories Address-based Register */
-  __I  uint32_t SFR_SN0;        /**< \brief (Sfr Offset: 0x4C) Serial Number 0 Register */
-  __I  uint32_t SFR_SN1;        /**< \brief (Sfr Offset: 0x50) Serial Number 1 Register */
-  __IO uint32_t SFR_AICREDIR;   /**< \brief (Sfr Offset: 0x54) AIC interrupt Redirection Register */
-  __IO uint32_t SFR_L2CC_HRAMC; /**< \brief (Sfr Offset: 0x58) L2CC_HRAMC1 */
-  __I  uint32_t Reserved5[13];
-  __IO uint32_t SFR_I2SCLKSEL;  /**< \brief (Sfr Offset: 0x90) I2SC Register */
-  __IO uint32_t QSPICLK_REG;    /**< \brief (Sfr Offset: 0x94) QSPI Clock Pad Supply Select Register */
+	__I  uint32_t Reserved1[1];
+	__IO uint32_t SFR_DDRCFG;     /**< \brief (Sfr Offset: 0x04) DDR Configuration Register */
+	__I  uint32_t Reserved2[2];
+	__IO uint32_t SFR_OHCIICR;    /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
+	__I  uint32_t SFR_OHCIISR;    /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
+	__I  uint32_t Reserved3[4];
+	__IO uint32_t SFR_SECURE;     /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
+	__I  uint32_t Reserved4[1];
+	__IO uint32_t SFR_UTMICKTRIM; /**< \brief (Sfr Offset: 0x30) UTMI Clock Trimming Register */
+	__IO uint32_t SFR_UTMIHSTRIM; /**< \brief (Sfr Offset: 0x34) UTMI High Speed Trimming Register */
+	__IO uint32_t SFR_UTMIFSTRIM; /**< \brief (Sfr Offset: 0x38) UTMI Full Speed Trimming Register */
+	__IO uint32_t SFR_UTMISWAP;   /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
+	__IO uint32_t SFR_EBICFG;     /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
+	__I  uint32_t Reserved5[1];
+	__IO uint32_t SFR_CAN;        /**< \brief (Sfr Offset: 0x48) CAN Memories Address-based Register */
+	__I  uint32_t SFR_SN0;        /**< \brief (Sfr Offset: 0x4C) Serial Number 0 Register */
+	__I  uint32_t SFR_SN1;        /**< \brief (Sfr Offset: 0x50) Serial Number 1 Register */
+	__IO uint32_t SFR_AICREDIR;   /**< \brief (Sfr Offset: 0x54) AIC interrupt Redirection Register */
+	__IO uint32_t SFR_L2CC_HRAMC; /**< \brief (Sfr Offset: 0x58) L2CC_HRAMC1 */
+	__I  uint32_t Reserved6[13];
+	__IO uint32_t SFR_I2SCLKSEL;  /**< \brief (Sfr Offset: 0x90) I2SC Register */
+	__IO uint32_t QSPICLK_REG;    /**< \brief (Sfr Offset: 0x94) QSPI Clock Pad Supply Select Register */
 } Sfr;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SFR_DDRCFG : (SFR Offset: 0x04) DDR Configuration Register -------- */
@@ -190,6 +190,5 @@ typedef struct {
 #define QSPICLK_REG_SUP_SEL (0x1u << 0) /**< \brief (QSPICLK_REG) Supply Selection */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_SFR_COMPONENT_ */

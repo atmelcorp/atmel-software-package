@@ -39,19 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sfr hardware registers */
 typedef struct {
-  __I   uint32_t Reserved1[4];
-  __IO  uint32_t SFR_OHCIICR;    /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
-  __I   uint32_t SFR_OHCIISR;    /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
-  __I   uint32_t Reserved2[2];
-  __IO  uint32_t SFR_AHB;        /**< \brief (Sfr Offset: 0x20) AHB Configuration Register */
-  __IO  uint32_t SFR_BRIDGE;     /**< \brief (Sfr Offset: 0x24) Bridge Configuration Register */
-  __IO  uint32_t SFR_SECURE;     /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
-  __I   uint32_t Reserved3[1];
-  __IO  uint32_t SFR_UTMICKTRIM; /**< \brief (Sfr Offset: 0x30) UTMI Clock Trimming Register */
-  __IO  uint32_t SFR_UTMIHSTRIM; /**< \brief (Sfr Offset: 0x34) UTMI High Speed Trimming Register */
-  __IO  uint32_t SFR_UTMIFSTRIM; /**< \brief (Sfr Offset: 0x38) UTMI Full Speed Trimming Register */
-  __IO  uint32_t SFR_UTMISWAP;   /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
-  __IO  uint32_t SFR_EBICFG;     /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
+	__I  uint32_t Reserved1[4];
+	__IO uint32_t SFR_OHCIICR;    /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
+	__I  uint32_t SFR_OHCIISR;    /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
+	__I  uint32_t Reserved2[2];
+	__IO uint32_t SFR_AHB;        /**< \brief (Sfr Offset: 0x20) AHB Configuration Register */
+	__IO uint32_t SFR_BRIDGE;     /**< \brief (Sfr Offset: 0x24) Bridge Configuration Register */
+	__IO uint32_t SFR_SECURE;     /**< \brief (Sfr Offset: 0x28) Security Configuration Register */
+	__I  uint32_t Reserved3[1];
+	__IO uint32_t SFR_UTMICKTRIM; /**< \brief (Sfr Offset: 0x30) UTMI Clock Trimming Register */
+	__IO uint32_t SFR_UTMIHSTRIM; /**< \brief (Sfr Offset: 0x34) UTMI High Speed Trimming Register */
+	__IO uint32_t SFR_UTMIFSTRIM; /**< \brief (Sfr Offset: 0x38) UTMI Full Speed Trimming Register */
+	__IO uint32_t SFR_UTMISWAP;   /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
+	__IO uint32_t SFR_EBICFG;     /**< \brief (Sfr Offset: 0x40) EBI Configuration Register */
 } Sfr;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SFR_OHCIICR : (SFR Offset: 0x10) OHCI Interrupt Configuration Register -------- */
@@ -60,7 +60,7 @@ typedef struct {
 #define SFR_OHCIICR_RES2 (0x1u << 2) /**< \brief (SFR_OHCIICR) USB PORTx RESET */
 #define SFR_OHCIICR_ARIE (0x1u << 4) /**< \brief (SFR_OHCIICR) OHCI Asynchronous Resume Interrupt Enable */
 #define SFR_OHCIICR_APPSTART (0x1u << 5) /**< \brief (SFR_OHCIICR) Reserved */
-#define SFR_OHCIICR_UDPPUDIS (0x1u << 23) /**< \brief (SFR_OHCIICR) OHCI USB DEVICE PULL-UP DISABLE */
+#define SFR_OHCIICR_UDPPUDIS (0x1u << 23) /**< \brief (SFR_OHCIICR) USB DEVICE PULL-UP DISABLE */
 /* -------- SFR_OHCIISR : (SFR Offset: 0x14) OHCI Interrupt Status Register -------- */
 #define SFR_OHCIISR_RIS0 (0x1u << 0) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 0 */
 #define SFR_OHCIISR_RIS1 (0x1u << 1) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 1 */
@@ -97,6 +97,7 @@ typedef struct {
 /* -------- SFR_UTMICKTRIM : (SFR Offset: 0x30) UTMI Clock Trimming Register -------- */
 #define SFR_UTMICKTRIM_FREQ_Pos 0
 #define SFR_UTMICKTRIM_FREQ_Msk (0x3u << SFR_UTMICKTRIM_FREQ_Pos) /**< \brief (SFR_UTMICKTRIM) UTMI Reference Clock Frequency */
+#define SFR_UTMICKTRIM_FREQ(value) ((SFR_UTMICKTRIM_FREQ_Msk & ((value) << SFR_UTMICKTRIM_FREQ_Pos)))
 #define   SFR_UTMICKTRIM_FREQ_12 (0x0u << 0) /**< \brief (SFR_UTMICKTRIM) 12 MHz reference clock */
 #define   SFR_UTMICKTRIM_FREQ_16 (0x1u << 0) /**< \brief (SFR_UTMICKTRIM) 16 MHz reference clock */
 #define   SFR_UTMICKTRIM_FREQ_24 (0x2u << 0) /**< \brief (SFR_UTMICKTRIM) 24 MHz reference clock */
@@ -122,19 +123,19 @@ typedef struct {
 #define SFR_UTMIHSTRIM_SLOPE2(value) ((SFR_UTMIHSTRIM_SLOPE2_Msk & ((value) << SFR_UTMIHSTRIM_SLOPE2_Pos)))
 /* -------- SFR_UTMIFSTRIM : (SFR Offset: 0x38) UTMI Full Speed Trimming Register -------- */
 #define SFR_UTMIFSTRIM_RISE_Pos 0
-#define SFR_UTMIFSTRIM_RISE_Msk (0x7u << SFR_UTMIFSTRIM_RISE_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver output rising slope trimming */
+#define SFR_UTMIFSTRIM_RISE_Msk (0x7u << SFR_UTMIFSTRIM_RISE_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver Output Rising Slope Trimming */
 #define SFR_UTMIFSTRIM_RISE(value) ((SFR_UTMIFSTRIM_RISE_Msk & ((value) << SFR_UTMIFSTRIM_RISE_Pos)))
 #define SFR_UTMIFSTRIM_FALL_Pos 4
-#define SFR_UTMIFSTRIM_FALL_Msk (0x7u << SFR_UTMIFSTRIM_FALL_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver output falling slope trimming */
+#define SFR_UTMIFSTRIM_FALL_Msk (0x7u << SFR_UTMIFSTRIM_FALL_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver Output Falling Slope Trimming */
 #define SFR_UTMIFSTRIM_FALL(value) ((SFR_UTMIFSTRIM_FALL_Msk & ((value) << SFR_UTMIFSTRIM_FALL_Pos)))
 #define SFR_UTMIFSTRIM_XCVR_Pos 8
-#define SFR_UTMIFSTRIM_XCVR_Msk (0x3u << SFR_UTMIFSTRIM_XCVR_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver crossover voltage trimming */
+#define SFR_UTMIFSTRIM_XCVR_Msk (0x3u << SFR_UTMIFSTRIM_XCVR_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver Crossover Voltage Trimming */
 #define SFR_UTMIFSTRIM_XCVR(value) ((SFR_UTMIFSTRIM_XCVR_Msk & ((value) << SFR_UTMIFSTRIM_XCVR_Pos)))
 #define SFR_UTMIFSTRIM_ZN_Pos 16
-#define SFR_UTMIFSTRIM_ZN_Msk (0x7u << SFR_UTMIFSTRIM_ZN_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver NMOS impedance trimming */
+#define SFR_UTMIFSTRIM_ZN_Msk (0x7u << SFR_UTMIFSTRIM_ZN_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver NMOS Impedance Trimming */
 #define SFR_UTMIFSTRIM_ZN(value) ((SFR_UTMIFSTRIM_ZN_Msk & ((value) << SFR_UTMIFSTRIM_ZN_Pos)))
 #define SFR_UTMIFSTRIM_ZP_Pos 20
-#define SFR_UTMIFSTRIM_ZP_Msk (0x7u << SFR_UTMIFSTRIM_ZP_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver PMOS impedance trimming */
+#define SFR_UTMIFSTRIM_ZP_Msk (0x7u << SFR_UTMIFSTRIM_ZP_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver PMOS Impedance Trimming */
 #define SFR_UTMIFSTRIM_ZP(value) ((SFR_UTMIFSTRIM_ZP_Msk & ((value) << SFR_UTMIFSTRIM_ZP_Pos)))
 /* -------- SFR_UTMISWAP : (SFR Offset: 0x3C) UTMI DP/DM Pin Swapping Register -------- */
 #define SFR_UTMISWAP_PORT0 (0x1u << 0) /**< \brief (SFR_UTMISWAP) PORT 0 DP/DM Pin Swapping */
@@ -149,22 +150,26 @@ typedef struct {
 /* -------- SFR_EBICFG : (SFR Offset: 0x40) EBI Configuration Register -------- */
 #define SFR_EBICFG_DRIVE0_Pos 0
 #define SFR_EBICFG_DRIVE0_Msk (0x3u << SFR_EBICFG_DRIVE0_Pos) /**< \brief (SFR_EBICFG) EBI Pins Drive Level */
+#define SFR_EBICFG_DRIVE0(value) ((SFR_EBICFG_DRIVE0_Msk & ((value) << SFR_EBICFG_DRIVE0_Pos)))
 #define   SFR_EBICFG_DRIVE0_LOW (0x0u << 0) /**< \brief (SFR_EBICFG) Low drive level */
 #define   SFR_EBICFG_DRIVE0_MEDIUM (0x2u << 0) /**< \brief (SFR_EBICFG) Medium drive level */
 #define   SFR_EBICFG_DRIVE0_HIGH (0x3u << 0) /**< \brief (SFR_EBICFG) High drive level */
 #define SFR_EBICFG_PULL0_Pos 2
 #define SFR_EBICFG_PULL0_Msk (0x3u << SFR_EBICFG_PULL0_Pos) /**< \brief (SFR_EBICFG) EBI Pins Pull Value */
+#define SFR_EBICFG_PULL0(value) ((SFR_EBICFG_PULL0_Msk & ((value) << SFR_EBICFG_PULL0_Pos)))
 #define   SFR_EBICFG_PULL0_UP (0x0u << 2) /**< \brief (SFR_EBICFG) Pull-up */
 #define   SFR_EBICFG_PULL0_NONE (0x1u << 2) /**< \brief (SFR_EBICFG) No Pull */
 #define   SFR_EBICFG_PULL0_DOWN (0x3u << 2) /**< \brief (SFR_EBICFG) Pull-down */
 #define SFR_EBICFG_SCH0 (0x1u << 4) /**< \brief (SFR_EBICFG) EBI Pins Schmitt Trigger */
 #define SFR_EBICFG_DRIVE1_Pos 8
 #define SFR_EBICFG_DRIVE1_Msk (0x3u << SFR_EBICFG_DRIVE1_Pos) /**< \brief (SFR_EBICFG) EBI Pins Drive Level */
+#define SFR_EBICFG_DRIVE1(value) ((SFR_EBICFG_DRIVE1_Msk & ((value) << SFR_EBICFG_DRIVE1_Pos)))
 #define   SFR_EBICFG_DRIVE1_LOW (0x0u << 8) /**< \brief (SFR_EBICFG) Low drive level */
 #define   SFR_EBICFG_DRIVE1_MEDIUM (0x2u << 8) /**< \brief (SFR_EBICFG) Medium drive level */
 #define   SFR_EBICFG_DRIVE1_HIGH (0x3u << 8) /**< \brief (SFR_EBICFG) High drive level */
 #define SFR_EBICFG_PULL1_Pos 10
 #define SFR_EBICFG_PULL1_Msk (0x3u << SFR_EBICFG_PULL1_Pos) /**< \brief (SFR_EBICFG) EBI Pins Pull Value */
+#define SFR_EBICFG_PULL1(value) ((SFR_EBICFG_PULL1_Msk & ((value) << SFR_EBICFG_PULL1_Pos)))
 #define   SFR_EBICFG_PULL1_UP (0x0u << 10) /**< \brief (SFR_EBICFG) Pull-up */
 #define   SFR_EBICFG_PULL1_NONE (0x1u << 10) /**< \brief (SFR_EBICFG) No Pull */
 #define   SFR_EBICFG_PULL1_DOWN (0x3u << 10) /**< \brief (SFR_EBICFG) Pull-down */
@@ -174,6 +179,5 @@ typedef struct {
 #define   SFR_EBICFG_BMS_EBI (0x1u << 16) /**< \brief (SFR_EBICFG) Boot on EBI. */
 
 /*@}*/
-
 
 #endif /* _SAMA5D3_SFR_COMPONENT_ */
