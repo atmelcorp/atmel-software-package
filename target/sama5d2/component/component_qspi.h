@@ -39,27 +39,25 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Qspi hardware registers */
 typedef struct {
-  __O  uint32_t QSPI_CR;       /**< \brief (Qspi Offset: 0x00) Control Register */
-  __IO uint32_t QSPI_MR;       /**< \brief (Qspi Offset: 0x04) Mode Register */
-  __I  uint32_t QSPI_RDR;      /**< \brief (Qspi Offset: 0x08) Receive Data Register */
-  __O  uint32_t QSPI_TDR;      /**< \brief (Qspi Offset: 0x0C) Transmit Data Register */
-  __I  uint32_t QSPI_SR;       /**< \brief (Qspi Offset: 0x10) Status Register */
-  __O  uint32_t QSPI_IER;      /**< \brief (Qspi Offset: 0x14) Interrupt Enable Register */
-  __O  uint32_t QSPI_IDR;      /**< \brief (Qspi Offset: 0x18) Interrupt Disable Register */
-  __I  uint32_t QSPI_IMR;      /**< \brief (Qspi Offset: 0x1C) Interrupt Mask Register */
-  __IO uint32_t QSPI_SCR;      /**< \brief (Qspi Offset: 0x20) Serial Clock Register */
-  __I  uint32_t Reserved1[3];
-  __IO uint32_t QSPI_IAR;      /**< \brief (Qspi Offset: 0x30) Instruction Address Register */
-  __IO uint32_t QSPI_ICR;      /**< \brief (Qspi Offset: 0x34) Instruction Code Register */
-  __IO uint32_t QSPI_IFR;      /**< \brief (Qspi Offset: 0x38) Instruction Frame Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t QSPI_SMR;      /**< \brief (Qspi Offset: 0x40) Scrambling Mode Register */
-  __O  uint32_t QSPI_SKR;      /**< \brief (Qspi Offset: 0x44) Scrambling Key Register */
-  __I  uint32_t Reserved3[39];
-  __IO uint32_t QSPI_WPMR;     /**< \brief (Qspi Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t QSPI_WPSR;     /**< \brief (Qspi Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved4[4];
-  __I  uint32_t QSPI_VERSION;  /**< \brief (Qspi Offset: 0x00FC) Version Register */
+	__O  uint32_t QSPI_CR;       /**< \brief (Qspi Offset: 0x00) Control Register */
+	__IO uint32_t QSPI_MR;       /**< \brief (Qspi Offset: 0x04) Mode Register */
+	__I  uint32_t QSPI_RDR;      /**< \brief (Qspi Offset: 0x08) Receive Data Register */
+	__O  uint32_t QSPI_TDR;      /**< \brief (Qspi Offset: 0x0C) Transmit Data Register */
+	__I  uint32_t QSPI_SR;       /**< \brief (Qspi Offset: 0x10) Status Register */
+	__O  uint32_t QSPI_IER;      /**< \brief (Qspi Offset: 0x14) Interrupt Enable Register */
+	__O  uint32_t QSPI_IDR;      /**< \brief (Qspi Offset: 0x18) Interrupt Disable Register */
+	__I  uint32_t QSPI_IMR;      /**< \brief (Qspi Offset: 0x1C) Interrupt Mask Register */
+	__IO uint32_t QSPI_SCR;      /**< \brief (Qspi Offset: 0x20) Serial Clock Register */
+	__I  uint32_t Reserved1[3];
+	__IO uint32_t QSPI_IAR;      /**< \brief (Qspi Offset: 0x30) Instruction Address Register */
+	__IO uint32_t QSPI_ICR;      /**< \brief (Qspi Offset: 0x34) Instruction Code Register */
+	__IO uint32_t QSPI_IFR;      /**< \brief (Qspi Offset: 0x38) Instruction Frame Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t QSPI_SMR;      /**< \brief (Qspi Offset: 0x40) Scrambling Mode Register */
+	__O  uint32_t QSPI_SKR;      /**< \brief (Qspi Offset: 0x44) Scrambling Key Register */
+	__I  uint32_t Reserved3[39];
+	__IO uint32_t QSPI_WPMR;     /**< \brief (Qspi Offset: 0xE4) Write Protection Mode Register */
+	__I  uint32_t QSPI_WPSR;     /**< \brief (Qspi Offset: 0xE8) Write Protection Status Register */
 } Qspi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- QSPI_CR : (QSPI Offset: 0x00) Control Register -------- */
@@ -212,13 +210,7 @@ typedef struct {
 #define QSPI_WPSR_WPVS (0x1u << 0) /**< \brief (QSPI_WPSR) Write Protection Violation Status */
 #define QSPI_WPSR_WPVSRC_Pos 8
 #define QSPI_WPSR_WPVSRC_Msk (0xffu << QSPI_WPSR_WPVSRC_Pos) /**< \brief (QSPI_WPSR) Write Protection Violation Source */
-/* -------- QSPI_VERSION : (QSPI Offset: 0x00FC) Version Register -------- */
-#define QSPI_VERSION_VERSION_Pos 0
-#define QSPI_VERSION_VERSION_Msk (0xfffu << QSPI_VERSION_VERSION_Pos) /**< \brief (QSPI_VERSION) Hardware Module Version */
-#define QSPI_VERSION_MFN_Pos 16
-#define QSPI_VERSION_MFN_Msk (0x7u << QSPI_VERSION_MFN_Pos) /**< \brief (QSPI_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_QSPI_COMPONENT_ */
