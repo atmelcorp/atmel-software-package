@@ -39,58 +39,58 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Mcan hardware registers */
 typedef struct {
-  __I  uint32_t MCAN_CREL;    /**< \brief (Mcan Offset: 0x00) Core Release Register */
-  __I  uint32_t MCAN_ENDN;    /**< \brief (Mcan Offset: 0x04) Endian Register */
-  __IO uint32_t MCAN_CUST;    /**< \brief (Mcan Offset: 0x08) Customer Register */
-  __IO uint32_t MCAN_DBTP;    /**< \brief (Mcan Offset: 0x0C) Fast Bit Timing and Prescaler Register */
-  __IO uint32_t MCAN_TEST;    /**< \brief (Mcan Offset: 0x10) Test Register */
-  __IO uint32_t MCAN_RWD;     /**< \brief (Mcan Offset: 0x14) RAM Watchdog Register */
-  __IO uint32_t MCAN_CCCR;    /**< \brief (Mcan Offset: 0x18) CC Control Register */
-  __IO uint32_t MCAN_NBTP;    /**< \brief (Mcan Offset: 0x1C) Bit Timing and Prescaler Register */
-  __IO uint32_t MCAN_TSCC;    /**< \brief (Mcan Offset: 0x20) Timestamp Counter Configuration Register */
-  __IO uint32_t MCAN_TSCV;    /**< \brief (Mcan Offset: 0x24) Timestamp Counter Value Register */
-  __IO uint32_t MCAN_TOCC;    /**< \brief (Mcan Offset: 0x28) Timeout Counter Configuration Register */
-  __IO uint32_t MCAN_TOCV;    /**< \brief (Mcan Offset: 0x2C) Timeout Counter Value Register */
-  __I  uint32_t Reserved1[4];
-  __I  uint32_t MCAN_ECR;     /**< \brief (Mcan Offset: 0x40) Error Counter Register */
-  __I  uint32_t MCAN_PSR;     /**< \brief (Mcan Offset: 0x44) Protocol Status Register */
-  __IO uint32_t MCAN_TDCR;    /**< \brief (Mcan Offset: 0x48) Transmit Delay Compensation Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t MCAN_IR;      /**< \brief (Mcan Offset: 0x50) Interrupt Register */
-  __IO uint32_t MCAN_IE;      /**< \brief (Mcan Offset: 0x54) Interrupt Enable Register */
-  __IO uint32_t MCAN_ILS;     /**< \brief (Mcan Offset: 0x58) Interrupt Line Select Register */
-  __IO uint32_t MCAN_ILE;     /**< \brief (Mcan Offset: 0x5C) Interrupt Line Enable Register */
-  __I  uint32_t Reserved3[8];
-  __IO uint32_t MCAN_GFC;     /**< \brief (Mcan Offset: 0x80) Global Filter Configuration Register */
-  __IO uint32_t MCAN_SIDFC;   /**< \brief (Mcan Offset: 0x84) Standard ID Filter Configuration Register */
-  __IO uint32_t MCAN_XIDFC;   /**< \brief (Mcan Offset: 0x88) Extended ID Filter Configuration Register */
-  __I  uint32_t Reserved4[1];
-  __IO uint32_t MCAN_XIDAM;   /**< \brief (Mcan Offset: 0x90) Extended ID AND Mask Register */
-  __I  uint32_t MCAN_HPMS;    /**< \brief (Mcan Offset: 0x94) High Priority Message Status Register */
-  __IO uint32_t MCAN_NDAT1;   /**< \brief (Mcan Offset: 0x98) New Data 1 Register */
-  __IO uint32_t MCAN_NDAT2;   /**< \brief (Mcan Offset: 0x9C) New Data 2 Register */
-  __IO uint32_t MCAN_RXF0C;   /**< \brief (Mcan Offset: 0xA0) Receive FIFO 0 Configuration Register */
-  __I  uint32_t MCAN_RXF0S;   /**< \brief (Mcan Offset: 0xA4) Receive FIFO 0 Status Register */
-  __IO uint32_t MCAN_RXF0A;   /**< \brief (Mcan Offset: 0xA8) Receive FIFO 0 Acknowledge Register */
-  __IO uint32_t MCAN_RXBC;    /**< \brief (Mcan Offset: 0xAC) Receive Rx Buffer Configuration Register */
-  __IO uint32_t MCAN_RXF1C;   /**< \brief (Mcan Offset: 0xB0) Receive FIFO 1 Configuration Register */
-  __I  uint32_t MCAN_RXF1S;   /**< \brief (Mcan Offset: 0xB4) Receive FIFO 1 Status Register */
-  __IO uint32_t MCAN_RXF1A;   /**< \brief (Mcan Offset: 0xB8) Receive FIFO 1 Acknowledge Register */
-  __IO uint32_t MCAN_RXESC;   /**< \brief (Mcan Offset: 0xBC) Receive Buffer / FIFO Element Size Configuration Register */
-  __IO uint32_t MCAN_TXBC;    /**< \brief (Mcan Offset: 0xC0) Transmit Buffer Configuration Register */
-  __I  uint32_t MCAN_TXFQS;   /**< \brief (Mcan Offset: 0xC4) Transmit FIFO/Queue Status Register */
-  __IO uint32_t MCAN_TXESC;   /**< \brief (Mcan Offset: 0xC8) Transmit Buffer Element Size Configuration Register */
-  __I  uint32_t MCAN_TXBRP;   /**< \brief (Mcan Offset: 0xCC) Transmit Buffer Request Pending Register */
-  __IO uint32_t MCAN_TXBAR;   /**< \brief (Mcan Offset: 0xD0) Transmit Buffer Add Request Register */
-  __IO uint32_t MCAN_TXBCR;   /**< \brief (Mcan Offset: 0xD4) Transmit Buffer Cancellation Request Register */
-  __I  uint32_t MCAN_TXBTO;   /**< \brief (Mcan Offset: 0xD8) Transmit Buffer Transmission Occurred Register */
-  __I  uint32_t MCAN_TXBCF;   /**< \brief (Mcan Offset: 0xDC) Transmit Buffer Cancellation Finished Register */
-  __IO uint32_t MCAN_TXBTIE;  /**< \brief (Mcan Offset: 0xE0) Transmit Buffer Transmission Interrupt Enable Register */
-  __IO uint32_t MCAN_TXBCIE;  /**< \brief (Mcan Offset: 0xE4) Transmit Buffer Cancellation Finished Interrupt Enable Register */
-  __I  uint32_t Reserved5[2];
-  __IO uint32_t MCAN_TXEFC;   /**< \brief (Mcan Offset: 0xF0) Transmit Event FIFO Configuration Register */
-  __I  uint32_t MCAN_TXEFS;   /**< \brief (Mcan Offset: 0xF4) Transmit Event FIFO Status Register */
-  __IO uint32_t MCAN_TXEFA;   /**< \brief (Mcan Offset: 0xF8) Transmit Event FIFO Acknowledge Register */
+	__I  uint32_t MCAN_CREL;    /**< \brief (Mcan Offset: 0x00) Core Release Register */
+	__I  uint32_t MCAN_ENDN;    /**< \brief (Mcan Offset: 0x04) Endian Register */
+	__IO uint32_t MCAN_CUST;    /**< \brief (Mcan Offset: 0x08) Customer Register */
+	__IO uint32_t MCAN_DBTP;    /**< \brief (Mcan Offset: 0x0C) Fast Bit Timing and Prescaler Register */
+	__IO uint32_t MCAN_TEST;    /**< \brief (Mcan Offset: 0x10) Test Register */
+	__IO uint32_t MCAN_RWD;     /**< \brief (Mcan Offset: 0x14) RAM Watchdog Register */
+	__IO uint32_t MCAN_CCCR;    /**< \brief (Mcan Offset: 0x18) CC Control Register */
+	__IO uint32_t MCAN_NBTP;    /**< \brief (Mcan Offset: 0x1C) Bit Timing and Prescaler Register */
+	__IO uint32_t MCAN_TSCC;    /**< \brief (Mcan Offset: 0x20) Timestamp Counter Configuration Register */
+	__IO uint32_t MCAN_TSCV;    /**< \brief (Mcan Offset: 0x24) Timestamp Counter Value Register */
+	__IO uint32_t MCAN_TOCC;    /**< \brief (Mcan Offset: 0x28) Timeout Counter Configuration Register */
+	__IO uint32_t MCAN_TOCV;    /**< \brief (Mcan Offset: 0x2C) Timeout Counter Value Register */
+	__I  uint32_t Reserved1[4];
+	__I  uint32_t MCAN_ECR;     /**< \brief (Mcan Offset: 0x40) Error Counter Register */
+	__I  uint32_t MCAN_PSR;     /**< \brief (Mcan Offset: 0x44) Protocol Status Register */
+	__IO uint32_t MCAN_TDCR;    /**< \brief (Mcan Offset: 0x48) Transmit Delay Compensation Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t MCAN_IR;      /**< \brief (Mcan Offset: 0x50) Interrupt Register */
+	__IO uint32_t MCAN_IE;      /**< \brief (Mcan Offset: 0x54) Interrupt Enable Register */
+	__IO uint32_t MCAN_ILS;     /**< \brief (Mcan Offset: 0x58) Interrupt Line Select Register */
+	__IO uint32_t MCAN_ILE;     /**< \brief (Mcan Offset: 0x5C) Interrupt Line Enable Register */
+	__I  uint32_t Reserved3[8];
+	__IO uint32_t MCAN_GFC;     /**< \brief (Mcan Offset: 0x80) Global Filter Configuration Register */
+	__IO uint32_t MCAN_SIDFC;   /**< \brief (Mcan Offset: 0x84) Standard ID Filter Configuration Register */
+	__IO uint32_t MCAN_XIDFC;   /**< \brief (Mcan Offset: 0x88) Extended ID Filter Configuration Register */
+	__I  uint32_t Reserved4[1];
+	__IO uint32_t MCAN_XIDAM;   /**< \brief (Mcan Offset: 0x90) Extended ID AND Mask Register */
+	__I  uint32_t MCAN_HPMS;    /**< \brief (Mcan Offset: 0x94) High Priority Message Status Register */
+	__IO uint32_t MCAN_NDAT1;   /**< \brief (Mcan Offset: 0x98) New Data 1 Register */
+	__IO uint32_t MCAN_NDAT2;   /**< \brief (Mcan Offset: 0x9C) New Data 2 Register */
+	__IO uint32_t MCAN_RXF0C;   /**< \brief (Mcan Offset: 0xA0) Receive FIFO 0 Configuration Register */
+	__I  uint32_t MCAN_RXF0S;   /**< \brief (Mcan Offset: 0xA4) Receive FIFO 0 Status Register */
+	__IO uint32_t MCAN_RXF0A;   /**< \brief (Mcan Offset: 0xA8) Receive FIFO 0 Acknowledge Register */
+	__IO uint32_t MCAN_RXBC;    /**< \brief (Mcan Offset: 0xAC) Receive Rx Buffer Configuration Register */
+	__IO uint32_t MCAN_RXF1C;   /**< \brief (Mcan Offset: 0xB0) Receive FIFO 1 Configuration Register */
+	__I  uint32_t MCAN_RXF1S;   /**< \brief (Mcan Offset: 0xB4) Receive FIFO 1 Status Register */
+	__IO uint32_t MCAN_RXF1A;   /**< \brief (Mcan Offset: 0xB8) Receive FIFO 1 Acknowledge Register */
+	__IO uint32_t MCAN_RXESC;   /**< \brief (Mcan Offset: 0xBC) Receive Buffer / FIFO Element Size Configuration Register */
+	__IO uint32_t MCAN_TXBC;    /**< \brief (Mcan Offset: 0xC0) Transmit Buffer Configuration Register */
+	__I  uint32_t MCAN_TXFQS;   /**< \brief (Mcan Offset: 0xC4) Transmit FIFO/Queue Status Register */
+	__IO uint32_t MCAN_TXESC;   /**< \brief (Mcan Offset: 0xC8) Transmit Buffer Element Size Configuration Register */
+	__I  uint32_t MCAN_TXBRP;   /**< \brief (Mcan Offset: 0xCC) Transmit Buffer Request Pending Register */
+	__IO uint32_t MCAN_TXBAR;   /**< \brief (Mcan Offset: 0xD0) Transmit Buffer Add Request Register */
+	__IO uint32_t MCAN_TXBCR;   /**< \brief (Mcan Offset: 0xD4) Transmit Buffer Cancellation Request Register */
+	__I  uint32_t MCAN_TXBTO;   /**< \brief (Mcan Offset: 0xD8) Transmit Buffer Transmission Occurred Register */
+	__I  uint32_t MCAN_TXBCF;   /**< \brief (Mcan Offset: 0xDC) Transmit Buffer Cancellation Finished Register */
+	__IO uint32_t MCAN_TXBTIE;  /**< \brief (Mcan Offset: 0xE0) Transmit Buffer Transmission Interrupt Enable Register */
+	__IO uint32_t MCAN_TXBCIE;  /**< \brief (Mcan Offset: 0xE4) Transmit Buffer Cancellation Finished Interrupt Enable Register */
+	__I  uint32_t Reserved5[2];
+	__IO uint32_t MCAN_TXEFC;   /**< \brief (Mcan Offset: 0xF0) Transmit Event FIFO Configuration Register */
+	__I  uint32_t MCAN_TXEFS;   /**< \brief (Mcan Offset: 0xF4) Transmit Event FIFO Status Register */
+	__IO uint32_t MCAN_TXEFA;   /**< \brief (Mcan Offset: 0xF8) Transmit Event FIFO Acknowledge Register */
 } Mcan;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MCAN_CREL : (MCAN Offset: 0x00) Core Release Register -------- */
@@ -956,6 +956,5 @@ typedef struct {
 #define MCAN_RAM_TX_EVT_SIZE (2u) /**< \brief Size of the Tx Event Element, in words */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_MCAN_COMPONENT_ */
