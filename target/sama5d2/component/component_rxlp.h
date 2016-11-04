@@ -39,17 +39,15 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Rxlp hardware registers */
 typedef struct {
-  __O  uint32_t RXLP_CR;       /**< \brief (Rxlp Offset: 0x0000) Control Register */
-  __IO uint32_t RXLP_MR;       /**< \brief (Rxlp Offset: 0x0004) Mode Register */
-  __I  uint32_t Reserved1[4];
-  __I  uint32_t RXLP_RHR;      /**< \brief (Rxlp Offset: 0x0018) Receive Holding Register */
-  __I  uint32_t Reserved2[1];
-  __IO uint32_t RXLP_BRGR;     /**< \brief (Rxlp Offset: 0x0020) Baud Rate Generator Register */
-  __IO uint32_t RXLP_CMPR;     /**< \brief (Rxlp Offset: 0x0024) Comparison Register */
-  __I  uint32_t Reserved3[47];
-  __IO uint32_t RXLP_WPMR;     /**< \brief (Rxlp Offset: 0x00E4) Write Protection Mode Register */
-  __I  uint32_t Reserved4[5];
-  __I  uint32_t RXLP_VERSION;  /**< \brief (Rxlp Offset: 0x00FC) Version Register */
+	__O  uint32_t RXLP_CR;       /**< \brief (Rxlp Offset: 0x0000) Control Register */
+	__IO uint32_t RXLP_MR;       /**< \brief (Rxlp Offset: 0x0004) Mode Register */
+	__I  uint32_t Reserved1[4];
+	__I  uint32_t RXLP_RHR;      /**< \brief (Rxlp Offset: 0x0018) Receive Holding Register */
+	__I  uint32_t Reserved2[1];
+	__IO uint32_t RXLP_BRGR;     /**< \brief (Rxlp Offset: 0x0020) Baud Rate Generator Register */
+	__IO uint32_t RXLP_CMPR;     /**< \brief (Rxlp Offset: 0x0024) Comparison Register */
+	__I  uint32_t Reserved3[47];
+	__IO uint32_t RXLP_WPMR;     /**< \brief (Rxlp Offset: 0x00E4) Write Protection Mode Register */
 } Rxlp;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RXLP_CR : (RXLP Offset: 0x0000) Control Register -------- */
@@ -88,13 +86,7 @@ typedef struct {
 #define RXLP_WPMR_WPKEY_Msk (0xffffffu << RXLP_WPMR_WPKEY_Pos) /**< \brief (RXLP_WPMR) Write Protection Key */
 #define RXLP_WPMR_WPKEY(value) ((RXLP_WPMR_WPKEY_Msk & ((value) << RXLP_WPMR_WPKEY_Pos)))
 #define   RXLP_WPMR_WPKEY_PASSWD (0x52584Cu << 8) /**< \brief (RXLP_WPMR) Writing any other value in this field aborts the write operation.Always reads as 0. */
-/* -------- RXLP_VERSION : (RXLP Offset: 0x00FC) Version Register -------- */
-#define RXLP_VERSION_VERSION_Pos 0
-#define RXLP_VERSION_VERSION_Msk (0xfffu << RXLP_VERSION_VERSION_Pos) /**< \brief (RXLP_VERSION) Hardware Module Version */
-#define RXLP_VERSION_MFN_Pos 16
-#define RXLP_VERSION_MFN_Msk (0x7u << RXLP_VERSION_MFN_Pos) /**< \brief (RXLP_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_RXLP_COMPONENT_ */
