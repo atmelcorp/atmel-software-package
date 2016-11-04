@@ -39,16 +39,14 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Trng hardware registers */
 typedef struct {
-  __O uint32_t TRNG_CR;       /**< \brief (Trng Offset: 0x00) Control Register */
-  __I uint32_t Reserved1[3];
-  __O uint32_t TRNG_IER;      /**< \brief (Trng Offset: 0x10) Interrupt Enable Register */
-  __O uint32_t TRNG_IDR;      /**< \brief (Trng Offset: 0x14) Interrupt Disable Register */
-  __I uint32_t TRNG_IMR;      /**< \brief (Trng Offset: 0x18) Interrupt Mask Register */
-  __I uint32_t TRNG_ISR;      /**< \brief (Trng Offset: 0x1C) Interrupt Status Register */
-  __I uint32_t Reserved2[12];
-  __I uint32_t TRNG_ODATA;    /**< \brief (Trng Offset: 0x50) Output Data Register */
-  __I uint32_t Reserved3[42];
-  __I uint32_t TRNG_VERSION;  /**< \brief (Trng Offset: 0xFC) Version Register */
+	__O uint32_t TRNG_CR;    /**< \brief (Trng Offset: 0x00) Control Register */
+	__I uint32_t Reserved1[3];
+	__O uint32_t TRNG_IER;   /**< \brief (Trng Offset: 0x10) Interrupt Enable Register */
+	__O uint32_t TRNG_IDR;   /**< \brief (Trng Offset: 0x14) Interrupt Disable Register */
+	__I uint32_t TRNG_IMR;   /**< \brief (Trng Offset: 0x18) Interrupt Mask Register */
+	__I uint32_t TRNG_ISR;   /**< \brief (Trng Offset: 0x1C) Interrupt Status Register */
+	__I uint32_t Reserved2[12];
+	__I uint32_t TRNG_ODATA; /**< \brief (Trng Offset: 0x50) Output Data Register */
 } Trng;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TRNG_CR : (TRNG Offset: 0x00) Control Register -------- */
@@ -56,7 +54,7 @@ typedef struct {
 #define TRNG_CR_KEY_Pos 8
 #define TRNG_CR_KEY_Msk (0xffffffu << TRNG_CR_KEY_Pos) /**< \brief (TRNG_CR) Security Key */
 #define TRNG_CR_KEY(value) ((TRNG_CR_KEY_Msk & ((value) << TRNG_CR_KEY_Pos)))
-#define   TRNG_CR_KEY_PASSWD (0x524E47u << 8) /**< \brief (TRNG_CR) Writing any other value in this field aborts the write operation. */
+#define   TRNG_CR_KEY_PASSWD (0x524E47u << 8) /**< \brief (TRNG_CR) Writing any other value in this field aborts the write operation */
 /* -------- TRNG_IER : (TRNG Offset: 0x10) Interrupt Enable Register -------- */
 #define TRNG_IER_DATRDY (0x1u << 0) /**< \brief (TRNG_IER) Data Ready Interrupt Enable */
 /* -------- TRNG_IDR : (TRNG Offset: 0x14) Interrupt Disable Register -------- */
@@ -68,13 +66,7 @@ typedef struct {
 /* -------- TRNG_ODATA : (TRNG Offset: 0x50) Output Data Register -------- */
 #define TRNG_ODATA_ODATA_Pos 0
 #define TRNG_ODATA_ODATA_Msk (0xffffffffu << TRNG_ODATA_ODATA_Pos) /**< \brief (TRNG_ODATA) Output Data */
-/* -------- TRNG_VERSION : (TRNG Offset: 0xFC) Version Register -------- */
-#define TRNG_VERSION_VERSION_Pos 0
-#define TRNG_VERSION_VERSION_Msk (0xfffu << TRNG_VERSION_VERSION_Pos) /**< \brief (TRNG_VERSION) Version of the Hardware Module */
-#define TRNG_VERSION_MFN_Pos 16
-#define TRNG_VERSION_MFN_Msk (0x7u << TRNG_VERSION_MFN_Pos) /**< \brief (TRNG_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_TRNG_COMPONENT_ */
