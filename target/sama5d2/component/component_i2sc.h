@@ -39,17 +39,16 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief I2sc hardware registers */
 typedef struct {
-  __O  uint32_t I2SC_CR;      /**< \brief (I2sc Offset: 0x00) Control Register */
-  __IO uint32_t I2SC_MR;      /**< \brief (I2sc Offset: 0x04) Mode Register */
-  __I  uint32_t I2SC_SR;      /**< \brief (I2sc Offset: 0x08) Status Register */
-  __O  uint32_t I2SC_SCR;     /**< \brief (I2sc Offset: 0x0C) Status Clear Register */
-  __O  uint32_t I2SC_SSR;     /**< \brief (I2sc Offset: 0x10) Status Set Register */
-  __O  uint32_t I2SC_IER;     /**< \brief (I2sc Offset: 0x14) Interrupt Enable Register */
-  __O  uint32_t I2SC_IDR;     /**< \brief (I2sc Offset: 0x18) Interrupt Disable Register */
-  __I  uint32_t I2SC_IMR;     /**< \brief (I2sc Offset: 0x1C) Interrupt Mask Register */
-  __I  uint32_t I2SC_RHR;     /**< \brief (I2sc Offset: 0x20) Receiver Holding Register */
-  __O  uint32_t I2SC_THR;     /**< \brief (I2sc Offset: 0x24) Transmitter Holding Register */
-  __I  uint32_t I2SC_VERSION; /**< \brief (I2sc Offset: 0x28) Version Register */
+	__O  uint32_t I2SC_CR;  /**< \brief (I2sc Offset: 0x00) Control Register */
+	__IO uint32_t I2SC_MR;  /**< \brief (I2sc Offset: 0x04) Mode Register */
+	__I  uint32_t I2SC_SR;  /**< \brief (I2sc Offset: 0x08) Status Register */
+	__O  uint32_t I2SC_SCR; /**< \brief (I2sc Offset: 0x0C) Status Clear Register */
+	__O  uint32_t I2SC_SSR; /**< \brief (I2sc Offset: 0x10) Status Set Register */
+	__O  uint32_t I2SC_IER; /**< \brief (I2sc Offset: 0x14) Interrupt Enable Register */
+	__O  uint32_t I2SC_IDR; /**< \brief (I2sc Offset: 0x18) Interrupt Disable Register */
+	__I  uint32_t I2SC_IMR; /**< \brief (I2sc Offset: 0x1C) Interrupt Mask Register */
+	__I  uint32_t I2SC_RHR; /**< \brief (I2sc Offset: 0x20) Receiver Holding Register */
+	__O  uint32_t I2SC_THR; /**< \brief (I2sc Offset: 0x24) Transmitter Holding Register */
 } I2sc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- I2SC_CR : (I2SC Offset: 0x00) Control Register -------- */
@@ -173,13 +172,7 @@ typedef struct {
 #define I2SC_THR_THR_Pos 0
 #define I2SC_THR_THR_Msk (0xffffffffu << I2SC_THR_THR_Pos) /**< \brief (I2SC_THR) Transmitter Holding Register */
 #define I2SC_THR_THR(value) ((I2SC_THR_THR_Msk & ((value) << I2SC_THR_THR_Pos)))
-/* -------- I2SC_VERSION : (I2SC Offset: 0x28) Version Register -------- */
-#define I2SC_VERSION_VERSION_Pos 0
-#define I2SC_VERSION_VERSION_Msk (0xfffu << I2SC_VERSION_VERSION_Pos) /**< \brief (I2SC_VERSION) Version of the Hardware Module */
-#define I2SC_VERSION_MFN_Pos 16
-#define I2SC_VERSION_MFN_Msk (0x7u << I2SC_VERSION_MFN_Pos) /**< \brief (I2SC_VERSION) Metal Fix Number */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_I2SC_COMPONENT_ */
