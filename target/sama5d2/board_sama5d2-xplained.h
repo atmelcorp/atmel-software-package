@@ -322,4 +322,10 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* =================== QT1070 device definition =================== */
+
+#define BOARD_QT1070_TWI_BUS 1
+#define BOARD_QT1070_ADDR    0x1b
+#define BOARD_QT1070_DESC    {"QT1070", 0x00, 00}
+
 #endif /* #ifndef _BOARD_D2_H */
