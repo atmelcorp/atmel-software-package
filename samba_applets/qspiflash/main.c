@@ -129,32 +129,32 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_DEV_UNKNOWN;
 	}
 
-	if (!flash.desc.jedec_id) {
+	if (!flash.desc->jedec_id) {
 		trace_error_wp("Device Unknown\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 	else {
-		uint32_t page_size = flash.desc.page_size;
-		uint32_t mem_size = flash.desc.size;
+		uint32_t page_size = flash.desc->page_size;
+		uint32_t mem_size = flash.desc->size;
 
-		trace_info_wp("Found Device %s\r\n", flash.desc.name);
+		trace_info_wp("Found Device %s\r\n", flash.desc->name);
 		trace_info_wp("Size: %u bytes\r\n", (unsigned)mem_size);
 		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
 		erase_support = 0;
-		if (flash.desc.flags & SPINOR_FLAG_ERASE_4K) {
+		if (flash.desc->flags & SPINOR_FLAG_ERASE_4K) {
 			trace_info_wp("Supports 4K block erase\r\n");
 			erase_support |= (4 * 1024) / page_size;
 		}
-		if (flash.desc.flags & SPINOR_FLAG_ERASE_32K) {
+		if (flash.desc->flags & SPINOR_FLAG_ERASE_32K) {
 			trace_info_wp("Supports 32K block erase\r\n");
 			erase_support |= (32 * 1024) / page_size;
 		}
-		if (flash.desc.flags & SPINOR_FLAG_ERASE_64K) {
+		if (flash.desc->flags & SPINOR_FLAG_ERASE_64K) {
 			trace_info_wp("Supports 64K block erase\r\n");
 			erase_support |= (64 * 1024) / page_size;
 		}
-		if (flash.desc.flags & SPINOR_FLAG_ERASE_256K) {
+		if (flash.desc->flags & SPINOR_FLAG_ERASE_256K) {
 			trace_info_wp("Supports 256K block erase\r\n");
 			erase_support |= (256 * 1024) / page_size;
 		}
@@ -192,8 +192,8 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 
 	mbx->out.buf_addr = (uint32_t)buffer;
 	mbx->out.buf_size = buffer_size;
-	mbx->out.page_size = flash.desc.page_size;
-	mbx->out.mem_size = flash.desc.size / flash.desc.page_size;
+	mbx->out.page_size = flash.desc->page_size;
+	mbx->out.mem_size = flash.desc->size / flash.desc->page_size;
 	mbx->out.erase_support = erase_support;
 	mbx->out.nand_header = 0;
 
@@ -205,8 +205,8 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc.page_size;
-	uint32_t length = mbx->in.length * flash.desc.page_size;
+	uint32_t offset = mbx->in.offset * flash.desc->page_size;
+	uint32_t length = mbx->in.length * flash.desc->page_size;
 
 	assert(cmd == APPLET_CMD_WRITE_PAGES);
 
@@ -236,8 +236,8 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc.page_size;
-	uint32_t length = mbx->in.length * flash.desc.page_size;
+	uint32_t offset = mbx->in.offset * flash.desc->page_size;
+	uint32_t length = mbx->in.length * flash.desc->page_size;
 
 	assert(cmd == APPLET_CMD_READ_PAGES);
 
@@ -267,18 +267,18 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc.page_size;
-	uint32_t length = mbx->in.length * flash.desc.page_size;
+	uint32_t offset = mbx->in.offset * flash.desc->page_size;
+	uint32_t length = mbx->in.length * flash.desc->page_size;
 
 	assert(cmd == APPLET_CMD_ERASE_PAGES);
 
-	if ((flash.desc.flags & SPINOR_FLAG_ERASE_4K)
+	if ((flash.desc->flags & SPINOR_FLAG_ERASE_4K)
 			&& length == 4 * 1024) {
-	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_32K)
+	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_32K)
 			&& length == 32 * 1024) {
-	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_64K)
+	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_64K)
 			&& length == 64 * 1024) {
-	} else if ((flash.desc.flags & SPINOR_FLAG_ERASE_256K)
+	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_256K)
 			&& length == 256 * 1024) {
 	} else {
 		trace_error("Memory does not support requested erase size "

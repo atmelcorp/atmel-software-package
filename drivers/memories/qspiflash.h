@@ -47,7 +47,7 @@ struct _qspiflash;
 
 struct _qspiflash {
 	Qspi *qspi;
-	struct _spi_nor_desc desc;
+	const struct _spi_nor_desc *desc;
 	uint32_t ifr_width_reg;
 	uint32_t ifr_width_read;
 	uint32_t ifr_width_program;

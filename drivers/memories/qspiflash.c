@@ -226,7 +226,7 @@ static bool _qspiflash_enter_addr4_mode(struct _qspiflash *flash)
 
 static bool qspiflash_read_flag_status(const struct _qspiflash *flash, uint8_t *status)
 {
-	if (flash->desc.flags & SPINOR_FLAG_FSR)
+	if (flash->desc->flags & SPINOR_FLAG_FSR)
 		return _qspiflash_read_reg(flash, CMD_READ_FLAG_STATUS, status, 1);
 	else {
 		*status = FSR_NBUSY; /* Not busy */
@@ -402,7 +402,7 @@ updated:
 
 static bool _qspiflash_init_micron(struct _qspiflash *flash)
 {
-	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
 		if (!_micron_set_quad_spi_protocol(flash))
 			return false;
 
@@ -560,7 +560,7 @@ updated:
 
 static bool _qspiflash_init_macronix(struct _qspiflash *flash)
 {
-	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
 		/*
 		 * In QPI mode, only the Fast Read 1-4-4 (0xeb) op code is supported.
 		 * In SPI mode, both the Fast Read 1-1-4 (0x6b) and Fast Read 1-4-4
@@ -673,7 +673,7 @@ static bool _spansion_set_dummy_cycles(struct _qspiflash *flash,
 
 static bool _qspiflash_init_spansion(struct _qspiflash *flash)
 {
-	if (flash->desc.flags & SPINOR_FLAG_QUAD) {
+	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
 		/* Puts the device into Quad I/O mode */
 		if (!_spansion_set_protocol(flash, CR_SPANSION_QUAD, CR_SPANSION_QUAD))
 			return false;
@@ -681,7 +681,7 @@ static bool _qspiflash_init_spansion(struct _qspiflash *flash)
 		flash->opcode_read = CMD_FAST_READ_1_4_4;
 		flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
 
-		if (flash->desc.flags & SPINOR_FLAG_QPP) {
+		if (flash->desc->flags & SPINOR_FLAG_QPP) {
 			flash->opcode_page_program = CMD_SPANSION_QPP;
 			flash->ifr_width_program = QSPI_IFR_WIDTH_QUAD_OUTPUT;
 		}
@@ -714,9 +714,8 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	memset(flash, 0, sizeof(*flash));
 	flash->qspi = qspi;
 
-	bool found = false;
 	uint32_t jedec_id = 0;
-	for (i = 0; !found && i < ARRAY_SIZE(configs); i++) {
+	for (i = 0; !flash->desc && i < ARRAY_SIZE(configs); i++) {
 		trace_debug("Trying protocol %u opcode 0x%02x\r\n",
 				(unsigned)configs[i].ifr_width,
 				configs[i].opcode);
@@ -737,24 +736,20 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 					(unsigned)jedec_id);
 
 			/* Look for a supported flash */
-			const struct _spi_nor_desc *desc = spi_nor_find(jedec_id);
-			if (desc) {
-				memcpy(&flash->desc, desc, sizeof(*desc));
-				found = true;
-			} else {
+			flash->desc = spi_nor_find(jedec_id);
+			if (!flash->desc)
 				trace_warning("Memory with JEDEC ID 0x%08x is not supported\r\n",
 						(unsigned)jedec_id);
-			}
 		}
 	}
 
 	/* Not found */
-	if (!found) {
+	if (!flash->desc) {
 		trace_debug("No supported memory found.\r\n");
 		return false;
 	} else {
 		trace_debug("Found supported memory with JEDEC ID 0x%08x (%s).\r\n",
-				(unsigned)jedec_id, flash->desc.name);
+				(unsigned)jedec_id, flash->desc->name);
 	}
 
 	/* Set default settings */
@@ -781,8 +776,8 @@ bool qspiflash_configure(struct _qspiflash *flash, Qspi *qspi)
 	}
 
 	/* Convert opcodes to their 4byte address version for >16MB memories */
-	if (flash->desc.size > 16 * 1024 * 1024) {
-		if (flash->desc.flags & SPINOR_FLAG_ENTER_4B_MODE) {
+	if (flash->desc->size > 16 * 1024 * 1024) {
+		if (flash->desc->flags & SPINOR_FLAG_ENTER_4B_MODE) {
 			if (!_qspiflash_enter_addr4_mode(flash)) {
 				trace_warning("Could not switch QSPI memory to 4-byte address mode\r\n");
 				return false;
@@ -897,7 +892,7 @@ bool qspiflash_erase_chip(const struct _qspiflash *flash)
 bool qspiflash_erase_block(const struct _qspiflash *flash,
 		uint32_t addr, uint32_t length)
 {
-	uint32_t flags = flash->desc.flags;
+	uint32_t flags = flash->desc->flags;
 	struct _qspi_cmd cmd;
 	uint8_t instr;
 
@@ -978,8 +973,8 @@ bool qspiflash_write(const struct _qspiflash *flash, uint32_t addr,
 
 	while (written < length) {
 		/* remaining size in current page */
-		uint32_t remaining = flash->desc.page_size
-			- (addr % flash->desc.page_size);
+		uint32_t remaining = flash->desc->page_size
+			- (addr % flash->desc->page_size);
 		/* number of bytes to write this round */
 		uint32_t count = min_u32(length - written, remaining);
 

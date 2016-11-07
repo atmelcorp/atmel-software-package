@@ -188,7 +188,7 @@ uint32_t FlashInit(void *base_of_flash,
 		trace_debug("Configure QSPI Flash failed!\n\r");
 		return RESULT_ERROR;
 	}
-	if (!flash.desc.jedec_id) {
+	if (!flash.desc->jedec_id) {
 		trace_debug("Device Unknown\r\n");
 		return RESULT_ERROR;
 	}
