@@ -39,19 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief SmcCs hardware registers */
 typedef struct {
-	__IO uint32_t SMC_SETUP;   /**< \brief (SmcCs Offset: 0x0) SMC Setup Register */
-	__IO uint32_t SMC_PULSE;   /**< \brief (SmcCs Offset: 0x4) SMC Pulse Register */
-	__IO uint32_t SMC_CYCLE;   /**< \brief (SmcCs Offset: 0x8) SMC Cycle Register */
-	__IO uint32_t SMC_TIMINGS; /**< \brief (SmcCs Offset: 0xC) SMC Timings Register */
+	__IO uint32_t SMC_SETUP;   /**< \brief (SmcCs Offset: 0x00) SMC Setup Register */
+	__IO uint32_t SMC_PULSE;   /**< \brief (SmcCs Offset: 0x04) SMC Pulse Register */
+	__IO uint32_t SMC_CYCLE;   /**< \brief (SmcCs Offset: 0x08) SMC Cycle Register */
+	__IO uint32_t SMC_TIMINGS; /**< \brief (SmcCs Offset: 0x0C) SMC Timings Register */
 	__IO uint32_t SMC_MODE;    /**< \brief (SmcCs Offset: 0x10) SMC Mode Register */
 } SmcCs;
 /** \brief Smc hardware registers */
 typedef struct {
 	     SmcCs    SMC_CS[4]; /**< \brief (Smc Offset: 0x00) CS = 0 .. 3 */
 	__I  uint32_t Reserved1[20];
-	__IO uint32_t SMC_OCMS;  /**< \brief (Smc Offset: 0xA0) SMC Off Chip Memory Scrambling Register */
-	__O  uint32_t SMC_KEY1;  /**< \brief (Smc Offset: 0xA4) SMC Off Chip Memory Scrambling KEY1 Register */
-	__O  uint32_t SMC_KEY2;  /**< \brief (Smc Offset: 0xA8) SMC Off Chip Memory Scrambling KEY2 Register */
+	__IO uint32_t SMC_OCMS;  /**< \brief (Smc Offset: 0xA0) SMC Off Chip Memory Scrambling Mode Register */
+	__O  uint32_t SMC_KEY1;  /**< \brief (Smc Offset: 0xA4) SMC Off Chip Memory Scrambling Key1 Register */
+	__O  uint32_t SMC_KEY2;  /**< \brief (Smc Offset: 0xA8) SMC Off Chip Memory Scrambling Key2 Register */
 	__I  uint32_t Reserved2[14];
 	__IO uint32_t SMC_WPMR;  /**< \brief (Smc Offset: 0xE4) SMC Write Protection Mode Register */
 	__I  uint32_t SMC_WPSR;  /**< \brief (Smc Offset: 0xE8) SMC Write Protection Status Register */
@@ -118,9 +118,9 @@ typedef struct {
 #define SMC_MODE_EXNW_MODE_Pos 4
 #define SMC_MODE_EXNW_MODE_Msk (0x3u << SMC_MODE_EXNW_MODE_Pos) /**< \brief (SMC_MODE) NWAIT Mode */
 #define SMC_MODE_EXNW_MODE(value) ((SMC_MODE_EXNW_MODE_Msk & ((value) << SMC_MODE_EXNW_MODE_Pos)))
-#define   SMC_MODE_EXNW_MODE_DISABLED (0x0u << 4) /**< \brief (SMC_MODE) Disabled-The NWAIT input signal is ignored on the corresponding Chip Select. */
-#define   SMC_MODE_EXNW_MODE_FROZEN (0x2u << 4) /**< \brief (SMC_MODE) Frozen Mode-If asserted, the NWAIT signal freezes the current read or write cycle. After deassertion, the read/write cycle is resumed from the point where it was stopped. */
-#define   SMC_MODE_EXNW_MODE_READY (0x3u << 4) /**< \brief (SMC_MODE) Ready Mode-The NWAIT signal indicates the availability of the external device at the end of the pulse of the controlling read or write signal, to complete the access. If high, the access normally completes. If low, the access is extended until NWAIT returns high. */
+#define   SMC_MODE_EXNW_MODE_DISABLED (0x0u << 4) /**< \brief (SMC_MODE) Disabled */
+#define   SMC_MODE_EXNW_MODE_FROZEN (0x2u << 4) /**< \brief (SMC_MODE) Frozen Mode */
+#define   SMC_MODE_EXNW_MODE_READY (0x3u << 4) /**< \brief (SMC_MODE) Ready Mode */
 #define SMC_MODE_BAT (0x1u << 8) /**< \brief (SMC_MODE) Byte Access Type */
 #define   SMC_MODE_BAT_BYTE_SELECT (0x0u << 8) /**< \brief (SMC_MODE) Byte select access type:- Write operation is controlled using NCS, NWE, NBS0, NBS1.- Read operation is controlled using NCS, NRD, NBS0, NBS1. */
 #define   SMC_MODE_BAT_BYTE_WRITE (0x1u << 8) /**< \brief (SMC_MODE) Byte write access type:- Write operation is controlled using NCS, NWR0, NWR1.- Read operation is controlled using NCS and NRD. */
@@ -133,14 +133,14 @@ typedef struct {
 #define SMC_MODE_TDF_CYCLES_Msk (0xfu << SMC_MODE_TDF_CYCLES_Pos) /**< \brief (SMC_MODE) Data Float Time */
 #define SMC_MODE_TDF_CYCLES(value) ((SMC_MODE_TDF_CYCLES_Msk & ((value) << SMC_MODE_TDF_CYCLES_Pos)))
 #define SMC_MODE_TDF_MODE (0x1u << 20) /**< \brief (SMC_MODE) TDF Optimization */
-/* -------- SMC_OCMS : (SMC Offset: 0xA0) SMC Off Chip Memory Scrambling Register -------- */
+/* -------- SMC_OCMS : (SMC Offset: 0xA0) SMC Off Chip Memory Scrambling Mode Register -------- */
 #define SMC_OCMS_SMSE (0x1u << 0) /**< \brief (SMC_OCMS) Static Memory Controller Scrambling Enable */
 #define SMC_OCMS_SRSE (0x1u << 1) /**< \brief (SMC_OCMS) NFC Internal SRAM Scrambling Enable */
-/* -------- SMC_KEY1 : (SMC Offset: 0xA4) SMC Off Chip Memory Scrambling KEY1 Register -------- */
+/* -------- SMC_KEY1 : (SMC Offset: 0xA4) SMC Off Chip Memory Scrambling Key1 Register -------- */
 #define SMC_KEY1_KEY1_Pos 0
 #define SMC_KEY1_KEY1_Msk (0xffffffffu << SMC_KEY1_KEY1_Pos) /**< \brief (SMC_KEY1) Off Chip Memory Scrambling (OCMS) Key Part 1 */
 #define SMC_KEY1_KEY1(value) ((SMC_KEY1_KEY1_Msk & ((value) << SMC_KEY1_KEY1_Pos)))
-/* -------- SMC_KEY2 : (SMC Offset: 0xA8) SMC Off Chip Memory Scrambling KEY2 Register -------- */
+/* -------- SMC_KEY2 : (SMC Offset: 0xA8) SMC Off Chip Memory Scrambling Key2 Register -------- */
 #define SMC_KEY2_KEY2_Pos 0
 #define SMC_KEY2_KEY2_Msk (0xffffffffu << SMC_KEY2_KEY2_Pos) /**< \brief (SMC_KEY2) Off Chip Memory Scrambling (OCMS) Key Part 2 */
 #define SMC_KEY2_KEY2(value) ((SMC_KEY2_KEY2_Msk & ((value) << SMC_KEY2_KEY2_Pos)))
@@ -149,7 +149,7 @@ typedef struct {
 #define SMC_WPMR_WPKEY_Pos 8
 #define SMC_WPMR_WPKEY_Msk (0xffffffu << SMC_WPMR_WPKEY_Pos) /**< \brief (SMC_WPMR) Write Protection Key */
 #define SMC_WPMR_WPKEY(value) ((SMC_WPMR_WPKEY_Msk & ((value) << SMC_WPMR_WPKEY_Pos)))
-#define   SMC_WPMR_WPKEY_PASSWD (0x534D43u << 8) /**< \brief (SMC_WPMR) Writing any other value in this field aborts the write operation of bit WPEN.Always reads as 0. */
+#define   SMC_WPMR_WPKEY_PASSWD (0x534D43u << 8) /**< \brief (SMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 /* -------- SMC_WPSR : (SMC Offset: 0xE8) SMC Write Protection Status Register -------- */
 #define SMC_WPSR_WPVS (0x1u << 0) /**< \brief (SMC_WPSR) Write Protection Violation Status */
 #define SMC_WPSR_WPVSRC_Pos 8

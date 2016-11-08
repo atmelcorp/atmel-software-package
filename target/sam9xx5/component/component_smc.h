@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief SmcCs hardware registers */
 typedef struct {
-	__IO uint32_t SMC_SETUP;   /**< \brief (SmcCs Offset: 0x0) SMC Setup Register */
-	__IO uint32_t SMC_PULSE;   /**< \brief (SmcCs Offset: 0x4) SMC Pulse Register */
-	__IO uint32_t SMC_CYCLE;   /**< \brief (SmcCs Offset: 0x8) SMC Cycle Register */
-	__IO uint32_t SMC_MODE;    /**< \brief (SmcCs Offset: 0xC) SMC Mode Register */
+	__IO uint32_t SMC_SETUP;   /**< \brief (SmcCs Offset: 0x00) SMC Setup Register */
+	__IO uint32_t SMC_PULSE;   /**< \brief (SmcCs Offset: 0x04) SMC Pulse Register */
+	__IO uint32_t SMC_CYCLE;   /**< \brief (SmcCs Offset: 0x08) SMC Cycle Register */
+	__IO uint32_t SMC_MODE;    /**< \brief (SmcCs Offset: 0x0C) SMC Mode Register */
 } SmcCs;
 /** \brief Smc hardware registers */
 typedef struct {
@@ -95,9 +95,9 @@ typedef struct {
 #define SMC_MODE_EXNW_MODE_Pos 4
 #define SMC_MODE_EXNW_MODE_Msk (0x3u << SMC_MODE_EXNW_MODE_Pos) /**< \brief (SMC_MODE) NWAIT Mode */
 #define SMC_MODE_EXNW_MODE(value) ((SMC_MODE_EXNW_MODE_Msk & ((value) << SMC_MODE_EXNW_MODE_Pos)))
-#define   SMC_MODE_EXNW_MODE_DISABLED (0x0u << 4) /**< \brief (SMC_MODE) Disabled-The NWAIT input signal is ignored on the corresponding Chip Select. */
-#define   SMC_MODE_EXNW_MODE_FROZEN (0x2u << 4) /**< \brief (SMC_MODE) Frozen Mode-If asserted, the NWAIT signal freezes the current read or write cycle. After deassertion, the read/write cycle is resumed from the point where it was stopped. */
-#define   SMC_MODE_EXNW_MODE_READY (0x3u << 4) /**< \brief (SMC_MODE) Ready Mode-The NWAIT signal indicates the availability of the external device at the end of the pulse of the controlling read or write signal, to complete the access. If high, the access normally completes. If low, the access is extended until NWAIT returns high. */
+#define   SMC_MODE_EXNW_MODE_DISABLED (0x0u << 4) /**< \brief (SMC_MODE) Disabled */
+#define   SMC_MODE_EXNW_MODE_FROZEN (0x2u << 4) /**< \brief (SMC_MODE) Frozen Mode */
+#define   SMC_MODE_EXNW_MODE_READY (0x3u << 4) /**< \brief (SMC_MODE) Ready Mode */
 #define SMC_MODE_BAT (0x1u << 8) /**< \brief (SMC_MODE) Byte Access Type */
 #define   SMC_MODE_BAT_BYTE_SELECT (0x0u << 8) /**< \brief (SMC_MODE) Byte select access type:- Write operation is controlled using NCS, NWE, NBS0, NBS1.- Read operation is controlled using NCS, NRD, NBS0, NBS1. */
 #define   SMC_MODE_BAT_BYTE_WRITE (0x1u << 8) /**< \brief (SMC_MODE) Byte write access type:- Write operation is controlled using NCS, NWR0, NWR1.- Read operation is controlled using NCS and NRD. */
@@ -124,7 +124,7 @@ typedef struct {
 #define SMC_WPMR_WPKEY_Pos 8
 #define SMC_WPMR_WPKEY_Msk (0xffffffu << SMC_WPMR_WPKEY_Pos) /**< \brief (SMC_WPMR) Write Protection Key */
 #define SMC_WPMR_WPKEY(value) ((SMC_WPMR_WPKEY_Msk & ((value) << SMC_WPMR_WPKEY_Pos)))
-#define   SMC_WPMR_WPKEY_PASSWD (0x534D43u << 8) /**< \brief (SMC_WPMR) Writing any other value in this field aborts the write operation of bit WPEN.Always reads as 0. */
+#define   SMC_WPMR_WPKEY_PASSWD (0x534D43u << 8) /**< \brief (SMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 /* -------- SMC_WPSR : (SMC Offset: 0xE8) SMC Write Protection Status Register -------- */
 #define SMC_WPSR_WPVS (0x1u << 0) /**< \brief (SMC_WPSR) Write Protection Violation Status */
 #define SMC_WPSR_WPVSRC_Pos 8
