@@ -51,7 +51,7 @@ typedef struct {
 #define RSTC_CR_KEY_Pos 24
 #define RSTC_CR_KEY_Msk (0xffu << RSTC_CR_KEY_Pos) /**< \brief (RSTC_CR) Write Access Password */
 #define RSTC_CR_KEY(value) ((RSTC_CR_KEY_Msk & ((value) << RSTC_CR_KEY_Pos)))
-#define   RSTC_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_CR) Writing any other value in this field aborts the write operation.Always reads as 0. */
+#define   RSTC_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_CR) Writing any other value in this field aborts the write operation. Always reads as 0. */
 /* -------- RSTC_SR : (RSTC Offset: 0x04) Status Register -------- */
 #define RSTC_SR_URSTS (0x1u << 0) /**< \brief (RSTC_SR) User Reset Status */
 #define RSTC_SR_RSTTYP_Pos 8

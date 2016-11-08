@@ -217,10 +217,10 @@ typedef struct {
 #define PWM_SCM_UPDM(value) ((PWM_SCM_UPDM_Msk & ((value) << PWM_SCM_UPDM_Pos)))
 #define   PWM_SCM_UPDM_MODE0 (0x0u << 16) /**< \brief (PWM_SCM) Manual write of double buffer registers and manual update of synchronous channels */
 #define   PWM_SCM_UPDM_MODE1 (0x1u << 16) /**< \brief (PWM_SCM) Manual write of double buffer registers and automatic update of synchronous channels */
-#define   PWM_SCM_UPDM_MODE2 (0x2u << 16) /**< \brief (PWM_SCM) Automatic write of duty-cycle update registers by the DMA and automatic update of synchronous channels */
-#define PWM_SCM_PTRM (0x1u << 20) /**< \brief (PWM_SCM) DMA Transfer Request Mode */
+#define   PWM_SCM_UPDM_MODE2 (0x2u << 16) /**< \brief (PWM_SCM) Automatic write of duty-cycle update registers by the DMA Controller and automatic update of synchronous channels */
+#define PWM_SCM_PTRM (0x1u << 20) /**< \brief (PWM_SCM) DMA Controller Transfer Request Mode */
 #define PWM_SCM_PTRCS_Pos 21
-#define PWM_SCM_PTRCS_Msk (0x7u << PWM_SCM_PTRCS_Pos) /**< \brief (PWM_SCM) DMA Transfer Request Comparison Selection */
+#define PWM_SCM_PTRCS_Msk (0x7u << PWM_SCM_PTRCS_Pos) /**< \brief (PWM_SCM) DMA Controller Transfer Request Comparison Selection */
 #define PWM_SCM_PTRCS(value) ((PWM_SCM_PTRCS_Msk & ((value) << PWM_SCM_PTRCS_Pos)))
 /* -------- PWM_DMAR : (PWM Offset: 0x24) PWM DMA Register -------- */
 #define PWM_DMAR_DMADUTY_Pos 0

@@ -43,7 +43,6 @@ typedef struct {
 	__IO uint32_t ISC_DST; /**< \brief (IscSub0 Offset: 0x4) DMA Stride 0 Register */
 } IscSub0;
 /** \brief Isc hardware registers */
-#define ISCSUB0_NUMBER 3
 typedef struct {
 	__O  uint32_t ISC_CTRLEN;               /**< \brief (Isc Offset: 0x00) Control Enable Register */
 	__O  uint32_t ISC_CTRLDIS;              /**< \brief (Isc Offset: 0x04) Control Disable Register */
@@ -100,7 +99,7 @@ typedef struct {
 	__IO uint32_t ISC_DCFG;                 /**< \brief (Isc Offset: 0x3E0) DMA Configuration Register */
 	__IO uint32_t ISC_DCTRL;                /**< \brief (Isc Offset: 0x3E4) DMA Control Register */
 	__IO uint32_t ISC_DNDA;                 /**< \brief (Isc Offset: 0x3E8) DMA Descriptor Address Register */
-	     IscSub0  ISC_SUB0[ISCSUB0_NUMBER]; /**< \brief (Isc Offset: 0x3EC) 0 .. 2 */
+	     IscSub0  ISC_SUB0[3];              /**< \brief (Isc Offset: 0x3EC) 0 .. 2 */
 	__I  uint32_t Reserved3[3];
 	__I  uint32_t ISC_HIS_ENTRY[512];       /**< \brief (Isc Offset: 0x410) Histogram Entry */
 } Isc;

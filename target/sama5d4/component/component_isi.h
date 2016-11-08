@@ -112,7 +112,7 @@ typedef struct {
 #define ISI_CFG2_RGB_CFG_Pos 30
 #define ISI_CFG2_RGB_CFG_Msk (0x3u << ISI_CFG2_RGB_CFG_Pos) /**< \brief (ISI_CFG2) RGB Pixel Mapping Configuration */
 #define ISI_CFG2_RGB_CFG(value) ((ISI_CFG2_RGB_CFG_Msk & ((value) << ISI_CFG2_RGB_CFG_Pos)))
-#define   ISI_CFG2_RGB_CFG_DEFAULT (0x0u << 30)	/**< \brief (ISI_CFG2) Byte 0 R/G(MSB)Byte 1 G(LSB)/BByte 2 R/G(MSB)Byte 3 G(LSB)/B */
+#define   ISI_CFG2_RGB_CFG_DEFAULT (0x0u << 30) /**< \brief (ISI_CFG2) Byte 0 R/G(MSB)Byte 1 G(LSB)/BByte 2 R/G(MSB)Byte 3 G(LSB)/B */
 #define   ISI_CFG2_RGB_CFG_MODE1 (0x1u << 30) /**< \brief (ISI_CFG2) Byte 0 B/G(MSB)Byte 1 G(LSB)/RByte 2 B/G(MSB)Byte 3 G(LSB)/R */
 #define   ISI_CFG2_RGB_CFG_MODE2 (0x2u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/RByte 1 B/G(MSB)Byte 2 G(LSB)/RByte 3 B/G(MSB) */
 #define   ISI_CFG2_RGB_CFG_MODE3 (0x3u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/BByte 1 R/G(MSB)Byte 2 G(LSB)/BByte 3 R/G(MSB) */
@@ -276,4 +276,4 @@ typedef struct {
 
 /*@}*/
 
-#endif				/* _SAMA5D4_ISI_COMPONENT_ */
+#endif /* _SAMA5D4_ISI_COMPONENT_ */
