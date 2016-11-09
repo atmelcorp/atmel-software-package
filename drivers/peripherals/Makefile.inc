@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adc.o
+drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adcd.o
 drivers-$(CONFIG_HAVE_AESB) += drivers/peripherals/aesb.o
 drivers-$(CONFIG_HAVE_AES) += drivers/peripherals/aes.o
 drivers-$(CONFIG_HAVE_AES) += drivers/peripherals/aesd.o
