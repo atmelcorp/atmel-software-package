@@ -202,9 +202,8 @@ void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 	uint32_t mode_reg;
 
 #ifndef CONFIG_HAVE_ADC_SETTLING_TIME
-	if (settling) {
+	if (settling)
 		trace_warning("adc: Analog settling time not supported, IGNORED!\r\n");
-	}
 #endif
 
 	mode_reg = ADC->ADC_MR;
@@ -219,7 +218,7 @@ void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling)
 	 *     Tracking Time = (TRACKTIM + 1) / ADCClock
 	 *     Settling Time = settling value / ADCClock
 	 */
-	mode_reg |= ADC_MR_STARTUP(startup);
+	mode_reg |= startup & ADC_MR_STARTUP_Msk;
 	mode_reg |= ADC_MR_TRACKTIM(tracking);
 	mode_reg |= ADC_MR_TRANSFER(2);
 #ifdef CONFIG_HAVE_ADC_SETTLING_TIME

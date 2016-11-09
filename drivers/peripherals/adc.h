@@ -52,6 +52,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
+
 #include <assert.h>
 #include <stdint.h>
 
@@ -66,6 +67,9 @@
 #define ADC_STARTUP_NORMAL_MAX     40
 /* Max. fast ADC startup time (us) */
 #define ADC_STARTUP_FAST_MAX       12
+
+#define ADC_CHANNEL_NUM_IN_LCDR(d) (((d) & ADC_LCDR_CHNB_Msk) >> ADC_LCDR_CHNB_Pos)
+#define ADC_LAST_DATA_IN_LCDR(d)  (((d) & ADC_LCDR_LDATA_Msk) >> ADC_LCDR_LDATA_Pos)
 
 #ifdef __cplusplus
 extern "C" {
@@ -162,8 +166,7 @@ extern void adc_disable_it(uint32_t mask);
  * \param tracking tracking value
  * \param settling settling value
  */
-extern void adc_set_timing(uint32_t startup, uint32_t tracking,
-			   uint32_t settling);
+extern void adc_set_timing(uint32_t startup, uint32_t tracking, uint32_t settling);
 
 /**
  * Sets the trigger mode to following:
