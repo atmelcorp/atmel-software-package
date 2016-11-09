@@ -64,6 +64,10 @@
 
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
 
+#define FIELD_SIZE(type, field) (sizeof(((type*)0)->field))
+
+#define FIELD_ARRAY_SIZE(type, field) ARRAY_SIZE(((type*)0)->field)
+
 #define _STRINGY_EXPAND(x) #x
 #define STRINGIFY(x) _STRINGY_EXPAND(x)
 
