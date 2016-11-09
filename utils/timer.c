@@ -75,17 +75,17 @@ void timer_configure(struct _timer* timer)
 
 	memcpy(&_sys_timer, timer, sizeof(_sys_timer));
 
-	// Select clock source, configure tc base on timer clock
-	tc_clks = tc_find_best_clock_source(timer->tc, timer->resolution);
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
-	if (tc_clks == TC_CMR_TCCLKS_TIMER_CLOCK1) {
-		if (!pmc_is_gck_enabled(tc_id)) {
-			pmc_configure_gck(tc_id, PMC_PCR_GCKCSS_MAIN_CLK, 1);
-			pmc_enable_gck(tc_id);
-		}
+	// For devices that support generated clock, configure TC to use Main
+	// Clock as generated clock source
+	if (!pmc_is_gck_enabled(tc_id)) {
+		pmc_configure_gck(tc_id, PMC_PCR_GCKCSS_MAIN_CLK, 1);
+		pmc_enable_gck(tc_id);
 	}
 #endif
 
+	// Select clock source, configure tc base on timer clock
+	tc_clks = tc_find_best_clock_source(timer->tc, timer->resolution);
 	tc_configure(timer->tc, timer->channel, tc_clks | TC_CMR_CPCTRG);
 	rc = (tc_get_available_freq(timer->tc, tc_clks) * timer->freq) / timer->resolution;
 	tc_set_ra_rb_rc(timer->tc, timer->channel, 0, 0, &rc);
