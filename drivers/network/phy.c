@@ -43,6 +43,7 @@
 #ifdef CONFIG_HAVE_GMAC
 #include "peripherals/gmac.h"
 #endif
+
 #include "network/phy.h"
 #include "network/gmii.h"
 
@@ -50,19 +51,33 @@
  *         Constants
  *---------------------------------------------------------------------------*/
 
-#define GMII_ID2_MASK (~0xf)
+#define GMII_ID2_MASK (~0xfu)
+
+enum _phy_model {
+	/* Micrel */
+	PHY_KSZ8051,
+	PHY_KSZ8081,
+	PHY_KSZ8061,
+	PHY_KSZ9021,
+	PHY_KSZ9031,
+	/* Davicom */
+	PHY_DM9161AEP,
+};
 
 struct _phy_dev {
+	enum _phy_model model;
 	const char* name;
 	uint16_t id1;
 	uint16_t id2;
 };
 
 static const struct _phy_dev _phy_devices[] = {
-	{ "Micrel KSZ8051", 0x0022, 0x1550 },
-	{ "Micrel KSZ8081", 0x0022, 0x1560 },
-	{ "Micrel KSZ8061", 0x0022, 0x1570 },
-	{ "Davicom DM9161AEP", 0x0181, 0xB8A0 },
+	{ PHY_KSZ8051,   "Micrel KSZ8051",    0x0022, 0x1550 },
+	{ PHY_KSZ8081,   "Micrel KSZ8081",    0x0022, 0x1560 },
+	{ PHY_KSZ8061,   "Micrel KSZ8061",    0x0022, 0x1570 },
+	{ PHY_KSZ9021,   "Micrel KSZ9021",    0x0022, 0x1610 },
+	{ PHY_KSZ9031,   "Micrel KSZ9031",    0x0022, 0x1620 },
+	{ PHY_DM9161AEP, "Davicom DM9161AEP", 0x0181, 0xB8A0 },
 };
 
 #ifdef CONFIG_HAVE_EMAC
@@ -134,7 +149,8 @@ static bool _phy_find_addr(struct _phy* phy)
 
 	if (dev) {
 		trace_info("Found PHY %s at 0x%02x\r\n",
-				dev->name,phy_addr);
+				dev->name, phy_addr);
+		phy->dev = dev;
 		phy->phy_addr = phy_addr;
 	} else {
 		trace_error("No known PHY detected\r\n");
@@ -162,12 +178,16 @@ bool phy_configure(struct _phy* phy)
 		phy->op = &_gmac_op;
 #endif
 
-	if (NULL == phy->op)
+	if (phy->op == NULL)
 		return false;
 
 	if (!_phy_find_addr(phy))
 		return false;
-	return phy_reset(phy);
+
+	if (!phy_reset(phy))
+		return false;
+
+	return phy_reset_omsor(phy);
 }
 
 bool phy_get_id(const struct _phy* phy, uint16_t* id1, uint16_t* id2)
@@ -190,6 +210,32 @@ bool phy_reset(const struct _phy* phy)
 				&bmcr, phy->desc->retries);
 		timeout--;
 	} while ((bmcr & GMII_RESET) && timeout);
+
+	phy->op->disable_mido(phy->desc->addr);
+
+	return timeout != 0;
+}
+
+bool phy_reset_omsor(const struct _phy* phy)
+{
+	uint16_t value, temp, timeout;
+
+	phy->op->enable_mido(phy->desc->addr);
+
+	/* Reconfig OMSOR */
+	phy->op->phy_read(phy->desc->addr, phy->phy_addr,  GMII_OMSOR, &value,
+	                  phy->desc->retries);
+
+	/* Override strap-in for RMII mode */
+	value = GMII_RMII_OVERRIDE;
+	timeout = 10;
+	do {
+		phy->op->phy_write(phy->desc->addr, phy->phy_addr, GMII_OMSOR, value,
+		                   phy->desc->retries);
+		phy->op->phy_read(phy->desc->addr, phy->phy_addr, GMII_OMSOR, &temp,
+		                  phy->desc->retries);
+		timeout--;
+	} while ((temp != GMII_RMII_OVERRIDE) && timeout);
 
 	phy->op->disable_mido(phy->desc->addr);
 
@@ -249,8 +295,39 @@ bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 	uint16_t value;
 	uint32_t tick_start;
 
+	uint16_t base_tc, base_ts;
+
 	phy->op->enable_mido(phy->desc->addr);
 
+	if (phy->dev->model == PHY_KSZ9021 || phy->dev->model == PHY_KSZ9031) {
+		value = GMII_RCCPSR | 0x8000;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ERCR,
+					value, phy->desc->retries);
+
+		value = 0xF2F4;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ERDWR,
+					value, phy->desc->retries);
+
+		value = GMII_RRDPSR | 0x8000;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ERCR,
+					value, phy->desc->retries);
+
+		value = 0x2222;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ERDWR,
+					value, phy->desc->retries);
+
+		value = 0xFF00;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ICSR,
+					value, phy->desc->retries);
+
+		/* Read & modify 1000Base-T control register  */
+		phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_1000BTCR,
+					&base_tc, phy->desc->retries);
+		base_tc |= GMII_1000BaseT_HALF_DUPLEX | GMII_1000BaseT_FULL_DUPLEX;
+		phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_1000BTCR,
+				base_tc, phy->desc->retries);
+
+	}
 	/* Set the Auto_negotiation Advertisement Register, MII advertising for
 	 * Next page, 100BaseTxFD and HD, 10BaseTFD and HD, IEEE 802.3 */
 	value = 0;
@@ -307,6 +384,29 @@ bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 
 	/* Set local link mode */
 	while (1) {
+		if (phy->dev->model == PHY_KSZ9021 || phy->dev->model == PHY_KSZ9031) {
+			phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_1000BTSR,
+				&base_ts, phy->desc->retries);
+			/* Setup the MAC link speed */
+			if ((base_ts & GMII_LINKP_1000BaseT_FULL_DUPLEX) &&
+				(base_tc & GMII_1000BaseT_FULL_DUPLEX)) {
+
+				/* set RGMII for 1000BaseTX and Full Duplex */
+				trace_debug("PHY Auto-Negotiation complete -> 1000BaseT/Full\r\n");
+				phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_1000M, ETH_DUPLEX_FULL);
+				rc = true;
+				break;
+			} else if ((base_ts & GMII_LINKP_1000BaseT_HALF_DUPLEX) &&
+				(base_tc & GMII_1000BaseT_HALF_DUPLEX)) {
+
+				/* set RGMII for 1000BaseT and Half Duplex*/
+				trace_debug("PHY Auto-Negotiation complete -> 1000BaseT/Half\r\n");
+				phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_1000M, ETH_DUPLEX_HALF);
+				rc = true;
+				break;
+			}
+		}
+
 		if (!phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
 					GMII_ANLPAR, &value, phy->desc->retries)) {
 			trace_error("Error reading PHY ANLPAR\r\n");
@@ -315,22 +415,22 @@ bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 
 		/* Setup the GMAC link speed */
 		if (value & GMII_TX_FDX) {
-			trace_debug("PHY Auto-Negotiation complete -> 100M/Full-Duplex\r\n");
+			trace_debug("PHY Auto-Negotiation complete -> 100BaseT/Full\r\n");
 			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_100M, ETH_DUPLEX_FULL);
 			rc = true;
 			break;
 		} else if (value & GMII_10_FDX) {
-			trace_debug("PHY Auto-Negotiation complete -> 10M/Full-Duplex\r\n");
+			trace_debug("PHY Auto-Negotiation complete -> 10BaseT/Full\r\n");
 			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_10M, ETH_DUPLEX_FULL);
 			rc = true;
 			break;
 		} else if (value & GMII_TX_HDX) {
-			trace_debug("PHY Auto-Negotiation complete -> 100M/Half-Duplex\r\n");
+			trace_debug("PHY Auto-Negotiation complete -> 100BaseT/Half\r\n");
 			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_100M, ETH_DUPLEX_HALF);
 			rc = true;
 			break;
 		} else if (value & GMII_10_HDX) {
-			trace_debug("PHY Auto-Negotiation complete -> 10M/Half-Duplex\r\n");
+			trace_debug("PHY Auto-Negotiation complete -> 10BaseT/Half\r\n");
 			phy->op->enable_rmii(phy->desc->addr, ETH_SPEED_10M, ETH_DUPLEX_HALF);
 			rc = true;
 			break;
@@ -338,15 +438,14 @@ bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out)
 
 		/* Time out check */
 		if (time_out && (timer_get_tick() - tick_start) >= time_out) {
-			trace_error("Time out setup GMAC link speed\r\n");
+			trace_error("Time out setup MAC link speed\r\n");
 			goto exit;
 		}
 	}
 
 exit:
-	if (!rc) {
+	if (!rc)
 		trace_debug("PHY Auto-Negotiation failed!\r\n");
-	}
 	phy->op->disable_mido(phy->desc->addr);
 	return rc;
 }

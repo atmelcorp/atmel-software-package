@@ -67,12 +67,13 @@
 
 enum _eth_duplex {
 	ETH_DUPLEX_HALF = 0,
-	ETH_DUPLEX_FULL = 1,
+	ETH_DUPLEX_FULL,
 };
 
 enum _eth_speed {
 	ETH_SPEED_10M   = 0,
-	ETH_SPEED_100M  = 1,
+	ETH_SPEED_100M,
+	ETH_SPEED_1000M,
 };
 
 #define ETH_NUM_QUEUES 3

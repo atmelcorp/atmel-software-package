@@ -127,6 +127,11 @@ static void _gmac_set_link_speed(Gmac* gmac, enum _eth_speed speed, enum _eth_du
 	case ETH_SPEED_100M:
 		gmac->GMAC_NCFGR |= GMAC_NCFGR_SPD;
 		break;
+#ifdef GMAC_NCFGR_GBE
+	case ETH_SPEED_1000M:
+		gmac->GMAC_NCFGR |= GMAC_NCFGR_GBE;
+		break;
+#endif
 	default:
 		trace_error("Invalid speed value %d\r\n", speed);
 		return;

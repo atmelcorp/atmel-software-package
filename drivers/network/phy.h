@@ -103,6 +103,7 @@ struct _eth_phy_op {
 
 struct _phy {
 	const struct _phy_desc* desc;
+	const struct _phy_dev* dev;
 	uint8_t phy_addr; /**< PHY address (actual) */
 	const struct _eth_phy_op* op;
 };
@@ -120,6 +121,8 @@ extern bool phy_configure(struct _phy* phy);
 extern bool phy_get_id(const struct _phy* phy, uint16_t* id1, uint16_t* id2);
 
 extern bool phy_reset(const struct _phy* phy);
+
+extern bool phy_reset_omsor(const struct _phy* phy);
 
 extern bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out);
 
