@@ -34,64 +34,19 @@
 
 #include "board.h"
 
-#include "peripherals/aic.h"
-#include "peripherals/pmc.h"
-#include "peripherals/tc.h"
+#include "timer.h"
 
 #include "clock-arch.h"
 #include "clock.h"
-
-/*----------------------------------------------------------------------------
- *        Variables
- *----------------------------------------------------------------------------*/
-
-/** clock tick count */
-static volatile uint32_t clock_tick;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
 /**
- *  Interrupt handler for TC0 interrupt.
- */
-static void tc_handler(void)
-{
-	uint32_t dummy;
-
-	/* Clear status bit to acknowledge interrupt */
-	dummy = tc_get_status(TC0, 0);
-	(void) dummy;
-
-	clock_tick++;
-}
-
-/**
- * Initialize for timing operation
- */
-void clock_init(void)
-{
-	/** Enable peripheral clock. */
-	pmc_enable_peripheral(ID_TC0);
-
-	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc_handler);
-
-	/** Configure TC for a CLOCK_CONF_SECOND frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, 0, CLOCK_CONF_SECOND);
-
-	/* Configure and enable interrupt on RC compare */
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
-	aic_enable(ID_TC0);
-
-	/* Start the counter if LED1 is enabled. */
-	tc_start(TC0, 0);
-}
-
-/**
  * Read for clock time (ms)
  */
 clock_time_t clock_time(void)
 {
-	return clock_tick;
+	return timer_get_tick();
 }

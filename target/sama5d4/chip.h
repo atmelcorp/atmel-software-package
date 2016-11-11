@@ -228,6 +228,16 @@
 #define USART_IFACE_COUNT (5)
 #endif
 
+/** GMAC Interface max */
+#ifndef GMAC_IFACE_COUNT
+#define GMAC_IFACE_COUNT (2)
+#endif
+
+/** Ethernet Interface max */
+#ifndef ETH_IFACE_COUNT
+#define ETH_IFACE_COUNT GMAC_IFACE_COUNT
+#endif
+
 /** AIC redirection unlock key */
 #define AICREDIR_KEY 0x2fb3d881u
 

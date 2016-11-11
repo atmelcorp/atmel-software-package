@@ -96,18 +96,18 @@
 #define BOARD_TIMER_RESOLUTION	1000000  // Precision: 1MHz
 
 /* =================== PIN CONSOLE definition ================== */
- 
+
 /** CONSOLE pin definition: use USART3 */
 #define BOARD_CONSOLE_PINS     PINS_DBGU
 #define BOARD_CONSOLE_ADDR     DBGU
 #define BOARD_CONSOLE_BAUDRATE 115200
- 
+
 /* =================== PIN LED definition ====================== */
- 
+
 /* RGB LED index */
 #define LED_BLUE   0
 #define LED_RED    1
- 
+
 /** LED #0 pin definition (Blue). */
 #define PIN_LED_0 { PIO_GROUP_B, PIO_PB18, PIO_OUTPUT_1, PIO_DEFAULT }
 
@@ -116,7 +116,7 @@
 
 /** List of all LEDs definitions. */
 #define PINS_LEDS { PIN_LED_0, PIN_LED_1 }
- 
+
 #define NUM_LEDS  2
 
 /* =================== USB device definition =================== */
@@ -177,19 +177,28 @@
 #define BOARD_HSMCI1_PINS \
 	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
 
-/* =================== EMAC0/PHY definition =================== */
+/* =================== ETH0 definition =================== */
 
-#define EMAC0_ADDR        EMAC0
-#define EMAC0_PINS        PINS_EMAC0_RMII
-#define EMAC0_PHY_ADDR    0
-#define EMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_PULLUP }
+#ifdef ETH_IFACE_COUNT > 0
+#define BOARD_ETH0_PINS        PINS_EMAC0_RMII
+#define BOARD_ETH0_TYPE        ETH_TYPE_EMAC
+#define BOARD_ETH0_ADDR        EMAC0
+#define BOARD_ETH0_PHY_ADDR    0
+#define BOARD_ETH0_PHY_IF      PHY_IF_EMAC
+#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_PULLUP }
+#endif
 
-/* =================== EMAC1/PHY definition =================== */
-
-#define EMAC1_ADDR        EMAC1
-#define EMAC1_PINS        PINS_EMAC1_RMII
-#define EMAC1_PHY_ADDR    0
-#define EMAC1_PHY_IRQ_PIN { PIO_GROUP_C, PIO_PC26, PIO_INPUT, PIO_PULLUP }
+#ifdef ETH_IFACE_COUNT > 1
+#define BOARD_ETH1_PINS        PINS_EMAC1_RMII
+#define BOARD_ETH1_TYPE        ETH_TYPE_EMAC
+#define BOARD_ETH1_ADDR        EMAC1
+#define BOARD_ETH1_PHY_ADDR    0
+#define BOARD_ETH1_PHY_IF      PHY_IF_GMAC
+#define BOARD_ETH1_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH1_PHY_IRQ_PIN { PIO_GROUP_C, PIO_PC26, PIO_INPUT, PIO_PULLUP }
+#define BOARD_ETH1_MAC_ADDR    {0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54}
+#endif
 
 /* =================== NANDFLASH device definition =================== */
 

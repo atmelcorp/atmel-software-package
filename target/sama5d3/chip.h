@@ -198,6 +198,21 @@
 #define USART_IFACE_COUNT (4)
 #endif
 
+/** GMAC Interface max */
+#ifndef GMAC_IFACE_COUNT
+#define GMAC_IFACE_COUNT (1)
+#endif
+
+/** EMAC Interface max */
+#ifndef EMAC_IFACE_COUNT
+#define EMAC_IFACE_COUNT (1)
+#endif
+
+/** Ethernet Interface max */
+#ifndef ETH_IFACE_COUNT
+#define ETH_IFACE_COUNT (EMAC_IFACE_COUNT + GMAC_IFACE_COUNT)
+#endif
+
 /** Indicates chip has an UDP High Speed. */
 #define CHIP_USB_UDPHS
 

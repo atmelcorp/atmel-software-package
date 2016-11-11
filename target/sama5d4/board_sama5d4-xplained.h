@@ -208,13 +208,15 @@
 #define BOARD_AT25_DLYBCT      0
 #define BOARD_AT25_SPI_MODE    SPID_MODE_0
 
-/* =================== GMAC/PHY definition =================== */
+/* =================== ETH definition =================== */
 
-#define GMAC0_ADDR        GMAC0
-#define GMAC0_PINS        PINS_GMAC0_RMII
-#define GMAC0_PHY_ADDR    0
-#define GMAC0_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE1, PIO_INPUT, PIO_PULLUP }
-#define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PINS        PINS_GMAC0_RMII
+#define BOARD_ETH0_TYPE        ETH_TYPE_GMAC
+#define BOARD_ETH0_ADDR        GMAC0
+#define BOARD_ETH0_PHY_ADDR    0
+#define BOARD_ETH0_PHY_IF      PHY_IF_GMAC
+#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE1, PIO_INPUT, PIO_PULLUP }
 
 /* =================== NANDFLASH device definition =================== */
 

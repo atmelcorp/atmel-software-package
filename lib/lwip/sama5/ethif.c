@@ -40,14 +40,11 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_eth.h"
 
 #include "compiler.h"
 
-#if defined(CONFIG_HAVE_EMAC)
-#include "peripherals/emacd.h"
-#elif defined(CONFIG_HAVE_GMAC)
-#include "peripherals/gmacd.h"
-#endif
+#include "peripherals/ethd.h"
 #include "peripherals/pio.h"
 #include "network/phy.h"
 
@@ -71,65 +68,6 @@
 #define IFNAME0 'e'
 #define IFNAME1 'n'
 
-/* Number of buffer for RX */
-#define RX_BUFFERS  16
-
-/* Number of buffer for TX */
-#define TX_BUFFERS  8
-
-#if defined(CONFIG_HAVE_EMAC)
-#   define ETH_PINS EMAC0_PINS
-#   define ETH_TYPE ETH_TYPE_EMAC
-#   define ETH_ADDR EMAC0_ADDR
-#   define ETH_PHY_ADDR EMAC0_PHY_ADDR
-#   define ETH_PHY_IF PHY_IF_EMAC
-#elif defined(CONFIG_HAVE_GMAC)
-#   define ETH_PINS GMAC0_PINS
-#   define ETH_TYPE ETH_TYPE_GMAC
-#   define ETH_ADDR GMAC0_ADDR
-#   define ETH_PHY_ADDR GMAC0_PHY_ADDR
-#   define ETH_PHY_IF PHY_IF_GMAC
-#endif
-
-static struct ethif Ethif_config;
-
-/* The ETH driver instance */
-static struct _ethd _ethd;
-
-const struct _pin eth_pins[] = ETH_PINS;
-
-/* The PHY driver config */
-static const struct _phy_desc _phy_desc = {
-	.addr = ETH_ADDR,
-	.phy_if = ETH_PHY_IF,
-	.retries = PHY_DEFAULT_RETRIES,
-	.phy_addr = ETH_PHY_ADDR
-};
-
-/* The PHY driver instance */
-static struct _phy _phy = {
-	.desc = &_phy_desc
-};
-
-/** TX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _eth_desc gGTxDs[TX_BUFFERS];
-
-/** RX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
-static struct _eth_desc gGRxDs[RX_BUFFERS];
-
-/** TX Buffers */
-ALIGNED(32) SECTION(".region_ddr")
-static uint8_t pGTxBuffer[TX_BUFFERS * ETH_TX_UNITSIZE];
-
-/** RX Buffers */
-ALIGNED(32) SECTION(".region_ddr")
-static uint8_t pGRxBuffer[RX_BUFFERS * ETH_RX_UNITSIZE];
-
-/** TX callbacks list */
-static ethd_callback_t gGTxCbs[TX_BUFFERS];
-
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -138,39 +76,20 @@ static ethd_callback_t gGTxCbs[TX_BUFFERS];
 static void  ethif_input(struct netif *netif);
 static err_t ethif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr);
 
-static void glow_level_init(struct netif *netif)
+static void glow_level_init(struct netif *netif, struct _ethd* ethd)
 {
-    struct ethif *ethif = netif->state;
+	uint8_t _mac_addr[6];
 
-    /* set MAC hardware address length */
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
-    /* set MAC hardware address */
-    netif->hwaddr[0] = ethif->ethaddr.addr[0];
-    netif->hwaddr[1] = ethif->ethaddr.addr[1];
-    netif->hwaddr[2] = ethif->ethaddr.addr[2];
-    netif->hwaddr[3] = ethif->ethaddr.addr[3];
-    netif->hwaddr[4] = ethif->ethaddr.addr[4];
-    netif->hwaddr[5] = ethif->ethaddr.addr[5];
-    /* maximum transfer unit */
-    netif->mtu = 1500;
+	/* set MAC hardware address length */
+	netif->hwaddr_len = ETHARP_HWADDR_LEN;
+	/* set MAC hardware address */
+	ethd_get_mac_addr(ethd, 0, _mac_addr);
+	memcpy(netif->hwaddr, _mac_addr, sizeof(netif->hwaddr));
+	/* maximum transfer unit */
+	netif->mtu = 1500;
 
-    /* device capabilities */
-    netif->flags = NETIF_FLAG_BROADCAST;
-
-	/* Init GMAC */
-	pio_configure(eth_pins, ARRAY_SIZE(eth_pins));
-	ethd_configure(&_ethd, ETH_TYPE, ETH_ADDR, 1, 0);
-	ethd_setup_queue(&_ethd, 0, RX_BUFFERS, pGRxBuffer, gGRxDs, TX_BUFFERS, pGTxBuffer, gGTxDs, gGTxCbs);
-	ethd_set_mac_addr(&_ethd, 0, Ethif_config.ethaddr.addr);
-	ethd_start(&_ethd);
-
-	/* Init PHY */
-	phy_configure(&_phy);
-	if (phy_auto_negotiate(&_phy, 5000)) {
-		printf( "P: Link detected \n\r");
-	} else {
-		printf( "P: Auto Negotiate ERROR!\n\r");
-	}
+	/* device capabilities */
+	netif->flags = NETIF_FLAG_BROADCAST;
 }
 
 /**
@@ -205,7 +124,7 @@ static err_t glow_level_output(struct netif *netif, struct pbuf *p)
     }
 
     /* signal that packet should be sent(); */
-    rc = ethd_send(&_ethd, 0, buf, p->tot_len, NULL);
+    rc = ethd_send(board_get_eth(netif->num), 0, buf, p->tot_len, NULL);
     if (rc != ETH_OK) {
         return ERR_BUF;
     }
@@ -237,7 +156,7 @@ static struct pbuf *glow_level_input(struct netif *netif)
 
     /* Obtain the size of the packet and put it into the "len"
        variable. */
-    rc = ethd_poll(&_ethd, 0, buf, (uint32_t)sizeof(buf), (uint32_t*)&frmlen);
+    rc = ethd_poll(board_get_eth(netif->num), 0, buf, (uint32_t)sizeof(buf), (uint32_t*)&frmlen);
     if (rc != ETH_OK)
     {
       return NULL;
@@ -303,10 +222,8 @@ static err_t ethif_output(struct netif *netif, struct pbuf *p, struct ip_addr *i
 
 static void ethif_input(struct netif *netif)
 {
-    struct ethif *ethif;
     struct eth_hdr *ethhdr;
     struct pbuf *p;
-    ethif = netif->state;
 
     /* move received packet into a new pbuf */
     p = glow_level_input(netif);
@@ -326,7 +243,7 @@ static void ethif_input(struct netif *netif)
 
         case ETHTYPE_ARP:
             /* pass p to ARP module  */
-            etharp_arp_input(netif, &ethif->ethaddr, p);
+            etharp_arp_input(netif, (struct eth_addr*)netif->hwaddr, p);
             break;
         default:
             pbuf_free(p);
@@ -340,23 +257,6 @@ static void ethif_input(struct netif *netif)
  *----------------------------------------------------------------------------*/
 
 /**
- * Set the MAC address of the system.
- * Should only be called before ethif_init is called.
- * The stack calls ethif_init after the user calls netif_add
- *
- */
-
-void ethif_setmac(u8_t *addr)
-{
-    Ethif_config.ethaddr.addr[0] = addr[0];
-    Ethif_config.ethaddr.addr[1] = addr[1];
-    Ethif_config.ethaddr.addr[2] = addr[2];
-    Ethif_config.ethaddr.addr[3] = addr[3];
-    Ethif_config.ethaddr.addr[4] = addr[4];
-    Ethif_config.ethaddr.addr[5] = addr[5];
-}
-
-/**
  * Should be called at the beginning of the program to set up the
  * network interface. It calls the function glow_level_init() to do the
  * actual setup of the hardware.
@@ -364,19 +264,11 @@ void ethif_setmac(u8_t *addr)
  */
 err_t ethif_init(struct netif *netif)
 {
-    struct ethif *ethif;
-    ethif = &Ethif_config;
-    if (ethif == NULL)
-    {
-        LWIP_DEBUGF(NETIF_DEBUG, ("ethif_init: out of memory\n"));
-        return ERR_MEM;
-    }
-    netif->state = ethif;
     netif->name[0] = IFNAME0;
     netif->name[1] = IFNAME1;
     netif->output = ethif_output;
     netif->linkoutput = glow_level_output;
-    glow_level_init(netif);
+    glow_level_init(netif, board_get_eth(netif->num));
     etharp_init();
     return ERR_OK;
 }

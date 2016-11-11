@@ -193,6 +193,20 @@
 #define USART_IFACE_COUNT (4)
 #endif
 
+/** EMAC Interface max */
+#ifndef EMAC_IFACE_COUNT
+#if defined(EMAC1)
+#define EMAC_IFACE_COUNT (2)
+#else
+#define EMAC_IFACE_COUNT (1)
+#endif
+#endif
+
+/** Ethernet Interface max */
+#ifndef ETH_IFACE_COUNT
+#define ETH_IFACE_COUNT EMAC_IFACE_COUNT
+#endif
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 

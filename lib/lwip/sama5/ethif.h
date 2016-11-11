@@ -40,21 +40,9 @@
 #include "netif/etharp.h"
 
 /*----------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-/** Configuration information for eth instance */
-typedef struct ethif {
-
-    struct eth_addr ethaddr;
-
-} Ethif, *PEthif;
-
-/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void ethif_setmac(u8_t * addr);
 err_t ethif_init(struct netif * netif);
 void ethif_poll(struct netif * netif);
 

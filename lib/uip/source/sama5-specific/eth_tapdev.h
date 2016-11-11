@@ -30,9 +30,17 @@
 #ifndef __GTAPDEV_H__
 #define __GTAPDEV_H__
 
-void eth_tapdev_setmac(u8_t *addr);
-void eth_tapdev_init(void);
-uint32_t eth_tapdev_read(void);
-void eth_tapdev_send(void);
+/**
+ * Read from ETH device.
+ * \param iface Interface index
+ * \return packet length, 0 if error
+ */
+uint32_t eth_tapdev_read(u8_t iface);
+
+/**
+ * Send to ETH device.
+ * \param iface Interface index
+ */
+void eth_tapdev_send(u8_t iface);
 
 #endif /* __GTAPDEV_H__ */

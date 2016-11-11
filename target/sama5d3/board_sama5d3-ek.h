@@ -175,20 +175,25 @@
 	{ BOARD_HSMCI1_PIN_POWER, PIN_HSMCI1_CDA, \
 	  PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
 
-/* =================== GMAC/PHY definition =================== */
+/* =================== ETH definition =================== */
 
-#define GMAC0_ADDR        GMAC0
-#define GMAC0_PINS        PINS_GMAC0_RGMII
-#define GMAC0_PHY_ADDR    1
-#define GMAC0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB25, PIO_INPUT, PIO_PULLUP }
-#define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PINS        PINS_GMAC0_RGMII
+#define BOARD_ETH0_TYPE        ETH_TYPE_GMAC
+#define BOARD_ETH0_ADDR        GMAC0
+#define BOARD_ETH0_PHY_ADDR    7
+#define BOARD_ETH0_PHY_IF      PHY_IF_GMAC
+#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB25, PIO_INPUT, PIO_PULLUP }
+#define BOARD_ETH0_MAC_ADDR    {0x3a, 0x1f, 0x34, 0x08, 0x27, 0x27}
 
-/* =================== EMAC/PHY definition =================== */
-
-#define EMAC0_ADDR        EMAC0
-#define EMAC0_PINS        PINS_EMAC0
-#define EMAC0_PHY_ADDR    1
-#define EMAC0_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE30, PIO_INPUT, PIO_PULLUP }
+#define BOARD_ETH1_PINS        PINS_EMAC0
+#define BOARD_ETH1_TYPE        ETH_TYPE_EMAC
+#define BOARD_ETH1_ADDR        EMAC0
+#define BOARD_ETH1_PHY_ADDR    1
+#define BOARD_ETH1_PHY_IF      PHY_IF_EMAC
+#define BOARD_ETH1_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH1_PHY_IRQ_PIN { PIO_GROUP_E, PIO_PE30, PIO_INPUT, PIO_PULLUP }
+#define BOARD_ETH1_MAC_ADDR    {0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54}
 
 /* =================== NANDFLASH device definition =================== */
 

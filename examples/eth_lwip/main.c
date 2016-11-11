@@ -107,11 +107,11 @@
 
 
 #include "board.h"
-#include "board_twi.h"
+#include "board_eth.h"
 
-#include "memories/at24.h"
+#include "peripherals/ethd.h"
+
 #include "misc/console.h"
-#include "peripherals/pio.h"
 
 #include "liblwip.h"
 #include "httpd.h"
@@ -149,42 +149,48 @@ static timers_info timers_table[] = {
 };
 
 /* The MAC address used for demo */
-static uint8_t gMacAddress[6] = {0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54};
+static uint8_t _mac_addr[6];
 
 /* The IP address used for demo (ping ...) */
-//static uint8_t gIpAddress[4] = {10, 217, 2, 254};
-static uint8_t gIpAddress[4] = {192, 168, 1, 3};
+static uint8_t _ip_addr[4] = {192, 168, 1, 3};
 
 /* Set the default router's IP address. */
-//static const uint8_t gGateWay[4] = {10, 217, 2, 250};
-static const uint8_t gGateWay[4] = {192, 168, 1, 2};
+static const uint8_t _gw_ip_addr[4] = {192, 168, 1, 2};
 
 /* The NetMask address */
-static const uint8_t gNetMask[4] = {255, 255, 255, 0};
+static const uint8_t _netmask[4] = {255, 255, 255, 0};
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void configure_mac_address(void)
+/**
+ * Input the eth number to use
+ */
+static uint8_t select_eth_port(void)
 {
-	bool default_addr = true;
+	uint8_t key, send_port = 0;
 
-#ifdef BOARD_AT24_TWI_BUS
-	struct _at24* at24 = board_get_at24();
-	if (at24_has_eui48(at24)) {
-		if (at24_read_eui48(at24, gMacAddress)) {
-			printf("MAC address initialized using AT24 EEPROM\r\n");
-			default_addr = false;
-		} else {
-			printf("Failed reading MAC address from AT24 EEPROM\r\n");
+	if (ETH_IFACE_COUNT < 2)
+		return send_port;
+
+	while (1) {
+		printf("\n\r");
+		printf("Input an eth number '0' or '1' to initialize:\n\r");
+		printf("=>");
+		key = console_get_char();
+		printf("%c\r\n", key);
+
+		if (key == '0') {
+			send_port = 0;
+			break;
+		} else if (key == '1') {
+			send_port = 1;
+			break;
 		}
-	} else {
-		printf("AT24 EEPROM does not support EUI48 feature\r\n");
 	}
-#endif
-	if (default_addr)
-		printf("Using default MAC address\r\n");
+
+	return send_port;
 }
 
 /**
@@ -198,24 +204,18 @@ static void timers_update(void)
 
 	cur_time = sys_get_ms();
 	if (cur_time >= last_time)
-	{
 		time_diff = cur_time - last_time;
-	}
 	else
-	{
 		time_diff = 0xFFFFFFFF - last_time + cur_time;
-	}
-	if (time_diff)
-	{
+
+	if (time_diff) {
 		last_time = cur_time;
-		for(idxtimer=0;
+		for (idxtimer = 0;
 			idxtimer < (sizeof(timers_table)/sizeof(timers_info));
-			idxtimer ++)
-		{
+			idxtimer++) {
 			ptmr_inf = &timers_table[idxtimer];
 			ptmr_inf->timer += time_diff;
-			if (ptmr_inf->timer > ptmr_inf->timer_interval)
-			{
+			if (ptmr_inf->timer > ptmr_inf->timer_interval) {
 				if (ptmr_inf->timer_func)
 					ptmr_inf->timer_func();
 				ptmr_inf->timer -= ptmr_inf->timer_interval;
@@ -237,30 +237,28 @@ int main(void)
 {
 	struct ip_addr ipaddr, netmask, gw;
 	struct netif NetIf, *netif;
+	uint8_t eth_port = 0;
 
 #if LWIP_DHCP
-	u8_t   dhcp_state = DHCP_INIT;
+	u8_t dhcp_state = DHCP_INIT;
 #endif
 
 	/* Output example information */
 	console_example_info("ETH lwIP Example");
 
-	/* Retrieve MAC address from EEPROM if possible */
-	configure_mac_address();
+	/* User select the port number for multiple eth */
+	eth_port = select_eth_port();
+	ethd_get_mac_addr(board_get_eth(eth_port), 0, _mac_addr);
 
 	/* Display MAC & IP settings */
-	printf(" - MAC %02x:%02x:%02x:%02x:%02x:%02x\n\r",
-			gMacAddress[0], gMacAddress[1], gMacAddress[2],
-			gMacAddress[3], gMacAddress[4], gMacAddress[5]);
+	printf(" - MAC%d %02x:%02x:%02x:%02x:%02x:%02x\n\r", eth_port,
+	       _mac_addr[0], _mac_addr[1], _mac_addr[2],
+	       _mac_addr[3], _mac_addr[4], _mac_addr[5]);
 
 #if !LWIP_DHCP
-	printf(" - Host IP  %d.%d.%d.%d\n\r",
-			gIpAddress[0], gIpAddress[1],
-			gIpAddress[2], gIpAddress[3]);
-	printf(" - GateWay IP  %d.%d.%d.%d\n\r",
-			gGateWay[0], gGateWay[1], gGateWay[2], gGateWay[3]);
-	printf(" - Net Mask  %d.%d.%d.%d\n\r",
-			gNetMask[0], gNetMask[1], gNetMask[2], gNetMask[3]);
+	printf(" - Host IP  %d.%d.%d.%d\n\r", _ip_addr[0], _ip_addr[1], _ip_addr[2], _ip_addr[3]);
+	printf(" - GateWay IP  %d.%d.%d.%d\n\r", _gw_ip_addr[0], _gw_ip_addr[1], _gw_ip_addr[2], _gw_ip_addr[3]);
+	printf(" - Net Mask  %d.%d.%d.%d\n\r", _netmask[0], _netmask[1], _netmask[2], _netmask[3]);
 #else
 	printf(" - DHCP Enabled\n\r");
 #endif
@@ -268,30 +266,28 @@ int main(void)
 	/* Initialize lwIP modules */
 	lwip_init();
 
-	/* Initialize net interface for lwIP */
-	ethif_setmac((u8_t*)gMacAddress);
-
 #if !LWIP_DHCP
-	IP4_ADDR(&gw, gGateWay[0], gGateWay[1], gGateWay[2], gGateWay[3]);
-	IP4_ADDR(&ipaddr, gIpAddress[0], gIpAddress[1], gIpAddress[2], gIpAddress[3]);
-	IP4_ADDR(&netmask, gNetMask[0], gNetMask[1], gNetMask[2], gNetMask[3]);
+	IP4_ADDR(&gw, _gw_ip_addr[0], _gw_ip_addr[1], _gw_ip_addr[2], _gw_ip_addr[3]);
+	IP4_ADDR(&ipaddr, _ip_addr[0], _ip_addr[1], _ip_addr[2], _ip_addr[3]);
+	IP4_ADDR(&netmask, _netmask[0], _netmask[1], _netmask[2], _netmask[3]);
 #else
 	IP4_ADDR(&gw, 0, 0, 0, 0);
 	IP4_ADDR(&ipaddr, 0, 0, 0, 0);
 	IP4_ADDR(&netmask, 0, 0, 0, 0);
 #endif
+
 	netif = netif_add(&NetIf, &ipaddr, &netmask, &gw, NULL, ethif_init, ip_input);
 	netif_set_default(netif);
 	netif_set_up(netif);
+
+
 	/* Initialize http server application */
-	if (ERR_OK != httpd_init())
-	{
+	if (ERR_OK != httpd_init()) {
 		printf("httpd_init ERR_OK!");
 		return -1;
 	}
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
-	while(1)
-	{
+	while(1) {
 		/* Run periodic tasks */
 		timers_update();
 

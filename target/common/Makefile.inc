@@ -30,3 +30,4 @@ CFLAGS_INC += -I$(TOP)/target/common
 
 target-y += target/common/board_spi.o
 target-y += target/common/board_twi.o
+target-$(CONFIG_HAVE_NET) += target/common/board_eth.o

@@ -203,6 +203,16 @@
 #define GMAC0_PHY_IRQ_PIN PIN_GTSUCOM_IOS1
 #define GMAC0_PHY_RETRIES PHY_DEFAULT_RETRIES
 
+/* =================== ETH definition =================== */
+
+#define BOARD_ETH0_PINS        PINS_GMAC_RMII_IOS3
+#define BOARD_ETH0_TYPE        ETH_TYPE_GMAC
+#define BOARD_ETH0_ADDR        GMAC0
+#define BOARD_ETH0_PHY_ADDR    0
+#define BOARD_ETH0_PHY_IF      PHY_IF_GMAC
+#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
+#define BOARD_ETH0_PHY_IRQ_PIN PIN_GTSUCOM_IOS1
+
 /* =================== NANDFLASH device definition =================== */
 
 #define BOARD_NANDFLASH_PINS      PINS_NAND8_IOS2

@@ -105,13 +105,12 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "board_twi.h"
+#include "board_eth.h"
 #include "trace.h"
 #include "timer.h"
 
-#include "memories/at24.h"
 #include "misc/console.h"
-#include "peripherals/pio.h"
+#include "peripherals/ethd.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"
@@ -130,40 +129,48 @@
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 /* The MAC address used for demo */
-static struct uip_eth_addr MacAddress = {{0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54}};
+static struct uip_eth_addr _mac_addr;
 
 /* The IP address used for demo (ping ...) */
-static const uint8_t HostIpAddress[4] = {192,168,1,3};
+static const uint8_t _host_ip_addr[4] = {192,168,1,3};
 
 /* Set the default router's IP address. */
-static const uint8_t RoutIpAddress[4] = {192,168,1,1};
+static const uint8_t _route_ip_addr[4] = {192,168,1,1};
 
 /* The NetMask address */
-static const uint8_t NetMask[4] = {255, 255, 255, 0};
+static const uint8_t _netmask[4] = {255, 255, 255, 0};
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void configure_mac_address(void)
+/**
+ * Input the eth number to use
+ */
+static uint8_t select_eth_port(void)
 {
-	bool default_addr = true;
+	uint8_t key, send_port = 0;
 
-#ifdef BOARD_AT24_TWI_BUS
-	struct _at24* at24 = board_get_at24();
-	if (at24_has_eui48(at24)) {
-		if (at24_read_eui48(at24, MacAddress.addr)) {
-			printf("MAC address initialized using AT24 EEPROM\r\n");
-			default_addr = false;
-		} else {
-			printf("Failed reading MAC address from AT24 EEPROM\r\n");
+	if (ETH_IFACE_COUNT < 2)
+		return send_port;
+
+	while (1) {
+		printf("\n\r");
+		printf("Input an eth number '0' or '1' to initialize:\n\r");
+		printf("=>");
+		key = console_get_char();
+		printf("%c\r\n", key);
+
+		if (key == '0') {
+			send_port = 0;
+			break;
+		} else if (key == '1') {
+			send_port = 1;
+			break;
 		}
-	} else {
-		printf("AT24 EEPROM does not support EUI48 feature\r\n");
 	}
-#endif
-	if (default_addr)
-		printf("Using default MAC address\r\n");
+
+	return send_port;
 }
 
 /**
@@ -176,7 +183,7 @@ static void _app_init(void)
 
 #ifdef __DHCPC_H__
 	printf("P: DHCPC Init\n\r");
-	dhcpc_init(MacAddress.addr, 6);
+	dhcpc_init(_mac_addr.addr, 6);
 #endif
 }
 
@@ -240,33 +247,30 @@ int main(void)
 	uip_ipaddr_t ipaddr;
 	struct _timeout periodic_timer, arp_timer;
 	uint32_t i;
+	uint8_t eth_port = 0;
 
 	/* Output example information */
 	console_example_info("ETH uIP Hello World Example");
 
-	/* Retrieve MAC address from EEPROM if possible */
-	configure_mac_address();
+	/* User select the port number for multiple eth */
+	eth_port = select_eth_port();
+	ethd_get_mac_addr(board_get_eth(eth_port), 0, _mac_addr.addr);
 
 	/* Display MAC & IP settings */
 	printf(" - MAC %02x:%02x:%02x:%02x:%02x:%02x\n\r",
-			MacAddress.addr[0], MacAddress.addr[1], MacAddress.addr[2],
-			MacAddress.addr[3], MacAddress.addr[4], MacAddress.addr[5]);
+	       _mac_addr.addr[0], _mac_addr.addr[1], _mac_addr.addr[2],
+	       _mac_addr.addr[3], _mac_addr.addr[4], _mac_addr.addr[5]);
 #ifndef __DHCPC_H__
 	printf(" - Host IP  %d.%d.%d.%d\n\r",
-			HostIpAddress[0], HostIpAddress[1], HostIpAddress[2], HostIpAddress[3]);
+	       _host_ip_addr[0], _host_ip_addr[1], _host_ip_addr[2], _host_ip_addr[3]);
 	printf(" - Router IP  %d.%d.%d.%d\n\r",
-			RoutIpAddress[0], RoutIpAddress[1], RoutIpAddress[2], RoutIpAddress[3]);
+	       _route_ip_addr[0], _route_ip_addr[1], _route_ip_addr[2], _route_ip_addr[3]);
 	printf(" - Net Mask  %d.%d.%d.%d\n\r",
-			NetMask[0], NetMask[1], NetMask[2], NetMask[3]);
+	       _netmask[0], _netmask[1], _netmask[2], _netmask[3]);
 #endif
 
-	/* System devices initialize */
-	eth_tapdev_setmac((uint8_t *)MacAddress.addr);
-	eth_tapdev_init();
-	clock_init();
 	timer_start_timeout(&periodic_timer, 500);
 	timer_start_timeout(&arp_timer, 10000);
-
 	/* Init uIP */
 	uip_init();
 
@@ -280,24 +284,22 @@ int main(void)
 	uip_setnetmask(ipaddr);
 #else
 	/* Set the IP address of this host */
-	uip_ipaddr(ipaddr, HostIpAddress[0], HostIpAddress[1],
-			HostIpAddress[2], HostIpAddress[3]);
+	uip_ipaddr(ipaddr, _host_ip_addr[0], _host_ip_addr[1], _host_ip_addr[2], _host_ip_addr[3]);
 	uip_sethostaddr(ipaddr);
 
-	uip_ipaddr(ipaddr, RoutIpAddress[0], RoutIpAddress[1],
-			RoutIpAddress[2], RoutIpAddress[3]);
+	uip_ipaddr(ipaddr, _route_ip_addr[0], _route_ip_addr[1], _route_ip_addr[2], _route_ip_addr[3]);
 	uip_setdraddr(ipaddr);
 
-	uip_ipaddr(ipaddr, NetMask[0], NetMask[1], NetMask[2], NetMask[3]);
+	uip_ipaddr(ipaddr, _netmask[0], _netmask[1], _netmask[2], _netmask[3]);
 	uip_setnetmask(ipaddr);
 #endif
 
-	uip_setethaddr(MacAddress);
+	uip_setethaddr(_mac_addr);
 
 	_app_init();
 
 	while(1) {
-		uip_len = eth_tapdev_read();
+		uip_len = eth_tapdev_read(eth_port);
 		if(uip_len > 0) {
 			if(BUF->type == htons(UIP_ETHTYPE_IP)) {
 				uip_arp_ipin();
@@ -307,7 +309,7 @@ int main(void)
 				uip_len is set to a value > 0. */
 				if(uip_len > 0) {
 					uip_arp_out();
-					eth_tapdev_send();
+					eth_tapdev_send(eth_port);
 				}
 			} else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
 				uip_arp_arpin();
@@ -315,7 +317,7 @@ int main(void)
 				should be sent out on the network, the global variable
 				uip_len is set to a value > 0. */
 				if(uip_len > 0) {
-					eth_tapdev_send();
+					eth_tapdev_send(eth_port);
 				}
 			}
 		} else if(timer_timeout_reached(&periodic_timer)) {
@@ -327,7 +329,7 @@ int main(void)
 				   uip_len is set to a value > 0. */
 				if(uip_len > 0) {
 					uip_arp_out();
-					eth_tapdev_send();
+					eth_tapdev_send(eth_port);
 				}
 			}
 #if UIP_UDP

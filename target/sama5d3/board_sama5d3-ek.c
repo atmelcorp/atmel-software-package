@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_eth.h"
 #include "board_spi.h"
 #include "board_twi.h"
 #include "compiler.h"
@@ -87,6 +88,11 @@ WEAK void board_init(void)
 
 #ifdef BOARD_AT25_BUS
 	board_cfg_at25();
+#endif
+
+#ifdef CONFIG_HAVE_NET
+	board_cfg_net(0);
+	board_cfg_net(1);
 #endif
 
 #ifdef CONFIG_HAVE_LCDC

@@ -27,76 +27,21 @@
  * ----------------------------------------------------------------------------
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-
-#include "chip.h"
-#include "board.h"
-#include "board_eth.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
-
-#include "peripherals/dma.h"
-#include "board_support.h"
-
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
-
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
-
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
-
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure system timer */
-	board_cfg_timer();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-
-	/* Configure LEDs */
-	board_cfg_led();
-
-#ifdef BOARD_AT25_BUS
-	board_cfg_at25();
-#endif
-
-#ifdef BOARD_AT24_TWI_BUS
-	board_cfg_at24();
-#endif
+#ifndef BOARD_ETH_H
+#define BOARD_ETH_H
 
 #ifdef CONFIG_HAVE_NET
-	board_cfg_net(0);
-#endif
 
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-}
+/**
+ * \brief Configures the eth<iface> for the board
+ */
+extern void board_cfg_net(uint8_t iface);
+
+/**
+ * \brief Get the eth<iface> configuration for the board
+ */
+extern struct _ethd * board_get_eth(uint8_t iface);
+
+#endif /* CONFIG_HAVE_NET */
+
+#endif /* BOARD_ETH_H */
