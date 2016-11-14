@@ -147,7 +147,6 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"

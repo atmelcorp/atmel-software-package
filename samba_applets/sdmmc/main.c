@@ -44,7 +44,6 @@
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
-#include "peripherals/aic.h"
 #include "libsdmmc/libsdmmc.h"
 
 #include <assert.h>

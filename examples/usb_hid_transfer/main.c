@@ -116,7 +116,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"

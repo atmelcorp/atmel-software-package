@@ -101,7 +101,6 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"

@@ -87,7 +87,6 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/isi.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/pio.h"

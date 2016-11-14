@@ -103,7 +103,6 @@
 #include "misc/console.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 
 #ifdef CONFIG_HAVE_SDMMC
 #  include "peripherals/sdmmc.h"

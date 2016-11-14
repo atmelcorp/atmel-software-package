@@ -93,7 +93,6 @@
 #include "board.h"
 
 #include "misc/cache.h"
-#include "peripherals/aic.h"
 #include "peripherals/dma.h"
 #include "misc/console.h"
 

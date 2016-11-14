@@ -92,7 +92,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"

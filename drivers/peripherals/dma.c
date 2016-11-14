@@ -38,7 +38,6 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/dma.h"
 #include "misc/cache.h"

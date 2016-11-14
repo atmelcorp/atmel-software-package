@@ -112,7 +112,6 @@
 #include "timer.h"
 #include "wav.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"

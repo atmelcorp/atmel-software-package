@@ -101,7 +101,6 @@
 #include "timer.h"
 #include "wav.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pdmic.h"
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"

@@ -40,8 +40,6 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/aic.h"
-
 #include "arm_interrupts.h"
 
 #include <stdio.h>

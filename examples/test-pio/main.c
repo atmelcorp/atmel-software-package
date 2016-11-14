@@ -91,7 +91,6 @@
 #include "compiler.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 

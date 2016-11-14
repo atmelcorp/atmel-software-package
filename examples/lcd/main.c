@@ -95,7 +95,6 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"

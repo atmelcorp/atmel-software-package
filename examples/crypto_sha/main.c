@@ -105,7 +105,6 @@
 #include "peripherals/sha.h"
 #include "peripherals/shad.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

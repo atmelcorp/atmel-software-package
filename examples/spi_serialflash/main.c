@@ -42,7 +42,6 @@
 #include "bus/spi-bus.h"
 
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/pio.h"
 #include "peripherals/spid.h"
 

@@ -90,7 +90,6 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/aic.h"
 #ifdef CONFIG_HAVE_QSPI_DMA
 #include "peripherals/dma.h"
 #endif
