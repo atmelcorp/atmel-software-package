@@ -70,6 +70,7 @@
 #include "chip.h"
 #include "timer.h"
 #include "peripherals/pmc.h"
+#include "peripherals/slowclock.h"
 #include "trace.h"
 #include <assert.h>
 
@@ -351,7 +352,7 @@ uint32_t pmc_get_master_clock(void)
 
 uint32_t pmc_get_slow_clock(void)
 {
-	if (SCKC->SCKC_CR & SCKC_CR_OSCSEL)
+	if (slowclock_is_internal())
 		return _pmc_oscillators.internal.slow; /* on-chip slow clock RC */
 	else
 		return _pmc_oscillators.external.slow; /* external crystal */
@@ -419,68 +420,33 @@ uint32_t pmc_get_processor_clock(void)
 
 void pmc_select_external_crystal(void)
 {
-	int return_to_sclock = 0;
-	volatile int count;
+	bool return_to_slck = false;
 
 	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
 		pmc_switch_mck_to_main();
-		return_to_sclock = 1;
+		return_to_slck = true;
 	}
 
-#ifdef SCKC_CR_OSC32EN
-    /* enable external OSC 32 kHz */
-	SCKC->SCKC_CR |= SCKC_CR_OSC32EN;
-    /* Wait 32,768 Hz Startup Time for clock stabilization (software loop) */
-	for (count = 0; count < 0x1000; count++);
-#endif
-
-	/* switch from internal RC 32kHz to external OSC 32 kHz */
-	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_XTAL;
-
-	/* Wait 5 slow clock cycles for internal resynchronization */
-	for (count = 0; count < 0x1000; count++);
-
-#ifdef SCKC_CR_RCEN
-	if ((SCKC->SCKC_CR & SCKC_CR_RCEN) == SCKC_CR_RCEN)
-		SCKC->SCKC_CR &= ~SCKC_CR_RCEN;
-#endif
+	slowclock_select_external();
 
 	/* Switch to slow clock again if needed */
-	if (return_to_sclock)
+	if (return_to_slck)
 		pmc_switch_mck_to_slck();
 }
 
 void pmc_select_internal_crystal(void)
 {
-	int return_to_sclock = 0;
-	volatile int count;
+	bool return_to_slck = false;
 
 	if (PMC->PMC_MCKR == PMC_MCKR_CSS(PMC_MCKR_CSS_SLOW_CLK)) {
 		pmc_switch_mck_to_main();
-		return_to_sclock = 1;
+		return_to_slck = true;
 	}
 
-#ifdef SCKC_CR_RCEN
-    /* enable external OSC 32 kHz */
-	SCKC->SCKC_CR |= SCKC_CR_RCEN;
-    /* Wait 32,768 Hz Startup Time for clock stabilization (software loop) */
-	for (count = 0; count < 0x1000; count++);
-#endif
-
-	/* switch from extenal OSC 32kHz to internal RC 32 kHz */
-	/* switch slow clock source to internal OSC 32 kHz */
-	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~SCKC_CR_OSCSEL) | SCKC_CR_OSCSEL_RC;
-
-	/* Wait 5 slow clock cycles for internal resynchronization */
-	for (count = 0; count < 0x1000; count++);
-
-#ifdef SCKC_CR_OSC32EN
-	if ((SCKC->SCKC_CR & SCKC_CR_OSC32EN) == SCKC_CR_OSC32EN)
-		SCKC->SCKC_CR &= ~SCKC_CR_OSC32EN;
-#endif
+	slowclock_select_internal();
 
 	/* Switch to slow clock again if needed */
-	if (return_to_sclock)
+	if (return_to_slck)
 		pmc_switch_mck_to_slck();
 }
 
