@@ -65,6 +65,19 @@
 #include "compiler.h"
 
 /*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+static Dmac* controllers[] = {
+#ifdef DMAC0
+	DMAC0,
+#endif
+#ifdef DMAC1
+	DMAC1,
+#endif
+};
+
+/*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
@@ -75,6 +88,7 @@
 #define DMAC_CFG_DST_PER_MSB(x) 0
 #endif
 
+#define DMAC_CONTROLLERS ARRAY_SIZE(controllers)
 #define DMACD_CHANNELS (DMAC_CONTROLLERS * DMAC_CHANNELS)
 
 /** DMA state for channel */
@@ -131,12 +145,12 @@ static inline struct _dmacd_channel *_dmacd_channel(uint32_t controller, uint32_
  */
 static void dmacd_handler(void)
 {
-		uint32_t cont;
+	uint32_t cont;
 
 	for (cont= 0; cont< DMAC_CONTROLLERS; cont++) {
 		uint32_t chan, gis;
 
-		Dmac *dmac = dmac_get_instance(cont);
+		Dmac *dmac = controllers[cont];
 
 		gis = dmac_get_global_isr(dmac);
 
@@ -183,7 +197,7 @@ void dmacd_initialize(bool polling)
 
 	_dmacd.polling = polling;
 	for (cont = 0; cont < DMAC_CONTROLLERS; cont++) {
-		Dmac* dmac = dmac_get_instance(cont);
+		Dmac* dmac = controllers[cont];
 		dmac_get_channel_status(dmac);
 		for (chan = 0; chan < DMAC_CHANNELS; chan++) {
 			struct _dmacd_channel *channel = _dmacd_channel(cont, chan);
@@ -200,7 +214,7 @@ void dmacd_initialize(bool polling)
 		}
 
 		if (!polling) {
-			uint32_t pid = dmac_get_periph_id(dmac);
+			uint32_t pid = get_dmac_id_from_addr(dmac);
 			/* enable interrupts */
 			aic_set_source_vector(pid, dmacd_handler);
 			aic_enable(pid);
@@ -292,7 +306,7 @@ static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
 	dmac_get_global_isr(dmac);
 
 	/* Enable clock of the DMA peripheral */
-	pmc_enable_peripheral(dmac_get_periph_id(dmac));
+	pmc_enable_peripheral(get_dmac_id_from_addr(dmac));
 
 	/* Clear status */
 	dmac_get_channel_status(dmac);

@@ -356,7 +356,19 @@ extern uint32_t get_peripheral_clock_divider(uint32_t id);
  * \return the max clock frequency for the peripheral
  */
 extern uint32_t get_peripheral_clock_max_freq(uint32_t id);
-	
+
+/**
+ * \brief retrieve DMAC ID from its base address
+ * \return DMAC ID upon success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_dmac_id_from_addr(const Dmac* addr);
+
+/**
+ * \brief retrieve DMAC base address from its ID
+ * \return DMAC base address on success, 0 otherwise
+ */
+extern Dmac* get_dmac_addr_from_id(uint32_t id);
+
 /** \brief Returns the DMAC interface number for a given peripheral
  *
  * \param id the Peripheral ID

@@ -65,9 +65,28 @@
 #include "compiler.h"
 
 /*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+static Xdmac* controllers[] = {
+#ifdef XDMAC0
+	XDMAC0,
+#endif
+#ifdef XDMAC1
+	XDMAC1,
+#endif
+};
+
+/*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
+/* Compatibility for devices with no secure matrix */
+#ifndef XDMAC_CC_PROT_UNSEC
+#define XDMAC_CC_PROT_UNSEC 0
+#endif
+
+#define XDMAC_CONTROLLERS ARRAY_SIZE(controllers)
 #define XDMACD_CHANNELS (XDMAC_CONTROLLERS * XDMAC_CHANNELS)
 
 /** DMA state for channel */
@@ -129,7 +148,7 @@ static void xdmacd_handler(void)
 	for (cont= 0; cont< XDMAC_CONTROLLERS; cont++) {
 		uint32_t chan, gis, gcs;
 
-		Xdmac *xdmac = xdmac_get_instance(cont);
+		Xdmac *xdmac = controllers[cont];
 
 		gis = xdmac_get_global_isr(xdmac);
 		if ((gis & 0xFFFF) == 0)
@@ -189,7 +208,7 @@ void xdmacd_initialize(bool polling)
 	_xdmacd.polling = polling;
 
 	for (cont = 0; cont < XDMAC_CONTROLLERS; cont++) {
-		Xdmac* xdmac = xdmac_get_instance(cont);
+		Xdmac* xdmac = controllers[cont];
 		for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
 			xdmac_get_channel_isr(xdmac, chan);
 			struct _xdmacd_channel *channel = _xdmacd_channel(cont, chan);
@@ -205,7 +224,7 @@ void xdmacd_initialize(bool polling)
 		}
 
 		if (!polling) {
-			uint32_t pid = xdmac_get_periph_id(xdmac);
+			uint32_t pid = get_xdmac_id_from_addr(xdmac);
 			/* enable interrupts */
 			aic_set_source_vector(pid, xdmacd_handler);
 			aic_enable(pid);
@@ -299,7 +318,7 @@ static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
 	xdmac_get_global_isr(xdmac);
 
 	/* Enable clock of the DMA peripheral */
-	pmc_enable_peripheral(xdmac_get_periph_id(xdmac));
+	pmc_enable_peripheral(get_xdmac_id_from_addr(xdmac));
 
 	/* Clear status */
 	xdmac_get_channel_isr(xdmac, channel->id);

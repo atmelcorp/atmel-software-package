@@ -394,6 +394,18 @@ extern Matrix* get_peripheral_matrix(uint32_t id);
  */
 extern uint32_t get_peripheral_clock_divider(uint32_t id);
 
+/**
+ * \brief retrieve XDMAC ID from its base address
+ * \return XDMAC ID upon success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_xdmac_id_from_addr(const Xdmac* addr);
+
+/**
+ * \brief retrieve XDMAC base address from its ID
+ * \return XDMAC base address on success, 0 otherwise
+ */
+extern Xdmac* get_xdmac_addr_from_id(uint32_t id);
+
 /** \brief Returns the XDMAC interface number for a given peripheral
  *
  * \param id the Peripheral ID

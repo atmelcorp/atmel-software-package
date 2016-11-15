@@ -480,6 +480,32 @@ uint32_t get_peripheral_clock_divider(uint32_t id)
 	return 1;
 }
 
+uint32_t get_xdmac_id_from_addr(const Xdmac* addr)
+{
+#ifdef XDMAC0
+	if (addr == XDMAC0)
+		return ID_XDMAC0;
+#endif
+#ifdef XDMAC1
+	if (addr == XDMAC1)
+		return ID_XDMAC1;
+#endif
+	return ID_PERIPH_COUNT;
+}
+
+Xdmac* get_xdmac_addr_from_id(uint32_t id)
+{
+#ifdef XDMAC0
+	if (id == ID_XDMAC0)
+		return XDMAC0;
+#endif
+#ifdef XDMAC1
+	if (id == ID_XDMAC1)
+		return XDMAC1;
+#endif
+	return (void*)0;
+}
+
 uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
 {
 	const struct peripheral_xdma *periph_xdma = get_peripheral_xdma(id, xdmac);

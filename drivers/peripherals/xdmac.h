@@ -80,9 +80,6 @@
  */
 
 /** Number of DMA channels */
-#define XDMAC_CONTROLLERS 2
-
-/** Number of DMA channels */
 #define XDMAC_CHANNELS FIELD_ARRAY_SIZE(Xdmac, XDMAC_CH)
 
 /** Max DMA single transfer size */
@@ -119,20 +116,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * \brief Enable the XDMAC peripheral clock
- *
- * \param xdmac Pointer to the XDMAC instance.
- */
-extern Xdmac *xdmac_get_instance(uint32_t index);
-
-/**
- * \brief Get the XDMAC peripheral ID for a given XDMAC instance
- *
- * \param xdmac Pointer to the XDMAC instance.
- */
-extern uint32_t xdmac_get_periph_id(Xdmac *xdmac);
 
 /**
  * \brief Get XDMAC global type.

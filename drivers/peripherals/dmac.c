@@ -48,28 +48,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-Dmac *dmac_get_instance(uint32_t index)
-{
-	assert(index < DMAC_CONTROLLERS);
-	if (index == 0)
-		return DMAC0;
-	else if (index == 1)
-		return DMAC1;
-	else
-		return NULL;
-}
-
-uint32_t dmac_get_periph_id(Dmac *dmac)
-{
-	assert(dmac == DMAC0 || dmac == DMAC1);
-	if (dmac == DMAC0)
-		return ID_DMAC0;
-	else if (dmac == DMAC1)
-		return ID_DMAC1;
-	else
-		return ID_PERIPH_COUNT;
-}
-
 uint32_t dmac_get_config(Dmac *dmac)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);

@@ -79,9 +79,6 @@
  */
 
 /** Number of DMA channels */
-#define DMAC_CONTROLLERS 2
-
-/** Number of DMA channels */
 #define DMAC_CHANNELS FIELD_ARRAY_SIZE(Dmac, DMAC_CH)
 
 /** Max DMA single transfer size */
@@ -107,20 +104,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * \brief Get the DMAC peripheral instance with given index
- *
- * \param index Index of DMAC instance.
- */
-extern Dmac *dmac_get_instance(uint32_t index);
-
-/**
- * \brief Get the DMAC peripheral ID for a given DMAC instance
- *
- * \param dmac Pointer to the DMAC instance.
- */
-extern uint32_t dmac_get_periph_id(Dmac *dmac);
 
 /**
  * \brief Enable DMA controller for a given DMAC instance

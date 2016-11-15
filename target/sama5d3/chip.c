@@ -370,6 +370,32 @@ uint32_t get_peripheral_clock_max_freq(uint32_t id)
 	return pmc_get_master_clock();
 }
 
+uint32_t get_dmac_id_from_addr(const Dmac* addr)
+{
+#ifdef DMAC0
+	if (addr == DMAC0)
+		return ID_DMAC0;
+#endif
+#ifdef DMAC1
+	if (addr == DMAC1)
+		return ID_DMAC1;
+#endif
+	return ID_PERIPH_COUNT;
+}
+
+Dmac* get_dmac_addr_from_id(uint32_t id)
+{
+#ifdef DMAC0
+	if (id == ID_DMAC0)
+		return DMAC0;
+#endif
+#ifdef DMAC1
+	if (id == ID_DMAC1)
+		return DMAC1;
+#endif
+	return (void*)0;
+}
+
 uint8_t get_peripheral_dma_channel(uint32_t id, Dmac *dmac, bool transmit)
 {
 	const struct peripheral_dma *periph_dma = get_peripheral_dma(id, dmac);
