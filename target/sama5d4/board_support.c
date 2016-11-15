@@ -42,7 +42,7 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"
@@ -169,7 +169,7 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 	}
 
 	/* Setup default interrupt handlers */
-	aic_initialize();
+	irq_initialize();
 
 	/* Configure system timer */
 	board_cfg_timer();

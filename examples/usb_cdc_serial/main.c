@@ -118,7 +118,7 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -132,6 +132,7 @@
 
 #include "../usb_common/main_usb_common.h"
 
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -247,8 +248,10 @@ static volatile uint8_t char_recv;
 /**
  * USART interrupt handler
  */
-static void usart_irq_handler( void )
+static void usart_irq_handler(uint32_t source, void* user_arg)
 {
+	assert(source == get_usart_id_from_addr(usart_desc.addr));
+
 	Usart* p_us = usart_desc.addr;
 	
 	/* If USB device is not configured, do nothing */
@@ -368,8 +371,8 @@ static void _configure_usart(void)
 	usartd_configure(0, &usart_desc);
 	pio_configure(usart_pins, ARRAY_SIZE(usart_pins));
 	usart_enable_it(usart, US_IER_RXRDY);
-	aic_set_source_vector(id, usart_irq_handler);
-	aic_enable(id);
+	irq_add_handler(id, usart_irq_handler, NULL);
+	irq_enable(id);
 }
 
 /**

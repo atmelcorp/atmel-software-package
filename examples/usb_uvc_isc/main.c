@@ -112,7 +112,7 @@
 #include "misc/console.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/isc.h"
 #include "misc/cache.h"
 #include "peripherals/pio.h"
@@ -131,6 +131,7 @@
 
 #include "../usb_common/main_usb_common.h"
 
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -200,9 +201,11 @@ static void configure_dma_linklist(void)
 /**
  * \brief ISC interrupt handler.
  */
-static void isc_handler(void)
+static void isc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = isc_interrupt_status();
+
+	assert(source == ID_ISC);
 
 	if ((status & ISC_INTSR_VD) == ISC_INTSR_VD) {
 		if (!capture_started) {
@@ -225,7 +228,7 @@ static void configure_isc(void)
 	 * shows the number of bits per sample depends on the bit
 	 * width of sensor output. The PFE module outputs a 12-bit
 	 * data on the vp_data[11:0] bus */
-	aic_disable(ID_ISC);
+	irq_disable(ID_ISC);
 	isc_software_reset();
 	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
 	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(sensor_output_bit_width));
@@ -252,11 +255,11 @@ static void configure_isc(void)
 	isc_dma_adderss(0, (uint32_t)stream_buffers, 0);
 
 	isc_update_profile();
-	aic_set_source_vector(ID_ISC, isc_handler);
+	irq_add_handler(ID_ISC, isc_handler, NULL);
 	isc_interrupt_status();
 	isc_enable_interrupt(ISC_INTEN_VD);
 	capture_started = false;
-	aic_enable(ID_ISC);
+	irq_enable(ID_ISC);
 }
 
 static void start_preview(void)

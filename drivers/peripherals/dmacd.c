@@ -57,7 +57,7 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/dmacd.h"
 #include "peripherals/dma.h"
@@ -143,7 +143,7 @@ static inline struct _dmacd_channel *_dmacd_channel(uint32_t controller, uint32_
 /**
  * \brief DMA interrupt handler
  */
-static void dmacd_handler(void)
+static void dmacd_handler(uint32_t source, void* user_arg)
 {
 	uint32_t cont;
 
@@ -151,6 +151,8 @@ static void dmacd_handler(void)
 		uint32_t chan, gis;
 
 		Dmac *dmac = controllers[cont];
+		if (get_dmac_id_from_addr(dmac) != source)
+			continue;
 
 		gis = dmac_get_global_isr(dmac);
 
@@ -216,16 +218,19 @@ void dmacd_initialize(bool polling)
 		if (!polling) {
 			uint32_t pid = get_dmac_id_from_addr(dmac);
 			/* enable interrupts */
-			aic_set_source_vector(pid, dmacd_handler);
-			aic_enable(pid);
+			irq_add_handler(pid, dmacd_handler, NULL);
+			irq_enable(pid);
 		}
 	}
 }
 
 void dmacd_poll(void)
 {
-	if (_dmacd.polling)
-		dmacd_handler();
+	if (_dmacd.polling) {
+		int i;
+		for (i = 0; i < DMAC_CONTROLLERS; i++)
+			dmacd_handler(get_dmac_id_from_addr(controllers[i]), NULL);
+	}
 }
 
 struct _dmacd_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest)

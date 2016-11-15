@@ -161,7 +161,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
@@ -965,11 +965,11 @@ int main(void)
 			_enter_backup_mode();
 			printf( " WOKEN UP from Backup Mode.\n\r");
 		} else if (key == 'D' || key == 'd') {
-			aic_disable(ID_SECUMOD);
+			irq_disable(ID_SECUMOD);
 			printf( "\r\n SECUMOD interrupt disabled.\n\r");
 			continue;
 		} else if (key == 'E' || key == 'e') {
-			aic_enable(ID_SECUMOD);
+			irq_enable(ID_SECUMOD);
 			printf( "\r\n SECUMOD interrupt enabled.\n\r");
 			continue;
 		} else if (key == 'H' || key == 'h') {

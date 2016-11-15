@@ -35,7 +35,7 @@
 #include "trace.h"
 #include "ring.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/emacd.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
@@ -60,7 +60,7 @@ struct _emacd_irq_handler {
 	Emac*           addr;
 	struct _ethd** emacd;
 	uint32_t        irq;
-	aic_handler_t   handler;
+	irq_handler_t   handler;
 };
 
 /*---------------------------------------------------------------------------
@@ -75,7 +75,7 @@ static struct _ethd* _emacd;
 
 static void _emacd_handler(struct _ethd* emacd, uint8_t queue);
 
-static void _emacd_emac_irq_handler(void)
+static void _emacd_emac_irq_handler(uint32_t source, void* user_arg)
 {
 	_emacd_handler(_emacd, 0);
 }
@@ -364,11 +364,12 @@ void emacd_configure(struct _ethd * emacd,
 	for (i = 0; i < ARRAY_SIZE(_emacd_irq_handlers); i++) {
 		if (_emacd_irq_handlers[i].addr == emac) {
 			*_emacd_irq_handlers[i].emacd = emacd;
-			aic_set_source_vector(_emacd_irq_handlers[i].irq,
-					_emacd_irq_handlers[i].handler);
+			irq_add_handler(_emacd_irq_handlers[i].irq,
+					_emacd_irq_handlers[i].handler,
+					NULL);
 		}
 	}
-	aic_enable(id);
+	irq_enable(id);
 
 	/* Enable the copy of data into the buffers
 	   ignore broadcasts, and don't copy FCS. */

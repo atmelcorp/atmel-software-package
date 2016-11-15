@@ -130,12 +130,13 @@
 #include "compiler.h"
 #include <assert.h>
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "misc/console.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -270,9 +271,11 @@ static void _display_menu(void)
 /**
  * \brief Interrupt handler for the TC capture.
  */
-static void _tc_capture_handler(void)
+static void _tc_capture_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = tc_get_status(tc_capture.addr, tc_capture.channel);
+
+	assert(source == get_tc_id_from_addr(tc_capture.addr));
 
 	if ((status & TC_SR_LDRBS) == TC_SR_LDRBS) {
 		captured_pulses++;
@@ -346,8 +349,8 @@ static void _tc_capture_initialize(struct _tc_desc *tcd)
 	pmc_enable_peripheral(tc_id);
 	tc_configure(tcd->addr, tcd->channel, mode);
 
-	aic_set_source_vector(tc_id, _tc_capture_handler);
-	aic_enable(tc_id);
+	irq_add_handler(tc_id, _tc_capture_handler, NULL);
+	irq_enable(tc_id);
 }
 
 /*----------------------------------------------------------------------------

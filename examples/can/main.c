@@ -103,10 +103,10 @@
 #include "board.h"
 #include "chip.h"
 #include "compiler.h"
+#include "peripherals/irq.h"
 #include "peripherals/mcan.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
-#include "peripherals/aic.h"
 
 #include "misc/console.h"
 
@@ -238,7 +238,7 @@ static void print_buffer(uint32_t len, const uint8_t *data)
 /**
  * \brief Handler for interrupt line 1 of MCANx.
  */
-static void handle_mcan_irq1(void)
+static void handle_mcan_irq1(uint32_t source, void* user_arg)
 {
 	if (mcan_rx_array_data(&mcan)) {
 		mcan_clear_rx_array_flag(&mcan);
@@ -426,8 +426,8 @@ int main(void)
 	pio_configure(can_pins, ARRAY_SIZE(can_pins));
 	/* Enable peripheral interrupt */
 	int_source = mcan_cfg.id == ID_CAN0_INT0 ? ID_CAN0_INT1 : ID_CAN1_INT1;
-	aic_set_source_vector(int_source, handle_mcan_irq1);
-	aic_enable(int_source);
+	irq_add_handler(int_source, handle_mcan_irq1, NULL);
+	irq_enable(int_source);
 
 	if (!mcan_configure_msg_ram(&mcan_cfg, &mcan_msg_ram_size))
 		goto Error;

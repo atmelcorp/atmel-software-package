@@ -104,7 +104,7 @@
 #include "compiler.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
@@ -239,7 +239,7 @@ static void console_handler(uint8_t key)
 /**
  *  Interrupt handler for TC interrupt. Toggles the state of all LEDs except 0
  */
-static void tc_handler(void)
+static void tc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status, i;
 
@@ -270,8 +270,8 @@ static void configure_tc(void)
 	tc_trigger_on_freq(TC_ADDR, TC_CHAN, 4);
 
 	/* Configure and enable interrupt on RC compare */
-	aic_set_source_vector(tc_id, tc_handler);
-	aic_enable(tc_id);
+	irq_add_handler(tc_id, tc_handler, NULL);
+	irq_enable(tc_id);
 	tc_enable_it(TC_ADDR, TC_CHAN, TC_IER_CPCS);
 
 	/* Start the counter */

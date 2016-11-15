@@ -50,8 +50,8 @@
 #include "board.h"
 #include "intmath.h"
 #include "timer.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/tc.h"
 #include "peripherals/hsmci.h"
 #include "peripherals/hsmcid.h"
@@ -276,12 +276,12 @@ static void hsmci_handler(struct hsmci_set *set)
 	}
 }
 
-static void hsmci0_handler(void)
+static void hsmci0_handler(uint32_t source, void* user_arg)
 {
 	hsmci_handler(hsmci0_set);
 }
 
-static void hsmci1_handler(void)
+static void hsmci1_handler(uint32_t source, void* user_arg)
 {
 	hsmci_handler(hsmci1_set);
 }
@@ -900,16 +900,16 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 		hsmci0_set = set;
 		if (!set->use_polling) {
 			/* enable HSMCI0 interrupt */
-			aic_set_source_vector(periph_id, hsmci0_handler);
-			aic_enable(periph_id);
+			irq_add_handler(periph_id, hsmci0_handler, NULL);
+			irq_enable(periph_id);
 		}
 	}
 	if (periph_id == ID_HSMCI1) {
 		hsmci1_set = set;
 		if (!set->use_polling) {
 			/* enable HSMCI1 interrupt */
-			aic_set_source_vector(periph_id, hsmci1_handler);
-			aic_enable(periph_id);
+			irq_add_handler(periph_id, hsmci1_handler, NULL);
+			irq_enable(periph_id);
 		}
 	}
 	return true;

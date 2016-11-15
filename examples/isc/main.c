@@ -90,7 +90,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/isc.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/pio.h"
@@ -105,6 +105,7 @@
 
 #include "trace.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -321,9 +322,12 @@ static uint32_t float2hex(uint8_t sign_bit, uint8_t magnitude_bit, uint8_t fract
 /**
  * \brief ISC interrupt handler.
  */
-static void isc_handler(void)
+static void isc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status;
+
+	assert(source == ID_ISC);
+
 	status = isc_interrupt_status();
 	if ((status & ISC_INTSR_HD) == ISC_INTSR_HD) {
 	}
@@ -569,7 +573,7 @@ static void configure_isc(void)
 	isc_clear_histogram_table();
 	isc_update_profile();
 
-	aic_set_source_vector(ID_ISC, isc_handler);
+	irq_add_handler(ID_ISC, isc_handler, NULL);
 	isc_enable_interrupt(ISC_INTEN_VD
 			      | ISC_INTEN_DDONE
 			      | ISC_INTEN_LDONE
@@ -578,7 +582,7 @@ static void configure_isc(void)
 			      | ISC_INTEN_VDTO);
 	isc_interrupt_status();
 	capture_started = 0;
-	aic_enable(ID_ISC);
+	irq_enable(ID_ISC);
 }
 
 /**
@@ -588,7 +592,7 @@ static void configure_dma_linklist(void)
 {
 	uint32_t i;
 
-	aic_disable(ID_ISC);
+	irq_disable(ID_ISC);
 	isc_software_reset();
 	if ((lcd_mode == LCD_MODE_YUV422_PLANAR) \
 		|| (lcd_mode == LCD_MODE_YUV420_PLANAR)){

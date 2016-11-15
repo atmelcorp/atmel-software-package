@@ -35,7 +35,7 @@
 #include "trace.h"
 #include "ring.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/gmacd.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
@@ -65,7 +65,7 @@ struct _gmacd_irq_handler {
 	Gmac*           addr;
 	struct _ethd** gmacd;
 	uint32_t        irq;
-	aic_handler_t   handler;
+	irq_handler_t   handler;
 };
 
 /*---------------------------------------------------------------------------
@@ -89,36 +89,36 @@ static struct _ethd* _gmacd1;
 
 static void _gmacd_handler(struct _ethd* gmacd, uint8_t queue);
 
-static void _gmacd_gmac0_irq_handler(void)
+static void _gmacd_gmac0_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd0, 0);
 }
 
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-static void _gmacd_gmac0q1_irq_handler(void)
+static void _gmacd_gmac0q1_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd0, 1);
 }
 
-static void _gmacd_gmac0q2_irq_handler(void)
+static void _gmacd_gmac0q2_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd0, 2);
 }
 #endif
 
 #ifdef GMAC1
-static void _gmacd_gmac1_irq_handler(void)
+static void _gmacd_gmac1_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd1, 0);
 }
 
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-static void _gmacd_gmac1q1_irq_handler(void)
+static void _gmacd_gmac1q1_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd1, 1);
 }
 
-static void _gmacd_gmac1q2_irq_handler(void)
+static void _gmacd_gmac1q2_irq_handler(uint32_t source, void* user_arg)
 {
 	_gmacd_handler(_gmacd1, 2);
 }
@@ -420,11 +420,12 @@ void gmacd_configure(struct _ethd * gmacd,
 	for (i = 0; i < ARRAY_SIZE(_gmacd_irq_handlers); i++) {
 		if (_gmacd_irq_handlers[i].addr == gmac) {
 			*_gmacd_irq_handlers[i].gmacd = gmacd;
-			aic_set_source_vector(_gmacd_irq_handlers[i].irq,
-					_gmacd_irq_handlers[i].handler);
+			irq_add_handler(_gmacd_irq_handlers[i].irq,
+					_gmacd_irq_handlers[i].handler,
+					NULL);
 		}
 	}
-	aic_enable(id);
+	irq_enable(id);
 
 	/* Enable the copy of data into the buffers
 	   ignore broadcasts, and don't copy FCS. */

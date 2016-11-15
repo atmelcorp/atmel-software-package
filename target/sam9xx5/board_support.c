@@ -41,7 +41,7 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #ifdef CONFIG_HAVE_LCDC
 #include "peripherals/lcdc.h"
 #endif
@@ -114,7 +114,7 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 	}
 
 	/* Setup default interrupt handlers */
-	aic_initialize();
+	irq_initialize();
 
 	/* Configure system timer */
 	board_cfg_timer();

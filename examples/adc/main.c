@@ -112,7 +112,6 @@
 #include "chip.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"

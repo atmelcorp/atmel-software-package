@@ -35,7 +35,7 @@
 #include "peripherals/flexcom.h"
 #endif
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
@@ -311,17 +311,16 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 /*
  *
  */
-static void _twid_handler(void)
+static void _twid_handler(uint32_t source, void* user_arg)
 {
 	int i;
 	uint32_t status = 0;
 	Twi* addr;
-	uint32_t id = aic_get_current_interrupt_identifier();
 	uint32_t buf_size;
 	bool use_fifo = false;
 
 	for (i = 0; i != MAX_ADESC; i++) {
-		if (async_desc[i].twi_id == id) {
+		if (async_desc[i].twi_id == source) {
 			status = 1;
 			break;
 		}
@@ -329,7 +328,7 @@ static void _twid_handler(void)
 
 	if (!status) {
 		/* async descriptor not found, disable interrupt */
-		addr = get_twi_addr_from_id(id);
+		addr = get_twi_addr_from_id(source);
 		twi_disable_it(addr, TWI_IDR_RXRDY | TWI_IDR_TXRDY);
 		return;
 	}
@@ -424,7 +423,7 @@ static void _twid_handler(void)
 	}
 	/* Transfer complete*/
 	else if (TWI_STATUS_TXCOMP(status)) {
-		aic_disable(id);
+		irq_disable(adesc->twi_id);
 		twi_disable_it(addr, TWI_IDR_TXCOMP);
 		if (adesc->twi_desc->callback)
 			adesc->twi_desc->callback(adesc->twi_desc, adesc->twi_desc->cb_args);
@@ -674,14 +673,14 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 		async_desc[adesc_index].twi_id = id;
 
 		/* Set TWI handler */
-		aic_set_source_vector(id, _twid_handler);
+		irq_add_handler(id, _twid_handler, NULL);
 		/* Enable TWI interrupt */
-		aic_enable(id);
+		irq_enable(id);
 
 		if (desc->flags & TWID_BUF_ATTR_WRITE) {
 			if (_check_tx_timeout(desc)) {
 				twi_disable_it(desc->addr, TWI_IER_TXRDY);
-				aic_disable(id);
+				irq_disable(id);
 				return TWID_ERROR_TIMEOUT;
 			}
 

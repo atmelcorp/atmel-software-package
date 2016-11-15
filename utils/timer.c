@@ -38,10 +38,11 @@
 
 #include "board.h"
 #include "timer.h"
+#include "peripherals/irq.h"
 #include "peripherals/tc.h"
-#include "peripherals/aic.h"
 #include "peripherals/pmc.h"
 
+#include <assert.h>
 #include <string.h>
 
 /*----------------------------------------------------------------------------
@@ -56,15 +57,16 @@ static struct _timer _sys_timer;
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief Handler for Sytem Tick interrupt.
+ *  \brief Handler for timer interrupt.
  */
-static void timer_increment(void)
+static void timer_increment(uint32_t source, void* user_arg)
 {
-	/* Read the TC status register */
-	uint32_t status = tc_get_status(_sys_timer.tc, _sys_timer.channel);
+	assert(source == get_tc_id_from_addr(_sys_timer.tc));
+	struct _timer* timer = (struct _timer*)user_arg;
 
+	uint32_t status = tc_get_status(timer->tc, timer->channel);
 	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
-		_sys_timer.tick++;
+		timer->tick++;
 }
 
 void timer_configure(struct _timer* timer)
@@ -95,8 +97,8 @@ void timer_configure(struct _timer* timer)
 #ifdef CONFIG_TIMER_POLLING
 	tc_disable_it(timer->tc, timer->channel, TC_IER_CPCS);
 #else
-	aic_set_source_vector(tc_id, timer_increment);
-	aic_enable(tc_id);
+	irq_add_handler(tc_id, timer_increment, &_sys_timer);
+	irq_enable(tc_id);
 	tc_enable_it(timer->tc, timer->channel, TC_IER_CPCS);
 #endif
 	tc_start(timer->tc, timer->channel);
@@ -156,7 +158,7 @@ void timer_usleep(uint64_t count)
 uint64_t timer_get_tick(void)
 {
 #ifdef CONFIG_TIMER_POLLING
-	timer_increment();
+	timer_increment(get_tc_id_from_addr(_sys_timer.tc), &_sys_timer);
 #endif
 	return _sys_timer.tick;
 }

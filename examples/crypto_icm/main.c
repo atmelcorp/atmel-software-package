@@ -94,11 +94,12 @@
 #include "compiler.h"
 
 #include "misc/cache.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/icm.h"
 #include "misc/console.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -175,9 +176,10 @@ static volatile uint32_t region_hash_comp, region_mismatch;
 /**
  * \brief ICM interrupt hander.
  */
-static void ICM_IrqHandler(void)
+static void ICM_IrqHandler(uint32_t source, void* user_arg)
 {
 	uint32_t status;
+	assert(source == ID_ICM);
 	status = icm_get_int_status();
 	region_hash_comp |= (status & ICM_IMR_RHC_Msk);
 	region_mismatch |= (status & ICM_IMR_RDM_Msk);
@@ -250,8 +252,8 @@ int main( void )
 
 	/* A software triggered hardware reset of the ICM interface is performed */
 	icm_swrst();
-	aic_set_source_vector(ID_ICM, ICM_IrqHandler);
-	aic_enable(ID_ICM);
+	irq_add_handler(ID_ICM, ICM_IrqHandler, NULL);
+	irq_enable(ID_ICM);
 
 	printf("\n\r-I CDWBN enable, digest is written to the hash area \n\r");
 	icm_configure(ICM_CFG_UALGO_SHA1|ICM_CFG_SLBDIS);

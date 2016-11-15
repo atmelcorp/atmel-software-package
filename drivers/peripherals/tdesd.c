@@ -28,7 +28,7 @@
  */
 
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tdes.h"
 #include "peripherals/tdesd.h"
@@ -174,8 +174,9 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 		desc->xfer.callback(desc->xfer.cb_args);
 }
 
-static void _tdesd_handler(void)
+static void _tdesd_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_TDES);
 	if ((tdes_get_status() & TDES_ISR_DATRDY) == TDES_ISR_DATRDY) {
 		tdes_disable_it(TDES_IER_DATRDY);
 		single_transfer_ready = true;
@@ -285,8 +286,8 @@ void tdesd_init(void)
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_TDES);
 	/* Enable peripheral interrupt */
-	aic_set_source_vector(ID_TDES, _tdesd_handler);
-	aic_enable(ID_TDES);
+	irq_add_handler(ID_TDES, _tdesd_handler, NULL);
+	irq_enable(ID_TDES);
 }
 
 void tdesd_configure_mode(struct _tdesd_desc* desc)

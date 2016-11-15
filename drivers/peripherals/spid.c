@@ -28,10 +28,10 @@
  */
 
 
-#include "peripherals/aic.h"
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
 #include "peripherals/spi.h"
@@ -197,12 +197,10 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 	dma_start_transfer(desc->xfer.dma.tx.channel);
 }
 
-static void _spid_handler(void)
+static void _spid_handler(uint32_t source, void* user_arg)
 {
-	int i;
 	uint32_t status = 0;
-	uint32_t id = aic_get_current_interrupt_identifier();
-	Spi* addr = get_spi_addr_from_id(id);
+	Spi* addr = get_spi_addr_from_id(source);
 	struct _spi_desc *desc;
 
 	for (i = 0; i < ARRAY_SIZE(_desc); i++) {
@@ -434,8 +432,8 @@ void spid_configure(struct _spi_desc* desc)
 #endif
 
 	spi_disable_it(desc->addr, ~0u);
-	aic_set_source_vector(id, _spid_handler);
-	aic_enable(id);
+	irq_add_handler(id, _spid_handler, NULL);
+	irq_enable(id);
 
 	spi_enable(desc->addr);
 

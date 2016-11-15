@@ -61,9 +61,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 
 #include "trace.h"
 #include "compiler.h"
@@ -217,10 +217,9 @@ static void _pio_handle_interrupt(uint32_t group, Pio* pio)
 	}
 }
 
-static void _pio_handler(void)
+static void _pio_handler(uint32_t source, void* user_arg)
 {
-	uint32_t id = aic_get_current_interrupt_identifier();
-	uint32_t group_mask = _pio_get_group_mask(id);
+	uint32_t group_mask = _pio_get_group_mask(source);
 
 #ifdef PIOA
 	if (group_mask & (1 << PIO_GROUP_A))
@@ -465,8 +464,8 @@ void pio_add_handler_to_group(uint32_t group, uint32_t mask,
 
 	_handler_push(group, mask, handler, user_arg);
 
-	aic_set_source_vector(periph_id, _pio_handler);
-	aic_enable(periph_id);
+	irq_add_handler(periph_id, _pio_handler, NULL);
+	irq_enable(periph_id);
 }
 
 void pio_reset_all_it(void)

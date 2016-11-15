@@ -57,7 +57,7 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/xdmacd.h"
 #include "peripherals/dma.h"
@@ -141,7 +141,7 @@ static inline struct _xdmacd_channel *_xdmacd_channel(uint32_t controller, uint3
  * \brief xDMA interrupt handler
  * \param pXdmacd Pointer to DMA driver instance.
  */
-static void xdmacd_handler(void)
+static void xdmacd_handler(uint32_t source, void* user_arg)
 {
 	uint32_t cont;
 
@@ -149,6 +149,8 @@ static void xdmacd_handler(void)
 		uint32_t chan, gis, gcs;
 
 		Xdmac *xdmac = controllers[cont];
+		if (get_xdmac_id_from_addr(xdmac) != source)
+			continue;
 
 		gis = xdmac_get_global_isr(xdmac);
 		if ((gis & 0xFFFF) == 0)
@@ -226,16 +228,19 @@ void xdmacd_initialize(bool polling)
 		if (!polling) {
 			uint32_t pid = get_xdmac_id_from_addr(xdmac);
 			/* enable interrupts */
-			aic_set_source_vector(pid, xdmacd_handler);
-			aic_enable(pid);
+			irq_add_handler(pid, xdmacd_handler, NULL);
+			irq_enable(pid);
 		}
 	}
 }
 
 void xdmacd_poll(void)
 {
-	if (_xdmacd.polling)
-		xdmacd_handler();
+	if (_xdmacd.polling) {
+		int i;
+		for (i = 0; i < XDMAC_CONTROLLERS; i++)
+			xdmacd_handler(get_xdmac_id_from_addr(controllers[i]), NULL);
+	}
 }
 
 struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest)

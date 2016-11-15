@@ -28,7 +28,7 @@
  */
 
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/aesd.h"
 #include "peripherals/aes.h"
@@ -208,8 +208,10 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 			desc->xfer.callback(desc->xfer.cb_args);
 }
 
-static void _aesd_handler(void)
+static void _aesd_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_AES);
+
 	if ((aes_get_status() & AES_ISR_DATRDY) == AES_ISR_DATRDY) {
 		aes_disable_it(AES_IER_DATRDY);
 		single_transfer_ready = true;
@@ -320,7 +322,7 @@ void aesd_init(void)
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_AES);
 	/* Enable peripheral interrupt */
-	aic_set_source_vector(ID_AES, _aesd_handler);
-	aic_enable(ID_AES);
+	irq_add_handler(ID_AES, _aesd_handler, NULL);
+	irq_enable(ID_AES);
 }
 

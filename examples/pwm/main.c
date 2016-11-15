@@ -110,7 +110,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pwmc.h"
 #include "peripherals/pit.h"
@@ -124,6 +124,7 @@
 #include "trace.h"
 #include "compiler.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -251,9 +252,11 @@ static void _display_menu(void)
 /**
  * \brief Interrupt handler for the TC capture.
  */
-static void _tc_capture_handler(void)
+static void _tc_capture_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = tc_get_status(tc_capture.addr, tc_capture.channel);
+
+	assert(source == get_tc_id_from_addr(tc_capture.addr));
 
 	if ((status & TC_SR_LDRBS) == TC_SR_LDRBS) {
 		tc_get_ra_rb_rc(tc_capture.addr, tc_capture.channel,
@@ -287,8 +290,8 @@ static void _tc_capture_initialize(void)
 	tc_stop(tc_capture.addr, 2);
 
 	tc_configure(tc_capture.addr, tc_capture.channel, mode);
-	aic_set_source_vector(tc_id, _tc_capture_handler);
-	aic_enable(tc_id);
+	irq_add_handler(tc_id, _tc_capture_handler, NULL);
+	irq_enable(tc_id);
 }
 
 /**
@@ -342,9 +345,11 @@ static void _show_captured_results(void)
 /**
  * \brief Interrupt handler for the TC fault.
  */
-static void _tc_fault_handler(void)
+static void _tc_fault_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = tc_get_status(tc_fault.addr, tc_fault.channel);
+
+	assert(source == get_tc_id_from_addr(tc_fault.addr));
 
 	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
 		printf("TC fault triggered, press 'F' to clear fault\r\n");
@@ -377,8 +382,8 @@ static void _tc_fault_initialize(void)
 	tc_set_ra_rb_rc(tc_fault.addr, tc_fault.channel, NULL, NULL, &rc);
 
 	tc_enable_it(tc_fault.addr, tc_fault.channel, TC_IER_CPCS);
-	aic_set_source_vector(tc_id, _tc_fault_handler);
-	aic_enable(tc_id);
+	irq_add_handler(tc_id, _tc_fault_handler, NULL);
+	irq_enable(tc_id);
 }
 
 /**
@@ -394,8 +399,10 @@ static void _tc_fault_start(void)
 /**
  * \brief Interrupt handler for the PWM.
  */
-static void _pwm_handler(void)
+static void _pwm_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_PWM);
+
 #ifdef CONFIG_HAVE_PWMC_FMODE
 	trace_debug("PWM handler, interrupt status 0x%08x 0x%08x, "
 		"fault status 0x%08x\r\n",
@@ -521,8 +528,8 @@ int main(void)
 	pmc_enable_peripheral(ID_PWM);
 
 	/* Enable PWM interrupt */
-	aic_set_source_vector(ID_PWM, _pwm_handler);
-	aic_enable(ID_PWM);
+	irq_add_handler(ID_PWM, _pwm_handler, NULL);
+	irq_enable(ID_PWM);
 
 	/* Set clock A and clock B */
 	/* CLKA clock is clock selected by PREA : 0x0A Peripheral clock/1024 */

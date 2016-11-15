@@ -95,12 +95,13 @@
 
 #include "chip.h"
 #include "board.h"
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/wdt.h"
 #include "misc/console.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -142,13 +143,12 @@ static void _configure_wdt(uint32_t timer, uint32_t delta_timer)
  * Interrupt handler for TC0 interrupt.
  * Resets WDT at different periods depending on user input
  */
-static void tc0_handler(void)
+static void tc0_handler(uint32_t source, void* user_arg)
 {
-	volatile uint32_t dummy;
+	assert(source == ID_TC0);
 
 	/* Clear status bit to acknowledge interrupt */
-	dummy = tc_get_status(TC0, 0);
-	(void) dummy;
+	tc_get_status(TC0, 0);
 
 	if (_countdown_timer > (16000 / 250) && _change_period == 0) {
 		printf("WDT has been Reset after 16s\n\r");
@@ -175,8 +175,10 @@ static void tc0_handler(void)
 /**
  *  Interrupt handler for WDT interrupt.
  */
-static void wdt_handler(void)
+static void wdt_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_WDT);
+
 	uint8_t status = wdt_get_status();
 	printf("WDT interrupt - Watchdog UnderFlow:%d - Watchdog Error:%d\n\r",
 		status & WDT_SR_WDUNF  ? 1 : 0, status & WDT_SR_WDERR ? 1 : 0);
@@ -191,14 +193,14 @@ static void _configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc0_handler);
+	irq_add_handler(ID_TC0, tc0_handler, NULL);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare */
 	tc_trigger_on_freq(TC0, 0, 4);
 
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, 0, TC_IER_CPCS);
-	aic_enable(ID_TC0);
+	irq_enable(ID_TC0);
 
 	/* Start the counter */
 	tc_start(TC0, 0);
@@ -226,8 +228,8 @@ int main(void)
 	_configure_tc() ;
 
 	printf("Configure WDT.\n\r");
-	aic_set_source_vector(ID_WDT, wdt_handler);
-	aic_enable(ID_WDT);
+	irq_add_handler(ID_WDT, wdt_handler, NULL);
+	irq_enable(ID_WDT);
 
 	printf("uses DBG key 1/2/3/4.\n\r");
 	printf("Press 1 to generate WatchDog Underflow error.\n\r");

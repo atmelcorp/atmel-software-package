@@ -112,7 +112,7 @@
 #include "board_twi.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/rtc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
@@ -129,6 +129,7 @@
 
 #include "misc/console.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -354,9 +355,11 @@ static void menu_pck_mck(void)
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
  */
-static void _sysc_handler(void)
+static void _rtc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t dwStatus = RTC->RTC_SR;
+
+	assert(source == ID_RTC);
 
 	/* Second increment interrupt */
 	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
@@ -365,13 +368,12 @@ static void _sysc_handler(void)
 
 		RTC->RTC_SCCR = RTC_SCCR_SECCLR;
 	}
-
 	/* Time or date alarm */
 	else {
 		if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
 			/* Disable RTC interrupt */
 			rtc_disable_it(RTC_IDR_ALRDIS);
-		RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
+			RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
 		}
 	}
 }
@@ -402,8 +404,8 @@ static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds)
 
 	/* Configure RTC interrupts */
 	rtc_enable_it(RTC_IER_ALREN);
-	aic_set_source_vector(ID_SYSC, _sysc_handler);
-	aic_enable(ID_SYSC);
+	irq_add_handler(ID_RTC, _rtc_handler, NULL);
+	irq_enable(ID_RTC);
 	new_time.hour = 0;
 	new_time.min = 0;
 	new_time.sec = wakup_in_seconds;
@@ -741,7 +743,7 @@ int main(void)
 	unsigned int i;
 
 	for (i = 0; i < 128; i++)
-		aic_disable(i);
+		irq_disable(i);
 
 	/* Initialize console again */
 	_restore_console();

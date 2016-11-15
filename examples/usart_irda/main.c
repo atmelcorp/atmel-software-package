@@ -89,9 +89,8 @@
 #include "compiler.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pio.h"
-
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
 
@@ -215,7 +214,7 @@ static void console_handler(uint8_t key)
 /**
  *  \brief Handler for IrDA
  */
-static void irda_irq_handler(void)
+static void irda_irq_handler(uint32_t source, void* user_arg)
 {
 	if (usart_is_rx_ready(IRDA_USART))
 		printf("%c", usart_get_char(IRDA_USART));
@@ -229,10 +228,10 @@ static void irda_interface_init(void)
 	uint32_t id = get_usart_id_from_addr(IRDA_USART);
 	pio_configure(&pins_irda[0], ARRAY_SIZE(pins_irda));
 	usartd_configure(0, &irda_desc);
-	aic_set_source_vector(id, irda_irq_handler);
+	irq_add_handler(id, irda_irq_handler, NULL);
 	usart_enable_it(IRDA_USART, US_IER_RXRDY);
 	usart_set_irda_filter(IRDA_USART, 100);
-	aic_enable(id);
+	irq_enable(id);
 }
 
 /*------------------------------------------------------------------------------

@@ -100,7 +100,7 @@
 #include "chip.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
@@ -233,7 +233,7 @@ static void _process_button_evt(void)
 	case 'P':
 	case 'p':
 		/* No interrupt on Master */
-		aic_disable(id);
+		irq_disable(id);
 		/* Configure lin_descriptor MASTER */
 		lin_msg_master.id = LIN_FRAME_ID_12;
 		lin_msg_master.dlc = sizeof(lin_data_master);
@@ -261,12 +261,12 @@ static void _process_button_evt(void)
 		lin_msg_slave.lin_cmd = PUBLISH;
 		lin_register_descriptor(LIN_SLAVE_NODE_NUM, 1, &lin_msg_slave);
 		/* Interrupt Master, wait transfer complete */
-		aic_enable(id);
+		irq_enable(id);
 		memcpy(&lin_data_slave, "87654321", sizeof(lin_data_slave));
 		break;
 
 	default:
-		aic_disable(id);
+		irq_disable(id);
 		lin_msg_master.lin_cmd = IGNORE;
 		lin_msg_slave.lin_cmd = IGNORE;
 		break;
@@ -288,8 +288,10 @@ static void _console_handler(uint8_t k)
  * \brief Interrupt handler for TC0. Record the number of bytes received,
  * and then restart a read transfer on the USART if the transfer was stopped.
  */
-static void _tc_handler(void)
+static void _tc_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_TC0);
+
 	/* Clear status bit to acknowledge interrupt */
 	tc_get_status(TC0, TC_CHANNEL);
 
@@ -309,20 +311,20 @@ static void _configure_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, _tc_handler);
+	irq_add_handler(ID_TC0, _tc_handler, NULL);
 
 	/** Configure TC for a 50Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC0, TC_CHANNEL, TC_FREQ);
 
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, TC_CHANNEL, TC_IER_CPCS);
-	aic_enable(ID_TC0);
+	irq_enable(ID_TC0);
 }
 
 /**
  *  \brief Interrupt handler for Usart COM2 master node.
  */
-static void _com2_master_handler (void)
+static void _com2_master_handler(uint32_t source, void* user_arg)
 {
 	lin_master_usart_handler(LIN_MASTER_NODE_NUM);
 }
@@ -330,7 +332,7 @@ static void _com2_master_handler (void)
 /**
  *  \brief Interrupt handler for Usart COM3 slave node.
  */
-static void _com3_slave_handler (void)
+static void _com3_slave_handler(uint32_t source, void* user_arg)
 {
 	lin_slave_usart_handler(LIN_SLAVE_NODE_NUM);
 }
@@ -350,7 +352,7 @@ static void _init_com_master (void)
 
 	/* Configure interrupts */
 	usart_enable_it(lin_desc2.addr, US_IER_LINTC);
-	aic_set_source_vector(id, _com2_master_handler);
+	irq_add_handler(id, _com2_master_handler, NULL);
 }
 
 /**
@@ -368,8 +370,8 @@ static void _init_com_slave (void)
 
 	/* Configure interrupts */
 	usart_enable_it(lin_desc3.addr, US_IER_LINID);
-	aic_set_source_vector(id, _com3_slave_handler);
-	aic_enable(id);
+	irq_add_handler(id, _com3_slave_handler, NULL);
+	irq_enable(id);
 }
 
 /**

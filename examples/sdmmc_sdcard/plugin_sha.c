@@ -37,8 +37,8 @@
 #include "intmath.h"
 #include "plugin_sha.h"
 #include "misc/cache.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/dma.h"
 #include "peripherals/sha.h"
 
@@ -228,8 +228,9 @@ static void write_blocks(struct sha_set *set, const uint32_t *data,
 /**
  * \brief SHA interrupt handler.
  */
-static void handle_sha_irq(void)
+static void handle_sha_irq(uint32_t source, void* user_arg)
 {
+	assert(source == ID_SHA);
 	if ((sha_get_status() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
 		sha_disable_it(SHA_IER_DATRDY);
 		busy = false;
@@ -259,8 +260,8 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 	/* Perform a software-triggered hardware reset of the SHA interface */
 	sha_soft_reset();
 	busy = false;
-	aic_set_source_vector(ID_SHA, handle_sha_irq);
-	aic_enable(ID_SHA);
+	irq_add_handler(ID_SHA, handle_sha_irq, NULL);
+	irq_enable(ID_SHA);
 	sha_configure(SHA_MR_ALGO_SHA1 | SHA_MR_PROCDLY_SHORTEST
 	    | (set->dma_ch ? SHA_MR_SMOD_IDATAR0_START
 	    : SHA_MR_SMOD_AUTO_START));

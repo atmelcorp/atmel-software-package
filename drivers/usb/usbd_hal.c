@@ -46,12 +46,13 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/aic.h"
 #include "misc/cache.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 
 #include "usb/device/usbd_hal.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -1014,9 +1015,11 @@ static uint8_t udphs_read(uint8_t ep, void *data, uint32_t data_len)
  * Manages device resume, suspend, end of bus reset.
  * Forwards ep events to the appropriate handler.
  */
-static void udphs_irq_handler(void)
+static void udphs_irq_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status;
+
+	assert(source == ID_UDPHS);
 
 	status = UDPHS->UDPHS_INTSTA;
 	status &= UDPHS->UDPHS_IEN;
@@ -1718,8 +1721,8 @@ void usbd_hal_init(void)
 	int i;
 
 	/* Setup IRQ handler */
-	aic_set_source_vector(ID_UDPHS, udphs_irq_handler);
-	aic_enable(ID_UDPHS);
+	irq_add_handler(ID_UDPHS, udphs_irq_handler, NULL);
+	irq_enable(ID_UDPHS);
 
 	/* Must before USB & TXVC access! */
 	udphs_enable_peripheral_clock();

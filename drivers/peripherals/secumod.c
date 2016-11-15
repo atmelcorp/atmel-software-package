@@ -99,11 +99,12 @@
 
 #include "secumod.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -140,11 +141,13 @@ static struct _secumod secumod_inst;
 /**
  * \brief Interrupt handler for SECURAM.
  */
-static void securam_irq_handler(void)
+static void securam_irq_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status, protections;
 	uint32_t tmp;
 	uint32_t i;
+
+	assert(source == ID_SECURAM);
 
 	protections = secumod_get_normal_mode_protections();
 
@@ -196,10 +199,12 @@ static void securam_irq_handler(void)
 /**
  * \brief Interrupt handler for SECUMOD.
  */
-static void secumod_irq_handler(void)
+static void secumod_irq_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status, index, protections;
 	struct _tamper_detail *detail;
+
+	assert(source == ID_SECUMOD);
 
 	/* Read Periodic Interval Timer Value, also clears the PICNT */
 	(void)pit_get_pivr();
@@ -281,8 +286,8 @@ void secumod_initialize(void)
 	secumod_inst.tamper_info.jtag_tck_tms = false;
 
 	/* Set irq handler */
-	aic_set_source_vector(ID_SECUMOD, secumod_irq_handler);
-	aic_set_source_vector(ID_SECURAM, securam_irq_handler);
+	irq_add_handler(ID_SECUMOD, secumod_irq_handler, NULL);
+	irq_add_handler(ID_SECURAM, securam_irq_handler, NULL);
 }
 
 /**
@@ -693,8 +698,8 @@ void secumod_enable_it(uint32_t sources)
 	SECUMOD->SECUMOD_NIEPR |= sources;
 	if (sources) {
 		/* Enable SECUMOD/Secure RAM interrupts */
-		aic_enable(ID_SECUMOD);
-		aic_enable(ID_SECURAM);
+		irq_enable(ID_SECUMOD);
+		irq_enable(ID_SECURAM);
 	}
 }
 
@@ -710,8 +715,8 @@ void secumod_disable_it(uint32_t sources)
 	SECUMOD->SECUMOD_NIDPR |= sources;
 	if (SECUMOD_NIDPR_ALL == (sources & SECUMOD_NIDPR_ALL)) {
 		/* Disable SECUMOD/Secure RAM interrupts */
-		aic_disable(ID_SECUMOD);
-		aic_disable(ID_SECURAM);
+		irq_disable(ID_SECUMOD);
+		irq_disable(ID_SECURAM);
 	}
 }
 

@@ -40,6 +40,7 @@ drivers-$(CONFIG_HAVE_EMAC) += drivers/peripherals/emac.o
 drivers-$(CONFIG_HAVE_GMAC) += drivers/peripherals/gmacd.o
 drivers-$(CONFIG_HAVE_GMAC) += drivers/peripherals/gmac.o
 drivers-$(CONFIG_HAVE_ICM) += drivers/peripherals/icm.o
+drivers-y += drivers/peripherals/irq.o
 drivers-$(CONFIG_HAVE_L2CC) += drivers/peripherals/l2cc.o
 drivers-$(CONFIG_HAVE_LCDC) += drivers/peripherals/lcdc.o
 drivers-y += drivers/peripherals/matrix.o

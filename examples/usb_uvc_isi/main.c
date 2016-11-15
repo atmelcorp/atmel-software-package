@@ -105,7 +105,7 @@
 #include "misc/console.h"
 #include "timer.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/isi.h"
 #include "misc/cache.h"
 #include "peripherals/pio.h"
@@ -124,6 +124,7 @@
 
 #include "../usb_common/main_usb_common.h"
 
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -173,9 +174,11 @@ static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 /**
  * \brief ISi interrupt handler.
  */
-static void isi_handler(void)
+static void isi_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = isi_get_status();
+
+	assert(source == ID_ISI);
 
 	if ((status & ISI_SR_PXFR_DONE) == ISI_SR_PXFR_DONE) {
 		frame_idx = (frame_idx == (NUM_FRAME_BUFFER - 1)) ? 0 : (frame_idx + 1);
@@ -223,7 +226,7 @@ static void configure_isi(void)
 			ISI_DMA_P_CTRL_P_FETCH, (uint32_t)stream_buffers);
 	isi_reset();
 	isi_disable_interrupt(-1);
-	aic_set_source_vector(ID_ISI, isi_handler);
+	irq_add_handler(ID_ISI, isi_handler, NULL);
 	isi_enable_interrupt(ISI_IER_PXFR_DONE);
 }
 
@@ -250,7 +253,7 @@ static void start_preview(void)
 	isi_enable();
 	isi_dma_codec_channel_enabled(0);
 	isi_dma_preview_channel_enabled(1);
-	aic_enable(ID_ISI);
+	irq_enable(ID_ISI);
 }
 
 /**

@@ -27,76 +27,42 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup aic_module
- *
- * \section Purpose
- * The Advanced Interrupt Controller (AIC) is an 8-level priority, individually
- * maskable, vectored interrupt controller, providing handling of up to 128 interrupt sources.
- *
- * \section Usage
- * <ul>
- * <li> Each interrupt source can be enabled or disabled by using the aic_enable() and aic_disable()</li>
- * </ul>
- *
- * For more accurate information, please look at the AIC section of the
- * Datasheet.
- *
- * Related files :\n
- * \ref aic5.c\n
- * \ref aic.h\n
- */
-/*@{*/
-/*@}*/
-
-/**
-* \file
-*
-* Implementation of Advanced Interrupt Controller (AIC) controller.
-*
-*/
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "trace.h"
 
 #include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/matrix.h"
 
 #include <stdint.h>
 #include <assert.h>
+#include <errno.h>
 
 /*------------------------------------------------------------------------------
  *         Local functions
  *------------------------------------------------------------------------------*/
 
-/**
- * \brief Default interrupt handler.
- */
-static void _aic_default_irq_handler(void)
+static void spurious_handler(void)
 {
-	while (1);
+	// nothing here
 }
 
 /**
  * \brief Interrupt Init.
  */
-static void _aic_initialize(Aic* aic)
+static void _aic_initialize(Aic* aic, aic_handler_t irq_handler)
 {
-	uint32_t i;
+	int i;
 
-	/* Disable all interrupts */
+	/* Disable all interrupts and clear pending flags */
 	for (i = 1; i < ID_PERIPH_COUNT; i++)
 	{
 		aic->AIC_SSR = i;
 		aic->AIC_IDCR = AIC_IDCR_INTD;
-	}
-
-	/* Clear All pending interrupts flags */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-	{
-		aic->AIC_SSR = i;
 		aic->AIC_ICCR = AIC_ICCR_INTCLR;
 	}
 
@@ -104,135 +70,40 @@ static void _aic_initialize(Aic* aic)
 	for (i = 0; i < 8; i++)
 		aic->AIC_EOICR = 0;
 
-	/* Assign default handler */
+	/* Assign default handlers */
 	for (i = 0; i < ID_PERIPH_COUNT; i++)
 	{
 		aic->AIC_SSR = i;
-		aic->AIC_SVR = (uint32_t)_aic_default_irq_handler;
+		aic->AIC_SVR = (uint32_t)irq_handler;
 	}
-	aic->AIC_SPU = (uint32_t)_aic_default_irq_handler;
+	aic->AIC_SPU = (uint32_t)spurious_handler;
 }
 
-/**
- * \brief Configures an interrupt in the AIC. The interrupt is identified by its
- * source (ID_xxx) and is configured to use the specified mode and
- * interrupt handler function. Mode is the value that will be put in AIC_SMRx
- * and the function address will be set in AIC_SVRx.
- * The interrupt is disabled before configuration, so it is useless
- * to do it before calling this function. When aic_configure returns, the
- * interrupt will always be disabled and cleared; it must be enabled by a
- * call to aic_enable().
- *
- * \param source  Interrupt source to configure.
- * \param mode  Triggering mode and priority of the interrupt.
- * \param handler  Interrupt handler function.
- */
-
-static void _aic_configure_it(uint32_t source, uint32_t mode)
+static Aic* _get_aic_instance(uint32_t source)
 {
-	AIC->AIC_SSR = source;
-	/* Disable the interrupt first */
-	AIC->AIC_IDCR = AIC_IDCR_INTD;
-	/* Configure mode and handler */
-	AIC->AIC_SMR = mode;
-	/* Clear interrupt */
-	AIC->AIC_ICCR = AIC_ICCR_INTCLR;
-}
-
-/**
- * \brief Enables interrupts coming from the given AIC and (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- * \param source  Interrupt source to enable.
- */
-static void _aic_enable_it(Aic * aic, uint32_t source)
-{
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_IECR = AIC_IECR_INTEN;
-}
-
-/**
- * \brief Disables interrupts coming from the given AIC and (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- * \param source  Interrupt source to disable.
- */
-static void _aic_disable_it(Aic * aic, uint32_t source)
-{
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_IDCR = AIC_IDCR_INTD;
-}
-
-/**
- * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- * \param source  Interrupt source to configure.
- * \param handler handler for the interrupt.
- */
-static void _aic_set_source_vector(Aic * aic, uint32_t source, void (*handler)(void))
-{
-	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
-		aic_write_protection(aic, false);
+#ifdef CONFIG_HAVE_SAIC
+	if (SFR->SFR_AICREDIR == 0) {
+		Matrix* matrix = get_peripheral_matrix(source);
+		if (matrix_is_peripheral_secured(matrix, source))
+			return SAIC;
 	}
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_SVR = (uint32_t)handler;
-}
-
-/**
- * \brief Configure the spurious interrupt handler
- *
- * \param aic  AIC instance.
- * \param handler handler for the interrupt.
- */
-static void _aic_set_spurious_vector(Aic * aic, void (*handler)(void))
-{
-	if (aic->AIC_WPMR & AIC_WPMR_WPEN) {
-		aic_write_protection(aic, false);
-	}
-	aic->AIC_SPU = (uint32_t)handler;
-}
-
-/**
- * \brief Clears interrupts coming from the given AIC and (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- * \param source  Interrupt source to disable.
- */
-static void _aic_clear_it(Aic * aic, uint32_t source)
-{
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_ICCR = AIC_ICCR_INTCLR;
-}
-
-/**
- * \brief Sets interrupts coming from the given AIC and (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- * \param source  Interrupt source to disable.
- */
-static void _aic_set_it(Aic * aic, uint32_t source)
-{
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_ISCR = AIC_ISCR_INTSET;
+#endif /* CONFIG_HAVE_SAIC */
+	return AIC;
 }
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Set the default handler for all interrupts
- */
-void aic_initialize(void)
+void aic_initialize(aic_handler_t irq_handler)
 {
 	/* Disable interrupts at core level */
 	irq_disable_all();
 
 	/* Set default vectors */
-	_aic_initialize(AIC);
+	_aic_initialize(AIC, irq_handler);
 #ifdef CONFIG_HAVE_SAIC
-	_aic_initialize(SAIC);
+	_aic_initialize(SAIC, irq_handler);
 
 	/* Redirect all interrupts to Non-secure AIC */
 	uint32_t aicredir = SFR_AICREDIR_AICREDIRKEY((uint32_t)(AICREDIR_KEY));
@@ -243,14 +114,62 @@ void aic_initialize(void)
 	irq_enable_all();
 }
 
-/**
- * \brief Enables interrupts coming from the given (unique) source (ID_xxx).
- *
- * \param source  Interrupt source to enable.
- */
+void aic_set_source_vector(uint32_t source, aic_handler_t handler)
+{
+	Aic *aic = _get_aic_instance(source);
+	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+	aic->AIC_SVR = (uint32_t)handler;
+}
+
+void aic_set_spurious_vector(aic_handler_t handler)
+{
+	AIC->AIC_SPU = (uint32_t)handler;
+#ifdef CONFIG_HAVE_SAIC
+	if (SFR->SFR_AICREDIR == 0)
+		SAIC->AIC_SPU = (uint32_t)handler;
+#endif
+}
+
+void aic_configure_mode(uint32_t source, enum _irq_mode mode)
+{
+	uint32_t srctype;
+
+	switch (mode) {
+	case IRQ_MODE_HIGH_LEVEL:
+		srctype = AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL;
+		break;
+	case IRQ_MODE_LOW_LEVEL:
+		srctype = AIC_SMR_SRCTYPE_INT_LEVEL_SENSITIVE;
+		break;
+	case IRQ_MODE_POSITIVE_EDGE:
+		srctype = AIC_SMR_SRCTYPE_EXT_POSITIVE_EDGE;
+		break;
+	case IRQ_MODE_NEGATIVE_EDGE:
+		srctype = AIC_SMR_SRCTYPE_INT_EDGE_TRIGGERED;
+		break;
+	default:
+		trace_fatal("Invalid interrupt mode: %d\r\n", (int)mode);
+	}
+
+	Aic* aic = _get_aic_instance(source);
+	aic->AIC_SSR = source;
+	aic->AIC_IDCR = AIC_IDCR_INTD;
+	aic->AIC_SMR = (aic->AIC_SMR & ~AIC_SMR_SRCTYPE_Msk) | srctype;
+	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+}
+
+void aic_configure_priority(uint32_t source, uint8_t priority)
+{
+	Aic* aic = _get_aic_instance(source);
+	aic->AIC_SSR = source;
+	aic->AIC_IDCR = AIC_IDCR_INTD;
+	aic->AIC_SMR = (aic->AIC_SMR & ~AIC_SMR_PRIOR_Msk) | AIC_SMR_PRIOR(priority);
+	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+}
+
 void aic_enable(uint32_t source)
 {
-	Aic *aic = AIC;
+	Aic* aic = AIC;
 
 #ifdef CONFIG_HAVE_SAIC
 	if (SFR->SFR_AICREDIR == 0) {
@@ -259,17 +178,13 @@ void aic_enable(uint32_t source)
 			aic = SAIC;
 	}
 #endif
-	_aic_enable_it(aic, source);
+	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+	aic->AIC_IECR = AIC_IECR_INTEN;
 }
 
-/**
- * \brief Disables interrupts coming from the given (unique) source (ID_xxx).
- *
- * \param source  Interrupt source to disable.
- */
 void aic_disable(uint32_t source)
 {
-	Aic *aic = AIC;
+	Aic* aic = AIC;
 
 #ifdef CONFIG_HAVE_SAIC	
 	if (SFR->SFR_AICREDIR == 0) {
@@ -278,160 +193,38 @@ void aic_disable(uint32_t source)
 			aic = SAIC;
 	}
 #endif
-	_aic_disable_it(aic, source);
+	aic->AIC_SSR = AIC_SSR_INTSEL(source);
+	aic->AIC_IDCR = AIC_IDCR_INTD;
 }
 
-/**
- * \brief Configure interrupts' source mode.
- *
- * \param source  Interrupt source to configure.
- * \param mode    mode combined of priority level and interrupt source type.
- */
-void aic_configure(uint32_t source, uint32_t mode)
+uint32_t aic_get_current_interrupt_source(void)
 {
-	_aic_configure_it(source, mode);
+	return AIC->AIC_ISR;
 }
 
-/**
- * \brief Configure corresponding handler for the interrupts coming from the given (unique) source (ID_xxx).
- *
- * \param source  Interrupt source to configure.
- * \param handler handler for the interrupt.
- */
-void aic_set_source_vector(uint32_t source, void (*handler)(void))
+void aic_set_debug_config(Aic* aic, bool protect, bool mask)
 {
-	Aic *aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
-	_aic_set_source_vector(aic, source, handler);
-}
-
-/**
- * \brief Configure the spurious interrupt handler
- *
- * \param handler handler for the interrupt.
- */
-void aic_set_spurious_vector(void (*handler)(void))
-{
-	Aic *aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		aic = SAIC;
-	}
-#endif
-	_aic_set_spurious_vector(aic, handler);
-}
-
-/**
- * \brief Configure interrupts' source mode.
- *
- * \param source  Interrupt source to configure.
- * \param mode    mode combined of priority level and interrupt source type.
- */
-void aic_set_or_clear(uint32_t source, bool set)
-{
-	Aic *aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
-	
-	if (set) {
-		_aic_set_it(aic, source);
-	} else {
-		_aic_clear_it(aic, source);
-	}
-}
-
-/**
- * \brief Indicate treatment completion for interrupts coming from the given AIC and (unique) source (ID_xxx).
- *
- * \param aic  AIC instance.
- */
-void aic_end_interrupt(Aic * aic)
-{
-	aic->AIC_EOICR = AIC_EOICR_ENDIT;
-}
-
-/**
- * \brief Configuration of protection mode and general interrupt mask for debug.
- *
- * \param aic     AIC instance.
- * \param protect Enable/Disable protection mode.
- * \param mask    Enable/Disable mask IRQ and FIQ.
- *
- * \retval        0 - succeed.  1 - failed.
- */
-uint32_t aic_debug_config(Aic * aic, bool protect, bool mask)
-{
-	uint32_t dcr;
-
-	/* return in case the "Write Protection Mode" is enabled */
-	if (aic->AIC_WPMR & AIC_WPMR_WPEN)
-		return 1;
-
-	dcr = 0;
+	uint32_t dcr = 0;
 	if (protect)
 		dcr |= AIC_DCR_PROT;
 	if (mask)
 		dcr |= AIC_DCR_GMSK;
 	aic->AIC_DCR = dcr;
-
-	return 0;
 }
 
-/**
- * \brief Enable/Disable AIC write protection mode.
- *
- * \param aic     AIC instance.
- * \param enable  Enable/Disable AIC write protection mode.
- */
-void aic_write_protection(Aic * aic, bool enable)
+void aic_set_write_protection(Aic* aic, bool enable)
 {
-	if (enable) {
+	if (enable)
 		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD | AIC_WPMR_WPEN;
-	} else {
+	else
 		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD;
-	}
 }
 
-/**
- * \brief Get AIC Write Protection Status.
- *
- * \param aic     AIC instance.
- * \param pViolationSource pointer to address to store the violation source
- *
- * \retval        0 - No violation occured.  1 - violation occured.
- */
-uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource)
+bool aic_check_write_protection_violation(Aic* aic, uint32_t* wpvsrc)
 {
 	if (aic->AIC_WPSR & AIC_WPSR_WPVS) {
-		*pViolationSource =
-		    (aic->
-		     AIC_WPSR & AIC_WPSR_WPVSRC_Msk) >> AIC_WPSR_WPVSRC_Pos;
+		*wpvsrc = (aic->AIC_WPSR & AIC_WPSR_WPVSRC_Msk) >> AIC_WPSR_WPVSRC_Pos;
+		return true;
 	}
-	return 0;
+	return false;
 }
-
-/**
- * \brief Get AIC Current Interrupt Identifier.
- *
- * \retval      IRQID: Current Interrupt Identifier
- */
-uint32_t aic_get_current_interrupt_identifier(void)
-{
-	Aic* aic = AIC;
-	return aic->AIC_ISR ;
-}
-

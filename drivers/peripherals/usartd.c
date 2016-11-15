@@ -32,7 +32,7 @@
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/usartd.h"
 #include "peripherals/usart.h"
@@ -154,12 +154,11 @@ static void _usartd_dma_write(uint8_t iface)
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
-static void _usartd_handler(void)
+static void _usartd_handler(uint32_t source, void* user_arg)
 {
 	int iface;
 	uint32_t status = 0;
-	uint32_t id = aic_get_current_interrupt_identifier();
-	Usart* addr = get_usart_addr_from_id(id);
+	Usart* addr = get_usart_addr_from_id(source);
 	bool _rx_stop = true;
 	bool _tx_stop = true;
 
@@ -257,9 +256,9 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 	pmc_enable_peripheral(id);
 	usart_configure(config->addr, config->mode, config->baudrate);
 	usart_set_rx_timeout(config->addr, config->baudrate, config->timeout);
-	aic_set_source_vector(get_usart_id_from_addr(config->addr), _usartd_handler);
+	irq_add_handler(get_usart_id_from_addr(config->addr), _usartd_handler, NULL);
 	/* Enable USART interrupt */
-	aic_enable(id);
+	irq_enable(id);
 
 #ifdef CONFIG_HAVE_USART_FIFO
 	config->fifo.rx.size = get_peripheral_fifo_depth(config->addr);

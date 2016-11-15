@@ -68,9 +68,9 @@
 #include "chip.h"
 #include "intmath.h"
 #include "timer.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/aic.h"
 #include "misc/cache.h"
 #include "peripherals/sdmmc.h"
 #include "libsdmmc/sdmmc_hal.h"
@@ -1046,12 +1046,12 @@ End:
 		(cmd->fCallback)(cmd->bStatus, cmd->pArg);
 }
 
-static void sdmmc0_handler(void)
+static void sdmmc0_handler(uint32_t source, void* user_arg)
 {
 	sdmmc_poll(sdmmc0_set);
 }
 
-static void sdmmc1_handler(void)
+static void sdmmc1_handler(uint32_t source, void* user_arg)
 {
 	sdmmc_poll(sdmmc1_set);
 }
@@ -1822,16 +1822,16 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 		sdmmc0_set = set;
 		if (!set->use_polling) {
 			/* enable SDMMC0 interrupt */
-			aic_set_source_vector(periph_id, sdmmc0_handler);
-			aic_enable(periph_id);
+			irq_add_handler(periph_id, sdmmc0_handler, NULL);
+			irq_enable(periph_id);
 		}
 	}
 	if (periph_id == ID_SDMMC1) {
 		sdmmc1_set = set;
 		if (!set->use_polling) {
 			/* enable SDMMC1 interrupt */
-			aic_set_source_vector(periph_id, sdmmc1_handler);
-			aic_enable(periph_id);
+			irq_add_handler(periph_id, sdmmc1_handler, NULL);
+			irq_enable(periph_id);
 		}
 	}
 	return true;

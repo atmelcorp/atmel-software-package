@@ -41,7 +41,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #ifdef CONFIG_HAVE_DBGU
 #include "peripherals/dbgu.h"
 #endif
@@ -137,7 +137,7 @@ static console_rx_handler_t console_rx_handler;
  *         Local functions
  *------------------------------------------------------------------------------*/
 
-static void console_handler(void)
+static void console_handler(uint32_t source, void* user_arg)
 {
 	uint8_t c;
 
@@ -226,15 +226,16 @@ void console_set_rx_handler(console_rx_handler_t handler)
 
 void console_enable_rx_interrupt(void)
 {
-	aic_set_source_vector(console_id, console_handler);
-        aic_enable(console_id);
+	irq_add_handler(console_id, console_handler, NULL);
+	irq_enable(console_id);
 	console.enable_it(console_addr, console.rx_int_mask);
 }
 
 void console_disable_rx_interrupt(void)
 {
-        aic_disable(console_id);
 	console.disable_it(console_addr, console.rx_int_mask);
+	irq_disable(console_id);
+	irq_remove_handler(console_id, console_handler);
 }
 
 void console_example_info(const char *example_name)

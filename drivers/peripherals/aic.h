@@ -27,20 +27,11 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- *  \file
- *
- *  \section Purpose
- *
- *  Methods and definitions for configuring interrupts.
- *
- *  \section Usage
-  *  -# Enable or disable interrupt generation of a particular source with
- *    IRQ_EnableIT and IRQ_DisableIT.
- */
+#ifndef AIC_H_
+#define AIC_H_
 
-#ifndef AIC_H
-#define AIC_H
+#if defined(CONFIG_HAVE_AIC2) ||\
+    defined(CONFIG_HAVE_AIC5)
 
 /*------------------------------------------------------------------------------
  *         Headers
@@ -48,10 +39,16 @@
 
 #include "chip.h"
 
+#include "peripherals/irq.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef void(*aic_handler_t)(void);
+/*------------------------------------------------------------------------------
+ *         Global types
+ *------------------------------------------------------------------------------*/
+
+typedef void (*aic_handler_t)(void);
 
 /*------------------------------------------------------------------------------
  *         Global functions
@@ -61,21 +58,101 @@ typedef void(*aic_handler_t)(void);
 extern "C" {
 #endif
 
-extern void aic_initialize(void);
+/**
+ * \brief Initialize the AIC.
+ *
+ * This function will disable all interrupts, clear all interrupt pending flags
+ * and set the default handlers.
+ */
+extern void aic_initialize(aic_handler_t irq_handler);
+
+/**
+ * \brief Configure a handler for a given interrupt source (ID_xxx).
+ *
+ * \param source  Interrupt source to configure
+ * \param handler handler for the interrupt
+ */
+extern void aic_set_source_vector(uint32_t source, aic_handler_t handler);
+
+/**
+ * \brief Configure the spurious interrupt handler.
+ *
+ * \param handler handler for the spurious interrupts
+ */
+extern void aic_set_spurious_vector(aic_handler_t handler);
+
+/**
+ * \brief Configure the interrupt mode for a given source.
+ *
+ * Interrupt mode can be one of IRQ_MODE_HIGH_LEVEL, IRQ_MODE_LOW_LEVEL,
+ * IRQ_MODE_POSITIVE_EDGE, IRQ_MODE_NEGATIVE_EDGE.  For internal interrupts,
+ * there is no notion of Low/High levels or Positive/Negative egdes, so either
+ * one can be used.
+ *
+ * \param source   Interrupt source to configure
+ * \param mode     Interrupt mode (Level/Edge)
+ */
+extern void aic_configure_mode(uint32_t source, enum _irq_mode mode);
+
+/**
+ * \brief Configure the interrupt priority for a given source.
+ *
+ * \param source   Interrupt source to configure
+ * \param priority Interrupt priority
+ */
+extern void aic_configure_priority(uint32_t source, uint8_t priority);
+
+/**
+ * \brief Enable interrupts coming from the given source (ID_xxx).
+ *
+ * \param source  Interrupt source to enable
+ */
 extern void aic_enable(uint32_t source);
+
+/**
+ * \brief Disable interrupts coming from the given source (ID_xxx).
+ *
+ * \param source  Interrupt source to disable
+ */
 extern void aic_disable(uint32_t source);
-extern void aic_configure(uint32_t source, uint32_t mode);
-extern void aic_set_source_vector(uint32_t source, void (*handler)(void));
-extern void aic_set_spurious_vector(void (*handler)(void));
-extern void aic_set_or_clear(uint32_t source, bool set);
-extern void aic_end_interrupt(Aic * aic);
-extern uint32_t aic_debug_config(Aic * aic, bool protect, bool mask);
-extern void aic_write_protection(Aic * aic, bool enable);
-extern uint32_t aic_violation_occured(Aic * aic, uint32_t * pViolationSource);
-extern uint32_t aic_get_current_interrupt_identifier(void);
+
+/**
+ * \brief Get the current interrupt source number
+ *
+ * \return Interrupt source number
+ */
+extern uint32_t aic_get_current_interrupt_source(void);
+
+/**
+ * \brief Configure protection mode and general interrupt mask for debug.
+ *
+ * \param aic     AIC instance
+ * \param protect Enable/Disable protection mode
+ * \param mask    Enable/Disable mask IRQ and FIQ
+ */
+extern void aic_set_debug_config(Aic* aic, bool protect, bool mask);
+
+/**
+ * \brief Configure AIC write protection.
+ *
+ * \param aic     AIC instance
+ * \param enable  Enable/Disable AIC write protection mode
+ */
+extern void aic_set_write_protection(Aic* aic, bool enable);
+
+/**
+ * \brief Get AIC Write Protection Violation Status.
+ *
+ * \param aic     AIC instance
+ * \param wpvsrc  pointer to uint32_t to store the violation source
+ * \return false if no violation occured, true otherwise.
+ */
+extern bool aic_check_write_protection_violation(Aic* aic, uint32_t *wpvsrc);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //#ifndef AIC_H
+#endif /* CONFIG_HAVE_AIC2 || CONFIG_HAVE_AIC5 */
+
+#endif /* AIC_H_ */

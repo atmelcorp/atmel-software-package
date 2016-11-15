@@ -65,10 +65,11 @@
 
 #include "chip.h"
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/trng.h"
 
+#include <assert.h>
 #include <stdlib.h>
 
 /*----------------------------------------------------------------------------
@@ -82,8 +83,9 @@ static void*           _trng_callback_arg;
  *         Local functions
  *------------------------------------------------------------------------------*/
 
-static void _trng_handler(void)
+static void _trng_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_TRNG);
 	if (TRNG->TRNG_ISR & TRNG_ISR_DATRDY) {
 		if (_trng_callback) {
 			_trng_callback(TRNG->TRNG_ODATA, _trng_callback_arg);
@@ -111,15 +113,15 @@ void trng_enable_it(trng_callback_t cb, void* user_arg)
 {
 	_trng_callback = cb;
 	_trng_callback_arg = user_arg;
-	aic_set_source_vector(ID_TRNG, _trng_handler);
-	aic_enable(ID_TRNG);
+	irq_add_handler(ID_TRNG, _trng_handler, NULL);
+	irq_enable(ID_TRNG);
 	TRNG->TRNG_IER = TRNG_IER_DATRDY;
 }
 
 void trng_disable_it(void)
 {
 	TRNG->TRNG_IDR = TRNG_IDR_DATRDY;
-	aic_disable(ID_TRNG);
+	irq_disable(ID_TRNG);
 	_trng_callback = NULL;
 	_trng_callback_arg = NULL;
 }

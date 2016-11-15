@@ -27,7 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "peripherals/aic.h"
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/shad.h"
 #include "peripherals/sha.h"
@@ -61,8 +61,10 @@ static void _shad_dma_callback(struct dma_channel *channel, void *arg)
 /**
  * \brief SHA interrupt handler.
  */
-static void _shad_handler(void)
+static void _shad_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_SHA);
+
 	if ((sha_get_status() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
 		sha_disable_it(SHA_IER_DATRDY);
 		single_transfer_ready = true;
@@ -236,8 +238,8 @@ void shad_init(void)
 	/* Enable peripheral clock */
 	pmc_enable_peripheral(ID_SHA);
 	/* Enable peripheral interrupt */
-	aic_set_source_vector(ID_SHA, _shad_handler);
-	aic_enable(ID_SHA);
+	irq_add_handler(ID_SHA, _shad_handler, NULL);
+	irq_enable(ID_SHA);
 }
 
 /**

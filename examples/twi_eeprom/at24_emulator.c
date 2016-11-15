@@ -34,8 +34,8 @@
 #include "board.h"
 #include "trace.h"
 
+#include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "peripherals/twid.h"
 #include "bus/twi-bus.h"
 
@@ -95,7 +95,7 @@ static struct _slave_device_driver at24_emulator;
  *
  *  Handle process TWI master's requests.
  */
-static void twi_slave_handler(void)
+static void twi_slave_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status;
 	Twi *twi = at24_emulator.twi;
@@ -170,7 +170,7 @@ void at24_emulator_initialize(Twi* twi, uint8_t addr)
 	twi_id = get_twi_id_from_addr(twi);
 	pmc_enable_peripheral(twi_id);
 	twi_configure_slave(twi, addr);
-	aic_set_source_vector(twi_id, twi_slave_handler);
+	irq_add_handler(twi_id, twi_slave_handler, NULL);
 	twi_enable_it(twi, TWI_IER_SVACC | TWI_IER_RXRDY);
-	aic_enable(twi_id);
+	irq_enable(twi_id);
 }

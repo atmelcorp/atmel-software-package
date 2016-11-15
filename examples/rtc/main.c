@@ -113,12 +113,13 @@
 
 #include "board.h"
 #include "misc/console.h"
+#include "peripherals/irq.h"
 #include "peripherals/rtc.h"
 #include "peripherals/tc.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aic.h"
 #include "trace.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -434,9 +435,11 @@ static void _RefreshDisplay(void)
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
  */
-static void sysc_handler(void)
+static void sysc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t dwStatus = RTC->RTC_SR;
+
+	assert(source == ID_RTC);
 
 	/* Second increment interrupt */
 	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
@@ -472,8 +475,10 @@ static void sysc_handler(void)
 /**
  *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
  */
-static void calibration_tc_handler(void)
+static void calibration_tc_handler(uint32_t source, void* user_arg)
 {
+	assert(source == ID_TC0);
+
 	/* Clear status bit to acknowledge interrupt */
 	tc_get_status(TC0, 0);
 
@@ -495,14 +500,14 @@ static void configure_calibration_tc(void)
 	pmc_enable_peripheral(ID_TC0);
 
 	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, calibration_tc_handler);
+	irq_add_handler(ID_TC0, calibration_tc_handler, NULL);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC0, 0, 1);
 
 	/* Configure and enable interrupt on RC compare */
 	tc_enable_it(TC0, 0, TC_IER_CPCS);
-	aic_enable(ID_TC0);
+	irq_enable(ID_TC0);
 
 	/* Start the counter */
 	tc_start(TC0, 0);
@@ -575,9 +580,9 @@ int main(void)
 	/* Configure RTC interrupts
 	 * on sam9xx5,system peripheral including pit, rtc, wdt, etc. 
 	 * System interrupt is enabled on the init phase */
-	aic_set_source_vector(ID_RTC, sysc_handler);
+	irq_add_handler(ID_RTC, sysc_handler, NULL);
 	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
-	aic_enable(ID_RTC);
+	irq_enable(ID_RTC);
 
 	/* Handle keypresses */
 	while (1) {
@@ -621,7 +626,7 @@ int main(void)
 		/* set date */
 		else if (ucKey == 'd') {
 			bState = STATE_SET_DATE;
-			aic_disable(ID_TC0);
+			irq_disable(ID_TC0);
 
 			do {
 				printf("\r\n\r\n Set date(mm/dd/yyyy): ");
@@ -643,14 +648,14 @@ int main(void)
 			bState = STATE_MENU;
 			bMenuShown = 0;
 			CountDownTimer = 0;
-			aic_enable(ID_TC0);
+			irq_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 
 		/* set time alarm */
 		else if (ucKey == 'i') {
 			bState = STATE_SET_TIME_ALARM;
-			aic_disable(ID_TC0);
+			irq_disable(ID_TC0);
 
 			do {
 				printf("\r\n\r\n Set time alarm(hh:mm:ss): ");
@@ -670,14 +675,14 @@ int main(void)
 			bMenuShown = 0;
 			alarmTriggered = 0;
 			CountDownTimer = 0;
-			aic_enable(ID_TC0);
+			irq_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 
 		/* set date alarm */
 		else if (ucKey == 'm') {
 			bState = STATE_SET_DATE_ALARM;
-			aic_disable(ID_TC0);
+			irq_disable(ID_TC0);
 
 			do {
 				printf("\r\n\r\n Set date alarm(mm/dd/): ");
@@ -698,7 +703,7 @@ int main(void)
 			bMenuShown = 0;
 			alarmTriggered = 0;
 			CountDownTimer = 0;
-			aic_enable(ID_TC0);
+			irq_enable(ID_TC0);
 			_RefreshDisplay();
 		}
 
