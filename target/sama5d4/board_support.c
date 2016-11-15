@@ -143,12 +143,15 @@ const char* get_board_name(void)
 
 void board_cfg_clocks(void)
 {
+	struct _pmc_plla_cfg plla_config = {
+		.mul = 87,
+		.div = 1,
+		.count = 0x3f,
+	};
 	pmc_select_external_osc();
 	pmc_switch_mck_to_main();
-	pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
-	pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-		     CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(87) |
-		     CKGR_PLLAR_DIVA_BYPASS, PMC_PLLICPR_IPLL_PLLA(0x0));
+	pmc_set_mck_plladiv2(true);
+	pmc_configure_plla(&plla_config);
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 	pmc_switch_mck_to_pll();

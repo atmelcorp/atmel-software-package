@@ -132,18 +132,19 @@ const char* get_board_name(void)
 
 void board_cfg_clocks(void)
 {
+	struct _pmc_plla_cfg plla_config = {
+		.mul = 82,
+		.div = 1,
+		.count = 0x3f,
+	};
 	pmc_switch_mck_to_slck();
-	pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
-	pmc_set_mck_plla_div(PMC_MCKR_PLLADIV2);
+	pmc_set_mck_h32mxdiv(true);
+	pmc_set_mck_plladiv2(true);
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
-	/* Disable PLLA */
-	pmc_set_plla(0, 0);
+	pmc_disable_plla();
 	pmc_select_external_osc();
-	/* Configure PLLA */
-	pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-		CKGR_PLLAR_OUTA(0x0) | CKGR_PLLAR_MULA(82) |
-		CKGR_PLLAR_DIVA_BYPASS, 0);
+	pmc_configure_plla(&plla_config);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 	pmc_switch_mck_to_pll();

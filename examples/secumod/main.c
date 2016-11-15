@@ -319,12 +319,15 @@ struct pck_mck_cfg clock_setting = {
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
 		.ext32k = false,
-		.plla_mul = 58,
-		.plla_div = 1,
-		.plla_div2 = true,
+		.plla = {
+			.mul = 58,
+			.div = 1,
+			.count = 0x3f,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
 		.mck_div = PMC_MCKR_MDIV_PCK_DIV2,
-		.h32mxdiv2 = true,
+		.plla_div2 = true,
+		.h32mx_div2 = true,
 };
 
 /*----------------------------------------------------------------------------

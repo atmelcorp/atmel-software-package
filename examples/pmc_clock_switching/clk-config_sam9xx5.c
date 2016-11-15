@@ -36,10 +36,13 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
 		.ext32k = true,
-		.plla_mul = 65,
-		.plla_div = 1,
-		.plla_div2 = true,
+		.plla = {
+			.mul = 65,
+			.div = 1,
+			.count = 0x3f,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
+		.plla_div2 = true,
 		.mck_div = PMC_MCKR_MDIV_PCK_DIV4,
 	},
 	/* UPLL = 480 Mhz, PCK = UPLL/2 = 240Mhz, MCK = PCK/2 = 120Mhz */
@@ -48,10 +51,11 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.pck_input = PMC_MCKR_CSS_UPLL_CLK,
 		.ext12m = true,
 		.ext32k = true,
-		.plla_mul = 0,
-		.plla_div = 1,
-		.plla_div2 = false,
+		.plla = {
+			.mul = 0,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK_DIV2,
+		.plla_div2 = false,
 		.mck_div = PMC_MCKR_MDIV_PCK_DIV2,
 	},
 	/* PCK = MCK = 12 MHz */
@@ -60,10 +64,11 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
 		.ext12m = true,
 		.ext32k = true,
-		.plla_mul = 0,
-		.plla_div = 1,
-		.plla_div2 = false,
+		.plla = {
+			.mul = 0,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
+		.plla_div2 = false,
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
 	},
 	/* PCK = MCK = 32 kHz */
@@ -72,10 +77,11 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
 		.ext12m = true,
 		.ext32k = true,
-		.plla_mul = 0,
-		.plla_div = 1,
-		.plla_div2 = false,
+		.plla = {
+			.mul = 0,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
+		.plla_div2 = false,
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
 	},
 };

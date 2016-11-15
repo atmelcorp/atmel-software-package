@@ -42,6 +42,22 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
+struct _pmc_plla_cfg {
+	/** PLLA MUL value */
+	uint32_t mul;
+
+	/** PLLA DIV value */
+	uint32_t div;
+
+	/** PLLA COUNT value (number of slow clock cycles before the PLLA is locked) */
+	uint32_t count;
+
+#ifdef CONFIG_HAVE_PMC_PLLA_CHARGE_PUMP
+	/** PLLA ICP value */
+	uint32_t icp;
+#endif
+};
+
 struct pck_mck_cfg {
 	/** PLL A, SLCK, MAIN, UPLL */
 	uint32_t pck_input;
@@ -52,14 +68,8 @@ struct pck_mck_cfg {
 	/** RC32K (false) or EXT32K (true) */
 	bool ext32k;
 
-	/** PLLA MUL value in PMC PLL register */
-	uint32_t plla_mul;
-
-	/** PLLA DIV value in PMC PLL register */
-	uint32_t plla_div;
-
-	/** PLLA DIV value by 2 */
-	bool plla_div2;
+	/** PLLA configuration */
+	struct _pmc_plla_cfg plla;
 
 	/** Master/Processor Clock Prescaler */
 	uint32_t pck_pres;
@@ -67,9 +77,19 @@ struct pck_mck_cfg {
 	/** Master Clock Division after Prescaler divider */
 	uint32_t mck_div;
 
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+	/** PLLA DIV value by 2 */
+	bool plla_div2;
+#endif
+
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+	/** UPLL DIV value by 2 */
+	bool upll_div2;
+#endif
+
 #ifdef CONFIG_HAVE_PMC_H32MXDIV
 	/** true if the AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2 */
-	bool h32mxdiv2;
+	bool h32mx_div2;
 #endif
 };
 
@@ -79,19 +99,17 @@ struct pck_mck_cfg {
 enum _pmc_system_clock {
 	PMC_SYSTEM_CLOCK_DDR,
 	PMC_SYSTEM_CLOCK_LCD,
-#ifdef CONFIG_HAVE_SMD
 	PMC_SYSTEM_CLOCK_SMD,
-#endif
 	PMC_SYSTEM_CLOCK_UHP,
 	PMC_SYSTEM_CLOCK_UDP,
 	PMC_SYSTEM_CLOCK_PCK0,
 	PMC_SYSTEM_CLOCK_PCK1,
-#ifdef CONFIG_HAVE_PMC_PCK2
 	PMC_SYSTEM_CLOCK_PCK2,
-#endif
-#ifdef CONFIG_HAVE_ISC
+	PMC_SYSTEM_CLOCK_PCK3,
+	PMC_SYSTEM_CLOCK_PCK4,
+	PMC_SYSTEM_CLOCK_PCK5,
+	PMC_SYSTEM_CLOCK_PCK6,
 	PMC_SYSTEM_CLOCK_ISC,
-#endif
 };
 
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
@@ -219,11 +237,10 @@ extern void pmc_switch_mck_to_main(void);
 extern void pmc_switch_mck_to_slck(void);
 
 /**
- * \brief Configure PLL Register.
- * \param pll pll value.
- * \param cpcr cpcr value.
+ * \brief Configure PLL Registers.
+ * \param plla PLLA configuration.
  */
-extern void pmc_set_plla(uint32_t pll, uint32_t cpcr);
+extern void pmc_configure_plla(struct _pmc_plla_cfg* plla);
 
 /**
  * \brief Configure MCK Prescaler.
@@ -240,16 +257,26 @@ extern void pmc_set_mck_divider(uint32_t divider);
 #ifdef CONFIG_HAVE_PMC_H32MXDIV
 /**
  * \brief Configure MCK H32MXDIV.
- * \param divider divider value.
+ * \param div2 true if the AHB 32-bit Matrix frequency is equal to the AHB 64-bit Matrix frequency divided by 2
  */
-extern void pmc_set_mck_h32mxdiv(uint32_t divider);
+extern void pmc_set_mck_h32mxdiv(bool div2);
 #endif /* CONFIG_HAVE_PMC_H32MXDIV */
 
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
 /**
  * \brief Configure MCK PLLA divider.
- * \param divider PLL divider value.
+ * \param div2 true if PLLA should be divided by 2, false otherwise
  */
-extern void pmc_set_mck_plla_div(uint32_t divider);
+extern void pmc_set_mck_plladiv2(bool div2);
+#endif /* CONFIG_HAVE_PMC_PLLADIV2 */
+
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+/**
+ * \brief Configure MCK UPLL divider.
+ * \param div2 true if UPLL should be divided by 2, false otherwise
+ */
+extern void pmc_set_mck_uplldiv2(bool div2);
+#endif /* CONFIG_HAVE_PMC_UPLLDIV2 */
 
 /**
  * \brief Disable PLLA Register.
@@ -369,6 +396,7 @@ extern void pmc_disable_upll_clock(void);
  */
 extern uint32_t pmc_get_upll_clock(void);
 
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 /**
  * \brief Enable the UPLL clock bias
  */
@@ -378,6 +406,7 @@ extern void pmc_enable_upll_bias(void);
  * \brief Disable the UPLL clock bias
  */
 extern void pmc_disable_upll_bias(void);
+#endif /* CONFIG_HAVE_PMC_UPLL_BIAS */
 
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 /**

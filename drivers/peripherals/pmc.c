@@ -211,51 +211,91 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 
 	switch (clock)
 	{
+#ifdef PMC_SCER_DDRCK
 	case PMC_SYSTEM_CLOCK_DDR:
 		e = PMC_SCER_DDRCK;
 		d = PMC_SCDR_DDRCK;
 		s = PMC_SCSR_DDRCK;
 		break;
+#endif
+#ifdef PMC_SCER_LCDCK
 	case PMC_SYSTEM_CLOCK_LCD:
 		e = PMC_SCER_LCDCK;
 		d = PMC_SCDR_LCDCK;
 		s = PMC_SCSR_LCDCK;
 		break;
-#ifdef CONFIG_HAVE_SMD
+#endif
+#ifdef PMC_SCER_SMDCK
 	case PMC_SYSTEM_CLOCK_SMD:
 		e = PMC_SCER_SMDCK;
 		d = PMC_SCDR_SMDCK;
 		s = PMC_SCSR_SMDCK;
 		break;
 #endif
+#ifdef PMC_SCER_UHP
 	case PMC_SYSTEM_CLOCK_UHP:
 		e = PMC_SCER_UHP;
 		d = PMC_SCDR_UHP;
 		s = PMC_SCSR_UHP;
 		break;
+#endif
+#ifdef PMC_SCER_UDP
 	case PMC_SYSTEM_CLOCK_UDP:
 		e = PMC_SCER_UDP;
 		d = PMC_SCDR_UDP;
 		s = PMC_SCSR_UDP;
 		break;
+#endif
+#ifdef PMC_SCER_PCK0
 	case PMC_SYSTEM_CLOCK_PCK0:
 		e = PMC_SCER_PCK0;
 		d = PMC_SCDR_PCK0;
 		s = PMC_SCSR_PCK0;
 		break;
+#endif
+#ifdef PMC_SCER_PCK1
 	case PMC_SYSTEM_CLOCK_PCK1:
 		e = PMC_SCER_PCK1;
 		d = PMC_SCDR_PCK1;
 		s = PMC_SCSR_PCK1;
 		break;
-#ifdef CONFIG_HAVE_PMC_PCK2
+#endif
+#ifdef PMC_SCER_PCK2
 	case PMC_SYSTEM_CLOCK_PCK2:
 		e = PMC_SCER_PCK2;
 		d = PMC_SCDR_PCK2;
 		s = PMC_SCSR_PCK2;
 		break;
 #endif
-#ifdef CONFIG_HAVE_ISC
+#ifdef PMC_SCER_PCK3
+	case PMC_SYSTEM_CLOCK_PCK3:
+		e = PMC_SCER_PCK3;
+		d = PMC_SCDR_PCK3;
+		s = PMC_SCSR_PCK3;
+		break;
+#endif
+#ifdef PMC_SCER_PCK4
+	case PMC_SYSTEM_CLOCK_PCK4:
+		e = PMC_SCER_PCK4;
+		d = PMC_SCDR_PCK4;
+		s = PMC_SCSR_PCK4;
+		break;
+#endif
+#ifdef PMC_SCER_PCK5
+	case PMC_SYSTEM_CLOCK_PCK5:
+		e = PMC_SCER_PCK5;
+		d = PMC_SCDR_PCK5;
+		s = PMC_SCSR_PCK5;
+		break;
+#endif
+#ifdef PMC_SCER_PCK6
+	case PMC_SYSTEM_CLOCK_PCK6:
+		e = PMC_SCER_PCK6;
+		d = PMC_SCDR_PCK6;
+		s = PMC_SCSR_PCK6;
+		break;
+#endif
+#ifdef PMC_SCER_ISCCK
 	case PMC_SYSTEM_CLOCK_ISC:
 		e = PMC_SCER_ISCCK;
 		d = PMC_SCDR_ISCCK;
@@ -263,6 +303,7 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		break;
 #endif
 	default:
+		trace_debug("Unknown System clock: %d\r\n", clock);
 		return false;
 	}
 
@@ -340,8 +381,10 @@ uint32_t pmc_get_plla_clock(void)
 		pllaclk = 0;
 	} else {
 		pllaclk = pllaclk * (pllmula + 1) / plldiva;
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
 		if (PMC->PMC_MCKR & PMC_MCKR_PLLADIV2)
 			pllaclk >>= 1;
+#endif
 	}
 
 	return pllaclk;
@@ -584,31 +627,46 @@ void pmc_set_mck_prescaler(uint32_t prescaler)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-void pmc_set_mck_plla_div(uint32_t divider)
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+void pmc_set_mck_plladiv2(bool div2)
 {
-	if ((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
-		if (divider == 0) {
-			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PLLADIV2);
-		}
+	uint32_t mckr = PMC->PMC_MCKR;
+	if (div2) {
+		if ((mckr & PMC_MCKR_PLLADIV2) != PMC_MCKR_PLLADIV2)
+			PMC->PMC_MCKR = mckr | PMC_MCKR_PLLADIV2;
 	} else {
-		if (divider == PMC_MCKR_PLLADIV2) {
-			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_PLLADIV2);
-		}
+		if ((mckr & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2)
+			PMC->PMC_MCKR = mckr & ~PMC_MCKR_PLLADIV2;
 	}
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
+#endif
+
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+void pmc_set_mck_uplldiv2(bool div2)
+{
+	uint32_t mckr = PMC->PMC_MCKR;
+	if (div2) {
+		if ((mckr & PMC_MCKR_UPLLDIV2) != PMC_MCKR_UPLLDIV2)
+			PMC->PMC_MCKR = mckr | PMC_MCKR_UPLLDIV2;
+	} else {
+		if ((PMC->PMC_MCKR & PMC_MCKR_UPLLDIV2) == PMC_MCKR_UPLLDIV2)
+			PMC->PMC_MCKR = mckr & ~PMC_MCKR_UPLLDIV2;
+	}
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+}
+#endif
 
 #ifdef CONFIG_HAVE_PMC_H32MXDIV
-void pmc_set_mck_h32mxdiv(uint32_t divider)
+void pmc_set_mck_h32mxdiv(bool div2)
 {
-	if ((PMC->PMC_MCKR & PMC_MCKR_H32MXDIV) == PMC_MCKR_H32MXDIV_H32MXDIV2) {
-		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV1) {
-			PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_H32MXDIV);
-		}
+	uint32_t mckr = PMC->PMC_MCKR;
+	if (div2) {
+		if ((mckr & PMC_MCKR_H32MXDIV) != PMC_MCKR_H32MXDIV_H32MXDIV2)
+			PMC->PMC_MCKR = (mckr & ~PMC_MCKR_H32MXDIV) | PMC_MCKR_H32MXDIV_H32MXDIV2;
 	} else {
-		if (divider == PMC_MCKR_H32MXDIV_H32MXDIV2) {
-			PMC->PMC_MCKR = (PMC->PMC_MCKR | PMC_MCKR_H32MXDIV_H32MXDIV2);
-		}
+		if ((mckr & PMC_MCKR_H32MXDIV) != PMC_MCKR_H32MXDIV_H32MXDIV1)
+			PMC->PMC_MCKR = (mckr & ~PMC_MCKR_H32MXDIV) | PMC_MCKR_H32MXDIV_H32MXDIV1;
 	}
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
@@ -623,14 +681,24 @@ void pmc_set_mck_divider(uint32_t divider)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-void pmc_set_plla(uint32_t pll, uint32_t cpcr)
+void pmc_configure_plla(struct _pmc_plla_cfg* plla)
 {
-	PMC->CKGR_PLLAR = pll;
-	PMC->PMC_PLLICPR = cpcr;
+	uint32_t pllar = 0;
 
-	if ((pll & CKGR_PLLAR_DIVA_Msk) != CKGR_PLLAR_DIVA_0) {
+#ifdef CKGR_PLLAR_ONE
+	pllar |= CKGR_PLLAR_ONE;
+#endif
+	pllar |= CKGR_PLLAR_MULA(plla->mul);
+	pllar |= CKGR_PLLAR_DIVA(plla->div);
+	pllar |= CKGR_PLLAR_PLLACOUNT(plla->count);
+	PMC->CKGR_PLLAR = pllar;
+
+#ifdef CONFIG_HAVE_PMC_PLLA_CHARGEPUMP
+	PMC->PMC_PLLICPR = plla->icp & PMC_PLLICPR_ICP_PLLA_Msk;
+#endif /* CONFIG_HAVE_PMC_PLLA_CHARGEPUMP */
+
+	if (plla->mul > 0)
 		while (!(PMC->PMC_SR & PMC_SR_LOCKA));
-	}
 }
 
 void pmc_disable_plla(void)
@@ -696,28 +764,20 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
 		pmc_select_internal_crystal();
 
 	pmc_disable_plla();
-	if (cfg->plla_mul > 0) {
-		pmc_set_mck_plla_div(cfg->plla_div2 ? PMC_MCKR_PLLADIV2 : 0);
-		uint32_t tmp = CKGR_PLLAR_ONE |
-			CKGR_PLLAR_PLLACOUNT(0x3F) |
-			CKGR_PLLAR_OUTA(0x0) |
-			CKGR_PLLAR_MULA(cfg->plla_mul) |
-			CKGR_PLLAR_DIVA(cfg->plla_div);
-#ifdef CONFIG_SOC_SAMA5D3
-		pmc_set_plla(tmp, PMC_PLLICPR_IPLL_PLLA(0x3));
-#else
-		pmc_set_plla(tmp, 0);
+	if (cfg->plla.mul > 0 && cfg->plla.div > 0) {
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+		pmc_set_mck_plladiv2(cfg->plla_div2);
 #endif
+		pmc_configure_plla(&cfg->plla);
 	}
 
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+	pmc_set_mck_uplldiv2(cfg->upll_div2);
+#endif
 	pmc_set_mck_prescaler(cfg->pck_pres);
 	pmc_set_mck_divider(cfg->mck_div);
-
 #ifdef CONFIG_HAVE_PMC_H32MXDIV
-	if (cfg->h32mxdiv2)
-		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV2);
-	else
-		pmc_set_mck_h32mxdiv(PMC_MCKR_H32MXDIV_H32MXDIV1);
+	pmc_set_mck_h32mxdiv(cfg->h32mx_div2);
 #endif
 
 	switch (cfg->pck_input) {
@@ -838,20 +898,48 @@ void pmc_enable_pck(uint32_t index)
 	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
 
 	switch (index) {
+#ifdef PMC_SCER_PCK0
 	case 0:
 		PMC->PMC_SCER = PMC_SCER_PCK0;
 		while (!(PMC->PMC_SR & PMC_SR_PCKRDY0));
 		break;
+#endif
+#ifdef PMC_SCER_PCK1
 	case 1:
 		PMC->PMC_SCER = PMC_SCER_PCK1;
 		while (!(PMC->PMC_SR & PMC_SR_PCKRDY1));
 		break;
-#ifdef CONFIG_HAVE_PMC_PCK2
+#endif
+#ifdef PMC_SCER_PCK2
 	case 2:
 		PMC->PMC_SCER = PMC_SCER_PCK2;
 		while (!(PMC->PMC_SR & PMC_SR_PCKRDY2));
 		break;
-#endif /* CONFIG_HAVE_PMC_PCK2 */
+#endif
+#ifdef PMC_SCER_PCK3
+	case 3:
+		PMC->PMC_SCER = PMC_SCER_PCK3;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY3));
+		break;
+#endif
+#ifdef PMC_SCER_PCK4
+	case 4:
+		PMC->PMC_SCER = PMC_SCER_PCK4;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY4));
+		break;
+#endif
+#ifdef PMC_SCER_PCK5
+	case 5:
+		PMC->PMC_SCER = PMC_SCER_PCK5;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY5));
+		break;
+#endif
+#ifdef PMC_SCER_PCK6
+	case 6:
+		PMC->PMC_SCER = PMC_SCER_PCK6;
+		while (!(PMC->PMC_SR & PMC_SR_PCKRDY6));
+		break;
+#endif
 	default:
 		assert(0);
 	}
@@ -862,20 +950,48 @@ void pmc_disable_pck(uint32_t index)
 	assert(index < ARRAY_SIZE(PMC->PMC_PCK));
 
 	switch (index) {
+#ifdef PMC_SCDR_PCK0
 	case 0:
 		PMC->PMC_SCDR = PMC_SCDR_PCK0;
 		while (PMC->PMC_SCSR & PMC_SCSR_PCK0);
 		break;
+#endif
+#ifdef PMC_SCDR_PCK1
 	case 1:
 		PMC->PMC_SCDR = PMC_SCDR_PCK1;
 		while (PMC->PMC_SCSR & PMC_SCSR_PCK1);
 		break;
-#ifdef CONFIG_HAVE_PMC_PCK2
+#endif
+#ifdef PMC_SCDR_PCK2
 	case 2:
 		PMC->PMC_SCDR = PMC_SCDR_PCK2;
 		while (PMC->PMC_SCSR & PMC_SCSR_PCK2);
 		break;
-#endif /* CONFIG_HAVE_PMC_PCK2 */
+#endif
+#ifdef PMC_SCDR_PCK3
+	case 3:
+		PMC->PMC_SCDR = PMC_SCDR_PCK3;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK3);
+		break;
+#endif
+#ifdef PMC_SCDR_PCK4
+	case 4:
+		PMC->PMC_SCDR = PMC_SCDR_PCK4;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK4);
+		break;
+#endif
+#ifdef PMC_SCDR_PCK5
+	case 5:
+		PMC->PMC_SCDR = PMC_SCDR_PCK5;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK5);
+		break;
+#endif
+#ifdef PMC_SCDR_PCK6
+	case 6:
+		PMC->PMC_SCDR = PMC_SCDR_PCK6;
+		while (PMC->PMC_SCSR & PMC_SCSR_PCK6);
+		break;
+#endif
 	default:
 		assert(0);
 	}
@@ -893,9 +1009,14 @@ uint32_t pmc_get_pck_clock(uint32_t index)
 
 void pmc_enable_upll_clock(void)
 {
-	/* enable the 480MHz UTMI PLL; disable the UTMI BIAS */
-	PMC->CKGR_UCKR = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3)
-		| CKGR_UCKR_BIASCOUNT(0x1);
+	uint32_t uckr = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3);
+
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
+	uckr |= CKGR_UCKR_BIASCOUNT(0x1);
+#endif
+
+	/* enable the 480MHz UTMI PLL  */
+	PMC->CKGR_UCKR = uckr;
 
 	/* wait until UPLL is locked */
 	while (!(PMC->PMC_SR & PMC_SR_LOCKU));
@@ -908,21 +1029,34 @@ void pmc_disable_upll_clock(void)
 
 uint32_t pmc_get_upll_clock(void)
 {
+	uint32_t upllclk;
+
 #ifdef SFR_UTMICKTRIM_FREQ_Msk
 	uint32_t clktrim = SFR->SFR_UTMICKTRIM & SFR_UTMICKTRIM_FREQ_Msk;
 	switch (clktrim) {
 		case SFR_UTMICKTRIM_FREQ_16:
-			return 30 * _pmc_oscillators.external.main;
+			upllclk = 30 * _pmc_oscillators.external.main;
+			break;
 		case SFR_UTMICKTRIM_FREQ_24:
-			return 20 * _pmc_oscillators.external.main;
+			upllclk = 20 * _pmc_oscillators.external.main;
+			break;
 		default:
-			return 40 * _pmc_oscillators.external.main;
+			upllclk = 40 * _pmc_oscillators.external.main;
+			break;
 	}
 #else
-	return 40 * _pmc_oscillators.external.main;
+	upllclk = 40 * _pmc_oscillators.external.main;
 #endif
+
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+	if (PMC->PMC_MCKR & PMC_MCKR_UPLLDIV2)
+		upllclk >>= 1;
+#endif
+
+	return upllclk;
 }
 
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 void pmc_enable_upll_bias(void)
 {
 	PMC->CKGR_UCKR |= CKGR_UCKR_BIASEN;
@@ -932,6 +1066,7 @@ void pmc_disable_upll_bias(void)
 {
 	PMC->CKGR_UCKR &= ~CKGR_UCKR_BIASEN;
 }
+#endif /* CONFIG_HAVE_PMC_UPLL_BIAS */
 
 /*----------------------------------------------------------------------------
  *        Exported functions (Generated clocks)

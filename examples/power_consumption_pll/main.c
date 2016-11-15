@@ -136,9 +136,16 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-unsigned char use_clock_setting = 0;
+static volatile unsigned int MenuChoice;
 
-volatile unsigned int MenuChoice;
+static struct _pmc_plla_cfg plla_config = {
+	.mul = 99,
+	.div = 1,
+	.count = 0x3f,
+#ifdef CONFIG_DOC_SAMA5D3
+	.icp = 3,
+#endif
+};
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -352,11 +359,9 @@ int main(void)
 			printf(" %c \r\n", MenuChoice);
 			printf("PLLA = 408 MHz\r\n");
 
-			pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-				CKGR_PLLAR_OUTA(0x0) |
-				CKGR_PLLAR_DIVA(1)   |
-				CKGR_PLLAR_MULA(33)  |
-				CKGR_PLLAR_DIVA_BYPASS, _PMC_PLLICPR_IPLL_PLLA);
+			plla_config.div = 1;
+			plla_config.mul = 33;
+			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -365,11 +370,9 @@ int main(void)
 			printf(" %c \r\n", MenuChoice);
 			printf("PLLA = 600 MHz\r\n");
 
-			pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-				CKGR_PLLAR_OUTA(0x0) |
-				CKGR_PLLAR_DIVA(1)   |
-				CKGR_PLLAR_MULA(49)  |
-				CKGR_PLLAR_DIVA_BYPASS, _PMC_PLLICPR_IPLL_PLLA);
+			plla_config.div = 1;
+			plla_config.mul = 49;
+			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -379,11 +382,9 @@ int main(void)
 			printf(" %c \r\n", MenuChoice);
 			printf("PLLA = 792 MHz\r\n");
 
-			pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-				CKGR_PLLAR_OUTA(0x0) |
-				CKGR_PLLAR_DIVA(1)   |
-				CKGR_PLLAR_MULA(65)  |
-				CKGR_PLLAR_DIVA_BYPASS, _PMC_PLLICPR_IPLL_PLLA);
+			plla_config.div = 1;
+			plla_config.mul = 65;
+			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -393,11 +394,9 @@ int main(void)
 			printf(" %c \r\n", MenuChoice);
 			printf("PLLA = 996 MHz\r\n");
 
-			pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-				CKGR_PLLAR_OUTA(0x0) |
-				CKGR_PLLAR_DIVA(1)   |
-				CKGR_PLLAR_MULA(82)  |
-				CKGR_PLLAR_DIVA_BYPASS, _PMC_PLLICPR_IPLL_PLLA);
+			plla_config.div = 1;
+			plla_config.mul = 82;
+			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
 			_print_menu();
@@ -407,11 +406,9 @@ int main(void)
 			printf(" %c \r\n", MenuChoice);
 			printf("PLLA = 1200 MHz\r\n");
 
-			pmc_set_plla(CKGR_PLLAR_ONE | CKGR_PLLAR_PLLACOUNT(0x3F) |
-				CKGR_PLLAR_OUTA(0x0) |
-				CKGR_PLLAR_DIVA(1)   |
-				CKGR_PLLAR_MULA(99)  |
-				CKGR_PLLAR_DIVA_BYPASS, _PMC_PLLICPR_IPLL_PLLA);
+			plla_config.div = 1;
+			plla_config.mul = 99;
+			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
 			_print_menu();

@@ -36,10 +36,11 @@ struct pck_mck_cfg clock_test_setting[] = {
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
 		.ext12m = true,
 		.ext32k = false,
-		.plla_mul = 0,
-		.plla_div = 1,
-		.plla_div2 = false,
+		.plla = {
+			.mul = 0,
+		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
 		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		.plla_div2 = false,
 	},
 };
