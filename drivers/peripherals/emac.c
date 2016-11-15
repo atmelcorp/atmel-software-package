@@ -351,23 +351,21 @@ uint32_t emac_get_it_status(Emac* emac)
 
 void emac_set_mac_addr(Emac* emac, uint8_t sa_idx, uint8_t* mac)
 {
-	emac->EMAC_SA[sa_idx].EMAC_SAxB = (mac[3] << 24) |
-		(mac[2] << 16) | (mac[1] << 8) | mac[0];
-	emac->EMAC_SA[sa_idx].EMAC_SAxT = (mac[5] << 8) |
-		mac[4];
+	emac->EMAC_SA[sa_idx].EMAC_SAB = (mac[3] << 24) | (mac[2] << 16) | (mac[1] << 8) | mac[0];
+	emac->EMAC_SA[sa_idx].EMAC_SAT = (mac[5] << 8) | mac[4];
 }
 
-void emac_set_mac_addr32(Emac* emac, uint8_t sa_idx,
-			 uint32_t mac_top, uint32_t mac_bottom)
+void emac_get_mac_addr(Emac* emac, uint8_t sa_idx, uint8_t* mac)
 {
-	emac->EMAC_SA[sa_idx].EMAC_SAxB = mac_bottom;
-	emac->EMAC_SA[sa_idx].EMAC_SAxT = mac_top;
-}
+	uint32_t sab = emac->EMAC_SA[sa_idx].EMAC_SAB;
+	uint32_t sat = emac->EMAC_SA[sa_idx].EMAC_SAT;
 
-void emac_set_mac_addr64(Emac* emac, uint8_t sa_idx, uint64_t mac)
-{
-	emac->EMAC_SA[sa_idx].EMAC_SAxB = (uint32_t)(mac & 0xffffffff);
-	emac->EMAC_SA[sa_idx].EMAC_SAxT = (uint32_t)(mac >> 32);
+	mac[0] = (uint8_t)((sab & 0x000000ff) >> 0);
+	mac[1] = (uint8_t)((sab & 0x0000ff00) >> 8);
+	mac[2] = (uint8_t)((sab & 0x00ff0000) >> 16);
+	mac[3] = (uint8_t)((sab & 0xff000000) >> 24);
+	mac[4] = (uint8_t)((sat & 0x000000ff) >> 0);
+	mac[5] = (uint8_t)((sat & 0x0000ff00) >> 8);
 }
 
 void emac_clear_statistics(Emac* emac)

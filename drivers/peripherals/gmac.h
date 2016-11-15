@@ -278,15 +278,9 @@ extern uint32_t gmac_get_it_status(Gmac* gmac, uint8_t queue);
 extern void gmac_set_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac);
 
 /**
- *  \brief Set MAC Address using two 32-bit integers
+ *  \brief Get MAC Address
  */
-extern void gmac_set_mac_addr32(Gmac* gmac, uint8_t sa_idx,
-			 uint32_t mac_top, uint32_t mac_bottom);
-
-/**
- *  \brief Set MAC Address using a 64-bit integer
- */
-extern void gmac_set_mac_addr64(Gmac* gmac, uint8_t sa_idx, uint64_t mac);
+extern void gmac_get_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac);
 
 /**
  *  \brief Clear all statistics registers

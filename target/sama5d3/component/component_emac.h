@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief EmacSa hardware registers */
 typedef struct {
-	__IO uint32_t EMAC_SAxB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
-	__IO uint32_t EMAC_SAxT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
+	__IO uint32_t EMAC_SAB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
+	__IO uint32_t EMAC_SAT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
 } EmacSa;
 /** \brief Emac hardware registers */
 typedef struct {
@@ -317,14 +317,14 @@ typedef struct {
 #define EMAC_HRT_ADDR_Pos 0
 #define EMAC_HRT_ADDR_Msk (0xffffffffu << EMAC_HRT_ADDR_Pos) /**< \brief (EMAC_HRT)  */
 #define EMAC_HRT_ADDR(value) ((EMAC_HRT_ADDR_Msk & ((value) << EMAC_HRT_ADDR_Pos)))
-/* -------- EMAC_SAxB : (EMAC Offset: N/A) Specific Address 1 Bottom Register -------- */
-#define EMAC_SAxB_ADDR_Pos 0
-#define EMAC_SAxB_ADDR_Msk (0xffffffffu << EMAC_SAxB_ADDR_Pos) /**< \brief (EMAC_SAxB)  */
-#define EMAC_SAxB_ADDR(value) ((EMAC_SAxB_ADDR_Msk & ((value) << EMAC_SAxB_ADDR_Pos)))
-/* -------- EMAC_SAxT : (EMAC Offset: N/A) Specific Address 1 Top Register -------- */
-#define EMAC_SAxT_ADDR_Pos 0
-#define EMAC_SAxT_ADDR_Msk (0xffffu << EMAC_SAxT_ADDR_Pos) /**< \brief (EMAC_SAxT)  */
-#define EMAC_SAxT_ADDR(value) ((EMAC_SAxT_ADDR_Msk & ((value) << EMAC_SAxT_ADDR_Pos)))
+/* -------- EMAC_SAB : (EMAC Offset: N/A) Specific Address 1 Bottom Register -------- */
+#define EMAC_SAB_ADDR_Pos 0
+#define EMAC_SAB_ADDR_Msk (0xffffffffu << EMAC_SAB_ADDR_Pos) /**< \brief (EMAC_SAB)  */
+#define EMAC_SAB_ADDR(value) ((EMAC_SAB_ADDR_Msk & ((value) << EMAC_SAB_ADDR_Pos)))
+/* -------- EMAC_SAT : (EMAC Offset: N/A) Specific Address 1 Top Register -------- */
+#define EMAC_SAT_ADDR_Pos 0
+#define EMAC_SAT_ADDR_Msk (0xffffu << EMAC_SAT_ADDR_Pos) /**< \brief (EMAC_SAT)  */
+#define EMAC_SAT_ADDR(value) ((EMAC_SAT_ADDR_Msk & ((value) << EMAC_SAT_ADDR_Pos)))
 /* -------- EMAC_TID : (EMAC Offset: 0xB8) Type ID Checking Register -------- */
 #define EMAC_TID_TID_Pos 0
 #define EMAC_TID_TID_Msk (0xffffu << EMAC_TID_TID_Pos) /**< \brief (EMAC_TID) Type ID checking */

@@ -174,9 +174,7 @@ typedef void (*_ethd_reset)(void* ethd);
 
 typedef void (*_eth_set_mac_addr)(void* eth, uint8_t sa_idx, uint8_t* mac);
 
-typedef void (*_eth_set_mac_addr32)(void* eth, uint8_t sa_idx, uint32_t mac_top, uint32_t mac_bottom);
-
-typedef void (*_eth_set_mac_addr64)(void* eth, uint8_t sa_idx, uint64_t mac);
+typedef void (*_eth_get_mac_addr)(void* eth, uint8_t sa_idx, uint8_t* mac);
 
 typedef void (*_eth_start_transmission)(void * eth);
 
@@ -203,8 +201,7 @@ struct _ethd_op {
 	_ethd_start start;
 	_ethd_reset reset;
 	_eth_set_mac_addr set_mac_addr;
-	_eth_set_mac_addr32 set_mac_addr32;
-	_eth_set_mac_addr64 set_mac_addr64;
+	_eth_get_mac_addr get_mac_addr;
 	_eth_start_transmission start_transmission;
 	_ethd_send_sg send_sg;
 	_ethd_send send;
@@ -262,6 +259,8 @@ extern "C" {
 	@{*/
 
 extern void ethd_set_mac_addr(struct _ethd * ethd, uint8_t sa_idx, uint8_t* mac);
+
+extern void ethd_get_mac_addr(struct _ethd * ethd, uint8_t sa_idx, uint8_t* mac);
 
 extern bool ethd_configure(struct _ethd * ethd, enum _eth_type eth_type, void * addr, uint8_t enable_caf, uint8_t enable_nbc);
 

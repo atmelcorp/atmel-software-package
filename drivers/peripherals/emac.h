@@ -275,15 +275,9 @@ extern uint32_t emac_get_it_status(Emac* emac);
 extern void emac_set_mac_addr(Emac* emac, uint8_t sa_idx, uint8_t* mac);
 
 /**
- *  \brief Set MAC Address using two 32-bit integers
+ *  \brief Get MAC Address
  */
-extern void emac_set_mac_addr32(Emac* emac, uint8_t sa_idx,
-			 uint32_t mac_top, uint32_t mac_bottom);
-
-/**
- *  \brief Set MAC Address using a 64-bit integer
- */
-extern void emac_set_mac_addr64(Emac* emac, uint8_t sa_idx, uint64_t mac);
+extern void emac_get_mac_addr(Emac* emac, uint8_t sa_idx, uint8_t* mac);
 
 /**
  *  \brief Clear all statistics registers

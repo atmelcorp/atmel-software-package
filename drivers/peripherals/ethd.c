@@ -66,6 +66,11 @@ void ethd_set_mac_addr(struct _ethd * ethd, uint8_t sa_idx, uint8_t* mac)
 	ethd->op->set_mac_addr(ethd->addr, sa_idx, mac);
 }
 
+void ethd_get_mac_addr(struct _ethd * ethd, uint8_t sa_idx, uint8_t* mac)
+{
+	ethd->op->get_mac_addr(ethd->addr, sa_idx, mac);
+}
+
 bool ethd_configure(struct _ethd * ethd, enum _eth_type eth_type, void * addr, uint8_t enable_caf, uint8_t enable_nbc)
 {
 	ethd->addr = addr;

@@ -475,23 +475,21 @@ uint32_t gmac_get_it_status(Gmac* gmac, uint8_t queue)
 
 void gmac_set_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac)
 {
-	gmac->GMAC_SA[sa_idx].GMAC_SAB = (mac[3] << 24) |
-		(mac[2] << 16) | (mac[1] << 8) | mac[0];
-	gmac->GMAC_SA[sa_idx].GMAC_SAT = (mac[5] << 8) |
-		mac[4];
+	gmac->GMAC_SA[sa_idx].GMAC_SAB = (mac[3] << 24) | (mac[2] << 16) | (mac[1] << 8) | mac[0];
+	gmac->GMAC_SA[sa_idx].GMAC_SAT = (mac[5] << 8) | mac[4];
 }
 
-void gmac_set_mac_addr32(Gmac* gmac, uint8_t sa_idx,
-			 uint32_t mac_top, uint32_t mac_bottom)
+void gmac_get_mac_addr(Gmac* gmac, uint8_t sa_idx, uint8_t* mac)
 {
-	gmac->GMAC_SA[sa_idx].GMAC_SAB = mac_bottom;
-	gmac->GMAC_SA[sa_idx].GMAC_SAT = mac_top;
-}
+	uint32_t sab = gmac->GMAC_SA[sa_idx].GMAC_SAB;
+	uint32_t sat = gmac->GMAC_SA[sa_idx].GMAC_SAT;
 
-void gmac_set_mac_addr64(Gmac* gmac, uint8_t sa_idx, uint64_t mac)
-{
-	gmac->GMAC_SA[sa_idx].GMAC_SAB = (uint32_t)(mac & 0xffffffff);
-	gmac->GMAC_SA[sa_idx].GMAC_SAT = (uint32_t)(mac >> 32);
+	mac[0] = (uint8_t)((sab & 0x000000ff) >> 0);
+	mac[1] = (uint8_t)((sab & 0x0000ff00) >> 8);
+	mac[2] = (uint8_t)((sab & 0x00ff0000) >> 16);
+	mac[3] = (uint8_t)((sab & 0xff000000) >> 24);
+	mac[4] = (uint8_t)((sat & 0x000000ff) >> 0);
+	mac[5] = (uint8_t)((sat & 0x0000ff00) >> 8);
 }
 
 void gmac_clear_statistics(Gmac* gmac)
