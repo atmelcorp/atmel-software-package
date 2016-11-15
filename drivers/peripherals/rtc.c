@@ -267,14 +267,14 @@ static const struct rtc_ppm_lookup ppm_lookup[] = {
 void rtc_set_hour_mode(uint32_t mode)
 {
 	assert((mode & 0xFFFFFFFE) == 0);
-	RTC->RTC_MR = mode;
+	RTC->RTC_MR |= mode;
 }
 
-extern uint32_t rtc_get_hour_mode(void)
+uint32_t rtc_get_hour_mode(void)
 {
 	uint32_t mode;
 	mode = RTC->RTC_MR;
-	mode &= 0xFFFFFFFE;
+	mode &= ~0xFFFFFFFE;
 	return mode;
 }
 
