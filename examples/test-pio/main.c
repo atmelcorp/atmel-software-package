@@ -127,6 +127,10 @@ static struct _pin pio_input = { PIO_GROUP_E, PIO_PE27, PIO_INPUT, PIO_DEFAULT }
       defined(CONFIG_BOARD_SAM9X35_EK)
 static struct _pin pio_output = { PIO_GROUP_D, PIO_PD16, PIO_OUTPUT_0, PIO_DEFAULT };
 static struct _pin pio_input = { PIO_GROUP_D, PIO_PD17, PIO_INPUT, PIO_DEFAULT };
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED) || \
+      defined(CONFIG_BOARD_SAME70_XPLAINED)
+static struct _pin pio_output = { PIO_GROUP_A, PIO_PA2, PIO_OUTPUT_0, PIO_DEFAULT };
+static struct _pin pio_input = { PIO_GROUP_C, PIO_PC19, PIO_INPUT, PIO_DEFAULT };
 #else
 #error Unsupported architecture
 #endif

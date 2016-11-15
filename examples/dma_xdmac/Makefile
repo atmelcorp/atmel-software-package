@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the XDMAC example
-AVAILABLE_TARGETS = sama5d2* sama5d4*
+AVAILABLE_TARGETS = sama5d2* sama5d4* same70-xplained samv71-xplained
 
 TOP := ../..
 

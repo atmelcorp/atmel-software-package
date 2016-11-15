@@ -5,11 +5,13 @@
 
 #if defined(__ICCARM__)
 	#define WEAK __weak
+	#define USED __root
 	#define CONSTRUCTOR
 	#define SECTION(a) _CC_PRAGMA(location = a)
 	#define ALIGNED(a) _CC_PRAGMA(data_alignment = a)
 #elif defined(__GNUC__)
 	#define WEAK __attribute__((weak))
+	#define USED __attribute__((used))
 	#define CONSTRUCTOR __attribute__((constructor))
 	#define SECTION(a) __attribute__((__section__(a)))
 	#define ALIGNED(a) __attribute__((__aligned__(a)))

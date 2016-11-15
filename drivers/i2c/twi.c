@@ -104,6 +104,8 @@
 #define TWI_CLK_OFFSET (4)
 #elif defined(CONFIG_SOC_SAMA5D4)
 #define TWI_CLK_OFFSET (4)
+#elif defined(CONFIG_SOC_SAMV71)
+#define TWI_CLK_OFFSET (3)
 #else
 #error Unsupported SoC!
 #endif

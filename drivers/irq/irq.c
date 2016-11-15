@@ -37,6 +37,9 @@
 #include "irq/aic.h"
 #endif
 #include "irq/irq.h"
+#if defined(CONFIG_HAVE_NVIC)
+#include "irq/nvic.h"
+#endif
 
 #include <assert.h>
 
@@ -103,6 +106,8 @@ static void _default_irq_handler(void)
 
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	source = aic_get_current_interrupt_source();
+#elif defined(CONFIG_HAVE_NVIC)
+	source = nvic_get_current_interrupt_source();
 #else
 #error Unknown IRQ controller!
 #endif
@@ -130,6 +135,8 @@ void irq_initialize(void)
 
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	aic_initialize(_default_irq_handler);
+#elif defined(CONFIG_HAVE_NVIC)
+	nvic_initialize(_default_irq_handler);
 #else
 #error Unknown IRQ controller!
 #endif
@@ -139,6 +146,8 @@ void irq_configure_mode(uint32_t source, enum _irq_mode mode)
 {
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	aic_configure_mode(source, mode);
+#elif defined(CONFIG_HAVE_NVIC)
+	// ignored, not implemented on NVIC
 #else
 #error Unknown IRQ controller!
 #endif
@@ -148,6 +157,8 @@ void irq_configure_priority(uint32_t source, uint8_t priority)
 {
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	aic_configure_priority(source, priority);
+#elif defined(CONFIG_HAVE_NVIC)
+	nvic_configure_priority(source, priority);
 #else
 #error Unknown IRQ controller!
 #endif
@@ -198,6 +209,8 @@ void irq_enable(uint32_t source)
 {
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	aic_enable(source);
+#elif defined(CONFIG_HAVE_NVIC)
+	nvic_enable(source);
 #else
 #error Unknown IRQ controller!
 #endif
@@ -207,6 +220,8 @@ void irq_disable(uint32_t source)
 {
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
 	aic_disable(source);
+#elif defined(CONFIG_HAVE_NVIC)
+	nvic_disable(source);
 #else
 #error Unknown IRQ controller!
 #endif

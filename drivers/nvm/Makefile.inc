@@ -26,6 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+drivers-$(CONFIG_HAVE_EEFC) += drivers/nvm/eefc.o
 drivers-$(CONFIG_HAVE_SFC) += drivers/nvm/sfc.o
 
 include $(TOP)/drivers/nvm/i2c/Makefile.inc

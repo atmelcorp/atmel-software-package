@@ -27,7 +27,9 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Getting Started example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d4-ek sama5d4-xplained
+AVAILABLE_TARGETS = sama5d2-xplained \
+                    sama5d4-ek sama5d4-xplained \
+                    same70-xplained samv71-xplained
 
 TOP := ../..
 

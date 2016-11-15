@@ -29,3 +29,4 @@
 drivers-$(CONFIG_HAVE_AIC2) += drivers/irq/aic2.o
 drivers-$(CONFIG_HAVE_AIC5) += drivers/irq/aic5.o
 drivers-y += drivers/irq/irq.o
+drivers-$(CONFIG_HAVE_NVIC) += drivers/irq/nvic.o
