@@ -64,8 +64,8 @@
 
 #include "board_support.h"
 
-#include "bus/spi-bus.h"
 #include "bus/twi-bus.h"
+
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 #include "peripherals/twid.h"
 #include "power/act8945a.h"
@@ -872,39 +872,5 @@ void board_cfg_twi_bus(void)
 	const struct _pin pins_twi_bus6[] = BOARD_TWI_BUS6_PINS;
 	pio_configure(pins_twi_bus6, ARRAY_SIZE(pins_twi_bus6));
 	twi_bus_configure(6, BOARD_TWI_BUS6, BOARD_TWI_BUS6_FREQ, BOARD_TWI_BUS6_MODE);
-#endif
-}
-
-void board_cfg_spi_bus(void)
-{
-#ifdef BOARD_SPI_BUS0
-	const struct _pin pins_spi_bus0[] = BOARD_SPI_BUS0_PINS;
-	pio_configure(pins_spi_bus0, ARRAY_SIZE(pins_spi_bus0));
-	spi_bus_configure(0, BOARD_SPI_BUS0, BOARD_SPI_BUS0_MODE);
-#endif
-#ifdef BOARD_SPI_BUS1
-	const struct _pin pins_spi_bus1[] = BOARD_SPI_BUS1_PINS;
-	pio_configure(pins_spi_bus1, ARRAY_SIZE(pins_spi_bus1));
-	spi_bus_configure(1, BOARD_SPI_BUS1, BOARD_SPI_BUS1_MODE);
-#endif
-#ifdef BOARD_SPI_BUS2
-	const struct _pin pins_spi_bus2[] = BOARD_SPI_BUS2_PINS;
-	pio_configure(pins_spi_bus2, ARRAY_SIZE(pins_spi_bus2));
-	spi_bus_configure(2, BOARD_SPI_BUS2, BOARD_SPI_BUS2_MODE);
-#endif
-#ifdef BOARD_SPI_BUS3
-	const struct _pin pins_spi_bus3[] = BOARD_SPI_BUS3_PINS;
-	pio_configure(pins_spi_bus3, ARRAY_SIZE(pins_spi_bus3));
-	spi_bus_configure(3, BOARD_SPI_BUS3, BOARD_SPI_BUS3_MODE);
-#endif
-#ifdef BOARD_SPI_BUS4
-	const struct _pin pins_spi_bus4[] = BOARD_SPI_BUS4_PINS;
-	pio_configure(pins_spi_bus4, ARRAY_SIZE(pins_spi_bus4));
-	spi_bus_configure(4, BOARD_SPI_BUS4, BOARD_SPI_BUS4_MODE);
-#endif
-#ifdef BOARD_SPI_BUS5
-	const struct _pin pins_spi_bus5[] = BOARD_SPI_BUS5_PINS;
-	pio_configure(pins_spi_bus5, ARRAY_SIZE(pins_spi_bus5));
-	spi_bus_configure(5, BOARD_SPI_BUS5, BOARD_SPI_BUS5_MODE);
 #endif
 }

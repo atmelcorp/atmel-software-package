@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "board_spi.h"
 #include "compiler.h"
 
 #include "peripherals/pio.h"
@@ -81,6 +82,10 @@ WEAK void board_init(void)
 
 	/* Configure LEDs */
 	board_cfg_led();
+
+#ifdef BOARD_AT25_BUS
+	board_cfg_at25();
+#endif
 
 #ifdef CONFIG_HAVE_LCDC
 	/* Configure LCD controller/display */

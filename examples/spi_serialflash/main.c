@@ -36,6 +36,7 @@
 #include <stdint.h>
 
 #include "board.h"
+#include "board_spi.h"
 #include "chip.h"
 
 #include "bus/spi-bus.h"
@@ -68,18 +69,7 @@ static _parser _cmd_parser;
 static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 
-static struct _at25 at25drv = {
-	.dev = {
-		.bus = BOARD_AT25_BUS,
-		.chip_select = BOARD_AT25_CHIP_SELECT,
-		.bitrate = BOARD_AT25_BITRATE,
-		.delay = {
-			.bs = BOARD_AT25_DLYBS,
-			.bct = BOARD_AT25_DLYBCT,
-		},
-		.spi_mode = BOARD_AT25_SPI_MODE,
-	},
-};
+static struct _at25* at25drv;
 
 static void console_handler(uint8_t key)
 {
@@ -136,7 +126,7 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	while (length > 0) {
 		int chunk_size = length < READ_BUFFER_SIZE ? length : READ_BUFFER_SIZE;
 
-		if(at25_read(&at25drv, addr+offset, read_buffer, chunk_size)) {
+		if(at25_read(at25drv, addr+offset, read_buffer, chunk_size)) {
 			/* Read failed, no need to dump anything */
 			return;
 		}
@@ -164,19 +154,19 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	len -= (end_addr+1) - (char*)buffer;
 
-	at25_write(&at25drv, addr, (uint8_t*)end_addr+1, len);
+	at25_write(at25drv, addr, (uint8_t*)end_addr+1, len);
 }
 
 static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "device", 6)) {
-		if (at25drv.desc) {
-			at25_print_device_info(&at25drv);
+		if (at25drv->desc) {
+			at25_print_device_info(at25drv);
 		} else {
 			printf("No device detected!\r\n");
 		}
 	} else if (!strncmp((char*)buffer, "status", 6)) {
-		uint32_t status = at25_read_status(&at25drv);
+		uint32_t status = at25_read_status(at25drv);
 		printf("AT25 chip status:\r\n"
 		       "\t- Busy: %s\r\n"
 		       "\t- Write Enabled: %s\r\n"
@@ -202,7 +192,7 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
 		if (!strncmp((char*)buffer, "all", 3)) {
-			at25_erase_chip(&at25drv);
+			at25_erase_chip(at25drv);
 		} else {
 			printf("Args: %s\r\n"
 			       "Invalid address\r\n",
@@ -232,19 +222,19 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		       buffer);
 		return;
 	}
-	at25_erase_block(&at25drv, addr, erase_length);
+	at25_erase_block(at25drv, addr, erase_length);
 }
 
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_POLLING);
+		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_POLLING);
 		printf("Use POLLING mode\r\n");
 	} else if (!strncmp((char*)buffer, "async", 5)) {
-		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_ASYNC);
+		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_ASYNC);
 		printf("Use ASYNC mode\r\n");
 	} else if (!strncmp((char*)buffer, "dma", 3)) {
-		spi_bus_set_transfer_mode(at25drv.dev.bus, SPID_MODE_DMA);
+		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_DMA);
 		printf("Use DMA mode\r\n");
 	} else {
 		printf("Args: %s\r\n"
@@ -256,11 +246,11 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!spi_bus_fifo_is_enabled(at25drv.dev.bus)) {
-			spi_bus_fifo_enable(at25drv.dev.bus);
+		if (!spi_bus_fifo_is_enabled(at25drv->dev.bus)) {
+			spi_bus_fifo_enable(at25drv->dev.bus);
 			printf("Enable FIFO\r\n");
 		} else {
-			spi_bus_fifo_disable(at25drv.dev.bus);
+			spi_bus_fifo_disable(at25drv->dev.bus);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -275,8 +265,8 @@ static void print_menu(void)
 
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
-	printf("| Device: %-46s|\r\n", at25drv.desc ? at25drv.desc->name : "N/A");
-	switch (spi_bus_get_transfer_mode(at25drv.dev.bus)) {
+	printf("| Device: %-46s|\r\n", at25drv->desc ? at25drv->desc->name : "N/A");
+	switch (spi_bus_get_transfer_mode(at25drv->dev.bus)) {
 	case SPID_MODE_POLLING:
 		mode_str = "polling";
 		break;
@@ -292,7 +282,7 @@ static void print_menu(void)
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv.dev.bus) ? "enabled" : "disabled");
+	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv->dev.bus) ? "enabled" : "disabled");
 #endif
 
 	printf("|====================== Commands =======================|\r\n"
@@ -360,8 +350,6 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 
 int main (void)
 {
-	uint32_t rc = 0;
-
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
 	_cmd_parser = _flash_cmd_parser;
@@ -369,14 +357,8 @@ int main (void)
 	/* Output example information */
 	console_example_info("SPI Flash Example");
 
-	/* Open serial flash device */
-	rc = at25_configure(&at25drv);
-	if (rc == AT25_DEVICE_NOT_SUPPORTED)
-		printf("Device NOT supported!\r\n");
-	else if (rc != AT25_SUCCESS)
-		printf("Initialization error!\r\n");
-	if (at25_unprotect(&at25drv))
-		printf("Protection desactivation FAILED!\r\n");
+	/* retrieve pointer to AT25 device structure */
+	at25drv = board_get_at25();
 
 	print_menu();
 

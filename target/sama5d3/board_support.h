@@ -189,9 +189,4 @@ extern bool board_power_sdmmc_device(uint32_t hsmci_id, bool on);
  */
 extern void board_cfg_twi_bus(void);
 
-/**
- * \brief Configures SPIx bus for the board
- */
-void board_cfg_spi_bus(void);
-
 #endif /* #ifndef BOARD_SUPPORT_H */

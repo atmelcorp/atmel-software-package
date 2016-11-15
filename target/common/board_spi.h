@@ -27,66 +27,42 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifndef BOARD_SPI_H
+#define BOARD_SPI_H
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
 #include "board.h"
-#include "board_spi.h"
-#include "compiler.h"
 
-#include "peripherals/dma.h"
-#include "board_support.h"
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Types
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+struct _at25;
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure system timer */
-	board_cfg_timer();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-
-	/* Configure LEDs */
-	board_cfg_led();
+/**
+ * \brief Configures SPIx bus for the board
+ */
+extern void board_cfg_spi_bus(void);
 
 #ifdef BOARD_AT25_BUS
-	board_cfg_at25();
-#endif
+/**
+ * \brief Configures the eth<iface> for the board
+ */
+extern void board_cfg_at25(void);
 
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-}
+/**
+ * \brief Get the at25 configuration for the board
+ */
+extern struct _at25* board_get_at25(void);
+#endif /* BOARD_AT25_BUS */
+
+#endif /* BOARD_SPI_H */
