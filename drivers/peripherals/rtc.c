@@ -262,20 +262,23 @@ static const struct rtc_ppm_lookup ppm_lookup[] = {
 /**
  * \brief Sets the RTC in either 12 or 24 hour mode.
  *
- * \param dwMode  Hour mode.
+ * \param mode  Hour mode.
  */
-void rtc_set_hour_mode(uint32_t mode)
+void rtc_set_hour_mode(enum _rtc_hour_mode mode)
 {
-	assert((mode & 0xFFFFFFFE) == 0);
-	RTC->RTC_MR = mode;
+	RTC->RTC_MR &= ~RTC_MR_HRMOD;
+	switch (mode) {
+	case RTC_HOUR_MODE_12:
+		RTC->RTC_MR |= RTC_MR_HRMOD;
+		break;
+	case RTC_HOUR_MODE_24:
+		break;
+	}
 }
 
-extern uint32_t rtc_get_hour_mode(void)
+enum _rtc_hour_mode  rtc_get_hour_mode(void)
 {
-	uint32_t mode;
-	mode = RTC->RTC_MR;
-	mode &= 0xFFFFFFFE;
-	return mode;
+	return (RTC->RTC_MR & RTC_MR_HRMOD) ? RTC_HOUR_MODE_12 : RTC_HOUR_MODE_24;
 }
 
 void rtc_enable_it(uint32_t sources)

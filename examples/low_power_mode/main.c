@@ -382,7 +382,7 @@ static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds)
 
 	/* Default RTC configuration */
 	/* 24-hour mode */
-	rtc_set_hour_mode(0);
+	rtc_set_hour_mode(RTC_HOUR_MODE_24);
 	struct _time empty_time = {0, 0, 0};
 
 	if (rtc_set_time_alarm(&empty_time))
