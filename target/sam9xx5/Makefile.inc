@@ -46,7 +46,6 @@ endif
 ifeq ($(VARIANT),ddram)
 gnu-linker-script-y ?= $(TOP)/target/sam9xx5/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sam9xx5/toolchain/gnu/ddram.gdb
-bootstrap-y ?= target/sam9xx5/bootstrap.o
 bootstrap-linker-script-y ?= $(TOP)/target/sam9xx5/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sam9xx5/toolchain/iar/ddram.icf
 iar-debug-script-$(CONFIG_BOARD_SAM9G15_EK) ?= $(TOP)/target/sam9xx5/toolchain/iar/ddram_sam9xx5-ek.mac

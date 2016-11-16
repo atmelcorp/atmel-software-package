@@ -61,6 +61,8 @@ build: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf \
 	$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).bin
 
 ifeq ($(VARIANT),ddram)
+CONFIG_BOOTSTRAP ?= y
+ifeq ($(CONFIG_BOOTSTRAP),y)
 $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf: $(BUILDDIR)/target/bootstrap.elf
 
 $(BUILDDIR)/target/bootstrap.elf: $(BOOTSTRAP_OBJS) $(LIBS)
@@ -68,7 +70,7 @@ $(BUILDDIR)/target/bootstrap.elf: $(BOOTSTRAP_OBJS) $(LIBS)
 	$(ECHO) LINK $@
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(bootstrap-linker-script-y) -Wl,-Map,$(BUILDDIR)/bootstrap.map -o $@ $(BOOTSTRAP_OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
 endif
-
+endif
 
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)

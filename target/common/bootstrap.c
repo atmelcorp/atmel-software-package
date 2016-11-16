@@ -29,7 +29,11 @@
 
 #include "board.h"
 
+#include "irq/irq.h"
+
 #include "misc/console.h"
+
+#include <string.h>
 
 /* override default board init */
 void board_init()
@@ -40,10 +44,16 @@ void board_init()
 
 int main(void)
 {
+	int i;
+
 	console_example_info("DDRAM Bootstrap");
 
-	/* Disable IRQ at core level */
-	cpsr_set_bits(CPSR_MASK_IRQ);
+	/* Disable interrupts at interrupt controller level */
+	for (i = 0; i < ID_PERIPH_COUNT; i++)
+		irq_disable(i);
+
+	/* Disable interrupts at core level */
+	irq_disable_all();
 
 	asm("BKPT");
 

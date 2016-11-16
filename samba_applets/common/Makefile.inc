@@ -79,4 +79,6 @@ iar-cstartup-y = samba_applets/common/cstartup_iar.s
 iar-debug-script-y =
 iar-flashloader-script-y =
 
+CONFIG_BOOTSTRAP=n
+
 endif
