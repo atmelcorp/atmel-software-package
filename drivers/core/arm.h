@@ -46,78 +46,72 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-static inline void irq_enable(void)
-{
-#if defined(__ICCARM__) || defined(__GNUC__)
-        asm volatile ("cpsie i");
-#else
-#error Unsupported compiler!
-#endif
-}
-
-static inline void irq_disable(void)
-{
-#if defined(__ICCARM__) || defined(__GNUC__)
-        asm volatile ("cpsid i");
-#else
-#error Unsupported compiler!
-#endif
-}
-
 #if defined(CONFIG_CORE_ARM926)
+
+static inline void irq_enable_all(void)
+{
+	cpsr_clear_bits(CPSR_MASK_IRQ);
+}
+
+static inline void irq_disable_all(void)
+{
+	cpsr_set_bits(CPSR_MASK_IRQ);
+}
 
 static inline void irq_wait(void)
 {
+	/* drain write buffer */
+	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
+	/* wait for interrupt */
+	asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
 }
 
 static inline void dmb(void)
 {
+	asm("" ::: "memory");
 }
 
 static inline void dsb(void)
 {
+	/* drain write buffer */
+	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
 }
 
 static inline void isb(void)
 {
+	asm("" ::: "memory");
 }
 
 #elif defined(CONFIG_CORE_CORTEXA5)
 
+static inline void irq_enable_all(void)
+{
+	asm("cpsie if");
+}
+
+static inline void irq_disable_all(void)
+{
+	asm("cpsid if");
+}
+
 static inline void irq_wait(void)
 {
-#if defined(__ICCARM__) || defined(__GNUC__)
-        asm volatile ("wfi");
-#else
-#error Unsupported compiler!
-#endif
+	asm("wfi");
 }
 
 static inline void dmb(void)
 {
-#if defined(__ICCARM__) || defined(__GNUC__)
-	asm volatile ("dmb" ::: "memory");
-#else
-#error Unsupported compiler!
-#endif
+	asm("dmb" ::: "memory");
 }
 
 static inline void dsb(void)
 {
-#if defined(__ICCARM__) || defined(__GNUC__)
-	asm volatile ("dsb" ::: "memory");
-#else
-#error Unsupported compiler!
-#endif
+	asm("dsb" ::: "memory");
 }
 
 static inline void isb(void)
 {
-#if defined(__ICCARM__) || defined(__GNUC__)
-	asm volatile ("isb" ::: "memory");
-#else
-#error Unsupported compiler!
-#endif
+	asm("isb" ::: "memory");
 }
 
 #else

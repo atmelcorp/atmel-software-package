@@ -95,8 +95,6 @@
 #include "peripherals/dma.h"
 #endif
 #include "peripherals/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 
 #include "memories/qspiflash.h"
@@ -139,9 +137,8 @@ static void run_xip_program(void* qspi_mem_addr)
 	printf("============================\n\r");
 
 	/* Disable MMU, cache and interrupts */
-	cpsr_set_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	irq_disable_all();
 	cp15_mmu_disable();
-	pit_disable();
 
 	xip_startup_fn = (void(*)(void))qspi_mem_addr;
 	xip_startup_fn();
