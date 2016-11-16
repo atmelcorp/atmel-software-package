@@ -105,6 +105,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "board_twi.h"
 #include "trace.h"
 #include "timer.h"
 
@@ -148,26 +149,17 @@ static void configure_mac_address(void)
 {
 	bool default_addr = true;
 
-#ifdef BOARD_AT24_MODEL
-	struct _at24 at24;
-	struct _at24_config config = {
-		.bus = BOARD_AT24_TWI_BUS,
-		.addr = BOARD_AT24_ADDR,
-		.model = BOARD_AT24_MODEL,
-	};
-	if (at24_configure(&at24, &config)) {
-		if (at24_has_eui48(&at24)) {
-			if (at24_read_eui48(&at24, MacAddress.addr)) {
-				printf("MAC address initialized using AT24 EEPROM\r\n");
-				default_addr = false;
-			} else {
-				printf("Failed reading MAC address from AT24 EEPROM\r\n");
-			}
+#ifdef BOARD_AT24_TWI_BUS
+	struct _at24* at24 = board_get_at24();
+	if (at24_has_eui48(at24)) {
+		if (at24_read_eui48(at24, MacAddress.addr)) {
+			printf("MAC address initialized using AT24 EEPROM\r\n");
+			default_addr = false;
 		} else {
-			printf("AT24 EEPROM does not support EUI48 feature\r\n");
+			printf("Failed reading MAC address from AT24 EEPROM\r\n");
 		}
 	} else {
-		printf("Could not configure AT24 EEPROM\r\n");
+		printf("AT24 EEPROM does not support EUI48 feature\r\n");
 	}
 #endif
 	if (default_addr)

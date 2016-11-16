@@ -37,6 +37,10 @@
 #ifndef BOARD_SUPPORT_H
 #define BOARD_SUPPORT_H
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -183,10 +187,5 @@ extern bool board_is_sdmmc_inserted(uint32_t hsmci_id);
  * function by a residual charge in the capacitors.
 */
 extern bool board_power_sdmmc_device(uint32_t hsmci_id, bool on);
-
-/**
- * \brief Configures TWIx bus for the board
- */
-extern void board_cfg_twi_bus(void);
 
 #endif /* #ifndef BOARD_SUPPORT_H */

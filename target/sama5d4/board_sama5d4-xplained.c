@@ -34,6 +34,7 @@
 #include "chip.h"
 #include "board.h"
 #include "board_spi.h"
+#include "board_twi.h"
 #include "compiler.h"
 
 #include "peripherals/pio.h"
@@ -86,6 +87,10 @@ WEAK void board_init(void)
 
 #ifdef BOARD_AT25_BUS
 	board_cfg_at25();
+#endif
+
+#ifdef BOARD_AT24_TWI_BUS
+	board_cfg_at24();
 #endif
 
 #ifdef CONFIG_HAVE_LCDC

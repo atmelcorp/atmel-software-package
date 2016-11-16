@@ -141,11 +141,6 @@ extern void board_cfg_led(void);
 extern void board_init(void);
 
 /**
- * \brief Configures TWIx bus for the board
- */
-extern void board_cfg_twi_bus(void);
-
-/**
  * \brief Configure a SD/MMC slot of the board
  * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
  * \note The application shall have enabled the clocks assigned to this HSMCI

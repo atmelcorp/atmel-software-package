@@ -30,6 +30,7 @@ lib-y += target/target.a
 
 target-y :=
 
+include $(TOP)/target/common/Makefile.inc
 include $(TOP)/target/sam9xx5/Makefile.inc
 include $(TOP)/target/sama5d2/Makefile.inc
 include $(TOP)/target/sama5d3/Makefile.inc

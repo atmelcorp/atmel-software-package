@@ -27,83 +27,41 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifndef BOARD_TWI_H
+#define BOARD_TWI_H
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "board_spi.h"
-#include "board_twi.h"
-
-#include "peripherals/dma.h"
-#include "peripherals/pio.h"
-#include "peripherals/wdt.h"
-#include "board_support.h"
+#include <stdint.h>
+#include <board.h>
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Types
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+struct _at24;
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure system timer */
-	board_cfg_timer();
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMAC Driver init */
-	dma_initialize(false);
-
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure LEDs */
-	board_cfg_led();
-
-#ifdef BOARD_AT25_BUS
-	board_cfg_at25();
-#endif
+/**
+ * \brief Configures TWIx bus for the board
+ */
+extern void board_cfg_twi_bus(void);
 
 #ifdef BOARD_AT24_TWI_BUS
-	board_cfg_at24();
-#endif
+/**
+ * \brief Configures the eth<iface> for the board
+ */
+extern void board_cfg_at24(void);
 
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
+/**
+ * \brief Get the at24 configuration for the board
+ */
+extern struct _at24* board_get_at24(void);
+#endif /* BOARD_AT24_TWI_BUS */
 
-#ifdef CONFIG_HAVE_ISI
-	/* Configure image sensor */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
-#endif
-}
+#endif /* BOARD_TWI_H */

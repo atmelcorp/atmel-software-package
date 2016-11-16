@@ -89,6 +89,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "board_twi.h"
 #include "trace.h"
 
 #include "peripherals/pio.h"
@@ -127,14 +128,6 @@ typedef void (*_parser)(const uint8_t*, uint32_t);
  *         Local Constants
  *------------------------------------------------------------------------------*/
 
-#ifdef HAVE_AT24_DEVICE
-static const struct _at24_config at24_device_cfg = {
-	.bus = BOARD_AT24_TWI_BUS,
-	.addr = BOARD_AT24_ADDR,
-	.model = BOARD_AT24_MODEL,
-};
-#endif
-
 static const struct _at24_config at24_emulator_cfg = {
 	.bus = AT24_EMU_MASTER_BUS,
 	.addr = AT24_EMU_ADDR,
@@ -151,10 +144,10 @@ static volatile bool cmd_complete = false;
 CACHE_ALIGNED static uint8_t cmd_buffer[256];
 
 #ifdef HAVE_AT24_DEVICE
-static struct _at24 at24_device;
+static struct _at24* at24_device;
 #endif
 static struct _at24 at24_emulator;
-static struct _at24 *at24;
+static struct _at24* at24;
 
 /*------------------------------------------------------------------------------
  *         Local Functions
@@ -383,7 +376,7 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 	}
 
 	if (!strncmp((char*)buffer, "device", 8)) {
-		at24 = &at24_device;
+		at24 = at24_device;
 		printf("Using AT24 device\r\n");
 		print_menu();
 		return;
@@ -500,15 +493,15 @@ int main (void)
 
 	_cmd_parser = _eeprom_cmd_parser;
 
-	/* configure AT24 driver (master) */
+	/* configure AT24 master for emulator */
 	at24_configure(&at24_emulator, &at24_emulator_cfg);
 
-	/* Configure AT24 emulator (slave) */
+	/* Configure AT24 slave for emulator */
 	_configure_emulator();
 
 #ifdef HAVE_AT24_DEVICE
-	at24_configure(&at24_device, &at24_device_cfg);
-	at24 = &at24_device;
+	at24_device = board_get_at24();
+	at24 = at24_device;
 #else
 	at24 = &at24_emulator;
 #endif

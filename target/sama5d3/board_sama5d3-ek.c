@@ -34,6 +34,7 @@
 #include "chip.h"
 #include "board.h"
 #include "board_spi.h"
+#include "board_twi.h"
 #include "compiler.h"
 
 #include "peripherals/pio.h"

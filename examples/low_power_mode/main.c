@@ -108,6 +108,7 @@
  */
 
 #include "board.h"
+#include "board_twi.h"
 #include "chip.h"
 
 #include "peripherals/aic.h"

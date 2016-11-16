@@ -64,10 +64,7 @@
 
 #include "board_support.h"
 
-#include "bus/twi-bus.h"
-
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
-#include "peripherals/twid.h"
 #include "power/act8945a.h"
 #endif
 
@@ -123,7 +120,7 @@ static struct _act8945a act8945a = {
 };
 
 static bool act8945a_initialized = false;
-#endif
+#endif /* CONFIG_HAVE_PMIC_ACT8945A */
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -835,42 +832,3 @@ void board_cfg_ssc(void)
 #endif
 }
 #endif /* CONFIG_HAVE_SSC */
-
-void board_cfg_twi_bus(void)
-{
-#ifdef BOARD_TWI_BUS0
-	const struct _pin pins_twi_bus0[] = BOARD_TWI_BUS0_PINS;
-	pio_configure(pins_twi_bus0, ARRAY_SIZE(pins_twi_bus0));
-	twi_bus_configure(0, BOARD_TWI_BUS0, BOARD_TWI_BUS0_FREQ, BOARD_TWI_BUS0_MODE);
-#endif
-#ifdef BOARD_TWI_BUS1
-	const struct _pin pins_twi_bus1[] = BOARD_TWI_BUS1_PINS;
-	pio_configure(pins_twi_bus1, ARRAY_SIZE(pins_twi_bus1));
-	twi_bus_configure(1, BOARD_TWI_BUS1, BOARD_TWI_BUS1_FREQ, BOARD_TWI_BUS1_MODE);
-#endif
-#ifdef BOARD_TWI_BUS2
-	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
-	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
-	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, BOARD_TWI_BUS2_MODE);
-#endif
-#ifdef BOARD_TWI_BUS3
-	const struct _pin pins_twi_bus3[] = BOARD_TWI_BUS3_PINS;
-	pio_configure(pins_twi_bus3, ARRAY_SIZE(pins_twi_bus3));
-	twi_bus_configure(3, BOARD_TWI_BUS3, BOARD_TWI_BUS3_FREQ, BOARD_TWI_BUS3_MODE);
-#endif
-#ifdef BOARD_TWI_BUS4
-	const struct _pin pins_twi_bus4[] = BOARD_TWI_BUS4_PINS;
-	pio_configure(pins_twi_bus4, ARRAY_SIZE(pins_twi_bus4));
-	twi_bus_configure(4, BOARD_TWI_BUS4, BOARD_TWI_BUS4_FREQ, BOARD_TWI_BUS4_MODE);
-#endif
-#ifdef BOARD_TWI_BUS5
-	const struct _pin pins_twi_bus5[] = BOARD_TWI_BUS5_PINS;
-	pio_configure(pins_twi_bus5, ARRAY_SIZE(pins_twi_bus2));
-	twi_bus_configure(5, BOARD_TWI_BUS5, BOARD_TWI_BUS5_FREQ, BOARD_TWI_BUS5_MODE);
-#endif
-#ifdef BOARD_TWI_BUS6
-	const struct _pin pins_twi_bus6[] = BOARD_TWI_BUS6_PINS;
-	pio_configure(pins_twi_bus6, ARRAY_SIZE(pins_twi_bus6));
-	twi_bus_configure(6, BOARD_TWI_BUS6, BOARD_TWI_BUS6_FREQ, BOARD_TWI_BUS6_MODE);
-#endif
-}
