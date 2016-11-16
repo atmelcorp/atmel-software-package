@@ -366,11 +366,11 @@
 /* ========== Pio PIN definition for GMAC peripheral ========== */
 
 /** GMAC0 MII pin list */
-#define PINS_GMAC0_MII  { { PIO_GROUP_B, 0x00033FFF, PIO_PERIPH_A, PIO_DEFAULT } }
+#define PINS_GMAC0_MII  { { PIO_GROUP_B, 0x0003FFFF, PIO_PERIPH_A, PIO_DEFAULT } }
 
 /** GMAC0 GMII pin list */
 #define PINS_GMAC0_GMII { \
-	{ PIO_GROUP_B, 0x00073EFF, PIO_PERIPH_A, PIO_DEFAULT }, \
+	{ PIO_GROUP_B, 0x0007FEFF, PIO_PERIPH_A, PIO_DEFAULT }, \
 	{ PIO_GROUP_B, 0x0FF80000, PIO_PERIPH_B, PIO_DEFAULT }, \
 }
 
