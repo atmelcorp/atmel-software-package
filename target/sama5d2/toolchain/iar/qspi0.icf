@@ -4,12 +4,12 @@ define region DDRAM_region         = mem:[from 0x20000000 to 0x23FFFFFF];
 define region DDRAM_NOCACHE_region = mem:[from 0x24000000 to 0x24FFFFFF];
 define region QSPI_region          = mem:[from 0xD0000000 to 0xD0FFFFFF];
 
-define block CSTACK    with alignment = 8, size = 0x3000 { };
-define block IRQ_STACK with alignment = 8, size = 0x60   { };
-define block FIQ_STACK with alignment = 8, size = 0x60   { };
-define block ABT_STACK with alignment = 8, size = 0x40   { };
-define block UND_STACK with alignment = 8, size = 0x40   { };
-define block SYS_STACK with alignment = 8, size = 0x40   { };
+define block CSTACK    with alignment = 8, size = 0x400 { };
+define block IRQ_STACK with alignment = 8, size = 0x60  { };
+define block FIQ_STACK with alignment = 8, size = 0x60  { };
+define block ABT_STACK with alignment = 8, size = 0x40  { };
+define block UND_STACK with alignment = 8, size = 0x40  { };
+define block SYS_STACK with alignment = 8, size = 0x40  { };
 define block HEAP      with alignment = 4, size = 0x200 { };
 
 define block SRAM { section .region_sram  };

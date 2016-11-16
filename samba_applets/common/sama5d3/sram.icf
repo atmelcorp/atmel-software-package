@@ -1,7 +1,7 @@
 define memory mem with size = 4G;
 define region RAM_region = mem:[from 0x00300000 to 0x0030FFFF];
 
-define block CSTACK with alignment = 8, size = 0x1000 { };
+define block CSTACK with alignment = 8, size = 0x400 { };
 define block HEAP with alignment = 4, size = 0x200 { };
 
 define block BSS with alignment = 32 { zi };
