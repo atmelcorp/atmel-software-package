@@ -56,11 +56,7 @@ static struct _ssc_desc ssc_dev_desc = {
 
 static struct _wm8904_desc wm8904 = {
 	.twi = {
-		.twid = {
-			.addr = BOARD_WM8904_ADDR,
-			.freq = BOARD_WM8904_FREQ,
-			.transfer_mode = TWID_MODE_POLLING
-		},
+		.bus = BOARD_WM8904_TWI_BUS,
 		.addr = BOARD_WM8904_SLAVE_ADDR,
 	},
 	.input_path = BOARD_WM8904_INPUT_PATH,
