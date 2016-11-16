@@ -265,16 +265,19 @@
 #define TWI_FIFO_DEPTH (16u)
 
 /** TWI Interface max */
+#ifndef TWI_IFACE_COUNT
 #define TWI_IFACE_COUNT (7)
-
-/** TWI Interface max */
-#define TWI_IFACE_COUNT (7)
+#endif
 
 /** SPI Interface max */
+#ifndef SPI_IFACE_COUNT
 #define SPI_IFACE_COUNT (6)
+#endif
 
 /** USART Interface max */
+#ifndef USART_IFACE_COUNT
 #define USART_IFACE_COUNT (5)
+#endif
 
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000

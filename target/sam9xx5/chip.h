@@ -179,13 +179,19 @@
 #define L1_CACHE_SETS       (128)
 
 /** TWI Interface max */
+#ifndef TWI_IFACE_COUNT
 #define TWI_IFACE_COUNT (3)
+#endif
 
 /** SPI Interface max */
+#ifndef SPI_IFACE_COUNT
 #define SPI_IFACE_COUNT (2)
+#endif
 
 /** USART Interface max */
+#ifndef USART_IFACE_COUNT
 #define USART_IFACE_COUNT (4)
+#endif
 
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
