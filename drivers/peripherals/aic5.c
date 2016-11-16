@@ -226,8 +226,8 @@ static void _aic_set_it(Aic * aic, uint32_t source)
  */
 void aic_initialize(void)
 {
-	/* Disable IRQ and FIQ at core level */
-	cpsr_set_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	/* Disable interrupts at core level */
+	irq_disable_all();
 
 	/* Set default vectors */
 	_aic_initialize(AIC);
@@ -239,8 +239,8 @@ void aic_initialize(void)
 	SFR->SFR_AICREDIR = (aicredir ^ SFR->SFR_SN1) | SFR_AICREDIR_NSAIC;
 #endif /* CONFIG_HAVE_SAIC */
 
-	/* Enable IRQ and FIQ at core level */
-	cpsr_clear_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	/* Enable interrupts at core level */
+	irq_enable_all();
 }
 
 /**

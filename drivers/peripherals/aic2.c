@@ -158,8 +158,8 @@ void aic_initialize(void)
 {
 	int i;
 
-	/* Disable IRQ and FIQ at core level */
-	cpsr_set_bits(CPSR_MASK_IRQ | CPSR_MASK_FIQ);
+	/* Disable interrupts at core level */
+	irq_disable_all();
 
 	/* Disable all interrupts */
 	AIC->AIC_IDCR = 0xffffffffu;
@@ -179,8 +179,8 @@ void aic_initialize(void)
 	}
 	aic_set_spurious_vector(_aic_default_irq_handler);
 
-	/* Enable IRQ and FIQ at core level */
-	cpsr_clear_bits(CPSR_MASK_IRQ);
+	/* Enable interrupts at core level */
+	irq_enable_all();
 }
 
 /**
