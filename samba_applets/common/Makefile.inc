@@ -32,7 +32,7 @@ CONFIG_TIMER_POLLING = y
 
 CFLAGS_INC += -I$(TOP)/samba_applets/common
 
-CFLAGS += -mno-unaligned-access
+CFLAGS += -mno-unaligned-access -DDMA_LL_POOL_SIZE=2
 
 obj-y += samba_applets/common/applet_main.o
 obj-y += samba_applets/common/applet_legacy.o

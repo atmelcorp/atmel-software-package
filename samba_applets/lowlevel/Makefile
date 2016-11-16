@@ -42,7 +42,6 @@ TOP := ../..
 BINNAME = applet-lowlevel
 
 CONFIG_SAMBA_APPLET = y
-CFLAGS_OPT=-DDMA_LL_POOL_SIZE=32
 
 obj-y += samba_applets/lowlevel/main.o
 
