@@ -84,14 +84,14 @@ enum _rtc_hour_mode {
  *
  * \param mode  Hour mode.
  */
-extern void rtc_set_hour_mode(uint32_t mode);
+extern void rtc_set_hour_mode(enum _rtc_hour_mode mode);
 
 /**
  * \brief Gets the RTC mode.
  *
  * \return Hour mode.
  */
-extern uint32_t rtc_get_hour_mode(void);
+extern enum _rtc_hour_mode rtc_get_hour_mode(void);
 
 /**
  * \brief Enables the selected interrupt sources of the RTC.

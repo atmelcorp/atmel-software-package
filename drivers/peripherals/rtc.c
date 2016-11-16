@@ -276,7 +276,7 @@ void rtc_set_hour_mode(enum _rtc_hour_mode mode)
 	}
 }
 
-enum _rtc_hour_mode  rtc_get_hour_mode(void)
+enum _rtc_hour_mode rtc_get_hour_mode(void)
 {
 	return (RTC->RTC_MR & RTC_MR_HRMOD) ? RTC_HOUR_MODE_12 : RTC_HOUR_MODE_24;
 }
