@@ -65,7 +65,7 @@ struct _mpddrc_desc {
 	uint32_t refresh_cycles;
 };
 
-extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch);
+extern void mpddrc_configure(struct _mpddrc_desc* desc);
 
 /**
  * \brief Issue a Low-Power Command to the DDR-SDRAM device.

@@ -159,6 +159,9 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 	/* Setup default interrupt handlers */
 	aic_initialize();
 
+	/* Configure system timer */
+	board_cfg_timer();
+
 	if (ddram) {
 		/* Configure DDRAM */
 		board_cfg_ddram();
@@ -480,7 +483,7 @@ void board_cfg_ddram(void)
 	board_cfg_matrix_for_ddr();
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
-	ddram_configure(&desc, ID_TC0, 0);
+	ddram_configure(&desc);
 #endif
 }
 

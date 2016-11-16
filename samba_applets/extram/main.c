@@ -119,7 +119,7 @@ static bool init_extram_from_preset(uint32_t preset)
 
 	board_cfg_matrix_for_ddr();
 	ddram_init_descriptor(&desc, device);
-	ddram_configure(&desc, ID_TC0, 0);
+	ddram_configure(&desc);
 	return true;
 }
 

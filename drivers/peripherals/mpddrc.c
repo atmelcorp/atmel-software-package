@@ -28,47 +28,16 @@
  */
 
 #include "chip.h"
-#include "peripherals/mpddrc.h"
-#include "peripherals/sfrbu.h"
-#include "peripherals/pmc.h"
-#include "peripherals/tc.h"
-#include "trace.h"
 #include "compiler.h"
+#include "timer.h"
+#include "trace.h"
+
+#include "peripherals/mpddrc.h"
+#include "peripherals/pmc.h"
+#include "peripherals/sfrbu.h"
 
 #include <assert.h>
 #include <stdlib.h>
-
-static struct {
-	Tc*      tc;
-	uint32_t id, channel, ratio;
-} tc_info;
-
-static void _configure_tc(uint32_t tc_id, uint32_t tc_ch)
-{
-	tc_info.tc = get_tc_addr_from_id(tc_id);
-	tc_info.id = tc_id;
-	tc_info.channel = tc_ch;
-
-	assert(tc_info.tc);
-
-	pmc_enable_peripheral(tc_id);
-	tc_configure(tc_info.tc, tc_ch, TC_CMR_TCCLKS_TIMER_CLOCK2 | TC_CMR_CPCSTOP | TC_CMR_WAVE);
-	tc_info.ratio = tc_get_available_freq(tc_info.tc, TC_CMR_TCCLKS_TIMER_CLOCK2) / 1000000;
-}
-
-static void _wait(uint32_t us)
-{
-	uint32_t rc = us * tc_info.ratio;
-	tc_set_ra_rb_rc(tc_info.tc, tc_info.channel, NULL, NULL, &rc);
-	tc_start(tc_info.tc, tc_info.channel);
-	while ((tc_get_status(tc_info.tc, tc_info.channel) & TC_SR_CPCS) != TC_SR_CPCS) {}
-}
-
-static void _reset_tc(void)
-{
-	tc_stop(tc_info.tc, tc_info.channel);
-	pmc_disable_peripheral(tc_info.id);
-}
 
 static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
@@ -142,7 +111,7 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
 
 	/* Step 4: Pause for at least 500μs. */
-	_wait(500);
+	usleep(500);
 
 	/* Step 5: Issue a NOP command. */
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
@@ -192,7 +161,7 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
 
 	/* Step 4: Pause for at least 200μs. */
-	_wait(200);
+	usleep(200);
 
 	/* Step 5: Issue a NOP command. */
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
@@ -214,7 +183,7 @@ static void _configure_ddr2(struct _mpddrc_desc* desc)
 
 	/* Step 10: An additional 200 cycles of clock are required for locking
 	 * DLL (2μs should be enough). */
-	_wait(2);
+	usleep(2);
 
 	/* Step 11: Program DLL field into the Configuration Register. */
 	MPDDRC->MPDDRC_CR |= MPDDRC_CR_DLL_RESET_ENABLED;
@@ -273,21 +242,21 @@ static void _configure_lpddr2(struct _mpddrc_desc* desc)
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
 
 	/* Step 4: Pause for at least 100ns (use 1μs instead). */
-	_wait(1);
+	usleep(1);
 
 	/* Step 5: Issue a NOP command. */
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
 
 	/* Step 6: A pause of at least 200μs must be observed before issuing a
 	 * Reset command. */
-	_wait(200);
+	usleep(200);
 
 	/* Step 7. A Reset command is issued. */
 	_send_lpddr2_cmd(0x3f);
 
 	/* Step 8. A pause of at least tINIT5 must be observed before issuing
 	 * any commands.*/
-	_wait(500);
+	usleep(500);
 
 	/* Step 9. Issued a calibration command by issuing mode register write
 	 * command */
@@ -347,10 +316,8 @@ static void _configure_lpddr2(struct _mpddrc_desc* desc)
 
 #endif /* CONFIG_HAVE_MPDDRC_LPDDR2 */
 
-extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch)
+extern void mpddrc_configure(struct _mpddrc_desc* desc)
 {
-	_configure_tc(tc_id, tc_ch);
-
 #ifdef MPDDRC_HS_DIS_ANTICIP_READ
 	/* Disable anticipated read */
 	MPDDRC->MPDDRC_HS = MPDDRC_HS_DIS_ANTICIP_READ;
@@ -447,8 +414,6 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t
 		sfrbu_disable_ddr_backup();
 	}
 #endif
-
-	_reset_tc();
 }
 
 void mpddrc_issue_low_power_command(uint32_t cmd)

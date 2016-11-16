@@ -39,6 +39,7 @@
 #include "compiler.h"
 
 #include "peripherals/dma.h"
+
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------
@@ -61,9 +62,6 @@ WEAK void board_init(void)
 
 	/* Configure misc low-level stuff */
 	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure system timer */
-	board_cfg_timer();
 
 	/* Configure console */
 	board_cfg_console(0);

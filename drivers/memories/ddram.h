@@ -70,7 +70,7 @@ extern "C" {
 extern void ddram_init_descriptor(struct _mpddrc_desc* desc,
 				  enum _ddram_devices device);
 
-extern void ddram_configure(struct _mpddrc_desc* desc, uint32_t tc_id, uint32_t tc_ch);
+extern void ddram_configure(struct _mpddrc_desc* desc);
 
 #ifdef __cplusplus
 }
