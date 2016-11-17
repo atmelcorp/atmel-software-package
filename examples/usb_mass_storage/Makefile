@@ -42,6 +42,7 @@ BINNAME = usb_mass_storage
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_MSD = y
 CONFIG_LIB_STORAGEMEDIA = y
+CONFIG_SDMMC = y
 CONFIG_LIB_SDMMC = y
 
 # Uncomment the few definitions below if you wish to selectively override the

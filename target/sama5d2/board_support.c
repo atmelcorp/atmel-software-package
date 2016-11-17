@@ -614,6 +614,7 @@ void board_cfg_nand_flash(void)
 }
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
+#ifdef CONFIG_HAVE_SDMMC
 bool board_cfg_sdmmc(uint32_t periph_id)
 {
 /* mask for board capabilities defines: voltage, slot type and 8-bit support */
@@ -715,6 +716,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 
 #undef CAPS0_MASK
 }
+#endif /* CONFIG_HAVE_SDMMC */
 
 void board_cfg_pmic(void)
 {
