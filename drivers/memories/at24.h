@@ -30,6 +30,8 @@
 #ifndef AT24_H_
 #define AT24_H_
 
+#ifdef CONFIG_DRV_AT24
+
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
@@ -106,5 +108,7 @@ extern bool at24_has_eui48(const struct _at24* at24);
 extern bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48);
 extern bool at24_has_eui64(const struct _at24* at24);
 extern bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64);
+
+#endif /* CONFIG_DRV_AT24 */
 
 #endif /* AT24_H_ */

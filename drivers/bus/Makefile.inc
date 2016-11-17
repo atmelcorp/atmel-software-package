@@ -27,4 +27,4 @@
 # ----------------------------------------------------------------------------
 
 drivers-$(CONFIG_HAVE_SPI_BUS) += drivers/bus/spi-bus.o
-drivers-y += drivers/bus/twi-bus.o
+drivers-$(CONFIG_HAVE_TWI_BUS) += drivers/bus/twi-bus.o

@@ -26,7 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/memories/at24.o
+drivers-$(CONFIG_DRV_AT24) += drivers/memories/at24.o
 drivers-$(CONFIG_DRV_AT25) += drivers/memories/at25.o
 drivers-$(CONFIG_HAVE_MPDDRC) += drivers/memories/ddram.o
 drivers-$(CONFIG_HAVE_QSPI) += drivers/memories/qspiflash.o

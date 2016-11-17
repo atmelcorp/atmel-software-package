@@ -40,6 +40,8 @@ TOP := ../..
 BINNAME = eth_uip_webserver
 
 CONFIG_NET = y
+CONFIG_TWI = y
+CONFIG_TWI_AT24 = y
 CONFIG_LIB_UIP = y
 CONFIG_LIB_UIP_WEBSERVER = y
 

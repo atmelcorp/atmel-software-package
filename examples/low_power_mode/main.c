@@ -693,11 +693,16 @@ void board_init(void)
 	/* Configure console */
 	board_cfg_console(0);
 
+#ifdef CONFIG_HAVE_TWI_BUS
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
 
+#if defined(CONFIG_HAVE_PMIC_ACT8865) || \
+    defined(CONFIG_HAVE_PMIC_ACT8945A)
 	/* Configure PMIC */
 	board_cfg_pmic();
+#endif
+#endif /* CONFIG_HAVE_TWI_BUS */
 }
 
 /**

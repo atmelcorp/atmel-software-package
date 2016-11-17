@@ -52,7 +52,7 @@ struct _at24;
  */
 extern void board_cfg_twi_bus(void);
 
-#ifdef BOARD_AT24_TWI_BUS
+#ifdef CONFIG_HAVE_TWI_AT24
 /**
  * \brief Configures the eth<iface> for the board
  */
@@ -62,6 +62,6 @@ extern void board_cfg_at24(void);
  * \brief Get the at24 configuration for the board
  */
 extern struct _at24* board_get_at24(void);
-#endif /* BOARD_AT24_TWI_BUS */
+#endif /* CONFIG_HAVE_TWI_AT24 */
 
 #endif /* BOARD_TWI_H */

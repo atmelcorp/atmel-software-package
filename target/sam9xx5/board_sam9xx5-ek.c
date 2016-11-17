@@ -77,15 +77,17 @@ WEAK void board_init(void)
 #endif
 #endif
 
+#ifdef CONFIG_HAVE_TWI_BUS
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
 
-	/* Configure LEDs */
-	board_cfg_led();
-
-#ifdef BOARD_AT24_TWI_BUS
+#ifdef CONFIG_HAVE_TWI_AT24
 	board_cfg_at24();
 #endif
+#endif
+
+	/* Configure LEDs */
+	board_cfg_led();
 
 #ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0);

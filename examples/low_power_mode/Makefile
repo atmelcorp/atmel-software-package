@@ -33,6 +33,8 @@ TOP := ../..
 
 BINNAME = low_power_mode
 
+CONFIG_TWI = y
+
 VARIANT ?= sram
 
 obj-y += examples/low_power_mode/main.o

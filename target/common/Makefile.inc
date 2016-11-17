@@ -30,6 +30,6 @@ CFLAGS_INC += -I$(TOP)/target/common
 
 target-$(CONFIG_HAVE_ETH) += target/common/board_eth.o
 target-$(CONFIG_HAVE_SPI_BUS) += target/common/board_spi.o
-target-y += target/common/board_twi.o
+target-$(CONFIG_HAVE_TWI_BUS) += target/common/board_twi.o
 
 bootstrap-y ?= target/common/bootstrap.o

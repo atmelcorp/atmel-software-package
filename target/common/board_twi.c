@@ -43,7 +43,7 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef BOARD_AT24_TWI_BUS
+#ifdef CONFIG_HAVE_TWI_AT24
 static struct _at24 at24;
 #endif
 
@@ -86,7 +86,7 @@ void board_cfg_twi_bus(void)
 #endif
 }
 
-#ifdef BOARD_AT24_TWI_BUS
+#ifdef CONFIG_HAVE_TWI_AT24
 void board_cfg_at24(void)
 {
 	const struct _at24_config at24_device_cfg = {
@@ -101,4 +101,4 @@ struct _at24 * board_get_at24(void)
 {
 	return &at24;
 }
-#endif /* BOARD_AT24_TWI_BUS */
+#endif /* CONFIG_HAVE_TWI_AT24 */

@@ -80,11 +80,14 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 		}
 		break;
 #endif
+#ifdef CONFIG_HAVE_TWI
 	case FLEX_MR_OPMODE_TWI:
 		{
 			Twi* twi = get_twi_addr_from_id(flexcom_id);
 			twi_stop(twi);
 		}
+		break;
+#endif
 	default:
 		break;
 	}

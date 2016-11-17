@@ -78,11 +78,13 @@ WEAK void board_init(void)
 #endif
 #endif
 
+#ifdef CONFIG_HAVE_TWI_BUS
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
 
 	/* Configure PMIC */
 	board_cfg_pmic();
+#endif
 
 	/* Configure LEDs */
 	board_cfg_led();

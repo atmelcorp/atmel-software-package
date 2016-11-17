@@ -35,6 +35,10 @@ TOP := ../..
 
 BINNAME = twi_eeprom
 
+CONFIG_TWI = y
+CONFIG_TWI_AT24 = y
+CONFIG_DRV_AT24 = y
+
 obj-y += examples/twi_eeprom/main.o
 obj-y += examples/twi_eeprom/at24_emulator.o
 
