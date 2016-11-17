@@ -32,6 +32,9 @@ TOP := ../..
 
 BINNAME = spi-serialflash
 
+CONFIG_SPI=y
+CONFIG_SPI_AT25=y
+
 obj-y += examples/spi_serialflash/main.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -72,12 +72,14 @@ void flexcom_select(Flexcom * flexcom, uint32_t protocol)
 			usart_set_transmitter_enabled(usart, 0u);
 		}
 		break;
+#ifdef CONFIG_HAVE_SPI
 	case FLEX_MR_OPMODE_SPI:
 		{
 			Spi* spi = get_spi_addr_from_id(flexcom_id);
 			spi_disable(spi);
 		}
 		break;
+#endif
 	case FLEX_MR_OPMODE_TWI:
 		{
 			Twi* twi = get_twi_addr_from_id(flexcom_id);

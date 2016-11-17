@@ -30,6 +30,8 @@
 #ifndef _AT25_H
 #define _AT25_H
 
+#ifdef CONFIG_DRV_AT25
+
 //------------------------------------------------------------------------------
 //         Headers
 //------------------------------------------------------------------------------
@@ -128,5 +130,7 @@ extern uint32_t at25_write(struct _at25* at25, uint32_t addr, const uint8_t* dat
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CONFIG_DRV_AT25 */
 
 #endif /* _AT25_H */

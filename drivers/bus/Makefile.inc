@@ -26,5 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/bus/spi-bus.o
+drivers-$(CONFIG_HAVE_SPI_BUS) += drivers/bus/spi-bus.o
 drivers-y += drivers/bus/twi-bus.o

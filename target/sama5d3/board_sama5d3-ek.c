@@ -69,8 +69,14 @@ WEAK void board_init(void)
 	/* DMA Driver init */
 	dma_initialize(false);
 
+#ifdef CONFIG_HAVE_SPI_BUS
 	/* Configure SPI bus */
 	board_cfg_spi_bus();
+
+#ifdef CONFIG_HAVE_SPI_AT25
+	board_cfg_at25();
+#endif
+#endif
 
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
@@ -80,10 +86,6 @@ WEAK void board_init(void)
 
 	/* Configure LEDs */
 	board_cfg_led();
-
-#ifdef BOARD_AT25_BUS
-	board_cfg_at25();
-#endif
 
 #ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0);

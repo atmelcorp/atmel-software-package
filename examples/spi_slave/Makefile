@@ -38,6 +38,7 @@ BINNAME = spi_slave
 
 obj-y += examples/spi_slave/main.o
 
+CONFIG_SPI=y
 CONFIG_HAVE_SSC=
 CONFIG_HAVE_ISI=
 

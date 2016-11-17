@@ -206,7 +206,6 @@
 #define BOARD_SPI_BUS1_PINS  PINS_SPI1_NPCS0
 #define BOARD_SPI_BUS1_MODE  SPID_MODE_DMA
 
-
 /* =================== AT25 device definition =================== */
 
 #define BOARD_AT25_BUS         0

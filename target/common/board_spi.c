@@ -34,7 +34,7 @@
 #include "board_spi.h"
 #include "trace.h"
 
-#include "bus/twi-bus.h"
+#include "bus/spi-bus.h"
 
 #include "peripherals/pio.h"
 
@@ -44,7 +44,7 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef BOARD_AT25_BUS
+#ifdef CONFIG_HAVE_SPI_AT25
 static struct _at25 at25 = {
 	.dev = {
 		.bus = BOARD_AT25_BUS,
@@ -97,7 +97,7 @@ void board_cfg_spi_bus(void)
 #endif
 }
 
-#ifdef BOARD_AT25_BUS
+#ifdef CONFIG_HAVE_SPI_AT25
 void board_cfg_at25(void)
 {
 	/* Open serial flash device */
@@ -115,4 +115,4 @@ struct _at25 * board_get_at25(void)
 {
 	return &at25;
 }
-#endif /* BOARD_AT25_BUS */
+#endif /* CONFIG_HAVE_SPI_AT25 */
