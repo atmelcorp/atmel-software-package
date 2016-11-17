@@ -38,7 +38,7 @@ VARIANT ?= ddram
 
 TOP := ../..
 
-CONFIG_HAVE_NAND_FLASH = y
+CONFIG_NAND_FLASH = y
 
 BINNAME = smc_nandflash_slc
 
