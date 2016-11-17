@@ -34,12 +34,10 @@ VARIANT ?= ddram
 
 TOP := ../..
 
-CONFIG_HAVE_SSC = n
-CONFIG_HAVE_AUDIO = n
-CONFIG_HAVE_ISI = y
-CONFIG_HAVE_IMAGE_SENSOR = y
-
 BINNAME = isi
+
+CONFIG_ISI = y
+CONFIG_HAVE_IMAGE_SENSOR = y
 
 obj-y += examples/isi/main.o
 

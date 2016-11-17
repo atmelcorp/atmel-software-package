@@ -34,10 +34,10 @@ VARIANT ?= ddram
 
 TOP := ../..
 
-CONFIG_HAVE_ISC = y
-CONFIG_HAVE_IMAGE_SENSOR = y
-
 BINNAME = isc
+
+CONFIG_ISC = y
+CONFIG_HAVE_IMAGE_SENSOR = y
 
 obj-y += examples/isc/main.o
 
