@@ -34,6 +34,7 @@ TOP := ../..
 BINNAME = low_power_mode
 
 CONFIG_TWI = y
+CONFIG_LED = y
 
 VARIANT ?= sram
 

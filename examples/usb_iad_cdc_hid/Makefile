@@ -32,6 +32,7 @@ TOP := ../..
 
 BINNAME = usb_iad_cdc_hid
 
+CONFIG_LED = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_HID = y
 CONFIG_LIB_USB_CDC = y

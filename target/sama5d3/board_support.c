@@ -54,7 +54,6 @@
 
 #include "misc/cache.h"
 #include "misc/console.h"
-#include "misc/led.h"
 
 #include "board_support.h"
 
@@ -71,10 +70,6 @@ struct _act8865 pmic = {
 	.bus = BOARD_ACT8865_TWI_BUS,
 	.addr = BOARD_ACT8865_TWI_ADDR,
 };
-#endif
-
-#ifdef PINS_LEDS
-static struct _pin pins_leds[] = PINS_LEDS;
 #endif
 
 static const char* board_name = BOARD_NAME;
@@ -525,13 +520,6 @@ void board_cfg_pmic(void)
 		trace_error("Error initializing ACT8865 PMIC\n\r");
 		return;
 	}
-#endif
-}
-
-void board_cfg_led(void)
-{
-#ifdef PINS_LEDS
-	led_configure(pins_leds, ARRAY_SIZE(pins_leds));
 #endif
 }
 

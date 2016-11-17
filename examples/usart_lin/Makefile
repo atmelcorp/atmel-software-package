@@ -33,6 +33,8 @@ TOP := ../..
 
 BINNAME = usart_lin
 
+CONFIG_LED = y
+
 obj-y += examples/usart_lin/lin.o
 obj-y += examples/usart_lin/main.o
 

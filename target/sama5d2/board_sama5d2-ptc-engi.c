@@ -34,6 +34,7 @@
 #include "chip.h"
 #include "board.h"
 #include "board_eth.h"
+#include "board_led.h"
 #include "board_spi.h"
 #include "board_twi.h"
 #include "compiler.h"
@@ -89,8 +90,11 @@ WEAK void board_init(void)
 	board_cfg_at24();
 #endif
 #endif
+
+#ifdef CONFIG_HAVE_LED
 	/* Configure LEDs */
 	board_cfg_led();
+#endif
 
 #ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0);

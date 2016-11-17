@@ -60,7 +60,6 @@
 
 #include "misc/cache.h"
 #include "misc/console.h"
-#include "misc/led.h"
 
 #include "board_support.h"
 
@@ -95,10 +94,6 @@ static const struct _l2cc_config l2cc_cfg = {
 	.standby_mode = true,
 	.dyn_clock_gating = true
 };
-
-#ifdef PINS_LEDS
-static struct _pin pins_leds[] = PINS_LEDS;
-#endif
 
 static const char* board_name = BOARD_NAME;
 
@@ -797,13 +792,6 @@ void board_cfg_lcd(void)
 #endif
 }
 #endif
-
-void board_cfg_led(void)
-{
-#ifdef PINS_LEDS
-	led_configure(pins_leds, ARRAY_SIZE(pins_leds));
-#endif
-}
 
 #ifdef CONFIG_HAVE_PDMIC
 void board_cfg_pdmic(void)

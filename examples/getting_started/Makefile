@@ -32,6 +32,8 @@ TOP := ../..
 
 BINNAME = getting-started
 
+CONFIG_LED = y
+
 obj-y += examples/getting_started/main.o
 
 include $(TOP)/scripts/Makefile.rules

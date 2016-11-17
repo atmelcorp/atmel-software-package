@@ -147,11 +147,6 @@ extern void board_cfg_lcd(void);
 #endif
 
 /**
- * \brief Configures LEDs for the board.
- */
-extern void board_cfg_led(void);
-
-/**
  * \brief Configures CLASSD for the board.
  */
 #ifdef CONFIG_HAVE_CLASSD

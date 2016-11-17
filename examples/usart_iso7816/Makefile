@@ -36,6 +36,8 @@ TOP := ../..
 
 BINNAME = usart_iso7816
 
+CONFIG_LED = y
+
 obj-y += examples/usart_iso7816/main.o
 
 include $(TOP)/scripts/Makefile.rules

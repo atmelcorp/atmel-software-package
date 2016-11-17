@@ -51,8 +51,10 @@
  *  methods.
  */
 
-#ifndef _LED_
-#define _LED_
+#ifndef LED_H_
+#define LED_H_
+
+#ifdef CONFIG_HAVE_LED
 
 #include <stdint.h>
 #include "peripherals/pio.h"
@@ -92,4 +94,6 @@ extern uint32_t led_clear(uint32_t led);
  */
 extern uint32_t led_toggle(uint32_t led);
 
-#endif				/* #ifndef LED_H */
+#endif /* CONFIG_HAVE_LED */
+
+#endif /* LED_H_ */

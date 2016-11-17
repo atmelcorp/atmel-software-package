@@ -108,6 +108,7 @@
  */
 
 #include "board.h"
+#include "board_led.h"
 #include "board_twi.h"
 #include "chip.h"
 
@@ -449,8 +450,10 @@ static void menu_ulp0(void)
 	/* Set the interrupts to wake up the system. */
 	_configure_buttons();
 
+#ifdef CONFIG_HAVE_LED
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
+#endif
 
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
@@ -492,8 +495,10 @@ static void menu_ulp1(void)
 	/* Disable the USB transceivers and all peripheral clocks */
 	board_save_misc_power();
 
+#ifdef CONFIG_HAVE_LED
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
+#endif
 
 	/* ultra low power mode 1, RC12 is selected for Main Clock */
 	/* Disable the PLLs and the main oscillator */
@@ -598,9 +603,11 @@ static void menu_idle(void)
 	printf("Configure button with debouncing.\n\r");
 	_configure_buttons();
 
+#ifdef CONFIG_HAVE_LED
 	/* config a led for indicator to capture wake-up time */
 	printf("Configure led for wakeup indicator.\n\r");
 	board_cfg_led();
+#endif
 
 	printf("=========== Enter Idle mode ===========\n\r");
 	/* config PCK and MCK */

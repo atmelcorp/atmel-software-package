@@ -31,88 +31,25 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "board_eth.h"
 #include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
 
-#include "peripherals/dma.h"
-
-#include "board_support.h"
+#include "misc/led.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Local constants
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
+#ifdef PINS_LEDS
+static struct _pin pins_leds[] = PINS_LEDS;
+#endif
+
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
+
+void board_cfg_led(void)
 {
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
-
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
-
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMAC Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-#ifdef CONFIG_HAVE_TWI_AT24
-	board_cfg_at24();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure image sensor */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
+#ifdef PINS_LEDS
+	led_configure(pins_leds, ARRAY_SIZE(pins_leds));
 #endif
 }

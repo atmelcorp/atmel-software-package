@@ -131,11 +131,6 @@ extern void board_cfg_lcd(void);
 #endif
 
 /**
- * \brief Configures LEDs for the board.
- */
-extern void board_cfg_led(void);
-
-/**
  * \brief Configures the board.
  */
 extern void board_init(void);

@@ -36,6 +36,8 @@ TOP := ../..
 
 BINNAME = pwm
 
+CONFIG_LED = y
+
 obj-y += examples/pwm/main.o
 
 include $(TOP)/scripts/Makefile.rules
