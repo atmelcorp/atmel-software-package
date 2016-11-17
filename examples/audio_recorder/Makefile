@@ -36,6 +36,8 @@ TOP := ../..
 
 BINNAME = audio_recorder
 
+CONFIG_AUDIO=y
+
 obj-y += examples/audio_recorder/main.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -36,6 +36,7 @@ BINNAME = classd
 
 VARIANT ?= ddram
 
+CONFIG_AUDIO = y
 CONFIG_HAVE_CLASSD = y
 
 obj-y += examples/classd/main.o

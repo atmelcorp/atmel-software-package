@@ -35,6 +35,8 @@ TOP := ../..
 
 BINNAME = ssc_dma_audio
 
+CONFIG_AUDIO = y
+
 obj-y += examples/ssc_dma_audio/main.o
 
 include $(TOP)/scripts/Makefile.rules

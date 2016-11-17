@@ -32,6 +32,7 @@ TOP := ../..
 
 BINNAME = usb_audio_looprec
 
+CONFIG_AUDIO = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_AUDIO = y
 
