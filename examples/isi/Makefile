@@ -37,6 +37,7 @@ TOP := ../..
 BINNAME = isi
 
 CONFIG_ISI = y
+CONFIG_LCDC = y
 CONFIG_HAVE_IMAGE_SENSOR = y
 
 obj-y += examples/isi/main.o
