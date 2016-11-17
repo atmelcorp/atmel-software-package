@@ -179,7 +179,6 @@
 
 /* =================== ETH0 definition =================== */
 
-#ifdef ETH_IFACE_COUNT > 0
 #define BOARD_ETH0_PINS        PINS_EMAC0_RMII
 #define BOARD_ETH0_TYPE        ETH_TYPE_EMAC
 #define BOARD_ETH0_ADDR        EMAC0
@@ -187,9 +186,7 @@
 #define BOARD_ETH0_PHY_IF      PHY_IF_EMAC
 #define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
 #define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_B, PIO_PB8, PIO_INPUT, PIO_PULLUP }
-#endif
 
-#ifdef ETH_IFACE_COUNT > 1
 #define BOARD_ETH1_PINS        PINS_EMAC1_RMII
 #define BOARD_ETH1_TYPE        ETH_TYPE_EMAC
 #define BOARD_ETH1_ADDR        EMAC1
@@ -198,7 +195,6 @@
 #define BOARD_ETH1_PHY_RETRIES PHY_DEFAULT_RETRIES
 #define BOARD_ETH1_PHY_IRQ_PIN { PIO_GROUP_C, PIO_PC26, PIO_INPUT, PIO_PULLUP }
 #define BOARD_ETH1_MAC_ADDR    {0x3a, 0x1f, 0x34, 0x08, 0x54, 0x54}
-#endif
 
 /* =================== NANDFLASH device definition =================== */
 

@@ -115,21 +115,17 @@ endif
 ifeq ($(CONFIG_SOC_SAM9G25),y)
 CONFIG_HAVE_ISI ?= y
 CONFIG_HAVE_EMAC = y
-CONFIG_HAVE_ETH = y
 endif
 ifeq ($(CONFIG_SOC_SAM9G35),y)
 CONFIG_HAVE_LCDC = y
 CONFIG_HAVE_EMAC = y
-CONFIG_HAVE_ETH = y
 endif
 ifeq ($(CONFIG_SOC_SAM9X25),y)
 CONFIG_HAVE_EMAC = y
-CONFIG_HAVE_ETH = y
 endif
 ifeq ($(CONFIG_SOC_SAM9X35),y)
 CONFIG_HAVE_LCDC = y
 CONFIG_HAVE_EMAC = y
-CONFIG_HAVE_ETH = y
 endif
 
 CFLAGS_CPU += -mcpu=arm926ej-s -mfloat-abi=soft

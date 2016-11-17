@@ -77,7 +77,7 @@ static const struct _phy_desc _phy_desc[] = {
 		.retries = BOARD_ETH0_PHY_RETRIES,
 		.phy_addr = BOARD_ETH0_PHY_ADDR
 	},
-#ifdef BOARD_ETH1_ADDR
+#if defined(BOARD_ETH1_ADDR) && (ETH_IFACE_COUNT > 1)
 	{
 		.addr = BOARD_ETH1_ADDR,
 		.phy_if = BOARD_ETH1_PHY_IF,
@@ -92,7 +92,7 @@ static struct _phy _phy[] = {
 	{
 		.desc = &_phy_desc[0]
 	},
-#ifdef BOARD_ETH1_ADDR
+#if defined(BOARD_ETH1_ADDR) && (ETH_IFACE_COUNT > 1)
 	{
 		.desc = &_phy_desc[1]
 	},
@@ -132,6 +132,7 @@ static void _eth_rx_callback(uint8_t queue, uint32_t status)
 
 void board_cfg_net(uint8_t iface)
 {
+#ifdef CONFIG_HAVE_ETH
 	uint8_t _eth_mac_addr[6];
 
 	/* Init ethernet interface */
@@ -158,7 +159,7 @@ void board_cfg_net(uint8_t iface)
 	}
 	break;
 
-#ifdef BOARD_ETH1_ADDR
+#if defined(BOARD_ETH1_ADDR) && (ETH_IFACE_COUNT > 1)
 	case 1:
 	{
 		struct _pin eth_pins[] = BOARD_ETH1_PINS;
@@ -192,12 +193,15 @@ void board_cfg_net(uint8_t iface)
 	/* Init PHY */
 	phy_configure(&_phy[iface]);
 	phy_auto_negotiate(&_phy[iface], 5000);
+#endif /* CONFIG_HAVE_ETH */
 }
 
 struct _ethd * board_get_eth(uint8_t iface)
 {
+#ifdef CONFIG_HAVE_ETH
 	if (iface < ETH_IFACE_COUNT)
 		return &_ethd[iface];
+#endif /* CONFIG_HAVE_ETH */
 
 	return NULL;
 }

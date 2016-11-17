@@ -85,7 +85,7 @@ WEAK void board_init(void)
 	board_cfg_at25();
 #endif
 
-#ifdef CONFIG_HAVE_NET
+#ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0);
 	board_cfg_net(1);
 #endif

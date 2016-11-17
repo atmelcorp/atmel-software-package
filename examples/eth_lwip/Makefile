@@ -40,7 +40,7 @@ TOP := ../..
 
 BINNAME = eth_lwip
 
-CONFIG_HAVE_NET = y
+CONFIG_NET = y
 CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_IPV4 = y
 

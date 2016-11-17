@@ -36,7 +36,7 @@ TOP := ../..
 
 BINNAME = eth
 
-CONFIG_HAVE_NET = y
+CONFIG_NET = y
 
 obj-y += examples/eth/main.o
 obj-y += examples/eth/mini_ip.o

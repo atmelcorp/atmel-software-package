@@ -30,7 +30,7 @@
 #ifndef BOARD_ETH_H
 #define BOARD_ETH_H
 
-#ifdef CONFIG_HAVE_NET
+#ifdef CONFIG_HAVE_ETH
 
 /**
  * \brief Configures the eth<iface> for the board
@@ -42,6 +42,6 @@ extern void board_cfg_net(uint8_t iface);
  */
 extern struct _ethd * board_get_eth(uint8_t iface);
 
-#endif /* CONFIG_HAVE_NET */
+#endif /* CONFIG_HAVE_ETH */
 
 #endif /* BOARD_ETH_H */
