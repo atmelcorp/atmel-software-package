@@ -28,8 +28,6 @@
 
 ifeq ($(CONFIG_SAMBA_APPLET),y)
 
-CONFIG_TIMER_POLLING = y
-
 CFLAGS_INC += -I$(TOP)/samba_applets/common
 
 CFLAGS += -mno-unaligned-access -DDMA_LL_POOL_SIZE=2

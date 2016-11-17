@@ -37,12 +37,12 @@ BUILDDIR ?= ./build
 #		Rules
 #-------------------------------------------------------------------------------
 
+include $(TOP)/samba_applets/common/Makefile.inc
+include $(TOP)/scripts/Makefile.config
 include $(TOP)/utils/Makefile.inc
 include $(TOP)/target/Makefile.inc
 include $(TOP)/drivers/Makefile.inc
 include $(TOP)/lib/Makefile.inc
-include $(TOP)/samba_applets/common/Makefile.inc
-include $(TOP)/scripts/Makefile.config
 
 vpath %.c $(TOP)
 vpath %.S $(TOP)

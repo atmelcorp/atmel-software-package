@@ -39,6 +39,7 @@ TOP := ../..
 BINNAME = applet-bootconfig
 
 CONFIG_SAMBA_APPLET = y
+CONFIG_TIMER_POLLING = y
 
 obj-y += samba_applets/bootconfig/main.o
 

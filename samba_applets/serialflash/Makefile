@@ -42,6 +42,7 @@ TOP := ../..
 BINNAME = applet-serialflash
 
 CONFIG_SAMBA_APPLET = y
+CONFIG_TIMER_POLLING = y
 
 obj-y += samba_applets/serialflash/main.o
 obj-y += samba_applets/serialflash/pin_defs_$(chip-family).o
