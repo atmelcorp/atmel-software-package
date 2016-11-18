@@ -27,11 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Controller Area Network example
-AVAILABLE_TARGETS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d3-ek sama5d3-xplained
 
 TOP := ../..
 
 BINNAME = can
+
+CONFIG_CAN = y
 
 obj-y += examples/can/main.o
 

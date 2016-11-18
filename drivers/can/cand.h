@@ -27,98 +27,64 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
+#ifndef CAND_H_
+#define CAND_H_
+
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "board_eth.h"
-#include "board_can.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
+#include "can/can.h"
 
-#include "dma/dma.h"
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
 
-#include "board_support.h"
+/** Number of mailboxes in a CAN controller */
+#define CAN_NUM_MAILBOX 8
+
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+typedef void (*cand_callback_t)(void *args);
+
+struct _cand_mailbox {
+	struct _buffer *buf;
+	cand_callback_t callback;
+	void *cb_args;
+	uint8_t state;
+};
+
+struct _can_desc {
+	Can* addr;             /**< Pointer to HW register base */
+	uint32_t freq;         /**< Current working baudrate */
+	uint32_t identifier;
+	uint32_t mask;
+	uint8_t state;         /**< CAN states */
+	struct _cand_mailbox mailboxes[CAN_NUM_MAILBOX];
+};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+extern struct _can_desc* cand_get_desc(uint8_t can_if);
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+extern void cand_configure(struct _can_desc* desc);
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
+extern void cand_enable(struct _can_desc* desc);
 
-	/* Configure console */
-	board_cfg_console(0);
+extern bool cand_is_enabled(struct _can_desc* desc);
 
-	/* DMA Driver init */
-	dma_initialize(false);
+/**
+ * Configure the CAN Mailbox for message transfer.
+ * \param desc Pointer to CAN Driver descriptor instance.
+ * \param buf  Pointer to buffer to transfer.
+ * \param cb   Pointer to call back function.
+ * \param user_args parameter of the call back function.
+ */
+extern uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
+			cand_callback_t cb, void* user_args);
 
-#ifdef CONFIG_HAVE_CAN_BUS
-	/* Configure CAN bus */
-	board_cfg_can_bus();
-#endif
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure image sensor */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
-#endif
-}
+#endif /* CAND_H_ */

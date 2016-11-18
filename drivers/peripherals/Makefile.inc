@@ -43,7 +43,6 @@ drivers-y += drivers/peripherals/tc.o
 drivers-y += drivers/peripherals/wdt.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-drivers-$(CONFIG_HAVE_MCAN) += drivers/peripherals/mcan.o
 drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 
 drivers-$(CONFIG_HAVE_ACC) += drivers/peripherals/acc.o

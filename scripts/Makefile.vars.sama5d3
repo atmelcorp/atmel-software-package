@@ -97,16 +97,19 @@ CONFIG_HAVE_GMAC = y
 endif
 
 ifeq ("y",$(CONFIG_SOC_SAMA5D34:%="y"))
+CONFIG_HAVE_CAN = y
 CONFIG_HAVE_EMAC = y
 CONFIG_HAVE_GMAC = y
 endif
 
 ifeq ("y",$(CONFIG_SOC_SAMA5D35:%="y"))
+CONFIG_HAVE_CAN = y
 CONFIG_HAVE_EMAC = y
 CONFIG_HAVE_GMAC = y
 endif
 
 ifeq ("y",$(CONFIG_SOC_SAMA5D36:%="y"))
+CONFIG_HAVE_CAN = y
 CONFIG_HAVE_EMAC = y
 CONFIG_HAVE_GMAC = y
 endif

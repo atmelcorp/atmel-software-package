@@ -250,6 +250,16 @@
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
 
+/* ================== CAN bus definition ====================== */
+
+#define BOARD_CAN_BUS0      CAN0
+#define BOARD_CAN_BUS0_PINS PINS_CAN0
+#define BOARD_CAN_BUS0_FREQ 1000
+
+#define BOARD_CAN_BUS1      CAN1
+#define BOARD_CAN_BUS1_PINS PINS_CAN1
+#define BOARD_CAN_BUS1_FREQ 1000
+
 /* =================== AT25 device definition =================== */
 
 #define BOARD_AT25_BUS         0

@@ -27,98 +27,29 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
+#ifndef BOARD_CAN_BUS_H
+#define BOARD_CAN_BUS_H
+
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
 #include "board.h"
-#include "board_eth.h"
-#include "board_can.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
 
-#include "dma/dma.h"
-
-#include "board_support.h"
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Types
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+/*----------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
+/**
+ * \brief Configures CANx/MCANx bus for the board
+ */
+extern void board_cfg_can_bus(void);
 
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_CAN_BUS
-	/* Configure CAN bus */
-	board_cfg_can_bus();
-#endif
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure image sensor */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
-#endif
-}
+#endif /* BOARD_CAN_BUS_H */

@@ -174,6 +174,24 @@ const char* get_chip_name(void)
 	return "Unknown";
 }
 
+uint32_t get_can_id_from_addr(const Can* addr)
+{
+	if (addr == (void*)CAN0) return ID_CAN0; /**< \brief CAN 0 (CAN0) */
+#ifdef CAN1
+	else if (addr == (void*)CAN1) return ID_CAN1; /**< \brief CAN 1 (CAN1) */
+#endif
+	else return ID_PERIPH_COUNT;
+}
+
+Can* get_can_addr_from_id(const uint32_t id)
+{
+	if (id == ID_CAN0) return CAN0; /**< \brief CAN 0 */
+#ifdef CAN1
+	else if (id == ID_CAN1) return CAN1; /**< \brief CAN 1 (CAN1) */
+#endif
+	else return (void*)0;
+}
+
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {
 	if (addr == (void*)TWI0) return ID_TWI0; /**< \brief TWI 0 (TWI0) */

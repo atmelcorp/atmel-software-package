@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/mcan.h"
+#include "can/mcan.h"
 #include "peripherals/pmc.h"
 
 #include <assert.h>

@@ -209,6 +209,16 @@
 /** Horizontal pulse width in LCDDOTCLK cycles. */
 #define BOARD_LCD_TIMING_HPW        128
 
+/* ================== CAN bus definition ====================== */
+
+#define BOARD_CAN_BUS0      CAN0
+#define BOARD_CAN_BUS0_PINS PINS_CAN0
+#define BOARD_CAN_BUS0_FREQ 1000
+
+#define BOARD_CAN_BUS1      CAN1
+#define BOARD_CAN_BUS1_PINS PINS_CAN1
+#define BOARD_CAN_BUS1_FREQ 1000
+
 /* ================== TWI bus definition ====================== */
 
 #define BOARD_TWI_BUS0      TWI1
