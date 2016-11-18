@@ -48,7 +48,7 @@
  *        Constants
  *----------------------------------------------------------------------------*/
 
-#ifndef NDEBUG
+#ifdef CONFIG_HAVE_FAULT_DEBUG
 
 /* IFSR status */
 static const char* _prefetch_abort_status[32] = {
@@ -97,7 +97,7 @@ static const char* _data_abort_status[32] = {
 	"asynchronous external abort"
 };
 
-#endif /* !NDEBUG */
+#endif /* CONFIG_HAVE_FAULT_DEBUG */
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -108,13 +108,15 @@ static const char* _data_abort_status[32] = {
  */
 WEAK void undefined_instruction_irq_handler(void)
 {
-#ifndef NDEBUG
-	printf("\n\r");
-	printf("#####################\n\r");
-	printf("Undefined Instruction\n\r");
-	printf("#####################\n\r");
+#ifdef CONFIG_HAVE_FAULT_DEBUG
+	printf("\r\n");
+	printf("#####################\r\n");
+	printf("Undefined Instruction\r\n");
+	printf("#####################\r\n");
+#endif
 
-	asm("bkpt #0");
+#ifdef NDEBUG
+	asm("bkpt #1");
 #endif
 	while(1);
 }
@@ -125,13 +127,15 @@ WEAK void undefined_instruction_irq_handler(void)
  */
 WEAK void software_interrupt_irq_handler(void)
 {
-#ifndef NDEBUG
-	printf("\n\r");
-	printf("##################\n\r");
-	printf("Software Interrupt\n\r");
-	printf("##################\n\r");
+#ifdef CONFIG_HAVE_FAULT_DEBUG
+	printf("\r\n");
+	printf("##################\r\n");
+	printf("Software Interrupt\r\n");
+	printf("##################\r\n");
+#endif
 
-	asm("bkpt #0");
+#ifdef NDEBUG
+	asm("bkpt #2");
 #endif
 	while(1);
 }
@@ -141,26 +145,28 @@ WEAK void software_interrupt_irq_handler(void)
  */
 WEAK void data_abort_irq_handler(void)
 {
-#ifndef NDEBUG
+#ifdef CONFIG_HAVE_FAULT_DEBUG
 	uint32_t v1, v2, dfsr;
 
 	asm("mrc p15, 0, %0, c5, c0, 0" : "=r"(v1));
 	asm("mrc p15, 0, %0, c6, c0, 0" : "=r"(v2));
 
-	printf("\n\r");
-	printf("####################\n\r");
+	printf("\r\n");
+	printf("####################\r\n");
 	dfsr = ((v1 >> 4) & 0x0F);
-	printf("Data Fault occured in %x domain\n\r", (unsigned int)dfsr);
+	printf("Data Fault occured in %x domain\r\n", (unsigned int)dfsr);
 	dfsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
 	if (_data_abort_status[dfsr])
-		printf("Data Fault reason is: %s\n\r", _data_abort_status[dfsr]);
+		printf("Data Fault reason is: %s\r\n", _data_abort_status[dfsr]);
 	else
-		printf("Data Fault reason is unknown\n\r");
-	printf("Data Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
-	printf("Data Fault status register value: 0x%x\n\r", (unsigned int)v1);
+		printf("Data Fault reason is unknown\r\n");
+	printf("Data Fault occured at address: 0x%08x\r\n", (unsigned int)v2);
+	printf("Data Fault status register value: 0x%x\r\n", (unsigned int)v1);
 	printf("####################\n\r");
+#endif
 
-	asm("bkpt #0");
+#ifdef NDEBUG
+	asm("bkpt #4");
 #endif
 	while(1);
 }
@@ -170,24 +176,26 @@ WEAK void data_abort_irq_handler(void)
  */
 WEAK void prefetch_abort_irq_handler(void)
 {
-#ifndef NDEBUG
+#ifdef CONFIG_HAVE_FAULT_DEBUG
 	uint32_t v1, v2, ifsr;
 
 	asm("mrc p15, 0, %0, c5, c0, 1" : "=r"(v1));
 	asm("mrc p15, 0, %0, c6, c0, 2" : "=r"(v2));
 
-	printf("\n\r");
-	printf("####################\n\r");
+	printf("\r\n");
+	printf("####################\r\n");
 	ifsr = (((v1 & 0x400) >> 6) | (v1 & 0x0F));
 	if (_prefetch_abort_status[ifsr])
-		printf("Prefetch Fault reason is: %s\n\r", _prefetch_abort_status[ifsr]);
+		printf("Prefetch Fault reason is: %s\r\n", _prefetch_abort_status[ifsr]);
 	else
-		printf("Prefetch Fault reason is unknown\n\r");
-	printf("prefetch Fault occured at address: 0x%08x\n\n\r", (unsigned int)v2);
-	printf("Prefetch Fault status register value: 0x%x\n\r", (unsigned int)v1);
+		printf("Prefetch Fault reason is unknown\r\n");
+	printf("prefetch Fault occured at address: 0x%08x\r\n", (unsigned int)v2);
+	printf("Prefetch Fault status register value: 0x%x\r\n", (unsigned int)v1);
 	printf("####################\n\r");
+#endif
 
-	asm("bkpt #0");
+#ifdef NDEBUG
+	asm("bkpt #3");
 #endif
 	while(1);
 }
