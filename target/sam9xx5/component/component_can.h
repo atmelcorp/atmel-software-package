@@ -235,6 +235,7 @@ typedef struct {
 #define CAN_MMR_PRIOR(value) ((CAN_MMR_PRIOR_Msk & ((value) << CAN_MMR_PRIOR_Pos)))
 #define CAN_MMR_MOT_Pos 24
 #define CAN_MMR_MOT_Msk (0x7u << CAN_MMR_MOT_Pos) /**< \brief (CAN_MMR) Mailbox Object Type */
+#define CAN_MMR_MOT(value) ((CAN_MMR_MOT_Msk & ((value) << CAN_MMR_MOT_Pos)))
 #define   CAN_MMR_MOT_MB_DISABLED (0x0u << 24) /**< \brief (CAN_MMR) Mailbox is disabled. This prevents receiving or transmitting any messages with this mailbox. */
 #define   CAN_MMR_MOT_MB_RX (0x1u << 24) /**< \brief (CAN_MMR) Reception Mailbox. Mailbox is configured for reception. If a message is received while the mailbox data register is full, it is discarded. */
 #define   CAN_MMR_MOT_MB_RX_OVERWRITE (0x2u << 24) /**< \brief (CAN_MMR) Reception mailbox with overwrite. Mailbox is configured for reception. If a message is received while the mailbox is full, it overwrites the previous message. */

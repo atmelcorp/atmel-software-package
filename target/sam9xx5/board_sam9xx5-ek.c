@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_can.h"
 #include "board_eth.h"
 #include "board_led.h"
 #include "board_spi.h"
@@ -68,6 +69,11 @@ WEAK void board_init(void)
 
 	/* DMAC Driver init */
 	dma_initialize(false);
+
+#ifdef CONFIG_HAVE_CAN_BUS
+	/* Configure CAN bus */
+	board_cfg_can_bus();
+#endif
 
 #ifdef CONFIG_HAVE_SPI_BUS
 	/* Configure SPI bus */

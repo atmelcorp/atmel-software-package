@@ -178,6 +178,9 @@
 /** Number of sets of L1 data cache */
 #define L1_CACHE_SETS       (128)
 
+/** CAN Interface max */
+#define CAN_IFACE_COUNT (2)
+
 /** TWI Interface max */
 #ifndef TWI_IFACE_COUNT
 #define TWI_IFACE_COUNT (3)
@@ -249,6 +252,20 @@ extern "C" {
  * \return a constant string containing the chip name
  */
 extern const char* get_chip_name(void);
+
+#ifdef CONFIG_HAVE_CAN
+/**
+ * \brief retrieve CAN ID from its base address
+ * \return CAN ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_can_id_from_addr(const Can* addr);
+
+/**
+ * \brief retrieve CAN base address from its ID
+ * \return CAN base address on success, 0 otherwise
+ */
+extern Can* get_can_addr_from_id(const uint32_t id);
+#endif /* CONFIG_HAVE_CAN */
 
 /**
  * \brief retrieve TWI ID from its base address

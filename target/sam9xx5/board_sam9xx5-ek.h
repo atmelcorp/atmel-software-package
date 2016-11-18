@@ -98,8 +98,12 @@
 /* =================== PIN CONSOLE definition ================== */
 
 /** CONSOLE pin definition: use USART3 */
+#ifndef BOARD_CONSOLE_PINS
 #define BOARD_CONSOLE_PINS     PINS_DBGU
+#endif
+#ifndef BOARD_CONSOLE_ADDR
 #define BOARD_CONSOLE_ADDR     DBGU
+#endif
 #define BOARD_CONSOLE_BAUDRATE 115200
 
 /* =================== PIN LED definition ====================== */
@@ -236,6 +240,16 @@
 #define BOARD_ISI_PINS     PINS_ISI
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/* ================== CAN bus definition ====================== */
+
+#define BOARD_CAN_BUS0      CAN0
+#define BOARD_CAN_BUS0_PINS PINS_CAN0
+#define BOARD_CAN_BUS0_FREQ 1000
+
+#define BOARD_CAN_BUS1      CAN1
+#define BOARD_CAN_BUS1_PINS PINS_CAN1
+#define BOARD_CAN_BUS1_FREQ 1000
 
 /* ================== TWI bus definition ====================== */
 
