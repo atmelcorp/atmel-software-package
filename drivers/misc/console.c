@@ -86,7 +86,8 @@ struct _console {
  *        Variables
  *----------------------------------------------------------------------------*/
 
-static const struct _console console_usart = {
+#ifdef CONFIG_HAVE_CONSOLE_USART
+static const struct _console console = {
 	.mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.rx_int_mask = US_IER_RXRDY,
 	.init = (init_handler_t)usart_configure,
@@ -97,8 +98,10 @@ static const struct _console console_usart = {
 	.enable_it = (enable_it_handler_t)usart_enable_it,
 	.disable_it = (disable_it_handler_t)usart_disable_it,
 };
+#endif
 
-static const struct _console console_uart = {
+#ifdef CONFIG_HAVE_CONSOLE_UART
+static const struct _console console = {
 	.mode = UART_MR_CHMODE_NORMAL | UART_MR_PAR_NO,
 	.rx_int_mask = UART_IER_RXRDY,
 	.init = (init_handler_t)uart_configure,
@@ -109,9 +112,10 @@ static const struct _console console_uart = {
 	.enable_it = (enable_it_handler_t)uart_enable_it,
 	.disable_it = (disable_it_handler_t)uart_disable_it,
 };
+#endif
 
-#ifdef CONFIG_HAVE_DBGU
-static const struct _console console_dbgu = {
+#ifdef CONFIG_HAVE_CONSOLE_DBGU
+static const struct _console console = {
 	.mode = DBGU_MR_CHMODE_NORM | DBGU_MR_PAR_NONE,
 	.rx_int_mask = DBGU_IER_RXRDY,
 	.init = (init_handler_t)dbgu_configure,
@@ -126,7 +130,6 @@ static const struct _console console_dbgu = {
 
 static uint32_t console_id = 0;
 static void *console_addr = NULL;
-static const struct _console *console = NULL;
 static bool console_initialized = false;
 static console_rx_handler_t console_rx_handler;
 
@@ -152,29 +155,19 @@ static void console_handler(void)
 
 void console_configure(void* addr, uint32_t baudrate)
 {
-	uint32_t id;
+	uint32_t id = ID_PERIPH_COUNT;
 
+#ifdef CONFIG_HAVE_CONSOLE_USART
 	id = get_usart_id_from_addr((Usart*)addr);
-	if (id != ID_PERIPH_COUNT) {
-		console = &console_usart;
-	} else {
-		id = get_uart_id_from_addr((Uart*)addr);
-		if (id != ID_PERIPH_COUNT) {
-			console = &console_uart;
-		} else {
-#ifdef CONFIG_HAVE_DBGU
-			if (addr == DBGU) {
-				id = ID_DBGU;
-				console = &console_dbgu;
-			} else
 #endif
-			{
-				/* Unknown console type */
-				assert(0);
-				return;
-			}
-		}
-	}
+#ifdef CONFIG_HAVE_CONSOLE_UART
+	id = get_uart_id_from_addr((Uart*)addr);
+#endif
+#ifdef CONFIG_HAVE_CONSOLE_DBGU
+	if (addr == DBGU)
+		id = ID_DBGU;
+#endif
+	assert(id != ID_PERIPH_COUNT);
 
 	/* Save console peripheral address and ID */
 	console_id = id;
@@ -182,7 +175,7 @@ void console_configure(void* addr, uint32_t baudrate)
 
 	/* Initialize driver to use */
 	pmc_enable_peripheral(id);
-	console->init(console_addr, console->mode, baudrate);
+	console.init(console_addr, console.mode, baudrate);
 
 	/* Finally */
 	console_initialized = true;
@@ -194,7 +187,7 @@ void console_put_char(uint8_t c)
 	if (!console_initialized)
 		return;
 
-	console->put_char(console_addr, c);
+	console.put_char(console_addr, c);
 }
 
 bool console_is_tx_empty(void)
@@ -203,7 +196,7 @@ bool console_is_tx_empty(void)
 	if (!console_initialized)
 		return true;
 
-	return console->tx_empty(console_addr);
+	return console.tx_empty(console_addr);
 }
 
 uint8_t console_get_char(void)
@@ -214,7 +207,7 @@ uint8_t console_get_char(void)
 		while(1);
 	}
 
-	return console->get_char(console_addr);
+	return console.get_char(console_addr);
 }
 
 bool console_is_rx_ready(void)
@@ -223,7 +216,7 @@ bool console_is_rx_ready(void)
 	if (!console_initialized)
 		return false;
 
-	return console->rx_ready(console_addr);
+	return console.rx_ready(console_addr);
 }
 
 void console_set_rx_handler(console_rx_handler_t handler)
@@ -235,13 +228,13 @@ void console_enable_rx_interrupt(void)
 {
 	aic_set_source_vector(console_id, console_handler);
         aic_enable(console_id);
-	console->enable_it(console_addr, console->rx_int_mask);
+	console.enable_it(console_addr, console.rx_int_mask);
 }
 
 void console_disable_rx_interrupt(void)
 {
         aic_disable(console_id);
-	console->disable_it(console_addr, console->rx_int_mask);
+	console.disable_it(console_addr, console.rx_int_mask);
 }
 
 void console_example_info(const char *example_name)
