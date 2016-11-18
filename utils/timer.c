@@ -125,29 +125,30 @@ uint8_t timer_timeout_reached(struct _timeout* timeout)
 
 void timer_sleep(uint64_t count)
 {
-	struct _timeout timeout;
-	timer_start_timeout(&timeout, count);
-	while (!timer_timeout_reached(&timeout)) {
+	volatile uint32_t _timeout_usec = tc_get_cv(_sys_timer.tc, _sys_timer.channel);
+	volatile uint64_t _timeout_msec = timer_get_tick() + count;
+
+	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
 #ifndef CONFIG_TIMER_POLLING
 		irq_wait();
 #endif
 	}
+
+	while (((int32_t)_timeout_usec - tc_get_cv(_sys_timer.tc, _sys_timer.channel)) > 0);
 }
 
 void timer_usleep(uint64_t count)
 {
-	uint32_t rc;
-	uint32_t t_start;
+	volatile uint32_t _timeout_usec = tc_get_cv(_sys_timer.tc, _sys_timer.channel) + (count % 1000);
+	volatile uint64_t _timeout_msec = timer_get_tick() + (count / 1000);
 
-	tc_get_ra_rb_rc(_sys_timer.tc, _sys_timer.channel, NULL, NULL, &rc);
-	uint32_t cv = ROUND_INT_DIV((count * rc), _sys_timer.freq);
+	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
+#ifndef CONFIG_TIMER_POLLING
+		irq_wait();
+#endif
+	}
 
-	t_start = tc_get_cv(_sys_timer.tc, _sys_timer.channel);
-
-	if ((t_start + cv) < rc)
-		while ((tc_get_cv(_sys_timer.tc, _sys_timer.channel) - t_start) < cv);
-	else
-		while (((rc + tc_get_cv(_sys_timer.tc, _sys_timer.channel) - t_start) % rc) < cv);
+	while (((int64_t)_timeout_usec - tc_get_cv(_sys_timer.tc, _sys_timer.channel)) > 0);
 }
 
 uint64_t timer_get_tick(void)
@@ -165,18 +166,10 @@ void msleep(uint32_t count)
 
 void sleep(uint32_t count)
 {
-	timer_sleep(count * 1000);
+	msleep(count * 1000);
 }
 
 void usleep(uint32_t count)
 {
-	uint32_t ms_count = count / 1000;
-
-	if (ms_count > 0)
-		timer_sleep(ms_count);
-
-	count = count % 1000;
-
-	if (count > 0)
-		timer_usleep(count);
+	timer_usleep(count);
 }
