@@ -71,7 +71,9 @@ void timer_configure(struct _timer* timer)
 {
 	uint32_t rc = 0;
 	uint32_t tc_clks = 0;
+#if !defined(CONFIG_TIMER_POLLING) || defined(CONFIG_HAVE_PMC_GENERATED_CLOCKS)
 	uint32_t tc_id = get_tc_id_from_addr(timer->tc);
+#endif
 
 	memcpy(&_sys_timer, timer, sizeof(_sys_timer));
 
@@ -86,7 +88,7 @@ void timer_configure(struct _timer* timer)
 
 	// Select clock source, configure tc base on timer clock
 	tc_clks = tc_find_best_clock_source(timer->tc, timer->resolution);
-	tc_configure(timer->tc, timer->channel, tc_clks | TC_CMR_CPCTRG);
+	tc_configure(timer->tc, timer->channel, tc_clks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_CPCTRG);
 	rc = (tc_get_available_freq(timer->tc, tc_clks) * timer->freq) / timer->resolution;
 	tc_set_ra_rb_rc(timer->tc, timer->channel, 0, 0, &rc);
 

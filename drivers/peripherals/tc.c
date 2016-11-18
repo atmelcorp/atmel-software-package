@@ -177,7 +177,7 @@ void tc_trigger_on_freq(Tc *tc, uint32_t channel, uint32_t freq)
 	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
 
 	tcclks = tc_find_best_clock_source(tc, freq);
-	tc_configure(tc, channel, tcclks | TC_CMR_CPCTRG);
+	tc_configure(tc, channel, tcclks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_CPCTRG);
 	rc = tc_get_available_freq(tc, tcclks) / freq;
 	tc_set_ra_rb_rc(tc, channel, NULL, NULL, &rc);
 }
