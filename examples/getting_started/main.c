@@ -123,6 +123,9 @@
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
 
+#define TC_ADDR    TC0
+#define TC_CHAN    0
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -222,23 +225,26 @@ static void console_handler(uint8_t key)
 {
 	if (key >= '0' && key <= '9') {
 		process_button_evt(key - '0');
-	} else if (key == 's') {
-		tc_stop(TC0, 0);
-	} else if (key == 'b') {
-		tc_start(TC0, 0);
 	}
+#if NUM_LEDS > 1
+	else if (key == 's') {
+		tc_stop(TC_ADDR, TC_CHAN);
+	} else if (key == 'b') {
+		tc_start(TC_ADDR, TC_CHAN);
+	}
+#endif
 }
 
+#if NUM_LEDS > 1
 /**
- *  Interrupt handler for TC0 interrupt. Toggles the state of LED\#2.
+ *  Interrupt handler for TC interrupt. Toggles the state of all LEDs except 0
  */
 static void tc_handler(void)
 {
 	uint32_t status, i;
 
 	/* Get status to acknowledge interrupt */
-	status = tc_get_status(TC0, 0);
-
+	status = tc_get_status(TC_ADDR, TC_CHAN);
 	if (status & TC_SR_CPCS) {
 		/** Toggle LEDs state. */
 		for (i = 1; i < NUM_LEDS; ++i) {
@@ -255,24 +261,23 @@ static void tc_handler(void)
  */
 static void configure_tc(void)
 {
-	/** Enable peripheral clock. */
-	pmc_enable_peripheral(ID_TC0);
+	uint32_t tc_id = get_tc_id_from_addr(TC_ADDR);
 
-	/* Put the source vector */
-	aic_set_source_vector(ID_TC0, tc_handler);
+	/** Enable peripheral clock. */
+	pmc_enable_peripheral(tc_id);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, 0, 4);
+	tc_trigger_on_freq(TC_ADDR, TC_CHAN, 4);
 
 	/* Configure and enable interrupt on RC compare */
-	aic_enable(ID_TC0);
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
+	aic_set_source_vector(tc_id, tc_handler);
+	aic_enable(tc_id);
+	tc_enable_it(TC_ADDR, TC_CHAN, TC_IER_CPCS);
 
-	/* Start the counter if LED1 is enabled. */
-	if (led_status[1]) {
-		tc_start(TC0, 0);
-	}
+	/* Start the counter */
+	tc_start(TC_ADDR, TC_CHAN);
 }
+#endif /* NUM_LEDS > 1 */
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -301,18 +306,26 @@ int main(void)
 #ifdef PINS_PUSHBUTTONS
 	printf("Configure buttons with debouncing.\n\r");
 	configure_buttons();
-	printf("Use push buttons or console key 0 to 9.\n\r");
+	printf("Use push buttons or console key 0 to %d.\n\r", NUM_LEDS - 1);
 #else
-	printf("Use console key 0 to 9.\n\r");
+	printf("Use console key 0 to %d.\n\r", NUM_LEDS - 1);
 #endif /* PINS_PUSHBUTTONS */
 
 	printf("Press the number of the led to make it "
 	       "start or stop blinking.\n\r");
-	printf("Press 's' to stop the TC and 'b' to start it\r\n");
 
+	printf("LED 0 uses softpack timer functions\r\n");
+
+#if NUM_LEDS > 1
 	/* Configure TC */
-	printf("Configure TC.\n\r");
+#if NUM_LEDS == 2
+	printf("LED 1 uses a TC\r\n");
+#else
+	printf("LEDs 1-%d use a TC\r\n", NUM_LEDS - 1);
+#endif
+	printf("Press 's' to stop the TC and 'b' to start it\r\n");
 	configure_tc();
+#endif
 
 	while (1) {
 
