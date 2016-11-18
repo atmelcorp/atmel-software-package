@@ -40,9 +40,16 @@
 
 
 /*----------------------------------------------------------------------------
- *        Local variables
+ *        Local definitions
  *----------------------------------------------------------------------------*/
 
+#ifndef BOARD_CAN_BUS0_FREQ_FD
+#define BOARD_CAN_BUS0_FREQ_FD 0
+#endif
+
+#ifndef BOARD_CAN_BUS1_FREQ_FD
+#define BOARD_CAN_BUS1_FREQ_FD 0
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -53,12 +60,12 @@ void board_cfg_can_bus(void)
 #ifdef BOARD_CAN_BUS0
 	const struct _pin pins_can_bus0[] = BOARD_CAN_BUS0_PINS;
 	pio_configure(pins_can_bus0, ARRAY_SIZE(pins_can_bus0));
-	can_bus_configure(0, BOARD_CAN_BUS0, BOARD_CAN_BUS0_FREQ, 0);
+	can_bus_configure(0, BOARD_CAN_BUS0, BOARD_CAN_BUS0_FREQ, BOARD_CAN_BUS0_FREQ_FD);
 #endif
 #ifdef BOARD_CAN_BUS1
 	const struct _pin pins_can_bus1[] = BOARD_CAN_BUS1_PINS;
 	pio_configure(pins_can_bus1, ARRAY_SIZE(pins_can_bus1));
-	can_bus_configure(1, BOARD_CAN_BUS1, BOARD_CAN_BUS1_FREQ, 0);
+	can_bus_configure(1, BOARD_CAN_BUS1, BOARD_CAN_BUS1_FREQ, BOARD_CAN_BUS1_FREQ_FD);
 #endif
 }
 

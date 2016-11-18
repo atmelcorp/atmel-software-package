@@ -289,6 +289,18 @@
 #define CAN0_PINS          PINS_CAN0_IOS1
 #define CAN1_PINS          PINS_CAN1_IOS0
 
+/* ================== MCAN bus definition ====================== */
+
+#define BOARD_CAN_BUS0         MCAN0
+#define BOARD_CAN_BUS0_PINS    PINS_CAN0_IOS1
+#define BOARD_CAN_BUS0_FREQ    500000
+#define BOARD_CAN_BUS0_FREQ_FD 2000000
+
+#define BOARD_CAN_BUS1         MCAN1
+#define BOARD_CAN_BUS1_PINS    PINS_CAN1_IOS0
+#define BOARD_CAN_BUS1_FREQ    500000
+#define BOARD_CAN_BUS1_FREQ_FD 2000000
+
 /* =================== GMAC/PHY definition =================== */
 
 #define GMAC0_ADDR        GMAC0

@@ -30,3 +30,4 @@ drivers-$(CONFIG_HAVE_CAN_BUS) += drivers/can/can-bus.o
 drivers-$(CONFIG_HAVE_CAN) += drivers/can/can.o
 drivers-$(CONFIG_HAVE_CAN) += drivers/can/cand.o
 drivers-$(CONFIG_HAVE_MCAN) += drivers/can/mcan.o
+drivers-$(CONFIG_HAVE_MCAN) += drivers/can/mcand.o

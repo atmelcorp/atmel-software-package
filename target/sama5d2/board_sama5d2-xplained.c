@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_can.h"
 #include "board_eth.h"
 #include "board_led.h"
 #include "board_spi.h"
@@ -121,5 +122,10 @@ WEAK void board_init(void)
 
 #ifdef CONFIG_HAVE_SSC
 	board_cfg_ssc();
+#endif
+
+#ifdef CONFIG_HAVE_CAN_BUS
+	/* Configure MCAN bus */
+	board_cfg_can_bus();
 #endif
 }

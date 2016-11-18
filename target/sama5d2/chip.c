@@ -206,6 +206,29 @@ Flexcom* get_flexcom_addr_from_id(uint32_t id)
 		return (void*)0;
 }
 
+uint32_t get_mcan_id_from_addr(const Mcan* addr, uint8_t int_idx)
+{
+	if (int_idx > 1)
+		return ID_PERIPH_COUNT;
+
+	if (addr == (void*)MCAN0)
+		return (0 == int_idx) ? ID_CAN0_INT0 : ID_CAN0_INT1;
+#ifdef MCAN1
+	else if (addr == (void*)MCAN1)
+		return  (0 == int_idx) ? ID_CAN1_INT0 : ID_CAN1_INT1;
+#endif
+	else return ID_PERIPH_COUNT;
+}
+
+Mcan* get_mcan_addr_from_id(const uint32_t id)
+{
+	if ((id == ID_CAN0_INT0) || (id == ID_CAN0_INT1)) return MCAN0;
+#ifdef MCAN1
+	else if ((id == ID_CAN1_INT0) || (id == ID_CAN1_INT1)) return MCAN0;
+#endif
+	else return (void*)0;
+}
+
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {
 	if (addr == TWI0)

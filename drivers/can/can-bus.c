@@ -49,6 +49,14 @@ int32_t can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t f
 	_can_bus[bus_id].cand->addr = (Can *)iface;
 	_can_bus[bus_id].cand->freq = freq;
 	cand_configure(_can_bus[bus_id].cand);
+#elif defined(CONFIG_HAVE_MCAN)
+	_can_bus[bus_id].mcand = mcand_get_desc(bus_id);
+	memset(_can_bus[bus_id].mcand, 0, sizeof(struct _mcan_desc));
+	_can_bus[bus_id].mcand->addr = (Mcan *)iface;
+	_can_bus[bus_id].mcand->freq = freq;
+	_can_bus[bus_id].mcand->freq_fd = freq_fd;
+
+	mcand_configure(_can_bus[bus_id].mcand);
 #endif
 
 	return 0;
@@ -61,6 +69,15 @@ int32_t can_bus_mode(uint8_t bus_id, enum can_mode mode)
 #if defined(CONFIG_HAVE_CAN)
 	if (mode != CAN_MODE_CAN)
 		return CAND_UNSUPPORTED;
+#elif defined(CONFIG_HAVE_MCAN)
+	Mcan *mcan = _can_bus[bus_id].mcand->addr;
+	mcan_disable(mcan);
+	mcan_reconfigure(mcan);
+	if (!mcan_set_mode(mcan, mode)) {
+		mcan_enable(mcan);
+		return CAND_UNSUPPORTED;
+	}
+	mcan_enable(mcan);
 #endif
 
 	return 0;
@@ -73,6 +90,11 @@ int32_t can_bus_loopback(uint8_t bus_id, bool loop_back)
 #if defined(CONFIG_HAVE_CAN)
 	if (loop_back)
 		return CAND_UNSUPPORTED;
+#elif defined(CONFIG_HAVE_MCAN)
+	Mcan *mcan = _can_bus[bus_id].mcand->addr;
+	mcan_disable(mcan);
+	mcan_loopback(mcan, loop_back);
+	mcan_enable(mcan);
 #endif
 
 	return 0;
@@ -95,6 +117,9 @@ int32_t can_bus_transfer(uint8_t bus_id,
 #if defined(CONFIG_HAVE_CAN)
 	_can_bus[bus_id].cand->identifier = identifier;
 	_can_bus[bus_id].cand->mask = mask;
+#elif defined(CONFIG_HAVE_MCAN)
+	_can_bus[bus_id].mcand->identifier = identifier;
+	_can_bus[bus_id].mcand->mask = mask;
 #endif
 
 	buf->attr &= ~CAND_BUF_ATTR_TRANSFER_MSK;
@@ -102,6 +127,9 @@ int32_t can_bus_transfer(uint8_t bus_id,
 #if defined(CONFIG_HAVE_CAN)
 	status = cand_transfer(_can_bus[bus_id].cand, buf,
 			(cand_callback_t)call_back, user_args);
+#elif defined(CONFIG_HAVE_MCAN)
+	status = mcand_transfer(_can_bus[bus_id].mcand, buf,
+			(mcand_callback_t)call_back, user_args);
 #endif
 
 	mutex_unlock(&_can_bus[bus_id].mutex);
@@ -136,12 +164,18 @@ int32_t can_bus_activate(uint8_t bus_id, uint32_t wait_ms)
 #if defined(CONFIG_HAVE_CAN)
 	struct _can_desc *desc = _can_bus[bus_id].cand;
 	cand_enable(desc);
+#elif defined(CONFIG_HAVE_MCAN)
+	Mcan *mcan = _can_bus[bus_id].mcand->addr;
+	if (!mcan_is_enabled(mcan))
+		mcan_enable(mcan);
 #endif
 
 	timer_start_timeout(&timeout, wait_ms);
 	while (!timer_timeout_reached(&timeout)) {
 #if defined(CONFIG_HAVE_CAN)
 		if (cand_is_enabled(desc))
+#elif defined(CONFIG_HAVE_MCAN)
+		if (mcan_is_enabled(mcan))
 #endif
 			return CAND_OK;
 		timer_sleep(1);
@@ -157,5 +191,7 @@ void can_bus_low_power(uint8_t bus_id)
 	Can *can = _can_bus[bus_id].cand->addr;
 	can_enable_it(can, CAN_IER_SLEEP);
 	can_enable_low_power(can, 1);
+#elif defined(CONFIG_HAVE_MCAN)
+	// unsupported
 #endif
 }

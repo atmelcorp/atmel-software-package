@@ -85,6 +85,8 @@ enum _cand_buf_attr {
 
 #if defined(CONFIG_HAVE_CAN)
 #include "can/cand.h"
+#elif defined(CONFIG_HAVE_MCAN)
+#include "can/mcand.h"
 #endif
 #include "mutex.h"
 #include "io.h"
@@ -94,6 +96,8 @@ typedef void (*can_bus_callback_t)(void* args);
 struct _can_bus_desc {
 #if defined(CONFIG_HAVE_CAN)
 	struct _can_desc *cand;
+#elif defined(CONFIG_HAVE_MCAN)
+	struct _mcan_desc *mcand;
 #endif
 	mutex_t mutex;
 };

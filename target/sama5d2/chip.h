@@ -258,6 +258,9 @@
 /** FLEXCOM SPI FIFO depth */
 #define FLEXCOM_SPI_FIFO_DEPTH (32u)
 
+/** CAN Interface max */
+#define CAN_IFACE_COUNT (2)
+
 /** SPI FIFO depth */
 #define SPI_FIFO_DEPTH (16u)
 
@@ -346,6 +349,18 @@ extern uint32_t get_flexcom_id_from_addr(const Flexcom* addr);
  * \return Flexcom base address on success, 0 otherwise
  */
 extern Flexcom* get_flexcom_addr_from_id(uint32_t id);
+
+/**
+ * \brief retrieve MCAN ID from its base address
+ * \return MCAN ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_mcan_id_from_addr(const Mcan* addr, uint8_t int_idx);
+
+/**
+ * \brief retrieve MCAN base address from its ID
+ * \return MCAN base address on success, 0 otherwise
+ */
+extern Mcan* get_mcan_addr_from_id(const uint32_t id);
 
 /**
  * \brief retrieve TWI ID from its base address
