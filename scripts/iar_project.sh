@@ -193,6 +193,8 @@ tpl-set-soc() {
     for flag in $CFLAGS_DEFS; do
         if [ "$soc" \< "$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')" ]; then
             soc=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_/AT/')
+            # workaround: IAR uses "AT91" prefix for SAM9xx5 devices and "AT" for SAMA5
+            soc=$(echo $soc | sed 's/ATSAM9/AT91SAM9/')
         fi
     done
 

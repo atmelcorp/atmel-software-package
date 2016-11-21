@@ -22,7 +22,7 @@ Dependencies:
 
 Windows with IAR Embedded Workbench.
 Dependencies:
-- IAR Embedded Workbench (Tested on version 7.40)
+- IAR Embedded Workbench (Tested on version 7.80)
 - bash (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - GNU make (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for IAR project generation
