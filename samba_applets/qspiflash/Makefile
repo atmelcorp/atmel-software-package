@@ -40,6 +40,7 @@ BINNAME = applet-qspiflash
 
 CONFIG_SAMBA_APPLET = y
 CONFIG_TIMER_POLLING = y
+CONFIG_QSPI = y
 
 obj-y += samba_applets/qspiflash/main.o
 obj-y += samba_applets/qspiflash/pin_defs_$(chip-family).o

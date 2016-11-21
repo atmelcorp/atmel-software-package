@@ -31,9 +31,10 @@ AVAILABLE_TARGETS = sama5d2-xplained sama5d2-ptc-engi
 
 TOP := ../..
 
-CONFIG_HAVE_TRNG = y
-
 BINNAME = qspi_flash
+
+CONFIG_HAVE_TRNG = y
+CONFIG_QSPI = y
 
 obj-y += examples/qspi_flash/main.o
 

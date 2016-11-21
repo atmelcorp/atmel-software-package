@@ -33,6 +33,8 @@ TOP := ../..
 
 BINNAME = qspi_xip
 
+CONFIG_QSPI = y
+
 obj-y += examples/qspi_xip/main.o
 
 include $(TOP)/scripts/Makefile.rules

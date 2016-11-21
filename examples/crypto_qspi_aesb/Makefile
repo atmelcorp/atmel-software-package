@@ -31,9 +31,10 @@ AVAILABLE_TARGETS = sama5d2-xplained sama5d2-ptc-engi
 
 TOP := ../..
 
-CONFIG_HAVE_AESB = y
-
 BINNAME = crypto-qspi-aesb
+
+CONFIG_HAVE_AESB = y
+CONFIG_QSPI = y
 
 obj-y += examples/crypto_qspi_aesb/main.o
 
