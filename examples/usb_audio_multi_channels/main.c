@@ -196,7 +196,7 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 /**
  *  \brief DMA TX callback
  */
-void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
 {
 	p_arg = p_arg; /* dummy */
 
