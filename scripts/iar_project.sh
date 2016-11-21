@@ -1,6 +1,8 @@
 #!/bin/bash
 # Generate IAR projects for examples for the available variants
 
+set -e
+
 ### Arguments parsing
 DIR="$1"
 TOP="$2"
@@ -52,7 +54,7 @@ tpl-set-prj-files() {
             path=${path//_gcc.c/_iar.s}
 
             if [ ! -f "$DIR/$TOP/$path" ]; then
-                echo File $path do not exists! 1>&2
+                echo "File $path not found!" 1>&2
                 rm -f "$tmpxml" 2>&1 > /dev/null
                 exit 3
             fi
@@ -82,7 +84,7 @@ tpl-set-deps() {
             path=${path//_gcc.c/_iar.s}
 
             if [ ! -f "$DIR/$TOP/$path" ]; then
-                echo File $path do not exists! 1>&2
+                echo "File $path not found!" 1>&2
                 rm -f "$tmpxml" 2>&1 > /dev/null
                 exit 3
             fi
@@ -154,7 +156,7 @@ tpl-set-linker-script() {
     local linker_script="$2"
 
     if [ ! -f $linker_script ]; then
-        echo File $linker_script do not exists! 1>&2
+        echo "File $linker_script not found!" 1>&2
         exit 3
     fi
 
