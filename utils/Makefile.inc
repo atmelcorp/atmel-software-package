@@ -31,16 +31,15 @@ CFLAGS_INC += -I$(TOP)/utils
 lib-y += utils/utils.a
 
 utils-y += utils/callback.o
-utils-y += utils/hamming.o
+utils-$(CONFIG_HAVE_NAND_FLASH) += utils/hamming.o
 utils-y += utils/rand.o
 utils-y += utils/trace.o
 utils-y += utils/syscalls.o
-utils-y += utils/crc.o
 utils-y += utils/timer.o
 utils-y += utils/mutex.o
 utils-$(CONFIG_CORE_ARM926) += utils/mutex_armv5_gcc.o
 utils-$(CONFIG_CORE_CORTEXA5) += utils/mutex_armv7_gcc.o
-utils-y += utils/wav.o
+utils-$(CONFIG_HAVE_AUDIO) += utils/wav.o
 
 UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
 
