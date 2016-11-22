@@ -8,7 +8,7 @@
 /** define the bitrate of SPI master */
 #define SPI_MASTER_BITRATE 1000
 /** define the pins of SPI master */
-#define SPI_MASTER_PINS PIN_SPI0_NPCS1
+#define SPI_MASTER_PINS PINS_SPI0_NPCS1
 
 /** define the address of SPI slave */
 #define SPI_SLAVE_ADDR SPI1
