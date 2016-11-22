@@ -35,8 +35,8 @@
 #include "trace.h"
 #include "ring.h"
 
-#include "peripherals/irq.h"
 #include "peripherals/gmacd.h"
+#include "peripherals/irq.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 
@@ -62,10 +62,10 @@
  *---------------------------------------------------------------------------*/
 
 struct _gmacd_irq_handler {
-	Gmac*           addr;
-	struct _ethd** gmacd;
-	uint32_t        irq;
-	irq_handler_t   handler;
+	Gmac*         addr;
+	uint32_t      queue;
+	struct _ethd* gmacd;
+	uint32_t      irq;
 };
 
 /*---------------------------------------------------------------------------
@@ -82,60 +82,17 @@ struct _gmacd_irq_handler {
 #endif
 #endif
 
-static struct _ethd* _gmacd0;
-#ifdef GMAC1
-static struct _ethd* _gmacd1;
-#endif
-
-static void _gmacd_handler(struct _ethd* gmacd, uint8_t queue);
-
-static void _gmacd_gmac0_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd0, 0);
-}
-
+static struct _gmacd_irq_handler _gmacd_irq_handlers[] = {
+	{ GMAC0, 0, NULL, ID_GMAC0 },
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-static void _gmacd_gmac0q1_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd0, 1);
-}
-
-static void _gmacd_gmac0q2_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd0, 2);
-}
-#endif
-
-#ifdef GMAC1
-static void _gmacd_gmac1_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd1, 0);
-}
-
-#ifdef CONFIG_HAVE_GMAC_QUEUES
-static void _gmacd_gmac1q1_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd1, 1);
-}
-
-static void _gmacd_gmac1q2_irq_handler(uint32_t source, void* user_arg)
-{
-	_gmacd_handler(_gmacd1, 2);
-}
-#endif
-#endif
-
-static const struct _gmacd_irq_handler _gmacd_irq_handlers[] = {
-	{ GMAC0, &_gmacd0, ID_GMAC0,    _gmacd_gmac0_irq_handler },
-#ifdef CONFIG_HAVE_GMAC_QUEUES
-	{ GMAC0, &_gmacd0, ID_GMAC0_Q1, _gmacd_gmac0q1_irq_handler },
-	{ GMAC0, &_gmacd0, ID_GMAC0_Q2, _gmacd_gmac0q2_irq_handler },
+	{ GMAC0, 1, NULL, ID_GMAC0_Q1 },
+	{ GMAC0, 2, NULL, ID_GMAC0_Q2 },
 #endif
 #ifdef GMAC1
-	{ GMAC1, &_gmacd1, ID_GMAC1,    _gmacd_gmac1_irq_handler },
+	{ GMAC1, 0, NULL, ID_GMAC1 },
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	{ GMAC1, &_gmacd1, ID_GMAC1_Q1, _gmacd_gmac1q1_irq_handler },
-	{ GMAC1, &_gmacd1, ID_GMAC1_Q2, _gmacd_gmac1q2_irq_handler },
+	{ GMAC1, 1, NULL, ID_GMAC1_Q1 },
+	{ GMAC1, 2, NULL, ID_GMAC1_Q2 },
 #endif
 #endif
 };
@@ -352,10 +309,6 @@ static void _gmacd_tx_error_handler(struct _ethd* gmacd, uint8_t queue)
 		q->tx_wakeup_callback(queue);
 }
 
-/*---------------------------------------------------------------------------
- *         Exported functions
- *---------------------------------------------------------------------------*/
-
 /**
  *  \brief GMAC Interrupt handler
  *  \param gmacd Pointer to GMAC Driver instance.
@@ -398,6 +351,16 @@ static void _gmacd_handler(struct _ethd * gmacd, uint8_t queue)
 	}
 }
 
+static void _gmacd_gmac_irq_handler(uint32_t source, void* user_arg)
+{
+	struct _gmacd_irq_handler* handler = (struct _gmacd_irq_handler*)user_arg;
+	_gmacd_handler(handler->gmacd, handler->queue);
+}
+
+/*---------------------------------------------------------------------------
+ *         Exported functions
+ *---------------------------------------------------------------------------*/
+
 /**
  * \brief Initialize the GMAC with the Gmac controller address
  *  \param gmacd Pointer to GMAC Driver instance.
@@ -419,10 +382,10 @@ void gmacd_configure(struct _ethd * gmacd,
 	uint32_t id = get_gmac_id_from_addr(gmac);
 	for (i = 0; i < ARRAY_SIZE(_gmacd_irq_handlers); i++) {
 		if (_gmacd_irq_handlers[i].addr == gmac) {
-			*_gmacd_irq_handlers[i].gmacd = gmacd;
+			_gmacd_irq_handlers[i].gmacd = gmacd;
 			irq_add_handler(_gmacd_irq_handlers[i].irq,
-					_gmacd_irq_handlers[i].handler,
-					NULL);
+					_gmacd_gmac_irq_handler,
+					&_gmacd_irq_handlers[i]);
 		}
 	}
 	irq_enable(id);
