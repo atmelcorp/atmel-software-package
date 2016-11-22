@@ -155,7 +155,7 @@ uip_arp_timer(void)
 }
 /*-----------------------------------------------------------------------------------*/
 static void
-uip_arp_update(u16_t *ipaddr, struct uip_eth_addr *ethaddr)
+uip_arp_update(u16_t *_ipaddr, struct uip_eth_addr *ethaddr)
 {
   register struct arp_entry *tabptr;
   /* Walk through the ARP mapping table and try to find an entry to
@@ -170,9 +170,9 @@ uip_arp_update(u16_t *ipaddr, struct uip_eth_addr *ethaddr)
 
       /* Check if the source IP address of the incoming packet matches
          the IP address in this ARP table entry. */
-      if(ipaddr[0] == tabptr->ipaddr[0] &&
-	 ipaddr[1] == tabptr->ipaddr[1]) {
-	
+      if(_ipaddr[0] == tabptr->ipaddr[0] &&
+	 _ipaddr[1] == tabptr->ipaddr[1]) {
+
 	/* An old entry found, update this and return. */
 	memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
 	tabptr->time = arptime;
@@ -212,7 +212,7 @@ uip_arp_update(u16_t *ipaddr, struct uip_eth_addr *ethaddr)
 
   /* Now, i is the ARP table entry which we will fill with the new
      information. */
-  memcpy(tabptr->ipaddr, ipaddr, 4);
+  memcpy(tabptr->ipaddr, _ipaddr, 4);
   memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
   tabptr->time = arptime;
 }
@@ -235,7 +235,7 @@ void
 uip_arp_ipin(void)
 {
   uip_len -= sizeof(struct uip_eth_hdr);
-	
+
   /* Only insert/update an entry if the source IP address of the
      incoming IP packet comes from a host on the local network. */
   if((IPBUF->srcipaddr[0] & uip_netmask[0]) !=
