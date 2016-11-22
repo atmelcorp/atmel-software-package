@@ -132,68 +132,68 @@ static struct _xdmacd _xdmacd;
  */
 static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel);
 
-static inline struct _xdmacd_channel *_xdmacd_channel(uint32_t controller, uint32_t channel)
+static struct _xdmacd_channel* _xdmacd_channel(Xdmac* dmac, uint32_t channel)
 {
-	return &_xdmacd.channels[controller * XDMAC_CHANNELS + channel];
+	int i;
+	struct _xdmacd_channel* ch = NULL;
+	for (i = 0; i < ARRAY_SIZE(controllers); i++) {
+		if (controllers[i] == dmac)
+			ch = &_xdmacd.channels[i * XDMAC_CHANNELS + channel];
+	}
+	assert(ch != NULL);
+	return ch;
 }
 
 /**
  * \brief xDMA interrupt handler
- * \param pXdmacd Pointer to DMA driver instance.
+ * \param source Peripheral ID of DMA controller
  */
 static void xdmacd_handler(uint32_t source, void* user_arg)
 {
-	uint32_t cont;
+	uint32_t chan, gis, gcs;
+	Xdmac* xdmac = (Xdmac*)user_arg;
 
-	for (cont= 0; cont< XDMAC_CONTROLLERS; cont++) {
-		uint32_t chan, gis, gcs;
+	gis = xdmac_get_global_isr(xdmac);
+	if ((gis & 0xFFFF) == 0)
+		return;
 
-		Xdmac *xdmac = controllers[cont];
-		if (get_xdmac_id_from_addr(xdmac) != source)
+	gcs = xdmac_get_global_channel_status(xdmac);
+	for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
+		struct _xdmacd_channel *channel;
+		bool exec = false;
+
+		if (!(gis & (1 << chan)))
 			continue;
 
-		gis = xdmac_get_global_isr(xdmac);
-		if ((gis & 0xFFFF) == 0)
+		channel = _xdmacd_channel(xdmac, chan);
+		if (channel->state == XDMACD_STATE_FREE)
 			continue;
 
-		gcs = xdmac_get_global_channel_status(xdmac);
-		for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
-			struct _xdmacd_channel *channel;
-			bool exec = false;
+		if (!(gcs & (1 << chan))) {
+			uint32_t cis = xdmac_get_channel_isr(xdmac, chan);
 
-			if (!(gis & (1 << chan)))
-				continue;
-
-			channel = _xdmacd_channel(cont, chan);
-			if (channel->state == XDMACD_STATE_FREE)
-				continue;
-
-			if (!(gcs & (1 << chan))) {
-				uint32_t cis = xdmac_get_channel_isr(xdmac, chan);
-
-				if (cis & XDMAC_CIS_BIS) {
-					if (!(xdmac_get_channel_it_mask(xdmac, chan) & XDMAC_CIM_LIM)) {
-						channel->state = XDMACD_STATE_DONE;
-						exec = 1;
-					}
-				}
-
-				if (cis & XDMAC_CIS_LIS) {
-					channel->state = XDMACD_STATE_DONE;
-					exec = 1;
-				}
-
-				if (cis & XDMAC_CIS_DIS) {
+			if (cis & XDMAC_CIS_BIS) {
+				if (!(xdmac_get_channel_it_mask(xdmac, chan) & XDMAC_CIM_LIM)) {
 					channel->state = XDMACD_STATE_DONE;
 					exec = 1;
 				}
 			}
 
-			/* Execute callback */
-			if (exec && channel->callback) {
-				channel->callback(channel, channel->user_arg);
-				dma_free_item((struct dma_channel *)channel);
+			if (cis & XDMAC_CIS_LIS) {
+				channel->state = XDMACD_STATE_DONE;
+				exec = 1;
 			}
+
+			if (cis & XDMAC_CIS_DIS) {
+				channel->state = XDMACD_STATE_DONE;
+				exec = 1;
+			}
+		}
+
+		/* Execute callback */
+		if (exec && channel->callback) {
+			channel->callback(channel, channel->user_arg);
+			dma_free_item((struct dma_channel *)channel);
 		}
 	}
 }
@@ -213,7 +213,7 @@ void xdmacd_initialize(bool polling)
 		Xdmac* xdmac = controllers[cont];
 		for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
 			xdmac_get_channel_isr(xdmac, chan);
-			struct _xdmacd_channel *channel = _xdmacd_channel(cont, chan);
+			struct _xdmacd_channel *channel = _xdmacd_channel(xdmac, chan);
 			channel->xdmac = xdmac;
 			channel->id = chan;
 			channel->callback = 0;
@@ -228,7 +228,7 @@ void xdmacd_initialize(bool polling)
 		if (!polling) {
 			uint32_t pid = get_xdmac_id_from_addr(xdmac);
 			/* enable interrupts */
-			irq_add_handler(pid, xdmacd_handler, NULL);
+			irq_add_handler(pid, xdmacd_handler, xdmac);
 			irq_enable(pid);
 		}
 	}
@@ -239,7 +239,7 @@ void xdmacd_poll(void)
 	if (_xdmacd.polling) {
 		int i;
 		for (i = 0; i < XDMAC_CONTROLLERS; i++)
-			xdmacd_handler(get_xdmac_id_from_addr(controllers[i]), NULL);
+			xdmacd_handler(get_xdmac_id_from_addr(controllers[i]), controllers[i]);
 	}
 }
 
