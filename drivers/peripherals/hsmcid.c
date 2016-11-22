@@ -102,13 +102,6 @@
 							| HSMCI_SR_DCRCE))
 
 /*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-static struct hsmci_set *hsmci0_set;
-static struct hsmci_set *hsmci1_set;
-
-/*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
@@ -276,14 +269,10 @@ static void hsmci_handler(struct hsmci_set *set)
 	}
 }
 
-static void hsmci0_handler(uint32_t source, void* user_arg)
+static void hsmci_irq_handler(uint32_t source, void* user_arg)
 {
-	hsmci_handler(hsmci0_set);
-}
-
-static void hsmci1_handler(uint32_t source, void* user_arg)
-{
-	hsmci_handler(hsmci1_set);
+	struct hsmci_set* set = (struct hsmci_set*)user_arg;
+	hsmci_handler(set);
 }
 
 /**
@@ -897,18 +886,16 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 		| HSMCI_CSTOR_CSTOMUL_1048576);
 
 	if (periph_id == ID_HSMCI0) {
-		hsmci0_set = set;
 		if (!set->use_polling) {
 			/* enable HSMCI0 interrupt */
-			irq_add_handler(periph_id, hsmci0_handler, NULL);
+			irq_add_handler(periph_id, hsmci_irq_handler, set);
 			irq_enable(periph_id);
 		}
 	}
 	if (periph_id == ID_HSMCI1) {
-		hsmci1_set = set;
 		if (!set->use_polling) {
 			/* enable HSMCI1 interrupt */
-			irq_add_handler(periph_id, hsmci1_handler, NULL);
+			irq_add_handler(periph_id, hsmci_irq_handler, set);
 			irq_enable(periph_id);
 		}
 	}
