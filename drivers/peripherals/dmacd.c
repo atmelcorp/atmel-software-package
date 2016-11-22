@@ -135,59 +135,60 @@ static struct _dmacd _dmacd;
  */
 static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel);
 
-static inline struct _dmacd_channel *_dmacd_channel(uint32_t controller, uint32_t channel)
+static struct _dmacd_channel* _dmacd_channel(Dmac* dmac, uint32_t channel)
 {
-	return &_dmacd.channels[controller * DMAC_CHANNELS + channel];
+	int i;
+	struct _dmacd_channel* ch = NULL;
+	for (i = 0; i < ARRAY_SIZE(controllers); i++) {
+		if (controllers[i] == dmac)
+			ch = &_dmacd.channels[i * DMAC_CHANNELS + channel];
+	}
+	assert(ch != NULL);
+	return ch;
 }
 
 /**
  * \brief DMA interrupt handler
+ * \param source Peripheral ID of DMA controller
  */
 static void dmacd_handler(uint32_t source, void* user_arg)
 {
-	uint32_t cont;
+	uint32_t chan, gis;
+	Dmac* dmac = (Dmac*)user_arg;
 
-	for (cont= 0; cont< DMAC_CONTROLLERS; cont++) {
-		uint32_t chan, gis;
 
-		Dmac *dmac = controllers[cont];
-		if (get_dmac_id_from_addr(dmac) != source)
+	gis = dmac_get_global_isr(dmac);
+	if ((gis & 0xFFFFFFFF) == 0)
+		return;;
+
+	for (chan = 0; chan < DMAC_CHANNELS; chan++) {
+		struct _dmacd_channel *channel;
+		bool exec = false;
+		if (!(gis & ((DMAC_EBCISR_BTC0 | DMAC_EBCISR_CBTC0 | DMAC_EBCISR_ERR0) << chan)))
 			continue;
-
-		gis = dmac_get_global_isr(dmac);
-
-		if ((gis & 0xFFFFFFFF) == 0)
+		channel = _dmacd_channel(dmac, chan);
+		if (channel->state == DMACD_STATE_FREE)
 			continue;
-		for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-			struct _dmacd_channel *channel;
-			bool exec = false;
-			if (!(gis & ((DMAC_EBCISR_BTC0 | DMAC_EBCISR_CBTC0 | DMAC_EBCISR_ERR0) << chan)))
-				continue;
-			channel = _dmacd_channel(cont, chan);
-			if (channel->state == DMACD_STATE_FREE)
-				continue;
-			if (gis & (DMAC_EBCISR_CBTC0 << chan)) {
-				if (channel->rep_count) {
-					if (channel->rep_count == 1) {
-						dmac_auto_clear(dmac, chan);
-					}
-					dmac_resume_channel(dmac, chan);
-					channel->rep_count--;
-
-				} else {
-					channel->state = DMACD_STATE_DONE;
-					exec = 1;
+		if (gis & (DMAC_EBCISR_CBTC0 << chan)) {
+			if (channel->rep_count) {
+				if (channel->rep_count == 1) {
+					dmac_auto_clear(dmac, chan);
 				}
+				dmac_resume_channel(dmac, chan);
+				channel->rep_count--;
+
+			} else {
+				channel->state = DMACD_STATE_DONE;
+				exec = 1;
 			}
-			/* Execute callback */
-			if (exec && channel->callback) {
-				channel->callback(channel, channel->user_arg);
-				dma_free_item((struct dma_channel *)channel);
-			}
+		}
+		/* Execute callback */
+		if (exec && channel->callback) {
+			channel->callback(channel, channel->user_arg);
+			dma_free_item((struct dma_channel *)channel);
 		}
 	}
 }
-
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -202,7 +203,7 @@ void dmacd_initialize(bool polling)
 		Dmac* dmac = controllers[cont];
 		dmac_get_channel_status(dmac);
 		for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-			struct _dmacd_channel *channel = _dmacd_channel(cont, chan);
+			struct _dmacd_channel *channel = _dmacd_channel(dmac, chan);
 			channel->dmac = dmac;
 			channel->id = chan;
 			channel->callback = 0;
@@ -218,7 +219,7 @@ void dmacd_initialize(bool polling)
 		if (!polling) {
 			uint32_t pid = get_dmac_id_from_addr(dmac);
 			/* enable interrupts */
-			irq_add_handler(pid, dmacd_handler, NULL);
+			irq_add_handler(pid, dmacd_handler, dmac);
 			irq_enable(pid);
 		}
 	}
@@ -229,7 +230,7 @@ void dmacd_poll(void)
 	if (_dmacd.polling) {
 		int i;
 		for (i = 0; i < DMAC_CONTROLLERS; i++)
-			dmacd_handler(get_dmac_id_from_addr(controllers[i]), NULL);
+			dmacd_handler(get_dmac_id_from_addr(controllers[i]), controllers[i]);
 	}
 }
 
