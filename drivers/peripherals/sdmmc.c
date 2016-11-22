@@ -68,13 +68,16 @@
 #include "chip.h"
 #include "intmath.h"
 #include "timer.h"
+
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "misc/cache.h"
 #include "peripherals/sdmmc.h"
+
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"   /* Included for debug functions only */
+
+#include "misc/cache.h"
 
 #include <assert.h>
 #include <string.h>
@@ -127,13 +130,6 @@ union uint32_u {
 	uint32_t word;
 	uint8_t bytes[4];
 };
-
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-static struct sdmmc_set *sdmmc0_set;
-static struct sdmmc_set *sdmmc1_set;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -1046,14 +1042,10 @@ End:
 		(cmd->fCallback)(cmd->bStatus, cmd->pArg);
 }
 
-static void sdmmc0_handler(uint32_t source, void* user_arg)
+static void sdmmc_irq_handler(uint32_t source, void* user_arg)
 {
-	sdmmc_poll(sdmmc0_set);
-}
-
-static void sdmmc1_handler(uint32_t source, void* user_arg)
-{
-	sdmmc_poll(sdmmc1_set);
+	struct sdmmc_set* set = (struct sdmmc_set*)user_arg;
+	sdmmc_poll(set);
 }
 
 /**
@@ -1819,18 +1811,16 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 		regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
 
 	if (periph_id == ID_SDMMC0) {
-		sdmmc0_set = set;
 		if (!set->use_polling) {
 			/* enable SDMMC0 interrupt */
-			irq_add_handler(periph_id, sdmmc0_handler, NULL);
+			irq_add_handler(periph_id, sdmmc_irq_handler, set);
 			irq_enable(periph_id);
 		}
 	}
 	if (periph_id == ID_SDMMC1) {
-		sdmmc1_set = set;
 		if (!set->use_polling) {
 			/* enable SDMMC1 interrupt */
-			irq_add_handler(periph_id, sdmmc1_handler, NULL);
+			irq_add_handler(periph_id, sdmmc_irq_handler, set);
 			irq_enable(periph_id);
 		}
 	}
