@@ -57,10 +57,10 @@
  *---------------------------------------------------------------------------*/
 
 struct _emacd_irq_handler {
-	Emac*           addr;
-	struct _ethd** emacd;
-	uint32_t        irq;
-	irq_handler_t   handler;
+	Emac*         addr;
+	uint32_t      queue;
+	struct _ethd* emacd;
+	uint32_t      irq;
 };
 
 /*---------------------------------------------------------------------------
@@ -71,17 +71,11 @@ struct _emacd_irq_handler {
 #error The number of queues for ETH is too small for EMAC!
 #endif
 
-static struct _ethd* _emacd;
-
-static void _emacd_handler(struct _ethd* emacd, uint8_t queue);
-
-static void _emacd_emac_irq_handler(uint32_t source, void* user_arg)
-{
-	_emacd_handler(_emacd, 0);
-}
-
-static const struct _emacd_irq_handler _emacd_irq_handlers[] = {
-	{ EMAC0, &_emacd, ID_EMAC0,    _emacd_emac_irq_handler },
+static struct _emacd_irq_handler _emacd_irq_handlers[] = {
+	{ EMAC0, 0, NULL, ID_EMAC0 },
+#ifdef EMAC1
+	{ EMAC1, 0, NULL, ID_EMAC1 },
+#endif
 };
 
 /*---------------------------------------------------------------------------
@@ -296,10 +290,6 @@ static void _emacd_tx_error_handler(struct _ethd* emacd, uint8_t queue)
 		q->tx_wakeup_callback(queue);
 }
 
-/*---------------------------------------------------------------------------
- *         Exported functions
- *---------------------------------------------------------------------------*/
-
 /**
  *  \brief EMAC Interrupt handler
  *  \param gmacd Pointer to EMAC Driver instance.
@@ -342,6 +332,16 @@ static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
 	}
 }
 
+static void _emacd_emac_irq_handler(uint32_t source, void* user_arg)
+{
+	struct _emacd_irq_handler* handler = (struct _emacd_irq_handler*)user_arg;
+	_emacd_handler(handler->emacd, handler->queue);
+}
+
+/*---------------------------------------------------------------------------
+ *         Exported functions
+ *---------------------------------------------------------------------------*/
+
 /**
  * \brief Initialize the EMAC with the Gmac controller address
  *  \param gmacd Pointer to EMAC Driver instance.
@@ -363,10 +363,10 @@ void emacd_configure(struct _ethd * emacd,
 	uint32_t id = get_emac_id_from_addr(emac);
 	for (i = 0; i < ARRAY_SIZE(_emacd_irq_handlers); i++) {
 		if (_emacd_irq_handlers[i].addr == emac) {
-			*_emacd_irq_handlers[i].emacd = emacd;
+			_emacd_irq_handlers[i].emacd = emacd;
 			irq_add_handler(_emacd_irq_handlers[i].irq,
-					_emacd_irq_handlers[i].handler,
-					NULL);
+					_emacd_emac_irq_handler,
+					&_emacd_irq_handlers[i]);
 		}
 	}
 	irq_enable(id);
