@@ -55,9 +55,6 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _spi_desc *_desc[SPI_IFACE_COUNT];
-static uint8_t _desc_index = 0;
-
 static uint32_t _garbage = ~0u;
 
 /*----------------------------------------------------------------------------
@@ -96,7 +93,7 @@ static void _spid_dma_callback(struct dma_channel *channel, void *arg)
 		dma_free_channel(channel);
 	else
 		trace_fatal("Invalid DMA channel!\r\n");
-	
+
 	/* For read, invalidate region */
 	if (channel == desc->xfer.dma.rx.channel)
 		cache_invalidate_region(desc->xfer.dma.rx.cfg.da, desc->xfer.dma.rx.cfg.len);
@@ -201,17 +198,9 @@ static void _spid_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = 0;
 	Spi* addr = get_spi_addr_from_id(source);
-	struct _spi_desc *desc;
+	struct _spi_desc *desc = (struct _spi_desc*)user_arg;
 
-	for (i = 0; i < ARRAY_SIZE(_desc); i++) {
-		desc = _desc[i];
-		if (desc->addr == addr) {
-			status = 1;
-			break;
-		}
-	}
-
-	if (!status || !desc->xfer.current) {
+	if (!desc->xfer.current) {
 		/* async descriptor not found, disable interrupt */
 		spi_disable_it(addr, SPI_IDR_RDRF | SPI_IDR_TDRE | SPI_IDR_TXEMPTY);
 		return;
@@ -432,14 +421,10 @@ void spid_configure(struct _spi_desc* desc)
 #endif
 
 	spi_disable_it(desc->addr, ~0u);
-	irq_add_handler(id, _spid_handler, NULL);
+	irq_add_handler(id, _spid_handler, desc);
 	irq_enable(id);
 
 	spi_enable(desc->addr);
-
-	/* TODO: check if desc->addr is already present in _desc */
-	assert(_desc_index < ARRAY_SIZE(_desc));
-	_desc[_desc_index++] = desc;
 }
 
 void spid_configure_cs(struct _spi_desc* desc, uint8_t cs,
