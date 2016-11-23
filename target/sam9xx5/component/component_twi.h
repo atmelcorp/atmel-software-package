@@ -63,7 +63,6 @@ typedef struct {
 #define TWI_CR_MSDIS (0x1u << 3) /**< \brief (TWI_CR) TWI Master Mode Disabled */
 #define TWI_CR_SVEN (0x1u << 4) /**< \brief (TWI_CR) TWI Slave Mode Enabled */
 #define TWI_CR_SVDIS (0x1u << 5) /**< \brief (TWI_CR) TWI Slave Mode Disabled */
-#define TWI_CR_QUICK (0x1u << 6) /**< \brief (TWI_CR) SMBUS Quick Command */
 #define TWI_CR_SWRST (0x1u << 7) /**< \brief (TWI_CR) Software Reset */
 /* -------- TWI_MMR : (TWI Offset: 0x04) Master Mode Register -------- */
 #define TWI_MMR_IADRSZ_Pos 8
