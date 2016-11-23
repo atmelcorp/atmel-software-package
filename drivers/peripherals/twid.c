@@ -56,9 +56,7 @@
 #define TWID_POLLING_THRESHOLD  16
 #define TWID_TIMEOUT            100
 
-#define MAX_ADESC               8
-
-static struct _async_desc async_desc[MAX_ADESC];
+static struct _async_desc async_desc[TWI_IFACE_COUNT];
 static uint8_t adesc_index = 0;
 
 /*----------------------------------------------------------------------------
@@ -313,27 +311,12 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
  */
 static void _twid_handler(uint32_t source, void* user_arg)
 {
-	int i;
 	uint32_t status = 0;
 	Twi* addr;
 	uint32_t buf_size;
 	bool use_fifo = false;
+	struct _async_desc* adesc = (struct _async_desc*)user_arg;
 
-	for (i = 0; i != MAX_ADESC; i++) {
-		if (async_desc[i].twi_id == source) {
-			status = 1;
-			break;
-		}
-	}
-
-	if (!status) {
-		/* async descriptor not found, disable interrupt */
-		addr = get_twi_addr_from_id(source);
-		twi_disable_it(addr, TWI_IDR_RXRDY | TWI_IDR_TXRDY);
-		return;
-	}
-
-	struct _async_desc* adesc = &async_desc[i];
 	addr = adesc->twi_desc->addr;
 	status = twi_get_masked_status(addr);
 
@@ -673,7 +656,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 		async_desc[adesc_index].twi_id = id;
 
 		/* Set TWI handler */
-		irq_add_handler(id, _twid_handler, NULL);
+		irq_add_handler(id, _twid_handler, &async_desc[adesc_index]);
 		/* Enable TWI interrupt */
 		irq_enable(id);
 
@@ -706,7 +689,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 				twi_send_start_condition(desc->addr);
 		}
 
-		adesc_index = (adesc_index + 1) % MAX_ADESC;
+		adesc_index = (adesc_index + 1) % TWI_IFACE_COUNT;
 		break;
 
 	case TWID_MODE_POLLING:
