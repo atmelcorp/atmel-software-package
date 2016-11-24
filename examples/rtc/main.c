@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2014, Atmel Corporation
+ * Copyright (c) 2014-2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -112,17 +112,20 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "trace.h"
+
 #include "misc/console.h"
+
 #include "peripherals/irq.h"
+#include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
 #include "peripherals/tc.h"
-#include "peripherals/pmc.h"
-#include "trace.h"
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <stdarg.h>
+#include <string.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -138,336 +141,289 @@
 #define STATE_SET_TIME_ALARM    3
 /** Date alarm is being edited. */
 #define STATE_SET_DATE_ALARM    4
-/** Wave generating is being edited. */
-#define STATE_WAVEFORM            5
-
-/** Maximum size of edited string */
-#define MAX_EDIT_SIZE       10
 
 /** Macro for check digit character */
 #define is_digit(c) ((c) >= '0' && (c) <='9')
+
 /** Macro for converting char to digit */
 #define to_digit(c) ((c) - '0')
-/** (SCR) Sleep deep bit */
-#define SCR_SLEEPDEEP   (0x1 <<  2)
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-volatile uint16_t Temperature = 0;
-volatile uint32_t CountDownTimer = 0;
+
+volatile uint16_t temperature = 0;
+volatile uint32_t count_down_timer = 0;
+
 /** Current state of application. */
-static unsigned int bState = STATE_MENU;
-
-/** Edited time */
-struct _time new_time;
-
-/** Edited date */
-struct _date new_date;
+static unsigned int state = STATE_MENU;
 
 /** Indicates if alarm has been triggered and not yet cleared. */
-static unsigned char alarmTriggered = 0;
+static volatile bool alarm_triggered = false;
 
-/** store time string */
-static char rtc_time[8 + 1] = { '0', '0', ':', '0', '0', ':', '0', '0', '\0' };
-
-/** store date string */
-static char date[10 + 1] =
-    { '0', '0', '/', '0', '0', '/', '0', '0', '0', '0', '\0' };
 /** week string */
-static char pDayNames[7][4] =
-    { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-/** console erase sequence */
-static char pEraseSeq[] = "\b \b";
-/** output format string buffer */
-static char calendar[80];
+static const char* day_names[7] =
+	{ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+
 /** for idendify refreshing menu */
-static unsigned int bMenuShown = 0;
+static volatile bool menu_shown = false;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Print a formatted string into a buffer.
- */
-static signed int print_to_buf(char *pBuf, const char *pFormat, ...)
+static bool input_text_with_mask(char* input, const char* mask)
 {
-	va_list ap;
-	signed int rc;
+	char key;
+	int i, len = strlen(mask);
+	bool cancel = false;
 
-	va_start(ap, pFormat);
-	rc = vsprintf(pBuf, pFormat, ap);
-	va_end(ap);
 
-	return rc;
+	/* copy template into destination buffer */
+	memcpy(input, mask, len + 1);
+
+
+	for (i = 0; i < len; i++)
+		console_put_char(input[i]);
+	for (i = 0; i < len; i++)
+		console_put_char('\b');
+
+	i = 0;
+	while (1) {
+		while (!is_digit(input[i]) && i < len) {
+			console_put_char(input[i]);
+			i++;
+		}
+
+		key = console_get_char();
+
+		/* validate input */
+		if (key == '\r' || key == '\n')
+			break;
+
+		/* cancel input */
+		if (key == '\033') {
+			cancel = true;
+			break;
+		}
+
+		/* DEL or BACKSPACE */
+		if (key == 0x7f || key == 0x08) {
+			while (i > 0) {
+				i--;
+				input[i] = mask[i];
+				console_put_char('\b');
+				console_put_char(input[i]);
+				console_put_char('\b');
+
+				if (is_digit(mask[i]))
+					break;
+			}
+			continue;
+		}
+
+		if (is_digit(key) && is_digit(mask[i]) && i < len) {
+			console_put_char(key);
+			input[i++] = key;
+		}
+	}
+
+	printf("\r\n");
+	return !cancel;
 }
 
 /**
  * \brief Get new time, successful value is put in new_time.hour, new_time.min, new_time.sec.
  */
-static int get_new_time(void)
+static bool get_new_time(struct _time* time)
 {
-	char ucKey;
-	int i = 0;
+	static const char mask[] = "00:00:00";
+	char input[sizeof(mask) + 1];
 
-	/* clear setting variable */
-	new_time.hour = new_time.min = new_time.sec = 0xFF;
+	/* clear result variable */
+	time->hour = time->min = time->sec = 0xff;
 
-	/* use time[] as a format template */
-	while (1) {
-		ucKey = console_get_char();
+	if (!input_text_with_mask(input, mask))
+		return false;
 
-		/* end input */
-		if (ucKey == 0x0d || ucKey == 0x0a) {
-			printf("\r\n");
-			break;
-		}
-
-		/* DEL or BACKSPACE */
-		if (ucKey == 0x7f || ucKey == 0x08) {
-			if (i > 0) {
-				/* end of time[], index then one more back */
-				if (!rtc_time[i]) {
-					--i;
-				}
-
-				printf(pEraseSeq);
-				--i;
-
-				/* delimitor ':' for time is uneditable */
-				if (!is_digit(rtc_time[i]) && i > 0) {
-					printf(pEraseSeq);
-					--i;
-				}
-			}
-		}
-
-		/* end of time[], no more input except above DEL/BS or enter to end */
-		if (!rtc_time[i]) {
-			continue;
-		}
-
-		if (!is_digit(ucKey)) {
-			continue;
-		}
-
-		console_put_char(ucKey);
-		rtc_time[i++] = ucKey;
-
-		/* ignore non digit position if not end */
-		if (!is_digit(rtc_time[i]) && i < 8) {
-			console_put_char(rtc_time[i]);
-			++i;
-		}
-	}
-
-	if (i == 0) {
-		return 0;
-	}
-
-	if (i != 0 && rtc_time[i] != '\0') {
-		return 1;	/* failure input */
-	}
-
-	new_time.hour = to_digit(rtc_time[0]) * 10 + to_digit(rtc_time[1]);
-	new_time.min = to_digit(rtc_time[3]) * 10 + to_digit(rtc_time[4]);
-	new_time.sec = to_digit(rtc_time[6]) * 10 + to_digit(rtc_time[7]);
-
-	/* success input. verification of data is left to RTC internal Error Checking */
-	return 0;
+	time->hour = to_digit(input[0]) * 10 + to_digit(input[1]);
+	time->min = to_digit(input[3]) * 10 + to_digit(input[4]);
+	time->sec = to_digit(input[6]) * 10 + to_digit(input[7]);
+	return true;
 }
 
 /**
  * \brief Calculate week from year, month,day.
  */
-static char compute_week(int year, int month, int day)
+static int compute_week(int year, int month, int day)
 {
-	char week;
+	int week;
 
 	if (month == 1 || month == 2) {
 		month += 12;
-		--year;
+		year--;
 	}
 
-	week =
-	    (day + 2 * month + 3 * (month + 1) / 5 + year + year / 4 -
-	     year / 100 + year / 400) % 7;
-
-	++week;
+	week = (day + 2 * month + 3 * (month + 1) / 5 + year + year / 4 -
+		year / 100 + year / 400) % 7;
+	week++;
 
 	return week;
 }
 
 /**
- * \brief Get new time, successful value is put in new_date.year, new_date.month, new_date.day, new_date.week.
+ * \brief Get new date, successful value is put in new_date.year, new_date.month, new_date.day, new_date.week.
  */
-static int get_new_date(void)
+static bool get_new_date(struct _date* date)
 {
-	char ucKey;
-	int i = 0;
+	static const char mask[] = "00/00/0000";
+	char input[sizeof(mask) + 1];
 
-	/* clear setting variable */
-	new_date.year = 0xFFFF;
-	new_date.month = new_date.day = new_date.week = 0xFF;
+	/* clear result variable */
+	date->year = 0xffff;
+	date->month = date->day = date->week = 0xff;
 
-	/* use time[] as a format template */
-	while (1) {
-		ucKey = console_get_char();
-
-		/* end input */
-		if (ucKey == 0x0d || ucKey == 0x0a) {
-			printf("\r\n");
-			break;
-		}
-
-		/* DEL or BACKSPACE */
-		if (ucKey == 0x7f || ucKey == 0x08) {
-			if (i > 0) {
-				/* end of date[], index then one more back */
-				if (!date[i]) {
-					--i;
-				}
-
-				printf(pEraseSeq);
-				--i;
-
-				/* delimitor '/' for date is uneditable */
-				if (!is_digit(date[i]) && i > 0) {
-					printf(pEraseSeq);
-					--i;
-				}
-			}
-		}
-
-		/* end of time[], no more input except above DEL/BS or enter to end */
-		if (!date[i]) {
-			continue;
-		}
-
-		if (!is_digit(ucKey)) {
-			continue;
-		}
-
-		console_put_char(ucKey);
-		date[i++] = ucKey;
-
-		/* ignore non digit position */
-		if (!is_digit(date[i]) && i < 10) {
-			console_put_char(date[i]);
-			++i;
-		}
-	}
-
-	if (i == 0) {
-		return 0;
-	}
-
-	if (i != 0 && date[i] != '\0' && i != 6) {
-		return 1;	/* failure input */
-	}
+	if (!input_text_with_mask(input, mask))
+		return false;
 
 	/* MM-DD-YY */
-	new_date.month = to_digit(date[0]) * 10 + to_digit(date[1]);
-	new_date.day = to_digit(date[3]) * 10 + to_digit(date[4]);
-	/* not scenario of getting mm/dd/ only for alarm */
-	if (i != 6) {
-		new_date.year =
-		    to_digit(date[6]) * 1000 + to_digit(date[7]) * 100 +
-		    to_digit(date[8]) * 10 + to_digit(date[9]);
-		new_date.week = compute_week(new_date.year, new_date.month, new_date.day);
-	}
+	date->month = to_digit(input[0]) * 10 + to_digit(input[1]);
+	date->day = to_digit(input[3]) * 10 + to_digit(input[4]);
+	date->year = to_digit(input[6]) * 1000 + to_digit(input[7]) * 100 +
+		to_digit(input[8]) * 10 + to_digit(input[9]);
+	date->week = compute_week(date->year, date->month, date->day);
 
-	/* success input. verification of data is left to RTC internal Error Checking */
-	return 0;
+	return true;
+}
+
+/**
+ * \brief Get new date, successful value is put in new_date.month, new_date.day.
+ */
+static bool get_new_alarm_date(struct _date* date)
+{
+	static const char mask[] = "00/00";
+	char input[sizeof(mask) + 1];
+
+	/* clear result variable */
+	date->year = 0xffff;
+	date->month = date->day = date->week = 0xff;
+
+	if (!input_text_with_mask(input, mask))
+		return false;
+
+	/* MM-DD-YY */
+	date->month = to_digit(input[0]) * 10 + to_digit(input[1]);
+	date->day = to_digit(input[3]) * 10 + to_digit(input[4]);
+
+	return true;
+}
+
+static void set_new_time(void)
+{
+	struct _time new_time;
+	printf("\r\n\r\n Set time (HH:MM:SS): ");
+	if (get_new_time(&new_time))
+		if (rtc_set_time(&new_time))
+			printf("\r\n Time not set, invalid input!\n\r");
+}
+
+static void set_new_time_alarm(void)
+{
+	struct _time new_time;
+	printf("\r\n\r\n Set time alarm (HH:MM:SS): ");
+	if (get_new_time(&new_time)) {
+		if (rtc_set_time_alarm(&new_time))
+			printf("\r\n Time alarm not set, invalid input!\r\n");
+		else
+			printf("\r\n Time alarm is set at %02d:%02d:%02d!",
+					new_time.hour, new_time.min, new_time.sec);
+	}
+}
+
+static void set_new_date(void)
+{
+	struct _date new_date;
+	printf("\r\n\r\n Set date (MM/DD/YYYY): ");
+	if (get_new_date(&new_date))
+		if (rtc_set_date(&new_date))
+			printf("\r\n Date not set, invalid input!\r\n");
+}
+
+static void set_new_date_alarm(void)
+{
+	struct _date new_date;
+	printf("\r\n\r\n Set date alarm (mm/dd): ");
+	if (get_new_alarm_date(&new_date)) {
+		if (rtc_set_date_alarm(&new_date))
+			printf("\r\n Date alarm not set, invalid input!\r\n");
+		else
+			printf("\r\n Date alarm is set on %02d/%02d!",
+				new_date.month, new_date.day);
+	}
+	alarm_triggered = false;
 }
 
 /**
  * \brief Displays the user interface on the terminal.
  */
-static void _RefreshDisplay(void)
+static void _refresh_display(void)
 {
 	struct _time current_time;
-	/* unsigned char hour, minute, second; */
 	struct _date current_date;
-	/* unsigned short year; */
-	/* unsigned char month, day, week; */
 
 	/* not in menu display mode, in set mode */
-	if (bState == STATE_MENU) {
-		/* Retrieve date and time */
-		rtc_get_time(&current_time);
-		rtc_get_date(&current_date);
-
+	if (state == STATE_MENU) {
 		/* display */
-		if (!bMenuShown) {
+		if (!menu_shown) {
 			printf("\r\nMenu:\r\n");
-			printf("  t - Set time\r\n");
 			printf("  d - Set date\r\n");
-			printf("  i - Set time alarm\r\n");
 			printf("  m - Set date alarm\r\n");
+			printf("  t - Set time\r\n");
+			printf("  i - Set time alarm\r\n");
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
 			printf("  p - PPM calibration of RTC\r\n");
 #endif
-
-			if (alarmTriggered) {
+			if (alarm_triggered)
 				printf("  c - Clear alarm notification\r\n");
-			}
-
-			printf("  q - Quit!\r\n");
-
 			printf("\r\n");
-
-			bMenuShown = 1;
+			menu_shown = true;
 		}
 
 		/* update current date and time */
-		print_to_buf(rtc_time, "%02d:%02d:%02d", current_time.hour, current_time.min, current_time.sec);
-		print_to_buf(date, "%02d/%02d/%04d", current_date.month, current_date.day, current_date.year);
-		print_to_buf(calendar, " [Time/Date: %s, %s %s ][Alarm status:%s]",
-			  rtc_time, date, pDayNames[current_date.week - 1],
-			  alarmTriggered ? "Triggered!" : "");
-
-		printf("\r%s", calendar);
+		rtc_get_time(&current_time);
+		rtc_get_date(&current_date);
+		printf("\r[Date/Time: %s %02d/%02d/%04d %02d:%02d:%02d]%s",
+				day_names[current_date.week - 1],
+				current_date.month, current_date.day, current_date.year,
+				current_time.hour, current_time.min, current_time.sec,
+				alarm_triggered ? "[Alarm Triggered]" : "");
 	}
 }
 
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
  */
-static void sysc_handler(uint32_t source, void* user_arg)
+static void rtc_handler(uint32_t source, void* user_arg)
 {
-	uint32_t dwStatus = RTC->RTC_SR;
-
-	assert(source == ID_RTC);
+	bool need_display_refresh = false;
+	uint32_t status = RTC->RTC_SR;
 
 	/* Second increment interrupt */
-	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
-		/* Disable RTC interrupt */
-		rtc_disable_it(RTC_IDR_SECDIS);
-
-		_RefreshDisplay();
-
+	if ((status & RTC_SR_SEC) == RTC_SR_SEC) {
 		RTC->RTC_SCCR = RTC_SCCR_SECCLR;
-
-		rtc_enable_it(RTC_IER_SECEN);
+		need_display_refresh = true;
 	}
+
 	/* Time or date alarm */
-	else {
-		if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
-			/* Disable RTC interrupt */
-			rtc_disable_it(RTC_IDR_ALRDIS);
-
-			alarmTriggered = 1;
-			_RefreshDisplay();
-			printf("\t Done \r");
-			/* shown additional menu item for clear notification */
-			bMenuShown = 0;
-			RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
-
-			rtc_enable_it(RTC_IER_ALREN);
-		}
+	if ((status & RTC_SR_ALARM) == RTC_SR_ALARM) {
+		alarm_triggered = true;
+		need_display_refresh = true;
+		menu_shown = false; /* force display */
+		RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
 	}
+
+	if (need_display_refresh)
+		_refresh_display();
 }
 
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
@@ -483,12 +439,12 @@ static void calibration_tc_handler(uint32_t source, void* user_arg)
 	tc_get_status(TC0, 0);
 
 	 // Recalibrate at every 1 minute
-	if (CountDownTimer >= 60) {
-		rtc_calibration(Temperature);
+	if (count_down_timer >= 60) {
+		rtc_calibration(temperature);
 		trace_info("RTC has been re-calibrated \r\n");
-		CountDownTimer = 0;
+		count_down_timer = 0;
 	}
-	CountDownTimer++;
+	count_down_timer++;
 }
 
 /**
@@ -502,7 +458,7 @@ static void configure_calibration_tc(void)
 	/* Put the source vector */
 	irq_add_handler(ID_TC0, calibration_tc_handler, NULL);
 
-	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
+	/** Configure TC for a 1Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC0, 0, 1);
 
 	/* Configure and enable interrupt on RC compare */
@@ -520,7 +476,7 @@ static void disable_calibration_tc(void)
 
 static void enable_calibration_tc(void)
 {
-	CountDownTimer = 0;
+	count_down_timer = 0;
 	tc_start(TC0, 0);
 }
 
@@ -543,182 +499,87 @@ static void enable_calibration_tc(void) { }
 
 int main(void)
 {
-	uint8_t ucKey;
+	uint8_t key;
 
 	/* Output example information */
 	console_example_info("RTC Example");
 
-	// put 25 °C as a default temp, if there is no temprature sensor
-	Temperature = 25;
+	/* put 25 degree celsius as a default temp since there is no temperature sensor */
+	temperature = 25;
 
 	/* Default RTC configuration */
-	rtc_set_hour_mode(0);	/* 24-hour mode */
-	struct _time empty_time = {0,0,0};
-	if (rtc_set_time_alarm(&empty_time)) {
+	rtc_set_hour_mode(RTC_HOUR_MODE_24); /* 24-hour mode */
+	struct _time empty_time = { 0, 0, 0 };
+	if (rtc_set_time_alarm(&empty_time))
 		printf("\r\n Disable time alarm fail!");
-	}
-	struct _date empty_date = {0,0,0};
-	if (rtc_set_date_alarm(&empty_date)) {
+	struct _date empty_date = { 0, 0, 0 };
+	if (rtc_set_date_alarm(&empty_date))
 		printf("\r\n Disable date alarm fail!");
-	}
 
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
 	printf("Configuring TC for periodic re-calibration.\r\n");
 	configure_calibration_tc();
-	rtc_calibration(Temperature);
+	rtc_calibration(temperature);
 #endif
 
 	/* Refresh display once */
-	_RefreshDisplay();
-	new_time.hour = 0;
-	new_time.min = 0;
-	new_time.sec = 30;
-	rtc_set_time_alarm(&new_time);
-	bMenuShown = 0;
-	alarmTriggered = 0;
+	alarm_triggered = false;
+	menu_shown = false;
+	_refresh_display();
 
-	/* Configure RTC interrupts
-	 * on sam9xx5,system peripheral including pit, rtc, wdt, etc. 
-	 * System interrupt is enabled on the init phase */
-	irq_add_handler(ID_RTC, sysc_handler, NULL);
+	/* Configure RTC interrupts */
+	irq_add_handler(ID_RTC, rtc_handler, NULL);
 	rtc_enable_it(RTC_IER_SECEN | RTC_IER_ALREN);
 	irq_enable(ID_RTC);
 
 	/* Handle keypresses */
 	while (1) {
-		ucKey = console_get_char();
+		key = console_get_char();
 
+		disable_calibration_tc();
+
+		switch (key) {
 		/* set time */
-		if (ucKey == 't') {
-			bState = STATE_SET_TIME;
-			disable_calibration_tc();
-
-			do {
-				printf("\r\n\r\n Set time(hh:mm:ss): ");
-			} while (get_new_time());
-
-			/* if valid input, none of variable for time is 0xff */
-			if (new_time.hour != 0xFF) {
-				if (rtc_set_time (&new_time)) {
-					printf
-					    ("\r\n Time not set, invalid input!\n\r");
-				}
-			}
-
-			bState = STATE_MENU;
-			bMenuShown = 0;
-			_RefreshDisplay();
-			enable_calibration_tc();
-		}
-
+		case 't':
+		case 'T':
+			state = STATE_SET_TIME;
+			set_new_time();
+			break;
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
 		/* clock calibration */
-		else if (ucKey == 'p') {
-
+		case 'p':
+		case 'P':
 			rtc_calibration(30);
-
-			bState = STATE_MENU;
-			bMenuShown = 0;
-			_RefreshDisplay();
-		}
+			break;
 #endif /* CONFIG_HAVE_RTC_CALIBRATION */
-
 		/* set date */
-		else if (ucKey == 'd') {
-			bState = STATE_SET_DATE;
-			irq_disable(ID_TC0);
-
-			do {
-				printf("\r\n\r\n Set date(mm/dd/yyyy): ");
-			} while (get_new_date());
-
-			/* if valid input, none of variable for date is 0xff(ff) */
-			if (new_date.year != 0xFFFF) {
-				if (rtc_set_date(&new_date)) {
-					printf
-					    ("\r\n Date not set, invalid input!\r\n");
-				}
-			}
-
-			/* only 'mm/dd' inputed */
-			if (new_date.month != 0xFF && new_date.year == 0xFFFF) {
-				printf("\r\n Not Set for no year field!\r\n");
-			}
-
-			bState = STATE_MENU;
-			bMenuShown = 0;
-			CountDownTimer = 0;
-			irq_enable(ID_TC0);
-			_RefreshDisplay();
-		}
-
+		case 'd':
+		case 'D':
+			state = STATE_SET_DATE;
+			set_new_date();
+			break;
 		/* set time alarm */
-		else if (ucKey == 'i') {
-			bState = STATE_SET_TIME_ALARM;
-			irq_disable(ID_TC0);
-
-			do {
-				printf("\r\n\r\n Set time alarm(hh:mm:ss): ");
-			} while (get_new_time());
-
-			if (new_time.hour != 0xFF) {
-				if (rtc_set_time_alarm(&new_time)) {
-					printf
-					    ("\r\n Time alarm not set, invalid input!\r\n");
-				} else {
-					printf
-					    ("\r\n Time alarm is set at %02d:%02d:%02d!",
-					     new_time.hour, new_time.min, new_time.sec);
-				}
-			}
-			bState = STATE_MENU;
-			bMenuShown = 0;
-			alarmTriggered = 0;
-			CountDownTimer = 0;
-			irq_enable(ID_TC0);
-			_RefreshDisplay();
-		}
-
+		case 'i':
+		case 'I':
+			state = STATE_SET_TIME_ALARM;
+			set_new_time_alarm();
+			break;
 		/* set date alarm */
-		else if (ucKey == 'm') {
-			bState = STATE_SET_DATE_ALARM;
-			irq_disable(ID_TC0);
-
-			do {
-				printf("\r\n\r\n Set date alarm(mm/dd/): ");
-			} while (get_new_date());
-
-			if (new_date.year == 0xFFFF && new_date.month != 0xFF) {
-				if (rtc_set_date_alarm(&new_date)) {
-					printf
-					    ("\r\n Date alarm not set, invalid input!\r\n");
-				} else {
-					printf
-					    ("\r\n Date alarm is set on %02d/%02d!",
-					     new_date.month, new_date.day);
-				}
-
-			}
-			bState = STATE_MENU;
-			bMenuShown = 0;
-			alarmTriggered = 0;
-			CountDownTimer = 0;
-			irq_enable(ID_TC0);
-			_RefreshDisplay();
-		}
-
+		case 'm':
+		case 'M':
+			state = STATE_SET_DATE_ALARM;
+			set_new_date_alarm();
+			break;
 		/* clear trigger flag */
-		else if (ucKey == 'c') {
-			alarmTriggered = 0;
-			bMenuShown = 0;
-			_RefreshDisplay();
-		}
-
-		/* quit */
-		else if (ucKey == 'q') {
+		case 'c':
+		case 'C':
+			alarm_triggered = false;
 			break;
 		}
-	}
 
-	return 0;
+		state = STATE_MENU;
+		menu_shown = false;
+		_refresh_display();
+		enable_calibration_tc();
+	}
 }
