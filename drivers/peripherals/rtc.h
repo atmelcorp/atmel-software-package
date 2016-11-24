@@ -57,6 +57,16 @@
 #define RTC_DATE_BIT_LEN_MASK   0x3F
 #define RTC_WEEK_BIT_LEN_MASK   0x07
 
+enum _rtc_mode {
+	RTC_MODE_GREGORIAN = 0,
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	RTC_MODE_PERSIAN,
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	RTC_MODE_UTC,
+#endif
+};
+
 struct _time {
 	uint8_t hour;
 	uint8_t min;
@@ -78,6 +88,20 @@ enum _rtc_hour_mode {
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Sets the RTC time mode.
+ *
+ * \param mode  RTC mode.
+ */
+extern void rtc_set_mode(enum _rtc_mode mode);
+
+/**
+ * \brief Gets the RTC time mode.
+ *
+ * \return RTC mode.
+ */
+extern enum _rtc_mode rtc_get_mode(void);
 
 /**
  * \brief Sets the RTC in either 12 or 24 hour mode.
@@ -280,5 +304,41 @@ extern uint32_t rtc_set_calendar_event (uint32_t mask);
  * \return Status register & mask
  */
 extern uint32_t rtc_set_time_event (uint32_t maskask);
+
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+
+/**
+ * \brief Retrieves the current utc time as stored in the RTC in several variables.
+ *
+ * \param utc_time Pointer to time
+ */
+extern void rtc_get_utc_time(uint32_t* utc_time);
+
+/**
+ * \brief Sets the current utc format time in the RTC.
+ *
+ * \note In successive update operations, the user must wait at least one second
+ * after resetting the UPDTIM/UPDCAL bit in the RTC_CR before setting these
+ * bits again. Please look at the RTC section of the datasheet for detail.
+ *
+ * \param utc_time utc time value to set
+ *
+ * \return 0 sucess, 1 fail to set
+ */
+extern uint32_t rtc_set_utc_time(uint32_t utc_time);
+
+/**
+ * \brief Sets a time alarm on the RTC.
+ * The match is performed only on the provided variables;
+ * Setting value to 0 disables the time alarm.
+ *
+ *
+ * \param time Pointer to structure time.
+ *
+ * \return 0 success, 1 fail to set
+ */
+extern uint32_t rtc_set_utc_time_alarm(uint32_t utc_time);
+
+#endif /* CONFIG_HAVE_RTC_MODE_UTC */
 
 #endif /* _RTC_H_ */

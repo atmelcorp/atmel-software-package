@@ -259,11 +259,57 @@ static const struct rtc_ppm_lookup ppm_lookup[] = {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Sets the RTC in either 12 or 24 hour mode.
- *
- * \param mode  Hour mode.
- */
+void rtc_set_mode(enum _rtc_mode mode)
+{
+	uint32_t mr;
+
+	mr = RTC->RTC_MR;
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	mr &= ~RTC_MR_PERSIAN;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	mr &= ~RTC_MR_UTC;
+#endif
+
+	switch (mode) {
+	case RTC_MODE_GREGORIAN:
+		// nothing here, this is the default
+		break;
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	case RTC_MODE_PERSIAN:
+		mr |= RTC_MR_PERSIAN;
+		break;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	case RTC_MODE_UTC:
+		mr |= RTC_MR_UTC;
+		break;
+#endif
+	default:
+		trace_debug("RTC: Invalid time_mode\r\n");
+	}
+
+	RTC->RTC_MR = mr;
+}
+
+enum _rtc_mode rtc_get_mode(void)
+{
+#if defined(CONFIG_HAVE_RTC_MODE_UTC) || defined(CONFIG_HAVE_RTC_MODE_PERSIAN)
+	uint32_t mr = RTC->RTC_MR;
+#endif
+
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	if (mr & RTC_MR_UTC)
+		return RTC_MODE_UTC;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	if (mr & RTC_MR_PERSIAN)
+		return RTC_MODE_PERSIAN;
+#endif
+
+	return RTC_MODE_GREGORIAN;
+}
+
 void rtc_set_hour_mode(enum _rtc_hour_mode mode)
 {
 	RTC->RTC_MR &= ~RTC_MR_HRMOD;
@@ -315,8 +361,11 @@ uint32_t rtc_set_time(struct _time *time)
 		return 1;
 	}
 	ltime |= sec_bcd | (min_bcd << 8) | (hour_bcd << 16);
+	/* Wait for a second periodic event */
+	while ((RTC->RTC_SR & RTC_SR_SEC_SECEVENT) != RTC_SR_SEC_SECEVENT);
+	/* Set UPDTIM bit in RTC_CR */
 	RTC->RTC_CR |= RTC_CR_UPDTIM;
-	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
+	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD);
 	RTC->RTC_SCCR = RTC_SCCR_ACKCLR;
 	RTC->RTC_TIMR = ltime;
 	RTC->RTC_CR &= (uint32_t) (~RTC_CR_UPDTIM);
@@ -343,6 +392,41 @@ void rtc_get_time(struct _time *time)
 	/* Second */
 	time->sec = ((ltime & 0x00000070) >> 4) * 10 + (ltime & 0x0000000F);
 }
+
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+
+void rtc_get_utc_time(uint32_t* utc_time)
+{
+	if (utc_time)
+		*utc_time = RTC->RTC_TIMR;
+}
+
+uint32_t rtc_set_utc_time(uint32_t utc_time)
+{
+	/* Wait for a second periodic event */
+	while ((RTC->RTC_SR & RTC_SR_SEC_SECEVENT) != RTC_SR_SEC_SECEVENT);
+	/* Set UPDTIM bit in RTC_CR */
+	RTC->RTC_CR |= RTC_CR_UPDTIM;
+	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD);
+	RTC->RTC_SCCR = RTC_SCCR_ACKCLR;
+	RTC->RTC_TIMR = utc_time;
+	RTC->RTC_CR &= ~RTC_CR_UPDTIM;
+	RTC->RTC_SCCR |= RTC_SCCR_SECCLR;
+	return RTC->RTC_VER & RTC_VER_NVTIM;
+}
+
+uint32_t rtc_set_utc_time_alarm(uint32_t utc_time)
+{
+	/* Disable the alarm. */
+	RTC->RTC_CALALR = 0;
+	/* Change the UTC_TIME alarm value. */
+	RTC->RTC_TIMALR = utc_time;
+	/* Enable the alarm in UTC mode. */
+	RTC->RTC_CALALR = RTC_CALALR_UTCEN;
+	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVTIMALR);
+}
+
+#endif /* CONFIG_HAVE_RTC_MODE_UTC */
 
 uint32_t rtc_set_time_alarm(struct _time *time)
 {
@@ -402,9 +486,11 @@ uint32_t rtc_set_date(struct _date *date)
 	}
 	/* Convert values to date register value */
 	ldate = cent_bcd | (year_bcd << 8) | (month_bcd << 16) | (week_bcd << 21) | (day_bcd << 24);
+	/* Wait for a second periodic event */
+	while ((RTC->RTC_SR & RTC_SR_SEC_SECEVENT) != RTC_SR_SEC_SECEVENT);
 	/* Update calendar register  */
 	RTC->RTC_CR |= RTC_CR_UPDCAL;
-	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD) ;
+	while ((RTC->RTC_SR & RTC_SR_ACKUPD) != RTC_SR_ACKUPD);
 	RTC->RTC_SCCR = RTC_SCCR_ACKCLR;
 	RTC->RTC_CALR = ldate;
 	RTC->RTC_CR &= (uint32_t) (~RTC_CR_UPDCAL);
