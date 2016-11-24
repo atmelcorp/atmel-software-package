@@ -133,14 +133,16 @@
 
 /** Main menu is being displayed. */
 #define STATE_MENU              0
+/** RTC mode is being edited. */
+#define STATE_SET_MODE          1
 /** Time is being edited. */
-#define STATE_SET_TIME          1
+#define STATE_SET_TIME          2
 /** Date is being edited. */
-#define STATE_SET_DATE          2
+#define STATE_SET_DATE          3
 /** Time alarm is being edited. */
-#define STATE_SET_TIME_ALARM    3
+#define STATE_SET_TIME_ALARM    4
 /** Date alarm is being edited. */
-#define STATE_SET_DATE_ALARM    4
+#define STATE_SET_DATE_ALARM    5
 
 /** Macro for check digit character */
 #define is_digit(c) ((c) >= '0' && (c) <='9')
@@ -252,6 +254,23 @@ static bool get_new_time(struct _time* time)
 	return true;
 }
 
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+static bool get_new_utc_time(uint32_t* time)
+{
+	static const char mask[] = "00000000";
+	char input[sizeof(mask) + 1];
+
+	/* clear result variable */
+	*time = 0xffffffff;
+
+	if (!input_text_with_mask(input, mask))
+		return false;
+
+	*time = atoi(input);
+	return true;
+}
+#endif
+
 /**
  * \brief Calculate week from year, month,day.
  */
@@ -320,47 +339,123 @@ static bool get_new_alarm_date(struct _date* date)
 
 static void set_new_time(void)
 {
-	struct _time new_time;
-	printf("\r\n\r\n Set time (HH:MM:SS): ");
-	if (get_new_time(&new_time))
-		if (rtc_set_time(&new_time))
-			printf("\r\n Time not set, invalid input!\n\r");
+	enum _rtc_mode mode = rtc_get_mode();
+
+	switch (mode) {
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	case RTC_MODE_UTC:
+		{
+			uint32_t new_utc_time;
+			printf("\r\n\r\n Set utc format decimal time: ");
+			if (get_new_utc_time(&new_utc_time))
+				if (rtc_set_utc_time (new_utc_time))
+					printf("\r\n UTC Time not set, invalid input!\n\r");
+		}
+		break;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	case RTC_MODE_PERSIAN:
+#endif
+	case RTC_MODE_GREGORIAN:
+		{
+			struct _time new_time;
+			printf("\r\n\r\n Set time (HH:MM:SS): ");
+			if (get_new_time(&new_time))
+				if (rtc_set_time(&new_time))
+					printf("\r\n Time not set, invalid input!\n\r");
+		}
+		break;
+	}
 }
 
 static void set_new_time_alarm(void)
 {
-	struct _time new_time;
-	printf("\r\n\r\n Set time alarm (HH:MM:SS): ");
-	if (get_new_time(&new_time)) {
-		if (rtc_set_time_alarm(&new_time))
-			printf("\r\n Time alarm not set, invalid input!\r\n");
-		else
-			printf("\r\n Time alarm is set at %02d:%02d:%02d!",
-					new_time.hour, new_time.min, new_time.sec);
+	enum _rtc_mode mode = rtc_get_mode();
+
+	switch (mode) {
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	case RTC_MODE_UTC:
+		{
+			uint32_t new_utc_alarm_time;
+			printf("\r\n\r\n Set utc format decimal alarm time: ");
+			if (get_new_utc_time(&new_utc_alarm_time))
+				if (rtc_set_utc_time_alarm(new_utc_alarm_time))
+					printf("\r\n UTC Alarm Time not set, invalid input!\n\r");
+		}
+		break;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	case RTC_MODE_PERSIAN:
+#endif
+	case RTC_MODE_GREGORIAN:
+		{
+			struct _time new_time;
+			printf("\r\n\r\n Set time alarm (HH:MM:SS): ");
+			if (get_new_time(&new_time)) {
+				if (rtc_set_time_alarm(&new_time))
+					printf("\r\n Time alarm not set, invalid input!\r\n");
+				else
+					printf("\r\n Time alarm is set at %02d:%02d:%02d!",
+							new_time.hour, new_time.min, new_time.sec);
+			}
+		}
+		break;
 	}
 }
 
 static void set_new_date(void)
 {
-	struct _date new_date;
-	printf("\r\n\r\n Set date (MM/DD/YYYY): ");
-	if (get_new_date(&new_date))
-		if (rtc_set_date(&new_date))
-			printf("\r\n Date not set, invalid input!\r\n");
+	enum _rtc_mode mode = rtc_get_mode();
+
+	switch (mode) {
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	case RTC_MODE_UTC:
+		// nothing
+		break;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	case RTC_MODE_PERSIAN:
+#endif
+	case RTC_MODE_GREGORIAN:
+		{
+			struct _date new_date;
+			printf("\r\n\r\n Set date (MM/DD/YYYY): ");
+			if (get_new_date(&new_date))
+				if (rtc_set_date(&new_date))
+					printf("\r\n Date not set, invalid input!\r\n");
+		}
+		break;
+	}
 }
 
 static void set_new_date_alarm(void)
 {
-	struct _date new_date;
-	printf("\r\n\r\n Set date alarm (mm/dd): ");
-	if (get_new_alarm_date(&new_date)) {
-		if (rtc_set_date_alarm(&new_date))
-			printf("\r\n Date alarm not set, invalid input!\r\n");
-		else
-			printf("\r\n Date alarm is set on %02d/%02d!",
-				new_date.month, new_date.day);
+	enum _rtc_mode mode = rtc_get_mode();
+
+	switch (mode) {
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	case RTC_MODE_UTC:
+		// nothing
+		break;
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+	case RTC_MODE_PERSIAN:
+#endif
+	case RTC_MODE_GREGORIAN:
+		{
+			struct _date new_date;
+			printf("\r\n\r\n Set date alarm (mm/dd): ");
+			if (get_new_alarm_date(&new_date)) {
+				if (rtc_set_date_alarm(&new_date))
+					printf("\r\n Date alarm not set, invalid input!\r\n");
+				else
+					printf("\r\n Date alarm is set on %02d/%02d!",
+						new_date.month, new_date.day);
+			}
+			alarm_triggered = false;
+		}
+		break;
 	}
-	alarm_triggered = false;
 }
 
 /**
@@ -370,14 +465,30 @@ static void _refresh_display(void)
 {
 	struct _time current_time;
 	struct _date current_date;
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+	enum _rtc_mode mode = rtc_get_mode();
+#endif
 
 	/* not in menu display mode, in set mode */
 	if (state == STATE_MENU) {
 		/* display */
 		if (!menu_shown) {
 			printf("\r\nMenu:\r\n");
-			printf("  d - Set date\r\n");
-			printf("  m - Set date alarm\r\n");
+#if defined(CONFIG_HAVE_RTC_MODE_PERSIAN) || defined(CONFIG_HAVE_RTC_MODE_UTC)
+			printf("  g - Set time mode to Gregorian calendar.\r\n");
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+			printf("  b - Set time mode to Persian calendar.\r\n");
+#endif
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+			printf("  u - Set time mode to UTC.\r\n");
+			if (mode != RTC_MODE_UTC) {
+#endif
+				printf("  d - Set date\r\n");
+				printf("  m - Set date alarm\r\n");
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+			}
+#endif
 			printf("  t - Set time\r\n");
 			printf("  i - Set time alarm\r\n");
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
@@ -390,13 +501,24 @@ static void _refresh_display(void)
 		}
 
 		/* update current date and time */
-		rtc_get_time(&current_time);
-		rtc_get_date(&current_date);
-		printf("\r[Date/Time: %s %02d/%02d/%04d %02d:%02d:%02d]%s",
-				day_names[current_date.week - 1],
-				current_date.month, current_date.day, current_date.year,
-				current_time.hour, current_time.min, current_time.sec,
-				alarm_triggered ? "[Alarm Triggered]" : "");
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+		if (mode == RTC_MODE_UTC) {
+			uint32_t utc_time;
+			rtc_get_utc_time(&utc_time);
+			printf("\r[UTC Time: %u seconds elapsed]%s",
+					(unsigned)utc_time,
+					alarm_triggered ? "[Alarm Triggered]" : "");
+		} else
+#endif
+		{
+			rtc_get_time(&current_time);
+			rtc_get_date(&current_date);
+			printf("\r[Date/Time: %s %02d/%02d/%04d %02d:%02d:%02d]%s",
+					day_names[current_date.week - 1],
+					current_date.month, current_date.day, current_date.year,
+					current_time.hour, current_time.min, current_time.sec,
+					alarm_triggered ? "[Alarm Triggered]" : "");
+		}
 	}
 }
 
@@ -508,6 +630,7 @@ int main(void)
 	temperature = 25;
 
 	/* Default RTC configuration */
+	rtc_set_mode(RTC_MODE_GREGORIAN); /* set Gregorian mode */
 	rtc_set_hour_mode(RTC_HOUR_MODE_24); /* 24-hour mode */
 	struct _time empty_time = { 0, 0, 0 };
 	if (rtc_set_time_alarm(&empty_time))
@@ -539,6 +662,30 @@ int main(void)
 		disable_calibration_tc();
 
 		switch (key) {
+#if defined(CONFIG_HAVE_RTC_MODE_PERSIAN) || defined(CONFIG_HAVE_RTC_MODE_UTC)
+		case 'g':
+		case 'G':
+			state = STATE_SET_MODE;
+			rtc_set_mode(RTC_MODE_GREGORIAN);
+			printf("\r\n\r\n Set time mode (Gregorian calendar)");
+			break;
+#endif /* CONFIG_HAVE_RTC_MODE_PERSIAN || CONFIG_HAVE_RTC_MODE_UTC */
+#ifdef CONFIG_HAVE_RTC_MODE_PERSIAN
+		case 'b':
+		case 'B':
+			state = STATE_SET_MODE;
+			rtc_set_mode(RTC_MODE_PERSIAN);
+			printf("\r\n\r\n Set time mode (Persian calendar)");
+			break;
+#endif /* CONFIG_HAVE_RTC_MODE_PERSIAN */
+#ifdef CONFIG_HAVE_RTC_MODE_UTC
+		case 'u':
+		case 'U':
+			state = STATE_SET_MODE;
+			rtc_set_mode(RTC_MODE_UTC);
+			printf("\r\n\r\n Set time mode(UTC format)");
+			break;
+#endif /* CONFIG_HAVE_RTC_MODE_UTC */
 		/* set time */
 		case 't':
 		case 'T':
