@@ -107,11 +107,8 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "timer.h"
 
 #include "gpio/pio.h"
-
-#include "irq/irq.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
@@ -121,6 +118,7 @@
 
 #include "video/image_sensor_inf.h"
 #include "video/isc.h"
+#include "video/iscd.h"
 
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
@@ -132,7 +130,6 @@
 
 #include "../usb_common/main_usb_common.h"
 
-#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -153,11 +150,6 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** Descriptor view 0 is used when the pixel or data stream is packed */
-CACHE_ALIGNED static struct _isc_dma_view0 isc_dma_desc[NUM_FRAME_BUFFER];
-
-static volatile bool capture_started = false;
-
 /* Image output bit width */
 static uint8_t sensor_output_bit_width;
 
@@ -169,10 +161,10 @@ static uint32_t image_width, image_height;
 
 static uint8_t frame_format;
 
-static volatile uint32_t frame_idx = 0;
-
 /** Sensor profile */
 static struct sensor_profile *sensor;
+
+static struct _iscd_desc iscd;
 
 /** Video buffers */
 CACHE_ALIGNED_DDR
@@ -182,41 +174,9 @@ static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Set up DMA Descriptors.
- */
-static void configure_dma_linklist(void)
+static void isc_vd_callback(uint8_t frame_idx)
 {
-	uint8_t i;
-
-	for(i = 0; i < NUM_FRAME_BUFFER; i++) {
-		isc_dma_desc[i].ctrl = ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE;
-		isc_dma_desc[i].next_desc = (uint32_t)&isc_dma_desc[i + 1];
-		isc_dma_desc[i].addr = (uint32_t)stream_buffers + i * FRAME_BUFFER_SIZEC(image_width, image_height);
-		isc_dma_desc[i].stride = 0;
-	}
-	isc_dma_desc[i - 1].next_desc = (uint32_t)&isc_dma_desc[0];
-	cache_clean_region(&isc_dma_desc, sizeof(isc_dma_desc));
-}
-
-/**
- * \brief ISC interrupt handler.
- */
-static void isc_handler(uint32_t source, void* user_arg)
-{
-	uint32_t status = isc_interrupt_status();
-
-	assert(source == ID_ISC);
-
-	if ((status & ISC_INTSR_VD) == ISC_INTSR_VD) {
-		if (!capture_started) {
-			isc_start_capture();
-			capture_started = true;
-			printf("CapS\r\n");
-		}
-		frame_idx = (frame_idx == (NUM_FRAME_BUFFER - 1)) ? 0 : (frame_idx + 1);
-		uvc_function_update_frame_idx(frame_idx);
-	}
+	uvc_function_update_frame_idx(frame_idx);
 }
 
 /**
@@ -224,43 +184,23 @@ static void isc_handler(uint32_t source, void* user_arg)
  */
 static void configure_isc(void)
 {
-	/* Configurer the Parallel Front End module performs data
-	 * re-sampling across clock domain boundary. ISC_PFE_CFG0.BPS
-	 * shows the number of bits per sample depends on the bit
-	 * width of sensor output. The PFE module outputs a 12-bit
-	 * data on the vp_data[11:0] bus */
-	irq_disable(ID_ISC);
-	isc_software_reset();
-	isc_pfe_set_video_mode(ISC_PFE_CFG0_MODE_PROGRESSIVE);
-	isc_pfe_set_bps(ISC_PFE_CFG0_BPS(sensor_output_bit_width));
-	isc_pfe_set_sync_polarity(0, ISC_PFE_CFG0_VPOL);
+	iscd.cfg.input_bits = sensor_output_bit_width;
+	/* For sensor 8-bit output, it is recommand to perform
+		12 bits to 10 bits compression is performed skipping two bits.*/
+	iscd.pipe.gamma.gamma_enable = false;
+	iscd.pipe.cs = NULL;
+	iscd.pipe.color_correction = NULL;
+	iscd.cfg.input_format = YUV_422;
+	iscd.pipe.histo_enable = false;
+	iscd.pipe.histo_buf = NULL;
 
-	/* Set Continuous Acquisition mode */
-	isc_pfe_set_continuous_shot();
-	isc_cfa_enabled(0);
-	isc_wb_enabled(0);
-	isc_gamma_enabled(0, 0);
-	isc_csc_enabled(0);
-	isc_sub422_enabled(0);
-	isc_sub420_configure(0,0);
-	isc_update_profile();
-
-	/* Configure DAT8 output format before the DMA master module */
-	isc_rlp_configure(ISC_RLP_CFG_MODE_DAT8, 0);
-
-	/* Set DAM for 8-bit packaged stream with descriptor view 0 used
-	   for the data stream is packed*/
-	isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
-	isc_dma_configure_desc_entry((uint32_t)&isc_dma_desc);
-	isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
-	isc_dma_address(0, (uint32_t)stream_buffers, 0);
-
-	isc_update_profile();
-	irq_add_handler(ID_ISC, isc_handler, NULL);
-	isc_interrupt_status();
-	isc_enable_interrupt(ISC_INTEN_VD);
-	capture_started = false;
-	irq_enable(ID_ISC);
+	iscd.cfg.multi_bufs = NUM_FRAME_BUFFER;
+	iscd.pipe.rlp_mode = ISCD_RLP_MODE_DAT8;
+	iscd.cfg.layout = ISCD_LAYOUT_PACKED8;
+	iscd.dma.address0 = (uint32_t)stream_buffers;
+	iscd.dma.size = FRAME_BUFFER_SIZEC(image_width, image_height);
+	iscd.dma.callback = isc_vd_callback;
+	iscd_pipe_start(&iscd);
 }
 
 static void start_preview(void)
@@ -281,7 +221,6 @@ static void start_preview(void)
 			(unsigned)image_width, (unsigned)image_height);
 
 	/* Configure ISC */
-	configure_dma_linklist();
 	configure_isc();
 }
 
@@ -328,7 +267,7 @@ extern int main( void )
 			while (1);
 		}
 	} else {
-		printf("-E- Can't detect sensor connected to board");
+		printf("-E- Can't detect sensor connected to board\r\n");
 		while (1);
 	}
 
@@ -351,10 +290,8 @@ extern int main( void )
 				is_usb_vid_on = false;
 				isc_stop_capture();
 				isc_disable_interrupt(-1);
-				capture_started = false;
 				printf("CapE\r\n");
 				printf("vidE\r\n");
-				frame_idx = 0;
 			}
 		} else {
 			if (uvc_function_is_video_on()) {
