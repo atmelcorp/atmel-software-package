@@ -39,6 +39,7 @@ BUILDDIR ?= ./build
 
 include $(TOP)/samba_applets/common/Makefile.inc
 include $(TOP)/scripts/Makefile.config
+include $(TOP)/arch/Makefile.inc
 include $(TOP)/utils/Makefile.inc
 include $(TOP)/target/Makefile.inc
 include $(TOP)/drivers/Makefile.inc

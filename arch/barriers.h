@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,53 +27,13 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "chip.h"
-#include "mutex.h"
+#ifndef BARRIERS_H_
+#define BARRIERS_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#define MUTEX_LOCKED   1
-#define MUTEX_UNLOCKED 0
-
-void mutex_lock(mutex_t* mutex)
-{
-	while (!mutex_try_lock(mutex)) {}
-}
-
-#if defined(CONFIG_CORE_CORTEXA5)
-
-bool mutex_try_lock(mutex_t* mutex)
-{
-	uint32_t value;
-	asm("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
-	if (value != MUTEX_UNLOCKED)
-		return false;
-	asm("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
-	if (value == 1) /* strex failed */
-		return false;
-	dmb();
-	return true;
-}
-
-#elif defined(CONFIG_CORE_ARM926)
-
-bool mutex_try_lock(mutex_t* mutex)
-{
-	uint32_t value;
-	asm("swp %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
-	return value == MUTEX_UNLOCKED;
-}
-
+#if defined(CONFIG_ARCH_ARM)
+#include "arm/barriers.h"
+#else
+#error Unsupported architecture!
 #endif
 
-void mutex_unlock(mutex_t* mutex)
-{
-	dmb();
-	*mutex = MUTEX_UNLOCKED;
-}
-
-bool mutex_is_locked(const mutex_t* mutex)
-{
-	return *mutex != MUTEX_UNLOCKED;
-}
+#endif /* BARRIERS_H_ */

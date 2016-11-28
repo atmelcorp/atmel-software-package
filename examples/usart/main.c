@@ -31,6 +31,7 @@
 
 #include "board.h"
 #include "chip.h"
+#include "cpuidle.h"
 
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
@@ -298,7 +299,7 @@ int main (void)
 	print_menu();
 
 	while (1) {
-		irq_wait();
+		cpu_idle();
 		if (cmd_index > 0) {
 			_cmd_parser(cmd_buffer, cmd_index);
 			cmd_index = 0;

@@ -27,31 +27,13 @@
  * ----------------------------------------------------------------------------
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
+#ifndef CPUIDLE_H_
+#define CPUIDLE_H_
 
-#include "chip.h"
-#include "compiler.h"
+#if defined(CONFIG_ARCH_ARM)
+#include "arm/cpuidle.h"
+#else
+#error Unsupported architecture!
+#endif
 
-#include "arm_cpsr.h"
-
-/*----------------------------------------------------------------------------
- *        Global functions
- *----------------------------------------------------------------------------*/
-
-void cpsr_clear_bits(uint32_t mask)
-{
-	uint32_t cpsr;
-	asm("mrs %0, cpsr" : "=r"(cpsr));
-	cpsr &= ~mask;
-	asm("msr cpsr_c, %0" :: "r"(cpsr));
-}
-
-void cpsr_set_bits(uint32_t mask)
-{
-	uint32_t cpsr;
-	asm("mrs %0, cpsr" : "=r"(cpsr));
-	cpsr |= mask;
-	asm("msr cpsr_c, %0" :: "r"(cpsr));
-}
+#endif /* CPUIDLE_H_ */

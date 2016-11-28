@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "trace.h"
+#include "irqflags.h"
 
 #include "irq/aic.h"
 #include "irq/irq.h"
@@ -98,7 +99,7 @@ static Aic* _get_aic_instance(uint32_t source)
 void aic_initialize(aic_handler_t irq_handler)
 {
 	/* Disable interrupts at core level */
-	irq_disable_all();
+	arch_irq_disable();
 
 	/* Set default vectors */
 	_aic_initialize(AIC, irq_handler);
@@ -111,7 +112,7 @@ void aic_initialize(aic_handler_t irq_handler)
 #endif /* CONFIG_HAVE_SAIC */
 
 	/* Enable interrupts at core level */
-	irq_enable_all();
+	arch_irq_enable();
 }
 
 void aic_set_source_vector(uint32_t source, aic_handler_t handler)

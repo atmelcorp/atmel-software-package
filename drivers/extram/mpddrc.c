@@ -28,7 +28,7 @@
  */
 
 #include "chip.h"
-#include "compiler.h"
+#include "barriers.h"
 #include "timer.h"
 #include "trace.h"
 

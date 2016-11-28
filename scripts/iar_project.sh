@@ -307,6 +307,7 @@ generate-ewp() {
 
     tpl-set-deps      "$tpl" "target"        "$target_y"
     tpl-set-deps      "$tpl" "utils"         "$utils_y"
+    tpl-set-deps      "$tpl" "arch"          "$arch_y"
     tpl-set-deps      "$tpl" "drivers"       "$drivers_y"
     tpl-set-deps      "$tpl" "lwip"          "$lwip_y"
     tpl-set-deps      "$tpl" "uip"           "$uip_y"

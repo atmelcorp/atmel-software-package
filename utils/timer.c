@@ -37,6 +37,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "cpuidle.h"
 #include "timer.h"
 #include "irq/irq.h"
 #include "peripherals/tc.h"
@@ -137,7 +138,7 @@ void timer_sleep(uint64_t count)
 
 	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
 #ifndef CONFIG_TIMER_POLLING
-		irq_wait();
+		cpu_idle();
 #endif
 	}
 
@@ -151,7 +152,7 @@ void timer_usleep(uint64_t count)
 
 	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
 #ifndef CONFIG_TIMER_POLLING
-		irq_wait();
+		cpu_idle();
 #endif
 	}
 

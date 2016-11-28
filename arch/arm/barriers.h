@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,17 +27,47 @@
  * ----------------------------------------------------------------------------
  */
 
+#ifndef ARM_BARRIERS_H_
+#define ARM_BARRIERS_H_
 
-#ifndef ARM_CPSR_H_
-#define ARM_CPSR_H_
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
 
-#include <stdint.h>
+#if defined(CONFIG_ARCH_ARMV5TE)
 
-#define CPSR_MASK_IRQ 0x00000080
-#define CPSR_MASK_FIQ 0x00000040
+static inline void dmb(void)
+{
+	asm("" ::: "memory");
+}
 
-extern void cpsr_clear_bits(uint32_t mask);
+static inline void dsb(void)
+{
+	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
+}
 
-extern void cpsr_set_bits(uint32_t mask);
+static inline void isb(void)
+{
+	asm("" ::: "memory");
+}
 
-#endif /* ARM_CPSR_H_ */
+#elif defined(CONFIG_ARCH_ARMV7A) || defined(CONFIG_ARCH_ARMV7M)
+
+static inline void dmb(void)
+{
+	asm("dmb" ::: "memory");
+}
+
+static inline void dsb(void)
+{
+	asm("dsb" ::: "memory");
+}
+
+static inline void isb(void)
+{
+	asm("isb" ::: "memory");
+}
+
+#endif
+
+#endif /* ARM_BARRIERS_H_ */

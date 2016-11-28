@@ -43,6 +43,7 @@
  *      Headers
  *---------------------------------------------------------------------------*/
 
+#include "barriers.h"
 #include "chip.h"
 #include "trace.h"
 

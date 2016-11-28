@@ -7,7 +7,7 @@ ifneq ($(strip $(foreach board,$(SAM9XX5_TARGETS),$(if $(call eq,$(TARGET),$(boa
 
 COMPATIBLE_VARIANTS = sram ddram
 
-CONFIG_CORE_ARM926 = y
+CONFIG_ARCH_ARMV5TE = y
 CONFIG_SOC_SAM9XX5 = y
 CONFIG_HAVE_ADC_LOW_RES = y
 CONFIG_HAVE_AIC2 = y

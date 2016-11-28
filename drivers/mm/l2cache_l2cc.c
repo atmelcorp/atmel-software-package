@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "barriers.h"
 
 #include "mm/l2cache.h"
 #include "mm/l2cache_l2cc.h"

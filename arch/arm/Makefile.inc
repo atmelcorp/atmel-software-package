@@ -26,8 +26,16 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/core/arm_interrupts.o
-drivers-y += drivers/core/arm_cp15.o
-drivers-y += drivers/core/arm_cp15_pmu.o
-drivers-y += drivers/core/arm_cpsr.o
-drivers-y += drivers/core/arm_mmu.o
+ifeq ($(CONFIG_ARCH_ARM),y)
+
+arch-y += arch/arm/mutex.o
+
+arch-$(CONFIG_ARCH_ARMV5TE) += arch/arm/fault_handlers.o
+arch-$(CONFIG_ARCH_ARMV5TE) += arch/arm/l1cache_cp15.o
+arch-$(CONFIG_ARCH_ARMV5TE) += arch/arm/mmu_cp15.o
+
+arch-$(CONFIG_ARCH_ARMV7A) += arch/arm/fault_handlers.o
+arch-$(CONFIG_ARCH_ARMV7A) += arch/arm/l1cache_cp15.o
+arch-$(CONFIG_ARCH_ARMV7A) += arch/arm/mmu_cp15.o
+
+endif

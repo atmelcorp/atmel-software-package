@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,37 +27,41 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
-#include "irqflags.h"
+#ifndef MMU_H_
+#define MMU_H_
 
-#include "irq/irq.h"
+#ifdef CONFIG_HAVE_MMU
 
-#include "serial/console.h"
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#include <string.h>
+#include <stdbool.h>
 
-/* override default board init */
-void board_init()
-{
-	board_cfg_lowlevel(true, true, false);
-	board_cfg_console(0);
-}
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
-int main(void)
-{
-	int i;
+/**
+ * \brief Configure the MMU
+ */
+extern void mmu_configure(void *tlb);
 
-	console_example_info("DDRAM Bootstrap");
+/**
+ * \brief Check is MMU is enabled.
+ */
+extern bool mmu_is_enabled(void);
 
-	/* Disable interrupts at interrupt controller level */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-		irq_disable(i);
+/**
+ * \brief Enable MMU.
+ */
+extern void mmu_enable(void);
 
-	/* Disable interrupts at core level */
-	arch_irq_disable();
+/**
+ * \brief Disable MMU.
+ */
+extern void mmu_disable(void);
 
-	asm("BKPT");
+#endif /* CONFIG_HAVE_MMU */
 
-	/* never reached */
-	return 0;
-}
+#endif  /* MMU_H_ */

@@ -26,23 +26,17 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/utils
+CFLAGS_INC += -I$(TOP)/arch
 
-lib-y += utils/utils.a
+lib-y += arch/arch.a
 
-utils-y += utils/callback.o
-utils-$(CONFIG_HAVE_NAND_FLASH) += utils/hamming.o
-utils-y += utils/rand.o
-utils-y += utils/trace.o
-utils-y += utils/syscalls.o
-utils-y += utils/timer.o
-utils-$(CONFIG_HAVE_AUDIO) += utils/wav.o
+include $(TOP)/arch/arm/Makefile.inc
 
-UTILS_OBJS := $(addprefix $(BUILDDIR)/,$(utils-y))
+ARCH_OBJS := $(addprefix $(BUILDDIR)/,$(arch-y))
 
--include $(UTILS_OBJS:.o=.d)
+-include $(ARCH_OBJS:.o=.d)
 
-$(BUILDDIR)/utils/utils.a: $(UTILS_OBJS)
+$(BUILDDIR)/arch/arch.a: $(ARCH_OBJS)
 	@mkdir -p $(dir $@)
 	$(ECHO) AR $@
 	$(Q)$(AR) -cr $@ $^

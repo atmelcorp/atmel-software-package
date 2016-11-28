@@ -27,20 +27,11 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Provides the handlers for ARM core interrupts.
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "compiler.h"
-
-#include "arm_interrupts.h"
+#include "arm/fault_handlers.h"
 
 #include <stdio.h>
 
@@ -106,7 +97,7 @@ static const char* _data_abort_status[32] = {
 /**
  * \brief Default handler for "Undefined Instruction" exception
  */
-WEAK void undefined_instruction_irq_handler(void)
+void undefined_instruction_irq_handler(void)
 {
 #ifdef CONFIG_HAVE_FAULT_DEBUG
 	printf("\r\n");
@@ -125,7 +116,7 @@ WEAK void undefined_instruction_irq_handler(void)
 /**
  * \brief Default handler for "Software Interrupt" exception
  */
-WEAK void software_interrupt_irq_handler(void)
+void software_interrupt_irq_handler(void)
 {
 #ifdef CONFIG_HAVE_FAULT_DEBUG
 	printf("\r\n");
@@ -143,7 +134,7 @@ WEAK void software_interrupt_irq_handler(void)
 /**
  * \brief Default handler for "Data Abort" exception
  */
-WEAK void data_abort_irq_handler(void)
+void data_abort_irq_handler(void)
 {
 #ifdef CONFIG_HAVE_FAULT_DEBUG
 	uint32_t v1, v2, dfsr;
@@ -174,7 +165,7 @@ WEAK void data_abort_irq_handler(void)
 /**
  * \brief Default handler for "Prefetch Abort" exception
  */
-WEAK void prefetch_abort_irq_handler(void)
+void prefetch_abort_irq_handler(void)
 {
 #ifdef CONFIG_HAVE_FAULT_DEBUG
 	uint32_t v1, v2, ifsr;

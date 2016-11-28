@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,37 +27,59 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
-#include "irqflags.h"
+#ifndef ARM_IRQFLAGS_H_
+#define ARM_IRQFLAGS_H_
 
-#include "irq/irq.h"
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#include "serial/console.h"
+#include <stdint.h>
 
-#include <string.h>
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
 
-/* override default board init */
-void board_init()
+#if defined(CONFIG_ARCH_ARMV5TE)
+
+static inline void arch_irq_enable(void)
 {
-	board_cfg_lowlevel(true, true, false);
-	board_cfg_console(0);
+	uint32_t cpsr;
+	asm("mrs %0, cpsr" : "=r"(cpsr));
+	asm("msr cpsr_c, %0" :: "r"(cpsr & ~0x80));
 }
 
-int main(void)
+static inline void arch_irq_disable(void)
 {
-	int i;
-
-	console_example_info("DDRAM Bootstrap");
-
-	/* Disable interrupts at interrupt controller level */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-		irq_disable(i);
-
-	/* Disable interrupts at core level */
-	arch_irq_disable();
-
-	asm("BKPT");
-
-	/* never reached */
-	return 0;
+	uint32_t cpsr;
+	asm("mrs %0, cpsr" : "=r"(cpsr));
+	asm("msr cpsr_c, %0" :: "r"(cpsr | 0x80));
 }
+
+#elif defined(CONFIG_ARCH_ARMV7A)
+
+static inline void arch_irq_enable(void)
+{
+	asm("cpsie if");
+}
+
+static inline void arch_irq_disable(void)
+{
+	asm("cpsid if");
+}
+
+#elif defined(CONFIG_ARCH_ARMV7M)
+
+static inline void arch_irq_enable(void)
+{
+	asm("cpsie i");
+}
+
+static inline void arch_irq_disable(void)
+{
+	asm("cpsid i");
+}
+
+#endif
+
+#endif /* ARM_IRQFLAGS_H_ */

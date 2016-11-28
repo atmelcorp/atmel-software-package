@@ -52,6 +52,7 @@
 
 #include "extram/ddram.h"
 
+#include "arm/mmu_cp15.h"
 #include "mm/l1cache.h"
 #include "mm/l2cache_l2cc.h"
 #include "serial/console.h"
@@ -282,7 +283,7 @@ void board_cfg_mmu(void)
 {
 	uint32_t addr;
 
-	if (cp15_mmu_is_enabled())
+	if (mmu_is_enabled())
 		return;
 
 	/* TODO: some peripherals are configured TTB_SECT_STRONGLY_ORDERED
@@ -484,7 +485,7 @@ void board_cfg_mmu(void)
 	/* Enable MMU, I-Cache and D-Cache */
 	mmu_configure(tlb);
 	icache_enable();
-	cp15_mmu_enable();
+	mmu_enable();
 	dcache_enable();
 }
 

@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "trace.h"
+#include "irqflags.h"
 
 #include "irq/aic.h"
 #include "peripherals/matrix.h"
@@ -58,7 +59,7 @@ void aic_initialize(aic_handler_t irq_handler)
 	int i;
 
 	/* Disable interrupts at core level */
-	irq_disable_all();
+	arch_irq_disable();
 
 	/* Disable all interrupts and clear pending flags */
 	AIC->AIC_IDCR = 0xffffffffu;
@@ -75,7 +76,7 @@ void aic_initialize(aic_handler_t irq_handler)
 	AIC->AIC_SPU = (uint32_t)spurious_handler;
 
 	/* Enable interrupts at core level */
-	irq_enable_all();
+	arch_irq_enable();
 }
 
 void aic_set_source_vector(uint32_t source, aic_handler_t handler)

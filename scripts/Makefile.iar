@@ -48,6 +48,7 @@ iar-env:
 	$(Q)echo iar_flashloader_script_y=\"$(iar-flashloader-script-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo target_y=\"$(target-y) $(iar-cstartup-y)\"   >> .env-$(VARIANT).sh
 	$(Q)echo utils_y=\"$(utils-y)\"                       >> .env-$(VARIANT).sh
+	$(Q)echo arch_y=\"$(arch-y)\"                         >> .env-$(VARIANT).sh
 	$(Q)echo drivers_y=\"$(drivers-y)\"                   >> .env-$(VARIANT).sh
 	$(Q)echo lwip_y=\"$(lwip-y)\"                         >> .env-$(VARIANT).sh
 	$(Q)echo uip_y=\"$(uip-y)\"                           >> .env-$(VARIANT).sh

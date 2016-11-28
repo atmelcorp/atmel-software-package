@@ -27,8 +27,17 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef ARM_MMU_H_
-#define ARM_MMU_H_
+#ifndef MMU_CP15_H_
+#define MMU_CP15_H_
+
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "mm/mmu.h"
 
 /*----------------------------------------------------------------------------
  *        Exported definitions
@@ -53,7 +62,7 @@
 /* TTB Section Descriptor: Domain */
 #define TTB_SECT_DOMAIN(x)         (((x) & 15) << 5)
 
-#if defined(CONFIG_CORE_ARM926)
+#if defined(CONFIG_ARCH_ARMV5TE)
 
 /* TTB Section Descriptor: Should-Be-One (SBO) */
 #define TTB_SECT_SBO               (1 << 4)
@@ -63,7 +72,7 @@
 #define TTB_SECT_AP_NO_USER_WRITE  (2 << 10)
 #define TTB_SECT_AP_FULL_ACCESS    (3 << 10)
 
-#elif defined(CONFIG_CORE_CORTEXA5)
+#elif defined(CONFIG_ARCH_ARMV7A)
 
 /* TTB Section Descriptor: Execute/Execute-Never (XN) */
 #define TTB_SECT_EXEC              (0 << 4)
@@ -76,18 +85,9 @@
 #define TTB_SECT_AP_PRIV_READ_ONLY ((1 << 15) | (1 << 10))
 #define TTB_SECT_AP_READ_ONLY      ((1 << 15) | (2 << 10))
 
-#endif /* defined(CONFIG_CORE_CORTEXA5) */
+#endif /* CONFIG_ARCH_* */
 
 /* TTB Section Descriptor: Section Base Address */
 #define TTB_SECT_ADDR(x)           ((x) & 0xFFF00000)
 
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
-
-/**
- * \brief Configure the MMU
- */
-extern void mmu_configure(uint32_t *tlb);
-
-#endif  /* ARM_MMU_H_ */
+#endif  /* MMU_CP15_H_ */

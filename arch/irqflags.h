@@ -27,95 +27,13 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * ARM core utility functions
- *
- */
+#ifndef IRQFLAGS_H_
+#define IRQFLAGS_H_
 
-#ifndef ARM_H
-#define ARM_H
-
-#include "compiler.h"
-#include "arm_cp15.h"
-#include "arm_cpsr.h"
-#include "arm_mmu.h"
-
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
-
-#if defined(CONFIG_CORE_ARM926)
-
-static inline void irq_enable_all(void)
-{
-	cpsr_clear_bits(CPSR_MASK_IRQ);
-}
-
-static inline void irq_disable_all(void)
-{
-	cpsr_set_bits(CPSR_MASK_IRQ);
-}
-
-static inline void irq_wait(void)
-{
-	/* drain write buffer */
-	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
-	/* wait for interrupt */
-	asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
-}
-
-static inline void dmb(void)
-{
-	asm("" ::: "memory");
-}
-
-static inline void dsb(void)
-{
-	/* drain write buffer */
-	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
-}
-
-static inline void isb(void)
-{
-	asm("" ::: "memory");
-}
-
-#elif defined(CONFIG_CORE_CORTEXA5)
-
-static inline void irq_enable_all(void)
-{
-	asm("cpsie if");
-}
-
-static inline void irq_disable_all(void)
-{
-	asm("cpsid if");
-}
-
-static inline void irq_wait(void)
-{
-	asm("wfi");
-}
-
-static inline void dmb(void)
-{
-	asm("dmb" ::: "memory");
-}
-
-static inline void dsb(void)
-{
-	asm("dsb" ::: "memory");
-}
-
-static inline void isb(void)
-{
-	asm("isb" ::: "memory");
-}
-
+#if defined(CONFIG_ARCH_ARM)
+#include "arm/irqflags.h"
 #else
-#error Unknown CPU core!
-#endif /* CONFIG_CORE_xxx */
+#error Unsupported architecture!
+#endif
 
-#endif /* ARM_H */
+#endif /* IRQFLAGS_H_ */

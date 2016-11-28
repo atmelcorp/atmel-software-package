@@ -27,37 +27,57 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
-#include "irqflags.h"
+#include "barriers.h"
+#include "chip.h"
+#include "mutex.h"
+#include "cpuidle.h"
 
-#include "irq/irq.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-#include "serial/console.h"
+#define MUTEX_LOCKED   1
+#define MUTEX_UNLOCKED 0
 
-#include <string.h>
-
-/* override default board init */
-void board_init()
+void mutex_lock(mutex_t* mutex)
 {
-	board_cfg_lowlevel(true, true, false);
-	board_cfg_console(0);
+	while (!mutex_try_lock(mutex)) {
+		cpu_idle();
+	}
 }
 
-int main(void)
+#if defined(CONFIG_ARCH_ARMV7A) || defined(CONFIG_ARCH_ARMV7M)
+
+bool mutex_try_lock(mutex_t* mutex)
 {
-	int i;
+	uint32_t value;
+	asm("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
+	if (value != MUTEX_UNLOCKED)
+		return false;
+	asm("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
+	if (value == 1) /* strex failed */
+		return false;
+	dmb();
+	return true;
+}
 
-	console_example_info("DDRAM Bootstrap");
+#elif defined(CONFIG_ARCH_ARMV5TE)
 
-	/* Disable interrupts at interrupt controller level */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-		irq_disable(i);
+bool mutex_try_lock(mutex_t* mutex)
+{
+	uint32_t value;
+	asm("swp %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
+	return value == MUTEX_UNLOCKED;
+}
 
-	/* Disable interrupts at core level */
-	arch_irq_disable();
+#endif
 
-	asm("BKPT");
+void mutex_unlock(mutex_t* mutex)
+{
+	dmb();
+	*mutex = MUTEX_UNLOCKED;
+}
 
-	/* never reached */
-	return 0;
+bool mutex_is_locked(const mutex_t* mutex)
+{
+	return *mutex != MUTEX_UNLOCKED;
 }

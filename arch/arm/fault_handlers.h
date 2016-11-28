@@ -34,16 +34,16 @@
  *
  */
 
-#ifndef ARM_INTERRUPTS_H
-#define ARM_INTERRUPTS_H
+#ifndef ARM_FAULT_HANDLERS_H
+#define ARM_FAULT_HANDLERS_H
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-WEAK extern void undefined_instruction_irq_handler(void);
-WEAK extern void software_interrupt_irq_handler(void);
-WEAK extern void prefetch_abort_irq_handler(void);
-WEAK extern void data_abort_irq_handler(void);
+extern void undefined_instruction_irq_handler(void);
+extern void software_interrupt_irq_handler(void);
+extern void prefetch_abort_irq_handler(void);
+extern void data_abort_irq_handler(void);
 
-#endif /* ARM_INTERRUPTS_H */
+#endif /* ARM_FAULT_HANDLERS_H */

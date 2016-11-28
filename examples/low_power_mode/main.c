@@ -115,6 +115,7 @@
 #include "board_led.h"
 #include "board_twi.h"
 #include "chip.h"
+#include "cpuidle.h"
 #include "extram/mpddrc.h"
 #include "gpio/pio.h"
 #include "i2c/twi-bus.h"
@@ -455,7 +456,7 @@ static void menu_ulp0(void)
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 
 	/* enter IDLE mode */
-	irq_wait();
+	cpu_idle();
 
 	/* Restore default PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);
@@ -564,7 +565,7 @@ static void menu_ulp(void)
 	_start_rtc_timer_for_wakeup(30);
 
 	/* enter ULP */
-	irq_wait();
+	cpu_idle();
 
 	/* wait for the PMC_SR.MCKRDY bit to be set. */
 	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
@@ -608,7 +609,7 @@ static void menu_idle(void)
 	printf("=========== Enter Idle mode ===========\n\r");
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
-	irq_wait();
+	cpu_idle();
 
 	/* Restore default PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);

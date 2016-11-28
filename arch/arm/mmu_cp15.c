@@ -27,53 +27,63 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
-/**
- * \addtogroup mmu MMU Initialization
- *
- * \section Usage
- *
- * Translation Lookaside Buffers (TLBs) are an implementation technique that caches translations or
- * translation table entries. TLBs avoid the requirement for every memory access to perform a translation table
- * lookup. The ARM architecture does not specify the exact form of the TLB structures for any design. In a
- * similar way to the requirements for caches, the architecture only defines certain principles for TLBs:
- *
- * The MMU supports memory accesses based on memory sections or pages:
- * Supersections Consist of 16MB blocks of memory. Support for Supersections is optional.
- * -# Sections Consist of 1MB blocks of memory.
- * -# Large pages Consist of 64KB blocks of memory.
- * -# Small pages Consist of 4KB blocks of memory.
- *
- * Access to a memory region is controlled by the access permission bits and the domain field in the TLB entry.
- * Memory region attributes
- * Each TLB entry has an associated set of memory region attributes. These control accesses to the caches,
- * how the write buffer is used, and if the memory region is Shareable and therefore must be kept coherent.
- *
- * Related files:\n
- * \ref mmu.c\n
- * \ref mmu.h \n
- */
-
 /*------------------------------------------------------------------------------ */
 /*         Headers                                                               */
 /*------------------------------------------------------------------------------ */
 
 #include "compiler.h"
+#include "barriers.h"
 
-#include "arm.h"
-#include "arm_mmu.h"
+#include "arm/cp15.h"
+#include "arm/mmu_cp15.h"
+
+#include "mm/l1cache.h"
+#include "mm/mmu.h"
+
+#include <assert.h>
 
 /*------------------------------------------------------------------------------ */
 /*         Exported functions                                                    */
 /*------------------------------------------------------------------------------ */
 
-void mmu_configure(uint32_t *tlb)
+void mmu_configure(void *tlb)
 {
-	cp15_write_ttb((unsigned int)tlb);
-	/* Program the domain access register */
+	assert(!mmu_is_enabled());
+
+	/* Translation Table Base Register 0 */
+	cp15_write_ttbr0((unsigned int)tlb);
+
+	/* Domain Access Register */
 	/* only domain 15: access are not checked */
-	cp15_write_domain_access_control(0xC0000000);
+	cp15_write_dacr(0xC0000000);
+
 	dsb();
 	isb();
+}
+
+bool mmu_is_enabled(void)
+{
+	return (cp15_read_sctlr() & CP15_SCTLR_M) != 0;
+}
+
+void mmu_enable(void)
+{
+	uint32_t control;
+
+	control = cp15_read_sctlr();
+	if ((control & CP15_SCTLR_M) == 0)
+		cp15_write_sctlr(control | CP15_SCTLR_M);
+}
+
+void mmu_disable(void)
+{
+	uint32_t control;
+
+	control = cp15_read_sctlr();
+	if (control & CP15_SCTLR_M) {
+		dcache_clean();
+		control &= ~(CP15_SCTLR_M | CP15_SCTLR_C);
+		cp15_write_sctlr(control);
+		dcache_invalidate();
+	}
 }

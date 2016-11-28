@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,37 +27,38 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "board.h"
-#include "irqflags.h"
+#ifndef ARM_CPUIDLE_H_
+#define ARM_CPUIDLE_H_
 
-#include "irq/irq.h"
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
 
-#include "serial/console.h"
+#if defined(CONFIG_ARCH_ARMV5TE)
 
-#include <string.h>
-
-/* override default board init */
-void board_init()
+static inline void cpu_idle(void)
 {
-	board_cfg_lowlevel(true, true, false);
-	board_cfg_console(0);
+	/* drain write buffer */
+	asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
+	/* wait for interrupt */
+	asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
 }
 
-int main(void)
+#elif defined(CONFIG_ARCH_ARMV7A)
+
+static inline void cpu_idle(void)
 {
-	int i;
-
-	console_example_info("DDRAM Bootstrap");
-
-	/* Disable interrupts at interrupt controller level */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-		irq_disable(i);
-
-	/* Disable interrupts at core level */
-	arch_irq_disable();
-
-	asm("BKPT");
-
-	/* never reached */
-	return 0;
+	asm("dsb" ::: "memory");
+	asm("wfi" ::: "memory");
 }
+
+#elif defined(CONFIG_ARCH_ARMV7M)
+
+static inline void cpu_idle(void)
+{
+	asm("wfi" ::: "memory");
+}
+
+#endif
+
+#endif /* ARM_CPUIDLE_H_ */

@@ -33,6 +33,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "barriers.h"
 #include "trace.h"
 #include "ring.h"
 

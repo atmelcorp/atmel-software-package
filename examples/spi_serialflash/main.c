@@ -38,6 +38,7 @@
 #include "board.h"
 #include "board_spi.h"
 #include "chip.h"
+#include "cpuidle.h"
 
 #include "spi/spi-bus.h"
 
@@ -362,7 +363,7 @@ int main (void)
 	print_menu();
 
 	while (1) {
-		irq_wait();
+		cpu_idle();
 
 		if (cmd_complete && cmd_length > 0) {
 			_cmd_parser(cmd_buffer, cmd_length);

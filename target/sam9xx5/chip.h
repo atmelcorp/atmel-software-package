@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "core/arm.h"
+#include "compiler.h"
 
 #ifdef __cplusplus
 #define __I  volatile	    /**< Defines 'read-only'  permissions */
@@ -164,19 +164,19 @@
 #include "chip_pins.h"
 
 /** L1 data cache line size in bytes */
-#define L1_CACHE_BYTES      (32u)
+#define L1_CACHE_BYTES (32u)
 
 /** L1 data cache line size in words */
-#define L1_CACHE_WORDS      (L1_CACHE_BYTES / sizeof(uint32_t))
+#define L1_CACHE_WORDS (L1_CACHE_BYTES / sizeof(uint32_t))
 
 /** Number of ways of L1 data cache */
-#define L1_CACHE_WAYS       (4)
-
-/** Offset of way in Set/Way parameter for cache operations */
-#define L1_CACHE_WAY_OFFSET (30)
+#define L1_CACHE_WAYS (4)
 
 /** Number of sets of L1 data cache */
-#define L1_CACHE_SETS       (128)
+#define L1_CACHE_SETS (128)
+
+/** Build a set/way parameter for cache operations */
+#define L1_CACHE_SETWAY(set, way) (((set) << 5) | ((way) << 30))
 
 /** CAN Interface max */
 #define CAN_IFACE_COUNT (2)

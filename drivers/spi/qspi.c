@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 
+#include "barriers.h"
 #include "chip.h"
 #include "timer.h"
 #include "trace.h"

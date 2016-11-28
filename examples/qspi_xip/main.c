@@ -85,23 +85,23 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <stdbool.h>
+#include <stdio.h>
+
 #include "board.h"
 #include "chip.h"
-#include "trace.h"
 #include "compiler.h"
-
 #ifdef CONFIG_HAVE_QSPI_DMA
 #include "dma/dma.h"
 #endif
 #include "gpio/pio.h"
-#include "spi/qspi.h"
-
+#include "irqflags.h"
+#include "mm/cache.h"
+#include "mm/mmu.h"
 #include "nvm/spi-nor/qspiflash.h"
 #include "serial/console.h"
-#include "mm/cache.h"
-
-#include <stdbool.h>
-#include <stdio.h>
+#include "spi/qspi.h"
+#include "trace.h"
 
 #include "getting-started_sama5d2-xplained_qspi0.h"
 
@@ -136,8 +136,8 @@ static void run_xip_program(void* qspi_mem_addr)
 	printf("============================\n\r");
 
 	/* Disable MMU, cache and interrupts */
-	irq_disable_all();
-	cp15_mmu_disable();
+	arch_irq_disable();
+	mmu_disable();
 
 	xip_startup_fn = (void(*)(void))qspi_mem_addr;
 	xip_startup_fn();
