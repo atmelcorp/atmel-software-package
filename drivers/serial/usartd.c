@@ -34,8 +34,8 @@
 #endif
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/usartd.h"
-#include "peripherals/usart.h"
+#include "serial/usartd.h"
+#include "serial/usart.h"
 #include "peripherals/dma.h"
 #include "misc/cache.h"
 

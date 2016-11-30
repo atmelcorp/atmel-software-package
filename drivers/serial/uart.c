@@ -32,7 +32,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/uart.h"
+#include "serial/uart.h"
 #include "peripherals/pmc.h"
 #include <assert.h>
 

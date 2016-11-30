@@ -150,8 +150,8 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/usartd.h"
-#include "peripherals/usart.h"
+#include "serial/usartd.h"
+#include "serial/usart.h"
 
 #include "usb/device/composite/dual_cdcd_driver.h"
 #include "../usb_common/main_usb_common.h"

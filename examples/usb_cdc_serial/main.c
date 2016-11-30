@@ -123,8 +123,8 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/usartd.h"
-#include "peripherals/usart.h"
+#include "serial/usartd.h"
+#include "serial/usart.h"
 
 #include "usb/device/cdc/cdcd_serial_driver.h"
 #include "usb/device/usbd.h"

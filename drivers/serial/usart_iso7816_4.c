@@ -49,8 +49,8 @@
 #include "peripherals/flexcom.h"
 #endif
 #include "peripherals/pmc.h"
-#include "peripherals/usart_iso7816_4.h"
-#include "peripherals/usart.h"
+#include "serial/usart_iso7816_4.h"
+#include "serial/usart.h"
 
 #include "trace.h"
 

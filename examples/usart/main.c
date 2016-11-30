@@ -34,8 +34,8 @@
 
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
-#include "peripherals/usartd.h"
-#include "peripherals/usart.h"
+#include "serial/usartd.h"
+#include "serial/usart.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

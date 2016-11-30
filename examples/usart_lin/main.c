@@ -106,7 +106,7 @@
 #include "peripherals/pit.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/tc.h"
-#include "peripherals/usart.h"
+#include "serial/usart.h"
 
 #include "misc/led.h"
 #include "misc/console.h"

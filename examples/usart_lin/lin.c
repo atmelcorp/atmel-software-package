@@ -40,8 +40,8 @@
 #endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/usart.h"
-#include "peripherals/usart_lin.h"
+#include "serial/usart.h"
+#include "serial/usart_lin.h"
 
 #include "lin.h"
 

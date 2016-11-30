@@ -91,8 +91,8 @@
 
 #include "peripherals/irq.h"
 #include "peripherals/pio.h"
-#include "peripherals/usartd.h"
-#include "peripherals/usart.h"
+#include "serial/usartd.h"
+#include "serial/usart.h"
 
 #include "misc/console.h"
 

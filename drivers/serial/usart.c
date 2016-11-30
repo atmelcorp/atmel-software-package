@@ -74,7 +74,7 @@
 
 #include "chip.h"
 #include "compiler.h"
-#include "peripherals/usart.h"
+#include "serial/usart.h"
 #include "peripherals/pmc.h"
 
 #include "trace.h"

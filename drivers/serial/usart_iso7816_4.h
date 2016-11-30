@@ -58,7 +58,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "peripherals/pio.h"
-#include "peripherals/usart.h"
+#include "serial/usart.h"
 
 /*------------------------------------------------------------------------------
  * Constants Definition

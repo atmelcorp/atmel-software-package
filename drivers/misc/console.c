@@ -43,15 +43,15 @@
 
 #include "peripherals/irq.h"
 #ifdef CONFIG_HAVE_DBGU
-#include "peripherals/dbgu.h"
+#include "serial/dbgu.h"
 #endif
 #ifdef CONFIG_HAVE_L2CC
 #include "peripherals/l2cc.h"
 #endif
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/uart.h"
-#include "peripherals/usart.h"
+#include "serial/uart.h"
+#include "serial/usart.h"
 
 #include "console.h"
 

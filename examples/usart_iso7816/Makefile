@@ -37,6 +37,7 @@ TOP := ../..
 BINNAME = usart_iso7816
 
 CONFIG_LED = y
+CONFIG_USART_ISO7816_4 = y
 
 obj-y += examples/usart_iso7816/main.o
 

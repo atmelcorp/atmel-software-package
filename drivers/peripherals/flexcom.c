@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "peripherals/flexcom.h"
 
-#include "peripherals/usart.h"
+#include "serial/usart.h"
 #include "peripherals/spi.h"
 #include "peripherals/twi.h"
 

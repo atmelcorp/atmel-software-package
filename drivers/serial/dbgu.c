@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/dbgu.h"
+#include "serial/dbgu.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 

@@ -107,7 +107,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
-#include "peripherals/usart_iso7816_4.h"
+#include "serial/usart_iso7816_4.h"
 
 #include "misc/led.h"
 #include "misc/console.h"
@@ -140,25 +140,25 @@
 #define ISO7816_FI_DI           372
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-	#include "config_sama5d2-xplained.h"
+#include "config_sama5d2-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
-	#include "config_sama5d3-ek.h"
+#include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
-	#include "config_sama5d3-xplained.h"
+#include "config_sama5d3-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
-	#include "config_sama5d4-ek.h"
+#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-	#include "config_sama5d4-xplained.h"
+#include "config_sama5d4-xplained.h"
 #elif defined(CONFIG_BOARD_SAM9G15_EK)
-	#include "config_sam9xx5-ek.h"
+#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9G25_EK)
-	#include "config_sam9xx5-ek.h"
+#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9G35_EK)
-	#include "config_sam9xx5-ek.h"
+#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X25_EK)
-	#include "config_sam9xx5-ek.h"
+#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
-	#include "config_sam9xx5-ek.h"
+#include "config_sam9xx5-ek.h"
 #else
 #error Unsupported board!
 #endif
@@ -288,81 +288,81 @@ static void _configure_buttons(void)
  */
 static void _send_receive_commands( const struct _iso7816_desc* iso7816 )
 {
-    uint8_t pMessage[MAX_ANSWER_SIZE];
-    uint8_t ucSize ;
-    uint8_t ucKey ;
-    uint8_t command;
-    uint8_t i;
+	uint8_t pMessage[MAX_ANSWER_SIZE];
+	uint8_t ucSize ;
+	uint8_t ucKey ;
+	uint8_t command;
+	uint8_t i;
 
-    /*  Clear message buffer */
-    memset( pMessage, 0, sizeof( pMessage ) ) ;
+	/*  Clear message buffer */
+	memset( pMessage, 0, sizeof( pMessage ) ) ;
 
-    /*  Display menu */
-    printf( "-I- Choose the command to send:\n\r" ) ;
-    printf( "  1. " ) ;
-    for ( i=0 ; i < sizeof( testCommand1 ) ; i++ ) {
-        printf( "0x%X ", testCommand1[i] ) ;
-    }
-    printf( "\n\r  2. " ) ;
-    for ( i=0 ; i < sizeof( testCommand2 ) ; i++ ) {
-        printf( "0x%X ", testCommand2[i] ) ;
-    }
-    printf( "\n\r  3. " ) ;
-    for ( i=0 ; i < sizeof( testCommand3 ) ; i++ ) {
-        printf( "0x%X ", testCommand3[i] ) ;
-    }
-    printf( "\n\r" ) ;
+	/*  Display menu */
+	printf( "-I- Choose the command to send:\n\r" ) ;
+	printf( "  1. " ) ;
+	for ( i=0 ; i < sizeof( testCommand1 ) ; i++ ) {
+		printf( "0x%X ", testCommand1[i] ) ;
+	}
+	printf( "\n\r  2. " ) ;
+	for ( i=0 ; i < sizeof( testCommand2 ) ; i++ ) {
+		printf( "0x%X ", testCommand2[i] ) ;
+	}
+	printf( "\n\r  3. " ) ;
+	for ( i=0 ; i < sizeof( testCommand3 ) ; i++ ) {
+		printf( "0x%X ", testCommand3[i] ) ;
+	}
+	printf( "\n\r" ) ;
 
-    /*  Get user input */
-    ucKey = 0 ;
-    while ( ucKey != 'q' ) {
-        printf( "\r                        " ) ;
-        printf( "\rChoice ? (q to quit): " ) ;
-        ucKey = console_get_char() ;
-        printf( "%c", ucKey ) ;
-        command = ucKey - '0';
+	/*  Get user input */
+	ucKey = 0 ;
+	while ( ucKey != 'q' ) {
+		printf( "\r                        " ) ;
+		printf( "\rChoice ? (q to quit): " ) ;
+		ucKey = console_get_char() ;
+		printf( "%c", ucKey ) ;
+		command = ucKey - '0';
 
-        /*  Check user input */
-        ucSize = 0 ;
-        if ( command == 1 ) {
-            printf( "\n\r-I- Sending command " ) ;
-            for ( i=0 ; i < sizeof( testCommand1 ) ; i++ ) {
-                printf( "0x%02X ", testCommand1[i] ) ;
-            }
-            printf( "...\n\r" ) ;
-            ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand1, pMessage, sizeof( testCommand1 ) ) ;
-        }
-        else {
-            if ( command == 2 ) {
-                printf( "\n\r-I- Sending command " ) ;
-                for ( i=0 ; i < sizeof( testCommand2 ) ; i++ ) {
-                    printf("0x%02X ", testCommand2[i] ) ;
-                }
-                printf( "...\n\r" ) ;
-                ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand2, pMessage, sizeof( testCommand2 ) ) ;
-            }
+		/*  Check user input */
+		ucSize = 0 ;
+		if ( command == 1 ) {
+			printf( "\n\r-I- Sending command " ) ;
+			for ( i=0 ; i < sizeof( testCommand1 ) ; i++ ) {
+				printf( "0x%02X ", testCommand1[i] ) ;
+			}
+			printf( "...\n\r" ) ;
+			ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand1, pMessage, sizeof( testCommand1 ) ) ;
+		}
+		else {
+			if ( command == 2 ) {
+				printf( "\n\r-I- Sending command " ) ;
+				for ( i=0 ; i < sizeof( testCommand2 ) ; i++ ) {
+					printf("0x%02X ", testCommand2[i] ) ;
+				}
+				printf( "...\n\r" ) ;
+				ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand2, pMessage, sizeof( testCommand2 ) ) ;
+			}
 			else {
-                if ( command == 3 ) {
-                    printf( "\n\r-I- Sending command " ) ;
-                    for ( i=0 ; i < sizeof( testCommand3 ) ; i++ ) {
-                        printf( "0x%02X ", testCommand3[i] ) ;
-                    }
-                    printf( "...\n\r" ) ;
-                    ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand3, pMessage, sizeof( testCommand3 ) ) ;
-                }
-            }
-       }
+				if ( command == 3 ) {
+					printf( "\n\r-I- Sending command " ) ;
+					for ( i=0 ; i < sizeof( testCommand3 ) ; i++ ) {
+						printf( "0x%02X ", testCommand3[i] ) ;
+					}
+					printf( "...\n\r" ) ;
+					ucSize = iso7816_xfr_block_TPDU_T0(iso7816, testCommand3, pMessage, sizeof( testCommand3 ) ) ;
+				}
+			}
+		}
 
-        /*  Output smartcard answer */
-        if ( ucSize > 0 ) {
-            printf( "\n\rAnswer: " ) ;
-            for ( i=0 ; i < ucSize ; i++ ) {
-                printf( "0x%02X ", pMessage[i] ) ;
-            }
-            printf( "\n\r" ) ;
-        }
-    }
-    printf( "Exit ...\n\r" ) ;
+		/*  Output smartcard answer */
+		if ( ucSize > 0 ) {
+			printf( "\n\rAnswer: " ) ;
+			for ( i=0 ; i < ucSize ; i++ ) {
+				printf( "0x%02X ", pMessage[i] ) ;
+			}
+			printf( "\n\r" ) ;
+		}
+	}
+	printf( "Exit ...\n\r" ) ;
 }
 
 /*------------------------------------------------------------------------------
@@ -375,8 +375,8 @@ static void _send_receive_commands( const struct _iso7816_desc* iso7816 )
  */
 extern int main( void )
 {
-    uint8_t Atr[MAX_ATR_SIZE] ;
-    uint8_t size ;
+	uint8_t Atr[MAX_ATR_SIZE] ;
+	uint8_t size ;
 
 	/* Output example information */
 	console_example_info("USART ISO7816 Example");
@@ -396,20 +396,19 @@ extern int main( void )
 	pio_configure(&pins_com2[0], ARRAY_SIZE(pins_com2));
 
 	/* Init ISO7816 interface */
-    iso7816_init(&iso7816_desc, &iso7816_opt);
+	iso7816_init(&iso7816_desc, &iso7816_opt);
 
 	/* Warm reset */
-    iso7816_warm_reset(&iso7816_desc);
+	iso7816_warm_reset(&iso7816_desc);
 	/*  Read ATR */
-    memset( Atr, 0, sizeof(Atr) ) ;
-    iso7816_get_data_block_ATR(&iso7816_desc, Atr, &size );
-    /*  Decode ATR */
-    iso7816_decode_ATR(Atr);
+	memset( Atr, 0, sizeof(Atr) ) ;
+	iso7816_get_data_block_ATR(&iso7816_desc, Atr, &size );
+	/*  Decode ATR */
+	iso7816_decode_ATR(Atr);
 
-    /*  Allow user to send some commands */
-    _send_receive_commands(&iso7816_desc);
+	/*  Allow user to send some commands */
+	_send_receive_commands(&iso7816_desc);
 
 	printf("\n\r Exit App \n\r");
-    while (1) ;
+	while (1) ;
 }
-

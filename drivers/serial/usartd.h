@@ -30,7 +30,7 @@
 #ifndef USARTD_HEADER__
 #define USARTD_HEADER__
 
-#include "peripherals/usart.h"
+#include "serial/usart.h"
 #include "peripherals/dma.h"
 #include "mutex.h"
 #include "io.h"
