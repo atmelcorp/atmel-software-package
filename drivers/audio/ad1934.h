@@ -30,7 +30,7 @@
 #ifndef AD1934_H_
 #define AD1934_H_
 
-#include "bus/spi-bus.h"
+#include "spi/spi-bus.h"
 
 #include <stdio.h>
 #include <stdlib.h>

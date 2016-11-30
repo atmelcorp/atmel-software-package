@@ -143,9 +143,9 @@
 #include "compiler.h"
 
 #include "gpio/pio.h"
-#include "peripherals/spid.h"
+#include "spi/spid.h"
 
-#include "bus/spi-bus.h"
+#include "spi/spi-bus.h"
 
 #include "misc/console.h"
 #include "misc/cache.h"

@@ -35,7 +35,7 @@
 #include "peripherals/flexcom.h"
 
 #include "serial/usart.h"
-#include "peripherals/spi.h"
+#include "spi/spi.h"
 #include "i2c/twi.h"
 
 #include <assert.h>

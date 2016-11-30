@@ -38,8 +38,8 @@
 
 #include <stdint.h>
 #include "nvm/spi-nor/spi-nor.h"
-#include "peripherals/spid.h"
-#include "bus/spi-bus.h"
+#include "spi/spid.h"
+#include "spi/spi-bus.h"
 #include "mutex.h"
 
 /*----------------------------------------------------------------------------

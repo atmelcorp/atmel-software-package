@@ -9,10 +9,10 @@
 
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 #include "crypto/trng.h"
 
-#include "memories/qspiflash.h"
+#include "nvm/spi-nor/qspiflash.h"
 #include "misc/cache.h"
 #include "misc/console.h"
 

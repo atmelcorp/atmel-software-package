@@ -39,8 +39,8 @@
 #include "audio/ad1934.h"
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
-#include "peripherals/spid.h"
-#include "bus/spi-bus.h"
+#include "spi/spid.h"
+#include "spi/spi-bus.h"
 
 #include <stdbool.h>
 #include <stdio.h>

@@ -40,7 +40,7 @@
 #include "misc/cache.h"
 #endif
 #include "peripherals/pmc.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 #include <stdint.h>
 #include <string.h>
 

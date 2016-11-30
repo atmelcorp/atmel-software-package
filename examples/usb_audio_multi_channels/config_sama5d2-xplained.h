@@ -32,8 +32,8 @@
 
 #include "chip.h"
 #include "audio/audio_device.h"
-#include "peripherals/spid.h"
-#include "bus/spi-bus.h"
+#include "spi/spid.h"
+#include "spi/spi-bus.h"
 
 /* =================== AD1934 spi interface definition =================== */
 

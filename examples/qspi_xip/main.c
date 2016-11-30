@@ -94,9 +94,9 @@
 #include "dma/dma.h"
 #endif
 #include "gpio/pio.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 
-#include "memories/qspiflash.h"
+#include "nvm/spi-nor/qspiflash.h"
 #include "misc/console.h"
 #include "misc/cache.h"
 
@@ -253,4 +253,3 @@ int main(void)
 
 	while (1);
 }
-

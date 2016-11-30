@@ -27,5 +27,5 @@
 # ----------------------------------------------------------------------------
 
 drivers-$(CONFIG_DRV_AT25) += drivers/nvm/spi-nor/at25.o
-drivers-$(CONFIG_DRV_AT25) += drivers/nvm/spi-nor/qspiflash.o
+drivers-$(CONFIG_HAVE_QSPI) += drivers/nvm/spi-nor/qspiflash.o
 drivers-y += drivers/nvm/spi-nor/spi-nor.o

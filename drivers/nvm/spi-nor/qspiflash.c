@@ -37,7 +37,7 @@
 #include "timer.h"
 #include "trace.h"
 #include "nvm/spi-nor/qspiflash.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

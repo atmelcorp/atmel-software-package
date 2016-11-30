@@ -33,8 +33,8 @@
 #endif
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/spid.h"
-#include "peripherals/spi.h"
+#include "spi/spid.h"
+#include "spi/spi.h"
 #include "dma/dma.h"
 #include "misc/cache.h"
 

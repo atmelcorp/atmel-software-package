@@ -28,8 +28,8 @@
  */
 
 #include "spi-bus.h"
-#include "peripherals/spid.h"
-#include "peripherals/spi.h"
+#include "spi/spid.h"
+#include "spi/spi.h"
 #include "board.h"
 
 #include "trace.h"

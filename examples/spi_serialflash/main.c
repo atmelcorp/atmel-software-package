@@ -39,11 +39,11 @@
 #include "board_spi.h"
 #include "chip.h"
 
-#include "bus/spi-bus.h"
+#include "spi/spi-bus.h"
 
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
-#include "peripherals/spid.h"
+#include "spi/spid.h"
 
 #include "misc/console.h"
 #include "misc/cache.h"

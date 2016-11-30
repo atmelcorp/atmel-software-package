@@ -31,7 +31,7 @@
 #define _PIN_DEFS_H_
 
 #include "gpio/pio.h"
-#include "peripherals/spi.h"
+#include "spi/spi.h"
 #include <stdint.h>
 
 /* Instance/IOSet PIO configuration */

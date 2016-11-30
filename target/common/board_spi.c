@@ -34,7 +34,7 @@
 #include "board_spi.h"
 #include "trace.h"
 
-#include "bus/spi-bus.h"
+#include "spi/spi-bus.h"
 
 #include "gpio/pio.h"
 

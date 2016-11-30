@@ -42,13 +42,10 @@ drivers-y += drivers/peripherals/rtc.o
 drivers-$(CONFIG_HAVE_SECUMOD) += drivers/peripherals/secumod.o
 drivers-$(CONFIG_HAVE_SHDWC) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_HAVE_SCKC) += drivers/peripherals/slowclock_sckc.o
-drivers-$(CONFIG_HAVE_SPI) += drivers/peripherals/spid.o
-drivers-$(CONFIG_HAVE_SPI) += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/tc.o
 drivers-y += drivers/peripherals/wdt.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-drivers-$(CONFIG_HAVE_QSPI) += drivers/peripherals/qspi.o
 drivers-$(CONFIG_HAVE_MCAN) += drivers/peripherals/mcan.o
 drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 

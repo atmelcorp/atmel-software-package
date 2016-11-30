@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 #include "memories/qspiflash.h"
 #include "pin_defs.h"
 #include "trace.h"

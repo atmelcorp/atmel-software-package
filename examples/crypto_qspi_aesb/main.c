@@ -94,10 +94,10 @@
 
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/qspi.h"
+#include "spi/qspi.h"
 #include "crypto/aesb.h"
 
-#include "memories/qspiflash.h"
+#include "nvm/spi-nor/qspiflash.h"
 #include "misc/console.h"
 
 #include <stdbool.h>
@@ -225,4 +225,3 @@ int main(void)
 	}
 	while (1);
 }
-

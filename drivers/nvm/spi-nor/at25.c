@@ -38,7 +38,7 @@
 #include "nvm/spi-nor/at25.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "bus/spi-bus.h"
+#include "spi/spi-bus.h"
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
