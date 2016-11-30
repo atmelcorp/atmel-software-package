@@ -100,20 +100,13 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "timer.h"
-
-#include "gpio/pio.h"
-
-#include "irq/irq.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
-
 #include "video/image_sensor_inf.h"
 #include "video/isi.h"
+#include "video/isid.h"
 
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
@@ -145,9 +138,6 @@ extern const USBDDriverDescriptors usbdDriverDescriptors;
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
-CACHE_ALIGNED static struct _isi_dma_desc dma_desc[NUM_FRAME_BUFFER];
-
 /* Image output bit width */
 static uint8_t sensor_output_bit_width;
 
@@ -164,6 +154,8 @@ static volatile uint32_t frame_idx = 0;
 /** Sensor profile */
 static struct sensor_profile *sensor;
 
+static struct _isid_desc isid;
+
 /** Video buffers */
 CACHE_ALIGNED_DDR
 static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
@@ -172,35 +164,9 @@ static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief ISi interrupt handler.
- */
-static void isi_handler(uint32_t source, void* user_arg)
+static void isi_vd_callback (uint8_t index)
 {
-	uint32_t status = isi_get_status();
-
-	assert(source == ID_ISI);
-
-	if ((status & ISI_SR_PXFR_DONE) == ISI_SR_PXFR_DONE) {
-		frame_idx = (frame_idx == (NUM_FRAME_BUFFER - 1)) ? 0 : (frame_idx + 1);
-		uvc_function_update_frame_idx(frame_idx);
-	}
-}
-
-/**
- * \brief Set up DMA Descriptors.
- */
-static void configure_dma_linklist(void)
-{
-	uint8_t i;
-
-	for(i = 0; i < NUM_FRAME_BUFFER; i++) {
-		dma_desc[i].address = (uint32_t)stream_buffers + i * FRAME_BUFFER_SIZEC(image_width, image_height);
-		dma_desc[i].control = ISI_DMA_P_CTRL_P_FETCH | ISI_DMA_P_CTRL_P_WB;
-		dma_desc[i].next = (uint32_t)&dma_desc[i + 1];
-	}
-	dma_desc[i - 1].next = (uint32_t)&dma_desc[0];
-	cache_clean_region(&dma_desc, sizeof(dma_desc));
+	uvc_function_update_frame_idx(index);
 }
 
 /**
@@ -208,27 +174,24 @@ static void configure_dma_linklist(void)
  */
 static void configure_isi(void)
 {
-	/* Reset ISI peripheral */
-	isi_reset();
-	/* Set the windows blank */
-	isi_set_blank(0, 0);
-	/* Set vertical and horizontal Size of the Image Sensor for preview path*/
-	isi_set_sensor_size(image_width, image_height);
-	/* Set preview size to fit LCD size*/
-	isi_set_preview_size(image_width, image_height );
-	/* calculate scaler factor automatically. */
-	isi_calc_scaler_factor();
-	/*  Set data stream in YUV/RGB format.*/
-	isi_set_input_stream(1);
-	isi_rgb_pixel_mapping(ISI_CFG2_RGB_CFG_MODE3);
-	isi_ycrcb_format(ISI_CFG2_YCC_SWAP_MODE3);
-	/* Configure DMA for preview path. */
-	isi_set_dma_preview_path((uint32_t)&dma_desc,
-			ISI_DMA_P_CTRL_P_FETCH, (uint32_t)stream_buffers);
-	isi_reset();
-	isi_disable_interrupt(-1);
-	irq_add_handler(ID_ISI, isi_handler, NULL);
-	isi_enable_interrupt(ISI_IER_PXFR_DONE);
+	isid.cfg.input_format = RGB;
+	isid.cfg.multi_bufs = NUM_FRAME_BUFFER;
+	isid.cfg.width = image_width;
+	isid.cfg.height = image_height;
+	isid.cfg.capture_rate = 0;
+
+	isid.pipe.pipe = ISID_PIPE_PREVIEW;
+	isid.pipe.px = image_width;
+	isid.pipe.py = image_height;
+	isid.pipe.yuv = ISID_Y_CR_Y_CB;
+	isid.pipe.rgb = ISID_GRGR;
+	isid.pipe.yuv2rgb_matrix = NULL;
+	isid.pipe.rgb2yuv_matrix = NULL;
+	isid.dma.address_p = (uint32_t)stream_buffers;
+	isid.dma.size_p = FRAME_BUFFER_SIZEC(image_width, image_height);
+	isid.dma.callback = isi_vd_callback;
+
+	isid_pipe_start(&isid);
 }
 
 static void start_preview(void)
@@ -248,13 +211,7 @@ static void start_preview(void)
 			(unsigned)(sensor_output_bit_width + 8),
 			(unsigned)image_width, (unsigned)image_height);
 
-	/* Set up Frame Buffer Descriptors(FBD) for preview path. */
-	configure_dma_linklist();
 	configure_isi();
-	isi_enable();
-	isi_dma_codec_channel_enabled(0);
-	isi_dma_preview_channel_enabled(1);
-	irq_enable(ID_ISI);
 }
 
 /**
@@ -295,7 +252,7 @@ extern int main( void )
 
 	printf("Image sensor detection:\n\r");
 	if ((sensor = sensor_detect(true, 0))) {
-		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK) {
 			printf("-E- Sensor setup failed.");
 			while (1);
 		}
@@ -319,8 +276,6 @@ extern int main( void )
 		if (is_usb_vid_on) {
 			if (!uvc_function_is_video_on()) {
 				is_usb_vid_on = false;
-				isi_disable_interrupt(ISI_IDR_PXFR_DONE);
-				isi_dma_preview_channel_enabled(0);
 				isi_disable();
 				frame_idx = 0;
 				printf("CapE\r\n");
@@ -339,7 +294,7 @@ extern int main( void )
 					printf ("-I- Only support VGA and QVGA format\r\n");
 					image_resolution = QVGA;
 				}
-					/* clear video buffer */
+				/* clear video buffer */
 				memset(stream_buffers, 0, sizeof(stream_buffers));
 				cache_clean_region(stream_buffers, sizeof(stream_buffers));
 				start_preview();
