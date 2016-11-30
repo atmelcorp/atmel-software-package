@@ -102,8 +102,8 @@
 
 #include "board.h"
 #include "chip.h"
-#include "peripherals/sha.h"
-#include "peripherals/shad.h"
+#include "crypto/sha.h"
+#include "crypto/shad.h"
 #include "peripherals/pmc.h"
 
 #include "misc/cache.h"

@@ -33,6 +33,9 @@ TOP := ../..
 
 BINNAME = crypto-aes
 
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_AES = y
+
 obj-y += examples/crypto_aes/main.o
 
 include $(TOP)/scripts/Makefile.rules

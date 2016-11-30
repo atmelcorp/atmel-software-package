@@ -29,7 +29,7 @@ The Atmel Softpack support multiple devices and multiple targets.
 
 This release contains the following examples:
 
-* adc: Example using ADC 
+* adc: Example using ADC
 * audio_recorder: Example to record sound
 * can: Example using CAN
 * classd: Example using Class-D Audio
@@ -39,6 +39,7 @@ This release contains the following examples:
 * crypto_qspi_aesb: AESB hardware computation to read/write in QSPI (with and without DMA)
 * crypto_sha: SHA hardware computation (with and without DMA)
 * crypto_tdes: Triple-DES hardware computation (with and without DMA)
+* crypto_trng: Example using hardware RNG (interrupt mode)
 * ddram: Example of DDRAM usage
 * dma: Example of DMA usage with generic API
 * dma_dmac: Example of DMAC usage
@@ -70,7 +71,6 @@ This release contains the following examples:
 * tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an external signal
 * test-pio: Simple example to test PIO features
 * timer: Example of time function usage
-* trng: Example using hardware RNG (interrupt mode)
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
 * usart: Example of communication over USART
 * usart_irda: Example of communication over IrDA sensors (FieldBus extension board)
@@ -109,6 +109,7 @@ crypto_icm             | OK               | x                | x          | OK  
 crypto_qspi_aesb       | OK               | x                | x          | x                | x          | x
 crypto_sha             | OK               | OK               | OK         | OK               | OK         | x
 crypto_tdes            | OK               | OK               | OK         | OK               | OK         | x
+crypto_trng            | OK               | OK               | OK         | OK               | OK         | x
 ddram                  | OK               | OK               | OK         | OK               | OK         | OK
 dma                    | OK               | OK               | OK         | OK               | OK         | OK
 dma_dmac               | x                | OK               | OK         | x                | x          | OK
@@ -140,7 +141,6 @@ ssc_dma_audio          | TODO             | OK               | OK         | OK  
 tc_capture_waveform    | OK               | OK               | OK         | OK               | OK         | OK
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK
 timer                  | OK               | OK               | OK         | OK               | OK         | OK
-trng                   | OK               | OK               | OK         | OK               | OK         | x
 twi_eeprom             | OK               | TODO             | TODO       | OK               | OK         | OK
 usart                  | OK               | OK               | TODO       | OK               | OK         | OK
 usart_irda             | OK               | TODO             | TODO       | OK               | OK         | OK

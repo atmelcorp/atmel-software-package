@@ -98,7 +98,7 @@
 
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
-#include "peripherals/aesb.h"
+#include "crypto/aesb.h"
 #include "misc/console.h"
 
 #include <stdbool.h>

@@ -100,8 +100,8 @@
 
 #include "board.h"
 #include "chip.h"
-#include "peripherals/aes.h"
-#include "peripherals/aesd.h"
+#include "crypto/aes.h"
+#include "crypto/aesd.h"
 #include "peripherals/pmc.h"
 #include "peripherals/dma.h"
 

@@ -92,7 +92,7 @@
 
 #include "misc/console.h"
 
-#include "peripherals/trng.h"
+#include "crypto/trng.h"
 
 #include <stdio.h>
 

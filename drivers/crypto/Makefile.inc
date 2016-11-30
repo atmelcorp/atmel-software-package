@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016, Atmel Corporation
+# Copyright (c) 2015, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,16 +26,12 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Advanced Encryption Standard Bridge example
-AVAILABLE_TARGETS = sama5d2* sama5d4*
-
-TOP := ../..
-
-BINNAME = crypto-aesb
-
-CONFIG_CRYPTO = y
-CONFIG_CRYPTO_AESB = y
-
-obj-y += examples/crypto_aesb/main.o
-
-include $(TOP)/scripts/Makefile.rules
+drivers-$(CONFIG_HAVE_AESB) += drivers/crypto/aesb.o
+drivers-$(CONFIG_HAVE_AES) += drivers/crypto/aes.o
+drivers-$(CONFIG_HAVE_AES) += drivers/crypto/aesd.o
+drivers-$(CONFIG_HAVE_ICM) += drivers/crypto/icm.o
+drivers-$(CONFIG_HAVE_SHA) += drivers/crypto/sha.o
+drivers-$(CONFIG_HAVE_SHA) += drivers/crypto/shad.o
+drivers-$(CONFIG_HAVE_TDES) += drivers/crypto/tdes.o
+drivers-$(CONFIG_HAVE_TDES) += drivers/crypto/tdesd.o
+drivers-$(CONFIG_HAVE_TRNG) += drivers/crypto/trng.o

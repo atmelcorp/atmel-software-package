@@ -40,7 +40,7 @@
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/dma.h"
-#include "peripherals/sha.h"
+#include "crypto/sha.h"
 
 #include <assert.h>
 #include <string.h>

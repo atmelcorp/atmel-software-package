@@ -31,7 +31,8 @@ AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
 
 TOP := ../..
 
-CONFIG_HAVE_TDES = y
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_TDES = y
 
 BINNAME = crypto-tdes
 

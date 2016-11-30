@@ -33,7 +33,8 @@ TOP := ../..
 
 BINNAME = qspi_flash
 
-CONFIG_HAVE_TRNG = y
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_TRNG = y
 CONFIG_QSPI = y
 
 obj-y += examples/qspi_flash/main.o

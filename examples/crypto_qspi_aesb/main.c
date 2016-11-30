@@ -95,7 +95,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
-#include "peripherals/aesb.h"
+#include "crypto/aesb.h"
 
 #include "memories/qspiflash.h"
 #include "misc/console.h"

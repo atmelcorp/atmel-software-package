@@ -33,7 +33,8 @@ TOP := ../..
 
 BINNAME = crypto-qspi-aesb
 
-CONFIG_HAVE_AESB = y
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_AESB = y
 CONFIG_QSPI = y
 
 obj-y += examples/crypto_qspi_aesb/main.o

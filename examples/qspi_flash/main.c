@@ -10,7 +10,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
-#include "peripherals/trng.h"
+#include "crypto/trng.h"
 
 #include "memories/qspiflash.h"
 #include "misc/cache.h"

@@ -114,8 +114,8 @@
 #include "board.h"
 #include "compiler.h"
 #include "chip.h"
-#include "peripherals/tdes.h"
-#include "peripherals/tdesd.h"
+#include "crypto/tdes.h"
+#include "crypto/tdesd.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

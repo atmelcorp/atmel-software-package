@@ -35,6 +35,7 @@ drivers-y :=
 include $(TOP)/drivers/audio/Makefile.inc
 include $(TOP)/drivers/bus/Makefile.inc
 include $(TOP)/drivers/core/Makefile.inc
+include $(TOP)/drivers/crypto/Makefile.inc
 include $(TOP)/drivers/memories/Makefile.inc
 include $(TOP)/drivers/misc/Makefile.inc
 include $(TOP)/drivers/network/Makefile.inc

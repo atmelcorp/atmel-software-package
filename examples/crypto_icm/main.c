@@ -96,7 +96,7 @@
 #include "misc/cache.h"
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/icm.h"
+#include "crypto/icm.h"
 #include "misc/console.h"
 
 #include <assert.h>

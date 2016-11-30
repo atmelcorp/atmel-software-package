@@ -67,7 +67,7 @@
 
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/trng.h"
+#include "crypto/trng.h"
 
 #include <assert.h>
 #include <stdlib.h>

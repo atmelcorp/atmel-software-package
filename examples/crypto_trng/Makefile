@@ -31,10 +31,11 @@ AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
 
 TOP := ../..
 
-CONFIG_HAVE_TRNG = y
+BINNAME = crypto-trng
 
-BINNAME = trng
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_TRNG = y
 
-obj-y += examples/trng/main.o
+obj-y += examples/crypto_trng/main.o
 
 include $(TOP)/scripts/Makefile.rules

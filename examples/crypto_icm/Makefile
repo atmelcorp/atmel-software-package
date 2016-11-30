@@ -31,9 +31,11 @@ AVAILABLE_TARGETS = sama5d2* sama5d4*
 
 TOP := ../..
 
-CONFIG_HAVE_ICM = y
 
 BINNAME = crypto-icm
+
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_ICM = y
 
 obj-y += examples/crypto_icm/main.o
 
