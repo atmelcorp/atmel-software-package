@@ -386,6 +386,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
 
+#ifdef CONFIG_HAVE_L2CC
 	/* 0x00a00000: L2CC */
 	tlb[0x00a] = TTB_SECT_ADDR(0x00a00000)
 	           | TTB_SECT_AP_FULL_ACCESS
@@ -399,6 +400,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_EXEC_NEVER
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
+#endif
 
 	/* 0x10000000: EBI Chip Select 0 */
 	for (addr = 0x100; addr < 0x200; addr++)
