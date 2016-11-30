@@ -39,7 +39,7 @@
 
 #include "chip.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 
 #include <stdint.h>
 #include <stdbool.h>

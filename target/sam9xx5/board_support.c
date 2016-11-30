@@ -41,7 +41,7 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #ifdef CONFIG_HAVE_LCDC
 #include "peripherals/lcdc.h"
 #endif

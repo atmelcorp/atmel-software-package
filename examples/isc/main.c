@@ -90,7 +90,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/isc.h"
 #include "peripherals/lcdc.h"
 #include "gpio/pio.h"

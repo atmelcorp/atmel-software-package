@@ -95,7 +95,7 @@
 
 #include "chip.h"
 #include "board.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/wdt.h"

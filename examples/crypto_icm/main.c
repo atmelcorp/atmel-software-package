@@ -94,7 +94,7 @@
 #include "compiler.h"
 
 #include "misc/cache.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "crypto/icm.h"
 #include "misc/console.h"

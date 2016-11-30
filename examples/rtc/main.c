@@ -116,7 +116,7 @@
 
 #include "misc/console.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
 #include "peripherals/tc.h"

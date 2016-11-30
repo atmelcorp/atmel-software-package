@@ -36,7 +36,7 @@
 #include "ring.h"
 
 #include "network/gmacd.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 

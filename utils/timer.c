@@ -38,7 +38,7 @@
 
 #include "board.h"
 #include "timer.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/tc.h"
 #include "peripherals/pmc.h"
 

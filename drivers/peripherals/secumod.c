@@ -99,7 +99,7 @@
 
 #include "secumod.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"

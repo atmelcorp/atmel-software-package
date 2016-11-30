@@ -35,7 +35,7 @@
 #include "peripherals/flexcom.h"
 #endif
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "i2c/twid.h"
 #include "i2c/twi.h"

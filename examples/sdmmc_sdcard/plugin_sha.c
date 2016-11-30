@@ -37,7 +37,7 @@
 #include "intmath.h"
 #include "plugin_sha.h"
 #include "misc/cache.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "dma/dma.h"
 #include "crypto/sha.h"

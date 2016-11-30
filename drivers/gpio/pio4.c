@@ -61,7 +61,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 

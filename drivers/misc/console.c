@@ -41,7 +41,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #ifdef CONFIG_HAVE_DBGU
 #include "serial/dbgu.h"
 #endif

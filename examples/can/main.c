@@ -103,7 +103,7 @@
 #include "board.h"
 #include "chip.h"
 #include "compiler.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/mcan.h"
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"

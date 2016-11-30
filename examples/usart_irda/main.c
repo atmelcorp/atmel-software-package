@@ -89,7 +89,7 @@
 #include "compiler.h"
 #include "timer.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "gpio/pio.h"
 #include "serial/usartd.h"
 #include "serial/usart.h"

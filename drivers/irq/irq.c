@@ -34,9 +34,9 @@
 #include "chip.h"
 
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
-#include "peripherals/aic.h"
+#include "irq/aic.h"
 #endif
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 
 #include <assert.h>
 

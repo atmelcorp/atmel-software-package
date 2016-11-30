@@ -42,7 +42,7 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"

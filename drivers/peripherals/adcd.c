@@ -28,7 +28,7 @@
  */
 
 
-#include "peripherals/aic.h"
+#include "irq/aic.h"
 #include "peripherals/pmc.h"
 #include "peripherals/adcd.h"
 #include "peripherals/adc.h"

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -34,61 +34,19 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/aic.h"
-#include "peripherals/irq.h"
+#include "irq/aic.h"
 #include "peripherals/matrix.h"
 
 #include <stdint.h>
 #include <assert.h>
-#include <errno.h>
 
-/*------------------------------------------------------------------------------
- *         Local functions
- *------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
 
 static void spurious_handler(void)
 {
 	// nothing here
-}
-
-/**
- * \brief Interrupt Init.
- */
-static void _aic_initialize(Aic* aic, aic_handler_t irq_handler)
-{
-	int i;
-
-	/* Disable all interrupts and clear pending flags */
-	for (i = 1; i < ID_PERIPH_COUNT; i++)
-	{
-		aic->AIC_SSR = i;
-		aic->AIC_IDCR = AIC_IDCR_INTD;
-		aic->AIC_ICCR = AIC_ICCR_INTCLR;
-	}
-
-	/* Perform 8 IT acknowledge (write any value in EOICR) */
-	for (i = 0; i < 8; i++)
-		aic->AIC_EOICR = 0;
-
-	/* Assign default handlers */
-	for (i = 0; i < ID_PERIPH_COUNT; i++)
-	{
-		aic->AIC_SSR = i;
-		aic->AIC_SVR = (uint32_t)irq_handler;
-	}
-	aic->AIC_SPU = (uint32_t)spurious_handler;
-}
-
-static Aic* _get_aic_instance(uint32_t source)
-{
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			return SAIC;
-	}
-#endif /* CONFIG_HAVE_SAIC */
-	return AIC;
 }
 
 /*----------------------------------------------------------------------------
@@ -97,18 +55,24 @@ static Aic* _get_aic_instance(uint32_t source)
 
 void aic_initialize(aic_handler_t irq_handler)
 {
+	int i;
+
 	/* Disable interrupts at core level */
 	irq_disable_all();
 
-	/* Set default vectors */
-	_aic_initialize(AIC, irq_handler);
-#ifdef CONFIG_HAVE_SAIC
-	_aic_initialize(SAIC, irq_handler);
+	/* Disable all interrupts and clear pending flags */
+	AIC->AIC_IDCR = 0xffffffffu;
+	AIC->AIC_ICCR = 0xffffffffu;
 
-	/* Redirect all interrupts to Non-secure AIC */
-	uint32_t aicredir = SFR_AICREDIR_AICREDIRKEY((uint32_t)(AICREDIR_KEY));
-	SFR->SFR_AICREDIR = (aicredir ^ SFR->SFR_SN1) | SFR_AICREDIR_NSAIC;
-#endif /* CONFIG_HAVE_SAIC */
+	/* Perform 8 IT acknowledge (write any value in EOICR) */
+	for (i = 0; i < 8; i++)
+		AIC->AIC_EOICR = AIC_EOICR_ENDIT;
+
+	/* Assign default handler */
+	for (i = 0; i < ID_PERIPH_COUNT; i++) {
+		AIC->AIC_SVR[i] = (uint32_t)irq_handler;
+	}
+	AIC->AIC_SPU = (uint32_t)spurious_handler;
 
 	/* Enable interrupts at core level */
 	irq_enable_all();
@@ -116,18 +80,12 @@ void aic_initialize(aic_handler_t irq_handler)
 
 void aic_set_source_vector(uint32_t source, aic_handler_t handler)
 {
-	Aic *aic = _get_aic_instance(source);
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_SVR = (uint32_t)handler;
+	AIC->AIC_SVR[source] = (uint32_t)handler;
 }
 
 void aic_set_spurious_vector(aic_handler_t handler)
 {
 	AIC->AIC_SPU = (uint32_t)handler;
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0)
-		SAIC->AIC_SPU = (uint32_t)handler;
-#endif
 }
 
 void aic_configure_mode(uint32_t source, enum _irq_mode mode)
@@ -151,50 +109,26 @@ void aic_configure_mode(uint32_t source, enum _irq_mode mode)
 		trace_fatal("Invalid interrupt mode: %d\r\n", (int)mode);
 	}
 
-	Aic* aic = _get_aic_instance(source);
-	aic->AIC_SSR = source;
-	aic->AIC_IDCR = AIC_IDCR_INTD;
-	aic->AIC_SMR = (aic->AIC_SMR & ~AIC_SMR_SRCTYPE_Msk) | srctype;
-	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+	AIC->AIC_IDCR = 1 << source;
+	AIC->AIC_SMR[source] = (AIC->AIC_SMR[source] & ~AIC_SMR_SRCTYPE_Msk) | srctype;
+	AIC->AIC_ICCR = 1 << source;
 }
 
 void aic_configure_priority(uint32_t source, uint8_t priority)
 {
-	Aic* aic = _get_aic_instance(source);
-	aic->AIC_SSR = source;
-	aic->AIC_IDCR = AIC_IDCR_INTD;
-	aic->AIC_SMR = (aic->AIC_SMR & ~AIC_SMR_PRIOR_Msk) | AIC_SMR_PRIOR(priority);
-	aic->AIC_ICCR = AIC_ICCR_INTCLR;
+	AIC->AIC_IDCR = 1 << source;
+	AIC->AIC_SMR[source] = (AIC->AIC_SMR[source] & ~AIC_SMR_PRIOR_Msk) | AIC_SMR_PRIOR(priority);
+	AIC->AIC_ICCR = 1 << source;
 }
 
 void aic_enable(uint32_t source)
 {
-	Aic* aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_IECR = AIC_IECR_INTEN;
+	AIC->AIC_IECR = 1 << source;
 }
 
 void aic_disable(uint32_t source)
 {
-	Aic* aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC	
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
-	aic->AIC_SSR = AIC_SSR_INTSEL(source);
-	aic->AIC_IDCR = AIC_IDCR_INTD;
+	AIC->AIC_IDCR = 1 << source;
 }
 
 uint32_t aic_get_current_interrupt_source(void)
@@ -220,7 +154,7 @@ void aic_set_write_protection(Aic* aic, bool enable)
 		aic->AIC_WPMR = AIC_WPMR_WPKEY_PASSWD;
 }
 
-bool aic_check_write_protection_violation(Aic* aic, uint32_t* wpvsrc)
+bool aic_check_write_protection_violation(Aic* aic, uint32_t *wpvsrc)
 {
 	if (aic->AIC_WPSR & AIC_WPSR_WPVS) {
 		*wpvsrc = (aic->AIC_WPSR & AIC_WPSR_WPVSRC_Msk) >> AIC_WPSR_WPVSRC_Pos;

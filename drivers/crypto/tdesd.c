@@ -28,7 +28,7 @@
  */
 
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "crypto/tdes.h"
 #include "crypto/tdesd.h"

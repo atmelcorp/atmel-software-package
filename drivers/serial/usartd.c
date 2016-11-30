@@ -32,7 +32,7 @@
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "serial/usartd.h"
 #include "serial/usart.h"

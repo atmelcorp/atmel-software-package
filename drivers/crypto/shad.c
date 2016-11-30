@@ -27,7 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "crypto/shad.h"
 #include "crypto/sha.h"

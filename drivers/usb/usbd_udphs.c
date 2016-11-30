@@ -47,7 +47,7 @@
 #include "trace.h"
 
 #include "misc/cache.h"
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 
 #include "usb/device/usbd_hal.h"

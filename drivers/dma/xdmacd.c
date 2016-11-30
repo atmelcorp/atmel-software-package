@@ -57,7 +57,7 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "dma/xdmacd.h"
 #include "dma/dma.h"

@@ -105,7 +105,7 @@
 #include "misc/console.h"
 #include "timer.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/isi.h"
 #include "misc/cache.h"
 #include "gpio/pio.h"

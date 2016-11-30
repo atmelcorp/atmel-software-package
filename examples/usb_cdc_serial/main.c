@@ -118,7 +118,7 @@
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"

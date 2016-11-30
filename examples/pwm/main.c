@@ -110,7 +110,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "peripherals/irq.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/pwmc.h"
 #include "peripherals/pit.h"
