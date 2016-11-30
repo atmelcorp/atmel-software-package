@@ -115,7 +115,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "compiler.h"
 

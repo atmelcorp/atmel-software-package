@@ -31,7 +31,7 @@
 #include "peripherals/pmc.h"
 #include "crypto/shad.h"
 #include "crypto/sha.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"

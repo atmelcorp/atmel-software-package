@@ -121,7 +121,7 @@
 #include "misc/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "misc/led.h"
 #include "misc/console.h"

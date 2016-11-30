@@ -32,7 +32,7 @@
 #include "peripherals/pmc.h"
 #include "crypto/tdes.h"
 #include "crypto/tdesd.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"

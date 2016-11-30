@@ -39,7 +39,7 @@
 #include "misc/cache.h"
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "crypto/sha.h"
 
 #include <assert.h>

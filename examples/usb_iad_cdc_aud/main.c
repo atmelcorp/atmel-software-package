@@ -150,7 +150,7 @@
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "usb/device/audio/audd_function.h"
 #include "usb/device/cdc/cdcd_serial.h"

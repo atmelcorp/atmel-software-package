@@ -76,7 +76,7 @@
 #include "compiler.h"
 #include "chip.h"
 #include "crypto/sha.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include <assert.h>
 

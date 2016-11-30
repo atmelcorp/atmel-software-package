@@ -39,7 +39,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/dmac.h"
+#include "dma/dmac.h"
 
 #include <assert.h>
 #include "compiler.h"

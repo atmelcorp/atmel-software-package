@@ -105,7 +105,7 @@
 #include "peripherals/classd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "misc/console.h"
 

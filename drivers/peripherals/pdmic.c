@@ -36,7 +36,7 @@
 
 #include "peripherals/pdmic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include <stdio.h>
 #include <string.h>

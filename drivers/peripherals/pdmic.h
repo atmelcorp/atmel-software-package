@@ -34,7 +34,7 @@
  *         Includes
  *---------------------------------------------------------------------------*/
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include <stdbool.h>
 #include <stdint.h>
 

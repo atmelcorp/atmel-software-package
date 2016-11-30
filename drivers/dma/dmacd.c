@@ -59,8 +59,8 @@
 
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/dmacd.h"
-#include "peripherals/dma.h"
+#include "dma/dmacd.h"
+#include "dma/dma.h"
 #include <assert.h>
 #include "compiler.h"
 

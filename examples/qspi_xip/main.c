@@ -91,7 +91,7 @@
 #include "compiler.h"
 
 #ifdef CONFIG_HAVE_QSPI_DMA
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #endif
 #include "peripherals/pio.h"
 #include "peripherals/qspi.h"

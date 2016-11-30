@@ -35,7 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "peripherals/twi.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "mutex.h"
 #include "io.h"
 

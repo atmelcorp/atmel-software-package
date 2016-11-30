@@ -55,7 +55,7 @@
 #include "peripherals/tc.h"
 #include "peripherals/hsmci.h"
 #include "peripherals/hsmcid.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"
 #include "misc/cache.h"

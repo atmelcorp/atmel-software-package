@@ -39,7 +39,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/twid.h"
 #include "peripherals/twi.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "misc/cache.h"
 
 #include "trace.h"

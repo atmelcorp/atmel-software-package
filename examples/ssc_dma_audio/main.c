@@ -99,7 +99,7 @@
 #include "misc/cache.h"
 #include "peripherals/pio.h"
 #include "peripherals/pit.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "peripherals/ssc.h"
 #include "peripherals/pmc.h"
 

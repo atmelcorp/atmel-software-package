@@ -38,7 +38,7 @@
 #include "board_spi.h"
 #include "board_twi.h"
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "board_support.h"
 

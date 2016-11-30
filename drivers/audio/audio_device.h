@@ -30,7 +30,7 @@
 #ifndef AUDIO_DEVICE_API_H
 #define AUDIO_DEVICE_API_H
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "peripherals/pio.h"
 
 #if defined(CONFIG_HAVE_CLASSD)

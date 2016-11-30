@@ -39,7 +39,7 @@
 #include "mutex.h"
 #include "io.h"
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 /*------------------------------------------------------------------------------
  *        Types

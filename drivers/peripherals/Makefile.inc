@@ -55,11 +55,6 @@ drivers-y += drivers/peripherals/tc.o
 drivers-$(CONFIG_HAVE_TWI) += drivers/peripherals/twi.o
 drivers-$(CONFIG_HAVE_TWI) += drivers/peripherals/twid.o
 drivers-y += drivers/peripherals/wdt.o
-drivers-y += drivers/peripherals/dma.o
-drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmac.o
-drivers-$(CONFIG_HAVE_XDMAC) += drivers/peripherals/xdmacd.o
-drivers-$(CONFIG_HAVE_DMAC) += drivers/peripherals/dmac.o
-drivers-$(CONFIG_HAVE_DMAC) += drivers/peripherals/dmacd.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
 drivers-$(CONFIG_HAVE_PIO3) += drivers/peripherals/pio3.o

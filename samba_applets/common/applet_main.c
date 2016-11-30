@@ -33,7 +33,7 @@
 #include "applet_legacy.h"
 #include "trace.h"
 #include "timer.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sfc.h"

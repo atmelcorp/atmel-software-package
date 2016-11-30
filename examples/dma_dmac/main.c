@@ -94,7 +94,7 @@
 #include "board.h"
 
 #include "misc/cache.h"
-#include "peripherals/dmacd.h"
+#include "dma/dmacd.h"
 #include "misc/console.h"
 
 #include <string.h>

@@ -83,7 +83,7 @@
 #include "chip.h"
 #include "peripherals/pwmc.h"
 #ifdef CONFIG_HAVE_XDMAC
-#include "peripherals/xdmacd.h"
+#include "dma/xdmacd.h"
 #endif
 #include "misc/cache.h"
 #include "trace.h"

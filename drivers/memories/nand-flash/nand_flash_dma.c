@@ -33,7 +33,7 @@
  *        Headers
  *------------------------------------------------------------------------*/
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "nand_flash_common.h"
 #include "nand_flash_dma.h"
@@ -172,4 +172,3 @@ void nand_dma_free(void)
 	dma_free_channel(nand_dma_rx_channel);
 	dma_free_channel(nand_dma_tx_channel);
 }
-

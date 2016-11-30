@@ -113,7 +113,7 @@
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 #include "usb/device/audio/audd_speaker_driver.h"
 

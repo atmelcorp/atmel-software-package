@@ -42,7 +42,7 @@
 #include <stdbool.h>
 
 #include "mutex.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions

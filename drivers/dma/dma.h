@@ -38,9 +38,9 @@
 
 
 #if defined(CONFIG_HAVE_XDMAC)
-#include "peripherals/xdmacd.h"
+#include "dma/xdmacd.h"
 #elif defined(CONFIG_HAVE_DMAC)
-#include "peripherals/dmacd.h"
+#include "dma/dmacd.h"
 #else
 #  error "Requires a DMA controller to be enabled"
 #endif

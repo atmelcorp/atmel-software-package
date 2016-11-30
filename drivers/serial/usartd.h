@@ -31,7 +31,7 @@
 #define USARTD_HEADER__
 
 #include "serial/usart.h"
-#include "peripherals/dma.h"
+#include "dma/dma.h"
 #include "mutex.h"
 #include "io.h"
 
