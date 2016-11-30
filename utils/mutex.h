@@ -27,17 +27,29 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef MUTEX_HEADER_
-#define MUTEX_HEADER_
+#ifndef MUTEX_H_
+#define MUTEX_H_
 
-#include "compiler.h"
+/*------------------------------------------------------------------------------
+ *         Headers
+ *------------------------------------------------------------------------------*/
+
+#include <stdbool.h>
+
+/*------------------------------------------------------------------------------
+ *         Types
+ *------------------------------------------------------------------------------*/
 
 /* Instances of mutex_t should be word-aligned (ALIGNED(4)) */
 typedef volatile int mutex_t;
 
-int mutex_try_lock(mutex_t* mutex);
-void mutex_lock(mutex_t* mutex);
-void mutex_unlock(mutex_t* mutex);
-int mutex_is_locked(const mutex_t* mutex);
+/*------------------------------------------------------------------------------
+ *         Exported functions
+ *------------------------------------------------------------------------------*/
 
-#endif /* MUTEX_HEADER_ */
+extern bool mutex_try_lock(mutex_t* mutex);
+extern void mutex_lock(mutex_t* mutex);
+extern void mutex_unlock(mutex_t* mutex);
+extern bool mutex_is_locked(const mutex_t* mutex);
+
+#endif /* MUTEX_H_ */
