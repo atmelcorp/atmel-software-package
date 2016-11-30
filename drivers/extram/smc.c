@@ -41,7 +41,7 @@
 #include "trace.h"
 
 #include "peripherals/pmc.h"
-#include "peripherals/smc.h"
+#include "extram/smc.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions

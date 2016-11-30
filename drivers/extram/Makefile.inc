@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,11 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_DRV_AT24) += drivers/memories/at24.o
-drivers-$(CONFIG_DRV_AT25) += drivers/memories/at25.o
-drivers-$(CONFIG_HAVE_MPDDRC) += drivers/memories/ddram.o
-drivers-$(CONFIG_HAVE_QSPI) += drivers/memories/qspiflash.o
-drivers-y += drivers/memories/spi-nor.o
-ifeq ($(CONFIG_HAVE_NAND_FLASH),y)
-include $(TOP)/drivers/memories/nand-flash/Makefile.inc
-endif
+drivers-$(CONFIG_HAVE_MPDDRC) += drivers/extram/ddram.o
+drivers-$(CONFIG_HAVE_MPDDRC) += drivers/extram/mpddrc.o
+drivers-$(CONFIG_HAVE_SMC) += drivers/extram/smc.o

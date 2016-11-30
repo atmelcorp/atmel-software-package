@@ -36,7 +36,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "memories/spi-nor.h"
+#include "nvm/spi-nor/spi-nor.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

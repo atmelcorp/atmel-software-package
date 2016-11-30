@@ -36,7 +36,7 @@
 #include "board.h"
 #include "board_support.h"
 #include "trace.h"
-#include "memories/ddram.h"
+#include "extram/ddram.h"
 #include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------

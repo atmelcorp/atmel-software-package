@@ -43,7 +43,7 @@
 #include "board_twi.h"
 #include "trace.h"
 
-#include "memories/at24.h"
+#include "nvm/i2c/at24.h"
 
 #include "network/ethd.h"
 #include "gpio/pio.h"

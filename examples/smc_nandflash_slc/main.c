@@ -103,18 +103,18 @@
 
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/pmecc.h"
 #include "peripherals/tc.h"
 
-#include "memories/nand-flash/nand_flash.h"
-#include "memories/nand-flash/nand_flash_skip_block.h"
-#include "memories/nand-flash/nand_flash_spare_scheme.h"
-#include "memories/nand-flash/nand_flash_model_list.h"
-#include "memories/nand-flash/nand_flash_model.h"
-#include "memories/nand-flash/nand_flash_ecc.h"
-#include "memories/nand-flash/nand_flash_onfi.h"
-#include "memories/nand-flash/nand_flash_dma.h"
-#include "memories/nand-flash/nand_flash_raw.h"
+#include "nvm/nand/pmecc.h"
+#include "nvm/nand/nand_flash.h"
+#include "nvm/nand/nand_flash_skip_block.h"
+#include "nvm/nand/nand_flash_spare_scheme.h"
+#include "nvm/nand/nand_flash_model_list.h"
+#include "nvm/nand/nand_flash_model.h"
+#include "nvm/nand/nand_flash_ecc.h"
+#include "nvm/nand/nand_flash_onfi.h"
+#include "nvm/nand/nand_flash_dma.h"
+#include "nvm/nand/nand_flash_raw.h"
 
 #include "misc/console.h"
 #include "misc/cache.h"
@@ -548,7 +548,7 @@ static void _display_menu(uint8_t menu_idx)
 		printf("    9: 1024 bytes per sector,   24 errors per sector\n\r");
 		printf("    a: 1024 bytes per sector,   32 errors per sector\n\r");
 	}
-	
+
 
 	printf(" p: Erase/Write/Read\n\r");
 

@@ -27,52 +27,52 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef MPDDRC_HEADER_
-#define MPDDRC_HEADER_
+#ifndef DDRAM_HEADER
+#define DDRAM_HEADER
 
 #include <stdint.h>
-#include <peripherals/mpddrc.h>
 
-enum _ram_type {
+#include "extram/mpddrc.h"
+
+enum _ddram_devices {
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
-	MPDDRC_TYPE_DDR2,
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M8
+	MT47H128M8,  /* DDR2 4x128MB */
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_MT47H64M16
+	MT47H64M16,    /* DDR2 128MB */
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_MT47H128M16
+	MT47H128M16,   /* DDR2 2*256MB */
+  #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2
-	MPDDRC_TYPE_LPDDR2,
+  #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
+	MT42L128M16,   /* LPDDR2 2*256MB */
+  #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
-	MPDDRC_TYPE_DDR3,
+  #ifdef CONFIG_HAVE_DDR3_MT41K128M16
+	MT41K128M16,   /* DDR3 2*256MB */
+  #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR3
-	MPDDRC_TYPE_LPDDR3,
+  #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
+	EDF8164A3MA,   /* LPDDR3 2*256MB */
+  #endif
 #endif
 };
 
-struct _mpddrc_desc {
-	enum _ram_type type;
-#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	uint32_t io_calibr;
+#ifdef __cplusplus
+extern "C" {
 #endif
-#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
-	uint32_t data_path;
+
+extern void ddram_init_descriptor(struct _mpddrc_desc* desc,
+				  enum _ddram_devices device);
+
+extern void ddram_configure(struct _mpddrc_desc* desc);
+
+#ifdef __cplusplus
+}
 #endif
-	uint32_t mode;
-	uint32_t control;
-	uint32_t tpr0;
-	uint32_t tpr1;
-	uint32_t tpr2;
-	uint32_t refresh_window; /* in ms */
-	uint32_t refresh_cycles;
-};
-
-extern void mpddrc_configure(struct _mpddrc_desc* desc);
-
-/**
- * \brief Issue a Low-Power Command to the DDR-SDRAM device.
- *
- * \param cmd the Low-Power Command to send (one of the MPDDRC_LPR_LPCB_*
- * constants)
- */
-extern void mpddrc_issue_low_power_command(uint32_t cmd);
-
 #endif

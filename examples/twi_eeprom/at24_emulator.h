@@ -31,7 +31,7 @@
 #define AT24_EMULATOR_H_
 
 #include "peripherals/twid.h"
-#include "memories/at24.h"
+#include "nvm/i2c/at24.h"
 
 #include <stdint.h>
 

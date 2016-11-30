@@ -38,7 +38,7 @@
 
 #include "gpio/pio.h"
 
-#include "memories/at25.h"
+#include "nvm/spi-nor/at25.h"
 
 #include <errno.h>
 

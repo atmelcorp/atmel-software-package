@@ -51,12 +51,12 @@
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
-#include "peripherals/sfc.h"
-#include "peripherals/smc.h"
+#include "nvm/sfc.h"
+#include "extram/smc.h"
 #include "peripherals/wdt.h"
 
 #include "timer.h"
-#include "memories/ddram.h"
+#include "extram/ddram.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

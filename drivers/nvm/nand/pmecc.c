@@ -35,9 +35,9 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/pmecc.h"
-#include "peripherals/pmecc_gf_512.h"
-#include "peripherals/pmecc_gf_1024.h"
+#include "nvm/nand/pmecc.h"
+#include "nvm/nand/pmecc_gf_512.h"
+#include "nvm/nand/pmecc_gf_1024.h"
 
 #include <assert.h>
 #include <string.h>

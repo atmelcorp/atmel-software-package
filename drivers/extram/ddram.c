@@ -34,10 +34,10 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "memories/ddram.h"
+#include "extram/ddram.h"
 
 #include "peripherals/matrix.h"
-#include "peripherals/mpddrc.h"
+#include "extram/mpddrc.h"
 #include "peripherals/pmc.h"
 
 /*------------------------------------------------------------------------------

@@ -40,7 +40,7 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/nfc.h"
+#include "nvm/nand/nfc.h"
 #include "peripherals/pmc.h"
 
 #include <assert.h>

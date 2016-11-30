@@ -40,7 +40,7 @@
 
 #include "misc/cache.h"
 
-#include "memories/at24.h"
+#include "nvm/i2c/at24.h"
 
 #include <assert.h>
 #include <stdio.h>

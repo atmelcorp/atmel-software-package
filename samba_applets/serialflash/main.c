@@ -34,7 +34,7 @@
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
-#include "memories/at25.h"
+#include "nvm/spi-nor/at25.h"
 #include "bus/spi-bus.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"

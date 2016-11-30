@@ -48,7 +48,7 @@
 #include "misc/console.h"
 #include "misc/cache.h"
 
-#include "memories/at25.h"
+#include "nvm/spi-nor/at25.h"
 
 #include "compiler.h"
 

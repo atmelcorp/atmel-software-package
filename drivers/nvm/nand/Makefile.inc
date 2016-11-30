@@ -26,12 +26,16 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/memories/nand-flash/nand_flash.o
-drivers-y += drivers/memories/nand-flash/nand_flash_raw.o
-drivers-y += drivers/memories/nand-flash/nand_flash_ecc.o
-drivers-y += drivers/memories/nand-flash/nand_flash_skip_block.o
-drivers-y += drivers/memories/nand-flash/nand_flash_onfi.o
-drivers-y += drivers/memories/nand-flash/nand_flash_model.o
-drivers-y += drivers/memories/nand-flash/nand_flash_model_list.o
-drivers-y += drivers/memories/nand-flash/nand_flash_spare_scheme.o
-drivers-y += drivers/memories/nand-flash/nand_flash_dma.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_raw.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_ecc.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_skip_block.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_onfi.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_model.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_model_list.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_spare_scheme.o
+drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_dma.o
+drivers-$(CONFIG_HAVE_NFC) += drivers/nvm/nand/nfc.o
+drivers-$(CONFIG_HAVE_PMECC) += drivers/nvm/nand/pmecc.o
+drivers-$(CONFIG_HAVE_PMECC) += drivers/nvm/nand/pmecc_gf_512.o
+drivers-$(CONFIG_HAVE_PMECC) += drivers/nvm/nand/pmecc_gf_1024.o

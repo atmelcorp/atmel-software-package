@@ -36,7 +36,7 @@
 #include "dma/dma.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/sfc.h"
+#include "nvm/sfc.h"
 #include "misc/console.h"
 
 #include <string.h>

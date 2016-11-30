@@ -36,10 +36,10 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/nfc.h"
+#include "nvm/nand/nfc.h"
 #include "gpio/pio.h"
-#include "peripherals/pmecc.h"
-#include "peripherals/smc.h"
+#include "nvm/nand/pmecc.h"
+#include "extram/smc.h"
 
 #include "misc/cache.h"
 

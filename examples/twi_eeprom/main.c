@@ -97,7 +97,7 @@
 
 #include "bus/twi-bus.h"
 
-#include "memories/at24.h"
+#include "nvm/i2c/at24.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

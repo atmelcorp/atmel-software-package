@@ -48,10 +48,10 @@
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/smc.h"
+#include "extram/smc.h"
 #include "peripherals/wdt.h"
 
-#include "memories/ddram.h"
+#include "extram/ddram.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"

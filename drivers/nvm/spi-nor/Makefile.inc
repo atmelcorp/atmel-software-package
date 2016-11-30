@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,33 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/drivers
-
-lib-y += drivers/drivers.a
-
-drivers-y :=
-
-include $(TOP)/drivers/audio/Makefile.inc
-include $(TOP)/drivers/bus/Makefile.inc
-include $(TOP)/drivers/core/Makefile.inc
-include $(TOP)/drivers/crypto/Makefile.inc
-include $(TOP)/drivers/dma/Makefile.inc
-include $(TOP)/drivers/extram/Makefile.inc
-include $(TOP)/drivers/gpio/Makefile.inc
-include $(TOP)/drivers/misc/Makefile.inc
-include $(TOP)/drivers/nvm/Makefile.inc
-include $(TOP)/drivers/network/Makefile.inc
-include $(TOP)/drivers/peripherals/Makefile.inc
-include $(TOP)/drivers/power/Makefile.inc
-include $(TOP)/drivers/serial/Makefile.inc
-include $(TOP)/drivers/video/Makefile.inc
-include $(TOP)/drivers/usb/Makefile.inc
-
-DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
-
--include $(DRIVERS_OBJS:.o=.d)
-
-$(BUILDDIR)/drivers/drivers.a: $(DRIVERS_OBJS)
-	@mkdir -p $(BUILDDIR)/drivers
-	$(ECHO) AR $@
-	$(Q)$(AR) -cr $@ $^
+drivers-$(CONFIG_DRV_AT25) += drivers/nvm/spi-nor/at25.o
+drivers-$(CONFIG_DRV_AT25) += drivers/nvm/spi-nor/qspiflash.o
+drivers-y += drivers/nvm/spi-nor/spi-nor.o

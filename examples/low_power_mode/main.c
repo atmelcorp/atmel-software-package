@@ -122,7 +122,7 @@
 #ifdef CONFIG_HAVE_SFRBU
 #include "peripherals/sfrbu.h"
 #endif
-#include "peripherals/mpddrc.h"
+#include "extram/mpddrc.h"
 #include "bus/twi-bus.h"
 
 #include "misc/led.h"

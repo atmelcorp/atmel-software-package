@@ -35,7 +35,7 @@
 #include "trace.h"
 #include "compiler.h"
 #include "intmath.h"
-#include "memories/at25.h"
+#include "nvm/spi-nor/at25.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "bus/spi-bus.h"

@@ -36,8 +36,8 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/nfc.h"
-#include "peripherals/smc.h"
+#include "nvm/nand/nfc.h"
+#include "extram/smc.h"
 
 #include "nand_flash.h"
 
@@ -234,4 +234,3 @@ bool nand_is_dma_enabled(void)
 {
 	return nand_cfg.dma_enabled;
 }
-

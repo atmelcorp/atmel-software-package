@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/sfc.h"
+#include "nvm/sfc.h"
 #include "peripherals/pmc.h"
 
 #include <assert.h>

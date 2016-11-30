@@ -32,7 +32,7 @@
 #include "timer.h"
 #include "trace.h"
 
-#include "peripherals/mpddrc.h"
+#include "extram/mpddrc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sfrbu.h"
 
