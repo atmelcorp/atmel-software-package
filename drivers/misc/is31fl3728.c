@@ -41,8 +41,8 @@
 #include "chip.h"
 
 #include "gpio/pio.h"
-#include "peripherals/twid.h"
-#include "bus/twi-bus.h"
+#include "i2c/twid.h"
+#include "i2c/twi-bus.h"
 
 #include "timer.h"
 

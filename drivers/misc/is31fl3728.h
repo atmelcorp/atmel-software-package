@@ -41,8 +41,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
+#include "i2c/twi.h"
+#include "i2c/twid.h"
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------

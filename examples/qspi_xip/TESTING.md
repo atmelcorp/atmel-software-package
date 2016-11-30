@@ -39,9 +39,6 @@ board and chip used):
 -- QSPI XIP Example xxx --
 -- SAMxxxxxx-xx
 -- Compiled: xxx xx xxxx xx:xx:xx --
--D- ../../drivers/peripherals/twi.c:123 twi_configure_master(400000)
--D- ../../drivers/peripherals/twi.c:153 twi: CKDIV=0 CLDIV=CHDIV=100 -> TWI Clock 408867Hz
--D- ../../drivers/peripherals/twi.c:158 twi: HOLD=22 -> Holding Time 301ns
 -D- ../../drivers/power/act8945a.c:458 Charge Level: 450mA
 -D- ../../examples/qspi_xip/main.c:198 Initializing QSPI drivers...
 -D- ../../examples/qspi_xip/main.c:200 QSPI drivers initialized.
@@ -76,9 +73,6 @@ board and chip used):
 -- QSPI XIP Example  xxx --
 -- SAMxxxxx-xx
 -- Compiled: xxx xx xxxx xx:xx:xx --
--D- ../../drivers/peripherals/twi.c:123 twi_configure_master(400000)
--D- ../../drivers/peripherals/twi.c:153 twi: CKDIV=0 CLDIV=CHDIV=100 -> TWI Clock 408867Hz
--D- ../../drivers/peripherals/twi.c:158 twi: HOLD=22 -> Holding Time 301ns
 -D- ../../drivers/power/act8945a.c:458 Charge Level: 450mA
 -D- ../../examples/qspi_xip/main.c:198 Initializing QSPI drivers...
 -D- ../../examples/qspi_xip/main.c:200 QSPI drivers initialized.

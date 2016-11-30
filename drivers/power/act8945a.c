@@ -36,8 +36,8 @@
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/flexcom.h"
-#include "bus/twi-bus.h"
-#include "peripherals/twid.h"
+#include "i2c/twi-bus.h"
+#include "i2c/twid.h"
 
 #include "power/act8945a.h"
 

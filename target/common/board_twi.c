@@ -33,7 +33,7 @@
 
 #include "board_twi.h"
 
-#include "bus/twi-bus.h"
+#include "i2c/twi-bus.h"
 
 #include "gpio/pio.h"
 

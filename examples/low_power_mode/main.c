@@ -123,7 +123,7 @@
 #include "peripherals/sfrbu.h"
 #endif
 #include "extram/mpddrc.h"
-#include "bus/twi-bus.h"
+#include "i2c/twi-bus.h"
 
 #include "misc/led.h"
 

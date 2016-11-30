@@ -33,11 +33,11 @@
 
 #include "chip.h"
 
-#include "bus/twi-bus.h"
+#include "i2c/twi-bus.h"
 
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 
 #include "power/act8865.h"
 

@@ -34,8 +34,8 @@
 #include "chip.h"
 
 #include "video/image_sensor_inf.h"
-#include "bus/twi-bus.h"
-#include "peripherals/twid.h"
+#include "i2c/twi-bus.h"
+#include "i2c/twid.h"
 
 #include <stdbool.h>
 #include <stdio.h>

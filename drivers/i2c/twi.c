@@ -82,7 +82,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/twi.h"
+#include "i2c/twi.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
 

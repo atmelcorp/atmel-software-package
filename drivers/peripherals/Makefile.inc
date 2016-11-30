@@ -45,8 +45,6 @@ drivers-$(CONFIG_HAVE_SCKC) += drivers/peripherals/slowclock_sckc.o
 drivers-$(CONFIG_HAVE_SPI) += drivers/peripherals/spid.o
 drivers-$(CONFIG_HAVE_SPI) += drivers/peripherals/spi.o
 drivers-y += drivers/peripherals/tc.o
-drivers-$(CONFIG_HAVE_TWI) += drivers/peripherals/twi.o
-drivers-$(CONFIG_HAVE_TWI) += drivers/peripherals/twid.o
 drivers-y += drivers/peripherals/wdt.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o

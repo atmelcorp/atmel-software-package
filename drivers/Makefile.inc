@@ -39,6 +39,7 @@ include $(TOP)/drivers/crypto/Makefile.inc
 include $(TOP)/drivers/dma/Makefile.inc
 include $(TOP)/drivers/extram/Makefile.inc
 include $(TOP)/drivers/gpio/Makefile.inc
+include $(TOP)/drivers/i2c/Makefile.inc
 include $(TOP)/drivers/misc/Makefile.inc
 include $(TOP)/drivers/nvm/Makefile.inc
 include $(TOP)/drivers/network/Makefile.inc

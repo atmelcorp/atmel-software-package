@@ -26,4 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_HAVE_SPI_BUS) += drivers/bus/spi-bus.o
+drivers-$(CONFIG_HAVE_TWI_BUS) += drivers/i2c/twi-bus.o
+drivers-$(CONFIG_HAVE_TWI) += drivers/i2c/twi.o
+drivers-$(CONFIG_HAVE_TWI) += drivers/i2c/twid.o

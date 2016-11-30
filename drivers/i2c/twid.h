@@ -34,7 +34,7 @@
  *        Header
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/twi.h"
+#include "i2c/twi.h"
 #include "dma/dma.h"
 #include "mutex.h"
 #include "io.h"

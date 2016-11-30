@@ -34,7 +34,7 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 
 #include "at24_emulator.h"
 

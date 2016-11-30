@@ -30,7 +30,7 @@
 #ifndef AT24_EMULATOR_H_
 #define AT24_EMULATOR_H_
 
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 #include "nvm/i2c/at24.h"
 
 #include <stdint.h>

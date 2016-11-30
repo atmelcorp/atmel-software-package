@@ -38,7 +38,7 @@
 #define WM8731_H
 
 #include <gpio/pio.h>
-#include <peripherals/twid.h>
+#include <i2c/twid.h>
 
 #include <stdint.h>
 #include <stdbool.h>

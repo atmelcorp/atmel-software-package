@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 
 /*------------------------------------------------------------------------------
  *        Types

@@ -93,9 +93,9 @@
 #include "trace.h"
 
 #include "gpio/pio.h"
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 
-#include "bus/twi-bus.h"
+#include "i2c/twi-bus.h"
 
 #include "nvm/i2c/at24.h"
 

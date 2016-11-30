@@ -36,7 +36,7 @@
 
 #include "serial/usart.h"
 #include "peripherals/spi.h"
-#include "peripherals/twi.h"
+#include "i2c/twi.h"
 
 #include <assert.h>
 

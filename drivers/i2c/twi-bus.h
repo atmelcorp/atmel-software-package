@@ -30,7 +30,7 @@
 #ifndef TWI_BUS_H
 #define TWI_BUS_H
 
-#include "peripherals/twid.h"
+#include "i2c/twid.h"
 #include "mutex.h"
 
 typedef void (*twi_bus_callback_t)(void* args);

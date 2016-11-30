@@ -38,9 +38,9 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/twi.h"
-#include "peripherals/twid.h"
-#include "twi-bus/twi-bus.h"
+#include "i2c/twi.h"
+#include "i2c/twid.h"
+#include "twi-i2c/twi-bus.h"
 
 #include "video/qt1070.h"
 

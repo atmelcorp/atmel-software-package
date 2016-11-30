@@ -36,7 +36,7 @@
 #include "intmath.h"
 #include "trace.h"
 
-#include "bus/twi-bus.h"
+#include "i2c/twi-bus.h"
 
 #include "misc/cache.h"
 
